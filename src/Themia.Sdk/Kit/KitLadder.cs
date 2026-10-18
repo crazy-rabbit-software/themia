@@ -40,6 +40,16 @@ public enum KitRowLook
     /// groups ([S-7035]). The agenda.
     /// </summary>
     Schedule,
+
+    /// <summary>
+    /// [S-7037] An item with a check: the lead is the check (a ring, a filled tick when done, the
+    /// ring in the item's tone when it is late), the title wraps to the plan's lines and is struck
+    /// through when done, the emphasis mark ("!") before it, the subtitle line (a list's name), the
+    /// time beside or under it in the item's tone. Rows in one or two columns filled column by column,
+    /// whole lines only, the done group under its heading, reordered by a drag, renamed in place, an
+    /// add row under them ([S-7038]). Tasks.
+    /// </summary>
+    Check,
 }
 
 /// <summary>[S-7034] A table look's column: which field of the item it shows.</summary>
@@ -67,7 +77,20 @@ public readonly record struct KitLineBoxes(double Title, double Line, double Bad
 /// [S-7030] What the user chose for a kit list: the optional fields on, how many preview lines (the
 /// stacked look's, 1 to 5), and a table's columns in their order.
 /// </summary>
-public sealed record KitChoices(KitShow Shows, int PreviewLines = 2, IReadOnlyList<KitColumn>? Columns = null);
+public sealed record KitChoices(KitShow Shows, int PreviewLines = 2, IReadOnlyList<KitColumn>? Columns = null)
+{
+    /// <summary>[S-7037] How many items the list holds (two columns only when one would not hold them).</summary>
+    public int Count { get; init; }
+
+    /// <summary>[S-7038] An item can be added (the add row has a purpose).</summary>
+    public bool CanAdd { get; init; }
+
+    /// <summary>[S-7037] How many lines a title may wrap to, as the user chose (1 to 6).</summary>
+    public int TitleLines { get; init; } = 2;
+
+    /// <summary>[S-7037] The time beside the title wherever the column has room (a compact style), not only on a wide tile.</summary>
+    public bool WhenBeside { get; init; }
+}
 
 /// <summary>[S-7030] The optional fields of a kit row, which a spec offers and the user may turn off.</summary>
 [Flags]
@@ -131,6 +154,12 @@ public sealed record KitSpec(
     /// column's width.
     /// </summary>
     public Func<IReadOnlyList<(string Text, bool Strong)>>? TimeLabels { get; init; }
+
+    /// <summary>[S-7038] The check look's add row ("Add a task"), in the current language.</summary>
+    public Func<string>? AddLabel { get; init; }
+
+    /// <summary>[S-7038] The add row's box, empty ("Task name").</summary>
+    public Func<string>? AddPlaceholder { get; init; }
 }
 
 /// <summary>[S-7030] What one size of a kit list shows; chosen by <see cref="KitLadder.Plan"/>.</summary>
@@ -169,6 +198,24 @@ public readonly record struct KitPlan(
     double RowHeight = 0,
     double HeadingHeight = 0)
 {
+    /// <summary>[S-7038] The add row under the list.</summary>
+    public bool AddRow { get; init; }
+
+    /// <summary>[S-7037] A group's heading over its rows (the done ones).</summary>
+    public bool Headings { get; init; }
+
+    /// <summary>[S-7037] The emphasis mark ("!") before an emphasised title.</summary>
+    public bool Mark { get; init; }
+
+    /// <summary>[S-7037] The time only when it is urgent (overdue, today).</summary>
+    public bool UrgentOnly { get; init; }
+
+    /// <summary>[S-7037] The time in its long words, with its date.</summary>
+    public bool LongWhen { get; init; }
+
+    /// <summary>[S-7037] The time beside the title rather than under it.</summary>
+    public bool WhenBeside { get; init; }
+
     /// <summary>The line under the title and preview: the time, and the lead when the subtitle has no line.</summary>
     public bool MetaLine => When || (Lead && !Subtitle);
 }
@@ -221,6 +268,11 @@ public static class KitLadder
         if (spec.Look == KitRowLook.Schedule)
         {
             return Scheduled(area, spec);
+        }
+
+        if (spec.Look == KitRowLook.Check)
+        {
+            return KitChecks.Plan(area, spec, choices);
         }
 
         if (spec.Look != KitRowLook.Rich)

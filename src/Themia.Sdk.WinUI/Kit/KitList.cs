@@ -48,6 +48,9 @@ public sealed partial class KitList : Grid
     private readonly Dictionary<string, Task<BitmapImage?>> _icons = new(StringComparer.OrdinalIgnoreCase);
 
     private ScrollFade? _fade;
+
+    /// <summary>[S-7037] A show held back under a drag or an editor, drawn when they let go.</summary>
+    private (IReadOnlyList<KitItem> Items, KitPlan Plan, WidgetArea Area, DateTimeOffset Now)? _held;
     private IReadOnlyList<KitItem> _items = [];
     private KitPlan _plan;
     private WidgetArea _area;
@@ -97,6 +100,16 @@ public sealed partial class KitList : Grid
         SetRow(_page, 1);
         Children.Add(_columnHeader);
 
+        if (spec.Look == KitRowLook.Check)
+        {
+            // [S-7037] The check look's host gives the scroll only its whole lines and fades them; the
+            // add row sits under it ([S-3850]).
+            BuildCheckParts();
+            Children.Add(_checkHost!);
+            Children.Add(_addRow!.Element);
+            return;
+        }
+
         // [S-7035] A paged list draws its page in the slot; it never scrolls.
         Children.Add(spec.Overflow == KitOverflow.Page ? _page : _scroll);
     }
@@ -114,7 +127,7 @@ public sealed partial class KitList : Grid
     public void Attach()
     {
         _detached = false;
-        if (!Paged)
+        if (!Paged && !Checked)
         {
             _fade ??= new ScrollFade(_scroll, _rows);
         }
@@ -130,6 +143,13 @@ public sealed partial class KitList : Grid
             return;
         }
 
+        if (Checked && HoldBack(items))
+        {
+            _held = (items, plan, area, now);
+            return;
+        }
+
+        _held = null;
         _items = items;
         _plan = plan;
         _area = area;
@@ -145,10 +165,19 @@ public sealed partial class KitList : Grid
     }
 
     /// <summary>Take every row down (an empty or problem screen is up).</summary>
-    public void Clear()
+    public void Clear() => Clear(_plan);
+
+    /// <summary>Take every row down for another screen; a check look's add row follows <paramref name="plan"/> (none without a list).</summary>
+    public void Clear(KitPlan plan)
     {
+        if (Checked && _editor is { Id: not null })
+        {
+            CloseEditor();
+        }
+
         ClearRows();
         _items = [];
+        HideAddRow(plan);
     }
 
     public void Detach()
@@ -158,8 +187,11 @@ public sealed partial class KitList : Grid
             return;
         }
 
+        CancelDrag();
+        CloseEditor();
         _detached = true;
         ClearRows();
+        _addRow?.Detach();
         _fade?.Dispose();
         _fade = null;
     }
@@ -169,6 +201,17 @@ public sealed partial class KitList : Grid
     private void BuildRows(DateTimeOffset now)
     {
         ClearRows();
+
+        if (Checked)
+        {
+            BuildChecks();
+            if (_cursorIndex >= 0 && _cursorIndex < _rowElements.Count)
+            {
+                Mark(_cursorIndex, true);
+            }
+
+            return;
+        }
 
         if (Paged)
         {
@@ -447,6 +490,8 @@ public sealed partial class KitList : Grid
         }
 
         _rowElements.Clear();
+        _checksByRow.Clear();
+        _checks?.Children.Clear();
         _page.Children.Clear();
         _rows.Children.Clear();
         _rows.ColumnDefinitions.Clear();
@@ -509,7 +554,24 @@ public sealed partial class KitList : Grid
     /// </summary>
     public bool HandleKey(WidgetKey key)
     {
-        if (_detached || _items.Count == 0)
+        if (_detached)
+        {
+            return false;
+        }
+
+        // [S-808] An open editor owns its keys; the lease ending while one is open only forgets the
+        // row, and the box's blur commits it.
+        if (_editor is not null)
+        {
+            if (key == WidgetKey.Escape)
+            {
+                Release();
+            }
+
+            return false;
+        }
+
+        if (_items.Count == 0)
         {
             return false;
         }
@@ -543,7 +605,10 @@ public sealed partial class KitList : Grid
                 return RunKind(decision.Index, null);
 
             case KitKeyCommand.Toggle:
-                return RunKind(decision.Index, KitActionKind.Toggle);
+                return Checked ? Toggle(decision.Index) : RunKind(decision.Index, KitActionKind.Toggle);
+
+            case KitKeyCommand.MoveUp or KitKeyCommand.MoveDown:
+                return Move(decision.Index, decision.Command == KitKeyCommand.MoveUp ? -1 : 1);
 
             case KitKeyCommand.Rename:
                 return RunKind(decision.Index, KitActionKind.Rename);

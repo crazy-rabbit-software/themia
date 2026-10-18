@@ -18,6 +18,7 @@ namespace Themia.Sdk.Kit;
 /// <param name="Group">The group the row is in; its heading is drawn by the kit.</param>
 /// <param name="Tooltip">The row's hover text, when the spec writes one (whom a message is from, its date); else its link.</param>
 /// <param name="Schedule">[S-7036] A scheduled item's time column and details (the agenda's look).</param>
+/// <param name="Due">[S-7037] The day an item of the check look is due, in its words.</param>
 public sealed record KitItem(
     string Id,
     string Title,
@@ -31,7 +32,8 @@ public sealed record KitItem(
     Uri? Link = null,
     KitGroup? Group = null,
     string? Tooltip = null,
-    KitSchedule? Schedule = null);
+    KitSchedule? Schedule = null,
+    KitDue? Due = null);
 
 /// <summary>
 /// [S-7036] What a scheduled item's row shows beside its title, written by the source's rules: the
@@ -63,6 +65,15 @@ public readonly record struct KitLead(KitLeadKind Kind, string? Value = null, Ki
 
     /// <summary>[S-1304] The site's own icon for <paramref name="link"/> (a globe until it arrives, or when the site has none).</summary>
     public static KitLead Site(Uri link) => new(KitLeadKind.SiteIcon, link.AbsoluteUri);
+
+    /// <summary>[S-7037] The check: done or not, its ring in <paramref name="tone"/> while open (a late item's critical).</summary>
+    public static KitLead Check(bool done, KitTone tone = KitTone.Neutral) => new(KitLeadKind.Check, done ? CheckDone : null, tone);
+
+    /// <summary>The value of a done check.</summary>
+    public const string CheckDone = "done";
+
+    /// <summary>Whether this lead is a check that is done.</summary>
+    public bool IsDone => Kind == KitLeadKind.Check && Value == CheckDone;
 }
 
 public enum KitLeadKind
@@ -72,6 +83,9 @@ public enum KitLeadKind
     Initials,
     SiteIcon,
     StatusDot,
+
+    /// <summary>[S-7037] The item's check: a ring, or a filled tick when done; a click toggles it.</summary>
+    Check,
 }
 
 /// <summary>A short label after the title: "Draft", a count, a label's name.</summary>

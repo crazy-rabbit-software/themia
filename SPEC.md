@@ -969,6 +969,27 @@ The shared parts a list widget is built from, and the rules they keep (design an
   is not compact where and who get columns of their own; rows of one height (two lines unless the
   tile is compact and wide), headings of one height. A view may hook its rows (`KitList.Decorate`:
   the calendar's links across widgets).
+- **[S-7037]** The `Check` look (Tasks' ladder, [S-780]..[S-785], as the kit's, `KitChecks`): the
+  lead is the item's check (`KitLead.Check`: a ring, the item's tone on a late one; a filled tick
+  when done; a click on it toggles the item, drawn at once, then the widget's write); the title
+  wraps to the plan's lines (one on a Compact-high tile, at most two under Expanded, else the
+  user's 1 to 6), struck through and tertiary when done, the strong step with the emphasis mark
+  (its first badge, "!") before it from 160px of column; the subtitle line (a list's name) from
+  Expanded × Expanded; the time (`KitDue`, the source's words) under the title, or beside it from
+  240px of column when the tile is Expanded-wide or the spec asks; only urgent on a Compact-wide
+  tile, none on a Compact × Compact one, long from Expanded × Expanded. Rows go compact under
+  Expanded height; two columns, filled column by column, on a Huge-wide tile when one would not hold
+  them; whole lines only, never ending on a heading; the bottom lines fade while there is more below
+  ([S-1281]); the done group under its heading from Expanded height. The ring is laid over the row.
+- **[S-7038]** The check look's editing: a row renamed in place (the title's column becomes a box with
+  the whole title; Enter or leaving it commits, Escape cancels, Tab commits and opens the next row's
+  box, none past the last; Shift+Tab commits and closes); the add row under the list ([S-3850], the
+  spec's words; Enter adds and stays open for the next item); a row dragged past 5px is lifted, the
+  rows it passes in its group make way, the drop raises the new order once; Alt+Shift+Up / Down move
+  the focused row within its group. While a row is lifted or a row's box is open no show redraws
+  under it (the held show is drawn when they let go); a box whose item has gone goes with it. The
+  widget carries every change out (`Renamed`, `Added`, `Reordered`) and asks its surface for the
+  keyboard while a box is open (`TextInput`, [S-808]).
 - **[S-7033]** Inline actions: a spec's actions flagged inline (and runnable) swap in for the time on
   a `Line` row under the pointer or the keyboard, on a Huge-wide tile only; the slot is always as
   wide as the wider of the two, the hidden time keeps its box and the buttons overhang the line, so
