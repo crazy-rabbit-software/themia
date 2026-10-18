@@ -53,4 +53,14 @@ public sealed class AgendaSpecTests
         Assert.Equal(nameof(KitIcon.Gift), item.Lead.Value);
         Assert.Equal(KitTone.Caution, item.Tone);
     }
+
+    /// <summary>[S-3652] [S-7065] An event's row opens on a double-click or Enter, through the view (Outlook or the provider's page); a birthday opens nothing.</summary>
+    [Fact]
+    public void S3652_an_event_opens_and_a_birthday_offers_nothing()
+    {
+        var open = KitMenu.Primary(AgendaSpec.Actions(new DayItem(At(10, 60), null), openable: true));
+        Assert.Equal(AgendaSpec.OpenId, open?.Id);
+        Assert.Empty(AgendaSpec.Actions(new DayItem(At(10, 60), null), openable: false)); // CalDAV: no page to open
+        Assert.Empty(AgendaSpec.Actions(new DayItem(null, new Birthday("Mia", 1, 1, null)), openable: true));
+    }
 }

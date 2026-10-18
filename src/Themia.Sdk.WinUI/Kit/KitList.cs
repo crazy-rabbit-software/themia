@@ -517,6 +517,15 @@ public sealed partial class KitList : Grid
         var had = _cursorIndex;
         var decision = KitKeys.Decide(key, _cursorIndex, _items.Count);
 
+        // [S-7035] [S-7020] With nothing focused a paged list's movement key lands on the page on
+        // screen: its first row, End its last.
+        if (Paged && had < 0 && decision.Command == KitKeyCommand.Focus)
+        {
+            var start = _pageStarts[Math.Clamp(_pageIndex, 0, _pageStarts.Count - 1)];
+            var end = _pageIndex + 1 < _pageStarts.Count ? _pageStarts[_pageIndex + 1] - 1 : _items.Count - 1;
+            decision = decision with { Index = key == WidgetKey.End ? end : start };
+        }
+
         switch (decision.Command)
         {
             case KitKeyCommand.Focus:

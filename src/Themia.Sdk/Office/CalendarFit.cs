@@ -650,8 +650,8 @@ public static class CalendarFit
     /// <summary>
     /// [S-2710] One key map for every layout: Left / Right and Page Up / Page Down step the layout's
     /// own unit (a month, a week, a day, a year, an agenda page); Up / Down move the cursor day a week
-    /// in the month and week; Home goes to today; Enter opens the cursor day's first event (the
-    /// page's first in the agenda). A year has no events to open.
+    /// in the month and week; Home goes to today; Enter opens the cursor day's first event. A year has
+    /// no events to open; the agenda's cursor keys are its kit list's ([S-3652]).
     /// </summary>
     public static CalendarKeyCommand Key(WidgetKey key, CalendarStyle layout)
     {
@@ -664,7 +664,8 @@ public static class CalendarFit
             WidgetKey.Up when weeks => CalendarKeyCommand.WeekBack,
             WidgetKey.Down when weeks => CalendarKeyCommand.WeekForward,
             WidgetKey.Home => CalendarKeyCommand.Today,
-            WidgetKey.Enter when layout != CalendarStyle.Year => CalendarKeyCommand.OpenFirst,
+            // [S-3652] The agenda's Enter is its kit list's: the row the cursor is on.
+            WidgetKey.Enter when layout is not (CalendarStyle.Year or CalendarStyle.Agenda) => CalendarKeyCommand.OpenFirst,
             _ => CalendarKeyCommand.None,
         };
     }

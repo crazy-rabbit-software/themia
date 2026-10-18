@@ -67,5 +67,17 @@ public static class AgendaSpec
                 Mark: mark?.Invoke(e)));
     }
 
+    /// <summary>The action id the view carries out: it opens the event where it lives.</summary>
+    public const string OpenId = "open";
+
+    /// <summary>
+    /// [S-3652] An agenda row's actions: an event opens (a double-click or Enter, [S-7065]) through the
+    /// view, which knows where it lives ([S-1268]: Outlook for Windows or the provider's page); an
+    /// event with nowhere to open (CalDAV) and a birthday offer nothing.
+    /// </summary>
+    /// <param name="openable">The event has a page to open.</param>
+    public static IReadOnlyList<KitAction> Actions(DayItem item, bool openable)
+        => item.Event is not null && openable ? [new KitAction(KitActionKind.Open, Str.CtxMenu_Open.Text(), Id: OpenId)] : [];
+
     private static string Clock(DateTimeOffset moment) => Formatting.Clock24(moment);
 }

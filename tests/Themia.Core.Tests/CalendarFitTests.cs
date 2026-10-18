@@ -314,9 +314,26 @@ public sealed class CalendarFitTests
         Assert.Equal(CalendarKeyCommand.None, CalendarFit.Key(WidgetKey.Down, CalendarStyle.Day));
         Assert.Equal(CalendarKeyCommand.None, CalendarFit.Key(WidgetKey.Up, CalendarStyle.Year));
         Assert.Equal(CalendarKeyCommand.Today, CalendarFit.Key(WidgetKey.Home, CalendarStyle.Agenda));
-        Assert.Equal(CalendarKeyCommand.OpenFirst, CalendarFit.Key(WidgetKey.Enter, CalendarStyle.Agenda));
+        Assert.Equal(CalendarKeyCommand.OpenFirst, CalendarFit.Key(WidgetKey.Enter, CalendarStyle.Month));
         Assert.Equal(CalendarKeyCommand.None, CalendarFit.Key(WidgetKey.Enter, CalendarStyle.Year));
         Assert.Equal(CalendarKeyCommand.None, CalendarFit.Key(WidgetKey.Escape, CalendarStyle.Month));
+    }
+
+    /// <summary>
+    /// [S-3652] [S-7065] The agenda is the kit's list: its cursor keys (Up, Down, End, Enter, the Menu
+    /// key) are the list's, so Enter opens the row the cursor is on, never one the user has not
+    /// pointed at; paging and today stay the calendar's.
+    /// </summary>
+    [Fact]
+    public void S3652_the_agendas_cursor_keys_are_the_kits_lists()
+    {
+        foreach (var key in new[] { WidgetKey.Up, WidgetKey.Down, WidgetKey.End, WidgetKey.Enter, WidgetKey.Menu })
+        {
+            Assert.Equal(CalendarKeyCommand.None, CalendarFit.Key(key, CalendarStyle.Agenda));
+        }
+
+        Assert.Equal(CalendarKeyCommand.Back, CalendarFit.Key(WidgetKey.Left, CalendarStyle.Agenda));
+        Assert.Equal(CalendarKeyCommand.Forward, CalendarFit.Key(WidgetKey.PageDown, CalendarStyle.Agenda));
     }
 
     /// <summary>A wall-clock time on a day in the test zone.</summary>

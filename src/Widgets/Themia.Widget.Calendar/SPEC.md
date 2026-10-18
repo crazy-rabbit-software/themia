@@ -29,6 +29,12 @@ languages). Tests: the rules' are Core's; the config's are the module host's (`C
   failure vocabulary, `SyncProblems.ToFetchStatus`, when its events are from); the header's problem
   glyph and ring are `KitHeader` before the calendar's own back, forward and today buttons, in every
   style; the card menu's Refresh line says the age of the oldest copy.
+- **[S-3652]** The agenda's one open gesture ([S-7065]): a click focuses a row (the ring), a
+  double-click or Enter opens its event where it lives ([S-1268]); a row's menu offers Open; a birthday
+  or an event with nowhere to open offers nothing. Its cursor keys are its kit list's (Up, Down, End,
+  Enter, the Menu key; with nothing focused a key lands on the page on screen, and the cursor turns
+  the page with it); Left, Right, Page Up and Page Down page, Home goes to today, Escape lets the
+  cursor and the selected day go. The other styles keep their click and Enter ([S-2710]).
 
 - **[S-1265]** Week columns ≥64 px spell the weekday; ≥100 px a timed chip shows start–end and its
   location under the title.

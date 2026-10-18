@@ -1008,7 +1008,7 @@ The shared parts a list widget is built from, and the rules they keep (design an
   a process of the widget's own; a preview opens nothing. Nothing in the source starts a process but
   the launcher and a short list of host files with their reasons (`KitConformanceTests`).
 - **[S-7065]** One open gesture (decided, Q1/Q2): in every list of items a click focuses a row and a
-  double-click or Enter opens it: the kit's list, Recent files and Notifications. The card makes a
+  double-click or Enter opens it: the kit's list (Mail, the calendar's agenda, [S-3652]), Recent files and Notifications. The card makes a
   widget inert in edit mode ([S-1751]); the kit's list and Recent files check no edit mode of their own.
 - The kit's conformance checks over source (`KitConformanceTests`), each from an explicit list of
   today's offenders that may only shrink:

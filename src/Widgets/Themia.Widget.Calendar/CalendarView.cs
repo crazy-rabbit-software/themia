@@ -68,9 +68,6 @@ internal sealed partial class CalendarView : Grid, IWidgetView, IWidgetHeaderCon
     private int _agendaPage;
     private int _agendaPages = 1;
 
-    /// <summary>[S-2709] The first event of the agenda page on screen, for Enter.</summary>
-    private CalendarEvent? _agendaFirst;
-
     /// <summary>The view's slot, from the card ([S-663]); unmeasured until the first layout pass.</summary>
     private WidgetArea _area;
     private Screen _screen = Screen.Loading;
@@ -438,13 +435,21 @@ internal sealed partial class CalendarView : Grid, IWidgetView, IWidgetHeaderCon
 
         if (key == WidgetKey.Escape)
         {
+            // [S-3652] Escape lets the agenda's cursor go as well as the selected day.
+            var released = Layout == CalendarStyle.Agenda && _agenda.HandleKey(key);
             if (_selected is null)
             {
-                return false;
+                return released;
             }
 
             Select(null);
             return true;
+        }
+
+        // [S-3652] The agenda's cursor keys are its kit list's; paging and today stay the calendar's.
+        if (Layout == CalendarStyle.Agenda && CalendarFit.Key(key, Layout) == CalendarKeyCommand.None)
+        {
+            return _agenda.HandleKey(key);
         }
 
         var command = CalendarFit.Key(key, Layout);
@@ -474,13 +479,11 @@ internal sealed partial class CalendarView : Grid, IWidgetView, IWidgetHeaderCon
         }
     }
 
-    /// <summary>[S-2710] Enter: the selected day's first event (the anchor's when none is on screen), or the agenda page's first.</summary>
+    /// <summary>[S-2710] Enter: the selected day's first event (the anchor's when none is on screen); the agenda's is its list's ([S-3652]).</summary>
     private bool OpenFirst()
     {
         var day = SelectedInView ? _selected!.Value : _anchor;
-        var first = Layout == CalendarStyle.Agenda
-            ? _agendaFirst
-            : CalendarRules.DayItems(_events, [], day, TimeZoneInfo.Local).Select(i => i.Event).FirstOrDefault();
+        var first = CalendarRules.DayItems(_events, [], day, TimeZoneInfo.Local).Select(i => i.Event).FirstOrDefault();
 
         if (first is null)
         {
@@ -663,16 +666,26 @@ internal sealed partial class CalendarView : Grid, IWidgetView, IWidgetHeaderCon
 
     private void MakeOpenable(FrameworkElement element, CalendarEvent item)
     {
-        ToolTipService.SetToolTip(element, Describe(item));
-        LinkEvent(element, item);
-        WidgetItems.Mark(element); // [S-814]
+        Describe(element, item);
 
-        if (item.WebLink is not null || (_providers.TryGetValue(item.AccountId, out var provider) && provider == HostProviders.Microsoft))
+        if (Openable(item))
         {
             // Not handled: the card's double-click into edit mode still has to reach it.
             element.Tapped += (_, _) => Open(item);
         }
     }
+
+    /// <summary>An event's element: its tooltip, its links across widgets ([S-3623]), and an item to the surface ([S-814]).</summary>
+    private void Describe(FrameworkElement element, CalendarEvent item)
+    {
+        ToolTipService.SetToolTip(element, Describe(item));
+        LinkEvent(element, item);
+        WidgetItems.Mark(element); // [S-814]
+    }
+
+    /// <summary>[S-1268] Whether an event has somewhere to open: its web page, or a Microsoft event (Outlook or its page).</summary>
+    private bool Openable(CalendarEvent item)
+        => item.WebLink is not null || (_providers.TryGetValue(item.AccountId, out var provider) && provider == HostProviders.Microsoft);
 
     /// <summary>Everything a chip had to leave out, on hover.</summary>
     private static string Describe(CalendarEvent item)

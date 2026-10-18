@@ -23,7 +23,7 @@ internal sealed partial class CalendarView
     /// <summary>The agenda's items on screen by id, for the rows' hooks and Enter.</summary>
     private readonly Dictionary<string, DayItem> _agendaItems = new(StringComparer.Ordinal);
 
-    private KitList NewAgenda(Themia.Sdk.WinUI.IWidgetHost host) => new(host, AgendaSpec.Spec, _ => [], (_, _) => { })
+    private KitList NewAgenda(Themia.Sdk.WinUI.IWidgetHost host) => new(host, AgendaSpec.Spec, AgendaActions, RunAgenda)
     {
         Decorate = DecorateAgendaRow,
         Visibility = Visibility.Collapsed,
@@ -36,7 +36,6 @@ internal sealed partial class CalendarView
         var groups = CalendarRules.Agenda(_events, _birthdays, first, last, TimeZoneInfo.Local, _config.EffectiveAgendaCount, DateTimeOffset.Now);
         var rows = groups.SelectMany(g => g.Items.Select(i => (g.Day, Item: i))).ToList();
 
-        _agendaFirst = null;
         _agendaItems.Clear();
 
         if (rows.Count == 0)
@@ -77,23 +76,30 @@ internal sealed partial class CalendarView
 
         _agendaPage = _agenda.Page;
         _agendaPages = _agenda.PageCount;
-        // [S-2710] Enter's event: the page's first that is an event (a birthday opens nothing).
-        var starts = _agenda.PageStarts;
-        var end = _agendaPage + 1 < starts.Count ? starts[_agendaPage + 1] : items.Count;
-        _agendaFirst = items.Skip(starts[_agendaPage]).Take(end - starts[_agendaPage])
-            .Select(i => _agendaItems[i.Id].Event).FirstOrDefault(e => e is not null);
     }
 
     /// <summary>[S-566] An event's calendar colour as the user chose it, resolved at draw time so a settings change repaints at once.</summary>
     private string MarkOf(CalendarEvent item)
         => CalendarRules.ResolveColor(CalendarRules.ColorKey(item.AccountId, item.CalendarId), item.SourceIndex, _config.CalendarColors);
 
-    /// <summary>What only the calendar knows of a row: its tooltip, its links across widgets ([S-3623]) and the click that opens it.</summary>
+    /// <summary>What only the calendar knows of a row: its tooltip and its links across widgets ([S-3623]); the kit's list opens it ([S-3652]).</summary>
     private void DecorateAgendaRow(KitItem item, FrameworkElement row)
     {
         if (_agendaItems.TryGetValue(item.Id, out var day) && day.Event is { } ev)
         {
-            MakeOpenable(row, ev);
+            Describe(row, ev);
+        }
+    }
+
+    /// <summary>[S-3652] A row's actions: Open, for an event with a page to open.</summary>
+    private IReadOnlyList<KitAction> AgendaActions(KitItem item)
+        => _agendaItems.TryGetValue(item.Id, out var day) ? AgendaSpec.Actions(day, day.Event is { } ev && Openable(ev)) : [];
+
+    private void RunAgenda(KitItem item, KitAction action)
+    {
+        if (action.Id == AgendaSpec.OpenId && _agendaItems.TryGetValue(item.Id, out var day) && day.Event is { } ev)
+        {
+            Open(ev);
         }
     }
 
