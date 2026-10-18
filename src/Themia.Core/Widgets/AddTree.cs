@@ -119,14 +119,20 @@ public static class AddTree
     {
         var widgets = ModuleCatalog.Widgets;
         AddLeaf[] popular = [.. widgets.Where(w => w.Add.Popular is not null).OrderBy(w => w.Add.Popular).Select(w => new AddLeaf(w.Id, Again: true))];
-        return (new AddShelf(AddFolderId.Popular, Str.AddMenu_Popular.Local(), popular[0].Kind, popular), Shelf(AddFolderId.Browse, Str.AddMenu_Browse, widgets));
+        return (new AddShelf(AddFolderId.Popular, Str.AddMenu_Popular.Local(), popular[0].Kind, popular),
+            Shelf(AddFolderId.Browse, Str.AddMenu_Browse, widgets) ?? throw new InvalidOperationException("a build with no widget in it"));
     }
 
-    /// <summary>A folder's rows: its widgets and its folders, by run and place, a line between two runs.</summary>
-    private static AddShelf Shelf(AddFolderId id, Str? title, IReadOnlyList<WidgetDescriptor> widgets)
+    /// <summary>
+    /// A folder's rows: its widgets and its folders, by run and place, a line between two runs. Null
+    /// for a folder no widget of the build is at home in (every one of its modules absent): it is not
+    /// in the tree ([S-6907]).
+    /// </summary>
+    private static AddShelf? Shelf(AddFolderId id, Str? title, IReadOnlyList<WidgetDescriptor> widgets)
     {
-        var entries = widgets.Where(w => w.Add.Shelf == id).Select(w => (w.Add.Group, w.Add.Rank, Node: (AddNode)new AddLeaf(w.Id)))
-            .Concat(Folders.Where(f => f.Parent == id).Select(f => (f.Group, f.Rank, Node: (AddNode)Shelf(f.Id, f.Title, widgets))))
+        var entries = widgets.Where(w => w.Add.Shelf == id).Select(w => (w.Add.Group, w.Add.Rank, Node: (AddNode?)new AddLeaf(w.Id)))
+            .Concat(Folders.Where(f => f.Parent == id).Select(f => (f.Group, f.Rank, Node: (AddNode?)Shelf(f.Id, f.Title, widgets))))
+            .Where(e => e.Node is not null)
             .OrderBy(e => e.Group).ThenBy(e => e.Rank);
 
         var rows = new List<AddNode>();
@@ -139,7 +145,12 @@ public static class AddTree
             }
 
             run = group;
-            rows.Add(node);
+            rows.Add(node!);
+        }
+
+        if (rows.Count == 0)
+        {
+            return null;
         }
 
         var icon = IconOf(rows);

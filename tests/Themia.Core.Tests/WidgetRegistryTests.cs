@@ -163,6 +163,23 @@ public sealed partial class WidgetRegistryTests
         Assert.Equal(widgets.Count, AddTree.Homes(AddTree.On([.. widgets.Select(w => w.Id)])).Count);
     }
 
+    /// <summary>
+    /// [S-6907] Regression: a folder no widget of the build is at home in (Core's catalogue here holds
+    /// none of the power buttons, which are module projects) is not in the tree; building the tree
+    /// threw "an add menu folder with no widget in it".
+    /// </summary>
+    [Fact]
+    public void S6907_a_folder_no_widget_of_the_build_is_at_home_in_is_not_in_the_tree()
+    {
+        static IEnumerable<AddShelf> Folders(AddShelf shelf) => shelf.Rows.OfType<AddShelf>().SelectMany(inner => Folders(inner).Prepend(inner));
+
+        var folders = AddTree.Top.SelectMany(Folders).ToList();
+
+        Assert.All(folders, folder => Assert.Contains(folder.Rows, row => row is AddLeaf or AddShelf));
+        var at = ModuleCatalog.Widgets.Select(w => w.Add.Shelf).ToHashSet();
+        Assert.All(folders, folder => Assert.True(at.Contains(folder.Id) || folder.Rows.OfType<AddShelf>().Any(), $"{folder.Id} holds no widget"));
+    }
+
     [Theory]
     [MemberData(nameof(Ids))]
     public void S943_every_widget_has_its_own_search_words(string id)

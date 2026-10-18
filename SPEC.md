@@ -885,7 +885,8 @@ Module sections live in `src/Widgets/*/SPEC.md` and `src/Providers/*/SPEC.md` ([
   Browse and the families inside them, with their own places) are the host's and name no widget; a
   folder's row wears its first widget's icon, and a family named after its reading (Processor,
   Memory, Graphics, Network, Ping, Battery) takes its first widget's name as its title. No two widgets share a place, and none is at home in
-  Popular, Browse or More.
+  Popular, Browse or More. A folder no widget of the build is at home in (every one of its modules
+  absent from the build) is not in the tree, as a folder left with none is not in the menu ([S-3511]).
 - **[S-6909]** Strings per module: a project that sets `ThemiaStringsEnum` (`YearProgressStr`, a
   name ending in `Str`, else THEMIALOC010) gets its own enum, tables and `Text()`/`Format()`/
   `Plural()`/`Local()` extensions from its own `Localization/Locales`, in its own namespace, under the
