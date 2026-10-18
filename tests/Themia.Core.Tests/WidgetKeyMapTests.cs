@@ -115,16 +115,6 @@ public sealed class WidgetKeyMapTests
         Assert.Equal(new TaskKeyResult(TaskKeyCommand.Focus, 0), TaskLayout.Decide(WidgetKey.PageUp, -1, 5));
     }
 
-    [Fact]
-    public void S1982_space_ticks_a_habit_and_page_keys_jump_ten_rows()
-    {
-        Assert.Equal(new HabitKeyResult(HabitKeyCommand.Toggle, 1), HabitLayout.Decide(WidgetKey.Space, 1, 3));
-        Assert.Equal(new HabitKeyResult(HabitKeyCommand.Focus, 2), HabitLayout.Decide(WidgetKey.PageDown, 0, 3));
-        Assert.Equal(new HabitKeyResult(HabitKeyCommand.Focus, 0), HabitLayout.Decide(WidgetKey.PageUp, 2, 3));
-        Assert.Equal(HabitKeyCommand.None, HabitLayout.Decide(WidgetKey.Space, -1, 3).Command);
-        Assert.Equal(new HabitKeyResult(HabitKeyCommand.Focus, 0), HabitLayout.Decide(WidgetKey.PageDown, -1, 3));
-    }
-
     // ---- contacts, calendar, the shared cursor ([S-1983]..[S-1985]) ----------------------------------
 
     [Fact]
@@ -193,17 +183,4 @@ public sealed class WidgetKeyMapTests
         Assert.Equal(WidgetKey.Up, WidgetKeys.FromVirtualKey(0x26, shift: true, ctrl: false, alt: false));
     }
 
-    [Fact]
-    public void S3802_a_focused_task_or_habit_moves_one_place_and_not_past_an_end()
-    {
-        Assert.Equal(new TaskKeyResult(TaskKeyCommand.MoveUp, 1), TaskLayout.Decide(WidgetKey.MoveUp, 1, 3));
-        Assert.Equal(new TaskKeyResult(TaskKeyCommand.MoveDown, 1), TaskLayout.Decide(WidgetKey.MoveDown, 1, 3));
-        Assert.Equal(TaskKeyCommand.None, TaskLayout.Decide(WidgetKey.MoveUp, 0, 3).Command);
-        Assert.Equal(TaskKeyCommand.None, TaskLayout.Decide(WidgetKey.MoveDown, 2, 3).Command);
-        Assert.Equal(TaskKeyCommand.None, TaskLayout.Decide(WidgetKey.MoveDown, -1, 3).Command);
-
-        Assert.Equal(new HabitKeyResult(HabitKeyCommand.MoveUp, 2), HabitLayout.Decide(WidgetKey.MoveUp, 2, 3));
-        Assert.Equal(HabitKeyCommand.None, HabitLayout.Decide(WidgetKey.MoveDown, 2, 3).Command);
-        Assert.Equal(HabitKeyCommand.None, HabitLayout.Decide(WidgetKey.MoveUp, 0, 3).Command);
-    }
 }

@@ -1,6 +1,0 @@
-{
-  "styles.habits.dots": "ドット",
-  "styles.habits.heatmap": "ヒートマップ",
-  "styles.habits.checklist": "チェックリスト",
-  "styles.habits.cell": "{period}: {count} 件中 {done} 件"
-}

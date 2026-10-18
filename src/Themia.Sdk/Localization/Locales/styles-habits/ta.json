@@ -1,6 +1,0 @@
-{
-  "styles.habits.dots": "புள்ளிகள்",
-  "styles.habits.heatmap": "வெப்ப வரைபடம்",
-  "styles.habits.checklist": "சரிபார்ப்புப் பட்டியல்",
-  "styles.habits.cell": "{period}: {count} இல் {done}"
-}

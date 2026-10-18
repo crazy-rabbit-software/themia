@@ -1,6 +1,0 @@
-{
-  "styles.habits.dots": "圓點",
-  "styles.habits.heatmap": "熱度圖",
-  "styles.habits.checklist": "檢查清單",
-  "styles.habits.cell": "{period}：{done}/{count}"
-}

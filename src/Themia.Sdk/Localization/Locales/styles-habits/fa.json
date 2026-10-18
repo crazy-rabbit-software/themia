@@ -1,6 +1,0 @@
-{
-  "styles.habits.dots": "نقطه‌ها",
-  "styles.habits.heatmap": "نقشهٔ حرارتی",
-  "styles.habits.checklist": "چک‌لیست",
-  "styles.habits.cell": "{period}: {done} از {count}"
-}

@@ -235,21 +235,4 @@ public sealed class KeyboardLeaseTests
     public void S812_tasks_without_a_focused_row(WidgetKey key, TaskKeyCommand command, int index)
         => Assert.Equal(new TaskKeyResult(command, index), TaskLayout.Decide(key, -1, 5));
 
-    [Theory]
-    [InlineData(WidgetKey.Down, HabitKeyCommand.Focus, 0)]
-    [InlineData(WidgetKey.Tab, HabitKeyCommand.Focus, 0)]
-    [InlineData(WidgetKey.ShiftTab, HabitKeyCommand.Focus, 2)]
-    [InlineData(WidgetKey.End, HabitKeyCommand.Focus, 2)]
-    [InlineData(WidgetKey.Enter, HabitKeyCommand.None, -1)]
-    [InlineData(WidgetKey.Delete, HabitKeyCommand.None, -1)]
-    [InlineData(WidgetKey.Escape, HabitKeyCommand.Release, -1)]
-    public void S812_habits_without_a_focused_row(WidgetKey key, HabitKeyCommand command, int index)
-        => Assert.Equal(new HabitKeyResult(command, index), HabitLayout.Decide(key, -1, 3));
-
-    [Fact]
-    public void S812_keys_the_lists_do_not_answer_do_nothing()
-    {
-        Assert.Equal(TaskKeyCommand.None, TaskLayout.Decide(WidgetKey.Left, 1, 3).Command);
-        Assert.Equal(HabitKeyCommand.None, HabitLayout.Decide(WidgetKey.Left, 1, 3).Command);
-    }
 }

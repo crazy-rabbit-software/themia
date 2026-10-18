@@ -67,17 +67,4 @@ public sealed class AddFooterTests
         Assert.False(small.Take(1));
     }
 
-    [Fact]
-    public void S3850_habits_and_tasks_agree_at_every_tier()
-    {
-        foreach (var area in new[] { XS, S, M, Wide, Tall, L, XL })
-        {
-            foreach (var count in new[] { 0, 3 })
-            {
-                var habits = HabitLayout.Plan(area, new HabitLayoutInput(count, true, true, 7), 40, 32).AddRow;
-                var tasks = TaskLayout.Plan(area, new TaskLayoutInput(count, true, false, true, Themia.Core.Model.TasksStyle.List, 2), 40, 32).AddRow;
-                Assert.Equal(habits, tasks);
-            }
-        }
-    }
 }

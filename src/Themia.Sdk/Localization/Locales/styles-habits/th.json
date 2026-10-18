@@ -1,6 +1,0 @@
-{
-  "styles.habits.dots": "จุด",
-  "styles.habits.heatmap": "แผนที่ความร้อน",
-  "styles.habits.checklist": "รายการตรวจสอบ",
-  "styles.habits.cell": "{period}: {done} จาก {count}"
-}

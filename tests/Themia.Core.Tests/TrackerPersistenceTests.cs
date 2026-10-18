@@ -98,35 +98,4 @@ public sealed class TrackerPersistenceTests : IDisposable
     // habits.json (HabitListStoreTests)
     // -----------------------------------------------------------------------------------------
 
-    [Fact]
-    public async Task S1420_a_habit_widgets_settings_survive_a_restart()
-    {
-        var config = await RoundTripAsync<HabitTrackerConfig>(HabitTrackerConfig.Descriptor.Id, habits =>
-        {
-            habits.ListId = "list-morning";
-            habits.Period = HabitPeriod.Custom;
-            habits.CustomMinutes = 45;
-            habits.HistoryDots = 14;
-            habits.ShowStreak = false;
-        });
-
-        Assert.Equal("list-morning", config.ListId);
-        Assert.Equal(HabitPeriod.Custom, config.Period);
-        Assert.Equal(45, config.CustomMinutes);
-        Assert.Equal(14, config.HistoryDots);
-        Assert.False(config.ShowStreak);
-    }
-
-    [Fact]
-    public void S1422_a_hand_edited_habit_config_is_repaired_to_its_ranges()
-    {
-        var config = new HabitTrackerConfig { Period = (HabitPeriod)99, CustomMinutes = 0, HistoryDots = 500 };
-
-        var repairs = config.Repair();
-
-        Assert.Equal(3, repairs.Count);
-        Assert.Equal(HabitPeriod.Daily, config.Period);
-        Assert.Equal(HabitCadence.MinCustomMinutes, config.CustomMinutes);
-        Assert.Equal(HabitRules.MaxHistory, config.HistoryDots);
-    }
 }

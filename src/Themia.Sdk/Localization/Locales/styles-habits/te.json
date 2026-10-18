@@ -1,6 +1,0 @@
-{
-  "styles.habits.dots": "చుక్కలు",
-  "styles.habits.heatmap": "హీట్‌మ్యాప్",
-  "styles.habits.checklist": "చెక్‌లిస్ట్",
-  "styles.habits.cell": "{period}: {count}లో {done}"
-}

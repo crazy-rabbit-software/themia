@@ -1,6 +1,0 @@
-{
-  "styles.habits.dots": "Mga tuldok",
-  "styles.habits.heatmap": "Heatmap",
-  "styles.habits.checklist": "Checklist",
-  "styles.habits.cell": "{period}: {done} sa {count}"
-}

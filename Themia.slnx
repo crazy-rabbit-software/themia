@@ -32,6 +32,7 @@
     <Project Path="src/Widgets/Themia.Widget.GameModeToggle/Themia.Widget.GameModeToggle.csproj" />
     <Project Path="src/Widgets/Themia.Widget.Gpu/Themia.Widget.Gpu.csproj" />
     <Project Path="src/Widgets/Themia.Widget.GpuDetails/Themia.Widget.GpuDetails.csproj" />
+    <Project Path="src/Widgets/Themia.Widget.HabitTracker/Themia.Widget.HabitTracker.csproj" />
     <Project Path="src/Widgets/Themia.Widget.Hibernate/Themia.Widget.Hibernate.csproj" />
     <Project Path="src/Widgets/Themia.Widget.Lock/Themia.Widget.Lock.csproj" />
     <Project Path="src/Widgets/Themia.Widget.Memory/Themia.Widget.Memory.csproj" />

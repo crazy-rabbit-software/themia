@@ -1,6 +1,0 @@
-{
-  "styles.habits.dots": "Points",
-  "styles.habits.heatmap": "Carte de chaleur",
-  "styles.habits.checklist": "Liste de contrôle",
-  "styles.habits.cell": "{period} : {done} sur {count}"
-}

@@ -1,6 +1,0 @@
-{
-  "styles.habits.dots": "Chấm",
-  "styles.habits.heatmap": "Bản đồ nhiệt",
-  "styles.habits.checklist": "Danh sách kiểm",
-  "styles.habits.cell": "{period}: {done}/{count}"
-}
