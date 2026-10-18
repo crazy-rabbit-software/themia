@@ -116,3 +116,9 @@ internal static unsafe partial class CuePlayer
     [return: MarshalAs(UnmanagedType.Bool)]
     private static partial bool PlaySound(nint data, nint module, uint flags);
 }
+
+/// <summary>[S-153] The player a widget's cue reaches through the SDK's <see cref="SoundCue"/>: this <see cref="CuePlayer"/>.</summary>
+internal sealed class HostCuePlayer : ISoundCuePlayer
+{
+    public void Play(byte[] wave) => CuePlayer.Play(wave);
+}

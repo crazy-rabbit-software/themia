@@ -638,6 +638,8 @@ busy desktop ([S-6601]), Debug, private bytes.
   full in order to play two seconds of oscillators. `CuePlayer` copies the wave to native memory and
   plays it asynchronously, single-flight: the next cue stops the previous one (`PlaySound(NULL)`)
   before its buffer is freed, so at most one buffer is ever outstanding and nothing is GC-pinned.
+  A widget (the pomodoro, a settings page's preview) reaches it through the SDK's `SoundCue`, the
+  seam the host installs at start; the host's own alarm service calls `CuePlayer` itself.
   (The twelve ringtones and the volume: [S-1460]..[S-1463].)
 - **[S-155]** The 1 Hz subscription exists only while the timer runs, and the callback the shared
   ticker makes at subscribe time is swallowed: that immediate fire is right for a view that renders

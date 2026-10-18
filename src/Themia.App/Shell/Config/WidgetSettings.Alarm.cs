@@ -58,7 +58,7 @@ internal static partial class WidgetSettings
 
         // Played once, not looped: a choice made by ear, and the single-flight player stops it at the next.
         static void PreviewRing(AlarmConfig config)
-            => CuePlayer.Play(PomodoroSounds.Wave(config.Sound, PomodoroPhase.Work, config.EffectiveVolume));
+            => SoundCue.Play(PomodoroSounds.Wave(config.Sound, PomodoroPhase.Work, config.EffectiveVolume));
     }
 
     /// <summary>The alarm itself: its time, its switch, its name and the days it repeats on.</summary>

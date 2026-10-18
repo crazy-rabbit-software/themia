@@ -287,7 +287,7 @@ internal sealed partial class PomodoroView : Grid, IWidgetView, IWidgetSizeAware
         // Never from a preview card: it makes no sound ([S-1251]).
         if (tick.Flipped && !_preview)
         {
-            CuePlayer.Play(PomodoroSounds.Wave(_config.Sound, tick.Phase, _config.EffectiveVolume));
+            SoundCue.Play(PomodoroSounds.Wave(_config.Sound, tick.Phase, _config.EffectiveVolume));
         }
 
         Render();

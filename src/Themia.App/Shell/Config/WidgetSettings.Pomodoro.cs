@@ -50,6 +50,6 @@ internal static partial class WidgetSettings
 
         // The player is single-flight: a slider drag restarts the cue rather than stacking copies.
         static void Preview(PomodoroConfig config)
-            => CuePlayer.Play(PomodoroSounds.Wave(config.Sound, PomodoroPhase.Work, config.EffectiveVolume));
+            => SoundCue.Play(PomodoroSounds.Wave(config.Sound, PomodoroPhase.Work, config.EffectiveVolume));
     }
 }
