@@ -20,9 +20,10 @@ internal sealed partial class CalendarView : IWidgetPreviewState
     /// <c>sample</c>: the fixture; <c>selected</c>: the day after tomorrow selected on the view
     /// ([S-3620]); <c>linked</c>: another widget's pointer on the design review ([S-3623]);
     /// <c>days</c>: the style's own range ([S-2719], [S-3636]): the week the next four days from today,
-    /// the agenda today and tomorrow.
+    /// the agenda today and tomorrow; <c>stale</c>: the sample with the Work calendar's last sync failed
+    /// (no network), its events held from 20 minutes ago; <c>empty</c>: no event at all.
     /// </summary>
-    public IReadOnlyList<string> PreviewStates { get; } = ["sample", "selected", "linked", "days"];
+    public IReadOnlyList<string> PreviewStates { get; } = ["sample", "selected", "linked", "days", "stale", "empty"];
 
     public async Task ShowPreviewStateAsync(string state)
     {
@@ -42,7 +43,9 @@ internal sealed partial class CalendarView : IWidgetPreviewState
             _config = days;
         }
 
-        UseData(new SampleCalendarData());
+        UseData(new SampleCalendarData(
+            stale: string.Equals(state, "stale", StringComparison.OrdinalIgnoreCase),
+            empty: string.Equals(state, "empty", StringComparison.OrdinalIgnoreCase)));
         await RefreshAsync(force: true).ConfigureAwait(true);
 
         if (string.Equals(state, "selected", StringComparison.OrdinalIgnoreCase))
@@ -58,7 +61,7 @@ internal sealed partial class CalendarView : IWidgetPreviewState
 
 
     /// <summary>The fixture: the same sample week whatever the range, filtered to it.</summary>
-    private sealed class SampleCalendarData : ICalendarData
+    private sealed class SampleCalendarData(bool stale, bool empty) : ICalendarData
     {
         public event Action? Changed
         {
@@ -123,12 +126,17 @@ internal sealed partial class CalendarView : IWidgetPreviewState
             events.Add(AllDay(1, "Summer holiday", -100, 10));
             events.Add(AllDay(1, "Ski week", 90, 6));
 
+            if (empty)
+            {
+                events.Clear();
+            }
+
             var (from, to) = CalendarRules.FetchWindow(first, last, TimeZoneInfo.Local);
             var inRange = events.Where(e => e.AllDay
                 ? e.FirstDay <= last && e.EndDay > first
                 : e.Start < to && e.End > from).ToList();
 
-            var birthdays = new List<Birthday>
+            var birthdays = empty ? [] : new List<Birthday>
             {
                 new("Mia Chen", today.Month, today.Day, 1994),
                 new("Jonas Weber", today.AddDays(3).Month, today.AddDays(3).Day, null),
@@ -137,7 +145,10 @@ internal sealed partial class CalendarView : IWidgetPreviewState
 
             var providers = new Dictionary<string, ProviderId>(StringComparer.Ordinal) { ["sample:work"] = HostProviders.Microsoft, ["sample:home"] = HostProviders.Google };
             var labels = new Dictionary<string, string>(StringComparer.Ordinal) { ["sample:work"] = "Work", ["sample:home"] = "Home" };
-            return Task.FromResult(new CalendarSlice(CalendarSliceState.Asked, inRange, birthdays, targets, providers, labels, [], true));
+            IReadOnlyList<(string Account, SyncProblem Problem, DateTimeOffset? At)> problems = stale
+                ? [("sample:work", SyncProblem.Offline, DateTimeOffset.Now.AddMinutes(-20))]
+                : [];
+            return Task.FromResult(new CalendarSlice(CalendarSliceState.Asked, inRange, birthdays, targets, providers, labels, problems, true));
         }
     }
 }

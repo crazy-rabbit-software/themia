@@ -8,16 +8,38 @@ namespace Themia.App.Widgets;
 
 /// <summary>
 /// Debug renders only: a list on this PC held in memory, so the rows and the add footer
-/// ([S-780], [S-3850]) can be looked at without an account or the user's own lists.
+/// ([S-780], [S-3850]) can be looked at without an account or the user's own lists. <c>stale</c> is an
+/// account's list held from 20 minutes ago whose last refresh failed (no network), through a fixture
+/// feed that asks nothing.
 /// </summary>
 internal sealed partial class TasksView : IWidgetPreviewState
 {
     private const string PreviewListId = "preview-list";
 
-    public IReadOnlyList<string> PreviewStates { get; } = ["tasks", "few", "empty", "done"];
+    public IReadOnlyList<string> PreviewStates { get; } = ["tasks", "few", "empty", "done", "stale"];
 
     public Task ShowPreviewStateAsync(string state)
     {
+        if (state == "stale")
+        {
+            _config.Source = TaskSource.Account;
+            _config.ListId = "preview-account-list";
+            _config.ListName = "Errands";
+            _config.ShowCompleted = false;
+            _local = null;
+            _localListId = null;
+            _feed = new PreviewTaskFeed(
+            [
+                new("a1", "preview-account-list", "Pick up the parcel", false),
+                new("a2", "preview-account-list", "Water the plants", false),
+                new("a3", "preview-account-list", "Send the invoice", false),
+            ],
+            DateTimeOffset.Now.AddMinutes(-20));
+            PublishTitle();
+            Render();
+            return Task.CompletedTask;
+        }
+
         LocalTask[]? tasks = state switch
         {
             "tasks" =>
@@ -61,6 +83,36 @@ internal sealed partial class TasksView : IWidgetPreviewState
         PublishTitle();
         Render();
         return Task.CompletedTask;
+    }
+
+    /// <summary>An account's list as a feed holds it after a refresh that failed; nothing is ever asked.</summary>
+    private sealed class PreviewTaskFeed(IReadOnlyList<TaskItem> tasks, DateTimeOffset fetchedAt) : ITaskFeed
+    {
+        public event Action? Changed { add { } remove { } }
+
+        public string AccountId => "preview-account";
+
+        public string ListId => "preview-account-list";
+
+        public bool ShowCompleted => false;
+
+        public bool IsToday => false;
+
+        public TaskEdits Edits { get; } = new();
+
+        public IReadOnlyList<TaskItem> Tasks => tasks;
+
+        public bool Loaded => true;
+
+        public bool Busy => false;
+
+        public Themia.Core.Accounts.AccountException? Failure { get; } = new(Themia.Core.Accounts.AccountError.Offline, "no network");
+
+        public string? WriteProblem => null;
+
+        public DateTimeOffset? FetchedAt => fetchedAt;
+
+        public IReadOnlyList<TaskListInfo>? Lists => null;
     }
 }
 #endif

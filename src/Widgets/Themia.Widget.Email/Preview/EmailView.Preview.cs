@@ -13,11 +13,13 @@ namespace Themia.App.Widgets;
 /// button ([S-558]) and the rows without an account. <c>accounts</c> reads two accounts, so the
 /// compose button asks which; <c>empty</c> is an empty folder, which still offers compose.
 /// <c>hovered</c> and <c>focused</c> are the messages with the first row under the pointer, or the
-/// second row under the keyboard, so its quick actions show ([S-1284]).
+/// second row under the keyboard, so its quick actions show ([S-1284]). <c>stale</c> is the messages
+/// with the last refresh of the account failed (no network), the list held from 20 minutes ago;
+/// <c>offline</c> the same failure with nothing held.
 /// </summary>
 internal sealed partial class EmailView : IWidgetPreviewState
 {
-    public IReadOnlyList<string> PreviewStates { get; } = ["messages", "accounts", "empty", "hovered", "focused"];
+    public IReadOnlyList<string> PreviewStates { get; } = ["messages", "accounts", "empty", "hovered", "focused", "stale", "offline"];
 
     public Task ShowPreviewStateAsync(string state)
     {
@@ -33,7 +35,7 @@ internal sealed partial class EmailView : IWidgetPreviewState
         MailMessage Sample(MailAccount account, int minutes, string from, string subject, string preview, bool read)
             => new(account.Id, account.Provider, MailFolder.Inbox, "m" + minutes, subject, from, "sender@example.com", now.AddMinutes(-minutes), read, preview, string.Empty);
 
-        MailMessage[] messages = state == "empty" ? [] :
+        MailMessage[] messages = state is "empty" or "offline" ? [] :
         [
             Sample(work, 4, "Dana Ruiz", "Quarterly numbers", "Hi all, attached are the numbers for the review on Thursday.", false),
             Sample(home, 38, "Lena Fischer", "Saturday hike", "Shall we start at nine? The forecast looks dry until the afternoon.", false),
@@ -51,7 +53,8 @@ internal sealed partial class EmailView : IWidgetPreviewState
         }
 
         CloseFeed();
-        _source = new PreviewMailSource(accounts, [.. messages.Where(m => accounts.Any(a => a.Id == m.AccountId))], now.AddMinutes(-3));
+        var failed = state is "stale" or "offline";
+        _source = new PreviewMailSource(accounts, [.. messages.Where(m => accounts.Any(a => a.Id == m.AccountId))], failed ? now.AddMinutes(-20) : now.AddMinutes(-3), failed);
         Reopen();
         Render();
 
@@ -68,7 +71,7 @@ internal sealed partial class EmailView : IWidgetPreviewState
     }
 
     /// <summary>The fixture: fixed accounts and one stored list, fetched a few minutes ago; nothing reaches the shell.</summary>
-    private sealed class PreviewMailSource(IReadOnlyList<MailAccount> accounts, IReadOnlyList<MailMessage> messages, DateTimeOffset at) : IMailSource
+    private sealed class PreviewMailSource(IReadOnlyList<MailAccount> accounts, IReadOnlyList<MailMessage> messages, DateTimeOffset at, bool failed) : IMailSource
     {
         public event Action? AccountsChanged { add { } remove { } }
 
@@ -77,7 +80,9 @@ internal sealed partial class EmailView : IWidgetPreviewState
         public IMailFeed Open(MailQuery query)
             => new Feed(new MailFeedSnapshot(
                 messages,
-                [.. accounts.Select(a => new MailAccountOutcome(a.Id, MailAccountState.Ok, FetchStatus.Ok, null, At: at))],
+                [.. accounts.Select(a => failed
+                    ? new MailAccountOutcome(a.Id, MailAccountState.Failed, FetchStatus.Offline, null, At: messages.Count > 0 ? at : null)
+                    : new MailAccountOutcome(a.Id, MailAccountState.Ok, FetchStatus.Ok, null, At: at))],
                 false));
 
         public Task<string?> ChangeAsync(MailMessage message, MailChange change) => Task.FromResult<string?>(null);
