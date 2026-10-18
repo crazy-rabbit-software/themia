@@ -1,0 +1,13 @@
+{
+  "shell.meters.gpuDescription": "Tek bir ekran kartının yükü",
+  "styles.gpu.engine3d": "3B",
+  "styles.gpu.engineCopy": "Kopyalama",
+  "styles.gpu.engineVideoDecode": "Video kod çözme",
+  "styles.gpu.engineVideoEncode": "Video kodlama",
+  "styles.gpu.engines": "Motorlar",
+  "styles.gpu.gauge": "Gösterge",
+  "styles.gpu.graph": "Grafik",
+  "widgetsA.catalog.gpu.label": "GPU",
+  "widgetsB.gpu.adapterMissing": "Seçilen grafik bağdaştırıcısı burada değil",
+  "widgetsB.gpu.noAdapter": "Okunacak grafik bağdaştırıcısı yok"
+}

@@ -1,9 +1,0 @@
-{
-  "styles.gpu.graph": "Wykres",
-  "styles.gpu.engines": "Silniki",
-  "styles.gpu.gauge": "Wskaźnik",
-  "styles.gpu.engine3d": "3D",
-  "styles.gpu.engineCopy": "Kopiowanie",
-  "styles.gpu.engineVideoEncode": "Kodowanie wideo",
-  "styles.gpu.engineVideoDecode": "Dekodowanie wideo"
-}

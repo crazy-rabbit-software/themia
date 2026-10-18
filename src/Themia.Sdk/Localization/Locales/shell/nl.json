@@ -603,7 +603,6 @@
   "shell.transfer.transitionLength": "Duur van animatie bij weergavewissel",
   "shell.transfer.unlockLength": "Duur van ontgrendelanimatie",
   "shell.meters.systemDrive": "Systeemstation ({drive})",
-  "shell.meters.gpuDescription": "Belasting van één grafische kaart",
   "shell.appearance.headerFade": "Hoe dekkend de koptekststrook is; {percent} komt overeen met de widget",
   "shell.views.add": "Weergave toevoegen",
   "shell.views.addDesc": "Een nieuwe, lege weergave aan het eind van de lijst",

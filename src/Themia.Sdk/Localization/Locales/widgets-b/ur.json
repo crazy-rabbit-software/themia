@@ -315,8 +315,6 @@
   "widgetsB.disk.openInExplorer": "{drive} ایکسپلورر میں کھولیں",
   "widgetsB.disk.unavailable": "{drive} دستیاب نہیں",
   "widgetsB.network.noConnection": "کوئی کنکشن نہیں",
-  "widgetsB.gpu.noAdapter": "پڑھنے کو کوئی گرافکس اڈاپٹر نہیں",
-  "widgetsB.gpu.adapterMissing": "منتخب گرافکس اڈاپٹر یہاں نہیں ہے",
   "widgetsB.settings.meters.history": "سرگزشت",
   "widgetsB.settings.meters.chartSpan.label": "چارٹ کی مدت",
   "widgetsB.settings.meters.chartSpan.desc": "چارٹ کتنی سرگزشت دکھاتا ہے",

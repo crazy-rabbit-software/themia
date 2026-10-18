@@ -1,9 +1,0 @@
-{
-  "styles.gpu.graph": "Biểu đồ",
-  "styles.gpu.engines": "Bộ máy",
-  "styles.gpu.gauge": "Đồng hồ đo",
-  "styles.gpu.engine3d": "3D",
-  "styles.gpu.engineCopy": "Sao chép",
-  "styles.gpu.engineVideoEncode": "Mã hóa video",
-  "styles.gpu.engineVideoDecode": "Giải mã video"
-}

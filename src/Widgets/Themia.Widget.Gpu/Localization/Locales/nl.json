@@ -1,0 +1,13 @@
+{
+  "shell.meters.gpuDescription": "Belasting van één grafische kaart",
+  "styles.gpu.engine3d": "3D",
+  "styles.gpu.engineCopy": "Kopiëren",
+  "styles.gpu.engineVideoDecode": "Video decoderen",
+  "styles.gpu.engineVideoEncode": "Video coderen",
+  "styles.gpu.engines": "Engines",
+  "styles.gpu.gauge": "Meter",
+  "styles.gpu.graph": "Grafiek",
+  "widgetsA.catalog.gpu.label": "GPU",
+  "widgetsB.gpu.adapterMissing": "De gekozen grafische adapter is er niet",
+  "widgetsB.gpu.noAdapter": "Geen grafische adapter om te lezen"
+}

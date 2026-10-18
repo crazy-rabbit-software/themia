@@ -1,0 +1,13 @@
+{
+  "shell.meters.gpuDescription": "ਇੱਕ ਗ੍ਰਾਫ਼ਿਕਸ ਕਾਰਡ ਦਾ ਲੋਡ",
+  "styles.gpu.engine3d": "3D",
+  "styles.gpu.engineCopy": "ਕਾਪੀ",
+  "styles.gpu.engineVideoDecode": "ਵੀਡੀਓ ਡੀਕੋਡ",
+  "styles.gpu.engineVideoEncode": "ਵੀਡੀਓ ਇਨਕੋਡ",
+  "styles.gpu.engines": "ਇੰਜਣ",
+  "styles.gpu.gauge": "ਗੇਜ",
+  "styles.gpu.graph": "ਗ੍ਰਾਫ਼",
+  "widgetsA.catalog.gpu.label": "GPU",
+  "widgetsB.gpu.adapterMissing": "ਚੁਣਿਆ ਗ੍ਰਾਫ਼ਿਕਸ ਅਡੈਪਟਰ ਇੱਥੇ ਨਹੀਂ ਹੈ",
+  "widgetsB.gpu.noAdapter": "ਪੜ੍ਹਨ ਲਈ ਕੋਈ ਗ੍ਰਾਫ਼ਿਕਸ ਅਡੈਪਟਰ ਨਹੀਂ"
+}

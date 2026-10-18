@@ -1,0 +1,13 @@
+{
+  "shell.meters.gpuDescription": "Nauyin katin zane guda",
+  "styles.gpu.engine3d": "3D",
+  "styles.gpu.engineCopy": "Kwafi",
+  "styles.gpu.engineVideoDecode": "Buɗe bidiyo",
+  "styles.gpu.engineVideoEncode": "Sanya bidiyo",
+  "styles.gpu.engines": "Injuna",
+  "styles.gpu.gauge": "Ma'auni",
+  "styles.gpu.graph": "Jadawali",
+  "widgetsA.catalog.gpu.label": "GPU",
+  "widgetsB.gpu.adapterMissing": "Adaftar zane da aka zaɓa ba ta nan",
+  "widgetsB.gpu.noAdapter": "Babu adaftar zane da za a karanta"
+}

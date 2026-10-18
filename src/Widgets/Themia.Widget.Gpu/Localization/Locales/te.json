@@ -1,0 +1,13 @@
+{
+  "shell.meters.gpuDescription": "ఒక గ్రాఫిక్స్ కార్డ్ లోడ్",
+  "styles.gpu.engine3d": "3D",
+  "styles.gpu.engineCopy": "కాపీ",
+  "styles.gpu.engineVideoDecode": "వీడియో డీకోడ్",
+  "styles.gpu.engineVideoEncode": "వీడియో ఎన్‌కోడ్",
+  "styles.gpu.engines": "ఇంజిన్‌లు",
+  "styles.gpu.gauge": "గేజ్",
+  "styles.gpu.graph": "గ్రాఫ్",
+  "widgetsA.catalog.gpu.label": "GPU",
+  "widgetsB.gpu.adapterMissing": "ఎంచుకున్న గ్రాఫిక్స్ అడాప్టర్ ఇక్కడ లేదు",
+  "widgetsB.gpu.noAdapter": "చదవడానికి గ్రాఫిక్స్ అడాప్టర్ లేదు"
+}

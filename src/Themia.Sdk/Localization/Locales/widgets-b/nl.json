@@ -315,8 +315,6 @@
   "widgetsB.disk.openInExplorer": "{drive} openen in Verkenner",
   "widgetsB.disk.unavailable": "{drive} niet beschikbaar",
   "widgetsB.network.noConnection": "geen verbinding",
-  "widgetsB.gpu.noAdapter": "Geen grafische adapter om te lezen",
-  "widgetsB.gpu.adapterMissing": "De gekozen grafische adapter is er niet",
   "widgetsB.settings.meters.history": "Geschiedenis",
   "widgetsB.settings.meters.chartSpan.label": "Grafiekbereik",
   "widgetsB.settings.meters.chartSpan.desc": "Hoeveel geschiedenis de grafiek beslaat",

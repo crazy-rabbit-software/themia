@@ -315,8 +315,6 @@
   "widgetsB.disk.openInExplorer": "{drive} ਨੂੰ ਐਕਸਪਲੋਰਰ ਵਿੱਚ ਖੋਲ੍ਹੋ",
   "widgetsB.disk.unavailable": "{drive} ਉਪਲਬਧ ਨਹੀਂ",
   "widgetsB.network.noConnection": "ਕੋਈ ਕਨੈਕਸ਼ਨ ਨਹੀਂ",
-  "widgetsB.gpu.noAdapter": "ਪੜ੍ਹਨ ਲਈ ਕੋਈ ਗ੍ਰਾਫ਼ਿਕਸ ਅਡੈਪਟਰ ਨਹੀਂ",
-  "widgetsB.gpu.adapterMissing": "ਚੁਣਿਆ ਗ੍ਰਾਫ਼ਿਕਸ ਅਡੈਪਟਰ ਇੱਥੇ ਨਹੀਂ ਹੈ",
   "widgetsB.settings.meters.history": "ਇਤਿਹਾਸ",
   "widgetsB.settings.meters.chartSpan.label": "ਚਾਰਟ ਦੀ ਮਿਆਦ",
   "widgetsB.settings.meters.chartSpan.desc": "ਚਾਰਟ ਕਿੰਨਾ ਇਤਿਹਾਸ ਕਵਰ ਕਰਦਾ ਹੈ",

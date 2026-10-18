@@ -1,0 +1,13 @@
+{
+  "shell.meters.gpuDescription": "Load ng isang graphics card",
+  "styles.gpu.engine3d": "3D",
+  "styles.gpu.engineCopy": "Kopya",
+  "styles.gpu.engineVideoDecode": "Video decode",
+  "styles.gpu.engineVideoEncode": "Video encode",
+  "styles.gpu.engines": "Mga engine",
+  "styles.gpu.gauge": "Gauge",
+  "styles.gpu.graph": "Graph",
+  "widgetsA.catalog.gpu.label": "GPU",
+  "widgetsB.gpu.adapterMissing": "Wala rito ang napiling graphics adapter",
+  "widgetsB.gpu.noAdapter": "Walang graphics adapter na mababasa"
+}

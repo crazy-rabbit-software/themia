@@ -315,8 +315,6 @@
   "widgetsB.disk.openInExplorer": "{drive} ને File Explorer માં ખોલો",
   "widgetsB.disk.unavailable": "{drive} અનુપલબ્ધ",
   "widgetsB.network.noConnection": "કોઈ કનેક્શન નથી",
-  "widgetsB.gpu.noAdapter": "વાંચવા માટે કોઈ ગ્રાફિક્સ ઍડૅપ્ટર નથી",
-  "widgetsB.gpu.adapterMissing": "પસંદ કરેલું ગ્રાફિક્સ ઍડૅપ્ટર અહીં નથી",
   "widgetsB.settings.meters.history": "ઇતિહાસ",
   "widgetsB.settings.meters.chartSpan.label": "ચાર્ટનો સમયગાળો",
   "widgetsB.settings.meters.chartSpan.desc": "ચાર્ટ કેટલો ઇતિહાસ આવરી લે છે",

@@ -1,0 +1,13 @@
+{
+  "shell.meters.gpuDescription": "Beban satu kartu grafis",
+  "styles.gpu.engine3d": "3D",
+  "styles.gpu.engineCopy": "Salin",
+  "styles.gpu.engineVideoDecode": "Dekode video",
+  "styles.gpu.engineVideoEncode": "Enkode video",
+  "styles.gpu.engines": "Mesin",
+  "styles.gpu.gauge": "Pengukur",
+  "styles.gpu.graph": "Grafik",
+  "widgetsA.catalog.gpu.label": "GPU",
+  "widgetsB.gpu.adapterMissing": "Adaptor grafis yang dipilih tidak ada",
+  "widgetsB.gpu.noAdapter": "Tidak ada adaptor grafis untuk dibaca"
+}

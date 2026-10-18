@@ -1,0 +1,13 @@
+{
+  "shell.meters.gpuDescription": "بار یک کارت گرافیک",
+  "styles.gpu.engine3d": "سه‌بعدی",
+  "styles.gpu.engineCopy": "کپی",
+  "styles.gpu.engineVideoDecode": "رمزگشایی ویدیو",
+  "styles.gpu.engineVideoEncode": "رمزگذاری ویدیو",
+  "styles.gpu.engines": "موتورها",
+  "styles.gpu.gauge": "عقربه‌ای",
+  "styles.gpu.graph": "نمودار",
+  "widgetsA.catalog.gpu.label": "GPU",
+  "widgetsB.gpu.adapterMissing": "آداپتور گرافیکی انتخاب‌شده اینجا نیست",
+  "widgetsB.gpu.noAdapter": "آداپتور گرافیکی برای خواندن نیست"
+}

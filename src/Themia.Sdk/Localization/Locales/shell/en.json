@@ -602,7 +602,6 @@
   "shell.transfer.transitionLength": "View change animation length",
   "shell.transfer.unlockLength": "Unlock animation length",
   "shell.meters.systemDrive": "System drive ({drive})",
-  "shell.meters.gpuDescription": "Load of one graphics card",
   "shell.appearance.headerFade": "How solid the header strip is; {percent} matches the widget",
   "shell.views.add": "Add view",
   "shell.views.addDesc": "A new, empty view at the end of the list",

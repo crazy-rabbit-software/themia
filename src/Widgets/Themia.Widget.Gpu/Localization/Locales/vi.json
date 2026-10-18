@@ -1,0 +1,13 @@
+{
+  "shell.meters.gpuDescription": "Tải của một card đồ họa",
+  "styles.gpu.engine3d": "3D",
+  "styles.gpu.engineCopy": "Sao chép",
+  "styles.gpu.engineVideoDecode": "Giải mã video",
+  "styles.gpu.engineVideoEncode": "Mã hóa video",
+  "styles.gpu.engines": "Bộ máy",
+  "styles.gpu.gauge": "Đồng hồ đo",
+  "styles.gpu.graph": "Biểu đồ",
+  "widgetsA.catalog.gpu.label": "GPU",
+  "widgetsB.gpu.adapterMissing": "Không tìm thấy bộ điều hợp đồ họa đã chọn",
+  "widgetsB.gpu.noAdapter": "Không có bộ điều hợp đồ họa để đọc"
+}

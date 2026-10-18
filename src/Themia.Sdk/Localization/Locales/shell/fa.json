@@ -603,7 +603,6 @@
   "shell.transfer.transitionLength": "مدت پویانمایی تغییر نما",
   "shell.transfer.unlockLength": "مدت پویانمایی باز کردن قفل",
   "shell.meters.systemDrive": "درایو سیستم ({drive})",
-  "shell.meters.gpuDescription": "بار یک کارت گرافیک",
   "shell.appearance.headerFade": "نوار سرصفحه چقدر پررنگ باشد؛ {percent} با ویجت یکسان است",
   "shell.views.add": "افزودن نما",
   "shell.views.addDesc": "یک نمای جدید و خالی در انتهای فهرست",

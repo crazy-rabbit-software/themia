@@ -1,0 +1,13 @@
+{
+  "shell.meters.gpuDescription": "Charge d’une carte graphique",
+  "styles.gpu.engine3d": "3D",
+  "styles.gpu.engineCopy": "Copie",
+  "styles.gpu.engineVideoDecode": "Décodage vidéo",
+  "styles.gpu.engineVideoEncode": "Encodage vidéo",
+  "styles.gpu.engines": "Moteurs",
+  "styles.gpu.gauge": "Jauge",
+  "styles.gpu.graph": "Graphique",
+  "widgetsA.catalog.gpu.label": "GPU",
+  "widgetsB.gpu.adapterMissing": "La carte graphique choisie est introuvable",
+  "widgetsB.gpu.noAdapter": "Aucune carte graphique à lire"
+}

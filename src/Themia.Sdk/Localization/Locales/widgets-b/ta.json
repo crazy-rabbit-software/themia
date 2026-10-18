@@ -315,8 +315,6 @@
   "widgetsB.disk.openInExplorer": "{drive} ஐ எக்ஸ்ப்ளோரரில் திற",
   "widgetsB.disk.unavailable": "{drive} கிடைக்கவில்லை",
   "widgetsB.network.noConnection": "இணைப்பு இல்லை",
-  "widgetsB.gpu.noAdapter": "படிக்க கிராஃபிக்ஸ் அடாப்டர் இல்லை",
-  "widgetsB.gpu.adapterMissing": "தேர்ந்தெடுத்த கிராஃபிக்ஸ் அடாப்டர் இங்கே இல்லை",
   "widgetsB.settings.meters.history": "வரலாறு",
   "widgetsB.settings.meters.chartSpan.label": "விளக்கப்பட வரம்பு",
   "widgetsB.settings.meters.chartSpan.desc": "விளக்கப்படம் எவ்வளவு வரலாற்றை உள்ளடக்கும்",

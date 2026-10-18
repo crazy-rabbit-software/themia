@@ -1,0 +1,13 @@
+{
+  "shell.meters.gpuDescription": "حمل بطاقة رسومات واحدة",
+  "styles.gpu.engine3d": "ثلاثي الأبعاد",
+  "styles.gpu.engineCopy": "نسخ",
+  "styles.gpu.engineVideoDecode": "فك ترميز الفيديو",
+  "styles.gpu.engineVideoEncode": "ترميز الفيديو",
+  "styles.gpu.engines": "المحركات",
+  "styles.gpu.gauge": "مقياس",
+  "styles.gpu.graph": "رسم بياني",
+  "widgetsA.catalog.gpu.label": "GPU",
+  "widgetsB.gpu.adapterMissing": "محول الرسومات المختار غير موجود",
+  "widgetsB.gpu.noAdapter": "لا يوجد محول رسومات لقراءته"
+}

@@ -12,17 +12,6 @@ public sealed class MeterStylesTests
 {
     // ---- the styles themselves -----------------------------------------------------------------
 
-    [Fact]
-    public void S6320_the_gpu_offers_graph_engines_and_gauge_and_keeps_its_adapter_through_a_clone()
-    {
-        Assert.Equal(["graph", "engines", "gauge"], WidgetStyles.For(GpuConfig.Descriptor.Id).Select(s => s.Name));
-
-        var gpu = new GpuConfig { Adapter = 1, Style = GpuStyle.Engines };
-        var copy = (GpuConfig)gpu.Clone();
-        Assert.Equal(GpuStyle.Engines, copy.Style);
-        Assert.Equal(1, copy.Adapter);
-    }
-
     // ---- [S-6310] per-core reads ----------------------------------------------------------------
 
     [Fact]

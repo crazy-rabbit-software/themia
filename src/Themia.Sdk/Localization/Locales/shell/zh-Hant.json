@@ -585,7 +585,6 @@
   "shell.transfer.transitionLength": "檢視切換動畫長度",
   "shell.transfer.unlockLength": "解除鎖定動畫長度",
   "shell.meters.systemDrive": "系統磁碟機 ({drive})",
-  "shell.meters.gpuDescription": "單張顯示卡的負載",
   "shell.appearance.headerFade": "標題列的不透明程度；{percent} 與小工具相同",
   "shell.views.add": "新增檢視",
   "shell.views.addDesc": "在清單末尾新增一個空白檢視",

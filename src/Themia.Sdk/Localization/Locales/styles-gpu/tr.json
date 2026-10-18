@@ -1,9 +1,0 @@
-{
-  "styles.gpu.graph": "Grafik",
-  "styles.gpu.engines": "Motorlar",
-  "styles.gpu.gauge": "Gösterge",
-  "styles.gpu.engine3d": "3B",
-  "styles.gpu.engineCopy": "Kopyalama",
-  "styles.gpu.engineVideoEncode": "Video kodlama",
-  "styles.gpu.engineVideoDecode": "Video kod çözme"
-}

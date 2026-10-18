@@ -1,0 +1,13 @@
+{
+  "shell.meters.gpuDescription": "એક ગ્રાફિક્સ કાર્ડનો લોડ",
+  "styles.gpu.engine3d": "3D",
+  "styles.gpu.engineCopy": "કૉપિ",
+  "styles.gpu.engineVideoDecode": "વિડિઓ ડિકોડ",
+  "styles.gpu.engineVideoEncode": "વિડિઓ એન્કોડ",
+  "styles.gpu.engines": "એન્જિન",
+  "styles.gpu.gauge": "ગેજ",
+  "styles.gpu.graph": "ગ્રાફ",
+  "widgetsA.catalog.gpu.label": "GPU",
+  "widgetsB.gpu.adapterMissing": "પસંદ કરેલું ગ્રાફિક્સ ઍડૅપ્ટર અહીં નથી",
+  "widgetsB.gpu.noAdapter": "વાંચવા માટે કોઈ ગ્રાફિક્સ ઍડૅપ્ટર નથી"
+}

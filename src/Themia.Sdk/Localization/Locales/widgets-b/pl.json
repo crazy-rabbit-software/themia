@@ -339,8 +339,6 @@
   "widgetsB.disk.openInExplorer": "Otwórz {drive} w Eksploratorze",
   "widgetsB.disk.unavailable": "{drive} niedostępny",
   "widgetsB.network.noConnection": "brak połączenia",
-  "widgetsB.gpu.noAdapter": "Brak karty graficznej do odczytu",
-  "widgetsB.gpu.adapterMissing": "Wybranej karty graficznej nie ma",
   "widgetsB.settings.meters.history": "Historia",
   "widgetsB.settings.meters.chartSpan.label": "Zakres wykresu",
   "widgetsB.settings.meters.chartSpan.desc": "Ile historii obejmuje wykres",

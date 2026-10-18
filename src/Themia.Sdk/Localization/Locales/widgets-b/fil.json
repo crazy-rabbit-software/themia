@@ -315,8 +315,6 @@
   "widgetsB.disk.openInExplorer": "Buksan ang {drive} sa Explorer",
   "widgetsB.disk.unavailable": "Hindi available ang {drive}",
   "widgetsB.network.noConnection": "walang koneksyon",
-  "widgetsB.gpu.noAdapter": "Walang graphics adapter na mababasa",
-  "widgetsB.gpu.adapterMissing": "Wala rito ang napiling graphics adapter",
   "widgetsB.settings.meters.history": "History",
   "widgetsB.settings.meters.chartSpan.label": "Saklaw ng chart",
   "widgetsB.settings.meters.chartSpan.desc": "Gaano karaming history ang saklaw ng chart",

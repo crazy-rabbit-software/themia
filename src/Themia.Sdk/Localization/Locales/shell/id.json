@@ -585,7 +585,6 @@
   "shell.transfer.transitionLength": "Durasi animasi ganti tampilan",
   "shell.transfer.unlockLength": "Durasi animasi buka kunci",
   "shell.meters.systemDrive": "Drive sistem ({drive})",
-  "shell.meters.gpuDescription": "Beban satu kartu grafis",
   "shell.appearance.headerFade": "Seberapa pekat strip header; {percent} sama dengan widget",
   "shell.views.add": "Tambah tampilan",
   "shell.views.addDesc": "Tampilan baru yang kosong di akhir daftar",

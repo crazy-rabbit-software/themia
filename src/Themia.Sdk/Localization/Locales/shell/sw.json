@@ -603,7 +603,6 @@
   "shell.transfer.transitionLength": "Urefu wa uhuishaji wa kubadilisha mwonekano",
   "shell.transfer.unlockLength": "Urefu wa uhuishaji wa kufungua",
   "shell.meters.systemDrive": "Hifadhi ya mfumo ({drive})",
-  "shell.meters.gpuDescription": "Mzigo wa kadi moja ya michoro",
   "shell.appearance.headerFade": "Ukanda wa kichwa ni imara kiasi gani; {percent} hulingana na wijeti",
   "shell.views.add": "Ongeza mwonekano",
   "shell.views.addDesc": "Mwonekano mpya, tupu mwishoni mwa orodha",

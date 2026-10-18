@@ -315,8 +315,6 @@
   "widgetsB.disk.openInExplorer": "{drive} im Explorer öffnen",
   "widgetsB.disk.unavailable": "{drive} nicht verfügbar",
   "widgetsB.network.noConnection": "keine Verbindung",
-  "widgetsB.gpu.noAdapter": "Kein Grafikadapter zum Auslesen",
-  "widgetsB.gpu.adapterMissing": "Der gewählte Grafikadapter ist nicht vorhanden",
   "widgetsB.settings.meters.history": "Verlauf",
   "widgetsB.settings.meters.chartSpan.label": "Diagrammzeitraum",
   "widgetsB.settings.meters.chartSpan.desc": "Wie viel Verlauf das Diagramm zeigt",

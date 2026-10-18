@@ -1,9 +1,0 @@
-{
-  "styles.gpu.graph": "Grafiek",
-  "styles.gpu.engines": "Engines",
-  "styles.gpu.gauge": "Meter",
-  "styles.gpu.engine3d": "3D",
-  "styles.gpu.engineCopy": "Kopiëren",
-  "styles.gpu.engineVideoEncode": "Video coderen",
-  "styles.gpu.engineVideoDecode": "Video decoderen"
-}

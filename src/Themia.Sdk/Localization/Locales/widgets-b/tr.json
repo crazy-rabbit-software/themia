@@ -315,8 +315,6 @@
   "widgetsB.disk.openInExplorer": "{drive} sürücüsünü Dosya Gezgini'nde aç",
   "widgetsB.disk.unavailable": "{drive} kullanılamıyor",
   "widgetsB.network.noConnection": "bağlantı yok",
-  "widgetsB.gpu.noAdapter": "Okunacak grafik bağdaştırıcısı yok",
-  "widgetsB.gpu.adapterMissing": "Seçilen grafik bağdaştırıcısı burada değil",
   "widgetsB.settings.meters.history": "Geçmiş",
   "widgetsB.settings.meters.chartSpan.label": "Grafik süresi",
   "widgetsB.settings.meters.chartSpan.desc": "Grafiğin ne kadar geçmişi kapsadığı",

@@ -1,0 +1,13 @@
+{
+  "shell.meters.gpuDescription": "Obciążenie jednej karty graficznej",
+  "styles.gpu.engine3d": "3D",
+  "styles.gpu.engineCopy": "Kopiowanie",
+  "styles.gpu.engineVideoDecode": "Dekodowanie wideo",
+  "styles.gpu.engineVideoEncode": "Kodowanie wideo",
+  "styles.gpu.engines": "Silniki",
+  "styles.gpu.gauge": "Wskaźnik",
+  "styles.gpu.graph": "Wykres",
+  "widgetsA.catalog.gpu.label": "GPU",
+  "widgetsB.gpu.adapterMissing": "Wybranej karty graficznej nie ma",
+  "widgetsB.gpu.noAdapter": "Brak karty graficznej do odczytu"
+}

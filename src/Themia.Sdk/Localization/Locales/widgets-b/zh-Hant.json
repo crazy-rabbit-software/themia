@@ -303,8 +303,6 @@
   "widgetsB.disk.openInExplorer": "在檔案總管中開啟 {drive}",
   "widgetsB.disk.unavailable": "{drive} 無法使用",
   "widgetsB.network.noConnection": "沒有連線",
-  "widgetsB.gpu.noAdapter": "沒有可讀取的顯示卡",
-  "widgetsB.gpu.adapterMissing": "找不到所選的顯示卡",
   "widgetsB.settings.meters.history": "歷程記錄",
   "widgetsB.settings.meters.chartSpan.label": "圖表時間範圍",
   "widgetsB.settings.meters.chartSpan.desc": "圖表涵蓋的歷程時間長度",

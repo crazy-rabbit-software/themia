@@ -22,6 +22,7 @@
     <Project Path="src/Widgets/Themia.Widget.EnergySaverToggle/Themia.Widget.EnergySaverToggle.csproj" />
     <Project Path="src/Widgets/Themia.Widget.ExchangeRates/Themia.Widget.ExchangeRates.csproj" />
     <Project Path="src/Widgets/Themia.Widget.GameModeToggle/Themia.Widget.GameModeToggle.csproj" />
+    <Project Path="src/Widgets/Themia.Widget.Gpu/Themia.Widget.Gpu.csproj" />
     <Project Path="src/Widgets/Themia.Widget.Hibernate/Themia.Widget.Hibernate.csproj" />
     <Project Path="src/Widgets/Themia.Widget.Lock/Themia.Widget.Lock.csproj" />
     <Project Path="src/Widgets/Themia.Widget.Memory/Themia.Widget.Memory.csproj" />

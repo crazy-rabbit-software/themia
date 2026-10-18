@@ -339,8 +339,6 @@
   "widgetsB.disk.openInExplorer": "Открыть {drive} в проводнике",
   "widgetsB.disk.unavailable": "{drive} недоступен",
   "widgetsB.network.noConnection": "нет подключения",
-  "widgetsB.gpu.noAdapter": "Нет графического адаптера для чтения",
-  "widgetsB.gpu.adapterMissing": "Выбранного графического адаптера нет",
   "widgetsB.settings.meters.history": "История",
   "widgetsB.settings.meters.chartSpan.label": "Период графика",
   "widgetsB.settings.meters.chartSpan.desc": "За какой период график показывает историю",

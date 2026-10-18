@@ -303,8 +303,6 @@
   "widgetsB.disk.openInExplorer": "Buka {drive} di Explorer",
   "widgetsB.disk.unavailable": "{drive} tidak tersedia",
   "widgetsB.network.noConnection": "tidak ada koneksi",
-  "widgetsB.gpu.noAdapter": "Tidak ada adaptor grafis untuk dibaca",
-  "widgetsB.gpu.adapterMissing": "Adaptor grafis yang dipilih tidak ada",
   "widgetsB.settings.meters.history": "Riwayat",
   "widgetsB.settings.meters.chartSpan.label": "Rentang grafik",
   "widgetsB.settings.meters.chartSpan.desc": "Berapa banyak riwayat yang dicakup grafik",

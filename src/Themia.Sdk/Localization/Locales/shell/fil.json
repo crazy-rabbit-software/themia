@@ -603,7 +603,6 @@
   "shell.transfer.transitionLength": "Haba ng animation sa pagpapalit ng view",
   "shell.transfer.unlockLength": "Haba ng animation sa pag-unlock",
   "shell.meters.systemDrive": "Drive ng system ({drive})",
-  "shell.meters.gpuDescription": "Load ng isang graphics card",
   "shell.appearance.headerFade": "Gaano kasolido ang header strip; tugma sa widget ang {percent}",
   "shell.views.add": "Magdagdag ng view",
   "shell.views.addDesc": "Isang bago at walang lamang view sa dulo ng listahan",

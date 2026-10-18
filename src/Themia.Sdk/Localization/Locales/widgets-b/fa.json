@@ -315,8 +315,6 @@
   "widgetsB.disk.openInExplorer": "باز کردن {drive} در مرورگر فایل",
   "widgetsB.disk.unavailable": "{drive} در دسترس نیست",
   "widgetsB.network.noConnection": "بدون اتصال",
-  "widgetsB.gpu.noAdapter": "آداپتور گرافیکی برای خواندن نیست",
-  "widgetsB.gpu.adapterMissing": "آداپتور گرافیکی انتخاب‌شده اینجا نیست",
   "widgetsB.settings.meters.history": "سابقه",
   "widgetsB.settings.meters.chartSpan.label": "بازه نمودار",
   "widgetsB.settings.meters.chartSpan.desc": "نمودار چه مقدار از سابقه را پوشش دهد",

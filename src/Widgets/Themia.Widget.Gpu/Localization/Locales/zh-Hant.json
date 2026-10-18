@@ -1,0 +1,13 @@
+{
+  "shell.meters.gpuDescription": "單張顯示卡的負載",
+  "styles.gpu.engine3d": "3D",
+  "styles.gpu.engineCopy": "複製",
+  "styles.gpu.engineVideoDecode": "視訊解碼",
+  "styles.gpu.engineVideoEncode": "視訊編碼",
+  "styles.gpu.engines": "引擎",
+  "styles.gpu.gauge": "儀表",
+  "styles.gpu.graph": "圖表",
+  "widgetsA.catalog.gpu.label": "GPU",
+  "widgetsB.gpu.adapterMissing": "找不到所選的顯示卡",
+  "widgetsB.gpu.noAdapter": "沒有可讀取的顯示卡"
+}

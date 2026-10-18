@@ -1,9 +1,0 @@
-{
-  "styles.gpu.graph": "График",
-  "styles.gpu.engines": "Движки",
-  "styles.gpu.gauge": "Шкала",
-  "styles.gpu.engine3d": "3D",
-  "styles.gpu.engineCopy": "Копирование",
-  "styles.gpu.engineVideoEncode": "Кодирование видео",
-  "styles.gpu.engineVideoDecode": "Декодирование видео"
-}

@@ -1,0 +1,13 @@
+{
+  "shell.meters.gpuDescription": "ஒரு கிராஃபிக்ஸ் அட்டையின் சுமை",
+  "styles.gpu.engine3d": "3D",
+  "styles.gpu.engineCopy": "நகல்",
+  "styles.gpu.engineVideoDecode": "வீடியோ குறிவிலக்கம்",
+  "styles.gpu.engineVideoEncode": "வீடியோ குறியாக்கம்",
+  "styles.gpu.engines": "இயந்திரங்கள்",
+  "styles.gpu.gauge": "அளவீடு",
+  "styles.gpu.graph": "வரைபடம்",
+  "widgetsA.catalog.gpu.label": "GPU",
+  "widgetsB.gpu.adapterMissing": "தேர்ந்தெடுத்த கிராஃபிக்ஸ் அடாப்டர் இங்கே இல்லை",
+  "widgetsB.gpu.noAdapter": "படிக்க கிராஃபிக்ஸ் அடாப்டர் இல்லை"
+}

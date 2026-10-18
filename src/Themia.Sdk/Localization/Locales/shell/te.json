@@ -603,7 +603,6 @@
   "shell.transfer.transitionLength": "వీక్షణ మార్పు యానిమేషన్ వ్యవధి",
   "shell.transfer.unlockLength": "అన్‌లాక్ యానిమేషన్ వ్యవధి",
   "shell.meters.systemDrive": "సిస్టమ్ డ్రైవ్ ({drive})",
-  "shell.meters.gpuDescription": "ఒక గ్రాఫిక్స్ కార్డ్ లోడ్",
   "shell.appearance.headerFade": "హెడర్ పట్టీ ఎంత దృఢంగా ఉంటుంది; {percent} విడ్జెట్‌కు సరిపోతుంది",
   "shell.views.add": "వీక్షణను జోడించు",
   "shell.views.addDesc": "జాబితా చివర కొత్త, ఖాళీ వీక్షణ",

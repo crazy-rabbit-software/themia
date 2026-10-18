@@ -303,8 +303,6 @@
   "widgetsB.disk.openInExplorer": "Mở {drive} trong Explorer",
   "widgetsB.disk.unavailable": "{drive} không khả dụng",
   "widgetsB.network.noConnection": "không có kết nối",
-  "widgetsB.gpu.noAdapter": "Không có bộ điều hợp đồ họa để đọc",
-  "widgetsB.gpu.adapterMissing": "Không tìm thấy bộ điều hợp đồ họa đã chọn",
   "widgetsB.settings.meters.history": "Lịch sử",
   "widgetsB.settings.meters.chartSpan.label": "Khoảng biểu đồ",
   "widgetsB.settings.meters.chartSpan.desc": "Biểu đồ bao quát bao nhiêu lịch sử",

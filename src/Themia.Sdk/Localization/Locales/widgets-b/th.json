@@ -303,8 +303,6 @@
   "widgetsB.disk.openInExplorer": "เปิด {drive} ใน Explorer",
   "widgetsB.disk.unavailable": "{drive} ไม่พร้อมใช้งาน",
   "widgetsB.network.noConnection": "ไม่มีการเชื่อมต่อ",
-  "widgetsB.gpu.noAdapter": "ไม่มีอะแดปเตอร์กราฟิกให้อ่าน",
-  "widgetsB.gpu.adapterMissing": "ไม่พบอะแดปเตอร์กราฟิกที่เลือก",
   "widgetsB.settings.meters.history": "ประวัติ",
   "widgetsB.settings.meters.chartSpan.label": "ช่วงของแผนภูมิ",
   "widgetsB.settings.meters.chartSpan.desc": "ระยะเวลาของประวัติที่แผนภูมิครอบคลุม",

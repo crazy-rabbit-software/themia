@@ -1,0 +1,13 @@
+{
+  "shell.meters.gpuDescription": "โหลดของการ์ดกราฟิกหนึ่งใบ",
+  "styles.gpu.engine3d": "3D",
+  "styles.gpu.engineCopy": "คัดลอก",
+  "styles.gpu.engineVideoDecode": "ถอดรหัสวิดีโอ",
+  "styles.gpu.engineVideoEncode": "เข้ารหัสวิดีโอ",
+  "styles.gpu.engines": "เอนจิน",
+  "styles.gpu.gauge": "มาตรวัด",
+  "styles.gpu.graph": "กราฟ",
+  "widgetsA.catalog.gpu.label": "GPU",
+  "widgetsB.gpu.adapterMissing": "ไม่พบอะแดปเตอร์กราฟิกที่เลือก",
+  "widgetsB.gpu.noAdapter": "ไม่มีอะแดปเตอร์กราฟิกให้อ่าน"
+}

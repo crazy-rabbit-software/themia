@@ -603,7 +603,6 @@
   "shell.transfer.transitionLength": "व्यू बदलने के एनिमेशन की अवधि",
   "shell.transfer.unlockLength": "अनलॉक एनिमेशन की अवधि",
   "shell.meters.systemDrive": "सिस्टम ड्राइव ({drive})",
-  "shell.meters.gpuDescription": "एक ग्राफ़िक्स कार्ड का लोड",
   "shell.appearance.headerFade": "हेडर पट्टी कितनी ठोस हो; {percent} विजेट से मेल खाता है",
   "shell.views.add": "व्यू जोड़ें",
   "shell.views.addDesc": "सूची के अंत में एक नया, खाली व्यू",

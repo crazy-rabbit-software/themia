@@ -1542,14 +1542,7 @@ Ported from `widgets/system/{gpu,mixer,screentime}` on `main`. Owning files:
   adapters that are gone and stop at the first gap, while DXGI hands over the LUID the counters are
   filed under. One sampler is shared by every GPU widget: opened by the first, closed by the last,
   sampled on the pool, single-flight, read by the hub once per due tick ([S-2501], [S-2507]).
-- **[S-432]** Pressure colours the trace, never the number: high from 70% load, critical from 90%
-  (theme caution and critical brushes).
-- **[S-433]** One adapter per widget (user decision; a laptop's two GPUs are two widgets):
-  `GpuConfig.Adapter`, a DXGI position (software adapters left out). DXGI lists the adapter driving
-  the primary display first, so the default 0 is that one, else the first; a negative position is
-  repaired to 0, loudly. The settings choice names each adapter and is offered only with two or more
-  (the GPU details' row, [S-2431]). A chosen adapter that is not there (an eGPU unplugged) is said
-  as a state. No panels, no stacking.
+- [S-432], [S-433], [S-436], [S-6320], [S-6321]: moved with the GPU widget into its module's `SPEC.md` (`src/Widgets/Themia.Widget.Gpu/`).
 - **[S-434]** A counter instance belongs to the adapter whose `luid_...` token it carries, found
   anywhere in the name (engine instances start with `pid_...`, which the original's "starts with"
   match missed). Load is the **busiest engine**: per-engine sums across processes, then the
@@ -1560,13 +1553,7 @@ Ported from `widgets/system/{gpu,mixer,screentime}` on `main`. Owning files:
   counters (a borderless full-screen game collapses the 3D counter). Matched to the DXGI adapter by
   name (the n-th of identical cards), never guessed among several. Loaded once per sampler session;
   any failure leaves the counters' figure.
-- **[S-436]** Read on the hub's one cadence, every second ([S-2503]). Choosing another adapter
-  watches that adapter's own series, so its history is its own.
 
-- **[S-6320]** GPU styles, `GpuConfig.Style` (`GpuStyle`): **Graph** ([S-430]), **Engines**
-  ([S-6322]), **Gauge** ([S-6321]).
-- **[S-6321]** The tile lays its style on the meters' ladder with the meters' parts ([S-6300]).
-  Gauge: the load in the bowl ([S-6302]).
 - **[S-6322]** **Engines**: a row per engine type ([S-6304]) in the order 3D, Copy, Video encode,
   Video decode, for the types the adapter's counters list (an engine at 0 % is still listed; other
   types, compute or a vendor's own, are not drawn). A type's load is its busiest engine, summed
@@ -4054,11 +4041,7 @@ Code: `Widgets/GpuView.cs` + `GpuView.Panel.cs`, `Services/GpuSampler.cs`, Core 
 `MeterFace`; `Widgets/ScreenTimeView*.cs` (+ `.Footer.cs`), Core `ScreenTimeRules`; settings
 `WidgetSettings.Gpu.cs`, `WidgetSettings.SystemWidgets.cs`. Tests `GpuRulesTests`, `ScreenTimeRulesTests` (`S12xx_`).
 
-- **[S-1200]** The GPU chart is the meters' `SparkBand` holding `GraphSpanSeconds` one-second points
-  (`MeterTiming.Points`, default 1 min), folded to its width ([S-1121]); the page is the adapter
-  choice ([S-433]) and the shared history rows (show history, chart span). Supersedes the fixed 60-sample band of [S-430].
-- **[S-1201]** The tile is a meter face ([S-1762], `MeterFace.Plan`): the load alone on a tiny tile,
-  else the history under it (beside it on a strip) filling the tile.
+- [S-1200], [S-1201]: moved with the GPU widget into its module's `SPEC.md` (`src/Widgets/Themia.Widget.Gpu/`).
 - **[S-1207]** *(Retired: one adapter per widget, [S-433]; nothing shares the tile.)*
 - **[S-1210]** The ring's total takes the largest step that fits its hole; when even Caption cannot
   hold `4h 37m` it shows the compact form (`4.6h`, `13h` from ten hours, `37m`, `<1m`). Never clipped.

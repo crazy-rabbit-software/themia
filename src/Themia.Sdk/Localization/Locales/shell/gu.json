@@ -603,7 +603,6 @@
   "shell.transfer.transitionLength": "વ્યૂ બદલાવ ઍનિમેશનની લંબાઈ",
   "shell.transfer.unlockLength": "અનલૉક ઍનિમેશનની લંબાઈ",
   "shell.meters.systemDrive": "સિસ્ટમ ડ્રાઇવ ({drive})",
-  "shell.meters.gpuDescription": "એક ગ્રાફિક્સ કાર્ડનો લોડ",
   "shell.appearance.headerFade": "હેડર પટ્ટી કેટલી ઘન છે; {percent} વિજેટ સાથે મેળ ખાય છે",
   "shell.views.add": "વ્યૂ ઉમેરો",
   "shell.views.addDesc": "સૂચિના અંતે નવો, ખાલી વ્યૂ",

@@ -603,7 +603,6 @@
   "shell.transfer.transitionLength": "Görünüm değişikliği animasyon süresi",
   "shell.transfer.unlockLength": "Kilit açma animasyon süresi",
   "shell.meters.systemDrive": "Sistem sürücüsü ({drive})",
-  "shell.meters.gpuDescription": "Tek bir ekran kartının yükü",
   "shell.appearance.headerFade": "Başlık şeridinin ne kadar opak olduğu; {percent} pencere öğesiyle eşleşir",
   "shell.views.add": "Görünüm ekle",
   "shell.views.addDesc": "Listenin sonunda yeni, boş bir görünüm",

@@ -315,8 +315,6 @@
   "widgetsB.disk.openInExplorer": "Abrir {drive} en el Explorador",
   "widgetsB.disk.unavailable": "{drive} no disponible",
   "widgetsB.network.noConnection": "sin conexión",
-  "widgetsB.gpu.noAdapter": "No hay ningún adaptador gráfico que leer",
-  "widgetsB.gpu.adapterMissing": "El adaptador gráfico elegido no está",
   "widgetsB.settings.meters.history": "Historial",
   "widgetsB.settings.meters.chartSpan.label": "Intervalo del gráfico",
   "widgetsB.settings.meters.chartSpan.desc": "Cuánto historial cubre el gráfico",

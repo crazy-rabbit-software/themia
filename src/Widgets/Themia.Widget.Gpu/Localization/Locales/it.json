@@ -1,0 +1,13 @@
+{
+  "shell.meters.gpuDescription": "Carico di una scheda grafica",
+  "styles.gpu.engine3d": "3D",
+  "styles.gpu.engineCopy": "Copia",
+  "styles.gpu.engineVideoDecode": "Decodifica video",
+  "styles.gpu.engineVideoEncode": "Codifica video",
+  "styles.gpu.engines": "Motori",
+  "styles.gpu.gauge": "Indicatore",
+  "styles.gpu.graph": "Grafico",
+  "widgetsA.catalog.gpu.label": "GPU",
+  "widgetsB.gpu.adapterMissing": "La scheda video scelta non è presente",
+  "widgetsB.gpu.noAdapter": "Nessuna scheda video da leggere"
+}

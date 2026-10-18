@@ -303,8 +303,6 @@
   "widgetsB.disk.openInExplorer": "在资源管理器中打开 {drive}",
   "widgetsB.disk.unavailable": "{drive} 不可用",
   "widgetsB.network.noConnection": "无连接",
-  "widgetsB.gpu.noAdapter": "没有可读取的显卡",
-  "widgetsB.gpu.adapterMissing": "找不到所选显卡",
   "widgetsB.settings.meters.history": "历史记录",
   "widgetsB.settings.meters.chartSpan.label": "图表时间范围",
   "widgetsB.settings.meters.chartSpan.desc": "图表覆盖的历史时长",

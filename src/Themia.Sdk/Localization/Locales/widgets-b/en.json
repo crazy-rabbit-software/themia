@@ -314,8 +314,6 @@
   "widgetsB.disk.openInExplorer": "Open {drive} in Explorer",
   "widgetsB.disk.unavailable": "{drive} unavailable",
   "widgetsB.network.noConnection": "no connection",
-  "widgetsB.gpu.noAdapter": "No graphics adapter to read",
-  "widgetsB.gpu.adapterMissing": "The chosen graphics adapter is not here",
   "widgetsB.settings.meters.history": "History",
   "widgetsB.settings.meters.chartSpan.label": "Chart span",
   "widgetsB.settings.meters.chartSpan.desc": "How much history the chart covers",

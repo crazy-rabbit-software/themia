@@ -315,8 +315,6 @@
   "widgetsB.disk.openInExplorer": "Ouvrir {drive} dans l’Explorateur",
   "widgetsB.disk.unavailable": "{drive} indisponible",
   "widgetsB.network.noConnection": "aucune connexion",
-  "widgetsB.gpu.noAdapter": "Aucune carte graphique à lire",
-  "widgetsB.gpu.adapterMissing": "La carte graphique choisie est introuvable",
   "widgetsB.settings.meters.history": "Historique",
   "widgetsB.settings.meters.chartSpan.label": "Période du graphique",
   "widgetsB.settings.meters.chartSpan.desc": "Durée d'historique couverte par le graphique",

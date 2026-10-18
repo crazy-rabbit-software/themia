@@ -363,8 +363,6 @@
   "widgetsB.disk.openInExplorer": "فتح {drive} في المستكشف",
   "widgetsB.disk.unavailable": "{drive} غير متاح",
   "widgetsB.network.noConnection": "لا يوجد اتصال",
-  "widgetsB.gpu.noAdapter": "لا يوجد محول رسومات لقراءته",
-  "widgetsB.gpu.adapterMissing": "محول الرسومات المختار غير موجود",
   "widgetsB.settings.meters.history": "السجل",
   "widgetsB.settings.meters.chartSpan.label": "نطاق المخطط",
   "widgetsB.settings.meters.chartSpan.desc": "مقدار السجل الذي يغطيه المخطط",

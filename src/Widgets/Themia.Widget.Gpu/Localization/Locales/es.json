@@ -1,0 +1,13 @@
+{
+  "shell.meters.gpuDescription": "Carga de una tarjeta gráfica",
+  "styles.gpu.engine3d": "3D",
+  "styles.gpu.engineCopy": "Copia",
+  "styles.gpu.engineVideoDecode": "Descodificación de vídeo",
+  "styles.gpu.engineVideoEncode": "Codificación de vídeo",
+  "styles.gpu.engines": "Motores",
+  "styles.gpu.gauge": "Indicador",
+  "styles.gpu.graph": "Gráfico",
+  "widgetsA.catalog.gpu.label": "GPU",
+  "widgetsB.gpu.adapterMissing": "El adaptador gráfico elegido no está",
+  "widgetsB.gpu.noAdapter": "No hay ningún adaptador gráfico que leer"
+}

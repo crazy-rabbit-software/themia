@@ -603,7 +603,6 @@
   "shell.transfer.transitionLength": "Duración de la animación al cambiar de vista",
   "shell.transfer.unlockLength": "Duración de la animación al desbloquear",
   "shell.meters.systemDrive": "Unidad del sistema ({drive})",
-  "shell.meters.gpuDescription": "Carga de una tarjeta gráfica",
   "shell.appearance.headerFade": "Qué tan opaca es la franja del encabezado; {percent} coincide con el widget",
   "shell.views.add": "Añadir vista",
   "shell.views.addDesc": "Una vista nueva y vacía al final de la lista",

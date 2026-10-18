@@ -303,8 +303,6 @@
   "widgetsB.disk.openInExplorer": "{drive} をエクスプローラーで開く",
   "widgetsB.disk.unavailable": "{drive} は使用できません",
   "widgetsB.network.noConnection": "接続なし",
-  "widgetsB.gpu.noAdapter": "読み取れるグラフィックス アダプターがありません",
-  "widgetsB.gpu.adapterMissing": "選択したグラフィックス アダプターが見つかりません",
   "widgetsB.settings.meters.history": "履歴",
   "widgetsB.settings.meters.chartSpan.label": "グラフの期間",
   "widgetsB.settings.meters.chartSpan.desc": "グラフに表示する履歴の長さ",

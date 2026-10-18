@@ -1,0 +1,13 @@
+{
+  "shell.meters.gpuDescription": "एका ग्राफिक्स कार्डचा लोड",
+  "styles.gpu.engine3d": "3D",
+  "styles.gpu.engineCopy": "कॉपी",
+  "styles.gpu.engineVideoDecode": "व्हिडिओ डिकोड",
+  "styles.gpu.engineVideoEncode": "व्हिडिओ एन्कोड",
+  "styles.gpu.engines": "इंजिन",
+  "styles.gpu.gauge": "गेज",
+  "styles.gpu.graph": "आलेख",
+  "widgetsA.catalog.gpu.label": "GPU",
+  "widgetsB.gpu.adapterMissing": "निवडलेला ग्राफिक्स अ‍ॅडॉप्टर येथे नाही",
+  "widgetsB.gpu.noAdapter": "वाचण्यासाठी ग्राफिक्स अ‍ॅडॉप्टर नाही"
+}

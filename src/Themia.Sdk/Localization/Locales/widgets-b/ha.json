@@ -315,8 +315,6 @@
   "widgetsB.disk.openInExplorer": "Buɗe {drive} a Explorer",
   "widgetsB.disk.unavailable": "{drive} babu shi",
   "widgetsB.network.noConnection": "babu haɗi",
-  "widgetsB.gpu.noAdapter": "Babu adaftar zane da za a karanta",
-  "widgetsB.gpu.adapterMissing": "Adaftar zane da aka zaɓa ba ta nan",
   "widgetsB.settings.meters.history": "Tarihi",
   "widgetsB.settings.meters.chartSpan.label": "Tsawon jadawali",
   "widgetsB.settings.meters.chartSpan.desc": "Yawan tarihin da jadawalin ya ƙunsa",

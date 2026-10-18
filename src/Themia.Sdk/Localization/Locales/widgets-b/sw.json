@@ -315,8 +315,6 @@
   "widgetsB.disk.openInExplorer": "Fungua {drive} kwenye Kichunguzi",
   "widgetsB.disk.unavailable": "{drive} haipatikani",
   "widgetsB.network.noConnection": "hakuna muunganisho",
-  "widgetsB.gpu.noAdapter": "Hakuna adapta ya michoro ya kusoma",
-  "widgetsB.gpu.adapterMissing": "Adapta ya michoro iliyochaguliwa haipo hapa",
   "widgetsB.settings.meters.history": "Historia",
   "widgetsB.settings.meters.chartSpan.label": "Muda wa chati",
   "widgetsB.settings.meters.chartSpan.desc": "Chati inahusu historia ya muda gani",

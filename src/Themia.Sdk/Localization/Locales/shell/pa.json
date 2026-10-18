@@ -603,7 +603,6 @@
   "shell.transfer.transitionLength": "ਵਿਊ ਬਦਲਣ ਦੀ ਐਨੀਮੇਸ਼ਨ ਦੀ ਮਿਆਦ",
   "shell.transfer.unlockLength": "ਅਨਲੌਕ ਐਨੀਮੇਸ਼ਨ ਦੀ ਮਿਆਦ",
   "shell.meters.systemDrive": "ਸਿਸਟਮ ਡਰਾਈਵ ({drive})",
-  "shell.meters.gpuDescription": "ਇੱਕ ਗ੍ਰਾਫ਼ਿਕਸ ਕਾਰਡ ਦਾ ਲੋਡ",
   "shell.appearance.headerFade": "ਸਿਰਲੇਖ ਪੱਟੀ ਕਿੰਨੀ ਠੋਸ ਹੈ; {percent} ਵਿਜੇਟ ਨਾਲ ਮੇਲ ਖਾਂਦਾ ਹੈ",
   "shell.views.add": "ਵਿਊ ਜੋੜੋ",
   "shell.views.addDesc": "ਸੂਚੀ ਦੇ ਅੰਤ ਵਿੱਚ ਇੱਕ ਨਵਾਂ, ਖ਼ਾਲੀ ਵਿਊ",

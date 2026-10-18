@@ -1,0 +1,13 @@
+{
+  "shell.meters.gpuDescription": "Mzigo wa kadi moja ya michoro",
+  "styles.gpu.engine3d": "3D",
+  "styles.gpu.engineCopy": "Nakili",
+  "styles.gpu.engineVideoDecode": "Usimbuaji wa video",
+  "styles.gpu.engineVideoEncode": "Usimbaji wa video",
+  "styles.gpu.engines": "Injini",
+  "styles.gpu.gauge": "Kipimo",
+  "styles.gpu.graph": "Grafu",
+  "widgetsA.catalog.gpu.label": "GPU",
+  "widgetsB.gpu.adapterMissing": "Adapta ya michoro iliyochaguliwa haipo hapa",
+  "widgetsB.gpu.noAdapter": "Hakuna adapta ya michoro ya kusoma"
+}

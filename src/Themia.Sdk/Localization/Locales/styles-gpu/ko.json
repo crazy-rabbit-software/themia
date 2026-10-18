@@ -1,9 +1,0 @@
-{
-  "styles.gpu.graph": "그래프",
-  "styles.gpu.engines": "엔진",
-  "styles.gpu.gauge": "게이지",
-  "styles.gpu.engine3d": "3D",
-  "styles.gpu.engineCopy": "복사",
-  "styles.gpu.engineVideoEncode": "비디오 인코딩",
-  "styles.gpu.engineVideoDecode": "비디오 디코딩"
-}

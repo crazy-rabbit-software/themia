@@ -639,7 +639,6 @@
   "shell.transfer.transitionLength": "Długość animacji zmiany widoku",
   "shell.transfer.unlockLength": "Długość animacji odblokowania",
   "shell.meters.systemDrive": "Dysk systemowy ({drive})",
-  "shell.meters.gpuDescription": "Obciążenie jednej karty graficznej",
   "shell.appearance.headerFade": "Jak kryjący jest pasek nagłówka; {percent} odpowiada widżetowi",
   "shell.views.add": "Dodaj widok",
   "shell.views.addDesc": "Nowy, pusty widok na końcu listy",

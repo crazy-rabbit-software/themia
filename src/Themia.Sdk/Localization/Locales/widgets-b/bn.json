@@ -315,8 +315,6 @@
   "widgetsB.disk.openInExplorer": "এক্সপ্লোরারে {drive} খুলুন",
   "widgetsB.disk.unavailable": "{drive} অনুপলব্ধ",
   "widgetsB.network.noConnection": "সংযোগ নেই",
-  "widgetsB.gpu.noAdapter": "পড়ার মতো কোনো গ্রাফিক্স অ্যাডাপ্টার নেই",
-  "widgetsB.gpu.adapterMissing": "বেছে নেওয়া গ্রাফিক্স অ্যাডাপ্টারটি এখানে নেই",
   "widgetsB.settings.meters.history": "ইতিহাস",
   "widgetsB.settings.meters.chartSpan.label": "চার্টের পরিসর",
   "widgetsB.settings.meters.chartSpan.desc": "চার্ট কতটা ইতিহাস দেখায়",

@@ -315,8 +315,6 @@
   "widgetsB.disk.openInExplorer": "Apri {drive} in Esplora file",
   "widgetsB.disk.unavailable": "{drive} non disponibile",
   "widgetsB.network.noConnection": "nessuna connessione",
-  "widgetsB.gpu.noAdapter": "Nessuna scheda video da leggere",
-  "widgetsB.gpu.adapterMissing": "La scheda video scelta non è presente",
   "widgetsB.settings.meters.history": "Cronologia",
   "widgetsB.settings.meters.chartSpan.label": "Intervallo del grafico",
   "widgetsB.settings.meters.chartSpan.desc": "Quanta cronologia copre il grafico",

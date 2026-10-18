@@ -585,7 +585,6 @@
   "shell.transfer.transitionLength": "Thời lượng hiệu ứng đổi dạng xem",
   "shell.transfer.unlockLength": "Thời lượng hiệu ứng mở khóa",
   "shell.meters.systemDrive": "Ổ đĩa hệ thống ({drive})",
-  "shell.meters.gpuDescription": "Tải của một card đồ họa",
   "shell.appearance.headerFade": "Độ đặc của dải tiêu đề; {percent} giống tiện ích",
   "shell.views.add": "Thêm dạng xem",
   "shell.views.addDesc": "Một dạng xem mới, trống, ở cuối danh sách",

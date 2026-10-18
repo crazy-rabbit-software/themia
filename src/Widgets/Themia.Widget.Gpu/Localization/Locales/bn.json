@@ -1,0 +1,13 @@
+{
+  "shell.meters.gpuDescription": "একটি গ্রাফিক্স কার্ডের লোড",
+  "styles.gpu.engine3d": "3D",
+  "styles.gpu.engineCopy": "কপি",
+  "styles.gpu.engineVideoDecode": "ভিডিও ডিকোড",
+  "styles.gpu.engineVideoEncode": "ভিডিও এনকোড",
+  "styles.gpu.engines": "ইঞ্জিন",
+  "styles.gpu.gauge": "গেজ",
+  "styles.gpu.graph": "গ্রাফ",
+  "widgetsA.catalog.gpu.label": "GPU",
+  "widgetsB.gpu.adapterMissing": "বেছে নেওয়া গ্রাফিক্স অ্যাডাপ্টারটি এখানে নেই",
+  "widgetsB.gpu.noAdapter": "পড়ার মতো কোনো গ্রাফিক্স অ্যাডাপ্টার নেই"
+}

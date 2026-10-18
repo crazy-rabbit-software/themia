@@ -603,7 +603,6 @@
   "shell.transfer.transitionLength": "Dauer der Animation beim Ansichtswechsel",
   "shell.transfer.unlockLength": "Dauer der Entsperranimation",
   "shell.meters.systemDrive": "Systemlaufwerk ({drive})",
-  "shell.meters.gpuDescription": "Last einer Grafikkarte",
   "shell.appearance.headerFade": "Wie deckend die Kopfleiste ist; {percent} entspricht dem Widget",
   "shell.views.add": "Ansicht hinzufügen",
   "shell.views.addDesc": "Eine neue, leere Ansicht am Ende der Liste",

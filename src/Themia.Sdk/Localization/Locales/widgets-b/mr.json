@@ -315,8 +315,6 @@
   "widgetsB.disk.openInExplorer": "{drive} एक्सप्लोररमध्ये उघडा",
   "widgetsB.disk.unavailable": "{drive} अनुपलब्ध",
   "widgetsB.network.noConnection": "कनेक्शन नाही",
-  "widgetsB.gpu.noAdapter": "वाचण्यासाठी ग्राफिक्स अ‍ॅडॉप्टर नाही",
-  "widgetsB.gpu.adapterMissing": "निवडलेला ग्राफिक्स अ‍ॅडॉप्टर येथे नाही",
   "widgetsB.settings.meters.history": "इतिहास",
   "widgetsB.settings.meters.chartSpan.label": "चार्टचा कालावधी",
   "widgetsB.settings.meters.chartSpan.desc": "चार्ट किती इतिहास दाखवतो",

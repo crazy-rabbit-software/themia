@@ -1,0 +1,13 @@
+{
+  "shell.meters.gpuDescription": "ایک گرافکس کارڈ کا لوڈ",
+  "styles.gpu.engine3d": "3D",
+  "styles.gpu.engineCopy": "کاپی",
+  "styles.gpu.engineVideoDecode": "ویڈیو ڈی کوڈ",
+  "styles.gpu.engineVideoEncode": "ویڈیو انکوڈ",
+  "styles.gpu.engines": "انجن",
+  "styles.gpu.gauge": "گیج",
+  "styles.gpu.graph": "گراف",
+  "widgetsA.catalog.gpu.label": "GPU",
+  "widgetsB.gpu.adapterMissing": "منتخب گرافکس اڈاپٹر یہاں نہیں ہے",
+  "widgetsB.gpu.noAdapter": "پڑھنے کو کوئی گرافکس اڈاپٹر نہیں"
+}

@@ -585,7 +585,6 @@
   "shell.transfer.transitionLength": "ความยาวภาพเคลื่อนไหวเมื่อเปลี่ยนมุมมอง",
   "shell.transfer.unlockLength": "ความยาวภาพเคลื่อนไหวเมื่อปลดล็อก",
   "shell.meters.systemDrive": "ไดรฟ์ระบบ ({drive})",
-  "shell.meters.gpuDescription": "โหลดของการ์ดกราฟิกหนึ่งใบ",
   "shell.appearance.headerFade": "ความทึบของแถบส่วนหัว {percent} เท่ากับวิดเจ็ต",
   "shell.views.add": "เพิ่มมุมมอง",
   "shell.views.addDesc": "มุมมองใหม่ที่ว่างเปล่าที่ท้ายรายการ",

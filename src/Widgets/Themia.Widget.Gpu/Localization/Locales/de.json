@@ -1,0 +1,13 @@
+{
+  "shell.meters.gpuDescription": "Last einer Grafikkarte",
+  "styles.gpu.engine3d": "3D",
+  "styles.gpu.engineCopy": "Kopieren",
+  "styles.gpu.engineVideoDecode": "Video-Decoding",
+  "styles.gpu.engineVideoEncode": "Video-Encoding",
+  "styles.gpu.engines": "Engines",
+  "styles.gpu.gauge": "Tacho",
+  "styles.gpu.graph": "Verlauf",
+  "widgetsA.catalog.gpu.label": "GPU",
+  "widgetsB.gpu.adapterMissing": "Der gewählte Grafikadapter ist nicht vorhanden",
+  "widgetsB.gpu.noAdapter": "Kein Grafikadapter zum Auslesen"
+}

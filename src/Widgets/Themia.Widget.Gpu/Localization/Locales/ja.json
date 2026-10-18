@@ -1,0 +1,13 @@
+{
+  "shell.meters.gpuDescription": "1 枚のグラフィックス カードの負荷",
+  "styles.gpu.engine3d": "3D",
+  "styles.gpu.engineCopy": "コピー",
+  "styles.gpu.engineVideoDecode": "ビデオ デコード",
+  "styles.gpu.engineVideoEncode": "ビデオ エンコード",
+  "styles.gpu.engines": "エンジン",
+  "styles.gpu.gauge": "ゲージ",
+  "styles.gpu.graph": "グラフ",
+  "widgetsA.catalog.gpu.label": "GPU",
+  "widgetsB.gpu.adapterMissing": "選択したグラフィックス アダプターが見つかりません",
+  "widgetsB.gpu.noAdapter": "読み取れるグラフィックス アダプターがありません"
+}

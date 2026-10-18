@@ -603,7 +603,6 @@
   "shell.transfer.transitionLength": "Duração da animação de troca de visualização",
   "shell.transfer.unlockLength": "Duração da animação de desbloqueio",
   "shell.meters.systemDrive": "Unidade do sistema ({drive})",
-  "shell.meters.gpuDescription": "Carga de uma placa gráfica",
   "shell.appearance.headerFade": "O quão opaca é a faixa do cabeçalho; {percent} corresponde ao widget",
   "shell.views.add": "Adicionar visualização",
   "shell.views.addDesc": "Uma visualização nova e vazia no fim da lista",

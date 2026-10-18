@@ -585,7 +585,6 @@
   "shell.transfer.transitionLength": "视图切换动画时长",
   "shell.transfer.unlockLength": "解锁动画时长",
   "shell.meters.systemDrive": "系统驱动器 ({drive})",
-  "shell.meters.gpuDescription": "单张显卡的负载",
   "shell.appearance.headerFade": "标题栏的不透明度；{percent} 与小组件一致",
   "shell.views.add": "添加视图",
   "shell.views.addDesc": "在列表末尾添加一个新的空视图",

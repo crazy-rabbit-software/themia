@@ -303,8 +303,6 @@
   "widgetsB.disk.openInExplorer": "파일 탐색기에서 {drive} 열기",
   "widgetsB.disk.unavailable": "{drive} 사용할 수 없음",
   "widgetsB.network.noConnection": "연결 없음",
-  "widgetsB.gpu.noAdapter": "읽을 그래픽 어댑터가 없습니다",
-  "widgetsB.gpu.adapterMissing": "선택한 그래픽 어댑터가 없습니다",
   "widgetsB.settings.meters.history": "기록",
   "widgetsB.settings.meters.chartSpan.label": "차트 범위",
   "widgetsB.settings.meters.chartSpan.desc": "차트에 표시할 기록 기간",

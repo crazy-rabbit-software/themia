@@ -603,7 +603,6 @@
   "shell.transfer.transitionLength": "Durée de l’animation de changement de vue",
   "shell.transfer.unlockLength": "Durée de l’animation au déverrouillage",
   "shell.meters.systemDrive": "Lecteur système ({drive})",
-  "shell.meters.gpuDescription": "Charge d’une carte graphique",
   "shell.appearance.headerFade": "L’opacité du bandeau d’en-tête ; {percent} correspond au widget",
   "shell.views.add": "Ajouter une vue",
   "shell.views.addDesc": "Une nouvelle vue vide en fin de liste",
