@@ -42,6 +42,9 @@ public sealed partial class KitList
     /// <summary>[S-7033] The rows that carry inline actions, by place, and what reveals them.</summary>
     private readonly Dictionary<int, Reveal> _reveals = [];
 
+    /// <summary>[S-7033] The item under the pointer, by id, so a redraw (a tick, a sync) keeps its actions showing.</summary>
+    private string? _hoveredId;
+
     /// <summary>[S-7032] Re-label the times without rebuilding a row: "4m" an hour later is wrong, rebuilding to learn that is waste.</summary>
     public void Retime(DateTimeOffset now)
     {
@@ -55,8 +58,9 @@ public sealed partial class KitList
     /// <summary>Debug renders only: the row at <paramref name="index"/> as if the pointer were over it, so its inline actions show.</summary>
     public void PreviewHover(int index)
     {
-        if (_reveals.TryGetValue(index, out var reveal))
+        if (index >= 0 && index < _items.Count && _reveals.TryGetValue(index, out var reveal))
         {
+            _hoveredId = _items[index].Id;
             reveal.Hovered = true;
         }
     }
@@ -105,7 +109,8 @@ public sealed partial class KitList
         if (reveal is not null)
         {
             _reveals[index] = reveal;
-            _rowHooks.Add(reveal.Hook(row));
+            _rowHooks.Add(reveal.Hook(row, hovered => _hoveredId = hovered ? item.Id : _hoveredId == item.Id ? null : _hoveredId));
+            reveal.Hovered = string.Equals(_hoveredId, item.Id, StringComparison.Ordinal);
         }
 
         if ((item.Tooltip ?? item.Link?.OriginalString) is { } tip)
@@ -541,11 +546,20 @@ public sealed partial class KitList
             }
         }
 
-        /// <summary>Follow the pointer over <paramref name="row"/>; disposing lets go.</summary>
-        public IDisposable Hook(Border row)
+        /// <summary>Follow the pointer over <paramref name="row"/>, telling <paramref name="moved"/>; disposing lets go.</summary>
+        public IDisposable Hook(Border row, Action<bool> moved)
         {
-            void Entered(object sender, PointerRoutedEventArgs args) => Hovered = true;
-            void Exited(object sender, PointerRoutedEventArgs args) => Hovered = false;
+            void Entered(object sender, PointerRoutedEventArgs args)
+            {
+                Hovered = true;
+                moved(true);
+            }
+
+            void Exited(object sender, PointerRoutedEventArgs args)
+            {
+                Hovered = false;
+                moved(false);
+            }
 
             row.PointerEntered += Entered;
             row.PointerExited += Exited;

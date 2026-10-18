@@ -4,6 +4,7 @@ using Themia.App.Shell.Gallery;
 using Themia.Core.Accounts;
 using Themia.Core.Mail;
 using Themia.Core.Widgets;
+using Themia.Widget.Email;
 
 namespace Themia.App.Widgets;
 
@@ -47,24 +48,20 @@ internal sealed partial class EmailView : IWidgetPreviewState
         MailAccount[] accounts = state == "accounts" ? [work, home] : [work];
         _config.AccountIds = state == "accounts" ? [] : [work.Id];
 
-        if (_source is not null)
-        {
-            _source.AccountsChanged -= OnAccountsChanged;
-        }
-
-        CloseFeed();
         var failed = state is "stale" or "offline";
-        _source = new PreviewMailSource(accounts, [.. messages.Where(m => accounts.Any(a => a.Id == m.AccountId))], failed ? now.AddMinutes(-20) : now.AddMinutes(-3), failed);
-        Reopen();
-        Render();
+        var source = new MailKitSource(
+            new PreviewMailSource(accounts, [.. messages.Where(m => accounts.Any(a => a.Id == m.AccountId))], failed ? now.AddMinutes(-20) : now.AddMinutes(-3), failed),
+            () => _config);
+        UseSource(source);
+        _binding.Apply(source, _config, Tick, show: true);
 
         if (state == "hovered")
         {
-            _list.PreviewHover(0);
+            _binding.List.PreviewHover(0);
         }
         else if (state == "focused")
         {
-            _list.Focus(1);
+            _binding.List.Focus(1);
         }
 
         return Task.CompletedTask;

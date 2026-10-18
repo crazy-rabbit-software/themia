@@ -6,6 +6,5 @@
     "one": "Badiliko {count} linasubiri kusawazishwa",
     "other": "Mabadiliko {count} yanasubiri kusawazishwa"
   },
-  "sync.queueFull": "Mabadiliko mengi mno yanasubiri kusawazishwa; hili halikuhifadhiwa.",
-  "sync.withUpdated": "{sentence} Imesasishwa {time}."
+  "sync.queueFull": "Mabadiliko mengi mno yanasubiri kusawazishwa; hili halikuhifadhiwa."
 }

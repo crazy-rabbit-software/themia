@@ -2135,10 +2135,11 @@ instead of a separate hub program; [S-90]/[S-91] no longer describe it. Ported f
 - **[S-548]** The merged list is the newest N across accounts (undated last); times read now / 5m /
   3h / 2d / Sep 20 in list and compact, a time today / weekday / date in the row view [S-09], and
   re-label every minute without a fetch.
-- **[S-549]** Screens, each with its own sentence: no mail account (the Set up button, [S-1862]), chosen
-  account gone (link), needs sign-in naming the account (link), loading, offline / unreachable /
-  timed out / rate limited, empty folder ("No messages in Junk."), and a list with a warning when
-  one account failed [S-04, S-05, S-06].
+- **[S-549]** Screens are the kit's ([S-7040], [S-6421]): no mail account (the Set up button,
+  [S-1862]), chosen accounts gone, every account needing a sign-in (naming it), each with the
+  Accounts link; loading; with nothing held each failed account's line ("Work: No network");
+  an empty folder ("No messages in Junk."); a list whose failed or signed-out accounts are the
+  header's problem lines [S-04, S-05, S-06]. Mail's own failure sentences went with `MailScreens.Decide`.
 - **[S-550]** IMAP headers: folded fields unfold, the blank line ends the block, RFC 2047 words
   decode with their own charset (the word ends at the `?=` after the encoding, so a Q word starting
   `=C3` is one word), From splits name and address (including `addr (Name)`).
@@ -2167,7 +2168,7 @@ instead of a separate hub program; [S-90]/[S-91] no longer describe it. Ported f
   validity); a bare `uid` or anything else is refused.
   Every change SELECTs the listed folder and refuses on a known UIDVALIDITY mismatch.
 - **[S-556]** Fitting the tile: the account tag needs 260px, the preview 120px of height (one line
-  under 240px), the time 110px, the header's warning glyph 160px; the row view keeps the most
+  under 240px), the time 110px; the row view keeps the most
   essential columns whose minimums fit (From, Subject, Date, Account, Preview — so a narrow tile keeps
   From and Date), in the user's order, never fewer than one; the column header needs 140px.
 - **[S-557]** *(Retired: the debug widget gallery and its fixtures are gone, [S-1863].)*
@@ -2179,7 +2180,8 @@ instead of a separate hub program; [S-90]/[S-91] no longer describe it. Ported f
   so; before any message is held, an Outlook.com / Hotmail / Live / MSN address), else
   outlook.office.com; Gmail `mail.google.com/mail/?authuser=<address>&view=cm&fs=1`; IMAP a bare
   `mailto:` for the default mail app. A bare `mailto:` is the fourth launchable shape ([S-547]);
-  a refusal from the shell is the header warning.
+  a refusal from the shell is a line of the header's problem glyph ([S-7064]: the header's view
+  buttons are the kit's, `KitHeaderButton`).
 - **[S-559]** When mail last refreshed (issue #120): the menu's Refresh names the list's age, "Refresh ·
   updated 3 min. ago" (the language's short relative time, "now" under a minute or for a clock
   ahead), of the oldest account in the feed. "Updated" is when a list was last known current: fetched,
@@ -6593,10 +6595,10 @@ queue, schedules, merges, interests), `Themia.App/Services/Sync/SyncHost.cs` (ke
   rename, and a task created and deleted before either reached the provider leaves nothing. The head
   is never folded while it is on the wire. A confirmed create re-addresses later changes to the
   provider's id.
-- **[S-2612]** A stored copy the last sync could not improve on says when it is from: "Could not
-  refresh Work: no network. Updated 10:42." (mail), "Work: No network · updated Mon 10:42"
-  (contacts, calendar [S-2664]), "Last refresh failed: … Showing items from …" (tasks), and the kit's
-  one stale rule ([S-7042], [S-7064]) for Rss and the online widgets (weather now, the forecast,
+- **[S-2612]** A stored copy the last sync could not improve on says when it is from: "Work: No
+  network · updated Mon 10:42" (contacts, calendar [S-2664]), "Last refresh failed: … Showing items
+  from …" (tasks), and the kit's one stale rule ([S-7042], [S-7064]) for Rss, Mail and the online
+  widgets (weather now, the forecast,
   Stocks, exchange rates, air quality, rain): the header's problem glyph with one tooltip line per
   source and problem ("Work: No network · updated 10:42"), the age on the card menu's Refresh line
   ("Refresh · updated 4 min ago"), and no age drawn in the header (it was, in the caution colour

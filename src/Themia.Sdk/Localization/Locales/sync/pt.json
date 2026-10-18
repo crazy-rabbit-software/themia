@@ -6,6 +6,5 @@
     "one": "{count} alteração pendente",
     "other": "{count} alterações pendentes"
   },
-  "sync.queueFull": "Há alterações demais aguardando sincronização; esta não foi mantida.",
-  "sync.withUpdated": "{sentence} Atualizado {time}."
+  "sync.queueFull": "Há alterações demais aguardando sincronização; esta não foi mantida."
 }

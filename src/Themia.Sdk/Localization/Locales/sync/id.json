@@ -5,6 +5,5 @@
   "sync.pending": {
     "other": "{count} perubahan menunggu sinkronisasi"
   },
-  "sync.queueFull": "Terlalu banyak perubahan menunggu sinkronisasi; perubahan ini tidak disimpan.",
-  "sync.withUpdated": "{sentence} Diperbarui {time}."
+  "sync.queueFull": "Terlalu banyak perubahan menunggu sinkronisasi; perubahan ini tidak disimpan."
 }

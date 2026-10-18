@@ -6,6 +6,7 @@ using Themia.Core.Mail;
 using Themia.Core.Sync;
 using Themia.Core.Widgets;
 using Themia.Sdk;
+using Themia.Sdk.Kit;
 using Themia.Widget.Email;
 
 namespace Themia.Core.Model;
@@ -33,13 +34,22 @@ public enum EmailStyle
 /// would refuse the whole state file and blank every desktop.
 /// </para>
 /// </summary>
-public sealed class EmailConfig : WidgetConfig, IStyled, IShownSettings<EmailSetting>, ISetupRule, IInterests
+public sealed class EmailConfig : WidgetConfig, IStyled, IShownSettings<EmailSetting>, IKitConfig, IInterests
 {
     /// <summary>[S-2608] What the background sync keeps fresh for it.</summary>
     public void AddInterests(InterestsBuilder interests) => interests.Of<MailInterest>().Add(new MailInterest([.. EffectiveAccountIds], Folder, FetchCount));
 
-    /// <summary>[S-6906] It waits for setup while this holds.</summary>
-    public bool NeedsSetup(FeatureSet signedIn) => !signedIn.Has(HostFeatures.Mail);
+    /// <summary>[S-7050] [S-6906] A mail account: it waits for setup until one is signed in.</summary>
+    FeatureId? IKitConfig.Needs => HostFeatures.Mail;
+
+    /// <summary>Always something to read: the folder, of every account when none is named.</summary>
+    bool IKitConfig.Configured => true;
+
+    IReadOnlyList<string> IKitConfig.AccountIds => EffectiveAccountIds;
+
+    KitShow IKitConfig.Shows => MailSpec.Choices(this).Shows;
+
+    KitChoices IKitConfig.Choices => MailSpec.Choices(this);
 
     /// <summary>The fields the list and compact styles show when the user has not chosen.</summary>
     public static IReadOnlyList<MailListField> DefaultListFields { get; } = [MailListField.Subject, MailListField.Account];

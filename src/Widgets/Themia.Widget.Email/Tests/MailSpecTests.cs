@@ -55,7 +55,7 @@ public sealed class MailSpecTests
     }
 
     [Fact]
-    public void S7065_a_double_click_or_enter_opens_the_message_where_the_user_reads_mail()
+    public void S6420_a_double_click_or_enter_opens_the_message_where_the_user_reads_mail()
         => Assert.Equal(MailSpec.OpenId, KitMenu.Primary(MailSpec.Actions(Message(), canChange: false))?.Id);
 
     [Fact]

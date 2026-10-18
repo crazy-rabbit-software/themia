@@ -36,7 +36,7 @@ public sealed partial class KitHeader : StackPanel
     private double _width;
 
     /// <summary>The view buttons drawn, in order, with what each last showed.</summary>
-    private readonly List<(Border Element, IDisposable Hover, FontIcon Icon)> _buttons = [];
+    private readonly List<(Border Element, FontIcon Icon)> _buttons = [];
     private IReadOnlyList<KitHeaderButton> _shownButtons = [];
 
     public KitHeader(IWidgetHost host)
@@ -107,10 +107,12 @@ public sealed partial class KitHeader : StackPanel
         _problem.Tapped -= OnProblemTapped;
         Clear();
 
-        foreach (var (element, hover, _) in _buttons)
+        foreach (var (element, _) in _buttons)
         {
             element.Tapped -= OnButtonTapped;
-            hover.Dispose();
+            element.PointerEntered -= OnButtonEntered;
+            element.PointerExited -= OnButtonLeft;
+            element.PointerCanceled -= OnButtonLeft;
             Children.Remove(element);
         }
 
@@ -130,18 +132,22 @@ public sealed partial class KitHeader : StackPanel
                 Padding = new Thickness(Fluent.Space1),
                 CornerRadius = new CornerRadius(Fluent.ControlRadius),
                 Tag = _buttons.Count,
+                Background = Fluent.Clear(),
             };
 
-            ItemFill.Paint(element, ItemRole.Row);
+            // A control, not an item: the subtle button's fills, never the item layer's ([S-6570]).
             element.Tapped += OnButtonTapped;
-            _buttons.Add((element, Fluent.Hover(element), icon));
+            element.PointerEntered += OnButtonEntered;
+            element.PointerExited += OnButtonLeft;
+            element.PointerCanceled += OnButtonLeft;
+            _buttons.Add((element, icon));
             Children.Insert(Children.IndexOf(_badge), element);
         }
 
         var shown = 0;
         for (var i = 0; i < _buttons.Count; i++)
         {
-            var (element, _, icon) = _buttons[i];
+            var (element, icon) = _buttons[i];
             var visible = i < buttons.Count && KitHeaderParts.Fits(buttons[i].NeedsWidth, _width);
             element.Visibility = visible ? Visibility.Visible : Visibility.Collapsed;
 
@@ -156,6 +162,22 @@ public sealed partial class KitHeader : StackPanel
 
         _shownButtons = buttons;
         return shown;
+    }
+
+    private static void OnButtonEntered(object sender, PointerRoutedEventArgs args)
+    {
+        if (sender is Border element)
+        {
+            element.Background = Fluent.Brush("SubtleFillColorSecondaryBrush");
+        }
+    }
+
+    private static void OnButtonLeft(object sender, PointerRoutedEventArgs args)
+    {
+        if (sender is Border element)
+        {
+            element.Background = Fluent.Clear();
+        }
     }
 
     /// <summary>A view button: its action, or with several choices the menu under it that asks which.</summary>

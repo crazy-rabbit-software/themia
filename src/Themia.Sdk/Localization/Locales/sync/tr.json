@@ -6,6 +6,5 @@
     "one": "{count} değişiklik eşitlenmeyi bekliyor",
     "other": "{count} değişiklik eşitlenmeyi bekliyor"
   },
-  "sync.queueFull": "Eşitlenmeyi bekleyen çok fazla değişiklik var; bu değişiklik tutulmadı.",
-  "sync.withUpdated": "{sentence} Güncellendi: {time}."
+  "sync.queueFull": "Eşitlenmeyi bekleyen çok fazla değişiklik var; bu değişiklik tutulmadı."
 }

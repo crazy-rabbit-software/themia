@@ -22,26 +22,23 @@ public static class MailSpec
     public const string JunkId = "junk";
     public const string DeleteId = "delete";
 
-    /// <summary>[S-6403] The spec of a style: List and Compact are the stacked look, Table the table.</summary>
-    public static KitSpec Spec(EmailStyle style) => style == EmailStyle.Table ? Table : Stacked;
-
-    private static readonly KitSpec Stacked = new(
-        KitRowLook.TwoLine,
-        KitShow.All,
-        () => string.Empty,
-        () => string.Empty,
-        KitTime.Compact);
-
-    private static readonly KitSpec Table = new(
-        KitRowLook.Table,
-        KitShow.All,
-        () => string.Empty,
-        () => string.Empty,
-        KitTime.Compact)
+    /// <summary>
+    /// [S-6403] The spec of a style: List and Compact are the stacked look, Table the table. An empty
+    /// folder says which folder it is ("No messages in Inbox").
+    /// </summary>
+    /// <param name="folder">The folder the widget lists now; Inbox when null.</param>
+    public static KitSpec Spec(EmailStyle style, Func<MailFolder>? folder = null)
     {
-        ColumnHeading = column => Column(column).Label(),
-        ColumnTime = KitTime.Stamp,
-    };
+        string Empty() => Str.WidgetsB_Email_NoMessagesIn.Format(("folder", (folder?.Invoke() ?? MailFolder.Inbox).Label()));
+
+        return style == EmailStyle.Table
+            ? new(KitRowLook.Table, KitShow.All, () => string.Empty, Empty, KitTime.Compact)
+            {
+                ColumnHeading = column => Column(column).Label(),
+                ColumnTime = KitTime.Stamp,
+            }
+            : new(KitRowLook.TwoLine, KitShow.All, () => string.Empty, Empty, KitTime.Compact);
+    }
 
     /// <summary>[S-543] [S-6403] The fields the user has on: subject and account as chosen, the preview the List style's own.</summary>
     public static KitChoices Choices(EmailConfig config)

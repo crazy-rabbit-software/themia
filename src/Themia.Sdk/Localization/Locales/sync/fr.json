@@ -6,6 +6,5 @@
     "one": "{count} modification en attente",
     "other": "{count} modifications en attente"
   },
-  "sync.queueFull": "Trop de modifications attendent la synchronisation ; celle-ci n’a pas été conservée.",
-  "sync.withUpdated": "{sentence} Mis à jour {time}."
+  "sync.queueFull": "Trop de modifications attendent la synchronisation ; celle-ci n’a pas été conservée."
 }

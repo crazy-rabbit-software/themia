@@ -6,6 +6,5 @@
     "one": "{count} cambio pendiente",
     "other": "{count} cambios pendientes"
   },
-  "sync.queueFull": "Hay demasiados cambios pendientes de sincronizar; este no se ha guardado.",
-  "sync.withUpdated": "{sentence} Actualizado {time}."
+  "sync.queueFull": "Hay demasiados cambios pendientes de sincronizar; este no se ha guardado."
 }

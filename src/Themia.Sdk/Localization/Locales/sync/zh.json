@@ -5,6 +5,5 @@
   "sync.pending": {
     "other": "{count} 项更改待同步"
   },
-  "sync.queueFull": "等待同步的更改过多；此更改未保留。",
-  "sync.withUpdated": "{sentence}{time} 更新。"
+  "sync.queueFull": "等待同步的更改过多；此更改未保留。"
 }

@@ -6,6 +6,5 @@
     "one": "{count} pagbabagong naghihintay ma-sync",
     "other": "{count} pagbabagong naghihintay ma-sync"
   },
-  "sync.queueFull": "Masyadong maraming pagbabago ang naghihintay ma-sync; hindi naitago ang isang ito.",
-  "sync.withUpdated": "{sentence} Na-update {time}."
+  "sync.queueFull": "Masyadong maraming pagbabago ang naghihintay ma-sync; hindi naitago ang isang ito."
 }

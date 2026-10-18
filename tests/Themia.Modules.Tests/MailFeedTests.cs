@@ -9,6 +9,8 @@ using Themia.Core.Model;
 using Themia.Core.Storage;
 using Themia.Core.Widgets;
 using Themia.Sdk;
+using Themia.Sdk.Kit;
+using Themia.Widget.Email;
 using Xunit;
 
 namespace Themia.Core.Tests;
@@ -126,13 +128,29 @@ public class MailFeedTests
 
     private static MailAccountOutcome Failed(string id, FetchStatus status) => new(id, MailAccountState.Failed, status, "detail");
 
+    /// <summary>[S-6421] Mail's screen, as the kit decides it from the adapter's accounts and outcomes.</summary>
+    private static KitScreen Screen(Locale locale, IReadOnlyList<MailAccount> accounts, IReadOnlyList<string> chosen, IReadOnlyList<MailAccountOutcome> outcomes, int count, MailFolder folder)
+    {
+        var targets = MailScreens.Targets(accounts, chosen);
+        return KitScreens.Decide(
+            locale,
+            [.. accounts.Select(a => new KitAccount(a.Id, a.Label, a.Problem is null ? KitAccountState.Ok : KitAccountState.SignInRequired))],
+            chosen,
+            MailKitSource.Outcomes(targets, outcomes),
+            count,
+            MailSpec.Spec(EmailStyle.List, () => folder).Empty());
+    }
+
+    private static KitScreen Screen(IReadOnlyList<MailAccount> accounts, IReadOnlyList<string> chosen, IReadOnlyList<MailAccountOutcome> outcomes, int count, MailFolder folder)
+        => Screen(Locale.En, accounts, chosen, outcomes, count, folder);
+
     [Fact]
     public void S1862_no_account_at_all_is_left_to_the_set_up_button()
     {
-        var screen = MailScreens.Decide([], [], [], 0, MailFolder.Inbox);
-        Assert.Equal(MailScreenKind.NoAccounts, screen.Kind);
+        var screen = Screen([], [], [], 0, MailFolder.Inbox);
+        Assert.Equal(KitScreenKind.NoAccounts, screen.Kind);
         Assert.False(screen.OffersAccounts);
-        Assert.Equal(string.Empty, screen.Text);
+        Assert.Equal(string.Empty, screen.Sentence);
     }
 
     [Fact]
@@ -141,55 +159,56 @@ public class MailFeedTests
         Assert.Equal([Work, Home], MailScreens.Targets([Work, Home], []));
         Assert.Equal([Home], MailScreens.Targets([Work, Home], ["h", "gone"]));
 
-        var gone = MailScreens.Decide([Work], ["gone"], [], 0, MailFolder.Inbox);
-        Assert.Equal(MailScreenKind.AccountsGone, gone.Kind);
+        var gone = Screen([Work], ["gone"], [], 0, MailFolder.Inbox);
+        Assert.Equal(KitScreenKind.AccountsGone, gone.Kind);
         Assert.True(gone.OffersAccounts);
     }
 
     [Fact]
     public void S549_needs_sign_in_names_the_account()
     {
-        var screen = MailScreens.Decide([Work with { Problem = "revoked" }], [], [], 0, MailFolder.Inbox);
-        Assert.Equal(MailScreenKind.SignInRequired, screen.Kind);
-        Assert.Equal("Work needs you to sign in again.", screen.Text);
+        var screen = Screen([Work with { Problem = "revoked" }], [], [], 0, MailFolder.Inbox);
+        Assert.Equal(KitScreenKind.SignInRequired, screen.Kind);
+        Assert.Equal("Sign in to Work again to see it here.", screen.Sentence);
         Assert.True(screen.OffersAccounts);
 
-        // One broken, one fine and listing: the list shows, with a warning naming the broken one.
-        var partial = MailScreens.Decide([Work with { Problem = "revoked" }, Home], [], [Ok("h")], 4, MailFolder.Inbox);
-        Assert.Equal(MailScreenKind.Messages, partial.Kind);
-        Assert.Equal("Work needs you to sign in again.", partial.Warning);
+        // One broken, one fine and listing: the list shows, its header naming the broken one, and leads to Accounts.
+        var partial = Screen([Work with { Problem = "revoked" }, Home], [], [Ok("h")], 4, MailFolder.Inbox);
+        Assert.Equal(KitScreenKind.Items, partial.Kind);
+        Assert.True(partial.OffersAccounts);
+        Assert.Equal([$"Work: {FetchState.Message(Locale.En, FetchStatus.SignInRequired)}"], partial.HeaderProblems);
     }
 
     [Fact]
-    public void S549_loading_offline_rate_limited_and_empty()
+    public void S549_loading_offline_and_empty()
     {
-        Assert.Equal(MailScreenKind.Loading, MailScreens.Decide([Work], [], [], 0, MailFolder.Inbox).Kind);
+        Assert.Equal(KitScreenKind.Loading, Screen([Work], [], [], 0, MailFolder.Inbox).Kind);
 
-        var offline = MailScreens.Decide([Work], [], [Failed("w", FetchStatus.Offline)], 0, MailFolder.Inbox);
-        Assert.Equal(MailScreenKind.Failed, offline.Kind);
-        Assert.StartsWith("No network.", offline.Text, StringComparison.Ordinal);
+        var offline = Screen([Work], [], [Failed("w", FetchStatus.Offline)], 0, MailFolder.Inbox);
+        Assert.Equal(KitScreenKind.Problem, offline.Kind);
+        Assert.Equal($"Work: {FetchState.Message(Locale.En, FetchStatus.Offline)}", offline.Sentence);
         Assert.False(offline.OffersAccounts);
 
-        var limited = MailScreens.Decide([Work], [], [Failed("w", FetchStatus.RateLimited)], 0, MailFolder.Inbox);
-        Assert.Contains("slow down", limited.Text, StringComparison.Ordinal);
-
-        var signIn = MailScreens.Decide([Work], [], [Failed("w", FetchStatus.NotConfigured)], 0, MailFolder.Inbox);
-        Assert.Equal(MailScreenKind.SignInRequired, signIn.Kind);
-
-        var empty = MailScreens.Decide([Work], [], [Ok("w")], 0, MailFolder.Junk);
-        Assert.Equal(MailScreenKind.Empty, empty.Kind);
-        Assert.Equal("No messages in Junk.", empty.Text);
+        var empty = Screen([Work], [], [Ok("w")], 0, MailFolder.Junk);
+        Assert.Equal(KitScreenKind.Empty, empty.Kind);
+        Assert.Equal("No messages in Junk.", empty.Sentence);
 
         // One account still loading while the other is empty: still loading, not "empty".
-        Assert.Equal(MailScreenKind.Loading, MailScreens.Decide([Work, Home], [], [Ok("w")], 0, MailFolder.Inbox).Kind);
+        Assert.Equal(KitScreenKind.Loading, Screen([Work, Home], [], [Ok("w")], 0, MailFolder.Inbox).Kind);
     }
 
+    /// <summary>[S-7042] The one stale rule: a failed account over a list held says so in the header's glyph, with when its list is from.</summary>
     [Fact]
-    public void S549_a_failed_account_beside_a_working_one_warns_over_the_list()
+    public void S7042_a_failed_account_beside_a_working_one_is_the_headers_one_stale_line()
     {
-        var screen = MailScreens.Decide([Work, Home], [], [Ok("w"), Failed("h", FetchStatus.Unreachable)], 3, MailFolder.Inbox);
-        Assert.Equal(MailScreenKind.Messages, screen.Kind);
-        Assert.Equal("Could not refresh Home: can't reach the mail server.", screen.Warning);
+        var at = DateTimeOffset.Now.AddMinutes(-5);
+        MailAccountOutcome[] outcomes = [Ok("w"), Failed("h", FetchStatus.Unreachable) with { At = at }];
+
+        var screen = Screen([Work, Home], [], outcomes, 3, MailFolder.Inbox);
+        Assert.Equal(KitScreenKind.Items, screen.Kind);
+
+        var lines = KitFreshness.Lines(Locale.En, MailKitSource.Outcomes([Work, Home], outcomes), DateTimeOffset.Now);
+        Assert.Equal([$"Home: {FetchState.Message(Locale.En, FetchStatus.Unreachable)} · updated {KitFreshness.When(Locale.En, at, DateTimeOffset.Now)}"], lines);
     }
 
     [Fact]
@@ -224,12 +243,13 @@ public class MailFeedTests
         Assert.Equal(LocaleFormat.Date(de, new DateOnly(2026, 9, 20), DateStyle.MonthDayShort), MailTime.Short(new DateTimeOffset(2026, 9, 20, 8, 0, 0, TimeSpan.Zero), Now, de));
     }
 
-    /// <summary>[S-548] The screens and warnings in German, with the account name and folder filled in.</summary>
+    /// <summary>[S-548] The screens in German: the kit's sentences in the language asked for, the account named.</summary>
     [Fact]
     public void S548_screens_follow_the_language()
     {
-        var empty = MailScreens.Decide(Locale.De, [Work], [], [new MailAccountOutcome("w", MailAccountState.Ok, FetchStatus.Ok, null)], 0, MailFolder.Junk);
-        Assert.Equal("Keine Nachrichten in Spam.", empty.Text);
+        var offline = Screen(Locale.De, [Work], [], [Failed("w", FetchStatus.Offline)], 0, MailFolder.Junk);
+        Assert.Equal($"Work: {FetchState.Message(Locale.De, FetchStatus.Offline)}", offline.Sentence);
+        Assert.Equal(Strings.Format(Locale.De, Str.Kit_SignInAgain, ("account", "Work")), Screen(Locale.De, [Work with { Problem = "x" }], [], [], 0, MailFolder.Inbox).Sentence);
     }
 
     [Fact]
@@ -286,23 +306,24 @@ public class MailFeedTests
         }
     }
 
+    /// <summary>[S-559] [S-7042] The Refresh line says how old the oldest list is: the kit's one rule.</summary>
     [Fact]
     public void S559_refresh_says_how_old_the_oldest_list_is()
     {
-        Assert.Null(MailScreens.UpdatedAgo(Locale.En, [], Now));
-        Assert.Null(MailScreens.UpdatedAgo(Locale.En, [new MailAccountOutcome("w", MailAccountState.Pending, FetchStatus.Loading, null)], Now));
+        string Label(Locale locale, IReadOnlyList<MailAccountOutcome> outcomes)
+            => KitFreshness.RefreshLabel(locale, MailKitSource.Outcomes([Work, Home], outcomes), Now);
+
+        Assert.Equal("Refresh", Label(Locale.En, []));
+        Assert.Equal("Refresh", Label(Locale.En, [new MailAccountOutcome("w", MailAccountState.Pending, FetchStatus.Loading, null)]));
 
         MailAccountOutcome[] two =
         [
             new("w", MailAccountState.Ok, FetchStatus.Ok, null, At: Now.AddMinutes(-3)),
             new("h", MailAccountState.Failed, FetchStatus.Offline, null, At: Now.AddMinutes(-12)),
         ];
-        Assert.Equal("12 min. ago", MailScreens.UpdatedAgo(Locale.En, two, Now));
-        Assert.Equal("vor 12 Min.", MailScreens.UpdatedAgo(Locale.De, two, Now));
-
-        // Under a minute, and a provider clock running ahead, are both "now", never "in 2 min.".
-        Assert.Equal("now", MailScreens.UpdatedAgo(Locale.En, [two[0] with { At = Now.AddSeconds(-20) }], Now));
-        Assert.Equal("now", MailScreens.UpdatedAgo(Locale.En, [two[0] with { At = Now.AddMinutes(2) }], Now));
+        Assert.EndsWith("12 min. ago", Label(Locale.En, two), StringComparison.Ordinal);
+        Assert.EndsWith("vor 12 Min.", Label(Locale.De, two), StringComparison.Ordinal);
+        Assert.EndsWith("now", Label(Locale.En, [two[0] with { At = Now.AddMinutes(2) }]), StringComparison.Ordinal);
     }
 
     [Theory]

@@ -5,6 +5,5 @@
   "sync.pending": {
     "other": "{count} thay đổi đang chờ đồng bộ"
   },
-  "sync.queueFull": "Có quá nhiều thay đổi đang chờ đồng bộ; thay đổi này không được giữ lại.",
-  "sync.withUpdated": "{sentence} Đã cập nhật {time}."
+  "sync.queueFull": "Có quá nhiều thay đổi đang chờ đồng bộ; thay đổi này không được giữ lại."
 }

@@ -5,6 +5,5 @@
   "sync.pending": {
     "other": "동기화 대기 중인 변경 내용 {count}개"
   },
-  "sync.queueFull": "동기화 대기 중인 변경 내용이 너무 많아 이 변경 내용은 저장되지 않았습니다.",
-  "sync.withUpdated": "{sentence} {time}에 업데이트됨."
+  "sync.queueFull": "동기화 대기 중인 변경 내용이 너무 많아 이 변경 내용은 저장되지 않았습니다."
 }

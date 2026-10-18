@@ -497,19 +497,6 @@ public sealed class OfflineSyncTests : IDisposable
         Assert.Equal(LocaleFormat.Date(Locale.En, new DateOnly(2026, 9, 30), DateStyle.MonthDayShort), SyncFreshness.When(Locale.En, new DateTimeOffset(2026, 9, 30, 8, 0, 0, TimeSpan.Zero), now));
     }
 
-    [Fact]
-    public void S2612_a_mail_account_that_could_not_refresh_says_when_its_list_is_from()
-    {
-        var account = new MailAccount("w", HostProviders.Microsoft, "Work", "w@x.com", null);
-        var at = DateTimeOffset.Now.AddMinutes(-5);
-        var outcome = new MailAccountOutcome("w", MailAccountState.Failed, FetchStatus.Offline, null, null, at);
-
-        var screen = MailScreens.Decide(Locale.En, [account], [], [outcome], 3, MailFolder.Inbox);
-
-        Assert.Equal(MailScreenKind.Messages, screen.Kind);
-        Assert.Contains("Updated " + SyncFreshness.When(Locale.En, at, DateTimeOffset.Now), screen.Warning, StringComparison.Ordinal);
-    }
-
     // ---- [S-2620]..[S-2623] mail -------------------------------------------------------------------
 
     [Fact]

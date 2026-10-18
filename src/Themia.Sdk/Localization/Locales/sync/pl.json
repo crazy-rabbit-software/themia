@@ -8,6 +8,5 @@
     "many": "{count} zmian oczekuje",
     "other": "{count} zmiany oczekuje"
   },
-  "sync.queueFull": "Zbyt wiele zmian czeka na synchronizację; tej nie zachowano.",
-  "sync.withUpdated": "{sentence} Zaktualizowano {time}."
+  "sync.queueFull": "Zbyt wiele zmian czeka na synchronizację; tej nie zachowano."
 }

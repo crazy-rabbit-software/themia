@@ -24,8 +24,9 @@ public sealed class KitBinding : IDisposable
     private const string Scope = "kit";
 
     private readonly IWidgetHost _host;
-    private readonly KitSpec _spec;
+    private readonly Func<KitItem, IReadOnlyList<KitAction>> _actions;
     private readonly Action<KitItem, KitAction>? _handle;
+    private KitSpec _spec;
 
     private Ticker? _ticker;
     private IDisposable? _tick;
@@ -48,14 +49,15 @@ public sealed class KitBinding : IDisposable
 
         _host = host;
         _spec = spec;
+        _actions = actions;
         _handle = handle;
         List = new KitList(host, spec, actions, Run);
         Header = new KitHeader(host);
         State = new KitStatePanel(glyph, host) { Visibility = Visibility.Collapsed };
     }
 
-    /// <summary>The list part: the view puts it in its slot.</summary>
-    public KitList List { get; }
+    /// <summary>The list part: the view puts it in its slot (and the new one after <see cref="UseSpec"/>).</summary>
+    public KitList List { get; private set; }
 
     /// <summary>[S-7064] The header extras: the view hands it to the card as its <c>HeaderTrailing</c>.</summary>
     public KitHeader Header { get; }
@@ -142,6 +144,33 @@ public sealed class KitBinding : IDisposable
         }
 
         Render();
+    }
+
+    /// <summary>
+    /// A widget whose style changes its look (Mail's table): the list is made again for the new spec
+    /// and drawn; the view puts the returned list where the old one was. The header, the state panel,
+    /// the source and the cursor's item stay.
+    /// </summary>
+    public KitList UseSpec(KitSpec spec)
+    {
+        ArgumentNullException.ThrowIfNull(spec);
+
+        if (ReferenceEquals(spec, _spec))
+        {
+            return List;
+        }
+
+        _spec = spec;
+        List.Detach();
+        List = new KitList(_host, spec, _actions, Run);
+
+        if (_attached)
+        {
+            List.Attach();
+            Render();
+        }
+
+        return List;
     }
 
     /// <summary>[S-660] The content area changed.</summary>

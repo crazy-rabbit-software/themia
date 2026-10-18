@@ -6,6 +6,5 @@
     "one": "{count} wijziging wacht op synchronisatie",
     "other": "{count} wijzigingen wachten op synchronisatie"
   },
-  "sync.queueFull": "Te veel wijzigingen wachten op synchronisatie; deze is niet bewaard.",
-  "sync.withUpdated": "{sentence} Bijgewerkt {time}."
+  "sync.queueFull": "Te veel wijzigingen wachten op synchronisatie; deze is niet bewaard."
 }

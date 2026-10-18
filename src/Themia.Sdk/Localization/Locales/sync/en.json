@@ -6,6 +6,5 @@
     "one": "{count} change waiting to sync",
     "other": "{count} changes waiting to sync"
   },
-  "sync.queueFull": "Too many changes are waiting to sync; this one was not kept.",
-  "sync.withUpdated": "{sentence} Updated {time}."
+  "sync.queueFull": "Too many changes are waiting to sync; this one was not kept."
 }

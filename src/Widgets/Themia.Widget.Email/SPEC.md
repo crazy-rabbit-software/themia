@@ -28,8 +28,8 @@ its rows the kit's `KitList`), `EmailSettings.cs`, `Preview/` (Debug renders:
 - **[S-542]** List (sender + time, subject, preview), Compact (sender + time, subject) and Row (one
   line of user-ordered columns under a header row) views [S-14, S-37]; newest or oldest first over
   the same newest N [S-17]. The card title is the folder; the header carries the unread badge
-  [S-02], a warning glyph naming an account that failed or needs signing in (tap → Accounts), and a
-  busy ring only for a refresh the user asked for. The card menu offers Refresh, Write email
+  [S-02], the kit's problem glyph ([S-7064]: one line per account that failed or needs signing in, a
+  tap → Accounts where only the user can mend it) and a busy ring only for a refresh the user asked for. The card menu offers Refresh, Write email
   ([S-558]) and the five folders [S-20]; the style ([S-6403]) and the order are settings only ([S-1746]).
 - **[S-543]** List fields Subject / Account, default both on (the preview is the List style's own
   line, [S-6403]); the account tag shows whenever chosen [S-43]. Table columns From, Subject, Date,
@@ -72,6 +72,14 @@ its rows the kit's `KitList`), `EmailSettings.cs`, `Preview/` (Debug renders:
   title, the subject its subtitle, the account's name its badge, unread its emphasis, accent tone and
   closed envelope) and its menu lines `KitAction`s; its keys are the kit's ([S-7020]: Left and Right
   step like Up and Down, Ctrl+C copies the subject).
+- **[S-6421]** Mail is a kit view ([S-7061]): `MailKitSource` reads the host's one mail source for
+  the config's accounts, folder and count (the feed is pushed; Refresh is the feed's), its messages as
+  items, each account read as an outcome (signed out: sign in again; not answered: loading; failed:
+  its status, stamped with when its list is from), the accounts' states, the unread count for the
+  badge, and a change waiting, refused or a command that failed as the header's notes until the next
+  update. The binding draws the kit's screens, state panel and header: one stale rule ([S-7042]: the
+  problem glyph, one line per account, the age on the Refresh line), the compose (from 240px) and sort
+  (from 200px, on the list) buttons, the badge. The ring shows only for a refresh the user asked for.
 - **[S-1286]** How many messages is not a setting (user decision): every Mail widget asks for the
   whole shelf the sync keeps per folder (`EmailConfig.FetchCount` = `MailShelves.MaxPerFolder`, 50),
   newest first, and the list scrolls past the rows that fit, so a big tile is never half empty and
