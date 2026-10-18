@@ -865,7 +865,8 @@ Module sections live in `src/Widgets/*/SPEC.md` and `src/Providers/*/SPEC.md` ([
   preview ([S-1251]), Settings › Accounts (false where there is none, a debug render), and the
   host's services a widget reads: the Recycle Bin (`IRecycleBin`: the one answer how full it is and
   Windows' own empty, [S-4863]) and what runs a power action (`IPowerBackend`: the machine's calls,
-  inert on a preview, [S-1243], [S-1251]). The host makes one per card, every member shared by all of them. What a widget shares with the settings
+  inert on a preview, [S-1243], [S-1251]) and the quick settings (`IQuickToggles`: one
+  shared `IToggleSource` per toggle, [S-3907]). The host makes one per card, every member shared by all of them. What a widget shares with the settings
   window is in `Themia.Sdk.WinUI` too: the settings rows (`FluentLayout`, `ColorChoice`,
   `RowReorder`, `SettingRow`), the item menu (`ItemMenu`), `Notices`, a drop target's contract
   (`IWidgetDropTarget` over `IWidgetDrag`); the parts that need Win32 (the eyedropper, a file's
@@ -5811,8 +5812,8 @@ App: `QuickToggleView`, `Services/Toggles/*` (one source per toggle, `ToggleHub`
   (Caption to Title, about a sixth of the height), and the state line ("On", "Off", "Unavailable",
   one step smaller) where the height allows; a wide strip puts the icon left of the name and state.
   The text is planned for the language's longest state line, so switching moves nothing. Icon 16–128.
-- **[S-3907]** One source per toggle for the whole app (`ToggleHub`), started by its first widget and
-  stopped by its last; a change reaches each widget on its own thread. No source polls: each follows
+- **[S-3907]** One source per toggle for the whole app (`ToggleHub`, host code; a widget reaches it
+  through `IWidgetHost.Toggles`, [S-6913]), started by its first widget and stopped by its last; a change reaches each widget on its own thread. No source polls: each follows
   the notification its setting has and reads again when it fires. The pointer coming onto a tile
   re-reads what Windows announces nowhere (availability, a do not disturb rule). Nothing blocks the UI
   thread; every native callback catches, logs and returns. Native AOT: `LibraryImport`, COM through

@@ -12,5 +12,5 @@ public sealed class DoNotDisturbToggleModule : IWidgetModule
 {
     public WidgetDescriptor Descriptor => DoNotDisturbToggleConfig.Descriptor;
 
-    public FrameworkElement CreateView(IWidgetHost host) => new QuickToggleView(DoNotDisturbToggleConfig.Descriptor.Id);
+    public FrameworkElement CreateView(IWidgetHost host) => new QuickToggleView(DoNotDisturbToggleConfig.Descriptor.Id, host);
 }

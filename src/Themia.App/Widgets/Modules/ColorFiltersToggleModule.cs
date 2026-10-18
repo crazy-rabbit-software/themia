@@ -12,5 +12,5 @@ public sealed class ColorFiltersToggleModule : IWidgetModule
 {
     public WidgetDescriptor Descriptor => ColorFiltersToggleConfig.Descriptor;
 
-    public FrameworkElement CreateView(IWidgetHost host) => new QuickToggleView(ColorFiltersToggleConfig.Descriptor.Id);
+    public FrameworkElement CreateView(IWidgetHost host) => new QuickToggleView(ColorFiltersToggleConfig.Descriptor.Id, host);
 }

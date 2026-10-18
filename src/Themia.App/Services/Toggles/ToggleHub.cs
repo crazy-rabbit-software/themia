@@ -2,6 +2,7 @@ using Microsoft.UI.Dispatching;
 using Themia.Core.Diagnostics;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
+using Themia.Sdk.WinUI;
 
 namespace Themia.App.Services.Toggles;
 
@@ -137,8 +138,16 @@ internal static class ToggleHub
     }
 }
 
+/// <summary>[S-6913] The toggles a widget asks for (<see cref="IWidgetHost.Toggles"/>): the hub's.</summary>
+internal sealed class HostToggles : IQuickToggles
+{
+    public static HostToggles Instance { get; } = new();
+
+    public IToggleSource Acquire(QuickToggle toggle, Action changed) => ToggleHub.Acquire(toggle, changed);
+}
+
 /// <summary>One widget's hold on a toggle's source.</summary>
-internal sealed class ToggleLease : IDisposable
+internal sealed class ToggleLease : IToggleSource
 {
     private readonly DispatcherQueue _queue;
     private readonly Action _changed;

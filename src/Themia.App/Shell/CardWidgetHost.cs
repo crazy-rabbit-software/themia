@@ -1,5 +1,6 @@
 using Microsoft.UI.Dispatching;
 using Themia.App.Services;
+using Themia.App.Services.Toggles;
 using Themia.Core.Widgets;
 using Themia.Sdk.WinUI;
 
@@ -24,6 +25,8 @@ internal sealed class CardWidgetHost(IWidgetCardHost card) : IWidgetHost
 
     /// <summary>[S-1251] Inert unless the card is a real widget on the desktop.</summary>
     public IPowerBackend Power => card.IsPreview ? InertPowerActions.Instance : Win32PowerActions.Instance;
+
+    public IQuickToggles Toggles => HostToggles.Instance;
 
     public bool ShowAccounts()
     {

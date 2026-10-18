@@ -12,5 +12,5 @@ public sealed class WifiToggleModule : IWidgetModule
 {
     public WidgetDescriptor Descriptor => WifiToggleConfig.Descriptor;
 
-    public FrameworkElement CreateView(IWidgetHost host) => new QuickToggleView(WifiToggleConfig.Descriptor.Id);
+    public FrameworkElement CreateView(IWidgetHost host) => new QuickToggleView(WifiToggleConfig.Descriptor.Id, host);
 }

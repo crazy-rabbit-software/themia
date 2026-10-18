@@ -5,7 +5,6 @@ using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Media;
 using Themia.App.Services;
-using Themia.App.Services.Toggles;
 using Themia.App.Shell;
 using Themia.Core.Diagnostics;
 using Themia.Core.Localization;
@@ -25,7 +24,7 @@ namespace Themia.App.Widgets;
 /// <b>The tile is the switch</b> ([S-3904]): accent-filled while on, the Windows 11 subtle fills on hover
 /// and press while off, dimmed with the reason in the tooltip where it cannot be switched. As with the
 /// power widgets it is not a <see cref="Button"/>: in edit mode the press belongs to the card. The state
-/// comes from one shared source per toggle (<see cref="ToggleHub"/>) that follows Windows' own
+/// comes from one shared source per toggle (<see cref="IWidgetHost.Toggles"/>, the host's) that follows Windows' own
 /// notifications; the clicks go through <see cref="ToggleGate"/> ([S-3905]). A debug render never
 /// touches the machine ([S-1251]): it shows a made-up reading.
 /// </para>
@@ -40,6 +39,7 @@ internal sealed partial class QuickToggleView : Grid, IWidgetView, IWidgetSizeAw
     private const string Scope = "toggles";
 
     private readonly QuickToggle _toggle;
+    private readonly IWidgetHost _host;
     private readonly StackPanel _face = new() { HorizontalAlignment = HorizontalAlignment.Center, VerticalAlignment = VerticalAlignment.Center };
     private readonly StackPanel _words = new() { VerticalAlignment = VerticalAlignment.Center };
     private readonly FontIcon _icon;
@@ -60,7 +60,7 @@ internal sealed partial class QuickToggleView : Grid, IWidgetView, IWidgetSizeAw
     private readonly Brush _controlEdge = ThemeBrush.Of("ControlStrokeColorDefaultBrush", Colors.Gray);
 
     private IWidgetSurface? _surface;
-    private ToggleLease? _lease;
+    private IToggleSource? _lease;
     private ToggleReading _preview = ToggleReading.Of(false);
     private QuickToggleStyle _style = QuickToggleStyle.Tile;
     private WidgetArea _area;
@@ -68,8 +68,9 @@ internal sealed partial class QuickToggleView : Grid, IWidgetView, IWidgetSizeAw
     private bool _pressed;
     private bool _detached = true;
 
-    public QuickToggleView(WidgetId kind)
+    public QuickToggleView(WidgetId kind, IWidgetHost host)
     {
+        _host = host;
         _toggle = QuickToggleRules.ForKind(kind) ?? QuickToggle.Wifi;
         if (QuickToggleRules.ForKind(kind) is null)
         {
@@ -127,7 +128,7 @@ internal sealed partial class QuickToggleView : Grid, IWidgetView, IWidgetSizeAw
         // [S-1251] A debug render reads nothing and switches nothing.
         if (_surface is not { IsPreview: true })
         {
-            _lease = ToggleHub.Acquire(_toggle, OnChanged);
+            _lease = _host.Toggles.Acquire(_toggle, OnChanged);
         }
 
         // [S-1881] Subscribed here, not in the constructor.

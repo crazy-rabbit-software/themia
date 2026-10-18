@@ -42,4 +42,7 @@ public interface IWidgetHost
     /// backend that logs and runs nothing on a preview (a debug render). Asked when the view attaches.
     /// </summary>
     IPowerBackend Power { get; }
+
+    /// <summary>[S-3907] The quick settings a toggle widget follows and switches: one shared source per toggle.</summary>
+    IQuickToggles Toggles { get; }
 }
