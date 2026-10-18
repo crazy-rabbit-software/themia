@@ -1,0 +1,20 @@
+{
+  "alarm.desc": "در زمانی که تعیین می‌کنید زنگ می‌زند، یک بار یا در روزهای انتخابی",
+  "alarm.label": "زنگ هشدار",
+  "alarm.settings.namePlaceholder": "نام (اختیاری)",
+  "alarm.settings.name.label": "نام",
+  "alarm.settings.on.desc": "در زمان و روزهای خودش زنگ می‌زند",
+  "alarm.settings.on.label": "روشن",
+  "alarm.settings.repeat": "تکرار در",
+  "alarm.settings.repeat.desc": "بدون روز: یک بار زنگ می‌زند",
+  "alarm.settings.snooze.desc": "تعویق، زنگ هشدار را چه مدت عقب می‌اندازد",
+  "alarm.settings.snooze.label": "مدت تعویق",
+  "alarm.settings.sound.desc": "زنگ هشدار با چه صدایی بزند",
+  "alarm.settings.sound.label": "صدا",
+  "alarm.settings.time.label": "زمان",
+  "alarm.settings.volume.desc": "بلندی صدای زنگ",
+  "alarm.settings.volume.label": "میزان صدا",
+  "alarm.settings.whileRunning": "زنگ‌های هشدار فقط وقتی Themia در حال اجراست زنگ می‌زنند. زنگی که هنگام خواب رایانه سررسید شود، پس از بیدار شدن زنگ می‌زند، اگر کمتر از پنج دقیقه گذشته باشد.",
+  "alarm.switchOff": "خاموش کردن {name}",
+  "alarm.switchOn": "روشن کردن {name}"
+}

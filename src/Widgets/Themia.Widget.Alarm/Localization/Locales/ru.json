@@ -1,0 +1,20 @@
+{
+  "alarm.desc": "Звонит в заданное время, один раз или в выбранные дни",
+  "alarm.label": "Будильник",
+  "alarm.settings.namePlaceholder": "Название (необязательно)",
+  "alarm.settings.name.label": "Название",
+  "alarm.settings.on.desc": "Звонит в своё время по своим дням",
+  "alarm.settings.on.label": "Включён",
+  "alarm.settings.repeat": "Повторять по",
+  "alarm.settings.repeat.desc": "Без дней: звонит один раз",
+  "alarm.settings.snooze.desc": "На сколько «Отложить» сдвигает будильник",
+  "alarm.settings.snooze.label": "Отложить на",
+  "alarm.settings.sound.desc": "Каким звуком звонит будильник",
+  "alarm.settings.sound.label": "Звук",
+  "alarm.settings.time.label": "Время",
+  "alarm.settings.volume.desc": "Насколько громко звонит",
+  "alarm.settings.volume.label": "Громкость",
+  "alarm.settings.whileRunning": "Будильники звонят, только пока Themia запущена. Будильник, время которого наступило, пока компьютер находится в спящем режиме, зазвонит при его пробуждении, если это произойдёт в течение пяти минут.",
+  "alarm.switchOff": "Выключить «{name}»",
+  "alarm.switchOn": "Включить «{name}»"
+}

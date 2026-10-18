@@ -1,0 +1,20 @@
+{
+  "alarm.desc": "يرن في الوقت الذي تحدده، مرة واحدة أو في أيام تختارها",
+  "alarm.label": "منبه",
+  "alarm.settings.namePlaceholder": "الاسم (اختياري)",
+  "alarm.settings.name.label": "الاسم",
+  "alarm.settings.on.desc": "يرنّ في وقته وفي أيامه",
+  "alarm.settings.on.label": "مُفعَّل",
+  "alarm.settings.repeat": "يتكرر في",
+  "alarm.settings.repeat.desc": "بلا أيام: يرنّ مرة واحدة",
+  "alarm.settings.snooze.desc": "المدة التي تؤجل بها الغفوة المنبه",
+  "alarm.settings.snooze.label": "مدة الغفوة",
+  "alarm.settings.sound.desc": "الصوت الذي يرن به المنبه",
+  "alarm.settings.sound.label": "الصوت",
+  "alarm.settings.time.label": "الوقت",
+  "alarm.settings.volume.desc": "مدى ارتفاع الرنين",
+  "alarm.settings.volume.label": "مستوى الصوت",
+  "alarm.settings.whileRunning": "ترن المنبهات فقط أثناء تشغيل Themia. المنبه الذي يحين موعده أثناء وجود الكمبيوتر في وضع السكون يرن عند استيقاظه، إذا كان ذلك خلال خمس دقائق.",
+  "alarm.switchOff": "إيقاف {name}",
+  "alarm.switchOn": "تشغيل {name}"
+}

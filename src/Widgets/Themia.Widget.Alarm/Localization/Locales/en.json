@@ -1,0 +1,21 @@
+{
+  "$englishOnly": [],
+  "alarm.desc": "Rings at a time you set, once or on chosen days",
+  "alarm.label": "Alarm",
+  "alarm.settings.namePlaceholder": "Name (optional)",
+  "alarm.settings.name.label": "Name",
+  "alarm.settings.on.desc": "Rings at its time, on its days",
+  "alarm.settings.on.label": "Switched on",
+  "alarm.settings.repeat": "Repeats on",
+  "alarm.settings.repeat.desc": "None chosen: it rings once",
+  "alarm.settings.snooze.desc": "How long Snooze puts the alarm off",
+  "alarm.settings.snooze.label": "Snooze for",
+  "alarm.settings.sound.desc": "What an alarm rings with",
+  "alarm.settings.sound.label": "Sound",
+  "alarm.settings.time.label": "Time",
+  "alarm.settings.volume.desc": "How loud the ring is",
+  "alarm.settings.volume.label": "Volume",
+  "alarm.settings.whileRunning": "Alarms ring only while Themia is running. One that comes due while the PC sleeps rings when it wakes, if that is within five minutes.",
+  "alarm.switchOff": "Turn {name} off",
+  "alarm.switchOn": "Turn {name} on"
+}

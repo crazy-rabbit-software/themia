@@ -1,0 +1,20 @@
+{
+  "alarm.desc": "ਤੁਹਾਡੇ ਵੱਲੋਂ ਸੈੱਟ ਕੀਤੇ ਸਮੇਂ ਉੱਤੇ ਵੱਜਦਾ ਹੈ, ਇੱਕ ਵਾਰ ਜਾਂ ਚੁਣੇ ਦਿਨਾਂ ਉੱਤੇ",
+  "alarm.label": "ਅਲਾਰਮ",
+  "alarm.settings.namePlaceholder": "ਨਾਮ (ਵਿਕਲਪਿਕ)",
+  "alarm.settings.name.label": "ਨਾਮ",
+  "alarm.settings.on.desc": "ਆਪਣੇ ਸਮੇਂ ਅਤੇ ਦਿਨਾਂ 'ਤੇ ਵੱਜਦਾ ਹੈ",
+  "alarm.settings.on.label": "ਚਾਲੂ",
+  "alarm.settings.repeat": "ਇਹਨਾਂ ਦਿਨਾਂ ਦੁਹਰਾਓ",
+  "alarm.settings.repeat.desc": "ਕੋਈ ਦਿਨ ਨਹੀਂ: ਇੱਕ ਵਾਰ ਵੱਜਦਾ ਹੈ",
+  "alarm.settings.snooze.desc": "ਸਨੂਜ਼ ਅਲਾਰਮ ਨੂੰ ਕਿੰਨੀ ਦੇਰ ਲਈ ਟਾਲਦਾ ਹੈ",
+  "alarm.settings.snooze.label": "ਸਨੂਜ਼ ਦੀ ਮਿਆਦ",
+  "alarm.settings.sound.desc": "ਅਲਾਰਮ ਕਿਸ ਧੁਨੀ ਨਾਲ ਵੱਜਦਾ ਹੈ",
+  "alarm.settings.sound.label": "ਧੁਨੀ",
+  "alarm.settings.time.label": "ਸਮਾਂ",
+  "alarm.settings.volume.desc": "ਘੰਟੀ ਕਿੰਨੀ ਉੱਚੀ ਹੈ",
+  "alarm.settings.volume.label": "ਆਵਾਜ਼",
+  "alarm.settings.whileRunning": "ਅਲਾਰਮ ਸਿਰਫ਼ ਉਦੋਂ ਵੱਜਦੇ ਹਨ ਜਦੋਂ Themia ਚੱਲ ਰਿਹਾ ਹੋਵੇ। ਜੇ PC ਦੇ ਸਲੀਪ ਦੌਰਾਨ ਕਿਸੇ ਅਲਾਰਮ ਦਾ ਸਮਾਂ ਹੋ ਜਾਵੇ, ਤਾਂ ਉਹ ਜਾਗਣ ਉੱਤੇ ਵੱਜਦਾ ਹੈ, ਜੇ ਇਹ ਪੰਜ ਮਿੰਟਾਂ ਦੇ ਅੰਦਰ ਹੋਵੇ।",
+  "alarm.switchOff": "{name} ਬੰਦ ਕਰੋ",
+  "alarm.switchOn": "{name} ਚਾਲੂ ਕਰੋ"
+}

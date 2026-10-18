@@ -1,0 +1,20 @@
+{
+  "alarm.desc": "நீங்கள் அமைத்த நேரத்தில், ஒருமுறை அல்லது தேர்ந்தெடுத்த நாட்களில் ஒலிக்கும்",
+  "alarm.label": "அலாரம்",
+  "alarm.settings.namePlaceholder": "பெயர் (விருப்பத்தேர்வு)",
+  "alarm.settings.name.label": "பெயர்",
+  "alarm.settings.on.desc": "அதன் நேரத்திலும் நாட்களிலும் ஒலிக்கும்",
+  "alarm.settings.on.label": "இயக்கத்தில்",
+  "alarm.settings.repeat": "மீண்டும் ஒலிக்கும் நாட்கள்",
+  "alarm.settings.repeat.desc": "நாள் இல்லையெனில் ஒருமுறை ஒலிக்கும்",
+  "alarm.settings.snooze.desc": "உறக்கநீட்டி அலாரத்தை எவ்வளவு நேரம் தள்ளிவைக்கும்",
+  "alarm.settings.snooze.label": "உறக்கநீட்டிப்பு நேரம்",
+  "alarm.settings.sound.desc": "அலாரம் எந்த ஒலியுடன் ஒலிக்கும்",
+  "alarm.settings.sound.label": "ஒலி",
+  "alarm.settings.time.label": "நேரம்",
+  "alarm.settings.volume.desc": "ஒலி எவ்வளவு சத்தமாக இருக்கும்",
+  "alarm.settings.volume.label": "ஒலியளவு",
+  "alarm.settings.whileRunning": "Themia இயங்கும்போது மட்டுமே அலாரங்கள் ஒலிக்கும். PC உறங்கும்போது நேரம் வரும் அலாரம், ஐந்து நிமிடங்களுக்குள் என்றால், அது விழித்ததும் ஒலிக்கும்.",
+  "alarm.switchOff": "{name} ஐ முடக்கு",
+  "alarm.switchOn": "{name} ஐ இயக்கு"
+}

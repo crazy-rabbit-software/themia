@@ -7192,13 +7192,13 @@ following within 15 s).
 ## Stopwatch, alarm and drives (KARPO-2)
 
 Four widgets after Karpo (`karpo-app`, `docs/widgets.md` §84 and §92 the stopwatch, §106 the alarm,
-§91 the removable devices, §75, §99 and §122 the drive). The stopwatch is a module of its own
-(`src/Widgets/Themia.Widget.Stopwatch`, its SPEC.md). Rules in Core (`Widgets/AlarmRules.cs`,
-`Widgets/DriveRules.cs`; configs `AlarmConfig.cs`, `DriveConfigs.cs`), tests `AlarmTests`,
-`DriveRulesTests`; views `AlarmView`, `DriveView`, `RemovableDrivesView` (+ `DriveParts.cs`), services
-`Services/AlarmService.cs` (+ `AppHost.Alarms.cs`), `Services/Drives/DriveCatalog.cs` and
-`DriveService.cs`. Strings in `Locales/time-drives`. Kinds: Stopwatch 117, Alarm 118,
-RemovableDrives 119, Drive 120.
+§91 the removable devices, §75, §99 and §122 the drive). The stopwatch, the alarm and the drive
+widgets are modules of their own (`src/Widgets/Themia.Widget.Stopwatch`, `.Alarm`, `.Drive`,
+`.RemovableDrives`, each its SPEC.md). What they share stays here: the SDK's `AlarmRules.cs` (with
+`IAlarm`, what an alarm config holds for the service) and `DriveRules.cs`, Core's `StateAlarmSlots.cs`,
+tests `AlarmTests` (the module host) and `DriveRulesTests`; services `Services/AlarmService.cs` (+
+`AppHost.Alarms.cs`, behind `IWidgetHost.Alarms`), `Services/Drives/DriveCatalog.cs` and
+`DriveService.cs`.
 
 ### Stopwatch
 
@@ -7206,11 +7206,7 @@ Moved with the widget into its module: `src/Widgets/Themia.Widget.Stopwatch/SPEC
 
 ### Alarm
 
-- **[S-4620]** An alarm widget (add menu: Time, [S-3511]) is **one** alarm (user decision; several
-  alarms are several widgets): a time (`"HH:mm"`, 24-hour in the file), the days it repeats on
-  (`"mon"` … `"sun"`, Monday first; none means it rings once), on or off, a name, the sound (the
-  timer's ringtones, default Bell), its level and the snooze (1–30 min, default 10), all in
-  `AlarmConfig`. A new widget is 07:00, ringing once (no days), off, and needs no setting up.
+- [S-4620], [S-4628], [S-4629], [S-4630], [S-4631]: moved with the Alarm widget into its module's `SPEC.md` (`src/Widgets/Themia.Widget.Alarm/`).
 - **[S-4621]** Times parse strictly (hours 0–23, two-digit minutes); unknown day words are dropped and
   days are written once each, Monday first; a name is one line of at most 40 characters; a
   hand-edited file is repaired loudly.
@@ -7218,8 +7214,8 @@ Moved with the widget into its module: `src/Widgets/Themia.Widget.Stopwatch/SPEC
   the wall clock of the zone in force and kept as a UTC instant. A time summer time skips rings at the
   first minute after the gap; a time winter time says twice rings once, at the first.
 - **[S-4623]** The **alarm service** (app lifetime, started by the host, never by a render) keeps the
-  alarm of every alarm widget of every view (`AlarmSlot.Of`: one per widget, keyed by the widget's
-  id; `AlarmBook`, synced on every state change and every switch on a widget), so an alarm rings
+  alarm of every alarm widget of every view (`AlarmSlot.Of`: one per widget whose config is an
+  `IAlarm`, keyed by the widget's id; `AlarmBook`, synced on every state change and every switch on a widget), so an alarm rings
   whether or not its widget is shown (another view, game mode). Deleting the widget deletes its
   alarm (a ring stops); an undo brings both back, set from then. One waitable timer is set to
   the next thing due (a ring, a snooze ending, a ring that has run five minutes) as an absolute UTC due
@@ -7243,18 +7239,6 @@ Moved with the widget into its module: `src/Widgets/Themia.Widget.Stopwatch/SPEC
   notice goes when the ring stops, however it stops.
 - **[S-4627]** **Alarms ring only while Themia runs**, and the settings page says so. One that came due
   while Themia was closed does not ring at the next start (it is set from then).
-- **[S-4628]** The widget is the time as its readout, "name · hint" under it, and the switch; while it
-  rings (or is snoozed) Snooze and Dismiss stand where the switch was (worded from 300 DIP, else
-  glyphs). Off, the time is in the tertiary ink. The card menu has Snooze and Dismiss while it rings.
-  There is no alarm list *(the list's rows, [S-1281] fade and per-row keys retired with it)*.
-- **[S-4629]** The ladder: the time is reserved, then the switch row, then the words (Caption, Body from
-  the Regular height), each as it fits; the time takes the rest (`FluentType.Hero`), centred. A strip
-  (2:1, at least 260 wide) puts the switch beside the time and its words, read from the left.
-- **[S-4630]** Keys: Space or Enter switch the alarm, or dismiss it while it rings or is snoozed; S
-  snoozes it while it rings; Escape lets go. The minute tick turns "Today" into "Tomorrow".
-- **[S-4631]** Settings: Time (a time picker in the language's clock), Switched on, Name, Repeats on (a
-  button per day in the language's week; none rings once), the note of [S-4627], then the sound
-  (previewed once), the volume and the snooze.
 
 ### Drives
 

@@ -1,0 +1,20 @@
+{
+  "alarm.desc": "Berbunyi pada waktu yang Anda atur, sekali atau pada hari pilihan",
+  "alarm.label": "Alarm",
+  "alarm.settings.namePlaceholder": "Nama (opsional)",
+  "alarm.settings.name.label": "Nama",
+  "alarm.settings.on.desc": "Berbunyi pada waktu dan harinya",
+  "alarm.settings.on.label": "Aktif",
+  "alarm.settings.repeat": "Ulangi pada",
+  "alarm.settings.repeat.desc": "Tanpa hari: berbunyi sekali",
+  "alarm.settings.snooze.desc": "Berapa lama Tunda menangguhkan alarm",
+  "alarm.settings.snooze.label": "Tunda selama",
+  "alarm.settings.sound.desc": "Suara dering alarm",
+  "alarm.settings.sound.label": "Suara",
+  "alarm.settings.time.label": "Waktu",
+  "alarm.settings.volume.desc": "Seberapa keras deringnya",
+  "alarm.settings.volume.label": "Volume",
+  "alarm.settings.whileRunning": "Alarm hanya berbunyi saat Themia berjalan. Alarm yang jatuh tempo saat PC dalam mode tidur akan berbunyi saat PC aktif kembali, jika itu dalam lima menit.",
+  "alarm.switchOff": "Nonaktifkan {name}",
+  "alarm.switchOn": "Aktifkan {name}"
+}

@@ -341,9 +341,6 @@ public static class Glyphs
     /// <summary>[S-4860] The Recycle Bin (Segoe "Delete", the bin Windows draws).</summary>
     public static readonly string RecycleBin = From(0xE74D);
 
-    /// <summary>[S-4620] The alarm: Segoe has no alarm clock, so the clock with its arrow round (Karpo's choice); the bell is the notifications'.</summary>
-    public static readonly string Alarm = From(0xECC5);
-
     /// <summary>[S-4660] A USB stick (Segoe "USB"): the removable drives.</summary>
     public static readonly string Usb = From(0xE88E);
 

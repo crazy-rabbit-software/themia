@@ -1,0 +1,20 @@
+{
+  "alarm.desc": "Ayarladığınız saatte, bir kez veya seçilen günlerde çalar",
+  "alarm.label": "Alarm",
+  "alarm.settings.namePlaceholder": "Ad (isteğe bağlı)",
+  "alarm.settings.name.label": "Ad",
+  "alarm.settings.on.desc": "Kendi saatinde, kendi günlerinde çalar",
+  "alarm.settings.on.label": "Açık",
+  "alarm.settings.repeat": "Tekrarlanan günler",
+  "alarm.settings.repeat.desc": "Gün seçilmezse bir kez çalar",
+  "alarm.settings.snooze.desc": "Ertele'nin alarmı ne kadar geciktireceği",
+  "alarm.settings.snooze.label": "Erteleme süresi",
+  "alarm.settings.sound.desc": "Alarmın çalacağı ses",
+  "alarm.settings.sound.label": "Ses",
+  "alarm.settings.time.label": "Saat",
+  "alarm.settings.volume.desc": "Ne kadar yüksek çalacağı",
+  "alarm.settings.volume.label": "Ses düzeyi",
+  "alarm.settings.whileRunning": "Alarmlar yalnızca Themia çalışırken çalar. Bilgisayar uyku modundayken zamanı gelen bir alarm, beş dakika içindeyse bilgisayar uyandığında çalar.",
+  "alarm.switchOff": "{name} alarmını kapat",
+  "alarm.switchOn": "{name} alarmını aç"
+}

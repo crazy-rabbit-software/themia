@@ -1,0 +1,20 @@
+{
+  "alarm.desc": "Gaat af op een tijd die je instelt, eenmalig of op gekozen dagen",
+  "alarm.label": "Alarm",
+  "alarm.settings.namePlaceholder": "Naam (optioneel)",
+  "alarm.settings.name.label": "Naam",
+  "alarm.settings.on.desc": "Gaat af op zijn tijd en dagen",
+  "alarm.settings.on.label": "Ingeschakeld",
+  "alarm.settings.repeat": "Herhalen op",
+  "alarm.settings.repeat.desc": "Geen dagen: gaat één keer af",
+  "alarm.settings.snooze.desc": "Hoelang Sluimeren het alarm uitstelt",
+  "alarm.settings.snooze.label": "Sluimeren voor",
+  "alarm.settings.sound.desc": "Waarmee een alarm afgaat",
+  "alarm.settings.sound.label": "Geluid",
+  "alarm.settings.time.label": "Tijd",
+  "alarm.settings.volume.desc": "Hoe luid het alarm klinkt",
+  "alarm.settings.volume.label": "Volume",
+  "alarm.settings.whileRunning": "Alarmen gaan alleen af terwijl Themia actief is. Een alarm dat afloopt terwijl de pc in slaapstand staat, gaat af wanneer de pc ontwaakt, als dat binnen vijf minuten is.",
+  "alarm.switchOff": "{name} uitschakelen",
+  "alarm.switchOn": "{name} inschakelen"
+}

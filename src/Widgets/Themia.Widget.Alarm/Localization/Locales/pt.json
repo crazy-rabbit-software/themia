@@ -1,0 +1,20 @@
+{
+  "alarm.desc": "Toca no horário definido, uma vez ou nos dias escolhidos",
+  "alarm.label": "Alarme",
+  "alarm.settings.namePlaceholder": "Nome (opcional)",
+  "alarm.settings.name.label": "Nome",
+  "alarm.settings.on.desc": "Toca na hora e nos dias definidos",
+  "alarm.settings.on.label": "Ativado",
+  "alarm.settings.repeat": "Repete em",
+  "alarm.settings.repeat.desc": "Sem dias: toca uma vez",
+  "alarm.settings.snooze.desc": "Por quanto tempo a Soneca adia o alarme",
+  "alarm.settings.snooze.label": "Soneca de",
+  "alarm.settings.sound.desc": "Com que som o alarme toca",
+  "alarm.settings.sound.label": "Som",
+  "alarm.settings.time.label": "Hora",
+  "alarm.settings.volume.desc": "Quão alto é o toque",
+  "alarm.settings.volume.label": "Volume",
+  "alarm.settings.whileRunning": "Os alarmes só tocam enquanto o Themia está em execução. Um alarme que vence enquanto o PC está em suspensão toca quando ele é reativado, se for em até cinco minutos.",
+  "alarm.switchOff": "Desativar {name}",
+  "alarm.switchOn": "Ativar {name}"
+}

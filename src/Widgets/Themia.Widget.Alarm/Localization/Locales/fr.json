@@ -1,0 +1,20 @@
+{
+  "alarm.desc": "Sonne à l’heure choisie, une fois ou certains jours",
+  "alarm.label": "Alarme",
+  "alarm.settings.namePlaceholder": "Nom (facultatif)",
+  "alarm.settings.name.label": "Nom",
+  "alarm.settings.on.desc": "Sonne à son heure, les jours choisis",
+  "alarm.settings.on.label": "Activée",
+  "alarm.settings.repeat": "Se répète le",
+  "alarm.settings.repeat.desc": "Aucun jour : elle sonne une fois",
+  "alarm.settings.snooze.desc": "Combien de temps Répéter repousse l’alarme",
+  "alarm.settings.snooze.label": "Répéter après",
+  "alarm.settings.sound.desc": "Le son de l’alarme",
+  "alarm.settings.sound.label": "Son",
+  "alarm.settings.time.label": "Heure",
+  "alarm.settings.volume.desc": "La force de la sonnerie",
+  "alarm.settings.volume.label": "Volume",
+  "alarm.settings.whileRunning": "Les alarmes ne sonnent que si Themia est en cours d’exécution. Une alarme qui arrive à échéance pendant que le PC est en veille sonne à son réveil, si c’est dans les cinq minutes.",
+  "alarm.switchOff": "Désactiver {name}",
+  "alarm.switchOn": "Activer {name}"
+}

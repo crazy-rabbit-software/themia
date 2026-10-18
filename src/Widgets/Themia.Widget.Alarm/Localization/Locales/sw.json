@@ -1,0 +1,20 @@
+{
+  "alarm.desc": "Hulia saa uliyoweka, mara moja au siku ulizochagua",
+  "alarm.label": "Kengele",
+  "alarm.settings.namePlaceholder": "Jina (si lazima)",
+  "alarm.settings.name.label": "Jina",
+  "alarm.settings.on.desc": "Hulia kwa saa na siku zake",
+  "alarm.settings.on.label": "Imewashwa",
+  "alarm.settings.repeat": "Hurudiwa siku za",
+  "alarm.settings.repeat.desc": "Bila siku: hulia mara moja",
+  "alarm.settings.snooze.desc": "Ahirisha husogeza kengele kwa muda gani",
+  "alarm.settings.snooze.label": "Ahirisha kwa",
+  "alarm.settings.sound.desc": "Kengele hulia kwa sauti gani",
+  "alarm.settings.sound.label": "Sauti",
+  "alarm.settings.time.label": "Saa",
+  "alarm.settings.volume.desc": "Mlio una sauti kubwa kiasi gani",
+  "alarm.settings.volume.label": "Sauti",
+  "alarm.settings.whileRunning": "Kengele hulia tu Themia ikiwa inaendeshwa. Kengele inayofika wakati Kompyuta imelala hulia inapoamka, ikiwa ni ndani ya dakika tano.",
+  "alarm.switchOff": "Zima {name}",
+  "alarm.switchOn": "Washa {name}"
+}

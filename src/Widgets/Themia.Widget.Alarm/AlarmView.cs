@@ -8,6 +8,7 @@ using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
 using Themia.Sdk.WinUI;
+using Themia.Widget.Alarm;
 
 namespace Themia.App.Widgets;
 
@@ -165,7 +166,7 @@ internal sealed partial class AlarmView : Grid, IWidgetView, IWidgetSizeAware, I
 
     /// <summary>[S-4628] The card menu answers a ring too.</summary>
     public IReadOnlyList<WidgetAction> ContextActions => Status().Phase == AlarmPhase.Ringing
-        ? [new WidgetAction(Glyphs.Alarm, Str.Alarm_Snooze.Text(), Snooze), new WidgetAction(Glyphs.Dismiss, Str.Alarm_Dismiss.Text(), Dismiss)]
+        ? [new WidgetAction(AlarmModule.Glyph, Str.Alarm_Snooze.Text(), Snooze), new WidgetAction(Glyphs.Dismiss, Str.Alarm_Dismiss.Text(), Dismiss)]
         : [];
 
     // ---- keys ([S-4630]) ----------------------------------------------------------------------
@@ -288,7 +289,7 @@ internal sealed partial class AlarmView : Grid, IWidgetView, IWidgetSizeAware, I
         _snooze.Visibility = ringing ? Visibility.Visible : Visibility.Collapsed;
 
         var wide = (_area.IsMeasured ? _area.Width : ActualWidth) >= WordedWidth;
-        _snooze.Content = wide ? Str.Alarm_Snooze.Text() : new FontIcon { Glyph = Glyphs.Alarm, FontSize = Fluent.IconSize };
+        _snooze.Content = wide ? Str.Alarm_Snooze.Text() : new FontIcon { Glyph = AlarmModule.Glyph, FontSize = Fluent.IconSize };
         _dismiss.Content = wide ? Str.Alarm_Dismiss.Text() : new FontIcon { Glyph = Glyphs.Dismiss, FontSize = Fluent.IconSize };
         foreach (var button in new[] { _snooze, _dismiss })
         {
@@ -304,7 +305,7 @@ internal sealed partial class AlarmView : Grid, IWidgetView, IWidgetSizeAware, I
         _showing = true;
         _switch.IsOn = _config.On;
         _showing = false;
-        ToolTipService.SetToolTip(_switch, (_config.On ? Str.Alarm_SwitchOff : Str.Alarm_SwitchOn).Format(("name", name)));
+        ToolTipService.SetToolTip(_switch, (_config.On ? AlarmStr.Alarm_SwitchOff : AlarmStr.Alarm_SwitchOn).Format(("name", name)));
         Microsoft.UI.Xaml.Automation.AutomationProperties.SetName(_switch, $"{name} {_time.Text}");
     }
 

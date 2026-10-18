@@ -1,0 +1,20 @@
+{
+  "alarm.desc": "Tumutunog sa oras na itinakda mo, minsan o sa mga piniling araw",
+  "alarm.label": "Alarm",
+  "alarm.settings.namePlaceholder": "Pangalan (opsyonal)",
+  "alarm.settings.name.label": "Pangalan",
+  "alarm.settings.on.desc": "Tumutunog sa oras at mga araw nito",
+  "alarm.settings.on.label": "Naka-on",
+  "alarm.settings.repeat": "Umuulit tuwing",
+  "alarm.settings.repeat.desc": "Walang napili: tutunog nang isang beses",
+  "alarm.settings.snooze.desc": "Gaano katagal ipinagpapaliban ng Snooze ang alarm",
+  "alarm.settings.snooze.label": "I-snooze nang",
+  "alarm.settings.sound.desc": "Ang tunog ng alarm",
+  "alarm.settings.sound.label": "Tunog",
+  "alarm.settings.time.label": "Oras",
+  "alarm.settings.volume.desc": "Gaano kalakas ang tunog",
+  "alarm.settings.volume.label": "Volume",
+  "alarm.settings.whileRunning": "Tumutunog lang ang mga alarm habang tumatakbo ang Themia. Ang alarm na sumapit habang naka-sleep ang PC ay tutunog pagkagising nito, kung nasa loob iyon ng limang minuto.",
+  "alarm.switchOff": "I-off ang {name}",
+  "alarm.switchOn": "I-on ang {name}"
+}

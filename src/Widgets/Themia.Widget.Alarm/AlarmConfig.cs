@@ -1,7 +1,6 @@
 using System.Text.Json.Serialization;
 using Themia.App.Shell;
 using Themia.Core.Localization;
-using Themia.Core.Storage;
 using Themia.Core.Widgets;
 using Themia.Sdk;
 
@@ -23,24 +22,6 @@ public sealed class AlarmConfig : WidgetConfig, IShownSettings<SoundSetting>, IA
     public const int MinSnooze = 1;
 
     public const int MaxSnooze = 30;
-
-
-    /// <summary>[S-6902] This widget's descriptor: what the host knows of it without its UI.</summary>
-    public static WidgetDescriptor Descriptor { get; } = new()
-    {
-        Id = new("alarm"),
-        ConfigType = typeof(AlarmConfig),
-        CreateDefault = () => new AlarmConfig(),
-        Json = WidgetConfigJsonContext.Default,
-        Keywords = ["alarm clock", "wake up", "reminder", "ring", "snooze", "morning"],
-        Label = Str.Alarm_Label.Local(),
-        Description = Str.Alarm_Desc.Local(),
-        Glyph = Glyphs.Alarm,
-        DefaultWidth = 300,
-        DefaultHeight = 220,
-        Traits = WidgetTraits.CanHaveHeader,
-        Add = new(AddFolderId.Time, 0, 1),
-    };
 
     /// <summary>When it rings, "HH:mm" on the 24-hour clock whatever the language shows; a new widget's is seven.</summary>
     public string Time { get; set; } = AlarmTimes.Text(AlarmTimes.Default);

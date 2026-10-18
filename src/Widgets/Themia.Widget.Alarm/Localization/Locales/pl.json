@@ -1,0 +1,20 @@
+{
+  "alarm.desc": "Dzwoni o wybranej godzinie, raz lub w wybrane dni",
+  "alarm.label": "Alarm",
+  "alarm.settings.namePlaceholder": "Nazwa (opcjonalnie)",
+  "alarm.settings.name.label": "Nazwa",
+  "alarm.settings.on.desc": "Dzwoni o swojej godzinie, w swoje dni",
+  "alarm.settings.on.label": "Włączony",
+  "alarm.settings.repeat": "Powtarzaj w",
+  "alarm.settings.repeat.desc": "Bez dni: dzwoni raz",
+  "alarm.settings.snooze.desc": "Na jak długo Drzemka odkłada alarm",
+  "alarm.settings.snooze.label": "Drzemka na",
+  "alarm.settings.sound.desc": "Czym dzwoni alarm",
+  "alarm.settings.sound.label": "Dźwięk",
+  "alarm.settings.time.label": "Godzina",
+  "alarm.settings.volume.desc": "Jak głośno dzwoni",
+  "alarm.settings.volume.label": "Głośność",
+  "alarm.settings.whileRunning": "Alarmy dzwonią tylko, gdy Themia jest uruchomiona. Alarm, którego czas nadejdzie podczas uśpienia komputera, zadzwoni po wybudzeniu, jeśli nastąpi to w ciągu pięciu minut.",
+  "alarm.switchOff": "Wyłącz: {name}",
+  "alarm.switchOn": "Włącz: {name}"
+}

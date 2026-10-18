@@ -7,6 +7,7 @@ using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
 using Windows.System;
+using Themia.Widget.Alarm;
 
 namespace Themia.App.Shell.Config;
 
@@ -15,21 +16,21 @@ namespace Themia.App.Shell.Config;
 /// then the sound, its level and the snooze. Every row writes the live config and saves; the save is a
 /// state change, which the alarm service syncs from at once.
 /// </summary>
-internal static partial class WidgetSettings
+internal static class AlarmSettings
 {
-    public static void Alarm(List<FrameworkElement> rows, AlarmConfig config, Action save)
+    public static void Rows(List<FrameworkElement> rows, AlarmConfig config, Action save)
     {
         ArgumentNullException.ThrowIfNull(rows);
         ArgumentNullException.ThrowIfNull(config);
         ArgumentNullException.ThrowIfNull(save);
 
-        rows.Add(FluentLayout.Header(Str.Alarm_Label.Text()));
+        rows.Add(FluentLayout.Header(AlarmStr.Alarm_Label.Text()));
         AlarmRows(rows, config, save);
 
         // [S-4627] Said where alarms are set: they ring only while Themia runs.
-        rows.Add(FluentLayout.Note(Str.Alarm_Settings_WhileRunning.Text()));
+        rows.Add(FluentLayout.Note(AlarmStr.Alarm_Settings_WhileRunning.Text()));
 
-        rows.Add(FluentLayout.Row(Glyphs.Sound, Str.Alarm_Settings_Sound_Label.Text(), Str.Alarm_Settings_Sound_Desc.Text(),
+        rows.Add(FluentLayout.Row(Glyphs.Sound, AlarmStr.Alarm_Settings_Sound_Label.Text(), AlarmStr.Alarm_Settings_Sound_Desc.Text(),
             FluentLayout.Choice(
                 PomodoroSounds.Order.Select(sound => (sound, PomodoroSounds.Label(sound))).ToArray(),
                 config.Sound,
@@ -44,13 +45,13 @@ internal static partial class WidgetSettings
         // [S-6074] The volume only while a sound is chosen; choosing one builds the page again.
         if (config.Offers(SoundSetting.Volume))
         {
-            rows.Add(FluentLayout.Row(Glyphs.Volume, Str.Alarm_Settings_Volume_Label.Text(), Str.Alarm_Settings_Volume_Desc.Text(),
+            rows.Add(FluentLayout.Row(Glyphs.Volume, AlarmStr.Alarm_Settings_Volume_Label.Text(), AlarmStr.Alarm_Settings_Volume_Desc.Text(),
                 FluentLayout.Slider(config.EffectiveVolume, 0, 100, 1, "%",
                     value => { config.Volume = (int)Math.Round(value); save(); PreviewRing(config); }),
                 "volume", "loud"));
         }
 
-        rows.Add(FluentLayout.Row(Glyphs.Alarm, Str.Alarm_Settings_Snooze_Label.Text(), Str.Alarm_Settings_Snooze_Desc.Text(),
+        rows.Add(FluentLayout.Row(AlarmModule.Glyph, AlarmStr.Alarm_Settings_Snooze_Label.Text(), AlarmStr.Alarm_Settings_Snooze_Desc.Text(),
             FluentLayout.Slider(Math.Clamp(config.SnoozeMinutes, AlarmConfig.MinSnooze, AlarmConfig.MaxSnooze), AlarmConfig.MinSnooze, AlarmConfig.MaxSnooze, 1,
                 Str.WidgetsC_Pomodoro_MinutesUnit.Text(),
                 value => { config.SnoozeMinutes = (int)Math.Round(value); save(); }),
@@ -91,9 +92,9 @@ internal static partial class WidgetSettings
             save();
         };
 
-        rows.Add(FluentLayout.Row(Glyphs.Alarm, Str.Alarm_Settings_Time_Label.Text(), null, time, "time", "wake"));
+        rows.Add(FluentLayout.Row(AlarmModule.Glyph, AlarmStr.Alarm_Settings_Time_Label.Text(), null, time, "time", "wake"));
 
-        rows.Add(FluentLayout.Row(Glyphs.Bell, Str.Alarm_Settings_On_Label.Text(), Str.Alarm_Settings_On_Desc.Text(),
+        rows.Add(FluentLayout.Row(Glyphs.Bell, AlarmStr.Alarm_Settings_On_Label.Text(), AlarmStr.Alarm_Settings_On_Desc.Text(),
             FluentLayout.Toggle(alarm.On, value =>
             {
                 alarm.On = value;
@@ -104,7 +105,7 @@ internal static partial class WidgetSettings
         var label = new TextBox
         {
             Text = alarm.Label,
-            PlaceholderText = Str.Alarm_Settings_NamePlaceholder.Text(),
+            PlaceholderText = AlarmStr.Alarm_Settings_NamePlaceholder.Text(),
             MaxLength = AlarmConfig.MostName,
             MinWidth = FluentLayout.ChoiceMinWidth,
         };
@@ -132,7 +133,7 @@ internal static partial class WidgetSettings
             }
         };
 
-        rows.Add(FluentLayout.Row(Glyphs.Rename, Str.Alarm_Settings_Name_Label.Text(), null, label, "name", "label"));
+        rows.Add(FluentLayout.Row(Glyphs.Rename, AlarmStr.Alarm_Settings_Name_Label.Text(), null, label, "name", "label"));
 
         // [S-4621] A button per day, in the language's week.
         var days = new StackPanel { Orientation = Orientation.Horizontal, Spacing = Fluent.Space1 };
@@ -158,7 +159,7 @@ internal static partial class WidgetSettings
             days.Children.Add(button);
         }
 
-        rows.Add(FluentLayout.Row(Glyphs.Calendar, Str.Alarm_Settings_Repeat.Text(), Str.Alarm_Settings_Repeat_Desc.Text(),
+        rows.Add(FluentLayout.Row(Glyphs.Calendar, AlarmStr.Alarm_Settings_Repeat.Text(), AlarmStr.Alarm_Settings_Repeat_Desc.Text(),
             new ScrollViewer
             {
                 Content = days,

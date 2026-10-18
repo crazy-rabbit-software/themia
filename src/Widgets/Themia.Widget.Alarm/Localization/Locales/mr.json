@@ -1,0 +1,20 @@
+{
+  "alarm.desc": "तुम्ही ठरवलेल्या वेळी वाजतो, एकदा किंवा निवडलेल्या दिवशी",
+  "alarm.label": "अलार्म",
+  "alarm.settings.namePlaceholder": "नाव (पर्यायी)",
+  "alarm.settings.name.label": "नाव",
+  "alarm.settings.on.desc": "त्याच्या वेळी, त्याच्या दिवशी वाजतो",
+  "alarm.settings.on.label": "सुरू",
+  "alarm.settings.repeat": "या दिवशी पुन्हा",
+  "alarm.settings.repeat.desc": "एकही दिवस नाही: एकदाच वाजतो",
+  "alarm.settings.snooze.desc": "स्नूझ अलार्म किती वेळ पुढे ढकलतो",
+  "alarm.settings.snooze.label": "स्नूझ कालावधी",
+  "alarm.settings.sound.desc": "अलार्म कोणत्या आवाजाने वाजतो",
+  "alarm.settings.sound.label": "आवाज",
+  "alarm.settings.time.label": "वेळ",
+  "alarm.settings.volume.desc": "रिंग किती मोठ्याने वाजते",
+  "alarm.settings.volume.label": "व्हॉल्यूम",
+  "alarm.settings.whileRunning": "Themia चालू असतानाच अलार्म वाजतात. PC स्लीपमध्ये असताना ज्या अलार्मची वेळ होते, तो PC जागा झाल्यावर वाजतो, जर ते पाच मिनिटांच्या आत असेल.",
+  "alarm.switchOff": "{name} बंद करा",
+  "alarm.switchOn": "{name} चालू करा"
+}

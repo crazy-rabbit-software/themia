@@ -13,7 +13,6 @@ namespace Themia.Core.Storage;
     WriteIndented = true,
     PropertyNamingPolicy = JsonKnownNamingPolicy.CamelCase,
     DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull)]
-[JsonSerializable(typeof(AlarmConfig))]
 [JsonSerializable(typeof(CalendarWidgetConfig))]
 [JsonSerializable(typeof(ContactsConfig))]
 [JsonSerializable(typeof(EmailConfig))]
