@@ -918,6 +918,11 @@ The shared parts a list widget is built from, and the rules they keep (design an
   disabled. The first copy, Rename and Delete are the icon row's ([S-1740], [S-1741]). A line whose
   key the list takes shows it ([S-1753]): Enter on Open, Ctrl+C on the first copy, F2, Delete. The
   primary action (double-click, Enter) is the item's Open when it can run.
+- **[S-7013]** A kit service is read-only; the host's account widgets (mail, tasks) keep the writes
+  their own sources make: `Change` (mark read, archive, move to junk: several per item, in the item's
+  group after the web pages, carried out by the view's handler by id), Toggle, Rename and Delete. An
+  Open or OpenTo with an id and no address is opened by the view itself (mail opens where the user
+  reads it, a reply in the user's mail program); with neither it is shown disabled.
 - **[S-7012]** `KitIcons`: one map from every `KitIcon` and action kind to its glyph. Open is the
   open glyph, as every widget's Open line (fixed: a feed's Open drew Explorer's "Show more options"
   picture, its glyph being the code point that art is matched to, [S-1754]).
@@ -935,6 +940,26 @@ The shared parts a list widget is built from, and the rules they keep (design an
   400px wide, three from 720px, while a column keeps 200px, never more than the spec allows; a
   preview where it costs no row, or where three rows still fit on a tile at least 280px high that
   is not a tall column. Rows are measured and shown whole ([S-639]).
+- **[S-7032]** The lined looks (Mail's ladder, [S-556], as the kit's): `TwoLine` rows stack the title
+  and its time (from 110px), the subtitle with the first badge beside it (from 260px), then the
+  preview (from 120px high and 180px wide; one line under 240px, else the user's 1 to 5); the lead
+  glyph in front from 300px, in its tone (tertiary when neutral); an item's tone draws a bar in the
+  row's leading inset and the time in its text colour; emphasis is the strong title and a primary
+  subtitle. On a strip (from 420px wide under 220px high) and from 640px wide the row is one `Line`:
+  the title's column (24% of the line, 96..200px), the subtitle with the preview after an en dash
+  (from 440px), the badge (from 560px), the time (at least 36px). Rows go compact under 200px of
+  height; the list fills the slot and scrolls under the fade ([S-1281]); times are re-labelled
+  without rebuilding a row. The ladder's measures are the list's (a test pins them).
+- **[S-7033]** Inline actions: a spec's actions flagged inline (and runnable) swap in for the time on
+  a `Line` row under the pointer or the keyboard, on a Huge-wide tile only; the slot is always as
+  wide as the wider of the two, the hidden time keeps its box and the buttons overhang the line, so
+  nothing else in the row moves. The menu has them too.
+- **[S-7034]** The `Table` look: one line of the user's columns (`KitColumn`: title, subtitle,
+  preview, time, badge) in the user's order; title, time and badge have fixed widths, subtitle and
+  preview share the rest; the most essential columns are kept while their minimums fit, the first
+  always; from 700px a lone subtitle taking over 40% of the line is followed by the preview; the
+  columns' titles (the spec's words) show over the rows from 140px of height where they cost no row;
+  the time column is written as a stamp (the time today, the weekday this week, then the date).
 - **[S-7040]** `KitScreens.Decide`: the one state machine. A widget that reads accounts: none at all
   is the card's Set up; its accounts all gone, all needing a sign-in, or all refused, each its
   sentence with the Accounts link. Then items held: the list, one header line per failed source
