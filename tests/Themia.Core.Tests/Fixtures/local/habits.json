@@ -1,0 +1,52 @@
+{
+  "schemaVersion": 1,
+  "lists": [
+    {
+      "id": "list-morning",
+      "name": "Morning",
+      "habits": [
+        {
+          "id": "habit-water",
+          "name": "Drink water",
+          "log": [
+            "2026-09-28",
+            "2026-09-29",
+            "2026-09-30",
+            "2026-10-01"
+          ]
+        },
+        {
+          "id": "habit-read",
+          "name": "Read 20 pages",
+          "log": [
+            "2026-09-30"
+          ]
+        },
+        {
+          "id": "habit-none",
+          "name": "Stretch",
+          "log": []
+        }
+      ]
+    },
+    {
+      "id": "list-weekly",
+      "name": "W\u00F6chentlich \u2713",
+      "habits": [
+        {
+          "id": "habit-call",
+          "name": "Call home",
+          "log": [
+            "2026-W38",
+            "2026-W39"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "list-empty",
+      "name": "Empty list",
+      "habits": []
+    }
+  ]
+}

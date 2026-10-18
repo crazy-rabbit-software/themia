@@ -1,0 +1,20 @@
+{
+  "schemaVersion": 1,
+  "notes": [
+    {
+      "id": "0f1e2d3c4b5a69788796a5b4c3d2e1f0",
+      "title": "Shopping",
+      "updatedAt": 1790841844
+    },
+    {
+      "id": "1a2b3c4d5e6f708192a3b4c5d6e7f809",
+      "title": "Ideen f\u00FCr den Herbst",
+      "updatedAt": 1790841722
+    },
+    {
+      "id": "2b3c4d5e6f708192a3b4c5d6e7f8091a",
+      "title": "Empty (renamed)",
+      "updatedAt": 1790841783
+    }
+  ]
+}

@@ -1,0 +1,405 @@
+{
+  "schemaVersion": 1,
+  "views": [
+    {
+      "id": "v00",
+      "name": "Local",
+      "widgets": [
+        {
+          "id": "w00",
+          "x": 0.02,
+          "y": 0.05,
+          "w": 0.12,
+          "h": 0.25,
+          "background": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "header": "Top",
+          "itemBackground": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "itemTextColor": "",
+          "scale": 1,
+          "config": {
+            "kind": "notes",
+            "noteId": "1a2b3c4d5e6f708192a3b4c5d6e7f809",
+            "fontSizePx": 16
+          }
+        },
+        {
+          "id": "w01",
+          "x": 0.18,
+          "y": 0.05,
+          "w": 0.12,
+          "h": 0.25,
+          "background": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "header": "Top",
+          "itemBackground": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "itemTextColor": "",
+          "scale": 1,
+          "config": {
+            "kind": "habitTracker",
+            "listId": "list-weekly",
+            "style": "heatmap",
+            "period": "Weekly",
+            "customMinutes": 30,
+            "historyDots": 12,
+            "showStreak": false
+          }
+        },
+        {
+          "id": "w02",
+          "x": 0.34,
+          "y": 0.05,
+          "w": 0.12,
+          "h": 0.25,
+          "background": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "header": "Top",
+          "itemBackground": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "itemTextColor": "",
+          "scale": 1,
+          "config": {
+            "kind": "habitTracker",
+            "listId": "list-morning",
+            "style": "checklist",
+            "period": "Custom",
+            "customMinutes": 90,
+            "historyDots": 7,
+            "showStreak": true
+          }
+        },
+        {
+          "id": "w03",
+          "x": 0.5,
+          "y": 0.05,
+          "w": 0.12,
+          "h": 0.25,
+          "background": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "header": "Top",
+          "itemBackground": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "itemTextColor": "",
+          "scale": 1,
+          "config": {
+            "kind": "clipboard",
+            "capacity": 120,
+            "showTimestamp": false
+          }
+        },
+        {
+          "id": "w04",
+          "x": 0.66,
+          "y": 0.05,
+          "w": 0.12,
+          "h": 0.25,
+          "background": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "header": "Top",
+          "itemBackground": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "itemTextColor": "",
+          "scale": 1,
+          "config": {
+            "kind": "alarm",
+            "time": "07:30",
+            "days": [
+              "mon",
+              "wed",
+              "fri"
+            ],
+            "on": true,
+            "label": "Gym \uD83C\uDFCB",
+            "sound": "marimba",
+            "volume": 40,
+            "snoozeMinutes": 5
+          }
+        },
+        {
+          "id": "w05",
+          "x": 0.8200000000000001,
+          "y": 0.05,
+          "w": 0.12,
+          "h": 0.25,
+          "background": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "header": "Top",
+          "itemBackground": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "itemTextColor": "",
+          "scale": 1,
+          "config": {
+            "kind": "focusSession",
+            "minutes": 50,
+            "doNotDisturb": false
+          }
+        },
+        {
+          "id": "w06",
+          "x": 0.02,
+          "y": 0.5,
+          "w": 0.12,
+          "h": 0.25,
+          "background": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "header": "Top",
+          "itemBackground": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "itemTextColor": "",
+          "scale": 1,
+          "config": {
+            "kind": "screenTimeChart",
+            "period": "Month",
+            "style": "Heatmap"
+          }
+        },
+        {
+          "id": "w07",
+          "x": 0.18,
+          "y": 0.5,
+          "w": 0.12,
+          "h": 0.25,
+          "background": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "header": "Top",
+          "itemBackground": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "itemTextColor": "",
+          "scale": 1,
+          "config": {
+            "kind": "screenTimeDonut",
+            "period": "Week"
+          }
+        },
+        {
+          "id": "w08",
+          "x": 0.34,
+          "y": 0.5,
+          "w": 0.12,
+          "h": 0.25,
+          "background": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "header": "Top",
+          "itemBackground": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "itemTextColor": "",
+          "scale": 1,
+          "config": {
+            "kind": "screenTimeApps",
+            "period": "Month",
+            "maxApps": 8,
+            "showAverage": false,
+            "showPercent": true
+          }
+        },
+        {
+          "id": "w09",
+          "x": 0.5,
+          "y": 0.5,
+          "w": 0.12,
+          "h": 0.25,
+          "background": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "header": "Top",
+          "itemBackground": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "itemTextColor": "",
+          "scale": 1,
+          "config": {
+            "kind": "gallery",
+            "source": "Folder",
+            "path": "D:\\Pictures\\Holidays",
+            "filePath": "",
+            "recursive": true,
+            "style": "mosaic",
+            "fit": "Fit",
+            "shuffle": false,
+            "slideshowSeconds": 30,
+            "maxImages": 12,
+            "rotation": 0,
+            "outline": false,
+            "outlineColor": "#FFFFFF",
+            "outlineWidth": 6
+          }
+        },
+        {
+          "id": "w10",
+          "x": 0.66,
+          "y": 0.5,
+          "w": 0.12,
+          "h": 0.25,
+          "background": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "header": "Top",
+          "itemBackground": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "itemTextColor": "",
+          "scale": 1,
+          "config": {
+            "kind": "gallery",
+            "source": "File",
+            "path": "",
+            "filePath": "D:\\Pictures\\logo.png",
+            "recursive": false,
+            "style": "slideshow",
+            "fit": "Fill",
+            "shuffle": true,
+            "slideshowSeconds": 10,
+            "maxImages": 24,
+            "rotation": -12,
+            "outline": true,
+            "outlineColor": "#FFCC00",
+            "outlineWidth": 8
+          }
+        },
+        {
+          "id": "w11",
+          "x": 0.8200000000000001,
+          "y": 0.5,
+          "w": 0.12,
+          "h": 0.25,
+          "background": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "header": "Top",
+          "itemBackground": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "itemTextColor": "",
+          "scale": 1,
+          "config": {
+            "kind": "notifications"
+          }
+        }
+      ]
+    }
+  ],
+  "activeViewId": "v00",
+  "monitorViews": {},
+  "design": {
+    "theme": "System",
+    "uiScale": 1,
+    "fontFamily": "system",
+    "fontScale": 1,
+    "widgetGapPx": 8,
+    "gridSnap": true,
+    "cornerRadiusPx": 4,
+    "background": {
+      "kind": "Default",
+      "colour": "",
+      "opacity": 1
+    },
+    "itemBackground": {
+      "kind": "Default",
+      "colour": "",
+      "opacity": 1
+    },
+    "itemTextColor": "",
+    "primaryColor": "",
+    "borderStyle": "Solid",
+    "borderWidthPx": 1,
+    "borderColor": "",
+    "borderOpacity": 1,
+    "introAnimation": "Scale",
+    "introAnimationMs": 500,
+    "headerBackgroundColor": "",
+    "headerOpacity": 1,
+    "transitionAnimation": "Scale",
+    "transitionAnimationMs": 500,
+    "unlockAnimation": "Scale",
+    "unlockAnimationMs": 500,
+    "smoothValues": true,
+    "runAtStartup": false
+  },
+  "preferences": {
+    "language": "System",
+    "gameModeSuspend": false,
+    "desktopIconsVisible": true,
+    "region": {
+      "clock": "System",
+      "weekStart": "System",
+      "temperature": "System"
+    },
+    "refresh": {
+      "weather": 30,
+      "markets": 5,
+      "feeds": 30,
+      "accounts": 2
+    }
+  },
+  "disabledMonitors": [],
+  "monitorScales": {},
+  "viewBars": {}
+}
