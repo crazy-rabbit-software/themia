@@ -27,26 +27,23 @@ namespace Themia.App.Shell.Config;
 /// </summary>
 internal static partial class WidgetSettings
 {
-    public static void Calendar(WidgetSettingsRows rows, CalendarConfig config)
+    public static void Calendar(WidgetSettingsRows rows, CalendarWidgetConfig calendar)
     {
         ArgumentNullException.ThrowIfNull(rows);
-        ArgumentNullException.ThrowIfNull(config);
+        ArgumentNullException.ThrowIfNull(calendar);
 
-        OfficeSettingsRows.CalendarAccounts(rows, config);
+        OfficeSettingsRows.CalendarAccounts(rows, calendar);
 
         rows.Rows.Add(FluentLayout.Header(Str.ConfigTabs_Display.Text()));
 
         // [S-3601] Only what the calendar's style uses; picking another style rebuilds the page
         // ([S-6071]). The week start is every calendar's ([S-3770]).
-        if (config is CalendarWidgetConfig calendar)
+        foreach (var setting in calendar.ShownSettings)
         {
-            foreach (var setting in calendar.ShownSettings)
-            {
-                CalendarStyleRow(rows.Rows, calendar, setting, rows.Save);
-            }
+            CalendarStyleRow(rows.Rows, calendar, setting, rows.Save);
         }
 
-        OfficeSettingsRows.Birthdays(rows, config);
+        OfficeSettingsRows.Birthdays(rows, calendar);
     }
 
     /// <summary>[S-3601] One of a style's own rows: the week's first column and length, the agenda's range and count.</summary>

@@ -21,7 +21,10 @@ internal static partial class WidgetSettings
         var rows = settings.Rows;
         var save = settings.Save;
 
-        Calendar(settings, planner);
+        // [S-561] Every calendar's rows: the accounts and their calendars, then birthdays.
+        OfficeSettingsRows.CalendarAccounts(settings, planner);
+        rows.Add(FluentLayout.Header(Str.ConfigTabs_Display.Text()));
+        OfficeSettingsRows.Birthdays(settings, planner);
 
         rows.Add(FluentLayout.Header(Str.Planner_TasksHeader.Text()));
 

@@ -14,7 +14,7 @@ public sealed class CalendarModule : IWidgetModule
     public WidgetDescriptor Descriptor => CalendarWidgetConfig.Descriptor;
 
     public void SettingsRows(WidgetSettingsRows rows, WidgetConfig config)
-        => WidgetSettings.Calendar(rows, (CalendarConfig)config);
+        => WidgetSettings.Calendar(rows, (CalendarWidgetConfig)config);
 
     public FrameworkElement CreateView(IWidgetHost host) => new CalendarView(host);
 }
