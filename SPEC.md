@@ -1120,6 +1120,21 @@ service layer knows strategies, never services: a service is a descriptor that p
   `stale` answers then finds the network gone, `signin` and `gone` change the stand-in account, and
   `loading` never answers. A recording matches a request by its address and answers in order (an
   entity tag, then a 304). Nothing reaches the network or an account.
+- The service layer's conformance checks, over the registry (`tests/Themia.Modules.Tests/DescriptorConformanceTests.cs`)
+  and over source (`KitConformanceTests`):
+  - **[S-9930]** Descriptors: every sign-in member names https addresses (no user info) and a
+    client; a loopback's fixed ports are user ports; a pasted token's shape is sound; a provider asks
+    the build for a secret exactly when a browser member needs one, under a key the one rule accepts;
+    no two providers share an Updates row or a secret key; a kit service is its provider's (one
+    feature, the provider's id, offered by its accounts), https at its root, with its members, its
+    hosts (names, not addresses), no credential among its pinned headers, a 429 among its throttle
+    statuses, sane bounds and floors, a cadence default among its choices, and a GraphQL service
+    reads its errors array.
+  - **[S-9931]** Polling: the account service's service path is named only where it is defined and
+    by the desktop's transport, the transport is asked only by the one client, and a reply is
+    classified only by the client and a new sign-in's identity request; the kit's shared-code rule
+    ([S-7071]: no service, provider, service header or error code) covers the service layer in the
+    SDK, Core and the app.
 - **[S-9920]** A throttle is read through the descriptor's `RateLimitScheme`: its budgets' headers
   (several budgets: a spent one wins), the reset's unit (epoch seconds or milliseconds, or seconds
   from now), the header naming the bucket, the statuses that are a throttle when a budget is spent or

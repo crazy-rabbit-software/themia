@@ -13,8 +13,13 @@ namespace Themia.Core.Tests;
 public sealed partial class KitConformanceTests
 {
     /// <summary>The kit's shared code: what every kit widget is built from, and what must know no service.</summary>
+    /// <summary>The kit's shared code: its pure and WinUI parts, and the service layer in the SDK, Core and the app ([S-9902]).</summary>
     private static IEnumerable<string> KitSources()
-        => RepoFiles.CSharp(RepoFiles.At("src", "Themia.Sdk", "Kit")).Concat(RepoFiles.CSharp(RepoFiles.SdkKit));
+        => RepoFiles.CSharp(RepoFiles.At("src", "Themia.Sdk", "Kit"))
+            .Concat(RepoFiles.CSharp(RepoFiles.SdkKit))
+            .Concat(RepoFiles.CSharp(RepoFiles.At("src", "Themia.Sdk", "Services")))
+            .Concat(RepoFiles.CSharp(RepoFiles.At("src", "Themia.Core", "Services")))
+            .Concat(RepoFiles.CSharp(RepoFiles.At("src", "Themia.App", "Services", "Kit")));
 
     [GeneratedRegex(@"\bColors\.\w+|\bColor\.FromArgb\(|\bColorHelper\.")]
     private static partial Regex NamesAColour();
@@ -243,5 +248,26 @@ public sealed partial class KitConformanceTests
             .ToList();
 
         Assert.Equal(["IcsEvents.cs"], offending);
+    }
+
+    /// <summary>
+    /// [S-9931] Polling: every kit request goes through the one client. The account service's service
+    /// path is named only where it is defined and by the desktop's transport; the transport is asked
+    /// only by the client; a reply is classified only by the client and a new sign-in's identity
+    /// request. So no widget, provider or host part can ask a service around the conditional helper,
+    /// the bucket's block or the one classifier.
+    /// </summary>
+    [Fact]
+    public void S9931_every_kit_request_goes_through_the_one_client()
+    {
+        string[] Naming(string pattern) => [.. RepoFiles.CSharp(RepoFiles.Src)
+            .Where(f => Regex.IsMatch(Code(f), pattern))
+            .Select(Path.GetFileName)
+            .OfType<string>()
+            .Order(StringComparer.Ordinal)];
+
+        Assert.Equal(["AccountService.Services.cs", "ServiceSync.cs"], Naming(@"\bSendServiceAsync\("));
+        Assert.Equal(["AccountService.SignIn.cs", "ServiceClient.cs"], Naming(@"\bServiceFailures\.Classify\("));
+        Assert.Equal(["ServiceClient.cs"], Naming(@"\btransport\.SendAsync\("));
     }
 }
