@@ -2,6 +2,7 @@ using Microsoft.UI.Xaml;
 using Themia.App.Services;
 using Themia.Core.Localization;
 using Themia.Core.Model;
+using Themia.Sdk;
 
 namespace Themia.App.Shell.Config;
 
@@ -27,7 +28,7 @@ internal static partial class WidgetSettings
     /// </summary>
     private static void AdapterRow(List<FrameworkElement> rows, int adapter, Action<int> choose, Action save)
     {
-        var adapters = GpuSampler.Adapters();
+        var adapters = GpuAdapters.List();
 
         if (adapters.Count < 2)
         {

@@ -91,7 +91,7 @@ internal sealed partial class DriveIcon : Grid
     private async Task LoadAsync(DriveEntry drive, double size, string key)
     {
         var scale = XamlRoot?.RasterizationScale ?? 2;
-        var image = await AppIcons.GetAsync(drive.Root, (int)Math.Ceiling(size * Math.Max(1, scale)), AppIcons.ThemeOf(this), key).ConfigureAwait(true);
+        var image = await AppIconSource.GetAsync(drive.Root, (int)Math.Ceiling(size * Math.Max(1, scale)), AppIconSource.ThemeOf(this), key).ConfigureAwait(true);
 
         // A drive that changed while this was extracted keeps its own picture.
         if (image is null || _key != key)

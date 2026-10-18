@@ -264,7 +264,7 @@ internal sealed partial class MixerView
                 return;
             }
 
-            if (string.Equals(_iconPath, path, StringComparison.OrdinalIgnoreCase) && _iconTheme == AppIcons.ThemeOf(Host))
+            if (string.Equals(_iconPath, path, StringComparison.OrdinalIgnoreCase) && _iconTheme == AppIconSource.ThemeOf(Host))
             {
                 return;
             }
@@ -278,7 +278,7 @@ internal sealed partial class MixerView
         /// <summary>[S-3965] A packaged app's logo is chosen per theme: a theme change asks again.</summary>
         private void OnThemeChanged(FrameworkElement sender, object args)
         {
-            if (_iconPath is { } path && _iconTheme != AppIcons.ThemeOf(Host))
+            if (_iconPath is { } path && _iconTheme != AppIconSource.ThemeOf(Host))
             {
                 _ = LoadIconAsync(path);
             }
@@ -286,9 +286,9 @@ internal sealed partial class MixerView
 
         private async Task LoadIconAsync(string path)
         {
-            var theme = AppIcons.ThemeOf(Host);
+            var theme = AppIconSource.ThemeOf(Host);
             _iconTheme = theme;
-            var image = await AppIcons.GetAsync(path, theme).ConfigureAwait(true);
+            var image = await AppIconSource.GetAsync(path, theme).ConfigureAwait(true);
 
             // The row may show another app (or theme) by now.
             if (!string.Equals(_iconPath, path, StringComparison.OrdinalIgnoreCase) || _iconTheme != theme || image is null)

@@ -65,7 +65,7 @@ internal sealed class PingMeter : MeterPart
         => (config as PingConfig)?.Style == PingStyle.Signal ? MeterLook.Signal : MeterLook.Graph;
 
     /// <summary>An answer in 23 ms.</summary>
-    public override MeterReading SampleReading => new(23 / NetworkMetrics.LatencyCeilingMs, Formatting.Latency(23), true, Value: 23);
+    public override MeterReading SampleReading => new(23 / PingStats.LatencyCeilingMs, Formatting.Latency(23), true, Value: 23);
 
     public override void ApplyConfig(WidgetConfig config, IMeterHost host)
     {

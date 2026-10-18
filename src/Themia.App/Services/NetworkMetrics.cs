@@ -21,7 +21,6 @@ internal static class NetworkMetrics
     // fills. Deliberately not the link speed: an adapter reports its negotiated line rate, which
     // says nothing about how long a packet takes to come back, and a 1 Gb NIC would pin every
     // round-trip at the bottom of the bar forever.
-    internal const double LatencyCeilingMs = 300;
 
     private static readonly TimeSpan PingTimeout = TimeSpan.FromSeconds(2);
 
@@ -69,7 +68,7 @@ internal static class NetworkMetrics
             var ms = reply.RoundtripTime;
 
             return new PingOutcome(
-                new MeterReading(Math.Clamp(ms / LatencyCeilingMs, 0, 1), Formatting.Latency(ms), true, Value: ms),
+                new MeterReading(Math.Clamp(ms / PingStats.LatencyCeilingMs, 0, 1), Formatting.Latency(ms), true, Value: ms),
                 null);
         }
         catch (OperationCanceledException)

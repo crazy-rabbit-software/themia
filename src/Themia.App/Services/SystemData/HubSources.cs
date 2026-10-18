@@ -314,7 +314,7 @@ internal sealed partial class SystemHub
         public override MeterSample Project(PingOutcome snapshot, string instance)
         {
             var reading = snapshot.Reading is { Available: true, Value: { } ms }
-                ? new MeterReading(Math.Clamp(ms / NetworkMetrics.LatencyCeilingMs, 0, 1), Formatting.Latency(ms), true, Value: ms)
+                ? new MeterReading(Math.Clamp(ms / PingStats.LatencyCeilingMs, 0, 1), Formatting.Latency(ms), true, Value: ms)
                 : new MeterReading(0, "--", false, Value: 0, Reason: snapshot.Reading.Reason ?? PingStats.StatusText(PingStatus.Offline));
 
             return MeterSample.Of(reading, ChartScale.Peak(1));

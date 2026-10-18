@@ -28,6 +28,9 @@ public partial class App : Application
         Themia.Sdk.SymbolLookup.Install(Services.Web.MarketService.SearchAsync);
         Themia.Sdk.DriveList.Install(() => Services.Drives.DriveService.Shared.Now());
         Themia.Sdk.AudioDevices.Install(Services.CoreAudio.OutputDevicesAsync);
+        Themia.Sdk.GpuAdapters.Install(Services.GpuSampler.Adapters);
+        Themia.Sdk.ProcessPaths.Install(Services.ProcessNames.ExePath);
+        Themia.Sdk.WinUI.AppIconSource.Install(Services.AppIcons.GetAsync, Services.AppIcons.DefaultSize);
         Widgets.GlideMotion.InstallSmooth(windows => Themia.Core.Motion.GlideSwitch.Smooth(Shell.DesignApplier.Current, windows));
         Services.SoundCue.Install(new Services.HostCuePlayer());
 

@@ -316,13 +316,6 @@ public static class PackagedApps
         => id is { Length: > 0 and <= 64 } && char.IsAsciiLetter(id[0]) && id.All(c => char.IsAsciiLetterOrDigit(c) || c == '.');
 }
 
-/// <summary>[S-3965] The theme of the card a packaged app's logo is drawn on.</summary>
-public enum LogoTheme
-{
-    Dark,
-    Light,
-}
-
 /// <summary>
 /// [S-3965] A packaged app's logo file, and the <c>#RRGGBB</c> plate it is drawn on (the manifest's
 /// <c>BackgroundColor</c>), or null when it stands on the card as it is.

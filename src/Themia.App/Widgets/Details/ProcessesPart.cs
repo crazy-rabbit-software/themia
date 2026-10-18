@@ -17,7 +17,7 @@ namespace Themia.App.Widgets.Details;
 internal sealed class ProcessesPart : DetailPart
 {
     /// <summary>One for the app: every list shows the same processes, read on the same tick.</summary>
-    private static readonly ProcessPathCache Paths = new(pid => ProcessNames.ExePath((uint)pid));
+    private static readonly ProcessPathCache Paths = new(pid => ProcessPaths.ExePath((uint)pid));
 
     /// <summary>
     /// [S-2433] A system process Windows will not open (dwm, svchost, the antimalware service) by its

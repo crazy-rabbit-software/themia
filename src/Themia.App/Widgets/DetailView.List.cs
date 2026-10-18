@@ -395,7 +395,7 @@ internal sealed partial class DetailView : IWidgetKeys
             _symbol.Glyph = Glyph(row.Symbol);
 
             // [S-3965] A packaged app's logo is chosen per theme, so a theme change asks again.
-            if (string.Equals(_iconPath, row.IconPath, StringComparison.OrdinalIgnoreCase) && _iconTheme == AppIcons.ThemeOf(Root))
+            if (string.Equals(_iconPath, row.IconPath, StringComparison.OrdinalIgnoreCase) && _iconTheme == AppIconSource.ThemeOf(Root))
             {
                 return;
             }
@@ -414,9 +414,9 @@ internal sealed partial class DetailView : IWidgetKeys
         {
             // Decoded at the row's size on this display, so a 16 DIP icon stays sharp at 200%.
             var scale = Root.XamlRoot?.RasterizationScale ?? 2;
-            var theme = AppIcons.ThemeOf(Root);
+            var theme = AppIconSource.ThemeOf(Root);
             _iconTheme = theme;
-            var image = await AppIcons.GetAsync(path, (int)Math.Ceiling(Fluent.IconSize * Math.Max(1, scale)), theme).ConfigureAwait(true);
+            var image = await AppIconSource.GetAsync(path, (int)Math.Ceiling(Fluent.IconSize * Math.Max(1, scale)), theme).ConfigureAwait(true);
 
             // A row that has moved on to another process (or theme) while this was extracted keeps its own.
             if (image is null || !string.Equals(_iconPath, path, StringComparison.OrdinalIgnoreCase) || _iconTheme != theme)

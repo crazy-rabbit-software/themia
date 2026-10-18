@@ -5,6 +5,7 @@ using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Media.Imaging;
 using Themia.Core.Diagnostics;
 using Themia.Core.Widgets;
+using Themia.Sdk.WinUI;
 
 namespace Themia.App.Services;
 
@@ -64,8 +65,7 @@ internal static partial class AppIcons
     public static Task<ImageSource?> GetAsync(string path, LogoTheme theme) => GetAsync(path, DefaultSize, theme);
 
     /// <summary>[S-3965] The theme a packaged app's logo is chosen for: the element's own, as it is drawn now.</summary>
-    public static LogoTheme ThemeOf(FrameworkElement element)
-        => element.ActualTheme == ElementTheme.Light ? LogoTheme.Light : LogoTheme.Dark;
+    public static LogoTheme ThemeOf(FrameworkElement element) => AppIconSource.ThemeOf(element);
 
     /// <summary>
     /// The icon for <paramref name="path"/> (a file-system path or a <c>shell:</c> name) at

@@ -22,6 +22,9 @@ public enum PingStatus
 /// </summary>
 public static class PingStats
 {
+    /// <summary>[S-1172] The latency a ping meter's gauge and signal top out at, in milliseconds.</summary>
+    public const double LatencyCeilingMs = 300;
+
     /// <summary>[S-1170] The status the last probe gives: checking before any, then online or offline.</summary>
     public static PingStatus Status(bool anyProbe, bool lastAnswered)
         => !anyProbe ? PingStatus.Checking : lastAnswered ? PingStatus.Online : PingStatus.Offline;
