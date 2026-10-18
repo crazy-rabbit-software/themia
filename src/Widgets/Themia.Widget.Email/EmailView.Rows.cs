@@ -368,23 +368,17 @@ internal sealed partial class EmailView
     /// </summary>
     private StackPanel? QuickActions(MailMessage message)
     {
-        if (!CanChange(message))
+        var inline = MailSpec.Actions(message, CanChange(message)).Where(a => a.Inline).ToList();
+        if (inline.Count == 0)
         {
             return null;
         }
 
         var actions = new StackPanel { Orientation = Orientation.Horizontal, Spacing = Fluent.Space1, Visibility = Visibility.Collapsed };
-        actions.Children.Add(QuickAction(
-            message.IsRead ? Glyphs.Unread : Glyphs.MailRead,
-            message.IsRead ? EmailStr.WidgetsB_Email_MarkUnread.Text() : EmailStr.WidgetsB_Email_MarkRead.Text(),
-            () => Change(message, message.IsRead ? MailChange.MarkUnread : MailChange.MarkRead)));
-
-        if (message.Folder != MailFolder.Junk)
+        foreach (var action in inline)
         {
-            actions.Children.Add(QuickAction(Glyphs.Archive, EmailStr.CtxMenu_Archive.Text(), () => Change(message, MailChange.Archive)));
+            actions.Children.Add(QuickAction(Themia.Sdk.Kit.KitIcons.Glyph(action), action.Label, () => Run(message, action)));
         }
-
-        actions.Children.Add(QuickAction(Glyphs.Delete, DeleteLabel(message), () => Change(message, MailChange.Delete)));
 
         // In the time's cell, at its trailing end; the row's pointer and the keyboard swap them (see AddRow).
         // The buttons are taller than the line they sit on; they overhang it rather than grow it,

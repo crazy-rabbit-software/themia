@@ -41,7 +41,9 @@ ladder), `EmailSettings.cs`, `Preview/` (Debug renders: `--state messages|accoun
   draws with them (`EmailConfig.ShownSettings`, [S-6070]): Subject / Account for List and Compact, Preview
   lines for List, the columns for Table. A hand-edited `"preview"` list field is dropped.
 - **[S-544]** Message right-click: Open, Reply, Mark read/unread, Archive, Move to Junk, Copy subject,
-  Delete [S-21]. Gmail is read through `gmail.readonly`, so its messages offer only Open, Reply and
+  Delete [S-21], built by the kit's one menu builder ([S-7011], [S-7013]: Reply an OpenTo, the marks,
+  Archive and Junk changes): Copy subject and Delete are its icon row, Enter, Ctrl+C and Delete are
+  shown beside their lines. Gmail is read through `gmail.readonly`, so its messages offer only Open, Reply and
   Copy [S-22]. Delete moves to Deleted (Graph move, IMAP UID MOVE); only a message already in Deleted
   is removed for good (Graph DELETE; IMAP `\Deleted` + `UID EXPUNGE`, UIDPLUS-scoped). A change shows
   at once and waits in the account's queue until the provider has it ([S-2610], [S-2624]); a refusal
@@ -64,6 +66,11 @@ ladder), `EmailSettings.cs`, `Preview/` (Debug renders: `--state messages|accoun
   time's slot is always as wide as the actions (`MailLayout.InlineBoxes`), the hidden time keeps
   its box, and the buttons overhang the line instead of growing it, so every other part of the row
   keeps its position and size and the row its height.
+- **[S-6420]** Mail on the kit (`MailSpec`): List and Compact are the kit's stacked look (going one
+  line on a strip), Table its table ([S-7032]..[S-7034]); a message is a `KitItem` (the sender its
+  title, the subject its subtitle, the account's name its badge, unread its emphasis, accent tone and
+  closed envelope) and its menu lines `KitAction`s; its keys are the kit's ([S-7020]: Left and Right
+  step like Up and Down, Ctrl+C copies the subject).
 - **[S-1286]** How many messages is not a setting (user decision): every Mail widget asks for the
   whole shelf the sync keeps per folder (`EmailConfig.FetchCount` = `MailShelves.MaxPerFolder`, 50),
   newest first, and the list scrolls past the rows that fit, so a big tile is never half empty and

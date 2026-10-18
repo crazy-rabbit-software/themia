@@ -11,6 +11,7 @@ using Themia.Core.Mail;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
 using Themia.Core.Shell;
+using Themia.Sdk.Kit;
 using Themia.Sdk.WinUI;
 using Themia.Widget.Email;
 
@@ -499,53 +500,55 @@ internal sealed partial class EmailView : Grid, IWidgetView, IWidgetHeaderConten
     private bool CanChange(MailMessage message)
         => _source?.Accounts.FirstOrDefault(a => a.Id == message.AccountId) is { ReadOnly: false };
 
-    /// <summary>[S-544] A message's own commands, offered only where its account allows them.</summary>
+    /// <summary>[S-544] [S-7011] A message's own commands, offered only where its account allows them, in the kit's one menu order.</summary>
     /// <param name="args">The right-click, for the menu to open at the pointer; null for the Menu key, which opens it at the row.</param>
     private void ShowMessageMenu(FrameworkElement anchor, MailMessage message, RightTappedRoutedEventArgs? args)
+        => ItemMenu.ShowAt(anchor, args?.GetPosition(anchor), Entries(message));
+
+    private IEnumerable<ItemMenuEntry> Entries(MailMessage message)
+        => KitMenu.Lines(MailSpec.Actions(message, CanChange(message))).Select(line => line.Action is not { } action
+            ? ItemMenuEntry.Separator
+            : new ItemMenuEntry(
+                KitIcons.Glyph(action),
+                action.Label,
+                () => Run(message, action),
+                Danger: action.Kind == KitActionKind.Delete,
+                Disabled: action.Disabled,
+                Quick: line.Quick,
+                Shortcut: line.Shortcut));
+
+    /// <summary>Carry out an action of a message: open, reply, a change, the copy.</summary>
+    private void Run(MailMessage message, KitAction action)
     {
-        var menu = new List<ItemMenuEntry>();
-        var canChange = CanChange(message);
-
-        menu.Add(Item(Glyphs.Open, Str.CtxMenu_Open.Text(), () => OpenMessage(message)));
-        menu.Add(Item(Glyphs.MailReply, EmailStr.CtxMenu_Reply.Text(), () =>
+        if (!action.Runnable)
         {
-            if (_source?.Reply(message) == false)
-            {
-                ShowProblem(EmailStr.WidgetsB_Email_NoReplyAddress.Text());
-            }
-        }));
-
-        if (canChange)
-        {
-            menu.Add(message.IsRead
-                ? Item(Glyphs.Unread, EmailStr.WidgetsB_Email_MarkUnread.Text(), () => Change(message, MailChange.MarkUnread))
-                : Item(Glyphs.MailRead, EmailStr.WidgetsB_Email_MarkRead.Text(), () => Change(message, MailChange.MarkRead)));
-
-            if (message.Folder != MailFolder.Junk)
-            {
-                menu.Add(Item(Glyphs.Archive, EmailStr.CtxMenu_Archive.Text(), () => Change(message, MailChange.Archive)));
-                menu.Add(Item(Glyphs.Junk, EmailStr.WidgetsB_Email_MoveToJunk.Text(), () => Change(message, MailChange.Junk)));
-            }
+            return;
         }
 
-        menu.Add(Item(Glyphs.Copy, EmailStr.CtxMenu_CopySubject.Text(), () =>
+        switch (action.Id)
         {
-            if (!_widgetHost.CopyText(message.SubjectLine))
-            {
-                ShowProblem(EmailStr.WidgetsB_Email_CouldNotCopy.Text());
-            }
-        }));
+            case MailSpec.OpenId:
+                OpenMessage(message);
+                return;
 
-        if (canChange)
-        {
-            menu.Add(ItemMenuEntry.Separator);
-            menu.Add(new ItemMenuEntry(Glyphs.Delete, DeleteLabel(message), () => Change(message, MailChange.Delete), Danger: true, Quick: QuickCommand.Delete));
+            case MailSpec.ReplyId:
+                if (_source?.Reply(message) == false)
+                {
+                    ShowProblem(EmailStr.WidgetsB_Email_NoReplyAddress.Text());
+                }
+
+                return;
         }
 
-        ItemMenu.ShowAt(anchor, args?.GetPosition(anchor), menu);
+        if (MailSpec.Change(action.Id) is { } change)
+        {
+            Change(message, change);
+        }
+        else if (action.Kind == KitActionKind.CopyText && !_widgetHost.CopyText(action.Text ?? string.Empty))
+        {
+            ShowProblem(EmailStr.WidgetsB_Email_CouldNotCopy.Text());
+        }
     }
-
-    private static string DeleteLabel(MailMessage message) => message.Folder == MailFolder.Deleted ? EmailStr.WidgetsB_Email_DeletePermanently.Text() : Str.Common_Delete.Text();
 
     private static ItemMenuEntry Item(string glyph, string text, Action action) => new(glyph, text, action);
 

@@ -1,12 +1,13 @@
-using Themia.Core.Mail;
 using Themia.Core.Widgets;
+using Themia.Sdk.Kit;
+using Themia.Widget.Email;
 
 namespace Themia.App.Widgets;
 
 /// <summary>
-/// [S-1288] Keyboard navigation: a click focuses a row; Up/Down, Page Up/Down, Home/End move; Enter
-/// opens; Delete deletes where the account allows; the Menu key opens the message's menu; Escape
-/// lets go. [S-1560] The keys come through the shell's keyboard lease (<see cref="IWidgetKeys"/>). The focus follows its message
+/// [S-1288] [S-7020] Keyboard navigation, the kit's one key map: a click focuses a row; Up/Down (and
+/// Left/Right), Page Up/Down, Home/End move; Enter opens; Delete deletes where the account allows;
+/// Ctrl+C copies the subject; the Menu key opens the message's menu; Escape lets go. [S-1560] The keys come through the shell's keyboard lease (<see cref="IWidgetKeys"/>). The focus follows its message
 /// across redraws, and moves to the row that took its place when the message left the list.
 /// </summary>
 internal sealed partial class EmailView
@@ -28,30 +29,41 @@ internal sealed partial class EmailView
             return false;
         }
 
-        var decision = ListKeys.Decide(key, _focusKey is null ? -1 : _focusIndex, _shown.Count);
+        var decision = KitKeys.Decide(key, _focusKey is null ? -1 : _focusIndex, _shown.Count);
+        var message = decision.Index >= 0 && decision.Index < _shown.Count ? _shown[decision.Index] : null;
 
         switch (decision.Command)
         {
-            case ListCommand.Focus:
+            case KitKeyCommand.Focus:
                 FocusRow(decision.Index);
                 return true;
 
-            case ListCommand.Open:
-                OpenMessage(_shown[decision.Index]);
-                return true;
-
-            case ListCommand.Delete when CanChange(_shown[decision.Index]):
-                Change(_shown[decision.Index], MailChange.Delete);
-                return true;
-
-            case ListCommand.Menu when decision.Index < _rows.Count:
-                ShowMessageMenu(_rows[decision.Index], _shown[decision.Index], null);
-                return true;
-
-            case ListCommand.Release:
+            case KitKeyCommand.Release:
                 var had = _focusKey is not null;
                 ReleaseFocus();
                 return had;
+
+            case KitKeyCommand.Menu when message is not null && decision.Index < _rows.Count:
+                ShowMessageMenu(_rows[decision.Index], message, null);
+                return true;
+
+            case KitKeyCommand.Open or KitKeyCommand.Delete or KitKeyCommand.Copy when message is not null:
+                // [S-7020] The kit's one key map: Enter the primary action, Delete Delete, Ctrl+C the first copy.
+                var actions = MailSpec.Actions(message, CanChange(message));
+                var action = decision.Command switch
+                {
+                    KitKeyCommand.Open => KitMenu.Primary(actions),
+                    KitKeyCommand.Delete => actions.FirstOrDefault(a => a.Kind == KitActionKind.Delete),
+                    _ => actions.FirstOrDefault(a => a.Kind is KitActionKind.CopyText or KitActionKind.CopyLink),
+                };
+
+                if (action is not { Runnable: true })
+                {
+                    return false;
+                }
+
+                Run(message, action);
+                return true;
 
             default:
                 return false;
