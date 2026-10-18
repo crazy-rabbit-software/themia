@@ -351,36 +351,6 @@
   "widgetsC.stocks.zone.local": "તમારા સમય ઝોનમાં સમય",
   "widgetsC.stocks.zone.exchange": "{zone} માં સમય, એક્સચેન્જનો સમય",
   "widgetsC.stocks.weekdayTime": "{weekday} {time}",
-  "widgetsC.stocks.notSymbol": "\"{symbol}\" પ્રતીક નથી",
-  "widgetsC.stocks.noQuote": "તે પ્રતીક માટે કોઈ ભાવ નથી",
-  "widgetsC.stocks.phaseTooltip": "{phase}. {zone}",
-  "widgetsC.stocks.extendedLine": "{session} {price} {change} · {time}",
-  "widgetsC.stocks.tooltip.failed": "{problem}. {age} નો ભાવ બતાવી રહ્યાં છીએ.",
-  "widgetsC.stocks.tooltip.saved": "{age} સાચવેલું; રિફ્રેશ થઈ રહ્યું છે",
-  "widgetsC.stocks.tooltip.priced": "{age} ભાવ",
-  "widgetsC.stocks.period.days": {
-    "one": "{count} દિવસ",
-    "other": "{count} દિવસ"
-  },
-  "widgetsC.stocks.period.months": {
-    "one": "{count} મહિનો",
-    "other": "{count} મહિના"
-  },
-  "widgetsC.stocks.period.years": {
-    "one": "{count} વર્ષ",
-    "other": "{count} વર્ષ"
-  },
-  "widgetsC.stocks.settings.instrument": "સાધન",
-  "widgetsC.stocks.settings.symbol.desc": "નામ કે ટિકરથી શોધો: શેર, ફંડ, સૂચકાંકો, કૉઇન",
-  "widgetsC.stocks.settings.marketState.desc": "ફક્ત લિસ્ટેડ સાધનો — ક્રિપ્ટોનો વેપાર દરરોજ થાય છે",
-  "widgetsC.stocks.settings.windowsGreen": "Windows લીલો",
-  "widgetsC.stocks.settings.windowsRed": "Windows લાલ",
-  "widgetsC.stocks.settings.symbolRefused": "શોધ પરિણામ પસંદ કરો, અથવા પ્રતીક લખો: ફક્ત અક્ષરો, અંકો અને . - ^ =",
-  "widgetsC.stocks.settings.classOnExchange": "{exchange} પર {class}",
-  "widgetsC.stocks.settings.holding.label": "માલિકીના શેર",
-  "widgetsC.stocks.settings.holding.desc": "તમારી પાસે કેટલા છે; વિજેટ તેમની કિંમત બતાવે છે. ખાલી હોય તો છુપાવે છે",
-  "widgetsC.stocks.settings.holding.refused": "{zero} કે વધુની રકમ લખો, જેમ કે {example}",
-  "widgetsC.stocks.holding.line": "{amount} ધારિત · {value}",
   "widgetsC.location.recycleBin": "રિસાયકલ બિન",
   "widgetsC.location.thisPc": "આ PC",
   "widgetsC.location.downloads": "ડાઉનલોડ્સ",

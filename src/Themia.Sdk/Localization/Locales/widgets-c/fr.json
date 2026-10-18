@@ -351,36 +351,6 @@
   "widgetsC.stocks.zone.local": "Heures dans votre fuseau horaire",
   "widgetsC.stocks.zone.exchange": "Heures en {zone}, l'heure de la place boursière",
   "widgetsC.stocks.weekdayTime": "{weekday} {time}",
-  "widgetsC.stocks.notSymbol": "« {symbol} » n'est pas un symbole",
-  "widgetsC.stocks.noQuote": "Aucune cotation pour ce symbole",
-  "widgetsC.stocks.phaseTooltip": "{phase}. {zone}",
-  "widgetsC.stocks.extendedLine": "{session} {price} {change} · {time}",
-  "widgetsC.stocks.tooltip.failed": "{problem}. Dernier cours : {age}.",
-  "widgetsC.stocks.tooltip.saved": "Enregistré : {age} ; actualisation en cours",
-  "widgetsC.stocks.tooltip.priced": "Cours : {age}",
-  "widgetsC.stocks.period.days": {
-    "one": "{count} jour",
-    "other": "{count} jours"
-  },
-  "widgetsC.stocks.period.months": {
-    "one": "{count} mois",
-    "other": "{count} mois"
-  },
-  "widgetsC.stocks.period.years": {
-    "one": "{count} an",
-    "other": "{count} ans"
-  },
-  "widgetsC.stocks.settings.instrument": "Instrument",
-  "widgetsC.stocks.settings.symbol.desc": "Rechercher par nom ou symbole : actions, fonds, indices, cryptos",
-  "widgetsC.stocks.settings.marketState.desc": "Instruments cotés uniquement ; les cryptomonnaies s'échangent tous les jours",
-  "widgetsC.stocks.settings.windowsGreen": "Vert Windows",
-  "widgetsC.stocks.settings.windowsRed": "Rouge Windows",
-  "widgetsC.stocks.settings.symbolRefused": "Choisissez un résultat de recherche ou tapez un symbole : lettres, chiffres et . - ^ = uniquement",
-  "widgetsC.stocks.settings.classOnExchange": "{class} sur {exchange}",
-  "widgetsC.stocks.settings.holding.label": "Quantité détenue",
-  "widgetsC.stocks.settings.holding.desc": "Combien vous en détenez ; le widget affiche leur valeur. Vide la masque",
-  "widgetsC.stocks.settings.holding.refused": "Saisissez une quantité de {zero} ou plus, par ex. {example}",
-  "widgetsC.stocks.holding.line": "{amount} détenus · {value}",
   "widgetsC.location.recycleBin": "Corbeille",
   "widgetsC.location.thisPc": "Ce PC",
   "widgetsC.location.downloads": "Téléchargements",

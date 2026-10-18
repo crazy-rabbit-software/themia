@@ -351,36 +351,6 @@
   "widgetsC.stocks.zone.local": "समय आपके समय क्षेत्र में",
   "widgetsC.stocks.zone.exchange": "समय {zone} में, एक्सचेंज का समय",
   "widgetsC.stocks.weekdayTime": "{weekday} {time}",
-  "widgetsC.stocks.notSymbol": "\"{symbol}\" सिंबल नहीं है",
-  "widgetsC.stocks.noQuote": "उस सिंबल का कोई भाव नहीं",
-  "widgetsC.stocks.phaseTooltip": "{phase}। {zone}",
-  "widgetsC.stocks.extendedLine": "{session} {price} {change} · {time}",
-  "widgetsC.stocks.tooltip.failed": "{problem}। {age} का भाव दिख रहा है।",
-  "widgetsC.stocks.tooltip.saved": "{age} सहेजा गया; रीफ़्रेश हो रहा है",
-  "widgetsC.stocks.tooltip.priced": "भाव {age}",
-  "widgetsC.stocks.period.days": {
-    "one": "{count} दिन",
-    "other": "{count} दिन"
-  },
-  "widgetsC.stocks.period.months": {
-    "one": "{count} महीना",
-    "other": "{count} महीने"
-  },
-  "widgetsC.stocks.period.years": {
-    "one": "{count} वर्ष",
-    "other": "{count} वर्ष"
-  },
-  "widgetsC.stocks.settings.instrument": "इंस्ट्रूमेंट",
-  "widgetsC.stocks.settings.symbol.desc": "नाम या टिकर से खोजें: शेयर, फ़ंड, सूचकांक, कॉइन",
-  "widgetsC.stocks.settings.marketState.desc": "केवल सूचीबद्ध इंस्ट्रूमेंट — क्रिप्टो हर दिन ट्रेड होता है",
-  "widgetsC.stocks.settings.windowsGreen": "Windows हरा",
-  "widgetsC.stocks.settings.windowsRed": "Windows लाल",
-  "widgetsC.stocks.settings.symbolRefused": "कोई खोज परिणाम चुनें, या सिंबल लिखें: केवल अक्षर, अंक और . - ^ =",
-  "widgetsC.stocks.settings.classOnExchange": "{exchange} पर {class}",
-  "widgetsC.stocks.settings.holding.label": "स्वामित्व वाली मात्रा",
-  "widgetsC.stocks.settings.holding.desc": "आपके पास कितने हैं; विजेट उनका मूल्य दिखाता है। खाली छोड़ने पर छिपा रहता है",
-  "widgetsC.stocks.settings.holding.refused": "{zero} या अधिक की मात्रा लिखें, जैसे {example}",
-  "widgetsC.stocks.holding.line": "{amount} धारित · {value}",
   "widgetsC.location.recycleBin": "रीसायकल बिन",
   "widgetsC.location.thisPc": "यह PC",
   "widgetsC.location.downloads": "डाउनलोड",

@@ -1,0 +1,46 @@
+{
+  "stocks.dimWhenClosed": "Alamar rufewa",
+  "stocks.downColor": "Launin asara",
+  "stocks.extendedHours": "Ƙarin awoyi",
+  "stocks.extendedHoursDesc": "Bibiyar ciniki kafin buɗe kasuwa da bayan rufewa (1D da 5D)",
+  "stocks.showMinMax": "Alamomin ƙasa/sama",
+  "stocks.tab.symbols": "Alama",
+  "stocks.timeframe": "Lokaci",
+  "stocks.upColor": "Launin riba",
+  "styles.stocks.chart": "Jadawali",
+  "styles.stocks.number": "Lamba",
+  "styles.stocks.options": "Lokaci da launuka",
+  "styles.stocks.optionsDesc": "Lokacin canjin, alamomin jadawali da launuka",
+  "widget.stocks.label": "Hannun jari",
+  "widgetsA.catalog.stocks.description": "Hannun jari da crypto, tare da ƙaramin jadawali",
+  "widgetsC.stocks.extendedLine": "{session} {price} {change} · {time}",
+  "widgetsC.stocks.holding.line": "{amount} ana riƙe · {value}",
+  "widgetsC.stocks.noQuote": "Babu farashi don wannan alama",
+  "widgetsC.stocks.notSymbol": "\"{symbol}\" ba alama ba ce",
+  "widgetsC.stocks.period.days": {
+    "one": "Kwana {count}",
+    "other": "Kwanaki {count}"
+  },
+  "widgetsC.stocks.period.months": {
+    "one": "Wata {count}",
+    "other": "Watanni {count}"
+  },
+  "widgetsC.stocks.period.years": {
+    "one": "Shekara {count}",
+    "other": "Shekaru {count}"
+  },
+  "widgetsC.stocks.phaseTooltip": "{phase}. {zone}",
+  "widgetsC.stocks.settings.classOnExchange": "{class} a {exchange}",
+  "widgetsC.stocks.settings.holding.desc": "Nawa kake riƙe; widget yana nuna darajarsu. Babu komai yana ɓoye shi",
+  "widgetsC.stocks.settings.holding.label": "Hannun jarin da kake da su",
+  "widgetsC.stocks.settings.holding.refused": "Rubuta adadi na {zero} ko fiye, kamar {example}",
+  "widgetsC.stocks.settings.instrument": "Kayan kasuwa",
+  "widgetsC.stocks.settings.marketState.desc": "Kayan da aka jera kawai — ana cinikin crypto kowace rana",
+  "widgetsC.stocks.settings.symbolRefused": "Zaɓi sakamakon bincike, ko rubuta alama: haruffa, lambobi da . - ^ = kawai",
+  "widgetsC.stocks.settings.symbol.desc": "Bincika da suna ko alama: hannun jari, kuɗaɗen jari, ma'auni, tsabar kuɗi",
+  "widgetsC.stocks.settings.windowsGreen": "Koren Windows",
+  "widgetsC.stocks.settings.windowsRed": "Jan Windows",
+  "widgetsC.stocks.tooltip.failed": "{problem}. Ana nuna farashin daga {age}.",
+  "widgetsC.stocks.tooltip.priced": "An ƙididdige farashi {age}",
+  "widgetsC.stocks.tooltip.saved": "An ajiye {age}; ana wartsakewa"
+}

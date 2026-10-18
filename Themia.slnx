@@ -38,6 +38,7 @@
     <Project Path="src/Widgets/Themia.Widget.Sleep/Themia.Widget.Sleep.csproj" />
     <Project Path="src/Widgets/Themia.Widget.SoundToggle/Themia.Widget.SoundToggle.csproj" />
     <Project Path="src/Widgets/Themia.Widget.SpatialSoundToggle/Themia.Widget.SpatialSoundToggle.csproj" />
+    <Project Path="src/Widgets/Themia.Widget.Stocks/Themia.Widget.Stocks.csproj" />
     <Project Path="src/Widgets/Themia.Widget.Stopwatch/Themia.Widget.Stopwatch.csproj" />
     <Project Path="src/Widgets/Themia.Widget.Sun/Themia.Widget.Sun.csproj" />
     <Project Path="src/Widgets/Themia.Widget.WeatherForecast/Themia.Widget.WeatherForecast.csproj" />

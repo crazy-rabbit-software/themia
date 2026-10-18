@@ -1,0 +1,46 @@
+{
+  "stocks.dimWhenClosed": "نشانگر بسته بودن",
+  "stocks.downColor": "رنگ زیان",
+  "stocks.extendedHours": "ساعات تمدیدی",
+  "stocks.extendedHoursDesc": "دنبال کردن معاملات پیش از بازار و پس از بازار (یک روز و پنج روز)",
+  "stocks.showMinMax": "نشانگر کمینه/بیشینه",
+  "stocks.tab.symbols": "نماد",
+  "stocks.timeframe": "بازه زمانی",
+  "stocks.upColor": "رنگ سود",
+  "styles.stocks.chart": "نمودار",
+  "styles.stocks.number": "عدد",
+  "styles.stocks.options": "دوره و رنگ‌ها",
+  "styles.stocks.optionsDesc": "دوره تغییر، نشانه‌های نمودار و رنگ‌ها",
+  "widget.stocks.label": "سهام",
+  "widgetsA.catalog.stocks.description": "نمادها و رمزارزها، با نمودار کوچک",
+  "widgetsC.stocks.extendedLine": "{session} {price} {change} · {time}",
+  "widgetsC.stocks.holding.line": "{amount} در اختیار · {value}",
+  "widgetsC.stocks.noQuote": "قیمتی برای آن نماد نیست",
+  "widgetsC.stocks.notSymbol": "«{symbol}» نماد نیست",
+  "widgetsC.stocks.period.days": {
+    "one": "{count} روز",
+    "other": "{count} روز"
+  },
+  "widgetsC.stocks.period.months": {
+    "one": "{count} ماه",
+    "other": "{count} ماه"
+  },
+  "widgetsC.stocks.period.years": {
+    "one": "{count} سال",
+    "other": "{count} سال"
+  },
+  "widgetsC.stocks.phaseTooltip": "{phase}. {zone}",
+  "widgetsC.stocks.settings.classOnExchange": "{class} در {exchange}",
+  "widgetsC.stocks.settings.holding.desc": "چه تعداد دارید؛ ویجت ارزش آن‌ها را نشان می‌دهد. خالی، آن را پنهان می‌کند",
+  "widgetsC.stocks.settings.holding.label": "سهام در اختیار",
+  "widgetsC.stocks.settings.holding.refused": "مقداری {zero} یا بیشتر تایپ کنید، مانند {example}",
+  "widgetsC.stocks.settings.instrument": "ابزار مالی",
+  "widgetsC.stocks.settings.marketState.desc": "فقط ابزارهای بورسی — رمزارزها هر روز معامله می‌شوند",
+  "widgetsC.stocks.settings.symbolRefused": "یک نتیجه جستجو انتخاب کنید یا نمادی تایپ کنید: فقط حروف، ارقام و . - ^ =",
+  "widgetsC.stocks.settings.symbol.desc": "جستجو با نام یا نماد: سهام، صندوق‌ها، شاخص‌ها، رمزارزها",
+  "widgetsC.stocks.settings.windowsGreen": "سبز Windows",
+  "widgetsC.stocks.settings.windowsRed": "قرمز Windows",
+  "widgetsC.stocks.tooltip.failed": "{problem}. قیمت مربوط به {age} نمایش داده می‌شود.",
+  "widgetsC.stocks.tooltip.priced": "قیمت‌گذاری {age}",
+  "widgetsC.stocks.tooltip.saved": "ذخیره‌شده {age}؛ در حال تازه‌سازی"
+}

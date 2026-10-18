@@ -345,33 +345,6 @@
   "widgetsC.stocks.zone.local": "時間為您所在的時區",
   "widgetsC.stocks.zone.exchange": "時間為交易所時間（{zone}）",
   "widgetsC.stocks.weekdayTime": "{weekday} {time}",
-  "widgetsC.stocks.notSymbol": "「{symbol}」不是有效的代號",
-  "widgetsC.stocks.noQuote": "此代號沒有報價",
-  "widgetsC.stocks.phaseTooltip": "{phase}。{zone}",
-  "widgetsC.stocks.extendedLine": "{session} {price} {change} · {time}",
-  "widgetsC.stocks.tooltip.failed": "{problem}。目前顯示的是{age}的價格。",
-  "widgetsC.stocks.tooltip.saved": "{age}儲存；正在重新整理",
-  "widgetsC.stocks.tooltip.priced": "{age}的報價",
-  "widgetsC.stocks.period.days": {
-    "other": "{count} 天"
-  },
-  "widgetsC.stocks.period.months": {
-    "other": "{count} 個月"
-  },
-  "widgetsC.stocks.period.years": {
-    "other": "{count} 年"
-  },
-  "widgetsC.stocks.settings.instrument": "金融商品",
-  "widgetsC.stocks.settings.symbol.desc": "依名稱或代號搜尋：股票、基金、指數、加密貨幣",
-  "widgetsC.stocks.settings.marketState.desc": "僅限上市商品；加密貨幣每天都在交易",
-  "widgetsC.stocks.settings.windowsGreen": "Windows 綠色",
-  "widgetsC.stocks.settings.windowsRed": "Windows 紅色",
-  "widgetsC.stocks.settings.symbolRefused": "請選擇搜尋結果或輸入代號：僅限字母、數字和 . - ^ =",
-  "widgetsC.stocks.settings.classOnExchange": "{exchange} 上的{class}",
-  "widgetsC.stocks.settings.holding.label": "持有數量",
-  "widgetsC.stocks.settings.holding.desc": "你持有的數量；小工具會顯示其市值。留空則不顯示",
-  "widgetsC.stocks.settings.holding.refused": "請輸入 {zero} 或更大的數量，例如 {example}",
-  "widgetsC.stocks.holding.line": "持有 {amount} · {value}",
   "widgetsC.location.recycleBin": "資源回收筒",
   "widgetsC.location.thisPc": "本機",
   "widgetsC.location.downloads": "下載",

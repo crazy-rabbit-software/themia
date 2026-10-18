@@ -1,0 +1,43 @@
+{
+  "stocks.dimWhenClosed": "Indikator tutup",
+  "stocks.downColor": "Warna turun",
+  "stocks.extendedHours": "Jam tambahan",
+  "stocks.extendedHoursDesc": "Lacak perdagangan pra-pasar dan setelah jam (1D dan 5D)",
+  "stocks.showMinMax": "Penanda min/maks",
+  "stocks.tab.symbols": "Simbol",
+  "stocks.timeframe": "Rentang waktu",
+  "stocks.upColor": "Warna naik",
+  "styles.stocks.chart": "Grafik",
+  "styles.stocks.number": "Angka",
+  "styles.stocks.options": "Periode dan warna",
+  "styles.stocks.optionsDesc": "Periode perubahan, penanda grafik, dan warna",
+  "widget.stocks.label": "Saham",
+  "widgetsA.catalog.stocks.description": "Saham dan kripto, dengan grafik mini",
+  "widgetsC.stocks.extendedLine": "{session} {price} {change} · {time}",
+  "widgetsC.stocks.holding.line": "{amount} dimiliki · {value}",
+  "widgetsC.stocks.noQuote": "Tidak ada harga untuk simbol itu",
+  "widgetsC.stocks.notSymbol": "\"{symbol}\" bukan simbol",
+  "widgetsC.stocks.period.days": {
+    "other": "{count} hari"
+  },
+  "widgetsC.stocks.period.months": {
+    "other": "{count} bulan"
+  },
+  "widgetsC.stocks.period.years": {
+    "other": "{count} tahun"
+  },
+  "widgetsC.stocks.phaseTooltip": "{phase}. {zone}",
+  "widgetsC.stocks.settings.classOnExchange": "{class} di {exchange}",
+  "widgetsC.stocks.settings.holding.desc": "Berapa yang Anda miliki; widget menampilkan nilainya. Kosongkan untuk menyembunyikan",
+  "widgetsC.stocks.settings.holding.label": "Jumlah dimiliki",
+  "widgetsC.stocks.settings.holding.refused": "Ketik jumlah {zero} atau lebih, misalnya {example}",
+  "widgetsC.stocks.settings.instrument": "Instrumen",
+  "widgetsC.stocks.settings.marketState.desc": "Hanya instrumen tercatat — kripto diperdagangkan setiap hari",
+  "widgetsC.stocks.settings.symbolRefused": "Pilih hasil pencarian, atau ketik simbol: hanya huruf, angka, dan . - ^ =",
+  "widgetsC.stocks.settings.symbol.desc": "Cari menurut nama atau ticker: saham, reksa dana, indeks, koin",
+  "widgetsC.stocks.settings.windowsGreen": "Hijau Windows",
+  "widgetsC.stocks.settings.windowsRed": "Merah Windows",
+  "widgetsC.stocks.tooltip.failed": "{problem}. Menampilkan harga dari {age}.",
+  "widgetsC.stocks.tooltip.priced": "Harga {age}",
+  "widgetsC.stocks.tooltip.saved": "Disimpan {age}; menyegarkan"
+}

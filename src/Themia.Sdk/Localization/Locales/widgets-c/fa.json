@@ -351,36 +351,6 @@
   "widgetsC.stocks.zone.local": "زمان‌ها به وقت منطقه زمانی شما",
   "widgetsC.stocks.zone.exchange": "زمان‌ها به وقت {zone}، وقت بورس",
   "widgetsC.stocks.weekdayTime": "{weekday} {time}",
-  "widgetsC.stocks.notSymbol": "«{symbol}» نماد نیست",
-  "widgetsC.stocks.noQuote": "قیمتی برای آن نماد نیست",
-  "widgetsC.stocks.phaseTooltip": "{phase}. {zone}",
-  "widgetsC.stocks.extendedLine": "{session} {price} {change} · {time}",
-  "widgetsC.stocks.tooltip.failed": "{problem}. قیمت مربوط به {age} نمایش داده می‌شود.",
-  "widgetsC.stocks.tooltip.saved": "ذخیره‌شده {age}؛ در حال تازه‌سازی",
-  "widgetsC.stocks.tooltip.priced": "قیمت‌گذاری {age}",
-  "widgetsC.stocks.period.days": {
-    "one": "{count} روز",
-    "other": "{count} روز"
-  },
-  "widgetsC.stocks.period.months": {
-    "one": "{count} ماه",
-    "other": "{count} ماه"
-  },
-  "widgetsC.stocks.period.years": {
-    "one": "{count} سال",
-    "other": "{count} سال"
-  },
-  "widgetsC.stocks.settings.instrument": "ابزار مالی",
-  "widgetsC.stocks.settings.symbol.desc": "جستجو با نام یا نماد: سهام، صندوق‌ها، شاخص‌ها، رمزارزها",
-  "widgetsC.stocks.settings.marketState.desc": "فقط ابزارهای بورسی — رمزارزها هر روز معامله می‌شوند",
-  "widgetsC.stocks.settings.windowsGreen": "سبز Windows",
-  "widgetsC.stocks.settings.windowsRed": "قرمز Windows",
-  "widgetsC.stocks.settings.symbolRefused": "یک نتیجه جستجو انتخاب کنید یا نمادی تایپ کنید: فقط حروف، ارقام و . - ^ =",
-  "widgetsC.stocks.settings.classOnExchange": "{class} در {exchange}",
-  "widgetsC.stocks.settings.holding.label": "سهام در اختیار",
-  "widgetsC.stocks.settings.holding.desc": "چه تعداد دارید؛ ویجت ارزش آن‌ها را نشان می‌دهد. خالی، آن را پنهان می‌کند",
-  "widgetsC.stocks.settings.holding.refused": "مقداری {zero} یا بیشتر تایپ کنید، مانند {example}",
-  "widgetsC.stocks.holding.line": "{amount} در اختیار · {value}",
   "widgetsC.location.recycleBin": "سطل بازیافت",
   "widgetsC.location.thisPc": "این رایانه",
   "widgetsC.location.downloads": "بارگیری‌ها",

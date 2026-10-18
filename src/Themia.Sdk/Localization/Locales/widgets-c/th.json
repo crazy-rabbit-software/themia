@@ -345,33 +345,6 @@
   "widgetsC.stocks.zone.local": "เวลาในโซนเวลาของคุณ",
   "widgetsC.stocks.zone.exchange": "เวลาใน {zone} ซึ่งเป็นเวลาของตลาด",
   "widgetsC.stocks.weekdayTime": "{weekday} {time}",
-  "widgetsC.stocks.notSymbol": "\"{symbol}\" ไม่ใช่สัญลักษณ์",
-  "widgetsC.stocks.noQuote": "ไม่มีราคาสำหรับสัญลักษณ์นั้น",
-  "widgetsC.stocks.phaseTooltip": "{phase} {zone}",
-  "widgetsC.stocks.extendedLine": "{session} {price} {change} · {time}",
-  "widgetsC.stocks.tooltip.failed": "{problem} กำลังแสดงราคาจาก {age}",
-  "widgetsC.stocks.tooltip.saved": "บันทึกไว้เมื่อ {age} กำลังรีเฟรช",
-  "widgetsC.stocks.tooltip.priced": "ราคาเมื่อ {age}",
-  "widgetsC.stocks.period.days": {
-    "other": "{count} วัน"
-  },
-  "widgetsC.stocks.period.months": {
-    "other": "{count} เดือน"
-  },
-  "widgetsC.stocks.period.years": {
-    "other": "{count} ปี"
-  },
-  "widgetsC.stocks.settings.instrument": "ตราสาร",
-  "widgetsC.stocks.settings.symbol.desc": "ค้นหาตามชื่อหรือสัญลักษณ์: หุ้น กองทุน ดัชนี เหรียญ",
-  "widgetsC.stocks.settings.marketState.desc": "เฉพาะตราสารจดทะเบียน — คริปโตซื้อขายทุกวัน",
-  "widgetsC.stocks.settings.windowsGreen": "สีเขียวของ Windows",
-  "widgetsC.stocks.settings.windowsRed": "สีแดงของ Windows",
-  "widgetsC.stocks.settings.symbolRefused": "เลือกผลการค้นหา หรือพิมพ์สัญลักษณ์: ตัวอักษร ตัวเลข และ . - ^ = เท่านั้น",
-  "widgetsC.stocks.settings.classOnExchange": "{class} ใน {exchange}",
-  "widgetsC.stocks.settings.holding.label": "จำนวนหุ้นที่ถือ",
-  "widgetsC.stocks.settings.holding.desc": "จำนวนที่คุณถือ วิดเจ็ตจะแสดงมูลค่า เว้นว่างเพื่อซ่อน",
-  "widgetsC.stocks.settings.holding.refused": "พิมพ์จำนวนตั้งแต่ {zero} ขึ้นไป เช่น {example}",
-  "widgetsC.stocks.holding.line": "ถือ {amount} · {value}",
   "widgetsC.location.recycleBin": "ถังรีไซเคิล",
   "widgetsC.location.thisPc": "พีซีเครื่องนี้",
   "widgetsC.location.downloads": "ดาวน์โหลด",

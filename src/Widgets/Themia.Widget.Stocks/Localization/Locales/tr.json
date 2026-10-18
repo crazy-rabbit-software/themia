@@ -1,0 +1,46 @@
+{
+  "stocks.dimWhenClosed": "Kapalı göstergesi",
+  "stocks.downColor": "Kayıp rengi",
+  "stocks.extendedHours": "Uzatılmış saatler",
+  "stocks.extendedHoursDesc": "Piyasa öncesi ve seans sonrası işlemleri izle (1G ve 5G)",
+  "stocks.showMinMax": "En düşük/en yüksek işaretleri",
+  "stocks.tab.symbols": "Sembol",
+  "stocks.timeframe": "Zaman aralığı",
+  "stocks.upColor": "Kazanç rengi",
+  "styles.stocks.chart": "Grafik",
+  "styles.stocks.number": "Sayı",
+  "styles.stocks.options": "Dönem ve renkler",
+  "styles.stocks.optionsDesc": "Değişimin dönemi, grafik işaretleri ve renkler",
+  "widget.stocks.label": "Hisseler",
+  "widgetsA.catalog.stocks.description": "Mini grafikle hisseler ve kripto",
+  "widgetsC.stocks.extendedLine": "{session} {price} {change} · {time}",
+  "widgetsC.stocks.holding.line": "{amount} adet · {value}",
+  "widgetsC.stocks.noQuote": "Bu sembol için fiyat yok",
+  "widgetsC.stocks.notSymbol": "\"{symbol}\" bir sembol değil",
+  "widgetsC.stocks.period.days": {
+    "one": "{count} gün",
+    "other": "{count} gün"
+  },
+  "widgetsC.stocks.period.months": {
+    "one": "{count} ay",
+    "other": "{count} ay"
+  },
+  "widgetsC.stocks.period.years": {
+    "one": "{count} yıl",
+    "other": "{count} yıl"
+  },
+  "widgetsC.stocks.phaseTooltip": "{phase}. {zone}",
+  "widgetsC.stocks.settings.classOnExchange": "{class} · {exchange}",
+  "widgetsC.stocks.settings.holding.desc": "Kaç adet sahip olduğunuz; widget değerini gösterir. Boş bırakılırsa gizlenir",
+  "widgetsC.stocks.settings.holding.label": "Sahip olunan adet",
+  "widgetsC.stocks.settings.holding.refused": "{zero} veya daha büyük bir miktar yazın, örneğin {example}",
+  "widgetsC.stocks.settings.instrument": "Enstrüman",
+  "widgetsC.stocks.settings.marketState.desc": "Yalnızca borsada işlem gören enstrümanlar — kripto her gün işlem görür",
+  "widgetsC.stocks.settings.symbolRefused": "Bir arama sonucu seçin veya bir sembol yazın: yalnızca harfler, rakamlar ve . - ^ =",
+  "widgetsC.stocks.settings.symbol.desc": "Ada veya koda göre arayın: hisseler, fonlar, endeksler, kripto paralar",
+  "widgetsC.stocks.settings.windowsGreen": "Windows yeşili",
+  "widgetsC.stocks.settings.windowsRed": "Windows kırmızısı",
+  "widgetsC.stocks.tooltip.failed": "{problem}. {age} tarihli fiyat gösteriliyor.",
+  "widgetsC.stocks.tooltip.priced": "Fiyat zamanı: {age}",
+  "widgetsC.stocks.tooltip.saved": "Kaydedildi: {age}; yenileniyor"
+}

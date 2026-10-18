@@ -345,33 +345,6 @@
   "widgetsC.stocks.zone.local": "时间为你所在的时区",
   "widgetsC.stocks.zone.exchange": "时间为交易所时间（{zone}）",
   "widgetsC.stocks.weekdayTime": "{weekday} {time}",
-  "widgetsC.stocks.notSymbol": "“{symbol}”不是有效代码",
-  "widgetsC.stocks.noQuote": "此代码没有报价",
-  "widgetsC.stocks.phaseTooltip": "{phase}。{zone}",
-  "widgetsC.stocks.extendedLine": "{session} {price} {change} · {time}",
-  "widgetsC.stocks.tooltip.failed": "{problem}。显示的是{age}的价格。",
-  "widgetsC.stocks.tooltip.saved": "{age}保存，正在刷新",
-  "widgetsC.stocks.tooltip.priced": "{age}的报价",
-  "widgetsC.stocks.period.days": {
-    "other": "{count} 天"
-  },
-  "widgetsC.stocks.period.months": {
-    "other": "{count} 个月"
-  },
-  "widgetsC.stocks.period.years": {
-    "other": "{count} 年"
-  },
-  "widgetsC.stocks.settings.instrument": "金融产品",
-  "widgetsC.stocks.settings.symbol.desc": "按名称或代码搜索：股票、基金、指数、加密货币",
-  "widgetsC.stocks.settings.marketState.desc": "仅限上市产品，加密货币每天交易",
-  "widgetsC.stocks.settings.windowsGreen": "Windows 绿色",
-  "widgetsC.stocks.settings.windowsRed": "Windows 红色",
-  "widgetsC.stocks.settings.symbolRefused": "请选择搜索结果或输入代码：仅限字母、数字和 . - ^ =",
-  "widgetsC.stocks.settings.classOnExchange": "{exchange} 上的{class}",
-  "widgetsC.stocks.settings.holding.label": "持有数量",
-  "widgetsC.stocks.settings.holding.desc": "你持有的数量；小组件会显示其市值。留空则不显示",
-  "widgetsC.stocks.settings.holding.refused": "请输入 {zero} 或更大的数量，例如 {example}",
-  "widgetsC.stocks.holding.line": "持有 {amount} · {value}",
   "widgetsC.location.recycleBin": "回收站",
   "widgetsC.location.thisPc": "此电脑",
   "widgetsC.location.downloads": "下载",

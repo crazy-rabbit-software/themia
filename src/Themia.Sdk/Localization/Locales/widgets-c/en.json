@@ -350,36 +350,6 @@
   "widgetsC.stocks.zone.local": "Times in your time zone",
   "widgetsC.stocks.zone.exchange": "Times in {zone}, the exchange's time",
   "widgetsC.stocks.weekdayTime": "{weekday} {time}",
-  "widgetsC.stocks.notSymbol": "\"{symbol}\" is not a symbol",
-  "widgetsC.stocks.noQuote": "No quote for that symbol",
-  "widgetsC.stocks.phaseTooltip": "{phase}. {zone}",
-  "widgetsC.stocks.extendedLine": "{session} {price} {change} · {time}",
-  "widgetsC.stocks.tooltip.failed": "{problem}. Showing the price from {age}.",
-  "widgetsC.stocks.tooltip.saved": "Saved {age}; refreshing",
-  "widgetsC.stocks.tooltip.priced": "Priced {age}",
-  "widgetsC.stocks.period.days": {
-    "one": "{count} day",
-    "other": "{count} days"
-  },
-  "widgetsC.stocks.period.months": {
-    "one": "{count} month",
-    "other": "{count} months"
-  },
-  "widgetsC.stocks.period.years": {
-    "one": "{count} year",
-    "other": "{count} years"
-  },
-  "widgetsC.stocks.settings.instrument": "Instrument",
-  "widgetsC.stocks.settings.symbol.desc": "Search by name or ticker: shares, funds, indices, coins",
-  "widgetsC.stocks.settings.marketState.desc": "Listed instruments only — crypto trades every day",
-  "widgetsC.stocks.settings.windowsGreen": "Windows green",
-  "widgetsC.stocks.settings.windowsRed": "Windows red",
-  "widgetsC.stocks.settings.symbolRefused": "Pick a search result, or type a symbol: letters, digits and . - ^ = only",
-  "widgetsC.stocks.settings.classOnExchange": "{class} on {exchange}",
-  "widgetsC.stocks.settings.holding.label": "Shares owned",
-  "widgetsC.stocks.settings.holding.desc": "How many you hold; the widget shows what they are worth. Empty hides it",
-  "widgetsC.stocks.settings.holding.refused": "Type an amount of {zero} or more, such as {example}",
-  "widgetsC.stocks.holding.line": "{amount} held · {value}",
   "widgetsC.location.recycleBin": "Recycle Bin",
   "widgetsC.location.thisPc": "This PC",
   "widgetsC.location.downloads": "Downloads",

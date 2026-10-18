@@ -1,0 +1,43 @@
+{
+  "stocks.dimWhenClosed": "取引時間外の表示",
+  "stocks.downColor": "下落の色",
+  "stocks.extendedHours": "時間外を含める",
+  "stocks.extendedHoursDesc": "寄り付き前と時間外の取引も追跡します（1D と 5D）",
+  "stocks.showMinMax": "高値・安値のマーカー",
+  "stocks.tab.symbols": "銘柄",
+  "stocks.timeframe": "期間",
+  "stocks.upColor": "上昇の色",
+  "styles.stocks.chart": "グラフ",
+  "styles.stocks.number": "数値",
+  "styles.stocks.options": "期間と色",
+  "styles.stocks.optionsDesc": "変化の期間、グラフのマーカー、色",
+  "widget.stocks.label": "株価",
+  "widgetsA.catalog.stocks.description": "株価と暗号資産 (ミニグラフ付き)",
+  "widgetsC.stocks.extendedLine": "{session} {price} {change} · {time}",
+  "widgetsC.stocks.holding.line": "{amount} 保有 · {value}",
+  "widgetsC.stocks.noQuote": "この銘柄の相場はありません",
+  "widgetsC.stocks.notSymbol": "「{symbol}」は銘柄コードではありません",
+  "widgetsC.stocks.period.days": {
+    "other": "{count} 日"
+  },
+  "widgetsC.stocks.period.months": {
+    "other": "{count} か月"
+  },
+  "widgetsC.stocks.period.years": {
+    "other": "{count} 年"
+  },
+  "widgetsC.stocks.phaseTooltip": "{phase}。{zone}",
+  "widgetsC.stocks.settings.classOnExchange": "{exchange} の{class}",
+  "widgetsC.stocks.settings.holding.desc": "保有している数。ウィジェットに評価額が表示されます。空欄で非表示",
+  "widgetsC.stocks.settings.holding.label": "保有数",
+  "widgetsC.stocks.settings.holding.refused": "{zero} 以上の数量を入力してください (例: {example})",
+  "widgetsC.stocks.settings.instrument": "銘柄",
+  "widgetsC.stocks.settings.marketState.desc": "上場銘柄のみ。暗号資産は毎日取引されます",
+  "widgetsC.stocks.settings.symbolRefused": "検索結果を選ぶか、銘柄コードを入力してください (英字、数字、. - ^ = のみ)",
+  "widgetsC.stocks.settings.symbol.desc": "名前かティッカーで検索: 株式、ファンド、指数、暗号資産",
+  "widgetsC.stocks.settings.windowsGreen": "Windows の緑",
+  "widgetsC.stocks.settings.windowsRed": "Windows の赤",
+  "widgetsC.stocks.tooltip.failed": "{problem}。{age}の価格を表示しています。",
+  "widgetsC.stocks.tooltip.priced": "{age}の価格",
+  "widgetsC.stocks.tooltip.saved": "{age}に保存。更新しています"
+}

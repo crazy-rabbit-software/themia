@@ -351,36 +351,6 @@
   "widgetsC.stocks.zone.local": "Saa katika saa za eneo lako",
   "widgetsC.stocks.zone.exchange": "Saa katika {zone}, saa za soko",
   "widgetsC.stocks.weekdayTime": "{weekday} {time}",
-  "widgetsC.stocks.notSymbol": "\"{symbol}\" si alama",
-  "widgetsC.stocks.noQuote": "Hakuna bei ya alama hiyo",
-  "widgetsC.stocks.phaseTooltip": "{phase}. {zone}",
-  "widgetsC.stocks.extendedLine": "{session} {price} {change} · {time}",
-  "widgetsC.stocks.tooltip.failed": "{problem}. Inaonyesha bei ya {age}.",
-  "widgetsC.stocks.tooltip.saved": "Imehifadhiwa {age}; inaonyesha upya",
-  "widgetsC.stocks.tooltip.priced": "Bei ya {age}",
-  "widgetsC.stocks.period.days": {
-    "one": "Siku {count}",
-    "other": "Siku {count}"
-  },
-  "widgetsC.stocks.period.months": {
-    "one": "Mwezi {count}",
-    "other": "Miezi {count}"
-  },
-  "widgetsC.stocks.period.years": {
-    "one": "Mwaka {count}",
-    "other": "Miaka {count}"
-  },
-  "widgetsC.stocks.settings.instrument": "Chombo",
-  "widgetsC.stocks.settings.symbol.desc": "Tafuta kwa jina au alama: hisa, mifuko, fahirisi, sarafu",
-  "widgetsC.stocks.settings.marketState.desc": "Vyombo vilivyoorodheshwa tu — sarafu za kidijitali huuzwa kila siku",
-  "widgetsC.stocks.settings.windowsGreen": "Kijani cha Windows",
-  "widgetsC.stocks.settings.windowsRed": "Nyekundu ya Windows",
-  "widgetsC.stocks.settings.symbolRefused": "Chagua tokeo la utafutaji, au andika alama: herufi, tarakimu na . - ^ = tu",
-  "widgetsC.stocks.settings.classOnExchange": "{class} kwenye {exchange}",
-  "widgetsC.stocks.settings.holding.label": "Hisa unazomiliki",
-  "widgetsC.stocks.settings.holding.desc": "Unashikilia ngapi; wijeti huonyesha thamani yake. Tupu huificha",
-  "widgetsC.stocks.settings.holding.refused": "Andika kiasi cha {zero} au zaidi, kama {example}",
-  "widgetsC.stocks.holding.line": "{amount} unazoshikilia · {value}",
   "widgetsC.location.recycleBin": "Pipa la Kuchakata",
   "widgetsC.location.thisPc": "Kompyuta Hii",
   "widgetsC.location.downloads": "Vipakuliwa",

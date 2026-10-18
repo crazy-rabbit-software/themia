@@ -351,36 +351,6 @@
   "widgetsC.stocks.zone.local": "Zeiten in deiner Zeitzone",
   "widgetsC.stocks.zone.exchange": "Zeiten in {zone}, der Zeit der Börse",
   "widgetsC.stocks.weekdayTime": "{weekday} {time}",
-  "widgetsC.stocks.notSymbol": "„{symbol}“ ist kein Symbol",
-  "widgetsC.stocks.noQuote": "Kein Kurs für dieses Symbol",
-  "widgetsC.stocks.phaseTooltip": "{phase}. {zone}",
-  "widgetsC.stocks.extendedLine": "{session} {price} {change} · {time}",
-  "widgetsC.stocks.tooltip.failed": "{problem}. Letzter Kurs: {age}.",
-  "widgetsC.stocks.tooltip.saved": "Gespeichert: {age}; wird aktualisiert",
-  "widgetsC.stocks.tooltip.priced": "Kursstand: {age}",
-  "widgetsC.stocks.period.days": {
-    "one": "{count} Tag",
-    "other": "{count} Tage"
-  },
-  "widgetsC.stocks.period.months": {
-    "one": "{count} Monat",
-    "other": "{count} Monate"
-  },
-  "widgetsC.stocks.period.years": {
-    "one": "{count} Jahr",
-    "other": "{count} Jahre"
-  },
-  "widgetsC.stocks.settings.instrument": "Wertpapier",
-  "widgetsC.stocks.settings.symbol.desc": "Nach Name oder Kürzel suchen: Aktien, Fonds, Indizes, Kryptowährungen",
-  "widgetsC.stocks.settings.marketState.desc": "Nur börsennotierte Werte – Kryptowährungen werden täglich gehandelt",
-  "widgetsC.stocks.settings.windowsGreen": "Windows-Grün",
-  "widgetsC.stocks.settings.windowsRed": "Windows-Rot",
-  "widgetsC.stocks.settings.symbolRefused": "Wähle ein Suchergebnis aus oder gib ein Symbol ein: nur Buchstaben, Ziffern und . - ^ =",
-  "widgetsC.stocks.settings.classOnExchange": "{class} ({exchange})",
-  "widgetsC.stocks.settings.holding.label": "Anzahl im Besitz",
-  "widgetsC.stocks.settings.holding.desc": "Wie viele Sie halten; das Widget zeigt ihren Wert. Leer blendet ihn aus",
-  "widgetsC.stocks.settings.holding.refused": "Geben Sie eine Menge ab {zero} ein, z. B. {example}",
-  "widgetsC.stocks.holding.line": "{amount} im Besitz · {value}",
   "widgetsC.location.recycleBin": "Papierkorb",
   "widgetsC.location.thisPc": "Dieser PC",
   "widgetsC.location.downloads": "Downloads",

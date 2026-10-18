@@ -345,33 +345,6 @@
   "widgetsC.stocks.zone.local": "Waktu di zona waktu Anda",
   "widgetsC.stocks.zone.exchange": "Waktu di {zone}, waktu bursa",
   "widgetsC.stocks.weekdayTime": "{weekday} {time}",
-  "widgetsC.stocks.notSymbol": "\"{symbol}\" bukan simbol",
-  "widgetsC.stocks.noQuote": "Tidak ada harga untuk simbol itu",
-  "widgetsC.stocks.phaseTooltip": "{phase}. {zone}",
-  "widgetsC.stocks.extendedLine": "{session} {price} {change} · {time}",
-  "widgetsC.stocks.tooltip.failed": "{problem}. Menampilkan harga dari {age}.",
-  "widgetsC.stocks.tooltip.saved": "Disimpan {age}; menyegarkan",
-  "widgetsC.stocks.tooltip.priced": "Harga {age}",
-  "widgetsC.stocks.period.days": {
-    "other": "{count} hari"
-  },
-  "widgetsC.stocks.period.months": {
-    "other": "{count} bulan"
-  },
-  "widgetsC.stocks.period.years": {
-    "other": "{count} tahun"
-  },
-  "widgetsC.stocks.settings.instrument": "Instrumen",
-  "widgetsC.stocks.settings.symbol.desc": "Cari menurut nama atau ticker: saham, reksa dana, indeks, koin",
-  "widgetsC.stocks.settings.marketState.desc": "Hanya instrumen tercatat — kripto diperdagangkan setiap hari",
-  "widgetsC.stocks.settings.windowsGreen": "Hijau Windows",
-  "widgetsC.stocks.settings.windowsRed": "Merah Windows",
-  "widgetsC.stocks.settings.symbolRefused": "Pilih hasil pencarian, atau ketik simbol: hanya huruf, angka, dan . - ^ =",
-  "widgetsC.stocks.settings.classOnExchange": "{class} di {exchange}",
-  "widgetsC.stocks.settings.holding.label": "Jumlah dimiliki",
-  "widgetsC.stocks.settings.holding.desc": "Berapa yang Anda miliki; widget menampilkan nilainya. Kosongkan untuk menyembunyikan",
-  "widgetsC.stocks.settings.holding.refused": "Ketik jumlah {zero} atau lebih, misalnya {example}",
-  "widgetsC.stocks.holding.line": "{amount} dimiliki · {value}",
   "widgetsC.location.recycleBin": "Tempat Sampah",
   "widgetsC.location.thisPc": "PC Ini",
   "widgetsC.location.downloads": "Unduhan",

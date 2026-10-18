@@ -57,7 +57,7 @@ public sealed partial class ContentAlignmentTests
     [Fact]
     public void S6581_readouts_align_and_lists_charts_and_buttons_do_not()
     {
-        WidgetId[] aligned = [new WidgetId("clock"), new WidgetId("countdown"), new WidgetId("weatherNow"), StocksConfig.Descriptor.Id, new WidgetId("quote"), new WidgetId("moon"), new WidgetId("airQuality"), new WidgetId("exchangeRates")];
+        WidgetId[] aligned = [new WidgetId("clock"), new WidgetId("countdown"), new WidgetId("weatherNow"), new WidgetId("stocks"), new WidgetId("quote"), new WidgetId("moon"), new WidgetId("airQuality"), new WidgetId("exchangeRates")];
         Assert.Equal(aligned.Order(), ContentAlignment.All);
 
         foreach (var kind in (WidgetId[])[TasksConfig.Descriptor.Id, EmailConfig.Descriptor.Id, CalendarWidgetConfig.Descriptor.Id, CpuConfig.Descriptor.Id, MixerConfig.Descriptor.Id, new WidgetId("wifiToggle"), new WidgetId("shutdown"), FolderConfig.Descriptor.Id])
@@ -72,8 +72,8 @@ public sealed partial class ContentAlignmentTests
     {
         Assert.True(ContentAlignment.Applies(Widget(new WidgetId("exchangeRates"), (int)ExchangeRatesStyle.Number)));
         Assert.False(ContentAlignment.Applies(Widget(new WidgetId("exchangeRates"), (int)ExchangeRatesStyle.Chart)));
-        Assert.True(ContentAlignment.Applies(Widget(StocksConfig.Descriptor.Id, (int)StocksStyle.Number)));
-        Assert.False(ContentAlignment.Applies(Widget(StocksConfig.Descriptor.Id, (int)StocksStyle.Chart)));
+        Assert.True(ContentAlignment.Applies(Widget(new WidgetId("stocks"), (int)StocksStyle.Number)));
+        Assert.False(ContentAlignment.Applies(Widget(new WidgetId("stocks"), (int)StocksStyle.Chart)));
         Assert.True(ContentAlignment.Applies(Widget(new WidgetId("moon"), (int)MoonStyle.Disc)));
         Assert.False(ContentAlignment.Applies(Widget(new WidgetId("moon"), (int)MoonStyle.PhaseMonth)));
 

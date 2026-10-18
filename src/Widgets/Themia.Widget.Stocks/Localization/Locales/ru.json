@@ -1,0 +1,52 @@
+{
+  "stocks.dimWhenClosed": "Индикатор закрытия",
+  "stocks.downColor": "Цвет падения",
+  "stocks.extendedHours": "Расширенные часы",
+  "stocks.extendedHoursDesc": "Учитывать торги до открытия и после закрытия (1 Д и 5 Д)",
+  "stocks.showMinMax": "Метки мин./макс.",
+  "stocks.tab.symbols": "Тикер",
+  "stocks.timeframe": "Период",
+  "stocks.upColor": "Цвет роста",
+  "styles.stocks.chart": "График",
+  "styles.stocks.number": "Число",
+  "styles.stocks.options": "Период и цвета",
+  "styles.stocks.optionsDesc": "Период изменения, отметки на графике и цвета",
+  "widget.stocks.label": "Акции",
+  "widgetsA.catalog.stocks.description": "Тикеры и криптовалюты с мини-графиком",
+  "widgetsC.stocks.extendedLine": "{session} {price} {change} · {time}",
+  "widgetsC.stocks.holding.line": "В собственности {amount} · {value}",
+  "widgetsC.stocks.noQuote": "Нет котировки для этого тикера",
+  "widgetsC.stocks.notSymbol": "«{symbol}» — не тикер",
+  "widgetsC.stocks.period.days": {
+    "one": "{count} день",
+    "few": "{count} дня",
+    "many": "{count} дней",
+    "other": "{count} дня"
+  },
+  "widgetsC.stocks.period.months": {
+    "one": "{count} месяц",
+    "few": "{count} месяца",
+    "many": "{count} месяцев",
+    "other": "{count} месяца"
+  },
+  "widgetsC.stocks.period.years": {
+    "one": "{count} год",
+    "few": "{count} года",
+    "many": "{count} лет",
+    "other": "{count} года"
+  },
+  "widgetsC.stocks.phaseTooltip": "{phase}. {zone}",
+  "widgetsC.stocks.settings.classOnExchange": "{class} на {exchange}",
+  "widgetsC.stocks.settings.holding.desc": "Сколько у вас есть; виджет покажет их стоимость. Пусто — скрыто",
+  "widgetsC.stocks.settings.holding.label": "Количество в собственности",
+  "widgetsC.stocks.settings.holding.refused": "Введите количество от {zero}, например {example}",
+  "widgetsC.stocks.settings.instrument": "Инструмент",
+  "widgetsC.stocks.settings.marketState.desc": "Только биржевые инструменты — криптовалюты торгуются каждый день",
+  "widgetsC.stocks.settings.symbolRefused": "Выберите результат поиска или введите тикер: только буквы, цифры и . - ^ =",
+  "widgetsC.stocks.settings.symbol.desc": "Поиск по названию или тикеру: акции, фонды, индексы, монеты",
+  "widgetsC.stocks.settings.windowsGreen": "Зеленый Windows",
+  "widgetsC.stocks.settings.windowsRed": "Красный Windows",
+  "widgetsC.stocks.tooltip.failed": "{problem}. Показана цена на {age}.",
+  "widgetsC.stocks.tooltip.priced": "Цена на {age}",
+  "widgetsC.stocks.tooltip.saved": "Сохранено {age}; обновление"
+}

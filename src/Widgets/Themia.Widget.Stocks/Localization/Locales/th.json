@@ -1,0 +1,43 @@
+{
+  "stocks.dimWhenClosed": "ตัวบ่งชี้ตลาดปิด",
+  "stocks.downColor": "สีขาลง",
+  "stocks.extendedHours": "ช่วงเวลาซื้อขายพิเศษ",
+  "stocks.extendedHoursDesc": "ติดตามการซื้อขายก่อนเปิดตลาดและหลังปิดตลาด (1D และ 5D)",
+  "stocks.showMinMax": "เครื่องหมายต่ำสุด/สูงสุด",
+  "stocks.tab.symbols": "สัญลักษณ์",
+  "stocks.timeframe": "กรอบเวลา",
+  "stocks.upColor": "สีขาขึ้น",
+  "styles.stocks.chart": "แผนภูมิ",
+  "styles.stocks.number": "ตัวเลข",
+  "styles.stocks.options": "ช่วงเวลาและสี",
+  "styles.stocks.optionsDesc": "ช่วงเวลาของการเปลี่ยนแปลง เครื่องหมายบนแผนภูมิ และสี",
+  "widget.stocks.label": "หุ้น",
+  "widgetsA.catalog.stocks.description": "หุ้นและคริปโต พร้อมกราฟเส้นขนาดเล็ก",
+  "widgetsC.stocks.extendedLine": "{session} {price} {change} · {time}",
+  "widgetsC.stocks.holding.line": "ถือ {amount} · {value}",
+  "widgetsC.stocks.noQuote": "ไม่มีราคาสำหรับสัญลักษณ์นั้น",
+  "widgetsC.stocks.notSymbol": "\"{symbol}\" ไม่ใช่สัญลักษณ์",
+  "widgetsC.stocks.period.days": {
+    "other": "{count} วัน"
+  },
+  "widgetsC.stocks.period.months": {
+    "other": "{count} เดือน"
+  },
+  "widgetsC.stocks.period.years": {
+    "other": "{count} ปี"
+  },
+  "widgetsC.stocks.phaseTooltip": "{phase} {zone}",
+  "widgetsC.stocks.settings.classOnExchange": "{class} ใน {exchange}",
+  "widgetsC.stocks.settings.holding.desc": "จำนวนที่คุณถือ วิดเจ็ตจะแสดงมูลค่า เว้นว่างเพื่อซ่อน",
+  "widgetsC.stocks.settings.holding.label": "จำนวนหุ้นที่ถือ",
+  "widgetsC.stocks.settings.holding.refused": "พิมพ์จำนวนตั้งแต่ {zero} ขึ้นไป เช่น {example}",
+  "widgetsC.stocks.settings.instrument": "ตราสาร",
+  "widgetsC.stocks.settings.marketState.desc": "เฉพาะตราสารจดทะเบียน — คริปโตซื้อขายทุกวัน",
+  "widgetsC.stocks.settings.symbolRefused": "เลือกผลการค้นหา หรือพิมพ์สัญลักษณ์: ตัวอักษร ตัวเลข และ . - ^ = เท่านั้น",
+  "widgetsC.stocks.settings.symbol.desc": "ค้นหาตามชื่อหรือสัญลักษณ์: หุ้น กองทุน ดัชนี เหรียญ",
+  "widgetsC.stocks.settings.windowsGreen": "สีเขียวของ Windows",
+  "widgetsC.stocks.settings.windowsRed": "สีแดงของ Windows",
+  "widgetsC.stocks.tooltip.failed": "{problem} กำลังแสดงราคาจาก {age}",
+  "widgetsC.stocks.tooltip.priced": "ราคาเมื่อ {age}",
+  "widgetsC.stocks.tooltip.saved": "บันทึกไว้เมื่อ {age} กำลังรีเฟรช"
+}

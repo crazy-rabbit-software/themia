@@ -1,0 +1,46 @@
+{
+  "stocks.dimWhenClosed": "বন্ধ থাকার চিহ্ন",
+  "stocks.downColor": "ক্ষতির রং",
+  "stocks.extendedHours": "বর্ধিত সময়",
+  "stocks.extendedHoursDesc": "প্রি-মার্কেট ও আফটার-আওয়ার্স ট্রেডিং দেখান (1D ও 5D)",
+  "stocks.showMinMax": "সর্বনিম্ন/সর্বোচ্চ চিহ্ন",
+  "stocks.tab.symbols": "প্রতীক",
+  "stocks.timeframe": "সময়সীমা",
+  "stocks.upColor": "লাভের রং",
+  "styles.stocks.chart": "চার্ট",
+  "styles.stocks.number": "সংখ্যা",
+  "styles.stocks.options": "সময়কাল ও রং",
+  "styles.stocks.optionsDesc": "পরিবর্তনের সময়কাল, চার্টের চিহ্ন ও রং",
+  "widget.stocks.label": "স্টক",
+  "widgetsA.catalog.stocks.description": "স্টক ও ক্রিপ্টো, স্পার্কলাইনসহ",
+  "widgetsC.stocks.extendedLine": "{session} {price} {change} · {time}",
+  "widgetsC.stocks.holding.line": "{amount} ধারণকৃত · {value}",
+  "widgetsC.stocks.noQuote": "এই প্রতীকের কোনো দর নেই",
+  "widgetsC.stocks.notSymbol": "\"{symbol}\" কোনো প্রতীক নয়",
+  "widgetsC.stocks.period.days": {
+    "one": "{count} দিন",
+    "other": "{count} দিন"
+  },
+  "widgetsC.stocks.period.months": {
+    "one": "{count} মাস",
+    "other": "{count} মাস"
+  },
+  "widgetsC.stocks.period.years": {
+    "one": "{count} বছর",
+    "other": "{count} বছর"
+  },
+  "widgetsC.stocks.phaseTooltip": "{phase}। {zone}",
+  "widgetsC.stocks.settings.classOnExchange": "{exchange}-এ {class}",
+  "widgetsC.stocks.settings.holding.desc": "আপনার কাছে কতগুলি আছে; উইজেট তাদের মূল্য দেখায়। খালি রাখলে লুকানো থাকে",
+  "widgetsC.stocks.settings.holding.label": "মালিকানাধীন পরিমাণ",
+  "widgetsC.stocks.settings.holding.refused": "{zero} বা তার বেশি পরিমাণ লিখুন, যেমন {example}",
+  "widgetsC.stocks.settings.instrument": "ইনস্ট্রুমেন্ট",
+  "widgetsC.stocks.settings.marketState.desc": "শুধু তালিকাভুক্ত ইনস্ট্রুমেন্ট — ক্রিপ্টো প্রতিদিন লেনদেন হয়",
+  "widgetsC.stocks.settings.symbolRefused": "একটি অনুসন্ধান ফলাফল বেছে নিন, বা প্রতীক লিখুন: শুধু অক্ষর, অঙ্ক এবং . - ^ =",
+  "widgetsC.stocks.settings.symbol.desc": "নাম বা টিকার দিয়ে খুঁজুন: শেয়ার, ফান্ড, সূচক, কয়েন",
+  "widgetsC.stocks.settings.windowsGreen": "Windows সবুজ",
+  "widgetsC.stocks.settings.windowsRed": "Windows লাল",
+  "widgetsC.stocks.tooltip.failed": "{problem}। {age}-এর দাম দেখানো হচ্ছে।",
+  "widgetsC.stocks.tooltip.priced": "দাম {age}",
+  "widgetsC.stocks.tooltip.saved": "সংরক্ষিত {age}; রিফ্রেশ হচ্ছে"
+}

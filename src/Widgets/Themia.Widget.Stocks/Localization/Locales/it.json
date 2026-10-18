@@ -1,0 +1,46 @@
+{
+  "stocks.dimWhenClosed": "Indicatore di chiusura",
+  "stocks.downColor": "Colore perdita",
+  "stocks.extendedHours": "Orario esteso",
+  "stocks.extendedHoursDesc": "Seguire gli scambi pre-apertura e dopo la chiusura (1G e 5G)",
+  "stocks.showMinMax": "Indicatori min/max",
+  "stocks.tab.symbols": "Simbolo",
+  "stocks.timeframe": "Periodo",
+  "stocks.upColor": "Colore guadagno",
+  "styles.stocks.chart": "Grafico",
+  "styles.stocks.number": "Numero",
+  "styles.stocks.options": "Periodo e colori",
+  "styles.stocks.optionsDesc": "Periodo della variazione, indicatori del grafico e colori",
+  "widget.stocks.label": "Borsa",
+  "widgetsA.catalog.stocks.description": "Titoli e cripto, con minigrafico",
+  "widgetsC.stocks.extendedLine": "{session} {price} {change} · {time}",
+  "widgetsC.stocks.holding.line": "{amount} posseduti · {value}",
+  "widgetsC.stocks.noQuote": "Nessuna quotazione per questo simbolo",
+  "widgetsC.stocks.notSymbol": "«{symbol}» non è un simbolo",
+  "widgetsC.stocks.period.days": {
+    "one": "{count} giorno",
+    "other": "{count} giorni"
+  },
+  "widgetsC.stocks.period.months": {
+    "one": "{count} mese",
+    "other": "{count} mesi"
+  },
+  "widgetsC.stocks.period.years": {
+    "one": "{count} anno",
+    "other": "{count} anni"
+  },
+  "widgetsC.stocks.phaseTooltip": "{phase}. {zone}",
+  "widgetsC.stocks.settings.classOnExchange": "{class} su {exchange}",
+  "widgetsC.stocks.settings.holding.desc": "Quante ne possiedi; il widget mostra quanto valgono. Vuoto la nasconde",
+  "widgetsC.stocks.settings.holding.label": "Quantità posseduta",
+  "widgetsC.stocks.settings.holding.refused": "Inserisci una quantità pari o superiore a {zero}, ad esempio {example}",
+  "widgetsC.stocks.settings.instrument": "Strumento",
+  "widgetsC.stocks.settings.marketState.desc": "Solo strumenti quotati: le criptovalute sono scambiate ogni giorno",
+  "widgetsC.stocks.settings.symbolRefused": "Scegli un risultato di ricerca o digita un simbolo: solo lettere, cifre e . - ^ =",
+  "widgetsC.stocks.settings.symbol.desc": "Cerca per nome o simbolo: azioni, fondi, indici, cripto",
+  "widgetsC.stocks.settings.windowsGreen": "Verde di Windows",
+  "widgetsC.stocks.settings.windowsRed": "Rosso di Windows",
+  "widgetsC.stocks.tooltip.failed": "{problem}. Ultimo prezzo: {age}.",
+  "widgetsC.stocks.tooltip.priced": "Quotato: {age}",
+  "widgetsC.stocks.tooltip.saved": "Salvato: {age}; aggiornamento in corso"
+}

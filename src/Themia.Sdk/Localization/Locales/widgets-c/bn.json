@@ -351,36 +351,6 @@
   "widgetsC.stocks.zone.local": "আপনার সময় অঞ্চলের সময়",
   "widgetsC.stocks.zone.exchange": "{zone}-এর সময়, এক্সচেঞ্জের সময়",
   "widgetsC.stocks.weekdayTime": "{weekday} {time}",
-  "widgetsC.stocks.notSymbol": "\"{symbol}\" কোনো প্রতীক নয়",
-  "widgetsC.stocks.noQuote": "এই প্রতীকের কোনো দর নেই",
-  "widgetsC.stocks.phaseTooltip": "{phase}। {zone}",
-  "widgetsC.stocks.extendedLine": "{session} {price} {change} · {time}",
-  "widgetsC.stocks.tooltip.failed": "{problem}। {age}-এর দাম দেখানো হচ্ছে।",
-  "widgetsC.stocks.tooltip.saved": "সংরক্ষিত {age}; রিফ্রেশ হচ্ছে",
-  "widgetsC.stocks.tooltip.priced": "দাম {age}",
-  "widgetsC.stocks.period.days": {
-    "one": "{count} দিন",
-    "other": "{count} দিন"
-  },
-  "widgetsC.stocks.period.months": {
-    "one": "{count} মাস",
-    "other": "{count} মাস"
-  },
-  "widgetsC.stocks.period.years": {
-    "one": "{count} বছর",
-    "other": "{count} বছর"
-  },
-  "widgetsC.stocks.settings.instrument": "ইনস্ট্রুমেন্ট",
-  "widgetsC.stocks.settings.symbol.desc": "নাম বা টিকার দিয়ে খুঁজুন: শেয়ার, ফান্ড, সূচক, কয়েন",
-  "widgetsC.stocks.settings.marketState.desc": "শুধু তালিকাভুক্ত ইনস্ট্রুমেন্ট — ক্রিপ্টো প্রতিদিন লেনদেন হয়",
-  "widgetsC.stocks.settings.windowsGreen": "Windows সবুজ",
-  "widgetsC.stocks.settings.windowsRed": "Windows লাল",
-  "widgetsC.stocks.settings.symbolRefused": "একটি অনুসন্ধান ফলাফল বেছে নিন, বা প্রতীক লিখুন: শুধু অক্ষর, অঙ্ক এবং . - ^ =",
-  "widgetsC.stocks.settings.classOnExchange": "{exchange}-এ {class}",
-  "widgetsC.stocks.settings.holding.label": "মালিকানাধীন পরিমাণ",
-  "widgetsC.stocks.settings.holding.desc": "আপনার কাছে কতগুলি আছে; উইজেট তাদের মূল্য দেখায়। খালি রাখলে লুকানো থাকে",
-  "widgetsC.stocks.settings.holding.refused": "{zero} বা তার বেশি পরিমাণ লিখুন, যেমন {example}",
-  "widgetsC.stocks.holding.line": "{amount} ধারণকৃত · {value}",
   "widgetsC.location.recycleBin": "রিসাইকেল বিন",
   "widgetsC.location.thisPc": "এই PC",
   "widgetsC.location.downloads": "ডাউনলোড",

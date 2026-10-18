@@ -351,36 +351,6 @@
   "widgetsC.stocks.zone.local": "तुमच्या टाइम झोनमधील वेळा",
   "widgetsC.stocks.zone.exchange": "{zone} मधील वेळा, एक्सचेंजची वेळ",
   "widgetsC.stocks.weekdayTime": "{weekday} {time}",
-  "widgetsC.stocks.notSymbol": "\"{symbol}\" हे चिन्ह नाही",
-  "widgetsC.stocks.noQuote": "त्या चिन्हासाठी भाव नाही",
-  "widgetsC.stocks.phaseTooltip": "{phase}. {zone}",
-  "widgetsC.stocks.extendedLine": "{session} {price} {change} · {time}",
-  "widgetsC.stocks.tooltip.failed": "{problem}. {age} चा भाव दाखवत आहे.",
-  "widgetsC.stocks.tooltip.saved": "जतन: {age}; रीफ्रेश होत आहे",
-  "widgetsC.stocks.tooltip.priced": "भाव: {age}",
-  "widgetsC.stocks.period.days": {
-    "one": "{count} दिवस",
-    "other": "{count} दिवस"
-  },
-  "widgetsC.stocks.period.months": {
-    "one": "{count} महिना",
-    "other": "{count} महिने"
-  },
-  "widgetsC.stocks.period.years": {
-    "one": "{count} वर्ष",
-    "other": "{count} वर्षे"
-  },
-  "widgetsC.stocks.settings.instrument": "साधन",
-  "widgetsC.stocks.settings.symbol.desc": "नाव किंवा टिकरने शोधा: शेअर्स, फंड, निर्देशांक, कॉइन",
-  "widgetsC.stocks.settings.marketState.desc": "फक्त सूचीबद्ध साधने — क्रिप्टोचे ट्रेडिंग दररोज होते",
-  "widgetsC.stocks.settings.windowsGreen": "Windows हिरवा",
-  "widgetsC.stocks.settings.windowsRed": "Windows लाल",
-  "widgetsC.stocks.settings.symbolRefused": "शोध परिणाम निवडा, किंवा चिन्ह टाइप करा: फक्त अक्षरे, अंक आणि . - ^ =",
-  "widgetsC.stocks.settings.classOnExchange": "{exchange} वर {class}",
-  "widgetsC.stocks.settings.holding.label": "मालकीची संख्या",
-  "widgetsC.stocks.settings.holding.desc": "तुमच्याकडे किती आहेत; विजेट त्यांचे मूल्य दाखवते. रिकामे ठेवल्यास लपते",
-  "widgetsC.stocks.settings.holding.refused": "{zero} किंवा अधिक संख्या लिहा, उदा. {example}",
-  "widgetsC.stocks.holding.line": "{amount} धारित · {value}",
   "widgetsC.location.recycleBin": "रीसायकल बिन",
   "widgetsC.location.thisPc": "हा PC",
   "widgetsC.location.downloads": "डाउनलोड",

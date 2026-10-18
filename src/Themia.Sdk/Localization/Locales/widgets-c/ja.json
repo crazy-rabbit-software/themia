@@ -345,33 +345,6 @@
   "widgetsC.stocks.zone.local": "時刻はお使いのタイム ゾーンです",
   "widgetsC.stocks.zone.exchange": "時刻は取引所の時間 ({zone}) です",
   "widgetsC.stocks.weekdayTime": "{weekday} {time}",
-  "widgetsC.stocks.notSymbol": "「{symbol}」は銘柄コードではありません",
-  "widgetsC.stocks.noQuote": "この銘柄の相場はありません",
-  "widgetsC.stocks.phaseTooltip": "{phase}。{zone}",
-  "widgetsC.stocks.extendedLine": "{session} {price} {change} · {time}",
-  "widgetsC.stocks.tooltip.failed": "{problem}。{age}の価格を表示しています。",
-  "widgetsC.stocks.tooltip.saved": "{age}に保存。更新しています",
-  "widgetsC.stocks.tooltip.priced": "{age}の価格",
-  "widgetsC.stocks.period.days": {
-    "other": "{count} 日"
-  },
-  "widgetsC.stocks.period.months": {
-    "other": "{count} か月"
-  },
-  "widgetsC.stocks.period.years": {
-    "other": "{count} 年"
-  },
-  "widgetsC.stocks.settings.instrument": "銘柄",
-  "widgetsC.stocks.settings.symbol.desc": "名前かティッカーで検索: 株式、ファンド、指数、暗号資産",
-  "widgetsC.stocks.settings.marketState.desc": "上場銘柄のみ。暗号資産は毎日取引されます",
-  "widgetsC.stocks.settings.windowsGreen": "Windows の緑",
-  "widgetsC.stocks.settings.windowsRed": "Windows の赤",
-  "widgetsC.stocks.settings.symbolRefused": "検索結果を選ぶか、銘柄コードを入力してください (英字、数字、. - ^ = のみ)",
-  "widgetsC.stocks.settings.classOnExchange": "{exchange} の{class}",
-  "widgetsC.stocks.settings.holding.label": "保有数",
-  "widgetsC.stocks.settings.holding.desc": "保有している数。ウィジェットに評価額が表示されます。空欄で非表示",
-  "widgetsC.stocks.settings.holding.refused": "{zero} 以上の数量を入力してください (例: {example})",
-  "widgetsC.stocks.holding.line": "{amount} 保有 · {value}",
   "widgetsC.location.recycleBin": "ごみ箱",
   "widgetsC.location.thisPc": "PC",
   "widgetsC.location.downloads": "ダウンロード",

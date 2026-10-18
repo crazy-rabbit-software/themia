@@ -351,36 +351,6 @@
   "widgetsC.stocks.zone.local": "Lokuta a yankin lokacinka",
   "widgetsC.stocks.zone.exchange": "Lokuta a {zone}, lokacin kasuwar",
   "widgetsC.stocks.weekdayTime": "{weekday} {time}",
-  "widgetsC.stocks.notSymbol": "\"{symbol}\" ba alama ba ce",
-  "widgetsC.stocks.noQuote": "Babu farashi don wannan alama",
-  "widgetsC.stocks.phaseTooltip": "{phase}. {zone}",
-  "widgetsC.stocks.extendedLine": "{session} {price} {change} · {time}",
-  "widgetsC.stocks.tooltip.failed": "{problem}. Ana nuna farashin daga {age}.",
-  "widgetsC.stocks.tooltip.saved": "An ajiye {age}; ana wartsakewa",
-  "widgetsC.stocks.tooltip.priced": "An ƙididdige farashi {age}",
-  "widgetsC.stocks.period.days": {
-    "one": "Kwana {count}",
-    "other": "Kwanaki {count}"
-  },
-  "widgetsC.stocks.period.months": {
-    "one": "Wata {count}",
-    "other": "Watanni {count}"
-  },
-  "widgetsC.stocks.period.years": {
-    "one": "Shekara {count}",
-    "other": "Shekaru {count}"
-  },
-  "widgetsC.stocks.settings.instrument": "Kayan kasuwa",
-  "widgetsC.stocks.settings.symbol.desc": "Bincika da suna ko alama: hannun jari, kuɗaɗen jari, ma'auni, tsabar kuɗi",
-  "widgetsC.stocks.settings.marketState.desc": "Kayan da aka jera kawai — ana cinikin crypto kowace rana",
-  "widgetsC.stocks.settings.windowsGreen": "Koren Windows",
-  "widgetsC.stocks.settings.windowsRed": "Jan Windows",
-  "widgetsC.stocks.settings.symbolRefused": "Zaɓi sakamakon bincike, ko rubuta alama: haruffa, lambobi da . - ^ = kawai",
-  "widgetsC.stocks.settings.classOnExchange": "{class} a {exchange}",
-  "widgetsC.stocks.settings.holding.label": "Hannun jarin da kake da su",
-  "widgetsC.stocks.settings.holding.desc": "Nawa kake riƙe; widget yana nuna darajarsu. Babu komai yana ɓoye shi",
-  "widgetsC.stocks.settings.holding.refused": "Rubuta adadi na {zero} ko fiye, kamar {example}",
-  "widgetsC.stocks.holding.line": "{amount} ana riƙe · {value}",
   "widgetsC.location.recycleBin": "Kwandon Shara",
   "widgetsC.location.thisPc": "Wannan kwamfuta",
   "widgetsC.location.downloads": "Abubuwan da aka sauke",

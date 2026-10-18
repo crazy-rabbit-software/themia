@@ -925,7 +925,6 @@ public sealed class LocalizationTests
     /// </summary>
     private static readonly HashSet<string> LatinDigitsAllowed =
     [
-        "stocks.extendedHoursDesc",            // the 1D and 5D chart ranges, as their buttons read
         "shell.accounts.portDesc",             // port 993
         "shell.accounts.portNumber",           // port 993
         "shell.accounts.portRange",            // ports 1 to 65535, 993

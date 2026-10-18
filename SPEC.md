@@ -4290,8 +4290,9 @@ details, Ping statistics, GPU details. One view, `DetailView` (+ `.List.cs`), on
 ## Feed, stocks and the web widgets: parity and the whole tile (OFF-E)
 
 Ported from `widgets/online/{rss,stocks,video-stream,web-element}` on main, renumbered; the rules
-live in Core (`FeedAggregate`, `FeedLayout`, `NetworkGuard`, `MarketSearch`, `MarketQuote`,
-`ExchangeTime`, `StockLayout`, `NetworkCacheStore`), tests in `FeedWidgetTests`/`StockWidgetTests`.
+live in Core (`FeedAggregate`, `FeedLayout`, `NetworkGuard`, `NetworkCacheStore`) and the SDK
+(`MarketSearch`, `MarketQuote`, `ExchangeTime`), tests in `FeedWidgetTests`/`StockWidgetTests`. Stocks
+is a module (`src/Widgets/Themia.Widget.Stocks/`, its own tags in its `SPEC.md`).
 
 - **[S-1300]** Feeds and quotes survive a restart (classic S-23/S-29): the last good answers are
   saved to the sealed `web` shelf of the offline store ([S-2660]; never in an export;
@@ -4345,61 +4346,11 @@ live in Core (`FeedAggregate`, `FeedLayout`, `NetworkGuard`, `MarketSearch`, `Ma
   everywhere, as every list on this desktop. Item menu (`ItemMenu`): Open, Copy link, Refresh. Keys through the shell's
   keyboard lease (`IWidgetKeys`, [S-800]; a click in the widget takes it): Up/Down/Left/Right step,
   Home/End, Enter opens, Escape lets go.
-- **[S-1307]** Stocks symbol search in settings (classic `SymbolSearch.tsx`, S-38): an
-  `AutoSuggestBox` asks Yahoo `v1/finance/search` and CoinGecko `search` together after a 300 ms
-  typing pause (the previous search abandoned), keeps only chartable kinds (EQUITY, ETF, MUTUALFUND,
-  INDEX, CURRENCY, FUTURE), at most 8 per service, alternating, 12 in all; each line says name,
-  symbol, exchange and class. A pick sets symbol, market and name; typed text committed with Enter
-  is a raw symbol under the current market, through the old check. The chosen symbol's class
-  ("Index on SNP") shows under the box. A failing service contributes nothing (logged).
-- **[S-1308]** Extended hours (classic S-34/S-35, `ShowExtendedHours`, off): listed symbols on the
-  1-day and 5-day charts ask `includePrePost=true` (part of the cache key). The last pre-market /
-  after-hours bar against the regular close is shown under the price ("After hours 412.10 −0.36% ·
-  16:42", in its direction's colour): pre-market before the bell, after hours after it, the latest of
-  the two while closed. The badge turns accent in an extended session with data; bars outside the
-  regular session draw dashed at 55% opacity. Timestamps are kept paired with closes (nulls drop
-  both halves; out-of-order series are sorted).
+- [S-1307], [S-1308], [S-1310], [S-1311], [S-2770], [S-6165], [S-6166], [S-2776], [S-2777]: moved with the Stocks widget into its module's `SPEC.md` (`src/Widgets/Themia.Widget.Stocks/`).
 - **[S-1309]** Times on the chart are the exchange's (classic S-36): Yahoo's `gmtoffset` and
   `timezone` ("EDT") — not an IANA lookup, which needs ICU the app does not ship — "09:30" for 1 day,
   "Tue 15:00" for 5 days, "Mar 4" beyond, with the year from 2 years; local time when the reply has
   no offset. The badge and the chart (whose times are drawn on it) say which zone in their tooltip.
-- **[S-1310]** Chart options: **High and low** markers (dot and price at the period's first highest
-  and lowest bar, the price above the high and under the low, kept inside the chart's width,
-  `StockChartLabels.Place`); the area under the line is always filled (WinUI's look; no setting,
-  [S-3795]); **Rising/Falling colour** through the shared colour picker
-  (`ColorPickerRow`, never hex; empty = the theme's green/red; a hand-edited non-colour is repaired
-  to empty at load).
-- **[S-1311]** Stocks ladder (`StockLayout.Plan`, replacing the 34%/120px chart band): rung 0 price +
-  signed change, drawn as the hero readout ([S-667]: the change and the session on the price's
-  baseline, or on a line of their own under it where they do not fit beside); the currency (the
-  readout's unit, after the price) and session glyph from 180px, the session's words from 300px;
-  the holding ([S-2777]); the extended line; the chart (≥24px), full-bleed: edge
-  to edge and down to the card's bottom edge, no inset, the card's rounded corners clipping it
-  ([S-215]). Its times are the start and the end of the range only, from 128px high, written inside
-  the chart's bottom band over the fill, in line with the text's inset; the trace keeps clear of them
-  and of the markers' prices (`StockChartLabels.Band`), the fill does not. No price axis (user
-  decision 2026-10-11): the high/low markers carry the period's prices, and an axis at the edge
-  would need an inset of its own. A strip (≥400px, 2:1) puts the readout beside a full-height
-  chart. The chart takes what is left; the price grows only to Title / TitleLarge / Display by the
-  tile's smaller class. Pointer over the chart on L/XL reads the bar under it (time · price). The
-  session badge and age re-evaluate every minute on the shared ticker (render only), so the badge
-  flips at the bell whatever the refresh. **Refresh** in the card menu. Header title: name, else the
-  service's own name (listed), else the symbol.
-- **[S-2770]** Stocks is concise ([S-666], user decision): the name, the price, its change, the
-  session badge, the holding ([S-2777], only when set), the extended-hours line ([S-1308], off by
-  default, one caption under the price) and the chart, nothing else at any size. No facts (previous close, day and 52-week range, volume,
-  exchange; `MarketQuote.Facts`/`Volume` are gone) and no range chips on the widget: the period is
-  the **Timeframe** row in the widget's settings (`Range`, default 1 day). What they took goes to the
-  chart. Those facts are not parsed or cached either (`QuoteStats` is gone; the previous close is
-  read only as the change's baseline, [S-2775]).
-- **[S-6165]** The stock widget's styles ([S-6000]), `StocksConfig.Style` (`StocksStyle`): **Chart**
-  ([S-1311], the default) and **Number**; what was its "Show chart" switch. The period, the
-  markers and the colours are every style's (one "Period and colours" group, [S-3795]).
-- **[S-6166]** **Number** (`StockLayout.Plan` with `Number`): no chart at any size; the price and,
-  on a line of its own under it, the change, both as large as the tile holds: the price on the ramp
-  from Subtitle to Display and then Display grown in tenths to 1.5×, the change at the largest ramp
-  step within half the price, never under Body (`NumberChangeStep`); the holding and the extended
-  print keep their caption lines under them. Centred in the tile.
 - **[S-2775]** One baseline for the colour, the change and the line (`MarketQuote.Trace`): the
   change is the price against the start of the shown range, and the line starts at that same
   point, so a falling colour never sits over a rising line. A listed symbol's baseline is Yahoo's
@@ -4412,22 +4363,6 @@ live in Core (`FeedAggregate`, `FeedLayout`, `NetworkGuard`, `MarketSearch`, `Ma
   opened below the close and climbed back part of the way (AAPL) drew a rising line in red; coins
   showed a 24-hour change over any range. The colour follows the regular-session price; a dashed
   extended-hours tail has its own line and colour ([S-1308]).
-- **[S-2776]** **Shares owned** (`StocksConfig.SharesOwned`, per widget, a field row on the Stocks
-  page; user request: "put in an amount that you own"). Typed in the language's decimals: one
-  separator, the language's, or a point where a point is not the language's grouping (German
-  refuses "1.000" rather than guess a thousand or one); no sign, no grouping, no exponent, at most
-  10^12; kept to 8 decimals (`StockHolding.TryParse`). Anything else is refused under the field
-  with an example in the language ("such as 12,5"), the last good value kept. Empty or 0 is no
-  holding (null, not shown). At load a negative, non-finite or too-large amount is repaired to none
-  and logged; 0 to none silently. The worth is amount × price in the quote's currency, never
-  converted, to the cent; a price in hundredths is counted in the whole currency (GBp/GBX → GBP,
-  ZAc → ZAR, ILA → ILS) (`StockHolding.Worth`). Its move is amount × (price − the change's baseline,
-  [S-2775]), so its sign is always the percent's: the day's move on the default 1-day period
-  (`StockHolding.Change`).
-- **[S-2777]** The holding shows as one caption line under the price and change, from 180px wide
-  (shed on XS), before the extended line, its height taken from the chart: the worth with its code
-  and the signed move in the change's colour ("4,202.70 USD  +82.95"), the amount first from 300px
-  ("10 held · 4,202.70 USD  +82.95", `StockHolding.Caption`). Numbers through `LocaleFormat`.
 
 Not ported, on purpose: RSS feeds as shared *connections* and the classic "Manage connections" page
 (S-08/S-29 — feeds stay a widget setting, recorded earlier); per-widget `label`/`hideHeader` (card

@@ -1,0 +1,43 @@
+{
+  "stocks.dimWhenClosed": "Chỉ báo đóng cửa",
+  "stocks.downColor": "Màu giảm",
+  "stocks.extendedHours": "Ngoài giờ",
+  "stocks.extendedHoursDesc": "Theo dõi giao dịch trước giờ mở cửa và sau giờ đóng cửa (1D và 5D)",
+  "stocks.showMinMax": "Đánh dấu thấp/cao nhất",
+  "stocks.tab.symbols": "Mã",
+  "stocks.timeframe": "Khung thời gian",
+  "stocks.upColor": "Màu tăng",
+  "styles.stocks.chart": "Biểu đồ",
+  "styles.stocks.number": "Con số",
+  "styles.stocks.options": "Khoảng thời gian và màu",
+  "styles.stocks.optionsDesc": "Khoảng thời gian của mức thay đổi, điểm đánh dấu trên biểu đồ và màu",
+  "widget.stocks.label": "Chứng khoán",
+  "widgetsA.catalog.stocks.description": "Mã cổ phiếu và tiền mã hóa, kèm biểu đồ nhỏ",
+  "widgetsC.stocks.extendedLine": "{session} {price} {change} · {time}",
+  "widgetsC.stocks.holding.line": "Nắm giữ {amount} · {value}",
+  "widgetsC.stocks.noQuote": "Không có giá cho mã đó",
+  "widgetsC.stocks.notSymbol": "\"{symbol}\" không phải mã hợp lệ",
+  "widgetsC.stocks.period.days": {
+    "other": "{count} ngày"
+  },
+  "widgetsC.stocks.period.months": {
+    "other": "{count} tháng"
+  },
+  "widgetsC.stocks.period.years": {
+    "other": "{count} năm"
+  },
+  "widgetsC.stocks.phaseTooltip": "{phase}. {zone}",
+  "widgetsC.stocks.settings.classOnExchange": "{class} trên {exchange}",
+  "widgetsC.stocks.settings.holding.desc": "Số lượng bạn nắm giữ; tiện ích hiển thị giá trị của chúng. Để trống để ẩn",
+  "widgetsC.stocks.settings.holding.label": "Số lượng sở hữu",
+  "widgetsC.stocks.settings.holding.refused": "Nhập số lượng từ {zero} trở lên, ví dụ {example}",
+  "widgetsC.stocks.settings.instrument": "Công cụ",
+  "widgetsC.stocks.settings.marketState.desc": "Chỉ công cụ niêm yết — tiền mã hóa giao dịch mỗi ngày",
+  "widgetsC.stocks.settings.symbolRefused": "Chọn một kết quả tìm kiếm, hoặc nhập mã: chỉ chữ, số và . - ^ =",
+  "widgetsC.stocks.settings.symbol.desc": "Tìm theo tên hoặc mã: cổ phiếu, quỹ, chỉ số, tiền mã hóa",
+  "widgetsC.stocks.settings.windowsGreen": "Xanh lá Windows",
+  "widgetsC.stocks.settings.windowsRed": "Đỏ Windows",
+  "widgetsC.stocks.tooltip.failed": "{problem}. Đang hiện giá từ {age}.",
+  "widgetsC.stocks.tooltip.priced": "Giá lúc {age}",
+  "widgetsC.stocks.tooltip.saved": "Đã lưu {age}; đang làm mới"
+}

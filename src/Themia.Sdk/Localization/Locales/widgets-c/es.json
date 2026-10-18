@@ -351,36 +351,6 @@
   "widgetsC.stocks.zone.local": "Horas en tu zona horaria",
   "widgetsC.stocks.zone.exchange": "Horas en {zone}, la hora de la bolsa",
   "widgetsC.stocks.weekdayTime": "{weekday} {time}",
-  "widgetsC.stocks.notSymbol": "«{symbol}» no es un símbolo",
-  "widgetsC.stocks.noQuote": "No hay cotización para ese símbolo",
-  "widgetsC.stocks.phaseTooltip": "{phase}. {zone}",
-  "widgetsC.stocks.extendedLine": "{session} {price} {change} · {time}",
-  "widgetsC.stocks.tooltip.failed": "{problem}. Último precio: {age}.",
-  "widgetsC.stocks.tooltip.saved": "Guardado: {age}; actualizando",
-  "widgetsC.stocks.tooltip.priced": "Cotizado: {age}",
-  "widgetsC.stocks.period.days": {
-    "one": "{count} día",
-    "other": "{count} días"
-  },
-  "widgetsC.stocks.period.months": {
-    "one": "{count} mes",
-    "other": "{count} meses"
-  },
-  "widgetsC.stocks.period.years": {
-    "one": "{count} año",
-    "other": "{count} años"
-  },
-  "widgetsC.stocks.settings.instrument": "Instrumento",
-  "widgetsC.stocks.settings.symbol.desc": "Busca por nombre o símbolo: acciones, fondos, índices, criptomonedas",
-  "widgetsC.stocks.settings.marketState.desc": "Solo instrumentos cotizados: las criptomonedas cotizan todos los días",
-  "widgetsC.stocks.settings.windowsGreen": "Verde de Windows",
-  "widgetsC.stocks.settings.windowsRed": "Rojo de Windows",
-  "widgetsC.stocks.settings.symbolRefused": "Elige un resultado de búsqueda o escribe un símbolo: solo letras, dígitos y . - ^ =",
-  "widgetsC.stocks.settings.classOnExchange": "{class} en {exchange}",
-  "widgetsC.stocks.settings.holding.label": "Cantidad en propiedad",
-  "widgetsC.stocks.settings.holding.desc": "Cuántas tienes; el widget muestra lo que valen. Vacío lo oculta",
-  "widgetsC.stocks.settings.holding.refused": "Escribe una cantidad de {zero} o más, como {example}",
-  "widgetsC.stocks.holding.line": "{amount} en cartera · {value}",
   "widgetsC.location.recycleBin": "Papelera de reciclaje",
   "widgetsC.location.thisPc": "Este equipo",
   "widgetsC.location.downloads": "Descargas",

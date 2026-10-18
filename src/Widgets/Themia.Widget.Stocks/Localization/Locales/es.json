@@ -1,0 +1,46 @@
+{
+  "stocks.dimWhenClosed": "Indicador de cierre",
+  "stocks.downColor": "Color de pérdida",
+  "stocks.extendedHours": "Horario ampliado",
+  "stocks.extendedHoursDesc": "Seguir la negociación previa y posterior al cierre (1D y 5D)",
+  "stocks.showMinMax": "Marcas de mín./máx.",
+  "stocks.tab.symbols": "Símbolo",
+  "stocks.timeframe": "Periodo",
+  "stocks.upColor": "Color de ganancia",
+  "styles.stocks.chart": "Gráfico",
+  "styles.stocks.number": "Número",
+  "styles.stocks.options": "Periodo y colores",
+  "styles.stocks.optionsDesc": "Periodo del cambio, marcas del gráfico y colores",
+  "widget.stocks.label": "Acciones",
+  "widgetsA.catalog.stocks.description": "Valores y criptomonedas, con minigráfico",
+  "widgetsC.stocks.extendedLine": "{session} {price} {change} · {time}",
+  "widgetsC.stocks.holding.line": "{amount} en cartera · {value}",
+  "widgetsC.stocks.noQuote": "No hay cotización para ese símbolo",
+  "widgetsC.stocks.notSymbol": "«{symbol}» no es un símbolo",
+  "widgetsC.stocks.period.days": {
+    "one": "{count} día",
+    "other": "{count} días"
+  },
+  "widgetsC.stocks.period.months": {
+    "one": "{count} mes",
+    "other": "{count} meses"
+  },
+  "widgetsC.stocks.period.years": {
+    "one": "{count} año",
+    "other": "{count} años"
+  },
+  "widgetsC.stocks.phaseTooltip": "{phase}. {zone}",
+  "widgetsC.stocks.settings.classOnExchange": "{class} en {exchange}",
+  "widgetsC.stocks.settings.holding.desc": "Cuántas tienes; el widget muestra lo que valen. Vacío lo oculta",
+  "widgetsC.stocks.settings.holding.label": "Cantidad en propiedad",
+  "widgetsC.stocks.settings.holding.refused": "Escribe una cantidad de {zero} o más, como {example}",
+  "widgetsC.stocks.settings.instrument": "Instrumento",
+  "widgetsC.stocks.settings.marketState.desc": "Solo instrumentos cotizados: las criptomonedas cotizan todos los días",
+  "widgetsC.stocks.settings.symbolRefused": "Elige un resultado de búsqueda o escribe un símbolo: solo letras, dígitos y . - ^ =",
+  "widgetsC.stocks.settings.symbol.desc": "Busca por nombre o símbolo: acciones, fondos, índices, criptomonedas",
+  "widgetsC.stocks.settings.windowsGreen": "Verde de Windows",
+  "widgetsC.stocks.settings.windowsRed": "Rojo de Windows",
+  "widgetsC.stocks.tooltip.failed": "{problem}. Último precio: {age}.",
+  "widgetsC.stocks.tooltip.priced": "Cotizado: {age}",
+  "widgetsC.stocks.tooltip.saved": "Guardado: {age}; actualizando"
+}

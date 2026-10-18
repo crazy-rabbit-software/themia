@@ -1,0 +1,52 @@
+{
+  "stocks.dimWhenClosed": "Wskaźnik zamknięcia",
+  "stocks.downColor": "Kolor straty",
+  "stocks.extendedHours": "Rozszerzone godziny",
+  "stocks.extendedHoursDesc": "Śledź handel przed otwarciem i po zamknięciu (1D i 5D)",
+  "stocks.showMinMax": "Znaczniki min/maks",
+  "stocks.tab.symbols": "Symbol",
+  "stocks.timeframe": "Zakres czasu",
+  "stocks.upColor": "Kolor zysku",
+  "styles.stocks.chart": "Wykres",
+  "styles.stocks.number": "Liczba",
+  "styles.stocks.options": "Okres i kolory",
+  "styles.stocks.optionsDesc": "Okres zmiany, znaczniki wykresu i kolory",
+  "widget.stocks.label": "Akcje",
+  "widgetsA.catalog.stocks.description": "Notowania i kryptowaluty z wykresem",
+  "widgetsC.stocks.extendedLine": "{session} {price} {change} · {time}",
+  "widgetsC.stocks.holding.line": "Posiadane: {amount} · {value}",
+  "widgetsC.stocks.noQuote": "Brak notowań dla tego symbolu",
+  "widgetsC.stocks.notSymbol": "„{symbol}” nie jest symbolem",
+  "widgetsC.stocks.period.days": {
+    "one": "{count} dzień",
+    "few": "{count} dni",
+    "many": "{count} dni",
+    "other": "{count} dnia"
+  },
+  "widgetsC.stocks.period.months": {
+    "one": "{count} miesiąc",
+    "few": "{count} miesiące",
+    "many": "{count} miesięcy",
+    "other": "{count} miesiąca"
+  },
+  "widgetsC.stocks.period.years": {
+    "one": "{count} rok",
+    "few": "{count} lata",
+    "many": "{count} lat",
+    "other": "{count} roku"
+  },
+  "widgetsC.stocks.phaseTooltip": "{phase}. {zone}",
+  "widgetsC.stocks.settings.classOnExchange": "{class} ({exchange})",
+  "widgetsC.stocks.settings.holding.desc": "Ile posiadasz; widżet pokaże ich wartość. Puste ukrywa",
+  "widgetsC.stocks.settings.holding.label": "Posiadana liczba",
+  "widgetsC.stocks.settings.holding.refused": "Wpisz liczbę {zero} lub większą, np. {example}",
+  "widgetsC.stocks.settings.instrument": "Instrument",
+  "widgetsC.stocks.settings.marketState.desc": "Tylko instrumenty notowane — kryptowaluty są w obrocie codziennie",
+  "widgetsC.stocks.settings.symbolRefused": "Wybierz wynik wyszukiwania lub wpisz symbol: tylko litery, cyfry i . - ^ =",
+  "widgetsC.stocks.settings.symbol.desc": "Szukaj po nazwie lub symbolu: akcje, fundusze, indeksy, kryptowaluty",
+  "widgetsC.stocks.settings.windowsGreen": "Zielony Windows",
+  "widgetsC.stocks.settings.windowsRed": "Czerwony Windows",
+  "widgetsC.stocks.tooltip.failed": "{problem}. Ostatnia cena: {age}.",
+  "widgetsC.stocks.tooltip.priced": "Wycena: {age}",
+  "widgetsC.stocks.tooltip.saved": "Zapisano: {age}; trwa odświeżanie"
+}

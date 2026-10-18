@@ -351,36 +351,6 @@
   "widgetsC.stocks.zone.local": "உங்கள் நேர மண்டலத்தில் நேரங்கள்",
   "widgetsC.stocks.zone.exchange": "பரிவர்த்தனையகத்தின் நேரமான {zone} இல் நேரங்கள்",
   "widgetsC.stocks.weekdayTime": "{weekday} {time}",
-  "widgetsC.stocks.notSymbol": "\"{symbol}\" ஒரு குறியீடு அல்ல",
-  "widgetsC.stocks.noQuote": "அந்தக் குறியீட்டுக்கு விலை இல்லை",
-  "widgetsC.stocks.phaseTooltip": "{phase}. {zone}",
-  "widgetsC.stocks.extendedLine": "{session} {price} {change} · {time}",
-  "widgetsC.stocks.tooltip.failed": "{problem}. {age} இன் விலை காட்டப்படுகிறது.",
-  "widgetsC.stocks.tooltip.saved": "{age} சேமித்தது; புதுப்பிக்கிறது",
-  "widgetsC.stocks.tooltip.priced": "{age} விலையிடப்பட்டது",
-  "widgetsC.stocks.period.days": {
-    "one": "{count} நாள்",
-    "other": "{count} நாட்கள்"
-  },
-  "widgetsC.stocks.period.months": {
-    "one": "{count} மாதம்",
-    "other": "{count} மாதங்கள்"
-  },
-  "widgetsC.stocks.period.years": {
-    "one": "{count} ஆண்டு",
-    "other": "{count} ஆண்டுகள்"
-  },
-  "widgetsC.stocks.settings.instrument": "கருவி",
-  "widgetsC.stocks.settings.symbol.desc": "பெயர் அல்லது டிக்கர் மூலம் தேடவும்: பங்குகள், நிதிகள், குறியீட்டெண்கள், நாணயங்கள்",
-  "widgetsC.stocks.settings.marketState.desc": "பட்டியலிடப்பட்டவை மட்டும் — கிரிப்டோ ஒவ்வொரு நாளும் வர்த்தகமாகும்",
-  "widgetsC.stocks.settings.windowsGreen": "Windows பச்சை",
-  "widgetsC.stocks.settings.windowsRed": "Windows சிவப்பு",
-  "widgetsC.stocks.settings.symbolRefused": "தேடல் முடிவைத் தேர்ந்தெடுக்கவும், அல்லது குறியீட்டைத் தட்டச்சு செய்யவும்: எழுத்துகள், இலக்கங்கள் மற்றும் . - ^ = மட்டும்",
-  "widgetsC.stocks.settings.classOnExchange": "{exchange} இல் {class}",
-  "widgetsC.stocks.settings.holding.label": "வைத்திருக்கும் பங்குகள்",
-  "widgetsC.stocks.settings.holding.desc": "நீங்கள் எத்தனை வைத்திருக்கிறீர்கள்; விட்ஜெட் அவற்றின் மதிப்பைக் காட்டும். காலியாக இருந்தால் மறைக்கும்",
-  "widgetsC.stocks.settings.holding.refused": "{zero} அல்லது அதற்கு மேற்பட்ட அளவைத் தட்டச்சு செய்யவும், {example} போல",
-  "widgetsC.stocks.holding.line": "{amount} வைத்துள்ளது · {value}",
   "widgetsC.location.recycleBin": "மறுசுழற்சி தொட்டி",
   "widgetsC.location.thisPc": "இந்த PC",
   "widgetsC.location.downloads": "பதிவிறக்கங்கள்",

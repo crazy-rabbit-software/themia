@@ -351,36 +351,6 @@
   "widgetsC.stocks.zone.local": "ਸਮੇਂ ਤੁਹਾਡੇ ਸਮਾਂ ਖੇਤਰ ਵਿੱਚ",
   "widgetsC.stocks.zone.exchange": "ਸਮੇਂ {zone} ਵਿੱਚ, ਐਕਸਚੇਂਜ ਦਾ ਸਮਾਂ",
   "widgetsC.stocks.weekdayTime": "{weekday} {time}",
-  "widgetsC.stocks.notSymbol": "\"{symbol}\" ਇੱਕ ਚਿੰਨ੍ਹ ਨਹੀਂ ਹੈ",
-  "widgetsC.stocks.noQuote": "ਉਸ ਚਿੰਨ੍ਹ ਲਈ ਕੋਈ ਭਾਅ ਨਹੀਂ",
-  "widgetsC.stocks.phaseTooltip": "{phase}। {zone}",
-  "widgetsC.stocks.extendedLine": "{session} {price} {change} · {time}",
-  "widgetsC.stocks.tooltip.failed": "{problem}। {age} ਦੀ ਕੀਮਤ ਦਿਖਾਈ ਜਾ ਰਹੀ ਹੈ।",
-  "widgetsC.stocks.tooltip.saved": "{age} ਸੰਭਾਲਿਆ; ਰਿਫ੍ਰੈਸ਼ ਹੋ ਰਿਹਾ ਹੈ",
-  "widgetsC.stocks.tooltip.priced": "{age} ਕੀਮਤ",
-  "widgetsC.stocks.period.days": {
-    "one": "{count} ਦਿਨ",
-    "other": "{count} ਦਿਨ"
-  },
-  "widgetsC.stocks.period.months": {
-    "one": "{count} ਮਹੀਨਾ",
-    "other": "{count} ਮਹੀਨੇ"
-  },
-  "widgetsC.stocks.period.years": {
-    "one": "{count} ਸਾਲ",
-    "other": "{count} ਸਾਲ"
-  },
-  "widgetsC.stocks.settings.instrument": "ਸਾਧਨ",
-  "widgetsC.stocks.settings.symbol.desc": "ਨਾਮ ਜਾਂ ਟਿਕਰ ਨਾਲ ਖੋਜੋ: ਸ਼ੇਅਰ, ਫ਼ੰਡ, ਸੂਚਕਾਂਕ, ਸਿੱਕੇ",
-  "widgetsC.stocks.settings.marketState.desc": "ਸਿਰਫ਼ ਸੂਚੀਬੱਧ ਸਾਧਨ — ਕ੍ਰਿਪਟੋ ਦਾ ਵਪਾਰ ਹਰ ਰੋਜ਼ ਹੁੰਦਾ ਹੈ",
-  "widgetsC.stocks.settings.windowsGreen": "Windows ਹਰਾ",
-  "widgetsC.stocks.settings.windowsRed": "Windows ਲਾਲ",
-  "widgetsC.stocks.settings.symbolRefused": "ਕੋਈ ਖੋਜ ਨਤੀਜਾ ਚੁਣੋ, ਜਾਂ ਚਿੰਨ੍ਹ ਟਾਈਪ ਕਰੋ: ਸਿਰਫ਼ ਅੱਖਰ, ਅੰਕ ਅਤੇ . - ^ =",
-  "widgetsC.stocks.settings.classOnExchange": "{exchange} ਉੱਤੇ {class}",
-  "widgetsC.stocks.settings.holding.label": "ਮਾਲਕੀ ਵਾਲੇ ਸ਼ੇਅਰ",
-  "widgetsC.stocks.settings.holding.desc": "ਤੁਹਾਡੇ ਕੋਲ ਕਿੰਨੇ ਹਨ; ਵਿਜੇਟ ਉਹਨਾਂ ਦੀ ਕੀਮਤ ਦਿਖਾਉਂਦਾ ਹੈ। ਖਾਲੀ ਇਸਨੂੰ ਲੁਕਾਉਂਦਾ ਹੈ",
-  "widgetsC.stocks.settings.holding.refused": "{zero} ਜਾਂ ਵੱਧ ਦੀ ਮਾਤਰਾ ਟਾਈਪ ਕਰੋ, ਜਿਵੇਂ {example}",
-  "widgetsC.stocks.holding.line": "{amount} ਕੋਲ · {value}",
   "widgetsC.location.recycleBin": "ਰੀਸਾਈਕਲ ਬਿਨ",
   "widgetsC.location.thisPc": "ਇਹ PC",
   "widgetsC.location.downloads": "ਡਾਊਨਲੋਡ",

@@ -123,6 +123,9 @@ public static class LocaleFormat
     /// <summary>[S-4603] The language's decimal sign, for a figure written by hand (the stopwatch's tenth).</summary>
     public static char DecimalSeparator(Locale locale) => LocaleData.For(locale).Decimal;
 
+    /// <summary>[S-2776] The language's digit grouping, for an amount typed by hand (a stock holding).</summary>
+    public static string GroupSeparator(Locale locale) => LocaleData.For(locale).Group;
+
     // -----------------------------------------------------------------------------------------
     // Dates and times
     // -----------------------------------------------------------------------------------------

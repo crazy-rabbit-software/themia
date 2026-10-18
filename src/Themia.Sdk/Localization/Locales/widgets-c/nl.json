@@ -351,36 +351,6 @@
   "widgetsC.stocks.zone.local": "Tijden in je tijdzone",
   "widgetsC.stocks.zone.exchange": "Tijden in {zone}, de tijd van de beurs",
   "widgetsC.stocks.weekdayTime": "{weekday} {time}",
-  "widgetsC.stocks.notSymbol": "“{symbol}” is geen symbool",
-  "widgetsC.stocks.noQuote": "Geen koers voor dat symbool",
-  "widgetsC.stocks.phaseTooltip": "{phase}. {zone}",
-  "widgetsC.stocks.extendedLine": "{session} {price} {change} · {time}",
-  "widgetsC.stocks.tooltip.failed": "{problem}. De koers van {age} wordt getoond.",
-  "widgetsC.stocks.tooltip.saved": "Opgeslagen {age}; wordt vernieuwd",
-  "widgetsC.stocks.tooltip.priced": "Koers van {age}",
-  "widgetsC.stocks.period.days": {
-    "one": "{count} dag",
-    "other": "{count} dagen"
-  },
-  "widgetsC.stocks.period.months": {
-    "one": "{count} maand",
-    "other": "{count} maanden"
-  },
-  "widgetsC.stocks.period.years": {
-    "one": "{count} jaar",
-    "other": "{count} jaar"
-  },
-  "widgetsC.stocks.settings.instrument": "Instrument",
-  "widgetsC.stocks.settings.symbol.desc": "Zoek op naam of ticker: aandelen, fondsen, indexen, munten",
-  "widgetsC.stocks.settings.marketState.desc": "Alleen beursgenoteerde instrumenten — crypto wordt elke dag verhandeld",
-  "widgetsC.stocks.settings.windowsGreen": "Windows-groen",
-  "widgetsC.stocks.settings.windowsRed": "Windows-rood",
-  "widgetsC.stocks.settings.symbolRefused": "Kies een zoekresultaat of typ een symbool: alleen letters, cijfers en . - ^ =",
-  "widgetsC.stocks.settings.classOnExchange": "{class} op {exchange}",
-  "widgetsC.stocks.settings.holding.label": "Aantal in bezit",
-  "widgetsC.stocks.settings.holding.desc": "Hoeveel u er bezit; de widget toont wat ze waard zijn. Leeg verbergt het",
-  "widgetsC.stocks.settings.holding.refused": "Typ een aantal van {zero} of meer, zoals {example}",
-  "widgetsC.stocks.holding.line": "{amount} in bezit · {value}",
   "widgetsC.location.recycleBin": "Prullenbak",
   "widgetsC.location.thisPc": "Deze pc",
   "widgetsC.location.downloads": "Downloads",

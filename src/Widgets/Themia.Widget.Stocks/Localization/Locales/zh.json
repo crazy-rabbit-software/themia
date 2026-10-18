@@ -1,0 +1,43 @@
+{
+  "stocks.dimWhenClosed": "休市指示器",
+  "stocks.downColor": "下跌颜色",
+  "stocks.extendedHours": "盘前盘后",
+  "stocks.extendedHoursDesc": "跟踪盘前和盘后交易（1日和5日）",
+  "stocks.showMinMax": "最高/最低标记",
+  "stocks.tab.symbols": "代码",
+  "stocks.timeframe": "时间范围",
+  "stocks.upColor": "上涨颜色",
+  "styles.stocks.chart": "图表",
+  "styles.stocks.number": "数字",
+  "styles.stocks.options": "周期和颜色",
+  "styles.stocks.optionsDesc": "涨跌幅的周期、图表标记和颜色",
+  "widget.stocks.label": "股票",
+  "widgetsA.catalog.stocks.description": "股票和加密货币，附迷你走势图",
+  "widgetsC.stocks.extendedLine": "{session} {price} {change} · {time}",
+  "widgetsC.stocks.holding.line": "持有 {amount} · {value}",
+  "widgetsC.stocks.noQuote": "此代码没有报价",
+  "widgetsC.stocks.notSymbol": "“{symbol}”不是有效代码",
+  "widgetsC.stocks.period.days": {
+    "other": "{count} 天"
+  },
+  "widgetsC.stocks.period.months": {
+    "other": "{count} 个月"
+  },
+  "widgetsC.stocks.period.years": {
+    "other": "{count} 年"
+  },
+  "widgetsC.stocks.phaseTooltip": "{phase}。{zone}",
+  "widgetsC.stocks.settings.classOnExchange": "{exchange} 上的{class}",
+  "widgetsC.stocks.settings.holding.desc": "你持有的数量；小组件会显示其市值。留空则不显示",
+  "widgetsC.stocks.settings.holding.label": "持有数量",
+  "widgetsC.stocks.settings.holding.refused": "请输入 {zero} 或更大的数量，例如 {example}",
+  "widgetsC.stocks.settings.instrument": "金融产品",
+  "widgetsC.stocks.settings.marketState.desc": "仅限上市产品，加密货币每天交易",
+  "widgetsC.stocks.settings.symbolRefused": "请选择搜索结果或输入代码：仅限字母、数字和 . - ^ =",
+  "widgetsC.stocks.settings.symbol.desc": "按名称或代码搜索：股票、基金、指数、加密货币",
+  "widgetsC.stocks.settings.windowsGreen": "Windows 绿色",
+  "widgetsC.stocks.settings.windowsRed": "Windows 红色",
+  "widgetsC.stocks.tooltip.failed": "{problem}。显示的是{age}的价格。",
+  "widgetsC.stocks.tooltip.priced": "{age}的报价",
+  "widgetsC.stocks.tooltip.saved": "{age}保存，正在刷新"
+}

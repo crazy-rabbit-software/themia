@@ -351,36 +351,6 @@
   "widgetsC.stocks.zone.local": "آپ کے ٹائم زون میں اوقات",
   "widgetsC.stocks.zone.exchange": "{zone} میں اوقات، ایکسچینج کا وقت",
   "widgetsC.stocks.weekdayTime": "{weekday} {time}",
-  "widgetsC.stocks.notSymbol": "\"{symbol}\" کوئی علامت نہیں",
-  "widgetsC.stocks.noQuote": "اس علامت کی کوئی قیمت نہیں",
-  "widgetsC.stocks.phaseTooltip": "{phase}۔ {zone}",
-  "widgetsC.stocks.extendedLine": "{session} {price} {change} · {time}",
-  "widgetsC.stocks.tooltip.failed": "{problem}۔ {age} کی قیمت دکھائی جا رہی ہے۔",
-  "widgetsC.stocks.tooltip.saved": "{age} محفوظ کیا گیا؛ تازہ ہو رہا ہے",
-  "widgetsC.stocks.tooltip.priced": "قیمت {age}",
-  "widgetsC.stocks.period.days": {
-    "one": "{count} دن",
-    "other": "{count} دن"
-  },
-  "widgetsC.stocks.period.months": {
-    "one": "{count} مہینہ",
-    "other": "{count} مہینے"
-  },
-  "widgetsC.stocks.period.years": {
-    "one": "{count} سال",
-    "other": "{count} سال"
-  },
-  "widgetsC.stocks.settings.instrument": "انسٹرومنٹ",
-  "widgetsC.stocks.settings.symbol.desc": "نام یا ٹکر سے تلاش کریں: حصص، فنڈز، انڈیکس، کوائنز",
-  "widgetsC.stocks.settings.marketState.desc": "صرف لسٹڈ انسٹرومنٹس — کرپٹو کی ٹریڈنگ ہر دن ہوتی ہے",
-  "widgetsC.stocks.settings.windowsGreen": "Windows سبز",
-  "widgetsC.stocks.settings.windowsRed": "Windows سرخ",
-  "widgetsC.stocks.settings.symbolRefused": "تلاش کا کوئی نتیجہ چنیں، یا علامت ٹائپ کریں: صرف حروف، ہندسے اور . - ^ =",
-  "widgetsC.stocks.settings.classOnExchange": "{exchange} پر {class}",
-  "widgetsC.stocks.settings.holding.label": "ملکیتی مقدار",
-  "widgetsC.stocks.settings.holding.desc": "آپ کے پاس کتنے ہیں؛ ویجیٹ ان کی مالیت دکھاتا ہے۔ خالی چھوڑنے پر چھپا رہتا ہے",
-  "widgetsC.stocks.settings.holding.refused": "{zero} یا اس سے زیادہ مقدار لکھیں، جیسے {example}",
-  "widgetsC.stocks.holding.line": "{amount} ملکیت · {value}",
   "widgetsC.location.recycleBin": "ری سائیکل بن",
   "widgetsC.location.thisPc": "یہ PC",
   "widgetsC.location.downloads": "ڈاؤن لوڈز",

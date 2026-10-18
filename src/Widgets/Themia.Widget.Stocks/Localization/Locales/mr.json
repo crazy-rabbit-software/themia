@@ -1,0 +1,46 @@
+{
+  "stocks.dimWhenClosed": "बंद असल्याचा निर्देशक",
+  "stocks.downColor": "घसरणीचा रंग",
+  "stocks.extendedHours": "विस्तारित तास",
+  "stocks.extendedHoursDesc": "प्री-मार्केट आणि आफ्टर-आवर्स ट्रेडिंग ट्रॅक करा (1D आणि 5D)",
+  "stocks.showMinMax": "किमान/कमाल खुणा",
+  "stocks.tab.symbols": "चिन्ह",
+  "stocks.timeframe": "कालावधी",
+  "stocks.upColor": "वाढीचा रंग",
+  "styles.stocks.chart": "तक्ता",
+  "styles.stocks.number": "संख्या",
+  "styles.stocks.options": "कालावधी आणि रंग",
+  "styles.stocks.optionsDesc": "बदलाचा कालावधी, तक्त्यातील खुणा आणि रंग",
+  "widget.stocks.label": "शेअर्स",
+  "widgetsA.catalog.stocks.description": "स्पार्कलाइनसह टिकर आणि क्रिप्टो",
+  "widgetsC.stocks.extendedLine": "{session} {price} {change} · {time}",
+  "widgetsC.stocks.holding.line": "{amount} धारित · {value}",
+  "widgetsC.stocks.noQuote": "त्या चिन्हासाठी भाव नाही",
+  "widgetsC.stocks.notSymbol": "\"{symbol}\" हे चिन्ह नाही",
+  "widgetsC.stocks.period.days": {
+    "one": "{count} दिवस",
+    "other": "{count} दिवस"
+  },
+  "widgetsC.stocks.period.months": {
+    "one": "{count} महिना",
+    "other": "{count} महिने"
+  },
+  "widgetsC.stocks.period.years": {
+    "one": "{count} वर्ष",
+    "other": "{count} वर्षे"
+  },
+  "widgetsC.stocks.phaseTooltip": "{phase}. {zone}",
+  "widgetsC.stocks.settings.classOnExchange": "{exchange} वर {class}",
+  "widgetsC.stocks.settings.holding.desc": "तुमच्याकडे किती आहेत; विजेट त्यांचे मूल्य दाखवते. रिकामे ठेवल्यास लपते",
+  "widgetsC.stocks.settings.holding.label": "मालकीची संख्या",
+  "widgetsC.stocks.settings.holding.refused": "{zero} किंवा अधिक संख्या लिहा, उदा. {example}",
+  "widgetsC.stocks.settings.instrument": "साधन",
+  "widgetsC.stocks.settings.marketState.desc": "फक्त सूचीबद्ध साधने — क्रिप्टोचे ट्रेडिंग दररोज होते",
+  "widgetsC.stocks.settings.symbolRefused": "शोध परिणाम निवडा, किंवा चिन्ह टाइप करा: फक्त अक्षरे, अंक आणि . - ^ =",
+  "widgetsC.stocks.settings.symbol.desc": "नाव किंवा टिकरने शोधा: शेअर्स, फंड, निर्देशांक, कॉइन",
+  "widgetsC.stocks.settings.windowsGreen": "Windows हिरवा",
+  "widgetsC.stocks.settings.windowsRed": "Windows लाल",
+  "widgetsC.stocks.tooltip.failed": "{problem}. {age} चा भाव दाखवत आहे.",
+  "widgetsC.stocks.tooltip.priced": "भाव: {age}",
+  "widgetsC.stocks.tooltip.saved": "जतन: {age}; रीफ्रेश होत आहे"
+}
