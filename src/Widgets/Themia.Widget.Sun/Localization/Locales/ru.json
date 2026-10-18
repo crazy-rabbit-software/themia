@@ -1,0 +1,18 @@
+{
+  "widgetsC.sun.label": "Солнце",
+  "widgetsC.sun.desc": "Восход, закат и световой день",
+  "styles.sun.arc": "Дуга",
+  "styles.sun.dayBar": "Полоса дня",
+  "styles.sun.times": "Только время",
+  "sunMoon.events.label": "События",
+  "widgetUi.daylight": "Световой день",
+  "widgetsC.sunMoon.civil": "гражданские",
+  "widgetsC.sunMoon.dawn": "Рассвет",
+  "widgetsC.sunMoon.dusk": "Сумерки",
+  "widgetsC.sunMoon.settings.events.desc": "Восход, закат и световой день; больше при увеличении плитки",
+  "widgetsC.sunMoon.settings.sky": "Небо",
+  "widgetsC.sunMoon.short.daylight": "День",
+  "widgetsC.sunMoon.short.sunrise": "Восход",
+  "widgetsC.sunMoon.short.sunset": "Закат",
+  "widgetsC.sunMoon.solarNoon": "Солнечный полдень"
+}

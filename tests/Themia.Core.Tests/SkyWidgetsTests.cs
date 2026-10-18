@@ -15,14 +15,6 @@ public class SkyWidgetsTests
     private const double Zurich = 47.37;
     private const double ZurichEast = 8.54;
 
-    [Fact]
-    public void S6045_an_unknown_sun_style_is_repaired_to_the_arc()
-    {
-        var config = (SunConfig)ConfigJson.Read("Sun", """{ "kind": "sun", "style": "numbers" }""");
-
-        Assert.Equal(SunStyle.Arc, config.Style);
-    }
-
     // -----------------------------------------------------------------------------------------
     // [S-3104] Moonrise and moonset
     // -----------------------------------------------------------------------------------------

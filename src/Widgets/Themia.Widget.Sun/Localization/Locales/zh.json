@@ -1,0 +1,18 @@
+{
+  "widgetsC.sun.label": "太阳",
+  "widgetsC.sun.desc": "日出、日落和日照时长",
+  "styles.sun.arc": "弧线",
+  "styles.sun.dayBar": "日长条",
+  "styles.sun.times": "仅时间",
+  "sunMoon.events.label": "事件",
+  "widgetUi.daylight": "日照时长",
+  "widgetsC.sunMoon.civil": "民用晨昏",
+  "widgetsC.sunMoon.dawn": "黎明",
+  "widgetsC.sunMoon.dusk": "黄昏",
+  "widgetsC.sunMoon.settings.events.desc": "日出、日落和日照时长；磁贴变大时显示更多",
+  "widgetsC.sunMoon.settings.sky": "天空",
+  "widgetsC.sunMoon.short.daylight": "日照",
+  "widgetsC.sunMoon.short.sunrise": "日出",
+  "widgetsC.sunMoon.short.sunset": "日落",
+  "widgetsC.sunMoon.solarNoon": "太阳正午"
+}

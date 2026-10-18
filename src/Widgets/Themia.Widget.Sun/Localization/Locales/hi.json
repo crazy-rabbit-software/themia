@@ -1,0 +1,18 @@
+{
+  "widgetsC.sun.label": "सूर्य",
+  "widgetsC.sun.desc": "सूर्योदय, सूर्यास्त और दिन की रोशनी",
+  "styles.sun.arc": "चाप",
+  "styles.sun.dayBar": "दिन की पट्टी",
+  "styles.sun.times": "केवल समय",
+  "sunMoon.events.label": "ईवेंट",
+  "widgetUi.daylight": "दिन की रोशनी",
+  "widgetsC.sunMoon.civil": "नागरिक",
+  "widgetsC.sunMoon.dawn": "भोर",
+  "widgetsC.sunMoon.dusk": "गोधूलि",
+  "widgetsC.sunMoon.settings.events.desc": "सूर्योदय, सूर्यास्त और दिन की रोशनी; टाइल बढ़ने पर अधिक",
+  "widgetsC.sunMoon.settings.sky": "आकाश",
+  "widgetsC.sunMoon.short.daylight": "दिन",
+  "widgetsC.sunMoon.short.sunrise": "उदय",
+  "widgetsC.sunMoon.short.sunset": "अस्त",
+  "widgetsC.sunMoon.solarNoon": "सौर मध्याह्न"
+}

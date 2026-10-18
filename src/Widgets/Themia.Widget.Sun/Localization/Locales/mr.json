@@ -1,0 +1,18 @@
+{
+  "widgetsC.sun.label": "सूर्य",
+  "widgetsC.sun.desc": "सूर्योदय, सूर्यास्त आणि दिवसाचा प्रकाश",
+  "styles.sun.arc": "कंस",
+  "styles.sun.dayBar": "दिवसाची पट्टी",
+  "styles.sun.times": "फक्त वेळा",
+  "sunMoon.events.label": "इव्हेंट",
+  "widgetUi.daylight": "दिवसाचा प्रकाश",
+  "widgetsC.sunMoon.civil": "नागरी",
+  "widgetsC.sunMoon.dawn": "पहाट",
+  "widgetsC.sunMoon.dusk": "संधिप्रकाश",
+  "widgetsC.sunMoon.settings.events.desc": "सूर्योदय, सूर्यास्त आणि दिवसाचा प्रकाश; टाइल मोठी झाल्यावर अधिक",
+  "widgetsC.sunMoon.settings.sky": "आकाश",
+  "widgetsC.sunMoon.short.daylight": "दिवस",
+  "widgetsC.sunMoon.short.sunrise": "सूर्योदय",
+  "widgetsC.sunMoon.short.sunset": "सूर्यास्त",
+  "widgetsC.sunMoon.solarNoon": "सौर मध्यान्ह"
+}

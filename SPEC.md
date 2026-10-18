@@ -717,13 +717,7 @@ busy desktop ([S-6601]), Debug, private bytes.
   glyphs, so they cannot disagree. It is mirrored for a southern observer, keeps a hairline rim on
   the unlit part so a thin crescent still reads as a moon, and dims below the horizon. (It once sat
   beside the sun's graphic; the moon is its own widget now, [S-3100].)
-- **[S-170]** The two display settings are independent, except that hiding the graphic forces the
-  rows on: a widget showing nothing is never the answer. The graphic itself is never dropped — it is
-  sized down to a 46px floor and keeps drawing. Only extras shed, cheapest-first by width: the
-  countdown, then the label icons and the moon percentage, then the daylight label, then the number
-  strip. (An earlier version of this line had the daylight label going before the icons. The code
-  was right and the spec was wrong: "12h 6m" says more than two glyphs do.) This is the Sun widget's
-  rule; the moon percentage it once shed is the Moon widget's ([S-3105]).
+- [S-170]: moved with the Sun widget into its module's `SPEC.md` (`src/Widgets/Themia.Widget.Sun/`).
 - **[S-171]** (Reason superseded by [S-1494]: the place is now picked by city search; the validation
   below still governs the exact-coordinate fields.) There is no geocoding service here and widgets make no network calls, so the settings
   take latitude, longitude and place name directly. Input that is not a number in range is
@@ -732,12 +726,11 @@ busy desktop ([S-6601]), Debug, private bytes.
 
 ### Two widgets: Sun and Moon (SKY-SPLIT)
 
-Sun & moon is split in two (user rule: one widget, one thing). The Moon is a module of its own
-(`src/Widgets/Themia.Widget.Moon`, its SPEC.md). The SDK: `SkyPlaceConfig`, the astronomy
-(`MoonPhase.NextRiseSet`, `SkyText.EventTime`), `SkyParts` (the shared row and moon drawing) and
-`SkyPlaceRows` (the shared place rows); Core: `SkyConfigs` (`SunConfig`); App: `SunView`,
-`WidgetSettings.Sun`; tests `SkyWidgetsTests` (`S310x_`), the pair's in the module host's
-`SkyWidgetsHostTests`.
+Sun & moon is split in two (user rule: one widget, one thing). Each is a module of its own
+(`src/Widgets/Themia.Widget.Sun`, `src/Widgets/Themia.Widget.Moon`, their SPEC.md files). The SDK:
+`SkyPlaceConfig`, the astronomy (`MoonPhase.NextRiseSet`, `SkyText.EventTime`), `SkyParts` (the
+shared row and moon drawing) and `SkyPlaceRows` (the shared place rows); tests `SkyWidgetsTests`
+(`S310x_`, the astronomy), the pair's in the module host's `SkyWidgetsHostTests`.
 
 - **[S-3100]** **Sun** (`sun`, 320×240, sun glyph) is the sun's day: the path graphic, the
   number strip and the rows sunrise, sunset, daylight (+ change), solar noon, dawn, dusk ([S-3102]).
@@ -753,10 +746,7 @@ Sun & moon is split in two (user rule: one widget, one thing). The Moon is a mod
   in range sends both, and the name, back to Zurich (a `null` one is a cleared place, [S-2848], and
   is left alone); a place name over 80 characters is cut; each
   repair is logged.
-- **[S-3102]** Sun ladder: [S-1492] without the moon — graphic (46 px floor, [S-170]) → strip →
-  rows in priority sunrise, sunset, daylight (+change), solar noon (+altitude), dawn, dusk. One row
-  is the next event. Rows beside the graphic on a strip; two to a line on E×E (sunrise | sunset,
-  daylight | noon, dawn | dusk) with the graphic keeping 45% of the height.
+- [S-3102], [S-6045], [S-6046]: moved with the Sun widget into its module's `SPEC.md` (`src/Widgets/Themia.Widget.Sun/`).
 - **[S-3104]** Moonrise and moonset: the next of each strictly after now, from the moon's altitude
   (the [S-165] sublunar point) stepped every 10 minutes over the next 50 hours and each horizon
   crossing bisected; a crossing is the centre at +0.125° geocentric (parallax less refraction and
@@ -765,19 +755,6 @@ Sun & moon is split in two (user rule: one widget, one thing). The Moon is a mod
 - [S-3105], [S-6050], [S-6051]: moved with the Moon widget into its module's `SPEC.md` (`src/Widgets/Themia.Widget.Moon/`).
 - **[S-3106]** A rise or set reads as the time alone when it falls today in the machine's zone, else
   with the short weekday before it ("Mon 9:55 AM"): the next one is often tomorrow.
-- **[S-6045]** The sun's styles ([S-6000]), `SunConfig.Style` (`SunStyle`; what was the sun path
-  mode, whose "graphic only" is gone: the number strip sheds by size anyway, [S-170]): **Arc** (the
-  default: the path, [S-167]), **Day bar** ([S-6046]) and **Times** (no graphic: the rows carry
-  everything and are on whatever the Events switch says, [S-170]). The strip and the rows are the
-  same under both graphics. Debug: `--state sample` pins 12 October 2026, 14:32.
-- **[S-6046]** **Day bar** (`SunDayBar`): the local day (the machine's zone, midnight to midnight,
-  a 23- or 25-hour day that long) as a rounded bar in the disabled fill, the daylight in the
-  accent's lighter step between sunrise and sunset ticks that stand a little over and under it, the
-  sun's dot at now (dimmed while it is down, ringed in the base colour so it reads on the daylight).
-  Each mark is its instant's share of the day in real time; a sunrise or sunset not on this day has
-  no tick; polar day lights the whole bar, polar night none of it. The bar keeps a 28 DIP floor and
-  no share of a large tile: the rows take the rest; it thickens with the height, 8 to 20 DIPs, and
-  sits at the foot of its room, right over the number strip.
 
 ## Rows and the card edge
 
@@ -1934,8 +1911,7 @@ removed, [S-1863]). Sizing rules live in Core with tests in
 - **[S-648]** A process row shows both numbers only from 232px of content; below that only the
   ranked one, and on a narrow tile the columns stop holding open their widest value. The "by CPU"
   label leaves a tile too narrow for it and the title both.
-- **[S-649]** The sun strip's icons and countdowns appear only where a strip column can hold them
-  (250px and 280px tiles), not where the tile can.
+- [S-649]: moved with the Sun widget into its module's `SPEC.md` (`src/Widgets/Themia.Widget.Sun/`).
 - **[S-650]** Now playing stacks on a tall, narrow tile (art, lines, transport) and moves the
   transport under the lines when beside them it would leave the title under 120px.
 - **[S-651]** The scratchpad's header tools shed eraser, then clear; undo stays. A hidden eraser is

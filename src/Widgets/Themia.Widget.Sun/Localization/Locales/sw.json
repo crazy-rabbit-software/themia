@@ -1,0 +1,18 @@
+{
+  "widgetsC.sun.label": "Jua",
+  "widgetsC.sun.desc": "Macheo, machweo na mchana",
+  "styles.sun.arc": "Tao",
+  "styles.sun.dayBar": "Upau wa siku",
+  "styles.sun.times": "Nyakati tu",
+  "sunMoon.events.label": "Matukio",
+  "widgetUi.daylight": "Mchana",
+  "widgetsC.sunMoon.civil": "kiraia",
+  "widgetsC.sunMoon.dawn": "Alfajiri",
+  "widgetsC.sunMoon.dusk": "Magharibi",
+  "widgetsC.sunMoon.settings.events.desc": "Macheo, machweo na mchana; zaidi kigae kinapokua",
+  "widgetsC.sunMoon.settings.sky": "Anga",
+  "widgetsC.sunMoon.short.daylight": "Mchana",
+  "widgetsC.sunMoon.short.sunrise": "Macheo",
+  "widgetsC.sunMoon.short.sunset": "Machweo",
+  "widgetsC.sunMoon.solarNoon": "Adhuhuri ya jua"
+}

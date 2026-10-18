@@ -1,0 +1,19 @@
+{
+  "$englishOnly": [],
+  "widgetsC.sun.label": "Sun",
+  "widgetsC.sun.desc": "Sunrise, sunset and daylight",
+  "styles.sun.arc": "Arc",
+  "styles.sun.dayBar": "Day bar",
+  "styles.sun.times": "Times only",
+  "sunMoon.events.label": "Events",
+  "widgetUi.daylight": "Daylight",
+  "widgetsC.sunMoon.civil": "civil",
+  "widgetsC.sunMoon.dawn": "Dawn",
+  "widgetsC.sunMoon.dusk": "Dusk",
+  "widgetsC.sunMoon.settings.events.desc": "Sunrise, sunset and daylight; more as the tile grows",
+  "widgetsC.sunMoon.settings.sky": "Sky",
+  "widgetsC.sunMoon.short.daylight": "Daylight",
+  "widgetsC.sunMoon.short.sunrise": "Sunrise",
+  "widgetsC.sunMoon.short.sunset": "Sunset",
+  "widgetsC.sunMoon.solarNoon": "Solar noon"
+}

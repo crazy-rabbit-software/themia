@@ -7,13 +7,11 @@ using Xunit;
 namespace Themia.Core.Tests;
 
 /// <summary>
-/// [S-6030]..[S-6061] The styles of the countdown, the pomodoro, the sun and the moon, and the
-/// shared ring and dot-grid rules they draw with (year progress's are its module's).
+/// [S-6030]..[S-6061] The styles of the countdown and the pomodoro, and the shared ring and
+/// dot-grid rules they draw with (year progress's, the sun's and the moon's are their modules').
 /// </summary>
 public class TimeStylesTests
 {
-    private static readonly TimeZoneInfo Zurich = TimeZoneInfo.FindSystemTimeZoneById("W. Europe Standard Time");
-
     // ---- the styles themselves ---------------------------------------------------------------
 
     [Fact]
@@ -106,43 +104,4 @@ public class TimeStylesTests
         Assert.Equal(0, DotGrid.Fit(0, 100, 100).Columns);
         Assert.Equal(0, DotGrid.Fit(10, 0, 100).Pitch);
     }
-
-    // ---- sun ----------------------------------------------------------------------------------
-
-    [Fact]
-    public void S6046_the_day_bar_places_sunrise_sunset_and_now_by_their_share_of_the_local_day()
-    {
-        var now = new DateTimeOffset(2026, 6, 21, 12, 0, 0, TimeSpan.FromHours(2));
-        var times = new SunTimes(new DateTimeOffset(2026, 6, 21, 6, 0, 0, TimeSpan.FromHours(2)), new DateTimeOffset(2026, 6, 21, 21, 0, 0, TimeSpan.FromHours(2)), PolarState.None);
-
-        var bar = SunDayBar.Of(now, times, Zurich);
-        Assert.Equal(0.25, bar.Rise!.Value, 6);
-        Assert.Equal(21 / 24d, bar.Set!.Value, 6);
-        Assert.Equal(0.5, bar.Now, 6);
-        Assert.True(bar.NowLit);
-        Assert.Equal((0.25, 21 / 24d), (Math.Round(bar.Daylight.From, 6), Math.Round(bar.Daylight.To, 6)));
-    }
-
-    [Fact]
-    public void S6046_a_spring_forward_day_is_23_hours_across_and_the_polar_states_light_all_or_nothing()
-    {
-        // 29 March 2026: 02:00 is 03:00 in Zurich. 12:00 local is 11 real hours in, of 23.
-        var noon = new DateTimeOffset(2026, 3, 29, 12, 0, 0, TimeSpan.FromHours(2));
-        var none = new SunTimes(null, null, PolarState.None);
-        Assert.Equal(11 / 23d, SunDayBar.Of(noon, none, Zurich).Now, 6);
-
-        var day = SunDayBar.Of(noon, new SunTimes(null, null, PolarState.Day), Zurich);
-        Assert.Equal((0d, 1d), day.Daylight);
-        Assert.True(day.NowLit);
-
-        var night = SunDayBar.Of(noon, new SunTimes(null, null, PolarState.Night), Zurich);
-        Assert.Equal((0d, 0d), night.Daylight);
-        Assert.False(night.NowLit);
-
-        // A sunrise that is not on this day has no tick.
-        Assert.Null(SunDayBar.Share(noon.AddDays(-2), noon.AddHours(-12), noon.AddHours(11)));
-    }
-
-    // ---- moon ---------------------------------------------------------------------------------
-
 }

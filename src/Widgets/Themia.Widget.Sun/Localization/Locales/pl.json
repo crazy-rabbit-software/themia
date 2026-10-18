@@ -1,0 +1,18 @@
+{
+  "widgetsC.sun.label": "Słońce",
+  "widgetsC.sun.desc": "Wschód i zachód słońca oraz długość dnia",
+  "styles.sun.arc": "Łuk",
+  "styles.sun.dayBar": "Pasek dnia",
+  "styles.sun.times": "Tylko godziny",
+  "sunMoon.events.label": "Zdarzenia",
+  "widgetUi.daylight": "Długość dnia",
+  "widgetsC.sunMoon.civil": "cywilny",
+  "widgetsC.sunMoon.dawn": "Świt",
+  "widgetsC.sunMoon.dusk": "Zmierzch",
+  "widgetsC.sunMoon.settings.events.desc": "Wschód, zachód i długość dnia; więcej na większym kafelku",
+  "widgetsC.sunMoon.settings.sky": "Niebo",
+  "widgetsC.sunMoon.short.daylight": "Dzień",
+  "widgetsC.sunMoon.short.sunrise": "Wschód",
+  "widgetsC.sunMoon.short.sunset": "Zachód",
+  "widgetsC.sunMoon.solarNoon": "Górowanie Słońca"
+}

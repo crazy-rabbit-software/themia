@@ -1,0 +1,18 @@
+{
+  "widgetsC.sun.label": "Araw",
+  "widgetsC.sun.desc": "Pagsikat, paglubog at liwanag ng araw",
+  "styles.sun.arc": "Arko",
+  "styles.sun.dayBar": "Bar ng araw",
+  "styles.sun.times": "Mga oras lang",
+  "sunMoon.events.label": "Mga event",
+  "widgetUi.daylight": "Liwanag ng araw",
+  "widgetsC.sunMoon.civil": "sibil",
+  "widgetsC.sunMoon.dawn": "Bukang-liwayway",
+  "widgetsC.sunMoon.dusk": "Takipsilim",
+  "widgetsC.sunMoon.settings.events.desc": "Pagsikat, paglubog at liwanag ng araw; higit pa habang lumalaki ang tile",
+  "widgetsC.sunMoon.settings.sky": "Langit",
+  "widgetsC.sunMoon.short.daylight": "Liwanag ng araw",
+  "widgetsC.sunMoon.short.sunrise": "Pagsikat",
+  "widgetsC.sunMoon.short.sunset": "Paglubog",
+  "widgetsC.sunMoon.solarNoon": "Tanghaling-tapat"
+}

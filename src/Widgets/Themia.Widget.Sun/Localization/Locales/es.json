@@ -1,0 +1,18 @@
+{
+  "widgetsC.sun.label": "Sol",
+  "widgetsC.sun.desc": "Amanecer, atardecer y horas de luz",
+  "styles.sun.arc": "Arco",
+  "styles.sun.dayBar": "Barra del día",
+  "styles.sun.times": "Solo horas",
+  "sunMoon.events.label": "Eventos",
+  "widgetUi.daylight": "Horas de luz",
+  "widgetsC.sunMoon.civil": "civil",
+  "widgetsC.sunMoon.dawn": "Amanecer",
+  "widgetsC.sunMoon.dusk": "Anochecer",
+  "widgetsC.sunMoon.settings.events.desc": "Amanecer, atardecer y luz del día; más si crece el mosaico",
+  "widgetsC.sunMoon.settings.sky": "Cielo",
+  "widgetsC.sunMoon.short.daylight": "Luz",
+  "widgetsC.sunMoon.short.sunrise": "Salida",
+  "widgetsC.sunMoon.short.sunset": "Puesta",
+  "widgetsC.sunMoon.solarNoon": "Mediodía solar"
+}

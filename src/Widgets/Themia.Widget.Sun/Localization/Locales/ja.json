@@ -1,0 +1,18 @@
+{
+  "widgetsC.sun.label": "太陽",
+  "widgetsC.sun.desc": "日の出、日の入り、日照時間",
+  "styles.sun.arc": "弧",
+  "styles.sun.dayBar": "1 日のバー",
+  "styles.sun.times": "時刻のみ",
+  "sunMoon.events.label": "イベント",
+  "widgetUi.daylight": "日照時間",
+  "widgetsC.sunMoon.civil": "常用薄明",
+  "widgetsC.sunMoon.dawn": "夜明け",
+  "widgetsC.sunMoon.dusk": "夕暮れ",
+  "widgetsC.sunMoon.settings.events.desc": "日の出、日の入り、日照時間。大きくすると増えます",
+  "widgetsC.sunMoon.settings.sky": "空",
+  "widgetsC.sunMoon.short.daylight": "日照",
+  "widgetsC.sunMoon.short.sunrise": "日の出",
+  "widgetsC.sunMoon.short.sunset": "日の入り",
+  "widgetsC.sunMoon.solarNoon": "南中時刻"
+}

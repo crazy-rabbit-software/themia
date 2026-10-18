@@ -1,0 +1,18 @@
+{
+  "widgetsC.sun.label": "خورشید",
+  "widgetsC.sun.desc": "طلوع، غروب و طول روز",
+  "styles.sun.arc": "کمان",
+  "styles.sun.dayBar": "نوار روز",
+  "styles.sun.times": "فقط زمان‌ها",
+  "sunMoon.events.label": "رویدادها",
+  "widgetUi.daylight": "طول روز",
+  "widgetsC.sunMoon.civil": "مدنی",
+  "widgetsC.sunMoon.dawn": "سپیده‌دم",
+  "widgetsC.sunMoon.dusk": "شامگاه",
+  "widgetsC.sunMoon.settings.events.desc": "طلوع، غروب و طول روز؛ با بزرگ‌تر شدن کاشی بیشتر",
+  "widgetsC.sunMoon.settings.sky": "آسمان",
+  "widgetsC.sunMoon.short.daylight": "طول روز",
+  "widgetsC.sunMoon.short.sunrise": "طلوع",
+  "widgetsC.sunMoon.short.sunset": "غروب",
+  "widgetsC.sunMoon.solarNoon": "ظهر خورشیدی"
+}

@@ -1,0 +1,18 @@
+{
+  "widgetsC.sun.label": "சூரியன்",
+  "widgetsC.sun.desc": "சூரிய உதயம், அஸ்தமனம் மற்றும் பகல் நேரம்",
+  "styles.sun.arc": "வில்",
+  "styles.sun.dayBar": "நாள் பட்டை",
+  "styles.sun.times": "நேரங்கள் மட்டும்",
+  "sunMoon.events.label": "நிகழ்வுகள்",
+  "widgetUi.daylight": "பகல் நேரம்",
+  "widgetsC.sunMoon.civil": "சிவில்",
+  "widgetsC.sunMoon.dawn": "விடியல்",
+  "widgetsC.sunMoon.dusk": "அந்தி",
+  "widgetsC.sunMoon.settings.events.desc": "சூரிய உதயம், அஸ்தமனம் மற்றும் பகல் நேரம்; ஓடு பெரிதாகும்போது மேலும்",
+  "widgetsC.sunMoon.settings.sky": "வானம்",
+  "widgetsC.sunMoon.short.daylight": "பகல்",
+  "widgetsC.sunMoon.short.sunrise": "உதயம்",
+  "widgetsC.sunMoon.short.sunset": "அஸ்தமனம்",
+  "widgetsC.sunMoon.solarNoon": "சூரிய நண்பகல்"
+}

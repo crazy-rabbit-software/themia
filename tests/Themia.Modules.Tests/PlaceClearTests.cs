@@ -15,7 +15,7 @@ public class PlaceClearTests
     private static readonly WidgetId[] Placed =
     [
         WeatherNowConfig.Descriptor.Id, WeatherForecastConfig.Descriptor.Id, AirQualityConfig.Descriptor.Id, RainNextHourConfig.Descriptor.Id,
-        SunConfig.Descriptor.Id, new WidgetId("moon"),
+        new WidgetId("sun"), new WidgetId("moon"),
     ];
 
     public static TheoryData<WidgetId> PlacedKinds()
@@ -124,7 +124,7 @@ public class PlaceClearTests
     [Fact]
     public void S2848_a_cleared_sky_tile_has_no_name_either()
     {
-        var sun = (SunConfig)WithPlace(SunConfig.Descriptor.Id);
+        var sun = (SunConfig)WithPlace(new WidgetId("sun"));
 
         sun.ClearLocation();
 
