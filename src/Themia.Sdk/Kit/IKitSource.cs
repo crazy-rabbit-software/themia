@@ -42,4 +42,13 @@ public sealed record KitRead(
 
     /// <summary>[S-9919] Where the user widens what an account may read, for a service that grants per resource; null otherwise.</summary>
     public Uri? GrantPage { get; init; }
+
+    /// <summary>[S-7064] The header badge's count (unread mail, open tasks), or null for none.</summary>
+    public long? Count { get; init; }
+
+    /// <summary>
+    /// [S-7042] Lines the header's problem glyph says beside the stale rule's, from the widget's own
+    /// writes: a change waiting to reach the account or refused by it ([S-2624]).
+    /// </summary>
+    public IReadOnlyList<string> Notes { get; init; } = [];
 }

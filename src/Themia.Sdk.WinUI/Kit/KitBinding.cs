@@ -72,6 +72,11 @@ public sealed class KitBinding : IDisposable
     /// <summary>The area of the last draw.</summary>
     public WidgetArea Area => _area;
 
+    /// <summary>[S-7064] The widget's own header buttons for a screen (Mail's compose and sort), asked on every draw.</summary>
+    public Func<KitScreen, IReadOnlyList<KitHeaderButton>>? HeaderButtons { get; init; }
+
+    private IReadOnlyList<KitHeaderButton> Buttons(KitScreen screen) => HeaderButtons?.Invoke(screen) ?? [];
+
     /// <summary>
     /// [S-1303] [S-7042] The card menu's Refresh, while the widget has something to read, with the age
     /// of the oldest copy on screen ("Refresh · updated 4 min ago").
@@ -143,6 +148,7 @@ public sealed class KitBinding : IDisposable
     public void Size(WidgetArea area)
     {
         _area = area;
+        Header.Size(area.Width);
         Render();
     }
 
@@ -189,11 +195,12 @@ public sealed class KitBinding : IDisposable
                 State.Hide();
                 List.Visibility = Visibility.Visible;
                 var now = DateTimeOffset.Now;
-                List.Show(items, KitLadder.Plan(_area, _spec, _config.Shows), _area, now);
+                List.Show(items, KitLadder.Plan(_area, _spec, _config.Choices), _area, now);
 
                 // [S-7042] The one stale rule: a copy on screen the last attempt of some source could
-                // not improve on is the header's problem glyph, one line per source and problem.
-                Header.Show(KitFreshness.Lines(Strings.Current, read.Outcomes, now), _source.Busy, Screen.OffersAccounts);
+                // not improve on is the header's problem glyph, one line per source and problem, after
+                // the widget's own notes (a change waiting or refused).
+                Header.Show([.. read.Notes, .. KitFreshness.Lines(Strings.Current, read.Outcomes, now)], _source.Busy, Screen.OffersAccounts, read.Count, Buttons(Screen));
                 PublishTitle();
                 return;
             }
@@ -202,7 +209,7 @@ public sealed class KitBinding : IDisposable
         List.Clear();
         List.Visibility = Visibility.Collapsed;
         State.Show(Screen);
-        Header.Show([], _source.Busy);
+        Header.Show(read.Notes, _source.Busy, buttons: Buttons(Screen));
         PublishTitle();
     }
 

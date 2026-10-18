@@ -119,7 +119,9 @@ public static class KitScreens
 
         if (itemCount > 0)
         {
-            return new KitScreen(KitScreenKind.Items, string.Empty, false, problems);
+            // An account among them that only the user can mend: the header's glyph leads to Accounts.
+            var mend = accounts is not null && Targets(accounts, chosen).Any(a => a.State != KitAccountState.Ok);
+            return new KitScreen(KitScreenKind.Items, string.Empty, mend, problems);
         }
 
         if (outcomes.Count == 0 || outcomes.Any(o => o.Status == FetchStatus.Loading))

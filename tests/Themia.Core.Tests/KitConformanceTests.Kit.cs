@@ -130,12 +130,15 @@ public sealed partial class KitConformanceTests
         Assert.Empty(offending);
     }
 
-    /// <summary>[S-7069] A kit view builds no menu entry: its item menus are its actions, through <c>KitMenu</c>.</summary>
+    /// <summary>
+    /// [S-7069] A kit view builds no menu entry: its item menus are its actions, through <c>KitMenu</c>
+    /// in <c>KitList</c>; the header's view buttons ask between their choices in <c>KitHeader</c>.
+    /// </summary>
     [Fact]
     public void S7069_only_the_kits_list_turns_actions_into_menu_entries()
     {
         var offending = KitSources()
-            .Where(f => Path.GetFileName(f) != "KitList.cs" && Regex.IsMatch(Code(f), @"\bnew\s+ItemMenuEntry\b|\bItemMenuEntry\("))
+            .Where(f => Path.GetFileName(f) is not ("KitList.cs" or "KitHeader.cs") && Regex.IsMatch(Code(f), @"\bnew\s+ItemMenuEntry\b|\bItemMenuEntry\("))
             .Select(Path.GetFileName)
             .ToList();
 
