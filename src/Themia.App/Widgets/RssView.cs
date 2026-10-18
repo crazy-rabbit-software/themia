@@ -41,7 +41,7 @@ internal sealed partial class RssView : Grid, IWidgetView, IWidgetHeaderContent,
     private readonly Brush _staleBrush = ThemeBrush.Of("SystemFillColorCautionBrush", Colors.Goldenrod);
 
     private readonly KitBinding _binding;
-    private readonly FeedSource _source = new();
+    private readonly FeedSource _source;
 
     private RssConfig _config = new();
 
@@ -55,6 +55,7 @@ internal sealed partial class RssView : Grid, IWidgetView, IWidgetHeaderContent,
 
     public RssView(IWidgetHost host)
     {
+        _source = new FeedSource(host.Feeds);
         _binding = new KitBinding(host, RssSpec.Spec, Glyphs.Rss, RssSpec.Actions);
         _binding.Rendered += OnRendered;
 
@@ -207,20 +208,20 @@ internal sealed partial class RssView : Grid, IWidgetView, IWidgetHeaderContent,
     /// through failures ([S-25]), merged newest first ([S-1302]). The sync is the one place a feed is
     /// fetched; this only reads it and says which feeds are on screen.
     /// </summary>
-    private sealed class FeedSource : IKitSource
+    private sealed class FeedSource(IFeedAnswers feeds) : IKitSource
     {
         /// <summary>The last answer per feed address, held through failures ([S-25]).</summary>
         private readonly Dictionary<string, Fetched<FeedDocument>> _parts = new(StringComparer.Ordinal);
 
         private RssConfig _config = new();
-        private FeedSync? _feeds;
+        private bool _listening;
 
         public event Action? Changed;
 
         /// <summary>The held answers of the feeds read now (for the header's age).</summary>
         public IReadOnlyList<Fetched<FeedDocument>> Held => [.. _parts.Values.Where(p => p.Value is not null)];
 
-        public bool Busy => _feeds is { } feeds && _config.FeedUrls.Any(url => feeds.Busy(url, _config.EffectiveMaxItems));
+        public bool Busy => _config.FeedUrls.Any(url => feeds.Busy(url, _config.EffectiveMaxItems));
 
         public void Configure(RssConfig config, bool changed)
         {
@@ -230,10 +231,10 @@ internal sealed partial class RssView : Grid, IWidgetView, IWidgetHeaderContent,
                 _parts.Clear();
             }
 
-            if (_feeds is null && AppServices.Feeds is { } feeds)
+            if (!_listening)
             {
-                _feeds = feeds;
-                _feeds.Updated += OnFeedUpdated;
+                _listening = true;
+                feeds.Updated += OnFeedUpdated;
             }
         }
 
@@ -246,19 +247,7 @@ internal sealed partial class RssView : Grid, IWidgetView, IWidgetHeaderContent,
                 return;
             }
 
-            var cap = _config.EffectiveMaxItems;
-            if (_feeds is { } feeds)
-            {
-                if (refresh)
-                {
-                    feeds.Refresh(urls, cap, _config.TickInterval);
-                }
-                else
-                {
-                    feeds.Show(urls, cap, _config.TickInterval);
-                }
-            }
-
+            feeds.Show(urls, _config.EffectiveMaxItems, _config.TickInterval, refresh);
             Take();
         }
 
@@ -266,7 +255,7 @@ internal sealed partial class RssView : Grid, IWidgetView, IWidgetHeaderContent,
         private void OnFeedUpdated(string key)
         {
             var cap = _config.EffectiveMaxItems;
-            if (!_config.FeedUrls.Any(url => FeedSync.Key(url, cap) == key))
+            if (!_config.FeedUrls.Any(url => feeds.Key(url, cap) == key))
             {
                 return;
             }
@@ -282,8 +271,8 @@ internal sealed partial class RssView : Grid, IWidgetView, IWidgetHeaderContent,
 
             foreach (var url in _config.FeedUrls)
             {
-                var last = _feeds?.Last(url, cap);
-                var held = FeedSync.Peek(url, cap);
+                var last = feeds.Last(url, cap);
+                var held = feeds.Held(url, cap);
 
                 if (last is { Value: not null })
                 {
@@ -341,10 +330,10 @@ internal sealed partial class RssView : Grid, IWidgetView, IWidgetHeaderContent,
 
         public void Detach()
         {
-            if (_feeds is not null)
+            if (_listening)
             {
-                _feeds.Updated -= OnFeedUpdated;
-                _feeds = null;
+                _listening = false;
+                feeds.Updated -= OnFeedUpdated;
             }
         }
     }

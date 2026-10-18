@@ -36,6 +36,8 @@ internal sealed class CardWidgetHost(IWidgetCardHost card) : IWidgetHost
 
     public IRateAnswers Rates => HostRateAnswers.Instance;
 
+    public IFeedAnswers Feeds => HostFeedAnswers.Instance;
+
     public ISystemFeeds? System => AppServices.System;
 
     public IDrives Drives => Services.Drives.DriveService.Shared;

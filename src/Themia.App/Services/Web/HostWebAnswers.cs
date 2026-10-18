@@ -132,3 +132,57 @@ internal sealed class HostRateAnswers : IRateAnswers
 
     public void Show(bool refresh) => AppServices.WebSync?.ShowRates(refresh);
 }
+
+/// <summary>[S-2661] The feeds every Rss widget asks for: the one <see cref="FeedSync"/>, else the shared cache.</summary>
+internal sealed class HostFeedAnswers : IFeedAnswers
+{
+    public static HostFeedAnswers Instance { get; } = new();
+
+    private HostFeedAnswers()
+    {
+    }
+
+    public event Action<string>? Updated
+    {
+        add
+        {
+            if (AppServices.Feeds is { } feeds)
+            {
+                feeds.Updated += value;
+            }
+        }
+
+        remove
+        {
+            if (AppServices.Feeds is { } feeds)
+            {
+                feeds.Updated -= value;
+            }
+        }
+    }
+
+    public string Key(string url, int maxItems) => FeedSync.Key(url, maxItems);
+
+    public Fetched<FeedDocument>? Last(string url, int maxItems) => AppServices.Feeds?.Last(url, maxItems);
+
+    public Fetched<FeedDocument>? Held(string url, int maxItems) => FeedSync.Peek(url, maxItems);
+
+    public bool Busy(string url, int maxItems) => AppServices.Feeds?.Busy(url, maxItems) == true;
+
+    public void Show(IReadOnlyList<string> urls, int maxItems, TimeSpan interval, bool refresh)
+    {
+        if (AppServices.Feeds is not { } feeds)
+        {
+            return;
+        }
+
+        if (refresh)
+        {
+            feeds.Refresh(urls, maxItems, interval);
+        }
+        else
+        {
+            feeds.Show(urls, maxItems, interval);
+        }
+    }
+}

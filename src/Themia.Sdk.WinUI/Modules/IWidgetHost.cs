@@ -56,6 +56,9 @@ public interface IWidgetHost
     /// <summary>[S-5147] The ECB reference rates the background sync keeps fresh.</summary>
     IRateAnswers Rates { get; }
 
+    /// <summary>[S-2661] The feeds the background sync keeps fresh.</summary>
+    IFeedAnswers Feeds { get; }
+
     /// <summary>
     /// [S-2500] The system figures (CPU, memory, disk, network, battery, GPU, processes, ping): the
     /// host's one hub. Null only before the host has started it, where there is nothing to read yet.
