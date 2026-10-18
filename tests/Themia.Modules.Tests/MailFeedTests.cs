@@ -364,23 +364,23 @@ public class MailFeedTests
     private static JsonNode StateWithMail(string configJson)
     {
         var state = AppState.CreateDefault();
-        state.Views[0].Widgets.Add(WidgetInstance.Create(EmailConfig.Descriptor.Id, new FracRect(0.1, 0.1, 0.2, 0.2)));
+        state.Views[0].Widgets.Add(WidgetInstance.Create(new WidgetId("email"), new FracRect(0.1, 0.1, 0.2, 0.2)));
         state.Views[0].Widgets.Add(WidgetInstance.Create(new WidgetId("clock"), new FracRect(0.5, 0.1, 0.2, 0.2)));
 
         var document = JsonNode.Parse(SettingsTransfer.Serialize(state))!;
-        var mail = document["views"]![0]!["widgets"]!.AsArray().First(w => w!["config"]!["kind"]!.GetValue<string>() == EmailConfig.Descriptor.Id.Value)!;
+        var mail = document["views"]![0]!["widgets"]!.AsArray().First(w => w!["config"]!["kind"]!.GetValue<string>() == new WidgetId("email").Value)!;
         mail["config"] = JsonNode.Parse(configJson);
         return document;
     }
 
     private static EmailConfig MailOf(AppState state)
-        => Assert.IsType<EmailConfig>(state.Views[0].Widgets.First(w => w.Kind == EmailConfig.Descriptor.Id).Config);
+        => Assert.IsType<EmailConfig>(state.Views[0].Widgets.First(w => w.Kind == new WidgetId("email")).Config);
 
     [Fact]
     public void S540_config_round_trips_under_its_wire_names()
     {
         var state = AppState.CreateDefault();
-        var widget = WidgetInstance.Create(EmailConfig.Descriptor.Id, new FracRect(0.1, 0.1, 0.2, 0.2));
+        var widget = WidgetInstance.Create(new WidgetId("email"), new FracRect(0.1, 0.1, 0.2, 0.2));
         widget.Config = new EmailConfig
         {
             AccountIds = ["w"],

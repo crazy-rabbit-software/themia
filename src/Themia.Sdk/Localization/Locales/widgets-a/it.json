@@ -24,8 +24,6 @@
   "widgetsA.calendar.settings.listing": "Ricerca dei calendari di questo account…",
   "widgetsA.calendar.weekdayInitials": "Do,Lu,Ma,Me,Gi,Ve,Sa",
   "widgetsA.calendar.yearTitle": "{year}",
-  "widgetsA.catalog.mail.description": "Messaggi recenti da Outlook, Gmail o qualsiasi server di posta",
-  "widgetsA.catalog.mail.label": "Posta",
   "widgetsA.catalog.tasks.description": "Microsoft To Do, Google Tasks o un elenco su questo PC",
   "widgetsA.catalog.tasks.label": "Attività",
   "widgetsA.clipboard.characters": {

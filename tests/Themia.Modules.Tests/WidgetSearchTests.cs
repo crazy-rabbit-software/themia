@@ -258,7 +258,7 @@ public sealed class WidgetSearchTests
             .ToArray();
 
         var google = WidgetSearch.Rank(docs, "google");
-        Assert.Contains(EmailConfig.Descriptor.Id, google);
+        Assert.Contains(new WidgetId("email"), google);
         Assert.Contains(new WidgetId("calendar"), google);
         Assert.Contains(new WidgetId("contacts"), google);
         Assert.Contains(TasksConfig.Descriptor.Id, google);

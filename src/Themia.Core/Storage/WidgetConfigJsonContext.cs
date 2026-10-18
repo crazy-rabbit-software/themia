@@ -13,6 +13,5 @@ namespace Themia.Core.Storage;
     WriteIndented = true,
     PropertyNamingPolicy = JsonKnownNamingPolicy.CamelCase,
     DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull)]
-[JsonSerializable(typeof(EmailConfig))]
 [JsonSerializable(typeof(TasksConfig))]
 internal sealed partial class WidgetConfigJsonContext : JsonSerializerContext;

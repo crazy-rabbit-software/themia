@@ -23,8 +23,6 @@
   "widgetsA.calendar.settings.listing": "Looking for this account's calendars…",
   "widgetsA.calendar.weekdayInitials": "Su,Mo,Tu,We,Th,Fr,Sa",
   "widgetsA.calendar.yearTitle": "{year}",
-  "widgetsA.catalog.mail.description": "Recent messages from Outlook, Gmail or any mail server",
-  "widgetsA.catalog.mail.label": "Mail",
   "widgetsA.catalog.tasks.description": "Microsoft To Do, Google Tasks, or a list on this PC",
   "widgetsA.catalog.tasks.label": "Tasks",
   "widgetsA.clipboard.characters": {

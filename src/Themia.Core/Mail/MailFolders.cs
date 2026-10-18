@@ -9,10 +9,6 @@ namespace Themia.Core.Mail;
 /// </summary>
 public static class MailFolders
 {
-    /// <summary>The folders the widget lists, in the order the settings box and the menu offer them.</summary>
-    public static IReadOnlyList<MailFolder> Listable { get; } =
-        [MailFolder.Inbox, MailFolder.Sent, MailFolder.Drafts, MailFolder.Deleted, MailFolder.Junk];
-
     /// <summary>Microsoft Graph's well-known folder name.</summary>
     public static string GraphName(this MailFolder folder) => folder.Wire();
 

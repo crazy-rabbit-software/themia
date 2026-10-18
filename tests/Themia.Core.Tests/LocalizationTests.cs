@@ -83,7 +83,8 @@ public sealed class LocalizationTests
     [Fact]
     public void S1101_the_ported_catalog_is_compiled_in_file_order()
     {
-        Assert.True(StringCatalog.Count > 1500, $"only {StringCatalog.Count} keys compiled");
+        // The host's own table: the widgets' strings are their modules' now.
+        Assert.True(StringCatalog.Count > 1000, $"only {StringCatalog.Count} keys compiled");
         Assert.Equal(0, (int)Str.Common_Add);
         Assert.Equal("common.add", StringCatalog.Key((Str)0));
     }

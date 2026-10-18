@@ -24,8 +24,6 @@
   "widgetsA.calendar.settings.listing": "Поиск календарей этой учетной записи…",
   "widgetsA.calendar.weekdayInitials": "Вс,Пн,Вт,Ср,Чт,Пт,Сб",
   "widgetsA.calendar.yearTitle": "{year}",
-  "widgetsA.catalog.mail.description": "Последние письма из Outlook, Gmail или любого почтового сервера",
-  "widgetsA.catalog.mail.label": "Почта",
   "widgetsA.catalog.tasks.description": "Microsoft To Do, Google Tasks или список на этом ПК",
   "widgetsA.catalog.tasks.label": "Задачи",
   "widgetsA.clipboard.characters": {

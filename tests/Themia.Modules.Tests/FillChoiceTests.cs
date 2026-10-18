@@ -29,7 +29,7 @@ public sealed class FillChoiceTests
     public void S6560_a_fresh_design_and_widget_are_default_for_both_fills()
     {
         var design = new DesignState();
-        var widget = WidgetInstance.Create(EmailConfig.Descriptor.Id, new FracRect(0, 0, 0.1, 0.1));
+        var widget = WidgetInstance.Create(new WidgetId("email"), new FracRect(0, 0, 0.1, 0.1));
 
         Assert.Equal(FillKind.Default, design.Background.Kind);
         Assert.Equal(FillKind.Default, design.ItemBackground.Kind);

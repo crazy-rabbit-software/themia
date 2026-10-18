@@ -28,6 +28,7 @@
     <Project Path="src/Widgets/Themia.Widget.Disk/Themia.Widget.Disk.csproj" />
     <Project Path="src/Widgets/Themia.Widget.DoNotDisturbToggle/Themia.Widget.DoNotDisturbToggle.csproj" />
     <Project Path="src/Widgets/Themia.Widget.Drive/Themia.Widget.Drive.csproj" />
+    <Project Path="src/Widgets/Themia.Widget.Email/Themia.Widget.Email.csproj" />
     <Project Path="src/Widgets/Themia.Widget.EnergySaverToggle/Themia.Widget.EnergySaverToggle.csproj" />
     <Project Path="src/Widgets/Themia.Widget.ExchangeRates/Themia.Widget.ExchangeRates.csproj" />
     <Project Path="src/Widgets/Themia.Widget.FocusSession/Themia.Widget.FocusSession.csproj" />

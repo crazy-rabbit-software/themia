@@ -24,8 +24,6 @@
   "widgetsA.calendar.settings.listing": "Đang tìm lịch của tài khoản này…",
   "widgetsA.calendar.weekdayInitials": "CN,T2,T3,T4,T5,T6,T7",
   "widgetsA.calendar.yearTitle": "{year}",
-  "widgetsA.catalog.mail.description": "Thư gần đây từ Outlook, Gmail hoặc bất kỳ máy chủ thư nào",
-  "widgetsA.catalog.mail.label": "Thư",
   "widgetsA.catalog.tasks.description": "Microsoft To Do, Google Tasks, hoặc một danh sách trên PC này",
   "widgetsA.catalog.tasks.label": "Tác vụ",
   "widgetsA.clipboard.characters": {

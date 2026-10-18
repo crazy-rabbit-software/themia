@@ -30,13 +30,14 @@ public sealed partial class WidgetRegistryTests
     [Fact]
     public void S6902_a_registry_with_a_missing_descriptor_or_an_id_or_kind_given_twice_is_refused()
     {
-        var email = EmailConfig.Descriptor;
-        var tasks = TasksConfig.Descriptor;
+        // Two descriptors of the build would do; the widgets are modules now, so two made up here.
+        var email = TasksConfig.Descriptor with { Id = new WidgetId("first"), ConfigType = typeof(FirstConfig), CreateDefault = () => new FirstConfig() };
+        var tasks = TasksConfig.Descriptor with { Id = new WidgetId("second"), ConfigType = typeof(SecondConfig), CreateDefault = () => new SecondConfig() };
 
         Assert.Empty(ModuleCatalog.Check([email, tasks]));
         Assert.Single(ModuleCatalog.Check([email, null]));
         Assert.Single(ModuleCatalog.Check([email, tasks with { Id = email.Id }]));
-        Assert.Single(ModuleCatalog.Check([email, tasks with { ConfigType = typeof(EmailConfig) }]));
+        Assert.Single(ModuleCatalog.Check([email, tasks with { ConfigType = typeof(FirstConfig) }]));
         Assert.Single(ModuleCatalog.Check([email, tasks with { Id = default }]));
         Assert.Throws<InvalidOperationException>(() => ModuleCatalog.Install([email]));
     }
@@ -209,4 +210,14 @@ public sealed partial class WidgetRegistryTests
 
     [GeneratedRegex("""ThemiaWidget\("([^"]*)"\s*,""")]
     private static partial Regex ThemiaWidget();
+
+    private sealed class FirstConfig : WidgetConfig
+    {
+        public override WidgetConfig Clone() => new FirstConfig();
+    }
+
+    private sealed class SecondConfig : WidgetConfig
+    {
+        public override WidgetConfig Clone() => new SecondConfig();
+    }
 }

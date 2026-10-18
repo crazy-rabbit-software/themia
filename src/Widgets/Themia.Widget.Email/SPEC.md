@@ -1,0 +1,80 @@
+# Email
+
+The module `email` ([S-6911]): recent mail of the signed-in accounts, as a list, compact or a table.
+Its tags are this file's alone; the root `SPEC.md` holds what it shares with the host, with their
+root tags: the mail service, its folders, IMAP and MIME ([S-545]..[S-556]), opening, the merged list
+and the screens ([S-547]..[S-549], the SDK's `MailScreens`), writing ([S-558]) and the Refresh line
+([S-559]), the shared list keys and fade ([S-1281], [S-1288]).
+
+Owning files: everything in this folder: `EmailModule.cs` (descriptor, view factory, JSON context),
+`EmailConfig.cs` (the style, the folder, the fields and columns, `EmailFolders`), `EmailView*.cs` (the
+rows of the three styles, the quick actions, the keys, over `IWidgetHost.Mail`), `MailLayout.cs` (the
+ladder), `EmailSettings.cs`, `Preview/` (Debug renders: `--state messages|accounts|empty|hovered|focused`),
+`Localization/Locales/` (its own `EmailStr`, 30 languages). Tests: `Tests/EmailLayoutTests.cs` (run by
+`tests/Themia.Modules.Tests`); the config's and the screens' are the module host's (`MailFeedTests`).
+
+- **[S-540]** `EmailConfig` keeps the classic wire names (`folder: inbox|sentitems|drafts|deleteditems|junkemail`,
+  `viewMode: list|compact|row`, `sortOrder: desc|asc`, `listFields`, `rowColumns`, `accountIds`).
+  Every closed set is read leniently: an unknown or mistyped value becomes the default and is
+  logged, never a throw that would refuse the state file. `WidgetConfig.Repair()` runs at load from
+  `AppStateStore.Validate`; for mail it clamps the preview lines (1–5) and keeps at least one row
+  column. No hearth-era field is read ([S-1050]).
+- **[S-541]** `accountIds` empty means every mail account, including ones added later (the classic
+  widget showed "select an account" instead); a non-empty list reads those accounts that are still
+  signed in. Settings lists the signed-in mail accounts as switches under "Every mail account" and
+  links to the Accounts page; no account is ever signed in from the widget's page. Folders: Inbox,
+  Sent, Drafts, Deleted, Junk [S-12].
+- **[S-542]** List (sender + time, subject, preview), Compact (sender + time, subject) and Row (one
+  line of user-ordered columns under a header row) views [S-14, S-37]; newest or oldest first over
+  the same newest N [S-17]. The card title is the folder; the header carries the unread badge
+  [S-02], a warning glyph naming an account that failed or needs signing in (tap → Accounts), and a
+  busy ring only for a refresh the user asked for. The card menu offers Refresh, Write email
+  ([S-558]) and the five folders [S-20]; the style ([S-6403]) and the order are settings only ([S-1746]).
+- **[S-543]** List fields Subject / Account, default both on (the preview is the List style's own
+  line, [S-6403]); the account tag shows whenever chosen [S-43]. Table columns From, Subject, Date,
+  Preview, Account, reorderable, at least one on [S-16].
+- **[S-6403]** Mail's styles ([S-6000]), `EmailConfig.Style` (`EmailStyle`, `"style": "list"`):
+  **List with preview** (sender + time, subject, `PreviewLines` lines of preview), **Compact list**
+  (sender + time, subject) and **Table** (one line of the user's columns under a header row), in
+  that order: what were the view setting and the list fields' Preview switch (List without the
+  preview was Compact, so the switch is gone). The rest stay settings, shown only for the style that
+  draws with them (`EmailConfig.ShownSettings`, [S-6070]): Subject / Account for List and Compact, Preview
+  lines for List, the columns for Table. A hand-edited `"preview"` list field is dropped.
+- **[S-544]** Message right-click: Open, Reply, Mark read/unread, Archive, Move to Junk, Copy subject,
+  Delete [S-21]. Gmail is read through `gmail.readonly`, so its messages offer only Open, Reply and
+  Copy [S-22]. Delete moves to Deleted (Graph move, IMAP UID MOVE); only a message already in Deleted
+  is removed for good (Graph DELETE; IMAP `\Deleted` + `UID EXPUNGE`, UIDPLUS-scoped). A change shows
+  at once and waits in the account's queue until the provider has it ([S-2610], [S-2624]); a refusal
+  is the header warning's tooltip and the next probe fetches the truth.
+- **[S-1280]** Mail's ladder (`EmailView.Lay`, rules in `MailLayout`): the first row always; the row
+  view's column titles from 140px of height; then as many whole rows as fit. Stacked rows shed account
+  tag, preview, extra preview lines and time as before ([S-556]); a wide strip and a big tile go one
+  line per message ([S-1283]); the envelope joins from 300px ([S-1282]); the largest tile adds the
+  quick actions ([S-1284]). No provider name and no folder summary ([S-1285], retired).
+- **[S-1282]** Envelope: a closed envelope (accent) in front of unread mail, an open one (tertiary)
+  in front of read mail, from 300px wide, in every view; the unread accent bar stays.
+- **[S-1283]** One-line rows (list and compact views) from 640px wide, or from 420px on a strip under
+  220px tall: sender column (24% of the line, 96-200px), subject with the preview after an en dash
+  (preview from 440px), account from 560px, time. The row view is unchanged. A one-line row shows
+  one preview line whatever `PreviewLines` says (that setting shapes the stacked rows).
+- **[S-1284]** The account tag and the tooltip name the account alone at every size (the provider
+  name, "Work (Microsoft)", is retired, [S-666]). On one-line rows from 720px the pointer, or the
+  keyboard focus ([S-1288]), swaps a row's time for quick actions: mark read or unread, archive (not
+  in Junk), delete — only where the account allows changes ([S-544]). The swap moves nothing: the
+  time's slot is always as wide as the actions (`MailLayout.InlineBoxes`), the hidden time keeps
+  its box, and the buttons overhang the line instead of growing it, so every other part of the row
+  keeps its position and size and the row its height.
+- **[S-1286]** How many messages is not a setting (user decision): every Mail widget asks for the
+  whole shelf the sync keeps per folder (`EmailConfig.FetchCount` = `MailShelves.MaxPerFolder`, 50),
+  newest first, and the list scrolls past the rows that fit, so a big tile is never half empty and
+  resizing never refetches. A `maxCount` left in a hand-edited file is ignored.
+- **[S-1287]** Row view from 700px: when the user's columns leave Subject as the only flexible column
+  and it would take more than 40% of the line, Preview joins after Subject. A chosen Preview keeps
+  the user's order; without Subject nothing is added.
+- **[S-1289]** Mail's header carries a sort button (from 200px wide) that turns the list round and
+  saves `SortOrder`, like the menu's toggle; its tooltip says the current order. The compose button
+  joins before it from 240px ([S-558]).
+
+Needs a live pass: a signed-in Microsoft, Google and IMAP account (the three styles, opening and
+replying, the quick actions, Mark read and Delete landing on the server, Write email), and the
+showcase views on the live desktop.
