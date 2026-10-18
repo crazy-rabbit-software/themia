@@ -17,6 +17,7 @@ using Windows.System;
 using Windows.UI;
 using Windows.UI.Core;
 using Themia.Core.Shell;
+using Themia.Widget.Notes;
 
 namespace Themia.App.Widgets;
 
@@ -67,15 +68,15 @@ internal sealed class MarkdownEditor
     /// <summary>The bar in display order, with the order buttons are shed in as it narrows (0 = last to go).</summary>
     private static readonly (NoteCommand Command, string? Glyph, string? Label, Func<string> Tip, int Rank)[] BarButtons =
     [
-        (NoteCommand.Heading, null, "H", () => Str.WidgetsC_Notes_Editor_HeadingTip.Text(), 4),
-        (NoteCommand.Bold, Glyphs.Bold, null, () => WithShortcut(Str.Widget_Notes_Fmt_Bold, KeyChord.Ctrl(ChordKey.B)), 0),
-        (NoteCommand.Italic, Glyphs.Italic, null, () => WithShortcut(Str.Widget_Notes_Fmt_Italic, KeyChord.Ctrl(ChordKey.I)), 1),
-        (NoteCommand.Strike, Glyphs.Strikethrough, null, () => Str.Widget_Notes_Fmt_Strike.Text(), 5),
-        (NoteCommand.Code, Glyphs.Code, null, () => Str.Widget_Notes_Fmt_Code.Text(), 6),
-        (NoteCommand.Bullet, Glyphs.BulletList, null, () => Str.Widget_Notes_Fmt_Bullet.Text(), 3),
-        (NoteCommand.Ordered, null, "1.", () => Str.Widget_Notes_Fmt_Numbered.Text(), 7),
-        (NoteCommand.Task, Glyphs.Checklist, null, () => Str.Widget_Notes_Fmt_Task.Text(), 2),
-        (NoteCommand.Quote, Glyphs.Quote, null, () => Str.Widget_Notes_Fmt_Quote.Text(), 8),
+        (NoteCommand.Heading, null, "H", () => NotesStr.WidgetsC_Notes_Editor_HeadingTip.Text(), 4),
+        (NoteCommand.Bold, Glyphs.Bold, null, () => WithShortcut(NotesStr.Widget_Notes_Fmt_Bold, KeyChord.Ctrl(ChordKey.B)), 0),
+        (NoteCommand.Italic, Glyphs.Italic, null, () => WithShortcut(NotesStr.Widget_Notes_Fmt_Italic, KeyChord.Ctrl(ChordKey.I)), 1),
+        (NoteCommand.Strike, Glyphs.Strikethrough, null, () => NotesStr.Widget_Notes_Fmt_Strike.Text(), 5),
+        (NoteCommand.Code, Glyphs.Code, null, () => NotesStr.Widget_Notes_Fmt_Code.Text(), 6),
+        (NoteCommand.Bullet, Glyphs.BulletList, null, () => NotesStr.Widget_Notes_Fmt_Bullet.Text(), 3),
+        (NoteCommand.Ordered, null, "1.", () => NotesStr.Widget_Notes_Fmt_Numbered.Text(), 7),
+        (NoteCommand.Task, Glyphs.Checklist, null, () => NotesStr.Widget_Notes_Fmt_Task.Text(), 2),
+        (NoteCommand.Quote, Glyphs.Quote, null, () => NotesStr.Widget_Notes_Fmt_Quote.Text(), 8),
     ];
 
     private readonly Dictionary<FormatKey, ITextCharacterFormat> _formats = [];
@@ -112,7 +113,7 @@ internal sealed class MarkdownEditor
             DisabledFormattingAccelerators = DisabledFormattingAccelerators.All,
             ClipboardCopyFormat = RichEditClipboardFormat.PlainText,
             SelectionFlyout = null,
-            PlaceholderText = Str.Notes_Placeholder.Text(),
+            PlaceholderText = NotesStr.Notes_Placeholder.Text(),
         };
 
         // [S-1360] One undo stack, and it is ours.
@@ -814,8 +815,8 @@ internal sealed class MarkdownEditor
     }
 
     /// <summary>"Bold (Ctrl+B)": a command's name with its key, in the language's word order.</summary>
-    private static string WithShortcut(Str name, KeyChord keys)
-        => Str.WidgetsC_Notes_Editor_WithShortcut.Format(("name", name.Text()), ("keys", KeyChordText.Format(keys)));
+    private static string WithShortcut(NotesStr name, KeyChord keys)
+        => NotesStr.WidgetsC_Notes_Editor_WithShortcut.Format(("name", name.Text()), ("keys", KeyChordText.Format(keys)));
 
     /// <summary>
     /// [S-1110] Re-read the texts this editor set once (the bar's tooltips, the placeholder) after
@@ -823,7 +824,7 @@ internal sealed class MarkdownEditor
     /// </summary>
     public void RefreshTexts()
     {
-        Box.PlaceholderText = Str.Notes_Placeholder.Text();
+        Box.PlaceholderText = NotesStr.Notes_Placeholder.Text();
         foreach (var (command, button, _) in _buttons)
         {
             foreach (var entry in BarButtons)
@@ -893,12 +894,12 @@ internal sealed class MarkdownEditor
 
             ItemMenu.Fill(_menu,
             [
-                new ItemMenuEntry(Glyphs.Undo, Str.WidgetsC_Notes_Editor_Undo.Text(), () => Step(redo: false), Disabled: _readOnly || !_history.CanUndo),
-                new ItemMenuEntry(Glyphs.Reset, Str.WidgetsC_Notes_Editor_Redo.Text(), () => Step(redo: true), Disabled: _readOnly || !_history.CanRedo),
+                new ItemMenuEntry(Glyphs.Undo, NotesStr.WidgetsC_Notes_Editor_Undo.Text(), () => Step(redo: false), Disabled: _readOnly || !_history.CanUndo),
+                new ItemMenuEntry(Glyphs.Reset, NotesStr.WidgetsC_Notes_Editor_Redo.Text(), () => Step(redo: true), Disabled: _readOnly || !_history.CanRedo),
                 ItemMenuEntry.Separator,
-                new ItemMenuEntry(Glyphs.Cut, Str.Common_Cut.Text(), () => Box.Document.Selection.Cut(), Disabled: _readOnly || !selected, Quick: QuickCommand.Cut),
+                new ItemMenuEntry(Glyphs.Cut, NotesStr.Common_Cut.Text(), () => Box.Document.Selection.Cut(), Disabled: _readOnly || !selected, Quick: QuickCommand.Cut),
                 new ItemMenuEntry(Glyphs.Copy, Str.Common_Copy.Text(), () => Box.Document.Selection.Copy(), Disabled: !selected, Quick: QuickCommand.Copy),
-                new ItemMenuEntry(Glyphs.Paste, Str.Common_Paste.Text(), () => _ = PasteAsync(), Disabled: _readOnly, Quick: QuickCommand.Paste),
+                new ItemMenuEntry(Glyphs.Paste, NotesStr.Common_Paste.Text(), () => _ = PasteAsync(), Disabled: _readOnly, Quick: QuickCommand.Paste),
                 ItemMenuEntry.Separator,
                 new ItemMenuEntry(null, Str.Folder_SelectAll.Text(), () => Box.Document.Selection.SetRange(0, _text.Length)),
             ]);

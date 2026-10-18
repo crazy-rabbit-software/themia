@@ -136,6 +136,7 @@ public sealed partial class ModuleConformanceTests
     /// </summary>
     private static readonly HashSet<(string Widget, string Key)> LatinDigitsAllowed =
     [
+        ("notes", "widgetsC.notes.editor.headingTip"),   // H1, H2, H3
         ("stocks", "stocks.extendedHoursDesc"),   // the 1D and 5D chart ranges
     ];
 

@@ -261,7 +261,7 @@ public sealed class NoticesBootTests : IDisposable
         var widgets = AppState.CreateDefault().Views[1].Widgets;
 
         Assert.Equal(
-            [new WidgetId("clock"), CalendarWidgetConfig.Descriptor.Id, TasksConfig.Descriptor.Id, NotesConfig.Descriptor.Id],
+            [new WidgetId("clock"), CalendarWidgetConfig.Descriptor.Id, TasksConfig.Descriptor.Id, new WidgetId("notes")],
             widgets.Select(w => w.Kind));
 
         var clock = Assert.IsType<ClockConfig>(widgets[0].Config);
@@ -302,7 +302,7 @@ public sealed class NoticesBootTests : IDisposable
         Assert.Equal(string.Empty, tasks.LocalListId);
 
         // The note is made on first show, as for any new Notes widget.
-        Assert.Null(Assert.IsType<NotesConfig>(Assert.Single(widgets, w => w.Kind == NotesConfig.Descriptor.Id).Config).NoteId);
+        Assert.Null(Assert.IsType<NotesConfig>(Assert.Single(widgets, w => w.Kind == new WidgetId("notes")).Config).NoteId);
     }
 
     [Fact]
@@ -383,7 +383,7 @@ public sealed class NoticesBootTests : IDisposable
         Assert.Equal(2, loaded.State.Views.Count);
         Assert.Equal(state.Views[0].Widgets.Select(w => w.Kind), loaded.State.Views[0].Widgets.Select(w => w.Kind));
         Assert.Equal(
-            [new WidgetId("clock"), CalendarWidgetConfig.Descriptor.Id, TasksConfig.Descriptor.Id, NotesConfig.Descriptor.Id],
+            [new WidgetId("clock"), CalendarWidgetConfig.Descriptor.Id, TasksConfig.Descriptor.Id, new WidgetId("notes")],
             loaded.State.Views[1].Widgets.Select(w => w.Kind));
         Assert.Equal(6, Assert.IsType<ShortcutsConfig>(loaded.State.Views[0].Widgets[1].Config).Items.Count);
     }

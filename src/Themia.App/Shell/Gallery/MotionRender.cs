@@ -45,7 +45,7 @@ internal static class MotionRender
         (new WidgetId("memory"), new FracRect(0.03, 0.36, 0.22, 0.3)),
         (new WidgetId("pomodoro"), new FracRect(0.62, 0.08, 0.17, 0.5)),
         (new WidgetId("countdown"), new FracRect(0.8, 0.08, 0.17, 0.25)),
-        (NotesConfig.Descriptor.Id, new FracRect(0.55, 0.62, 0.42, 0.3)),
+        (new WidgetId("notes"), new FracRect(0.55, 0.62, 0.42, 0.3)),
     ];
 
     public static bool TryRunFromCommandLine(Application app, string[] args)

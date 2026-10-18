@@ -1,7 +1,7 @@
 using Themia.Core.Notes;
 using Xunit;
 
-namespace Themia.Core.Tests;
+namespace Themia.Widget.Notes.Tests;
 
 /// <summary>
 /// The note markdown tokenizer, ported from the original <c>markdown.test.ts</c>. Pins the block and

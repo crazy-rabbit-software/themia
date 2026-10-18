@@ -121,7 +121,7 @@ public sealed class UndoLogTests
     {
         var view = ViewState.Create("Desk");
         var clock = WidgetInstance.Create(new WidgetId("clock"), new FracRect(0.1, 0.1, 0.2, 0.2));
-        var notes = WidgetInstance.Create(NotesConfig.Descriptor.Id, new FracRect(0.5, 0.1, 0.2, 0.3));
+        var notes = WidgetInstance.Create(new WidgetId("notes"), new FracRect(0.5, 0.1, 0.2, 0.3));
         view.Widgets.Add(clock);
         view.Widgets.Add(notes);
         var state = new AppState { Views = [view], ActiveViewId = view.Id };

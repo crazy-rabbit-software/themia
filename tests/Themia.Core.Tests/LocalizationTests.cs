@@ -931,7 +931,6 @@ public sealed class LocalizationTests
         "shell.net.imapTlsFailed",             // port 993
         "widgetsA.catalog.videoStream.description", // MP4
         "widgetsC.videoStream.settings.address.desc", // MP4
-        "widgetsC.notes.editor.headingTip",    // H1, H2, H3
         "widgetsC.tasks.rowHint",              // the F2 key
     ];
 

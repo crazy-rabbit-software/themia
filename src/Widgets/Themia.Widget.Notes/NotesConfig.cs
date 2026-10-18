@@ -1,7 +1,6 @@
 using System.Text.Json.Serialization;
 using Themia.App.Shell;
 using Themia.Core.Localization;
-using Themia.Core.Storage;
 using Themia.Core.Widgets;
 using Themia.Sdk;
 
@@ -14,24 +13,6 @@ namespace Themia.Core.Model;
 /// </summary>
 public sealed class NotesConfig : WidgetConfig
 {
-
-    /// <summary>[S-6902] This widget's descriptor: what the host knows of it without its UI.</summary>
-    public static WidgetDescriptor Descriptor { get; } = new()
-    {
-        Id = new("notes"),
-        ConfigType = typeof(NotesConfig),
-        CreateDefault = () => new NotesConfig(),
-        Json = WidgetConfigJsonContext.Default,
-        Keywords = ["notepad", "text", "memo", "writing", "markdown", "sticky note"],
-        Label = Str.Widget_Notes_Label.Local(),
-        Description = Str.WidgetsA_Catalog_Notes_Description.Local(),
-        Glyph = Glyphs.Note,
-        DefaultWidth = 300,
-        DefaultHeight = 220,
-        Traits = WidgetTraits.CanHaveHeader,
-        Add = new(AddFolderId.Notes, 0, 0, Popular: 6),
-    };
-
     /// <summary>
     /// The note shown, or null for none yet — a new widget gets a new note of its own on first show.
     /// Validated by the store before it ever reaches a path ([S-1342]).

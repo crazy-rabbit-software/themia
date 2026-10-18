@@ -1,7 +1,7 @@
 using Themia.Core.Notes;
 using Xunit;
 
-namespace Themia.Core.Tests;
+namespace Themia.Widget.Notes.Tests;
 
 /// <summary>
 /// The note editor's intercepted keys and toolbar commands, ported from the original

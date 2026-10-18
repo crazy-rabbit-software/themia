@@ -66,7 +66,9 @@ public sealed class ConfirmFlyoutTests
         var surface = Directory.GetFiles(shell, "DesktopWindow*.cs")
             .Concat(Directory.GetFiles(shell, "WidgetCard*.cs"));
 
+        // A module's settings page is the settings window's, which may ask in a dialog ([S-1500]).
         var offenders = RepoFiles.ViewSources()
+            .Where(path => !RepoFiles.IsSettingsPage(path))
             .Concat(surface)
             .Where(path =>
             {

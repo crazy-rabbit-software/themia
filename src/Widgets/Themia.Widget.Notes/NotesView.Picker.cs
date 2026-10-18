@@ -8,6 +8,7 @@ using Themia.Core.Localization;
 using Themia.Core.Widgets;
 using Themia.Sdk.WinUI;
 using Windows.System;
+using Themia.Widget.Notes;
 
 namespace Themia.App.Widgets;
 
@@ -48,8 +49,8 @@ internal sealed partial class NotesView
 
     private void ApplyPickerTexts()
     {
-        ToolTipService.SetToolTip(_picker, Str.Notes_NotesLabel.Text());
-        Microsoft.UI.Xaml.Automation.AutomationProperties.SetName(_picker, Str.WidgetsC_Notes_ChooseNote.Text());
+        ToolTipService.SetToolTip(_picker, NotesStr.Notes_NotesLabel.Text());
+        Microsoft.UI.Xaml.Automation.AutomationProperties.SetName(_picker, NotesStr.WidgetsC_Notes_ChooseNote.Text());
     }
 
     /// <summary>
@@ -74,12 +75,12 @@ internal sealed partial class NotesView
         }
 
         entries.Add(ItemMenuEntry.Separator);
-        entries.Add(new ItemMenuEntry(Glyphs.Add, Str.Notes_NewNote.Text(), NewNote));
+        entries.Add(new ItemMenuEntry(Glyphs.Add, NotesStr.Notes_NewNote.Text(), NewNote));
 
         if (_state == NoteState.Ready && _shownId is { } shown)
         {
-            entries.Add(new ItemMenuEntry(Glyphs.Rename, Str.WidgetsC_Notes_RenameEllipsis.Text(), () => RenameInFlyout(shown)));
-            entries.Add(new ItemMenuEntry(Glyphs.Delete, Str.WidgetsC_Notes_DeleteNoteEllipsis.Text(), () => _ = DeleteAsync(shown), Danger: true));
+            entries.Add(new ItemMenuEntry(Glyphs.Rename, NotesStr.WidgetsC_Notes_RenameEllipsis.Text(), () => RenameInFlyout(shown)));
+            entries.Add(new ItemMenuEntry(Glyphs.Delete, NotesStr.WidgetsC_Notes_DeleteNoteEllipsis.Text(), () => _ = DeleteAsync(shown), Danger: true));
         }
 
         ItemMenu.Open(_picker, entries);
@@ -93,7 +94,7 @@ internal sealed partial class NotesView
             return;
         }
 
-        var box = new TextBox { Text = note.Title, MinWidth = 200, PlaceholderText = Str.Notes_NamePlaceholder.Text() };
+        var box = new TextBox { Text = note.Title, MinWidth = 200, PlaceholderText = NotesStr.Notes_NamePlaceholder.Text() };
         // [S-1500] Its own popup: inside the surface's window the region clips it to the card.
         var flyout = new Flyout { Content = box, Placement = FlyoutPlacementMode.Bottom, ShouldConstrainToRootBounds = false };
         var cancelled = false;
@@ -155,7 +156,7 @@ internal sealed partial class NotesView
             return;
         }
 
-        Pick(_pool.Create(Str.Notes_NewName.Text()));
+        Pick(_pool.Create(NotesStr.Notes_NewName.Text()));
 
         if (_state == NoteState.Ready)
         {
@@ -202,9 +203,9 @@ internal sealed partial class NotesView
     /// </summary>
     private Task<bool> AskToDeleteAsync(string title) => ConfirmFlyout.AskAsync(
         _picker.XamlRoot is not null && _picker.Visibility == Visibility.Visible && _picker.ActualWidth > 0 ? _picker : this,
-        Str.WidgetsC_Notes_DeleteConfirmTitle.Text(),
+        NotesStr.WidgetsC_Notes_DeleteConfirmTitle.Text(),
         Str.Common_Delete.Text(),
-        Str.WidgetsC_Notes_DeleteConfirmBody.Format(("name", title)));
+        NotesStr.WidgetsC_Notes_DeleteConfirmBody.Format(("name", title)));
 
     private void DetachPicker() => _picker.Click -= OnPickerClick;
 }

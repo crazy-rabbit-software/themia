@@ -10,6 +10,7 @@ using Themia.Core.Model;
 using Themia.Core.Notes;
 using Themia.Core.Widgets;
 using Themia.Sdk.WinUI;
+using Themia.Widget.Notes;
 
 namespace Themia.App.Widgets;
 
@@ -319,7 +320,7 @@ internal sealed partial class NotesView : Grid, IWidgetView, IWidgetSurfaceAware
 
         if (string.IsNullOrEmpty(_config.NoteId) && _surface is { IsPreview: false } surface)
         {
-            _config.NoteId = _pool.Create(string.IsNullOrWhiteSpace(surface.Label) ? Str.Notes_NewName.Text() : surface.Label);
+            _config.NoteId = _pool.Create(string.IsNullOrWhiteSpace(surface.Label) ? NotesStr.Notes_NewName.Text() : surface.Label);
             surface.RequestSave();
         }
 
@@ -388,9 +389,9 @@ internal sealed partial class NotesView : Grid, IWidgetView, IWidgetSurfaceAware
     {
         _messageText.Text = _state switch
         {
-            NoteState.Deleted => Str.Notes_NoteGone.Text(),
-            NoteState.Unreadable => Str.WidgetsC_Notes_Unreadable.Text(),
-            NoteState.Unavailable => Str.WidgetsC_Notes_Unavailable.Text(),
+            NoteState.Deleted => NotesStr.Notes_NoteGone.Text(),
+            NoteState.Unreadable => NotesStr.WidgetsC_Notes_Unreadable.Text(),
+            NoteState.Unavailable => NotesStr.WidgetsC_Notes_Unavailable.Text(),
             _ => string.Empty,
         };
 
@@ -498,7 +499,7 @@ internal sealed partial class NotesView : Grid, IWidgetView, IWidgetSurfaceAware
             Lay();
         }
 
-        _status.Text = Str.WidgetsC_Notes_NotSaved.Text();
+        _status.Text = NotesStr.WidgetsC_Notes_NotSaved.Text();
     }
 
     // -----------------------------------------------------------------------------------------
@@ -580,8 +581,8 @@ internal sealed partial class NotesView : Grid, IWidgetView, IWidgetSurfaceAware
 
     private static void ApplyMoreTexts(Button more)
     {
-        ToolTipService.SetToolTip(more, Str.WidgetsC_Notes_Editor_MoreFormatting.Text());
-        Microsoft.UI.Xaml.Automation.AutomationProperties.SetName(more, Str.WidgetsC_Notes_Editor_MoreFormatting.Text());
+        ToolTipService.SetToolTip(more, NotesStr.WidgetsC_Notes_Editor_MoreFormatting.Text());
+        Microsoft.UI.Xaml.Automation.AutomationProperties.SetName(more, NotesStr.WidgetsC_Notes_Editor_MoreFormatting.Text());
     }
 
     private void OnMoreClick(object sender, RoutedEventArgs args)

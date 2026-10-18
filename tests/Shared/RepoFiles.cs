@@ -50,6 +50,20 @@ internal static class RepoFiles
     public static IEnumerable<string> ViewSources()
         => CSharp(AppWidgets).Concat(CSharp(Path.Combine(SdkWinUI, "Widgets"))).Concat(WidgetModules().SelectMany(CSharp));
 
+    /// <summary>
+    /// A module's settings page (<c>src/Widgets/Themia.Widget.&lt;Name&gt;/&lt;Name&gt;Settings.cs</c>): the settings
+    /// window's, not the widget's, though it lives in the widget's folder.
+    /// </summary>
+    public static bool IsSettingsPage(string path)
+    {
+        var folder = Path.GetDirectoryName(path);
+        var module = Path.GetFileName(folder);
+        return module is not null
+            && module.StartsWith("Themia.Widget.", StringComparison.Ordinal)
+            && string.Equals(Path.GetFileName(Path.GetDirectoryName(folder)), "Widgets", StringComparison.Ordinal)
+            && string.Equals(Path.GetFileName(path), module["Themia.Widget.".Length..] + "Settings.cs", StringComparison.Ordinal);
+    }
+
     /// <summary>The one source file named <paramref name="fileName"/> under <c>src/</c>, wherever it lives now.</summary>
     public static string Source(string fileName)
     {

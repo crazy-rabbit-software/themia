@@ -81,7 +81,7 @@ public sealed class ClipboardHostTests : IDisposable
         // Any other widget wants nothing of the clipboard.
         hidden.Widgets.Clear();
         state.Views[0].Widgets.Clear();
-        state.Views[0].Widgets.Add(WidgetInstance.Create(NotesConfig.Descriptor.Id, new FracRect(0, 0, 0.2, 0.2)));
+        state.Views[0].Widgets.Add(WidgetInstance.Create(new WidgetId("notes"), new FracRect(0, 0, 0.2, 0.2)));
         Assert.Null(ClipboardInterest.Capacity(state));
     }
 
