@@ -9,6 +9,7 @@ using Themia.Core.Model;
 using Themia.Core.Office;
 using Themia.Core.Widgets;
 using Themia.Sdk;
+using Themia.Sdk.WinUI.Kit;
 
 namespace Themia.App.Shell.Config;
 
@@ -105,98 +106,12 @@ internal static partial class WidgetSettings
         Func<AccountInfo, FrameworkElement>? perAccount)
     {
         var accounts = OfficeSources.Current?.Accounts(feature) ?? [];
+        var rowsOf = accounts.Select(a => new KitAccountRow(a.Id, a.Label, a.Problem ?? $"{a.Provider.Label()} · {a.Address}")).ToList();
 
-        var manage = new Button { Content = (accounts.Count == 0 ? Str.WidgetsA_Office_AddAccount : Str.WidgetsA_Office_ManageAccounts).Text() };
-        manage.Click += (_, _) => Services.AppServices.ShowAccounts?.Invoke();
-
-        if (accounts.Count == 0)
-        {
-            rows.Add(FluentLayout.Row(glyph, texts.None.Text(), texts.AddHint.Text(), manage));
-            return;
-        }
-
-        var toggles = new List<ToggleSwitch>();
-        var chosenRows = new List<FrameworkElement>();
-        var extras = new List<(AccountInfo Account, FrameworkElement Element)>();
-        var quiet = false;
-
-        bool Chosen(AccountInfo account) => getIds().Count == 0 || getIds().Contains(account.Id);
-
-        void ShowChoice()
-        {
-            foreach (var row in chosenRows)
-            {
-                row.Visibility = getIds().Count == 0 ? Visibility.Collapsed : Visibility.Visible;
-            }
-
-            foreach (var (account, element) in extras)
-            {
-                element.Visibility = Chosen(account) ? Visibility.Visible : Visibility.Collapsed;
-            }
-        }
-
-        rows.Add(FluentLayout.Row(glyph, texts.Every.Text(), Str.WidgetsA_Office_EveryDesc.Text(),
-            FluentLayout.Toggle(getIds().Count == 0, on =>
-            {
-                setIds(on ? [] : [.. accounts.Select(a => a.Id)]);
-
-                quiet = true;
-                foreach (var toggle in toggles)
-                {
-                    toggle.IsOn = true;
-                }
-
-                quiet = false;
-                save();
-                ShowChoice();
-            })));
-
-        foreach (var account in accounts)
-        {
-            var index = toggles.Count;
-            var toggle = FluentLayout.Toggle(Chosen(account), on =>
-            {
-                if (quiet)
-                {
-                    return;
-                }
-
-                var ids = (getIds().Count == 0 ? accounts.Select(a => a.Id) : getIds()).ToList();
-                ids.Remove(account.Id);
-                if (on)
-                {
-                    ids.Add(account.Id);
-                }
-
-                if (ids.Count == 0)
-                {
-                    quiet = true;
-                    toggles[index].IsOn = true;
-                    quiet = false;
-                    return;
-                }
-
-                setIds([.. accounts.Select(a => a.Id).Where(ids.Contains)]);
-                save();
-                ShowChoice();
-            });
-
-            toggles.Add(toggle);
-
-            var description = account.Problem ?? $"{account.Provider.Label()} · {account.Address}";
-            var row = FluentLayout.Row(glyph, account.Label, description, toggle);
-            chosenRows.Add(row);
-            rows.Add(row);
-
-            if (perAccount?.Invoke(account) is { } extra)
-            {
-                extras.Add((account, extra));
-                rows.Add(extra);
-            }
-        }
-
-        rows.Add(FluentLayout.Row(Glyphs.Contact, Str.WidgetUi_AccountsLabel.Text(), Str.WidgetsA_Office_ManageDesc.Text(), manage));
-        ShowChoice();
+        // [S-7063] The kit's account rows: one path for every widget that reads accounts.
+        KitRows.Accounts(rows, glyph, rowsOf, new KitAccountTexts(texts.None.Text(), texts.Every.Text(), texts.AddHint.Text()),
+            getIds, setIds, save, () => Services.AppServices.ShowAccounts?.Invoke(),
+            perAccount is null ? null : row => perAccount(accounts.First(a => a.Id == row.Id)));
     }
 
     /// <summary>The sentences that name the account kind: whole sentences per widget, never a noun glued in.</summary>
