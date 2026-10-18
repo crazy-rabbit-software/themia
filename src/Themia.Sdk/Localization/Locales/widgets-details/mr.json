@@ -1,7 +1,5 @@
 {
   "$comment": "Machine-written translations: every string in this file needs native review.",
-  "details.catalog.ping.label": "पिंग आकडेवारी",
-  "details.catalog.ping.desc": "सरासरी, श्रेणी, जिटर आणि पॅकेट लॉस",
   "details.catalog.gpu.label": "GPU तपशील",
   "details.catalog.gpu.desc": "व्हिडिओ मेमरी, तापमान आणि क्लॉक",
   "details.units.gigahertz": "{value} GHz",
@@ -62,13 +60,6 @@
   "details.battery.manufacturer": "उत्पादक",
   "details.battery.leadAcid": "लेड अ‍ॅसिड",
   "details.battery.alkaline": "अल्कलाइन",
-  "details.ping.average": "सरासरी",
-  "details.ping.minimum": "किमान",
-  "details.ping.maximum": "कमाल",
-  "details.ping.jitter": "जिटर",
-  "details.ping.loss": "पॅकेट लॉस",
-  "details.ping.answered": "उत्तर मिळाले",
-  "details.ping.answeredOf": "{sent} पैकी {answered}",
   "details.gpu.caption": "{total} व्हिडिओ मेमरीपैकी",
   "details.gpu.sharedCaption": "{total} शेअर्ड मेमरीपैकी",
   "details.gpu.load": "लोड",
@@ -78,9 +69,6 @@
   "details.gpu.clock": "GPU क्लॉक",
   "details.gpu.memoryClock": "मेमरी क्लॉक",
   "details.gpu.none": "ग्राफिक्स अ‍ॅडॉप्टर नाही",
-  "details.settings.ping.window.label": "आकडेवारीची व्याप्ती",
-  "details.settings.ping.window.desc": "आकडे किती अलीकडील प्रोब समाविष्ट करतात",
-  "details.settings.ping.window.probes": "{count} प्रोब",
   "details.settings.gpu.adapter.label": "अ‍ॅडॉप्टर",
   "details.settings.gpu.adapter.desc": "ज्याचे आकडे दाखवले जातात तो ग्राफिक्स अ‍ॅडॉप्टर"
 }

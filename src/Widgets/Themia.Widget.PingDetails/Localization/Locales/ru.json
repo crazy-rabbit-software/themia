@@ -1,0 +1,14 @@
+{
+  "details.catalog.ping.desc": "Среднее, диапазон, джиттер и потери пакетов",
+  "details.ping.answered": "Ответы",
+  "details.ping.answeredOf": "{answered} из {sent}",
+  "details.ping.average": "Среднее",
+  "details.ping.jitter": "Джиттер",
+  "details.ping.loss": "Потери пакетов",
+  "details.ping.maximum": "Максимум",
+  "details.ping.minimum": "Минимум",
+  "details.catalog.ping.label": "Статистика пинга",
+  "details.settings.ping.window.desc": "Сколько последних проверок учитывают показатели",
+  "details.settings.ping.window.label": "Охват статистики",
+  "details.settings.ping.window.probes": "Проверок: {count}"
+}

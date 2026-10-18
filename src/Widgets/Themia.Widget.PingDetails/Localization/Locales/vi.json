@@ -1,0 +1,14 @@
+{
+  "details.catalog.ping.desc": "Trung bình, khoảng, độ dao động và mất gói",
+  "details.ping.answered": "Đã phản hồi",
+  "details.ping.answeredOf": "{answered} / {sent}",
+  "details.ping.average": "Trung bình",
+  "details.ping.jitter": "Độ dao động",
+  "details.ping.loss": "Mất gói",
+  "details.ping.maximum": "Tối đa",
+  "details.ping.minimum": "Tối thiểu",
+  "details.catalog.ping.label": "Thống kê ping",
+  "details.settings.ping.window.desc": "Số lần thăm dò gần nhất mà số liệu bao gồm",
+  "details.settings.ping.window.label": "Phạm vi thống kê",
+  "details.settings.ping.window.probes": "{count} lần ping"
+}

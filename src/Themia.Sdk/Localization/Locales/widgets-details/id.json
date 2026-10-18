@@ -1,7 +1,5 @@
 {
   "$comment": "Machine-written translations: every string in this file needs native review.",
-  "details.catalog.ping.label": "Statistik ping",
-  "details.catalog.ping.desc": "Rata-rata, rentang, jitter, dan paket hilang",
   "details.catalog.gpu.label": "Detail GPU",
   "details.catalog.gpu.desc": "Memori video, suhu, dan clock",
   "details.units.gigahertz": "{value} GHz",
@@ -62,13 +60,6 @@
   "details.battery.manufacturer": "Produsen",
   "details.battery.leadAcid": "Asam timbal",
   "details.battery.alkaline": "Alkalin",
-  "details.ping.average": "Rata-rata",
-  "details.ping.minimum": "Minimum",
-  "details.ping.maximum": "Maksimum",
-  "details.ping.jitter": "Jitter",
-  "details.ping.loss": "Paket hilang",
-  "details.ping.answered": "Dijawab",
-  "details.ping.answeredOf": "{answered} dari {sent}",
   "details.gpu.caption": "dari {total} memori video",
   "details.gpu.sharedCaption": "dari {total} memori bersama",
   "details.gpu.load": "Beban",
@@ -78,9 +69,6 @@
   "details.gpu.clock": "Clock GPU",
   "details.gpu.memoryClock": "Clock memori",
   "details.gpu.none": "Tidak ada adaptor grafis",
-  "details.settings.ping.window.label": "Cakupan statistik",
-  "details.settings.ping.window.desc": "Berapa banyak probe terbaru yang dicakup angka",
-  "details.settings.ping.window.probes": "{count} probe",
   "details.settings.gpu.adapter.label": "Adaptor",
   "details.settings.gpu.adapter.desc": "Adaptor grafis yang angkanya ditampilkan"
 }

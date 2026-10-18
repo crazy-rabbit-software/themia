@@ -1,7 +1,5 @@
 {
   "$comment": "Machine-written translations: every string in this file needs native review.",
-  "details.catalog.ping.label": "إحصاءات Ping",
-  "details.catalog.ping.desc": "المتوسط والنطاق والتذبذب وفقدان الحزم",
   "details.catalog.gpu.label": "تفاصيل GPU",
   "details.catalog.gpu.desc": "ذاكرة الفيديو ودرجة الحرارة والترددات",
   "details.units.gigahertz": "{value} GHz",
@@ -62,13 +60,6 @@
   "details.battery.manufacturer": "الشركة المصنعة",
   "details.battery.leadAcid": "رصاص حمضي",
   "details.battery.alkaline": "قلوية",
-  "details.ping.average": "المتوسط",
-  "details.ping.minimum": "الأدنى",
-  "details.ping.maximum": "الأقصى",
-  "details.ping.jitter": "التذبذب",
-  "details.ping.loss": "فقدان الحزم",
-  "details.ping.answered": "تمت الإجابة",
-  "details.ping.answeredOf": "{answered} من {sent}",
   "details.gpu.caption": "من {total} ذاكرة فيديو",
   "details.gpu.sharedCaption": "من {total} ذاكرة مشتركة",
   "details.gpu.load": "الحمل",
@@ -78,9 +69,6 @@
   "details.gpu.clock": "تردد GPU",
   "details.gpu.memoryClock": "تردد الذاكرة",
   "details.gpu.none": "لا يوجد محول رسومات",
-  "details.settings.ping.window.label": "نطاق الإحصاءات",
-  "details.settings.ping.window.desc": "عدد الفحوص الأخيرة التي تشملها الأرقام",
-  "details.settings.ping.window.probes": "{count} فحص",
   "details.settings.gpu.adapter.label": "المحول",
   "details.settings.gpu.adapter.desc": "محول الرسومات الذي تُعرض أرقامه"
 }

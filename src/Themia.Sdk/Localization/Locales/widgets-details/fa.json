@@ -1,7 +1,5 @@
 {
   "$comment": "Machine-written translations: every string in this file needs native review.",
-  "details.catalog.ping.label": "آمار پینگ",
-  "details.catalog.ping.desc": "میانگین، بازه، لرزش و اتلاف بسته",
   "details.catalog.gpu.label": "جزئیات GPU",
   "details.catalog.gpu.desc": "حافظه ویدیویی، دما و فرکانس‌ها",
   "details.units.gigahertz": "{value} GHz",
@@ -62,13 +60,6 @@
   "details.battery.manufacturer": "سازنده",
   "details.battery.leadAcid": "سرب-اسید",
   "details.battery.alkaline": "قلیایی",
-  "details.ping.average": "میانگین",
-  "details.ping.minimum": "کمینه",
-  "details.ping.maximum": "بیشینه",
-  "details.ping.jitter": "لرزش",
-  "details.ping.loss": "اتلاف بسته",
-  "details.ping.answered": "پاسخ‌داده‌شده",
-  "details.ping.answeredOf": "{answered} از {sent}",
   "details.gpu.caption": "از {total} حافظه ویدیویی",
   "details.gpu.sharedCaption": "از {total} حافظه مشترک",
   "details.gpu.load": "بار",
@@ -78,9 +69,6 @@
   "details.gpu.clock": "فرکانس GPU",
   "details.gpu.memoryClock": "فرکانس حافظه",
   "details.gpu.none": "آداپتور گرافیکی نیست",
-  "details.settings.ping.window.label": "دامنه آمار",
-  "details.settings.ping.window.desc": "ارقام چند کاوش اخیر را پوشش دهند",
-  "details.settings.ping.window.probes": "{count} کاوش",
   "details.settings.gpu.adapter.label": "آداپتور",
   "details.settings.gpu.adapter.desc": "آداپتور گرافیکی که ارقامش نمایش داده می‌شود"
 }

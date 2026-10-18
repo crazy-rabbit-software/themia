@@ -1,7 +1,5 @@
 {
   "$comment": "Machine-written translations: every string in this file needs native review.",
-  "details.catalog.ping.label": "پنگ کے اعداد و شمار",
-  "details.catalog.ping.desc": "اوسط، رینج، جٹر اور پیکٹ لاس",
   "details.catalog.gpu.label": "GPU کی تفصیلات",
   "details.catalog.gpu.desc": "ویڈیو میموری، درجہ حرارت اور کلاکس",
   "details.units.gigahertz": "{value} GHz",
@@ -62,13 +60,6 @@
   "details.battery.manufacturer": "صانع",
   "details.battery.leadAcid": "لیڈ ایسڈ",
   "details.battery.alkaline": "الکلائن",
-  "details.ping.average": "اوسط",
-  "details.ping.minimum": "کم از کم",
-  "details.ping.maximum": "زیادہ سے زیادہ",
-  "details.ping.jitter": "جٹر",
-  "details.ping.loss": "پیکٹ لاس",
-  "details.ping.answered": "جواب ملا",
-  "details.ping.answeredOf": "{sent} میں سے {answered}",
   "details.gpu.caption": "{total} ویڈیو میموری میں سے",
   "details.gpu.sharedCaption": "{total} مشترکہ میموری میں سے",
   "details.gpu.load": "لوڈ",
@@ -78,9 +69,6 @@
   "details.gpu.clock": "GPU کلاک",
   "details.gpu.memoryClock": "میموری کلاک",
   "details.gpu.none": "کوئی گرافکس اڈاپٹر نہیں",
-  "details.settings.ping.window.label": "اعداد و شمار کا دائرہ",
-  "details.settings.ping.window.desc": "اعداد کتنی حالیہ جانچوں پر مبنی ہوں",
-  "details.settings.ping.window.probes": "{count} جانچیں",
   "details.settings.gpu.adapter.label": "اڈاپٹر",
   "details.settings.gpu.adapter.desc": "وہ گرافکس اڈاپٹر جس کے اعداد دکھائے جاتے ہیں"
 }

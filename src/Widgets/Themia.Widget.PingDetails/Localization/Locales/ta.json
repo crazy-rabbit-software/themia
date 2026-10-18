@@ -1,0 +1,14 @@
+{
+  "details.catalog.ping.desc": "சராசரி, வரம்பு, ஜிட்டர் மற்றும் பாக்கெட் இழப்பு",
+  "details.ping.answered": "பதிலளித்தவை",
+  "details.ping.answeredOf": "{sent} இல் {answered}",
+  "details.ping.average": "சராசரி",
+  "details.ping.jitter": "ஜிட்டர்",
+  "details.ping.loss": "பாக்கெட் இழப்பு",
+  "details.ping.maximum": "அதிகபட்சம்",
+  "details.ping.minimum": "குறைந்தபட்சம்",
+  "details.catalog.ping.label": "பிங் புள்ளிவிவரங்கள்",
+  "details.settings.ping.window.desc": "எண்ணிக்கைகள் எத்தனை சமீபத்திய சோதனைகளை உள்ளடக்கும்",
+  "details.settings.ping.window.label": "புள்ளிவிவர வரம்பு",
+  "details.settings.ping.window.probes": "{count} சோதனைகள்"
+}

@@ -1,7 +1,5 @@
 {
   "$comment": "Machine-written translations: every string in this file needs native review.",
-  "details.catalog.ping.label": "Statystyki pingu",
-  "details.catalog.ping.desc": "Średnia, zakres, jitter i utrata pakietów",
   "details.catalog.gpu.label": "Szczegóły GPU",
   "details.catalog.gpu.desc": "Pamięć wideo, temperatura i taktowanie",
   "details.units.gigahertz": "{value} GHz",
@@ -62,13 +60,6 @@
   "details.battery.manufacturer": "Producent",
   "details.battery.leadAcid": "Kwasowo-ołowiowa",
   "details.battery.alkaline": "Alkaliczna",
-  "details.ping.average": "Średnia",
-  "details.ping.minimum": "Minimum",
-  "details.ping.maximum": "Maksimum",
-  "details.ping.jitter": "Jitter",
-  "details.ping.loss": "Utrata pakietów",
-  "details.ping.answered": "Odpowiedzi",
-  "details.ping.answeredOf": "{answered} z {sent}",
   "details.gpu.caption": "z {total} pamięci wideo",
   "details.gpu.sharedCaption": "z {total} pamięci współdzielonej",
   "details.gpu.load": "Obciążenie",
@@ -78,9 +69,6 @@
   "details.gpu.clock": "Taktowanie GPU",
   "details.gpu.memoryClock": "Taktowanie pamięci",
   "details.gpu.none": "Brak karty graficznej",
-  "details.settings.ping.window.label": "Statystyki z",
-  "details.settings.ping.window.desc": "Z ilu ostatnich prób liczone są wartości",
-  "details.settings.ping.window.probes": "{count} prób",
   "details.settings.gpu.adapter.label": "Karta",
   "details.settings.gpu.adapter.desc": "Karta graficzna, której dane są pokazywane"
 }

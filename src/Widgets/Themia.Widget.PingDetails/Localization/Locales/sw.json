@@ -1,0 +1,14 @@
+{
+  "details.catalog.ping.desc": "Wastani, masafa, mtetemo na upotevu wa pakiti",
+  "details.ping.answered": "Zilizojibiwa",
+  "details.ping.answeredOf": "{answered} kati ya {sent}",
+  "details.ping.average": "Wastani",
+  "details.ping.jitter": "Mtetemo",
+  "details.ping.loss": "Upotevu wa pakiti",
+  "details.ping.maximum": "Kiwango cha juu",
+  "details.ping.minimum": "Kiwango cha chini",
+  "details.catalog.ping.label": "Takwimu za ping",
+  "details.settings.ping.window.desc": "Majaribio mangapi ya hivi karibuni yanahusika katika takwimu",
+  "details.settings.ping.window.label": "Takwimu zinahusu",
+  "details.settings.ping.window.probes": "Majaribio {count}"
+}

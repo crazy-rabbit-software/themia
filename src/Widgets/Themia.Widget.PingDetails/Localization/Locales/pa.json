@@ -1,0 +1,14 @@
+{
+  "details.catalog.ping.desc": "ਔਸਤ, ਰੇਂਜ, ਜਿਟਰ ਅਤੇ ਪੈਕੇਟ ਨੁਕਸਾਨ",
+  "details.ping.answered": "ਜਵਾਬ ਮਿਲੇ",
+  "details.ping.answeredOf": "{sent} ਵਿੱਚੋਂ {answered}",
+  "details.ping.average": "ਔਸਤ",
+  "details.ping.jitter": "ਜਿਟਰ",
+  "details.ping.loss": "ਪੈਕੇਟ ਨੁਕਸਾਨ",
+  "details.ping.maximum": "ਵੱਧ ਤੋਂ ਵੱਧ",
+  "details.ping.minimum": "ਘੱਟੋ-ਘੱਟ",
+  "details.catalog.ping.label": "ਪਿੰਗ ਅੰਕੜੇ",
+  "details.settings.ping.window.desc": "ਅੰਕੜੇ ਕਿੰਨੀਆਂ ਹਾਲੀਆ ਜਾਂਚਾਂ ਨੂੰ ਕਵਰ ਕਰਦੇ ਹਨ",
+  "details.settings.ping.window.label": "ਅੰਕੜਿਆਂ ਦਾ ਘੇਰਾ",
+  "details.settings.ping.window.probes": "{count} ਜਾਂਚਾਂ"
+}

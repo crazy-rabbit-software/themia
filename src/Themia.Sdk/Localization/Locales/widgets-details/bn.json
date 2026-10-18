@@ -1,7 +1,5 @@
 {
   "$comment": "Machine-written translations: every string in this file needs native review.",
-  "details.catalog.ping.label": "পিং পরিসংখ্যান",
-  "details.catalog.ping.desc": "গড়, পরিসর, জিটার ও প্যাকেট লস",
   "details.catalog.gpu.label": "GPU-এর বিবরণ",
   "details.catalog.gpu.desc": "ভিডিও মেমরি, তাপমাত্রা ও ক্লক",
   "details.units.gigahertz": "{value} GHz",
@@ -62,13 +60,6 @@
   "details.battery.manufacturer": "নির্মাতা",
   "details.battery.leadAcid": "লেড অ্যাসিড",
   "details.battery.alkaline": "অ্যালকালাইন",
-  "details.ping.average": "গড়",
-  "details.ping.minimum": "সর্বনিম্ন",
-  "details.ping.maximum": "সর্বোচ্চ",
-  "details.ping.jitter": "জিটার",
-  "details.ping.loss": "প্যাকেট লস",
-  "details.ping.answered": "উত্তর পাওয়া",
-  "details.ping.answeredOf": "{sent}-এর মধ্যে {answered}",
   "details.gpu.caption": "{total} ভিডিও মেমরির মধ্যে",
   "details.gpu.sharedCaption": "{total} শেয়ার্ড মেমরির মধ্যে",
   "details.gpu.load": "লোড",
@@ -78,9 +69,6 @@
   "details.gpu.clock": "GPU ক্লক",
   "details.gpu.memoryClock": "মেমরি ক্লক",
   "details.gpu.none": "কোনো গ্রাফিক্স অ্যাডাপ্টার নেই",
-  "details.settings.ping.window.label": "পরিসংখ্যানের পরিধি",
-  "details.settings.ping.window.desc": "সাম্প্রতিক কতগুলো প্রোব হিসাবে ধরা হয়",
-  "details.settings.ping.window.probes": "{count}টি প্রোব",
   "details.settings.gpu.adapter.label": "অ্যাডাপ্টার",
   "details.settings.gpu.adapter.desc": "যে গ্রাফিক্স অ্যাডাপ্টারের তথ্য দেখানো হয়"
 }

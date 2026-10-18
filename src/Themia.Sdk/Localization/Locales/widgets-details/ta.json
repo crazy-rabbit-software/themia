@@ -1,7 +1,5 @@
 {
   "$comment": "Machine-written translations: every string in this file needs native review.",
-  "details.catalog.ping.label": "பிங் புள்ளிவிவரங்கள்",
-  "details.catalog.ping.desc": "சராசரி, வரம்பு, ஜிட்டர் மற்றும் பாக்கெட் இழப்பு",
   "details.catalog.gpu.label": "GPU விவரங்கள்",
   "details.catalog.gpu.desc": "வீடியோ நினைவகம், வெப்பநிலை மற்றும் கடிகாரங்கள்",
   "details.units.gigahertz": "{value} GHz",
@@ -62,13 +60,6 @@
   "details.battery.manufacturer": "உற்பத்தியாளர்",
   "details.battery.leadAcid": "லெட் ஆசிட்",
   "details.battery.alkaline": "ஆல்கலைன்",
-  "details.ping.average": "சராசரி",
-  "details.ping.minimum": "குறைந்தபட்சம்",
-  "details.ping.maximum": "அதிகபட்சம்",
-  "details.ping.jitter": "ஜிட்டர்",
-  "details.ping.loss": "பாக்கெட் இழப்பு",
-  "details.ping.answered": "பதிலளித்தவை",
-  "details.ping.answeredOf": "{sent} இல் {answered}",
   "details.gpu.caption": "{total} வீடியோ நினைவகத்தில்",
   "details.gpu.sharedCaption": "{total} பகிர்ந்த நினைவகத்தில்",
   "details.gpu.load": "சுமை",
@@ -78,9 +69,6 @@
   "details.gpu.clock": "GPU கடிகாரம்",
   "details.gpu.memoryClock": "நினைவகக் கடிகாரம்",
   "details.gpu.none": "கிராஃபிக்ஸ் அடாப்டர் இல்லை",
-  "details.settings.ping.window.label": "புள்ளிவிவர வரம்பு",
-  "details.settings.ping.window.desc": "எண்ணிக்கைகள் எத்தனை சமீபத்திய சோதனைகளை உள்ளடக்கும்",
-  "details.settings.ping.window.probes": "{count} சோதனைகள்",
   "details.settings.gpu.adapter.label": "அடாப்டர்",
   "details.settings.gpu.adapter.desc": "எண்ணிக்கைகள் காட்டப்படும் கிராஃபிக்ஸ் அடாப்டர்"
 }

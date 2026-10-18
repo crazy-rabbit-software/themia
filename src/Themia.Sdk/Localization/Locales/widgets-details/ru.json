@@ -1,7 +1,5 @@
 {
   "$comment": "Machine-written translations: every string in this file needs native review.",
-  "details.catalog.ping.label": "Статистика пинга",
-  "details.catalog.ping.desc": "Среднее, диапазон, джиттер и потери пакетов",
   "details.catalog.gpu.label": "Сведения о GPU",
   "details.catalog.gpu.desc": "Видеопамять, температура и частоты",
   "details.units.gigahertz": "{value} ГГц",
@@ -62,13 +60,6 @@
   "details.battery.manufacturer": "Производитель",
   "details.battery.leadAcid": "Свинцово-кислотная",
   "details.battery.alkaline": "Щелочная",
-  "details.ping.average": "Среднее",
-  "details.ping.minimum": "Минимум",
-  "details.ping.maximum": "Максимум",
-  "details.ping.jitter": "Джиттер",
-  "details.ping.loss": "Потери пакетов",
-  "details.ping.answered": "Ответы",
-  "details.ping.answeredOf": "{answered} из {sent}",
   "details.gpu.caption": "из {total} видеопамяти",
   "details.gpu.sharedCaption": "из {total} общей памяти",
   "details.gpu.load": "Нагрузка",
@@ -78,9 +69,6 @@
   "details.gpu.clock": "Частота GPU",
   "details.gpu.memoryClock": "Частота памяти",
   "details.gpu.none": "Нет графического адаптера",
-  "details.settings.ping.window.label": "Охват статистики",
-  "details.settings.ping.window.desc": "Сколько последних проверок учитывают показатели",
-  "details.settings.ping.window.probes": "Проверок: {count}",
   "details.settings.gpu.adapter.label": "Адаптер",
   "details.settings.gpu.adapter.desc": "Графический адаптер, показатели которого отображаются"
 }

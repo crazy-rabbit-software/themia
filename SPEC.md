@@ -4218,14 +4218,7 @@ details, Ping statistics, GPU details. One view, `DetailView` (+ `.List.cs`), on
   (Windows' estimate, else remaining over the drain) or full in (while charging), health (full over
   design), full-charge and design capacity, cycles, charge or discharge rate, voltage, temperature,
   chemistry and maker, each only when reported; a relative-capacity battery shows no Wh or W.
-- **[S-2426]** Ping statistics: the hub's prober for the host ([S-2508]), its window the prober's history, one at a time, a late
-  answer dropped, a host change clears the window ([S-106], [S-107]); host and name rows as the meter's.
-- **[S-2427]** `Window`: the latest 5–500 probes (offered 10, 30, 60, 120, 300; default 60).
-- **[S-2428]** Over the window: min, average and max of the answers; jitter the mean absolute difference
-  of consecutive answers (a loss between two does not break the pair; under two answers, none); loss the
-  unanswered share of every probe.
-- **[S-2429]** The latest latency is the hero, the status (Online, Offline, Checking…) the caption; the
-  header names the host. A lost probe dims the hero, its tooltip naming the host and the status.
+- [S-2426], [S-2427], [S-2428], [S-2429]: moved with the Ping details widget into its module's `SPEC.md` (`src/Widgets/Themia.Widget.PingDetails/`).
 - **[S-2430]** GPU details: video memory in use (`\GPU Adapter Memory(*)\Dedicated Usage`, summed per
   LUID) as the hero, "of 7.8 GB video memory" (DXGI); load ([S-434]), shared memory, temperature, fan, GPU
   clock, memory clock. An integrated adapter leads with its shared memory. From the GPU meter's own shared

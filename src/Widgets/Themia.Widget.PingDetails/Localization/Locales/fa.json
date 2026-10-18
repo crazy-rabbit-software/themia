@@ -1,0 +1,14 @@
+{
+  "details.catalog.ping.desc": "میانگین، بازه، لرزش و اتلاف بسته",
+  "details.ping.answered": "پاسخ‌داده‌شده",
+  "details.ping.answeredOf": "{answered} از {sent}",
+  "details.ping.average": "میانگین",
+  "details.ping.jitter": "لرزش",
+  "details.ping.loss": "اتلاف بسته",
+  "details.ping.maximum": "بیشینه",
+  "details.ping.minimum": "کمینه",
+  "details.catalog.ping.label": "آمار پینگ",
+  "details.settings.ping.window.desc": "ارقام چند کاوش اخیر را پوشش دهند",
+  "details.settings.ping.window.label": "دامنه آمار",
+  "details.settings.ping.window.probes": "{count} کاوش"
+}

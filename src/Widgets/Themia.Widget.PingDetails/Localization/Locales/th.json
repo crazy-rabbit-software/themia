@@ -1,0 +1,14 @@
+{
+  "details.catalog.ping.desc": "ค่าเฉลี่ย ช่วง ความผันผวน และการสูญหายของแพ็กเก็ต",
+  "details.ping.answered": "ตอบกลับแล้ว",
+  "details.ping.answeredOf": "{answered} จาก {sent}",
+  "details.ping.average": "ค่าเฉลี่ย",
+  "details.ping.jitter": "ความผันผวน",
+  "details.ping.loss": "การสูญหายของแพ็กเก็ต",
+  "details.ping.maximum": "สูงสุด",
+  "details.ping.minimum": "ต่ำสุด",
+  "details.catalog.ping.label": "สถิติ Ping",
+  "details.settings.ping.window.desc": "จำนวนการตรวจสอบล่าสุดที่ตัวเลขครอบคลุม",
+  "details.settings.ping.window.label": "สถิติครอบคลุม",
+  "details.settings.ping.window.probes": "{count} การตรวจสอบ"
+}

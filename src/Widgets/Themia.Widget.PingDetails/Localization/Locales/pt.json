@@ -1,0 +1,14 @@
+{
+  "details.catalog.ping.desc": "Média, intervalo, jitter e perda de pacotes",
+  "details.ping.answered": "Respondidos",
+  "details.ping.answeredOf": "{answered} de {sent}",
+  "details.ping.average": "Média",
+  "details.ping.jitter": "Jitter",
+  "details.ping.loss": "Perda de pacotes",
+  "details.ping.maximum": "Máximo",
+  "details.ping.minimum": "Mínimo",
+  "details.catalog.ping.label": "Estatísticas de ping",
+  "details.settings.ping.window.desc": "Quantas sondagens recentes os valores abrangem",
+  "details.settings.ping.window.label": "Estatísticas de",
+  "details.settings.ping.window.probes": "{count} sondagens"
+}

@@ -1,7 +1,5 @@
 {
   "$comment": "Machine-written translations: every string in this file needs native review.",
-  "details.catalog.ping.label": "Takwimu za ping",
-  "details.catalog.ping.desc": "Wastani, masafa, mtetemo na upotevu wa pakiti",
   "details.catalog.gpu.label": "Maelezo ya GPU",
   "details.catalog.gpu.desc": "Kumbukumbu ya video, halijoto na saa",
   "details.units.gigahertz": "{value} GHz",
@@ -62,13 +60,6 @@
   "details.battery.manufacturer": "Mtengenezaji",
   "details.battery.leadAcid": "Asidi ya risasi",
   "details.battery.alkaline": "Alkali",
-  "details.ping.average": "Wastani",
-  "details.ping.minimum": "Kiwango cha chini",
-  "details.ping.maximum": "Kiwango cha juu",
-  "details.ping.jitter": "Mtetemo",
-  "details.ping.loss": "Upotevu wa pakiti",
-  "details.ping.answered": "Zilizojibiwa",
-  "details.ping.answeredOf": "{answered} kati ya {sent}",
   "details.gpu.caption": "ya kumbukumbu ya video {total}",
   "details.gpu.sharedCaption": "ya kumbukumbu iliyoshirikiwa {total}",
   "details.gpu.load": "Mzigo",
@@ -78,9 +69,6 @@
   "details.gpu.clock": "Saa ya GPU",
   "details.gpu.memoryClock": "Saa ya kumbukumbu",
   "details.gpu.none": "Hakuna adapta ya michoro",
-  "details.settings.ping.window.label": "Takwimu zinahusu",
-  "details.settings.ping.window.desc": "Majaribio mangapi ya hivi karibuni yanahusika katika takwimu",
-  "details.settings.ping.window.probes": "Majaribio {count}",
   "details.settings.gpu.adapter.label": "Adapta",
   "details.settings.gpu.adapter.desc": "Adapta ya michoro ambayo takwimu zake zinaonyeshwa"
 }

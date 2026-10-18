@@ -1,7 +1,5 @@
 {
   "$comment": "Machine-written translations: every string in this file needs native review.",
-  "details.catalog.ping.label": "Ƙididdigar ping",
-  "details.catalog.ping.desc": "Matsakaici, kewayo, girgiza da asarar fakiti",
   "details.catalog.gpu.label": "Bayanan GPU",
   "details.catalog.gpu.desc": "Ƙwaƙwalwar bidiyo, zafi da agogo",
   "details.units.gigahertz": "{value} GHz",
@@ -62,13 +60,6 @@
   "details.battery.manufacturer": "Mai ƙerawa",
   "details.battery.leadAcid": "Darma da asid",
   "details.battery.alkaline": "Alkalin",
-  "details.ping.average": "Matsakaici",
-  "details.ping.minimum": "Mafi ƙaranci",
-  "details.ping.maximum": "Mafi girma",
-  "details.ping.jitter": "Girgiza",
-  "details.ping.loss": "Asarar fakiti",
-  "details.ping.answered": "An amsa",
-  "details.ping.answeredOf": "{answered} cikin {sent}",
   "details.gpu.caption": "na ƙwaƙwalwar bidiyo {total}",
   "details.gpu.sharedCaption": "na ƙwaƙwalwar da aka raba {total}",
   "details.gpu.load": "Nauyi",
@@ -78,9 +69,6 @@
   "details.gpu.clock": "Agogon GPU",
   "details.gpu.memoryClock": "Agogon ƙwaƙwalwa",
   "details.gpu.none": "Babu adaftar zane",
-  "details.settings.ping.window.label": "Ƙididdiga ta ƙunshi",
-  "details.settings.ping.window.desc": "Gwaje-gwaje nawa na kwanan nan alƙaluman suka ƙunsa",
-  "details.settings.ping.window.probes": "Gwaje-gwaje {count}",
   "details.settings.gpu.adapter.label": "Adafta",
   "details.settings.gpu.adapter.desc": "Adaftar zane da ake nuna alƙaluman sa"
 }

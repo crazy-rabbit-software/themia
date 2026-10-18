@@ -1,0 +1,14 @@
+{
+  "details.catalog.ping.desc": "सरासरी, श्रेणी, जिटर आणि पॅकेट लॉस",
+  "details.ping.answered": "उत्तर मिळाले",
+  "details.ping.answeredOf": "{sent} पैकी {answered}",
+  "details.ping.average": "सरासरी",
+  "details.ping.jitter": "जिटर",
+  "details.ping.loss": "पॅकेट लॉस",
+  "details.ping.maximum": "कमाल",
+  "details.ping.minimum": "किमान",
+  "details.catalog.ping.label": "पिंग आकडेवारी",
+  "details.settings.ping.window.desc": "आकडे किती अलीकडील प्रोब समाविष्ट करतात",
+  "details.settings.ping.window.label": "आकडेवारीची व्याप्ती",
+  "details.settings.ping.window.probes": "{count} प्रोब"
+}

@@ -1,7 +1,5 @@
 {
   "$comment": "Machine-written translations: every string in this file needs native review.",
-  "details.catalog.ping.label": "Ping 통계",
-  "details.catalog.ping.desc": "평균, 범위, 지터 및 패킷 손실",
   "details.catalog.gpu.label": "GPU 세부 정보",
   "details.catalog.gpu.desc": "비디오 메모리, 온도 및 클럭",
   "details.units.gigahertz": "{value}GHz",
@@ -62,13 +60,6 @@
   "details.battery.manufacturer": "제조업체",
   "details.battery.leadAcid": "납산",
   "details.battery.alkaline": "알칼라인",
-  "details.ping.average": "평균",
-  "details.ping.minimum": "최소",
-  "details.ping.maximum": "최대",
-  "details.ping.jitter": "지터",
-  "details.ping.loss": "패킷 손실",
-  "details.ping.answered": "응답",
-  "details.ping.answeredOf": "{sent}개 중 {answered}개",
   "details.gpu.caption": "/ 비디오 메모리 {total}",
   "details.gpu.sharedCaption": "/ 공유 메모리 {total}",
   "details.gpu.load": "부하",
@@ -78,9 +69,6 @@
   "details.gpu.clock": "GPU 클럭",
   "details.gpu.memoryClock": "메모리 클럭",
   "details.gpu.none": "그래픽 어댑터 없음",
-  "details.settings.ping.window.label": "통계 범위",
-  "details.settings.ping.window.desc": "수치에 포함할 최근 프로브 수",
-  "details.settings.ping.window.probes": "프로브 {count}개",
   "details.settings.gpu.adapter.label": "어댑터",
   "details.settings.gpu.adapter.desc": "수치를 표시할 그래픽 어댑터"
 }

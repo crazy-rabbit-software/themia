@@ -1,7 +1,5 @@
 {
   "$comment": "Machine-written translations: every string in this file needs native review.",
-  "details.catalog.ping.label": "పింగ్ గణాంకాలు",
-  "details.catalog.ping.desc": "సగటు, పరిధి, జిట్టర్ మరియు ప్యాకెట్ నష్టం",
   "details.catalog.gpu.label": "GPU వివరాలు",
   "details.catalog.gpu.desc": "వీడియో మెమరీ, ఉష్ణోగ్రత మరియు క్లాక్‌లు",
   "details.units.gigahertz": "{value} GHz",
@@ -62,13 +60,6 @@
   "details.battery.manufacturer": "తయారీదారు",
   "details.battery.leadAcid": "లెడ్ యాసిడ్",
   "details.battery.alkaline": "ఆల్కలైన్",
-  "details.ping.average": "సగటు",
-  "details.ping.minimum": "కనిష్ఠం",
-  "details.ping.maximum": "గరిష్ఠం",
-  "details.ping.jitter": "జిట్టర్",
-  "details.ping.loss": "ప్యాకెట్ నష్టం",
-  "details.ping.answered": "సమాధానమిచ్చినవి",
-  "details.ping.answeredOf": "{sent}లో {answered}",
   "details.gpu.caption": "{total} వీడియో మెమరీలో",
   "details.gpu.sharedCaption": "{total} షేర్డ్ మెమరీలో",
   "details.gpu.load": "లోడ్",
@@ -78,9 +69,6 @@
   "details.gpu.clock": "GPU క్లాక్",
   "details.gpu.memoryClock": "మెమరీ క్లాక్",
   "details.gpu.none": "గ్రాఫిక్స్ అడాప్టర్ లేదు",
-  "details.settings.ping.window.label": "గణాంకాల పరిధి",
-  "details.settings.ping.window.desc": "గణాంకాలు ఎన్ని ఇటీవలి ప్రోబ్‌లను కవర్ చేస్తాయి",
-  "details.settings.ping.window.probes": "{count} ప్రోబ్‌లు",
   "details.settings.gpu.adapter.label": "అడాప్టర్",
   "details.settings.gpu.adapter.desc": "గణాంకాలు చూపబడే గ్రాఫిక్స్ అడాప్టర్"
 }

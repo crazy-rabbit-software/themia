@@ -1,7 +1,5 @@
 {
   "$comment": "Machine-written translations: every string in this file needs native review.",
-  "details.catalog.ping.label": "Ping の統計",
-  "details.catalog.ping.desc": "平均、範囲、ジッター、パケット損失",
   "details.catalog.gpu.label": "GPU の詳細",
   "details.catalog.gpu.desc": "ビデオ メモリ、温度、クロック",
   "details.units.gigahertz": "{value} GHz",
@@ -62,13 +60,6 @@
   "details.battery.manufacturer": "製造元",
   "details.battery.leadAcid": "鉛蓄電池",
   "details.battery.alkaline": "アルカリ",
-  "details.ping.average": "平均",
-  "details.ping.minimum": "最小",
-  "details.ping.maximum": "最大",
-  "details.ping.jitter": "ジッター",
-  "details.ping.loss": "パケット損失",
-  "details.ping.answered": "応答",
-  "details.ping.answeredOf": "{sent} 中 {answered}",
   "details.gpu.caption": "ビデオ メモリ {total} 中",
   "details.gpu.sharedCaption": "共有メモリ {total} 中",
   "details.gpu.load": "負荷",
@@ -78,9 +69,6 @@
   "details.gpu.clock": "GPU クロック",
   "details.gpu.memoryClock": "メモリ クロック",
   "details.gpu.none": "グラフィックス アダプターがありません",
-  "details.settings.ping.window.label": "統計の対象",
-  "details.settings.ping.window.desc": "統計に含める最近のプローブ数",
-  "details.settings.ping.window.probes": "{count} 回",
   "details.settings.gpu.adapter.label": "アダプター",
   "details.settings.gpu.adapter.desc": "値を表示するグラフィックス アダプター"
 }

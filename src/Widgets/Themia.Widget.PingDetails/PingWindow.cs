@@ -1,4 +1,5 @@
 using Themia.Core.Localization;
+using Themia.Widget.PingDetails;
 
 namespace Themia.Core.Widgets;
 
@@ -126,12 +127,12 @@ public static class PingDetailRules
         {
             string Ms(double? value) => value is { } v ? Formatting.Latency(locale, v) : "--";
 
-            facts.Add(new(Strings.Get(locale, Str.Details_Ping_Average), Ms(stats.Average), stats.Average is not null));
-            facts.Add(new(Strings.Get(locale, Str.Details_Ping_Minimum), Ms(stats.Min), stats.Min is not null));
-            facts.Add(new(Strings.Get(locale, Str.Details_Ping_Maximum), Ms(stats.Max), stats.Max is not null));
-            facts.Add(new(Strings.Get(locale, Str.Details_Ping_Jitter), Ms(stats.Jitter), stats.Jitter is not null));
-            facts.Add(new(Strings.Get(locale, Str.Details_Ping_Loss), Formatting.Percent(locale, stats.Loss ?? 0)));
-            facts.Add(new(Strings.Get(locale, Str.Details_Ping_Answered), Strings.Format(locale, Str.Details_Ping_AnsweredOf,
+            facts.Add(new(PingDetailsStr.Details_Ping_Average.Text(locale), Ms(stats.Average), stats.Average is not null));
+            facts.Add(new(PingDetailsStr.Details_Ping_Minimum.Text(locale), Ms(stats.Min), stats.Min is not null));
+            facts.Add(new(PingDetailsStr.Details_Ping_Maximum.Text(locale), Ms(stats.Max), stats.Max is not null));
+            facts.Add(new(PingDetailsStr.Details_Ping_Jitter.Text(locale), Ms(stats.Jitter), stats.Jitter is not null));
+            facts.Add(new(PingDetailsStr.Details_Ping_Loss.Text(locale), Formatting.Percent(locale, stats.Loss ?? 0)));
+            facts.Add(new(PingDetailsStr.Details_Ping_Answered.Text(locale), PingDetailsStr.Details_Ping_AnsweredOf.Format(locale,
                 ("answered", LocaleFormat.Integer(locale, stats.Answered)), ("sent", LocaleFormat.Integer(locale, stats.Sent)))));
         }
 

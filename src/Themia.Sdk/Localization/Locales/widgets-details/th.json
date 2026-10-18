@@ -1,7 +1,5 @@
 {
   "$comment": "Machine-written translations: every string in this file needs native review.",
-  "details.catalog.ping.label": "สถิติ Ping",
-  "details.catalog.ping.desc": "ค่าเฉลี่ย ช่วง ความผันผวน และการสูญหายของแพ็กเก็ต",
   "details.catalog.gpu.label": "รายละเอียด GPU",
   "details.catalog.gpu.desc": "หน่วยความจำวิดีโอ อุณหภูมิ และสัญญาณนาฬิกา",
   "details.units.gigahertz": "{value} GHz",
@@ -62,13 +60,6 @@
   "details.battery.manufacturer": "ผู้ผลิต",
   "details.battery.leadAcid": "ตะกั่วกรด",
   "details.battery.alkaline": "อัลคาไลน์",
-  "details.ping.average": "ค่าเฉลี่ย",
-  "details.ping.minimum": "ต่ำสุด",
-  "details.ping.maximum": "สูงสุด",
-  "details.ping.jitter": "ความผันผวน",
-  "details.ping.loss": "การสูญหายของแพ็กเก็ต",
-  "details.ping.answered": "ตอบกลับแล้ว",
-  "details.ping.answeredOf": "{answered} จาก {sent}",
   "details.gpu.caption": "จากหน่วยความจำวิดีโอ {total}",
   "details.gpu.sharedCaption": "จากหน่วยความจำที่ใช้ร่วมกัน {total}",
   "details.gpu.load": "โหลด",
@@ -78,9 +69,6 @@
   "details.gpu.clock": "สัญญาณนาฬิกา GPU",
   "details.gpu.memoryClock": "สัญญาณนาฬิกาหน่วยความจำ",
   "details.gpu.none": "ไม่มีอะแดปเตอร์กราฟิก",
-  "details.settings.ping.window.label": "สถิติครอบคลุม",
-  "details.settings.ping.window.desc": "จำนวนการตรวจสอบล่าสุดที่ตัวเลขครอบคลุม",
-  "details.settings.ping.window.probes": "{count} การตรวจสอบ",
   "details.settings.gpu.adapter.label": "อะแดปเตอร์",
   "details.settings.gpu.adapter.desc": "อะแดปเตอร์กราฟิกที่แสดงตัวเลข"
 }

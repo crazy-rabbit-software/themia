@@ -1,7 +1,5 @@
 {
   "$comment": "Machine-written translations: every string in this file needs native review.",
-  "details.catalog.ping.label": "Statistiche ping",
-  "details.catalog.ping.desc": "Media, intervallo, jitter e perdita di pacchetti",
   "details.catalog.gpu.label": "Dettagli GPU",
   "details.catalog.gpu.desc": "Memoria video, temperatura e frequenze",
   "details.units.gigahertz": "{value} GHz",
@@ -62,13 +60,6 @@
   "details.battery.manufacturer": "Produttore",
   "details.battery.leadAcid": "Piombo-acido",
   "details.battery.alkaline": "Alcalina",
-  "details.ping.average": "Media",
-  "details.ping.minimum": "Minimo",
-  "details.ping.maximum": "Massimo",
-  "details.ping.jitter": "Jitter",
-  "details.ping.loss": "Perdita di pacchetti",
-  "details.ping.answered": "Risposte",
-  "details.ping.answeredOf": "{answered} su {sent}",
   "details.gpu.caption": "di {total} di memoria video",
   "details.gpu.sharedCaption": "di {total} di memoria condivisa",
   "details.gpu.load": "Carico",
@@ -78,9 +69,6 @@
   "details.gpu.clock": "Frequenza GPU",
   "details.gpu.memoryClock": "Frequenza memoria",
   "details.gpu.none": "Nessuna scheda grafica",
-  "details.settings.ping.window.label": "Statistiche su",
-  "details.settings.ping.window.desc": "Quanti sondaggi recenti coprono i valori",
-  "details.settings.ping.window.probes": "{count} sondaggi",
   "details.settings.gpu.adapter.label": "Scheda",
   "details.settings.gpu.adapter.desc": "La scheda grafica di cui si mostrano i valori"
 }

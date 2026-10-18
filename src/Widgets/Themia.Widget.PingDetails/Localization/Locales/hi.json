@@ -1,0 +1,14 @@
+{
+  "details.catalog.ping.desc": "औसत, सीमा, जिटर और पैकेट हानि",
+  "details.ping.answered": "उत्तर मिले",
+  "details.ping.answeredOf": "{sent} में से {answered}",
+  "details.ping.average": "औसत",
+  "details.ping.jitter": "जिटर",
+  "details.ping.loss": "पैकेट हानि",
+  "details.ping.maximum": "अधिकतम",
+  "details.ping.minimum": "न्यूनतम",
+  "details.catalog.ping.label": "पिंग आँकड़े",
+  "details.settings.ping.window.desc": "आँकड़े कितनी हाल की जाँचों पर आधारित हों",
+  "details.settings.ping.window.label": "आँकड़ों का दायरा",
+  "details.settings.ping.window.probes": "{count} जाँचें"
+}

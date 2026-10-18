@@ -23,7 +23,7 @@ internal sealed class PingDetailPart : DetailPart
     private SeriesInterest? _series;
     private IDetailHost? _host;
 
-    public override WidgetId Kind => PingDetailsConfig.Descriptor.Id;
+    public override WidgetId Kind => new WidgetId("pingDetails");
 
     public override double HeroCharacters => PingDetailRules.HeroCharacters;
 

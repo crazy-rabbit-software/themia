@@ -1,0 +1,14 @@
+{
+  "details.catalog.ping.desc": "المتوسط والنطاق والتذبذب وفقدان الحزم",
+  "details.ping.answered": "تمت الإجابة",
+  "details.ping.answeredOf": "{answered} من {sent}",
+  "details.ping.average": "المتوسط",
+  "details.ping.jitter": "التذبذب",
+  "details.ping.loss": "فقدان الحزم",
+  "details.ping.maximum": "الأقصى",
+  "details.ping.minimum": "الأدنى",
+  "details.catalog.ping.label": "إحصاءات Ping",
+  "details.settings.ping.window.desc": "عدد الفحوص الأخيرة التي تشملها الأرقام",
+  "details.settings.ping.window.label": "نطاق الإحصاءات",
+  "details.settings.ping.window.probes": "{count} فحص"
+}

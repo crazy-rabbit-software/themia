@@ -1,0 +1,14 @@
+{
+  "details.catalog.ping.desc": "સરેરાશ, શ્રેણી, જિટર અને પૅકેટ લૉસ",
+  "details.ping.answered": "જવાબ મળ્યો",
+  "details.ping.answeredOf": "{sent} માંથી {answered}",
+  "details.ping.average": "સરેરાશ",
+  "details.ping.jitter": "જિટર",
+  "details.ping.loss": "પૅકેટ લૉસ",
+  "details.ping.maximum": "મહત્તમ",
+  "details.ping.minimum": "ન્યૂનતમ",
+  "details.catalog.ping.label": "પિંગ આંકડા",
+  "details.settings.ping.window.desc": "આંકડા કેટલી તાજેતરની પ્રોબને આવરી લે છે",
+  "details.settings.ping.window.label": "આંકડાનો વ્યાપ",
+  "details.settings.ping.window.probes": "{count} પ્રોબ"
+}

@@ -1,7 +1,5 @@
 {
   "$comment": "Machine-written translations: every string in this file needs native review.",
-  "details.catalog.ping.label": "Mga istatistika ng ping",
-  "details.catalog.ping.desc": "Average, saklaw, jitter at packet loss",
   "details.catalog.gpu.label": "Mga detalye ng GPU",
   "details.catalog.gpu.desc": "Video memory, temperatura at mga clock",
   "details.units.gigahertz": "{value} GHz",
@@ -62,13 +60,6 @@
   "details.battery.manufacturer": "Gumawa",
   "details.battery.leadAcid": "Lead acid",
   "details.battery.alkaline": "Alkaline",
-  "details.ping.average": "Average",
-  "details.ping.minimum": "Pinakamababa",
-  "details.ping.maximum": "Pinakamataas",
-  "details.ping.jitter": "Jitter",
-  "details.ping.loss": "Nawalang packet",
-  "details.ping.answered": "Sinagot",
-  "details.ping.answeredOf": "{answered} sa {sent}",
   "details.gpu.caption": "sa {total} video memory",
   "details.gpu.sharedCaption": "sa {total} na pinagsasaluhang memory",
   "details.gpu.load": "Karga",
@@ -78,9 +69,6 @@
   "details.gpu.clock": "Clock ng GPU",
   "details.gpu.memoryClock": "Clock ng memory",
   "details.gpu.none": "Walang graphics adapter",
-  "details.settings.ping.window.label": "Saklaw ng istatistika",
-  "details.settings.ping.window.desc": "Ilang kamakailang probe ang saklaw ng mga numero",
-  "details.settings.ping.window.probes": "{count} probe",
   "details.settings.gpu.adapter.label": "Adapter",
   "details.settings.gpu.adapter.desc": "Ang graphics adapter na ipinapakita ang mga numero"
 }

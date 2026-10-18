@@ -1,7 +1,5 @@
 {
   "$comment": "Machine-written translations: every string in this file needs native review.",
-  "details.catalog.ping.label": "Statistiques de ping",
-  "details.catalog.ping.desc": "Moyenne, plage, gigue et perte de paquets",
   "details.catalog.gpu.label": "Détails du GPU",
   "details.catalog.gpu.desc": "Mémoire vidéo, température et fréquences",
   "details.units.gigahertz": "{value} GHz",
@@ -62,13 +60,6 @@
   "details.battery.manufacturer": "Fabricant",
   "details.battery.leadAcid": "Plomb-acide",
   "details.battery.alkaline": "Alcaline",
-  "details.ping.average": "Moyenne",
-  "details.ping.minimum": "Minimum",
-  "details.ping.maximum": "Maximum",
-  "details.ping.jitter": "Gigue",
-  "details.ping.loss": "Perte de paquets",
-  "details.ping.answered": "Réponses",
-  "details.ping.answeredOf": "{answered} sur {sent}",
   "details.gpu.caption": "sur {total} de mémoire vidéo",
   "details.gpu.sharedCaption": "sur {total} de mémoire partagée",
   "details.gpu.load": "Charge",
@@ -78,9 +69,6 @@
   "details.gpu.clock": "Fréquence GPU",
   "details.gpu.memoryClock": "Fréquence mémoire",
   "details.gpu.none": "Aucune carte graphique",
-  "details.settings.ping.window.label": "Statistiques sur",
-  "details.settings.ping.window.desc": "Le nombre de sondes récentes prises en compte",
-  "details.settings.ping.window.probes": "{count} sondes",
   "details.settings.gpu.adapter.label": "Carte",
   "details.settings.gpu.adapter.desc": "La carte graphique dont les valeurs sont affichées"
 }

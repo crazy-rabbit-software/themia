@@ -1,7 +1,5 @@
 {
   "$comment": "Machine-written translations: every string in this file needs native review.",
-  "details.catalog.ping.label": "Ping istatistikleri",
-  "details.catalog.ping.desc": "Ortalama, aralık, değişkenlik ve paket kaybı",
   "details.catalog.gpu.label": "GPU ayrıntıları",
   "details.catalog.gpu.desc": "Video belleği, sıcaklık ve saat hızları",
   "details.units.gigahertz": "{value} GHz",
@@ -62,13 +60,6 @@
   "details.battery.manufacturer": "Üretici",
   "details.battery.leadAcid": "Kurşun asit",
   "details.battery.alkaline": "Alkalin",
-  "details.ping.average": "Ortalama",
-  "details.ping.minimum": "En düşük",
-  "details.ping.maximum": "En yüksek",
-  "details.ping.jitter": "Değişkenlik",
-  "details.ping.loss": "Paket kaybı",
-  "details.ping.answered": "Yanıtlanan",
-  "details.ping.answeredOf": "{sent} içinden {answered}",
   "details.gpu.caption": "{total} video belleğinden",
   "details.gpu.sharedCaption": "{total} paylaşılan bellekten",
   "details.gpu.load": "Yük",
@@ -78,9 +69,6 @@
   "details.gpu.clock": "GPU saat hızı",
   "details.gpu.memoryClock": "Bellek saat hızı",
   "details.gpu.none": "Grafik bağdaştırıcısı yok",
-  "details.settings.ping.window.label": "İstatistik kapsamı",
-  "details.settings.ping.window.desc": "Değerlerin kaç son yoklamayı kapsadığı",
-  "details.settings.ping.window.probes": "{count} yoklama",
   "details.settings.gpu.adapter.label": "Bağdaştırıcı",
   "details.settings.gpu.adapter.desc": "Değerleri gösterilen grafik bağdaştırıcısı"
 }

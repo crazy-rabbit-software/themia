@@ -1,7 +1,5 @@
 {
   "$comment": "Machine-written translations: every string in this file needs native review.",
-  "details.catalog.ping.label": "પિંગ આંકડા",
-  "details.catalog.ping.desc": "સરેરાશ, શ્રેણી, જિટર અને પૅકેટ લૉસ",
   "details.catalog.gpu.label": "GPU વિગતો",
   "details.catalog.gpu.desc": "વિડિયો મેમરી, તાપમાન અને ક્લૉક",
   "details.units.gigahertz": "{value} GHz",
@@ -62,13 +60,6 @@
   "details.battery.manufacturer": "ઉત્પાદક",
   "details.battery.leadAcid": "લેડ ઍસિડ",
   "details.battery.alkaline": "આલ્કલાઇન",
-  "details.ping.average": "સરેરાશ",
-  "details.ping.minimum": "ન્યૂનતમ",
-  "details.ping.maximum": "મહત્તમ",
-  "details.ping.jitter": "જિટર",
-  "details.ping.loss": "પૅકેટ લૉસ",
-  "details.ping.answered": "જવાબ મળ્યો",
-  "details.ping.answeredOf": "{sent} માંથી {answered}",
   "details.gpu.caption": "{total} વિડિયો મેમરીમાંથી",
   "details.gpu.sharedCaption": "{total} શેર કરેલી મેમરીમાંથી",
   "details.gpu.load": "લોડ",
@@ -78,9 +69,6 @@
   "details.gpu.clock": "GPU ક્લૉક",
   "details.gpu.memoryClock": "મેમરી ક્લૉક",
   "details.gpu.none": "કોઈ ગ્રાફિક્સ ઍડૅપ્ટર નથી",
-  "details.settings.ping.window.label": "આંકડાનો વ્યાપ",
-  "details.settings.ping.window.desc": "આંકડા કેટલી તાજેતરની પ્રોબને આવરી લે છે",
-  "details.settings.ping.window.probes": "{count} પ્રોબ",
   "details.settings.gpu.adapter.label": "ઍડૅપ્ટર",
   "details.settings.gpu.adapter.desc": "જે ગ્રાફિક્સ ઍડૅપ્ટરના આંકડા બતાવાય છે"
 }

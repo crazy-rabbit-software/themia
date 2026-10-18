@@ -1,0 +1,14 @@
+{
+  "details.catalog.ping.desc": "Ortalama, aralık, değişkenlik ve paket kaybı",
+  "details.ping.answered": "Yanıtlanan",
+  "details.ping.answeredOf": "{sent} içinden {answered}",
+  "details.ping.average": "Ortalama",
+  "details.ping.jitter": "Değişkenlik",
+  "details.ping.loss": "Paket kaybı",
+  "details.ping.maximum": "En yüksek",
+  "details.ping.minimum": "En düşük",
+  "details.catalog.ping.label": "Ping istatistikleri",
+  "details.settings.ping.window.desc": "Değerlerin kaç son yoklamayı kapsadığı",
+  "details.settings.ping.window.label": "İstatistik kapsamı",
+  "details.settings.ping.window.probes": "{count} yoklama"
+}

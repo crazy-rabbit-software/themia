@@ -1,7 +1,5 @@
 {
   "$comment": "Machine-written translations: every string in this file needs native review.",
-  "details.catalog.ping.label": "Estatísticas de ping",
-  "details.catalog.ping.desc": "Média, intervalo, jitter e perda de pacotes",
   "details.catalog.gpu.label": "Detalhes da GPU",
   "details.catalog.gpu.desc": "Memória de vídeo, temperatura e clocks",
   "details.units.gigahertz": "{value} GHz",
@@ -62,13 +60,6 @@
   "details.battery.manufacturer": "Fabricante",
   "details.battery.leadAcid": "Chumbo-ácido",
   "details.battery.alkaline": "Alcalina",
-  "details.ping.average": "Média",
-  "details.ping.minimum": "Mínimo",
-  "details.ping.maximum": "Máximo",
-  "details.ping.jitter": "Jitter",
-  "details.ping.loss": "Perda de pacotes",
-  "details.ping.answered": "Respondidos",
-  "details.ping.answeredOf": "{answered} de {sent}",
   "details.gpu.caption": "de {total} de memória de vídeo",
   "details.gpu.sharedCaption": "de {total} de memória compartilhada",
   "details.gpu.load": "Carga",
@@ -78,9 +69,6 @@
   "details.gpu.clock": "Clock da GPU",
   "details.gpu.memoryClock": "Clock da memória",
   "details.gpu.none": "Nenhum adaptador gráfico",
-  "details.settings.ping.window.label": "Estatísticas de",
-  "details.settings.ping.window.desc": "Quantas sondagens recentes os valores abrangem",
-  "details.settings.ping.window.probes": "{count} sondagens",
   "details.settings.gpu.adapter.label": "Adaptador",
   "details.settings.gpu.adapter.desc": "O adaptador gráfico cujos dados são mostrados"
 }

@@ -1,7 +1,5 @@
 {
   "$comment": "Machine-written translations: every string in this file needs native review.",
-  "details.catalog.ping.label": "Thống kê ping",
-  "details.catalog.ping.desc": "Trung bình, khoảng, độ dao động và mất gói",
   "details.catalog.gpu.label": "Chi tiết GPU",
   "details.catalog.gpu.desc": "Bộ nhớ video, nhiệt độ và xung nhịp",
   "details.units.gigahertz": "{value} GHz",
@@ -62,13 +60,6 @@
   "details.battery.manufacturer": "Nhà sản xuất",
   "details.battery.leadAcid": "Axit chì",
   "details.battery.alkaline": "Kiềm",
-  "details.ping.average": "Trung bình",
-  "details.ping.minimum": "Tối thiểu",
-  "details.ping.maximum": "Tối đa",
-  "details.ping.jitter": "Độ dao động",
-  "details.ping.loss": "Mất gói",
-  "details.ping.answered": "Đã phản hồi",
-  "details.ping.answeredOf": "{answered} / {sent}",
   "details.gpu.caption": "trên {total} bộ nhớ video",
   "details.gpu.sharedCaption": "trên {total} bộ nhớ dùng chung",
   "details.gpu.load": "Tải",
@@ -78,9 +69,6 @@
   "details.gpu.clock": "Xung nhịp GPU",
   "details.gpu.memoryClock": "Xung nhịp bộ nhớ",
   "details.gpu.none": "Không có bộ điều hợp đồ họa",
-  "details.settings.ping.window.label": "Phạm vi thống kê",
-  "details.settings.ping.window.desc": "Số lần thăm dò gần nhất mà số liệu bao gồm",
-  "details.settings.ping.window.probes": "{count} lần ping",
   "details.settings.gpu.adapter.label": "Bộ điều hợp",
   "details.settings.gpu.adapter.desc": "Bộ điều hợp đồ họa có số liệu được hiển thị"
 }

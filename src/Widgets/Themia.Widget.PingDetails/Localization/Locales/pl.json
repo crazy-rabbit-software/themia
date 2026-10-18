@@ -1,0 +1,14 @@
+{
+  "details.catalog.ping.desc": "Średnia, zakres, jitter i utrata pakietów",
+  "details.ping.answered": "Odpowiedzi",
+  "details.ping.answeredOf": "{answered} z {sent}",
+  "details.ping.average": "Średnia",
+  "details.ping.jitter": "Jitter",
+  "details.ping.loss": "Utrata pakietów",
+  "details.ping.maximum": "Maksimum",
+  "details.ping.minimum": "Minimum",
+  "details.catalog.ping.label": "Statystyki pingu",
+  "details.settings.ping.window.desc": "Z ilu ostatnich prób liczone są wartości",
+  "details.settings.ping.window.label": "Statystyki z",
+  "details.settings.ping.window.probes": "{count} prób"
+}

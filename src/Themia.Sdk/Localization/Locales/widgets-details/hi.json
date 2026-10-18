@@ -1,7 +1,5 @@
 {
   "$comment": "Machine-written translations: every string in this file needs native review.",
-  "details.catalog.ping.label": "पिंग आँकड़े",
-  "details.catalog.ping.desc": "औसत, सीमा, जिटर और पैकेट हानि",
   "details.catalog.gpu.label": "GPU विवरण",
   "details.catalog.gpu.desc": "वीडियो मेमोरी, तापमान और क्लॉक",
   "details.units.gigahertz": "{value} GHz",
@@ -62,13 +60,6 @@
   "details.battery.manufacturer": "निर्माता",
   "details.battery.leadAcid": "लेड एसिड",
   "details.battery.alkaline": "एल्कलाइन",
-  "details.ping.average": "औसत",
-  "details.ping.minimum": "न्यूनतम",
-  "details.ping.maximum": "अधिकतम",
-  "details.ping.jitter": "जिटर",
-  "details.ping.loss": "पैकेट हानि",
-  "details.ping.answered": "उत्तर मिले",
-  "details.ping.answeredOf": "{sent} में से {answered}",
   "details.gpu.caption": "{total} वीडियो मेमोरी में से",
   "details.gpu.sharedCaption": "{total} साझा मेमोरी में से",
   "details.gpu.load": "लोड",
@@ -78,9 +69,6 @@
   "details.gpu.clock": "GPU क्लॉक",
   "details.gpu.memoryClock": "मेमोरी क्लॉक",
   "details.gpu.none": "कोई ग्राफ़िक्स एडेप्टर नहीं",
-  "details.settings.ping.window.label": "आँकड़ों का दायरा",
-  "details.settings.ping.window.desc": "आँकड़े कितनी हाल की जाँचों पर आधारित हों",
-  "details.settings.ping.window.probes": "{count} जाँचें",
   "details.settings.gpu.adapter.label": "एडेप्टर",
   "details.settings.gpu.adapter.desc": "वह ग्राफ़िक्स एडेप्टर जिसके आँकड़े दिखाए जाते हैं"
 }

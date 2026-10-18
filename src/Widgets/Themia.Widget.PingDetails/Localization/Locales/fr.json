@@ -1,0 +1,14 @@
+{
+  "details.catalog.ping.desc": "Moyenne, plage, gigue et perte de paquets",
+  "details.ping.answered": "Réponses",
+  "details.ping.answeredOf": "{answered} sur {sent}",
+  "details.ping.average": "Moyenne",
+  "details.ping.jitter": "Gigue",
+  "details.ping.loss": "Perte de paquets",
+  "details.ping.maximum": "Maximum",
+  "details.ping.minimum": "Minimum",
+  "details.catalog.ping.label": "Statistiques de ping",
+  "details.settings.ping.window.desc": "Le nombre de sondes récentes prises en compte",
+  "details.settings.ping.window.label": "Statistiques sur",
+  "details.settings.ping.window.probes": "{count} sondes"
+}

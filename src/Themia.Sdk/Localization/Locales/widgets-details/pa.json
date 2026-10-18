@@ -1,7 +1,5 @@
 {
   "$comment": "Machine-written translations: every string in this file needs native review.",
-  "details.catalog.ping.label": "ਪਿੰਗ ਅੰਕੜੇ",
-  "details.catalog.ping.desc": "ਔਸਤ, ਰੇਂਜ, ਜਿਟਰ ਅਤੇ ਪੈਕੇਟ ਨੁਕਸਾਨ",
   "details.catalog.gpu.label": "GPU ਵੇਰਵੇ",
   "details.catalog.gpu.desc": "ਵੀਡੀਓ ਮੈਮੋਰੀ, ਤਾਪਮਾਨ ਅਤੇ ਕਲੌਕ",
   "details.units.gigahertz": "{value} GHz",
@@ -62,13 +60,6 @@
   "details.battery.manufacturer": "ਨਿਰਮਾਤਾ",
   "details.battery.leadAcid": "ਲੈੱਡ ਐਸਿਡ",
   "details.battery.alkaline": "ਐਲਕਲਾਈਨ",
-  "details.ping.average": "ਔਸਤ",
-  "details.ping.minimum": "ਘੱਟੋ-ਘੱਟ",
-  "details.ping.maximum": "ਵੱਧ ਤੋਂ ਵੱਧ",
-  "details.ping.jitter": "ਜਿਟਰ",
-  "details.ping.loss": "ਪੈਕੇਟ ਨੁਕਸਾਨ",
-  "details.ping.answered": "ਜਵਾਬ ਮਿਲੇ",
-  "details.ping.answeredOf": "{sent} ਵਿੱਚੋਂ {answered}",
   "details.gpu.caption": "{total} ਵੀਡੀਓ ਮੈਮੋਰੀ ਵਿੱਚੋਂ",
   "details.gpu.sharedCaption": "{total} ਸਾਂਝੀ ਮੈਮੋਰੀ ਵਿੱਚੋਂ",
   "details.gpu.load": "ਲੋਡ",
@@ -78,9 +69,6 @@
   "details.gpu.clock": "GPU ਕਲੌਕ",
   "details.gpu.memoryClock": "ਮੈਮੋਰੀ ਕਲੌਕ",
   "details.gpu.none": "ਕੋਈ ਗ੍ਰਾਫ਼ਿਕਸ ਅਡੈਪਟਰ ਨਹੀਂ",
-  "details.settings.ping.window.label": "ਅੰਕੜਿਆਂ ਦਾ ਘੇਰਾ",
-  "details.settings.ping.window.desc": "ਅੰਕੜੇ ਕਿੰਨੀਆਂ ਹਾਲੀਆ ਜਾਂਚਾਂ ਨੂੰ ਕਵਰ ਕਰਦੇ ਹਨ",
-  "details.settings.ping.window.probes": "{count} ਜਾਂਚਾਂ",
   "details.settings.gpu.adapter.label": "ਅਡੈਪਟਰ",
   "details.settings.gpu.adapter.desc": "ਉਹ ਗ੍ਰਾਫ਼ਿਕਸ ਅਡੈਪਟਰ ਜਿਸਦੇ ਅੰਕੜੇ ਦਿਖਾਏ ਜਾਂਦੇ ਹਨ"
 }

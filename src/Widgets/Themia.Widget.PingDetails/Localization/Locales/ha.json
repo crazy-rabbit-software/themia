@@ -1,0 +1,14 @@
+{
+  "details.catalog.ping.desc": "Matsakaici, kewayo, girgiza da asarar fakiti",
+  "details.ping.answered": "An amsa",
+  "details.ping.answeredOf": "{answered} cikin {sent}",
+  "details.ping.average": "Matsakaici",
+  "details.ping.jitter": "Girgiza",
+  "details.ping.loss": "Asarar fakiti",
+  "details.ping.maximum": "Mafi girma",
+  "details.ping.minimum": "Mafi ƙaranci",
+  "details.catalog.ping.label": "Ƙididdigar ping",
+  "details.settings.ping.window.desc": "Gwaje-gwaje nawa na kwanan nan alƙaluman suka ƙunsa",
+  "details.settings.ping.window.label": "Ƙididdiga ta ƙunshi",
+  "details.settings.ping.window.probes": "Gwaje-gwaje {count}"
+}
