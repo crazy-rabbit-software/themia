@@ -63,7 +63,6 @@
   "widgetsA.catalog.tasks.label": "Tareas",
   "widgetsA.catalog.videoStream.description": "Una cámara en directo: MJPEG, instantánea, MP4 o HLS",
   "widgetsA.catalog.videoStream.label": "Transmisión de vídeo",
-  "widgetsA.catalog.volume.description": "Volumen principal y silencio",
   "widgetsA.clipboard.characters": {
     "one": "{count} carácter",
     "other": "{count} caracteres"

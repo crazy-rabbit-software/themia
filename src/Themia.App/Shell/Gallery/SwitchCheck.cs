@@ -453,7 +453,7 @@ internal static class SwitchCheck
             (ShortcutsConfig.Descriptor.Id, new FracRect(0.28, 0.22, 0.18, 0.16)),
             (NotesConfig.Descriptor.Id, new FracRect(0.48, 0.22, 0.22, 0.30)),
             (MusicConfig.Descriptor.Id, new FracRect(0.72, 0.04, 0.24, 0.18)),
-            (VolumeConfig.Descriptor.Id, new FracRect(0.72, 0.24, 0.24, 0.16)),
+            (new WidgetId("volume"), new FracRect(0.72, 0.24, 0.24, 0.16)),
         ];
 
         foreach (var (kind, rect) in layout)

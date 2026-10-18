@@ -1,0 +1,13 @@
+{
+  "widget.volume.label": "व्हॉल्यूम",
+  "widgetsA.catalog.volume.description": "मुख्य आउटपुट पातळी आणि म्यूट",
+  "widgetsC.volume.defaultNotChanged": "डीफॉल्ट आउटपुट बदलले नाही",
+  "widgetsC.volume.followDefault": "डीफॉल्ट आउटपुट फॉलो करा",
+  "widgetsC.volume.noDevice": "आउटपुट डिव्हाइस नाही",
+  "widgetsC.volume.notConnected": "{device} कनेक्ट केलेले नाही",
+  "widgetsC.volume.settings.allow.desc": "ही टाइल सिस्टम व्हॉल्यूम बदलू शकेल",
+  "widgetsC.volume.settings.allow.label": "बदलांना परवानगी द्या",
+  "widgetsC.volume.settings.behaviour": "वर्तन",
+  "widgetsC.volume.settings.keysNote": "टाइलवर क्लिक करा, मग बाण की किंवा + आणि − वापरा; M म्यूट करते.",
+  "widgetsC.volume.unavailable": "ध्वनी उपलब्ध नाही"
+}

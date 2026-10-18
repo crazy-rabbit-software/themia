@@ -1,0 +1,13 @@
+{
+  "widget.volume.label": "볼륨",
+  "widgetsA.catalog.volume.description": "마스터 출력 수준 및 음소거",
+  "widgetsC.volume.defaultNotChanged": "기본 출력이 변경되지 않았습니다",
+  "widgetsC.volume.followDefault": "기본 출력 따르기",
+  "widgetsC.volume.noDevice": "출력 장치 없음",
+  "widgetsC.volume.notConnected": "{device}이(가) 연결되어 있지 않습니다",
+  "widgetsC.volume.settings.allow.desc": "이 타일에서 시스템 볼륨을 조절할 수 있게 합니다",
+  "widgetsC.volume.settings.allow.label": "변경 허용",
+  "widgetsC.volume.settings.behaviour": "동작",
+  "widgetsC.volume.settings.keysNote": "타일을 클릭한 다음 화살표 키 또는 + 및 −를 사용하세요. M으로 음소거합니다.",
+  "widgetsC.volume.unavailable": "소리를 사용할 수 없습니다"
+}

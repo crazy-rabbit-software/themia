@@ -1,0 +1,13 @@
+{
+  "widget.volume.label": "ভলিউম",
+  "widgetsA.catalog.volume.description": "মূল আউটপুট লেভেল ও মিউট",
+  "widgetsC.volume.defaultNotChanged": "ডিফল্ট আউটপুট বদলানো হয়নি",
+  "widgetsC.volume.followDefault": "ডিফল্ট আউটপুট অনুসরণ করুন",
+  "widgetsC.volume.noDevice": "কোনো আউটপুট ডিভাইস নেই",
+  "widgetsC.volume.notConnected": "{device} সংযুক্ত নয়",
+  "widgetsC.volume.settings.allow.desc": "এই টাইলকে সিস্টেম ভলিউম বদলাতে দিন",
+  "widgetsC.volume.settings.allow.label": "পরিবর্তনের অনুমতি দিন",
+  "widgetsC.volume.settings.behaviour": "আচরণ",
+  "widgetsC.volume.settings.keysNote": "টাইলে ক্লিক করুন, তারপর অ্যারো কী বা + ও − ব্যবহার করুন; M মিউট করে।",
+  "widgetsC.volume.unavailable": "শব্দ উপলব্ধ নয়"
+}

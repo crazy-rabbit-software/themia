@@ -1,0 +1,13 @@
+{
+  "widget.volume.label": "వాల్యూమ్",
+  "widgetsA.catalog.volume.description": "మాస్టర్ అవుట్‌పుట్ స్థాయి మరియు మ్యూట్",
+  "widgetsC.volume.defaultNotChanged": "డిఫాల్ట్ అవుట్‌పుట్ మార్చబడలేదు",
+  "widgetsC.volume.followDefault": "డిఫాల్ట్ అవుట్‌పుట్‌ను అనుసరించు",
+  "widgetsC.volume.noDevice": "అవుట్‌పుట్ పరికరం లేదు",
+  "widgetsC.volume.notConnected": "{device} కనెక్ట్ చేయబడలేదు",
+  "widgetsC.volume.settings.allow.desc": "సిస్టమ్ వాల్యూమ్‌ను మార్చడానికి ఈ టైల్‌ను అనుమతించు",
+  "widgetsC.volume.settings.allow.label": "మార్పులను అనుమతించు",
+  "widgetsC.volume.settings.behaviour": "ప్రవర్తన",
+  "widgetsC.volume.settings.keysNote": "టైల్‌పై క్లిక్ చేయండి, ఆపై బాణం కీలు లేదా + మరియు − ఉపయోగించండి; M మ్యూట్ చేస్తుంది.",
+  "widgetsC.volume.unavailable": "ధ్వని అందుబాటులో లేదు"
+}

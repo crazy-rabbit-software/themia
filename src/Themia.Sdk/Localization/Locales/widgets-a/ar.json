@@ -67,7 +67,6 @@
   "widgetsA.catalog.tasks.label": "المهام",
   "widgetsA.catalog.videoStream.description": "كاميرا مباشرة: MJPEG أو لقطة أو MP4 أو HLS",
   "widgetsA.catalog.videoStream.label": "بث الفيديو",
-  "widgetsA.catalog.volume.description": "مستوى الإخراج الرئيسي وكتم الصوت",
   "widgetsA.clipboard.characters": {
     "zero": "{count} حرف",
     "one": "{count} حرف",

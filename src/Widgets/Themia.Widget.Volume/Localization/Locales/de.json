@@ -1,0 +1,13 @@
+{
+  "widget.volume.label": "Lautstärke",
+  "widgetsA.catalog.volume.description": "Hauptlautstärke und Stummschaltung",
+  "widgetsC.volume.defaultNotChanged": "Standardausgabe nicht geändert",
+  "widgetsC.volume.followDefault": "Standardausgabe folgen",
+  "widgetsC.volume.noDevice": "Kein Ausgabegerät",
+  "widgetsC.volume.notConnected": "{device} ist nicht verbunden",
+  "widgetsC.volume.settings.allow.desc": "Diese Kachel darf die Systemlautstärke ändern",
+  "widgetsC.volume.settings.allow.label": "Änderungen zulassen",
+  "widgetsC.volume.settings.behaviour": "Verhalten",
+  "widgetsC.volume.settings.keysNote": "Kachel anklicken, dann Pfeiltasten oder + und −; M schaltet stumm.",
+  "widgetsC.volume.unavailable": "Sound ist nicht verfügbar"
+}

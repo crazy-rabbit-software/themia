@@ -1,0 +1,13 @@
+{
+  "widget.volume.label": "ระดับเสียง",
+  "widgetsA.catalog.volume.description": "ระดับเสียงเอาต์พุตหลักและการปิดเสียง",
+  "widgetsC.volume.defaultNotChanged": "ไม่ได้เปลี่ยนเอาต์พุตเริ่มต้น",
+  "widgetsC.volume.followDefault": "ตามเอาต์พุตเริ่มต้น",
+  "widgetsC.volume.noDevice": "ไม่มีอุปกรณ์เอาต์พุต",
+  "widgetsC.volume.notConnected": "{device} ไม่ได้เชื่อมต่อ",
+  "widgetsC.volume.settings.allow.desc": "ให้ไทล์นี้ปรับระดับเสียงของระบบ",
+  "widgetsC.volume.settings.allow.label": "อนุญาตการเปลี่ยนแปลง",
+  "widgetsC.volume.settings.behaviour": "ลักษณะการทำงาน",
+  "widgetsC.volume.settings.keysNote": "คลิกไทล์ แล้วใช้ปุ่มลูกศรหรือ + และ − M ปิดเสียง",
+  "widgetsC.volume.unavailable": "เสียงไม่พร้อมใช้งาน"
+}

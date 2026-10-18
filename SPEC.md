@@ -4702,11 +4702,7 @@ log into `Log`). Not done here: the original's pre-release gate on the Google si
 - **[S-1233]** Previews never write (sliders, buttons, keys and device picks are inert); they read
   the machine.
 - **[S-1234]** Stepping lands on the whole-percent grid and clamps (`AudioRules.Step`).
-- **[S-2730]** The volume tile is the slider and nothing else, at every size (user decision): a
-  speaker button at the slider's start (glyph by level, crossed out when muted; click mutes, tooltip
-  Mute/Unmute) and the 0..100 slider. No percentage, no level meter, no device name. The card header
-  follows the shared header rules. Settings: output device and "Allow changes"; read-only greys the
-  controls rather than hiding them. Unavailable/missing device shows the empty state.
+- [S-2730]: moved with the Volume widget into its module's `SPEC.md` (`src/Widgets/Themia.Widget.Volume/`).
 - **[S-2731]** The slider lies along the tile (`VolumeRules.Axis`): horizontal, centred vertically
   between side insets, on every shape but a column; a Tall area ([S-660]) stands it up, full
   height, with the speaker button under it. Growing a tile only lengthens the slider ([S-666]).

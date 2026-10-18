@@ -1,0 +1,13 @@
+{
+  "widget.volume.label": "Volume",
+  "widgetsA.catalog.volume.description": "Volume principale e disattivazione audio",
+  "widgetsC.volume.defaultNotChanged": "Output predefinito non modificato",
+  "widgetsC.volume.followDefault": "Segui l'output predefinito",
+  "widgetsC.volume.noDevice": "Nessun dispositivo di output",
+  "widgetsC.volume.notConnected": "{device} non è connesso",
+  "widgetsC.volume.settings.allow.desc": "Consenti a questo riquadro di modificare il volume di sistema",
+  "widgetsC.volume.settings.allow.label": "Consenti modifiche",
+  "widgetsC.volume.settings.behaviour": "Comportamento",
+  "widgetsC.volume.settings.keysNote": "Fai clic sul riquadro, poi frecce o + e −; M silenzia.",
+  "widgetsC.volume.unavailable": "L'audio non è disponibile"
+}

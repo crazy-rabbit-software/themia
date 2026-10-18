@@ -1,0 +1,13 @@
+{
+  "widget.volume.label": "Volume",
+  "widgetsA.catalog.volume.description": "Volume principal e silenciar",
+  "widgetsC.volume.defaultNotChanged": "A saída padrão não foi alterada",
+  "widgetsC.volume.followDefault": "Seguir a saída padrão",
+  "widgetsC.volume.noDevice": "Nenhum dispositivo de saída",
+  "widgetsC.volume.notConnected": "{device} não está conectado",
+  "widgetsC.volume.settings.allow.desc": "Permitir que este bloco altere o volume do sistema",
+  "widgetsC.volume.settings.allow.label": "Permitir alterações",
+  "widgetsC.volume.settings.behaviour": "Comportamento",
+  "widgetsC.volume.settings.keysNote": "Clique no mosaico e use as setas ou + e −; M silencia.",
+  "widgetsC.volume.unavailable": "O som não está disponível"
+}

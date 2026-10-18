@@ -1,0 +1,13 @@
+{
+  "widget.volume.label": "Głośność",
+  "widgetsA.catalog.volume.description": "Głośność główna i wyciszenie",
+  "widgetsC.volume.defaultNotChanged": "Nie zmieniono domyślnego wyjścia",
+  "widgetsC.volume.followDefault": "Używaj domyślnego wyjścia",
+  "widgetsC.volume.noDevice": "Brak urządzenia wyjściowego",
+  "widgetsC.volume.notConnected": "Urządzenie {device} nie jest podłączone",
+  "widgetsC.volume.settings.allow.desc": "Pozwól temu kafelkowi zmieniać głośność systemu",
+  "widgetsC.volume.settings.allow.label": "Zezwalaj na zmiany",
+  "widgetsC.volume.settings.behaviour": "Zachowanie",
+  "widgetsC.volume.settings.keysNote": "Kliknij kafelek, potem strzałki lub + i −; M wycisza.",
+  "widgetsC.volume.unavailable": "Dźwięk jest niedostępny"
+}

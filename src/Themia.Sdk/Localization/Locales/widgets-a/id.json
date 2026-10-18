@@ -62,7 +62,6 @@
   "widgetsA.catalog.tasks.label": "Tugas",
   "widgetsA.catalog.videoStream.description": "Kamera langsung: MJPEG, snapshot, MP4, atau HLS",
   "widgetsA.catalog.videoStream.label": "Streaming video",
-  "widgetsA.catalog.volume.description": "Level output utama dan bisukan",
   "widgetsA.clipboard.characters": {
     "other": "{count} karakter"
   },

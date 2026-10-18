@@ -1,0 +1,13 @@
+{
+  "widget.volume.label": "Volume",
+  "widgetsA.catalog.volume.description": "Hoofdvolume en dempen",
+  "widgetsC.volume.defaultNotChanged": "Standaarduitvoer niet gewijzigd",
+  "widgetsC.volume.followDefault": "Standaarduitvoer volgen",
+  "widgetsC.volume.noDevice": "Geen uitvoerapparaat",
+  "widgetsC.volume.notConnected": "{device} is niet verbonden",
+  "widgetsC.volume.settings.allow.desc": "Deze tegel het systeemvolume laten wijzigen",
+  "widgetsC.volume.settings.allow.label": "Wijzigingen toestaan",
+  "widgetsC.volume.settings.behaviour": "Gedrag",
+  "widgetsC.volume.settings.keysNote": "Klik op de tegel en gebruik de pijltoetsen of + en −; M dempt.",
+  "widgetsC.volume.unavailable": "Geluid is niet beschikbaar"
+}

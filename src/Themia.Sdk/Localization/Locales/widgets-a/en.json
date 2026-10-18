@@ -62,7 +62,6 @@
   "widgetsA.catalog.tasks.label": "Tasks",
   "widgetsA.catalog.videoStream.description": "A live camera: MJPEG, a snapshot, MP4 or HLS",
   "widgetsA.catalog.videoStream.label": "Video stream",
-  "widgetsA.catalog.volume.description": "Master output level and mute",
   "widgetsA.clipboard.characters": {
     "one": "{count} character",
     "other": "{count} characters"

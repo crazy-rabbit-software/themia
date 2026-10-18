@@ -63,7 +63,6 @@
   "widgetsA.catalog.tasks.label": "பணிகள்",
   "widgetsA.catalog.videoStream.description": "நேரலை கேமரா: MJPEG, ஸ்னாப்ஷாட், MP4 அல்லது HLS",
   "widgetsA.catalog.videoStream.label": "வீடியோ ஸ்ட்ரீம்",
-  "widgetsA.catalog.volume.description": "முதன்மை வெளியீட்டு நிலையும் ஒலியடக்கமும்",
   "widgetsA.clipboard.characters": {
     "one": "{count} எழுத்து",
     "other": "{count} எழுத்துகள்"

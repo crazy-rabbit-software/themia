@@ -1,0 +1,13 @@
+{
+  "widget.volume.label": "Volume",
+  "widgetsA.catalog.volume.description": "Master output level at mute",
+  "widgetsC.volume.defaultNotChanged": "Hindi nabago ang default na output",
+  "widgetsC.volume.followDefault": "Sundin ang default na output",
+  "widgetsC.volume.noDevice": "Walang output device",
+  "widgetsC.volume.notConnected": "Hindi nakakonekta ang {device}",
+  "widgetsC.volume.settings.allow.desc": "Hayaang baguhin ng tile na ito ang system volume",
+  "widgetsC.volume.settings.allow.label": "Payagan ang mga pagbabago",
+  "widgetsC.volume.settings.behaviour": "Pagkilos",
+  "widgetsC.volume.settings.keysNote": "I-click ang tile, tapos gamitin ang mga arrow key o + at −; nagmu-mute ang M.",
+  "widgetsC.volume.unavailable": "Hindi available ang tunog"
+}

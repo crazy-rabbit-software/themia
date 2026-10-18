@@ -63,7 +63,6 @@
   "widgetsA.catalog.tasks.label": "Görevler",
   "widgetsA.catalog.videoStream.description": "Canlı kamera: MJPEG, anlık görüntü, MP4 veya HLS",
   "widgetsA.catalog.videoStream.label": "Video akışı",
-  "widgetsA.catalog.volume.description": "Ana çıkış düzeyi ve sessiz",
   "widgetsA.clipboard.characters": {
     "one": "{count} karakter",
     "other": "{count} karakter"

@@ -1,0 +1,13 @@
+{
+  "widget.volume.label": "音量",
+  "widgetsA.catalog.volume.description": "主音量和靜音",
+  "widgetsC.volume.defaultNotChanged": "未變更預設輸出",
+  "widgetsC.volume.followDefault": "跟隨預設輸出",
+  "widgetsC.volume.noDevice": "沒有輸出裝置",
+  "widgetsC.volume.notConnected": "{device} 未連接",
+  "widgetsC.volume.settings.allow.desc": "允許此磚調整系統音量",
+  "widgetsC.volume.settings.allow.label": "允許變更",
+  "widgetsC.volume.settings.behaviour": "行為",
+  "widgetsC.volume.settings.keysNote": "按一下磚，然後使用方向鍵或 + 和 − 調整；M 靜音。",
+  "widgetsC.volume.unavailable": "無法使用音效"
+}

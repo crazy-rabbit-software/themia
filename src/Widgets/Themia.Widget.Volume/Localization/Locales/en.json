@@ -1,0 +1,14 @@
+{
+  "$englishOnly": [],
+  "widget.volume.label": "Volume",
+  "widgetsA.catalog.volume.description": "Master output level and mute",
+  "widgetsC.volume.defaultNotChanged": "Default output not changed",
+  "widgetsC.volume.followDefault": "Follow the default output",
+  "widgetsC.volume.noDevice": "No output device",
+  "widgetsC.volume.notConnected": "{device} is not connected",
+  "widgetsC.volume.settings.allow.desc": "Let this tile move the system volume",
+  "widgetsC.volume.settings.allow.label": "Allow changes",
+  "widgetsC.volume.settings.behaviour": "Behaviour",
+  "widgetsC.volume.settings.keysNote": "Click the tile, then use the arrow keys or + and −; M mutes.",
+  "widgetsC.volume.unavailable": "Sound is not available"
+}

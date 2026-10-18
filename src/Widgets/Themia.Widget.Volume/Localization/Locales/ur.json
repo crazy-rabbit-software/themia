@@ -1,0 +1,13 @@
+{
+  "widget.volume.label": "والیوم",
+  "widgetsA.catalog.volume.description": "ماسٹر آؤٹ پٹ لیول اور خاموش",
+  "widgetsC.volume.defaultNotChanged": "ڈیفالٹ آؤٹ پٹ تبدیل نہیں ہوا",
+  "widgetsC.volume.followDefault": "ڈیفالٹ آؤٹ پٹ کی پیروی کریں",
+  "widgetsC.volume.noDevice": "کوئی آؤٹ پٹ آلہ نہیں",
+  "widgetsC.volume.notConnected": "{device} منسلک نہیں ہے",
+  "widgetsC.volume.settings.allow.desc": "یہ ٹائل سسٹم والیوم بدل سکے",
+  "widgetsC.volume.settings.allow.label": "تبدیلیوں کی اجازت دیں",
+  "widgetsC.volume.settings.behaviour": "رویہ",
+  "widgetsC.volume.settings.keysNote": "ٹائل پر کلک کریں، پھر تیر والی کلیدیں یا + اور − استعمال کریں؛ M خاموش کرتا ہے۔",
+  "widgetsC.volume.unavailable": "آواز دستیاب نہیں"
+}

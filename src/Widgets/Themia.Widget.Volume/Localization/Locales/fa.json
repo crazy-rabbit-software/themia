@@ -1,0 +1,13 @@
+{
+  "widget.volume.label": "میزان صدا",
+  "widgetsA.catalog.volume.description": "سطح خروجی اصلی و بی‌صدا",
+  "widgetsC.volume.defaultNotChanged": "خروجی پیش‌فرض تغییر نکرد",
+  "widgetsC.volume.followDefault": "پیروی از خروجی پیش‌فرض",
+  "widgetsC.volume.noDevice": "دستگاه خروجی نیست",
+  "widgetsC.volume.notConnected": "{device} متصل نیست",
+  "widgetsC.volume.settings.allow.desc": "اجازه دهید این کاشی میزان صدای سیستم را تغییر دهد",
+  "widgetsC.volume.settings.allow.label": "اجازه تغییر",
+  "widgetsC.volume.settings.behaviour": "رفتار",
+  "widgetsC.volume.settings.keysNote": "روی کاشی کلیک کنید، سپس از کلیدهای جهت یا + و − استفاده کنید؛ M بی‌صدا می‌کند.",
+  "widgetsC.volume.unavailable": "صدا در دسترس نیست"
+}

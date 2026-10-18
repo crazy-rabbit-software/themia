@@ -1,0 +1,13 @@
+{
+  "widget.volume.label": "مستوى الصوت",
+  "widgetsA.catalog.volume.description": "مستوى الإخراج الرئيسي وكتم الصوت",
+  "widgetsC.volume.defaultNotChanged": "لم يتغير الإخراج الافتراضي",
+  "widgetsC.volume.followDefault": "اتباع الإخراج الافتراضي",
+  "widgetsC.volume.noDevice": "لا يوجد جهاز إخراج",
+  "widgetsC.volume.notConnected": "{device} غير متصل",
+  "widgetsC.volume.settings.allow.desc": "السماح لهذه البطاقة بتغيير مستوى صوت النظام",
+  "widgetsC.volume.settings.allow.label": "السماح بالتغييرات",
+  "widgetsC.volume.settings.behaviour": "السلوك",
+  "widgetsC.volume.settings.keysNote": "انقر على البطاقة، ثم استخدم مفاتيح الأسهم أو + و−؛ ويكتم M الصوت.",
+  "widgetsC.volume.unavailable": "الصوت غير متاح"
+}

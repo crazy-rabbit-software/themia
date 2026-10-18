@@ -1,0 +1,13 @@
+{
+  "widget.volume.label": "Volume",
+  "widgetsA.catalog.volume.description": "Volume principal et sourdine",
+  "widgetsC.volume.defaultNotChanged": "Sortie par défaut inchangée",
+  "widgetsC.volume.followDefault": "Suivre la sortie par défaut",
+  "widgetsC.volume.noDevice": "Aucun périphérique de sortie",
+  "widgetsC.volume.notConnected": "{device} n’est pas connecté",
+  "widgetsC.volume.settings.allow.desc": "Permettre à cette vignette de modifier le volume du système",
+  "widgetsC.volume.settings.allow.label": "Autoriser les modifications",
+  "widgetsC.volume.settings.behaviour": "Comportement",
+  "widgetsC.volume.settings.keysNote": "Cliquez sur la tuile, puis flèches ou + et − ; M coupe le son.",
+  "widgetsC.volume.unavailable": "Le son n’est pas disponible"
+}

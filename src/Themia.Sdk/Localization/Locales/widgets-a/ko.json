@@ -62,7 +62,6 @@
   "widgetsA.catalog.tasks.label": "작업",
   "widgetsA.catalog.videoStream.description": "실시간 카메라: MJPEG, 스냅샷, MP4 또는 HLS",
   "widgetsA.catalog.videoStream.label": "비디오 스트림",
-  "widgetsA.catalog.volume.description": "마스터 출력 수준 및 음소거",
   "widgetsA.clipboard.characters": {
     "other": "{count}자"
   },

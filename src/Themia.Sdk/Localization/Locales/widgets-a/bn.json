@@ -63,7 +63,6 @@
   "widgetsA.catalog.tasks.label": "কাজ",
   "widgetsA.catalog.videoStream.description": "লাইভ ক্যামেরা: MJPEG, স্ন্যাপশট, MP4 বা HLS",
   "widgetsA.catalog.videoStream.label": "ভিডিও স্ট্রিম",
-  "widgetsA.catalog.volume.description": "মূল আউটপুট লেভেল ও মিউট",
   "widgetsA.clipboard.characters": {
     "one": "{count}টি অক্ষর",
     "other": "{count}টি অক্ষর"

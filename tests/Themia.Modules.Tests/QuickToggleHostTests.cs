@@ -79,6 +79,6 @@ public sealed class QuickToggleHostTests
     {
         Assert.Null(QuickToggleRules.ForKind(new WidgetId("shutdown")));
         Assert.Null(QuickToggleRules.ForKind(new WidgetId("bluetooth")));
-        Assert.Null(QuickToggleRules.ForKind(VolumeConfig.Descriptor.Id));
+        Assert.Null(QuickToggleRules.ForKind(new WidgetId("volume")));
     }
 }

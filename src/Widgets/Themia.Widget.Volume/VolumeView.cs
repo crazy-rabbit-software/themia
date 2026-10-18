@@ -11,6 +11,7 @@ using Themia.Core.Model;
 using Themia.Core.Widgets;
 using Themia.Sdk.WinUI;
 using Themia.Sdk;
+using Themia.Widget.Volume;
 
 namespace Themia.App.Widgets;
 
@@ -37,7 +38,7 @@ internal sealed partial class VolumeView : Grid, IWidgetView, IWidgetSizeAware, 
     private readonly FontIcon _muteIcon;
     private readonly Grid _band = new();
     private readonly StackPanel _empty;
-    private readonly TextBlock _emptyText = new() { Text = Str.WidgetsC_Volume_NoDevice.Text() };
+    private readonly TextBlock _emptyText = new() { Text = VolumeStr.WidgetsC_Volume_NoDevice.Text() };
 
     /// <summary>
     /// The exact delegate instances the slider and the tile were hooked with. <c>RemoveHandler</c>
@@ -114,7 +115,7 @@ internal sealed partial class VolumeView : Grid, IWidgetView, IWidgetSizeAware, 
         _band.Children.Add(_mute);
         _band.Children.Add(_slider);
 
-        var definition = ModuleCatalog.Of(VolumeConfig.Descriptor.Id);
+        var definition = ModuleCatalog.Of(new WidgetId("volume"));
         _empty = Fluent.EmptyState(definition.Glyph, _emptyText, out _);
         _empty.Visibility = Visibility.Collapsed;
 
@@ -157,7 +158,7 @@ internal sealed partial class VolumeView : Grid, IWidgetView, IWidgetSizeAware, 
     /// <inheritdoc />
     public IReadOnlyList<WidgetAction> ContextActions => _config.DeviceId is null
         ? []
-        : [new WidgetAction(Glyphs.Speakers, Str.WidgetsC_Volume_FollowDefault.Text(), () => PickDevice(null))];
+        : [new WidgetAction(Glyphs.Speakers, VolumeStr.WidgetsC_Volume_FollowDefault.Text(), () => PickDevice(null))];
 
     private void OnSnapshot(AudioSnapshot snapshot)
     {
@@ -261,9 +262,9 @@ internal sealed partial class VolumeView : Grid, IWidgetView, IWidgetSizeAware, 
         {
             _emptyText.Text = snapshot.Status switch
             {
-                AudioStatus.DeviceMissing => Str.WidgetsC_Volume_NotConnected.Format(("device", AudioRules.DeviceName(_config.DeviceId, snapshot.Devices, _config.DeviceName))),
-                AudioStatus.NoDevice => Str.WidgetsC_Volume_NoDevice.Text(),
-                _ => Str.WidgetsC_Volume_Unavailable.Text(),
+                AudioStatus.DeviceMissing => VolumeStr.WidgetsC_Volume_NotConnected.Format(("device", AudioRules.DeviceName(_config.DeviceId, snapshot.Devices, _config.DeviceName))),
+                AudioStatus.NoDevice => VolumeStr.WidgetsC_Volume_NoDevice.Text(),
+                _ => VolumeStr.WidgetsC_Volume_Unavailable.Text(),
             };
 
             _empty.Visibility = Visibility.Visible;
@@ -438,7 +439,7 @@ internal sealed partial class VolumeView : Grid, IWidgetView, IWidgetSizeAware, 
             if (after.Notice is { } notice)
             {
                 // [S-1616]/[S-880] Said once, as a notice: the widget is bound now, nothing to answer.
-                Themia.App.Services.Notices.Warning(Str.WidgetsC_Volume_DefaultNotChanged.Text(), notice);
+                Themia.App.Services.Notices.Warning(VolumeStr.WidgetsC_Volume_DefaultNotChanged.Text(), notice);
             }
         }
         catch (Exception ex)

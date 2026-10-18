@@ -63,7 +63,6 @@
   "widgetsA.catalog.tasks.label": "કાર્યો",
   "widgetsA.catalog.videoStream.description": "લાઇવ કૅમેરા: MJPEG, સ્નૅપશૉટ, MP4 અથવા HLS",
   "widgetsA.catalog.videoStream.label": "વિડિયો સ્ટ્રીમ",
-  "widgetsA.catalog.volume.description": "મુખ્ય આઉટપુટ સ્તર અને મ્યૂટ",
   "widgetsA.clipboard.characters": {
     "one": "{count} અક્ષર",
     "other": "{count} અક્ષરો"

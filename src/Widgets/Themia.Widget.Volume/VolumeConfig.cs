@@ -1,7 +1,6 @@
 using System.Text.Json.Serialization;
 using Themia.App.Shell;
 using Themia.Core.Localization;
-using Themia.Core.Storage;
 using Themia.Core.Widgets;
 using Themia.Sdk;
 
@@ -22,24 +21,6 @@ namespace Themia.Core.Model;
 /// </summary>
 public sealed class VolumeConfig : WidgetConfig
 {
-
-    /// <summary>[S-6902] This widget's descriptor: what the host knows of it without its UI.</summary>
-    public static WidgetDescriptor Descriptor { get; } = new()
-    {
-        Id = new("volume"),
-        ConfigType = typeof(VolumeConfig),
-        CreateDefault = () => new VolumeConfig(),
-        Json = WidgetConfigJsonContext.Default,
-        Keywords = ["sound", "audio", "speaker", "mute", "loudness"],
-        Label = Str.Widget_Volume_Label.Local(),
-        Description = Str.WidgetsA_Catalog_Volume_Description.Local(),
-        Glyph = Glyphs.Volume,
-        DefaultWidth = 200,
-        DefaultHeight = 150,
-        Traits = WidgetTraits.CanHaveHeader,
-        Add = new(AddFolderId.Media, 0, 2),
-    };
-
     /// <summary>[S-1221] The output device's endpoint id, or null to follow Windows' default output.</summary>
     public string? DeviceId { get; set; }
 

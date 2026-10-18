@@ -1,0 +1,13 @@
+{
+  "widget.volume.label": "Volume",
+  "widgetsA.catalog.volume.description": "Level output utama dan bisukan",
+  "widgetsC.volume.defaultNotChanged": "Output default tidak diubah",
+  "widgetsC.volume.followDefault": "Ikuti output default",
+  "widgetsC.volume.noDevice": "Tidak ada perangkat output",
+  "widgetsC.volume.notConnected": "{device} tidak terhubung",
+  "widgetsC.volume.settings.allow.desc": "Izinkan widget ini mengubah volume sistem",
+  "widgetsC.volume.settings.allow.label": "Izinkan perubahan",
+  "widgetsC.volume.settings.behaviour": "Perilaku",
+  "widgetsC.volume.settings.keysNote": "Klik widget, lalu gunakan tombol panah atau + dan −; M membisukan.",
+  "widgetsC.volume.unavailable": "Suara tidak tersedia"
+}

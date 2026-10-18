@@ -63,7 +63,6 @@
   "widgetsA.catalog.tasks.label": "ਕਾਰਜ",
   "widgetsA.catalog.videoStream.description": "ਇੱਕ ਲਾਈਵ ਕੈਮਰਾ: MJPEG, ਸਨੈਪਸ਼ਾਟ, MP4 ਜਾਂ HLS",
   "widgetsA.catalog.videoStream.label": "ਵੀਡੀਓ ਸਟ੍ਰੀਮ",
-  "widgetsA.catalog.volume.description": "ਮਾਸਟਰ ਆਉਟਪੁੱਟ ਪੱਧਰ ਅਤੇ ਮਿਊਟ",
   "widgetsA.clipboard.characters": {
     "one": "{count} ਅੱਖਰ",
     "other": "{count} ਅੱਖਰ"

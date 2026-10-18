@@ -6,6 +6,7 @@ using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
 using Themia.Sdk;
+using Themia.Widget.Volume;
 
 namespace Themia.App.Shell.Config;
 
@@ -17,15 +18,15 @@ namespace Themia.App.Shell.Config;
 /// is the point.
 /// </para>
 /// </summary>
-internal static partial class WidgetSettings
+internal static class VolumeSettings
 {
-    public static void Volume(List<FrameworkElement> rows, VolumeConfig config, Action save)
+    public static void Rows(List<FrameworkElement> rows, VolumeConfig config, Action save)
     {
         ArgumentNullException.ThrowIfNull(rows);
         ArgumentNullException.ThrowIfNull(config);
         ArgumentNullException.ThrowIfNull(save);
 
-        rows.Add(FluentLayout.Header(Str.Widget_Volume_Label.Text()));
+        rows.Add(FluentLayout.Header(VolumeStr.Widget_Volume_Label.Text()));
 
         rows.Add(AudioDeviceRow.Create(config.DeviceId, config.DeviceName, (id, name) =>
         {
@@ -35,15 +36,15 @@ internal static partial class WidgetSettings
         }));
 
         // [S-2730] Nothing to show or hide: the tile is the slider.
-        rows.Add(FluentLayout.Header(Str.WidgetsC_Volume_Settings_Behaviour.Text()));
+        rows.Add(FluentLayout.Header(VolumeStr.WidgetsC_Volume_Settings_Behaviour.Text()));
 
         // Named for what it does rather than "read-only": a desktop widget sits under the path of
         // every pointer on the screen, and somebody who wants a gauge and not a control should be
         // able to say so without losing the gauge.
-        rows.Add(FluentLayout.Row(Glyphs.Edit, Str.WidgetsC_Volume_Settings_Allow_Label.Text(),
-            Str.WidgetsC_Volume_Settings_Allow_Desc.Text(),
+        rows.Add(FluentLayout.Row(Glyphs.Edit, VolumeStr.WidgetsC_Volume_Settings_Allow_Label.Text(),
+            VolumeStr.WidgetsC_Volume_Settings_Allow_Desc.Text(),
             FluentLayout.Toggle(config.AllowControl, value => { config.AllowControl = value; save(); })));
 
-        rows.Add(FluentLayout.Note(Str.WidgetsC_Volume_Settings_KeysNote.Text()));
+        rows.Add(FluentLayout.Note(VolumeStr.WidgetsC_Volume_Settings_KeysNote.Text()));
     }
 }

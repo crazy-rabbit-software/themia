@@ -1,0 +1,13 @@
+{
+  "widget.volume.label": "ਆਵਾਜ਼",
+  "widgetsA.catalog.volume.description": "ਮਾਸਟਰ ਆਉਟਪੁੱਟ ਪੱਧਰ ਅਤੇ ਮਿਊਟ",
+  "widgetsC.volume.defaultNotChanged": "ਡਿਫ਼ੌਲਟ ਆਉਟਪੁੱਟ ਨਹੀਂ ਬਦਲਿਆ",
+  "widgetsC.volume.followDefault": "ਡਿਫ਼ੌਲਟ ਆਉਟਪੁੱਟ ਦੀ ਪਾਲਣਾ ਕਰੋ",
+  "widgetsC.volume.noDevice": "ਕੋਈ ਆਉਟਪੁੱਟ ਡਿਵਾਈਸ ਨਹੀਂ",
+  "widgetsC.volume.notConnected": "{device} ਕਨੈਕਟ ਨਹੀਂ ਹੈ",
+  "widgetsC.volume.settings.allow.desc": "ਇਸ ਟਾਈਲ ਨੂੰ ਸਿਸਟਮ ਆਵਾਜ਼ ਬਦਲਣ ਦਿਓ",
+  "widgetsC.volume.settings.allow.label": "ਤਬਦੀਲੀਆਂ ਦੀ ਇਜਾਜ਼ਤ ਦਿਓ",
+  "widgetsC.volume.settings.behaviour": "ਵਿਹਾਰ",
+  "widgetsC.volume.settings.keysNote": "ਟਾਈਲ ਉੱਤੇ ਕਲਿੱਕ ਕਰੋ, ਫਿਰ ਤੀਰ ਕੁੰਜੀਆਂ ਜਾਂ + ਅਤੇ − ਵਰਤੋ; M ਮਿਊਟ ਕਰਦਾ ਹੈ।",
+  "widgetsC.volume.unavailable": "ਧੁਨੀ ਉਪਲਬਧ ਨਹੀਂ ਹੈ"
+}

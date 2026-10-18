@@ -63,7 +63,6 @@
   "widgetsA.catalog.tasks.label": "Tarefas",
   "widgetsA.catalog.videoStream.description": "Uma câmera ao vivo: MJPEG, instantâneo, MP4 ou HLS",
   "widgetsA.catalog.videoStream.label": "Transmissão de vídeo",
-  "widgetsA.catalog.volume.description": "Volume principal e silenciar",
   "widgetsA.clipboard.characters": {
     "one": "{count} caractere",
     "other": "{count} caracteres"

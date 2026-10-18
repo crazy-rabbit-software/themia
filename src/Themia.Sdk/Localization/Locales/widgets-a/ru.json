@@ -65,7 +65,6 @@
   "widgetsA.catalog.tasks.label": "Задачи",
   "widgetsA.catalog.videoStream.description": "Камера в реальном времени: MJPEG, снимок, MP4 или HLS",
   "widgetsA.catalog.videoStream.label": "Видеопоток",
-  "widgetsA.catalog.volume.description": "Общий уровень громкости и выключение звука",
   "widgetsA.clipboard.characters": {
     "one": "{count} символ",
     "few": "{count} символа",
