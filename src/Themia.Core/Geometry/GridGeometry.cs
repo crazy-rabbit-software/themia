@@ -454,9 +454,3 @@ public static class GridGeometry
         return new PixelRect(cell.X + half, cell.Y + halfY, width, height);
     }
 }
-
-public readonly record struct PixelRect(double X, double Y, double Width, double Height)
-{
-    public static PixelRect FromEdges(double left, double top, double right, double bottom)
-        => new(left, top, right - left, bottom - top);
-}
