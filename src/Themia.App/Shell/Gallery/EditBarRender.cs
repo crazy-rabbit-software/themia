@@ -224,7 +224,7 @@ internal static class EditBarRender
             // [S-6544] Its own item text colour too: white figures on its dark flip cards in either theme.
             [new(new WidgetId("clock"), 500, 160, 280, 180, HeaderPlacement.Top, true, "Zürich", "flip", "#2A3248", 1.25, "#FFFFFF")],
             [new(new WidgetId("countdown"), 980, 160, 280, 180, HeaderPlacement.Top, true)],
-            [new(ShortcutsConfig.Descriptor.Id, 16, 72, 1248, 150, HeaderPlacement.Top, true)],
+            [new(new WidgetId("shortcuts"), 16, 72, 1248, 150, HeaderPlacement.Top, true)],
             [
                 new(new WidgetId("clock"), 300, 200, 220, 160, HeaderPlacement.Top, true),
                 new(new WidgetId("countdown"), 540, 240, 260, 180, HeaderPlacement.Bottom, true, Scale: 0.9),

@@ -1,17 +1,19 @@
 using Themia.Core.Geometry;
 using Themia.Core.Model;
 using Themia.Core.Storage;
+using Themia.Core.Tests;
 using Themia.Core.Widgets;
+using Themia.Sdk;
 using Xunit;
 
-namespace Themia.Core.Tests;
+namespace Themia.Modules.Tests;
 
 /// <summary>The item text colour, part of the item layer ([S-6540]..[S-6545]).</summary>
 public sealed class ItemTextTests
 {
     private static WidgetInstance Widget(string id, string text = "", FillChoice? items = null)
     {
-        var widget = WidgetInstance.Create(ShortcutsConfig.Descriptor.Id, new FracRect(0, 0, 0.1, 0.1));
+        var widget = WidgetInstance.Create(new WidgetId("shortcuts"), new FracRect(0, 0, 0.1, 0.1));
         widget.Id = id;
         widget.ItemTextColor = text;
         widget.ItemBackground = items ?? new FillChoice();

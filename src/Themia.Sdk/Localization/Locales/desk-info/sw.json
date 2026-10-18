@@ -6,6 +6,5 @@
   "meeting.joinTip": "Jiunge na mkutano wa mtandaoni",
   "meeting.nowEnds": "Sasa · unaisha {time}",
   "meeting.dayTime": "{day}, {time}",
-  "meeting.none": "Hakuna kinachokuja",
-  "recycleBin.emptyEllipsis": "Safisha Pipa la Kuchakata…"
+  "meeting.none": "Hakuna kinachokuja"
 }

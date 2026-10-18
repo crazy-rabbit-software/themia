@@ -9,6 +9,5 @@
   "widgetPrefs.updates.accounts": "Thư, lịch và tác vụ",
   "widgetPrefs.updates.everyHours": {
     "other": "Mỗi {count} giờ"
-  },
-  "widgetsC.shortcuts.settings.locations": "Vị trí Windows"
+  }
 }

@@ -1,19 +1,20 @@
-using System.Runtime.InteropServices;
 using System.Runtime.InteropServices.WindowsRuntime;
-using Microsoft.UI;
-using Microsoft.UI.Xaml;
+using System.Runtime.InteropServices;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Input;
-using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Media.Imaging;
-using Themia.App.Services;
+using Microsoft.UI.Xaml.Media;
+using Microsoft.UI.Xaml;
+using Microsoft.UI;
 using Themia.App.Services.Web;
+using Themia.App.Services;
 using Themia.App.Shell;
 using Themia.Core.Diagnostics;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
 using Themia.Sdk.WinUI;
+using Themia.Widget.Shortcuts;
 using Windows.Storage.Streams;
 
 namespace Themia.App.Widgets;
@@ -298,7 +299,7 @@ internal sealed partial class ShortcutsView
         var spacer = new Border { Width = plan.Icon + Fluent.Space3 };
         _columnHeader.Children.Add(spacer);
 
-        string[] titles = [Str.Folder_ColName.Text(), Str.WidgetsC_Shortcuts_Column_Target.Text(), Str.WidgetsC_Shortcuts_Column_Kind.Text()];
+        string[] titles = [Str.Folder_ColName.Text(), ShortcutsStr.WidgetsC_Shortcuts_Column_Target.Text(), ShortcutsStr.WidgetsC_Shortcuts_Column_Kind.Text()];
 
         for (var c = 1; c < _columnHeader.ColumnDefinitions.Count; c++)
         {
@@ -523,7 +524,7 @@ internal sealed partial class ShortcutsView
         {
             var name = NameOf(cell.Item);
             ToolTipService.SetToolTip(cell.Root, missing
-                ? Str.WidgetsC_Shortcuts_Tooltip_Missing.Format(("name", name), ("target", cell.Item.Target))
+                ? ShortcutsStr.WidgetsC_Shortcuts_Tooltip_Missing.Format(("name", name), ("target", cell.Item.Target))
                 : $"{name}\n{cell.Item.Target}");
         }
     }
@@ -712,8 +713,8 @@ internal sealed partial class ShortcutsView
     {
         LaunchKind.Web => Uri.TryCreate(target.Value, UriKind.Absolute, out var uri) ? uri.Host : target.Value,
         LaunchKind.LocalPath => Path.GetDirectoryName(target.Value.TrimEnd('\\')) ?? target.Value,
-        LaunchKind.ShellNamespace => Str.WidgetsC_Shortcuts_Kind_Location.Text(),
-        _ => Str.WidgetsC_Shortcuts_Kind_Refused.Text(),
+        LaunchKind.ShellNamespace => ShortcutsStr.WidgetsC_Shortcuts_Kind_Location.Text(),
+        _ => ShortcutsStr.WidgetsC_Shortcuts_Kind_Refused.Text(),
     };
 
     /// <summary>The glyph that stands for an item until its real icon arrives, or for good when it has none.</summary>

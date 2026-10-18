@@ -49,8 +49,6 @@
   "widgetsA.catalog.feed.label": "ফিড",
   "widgetsA.catalog.mail.description": "Outlook, Gmail বা যেকোনো মেইল সার্ভারের সাম্প্রতিক বার্তা",
   "widgetsA.catalog.mail.label": "মেইল",
-  "widgetsA.catalog.shortcuts.description": "হাতের কাছে রাখা লিঙ্ক, ফাইল ও ফোল্ডার",
-  "widgetsA.catalog.shortcuts.label": "শর্টকাট",
   "widgetsA.catalog.tasks.description": "Microsoft To Do, Google Tasks বা এই PC-র একটি তালিকা",
   "widgetsA.catalog.tasks.label": "কাজ",
   "widgetsA.clipboard.characters": {

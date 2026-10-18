@@ -11,6 +11,5 @@
   "widgetPrefs.updates.everyHours": {
     "one": "Every {count} hour",
     "other": "Every {count} hours"
-  },
-  "widgetsC.shortcuts.settings.locations": "Windows locations"
+  }
 }

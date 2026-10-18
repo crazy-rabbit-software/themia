@@ -6,6 +6,5 @@
   "meeting.joinTip": "ஆன்லைன் கூட்டத்தில் சேர்",
   "meeting.nowEnds": "இப்போது · {time} க்கு முடியும்",
   "meeting.dayTime": "{day}, {time}",
-  "meeting.none": "வரவிருப்பது எதுவும் இல்லை",
-  "recycleBin.emptyEllipsis": "மறுசுழற்சி தொட்டியைக் காலியாக்கு…"
+  "meeting.none": "வரவிருப்பது எதுவும் இல்லை"
 }

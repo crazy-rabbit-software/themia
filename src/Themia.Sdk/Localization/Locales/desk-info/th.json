@@ -6,6 +6,5 @@
   "meeting.joinTip": "เข้าร่วมการประชุมออนไลน์",
   "meeting.nowEnds": "ตอนนี้ · สิ้นสุด {time}",
   "meeting.dayTime": "{day} {time}",
-  "meeting.none": "ไม่มีรายการที่กำลังจะมาถึง",
-  "recycleBin.emptyEllipsis": "ล้างถังรีไซเคิล…"
+  "meeting.none": "ไม่มีรายการที่กำลังจะมาถึง"
 }

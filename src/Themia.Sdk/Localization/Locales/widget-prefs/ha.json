@@ -10,6 +10,5 @@
   "widgetPrefs.updates.everyHours": {
     "one": "Kowace awa {count}",
     "other": "Kowace awa {count}"
-  },
-  "widgetsC.shortcuts.settings.locations": "Wuraren Windows"
+  }
 }

@@ -10,6 +10,5 @@
   "widgetPrefs.updates.everyHours": {
     "one": "ہر {count} گھنٹے",
     "other": "ہر {count} گھنٹے"
-  },
-  "widgetsC.shortcuts.settings.locations": "Windows مقامات"
+  }
 }

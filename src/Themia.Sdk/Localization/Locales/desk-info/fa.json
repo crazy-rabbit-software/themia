@@ -6,6 +6,5 @@
   "meeting.joinTip": "پیوستن به جلسه آنلاین",
   "meeting.nowEnds": "اکنون · پایان {time}",
   "meeting.dayTime": "{day}، {time}",
-  "meeting.none": "چیزی در پیش نیست",
-  "recycleBin.emptyEllipsis": "خالی کردن سطل بازیافت…"
+  "meeting.none": "چیزی در پیش نیست"
 }

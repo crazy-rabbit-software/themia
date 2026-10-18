@@ -48,8 +48,6 @@
   "widgetsA.catalog.feed.label": "摘要",
   "widgetsA.catalog.mail.description": "來自 Outlook、Gmail 或任何郵件伺服器的最新郵件",
   "widgetsA.catalog.mail.label": "郵件",
-  "widgetsA.catalog.shortcuts.description": "隨手可用的連結、檔案和資料夾",
-  "widgetsA.catalog.shortcuts.label": "捷徑",
   "widgetsA.catalog.tasks.description": "Microsoft To Do、Google Tasks 或此電腦上的清單",
   "widgetsA.catalog.tasks.label": "工作",
   "widgetsA.clipboard.characters": {

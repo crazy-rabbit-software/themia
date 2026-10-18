@@ -6,6 +6,5 @@
   "meeting.joinTip": "ఆన్‌లైన్ సమావేశంలో చేరండి",
   "meeting.nowEnds": "ఇప్పుడు · {time}కి ముగుస్తుంది",
   "meeting.dayTime": "{day}, {time}",
-  "meeting.none": "రాబోయేవి ఏవీ లేవు",
-  "recycleBin.emptyEllipsis": "రీసైకిల్ బిన్‌ను ఖాళీ చేయి…"
+  "meeting.none": "రాబోయేవి ఏవీ లేవు"
 }

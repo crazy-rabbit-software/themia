@@ -5,6 +5,5 @@
   "meeting.joinTip": "Присоединиться к онлайн-встрече",
   "meeting.nowEnds": "Сейчас · до {time}",
   "meeting.dayTime": "{day}, {time}",
-  "meeting.none": "Ничего не запланировано",
-  "recycleBin.emptyEllipsis": "Очистить корзину…"
+  "meeting.none": "Ничего не запланировано"
 }

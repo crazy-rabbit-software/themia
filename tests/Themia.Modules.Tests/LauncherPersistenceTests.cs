@@ -1,9 +1,10 @@
 using Themia.Core.Model;
 using Themia.Core.Storage;
+using Themia.Core.Tests;
 using Themia.Core.Widgets;
 using Xunit;
 
-namespace Themia.Core.Tests;
+namespace Themia.Modules.Tests;
 
 /// <summary>
 /// The launcher widgets' settings, through the real persistence path.

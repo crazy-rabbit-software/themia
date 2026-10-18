@@ -9,6 +9,5 @@
   "widgetPrefs.updates.accounts": "อีเมล ปฏิทิน และงาน",
   "widgetPrefs.updates.everyHours": {
     "other": "ทุก {count} ชั่วโมง"
-  },
-  "widgetsC.shortcuts.settings.locations": "ตำแหน่งที่ตั้งของ Windows"
+  }
 }

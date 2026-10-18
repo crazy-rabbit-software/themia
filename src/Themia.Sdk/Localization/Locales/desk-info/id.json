@@ -5,6 +5,5 @@
   "meeting.joinTip": "Gabung ke rapat online",
   "meeting.nowEnds": "Sekarang · berakhir {time}",
   "meeting.dayTime": "{day}, {time}",
-  "meeting.none": "Tidak ada acara mendatang",
-  "recycleBin.emptyEllipsis": "Kosongkan Recycle Bin…"
+  "meeting.none": "Tidak ada acara mendatang"
 }

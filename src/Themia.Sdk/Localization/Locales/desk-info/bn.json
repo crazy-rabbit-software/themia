@@ -5,6 +5,5 @@
   "meeting.joinTip": "অনলাইন মিটিংয়ে যোগ দিন",
   "meeting.nowEnds": "এখন · {time}-এ শেষ",
   "meeting.dayTime": "{day}, {time}",
-  "meeting.none": "সামনে কিছু নেই",
-  "recycleBin.emptyEllipsis": "রিসাইকেল বিন খালি করুন…"
+  "meeting.none": "সামনে কিছু নেই"
 }

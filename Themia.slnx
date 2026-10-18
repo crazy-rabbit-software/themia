@@ -63,6 +63,7 @@
     <Project Path="src/Widgets/Themia.Widget.ScreenTimeApps/Themia.Widget.ScreenTimeApps.csproj" />
     <Project Path="src/Widgets/Themia.Widget.ScreenTimeChart/Themia.Widget.ScreenTimeChart.csproj" />
     <Project Path="src/Widgets/Themia.Widget.ScreenTimeDonut/Themia.Widget.ScreenTimeDonut.csproj" />
+    <Project Path="src/Widgets/Themia.Widget.Shortcuts/Themia.Widget.Shortcuts.csproj" />
     <Project Path="src/Widgets/Themia.Widget.Shutdown/Themia.Widget.Shutdown.csproj" />
     <Project Path="src/Widgets/Themia.Widget.SignOut/Themia.Widget.SignOut.csproj" />
     <Project Path="src/Widgets/Themia.Widget.Sleep/Themia.Widget.Sleep.csproj" />

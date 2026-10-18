@@ -5,6 +5,5 @@
   "meeting.joinTip": "Rejoindre la réunion en ligne",
   "meeting.nowEnds": "Maintenant · se termine à {time}",
   "meeting.dayTime": "{day}, {time}",
-  "meeting.none": "Rien de prévu",
-  "recycleBin.emptyEllipsis": "Vider la Corbeille…"
+  "meeting.none": "Rien de prévu"
 }

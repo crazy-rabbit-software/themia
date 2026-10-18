@@ -10,6 +10,5 @@
   "widgetPrefs.updates.everyHours": {
     "one": "दर {count} तासाने",
     "other": "दर {count} तासांनी"
-  },
-  "widgetsC.shortcuts.settings.locations": "Windows स्थाने"
+  }
 }

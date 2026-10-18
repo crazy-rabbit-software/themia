@@ -12,6 +12,5 @@
     "few": "Каждые {count} часа",
     "many": "Каждые {count} часов",
     "other": "Каждые {count} часа"
-  },
-  "widgetsC.shortcuts.settings.locations": "Расположения Windows"
+  }
 }

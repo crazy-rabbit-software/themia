@@ -5,6 +5,5 @@
   "meeting.joinTip": "オンライン会議に参加",
   "meeting.nowEnds": "進行中 · {time} に終了",
   "meeting.dayTime": "{day} {time}",
-  "meeting.none": "予定はありません",
-  "recycleBin.emptyEllipsis": "ごみ箱を空にする…"
+  "meeting.none": "予定はありません"
 }

@@ -10,6 +10,5 @@
   "widgetPrefs.updates.everyHours": {
     "one": "Om de {count} uur",
     "other": "Om de {count} uur"
-  },
-  "widgetsC.shortcuts.settings.locations": "Windows-locaties"
+  }
 }

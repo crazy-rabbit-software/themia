@@ -48,8 +48,6 @@
   "widgetsA.catalog.feed.label": "フィード",
   "widgetsA.catalog.mail.description": "Outlook、Gmail、または任意のメールサーバーの最近のメッセージ",
   "widgetsA.catalog.mail.label": "メール",
-  "widgetsA.catalog.shortcuts.description": "すぐ使えるリンク、ファイル、フォルダー",
-  "widgetsA.catalog.shortcuts.label": "ショートカット",
   "widgetsA.catalog.tasks.description": "Microsoft To Do、Google Tasks、またはこの PC 上のリスト",
   "widgetsA.catalog.tasks.label": "タスク",
   "widgetsA.clipboard.characters": {

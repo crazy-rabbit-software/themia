@@ -38,7 +38,7 @@ public class WidgetSetupTests
     public void S1860_widgets_that_work_out_of_the_box_never_ask()
     {
         // Seeded quotes and shortcuts, a default place, a power button, the profile folder.
-        foreach (var kind in new[] { new WidgetId("quote"), ShortcutsConfig.Descriptor.Id, new WidgetId("sun"), new WidgetId("moon"), new WidgetId("shutdown"), FolderConfig.Descriptor.Id, new WidgetId("clock") })
+        foreach (var kind in new[] { new WidgetId("quote"), new WidgetId("shortcuts"), new WidgetId("sun"), new WidgetId("moon"), new WidgetId("shutdown"), FolderConfig.Descriptor.Id, new WidgetId("clock") })
         {
             Assert.False(WidgetSetup.Needed(WidgetConfig.CreateDefault(kind), FeatureSet.None), kind.ToString());
         }

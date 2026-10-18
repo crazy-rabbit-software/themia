@@ -5,6 +5,5 @@
   "meeting.joinTip": "Çevrimiçi toplantıya katıl",
   "meeting.nowEnds": "Şimdi · {time} bitiyor",
   "meeting.dayTime": "{day}, {time}",
-  "meeting.none": "Yaklaşan bir şey yok",
-  "recycleBin.emptyEllipsis": "Geri Dönüşüm Kutusu'nu boşalt…"
+  "meeting.none": "Yaklaşan bir şey yok"
 }

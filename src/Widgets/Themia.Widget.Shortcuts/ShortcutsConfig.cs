@@ -2,9 +2,9 @@ using System.Text.Json.Serialization;
 using Themia.App.Shell;
 using Themia.Core.Accounts;
 using Themia.Core.Localization;
-using Themia.Core.Storage;
 using Themia.Core.Widgets;
 using Themia.Sdk;
+using Themia.Widget.Shortcuts;
 
 namespace Themia.Core.Model;
 
@@ -128,24 +128,6 @@ public sealed class ShortcutsConfig : WidgetConfig, IStyled, IShownSettings<Shor
     /// <summary>[S-1881] Its setup is a drop onto the widget itself, so it runs while it waits.</summary>
     bool ISetupRule.SetsUpInPlace => true;
 
-
-    /// <summary>[S-6902] This widget's descriptor: what the host knows of it without its UI.</summary>
-    public static WidgetDescriptor Descriptor { get; } = new()
-    {
-        Id = new("shortcuts"),
-        ConfigType = typeof(ShortcutsConfig),
-        CreateDefault = ShortcutsConfig.CreateDefault,
-        Json = WidgetConfigJsonContext.Default,
-        Keywords = ["link", "launcher", "bookmark", "url", "open", "pin", "quick access"],
-        Label = Str.WidgetsA_Catalog_Shortcuts_Label.Local(),
-        Description = Str.WidgetsA_Catalog_Shortcuts_Description.Local(),
-        Glyph = Glyphs.Shortcut,
-        DefaultWidth = 320,
-        DefaultHeight = 220,
-        Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader,
-        Add = new(AddFolderId.Files, 0, 1, Popular: 10),
-    };
-
     public List<ShortcutItem> Items { get; set; } = [];
 
     /// <summary>[S-1411] The layout item with this id, for the host's one layout editor.</summary>
@@ -156,8 +138,8 @@ public sealed class ShortcutsConfig : WidgetConfig, IStyled, IShownSettings<Shor
 
     private static readonly StyleOption[] ShortcutsStyles =
     [
-        StyleOption.Of(ShortcutsStyle.Grid, Str.WidgetsC_Shortcuts_Settings_View_Tiles.Local(), 0xECA5),
-        StyleOption.Of(ShortcutsStyle.List, Str.CtxMenu_List.Local(), 0xEA37),
+        StyleOption.Of(ShortcutsStyle.Grid, ShortcutsStr.WidgetsC_Shortcuts_Settings_View_Tiles.Local(), 0xECA5),
+        StyleOption.Of(ShortcutsStyle.List, ShortcutsStr.CtxMenu_List.Local(), 0xEA37),
         StyleOption.Of(ShortcutsStyle.Details, Str.CtxMenu_Details.Local(), 0xF12B),
     ];
 

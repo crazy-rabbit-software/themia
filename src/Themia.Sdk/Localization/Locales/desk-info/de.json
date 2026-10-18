@@ -5,6 +5,5 @@
   "meeting.joinTip": "An der Onlinebesprechung teilnehmen",
   "meeting.nowEnds": "Jetzt · endet {time}",
   "meeting.dayTime": "{day}, {time}",
-  "meeting.none": "Keine anstehenden Termine",
-  "recycleBin.emptyEllipsis": "Papierkorb leeren…"
+  "meeting.none": "Keine anstehenden Termine"
 }

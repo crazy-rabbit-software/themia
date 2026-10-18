@@ -9,6 +9,5 @@
   "widgetPrefs.updates.everyHours": {
     "one": "Alle {count} Stunde",
     "other": "Alle {count} Stunden"
-  },
-  "widgetsC.shortcuts.settings.locations": "Windows-Orte"
+  }
 }

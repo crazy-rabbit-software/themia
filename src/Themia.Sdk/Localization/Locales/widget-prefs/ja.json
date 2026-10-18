@@ -8,6 +8,5 @@
   "widgetPrefs.updates.accounts": "メール、カレンダー、タスク",
   "widgetPrefs.updates.everyHours": {
     "other": "{count} 時間ごと"
-  },
-  "widgetsC.shortcuts.settings.locations": "Windows の場所"
+  }
 }

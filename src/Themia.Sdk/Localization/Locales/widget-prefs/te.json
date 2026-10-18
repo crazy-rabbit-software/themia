@@ -10,6 +10,5 @@
   "widgetPrefs.updates.everyHours": {
     "one": "ప్రతి {count} గంటకు",
     "other": "ప్రతి {count} గంటలకు"
-  },
-  "widgetsC.shortcuts.settings.locations": "Windows స్థానాలు"
+  }
 }

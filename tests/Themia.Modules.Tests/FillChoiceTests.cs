@@ -2,11 +2,12 @@ using System.Text.Json;
 using Themia.Core.Geometry;
 using Themia.Core.Model;
 using Themia.Core.Storage;
+using Themia.Core.Tests;
 using Themia.Core.Widgets;
 using Themia.Sdk;
 using Xunit;
 
-namespace Themia.Core.Tests;
+namespace Themia.Modules.Tests;
 
 /// <summary>
 /// One fill choice for the background and the item background ([S-6560]..[S-6568]), and the item
@@ -16,7 +17,7 @@ public sealed class FillChoiceTests
 {
     private static WidgetInstance Widget(string id, FillChoice? items = null, WidgetId? kind = null)
     {
-        var widget = WidgetInstance.Create(kind ?? ShortcutsConfig.Descriptor.Id, new FracRect(0, 0, 0.1, 0.1));
+        var widget = WidgetInstance.Create(kind ?? new WidgetId("shortcuts"), new FracRect(0, 0, 0.1, 0.1));
         widget.Id = id;
         widget.ItemBackground = items ?? new FillChoice();
         return widget;

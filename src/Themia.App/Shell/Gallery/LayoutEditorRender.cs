@@ -1,4 +1,6 @@
 #if DEBUG
+using System.Text.Json;
+using System.Text.Json.Nodes;
 using Microsoft.UI;
 using Microsoft.UI.Dispatching;
 using Microsoft.UI.Xaml;
@@ -11,6 +13,7 @@ using Themia.Core.Model;
 using Themia.Core.Storage;
 using Themia.Core.Widgets;
 using Themia.Sdk.WinUI;
+using Themia.Sdk;
 using Windows.Graphics;
 
 namespace Themia.App.Shell.Gallery;
@@ -55,11 +58,13 @@ internal static class LayoutEditorRender
 
         try
         {
-            var item = empty ? ShortcutItem.CreateLayout() : DemoAppLayout();
+            // A Shortcuts widget, named by id, holding one layout item: empty, or the demo layout.
             var view = ViewState.Create("Desktop");
-            var widget = WidgetInstance.Create(ShortcutsConfig.Descriptor.Id, new FracRect(0.1, 0.1, 0.2, 0.2));
-            widget.Config = new ShortcutsConfig { Items = [item] };
+            var widget = WidgetInstance.Create(new WidgetId("shortcuts"), new FracRect(0.1, 0.1, 0.2, 0.2));
+            widget.Config = StateJson.Merged(widget.Config, empty ? EmptyLayout : DemoAppLayout);
             view.Widgets.Add(widget);
+            var itemId = JsonNode.Parse(JsonSerializer.Serialize(widget.Config, StateJson.WidgetConfig))?["items"]?[0]?["id"]?.GetValue<string>()
+                ?? throw new InvalidOperationException("the demo layout item has no id");
 
             var statePath = Path.Combine(Path.GetTempPath(), "themia-layout-editor-render", "state.json");
             var state = new AppState { Views = [view], ActiveViewId = view.Id };
@@ -89,7 +94,7 @@ internal static class LayoutEditorRender
                 panel.Background = ThemeBrush.Of("SolidBackgroundFillColorBaseBrush", Colors.Black);
             }
 
-            editor.DebugShow(item.Id);
+            editor.DebugShow(itemId);
             await Task.Delay(wait).ConfigureAwait(true);
 
             Directory.CreateDirectory(Path.GetDirectoryName(outPath)!);
@@ -109,22 +114,19 @@ internal static class LayoutEditorRender
         }
     }
 
+    /// <summary>A new layout: one empty pane.</summary>
+    private const string EmptyLayout = """{"items":[{"id":"l","layout":{"id":"p","kind":"Pane"}}]}""";
+
     /// <summary>
-    /// [S-1405] A demo app layout: three panes (an app, a site, a folder). Never launched: the
-    /// render only draws the editor.
+    /// [S-1405] A demo app layout, "Morning": three panes (Notepad on the left 60 %, GitHub over the
+    /// Windows folder on the right). Never launched: the render only draws the editor.
     /// </summary>
-    private static ShortcutItem DemoAppLayout()
-    {
-        var item = ShortcutItem.CreateLayout("Morning");
-        var root = item.Layout!;
-        (root, _) = LayoutTree.Split(root, root.Id, SplitDirection.Vertical);
-        LayoutTree.SetRatio(root, root.Id, 0.6);
-        (root, _) = LayoutTree.Split(root, root.B!.Id, SplitDirection.Horizontal);
-        LayoutTree.Assign(root, root.A!.Id, new LayoutAssignment { Source = LayoutSource.App, Target = @"C:\Windows\notepad.exe", Label = "Notepad" });
-        LayoutTree.Assign(root, root.B!.A!.Id, new LayoutAssignment { Source = LayoutSource.Url, Target = "https://github.com" });
-        LayoutTree.Assign(root, root.B!.B!.Id, new LayoutAssignment { Source = LayoutSource.Folder, Target = @"C:\Windows" });
-        item.Layout = root;
-        return item;
-    }
+    private const string DemoAppLayout = """
+        {"items":[{"id":"l","label":"Morning","layout":{"id":"r","kind":"Split","direction":"Vertical","ratio":0.6,
+          "a":{"id":"p1","kind":"Pane","assignment":{"source":"App","target":"C:\\Windows\\notepad.exe","label":"Notepad"}},
+          "b":{"id":"s","kind":"Split","direction":"Horizontal","ratio":0.5,
+            "a":{"id":"p2","kind":"Pane","assignment":{"source":"Url","target":"https://github.com"}},
+            "b":{"id":"p3","kind":"Pane","assignment":{"source":"Folder","target":"C:\\Windows"}}}}}]}
+        """;
 }
 #endif

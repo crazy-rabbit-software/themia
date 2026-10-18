@@ -1,15 +1,16 @@
-using Microsoft.UI;
-using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Input;
-using Themia.App.Services;
+using Microsoft.UI.Xaml;
+using Microsoft.UI;
 using Themia.App.Services.Files;
+using Themia.App.Services;
 using Themia.App.Shell;
 using Themia.Core.Diagnostics;
-using Themia.Core.Localization;
 using Themia.Core.Files;
+using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
 using Themia.Sdk.WinUI;
+using Themia.Widget.Shortcuts;
 using Windows.Foundation;
 
 namespace Themia.App.Widgets;
@@ -366,8 +367,8 @@ internal sealed partial class ShortcutsView
             {
                 // [S-1400] The caption beside the drag image.
                 drag.Place = _dragOut is { } from && from.Source == this
-                    ? Str.WidgetsC_Shortcuts_Drop_MoveHere.Text()
-                    : Str.WidgetsC_Shortcuts_Drop_Add.Text();
+                    ? ShortcutsStr.WidgetsC_Shortcuts_Drop_MoveHere.Text()
+                    : ShortcutsStr.WidgetsC_Shortcuts_Drop_Add.Text();
             }
 
             return effect;

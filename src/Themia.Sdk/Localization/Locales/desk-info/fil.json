@@ -6,6 +6,5 @@
   "meeting.joinTip": "Sumali sa online meeting",
   "meeting.nowEnds": "Ngayon · matatapos {time}",
   "meeting.dayTime": "{day}, {time}",
-  "meeting.none": "Walang paparating",
-  "recycleBin.emptyEllipsis": "Alisan ng laman ang Recycle Bin…"
+  "meeting.none": "Walang paparating"
 }

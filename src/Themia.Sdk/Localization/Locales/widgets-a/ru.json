@@ -51,8 +51,6 @@
   "widgetsA.catalog.feed.label": "Лента",
   "widgetsA.catalog.mail.description": "Последние письма из Outlook, Gmail или любого почтового сервера",
   "widgetsA.catalog.mail.label": "Почта",
-  "widgetsA.catalog.shortcuts.description": "Ссылки, файлы и папки под рукой",
-  "widgetsA.catalog.shortcuts.label": "Ярлыки",
   "widgetsA.catalog.tasks.description": "Microsoft To Do, Google Tasks или список на этом ПК",
   "widgetsA.catalog.tasks.label": "Задачи",
   "widgetsA.clipboard.characters": {

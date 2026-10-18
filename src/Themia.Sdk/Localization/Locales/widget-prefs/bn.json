@@ -10,6 +10,5 @@
   "widgetPrefs.updates.everyHours": {
     "one": "প্রতি {count} ঘণ্টায়",
     "other": "প্রতি {count} ঘণ্টায়"
-  },
-  "widgetsC.shortcuts.settings.locations": "Windows-এর অবস্থান"
+  }
 }

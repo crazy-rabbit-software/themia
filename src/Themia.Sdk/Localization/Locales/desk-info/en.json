@@ -5,6 +5,5 @@
   "meeting.joinTip": "Join the online meeting",
   "meeting.nowEnds": "Now · ends {time}",
   "meeting.dayTime": "{day}, {time}",
-  "meeting.none": "Nothing coming up",
-  "recycleBin.emptyEllipsis": "Empty Recycle Bin…"
+  "meeting.none": "Nothing coming up"
 }

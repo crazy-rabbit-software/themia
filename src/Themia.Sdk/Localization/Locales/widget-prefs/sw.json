@@ -10,6 +10,5 @@
   "widgetPrefs.updates.everyHours": {
     "one": "Kila saa {count}",
     "other": "Kila saa {count}"
-  },
-  "widgetsC.shortcuts.settings.locations": "Maeneo ya Windows"
+  }
 }

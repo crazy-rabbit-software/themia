@@ -10,6 +10,5 @@
   "widgetPrefs.updates.everyHours": {
     "one": "{count} saatte bir",
     "other": "{count} saatte bir"
-  },
-  "widgetsC.shortcuts.settings.locations": "Windows konumları"
+  }
 }

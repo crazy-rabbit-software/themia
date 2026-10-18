@@ -5,6 +5,5 @@
   "meeting.joinTip": "الانضمام إلى الاجتماع عبر الإنترنت",
   "meeting.nowEnds": "الآن · ينتهي {time}",
   "meeting.dayTime": "{day}، {time}",
-  "meeting.none": "لا شيء قادم",
-  "recycleBin.emptyEllipsis": "إفراغ سلة المحذوفات…"
+  "meeting.none": "لا شيء قادم"
 }

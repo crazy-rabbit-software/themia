@@ -1,17 +1,18 @@
-﻿using Microsoft.UI.Input;
-using Microsoft.UI.Xaml;
+using Microsoft.UI.Input;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Input;
+using Microsoft.UI.Xaml;
 using Themia.App.Services;
 using Themia.App.Shell;
 using Themia.Core.Diagnostics;
 using Themia.Core.Localization;
 using Themia.Core.Model;
+using Themia.Core.Shell;
 using Themia.Core.Widgets;
 using Themia.Sdk.WinUI;
+using Themia.Widget.Shortcuts;
 using Windows.Foundation;
 using Windows.System;
-using Themia.Core.Shell;
 
 namespace Themia.App.Widgets;
 
@@ -442,20 +443,20 @@ internal sealed partial class ShortcutsView
             yield return command switch
             {
                 ShortcutCommand.Open => new(Glyphs.Open,
-                    cell.Item.IsLayout ? Str.WidgetsC_Shortcuts_Menu_OpenLayout.Text() : Str.Common_Open.Text(),
+                    cell.Item.IsLayout ? ShortcutsStr.WidgetsC_Shortcuts_Menu_OpenLayout.Text() : Str.Common_Open.Text(),
                     () => Open([cell]), Disabled: entry.Disabled),
-                ShortcutCommand.EditLayout => new(Glyphs.Edit, Str.Shortcut_EditLayoutMenu.Text(), () => _widgetHost.AppLayouts.Edit(cell.Item.Id),
+                ShortcutCommand.EditLayout => new(Glyphs.Edit, ShortcutsStr.Shortcut_EditLayoutMenu.Text(), () => _widgetHost.AppLayouts.Edit(cell.Item.Id),
                     Disabled: !_widgetHost.AppLayouts.CanEdit),
-                ShortcutCommand.OpenAll => new(Glyphs.Open, Str.WidgetsC_Shortcuts_Menu_OpenMany.Plural(selected.Count), () => Open(selected)),
-                ShortcutCommand.CopyUrl => new(Glyphs.Copy, Str.Shortcut_CopyUrl.Text(), () => Copy(cell.Target.Value)),
-                ShortcutCommand.CopyPath => new(Glyphs.Copy, Str.Shortcut_CopyPath.Text(), () => Copy(cell.Target.Value)),
+                ShortcutCommand.OpenAll => new(Glyphs.Open, ShortcutsStr.WidgetsC_Shortcuts_Menu_OpenMany.Plural(selected.Count), () => Open(selected)),
+                ShortcutCommand.CopyUrl => new(Glyphs.Copy, ShortcutsStr.Shortcut_CopyUrl.Text(), () => Copy(cell.Target.Value)),
+                ShortcutCommand.CopyPath => new(Glyphs.Copy, ShortcutsStr.Shortcut_CopyPath.Text(), () => Copy(cell.Target.Value)),
                 ShortcutCommand.OpenFileLocation => new(Glyphs.Folder, Str.Shortcut_OpenFileLocation.Text(), () => Reveal(cell)),
                 ShortcutCommand.Rename => new(Glyphs.Rename, Str.Common_Rename.Text(), () => BeginRename(cell), Disabled: entry.Disabled, Quick: QuickCommand.Rename),
 
                 // [S-4864] The Recycle Bin widget's own Empty ([S-4863]): Windows asks first.
-                ShortcutCommand.EmptyRecycleBin => new(Glyphs.RecycleBin, Str.RecycleBin_EmptyEllipsis.Text(), EmptyBin, Disabled: entry.Disabled),
+                ShortcutCommand.EmptyRecycleBin => new(Glyphs.RecycleBin, ShortcutsStr.RecycleBin_EmptyEllipsis.Text(), EmptyBin, Disabled: entry.Disabled),
                 _ => new(Glyphs.Delete,
-                    many ? Str.WidgetsC_Shortcuts_Menu_RemoveMany.Plural(selected.Count) : Str.Common_Remove.Text(),
+                    many ? ShortcutsStr.WidgetsC_Shortcuts_Menu_RemoveMany.Plural(selected.Count) : Str.Common_Remove.Text(),
                     () => Remove(many ? selected : [cell]), Danger: true),
             };
         }

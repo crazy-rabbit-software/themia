@@ -5,6 +5,5 @@
   "meeting.joinTip": "Tham gia cuộc họp trực tuyến",
   "meeting.nowEnds": "Đang diễn ra · kết thúc lúc {time}",
   "meeting.dayTime": "{day}, {time}",
-  "meeting.none": "Không có sự kiện sắp tới",
-  "recycleBin.emptyEllipsis": "Dọn sạch Thùng rác…"
+  "meeting.none": "Không có sự kiện sắp tới"
 }

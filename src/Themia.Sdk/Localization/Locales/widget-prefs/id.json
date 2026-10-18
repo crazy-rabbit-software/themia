@@ -9,6 +9,5 @@
   "widgetPrefs.updates.accounts": "Email, kalender, dan tugas",
   "widgetPrefs.updates.everyHours": {
     "other": "Setiap {count} jam"
-  },
-  "widgetsC.shortcuts.settings.locations": "Lokasi Windows"
+  }
 }

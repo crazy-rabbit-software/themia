@@ -5,6 +5,5 @@
   "meeting.joinTip": "Partecipa alla riunione online",
   "meeting.nowEnds": "Ora · termina alle {time}",
   "meeting.dayTime": "{day}, {time}",
-  "meeting.none": "Nessun impegno in arrivo",
-  "recycleBin.emptyEllipsis": "Svuota Cestino…"
+  "meeting.none": "Nessun impegno in arrivo"
 }

@@ -5,6 +5,5 @@
   "meeting.joinTip": "加入線上會議",
   "meeting.nowEnds": "進行中 · {time} 結束",
   "meeting.dayTime": "{day} {time}",
-  "meeting.none": "近期沒有行程",
-  "recycleBin.emptyEllipsis": "清空資源回收筒…"
+  "meeting.none": "近期沒有行程"
 }

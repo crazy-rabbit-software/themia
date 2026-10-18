@@ -1,6 +1,7 @@
 using System.Globalization;
 using Themia.Core.Localization;
 using Themia.Core.Model;
+using Themia.Widget.Shortcuts;
 
 namespace Themia.Core.Widgets;
 
@@ -215,17 +216,17 @@ public static class ShortcutRules
     public static string KindLabel(LaunchTarget target, TargetHealth health) => KindLabel(Strings.Current, target, health);
 
     /// <inheritdoc cref="KindLabel(LaunchTarget, TargetHealth)"/>
-    public static string KindLabel(Locale locale, LaunchTarget target, TargetHealth health) => Strings.Get(locale, target.Kind switch
+    public static string KindLabel(Locale locale, LaunchTarget target, TargetHealth health) => target.Kind switch
     {
-        LaunchKind.Web => Str.WidgetsC_Shortcuts_Kind_Web,
-        LaunchKind.ShellNamespace => Str.WidgetsC_Shortcuts_Kind_Location,
+        LaunchKind.Web => Strings.Get(locale, Str.WidgetsC_Shortcuts_Kind_Web),
+        LaunchKind.ShellNamespace => ShortcutsStr.WidgetsC_Shortcuts_Kind_Location.Text(locale),
         LaunchKind.LocalPath => health switch
         {
-            TargetHealth.Folder => Str.Shortcut_KindFolder,
-            TargetHealth.File => Str.Shortcut_ChipFile,
-            TargetHealth.Missing => Str.WidgetsC_Shortcuts_Kind_Missing,
-            _ => Str.WidgetsC_Shortcuts_Kind_Path,
+            TargetHealth.Folder => Strings.Get(locale, Str.Shortcut_KindFolder),
+            TargetHealth.File => Strings.Get(locale, Str.Shortcut_ChipFile),
+            TargetHealth.Missing => ShortcutsStr.WidgetsC_Shortcuts_Kind_Missing.Text(locale),
+            _ => ShortcutsStr.WidgetsC_Shortcuts_Kind_Path.Text(locale),
         },
-        _ => Str.WidgetsC_Shortcuts_Kind_Refused,
-    });
+        _ => ShortcutsStr.WidgetsC_Shortcuts_Kind_Refused.Text(locale),
+    };
 }

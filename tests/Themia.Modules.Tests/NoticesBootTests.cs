@@ -203,7 +203,7 @@ public sealed class NoticesBootTests : IDisposable
         // The clock first, so it is the one drawn on top.
         Assert.Equal(
             [
-                new WidgetId("clock"), ShortcutsConfig.Descriptor.Id, new WidgetId("weatherNow"),
+                new WidgetId("clock"), new WidgetId("shortcuts"), new WidgetId("weatherNow"),
                 new WidgetId("cpu"), new WidgetId("memory"), new WidgetId("gpu"), new WidgetId("network"),
                 new WidgetId("doNotDisturbToggle"), new WidgetId("colorFiltersToggle"), new WidgetId("nightLightToggle"),
                 new WidgetId("airplaneModeToggle"), new WidgetId("bluetoothToggle"), new WidgetId("wifiToggle"),

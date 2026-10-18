@@ -102,7 +102,6 @@ public static class Glyphs
     /// <summary>[S-1910] "Save to this PC": hibernation writes the session to disk. Fluent has no hibernate glyph.</summary>
     public static readonly string Hibernate = From(0xE78C);
     public static readonly string Signal = From(0xE870);
-    public static readonly string Shortcut = From(0xE71B);
     public static readonly string Warning = From(0xE7BA);
     public static readonly string Undo = From(0xE7A7);
     public static readonly string Shuffle = From(0xE8B1);

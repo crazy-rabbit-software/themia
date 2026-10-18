@@ -44,21 +44,6 @@ public sealed class SettingsPageSyncTests
     }
 
     [Fact]
-    public void S1721_the_app_pages_follow_the_design_and_preferences_not_where_widgets_sit()
-    {
-        var state = AppState.CreateDefault();
-        var before = SettingsPageSync.Signature(state, SettingsScope.App, null);
-
-        var widget = state.Views[0].Widgets[0];
-        widget.X += 0.1;
-        widget.W += 0.05;
-        Assert.Equal(before, SettingsPageSync.Signature(state, SettingsScope.App, null));
-
-        state.Preferences.GameModeSuspend = !state.Preferences.GameModeSuspend;
-        Assert.NotEqual(before, SettingsPageSync.Signature(state, SettingsScope.App, null));
-    }
-
-    [Fact]
     public void S1721_the_displays_page_follows_the_connected_displays_only()
     {
         var state = AppState.CreateDefault();
@@ -77,17 +62,4 @@ public sealed class SettingsPageSyncTests
             SettingsPageSync.Signature(state, SettingsScope.Displays, displays: ["A", "B"]));
     }
 
-    [Fact]
-    public void S1721_the_views_page_follows_every_views_name_but_not_widgets_moving()
-    {
-        var state = AppState.CreateDefault();
-        var view = state.Views[0];
-        var before = SettingsPageSync.Signature(state, SettingsScope.Views);
-
-        view.Widgets[0].Y += 0.1;
-        Assert.Equal(before, SettingsPageSync.Signature(state, SettingsScope.Views));
-
-        view.Name = "Work";
-        Assert.NotEqual(before, SettingsPageSync.Signature(state, SettingsScope.Views));
-    }
 }

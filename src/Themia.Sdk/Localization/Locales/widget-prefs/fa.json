@@ -10,6 +10,5 @@
   "widgetPrefs.updates.everyHours": {
     "one": "هر {count} ساعت",
     "other": "هر {count} ساعت"
-  },
-  "widgetsC.shortcuts.settings.locations": "مکان‌های Windows"
+  }
 }

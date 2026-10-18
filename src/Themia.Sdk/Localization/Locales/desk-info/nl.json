@@ -5,6 +5,5 @@
   "meeting.joinTip": "Deelnemen aan de onlinevergadering",
   "meeting.nowEnds": "Nu · eindigt om {time}",
   "meeting.dayTime": "{day}, {time}",
-  "meeting.none": "Niets gepland",
-  "recycleBin.emptyEllipsis": "Prullenbak leegmaken…"
+  "meeting.none": "Niets gepland"
 }

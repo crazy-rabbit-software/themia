@@ -48,8 +48,6 @@
   "widgetsA.catalog.feed.label": "Feed",
   "widgetsA.catalog.mail.description": "Recent messages from Outlook, Gmail or any mail server",
   "widgetsA.catalog.mail.label": "Mail",
-  "widgetsA.catalog.shortcuts.description": "Links, files and folders you keep to hand",
-  "widgetsA.catalog.shortcuts.label": "Shortcuts",
   "widgetsA.catalog.tasks.description": "Microsoft To Do, Google Tasks, or a list on this PC",
   "widgetsA.catalog.tasks.label": "Tasks",
   "widgetsA.clipboard.characters": {

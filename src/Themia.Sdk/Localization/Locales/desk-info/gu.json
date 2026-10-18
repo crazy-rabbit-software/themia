@@ -6,6 +6,5 @@
   "meeting.joinTip": "ઑનલાઇન મીટિંગમાં જોડાઓ",
   "meeting.nowEnds": "હમણાં · {time} એ સમાપ્ત",
   "meeting.dayTime": "{day}, {time}",
-  "meeting.none": "આગળ કંઈ નથી",
-  "recycleBin.emptyEllipsis": "રિસાયકલ બિન ખાલી કરો…"
+  "meeting.none": "આગળ કંઈ નથી"
 }

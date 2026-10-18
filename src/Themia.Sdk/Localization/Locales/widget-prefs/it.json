@@ -9,6 +9,5 @@
   "widgetPrefs.updates.everyHours": {
     "one": "Ogni {count} ora",
     "other": "Ogni {count} ore"
-  },
-  "widgetsC.shortcuts.settings.locations": "Percorsi di Windows"
+  }
 }

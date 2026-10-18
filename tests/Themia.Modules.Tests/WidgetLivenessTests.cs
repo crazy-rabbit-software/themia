@@ -105,7 +105,7 @@ public class WidgetLivenessTests
         foreach (var kind in ModuleCatalog.Widgets.Select(w => w.Id).ToArray())
         {
             var config = WidgetConfig.CreateDefault(kind);
-            var expected = !WidgetSetup.Needed(config, FeatureSet.None) || kind == ShortcutsConfig.Descriptor.Id;
+            var expected = !WidgetSetup.Needed(config, FeatureSet.None) || kind == new WidgetId("shortcuts");
             Assert.True(WidgetLiveness.Runs(config, FeatureSet.None) == expected, kind.ToString());
         }
     }

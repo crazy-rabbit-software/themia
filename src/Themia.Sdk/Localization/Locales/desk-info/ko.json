@@ -5,6 +5,5 @@
   "meeting.joinTip": "온라인 모임에 참가",
   "meeting.nowEnds": "진행 중 · {time}에 종료",
   "meeting.dayTime": "{day} {time}",
-  "meeting.none": "예정된 일정 없음",
-  "recycleBin.emptyEllipsis": "휴지통 비우기…"
+  "meeting.none": "예정된 일정 없음"
 }

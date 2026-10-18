@@ -11,6 +11,5 @@
     "few": "Co {count} godziny",
     "many": "Co {count} godzin",
     "other": "Co {count} godziny"
-  },
-  "widgetsC.shortcuts.settings.locations": "Lokalizacje systemu Windows"
+  }
 }

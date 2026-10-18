@@ -10,6 +10,5 @@
   "widgetPrefs.updates.everyHours": {
     "one": "ஒவ்வொரு {count} மணிநேரமும்",
     "other": "ஒவ்வொரு {count} மணிநேரமும்"
-  },
-  "widgetsC.shortcuts.settings.locations": "Windows இருப்பிடங்கள்"
+  }
 }

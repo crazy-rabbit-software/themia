@@ -1,7 +1,7 @@
-using Microsoft.UI;
-using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Input;
+using Microsoft.UI.Xaml;
+using Microsoft.UI;
 using Themia.App.Services;
 using Themia.App.Shell;
 using Themia.Core.Diagnostics;
@@ -9,6 +9,7 @@ using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
 using Themia.Sdk.WinUI;
+using Themia.Widget.Shortcuts;
 
 namespace Themia.App.Widgets;
 
@@ -85,7 +86,7 @@ internal sealed partial class ShortcutsView : Grid, IWidgetView, IWidgetSurfaceA
         RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
         RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
 
-        _search.PlaceholderText = Str.WidgetsC_Shortcuts_Search.Text();
+        _search.PlaceholderText = ShortcutsStr.WidgetsC_Shortcuts_Search.Text();
         _search.IsSpellCheckEnabled = false;
         _search.IsTextPredictionEnabled = false;
         _search.CornerRadius = new CornerRadius(Fluent.ControlRadius);
@@ -138,7 +139,7 @@ internal sealed partial class ShortcutsView : Grid, IWidgetView, IWidgetSurfaceA
             CornerRadius = new CornerRadius(Fluent.ControlRadius),
             VerticalAlignment = VerticalAlignment.Center,
         };
-        ToolTipService.SetToolTip(_searchButton, Str.WidgetsC_Shortcuts_Search.Text());
+        ToolTipService.SetToolTip(_searchButton, ShortcutsStr.WidgetsC_Shortcuts_Search.Text());
         _searchButton.Click += OnSearchButton;
 
         SetRow(_searchHost, 0);
@@ -180,8 +181,8 @@ internal sealed partial class ShortcutsView : Grid, IWidgetView, IWidgetSurfaceA
             return;
         }
 
-        _search.PlaceholderText = Str.WidgetsC_Shortcuts_Search.Text();
-        ToolTipService.SetToolTip(_searchButton, Str.WidgetsC_Shortcuts_Search.Text());
+        _search.PlaceholderText = ShortcutsStr.WidgetsC_Shortcuts_Search.Text();
+        ToolTipService.SetToolTip(_searchButton, ShortcutsStr.WidgetsC_Shortcuts_Search.Text());
         Relayout();
     }
 
@@ -503,11 +504,11 @@ internal sealed partial class ShortcutsView : Grid, IWidgetView, IWidgetSurfaceA
             if (_config.Items.Count > 0)
             {
                 actions.Add(new WidgetAction(Glyphs.Search,
-                    _searchOpen ? Str.WidgetsC_Shortcuts_Menu_CloseSearch.Text() : Str.Common_Search.Text(), ToggleSearch));
+                    _searchOpen ? ShortcutsStr.WidgetsC_Shortcuts_Menu_CloseSearch.Text() : ShortcutsStr.Common_Search.Text(), ToggleSearch));
             }
 
             actions.Add(new WidgetAction(Glyphs.Open,
-                _config.ClickMode == ItemClickMode.Double ? Str.CtxMenu_OpenSingle.Text() : Str.CtxMenu_OpenDouble.Text(),
+                _config.ClickMode == ItemClickMode.Double ? ShortcutsStr.CtxMenu_OpenSingle.Text() : ShortcutsStr.CtxMenu_OpenDouble.Text(),
                 () => SetConfig(c => c.ClickMode = c.ClickMode == ItemClickMode.Double ? ItemClickMode.Single : ItemClickMode.Double)));
 
             if (_cells.Count > 0)
@@ -518,7 +519,7 @@ internal sealed partial class ShortcutsView : Grid, IWidgetView, IWidgetSurfaceA
             if (_lastRemoved is { Count: > 0 } removed)
             {
                 actions.Add(new WidgetAction(Glyphs.Undo,
-                    removed.Count == 1 ? Str.WidgetsC_Shortcuts_Menu_UndoRemove.Text() : Str.WidgetsC_Shortcuts_Menu_UndoRemoveCount.Plural(removed.Count),
+                    removed.Count == 1 ? ShortcutsStr.WidgetsC_Shortcuts_Menu_UndoRemove.Text() : ShortcutsStr.WidgetsC_Shortcuts_Menu_UndoRemoveCount.Plural(removed.Count),
                     UndoRemove));
             }
 

@@ -208,7 +208,8 @@ public sealed partial class ModuleConformanceTests
         var back = JsonSerializer.Deserialize(json, StateJson.WidgetConfig);
         Assert.IsType(widget.ConfigType, back);
         Assert.Equal(json, JsonSerializer.Serialize(back, StateJson.WidgetConfig));
-        Assert.Equal(json, JsonSerializer.Serialize(config.Clone(), StateJson.WidgetConfig));
+        // A clone is a copy with fresh ids inside (Shortcuts' items, [S-893]): the same but for those.
+        Assert.Equal(WithoutNestedIds(json), WithoutNestedIds(JsonSerializer.Serialize(config.Clone(), StateJson.WidgetConfig)));
 
         // [S-6903] Written as a built-in config is: the host's options.
         var options = Assert.IsAssignableFrom<JsonSerializerContext>(widget.Json).Options;
@@ -273,6 +274,42 @@ public sealed partial class ModuleConformanceTests
         }
 
         Assert.True(problems.Count == 0, string.Join('\n', problems));
+    }
+
+    /// <summary>The JSON with the value of every "id" below the top level blanked: what a clone may change.</summary>
+    private static string WithoutNestedIds(string json)
+    {
+        var root = System.Text.Json.Nodes.JsonNode.Parse(json)!;
+        Blank(root, top: true);
+        return root.ToJsonString();
+
+        static void Blank(System.Text.Json.Nodes.JsonNode? node, bool top)
+        {
+            switch (node)
+            {
+                case System.Text.Json.Nodes.JsonObject obj:
+                    foreach (var (name, value) in obj.ToList())
+                    {
+                        if (!top && name == "id")
+                        {
+                            obj[name] = string.Empty;
+                        }
+                        else
+                        {
+                            Blank(value, top: false);
+                        }
+                    }
+
+                    break;
+                case System.Text.Json.Nodes.JsonArray array:
+                    foreach (var item in array)
+                    {
+                        Blank(item, top: false);
+                    }
+
+                    break;
+            }
+        }
     }
 
     [GeneratedRegex(@"\*\*\[S-(\d+)\]\*\*")]

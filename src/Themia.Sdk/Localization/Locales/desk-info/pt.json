@@ -5,6 +5,5 @@
   "meeting.joinTip": "Participar da reunião online",
   "meeting.nowEnds": "Agora · termina às {time}",
   "meeting.dayTime": "{day}, {time}",
-  "meeting.none": "Nada programado",
-  "recycleBin.emptyEllipsis": "Esvaziar Lixeira…"
+  "meeting.none": "Nada programado"
 }

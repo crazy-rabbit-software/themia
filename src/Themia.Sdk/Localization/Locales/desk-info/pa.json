@@ -6,6 +6,5 @@
   "meeting.joinTip": "ਔਨਲਾਈਨ ਮੀਟਿੰਗ ਵਿੱਚ ਸ਼ਾਮਲ ਹੋਵੋ",
   "meeting.nowEnds": "ਹੁਣ · {time} ਵਜੇ ਖ਼ਤਮ",
   "meeting.dayTime": "{day}, {time}",
-  "meeting.none": "ਕੁਝ ਵੀ ਆਉਣ ਵਾਲਾ ਨਹੀਂ",
-  "recycleBin.emptyEllipsis": "ਰੀਸਾਈਕਲ ਬਿਨ ਖਾਲੀ ਕਰੋ…"
+  "meeting.none": "ਕੁਝ ਵੀ ਆਉਣ ਵਾਲਾ ਨਹੀਂ"
 }

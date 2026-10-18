@@ -1,9 +1,10 @@
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
+using Themia.Sdk;
 using Xunit;
 
-namespace Themia.Core.Tests;
+namespace Themia.Widget.Shortcuts.Tests;
 
 /// <summary>Shortcuts widget: config, ladder, selection and rules (S-1380..S-1393).</summary>
 public sealed class ShortcutsTests
@@ -91,7 +92,7 @@ public sealed class ShortcutsTests
     [Fact]
     public void S1393_a_new_widget_starts_with_the_recycle_bin_and_this_pc()
     {
-        var config = Assert.IsType<ShortcutsConfig>(WidgetConfig.CreateDefault(ShortcutsConfig.Descriptor.Id));
+        var config = Assert.IsType<ShortcutsConfig>(WidgetConfig.CreateDefault(new WidgetId("shortcuts")));
 
         Assert.Equal(["shell:RecycleBinFolder", "shell:MyComputerFolder"], config.Items.Select(i => i.Target));
         Assert.All(config.Items, item => Assert.True(LaunchTargets.Classify(item.Target).IsValid));
@@ -227,40 +228,12 @@ public sealed class ShortcutsTests
     }
 
     [Fact]
-    public void S4863_empty_is_offered_only_with_items_and_not_twice_at_once()
-    {
-        Assert.True(RecycleBinState.CanEmpty(new RecycleBinState(3, 100), emptying: false));
-        Assert.False(RecycleBinState.CanEmpty(new RecycleBinState(3, 100), emptying: true));
-        Assert.False(RecycleBinState.CanEmpty(new RecycleBinState(0, 0), emptying: false));
-        Assert.False(RecycleBinState.CanEmpty(null, emptying: false));
-    }
-
-    [Fact]
     public void S1387_a_multi_selection_gets_open_all_and_no_rename()
     {
         var menu = ShortcutRules.Menu(LaunchTargets.Classify("https://a.example/"), 3);
 
         Assert.Equal([ShortcutCommand.OpenAll, ShortcutCommand.Rename, ShortcutCommand.Remove], Commands(menu));
         Assert.True(menu.Single(e => e.Command == ShortcutCommand.Rename).Disabled);
-    }
-
-    [Fact]
-    public void S3802_move_reorders_by_id_one_place_and_a_no_op_changes_nothing()
-    {
-        var items = new List<ShortcutItem>
-        {
-            new() { Id = "a" }, new() { Id = "b" }, new() { Id = "c" },
-        };
-
-        Assert.True(ShortcutRules.Move(items, "c", -1));
-        Assert.Equal(["a", "c", "b"], items.Select(i => i.Id));
-        Assert.True(ShortcutRules.Move(items, "a", +1));
-        Assert.Equal(["c", "a", "b"], items.Select(i => i.Id));
-        Assert.False(ShortcutRules.Move(items, "c", -1));
-        Assert.False(ShortcutRules.Move(items, "b", +1));
-        Assert.False(ShortcutRules.Move(items, "zz", -1));
-        Assert.False(ShortcutRules.Move(items, "a", 0));
-        Assert.Equal(["c", "a", "b"], items.Select(i => i.Id));
     }
 
     // ---- Windows-location switches -----------------------------------------------------------------

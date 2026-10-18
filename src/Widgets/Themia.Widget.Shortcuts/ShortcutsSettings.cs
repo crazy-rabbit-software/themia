@@ -1,6 +1,5 @@
-using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
-using Themia.App.Interop;
+using Microsoft.UI.Xaml;
 using Themia.App.Services;
 using Themia.App.Widgets;
 using Themia.Core.Diagnostics;
@@ -8,6 +7,7 @@ using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
 using Themia.Sdk.WinUI;
+using Themia.Widget.Shortcuts;
 using Windows.System;
 
 namespace Themia.App.Shell.Config;
@@ -23,7 +23,7 @@ namespace Themia.App.Shell.Config;
 /// path is refused rather than resolved against wherever the app happens to have been started.
 /// </para>
 /// </summary>
-internal static partial class WidgetSettings
+internal static class ShortcutsSettings
 {
     private const string LauncherScope = "shortcut-settings";
 
@@ -37,11 +37,11 @@ internal static partial class WidgetSettings
 
     private static (ItemClickMode, string)[] ShortcutClicks() =>
     [
-        (ItemClickMode.Double, Str.WidgetsC_Shortcuts_Settings_OpenWith_Double.Text()),
-        (ItemClickMode.Single, Str.WidgetsC_Shortcuts_Settings_OpenWith_Single.Text()),
+        (ItemClickMode.Double, ShortcutsStr.WidgetsC_Shortcuts_Settings_OpenWith_Double.Text()),
+        (ItemClickMode.Single, ShortcutsStr.WidgetsC_Shortcuts_Settings_OpenWith_Single.Text()),
     ];
 
-    public static void Shortcuts(List<FrameworkElement> rows, ShortcutsConfig config, Action save)
+    public static void Rows(List<FrameworkElement> rows, ShortcutsConfig config, Action save)
     {
         ArgumentNullException.ThrowIfNull(rows);
         ArgumentNullException.ThrowIfNull(config);
@@ -53,41 +53,41 @@ internal static partial class WidgetSettings
         // with is offered here, and picking another style rebuilds the page ([S-6071], [S-6074]).
         if (config.Offers(ShortcutsSetting.TileSize))
         {
-            rows.Add(FluentLayout.Row(Glyphs.Scale, Str.WidgetsC_Shortcuts_Settings_TileSize_Label.Text(),
-                Str.WidgetsC_Shortcuts_Settings_TileSize_Desc.Text(),
+            rows.Add(FluentLayout.Row(Glyphs.Scale, ShortcutsStr.WidgetsC_Shortcuts_Settings_TileSize_Label.Text(),
+                ShortcutsStr.WidgetsC_Shortcuts_Settings_TileSize_Desc.Text(),
                 FluentLayout.Choice(ShortcutSizes(), config.GridSize, value => { config.GridSize = value; save(); })));
         }
 
         if (config.Offers(ShortcutsSetting.IconOnly))
         {
-            rows.Add(FluentLayout.Row(Glyphs.Preview, Str.CtxMenu_IconOnly.Text(),
-                Str.WidgetsC_Shortcuts_Settings_IconsOnly_Desc.Text(),
+            rows.Add(FluentLayout.Row(Glyphs.Preview, ShortcutsStr.CtxMenu_IconOnly.Text(),
+                ShortcutsStr.WidgetsC_Shortcuts_Settings_IconsOnly_Desc.Text(),
                 FluentLayout.Toggle(config.GridIconOnly, value => { config.GridIconOnly = value; save(); })));
         }
 
         if (config.Offers(ShortcutsSetting.Stretch))
         {
-            rows.Add(FluentLayout.Row(Glyphs.Fit, Str.WidgetsC_Shortcuts_Settings_Stretch_Label.Text(),
-                Str.WidgetsC_Shortcuts_Settings_Stretch_Desc.Text(),
+            rows.Add(FluentLayout.Row(Glyphs.Fit, ShortcutsStr.WidgetsC_Shortcuts_Settings_Stretch_Label.Text(),
+                ShortcutsStr.WidgetsC_Shortcuts_Settings_Stretch_Desc.Text(),
                 FluentLayout.Toggle(config.GridStretchHeight, value => { config.GridStretchHeight = value; save(); })));
         }
 
         if (config.Offers(ShortcutsSetting.RowSize))
         {
-            rows.Add(FluentLayout.Row(Glyphs.TextSize, Str.WidgetsC_Shortcuts_Settings_RowSize_Label.Text(),
-                Str.WidgetsC_Shortcuts_Settings_RowSize_Desc.Text(),
+            rows.Add(FluentLayout.Row(Glyphs.TextSize, ShortcutsStr.WidgetsC_Shortcuts_Settings_RowSize_Label.Text(),
+                ShortcutsStr.WidgetsC_Shortcuts_Settings_RowSize_Desc.Text(),
                 FluentLayout.Choice(ShortcutSizes(), config.ListSize, value => { config.ListSize = value; save(); })));
         }
 
         if (config.Offers(ShortcutsSetting.Extensions))
         {
             rows.Add(FluentLayout.Row(Glyphs.File, Str.Folder_ShowExtMenu.Text(),
-                Str.WidgetsC_Shortcuts_Settings_ShowExtensions_Desc.Text(),
+                ShortcutsStr.WidgetsC_Shortcuts_Settings_ShowExtensions_Desc.Text(),
                 FluentLayout.Toggle(config.ShowFileExtension, value => { config.ShowFileExtension = value; save(); })));
         }
 
-        rows.Add(FluentLayout.Row(Glyphs.Open, Str.WidgetsC_Shortcuts_Settings_OpenWith_Label.Text(),
-            Str.WidgetsC_Shortcuts_Settings_OpenWith_Desc.Text(),
+        rows.Add(FluentLayout.Row(Glyphs.Open, ShortcutsStr.WidgetsC_Shortcuts_Settings_OpenWith_Label.Text(),
+            ShortcutsStr.WidgetsC_Shortcuts_Settings_OpenWith_Desc.Text(),
             FluentLayout.Choice(ShortcutClicks(), config.ClickMode, value => { config.ClickMode = value; save(); })));
 
         // The list editor is built last (it sits at the bottom) but the location switches above it
@@ -111,14 +111,14 @@ internal static partial class WidgetSettings
 
         rows.Add(FluentLayout.Header(Str.Common_Add.Text()));
 
-        var file = new Button { Content = Str.WidgetsC_Shortcuts_Settings_Pick_File.Text() };
-        var folder = new Button { Content = Str.WidgetsC_Shortcuts_Settings_Pick_Folder.Text() };
+        var file = new Button { Content = ShortcutsStr.WidgetsC_Shortcuts_Settings_Pick_File.Text() };
+        var folder = new Button { Content = ShortcutsStr.WidgetsC_Shortcuts_Settings_Pick_Folder.Text() };
 
         file.Click += (_, _) => _ = PickFileAsync(() => list);
         folder.Click += (_, _) => _ = PickFolderAsync(() => list);
 
-        rows.Add(FluentLayout.Row(Glyphs.Folder, Str.WidgetsC_Shortcuts_Settings_Pick_Label.Text(),
-            Str.WidgetsC_Shortcuts_Settings_Pick_Desc.Text(),
+        rows.Add(FluentLayout.Row(Glyphs.Folder, ShortcutsStr.WidgetsC_Shortcuts_Settings_Pick_Label.Text(),
+            ShortcutsStr.WidgetsC_Shortcuts_Settings_Pick_Desc.Text(),
             new StackPanel
             {
                 Orientation = Orientation.Horizontal,
@@ -127,7 +127,7 @@ internal static partial class WidgetSettings
             }));
 
         // [S-1411] An app layout: added, then straight into its editor (original S-55).
-        var layout = new Button { Content = Str.Shortcut_NewLayout.Text() };
+        var layout = new Button { Content = ShortcutsStr.Shortcut_NewLayout.Text() };
         layout.IsEnabled = SettingsHost.AppLayouts.CanEdit;
         layout.Click += (_, _) =>
         {
@@ -141,7 +141,7 @@ internal static partial class WidgetSettings
         };
 
         rows.Add(FluentLayout.Row(Glyphs.AppLayout, ShortcutRules.LayoutKindLabel(),
-            Str.WidgetsC_Shortcuts_Settings_AppLayout_Desc.Text(),
+            ShortcutsStr.WidgetsC_Shortcuts_Settings_AppLayout_Desc.Text(),
             layout));
 
         // [S-1388] One switch per Windows location, with the icon Explorer shows for it: on adds it,
@@ -168,19 +168,19 @@ internal static partial class WidgetSettings
             locations.Add(row);
         }
 
-        rows.Add(FluentLayout.Expander(Glyphs.Folder, Str.WidgetsC_Shortcuts_Settings_Locations.Text(), null, null, locations));
+        rows.Add(FluentLayout.Expander(Glyphs.Folder, ShortcutsStr.WidgetsC_Shortcuts_Settings_Locations.Text(), null, null, locations));
 
-        rows.Add(FluentLayout.Header(Str.WidgetsC_Shortcuts_Settings_List_Header.Text()));
+        rows.Add(FluentLayout.Header(ShortcutsStr.WidgetsC_Shortcuts_Settings_List_Header.Text()));
 
         list = FluentLayout.ListEditor(rows, new ListEditorOptions<ShortcutItem>
         {
             Items = config.Items,
             Save = SaveAndSync,
-            EmptyText = Str.WidgetsC_Shortcuts_Settings_List_Empty.Text(),
-            AddTitle = Str.Shortcut_AddTitle.Text(),
-            AddDescription = Str.WidgetsC_Shortcuts_Settings_List_AddDesc.Text(),
+            EmptyText = ShortcutsStr.WidgetsC_Shortcuts_Settings_List_Empty.Text(),
+            AddTitle = ShortcutsStr.Shortcut_AddTitle.Text(),
+            AddDescription = ShortcutsStr.WidgetsC_Shortcuts_Settings_List_AddDesc.Text(),
             AddAction = Str.Common_Add.Text(),
-            RemoveTooltip = Str.WidgetsC_Shortcuts_Settings_List_Remove.Text(),
+            RemoveTooltip = ShortcutsStr.WidgetsC_Shortcuts_Settings_List_Remove.Text(),
             Create = () => ShortcutItem.Create(string.Empty, string.Empty),
             Body = item => ShortcutBody(item, save),
         });
@@ -248,7 +248,7 @@ internal static partial class WidgetSettings
         {
             if (item.Target.Trim().Length == 0)
             {
-                FluentLayout.Confirm(verdict, Str.WidgetsC_Shortcuts_Settings_Verdict_None.Text());
+                FluentLayout.Confirm(verdict, ShortcutsStr.WidgetsC_Shortcuts_Settings_Verdict_None.Text());
                 return;
             }
 
@@ -264,9 +264,9 @@ internal static partial class WidgetSettings
             // accepted but opens something else is the failure this check exists to prevent.
             FluentLayout.Confirm(verdict, classified.Kind switch
             {
-                LaunchKind.Web => Str.WidgetsC_Shortcuts_Settings_Verdict_Web.Format(("target", classified.Value)),
-                LaunchKind.ShellNamespace => Str.WidgetsC_Shortcuts_Settings_Verdict_Open.Format(("target", LaunchTargets.ShellDisplayName(classified.Value))),
-                _ => Str.WidgetsC_Shortcuts_Settings_Verdict_Open.Format(("target", classified.Value)),
+                LaunchKind.Web => ShortcutsStr.WidgetsC_Shortcuts_Settings_Verdict_Web.Format(("target", classified.Value)),
+                LaunchKind.ShellNamespace => ShortcutsStr.WidgetsC_Shortcuts_Settings_Verdict_Open.Format(("target", LaunchTargets.ShellDisplayName(classified.Value))),
+                _ => ShortcutsStr.WidgetsC_Shortcuts_Settings_Verdict_Open.Format(("target", classified.Value)),
             });
         }
 
@@ -365,10 +365,10 @@ internal static partial class WidgetSettings
         };
 
         var summary = Fluent.Text(FluentType.Caption, "TextFillColorSecondaryBrush");
-        summary.Text = Str.WidgetsC_Shortcuts_AppLayout_Summary.Format(("apps", LayoutPlan.Summary(item.Layout)));
+        summary.Text = ShortcutsStr.WidgetsC_Shortcuts_AppLayout_Summary.Format(("apps", LayoutPlan.Summary(item.Layout)));
         summary.VerticalAlignment = VerticalAlignment.Center;
 
-        var edit = new Button { Content = Str.Shortcut_EditLayoutMenu.Text(), IsEnabled = SettingsHost.AppLayouts.CanEdit };
+        var edit = new Button { Content = ShortcutsStr.Shortcut_EditLayoutMenu.Text(), IsEnabled = SettingsHost.AppLayouts.CanEdit };
         edit.Click += (_, _) => SettingsHost.AppLayouts.Edit(item.Id);
 
         var line = new Grid { Margin = new Thickness(0, Fluent.Space2, 0, 0) };

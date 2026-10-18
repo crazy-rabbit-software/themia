@@ -8,108 +8,14 @@ using Xunit;
 
 namespace Themia.Core.Tests;
 
-/// <summary>Shortcuts B: drops, reorder and app layouts (S-1400..S-1410).</summary>
+/// <summary>
+/// Shortcuts B, the host's part: the addresses in dropped text (S-1402), the app layout tree, its walk,
+/// placement and window matching (S-1403..S-1409). The widget's drops and reorder are its module's
+/// (ShortcutDropTests), its layout items' config the module host's (ShortcutsHostTests).
+/// </summary>
 public sealed class ShortcutsDropLayoutTests
 {
-    private static string? NoLink(string _) => null;
-
-    private static string? NoText(string _) => null;
-
     // ---- drops ([S-1400]..[S-1402]) ----------------------------------------------------------------
-
-    [Fact]
-    public void S1400_each_dropped_path_becomes_an_item_by_reference()
-    {
-        var result = ShortcutDrop.FromDrop([@"C:\Work\report.docx", @"D:\Photos"], [], [], NoLink, NoText);
-
-        Assert.Equal([@"C:\Work\report.docx", @"D:\Photos"], result.Items.Select(i => i.Target));
-        Assert.All(result.Items, item => Assert.Equal(string.Empty, item.Label));
-        Assert.Equal(0, result.Skipped);
-    }
-
-    [Fact]
-    public void S1400_urls_count_only_when_no_files_came_with_the_drop()
-    {
-        var withFiles = ShortcutDrop.FromDrop([@"C:\a.txt"], ["https://example.com"], [], NoLink, NoText);
-        var urlsOnly = ShortcutDrop.FromDrop([], ["https://example.com/page", "javascript:alert(1)"], [], NoLink, NoText);
-
-        Assert.Equal([@"C:\a.txt"], withFiles.Items.Select(i => i.Target));
-        Assert.Equal(["https://example.com/page"], urlsOnly.Items.Select(i => i.Target));
-        Assert.Equal(1, urlsOnly.Skipped);
-    }
-
-    [Fact]
-    public void S1400_refused_and_already_held_targets_are_skipped_and_counted()
-    {
-        var existing = new[] { ShortcutItem.Create(@"C:\Work\report.docx") };
-
-        var result = ShortcutDrop.FromDrop(
-            [@"c:\work\REPORT.docx", "relative\\path.txt", @"C:\b.txt", @"C:\b.txt"],
-            [],
-            existing,
-            NoLink,
-            NoText);
-
-        Assert.Equal([@"C:\b.txt"], result.Items.Select(i => i.Target));
-        Assert.Equal(3, result.Skipped);
-    }
-
-    [Fact]
-    public void S1401_a_url_file_becomes_its_web_address_named_after_the_file()
-    {
-        var item = ShortcutDrop.FromPath(@"C:\Users\me\Desktop\Docs.url", NoLink,
-            _ => "[InternetShortcut]\r\nURL=https://learn.microsoft.com/\r\nIconFile=C:\\icons\\docs.ico\r\n");
-
-        Assert.NotNull(item);
-        Assert.Equal("https://learn.microsoft.com/", item.Target);
-        Assert.Equal("Docs", item.Label);
-        Assert.Null(item.IconPath);
-    }
-
-    [Fact]
-    public void S1401_a_custom_protocol_url_file_is_kept_as_the_file_with_its_icon()
-    {
-        var item = ShortcutDrop.FromPath(@"C:\Users\me\Desktop\Half-Life.url", NoLink,
-            _ => "[InternetShortcut]\nIDList=\nURL=steam://rungameid/70\nIconIndex=0\nIconFile=C:\\Steam\\steam\\games\\hl.ico\n");
-
-        Assert.NotNull(item);
-        Assert.Equal(@"C:\Users\me\Desktop\Half-Life.url", item.Target);
-        Assert.Equal("Half-Life", item.Label);
-        Assert.Equal(@"C:\Steam\steam\games\hl.ico", item.IconPath);
-    }
-
-    [Fact]
-    public void S1401_an_unreadable_url_file_is_a_plain_file_item()
-    {
-        var item = ShortcutDrop.FromPath(@"C:\x\Broken.url", NoLink, NoText);
-
-        Assert.NotNull(item);
-        Assert.Equal(@"C:\x\Broken.url", item.Target);
-        Assert.Null(item.IconPath);
-    }
-
-    [Fact]
-    public void S1401_url_file_parsing_reads_only_the_internet_shortcut_section()
-    {
-        var parsed = ShortcutDrop.ParseUrlFile("[Other]\nURL=https://wrong.example\n[internetshortcut]\nurl = https://right.example \nIconFile=\n");
-
-        Assert.Equal("https://right.example", parsed.Url);
-        Assert.Null(parsed.IconFile);
-        Assert.Equal(default, ShortcutDrop.ParseUrlFile(null));
-    }
-
-    [Fact]
-    public void S1401_a_link_is_kept_by_its_target_and_named_as_the_link()
-    {
-        var resolved = ShortcutDrop.FromPath(@"C:\Start\Visual Studio Code.lnk", _ => @"C:\Apps\Code\Code.exe", NoText);
-        var unresolved = ShortcutDrop.FromPath(@"C:\Start\Chrome (Work).lnk", NoLink, NoText);
-        var refused = ShortcutDrop.FromPath(@"C:\Start\Odd.lnk", _ => "http://not-a-path", NoText);
-
-        Assert.Equal(@"C:\Apps\Code\Code.exe", resolved!.Target);
-        Assert.Equal("Visual Studio Code", resolved.Label);
-        Assert.Equal(@"C:\Start\Chrome (Work).lnk", unresolved!.Target);
-        Assert.Equal(@"C:\Start\Odd.lnk", refused!.Target);
-    }
 
     [Fact]
     public void S1402_urls_in_dropped_text_are_http_lines_only_once_each()
@@ -118,63 +24,6 @@ public sealed class ShortcutsDropLayoutTests
 
         Assert.Equal(["https://a.example/x", "http://c.example/"], urls); // normalised by the rule
         Assert.Empty(DropUrls.InText("   "));
-    }
-
-    // ---- reorder ([S-1410]) -------------------------------------------------------------------------
-
-    private static List<ShortcutItem> Items(params string[] ids)
-        => ids.Select(id => new ShortcutItem { Id = id, Target = @"C:\" + id }).ToList();
-
-    private static string Order(List<ShortcutItem> items) => string.Concat(items.Select(i => i.Id));
-
-    [Fact]
-    public void S1410_an_item_moves_before_the_one_it_is_dropped_on_or_to_the_end()
-    {
-        var items = Items("a", "b", "c", "d");
-
-        Assert.True(ShortcutDrop.Reorder(items, ["d"], "b"));
-        Assert.Equal("adbc", Order(items));
-
-        Assert.True(ShortcutDrop.Reorder(items, ["a"], null));
-        Assert.Equal("dbca", Order(items));
-    }
-
-    [Fact]
-    public void S1410_a_drop_that_changes_nothing_writes_nothing()
-    {
-        var items = Items("a", "b", "c");
-
-        Assert.False(ShortcutDrop.Reorder(items, ["b"], "b"));
-        Assert.False(ShortcutDrop.Reorder(items, ["b"], "c"));
-        Assert.False(ShortcutDrop.Reorder(items, ["c"], null));
-        Assert.False(ShortcutDrop.Reorder(items, [], "a"));
-        Assert.False(ShortcutDrop.Reorder(items, ["a"], "gone"));
-        Assert.Equal("abc", Order(items));
-    }
-
-    [Fact]
-    public void S1410_a_multi_selection_moves_together_in_its_own_order()
-    {
-        var items = Items("a", "b", "c", "d", "e");
-
-        Assert.True(ShortcutDrop.Reorder(items, ["d", "b"], "a"));
-        Assert.Equal("bdace", Order(items));
-
-        // Before a dragged item = before the next one that is not dragged.
-        items = Items("a", "b", "c", "d", "e");
-        Assert.True(ShortcutDrop.Reorder(items, ["b", "d"], "d"));
-        Assert.Equal("acbde", Order(items));
-    }
-
-    [Fact]
-    public void S1410_the_insert_point_is_the_half_of_the_item_under_the_pointer()
-    {
-        string[] order = ["a", "b", "c"];
-
-        Assert.Equal("b", ShortcutDrop.InsertBefore(order, 1, 0.2));
-        Assert.Equal("c", ShortcutDrop.InsertBefore(order, 1, 0.7));
-        Assert.Null(ShortcutDrop.InsertBefore(order, 2, 0.9));
-        Assert.Null(ShortcutDrop.InsertBefore(order, -1, 0));
     }
 
     // ---- layout tree ([S-1403], [S-1404]) ----------------------------------------------------------
@@ -438,57 +287,6 @@ public sealed class ShortcutsDropLayoutTests
     // ---- config ([S-1405], [S-1406]) -------------------------------------------------------------------
 
     [Fact]
-    public void S1405_the_layout_menu_launches_edits_moves_renames_and_removes()
-    {
-        var layout = SideBySide(@"C:\a.lnk", "https://b.example");
-        var menu = ShortcutRules.Menu(LaunchTargets.Classify(string.Empty), 1, layout);
-        var commands = menu.Where(e => e.Command is not null).Select(e => e.Command!.Value).ToList();
-
-        Assert.Equal(ShortcutCommand.Open, commands[0]);
-        Assert.False(menu[0].Disabled);
-        Assert.Contains(ShortcutCommand.EditLayout, commands);
-        Assert.DoesNotContain(ShortcutCommand.CopyPath, commands);
-        Assert.Contains(ShortcutCommand.Rename, commands);
-
-        var empty = ShortcutRules.Menu(LaunchTargets.Classify(string.Empty), 1, LayoutNode.NewPane());
-        Assert.True(empty[0].Disabled);
-    }
-
-    [Fact]
-    public void S1406_repair_mends_a_hand_edited_layout_and_blanks_its_target()
-    {
-        var config = new ShortcutsConfig
-        {
-            Items =
-            [
-                new ShortcutItem
-                {
-                    Id = "l",
-                    Target = @"C:\evil.exe",
-                    Layout = new LayoutNode
-                    {
-                        Id = "s",
-                        Kind = LayoutNodeKind.Split,
-                        Ratio = double.NaN,
-                        A = new LayoutNode { Id = "p", Assignment = new LayoutAssignment { Target = null! } },
-                        B = null,
-                    },
-                },
-                new ShortcutItem { Id = "i", Target = @"C:\x.url", IconPath = "https://tracker.example/i.ico" },
-            ],
-        };
-
-        var repairs = config.Repair();
-
-        var layout = config.Items[0].Layout!;
-        Assert.Equal(LayoutNodeKind.Pane, layout.Kind);
-        Assert.Null(layout.Assignment);
-        Assert.Equal(string.Empty, config.Items[0].Target);
-        Assert.Null(config.Items[1].IconPath);
-        Assert.NotEmpty(repairs);
-    }
-
-    [Fact]
     public void S1406_a_sound_layout_repairs_to_itself_and_too_deep_trees_are_cut()
     {
         var sound = SideBySide(@"C:\a.lnk", "https://b.example");
@@ -508,40 +306,4 @@ public sealed class ShortcutsDropLayoutTests
         Assert.True(LayoutTree.Panes(cut).Count <= 1 << LayoutTree.MaxDepth);
     }
 
-    [Fact]
-    public void S1406_a_layout_and_an_icon_round_trip_through_the_state_file()
-    {
-        var config = new ShortcutsConfig
-        {
-            Items =
-            [
-                ShortcutItem.CreateLayout("Morning"),
-                new ShortcutItem { Id = "u", Target = @"C:\g.url", Label = "Game", IconPath = @"C:\g.ico" },
-            ],
-        };
-
-        config.Items[0].Layout = SideBySide(@"C:\a.lnk", "https://b.example", 0.3);
-
-        var json = JsonSerializer.Serialize<WidgetConfig>(config, StateJson.WidgetConfig);
-        var back = Assert.IsType<ShortcutsConfig>(JsonSerializer.Deserialize(json, StateJson.WidgetConfig));
-
-        Assert.Contains("\"Vertical\"", json, StringComparison.Ordinal);
-        Assert.True(back.Items[0].IsLayout);
-        Assert.Equal(0.3, back.Items[0].Layout!.Ratio, 6);
-        Assert.Equal(LayoutSource.Url, back.Items[0].Layout!.B!.Assignment!.Source);
-        Assert.Equal(@"C:\g.ico", back.Items[1].IconPath);
-        Assert.Empty(back.Repair());
-    }
-
-    [Fact]
-    public void S1405_a_cloned_layout_is_a_separate_tree()
-    {
-        var item = ShortcutItem.CreateLayout("x");
-        var copy = item.Clone();
-
-        LayoutTree.Assign(copy.Layout!, copy.Layout!.Id, new LayoutAssignment { Source = LayoutSource.Url, Target = "https://a.example" });
-
-        Assert.Null(item.Layout!.Assignment);
-        Assert.NotEqual(item.Id, copy.Id);
-    }
 }

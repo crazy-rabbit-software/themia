@@ -1,4 +1,7 @@
+using Themia.Core.Habits;
+using Themia.Core.Localization;
 using Themia.Core.Model;
+using Themia.Core.Tests;
 using Themia.Core.Widgets;
 using Themia.Sdk;
 using Xunit;
@@ -26,5 +29,13 @@ public sealed class ListStylesHostTests
         Assert.True(WidgetStyles.Offers(kind));
         Assert.Equal(names, string.Join(",", WidgetStyles.For(kind).Select(s => s.Name)));
         Assert.Equal(WidgetStyles.For(kind)[0].Value, WidgetStyles.Current(WidgetConfig.CreateDefault(kind)));
+    }
+
+    [Fact]
+    public void S6401_only_the_grid_draws_with_the_tile_settings()
+    {
+        Assert.Contains(ShortcutsSetting.TileSize, new ShortcutsConfig { Style = ShortcutsStyle.Grid }.ShownSettings);
+        Assert.DoesNotContain(ShortcutsSetting.TileSize, new ShortcutsConfig { Style = ShortcutsStyle.List }.ShownSettings);
+        Assert.DoesNotContain(ShortcutsSetting.TileSize, new ShortcutsConfig { Style = ShortcutsStyle.Details }.ShownSettings);
     }
 }

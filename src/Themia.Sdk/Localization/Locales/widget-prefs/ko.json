@@ -9,6 +9,5 @@
   "widgetPrefs.updates.accounts": "메일, 일정 및 작업",
   "widgetPrefs.updates.everyHours": {
     "other": "{count}시간마다"
-  },
-  "widgetsC.shortcuts.settings.locations": "Windows 위치"
+  }
 }

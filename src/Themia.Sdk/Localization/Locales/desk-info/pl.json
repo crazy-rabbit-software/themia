@@ -5,6 +5,5 @@
   "meeting.joinTip": "Dołącz do spotkania online",
   "meeting.nowEnds": "Teraz · kończy się o {time}",
   "meeting.dayTime": "{day}, {time}",
-  "meeting.none": "Brak nadchodzących wydarzeń",
-  "recycleBin.emptyEllipsis": "Opróżnij Kosz…"
+  "meeting.none": "Brak nadchodzących wydarzeń"
 }

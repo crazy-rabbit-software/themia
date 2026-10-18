@@ -53,8 +53,6 @@
   "widgetsA.catalog.feed.label": "الموجز",
   "widgetsA.catalog.mail.description": "أحدث الرسائل من Outlook أو Gmail أو أي خادم بريد",
   "widgetsA.catalog.mail.label": "البريد",
-  "widgetsA.catalog.shortcuts.description": "ارتباطات وملفات ومجلدات في متناول يدك",
-  "widgetsA.catalog.shortcuts.label": "الاختصارات",
   "widgetsA.catalog.tasks.description": "Microsoft To Do أو Google Tasks أو قائمة على هذا الكمبيوتر",
   "widgetsA.catalog.tasks.label": "المهام",
   "widgetsA.clipboard.characters": {

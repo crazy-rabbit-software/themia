@@ -9,6 +9,5 @@
   "widgetPrefs.updates.accounts": "郵件、行事曆和工作",
   "widgetPrefs.updates.everyHours": {
     "other": "每 {count} 小時"
-  },
-  "widgetsC.shortcuts.settings.locations": "Windows 位置"
+  }
 }
