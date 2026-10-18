@@ -756,10 +756,10 @@ Module sections live in `src/Widgets/*/SPEC.md` and `src/Providers/*/SPEC.md` ([
   before ids. An id is checked wherever one is made or read; a malformed one in a document is a
   corrupt value, never a new widget.
 - **[S-6901]** The registry is generated at build time (`Themia.Modules.Generator`): every
-  `[assembly: ThemiaWidget(id, typeof(M))]` and `[assembly: ThemiaProvider(id, typeof(M))]`, in the
-  app itself or in an assembly it references, becomes one `new M()` in `ModuleRegistry`, in id
-  order. No reflection and no run-time loading, so Native AOT keeps every module. A malformed id
-  fails the build (THEMIAMOD001), so does an id declared twice (THEMIAMOD002), a type that is not
+  `[assembly: ThemiaWidget(id, typeof(M))]` and `[assembly: ThemiaProvider(id, typeof(M))]` in an
+  assembly the app references becomes one `new M()` in `ModuleRegistry`, in id order; the app
+  declaring one itself fails the build (THEMIAMOD005). No reflection and no run-time loading, so
+  Native AOT keeps every module. A malformed id fails the build (THEMIAMOD001), so does an id declared twice (THEMIAMOD002), a type that is not
   a public, non-abstract module class with a public parameterless constructor (THEMIAMOD003), and a
   module project (`Themia.Widget.<Name>`, `Themia.Provider.<Name>`) declaring anything but the one
   module its name says, `<name>` in camelCase (THEMIAMOD004).

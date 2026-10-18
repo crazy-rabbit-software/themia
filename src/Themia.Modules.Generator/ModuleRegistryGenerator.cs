@@ -10,11 +10,11 @@ namespace Themia.Modules.Generator;
 /// <summary>
 /// [S-6901] Emits <c>ModuleRegistry</c> into the compilation that hosts the modules (the app): one
 /// <c>new M()</c> per <c>[assembly: ThemiaWidget(id, typeof(M))]</c> / <c>ThemiaProvider</c>, in id
-/// order, read from every referenced assembly and from the compilation itself (the widgets still
-/// compiled inside the app, docs/WIDGET-KIT.md section 11.1). Ids are checked here, so a malformed
-/// one (THEMIAMOD001), one declared twice (THEMIAMOD002), a type that is not a module
-/// (THEMIAMOD003) or a module project declaring another id than its name (THEMIAMOD004) fails the
-/// build instead of a start.
+/// order, read from every referenced assembly. The host declares none itself: every widget and
+/// provider is a module project, or Core's for the host's own providers (THEMIAMOD005). Ids are
+/// checked here, so a malformed one (THEMIAMOD001), one declared twice (THEMIAMOD002), a type that
+/// is not a module (THEMIAMOD003) or a module project declaring another id than its name
+/// (THEMIAMOD004) fails the build instead of a start.
 /// </summary>
 [Generator(LanguageNames.CSharp)]
 public sealed class ModuleRegistryGenerator : IIncrementalGenerator
@@ -45,6 +45,11 @@ public sealed class ModuleRegistryGenerator : IIncrementalGenerator
     private static readonly DiagnosticDescriptor NotItsName = new(
         "THEMIAMOD004", "Module id is not its project's name",
         "{0} declares the {1} '{2}', but a module project declares exactly the one its name says: the {3} '{4}'",
+        "Modules", DiagnosticSeverity.Error, isEnabledByDefault: true);
+
+    private static readonly DiagnosticDescriptor InTheHost = new(
+        "THEMIAMOD005", "The host declares a module",
+        "{0} declares the module '{1}' itself; a module is its own project (src/Widgets/Themia.Widget.<Name>, src/Providers/Themia.Provider.<Name>) that the host references",
         "Modules", DiagnosticSeverity.Error, isEnabledByDefault: true);
 
     /// <summary>The assembly name prefix of a widget module project and of a provider module project.</summary>
@@ -118,10 +123,20 @@ public sealed class ModuleRegistryGenerator : IIncrementalGenerator
         var widgets = new List<Found>();
         var providers = new List<Found>();
 
-        var assemblies = new List<IAssemblySymbol> { compilation.Assembly };
-        assemblies.AddRange(compilation.SourceModule.ReferencedAssemblySymbols.OrderBy(a => a.Name, StringComparer.Ordinal));
+        foreach (var attribute in compilation.Assembly.GetAttributes())
+        {
+            var name = attribute.AttributeClass?.ToDisplayString();
+            if (name == WidgetAttribute || name == ProviderAttribute)
+            {
+                var location = attribute.ApplicationSyntaxReference is { } syntax
+                    ? Location.Create(syntax.SyntaxTree, syntax.Span)
+                    : Location.None;
+                var id = attribute.ConstructorArguments.Length > 0 ? attribute.ConstructorArguments[0].Value as string : null;
+                context.ReportDiagnostic(Diagnostic.Create(InTheHost, location, compilation.AssemblyName, id ?? ""));
+            }
+        }
 
-        foreach (var assembly in assemblies)
+        foreach (var assembly in compilation.SourceModule.ReferencedAssemblySymbols.OrderBy(a => a.Name, StringComparer.Ordinal))
         {
             foreach (var attribute in assembly.GetAttributes())
             {

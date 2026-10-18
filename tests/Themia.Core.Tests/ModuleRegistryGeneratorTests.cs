@@ -74,25 +74,25 @@ public sealed class ModuleRegistryGeneratorTests
     }
 
     [Fact]
-    public void S6901_lists_the_compilations_own_and_referenced_modules_in_id_order()
+    public void S6901_lists_the_referenced_modules_in_id_order()
     {
-        var module = Library("Themia.Widget.WeatherNow", """
+        var weather = Library("Themia.Widget.WeatherNow", """
             [assembly: Themia.Sdk.ThemiaWidget("weatherNow", typeof(Weather.WeatherModule))]
             namespace Weather { public sealed class WeatherModule : Themia.Sdk.WinUI.IWidgetModule; }
             """);
+        var clock = Library("Themia.Widget.Clock", """
+            [assembly: Themia.Sdk.ThemiaWidget("clock", typeof(Clock.ClockModule))]
+            namespace Clock { public sealed class ClockModule : Themia.Sdk.WinUI.IWidgetModule; }
+            """);
+        var google = Library("Themia.Provider.Google", """
+            [assembly: Themia.Sdk.ThemiaProvider("google", typeof(Google.GoogleModule))]
+            namespace Google { public sealed class GoogleModule : Themia.Sdk.IProviderModule; }
+            """);
 
-        var result = Run("""
-            [assembly: Themia.Sdk.ThemiaWidget("clock", typeof(App.ClockModule))]
-            [assembly: Themia.Sdk.ThemiaProvider("google", typeof(App.GoogleModule))]
-            namespace App
-            {
-                public sealed class ClockModule : Themia.Sdk.WinUI.IWidgetModule;
-                public sealed class GoogleModule : Themia.Sdk.IProviderModule;
-            }
-            """, module);
+        var result = Run("namespace App { }", weather, clock, google);
 
         Assert.Empty(result.Errors);
-        Assert.Contains("new global::App.ClockModule(),", result.Registry, StringComparison.Ordinal);
+        Assert.Contains("new global::Clock.ClockModule(),", result.Registry, StringComparison.Ordinal);
         Assert.Contains("new global::Weather.WeatherModule(),", result.Registry, StringComparison.Ordinal);
         Assert.Contains("WidgetIds = [\"clock\", \"weatherNow\"];", result.Registry, StringComparison.Ordinal);
         Assert.Contains("ProviderIds = [\"google\"];", result.Registry, StringComparison.Ordinal);
@@ -108,27 +108,30 @@ public sealed class ModuleRegistryGeneratorTests
     [InlineData("")]
     public void S6901_a_malformed_id_is_THEMIAMOD001(string id)
     {
-        var result = Run($$"""
-            [assembly: Themia.Sdk.ThemiaWidget("{{id}}", typeof(App.M))]
-            namespace App { public sealed class M : Themia.Sdk.WinUI.IWidgetModule; }
+        var module = Library("Lib", $$"""
+            [assembly: Themia.Sdk.ThemiaWidget("{{id}}", typeof(Lib.M))]
+            namespace Lib { public sealed class M : Themia.Sdk.WinUI.IWidgetModule; }
             """);
 
+        var result = Run("namespace App { }", module);
+
         Assert.Equal(["THEMIAMOD001"], result.Ids);
-        Assert.DoesNotContain("new global::App.M()", result.Registry, StringComparison.Ordinal);
+        Assert.DoesNotContain("new global::Lib.M()", result.Registry, StringComparison.Ordinal);
     }
 
     [Fact]
     public void S6901_an_id_declared_twice_is_THEMIAMOD002()
     {
-        var result = Run("""
-            [assembly: Themia.Sdk.ThemiaWidget("clock", typeof(App.A))]
-            [assembly: Themia.Sdk.ThemiaWidget("clock", typeof(App.B))]
-            namespace App
-            {
-                public sealed class A : Themia.Sdk.WinUI.IWidgetModule;
-                public sealed class B : Themia.Sdk.WinUI.IWidgetModule;
-            }
+        var first = Library("First", """
+            [assembly: Themia.Sdk.ThemiaWidget("clock", typeof(First.A))]
+            namespace First { public sealed class A : Themia.Sdk.WinUI.IWidgetModule; }
             """);
+        var second = Library("Second", """
+            [assembly: Themia.Sdk.ThemiaWidget("clock", typeof(Second.B))]
+            namespace Second { public sealed class B : Themia.Sdk.WinUI.IWidgetModule; }
+            """);
+
+        var result = Run("namespace App { }", first, second);
 
         Assert.Equal(["THEMIAMOD002"], result.Ids);
     }
@@ -141,12 +144,36 @@ public sealed class ModuleRegistryGeneratorTests
     [InlineData("public sealed class M(int x) : Themia.Sdk.WinUI.IWidgetModule { public int X => x; }")]
     public void S6901_a_type_that_is_not_a_widget_module_is_THEMIAMOD003(string type)
     {
-        var result = Run($$"""
-            [assembly: Themia.Sdk.ThemiaWidget("clock", typeof(App.M))]
-            namespace App { {{type}} }
+        var module = Library("Lib", $$"""
+            [assembly: Themia.Sdk.ThemiaWidget("clock", typeof(Lib.M))]
+            namespace Lib { {{type}} }
             """);
 
+        var result = Run("namespace App { }", module);
+
         Assert.Equal(["THEMIAMOD003"], result.Ids);
+    }
+
+    /// <summary>
+    /// [S-6901] The host declares no module: every widget and provider is a module project. A module
+    /// the hosting compilation declares itself is THEMIAMOD005 and is not in the registry.
+    /// </summary>
+    [Fact]
+    public void S6901_a_module_the_host_declares_itself_is_THEMIAMOD005()
+    {
+        var result = Run("""
+            [assembly: Themia.Sdk.ThemiaWidget("clock", typeof(App.ClockModule))]
+            [assembly: Themia.Sdk.ThemiaProvider("google", typeof(App.GoogleModule))]
+            namespace App
+            {
+                public sealed class ClockModule : Themia.Sdk.WinUI.IWidgetModule;
+                public sealed class GoogleModule : Themia.Sdk.IProviderModule;
+            }
+            """);
+
+        Assert.Equal(["THEMIAMOD005", "THEMIAMOD005"], result.Ids);
+        Assert.Contains("WidgetIds = [];", result.Registry, StringComparison.Ordinal);
+        Assert.Contains("ProviderIds = [];", result.Registry, StringComparison.Ordinal);
     }
 
     [Fact]

@@ -306,12 +306,13 @@ declares an `IModuleService` the host creates once, on first use, and disposes a
   the next build.
 - **A registry generator.** `Themia.Modules.Generator` (Roslyn incremental generator,
   `netstandard2.0`, referenced as an analyzer, nothing ships) reads the assembly-level
-  `[ThemiaWidget]`/`[ThemiaProvider]` attributes of every referenced assembly, and of the
-  compilation itself (the in-app modules of the migration, section 11), and checks at build time:
-  the id's shape (THEMIAMOD001), that no id is declared twice (002), that the type is public,
-  non-abstract, implements its contract and has a public parameterless constructor (003), and that
+  `[ThemiaWidget]`/`[ThemiaProvider]` attributes of every referenced assembly, and checks at build
+  time: the id's shape (THEMIAMOD001), that no id is declared twice (002), that the type is public,
+  non-abstract, implements its contract and has a public parameterless constructor (003), that
   the id is the project's suffix in camelCase (004, `Themia.Widget.WeatherNow` declares
-  `weatherNow`). It emits `ModuleRegistry` with one `new M()` per module in id order, plus the id
+  `weatherNow`), and that the hosting compilation declares no module itself (005: since the last
+  widget left the app, 2026-10-18, it no longer reads its own attributes; Core keeps the host's own
+  providers). It emits `ModuleRegistry` with one `new M()` per module in id order, plus the id
   lists. Static construction means Native AOT sees and keeps every module type: no reflection, no
   runtime loading, nothing to root by hand.
 - **Shared csproj boilerplate.** `src/Widgets/Directory.Build.props` and
