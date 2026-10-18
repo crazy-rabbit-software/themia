@@ -31,7 +31,7 @@ namespace Themia.App.Widgets;
 /// Detach, and the view only lays out the sheets it is handed.
 /// </para>
 /// </summary>
-internal sealed partial class DetailView : Grid, IWidgetView, IWidgetSizeAware, IWidgetSurfaceAware, IWidgetContextActions, IDetailHost
+public sealed partial class DetailView : Grid, IWidgetView, IWidgetSizeAware, IWidgetSurfaceAware, IWidgetContextActions, IDetailHost
 {
     private const string LogScope = "details";
 

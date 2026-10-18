@@ -24,7 +24,7 @@ namespace Themia.App.Widgets;
 /// process as a row in every list was about 19 MB of native XAML per Top processes tile.
 /// </para>
 /// </summary>
-internal sealed partial class DetailView : IWidgetKeys
+public sealed partial class DetailView : IWidgetKeys
 {
     /// <summary>From this width a row shows its second figure (memory beside the processor share).</summary>
     private const double SecondFrom = 280;

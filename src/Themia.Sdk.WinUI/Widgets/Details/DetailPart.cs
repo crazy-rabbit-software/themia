@@ -6,7 +6,7 @@ using Themia.Sdk;
 namespace Themia.App.Widgets.Details;
 
 /// <summary>What a detail part hands its sheets to: the shared <see cref="DetailView"/>.</summary>
-internal interface IDetailHost
+public interface IDetailHost
 {
     /// <summary>Put one sheet on screen. Called from the part's hub callbacks, on the UI thread.</summary>
     void Present(DetailSheet sheet);
@@ -28,7 +28,7 @@ internal interface IDetailHost
 /// builds its sheet from their snapshots, and lets go of them in <see cref="Detach"/> ([S-1881]).
 /// </para>
 /// </summary>
-internal abstract class DetailPart
+public abstract class DetailPart
 {
     protected const string Scope = "details";
 
@@ -74,5 +74,10 @@ internal abstract class DetailPart
 
     /// <summary>Let go of every feed. Safe twice.</summary>
     public abstract void Detach();
+
+#if DEBUG
+    /// <summary>[S-1917] Debug renders: the sheet <c>--state sample</c> shows instead of the live one (what a render machine cannot show), or null to keep the live one.</summary>
+    public virtual DetailSheet? SampleSheet() => null;
+#endif
 
 }

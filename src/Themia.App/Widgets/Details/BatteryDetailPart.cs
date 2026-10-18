@@ -59,6 +59,16 @@ internal sealed class BatteryDetailPart : DetailPart
         host.Present(BatteryDetailRules.Sheet(Strings.Current, power, power.HasBattery && _pack.HasValue ? _pack.Value : null));
     }
 
+#if DEBUG
+    /// <summary>[S-1917] A laptop's battery on a desktop: fixture figures through the real <see cref="BatteryDetailRules"/>.</summary>
+    public override DetailSheet? SampleSheet()
+    {
+        var power = new BatteryPower(true, 82, false, false, TimeSpan.FromMinutes(194));
+        var pack = new BatteryPack(false, 57_000, 51_300, 42_000, -9_400, 12_380, 214, 31, "Li-polymer", "SMP", 1);
+        return BatteryDetailRules.Sheet(Strings.Current, power, pack);
+    }
+#endif
+
     public override void Detach()
     {
         _pack.Release();
