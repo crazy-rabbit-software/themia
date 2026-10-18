@@ -1,16 +1,4 @@
 {
   "$comment": "Machine-written translations: every string in this file needs native review.",
-  "online.source": "Tushe: {name}",
-  "online.rates.label": "Farashin canjin kuɗi",
-  "online.rates.desc": "Farashin tunani daga Babban Bankin Turai",
-  "online.rates.fix": "ECB, {date}",
-  "online.rates.fixTooltip": "Farashin tunani na {date} daga Babban Bankin Turai",
-  "online.rates.perBase": "kowace {code}",
-  "online.rates.missing": "Ba a wallafa ba",
-  "online.rates.settings.base.label": "Kuɗin tushe",
-  "online.rates.settings.base.desc": "Ana bayar da farashin ga raka'a ɗaya na wannan kuɗi",
-  "online.rates.settings.base.region": "Yankin Windows ({code})",
-  "online.rates.settings.quote.label": "Kuɗi",
-  "online.rates.settings.quote.desc": "Kuɗin da ake bayar da farashin da shi",
-  "online.rates.settings.quote.default": "Asali ({code})"
+  "online.source": "Tushe: {name}"
 }

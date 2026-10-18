@@ -1,16 +1,4 @@
 {
   "$comment": "New strings in this file are machine-written and need native review.",
-  "online.source": "출처: {name}",
-  "online.rates.label": "환율",
-  "online.rates.desc": "유럽중앙은행 기준 환율",
-  "online.rates.fix": "ECB, {date}",
-  "online.rates.fixTooltip": "유럽중앙은행의 {date} 기준 환율",
-  "online.rates.perBase": "1 {code}당",
-  "online.rates.missing": "게시되지 않음",
-  "online.rates.settings.base.label": "기준 통화",
-  "online.rates.settings.base.desc": "이 통화 1단위당 환율을 표시합니다",
-  "online.rates.settings.base.region": "Windows 지역 ({code})",
-  "online.rates.settings.quote.label": "통화",
-  "online.rates.settings.quote.desc": "환율을 표시하는 통화",
-  "online.rates.settings.quote.default": "기본값 ({code})"
+  "online.source": "출처: {name}"
 }

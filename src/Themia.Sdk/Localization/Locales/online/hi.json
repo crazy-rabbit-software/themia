@@ -1,16 +1,4 @@
 {
   "$comment": "New strings in this file are machine-written and need native review.",
-  "online.source": "स्रोत: {name}",
-  "online.rates.label": "विनिमय दरें",
-  "online.rates.desc": "यूरोपीय सेंट्रल बैंक की संदर्भ दरें",
-  "online.rates.fix": "ECB, {date}",
-  "online.rates.fixTooltip": "यूरोपीय सेंट्रल बैंक की {date} की संदर्भ दरें",
-  "online.rates.perBase": "प्रति {code}",
-  "online.rates.missing": "प्रकाशित नहीं",
-  "online.rates.settings.base.label": "आधार मुद्रा",
-  "online.rates.settings.base.desc": "दर इस मुद्रा की एक इकाई के लिए दी जाती है",
-  "online.rates.settings.base.region": "Windows क्षेत्र ({code})",
-  "online.rates.settings.quote.label": "मुद्रा",
-  "online.rates.settings.quote.desc": "वह मुद्रा जिसमें दर दी जाती है",
-  "online.rates.settings.quote.default": "डिफ़ॉल्ट ({code})"
+  "online.source": "स्रोत: {name}"
 }

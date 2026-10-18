@@ -1,16 +1,4 @@
 {
   "$comment": "New strings in this file are machine-written and need native review.",
-  "online.source": "Sumber: {name}",
-  "online.rates.label": "Kurs mata uang",
-  "online.rates.desc": "Kurs acuan dari Bank Sentral Eropa",
-  "online.rates.fix": "ECB, {date}",
-  "online.rates.fixTooltip": "Kurs acuan {date} dari Bank Sentral Eropa",
-  "online.rates.perBase": "per {code}",
-  "online.rates.missing": "Tidak diterbitkan",
-  "online.rates.settings.base.label": "Mata uang dasar",
-  "online.rates.settings.base.desc": "Kurs dinyatakan per satu unit mata uang ini",
-  "online.rates.settings.base.region": "Wilayah Windows ({code})",
-  "online.rates.settings.quote.label": "Mata uang",
-  "online.rates.settings.quote.desc": "Mata uang untuk menyatakan kurs",
-  "online.rates.settings.quote.default": "Default ({code})"
+  "online.source": "Sumber: {name}"
 }

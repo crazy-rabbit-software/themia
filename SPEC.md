@@ -7610,14 +7610,15 @@ but not reconnected at sign-in; a stopwatch running across a restart and a reboo
 ## Air quality, rain and exchange rates (ONLINE-2)
 
 Three online widgets on free, unauthenticated services, fetched only by the background web sync
-([S-2663]); a widget draws what the sync holds and never fetches. SDK: `Widgets/AirQuality.cs`,
+([S-2663]); a widget draws what the sync holds and never fetches. Each is a module
+(`src/Widgets/Themia.Widget.AirQuality/`, `.RainNextHour/`, `.ExchangeRates/`) with its config, view,
+ladder, words, settings and tags; this section keeps what they share. SDK: `Widgets/AirQuality.cs`,
 `Widgets/RainNowcast.cs`, `Widgets/ExchangeRates.cs` (wire parsers and rules), `Widgets/OnlineLayouts.cs`
-(the measures the ladders share), `Sync/WebInterests.cs`. Core: each widget's ladder and words
-(`RatesLayout`/`RatesText`), `Storage/OnlineCacheStore.cs`,
-`Model/Configs/OnlineConfigs.cs`. App: `Services/Web/OnlineService.cs`, `WebSync`, the view
-`ExchangeRatesView` (+ `OnlineViews.Preview.cs`, `--state sample`), `WidgetSettings.Online.cs`.
-Strings in `Locales/online`. Air quality and rain next hour are modules
-(`src/Widgets/Themia.Widget.AirQuality/`, `src/Widgets/Themia.Widget.RainNextHour/`). Tests `OnlineWidgetsTests` (`S51xx_`).
+(the measures the ladders share), `Sync/WebInterests.cs`, `OnlineParts` (the age line, Sdk.WinUI).
+Core: `Storage/OnlineCacheStore.cs`. App: `Services/Web/OnlineService.cs`, `WebSync` (behind
+`IWidgetHost.Weather` and `.Rates`). Strings: the source line in `Locales/online`, the rest in each
+module. Tests `OnlineWidgetsTests` (`S51xx_`), the side-by-side ones in the module test host
+(`OnlineFamilyTests`).
 
 Air quality (`AirQuality`, 128):
 
@@ -7650,45 +7651,16 @@ Rain next hour (`RainNextHour`, 129):
 
 Exchange rates (`ExchangeRates`, 130):
 
-- **[S-5140]** The ECB's euro reference rate of **one pair** (user decision; several pairs are several
-  widgets): what one unit of the base buys of the quote. Works out of the box (no setup).
+- [S-5140], [S-5143], [S-5144], [S-5146], [S-5147], [S-5148], [S-6167], [S-6168]: moved with the Exchange rates widget into its module's `SPEC.md` (`src/Widgets/Themia.Widget.ExchangeRates/`).
 - **[S-5141]** One document for every pair: `eurofxref-hist-90d.xml` (about 70 KB, the last 90 days,
   newest first; the daily file is the same shape). `EcbWire.Parse`: XML with DTDs prohibited and no
   resolver, at most 320 KB; no dated `Cube` is rejected; a bad date, a rate that is not a positive
   number or a code that is not three capitals is dropped, the rest of its day kept; nothing left is
   Empty. ECB terms: free reuse with the source named (the settings page and the header tooltip do).
 - **[S-5142]** The currencies offered are the ECB's 30 plus the euro (`ExchangeRules.Published`).
-- **[S-5143]** The base is empty by default, meaning the Windows region's currency
-  (`GetUserDefaultGeoName` → `RegionCurrency`, read with the regional format on every state change):
-  CHF for Switzerland and Liechtenstein, USD for the US, the euro for the euro area and anywhere
-  unmapped. The quote is empty by default, meaning the euro, or the dollar for a euro base
-  (`ExchangeRules.DefaultQuote`); a quote that is the base itself is that default too
-  (`EffectiveQuote`).
-- **[S-5144]** Repair at load: a base or quote that is not a published code follows its default,
-  said; a published one is upper-cased.
 - **[S-5145]** Every pair is a cross rate through the euro (quote per euro ÷ base per euro); the change
   is against the newest earlier day holding both; a currency missing on the latest day is "Not
   published". Rates print four decimals under 10, three under 100, two above, locale digits.
-- **[S-5146]** **Number** (`RatesLayout.Rates`): the pair as the readout (rate, the quote's code,
-  the day change beside it or under it, "per CHF") on the whole tile, from Subtitle as large as the
-  tile allows (past Display, as a lone reading, [S-1762]); the Chart style's stops at the tier's step ([S-3860]). Up is the success colour, down critical. No table yet, or the latest day lacking
-  either code: the empty state ("Not published"). The header is titled with the pair ("Exchange
-  rates · CHF/EUR") and reads "ECB, 9 Oct" (the rate's day) in the caution colour when the last
-  refresh failed or the table was restored.
-- **[S-5147]** One `RatesInterest` for all exchange-rate widgets; asked every three hours, no setting
-  (`OnlineCadence.Rates`): the ECB publishes once per working day around 16:00 CET.
-- **[S-5148]** Settings: Base currency (Windows region first, naming it), Currency (the default
-  first, naming it, then the published codes), and the source line.
-- **[S-6167]** The exchange-rate widget's styles ([S-6000]), `ExchangeRatesConfig.Style`
-  (`ExchangeRatesStyle`): **Chart** (the default and first, as for Stocks — user requirement: the
-  rate shows with its graph) and **Number** ([S-5146]; what was **List** before one pair per widget,
-  renamed since a list of one is a number). *(The list's rows and their
-  small lines are retired with the list.)*
-- **[S-6168]** **Chart** (`RatesLayout.Rates`): the pair as the readout (as [S-5146]), and its 90
-  days filled under the line in what the readout leaves (it takes 40 % of the spare height), edge to
-  edge and down to the card's bottom; a strip (≥ 400 wide, 2:1) puts the readout in a column on the
-  left (42 % of the width, 150..280) beside a chart of the strip's height. Where the chart would
-  have under 56, the readout alone.
 
 Shared:
 

@@ -1,16 +1,4 @@
 {
   "$comment": "New strings in this file are machine-written and need native review.",
-  "online.source": "Bron: {name}",
-  "online.rates.label": "Wisselkoersen",
-  "online.rates.desc": "Referentiekoersen van de Europese Centrale Bank",
-  "online.rates.fix": "ECB, {date}",
-  "online.rates.fixTooltip": "Referentiekoersen van {date} van de Europese Centrale Bank",
-  "online.rates.perBase": "per {code}",
-  "online.rates.missing": "Niet gepubliceerd",
-  "online.rates.settings.base.label": "Basisvaluta",
-  "online.rates.settings.base.desc": "De koers geldt voor één eenheid van deze valuta",
-  "online.rates.settings.base.region": "Windows-regio ({code})",
-  "online.rates.settings.quote.label": "Valuta",
-  "online.rates.settings.quote.desc": "De valuta waarin de koers wordt uitgedrukt",
-  "online.rates.settings.quote.default": "Standaard ({code})"
+  "online.source": "Bron: {name}"
 }

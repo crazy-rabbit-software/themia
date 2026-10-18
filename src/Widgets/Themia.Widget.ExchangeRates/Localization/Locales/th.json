@@ -1,0 +1,16 @@
+{
+  "online.rates.label": "อัตราแลกเปลี่ยน",
+  "online.rates.desc": "อัตราอ้างอิงจากธนาคารกลางยุโรป",
+  "online.rates.fix": "ECB, {date}",
+  "online.rates.fixTooltip": "อัตราอ้างอิงวันที่ {date} จากธนาคารกลางยุโรป",
+  "online.rates.perBase": "ต่อ {code}",
+  "online.rates.missing": "ไม่ได้เผยแพร่",
+  "online.rates.settings.base.label": "สกุลเงินหลัก",
+  "online.rates.settings.base.desc": "แสดงอัตราต่อหนึ่งหน่วยของสกุลเงินนี้",
+  "online.rates.settings.base.region": "ภูมิภาคของ Windows ({code})",
+  "online.rates.settings.quote.label": "สกุลเงิน",
+  "online.rates.settings.quote.desc": "สกุลเงินที่ใช้แสดงอัตรา",
+  "online.rates.settings.quote.default": "ค่าเริ่มต้น ({code})",
+  "styles.rates.chart": "แผนภูมิ",
+  "styles.rates.number": "ตัวเลข"
+}

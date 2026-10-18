@@ -1,0 +1,16 @@
+{
+  "online.rates.label": "أسعار الصرف",
+  "online.rates.desc": "الأسعار المرجعية للبنك المركزي الأوروبي",
+  "online.rates.fix": "البنك المركزي الأوروبي، {date}",
+  "online.rates.fixTooltip": "الأسعار المرجعية ليوم {date} من البنك المركزي الأوروبي",
+  "online.rates.perBase": "لكل {code}",
+  "online.rates.missing": "غير منشور",
+  "online.rates.settings.base.label": "العملة الأساسية",
+  "online.rates.settings.base.desc": "يُعطى السعر لكل وحدة واحدة منها",
+  "online.rates.settings.base.region": "منطقة Windows ({code})",
+  "online.rates.settings.quote.label": "العملة",
+  "online.rates.settings.quote.desc": "العملة التي يُعطى بها السعر",
+  "online.rates.settings.quote.default": "افتراضي ({code})",
+  "styles.rates.chart": "مخطط",
+  "styles.rates.number": "رقم"
+}

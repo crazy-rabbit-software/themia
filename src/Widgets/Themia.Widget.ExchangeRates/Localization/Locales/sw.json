@@ -1,0 +1,16 @@
+{
+  "online.rates.label": "Viwango vya ubadilishaji",
+  "online.rates.desc": "Viwango rejea kutoka Benki Kuu ya Ulaya",
+  "online.rates.fix": "ECB, {date}",
+  "online.rates.fixTooltip": "Viwango rejea vya {date} kutoka Benki Kuu ya Ulaya",
+  "online.rates.perBase": "kwa {code}",
+  "online.rates.missing": "Hakijachapishwa",
+  "online.rates.settings.base.label": "Sarafu ya msingi",
+  "online.rates.settings.base.desc": "Kiwango kinatolewa kwa kipimo kimoja cha sarafu hii",
+  "online.rates.settings.base.region": "Eneo la Windows ({code})",
+  "online.rates.settings.quote.label": "Sarafu",
+  "online.rates.settings.quote.desc": "Sarafu ambayo kiwango kinatolewa kwayo",
+  "online.rates.settings.quote.default": "Chaguomsingi ({code})",
+  "styles.rates.chart": "Chati",
+  "styles.rates.number": "Nambari"
+}

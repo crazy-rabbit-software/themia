@@ -1,16 +1,4 @@
 {
   "$comment": "Machine-written translations: every string in this file needs native review.",
-  "online.source": "منبع: {name}",
-  "online.rates.label": "نرخ ارز",
-  "online.rates.desc": "نرخ‌های مرجع بانک مرکزی اروپا",
-  "online.rates.fix": "ECB، {date}",
-  "online.rates.fixTooltip": "نرخ‌های مرجع {date} از بانک مرکزی اروپا",
-  "online.rates.perBase": "به ازای {code}",
-  "online.rates.missing": "منتشر نشده",
-  "online.rates.settings.base.label": "ارز پایه",
-  "online.rates.settings.base.desc": "نرخ برای یک واحد از این ارز بیان می‌شود",
-  "online.rates.settings.base.region": "منطقه Windows ({code})",
-  "online.rates.settings.quote.label": "ارز",
-  "online.rates.settings.quote.desc": "ارزی که نرخ به آن بیان می‌شود",
-  "online.rates.settings.quote.default": "پیش‌فرض ({code})"
+  "online.source": "منبع: {name}"
 }

@@ -1,16 +1,4 @@
 {
   "$comment": "Machine-written translations: every string in this file needs native review.",
-  "online.source": "மூலம்: {name}",
-  "online.rates.label": "நாணய மாற்று விகிதங்கள்",
-  "online.rates.desc": "ஐரோப்பிய மத்திய வங்கியின் குறிப்பு விகிதங்கள்",
-  "online.rates.fix": "ECB, {date}",
-  "online.rates.fixTooltip": "ஐரோப்பிய மத்திய வங்கியின் {date} குறிப்பு விகிதங்கள்",
-  "online.rates.perBase": "ஒரு {code} க்கு",
-  "online.rates.missing": "வெளியிடப்படவில்லை",
-  "online.rates.settings.base.label": "அடிப்படை நாணயம்",
-  "online.rates.settings.base.desc": "இந்த நாணயத்தின் ஒரு அலகுக்கு விகிதம் தரப்படுகிறது",
-  "online.rates.settings.base.region": "Windows பிராந்தியம் ({code})",
-  "online.rates.settings.quote.label": "நாணயம்",
-  "online.rates.settings.quote.desc": "விகிதம் தரப்படும் நாணயம்",
-  "online.rates.settings.quote.default": "இயல்புநிலை ({code})"
+  "online.source": "மூலம்: {name}"
 }

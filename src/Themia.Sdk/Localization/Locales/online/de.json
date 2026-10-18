@@ -1,16 +1,4 @@
 {
   "$comment": "New strings in this file are machine-written and need native review.",
-  "online.source": "Quelle: {name}",
-  "online.rates.label": "Wechselkurse",
-  "online.rates.desc": "Referenzkurse der Europäischen Zentralbank",
-  "online.rates.fix": "EZB, {date}",
-  "online.rates.fixTooltip": "Referenzkurse vom {date} der Europäischen Zentralbank",
-  "online.rates.perBase": "pro {code}",
-  "online.rates.missing": "Nicht veröffentlicht",
-  "online.rates.settings.base.label": "Basiswährung",
-  "online.rates.settings.base.desc": "Der Kurs gilt für eine Einheit dieser Währung",
-  "online.rates.settings.base.region": "Windows-Region ({code})",
-  "online.rates.settings.quote.label": "Währung",
-  "online.rates.settings.quote.desc": "Die Währung, in der der Kurs angegeben wird",
-  "online.rates.settings.quote.default": "Standard ({code})"
+  "online.source": "Quelle: {name}"
 }

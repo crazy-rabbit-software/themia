@@ -1,16 +1,4 @@
 {
   "$comment": "New strings in this file are machine-written and need native review.",
-  "online.source": "উৎস: {name}",
-  "online.rates.label": "বিনিময় হার",
-  "online.rates.desc": "ইউরোপীয় কেন্দ্রীয় ব্যাংকের রেফারেন্স হার",
-  "online.rates.fix": "ECB, {date}",
-  "online.rates.fixTooltip": "ইউরোপীয় কেন্দ্রীয় ব্যাংকের {date} তারিখের রেফারেন্স হার",
-  "online.rates.perBase": "প্রতি {code}",
-  "online.rates.missing": "প্রকাশিত নয়",
-  "online.rates.settings.base.label": "ভিত্তি মুদ্রা",
-  "online.rates.settings.base.desc": "এই মুদ্রার প্রতি এক এককের জন্য হার দেখানো হয়",
-  "online.rates.settings.base.region": "Windows অঞ্চল ({code})",
-  "online.rates.settings.quote.label": "মুদ্রা",
-  "online.rates.settings.quote.desc": "যে মুদ্রায় হার দেখানো হয়",
-  "online.rates.settings.quote.default": "ডিফল্ট ({code})"
+  "online.source": "উৎস: {name}"
 }

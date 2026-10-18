@@ -7,7 +7,7 @@ using static Themia.Core.Tests.StyleTiers;
 namespace Themia.Core.Tests;
 
 /// <summary>
-/// [S-6161]..[S-6168] The styles of the weather, forecast, stock and exchange-rate widgets:
+/// [S-6161]..[S-6166] The styles of the weather, forecast and stock widgets:
 /// the rules each style draws by, at the seven size tiers (each card less its
 /// ~44px header).
 /// </summary>
@@ -193,40 +193,5 @@ public sealed class WeatherStylesTests
         Assert.Equal(FluentType.Title, StockLayout.NumberChangeStep(FluentType.Display));
         Assert.Equal(FluentType.Body, StockLayout.NumberChangeStep(FluentType.Subtitle));
         Assert.Equal(FluentType.TitleLarge, StockLayout.NumberChangeStep(FluentType.Scaled(FluentType.Display, 1.5)));
-    }
-
-    // ---- exchange-rate chart [S-6168] --------------------------------------------------------
-
-    private static RatesPlan RatesChart(WidgetArea area)
-        => RatesLayout.Rates(area, ExchangeRatesStyle.Chart, FluentType.Subtitle.LineHeight + FluentType.Caption.LineHeight);
-
-    [Fact]
-    public void S6168_the_chart_style_is_the_rate_over_its_chart()
-    {
-        foreach (var tier in new[] { M, Tall, L, Xl })
-        {
-            var plan = RatesChart(tier);
-            Assert.False(plan.Beside);
-            Assert.True(plan.ChartHeight >= RatesLayout.HeroChartMin, $"{tier}: chart {plan.ChartHeight}");
-        }
-    }
-
-    [Fact]
-    public void S6168_a_strip_puts_the_chart_beside_the_hero_with_the_strip_s_height()
-    {
-        var plan = RatesChart(Wide);
-
-        Assert.True(plan.Beside);
-        Assert.True(plan.HeroWidth >= 150);
-        Assert.True(plan.ChartHeight >= Wide.Height);
-    }
-
-    [Fact]
-    public void S6168_a_tile_too_small_for_the_chart_is_the_hero_alone()
-    {
-        var plan = RatesChart(Xs);
-
-        Assert.Equal(0, plan.ChartHeight);
-        Assert.False(plan.Beside);
     }
 }

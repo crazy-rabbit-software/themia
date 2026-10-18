@@ -1,0 +1,16 @@
+{
+  "online.rates.label": "Taux de change",
+  "online.rates.desc": "Taux de référence de la Banque centrale européenne",
+  "online.rates.fix": "BCE, {date}",
+  "online.rates.fixTooltip": "Taux de référence du {date} de la Banque centrale européenne",
+  "online.rates.perBase": "pour 1 {code}",
+  "online.rates.missing": "Non publié",
+  "online.rates.settings.base.label": "Devise de base",
+  "online.rates.settings.base.desc": "Le taux est exprimé pour une unité de cette devise",
+  "online.rates.settings.base.region": "Région Windows ({code})",
+  "online.rates.settings.quote.label": "Devise",
+  "online.rates.settings.quote.desc": "La devise dans laquelle le taux est exprimé",
+  "online.rates.settings.quote.default": "Par défaut ({code})",
+  "styles.rates.chart": "Graphique",
+  "styles.rates.number": "Nombre"
+}

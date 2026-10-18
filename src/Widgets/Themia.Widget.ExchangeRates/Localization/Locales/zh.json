@@ -1,0 +1,16 @@
+{
+  "online.rates.label": "汇率",
+  "online.rates.desc": "欧洲中央银行参考汇率",
+  "online.rates.fix": "欧洲央行，{date}",
+  "online.rates.fixTooltip": "欧洲中央银行 {date} 的参考汇率",
+  "online.rates.perBase": "每 1 {code}",
+  "online.rates.missing": "未公布",
+  "online.rates.settings.base.label": "基准货币",
+  "online.rates.settings.base.desc": "汇率以此货币的一个单位计",
+  "online.rates.settings.base.region": "Windows 区域 ({code})",
+  "online.rates.settings.quote.label": "货币",
+  "online.rates.settings.quote.desc": "汇率以此货币表示",
+  "online.rates.settings.quote.default": "默认 ({code})",
+  "styles.rates.chart": "图表",
+  "styles.rates.number": "数字"
+}

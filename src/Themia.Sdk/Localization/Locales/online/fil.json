@@ -1,16 +1,4 @@
 {
   "$comment": "Machine-written translations: every string in this file needs native review.",
-  "online.source": "Pinagmulan: {name}",
-  "online.rates.label": "Mga exchange rate",
-  "online.rates.desc": "Mga reference rate mula sa European Central Bank",
-  "online.rates.fix": "ECB, {date}",
-  "online.rates.fixTooltip": "Mga reference rate ng {date} mula sa European Central Bank",
-  "online.rates.perBase": "bawat {code}",
-  "online.rates.missing": "Hindi nailathala",
-  "online.rates.settings.base.label": "Batayang currency",
-  "online.rates.settings.base.desc": "Ang palitan ay para sa isang yunit nito",
-  "online.rates.settings.base.region": "Rehiyon ng Windows ({code})",
-  "online.rates.settings.quote.label": "Currency",
-  "online.rates.settings.quote.desc": "Ang currency kung saan ibinibigay ang palitan",
-  "online.rates.settings.quote.default": "Default ({code})"
+  "online.source": "Pinagmulan: {name}"
 }

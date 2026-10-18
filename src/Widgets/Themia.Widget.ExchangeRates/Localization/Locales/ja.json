@@ -1,0 +1,16 @@
+{
+  "online.rates.label": "為替レート",
+  "online.rates.desc": "欧州中央銀行の参照レート",
+  "online.rates.fix": "ECB、{date}",
+  "online.rates.fixTooltip": "欧州中央銀行による {date} の参照レート",
+  "online.rates.perBase": "1 {code} あたり",
+  "online.rates.missing": "公表されていません",
+  "online.rates.settings.base.label": "基準通貨",
+  "online.rates.settings.base.desc": "この通貨 1 単位あたりのレートを表示します",
+  "online.rates.settings.base.region": "Windows の地域 ({code})",
+  "online.rates.settings.quote.label": "通貨",
+  "online.rates.settings.quote.desc": "レートを表す通貨",
+  "online.rates.settings.quote.default": "デフォルト ({code})",
+  "styles.rates.chart": "グラフ",
+  "styles.rates.number": "数値"
+}

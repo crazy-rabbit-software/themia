@@ -1,16 +1,4 @@
 {
   "$comment": "New strings in this file are machine-written and need native review.",
-  "online.source": "Nguồn: {name}",
-  "online.rates.label": "Tỷ giá hối đoái",
-  "online.rates.desc": "Tỷ giá tham chiếu của Ngân hàng Trung ương châu Âu",
-  "online.rates.fix": "ECB, {date}",
-  "online.rates.fixTooltip": "Tỷ giá tham chiếu ngày {date} của Ngân hàng Trung ương châu Âu",
-  "online.rates.perBase": "mỗi {code}",
-  "online.rates.missing": "Không công bố",
-  "online.rates.settings.base.label": "Tiền tệ cơ sở",
-  "online.rates.settings.base.desc": "Tỷ giá tính cho một đơn vị đồng tiền này",
-  "online.rates.settings.base.region": "Khu vực Windows ({code})",
-  "online.rates.settings.quote.label": "Đồng tiền",
-  "online.rates.settings.quote.desc": "Đồng tiền dùng để biểu thị tỷ giá",
-  "online.rates.settings.quote.default": "Mặc định ({code})"
+  "online.source": "Nguồn: {name}"
 }

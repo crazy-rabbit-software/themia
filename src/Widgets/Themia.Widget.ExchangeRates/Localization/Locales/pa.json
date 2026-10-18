@@ -1,0 +1,16 @@
+{
+  "online.rates.label": "ਵਟਾਂਦਰਾ ਦਰਾਂ",
+  "online.rates.desc": "ਯੂਰਪੀ ਕੇਂਦਰੀ ਬੈਂਕ ਦੀਆਂ ਹਵਾਲਾ ਦਰਾਂ",
+  "online.rates.fix": "ECB, {date}",
+  "online.rates.fixTooltip": "ਯੂਰਪੀ ਕੇਂਦਰੀ ਬੈਂਕ ਦੀਆਂ {date} ਦੀਆਂ ਹਵਾਲਾ ਦਰਾਂ",
+  "online.rates.perBase": "ਪ੍ਰਤੀ {code}",
+  "online.rates.missing": "ਪ੍ਰਕਾਸ਼ਿਤ ਨਹੀਂ",
+  "online.rates.settings.base.label": "ਮੂਲ ਮੁਦਰਾ",
+  "online.rates.settings.base.desc": "ਦਰ ਇਸ ਮੁਦਰਾ ਦੀ ਇੱਕ ਇਕਾਈ ਲਈ ਦਿੱਤੀ ਜਾਂਦੀ ਹੈ",
+  "online.rates.settings.base.region": "Windows ਖੇਤਰ ({code})",
+  "online.rates.settings.quote.label": "ਮੁਦਰਾ",
+  "online.rates.settings.quote.desc": "ਉਹ ਮੁਦਰਾ ਜਿਸ ਵਿੱਚ ਦਰ ਦਿੱਤੀ ਜਾਂਦੀ ਹੈ",
+  "online.rates.settings.quote.default": "ਡਿਫ਼ੌਲਟ ({code})",
+  "styles.rates.chart": "ਚਾਰਟ",
+  "styles.rates.number": "ਸੰਖਿਆ"
+}

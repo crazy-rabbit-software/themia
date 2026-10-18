@@ -1,0 +1,16 @@
+{
+  "online.rates.label": "Tipos de cambio",
+  "online.rates.desc": "Tipos de referencia del Banco Central Europeo",
+  "online.rates.fix": "BCE, {date}",
+  "online.rates.fixTooltip": "Tipos de referencia del {date} del Banco Central Europeo",
+  "online.rates.perBase": "por {code}",
+  "online.rates.missing": "No publicado",
+  "online.rates.settings.base.label": "Moneda base",
+  "online.rates.settings.base.desc": "El tipo se expresa por una unidad de esta moneda",
+  "online.rates.settings.base.region": "Región de Windows ({code})",
+  "online.rates.settings.quote.label": "Moneda",
+  "online.rates.settings.quote.desc": "La moneda en la que se expresa el tipo",
+  "online.rates.settings.quote.default": "Predeterminada ({code})",
+  "styles.rates.chart": "Gráfico",
+  "styles.rates.number": "Número"
+}

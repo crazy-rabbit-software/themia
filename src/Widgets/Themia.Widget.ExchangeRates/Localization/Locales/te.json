@@ -1,0 +1,16 @@
+{
+  "online.rates.label": "మారకపు రేట్లు",
+  "online.rates.desc": "యూరోపియన్ సెంట్రల్ బ్యాంక్ నుండి రిఫరెన్స్ రేట్లు",
+  "online.rates.fix": "ECB, {date}",
+  "online.rates.fixTooltip": "యూరోపియన్ సెంట్రల్ బ్యాంక్ నుండి {date} నాటి రిఫరెన్స్ రేట్లు",
+  "online.rates.perBase": "ప్రతి {code}కి",
+  "online.rates.missing": "ప్రచురించబడలేదు",
+  "online.rates.settings.base.label": "మూల కరెన్సీ",
+  "online.rates.settings.base.desc": "ఈ కరెన్సీ ఒక యూనిట్‌కు రేటు ఇవ్వబడుతుంది",
+  "online.rates.settings.base.region": "Windows ప్రాంతం ({code})",
+  "online.rates.settings.quote.label": "కరెన్సీ",
+  "online.rates.settings.quote.desc": "రేటు ఇచ్చే కరెన్సీ",
+  "online.rates.settings.quote.default": "డిఫాల్ట్ ({code})",
+  "styles.rates.chart": "చార్ట్",
+  "styles.rates.number": "సంఖ్య"
+}
