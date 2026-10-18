@@ -31,7 +31,8 @@ internal sealed partial class ExchangeRatesView : Grid, IWidgetView, IWidgetHead
     /// <summary>[S-7064] The header's problem glyph ([S-7042]): the one stale rule, no age.</summary>
     private readonly KitHeader _header;
 
-    private readonly StackPanel _trailing = new() { Orientation = Orientation.Horizontal, Spacing = Fluent.Space2 };
+    /// <summary>[S-655] The day and the problem glyph: the day gives way to the title on a small tile.</summary>
+    private readonly HeaderTrail _trailing;
     private readonly HeroReadout _hero = new();
     private readonly TextBlock _perBase;
     private readonly Canvas _chart = new() { IsHitTestVisible = false };
@@ -54,8 +55,7 @@ internal sealed partial class ExchangeRatesView : Grid, IWidgetView, IWidgetHead
         _host = host;
         _header = new KitHeader(host);
         _fix.VerticalAlignment = VerticalAlignment.Center;
-        _trailing.Children.Add(_fix);
-        _trailing.Children.Add(_header);
+        _trailing = new HeaderTrail(_fix, _header);
         RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
         RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
         ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });

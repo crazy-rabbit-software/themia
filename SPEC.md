@@ -1861,9 +1861,9 @@ removed, [S-1863]). Sizing rules live in Core with tests in
 - [S-653]: moved with the Quote widget into its module's `SPEC.md` (`src/Widgets/Themia.Widget.Quote/`).
 - **[S-655]** An informational header label ("Just now", "by CPU") gives the title at least 64px and
   is not drawn when less than 40px would be left for it. Through `MaxWidth`, never `Visibility`.
-  The rule reaches a label that is the trailing element or a text child of a trailing panel (the
-  exchange rates' day beside the kit's header extras). Commands in the header are not touched; their
-  views shed them.
+  The rule reaches a label that is the trailing element or the label of a `HeaderTrail` (the
+  exchange rates' day beside the kit's header extras); other panels are left alone. Commands in the
+  header are not touched; their views shed them.
 - **[S-656]** The current-weather reading is sized against the tile less its detail line, not
   against its own height (which pinned the first step chosen); the condition icon goes first on a
   tile too narrow for it.

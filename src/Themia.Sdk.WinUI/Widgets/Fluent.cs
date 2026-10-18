@@ -125,32 +125,21 @@ public static class Fluent
             // [S-655] A label that only informs ("Just now", "by CPU") gives way to the title on a
             // narrow tile; see HeaderFit. Through MaxWidth, never Visibility, which several views
             // already set on their own label for their own reasons. Commands are left alone: a
-            // button is something the user needs, and the view sheds those itself. A label may sit
-            // in a panel beside the kit's header extras (the exchange rates' day): the same rule
-            // reaches the panel's own text, or the day crowded the title out of a small tile.
-            TextBlock[] labels = trailing switch
+            // button is something the user needs, and the view sheds those itself. A label beside
+            // the kit's header extras comes in a HeaderTrail (the exchange rates' day): the rule
+            // reaches it there too, or the day crowded the title out of a small tile.
+            var label = trailing switch
             {
-                TextBlock one => [one],
-                Panel panel => [.. panel.Children.OfType<TextBlock>()],
-                _ => [],
+                TextBlock one => one,
+                HeaderTrail trail => trail.Label,
+                _ => null,
             };
 
-            if (labels.Length > 0)
+            if (label is not null)
             {
+                label.TextTrimming = TextTrimming.CharacterEllipsis;
                 var leading = IconSize + Space2;
-                foreach (var label in labels)
-                {
-                    label.TextTrimming = TextTrimming.CharacterEllipsis;
-                }
-
-                grid.SizeChanged += (_, args) =>
-                {
-                    var max = HeaderFit.TrailingLabelWidth(args.NewSize.Width, leading);
-                    foreach (var label in labels)
-                    {
-                        label.MaxWidth = max;
-                    }
-                };
+                grid.SizeChanged += (_, args) => label.MaxWidth = HeaderFit.TrailingLabelWidth(args.NewSize.Width, leading);
             }
         }
 
