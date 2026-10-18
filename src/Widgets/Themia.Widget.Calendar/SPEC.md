@@ -1,0 +1,44 @@
+# Calendar
+
+The module `calendar` ([S-6911]): the synced calendars in one of five styles (month, week, day,
+agenda, year). Its tags are this file's alone; the root `SPEC.md` holds what it shares with the host
+and the other calendar widgets, with their root tags: where events come from ([S-560]), the shared
+source and seam ([S-588], [S-2701], [S-3602]), the settings builder ([S-3601], the SDK's
+`OfficeSettingsRows`), and every rule it is drawn by (`CalendarRules`, `CalendarFit`, `AgendaRules`,
+`CalendarText`, `CalendarLinks`, `CalendarShare`, in the SDK, with their tests in Core).
+
+Owning files: everything in this folder: `CalendarModule.cs` (descriptor, view factory, JSON
+context), `CalendarWidgetConfig.cs` (the style, the week's and agenda's own settings),
+`CalendarView*.cs` (one partial per style, the links, over `IWidgetHost.Office`),
+`CalendarSettings.cs` (the SDK's calendar rows and the style's own), `Preview/` (Debug renders:
+`--state sample|selected|linked|days`), `Localization/Locales/` (its own `CalendarStr`, 30
+languages). Tests: the rules' are Core's; the config's are the module host's (`CalendarHostTests`,
+`OfficeConfigTests`).
+
+- **[S-1265]** Week columns ≥64 px spell the weekday; ≥100 px a timed chip shows start–end and its
+  location under the title.
+- **[S-1269]** Keys (classic S-31..34) reach `CalendarView.HandleKey(WidgetKey)` through the lease
+  ([S-806]); the map is [S-2710]. Up/Down move the cursor day a week in the month (outlined) and the
+  week (its column head underlined); Escape lets it go. The cursor day is the selected day, shared
+  with the view's other calendars and kept across pages ([S-3624]).
+- **[S-2700]** A calendar widget draws only its own layout (month, week, day, year or agenda: its
+  style, [S-3640]), at every size. No size swaps it for another layout, adds an agenda beside a
+  month, or shows a single "next event" instead: each layout sheds detail within itself
+  (`CalendarFit`). Unmeasured, it draws the layout at its smallest.
+- **[S-2706]** Day: the all-day band's shared line ([S-2718]) splits its width in chips of at least
+  56 px, the rest "+N" (on hover); a day with nothing says "No events today".
+- **[S-2708]** Month names in the year follow the small month's width: "September", "Sep", "S"
+  (`LocaleFormat.MonthName`); the current month's in the accent.
+- **[S-3606]** Debug renders: `--widget-png Calendar <out> --style month|week|day|year|agenda
+  --state sample|selected|linked|days` for each style: the fixed sample (two calendars, a one-day and a four-day all-day event, a trip across a
+  week's end, an overnight event, overlaps, a long title, birthdays, a year of meetings) through a
+  fixture `ICalendarData`; `selected` selects the day after tomorrow as another widget would ([S-3620]);
+  `linked` puts another widget's pointer on one event ([S-3623]); `days` sets the style's own range
+  (the week: the next four days from today; the agenda: today and tomorrow). A card that needs
+  setting up runs its view for the preview (`WidgetCard.RunForPreview`).
+- **[S-3625]** Paging (back, forward, today) publishes the days now on screen (`VisibleRange`) and moves
+  no other widget: two months on a view can show two months, and only a selection is followed.
+
+Needs a live pass: a signed-in Microsoft, Google and CalDAV calendar in every style (paging, opening
+an event in Outlook or the browser, the hover link with Next meeting and the week planner on the
+view), and the showcase views on the live desktop.

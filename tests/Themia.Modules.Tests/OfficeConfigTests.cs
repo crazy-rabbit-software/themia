@@ -33,19 +33,19 @@ public sealed class OfficeConfigTests
     [Fact]
     public void S563_GarbledValuesFallBackInsteadOfRefusingTheFile()
     {
-        var calendar = AppStateStore.Parse(StateWith(CalendarWidgetConfig.Descriptor.Id,
+        var calendar = AppStateStore.Parse(StateWith(new WidgetId("calendar"),
             """{"kind":"calendar","accountIds":"nope","calendars":{"a":"x","b":["c1",7]},"calendarColors":{"k":5,"j":"#123456"},"weekStart":3}""").ToJsonString());
 
         Assert.Equal(ParseRefusal.None, calendar.Refusal);
-        var c = ConfigOf<CalendarWidgetConfig>(calendar, CalendarWidgetConfig.Descriptor.Id);
+        var c = ConfigOf<CalendarWidgetConfig>(calendar, new WidgetId("calendar"));
         Assert.Empty(c.AccountIds);
         Assert.Equal(["c1"], c.Calendars["b"]);
         Assert.Empty(c.Calendars["a"]);
         Assert.Equal("#123456", Assert.Single(c.CalendarColors).Value);
 
-        var agenda = AppStateStore.Parse(StateWith(CalendarWidgetConfig.Descriptor.Id, """{"kind":"calendar","style":"agenda","agendaCount":900}""").ToJsonString());
+        var agenda = AppStateStore.Parse(StateWith(new WidgetId("calendar"), """{"kind":"calendar","style":"agenda","agendaCount":900}""").ToJsonString());
         Assert.Equal(ParseRefusal.None, agenda.Refusal);
-        var a = ConfigOf<CalendarWidgetConfig>(agenda, CalendarWidgetConfig.Descriptor.Id);
+        var a = ConfigOf<CalendarWidgetConfig>(agenda, new WidgetId("calendar"));
         Assert.Equal(100, a.AgendaCount);
         Assert.Equal(CalendarStyle.Agenda, a.Style);
 
@@ -63,7 +63,7 @@ public sealed class OfficeConfigTests
     public void S561_CurrentShapeRoundTrips()
     {
         var state = AppState.CreateDefault();
-        var widget = WidgetInstance.Create(CalendarWidgetConfig.Descriptor.Id, new FracRect(0.1, 0.1, 0.2, 0.2));
+        var widget = WidgetInstance.Create(new WidgetId("calendar"), new FracRect(0.1, 0.1, 0.2, 0.2));
         widget.Id = "year";
         widget.Config = new CalendarWidgetConfig
         {
@@ -74,7 +74,7 @@ public sealed class OfficeConfigTests
             ShowBirthdays = false,
         };
         state.Views[0].Widgets.Add(widget);
-        var agenda = WidgetInstance.Create(CalendarWidgetConfig.Descriptor.Id, new FracRect(0.4, 0.1, 0.2, 0.2));
+        var agenda = WidgetInstance.Create(new WidgetId("calendar"), new FracRect(0.4, 0.1, 0.2, 0.2));
         agenda.Id = "agenda";
         agenda.Config = new CalendarWidgetConfig { Style = CalendarStyle.Agenda, AgendaCount = 7 };
         state.Views[0].Widgets.Add(agenda);
@@ -102,7 +102,7 @@ public sealed class OfficeConfigTests
     [InlineData(CalendarStyle.Agenda, "agenda")]
     public void S3640_one_calendar_kind_stores_its_layout_as_its_style(CalendarStyle style, string wire)
     {
-        var config = Assert.IsType<CalendarWidgetConfig>(WidgetConfig.CreateDefault(CalendarWidgetConfig.Descriptor.Id));
+        var config = Assert.IsType<CalendarWidgetConfig>(WidgetConfig.CreateDefault(new WidgetId("calendar")));
         Assert.Equal(CalendarStyle.Month, config.Style);
         config.Style = style;
         Assert.Equal(style, config.Layout);
@@ -125,22 +125,22 @@ public sealed class OfficeConfigTests
 
     [Fact]
     public void S3640_the_styles_are_listed_month_week_day_year_agenda()
-        => Assert.Equal(["month", "week", "day", "year", "agenda"], Themia.Core.Widgets.WidgetStyles.For(CalendarWidgetConfig.Descriptor.Id).Select(s => s.Name));
+        => Assert.Equal(["month", "week", "day", "year", "agenda"], Themia.Core.Widgets.WidgetStyles.For(new WidgetId("calendar")).Select(s => s.Name));
 
     [Fact]
     public void S3640_an_unknown_calendar_style_is_repaired_to_the_month()
     {
-        var parsed = AppStateStore.Parse(StateWith(CalendarWidgetConfig.Descriptor.Id, """{"kind":"calendar","style":"fortnight"}""").ToJsonString());
+        var parsed = AppStateStore.Parse(StateWith(new WidgetId("calendar"), """{"kind":"calendar","style":"fortnight"}""").ToJsonString());
 
         Assert.Equal(ParseRefusal.None, parsed.Refusal);
-        Assert.Equal(CalendarStyle.Month, ConfigOf<CalendarWidgetConfig>(parsed, CalendarWidgetConfig.Descriptor.Id).Style);
+        Assert.Equal(CalendarStyle.Month, ConfigOf<CalendarWidgetConfig>(parsed, new WidgetId("calendar")).Style);
         Assert.Contains(parsed.Repairs, r => r.Contains("calendar style unknown", StringComparison.Ordinal));
     }
 
     [Fact]
     public void S3641_the_calendar_stores_the_union_of_what_its_styles_use()
     {
-        var json = System.Text.Json.JsonSerializer.Serialize(WidgetInstance.Create(CalendarWidgetConfig.Descriptor.Id, new FracRect(0.1, 0.1, 0.2, 0.2)).Config, StateJson.WidgetConfig);
+        var json = System.Text.Json.JsonSerializer.Serialize(WidgetInstance.Create(new WidgetId("calendar"), new FracRect(0.1, 0.1, 0.2, 0.2)).Config, StateJson.WidgetConfig);
         using var document = System.Text.Json.JsonDocument.Parse(json);
         string[] names = [.. document.RootElement.EnumerateObject().Select(p => p.Name).Order(StringComparer.Ordinal)];
 

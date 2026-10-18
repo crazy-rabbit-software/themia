@@ -3257,8 +3257,6 @@ partial per layout), `CalendarData.cs` (the data seam), `ContactsView.cs`.
 - **[S-1264]** Month: weekday names ("Mon") from 64 px columns; chips lead with their start time from
   100 px cells (classic S-44); chips get a 20 px line in cells ≥90 tall; only the weeks holding a day
   of the month are drawn (4–6 rows) at every size.
-- **[S-1265]** Week columns ≥64 px spell the weekday; ≥100 px a timed chip shows start–end and its
-  location under the title.
 - **[S-1266]** *(Retired: 32/40 px hours on a scrolled timeline, [S-2705].)* A timeline block of three
   caption lines adds a "location · organizer" line; one of a single line keeps the title only.
 - **[S-1267]** Agenda: under 128 tall the first page's "Today" heading is dropped (any other day keeps
@@ -3269,15 +3267,7 @@ partial per layout), `CalendarData.cs` (the data seam), `ContactsView.cs`.
   else the provider's https page; the provider comes from the event's account, never the link's
   domain. Only https (no user info) and `ms-outlook://events/<percent-encoded>` pass
   `CalendarLinks.IsLaunchable`, re-checked by `ShellLauncher.OpenCalendarLink`.
-- **[S-1269]** Keys (classic S-31..34) reach `CalendarView.HandleKey(WidgetKey)` through the lease
-  ([S-806]); the map is [S-2710]. Up/Down move the cursor day a week in the month (outlined) and the
-  week (its column head underlined); Escape lets it go. The cursor day is the selected day, shared
-  with the view's other calendars and kept across pages ([S-3624]).
 - **[S-1984]** *(Retired: Page Up / Page Down page every layout, [S-2710].)*
-- **[S-2700]** A calendar widget draws only its own layout (month, week, day, year or agenda: its
-  style, [S-3640]), at every size. No size swaps it for another layout, adds an agenda beside a
-  month, or shows a single "next event" instead: each layout sheds detail within itself
-  (`CalendarFit`). Unmeasured, it draws the layout at its smallest.
 - **[S-2701]** The view reads its data through one seam, `ICalendarData.LoadAsync(config, first,
   last)`, for exactly the range its layout covers ([S-568]): the live one wraps the shared office
   source; the render's fixture is another ([S-2711]).
@@ -3301,16 +3291,12 @@ partial per layout), `CalendarData.cs` (the data seam), `ContactsView.cs`.
   before the focus (today: the next event still to end, else now; another day: its first event, else 08:00). Hours fill
   the box exactly; hour labels read "07:00", or "07" in a day under 160 px. Today has an accent
   now-line. Events outside the window are on the day's hover.
-- **[S-2706]** Day: the all-day band's shared line ([S-2718]) splits its width in chips of at least
-  56 px, the rest "+N" (on hover); a day with nothing says "No events today".
 - **[S-2707]** Year (`CalendarFit.Year`): twelve small months in the arrangement of 4×3, 3×4, 6×2,
   2×6, 12×1 or 1×12 with the largest day cell, preferring cells that hold numbers (a caption line)
   and then a weekday row; under 4 px it falls back to 6, 4, 3, 2 or 1 months around the current one
   (`FirstMonth`, inside the year). Number cells: today the accent disc, a day with something a strong
   number over a stripe of its first item's colour. Square cells: filled with that colour, today
   ringed. Every day's items on hover. XS shows three months, S six, the rest twelve.
-- **[S-2708]** Month names in the year follow the small month's width: "September", "Sep", "S"
-  (`LocaleFormat.MonthName`); the current month's in the accent.
 - **[S-2709]** Agenda pages (`CalendarFit.AgendaPages`): whole rows of one height per render (a
   wrapped title's second line aside, [S-2717]), a day's heading before its first row and again atop a
   column that starts mid-day; pages fill the columns in turn and always advance. Back / forward show
@@ -3388,13 +3374,6 @@ for the links), one settings builder, `WidgetSettings.Calendar.cs`. Tests `Offic
   plus only what the calendar's style uses ([S-3641]). No calendar stores a week start ([S-564]).
 - **[S-3602]** One data seam and one sync for every style ([S-2701], [S-588]): two calendar widgets on
   a desktop ask the same shared source and store, never their own.
-- **[S-3606]** Debug renders: `--widget-png Calendar <out> --style month|week|day|year|agenda
-  --state sample|selected|linked|days` for each style: the fixed sample (two calendars, a one-day and a four-day all-day event, a trip across a
-  week's end, an overnight event, overlaps, a long title, birthdays, a year of meetings) through a
-  fixture `ICalendarData`; `selected` selects the day after tomorrow as another widget would ([S-3620]);
-  `linked` puts another widget's pointer on one event ([S-3623]); `days` sets the style's own range
-  (the week: the next four days from today; the agenda: today and tomorrow). A card that needs
-  setting up runs its view for the preview (`WidgetCard.RunForPreview`).
 - **[S-3636]** The agenda's date range (`CalendarWidgetConfig.AgendaDays`, 1–365, 30): how many days it
   covers from today, today included; it replaces the fixed 30 days in the one range path
   (`CalendarRules.ViewRange`). Settings offer Today, Today and tomorrow, 3, 7 and 30 days, and Custom,
@@ -3468,8 +3447,6 @@ Shared dates and events on a view ([S-3300], [S-3311]):
 - **[S-3624]** The keys' cursor day is the selected day: Up / Down move it a week (from the selection
   when it is on screen, else from the anchor, `CalendarShare.Step`) and publish it, so the other
   calendars follow as for a click; Enter opens its first event.
-- **[S-3625]** Paging (back, forward, today) publishes the days now on screen (`VisibleRange`) and moves
-  no other widget: two months on a view can show two months, and only a selection is followed.
 
 ## Mail: the whole tile
 

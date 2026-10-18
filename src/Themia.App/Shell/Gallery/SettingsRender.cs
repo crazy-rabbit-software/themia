@@ -515,7 +515,7 @@ internal static class SettingsRender
         var work = ViewState.Create("Work");
         work.Icon = "";
         work.Color = "#0099BC";
-        work.Widgets.Add(WidgetInstance.Create(CalendarWidgetConfig.Descriptor.Id, new FracRect(0.05, 0.08, 0.20, 0.30)));
+        work.Widgets.Add(WidgetInstance.Create(new WidgetId("calendar"), new FracRect(0.05, 0.08, 0.20, 0.30)));
         work.Widgets.Add(WidgetInstance.Create(EmailConfig.Descriptor.Id, new FracRect(0.30, 0.08, 0.25, 0.30)));
 
         var evening = ViewState.Create("Evening");

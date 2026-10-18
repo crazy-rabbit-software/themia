@@ -261,7 +261,7 @@ public sealed class NoticesBootTests : IDisposable
         var widgets = AppState.CreateDefault().Views[1].Widgets;
 
         Assert.Equal(
-            [new WidgetId("clock"), CalendarWidgetConfig.Descriptor.Id, TasksConfig.Descriptor.Id, new WidgetId("notes")],
+            [new WidgetId("clock"), new WidgetId("calendar"), TasksConfig.Descriptor.Id, new WidgetId("notes")],
             widgets.Select(w => w.Kind));
 
         var clock = Assert.IsType<ClockConfig>(widgets[0].Config);
@@ -291,7 +291,7 @@ public sealed class NoticesBootTests : IDisposable
         Assert.Null(weather.Longitude);
         Assert.Equal(string.Empty, weather.LocationName);
 
-        var calendar = Assert.IsType<CalendarWidgetConfig>(Assert.Single(widgets, w => w.Kind == CalendarWidgetConfig.Descriptor.Id).Config);
+        var calendar = Assert.IsType<CalendarWidgetConfig>(Assert.Single(widgets, w => w.Kind == new WidgetId("calendar")).Config);
         Assert.Empty(calendar.AccountIds);
         Assert.Empty(calendar.Calendars);
         Assert.Empty(calendar.CalendarColors);
@@ -383,7 +383,7 @@ public sealed class NoticesBootTests : IDisposable
         Assert.Equal(2, loaded.State.Views.Count);
         Assert.Equal(state.Views[0].Widgets.Select(w => w.Kind), loaded.State.Views[0].Widgets.Select(w => w.Kind));
         Assert.Equal(
-            [new WidgetId("clock"), CalendarWidgetConfig.Descriptor.Id, TasksConfig.Descriptor.Id, new WidgetId("notes")],
+            [new WidgetId("clock"), new WidgetId("calendar"), TasksConfig.Descriptor.Id, new WidgetId("notes")],
             loaded.State.Views[1].Widgets.Select(w => w.Kind));
         Assert.Equal(6, Assert.IsType<ShortcutsConfig>(loaded.State.Views[0].Widgets[1].Config).Items.Count);
     }

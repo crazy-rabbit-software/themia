@@ -372,12 +372,12 @@ public sealed class AddMenuTests
         // [S-3640] [S-3216] [S-4123] The calendar, the visualizer and the folder are one widget each,
         // their former variants styles: a row of their subject, never a family folder.
         var homes = AddTree.Homes(Menu);
-        Assert.Equal([AddFolderId.CalendarMail], homes.Single(home => home.Kind == CalendarWidgetConfig.Descriptor.Id).Path.Select(shelf => shelf.Id));
+        Assert.Equal([AddFolderId.CalendarMail], homes.Single(home => home.Kind == new WidgetId("calendar")).Path.Select(shelf => shelf.Id));
         Assert.Equal([AddFolderId.Media], homes.Single(home => home.Kind == new WidgetId("audioVisualizer")).Path.Select(shelf => shelf.Id));
         Assert.Equal([AddFolderId.Files], homes.Single(home => home.Kind == new WidgetId("folder")).Path.Select(shelf => shelf.Id));
 
         var popular = AddTree.Popular.Rows.OfType<AddLeaf>().Select(leaf => leaf.Kind).ToList();
-        Assert.Contains(CalendarWidgetConfig.Descriptor.Id, popular);
+        Assert.Contains(new WidgetId("calendar"), popular);
         Assert.Equal(popular.Count, popular.Distinct().Count());
     }
 }

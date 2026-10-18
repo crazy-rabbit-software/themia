@@ -16,7 +16,7 @@ public sealed class WidgetSearchTests
     [
         new("clock", ["Clock"], ModuleCatalog.Of(new WidgetId("clock")).Keywords,
             ["Clock for your timezone or any city in the world"], ["Others"]),
-        new("calendar", ["Calendar"], ModuleCatalog.Of(CalendarWidgetConfig.Descriptor.Id).Keywords,
+        new("calendar", ["Calendar"], ModuleCatalog.Of(new WidgetId("calendar")).Keywords,
             ["See your upcoming events and meetings"], ["Office"], ["Microsoft"]),
         new("weatherCurrent", ["Wetter", "Weather"], ModuleCatalog.Of(new WidgetId("weatherNow")).Keywords,
             ["Aktuelle Bedingungen für jeden Ort", "Current conditions for any location"], ["Online"]),
@@ -259,7 +259,7 @@ public sealed class WidgetSearchTests
 
         var google = WidgetSearch.Rank(docs, "google");
         Assert.Contains(EmailConfig.Descriptor.Id, google);
-        Assert.Contains(CalendarWidgetConfig.Descriptor.Id, google);
+        Assert.Contains(new WidgetId("calendar"), google);
         Assert.Contains(new WidgetId("contacts"), google);
         Assert.Contains(TasksConfig.Descriptor.Id, google);
     }

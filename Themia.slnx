@@ -17,6 +17,7 @@
     <Project Path="src/Widgets/Themia.Widget.Bluetooth/Themia.Widget.Bluetooth.csproj" />
     <Project Path="src/Widgets/Themia.Widget.BluetoothToggle/Themia.Widget.BluetoothToggle.csproj" />
     <Project Path="src/Widgets/Themia.Widget.Brightness/Themia.Widget.Brightness.csproj" />
+    <Project Path="src/Widgets/Themia.Widget.Calendar/Themia.Widget.Calendar.csproj" />
     <Project Path="src/Widgets/Themia.Widget.Clipboard/Themia.Widget.Clipboard.csproj" />
     <Project Path="src/Widgets/Themia.Widget.Clock/Themia.Widget.Clock.csproj" />
     <Project Path="src/Widgets/Themia.Widget.ColorFiltersToggle/Themia.Widget.ColorFiltersToggle.csproj" />
