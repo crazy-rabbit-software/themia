@@ -14,17 +14,6 @@ public class TimeStylesTests
 {
     // ---- the styles themselves ---------------------------------------------------------------
 
-    [Fact]
-    public void S6035_the_pomodoro_ring_style_alone_draws_a_ring_and_digits_draws_neither()
-    {
-        Assert.True(new PomodoroConfig().DrawsRing);
-        Assert.True(new PomodoroConfig().DrawsBar);
-        Assert.False(new PomodoroConfig { Style = PomodoroStyle.Bar }.DrawsRing);
-        Assert.True(new PomodoroConfig { Style = PomodoroStyle.Bar }.DrawsBar);
-        Assert.False(new PomodoroConfig { Style = PomodoroStyle.Digits }.DrawsRing);
-        Assert.False(new PomodoroConfig { Style = PomodoroStyle.Digits }.DrawsBar);
-    }
-
     // ---- the shared ring and dot grid ----------------------------------------------------------
 
     [Fact]

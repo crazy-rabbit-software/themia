@@ -162,17 +162,6 @@ public sealed class WidgetKeyMapTests
 
     // ---- one-control widgets ([S-1987], [S-1990]..[S-1992]) ---------------------------------------
 
-    [Theory]
-    [InlineData(WidgetKey.Space, ControlKey.Toggle)]
-    [InlineData(WidgetKey.Enter, ControlKey.Toggle)]
-    [InlineData(WidgetKey.Right, ControlKey.Next)]
-    [InlineData(WidgetKey.Home, ControlKey.Reset)]
-    [InlineData(WidgetKey.Left, ControlKey.None)]
-    [InlineData(WidgetKey.Delete, ControlKey.None)]
-    [InlineData(WidgetKey.Escape, ControlKey.None)]
-    public void S1987_pomodoro_keys_are_its_three_buttons(WidgetKey key, ControlKey expected)
-        => Assert.Equal(expected, ControlKeys.Pomodoro(key));
-
     [Fact]
     public void S1991_only_space_pauses_the_stream()
     {

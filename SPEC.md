@@ -626,13 +626,7 @@ busy desktop ([S-6601]), Debug, private bytes.
 ## Countdown and pomodoro
 
 - [S-140], [S-141], [S-142], [S-143], [S-144], [S-6030], [S-6031], [S-6032], [S-6036], [S-6037]: moved with the Countdown widget into its module's `SPEC.md` (`src/Widgets/Themia.Widget.Countdown/`).
-- **[S-150]** Pomodoro run state — phase, seconds left, running — lives in the view instance and is
-  never persisted. The same widget on two monitors is two independent timers, which is also why only
-  a running instance can sound the cue.
-- **[S-151]** At zero the phase flips and the new phase's full duration loads, still running. One
-  second remaining is the last second, not a spare one.
-- **[S-152]** The cue sounds on the flip alone and announces the phase being *entered*: ascending
-  into focus, descending into a break. Nothing sounds on start, pause or reset.
+- [S-150], [S-151], [S-152], [S-155], [S-6035]: moved with the Pomodoro widget into its module's `SPEC.md` (`src/Widgets/Themia.Widget.Pomodoro/`).
 - **[S-153]** The cue is synthesised in Core and played through `winmm!PlaySound` from memory, not
   through `MediaPlayer` or `AudioGraph`: those are whole media pipelines the AOT compiler roots in
   full in order to play two seconds of oscillators. `CuePlayer` copies the wave to native memory and
@@ -641,14 +635,6 @@ busy desktop ([S-6601]), Debug, private bytes.
   A widget (the pomodoro, a settings page's preview) reaches it through the SDK's `SoundCue`, the
   seam the host installs at start; the host's own alarm service calls `CuePlayer` itself.
   (The twelve ringtones and the volume: [S-1460]..[S-1463].)
-- **[S-155]** The 1 Hz subscription exists only while the timer runs, and the callback the shared
-  ticker makes at subscribe time is swallowed: that immediate fire is right for a view that renders
-  the time and wrong for one that *is* the tick.
-- **[S-6035]** The pomodoro's styles ([S-6000]), `PomodoroConfig.Style` (`PomodoroStyle`):
-  **Ring** (the default, today's look: the ring on tall and large tiles, [S-1466], the bar on the
-  others), **Bar** (the bar wherever the ladder has room for it, never a ring: a large tile stacks
-  the digits over the bar) and **Digits** (neither: the digits take the room). `DrawsRing` /
-  `DrawsBar`. The ring is the shared `RingPart` ([S-6060]). Debug: `--state sample` (focus, 9:24 left, paused).
 
 ## Sun and moon
 
@@ -1869,8 +1855,7 @@ removed, [S-1863]). Sizing rules live in Core with tests in
 - **[S-643]** *(Superseded by [S-2501]: the hub is the only reader, once per tick.)* CPU load and network throughput are deltas against a process-wide baseline, so a read
   within 250ms of the last real one is answered from that one. Two CPU tiles used to show 31% and
   0% side by side: the first moved the baseline and the second measured a millisecond.
-- **[S-644]** A short pomodoro tile keeps the countdown: a wide one moves the controls beside it, a
-  narrow one drops the progress bar. Stacked, a 120px tile had no room left for the digits.
+- [S-644]: moved with the Pomodoro widget into its module's `SPEC.md` (`src/Widgets/Themia.Widget.Pomodoro/`).
 - **[S-645]** The clock insets its readout fully at the sides and by half above and below.
 - **[S-646]** A reading's caption (meters, power, weather's condition) moves under the reading when
   it would be trimmed beside it, or when its own line lets the reading be drawn larger.
@@ -5485,11 +5470,7 @@ displays, the ghost following the pointer across displays, Ctrl+A/Escape order.
 
 ## Music and Pomodoro: parity and the whole tile (PF)
 
-- **[S-1460]** Pomodoro `Sound` (`AlarmSound`: off + the original's twelve — chime (default),
-  marimba, crystal, pluck, droplet, birdsong, zen, bell, gong, arcade, digital, buzzer; listed in
-  that order, gentle → insistent) and `Volume` 0..100 (default 70, row hidden while off). Unknown
-  names read as chime (lenient converter); `Repair` clamps the volume. Changing either previews the
-  focus cue. The old `Alarm` bool is gone (no compatibility).
+- [S-1460], [S-1466], [S-1467], [S-1987]: moved with the Pomodoro widget into its module's `SPEC.md` (`src/Widgets/Themia.Widget.Pomodoro/`).
 - **[S-1461]** `PomodoroSounds` ports `alarmSound.ts` note for note: one note sequence plus a
   timbre per sound; the focus cue is the sequence (it rises), the break cue the same notes
   reversed. Off is the empty plan and plays nothing.
@@ -5509,18 +5490,9 @@ displays, the ghost following the pointer across displays, Ctrl+A/Escape order.
   session's own frame (StartTime + position). Only when the session reports
   `IsPlaybackPositionEnabled` and a duration (`CanSeek`); otherwise a plain line with no input.
   Capture lost mid-drag cancels. A refused seek re-reads the session.
-- **[S-1466]** Pomodoro ladder: XS digits over start/pause; short strips (S, Wide) phase + digits
-  left, controls right (+ skip and "Next: Break 5:00" on a wide strip), the bar along the bottom;
-  M phase, digits, bar, start/reset/skip, next line; Tall/L/XL a progress ring with the digits
-  inside (stacked on Tall; a side column with phase, next, controls on L/XL). Skip loads the other
-  phase in full, silently, keeping the running state.
-- **[S-1467]** *(Retired: the XL "N sessions done" row (dots and count) and the session counter are
-  gone; XL shows the ring, the phase, the next phase and the controls like L.)*
 - **[S-1468]** Music keys via the keyboard lease (`IWidgetKeys`; taken only with a track shown):
   Space/Enter play/pause, Left/Right previous/next, Shift+Left/Right seek ∓5 s (new
   `WidgetKey.ShiftLeft/ShiftRight`; Shift+arrows no longer arrive as plain arrows in other views).
-- **[S-1987]** Pomodoro keys (`ControlKeys.Pomodoro`): Space or Enter start / pause, Right skips to
-  the next phase, Home resets: the three buttons in their order. Nothing after the card left.
 - **[S-1469]** The large tiles split the subtitle into artist and album (album dropped when it
   repeats the artist). No "Playing · <app>" line (retired, [S-666]).
 - **[S-1470]** *(Retired: the spectrum left Music for the audio visualizer, [S-3200]..[S-3201];

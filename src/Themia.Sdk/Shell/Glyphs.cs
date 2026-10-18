@@ -68,7 +68,6 @@ public static class Glyphs
     public static readonly string Ping = From(0xEBC3);
     public static readonly string Note = From(0xE70B);
     public static readonly string Countdown = From(0xE81C);
-    public static readonly string Pomodoro = From(0xE945);
     public static readonly string Calculator = From(0xE8EF);
     public static readonly string Sun = From(0xE706);
     public static readonly string Moon = From(0xE708);

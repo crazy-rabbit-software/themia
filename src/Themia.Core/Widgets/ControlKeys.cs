@@ -8,18 +8,6 @@ namespace Themia.Core.Widgets;
 /// </summary>
 public static class ControlKeys
 {
-    /// <summary>
-    /// [S-1987] Pomodoro: Space or Enter starts and pauses (the accent button), Right skips to the next
-    /// phase, Home resets the cycle — the three buttons, in the order they sit.
-    /// </summary>
-    public static ControlKey Pomodoro(WidgetKey key) => key switch
-    {
-        WidgetKey.Space or WidgetKey.Enter => ControlKey.Toggle,
-        WidgetKey.Right => ControlKey.Next,
-        WidgetKey.Home => ControlKey.Reset,
-        _ => ControlKey.None,
-    };
-
     /// <summary>[S-1991] Video stream: Space pauses and resumes, as the overlay's button does.</summary>
     public static ControlKey Stream(WidgetKey key) => key == WidgetKey.Space ? ControlKey.Toggle : ControlKey.None;
 

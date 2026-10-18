@@ -29,7 +29,7 @@ public sealed class WidgetSearchTests
         // Not a widget any more: a document with a camel-case key and a provider, for the matcher alone.
         new("githubNotifications", ["GitHub Notifications"], ["git", "repo", "inbox", "mentions", "alerts"],
             ["Your GitHub notifications across all selected accounts"], ["Online"], ["GitHub"]),
-        new("pomodoro", ["Pomodoro"], ModuleCatalog.Of(PomodoroConfig.Descriptor.Id).Keywords,
+        new("pomodoro", ["Pomodoro"], ModuleCatalog.Of(new WidgetId("pomodoro")).Keywords,
             ["Focus timer with work and break cycles"], ["Others"]),
         new("countdown", ["Countdown"], ModuleCatalog.Of(new WidgetId("countdown")).Keywords,
             ["Count down to an important date"], ["Others"]),
