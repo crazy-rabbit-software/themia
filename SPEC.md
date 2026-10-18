@@ -3654,7 +3654,7 @@ Every widget view's keys in one place. The maps are Core (`ListKeys`, `ItemCurso
 | Habits | as Tasks, plus Tab/Shift+Tab wrap ([S-1428], [S-1982]) |
 | Folder | arrows (grid aware), PgUp/PgDn, Home/End, Shift extends; Enter; Space; Delete; F2; Menu; Ctrl+C/X/V/A; Backspace; type-ahead ([S-1327], [S-1993]) |
 | Shortcuts | arrows, Home/End, PgUp/PgDn; Enter opens; Space toggles; Delete; F2; Menu; type-ahead ([S-1390], [S-1995]) |
-| RSS | Up/Down/Left/Right, PgUp/PgDn, Home/End; Enter opens; Menu ([S-1306], [S-1985]) |
+| RSS | the kit's list map: Up/Down/Left/Right, PgUp/PgDn, Home/End; Enter opens; Menu; Esc ([S-1306], [S-7020]) |
 | Clipboard | Up/Down, PgUp/PgDn, Home/End; Enter copies; Delete; Menu ([S-1444]) |
 | Pictures (slideshow) | Left/Right; Home/End; Space pauses; Enter opens ([S-811], [S-1992]) |
 | Mixer | Up/Down/Home/End rows; Left/Right, +/- step; PgUp/PgDn step 10; M/Space mute; Menu ([S-1225]) |

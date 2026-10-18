@@ -197,13 +197,14 @@ public sealed class RssTests
         Assert.True(plan.PreviewLines > 0);
     }
 
+    /// <summary>[S-1306] With nothing focused, every movement key but End lands on the newest headline, as every kit list ([S-7020]); it was the last one for Up and Left.</summary>
     [Theory]
-    [InlineData(WidgetKey.Up, -1, true)]
-    [InlineData(WidgetKey.Left, -1, true)]
-    [InlineData(WidgetKey.Down, -1, false)]
-    [InlineData(WidgetKey.Up, 3, false)]
-    public void S1306_up_with_no_headline_focused_lands_on_the_last(WidgetKey key, int index, bool last)
-        => Assert.Equal(last, RssKeys.StartsAtTheEnd(key, index, 10));
+    [InlineData(WidgetKey.Up, 0)]
+    [InlineData(WidgetKey.Left, 0)]
+    [InlineData(WidgetKey.Down, 0)]
+    [InlineData(WidgetKey.End, 9)]
+    public void S1306_up_with_no_headline_focused_lands_on_the_first(WidgetKey key, int lands)
+        => Assert.Equal(new KitKeyResult(KitKeyCommand.Focus, lands), KitKeys.Decide(key, -1, 10));
 
     [Fact]
     public void S1306_AWideButShortStripStaysInColumns()

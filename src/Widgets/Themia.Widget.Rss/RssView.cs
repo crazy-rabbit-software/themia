@@ -130,17 +130,7 @@ internal sealed partial class RssView : Grid, IWidgetView, IWidgetHeaderContent,
     /// [S-1306] [S-1568] A key from the shell's keyboard lease ([S-800], a click in the widget takes
     /// it). Returns whether the key was used.
     /// </summary>
-    public bool HandleKey(WidgetKey key)
-    {
-        var list = _binding.List;
-        if (RssKeys.StartsAtTheEnd(key, list.CursorIndex, list.Items.Count))
-        {
-            list.Focus(list.Items.Count - 1);
-            return true;
-        }
-
-        return _binding.HandleKey(key);
-    }
+    public bool HandleKey(WidgetKey key) => _binding.HandleKey(key);
 
     /// <summary>After every draw: the header's age and spinner.</summary>
     private void OnRendered()

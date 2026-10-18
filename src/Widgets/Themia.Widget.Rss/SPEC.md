@@ -9,7 +9,7 @@ the SDK's `SiteIcons`), the feed sync ([S-2661], `IWidgetHost.Feeds`) and the pa
 
 Owning files: everything in this folder: `RssModule.cs` (descriptor, view factory, JSON context),
 `RssConfig.cs` (the feeds, the cap, the fields; an `IKitConfig`), `RssSpec.cs` (the kit spec, a feed
-entry as a kit item, a headline's actions, `RssKeys`), `FeedAggregate.cs` (the merge, the outcomes,
+entry as a kit item, a headline's actions), `FeedAggregate.cs` (the merge, the outcomes,
 the title), `RssView.cs` (a kit view over its `FeedSource` on `IWidgetHost.Feeds`, and the header's
 age), `RssSettings.cs` (its page, from `KitRows`), `Preview/` (Debug renders: `--state
 sample|single|stale|failed|empty|loading`, sample feeds on the reserved `.example` domain),
@@ -44,7 +44,9 @@ sample|single|stale|failed|empty|loading`, sample feeds on the reserved `.exampl
   widget started the browser itself). Item menu (`ItemMenu`): Open, Copy link, Refresh. Keys through the shell's
   keyboard lease (`IWidgetKeys`, [S-800]; a click in the widget takes it): the kit's one key map
   ([S-7020]): Up/Down/Left/Right step, Page Up/Down, Home/End, Enter opens, the Menu key opens the
-  menu, Escape lets go; with nothing focused Up and Left land on the last headline (`RssKeys`).
+  menu, Escape lets go; with nothing focused every movement key but End lands on the newest
+  headline (it was the last one for Up and Left, `ItemCursor`'s answer; now the one every list
+  gives).
 
 Needs a manual pass: real feeds (RSS and Atom, one on the local network, one failing beside two that
 answer), Refresh with the spinner while it is out, a headline opening in the browser by double-click

@@ -63,12 +63,3 @@ public static class RssSpec
         ];
     }
 }
-
-/// <summary>
-/// [S-1306] Where the Rss widget's keyboard cursor goes from nothing focused: Up and Left land on
-/// the last headline, as the feed always did; every other key is the kit's ([S-7020]).
-/// </summary>
-public static class RssKeys
-{
-    public static bool StartsAtTheEnd(WidgetKey key, int index, int count) => index < 0 && count > 0 && key is WidgetKey.Up or WidgetKey.Left;
-}
