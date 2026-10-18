@@ -915,15 +915,17 @@ The shared parts a list widget is built from, and the rules they keep (design an
   the web pages in the spec's order, the copies), then Rename, then Delete, then Refresh, each group
   after a separator, an empty group left out. One Open, check, Rename, Delete and Refresh per item.
   A line whose kind lacks what it needs (an Open without an address, a copy without text) is shown
-  disabled. The first copy, Rename and Delete are the icon row's ([S-1740], [S-1741]). The primary
-  action (double-click, Enter) is the item's Open when it can run.
+  disabled. The first copy, Rename and Delete are the icon row's ([S-1740], [S-1741]). A line whose
+  key the list takes shows it ([S-1753]): Enter on Open, Ctrl+C on the first copy, F2, Delete. The
+  primary action (double-click, Enter) is the item's Open when it can run.
 - **[S-7012]** `KitIcons`: one map from every `KitIcon` and action kind to its glyph. Open is the
   open glyph, as every widget's Open line (fixed: a feed's Open drew Explorer's "Show more options"
   picture, its glyph being the code point that art is matched to, [S-1754]).
 - **[S-7020]** `KitKeys.Decide`: one key map for every kit list over `ListKeys`, in reading order
   (Left and Right step like Up and Down, across columns): with nothing focused a movement key lands
-  on the first item, End on the last ([S-812]); Page Up/Down jump ten; Enter opens, Space toggles, F2
-  renames, Delete deletes, the Menu key opens the menu, Escape lets go ([S-813]).
+  on the first item, End on the last ([S-812]); Page Up/Down jump ten; Enter opens, Space toggles,
+  Ctrl+C runs the first copy, F2 renames, Delete deletes, the Menu key opens the menu, Escape lets go
+  ([S-813]).
 - **[S-7030]** `KitSpec`: a kit widget's shape (its row look, the optional fields it offers
   (`KitShow`: lead, subtitle, preview, when), its time, its overflow, its column cap, its untitled
   sentence); the user's own fields are bounded by it.

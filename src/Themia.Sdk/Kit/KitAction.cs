@@ -64,7 +64,8 @@ public sealed record KitAction(
 
 /// <summary>One line of a kit item's menu: an action, or a separator between groups.</summary>
 /// <param name="Quick">[S-1740] The icon-row command the line is, when it is one.</param>
-public sealed record KitMenuLine(KitAction? Action, QuickCommand? Quick = null)
+/// <param name="Shortcut">[S-1753] The key that does the same under the lease ([S-7020]), shown beside the label.</param>
+public sealed record KitMenuLine(KitAction? Action, QuickCommand? Quick = null, KeyChord? Shortcut = null)
 {
     public static KitMenuLine Separator { get; } = new(Action: null);
 
@@ -76,7 +77,8 @@ public sealed record KitMenuLine(KitAction? Action, QuickCommand? Quick = null)
 /// (Open, a check, the "&lt;verb&gt; on &lt;Service&gt;" lines in the spec's order, the copies), then
 /// Rename, then Delete, then Refresh, each group after a separator (an empty group, and with it its
 /// separator, is left out). The first copy is the icon row's Copy, Rename and Delete are theirs
-/// ([S-1740]; the row shows only with two or more, [S-1741]). Nothing else builds a kit item menu.
+/// ([S-1740]; the row shows only with two or more, [S-1741]). A line whose key the list takes says
+/// it ([S-1753]): Enter on Open, Ctrl+C on the first copy, F2, Delete. Nothing else builds a kit item menu.
 /// </summary>
 public static class KitMenu
 {
@@ -121,8 +123,17 @@ public static class KitMenu
                     _ => null,
                 };
 
+                KeyChord? key = action.Kind switch
+                {
+                    KitActionKind.Open => KeyChord.Plain(ChordKey.Enter),
+                    KitActionKind.CopyLink or KitActionKind.CopyText when !copied => KeyChord.Ctrl(ChordKey.C),
+                    KitActionKind.Rename => KeyChord.Plain(ChordKey.F2),
+                    KitActionKind.Delete => KeyChord.Plain(ChordKey.Delete),
+                    _ => null,
+                };
+
                 copied |= action.Kind is KitActionKind.CopyLink or KitActionKind.CopyText;
-                lines.Add(new KitMenuLine(action with { Disabled = !action.Runnable }, quick));
+                lines.Add(new KitMenuLine(action with { Disabled = !action.Runnable }, quick, key));
             }
         }
 

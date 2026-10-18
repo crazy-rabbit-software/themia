@@ -26,6 +26,9 @@ public enum KitKeyCommand
     /// <summary>The focused item's menu (the Menu key, Shift+F10), at the row.</summary>
     Menu,
 
+    /// <summary>The focused item's first copy (Ctrl+C).</summary>
+    Copy,
+
     /// <summary>Drop the cursor and give the keyboard back (Escape, [S-813]).</summary>
     Release,
 }
@@ -39,7 +42,8 @@ public readonly record struct KitKeyResult(KitKeyCommand Command, int Index);
 /// across columns as <see cref="ItemCursor"/> does. With no item focused yet a movement key lands on
 /// an end: End on the last item, every other one on the first ([S-812], as <see cref="ListKeys"/>).
 /// Page Up and Page Down jump <see cref="ListKeys.PageStep"/> items. Enter runs the primary action,
-/// Space a check, F2 Rename, Delete Delete, the Menu key the menu, Escape lets go. Pure, so the ends
+/// Space a check, Ctrl+C the first copy, F2 Rename, Delete Delete, the Menu key the menu, Escape
+/// lets go. Pure, so the ends
 /// of the list are tested here and not in a view.
 /// </summary>
 public static class KitKeys
@@ -57,9 +61,10 @@ public static class KitKeys
             _ => key,
         };
 
-        if (mapped == WidgetKey.Space)
+        if (mapped is WidgetKey.Space or WidgetKey.Copy)
         {
-            return count > 0 && index >= 0 ? new KitKeyResult(KitKeyCommand.Toggle, Math.Min(index, count - 1)) : new KitKeyResult(KitKeyCommand.None, -1);
+            var command = mapped == WidgetKey.Space ? KitKeyCommand.Toggle : KitKeyCommand.Copy;
+            return count > 0 && index >= 0 ? new KitKeyResult(command, Math.Min(index, count - 1)) : new KitKeyResult(KitKeyCommand.None, -1);
         }
 
         var decision = ListKeys.Decide(mapped, index, count);

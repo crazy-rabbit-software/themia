@@ -156,6 +156,21 @@ public sealed class KitTests
         Assert.Equal(QuickCommand.Delete, quick["Delete"]);
     }
 
+    /// <summary>[S-7011] [S-1753] Each line that has a key says it, as Explorer's menu does: Enter, Ctrl+C for the first copy, F2, Delete.</summary>
+    [Fact]
+    public void S7011_a_line_with_a_key_shows_it()
+    {
+        var lines = KitMenu.Lines([Open, CopyLink, new(KitActionKind.CopyText, "Copy title", Text: "t"), new(KitActionKind.Rename, "Rename"), new(KitActionKind.Delete, "Delete"), Refresh]);
+        var keys = lines.Where(l => !l.IsSeparator).ToDictionary(l => l.Action!.Label, l => l.Shortcut);
+
+        Assert.Equal(KeyChord.Plain(ChordKey.Enter), keys["Open"]);
+        Assert.Equal(KeyChord.Ctrl(ChordKey.C), keys["Copy link"]);
+        Assert.Null(keys["Copy title"]);
+        Assert.Equal(KeyChord.Plain(ChordKey.F2), keys["Rename"]);
+        Assert.Equal(KeyChord.Plain(ChordKey.Delete), keys["Delete"]);
+        Assert.Null(keys["Refresh"]);
+    }
+
     [Fact]
     public void S7011_an_item_without_a_link_shows_its_open_and_copy_disabled_and_has_no_primary()
     {
@@ -221,6 +236,8 @@ public sealed class KitTests
     [InlineData(WidgetKey.Delete, 7, KitKeyCommand.Delete, 7)]
     [InlineData(WidgetKey.Menu, 7, KitKeyCommand.Menu, 7)]
     [InlineData(WidgetKey.Escape, 7, KitKeyCommand.Release, -1)]
+    [InlineData(WidgetKey.Copy, 7, KitKeyCommand.Copy, 7)]
+    [InlineData(WidgetKey.Copy, -1, KitKeyCommand.None, -1)]
     [InlineData(WidgetKey.Tab, 7, KitKeyCommand.None, 7)]
     [InlineData(WidgetKey.Enter, 40, KitKeyCommand.Open, 29)]
     public void S7020_one_key_map_for_every_kit_list(WidgetKey key, int index, KitKeyCommand command, int at)

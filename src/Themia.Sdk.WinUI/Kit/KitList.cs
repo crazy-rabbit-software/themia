@@ -443,7 +443,8 @@ public sealed partial class KitList : Grid
                 Danger: action.Kind == KitActionKind.Delete,
                 Disabled: action.Disabled,
                 Checked: action.Kind == KitActionKind.Toggle ? action.Checked : null,
-                Quick: line.Quick));
+                Quick: line.Quick,
+                Shortcut: line.Shortcut));
     }
 
     private void Run(KitItem item, KitAction action)
@@ -493,6 +494,9 @@ public sealed partial class KitList : Grid
             case KitKeyCommand.Delete:
                 return RunKind(decision.Index, KitActionKind.Delete);
 
+            case KitKeyCommand.Copy:
+                return RunCopy(decision.Index);
+
             default:
                 return false;
         }
@@ -511,6 +515,20 @@ public sealed partial class KitList : Grid
         }
 
         Run(item, action);
+        return true;
+    }
+
+    /// <summary>[S-7020] Ctrl+C: the focused item's first copy, as its menu says.</summary>
+    private bool RunCopy(int index)
+    {
+        var item = _items[index];
+        var copy = _actions(item).FirstOrDefault(a => a.Kind is KitActionKind.CopyLink or KitActionKind.CopyText);
+        if (copy is not { Runnable: true })
+        {
+            return false;
+        }
+
+        Run(item, copy);
         return true;
     }
 

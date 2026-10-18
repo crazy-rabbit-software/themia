@@ -41,10 +41,10 @@ sample|single|stale|failed|empty|loading`, sample feeds on the reserved `.exampl
 - **[S-1306]** No reading pane at any size (retired: it read one item beside the list; user
   decision, the feed is its headlines). A click on a row focuses it; a double-click opens it
   everywhere, as every list on this desktop, through the host's launcher ([S-7062]; fixed: the
-  widget started the browser itself). Item menu (`ItemMenu`): Open, Copy link, Refresh. Keys through the shell's
+  widget started the browser itself). Item menu (`ItemMenu`, from `KitMenu`): Open (Enter), Copy link (Ctrl+C), Refresh. Keys through the shell's
   keyboard lease (`IWidgetKeys`, [S-800]; a click in the widget takes it): the kit's one key map
-  ([S-7020]): Up/Down/Left/Right step, Page Up/Down, Home/End, Enter opens, the Menu key opens the
-  menu, Escape lets go; with nothing focused every movement key but End lands on the newest
+  ([S-7020]): Up/Down/Left/Right step, Page Up/Down, Home/End, Enter opens, Ctrl+C copies the link, the Menu key opens
+  the menu, Escape lets go; with nothing focused every movement key but End lands on the newest
   headline (it was the last one for Up and Left, `ItemCursor`'s answer; now the one every list
   gives).
 
