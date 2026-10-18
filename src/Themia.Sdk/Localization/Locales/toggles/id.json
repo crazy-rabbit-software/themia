@@ -8,8 +8,6 @@
   "toggles.nightLight.name": "Lampu malam",
   "toggles.rotationLock.name": "Kunci rotasi",
   "toggles.doNotDisturb.name": "Jangan ganggu",
-  "toggles.doNotDisturb.label": "Jangan ganggu aktif/nonaktif",
-  "toggles.doNotDisturb.desc": "Menahan banner notifikasi",
   "toggles.sound.name": "Suara",
   "toggles.sound.label": "Suara aktif/nonaktif",
   "toggles.sound.desc": "Membisukan atau membunyikan output default",

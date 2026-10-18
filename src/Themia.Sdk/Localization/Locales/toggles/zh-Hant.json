@@ -8,8 +8,6 @@
   "toggles.nightLight.name": "夜間光線",
   "toggles.rotationLock.name": "旋轉鎖定",
   "toggles.doNotDisturb.name": "勿打擾",
-  "toggles.doNotDisturb.label": "勿打擾 開/關",
-  "toggles.doNotDisturb.desc": "暫停顯示通知橫幅",
   "toggles.sound.name": "音效",
   "toggles.sound.label": "音效 開/關",
   "toggles.sound.desc": "將預設輸出靜音或取消靜音",

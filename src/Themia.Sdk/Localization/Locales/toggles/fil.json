@@ -8,8 +8,6 @@
   "toggles.nightLight.name": "Night light",
   "toggles.rotationLock.name": "Rotation lock",
   "toggles.doNotDisturb.name": "Huwag istorbohin",
-  "toggles.doNotDisturb.label": "I-on/i-off ang Huwag istorbohin",
-  "toggles.doNotDisturb.desc": "Pinipigil ang mga banner ng notification",
   "toggles.sound.name": "Tunog",
   "toggles.sound.label": "I-on/i-off ang tunog",
   "toggles.sound.desc": "Mina-mute o ina-unmute ang default na output",

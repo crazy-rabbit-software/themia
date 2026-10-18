@@ -8,8 +8,6 @@
   "toggles.nightLight.name": "নাইট লাইট",
   "toggles.rotationLock.name": "রোটেশন লক",
   "toggles.doNotDisturb.name": "বিরক্ত করবেন না",
-  "toggles.doNotDisturb.label": "বিরক্ত করবেন না চালু/বন্ধ",
-  "toggles.doNotDisturb.desc": "বিজ্ঞপ্তির ব্যানার আটকে রাখে",
   "toggles.sound.name": "শব্দ",
   "toggles.sound.label": "শব্দ চালু/বন্ধ",
   "toggles.sound.desc": "ডিফল্ট আউটপুট মিউট বা আনমিউট করে",

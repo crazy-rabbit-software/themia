@@ -8,8 +8,6 @@
   "toggles.nightLight.name": "नाइट लाइट",
   "toggles.rotationLock.name": "रोटेशन लॉक",
   "toggles.doNotDisturb.name": "परेशान न करें",
-  "toggles.doNotDisturb.label": "परेशान न करें चालू/बंद",
-  "toggles.doNotDisturb.desc": "सूचना बैनर रोक देता है",
   "toggles.sound.name": "ध्वनि",
   "toggles.sound.label": "ध्वनि चालू/बंद",
   "toggles.sound.desc": "डिफ़ॉल्ट आउटपुट म्यूट या अनम्यूट करता है",

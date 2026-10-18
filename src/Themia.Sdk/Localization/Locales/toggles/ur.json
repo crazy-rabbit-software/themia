@@ -8,8 +8,6 @@
   "toggles.nightLight.name": "رات کی روشنی",
   "toggles.rotationLock.name": "گردش لاک",
   "toggles.doNotDisturb.name": "پریشان نہ کریں",
-  "toggles.doNotDisturb.label": "پریشان نہ کریں آن/آف",
-  "toggles.doNotDisturb.desc": "اطلاعی بینرز روک کر رکھتا ہے",
   "toggles.sound.name": "آواز",
   "toggles.sound.label": "آواز آن/آف",
   "toggles.sound.desc": "ڈیفالٹ آؤٹ پٹ کو خاموش کرتا ہے یا آواز کھولتا ہے",

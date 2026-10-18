@@ -7,33 +7,6 @@ using Themia.Sdk;
 
 namespace Themia.Core.Model;
 
-/// <summary>[S-3900] Do not disturb.</summary>
-public sealed class DoNotDisturbToggleConfig : QuickToggleConfig
-{
-    /// <summary>The toggle it stands for.</summary>
-    [JsonIgnore]
-    public override QuickToggle Toggle => QuickToggle.DoNotDisturb;
-
-    /// <summary>[S-6902] This widget's descriptor: what the host knows of it without its UI.</summary>
-    public static WidgetDescriptor Descriptor { get; } = new()
-    {
-        Id = new("doNotDisturbToggle"),
-        ConfigType = typeof(DoNotDisturbToggleConfig),
-        CreateDefault = () => new DoNotDisturbToggleConfig(),
-        Json = WidgetConfigJsonContext.Default,
-        Keywords = ["quick settings", "toggle", "dnd", "focus assist", "quiet hours", "notifications", "silence"],
-        Label = Str.Toggles_DoNotDisturb_Label.Local(),
-        Description = Str.Toggles_DoNotDisturb_Desc.Local(),
-        Glyph = Glyphs.QuietHours,
-        DefaultWidth = 120,
-        DefaultHeight = 120,
-        Traits = WidgetTraits.HasItems,
-        Add = new(AddFolderId.QuickSettings, 3, 1),
-    };
-
-    public override WidgetConfig Clone() => new DoNotDisturbToggleConfig { Style = Style };
-}
-
 /// <summary>[S-3900] Sound (the default output's mute).</summary>
 public sealed class SoundToggleConfig : QuickToggleConfig
 {

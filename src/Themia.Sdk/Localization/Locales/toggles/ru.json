@@ -8,8 +8,6 @@
   "toggles.nightLight.name": "Ночной свет",
   "toggles.rotationLock.name": "Блокировка поворота",
   "toggles.doNotDisturb.name": "Не беспокоить",
-  "toggles.doNotDisturb.label": "Не беспокоить вкл./откл.",
-  "toggles.doNotDisturb.desc": "Скрывает баннеры уведомлений",
   "toggles.sound.name": "Звук",
   "toggles.sound.label": "Звук вкл./откл.",
   "toggles.sound.desc": "Выключает или включает звук устройства вывода по умолчанию",

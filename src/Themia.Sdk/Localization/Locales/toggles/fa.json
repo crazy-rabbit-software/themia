@@ -8,8 +8,6 @@
   "toggles.nightLight.name": "نور شب",
   "toggles.rotationLock.name": "قفل چرخش",
   "toggles.doNotDisturb.name": "مزاحم نشوید",
-  "toggles.doNotDisturb.label": "روشن/خاموش مزاحم نشوید",
-  "toggles.doNotDisturb.desc": "بنرهای اعلان را نگه می‌دارد",
   "toggles.sound.name": "صدا",
   "toggles.sound.label": "روشن/خاموش صدا",
   "toggles.sound.desc": "خروجی پیش‌فرض را بی‌صدا یا باصدا می‌کند",

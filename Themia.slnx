@@ -13,6 +13,7 @@
     <Project Path="src/Widgets/Themia.Widget.BluetoothToggle/Themia.Widget.BluetoothToggle.csproj" />
     <Project Path="src/Widgets/Themia.Widget.Clock/Themia.Widget.Clock.csproj" />
     <Project Path="src/Widgets/Themia.Widget.Countdown/Themia.Widget.Countdown.csproj" />
+    <Project Path="src/Widgets/Themia.Widget.DoNotDisturbToggle/Themia.Widget.DoNotDisturbToggle.csproj" />
     <Project Path="src/Widgets/Themia.Widget.EnergySaverToggle/Themia.Widget.EnergySaverToggle.csproj" />
     <Project Path="src/Widgets/Themia.Widget.Hibernate/Themia.Widget.Hibernate.csproj" />
     <Project Path="src/Widgets/Themia.Widget.Lock/Themia.Widget.Lock.csproj" />

@@ -8,8 +8,6 @@
   "toggles.nightLight.name": "Ánh sáng ban đêm",
   "toggles.rotationLock.name": "Khóa xoay",
   "toggles.doNotDisturb.name": "Không làm phiền",
-  "toggles.doNotDisturb.label": "Bật/tắt không làm phiền",
-  "toggles.doNotDisturb.desc": "Tạm ẩn biểu ngữ thông báo",
   "toggles.sound.name": "Âm thanh",
   "toggles.sound.label": "Bật/tắt âm thanh",
   "toggles.sound.desc": "Tắt hoặc bật tiếng đầu ra mặc định",

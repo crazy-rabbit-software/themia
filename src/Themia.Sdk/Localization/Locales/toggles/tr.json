@@ -8,8 +8,6 @@
   "toggles.nightLight.name": "Gece ışığı",
   "toggles.rotationLock.name": "Döndürme kilidi",
   "toggles.doNotDisturb.name": "Rahatsız etmeyin",
-  "toggles.doNotDisturb.label": "Rahatsız etmeyin aç/kapat",
-  "toggles.doNotDisturb.desc": "Bildirim başlıklarını bekletir",
   "toggles.sound.name": "Ses",
   "toggles.sound.label": "Ses aç/kapat",
   "toggles.sound.desc": "Varsayılan çıkışın sesini kapatır veya açar",

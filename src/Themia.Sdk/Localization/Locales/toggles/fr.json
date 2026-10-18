@@ -8,8 +8,6 @@
   "toggles.nightLight.name": "Éclairage nocturne",
   "toggles.rotationLock.name": "Verrouillage de la rotation",
   "toggles.doNotDisturb.name": "Ne pas déranger",
-  "toggles.doNotDisturb.label": "Ne pas déranger activé/désactivé",
-  "toggles.doNotDisturb.desc": "Retient les bannières de notification",
   "toggles.sound.name": "Son",
   "toggles.sound.label": "Son activé/désactivé",
   "toggles.sound.desc": "Coupe ou rétablit le son de la sortie par défaut",

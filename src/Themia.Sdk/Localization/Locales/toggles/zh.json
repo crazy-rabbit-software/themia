@@ -8,8 +8,6 @@
   "toggles.nightLight.name": "夜间模式",
   "toggles.rotationLock.name": "旋转锁定",
   "toggles.doNotDisturb.name": "请勿打扰",
-  "toggles.doNotDisturb.label": "请勿打扰 开/关",
-  "toggles.doNotDisturb.desc": "暂不显示通知横幅",
   "toggles.sound.name": "声音",
   "toggles.sound.label": "声音 开/关",
   "toggles.sound.desc": "将默认输出静音或取消静音",

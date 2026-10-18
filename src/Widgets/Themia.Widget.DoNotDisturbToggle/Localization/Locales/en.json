@@ -1,0 +1,5 @@
+{
+  "$englishOnly": [],
+  "toggles.doNotDisturb.label": "Do not disturb on/off",
+  "toggles.doNotDisturb.desc": "Holds back notification banners"
+}

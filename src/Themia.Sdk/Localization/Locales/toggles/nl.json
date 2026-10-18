@@ -8,8 +8,6 @@
   "toggles.nightLight.name": "Nachtlampje",
   "toggles.rotationLock.name": "Rotatievergrendeling",
   "toggles.doNotDisturb.name": "Niet storen",
-  "toggles.doNotDisturb.label": "Niet storen aan/uit",
-  "toggles.doNotDisturb.desc": "Houdt meldingsbanners tegen",
   "toggles.sound.name": "Geluid",
   "toggles.sound.label": "Geluid aan/uit",
   "toggles.sound.desc": "Dempt de standaarduitvoer of heft het dempen op",

@@ -8,8 +8,6 @@
   "toggles.nightLight.name": "Nachtmodus",
   "toggles.rotationLock.name": "Drehsperre",
   "toggles.doNotDisturb.name": "Nicht stören",
-  "toggles.doNotDisturb.label": "Nicht stören ein/aus",
-  "toggles.doNotDisturb.desc": "Hält Benachrichtigungsbanner zurück",
   "toggles.sound.name": "Ton",
   "toggles.sound.label": "Ton ein/aus",
   "toggles.sound.desc": "Schaltet die Standardausgabe stumm oder wieder laut",

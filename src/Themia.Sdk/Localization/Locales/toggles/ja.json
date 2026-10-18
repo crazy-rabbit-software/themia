@@ -8,8 +8,6 @@
   "toggles.nightLight.name": "夜間モード",
   "toggles.rotationLock.name": "回転ロック",
   "toggles.doNotDisturb.name": "応答不可",
-  "toggles.doNotDisturb.label": "応答不可 オン/オフ",
-  "toggles.doNotDisturb.desc": "通知バナーを表示しないようにします",
   "toggles.sound.name": "サウンド",
   "toggles.sound.label": "サウンド オン/オフ",
   "toggles.sound.desc": "既定の出力をミュートまたはミュート解除します",

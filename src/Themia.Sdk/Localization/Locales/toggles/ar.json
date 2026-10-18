@@ -8,8 +8,6 @@
   "toggles.nightLight.name": "الإضاءة الليلية",
   "toggles.rotationLock.name": "تأمين التدوير",
   "toggles.doNotDisturb.name": "عدم الإزعاج",
-  "toggles.doNotDisturb.label": "تشغيل/إيقاف عدم الإزعاج",
-  "toggles.doNotDisturb.desc": "حجب لافتات الإعلامات",
   "toggles.sound.name": "الصوت",
   "toggles.sound.label": "تشغيل/إيقاف الصوت",
   "toggles.sound.desc": "كتم صوت الإخراج الافتراضي أو إلغاء كتمه",

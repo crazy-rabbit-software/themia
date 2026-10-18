@@ -8,8 +8,6 @@
   "toggles.nightLight.name": "Mwanga wa usiku",
   "toggles.rotationLock.name": "Kufunga mzunguko",
   "toggles.doNotDisturb.name": "Usinisumbue",
-  "toggles.doNotDisturb.label": "Usinisumbue washa/zima",
-  "toggles.doNotDisturb.desc": "Huzuia mabango ya arifa",
   "toggles.sound.name": "Sauti",
   "toggles.sound.label": "Sauti washa/zima",
   "toggles.sound.desc": "Hunyamazisha au kurejesha sauti ya towe chaguomsingi",

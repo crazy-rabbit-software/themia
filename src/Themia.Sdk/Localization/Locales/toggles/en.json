@@ -7,8 +7,6 @@
   "toggles.nightLight.name": "Night light",
   "toggles.rotationLock.name": "Rotation lock",
   "toggles.doNotDisturb.name": "Do not disturb",
-  "toggles.doNotDisturb.label": "Do not disturb on/off",
-  "toggles.doNotDisturb.desc": "Holds back notification banners",
   "toggles.sound.name": "Sound",
   "toggles.sound.label": "Sound on/off",
   "toggles.sound.desc": "Mutes or unmutes the default output",

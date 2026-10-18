@@ -8,8 +8,6 @@
   "toggles.nightLight.name": "Luz nocturna",
   "toggles.rotationLock.name": "Bloqueo de rotación",
   "toggles.doNotDisturb.name": "No molestar",
-  "toggles.doNotDisturb.label": "No molestar activado/desactivado",
-  "toggles.doNotDisturb.desc": "Retiene los avisos de notificación",
   "toggles.sound.name": "Sonido",
   "toggles.sound.label": "Sonido activado/desactivado",
   "toggles.sound.desc": "Silencia o reactiva la salida predeterminada",
