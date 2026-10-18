@@ -14,20 +14,5 @@
   "panels.notifications.allow": "Ruhusu",
   "panels.notifications.openSettings": "Fungua mipangilio",
   "panels.notifications.unsupported": "Toleo hili la Windows halina orodha ya arifa ya kusoma",
-  "panels.focus.label": "Kipindi cha umakini",
-  "panels.focus.desc": "Muda wa kuzingatia, arifa zikizuiwa",
-  "panels.focus.minutes": "Dak {minutes}",
-  "panels.focus.start": "Anza",
-  "panels.focus.end": "Maliza kipindi",
-  "panels.focus.longer": "Ndefu zaidi",
-  "panels.focus.shorter": "Fupi zaidi",
-  "panels.focus.left": "Zimebaki {time}",
-  "panels.focus.quietOn": "Usinisumbue imewashwa",
-  "panels.focus.willQuiet": "Huwasha usinisumbue",
-  "panels.focus.quietUnavailable": "Usinisumbue haiwezi kuwashwa hapa",
-  "panels.focus.windows": "Kipindi cha umakini cha Windows kinaendelea",
-  "panels.focus.lengthLabel": "Urefu",
-  "panels.focus.lengthDesc": "Kipindi kinachukua muda gani",
-  "panels.focus.quietLabel": "Washa usinisumbue",
-  "panels.focus.quietDesc": "Huzuia mabango ya arifa kipindi kikiendelea"
+  "panels.focus.minutes": "Dak {minutes}"
 }

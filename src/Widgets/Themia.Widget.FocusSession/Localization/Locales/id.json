@@ -1,0 +1,17 @@
+{
+  "panels.focus.desc": "Waktu untuk fokus, tanpa notifikasi",
+  "panels.focus.end": "Akhiri sesi",
+  "panels.focus.label": "Sesi fokus",
+  "panels.focus.left": "Sisa {time}",
+  "panels.focus.lengthDesc": "Berapa lama sesi berjalan",
+  "panels.focus.lengthLabel": "Durasi",
+  "panels.focus.longer": "Lebih lama",
+  "panels.focus.quietDesc": "Menahan banner notifikasi selama sesi berjalan",
+  "panels.focus.quietLabel": "Aktifkan Jangan ganggu",
+  "panels.focus.quietOn": "Jangan ganggu aktif",
+  "panels.focus.quietUnavailable": "Jangan ganggu tidak dapat diaktifkan di sini",
+  "panels.focus.shorter": "Lebih singkat",
+  "panels.focus.start": "Mulai",
+  "panels.focus.willQuiet": "Mengaktifkan Jangan ganggu",
+  "panels.focus.windows": "Sesi fokus Windows sedang berjalan"
+}

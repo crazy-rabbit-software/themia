@@ -16,7 +16,6 @@ namespace Themia.Core.Storage;
 [JsonSerializable(typeof(CalendarWidgetConfig))]
 [JsonSerializable(typeof(ContactsConfig))]
 [JsonSerializable(typeof(EmailConfig))]
-[JsonSerializable(typeof(FocusSessionConfig))]
 [JsonSerializable(typeof(FolderConfig))]
 [JsonSerializable(typeof(GalleryConfig))]
 [JsonSerializable(typeof(HabitTrackerConfig))]

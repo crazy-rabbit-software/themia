@@ -5649,11 +5649,13 @@ source per toggle, `ToggleHub`); tests `QuickToggleTests`.
 ## Windows' panels: notifications, focus session, brightness (WINDOWS-PANELS)
 
 Three widgets after Karpo's (`karpo-app`, docs\widgets.md §18, §19, §35, §92, §100, §103), each on
-Windows' own state. Core: `NotificationRules`, `FocusSessionRules` (+ `FocusQuietHold`),
-`BrightnessRules` (+ `NewestLevels`), `Shell/WinRtIid`, configs in `Model/Configs/WindowsPanelConfigs.cs`;
-App: `NotificationsView`, `FocusSessionView`, `BrightnessView` (each with a `.Preview.cs`),
-`Services/Notifications/NotificationFeed`, `Services/Focus/*`, `Services/Brightness/*`; strings in
-`Locales/panels/`; tests `WindowsPanelsTests`.
+Windows' own state. The focus session and the brightness slider are modules of their own
+(`src/Widgets/Themia.Widget.FocusSession`, `.Brightness`, each its SPEC.md). Core: `NotificationRules`,
+`Shell/WinRtIid`, the notifications' config in `Model/Configs/WindowsPanelConfigs.cs`; the SDK's
+`FocusSessionRules` (+ `FocusQuietHold`) and `BrightnessRules` (+ `NewestLevels`); App: `NotificationsView`
+(with its `.Preview.cs`), `Services/Notifications/NotificationFeed`, `Services/Focus/*` (behind
+`IWidgetHost.Focus`), `Services/Brightness/*`; strings in `Locales/panels/`; tests `WindowsPanelsTests`,
+the module host's `WindowsPanelsHostTests`.
 
 ### Notifications
 
@@ -5707,9 +5709,7 @@ App: `NotificationsView`, `FocusSessionView`, `BrightnessView` (each with a `.Pr
 
 ### Focus session
 
-- **[S-4420]** Kind `FocusSession` (122), add menu Time ([S-3511]), 240×200, glyph Karpo's focus
-  target (F272). Config: `Minutes` (5–240, default 30, Windows' own) and `DoNotDisturb` (default on);
-  a length out of range in a hand-edited file is pulled into it and logged.
+- [S-4420], [S-4426], [S-4427], [S-4428]: moved with the Focus session widget into its module's `SPEC.md` (`src/Widgets/Themia.Widget.FocusSession/`).
 - **[S-4421]** One session for the app, as Windows has one: started from any focus widget at its own
   length, shown by all (`FocusSessionService`). It runs from Start to its end and ends there (a
   one-shot timer at the end, not a poll) or at End. −/+ step the length by five minutes on the five-minute
@@ -5736,12 +5736,6 @@ App: `NotificationsView`, `FocusSessionView`, `BrightnessView` (each with a `.Pr
   answering the parameterised IID of `TypedEventHandler<FocusSessionManager, Object>` computed as the
   WinRT type system does (`WinRtIid`, SHA-1 version-5 UUID); `Invoke` catches everything and reads
   again off Windows' thread.
-- **[S-4426]** The ladder (`FocusSessionRules.Plan`): Compact both ways, the time alone (a click on it
-  starts or ends); otherwise the Start/End button (accent) under it, its word where the width is
-  Regular or more, −/+ beside it while idle; the status line (do not disturb, Windows' focus, or what
-  Start will do) from Regular both ways; the ring of the time gone from Expanded both ways and 120 DIP.
-- **[S-4427]** Keys: Space/Enter start or end; Up/Right/+ and Down/Left/− change the length while idle.
-- **[S-4428]** Settings page: Length (slider, 5-minute steps) and Turn on do not disturb.
 
 ### Brightness
 

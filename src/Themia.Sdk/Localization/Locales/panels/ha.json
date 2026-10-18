@@ -14,20 +14,5 @@
   "panels.notifications.allow": "Ba da izini",
   "panels.notifications.openSettings": "Buɗe saituna",
   "panels.notifications.unsupported": "Wannan sigar Windows ba ta da jerin sanarwa da za a karanta",
-  "panels.focus.label": "Zaman mai da hankali",
-  "panels.focus.desc": "Lokacin mai da hankali, tare da riƙe sanarwa",
-  "panels.focus.minutes": "Minti {minutes}",
-  "panels.focus.start": "Fara",
-  "panels.focus.end": "Ƙare zama",
-  "panels.focus.longer": "Mai tsawo",
-  "panels.focus.shorter": "Gajere",
-  "panels.focus.left": "Saura {time}",
-  "panels.focus.quietOn": "Kar a dame ni yana kunne",
-  "panels.focus.willQuiet": "Yana kunna kar a dame ni",
-  "panels.focus.quietUnavailable": "Ba za a iya kunna kar a dame ni a nan ba",
-  "panels.focus.windows": "Zaman mai da hankali na Windows yana kunne",
-  "panels.focus.lengthLabel": "Tsawo",
-  "panels.focus.lengthDesc": "Tsawon lokacin da zama ke ɗauka",
-  "panels.focus.quietLabel": "Kunna kar a dame ni",
-  "panels.focus.quietDesc": "Yana riƙe tutocin sanarwa yayin da zaman ke gudana"
+  "panels.focus.minutes": "Minti {minutes}"
 }

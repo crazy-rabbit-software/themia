@@ -14,20 +14,5 @@
   "panels.notifications.allow": "Toestaan",
   "panels.notifications.openSettings": "Instellingen openen",
   "panels.notifications.unsupported": "Deze versie van Windows heeft geen meldingenlijst om te lezen",
-  "panels.focus.label": "Focussessie",
-  "panels.focus.desc": "Tijd om te focussen, zonder meldingen",
-  "panels.focus.minutes": "{minutes} min",
-  "panels.focus.start": "Starten",
-  "panels.focus.end": "Sessie beëindigen",
-  "panels.focus.longer": "Langer",
-  "panels.focus.shorter": "Korter",
-  "panels.focus.left": "Nog {time}",
-  "panels.focus.quietOn": "Niet storen staat aan",
-  "panels.focus.willQuiet": "Zet Niet storen aan",
-  "panels.focus.quietUnavailable": "Niet storen kan hier niet worden aangezet",
-  "panels.focus.windows": "Er loopt een focussessie van Windows",
-  "panels.focus.lengthLabel": "Duur",
-  "panels.focus.lengthDesc": "Hoe lang een sessie duurt",
-  "panels.focus.quietLabel": "Niet storen aanzetten",
-  "panels.focus.quietDesc": "Houdt meldingsbanners tegen zolang de sessie loopt"
+  "panels.focus.minutes": "{minutes} min"
 }

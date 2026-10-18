@@ -1,0 +1,17 @@
+{
+  "panels.focus.desc": "ਧਿਆਨ ਲਗਾਉਣ ਦਾ ਸਮਾਂ, ਸੂਚਨਾਵਾਂ ਰੋਕ ਕੇ",
+  "panels.focus.end": "ਸੈਸ਼ਨ ਖ਼ਤਮ ਕਰੋ",
+  "panels.focus.label": "ਫੋਕਸ ਸੈਸ਼ਨ",
+  "panels.focus.left": "{time} ਬਾਕੀ",
+  "panels.focus.lengthDesc": "ਇੱਕ ਸੈਸ਼ਨ ਕਿੰਨੀ ਦੇਰ ਚੱਲਦਾ ਹੈ",
+  "panels.focus.lengthLabel": "ਮਿਆਦ",
+  "panels.focus.longer": "ਲੰਮਾ",
+  "panels.focus.quietDesc": "ਸੈਸ਼ਨ ਦੌਰਾਨ ਸੂਚਨਾ ਬੈਨਰਾਂ ਨੂੰ ਰੋਕਦਾ ਹੈ",
+  "panels.focus.quietLabel": "ਪਰੇਸ਼ਾਨ ਨਾ ਕਰੋ ਚਾਲੂ ਕਰੋ",
+  "panels.focus.quietOn": "ਪਰੇਸ਼ਾਨ ਨਾ ਕਰੋ ਚਾਲੂ ਹੈ",
+  "panels.focus.quietUnavailable": "ਇੱਥੇ ਪਰੇਸ਼ਾਨ ਨਾ ਕਰੋ ਚਾਲੂ ਨਹੀਂ ਕੀਤਾ ਜਾ ਸਕਦਾ",
+  "panels.focus.shorter": "ਛੋਟਾ",
+  "panels.focus.start": "ਸ਼ੁਰੂ ਕਰੋ",
+  "panels.focus.willQuiet": "ਪਰੇਸ਼ਾਨ ਨਾ ਕਰੋ ਚਾਲੂ ਕਰਦਾ ਹੈ",
+  "panels.focus.windows": "ਇੱਕ Windows ਫੋਕਸ ਸੈਸ਼ਨ ਚਾਲੂ ਹੈ"
+}

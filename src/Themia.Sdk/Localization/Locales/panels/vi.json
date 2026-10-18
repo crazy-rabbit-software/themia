@@ -14,20 +14,5 @@
   "panels.notifications.allow": "Cho phép",
   "panels.notifications.openSettings": "Mở cài đặt",
   "panels.notifications.unsupported": "Phiên bản Windows này không có danh sách thông báo để đọc",
-  "panels.focus.label": "Phiên tập trung",
-  "panels.focus.desc": "Thời gian tập trung, không có thông báo",
-  "panels.focus.minutes": "{minutes} phút",
-  "panels.focus.start": "Bắt đầu",
-  "panels.focus.end": "Kết thúc phiên",
-  "panels.focus.longer": "Dài hơn",
-  "panels.focus.shorter": "Ngắn hơn",
-  "panels.focus.left": "Còn {time}",
-  "panels.focus.quietOn": "Không làm phiền đang bật",
-  "panels.focus.willQuiet": "Bật Không làm phiền",
-  "panels.focus.quietUnavailable": "Không thể bật Không làm phiền ở đây",
-  "panels.focus.windows": "Một phiên tập trung của Windows đang chạy",
-  "panels.focus.lengthLabel": "Độ dài",
-  "panels.focus.lengthDesc": "Một phiên kéo dài bao lâu",
-  "panels.focus.quietLabel": "Bật Không làm phiền",
-  "panels.focus.quietDesc": "Giữ lại biểu ngữ thông báo trong khi phiên đang chạy"
+  "panels.focus.minutes": "{minutes} phút"
 }

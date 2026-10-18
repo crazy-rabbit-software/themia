@@ -1,0 +1,17 @@
+{
+  "panels.focus.desc": "زمانی برای تمرکز، با نگه داشتن اعلان‌ها",
+  "panels.focus.end": "پایان جلسه",
+  "panels.focus.label": "جلسه تمرکز",
+  "panels.focus.left": "{time} مانده",
+  "panels.focus.lengthDesc": "مدت هر جلسه",
+  "panels.focus.lengthLabel": "مدت",
+  "panels.focus.longer": "طولانی‌تر",
+  "panels.focus.quietDesc": "در طول جلسه، بنرهای اعلان را نگه می‌دارد",
+  "panels.focus.quietLabel": "روشن کردن مزاحم نشوید",
+  "panels.focus.quietOn": "مزاحم نشوید روشن است",
+  "panels.focus.quietUnavailable": "مزاحم نشوید اینجا روشن نمی‌شود",
+  "panels.focus.shorter": "کوتاه‌تر",
+  "panels.focus.start": "شروع",
+  "panels.focus.willQuiet": "مزاحم نشوید را روشن می‌کند",
+  "panels.focus.windows": "یک جلسه تمرکز Windows در جریان است"
+}

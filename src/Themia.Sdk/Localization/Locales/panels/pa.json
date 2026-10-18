@@ -14,20 +14,5 @@
   "panels.notifications.allow": "ਇਜਾਜ਼ਤ ਦਿਓ",
   "panels.notifications.openSettings": "ਸੈਟਿੰਗਾਂ ਖੋਲ੍ਹੋ",
   "panels.notifications.unsupported": "Windows ਦੇ ਇਸ ਸੰਸਕਰਣ ਵਿੱਚ ਪੜ੍ਹਨ ਲਈ ਕੋਈ ਸੂਚਨਾ ਸੂਚੀ ਨਹੀਂ ਹੈ",
-  "panels.focus.label": "ਫੋਕਸ ਸੈਸ਼ਨ",
-  "panels.focus.desc": "ਧਿਆਨ ਲਗਾਉਣ ਦਾ ਸਮਾਂ, ਸੂਚਨਾਵਾਂ ਰੋਕ ਕੇ",
-  "panels.focus.minutes": "{minutes} ਮਿੰਟ",
-  "panels.focus.start": "ਸ਼ੁਰੂ ਕਰੋ",
-  "panels.focus.end": "ਸੈਸ਼ਨ ਖ਼ਤਮ ਕਰੋ",
-  "panels.focus.longer": "ਲੰਮਾ",
-  "panels.focus.shorter": "ਛੋਟਾ",
-  "panels.focus.left": "{time} ਬਾਕੀ",
-  "panels.focus.quietOn": "ਪਰੇਸ਼ਾਨ ਨਾ ਕਰੋ ਚਾਲੂ ਹੈ",
-  "panels.focus.willQuiet": "ਪਰੇਸ਼ਾਨ ਨਾ ਕਰੋ ਚਾਲੂ ਕਰਦਾ ਹੈ",
-  "panels.focus.quietUnavailable": "ਇੱਥੇ ਪਰੇਸ਼ਾਨ ਨਾ ਕਰੋ ਚਾਲੂ ਨਹੀਂ ਕੀਤਾ ਜਾ ਸਕਦਾ",
-  "panels.focus.windows": "ਇੱਕ Windows ਫੋਕਸ ਸੈਸ਼ਨ ਚਾਲੂ ਹੈ",
-  "panels.focus.lengthLabel": "ਮਿਆਦ",
-  "panels.focus.lengthDesc": "ਇੱਕ ਸੈਸ਼ਨ ਕਿੰਨੀ ਦੇਰ ਚੱਲਦਾ ਹੈ",
-  "panels.focus.quietLabel": "ਪਰੇਸ਼ਾਨ ਨਾ ਕਰੋ ਚਾਲੂ ਕਰੋ",
-  "panels.focus.quietDesc": "ਸੈਸ਼ਨ ਦੌਰਾਨ ਸੂਚਨਾ ਬੈਨਰਾਂ ਨੂੰ ਰੋਕਦਾ ਹੈ"
+  "panels.focus.minutes": "{minutes} ਮਿੰਟ"
 }

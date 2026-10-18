@@ -1,0 +1,17 @@
+{
+  "panels.focus.desc": "Tijd om te focussen, zonder meldingen",
+  "panels.focus.end": "Sessie beëindigen",
+  "panels.focus.label": "Focussessie",
+  "panels.focus.left": "Nog {time}",
+  "panels.focus.lengthDesc": "Hoe lang een sessie duurt",
+  "panels.focus.lengthLabel": "Duur",
+  "panels.focus.longer": "Langer",
+  "panels.focus.quietDesc": "Houdt meldingsbanners tegen zolang de sessie loopt",
+  "panels.focus.quietLabel": "Niet storen aanzetten",
+  "panels.focus.quietOn": "Niet storen staat aan",
+  "panels.focus.quietUnavailable": "Niet storen kan hier niet worden aangezet",
+  "panels.focus.shorter": "Korter",
+  "panels.focus.start": "Starten",
+  "panels.focus.willQuiet": "Zet Niet storen aan",
+  "panels.focus.windows": "Er loopt een focussessie van Windows"
+}

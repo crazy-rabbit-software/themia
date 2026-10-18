@@ -1,0 +1,17 @@
+{
+  "panels.focus.desc": "وقت للتركيز دون إشعارات",
+  "panels.focus.end": "إنهاء الجلسة",
+  "panels.focus.label": "جلسة تركيز",
+  "panels.focus.left": "متبقٍ {time}",
+  "panels.focus.lengthDesc": "مدة الجلسة",
+  "panels.focus.lengthLabel": "المدة",
+  "panels.focus.longer": "أطول",
+  "panels.focus.quietDesc": "يحجب لافتات الإشعارات أثناء الجلسة",
+  "panels.focus.quietLabel": "تشغيل عدم الإزعاج",
+  "panels.focus.quietOn": "وضع عدم الإزعاج قيد التشغيل",
+  "panels.focus.quietUnavailable": "لا يمكن تشغيل عدم الإزعاج هنا",
+  "panels.focus.shorter": "أقصر",
+  "panels.focus.start": "بدء",
+  "panels.focus.willQuiet": "يشغّل عدم الإزعاج",
+  "panels.focus.windows": "جلسة تركيز Windows قيد التشغيل"
+}

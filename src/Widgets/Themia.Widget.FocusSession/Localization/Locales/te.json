@@ -1,0 +1,17 @@
+{
+  "panels.focus.desc": "నోటిఫికేషన్‌లను ఆపి ఉంచి, ఫోకస్ చేయడానికి సమయం",
+  "panels.focus.end": "సెషన్‌ను ముగించు",
+  "panels.focus.label": "ఫోకస్ సెషన్",
+  "panels.focus.left": "{time} మిగిలి ఉంది",
+  "panels.focus.lengthDesc": "ఒక సెషన్ ఎంతసేపు నడుస్తుంది",
+  "panels.focus.lengthLabel": "వ్యవధి",
+  "panels.focus.longer": "ఎక్కువ సేపు",
+  "panels.focus.quietDesc": "సెషన్ నడుస్తున్నప్పుడు నోటిఫికేషన్ బ్యానర్‌లను ఆపి ఉంచుతుంది",
+  "panels.focus.quietLabel": "అంతరాయం కలిగించవద్దును ఆన్ చేయి",
+  "panels.focus.quietOn": "అంతరాయం కలిగించవద్దు ఆన్‌లో ఉంది",
+  "panels.focus.quietUnavailable": "అంతరాయం కలిగించవద్దును ఇక్కడ ఆన్ చేయడం సాధ్యం కాదు",
+  "panels.focus.shorter": "తక్కువ సేపు",
+  "panels.focus.start": "ప్రారంభించు",
+  "panels.focus.willQuiet": "అంతరాయం కలిగించవద్దును ఆన్ చేస్తుంది",
+  "panels.focus.windows": "Windows ఫోకస్ సెషన్ ఆన్‌లో ఉంది"
+}

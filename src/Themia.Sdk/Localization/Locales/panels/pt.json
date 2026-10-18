@@ -14,20 +14,5 @@
   "panels.notifications.allow": "Permitir",
   "panels.notifications.openSettings": "Abrir configurações",
   "panels.notifications.unsupported": "Esta versão do Windows não tem uma lista de notificações para ler",
-  "panels.focus.label": "Sessão de foco",
-  "panels.focus.desc": "Tempo para focar, sem notificações",
-  "panels.focus.minutes": "{minutes} min",
-  "panels.focus.start": "Iniciar",
-  "panels.focus.end": "Encerrar sessão",
-  "panels.focus.longer": "Mais longa",
-  "panels.focus.shorter": "Mais curta",
-  "panels.focus.left": "Faltam {time}",
-  "panels.focus.quietOn": "Não incomodar está ativado",
-  "panels.focus.willQuiet": "Ativa o Não incomodar",
-  "panels.focus.quietUnavailable": "Não é possível ativar o Não incomodar aqui",
-  "panels.focus.windows": "Uma sessão de foco do Windows está ativa",
-  "panels.focus.lengthLabel": "Duração",
-  "panels.focus.lengthDesc": "Quanto tempo dura uma sessão",
-  "panels.focus.quietLabel": "Ativar o Não incomodar",
-  "panels.focus.quietDesc": "Retém as faixas de notificação enquanto a sessão dura"
+  "panels.focus.minutes": "{minutes} min"
 }

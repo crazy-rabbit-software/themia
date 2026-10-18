@@ -1,0 +1,17 @@
+{
+  "panels.focus.desc": "Oras para mag-focus, nakapigil ang mga notification",
+  "panels.focus.end": "Tapusin ang session",
+  "panels.focus.label": "Focus session",
+  "panels.focus.left": "{time} pa",
+  "panels.focus.lengthDesc": "Gaano katagal tatakbo ang isang session",
+  "panels.focus.lengthLabel": "Haba",
+  "panels.focus.longer": "Mas mahaba",
+  "panels.focus.quietDesc": "Pinipigil ang mga banner ng notification habang tumatakbo ang session",
+  "panels.focus.quietLabel": "I-on ang Huwag istorbohin",
+  "panels.focus.quietOn": "Naka-on ang Huwag istorbohin",
+  "panels.focus.quietUnavailable": "Hindi ma-on dito ang Huwag istorbohin",
+  "panels.focus.shorter": "Mas maikli",
+  "panels.focus.start": "Simulan",
+  "panels.focus.willQuiet": "Ino-on ang Huwag istorbohin",
+  "panels.focus.windows": "May naka-on na focus session ng Windows"
+}

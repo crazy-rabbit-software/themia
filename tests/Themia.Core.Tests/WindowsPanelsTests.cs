@@ -21,18 +21,6 @@ public class WindowsPanelsTests
 
     // ---- configs -------------------------------------------------------------------------------
 
-    [Fact]
-    public void S4421_a_hand_edited_length_is_pulled_into_range_and_said_so()
-    {
-        var config = new FocusSessionConfig { Minutes = 9000 };
-        Assert.NotEmpty(config.Repair());
-        Assert.Equal(FocusSessionRules.MaxMinutes, config.Minutes);
-
-        var fine = new FocusSessionConfig { Minutes = 45 };
-        Assert.Empty(fine.Repair());
-        Assert.Equal(45, fine.Minutes);
-    }
-
     // ---- notifications -------------------------------------------------------------------------
 
     [Fact]
@@ -290,26 +278,6 @@ public class WindowsPanelsTests
         Assert.Equal(QuietCommand.None, hold.Update(true, ToggleReading.Pending));
         Assert.Equal(QuietCommand.None, hold.Update(false, ToggleReading.Pending));
         Assert.False(hold.Holding);
-    }
-
-    [Fact]
-    public void S4426_the_ladder_time_then_button_then_words_steppers_status_ring()
-    {
-        var tiny = FocusSessionRules.Plan(new WidgetArea(140, 100));
-        Assert.False(tiny.Button);
-
-        var small = FocusSessionRules.Plan(new WidgetArea(240, 110));
-        Assert.True(small.Button);
-        Assert.True(small.Words);
-        Assert.False(small.Status);
-
-        var square = FocusSessionRules.Plan(new WidgetArea(240, 200));
-        Assert.True(square.Steppers);
-        Assert.True(square.Status);
-        Assert.False(square.Ring);
-
-        var big = FocusSessionRules.Plan(new WidgetArea(420, 320));
-        Assert.True(big.Ring);
     }
 
     [Fact]

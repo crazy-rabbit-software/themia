@@ -1,0 +1,17 @@
+{
+  "panels.focus.desc": "اطلاعات کے بغیر توجہ کا وقت",
+  "panels.focus.end": "سیشن ختم کریں",
+  "panels.focus.label": "فوکس سیشن",
+  "panels.focus.left": "{time} باقی",
+  "panels.focus.lengthDesc": "ایک سیشن کتنی دیر چلتا ہے",
+  "panels.focus.lengthLabel": "دورانیہ",
+  "panels.focus.longer": "لمبا",
+  "panels.focus.quietDesc": "سیشن کے دوران اطلاع کے بینر روکتا ہے",
+  "panels.focus.quietLabel": "پریشان نہ کریں آن کریں",
+  "panels.focus.quietOn": "پریشان نہ کریں آن ہے",
+  "panels.focus.quietUnavailable": "یہاں پریشان نہ کریں آن نہیں ہو سکتا",
+  "panels.focus.shorter": "چھوٹا",
+  "panels.focus.start": "شروع کریں",
+  "panels.focus.willQuiet": "پریشان نہ کریں آن کرتا ہے",
+  "panels.focus.windows": "Windows کا فوکس سیشن جاری ہے"
+}

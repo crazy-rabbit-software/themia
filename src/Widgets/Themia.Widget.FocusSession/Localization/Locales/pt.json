@@ -1,0 +1,17 @@
+{
+  "panels.focus.desc": "Tempo para focar, sem notificações",
+  "panels.focus.end": "Encerrar sessão",
+  "panels.focus.label": "Sessão de foco",
+  "panels.focus.left": "Faltam {time}",
+  "panels.focus.lengthDesc": "Quanto tempo dura uma sessão",
+  "panels.focus.lengthLabel": "Duração",
+  "panels.focus.longer": "Mais longa",
+  "panels.focus.quietDesc": "Retém as faixas de notificação enquanto a sessão dura",
+  "panels.focus.quietLabel": "Ativar o Não incomodar",
+  "panels.focus.quietOn": "Não incomodar está ativado",
+  "panels.focus.quietUnavailable": "Não é possível ativar o Não incomodar aqui",
+  "panels.focus.shorter": "Mais curta",
+  "panels.focus.start": "Iniciar",
+  "panels.focus.willQuiet": "Ativa o Não incomodar",
+  "panels.focus.windows": "Uma sessão de foco do Windows está ativa"
+}

@@ -9,7 +9,7 @@ using Xunit;
 
 namespace Themia.Modules.Tests;
 
-/// <summary>[S-4400] [S-4442] The brightness widget's config under the root's rules (the screens choice's wire and repair; none of Windows' panels asks to be set up): the config is the brightness module's, so they run here. Moved from Core's WindowsPanelsTests, unchanged in what they assert.</summary>
+/// <summary>[S-4400] [S-4421] [S-4442] The brightness and focus widgets' configs under the root's rules (the screens choice's wire and repair; a hand-edited focus length pulled into range; none of Windows' panels asks to be set up): the configs are their modules', so they run here. Moved from Core's WindowsPanelsTests, unchanged in what they assert.</summary>
 public sealed class WindowsPanelsHostTests
 {
 
@@ -36,7 +36,7 @@ public sealed class WindowsPanelsHostTests
     [Fact]
     public void S4400_none_of_the_three_asks_to_be_set_up()
     {
-        foreach (var kind in new[] { NotificationsConfig.Descriptor.Id, FocusSessionConfig.Descriptor.Id, new WidgetId("brightness") })
+        foreach (var kind in new[] { NotificationsConfig.Descriptor.Id, new WidgetId("focusSession"), new WidgetId("brightness") })
         {
             Assert.False(WidgetSetup.Needed(WidgetConfig.CreateDefault(kind), Themia.Sdk.FeatureSet.None), kind.ToString());
         }
@@ -56,5 +56,17 @@ public sealed class WindowsPanelsHostTests
         Assert.NotNull(back);
         Assert.Equal(kind, back!.Kind);
         Assert.Equal(kind, back.Clone().Kind);
+    }
+
+    [Fact]
+    public void S4421_a_hand_edited_length_is_pulled_into_range_and_said_so()
+    {
+        var config = new FocusSessionConfig { Minutes = 9000 };
+        Assert.NotEmpty(config.Repair());
+        Assert.Equal(FocusSessionRules.MaxMinutes, config.Minutes);
+
+        var fine = new FocusSessionConfig { Minutes = 45 };
+        Assert.Empty(fine.Repair());
+        Assert.Equal(45, fine.Minutes);
     }
 }

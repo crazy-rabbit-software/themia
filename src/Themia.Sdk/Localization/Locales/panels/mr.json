@@ -14,20 +14,5 @@
   "panels.notifications.allow": "अनुमती द्या",
   "panels.notifications.openSettings": "सेटिंग्ज उघडा",
   "panels.notifications.unsupported": "Windows च्या या आवृत्तीत वाचण्यासाठी सूचना यादी नाही",
-  "panels.focus.label": "फोकस सत्र",
-  "panels.focus.desc": "सूचनांशिवाय लक्ष केंद्रित करण्याचा वेळ",
-  "panels.focus.minutes": "{minutes} मि",
-  "panels.focus.start": "सुरू करा",
-  "panels.focus.end": "सत्र संपवा",
-  "panels.focus.longer": "जास्त",
-  "panels.focus.shorter": "कमी",
-  "panels.focus.left": "{time} शिल्लक",
-  "panels.focus.quietOn": "व्यत्यय आणू नका चालू आहे",
-  "panels.focus.willQuiet": "व्यत्यय आणू नका चालू करते",
-  "panels.focus.quietUnavailable": "येथे व्यत्यय आणू नका चालू करता येत नाही",
-  "panels.focus.windows": "Windows चे फोकस सत्र चालू आहे",
-  "panels.focus.lengthLabel": "कालावधी",
-  "panels.focus.lengthDesc": "सत्र किती वेळ चालते",
-  "panels.focus.quietLabel": "व्यत्यय आणू नका चालू करा",
-  "panels.focus.quietDesc": "सत्र चालू असताना सूचना बॅनर थांबवते"
+  "panels.focus.minutes": "{minutes} मि"
 }

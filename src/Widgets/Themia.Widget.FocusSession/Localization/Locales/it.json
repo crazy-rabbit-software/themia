@@ -1,0 +1,17 @@
+{
+  "panels.focus.desc": "Tempo per concentrarti, senza notifiche",
+  "panels.focus.end": "Termina sessione",
+  "panels.focus.label": "Sessione di concentrazione",
+  "panels.focus.left": "{time} rimanenti",
+  "panels.focus.lengthDesc": "Quanto dura una sessione",
+  "panels.focus.lengthLabel": "Durata",
+  "panels.focus.longer": "Più lunga",
+  "panels.focus.quietDesc": "Trattiene i banner delle notifiche durante la sessione",
+  "panels.focus.quietLabel": "Attiva Non disturbare",
+  "panels.focus.quietOn": "Non disturbare è attivo",
+  "panels.focus.quietUnavailable": "Non disturbare non può essere attivato qui",
+  "panels.focus.shorter": "Più corta",
+  "panels.focus.start": "Avvia",
+  "panels.focus.willQuiet": "Attiva Non disturbare",
+  "panels.focus.windows": "È in corso una sessione di concentrazione di Windows"
+}

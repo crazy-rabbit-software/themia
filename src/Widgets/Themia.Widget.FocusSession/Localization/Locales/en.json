@@ -1,0 +1,18 @@
+{
+  "$englishOnly": [],
+  "panels.focus.desc": "Time to focus, with notifications held back",
+  "panels.focus.end": "End session",
+  "panels.focus.label": "Focus session",
+  "panels.focus.left": "{time} left",
+  "panels.focus.lengthDesc": "How long a session runs",
+  "panels.focus.lengthLabel": "Length",
+  "panels.focus.longer": "Longer",
+  "panels.focus.quietDesc": "Holds back notification banners while the session runs",
+  "panels.focus.quietLabel": "Turn on do not disturb",
+  "panels.focus.quietOn": "Do not disturb is on",
+  "panels.focus.quietUnavailable": "Do not disturb can't be turned on here",
+  "panels.focus.shorter": "Shorter",
+  "panels.focus.start": "Start",
+  "panels.focus.willQuiet": "Turns on do not disturb",
+  "panels.focus.windows": "A Windows focus session is on"
+}

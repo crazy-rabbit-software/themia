@@ -14,20 +14,5 @@
   "panels.notifications.allow": "Izinkan",
   "panels.notifications.openSettings": "Buka pengaturan",
   "panels.notifications.unsupported": "Versi Windows ini tidak memiliki daftar notifikasi untuk dibaca",
-  "panels.focus.label": "Sesi fokus",
-  "panels.focus.desc": "Waktu untuk fokus, tanpa notifikasi",
-  "panels.focus.minutes": "{minutes} mnt",
-  "panels.focus.start": "Mulai",
-  "panels.focus.end": "Akhiri sesi",
-  "panels.focus.longer": "Lebih lama",
-  "panels.focus.shorter": "Lebih singkat",
-  "panels.focus.left": "Sisa {time}",
-  "panels.focus.quietOn": "Jangan ganggu aktif",
-  "panels.focus.willQuiet": "Mengaktifkan Jangan ganggu",
-  "panels.focus.quietUnavailable": "Jangan ganggu tidak dapat diaktifkan di sini",
-  "panels.focus.windows": "Sesi fokus Windows sedang berjalan",
-  "panels.focus.lengthLabel": "Durasi",
-  "panels.focus.lengthDesc": "Berapa lama sesi berjalan",
-  "panels.focus.quietLabel": "Aktifkan Jangan ganggu",
-  "panels.focus.quietDesc": "Menahan banner notifikasi selama sesi berjalan"
+  "panels.focus.minutes": "{minutes} mnt"
 }

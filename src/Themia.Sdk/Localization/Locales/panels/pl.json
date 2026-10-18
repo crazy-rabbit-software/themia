@@ -14,20 +14,5 @@
   "panels.notifications.allow": "Zezwól",
   "panels.notifications.openSettings": "Otwórz ustawienia",
   "panels.notifications.unsupported": "Ta wersja systemu Windows nie ma listy powiadomień do odczytania",
-  "panels.focus.label": "Sesja skupienia",
-  "panels.focus.desc": "Czas na skupienie, bez powiadomień",
-  "panels.focus.minutes": "{minutes} min",
-  "panels.focus.start": "Rozpocznij",
-  "panels.focus.end": "Zakończ sesję",
-  "panels.focus.longer": "Dłużej",
-  "panels.focus.shorter": "Krócej",
-  "panels.focus.left": "Pozostało {time}",
-  "panels.focus.quietOn": "Nie przeszkadzać jest włączone",
-  "panels.focus.willQuiet": "Włącza Nie przeszkadzać",
-  "panels.focus.quietUnavailable": "Nie można tu włączyć trybu Nie przeszkadzać",
-  "panels.focus.windows": "Trwa sesja skupienia systemu Windows",
-  "panels.focus.lengthLabel": "Długość",
-  "panels.focus.lengthDesc": "Jak długo trwa sesja",
-  "panels.focus.quietLabel": "Włącz Nie przeszkadzać",
-  "panels.focus.quietDesc": "Wstrzymuje banery powiadomień na czas sesji"
+  "panels.focus.minutes": "{minutes} min"
 }

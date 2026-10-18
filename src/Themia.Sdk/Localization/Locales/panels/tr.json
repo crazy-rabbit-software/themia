@@ -14,20 +14,5 @@
   "panels.notifications.allow": "İzin ver",
   "panels.notifications.openSettings": "Ayarları aç",
   "panels.notifications.unsupported": "Bu Windows sürümünde okunacak bir bildirim listesi yok",
-  "panels.focus.label": "Odak oturumu",
-  "panels.focus.desc": "Bildirimler olmadan odaklanma zamanı",
-  "panels.focus.minutes": "{minutes} dk",
-  "panels.focus.start": "Başlat",
-  "panels.focus.end": "Oturumu bitir",
-  "panels.focus.longer": "Daha uzun",
-  "panels.focus.shorter": "Daha kısa",
-  "panels.focus.left": "{time} kaldı",
-  "panels.focus.quietOn": "Rahatsız etmeyin açık",
-  "panels.focus.willQuiet": "Rahatsız etmeyin'i açar",
-  "panels.focus.quietUnavailable": "Rahatsız etmeyin burada açılamıyor",
-  "panels.focus.windows": "Bir Windows odak oturumu açık",
-  "panels.focus.lengthLabel": "Süre",
-  "panels.focus.lengthDesc": "Bir oturumun süresi",
-  "panels.focus.quietLabel": "Rahatsız etmeyin'i aç",
-  "panels.focus.quietDesc": "Oturum sürerken bildirim başlıklarını gizler"
+  "panels.focus.minutes": "{minutes} dk"
 }

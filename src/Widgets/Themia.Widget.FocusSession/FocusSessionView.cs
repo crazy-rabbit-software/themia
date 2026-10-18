@@ -11,6 +11,7 @@ using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
 using Themia.Sdk.WinUI;
+using Themia.Widget.FocusSession;
 
 namespace Themia.App.Widgets;
 
@@ -183,7 +184,7 @@ internal sealed partial class FocusSessionView : Grid, IWidgetView, IWidgetSizeA
             return;
         }
 
-        _plan = FocusSessionRules.Plan(_area);
+        _plan = FocusSessionLayout.Plan(_area);
         var compact = _area.Least == SizeClass.Compact;
         var inset = compact ? Fluent.Space2 : Fluent.Space4;
         var box = _area.Deflate(inset * 2, inset * 2);
@@ -255,14 +256,14 @@ internal sealed partial class FocusSessionView : Grid, IWidgetView, IWidgetSizeA
 
         _status.Text = Status(snapshot);
         _runIcon.Glyph = running ? Glyphs.Stop : Glyphs.Play;
-        _runText.Text = (running ? Str.Panels_Focus_End : Str.Panels_Focus_Start).Text();
+        _runText.Text = (running ? FocusSessionStr.Panels_Focus_End : FocusSessionStr.Panels_Focus_Start).Text();
         ToolTipService.SetToolTip(_run, _runText.Text);
-        ToolTipService.SetToolTip(_shorter, Str.Panels_Focus_Shorter.Text());
-        ToolTipService.SetToolTip(_longer, Str.Panels_Focus_Longer.Text());
+        ToolTipService.SetToolTip(_shorter, FocusSessionStr.Panels_Focus_Shorter.Text());
+        ToolTipService.SetToolTip(_longer, FocusSessionStr.Panels_Focus_Longer.Text());
         _shorter.IsEnabled = _config.Minutes > FocusSessionRules.MinMinutes;
         _longer.IsEnabled = _config.Minutes < FocusSessionRules.MaxMinutes;
 
-        var left = Str.Panels_Focus_Left.Format(("time", _clock.Text));
+        var left = FocusSessionStr.Panels_Focus_Left.Format(("time", _clock.Text));
         AutomationProperties.SetName(this, running ? left : FocusSessionRules.Length(_config.Minutes));
         AutomationProperties.SetHelpText(this, _status.Text);
 
@@ -293,18 +294,18 @@ internal sealed partial class FocusSessionView : Grid, IWidgetView, IWidgetSizeA
 
             return snapshot.Quiet switch
             {
-                { On: true } => Str.Panels_Focus_QuietOn.Text(),
-                { Block: not ToggleBlock.None and not ToggleBlock.Reading } => Str.Panels_Focus_QuietUnavailable.Text(),
+                { On: true } => FocusSessionStr.Panels_Focus_QuietOn.Text(),
+                { Block: not ToggleBlock.None and not ToggleBlock.Reading } => FocusSessionStr.Panels_Focus_QuietUnavailable.Text(),
                 _ => FocusSessionRules.Length(_config.Minutes),
             };
         }
 
         if (snapshot.WindowsFocus == true)
         {
-            return Str.Panels_Focus_Windows.Text();
+            return FocusSessionStr.Panels_Focus_Windows.Text();
         }
 
-        return _config.DoNotDisturb ? Str.Panels_Focus_WillQuiet.Text() : FocusSessionRules.Length(_config.Minutes);
+        return _config.DoNotDisturb ? FocusSessionStr.Panels_Focus_WillQuiet.Text() : FocusSessionRules.Length(_config.Minutes);
     }
 
     /// <summary>The filled part of the ring, clockwise from twelve o'clock (Pomodoro's arc).</summary>

@@ -14,20 +14,5 @@
   "panels.notifications.allow": "許可",
   "panels.notifications.openSettings": "設定を開く",
   "panels.notifications.unsupported": "このバージョンの Windows には読み取れる通知一覧がありません",
-  "panels.focus.label": "集中セッション",
-  "panels.focus.desc": "通知を止めて集中する時間",
-  "panels.focus.minutes": "{minutes} 分",
-  "panels.focus.start": "開始",
-  "panels.focus.end": "セッションを終了",
-  "panels.focus.longer": "長く",
-  "panels.focus.shorter": "短く",
-  "panels.focus.left": "残り {time}",
-  "panels.focus.quietOn": "応答不可がオンです",
-  "panels.focus.willQuiet": "応答不可をオンにします",
-  "panels.focus.quietUnavailable": "ここでは応答不可をオンにできません",
-  "panels.focus.windows": "Windows の集中セッションが実行中です",
-  "panels.focus.lengthLabel": "長さ",
-  "panels.focus.lengthDesc": "セッションの長さ",
-  "panels.focus.quietLabel": "応答不可をオンにする",
-  "panels.focus.quietDesc": "セッション中は通知バナーを表示しません"
+  "panels.focus.minutes": "{minutes} 分"
 }

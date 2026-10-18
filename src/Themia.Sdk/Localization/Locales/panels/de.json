@@ -14,20 +14,5 @@
   "panels.notifications.allow": "Zulassen",
   "panels.notifications.openSettings": "Einstellungen öffnen",
   "panels.notifications.unsupported": "Diese Windows-Version hat keine Benachrichtigungsliste zum Lesen",
-  "panels.focus.label": "Fokussitzung",
-  "panels.focus.desc": "Zeit zum Fokussieren, ohne störende Benachrichtigungen",
-  "panels.focus.minutes": "{minutes} Min.",
-  "panels.focus.start": "Starten",
-  "panels.focus.end": "Sitzung beenden",
-  "panels.focus.longer": "Länger",
-  "panels.focus.shorter": "Kürzer",
-  "panels.focus.left": "Noch {time}",
-  "panels.focus.quietOn": "Nicht stören ist an",
-  "panels.focus.willQuiet": "Schaltet „Nicht stören“ ein",
-  "panels.focus.quietUnavailable": "„Nicht stören“ lässt sich hier nicht einschalten",
-  "panels.focus.windows": "Eine Windows-Fokussitzung läuft",
-  "panels.focus.lengthLabel": "Dauer",
-  "panels.focus.lengthDesc": "Wie lange eine Sitzung läuft",
-  "panels.focus.quietLabel": "„Nicht stören“ einschalten",
-  "panels.focus.quietDesc": "Hält Benachrichtigungsbanner zurück, solange die Sitzung läuft"
+  "panels.focus.minutes": "{minutes} Min."
 }

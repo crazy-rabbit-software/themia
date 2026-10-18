@@ -1,0 +1,17 @@
+{
+  "panels.focus.desc": "ફોકસ માટેનો સમય, સૂચનાઓ રોકીને",
+  "panels.focus.end": "સત્ર સમાપ્ત કરો",
+  "panels.focus.label": "ફોકસ સત્ર",
+  "panels.focus.left": "{time} બાકી",
+  "panels.focus.lengthDesc": "સત્ર કેટલો સમય ચાલે",
+  "panels.focus.lengthLabel": "સમયગાળો",
+  "panels.focus.longer": "વધુ લાંબું",
+  "panels.focus.quietDesc": "સત્ર ચાલે ત્યાં સુધી સૂચના બૅનર રોકે છે",
+  "panels.focus.quietLabel": "ખલેલ પાડશો નહીં ચાલુ કરો",
+  "panels.focus.quietOn": "ખલેલ પાડશો નહીં ચાલુ છે",
+  "panels.focus.quietUnavailable": "ખલેલ પાડશો નહીં અહીં ચાલુ કરી શકાતું નથી",
+  "panels.focus.shorter": "વધુ ટૂંકું",
+  "panels.focus.start": "શરૂ કરો",
+  "panels.focus.willQuiet": "ખલેલ પાડશો નહીં ચાલુ કરે છે",
+  "panels.focus.windows": "Windows ફોકસ સત્ર ચાલુ છે"
+}

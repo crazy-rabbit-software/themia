@@ -14,20 +14,5 @@
   "panels.notifications.allow": "Разрешить",
   "panels.notifications.openSettings": "Открыть параметры",
   "panels.notifications.unsupported": "В этой версии Windows нет списка уведомлений для чтения",
-  "panels.focus.label": "Сеанс фокусировки",
-  "panels.focus.desc": "Время сосредоточиться без уведомлений",
-  "panels.focus.minutes": "{minutes} мин",
-  "panels.focus.start": "Начать",
-  "panels.focus.end": "Завершить сеанс",
-  "panels.focus.longer": "Дольше",
-  "panels.focus.shorter": "Короче",
-  "panels.focus.left": "Осталось {time}",
-  "panels.focus.quietOn": "Режим «Не беспокоить» включён",
-  "panels.focus.willQuiet": "Включает «Не беспокоить»",
-  "panels.focus.quietUnavailable": "Здесь нельзя включить «Не беспокоить»",
-  "panels.focus.windows": "Идёт сеанс фокусировки Windows",
-  "panels.focus.lengthLabel": "Длительность",
-  "panels.focus.lengthDesc": "Сколько длится сеанс",
-  "panels.focus.quietLabel": "Включать «Не беспокоить»",
-  "panels.focus.quietDesc": "Скрывает баннеры уведомлений на время сеанса"
+  "panels.focus.minutes": "{minutes} мин"
 }

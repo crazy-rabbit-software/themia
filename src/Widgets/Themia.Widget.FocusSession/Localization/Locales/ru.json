@@ -1,0 +1,17 @@
+{
+  "panels.focus.desc": "Время сосредоточиться без уведомлений",
+  "panels.focus.end": "Завершить сеанс",
+  "panels.focus.label": "Сеанс фокусировки",
+  "panels.focus.left": "Осталось {time}",
+  "panels.focus.lengthDesc": "Сколько длится сеанс",
+  "panels.focus.lengthLabel": "Длительность",
+  "panels.focus.longer": "Дольше",
+  "panels.focus.quietDesc": "Скрывает баннеры уведомлений на время сеанса",
+  "panels.focus.quietLabel": "Включать «Не беспокоить»",
+  "panels.focus.quietOn": "Режим «Не беспокоить» включён",
+  "panels.focus.quietUnavailable": "Здесь нельзя включить «Не беспокоить»",
+  "panels.focus.shorter": "Короче",
+  "panels.focus.start": "Начать",
+  "panels.focus.willQuiet": "Включает «Не беспокоить»",
+  "panels.focus.windows": "Идёт сеанс фокусировки Windows"
+}

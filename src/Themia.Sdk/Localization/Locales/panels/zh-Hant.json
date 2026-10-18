@@ -14,20 +14,5 @@
   "panels.notifications.allow": "允許",
   "panels.notifications.openSettings": "開啟設定",
   "panels.notifications.unsupported": "此版本的 Windows 沒有可讀取的通知清單",
-  "panels.focus.label": "專注工作階段",
-  "panels.focus.desc": "專注時間，暫停通知打擾",
-  "panels.focus.minutes": "{minutes} 分鐘",
-  "panels.focus.start": "開始",
-  "panels.focus.end": "結束工作階段",
-  "panels.focus.longer": "更長",
-  "panels.focus.shorter": "更短",
-  "panels.focus.left": "剩餘 {time}",
-  "panels.focus.quietOn": "勿擾模式已開啟",
-  "panels.focus.willQuiet": "將開啟勿擾模式",
-  "panels.focus.quietUnavailable": "這裡無法開啟勿擾模式",
-  "panels.focus.windows": "Windows 專注工作階段進行中",
-  "panels.focus.lengthLabel": "長度",
-  "panels.focus.lengthDesc": "工作階段持續多久",
-  "panels.focus.quietLabel": "開啟勿擾模式",
-  "panels.focus.quietDesc": "工作階段期間不顯示通知橫幅"
+  "panels.focus.minutes": "{minutes} 分鐘"
 }

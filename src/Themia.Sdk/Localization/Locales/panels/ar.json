@@ -14,20 +14,5 @@
   "panels.notifications.allow": "السماح",
   "panels.notifications.openSettings": "فتح الإعدادات",
   "panels.notifications.unsupported": "لا يحتوي هذا الإصدار من Windows على قائمة إشعارات لقراءتها",
-  "panels.focus.label": "جلسة تركيز",
-  "panels.focus.desc": "وقت للتركيز دون إشعارات",
-  "panels.focus.minutes": "{minutes} دقيقة",
-  "panels.focus.start": "بدء",
-  "panels.focus.end": "إنهاء الجلسة",
-  "panels.focus.longer": "أطول",
-  "panels.focus.shorter": "أقصر",
-  "panels.focus.left": "متبقٍ {time}",
-  "panels.focus.quietOn": "وضع عدم الإزعاج قيد التشغيل",
-  "panels.focus.willQuiet": "يشغّل عدم الإزعاج",
-  "panels.focus.quietUnavailable": "لا يمكن تشغيل عدم الإزعاج هنا",
-  "panels.focus.windows": "جلسة تركيز Windows قيد التشغيل",
-  "panels.focus.lengthLabel": "المدة",
-  "panels.focus.lengthDesc": "مدة الجلسة",
-  "panels.focus.quietLabel": "تشغيل عدم الإزعاج",
-  "panels.focus.quietDesc": "يحجب لافتات الإشعارات أثناء الجلسة"
+  "panels.focus.minutes": "{minutes} دقيقة"
 }

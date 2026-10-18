@@ -1,0 +1,17 @@
+{
+  "panels.focus.desc": "알림 없이 집중하는 시간",
+  "panels.focus.end": "세션 종료",
+  "panels.focus.label": "집중 세션",
+  "panels.focus.left": "{time} 남음",
+  "panels.focus.lengthDesc": "세션 길이",
+  "panels.focus.lengthLabel": "길이",
+  "panels.focus.longer": "길게",
+  "panels.focus.quietDesc": "세션 동안 알림 배너를 표시하지 않습니다",
+  "panels.focus.quietLabel": "방해 금지 켜기",
+  "panels.focus.quietOn": "방해 금지가 켜져 있습니다",
+  "panels.focus.quietUnavailable": "여기서는 방해 금지를 켤 수 없습니다",
+  "panels.focus.shorter": "짧게",
+  "panels.focus.start": "시작",
+  "panels.focus.willQuiet": "방해 금지를 켭니다",
+  "panels.focus.windows": "Windows 집중 세션이 진행 중입니다"
+}

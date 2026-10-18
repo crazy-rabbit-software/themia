@@ -14,20 +14,5 @@
   "panels.notifications.allow": "Autoriser",
   "panels.notifications.openSettings": "Ouvrir les paramètres",
   "panels.notifications.unsupported": "Cette version de Windows n'a pas de liste de notifications à lire",
-  "panels.focus.label": "Session de concentration",
-  "panels.focus.desc": "Du temps pour vous concentrer, sans notifications",
-  "panels.focus.minutes": "{minutes} min",
-  "panels.focus.start": "Démarrer",
-  "panels.focus.end": "Terminer la session",
-  "panels.focus.longer": "Plus longue",
-  "panels.focus.shorter": "Plus courte",
-  "panels.focus.left": "{time} restantes",
-  "panels.focus.quietOn": "Ne pas déranger est activé",
-  "panels.focus.willQuiet": "Active Ne pas déranger",
-  "panels.focus.quietUnavailable": "Ne pas déranger ne peut pas être activé ici",
-  "panels.focus.windows": "Une session de concentration Windows est en cours",
-  "panels.focus.lengthLabel": "Durée",
-  "panels.focus.lengthDesc": "Durée d'une session",
-  "panels.focus.quietLabel": "Activer Ne pas déranger",
-  "panels.focus.quietDesc": "Retient les bannières de notification pendant la session"
+  "panels.focus.minutes": "{minutes} min"
 }

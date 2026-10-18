@@ -1,0 +1,17 @@
+{
+  "panels.focus.desc": "Bildirimler olmadan odaklanma zamanı",
+  "panels.focus.end": "Oturumu bitir",
+  "panels.focus.label": "Odak oturumu",
+  "panels.focus.left": "{time} kaldı",
+  "panels.focus.lengthDesc": "Bir oturumun süresi",
+  "panels.focus.lengthLabel": "Süre",
+  "panels.focus.longer": "Daha uzun",
+  "panels.focus.quietDesc": "Oturum sürerken bildirim başlıklarını gizler",
+  "panels.focus.quietLabel": "Rahatsız etmeyin'i aç",
+  "panels.focus.quietOn": "Rahatsız etmeyin açık",
+  "panels.focus.quietUnavailable": "Rahatsız etmeyin burada açılamıyor",
+  "panels.focus.shorter": "Daha kısa",
+  "panels.focus.start": "Başlat",
+  "panels.focus.willQuiet": "Rahatsız etmeyin'i açar",
+  "panels.focus.windows": "Bir Windows odak oturumu açık"
+}

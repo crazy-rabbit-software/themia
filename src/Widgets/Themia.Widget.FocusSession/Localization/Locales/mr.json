@@ -1,0 +1,17 @@
+{
+  "panels.focus.desc": "सूचनांशिवाय लक्ष केंद्रित करण्याचा वेळ",
+  "panels.focus.end": "सत्र संपवा",
+  "panels.focus.label": "फोकस सत्र",
+  "panels.focus.left": "{time} शिल्लक",
+  "panels.focus.lengthDesc": "सत्र किती वेळ चालते",
+  "panels.focus.lengthLabel": "कालावधी",
+  "panels.focus.longer": "जास्त",
+  "panels.focus.quietDesc": "सत्र चालू असताना सूचना बॅनर थांबवते",
+  "panels.focus.quietLabel": "व्यत्यय आणू नका चालू करा",
+  "panels.focus.quietOn": "व्यत्यय आणू नका चालू आहे",
+  "panels.focus.quietUnavailable": "येथे व्यत्यय आणू नका चालू करता येत नाही",
+  "panels.focus.shorter": "कमी",
+  "panels.focus.start": "सुरू करा",
+  "panels.focus.willQuiet": "व्यत्यय आणू नका चालू करते",
+  "panels.focus.windows": "Windows चे फोकस सत्र चालू आहे"
+}

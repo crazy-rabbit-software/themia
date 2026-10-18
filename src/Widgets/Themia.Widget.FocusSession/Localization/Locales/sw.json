@@ -1,0 +1,17 @@
+{
+  "panels.focus.desc": "Muda wa kuzingatia, arifa zikizuiwa",
+  "panels.focus.end": "Maliza kipindi",
+  "panels.focus.label": "Kipindi cha umakini",
+  "panels.focus.left": "Zimebaki {time}",
+  "panels.focus.lengthDesc": "Kipindi kinachukua muda gani",
+  "panels.focus.lengthLabel": "Urefu",
+  "panels.focus.longer": "Ndefu zaidi",
+  "panels.focus.quietDesc": "Huzuia mabango ya arifa kipindi kikiendelea",
+  "panels.focus.quietLabel": "Washa usinisumbue",
+  "panels.focus.quietOn": "Usinisumbue imewashwa",
+  "panels.focus.quietUnavailable": "Usinisumbue haiwezi kuwashwa hapa",
+  "panels.focus.shorter": "Fupi zaidi",
+  "panels.focus.start": "Anza",
+  "panels.focus.willQuiet": "Huwasha usinisumbue",
+  "panels.focus.windows": "Kipindi cha umakini cha Windows kinaendelea"
+}

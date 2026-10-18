@@ -14,20 +14,5 @@
   "panels.notifications.allow": "অনুমতি দিন",
   "panels.notifications.openSettings": "সেটিংস খুলুন",
   "panels.notifications.unsupported": "Windows-এর এই সংস্করণে পড়ার মতো কোনো বিজ্ঞপ্তি তালিকা নেই",
-  "panels.focus.label": "ফোকাস সেশন",
-  "panels.focus.desc": "বিজ্ঞপ্তি ছাড়া মনোযোগ দেওয়ার সময়",
-  "panels.focus.minutes": "{minutes} মিনিট",
-  "panels.focus.start": "শুরু করুন",
-  "panels.focus.end": "সেশন শেষ করুন",
-  "panels.focus.longer": "দীর্ঘ",
-  "panels.focus.shorter": "ছোট",
-  "panels.focus.left": "{time} বাকি",
-  "panels.focus.quietOn": "বিরক্ত করবেন না চালু আছে",
-  "panels.focus.willQuiet": "বিরক্ত করবেন না চালু করে",
-  "panels.focus.quietUnavailable": "এখানে বিরক্ত করবেন না চালু করা যায় না",
-  "panels.focus.windows": "একটি Windows ফোকাস সেশন চলছে",
-  "panels.focus.lengthLabel": "দৈর্ঘ্য",
-  "panels.focus.lengthDesc": "একটি সেশন কতক্ষণ চলে",
-  "panels.focus.quietLabel": "বিরক্ত করবেন না চালু করুন",
-  "panels.focus.quietDesc": "সেশন চলাকালীন বিজ্ঞপ্তি ব্যানার আটকে রাখে"
+  "panels.focus.minutes": "{minutes} মিনিট"
 }

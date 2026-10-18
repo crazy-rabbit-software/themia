@@ -1,0 +1,17 @@
+{
+  "panels.focus.desc": "அறிவிப்புகளை நிறுத்திவைத்து, கவனம் செலுத்தும் நேரம்",
+  "panels.focus.end": "அமர்வை முடி",
+  "panels.focus.label": "கவன அமர்வு",
+  "panels.focus.left": "{time} மீதம்",
+  "panels.focus.lengthDesc": "ஒரு அமர்வு எவ்வளவு நேரம் நீடிக்கும்",
+  "panels.focus.lengthLabel": "நீளம்",
+  "panels.focus.longer": "நீளமாக",
+  "panels.focus.quietDesc": "அமர்வு நடக்கும்போது அறிவிப்புப் பேனர்களை நிறுத்திவைக்கும்",
+  "panels.focus.quietLabel": "தொந்தரவு செய்ய வேண்டாம் என்பதை இயக்கு",
+  "panels.focus.quietOn": "தொந்தரவு செய்ய வேண்டாம் இயக்கத்தில் உள்ளது",
+  "panels.focus.quietUnavailable": "தொந்தரவு செய்ய வேண்டாம் என்பதை இங்கே இயக்க முடியாது",
+  "panels.focus.shorter": "குறுகலாக",
+  "panels.focus.start": "தொடங்கு",
+  "panels.focus.willQuiet": "தொந்தரவு செய்ய வேண்டாம் என்பதை இயக்கும்",
+  "panels.focus.windows": "Windows கவன அமர்வு இயக்கத்தில் உள்ளது"
+}

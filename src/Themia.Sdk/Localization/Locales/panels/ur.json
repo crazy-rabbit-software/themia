@@ -14,20 +14,5 @@
   "panels.notifications.allow": "اجازت دیں",
   "panels.notifications.openSettings": "ترتیبات کھولیں",
   "panels.notifications.unsupported": "Windows کے اس ورژن میں پڑھنے کے لیے کوئی اطلاعات کی فہرست نہیں",
-  "panels.focus.label": "فوکس سیشن",
-  "panels.focus.desc": "اطلاعات کے بغیر توجہ کا وقت",
-  "panels.focus.minutes": "{minutes} منٹ",
-  "panels.focus.start": "شروع کریں",
-  "panels.focus.end": "سیشن ختم کریں",
-  "panels.focus.longer": "لمبا",
-  "panels.focus.shorter": "چھوٹا",
-  "panels.focus.left": "{time} باقی",
-  "panels.focus.quietOn": "پریشان نہ کریں آن ہے",
-  "panels.focus.willQuiet": "پریشان نہ کریں آن کرتا ہے",
-  "panels.focus.quietUnavailable": "یہاں پریشان نہ کریں آن نہیں ہو سکتا",
-  "panels.focus.windows": "Windows کا فوکس سیشن جاری ہے",
-  "panels.focus.lengthLabel": "دورانیہ",
-  "panels.focus.lengthDesc": "ایک سیشن کتنی دیر چلتا ہے",
-  "panels.focus.quietLabel": "پریشان نہ کریں آن کریں",
-  "panels.focus.quietDesc": "سیشن کے دوران اطلاع کے بینر روکتا ہے"
+  "panels.focus.minutes": "{minutes} منٹ"
 }
