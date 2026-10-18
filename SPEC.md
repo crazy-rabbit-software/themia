@@ -21,7 +21,7 @@ Sections, grouped by area (file order below; search for the heading).
 - **Accounts and sign-in.** Where account data comes from; Accounts and sign-in.
 - **System widgets.** (The seven meters, the seven detail widgets, Drive, Removable drives, Brightness, Mixer, Volume, Music, the Audio visualizer, the three screen-time widgets, Notifications and the Focus session are modules: their sections are their projects' `SPEC.md`; the sections named here keep the hub, the samplers and the rules they share, the SDK's.) System data hub (SYS-HUB); System meters; Meter framework and memory; CPU; Disk and ping; Battery and network; Network and ping; System widgets: GPU, mixer and screen time; Screen time: chart, donut and apps (SCREENTIME-SPLIT); GPU and screen time: the whole tile (SYS-P4); System details (SYS-DETAILS); Mixer and Volume (SYS-P5); Power and Bluetooth; Device and location (DEVICE-AND-LOCATION); Quick-setting toggles (QUICK-TOGGLES); Windows' panels: notifications, focus session, brightness (WINDOWS-PANELS).
 - **Time, desk and launch widgets.** (Clock, Countdown, Stopwatch, Pomodoro, Quote, Sun, Moon, Scratchpad, Recycle Bin, Year progress, Alarm, Notes, Clipboard, the Habit tracker, the Gallery and Recent files are modules: their sections are their projects' `SPEC.md`, `src/Widgets/Themia.Widget.<Name>/`; so are Bluetooth, the seven power buttons and the thirteen quick-setting toggles, under System widgets, whose shared rules stay here.) Clock; Countdown and pomodoro; Stopwatch, alarm and drives (KARPO-2); Sun and moon; Audio visualizer (VISUALIZER); Clock, Sun & moon, Quote and Scratchpad: parity and the whole tile (PJ); Music and Pomodoro: parity and the whole tile (PF); Notes; Notes: note store and markdown editor; Clipboard and Countdown: the whole tile; Year progress (YEAR-PROGRESS, its module's SPEC.md); Recent files (RECENT-FILES, the host's list); Recycle Bin (RECYCLE-BIN); Date (DATE); Habits; Shortcuts B: drop, reorder and app layouts (PD); Folder: the file browser (FOLDER); About and the settings file.
-- **Mail, calendar, tasks and online widgets.** (Weather now, Weather forecast, Rain next hour, Air quality, Exchange rates and Stocks are modules: their sections are their projects' `SPEC.md`; the sections named here keep what they share with the host.) Mail; Calendar and contacts; Tasks; Mail: the whole tile; Calendar and contacts: the whole tile; Calendar: five styles and shared dates (CAL-SPLIT); Tasks: using the whole tile, and the rest of the original; Weather: current conditions and forecast; Feed, stocks and the web widgets: parity and the whole tile (OFF-E); Web widgets: video stream; Web widgets: size ladder and overlay; Offline sync (SYNC); Next meeting (NEXT-MEETING); Week planner (WEEK-PLANNER); Air quality, rain and exchange rates (ONLINE-2).
+- **Mail, calendar, tasks and online widgets.** (Weather now, Weather forecast, Rain next hour, Air quality, Exchange rates, Stocks and the Video stream are modules: their sections are their projects' `SPEC.md`; the sections named here keep what they share with the host.) Mail; Calendar and contacts; Tasks; Mail: the whole tile; Calendar and contacts: the whole tile; Calendar: five styles and shared dates (CAL-SPLIT); Tasks: using the whole tile, and the rest of the original; Weather: current conditions and forecast; Feed, stocks and the web widgets: parity and the whole tile (OFF-E); Web widgets: video stream; Web widgets: size ladder and overlay; Offline sync (SYNC); Next meeting (NEXT-MEETING); Week planner (WEEK-PLANNER); Air quality, rain and exchange rates (ONLINE-2).
 
 ---
 
@@ -1318,16 +1318,12 @@ inside the app, so it is never open while the app is not.
 
 ## Web widgets: video stream
 
-Ported from `widgets/online/video-stream` on `main`. Owning files: `Widgets/VideoStreamView.cs`,
-`Widgets/RotatedBox.cs`, `Widgets/ShownWatch.cs`, `Themia.Sdk.WinUI/Widgets/IWidgetContextActions.cs`,
-`Services/Web/StreamSession.cs`, `Shell/Config/WidgetSettings.Web.cs`,
-`Themia.Core/Widgets/{VideoStreamRules,MjpegFrameReader}.cs`,
-`Themia.Core/Model/Configs/WebWidgetConfigs.cs`. The original's web element widget is not part of
-this app ([S-1724]).
-
-The widget runs only while it can be seen. A paused camera, or one whose card is not in the tree or is
-collapsed (`ShownWatch` follows the card's ancestors), holds no socket and no decoder; `Detach`
-releases everything.
+Ported from `widgets/online/video-stream` on `main`. The widget is a module of its own
+(`src/Widgets/Themia.Widget.VideoStream`, its SPEC.md). Here: what it shares and the host's camera
+connections it reads through `IWidgetHost.Streams`: `Services/Web/StreamSession.cs`
+(`HostLauncherServices.cs`), `Themia.Core/Widgets/MjpegFrameReader.cs`, the SDK's
+`VideoStreamRules`, `HlsVariants`, `RotatedBox` and `IWidgetContextActions`. The original's web element
+widget is not part of this app ([S-1724]).
 
 - **[S-460]** Video stream title: the user's label, else the stream's `host:port` (`Uri.Authority`,
   so a non-default port is kept), else the widget name (was [S-01]).
@@ -1336,21 +1332,10 @@ releases everything.
   counter resets on the first decoded frame and on any restart. The delay is armed by the failure and
   cancelled with the session. A stream that sends no bytes for 30 s counts as dropped — a socket
   deadline, which closes the original's [U-02] without a frame-rate watchdog.
-- **[S-465]** The camera's right-click menu has **Pause/Resume** and **Refresh** (was [S-11] and the
-  original's `contextActions`); rotation is a setting (and an overlay button), not a menu entry ([S-1746]). Refresh reconnects at once with the backoff reset.
-  Context actions are a card-level hook: a view implements `IWidgetContextActions` and the card lists
-  them in the list under the icon row ([S-1743]), read fresh each time the menu opens.
-- **[S-466]** Fit: whole picture (letterbox, default), fill and crop, stretch (was [S-16]). One
-  `Stretch` mapping drives both the decoded-frame `Image` and the video player.
-- **[S-467]** The stream address is checked by `WebInput.Url` on every read — http/https only, no
-  credentials, no UNC, refused rather than repaired — and the settings box explains a refusal (was
-  [S-09]). A refused address shows its reason in place of the picture; an empty one is the Set up button
-  ([S-1862], was [S-02]).
+- [S-465], [S-466], [S-467], [S-469]: moved with the Video stream widget into its module's `SPEC.md` (`src/Widgets/Themia.Widget.VideoStream/`).
 - **[S-468]** Rotation 0/90/180/270, from settings or cycled by Rotate (was [S-08]). `RotatedBox` lays
   a sideways picture out against the swapped axes before turning it, so it fits instead of clipping.
   A value the enum does not name reads as none.
-- **[S-469]** Paused is persisted, so a parked camera stays parked across restarts and uses no network;
-  it shows "Paused" (was [S-07]).
 - **[S-1991]** Video stream: Space pauses and resumes (`ControlKeys.Stream`), as the overlay button
   does, and is persisted the same way. Only a tile with a URL takes the keyboard.
 - **[S-470]** `RefreshSeconds` 0–300, default 0 (was [S-17]). 0 holds the stream open at the camera's
@@ -4112,30 +4097,10 @@ instead, see [S-1309]).
 
 ## Web widgets: size ladder and overlay
 
-Round 3 parity and layout for the video stream widget (package OFF-E). Owning files:
-`Widgets/VideoStreamView.cs` + `VideoStreamView.Overlay.cs`, `Services/Web/StreamSession.cs`
-(`FrameFacts`), `Shell/Config/WidgetSettings.Web.cs`, `Themia.Core/Widgets/VideoStreamRules.cs`
-(`StreamChrome`, `StreamChromeRules`, `FrameRateMeter`), `Themia.Core/Model/Configs/WebWidgetConfigs.cs`.
-Tests: `StreamChromeTests`.
+Round 3 parity and layout for the video stream widget (package OFF-E): the widget is a module of its
+own now (`src/Widgets/Themia.Widget.VideoStream`), and its chrome went with it.
 
-- **[S-1312]** Video stream chrome ladder (`StreamChromeRules.Chrome`, `IWidgetSizeAware`). The
-  picture is the widget at every size; nothing else ever shows on XS, S or a Wide strip (height
-  under Regular). From M (Regular × Regular, so Tall too), with the pointer on the picture, a
-  bottom strip shows a state dot, the state and the frame's age. From L (Expanded × Expanded) the
-  strip adds Pause/Resume, Rotate and Refresh (the same handlers as the context menu's) and
-  the camera's resolution and measured frame rate. At XL (Huge × Huge) a persistent top-left chip
-  shows the state and transport. Two settings: `HoverControls` (default **on**: invisible until
-  hovered, and never on the small sizes) gates every hover part; `ShowStatus` (default **off**,
-  because the original had no chrome) gates the chip. The view's own `SizeChanged` is gone: the
-  decode size, the message's shedding and the chrome all follow the card's area.
-- **[S-1313]** What the chrome says (`StreamChromeRules`): "LIVE" for an open stream, "every 10 s"
-  in interval mode, "connecting" before the first frame, "reconnecting n" after the n-th failure in
-  a row (reset by a frame), "paused"; frame age "now" / "4 s ago" / "2 min ago" / "3 h ago";
-  resolution "1280×720" from the frame's own size before the decode scaled it (`FrameFacts`
-  through `IStreamSink.OnFrame`; for MP4/HLS the player's natural video size); frame rate over the
-  last 5 s of arrivals (`FrameRateMeter`, monotonic timestamps, "12 fps" / "2.5 fps"), shown only
-  for an open MJPEG stream; transport MJPEG / Snapshot / Video / HLS. The age ticks through the
-  shared ticker at 1 s only while the strip is on screen and the stream is live.
+- [S-1312], [S-1313]: moved with the Video stream widget into its module's `SPEC.md` (`src/Widgets/Themia.Widget.VideoStream/`).
 
 Not ported, on purpose: a compact header for the video stream — the original's
 `defaultHeaderMode: 'compact'` has no counterpart (this app has Top/Bottom/Hidden only; see the

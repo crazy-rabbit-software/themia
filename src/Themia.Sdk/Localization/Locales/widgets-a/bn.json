@@ -53,8 +53,6 @@
   "widgetsA.catalog.shortcuts.label": "শর্টকাট",
   "widgetsA.catalog.tasks.description": "Microsoft To Do, Google Tasks বা এই PC-র একটি তালিকা",
   "widgetsA.catalog.tasks.label": "কাজ",
-  "widgetsA.catalog.videoStream.description": "লাইভ ক্যামেরা: MJPEG, স্ন্যাপশট, MP4 বা HLS",
-  "widgetsA.catalog.videoStream.label": "ভিডিও স্ট্রিম",
   "widgetsA.clipboard.characters": {
     "one": "{count}টি অক্ষর",
     "other": "{count}টি অক্ষর"

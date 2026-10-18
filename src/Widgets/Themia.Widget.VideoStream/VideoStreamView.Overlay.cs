@@ -1,15 +1,16 @@
 using System.Diagnostics;
-using Microsoft.UI;
-using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Media;
-using Themia.App.Services;
+using Microsoft.UI.Xaml;
+using Microsoft.UI;
 using Themia.App.Services.Web;
+using Themia.App.Services;
 using Themia.App.Shell;
 using Themia.Core.Localization;
 using Themia.Core.Widgets;
 using Themia.Sdk.WinUI;
+using Themia.Widget.VideoStream;
 
 namespace Themia.App.Widgets;
 
@@ -33,7 +34,7 @@ internal sealed partial class VideoStreamView
     private readonly FontIcon _stripDot = Dot();
     private readonly TextBlock _stripText = Fluent.Text(FluentType.Caption);
     private readonly TextBlock _stripDetails = Fluent.Text(FluentType.Caption, "TextFillColorSecondaryBrush");
-    private readonly Button _pauseButton = FluentLayout.IconCommand(Glyphs.Pause, Str.VideoStream_Pause.Text());
+    private readonly Button _pauseButton = FluentLayout.IconCommand(Glyphs.Pause, VideoStreamStr.VideoStream_Pause.Text());
     private readonly StackPanel _controls = new() { Orientation = Orientation.Horizontal, Spacing = Fluent.Space1, HorizontalAlignment = HorizontalAlignment.Right };
 
     /// <summary>Built by the constructor through <see cref="BuildOverlay"/>.</summary>
@@ -77,7 +78,7 @@ internal sealed partial class VideoStreamView
         // [S-1312] The context menu's three actions, one click away while the pointer is here.
         _pauseButton.Click += (_, _) => SetPaused(!_config.Paused);
 
-        var rotate = FluentLayout.IconCommand(Glyphs.Rotate, Str.VideoStream_Rotate.Text());
+        var rotate = FluentLayout.IconCommand(Glyphs.Rotate, VideoStreamStr.VideoStream_Rotate.Text());
         rotate.Click += (_, _) => Rotate();
 
         var refresh = FluentLayout.IconCommand(Glyphs.Refresh, Str.Common_Refresh.Text());
@@ -208,7 +209,7 @@ internal sealed partial class VideoStreamView
 
         var configured = _config.ResolvedUrl.IsValid;
         var live = _phase == StreamPhase.Live && !_config.Paused && _session is not null;
-        var status = _config.Paused ? Str.WidgetsC_VideoStream_Status_Paused.Text() : StreamChromeRules.Status(live, _reconnects, _config.EffectiveRefreshSeconds);
+        var status = _config.Paused ? VideoStreamStr.WidgetsC_VideoStream_Status_Paused.Text() : StreamChromeRules.Status(live, _reconnects, _config.EffectiveRefreshSeconds);
         var dot = live ? _liveBrush : _config.Paused ? _idleBrush : _waitBrush;
 
         // [S-1312] The chip: XL, the user's choice, and only once there is a stream to describe.
@@ -237,7 +238,7 @@ internal sealed partial class VideoStreamView
             _stripDetails.Visibility = _stripDetails.Text.Length > 0 ? Visibility.Visible : Visibility.Collapsed;
 
             ((FontIcon)_pauseButton.Content).Glyph = _config.Paused ? Glyphs.Play : Glyphs.Pause;
-            ToolTipService.SetToolTip(_pauseButton, (_config.Paused ? Str.VideoStream_Resume : Str.VideoStream_Pause).Text());
+            ToolTipService.SetToolTip(_pauseButton, (_config.Paused ? VideoStreamStr.VideoStream_Resume : VideoStreamStr.VideoStream_Pause).Text());
         }
 
         // The age counts up while it is on screen, and only then.

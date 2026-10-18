@@ -57,8 +57,6 @@
   "widgetsA.catalog.shortcuts.label": "الاختصارات",
   "widgetsA.catalog.tasks.description": "Microsoft To Do أو Google Tasks أو قائمة على هذا الكمبيوتر",
   "widgetsA.catalog.tasks.label": "المهام",
-  "widgetsA.catalog.videoStream.description": "كاميرا مباشرة: MJPEG أو لقطة أو MP4 أو HLS",
-  "widgetsA.catalog.videoStream.label": "بث الفيديو",
   "widgetsA.clipboard.characters": {
     "zero": "{count} حرف",
     "one": "{count} حرف",

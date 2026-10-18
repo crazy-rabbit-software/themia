@@ -53,8 +53,6 @@
   "widgetsA.catalog.shortcuts.label": "Accesos directos",
   "widgetsA.catalog.tasks.description": "Microsoft To Do, Google Tasks o una lista en este equipo",
   "widgetsA.catalog.tasks.label": "Tareas",
-  "widgetsA.catalog.videoStream.description": "Una cámara en directo: MJPEG, instantánea, MP4 o HLS",
-  "widgetsA.catalog.videoStream.label": "Transmisión de vídeo",
   "widgetsA.clipboard.characters": {
     "one": "{count} carácter",
     "other": "{count} caracteres"

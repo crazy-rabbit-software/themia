@@ -53,8 +53,6 @@
   "widgetsA.catalog.shortcuts.label": "Snelkoppelingen",
   "widgetsA.catalog.tasks.description": "Microsoft To Do, Google Tasks of een lijst op deze pc",
   "widgetsA.catalog.tasks.label": "Taken",
-  "widgetsA.catalog.videoStream.description": "Een livecamera: MJPEG, een momentopname, MP4 of HLS",
-  "widgetsA.catalog.videoStream.label": "Videostream",
   "widgetsA.clipboard.characters": {
     "one": "{count} teken",
     "other": "{count} tekens"

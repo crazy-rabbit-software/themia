@@ -19,7 +19,7 @@ public class WidgetSetupTests
     private static readonly WidgetId[] NeedSetupByDefault =
     [
         new WidgetId("countdown"), RssConfig.Descriptor.Id, new WidgetId("stocks"), new WidgetId("weatherNow"), new WidgetId("weatherForecast"), new WidgetId("airQuality"), new WidgetId("rainNextHour"),
-        VideoStreamConfig.Descriptor.Id, new WidgetId("gallery"),
+        new WidgetId("videoStream"), new WidgetId("gallery"),
         EmailConfig.Descriptor.Id, CalendarWidgetConfig.Descriptor.Id, NextMeetingConfig.Descriptor.Id,
         WeekPlannerConfig.Descriptor.Id, ContactsConfig.Descriptor.Id, TasksConfig.Descriptor.Id,
     ];

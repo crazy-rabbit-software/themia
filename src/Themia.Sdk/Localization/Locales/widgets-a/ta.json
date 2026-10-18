@@ -53,8 +53,6 @@
   "widgetsA.catalog.shortcuts.label": "குறுக்குவழிகள்",
   "widgetsA.catalog.tasks.description": "Microsoft To Do, Google Tasks, அல்லது இந்த PC இல் ஒரு பட்டியல்",
   "widgetsA.catalog.tasks.label": "பணிகள்",
-  "widgetsA.catalog.videoStream.description": "நேரலை கேமரா: MJPEG, ஸ்னாப்ஷாட், MP4 அல்லது HLS",
-  "widgetsA.catalog.videoStream.label": "வீடியோ ஸ்ட்ரீம்",
   "widgetsA.clipboard.characters": {
     "one": "{count} எழுத்து",
     "other": "{count} எழுத்துகள்"

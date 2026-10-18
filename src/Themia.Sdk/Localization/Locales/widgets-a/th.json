@@ -52,8 +52,6 @@
   "widgetsA.catalog.shortcuts.label": "ทางลัด",
   "widgetsA.catalog.tasks.description": "Microsoft To Do, Google Tasks หรือรายการบนพีซีเครื่องนี้",
   "widgetsA.catalog.tasks.label": "งาน",
-  "widgetsA.catalog.videoStream.description": "กล้องสด: MJPEG ภาพนิ่ง MP4 หรือ HLS",
-  "widgetsA.catalog.videoStream.label": "สตรีมวิดีโอ",
   "widgetsA.clipboard.characters": {
     "other": "{count} อักขระ"
   },

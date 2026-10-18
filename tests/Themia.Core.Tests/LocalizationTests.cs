@@ -929,8 +929,6 @@ public sealed class LocalizationTests
         "shell.accounts.portNumber",           // port 993
         "shell.accounts.portRange",            // ports 1 to 65535, 993
         "shell.net.imapTlsFailed",             // port 993
-        "widgetsA.catalog.videoStream.description", // MP4
-        "widgetsC.videoStream.settings.address.desc", // MP4
         "widgetsC.tasks.rowHint",              // the F2 key
     ];
 

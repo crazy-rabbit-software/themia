@@ -1,16 +1,17 @@
 using Microsoft.UI.Dispatching;
-using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
-using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Media.Imaging;
-using Themia.App.Services;
+using Microsoft.UI.Xaml.Media;
+using Microsoft.UI.Xaml;
 using Themia.App.Services.Web;
+using Themia.App.Services;
 using Themia.App.Shell;
 using Themia.Core.Diagnostics;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
 using Themia.Sdk.WinUI;
+using Themia.Widget.VideoStream;
 using Windows.Graphics.Imaging;
 using Windows.Media.Core;
 using Windows.Media.Playback;
@@ -81,7 +82,7 @@ internal sealed partial class VideoStreamView : Grid, IWidgetView, IWidgetSurfac
         _picture.Visibility = Visibility.Collapsed;
         _frame.Children.Add(_picture);
 
-        var empty = Fluent.EmptyState(Glyphs.Video, _message, out _messageIcon);
+        var empty = Fluent.EmptyState(VideoStreamModule.Glyph, _message, out _messageIcon);
         _messageHost = new Border { Child = empty, VerticalAlignment = VerticalAlignment.Center };
 
         (_chip, _strip) = BuildOverlay();
@@ -168,8 +169,8 @@ internal sealed partial class VideoStreamView : Grid, IWidgetView, IWidgetSurfac
     public IReadOnlyList<WidgetAction> ContextActions =>
     [
         _config.Paused
-            ? new WidgetAction(Glyphs.Play, Str.VideoStream_Resume.Text(), () => SetPaused(false))
-            : new WidgetAction(Glyphs.Pause, Str.VideoStream_Pause.Text(), () => SetPaused(true)),
+            ? new WidgetAction(Glyphs.Play, VideoStreamStr.VideoStream_Resume.Text(), () => SetPaused(false))
+            : new WidgetAction(Glyphs.Pause, VideoStreamStr.VideoStream_Pause.Text(), () => SetPaused(true)),
         new WidgetAction(Glyphs.Refresh, Str.Common_Refresh.Text(), RefreshNow),
     ];
 
@@ -376,7 +377,7 @@ internal sealed partial class VideoStreamView : Grid, IWidgetView, IWidgetSurfac
 
                 if (adaptive.Status != AdaptiveMediaSourceCreationStatus.Success)
                 {
-                    VideoFailed(Str.WidgetsC_VideoStream_PlaylistFailed.Format(("status", adaptive.Status.ToString())));
+                    VideoFailed(VideoStreamStr.WidgetsC_VideoStream_PlaylistFailed.Format(("status", adaptive.Status.ToString())));
                     return;
                 }
 
@@ -413,7 +414,7 @@ internal sealed partial class VideoStreamView : Grid, IWidgetView, IWidgetSurfac
         catch (Exception ex) when (ex is System.Runtime.InteropServices.COMException or ArgumentException or InvalidOperationException)
         {
             Log.Warn(Scope, "could not start the video player", ex);
-            VideoFailed(Str.WidgetsC_VideoStream_CannotPlay.Text());
+            VideoFailed(VideoStreamStr.WidgetsC_VideoStream_CannotPlay.Text());
         }
     }
 
@@ -478,7 +479,7 @@ internal sealed partial class VideoStreamView : Grid, IWidgetView, IWidgetSurfac
     private void OnMediaFailed(MediaPlayer sender, MediaPlayerFailedEventArgs args)
     {
         var error = args.Error;
-        DispatcherQueue.TryEnqueue(() => VideoFailed(Str.WidgetsC_VideoStream_PlaybackFailed.Format(("error", error.ToString()))));
+        DispatcherQueue.TryEnqueue(() => VideoFailed(VideoStreamStr.WidgetsC_VideoStream_PlaybackFailed.Format(("error", error.ToString()))));
     }
 
     /// <summary>
@@ -559,7 +560,7 @@ internal sealed partial class VideoStreamView : Grid, IWidgetView, IWidgetSurfac
 
         var resolved = _config.ResolvedUrl;
         string? message;
-        var glyph = Glyphs.Video;
+        var glyph = VideoStreamModule.Glyph;
 
         if (!resolved.IsValid)
         {
@@ -570,7 +571,7 @@ internal sealed partial class VideoStreamView : Grid, IWidgetView, IWidgetSurfac
         }
         else if (_config.Paused)
         {
-            message = Str.VideoStream_Paused.Text();
+            message = VideoStreamStr.VideoStream_Paused.Text();
             glyph = Glyphs.Pause;
         }
         else
@@ -578,9 +579,9 @@ internal sealed partial class VideoStreamView : Grid, IWidgetView, IWidgetSurfac
             message = _phase switch
             {
                 StreamPhase.Live => null,
-                StreamPhase.Connecting => Str.VideoStream_Connecting.Text(),
-                StreamPhase.Unsupported => _detail ?? Str.WidgetsC_VideoStream_NotCamera.Text(),
-                _ => Str.WidgetsC_VideoStream_UnavailableRetrying.Text(),
+                StreamPhase.Connecting => VideoStreamStr.VideoStream_Connecting.Text(),
+                StreamPhase.Unsupported => _detail ?? VideoStreamStr.WidgetsC_VideoStream_NotCamera.Text(),
+                _ => VideoStreamStr.WidgetsC_VideoStream_UnavailableRetrying.Text(),
             };
         }
 
@@ -614,8 +615,8 @@ internal sealed partial class VideoStreamView : Grid, IWidgetView, IWidgetSurfac
 
     private static string Explain(WebUrlProblem problem) => problem switch
     {
-        WebUrlProblem.UnsupportedScheme => Str.WidgetsC_VideoStream_OnlyHttp.Text(),
-        WebUrlProblem.Credentials => Str.WidgetsC_VideoStream_RemoveCredentials.Text(),
+        WebUrlProblem.UnsupportedScheme => VideoStreamStr.WidgetsC_VideoStream_OnlyHttp.Text(),
+        WebUrlProblem.Credentials => VideoStreamStr.WidgetsC_VideoStream_RemoveCredentials.Text(),
         _ => WebInput.Explain(problem),
     };
 

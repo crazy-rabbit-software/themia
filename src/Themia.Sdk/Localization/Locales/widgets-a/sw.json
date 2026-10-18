@@ -53,8 +53,6 @@
   "widgetsA.catalog.shortcuts.label": "Njia za mkato",
   "widgetsA.catalog.tasks.description": "Microsoft To Do, Google Tasks, au orodha kwenye Kompyuta hii",
   "widgetsA.catalog.tasks.label": "Kazi",
-  "widgetsA.catalog.videoStream.description": "Kamera ya moja kwa moja: MJPEG, picha, MP4 au HLS",
-  "widgetsA.catalog.videoStream.label": "Mtiririko wa video",
   "widgetsA.clipboard.characters": {
     "one": "Herufi {count}",
     "other": "Herufi {count}"

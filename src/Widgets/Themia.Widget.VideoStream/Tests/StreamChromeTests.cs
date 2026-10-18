@@ -3,10 +3,10 @@ using Themia.Core.Model;
 using Themia.Core.Widgets;
 using Xunit;
 
-namespace Themia.Core.Tests;
+namespace Themia.Widget.VideoStream.Tests;
 
-/// <summary>[S-1312]/[S-1313] The camera's optional chrome: which parts show at which size, and their words.</summary>
-public class StreamChromeTests
+/// <summary>[S-1312]/[S-1313] The camera's optional chrome: which parts show at which size, and their words. Moved with the widget from Core's StreamChromeTests, unchanged.</summary>
+public sealed class StreamChromeTests
 {
     // The size tiers, as the card's slot (card less a ~44 DIP header).
     private static readonly WidgetArea Xs = new(120, 76);

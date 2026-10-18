@@ -53,8 +53,6 @@
   "widgetsA.catalog.shortcuts.label": "Atalhos",
   "widgetsA.catalog.tasks.description": "Microsoft To Do, Google Tasks ou uma lista neste PC",
   "widgetsA.catalog.tasks.label": "Tarefas",
-  "widgetsA.catalog.videoStream.description": "Uma câmera ao vivo: MJPEG, instantâneo, MP4 ou HLS",
-  "widgetsA.catalog.videoStream.label": "Transmissão de vídeo",
   "widgetsA.clipboard.characters": {
     "one": "{count} caractere",
     "other": "{count} caracteres"

@@ -2,7 +2,6 @@ using System.Text.Json.Serialization;
 using Themia.App.Shell;
 using Themia.Core.Accounts;
 using Themia.Core.Localization;
-using Themia.Core.Storage;
 using Themia.Core.Widgets;
 using Themia.Sdk;
 
@@ -21,24 +20,6 @@ public sealed class VideoStreamConfig : WidgetConfig, ISetupRule
 {
     /// <summary>[S-6906] It waits for setup while this holds.</summary>
     public bool NeedsSetup(FeatureSet signedIn) => ResolvedUrl.Problem == WebUrlProblem.Empty;
-
-
-    /// <summary>[S-6902] This widget's descriptor: what the host knows of it without its UI.</summary>
-    public static WidgetDescriptor Descriptor { get; } = new()
-    {
-        Id = new("videoStream"),
-        ConfigType = typeof(VideoStreamConfig),
-        CreateDefault = () => new VideoStreamConfig(),
-        Json = WidgetConfigJsonContext.Default,
-        Keywords = ["camera", "webcam", "cctv", "mjpeg", "live view", "printer"],
-        Label = Str.WidgetsA_Catalog_VideoStream_Label.Local(),
-        Description = Str.WidgetsA_Catalog_VideoStream_Description.Local(),
-        Glyph = Glyphs.Video,
-        DefaultWidth = 320,
-        DefaultHeight = 240,
-        Traits = WidgetTraits.CanHaveHeader,
-        Add = new(AddFolderId.Media, 1, 1),
-    };
 
     /// <summary>The stream address, exactly as typed. Never repaired; never normalised, because cameras route on the query.</summary>
     public string Url { get; set; } = string.Empty;

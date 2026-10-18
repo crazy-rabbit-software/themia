@@ -53,8 +53,6 @@
   "widgetsA.catalog.shortcuts.label": "शॉर्टकट",
   "widgetsA.catalog.tasks.description": "Microsoft To Do, Google Tasks, या इस PC पर एक सूची",
   "widgetsA.catalog.tasks.label": "कार्य",
-  "widgetsA.catalog.videoStream.description": "लाइव कैमरा: MJPEG, स्नैपशॉट, MP4 या HLS",
-  "widgetsA.catalog.videoStream.label": "वीडियो स्ट्रीम",
   "widgetsA.clipboard.characters": {
     "one": "{count} वर्ण",
     "other": "{count} वर्ण"

@@ -52,8 +52,6 @@
   "widgetsA.catalog.shortcuts.label": "快捷方式",
   "widgetsA.catalog.tasks.description": "Microsoft To Do、Google Tasks 或此电脑上的列表",
   "widgetsA.catalog.tasks.label": "任务",
-  "widgetsA.catalog.videoStream.description": "实时摄像头：MJPEG、快照、MP4 或 HLS",
-  "widgetsA.catalog.videoStream.label": "视频流",
   "widgetsA.clipboard.characters": {
     "other": "{count} 个字符"
   },

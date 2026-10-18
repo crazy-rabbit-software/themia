@@ -53,8 +53,6 @@
   "widgetsA.catalog.shortcuts.label": "Raccourcis",
   "widgetsA.catalog.tasks.description": "Microsoft To Do, Google Tasks ou une liste sur ce PC",
   "widgetsA.catalog.tasks.label": "Tâches",
-  "widgetsA.catalog.videoStream.description": "Une caméra en direct : MJPEG, instantané, MP4 ou HLS",
-  "widgetsA.catalog.videoStream.label": "Flux vidéo",
   "widgetsA.clipboard.characters": {
     "one": "{count} caractère",
     "other": "{count} caractères"

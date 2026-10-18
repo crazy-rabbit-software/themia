@@ -1,9 +1,10 @@
-using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml;
 using Themia.App.Widgets;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
+using Themia.Widget.VideoStream;
 using Windows.System;
 
 namespace Themia.App.Shell.Config;
@@ -16,32 +17,32 @@ namespace Themia.App.Shell.Config;
 /// under the box rather than stored and silently refused later.
 /// </para>
 /// </summary>
-internal static partial class WidgetSettings
+internal static class VideoStreamSettings
 {
-    public static void VideoStream(List<FrameworkElement> rows, VideoStreamConfig config, Action save)
+    public static void Rows(List<FrameworkElement> rows, VideoStreamConfig config, Action save)
     {
         ArgumentNullException.ThrowIfNull(rows);
         ArgumentNullException.ThrowIfNull(config);
         ArgumentNullException.ThrowIfNull(save);
 
-        rows.Add(FluentLayout.Header(Str.WidgetsC_VideoStream_Settings_Stream.Text()));
+        rows.Add(FluentLayout.Header(VideoStreamStr.WidgetsC_VideoStream_Settings_Stream.Text()));
 
         rows.Add(AddressRow(
-            Str.WidgetsC_VideoStream_Settings_Address_Label.Text(),
-            Str.WidgetsC_VideoStream_Settings_Address_Desc.Text(),
+            VideoStreamStr.WidgetsC_VideoStream_Settings_Address_Label.Text(),
+            VideoStreamStr.WidgetsC_VideoStream_Settings_Address_Desc.Text(),
             "http://192.168.1.50:8080/?action=stream",
             () => config.Url,
             value => { config.Url = value; save(); }));
 
-        rows.Add(FluentLayout.Header(Str.WidgetsC_VideoStream_Settings_Picture.Text()));
+        rows.Add(FluentLayout.Header(VideoStreamStr.WidgetsC_VideoStream_Settings_Picture.Text()));
 
-        rows.Add(FluentLayout.Row(Glyphs.Fit, Str.WidgetsC_VideoStream_Settings_Fit_Label.Text(), Str.VideoStream_FitDesc.Text(),
+        rows.Add(FluentLayout.Row(Glyphs.Fit, VideoStreamStr.WidgetsC_VideoStream_Settings_Fit_Label.Text(), VideoStreamStr.VideoStream_FitDesc.Text(),
             FluentLayout.Choice(
-                [(StreamFit.Contain, Str.WidgetsC_VideoStream_Settings_Fit_Whole.Text()), (StreamFit.Cover, Str.WidgetsC_VideoStream_Settings_Fit_Crop.Text()), (StreamFit.Stretch, Str.VideoStream_FitStretch.Text())],
+                [(StreamFit.Contain, VideoStreamStr.WidgetsC_VideoStream_Settings_Fit_Whole.Text()), (StreamFit.Cover, VideoStreamStr.WidgetsC_VideoStream_Settings_Fit_Crop.Text()), (StreamFit.Stretch, VideoStreamStr.VideoStream_FitStretch.Text())],
                 config.EffectiveFit,
                 value => { config.Fit = value; save(); })));
 
-        rows.Add(FluentLayout.Row(Glyphs.Rotate, Str.VideoStream_RotationLabel.Text(), Str.VideoStream_RotationDesc.Text(),
+        rows.Add(FluentLayout.Row(Glyphs.Rotate, VideoStreamStr.VideoStream_RotationLabel.Text(), VideoStreamStr.VideoStream_RotationDesc.Text(),
             FluentLayout.Choice(
                 [
                     (StreamRotation.None, Str.Common_None.Text()),
@@ -54,25 +55,25 @@ internal static partial class WidgetSettings
 
         FluentLayout.RefreshSeconds(
             rows,
-            Str.WidgetsC_VideoStream_Settings_Refresh_Desc.Format(("zero", 0)),
+            VideoStreamStr.WidgetsC_VideoStream_Settings_Refresh_Desc.Format(("zero", 0)),
             config.EffectiveRefreshSeconds,
             VideoStreamRules.LiveRefreshSeconds,
             VideoStreamRules.MaxRefreshSeconds,
             1,
             value => { config.RefreshSeconds = value; save(); });
 
-        rows.Add(FluentLayout.Header(Str.WidgetsC_VideoStream_Settings_Overlay.Text()));
+        rows.Add(FluentLayout.Header(VideoStreamStr.WidgetsC_VideoStream_Settings_Overlay.Text()));
 
         // [S-1312] Both off the picture until there is room: never on the small sizes.
-        rows.Add(FluentLayout.Row(Glyphs.Mouse, Str.WidgetsC_VideoStream_Settings_Hover_Label.Text(),
-            Str.WidgetsC_VideoStream_Settings_Hover_Desc.Text(),
+        rows.Add(FluentLayout.Row(Glyphs.Mouse, VideoStreamStr.WidgetsC_VideoStream_Settings_Hover_Label.Text(),
+            VideoStreamStr.WidgetsC_VideoStream_Settings_Hover_Desc.Text(),
             FluentLayout.Toggle(config.HoverControls, value => { config.HoverControls = value; save(); })));
 
-        rows.Add(FluentLayout.Row(Glyphs.Info, Str.WidgetsC_VideoStream_Settings_Chip_Label.Text(),
-            Str.WidgetsC_VideoStream_Settings_Chip_Desc.Text(),
+        rows.Add(FluentLayout.Row(Glyphs.Info, VideoStreamStr.WidgetsC_VideoStream_Settings_Chip_Label.Text(),
+            VideoStreamStr.WidgetsC_VideoStream_Settings_Chip_Desc.Text(),
             FluentLayout.Toggle(config.ShowStatus, value => { config.ShowStatus = value; save(); })));
 
-        rows.Add(FluentLayout.Note(Str.WidgetsC_VideoStream_Settings_Note.Text()));
+        rows.Add(FluentLayout.Note(VideoStreamStr.WidgetsC_VideoStream_Settings_Note.Text()));
     }
 
     /// <summary>
@@ -110,7 +111,7 @@ internal static partial class WidgetSettings
             if (typed.Length > 0 && !checkedUrl.IsValid)
             {
                 FluentLayout.Refuse(verdict, checkedUrl.Problem == WebUrlProblem.UnsupportedScheme
-                    ? Str.WidgetsC_VideoStream_Settings_OnlyHttp.Text()
+                    ? VideoStreamStr.WidgetsC_VideoStream_Settings_OnlyHttp.Text()
                     : WebInput.Explain(checkedUrl.Problem));
                 return;
             }

@@ -53,8 +53,6 @@
   "widgetsA.catalog.shortcuts.label": "میان‌برها",
   "widgetsA.catalog.tasks.description": "Microsoft To Do، Google Tasks یا فهرستی روی این رایانه",
   "widgetsA.catalog.tasks.label": "کارها",
-  "widgetsA.catalog.videoStream.description": "دوربین زنده: MJPEG، عکس لحظه‌ای، MP4 یا HLS",
-  "widgetsA.catalog.videoStream.label": "پخش ویدیو",
   "widgetsA.clipboard.characters": {
     "one": "{count} نویسه",
     "other": "{count} نویسه"

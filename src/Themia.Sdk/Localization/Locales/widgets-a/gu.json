@@ -53,8 +53,6 @@
   "widgetsA.catalog.shortcuts.label": "શૉર્ટકટ",
   "widgetsA.catalog.tasks.description": "Microsoft To Do, Google Tasks, અથવા આ PC પરની સૂચિ",
   "widgetsA.catalog.tasks.label": "કાર્યો",
-  "widgetsA.catalog.videoStream.description": "લાઇવ કૅમેરા: MJPEG, સ્નૅપશૉટ, MP4 અથવા HLS",
-  "widgetsA.catalog.videoStream.label": "વિડિયો સ્ટ્રીમ",
   "widgetsA.clipboard.characters": {
     "one": "{count} અક્ષર",
     "other": "{count} અક્ષરો"

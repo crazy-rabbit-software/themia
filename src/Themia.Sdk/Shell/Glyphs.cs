@@ -209,8 +209,7 @@ public static class Glyphs
 
     public static readonly string AlignRight = From(0xE8E2);
 
-    // The camera widget, and a web address wherever one is shown.
-    public static readonly string Video = From(0xE714);
+    // A web address wherever one is shown.
     public static readonly string Globe = From(0xE774);
     public static readonly string Rotate = From(0xE7AD);
     public static readonly string Refresh = From(0xE72C);

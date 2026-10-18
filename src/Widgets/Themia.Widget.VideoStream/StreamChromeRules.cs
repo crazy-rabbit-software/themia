@@ -1,4 +1,5 @@
 using Themia.Core.Localization;
+using Themia.Widget.VideoStream;
 
 namespace Themia.Core.Widgets;
 
@@ -104,13 +105,13 @@ public static class StreamChromeRules
         if (live)
         {
             return refreshSeconds > VideoStreamRules.LiveRefreshSeconds
-                ? Strings.Format(locale, Str.WidgetsC_VideoStream_Status_Every, ("seconds", VideoStreamRules.ClampRefreshSeconds(refreshSeconds)))
-                : Strings.Get(locale, Str.WidgetsC_VideoStream_Status_Live);
+                ? VideoStreamStr.WidgetsC_VideoStream_Status_Every.Format(locale, ("seconds", VideoStreamRules.ClampRefreshSeconds(refreshSeconds)))
+                : VideoStreamStr.WidgetsC_VideoStream_Status_Live.Text(locale);
         }
 
         return reconnects > 0
-            ? Strings.Format(locale, Str.WidgetsC_VideoStream_Status_Reconnecting, ("count", reconnects))
-            : Strings.Get(locale, Str.WidgetsC_VideoStream_Status_Connecting);
+            ? VideoStreamStr.WidgetsC_VideoStream_Status_Reconnecting.Format(locale, ("count", reconnects))
+            : VideoStreamStr.WidgetsC_VideoStream_Status_Connecting.Text(locale);
     }
 
     /// <summary>[S-1313] How old the picture on screen is: "now", "4 s ago", "2 min ago", "3 h ago".</summary>
@@ -121,17 +122,17 @@ public static class StreamChromeRules
     {
         if (age < TimeSpan.FromSeconds(1))
         {
-            return Strings.Get(locale, Str.WidgetsC_VideoStream_Age_Now);
+            return VideoStreamStr.WidgetsC_VideoStream_Age_Now.Text(locale);
         }
 
         if (age < TimeSpan.FromMinutes(1))
         {
-            return Strings.Format(locale, Str.WidgetsC_VideoStream_Age_Seconds, ("value", (long)age.TotalSeconds));
+            return VideoStreamStr.WidgetsC_VideoStream_Age_Seconds.Format(locale, ("value", (long)age.TotalSeconds));
         }
 
         return age < TimeSpan.FromHours(1)
-            ? Strings.Format(locale, Str.WidgetsC_VideoStream_Age_Minutes, ("value", (long)age.TotalMinutes))
-            : Strings.Format(locale, Str.WidgetsC_VideoStream_Age_Hours, ("value", (long)age.TotalHours));
+            ? VideoStreamStr.WidgetsC_VideoStream_Age_Minutes.Format(locale, ("value", (long)age.TotalMinutes))
+            : VideoStreamStr.WidgetsC_VideoStream_Age_Hours.Format(locale, ("value", (long)age.TotalHours));
     }
 
     /// <summary>[S-1313] "12 fps", "2.5 fps"; empty when there is no rate (interval mode, one snapshot, a video).</summary>
@@ -150,7 +151,7 @@ public static class StreamChromeRules
         var value = fps >= 10
             ? LocaleFormat.Number(locale, Math.Round(fps, MidpointRounding.AwayFromZero), 0)
             : LocaleFormat.Number(locale, tenths, tenths == Math.Floor(tenths) ? 0 : 1);
-        return Strings.Format(locale, Str.WidgetsC_VideoStream_Fps, ("value", value));
+        return VideoStreamStr.WidgetsC_VideoStream_Fps.Format(locale, ("value", value));
     }
 
     /// <summary>[S-1313] "1280×720" for the camera's own size; empty when unknown.</summary>
@@ -163,8 +164,8 @@ public static class StreamChromeRules
     public static string Transport(StreamTransport transport) => transport switch
     {
         StreamTransport.Mjpeg => "MJPEG",
-        StreamTransport.Image => Str.WidgetsC_VideoStream_Transport_Snapshot.Text(),
-        StreamTransport.Video => Str.WidgetsC_VideoStream_Transport_Video.Text(),
+        StreamTransport.Image => VideoStreamStr.WidgetsC_VideoStream_Transport_Snapshot.Text(),
+        StreamTransport.Video => VideoStreamStr.WidgetsC_VideoStream_Transport_Video.Text(),
         StreamTransport.Hls => "HLS",
         _ => string.Empty,
     };

@@ -53,8 +53,6 @@
   "widgetsA.catalog.shortcuts.label": "Mga shortcut",
   "widgetsA.catalog.tasks.description": "Microsoft To Do, Google Tasks, o isang listahan sa PC na ito",
   "widgetsA.catalog.tasks.label": "Mga gawain",
-  "widgetsA.catalog.videoStream.description": "Isang live na camera: MJPEG, snapshot, MP4 o HLS",
-  "widgetsA.catalog.videoStream.label": "Stream ng video",
   "widgetsA.clipboard.characters": {
     "one": "{count} character",
     "other": "{count} character"

@@ -52,8 +52,6 @@
   "widgetsA.catalog.shortcuts.label": "Pintasan",
   "widgetsA.catalog.tasks.description": "Microsoft To Do, Google Tasks, atau daftar di PC ini",
   "widgetsA.catalog.tasks.label": "Tugas",
-  "widgetsA.catalog.videoStream.description": "Kamera langsung: MJPEG, snapshot, MP4, atau HLS",
-  "widgetsA.catalog.videoStream.label": "Streaming video",
   "widgetsA.clipboard.characters": {
     "other": "{count} karakter"
   },

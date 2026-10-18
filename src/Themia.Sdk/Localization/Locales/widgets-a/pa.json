@@ -53,8 +53,6 @@
   "widgetsA.catalog.shortcuts.label": "ਸ਼ਾਰਟਕੱਟ",
   "widgetsA.catalog.tasks.description": "Microsoft To Do, Google Tasks, ਜਾਂ ਇਸ PC ਉੱਤੇ ਇੱਕ ਸੂਚੀ",
   "widgetsA.catalog.tasks.label": "ਕਾਰਜ",
-  "widgetsA.catalog.videoStream.description": "ਇੱਕ ਲਾਈਵ ਕੈਮਰਾ: MJPEG, ਸਨੈਪਸ਼ਾਟ, MP4 ਜਾਂ HLS",
-  "widgetsA.catalog.videoStream.label": "ਵੀਡੀਓ ਸਟ੍ਰੀਮ",
   "widgetsA.clipboard.characters": {
     "one": "{count} ਅੱਖਰ",
     "other": "{count} ਅੱਖਰ"

@@ -53,8 +53,6 @@
   "widgetsA.catalog.shortcuts.label": "شارٹ کٹس",
   "widgetsA.catalog.tasks.description": "Microsoft To Do، Google Tasks، یا اس PC پر کوئی فہرست",
   "widgetsA.catalog.tasks.label": "کام",
-  "widgetsA.catalog.videoStream.description": "لائیو کیمرا: MJPEG، اسنیپ شاٹ، MP4 یا HLS",
-  "widgetsA.catalog.videoStream.label": "ویڈیو اسٹریم",
   "widgetsA.clipboard.characters": {
     "one": "{count} حرف",
     "other": "{count} حروف"

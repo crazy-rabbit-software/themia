@@ -52,8 +52,6 @@
   "widgetsA.catalog.shortcuts.label": "ショートカット",
   "widgetsA.catalog.tasks.description": "Microsoft To Do、Google Tasks、またはこの PC 上のリスト",
   "widgetsA.catalog.tasks.label": "タスク",
-  "widgetsA.catalog.videoStream.description": "ライブカメラ: MJPEG、スナップショット、MP4、HLS",
-  "widgetsA.catalog.videoStream.label": "ビデオストリーム",
   "widgetsA.clipboard.characters": {
     "other": "{count} 文字"
   },

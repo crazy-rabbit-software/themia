@@ -53,8 +53,6 @@
   "widgetsA.catalog.shortcuts.label": "షార్ట్‌కట్‌లు",
   "widgetsA.catalog.tasks.description": "Microsoft To Do, Google Tasks, లేదా ఈ PCలో ఒక జాబితా",
   "widgetsA.catalog.tasks.label": "పనులు",
-  "widgetsA.catalog.videoStream.description": "ప్రత్యక్ష కెమెరా: MJPEG, స్నాప్‌షాట్, MP4 లేదా HLS",
-  "widgetsA.catalog.videoStream.label": "వీడియో స్ట్రీమ్",
   "widgetsA.clipboard.characters": {
     "one": "{count} అక్షరం",
     "other": "{count} అక్షరాలు"

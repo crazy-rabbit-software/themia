@@ -416,7 +416,7 @@ internal static class SwitchCheck
         var feeds = ViewState.Create("Busy feeds");
         (WidgetId Kind, FracRect Rect)[] layout =
         [
-            (VideoStreamConfig.Descriptor.Id, new FracRect(0.02, 0.04, 0.40, 0.40)),
+            (new WidgetId("videoStream"), new FracRect(0.02, 0.04, 0.40, 0.40)),
             (new WidgetId("audioVisualizer"), new FracRect(0.44, 0.04, 0.30, 0.20)),
             (new WidgetId("topProcesses"), new FracRect(0.76, 0.04, 0.22, 0.60)),
             (new WidgetId("cpu"), new FracRect(0.44, 0.26, 0.14, 0.18)),
@@ -430,9 +430,9 @@ internal static class SwitchCheck
         foreach (var (kind, rect) in layout)
         {
             var widget = WidgetInstance.Create(kind, rect);
-            if (kind == VideoStreamConfig.Descriptor.Id && stream is not null)
+            if (kind == new WidgetId("videoStream") && stream is not null)
             {
-                widget.Config = new VideoStreamConfig { Url = stream };
+                widget.Config = StateJson.Merged(widget.Config, $$"""{"url":"{{JsonEncodedText.Encode(stream)}}"}""");
             }
 
             feeds.Widgets.Add(widget);

@@ -52,8 +52,6 @@
   "widgetsA.catalog.shortcuts.label": "Shortcuts",
   "widgetsA.catalog.tasks.description": "Microsoft To Do, Google Tasks, or a list on this PC",
   "widgetsA.catalog.tasks.label": "Tasks",
-  "widgetsA.catalog.videoStream.description": "A live camera: MJPEG, a snapshot, MP4 or HLS",
-  "widgetsA.catalog.videoStream.label": "Video stream",
   "widgetsA.clipboard.characters": {
     "one": "{count} character",
     "other": "{count} characters"

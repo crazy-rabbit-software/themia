@@ -53,8 +53,6 @@
   "widgetsA.catalog.shortcuts.label": "Kısayollar",
   "widgetsA.catalog.tasks.description": "Microsoft To Do, Google Tasks veya bu bilgisayardaki bir liste",
   "widgetsA.catalog.tasks.label": "Görevler",
-  "widgetsA.catalog.videoStream.description": "Canlı kamera: MJPEG, anlık görüntü, MP4 veya HLS",
-  "widgetsA.catalog.videoStream.label": "Video akışı",
   "widgetsA.clipboard.characters": {
     "one": "{count} karakter",
     "other": "{count} karakter"
