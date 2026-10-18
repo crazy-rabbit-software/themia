@@ -29,8 +29,6 @@
   "alarm.settings.whileRunning": "Las alarmas solo suenan mientras Themia está en ejecución. Si una vence mientras el equipo está en suspensión, suena al reactivarse, siempre que sea dentro de cinco minutos.",
   "drives.removable.label": "Unidades extraíbles",
   "drives.removable.desc": "Memorias USB, tarjetas y discos externos, con Expulsar",
-  "drives.drive.label": "Unidad",
-  "drives.drive.desc": "Espacio y sistema de archivos de una unidad, también unidades asignadas",
   "drives.label.cd": "Unidad de CD",
   "drives.label.network": "Unidad de red",
   "drives.label.ram": "Disco RAM",
@@ -43,12 +41,5 @@
   "drives.disconnected": "Desconectada",
   "drives.eject": "Expulsar",
   "drives.ejectNamed": "Expulsar {name}",
-  "drives.nothing": "Nada conectado",
-  "drives.used": "{percent} usado",
-  "drives.fact.used": "Usado",
-  "drives.fact.free": "Libre",
-  "drives.fact.capacity": "Capacidad",
-  "drives.fact.fileSystem": "Sistema de archivos",
-  "drives.settings.drive.label": "Unidad",
-  "drives.settings.drive.desc": "La unidad que muestra este widget: un disco, una memoria o una unidad de red asignada"
+  "drives.nothing": "Nada conectado"
 }

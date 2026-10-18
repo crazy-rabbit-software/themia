@@ -1,0 +1,12 @@
+{
+  "drives.drive.desc": "한 드라이브의 공간과 파일 시스템, 매핑된 드라이브도 포함",
+  "drives.drive.label": "드라이브",
+  "drives.fact.capacity": "용량",
+  "drives.fact.fileSystem": "파일 시스템",
+  "drives.fact.free": "사용 가능",
+  "drives.fact.used": "사용",
+  "drives.settings.drive.desc": "이 위젯이 표시하는 드라이브: 디스크, USB 메모리 또는 매핑된 네트워크 드라이브",
+  "drives.settings.drive.label": "드라이브",
+  "drives.used": "{percent} 사용",
+  "styles.io.bar": "막대"
+}

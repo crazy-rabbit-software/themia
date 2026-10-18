@@ -1,0 +1,12 @@
+{
+  "drives.drive.desc": "ஒரு இயக்ககத்தின் இடமும் கோப்பு முறைமையும், மேப் செய்த இயக்ககங்களும்",
+  "drives.drive.label": "இயக்ககம்",
+  "drives.fact.capacity": "கொள்ளளவு",
+  "drives.fact.fileSystem": "கோப்பு முறைமை",
+  "drives.fact.free": "காலி",
+  "drives.fact.used": "பயன்படுத்தியது",
+  "drives.settings.drive.desc": "இந்த விட்ஜெட் காட்டும் இயக்ககம்: வட்டு, ஸ்டிக் அல்லது மேப் செய்த நெட்வொர்க் இயக்ககம்",
+  "drives.settings.drive.label": "இயக்ககம்",
+  "drives.used": "{percent} பயன்படுத்தப்பட்டது",
+  "styles.io.bar": "பட்டை"
+}

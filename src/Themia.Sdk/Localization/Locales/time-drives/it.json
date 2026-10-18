@@ -29,8 +29,6 @@
   "alarm.settings.whileRunning": "Le sveglie suonano solo mentre Themia è in esecuzione. Una sveglia che scatta mentre il PC è in sospensione suona al risveglio, se avviene entro cinque minuti.",
   "drives.removable.label": "Unità rimovibili",
   "drives.removable.desc": "Chiavette USB, schede e dischi esterni, con Espelli",
-  "drives.drive.label": "Unità",
-  "drives.drive.desc": "Spazio e file system di un’unità, anche unità di rete",
   "drives.label.cd": "Unità CD",
   "drives.label.network": "Unità di rete",
   "drives.label.ram": "Disco RAM",
@@ -43,12 +41,5 @@
   "drives.disconnected": "Disconnessa",
   "drives.eject": "Espelli",
   "drives.ejectNamed": "Espelli {name}",
-  "drives.nothing": "Nulla collegato",
-  "drives.used": "{percent} in uso",
-  "drives.fact.used": "In uso",
-  "drives.fact.free": "Libero",
-  "drives.fact.capacity": "Capacità",
-  "drives.fact.fileSystem": "File system",
-  "drives.settings.drive.label": "Unità",
-  "drives.settings.drive.desc": "L’unità mostrata da questo widget: un disco, una chiavetta o un’unità di rete"
+  "drives.nothing": "Nulla collegato"
 }

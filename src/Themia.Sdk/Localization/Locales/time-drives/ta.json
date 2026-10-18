@@ -29,8 +29,6 @@
   "alarm.settings.whileRunning": "Themia இயங்கும்போது மட்டுமே அலாரங்கள் ஒலிக்கும். PC உறங்கும்போது நேரம் வரும் அலாரம், ஐந்து நிமிடங்களுக்குள் என்றால், அது விழித்ததும் ஒலிக்கும்.",
   "drives.removable.label": "நீக்கக்கூடிய இயக்ககங்கள்",
   "drives.removable.desc": "USB ஸ்டிக்குகள், கார்டுகள் மற்றும் வெளிப்புற வட்டுகள், வெளியேற்று பொத்தானுடன்",
-  "drives.drive.label": "இயக்ககம்",
-  "drives.drive.desc": "ஒரு இயக்ககத்தின் இடமும் கோப்பு முறைமையும், மேப் செய்த இயக்ககங்களும்",
   "drives.label.cd": "CD இயக்ககம்",
   "drives.label.network": "நெட்வொர்க் இயக்ககம்",
   "drives.label.ram": "RAM வட்டு",
@@ -43,12 +41,5 @@
   "drives.disconnected": "துண்டிக்கப்பட்டது",
   "drives.eject": "வெளியேற்று",
   "drives.ejectNamed": "{name} ஐ வெளியேற்று",
-  "drives.nothing": "எதுவும் இணைக்கப்படவில்லை",
-  "drives.used": "{percent} பயன்படுத்தப்பட்டது",
-  "drives.fact.used": "பயன்படுத்தியது",
-  "drives.fact.free": "காலி",
-  "drives.fact.capacity": "கொள்ளளவு",
-  "drives.fact.fileSystem": "கோப்பு முறைமை",
-  "drives.settings.drive.label": "இயக்ககம்",
-  "drives.settings.drive.desc": "இந்த விட்ஜெட் காட்டும் இயக்ககம்: வட்டு, ஸ்டிக் அல்லது மேப் செய்த நெட்வொர்க் இயக்ககம்"
+  "drives.nothing": "எதுவும் இணைக்கப்படவில்லை"
 }

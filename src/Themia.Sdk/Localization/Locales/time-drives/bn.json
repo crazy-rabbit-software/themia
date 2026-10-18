@@ -29,8 +29,6 @@
   "alarm.settings.whileRunning": "Themia চালু থাকলেই কেবল অ্যালার্ম বাজে। PC স্লিপে থাকার সময় যে অ্যালার্মের সময় হয়, সেটি PC জাগলে বাজে, যদি তা পাঁচ মিনিটের মধ্যে হয়।",
   "drives.removable.label": "অপসারণযোগ্য ড্রাইভ",
   "drives.removable.desc": "USB স্টিক, কার্ড ও বাহ্যিক ডিস্ক, বের করার সুবিধাসহ",
-  "drives.drive.label": "ড্রাইভ",
-  "drives.drive.desc": "একটি ড্রাইভের জায়গা ও ফাইল সিস্টেম, ম্যাপ করা ড্রাইভও",
   "drives.label.cd": "CD ড্রাইভ",
   "drives.label.network": "নেটওয়ার্ক ড্রাইভ",
   "drives.label.ram": "RAM ডিস্ক",
@@ -43,12 +41,5 @@
   "drives.disconnected": "সংযোগ বিচ্ছিন্ন",
   "drives.eject": "বের করুন",
   "drives.ejectNamed": "{name} বের করুন",
-  "drives.nothing": "কিছুই প্লাগ ইন করা নেই",
-  "drives.used": "{percent} ব্যবহৃত",
-  "drives.fact.used": "ব্যবহৃত",
-  "drives.fact.free": "খালি",
-  "drives.fact.capacity": "ধারণক্ষমতা",
-  "drives.fact.fileSystem": "ফাইল সিস্টেম",
-  "drives.settings.drive.label": "ড্রাইভ",
-  "drives.settings.drive.desc": "এই উইজেট যে ড্রাইভ দেখায়: একটি ডিস্ক, স্টিক বা ম্যাপ করা নেটওয়ার্ক ড্রাইভ"
+  "drives.nothing": "কিছুই প্লাগ ইন করা নেই"
 }

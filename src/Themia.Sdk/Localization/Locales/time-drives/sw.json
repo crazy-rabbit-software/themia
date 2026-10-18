@@ -29,8 +29,6 @@
   "alarm.settings.whileRunning": "Kengele hulia tu Themia ikiwa inaendeshwa. Kengele inayofika wakati Kompyuta imelala hulia inapoamka, ikiwa ni ndani ya dakika tano.",
   "drives.removable.label": "Hifadhi zinazoondolewa",
   "drives.removable.desc": "Vijiti vya USB, kadi na diski za nje, na Toa",
-  "drives.drive.label": "Hifadhi",
-  "drives.drive.desc": "Nafasi na mfumo wa faili wa hifadhi moja, hata hifadhi zilizoramanishwa",
   "drives.label.cd": "Hifadhi ya CD",
   "drives.label.network": "Hifadhi ya Mtandao",
   "drives.label.ram": "Diski ya RAM",
@@ -43,12 +41,5 @@
   "drives.disconnected": "Imetenganishwa",
   "drives.eject": "Toa",
   "drives.ejectNamed": "Toa {name}",
-  "drives.nothing": "Hakuna kilichochomekwa",
-  "drives.used": "{percent} imetumika",
-  "drives.fact.used": "Imetumika",
-  "drives.fact.free": "Wazi",
-  "drives.fact.capacity": "Uwezo",
-  "drives.fact.fileSystem": "Mfumo wa faili",
-  "drives.settings.drive.label": "Hifadhi",
-  "drives.settings.drive.desc": "Hifadhi ambayo wijeti hii huonyesha: diski, kijiti au hifadhi ya mtandao iliyoramanishwa"
+  "drives.nothing": "Hakuna kilichochomekwa"
 }

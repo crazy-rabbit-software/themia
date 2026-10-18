@@ -29,8 +29,6 @@
   "alarm.settings.whileRunning": "Báo thức chỉ đổ chuông khi Themia đang chạy. Báo thức đến giờ trong lúc PC đang ngủ sẽ đổ chuông khi PC thức dậy, nếu trong vòng năm phút.",
   "drives.removable.label": "Ổ đĩa di động",
   "drives.removable.desc": "USB, thẻ nhớ và ổ đĩa ngoài, kèm Đẩy ra",
-  "drives.drive.label": "Ổ đĩa",
-  "drives.drive.desc": "Dung lượng và hệ thống tệp của một ổ đĩa, kể cả ổ đã ánh xạ",
   "drives.label.cd": "Ổ đĩa CD",
   "drives.label.network": "Ổ đĩa mạng",
   "drives.label.ram": "Đĩa RAM",
@@ -43,12 +41,5 @@
   "drives.disconnected": "Đã ngắt kết nối",
   "drives.eject": "Đẩy ra",
   "drives.ejectNamed": "Đẩy {name} ra",
-  "drives.nothing": "Chưa cắm gì",
-  "drives.used": "Đã dùng {percent}",
-  "drives.fact.used": "Đã dùng",
-  "drives.fact.free": "Còn trống",
-  "drives.fact.capacity": "Dung lượng",
-  "drives.fact.fileSystem": "Hệ thống tệp",
-  "drives.settings.drive.label": "Ổ đĩa",
-  "drives.settings.drive.desc": "Ổ đĩa tiện ích này hiển thị: một ổ đĩa, USB hoặc ổ đĩa mạng đã ánh xạ"
+  "drives.nothing": "Chưa cắm gì"
 }

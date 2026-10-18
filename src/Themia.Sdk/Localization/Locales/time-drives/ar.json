@@ -29,8 +29,6 @@
   "alarm.settings.whileRunning": "ترن المنبهات فقط أثناء تشغيل Themia. المنبه الذي يحين موعده أثناء وجود الكمبيوتر في وضع السكون يرن عند استيقاظه، إذا كان ذلك خلال خمس دقائق.",
   "drives.removable.label": "محركات الأقراص القابلة للإزالة",
   "drives.removable.desc": "ذواكر USB والبطاقات والأقراص الخارجية، مع الإخراج",
-  "drives.drive.label": "محرك أقراص",
-  "drives.drive.desc": "مساحة محرك أقراص واحد ونظام ملفاته، والمحركات المعيّنة أيضًا",
   "drives.label.cd": "محرك أقراص CD",
   "drives.label.network": "محرك أقراص شبكة",
   "drives.label.ram": "قرص RAM",
@@ -43,12 +41,5 @@
   "drives.disconnected": "غير متصل",
   "drives.eject": "إخراج",
   "drives.ejectNamed": "إخراج {name}",
-  "drives.nothing": "لا شيء موصول",
-  "drives.used": "{percent} مستخدم",
-  "drives.fact.used": "مستخدم",
-  "drives.fact.free": "متاح",
-  "drives.fact.capacity": "السعة",
-  "drives.fact.fileSystem": "نظام الملفات",
-  "drives.settings.drive.label": "محرك أقراص",
-  "drives.settings.drive.desc": "محرك الأقراص الذي تعرضه هذه الأداة: قرص أو ذاكرة USB أو محرك أقراص شبكة معيّن"
+  "drives.nothing": "لا شيء موصول"
 }

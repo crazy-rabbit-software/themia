@@ -1,0 +1,12 @@
+{
+  "drives.drive.desc": "مساحة محرك أقراص واحد ونظام ملفاته، والمحركات المعيّنة أيضًا",
+  "drives.drive.label": "محرك أقراص",
+  "drives.fact.capacity": "السعة",
+  "drives.fact.fileSystem": "نظام الملفات",
+  "drives.fact.free": "متاح",
+  "drives.fact.used": "مستخدم",
+  "drives.settings.drive.desc": "محرك الأقراص الذي تعرضه هذه الأداة: قرص أو ذاكرة USB أو محرك أقراص شبكة معيّن",
+  "drives.settings.drive.label": "محرك أقراص",
+  "drives.used": "{percent} مستخدم",
+  "styles.io.bar": "شريط"
+}

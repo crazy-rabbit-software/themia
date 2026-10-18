@@ -29,8 +29,6 @@
   "alarm.settings.whileRunning": "Alarmlar yalnızca Themia çalışırken çalar. Bilgisayar uyku modundayken zamanı gelen bir alarm, beş dakika içindeyse bilgisayar uyandığında çalar.",
   "drives.removable.label": "Çıkarılabilir sürücüler",
   "drives.removable.desc": "USB bellekler, kartlar ve harici diskler, Çıkar ile",
-  "drives.drive.label": "Sürücü",
-  "drives.drive.desc": "Bir sürücünün alanı ve dosya sistemi, eşlenmiş sürücüler de",
   "drives.label.cd": "CD Sürücüsü",
   "drives.label.network": "Ağ Sürücüsü",
   "drives.label.ram": "RAM Diski",
@@ -43,12 +41,5 @@
   "drives.disconnected": "Bağlantı kesildi",
   "drives.eject": "Çıkar",
   "drives.ejectNamed": "{name} öğesini çıkar",
-  "drives.nothing": "Hiçbir şey takılı değil",
-  "drives.used": "{percent} kullanılıyor",
-  "drives.fact.used": "Kullanılan",
-  "drives.fact.free": "Boş",
-  "drives.fact.capacity": "Kapasite",
-  "drives.fact.fileSystem": "Dosya sistemi",
-  "drives.settings.drive.label": "Sürücü",
-  "drives.settings.drive.desc": "Bu widget'ın gösterdiği sürücü: bir disk, bellek veya eşlenmiş ağ sürücüsü"
+  "drives.nothing": "Hiçbir şey takılı değil"
 }

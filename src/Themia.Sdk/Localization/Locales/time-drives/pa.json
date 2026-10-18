@@ -29,8 +29,6 @@
   "alarm.settings.whileRunning": "ਅਲਾਰਮ ਸਿਰਫ਼ ਉਦੋਂ ਵੱਜਦੇ ਹਨ ਜਦੋਂ Themia ਚੱਲ ਰਿਹਾ ਹੋਵੇ। ਜੇ PC ਦੇ ਸਲੀਪ ਦੌਰਾਨ ਕਿਸੇ ਅਲਾਰਮ ਦਾ ਸਮਾਂ ਹੋ ਜਾਵੇ, ਤਾਂ ਉਹ ਜਾਗਣ ਉੱਤੇ ਵੱਜਦਾ ਹੈ, ਜੇ ਇਹ ਪੰਜ ਮਿੰਟਾਂ ਦੇ ਅੰਦਰ ਹੋਵੇ।",
   "drives.removable.label": "ਹਟਾਉਣਯੋਗ ਡਰਾਈਵਾਂ",
   "drives.removable.desc": "USB ਸਟਿੱਕਾਂ, ਕਾਰਡ ਅਤੇ ਬਾਹਰੀ ਡਿਸਕਾਂ, ਬਾਹਰ ਕੱਢੋ ਬਟਨ ਨਾਲ",
-  "drives.drive.label": "ਡਰਾਈਵ",
-  "drives.drive.desc": "ਇੱਕ ਡਰਾਈਵ ਦੀ ਥਾਂ ਅਤੇ ਫ਼ਾਈਲ ਸਿਸਟਮ, ਮੈਪ ਕੀਤੀਆਂ ਡਰਾਈਵਾਂ ਵੀ",
   "drives.label.cd": "CD ਡਰਾਈਵ",
   "drives.label.network": "ਨੈੱਟਵਰਕ ਡਰਾਈਵ",
   "drives.label.ram": "RAM ਡਿਸਕ",
@@ -43,12 +41,5 @@
   "drives.disconnected": "ਡਿਸਕਨੈਕਟ ਹੈ",
   "drives.eject": "ਬਾਹਰ ਕੱਢੋ",
   "drives.ejectNamed": "{name} ਬਾਹਰ ਕੱਢੋ",
-  "drives.nothing": "ਕੁਝ ਵੀ ਲੱਗਿਆ ਨਹੀਂ",
-  "drives.used": "{percent} ਵਰਤੀ ਗਈ",
-  "drives.fact.used": "ਵਰਤੀ ਗਈ",
-  "drives.fact.free": "ਖਾਲੀ",
-  "drives.fact.capacity": "ਸਮਰੱਥਾ",
-  "drives.fact.fileSystem": "ਫ਼ਾਈਲ ਸਿਸਟਮ",
-  "drives.settings.drive.label": "ਡਰਾਈਵ",
-  "drives.settings.drive.desc": "ਉਹ ਡਰਾਈਵ ਜੋ ਇਹ ਵਿਜੇਟ ਦਿਖਾਉਂਦਾ ਹੈ: ਇੱਕ ਡਿਸਕ, ਸਟਿੱਕ ਜਾਂ ਮੈਪ ਕੀਤੀ ਨੈੱਟਵਰਕ ਡਰਾਈਵ"
+  "drives.nothing": "ਕੁਝ ਵੀ ਲੱਗਿਆ ਨਹੀਂ"
 }

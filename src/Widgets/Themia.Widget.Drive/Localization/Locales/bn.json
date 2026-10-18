@@ -1,0 +1,12 @@
+{
+  "drives.drive.desc": "একটি ড্রাইভের জায়গা ও ফাইল সিস্টেম, ম্যাপ করা ড্রাইভও",
+  "drives.drive.label": "ড্রাইভ",
+  "drives.fact.capacity": "ধারণক্ষমতা",
+  "drives.fact.fileSystem": "ফাইল সিস্টেম",
+  "drives.fact.free": "খালি",
+  "drives.fact.used": "ব্যবহৃত",
+  "drives.settings.drive.desc": "এই উইজেট যে ড্রাইভ দেখায়: একটি ডিস্ক, স্টিক বা ম্যাপ করা নেটওয়ার্ক ড্রাইভ",
+  "drives.settings.drive.label": "ড্রাইভ",
+  "drives.used": "{percent} ব্যবহৃত",
+  "styles.io.bar": "বার"
+}

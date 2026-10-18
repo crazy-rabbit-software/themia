@@ -29,8 +29,6 @@
   "alarm.settings.whileRunning": "Alarm hanya berbunyi saat Themia berjalan. Alarm yang jatuh tempo saat PC dalam mode tidur akan berbunyi saat PC aktif kembali, jika itu dalam lima menit.",
   "drives.removable.label": "Drive yang dapat dilepas",
   "drives.removable.desc": "Stik USB, kartu, dan disk eksternal, dengan Keluarkan",
-  "drives.drive.label": "Drive",
-  "drives.drive.desc": "Ruang dan sistem file satu drive, termasuk drive yang dipetakan",
   "drives.label.cd": "Drive CD",
   "drives.label.network": "Drive Jaringan",
   "drives.label.ram": "Disk RAM",
@@ -43,12 +41,5 @@
   "drives.disconnected": "Terputus",
   "drives.eject": "Keluarkan",
   "drives.ejectNamed": "Keluarkan {name}",
-  "drives.nothing": "Tidak ada yang tercolok",
-  "drives.used": "{percent} terpakai",
-  "drives.fact.used": "Terpakai",
-  "drives.fact.free": "Kosong",
-  "drives.fact.capacity": "Kapasitas",
-  "drives.fact.fileSystem": "Sistem file",
-  "drives.settings.drive.label": "Drive",
-  "drives.settings.drive.desc": "Drive yang ditampilkan widget ini: disk, stik, atau drive jaringan yang dipetakan"
+  "drives.nothing": "Tidak ada yang tercolok"
 }

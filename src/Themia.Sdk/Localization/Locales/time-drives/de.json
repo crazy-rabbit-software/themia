@@ -29,8 +29,6 @@
   "alarm.settings.whileRunning": "Wecker klingeln nur, während Themia läuft. Wird einer fällig, während sich der PC im Energiesparmodus befindet, klingelt er beim Aufwachen, sofern das innerhalb von fünf Minuten geschieht.",
   "drives.removable.label": "Wechseldatenträger",
   "drives.removable.desc": "USB-Sticks, Karten und externe Festplatten, mit Auswerfen",
-  "drives.drive.label": "Laufwerk",
-  "drives.drive.desc": "Speicherplatz und Dateisystem eines Laufwerks, auch Netzlaufwerke",
   "drives.label.cd": "CD-Laufwerk",
   "drives.label.network": "Netzlaufwerk",
   "drives.label.ram": "RAM-Disk",
@@ -43,12 +41,5 @@
   "drives.disconnected": "Getrennt",
   "drives.eject": "Auswerfen",
   "drives.ejectNamed": "{name} auswerfen",
-  "drives.nothing": "Nichts angeschlossen",
-  "drives.used": "{percent} belegt",
-  "drives.fact.used": "Belegt",
-  "drives.fact.free": "Frei",
-  "drives.fact.capacity": "Kapazität",
-  "drives.fact.fileSystem": "Dateisystem",
-  "drives.settings.drive.label": "Laufwerk",
-  "drives.settings.drive.desc": "Das Laufwerk, das dieses Widget zeigt: eine Festplatte, ein Stick oder ein Netzlaufwerk"
+  "drives.nothing": "Nichts angeschlossen"
 }

@@ -29,8 +29,6 @@
   "alarm.settings.whileRunning": "仅当 Themia 正在运行时闹钟才会响铃。电脑睡眠期间到时的闹钟会在唤醒时响铃，前提是在五分钟内。",
   "drives.removable.label": "可移动驱动器",
   "drives.removable.desc": "U 盘、存储卡和外部磁盘，可弹出",
-  "drives.drive.label": "驱动器",
-  "drives.drive.desc": "单个驱动器的空间和文件系统，也支持映射的驱动器",
   "drives.label.cd": "CD 驱动器",
   "drives.label.network": "网络驱动器",
   "drives.label.ram": "RAM 磁盘",
@@ -43,12 +41,5 @@
   "drives.disconnected": "已断开连接",
   "drives.eject": "弹出",
   "drives.ejectNamed": "弹出 {name}",
-  "drives.nothing": "未插入任何设备",
-  "drives.used": "已用 {percent}",
-  "drives.fact.used": "已用",
-  "drives.fact.free": "可用",
-  "drives.fact.capacity": "容量",
-  "drives.fact.fileSystem": "文件系统",
-  "drives.settings.drive.label": "驱动器",
-  "drives.settings.drive.desc": "此小组件显示的驱动器：磁盘、U 盘或映射的网络驱动器"
+  "drives.nothing": "未插入任何设备"
 }

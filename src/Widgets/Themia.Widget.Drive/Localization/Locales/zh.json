@@ -1,0 +1,12 @@
+{
+  "drives.drive.desc": "单个驱动器的空间和文件系统，也支持映射的驱动器",
+  "drives.drive.label": "驱动器",
+  "drives.fact.capacity": "容量",
+  "drives.fact.fileSystem": "文件系统",
+  "drives.fact.free": "可用",
+  "drives.fact.used": "已用",
+  "drives.settings.drive.desc": "此小组件显示的驱动器：磁盘、U 盘或映射的网络驱动器",
+  "drives.settings.drive.label": "驱动器",
+  "drives.used": "已用 {percent}",
+  "styles.io.bar": "条形"
+}

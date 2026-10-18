@@ -29,8 +29,6 @@
   "alarm.settings.whileRunning": "알람은 Themia가 실행 중일 때만 울립니다. PC가 절전 모드일 때 시간이 된 알람은 PC가 깨어날 때 5분 이내라면 울립니다.",
   "drives.removable.label": "이동식 드라이브",
   "drives.removable.desc": "USB 메모리, 카드, 외장 디스크를 꺼내기와 함께",
-  "drives.drive.label": "드라이브",
-  "drives.drive.desc": "한 드라이브의 공간과 파일 시스템, 매핑된 드라이브도 포함",
   "drives.label.cd": "CD 드라이브",
   "drives.label.network": "네트워크 드라이브",
   "drives.label.ram": "RAM 디스크",
@@ -43,12 +41,5 @@
   "drives.disconnected": "연결 끊김",
   "drives.eject": "꺼내기",
   "drives.ejectNamed": "{name} 꺼내기",
-  "drives.nothing": "연결된 장치 없음",
-  "drives.used": "{percent} 사용",
-  "drives.fact.used": "사용",
-  "drives.fact.free": "사용 가능",
-  "drives.fact.capacity": "용량",
-  "drives.fact.fileSystem": "파일 시스템",
-  "drives.settings.drive.label": "드라이브",
-  "drives.settings.drive.desc": "이 위젯이 표시하는 드라이브: 디스크, USB 메모리 또는 매핑된 네트워크 드라이브"
+  "drives.nothing": "연결된 장치 없음"
 }

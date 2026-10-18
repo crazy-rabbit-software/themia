@@ -1,4 +1,4 @@
-﻿#if DEBUG
+#if DEBUG
 using Microsoft.UI;
 using Microsoft.UI.Dispatching;
 using Microsoft.UI.Xaml;
@@ -114,7 +114,7 @@ internal static class MenuRender
                 host.Set(editMode: false, selection: 1, canPaste: true);
                 await RenderAsync(root, bare.CardMenu(), System.IO.Path.Combine(outDir, "card-desktop-no-settings.png")).ConfigureAwait(true);
 
-                var drive = WidgetInstance.Create(DriveConfig.Descriptor.Id, new FracRect(0.3, 0.6, 0.2, 0.2));
+                var drive = WidgetInstance.Create(new WidgetId("drive"), new FracRect(0.3, 0.6, 0.2, 0.2));
                 view.Widgets.Add(drive);
                 var withActions = new WidgetCard(host, drive) { Width = 200, Height = 120 };
                 root.Children.Add(new Canvas { Children = { withActions } });

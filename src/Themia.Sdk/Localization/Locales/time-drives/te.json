@@ -29,8 +29,6 @@
   "alarm.settings.whileRunning": "Themia నడుస్తున్నప్పుడు మాత్రమే అలారాలు మోగుతాయి. PC నిద్రలో ఉన్నప్పుడు సమయం వచ్చిన అలారం, ఐదు నిమిషాల్లోపు అయితే, అది మేల్కొన్నప్పుడు మోగుతుంది.",
   "drives.removable.label": "తొలగించగల డ్రైవ్‌లు",
   "drives.removable.desc": "USB స్టిక్‌లు, కార్డ్‌లు మరియు బాహ్య డిస్క్‌లు, ఎజెక్ట్‌తో",
-  "drives.drive.label": "డ్రైవ్",
-  "drives.drive.desc": "ఒక డ్రైవ్ స్థలం మరియు ఫైల్ సిస్టమ్, మ్యాప్ చేసిన డ్రైవ్‌లు కూడా",
   "drives.label.cd": "CD డ్రైవ్",
   "drives.label.network": "నెట్‌వర్క్ డ్రైవ్",
   "drives.label.ram": "RAM డిస్క్",
@@ -43,12 +41,5 @@
   "drives.disconnected": "డిస్‌కనెక్ట్ అయింది",
   "drives.eject": "ఎజెక్ట్",
   "drives.ejectNamed": "{name}ను ఎజెక్ట్ చేయి",
-  "drives.nothing": "ఏదీ ప్లగ్ ఇన్ చేయబడలేదు",
-  "drives.used": "{percent} ఉపయోగించబడింది",
-  "drives.fact.used": "ఉపయోగించినది",
-  "drives.fact.free": "ఖాళీ",
-  "drives.fact.capacity": "సామర్థ్యం",
-  "drives.fact.fileSystem": "ఫైల్ సిస్టమ్",
-  "drives.settings.drive.label": "డ్రైవ్",
-  "drives.settings.drive.desc": "ఈ విడ్జెట్ చూపించే డ్రైవ్: ఒక డిస్క్, ఒక స్టిక్ లేదా మ్యాప్ చేసిన నెట్‌వర్క్ డ్రైవ్"
+  "drives.nothing": "ఏదీ ప్లగ్ ఇన్ చేయబడలేదు"
 }

@@ -1,0 +1,12 @@
+{
+  "drives.drive.desc": "એક ડ્રાઇવની જગ્યા અને ફાઇલ સિસ્ટમ, મૅપ કરેલી ડ્રાઇવ પણ",
+  "drives.drive.label": "ડ્રાઇવ",
+  "drives.fact.capacity": "ક્ષમતા",
+  "drives.fact.fileSystem": "ફાઇલ સિસ્ટમ",
+  "drives.fact.free": "ખાલી",
+  "drives.fact.used": "વપરાયેલ",
+  "drives.settings.drive.desc": "આ વિજેટ જે ડ્રાઇવ બતાવે છે: ડિસ્ક, સ્ટિક અથવા મૅપ કરેલી નેટવર્ક ડ્રાઇવ",
+  "drives.settings.drive.label": "ડ્રાઇવ",
+  "drives.used": "{percent} વપરાયેલ",
+  "styles.io.bar": "બાર"
+}

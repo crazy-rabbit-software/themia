@@ -29,8 +29,6 @@
   "alarm.settings.whileRunning": "अलार्म केवल तभी बजते हैं जब Themia चल रहा हो। PC के स्लीप में रहते समय जिस अलार्म का समय हो जाए, वह PC के जागने पर बजता है, यदि वह पाँच मिनट के भीतर हो।",
   "drives.removable.label": "रिमूवेबल ड्राइव",
   "drives.removable.desc": "USB स्टिक, कार्ड और बाहरी डिस्क, बाहर निकालें के साथ",
-  "drives.drive.label": "ड्राइव",
-  "drives.drive.desc": "एक ड्राइव का स्थान और फ़ाइल सिस्टम, मैप की गई ड्राइव भी",
   "drives.label.cd": "CD ड्राइव",
   "drives.label.network": "नेटवर्क ड्राइव",
   "drives.label.ram": "RAM डिस्क",
@@ -43,12 +41,5 @@
   "drives.disconnected": "डिस्कनेक्ट है",
   "drives.eject": "बाहर निकालें",
   "drives.ejectNamed": "{name} बाहर निकालें",
-  "drives.nothing": "कुछ भी प्लग इन नहीं",
-  "drives.used": "{percent} उपयोग में",
-  "drives.fact.used": "उपयोग में",
-  "drives.fact.free": "खाली",
-  "drives.fact.capacity": "क्षमता",
-  "drives.fact.fileSystem": "फ़ाइल सिस्टम",
-  "drives.settings.drive.label": "ड्राइव",
-  "drives.settings.drive.desc": "यह विजेट जो ड्राइव दिखाता है: डिस्क, स्टिक या मैप की गई नेटवर्क ड्राइव"
+  "drives.nothing": "कुछ भी प्लग इन नहीं"
 }

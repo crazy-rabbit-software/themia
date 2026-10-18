@@ -1,0 +1,12 @@
+{
+  "drives.drive.desc": "فضا و سیستم فایل یک درایو، شامل درایوهای نگاشت‌شده",
+  "drives.drive.label": "درایو",
+  "drives.fact.capacity": "ظرفیت",
+  "drives.fact.fileSystem": "سیستم فایل",
+  "drives.fact.free": "آزاد",
+  "drives.fact.used": "استفاده‌شده",
+  "drives.settings.drive.desc": "درایوی که این ویجت نشان می‌دهد: یک دیسک، یک فلش یا یک درایو شبکه نگاشت‌شده",
+  "drives.settings.drive.label": "درایو",
+  "drives.used": "{percent} استفاده‌شده",
+  "styles.io.bar": "نوار"
+}

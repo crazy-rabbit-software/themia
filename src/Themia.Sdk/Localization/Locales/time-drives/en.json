@@ -29,8 +29,6 @@
   "alarm.settings.whileRunning": "Alarms ring only while Themia is running. One that comes due while the PC sleeps rings when it wakes, if that is within five minutes.",
   "drives.removable.label": "Removable drives",
   "drives.removable.desc": "USB sticks, cards and external disks, with Eject",
-  "drives.drive.label": "Drive",
-  "drives.drive.desc": "One drive's space and file system, mapped drives too",
   "drives.label.cd": "CD Drive",
   "drives.label.network": "Network Drive",
   "drives.label.ram": "RAM Disk",
@@ -43,12 +41,5 @@
   "drives.disconnected": "Disconnected",
   "drives.eject": "Eject",
   "drives.ejectNamed": "Eject {name}",
-  "drives.nothing": "Nothing plugged in",
-  "drives.used": "{percent} used",
-  "drives.fact.used": "Used",
-  "drives.fact.free": "Free",
-  "drives.fact.capacity": "Capacity",
-  "drives.fact.fileSystem": "File system",
-  "drives.settings.drive.label": "Drive",
-  "drives.settings.drive.desc": "The drive this widget shows: a disk, a stick or a mapped network drive"
+  "drives.nothing": "Nothing plugged in"
 }

@@ -29,8 +29,6 @@
   "alarm.settings.whileRunning": "การปลุกจะดังเฉพาะเมื่อ Themia กำลังทำงานอยู่ การปลุกที่ถึงเวลาขณะพีซีอยู่ในโหมดสลีปจะดังเมื่อพีซีกลับมาทำงาน หากอยู่ภายในห้านาที",
   "drives.removable.label": "ไดรฟ์แบบถอดได้",
   "drives.removable.desc": "แฟลชไดรฟ์ USB การ์ด และดิสก์ภายนอก พร้อมปุ่มนำออก",
-  "drives.drive.label": "ไดรฟ์",
-  "drives.drive.desc": "พื้นที่และระบบไฟล์ของไดรฟ์หนึ่ง รวมถึงไดรฟ์ที่แมปไว้",
   "drives.label.cd": "ไดรฟ์ CD",
   "drives.label.network": "ไดรฟ์เครือข่าย",
   "drives.label.ram": "RAM ดิสก์",
@@ -43,12 +41,5 @@
   "drives.disconnected": "ตัดการเชื่อมต่อแล้ว",
   "drives.eject": "นำออก",
   "drives.ejectNamed": "นำ {name} ออก",
-  "drives.nothing": "ไม่มีอุปกรณ์เสียบอยู่",
-  "drives.used": "ใช้ไป {percent}",
-  "drives.fact.used": "ใช้ไป",
-  "drives.fact.free": "ว่าง",
-  "drives.fact.capacity": "ความจุ",
-  "drives.fact.fileSystem": "ระบบไฟล์",
-  "drives.settings.drive.label": "ไดรฟ์",
-  "drives.settings.drive.desc": "ไดรฟ์ที่วิดเจ็ตนี้แสดง: ดิสก์ แฟลชไดรฟ์ หรือไดรฟ์เครือข่ายที่แมปไว้"
+  "drives.nothing": "ไม่มีอุปกรณ์เสียบอยู่"
 }

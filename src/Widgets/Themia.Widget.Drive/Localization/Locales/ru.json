@@ -1,0 +1,12 @@
+{
+  "drives.drive.desc": "Место и файловая система одного диска, включая сетевые",
+  "drives.drive.label": "Диск",
+  "drives.fact.capacity": "Емкость",
+  "drives.fact.fileSystem": "Файловая система",
+  "drives.fact.free": "Свободно",
+  "drives.fact.used": "Занято",
+  "drives.settings.drive.desc": "Диск, который показывает этот виджет: диск, флешка или подключенный сетевой диск",
+  "drives.settings.drive.label": "Диск",
+  "drives.used": "Занято {percent}",
+  "styles.io.bar": "Полоса"
+}

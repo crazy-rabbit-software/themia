@@ -2,13 +2,13 @@ using Microsoft.UI.Text;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Themia.App.Services;
-using Themia.App.Services.Drives;
 using Themia.App.Shell;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
 using Themia.Sdk.WinUI;
 using Themia.Sdk;
+using Themia.Widget.Drive;
 
 namespace Themia.App.Widgets;
 
@@ -17,7 +17,7 @@ namespace Themia.App.Widgets;
 /// names it, its picture and kind with the file system, the capacity bar and "419 GB free of 931 GB";
 /// on a large tile the figures each on their own. A mapped network drive Windows cannot reach is drawn
 /// as Explorer draws it (§75): the red cross on its picture, "Disconnected network drive", no bar.
-/// The drives come from the shared <see cref="DriveService"/>, never read here.
+/// The drives come from the host's one walk (<see cref="IDrives"/>), never read here.
 /// </summary>
 internal sealed partial class DriveView : Grid, IWidgetView, IWidgetSizeAware, IWidgetSurfaceAware, IWidgetContextActions
 {
@@ -196,7 +196,7 @@ internal sealed partial class DriveView : Grid, IWidgetView, IWidgetSizeAware, I
 
         // [S-4673] Narrow, the whole line does not fit: what is used says it in a word.
         _space.Text = narrow && known
-            ? Str.Drives_Used.Format(("percent", Formatting.Percent(locale, drive.UsedFraction!.Value)))
+            ? DriveStr.Drives_Used.Format(("percent", Formatting.Percent(locale, drive.UsedFraction!.Value)))
             : DriveRules.SpaceLine(locale, drive);
         if (narrow && known)
         {
@@ -209,14 +209,14 @@ internal sealed partial class DriveView : Grid, IWidgetView, IWidgetSizeAware, I
         _facts.Visibility = facts ? Visibility.Visible : Visibility.Collapsed;
         if (facts)
         {
-            Fact(0, Str.Drives_Fact_Used, Formatting.Bytes(locale, drive.Used));
-            Fact(1, Str.Drives_Fact_Free, Formatting.Bytes(locale, drive.Free));
-            Fact(2, Str.Drives_Fact_Capacity, Formatting.Bytes(locale, drive.Total));
-            Fact(3, Str.Drives_Fact_FileSystem, drive.FileSystem.Length > 0 ? drive.FileSystem : "--");
+            Fact(0, DriveStr.Drives_Fact_Used, Formatting.Bytes(locale, drive.Used));
+            Fact(1, DriveStr.Drives_Fact_Free, Formatting.Bytes(locale, drive.Free));
+            Fact(2, DriveStr.Drives_Fact_Capacity, Formatting.Bytes(locale, drive.Total));
+            Fact(3, DriveStr.Drives_Fact_FileSystem, drive.FileSystem.Length > 0 ? drive.FileSystem : "--");
         }
     }
 
-    private void Fact(int index, Str label, string value)
+    private void Fact(int index, DriveStr label, string value)
     {
         _factCells[index].Label.Text = label.Text();
         _factCells[index].Value.Text = value;

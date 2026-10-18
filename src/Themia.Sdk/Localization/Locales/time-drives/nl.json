@@ -29,8 +29,6 @@
   "alarm.settings.whileRunning": "Alarmen gaan alleen af terwijl Themia actief is. Een alarm dat afloopt terwijl de pc in slaapstand staat, gaat af wanneer de pc ontwaakt, als dat binnen vijf minuten is.",
   "drives.removable.label": "Verwisselbare stations",
   "drives.removable.desc": "USB-sticks, kaarten en externe schijven, met Uitwerpen",
-  "drives.drive.label": "Station",
-  "drives.drive.desc": "Ruimte en bestandssysteem van één station, ook toegewezen stations",
   "drives.label.cd": "Cd-station",
   "drives.label.network": "Netwerkstation",
   "drives.label.ram": "RAM-schijf",
@@ -43,12 +41,5 @@
   "drives.disconnected": "Niet verbonden",
   "drives.eject": "Uitwerpen",
   "drives.ejectNamed": "{name} uitwerpen",
-  "drives.nothing": "Niets aangesloten",
-  "drives.used": "{percent} gebruikt",
-  "drives.fact.used": "Gebruikt",
-  "drives.fact.free": "Vrij",
-  "drives.fact.capacity": "Capaciteit",
-  "drives.fact.fileSystem": "Bestandssysteem",
-  "drives.settings.drive.label": "Station",
-  "drives.settings.drive.desc": "Het station dat deze widget toont: een schijf, een stick of een toegewezen netwerkstation"
+  "drives.nothing": "Niets aangesloten"
 }

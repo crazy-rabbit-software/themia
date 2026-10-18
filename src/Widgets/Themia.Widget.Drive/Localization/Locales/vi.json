@@ -1,0 +1,12 @@
+{
+  "drives.drive.desc": "Dung lượng và hệ thống tệp của một ổ đĩa, kể cả ổ đã ánh xạ",
+  "drives.drive.label": "Ổ đĩa",
+  "drives.fact.capacity": "Dung lượng",
+  "drives.fact.fileSystem": "Hệ thống tệp",
+  "drives.fact.free": "Còn trống",
+  "drives.fact.used": "Đã dùng",
+  "drives.settings.drive.desc": "Ổ đĩa tiện ích này hiển thị: một ổ đĩa, USB hoặc ổ đĩa mạng đã ánh xạ",
+  "drives.settings.drive.label": "Ổ đĩa",
+  "drives.used": "Đã dùng {percent}",
+  "styles.io.bar": "Thanh"
+}

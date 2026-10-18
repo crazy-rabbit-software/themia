@@ -29,8 +29,6 @@
   "alarm.settings.whileRunning": "الارم صرف اسی وقت بجتے ہیں جب Themia چل رہا ہو۔ جس الارم کا وقت PC کے سلیپ میں ہونے کے دوران آئے، وہ PC کے جاگنے پر بجتا ہے، اگر یہ پانچ منٹ کے اندر ہو۔",
   "drives.removable.label": "قابل ہٹاؤ ڈرائیوز",
   "drives.removable.desc": "USB اسٹکس، کارڈز اور بیرونی ڈسکیں، باہر نکالیں کے ساتھ",
-  "drives.drive.label": "ڈرائیو",
-  "drives.drive.desc": "ایک ڈرائیو کی جگہ اور فائل سسٹم، میپ شدہ ڈرائیوز بھی",
   "drives.label.cd": "CD ڈرائیو",
   "drives.label.network": "نیٹ ورک ڈرائیو",
   "drives.label.ram": "RAM ڈسک",
@@ -43,12 +41,5 @@
   "drives.disconnected": "منقطع",
   "drives.eject": "باہر نکالیں",
   "drives.ejectNamed": "{name} باہر نکالیں",
-  "drives.nothing": "کچھ بھی پلگ ان نہیں",
-  "drives.used": "{percent} استعمال شدہ",
-  "drives.fact.used": "استعمال شدہ",
-  "drives.fact.free": "خالی",
-  "drives.fact.capacity": "گنجائش",
-  "drives.fact.fileSystem": "فائل سسٹم",
-  "drives.settings.drive.label": "ڈرائیو",
-  "drives.settings.drive.desc": "وہ ڈرائیو جو یہ ویجیٹ دکھاتا ہے: ڈسک، اسٹک یا میپ شدہ نیٹ ورک ڈرائیو"
+  "drives.nothing": "کچھ بھی پلگ ان نہیں"
 }

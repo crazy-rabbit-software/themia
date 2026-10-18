@@ -1,0 +1,13 @@
+{
+  "$englishOnly": [],
+  "drives.drive.desc": "One drive's space and file system, mapped drives too",
+  "drives.drive.label": "Drive",
+  "drives.fact.capacity": "Capacity",
+  "drives.fact.fileSystem": "File system",
+  "drives.fact.free": "Free",
+  "drives.fact.used": "Used",
+  "drives.settings.drive.desc": "The drive this widget shows: a disk, a stick or a mapped network drive",
+  "drives.settings.drive.label": "Drive",
+  "drives.used": "{percent} used",
+  "styles.io.bar": "Bar"
+}

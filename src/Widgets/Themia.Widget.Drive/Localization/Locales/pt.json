@@ -1,0 +1,12 @@
+{
+  "drives.drive.desc": "Espaço e sistema de arquivos de uma unidade, inclusive mapeadas",
+  "drives.drive.label": "Unidade",
+  "drives.fact.capacity": "Capacidade",
+  "drives.fact.fileSystem": "Sistema de arquivos",
+  "drives.fact.free": "Livre",
+  "drives.fact.used": "Usado",
+  "drives.settings.drive.desc": "A unidade exibida por este widget: um disco, um pen drive ou uma unidade de rede mapeada",
+  "drives.settings.drive.label": "Unidade",
+  "drives.used": "{percent} usado",
+  "styles.io.bar": "Barra"
+}

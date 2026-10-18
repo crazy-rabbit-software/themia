@@ -7391,23 +7391,7 @@ Moved with the widget into its module: `src/Widgets/Themia.Widget.Stopwatch/SPEC
 - **[S-4670]** Drive (add menu: Devices & power, [S-3511]): one drive (`drive`, a root; empty for the system drive; anything
   else is repaired to the system drive at load). A drive that is not there keeps its card, "Not
   connected".
-- **[S-4671]** The body: the picture and the drive's name ([S-4651]; a disconnected share says
-  "Disconnected network drive" instead), the used share, the bar and the space line; the kind and
-  file system ([S-4652]) are in the tooltip. The header, when shown, carries the name too.
-- **[S-4675]** A new Drive card has no header (`WidgetInstance.DefaultHeader`): the body names the drive.
-- **[S-4672]** The ladder: the bar and the space line always; the picture row where it fits (24, 32, 48
-  DIP by tier); Used, Free, Capacity and File system as four figures on a tile Regular both ways with
-  the height for them. A mapped share Windows cannot reach is drawn as Explorer draws it (Karpo §75):
-  the cross, "Disconnected network drive", no bar.
-- **[S-4673]** Narrow, the space line is "57% used".
-- **[S-6274]** Styles ([S-6000], `DriveConfig.Style`): **Bar** (the card above) and **Ring**: the used
-  share as a ring in the bar's colours (the shared `RingPart`, [S-6060]) with the share inside it
-  ("--" dimmed with no figures), the name (or "Disconnected network drive") and the space line beside
-  the ring on a wide strip, under it otherwise, as far as they fit; the ring takes the rest
-  (`RingFace`, [S-6266]). The settings, the menu and the drive walk are the same for both.
-- **[S-4674]** Settings: the drive — the system drive (by name), every drive the walk lists (shares
-  included, never waited for), and a chosen drive that is gone as "not connected". The card menu has Open
-  in Explorer, Eject for a removable drive, and Refresh.
+- [S-4671], [S-4675], [S-4672], [S-4673], [S-6274], [S-4674]: moved with the Drive widget into its module's `SPEC.md` (`src/Widgets/Themia.Widget.Drive/`).
 
 Needs a live pass: an alarm ringing (the sound, the notice and its buttons, packaged and unpackaged;
 the package declares the notification activator), across sleep and a time-zone change; a USB stick

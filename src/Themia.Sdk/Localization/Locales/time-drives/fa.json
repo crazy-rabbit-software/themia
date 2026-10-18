@@ -29,8 +29,6 @@
   "alarm.settings.whileRunning": "زنگ‌های هشدار فقط وقتی Themia در حال اجراست زنگ می‌زنند. زنگی که هنگام خواب رایانه سررسید شود، پس از بیدار شدن زنگ می‌زند، اگر کمتر از پنج دقیقه گذشته باشد.",
   "drives.removable.label": "درایوهای جداشدنی",
   "drives.removable.desc": "فلش‌های USB، کارت‌ها و دیسک‌های خارجی، با بیرون دادن",
-  "drives.drive.label": "درایو",
-  "drives.drive.desc": "فضا و سیستم فایل یک درایو، شامل درایوهای نگاشت‌شده",
   "drives.label.cd": "درایو CD",
   "drives.label.network": "درایو شبکه",
   "drives.label.ram": "دیسک RAM",
@@ -43,12 +41,5 @@
   "drives.disconnected": "قطع‌شده",
   "drives.eject": "بیرون دادن",
   "drives.ejectNamed": "بیرون دادن {name}",
-  "drives.nothing": "چیزی وصل نیست",
-  "drives.used": "{percent} استفاده‌شده",
-  "drives.fact.used": "استفاده‌شده",
-  "drives.fact.free": "آزاد",
-  "drives.fact.capacity": "ظرفیت",
-  "drives.fact.fileSystem": "سیستم فایل",
-  "drives.settings.drive.label": "درایو",
-  "drives.settings.drive.desc": "درایوی که این ویجت نشان می‌دهد: یک دیسک، یک فلش یا یک درایو شبکه نگاشت‌شده"
+  "drives.nothing": "چیزی وصل نیست"
 }

@@ -29,8 +29,6 @@
   "alarm.settings.whileRunning": "Alarmy dzwonią tylko, gdy Themia jest uruchomiona. Alarm, którego czas nadejdzie podczas uśpienia komputera, zadzwoni po wybudzeniu, jeśli nastąpi to w ciągu pięciu minut.",
   "drives.removable.label": "Dyski wymienne",
   "drives.removable.desc": "Pamięci USB, karty i dyski zewnętrzne, z opcją Wysuń",
-  "drives.drive.label": "Dysk",
-  "drives.drive.desc": "Miejsce i system plików jednego dysku, także zamapowanego",
   "drives.label.cd": "Stacja dysków CD",
   "drives.label.network": "Dysk sieciowy",
   "drives.label.ram": "Dysk RAM",
@@ -43,12 +41,5 @@
   "drives.disconnected": "Odłączono",
   "drives.eject": "Wysuń",
   "drives.ejectNamed": "Wysuń: {name}",
-  "drives.nothing": "Nic nie podłączono",
-  "drives.used": "Użyto {percent}",
-  "drives.fact.used": "Użyte",
-  "drives.fact.free": "Wolne",
-  "drives.fact.capacity": "Pojemność",
-  "drives.fact.fileSystem": "System plików",
-  "drives.settings.drive.label": "Dysk",
-  "drives.settings.drive.desc": "Dysk pokazywany w tym widżecie: dysk, pamięć USB lub zamapowany dysk sieciowy"
+  "drives.nothing": "Nic nie podłączono"
 }

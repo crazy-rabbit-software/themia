@@ -29,8 +29,6 @@
   "alarm.settings.whileRunning": "アラームは Themia の実行中にのみ鳴ります。PC のスリープ中に時刻になったアラームは、5 分以内に復帰すればそのときに鳴ります。",
   "drives.removable.label": "リムーバブル ドライブ",
   "drives.removable.desc": "USB メモリ、カード、外付けディスクを取り出し付きで",
-  "drives.drive.label": "ドライブ",
-  "drives.drive.desc": "1 つのドライブの容量とファイル システム (ネットワーク ドライブも)",
   "drives.label.cd": "CD ドライブ",
   "drives.label.network": "ネットワーク ドライブ",
   "drives.label.ram": "RAM ディスク",
@@ -43,12 +41,5 @@
   "drives.disconnected": "切断",
   "drives.eject": "取り出し",
   "drives.ejectNamed": "{name} の取り出し",
-  "drives.nothing": "何も接続されていません",
-  "drives.used": "{percent} 使用中",
-  "drives.fact.used": "使用中",
-  "drives.fact.free": "空き",
-  "drives.fact.capacity": "容量",
-  "drives.fact.fileSystem": "ファイル システム",
-  "drives.settings.drive.label": "ドライブ",
-  "drives.settings.drive.desc": "このウィジェットに表示するドライブ: ディスク、USB メモリ、ネットワーク ドライブ"
+  "drives.nothing": "何も接続されていません"
 }

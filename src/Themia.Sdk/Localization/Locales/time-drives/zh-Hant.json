@@ -29,8 +29,6 @@
   "alarm.settings.whileRunning": "只有在 Themia 執行時鬧鐘才會響鈴。電腦睡眠期間到時的鬧鐘會在喚醒時響鈴，前提是在五分鐘內。",
   "drives.removable.label": "卸除式磁碟機",
   "drives.removable.desc": "USB 隨身碟、記憶卡和外接磁碟，可退出",
-  "drives.drive.label": "磁碟機",
-  "drives.drive.desc": "單一磁碟機的空間與檔案系統，也包括對應的磁碟機",
   "drives.label.cd": "CD 光碟機",
   "drives.label.network": "網路磁碟機",
   "drives.label.ram": "RAM 磁碟",
@@ -43,12 +41,5 @@
   "drives.disconnected": "已中斷連線",
   "drives.eject": "退出",
   "drives.ejectNamed": "退出 {name}",
-  "drives.nothing": "未插入任何裝置",
-  "drives.used": "已使用 {percent}",
-  "drives.fact.used": "已使用",
-  "drives.fact.free": "可用",
-  "drives.fact.capacity": "容量",
-  "drives.fact.fileSystem": "檔案系統",
-  "drives.settings.drive.label": "磁碟機",
-  "drives.settings.drive.desc": "此小工具顯示的磁碟機：磁碟、隨身碟或對應的網路磁碟機"
+  "drives.nothing": "未插入任何裝置"
 }

@@ -29,8 +29,6 @@
   "alarm.settings.whileRunning": "અલાર્મ ફક્ત Themia ચાલુ હોય ત્યારે જ વાગે છે. PC સ્લીપમાં હોય ત્યારે બાકી થયેલો અલાર્મ તે જાગે ત્યારે વાગે છે, જો તે પાંચ મિનિટની અંદર હોય.",
   "drives.removable.label": "રિમૂવેબલ ડ્રાઇવ",
   "drives.removable.desc": "USB સ્ટિક, કાર્ડ અને બાહ્ય ડિસ્ક, બહાર કાઢો બટન સાથે",
-  "drives.drive.label": "ડ્રાઇવ",
-  "drives.drive.desc": "એક ડ્રાઇવની જગ્યા અને ફાઇલ સિસ્ટમ, મૅપ કરેલી ડ્રાઇવ પણ",
   "drives.label.cd": "CD ડ્રાઇવ",
   "drives.label.network": "નેટવર્ક ડ્રાઇવ",
   "drives.label.ram": "RAM ડિસ્ક",
@@ -43,12 +41,5 @@
   "drives.disconnected": "ડિસ્કનેક્ટ થયેલ",
   "drives.eject": "બહાર કાઢો",
   "drives.ejectNamed": "{name} બહાર કાઢો",
-  "drives.nothing": "કંઈ પ્લગ ઇન નથી",
-  "drives.used": "{percent} વપરાયેલ",
-  "drives.fact.used": "વપરાયેલ",
-  "drives.fact.free": "ખાલી",
-  "drives.fact.capacity": "ક્ષમતા",
-  "drives.fact.fileSystem": "ફાઇલ સિસ્ટમ",
-  "drives.settings.drive.label": "ડ્રાઇવ",
-  "drives.settings.drive.desc": "આ વિજેટ જે ડ્રાઇવ બતાવે છે: ડિસ્ક, સ્ટિક અથવા મૅપ કરેલી નેટવર્ક ડ્રાઇવ"
+  "drives.nothing": "કંઈ પ્લગ ઇન નથી"
 }

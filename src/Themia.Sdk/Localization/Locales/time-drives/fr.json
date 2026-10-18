@@ -29,8 +29,6 @@
   "alarm.settings.whileRunning": "Les alarmes ne sonnent que si Themia est en cours d’exécution. Une alarme qui arrive à échéance pendant que le PC est en veille sonne à son réveil, si c’est dans les cinq minutes.",
   "drives.removable.label": "Lecteurs amovibles",
   "drives.removable.desc": "Clés USB, cartes et disques externes, avec Éjecter",
-  "drives.drive.label": "Lecteur",
-  "drives.drive.desc": "Espace et système de fichiers d’un lecteur, lecteurs réseau compris",
   "drives.label.cd": "Lecteur CD",
   "drives.label.network": "Lecteur réseau",
   "drives.label.ram": "Disque RAM",
@@ -43,12 +41,5 @@
   "drives.disconnected": "Déconnecté",
   "drives.eject": "Éjecter",
   "drives.ejectNamed": "Éjecter {name}",
-  "drives.nothing": "Rien de branché",
-  "drives.used": "{percent} utilisé",
-  "drives.fact.used": "Utilisé",
-  "drives.fact.free": "Libre",
-  "drives.fact.capacity": "Capacité",
-  "drives.fact.fileSystem": "Système de fichiers",
-  "drives.settings.drive.label": "Lecteur",
-  "drives.settings.drive.desc": "Le lecteur affiché par ce widget : un disque, une clé ou un lecteur réseau"
+  "drives.nothing": "Rien de branché"
 }

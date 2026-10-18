@@ -29,8 +29,6 @@
   "alarm.settings.whileRunning": "Tumutunog lang ang mga alarm habang tumatakbo ang Themia. Ang alarm na sumapit habang naka-sleep ang PC ay tutunog pagkagising nito, kung nasa loob iyon ng limang minuto.",
   "drives.removable.label": "Mga natatanggal na drive",
   "drives.removable.desc": "Mga USB stick, card at external disk, may I-eject",
-  "drives.drive.label": "Drive",
-  "drives.drive.desc": "Espasyo at file system ng isang drive, pati mga mapped drive",
   "drives.label.cd": "CD Drive",
   "drives.label.network": "Network Drive",
   "drives.label.ram": "RAM Disk",
@@ -43,12 +41,5 @@
   "drives.disconnected": "Naka-disconnect",
   "drives.eject": "I-eject",
   "drives.ejectNamed": "I-eject ang {name}",
-  "drives.nothing": "Walang nakasaksak",
-  "drives.used": "{percent} ang nagamit",
-  "drives.fact.used": "Nagamit",
-  "drives.fact.free": "Libre",
-  "drives.fact.capacity": "Kapasidad",
-  "drives.fact.fileSystem": "File system",
-  "drives.settings.drive.label": "Drive",
-  "drives.settings.drive.desc": "Ang drive na ipinapakita ng widget na ito: isang disk, stick o mapped network drive"
+  "drives.nothing": "Walang nakasaksak"
 }

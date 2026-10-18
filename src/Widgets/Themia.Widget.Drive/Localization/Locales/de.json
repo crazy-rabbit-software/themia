@@ -1,0 +1,12 @@
+{
+  "drives.drive.desc": "Speicherplatz und Dateisystem eines Laufwerks, auch Netzlaufwerke",
+  "drives.drive.label": "Laufwerk",
+  "drives.fact.capacity": "Kapazität",
+  "drives.fact.fileSystem": "Dateisystem",
+  "drives.fact.free": "Frei",
+  "drives.fact.used": "Belegt",
+  "drives.settings.drive.desc": "Das Laufwerk, das dieses Widget zeigt: eine Festplatte, ein Stick oder ein Netzlaufwerk",
+  "drives.settings.drive.label": "Laufwerk",
+  "drives.used": "{percent} belegt",
+  "styles.io.bar": "Balken"
+}

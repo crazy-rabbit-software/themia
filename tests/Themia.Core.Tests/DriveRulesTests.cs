@@ -129,19 +129,4 @@ public sealed class DriveRulesTests
         Assert.Empty(DriveRules.LocalVolumes([]));
     }
 
-    [Fact]
-    public void S4670_the_drive_config_keeps_a_root_and_repairs_anything_else()
-    {
-        var config = (DriveConfig)ConfigJson.Read("drive", """{ "kind": "drive", "drive": "d:" }""");
-        Assert.Equal("D:\\", config.Drive);
-
-        var bad = new DriveConfig { Drive = "C:\\Users" };
-        Assert.NotEmpty(bad.Repair());
-        Assert.Equal(string.Empty, bad.Drive);
-    }
-
-    [Fact]
-    public void S4675_a_new_drive_card_starts_without_a_header()
-        => Assert.Equal(HeaderPlacement.Hidden, WidgetInstance.DefaultHeader(DriveConfig.Descriptor.Id));
-
 }

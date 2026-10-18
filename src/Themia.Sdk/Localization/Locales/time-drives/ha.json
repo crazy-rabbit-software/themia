@@ -29,8 +29,6 @@
   "alarm.settings.whileRunning": "Ƙararrawa na ƙara ne kawai yayin da Themia ke gudana. Wadda lokacinta ya yi yayin da kwamfuta ke barci za ta ƙara idan ta farka, idan hakan ya kasance cikin minti biyar.",
   "drives.removable.label": "Faifai masu cirewa",
   "drives.removable.desc": "Sandunan USB, katuna da faifai na waje, tare da Fitar",
-  "drives.drive.label": "Faifai",
-  "drives.drive.desc": "Sarari da tsarin fayil na faifai ɗaya, har da faifan cibiyar sadarwa",
   "drives.label.cd": "Faifan CD",
   "drives.label.network": "Faifan cibiyar sadarwa",
   "drives.label.ram": "Faifan RAM",
@@ -43,12 +41,5 @@
   "drives.disconnected": "An cire haɗi",
   "drives.eject": "Fitar",
   "drives.ejectNamed": "Fitar da {name}",
-  "drives.nothing": "Ba a haɗa komai ba",
-  "drives.used": "An yi amfani da {percent}",
-  "drives.fact.used": "An yi amfani",
-  "drives.fact.free": "Babu komai",
-  "drives.fact.capacity": "Iya ɗauka",
-  "drives.fact.fileSystem": "Tsarin fayil",
-  "drives.settings.drive.label": "Faifai",
-  "drives.settings.drive.desc": "Faifan da wannan widget ke nunawa: faifai, sanda ko faifan cibiyar sadarwa"
+  "drives.nothing": "Ba a haɗa komai ba"
 }

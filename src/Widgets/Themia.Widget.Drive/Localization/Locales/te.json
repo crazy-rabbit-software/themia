@@ -1,0 +1,12 @@
+{
+  "drives.drive.desc": "ఒక డ్రైవ్ స్థలం మరియు ఫైల్ సిస్టమ్, మ్యాప్ చేసిన డ్రైవ్‌లు కూడా",
+  "drives.drive.label": "డ్రైవ్",
+  "drives.fact.capacity": "సామర్థ్యం",
+  "drives.fact.fileSystem": "ఫైల్ సిస్టమ్",
+  "drives.fact.free": "ఖాళీ",
+  "drives.fact.used": "ఉపయోగించినది",
+  "drives.settings.drive.desc": "ఈ విడ్జెట్ చూపించే డ్రైవ్: ఒక డిస్క్, ఒక స్టిక్ లేదా మ్యాప్ చేసిన నెట్‌వర్క్ డ్రైవ్",
+  "drives.settings.drive.label": "డ్రైవ్",
+  "drives.used": "{percent} ఉపయోగించబడింది",
+  "styles.io.bar": "బార్"
+}
