@@ -2,13 +2,14 @@ using System.Text.Json.Serialization;
 using Themia.App.Shell;
 using Themia.Core.Localization;
 using Themia.Core.Storage;
+using Themia.Core.SystemData;
 using Themia.Core.Widgets;
 using Themia.Sdk;
 
 namespace Themia.Core.Model;
 
 /// <summary>[S-2405] The processor's figures beside its load: speed, cores, processes, uptime.</summary>
-public sealed class CpuDetailsConfig : DetailConfig
+public sealed class CpuDetailsConfig : DetailConfig, IReadsSystem
 {
 
     /// <summary>[S-6902] This widget's descriptor: what the host knows of it without its UI.</summary>
@@ -28,6 +29,9 @@ public sealed class CpuDetailsConfig : DetailConfig
         Add = new(AddFolderId.Processor, 0, 1),
     };
 
+    /// <summary>[S-2513] The load, the counts and the processor's figures.</summary>
+    public SystemInterests SystemWants(string systemRoot) => SystemInterests.Read(SystemSource.Cpu, SystemSource.Performance, SystemSource.Processor);
+
     public override WidgetConfig Clone()
     {
         var copy = new CpuDetailsConfig();
@@ -36,7 +40,7 @@ public sealed class CpuDetailsConfig : DetailConfig
 }
 
 /// <summary>[S-2408] Memory in use, available, committed, cached, the pools and the page file.</summary>
-public sealed class MemoryDetailsConfig : DetailConfig
+public sealed class MemoryDetailsConfig : DetailConfig, IReadsSystem
 {
 
     /// <summary>[S-6902] This widget's descriptor: what the host knows of it without its UI.</summary>
@@ -56,6 +60,9 @@ public sealed class MemoryDetailsConfig : DetailConfig
         Add = new(AddFolderId.MemoryReading, 0, 1),
     };
 
+    /// <summary>[S-2513] The memory figures and the page files.</summary>
+    public SystemInterests SystemWants(string systemRoot) => SystemInterests.Read(SystemSource.Performance);
+
     public override WidgetConfig Clone()
     {
         var copy = new MemoryDetailsConfig();
@@ -63,19 +70,8 @@ public sealed class MemoryDetailsConfig : DetailConfig
     }
 }
 
-/// <summary>[S-2411] What the process list is ranked by.</summary>
-[JsonConverter(typeof(JsonStringEnumConverter<ProcessSort>))]
-public enum ProcessSort
-{
-    /// <summary>Processor share since the last read, busiest first.</summary>
-    Cpu = 0,
-
-    /// <summary>Private working set (Task Manager's Memory column), largest first.</summary>
-    Memory = 1,
-}
-
 /// <summary>[S-2410] The busiest processes, by processor or by memory.</summary>
-public sealed class TopProcessesConfig : DetailConfig
+public sealed class TopProcessesConfig : DetailConfig, IReadsSystem
 {
     /// <summary>The most rows the list ever holds; a ceiling, not a target ([S-2412]).</summary>
     public const int MaxRowsLimit = 50;
@@ -106,6 +102,9 @@ public sealed class TopProcessesConfig : DetailConfig
 
     /// <summary>[S-2413] Every process of one executable is one row (Chrome's twenty are one Chrome).</summary>
     public bool GroupByName { get; set; } = true;
+
+    /// <summary>[S-2513] The process list.</summary>
+    public SystemInterests SystemWants(string systemRoot) => SystemInterests.Read(SystemSource.Processes);
 
     public override WidgetConfig Clone()
     {
@@ -141,7 +140,7 @@ public sealed class TopProcessesConfig : DetailConfig
 }
 
 /// <summary>[S-2415] Down and up, the session's totals, the addresses and every adapter.</summary>
-public sealed class NetworkDetailsConfig : DetailConfig
+public sealed class NetworkDetailsConfig : DetailConfig, IReadsSystem
 {
 
     /// <summary>[S-6902] This widget's descriptor: what the host knows of it without its UI.</summary>
@@ -167,6 +166,11 @@ public sealed class NetworkDetailsConfig : DetailConfig
     /// </summary>
     public bool ShowPublicAddress { get; set; }
 
+    /// <summary>[S-2513] The addresses and the throughput; [S-2417] the public lookup only while the setting is on: it asks a third party.</summary>
+    public SystemInterests SystemWants(string systemRoot) => ShowPublicAddress
+        ? SystemInterests.Read(SystemSource.LocalAddresses, SystemSource.PublicAddress, SystemSource.Network)
+        : SystemInterests.Read(SystemSource.LocalAddresses, SystemSource.Network);
+
     public override WidgetConfig Clone()
     {
         var copy = new NetworkDetailsConfig { ShowPublicAddress = ShowPublicAddress };
@@ -175,7 +179,7 @@ public sealed class NetworkDetailsConfig : DetailConfig
 }
 
 /// <summary>[S-2423] What the battery itself reports: status, time, health, cycles, voltage, rate.</summary>
-public sealed class BatteryDetailsConfig : DetailConfig
+public sealed class BatteryDetailsConfig : DetailConfig, IReadsSystem
 {
 
     /// <summary>[S-6902] This widget's descriptor: what the host knows of it without its UI.</summary>
@@ -195,6 +199,9 @@ public sealed class BatteryDetailsConfig : DetailConfig
         Add = new(AddFolderId.BatteryReading, 0, 1),
     };
 
+    /// <summary>[S-2513] The charge and what the battery itself reports.</summary>
+    public SystemInterests SystemWants(string systemRoot) => SystemInterests.Read(SystemSource.Battery, SystemSource.BatteryPack);
+
     public override WidgetConfig Clone()
     {
         var copy = new BatteryDetailsConfig();
@@ -203,11 +210,11 @@ public sealed class BatteryDetailsConfig : DetailConfig
 }
 
 /// <summary>[S-2426] Latency statistics over a window of probes: average, range, jitter and loss.</summary>
-public sealed class PingDetailsConfig : DetailConfig
+public sealed class PingDetailsConfig : DetailConfig, IReadsSystem
 {
     public const int MinWindow = 5;
 
-    public const int MaxWindow = 500;
+    public const int MaxWindow = SeriesHistory.MaxPingWindow;
 
 
     /// <summary>[S-6902] This widget's descriptor: what the host knows of it without its UI.</summary>
@@ -239,6 +246,9 @@ public sealed class PingDetailsConfig : DetailConfig
     [JsonIgnore]
     public int EffectiveWindow => Math.Clamp(Window, MinWindow, MaxWindow);
 
+    /// <summary>[S-2513] The statistics' window is the prober's history: a series like the meter's.</summary>
+    public SystemInterests SystemWants(string systemRoot) => SystemInterests.Chart(FeedKey.Create(SystemSource.Ping, EffectiveHost));
+
     public override WidgetConfig Clone()
     {
         var copy = new PingDetailsConfig
@@ -267,7 +277,7 @@ public sealed class PingDetailsConfig : DetailConfig
 }
 
 /// <summary>[S-2430] One adapter's memory and sensors.</summary>
-public sealed class GpuDetailsConfig : DetailConfig
+public sealed class GpuDetailsConfig : DetailConfig, IReadsSystem
 {
 
     /// <summary>[S-6902] This widget's descriptor: what the host knows of it without its UI.</summary>
@@ -289,6 +299,9 @@ public sealed class GpuDetailsConfig : DetailConfig
 
     /// <summary>[S-2431] The adapter, as its position in DXGI's list (as <see cref="GpuConfig.Adapter"/>: the primary display's first).</summary>
     public int Adapter { get; set; }
+
+    /// <summary>[S-2513] Every adapter's sample, with its memory and sensors.</summary>
+    public SystemInterests SystemWants(string systemRoot) => SystemInterests.Read(SystemSource.Gpu);
 
     public override WidgetConfig Clone()
     {

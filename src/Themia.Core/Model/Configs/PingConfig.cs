@@ -2,6 +2,7 @@ using System.Text.Json.Serialization;
 using Themia.App.Shell;
 using Themia.Core.Localization;
 using Themia.Core.Storage;
+using Themia.Core.SystemData;
 using Themia.Core.Widgets;
 using Themia.Sdk;
 
@@ -19,7 +20,7 @@ public enum PingStyle
 }
 
 /// <summary>Round-trip time to a host, and the statistics behind it.</summary>
-public sealed class PingConfig : GaugeConfig, IStyled
+public sealed class PingConfig : GaugeConfig, IStyled, IReadsSystem
 {
     /// <summary>A public resolver: reachable without configuration, and not a service this app talks to.</summary>
     public const string DefaultHost = "1.1.1.1";
@@ -75,6 +76,9 @@ public sealed class PingConfig : GaugeConfig, IStyled
     /// <summary>The host actually probed. Never empty, so the widget always has something to show.</summary>
     [JsonIgnore]
     public string EffectiveHost => string.IsNullOrWhiteSpace(Host) ? DefaultHost : Host.Trim();
+
+    /// <summary>[S-2513] Probes of its host and their history.</summary>
+    public SystemInterests SystemWants(string systemRoot) => SystemInterests.Chart(FeedKey.Create(SystemSource.Ping, EffectiveHost));
 
     public override WidgetConfig Clone()
     {

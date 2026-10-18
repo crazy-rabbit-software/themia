@@ -88,6 +88,9 @@ public sealed class SampleRing<T>
 /// <summary>[S-2504] How long a series' history is.</summary>
 public static class SeriesHistory
 {
+    /// <summary>[S-2427] The widest statistics window a ping series serves: the ping details' largest window.</summary>
+    public const int MaxPingWindow = 500;
+
     /// <summary>
     /// Every series of a source holds the longest history any chart can ask for
     /// (<see cref="MeterTiming.MaxSpanSeconds"/> at the source's spacing), and a ping series at least
@@ -96,6 +99,6 @@ public static class SeriesHistory
     public static int Capacity(SystemSource source)
     {
         var points = MeterTiming.MaxSpanSeconds / SystemCadence.PeriodSeconds(source);
-        return source == SystemSource.Ping ? Math.Max(points, Model.PingDetailsConfig.MaxWindow) : points;
+        return source == SystemSource.Ping ? Math.Max(points, MaxPingWindow) : points;
     }
 }

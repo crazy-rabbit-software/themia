@@ -2,6 +2,7 @@ using System.Text.Json.Serialization;
 using Themia.App.Shell;
 using Themia.Core.Localization;
 using Themia.Core.Storage;
+using Themia.Core.SystemData;
 using Themia.Core.Widgets;
 using Themia.Sdk;
 
@@ -28,7 +29,7 @@ public enum CpuStyle
 }
 
 /// <summary>[S-1140] Processor load: the reading and its history, nothing else ([S-1762]).</summary>
-public sealed class CpuConfig : GaugeConfig, IStyled
+public sealed class CpuConfig : GaugeConfig, IStyled, IReadsSystem
 {
     /// <summary>A minute of history, as Task Manager shows.</summary>
     public CpuConfig()
@@ -84,6 +85,14 @@ public sealed class CpuConfig : GaugeConfig, IStyled
 
     /// <summary>[S-6317] The graph and the core graphs draw a history: both offer its span.</summary>
     protected override bool StyleChartsHistory => Style is CpuStyle.Graph or CpuStyle.CoreGraphs;
+
+    /// <summary>[S-2513] The load and its history; [S-6310] the core styles read each processor too, beside the total and its history; [S-6318] the core graphs keep each processor's history for their span.</summary>
+    public SystemInterests SystemWants(string systemRoot) => ShowsCores
+        ? new SystemInterests([FeedKey.Create(SystemSource.Cpu), FeedKey.Create(SystemSource.CpuCores)], [new SeriesInterest(FeedKey.Create(SystemSource.Cpu), string.Empty)])
+        {
+            CoreHistorySeconds = ChartsCores ? Math.Max(1, GraphSpanSeconds) : 0,
+        }
+        : SystemInterests.Chart(SystemSource.Cpu);
 
     public override WidgetConfig Clone()
     {

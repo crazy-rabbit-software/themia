@@ -2,6 +2,7 @@ using System.Text.Json.Serialization;
 using Themia.App.Shell;
 using Themia.Core.Localization;
 using Themia.Core.Storage;
+using Themia.Core.SystemData;
 using Themia.Core.Widgets;
 using Themia.Sdk;
 
@@ -22,7 +23,7 @@ public enum MemoryStyle
 }
 
 /// <summary>[S-1130] Physical memory in use: the reading and its history, nothing else ([S-1762]).</summary>
-public sealed class MemoryConfig : GaugeConfig, IStyled
+public sealed class MemoryConfig : GaugeConfig, IStyled, IReadsSystem
 {
     public MemoryConfig()
         : base(graphSpanSeconds: 60)
@@ -64,6 +65,9 @@ public sealed class MemoryConfig : GaugeConfig, IStyled
         get => (int)Style;
         set => Style = (MemoryStyle)value;
     }
+
+    /// <summary>[S-2513] Memory in use and its history.</summary>
+    public SystemInterests SystemWants(string systemRoot) => SystemInterests.Chart(SystemSource.Memory);
 
     public override WidgetConfig Clone()
     {

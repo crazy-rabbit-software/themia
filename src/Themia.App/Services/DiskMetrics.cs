@@ -4,10 +4,6 @@ using Themia.Core.Widgets;
 
 namespace Themia.App.Services;
 
-/// <summary>[S-1162] One collection of the disk counters: rates per drive letter.</summary>
-/// <param name="Rates">Read and write bytes per second, keyed by <c>\LogicalDisk</c> instance (<c>C:</c>).</param>
-internal readonly record struct DiskActivity(IReadOnlyDictionary<string, DiskRates> Rates);
-
 /// <summary>
 /// [S-1160]..[S-1163] [S-1820] The disk meter's data. Which volumes exist, and their labels (the
 /// header's name for a drive), are the shared drive walk's (<see cref="Drives.DriveService"/>, [S-4655]),

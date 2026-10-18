@@ -2,6 +2,7 @@ using System.Text.Json.Serialization;
 using Themia.App.Shell;
 using Themia.Core.Localization;
 using Themia.Core.Storage;
+using Themia.Core.SystemData;
 using Themia.Core.Widgets;
 using Themia.Sdk;
 
@@ -22,7 +23,7 @@ public enum BatteryStyle
 }
 
 /// <summary>[S-1180] Charge level: the reading with the battery icon, and its history ([S-1762]).</summary>
-public sealed class BatteryConfig : GaugeConfig, IStyled
+public sealed class BatteryConfig : GaugeConfig, IStyled, IReadsSystem
 {
     private static readonly StyleOption[] BatteryStyles =
     [
@@ -69,6 +70,9 @@ public sealed class BatteryConfig : GaugeConfig, IStyled
     /// <summary>[S-6272] Only the graph style draws the history.</summary>
     [JsonIgnore]
     public override bool DrawsHistory => Style == BatteryStyle.Graph;
+
+    /// <summary>[S-2513] The charge and its history.</summary>
+    public SystemInterests SystemWants(string systemRoot) => SystemInterests.Chart(SystemSource.Battery);
 
     public override WidgetConfig Clone()
     {

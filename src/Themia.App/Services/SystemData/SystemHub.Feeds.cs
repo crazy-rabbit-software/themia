@@ -3,9 +3,6 @@ using Themia.Core.SystemData;
 
 namespace Themia.App.Services.SystemData;
 
-/// <summary>[S-2504] One read of a series: the reading to show, and the point it added to the history (null when none).</summary>
-internal readonly record struct SeriesUpdate(MeterReading Reading, SeriesPoint? Point);
-
 internal sealed partial class SystemHub
 {
     /// <summary>One feed: an open source, its newest snapshot, its watchers and its charted series.</summary>

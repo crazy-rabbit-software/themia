@@ -2,6 +2,7 @@ using System.Text.Json.Serialization;
 using Themia.App.Shell;
 using Themia.Core.Localization;
 using Themia.Core.Storage;
+using Themia.Core.SystemData;
 using Themia.Core.Widgets;
 using Themia.Sdk;
 
@@ -26,7 +27,7 @@ public enum GpuStyle
 /// A gauge, so it carries the history setting the other meters do, and it draws the same sparkline.
 /// Two adapters are two widgets ([S-433]).
 /// </summary>
-public sealed class GpuConfig : GaugeConfig, IStyled
+public sealed class GpuConfig : GaugeConfig, IStyled, IReadsSystem
 {
     /// <summary>[S-436] A minute of history.</summary>
     public GpuConfig()
@@ -74,6 +75,13 @@ public sealed class GpuConfig : GaugeConfig, IStyled
     {
         get => (int)Style;
         set => Style = (GpuStyle)value;
+    }
+
+    /// <summary>[S-2513] Every adapter's sample, and its adapter's history.</summary>
+    public SystemInterests SystemWants(string systemRoot)
+    {
+        var key = FeedKey.Create(SystemSource.Gpu);
+        return new SystemInterests([key], [new SeriesInterest(key, Math.Max(0, Adapter).ToString(System.Globalization.CultureInfo.InvariantCulture))]);
     }
 
     public override WidgetConfig Clone()

@@ -2,20 +2,11 @@ using System.Text.Json.Serialization;
 using Themia.App.Shell;
 using Themia.Core.Localization;
 using Themia.Core.Storage;
+using Themia.Core.SystemData;
 using Themia.Core.Widgets;
 using Themia.Sdk;
 
 namespace Themia.Core.Model;
-
-/// <summary>[S-1822] Whose throughput the disk meter shows.</summary>
-public enum DiskScope
-{
-    /// <summary>One drive: <see cref="DiskConfig.Drive"/> (empty = the system drive).</summary>
-    OneDrive = 0,
-
-    /// <summary>Every drive together.</summary>
-    AllDrives = 1,
-}
 
 /// <summary>[S-6271] The disk meter's looks: the rate over its history, or reads and writes as two bars.</summary>
 [JsonConverter(typeof(StyleJsonConverter<DiskStyle>))]
@@ -29,7 +20,7 @@ public enum DiskStyle
 }
 
 /// <summary>[S-1820] Disk throughput (reads and writes) of one drive or every drive, with its history.</summary>
-public sealed class DiskConfig : GaugeConfig, IStyled
+public sealed class DiskConfig : GaugeConfig, IStyled, IReadsSystem
 {
     private static readonly StyleOption[] DiskStyles =
     [
@@ -83,6 +74,12 @@ public sealed class DiskConfig : GaugeConfig, IStyled
 
     /// <summary>[S-1160] The drive to report on, as a root (<c>C:\</c>). Empty means the system drive.</summary>
     public string Drive { get; set; } = string.Empty;
+
+    /// <summary>[S-2513] The disk activity of its series (<see cref="DiskInstance"/>).</summary>
+    public SystemInterests SystemWants(string systemRoot) => SystemInterests.Chart(SystemSource.DiskActivity, DiskInstance(systemRoot));
+
+    /// <summary>[S-1160] [S-1822] The disk meter's series: every drive together, or its drive (the system drive when none is chosen).</summary>
+    public string DiskInstance(string systemRoot) => Scope == DiskScope.AllDrives ? SystemInterests.AllDrives : DiskRules.Root(Drive) ?? systemRoot;
 
     public override WidgetConfig Clone()
     {

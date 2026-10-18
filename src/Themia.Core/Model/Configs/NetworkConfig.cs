@@ -2,6 +2,7 @@ using System.Text.Json.Serialization;
 using Themia.App.Shell;
 using Themia.Core.Localization;
 using Themia.Core.Storage;
+using Themia.Core.SystemData;
 using Themia.Core.Widgets;
 using Themia.Sdk;
 
@@ -22,7 +23,7 @@ public enum NetworkStyle
 /// [S-1190] Throughput across the active adapters: download as the reading, download and upload as
 /// the history, nothing else ([S-1762]).
 /// </summary>
-public sealed class NetworkConfig : GaugeConfig, IStyled
+public sealed class NetworkConfig : GaugeConfig, IStyled, IReadsSystem
 {
     private static readonly StyleOption[] NetworkStyles =
     [
@@ -67,6 +68,9 @@ public sealed class NetworkConfig : GaugeConfig, IStyled
     /// <summary>[S-6270] Only the graph style draws the history.</summary>
     [JsonIgnore]
     public override bool DrawsHistory => Style == NetworkStyle.Graph;
+
+    /// <summary>[S-2513] The throughput and its history.</summary>
+    public SystemInterests SystemWants(string systemRoot) => SystemInterests.Chart(SystemSource.Network);
 
     public override WidgetConfig Clone()
     {
