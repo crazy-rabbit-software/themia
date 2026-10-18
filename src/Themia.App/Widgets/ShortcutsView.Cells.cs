@@ -594,7 +594,7 @@ internal sealed partial class ShortcutsView
 
     private async Task<BitmapImage?> FaviconAsync(string url)
     {
-        if (FeedAggregate.FaviconOf(url) is not { } icon)
+        if (SiteIcons.FaviconOf(url) is not { } icon)
         {
             return null;
         }

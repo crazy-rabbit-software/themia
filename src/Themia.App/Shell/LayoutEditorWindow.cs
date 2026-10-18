@@ -199,15 +199,15 @@ internal sealed class LayoutEditorWindow
     {
         _page.Children.Clear();
 
-        _caption.Text = ShortcutRules.LayoutKindLabel();
-        _window.Title = ShortcutRules.LayoutKindLabel();
+        _caption.Text = Str.Shortcut_ChipLayout.Text();
+        _window.Title = Str.Shortcut_ChipLayout.Text();
         _gone.Title = Str.WidgetsC_Shortcuts_LayoutEditor_Gone_Title.Text();
         _gone.Message = Str.WidgetsC_Shortcuts_LayoutEditor_Gone_Message.Text();
 
         var title = new TextBlock { Text = Str.WidgetsC_Shortcuts_LayoutEditor_Title.Text(), Margin = new Thickness(0, 4, 0, 4) };
         FluentLayout.ApplyStyle(title, "TitleTextBlockStyle");
 
-        _name = new TextBox { Width = 280, PlaceholderText = ShortcutRules.LayoutKindLabel() };
+        _name = new TextBox { Width = 280, PlaceholderText = Str.Shortcut_ChipLayout.Text() };
         var name = _name;
         name.KeyDown += (_, e) =>
         {

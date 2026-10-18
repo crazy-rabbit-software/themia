@@ -307,7 +307,7 @@ internal sealed partial class RssView
 
     private async Task ShowIconAsync(string link, Image image, FontIcon globe)
     {
-        if (FeedAggregate.FaviconOf(link) is not { } icon)
+        if (SiteIcons.FaviconOf(link) is not { } icon)
         {
             return;
         }

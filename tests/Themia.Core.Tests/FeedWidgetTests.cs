@@ -205,7 +205,7 @@ public sealed class FeedWidgetTests : IDisposable
     [InlineData("https://www.bbc.co.uk/news/world-1?x=1#y", "https://www.bbc.co.uk/favicon.ico")]
     [InlineData("http://blog.example:8080/a/b", "http://blog.example:8080/favicon.ico")]
     public void S1304_TheIconComesFromTheSiteItself(string link, string expected)
-        => Assert.Equal(expected, FeedAggregate.FaviconOf(link)?.ToString());
+        => Assert.Equal(expected, SiteIcons.FaviconOf(link)?.ToString());
 
     [Theory]
     [InlineData("")]
@@ -213,7 +213,7 @@ public sealed class FeedWidgetTests : IDisposable
     [InlineData("https://user:pass@site.example/")]
     [InlineData("not a link")]
     public void S1304_ALinkWithoutAWebOriginHasNoIcon(string link)
-        => Assert.Null(FeedAggregate.FaviconOf(link));
+        => Assert.Null(SiteIcons.FaviconOf(link));
 
     [Fact]
     public void S1304_OnlyBitmapIconsAreDecoded()

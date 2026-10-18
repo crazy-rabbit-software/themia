@@ -33,7 +33,7 @@ internal static class FaviconCache
     /// <summary>The icon for the site <paramref name="link"/> belongs to, or null when it has none.</summary>
     public static Task<byte[]?> GetAsync(string link)
     {
-        if (FeedAggregate.FaviconOf(link) is not { } icon)
+        if (SiteIcons.FaviconOf(link) is not { } icon)
         {
             return Task.FromResult<byte[]?>(null);
         }

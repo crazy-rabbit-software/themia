@@ -1,6 +1,7 @@
 using System.Runtime.InteropServices;
 using System.Text;
 using Themia.Core.Diagnostics;
+using Themia.Core.Files;
 using Themia.Core.Widgets;
 
 namespace Themia.App.Services.Files;
@@ -36,12 +37,12 @@ internal static unsafe partial class DragDropInterop
             return [];
         }
 
-        if (GetBytes(data, UrlFormat) is { } url && ShortcutDrop.UrlsInText(Utf16(url)) is { Count: > 0 } fromUrl)
+        if (GetBytes(data, UrlFormat) is { } url && DropUrls.InText(Utf16(url)) is { Count: > 0 } fromUrl)
         {
             return fromUrl;
         }
 
-        return GetBytes(data, CfUnicodeText) is { } text ? ShortcutDrop.UrlsInText(Utf16(text)) : [];
+        return GetBytes(data, CfUnicodeText) is { } text ? DropUrls.InText(Utf16(text)) : [];
     }
 
     /// <summary>A NUL-terminated UTF-16 buffer as a string (the buffer may run past the terminator).</summary>

@@ -1,4 +1,5 @@
 using System.Text.Json;
+using Themia.Core.Files;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Storage;
@@ -113,10 +114,10 @@ public sealed class ShortcutsDropLayoutTests
     [Fact]
     public void S1402_urls_in_dropped_text_are_http_lines_only_once_each()
     {
-        var urls = ShortcutDrop.UrlsInText("# comment\r\nhttps://a.example/x\r\nftp://b.example\r\nhttps://a.example/x\nhttp://c.example\n");
+        var urls = DropUrls.InText("# comment\r\nhttps://a.example/x\r\nftp://b.example\r\nhttps://a.example/x\nhttp://c.example\n");
 
         Assert.Equal(["https://a.example/x", "http://c.example/"], urls); // normalised by the rule
-        Assert.Empty(ShortcutDrop.UrlsInText("   "));
+        Assert.Empty(DropUrls.InText("   "));
     }
 
     // ---- reorder ([S-1410]) -------------------------------------------------------------------------

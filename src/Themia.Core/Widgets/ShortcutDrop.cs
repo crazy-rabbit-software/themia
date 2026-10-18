@@ -193,38 +193,6 @@ public static class ShortcutDrop
     }
 
     /// <summary>
-    /// [S-1402] Web addresses in dropped text (a browser's tab or address bar offers one per line):
-    /// only absolute http/https lines, in order, each once.
-    /// </summary>
-    public static IReadOnlyList<string> UrlsInText(string? text)
-    {
-        if (string.IsNullOrWhiteSpace(text))
-        {
-            return [];
-        }
-
-        var urls = new List<string>();
-
-        foreach (var raw in text.Split('\n'))
-        {
-            var line = raw.Trim().TrimEnd('\r').Trim();
-
-            if (line.StartsWith('#'))
-            {
-                continue; // text/uri-list comments
-            }
-
-            if (LaunchTargets.Classify(line) is { Kind: LaunchKind.Web } web
-                && !urls.Contains(web.Value, StringComparer.OrdinalIgnoreCase))
-            {
-                urls.Add(web.Value);
-            }
-        }
-
-        return urls;
-    }
-
-    /// <summary>
     /// [S-1410] Move <paramref name="ids"/> (in their current order) to just before
     /// <paramref name="beforeId"/>, or to the end when it is null (original S-37: over a row, before
     /// it; over empty space, at the end). "Before a dragged item" means before the first item after
