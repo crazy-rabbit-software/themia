@@ -76,7 +76,7 @@ internal static class FaviconCache
                 return null;
             }
 
-            if (!FeedAggregate.LooksLikeIcon(body))
+            if (!SiteIcons.LooksLikeIcon(body))
             {
                 Log.Debug(Scope, $"{icon.Host}/favicon.ico is not an icon");
                 return null;

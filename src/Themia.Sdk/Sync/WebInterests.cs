@@ -8,6 +8,9 @@ namespace Themia.Core.Sync;
 /// <param name="ForecastDays">The forecast's day count, or null for the conditions now (WeatherNow).</param>
 public sealed record WeatherInterest(double Latitude, double Longitude, TemperatureUnit Unit, int? ForecastDays, TimeSpan Interval);
 
+/// <summary>[S-2661] An Rss widget's feed at its item cap: what the feed sync keeps fresh for it.</summary>
+public sealed record FeedInterest(string Url, int MaxItems, TimeSpan Interval);
+
 /// <summary>[S-2663] A Stocks widget's instrument and chart: everything that changes the quote asked for.</summary>
 public sealed record QuoteInterest(string Symbol, QuoteMarket Market, QuoteRange Range, bool PrePost, TimeSpan Interval);
 

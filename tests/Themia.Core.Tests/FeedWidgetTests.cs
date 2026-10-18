@@ -218,11 +218,11 @@ public sealed class FeedWidgetTests : IDisposable
     [Fact]
     public void S1304_OnlyBitmapIconsAreDecoded()
     {
-        Assert.True(FeedAggregate.LooksLikeIcon([0, 0, 1, 0, 1, 0, 16, 16]));
-        Assert.True(FeedAggregate.LooksLikeIcon([0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A]));
-        Assert.False(FeedAggregate.LooksLikeIcon("<!DOCTYPE html>"u8));
-        Assert.False(FeedAggregate.LooksLikeIcon("<svg xmlns='x'>"u8));
-        Assert.False(FeedAggregate.LooksLikeIcon([0, 0]));
+        Assert.True(SiteIcons.LooksLikeIcon([0, 0, 1, 0, 1, 0, 16, 16]));
+        Assert.True(SiteIcons.LooksLikeIcon([0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A]));
+        Assert.False(SiteIcons.LooksLikeIcon("<!DOCTYPE html>"u8));
+        Assert.False(SiteIcons.LooksLikeIcon("<svg xmlns='x'>"u8));
+        Assert.False(SiteIcons.LooksLikeIcon([0, 0]));
     }
 
     // ---- [S-1305] the ladder -----------------------------------------------------------------

@@ -21,8 +21,6 @@ public sealed record ContactsInterest(IReadOnlyList<string> AccountIds);
 /// <param name="ListId">A list, Today, or empty for the account's default list.</param>
 public sealed record TaskInterest(string AccountId, string ListId, bool ShowCompleted, TimeSpan Interval);
 
-public sealed record FeedInterest(string Url, int MaxItems, TimeSpan Interval);
-
 /// <summary>
 /// [S-2608] What the sync services keep on the shelf: the needs of every widget in every view, shown
 /// or not. A view the user switches to is already synced, so switching draws and asks nothing. The
