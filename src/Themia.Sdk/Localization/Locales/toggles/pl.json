@@ -3,8 +3,6 @@
   "toggles.category": "Szybkie ustawienia",
   "toggles.wifi.name": "Wi-Fi",
   "toggles.bluetooth.name": "Bluetooth",
-  "toggles.bluetooth.label": "Bluetooth wł./wył.",
-  "toggles.bluetooth.desc": "Włącza lub wyłącza radio Bluetooth",
   "toggles.airplaneMode.name": "Tryb samolotowy",
   "toggles.airplaneMode.label": "Tryb samolotowy wł./wył.",
   "toggles.airplaneMode.desc": "Wyłącza wszystkie radia bezprzewodowe lub włącza je z powrotem",

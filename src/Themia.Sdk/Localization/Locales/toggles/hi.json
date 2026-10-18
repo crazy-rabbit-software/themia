@@ -3,8 +3,6 @@
   "toggles.category": "त्वरित सेटिंग्स",
   "toggles.wifi.name": "Wi-Fi",
   "toggles.bluetooth.name": "Bluetooth",
-  "toggles.bluetooth.label": "Bluetooth चालू/बंद",
-  "toggles.bluetooth.desc": "Bluetooth रेडियो चालू या बंद करता है",
   "toggles.airplaneMode.name": "हवाई जहाज़ मोड",
   "toggles.airplaneMode.label": "हवाई जहाज़ मोड चालू/बंद",
   "toggles.airplaneMode.desc": "हर वायरलेस रेडियो बंद करता है, या फिर से चालू करता है",

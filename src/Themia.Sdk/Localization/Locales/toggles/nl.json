@@ -3,8 +3,6 @@
   "toggles.category": "Snelle instellingen",
   "toggles.wifi.name": "Wi-Fi",
   "toggles.bluetooth.name": "Bluetooth",
-  "toggles.bluetooth.label": "Bluetooth aan/uit",
-  "toggles.bluetooth.desc": "Zet de Bluetooth-radio aan of uit",
   "toggles.airplaneMode.name": "Vliegtuigmodus",
   "toggles.airplaneMode.label": "Vliegtuigmodus aan/uit",
   "toggles.airplaneMode.desc": "Zet alle draadloze radio's uit, of weer aan",

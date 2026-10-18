@@ -3,8 +3,6 @@
   "toggles.category": "빠른 설정",
   "toggles.wifi.name": "Wi-Fi",
   "toggles.bluetooth.name": "Bluetooth",
-  "toggles.bluetooth.label": "Bluetooth 켜기/끄기",
-  "toggles.bluetooth.desc": "Bluetooth 무선 장치를 켜거나 끕니다",
   "toggles.airplaneMode.name": "비행기 모드",
   "toggles.airplaneMode.label": "비행기 모드 켜기/끄기",
   "toggles.airplaneMode.desc": "모든 무선 장치를 끄거나 다시 켭니다",

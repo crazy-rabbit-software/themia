@@ -3,8 +3,6 @@
   "toggles.category": "Paramètres rapides",
   "toggles.wifi.name": "Wi-Fi",
   "toggles.bluetooth.name": "Bluetooth",
-  "toggles.bluetooth.label": "Bluetooth activé/désactivé",
-  "toggles.bluetooth.desc": "Active ou désactive la radio Bluetooth",
   "toggles.airplaneMode.name": "Mode Avion",
   "toggles.airplaneMode.label": "Mode Avion activé/désactivé",
   "toggles.airplaneMode.desc": "Coupe toutes les radios sans fil, ou les rallume",

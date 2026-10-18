@@ -3,8 +3,6 @@
   "toggles.category": "Configurações rápidas",
   "toggles.wifi.name": "Wi-Fi",
   "toggles.bluetooth.name": "Bluetooth",
-  "toggles.bluetooth.label": "Bluetooth ligado/desligado",
-  "toggles.bluetooth.desc": "Liga ou desliga o rádio Bluetooth",
   "toggles.airplaneMode.name": "Modo avião",
   "toggles.airplaneMode.label": "Modo avião ligado/desligado",
   "toggles.airplaneMode.desc": "Desliga todos os rádios sem fio, ou os liga de novo",

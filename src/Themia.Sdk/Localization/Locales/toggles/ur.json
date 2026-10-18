@@ -3,8 +3,6 @@
   "toggles.category": "فوری ترتیبات",
   "toggles.wifi.name": "Wi-Fi",
   "toggles.bluetooth.name": "Bluetooth",
-  "toggles.bluetooth.label": "Bluetooth آن/آف",
-  "toggles.bluetooth.desc": "Bluetooth ریڈیو آن یا آف کرتا ہے",
   "toggles.airplaneMode.name": "ہوائی جہاز وضع",
   "toggles.airplaneMode.label": "ہوائی جہاز وضع آن/آف",
   "toggles.airplaneMode.desc": "ہر وائرلیس ریڈیو آف کرتا ہے، یا دوبارہ آن",

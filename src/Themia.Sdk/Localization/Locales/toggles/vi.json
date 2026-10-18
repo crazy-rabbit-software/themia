@@ -3,8 +3,6 @@
   "toggles.category": "Cài đặt nhanh",
   "toggles.wifi.name": "Wi-Fi",
   "toggles.bluetooth.name": "Bluetooth",
-  "toggles.bluetooth.label": "Bật/tắt Bluetooth",
-  "toggles.bluetooth.desc": "Bật hoặc tắt sóng Bluetooth",
   "toggles.airplaneMode.name": "Chế độ máy bay",
   "toggles.airplaneMode.label": "Bật/tắt chế độ máy bay",
   "toggles.airplaneMode.desc": "Tắt mọi sóng không dây, hoặc bật lại",

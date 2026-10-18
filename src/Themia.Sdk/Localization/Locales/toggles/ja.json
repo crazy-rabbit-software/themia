@@ -3,8 +3,6 @@
   "toggles.category": "クイック設定",
   "toggles.wifi.name": "Wi-Fi",
   "toggles.bluetooth.name": "Bluetooth",
-  "toggles.bluetooth.label": "Bluetooth オン/オフ",
-  "toggles.bluetooth.desc": "Bluetooth の無線をオンまたはオフにします",
   "toggles.airplaneMode.name": "機内モード",
   "toggles.airplaneMode.label": "機内モード オン/オフ",
   "toggles.airplaneMode.desc": "すべてのワイヤレス通信をオフにするか、元に戻します",

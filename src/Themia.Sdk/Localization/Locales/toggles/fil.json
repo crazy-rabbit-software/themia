@@ -3,8 +3,6 @@
   "toggles.category": "Mga mabilisang setting",
   "toggles.wifi.name": "Wi-Fi",
   "toggles.bluetooth.name": "Bluetooth",
-  "toggles.bluetooth.label": "I-on/i-off ang Bluetooth",
-  "toggles.bluetooth.desc": "Ino-on o ino-off ang Bluetooth radio",
   "toggles.airplaneMode.name": "Airplane mode",
   "toggles.airplaneMode.label": "I-on/i-off ang Airplane mode",
   "toggles.airplaneMode.desc": "Ino-off ang bawat wireless radio, o ino-on muli",

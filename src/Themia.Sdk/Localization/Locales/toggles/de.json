@@ -3,8 +3,6 @@
   "toggles.category": "Schnelleinstellungen",
   "toggles.wifi.name": "WLAN",
   "toggles.bluetooth.name": "Bluetooth",
-  "toggles.bluetooth.label": "Bluetooth ein/aus",
-  "toggles.bluetooth.desc": "Schaltet das Bluetooth-Funkmodul ein oder aus",
   "toggles.airplaneMode.name": "Flugzeugmodus",
   "toggles.airplaneMode.label": "Flugzeugmodus ein/aus",
   "toggles.airplaneMode.desc": "Schaltet alle Funkverbindungen aus oder wieder ein",

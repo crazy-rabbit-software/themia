@@ -19,7 +19,6 @@ namespace Themia.Core.Storage;
 [JsonSerializable(typeof(AudioVisualizerConfig))]
 [JsonSerializable(typeof(BatteryConfig))]
 [JsonSerializable(typeof(BatteryDetailsConfig))]
-[JsonSerializable(typeof(BluetoothToggleConfig))]
 [JsonSerializable(typeof(BrightnessConfig))]
 [JsonSerializable(typeof(CalendarWidgetConfig))]
 [JsonSerializable(typeof(ClipboardConfig))]

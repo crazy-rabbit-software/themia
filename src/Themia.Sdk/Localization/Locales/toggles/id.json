@@ -3,8 +3,6 @@
   "toggles.category": "Pengaturan cepat",
   "toggles.wifi.name": "Wi-Fi",
   "toggles.bluetooth.name": "Bluetooth",
-  "toggles.bluetooth.label": "Bluetooth aktif/nonaktif",
-  "toggles.bluetooth.desc": "Mengaktifkan atau menonaktifkan radio Bluetooth",
   "toggles.airplaneMode.name": "Mode pesawat",
   "toggles.airplaneMode.label": "Mode pesawat aktif/nonaktif",
   "toggles.airplaneMode.desc": "Mematikan semua radio nirkabel, atau menyalakannya lagi",

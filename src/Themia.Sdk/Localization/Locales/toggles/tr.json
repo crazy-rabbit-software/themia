@@ -3,8 +3,6 @@
   "toggles.category": "Hızlı ayarlar",
   "toggles.wifi.name": "Wi-Fi",
   "toggles.bluetooth.name": "Bluetooth",
-  "toggles.bluetooth.label": "Bluetooth aç/kapat",
-  "toggles.bluetooth.desc": "Bluetooth radyosunu açar veya kapatır",
   "toggles.airplaneMode.name": "Uçak modu",
   "toggles.airplaneMode.label": "Uçak modu aç/kapat",
   "toggles.airplaneMode.desc": "Tüm kablosuz radyoları kapatır veya yeniden açar",

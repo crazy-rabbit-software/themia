@@ -3,8 +3,6 @@
   "toggles.category": "تنظیمات سریع",
   "toggles.wifi.name": "Wi-Fi",
   "toggles.bluetooth.name": "Bluetooth",
-  "toggles.bluetooth.label": "روشن/خاموش Bluetooth",
-  "toggles.bluetooth.desc": "رادیوی Bluetooth را روشن یا خاموش می‌کند",
   "toggles.airplaneMode.name": "حالت هواپیما",
   "toggles.airplaneMode.label": "روشن/خاموش حالت هواپیما",
   "toggles.airplaneMode.desc": "همه رادیوهای بی‌سیم را خاموش یا دوباره روشن می‌کند",

@@ -3,8 +3,6 @@
   "toggles.category": "การตั้งค่าด่วน",
   "toggles.wifi.name": "Wi-Fi",
   "toggles.bluetooth.name": "Bluetooth",
-  "toggles.bluetooth.label": "เปิด/ปิด Bluetooth",
-  "toggles.bluetooth.desc": "เปิดหรือปิดสัญญาณ Bluetooth",
   "toggles.airplaneMode.name": "โหมดเครื่องบิน",
   "toggles.airplaneMode.label": "เปิด/ปิดโหมดเครื่องบิน",
   "toggles.airplaneMode.desc": "ปิดสัญญาณไร้สายทั้งหมด หรือเปิดกลับมา",

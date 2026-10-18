@@ -206,7 +206,7 @@ public sealed class NoticesBootTests : IDisposable
                 new WidgetId("clock"), ShortcutsConfig.Descriptor.Id, WeatherNowConfig.Descriptor.Id,
                 CpuConfig.Descriptor.Id, MemoryConfig.Descriptor.Id, GpuConfig.Descriptor.Id, NetworkConfig.Descriptor.Id,
                 DoNotDisturbToggleConfig.Descriptor.Id, ColorFiltersToggleConfig.Descriptor.Id, NightLightToggleConfig.Descriptor.Id,
-                AirplaneModeToggleConfig.Descriptor.Id, BluetoothToggleConfig.Descriptor.Id, new WidgetId("wifiToggle"),
+                AirplaneModeToggleConfig.Descriptor.Id, new WidgetId("bluetoothToggle"), new WidgetId("wifiToggle"),
             ],
             widgets.Select(w => w.Kind));
 

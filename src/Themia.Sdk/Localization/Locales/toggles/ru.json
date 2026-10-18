@@ -3,8 +3,6 @@
   "toggles.category": "Быстрые параметры",
   "toggles.wifi.name": "Wi-Fi",
   "toggles.bluetooth.name": "Bluetooth",
-  "toggles.bluetooth.label": "Bluetooth вкл./откл.",
-  "toggles.bluetooth.desc": "Включает или отключает радиомодуль Bluetooth",
   "toggles.airplaneMode.name": "Режим «в самолете»",
   "toggles.airplaneMode.label": "Режим «в самолете» вкл./откл.",
   "toggles.airplaneMode.desc": "Отключает все беспроводные модули или включает их снова",

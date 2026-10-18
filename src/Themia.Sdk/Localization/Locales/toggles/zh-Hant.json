@@ -3,8 +3,6 @@
   "toggles.category": "快速設定",
   "toggles.wifi.name": "Wi-Fi",
   "toggles.bluetooth.name": "藍牙",
-  "toggles.bluetooth.label": "藍牙 開/關",
-  "toggles.bluetooth.desc": "開啟或關閉藍牙無線電",
   "toggles.airplaneMode.name": "飛航模式",
   "toggles.airplaneMode.label": "飛航模式 開/關",
   "toggles.airplaneMode.desc": "關閉所有無線通訊，或重新開啟",

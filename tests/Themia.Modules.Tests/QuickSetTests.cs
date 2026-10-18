@@ -176,7 +176,7 @@ public sealed class QuickSetTests
     [Fact]
     public void S3711_a_selection_with_a_toggle_in_it_shows_only_what_all_share()
     {
-        var (state, view, _) = State(Widget(CpuConfig.Descriptor.Id, "a"), Widget(BluetoothToggleConfig.Descriptor.Id, "t"));
+        var (state, view, _) = State(Widget(CpuConfig.Descriptor.Id, "a"), Widget(new WidgetId("bluetoothToggle"), "t"));
 
         var offer = QuickSet.For(state, Selecting(view, "a", "t"), view.Id);
 

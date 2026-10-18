@@ -9,6 +9,7 @@
   </Folder>
   <Folder Name="/src/Widgets/">
     <Project Path="src/Widgets/Themia.Widget.Bluetooth/Themia.Widget.Bluetooth.csproj" />
+    <Project Path="src/Widgets/Themia.Widget.BluetoothToggle/Themia.Widget.BluetoothToggle.csproj" />
     <Project Path="src/Widgets/Themia.Widget.Clock/Themia.Widget.Clock.csproj" />
     <Project Path="src/Widgets/Themia.Widget.Countdown/Themia.Widget.Countdown.csproj" />
     <Project Path="src/Widgets/Themia.Widget.Hibernate/Themia.Widget.Hibernate.csproj" />

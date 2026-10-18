@@ -3,8 +3,6 @@
   "toggles.category": "Mipangilio ya haraka",
   "toggles.wifi.name": "Wi-Fi",
   "toggles.bluetooth.name": "Bluetooth",
-  "toggles.bluetooth.label": "Bluetooth washa/zima",
-  "toggles.bluetooth.desc": "Huwasha au kuzima redio ya Bluetooth",
   "toggles.airplaneMode.name": "Hali ya ndegeni",
   "toggles.airplaneMode.label": "Hali ya ndegeni washa/zima",
   "toggles.airplaneMode.desc": "Huzima kila redio isiyotumia waya, au kuiwasha tena",

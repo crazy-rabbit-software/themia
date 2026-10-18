@@ -3,8 +3,6 @@
   "toggles.category": "Saituna masu sauri",
   "toggles.wifi.name": "Wi-Fi",
   "toggles.bluetooth.name": "Bluetooth",
-  "toggles.bluetooth.label": "Kunna/kashe Bluetooth",
-  "toggles.bluetooth.desc": "Yana kunna ko kashe rediyon Bluetooth",
   "toggles.airplaneMode.name": "Yanayin jirgin sama",
   "toggles.airplaneMode.label": "Kunna/kashe yanayin jirgin sama",
   "toggles.airplaneMode.desc": "Yana kashe duk rediyon mara waya, ko ya sake kunna su",

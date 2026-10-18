@@ -3,8 +3,6 @@
   "toggles.category": "الإعدادات السريعة",
   "toggles.wifi.name": "Wi-Fi",
   "toggles.bluetooth.name": "Bluetooth",
-  "toggles.bluetooth.label": "تشغيل/إيقاف Bluetooth",
-  "toggles.bluetooth.desc": "تشغيل راديو Bluetooth أو إيقافه",
   "toggles.airplaneMode.name": "وضع الطائرة",
   "toggles.airplaneMode.label": "تشغيل/إيقاف وضع الطائرة",
   "toggles.airplaneMode.desc": "إيقاف كل أجهزة الراديو اللاسلكية، أو إعادة تشغيلها",

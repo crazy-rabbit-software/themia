@@ -2,8 +2,6 @@
   "toggles.category": "Quick settings",
   "toggles.wifi.name": "Wi-Fi",
   "toggles.bluetooth.name": "Bluetooth",
-  "toggles.bluetooth.label": "Bluetooth on/off",
-  "toggles.bluetooth.desc": "Turns the Bluetooth radio on or off",
   "toggles.airplaneMode.name": "Airplane mode",
   "toggles.airplaneMode.label": "Airplane mode on/off",
   "toggles.airplaneMode.desc": "Turns every wireless radio off, or back on",

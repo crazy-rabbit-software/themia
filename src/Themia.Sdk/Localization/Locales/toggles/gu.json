@@ -3,8 +3,6 @@
   "toggles.category": "ઝડપી સેટિંગ્સ",
   "toggles.wifi.name": "Wi-Fi",
   "toggles.bluetooth.name": "Bluetooth",
-  "toggles.bluetooth.label": "Bluetooth ચાલુ/બંધ",
-  "toggles.bluetooth.desc": "Bluetooth રેડિયો ચાલુ કે બંધ કરે છે",
   "toggles.airplaneMode.name": "એરપ્લેન મોડ",
   "toggles.airplaneMode.label": "એરપ્લેન મોડ ચાલુ/બંધ",
   "toggles.airplaneMode.desc": "બધા વાયરલેસ રેડિયો બંધ કરે છે, અથવા ફરી ચાલુ કરે છે",

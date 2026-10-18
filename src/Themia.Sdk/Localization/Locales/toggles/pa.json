@@ -3,8 +3,6 @@
   "toggles.category": "ਤੁਰੰਤ ਸੈਟਿੰਗਾਂ",
   "toggles.wifi.name": "Wi-Fi",
   "toggles.bluetooth.name": "Bluetooth",
-  "toggles.bluetooth.label": "Bluetooth ਚਾਲੂ/ਬੰਦ",
-  "toggles.bluetooth.desc": "Bluetooth ਰੇਡੀਓ ਨੂੰ ਚਾਲੂ ਜਾਂ ਬੰਦ ਕਰਦਾ ਹੈ",
   "toggles.airplaneMode.name": "ਹਵਾਈ ਜਹਾਜ਼ ਮੋਡ",
   "toggles.airplaneMode.label": "ਹਵਾਈ ਜਹਾਜ਼ ਮੋਡ ਚਾਲੂ/ਬੰਦ",
   "toggles.airplaneMode.desc": "ਹਰ ਵਾਇਰਲੈੱਸ ਰੇਡੀਓ ਨੂੰ ਬੰਦ, ਜਾਂ ਮੁੜ ਚਾਲੂ ਕਰਦਾ ਹੈ",
