@@ -5,8 +5,6 @@
   "toggles.bluetooth.name": "Bluetooth",
   "toggles.airplaneMode.name": "ہوائی جہاز وضع",
   "toggles.energySaver.name": "انرجی سیور",
-  "toggles.energySaver.label": "انرجی سیور آن/آف",
-  "toggles.energySaver.desc": "پس منظر کا کام کم کر کے پاور بچاتا ہے",
   "toggles.nightLight.name": "رات کی روشنی",
   "toggles.nightLight.label": "رات کی روشنی آن/آف",
   "toggles.nightLight.desc": "اسکرین پر گرم رنگ، تاکہ نیند آنے میں مدد ملے",

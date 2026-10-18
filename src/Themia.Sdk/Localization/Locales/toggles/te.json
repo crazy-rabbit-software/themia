@@ -5,8 +5,6 @@
   "toggles.bluetooth.name": "Bluetooth",
   "toggles.airplaneMode.name": "విమానం మోడ్",
   "toggles.energySaver.name": "శక్తి సేవర్",
-  "toggles.energySaver.label": "శక్తి సేవర్ ఆన్/ఆఫ్",
-  "toggles.energySaver.desc": "నేపథ్య పనిని తగ్గించి పవర్‌ను ఆదా చేస్తుంది",
   "toggles.nightLight.name": "రాత్రి కాంతి",
   "toggles.nightLight.label": "రాత్రి కాంతి ఆన్/ఆఫ్",
   "toggles.nightLight.desc": "మీరు నిద్రపోవడానికి సహాయపడేలా స్క్రీన్‌పై వెచ్చని రంగులు",

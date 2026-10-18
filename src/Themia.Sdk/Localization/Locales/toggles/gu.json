@@ -5,8 +5,6 @@
   "toggles.bluetooth.name": "Bluetooth",
   "toggles.airplaneMode.name": "એરપ્લેન મોડ",
   "toggles.energySaver.name": "ઊર્જા બચતકર્તા",
-  "toggles.energySaver.label": "ઊર્જા બચતકર્તા ચાલુ/બંધ",
-  "toggles.energySaver.desc": "બૅકગ્રાઉન્ડ કાર્ય ઘટાડીને પાવર બચાવે છે",
   "toggles.nightLight.name": "રાત્રિ પ્રકાશ",
   "toggles.nightLight.label": "રાત્રિ પ્રકાશ ચાલુ/બંધ",
   "toggles.nightLight.desc": "તમને ઊંઘવામાં મદદ કરવા સ્ક્રીન પર વધુ ગરમ રંગો",

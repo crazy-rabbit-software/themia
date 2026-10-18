@@ -1,0 +1,5 @@
+{
+  "$englishOnly": [],
+  "toggles.energySaver.label": "Energy saver on/off",
+  "toggles.energySaver.desc": "Saves power by easing off background work"
+}

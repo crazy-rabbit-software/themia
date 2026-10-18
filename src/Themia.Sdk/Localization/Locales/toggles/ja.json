@@ -5,8 +5,6 @@
   "toggles.bluetooth.name": "Bluetooth",
   "toggles.airplaneMode.name": "機内モード",
   "toggles.energySaver.name": "省エネ機能",
-  "toggles.energySaver.label": "省エネ機能 オン/オフ",
-  "toggles.energySaver.desc": "バックグラウンドの処理を抑えて電力を節約します",
   "toggles.nightLight.name": "夜間モード",
   "toggles.nightLight.label": "夜間モード オン/オフ",
   "toggles.nightLight.desc": "画面を暖かい色にして眠りやすくします",

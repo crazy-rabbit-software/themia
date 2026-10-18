@@ -1,0 +1,4 @@
+{
+  "toggles.energySaver.label": "省エネ機能 オン/オフ",
+  "toggles.energySaver.desc": "バックグラウンドの処理を抑えて電力を節約します"
+}

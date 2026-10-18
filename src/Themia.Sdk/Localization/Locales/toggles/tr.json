@@ -5,8 +5,6 @@
   "toggles.bluetooth.name": "Bluetooth",
   "toggles.airplaneMode.name": "Uçak modu",
   "toggles.energySaver.name": "Enerji tasarrufu",
-  "toggles.energySaver.label": "Enerji tasarrufu aç/kapat",
-  "toggles.energySaver.desc": "Arka plan işlerini azaltarak güç tasarrufu sağlar",
   "toggles.nightLight.name": "Gece ışığı",
   "toggles.nightLight.label": "Gece ışığı aç/kapat",
   "toggles.nightLight.desc": "Uyumanıza yardımcı olmak için ekranda daha sıcak renkler",

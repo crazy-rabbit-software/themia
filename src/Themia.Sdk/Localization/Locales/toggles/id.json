@@ -5,8 +5,6 @@
   "toggles.bluetooth.name": "Bluetooth",
   "toggles.airplaneMode.name": "Mode pesawat",
   "toggles.energySaver.name": "Penghemat energi",
-  "toggles.energySaver.label": "Penghemat energi aktif/nonaktif",
-  "toggles.energySaver.desc": "Menghemat daya dengan mengurangi aktivitas latar belakang",
   "toggles.nightLight.name": "Lampu malam",
   "toggles.nightLight.label": "Lampu malam aktif/nonaktif",
   "toggles.nightLight.desc": "Warna layar lebih hangat agar Anda mudah tidur",

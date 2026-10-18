@@ -5,8 +5,6 @@
   "toggles.bluetooth.name": "藍牙",
   "toggles.airplaneMode.name": "飛航模式",
   "toggles.energySaver.name": "省電模式",
-  "toggles.energySaver.label": "省電模式 開/關",
-  "toggles.energySaver.desc": "減少背景活動以節省電力",
   "toggles.nightLight.name": "夜間光線",
   "toggles.nightLight.label": "夜間光線 開/關",
   "toggles.nightLight.desc": "螢幕顯示較暖的色彩，幫助入睡",

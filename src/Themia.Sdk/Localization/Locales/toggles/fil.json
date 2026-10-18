@@ -5,8 +5,6 @@
   "toggles.bluetooth.name": "Bluetooth",
   "toggles.airplaneMode.name": "Airplane mode",
   "toggles.energySaver.name": "Energy saver",
-  "toggles.energySaver.label": "I-on/i-off ang Energy saver",
-  "toggles.energySaver.desc": "Nagtitipid ng power sa pagbabawas ng gawain sa background",
   "toggles.nightLight.name": "Night light",
   "toggles.nightLight.label": "I-on/i-off ang Night light",
   "toggles.nightLight.desc": "Mas maiinit na kulay sa screen para makatulong sa pagtulog",

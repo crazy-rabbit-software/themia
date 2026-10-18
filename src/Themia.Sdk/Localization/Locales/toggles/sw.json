@@ -5,8 +5,6 @@
   "toggles.bluetooth.name": "Bluetooth",
   "toggles.airplaneMode.name": "Hali ya ndegeni",
   "toggles.energySaver.name": "Kiokoa nishati",
-  "toggles.energySaver.label": "Kiokoa nishati washa/zima",
-  "toggles.energySaver.desc": "Huokoa nishati kwa kupunguza kazi za chinichini",
   "toggles.nightLight.name": "Mwanga wa usiku",
   "toggles.nightLight.label": "Mwanga wa usiku washa/zima",
   "toggles.nightLight.desc": "Rangi zenye joto zaidi kwenye skrini ili kukusaidia kulala",

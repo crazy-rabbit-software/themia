@@ -5,8 +5,6 @@
   "toggles.bluetooth.name": "Bluetooth",
   "toggles.airplaneMode.name": "Modo avión",
   "toggles.energySaver.name": "Ahorro de energía",
-  "toggles.energySaver.label": "Ahorro de energía activado/desactivado",
-  "toggles.energySaver.desc": "Ahorra energía reduciendo el trabajo en segundo plano",
   "toggles.nightLight.name": "Luz nocturna",
   "toggles.nightLight.label": "Luz nocturna activada/desactivada",
   "toggles.nightLight.desc": "Colores más cálidos en la pantalla para dormir mejor",

@@ -5,8 +5,6 @@
   "toggles.bluetooth.name": "Bluetooth",
   "toggles.airplaneMode.name": "비행기 모드",
   "toggles.energySaver.name": "에너지 절약",
-  "toggles.energySaver.label": "에너지 절약 켜기/끄기",
-  "toggles.energySaver.desc": "백그라운드 작업을 줄여 전원을 절약합니다",
   "toggles.nightLight.name": "야간 모드",
   "toggles.nightLight.label": "야간 모드 켜기/끄기",
   "toggles.nightLight.desc": "숙면을 돕도록 화면 색을 따뜻하게 표시합니다",

@@ -5,8 +5,6 @@
   "toggles.bluetooth.name": "Bluetooth",
   "toggles.airplaneMode.name": "وضع الطائرة",
   "toggles.energySaver.name": "موفر الطاقة",
-  "toggles.energySaver.label": "تشغيل/إيقاف موفر الطاقة",
-  "toggles.energySaver.desc": "توفير الطاقة بتخفيف العمل في الخلفية",
   "toggles.nightLight.name": "الإضاءة الليلية",
   "toggles.nightLight.label": "تشغيل/إيقاف الإضاءة الليلية",
   "toggles.nightLight.desc": "ألوان أدفأ على الشاشة لمساعدتك على النوم",

@@ -5,8 +5,6 @@
   "toggles.bluetooth.name": "Bluetooth",
   "toggles.airplaneMode.name": "Chế độ máy bay",
   "toggles.energySaver.name": "Trình tiết kiệm pin",
-  "toggles.energySaver.label": "Bật/tắt trình tiết kiệm pin",
-  "toggles.energySaver.desc": "Tiết kiệm điện bằng cách giảm tác vụ nền",
   "toggles.nightLight.name": "Ánh sáng ban đêm",
   "toggles.nightLight.label": "Bật/tắt ánh sáng ban đêm",
   "toggles.nightLight.desc": "Màu ấm hơn trên màn hình để giúp bạn dễ ngủ",
