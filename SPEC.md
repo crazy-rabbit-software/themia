@@ -959,6 +959,19 @@ The shared parts a list widget is built from, and the rules they keep (design an
 - **[S-7065]** One open gesture (decided, Q1/Q2): in every list of items a click focuses a row and a
   double-click or Enter opens it: the kit's list, Recent files and Notifications. The card makes a
   widget inert in edit mode ([S-1751]); the kit's list and Recent files check no edit mode of their own.
+- The kit's conformance checks over source (`KitConformanceTests`), each from an explicit list of
+  today's offenders that may only shrink:
+  - **[S-7066]** The kit's parts name no colour at all.
+  - **[S-7067]** No view sets a literal font size or family beyond today's four.
+  - **[S-7068]** No view or kit part shows a literal sentence (an example web address in a
+    placeholder and a preview's sample data aside; today's: the Stocks page's example tickers).
+  - **[S-7069]** A kit widget's view builds no list plumbing of its own, and only the kit's list
+    turns actions into menu entries.
+  - **[S-7070]** Every fixture parses and holds no token's shape, bearer header or address outside
+    the reserved example names.
+  - **[S-7071]** The kit's shared code names no service, provider, service header or error code;
+    outside the provider projects nothing names a kit service or reads a service's own header beyond
+    today's two (the rate-limit rules' `X-RateLimit-*`, the calendar's iCalendar `X-` properties).
 - **[S-7050]** `IKitConfig`: a kit widget's config states what it needs (a feature, or none for a
   web source), whether it is configured, the accounts it reads and the fields the user has on; its
   setup rule follows ([S-1860], [S-1861]): it waits while it has nothing to read, or while no
