@@ -69,7 +69,8 @@ internal sealed partial class StocksView : Grid, IWidgetView, IWidgetHeaderConte
 
     private IWidgetSurface? _surface;
     private IDisposable? _clock;
-    private WebSync? _web;
+    private readonly IWidgetHost _host;
+    private IQuoteAnswers? _web;
 
     /// <summary>What the widget asks for now, or null without a usable symbol ([S-2663]).</summary>
     private QuoteInterest? _want;
@@ -83,8 +84,9 @@ internal sealed partial class StocksView : Grid, IWidgetView, IWidgetHeaderConte
     private Brush _direction;
     private bool _detached;
 
-    public StocksView()
+    public StocksView(IWidgetHost host)
     {
+        _host = host;
         // Rows: the readout (price, change, extended print), the chart (the rest, its times inside it).
         // Columns: one, or readout | chart on a strip.
         RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
@@ -141,12 +143,9 @@ internal sealed partial class StocksView : Grid, IWidgetView, IWidgetHeaderConte
         Strings.Changed += OnLanguage;
 
         // [S-2663] The quote comes from the background sync; the widget only hears it.
-        _web = AppServices.WebSync;
-        if (_web is not null)
-        {
-            _web.Updated -= OnWebUpdated;
-            _web.Updated += OnWebUpdated;
-        }
+        _web?.Updated -= OnWebUpdated;
+        _web = _host.Quotes;
+        _web.Updated += OnWebUpdated;
 
         ApplyConfig(config);
     }
@@ -252,7 +251,7 @@ internal sealed partial class StocksView : Grid, IWidgetView, IWidgetHeaderConte
     /// <summary>[S-2663] A quote's answer or state changed in the sync service.</summary>
     private void OnWebUpdated(string key)
     {
-        if (!_detached && _want is { } want && WebSync.Key(want) == key)
+        if (!_detached && _want is { } want && _web is { } web && web.Key(want) == key)
         {
             Take();
         }
@@ -266,7 +265,7 @@ internal sealed partial class StocksView : Grid, IWidgetView, IWidgetHeaderConte
             return;
         }
 
-        var answer = _web is { } web ? web.Quote(want) : MarketService.Peek(want.Symbol, want.Market, want.Range, want.PrePost);
+        var answer = _web?.Quote(want);
         _quote = answer?.Value is not null ? answer : null;
         _status = answer?.Status ?? FetchStatus.Loading;
         PublishTitle();

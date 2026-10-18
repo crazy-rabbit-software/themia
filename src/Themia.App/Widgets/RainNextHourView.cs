@@ -42,7 +42,8 @@ internal sealed partial class RainNextHourView : Grid, IWidgetView, IWidgetHeade
     private RainNextHourConfig _applied = new();
     private IWidgetSurface? _surface;
     private IDisposable? _subscription;
-    private WebSync? _web;
+    private readonly IWidgetHost _host;
+    private IWeatherAnswers? _web;
     private RainInterest? _want;
     private FetchStatus _status = FetchStatus.Loading;
     private Fetched<RainNowcast>? _nowcast;
@@ -58,8 +59,9 @@ internal sealed partial class RainNextHourView : Grid, IWidgetView, IWidgetHeade
     private DateTimeOffset? _pinnedNow => null;
 #endif
 
-    public RainNextHourView()
+    public RainNextHourView(IWidgetHost host)
     {
+        _host = host;
         RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
         RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
 
@@ -115,12 +117,9 @@ internal sealed partial class RainNextHourView : Grid, IWidgetView, IWidgetHeade
         Strings.Changed -= OnLanguage;
         Strings.Changed += OnLanguage;
 
-        _web = AppServices.WebSync;
-        if (_web is not null)
-        {
-            _web.Updated -= OnWebUpdated;
-            _web.Updated += OnWebUpdated;
-        }
+        _web?.Updated -= OnWebUpdated;
+        _web = _host.Weather;
+        _web.Updated += OnWebUpdated;
 
         // The sentence counts down with the clock; a minute is the finest it changes.
         _subscription?.Dispose();
@@ -187,7 +186,7 @@ internal sealed partial class RainNextHourView : Grid, IWidgetView, IWidgetHeade
 
     private void OnWebUpdated(string key)
     {
-        if (!_detached && _want is { } want && WebSync.Key(want) == key)
+        if (!_detached && _want is { } want && _web is { } web && web.Key(want) == key)
         {
             Take();
         }
@@ -200,7 +199,7 @@ internal sealed partial class RainNextHourView : Grid, IWidgetView, IWidgetHeade
             return;
         }
 
-        var answer = _web is { } web ? web.Rain(want) : OnlineService.PeekRain(want.Latitude, want.Longitude);
+        var answer = _web?.Rain(want);
         _nowcast = answer?.Value is not null ? answer : null;
         _status = answer?.Status ?? FetchStatus.Loading;
         Render();

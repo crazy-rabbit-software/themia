@@ -66,7 +66,8 @@ internal sealed partial class WeatherForecastView : Grid, IWidgetView, IWidgetHe
     private IWidgetSurface? _surface;
     private IDisposable? _subscription;
     private TimeSpan _subscribedInterval = TimeSpan.Zero;
-    private WebSync? _web;
+    private readonly IWidgetHost _host;
+    private IWeatherAnswers? _web;
 
     /// <summary>What the widget asks for now, or null without a place ([S-2663]).</summary>
     private WeatherInterest? _want;
@@ -87,8 +88,9 @@ internal sealed partial class WeatherForecastView : Grid, IWidgetView, IWidgetHe
     private (ForecastStyle Style, object Plan, DateOnly Today, bool Precipitation, double? Now)? _built;
     private bool _detached;
 
-    public WeatherForecastView()
+    public WeatherForecastView(IWidgetHost host)
     {
+        _host = host;
         _emptyState = Fluent.EmptyState(Glyphs.Forecast, _emptyMessage, out _);
         _emptyState.Visibility = Visibility.Collapsed;
 
@@ -118,12 +120,9 @@ internal sealed partial class WeatherForecastView : Grid, IWidgetView, IWidgetHe
         Strings.Changed += OnLanguage;
 
         // [S-2663] The forecast comes from the background sync; the widget only hears it.
-        _web = AppServices.WebSync;
-        if (_web is not null)
-        {
-            _web.Updated -= OnWebUpdated;
-            _web.Updated += OnWebUpdated;
-        }
+        _web?.Updated -= OnWebUpdated;
+        _web = _host.Weather;
+        _web.Updated += OnWebUpdated;
 
         ApplyConfig(config);
     }
@@ -231,7 +230,7 @@ internal sealed partial class WeatherForecastView : Grid, IWidgetView, IWidgetHe
     /// <summary>[S-2663] A forecast's answer or state changed in the sync service.</summary>
     private void OnWebUpdated(string key)
     {
-        if (!_detached && _want is { } want && (WebSync.Key(want) == key || WebSync.Key(want with { ForecastDays = null }) == key))
+        if (!_detached && _want is { } want && _web is { } web && (web.Key(want) == key || web.Key(want with { ForecastDays = null }) == key))
         {
             Take();
         }
@@ -240,12 +239,12 @@ internal sealed partial class WeatherForecastView : Grid, IWidgetView, IWidgetHe
     /// <summary>What the sync holds: the newest forecast (kept through a failure, annotated with it), or the state to say.</summary>
     private void Take()
     {
-        if (_want is not { ForecastDays: { } days } want)
+        if (_want is not { ForecastDays: not null } want)
         {
             return;
         }
 
-        var answer = _web is { } web ? web.Forecast(want) : WeatherService.PeekForecast(want.Latitude, want.Longitude, want.Unit, days);
+        var answer = _web?.Forecast(want);
         _forecast = answer?.Value is not null ? answer : null;
         _status = answer?.Status ?? FetchStatus.Loading;
 

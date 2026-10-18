@@ -25,6 +25,7 @@ public partial class App : Application
         Widgets.ItemMenu.InstallFileIcons((file, pixels) => Services.Files.FileIcons.IconAsync(new Themia.Core.Widgets.FolderEntry(Path.GetFileName(file), file, false, 0, default, false), pixels));
         Shell.ColorChoice.InstallEyedropper(new Interop.ScreenEyedropper());
         Shell.Config.PlaceSearch.InstallLookup(Services.Web.WeatherService.FindAsync);
+        Themia.Sdk.SymbolLookup.Install(Services.Web.MarketService.SearchAsync);
         Services.SoundCue.Install(new Services.HostCuePlayer());
 
 #if DEBUG

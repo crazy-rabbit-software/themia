@@ -1,7 +1,7 @@
 using Microsoft.UI.Dispatching;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
-using Themia.App.Services.Web;
+using Themia.Sdk;
 using Themia.App.Widgets;
 using Themia.Core.Localization;
 using Themia.Core.Model;
@@ -180,7 +180,7 @@ internal static partial class WidgetSettings
 
             try
             {
-                var found = await MarketService.SearchAsync(query, cts.Token).ConfigureAwait(true);
+                var found = await SymbolLookup.FindAsync(query, cts.Token).ConfigureAwait(true);
 
                 if (!ReferenceEquals(asking, cts) || box.Text.Trim() != query)
                 {

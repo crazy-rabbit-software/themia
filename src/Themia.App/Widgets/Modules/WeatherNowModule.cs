@@ -16,5 +16,5 @@ public sealed class WeatherNowModule : IWidgetModule
     public void SettingsRows(WidgetSettingsRows rows, WidgetConfig config)
         => WidgetSettings.WeatherNow(rows.Rows, (WeatherNowConfig)config, rows.Save);
 
-    public FrameworkElement CreateView(IWidgetHost host) => new WeatherNowView();
+    public FrameworkElement CreateView(IWidgetHost host) => new WeatherNowView(host);
 }

@@ -868,11 +868,16 @@ Module sections live in `src/Widgets/*/SPEC.md` and `src/Providers/*/SPEC.md` ([
   host's services a widget reads: the Recycle Bin (`IRecycleBin`: the one answer how full it is and
   Windows' own empty, [S-4863]) and what runs a power action (`IPowerBackend`: the machine's calls,
   inert on a preview, [S-1243], [S-1251]) and the quick settings (`IQuickToggles`: one
-  shared `IToggleSource` per toggle, [S-3907]). The host makes one per card, every member shared by all of them. What a widget shares with the settings
+  shared `IToggleSource` per toggle, [S-3907]) and the web answers the background sync keeps
+  fresh ([S-2663]: `IWeatherAnswers` for the conditions, forecast, air and rain, `IQuoteAnswers` for
+  the quotes, `IRateAnswers` for the ECB table; each a `Fetched<T>` per want, the key it is synced
+  under, `Show`/Refresh and `Updated(key)`; where the sync is not running, a debug render, what the
+  shared caches hold). The host makes one per card, every member shared by all of them. What a widget shares with the settings
   window is in `Themia.Sdk.WinUI` too: the settings rows (`FluentLayout`, `ColorChoice`,
   `RowReorder`, `SettingRow`), the item menu (`ItemMenu`), `Notices`, a drop target's contract
   (`IWidgetDropTarget` over `IWidgetDrag`); the parts that need Win32 (the eyedropper, a file's
-  shell icon, the OLE drag) stay host code behind a seam the host installs at start.
+  shell icon, the OLE drag) stay host code behind a seam the host installs at start, as do the
+  place lookup and the Stocks settings' symbol search (`SymbolLookup`, [S-1307]).
 
 ## Adding a widget
 

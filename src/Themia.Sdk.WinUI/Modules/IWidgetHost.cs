@@ -45,4 +45,13 @@ public interface IWidgetHost
 
     /// <summary>[S-3907] The quick settings a toggle widget follows and switches: one shared source per toggle.</summary>
     IQuickToggles Toggles { get; }
+
+    /// <summary>[S-2663] The open-meteo answers (conditions, forecast, air, rain) the background sync keeps fresh.</summary>
+    IWeatherAnswers Weather { get; }
+
+    /// <summary>[S-2663] The market quotes the background sync keeps fresh.</summary>
+    IQuoteAnswers Quotes { get; }
+
+    /// <summary>[S-5147] The ECB reference rates the background sync keeps fresh.</summary>
+    IRateAnswers Rates { get; }
 }

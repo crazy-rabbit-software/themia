@@ -41,7 +41,8 @@ internal sealed partial class AirQualityView : Grid, IWidgetView, IWidgetHeaderC
     private IWidgetSurface? _surface;
     private IDisposable? _subscription;
     private TimeSpan _subscribedInterval;
-    private WebSync? _web;
+    private readonly IWidgetHost _host;
+    private IWeatherAnswers? _web;
     private AirInterest? _want;
     private FetchStatus _status = FetchStatus.Loading;
     private Fetched<AirReading>? _reading;
@@ -51,8 +52,9 @@ internal sealed partial class AirQualityView : Grid, IWidgetView, IWidgetHeaderC
     private ContentAlign _align = ContentAlign.Left;
     private bool _detached;
 
-    public AirQualityView()
+    public AirQualityView(IWidgetHost host)
     {
+        _host = host;
         RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
         RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
         ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
@@ -97,12 +99,9 @@ internal sealed partial class AirQualityView : Grid, IWidgetView, IWidgetHeaderC
         Strings.Changed -= OnLanguage;
         Strings.Changed += OnLanguage;
 
-        _web = AppServices.WebSync;
-        if (_web is not null)
-        {
-            _web.Updated -= OnWebUpdated;
-            _web.Updated += OnWebUpdated;
-        }
+        _web?.Updated -= OnWebUpdated;
+        _web = _host.Weather;
+        _web.Updated += OnWebUpdated;
 
         ApplyConfig(config);
     }
@@ -197,7 +196,7 @@ internal sealed partial class AirQualityView : Grid, IWidgetView, IWidgetHeaderC
 
     private void OnWebUpdated(string key)
     {
-        if (!_detached && _want is { } want && WebSync.Key(want) == key)
+        if (!_detached && _want is { } want && _web is { } web && web.Key(want) == key)
         {
             Take();
         }
@@ -210,7 +209,7 @@ internal sealed partial class AirQualityView : Grid, IWidgetView, IWidgetHeaderC
             return;
         }
 
-        var answer = _web is { } web ? web.Air(want) : OnlineService.PeekAir(want.Latitude, want.Longitude);
+        var answer = _web?.Air(want);
         _reading = answer?.Value is not null ? answer : null;
         _status = answer?.Status ?? FetchStatus.Loading;
         Render();

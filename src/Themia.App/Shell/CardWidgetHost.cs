@@ -1,6 +1,7 @@
 using Microsoft.UI.Dispatching;
 using Themia.App.Services;
 using Themia.App.Services.Toggles;
+using Themia.App.Services.Web;
 using Themia.Core.Widgets;
 using Themia.Sdk.WinUI;
 
@@ -27,6 +28,12 @@ internal sealed class CardWidgetHost(IWidgetCardHost card) : IWidgetHost
     public IPowerBackend Power => card.IsPreview ? InertPowerActions.Instance : Win32PowerActions.Instance;
 
     public IQuickToggles Toggles => HostToggles.Instance;
+
+    public IWeatherAnswers Weather => HostWeatherAnswers.Instance;
+
+    public IQuoteAnswers Quotes => HostQuoteAnswers.Instance;
+
+    public IRateAnswers Rates => HostRateAnswers.Instance;
 
     public bool ShowAccounts()
     {

@@ -81,7 +81,8 @@ internal sealed partial class WeatherNowView : Grid, IWidgetView, IWidgetHeaderC
     private IWidgetSurface? _surface;
     private IDisposable? _subscription;
     private TimeSpan _subscribedInterval = TimeSpan.Zero;
-    private WebSync? _web;
+    private readonly IWidgetHost _host;
+    private IWeatherAnswers? _web;
 
     /// <summary>What the widget asks for now, or null without a place ([S-2663]).</summary>
     private WeatherInterest? _want;
@@ -98,8 +99,9 @@ internal sealed partial class WeatherNowView : Grid, IWidgetView, IWidgetHeaderC
     private WeatherNowPlan? _built;
     private bool _detached;
 
-    public WeatherNowView()
+    public WeatherNowView(IWidgetHost host)
     {
+        _host = host;
         _condition = _hero.AddLine(FluentType.Body);
         _highLow = _hero.AddLine(FluentType.Caption);
         _feels = _hero.AddLine(FluentType.Caption);
@@ -149,12 +151,9 @@ internal sealed partial class WeatherNowView : Grid, IWidgetView, IWidgetHeaderC
         Strings.Changed += OnLanguage;
 
         // [S-2663] The reading comes from the background sync; the widget only hears it.
-        _web = AppServices.WebSync;
-        if (_web is not null)
-        {
-            _web.Updated -= OnWebUpdated;
-            _web.Updated += OnWebUpdated;
-        }
+        _web?.Updated -= OnWebUpdated;
+        _web = _host.Weather;
+        _web.Updated += OnWebUpdated;
 
         ApplyConfig(config);
     }
@@ -278,7 +277,7 @@ internal sealed partial class WeatherNowView : Grid, IWidgetView, IWidgetHeaderC
     /// <summary>[S-2663] A reading's answer or state changed in the sync service.</summary>
     private void OnWebUpdated(string key)
     {
-        if (!_detached && _want is { } want && WebSync.Key(want) == key)
+        if (!_detached && _want is { } want && _web is { } web && web.Key(want) == key)
         {
             Take();
         }
@@ -295,7 +294,7 @@ internal sealed partial class WeatherNowView : Grid, IWidgetView, IWidgetHeaderC
             return;
         }
 
-        var answer = _web is { } web ? web.Reading(want) : WeatherService.PeekCurrent(want.Latitude, want.Longitude, want.Unit);
+        var answer = _web?.Reading(want);
         _reading = answer?.Value is not null ? answer : null;
         _status = answer?.Status ?? FetchStatus.Loading;
         Render();

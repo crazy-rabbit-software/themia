@@ -34,14 +34,16 @@ internal sealed partial class ExchangeRatesView : Grid, IWidgetView, IWidgetHead
     private IWidgetSurface? _surface;
     private ExchangeRatesConfig _config = new();
     private IDisposable? _subscription;
-    private WebSync? _web;
+    private readonly IWidgetHost _host;
+    private IRateAnswers? _web;
     private FetchStatus _status = FetchStatus.Loading;
     private Fetched<RateTable>? _table;
     private WidgetArea _area;
     private bool _detached;
 
-    public ExchangeRatesView()
+    public ExchangeRatesView(IWidgetHost host)
     {
+        _host = host;
         RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
         RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
         ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
@@ -78,12 +80,9 @@ internal sealed partial class ExchangeRatesView : Grid, IWidgetView, IWidgetHead
         Strings.Changed -= OnLanguage;
         Strings.Changed += OnLanguage;
 
-        _web = AppServices.WebSync;
-        if (_web is not null)
-        {
-            _web.Updated -= OnWebUpdated;
-            _web.Updated += OnWebUpdated;
-        }
+        _web?.Updated -= OnWebUpdated;
+        _web = _host.Rates;
+        _web.Updated += OnWebUpdated;
 
         // Only the age in the header moves between fetches; a minute is fine enough for it.
         _subscription?.Dispose();
@@ -151,13 +150,13 @@ internal sealed partial class ExchangeRatesView : Grid, IWidgetView, IWidgetHead
             return;
         }
 
-        _web?.ShowRates(force);
+        _web?.Show(force);
         Take();
     }
 
     private void OnWebUpdated(string key)
     {
-        if (!_detached && key == WebSync.RatesKey)
+        if (!_detached && _web is { } web && key == web.Key)
         {
             Take();
         }
@@ -165,7 +164,7 @@ internal sealed partial class ExchangeRatesView : Grid, IWidgetView, IWidgetHead
 
     private void Take()
     {
-        var answer = _web is { } web ? web.Rates() : OnlineService.PeekRates();
+        var answer = _web?.Rates();
         _table = answer?.Value is not null ? answer : null;
         _status = answer?.Status ?? FetchStatus.Loading;
         Render();

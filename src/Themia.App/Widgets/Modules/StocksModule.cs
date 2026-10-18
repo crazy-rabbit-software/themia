@@ -16,5 +16,5 @@ public sealed class StocksModule : IWidgetModule
     public void SettingsRows(WidgetSettingsRows rows, WidgetConfig config)
         => WidgetSettings.Stocks(rows.Rows, (StocksConfig)config, rows.Save);
 
-    public FrameworkElement CreateView(IWidgetHost host) => new StocksView();
+    public FrameworkElement CreateView(IWidgetHost host) => new StocksView(host);
 }
