@@ -1,9 +1,4 @@
 {
-  "meeting.label": "Volgende vergadering",
-  "meeting.desc": "Je volgende afspraak, met Deelnemen voor onlinevergaderingen",
-  "meeting.join": "Deelnemen",
-  "meeting.joinTip": "Deelnemen aan de onlinevergadering",
   "meeting.nowEnds": "Nu · eindigt om {time}",
-  "meeting.dayTime": "{day}, {time}",
-  "meeting.none": "Niets gepland"
+  "meeting.dayTime": "{day}, {time}"
 }

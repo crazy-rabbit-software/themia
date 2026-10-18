@@ -1,9 +1,4 @@
 {
-  "meeting.label": "Prossima riunione",
-  "meeting.desc": "Il tuo prossimo evento, con Partecipa per le riunioni online",
-  "meeting.join": "Partecipa",
-  "meeting.joinTip": "Partecipa alla riunione online",
   "meeting.nowEnds": "Ora · termina alle {time}",
-  "meeting.dayTime": "{day}, {time}",
-  "meeting.none": "Nessun impegno in arrivo"
+  "meeting.dayTime": "{day}, {time}"
 }

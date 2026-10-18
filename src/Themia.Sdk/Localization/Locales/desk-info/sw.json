@@ -1,10 +1,5 @@
 {
   "$comment": "Machine-written translations: every string in this file needs native review.",
-  "meeting.label": "Mkutano ujao",
-  "meeting.desc": "Tukio lako lijalo, na Jiunge kwa mikutano ya mtandaoni",
-  "meeting.join": "Jiunge",
-  "meeting.joinTip": "Jiunge na mkutano wa mtandaoni",
   "meeting.nowEnds": "Sasa · unaisha {time}",
-  "meeting.dayTime": "{day}, {time}",
-  "meeting.none": "Hakuna kinachokuja"
+  "meeting.dayTime": "{day}, {time}"
 }

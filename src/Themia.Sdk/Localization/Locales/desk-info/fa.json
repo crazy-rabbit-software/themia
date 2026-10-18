@@ -1,10 +1,5 @@
 {
   "$comment": "Machine-written translations: every string in this file needs native review.",
-  "meeting.label": "جلسه بعدی",
-  "meeting.desc": "رویداد بعدی شما، با پیوستن برای جلسات آنلاین",
-  "meeting.join": "پیوستن",
-  "meeting.joinTip": "پیوستن به جلسه آنلاین",
   "meeting.nowEnds": "اکنون · پایان {time}",
-  "meeting.dayTime": "{day}، {time}",
-  "meeting.none": "چیزی در پیش نیست"
+  "meeting.dayTime": "{day}، {time}"
 }

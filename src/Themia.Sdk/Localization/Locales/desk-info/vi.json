@@ -1,9 +1,4 @@
 {
-  "meeting.label": "Cuộc họp tiếp theo",
-  "meeting.desc": "Sự kiện tiếp theo của bạn, có nút Tham gia cho cuộc họp trực tuyến",
-  "meeting.join": "Tham gia",
-  "meeting.joinTip": "Tham gia cuộc họp trực tuyến",
   "meeting.nowEnds": "Đang diễn ra · kết thúc lúc {time}",
-  "meeting.dayTime": "{day}, {time}",
-  "meeting.none": "Không có sự kiện sắp tới"
+  "meeting.dayTime": "{day}, {time}"
 }

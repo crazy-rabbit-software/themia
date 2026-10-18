@@ -1,10 +1,5 @@
 {
   "$comment": "Machine-written translations: every string in this file needs native review.",
-  "meeting.label": "આગલી મીટિંગ",
-  "meeting.desc": "તમારી આગલી ઇવેન્ટ, ઑનલાઇન મીટિંગ માટે જોડાઓ બટન સાથે",
-  "meeting.join": "જોડાઓ",
-  "meeting.joinTip": "ઑનલાઇન મીટિંગમાં જોડાઓ",
   "meeting.nowEnds": "હમણાં · {time} એ સમાપ્ત",
-  "meeting.dayTime": "{day}, {time}",
-  "meeting.none": "આગળ કંઈ નથી"
+  "meeting.dayTime": "{day}, {time}"
 }

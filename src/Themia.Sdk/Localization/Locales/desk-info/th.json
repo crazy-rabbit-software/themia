@@ -1,10 +1,5 @@
 {
   "$comment": "Machine-written translations: every string in this file needs native review.",
-  "meeting.label": "การประชุมถัดไป",
-  "meeting.desc": "กิจกรรมถัดไปของคุณ พร้อมปุ่มเข้าร่วมสำหรับการประชุมออนไลน์",
-  "meeting.join": "เข้าร่วม",
-  "meeting.joinTip": "เข้าร่วมการประชุมออนไลน์",
   "meeting.nowEnds": "ตอนนี้ · สิ้นสุด {time}",
-  "meeting.dayTime": "{day} {time}",
-  "meeting.none": "ไม่มีรายการที่กำลังจะมาถึง"
+  "meeting.dayTime": "{day} {time}"
 }

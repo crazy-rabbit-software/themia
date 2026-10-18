@@ -1,10 +1,5 @@
 {
   "$comment": "Machine-written translations: every string in this file needs native review.",
-  "meeting.label": "ਅਗਲੀ ਮੀਟਿੰਗ",
-  "meeting.desc": "ਤੁਹਾਡਾ ਅਗਲਾ ਇਵੈਂਟ, ਔਨਲਾਈਨ ਮੀਟਿੰਗਾਂ ਲਈ ਸ਼ਾਮਲ ਹੋਵੋ ਬਟਨ ਨਾਲ",
-  "meeting.join": "ਸ਼ਾਮਲ ਹੋਵੋ",
-  "meeting.joinTip": "ਔਨਲਾਈਨ ਮੀਟਿੰਗ ਵਿੱਚ ਸ਼ਾਮਲ ਹੋਵੋ",
   "meeting.nowEnds": "ਹੁਣ · {time} ਵਜੇ ਖ਼ਤਮ",
-  "meeting.dayTime": "{day}, {time}",
-  "meeting.none": "ਕੁਝ ਵੀ ਆਉਣ ਵਾਲਾ ਨਹੀਂ"
+  "meeting.dayTime": "{day}, {time}"
 }

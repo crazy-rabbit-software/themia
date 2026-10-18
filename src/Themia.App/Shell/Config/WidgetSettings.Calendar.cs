@@ -34,13 +34,6 @@ internal static partial class WidgetSettings
 
         OfficeSettingsRows.CalendarAccounts(rows, config);
 
-        // [S-4826] Next meeting chooses its accounts and calendars like every calendar, and has no
-        // display rows: birthdays are all-day, never a meeting.
-        if (config is NextMeetingConfig)
-        {
-            return;
-        }
-
         rows.Rows.Add(FluentLayout.Header(Str.ConfigTabs_Display.Text()));
 
         // [S-3601] Only what the calendar's style uses; picking another style rebuilds the page

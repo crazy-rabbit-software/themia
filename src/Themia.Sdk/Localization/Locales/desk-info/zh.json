@@ -1,9 +1,4 @@
 {
-  "meeting.label": "下一个会议",
-  "meeting.desc": "你的下一个日程，在线会议可直接加入",
-  "meeting.join": "加入",
-  "meeting.joinTip": "加入在线会议",
   "meeting.nowEnds": "进行中 · {time} 结束",
-  "meeting.dayTime": "{day} {time}",
-  "meeting.none": "近期没有安排"
+  "meeting.dayTime": "{day} {time}"
 }

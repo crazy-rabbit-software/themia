@@ -15,6 +15,7 @@ using Themia.Core.Widgets;
 using Themia.Sdk.WinUI;
 using Themia.Sdk;
 using Themia.Sdk.WinUI.Kit;
+using Themia.Widget.NextMeeting;
 
 namespace Themia.App.Widgets;
 
@@ -52,7 +53,7 @@ internal sealed partial class NextMeetingView : Grid, IWidgetView, IWidgetSurfac
     private readonly (Grid Row, TextBlock Text) _location = DetailLine(Glyphs.Place);
     private readonly (Grid Row, TextBlock Text) _organizer = DetailLine(Glyphs.Contact);
     private readonly Button _join;
-    private readonly TextBlock _joinLabel = new() { Text = Str.Meeting_Join.Text() };
+    private readonly TextBlock _joinLabel = new() { Text = NextMeetingStr.Meeting_Join.Text() };
 
     private IWidgetSurface? _surface;
     private ICalendarData? _data;
@@ -204,7 +205,7 @@ internal sealed partial class NextMeetingView : Grid, IWidgetView, IWidgetSurfac
 
     private void OnLanguage(Locale locale)
     {
-        _joinLabel.Text = Str.Meeting_Join.Text();
+        _joinLabel.Text = NextMeetingStr.Meeting_Join.Text();
         Render();
     }
 
@@ -354,7 +355,7 @@ internal sealed partial class NextMeetingView : Grid, IWidgetView, IWidgetSurfac
 
         if (item is null)
         {
-            _emptyText.Text = Str.Meeting_None.Text();
+            _emptyText.Text = NextMeetingStr.Meeting_None.Text();
             _empty.Visibility = Visibility.Visible;
             return;
         }
@@ -385,7 +386,7 @@ internal sealed partial class NextMeetingView : Grid, IWidgetView, IWidgetSurfac
         _organizer.Row.Visibility = Show(plan.Organizer);
 
         _join.Visibility = Show(item.JoinUrl is not null);
-        ToolTipService.SetToolTip(_join, Str.Meeting_JoinTip.Text());
+        ToolTipService.SetToolTip(_join, NextMeetingStr.Meeting_JoinTip.Text());
         SetRow(_join, plan.JoinBeside ? 0 : 1);
         SetColumn(_join, plan.JoinBeside ? 1 : 0);
         _join.Margin = plan.JoinBeside ? new Thickness(Fluent.Space2, 0, 0, 0) : new Thickness(0, NextMeetingLayout.Gap, 0, 0);

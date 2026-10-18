@@ -1,9 +1,4 @@
 {
-  "meeting.label": "Next meeting",
-  "meeting.desc": "Your next event, with Join for online meetings",
-  "meeting.join": "Join",
-  "meeting.joinTip": "Join the online meeting",
   "meeting.nowEnds": "Now · ends {time}",
-  "meeting.dayTime": "{day}, {time}",
-  "meeting.none": "Nothing coming up"
+  "meeting.dayTime": "{day}, {time}"
 }

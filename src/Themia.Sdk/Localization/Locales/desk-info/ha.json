@@ -1,10 +1,5 @@
 {
   "$comment": "Machine-written translations: every string in this file needs native review.",
-  "meeting.label": "Taro na gaba",
-  "meeting.desc": "Taronka na gaba, tare da Shiga don tarukan kan layi",
-  "meeting.join": "Shiga",
-  "meeting.joinTip": "Shiga taron kan layi",
   "meeting.nowEnds": "Yanzu · zai ƙare {time}",
-  "meeting.dayTime": "{day}, {time}",
-  "meeting.none": "Babu abin da ke tafe"
+  "meeting.dayTime": "{day}, {time}"
 }

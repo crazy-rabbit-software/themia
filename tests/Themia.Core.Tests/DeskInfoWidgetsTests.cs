@@ -11,28 +11,9 @@ using Xunit;
 
 namespace Themia.Core.Tests;
 
-/// <summary>Next meeting (S-4820..S-4826) and Recent files' source rules (S-4841); Recent files, Year progress and the Recycle Bin are their modules' (src/Widgets).</summary>
+/// <summary>Next meeting's shared rules (S-4821..S-4824, the SDK's) and Recent files' source rules (S-4841); the widgets themselves are their modules' (src/Widgets).</summary>
 public class DeskInfoWidgetsTests
 {
-    // -----------------------------------------------------------------------------------------
-    // [S-4800] Four kinds, four configs
-    // -----------------------------------------------------------------------------------------
-
-    [Fact]
-    public void S4820_next_meeting_never_asks_for_birthdays_and_keeps_its_calendars_on_clone()
-    {
-        var config = new NextMeetingConfig { AccountIds = ["a"], Calendars = new() { ["a"] = ["c1"] } };
-        Assert.False(config.ShowBirthdays);
-
-        var clone = Assert.IsType<NextMeetingConfig>(config.Clone());
-        Assert.Equal(["a"], clone.AccountIds);
-        Assert.Equal(["c1"], clone.Calendars["a"]);
-
-        var edited = new NextMeetingConfig { ShowBirthdays = true };
-        Assert.NotEmpty(edited.Repair());
-        Assert.False(edited.ShowBirthdays);
-    }
-
     // -----------------------------------------------------------------------------------------
     // [S-4821] Which event
     // -----------------------------------------------------------------------------------------

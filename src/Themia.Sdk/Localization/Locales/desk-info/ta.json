@@ -1,10 +1,5 @@
 {
   "$comment": "Machine-written translations: every string in this file needs native review.",
-  "meeting.label": "அடுத்த கூட்டம்",
-  "meeting.desc": "உங்கள் அடுத்த நிகழ்வு, ஆன்லைன் கூட்டங்களுக்கு சேர் பொத்தானுடன்",
-  "meeting.join": "சேர்",
-  "meeting.joinTip": "ஆன்லைன் கூட்டத்தில் சேர்",
   "meeting.nowEnds": "இப்போது · {time} க்கு முடியும்",
-  "meeting.dayTime": "{day}, {time}",
-  "meeting.none": "வரவிருப்பது எதுவும் இல்லை"
+  "meeting.dayTime": "{day}, {time}"
 }

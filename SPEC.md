@@ -6918,16 +6918,11 @@ A module of its own ([S-6911]): its section, [S-4800]..[S-4805] and [S-6040]..[S
 
 ## Next meeting (NEXT-MEETING)
 
-Owning files: `Themia.Core/Widgets/NextMeetingRules.cs`, `Themia.Core/Office/MeetingLinks.cs`,
-`Themia.App/Widgets/NextMeetingView*.cs`.
+The widget is the module `nextMeeting` (`src/Widgets/Themia.Widget.NextMeeting/`, its `SPEC.md`: the
+config, the view, the hover link, the page). What it shares stays here: the SDK's rules it is drawn
+by. Owning files: `Themia.Sdk/Widgets/NextMeetingRules.cs`, `Themia.Sdk/Office/MeetingLinks.cs`;
+tests `DeskInfoWidgetsTests` (Core).
 
-- **[S-4820]** `NextMeeting` (125): the one event that matters now from the synced calendars. Its
-  config is a `CalendarConfig` (`NextMeetingConfig`): accounts and calendars chosen as every
-  calendar widget chooses them ([S-562], [S-567]), so it needs setting up without a calendar
-  account ([S-1862]). It reads through the calendars' seam (`ICalendarData`, the offline store and
-  the shared sync, [S-2701]) for yesterday to fourteen days on, on the calendars' 5-minute poll and
-  the accounts' change event; it never fetches on its own. It never asks for birthdays (all-day,
-  never a meeting; `Repair` puts `showBirthdays` back to false).
 - **[S-4821]** Which event (`NextMeetingRules.Pick`): the timed events not declined (Graph's
   `responseStatus`, Google's attendee marked `self`; CalDAV cannot say) that have not ended. One
   under way shows until it ends, unless the next starts within 5 minutes; of several under way the
@@ -6952,14 +6947,6 @@ Owning files: `Themia.Core/Widgets/NextMeetingRules.cs`, `Themia.Core/Office/Mee
   organiser. XS with a link is the when line and Join; a short tile keeps a half inset top and
   bottom. A wide strip stands Join at the right. Join is the accent button;
   a click elsewhere on the event opens it in its calendar ([S-1268]).
-- **[S-4825]** On a view ([S-3300]), pointing at the event publishes `HoveredEvent`: the same event
-  lights in the calendar widgets there, the others dim ([S-3623]); one another widget points at
-  dims this one unless it is the same event.
-- **[S-4826]** Its settings page is the calendar widgets' accounts and calendars, with no display
-  rows. Debug: `--state sample` (a Teams meeting twelve minutes away), `running`, `none`.
-
-Needs a live pass: a signed-in Microsoft and Google account with a Teams, Zoom and Meet meeting
-(Join opening the app), a declined invitation, and the hover link with a calendar on the view.
 
 ## Recent files (RECENT-FILES)
 

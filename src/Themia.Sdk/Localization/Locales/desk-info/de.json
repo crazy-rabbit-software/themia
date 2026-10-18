@@ -1,9 +1,4 @@
 {
-  "meeting.label": "Nächster Termin",
-  "meeting.desc": "Ihr nächster Termin, mit „Teilnehmen“ für Onlinebesprechungen",
-  "meeting.join": "Teilnehmen",
-  "meeting.joinTip": "An der Onlinebesprechung teilnehmen",
   "meeting.nowEnds": "Jetzt · endet {time}",
-  "meeting.dayTime": "{day}, {time}",
-  "meeting.none": "Keine anstehenden Termine"
+  "meeting.dayTime": "{day}, {time}"
 }

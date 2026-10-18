@@ -1,9 +1,4 @@
 {
-  "meeting.label": "পরবর্তী মিটিং",
-  "meeting.desc": "আপনার পরবর্তী ইভেন্ট, অনলাইন মিটিংয়ের জন্য যোগ দিন বোতামসহ",
-  "meeting.join": "যোগ দিন",
-  "meeting.joinTip": "অনলাইন মিটিংয়ে যোগ দিন",
   "meeting.nowEnds": "এখন · {time}-এ শেষ",
-  "meeting.dayTime": "{day}, {time}",
-  "meeting.none": "সামনে কিছু নেই"
+  "meeting.dayTime": "{day}, {time}"
 }

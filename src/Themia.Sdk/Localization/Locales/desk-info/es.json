@@ -1,9 +1,4 @@
 {
-  "meeting.label": "Próxima reunión",
-  "meeting.desc": "Tu próximo evento, con Unirse para reuniones en línea",
-  "meeting.join": "Unirse",
-  "meeting.joinTip": "Unirse a la reunión en línea",
   "meeting.nowEnds": "Ahora · termina a las {time}",
-  "meeting.dayTime": "{day}, {time}",
-  "meeting.none": "Nada próximamente"
+  "meeting.dayTime": "{day}, {time}"
 }

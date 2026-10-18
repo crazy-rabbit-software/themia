@@ -1,10 +1,5 @@
 {
   "$comment": "Machine-written translations: every string in this file needs native review.",
-  "meeting.label": "తదుపరి సమావేశం",
-  "meeting.desc": "మీ తదుపరి ఈవెంట్, ఆన్‌లైన్ సమావేశాల కోసం చేరు బటన్‌తో",
-  "meeting.join": "చేరు",
-  "meeting.joinTip": "ఆన్‌లైన్ సమావేశంలో చేరండి",
   "meeting.nowEnds": "ఇప్పుడు · {time}కి ముగుస్తుంది",
-  "meeting.dayTime": "{day}, {time}",
-  "meeting.none": "రాబోయేవి ఏవీ లేవు"
+  "meeting.dayTime": "{day}, {time}"
 }

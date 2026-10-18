@@ -20,7 +20,7 @@ public class WidgetSetupTests
     [
         new WidgetId("countdown"), new WidgetId("rss"), new WidgetId("stocks"), new WidgetId("weatherNow"), new WidgetId("weatherForecast"), new WidgetId("airQuality"), new WidgetId("rainNextHour"),
         new WidgetId("videoStream"), new WidgetId("gallery"),
-        EmailConfig.Descriptor.Id, CalendarWidgetConfig.Descriptor.Id, NextMeetingConfig.Descriptor.Id,
+        EmailConfig.Descriptor.Id, CalendarWidgetConfig.Descriptor.Id, new WidgetId("nextMeeting"),
         WeekPlannerConfig.Descriptor.Id, ContactsConfig.Descriptor.Id, TasksConfig.Descriptor.Id,
     ];
 
