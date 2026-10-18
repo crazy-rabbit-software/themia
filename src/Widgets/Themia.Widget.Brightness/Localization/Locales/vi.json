@@ -1,0 +1,11 @@
+{
+  "panels.brightness.all": "Tất cả màn hình",
+  "panels.brightness.desc": "Một thanh trượt cho độ sáng màn hình",
+  "panels.brightness.label": "Độ sáng",
+  "panels.brightness.level": "Độ sáng {level}",
+  "panels.brightness.none": "Không có độ sáng màn hình để chỉnh",
+  "panels.brightness.own": "Chỉ màn hình chứa nó",
+  "panels.brightness.ownNone": "Không thể chỉnh độ sáng của màn hình này",
+  "panels.brightness.screensDesc": "Một thanh trượt cho mọi màn hình, hoặc chỉ màn hình có tiện ích",
+  "panels.brightness.screensLabel": "Màn hình được làm tối"
+}

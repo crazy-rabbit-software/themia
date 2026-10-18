@@ -1,11 +1,11 @@
-using Themia.Core.Model;
-using Themia.Core.Tests;
-using Themia.Core.Widgets;
-using Xunit;
 using System.Buffers.Binary;
 using System.Net;
 using System.Text;
 using Themia.Core.Localization;
+using Themia.Core.Model;
+using Themia.Core.Tests;
+using Themia.Core.Widgets;
+using Xunit;
 
 namespace Themia.Modules.Tests;
 

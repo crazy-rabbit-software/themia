@@ -1,0 +1,11 @@
+{
+  "panels.brightness.all": "Skrini zote",
+  "panels.brightness.desc": "Kitelezi kimoja cha mwangaza wa onyesho",
+  "panels.brightness.label": "Mwangaza",
+  "panels.brightness.level": "Mwangaza {level}",
+  "panels.brightness.none": "Hakuna mwangaza wa onyesho wa kuweka",
+  "panels.brightness.own": "Skrini iliyopo tu",
+  "panels.brightness.ownNone": "Mwangaza wa onyesho hili hauwezi kuwekwa",
+  "panels.brightness.screensDesc": "Kitelezi kimoja kwa kila skrini, au ile tu ambayo wijeti iko",
+  "panels.brightness.screensLabel": "Skrini zinazofifishwa"
+}

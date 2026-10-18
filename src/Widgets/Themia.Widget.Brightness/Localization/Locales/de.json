@@ -1,0 +1,11 @@
+{
+  "panels.brightness.all": "Alle Bildschirme",
+  "panels.brightness.desc": "Ein Regler für die Bildschirmhelligkeit",
+  "panels.brightness.label": "Helligkeit",
+  "panels.brightness.level": "Helligkeit {level}",
+  "panels.brightness.none": "Keine Bildschirmhelligkeit einstellbar",
+  "panels.brightness.own": "Nur dieser Bildschirm",
+  "panels.brightness.ownNone": "Die Helligkeit dieses Bildschirms lässt sich nicht einstellen",
+  "panels.brightness.screensDesc": "Ein Regler für alle Bildschirme oder nur für den, auf dem das Widget ist",
+  "panels.brightness.screensLabel": "Gedimmte Bildschirme"
+}

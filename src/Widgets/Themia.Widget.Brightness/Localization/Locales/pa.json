@@ -1,0 +1,11 @@
+{
+  "panels.brightness.all": "ਸਾਰੀਆਂ ਸਕ੍ਰੀਨਾਂ",
+  "panels.brightness.desc": "ਡਿਸਪਲੇ ਦੀ ਚਮਕ ਲਈ ਇੱਕ ਸਲਾਈਡਰ",
+  "panels.brightness.label": "ਚਮਕ",
+  "panels.brightness.level": "ਚਮਕ {level}",
+  "panels.brightness.none": "ਸੈੱਟ ਕਰਨ ਲਈ ਕੋਈ ਡਿਸਪਲੇ ਚਮਕ ਨਹੀਂ",
+  "panels.brightness.own": "ਸਿਰਫ਼ ਉਹ ਸਕ੍ਰੀਨ ਜਿਸ ਉੱਤੇ ਇਹ ਹੈ",
+  "panels.brightness.ownNone": "ਇਸ ਡਿਸਪਲੇ ਦੀ ਚਮਕ ਸੈੱਟ ਨਹੀਂ ਕੀਤੀ ਜਾ ਸਕਦੀ",
+  "panels.brightness.screensDesc": "ਹਰ ਸਕ੍ਰੀਨ ਲਈ ਇੱਕ ਸਲਾਈਡਰ, ਜਾਂ ਸਿਰਫ਼ ਉਸ ਲਈ ਜਿਸ ਉੱਤੇ ਵਿਜੇਟ ਹੈ",
+  "panels.brightness.screensLabel": "ਜਿਨ੍ਹਾਂ ਸਕ੍ਰੀਨਾਂ ਨੂੰ ਮੱਧਮ ਕਰਦਾ ਹੈ"
+}

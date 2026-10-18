@@ -29,14 +29,5 @@
   "panels.focus.lengthLabel": "Длительность",
   "panels.focus.lengthDesc": "Сколько длится сеанс",
   "panels.focus.quietLabel": "Включать «Не беспокоить»",
-  "panels.focus.quietDesc": "Скрывает баннеры уведомлений на время сеанса",
-  "panels.brightness.label": "Яркость",
-  "panels.brightness.desc": "Один ползунок для яркости экрана",
-  "panels.brightness.none": "Нет экранов с настраиваемой яркостью",
-  "panels.brightness.ownNone": "Яркость этого экрана нельзя настроить",
-  "panels.brightness.level": "Яркость {level}",
-  "panels.brightness.screensLabel": "Затемняемые экраны",
-  "panels.brightness.screensDesc": "Один ползунок для всех экранов или только для экрана виджета",
-  "panels.brightness.all": "Все экраны",
-  "panels.brightness.own": "Только экран, на котором он находится"
+  "panels.focus.quietDesc": "Скрывает баннеры уведомлений на время сеанса"
 }

@@ -1,4 +1,5 @@
 using System.Text.Json;
+using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Storage;
 using Themia.Core.SystemData;
@@ -6,7 +7,6 @@ using Themia.Core.Tests;
 using Themia.Core.Widgets;
 using Themia.Sdk;
 using Xunit;
-using Themia.Core.Localization;
 
 namespace Themia.Modules.Tests;
 

@@ -29,14 +29,5 @@
   "panels.focus.lengthLabel": "कालावधी",
   "panels.focus.lengthDesc": "सत्र किती वेळ चालते",
   "panels.focus.quietLabel": "व्यत्यय आणू नका चालू करा",
-  "panels.focus.quietDesc": "सत्र चालू असताना सूचना बॅनर थांबवते",
-  "panels.brightness.label": "ब्राइटनेस",
-  "panels.brightness.desc": "डिस्प्ले ब्राइटनेससाठी एक स्लायडर",
-  "panels.brightness.none": "सेट करण्यासाठी डिस्प्ले ब्राइटनेस नाही",
-  "panels.brightness.ownNone": "या डिस्प्लेचा ब्राइटनेस सेट करता येत नाही",
-  "panels.brightness.level": "ब्राइटनेस {level}",
-  "panels.brightness.screensLabel": "मंद होणाऱ्या स्क्रीन",
-  "panels.brightness.screensDesc": "सर्व स्क्रीनसाठी एक स्लायडर, किंवा फक्त विजेट असलेली स्क्रीन",
-  "panels.brightness.all": "सर्व स्क्रीन",
-  "panels.brightness.own": "फक्त ती असलेली स्क्रीन"
+  "panels.focus.quietDesc": "सत्र चालू असताना सूचना बॅनर थांबवते"
 }

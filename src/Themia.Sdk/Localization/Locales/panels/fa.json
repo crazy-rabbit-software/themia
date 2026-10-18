@@ -29,14 +29,5 @@
   "panels.focus.lengthLabel": "مدت",
   "panels.focus.lengthDesc": "مدت هر جلسه",
   "panels.focus.quietLabel": "روشن کردن مزاحم نشوید",
-  "panels.focus.quietDesc": "در طول جلسه، بنرهای اعلان را نگه می‌دارد",
-  "panels.brightness.label": "روشنایی",
-  "panels.brightness.desc": "یک لغزنده برای روشنایی نمایشگر",
-  "panels.brightness.none": "روشنایی نمایشگری برای تنظیم نیست",
-  "panels.brightness.ownNone": "روشنایی این نمایشگر قابل تنظیم نیست",
-  "panels.brightness.level": "روشنایی {level}",
-  "panels.brightness.screensLabel": "صفحه‌هایی که کم‌نور می‌کند",
-  "panels.brightness.screensDesc": "یک لغزنده برای همه صفحه‌ها، یا فقط صفحه‌ای که ویجت روی آن است",
-  "panels.brightness.all": "همه صفحه‌ها",
-  "panels.brightness.own": "فقط صفحه خودش"
+  "panels.focus.quietDesc": "در طول جلسه، بنرهای اعلان را نگه می‌دارد"
 }

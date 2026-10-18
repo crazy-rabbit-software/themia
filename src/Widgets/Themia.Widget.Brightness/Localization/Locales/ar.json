@@ -1,0 +1,11 @@
+{
+  "panels.brightness.all": "كل الشاشات",
+  "panels.brightness.desc": "شريط تمرير واحد لسطوع الشاشة",
+  "panels.brightness.label": "السطوع",
+  "panels.brightness.level": "السطوع {level}",
+  "panels.brightness.none": "لا يوجد سطوع شاشة لضبطه",
+  "panels.brightness.own": "الشاشة التي عليها فقط",
+  "panels.brightness.ownNone": "لا يمكن ضبط سطوع هذه الشاشة",
+  "panels.brightness.screensDesc": "شريط واحد لكل الشاشات، أو للشاشة التي عليها الأداة فقط",
+  "panels.brightness.screensLabel": "الشاشات التي يعتّمها"
+}

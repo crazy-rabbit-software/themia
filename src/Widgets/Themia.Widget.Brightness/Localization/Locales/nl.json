@@ -1,0 +1,11 @@
+{
+  "panels.brightness.all": "Alle schermen",
+  "panels.brightness.desc": "Eén schuifregelaar voor de schermhelderheid",
+  "panels.brightness.label": "Helderheid",
+  "panels.brightness.level": "Helderheid {level}",
+  "panels.brightness.none": "Geen schermhelderheid om in te stellen",
+  "panels.brightness.own": "Alleen het scherm waarop het staat",
+  "panels.brightness.ownNone": "De helderheid van dit scherm kan niet worden ingesteld",
+  "panels.brightness.screensDesc": "Eén schuifregelaar voor alle schermen, of alleen voor het scherm van de widget",
+  "panels.brightness.screensLabel": "Schermen die het dimt"
+}

@@ -1,0 +1,11 @@
+{
+  "panels.brightness.all": "Tutti gli schermi",
+  "panels.brightness.desc": "Un cursore per la luminosità dello schermo",
+  "panels.brightness.label": "Luminosità",
+  "panels.brightness.level": "Luminosità {level}",
+  "panels.brightness.none": "Nessuna luminosità dello schermo da regolare",
+  "panels.brightness.own": "Solo lo schermo in cui si trova",
+  "panels.brightness.ownNone": "La luminosità di questo schermo non può essere regolata",
+  "panels.brightness.screensDesc": "Un cursore per tutti gli schermi o solo per quello del widget",
+  "panels.brightness.screensLabel": "Schermi regolati"
+}

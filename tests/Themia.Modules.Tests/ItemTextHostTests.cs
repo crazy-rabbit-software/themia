@@ -1,8 +1,8 @@
+using Themia.Core.Geometry;
 using Themia.Core.Model;
 using Themia.Core.Storage;
-using Xunit;
-using Themia.Core.Geometry;
 using Themia.Core.Widgets;
+using Xunit;
 
 namespace Themia.Modules.Tests;
 

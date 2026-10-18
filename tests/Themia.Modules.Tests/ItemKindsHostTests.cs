@@ -1,10 +1,10 @@
+using System.Text.RegularExpressions;
+using Themia.Core.Geometry;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
 using Themia.Sdk;
-using Xunit;
-using System.Text.RegularExpressions;
-using Themia.Core.Geometry;
 using Themia.Tests;
+using Xunit;
 
 namespace Themia.Modules.Tests;
 

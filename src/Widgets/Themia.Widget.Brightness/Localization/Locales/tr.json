@@ -1,0 +1,11 @@
+{
+  "panels.brightness.all": "Tüm ekranlar",
+  "panels.brightness.desc": "Ekran parlaklığı için tek bir kaydırıcı",
+  "panels.brightness.label": "Parlaklık",
+  "panels.brightness.level": "Parlaklık {level}",
+  "panels.brightness.none": "Ayarlanacak ekran parlaklığı yok",
+  "panels.brightness.own": "Yalnızca bulunduğu ekran",
+  "panels.brightness.ownNone": "Bu ekranın parlaklığı ayarlanamıyor",
+  "panels.brightness.screensDesc": "Tüm ekranlar için tek kaydırıcı ya da yalnızca pencere öğesinin olduğu ekran",
+  "panels.brightness.screensLabel": "Karartılan ekranlar"
+}

@@ -29,14 +29,5 @@
   "panels.focus.lengthLabel": "Haba",
   "panels.focus.lengthDesc": "Gaano katagal tatakbo ang isang session",
   "panels.focus.quietLabel": "I-on ang Huwag istorbohin",
-  "panels.focus.quietDesc": "Pinipigil ang mga banner ng notification habang tumatakbo ang session",
-  "panels.brightness.label": "Liwanag",
-  "panels.brightness.desc": "Isang slider para sa liwanag ng display",
-  "panels.brightness.none": "Walang liwanag ng display na maitatakda",
-  "panels.brightness.ownNone": "Hindi maitakda ang liwanag ng display na ito",
-  "panels.brightness.level": "Liwanag {level}",
-  "panels.brightness.screensLabel": "Mga screen na pinalalabo",
-  "panels.brightness.screensDesc": "Isang slider para sa bawat screen, o para lang sa screen na kinalalagyan ng widget",
-  "panels.brightness.all": "Lahat ng screen",
-  "panels.brightness.own": "Ang screen lang na kinalalagyan nito"
+  "panels.focus.quietDesc": "Pinipigil ang mga banner ng notification habang tumatakbo ang session"
 }

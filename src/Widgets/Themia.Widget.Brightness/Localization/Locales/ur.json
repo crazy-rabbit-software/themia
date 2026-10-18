@@ -1,0 +1,11 @@
+{
+  "panels.brightness.all": "سب اسکرینیں",
+  "panels.brightness.desc": "ڈسپلے کی چمک کے لیے ایک سلائیڈر",
+  "panels.brightness.label": "چمک",
+  "panels.brightness.level": "چمک {level}",
+  "panels.brightness.none": "سیٹ کرنے کے لیے کوئی ڈسپلے چمک نہیں",
+  "panels.brightness.own": "صرف وہ اسکرین جس پر یہ ہے",
+  "panels.brightness.ownNone": "اس ڈسپلے کی چمک سیٹ نہیں ہو سکتی",
+  "panels.brightness.screensDesc": "سب اسکرینوں کے لیے ایک سلائیڈر، یا صرف ویجیٹ والی اسکرین",
+  "panels.brightness.screensLabel": "مدھم ہونے والی اسکرینیں"
+}

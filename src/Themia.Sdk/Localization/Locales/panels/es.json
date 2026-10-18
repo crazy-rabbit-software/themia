@@ -29,14 +29,5 @@
   "panels.focus.lengthLabel": "Duración",
   "panels.focus.lengthDesc": "Cuánto dura una sesión",
   "panels.focus.quietLabel": "Activar No molestar",
-  "panels.focus.quietDesc": "Retiene los avisos de notificación mientras dura la sesión",
-  "panels.brightness.label": "Brillo",
-  "panels.brightness.desc": "Un control deslizante para el brillo de la pantalla",
-  "panels.brightness.none": "No hay brillo de pantalla que ajustar",
-  "panels.brightness.ownNone": "El brillo de esta pantalla no se puede ajustar",
-  "panels.brightness.level": "Brillo {level}",
-  "panels.brightness.screensLabel": "Pantallas que atenúa",
-  "panels.brightness.screensDesc": "Un control para todas las pantallas o solo para la del widget",
-  "panels.brightness.all": "Todas las pantallas",
-  "panels.brightness.own": "Solo la pantalla en la que está"
+  "panels.focus.quietDesc": "Retiene los avisos de notificación mientras dura la sesión"
 }

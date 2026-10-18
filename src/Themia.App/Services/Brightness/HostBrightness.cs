@@ -21,4 +21,6 @@ internal sealed class HostBrightness : IBrightness
     public bool Set(string? own, BrightnessScreens screens, int level) => BrightnessService.Set(own, screens, level);
 
     public int? Asked(string device) => BrightnessService.Asked(device);
+
+    public string? DeviceOf(nint window) => BrightnessNative.DeviceOf(window);
 }

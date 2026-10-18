@@ -1,0 +1,11 @@
+{
+  "panels.brightness.all": "すべての画面",
+  "panels.brightness.desc": "画面の明るさを 1 つのスライダーで",
+  "panels.brightness.label": "明るさ",
+  "panels.brightness.level": "明るさ {level}",
+  "panels.brightness.none": "調整できる画面の明るさがありません",
+  "panels.brightness.own": "ウィジェットのある画面のみ",
+  "panels.brightness.ownNone": "この画面の明るさは調整できません",
+  "panels.brightness.screensDesc": "すべての画面に 1 つのスライダー、またはウィジェットのある画面だけ",
+  "panels.brightness.screensLabel": "暗くする画面"
+}

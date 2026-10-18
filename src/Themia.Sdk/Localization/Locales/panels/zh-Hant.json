@@ -29,14 +29,5 @@
   "panels.focus.lengthLabel": "長度",
   "panels.focus.lengthDesc": "工作階段持續多久",
   "panels.focus.quietLabel": "開啟勿擾模式",
-  "panels.focus.quietDesc": "工作階段期間不顯示通知橫幅",
-  "panels.brightness.label": "亮度",
-  "panels.brightness.desc": "用一個滑桿調整螢幕亮度",
-  "panels.brightness.none": "沒有可調整亮度的螢幕",
-  "panels.brightness.ownNone": "無法調整此螢幕的亮度",
-  "panels.brightness.level": "亮度 {level}",
-  "panels.brightness.screensLabel": "調暗的螢幕",
-  "panels.brightness.screensDesc": "一個滑桿調整所有螢幕，或僅調整小工具所在的螢幕",
-  "panels.brightness.all": "所有螢幕",
-  "panels.brightness.own": "僅小工具所在的螢幕"
+  "panels.focus.quietDesc": "工作階段期間不顯示通知橫幅"
 }

@@ -1,0 +1,11 @@
+{
+  "panels.brightness.all": "सभी स्क्रीनें",
+  "panels.brightness.desc": "डिस्प्ले की चमक के लिए एक स्लाइडर",
+  "panels.brightness.label": "चमक",
+  "panels.brightness.level": "चमक {level}",
+  "panels.brightness.none": "सेट करने के लिए कोई डिस्प्ले चमक नहीं",
+  "panels.brightness.own": "केवल वह स्क्रीन जिस पर यह है",
+  "panels.brightness.ownNone": "इस डिस्प्ले की चमक सेट नहीं की जा सकती",
+  "panels.brightness.screensDesc": "सभी स्क्रीनों के लिए एक स्लाइडर, या केवल विजेट वाली स्क्रीन",
+  "panels.brightness.screensLabel": "मंद होने वाली स्क्रीनें"
+}

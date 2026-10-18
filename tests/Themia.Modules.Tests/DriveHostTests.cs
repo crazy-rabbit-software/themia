@@ -1,8 +1,8 @@
+using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Tests;
 using Themia.Core.Widgets;
 using Xunit;
-using Themia.Core.Localization;
 
 namespace Themia.Modules.Tests;
 

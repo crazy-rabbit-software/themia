@@ -29,14 +29,5 @@
   "panels.focus.lengthLabel": "Duur",
   "panels.focus.lengthDesc": "Hoe lang een sessie duurt",
   "panels.focus.quietLabel": "Niet storen aanzetten",
-  "panels.focus.quietDesc": "Houdt meldingsbanners tegen zolang de sessie loopt",
-  "panels.brightness.label": "Helderheid",
-  "panels.brightness.desc": "Eén schuifregelaar voor de schermhelderheid",
-  "panels.brightness.none": "Geen schermhelderheid om in te stellen",
-  "panels.brightness.ownNone": "De helderheid van dit scherm kan niet worden ingesteld",
-  "panels.brightness.level": "Helderheid {level}",
-  "panels.brightness.screensLabel": "Schermen die het dimt",
-  "panels.brightness.screensDesc": "Eén schuifregelaar voor alle schermen, of alleen voor het scherm van de widget",
-  "panels.brightness.all": "Alle schermen",
-  "panels.brightness.own": "Alleen het scherm waarop het staat"
+  "panels.focus.quietDesc": "Houdt meldingsbanners tegen zolang de sessie loopt"
 }

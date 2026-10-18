@@ -5825,9 +5825,7 @@ App: `NotificationsView`, `FocusSessionView`, `BrightnessView` (each with a `.Pr
 
 ### Brightness
 
-- **[S-4440]** Kind `Brightness` (123), add menu Devices & power ([S-3511]), 200×150, glyph the sun. One
-  slider and the sun, no number, no display names (Karpo §35, §103: no flyout); a column stands it up
-  as the volume tile ([S-2731]).
+- [S-4440], [S-4445], [S-4446]: moved with the Brightness widget into its module's `SPEC.md` (`src/Widgets/Themia.Widget.Brightness/`).
 - **[S-4441]** How a display is reached, without WMI (Native AOT): a **built-in panel** (the display
   configuration API's output technology internal, LVDS or embedded DisplayPort) through Windows' power
   policy — `VIDEO_BRIGHTNESS` of the active plan, AC or DC as in force, applied with
@@ -5847,9 +5845,6 @@ App: `NotificationsView`, `FocusSessionView`, `BrightnessView` (each with a `.Pr
   nothing queues; a dragged level stays on the slider until the display has said what it took.
 - **[S-4444]** Keys: arrows and +/− by 1, Page Up/Down by 10, Home/End to 0 and 100; the wheel anywhere
   on the tile, part-notches carried as on the volume tile.
-- **[S-4445]** No display has a brightness: "No display brightness to set". Until the displays have
-  been looked at the widget draws its frame only.
-- **[S-4446]** Settings page: Screens it dims (All screens / Only the screen it's on).
 - Needs a live pass: notifications on the packaged build (consent prompt, Store capability) and
   unpackaged (privacy page), a reply-less toast clicked, dismiss and clear reaching Windows' list;
   do not disturb held and handed back by a session, a Windows focus session from Clock showing; a

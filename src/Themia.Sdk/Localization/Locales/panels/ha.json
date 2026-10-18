@@ -29,14 +29,5 @@
   "panels.focus.lengthLabel": "Tsawo",
   "panels.focus.lengthDesc": "Tsawon lokacin da zama ke ɗauka",
   "panels.focus.quietLabel": "Kunna kar a dame ni",
-  "panels.focus.quietDesc": "Yana riƙe tutocin sanarwa yayin da zaman ke gudana",
-  "panels.brightness.label": "Haske",
-  "panels.brightness.desc": "Majanyi ɗaya don hasken allo",
-  "panels.brightness.none": "Babu hasken allo da za a saita",
-  "panels.brightness.ownNone": "Ba za a iya saita hasken wannan allo ba",
-  "panels.brightness.level": "Haske {level}",
-  "panels.brightness.screensLabel": "Allon da yake rage wa haske",
-  "panels.brightness.screensDesc": "Majanyi ɗaya don kowane allo, ko kawai wanda widget ɗin yake kai",
-  "panels.brightness.all": "Duk fuska",
-  "panels.brightness.own": "Allon da yake kai kawai"
+  "panels.focus.quietDesc": "Yana riƙe tutocin sanarwa yayin da zaman ke gudana"
 }

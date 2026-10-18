@@ -29,14 +29,5 @@
   "panels.focus.lengthLabel": "Độ dài",
   "panels.focus.lengthDesc": "Một phiên kéo dài bao lâu",
   "panels.focus.quietLabel": "Bật Không làm phiền",
-  "panels.focus.quietDesc": "Giữ lại biểu ngữ thông báo trong khi phiên đang chạy",
-  "panels.brightness.label": "Độ sáng",
-  "panels.brightness.desc": "Một thanh trượt cho độ sáng màn hình",
-  "panels.brightness.none": "Không có độ sáng màn hình để chỉnh",
-  "panels.brightness.ownNone": "Không thể chỉnh độ sáng của màn hình này",
-  "panels.brightness.level": "Độ sáng {level}",
-  "panels.brightness.screensLabel": "Màn hình được làm tối",
-  "panels.brightness.screensDesc": "Một thanh trượt cho mọi màn hình, hoặc chỉ màn hình có tiện ích",
-  "panels.brightness.all": "Tất cả màn hình",
-  "panels.brightness.own": "Chỉ màn hình chứa nó"
+  "panels.focus.quietDesc": "Giữ lại biểu ngữ thông báo trong khi phiên đang chạy"
 }

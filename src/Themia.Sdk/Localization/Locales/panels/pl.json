@@ -29,14 +29,5 @@
   "panels.focus.lengthLabel": "Długość",
   "panels.focus.lengthDesc": "Jak długo trwa sesja",
   "panels.focus.quietLabel": "Włącz Nie przeszkadzać",
-  "panels.focus.quietDesc": "Wstrzymuje banery powiadomień na czas sesji",
-  "panels.brightness.label": "Jasność",
-  "panels.brightness.desc": "Jeden suwak jasności ekranu",
-  "panels.brightness.none": "Brak jasności ekranu do ustawienia",
-  "panels.brightness.ownNone": "Nie można ustawić jasności tego ekranu",
-  "panels.brightness.level": "Jasność {level}",
-  "panels.brightness.screensLabel": "Ściemniane ekrany",
-  "panels.brightness.screensDesc": "Jeden suwak dla wszystkich ekranów lub tylko dla ekranu widżetu",
-  "panels.brightness.all": "Wszystkie ekrany",
-  "panels.brightness.own": "Tylko ekran, na którym jest"
+  "panels.focus.quietDesc": "Wstrzymuje banery powiadomień na czas sesji"
 }

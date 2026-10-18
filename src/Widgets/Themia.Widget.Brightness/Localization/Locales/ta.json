@@ -1,0 +1,11 @@
+{
+  "panels.brightness.all": "எல்லாத் திரைகளும்",
+  "panels.brightness.desc": "திரை ஒளிர்வுக்கு ஒரு ஸ்லைடர்",
+  "panels.brightness.label": "ஒளிர்வு",
+  "panels.brightness.level": "ஒளிர்வு {level}",
+  "panels.brightness.none": "அமைக்கக்கூடிய திரை ஒளிர்வு இல்லை",
+  "panels.brightness.own": "அது உள்ள திரை மட்டும்",
+  "panels.brightness.ownNone": "இந்தத் திரையின் ஒளிர்வை அமைக்க முடியாது",
+  "panels.brightness.screensDesc": "எல்லாத் திரைகளுக்கும் ஒரு ஸ்லைடர், அல்லது விட்ஜெட் உள்ள திரைக்கு மட்டும்",
+  "panels.brightness.screensLabel": "மங்கச்செய்யும் திரைகள்"
+}

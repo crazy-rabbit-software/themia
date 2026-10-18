@@ -29,14 +29,5 @@
   "panels.focus.lengthLabel": "المدة",
   "panels.focus.lengthDesc": "مدة الجلسة",
   "panels.focus.quietLabel": "تشغيل عدم الإزعاج",
-  "panels.focus.quietDesc": "يحجب لافتات الإشعارات أثناء الجلسة",
-  "panels.brightness.label": "السطوع",
-  "panels.brightness.desc": "شريط تمرير واحد لسطوع الشاشة",
-  "panels.brightness.none": "لا يوجد سطوع شاشة لضبطه",
-  "panels.brightness.ownNone": "لا يمكن ضبط سطوع هذه الشاشة",
-  "panels.brightness.level": "السطوع {level}",
-  "panels.brightness.screensLabel": "الشاشات التي يعتّمها",
-  "panels.brightness.screensDesc": "شريط واحد لكل الشاشات، أو للشاشة التي عليها الأداة فقط",
-  "panels.brightness.all": "كل الشاشات",
-  "panels.brightness.own": "الشاشة التي عليها فقط"
+  "panels.focus.quietDesc": "يحجب لافتات الإشعارات أثناء الجلسة"
 }

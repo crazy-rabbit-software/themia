@@ -24,4 +24,7 @@ public interface IBrightness
 
     /// <summary>[S-4443] The level being written to a display, until it has said what it took.</summary>
     int? Asked(string device);
+
+    /// <summary>[S-4442] The display a window is on (its device name), for "only the screen it's on"; null where none.</summary>
+    string? DeviceOf(nint window);
 }

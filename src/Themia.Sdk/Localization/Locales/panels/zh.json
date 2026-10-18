@@ -29,14 +29,5 @@
   "panels.focus.lengthLabel": "时长",
   "panels.focus.lengthDesc": "一个时段持续多久",
   "panels.focus.quietLabel": "开启请勿打扰",
-  "panels.focus.quietDesc": "专注期间不显示通知横幅",
-  "panels.brightness.label": "亮度",
-  "panels.brightness.desc": "用一个滑块调节屏幕亮度",
-  "panels.brightness.none": "没有可调节亮度的屏幕",
-  "panels.brightness.ownNone": "无法调节此屏幕的亮度",
-  "panels.brightness.level": "亮度 {level}",
-  "panels.brightness.screensLabel": "调暗的屏幕",
-  "panels.brightness.screensDesc": "一个滑块调节所有屏幕，或仅调节小组件所在的屏幕",
-  "panels.brightness.all": "所有屏幕",
-  "panels.brightness.own": "仅小组件所在的屏幕"
+  "panels.focus.quietDesc": "专注期间不显示通知横幅"
 }

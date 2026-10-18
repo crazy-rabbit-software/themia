@@ -29,14 +29,5 @@
   "panels.focus.lengthLabel": "Dauer",
   "panels.focus.lengthDesc": "Wie lange eine Sitzung läuft",
   "panels.focus.quietLabel": "„Nicht stören“ einschalten",
-  "panels.focus.quietDesc": "Hält Benachrichtigungsbanner zurück, solange die Sitzung läuft",
-  "panels.brightness.label": "Helligkeit",
-  "panels.brightness.desc": "Ein Regler für die Bildschirmhelligkeit",
-  "panels.brightness.none": "Keine Bildschirmhelligkeit einstellbar",
-  "panels.brightness.ownNone": "Die Helligkeit dieses Bildschirms lässt sich nicht einstellen",
-  "panels.brightness.level": "Helligkeit {level}",
-  "panels.brightness.screensLabel": "Gedimmte Bildschirme",
-  "panels.brightness.screensDesc": "Ein Regler für alle Bildschirme oder nur für den, auf dem das Widget ist",
-  "panels.brightness.all": "Alle Bildschirme",
-  "panels.brightness.own": "Nur dieser Bildschirm"
+  "panels.focus.quietDesc": "Hält Benachrichtigungsbanner zurück, solange die Sitzung läuft"
 }

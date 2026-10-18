@@ -1,0 +1,11 @@
+{
+  "panels.brightness.all": "Duk fuska",
+  "panels.brightness.desc": "Majanyi ɗaya don hasken allo",
+  "panels.brightness.label": "Haske",
+  "panels.brightness.level": "Haske {level}",
+  "panels.brightness.none": "Babu hasken allo da za a saita",
+  "panels.brightness.own": "Allon da yake kai kawai",
+  "panels.brightness.ownNone": "Ba za a iya saita hasken wannan allo ba",
+  "panels.brightness.screensDesc": "Majanyi ɗaya don kowane allo, ko kawai wanda widget ɗin yake kai",
+  "panels.brightness.screensLabel": "Allon da yake rage wa haske"
+}

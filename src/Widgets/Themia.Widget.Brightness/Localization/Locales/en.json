@@ -1,0 +1,12 @@
+{
+  "$englishOnly": [],
+  "panels.brightness.all": "All screens",
+  "panels.brightness.desc": "One slider for the display brightness",
+  "panels.brightness.label": "Brightness",
+  "panels.brightness.level": "Brightness {level}",
+  "panels.brightness.none": "No display brightness to set",
+  "panels.brightness.own": "Only the screen it's on",
+  "panels.brightness.ownNone": "This display's brightness can't be set",
+  "panels.brightness.screensDesc": "One slider for every screen, or only the one the widget is on",
+  "panels.brightness.screensLabel": "Screens it dims"
+}

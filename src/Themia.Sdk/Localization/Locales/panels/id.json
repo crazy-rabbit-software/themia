@@ -29,14 +29,5 @@
   "panels.focus.lengthLabel": "Durasi",
   "panels.focus.lengthDesc": "Berapa lama sesi berjalan",
   "panels.focus.quietLabel": "Aktifkan Jangan ganggu",
-  "panels.focus.quietDesc": "Menahan banner notifikasi selama sesi berjalan",
-  "panels.brightness.label": "Kecerahan",
-  "panels.brightness.desc": "Satu penggeser untuk kecerahan layar",
-  "panels.brightness.none": "Tidak ada kecerahan layar yang bisa diatur",
-  "panels.brightness.ownNone": "Kecerahan layar ini tidak dapat diatur",
-  "panels.brightness.level": "Kecerahan {level}",
-  "panels.brightness.screensLabel": "Layar yang diredupkan",
-  "panels.brightness.screensDesc": "Satu penggeser untuk semua layar, atau hanya layar tempat widget berada",
-  "panels.brightness.all": "Semua layar",
-  "panels.brightness.own": "Hanya layar tempatnya berada"
+  "panels.focus.quietDesc": "Menahan banner notifikasi selama sesi berjalan"
 }

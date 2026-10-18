@@ -29,14 +29,5 @@
   "panels.focus.lengthLabel": "Durée",
   "panels.focus.lengthDesc": "Durée d'une session",
   "panels.focus.quietLabel": "Activer Ne pas déranger",
-  "panels.focus.quietDesc": "Retient les bannières de notification pendant la session",
-  "panels.brightness.label": "Luminosité",
-  "panels.brightness.desc": "Un curseur pour la luminosité de l'écran",
-  "panels.brightness.none": "Aucune luminosité d'écran à régler",
-  "panels.brightness.ownNone": "La luminosité de cet écran ne peut pas être réglée",
-  "panels.brightness.level": "Luminosité {level}",
-  "panels.brightness.screensLabel": "Écrans atténués",
-  "panels.brightness.screensDesc": "Un curseur pour tous les écrans, ou seulement celui du widget",
-  "panels.brightness.all": "Tous les écrans",
-  "panels.brightness.own": "Seulement l'écran où il se trouve"
+  "panels.focus.quietDesc": "Retient les bannières de notification pendant la session"
 }

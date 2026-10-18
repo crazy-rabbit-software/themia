@@ -1,0 +1,11 @@
+{
+  "panels.brightness.all": "બધી સ્ક્રીન",
+  "panels.brightness.desc": "ડિસ્પ્લેના તેજ માટે એક સ્લાઇડર",
+  "panels.brightness.label": "તેજ",
+  "panels.brightness.level": "તેજ {level}",
+  "panels.brightness.none": "સેટ કરવા માટે કોઈ ડિસ્પ્લે તેજ નથી",
+  "panels.brightness.own": "ફક્ત તે જે સ્ક્રીન પર છે",
+  "panels.brightness.ownNone": "આ ડિસ્પ્લેનું તેજ સેટ કરી શકાતું નથી",
+  "panels.brightness.screensDesc": "દરેક સ્ક્રીન માટે એક સ્લાઇડર, અથવા ફક્ત વિજેટ જે સ્ક્રીન પર છે તે",
+  "panels.brightness.screensLabel": "તે ઝાંખી કરે તે સ્ક્રીન"
+}

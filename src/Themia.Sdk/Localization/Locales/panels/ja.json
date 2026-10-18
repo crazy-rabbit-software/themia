@@ -29,14 +29,5 @@
   "panels.focus.lengthLabel": "長さ",
   "panels.focus.lengthDesc": "セッションの長さ",
   "panels.focus.quietLabel": "応答不可をオンにする",
-  "panels.focus.quietDesc": "セッション中は通知バナーを表示しません",
-  "panels.brightness.label": "明るさ",
-  "panels.brightness.desc": "画面の明るさを 1 つのスライダーで",
-  "panels.brightness.none": "調整できる画面の明るさがありません",
-  "panels.brightness.ownNone": "この画面の明るさは調整できません",
-  "panels.brightness.level": "明るさ {level}",
-  "panels.brightness.screensLabel": "暗くする画面",
-  "panels.brightness.screensDesc": "すべての画面に 1 つのスライダー、またはウィジェットのある画面だけ",
-  "panels.brightness.all": "すべての画面",
-  "panels.brightness.own": "ウィジェットのある画面のみ"
+  "panels.focus.quietDesc": "セッション中は通知バナーを表示しません"
 }

@@ -28,14 +28,5 @@
   "panels.focus.lengthLabel": "Length",
   "panels.focus.lengthDesc": "How long a session runs",
   "panels.focus.quietLabel": "Turn on do not disturb",
-  "panels.focus.quietDesc": "Holds back notification banners while the session runs",
-  "panels.brightness.label": "Brightness",
-  "panels.brightness.desc": "One slider for the display brightness",
-  "panels.brightness.none": "No display brightness to set",
-  "panels.brightness.ownNone": "This display's brightness can't be set",
-  "panels.brightness.level": "Brightness {level}",
-  "panels.brightness.screensLabel": "Screens it dims",
-  "panels.brightness.screensDesc": "One slider for every screen, or only the one the widget is on",
-  "panels.brightness.all": "All screens",
-  "panels.brightness.own": "Only the screen it's on"
+  "panels.focus.quietDesc": "Holds back notification banners while the session runs"
 }

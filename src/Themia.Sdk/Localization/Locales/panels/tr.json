@@ -29,14 +29,5 @@
   "panels.focus.lengthLabel": "Süre",
   "panels.focus.lengthDesc": "Bir oturumun süresi",
   "panels.focus.quietLabel": "Rahatsız etmeyin'i aç",
-  "panels.focus.quietDesc": "Oturum sürerken bildirim başlıklarını gizler",
-  "panels.brightness.label": "Parlaklık",
-  "panels.brightness.desc": "Ekran parlaklığı için tek bir kaydırıcı",
-  "panels.brightness.none": "Ayarlanacak ekran parlaklığı yok",
-  "panels.brightness.ownNone": "Bu ekranın parlaklığı ayarlanamıyor",
-  "panels.brightness.level": "Parlaklık {level}",
-  "panels.brightness.screensLabel": "Karartılan ekranlar",
-  "panels.brightness.screensDesc": "Tüm ekranlar için tek kaydırıcı ya da yalnızca pencere öğesinin olduğu ekran",
-  "panels.brightness.all": "Tüm ekranlar",
-  "panels.brightness.own": "Yalnızca bulunduğu ekran"
+  "panels.focus.quietDesc": "Oturum sürerken bildirim başlıklarını gizler"
 }

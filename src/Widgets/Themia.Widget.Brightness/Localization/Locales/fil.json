@@ -1,0 +1,11 @@
+{
+  "panels.brightness.all": "Lahat ng screen",
+  "panels.brightness.desc": "Isang slider para sa liwanag ng display",
+  "panels.brightness.label": "Liwanag",
+  "panels.brightness.level": "Liwanag {level}",
+  "panels.brightness.none": "Walang liwanag ng display na maitatakda",
+  "panels.brightness.own": "Ang screen lang na kinalalagyan nito",
+  "panels.brightness.ownNone": "Hindi maitakda ang liwanag ng display na ito",
+  "panels.brightness.screensDesc": "Isang slider para sa bawat screen, o para lang sa screen na kinalalagyan ng widget",
+  "panels.brightness.screensLabel": "Mga screen na pinalalabo"
+}

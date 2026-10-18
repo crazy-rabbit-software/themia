@@ -11,6 +11,7 @@ using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
 using Themia.Sdk.WinUI;
+using Themia.Widget.Brightness;
 using Glyphs = Themia.App.Shell.Glyphs;
 
 namespace Themia.App.Widgets;
@@ -155,7 +156,7 @@ internal sealed partial class BrightnessView : Grid, IWidgetView, IWidgetSizeAwa
 
         if (XamlRoot?.ContentIslandEnvironment is { } environment)
         {
-            _own = BrightnessNative.DeviceOf((nint)Microsoft.UI.Win32Interop.GetWindowFromWindowId(environment.AppWindowId));
+            _own = _brightness.DeviceOf((nint)Microsoft.UI.Win32Interop.GetWindowFromWindowId(environment.AppWindowId));
         }
 
         return _own;
@@ -239,7 +240,7 @@ internal sealed partial class BrightnessView : Grid, IWidgetView, IWidgetSizeAwa
         if (Level() is not { } level)
         {
             // [S-4445] Nothing to set: none at all, or not the display this one is on.
-            _emptyText.Text = snapshot.Displays.Count == 0 ? Str.Panels_Brightness_None.Text() : Str.Panels_Brightness_OwnNone.Text();
+            _emptyText.Text = snapshot.Displays.Count == 0 ? BrightnessStr.Panels_Brightness_None.Text() : BrightnessStr.Panels_Brightness_OwnNone.Text();
             _empty.Visibility = Visibility.Visible;
             _band.Visibility = Visibility.Collapsed;
             AutomationProperties.SetName(this, _emptyText.Text);
@@ -256,7 +257,7 @@ internal sealed partial class BrightnessView : Grid, IWidgetView, IWidgetSizeAwa
             _echoing = false;
         }
 
-        var words = Str.Panels_Brightness_Level.Format(("level", Formatting.Percent(level / 100.0)));
+        var words = BrightnessStr.Panels_Brightness_Level.Format(("level", Formatting.Percent(level / 100.0)));
         AutomationProperties.SetName(_slider, words);
         ToolTipService.SetToolTip(_sun, words);
     }

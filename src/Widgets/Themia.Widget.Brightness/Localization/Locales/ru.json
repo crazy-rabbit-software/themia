@@ -1,0 +1,11 @@
+{
+  "panels.brightness.all": "Все экраны",
+  "panels.brightness.desc": "Один ползунок для яркости экрана",
+  "panels.brightness.label": "Яркость",
+  "panels.brightness.level": "Яркость {level}",
+  "panels.brightness.none": "Нет экранов с настраиваемой яркостью",
+  "panels.brightness.own": "Только экран, на котором он находится",
+  "panels.brightness.ownNone": "Яркость этого экрана нельзя настроить",
+  "panels.brightness.screensDesc": "Один ползунок для всех экранов или только для экрана виджета",
+  "panels.brightness.screensLabel": "Затемняемые экраны"
+}

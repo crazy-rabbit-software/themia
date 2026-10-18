@@ -31,21 +31,4 @@ internal static partial class WidgetSettings
             FluentLayout.Toggle(config.DoNotDisturb, value => { config.DoNotDisturb = value; save(); }),
             "dnd", "notifications", "silence"));
     }
-
-    public static void Brightness(List<FrameworkElement> rows, BrightnessConfig config, Action save)
-    {
-        ArgumentNullException.ThrowIfNull(rows);
-        ArgumentNullException.ThrowIfNull(config);
-        ArgumentNullException.ThrowIfNull(save);
-
-        rows.Add(FluentLayout.Header(Str.Panels_Brightness_Label.Text()));
-
-        // [S-4442] Karpo's one choice: every screen together (the default) or the one it is on.
-        rows.Add(FluentLayout.Row(Glyphs.Display, Str.Panels_Brightness_ScreensLabel.Text(), Str.Panels_Brightness_ScreensDesc.Text(),
-            FluentLayout.Choice(
-                [(BrightnessScreens.All, Str.Panels_Brightness_All.Text()), (BrightnessScreens.ThisDisplay, Str.Panels_Brightness_Own.Text())],
-                config.Screens,
-                value => { config.Screens = value; save(); }),
-            "monitor", "display", "screen"));
-    }
 }

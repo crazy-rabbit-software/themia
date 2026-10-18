@@ -1,0 +1,11 @@
+{
+  "panels.brightness.all": "Semua layar",
+  "panels.brightness.desc": "Satu penggeser untuk kecerahan layar",
+  "panels.brightness.label": "Kecerahan",
+  "panels.brightness.level": "Kecerahan {level}",
+  "panels.brightness.none": "Tidak ada kecerahan layar yang bisa diatur",
+  "panels.brightness.own": "Hanya layar tempatnya berada",
+  "panels.brightness.ownNone": "Kecerahan layar ini tidak dapat diatur",
+  "panels.brightness.screensDesc": "Satu penggeser untuk semua layar, atau hanya layar tempat widget berada",
+  "panels.brightness.screensLabel": "Layar yang diredupkan"
+}
