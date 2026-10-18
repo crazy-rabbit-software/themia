@@ -1,12 +1,13 @@
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
+using Themia.App.Shell;
 using Themia.App.Widgets;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
 using Themia.Sdk.WinUI.Kit;
 
-namespace Themia.App.Shell.Config;
+namespace Themia.Widget.Rss;
 
 /// <summary>
 /// The Rss widget's settings rows.
@@ -17,40 +18,40 @@ namespace Themia.App.Shell.Config;
 /// works. [S-1302] Several feeds, merged newest first, as the original's feed selection.
 /// </para>
 /// </summary>
-internal static partial class WidgetSettings
+internal static class RssSettings
 {
-    public static void Rss(List<FrameworkElement> rows, RssConfig config, Action save)
+    public static void Rows(List<FrameworkElement> rows, RssConfig config, Action save)
     {
         ArgumentNullException.ThrowIfNull(rows);
         ArgumentNullException.ThrowIfNull(config);
         ArgumentNullException.ThrowIfNull(save);
 
-        rows.Add(FluentLayout.Header(Str.WidgetsC_Rss_Settings_Feeds.Text()));
+        rows.Add(FluentLayout.Header(RssStr.WidgetsC_Rss_Settings_Feeds.Text()));
 
         FluentLayout.ListEditor(rows, new ListEditorOptions<RssFeed>
         {
             Items = config.Feeds,
             Body = feed => KitRows.InputBox(feed.Url, Refusal, typed => { feed.Url = typed; save(); }, "https://example.com/feed.xml", WebInput.MaxUrlLength),
             Save = save,
-            EmptyText = Str.WidgetsC_Rss_Settings_Empty.Text(),
-            AddTitle = Str.WidgetsC_Rss_Settings_Add_Title.Text(),
-            AddDescription = Str.WidgetsC_Rss_Settings_Add_Desc.Text(),
-            AddAction = Str.WidgetsC_Rss_Settings_Add_Action.Text(),
+            EmptyText = RssStr.WidgetsC_Rss_Settings_Empty.Text(),
+            AddTitle = RssStr.WidgetsC_Rss_Settings_Add_Title.Text(),
+            AddDescription = RssStr.WidgetsC_Rss_Settings_Add_Desc.Text(),
+            AddAction = RssStr.WidgetsC_Rss_Settings_Add_Action.Text(),
             Create = () => new RssFeed(),
             Capacity = RssConfig.MaxFeeds,
-            RemoveTooltip = Str.WidgetsC_Rss_Settings_Remove.Text(),
+            RemoveTooltip = RssStr.WidgetsC_Rss_Settings_Remove.Text(),
         });
 
-        rows.Add(FluentLayout.Header(Str.WidgetsC_Rss_Settings_Articles.Text()));
+        rows.Add(FluentLayout.Header(RssStr.WidgetsC_Rss_Settings_Articles.Text()));
 
         KitRows.Shows(rows,
         [
-            new(Glyphs.Link, Str.WidgetsC_Rss_Settings_Source_Label.Text(), Str.WidgetsC_Rss_Settings_Source_Desc.Text(), () => config.ShowSource, value => config.ShowSource = value),
-            new(Glyphs.Preview, Str.WidgetsC_Rss_Settings_Preview_Label.Text(), Str.WidgetsC_Rss_Settings_Preview_Desc.Text(), () => config.ShowPreview, value => config.ShowPreview = value),
-            new(Glyphs.Clock, Str.WidgetsC_Rss_Settings_Date_Label.Text(), Str.WidgetsC_Rss_Settings_Date_Desc.Text(), () => config.ShowDate, value => config.ShowDate = value),
+            new(Glyphs.Link, RssStr.WidgetsC_Rss_Settings_Source_Label.Text(), RssStr.WidgetsC_Rss_Settings_Source_Desc.Text(), () => config.ShowSource, value => config.ShowSource = value),
+            new(Glyphs.Preview, RssStr.WidgetsC_Rss_Settings_Preview_Label.Text(), RssStr.WidgetsC_Rss_Settings_Preview_Desc.Text(), () => config.ShowPreview, value => config.ShowPreview = value),
+            new(Glyphs.Clock, RssStr.WidgetsC_Rss_Settings_Date_Label.Text(), RssStr.WidgetsC_Rss_Settings_Date_Desc.Text(), () => config.ShowDate, value => config.ShowDate = value),
         ], save);
 
-        KitRows.Count(rows, Glyphs.Count, Str.WidgetsC_Rss_Settings_Articles.Text(), null, config.EffectiveMaxItems, 5, 50,
+        KitRows.Count(rows, Glyphs.Count, RssStr.WidgetsC_Rss_Settings_Articles.Text(), null, config.EffectiveMaxItems, 5, 50,
             value => { config.MaxItems = value; save(); });
     }
 

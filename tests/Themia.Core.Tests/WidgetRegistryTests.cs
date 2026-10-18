@@ -30,15 +30,15 @@ public sealed partial class WidgetRegistryTests
     [Fact]
     public void S6902_a_registry_with_a_missing_descriptor_or_an_id_or_kind_given_twice_is_refused()
     {
-        var rss = RssConfig.Descriptor;
+        var email = EmailConfig.Descriptor;
         var tasks = TasksConfig.Descriptor;
 
-        Assert.Empty(ModuleCatalog.Check([rss, tasks]));
-        Assert.Single(ModuleCatalog.Check([rss, null]));
-        Assert.Single(ModuleCatalog.Check([rss, tasks with { Id = new("rss") }]));
-        Assert.Single(ModuleCatalog.Check([rss, tasks with { ConfigType = typeof(RssConfig) }]));
-        Assert.Single(ModuleCatalog.Check([rss, tasks with { Id = default }]));
-        Assert.Throws<InvalidOperationException>(() => ModuleCatalog.Install([rss]));
+        Assert.Empty(ModuleCatalog.Check([email, tasks]));
+        Assert.Single(ModuleCatalog.Check([email, null]));
+        Assert.Single(ModuleCatalog.Check([email, tasks with { Id = email.Id }]));
+        Assert.Single(ModuleCatalog.Check([email, tasks with { ConfigType = typeof(EmailConfig) }]));
+        Assert.Single(ModuleCatalog.Check([email, tasks with { Id = default }]));
+        Assert.Throws<InvalidOperationException>(() => ModuleCatalog.Install([email]));
     }
 
     [Fact]

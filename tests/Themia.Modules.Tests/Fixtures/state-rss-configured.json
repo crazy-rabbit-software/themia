@@ -1,0 +1,200 @@
+{
+  "schemaVersion": 1,
+  "views": [
+    {
+      "id": "v00",
+      "name": "Feeds",
+      "widgets": [
+        {
+          "id": "w00",
+          "x": 0.02,
+          "y": 0.05,
+          "w": 0.14,
+          "h": 0.25,
+          "background": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "header": "Top",
+          "itemBackground": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "itemTextColor": "",
+          "scale": 1,
+          "config": {
+            "kind": "rss",
+            "feeds": [
+              {
+                "url": "https://news.example/rss"
+              },
+              {
+                "url": "https://blog.example/feed.xml"
+              },
+              {
+                "url": "http://192.168.1.20/feed"
+              }
+            ],
+            "maxItems": 35,
+            "showSource": false,
+            "showPreview": false,
+            "showDate": false
+          }
+        },
+        {
+          "id": "w01",
+          "x": 0.22,
+          "y": 0.05,
+          "w": 0.14,
+          "h": 0.25,
+          "background": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "header": "Top",
+          "itemBackground": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "itemTextColor": "",
+          "scale": 1,
+          "config": {
+            "kind": "rss",
+            "feeds": [
+              {
+                "url": "https://only.example/atom.xml"
+              }
+            ],
+            "maxItems": 5,
+            "showSource": true,
+            "showPreview": true,
+            "showDate": true
+          }
+        },
+        {
+          "id": "w02",
+          "x": 0.42,
+          "y": 0.05,
+          "w": 0.14,
+          "h": 0.25,
+          "background": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "header": "Top",
+          "itemBackground": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "itemTextColor": "",
+          "scale": 1,
+          "config": {
+            "kind": "rss",
+            "feeds": [
+              {
+                "url": "not a url"
+              },
+              {
+                "url": ""
+              }
+            ],
+            "maxItems": 20,
+            "showSource": true,
+            "showPreview": false,
+            "showDate": true
+          }
+        },
+        {
+          "id": "w03",
+          "x": 0.62,
+          "y": 0.05,
+          "w": 0.14,
+          "h": 0.25,
+          "background": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "header": "Top",
+          "itemBackground": {
+            "kind": "Default",
+            "colour": "",
+            "opacity": 1
+          },
+          "itemTextColor": "",
+          "scale": 1,
+          "config": {
+            "kind": "rss",
+            "feeds": [],
+            "maxItems": 20,
+            "showSource": true,
+            "showPreview": true,
+            "showDate": true
+          }
+        }
+      ]
+    }
+  ],
+  "activeViewId": "v00",
+  "monitorViews": {},
+  "design": {
+    "theme": "System",
+    "uiScale": 1,
+    "fontFamily": "system",
+    "fontScale": 1,
+    "widgetGapPx": 8,
+    "gridSnap": true,
+    "cornerRadiusPx": 4,
+    "background": {
+      "kind": "Default",
+      "colour": "",
+      "opacity": 1
+    },
+    "itemBackground": {
+      "kind": "Default",
+      "colour": "",
+      "opacity": 1
+    },
+    "itemTextColor": "",
+    "primaryColor": "",
+    "borderStyle": "Solid",
+    "borderWidthPx": 1,
+    "borderColor": "",
+    "borderOpacity": 1,
+    "introAnimation": "Scale",
+    "introAnimationMs": 500,
+    "headerBackgroundColor": "",
+    "headerOpacity": 1,
+    "transitionAnimation": "Scale",
+    "transitionAnimationMs": 500,
+    "unlockAnimation": "Scale",
+    "unlockAnimationMs": 500,
+    "smoothValues": true,
+    "runAtStartup": false
+  },
+  "preferences": {
+    "language": "System",
+    "gameModeSuspend": false,
+    "desktopIconsVisible": true,
+    "region": {
+      "clock": "System",
+      "weekStart": "System",
+      "temperature": "System"
+    },
+    "refresh": {
+      "weather": 30,
+      "markets": 5,
+      "feeds": 30,
+      "accounts": 2
+    }
+  },
+  "disabledMonitors": [],
+  "monitorScales": {},
+  "viewBars": {}
+}

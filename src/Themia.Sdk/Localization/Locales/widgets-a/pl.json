@@ -47,8 +47,6 @@
   "widgetsA.calendar.weekdayInitials": "Nd,Pn,Wt,Śr,Cz,Pt,So",
   "widgetsA.calendar.yearTitle": "{year}",
   "widgetsA.catalog.contacts.description": "Osoby z Twoich książek adresowych Microsoft, Google i CardDAV",
-  "widgetsA.catalog.feed.description": "Nagłówki z wybranych kanałów",
-  "widgetsA.catalog.feed.label": "Kanał",
   "widgetsA.catalog.mail.description": "Najnowsze wiadomości z Outlooka, Gmaila lub dowolnego serwera poczty",
   "widgetsA.catalog.mail.label": "Poczta",
   "widgetsA.catalog.tasks.description": "Microsoft To Do, Google Tasks lub lista na tym komputerze",

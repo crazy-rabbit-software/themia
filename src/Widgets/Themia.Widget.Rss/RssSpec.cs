@@ -1,6 +1,7 @@
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Sdk.Kit;
+using Themia.Widget.Rss;
 
 namespace Themia.Core.Widgets;
 
@@ -16,8 +17,8 @@ public static class RssSpec
     public static KitSpec Spec { get; } = new(
         KitRowLook.Rich,
         KitShow.All,
-        () => Str.WidgetsC_Rss_Untitled.Text(),
-        () => Str.WidgetsC_Rss_NoArticles.Text(),
+        () => RssStr.WidgetsC_Rss_Untitled.Text(),
+        () => RssStr.WidgetsC_Rss_NoArticles.Text(),
         KitTime.Age,
         MaxColumns: 3);
 
@@ -57,7 +58,7 @@ public static class RssSpec
         return
         [
             new KitAction(KitActionKind.Open, Str.Common_Open.Text(), Target: item.Link),
-            new KitAction(KitActionKind.CopyLink, Str.WidgetsC_Rss_CopyLink.Text(), Text: item.Link?.OriginalString),
+            new KitAction(KitActionKind.CopyLink, RssStr.WidgetsC_Rss_CopyLink.Text(), Text: item.Link?.OriginalString),
             new KitAction(KitActionKind.Refresh, Str.Common_Refresh.Text()),
         ];
     }

@@ -44,8 +44,6 @@
   "widgetsA.calendar.weekdayInitials": "日,一,二,三,四,五,六",
   "widgetsA.calendar.yearTitle": "{year}年",
   "widgetsA.catalog.contacts.description": "来自你的 Microsoft、Google 和 CardDAV 通讯录的联系人",
-  "widgetsA.catalog.feed.description": "你所选订阅源的头条",
-  "widgetsA.catalog.feed.label": "订阅源",
   "widgetsA.catalog.mail.description": "来自 Outlook、Gmail 或任意邮件服务器的最新邮件",
   "widgetsA.catalog.mail.label": "邮件",
   "widgetsA.catalog.tasks.description": "Microsoft To Do、Google Tasks 或此电脑上的列表",

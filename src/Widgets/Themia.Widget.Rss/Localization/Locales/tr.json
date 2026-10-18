@@ -1,0 +1,22 @@
+{
+  "widgetsA.catalog.feed.label": "Akış",
+  "widgetsA.catalog.feed.description": "Seçtiğiniz akışlardan başlıklar",
+  "widgetsC.rss.untitled": "(başlıksız)",
+  "widgetsC.rss.copyLink": "Bağlantıyı kopyala",
+  "widgetsC.rss.noArticles": "Bu akışta makale yok",
+  "widgetsC.rss.savedRefreshing": "Kaydedildi: {age}; yenileniyor",
+  "widgetsC.rss.refreshed": "Yenilendi: {age}",
+  "widgetsC.rss.settings.feeds": "Akışlar",
+  "widgetsC.rss.settings.empty": "Henüz akış yok. Bir RSS veya Atom akışının adresini ekleyin.",
+  "widgetsC.rss.settings.add.title": "Akış ekle",
+  "widgetsC.rss.settings.add.desc": "Tüm akışların makaleleri birleştirilir, en yeni önce",
+  "widgetsC.rss.settings.add.action": "Akış ekle",
+  "widgetsC.rss.settings.remove": "Akışı kaldır",
+  "widgetsC.rss.settings.articles": "Makaleler",
+  "widgetsC.rss.settings.source.label": "Kaynağı göster",
+  "widgetsC.rss.settings.source.desc": "Simgesi ve yer olduğunda adı",
+  "widgetsC.rss.settings.preview.label": "Önizlemeyi göster",
+  "widgetsC.rss.settings.preview.desc": "Pencere öğesinde yer olduğunda makalenin başlangıcı",
+  "widgetsC.rss.settings.date.label": "Tarihi göster",
+  "widgetsC.rss.settings.date.desc": "Ne kadar önce yayımlandığı"
+}

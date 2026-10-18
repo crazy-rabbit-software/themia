@@ -3,6 +3,7 @@ using Themia.App.Services.Web;
 using Themia.App.Shell.Gallery;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
+using Themia.Widget.Rss;
 
 namespace Themia.App.Widgets;
 

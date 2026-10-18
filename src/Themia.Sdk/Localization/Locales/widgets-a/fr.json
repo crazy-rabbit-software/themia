@@ -45,8 +45,6 @@
   "widgetsA.calendar.weekdayInitials": "Di,Lu,Ma,Me,Je,Ve,Sa",
   "widgetsA.calendar.yearTitle": "{year}",
   "widgetsA.catalog.contacts.description": "Les personnes de tes carnets d’adresses Microsoft, Google et CardDAV",
-  "widgetsA.catalog.feed.description": "Les titres des flux de ton choix",
-  "widgetsA.catalog.feed.label": "Flux",
   "widgetsA.catalog.mail.description": "Messages récents d’Outlook, de Gmail ou de tout serveur de courrier",
   "widgetsA.catalog.mail.label": "Courrier",
   "widgetsA.catalog.tasks.description": "Microsoft To Do, Google Tasks ou une liste sur ce PC",

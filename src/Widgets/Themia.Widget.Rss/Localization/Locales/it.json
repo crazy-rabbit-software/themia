@@ -1,0 +1,22 @@
+{
+  "widgetsA.catalog.feed.label": "Feed",
+  "widgetsA.catalog.feed.description": "Titoli dai feed che scegli",
+  "widgetsC.rss.untitled": "(senza titolo)",
+  "widgetsC.rss.copyLink": "Copia collegamento",
+  "widgetsC.rss.noArticles": "Questo feed non contiene articoli",
+  "widgetsC.rss.savedRefreshing": "Salvato {age}; aggiornamento in corso",
+  "widgetsC.rss.refreshed": "Aggiornato {age}",
+  "widgetsC.rss.settings.feeds": "Feed",
+  "widgetsC.rss.settings.empty": "Ancora nessun feed. Aggiungi l'indirizzo di un feed RSS o Atom.",
+  "widgetsC.rss.settings.add.title": "Aggiungi un feed",
+  "widgetsC.rss.settings.add.desc": "Gli articoli di tutti i feed vengono uniti, dai più recenti",
+  "widgetsC.rss.settings.add.action": "Aggiungi feed",
+  "widgetsC.rss.settings.remove": "Rimuovi feed",
+  "widgetsC.rss.settings.articles": "Articoli",
+  "widgetsC.rss.settings.source.label": "Mostra fonte",
+  "widgetsC.rss.settings.source.desc": "La sua icona e, se c'è spazio, il nome",
+  "widgetsC.rss.settings.preview.label": "Mostra anteprima",
+  "widgetsC.rss.settings.preview.desc": "L'inizio dell'articolo, dove il widget ha spazio",
+  "widgetsC.rss.settings.date.label": "Mostra data",
+  "widgetsC.rss.settings.date.desc": "Quanto tempo fa è stato pubblicato"
+}

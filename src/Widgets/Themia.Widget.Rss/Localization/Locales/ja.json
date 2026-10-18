@@ -1,0 +1,22 @@
+{
+  "widgetsA.catalog.feed.label": "フィード",
+  "widgetsA.catalog.feed.description": "選んだフィードの見出し",
+  "widgetsC.rss.untitled": "(無題)",
+  "widgetsC.rss.copyLink": "リンクをコピー",
+  "widgetsC.rss.noArticles": "このフィードには記事がありません",
+  "widgetsC.rss.savedRefreshing": "{age}に保存。更新中",
+  "widgetsC.rss.refreshed": "{age}に更新",
+  "widgetsC.rss.settings.feeds": "フィード",
+  "widgetsC.rss.settings.empty": "フィードはまだありません。RSS または Atom フィードのアドレスを追加してください。",
+  "widgetsC.rss.settings.add.title": "フィードを追加",
+  "widgetsC.rss.settings.add.desc": "すべてのフィードの記事を新しい順にまとめて表示します",
+  "widgetsC.rss.settings.add.action": "フィードを追加",
+  "widgetsC.rss.settings.remove": "フィードを削除",
+  "widgetsC.rss.settings.articles": "記事",
+  "widgetsC.rss.settings.source.label": "ソースを表示",
+  "widgetsC.rss.settings.source.desc": "アイコンと、入る場合は名前",
+  "widgetsC.rss.settings.preview.label": "プレビューを表示",
+  "widgetsC.rss.settings.preview.desc": "余裕があれば記事の冒頭を表示します",
+  "widgetsC.rss.settings.date.label": "日付を表示",
+  "widgetsC.rss.settings.date.desc": "公開されてからの時間"
+}

@@ -9,6 +9,7 @@ using Themia.Core.Diagnostics;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
+using Themia.Widget.Rss;
 using Themia.Sdk.Kit;
 using Themia.Sdk.WinUI;
 using Themia.Sdk.WinUI.Kit;
@@ -189,8 +190,8 @@ internal sealed partial class RssView : Grid, IWidgetView, IWidgetHeaderContent,
         var tip = failed
             ? Str.WidgetUi_RefreshFailedSince.Format(("reason", string.Join("; ", problems)), ("time", age))
             : restored
-                ? Str.WidgetsC_Rss_SavedRefreshing.Format(("age", age))
-                : Str.WidgetsC_Rss_Refreshed.Format(("age", age));
+                ? RssStr.WidgetsC_Rss_SavedRefreshing.Format(("age", age))
+                : RssStr.WidgetsC_Rss_Refreshed.Format(("age", age));
 
         ToolTipService.SetToolTip(_freshness, tip);
     }

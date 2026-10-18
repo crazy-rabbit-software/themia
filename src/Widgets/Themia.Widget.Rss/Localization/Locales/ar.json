@@ -1,0 +1,22 @@
+{
+  "widgetsA.catalog.feed.label": "الموجز",
+  "widgetsA.catalog.feed.description": "عناوين من الموجزات التي تختارها",
+  "widgetsC.rss.untitled": "(بلا عنوان)",
+  "widgetsC.rss.copyLink": "نسخ الارتباط",
+  "widgetsC.rss.noArticles": "لا توجد مقالات في هذا الموجز",
+  "widgetsC.rss.savedRefreshing": "محفوظ {age}؛ جارٍ التحديث",
+  "widgetsC.rss.refreshed": "تم التحديث {age}",
+  "widgetsC.rss.settings.feeds": "الموجزات",
+  "widgetsC.rss.settings.empty": "لا توجد موجزات بعد. أضف عنوان موجز RSS أو Atom.",
+  "widgetsC.rss.settings.add.title": "إضافة موجز",
+  "widgetsC.rss.settings.add.desc": "تُدمج مقالات كل الموجزات، الأحدث أولًا",
+  "widgetsC.rss.settings.add.action": "إضافة موجز",
+  "widgetsC.rss.settings.remove": "إزالة الموجز",
+  "widgetsC.rss.settings.articles": "المقالات",
+  "widgetsC.rss.settings.source.label": "إظهار المصدر",
+  "widgetsC.rss.settings.source.desc": "أيقونته، واسمه حيث تتوفر مساحة",
+  "widgetsC.rss.settings.preview.label": "إظهار المعاينة",
+  "widgetsC.rss.settings.preview.desc": "بداية المقالة، حيث تتسع الأداة",
+  "widgetsC.rss.settings.date.label": "إظهار التاريخ",
+  "widgetsC.rss.settings.date.desc": "منذ متى نُشرت"
+}

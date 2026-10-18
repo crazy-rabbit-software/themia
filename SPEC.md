@@ -4089,9 +4089,10 @@ strings in `Locales/widgets-details`.
 ## Feed, stocks and the web widgets: parity and the whole tile (OFF-E)
 
 Ported from `widgets/online/{rss,stocks,video-stream,web-element}` on main, renumbered; the rules
-live in Core (`FeedAggregate`, `FeedLayout`, `NetworkGuard`, `NetworkCacheStore`) and the SDK
-(`MarketSearch`, `MarketQuote`, `ExchangeTime`), tests in `FeedWidgetTests`/`StockWidgetTests`. Stocks
-is a module (`src/Widgets/Themia.Widget.Stocks/`, its own tags in its `SPEC.md`).
+live in Core (`NetworkGuard`, `NetworkCacheStore`) and the SDK (`FeedParser`, `SiteIcons`,
+`MarketSearch`, `MarketQuote`, `ExchangeTime`), tests in `FeedWidgetTests`/`FeedParserTests`/`StockWidgetTests`.
+Rss and Stocks are modules (`src/Widgets/Themia.Widget.Rss/`, `src/Widgets/Themia.Widget.Stocks/`, their
+own tags in their `SPEC.md`).
 
 - **[S-1300]** Feeds and quotes survive a restart (classic S-23/S-29): the last good answers are
   saved to the sealed `web` shelf of the offline store ([S-2660]; never in an export;
@@ -4115,39 +4116,12 @@ is a module (`src/Widgets/Themia.Widget.Stocks/`, its own tags in its `SPEC.md`)
   widget ("x is on the local network. Themia goes there only for an address you typed yourself").
   Every request, the camera stream and the fixed public services included, connects through the
   guard ([S-960]), and the loopback hardware monitor is reached as "this machine only" ([S-967]).
-- **[S-1302]** Rss reads several feeds (`RssConfig.Feeds`, up to 12, a list editor in settings, each
-  address checked on commit), fetched in parallel through the shared cache and merged
-  (`FeedAggregate.Merge`, classic S-30): newest first, undated last in arrival order, capped at
-  `MaxItems` across all feeds. Repeated and blank addresses fold; refused ones are not fetched. A
-  feed that fails while others answer is a partial refresh: "Name: reason" in the header tooltip and
-  the caution colour (classic S-34/S-35); all failing shows every reason; every feed answering with
-  no items is "This feed has no articles" once, not that reason per feed ([S-7040]). Header title (S-04): the
-  user's, else the single feed's `<title>`, else the feeds' names (title or host) joined with ", ",
-  else the catalogue name. Item age (S-06): "Just now"/"5m ago"/"3h ago"/"6d ago", then "Mar 4"
-  ("Aug 30, 2025" in another year). `FeedUrl` is gone (no compatibility).
-- **[S-1303]** Rss **Refresh** (card menu and item menu, classic S-15): the network now, past the
-  cache's freshness and the back-off, through the feed sync ([S-2661]). While a fetch for one of its
-  feeds is out, a small spinner sits beside the age in the header (classic S-33), so Refresh is never
-  a button with no visible effect.
 - **[S-1304]** Site icons (classic S-26/S-27, the Google s2 service replaced): fetched from the site
   itself, `scheme://host[:port]/favicon.ico` of the item's link — no third-party service. Guarded
   ([S-1301]), 64 KB cap, the bytes must be ICO/PNG/GIF/JPEG/BMP (not HTML, not SVG), one request per
   origin per session shared by every row and widget, a missing icon retried after 6 h; decoded at
   2× the 16px drawn size. A globe stands in until it arrives or when there is none.
-- **[S-1305]** Rss ladder (`FeedLayout.Plan`, rows shown whole, measured since rows are
-  as tall as their headlines, the rest a scroll away with the shared fade [S-1281]): rung 0 the
-  newest headline, two lines (one if even that does not fit); its age; its site icon from 180px of
-  row width (inline at the start of the age line); the site's name on its own line from 240px; two
-  columns from 400px wide (three from 720px on a short strip), read left to right; the summary where
-  it costs no row, or where ≥3 rows still fit on a tile ≥280px high and not a tall column (1–2
-  lines). By tier: XS one headline; S headline + icon + age; M two rows with names; Wide two
-  columns; Tall 5+ headlines; L two columns with summaries; XL three columns with summaries.
-- **[S-1306]** No reading pane at any size (retired: it read one item beside the list; user
-  decision, the feed is its headlines). A click on a row focuses it; a double-click opens it
-  everywhere, as every list on this desktop, through the host's launcher ([S-7062]; fixed: the
-  widget started the browser itself). Item menu (`ItemMenu`): Open, Copy link, Refresh. Keys through the shell's
-  keyboard lease (`IWidgetKeys`, [S-800]; a click in the widget takes it): Up/Down/Left/Right step,
-  Home/End, Enter opens, Escape lets go.
+- [S-1302], [S-1303], [S-1305], [S-1306]: moved with the Rss widget into its module's `SPEC.md` (`src/Widgets/Themia.Widget.Rss/`).
 - [S-1307], [S-1308], [S-1310], [S-1311], [S-2770], [S-6165], [S-6166], [S-2776], [S-2777]: moved with the Stocks widget into its module's `SPEC.md` (`src/Widgets/Themia.Widget.Stocks/`).
 - **[S-1309]** Times on the chart are the exchange's (classic S-36): Yahoo's `gmtoffset` and
   `timezone` ("EDT") — not an IANA lookup, which needs ICU the app does not ship — "09:30" for 1 day,

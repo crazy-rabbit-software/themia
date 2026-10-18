@@ -44,8 +44,6 @@
   "widgetsA.calendar.weekdayInitials": "일,월,화,수,목,금,토",
   "widgetsA.calendar.yearTitle": "{year}년",
   "widgetsA.catalog.contacts.description": "Microsoft, Google 및 CardDAV 주소록의 사람",
-  "widgetsA.catalog.feed.description": "선택한 피드의 헤드라인",
-  "widgetsA.catalog.feed.label": "피드",
   "widgetsA.catalog.mail.description": "Outlook, Gmail 또는 모든 메일 서버의 최근 메시지",
   "widgetsA.catalog.mail.label": "메일",
   "widgetsA.catalog.tasks.description": "Microsoft To Do, Google Tasks 또는 이 PC의 목록",

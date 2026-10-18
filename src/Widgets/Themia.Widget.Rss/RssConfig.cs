@@ -2,7 +2,6 @@ using System.Text.Json.Serialization;
 using Themia.App.Shell;
 using Themia.Core.Accounts;
 using Themia.Core.Localization;
-using Themia.Core.Storage;
 using Themia.Core.Sync;
 using Themia.Core.Widgets;
 using Themia.Sdk;
@@ -59,24 +58,6 @@ public sealed class RssConfig : WidgetConfig, IKitConfig, IInterests
 
     /// <summary>How many feeds one widget merges. Each is a request per refresh.</summary>
     public const int MaxFeeds = 12;
-
-
-    /// <summary>[S-6902] This widget's descriptor: what the host knows of it without its UI.</summary>
-    public static WidgetDescriptor Descriptor { get; } = new()
-    {
-        Id = new("rss"),
-        ConfigType = typeof(RssConfig),
-        CreateDefault = () => new RssConfig(),
-        Json = WidgetConfigJsonContext.Default,
-        Keywords = ["rss", "feed", "news", "headlines", "atom", "blog", "reader"],
-        Label = Str.WidgetsA_Catalog_Feed_Label.Local(),
-        Description = Str.WidgetsA_Catalog_Feed_Description.Local(),
-        Glyph = Glyphs.Rss,
-        DefaultWidth = 360,
-        DefaultHeight = 280,
-        Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader,
-        Add = new(AddFolderId.Markets, 1, 0),
-    };
 
     /// <summary>The feeds, in the order the user listed them.</summary>
     public List<RssFeed> Feeds { get; set; } = [];

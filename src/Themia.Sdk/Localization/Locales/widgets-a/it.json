@@ -45,8 +45,6 @@
   "widgetsA.calendar.weekdayInitials": "Do,Lu,Ma,Me,Gi,Ve,Sa",
   "widgetsA.calendar.yearTitle": "{year}",
   "widgetsA.catalog.contacts.description": "Persone dalle tue rubriche Microsoft, Google e CardDAV",
-  "widgetsA.catalog.feed.description": "Titoli dai feed che scegli",
-  "widgetsA.catalog.feed.label": "Feed",
   "widgetsA.catalog.mail.description": "Messaggi recenti da Outlook, Gmail o qualsiasi server di posta",
   "widgetsA.catalog.mail.label": "Posta",
   "widgetsA.catalog.tasks.description": "Microsoft To Do, Google Tasks o un elenco su questo PC",

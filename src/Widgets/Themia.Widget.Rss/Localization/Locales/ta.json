@@ -1,0 +1,22 @@
+{
+  "widgetsA.catalog.feed.label": "ஊட்டம்",
+  "widgetsA.catalog.feed.description": "நீங்கள் தேர்ந்தெடுக்கும் ஊட்டங்களின் தலைப்புச் செய்திகள்",
+  "widgetsC.rss.untitled": "(தலைப்பில்லை)",
+  "widgetsC.rss.copyLink": "இணைப்பை நகலெடு",
+  "widgetsC.rss.noArticles": "இந்த ஊட்டத்தில் கட்டுரைகள் இல்லை",
+  "widgetsC.rss.savedRefreshing": "{age} சேமித்தது; புதுப்பிக்கிறது",
+  "widgetsC.rss.refreshed": "{age} புதுப்பிக்கப்பட்டது",
+  "widgetsC.rss.settings.feeds": "ஊட்டங்கள்",
+  "widgetsC.rss.settings.empty": "இன்னும் ஊட்டங்கள் இல்லை. RSS அல்லது Atom ஊட்டத்தின் முகவரியைச் சேர்க்கவும்.",
+  "widgetsC.rss.settings.add.title": "ஊட்டத்தைச் சேர்",
+  "widgetsC.rss.settings.add.desc": "எல்லா ஊட்டங்களின் கட்டுரைகளும் புதியது முதலில் என ஒன்றிணைக்கப்படும்",
+  "widgetsC.rss.settings.add.action": "ஊட்டத்தைச் சேர்",
+  "widgetsC.rss.settings.remove": "ஊட்டத்தை அகற்று",
+  "widgetsC.rss.settings.articles": "கட்டுரைகள்",
+  "widgetsC.rss.settings.source.label": "மூலத்தைக் காட்டு",
+  "widgetsC.rss.settings.source.desc": "அதன் ஐகான், இடம் இருந்தால் அதன் பெயரும்",
+  "widgetsC.rss.settings.preview.label": "முன்னோட்டத்தைக் காட்டு",
+  "widgetsC.rss.settings.preview.desc": "விட்ஜெட்டில் இடம் இருக்கும்போது, கட்டுரையின் தொடக்கம்",
+  "widgetsC.rss.settings.date.label": "தேதியைக் காட்டு",
+  "widgetsC.rss.settings.date.desc": "எவ்வளவு காலத்துக்கு முன் வெளியிடப்பட்டது"
+}

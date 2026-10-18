@@ -1,0 +1,22 @@
+{
+  "widgetsA.catalog.feed.label": "ਫ਼ੀਡ",
+  "widgetsA.catalog.feed.description": "ਤੁਹਾਡੀਆਂ ਚੁਣੀਆਂ ਫ਼ੀਡਾਂ ਦੀਆਂ ਸੁਰਖ਼ੀਆਂ",
+  "widgetsC.rss.untitled": "(ਬਿਨਾਂ ਸਿਰਲੇਖ)",
+  "widgetsC.rss.copyLink": "ਲਿੰਕ ਕਾਪੀ ਕਰੋ",
+  "widgetsC.rss.noArticles": "ਇਸ ਫ਼ੀਡ ਵਿੱਚ ਕੋਈ ਲੇਖ ਨਹੀਂ",
+  "widgetsC.rss.savedRefreshing": "{age} ਸੰਭਾਲਿਆ; ਰਿਫ੍ਰੈਸ਼ ਹੋ ਰਿਹਾ ਹੈ",
+  "widgetsC.rss.refreshed": "{age} ਰਿਫ੍ਰੈਸ਼ ਕੀਤਾ",
+  "widgetsC.rss.settings.feeds": "ਫ਼ੀਡਾਂ",
+  "widgetsC.rss.settings.empty": "ਹਾਲੇ ਕੋਈ ਫ਼ੀਡ ਨਹੀਂ। RSS ਜਾਂ Atom ਫ਼ੀਡ ਦਾ ਪਤਾ ਜੋੜੋ।",
+  "widgetsC.rss.settings.add.title": "ਫ਼ੀਡ ਜੋੜੋ",
+  "widgetsC.rss.settings.add.desc": "ਹਰ ਫ਼ੀਡ ਦੇ ਲੇਖ ਮਿਲਾਏ ਜਾਂਦੇ ਹਨ, ਨਵੇਂ ਪਹਿਲਾਂ",
+  "widgetsC.rss.settings.add.action": "ਫ਼ੀਡ ਜੋੜੋ",
+  "widgetsC.rss.settings.remove": "ਫ਼ੀਡ ਹਟਾਓ",
+  "widgetsC.rss.settings.articles": "ਲੇਖ",
+  "widgetsC.rss.settings.source.label": "ਸਰੋਤ ਦਿਖਾਓ",
+  "widgetsC.rss.settings.source.desc": "ਇਸਦਾ ਆਈਕਨ, ਅਤੇ ਜਿੱਥੇ ਥਾਂ ਹੋਵੇ ਇਸਦਾ ਨਾਮ",
+  "widgetsC.rss.settings.preview.label": "ਝਲਕ ਦਿਖਾਓ",
+  "widgetsC.rss.settings.preview.desc": "ਲੇਖ ਦੀ ਸ਼ੁਰੂਆਤ, ਜਿੱਥੇ ਵਿਜੇਟ ਵਿੱਚ ਥਾਂ ਹੋਵੇ",
+  "widgetsC.rss.settings.date.label": "ਮਿਤੀ ਦਿਖਾਓ",
+  "widgetsC.rss.settings.date.desc": "ਇਹ ਕਿੰਨਾ ਸਮਾਂ ਪਹਿਲਾਂ ਪ੍ਰਕਾਸ਼ਿਤ ਹੋਇਆ"
+}

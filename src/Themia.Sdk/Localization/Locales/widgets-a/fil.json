@@ -45,8 +45,6 @@
   "widgetsA.calendar.weekdayInitials": "Li,Lu,Ma,Mi,Hu,Bi,Sa",
   "widgetsA.calendar.yearTitle": "{year}",
   "widgetsA.catalog.contacts.description": "Mga tao mula sa iyong mga address book sa Microsoft, Google at CardDAV",
-  "widgetsA.catalog.feed.description": "Mga headline mula sa mga feed na pinili mo",
-  "widgetsA.catalog.feed.label": "Feed",
   "widgetsA.catalog.mail.description": "Mga kamakailang mensahe mula sa Outlook, Gmail o anumang mail server",
   "widgetsA.catalog.mail.label": "Mail",
   "widgetsA.catalog.tasks.description": "Microsoft To Do, Google Tasks, o isang listahan sa PC na ito",

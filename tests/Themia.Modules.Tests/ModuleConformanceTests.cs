@@ -381,7 +381,9 @@ public sealed partial class ModuleConformanceTests
     private static HashSet<string> PaintingParts()
     {
         var skip = new HashSet<string>(StringComparer.Ordinal) { "ItemFill.cs", "Fluent.cs" };
-        var files = Directory.EnumerateFiles(Path.Combine(Src, "Themia.Sdk.WinUI", "Widgets"), "*.cs", SearchOption.AllDirectories)
+        // The SDK's widget parts and the kit's (a kit list paints its rows).
+        var files = new[] { "Widgets", "Kit" }
+            .SelectMany(folder => Directory.EnumerateFiles(Path.Combine(Src, "Themia.Sdk.WinUI", folder), "*.cs", SearchOption.AllDirectories))
             .Where(f => !skip.Contains(Path.GetFileName(f)))
             .Select(f => (Text: Code(f), Types: TopLevelType().Matches(Code(f)).Select(m => m.Groups[1].Value).ToList()))
             .ToList();

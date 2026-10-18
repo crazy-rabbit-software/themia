@@ -1,0 +1,22 @@
+{
+  "widgetsA.catalog.feed.label": "फ़ीड",
+  "widgetsA.catalog.feed.description": "आपकी चुनी फ़ीड की सुर्खियाँ",
+  "widgetsC.rss.untitled": "(बिना शीर्षक)",
+  "widgetsC.rss.copyLink": "लिंक कॉपी करें",
+  "widgetsC.rss.noArticles": "इस फ़ीड में कोई लेख नहीं",
+  "widgetsC.rss.savedRefreshing": "{age} सहेजा गया; रीफ़्रेश हो रहा है",
+  "widgetsC.rss.refreshed": "{age} रीफ़्रेश किया गया",
+  "widgetsC.rss.settings.feeds": "फ़ीड",
+  "widgetsC.rss.settings.empty": "अभी कोई फ़ीड नहीं। किसी RSS या Atom फ़ीड का पता जोड़ें।",
+  "widgetsC.rss.settings.add.title": "फ़ीड जोड़ें",
+  "widgetsC.rss.settings.add.desc": "हर फ़ीड के लेख मिला दिए जाते हैं, नए पहले",
+  "widgetsC.rss.settings.add.action": "फ़ीड जोड़ें",
+  "widgetsC.rss.settings.remove": "फ़ीड निकालें",
+  "widgetsC.rss.settings.articles": "लेख",
+  "widgetsC.rss.settings.source.label": "स्रोत दिखाएँ",
+  "widgetsC.rss.settings.source.desc": "इसका आइकन, और जगह हो तो नाम",
+  "widgetsC.rss.settings.preview.label": "पूर्वावलोकन दिखाएँ",
+  "widgetsC.rss.settings.preview.desc": "लेख की शुरुआत, जहाँ विजेट में जगह हो",
+  "widgetsC.rss.settings.date.label": "दिनांक दिखाएँ",
+  "widgetsC.rss.settings.date.desc": "कितनी देर पहले प्रकाशित हुआ"
+}

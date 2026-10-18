@@ -45,8 +45,6 @@
   "widgetsA.calendar.weekdayInitials": "र,सो,मं,बु,गु,शु,श",
   "widgetsA.calendar.yearTitle": "{year}",
   "widgetsA.catalog.contacts.description": "आपकी Microsoft, Google और CardDAV पता पुस्तिकाओं के लोग",
-  "widgetsA.catalog.feed.description": "आपकी चुनी फ़ीड की सुर्खियाँ",
-  "widgetsA.catalog.feed.label": "फ़ीड",
   "widgetsA.catalog.mail.description": "Outlook, Gmail या किसी भी मेल सर्वर से हाल के संदेश",
   "widgetsA.catalog.mail.label": "मेल",
   "widgetsA.catalog.tasks.description": "Microsoft To Do, Google Tasks, या इस PC पर एक सूची",

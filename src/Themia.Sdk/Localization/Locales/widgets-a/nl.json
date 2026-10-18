@@ -45,8 +45,6 @@
   "widgetsA.calendar.weekdayInitials": "Zo,Ma,Di,Wo,Do,Vr,Za",
   "widgetsA.calendar.yearTitle": "{year}",
   "widgetsA.catalog.contacts.description": "Personen uit je Microsoft-, Google- en CardDAV-adresboeken",
-  "widgetsA.catalog.feed.description": "Koppen uit de feeds die je kiest",
-  "widgetsA.catalog.feed.label": "Feed",
   "widgetsA.catalog.mail.description": "Recente berichten uit Outlook, Gmail of elke mailserver",
   "widgetsA.catalog.mail.label": "E-mail",
   "widgetsA.catalog.tasks.description": "Microsoft To Do, Google Tasks of een lijst op deze pc",

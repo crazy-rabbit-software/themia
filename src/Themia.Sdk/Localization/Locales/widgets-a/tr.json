@@ -45,8 +45,6 @@
   "widgetsA.calendar.weekdayInitials": "Pz,Pt,Sa,Ça,Pe,Cu,Ct",
   "widgetsA.calendar.yearTitle": "{year}",
   "widgetsA.catalog.contacts.description": "Microsoft, Google ve CardDAV adres defterlerinizdeki kişiler",
-  "widgetsA.catalog.feed.description": "Seçtiğiniz akışlardan başlıklar",
-  "widgetsA.catalog.feed.label": "Akış",
   "widgetsA.catalog.mail.description": "Outlook, Gmail veya herhangi bir posta sunucusundan son iletiler",
   "widgetsA.catalog.mail.label": "Posta",
   "widgetsA.catalog.tasks.description": "Microsoft To Do, Google Tasks veya bu bilgisayardaki bir liste",

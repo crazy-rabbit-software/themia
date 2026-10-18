@@ -1,0 +1,22 @@
+{
+  "widgetsA.catalog.feed.label": "ফিড",
+  "widgetsA.catalog.feed.description": "আপনার বেছে নেওয়া ফিডের শিরোনাম",
+  "widgetsC.rss.untitled": "(শিরোনামহীন)",
+  "widgetsC.rss.copyLink": "লিঙ্ক কপি করুন",
+  "widgetsC.rss.noArticles": "এই ফিডে কোনো নিবন্ধ নেই",
+  "widgetsC.rss.savedRefreshing": "সংরক্ষিত {age}; রিফ্রেশ হচ্ছে",
+  "widgetsC.rss.refreshed": "রিফ্রেশ হয়েছে {age}",
+  "widgetsC.rss.settings.feeds": "ফিড",
+  "widgetsC.rss.settings.empty": "এখনও কোনো ফিড নেই। একটি RSS বা Atom ফিডের ঠিকানা যোগ করুন।",
+  "widgetsC.rss.settings.add.title": "একটি ফিড যোগ করুন",
+  "widgetsC.rss.settings.add.desc": "সব ফিডের নিবন্ধ একসঙ্গে, নতুনগুলো আগে",
+  "widgetsC.rss.settings.add.action": "ফিড যোগ করুন",
+  "widgetsC.rss.settings.remove": "ফিড সরান",
+  "widgetsC.rss.settings.articles": "নিবন্ধ",
+  "widgetsC.rss.settings.source.label": "উৎস দেখান",
+  "widgetsC.rss.settings.source.desc": "এর আইকন, এবং জায়গা থাকলে নাম",
+  "widgetsC.rss.settings.preview.label": "প্রিভিউ দেখান",
+  "widgetsC.rss.settings.preview.desc": "উইজেটে জায়গা থাকলে নিবন্ধের শুরুর অংশ",
+  "widgetsC.rss.settings.date.label": "তারিখ দেখান",
+  "widgetsC.rss.settings.date.desc": "কত আগে প্রকাশিত হয়েছে"
+}

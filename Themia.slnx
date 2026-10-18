@@ -59,6 +59,7 @@
     <Project Path="src/Widgets/Themia.Widget.RemovableDrives/Themia.Widget.RemovableDrives.csproj" />
     <Project Path="src/Widgets/Themia.Widget.Restart/Themia.Widget.Restart.csproj" />
     <Project Path="src/Widgets/Themia.Widget.RotationLockToggle/Themia.Widget.RotationLockToggle.csproj" />
+    <Project Path="src/Widgets/Themia.Widget.Rss/Themia.Widget.Rss.csproj" />
     <Project Path="src/Widgets/Themia.Widget.Scratchpad/Themia.Widget.Scratchpad.csproj" />
     <Project Path="src/Widgets/Themia.Widget.ScreenOff/Themia.Widget.ScreenOff.csproj" />
     <Project Path="src/Widgets/Themia.Widget.ScreenTimeApps/Themia.Widget.ScreenTimeApps.csproj" />

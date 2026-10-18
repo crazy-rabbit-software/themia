@@ -1,0 +1,22 @@
+{
+  "widgetsA.catalog.feed.label": "Nguồn tin",
+  "widgetsA.catalog.feed.description": "Tiêu đề từ các nguồn tin bạn chọn",
+  "widgetsC.rss.untitled": "(không có tiêu đề)",
+  "widgetsC.rss.copyLink": "Sao chép liên kết",
+  "widgetsC.rss.noArticles": "Nguồn tin này không có bài viết",
+  "widgetsC.rss.savedRefreshing": "Đã lưu {age}; đang làm mới",
+  "widgetsC.rss.refreshed": "Đã làm mới {age}",
+  "widgetsC.rss.settings.feeds": "Nguồn tin",
+  "widgetsC.rss.settings.empty": "Chưa có nguồn tin. Hãy thêm địa chỉ của nguồn RSS hoặc Atom.",
+  "widgetsC.rss.settings.add.title": "Thêm nguồn tin",
+  "widgetsC.rss.settings.add.desc": "Bài viết của mọi nguồn tin được gộp lại, mới nhất trước",
+  "widgetsC.rss.settings.add.action": "Thêm nguồn tin",
+  "widgetsC.rss.settings.remove": "Gỡ nguồn tin",
+  "widgetsC.rss.settings.articles": "Bài viết",
+  "widgetsC.rss.settings.source.label": "Hiện nguồn",
+  "widgetsC.rss.settings.source.desc": "Biểu tượng của nguồn, và tên khi còn chỗ",
+  "widgetsC.rss.settings.preview.label": "Hiện xem trước",
+  "widgetsC.rss.settings.preview.desc": "Phần đầu của bài viết, khi tiện ích còn chỗ",
+  "widgetsC.rss.settings.date.label": "Hiện ngày",
+  "widgetsC.rss.settings.date.desc": "Đã đăng cách đây bao lâu"
+}

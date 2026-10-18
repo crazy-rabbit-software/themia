@@ -17,7 +17,6 @@ namespace Themia.Core.Storage;
 [JsonSerializable(typeof(ContactsConfig))]
 [JsonSerializable(typeof(EmailConfig))]
 [JsonSerializable(typeof(NextMeetingConfig))]
-[JsonSerializable(typeof(RssConfig))]
 [JsonSerializable(typeof(TasksConfig))]
 [JsonSerializable(typeof(WeekPlannerConfig))]
 internal sealed partial class WidgetConfigJsonContext : JsonSerializerContext;

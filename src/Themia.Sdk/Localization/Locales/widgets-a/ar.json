@@ -49,8 +49,6 @@
   "widgetsA.calendar.weekdayInitials": "ح,ن,ث,ر,خ,ج,س",
   "widgetsA.calendar.yearTitle": "{year}",
   "widgetsA.catalog.contacts.description": "أشخاص من دفاتر عناوين Microsoft وGoogle وCardDAV",
-  "widgetsA.catalog.feed.description": "عناوين من الموجزات التي تختارها",
-  "widgetsA.catalog.feed.label": "الموجز",
   "widgetsA.catalog.mail.description": "أحدث الرسائل من Outlook أو Gmail أو أي خادم بريد",
   "widgetsA.catalog.mail.label": "البريد",
   "widgetsA.catalog.tasks.description": "Microsoft To Do أو Google Tasks أو قائمة على هذا الكمبيوتر",

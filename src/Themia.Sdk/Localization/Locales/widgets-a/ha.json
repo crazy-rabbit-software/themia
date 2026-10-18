@@ -45,8 +45,6 @@
   "widgetsA.calendar.weekdayInitials": "Lh,Li,Ta,Lr,Al,Ju,As",
   "widgetsA.calendar.yearTitle": "{year}",
   "widgetsA.catalog.contacts.description": "Mutane daga littattafan adireshinka na Microsoft, Google da CardDAV",
-  "widgetsA.catalog.feed.description": "Kanun labarai daga ciyarwar da ka zaɓa",
-  "widgetsA.catalog.feed.label": "Ciyarwa",
   "widgetsA.catalog.mail.description": "Saƙonnin kwanan nan daga Outlook, Gmail ko kowace sabar imel",
   "widgetsA.catalog.mail.label": "Imel",
   "widgetsA.catalog.tasks.description": "Microsoft To Do, Google Tasks, ko jeri a wannan kwamfuta",

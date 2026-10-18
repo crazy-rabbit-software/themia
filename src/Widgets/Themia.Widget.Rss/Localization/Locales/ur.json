@@ -1,0 +1,22 @@
+{
+  "widgetsA.catalog.feed.label": "فیڈ",
+  "widgetsA.catalog.feed.description": "آپ کی چنی ہوئی فیڈز کی سرخیاں",
+  "widgetsC.rss.untitled": "(بلا عنوان)",
+  "widgetsC.rss.copyLink": "لنک کاپی کریں",
+  "widgetsC.rss.noArticles": "اس فیڈ میں کوئی مضمون نہیں",
+  "widgetsC.rss.savedRefreshing": "{age} محفوظ کیا گیا؛ تازہ ہو رہا ہے",
+  "widgetsC.rss.refreshed": "{age} تازہ کیا گیا",
+  "widgetsC.rss.settings.feeds": "فیڈز",
+  "widgetsC.rss.settings.empty": "ابھی کوئی فیڈ نہیں۔ کسی RSS یا Atom فیڈ کا پتہ شامل کریں۔",
+  "widgetsC.rss.settings.add.title": "فیڈ شامل کریں",
+  "widgetsC.rss.settings.add.desc": "ہر فیڈ کے مضامین ملا دیے جاتے ہیں، نئے پہلے",
+  "widgetsC.rss.settings.add.action": "فیڈ شامل کریں",
+  "widgetsC.rss.settings.remove": "فیڈ ہٹائیں",
+  "widgetsC.rss.settings.articles": "مضامین",
+  "widgetsC.rss.settings.source.label": "ماخذ دکھائیں",
+  "widgetsC.rss.settings.source.desc": "اس کا آئیکن، اور جگہ ہو تو نام",
+  "widgetsC.rss.settings.preview.label": "پیش نظارہ دکھائیں",
+  "widgetsC.rss.settings.preview.desc": "مضمون کا آغاز، جہاں ویجیٹ میں جگہ ہو",
+  "widgetsC.rss.settings.date.label": "تاریخ دکھائیں",
+  "widgetsC.rss.settings.date.desc": "یہ کتنی دیر پہلے شائع ہوا"
+}

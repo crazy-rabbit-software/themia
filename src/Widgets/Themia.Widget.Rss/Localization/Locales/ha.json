@@ -1,0 +1,22 @@
+{
+  "widgetsA.catalog.feed.label": "Ciyarwa",
+  "widgetsA.catalog.feed.description": "Kanun labarai daga ciyarwar da ka zaɓa",
+  "widgetsC.rss.untitled": "(babu take)",
+  "widgetsC.rss.copyLink": "Kwafi hanyar haɗi",
+  "widgetsC.rss.noArticles": "Wannan ciyarwar ba ta da labarai",
+  "widgetsC.rss.savedRefreshing": "An ajiye {age}; ana wartsakewa",
+  "widgetsC.rss.refreshed": "An wartsake {age}",
+  "widgetsC.rss.settings.feeds": "Ciyarwa",
+  "widgetsC.rss.settings.empty": "Babu ciyarwa tukuna. Ƙara adireshin ciyarwar RSS ko Atom.",
+  "widgetsC.rss.settings.add.title": "Ƙara ciyarwa",
+  "widgetsC.rss.settings.add.desc": "Ana haɗa labaran kowace ciyarwa, mafi sabo da farko",
+  "widgetsC.rss.settings.add.action": "Ƙara ciyarwa",
+  "widgetsC.rss.settings.remove": "Cire ciyarwa",
+  "widgetsC.rss.settings.articles": "Labarai",
+  "widgetsC.rss.settings.source.label": "Nuna tushe",
+  "widgetsC.rss.settings.source.desc": "Gunkinsa, da sunansa inda akwai wuri",
+  "widgetsC.rss.settings.preview.label": "Nuna samfoti",
+  "widgetsC.rss.settings.preview.desc": "Farkon labarin, inda widget ɗin ke da wuri",
+  "widgetsC.rss.settings.date.label": "Nuna kwanan wata",
+  "widgetsC.rss.settings.date.desc": "Tun yaushe aka wallafa shi"
+}
