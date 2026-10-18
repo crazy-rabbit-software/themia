@@ -155,16 +155,20 @@ internal static class MenuRender
                 await RenderAsync(root, lone, System.IO.Path.Combine(outDir, "item-lone.png")).ConfigureAwait(true);
 
                 // [S-6416]..[S-6418] The folder widget's own menus, from a real view over read-only
-                // Windows folders: a file's, its Open with submenu, a folder's, and the background's.
-                var folderView = new FolderView(new CardWidgetHost(host));
-                folderView.Attach(ticker, new FolderConfig());
-                root.Children.Add(new Border { Width = 1, Height = 1, Child = folderView });
-                var (file, openWith, folder, background) = await folderView.PreviewMenusAsync().ConfigureAwait(true);
-                await RenderAsync(root, file, System.IO.Path.Combine(outDir, "folder-file.png")).ConfigureAwait(true);
-                await RenderAsync(root, openWith, System.IO.Path.Combine(outDir, "folder-openwith.png")).ConfigureAwait(true);
-                await RenderAsync(root, folder, System.IO.Path.Combine(outDir, "folder-folder.png")).ConfigureAwait(true);
-                await RenderAsync(root, background, System.IO.Path.Combine(outDir, "folder-background.png")).ConfigureAwait(true);
-                folderView.Detach();
+                // Windows folders (its module's preview): a file's, its Open with submenu, a folder's,
+                // and the background's.
+                var folderId = new WidgetId("folder");
+                if (ModuleHost.CreateView(folderId, new CardWidgetHost(host)) is IWidgetView folderView and IWidgetPreviewMenus menus)
+                {
+                    folderView.Attach(ticker, WidgetConfig.CreateDefault(folderId));
+                    root.Children.Add(new Border { Width = 1, Height = 1, Child = (FrameworkElement)folderView });
+                    foreach (var (name, entries) in await menus.PreviewMenusAsync().ConfigureAwait(true))
+                    {
+                        await RenderAsync(root, entries, System.IO.Path.Combine(outDir, $"folder-{name}.png")).ConfigureAwait(true);
+                    }
+
+                    folderView.Detach();
+                }
 
                 // [S-6520] [S-404] The properties panel's Header menu, opened from its own drop-down
                 // for a widget whose header is on the left, so Left is ticked.

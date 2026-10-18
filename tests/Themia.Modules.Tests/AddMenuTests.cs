@@ -374,7 +374,7 @@ public sealed class AddMenuTests
         var homes = AddTree.Homes(Menu);
         Assert.Equal([AddFolderId.CalendarMail], homes.Single(home => home.Kind == CalendarWidgetConfig.Descriptor.Id).Path.Select(shelf => shelf.Id));
         Assert.Equal([AddFolderId.Media], homes.Single(home => home.Kind == new WidgetId("audioVisualizer")).Path.Select(shelf => shelf.Id));
-        Assert.Equal([AddFolderId.Files], homes.Single(home => home.Kind == FolderConfig.Descriptor.Id).Path.Select(shelf => shelf.Id));
+        Assert.Equal([AddFolderId.Files], homes.Single(home => home.Kind == new WidgetId("folder")).Path.Select(shelf => shelf.Id));
 
         var popular = AddTree.Popular.Rows.OfType<AddLeaf>().Select(leaf => leaf.Kind).ToList();
         Assert.Contains(CalendarWidgetConfig.Descriptor.Id, popular);

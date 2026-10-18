@@ -1,9 +1,0 @@
-{
-  "$comment": "Machine-written translations: every string in this file needs native review.",
-  "styles.folder.label": "Carpeta",
-  "styles.folder.desc": "Los archivos de una carpeta como lista, tabla, mosaicos o iconos",
-  "styles.folder.list": "Lista",
-  "styles.folder.details": "Detalles",
-  "styles.folder.grid": "Cuadrícula",
-  "styles.folder.icons": "Iconos"
-}

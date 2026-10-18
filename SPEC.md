@@ -20,7 +20,7 @@ Sections, grouped by area (file order below; search for the heading).
 - **Look and layout.** Rows and the card edge; Looking like Windows; The widget header; Responsive layout (shared foundation); Adding a widget; Layout pass over the ported widgets; Widget polish 1 (POLISH-1); Widget polish 2: leftover parity and layout gaps (POLISH-2); The Set up button (R5-SETUP).
 - **Accounts and sign-in.** Where account data comes from; Accounts and sign-in.
 - **System widgets.** (The seven meters, the seven detail widgets, Drive, Removable drives, Brightness, Mixer, Volume, Music, the Audio visualizer, the three screen-time widgets, Notifications and the Focus session are modules: their sections are their projects' `SPEC.md`; the sections named here keep the hub, the samplers and the rules they share, the SDK's.) System data hub (SYS-HUB); System meters; Meter framework and memory; CPU; Disk and ping; Battery and network; Network and ping; System widgets: GPU, mixer and screen time; Screen time: chart, donut and apps (SCREENTIME-SPLIT); GPU and screen time: the whole tile (SYS-P4); System details (SYS-DETAILS); Mixer and Volume (SYS-P5); Power and Bluetooth; Device and location (DEVICE-AND-LOCATION); Quick-setting toggles (QUICK-TOGGLES); Windows' panels: notifications, focus session, brightness (WINDOWS-PANELS).
-- **Time, desk and launch widgets.** (Clock, Countdown, Stopwatch, Pomodoro, Quote, Sun, Moon, Scratchpad, Recycle Bin, Year progress, Alarm, Notes, Clipboard, the Habit tracker, the Gallery, Recent files and Shortcuts are modules: their sections are their projects' `SPEC.md`, `src/Widgets/Themia.Widget.<Name>/`; so are Bluetooth, the seven power buttons and the thirteen quick-setting toggles, under System widgets, whose shared rules stay here.) Clock; Countdown and pomodoro; Stopwatch, alarm and drives (KARPO-2); Sun and moon; Audio visualizer (VISUALIZER); Clock, Sun & moon, Quote and Scratchpad: parity and the whole tile (PJ); Music and Pomodoro: parity and the whole tile (PF); Notes; Notes: note store and markdown editor; Clipboard and Countdown: the whole tile; Year progress (YEAR-PROGRESS, its module's SPEC.md); Recent files (RECENT-FILES, the host's list); Recycle Bin (RECYCLE-BIN); Date (DATE); Habits; Shortcuts B: drop, reorder and app layouts (PD); Folder: the file browser (FOLDER); About and the settings file.
+- **Time, desk and launch widgets.** (Clock, Countdown, Stopwatch, Pomodoro, Quote, Sun, Moon, Scratchpad, Recycle Bin, Year progress, Alarm, Notes, Clipboard, the Habit tracker, the Gallery, Recent files, Shortcuts and the Folder are modules: their sections are their projects' `SPEC.md`, `src/Widgets/Themia.Widget.<Name>/`; so are Bluetooth, the seven power buttons and the thirteen quick-setting toggles, under System widgets, whose shared rules stay here.) Clock; Countdown and pomodoro; Stopwatch, alarm and drives (KARPO-2); Sun and moon; Audio visualizer (VISUALIZER); Clock, Sun & moon, Quote and Scratchpad: parity and the whole tile (PJ); Music and Pomodoro: parity and the whole tile (PF); Notes; Notes: note store and markdown editor; Clipboard and Countdown: the whole tile; Year progress (YEAR-PROGRESS, its module's SPEC.md); Recent files (RECENT-FILES, the host's list); Recycle Bin (RECYCLE-BIN); Date (DATE); Habits; Shortcuts B: drop, reorder and app layouts (PD); Folder: the file browser (FOLDER, the host's file services); About and the settings file.
 - **Mail, calendar, tasks and online widgets.** (Weather now, Weather forecast, Rain next hour, Air quality, Exchange rates, Stocks and the Video stream are modules: their sections are their projects' `SPEC.md`; the sections named here keep what they share with the host.) Mail; Calendar and contacts; Tasks; Mail: the whole tile; Calendar and contacts: the whole tile; Calendar: five styles and shared dates (CAL-SPLIT); Tasks: using the whole tile, and the rest of the original; Weather: current conditions and forecast; Feed, stocks and the web widgets: parity and the whole tile (OFF-E); Web widgets: video stream; Web widgets: size ladder and overlay; Offline sync (SYNC); Next meeting (NEXT-MEETING); Week planner (WEEK-PLANNER); Air quality, rain and exchange rates (ONLINE-2).
 
 ---
@@ -5817,18 +5817,15 @@ the original had is ported, what it never had is recorded here and not built.
 
 ## Folder: the file browser (FOLDER)
 
-Original: `widgets/office/folder` on `main` (SPEC S-01..S-67). One kind, four styles ([S-4123]). View: `Widgets/FolderView{,.Render,.Input,.Commands}.cs`;
-file interop services (reusable by Shortcuts and the shell): `Services/Files/{DragDropInterop,FileClipboard,ShellFileOps,
-ShellContextMenu,ShellNewTemplates,FolderWatch,FileIcons,GitStatus}.cs`; rules in Core `Widgets/Folder{Columns,Filter,
-Selection,Gesture,Layout,History,Badges}.cs` and `Files/{FileDrops,DropFiles,FileDescriptors,FileNames}.cs`; tests
-`FolderBrowserTests` (+ `FolderKindsTests`, `FolderRulesTests`, `FolderFormattingTests`, `FolderPathTests`).
+The widget is a module of its own (`src/Widgets/Themia.Widget.Folder`, its SPEC.md). Here: the file
+services it reads through `IWidgetHost` (`FileIcons`, `FileClipboard`, `Folders`, `FileOps`, `ExplorerMenus`;
+`Services/Files/{DragDropInterop,FileClipboard,ShellFileOps,ShellContextMenu,ShellNewTemplates,FolderWatch,
+FileIcons,GitStatus,ZipFiles,OpenWithApps,HostFileServices}.cs`, `Services/FolderListing.cs`), reusable by
+Shortcuts, Recent files and the shell, and the shared rules (the SDK's `FolderBadges`, `FolderFormatting`,
+`FolderPath`, `Files/{FileDrops,FileNames}`; Core's `Files/{DropFiles,FileDescriptors}`). Tests:
+`FolderBrowserTests` (+ `FolderFormattingTests`, `FolderPathTests`); the module host's `FolderHostTests`.
 
-- **[S-1320]** Settings (orig. S-14..S-24, S-58), one config for every style ([S-4121]): `Path` (empty = profile), `ItemSize`
-  ExtraSmall/Small/Medium/Large (rows 24/28/32/40, icons 12/14/16/20), `TileSize` Small/Medium/Large (80x90/110x120/150x160,
-  icons 32/48/64), `Columns` (ordered; default Size, Modified, Type; `Repair` drops unknown/repeats loudly),
-  `Navigation` Explorer/Navigate, `ClickMode` (`ItemClickMode`, default Double), `Sort`/`Descending`,
-  `ShowHidden`, `ShowExtensions` (default off), `Style`. `ShowDetail`/`MaxCount`, and since [S-4121] `View`, `StretchTiles`,
-  `Filter` and `FoldersFirst`, are gone (no compatibility).
+- [S-1320], [S-1323], [S-6411], [S-1326], [S-1993], [S-1328], [S-6412], [S-6413], [S-6414], [S-6415], [S-6416], [S-6417], [S-6418], [S-6419], [S-1334], [S-1335], [S-1339], [S-4120], [S-4121], [S-4122], [S-4123]: moved with the Folder widget into its module's `SPEC.md` (`src/Widgets/Themia.Widget.Folder/`).
 - **[S-1321]** The header search (orig. S-21, S-50): comma-separated keywords, OR, case-insensitive substring; it is the
   only filter (the stored keyword filter is gone, [S-4121]). Names hide the extension unless `ShowExtensions` (folders and
   dot-files keep theirs). Folders always come first, as in Explorer. Sort and search re-draw what is in hand; only the
@@ -5837,18 +5834,6 @@ Selection,Gesture,Layout,History,Badges}.cs` and `Files/{FileDrops,DropFiles,Fil
   Items (folder entry count, counted off-thread up to 1000, shown "999+"). Shown in the user's order while each fits beside
   a 120 DIP name; the first that does not fit ends the row. Header click sorts Name/Size/Modified (again = reverse, saved);
   the columns are chosen in the settings only ([S-1746]; the header has no menu of its own).
-- **[S-1323]** Ladder (`FolderLayout.Plan`): one row / one tile row always; an open search box; the details column header;
-  list view adds unlabelled Modified (W >= Regular), Size (>= Expanded), Type (>= Huge), drawn right to left ([S-6411]); at Expanded x Expanded a breadcrumb
-  (tail first, clickable), no status footer ("24 items · 2 selected", retired [S-666]); Huge width: grid tiles one size
-  up. Grid columns = floor(width / tile), stretched to fill the row; rows keep the preset height (no stretch, [S-4121]);
-  Icons view packs tiles to icon + 24. Over 1000 items: the first 1000 and a "N more in Explorer…" row.
-- **[S-6411]** The rightmost column ends at the row's right inset, the same as the header's buttons, at
-  every width and in every style (user report 2026-10-16: from 400 DIPs the list put Size last, blank for
-  every folder, so the dates stopped a column short of the edge). The list's unlabelled columns are drawn
-  Type, Size, Modified (Modified, filled by every row, last) and Size is left out when nothing shown is
-  a file (`FolderLayout.ListColumns`); in Details the last column, whatever it is, is drawn from the right
-  of its slot, header included (`FolderColumns.AlignsRight(column, last)`). Grid and Icons stretch their
-  tiles to the row ([S-1323]).
 - **[S-1324]** Real shell icons (`IShellItemImageFactory`, shared per extension except exe/lnk/ico/url…, customised folders
   per path) and image thumbnails in Grid/Icons (`SIIGBF_THUMBNAILONLY`; never for cloud placeholders). Caches bounded and
   shared; extraction serialised (orig. S-64). Cloud badge from attributes (cloud-only / always kept / available) over the
@@ -5859,36 +5844,12 @@ Selection,Gesture,Layout,History,Badges}.cs` and `Files/{FileDrops,DropFiles,Fil
 - **[S-1325]** Git: only when a `.git` exists up the tree; `git --no-optional-locks status --porcelain=v1 --branch -z`
   off-thread, single-flight per repository; no git = no badge. Header badge "main ~2 ?3" (List/Details, by width) and the
   Git column (file code; "•" for a folder with changes beneath).
-- **[S-1326]** Header (trailing, shed by width): Up, Back, Search, Sort (not in Details), Forward, git badge, Home.
-  Navigate mode keeps a 50-deep history restoring each place's scroll offset; Backspace and mouse X1/X2 go back/forward;
-  a `.lnk` to a folder opens inside the widget. Explorer mode opens folders in Explorer.
 - **[S-1327]** Selection as Explorer: click selects, Ctrl toggles, Shift ranges from the anchor (Ctrl+Shift adds), a press
   on a selected item narrows on release (a multi-item drag keeps it), background click clears, right-click on an unselected
   item selects it. Keys via the lease (`IWidgetKeys`): arrows/Home/End/PgUp/PgDn (grid-aware, Shift extends), Enter opens,
   Space selects (Ctrl+Space toggles), Delete, F2, Menu, Ctrl+C/X/V/A (new `WidgetKey.Copy/Cut/Paste/SelectAll`, Ctrl
   alone; other chords still never reach widgets), Backspace (`WidgetKey.Back`); Escape (and lease end) clears selection and
   cursor. Double-click mode opens on double-click; Single opens on a plain click (Ctrl/Shift only select).
-- **[S-1993]** Type-ahead ([S-1980]) over the shown names: the match is selected alone and focused,
-  realised if it is past the built rows, and scrolled into view. Not while renaming.
-- **[S-1328]** Press -> click | rubber band | drag is the pure `FolderGesture` (orig. `gesture.ts`, S-65/#58): 5 DIP dead
-  zone, every exit resets, each press wipes prior state, a generation token cancels a deferred drag. Background drags draw
-  a band selecting every overlapped item, live ([S-6412]..[S-6415]).
-- **[S-6412]** Where a band starts (`FolderPress`, `FolderLasso.Classify`), as Explorer's full-row Details view (user
-  report 2026-10-16: rows fill the width, so a full folder had nowhere to start one): only an item's icon and name carry
-  the item (click selects, drag carries it out, [S-1332]); a press on the rest of a row or tile, or between or below the
-  items, draws the band once it passes the dead zone. A click there selects that item (never opens); on the background
-  it clears. The content is at least the viewport tall, so the band can be drawn down to the bottom. Works outside edit
-  mode (the press takes the keyboard lease as every widget press does, [S-800]); the band captures the pointer.
-- **[S-6413]** How the band combines (`FolderLasso.Mode`, `FolderSelection.Band`): no modifier replaces the selection
-  with what the band covers; Shift adds it to the selection the band started with; Ctrl toggles each covered item against
-  it (Ctrl wins with both). Live: shrinking the band gives items back. The focus goes to the last covered item.
-- **[S-6414]** What it covers (`FolderLasso.Hits`): every item cell the band overlaps at all, from the layout's geometry
-  (rows the list's width × row height; tiles the plan's cells), so items not built yet ([S-1887]) are selected too. The
-  band is kept inside the content. Look: the accent's 1 px border over a 25 % accent fill, above the items.
-- **[S-6415]** Edge scroll (`FolderLasso.ScrollVelocity`/`Step`): with the band's pointer within 24 DIPs of the list's top
-  or bottom (a quarter of a short list), or past it, the list scrolls that way at 20 DIP/s per DIP of depth, at most
-  2400 DIP/s, and the band follows. A frame tick (`CompositionTarget.Rendering`) runs only while the pointer is in a
-  zone with the band down; a frame step is at most 0.1 s, so a stall never throws the list.
 - **[S-1329]** The file clipboard is the real Windows one: the shell's data object (CF_HDROP, shell ID lists) plus
   `Preferred DropEffect` (Move for cut), `OleSetClipboard` + `OleFlushClipboard`. Paste reads CF_HDROP and the effect from any
   source (Explorer, other widgets); a cut-paste moves, then empties the clipboard. Cut items are dimmed while the clipboard
@@ -5901,28 +5862,6 @@ Selection,Gesture,Layout,History,Badges}.cs` and `Files/{FileDrops,DropFiles,Fil
   Command entries skipped). New items get the next free
   "New folder (2)" name and start an in-place rename; rename edits the stem when extensions are hidden, validates Windows
   name rules and keeps the item selected.
-- **[S-6416]** The item menu is Windows 11 File Explorer's (user report 2026-10-16: it did not look like it), its
-  commands per selection from `FolderMenu.Item` (Core, tested), drawn by `ItemMenu` ([S-1740]). Icon row: Cut, Copy,
-  Paste (a single folder, the paste target; greyed with nothing to paste), Rename (one item), Share (files only, the
-  shell's `Windows.ModernShare`), Delete. List: Open (a file's glyph, an open folder's), Open with > (one file: the apps
-  `SHAssocEnumHandlers` recommends, at most 8, with their icons when the icon is an exe on disk, then Choose another app),
-  Open in new window (one folder, navigate mode: Explorer), Open file location, Pin to Quick access (folders, shell
-  verb `pintohome`), Pin to Start (one folder, exe or shortcut, `pintostartscreen`), Compress to ZIP file, Copy as path
-  (quoted), Properties (Explorer's wrench); the cloud pins (a cloud item selected); Show more options. A shell verb the
-  shell does not offer here (an already pinned folder) says so at the widget. Not ported, as not Explorer's built-ins:
-  Open in Terminal, Open in new tab; app-added lines live under Show more options.
-- **[S-6417]** Keys beside the lines are Explorer's, and only keys the widget answers through the lease ([S-1327]):
-  Enter, Ctrl+X/C/V/A, F2, Delete, Ctrl+Shift+C on Copy as path (the selection's quoted paths), Alt+Enter on Properties
-  (the selection's, or the shown folder's with nothing selected), and Shift+F10 on Show more options, which opens the
-  shell's full menu as in Explorer (the Menu key opens ours). Written by [S-1753] (user report 2026-10-16: the
-  shortcut naming did not match Explorer's).
-- **[S-6418]** Background menu (`FolderMenu.Background`): Paste, Select all; Up (navigate mode), Refresh; New >; Open in
-  Explorer, Copy as path, Properties; Show more options. Its lone Paste stays a labelled line ([S-1741]). No View or
-  Sort submenus, though Explorer has them: how a widget looks is its settings' ([S-1746]).
-- **[S-6419]** Compress to ZIP file (`ZipFiles`, `System.IO.Compression`, off the UI thread): one new ZIP beside the
-  items, folders with all they hold (hidden files too; directory links not followed), named after the item the menu was
-  opened on without its extension, made unique ("a (2).zip", `FolderMenu.ZipName`), then renamed in place as Explorer
-  does. A failure removes the half-written ZIP (its own output, nothing of the user's) and says so at the widget.
 - **[S-1332]** Drag out: an OLE drag of the shell data object with our `IDropSource` (`SHDoDragDrop`), posted after the
   pointer handler. Drop in: through the surface's OLE target ([S-1020]..[S-1024], `IWidgetDropTarget`): plain drop moves,
   Ctrl copies, into the folder row under the pointer (accent ring) or the folder on screen, carried out by that folder's
@@ -5932,35 +5871,9 @@ Selection,Gesture,Layout,History,Badges}.cs` and `Files/{FileDrops,DropFiles,Fil
 - **[S-1333]** `FolderWatch`: a `FileSystemWatcher` plus every in-app file operation's notice; events coalesce into one posted
   reload (no timers); a reload in flight is marked dirty and followed by exactly one more. No watcher (some shares): 5 s
   timer, else the 30 s backstop. Disposed exactly once (orig. S-63).
-- **[S-1334]** Every rowless state says which it is (status messages; "Nothing here matches." under a filter).
-- **[S-1335]** Card menu: Open in Explorer, Refresh. The views, row or tile sizes, hidden items and file extensions
-  are settings only ([S-1746]).
 - **[S-1336]** Tests use made-up paths and byte buffers only; no test touches a real file.
-- **[S-1339]** *(Retired: the debug widget gallery and its fixtures are gone, [S-1863].)*
-- **[S-4120]** *(Retired: one widget kind per layout; they are one kind with four styles, [S-4123].)*
-- **[S-4121]** Each style shows only what it draws (user decision 2026-10-12;
-  `FolderConfig.ShownSettings`, [S-6070]), and the config holds the union, a style ignoring the rest (`Rows`,
-  `Tiles`, `Extensions`, `DetailColumns` read a neutral value where the style draws none). Every
-  style: the folder, Open files with (double / single click), Open folders (Explorer / inside the
-  widget), Show hidden items. List: row size, file extensions, Sort by + Reverse. Details: row size,
-  columns, file extensions; no sort row (its column headers sort, saved). Grid: tile size, file
-  extensions, Sort by + Reverse. Icons: tile size, Sort by + Reverse; no extensions (it draws no
-  names; a rename there edits the stem). One tile size for grid and icons (default Medium). Picking
-  another style rebuilds the page ([S-6071]). Retired for every style: the stored keyword filter (the
-  header search covers it), Folders first (always on), Stretch tiles (tiles keep their preset height).
-- **[S-4122]** Debug renders: `--widget-png Folder <out> --style list|details|grid|icons --state web|wallpapers`
-  lists `%WINDIR%\Web` or its Windows wallpapers (read-only) instead of the profile;
-  `--settings-png Widget:Folder <out> --style <name>` its settings page in that style.
-- **[S-4123]** One kind, **Folder** (`Folder`, 17, `FolderConfig`, `folder`, 300×280, glyph E8B7), with
-  four styles ([S-6000]; `FolderStyle`, stored as `"style"`, menu order): **List** (the default,
-  E8B7), **Details** (F12B FolderHorizontal), **Grid** (ECA5 Tiles) and **Icons** (F0E2 GridView).
-  One view (`FolderView`) reads the style from its config: a change re-lays and re-draws what is in
-  hand, the listing, selection and history kept. Folder details, Folder grid and Folder icons were
-  kinds of their own (114..116); a state file holding one drops that widget at load ([S-1050]).
-  Their names still find the folder in search ([S-943]).
 
-Not ported: header double-click opens Explorer (orig. S-07; the card owns the header, so "Open in Explorer" is in the card
-menu); image-item inline toggles (orig. S-29). Needs live verification: drag in/out with
+Needs live verification: drag in/out with
 Explorer and Outlook, Show more options submenus, clipboard interop both ways, Recycle Bin and the nuke warning on a share,
 OneDrive pin states, lease delivery of Ctrl chords, multi-monitor.
 

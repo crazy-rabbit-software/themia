@@ -1,9 +1,0 @@
-{
-  "$comment": "Machine-written translations: every string in this file needs native review.",
-  "styles.folder.label": "フォルダー",
-  "styles.folder.desc": "フォルダーのファイルを一覧、表、タイル、アイコンで表示",
-  "styles.folder.list": "一覧",
-  "styles.folder.details": "詳細",
-  "styles.folder.grid": "グリッド",
-  "styles.folder.icons": "アイコン"
-}

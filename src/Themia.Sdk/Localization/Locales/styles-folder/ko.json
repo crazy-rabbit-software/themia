@@ -1,9 +1,0 @@
-{
-  "$comment": "Machine-written translations: every string in this file needs native review.",
-  "styles.folder.label": "폴더",
-  "styles.folder.desc": "폴더의 파일을 목록, 표, 타일 또는 아이콘으로 표시",
-  "styles.folder.list": "목록",
-  "styles.folder.details": "세부 정보",
-  "styles.folder.grid": "그리드",
-  "styles.folder.icons": "아이콘"
-}

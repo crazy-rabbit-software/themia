@@ -1,9 +1,0 @@
-{
-  "$comment": "Machine-written translations: every string in this file needs native review.",
-  "styles.folder.label": "Dossier",
-  "styles.folder.desc": "Les fichiers d’un dossier en liste, en tableau, en vignettes ou en icônes",
-  "styles.folder.list": "Liste",
-  "styles.folder.details": "Détails",
-  "styles.folder.grid": "Grille",
-  "styles.folder.icons": "Icônes"
-}
