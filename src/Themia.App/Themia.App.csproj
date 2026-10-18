@@ -58,6 +58,20 @@
     <PackageReference Include="CommunityToolkit.WinUI.Controls.SettingsControls" Version="8.2.251219" />
   </ItemGroup>
 
+  <!--
+    A Debug Native AOT build (publish.ps1 -Configuration Debug, where the render flags run) has the
+    ILCompiler interpret static constructors at compile time, as -O does for Release. Without it the
+    runtime's own reference-tracking callback (TrackerObjectManager.WalkExternalTrackerObjects ->
+    FindReferenceTargetsCallback) runs its class constructor lazily inside the first garbage
+    collection that finds a XAML object: the constructor runner allocates, the allocation waits for
+    the collection in progress, and the process hangs for good with every thread waiting (seen as the
+    gallery's sticker and the clipboard question's popup never finishing: both allocate enough to
+    collect while the render's page is alive). The JIT and Release builds never take that path.
+  -->
+  <ItemGroup Condition="'$(Configuration)' == 'Debug'">
+    <IlcArg Include="--preinitstatics" />
+  </ItemGroup>
+
   <ItemGroup>
     <ProjectReference Include="..\Themia.Core\Themia.Core.csproj" />
     <ProjectReference Include="..\Themia.Sdk.WinUI\Themia.Sdk.WinUI.csproj" />
