@@ -17,13 +17,10 @@ internal static unsafe partial class OpenWithApps
     /// <summary>The longest submenu: Explorer's shows a handful, then "Choose another app".</summary>
     public const int MaxShown = 8;
 
-    /// <summary>One app: its handler's name (the key to open with it), what the menu says, and a file whose icon is the app's.</summary>
-    public sealed record App(string Name, string Label, string? IconFile);
-
     /// <summary>The recommended apps for <paramref name="path"/>'s type, or none (logged) when the shell has none to say.</summary>
-    public static IReadOnlyList<App> For(string path)
+    public static IReadOnlyList<OpenWithApp> For(string path)
     {
-        var apps = new List<App>();
+        var apps = new List<OpenWithApp>();
         Enumerate(path, handler =>
         {
             var name = Text(handler, 3);
@@ -34,7 +31,7 @@ internal static unsafe partial class OpenWithApps
                 return true;
             }
 
-            apps.Add(new App(name, label, IconFile(handler)));
+            apps.Add(new OpenWithApp(name, label, IconFile(handler)));
             return apps.Count < MaxShown;
         });
 

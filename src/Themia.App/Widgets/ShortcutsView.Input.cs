@@ -431,7 +431,7 @@ internal sealed partial class ShortcutsView
         var selected = Selected();
         var many = selected.Count > 1 && selected.Contains(cell);
 
-        foreach (var entry in ShortcutRules.Menu(cell.Target, many ? selected.Count : 1, cell.Item.Layout, RecycleBinStatus.CanEmpty))
+        foreach (var entry in ShortcutRules.Menu(cell.Target, many ? selected.Count : 1, cell.Item.Layout, RecycleBinState.CanEmpty(_widgetHost.RecycleBin.Current, _widgetHost.RecycleBin.Emptying)))
         {
             if (entry.Command is not { } command)
             {
@@ -444,8 +444,8 @@ internal sealed partial class ShortcutsView
                 ShortcutCommand.Open => new(Glyphs.Open,
                     cell.Item.IsLayout ? Str.WidgetsC_Shortcuts_Menu_OpenLayout.Text() : Str.Common_Open.Text(),
                     () => Open([cell]), Disabled: entry.Disabled),
-                ShortcutCommand.EditLayout => new(Glyphs.Edit, Str.Shortcut_EditLayoutMenu.Text(), () => AppServices.EditAppLayout?.Invoke(cell.Item.Id),
-                    Disabled: AppServices.EditAppLayout is null),
+                ShortcutCommand.EditLayout => new(Glyphs.Edit, Str.Shortcut_EditLayoutMenu.Text(), () => _widgetHost.AppLayouts.Edit(cell.Item.Id),
+                    Disabled: !_widgetHost.AppLayouts.CanEdit),
                 ShortcutCommand.OpenAll => new(Glyphs.Open, Str.WidgetsC_Shortcuts_Menu_OpenMany.Plural(selected.Count), () => Open(selected)),
                 ShortcutCommand.CopyUrl => new(Glyphs.Copy, Str.Shortcut_CopyUrl.Text(), () => Copy(cell.Target.Value)),
                 ShortcutCommand.CopyPath => new(Glyphs.Copy, Str.Shortcut_CopyPath.Text(), () => Copy(cell.Target.Value)),
@@ -466,7 +466,7 @@ internal sealed partial class ShortcutsView
     {
         if (!_detached && _surfaceHost?.IsPreview != true)
         {
-            _ = RecycleBinStatus.EmptyAsync();
+            _ = _widgetHost.RecycleBin.EmptyAsync();
         }
     }
 
@@ -486,7 +486,7 @@ internal sealed partial class ShortcutsView
             if (cell.Item.IsLayout)
             {
                 // [S-1407] On the display this widget is on.
-                AppLayoutLauncher.Launch(cell.Item.Layout, Window());
+                _widgetHost.AppLayouts.Launch(cell.Item.Layout, Window());
             }
             else if (cell.Target.IsValid)
             {
@@ -503,9 +503,9 @@ internal sealed partial class ShortcutsView
         }
     }
 
-    private static void Copy(string text)
+    private void Copy(string text)
     {
-        if (!ClipboardWatcher.SetText(text))
+        if (!_widgetHost.CopyText(text))
         {
             Log.Warn(Scope, "could not copy a shortcut's target to the clipboard");
         }

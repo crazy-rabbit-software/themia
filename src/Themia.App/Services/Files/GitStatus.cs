@@ -4,9 +4,6 @@ using Themia.Core.Widgets;
 
 namespace Themia.App.Services.Files;
 
-/// <summary>A folder's repository: its root, and the parsed status.</summary>
-internal sealed record GitRepoStatus(string Root, GitSummary Summary);
-
 /// <summary>
 /// [S-1325] The git badge's data: the repository a folder is in, and <c>git status</c> for it.
 /// <para>

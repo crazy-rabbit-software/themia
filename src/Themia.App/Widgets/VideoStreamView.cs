@@ -52,7 +52,7 @@ internal sealed partial class VideoStreamView : Grid, IWidgetView, IWidgetSurfac
 
     private VideoStreamConfig _config = new();
     private IWidgetSurface? _surface;
-    private StreamSession? _session;
+    private IDisposable? _session;
     private StreamPhase _phase = StreamPhase.Connecting;
     private string? _detail;
 
@@ -70,8 +70,12 @@ internal sealed partial class VideoStreamView : Grid, IWidgetView, IWidgetSurfac
     private DecodeTarget _target = new(320, 240, StreamFit.Contain, false);
     private bool _detached;
 
-    public VideoStreamView()
+    /// <summary>[S-6913] What the view asks of the host: its camera connections.</summary>
+    private readonly IWidgetHost _widgetHost;
+
+    public VideoStreamView(IWidgetHost host)
     {
+        _widgetHost = host;
         _picture.HorizontalAlignment = HorizontalAlignment.Center;
         _picture.VerticalAlignment = VerticalAlignment.Center;
         _picture.Visibility = Visibility.Collapsed;
@@ -238,7 +242,7 @@ internal sealed partial class VideoStreamView : Grid, IWidgetView, IWidgetSurfac
 
         StopSession();
 
-        if (DispatcherQueue.GetForCurrentThread() is not { } ui || !Uri.TryCreate(resolved.Url, UriKind.Absolute, out var uri))
+        if (DispatcherQueue.GetForCurrentThread() is null || !Uri.TryCreate(resolved.Url, UriKind.Absolute, out var uri))
         {
             Render();
             return;
@@ -248,8 +252,7 @@ internal sealed partial class VideoStreamView : Grid, IWidgetView, IWidgetSurfac
         _phase = StreamPhase.Connecting;
         _detail = null;
         ForgetFrames();
-        _session = new StreamSession(uri, key.Item2, DecodeTargetNow, this, ui);
-        _session.Start();
+        _session = _widgetHost.Streams.Open(uri, key.Item2, DecodeTargetNow, this);
         Render();
     }
 

@@ -686,7 +686,7 @@ internal sealed partial class FolderView
     {
         FolderColumn.Size => FolderFormatting.Size(entry),
         FolderColumn.Modified => FolderFormatting.Modified(entry.Modified, now),
-        FolderColumn.Type => FileIcons.TypeName(entry),
+        FolderColumn.Type => _widgetHost.FileIcons.TypeName(entry),
         FolderColumn.Cloud => CloudGlyph(CloudBadges.State(entry.Attributes)),
         FolderColumn.Git => GitCode(entry),
         _ => string.Empty,
@@ -734,7 +734,7 @@ internal sealed partial class FolderView
         row.Tapped += (_, args) =>
         {
             args.Handled = true;
-            ShellFileOps.Open(CurrentPath);
+            _widgetHost.FileOps.Open(CurrentPath);
         };
         _itemHovers.Add(Fluent.Hover(row));
         return row;
@@ -827,7 +827,7 @@ internal sealed partial class FolderView
     {
         var pixels = IconPixels(visual.IconBox.Width);
 
-        if (FileIcons.TryIcon(visual.Entry, pixels, out var image) && image is not null)
+        if (_widgetHost.FileIcons.TryIcon(visual.Entry, pixels, out var image) && image is not null)
         {
             visual.Image.Source = image;
             visual.Glyph.Visibility = Visibility.Collapsed;
@@ -859,7 +859,7 @@ internal sealed partial class FolderView
 
                 if (visual.Image.Source is null)
                 {
-                    var icon = await FileIcons.IconAsync(visual.Entry, pixels).ConfigureAwait(true);
+                    var icon = await _widgetHost.FileIcons.IconAsync(visual.Entry, pixels).ConfigureAwait(true);
 
                     if (generation != _renderGeneration)
                     {
@@ -873,7 +873,7 @@ internal sealed partial class FolderView
                     }
                 }
 
-                if (thumbnails && await FileIcons.ThumbnailAsync(visual.Entry, pixels).ConfigureAwait(true) is { } thumb
+                if (thumbnails && await _widgetHost.FileIcons.ThumbnailAsync(visual.Entry, pixels).ConfigureAwait(true) is { } thumb
                     && generation == _renderGeneration)
                 {
                     visual.Image.Source = thumb;
@@ -882,11 +882,11 @@ internal sealed partial class FolderView
 
                 if (counts && visual.Entry.IsDirectory && visual.Cells.TryGetValue(FolderColumn.ItemCount, out var cell))
                 {
-                    var count = await FileIcons.CountAsync(visual.Entry).ConfigureAwait(true);
+                    var count = await _widgetHost.FileIcons.CountAsync(visual.Entry).ConfigureAwait(true);
 
                     if (generation == _renderGeneration)
                     {
-                        cell.Text = FolderFormatting.ItemCount(count, FileIcons.CountCap);
+                        cell.Text = FolderFormatting.ItemCount(count, _widgetHost.FileIcons.CountCap);
                     }
                 }
             }
@@ -1022,7 +1022,7 @@ internal sealed partial class FolderView
                     }
                     else
                     {
-                        ShellFileOps.Open(path);
+                        _widgetHost.FileOps.Open(path);
                     }
                 };
                 _itemHovers.Add(Fluent.Hover(crumb));
@@ -1036,11 +1036,11 @@ internal sealed partial class FolderView
     /// <summary>[S-1329] Cut items dimmed while the cut is still on the clipboard.</summary>
     private void RefreshDims()
     {
-        var pending = FileClipboard.CutStillPending();
+        var pending = _widgetHost.FileClipboard.CutStillPending();
 
         foreach (var visual in _visuals)
         {
-            visual.Content.Opacity = pending && FileClipboard.IsCut(visual.Entry.FullPath) ? 0.45 : 1;
+            visual.Content.Opacity = pending && _widgetHost.FileClipboard.IsCut(visual.Entry.FullPath) ? 0.45 : 1;
         }
     }
 

@@ -65,6 +65,8 @@ internal sealed class WidgetDrag : IWidgetDrag, IDisposable
     /// <summary>The drag carries shell items (<c>Shell IDList Array</c>): every Explorer drag, and a Start-menu app, which has nothing else.</summary>
     public bool HasShellItems { get; }
 
+    public IReadOnlyList<ShellItemInfo> ReadShellItems() => DragDropInterop.ReadShellItems(Data);
+
     /// <summary>
     /// How many things the drag carries, for logs: its paths, else its virtual files (Explorer offers
     /// both for the same files), else its links.

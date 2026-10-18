@@ -16,5 +16,5 @@ public sealed class FolderModule : IWidgetModule
     public void SettingsRows(WidgetSettingsRows rows, WidgetConfig config)
         => WidgetSettings.Folder(rows.Rows, (FolderConfig)config, rows.Save);
 
-    public FrameworkElement CreateView(IWidgetHost host) => new FolderView();
+    public FrameworkElement CreateView(IWidgetHost host) => new FolderView(host);
 }

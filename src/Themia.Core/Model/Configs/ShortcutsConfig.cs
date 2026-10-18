@@ -67,7 +67,7 @@ public enum ShortcutItemSize
 /// never launched.
 /// </para>
 /// </summary>
-public sealed class ShortcutItem
+public sealed class ShortcutItem : IAppLayoutItem
 {
     /// <summary>Stable id, so reordering and editing cannot swap two shortcuts' settings.</summary>
     public required string Id { get; set; }
@@ -120,7 +120,7 @@ public sealed class ShortcutItem
 /// <summary>
 /// An ordered list of shortcuts and how to draw them.
 /// </summary>
-public sealed class ShortcutsConfig : WidgetConfig, IStyled, IShownSettings<ShortcutsSetting>, ISetupRule
+public sealed class ShortcutsConfig : WidgetConfig, IStyled, IShownSettings<ShortcutsSetting>, ISetupRule, IHoldsAppLayouts
 {
     /// <summary>[S-6906] It waits for setup while this holds.</summary>
     public bool NeedsSetup(FeatureSet signedIn) => Items.Count == 0;
@@ -147,6 +147,9 @@ public sealed class ShortcutsConfig : WidgetConfig, IStyled, IShownSettings<Shor
     };
 
     public List<ShortcutItem> Items { get; set; } = [];
+
+    /// <summary>[S-1411] The layout item with this id, for the host's one layout editor.</summary>
+    public IAppLayoutItem? FindLayout(string itemId) => Items.Find(item => item.Id == itemId) is { IsLayout: true } item ? item : null;
 
     /// <summary>[S-1380] [S-6401] Grid (default), list or details: the widget's style.</summary>
     public ShortcutsStyle Style { get; set; } = ShortcutsStyle.Grid;

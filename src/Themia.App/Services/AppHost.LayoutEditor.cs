@@ -12,7 +12,7 @@ internal sealed partial class AppHost
 {
     private LayoutEditorWindow? _layoutEditor;
 
-    /// <summary>Open the editor on the Shortcuts item <paramref name="itemId"/>, or bring it forward on that item.</summary>
+    /// <summary>Open the editor on the layout item <paramref name="itemId"/>, or bring it forward on that item.</summary>
     public void ShowLayoutEditor(string itemId)
     {
         if (FindShortcut(itemId) is null)
@@ -33,17 +33,16 @@ internal sealed partial class AppHost
     private void CloseLayoutEditor() => _layoutEditor?.Close();
 
     /// <summary>
-    /// The Shortcuts item with this id and the widget that holds it, across every view; null when it
-    /// is gone (removed, undone, imported over) or no longer a layout.
+    /// The layout item with this id and the widget that holds it (<see cref="IHoldsAppLayouts"/>), across
+    /// every view; null when it is gone (removed, undone, imported over) or no longer a layout.
     /// </summary>
-    public (WidgetInstance Widget, ShortcutItem Item)? FindShortcut(string itemId)
+    public (WidgetInstance Widget, IAppLayoutItem Item)? FindShortcut(string itemId)
     {
         foreach (var view in State.Views)
         {
             foreach (var widget in view.Widgets)
             {
-                if (widget.Config is ShortcutsConfig shortcuts
-                    && shortcuts.Items.Find(item => item.Id == itemId) is { IsLayout: true } item)
+                if (widget.Config is IHoldsAppLayouts holder && holder.FindLayout(itemId) is { } item)
                 {
                     return (widget, item);
                 }

@@ -66,6 +66,26 @@ internal sealed class CardWidgetHost(IWidgetCardHost card) : IWidgetHost
 
     public bool CopyText(string text) => ClipboardWatcher.SetText(text);
 
+    public IFileIcons FileIcons => Services.Files.HostFileIcons.Instance;
+
+    public IFileClipboard FileClipboard => Services.Files.HostFileClipboard.Instance;
+
+    public IFolders Folders => Services.Files.HostFolders.Instance;
+
+    public IShellFileOps FileOps => Services.Files.HostFileOps.Instance;
+
+    public IExplorerMenus ExplorerMenus => Services.Files.HostExplorerMenus.Instance;
+
+    public IRecentItems RecentFiles => Services.Files.HostRecentItems.Instance;
+
+    public IAppLayouts AppLayouts => HostAppLayouts.Instance;
+
+    public IVideoStreams Streams => HostVideoStreams.Instance;
+
+    public IInstalledApps InstalledApps => HostInstalledApps.Instance;
+
+    public IFavicons Favicons => HostFavicons.Instance;
+
     public bool ShowAccounts()
     {
         if (AppServices.ShowAccounts is not { } show)

@@ -277,12 +277,12 @@ internal sealed partial class ShortcutsView : Grid, IWidgetView, IWidgetSurfaceA
 
         if (bin && _binWatch is null)
         {
-            RecycleBinStatus.Changed += OnBinChanged;
-            _binWatch = RecycleBinStatus.Watch();
+            _widgetHost.RecycleBin.Changed += OnBinChanged;
+            _binWatch = _widgetHost.RecycleBin.Watch();
         }
         else if (!bin && _binWatch is not null)
         {
-            RecycleBinStatus.Changed -= OnBinChanged;
+            _widgetHost.RecycleBin.Changed -= OnBinChanged;
             _binWatch.Dispose();
             _binWatch = null;
         }
@@ -548,7 +548,7 @@ internal sealed partial class ShortcutsView : Grid, IWidgetView, IWidgetSurfaceA
 
         if (_binWatch is not null)
         {
-            RecycleBinStatus.Changed -= OnBinChanged;
+            _widgetHost.RecycleBin.Changed -= OnBinChanged;
             _binWatch.Dispose();
             _binWatch = null;
         }

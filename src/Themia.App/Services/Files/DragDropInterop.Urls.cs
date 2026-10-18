@@ -53,9 +53,6 @@ internal static unsafe partial class DragDropInterop
         return end >= 0 ? text[..end] : text;
     }
 
-    /// <summary>One shell item of a drag: its parsing name, its display name, and its file-system path when it has one.</summary>
-    public readonly record struct ShellItemInfo(string ParsingName, string DisplayName, string? FileSystemPath);
-
     /// <summary>
     /// [S-1402] The shell items a data object carries (<c>SHCreateShellItemArrayFromDataObject</c>).
     /// A Start menu app arrives this way, with no <c>CF_HDROP</c>: its parsing name is an

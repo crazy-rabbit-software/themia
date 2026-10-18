@@ -16,7 +16,7 @@ namespace Themia.App.Services.Files;
 /// says so, and the view falls back to its timer.
 /// </para>
 /// </summary>
-internal sealed class FolderWatch : IDisposable
+internal sealed class FolderWatch : Themia.Sdk.WinUI.IFolderWatch
 {
     private const string Scope = "folder-watch";
 

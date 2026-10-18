@@ -72,7 +72,7 @@ internal sealed partial class RecentFilesView : Grid, IWidgetView, IWidgetSizeAw
         // A debug render never reads the user's Recent Items: its PNG must not carry their file names.
         if (_surface?.IsPreview != true)
         {
-            _items ??= RecentItems.Subscribe(OnItems);
+            _items ??= _widgetHost.RecentFiles.Subscribe(OnItems);
         }
 
         _tick ??= ticker.Subscribe(((config as RecentFilesConfig) ?? new RecentFilesConfig()).TickInterval, Render);
@@ -117,8 +117,8 @@ internal sealed partial class RecentFilesView : Grid, IWidgetView, IWidgetSizeAw
             return;
         }
 
-        _files = RecentItems.Current ?? [];
-        _unreadable = RecentItems.Unreadable && RecentItems.Current is null;
+        _files = _widgetHost.RecentFiles.Current ?? [];
+        _unreadable = _widgetHost.RecentFiles.Unreadable && _widgetHost.RecentFiles.Current is null;
         Render();
     }
 
@@ -168,7 +168,7 @@ internal sealed partial class RecentFilesView : Grid, IWidgetView, IWidgetSizeAw
         var icon = new Grid { Width = Fluent.IconSize, Height = Fluent.IconSize, Margin = new Thickness(0, 0, Fluent.Space3, 0), VerticalAlignment = VerticalAlignment.Center, Children = { fallback, image } };
         var entry = new FolderEntry(file.Name, file.Path, false, 0, file.Opened, false);
         var pixels = (int)Math.Ceiling(Fluent.IconSize * _scale);
-        if (FileIcons.TryIcon(entry, pixels, out var known))
+        if (_widgetHost.FileIcons.TryIcon(entry, pixels, out var known))
         {
             ShowIcon(image, fallback, known);
         }
@@ -233,10 +233,10 @@ internal sealed partial class RecentFilesView : Grid, IWidgetView, IWidgetSizeAw
         return row;
     }
 
-    private static async Task LoadIconAsync(Image target, FontIcon fallback, FolderEntry entry, int pixels)
+    private async Task LoadIconAsync(Image target, FontIcon fallback, FolderEntry entry, int pixels)
     {
         // AppIcons logs and returns null for a file without an icon; nothing here throws.
-        ShowIcon(target, fallback, await FileIcons.IconAsync(entry, pixels).ConfigureAwait(true));
+        ShowIcon(target, fallback, await _widgetHost.FileIcons.IconAsync(entry, pixels).ConfigureAwait(true));
     }
 
     private static void ShowIcon(Image target, FontIcon fallback, ImageSource? source)
@@ -257,7 +257,7 @@ internal sealed partial class RecentFilesView : Grid, IWidgetView, IWidgetSizeAw
             new(Glyphs.Open, Str.Common_Open.Text(), () => Open(file)),
             new(Glyphs.Folder, Str.Shortcut_OpenFileLocation.Text(), () => Reveal(file)),
             ItemMenuEntry.Separator,
-            new(Glyphs.Clear, Str.RecentFiles_Remove.Text(), () => RecentItems.Remove(file)),
+            new(Glyphs.Clear, Str.RecentFiles_Remove.Text(), () => _widgetHost.RecentFiles.Remove(file)),
         ];
     }
 
@@ -285,7 +285,7 @@ internal sealed partial class RecentFilesView : Grid, IWidgetView, IWidgetSizeAw
         if (outcome == LaunchOutcome.Missing)
         {
             // Gone since the last read: read again, and the row goes.
-            RecentItems.Refresh();
+            _widgetHost.RecentFiles.Refresh();
         }
     }
 
@@ -345,7 +345,7 @@ internal sealed partial class RecentFilesView : Grid, IWidgetView, IWidgetSizeAw
 
             case ListCommand.Delete:
                 _cursor = ListKeys.AfterRemoval(decision.Index, _files.Count - 1);
-                RecentItems.Remove(_files[decision.Index]);
+                _widgetHost.RecentFiles.Remove(_files[decision.Index]);
                 return true;
 
             case ListCommand.Menu when decision.Index < _rows.Count:

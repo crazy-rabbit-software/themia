@@ -156,7 +156,7 @@ internal static class MenuRender
 
                 // [S-6416]..[S-6418] The folder widget's own menus, from a real view over read-only
                 // Windows folders: a file's, its Open with submenu, a folder's, and the background's.
-                var folderView = new FolderView();
+                var folderView = new FolderView(new CardWidgetHost(host));
                 folderView.Attach(ticker, new FolderConfig());
                 root.Children.Add(new Border { Width = 1, Height = 1, Child = folderView });
                 var (file, openWith, folder, background) = await folderView.PreviewMenusAsync().ConfigureAwait(true);

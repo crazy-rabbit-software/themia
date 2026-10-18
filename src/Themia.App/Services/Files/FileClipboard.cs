@@ -4,9 +4,6 @@ using Themia.Core.Files;
 
 namespace Themia.App.Services.Files;
 
-/// <summary>What a paste would bring in: the files' paths, whether they were cut, and any virtual files.</summary>
-internal sealed record FileClipboardContent(IReadOnlyList<string> Paths, DropEffect Effect, int VirtualFiles);
-
 /// <summary>
 /// [S-1329] Copy, cut and paste of files on the real Windows clipboard, interchangeable with
 /// Explorer: Ctrl+C in a folder widget and Ctrl+V in Explorer works, and the other way round.

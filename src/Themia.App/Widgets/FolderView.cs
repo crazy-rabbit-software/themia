@@ -6,6 +6,7 @@ using Themia.App.Services.Files;
 using Themia.App.Shell;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
+using Themia.Sdk.WinUI;
 
 namespace Themia.App.Widgets;
 
@@ -59,7 +60,7 @@ internal sealed partial class FolderView : Grid, IWidgetView, IWidgetHeaderConte
     private FolderSnapshot _snapshot = FolderSnapshot.Of(FolderListingStatus.Loading);
     private string _snapshotPath = string.Empty;
     private string _watchedPath = string.Empty;
-    private FolderWatch? _watch;
+    private IFolderWatch? _watch;
     private CancellationTokenSource? _inFlight;
     private int _generation;
     private bool _loading;
@@ -72,9 +73,13 @@ internal sealed partial class FolderView : Grid, IWidgetView, IWidgetHeaderConte
 
     private GitRepoStatus? _git;
 
+    /// <summary>[S-6913] What the view asks of the host: the shell's files, menus, clipboard and operations.</summary>
+    private readonly IWidgetHost _widgetHost;
+
     /// <summary>[S-4123] One view for the four folder styles; the config's style picks the layout ([S-6005]).</summary>
-    public FolderView()
+    public FolderView(IWidgetHost host)
     {
+        _widgetHost = host;
         _config = new FolderConfig();
         _applied = new FolderConfig();
 
@@ -82,7 +87,7 @@ internal sealed partial class FolderView : Grid, IWidgetView, IWidgetHeaderConte
 
         // Event-driven: the clipboard changing (a copy here or in another folder widget) redraws the
         // cut dims and what Paste offers.
-        FileClipboard.Changed += OnClipboardChanged;
+        _widgetHost.FileClipboard.Changed += OnClipboardChanged;
     }
 
     // ---- lifecycle ------------------------------------------------------------------------------
@@ -92,7 +97,7 @@ internal sealed partial class FolderView : Grid, IWidgetView, IWidgetHeaderConte
         _ticker = ticker;
 
         // Warm the New menu's template list on the pool, so the first right-click has it.
-        _ = ShellNewTemplates.GetAsync();
+        _ = _widgetHost.Folders.NewFileTemplatesAsync();
         ApplyConfig(config);
     }
 
@@ -168,7 +173,7 @@ internal sealed partial class FolderView : Grid, IWidgetView, IWidgetHeaderConte
         }
 
         _detached = true;
-        FileClipboard.Changed -= OnClipboardChanged;
+        _widgetHost.FileClipboard.Changed -= OnClipboardChanged;
 
         _subscription?.Dispose();
         _subscription = null;
@@ -309,7 +314,7 @@ internal sealed partial class FolderView : Grid, IWidgetView, IWidgetHeaderConte
         try
         {
             SetBusy(true);
-            var snapshot = await Task.Run(() => FolderListing.Read(path, cts.Token), cts.Token).ConfigureAwait(true);
+            var snapshot = await Task.Run(() => _widgetHost.Folders.Read(path, cts.Token), cts.Token).ConfigureAwait(true);
 
             if (_detached || generation != _generation)
             {
@@ -358,7 +363,7 @@ internal sealed partial class FolderView : Grid, IWidgetView, IWidgetHeaderConte
             var wanted = (_area.IsMeasured && FolderLayout.Header(_area.Width, _config.Style, Navigates, hasGit: true).Git)
                 || (_config.Style == FolderStyle.Details && _config.DetailColumns.Contains(FolderColumn.Git));
 
-            var status = wanted ? await GitStatus.GetAsync(path).ConfigureAwait(true) : null;
+            var status = wanted ? await _widgetHost.Folders.GitStatusAsync(path).ConfigureAwait(true) : null;
 
             if (_detached || generation != _generation)
             {
@@ -393,7 +398,7 @@ internal sealed partial class FolderView : Grid, IWidgetView, IWidgetHeaderConte
 
         try
         {
-            _watch = FolderWatch.Start(path, () => Reload(force: false));
+            _watch = _widgetHost.Folders.Watch(path, () => Reload(force: false));
         }
         catch (InvalidOperationException ex)
         {

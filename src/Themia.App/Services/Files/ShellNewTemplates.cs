@@ -4,22 +4,6 @@ using Themia.Core.Diagnostics;
 
 namespace Themia.App.Services.Files;
 
-/// <summary>How a ShellNew template makes its file.</summary>
-internal enum ShellNewKind
-{
-    /// <summary><c>NullFile</c>: an empty file.</summary>
-    Empty,
-
-    /// <summary><c>FileName</c>: a copy of a template file.</summary>
-    Copy,
-
-    /// <summary><c>Data</c>: these bytes.</summary>
-    Data,
-}
-
-/// <summary>One entry of Explorer's New menu ("Text Document", "Microsoft Word Document").</summary>
-internal sealed record ShellNewTemplate(string Extension, string Label, ShellNewKind Kind, string? Source, byte[]? Data);
-
 /// <summary>
 /// [S-1331] The New submenu's file types, read from the registry the way Explorer builds its own:
 /// every <c>HKCR\.ext</c> with a <c>ShellNew</c> key (directly or under its ProgID) that makes a file

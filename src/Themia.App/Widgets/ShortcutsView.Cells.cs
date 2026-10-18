@@ -63,7 +63,7 @@ internal sealed partial class ShortcutsView
     /// <summary>Below this icon size the Recycle Bin's badge is a dot rather than a count.</summary>
     private const double DotBelow = 24;
 
-    /// <summary>Decoded favicons by origin, per view: the bytes are shared app-wide by <see cref="FaviconCache"/>.</summary>
+    /// <summary>Decoded favicons by origin, per view: the bytes are shared app-wide by the host's cache (<see cref="IWidgetHost.Favicons"/>).</summary>
     private readonly Dictionary<string, Task<BitmapImage?>> _favicons = new(StringComparer.OrdinalIgnoreCase);
 
     /// <summary>Rebuild every cell for the current shape.</summary>
@@ -531,7 +531,7 @@ internal sealed partial class ShortcutsView
     /// <summary>[S-1389] The bin's badge, tooltip, and its empty or full icon.</summary>
     private void PaintBin(Cell cell)
     {
-        var state = RecycleBinStatus.Current;
+        var state = _widgetHost.RecycleBin.Current;
         var badge = ShortcutRules.BadgeText(state);
 
         cell.BadgeText.Text = badge ?? string.Empty;
@@ -565,14 +565,14 @@ internal sealed partial class ShortcutsView
             ImageSource? source = cell.Item.IconPath is { } iconPath
                 && LaunchTargets.Classify(iconPath) is { Kind: LaunchKind.LocalPath } iconTarget
                 && LaunchTargets.MayProbe(iconTarget)
-                ? await AppIcons.GetAsync(iconTarget.Value, (int)Math.Ceiling(cell.IconSize * 2), AppIcons.ThemeOf(this)).ConfigureAwait(true)
+                ? await AppIconSource.GetAsync(iconTarget.Value, (int)Math.Ceiling(cell.IconSize * 2), AppIconSource.ThemeOf(this)).ConfigureAwait(true)
                 : null;
 
             source ??= cell.Target.Kind switch
             {
                 LaunchKind.Web => await FaviconAsync(cell.Target.Value).ConfigureAwait(true),
                 LaunchKind.LocalPath or LaunchKind.ShellNamespace when LaunchTargets.MayProbe(cell.Target)
-                    => await AppIcons.GetAsync(cell.Target.Value, (int)Math.Ceiling(cell.IconSize * 2), AppIcons.ThemeOf(this), variant).ConfigureAwait(true),
+                    => await AppIconSource.GetAsync(cell.Target.Value, (int)Math.Ceiling(cell.IconSize * 2), AppIconSource.ThemeOf(this), variant).ConfigureAwait(true),
                 _ => null,
             };
 
@@ -610,9 +610,9 @@ internal sealed partial class ShortcutsView
         return await decoding.ConfigureAwait(true);
     }
 
-    private static async Task<BitmapImage?> DecodeFaviconAsync(string url)
+    private async Task<BitmapImage?> DecodeFaviconAsync(string url)
     {
-        var bytes = await FaviconCache.GetAsync(url).ConfigureAwait(true);
+        var bytes = await _widgetHost.Favicons.GetAsync(url).ConfigureAwait(true);
 
         if (bytes is null)
         {
@@ -661,7 +661,7 @@ internal sealed partial class ShortcutsView
                 {
                     LaunchKind.Web => await FaviconAsync(target.Value).ConfigureAwait(true),
                     LaunchKind.LocalPath when LaunchTargets.MayProbe(target)
-                        => await AppIcons.GetAsync(target.Value, (int)Math.Ceiling(cell.IconSize * 2), AppIcons.ThemeOf(this)).ConfigureAwait(true),
+                        => await AppIconSource.GetAsync(target.Value, (int)Math.Ceiling(cell.IconSize * 2), AppIconSource.ThemeOf(this)).ConfigureAwait(true),
                     _ => null,
                 };
 

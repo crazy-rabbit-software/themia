@@ -294,7 +294,7 @@ internal sealed partial class ShortcutsView
 
             try
             {
-                DragDropInterop.DragOut(paths, DropEffect.Copy | DropEffect.Link, Window());
+                _widgetHost.FileOps.DragOut(paths, DropEffect.Copy | DropEffect.Link, Window());
             }
             catch (Exception ex)
             {
@@ -480,7 +480,7 @@ internal sealed partial class ShortcutsView
         }
 
         // Read now: the data object is only valid during the drop.
-        var shellItems = DragDropInterop.ReadShellItems(drag.Data);
+        var shellItems = drag.ReadShellItems();
         var paths = shellItems.Where(item => item.FileSystemPath is not null).Select(item => item.FileSystemPath!).ToList();
         var names = shellItems.Where(item => item.FileSystemPath is null && item.DisplayName.Length > 0).Select(item => item.DisplayName).ToList();
 
@@ -510,7 +510,7 @@ internal sealed partial class ShortcutsView
     {
         try
         {
-            var apps = await Task.Run(() => InstalledApps.Read(2000, CancellationToken.None)).ConfigureAwait(true);
+            var apps = await Task.Run(() => _widgetHost.InstalledApps.Read(2000, CancellationToken.None)).ConfigureAwait(true);
             var paths = new List<string>();
 
             foreach (var name in names)
@@ -539,8 +539,8 @@ internal sealed partial class ShortcutsView
     }
 
     /// <summary>A dropped link's target, or null to keep the link (unreadable, or it passes arguments).</summary>
-    private static string? ResolveLink(string path)
-        => LaunchTargets.MayProbe(LaunchTargets.Classify(path)) ? ShellFileOps.ResolveShortcut(path, withoutArguments: true) : null;
+    private string? ResolveLink(string path)
+        => LaunchTargets.MayProbe(LaunchTargets.Classify(path)) ? _widgetHost.FileOps.ResolveShortcut(path, withoutArguments: true) : null;
 
     /// <summary>A dropped <c>.url</c> file's text: local only, and only as long as such a file can be.</summary>
     private static string? ReadUrlFile(string path)

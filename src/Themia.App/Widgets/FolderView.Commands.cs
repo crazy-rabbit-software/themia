@@ -10,6 +10,7 @@ using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
 using Themia.Core.Shell;
+using Themia.Sdk.WinUI;
 
 namespace Themia.App.Widgets;
 
@@ -35,7 +36,7 @@ internal sealed partial class FolderView
     {
         var root = element.TransformToVisual(null).TransformPoint(local);
         var scale = XamlRoot?.RasterizationScale ?? 1.0;
-        _menuPoint = ShellContextMenu.ToScreen(Window(), (int)(root.X * scale), (int)(root.Y * scale));
+        _menuPoint = _widgetHost.ExplorerMenus.ToScreen(Window(), (int)(root.X * scale), (int)(root.Y * scale));
     }
 
     /// <summary>[S-1330] Windows' own menu for the selection, or for the folder's background.</summary>
@@ -45,11 +46,11 @@ internal sealed partial class FolderView
 
         if (items is { Count: > 0 })
         {
-            ShellContextMenu.ShowForItems(items, x, y, Window());
+            _widgetHost.ExplorerMenus.ShowForItems(items, x, y, Window());
         }
         else if (CurrentPath.Length > 0)
         {
-            ShellContextMenu.ShowForBackground(CurrentPath, x, y, Window());
+            _widgetHost.ExplorerMenus.ShowForBackground(CurrentPath, x, y, Window());
         }
     }
 
@@ -69,20 +70,20 @@ internal sealed partial class FolderView
             }
             else
             {
-                ShellFileOps.Open(entry.FullPath);
+                _widgetHost.FileOps.Open(entry.FullPath);
             }
 
             return;
         }
 
         if (Navigates && entry.Name.EndsWith(".lnk", StringComparison.OrdinalIgnoreCase)
-            && ShellFileOps.ResolveShortcut(entry.FullPath) is { } target && Directory.Exists(target))
+            && _widgetHost.FileOps.ResolveShortcut(entry.FullPath) is { } target && Directory.Exists(target))
         {
             NavigateTo(target);
             return;
         }
 
-        ShellFileOps.Open(entry.FullPath);
+        _widgetHost.FileOps.Open(entry.FullPath);
     }
 
     private void OpenSelection()
@@ -97,7 +98,7 @@ internal sealed partial class FolderView
 
         foreach (var entry in selected.Take(OpenAtMost))
         {
-            ShellFileOps.Open(entry.FullPath);
+            _widgetHost.FileOps.Open(entry.FullPath);
         }
     }
 
@@ -110,7 +111,7 @@ internal sealed partial class FolderView
     {
         var paths = _selection.Selected;
 
-        if (paths.Count > 0 && !FileClipboard.SetFiles(paths, cut))
+        if (paths.Count > 0 && !_widgetHost.FileClipboard.SetFiles(paths, cut))
         {
             Log.Warn(Scope, "the selection could not be put on the clipboard");
         }
@@ -125,7 +126,7 @@ internal sealed partial class FolderView
     {
         try
         {
-            if (destination.Length == 0 || FileClipboard.Read() is not { } content)
+            if (destination.Length == 0 || _widgetHost.FileClipboard.Read() is not { } content)
             {
                 return;
             }
@@ -134,19 +135,19 @@ internal sealed partial class FolderView
             {
                 if (content.Effect == DropEffect.Move)
                 {
-                    if (await ShellFileOps.MoveAsync(content.Paths, destination).ConfigureAwait(true) == FileOpOutcome.Done)
+                    if (await _widgetHost.FileOps.MoveAsync(content.Paths, destination).ConfigureAwait(true) == FileOpOutcome.Done)
                     {
-                        FileClipboard.CompleteCut();
+                        _widgetHost.FileClipboard.CompleteCut();
                     }
                 }
                 else
                 {
-                    await ShellFileOps.CopyAsync(content.Paths, destination).ConfigureAwait(true);
+                    await _widgetHost.FileOps.CopyAsync(content.Paths, destination).ConfigureAwait(true);
                 }
             }
             else if (content.VirtualFiles > 0)
             {
-                FileClipboard.SaveVirtualFiles(destination);
+                _widgetHost.FileClipboard.SaveVirtualFiles(destination);
                 Reload(force: false);
             }
         }
@@ -200,7 +201,7 @@ internal sealed partial class FolderView
                 return;
             }
 
-            var outcome = await ShellFileOps.RecycleAsync(paths).ConfigureAwait(true);
+            var outcome = await _widgetHost.FileOps.RecycleAsync(paths).ConfigureAwait(true);
 
             if (outcome == FileOpOutcome.Failed)
             {
@@ -310,7 +311,7 @@ internal sealed partial class FolderView
     {
         try
         {
-            if (await ShellFileOps.RenameAsync(path, name).ConfigureAwait(true) == FileOpOutcome.Done)
+            if (await _widgetHost.FileOps.RenameAsync(path, name).ConfigureAwait(true) == FileOpOutcome.Done)
             {
                 // Keep the renamed item selected once the reload draws it under its new name.
                 var renamed = Path.Combine(Path.GetDirectoryName(path) ?? string.Empty, name);
@@ -362,7 +363,7 @@ internal sealed partial class FolderView
     /// <summary>[S-1331] New folder: created, then renamed in place as soon as the reload shows it.</summary>
     private void NewFolder()
     {
-        if (CurrentPath.Length > 0 && ShellFileOps.NewFolder(CurrentPath) is { } created)
+        if (CurrentPath.Length > 0 && _widgetHost.FileOps.NewFolder(CurrentPath) is { } created)
         {
             _renameAfterLoad = created;
             Reload(force: false);
@@ -371,7 +372,7 @@ internal sealed partial class FolderView
 
     private void NewFile(ShellNewTemplate template)
     {
-        if (CurrentPath.Length > 0 && ShellFileOps.NewFile(CurrentPath, template) is { } created)
+        if (CurrentPath.Length > 0 && _widgetHost.FileOps.NewFile(CurrentPath, template) is { } created)
         {
             _renameAfterLoad = created;
             Reload(force: false);
@@ -435,7 +436,7 @@ internal sealed partial class FolderView
         var paths = selected.Select(e => e.FullPath).ToList();
         var single = selected.Count == 1 ? selected[0] : (FolderEntry?)null;
 
-        return [.. FolderMenu.Item(selected, Navigates, FileClipboard.HasFiles).Select(line => ItemEntry(line, selected, paths, single))];
+        return [.. FolderMenu.Item(selected, Navigates, _widgetHost.FileClipboard.HasFiles).Select(line => ItemEntry(line, selected, paths, single))];
     }
 
     private ItemMenuEntry ItemEntry(FolderMenuLine line, List<FolderEntry> selected, List<string> paths, FolderEntry? single)
@@ -459,15 +460,15 @@ internal sealed partial class FolderView
             FolderCommand.Delete => new(Glyphs.Delete, several ? Str.WidgetsB_Folder_DeleteCount.Format(("count", count)) : Str.Common_Delete.Text(), () => _ = DeleteSelectionAsync(), Danger: true, Quick: quick, Shortcut: keys),
             FolderCommand.Open => new(single is { IsDirectory: true } ? Glyphs.FolderOpen : Glyphs.Open, Str.CtxMenu_Open.Text(), OpenSelection, Shortcut: keys),
             FolderCommand.OpenWith => new(Glyphs.OpenWith, Str.FolderMenu_OpenWith.Text(), null, Children: OpenWithEntries(single!.Value.FullPath)),
-            FolderCommand.OpenInNewWindow => new(Glyphs.NewWindow, Str.FolderMenu_OpenInNewWindow.Text(), () => ShellFileOps.Open(single!.Value.FullPath)),
-            FolderCommand.OpenFileLocation => new(Glyphs.Folder, Str.FolderMenu_OpenFileLocation.Text(), () => ShellFileOps.ShowInExplorer(paths)),
+            FolderCommand.OpenInNewWindow => new(Glyphs.NewWindow, Str.FolderMenu_OpenInNewWindow.Text(), () => _widgetHost.FileOps.Open(single!.Value.FullPath)),
+            FolderCommand.OpenFileLocation => new(Glyphs.Folder, Str.FolderMenu_OpenFileLocation.Text(), () => _widgetHost.FileOps.ShowInExplorer(paths)),
             FolderCommand.PinToQuickAccess => new(Glyphs.Pin, Str.FolderMenu_PinToQuickAccess.Text(), () => RunShellVerb(paths, "pintohome")),
             FolderCommand.PinToStart => new(Glyphs.Pin, Str.FolderMenu_PinToStart.Text(), () => RunShellVerb(paths, "pintostartscreen")),
             FolderCommand.CompressToZip => new(Glyphs.ZipFolder, Str.FolderMenu_CompressToZip.Text(), () => _ = CompressAsync(selected)),
             FolderCommand.CopyAsPath => new(Glyphs.CopyAsPath, Str.FolderMenu_CopyAsPath.Text(), () => CopyPaths(paths), Shortcut: keys),
-            FolderCommand.KeepOnDevice => new(Glyphs.Pin, Str.WidgetsB_Folder_KeepOnDevice.Text(), () => ShellFileOps.SetCloudPin(paths, CloudPin.Pin)),
-            FolderCommand.FreeUpSpace => new(Glyphs.Unpin, Str.WidgetsB_Folder_FreeUpSpace.Text(), () => ShellFileOps.SetCloudPin(paths, CloudPin.Unpin)),
-            FolderCommand.Properties => new(Glyphs.Properties, Str.Folder_Properties.Text(), () => ShellFileOps.Properties(paths), Shortcut: keys),
+            FolderCommand.KeepOnDevice => new(Glyphs.Pin, Str.WidgetsB_Folder_KeepOnDevice.Text(), () => _widgetHost.FileOps.SetCloudPin(paths, CloudPin.Pin)),
+            FolderCommand.FreeUpSpace => new(Glyphs.Unpin, Str.WidgetsB_Folder_FreeUpSpace.Text(), () => _widgetHost.FileOps.SetCloudPin(paths, CloudPin.Unpin)),
+            FolderCommand.Properties => new(Glyphs.Properties, Str.Folder_Properties.Text(), () => _widgetHost.FileOps.Properties(paths), Shortcut: keys),
             FolderCommand.ShowMoreOptions => new(Glyphs.OpenExternal, Str.WidgetsB_Folder_MoreOptions.Text(), () => ShowShellMenu(paths), Shortcut: keys),
             _ => ItemMenuEntry.Separator,
         };
@@ -477,14 +478,14 @@ internal sealed partial class FolderView
     /// [S-6416] "Open with": the apps Windows recommends for the file, with their icons, then
     /// "Choose another app" (Windows' own dialog), as Explorer's submenu.
     /// </summary>
-    private static List<ItemMenuEntry> OpenWithEntries(string path)
+    private List<ItemMenuEntry> OpenWithEntries(string path)
     {
-        var entries = OpenWithApps.For(path)
-            .Select(app => new ItemMenuEntry(Glyphs.Open, app.Label, () => OpenWithApps.Open(path, app.Name), IconFile: app.IconFile))
+        var entries = _widgetHost.ExplorerMenus.OpenWithApps(path)
+            .Select(app => new ItemMenuEntry(Glyphs.Open, app.Label, () => _widgetHost.ExplorerMenus.OpenWith(path, app.Name), IconFile: app.IconFile))
             .ToList();
 
         entries.Add(ItemMenuEntry.Separator);
-        entries.Add(new(Glyphs.OpenWith, Str.FolderMenu_ChooseAnotherApp.Text(), () => ShellFileOps.OpenWith(path)));
+        entries.Add(new(Glyphs.OpenWith, Str.FolderMenu_ChooseAnotherApp.Text(), () => _widgetHost.FileOps.OpenWith(path)));
         return entries;
     }
 
@@ -496,7 +497,7 @@ internal sealed partial class FolderView
             HasPath: here.Length > 0,
             Listed: here.Length > 0 && _snapshot.Status is FolderListingStatus.Ok or FolderListingStatus.Empty,
             HasItems: _shown.Count > 0,
-            ClipboardHasFiles: FileClipboard.HasFiles,
+            ClipboardHasFiles: _widgetHost.FileClipboard.HasFiles,
             CanGoUp: Navigates && _history.CanGoUp);
 
         return [.. FolderMenu.Background(facts).Select(line => BackgroundEntry(line, here))];
@@ -518,9 +519,9 @@ internal sealed partial class FolderView
             FolderCommand.Up => new(Glyphs.MoveUp, Str.WidgetsB_Folder_Up.Text(), GoUp),
             FolderCommand.Refresh => new(Glyphs.Refresh, Str.Common_Refresh.Text(), () => Reload(force: false)),
             FolderCommand.New => new(Glyphs.Add, Str.WidgetsB_Folder_New.Text(), null, Disabled: disabled, Children: NewEntries()),
-            FolderCommand.OpenInExplorer => new(Glyphs.FolderOpen, Str.Folder_OpenInExplorer.Text(), () => ShellFileOps.Open(here), Disabled: disabled),
+            FolderCommand.OpenInExplorer => new(Glyphs.FolderOpen, Str.Folder_OpenInExplorer.Text(), () => _widgetHost.FileOps.Open(here), Disabled: disabled),
             FolderCommand.CopyAsPath => new(Glyphs.CopyAsPath, Str.FolderMenu_CopyAsPath.Text(), () => CopyPaths([here]), Disabled: disabled),
-            FolderCommand.Properties => new(Glyphs.Properties, Str.Folder_Properties.Text(), () => ShellFileOps.Properties([here]), Disabled: disabled),
+            FolderCommand.Properties => new(Glyphs.Properties, Str.Folder_Properties.Text(), () => _widgetHost.FileOps.Properties([here]), Disabled: disabled),
             FolderCommand.ShowMoreOptions => new(Glyphs.OpenExternal, Str.WidgetsB_Folder_MoreOptions.Text(), () => ShowShellMenu(null), Disabled: disabled, Shortcut: keys),
             _ => ItemMenuEntry.Separator,
         };
@@ -529,7 +530,7 @@ internal sealed partial class FolderView
     /// <summary>[S-1331] New: Folder, then the ShellNew templates.</summary>
     private List<ItemMenuEntry> NewEntries()
     {
-        var templates = ShellNewTemplates.GetAsync() is { IsCompletedSuccessfully: true } done ? done.Result : [];
+        var templates = _widgetHost.Folders.NewFileTemplatesAsync() is { IsCompletedSuccessfully: true } done ? done.Result : [];
         var entries = new List<ItemMenuEntry> { new(Glyphs.NewFolder, Str.CtxMenu_Folder.Text(), NewFolder) };
 
         if (templates.Count > 0)
@@ -550,18 +551,18 @@ internal sealed partial class FolderView
         var paths = _selection.Selected;
         if (paths.Count > 0)
         {
-            ShellFileOps.Properties(paths);
+            _widgetHost.FileOps.Properties(paths);
         }
         else if (CurrentPath.Length > 0)
         {
-            ShellFileOps.Properties([CurrentPath]);
+            _widgetHost.FileOps.Properties([CurrentPath]);
         }
     }
 
     /// <summary>[S-6416] One of the shell's own commands (Share, the pins); said at the widget when Windows has none here.</summary>
     private void RunShellVerb(IReadOnlyList<string> paths, string verb)
     {
-        if (!ShellContextMenu.InvokeVerb(paths, verb, Window()))
+        if (!_widgetHost.ExplorerMenus.InvokeVerb(paths, verb, Window()))
         {
             ShowNote(this, Str.FolderMenu_ShellFailed.Text());
         }
@@ -586,7 +587,7 @@ internal sealed partial class FolderView
                 ? focused
                 : selected[0];
             var name = FolderMenu.ZipName(named, _snapshot.Entries.Select(e => e.Name));
-            var zip = await ZipFiles.CompressAsync([.. selected.Select(e => e.FullPath)], Path.Combine(here, name)).ConfigureAwait(true);
+            var zip = await _widgetHost.Folders.CompressAsync([.. selected.Select(e => e.FullPath)], Path.Combine(here, name)).ConfigureAwait(true);
 
             if (zip is null)
             {
@@ -613,7 +614,7 @@ internal sealed partial class FolderView
     /// </summary>
     public IReadOnlyList<WidgetAction> ContextActions =>
     [
-        new(Glyphs.OpenExternal, Str.Folder_OpenInExplorer.Text(), () => ShellFileOps.Open(CurrentPath)),
+        new(Glyphs.OpenExternal, Str.Folder_OpenInExplorer.Text(), () => _widgetHost.FileOps.Open(CurrentPath)),
         new(Glyphs.Refresh, Str.Common_Refresh.Text(), () => Reload(force: false)),
     ];
 

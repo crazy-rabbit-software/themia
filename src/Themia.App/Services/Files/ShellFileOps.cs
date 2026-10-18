@@ -8,17 +8,6 @@ using Themia.Core.Widgets;
 
 namespace Themia.App.Services.Files;
 
-/// <summary>How a file operation ended.</summary>
-internal enum FileOpOutcome
-{
-    Done,
-
-    /// <summary>The user cancelled in the shell's progress or conflict dialog. Not a failure.</summary>
-    Cancelled,
-
-    Failed,
-}
-
 /// <summary>
 /// [S-1330]/[S-1331] File operations, done by the shell exactly as Explorer does them: copy, move,
 /// rename and delete through <c>IFileOperation</c> (progress, conflict and "too big for the Recycle

@@ -103,4 +103,34 @@ public interface IWidgetHost
 
     /// <summary>[S-1444] Put <paramref name="text"/> on the clipboard, exactly as given. False when Windows refused it (logged).</summary>
     bool CopyText(string text);
+
+    /// <summary>[S-1324] A file's shell icon, thumbnail, type name and a folder's count: the host's one cache.</summary>
+    IFileIcons FileIcons { get; }
+
+    /// <summary>[S-1329] Files on the real Windows clipboard, interchangeable with Explorer.</summary>
+    IFileClipboard FileClipboard { get; }
+
+    /// <summary>[S-1321] A folder's listing and watch, its repository, Explorer's New file types, a ZIP.</summary>
+    IFolders Folders { get; }
+
+    /// <summary>[S-1330] The shell's own file operations (Explorer's dialogs and undo; delete always recycles) and a drag out.</summary>
+    IShellFileOps FileOps { get; }
+
+    /// <summary>[S-6416] File Explorer's own menus: the full shell menu, a verb, a file's Open with apps.</summary>
+    IExplorerMenus ExplorerMenus { get; }
+
+    /// <summary>[S-4841] Windows' Recent Items: the host's one list.</summary>
+    IRecentItems RecentFiles { get; }
+
+    /// <summary>[S-1411] The app-layout editor and the layout launch.</summary>
+    IAppLayouts AppLayouts { get; }
+
+    /// <summary>[S-471] Camera connections: MJPEG, snapshots, or a video for Windows' own player.</summary>
+    Themia.App.Services.Web.IVideoStreams Streams { get; }
+
+    /// <summary>The apps on the Start menu, for a Start-menu app dropped on a widget.</summary>
+    IInstalledApps InstalledApps { get; }
+
+    /// <summary>[S-1304] A site's own icon: the host's one cache.</summary>
+    IFavicons Favicons { get; }
 }

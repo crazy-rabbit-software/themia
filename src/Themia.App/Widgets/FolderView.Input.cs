@@ -638,7 +638,7 @@ internal sealed partial class FolderView : IWidgetDropTarget
 
             try
             {
-                DragDropInterop.DragOut(paths, DropEffect.Copy | DropEffect.Move | DropEffect.Link, Window());
+                _widgetHost.FileOps.DragOut(paths, DropEffect.Copy | DropEffect.Move | DropEffect.Link, Window());
             }
             catch (Exception ex)
             {

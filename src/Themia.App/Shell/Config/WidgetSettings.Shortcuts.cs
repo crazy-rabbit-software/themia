@@ -7,6 +7,7 @@ using Themia.Core.Diagnostics;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
+using Themia.Sdk.WinUI;
 using Windows.System;
 
 namespace Themia.App.Shell.Config;
@@ -127,7 +128,7 @@ internal static partial class WidgetSettings
 
         // [S-1411] An app layout: added, then straight into its editor (original S-55).
         var layout = new Button { Content = Str.Shortcut_NewLayout.Text() };
-        layout.IsEnabled = AppServices.EditAppLayout is not null;
+        layout.IsEnabled = SettingsHost.AppLayouts.CanEdit;
         layout.Click += (_, _) =>
         {
             var item = ShortcutItem.CreateLayout();
@@ -135,7 +136,7 @@ internal static partial class WidgetSettings
             if (list is not null)
             {
                 list.Add(item);
-                AppServices.EditAppLayout?.Invoke(item.Id);
+                SettingsHost.AppLayouts.Edit(item.Id);
             }
         };
 
@@ -200,7 +201,7 @@ internal static partial class WidgetSettings
     {
         try
         {
-            icon.Source = await AppIcons.GetAsync(uri, (int)(Fluent.IconSize * 2), AppIcons.ThemeOf(icon)).ConfigureAwait(true);
+            icon.Source = await AppIconSource.GetAsync(uri, (int)(Fluent.IconSize * 2), AppIconSource.ThemeOf(icon)).ConfigureAwait(true);
         }
         catch (Exception ex)
         {
@@ -367,8 +368,8 @@ internal static partial class WidgetSettings
         summary.Text = Str.WidgetsC_Shortcuts_AppLayout_Summary.Format(("apps", LayoutPlan.Summary(item.Layout)));
         summary.VerticalAlignment = VerticalAlignment.Center;
 
-        var edit = new Button { Content = Str.Shortcut_EditLayoutMenu.Text(), IsEnabled = AppServices.EditAppLayout is not null };
-        edit.Click += (_, _) => AppServices.EditAppLayout?.Invoke(item.Id);
+        var edit = new Button { Content = Str.Shortcut_EditLayoutMenu.Text(), IsEnabled = SettingsHost.AppLayouts.CanEdit };
+        edit.Click += (_, _) => SettingsHost.AppLayouts.Edit(item.Id);
 
         var line = new Grid { Margin = new Thickness(0, Fluent.Space2, 0, 0) };
         line.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
@@ -400,7 +401,7 @@ internal static partial class WidgetSettings
 
             // The picker needs an owner window, and the click that opened it came from the settings
             // window, so the foreground window is that window at this instant.
-            WinRT.Interop.InitializeWithWindow.Initialize(picker, Win32.GetForegroundWindow());
+            SettingsHost.OwnPicker(picker);
 
             var file = await picker.PickSingleFileAsync();
 
@@ -426,7 +427,7 @@ internal static partial class WidgetSettings
             var picker = new Windows.Storage.Pickers.FolderPicker();
             picker.FileTypeFilter.Add("*");
 
-            WinRT.Interop.InitializeWithWindow.Initialize(picker, Win32.GetForegroundWindow());
+            SettingsHost.OwnPicker(picker);
 
             var folder = await picker.PickSingleFolderAsync();
 

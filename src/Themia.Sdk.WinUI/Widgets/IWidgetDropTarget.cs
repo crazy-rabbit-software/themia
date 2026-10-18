@@ -63,6 +63,9 @@ public interface IWidgetDrag
     /// <summary>The drag carries shell items (every Explorer drag, and a Start-menu app, which has nothing else).</summary>
     bool HasShellItems { get; }
 
+    /// <summary>[S-1402] The shell items the drag carries (a Start-menu app is one with no file-system path). Read on each call; inside the view calls only.</summary>
+    IReadOnlyList<Themia.App.Services.Files.ShellItemInfo> ReadShellItems();
+
     /// <summary>How many things the drag carries, for logs.</summary>
     int ItemCount { get; }
 
