@@ -942,6 +942,10 @@ The shared parts a list widget is built from, and the rules they keep (design an
 - **[S-7042]** `KitFreshness`, the one stale rule's words: one line per source and problem, folded,
   stamped with the oldest copy among them ("Work: No network · updated Mon 10:42", [S-2664]); the
   Refresh line with the age of the oldest copy on screen ("Refresh · updated 4 min ago").
+- **[S-7062]** One launcher: a kit item's address opens through the host's one launcher
+  (`IWidgetHost.Launcher`, which classifies it again on the literal string it hands the shell), never
+  a process of the widget's own; a preview opens nothing. Nothing in the source starts a process but
+  the launcher and a short list of host files with their reasons (`KitConformanceTests`).
 - **[S-7050]** `IKitConfig`: a kit widget's config states what it needs (a feature, or none for a
   web source), whether it is configured, the accounts it reads and the fields the user has on; its
   setup rule follows ([S-1860], [S-1861]): it waits while it has nothing to read, or while no
@@ -4137,7 +4141,8 @@ is a module (`src/Widgets/Themia.Widget.Stocks/`, its own tags in its `SPEC.md`)
   columns; Tall 5+ headlines; L two columns with summaries; XL three columns with summaries.
 - **[S-1306]** No reading pane at any size (retired: it read one item beside the list; user
   decision, the feed is its headlines). A click on a row focuses it; a double-click opens it
-  everywhere, as every list on this desktop. Item menu (`ItemMenu`): Open, Copy link, Refresh. Keys through the shell's
+  everywhere, as every list on this desktop, through the host's launcher ([S-7062]; fixed: the
+  widget started the browser itself). Item menu (`ItemMenu`): Open, Copy link, Refresh. Keys through the shell's
   keyboard lease (`IWidgetKeys`, [S-800]; a click in the widget takes it): Up/Down/Left/Right step,
   Home/End, Enter opens, Escape lets go.
 - [S-1307], [S-1308], [S-1310], [S-1311], [S-2770], [S-6165], [S-6166], [S-2776], [S-2777]: moved with the Stocks widget into its module's `SPEC.md` (`src/Widgets/Themia.Widget.Stocks/`).

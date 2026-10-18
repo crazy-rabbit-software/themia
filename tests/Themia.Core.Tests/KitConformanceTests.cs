@@ -28,6 +28,19 @@ public sealed partial class KitConformanceTests
         "MusicView.Layout.cs", "ScratchpadView.cs", "ScreenTimeShared.cs", "StocksView.cs", "WeekPlannerView.cs",
     ];
 
+    [GeneratedRegex(@"\bProcess\.Start\b|\bUseShellExecute\b")]
+    private static partial Regex StartsAProcess();
+
+    /// <summary>
+    /// [S-7062] The files that start a process themselves, each for a reason: the one launcher
+    /// (<c>ShellLauncher</c>), the purge's helper after exit, git for a folder's status, a file the
+    /// shell's own operations open, and the settings window's About and uninstall pages.
+    /// </summary>
+    private static readonly string[] StartsAProcessAllowed =
+    [
+        "ConfigPages.About.cs", "ConfigPages.Uninstall.cs", "DataPurge.cs", "GitStatus.cs", "ShellFileOps.cs", "ShellLauncher.cs",
+    ];
+
     private static string Code(string path)
         => string.Join('\n', File.ReadAllLines(path).Where(l => !l.TrimStart().StartsWith("//", StringComparison.Ordinal)));
 
@@ -53,6 +66,22 @@ public sealed partial class KitConformanceTests
 
         // Exactly the list: a new offender fails, and a fixed one must leave the list.
         Assert.Equal(LiteralColourToday.Order(StringComparer.Ordinal), offending);
+    }
+
+    /// <summary>
+    /// [S-7062] One launcher: nothing but the host's launcher hands a target to the shell; a widget
+    /// opens through <c>IWidgetHost.Launcher</c>. The list may only shrink.
+    /// </summary>
+    [Fact]
+    public void S7062_nothing_starts_a_process_but_the_launcher_and_todays_list()
+    {
+        var offending = RepoFiles.CSharp(RepoFiles.Src)
+            .Where(f => StartsAProcess().IsMatch(Code(f)))
+            .Select(Path.GetFileName)
+            .Order(StringComparer.Ordinal)
+            .ToList();
+
+        Assert.Equal(StartsAProcessAllowed.Order(StringComparer.Ordinal), offending);
     }
 
     [Fact]

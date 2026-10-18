@@ -26,7 +26,6 @@ public sealed class KitBinding : IDisposable
     private readonly IWidgetHost _host;
     private readonly KitSpec _spec;
     private readonly Action<KitItem, KitAction>? _handle;
-    private readonly Action<string> _open;
 
     private Ticker? _ticker;
     private IDisposable? _tick;
@@ -40,19 +39,16 @@ public sealed class KitBinding : IDisposable
     /// <param name="glyph">The widget's glyph, over its state sentences.</param>
     /// <param name="actions">An item's actions, as the widget's spec gives them.</param>
     /// <param name="handle">Carries out the actions only the widget knows (a check, a rename, a delete), by <see cref="KitAction.Id"/>.</param>
-    /// <param name="open">How an item's address is opened (the widget's own until it opens through the host's launcher).</param>
-    public KitBinding(IWidgetHost host, KitSpec spec, string glyph, Func<KitItem, IReadOnlyList<KitAction>> actions, Action<string> open, Action<KitItem, KitAction>? handle = null)
+    public KitBinding(IWidgetHost host, KitSpec spec, string glyph, Func<KitItem, IReadOnlyList<KitAction>> actions, Action<KitItem, KitAction>? handle = null)
     {
         ArgumentNullException.ThrowIfNull(host);
         ArgumentNullException.ThrowIfNull(spec);
         ArgumentNullException.ThrowIfNull(glyph);
         ArgumentNullException.ThrowIfNull(actions);
-        ArgumentNullException.ThrowIfNull(open);
 
         _host = host;
         _spec = spec;
         _handle = handle;
-        _open = open;
         List = new KitList(host, spec, actions, Run);
         State = new KitStatePanel(glyph, host) { Visibility = Visibility.Collapsed };
     }
@@ -213,7 +209,13 @@ public sealed class KitBinding : IDisposable
         switch (action.Kind)
         {
             case KitActionKind.Open or KitActionKind.OpenTo when action.Target is { } target:
-                _open(target.OriginalString);
+                // [S-7062] Through the host's one launcher, which classifies the address again on the
+                // literal string it hands the shell; a preview opens nothing.
+                if (!_host.IsPreview)
+                {
+                    _host.Launcher.Open(target.OriginalString);
+                }
+
                 break;
 
             case KitActionKind.CopyLink or KitActionKind.CopyText when action.Text is { Length: > 0 } text:

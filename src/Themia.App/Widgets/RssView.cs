@@ -1,4 +1,3 @@
-using System.Diagnostics;
 using Microsoft.UI;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
@@ -34,8 +33,6 @@ namespace Themia.App.Widgets;
 internal sealed partial class RssView : Grid, IWidgetView, IWidgetHeaderContent, IWidgetSurfaceAware,
     IWidgetSizeAware, IWidgetContextActions, IWidgetKeys
 {
-    private const string Scope = "rss";
-
     private readonly TextBlock _freshness = Fluent.Text(FluentType.Caption, "TextFillColorTertiaryBrush");
     private readonly ProgressRing _spinner = new() { Width = 12, Height = 12, IsActive = false, Visibility = Visibility.Collapsed };
     private readonly StackPanel _trailing = new() { Orientation = Orientation.Horizontal, Spacing = Fluent.Space1 };
@@ -58,7 +55,7 @@ internal sealed partial class RssView : Grid, IWidgetView, IWidgetHeaderContent,
 
     public RssView(IWidgetHost host)
     {
-        _binding = new KitBinding(host, RssSpec.Spec, Glyphs.Rss, RssSpec.Actions, Open);
+        _binding = new KitBinding(host, RssSpec.Spec, Glyphs.Rss, RssSpec.Actions);
         _binding.Rendered += OnRendered;
 
         _spinner.VerticalAlignment = VerticalAlignment.Center;
@@ -195,35 +192,6 @@ internal sealed partial class RssView : Grid, IWidgetView, IWidgetHeaderContent,
                 : Str.WidgetsC_Rss_Refreshed.Format(("age", age));
 
         ToolTipService.SetToolTip(_freshness, tip);
-    }
-
-    /// <summary>
-    /// Hand a link to the shell. The address was checked when it was parsed, and is checked once
-    /// more here, beside the call that actually launches something.
-    /// </summary>
-    private static void Open(string link)
-    {
-        var checkedUrl = WebInput.Url(link);
-
-        if (!checkedUrl.IsValid)
-        {
-            Log.Warn(Scope, $"refused to open a feed link: {WebInput.Explain(checkedUrl.Problem)}");
-            return;
-        }
-
-        try
-        {
-            // using: ShellExecute hands back a process handle even when nothing waits on it.
-            using var process = Process.Start(new ProcessStartInfo
-            {
-                FileName = checkedUrl.Url,
-                UseShellExecute = true,
-            });
-        }
-        catch (Exception ex) when (ex is System.ComponentModel.Win32Exception or InvalidOperationException or IOException)
-        {
-            Log.Warn(Scope, "could not open a feed link", ex);
-        }
     }
 
     public void Detach()
