@@ -2,8 +2,6 @@
   "$comment": "Machine-written translations: every string in this file needs native review.",
   "toggles.category": "శీఘ్ర సెట్టింగ్‌లు",
   "toggles.wifi.name": "Wi-Fi",
-  "toggles.wifi.label": "Wi-Fi ఆన్/ఆఫ్",
-  "toggles.wifi.desc": "Wi-Fi రేడియోను ఆన్ లేదా ఆఫ్ చేస్తుంది",
   "toggles.bluetooth.name": "Bluetooth",
   "toggles.bluetooth.label": "Bluetooth ఆన్/ఆఫ్",
   "toggles.bluetooth.desc": "Bluetooth రేడియోను ఆన్ లేదా ఆఫ్ చేస్తుంది",

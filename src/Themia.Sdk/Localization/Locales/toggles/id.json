@@ -2,8 +2,6 @@
   "$comment": "Machine-written translations: every string in this file needs native review.",
   "toggles.category": "Pengaturan cepat",
   "toggles.wifi.name": "Wi-Fi",
-  "toggles.wifi.label": "Wi-Fi aktif/nonaktif",
-  "toggles.wifi.desc": "Mengaktifkan atau menonaktifkan radio Wi-Fi",
   "toggles.bluetooth.name": "Bluetooth",
   "toggles.bluetooth.label": "Bluetooth aktif/nonaktif",
   "toggles.bluetooth.desc": "Mengaktifkan atau menonaktifkan radio Bluetooth",

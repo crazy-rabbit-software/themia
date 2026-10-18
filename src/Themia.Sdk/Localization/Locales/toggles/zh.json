@@ -2,8 +2,6 @@
   "$comment": "New strings in this file are machine-written and need native review.",
   "toggles.category": "快速设置",
   "toggles.wifi.name": "WLAN",
-  "toggles.wifi.label": "WLAN 开/关",
-  "toggles.wifi.desc": "打开或关闭 WLAN 无线电",
   "toggles.bluetooth.name": "蓝牙",
   "toggles.bluetooth.label": "蓝牙 开/关",
   "toggles.bluetooth.desc": "打开或关闭蓝牙无线电",

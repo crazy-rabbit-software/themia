@@ -90,7 +90,7 @@ public sealed partial class ItemKindsTests
     {
         Assert.True(ItemKinds.Has(TasksConfig.Descriptor.Id));
         Assert.True(ItemKinds.Has(CpuConfig.Descriptor.Id));
-        Assert.True(ItemKinds.Has(WifiToggleConfig.Descriptor.Id));
+        Assert.True(ItemKinds.Has(ClipboardConfig.Descriptor.Id));
         Assert.False(ItemKinds.Has(AlarmConfig.Descriptor.Id));
         Assert.False(ItemKinds.Has(GalleryConfig.Descriptor.Id));
     }

@@ -2,8 +2,6 @@
   "$comment": "Machine-written translations: every string in this file needs native review.",
   "toggles.category": "Быстрые параметры",
   "toggles.wifi.name": "Wi-Fi",
-  "toggles.wifi.label": "Wi-Fi вкл./откл.",
-  "toggles.wifi.desc": "Включает или отключает радиомодуль Wi-Fi",
   "toggles.bluetooth.name": "Bluetooth",
   "toggles.bluetooth.label": "Bluetooth вкл./откл.",
   "toggles.bluetooth.desc": "Включает или отключает радиомодуль Bluetooth",

@@ -2,8 +2,6 @@
   "$comment": "New strings in this file are machine-written and need native review.",
   "toggles.category": "クイック設定",
   "toggles.wifi.name": "Wi-Fi",
-  "toggles.wifi.label": "Wi-Fi オン/オフ",
-  "toggles.wifi.desc": "Wi-Fi の無線をオンまたはオフにします",
   "toggles.bluetooth.name": "Bluetooth",
   "toggles.bluetooth.label": "Bluetooth オン/オフ",
   "toggles.bluetooth.desc": "Bluetooth の無線をオンまたはオフにします",

@@ -2,8 +2,6 @@
   "$comment": "New strings in this file are machine-written and need native review.",
   "toggles.category": "Schnelleinstellungen",
   "toggles.wifi.name": "WLAN",
-  "toggles.wifi.label": "WLAN ein/aus",
-  "toggles.wifi.desc": "Schaltet das WLAN-Funkmodul ein oder aus",
   "toggles.bluetooth.name": "Bluetooth",
   "toggles.bluetooth.label": "Bluetooth ein/aus",
   "toggles.bluetooth.desc": "Schaltet das Bluetooth-Funkmodul ein oder aus",

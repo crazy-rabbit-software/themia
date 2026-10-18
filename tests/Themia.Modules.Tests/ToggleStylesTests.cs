@@ -22,7 +22,7 @@ public sealed class ToggleStylesTests
     [Fact]
     public void S3916_all_thirteen_toggles_share_one_list_of_styles_tile_first()
     {
-        var first = WidgetStyles.For(WifiToggleConfig.Descriptor.Id);
+        var first = WidgetStyles.For(new WidgetId("wifiToggle"));
         Assert.Equal(["tile", "round", "switch"], first.Select(s => s.Name));
 
         foreach (var kind in ToggleKinds)
@@ -39,7 +39,7 @@ public sealed class ToggleStylesTests
     public void S1919_all_seven_power_widgets_share_tile_and_round_named_as_the_toggles_are()
     {
         var power = WidgetStyles.For(new WidgetId("shutdown"));
-        var toggles = WidgetStyles.For(WifiToggleConfig.Descriptor.Id);
+        var toggles = WidgetStyles.For(new WidgetId("wifiToggle"));
         Assert.Equal(["tile", "round"], power.Select(s => s.Name));
 
         // The same look is the same name, label and icon in both families.

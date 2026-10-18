@@ -2,8 +2,6 @@
   "$comment": "Machine-written translations: every string in this file needs native review.",
   "toggles.category": "การตั้งค่าด่วน",
   "toggles.wifi.name": "Wi-Fi",
-  "toggles.wifi.label": "เปิด/ปิด Wi-Fi",
-  "toggles.wifi.desc": "เปิดหรือปิดสัญญาณ Wi-Fi",
   "toggles.bluetooth.name": "Bluetooth",
   "toggles.bluetooth.label": "เปิด/ปิด Bluetooth",
   "toggles.bluetooth.desc": "เปิดหรือปิดสัญญาณ Bluetooth",

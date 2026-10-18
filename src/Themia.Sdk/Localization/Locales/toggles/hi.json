@@ -2,8 +2,6 @@
   "$comment": "Machine-written translations: every string in this file needs native review.",
   "toggles.category": "त्वरित सेटिंग्स",
   "toggles.wifi.name": "Wi-Fi",
-  "toggles.wifi.label": "Wi-Fi चालू/बंद",
-  "toggles.wifi.desc": "Wi-Fi रेडियो चालू या बंद करता है",
   "toggles.bluetooth.name": "Bluetooth",
   "toggles.bluetooth.label": "Bluetooth चालू/बंद",
   "toggles.bluetooth.desc": "Bluetooth रेडियो चालू या बंद करता है",

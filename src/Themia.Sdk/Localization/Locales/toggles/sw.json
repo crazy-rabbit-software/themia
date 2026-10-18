@@ -2,8 +2,6 @@
   "$comment": "Machine-written translations: every string in this file needs native review.",
   "toggles.category": "Mipangilio ya haraka",
   "toggles.wifi.name": "Wi-Fi",
-  "toggles.wifi.label": "Wi-Fi washa/zima",
-  "toggles.wifi.desc": "Huwasha au kuzima redio ya Wi-Fi",
   "toggles.bluetooth.name": "Bluetooth",
   "toggles.bluetooth.label": "Bluetooth washa/zima",
   "toggles.bluetooth.desc": "Huwasha au kuzima redio ya Bluetooth",

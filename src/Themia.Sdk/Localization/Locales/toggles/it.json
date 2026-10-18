@@ -2,8 +2,6 @@
   "$comment": "New strings in this file are machine-written and need native review.",
   "toggles.category": "Impostazioni rapide",
   "toggles.wifi.name": "Wi-Fi",
-  "toggles.wifi.label": "Wi-Fi attivato/disattivato",
-  "toggles.wifi.desc": "Attiva o disattiva la radio Wi-Fi",
   "toggles.bluetooth.name": "Bluetooth",
   "toggles.bluetooth.label": "Bluetooth attivato/disattivato",
   "toggles.bluetooth.desc": "Attiva o disattiva la radio Bluetooth",

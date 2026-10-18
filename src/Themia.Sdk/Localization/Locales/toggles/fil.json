@@ -2,8 +2,6 @@
   "$comment": "Machine-written translations: every string in this file needs native review.",
   "toggles.category": "Mga mabilisang setting",
   "toggles.wifi.name": "Wi-Fi",
-  "toggles.wifi.label": "Wi-Fi on/off",
-  "toggles.wifi.desc": "Ino-on o ino-off ang Wi-Fi radio",
   "toggles.bluetooth.name": "Bluetooth",
   "toggles.bluetooth.label": "I-on/i-off ang Bluetooth",
   "toggles.bluetooth.desc": "Ino-on o ino-off ang Bluetooth radio",

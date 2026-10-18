@@ -2,8 +2,6 @@
   "$comment": "Machine-written translations: every string in this file needs native review.",
   "toggles.category": "விரைவு அமைப்புகள்",
   "toggles.wifi.name": "Wi-Fi",
-  "toggles.wifi.label": "Wi-Fi இயக்கு/முடக்கு",
-  "toggles.wifi.desc": "Wi-Fi ரேடியோவை இயக்கும் அல்லது முடக்கும்",
   "toggles.bluetooth.name": "புளூடூத்",
   "toggles.bluetooth.label": "புளூடூத் இயக்கு/முடக்கு",
   "toggles.bluetooth.desc": "புளூடூத் ரேடியோவை இயக்கும் அல்லது முடக்கும்",

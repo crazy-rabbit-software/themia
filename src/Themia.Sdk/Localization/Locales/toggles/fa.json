@@ -2,8 +2,6 @@
   "$comment": "Machine-written translations: every string in this file needs native review.",
   "toggles.category": "تنظیمات سریع",
   "toggles.wifi.name": "Wi-Fi",
-  "toggles.wifi.label": "روشن/خاموش Wi-Fi",
-  "toggles.wifi.desc": "رادیوی Wi-Fi را روشن یا خاموش می‌کند",
   "toggles.bluetooth.name": "Bluetooth",
   "toggles.bluetooth.label": "روشن/خاموش Bluetooth",
   "toggles.bluetooth.desc": "رادیوی Bluetooth را روشن یا خاموش می‌کند",

@@ -2,8 +2,6 @@
   "$comment": "Machine-written translations: every string in this file needs native review.",
   "toggles.category": "Snelle instellingen",
   "toggles.wifi.name": "Wi-Fi",
-  "toggles.wifi.label": "Wi-Fi aan/uit",
-  "toggles.wifi.desc": "Zet de Wi-Fi-radio aan of uit",
   "toggles.bluetooth.name": "Bluetooth",
   "toggles.bluetooth.label": "Bluetooth aan/uit",
   "toggles.bluetooth.desc": "Zet de Bluetooth-radio aan of uit",

@@ -73,5 +73,4 @@ namespace Themia.Core.Storage;
 [JsonSerializable(typeof(WeatherForecastConfig))]
 [JsonSerializable(typeof(WeatherNowConfig))]
 [JsonSerializable(typeof(WeekPlannerConfig))]
-[JsonSerializable(typeof(WifiToggleConfig))]
 internal sealed partial class WidgetConfigJsonContext : JsonSerializerContext;

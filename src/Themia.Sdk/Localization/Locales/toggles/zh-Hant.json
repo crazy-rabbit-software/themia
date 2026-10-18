@@ -2,8 +2,6 @@
   "$comment": "Machine-written translations: every string in this file needs native review.",
   "toggles.category": "快速設定",
   "toggles.wifi.name": "Wi-Fi",
-  "toggles.wifi.label": "Wi-Fi 開/關",
-  "toggles.wifi.desc": "開啟或關閉 Wi-Fi 無線電",
   "toggles.bluetooth.name": "藍牙",
   "toggles.bluetooth.label": "藍牙 開/關",
   "toggles.bluetooth.desc": "開啟或關閉藍牙無線電",

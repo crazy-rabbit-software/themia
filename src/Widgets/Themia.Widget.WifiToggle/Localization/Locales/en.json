@@ -1,0 +1,5 @@
+{
+  "$englishOnly": [],
+  "toggles.wifi.label": "Wi-Fi on/off",
+  "toggles.wifi.desc": "Turns the Wi-Fi radio on or off"
+}

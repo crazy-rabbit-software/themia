@@ -230,7 +230,7 @@ internal static class EditBarRender
                 new(new WidgetId("countdown"), 540, 240, 260, 180, HeaderPlacement.Bottom, true, Scale: 0.9),
                 new(new WidgetId("clock"), 820, 200, 200, 140, HeaderPlacement.Hidden, true),
             ],
-            [new(WifiToggleConfig.Descriptor.Id, 580, 260, 120, 120, HeaderPlacement.Hidden, true)],
+            [new(new WidgetId("wifiToggle"), 580, 260, 120, 120, HeaderPlacement.Hidden, true)],
             [
                 new(new WidgetId("countdown"), 360, 260, 280, 180, HeaderPlacement.Hidden, true),
                 new(new WidgetId("countdown"), 680, 260, 280, 180, HeaderPlacement.Top, false),
@@ -447,8 +447,8 @@ internal static class EditBarRender
         [
             new(new WidgetId("clock"), 120, 120, 280, 180, HeaderPlacement.Top, true),
             new(new WidgetId("countdown"), 460, 140, 240, 160, HeaderPlacement.Top, false),
-            new(WifiToggleConfig.Descriptor.Id, 760, 160, 64, 64, HeaderPlacement.Hidden, true),
-            new(WifiToggleConfig.Descriptor.Id, 860, 160, 64, 64, HeaderPlacement.Hidden, false),
+            new(new WidgetId("wifiToggle"), 760, 160, 64, 64, HeaderPlacement.Hidden, true),
+            new(new WidgetId("wifiToggle"), 860, 160, 64, 64, HeaderPlacement.Hidden, false),
         ];
         PropsCard[] multi =
         [

@@ -163,7 +163,7 @@ public sealed class QuickSetTests
     [Fact]
     public void S3711_a_toggle_offers_no_header_choice()
     {
-        var (state, view, _) = State(Widget(WifiToggleConfig.Descriptor.Id, "t"));
+        var (state, view, _) = State(Widget(new WidgetId("wifiToggle"), "t"));
 
         var offer = QuickSet.For(state, Selecting(view, "t"), view.Id);
 
@@ -189,7 +189,7 @@ public sealed class QuickSetTests
     public void S3711_setting_a_header_never_reaches_a_toggle()
     {
         var cpu = Widget(CpuConfig.Descriptor.Id, "a");
-        var toggle = Widget(WifiToggleConfig.Descriptor.Id, "t");
+        var toggle = Widget(new WidgetId("wifiToggle"), "t");
         var (_, view, _) = State(cpu, toggle);
 
         Assert.Equal(1, QuickSet.SetHeader(view, ["a", "t"], HeaderPlacement.Bottom));

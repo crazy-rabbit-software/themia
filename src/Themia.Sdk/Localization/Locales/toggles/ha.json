@@ -2,8 +2,6 @@
   "$comment": "Machine-written translations: every string in this file needs native review.",
   "toggles.category": "Saituna masu sauri",
   "toggles.wifi.name": "Wi-Fi",
-  "toggles.wifi.label": "Kunna/kashe Wi-Fi",
-  "toggles.wifi.desc": "Yana kunna ko kashe rediyon Wi-Fi",
   "toggles.bluetooth.name": "Bluetooth",
   "toggles.bluetooth.label": "Kunna/kashe Bluetooth",
   "toggles.bluetooth.desc": "Yana kunna ko kashe rediyon Bluetooth",

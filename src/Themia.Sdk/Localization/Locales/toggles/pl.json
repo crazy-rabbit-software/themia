@@ -2,8 +2,6 @@
   "$comment": "New strings in this file are machine-written and need native review.",
   "toggles.category": "Szybkie ustawienia",
   "toggles.wifi.name": "Wi-Fi",
-  "toggles.wifi.label": "Wi-Fi wł./wył.",
-  "toggles.wifi.desc": "Włącza lub wyłącza radio Wi-Fi",
   "toggles.bluetooth.name": "Bluetooth",
   "toggles.bluetooth.label": "Bluetooth wł./wył.",
   "toggles.bluetooth.desc": "Włącza lub wyłącza radio Bluetooth",

@@ -2,8 +2,6 @@
   "$comment": "Machine-written translations: every string in this file needs native review.",
   "toggles.category": "الإعدادات السريعة",
   "toggles.wifi.name": "Wi-Fi",
-  "toggles.wifi.label": "تشغيل/إيقاف Wi-Fi",
-  "toggles.wifi.desc": "تشغيل راديو Wi-Fi أو إيقافه",
   "toggles.bluetooth.name": "Bluetooth",
   "toggles.bluetooth.label": "تشغيل/إيقاف Bluetooth",
   "toggles.bluetooth.desc": "تشغيل راديو Bluetooth أو إيقافه",

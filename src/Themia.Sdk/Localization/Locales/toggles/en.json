@@ -1,8 +1,6 @@
 {
   "toggles.category": "Quick settings",
   "toggles.wifi.name": "Wi-Fi",
-  "toggles.wifi.label": "Wi-Fi on/off",
-  "toggles.wifi.desc": "Turns the Wi-Fi radio on or off",
   "toggles.bluetooth.name": "Bluetooth",
   "toggles.bluetooth.label": "Bluetooth on/off",
   "toggles.bluetooth.desc": "Turns the Bluetooth radio on or off",

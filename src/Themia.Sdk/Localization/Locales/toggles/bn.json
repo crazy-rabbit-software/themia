@@ -2,8 +2,6 @@
   "$comment": "Machine-written translations: every string in this file needs native review.",
   "toggles.category": "দ্রুত সেটিংস",
   "toggles.wifi.name": "Wi-Fi",
-  "toggles.wifi.label": "Wi-Fi চালু/বন্ধ",
-  "toggles.wifi.desc": "Wi-Fi রেডিও চালু বা বন্ধ করে",
   "toggles.bluetooth.name": "Bluetooth",
   "toggles.bluetooth.label": "Bluetooth চালু/বন্ধ",
   "toggles.bluetooth.desc": "Bluetooth রেডিও চালু বা বন্ধ করে",

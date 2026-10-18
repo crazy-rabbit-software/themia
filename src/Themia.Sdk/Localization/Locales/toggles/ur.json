@@ -2,8 +2,6 @@
   "$comment": "Machine-written translations: every string in this file needs native review.",
   "toggles.category": "فوری ترتیبات",
   "toggles.wifi.name": "Wi-Fi",
-  "toggles.wifi.label": "Wi-Fi آن/آف",
-  "toggles.wifi.desc": "Wi-Fi ریڈیو آن یا آف کرتا ہے",
   "toggles.bluetooth.name": "Bluetooth",
   "toggles.bluetooth.label": "Bluetooth آن/آف",
   "toggles.bluetooth.desc": "Bluetooth ریڈیو آن یا آف کرتا ہے",

@@ -7,34 +7,6 @@ using Themia.Sdk;
 
 namespace Themia.Core.Model;
 
-/// <summary>[S-3900] Wi-Fi.</summary>
-public sealed class WifiToggleConfig : QuickToggleConfig
-{
-    /// <summary>The toggle it stands for.</summary>
-    [JsonIgnore]
-    public override QuickToggle Toggle => QuickToggle.Wifi;
-
-    /// <summary>[S-6902] This widget's descriptor: what the host knows of it without its UI.</summary>
-    public static WidgetDescriptor Descriptor { get; } = new()
-    {
-        Id = new("wifiToggle"),
-        ConfigType = typeof(WifiToggleConfig),
-        CreateDefault = () => new WifiToggleConfig(),
-        Json = WidgetConfigJsonContext.Default,
-        // [S-3900] The quick-setting toggles.
-        Keywords = ["quick settings", "toggle", "wifi", "wlan", "wireless", "radio", "internet"],
-        Label = Str.Toggles_Wifi_Label.Local(),
-        Description = Str.Toggles_Wifi_Desc.Local(),
-        Glyph = Glyphs.Wifi,
-        DefaultWidth = 120,
-        DefaultHeight = 120,
-        Traits = WidgetTraits.HasItems,
-        Add = new(AddFolderId.QuickSettings, 0, 0),
-    };
-
-    public override WidgetConfig Clone() => new WifiToggleConfig { Style = Style };
-}
-
 /// <summary>[S-3900] Bluetooth.</summary>
 public sealed class BluetoothToggleConfig : QuickToggleConfig
 {
