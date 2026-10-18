@@ -83,6 +83,9 @@ public interface IWidgetHost
     /// <summary>[S-4623] The alarm of every alarm widget: the host's one alarm service. Null where it runs none (a debug render).</summary>
     IAlarms? Alarms { get; }
 
+    /// <summary>[S-4421] The app's one focus session, which holds Windows' do not disturb host-side while it runs.</summary>
+    IFocusSession Focus { get; }
+
     /// <summary>[S-1444] Put <paramref name="text"/> on the clipboard, exactly as given. False when Windows refused it (logged).</summary>
     bool CopyText(string text);
 }

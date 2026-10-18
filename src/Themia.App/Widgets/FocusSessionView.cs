@@ -6,7 +6,6 @@ using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Shapes;
 using Themia.App.Services;
-using Themia.App.Services.Focus;
 using Themia.App.Shell;
 using Themia.Core.Localization;
 using Themia.Core.Model;
@@ -18,7 +17,7 @@ namespace Themia.App.Widgets;
 /// <summary>
 /// [S-4420] A focus session, as Windows' Focus: a length, Start, the time left counting down, End. While
 /// it runs it holds Windows' do not disturb ([S-4423]); a Windows focus session started elsewhere shows
-/// as such ([S-4424]). The session is the app's one (<see cref="FocusSessionService"/>): every focus
+/// as such ([S-4424]). The session is the app's one (<see cref="IWidgetHost.Focus"/>): every focus
 /// widget shows it.
 /// <para>
 /// [S-4426] The ladder: the time alone on the smallest tile (a click on it starts or ends); the button
@@ -45,8 +44,9 @@ internal sealed partial class FocusSessionView : Grid, IWidgetView, IWidgetSizeA
     private readonly TextBlock _runText = Fluent.Text(FluentType.Body, "TextOnAccentFillColorPrimaryBrush");
 
     private FocusSessionConfig _config = new();
+    private readonly IWidgetHost _host;
     private IWidgetSurface? _surface;
-    private FocusLease? _lease;
+    private IDisposable? _lease;
     private Ticker? _ticker;
     private IDisposable? _seconds;
     private WidgetArea _area;
@@ -56,8 +56,9 @@ internal sealed partial class FocusSessionView : Grid, IWidgetView, IWidgetSizeA
     private bool _ticking;
     private bool _detached = true;
 
-    public FocusSessionView()
+    public FocusSessionView(IWidgetHost host)
     {
+        _host = host;
         Microsoft.UI.Xaml.Documents.Typography.SetNumeralAlignment(_clock, FontNumeralAlignment.Tabular);
         _clock.TextAlignment = TextAlignment.Center;
         _clock.HorizontalAlignment = HorizontalAlignment.Center;
@@ -124,7 +125,7 @@ internal sealed partial class FocusSessionView : Grid, IWidgetView, IWidgetSizeA
         _ticker = ticker;
         if (_surface is not { IsPreview: true })
         {
-            _lease = FocusSessionService.Acquire(OnChanged);
+            _lease = _host.Focus.Acquire(OnChanged);
         }
 
         _run.Click += OnRun;
@@ -170,7 +171,7 @@ internal sealed partial class FocusSessionView : Grid, IWidgetView, IWidgetSizeA
         _ticker = null;
     }
 
-    private FocusSnapshot Snapshot => _lease is null ? _preview : FocusSessionService.Snapshot;
+    private FocusSnapshot Snapshot => _lease is null ? _preview : _host.Focus.Snapshot;
 
     // ---- layout ------------------------------------------------------------------------------
 
@@ -359,13 +360,13 @@ internal sealed partial class FocusSessionView : Grid, IWidgetView, IWidgetSizeA
             return;
         }
 
-        if (FocusSessionService.Snapshot.Session.Running)
+        if (_host.Focus.Snapshot.Session.Running)
         {
-            FocusSessionService.End();
+            _host.Focus.End();
         }
         else
         {
-            FocusSessionService.Start(_config.Minutes, _config.DoNotDisturb);
+            _host.Focus.Start(_config.Minutes, _config.DoNotDisturb);
         }
     }
 
@@ -408,7 +409,7 @@ internal sealed partial class FocusSessionView : Grid, IWidgetView, IWidgetSizeA
     {
         if (_lease is not null)
         {
-            FocusSessionService.Refresh();
+            _host.Focus.Refresh();
         }
     }
 

@@ -52,6 +52,8 @@ internal sealed class CardWidgetHost(IWidgetCardHost card) : IWidgetHost
 
     public IAlarms? Alarms => AppServices.Alarms;
 
+    public IFocusSession Focus => Services.Focus.HostFocusSession.Instance;
+
     public bool CopyText(string text) => ClipboardWatcher.SetText(text);
 
     public bool ShowAccounts()

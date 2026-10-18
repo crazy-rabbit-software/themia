@@ -3,15 +3,9 @@ using Themia.App.Services.Toggles;
 using Themia.Core.Diagnostics;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
+using Themia.Sdk.WinUI;
 
 namespace Themia.App.Services.Focus;
-
-/// <summary>What a focus widget shows: the session, do not disturb as Windows has it, and Windows' own focus.</summary>
-/// <param name="Session">Running or idle.</param>
-/// <param name="Quiet">Windows' do not disturb while a session that wants it runs; pending otherwise.</param>
-/// <param name="WantsQuiet">The running session asked for do not disturb.</param>
-/// <param name="WindowsFocus">Windows' own focus session: on, off, or null where it cannot be read.</param>
-internal readonly record struct FocusSnapshot(FocusSessionState Session, ToggleReading Quiet, bool WantsQuiet, bool? WindowsFocus);
 
 /// <summary>
 /// [S-4421] The one focus session of the app, shared by every focus widget as Windows has one focus

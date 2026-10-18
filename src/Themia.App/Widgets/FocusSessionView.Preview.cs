@@ -1,5 +1,5 @@
 #if DEBUG
-using Themia.App.Services.Focus;
+using Themia.Sdk.WinUI;
 using Themia.App.Shell.Gallery;
 using Themia.Core.Widgets;
 
