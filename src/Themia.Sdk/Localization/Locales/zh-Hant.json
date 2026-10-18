@@ -330,11 +330,6 @@
   "shortcut.appCount": {
     "other": "{count} 個應用程式"
   },
-  "forecast.layoutRows": "列",
-  "forecast.layoutColumns": "欄",
-  "forecast.daysLabel": "顯示天數",
-  "forecast.daysDesc": "預報的天數",
-  "forecast.title": "天氣預報",
   "forecast.wmo.clear": "晴",
   "forecast.wmo.mainlyClear": "大致晴朗",
   "forecast.wmo.partlyCloudy": "局部多雲",

@@ -331,11 +331,6 @@
     "one": "{count} app",
     "other": "{count} app"
   },
-  "forecast.layoutRows": "Mga row",
-  "forecast.layoutColumns": "Mga column",
-  "forecast.daysLabel": "Mga araw na ipinapakita",
-  "forecast.daysDesc": "Bilang ng mga araw ng forecast",
-  "forecast.title": "Taya ng panahon",
   "forecast.wmo.clear": "Maaliwalas",
   "forecast.wmo.mainlyClear": "Halos maaliwalas",
   "forecast.wmo.partlyCloudy": "Bahagyang maulap",

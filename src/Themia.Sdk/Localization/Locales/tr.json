@@ -331,11 +331,6 @@
     "one": "{count} uygulama",
     "other": "{count} uygulama"
   },
-  "forecast.layoutRows": "Satırlar",
-  "forecast.layoutColumns": "Sütunlar",
-  "forecast.daysLabel": "Gösterilen günler",
-  "forecast.daysDesc": "Tahmin günü sayısı",
-  "forecast.title": "Tahmin",
   "forecast.wmo.clear": "Açık",
   "forecast.wmo.mainlyClear": "Çoğunlukla açık",
   "forecast.wmo.partlyCloudy": "Parçalı bulutlu",

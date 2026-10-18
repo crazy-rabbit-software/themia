@@ -330,11 +330,6 @@
   "shortcut.appCount": {
     "other": "{count} ứng dụng"
   },
-  "forecast.layoutRows": "Hàng",
-  "forecast.layoutColumns": "Cột",
-  "forecast.daysLabel": "Số ngày hiển thị",
-  "forecast.daysDesc": "Số ngày dự báo",
-  "forecast.title": "Dự báo",
   "forecast.wmo.clear": "Quang đãng",
   "forecast.wmo.mainlyClear": "Phần lớn quang đãng",
   "forecast.wmo.partlyCloudy": "Có mây rải rác",

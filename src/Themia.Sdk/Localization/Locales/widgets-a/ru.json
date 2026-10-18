@@ -55,8 +55,6 @@
   "widgetsA.catalog.disk.label": "Диск",
   "widgetsA.catalog.feed.description": "Заголовки из выбранных вами лент",
   "widgetsA.catalog.feed.label": "Лента",
-  "widgetsA.catalog.forecast.description": "Ближайшие несколько дней",
-  "widgetsA.catalog.forecast.label": "Прогноз",
   "widgetsA.catalog.gallery.description": "Изображения из папки, файла или Bing",
   "widgetsA.catalog.gpu.label": "GPU",
   "widgetsA.catalog.habits.description": "Ежедневные отметки и серии",

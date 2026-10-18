@@ -55,6 +55,5 @@ namespace Themia.Core.Storage;
 [JsonSerializable(typeof(TopProcessesConfig))]
 [JsonSerializable(typeof(VideoStreamConfig))]
 [JsonSerializable(typeof(VolumeConfig))]
-[JsonSerializable(typeof(WeatherForecastConfig))]
 [JsonSerializable(typeof(WeekPlannerConfig))]
 internal sealed partial class WidgetConfigJsonContext : JsonSerializerContext;

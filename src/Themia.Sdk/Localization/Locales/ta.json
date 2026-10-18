@@ -331,11 +331,6 @@
     "one": "{count} பயன்பாடு",
     "other": "{count} பயன்பாடுகள்"
   },
-  "forecast.layoutRows": "வரிசைகள்",
-  "forecast.layoutColumns": "நெடுவரிசைகள்",
-  "forecast.daysLabel": "காட்டப்படும் நாட்கள்",
-  "forecast.daysDesc": "முன்னறிவிப்பு நாட்களின் எண்ணிக்கை",
-  "forecast.title": "முன்னறிவிப்பு",
   "forecast.wmo.clear": "தெளிவு",
   "forecast.wmo.mainlyClear": "பெரும்பாலும் தெளிவு",
   "forecast.wmo.partlyCloudy": "ஓரளவு மேகமூட்டம்",

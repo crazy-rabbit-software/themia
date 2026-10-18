@@ -329,11 +329,6 @@
   "shortcut.appCount": {
     "other": "{count} 个应用"
   },
-  "forecast.layoutRows": "行",
-  "forecast.layoutColumns": "列",
-  "forecast.daysLabel": "显示天数",
-  "forecast.daysDesc": "预报的天数",
-  "forecast.title": "天气预报",
   "forecast.wmo.clear": "晴",
   "forecast.wmo.mainlyClear": "大致晴朗",
   "forecast.wmo.partlyCloudy": "局部多云",

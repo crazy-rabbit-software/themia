@@ -331,11 +331,6 @@
     "one": "{count} ਐਪ",
     "other": "{count} ਐਪਾਂ"
   },
-  "forecast.layoutRows": "ਕਤਾਰਾਂ",
-  "forecast.layoutColumns": "ਕਾਲਮ",
-  "forecast.daysLabel": "ਦਿਖਾਏ ਦਿਨ",
-  "forecast.daysDesc": "ਪੂਰਵ-ਅਨੁਮਾਨ ਦਿਨਾਂ ਦੀ ਗਿਣਤੀ",
-  "forecast.title": "ਪੂਰਵ-ਅਨੁਮਾਨ",
   "forecast.wmo.clear": "ਸਾਫ਼",
   "forecast.wmo.mainlyClear": "ਜ਼ਿਆਦਾਤਰ ਸਾਫ਼",
   "forecast.wmo.partlyCloudy": "ਅੰਸ਼ਕ ਬੱਦਲਵਾਈ",

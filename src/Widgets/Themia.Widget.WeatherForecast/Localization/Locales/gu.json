@@ -1,0 +1,15 @@
+{
+  "forecast.daysDesc": "આગાહીના દિવસોની સંખ્યા",
+  "forecast.daysLabel": "બતાવેલા દિવસો",
+  "forecast.layoutColumns": "કૉલમ",
+  "forecast.layoutRows": "પંક્તિઓ",
+  "forecast.title": "આગાહી",
+  "styles.forecast.curve": "તાપમાન વળાંક",
+  "styles.forecast.grid": "ગ્રીડ",
+  "widgetsA.catalog.forecast.description": "આગલા થોડા દિવસ",
+  "widgetsA.catalog.forecast.label": "આગાહી",
+  "widgetsC.weather.settings.showPrecipitation.desc": "દિવસનો કુલ વરસાદ કે હિમવર્ષા, જ્યાં હોય ત્યાં",
+  "widgetsC.weather.settings.showPrecipitation.label": "વરસાદ બતાવો",
+  "widgetsC.weather.tooltip.forecastFailed": "{problem}. {age} ની આગાહી બતાવી રહ્યાં છીએ.",
+  "widgetsC.weather.tooltip.forecastSaved": "{age} ની સાચવેલી આગાહી; રિફ્રેશ થઈ રહ્યું છે."
+}

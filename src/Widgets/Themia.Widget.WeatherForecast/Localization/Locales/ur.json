@@ -1,0 +1,15 @@
+{
+  "forecast.daysDesc": "پیشگوئی کے دنوں کی تعداد",
+  "forecast.daysLabel": "دکھائے گئے دن",
+  "forecast.layoutColumns": "کالم",
+  "forecast.layoutRows": "قطاریں",
+  "forecast.title": "پیشگوئی",
+  "styles.forecast.curve": "درجہ حرارت کا خم",
+  "styles.forecast.grid": "گرڈ",
+  "widgetsA.catalog.forecast.description": "اگلے چند دن",
+  "widgetsA.catalog.forecast.label": "پیشگوئی",
+  "widgetsC.weather.settings.showPrecipitation.desc": "دن کی کُل بارش یا برف، اگر ہو",
+  "widgetsC.weather.settings.showPrecipitation.label": "بارش دکھائیں",
+  "widgetsC.weather.tooltip.forecastFailed": "{problem}۔ {age} کی پیشگوئی دکھائی جا رہی ہے۔",
+  "widgetsC.weather.tooltip.forecastSaved": "{age} کی محفوظ پیشگوئی؛ تازہ ہو رہا ہے۔"
+}

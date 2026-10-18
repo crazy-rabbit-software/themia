@@ -20,7 +20,7 @@ public sealed class WidgetSearchTests
             ["See your upcoming events and meetings"], ["Office"], ["Microsoft"]),
         new("weatherCurrent", ["Wetter", "Weather"], ModuleCatalog.Of(new WidgetId("weatherNow")).Keywords,
             ["Aktuelle Bedingungen für jeden Ort", "Current conditions for any location"], ["Online"]),
-        new("weatherForecast", ["Weather Forecast"], Original(WeatherForecastConfig.Descriptor.Id),
+        new("weatherForecast", ["Weather Forecast"], Original(new WidgetId("weatherForecast")),
             ["Multi-day weather outlook for any location"], ["Online"]),
         new("net", ["Network Monitor"], ModuleCatalog.Of(NetworkConfig.Descriptor.Id).Keywords,
             ["Live upload and download speeds"], ["System"]),

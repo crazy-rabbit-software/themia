@@ -331,11 +331,6 @@
     "one": "{count} अ‍ॅप",
     "other": "{count} अ‍ॅप्स"
   },
-  "forecast.layoutRows": "ओळी",
-  "forecast.layoutColumns": "स्तंभ",
-  "forecast.daysLabel": "दाखवलेले दिवस",
-  "forecast.daysDesc": "अंदाजाच्या दिवसांची संख्या",
-  "forecast.title": "अंदाज",
   "forecast.wmo.clear": "निरभ्र",
   "forecast.wmo.mainlyClear": "बहुतांश निरभ्र",
   "forecast.wmo.partlyCloudy": "अंशतः ढगाळ",

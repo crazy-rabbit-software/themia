@@ -14,7 +14,7 @@ public class PlaceClearTests
 {
     private static readonly WidgetId[] Placed =
     [
-        new WidgetId("weatherNow"), WeatherForecastConfig.Descriptor.Id, new WidgetId("airQuality"), new WidgetId("rainNextHour"),
+        new WidgetId("weatherNow"), new WidgetId("weatherForecast"), new WidgetId("airQuality"), new WidgetId("rainNextHour"),
         new WidgetId("sun"), new WidgetId("moon"),
     ];
 
@@ -135,7 +135,7 @@ public class PlaceClearTests
     public void S2848_a_cleared_place_asks_the_sync_for_nothing_so_the_old_place_is_never_fetched()
     {
         var now = (WeatherNowConfig)WithPlace(new WidgetId("weatherNow"));
-        var forecast = (WeatherForecastConfig)WithPlace(WeatherForecastConfig.Descriptor.Id);
+        var forecast = (WeatherForecastConfig)WithPlace(new WidgetId("weatherForecast"));
         var air = (AirQualityConfig)WithPlace(new WidgetId("airQuality"));
         var rain = (RainNextHourConfig)WithPlace(new WidgetId("rainNextHour"));
 

@@ -331,11 +331,6 @@
     "one": "{count} ऐप",
     "other": "{count} ऐप"
   },
-  "forecast.layoutRows": "पंक्तियाँ",
-  "forecast.layoutColumns": "कॉलम",
-  "forecast.daysLabel": "दिखाए गए दिन",
-  "forecast.daysDesc": "पूर्वानुमान के दिनों की संख्या",
-  "forecast.title": "पूर्वानुमान",
   "forecast.wmo.clear": "साफ़",
   "forecast.wmo.mainlyClear": "अधिकतर साफ़",
   "forecast.wmo.partlyCloudy": "आंशिक बादल",

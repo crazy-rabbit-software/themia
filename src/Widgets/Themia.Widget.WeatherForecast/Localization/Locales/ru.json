@@ -1,0 +1,15 @@
+{
+  "forecast.daysDesc": "Количество дней прогноза",
+  "forecast.daysLabel": "Дней в прогнозе",
+  "forecast.layoutColumns": "Столбцы",
+  "forecast.layoutRows": "Строки",
+  "forecast.title": "Прогноз",
+  "styles.forecast.curve": "Кривая температуры",
+  "styles.forecast.grid": "Сетка",
+  "widgetsA.catalog.forecast.description": "Ближайшие несколько дней",
+  "widgetsA.catalog.forecast.label": "Прогноз",
+  "widgetsC.weather.settings.showPrecipitation.desc": "Сумма дождя или снега за день, если они есть",
+  "widgetsC.weather.settings.showPrecipitation.label": "Показывать осадки",
+  "widgetsC.weather.tooltip.forecastFailed": "{problem}. Показан прогноз на {age}.",
+  "widgetsC.weather.tooltip.forecastSaved": "Сохраненный прогноз на {age}; обновление."
+}

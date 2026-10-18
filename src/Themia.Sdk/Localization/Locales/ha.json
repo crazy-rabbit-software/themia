@@ -331,11 +331,6 @@
     "one": "Manhaja {count}",
     "other": "Manhajoji {count}"
   },
-  "forecast.layoutRows": "Layuka",
-  "forecast.layoutColumns": "Ginshiƙai",
-  "forecast.daysLabel": "Kwanakin da ake nunawa",
-  "forecast.daysDesc": "Adadin kwanakin hasashe",
-  "forecast.title": "Hasashe",
   "forecast.wmo.clear": "Sararin sama",
   "forecast.wmo.mainlyClear": "Galibi sarari",
   "forecast.wmo.partlyCloudy": "Gajimare kaɗan",

@@ -335,11 +335,6 @@
     "many": "{count} تطبيقًا",
     "other": "{count} تطبيق"
   },
-  "forecast.layoutRows": "صفوف",
-  "forecast.layoutColumns": "أعمدة",
-  "forecast.daysLabel": "الأيام المعروضة",
-  "forecast.daysDesc": "عدد أيام التوقعات",
-  "forecast.title": "التوقعات",
   "forecast.wmo.clear": "صافٍ",
   "forecast.wmo.mainlyClear": "صافٍ غالبًا",
   "forecast.wmo.partlyCloudy": "غائم جزئيًا",

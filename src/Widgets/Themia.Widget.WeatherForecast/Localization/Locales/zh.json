@@ -1,0 +1,15 @@
+{
+  "forecast.daysDesc": "预报的天数",
+  "forecast.daysLabel": "显示天数",
+  "forecast.layoutColumns": "列",
+  "forecast.layoutRows": "行",
+  "forecast.title": "天气预报",
+  "styles.forecast.curve": "温度曲线",
+  "styles.forecast.grid": "网格",
+  "widgetsA.catalog.forecast.description": "未来几天",
+  "widgetsA.catalog.forecast.label": "预报",
+  "widgetsC.weather.settings.showPrecipitation.desc": "当天的总降雨或降雪量（如有）",
+  "widgetsC.weather.settings.showPrecipitation.label": "显示降水量",
+  "widgetsC.weather.tooltip.forecastFailed": "{problem}。显示的是{age}的预报。",
+  "widgetsC.weather.tooltip.forecastSaved": "已保存{age}的预报，正在刷新。"
+}

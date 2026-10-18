@@ -1,0 +1,15 @@
+{
+  "forecast.daysDesc": "Aantal voorspellingsdagen",
+  "forecast.daysLabel": "Getoonde dagen",
+  "forecast.layoutColumns": "Kolommen",
+  "forecast.layoutRows": "Rijen",
+  "forecast.title": "Weersvoorspelling",
+  "styles.forecast.curve": "Temperatuurcurve",
+  "styles.forecast.grid": "Raster",
+  "widgetsA.catalog.forecast.description": "De komende dagen",
+  "widgetsA.catalog.forecast.label": "Weersvoorspelling",
+  "widgetsC.weather.settings.showPrecipitation.desc": "De totale regen of sneeuw van de dag, als die er is",
+  "widgetsC.weather.settings.showPrecipitation.label": "Neerslag weergeven",
+  "widgetsC.weather.tooltip.forecastFailed": "{problem}. De voorspelling van {age} wordt getoond.",
+  "widgetsC.weather.tooltip.forecastSaved": "Opgeslagen voorspelling van {age}; wordt vernieuwd."
+}

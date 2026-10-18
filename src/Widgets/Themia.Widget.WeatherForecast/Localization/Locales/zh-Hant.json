@@ -1,0 +1,15 @@
+{
+  "forecast.daysDesc": "預報的天數",
+  "forecast.daysLabel": "顯示天數",
+  "forecast.layoutColumns": "欄",
+  "forecast.layoutRows": "列",
+  "forecast.title": "天氣預報",
+  "styles.forecast.curve": "溫度曲線",
+  "styles.forecast.grid": "格線",
+  "widgetsA.catalog.forecast.description": "未來幾天",
+  "widgetsA.catalog.forecast.label": "預報",
+  "widgetsC.weather.settings.showPrecipitation.desc": "當天的總降雨或降雪量（如有）",
+  "widgetsC.weather.settings.showPrecipitation.label": "顯示降水量",
+  "widgetsC.weather.tooltip.forecastFailed": "{problem}。目前顯示的是{age}的預報。",
+  "widgetsC.weather.tooltip.forecastSaved": "已儲存{age}的預報；正在重新整理。"
+}

@@ -330,11 +330,6 @@
     "one": "{count} aplicación",
     "other": "{count} aplicaciones"
   },
-  "forecast.layoutRows": "Filas",
-  "forecast.layoutColumns": "Columnas",
-  "forecast.daysLabel": "Días mostrados",
-  "forecast.daysDesc": "Número de días de previsión",
-  "forecast.title": "Previsión",
   "forecast.wmo.clear": "Despejado",
   "forecast.wmo.mainlyClear": "Mayormente despejado",
   "forecast.wmo.partlyCloudy": "Parcialmente nublado",

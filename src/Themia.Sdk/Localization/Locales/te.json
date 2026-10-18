@@ -331,11 +331,6 @@
     "one": "{count} యాప్",
     "other": "{count} యాప్‌లు"
   },
-  "forecast.layoutRows": "వరుసలు",
-  "forecast.layoutColumns": "నిలువు వరుసలు",
-  "forecast.daysLabel": "చూపే రోజులు",
-  "forecast.daysDesc": "సూచన రోజుల సంఖ్య",
-  "forecast.title": "సూచన",
   "forecast.wmo.clear": "నిర్మలం",
   "forecast.wmo.mainlyClear": "చాలావరకు నిర్మలం",
   "forecast.wmo.partlyCloudy": "పాక్షికంగా మేఘావృతం",

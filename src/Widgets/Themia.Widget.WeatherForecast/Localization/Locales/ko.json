@@ -1,0 +1,15 @@
+{
+  "forecast.daysDesc": "예보 일수",
+  "forecast.daysLabel": "표시할 일수",
+  "forecast.layoutColumns": "열",
+  "forecast.layoutRows": "행",
+  "forecast.title": "일기 예보",
+  "styles.forecast.curve": "기온 곡선",
+  "styles.forecast.grid": "격자",
+  "widgetsA.catalog.forecast.description": "앞으로 며칠간의 날씨",
+  "widgetsA.catalog.forecast.label": "일기 예보",
+  "widgetsC.weather.settings.showPrecipitation.desc": "비나 눈이 오는 경우 하루 총량",
+  "widgetsC.weather.settings.showPrecipitation.label": "강수량 표시",
+  "widgetsC.weather.tooltip.forecastFailed": "{problem}. {age}의 예보를 표시합니다.",
+  "widgetsC.weather.tooltip.forecastSaved": "{age}에 저장된 예보, 새로 고치는 중."
+}

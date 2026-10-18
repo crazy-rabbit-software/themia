@@ -1,0 +1,15 @@
+{
+  "forecast.daysDesc": "अंदाजाच्या दिवसांची संख्या",
+  "forecast.daysLabel": "दाखवलेले दिवस",
+  "forecast.layoutColumns": "स्तंभ",
+  "forecast.layoutRows": "ओळी",
+  "forecast.title": "अंदाज",
+  "styles.forecast.curve": "तापमान वक्र",
+  "styles.forecast.grid": "ग्रिड",
+  "widgetsA.catalog.forecast.description": "पुढील काही दिवस",
+  "widgetsA.catalog.forecast.label": "अंदाज",
+  "widgetsC.weather.settings.showPrecipitation.desc": "दिवसभरातील एकूण पाऊस किंवा बर्फ, असल्यास",
+  "widgetsC.weather.settings.showPrecipitation.label": "पर्जन्य दाखवा",
+  "widgetsC.weather.tooltip.forecastFailed": "{problem}. {age} चा अंदाज दाखवत आहे.",
+  "widgetsC.weather.tooltip.forecastSaved": "{age} चा जतन केलेला अंदाज; रीफ्रेश होत आहे."
+}

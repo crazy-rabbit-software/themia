@@ -52,8 +52,6 @@
   "widgetsA.catalog.disk.label": "디스크",
   "widgetsA.catalog.feed.description": "선택한 피드의 헤드라인",
   "widgetsA.catalog.feed.label": "피드",
-  "widgetsA.catalog.forecast.description": "앞으로 며칠간의 날씨",
-  "widgetsA.catalog.forecast.label": "일기 예보",
   "widgetsA.catalog.gallery.description": "폴더, 파일 또는 Bing의 사진",
   "widgetsA.catalog.gpu.label": "GPU",
   "widgetsA.catalog.habits.description": "매일 체크하고 연속 기록 유지",

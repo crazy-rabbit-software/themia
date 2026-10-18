@@ -5,10 +5,10 @@ using Xunit;
 namespace Themia.Core.Tests;
 
 /// <summary>
-/// [S-659] [S-668] [S-728] [S-2846] Host and SDK rules a weather widget is the example of: the header's
-/// place title, a hero filled past the ramp, the stat parts' grid. Moved from Core's WeatherLayoutTests,
-/// HeroFitTests and WidgetPartsTests into the module test host, which has the weather widgets once they
-/// are projects; unchanged in what they assert.
+/// [S-659] [S-668] [S-669] [S-728] [S-2846] Host and SDK rules a weather widget is the example of: the
+/// header's place title, a hero filled past the ramp, the stat parts' grid, the day parts' steps. Moved
+/// from Core's WeatherLayoutTests, HeroFitTests, WidgetPartsTests and ForecastDaysTests into the module
+/// test host, which has the weather widgets once they are projects; unchanged in what they assert.
 /// </summary>
 public sealed class OnlineHostTests
 {
@@ -57,5 +57,21 @@ public sealed class OnlineHostTests
         // The weather ladder budgets with the parts it draws.
         Assert.Equal(PartMetrics.StatLine, WeatherNowLayout.StatLine);
         Assert.Equal(PartMetrics.StatCell, WeatherNowLayout.CellHeight);
+    }
+
+    [Fact]
+    public void S669_the_day_parts_grow_by_whole_ramp_steps()
+    {
+        for (var k = 1; k <= DayScale.Largest; k++)
+        {
+            var smaller = DayScale.At(k - 1);
+            var larger = DayScale.At(k);
+            Assert.True(larger.High.FontSize > smaller.High.FontSize);
+            Assert.True(larger.Icon > smaller.Icon);
+            Assert.True(larger.Bar >= smaller.Bar);
+        }
+
+        Assert.Equal(PartMetrics.DayIcon, DayScale.At(0).Icon);
+        Assert.True(DayScale.At(0).Bar >= 6, "a 4px bar read as a scratch");
     }
 }

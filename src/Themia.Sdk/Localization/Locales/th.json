@@ -330,11 +330,6 @@
   "shortcut.appCount": {
     "other": "{count} แอป"
   },
-  "forecast.layoutRows": "แถว",
-  "forecast.layoutColumns": "คอลัมน์",
-  "forecast.daysLabel": "จำนวนวันที่แสดง",
-  "forecast.daysDesc": "จำนวนวันของการพยากรณ์",
-  "forecast.title": "พยากรณ์อากาศ",
   "forecast.wmo.clear": "ท้องฟ้าแจ่มใส",
   "forecast.wmo.mainlyClear": "ท้องฟ้าค่อนข้างแจ่มใส",
   "forecast.wmo.partlyCloudy": "มีเมฆบางส่วน",

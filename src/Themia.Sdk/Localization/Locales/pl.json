@@ -330,11 +330,6 @@
     "one": "{count} aplikacja",
     "other": "{count} aplikacji"
   },
-  "forecast.layoutRows": "Wiersze",
-  "forecast.layoutColumns": "Kolumny",
-  "forecast.daysLabel": "Pokazywane dni",
-  "forecast.daysDesc": "Liczba dni prognozy",
-  "forecast.title": "Prognoza",
   "forecast.wmo.clear": "Bezchmurnie",
   "forecast.wmo.mainlyClear": "Przeważnie bezchmurnie",
   "forecast.wmo.partlyCloudy": "Częściowe zachmurzenie",

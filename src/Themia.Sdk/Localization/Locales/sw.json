@@ -331,11 +331,6 @@
     "one": "Programu {count}",
     "other": "Programu {count}"
   },
-  "forecast.layoutRows": "Safu mlalo",
-  "forecast.layoutColumns": "Safu wima",
-  "forecast.daysLabel": "Siku zinazoonyeshwa",
-  "forecast.daysDesc": "Idadi ya siku za utabiri",
-  "forecast.title": "Utabiri",
   "forecast.wmo.clear": "Anga safi",
   "forecast.wmo.mainlyClear": "Anga safi kwa kiasi kikubwa",
   "forecast.wmo.partlyCloudy": "Mawingu kiasi",

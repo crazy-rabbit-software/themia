@@ -333,11 +333,6 @@
     "many": "{count} приложений",
     "other": "{count} приложения"
   },
-  "forecast.layoutRows": "Строки",
-  "forecast.layoutColumns": "Столбцы",
-  "forecast.daysLabel": "Дней в прогнозе",
-  "forecast.daysDesc": "Количество дней прогноза",
-  "forecast.title": "Прогноз",
   "forecast.wmo.clear": "Ясно",
   "forecast.wmo.mainlyClear": "Преимущественно ясно",
   "forecast.wmo.partlyCloudy": "Переменная облачность",

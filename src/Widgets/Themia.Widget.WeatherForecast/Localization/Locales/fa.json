@@ -1,0 +1,15 @@
+{
+  "forecast.daysDesc": "تعداد روزهای پیش‌بینی",
+  "forecast.daysLabel": "روزهای نمایش",
+  "forecast.layoutColumns": "ستون‌ها",
+  "forecast.layoutRows": "ردیف‌ها",
+  "forecast.title": "پیش‌بینی",
+  "styles.forecast.curve": "منحنی دما",
+  "styles.forecast.grid": "شبکه",
+  "widgetsA.catalog.forecast.description": "چند روز آینده",
+  "widgetsA.catalog.forecast.label": "پیش‌بینی",
+  "widgetsC.weather.settings.showPrecipitation.desc": "مجموع باران یا برف روز، اگر باشد",
+  "widgetsC.weather.settings.showPrecipitation.label": "نمایش بارش",
+  "widgetsC.weather.tooltip.forecastFailed": "{problem}. پیش‌بینی مربوط به {age} نمایش داده می‌شود.",
+  "widgetsC.weather.tooltip.forecastSaved": "پیش‌بینی ذخیره‌شده از {age}؛ در حال تازه‌سازی."
+}

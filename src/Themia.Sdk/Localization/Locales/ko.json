@@ -330,11 +330,6 @@
   "shortcut.appCount": {
     "other": "앱 {count}개"
   },
-  "forecast.layoutRows": "행",
-  "forecast.layoutColumns": "열",
-  "forecast.daysLabel": "표시할 일수",
-  "forecast.daysDesc": "예보 일수",
-  "forecast.title": "일기 예보",
   "forecast.wmo.clear": "맑음",
   "forecast.wmo.mainlyClear": "대체로 맑음",
   "forecast.wmo.partlyCloudy": "구름 조금",

@@ -140,7 +140,6 @@ public static class Glyphs
     /// <summary>Karpo's F7FC is not in Segoe Fluent Icons here (drew a box): the controller.</summary>
     public static readonly string GameMode = From(0xE7FC);
     public static readonly string Weather = From(0xE753);
-    public static readonly string Forecast = From(0xE9CA);
 
     // The weather set. These code points are the least certain in this file: a wrong one renders
     // as a hollow box rather than failing, so they are checked against a screenshot rather than

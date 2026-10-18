@@ -1,0 +1,15 @@
+{
+  "forecast.daysDesc": "Anzahl der Vorhersagetage",
+  "forecast.daysLabel": "Angezeigte Tage",
+  "forecast.layoutColumns": "Spalten",
+  "forecast.layoutRows": "Zeilen",
+  "forecast.title": "Vorhersage",
+  "styles.forecast.curve": "Temperaturkurve",
+  "styles.forecast.grid": "Raster",
+  "widgetsA.catalog.forecast.description": "Die nächsten Tage",
+  "widgetsA.catalog.forecast.label": "Vorhersage",
+  "widgetsC.weather.settings.showPrecipitation.desc": "Die Regen- oder Schneemenge des Tages, falls vorhanden",
+  "widgetsC.weather.settings.showPrecipitation.label": "Niederschlag anzeigen",
+  "widgetsC.weather.tooltip.forecastFailed": "{problem}. Stand der Vorhersage: {age}.",
+  "widgetsC.weather.tooltip.forecastSaved": "Gespeicherte Vorhersage: {age}; wird aktualisiert."
+}

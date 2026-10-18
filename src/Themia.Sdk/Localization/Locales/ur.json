@@ -331,11 +331,6 @@
     "one": "{count} ایپ",
     "other": "{count} ایپس"
   },
-  "forecast.layoutRows": "قطاریں",
-  "forecast.layoutColumns": "کالم",
-  "forecast.daysLabel": "دکھائے گئے دن",
-  "forecast.daysDesc": "پیشگوئی کے دنوں کی تعداد",
-  "forecast.title": "پیشگوئی",
   "forecast.wmo.clear": "صاف",
   "forecast.wmo.mainlyClear": "زیادہ تر صاف",
   "forecast.wmo.partlyCloudy": "جزوی ابر آلود",

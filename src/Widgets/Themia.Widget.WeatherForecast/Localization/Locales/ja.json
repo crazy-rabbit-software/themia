@@ -1,0 +1,15 @@
+{
+  "forecast.daysDesc": "予報の日数",
+  "forecast.daysLabel": "表示する日数",
+  "forecast.layoutColumns": "列",
+  "forecast.layoutRows": "行",
+  "forecast.title": "予報",
+  "styles.forecast.curve": "気温カーブ",
+  "styles.forecast.grid": "グリッド",
+  "widgetsA.catalog.forecast.description": "今後数日間",
+  "widgetsA.catalog.forecast.label": "予報",
+  "widgetsC.weather.settings.showPrecipitation.desc": "その日の雨や雪の合計量 (ある場合)",
+  "widgetsC.weather.settings.showPrecipitation.label": "降水量を表示",
+  "widgetsC.weather.tooltip.forecastFailed": "{problem}。{age}の予報を表示しています。",
+  "widgetsC.weather.tooltip.forecastSaved": "{age}に保存した予報です。更新しています。"
+}

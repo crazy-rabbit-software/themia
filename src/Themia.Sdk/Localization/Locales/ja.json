@@ -329,11 +329,6 @@
   "shortcut.appCount": {
     "other": "{count} 個のアプリ"
   },
-  "forecast.layoutRows": "行",
-  "forecast.layoutColumns": "列",
-  "forecast.daysLabel": "表示する日数",
-  "forecast.daysDesc": "予報の日数",
-  "forecast.title": "予報",
   "forecast.wmo.clear": "快晴",
   "forecast.wmo.mainlyClear": "おおむね晴れ",
   "forecast.wmo.partlyCloudy": "ところにより曇り",

@@ -1,0 +1,15 @@
+{
+  "forecast.daysDesc": "Liczba dni prognozy",
+  "forecast.daysLabel": "Pokazywane dni",
+  "forecast.layoutColumns": "Kolumny",
+  "forecast.layoutRows": "Wiersze",
+  "forecast.title": "Prognoza",
+  "styles.forecast.curve": "Krzywa temperatury",
+  "styles.forecast.grid": "Siatka",
+  "widgetsA.catalog.forecast.description": "Najbliższe dni",
+  "widgetsA.catalog.forecast.label": "Prognoza",
+  "widgetsC.weather.settings.showPrecipitation.desc": "Suma deszczu lub śniegu w ciągu dnia, jeśli wystąpi",
+  "widgetsC.weather.settings.showPrecipitation.label": "Pokaż opady",
+  "widgetsC.weather.tooltip.forecastFailed": "{problem}. Ostatnia prognoza: {age}.",
+  "widgetsC.weather.tooltip.forecastSaved": "Zapisana prognoza: {age}; trwa odświeżanie."
+}

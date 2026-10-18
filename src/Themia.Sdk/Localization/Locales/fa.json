@@ -331,11 +331,6 @@
     "one": "{count} برنامه",
     "other": "{count} برنامه"
   },
-  "forecast.layoutRows": "ردیف‌ها",
-  "forecast.layoutColumns": "ستون‌ها",
-  "forecast.daysLabel": "روزهای نمایش",
-  "forecast.daysDesc": "تعداد روزهای پیش‌بینی",
-  "forecast.title": "پیش‌بینی",
   "forecast.wmo.clear": "صاف",
   "forecast.wmo.mainlyClear": "بیشتر صاف",
   "forecast.wmo.partlyCloudy": "نیمه‌ابری",

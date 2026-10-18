@@ -1,0 +1,15 @@
+{
+  "forecast.daysDesc": "Número de días de previsión",
+  "forecast.daysLabel": "Días mostrados",
+  "forecast.layoutColumns": "Columnas",
+  "forecast.layoutRows": "Filas",
+  "forecast.title": "Previsión",
+  "styles.forecast.curve": "Curva de temperatura",
+  "styles.forecast.grid": "Cuadrícula",
+  "widgetsA.catalog.forecast.description": "Los próximos días",
+  "widgetsA.catalog.forecast.label": "Previsión",
+  "widgetsC.weather.settings.showPrecipitation.desc": "La lluvia o nieve total del día, si la hay",
+  "widgetsC.weather.settings.showPrecipitation.label": "Mostrar precipitación",
+  "widgetsC.weather.tooltip.forecastFailed": "{problem}. Último pronóstico: {age}.",
+  "widgetsC.weather.tooltip.forecastSaved": "Pronóstico guardado: {age}; actualizando."
+}

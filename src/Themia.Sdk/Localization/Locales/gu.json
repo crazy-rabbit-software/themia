@@ -331,11 +331,6 @@
     "one": "{count} ઍપ",
     "other": "{count} ઍપ્સ"
   },
-  "forecast.layoutRows": "પંક્તિઓ",
-  "forecast.layoutColumns": "કૉલમ",
-  "forecast.daysLabel": "બતાવેલા દિવસો",
-  "forecast.daysDesc": "આગાહીના દિવસોની સંખ્યા",
-  "forecast.title": "આગાહી",
   "forecast.wmo.clear": "સ્વચ્છ",
   "forecast.wmo.mainlyClear": "મોટે ભાગે સ્વચ્છ",
   "forecast.wmo.partlyCloudy": "આંશિક વાદળછાયું",

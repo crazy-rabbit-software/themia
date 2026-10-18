@@ -331,11 +331,6 @@
     "one": "{count} app",
     "other": "{count} apps"
   },
-  "forecast.layoutRows": "Rows",
-  "forecast.layoutColumns": "Columns",
-  "forecast.daysLabel": "Days shown",
-  "forecast.daysDesc": "Number of forecast days",
-  "forecast.title": "Forecast",
   "forecast.wmo.clear": "Clear",
   "forecast.wmo.mainlyClear": "Mainly clear",
   "forecast.wmo.partlyCloudy": "Partly cloudy",

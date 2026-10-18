@@ -331,11 +331,6 @@
     "one": "{count}টি অ্যাপ",
     "other": "{count}টি অ্যাপ"
   },
-  "forecast.layoutRows": "সারি",
-  "forecast.layoutColumns": "কলাম",
-  "forecast.daysLabel": "দেখানো দিন",
-  "forecast.daysDesc": "পূর্বাভাসের দিনের সংখ্যা",
-  "forecast.title": "পূর্বাভাস",
   "forecast.wmo.clear": "পরিষ্কার",
   "forecast.wmo.mainlyClear": "মোটামুটি পরিষ্কার",
   "forecast.wmo.partlyCloudy": "আংশিক মেঘলা",

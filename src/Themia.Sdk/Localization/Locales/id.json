@@ -330,11 +330,6 @@
   "shortcut.appCount": {
     "other": "{count} aplikasi"
   },
-  "forecast.layoutRows": "Baris",
-  "forecast.layoutColumns": "Kolom",
-  "forecast.daysLabel": "Hari ditampilkan",
-  "forecast.daysDesc": "Jumlah hari prakiraan",
-  "forecast.title": "Prakiraan",
   "forecast.wmo.clear": "Cerah",
   "forecast.wmo.mainlyClear": "Umumnya cerah",
   "forecast.wmo.partlyCloudy": "Berawan sebagian",

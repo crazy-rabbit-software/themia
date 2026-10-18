@@ -331,11 +331,6 @@
     "one": "{count} app",
     "other": "{count} apps"
   },
-  "forecast.layoutRows": "Rijen",
-  "forecast.layoutColumns": "Kolommen",
-  "forecast.daysLabel": "Getoonde dagen",
-  "forecast.daysDesc": "Aantal voorspellingsdagen",
-  "forecast.title": "Weersvoorspelling",
   "forecast.wmo.clear": "Helder",
   "forecast.wmo.mainlyClear": "Overwegend helder",
   "forecast.wmo.partlyCloudy": "Half bewolkt",

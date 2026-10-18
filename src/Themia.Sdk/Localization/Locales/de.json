@@ -330,11 +330,6 @@
     "one": "{count} App",
     "other": "{count} Apps"
   },
-  "forecast.layoutRows": "Zeilen",
-  "forecast.layoutColumns": "Spalten",
-  "forecast.daysLabel": "Angezeigte Tage",
-  "forecast.daysDesc": "Anzahl der Vorhersagetage",
-  "forecast.title": "Vorhersage",
   "forecast.wmo.clear": "Klar",
   "forecast.wmo.mainlyClear": "Überwiegend klar",
   "forecast.wmo.partlyCloudy": "Teilweise bewölkt",
