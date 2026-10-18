@@ -1,13 +1,13 @@
-using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml;
 using Themia.App.Services;
-using Themia.App.Services.Notes;
 using Themia.App.Widgets;
 using Themia.Core.Diagnostics;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Notes;
 using Themia.Core.Widgets;
+using Themia.Sdk.WinUI;
 using Windows.System;
 
 namespace Themia.App.Shell.Config;
@@ -33,7 +33,7 @@ internal static partial class WidgetSettings
 
         rows.Add(FluentLayout.Header(Str.WidgetsC_Notes_Settings_Note.Text()));
 
-        var pool = AppServices.Notes;
+        var pool = SettingsStores.Notes;
 
         if (pool is null)
         {
@@ -104,7 +104,7 @@ internal static partial class WidgetSettings
     /// per keystroke — a title is a file write), when it was last written, and delete after asking.
     /// "New note" adds one and picks it.
     /// </summary>
-    private static IEnumerable<FrameworkElement> NoteRows(NotePool pool, NotesConfig config, Action save, Action rebuild)
+    private static IEnumerable<FrameworkElement> NoteRows(INotes pool, NotesConfig config, Action save, Action rebuild)
     {
         if (config.NoteId is { } shown && pool.Find(shown) is null)
         {

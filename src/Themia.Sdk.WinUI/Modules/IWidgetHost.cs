@@ -89,6 +89,9 @@ public interface IWidgetHost
     /// <summary>[S-4408] Windows' notification list: the host's one feed.</summary>
     INotifications Notifications { get; }
 
+    /// <summary>[S-1348] The notes kept on this PC: the host's one pool. Null where it keeps none (a debug render).</summary>
+    INotes? Notes { get; }
+
     /// <summary>[S-1444] Put <paramref name="text"/> on the clipboard, exactly as given. False when Windows refused it (logged).</summary>
     bool CopyText(string text);
 }

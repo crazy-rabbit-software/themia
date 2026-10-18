@@ -56,6 +56,8 @@ internal sealed class CardWidgetHost(IWidgetCardHost card) : IWidgetHost
 
     public INotifications Notifications => Services.Notifications.HostNotifications.Instance;
 
+    public INotes? Notes => AppServices.Notes;
+
     public bool CopyText(string text) => ClipboardWatcher.SetText(text);
 
     public bool ShowAccounts()

@@ -3,7 +3,6 @@ using Microsoft.UI.Dispatching;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Themia.App.Services;
-using Themia.App.Services.Notes;
 using Themia.App.Shell;
 using Themia.Core.Diagnostics;
 using Themia.Core.Localization;
@@ -15,7 +14,7 @@ using Themia.Sdk.WinUI;
 namespace Themia.App.Widgets;
 
 /// <summary>
-/// [S-1346] A markdown note from the notes kept on this PC (<see cref="NotePool"/>).
+/// [S-1346] A markdown note from the notes kept on this PC (<see cref="IWidgetHost.Notes"/>).
 /// <para>
 /// The widget is a window onto a note, not the note: its config holds only which note
 /// (<see cref="NotesConfig.NoteId"/>), so the note outlives the widget, two widgets can show one
@@ -73,7 +72,8 @@ internal sealed partial class NotesView : Grid, IWidgetView, IWidgetSurfaceAware
     private readonly DispatcherQueueTimer? _saveTimer;
 
     private IWidgetSurface? _surface;
-    private NotePool? _pool;
+    private readonly IWidgetHost _host;
+    private INotes? _pool;
     private NotesConfig _config = new();
     private string? _shownId;
     private NoteState _state = NoteState.Unbound;
@@ -98,8 +98,9 @@ internal sealed partial class NotesView : Grid, IWidgetView, IWidgetSurfaceAware
 #endif
     private bool _detached;
 
-    public NotesView()
+    public NotesView(IWidgetHost host)
     {
+        _host = host;
         // The card no longer pads its content; a view that is not a list carries its own inset.
         Padding = WidgetLayout.Inset;
 
@@ -229,7 +230,7 @@ internal sealed partial class NotesView : Grid, IWidgetView, IWidgetSurfaceAware
     public void Attach(Ticker ticker, WidgetConfig config)
     {
         // Nothing to tick: a note changes when it is typed in, not when time passes.
-        _pool = AppServices.Notes;
+        _pool = _host.Notes;
 
         if (_pool is not null)
         {

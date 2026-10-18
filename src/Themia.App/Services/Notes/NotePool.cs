@@ -1,5 +1,6 @@
 using Themia.Core.Diagnostics;
 using Themia.Core.Notes;
+using Themia.Sdk.WinUI;
 
 namespace Themia.App.Services.Notes;
 
@@ -19,7 +20,7 @@ namespace Themia.App.Services.Notes;
 /// note: a widget still showing a note that was deleted elsewhere must not bring it back.
 /// </para>
 /// </summary>
-internal sealed class NotePool
+internal sealed class NotePool : INotes
 {
     private const string Scope = "notes";
 
