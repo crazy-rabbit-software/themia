@@ -6,8 +6,6 @@
   "toggles.airplaneMode.name": "Modalità aereo",
   "toggles.energySaver.name": "Risparmio energia",
   "toggles.nightLight.name": "Luce notturna",
-  "toggles.nightLight.label": "Luce notturna attivata/disattivata",
-  "toggles.nightLight.desc": "Colori più caldi sullo schermo per dormire meglio",
   "toggles.rotationLock.name": "Blocco rotazione",
   "toggles.rotationLock.label": "Blocco rotazione attivato/disattivato",
   "toggles.rotationLock.desc": "Impedisce allo schermo di ruotare con il dispositivo",

@@ -5,8 +5,6 @@
   "toggles.airplaneMode.name": "Airplane mode",
   "toggles.energySaver.name": "Energy saver",
   "toggles.nightLight.name": "Night light",
-  "toggles.nightLight.label": "Night light on/off",
-  "toggles.nightLight.desc": "Warmer colors on the screen to help you sleep",
   "toggles.rotationLock.name": "Rotation lock",
   "toggles.rotationLock.label": "Rotation lock on/off",
   "toggles.rotationLock.desc": "Keeps the screen from turning with the device",

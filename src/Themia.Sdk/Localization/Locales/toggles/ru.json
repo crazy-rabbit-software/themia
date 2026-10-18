@@ -6,8 +6,6 @@
   "toggles.airplaneMode.name": "Режим «в самолете»",
   "toggles.energySaver.name": "Экономия заряда",
   "toggles.nightLight.name": "Ночной свет",
-  "toggles.nightLight.label": "Ночной свет вкл./откл.",
-  "toggles.nightLight.desc": "Более теплые цвета на экране, чтобы легче заснуть",
   "toggles.rotationLock.name": "Блокировка поворота",
   "toggles.rotationLock.label": "Блокировка поворота вкл./откл.",
   "toggles.rotationLock.desc": "Не дает экрану поворачиваться вместе с устройством",

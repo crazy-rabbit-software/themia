@@ -6,8 +6,6 @@
   "toggles.airplaneMode.name": "Chế độ máy bay",
   "toggles.energySaver.name": "Trình tiết kiệm pin",
   "toggles.nightLight.name": "Ánh sáng ban đêm",
-  "toggles.nightLight.label": "Bật/tắt ánh sáng ban đêm",
-  "toggles.nightLight.desc": "Màu ấm hơn trên màn hình để giúp bạn dễ ngủ",
   "toggles.rotationLock.name": "Khóa xoay",
   "toggles.rotationLock.label": "Bật/tắt khóa xoay",
   "toggles.rotationLock.desc": "Giữ màn hình không xoay theo thiết bị",

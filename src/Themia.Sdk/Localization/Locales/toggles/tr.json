@@ -6,8 +6,6 @@
   "toggles.airplaneMode.name": "Uçak modu",
   "toggles.energySaver.name": "Enerji tasarrufu",
   "toggles.nightLight.name": "Gece ışığı",
-  "toggles.nightLight.label": "Gece ışığı aç/kapat",
-  "toggles.nightLight.desc": "Uyumanıza yardımcı olmak için ekranda daha sıcak renkler",
   "toggles.rotationLock.name": "Döndürme kilidi",
   "toggles.rotationLock.label": "Döndürme kilidi aç/kapat",
   "toggles.rotationLock.desc": "Ekranın cihazla birlikte dönmesini engeller",

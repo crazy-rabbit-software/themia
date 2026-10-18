@@ -6,8 +6,6 @@
   "toggles.airplaneMode.name": "飞行模式",
   "toggles.energySaver.name": "节能模式",
   "toggles.nightLight.name": "夜间模式",
-  "toggles.nightLight.label": "夜间模式 开/关",
-  "toggles.nightLight.desc": "屏幕显示更暖的颜色，帮助入睡",
   "toggles.rotationLock.name": "旋转锁定",
   "toggles.rotationLock.label": "旋转锁定 开/关",
   "toggles.rotationLock.desc": "屏幕不随设备转动",

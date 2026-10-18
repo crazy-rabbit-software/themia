@@ -6,8 +6,6 @@
   "toggles.airplaneMode.name": "Tryb samolotowy",
   "toggles.energySaver.name": "Oszczędzanie energii",
   "toggles.nightLight.name": "Światło nocne",
-  "toggles.nightLight.label": "Światło nocne wł./wył.",
-  "toggles.nightLight.desc": "Cieplejsze kolory ekranu dla lepszego snu",
   "toggles.rotationLock.name": "Blokada obrotu",
   "toggles.rotationLock.label": "Blokada obrotu wł./wył.",
   "toggles.rotationLock.desc": "Nie pozwala ekranowi obracać się razem z urządzeniem",

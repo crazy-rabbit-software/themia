@@ -6,8 +6,6 @@
   "toggles.airplaneMode.name": "Flugzeugmodus",
   "toggles.energySaver.name": "Energiesparmodus",
   "toggles.nightLight.name": "Nachtmodus",
-  "toggles.nightLight.label": "Nachtmodus ein/aus",
-  "toggles.nightLight.desc": "Wärmere Bildschirmfarben für besseren Schlaf",
   "toggles.rotationLock.name": "Drehsperre",
   "toggles.rotationLock.label": "Drehsperre ein/aus",
   "toggles.rotationLock.desc": "Verhindert, dass sich der Bildschirm mit dem Gerät dreht",

@@ -6,8 +6,6 @@
   "toggles.airplaneMode.name": "విమానం మోడ్",
   "toggles.energySaver.name": "శక్తి సేవర్",
   "toggles.nightLight.name": "రాత్రి కాంతి",
-  "toggles.nightLight.label": "రాత్రి కాంతి ఆన్/ఆఫ్",
-  "toggles.nightLight.desc": "మీరు నిద్రపోవడానికి సహాయపడేలా స్క్రీన్‌పై వెచ్చని రంగులు",
   "toggles.rotationLock.name": "భ్రమణ లాక్",
   "toggles.rotationLock.label": "భ్రమణ లాక్ ఆన్/ఆఫ్",
   "toggles.rotationLock.desc": "పరికరంతో పాటు స్క్రీన్ తిరగకుండా ఉంచుతుంది",

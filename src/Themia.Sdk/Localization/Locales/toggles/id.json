@@ -6,8 +6,6 @@
   "toggles.airplaneMode.name": "Mode pesawat",
   "toggles.energySaver.name": "Penghemat energi",
   "toggles.nightLight.name": "Lampu malam",
-  "toggles.nightLight.label": "Lampu malam aktif/nonaktif",
-  "toggles.nightLight.desc": "Warna layar lebih hangat agar Anda mudah tidur",
   "toggles.rotationLock.name": "Kunci rotasi",
   "toggles.rotationLock.label": "Kunci rotasi aktif/nonaktif",
   "toggles.rotationLock.desc": "Mencegah layar berputar mengikuti perangkat",

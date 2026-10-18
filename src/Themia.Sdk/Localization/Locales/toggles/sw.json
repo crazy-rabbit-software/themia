@@ -6,8 +6,6 @@
   "toggles.airplaneMode.name": "Hali ya ndegeni",
   "toggles.energySaver.name": "Kiokoa nishati",
   "toggles.nightLight.name": "Mwanga wa usiku",
-  "toggles.nightLight.label": "Mwanga wa usiku washa/zima",
-  "toggles.nightLight.desc": "Rangi zenye joto zaidi kwenye skrini ili kukusaidia kulala",
   "toggles.rotationLock.name": "Kufunga mzunguko",
   "toggles.rotationLock.label": "Kufunga mzunguko washa/zima",
   "toggles.rotationLock.desc": "Huzuia skrini isizunguke pamoja na kifaa",

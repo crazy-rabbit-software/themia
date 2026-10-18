@@ -6,8 +6,6 @@
   "toggles.airplaneMode.name": "Airplane mode",
   "toggles.energySaver.name": "Energy saver",
   "toggles.nightLight.name": "Night light",
-  "toggles.nightLight.label": "I-on/i-off ang Night light",
-  "toggles.nightLight.desc": "Mas maiinit na kulay sa screen para makatulong sa pagtulog",
   "toggles.rotationLock.name": "Rotation lock",
   "toggles.rotationLock.label": "I-on/i-off ang Rotation lock",
   "toggles.rotationLock.desc": "Pinipigilan ang screen na umikot kasabay ng device",

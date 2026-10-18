@@ -6,8 +6,6 @@
   "toggles.airplaneMode.name": "विमान मोड",
   "toggles.energySaver.name": "एनर्जी सेव्हर",
   "toggles.nightLight.name": "नाइट लाइट",
-  "toggles.nightLight.label": "नाइट लाइट चालू/बंद",
-  "toggles.nightLight.desc": "झोपेसाठी स्क्रीनवर उबदार रंग",
   "toggles.rotationLock.name": "रोटेशन लॉक",
   "toggles.rotationLock.label": "रोटेशन लॉक चालू/बंद",
   "toggles.rotationLock.desc": "डिव्हाइससोबत स्क्रीन फिरू देत नाही",

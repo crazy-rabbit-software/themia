@@ -6,8 +6,6 @@
   "toggles.airplaneMode.name": "એરપ્લેન મોડ",
   "toggles.energySaver.name": "ઊર્જા બચતકર્તા",
   "toggles.nightLight.name": "રાત્રિ પ્રકાશ",
-  "toggles.nightLight.label": "રાત્રિ પ્રકાશ ચાલુ/બંધ",
-  "toggles.nightLight.desc": "તમને ઊંઘવામાં મદદ કરવા સ્ક્રીન પર વધુ ગરમ રંગો",
   "toggles.rotationLock.name": "રોટેશન લૉક",
   "toggles.rotationLock.label": "રોટેશન લૉક ચાલુ/બંધ",
   "toggles.rotationLock.desc": "ઉપકરણ સાથે સ્ક્રીનને ફરતી અટકાવે છે",

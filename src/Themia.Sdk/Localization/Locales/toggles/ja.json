@@ -6,8 +6,6 @@
   "toggles.airplaneMode.name": "機内モード",
   "toggles.energySaver.name": "省エネ機能",
   "toggles.nightLight.name": "夜間モード",
-  "toggles.nightLight.label": "夜間モード オン/オフ",
-  "toggles.nightLight.desc": "画面を暖かい色にして眠りやすくします",
   "toggles.rotationLock.name": "回転ロック",
   "toggles.rotationLock.label": "回転ロック オン/オフ",
   "toggles.rotationLock.desc": "デバイスを回しても画面が回転しないようにします",

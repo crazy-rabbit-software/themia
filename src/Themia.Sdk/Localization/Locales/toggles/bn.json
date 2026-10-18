@@ -6,8 +6,6 @@
   "toggles.airplaneMode.name": "বিমান মোড",
   "toggles.energySaver.name": "এনার্জি সেভার",
   "toggles.nightLight.name": "নাইট লাইট",
-  "toggles.nightLight.label": "নাইট লাইট চালু/বন্ধ",
-  "toggles.nightLight.desc": "ঘুমাতে সাহায্য করতে স্ক্রিনে উষ্ণ রং",
   "toggles.rotationLock.name": "রোটেশন লক",
   "toggles.rotationLock.label": "রোটেশন লক চালু/বন্ধ",
   "toggles.rotationLock.desc": "ডিভাইস ঘোরালে স্ক্রিন ঘোরা থেকে আটকায়",

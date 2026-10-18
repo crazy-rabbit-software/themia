@@ -6,8 +6,6 @@
   "toggles.airplaneMode.name": "حالت هواپیما",
   "toggles.energySaver.name": "صرفه‌جویی انرژی",
   "toggles.nightLight.name": "نور شب",
-  "toggles.nightLight.label": "روشن/خاموش نور شب",
-  "toggles.nightLight.desc": "رنگ‌های گرم‌تر روی صفحه برای کمک به خواب",
   "toggles.rotationLock.name": "قفل چرخش",
   "toggles.rotationLock.label": "روشن/خاموش قفل چرخش",
   "toggles.rotationLock.desc": "از چرخیدن صفحه همراه با دستگاه جلوگیری می‌کند",

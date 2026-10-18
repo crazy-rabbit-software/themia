@@ -6,8 +6,6 @@
   "toggles.airplaneMode.name": "விமானப் பயன்முறை",
   "toggles.energySaver.name": "ஆற்றல் சேமிப்பான்",
   "toggles.nightLight.name": "இரவு ஒளி",
-  "toggles.nightLight.label": "இரவு ஒளி இயக்கு/முடக்கு",
-  "toggles.nightLight.desc": "நீங்கள் உறங்க உதவ, திரையில் வெதுவெதுப்பான நிறங்கள்",
   "toggles.rotationLock.name": "சுழற்சிப் பூட்டு",
   "toggles.rotationLock.label": "சுழற்சிப் பூட்டு இயக்கு/முடக்கு",
   "toggles.rotationLock.desc": "சாதனத்துடன் திரை சுழலாமல் தடுக்கும்",

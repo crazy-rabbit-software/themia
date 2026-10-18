@@ -6,8 +6,6 @@
   "toggles.airplaneMode.name": "โหมดเครื่องบิน",
   "toggles.energySaver.name": "โปรแกรมประหยัดพลังงาน",
   "toggles.nightLight.name": "แสงกลางคืน",
-  "toggles.nightLight.label": "เปิด/ปิดแสงกลางคืน",
-  "toggles.nightLight.desc": "สีบนหน้าจออุ่นขึ้นเพื่อช่วยให้คุณนอนหลับ",
   "toggles.rotationLock.name": "ล็อกการหมุน",
   "toggles.rotationLock.label": "เปิด/ปิดล็อกการหมุน",
   "toggles.rotationLock.desc": "ไม่ให้หน้าจอหมุนตามอุปกรณ์",

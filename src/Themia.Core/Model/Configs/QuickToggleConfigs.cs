@@ -7,33 +7,6 @@ using Themia.Sdk;
 
 namespace Themia.Core.Model;
 
-/// <summary>[S-3900] Night light.</summary>
-public sealed class NightLightToggleConfig : QuickToggleConfig
-{
-    /// <summary>The toggle it stands for.</summary>
-    [JsonIgnore]
-    public override QuickToggle Toggle => QuickToggle.NightLight;
-
-    /// <summary>[S-6902] This widget's descriptor: what the host knows of it without its UI.</summary>
-    public static WidgetDescriptor Descriptor { get; } = new()
-    {
-        Id = new("nightLightToggle"),
-        ConfigType = typeof(NightLightToggleConfig),
-        CreateDefault = () => new NightLightToggleConfig(),
-        Json = WidgetConfigJsonContext.Default,
-        Keywords = ["quick settings", "toggle", "blue light", "warm screen", "night mode", "eye strain"],
-        Label = Str.Toggles_NightLight_Label.Local(),
-        Description = Str.Toggles_NightLight_Desc.Local(),
-        Glyph = Glyphs.NightLight,
-        DefaultWidth = 120,
-        DefaultHeight = 120,
-        Traits = WidgetTraits.HasItems,
-        Add = new(AddFolderId.QuickSettings, 2, 0),
-    };
-
-    public override WidgetConfig Clone() => new NightLightToggleConfig { Style = Style };
-}
-
 /// <summary>[S-3900] Rotation lock.</summary>
 public sealed class RotationLockToggleConfig : QuickToggleConfig
 {

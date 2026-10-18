@@ -6,8 +6,6 @@
   "toggles.airplaneMode.name": "وضع الطائرة",
   "toggles.energySaver.name": "موفر الطاقة",
   "toggles.nightLight.name": "الإضاءة الليلية",
-  "toggles.nightLight.label": "تشغيل/إيقاف الإضاءة الليلية",
-  "toggles.nightLight.desc": "ألوان أدفأ على الشاشة لمساعدتك على النوم",
   "toggles.rotationLock.name": "تأمين التدوير",
   "toggles.rotationLock.label": "تشغيل/إيقاف تأمين التدوير",
   "toggles.rotationLock.desc": "منع الشاشة من الدوران مع الجهاز",
