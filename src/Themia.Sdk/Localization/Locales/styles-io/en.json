@@ -2,6 +2,5 @@
   "$comment": "[S-6270]..[S-6274] The styles of the network, disk, battery, ping and drive widgets.",
   "styles.io.graph": "Graph",
   "styles.io.ring": "Ring",
-  "styles.io.signal": "Signal bars",
   "styles.io.bar": "Bar"
 }

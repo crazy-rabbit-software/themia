@@ -151,20 +151,4 @@ public sealed class DiskPingTests
 
     // ---- S-1173: the host is the title -----------------------------------------------------------
 
-    [Fact]
-    public void S1173_clone_keeps_the_host()
-    {
-        var copy = (PingConfig)new PingConfig { Host = "8.8.8.8" }.Clone();
-
-        Assert.Equal("8.8.8.8", copy.Host);
-    }
-
-    [Fact]
-    public void S3791_a_stored_host_label_is_ignored_and_the_host_is_the_name()
-    {
-        var config = (PingConfig)ConfigJson.Read("Ping", """{ "kind": "ping", "host": "8.8.8.8", "hostLabel": "DNS", "intervalSeconds": 300 }""");
-
-        Assert.Equal("8.8.8.8", config.EffectiveHost);
-        Assert.Empty(config.Repair());
-    }
 }

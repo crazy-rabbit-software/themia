@@ -36,7 +36,6 @@ namespace Themia.Core.Storage;
 [JsonSerializable(typeof(NextMeetingConfig))]
 [JsonSerializable(typeof(NotesConfig))]
 [JsonSerializable(typeof(NotificationsConfig))]
-[JsonSerializable(typeof(PingConfig))]
 [JsonSerializable(typeof(PingDetailsConfig))]
 [JsonSerializable(typeof(RecentFilesConfig))]
 [JsonSerializable(typeof(RemovableDrivesConfig))]

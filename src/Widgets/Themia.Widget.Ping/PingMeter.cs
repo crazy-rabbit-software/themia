@@ -38,7 +38,7 @@ internal sealed class PingMeter : MeterPart
         Fill = CheckingBrush,
     };
 
-    public override WidgetId Kind => PingConfig.Descriptor.Id;
+    public override WidgetId Kind => new WidgetId("ping");
 
     /// <summary>"999 ms".</summary>
     public override HeroBound Reading => HeroBound.Of(Formatting.Latency(999));

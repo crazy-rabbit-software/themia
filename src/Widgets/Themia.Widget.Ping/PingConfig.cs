@@ -1,10 +1,10 @@
 using System.Text.Json.Serialization;
 using Themia.App.Shell;
 using Themia.Core.Localization;
-using Themia.Core.Storage;
 using Themia.Core.SystemData;
 using Themia.Core.Widgets;
 using Themia.Sdk;
+using Themia.Widget.Ping;
 
 namespace Themia.Core.Model;
 
@@ -28,7 +28,7 @@ public sealed class PingConfig : GaugeConfig, IStyled, IReadsSystem
     private static readonly StyleOption[] PingStyles =
     [
         StyleOption.Of(PingStyle.Graph, Str.Styles_Io_Graph.Local(), 0xE9D2),
-        StyleOption.Of(PingStyle.Signal, Str.Styles_Io_Signal.Local(), 0xE870),
+        StyleOption.Of(PingStyle.Signal, PingStr.Styles_Io_Signal.Local(), 0xE870),
     ];
 
     /// <summary>A quarter of an hour of probes, one every five seconds ([S-2512]).</summary>
@@ -36,24 +36,6 @@ public sealed class PingConfig : GaugeConfig, IStyled, IReadsSystem
         : base(graphSpanSeconds: 900)
     {
     }
-
-
-    /// <summary>[S-6902] This widget's descriptor: what the host knows of it without its UI.</summary>
-    public static WidgetDescriptor Descriptor { get; } = new()
-    {
-        Id = new("ping"),
-        ConfigType = typeof(PingConfig),
-        CreateDefault = () => new PingConfig(),
-        Json = WidgetConfigJsonContext.Default,
-        Keywords = ["latency", "network", "internet", "connection", "packet loss", "ms"],
-        Label = Str.Widget_Ping_Label.Local(),
-        Description = Str.WidgetsA_Catalog_Ping_Description.Local(),
-        Glyph = Glyphs.Ping,
-        DefaultWidth = 200,
-        DefaultHeight = 150,
-        Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader,
-        Add = new(AddFolderId.PingReading, 0, 0),
-    };
 
     /// <summary>[S-6273] The meter's look; what was its history switch ([S-6000]).</summary>
     public PingStyle Style { get; set; } = PingStyle.Graph;

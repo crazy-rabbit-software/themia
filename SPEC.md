@@ -3706,9 +3706,7 @@ they show the label, the reading and the history only ([S-1762]).
   offline critical.
 - **[S-1173]** *(Retired by [S-3791]: no `HostLabel`. The header title is the host; a name for it is
   the card's own title.)*
-- **[S-1174]** Ping "Refresh" on the card's menu probes now; a probe already out is the answer
-  coming, so it is not doubled ([S-106]).
-- **[S-1175]** Ping settings: Host, then the shared meter rows.
+- [S-1174], [S-1175]: moved with the Ping widget into its module's `SPEC.md` (`src/Widgets/Themia.Widget.Ping/`).
 
 Not ported / different: several ping hosts (the original had one); several drives in one tile, the
 drives list, IOPS, the volume line and ping's jitter / loss / range ([S-1762]); a coloured latency
@@ -4048,8 +4046,7 @@ history are the same in every style. Tests `IoStylesTests` (`S626x_`, `S627x_`).
   minute's totals and this sample's ([S-1821], `DiskRules.BarShares`), so idle reads as a sliver; the
   window starts again when the drive or the scope changes.
 - [S-6272]: moved with the Battery widget into its module's `SPEC.md` (`src/Widgets/Themia.Widget.Battery/`).
-- **[S-6273]** Ping: `PingConfig.Style`, **Graph** ([S-1172]) and **Signal bars** ([S-6263]); the
-  header's status dot and Refresh are the same in both.
+- [S-6273]: moved with the Ping widget into its module's `SPEC.md` (`src/Widgets/Themia.Widget.Ping/`).
 
 ## GPU and screen time: the whole tile (SYS-P4)
 

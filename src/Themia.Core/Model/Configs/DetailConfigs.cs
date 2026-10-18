@@ -234,14 +234,14 @@ public sealed class PingDetailsConfig : DetailConfig, IReadsSystem
         Add = new(AddFolderId.PingReading, 0, 1),
     };
 
-    /// <summary>Host or address to probe. Empty falls back to <see cref="PingConfig.DefaultHost"/>.</summary>
-    public string Host { get; set; } = PingConfig.DefaultHost;
+    /// <summary>Host or address to probe. Empty falls back to <see cref="HostAddress.DefaultPingHost"/>.</summary>
+    public string Host { get; set; } = HostAddress.DefaultPingHost;
 
     /// <summary>[S-2427] How many of the latest probes the statistics cover.</summary>
     public int Window { get; set; } = 60;
 
     [JsonIgnore]
-    public string EffectiveHost => string.IsNullOrWhiteSpace(Host) ? PingConfig.DefaultHost : Host.Trim();
+    public string EffectiveHost => string.IsNullOrWhiteSpace(Host) ? HostAddress.DefaultPingHost : Host.Trim();
 
     [JsonIgnore]
     public int EffectiveWindow => Math.Clamp(Window, MinWindow, MaxWindow);
@@ -264,7 +264,7 @@ public sealed class PingDetailsConfig : DetailConfig, IReadsSystem
     {
         var notes = new List<string>(base.Repair());
 
-        Host ??= PingConfig.DefaultHost;
+        Host ??= HostAddress.DefaultPingHost;
 
         if (EffectiveWindow != Window)
         {
