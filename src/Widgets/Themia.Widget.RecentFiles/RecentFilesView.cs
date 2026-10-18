@@ -15,8 +15,8 @@ namespace Themia.App.Widgets;
 
 /// <summary>
 /// [S-4840] The files opened last, as Windows lists them in Recent Items: icon, name, folder and
-/// when, newest first. A click opens the file; the row menu opens its location or takes it off the
-/// list. The list is the shared <see cref="RecentItems"/>, redrawn when its folder changes; the
+/// when, newest first. A click focuses a row and a double-click opens the file, as every list
+/// ([S-7065]); the row menu opens its location or takes it off the list. The list is the shared <see cref="RecentItems"/>, redrawn when its folder changes; the
 /// minute tick only keeps "2h" honest. Keys through the lease, as every list ([S-1288]).
 /// </summary>
 internal sealed partial class RecentFilesView : Grid, IWidgetView, IWidgetSizeAware, IWidgetSurfaceAware, IWidgetKeys
@@ -228,6 +228,7 @@ internal sealed partial class RecentFilesView : Grid, IWidgetView, IWidgetSizeAw
         RowFocus.Prepare(row);
         row.Tag = file;
         row.Tapped += OnRowTapped;
+        row.DoubleTapped += OnRowDoubleTapped;
         _rowHandles.Add(Fluent.Hover(row));
         _rowHandles.Add(ItemMenu.Attach(row, () => RowMenu(file)));
         ToolTipService.SetToolTip(row, $"{file.Path}{Environment.NewLine}{LocaleFormat.Date(Strings.Current, file.Opened.LocalDateTime, DateStyle.Medium)} {LocaleFormat.Time(Strings.Current, file.Opened.LocalDateTime)}");
@@ -262,9 +263,10 @@ internal sealed partial class RecentFilesView : Grid, IWidgetView, IWidgetSizeAw
         ];
     }
 
+    /// <summary>[S-7065] A click focuses the row (the card makes the widget inert in edit mode, [S-1751]).</summary>
     private void OnRowTapped(object sender, TappedRoutedEventArgs args)
     {
-        if (_surface?.EditMode == true || sender is not Border { Tag: RecentFile file })
+        if (sender is not Border { Tag: RecentFile })
         {
             return;
         }
@@ -272,6 +274,17 @@ internal sealed partial class RecentFilesView : Grid, IWidgetView, IWidgetSizeAw
         args.Handled = true;
         _cursor = _rows.IndexOf((Border)sender);
         ShowCursor();
+    }
+
+    /// <summary>[S-7065] A double-click opens the file, as Enter does.</summary>
+    private void OnRowDoubleTapped(object sender, DoubleTappedRoutedEventArgs args)
+    {
+        if (sender is not Border { Tag: RecentFile file })
+        {
+            return;
+        }
+
+        args.Handled = true;
         Open(file);
     }
 
@@ -310,6 +323,7 @@ internal sealed partial class RecentFilesView : Grid, IWidgetView, IWidgetSizeAw
         foreach (var row in _rows)
         {
             row.Tapped -= OnRowTapped;
+            row.DoubleTapped -= OnRowDoubleTapped;
             row.Tag = null;
         }
 

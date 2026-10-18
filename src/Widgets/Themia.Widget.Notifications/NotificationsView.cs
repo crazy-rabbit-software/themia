@@ -460,7 +460,13 @@ internal sealed partial class NotificationsView : Grid, IWidgetView, IWidgetHead
             dismiss.Visibility = Visibility.Collapsed;
         };
         RoutedEventHandler onDismiss = (_, _) => Dismiss(item);
+        // [S-7065] A click focuses the row; a double-click opens the sender, as Enter does.
         TappedEventHandler onTap = (_, args) =>
+        {
+            args.Handled = true;
+            Focus(row);
+        };
+        DoubleTappedEventHandler onDoubleTap = (_, args) =>
         {
             args.Handled = true;
             Open(item);
@@ -471,6 +477,7 @@ internal sealed partial class NotificationsView : Grid, IWidgetView, IWidgetHead
         row.PointerCanceled += left;
         dismiss.Click += onDismiss;
         row.Tapped += onTap;
+        row.DoubleTapped += onDoubleTap;
         _rowHandles.Add(new Unhook(() =>
         {
             row.PointerEntered -= entered;
@@ -478,6 +485,7 @@ internal sealed partial class NotificationsView : Grid, IWidgetView, IWidgetHead
             row.PointerCanceled -= left;
             dismiss.Click -= onDismiss;
             row.Tapped -= onTap;
+            row.DoubleTapped -= onDoubleTap;
         }));
 
         var app = item.AppName.Length > 0 ? item.AppName : NotificationRules.FallbackName(item.AppId);
@@ -558,7 +566,7 @@ internal sealed partial class NotificationsView : Grid, IWidgetView, IWidgetHead
         ];
     }
 
-    /// <summary>[S-4406] A click opens the sender, as Windows' list brings its app forward.</summary>
+    /// <summary>[S-4406] [S-7065] A double-click (or Enter) opens the sender, as Windows' list brings its app forward.</summary>
     private void Open(NotificationItem item)
     {
         if (Inert || _lease is null)
@@ -733,6 +741,19 @@ internal sealed partial class NotificationsView : Grid, IWidgetView, IWidgetHead
 
     /// <summary>Only a list with rows takes the keyboard.</summary>
     public bool WantsKeys => !Inert && _rows.Count > 0;
+
+    /// <summary>[S-7065] Put the cursor on the row a click landed on.</summary>
+    private void Focus(Border row)
+    {
+        var index = _rows.FindIndex(r => ReferenceEquals(r.Row, row));
+        if (index < 0 || Inert)
+        {
+            return;
+        }
+
+        _cursor = index;
+        ShowCursor();
+    }
 
     private void ShowCursor()
     {

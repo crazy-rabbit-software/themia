@@ -956,6 +956,9 @@ The shared parts a list widget is built from, and the rules they keep (design an
   (`IWidgetHost.Launcher`, which classifies it again on the literal string it hands the shell), never
   a process of the widget's own; a preview opens nothing. Nothing in the source starts a process but
   the launcher and a short list of host files with their reasons (`KitConformanceTests`).
+- **[S-7065]** One open gesture (decided, Q1/Q2): in every list of items a click focuses a row and a
+  double-click or Enter opens it: the kit's list, Recent files and Notifications. The card makes a
+  widget inert in edit mode ([S-1751]); the kit's list and Recent files check no edit mode of their own.
 - **[S-7050]** `IKitConfig`: a kit widget's config states what it needs (a feature, or none for a
   web source), whether it is configured, the accounts it reads and the fields the user has on; its
   setup rule follows ([S-1860], [S-1861]): it waits while it has nothing to read, or while no
@@ -5409,7 +5412,7 @@ strings in `Locales/panels/`; tests `WindowsPanelsTests`, the module host's `Win
   non-blank the title, the rest the body, control characters dropped, title ≤ 200, body ≤ 600), when it
   came; newest first, at most 100. Karpo reads Windows' database (`wpndatabase.db`) for the whole toast
   and dismisses through the listener; Themia, a Store app, reads only through the listener, so a toast's
-  buttons and reply box are not offered — a click opens its app instead ([S-4406]).
+  buttons and reply box are not offered — a double-click opens its app instead ([S-4406]).
 - **[S-4402]** Grouped by app as Windows 11's center: a heading per app (its icon, its name, a × that
   clears the app's), the apps in the order of their newest, each app's newest first (two of one moment:
   the higher id first). A group of more than three shows its newest three and "See more (n)"; "See
@@ -5430,7 +5433,7 @@ strings in `Locales/panels/`; tests `WindowsPanelsTests`, the module host's `Win
   of a dotted or packaged id (`5319275A.WhatsAppDesktop_…!App` → WhatsAppDesktop). Icons come from the
   shared app-icon service as `shell:AppsFolder\<AUMID>` (packaged apps included, [S-3960]); the bell
   until one comes, and where none does.
-- **[S-4406]** A click on a notification opens its app: `ShellLauncher.OpenApp`, the AUMID's Apps-folder
+- **[S-4406]** A double-click (or Enter) on a notification opens its app; a click only focuses its row ([S-7065]; it opened on a click): `ShellLauncher.OpenApp`, the AUMID's Apps-folder
   item, through its own allow list (`NotificationRules.AppTarget`: letters, digits, `. _ - ! { } \ :`
   and space, ≤ 512, no `..`, not rooted with a slash). The notification stays in Windows' list.
 - **[S-4407]** A dismissal shows at once: the feed hides the ids it dismissed until Windows' list no

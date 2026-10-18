@@ -104,6 +104,26 @@ public sealed partial class KitConformanceTests
         Assert.Equal(["TasksView.cs"], offending);
     }
 
+    /// <summary>
+    /// [S-7065] One open gesture (decided, Q1/Q2): in every list of items a click focuses a row and a
+    /// double-click (or Enter) opens it, the kit's list and the lists that follow it. The kit's list
+    /// and Recent files check no edit mode for it: the card makes its widget inert there ([S-1751]).
+    /// </summary>
+    [Theory]
+    [InlineData("KitList.cs", true)]
+    [InlineData("RecentFilesView.cs", true)]
+    [InlineData("NotificationsView.cs", false)]
+    public void S7065_a_list_row_opens_on_a_double_click_and_a_click_only_focuses(string file, bool leavesEditModeToTheCard)
+    {
+        var code = Code(RepoFiles.Source(file));
+
+        Assert.Matches(@"\.DoubleTapped \+=", code);
+        if (leavesEditModeToTheCard)
+        {
+            Assert.DoesNotMatch(@"\bEditMode\b", code);
+        }
+    }
+
     [Fact]
     public void RepoFiles_view_sources_reach_the_sdk_and_the_modules()
     {
