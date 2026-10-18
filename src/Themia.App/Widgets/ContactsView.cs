@@ -203,7 +203,7 @@ internal sealed partial class ContactsView : Grid, IWidgetView, IWidgetHeaderCon
     {
         _detached = false;
         _config = config as ContactsConfig ?? new ContactsConfig();
-        _source = OfficeSources.Current;
+        _source = _widgetHost.Office;
 
         if (_source is not null)
         {

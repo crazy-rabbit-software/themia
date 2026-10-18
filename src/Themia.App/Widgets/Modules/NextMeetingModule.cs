@@ -14,7 +14,7 @@ public sealed class NextMeetingModule : IWidgetModule
     public WidgetDescriptor Descriptor => NextMeetingConfig.Descriptor;
 
     public void SettingsRows(WidgetSettingsRows rows, WidgetConfig config)
-        => WidgetSettings.Calendar(rows.Rows, (CalendarConfig)config, rows.Save);
+        => WidgetSettings.Calendar(rows, (CalendarConfig)config);
 
     public FrameworkElement CreateView(IWidgetHost host) => new NextMeetingView(host);
 }

@@ -151,7 +151,7 @@ internal sealed partial class NextMeetingView : Grid, IWidgetView, IWidgetSurfac
     {
         _detached = false;
         _config = config as NextMeetingConfig ?? new NextMeetingConfig();
-        UseData(OfficeSources.Current is { } source ? new OfficeCalendarData(source) : null);
+        UseData(_widgetHost.Office is { } source ? new OfficeCalendarData(source) : null);
         Strings.Changed += OnLanguage;
 
         // [S-4825] The view's links: the event under the pointer is shared with the calendars there.

@@ -111,7 +111,7 @@ internal sealed partial class WeekPlannerView : Grid, IWidgetView, IWidgetSurfac
     {
         _detached = false;
         _config = config as WeekPlannerConfig ?? new WeekPlannerConfig();
-        UseData(OfficeSources.Current is { } source ? new OfficeCalendarData(source) : null);
+        UseData(_widgetHost.Office is { } source ? new OfficeCalendarData(source) : null);
         Strings.Changed += OnLanguage;
 
         _service = AppServices.Tasks;

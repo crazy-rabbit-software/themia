@@ -14,6 +14,7 @@ public static class SettingsHost
     private static IShellLauncher? _launcher;
     private static Action<object>? _ownPicker;
     private static IAppLayouts? _appLayouts;
+    private static Func<Themia.App.Services.Office.IOfficeSource?>? _office;
 
     /// <summary>[S-1348] The notes kept on this PC.</summary>
     public static INotes? Notes => Volatile.Read(ref _notes)?.Invoke();
@@ -25,6 +26,9 @@ public static class SettingsHost
     public static Themia.App.Services.IScreenTimeSource? ScreenTime => Volatile.Read(ref _screenTime)?.Invoke();
 
     /// <summary>The one place anything is opened (a page's "Open in File Explorer").</summary>
+    /// <summary>[S-561] The accounts, calendars and contacts the host's office source offers: what the account widgets' pages list. Null before the host has started.</summary>
+    public static Themia.App.Services.Office.IOfficeSource? Office => Volatile.Read(ref _office)?.Invoke();
+
     public static IShellLauncher Launcher
         => Volatile.Read(ref _launcher) ?? throw new InvalidOperationException("no settings host installed: the host installs it before any settings page is shown");
 
@@ -40,8 +44,10 @@ public static class SettingsHost
         => (Volatile.Read(ref _ownPicker) ?? throw new InvalidOperationException("no settings host installed: the host installs it before any settings page is shown"))(picker);
 
     /// <summary>The host's stores, launcher, window and layout editor. Once per process.</summary>
-    internal static void Install(Func<INotes?> notes, Func<IHabitLists?> habits, Func<Themia.App.Services.IScreenTimeSource?> screenTime, IShellLauncher launcher, Action<object> ownPicker, IAppLayouts appLayouts)
+    internal static void Install(Func<INotes?> notes, Func<IHabitLists?> habits, Func<Themia.App.Services.IScreenTimeSource?> screenTime, IShellLauncher launcher, Action<object> ownPicker, IAppLayouts appLayouts,
+        Func<Themia.App.Services.Office.IOfficeSource?> office)
     {
+        ArgumentNullException.ThrowIfNull(office);
         ArgumentNullException.ThrowIfNull(notes);
         ArgumentNullException.ThrowIfNull(habits);
         ArgumentNullException.ThrowIfNull(screenTime);
@@ -58,5 +64,6 @@ public static class SettingsHost
         Volatile.Write(ref _screenTime, screenTime);
         Volatile.Write(ref _ownPicker, ownPicker);
         Volatile.Write(ref _appLayouts, appLayouts);
+        Volatile.Write(ref _office, office);
     }
 }

@@ -6,6 +6,7 @@ using Themia.App.Widgets;
 using Themia.Core.Accounts;
 using Themia.Core.Localization;
 using Themia.Core.Model;
+using Themia.Sdk.WinUI;
 using Themia.Core.Office;
 using Themia.Core.Widgets;
 using Themia.Sdk;
@@ -24,15 +25,16 @@ namespace Themia.App.Shell.Config;
 internal static partial class WidgetSettings
 {
     /// <summary>[S-580] The contacts widget: accounts, layout, the details table's columns, count and search.</summary>
-    public static void Contacts(List<FrameworkElement> rows, ContactsConfig config, Action save)
+    public static void Contacts(WidgetSettingsRows settings, ContactsConfig config)
     {
-        ArgumentNullException.ThrowIfNull(rows);
+        ArgumentNullException.ThrowIfNull(settings);
         ArgumentNullException.ThrowIfNull(config);
-        ArgumentNullException.ThrowIfNull(save);
+        var rows = settings.Rows;
+        var save = settings.Save;
 
         rows.Add(FluentLayout.Header(Str.WidgetUi_AccountsLabel.Text()));
-        OfficeAccountRows(rows, HostFeatures.Contacts, Glyphs.Contact,
-            new OfficeAccountTexts(Str.WidgetsA_Contacts_NoAccount, Str.WidgetsA_Contacts_Settings_Every, Str.WidgetsA_Contacts_Settings_AddHint),
+        OfficeSettingsRows.Accounts(settings, HostFeatures.Contacts, Glyphs.Contact,
+            new OfficeSettingsRows.OfficeAccountTexts(Str.WidgetsA_Contacts_NoAccount, Str.WidgetsA_Contacts_Settings_Every, Str.WidgetsA_Contacts_Settings_AddHint),
             () => config.AccountIds, ids => config.AccountIds = ids, save, perAccount: null);
 
         rows.Add(FluentLayout.Header(Str.ConfigTabs_Display.Text()));
@@ -87,33 +89,4 @@ internal static partial class WidgetSettings
             rows.Add(FluentLayout.Row(Glyphs.Grid, Str.WidgetsA_Contacts_Settings_Column.Format(("name", ContactRules.ColumnTitle(column, Strings.Current))), null, toggle));
         }
     }
-
-    /// <summary>
-    /// "Every account", or a choice of them — the Mail widget's pattern, so the three account
-    /// widgets read alike. Every is the default and means accounts added later join too; turning it
-    /// off starts from the accounts there are now, so nothing disappears; the last chosen account
-    /// cannot be turned off, because an empty list means "every".
-    /// </summary>
-    /// <param name="perAccount">Rows to show under an account while it is chosen (the calendar picker).</param>
-    private static void OfficeAccountRows(
-        List<FrameworkElement> rows,
-        FeatureId feature,
-        string glyph,
-        OfficeAccountTexts texts,
-        Func<List<string>> getIds,
-        Action<List<string>> setIds,
-        Action save,
-        Func<AccountInfo, FrameworkElement>? perAccount)
-    {
-        var accounts = OfficeSources.Current?.Accounts(feature) ?? [];
-        var rowsOf = accounts.Select(a => new KitAccountRow(a.Id, a.Label, a.Problem ?? $"{a.Provider.Label()} · {a.Address}")).ToList();
-
-        // [S-7063] The kit's account rows: one path for every widget that reads accounts.
-        KitRows.Accounts(rows, glyph, rowsOf, new KitAccountTexts(texts.None.Text(), texts.Every.Text(), texts.AddHint.Text()),
-            getIds, setIds, save, () => Services.AppServices.ShowAccounts?.Invoke(),
-            perAccount is null ? null : row => perAccount(accounts.First(a => a.Id == row.Id)));
-    }
-
-    /// <summary>The sentences that name the account kind: whole sentences per widget, never a noun glued in.</summary>
-    private readonly record struct OfficeAccountTexts(Str None, Str Every, Str AddHint);
 }

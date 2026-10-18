@@ -38,6 +38,8 @@ internal sealed class CardWidgetHost(IWidgetCardHost card) : IWidgetHost
 
     public IFeedAnswers Feeds => HostFeedAnswers.Instance;
 
+    public Themia.App.Services.Office.IOfficeSource? Office => Themia.App.Services.Office.OfficeSources.Current;
+
     /// <summary>[S-9925] The host's one service sync; a preview card replays the providers' recorded answers ([S-9929]).</summary>
     public IServiceSources Services => Themia.App.Services.Kit.HostServiceSources.For(card);
 

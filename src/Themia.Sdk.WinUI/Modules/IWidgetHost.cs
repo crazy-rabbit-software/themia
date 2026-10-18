@@ -59,6 +59,12 @@ public interface IWidgetHost
     /// <summary>[S-2661] The feeds the background sync keeps fresh.</summary>
     IFeedAnswers Feeds { get; }
 
+    /// <summary>
+    /// [S-588] Where the calendar and contacts widgets read: the host's one office source over the
+    /// offline store. Null while the host has none (before it starts, a debug render): no account.
+    /// </summary>
+    Themia.App.Services.Office.IOfficeSource? Office { get; }
+
     /// <summary>[S-9925] The kit services the background sync keeps fresh: one source per widget over the host's one service sync.</summary>
     IServiceSources Services { get; }
 

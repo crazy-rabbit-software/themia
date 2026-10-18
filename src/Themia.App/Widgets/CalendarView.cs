@@ -152,7 +152,7 @@ internal sealed partial class CalendarView : Grid, IWidgetView, IWidgetHeaderCon
     {
         _detached = false;
         _config = config as CalendarWidgetConfig ?? new CalendarWidgetConfig();
-        UseData(OfficeSources.Current is { } source ? new OfficeCalendarData(source) : null);
+        UseData(_widgetHost.Office is { } source ? new OfficeCalendarData(source) : null);
 
         Strings.Changed += OnLanguage;
 

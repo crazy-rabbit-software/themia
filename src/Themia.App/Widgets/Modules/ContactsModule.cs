@@ -14,7 +14,7 @@ public sealed class ContactsModule : IWidgetModule
     public WidgetDescriptor Descriptor => ContactsConfig.Descriptor;
 
     public void SettingsRows(WidgetSettingsRows rows, WidgetConfig config)
-        => WidgetSettings.Contacts(rows.Rows, (ContactsConfig)config, rows.Save);
+        => WidgetSettings.Contacts(rows, (ContactsConfig)config);
 
     public FrameworkElement CreateView(IWidgetHost host) => new ContactsView(host);
 }

@@ -2,6 +2,7 @@ using Microsoft.UI.Xaml;
 using Themia.App.Services;
 using Themia.Core.Localization;
 using Themia.Core.Model;
+using Themia.Sdk.WinUI;
 using Themia.Core.Widgets;
 
 namespace Themia.App.Shell.Config;
@@ -13,13 +14,14 @@ namespace Themia.App.Shell.Config;
 /// </summary>
 internal static partial class WidgetSettings
 {
-    public static void WeekPlanner(List<FrameworkElement> rows, WeekPlannerConfig planner, Action save)
+    public static void WeekPlanner(WidgetSettingsRows settings, WeekPlannerConfig planner)
     {
-        ArgumentNullException.ThrowIfNull(rows);
+        ArgumentNullException.ThrowIfNull(settings);
         ArgumentNullException.ThrowIfNull(planner);
-        ArgumentNullException.ThrowIfNull(save);
+        var rows = settings.Rows;
+        var save = settings.Save;
 
-        Calendar(rows, planner, save);
+        Calendar(settings, planner);
 
         rows.Add(FluentLayout.Header(Str.Planner_TasksHeader.Text()));
 
