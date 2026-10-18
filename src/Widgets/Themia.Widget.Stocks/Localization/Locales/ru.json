@@ -45,8 +45,5 @@
   "widgetsC.stocks.settings.symbolRefused": "Выберите результат поиска или введите тикер: только буквы, цифры и . - ^ =",
   "widgetsC.stocks.settings.symbol.desc": "Поиск по названию или тикеру: акции, фонды, индексы, монеты",
   "widgetsC.stocks.settings.windowsGreen": "Зеленый Windows",
-  "widgetsC.stocks.settings.windowsRed": "Красный Windows",
-  "widgetsC.stocks.tooltip.failed": "{problem}. Показана цена на {age}.",
-  "widgetsC.stocks.tooltip.priced": "Цена на {age}",
-  "widgetsC.stocks.tooltip.saved": "Сохранено {age}; обновление"
+  "widgetsC.stocks.settings.windowsRed": "Красный Windows"
 }

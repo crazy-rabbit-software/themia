@@ -11,6 +11,7 @@ using Themia.Core.Model;
 using Themia.Core.Sync;
 using Themia.Core.Widgets;
 using Themia.Sdk.WinUI;
+using Themia.Sdk.WinUI.Kit;
 using Themia.Widget.RainNextHour;
 
 namespace Themia.App.Widgets;
@@ -24,7 +25,8 @@ namespace Themia.App.Widgets;
 internal sealed partial class RainNextHourView : Grid, IWidgetView, IWidgetHeaderContent, IWidgetSurfaceAware,
     IWidgetSizeAware, IWidgetContextActions
 {
-    private readonly TextBlock _freshness = Fluent.Text(FluentType.Caption, "TextFillColorTertiaryBrush");
+    /// <summary>[S-7064] The header's problem glyph ([S-7042]): the one stale rule, no age.</summary>
+    private readonly KitHeader _header;
     private readonly FontIcon _icon = Fluent.Icon(Glyphs.Rain, "TextFillColorSecondaryBrush", Fluent.Space6);
     private readonly TextBlock _headline = Fluent.Text(FluentType.Subtitle);
     private readonly TextBlock _caption = Fluent.Text(FluentType.Caption, "TextFillColorSecondaryBrush");
@@ -63,6 +65,7 @@ internal sealed partial class RainNextHourView : Grid, IWidgetView, IWidgetHeade
     public RainNextHourView(IWidgetHost host)
     {
         _host = host;
+        _header = new KitHeader(host);
         RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
         RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
 
@@ -106,10 +109,10 @@ internal sealed partial class RainNextHourView : Grid, IWidgetView, IWidgetHeade
         Children.Add(_emptyState);
     }
 
-    public FrameworkElement? HeaderTrailing => _freshness;
+    public FrameworkElement? HeaderTrailing => _header;
 
     public IReadOnlyList<WidgetAction> ContextActions =>
-        _config.HasLocation ? [new WidgetAction(Glyphs.Refresh, Str.Common_Refresh.Text(), () => Reload(force: true))] : [];
+        _config.HasLocation ? [new WidgetAction(Glyphs.Refresh, OnlineParts.RefreshLabel(_nowcast), () => Reload(force: true))] : [];
 
     public void Attach(Ticker ticker, WidgetConfig config)
     {
@@ -218,7 +221,7 @@ internal sealed partial class RainNextHourView : Grid, IWidgetView, IWidgetHeade
             _emptyMessage.Text = _status == FetchStatus.NotConfigured ? string.Empty : FetchState.Message(_status);
             _emptyState.Visibility = Visibility.Visible;
             _top.Visibility = _chart.Visibility = Visibility.Collapsed;
-            _freshness.Text = string.Empty;
+            _header.Clear();
             _outlook = null;
             return;
         }
@@ -244,7 +247,7 @@ internal sealed partial class RainNextHourView : Grid, IWidgetView, IWidgetHeade
             _timeEnd.Text = LocaleFormat.Time(TimeOnly.FromDateTime(start.AddHours(2).DateTime));
         }
 
-        OnlineParts.Stamp(_freshness, held, OnlineCadence.Rain(UpdateCadence.Current), note: Str.Online_Source.Format(("name", "Open-Meteo")));
+        _header.Show(OnlineParts.Problems(held), busy: false);
         Lay();
     }
 

@@ -39,7 +39,6 @@
   "widgetsB.email.changeFailed": "அது வேலை செய்யவில்லை. themia.log ஐப் பார்க்கவும்.",
   "widgetsB.email.compose": "மின்னஞ்சல் எழுது",
   "widgetsB.email.composeFrom": "{account} இலிருந்து மின்னஞ்சல் எழுது",
-  "widgetsB.email.refreshUpdated": "புதுப்பி · புதுப்பிக்கப்பட்டது {age}",
   "widgetsB.email.couldNotCompose": "புதிய மின்னஞ்சலைத் தொடங்க முடியவில்லை.",
   "widgetsB.settings.email.messages": "செய்திகள்",
   "widgetsB.settings.email.folder.desc": "ஒவ்வொரு கணக்கின் எந்தக் கோப்புறையைப் பட்டியலிட வேண்டும்",

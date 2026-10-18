@@ -9,7 +9,5 @@
   "widgetsA.catalog.forecast.description": "Die nächsten Tage",
   "widgetsA.catalog.forecast.label": "Vorhersage",
   "widgetsC.weather.settings.showPrecipitation.desc": "Die Regen- oder Schneemenge des Tages, falls vorhanden",
-  "widgetsC.weather.settings.showPrecipitation.label": "Niederschlag anzeigen",
-  "widgetsC.weather.tooltip.forecastFailed": "{problem}. Stand der Vorhersage: {age}.",
-  "widgetsC.weather.tooltip.forecastSaved": "Gespeicherte Vorhersage: {age}; wird aktualisiert."
+  "widgetsC.weather.settings.showPrecipitation.label": "Niederschlag anzeigen"
 }

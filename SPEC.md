@@ -947,6 +947,11 @@ The shared parts a list widget is built from, and the rules they keep (design an
 - **[S-7042]** `KitFreshness`, the one stale rule's words: one line per source and problem, folded,
   stamped with the oldest copy among them ("Work: No network · updated Mon 10:42", [S-2664]); the
   Refresh line with the age of the oldest copy on screen ("Refresh · updated 4 min ago").
+- **[S-7064]** `KitHeader`: the header extras of every widget that shows a source's data, at the one
+  icon size, leading to trailing: the problem glyph (only while a copy is on screen that the last
+  attempt of some source could not improve on, its tooltip `KitFreshness`' lines, a click opening
+  Settings › Accounts where only the user can mend it), the busy ring (only while a fetch of its own
+  sources is out), the count badge. The age is never drawn in a header.
 - **[S-7062]** One launcher: a kit item's address opens through the host's one launcher
   (`IWidgetHost.Launcher`, which classifies it again on the literal string it hands the shell), never
   a process of the widget's own; a preview opens nothing. Nothing in the source starts a process but
@@ -2463,8 +2468,8 @@ their `SPEC.md`); this section keeps what they share. Shared rules in `Themia.Sd
   pick there is none (the typed query is not kept, [S-2846]). A user label still wins.
 - **[S-729]** The last good answers persist in the sealed `web` shelf of the offline store
   ([S-2660]; `schemaVersion` 1 inside, one writer, saved after each fetch that brought a new answer).
-  At launch they are restored marked `Restored`: drawn at once with their real age in the caution
-  colour ("Saved reading from 3 h ago; refreshing."), fresh only for that age ([S-2662]). A document
+  At launch they are restored marked `Restored`: drawn at once, fresh only for their real age
+  ([S-2662]); the card menu's Refresh line says that age ([S-7042]). A document
   of another schema or not JSON is refused whole (a damaged shelf is set aside, [S-2605]); entries
   older than 3 days, from the future, or without a temperature are dropped. A debug render never
   reads or writes it.
@@ -4099,13 +4104,12 @@ own tags in their `SPEC.md`).
 - **[S-1300]** Feeds and quotes survive a restart (classic S-23/S-29): the last good answers are
   saved to the sealed `web` shelf of the offline store ([S-2660]; never in an export;
   schema-versioned; one writer; saved after each fetch that brings a new answer). At launch they are
-  read back before the windows are built and marked restored: drawn at once, with their real age in
-  the header in the caution colour ("Saved 3h ago; refreshing"), and fresh only for that age
-  ([S-2662]), so a fetch follows once the widget's interval has passed. A widget shown takes what
+  read back before the windows are built and marked restored: drawn at once, fresh only for their
+  real age ([S-2662]), which the card menu's Refresh line says ([S-7042]), so a fetch follows once the widget's interval has passed. A widget shown takes what
   the feed sync holds at once (fixed: an Rss widget said "Loading" until its feeds' next fetch). Entries older than 7 days, from the future, or not a usable feed/quote are
   dropped; feed links are re-checked; a corrupt file is set aside as `.corrupt`. Only the app wires
   it; a debug render never reads or writes the user's file. This reverses the earlier "in memory, so a
-  cold start never shows old data as current" note: the age and colour say it is old.
+  cold start never shows old data as current" note: the Refresh line says how old it is.
 - **[S-1301]** Network guard (classic `netguard::check_url`, S-08b): an address that comes from a
   user or a stranger and is then fetched by the app — every feed, every feed item's site icon, a
   pinned web page in the renderer and the picker — is refused when its host is, or resolves to
@@ -6457,8 +6461,12 @@ queue, schedules, merges, interests), `Themia.App/Services/Sync/SyncHost.cs` (ke
   provider's id.
 - **[S-2612]** A stored copy the last sync could not improve on says when it is from: "Could not
   refresh Work: no network. Updated 10:42." (mail), "Work: No network · updated Mon 10:42"
-  (contacts, calendar [S-2664]), "Last refresh failed: … Showing items from …" (tasks), the answer's
-  age in the caution colour (Rss, weather, Stocks). Times through `LocaleFormat`: a clock time today, weekday and time this week, else a
+  (contacts, calendar [S-2664]), "Last refresh failed: … Showing items from …" (tasks), and the kit's
+  one stale rule ([S-7042], [S-7064]) for Rss and the online widgets (weather now, the forecast,
+  Stocks, exchange rates, air quality, rain): the header's problem glyph with one tooltip line per
+  source and problem ("Work: No network · updated 10:42"), the age on the card menu's Refresh line
+  ("Refresh · updated 4 min ago"), and no age drawn in the header (it was, in the caution colour
+  when stale; decided, Q3). Mail's Refresh line says its age the same way ([S-559]). Times through `LocaleFormat`: a clock time today, weekday and time this week, else a
   short date. Changes that had to wait say "3 changes waiting to sync" in the header; a change on its
   way out says nothing.
 - **[S-2620]** Mail: a shelf per account with the newest messages of every folder a widget reads, at
@@ -6598,10 +6606,11 @@ queue, schedules, merges, interests), `Themia.App/Services/Sync/SyncHost.cs` (ke
 - **[S-2661]** Rss: `FeedSync` (`AppServices.Feeds`) keeps every feed of every Rss widget fresh on
   the shortest refresh any widget asks for, wakes with the network and goes now on Refresh; the
   widget draws what is held, hears the updates and asks nothing on attach (a feed address never
-  fetched yet is the exception). The spinner shows only while a fetch for one of its feeds is out.
+  fetched yet is the exception). The kit header's ring shows only while a fetch for one of its feeds
+  is out ([S-7064]).
 - **[S-2662]** A restored answer (feed, quote, weather) is fresh for its real age: a launch within a
-  widget's refresh interval of the last fetch asks nothing; it is still drawn in the caution colour
-  with its saved age until a fetch replaces it. The caches are restored before the web syncs start,
+  widget's refresh interval of the last fetch asks nothing; its Refresh line says its saved age
+  until a fetch replaces it ([S-7042]). The caches are restored before the web syncs start,
   and the syncs start only in the app (after the request guard reads the user's choice), never in a
   debug render.
 - **[S-2663]** WeatherNow, WeatherForecast and Stocks: `WebSync` (`AppServices.WebSync`) keeps every
@@ -6611,8 +6620,8 @@ queue, schedules, merges, interests), `Themia.App/Services/Sync/SyncHost.cs` (ke
   shared `Backoff`, waking with the network and going now on Refresh. Feeds and these share one
   scheduler (`AnswerSync`). The widget asks the sync for the answer of its own config
   (`WeatherInterests.For`, or the stock config's `Interest()`: the same rule), draws what is held, hears `WebSync.Updated`, and its tick only
-  redraws (age, day labels); it never fetches. Offline or failing, the last answer stays with its
-  age in the caution colour and the failure in the tooltip ([S-2612]). The quote and weather caches
+  redraws (day labels); it never fetches. Offline or failing, the last answer stays, with the kit
+  header's problem glyph saying the failure and when the answer is from ([S-2612], [S-7042]). The quote and weather caches
   are unchanged.
 - **[S-2664]** Calendar: a stored copy the last sync could not improve on says when it is from in the
   header's warning, as contacts do: "Work: No network · updated 10:42" (`SyncFreshness.Stamp`). The
@@ -6898,7 +6907,7 @@ Three online widgets on free, unauthenticated services, fetched only by the back
 (`src/Widgets/Themia.Widget.AirQuality/`, `.RainNextHour/`, `.ExchangeRates/`) with its config, view,
 ladder, words, settings and tags; this section keeps what they share. SDK: `Widgets/AirQuality.cs`,
 `Widgets/RainNowcast.cs`, `Widgets/ExchangeRates.cs` (wire parsers and rules), `Widgets/OnlineLayouts.cs`
-(the measures the ladders share), `Sync/WebInterests.cs`, `OnlineParts` (the age line, Sdk.WinUI).
+(the measures the ladders share), `Sync/WebInterests.cs`, `OnlineParts` (an answer as the kit's stale rule reads it, Sdk.WinUI).
 Core: `Storage/OnlineCacheStore.cs`. App: `Services/Web/OnlineService.cs`, `WebSync` (behind
 `IWidgetHost.Weather` and `.Rates`). Strings: the source line in `Locales/online`, the rest in each
 module. Tests `OnlineWidgetsTests` (`S51xx_`), the side-by-side ones in the module test host
@@ -6948,8 +6957,9 @@ Exchange rates (`ExchangeRates`, 130):
 
 Shared:
 
-- **[S-5160]** The header's age line, its caution colour and its tooltip follow weather ([S-2612]); the
-  tooltip also names the source. Refresh is on the widget's menu ([S-730]).
+- **[S-5160]** The header follows the kit's one stale rule as weather does ([S-2612], [S-7042]): the
+  problem glyph while the answer on screen is one the last attempt could not improve on, the age on
+  the Refresh line of the widget's menu ([S-730]); the source is named on the settings page.
 - **[S-5161]** The last answers survive a restart in their own sealed web shelf (`web:online-cache`,
   never swept, [S-2665]): each reply as the service sent it, parsed again through the same parser on
   restore, so a stored copy is never trusted more than a fresh one. Newest 16 per source; not

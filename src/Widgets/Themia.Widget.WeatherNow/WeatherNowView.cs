@@ -10,6 +10,7 @@ using Themia.Core.Model;
 using Themia.Core.Sync;
 using Themia.Core.Widgets;
 using Themia.Sdk.WinUI;
+using Themia.Sdk.WinUI.Kit;
 using Themia.Widget.WeatherNow;
 
 namespace Themia.App.Widgets;
@@ -41,7 +42,8 @@ internal sealed partial class WeatherNowView : Grid, IWidgetView, IWidgetHeaderC
     /// <summary>The unit beside it, "°F".</summary>
     private const double UnitCharacters = 2;
 
-    private readonly TextBlock _freshness = Fluent.Text(FluentType.Caption, "TextFillColorTertiaryBrush");
+    /// <summary>[S-7064] The header's problem glyph ([S-7042]): the one stale rule, no age.</summary>
+    private readonly KitHeader _header;
 
     // [S-667] The shared hero readout: the number, its unit smaller beside it, the sky's glyph, and
     // the condition, today's range and the "Feels" token as its caption lines.
@@ -64,8 +66,6 @@ internal sealed partial class WeatherNowView : Grid, IWidgetView, IWidgetHeaderC
 
     // Looked up once. Swapping a brush per tick is a dictionary hit and a possible log line for a
     // colour that changes twice a day at most.
-    private readonly Brush _freshBrush = ThemeBrush.Of("TextFillColorTertiaryBrush", Colors.Gray);
-    private readonly Brush _staleBrush = ThemeBrush.Of("SystemFillColorCautionBrush", Colors.Goldenrod);
 
 
     private Ticker? _ticker;
@@ -103,6 +103,7 @@ internal sealed partial class WeatherNowView : Grid, IWidgetView, IWidgetHeaderC
     public WeatherNowView(IWidgetHost host)
     {
         _host = host;
+        _header = new KitHeader(host);
         _condition = _hero.AddLine(FluentType.Body);
         _highLow = _hero.AddLine(FluentType.Caption);
         _feels = _hero.AddLine(FluentType.Caption);
@@ -136,11 +137,11 @@ internal sealed partial class WeatherNowView : Grid, IWidgetView, IWidgetHeaderC
     /// The age of the reading, in the card's header. Built in the constructor because the card
     /// reads this once, when it builds that header.
     /// </summary>
-    public FrameworkElement? HeaderTrailing => _freshness;
+    public FrameworkElement? HeaderTrailing => _header;
 
     /// <summary>[S-730] "Refresh": the network now, past both the back-off and the cache.</summary>
     public IReadOnlyList<WidgetAction> ContextActions =>
-        _config.HasLocation ? [new WidgetAction(Glyphs.Refresh, Str.Common_Refresh.Text(), () => Reload(force: true))] : [];
+        _config.HasLocation ? [new WidgetAction(Glyphs.Refresh, OnlineParts.RefreshLabel(_reading), () => Reload(force: true))] : [];
 
     public void Attach(Ticker ticker, WidgetConfig config)
     {
@@ -327,7 +328,7 @@ internal sealed partial class WeatherNowView : Grid, IWidgetView, IWidgetHeaderC
             _emptyIcon.Glyph = Glyphs.Weather;
             _emptyState.Visibility = Visibility.Visible;
             Collapse(_group, _styled);
-            _freshness.Text = string.Empty;
+            _header.Clear();
             _built = null;
             return;
         }
@@ -343,22 +344,7 @@ internal sealed partial class WeatherNowView : Grid, IWidgetView, IWidgetHeaderC
 
         _facts = WeatherFacts.For(reading, Unit);
 
-        // The age of the reading, and — when the last attempt to refresh it failed, or it was read
-        // back from disk at launch and not yet replaced — in the caution colour. Said in the
-        // tooltip as well, because a state carried only by a colour is one some readers never get.
-        var failed = FetchState.IsFailure(held.Status);
-        var stale = failed || held.Restored || FetchState.IsStale(held.At, now, _config.TickInterval);
-        var age = FetchState.Freshness(held.At, now);
-
-        _freshness.Text = age;
-        _freshness.Foreground = stale ? _staleBrush : _freshBrush;
-
-        var inline = OnlineParts.InlineAge(age);
-        ToolTipService.SetToolTip(
-            _freshness,
-            failed ? Str.WidgetsC_Weather_Tooltip_ReadingFailed.Format(("problem", FetchState.Message(held.Status)), ("age", inline))
-            : held.Restored ? Str.WidgetsC_Weather_Tooltip_ReadingSaved.Format(("age", inline))
-            : Str.WidgetsC_Weather_Tooltip_Updated.Format(("age", inline)));
+        _header.Show(OnlineParts.Problems(held), busy: false);
 
         _built = null;
         Lay();

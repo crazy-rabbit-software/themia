@@ -39,8 +39,5 @@
   "widgetsC.stocks.settings.symbolRefused": "Pumili ng resulta ng paghahanap, o mag-type ng symbol: mga titik, numero at . - ^ = lang",
   "widgetsC.stocks.settings.symbol.desc": "Maghanap ayon sa pangalan o ticker: mga share, fund, index, coin",
   "widgetsC.stocks.settings.windowsGreen": "Berde ng Windows",
-  "widgetsC.stocks.settings.windowsRed": "Pula ng Windows",
-  "widgetsC.stocks.tooltip.failed": "{problem}. Ipinapakita ang presyo mula {age}.",
-  "widgetsC.stocks.tooltip.priced": "Presyo noong {age}",
-  "widgetsC.stocks.tooltip.saved": "Na-save {age}; nire-refresh"
+  "widgetsC.stocks.settings.windowsRed": "Pula ng Windows"
 }

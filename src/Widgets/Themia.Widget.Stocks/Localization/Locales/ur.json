@@ -39,8 +39,5 @@
   "widgetsC.stocks.settings.symbolRefused": "تلاش کا کوئی نتیجہ چنیں، یا علامت ٹائپ کریں: صرف حروف، ہندسے اور . - ^ =",
   "widgetsC.stocks.settings.symbol.desc": "نام یا ٹکر سے تلاش کریں: حصص، فنڈز، انڈیکس، کوائنز",
   "widgetsC.stocks.settings.windowsGreen": "Windows سبز",
-  "widgetsC.stocks.settings.windowsRed": "Windows سرخ",
-  "widgetsC.stocks.tooltip.failed": "{problem}۔ {age} کی قیمت دکھائی جا رہی ہے۔",
-  "widgetsC.stocks.tooltip.priced": "قیمت {age}",
-  "widgetsC.stocks.tooltip.saved": "{age} محفوظ کیا گیا؛ تازہ ہو رہا ہے"
+  "widgetsC.stocks.settings.windowsRed": "Windows سرخ"
 }

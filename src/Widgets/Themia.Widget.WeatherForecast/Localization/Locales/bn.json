@@ -9,7 +9,5 @@
   "widgetsA.catalog.forecast.description": "আগামী কয়েক দিন",
   "widgetsA.catalog.forecast.label": "পূর্বাভাস",
   "widgetsC.weather.settings.showPrecipitation.desc": "দিনের মোট বৃষ্টি বা তুষার, যদি থাকে",
-  "widgetsC.weather.settings.showPrecipitation.label": "বৃষ্টিপাত দেখান",
-  "widgetsC.weather.tooltip.forecastFailed": "{problem}। {age}-এর পূর্বাভাস দেখানো হচ্ছে।",
-  "widgetsC.weather.tooltip.forecastSaved": "{age}-এর সংরক্ষিত পূর্বাভাস; রিফ্রেশ হচ্ছে।"
+  "widgetsC.weather.settings.showPrecipitation.label": "বৃষ্টিপাত দেখান"
 }

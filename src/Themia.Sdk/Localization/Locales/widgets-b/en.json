@@ -38,7 +38,6 @@
   "widgetsB.email.changeFailed": "That did not work. See themia.log.",
   "widgetsB.email.compose": "Write email",
   "widgetsB.email.composeFrom": "Write email from {account}",
-  "widgetsB.email.refreshUpdated": "Refresh · updated {age}",
   "widgetsB.email.couldNotCompose": "Could not start a new email.",
   "widgetsB.settings.email.messages": "Messages",
   "widgetsB.settings.email.folder.desc": "Which folder of each account to list",

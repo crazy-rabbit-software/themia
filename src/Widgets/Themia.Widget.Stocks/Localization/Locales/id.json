@@ -36,8 +36,5 @@
   "widgetsC.stocks.settings.symbolRefused": "Pilih hasil pencarian, atau ketik simbol: hanya huruf, angka, dan . - ^ =",
   "widgetsC.stocks.settings.symbol.desc": "Cari menurut nama atau ticker: saham, reksa dana, indeks, koin",
   "widgetsC.stocks.settings.windowsGreen": "Hijau Windows",
-  "widgetsC.stocks.settings.windowsRed": "Merah Windows",
-  "widgetsC.stocks.tooltip.failed": "{problem}. Menampilkan harga dari {age}.",
-  "widgetsC.stocks.tooltip.priced": "Harga {age}",
-  "widgetsC.stocks.tooltip.saved": "Disimpan {age}; menyegarkan"
+  "widgetsC.stocks.settings.windowsRed": "Merah Windows"
 }

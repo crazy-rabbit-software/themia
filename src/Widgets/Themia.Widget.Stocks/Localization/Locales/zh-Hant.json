@@ -36,8 +36,5 @@
   "widgetsC.stocks.settings.symbolRefused": "請選擇搜尋結果或輸入代號：僅限字母、數字和 . - ^ =",
   "widgetsC.stocks.settings.symbol.desc": "依名稱或代號搜尋：股票、基金、指數、加密貨幣",
   "widgetsC.stocks.settings.windowsGreen": "Windows 綠色",
-  "widgetsC.stocks.settings.windowsRed": "Windows 紅色",
-  "widgetsC.stocks.tooltip.failed": "{problem}。目前顯示的是{age}的價格。",
-  "widgetsC.stocks.tooltip.priced": "{age}的報價",
-  "widgetsC.stocks.tooltip.saved": "{age}儲存；正在重新整理"
+  "widgetsC.stocks.settings.windowsRed": "Windows 紅色"
 }

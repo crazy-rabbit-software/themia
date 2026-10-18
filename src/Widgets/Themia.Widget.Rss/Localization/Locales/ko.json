@@ -4,8 +4,6 @@
   "widgetsC.rss.untitled": "(제목 없음)",
   "widgetsC.rss.copyLink": "링크 복사",
   "widgetsC.rss.noArticles": "이 피드에는 기사가 없습니다",
-  "widgetsC.rss.savedRefreshing": "{age}에 저장됨, 새로 고치는 중",
-  "widgetsC.rss.refreshed": "{age}에 새로 고침",
   "widgetsC.rss.settings.feeds": "피드",
   "widgetsC.rss.settings.empty": "아직 피드가 없습니다. RSS 또는 Atom 피드 주소를 추가하세요.",
   "widgetsC.rss.settings.add.title": "피드 추가",

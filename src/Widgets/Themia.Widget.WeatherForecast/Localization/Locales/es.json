@@ -9,7 +9,5 @@
   "widgetsA.catalog.forecast.description": "Los próximos días",
   "widgetsA.catalog.forecast.label": "Previsión",
   "widgetsC.weather.settings.showPrecipitation.desc": "La lluvia o nieve total del día, si la hay",
-  "widgetsC.weather.settings.showPrecipitation.label": "Mostrar precipitación",
-  "widgetsC.weather.tooltip.forecastFailed": "{problem}. Último pronóstico: {age}.",
-  "widgetsC.weather.tooltip.forecastSaved": "Pronóstico guardado: {age}; actualizando."
+  "widgetsC.weather.settings.showPrecipitation.label": "Mostrar precipitación"
 }

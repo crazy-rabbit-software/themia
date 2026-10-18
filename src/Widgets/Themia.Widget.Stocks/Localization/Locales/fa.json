@@ -39,8 +39,5 @@
   "widgetsC.stocks.settings.symbolRefused": "یک نتیجه جستجو انتخاب کنید یا نمادی تایپ کنید: فقط حروف، ارقام و . - ^ =",
   "widgetsC.stocks.settings.symbol.desc": "جستجو با نام یا نماد: سهام، صندوق‌ها، شاخص‌ها، رمزارزها",
   "widgetsC.stocks.settings.windowsGreen": "سبز Windows",
-  "widgetsC.stocks.settings.windowsRed": "قرمز Windows",
-  "widgetsC.stocks.tooltip.failed": "{problem}. قیمت مربوط به {age} نمایش داده می‌شود.",
-  "widgetsC.stocks.tooltip.priced": "قیمت‌گذاری {age}",
-  "widgetsC.stocks.tooltip.saved": "ذخیره‌شده {age}؛ در حال تازه‌سازی"
+  "widgetsC.stocks.settings.windowsRed": "قرمز Windows"
 }

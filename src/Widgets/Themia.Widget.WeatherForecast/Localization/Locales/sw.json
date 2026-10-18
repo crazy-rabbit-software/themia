@@ -9,7 +9,5 @@
   "widgetsA.catalog.forecast.description": "Siku chache zijazo",
   "widgetsA.catalog.forecast.label": "Utabiri",
   "widgetsC.weather.settings.showPrecipitation.desc": "Jumla ya mvua au theluji ya siku, ikiwepo",
-  "widgetsC.weather.settings.showPrecipitation.label": "Onyesha mvua",
-  "widgetsC.weather.tooltip.forecastFailed": "{problem}. Inaonyesha utabiri wa {age}.",
-  "widgetsC.weather.tooltip.forecastSaved": "Utabiri uliohifadhiwa wa {age}; inaonyesha upya."
+  "widgetsC.weather.settings.showPrecipitation.label": "Onyesha mvua"
 }

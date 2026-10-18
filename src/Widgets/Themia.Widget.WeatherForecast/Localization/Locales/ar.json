@@ -9,7 +9,5 @@
   "widgetsA.catalog.forecast.description": "الأيام القليلة القادمة",
   "widgetsA.catalog.forecast.label": "التوقعات",
   "widgetsC.weather.settings.showPrecipitation.desc": "إجمالي المطر أو الثلج لليوم، إن وُجد",
-  "widgetsC.weather.settings.showPrecipitation.label": "إظهار الهطول",
-  "widgetsC.weather.tooltip.forecastFailed": "{problem}. عرض التوقعات من {age}.",
-  "widgetsC.weather.tooltip.forecastSaved": "توقعات محفوظة من {age}؛ جارٍ التحديث."
+  "widgetsC.weather.settings.showPrecipitation.label": "إظهار الهطول"
 }

@@ -4,8 +4,6 @@
   "widgetsC.rss.untitled": "(無題)",
   "widgetsC.rss.copyLink": "リンクをコピー",
   "widgetsC.rss.noArticles": "このフィードには記事がありません",
-  "widgetsC.rss.savedRefreshing": "{age}に保存。更新中",
-  "widgetsC.rss.refreshed": "{age}に更新",
   "widgetsC.rss.settings.feeds": "フィード",
   "widgetsC.rss.settings.empty": "フィードはまだありません。RSS または Atom フィードのアドレスを追加してください。",
   "widgetsC.rss.settings.add.title": "フィードを追加",

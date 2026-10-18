@@ -39,7 +39,6 @@
   "widgetsB.email.changeFailed": "لم ينجح ذلك. راجع themia.log.",
   "widgetsB.email.compose": "كتابة بريد إلكتروني",
   "widgetsB.email.composeFrom": "كتابة بريد إلكتروني من {account}",
-  "widgetsB.email.refreshUpdated": "تحديث · آخر تحديث {age}",
   "widgetsB.email.couldNotCompose": "تعذّر بدء رسالة بريد إلكتروني جديدة.",
   "widgetsB.settings.email.messages": "الرسائل",
   "widgetsB.settings.email.folder.desc": "المجلد الذي يُسرد من كل حساب",

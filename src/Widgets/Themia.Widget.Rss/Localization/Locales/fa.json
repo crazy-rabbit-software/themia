@@ -4,8 +4,6 @@
   "widgetsC.rss.untitled": "(بدون عنوان)",
   "widgetsC.rss.copyLink": "کپی پیوند",
   "widgetsC.rss.noArticles": "این خوراک مطلبی ندارد",
-  "widgetsC.rss.savedRefreshing": "ذخیره‌شده {age}؛ در حال تازه‌سازی",
-  "widgetsC.rss.refreshed": "تازه‌سازی‌شده {age}",
   "widgetsC.rss.settings.feeds": "خوراک‌ها",
   "widgetsC.rss.settings.empty": "هنوز خوراکی نیست. نشانی یک خوراک RSS یا Atom را اضافه کنید.",
   "widgetsC.rss.settings.add.title": "افزودن خوراک",

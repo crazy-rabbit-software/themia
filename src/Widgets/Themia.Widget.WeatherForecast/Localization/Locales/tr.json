@@ -9,7 +9,5 @@
   "widgetsA.catalog.forecast.description": "Önümüzdeki birkaç gün",
   "widgetsA.catalog.forecast.label": "Tahmin",
   "widgetsC.weather.settings.showPrecipitation.desc": "Varsa günün toplam yağmuru veya karı",
-  "widgetsC.weather.settings.showPrecipitation.label": "Yağışı göster",
-  "widgetsC.weather.tooltip.forecastFailed": "{problem}. {age} tarihli tahmin gösteriliyor.",
-  "widgetsC.weather.tooltip.forecastSaved": "Kaydedilen tahmin: {age}; yenileniyor."
+  "widgetsC.weather.settings.showPrecipitation.label": "Yağışı göster"
 }

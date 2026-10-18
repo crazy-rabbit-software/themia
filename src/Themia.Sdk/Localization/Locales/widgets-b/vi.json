@@ -39,7 +39,6 @@
   "widgetsB.email.changeFailed": "Thao tác không thành công. Xem themia.log.",
   "widgetsB.email.compose": "Viết email",
   "widgetsB.email.composeFrom": "Viết email từ {account}",
-  "widgetsB.email.refreshUpdated": "Làm mới · đã cập nhật {age}",
   "widgetsB.email.couldNotCompose": "Không thể bắt đầu email mới.",
   "widgetsB.settings.email.messages": "Thư",
   "widgetsB.settings.email.folder.desc": "Thư mục nào của mỗi tài khoản được liệt kê",

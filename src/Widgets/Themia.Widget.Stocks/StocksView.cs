@@ -11,6 +11,7 @@ using Themia.Core.Model;
 using Themia.Core.Sync;
 using Themia.Core.Widgets;
 using Themia.Sdk.WinUI;
+using Themia.Sdk.WinUI.Kit;
 using Themia.Widget.Stocks;
 
 namespace Themia.App.Widgets;
@@ -35,7 +36,8 @@ internal sealed partial class StocksView : Grid, IWidgetView, IWidgetHeaderConte
 {
     private const string Scope = "stocks";
 
-    private readonly TextBlock _freshness = Fluent.Text(FluentType.Caption, "TextFillColorTertiaryBrush");
+    /// <summary>[S-7064] The header's problem glyph ([S-7042]): the one stale rule, no age.</summary>
+    private readonly KitHeader _header;
     // [S-667] The shared hero readout: the price with its currency smaller beside it, the change
     // and the session on its baseline (or on a line under it), then the holding and the extended
     // print as its caption lines.
@@ -54,7 +56,6 @@ internal sealed partial class StocksView : Grid, IWidgetView, IWidgetHeaderConte
     private readonly TextBlock _emptyMessage = new();
 
     private readonly Brush _freshBrush = ThemeBrush.Of("TextFillColorTertiaryBrush", Colors.Gray);
-    private readonly Brush _staleBrush = ThemeBrush.Of("SystemFillColorCautionBrush", Colors.Goldenrod);
     private readonly Brush _flatBrush = ThemeBrush.Of("TextFillColorSecondaryBrush", Colors.Gray);
     private readonly Brush _accentBrush = ThemeBrush.Of("AccentTextFillColorPrimaryBrush", Colors.DodgerBlue);
 
@@ -88,6 +89,7 @@ internal sealed partial class StocksView : Grid, IWidgetView, IWidgetHeaderConte
     public StocksView(IWidgetHost host)
     {
         _host = host;
+        _header = new KitHeader(host);
         // Rows: the readout (price, change, extended print), the chart (the rest, its times inside it).
         // Columns: one, or readout | chart on a strip.
         RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
@@ -115,11 +117,11 @@ internal sealed partial class StocksView : Grid, IWidgetView, IWidgetHeaderConte
     /// The age of the quote, in the card's header. Built in the constructor because the card reads
     /// this once, when it builds that header.
     /// </summary>
-    public FrameworkElement? HeaderTrailing => _freshness;
+    public FrameworkElement? HeaderTrailing => _header;
 
     /// <summary>[S-1311] Refresh: the network now, past the cache and any back-off.</summary>
     public IReadOnlyList<WidgetAction> ContextActions =>
-        _config.EffectiveSymbol.Length == 0 ? [] : [new WidgetAction(Glyphs.Refresh, Str.Common_Refresh.Text(), () => Reload(force: true))];
+        _config.EffectiveSymbol.Length == 0 ? [] : [new WidgetAction(Glyphs.Refresh, OnlineParts.RefreshLabel(_quote), () => Reload(force: true))];
 
     private void BuildReadout(out TextBlock holding, out TextBlock extended)
     {
@@ -217,7 +219,7 @@ internal sealed partial class StocksView : Grid, IWidgetView, IWidgetHeaderConte
 
         var now = DateTimeOffset.Now;
         UpdatePhase(quote, now);
-        UpdateFreshness(_quote, now);
+        _header.Show(OnlineParts.Problems(_quote), busy: false);
         Lay(quote);
     }
 
@@ -299,7 +301,7 @@ internal sealed partial class StocksView : Grid, IWidgetView, IWidgetHeaderConte
             _emptyState.Visibility = Visibility.Visible;
             _hero.Visibility = Visibility.Collapsed;
             _chart.Visibility = Visibility.Collapsed;
-            _freshness.Text = string.Empty;
+            _header.Clear();
             return;
         }
 
@@ -326,7 +328,7 @@ internal sealed partial class StocksView : Grid, IWidgetView, IWidgetHeaderConte
             : null;
 
         UpdateExtended(quote, extended);
-        UpdateFreshness(held, now);
+        _header.Show(OnlineParts.Problems(held), busy: false);
 
         // [S-6165] The chart style draws the period's line; the number style the price and change alone.
         var number = _config.Style == StocksStyle.Number;
@@ -488,29 +490,6 @@ internal sealed partial class StocksView : Grid, IWidgetView, IWidgetHeaderConte
             < 0 => Down(),
             _ => _flatBrush,
         };
-    }
-
-    private void UpdateFreshness(Fetched<TickerQuote> held, DateTimeOffset now)
-    {
-        var failed = FetchState.IsFailure(held.Status);
-
-        // [S-1300] A price read back from disk is shown as stale until a fetch replaces it.
-        var stale = failed || held.Restored || FetchState.IsStale(held.At, now, _config.TickInterval);
-        var age = FetchState.Freshness(held.At, now);
-
-        _freshness.Text = age;
-        _freshness.Foreground = stale ? _staleBrush : _freshBrush;
-
-        // A price is the single most dangerous number in this app to show stale, so the age is
-        // always on screen and the reason for it is always one hover away.
-        var inline = OnlineParts.InlineAge(age);
-        ToolTipService.SetToolTip(
-            _freshness,
-            failed
-                ? StocksStr.WidgetsC_Stocks_Tooltip_Failed.Format(("problem", FetchState.Message(held.Status)), ("age", inline))
-                : held.Restored
-                    ? StocksStr.WidgetsC_Stocks_Tooltip_Saved.Format(("age", inline))
-                    : StocksStr.WidgetsC_Stocks_Tooltip_Priced.Format(("age", inline)));
     }
 
     /// <summary>[S-1310] The rise colour: the user's, or the theme's success green.</summary>

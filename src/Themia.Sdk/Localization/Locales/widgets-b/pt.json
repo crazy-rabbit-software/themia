@@ -39,7 +39,6 @@
   "widgetsB.email.changeFailed": "Não funcionou. Veja themia.log.",
   "widgetsB.email.compose": "Escrever e-mail",
   "widgetsB.email.composeFrom": "Escrever e-mail de {account}",
-  "widgetsB.email.refreshUpdated": "Atualizar · atualizado {age}",
   "widgetsB.email.couldNotCompose": "Não foi possível começar um novo e-mail.",
   "widgetsB.settings.email.messages": "Mensagens",
   "widgetsB.settings.email.folder.desc": "Qual pasta de cada conta listar",

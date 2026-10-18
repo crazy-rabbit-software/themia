@@ -36,8 +36,5 @@
   "widgetsC.stocks.settings.symbolRefused": "请选择搜索结果或输入代码：仅限字母、数字和 . - ^ =",
   "widgetsC.stocks.settings.symbol.desc": "按名称或代码搜索：股票、基金、指数、加密货币",
   "widgetsC.stocks.settings.windowsGreen": "Windows 绿色",
-  "widgetsC.stocks.settings.windowsRed": "Windows 红色",
-  "widgetsC.stocks.tooltip.failed": "{problem}。显示的是{age}的价格。",
-  "widgetsC.stocks.tooltip.priced": "{age}的报价",
-  "widgetsC.stocks.tooltip.saved": "{age}保存，正在刷新"
+  "widgetsC.stocks.settings.windowsRed": "Windows 红色"
 }

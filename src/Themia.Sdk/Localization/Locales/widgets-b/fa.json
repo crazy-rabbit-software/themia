@@ -39,7 +39,6 @@
   "widgetsB.email.changeFailed": "انجام نشد. themia.log را ببینید.",
   "widgetsB.email.compose": "نوشتن ایمیل",
   "widgetsB.email.composeFrom": "نوشتن ایمیل از {account}",
-  "widgetsB.email.refreshUpdated": "تازه‌سازی · به‌روزشده {age}",
   "widgetsB.email.couldNotCompose": "شروع ایمیل جدید ممکن نشد.",
   "widgetsB.settings.email.messages": "پیام‌ها",
   "widgetsB.settings.email.folder.desc": "کدام پوشه از هر حساب فهرست شود",

@@ -50,8 +50,10 @@ own `StocksStr`, 30 languages, its style names included). Tests: `Tests/` (run b
   would need an inset of its own. A strip (≥400px, 2:1) puts the readout beside a full-height
   chart. The chart takes what is left; the price grows only to Title / TitleLarge / Display by the
   tile's smaller class. Pointer over the chart on L/XL reads the bar under it (time · price). The
-  session badge and age re-evaluate every minute on the shared ticker (render only), so the badge
-  flips at the bell whatever the refresh. **Refresh** in the card menu. Header title: name, else the
+  session badge re-evaluates every minute on the shared ticker (render only), so the badge flips at
+  the bell whatever the refresh. **Refresh** in the card menu, with the quote's age ("Refresh ·
+  updated 4 min ago"); a failed refresh under the price on screen is the header's problem glyph
+  ([S-7042]), never an age drawn in the header. Header title: name, else the
   service's own name (listed), else the symbol.
 - **[S-2770]** Stocks is concise ([S-666], user decision): the name, the price, its change, the
   session badge, the holding ([S-2777], only when set), the extended-hours line ([S-1308], off by

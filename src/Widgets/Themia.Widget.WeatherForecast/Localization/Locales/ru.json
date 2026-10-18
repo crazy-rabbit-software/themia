@@ -9,7 +9,5 @@
   "widgetsA.catalog.forecast.description": "Ближайшие несколько дней",
   "widgetsA.catalog.forecast.label": "Прогноз",
   "widgetsC.weather.settings.showPrecipitation.desc": "Сумма дождя или снега за день, если они есть",
-  "widgetsC.weather.settings.showPrecipitation.label": "Показывать осадки",
-  "widgetsC.weather.tooltip.forecastFailed": "{problem}. Показан прогноз на {age}.",
-  "widgetsC.weather.tooltip.forecastSaved": "Сохраненный прогноз на {age}; обновление."
+  "widgetsC.weather.settings.showPrecipitation.label": "Показывать осадки"
 }

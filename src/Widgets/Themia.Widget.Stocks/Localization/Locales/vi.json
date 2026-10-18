@@ -36,8 +36,5 @@
   "widgetsC.stocks.settings.symbolRefused": "Chọn một kết quả tìm kiếm, hoặc nhập mã: chỉ chữ, số và . - ^ =",
   "widgetsC.stocks.settings.symbol.desc": "Tìm theo tên hoặc mã: cổ phiếu, quỹ, chỉ số, tiền mã hóa",
   "widgetsC.stocks.settings.windowsGreen": "Xanh lá Windows",
-  "widgetsC.stocks.settings.windowsRed": "Đỏ Windows",
-  "widgetsC.stocks.tooltip.failed": "{problem}. Đang hiện giá từ {age}.",
-  "widgetsC.stocks.tooltip.priced": "Giá lúc {age}",
-  "widgetsC.stocks.tooltip.saved": "Đã lưu {age}; đang làm mới"
+  "widgetsC.stocks.settings.windowsRed": "Đỏ Windows"
 }

@@ -4,8 +4,6 @@
   "widgetsC.rss.untitled": "(ไม่มีชื่อ)",
   "widgetsC.rss.copyLink": "คัดลอกลิงก์",
   "widgetsC.rss.noArticles": "ฟีดนี้ไม่มีบทความ",
-  "widgetsC.rss.savedRefreshing": "บันทึกไว้เมื่อ {age} กำลังรีเฟรช",
-  "widgetsC.rss.refreshed": "รีเฟรชเมื่อ {age}",
   "widgetsC.rss.settings.feeds": "ฟีด",
   "widgetsC.rss.settings.empty": "ยังไม่มีฟีด เพิ่มที่อยู่ของฟีด RSS หรือ Atom",
   "widgetsC.rss.settings.add.title": "เพิ่มฟีด",

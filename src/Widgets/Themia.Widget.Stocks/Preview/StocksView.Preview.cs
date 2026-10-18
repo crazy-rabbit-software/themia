@@ -12,7 +12,7 @@ namespace Themia.App.Widgets;
 /// </summary>
 internal sealed partial class StocksView : IWidgetPreviewState
 {
-    public IReadOnlyList<string> PreviewStates { get; } = ["quote", "falling"];
+    public IReadOnlyList<string> PreviewStates { get; } = ["quote", "falling", "stale"];
 
     public Task ShowPreviewStateAsync(string state)
     {
@@ -41,6 +41,11 @@ internal sealed partial class StocksView : IWidgetPreviewState
         _applied = (StocksConfig)_config.Clone();
         _want = null;
         _quote = new Fetched<TickerQuote>(FetchStatus.Ok, quote, null, DateTimeOffset.Now);
+        if (state == "stale")
+        {
+            // [S-7042] The answer on screen, and the last refresh failed: the header's problem glyph.
+            _quote = _quote.Stale(FetchStatus.Offline, null);
+        }
         PublishTitle();
         Render();
         return Task.CompletedTask;

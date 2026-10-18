@@ -39,8 +39,5 @@
   "widgetsC.stocks.settings.symbolRefused": "શોધ પરિણામ પસંદ કરો, અથવા પ્રતીક લખો: ફક્ત અક્ષરો, અંકો અને . - ^ =",
   "widgetsC.stocks.settings.symbol.desc": "નામ કે ટિકરથી શોધો: શેર, ફંડ, સૂચકાંકો, કૉઇન",
   "widgetsC.stocks.settings.windowsGreen": "Windows લીલો",
-  "widgetsC.stocks.settings.windowsRed": "Windows લાલ",
-  "widgetsC.stocks.tooltip.failed": "{problem}. {age} નો ભાવ બતાવી રહ્યાં છીએ.",
-  "widgetsC.stocks.tooltip.priced": "{age} ભાવ",
-  "widgetsC.stocks.tooltip.saved": "{age} સાચવેલું; રિફ્રેશ થઈ રહ્યું છે"
+  "widgetsC.stocks.settings.windowsRed": "Windows લાલ"
 }

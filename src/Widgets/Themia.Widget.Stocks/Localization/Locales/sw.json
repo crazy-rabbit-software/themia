@@ -39,8 +39,5 @@
   "widgetsC.stocks.settings.symbolRefused": "Chagua tokeo la utafutaji, au andika alama: herufi, tarakimu na . - ^ = tu",
   "widgetsC.stocks.settings.symbol.desc": "Tafuta kwa jina au alama: hisa, mifuko, fahirisi, sarafu",
   "widgetsC.stocks.settings.windowsGreen": "Kijani cha Windows",
-  "widgetsC.stocks.settings.windowsRed": "Nyekundu ya Windows",
-  "widgetsC.stocks.tooltip.failed": "{problem}. Inaonyesha bei ya {age}.",
-  "widgetsC.stocks.tooltip.priced": "Bei ya {age}",
-  "widgetsC.stocks.tooltip.saved": "Imehifadhiwa {age}; inaonyesha upya"
+  "widgetsC.stocks.settings.windowsRed": "Nyekundu ya Windows"
 }

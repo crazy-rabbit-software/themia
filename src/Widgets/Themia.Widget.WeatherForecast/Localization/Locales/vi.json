@@ -9,7 +9,5 @@
   "widgetsA.catalog.forecast.description": "Vài ngày tới",
   "widgetsA.catalog.forecast.label": "Dự báo",
   "widgetsC.weather.settings.showPrecipitation.desc": "Tổng lượng mưa hoặc tuyết trong ngày, nếu có",
-  "widgetsC.weather.settings.showPrecipitation.label": "Hiện lượng mưa",
-  "widgetsC.weather.tooltip.forecastFailed": "{problem}. Đang hiện dự báo từ {age}.",
-  "widgetsC.weather.tooltip.forecastSaved": "Dự báo đã lưu từ {age}; đang làm mới."
+  "widgetsC.weather.settings.showPrecipitation.label": "Hiện lượng mưa"
 }

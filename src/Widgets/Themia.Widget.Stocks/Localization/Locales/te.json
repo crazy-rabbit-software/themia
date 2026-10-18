@@ -39,8 +39,5 @@
   "widgetsC.stocks.settings.symbolRefused": "శోధన ఫలితాన్ని ఎంచుకోండి, లేదా చిహ్నాన్ని టైప్ చేయండి: అక్షరాలు, అంకెలు మరియు . - ^ = మాత్రమే",
   "widgetsC.stocks.settings.symbol.desc": "పేరు లేదా టిక్కర్ ద్వారా శోధించండి: షేర్‌లు, ఫండ్‌లు, ఇండెక్స్‌లు, కాయిన్‌లు",
   "widgetsC.stocks.settings.windowsGreen": "Windows ఆకుపచ్చ",
-  "widgetsC.stocks.settings.windowsRed": "Windows ఎరుపు",
-  "widgetsC.stocks.tooltip.failed": "{problem}. {age} నాటి ధరను చూపిస్తోంది.",
-  "widgetsC.stocks.tooltip.priced": "ధర {age}",
-  "widgetsC.stocks.tooltip.saved": "{age} సేవ్ చేయబడింది; రిఫ్రెష్ అవుతోంది"
+  "widgetsC.stocks.settings.windowsRed": "Windows ఎరుపు"
 }

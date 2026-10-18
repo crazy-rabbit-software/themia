@@ -39,7 +39,6 @@
   "widgetsB.email.changeFailed": "Dat is niet gelukt. Zie themia.log.",
   "widgetsB.email.compose": "E-mail schrijven",
   "widgetsB.email.composeFrom": "E-mail schrijven vanaf {account}",
-  "widgetsB.email.refreshUpdated": "Vernieuwen · bijgewerkt {age}",
   "widgetsB.email.couldNotCompose": "Kan geen nieuwe e-mail starten.",
   "widgetsB.settings.email.messages": "Berichten",
   "widgetsB.settings.email.folder.desc": "Welke map van elk account wordt getoond",

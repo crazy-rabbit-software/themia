@@ -4,8 +4,6 @@
   "widgetsC.rss.untitled": "(không có tiêu đề)",
   "widgetsC.rss.copyLink": "Sao chép liên kết",
   "widgetsC.rss.noArticles": "Nguồn tin này không có bài viết",
-  "widgetsC.rss.savedRefreshing": "Đã lưu {age}; đang làm mới",
-  "widgetsC.rss.refreshed": "Đã làm mới {age}",
   "widgetsC.rss.settings.feeds": "Nguồn tin",
   "widgetsC.rss.settings.empty": "Chưa có nguồn tin. Hãy thêm địa chỉ của nguồn RSS hoặc Atom.",
   "widgetsC.rss.settings.add.title": "Thêm nguồn tin",

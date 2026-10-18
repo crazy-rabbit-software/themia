@@ -4,8 +4,6 @@
   "widgetsC.rss.untitled": "(başlıksız)",
   "widgetsC.rss.copyLink": "Bağlantıyı kopyala",
   "widgetsC.rss.noArticles": "Bu akışta makale yok",
-  "widgetsC.rss.savedRefreshing": "Kaydedildi: {age}; yenileniyor",
-  "widgetsC.rss.refreshed": "Yenilendi: {age}",
   "widgetsC.rss.settings.feeds": "Akışlar",
   "widgetsC.rss.settings.empty": "Henüz akış yok. Bir RSS veya Atom akışının adresini ekleyin.",
   "widgetsC.rss.settings.add.title": "Akış ekle",

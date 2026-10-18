@@ -13,7 +13,7 @@ namespace Themia.App.Widgets;
 /// </summary>
 internal sealed partial class RainNextHourView : IWidgetPreviewState
 {
-    public IReadOnlyList<string> PreviewStates { get; } = ["sample", "dry"];
+    public IReadOnlyList<string> PreviewStates { get; } = ["sample", "dry", "stale"];
 
     public Task ShowPreviewStateAsync(string state)
     {
@@ -37,6 +37,11 @@ internal sealed partial class RainNextHourView : IWidgetPreviewState
         _want = null;
         _pinnedNow = DateTimeOffset.FromUnixTimeSeconds(quarter + 420);
         _nowcast = new Fetched<RainNowcast>(FetchStatus.Ok, RainWire.Parse(json).Value, null, DateTimeOffset.Now.AddMinutes(-6));
+        if (state == "stale")
+        {
+            // [S-7042] The answer on screen, and the last refresh failed: the header's problem glyph.
+            _nowcast = _nowcast.Stale(FetchStatus.Offline, null);
+        }
         PublishTitle();
         Render();
         return Task.CompletedTask;

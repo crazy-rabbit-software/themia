@@ -36,8 +36,5 @@
   "widgetsC.stocks.settings.symbolRefused": "検索結果を選ぶか、銘柄コードを入力してください (英字、数字、. - ^ = のみ)",
   "widgetsC.stocks.settings.symbol.desc": "名前かティッカーで検索: 株式、ファンド、指数、暗号資産",
   "widgetsC.stocks.settings.windowsGreen": "Windows の緑",
-  "widgetsC.stocks.settings.windowsRed": "Windows の赤",
-  "widgetsC.stocks.tooltip.failed": "{problem}。{age}の価格を表示しています。",
-  "widgetsC.stocks.tooltip.priced": "{age}の価格",
-  "widgetsC.stocks.tooltip.saved": "{age}に保存。更新しています"
+  "widgetsC.stocks.settings.windowsRed": "Windows の赤"
 }

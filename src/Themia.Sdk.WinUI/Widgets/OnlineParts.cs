@@ -1,53 +1,32 @@
-using Microsoft.UI;
-using Microsoft.UI.Xaml.Controls;
-using Microsoft.UI.Xaml.Media;
 using Themia.App.Services.Web;
-using Themia.App.Shell;
 using Themia.Core.Localization;
-using Themia.Core.Widgets;
-using Themia.Sdk.WinUI;
+using Themia.Sdk.Kit;
 
 namespace Themia.App.Widgets;
 
 /// <summary>
-/// [S-5160] What the online widgets share: the header's age line (every state, caution colour when
-/// the last refresh failed or the answer was restored, the reason in the tooltip, as weather does
-/// it, [S-2612]) and the age as it reads inside that tooltip.
+/// [S-5160] [S-7042] What the online widgets share: their one answer as the kit's one stale rule
+/// reads it. While the answer on screen is one the last attempt could not improve on, the header's
+/// problem glyph (<c>KitHeader</c>) says so ("No network · updated 10:42"); the card menu's Refresh
+/// line says how old it is. The age itself is never drawn in the header.
 /// </summary>
 public static class OnlineParts
 {
-    public static Brush FreshBrush() => ThemeBrush.Of("TextFillColorTertiaryBrush", Colors.Gray);
-
-    public static Brush StaleBrush() => ThemeBrush.Of("SystemFillColorCautionBrush", Colors.Goldenrod);
-
-    /// <summary>
-    /// The age line: its text (<paramref name="text"/>, or the answer's age), its colour, and a
-    /// tooltip that says why it is in the caution colour.
-    /// </summary>
-    public static void Stamp<T>(TextBlock label, Fetched<T> held, TimeSpan interval, string? text = null, string? note = null)
+    /// <summary>How the answer last went, as a kit source's outcome (one source, no owner).</summary>
+    public static KitOutcome Outcome<T>(Fetched<T> held)
         where T : class
     {
-        var now = DateTimeOffset.Now;
-        var failed = FetchState.IsFailure(held.Status);
-        var stale = failed || held.Restored || FetchState.IsStale(held.At, now, interval);
-        var age = FetchState.Freshness(held.At, now);
-        var inline = InlineAge(age);
-
-        label.Text = text ?? age;
-        label.Foreground = stale ? StaleBrush() : FreshBrush();
-
-        var tip = failed ? Str.WidgetsC_Weather_Tooltip_ReadingFailed.Format(("problem", FetchState.Message(held.Status)), ("age", inline))
-            : held.Restored ? Str.WidgetsC_Weather_Tooltip_ReadingSaved.Format(("age", inline))
-            : Str.WidgetsC_Weather_Tooltip_Updated.Format(("age", inline));
-
-        ToolTipService.SetToolTip(label, note is null ? tip : $"{note}\n{tip}");
+        ArgumentNullException.ThrowIfNull(held);
+        return new KitOutcome(null, held.Status, null, held.Value is null ? null : held.At);
     }
 
-    /// <summary>
-    /// The age for use inside a sentence: "Just now" starts the header line but reads "just now"
-    /// mid-sentence. Only the first letter changes, so a German noun later in the phrase keeps its
-    /// capital; a language without case is untouched.
-    /// </summary>
-    public static string InlineAge(string age)
-        => age.Length == 0 ? age : char.ToLowerInvariant(age[0]) + age[1..];
+    /// <summary>The header's problem lines: none while the answer on screen is the last attempt's, or nothing is on screen.</summary>
+    public static IReadOnlyList<string> Problems<T>(Fetched<T>? held)
+        where T : class
+        => held is { Value: not null } ? KitFreshness.Lines(Strings.Current, [Outcome(held)], DateTimeOffset.Now) : [];
+
+    /// <summary>The card menu's Refresh line: "Refresh · updated 4 min ago", or "Refresh" while nothing is held.</summary>
+    public static string RefreshLabel<T>(Fetched<T>? held)
+        where T : class
+        => KitFreshness.RefreshLabel(Strings.Current, held is null ? [] : [Outcome(held)], DateTimeOffset.Now);
 }

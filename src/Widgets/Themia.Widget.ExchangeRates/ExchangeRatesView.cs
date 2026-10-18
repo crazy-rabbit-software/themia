@@ -11,6 +11,7 @@ using Themia.Core.Model;
 using Themia.Core.Sync;
 using Themia.Core.Widgets;
 using Themia.Sdk.WinUI;
+using Themia.Sdk.WinUI.Kit;
 using Windows.Foundation;
 using Themia.Widget.ExchangeRates;
 
@@ -24,7 +25,13 @@ namespace Themia.App.Widgets;
 /// </summary>
 internal sealed partial class ExchangeRatesView : Grid, IWidgetView, IWidgetHeaderContent, IWidgetSurfaceAware, IWidgetSizeAware, IWidgetContextActions, IWidgetAligned
 {
-    private readonly TextBlock _freshness = Fluent.Text(FluentType.Caption, "TextFillColorTertiaryBrush");
+    /// <summary>[S-5146] The rate's day ("ECB, 9 Oct"), in the header beside the problem glyph.</summary>
+    private readonly TextBlock _fix = Fluent.Text(FluentType.Caption, "TextFillColorTertiaryBrush");
+
+    /// <summary>[S-7064] The header's problem glyph ([S-7042]): the one stale rule, no age.</summary>
+    private readonly KitHeader _header;
+
+    private readonly StackPanel _trailing = new() { Orientation = Orientation.Horizontal, Spacing = Fluent.Space2 };
     private readonly HeroReadout _hero = new();
     private readonly TextBlock _perBase;
     private readonly Canvas _chart = new() { IsHitTestVisible = false };
@@ -45,6 +52,10 @@ internal sealed partial class ExchangeRatesView : Grid, IWidgetView, IWidgetHead
     public ExchangeRatesView(IWidgetHost host)
     {
         _host = host;
+        _header = new KitHeader(host);
+        _fix.VerticalAlignment = VerticalAlignment.Center;
+        _trailing.Children.Add(_fix);
+        _trailing.Children.Add(_header);
         RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
         RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
         ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
@@ -69,10 +80,10 @@ internal sealed partial class ExchangeRatesView : Grid, IWidgetView, IWidgetHead
         Children.Add(_emptyState);
     }
 
-    public FrameworkElement? HeaderTrailing => _freshness;
+    public FrameworkElement? HeaderTrailing => _trailing;
 
     public IReadOnlyList<WidgetAction> ContextActions =>
-        [new WidgetAction(Glyphs.Refresh, Str.Common_Refresh.Text(), () => Reload(force: true))];
+        [new WidgetAction(Glyphs.Refresh, OnlineParts.RefreshLabel(_table), () => Reload(force: true))];
 
     public void Attach(Ticker ticker, WidgetConfig config)
     {
@@ -175,14 +186,16 @@ internal sealed partial class ExchangeRatesView : Grid, IWidgetView, IWidgetHead
     {
         if (_table is not { Value: { } table } held)
         {
-            _freshness.Text = string.Empty;
+            _fix.Text = string.Empty;
+            ToolTipService.SetToolTip(_fix, null);
+            _header.Clear();
             return;
         }
 
         var date = LocaleFormat.Date(table.Latest.Date, DateStyle.MonthDayShort);
-        OnlineParts.Stamp(_freshness, held, OnlineCadence.Rates,
-            text: ExchangeRatesStr.Online_Rates_Fix.Format(("date", date)),
-            note: ExchangeRatesStr.Online_Rates_FixTooltip.Format(("date", LocaleFormat.Date(table.Latest.Date, DateStyle.Long))));
+        _fix.Text = ExchangeRatesStr.Online_Rates_Fix.Format(("date", date));
+        ToolTipService.SetToolTip(_fix, ExchangeRatesStr.Online_Rates_FixTooltip.Format(("date", LocaleFormat.Date(table.Latest.Date, DateStyle.Long))));
+        _header.Show(OnlineParts.Problems(held), busy: false);
     }
 
     private void Render()

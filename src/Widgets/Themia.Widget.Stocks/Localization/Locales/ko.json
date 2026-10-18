@@ -36,8 +36,5 @@
   "widgetsC.stocks.settings.symbolRefused": "검색 결과를 선택하거나 기호를 입력하세요: 문자, 숫자 및 . - ^ = 만 사용 가능",
   "widgetsC.stocks.settings.symbol.desc": "이름 또는 티커로 검색: 주식, 펀드, 지수, 코인",
   "widgetsC.stocks.settings.windowsGreen": "Windows 녹색",
-  "widgetsC.stocks.settings.windowsRed": "Windows 빨간색",
-  "widgetsC.stocks.tooltip.failed": "{problem}. {age}의 가격을 표시합니다.",
-  "widgetsC.stocks.tooltip.priced": "{age} 가격",
-  "widgetsC.stocks.tooltip.saved": "{age}에 저장됨, 새로 고치는 중"
+  "widgetsC.stocks.settings.windowsRed": "Windows 빨간색"
 }

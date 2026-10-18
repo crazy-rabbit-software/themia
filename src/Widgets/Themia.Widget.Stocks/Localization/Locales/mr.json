@@ -39,8 +39,5 @@
   "widgetsC.stocks.settings.symbolRefused": "शोध परिणाम निवडा, किंवा चिन्ह टाइप करा: फक्त अक्षरे, अंक आणि . - ^ =",
   "widgetsC.stocks.settings.symbol.desc": "नाव किंवा टिकरने शोधा: शेअर्स, फंड, निर्देशांक, कॉइन",
   "widgetsC.stocks.settings.windowsGreen": "Windows हिरवा",
-  "widgetsC.stocks.settings.windowsRed": "Windows लाल",
-  "widgetsC.stocks.tooltip.failed": "{problem}. {age} चा भाव दाखवत आहे.",
-  "widgetsC.stocks.tooltip.priced": "भाव: {age}",
-  "widgetsC.stocks.tooltip.saved": "जतन: {age}; रीफ्रेश होत आहे"
+  "widgetsC.stocks.settings.windowsRed": "Windows लाल"
 }

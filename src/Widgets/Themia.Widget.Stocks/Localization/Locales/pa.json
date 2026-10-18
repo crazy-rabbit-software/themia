@@ -39,8 +39,5 @@
   "widgetsC.stocks.settings.symbolRefused": "ਕੋਈ ਖੋਜ ਨਤੀਜਾ ਚੁਣੋ, ਜਾਂ ਚਿੰਨ੍ਹ ਟਾਈਪ ਕਰੋ: ਸਿਰਫ਼ ਅੱਖਰ, ਅੰਕ ਅਤੇ . - ^ =",
   "widgetsC.stocks.settings.symbol.desc": "ਨਾਮ ਜਾਂ ਟਿਕਰ ਨਾਲ ਖੋਜੋ: ਸ਼ੇਅਰ, ਫ਼ੰਡ, ਸੂਚਕਾਂਕ, ਸਿੱਕੇ",
   "widgetsC.stocks.settings.windowsGreen": "Windows ਹਰਾ",
-  "widgetsC.stocks.settings.windowsRed": "Windows ਲਾਲ",
-  "widgetsC.stocks.tooltip.failed": "{problem}। {age} ਦੀ ਕੀਮਤ ਦਿਖਾਈ ਜਾ ਰਹੀ ਹੈ।",
-  "widgetsC.stocks.tooltip.priced": "{age} ਕੀਮਤ",
-  "widgetsC.stocks.tooltip.saved": "{age} ਸੰਭਾਲਿਆ; ਰਿਫ੍ਰੈਸ਼ ਹੋ ਰਿਹਾ ਹੈ"
+  "widgetsC.stocks.settings.windowsRed": "Windows ਲਾਲ"
 }

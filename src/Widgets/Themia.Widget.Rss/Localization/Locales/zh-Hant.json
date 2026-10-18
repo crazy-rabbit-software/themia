@@ -4,8 +4,6 @@
   "widgetsC.rss.untitled": "（無標題）",
   "widgetsC.rss.copyLink": "複製連結",
   "widgetsC.rss.noArticles": "此摘要沒有文章",
-  "widgetsC.rss.savedRefreshing": "儲存於{age}；正在重新整理",
-  "widgetsC.rss.refreshed": "重新整理於{age}",
   "widgetsC.rss.settings.feeds": "摘要",
   "widgetsC.rss.settings.empty": "尚無摘要。請新增 RSS 或 Atom 摘要的位址。",
   "widgetsC.rss.settings.add.title": "新增摘要",

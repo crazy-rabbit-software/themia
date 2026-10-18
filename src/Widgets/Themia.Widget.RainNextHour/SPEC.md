@@ -3,7 +3,7 @@
 The module `rainNextHour` ([S-6911]): rain in the next two hours at a place. Its tags are this file's
 alone; the root `SPEC.md` holds the host's sections and what the online widgets share (Air quality, rain
 and exchange rates: the nowcast's wire and rules [S-5122]..[S-5124] in the SDK's `RainNowcast.cs`, the
-header's age line [S-5160], the offline shelf [S-5161]; the background web sync [S-2663]).
+header's stale rule [S-5160], the offline shelf [S-5161]; the background web sync [S-2663]).
 
 Owning files: everything in this folder: `RainNextHourModule.cs` (descriptor, view factory, settings
 rows, JSON context), `RainNextHourConfig.cs`, `RainNextHourView.cs` (it reads the nowcast through

@@ -39,7 +39,6 @@
   "widgetsB.email.changeFailed": "এটি কাজ করেনি। themia.log দেখুন।",
   "widgetsB.email.compose": "ইমেল লিখুন",
   "widgetsB.email.composeFrom": "{account} থেকে ইমেল লিখুন",
-  "widgetsB.email.refreshUpdated": "রিফ্রেশ · আপডেট হয়েছে {age}",
   "widgetsB.email.couldNotCompose": "নতুন ইমেল শুরু করা যায়নি।",
   "widgetsB.settings.email.messages": "বার্তা",
   "widgetsB.settings.email.folder.desc": "প্রতিটি অ্যাকাউন্টের কোন ফোল্ডার দেখাবে",

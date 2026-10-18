@@ -20,16 +20,17 @@ sample|single|stale|failed|empty|loading`, sample feeds on the reserved `.exampl
   address checked on commit), fetched in parallel through the shared cache and merged
   (`FeedAggregate.Merge`, classic S-30): newest first, undated last in arrival order, capped at
   `MaxItems` across all feeds. Repeated and blank addresses fold; refused ones are not fetched. A
-  feed that fails while others answer is a partial refresh: "Name: reason" in the header tooltip and
-  the caution colour (classic S-34/S-35); all failing shows every reason; every feed answering with
+  feed that fails while others answer is a partial refresh: the header's problem glyph, one tooltip
+  line per failed feed ("Tech Daily: Couldn't connect · updated 10:42", [S-7042]; classic S-34/S-35); all failing shows every reason; every feed answering with
   no items is "This feed has no articles" once, not that reason per feed ([S-7040]). Header title (S-04): the
   user's, else the single feed's `<title>`, else the feeds' names (title or host) joined with ", ",
   else the catalogue name. Item age (S-06): "Just now"/"5m ago"/"3h ago"/"6d ago", then "Mar 4"
   ("Aug 30, 2025" in another year). `FeedUrl` is gone (no compatibility).
 - **[S-1303]** Rss **Refresh** (card menu and item menu, classic S-15): the network now, past the
   cache's freshness and the back-off, through the feed sync ([S-2661]). While a fetch for one of its
-  feeds is out, a small spinner sits beside the age in the header (classic S-33), so Refresh is never
-  a button with no visible effect.
+  feeds is out, the kit header's ring turns (classic S-33), so Refresh is never a button with no
+  visible effect; the card menu's line says how old the oldest list on screen is ("Refresh · updated
+  4 min ago", [S-7042]; the age is no longer in the header).
 - **[S-1305]** Rss ladder (the kit's rich look, `KitLadder.Plan` over `RssSpec.Spec` ([S-7031]), rows shown whole, measured since rows are
   as tall as their headlines, the rest a scroll away with the shared fade [S-1281]): rung 0 the
   newest headline, two lines (one if even that does not fit); its age; its site icon from 180px of

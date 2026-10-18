@@ -9,7 +9,5 @@
   "widgetsA.catalog.forecast.description": "अगले कुछ दिन",
   "widgetsA.catalog.forecast.label": "पूर्वानुमान",
   "widgetsC.weather.settings.showPrecipitation.desc": "दिन की कुल बारिश या बर्फ़, अगर हो",
-  "widgetsC.weather.settings.showPrecipitation.label": "वर्षा दिखाएँ",
-  "widgetsC.weather.tooltip.forecastFailed": "{problem}। {age} का पूर्वानुमान दिख रहा है।",
-  "widgetsC.weather.tooltip.forecastSaved": "{age} का सहेजा पूर्वानुमान; रीफ़्रेश हो रहा है।"
+  "widgetsC.weather.settings.showPrecipitation.label": "वर्षा दिखाएँ"
 }

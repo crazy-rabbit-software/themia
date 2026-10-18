@@ -9,7 +9,5 @@
   "widgetsA.catalog.forecast.description": "Ang susunod na ilang araw",
   "widgetsA.catalog.forecast.label": "Taya ng panahon",
   "widgetsC.weather.settings.showPrecipitation.desc": "Ang kabuuang ulan o niyebe sa araw, kung mayroon",
-  "widgetsC.weather.settings.showPrecipitation.label": "Ipakita ang presipitasyon",
-  "widgetsC.weather.tooltip.forecastFailed": "{problem}. Ipinapakita ang forecast mula {age}.",
-  "widgetsC.weather.tooltip.forecastSaved": "Naka-save na forecast mula {age}; nire-refresh."
+  "widgetsC.weather.settings.showPrecipitation.label": "Ipakita ang presipitasyon"
 }

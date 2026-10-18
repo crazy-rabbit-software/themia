@@ -10,6 +10,7 @@ using Themia.Core.Model;
 using Themia.Core.Sync;
 using Themia.Core.Widgets;
 using Themia.Sdk.WinUI;
+using Themia.Sdk.WinUI.Kit;
 using Themia.Widget.AirQuality;
 
 namespace Themia.App.Widgets;
@@ -28,7 +29,8 @@ internal sealed partial class AirQualityView : Grid, IWidgetView, IWidgetHeaderC
 
     private const double UnitCharacters = 6;
 
-    private readonly TextBlock _freshness = Fluent.Text(FluentType.Caption, "TextFillColorTertiaryBrush");
+    /// <summary>[S-7064] The header's problem glyph ([S-7042]): the one stale rule, no age.</summary>
+    private readonly KitHeader _header;
     private readonly HeroReadout _hero = new();
     private readonly TextBlock _band;
     private readonly Grid _facts = new() { ColumnSpacing = OnlineLayouts.Gap, RowSpacing = 0 };
@@ -58,6 +60,7 @@ internal sealed partial class AirQualityView : Grid, IWidgetView, IWidgetHeaderC
     public AirQualityView(IWidgetHost host)
     {
         _host = host;
+        _header = new KitHeader(host);
         RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
         RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
         ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
@@ -89,11 +92,11 @@ internal sealed partial class AirQualityView : Grid, IWidgetView, IWidgetHeaderC
         Children.Add(_emptyState);
     }
 
-    public FrameworkElement? HeaderTrailing => _freshness;
+    public FrameworkElement? HeaderTrailing => _header;
 
     /// <summary>[S-730] Refresh: the network now.</summary>
     public IReadOnlyList<WidgetAction> ContextActions =>
-        _config.HasLocation ? [new WidgetAction(Glyphs.Refresh, Str.Common_Refresh.Text(), () => Reload(force: true))] : [];
+        _config.HasLocation ? [new WidgetAction(Glyphs.Refresh, OnlineParts.RefreshLabel(_reading), () => Reload(force: true))] : [];
 
     public void Attach(Ticker ticker, WidgetConfig config)
     {
@@ -281,7 +284,7 @@ internal sealed partial class AirQualityView : Grid, IWidgetView, IWidgetHeaderC
                 : FetchState.Message(_status);
             _emptyState.Visibility = Visibility.Visible;
             _hero.Visibility = _below.Visibility = _side.Visibility = _gauge.Visibility = Visibility.Collapsed;
-            _freshness.Text = string.Empty;
+            _header.Clear();
             return;
         }
 
@@ -295,7 +298,7 @@ internal sealed partial class AirQualityView : Grid, IWidgetView, IWidgetHeaderC
         _band.Text = AirText.Band(scale, band);
         _band.Foreground = tone;
 
-        OnlineParts.Stamp(_freshness, held, _subscribedInterval, note: Str.Online_Source.Format(("name", "CAMS · Open-Meteo")));
+        _header.Show(OnlineParts.Problems(held), busy: false);
         Lay(Facts(air, scale), scale, index);
     }
 

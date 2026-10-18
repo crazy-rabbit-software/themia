@@ -13,7 +13,7 @@ namespace Themia.App.Widgets;
 /// </summary>
 internal sealed partial class AirQualityView : IWidgetPreviewState
 {
-    public IReadOnlyList<string> PreviewStates { get; } = ["sample", "poor"];
+    public IReadOnlyList<string> PreviewStates { get; } = ["sample", "poor", "stale"];
 
     public Task ShowPreviewStateAsync(string state)
     {
@@ -36,6 +36,11 @@ internal sealed partial class AirQualityView : IWidgetPreviewState
         _applied = (AirQualityConfig)_config.Clone();
         _want = null;
         _reading = new Fetched<AirReading>(FetchStatus.Ok, AirQualityWire.Parse(json).Value, null, DateTimeOffset.Now.AddMinutes(-12));
+        if (state == "stale")
+        {
+            // [S-7042] The answer on screen, and the last refresh failed: the header's problem glyph.
+            _reading = _reading.Stale(FetchStatus.Offline, null);
+        }
         PublishTitle();
         Render();
         return Task.CompletedTask;

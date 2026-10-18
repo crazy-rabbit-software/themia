@@ -84,6 +84,26 @@ public sealed partial class KitConformanceTests
         Assert.Equal(StartsAProcessAllowed.Order(StringComparer.Ordinal), offending);
     }
 
+    [GeneratedRegex(@"\bFetchState\.(Freshness|IsStale)\(")]
+    private static partial Regex SaysTheAge();
+
+    /// <summary>
+    /// [S-7042] The one stale rule: no widget writes its data's age itself (in its header, in the
+    /// caution colour); a problem is the kit header's glyph and the age is on the Refresh line
+    /// (<c>KitFreshness</c>). Tasks keeps its own until it moves onto the kit.
+    /// </summary>
+    [Fact]
+    public void S7042_no_widget_says_the_age_of_its_data_itself()
+    {
+        var offending = RepoFiles.ViewSources()
+            .Where(f => SaysTheAge().IsMatch(Code(f)))
+            .Select(Path.GetFileName)
+            .Order(StringComparer.Ordinal)
+            .ToList();
+
+        Assert.Equal(["TasksView.cs"], offending);
+    }
+
     [Fact]
     public void RepoFiles_view_sources_reach_the_sdk_and_the_modules()
     {

@@ -39,7 +39,6 @@
   "widgetsB.email.changeFailed": "Hindi iyon gumana. Tingnan ang themia.log.",
   "widgetsB.email.compose": "Sumulat ng email",
   "widgetsB.email.composeFrom": "Sumulat ng email mula sa {account}",
-  "widgetsB.email.refreshUpdated": "I-refresh · na-update {age}",
   "widgetsB.email.couldNotCompose": "Hindi makapagsimula ng bagong email.",
   "widgetsB.settings.email.messages": "Mga mensahe",
   "widgetsB.settings.email.folder.desc": "Aling folder ng bawat account ang ililista",

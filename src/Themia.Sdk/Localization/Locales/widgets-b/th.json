@@ -39,7 +39,6 @@
   "widgetsB.email.changeFailed": "การดำเนินการไม่สำเร็จ ดูที่ themia.log",
   "widgetsB.email.compose": "เขียนอีเมล",
   "widgetsB.email.composeFrom": "เขียนอีเมลจาก {account}",
-  "widgetsB.email.refreshUpdated": "รีเฟรช · อัปเดตเมื่อ {age}",
   "widgetsB.email.couldNotCompose": "ไม่สามารถเริ่มอีเมลใหม่ได้",
   "widgetsB.settings.email.messages": "ข้อความ",
   "widgetsB.settings.email.folder.desc": "โฟลเดอร์ของแต่ละบัญชีที่จะแสดง",

@@ -39,7 +39,6 @@
   "widgetsB.email.changeFailed": "Hilo halikufanya kazi. Angalia themia.log.",
   "widgetsB.email.compose": "Andika barua pepe",
   "widgetsB.email.composeFrom": "Andika barua pepe kutoka {account}",
-  "widgetsB.email.refreshUpdated": "Onyesha upya · imesasishwa {age}",
   "widgetsB.email.couldNotCompose": "Imeshindwa kuanzisha barua pepe mpya.",
   "widgetsB.settings.email.messages": "Jumbe",
   "widgetsB.settings.email.folder.desc": "Folda ipi ya kila akaunti iorodheshwe",

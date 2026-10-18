@@ -3,7 +3,7 @@
 The module `exchangeRates` ([S-6911]): the ECB's reference rate of one pair. Its tags are this file's
 alone; the root `SPEC.md` holds the host's sections and what the online widgets share (Air quality,
 rain and exchange rates: the ECB document's wire [S-5141], the published codes [S-5142] and the cross
-rates [S-5145] in the SDK's `ExchangeRates.cs`, the header's age line [S-5160], the offline shelf
+rates [S-5145] in the SDK's `ExchangeRates.cs`, the header's stale rule [S-5160], the offline shelf
 [S-5161]; the background web sync [S-2663]).
 
 Owning files: everything in this folder: `ExchangeRatesModule.cs` (descriptor, view factory, settings
@@ -28,8 +28,8 @@ and the cross rates' own tests stay Core's (`OnlineWidgetsTests`, `S5141_`, `S51
   the day change beside it or under it, "per CHF") on the whole tile, from Subtitle as large as the
   tile allows (past Display, as a lone reading, [S-1762]); the Chart style's stops at the tier's step ([S-3860]). Up is the success colour, down critical. No table yet, or the latest day lacking
   either code: the empty state ("Not published"). The header is titled with the pair ("Exchange
-  rates · CHF/EUR") and reads "ECB, 9 Oct" (the rate's day) in the caution colour when the last
-  refresh failed or the table was restored.
+  rates · CHF/EUR") and reads "ECB, 9 Oct" (the rate's day), with the kit header's problem glyph
+  beside it while the table on screen is one the last refresh could not improve on ([S-7042]).
 - **[S-5147]** One `RatesInterest` for all exchange-rate widgets; asked every three hours, no setting
   (`OnlineCadence.Rates`): the ECB publishes once per working day around 16:00 CET.
 - **[S-5148]** Settings: Base currency (Windows region first, naming it), Currency (the default

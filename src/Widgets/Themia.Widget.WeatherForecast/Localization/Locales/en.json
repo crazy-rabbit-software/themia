@@ -10,7 +10,5 @@
   "widgetsA.catalog.forecast.description": "The next few days",
   "widgetsA.catalog.forecast.label": "Forecast",
   "widgetsC.weather.settings.showPrecipitation.desc": "The day's total rain or snow, where there is any",
-  "widgetsC.weather.settings.showPrecipitation.label": "Show precipitation",
-  "widgetsC.weather.tooltip.forecastFailed": "{problem}. Showing the forecast from {age}.",
-  "widgetsC.weather.tooltip.forecastSaved": "Saved forecast from {age}; refreshing."
+  "widgetsC.weather.settings.showPrecipitation.label": "Show precipitation"
 }

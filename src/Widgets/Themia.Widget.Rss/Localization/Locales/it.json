@@ -4,8 +4,6 @@
   "widgetsC.rss.untitled": "(senza titolo)",
   "widgetsC.rss.copyLink": "Copia collegamento",
   "widgetsC.rss.noArticles": "Questo feed non contiene articoli",
-  "widgetsC.rss.savedRefreshing": "Salvato {age}; aggiornamento in corso",
-  "widgetsC.rss.refreshed": "Aggiornato {age}",
   "widgetsC.rss.settings.feeds": "Feed",
   "widgetsC.rss.settings.empty": "Ancora nessun feed. Aggiungi l'indirizzo di un feed RSS o Atom.",
   "widgetsC.rss.settings.add.title": "Aggiungi un feed",

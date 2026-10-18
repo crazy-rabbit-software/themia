@@ -9,7 +9,5 @@
   "widgetsA.catalog.forecast.description": "앞으로 며칠간의 날씨",
   "widgetsA.catalog.forecast.label": "일기 예보",
   "widgetsC.weather.settings.showPrecipitation.desc": "비나 눈이 오는 경우 하루 총량",
-  "widgetsC.weather.settings.showPrecipitation.label": "강수량 표시",
-  "widgetsC.weather.tooltip.forecastFailed": "{problem}. {age}의 예보를 표시합니다.",
-  "widgetsC.weather.tooltip.forecastSaved": "{age}에 저장된 예보, 새로 고치는 중."
+  "widgetsC.weather.settings.showPrecipitation.label": "강수량 표시"
 }

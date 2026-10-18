@@ -39,8 +39,5 @@
   "widgetsC.stocks.settings.symbolRefused": "Choisissez un résultat de recherche ou tapez un symbole : lettres, chiffres et . - ^ = uniquement",
   "widgetsC.stocks.settings.symbol.desc": "Rechercher par nom ou symbole : actions, fonds, indices, cryptos",
   "widgetsC.stocks.settings.windowsGreen": "Vert Windows",
-  "widgetsC.stocks.settings.windowsRed": "Rouge Windows",
-  "widgetsC.stocks.tooltip.failed": "{problem}. Dernier cours : {age}.",
-  "widgetsC.stocks.tooltip.priced": "Cours : {age}",
-  "widgetsC.stocks.tooltip.saved": "Enregistré : {age} ; actualisation en cours"
+  "widgetsC.stocks.settings.windowsRed": "Rouge Windows"
 }

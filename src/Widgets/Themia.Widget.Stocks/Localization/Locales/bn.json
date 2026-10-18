@@ -39,8 +39,5 @@
   "widgetsC.stocks.settings.symbolRefused": "একটি অনুসন্ধান ফলাফল বেছে নিন, বা প্রতীক লিখুন: শুধু অক্ষর, অঙ্ক এবং . - ^ =",
   "widgetsC.stocks.settings.symbol.desc": "নাম বা টিকার দিয়ে খুঁজুন: শেয়ার, ফান্ড, সূচক, কয়েন",
   "widgetsC.stocks.settings.windowsGreen": "Windows সবুজ",
-  "widgetsC.stocks.settings.windowsRed": "Windows লাল",
-  "widgetsC.stocks.tooltip.failed": "{problem}। {age}-এর দাম দেখানো হচ্ছে।",
-  "widgetsC.stocks.tooltip.priced": "দাম {age}",
-  "widgetsC.stocks.tooltip.saved": "সংরক্ষিত {age}; রিফ্রেশ হচ্ছে"
+  "widgetsC.stocks.settings.windowsRed": "Windows লাল"
 }

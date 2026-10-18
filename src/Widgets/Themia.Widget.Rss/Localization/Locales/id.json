@@ -4,8 +4,6 @@
   "widgetsC.rss.untitled": "(tanpa judul)",
   "widgetsC.rss.copyLink": "Salin tautan",
   "widgetsC.rss.noArticles": "Feed ini tidak memiliki artikel",
-  "widgetsC.rss.savedRefreshing": "Disimpan {age}; menyegarkan",
-  "widgetsC.rss.refreshed": "Disegarkan {age}",
   "widgetsC.rss.settings.feeds": "Feed",
   "widgetsC.rss.settings.empty": "Belum ada feed. Tambahkan alamat feed RSS atau Atom.",
   "widgetsC.rss.settings.add.title": "Tambah feed",

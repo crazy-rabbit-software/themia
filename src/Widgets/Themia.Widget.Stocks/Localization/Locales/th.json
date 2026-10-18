@@ -36,8 +36,5 @@
   "widgetsC.stocks.settings.symbolRefused": "เลือกผลการค้นหา หรือพิมพ์สัญลักษณ์: ตัวอักษร ตัวเลข และ . - ^ = เท่านั้น",
   "widgetsC.stocks.settings.symbol.desc": "ค้นหาตามชื่อหรือสัญลักษณ์: หุ้น กองทุน ดัชนี เหรียญ",
   "widgetsC.stocks.settings.windowsGreen": "สีเขียวของ Windows",
-  "widgetsC.stocks.settings.windowsRed": "สีแดงของ Windows",
-  "widgetsC.stocks.tooltip.failed": "{problem} กำลังแสดงราคาจาก {age}",
-  "widgetsC.stocks.tooltip.priced": "ราคาเมื่อ {age}",
-  "widgetsC.stocks.tooltip.saved": "บันทึกไว้เมื่อ {age} กำลังรีเฟรช"
+  "widgetsC.stocks.settings.windowsRed": "สีแดงของ Windows"
 }

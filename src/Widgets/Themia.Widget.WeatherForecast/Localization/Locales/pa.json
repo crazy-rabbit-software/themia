@@ -9,7 +9,5 @@
   "widgetsA.catalog.forecast.description": "ਅਗਲੇ ਕੁਝ ਦਿਨ",
   "widgetsA.catalog.forecast.label": "ਪੂਰਵ-ਅਨੁਮਾਨ",
   "widgetsC.weather.settings.showPrecipitation.desc": "ਦਿਨ ਦਾ ਕੁੱਲ ਮੀਂਹ ਜਾਂ ਬਰਫ਼, ਜਿੱਥੇ ਕੋਈ ਹੋਵੇ",
-  "widgetsC.weather.settings.showPrecipitation.label": "ਵਰਖਾ ਦਿਖਾਓ",
-  "widgetsC.weather.tooltip.forecastFailed": "{problem}। {age} ਦਾ ਪੂਰਵ-ਅਨੁਮਾਨ ਦਿਖਾਇਆ ਜਾ ਰਿਹਾ ਹੈ।",
-  "widgetsC.weather.tooltip.forecastSaved": "{age} ਦਾ ਸੰਭਾਲਿਆ ਪੂਰਵ-ਅਨੁਮਾਨ; ਰਿਫ੍ਰੈਸ਼ ਹੋ ਰਿਹਾ ਹੈ।"
+  "widgetsC.weather.settings.showPrecipitation.label": "ਵਰਖਾ ਦਿਖਾਓ"
 }

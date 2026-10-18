@@ -39,7 +39,6 @@
   "widgetsB.email.changeFailed": "Itu tidak berhasil. Lihat themia.log.",
   "widgetsB.email.compose": "Tulis email",
   "widgetsB.email.composeFrom": "Tulis email dari {account}",
-  "widgetsB.email.refreshUpdated": "Segarkan · diperbarui {age}",
   "widgetsB.email.couldNotCompose": "Tidak dapat memulai email baru.",
   "widgetsB.settings.email.messages": "Pesan",
   "widgetsB.settings.email.folder.desc": "Folder mana dari setiap akun yang dicantumkan",

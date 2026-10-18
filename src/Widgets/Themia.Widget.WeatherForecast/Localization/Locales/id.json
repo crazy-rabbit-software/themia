@@ -9,7 +9,5 @@
   "widgetsA.catalog.forecast.description": "Beberapa hari ke depan",
   "widgetsA.catalog.forecast.label": "Prakiraan",
   "widgetsC.weather.settings.showPrecipitation.desc": "Total hujan atau salju hari itu, jika ada",
-  "widgetsC.weather.settings.showPrecipitation.label": "Tampilkan curah hujan",
-  "widgetsC.weather.tooltip.forecastFailed": "{problem}. Menampilkan prakiraan dari {age}.",
-  "widgetsC.weather.tooltip.forecastSaved": "Prakiraan tersimpan dari {age}; menyegarkan."
+  "widgetsC.weather.settings.showPrecipitation.label": "Tampilkan curah hujan"
 }

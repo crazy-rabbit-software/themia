@@ -9,7 +9,5 @@
   "widgetsA.catalog.forecast.description": "未來幾天",
   "widgetsA.catalog.forecast.label": "預報",
   "widgetsC.weather.settings.showPrecipitation.desc": "當天的總降雨或降雪量（如有）",
-  "widgetsC.weather.settings.showPrecipitation.label": "顯示降水量",
-  "widgetsC.weather.tooltip.forecastFailed": "{problem}。目前顯示的是{age}的預報。",
-  "widgetsC.weather.tooltip.forecastSaved": "已儲存{age}的預報；正在重新整理。"
+  "widgetsC.weather.settings.showPrecipitation.label": "顯示降水量"
 }

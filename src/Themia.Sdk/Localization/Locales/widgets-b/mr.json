@@ -39,7 +39,6 @@
   "widgetsB.email.changeFailed": "ते काम झाले नाही. themia.log पहा.",
   "widgetsB.email.compose": "ईमेल लिहा",
   "widgetsB.email.composeFrom": "{account} वरून ईमेल लिहा",
-  "widgetsB.email.refreshUpdated": "रिफ्रेश · अपडेट झाले {age}",
   "widgetsB.email.couldNotCompose": "नवीन ईमेल सुरू करता आला नाही.",
   "widgetsB.settings.email.messages": "संदेश",
   "widgetsB.settings.email.folder.desc": "प्रत्येक खात्याचे कोणते फोल्डर दाखवायचे",

@@ -39,7 +39,6 @@
   "widgetsB.email.changeFailed": "操作未成功。請查看 themia.log。",
   "widgetsB.email.compose": "撰寫郵件",
   "widgetsB.email.composeFrom": "從 {account} 撰寫郵件",
-  "widgetsB.email.refreshUpdated": "重新整理 · {age}更新",
   "widgetsB.email.couldNotCompose": "無法開始新郵件。",
   "widgetsB.settings.email.messages": "郵件",
   "widgetsB.settings.email.folder.desc": "要列出每個帳戶的哪個資料夾",

@@ -39,7 +39,6 @@
   "widgetsB.email.changeFailed": "작업을 완료하지 못했습니다. themia.log를 참조하세요.",
   "widgetsB.email.compose": "메일 쓰기",
   "widgetsB.email.composeFrom": "{account}에서 메일 쓰기",
-  "widgetsB.email.refreshUpdated": "새로 고침 · {age} 업데이트됨",
   "widgetsB.email.couldNotCompose": "새 메일을 시작할 수 없습니다.",
   "widgetsB.settings.email.messages": "메시지",
   "widgetsB.settings.email.folder.desc": "각 계정에서 표시할 폴더",

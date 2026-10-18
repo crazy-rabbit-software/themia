@@ -39,8 +39,5 @@
   "widgetsC.stocks.settings.symbolRefused": "Scegli un risultato di ricerca o digita un simbolo: solo lettere, cifre e . - ^ =",
   "widgetsC.stocks.settings.symbol.desc": "Cerca per nome o simbolo: azioni, fondi, indici, cripto",
   "widgetsC.stocks.settings.windowsGreen": "Verde di Windows",
-  "widgetsC.stocks.settings.windowsRed": "Rosso di Windows",
-  "widgetsC.stocks.tooltip.failed": "{problem}. Ultimo prezzo: {age}.",
-  "widgetsC.stocks.tooltip.priced": "Quotato: {age}",
-  "widgetsC.stocks.tooltip.saved": "Salvato: {age}; aggiornamento in corso"
+  "widgetsC.stocks.settings.windowsRed": "Rosso di Windows"
 }

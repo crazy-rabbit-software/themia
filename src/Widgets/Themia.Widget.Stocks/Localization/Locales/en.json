@@ -40,8 +40,5 @@
   "widgetsC.stocks.settings.symbolRefused": "Pick a search result, or type a symbol: letters, digits and . - ^ = only",
   "widgetsC.stocks.settings.symbol.desc": "Search by name or ticker: shares, funds, indices, coins",
   "widgetsC.stocks.settings.windowsGreen": "Windows green",
-  "widgetsC.stocks.settings.windowsRed": "Windows red",
-  "widgetsC.stocks.tooltip.failed": "{problem}. Showing the price from {age}.",
-  "widgetsC.stocks.tooltip.priced": "Priced {age}",
-  "widgetsC.stocks.tooltip.saved": "Saved {age}; refreshing"
+  "widgetsC.stocks.settings.windowsRed": "Windows red"
 }

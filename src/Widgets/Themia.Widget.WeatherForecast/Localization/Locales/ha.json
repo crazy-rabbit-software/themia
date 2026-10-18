@@ -9,7 +9,5 @@
   "widgetsA.catalog.forecast.description": "Ƴan kwanaki masu zuwa",
   "widgetsA.catalog.forecast.label": "Hasashe",
   "widgetsC.weather.settings.showPrecipitation.desc": "Jimlar ruwan sama ko dusar ƙanƙara na yini, idan akwai",
-  "widgetsC.weather.settings.showPrecipitation.label": "Nuna ruwan sama",
-  "widgetsC.weather.tooltip.forecastFailed": "{problem}. Ana nuna hasashen daga {age}.",
-  "widgetsC.weather.tooltip.forecastSaved": "Hasashen da aka ajiye daga {age}; ana wartsakewa."
+  "widgetsC.weather.settings.showPrecipitation.label": "Nuna ruwan sama"
 }

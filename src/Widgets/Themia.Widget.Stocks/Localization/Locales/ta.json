@@ -39,8 +39,5 @@
   "widgetsC.stocks.settings.symbolRefused": "தேடல் முடிவைத் தேர்ந்தெடுக்கவும், அல்லது குறியீட்டைத் தட்டச்சு செய்யவும்: எழுத்துகள், இலக்கங்கள் மற்றும் . - ^ = மட்டும்",
   "widgetsC.stocks.settings.symbol.desc": "பெயர் அல்லது டிக்கர் மூலம் தேடவும்: பங்குகள், நிதிகள், குறியீட்டெண்கள், நாணயங்கள்",
   "widgetsC.stocks.settings.windowsGreen": "Windows பச்சை",
-  "widgetsC.stocks.settings.windowsRed": "Windows சிவப்பு",
-  "widgetsC.stocks.tooltip.failed": "{problem}. {age} இன் விலை காட்டப்படுகிறது.",
-  "widgetsC.stocks.tooltip.priced": "{age} விலையிடப்பட்டது",
-  "widgetsC.stocks.tooltip.saved": "{age} சேமித்தது; புதுப்பிக்கிறது"
+  "widgetsC.stocks.settings.windowsRed": "Windows சிவப்பு"
 }

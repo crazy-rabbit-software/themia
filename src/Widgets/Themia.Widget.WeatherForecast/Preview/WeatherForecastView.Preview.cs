@@ -13,11 +13,11 @@ namespace Themia.App.Widgets;
 /// </summary>
 internal sealed partial class WeatherForecastView : IWidgetPreviewState
 {
-    public IReadOnlyList<string> PreviewStates { get; } = ["sample"];
+    public IReadOnlyList<string> PreviewStates { get; } = ["sample", "stale"];
 
     public Task ShowPreviewStateAsync(string state)
     {
-        if (state != "sample")
+        if (state is not ("sample" or "stale"))
         {
             return Task.CompletedTask;
         }
@@ -35,6 +35,11 @@ internal sealed partial class WeatherForecastView : IWidgetPreviewState
         // [S-6172] The current conditions' sample reading is the temperature now.
         _nowTemperature = WeatherSample.Reading().Temperature;
         _forecast = new Fetched<Forecast>(FetchStatus.Ok, new Forecast(WeatherSample.Days(_config.EffectiveDays)), null, DateTimeOffset.Now.AddMinutes(-4));
+        if (state == "stale")
+        {
+            // [S-7042] The answer on screen, and the last refresh failed: the header's problem glyph.
+            _forecast = _forecast.Stale(FetchStatus.Offline, null);
+        }
         PublishTitle();
         Render();
         return Task.CompletedTask;

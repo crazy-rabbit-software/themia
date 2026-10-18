@@ -4,8 +4,6 @@
   "widgetsC.rss.untitled": "(zonder titel)",
   "widgetsC.rss.copyLink": "Koppeling kopiëren",
   "widgetsC.rss.noArticles": "Deze feed heeft geen artikelen",
-  "widgetsC.rss.savedRefreshing": "Opgeslagen {age}; wordt vernieuwd",
-  "widgetsC.rss.refreshed": "Vernieuwd {age}",
   "widgetsC.rss.settings.feeds": "Feeds",
   "widgetsC.rss.settings.empty": "Nog geen feeds. Voeg het adres van een RSS- of Atom-feed toe.",
   "widgetsC.rss.settings.add.title": "Een feed toevoegen",

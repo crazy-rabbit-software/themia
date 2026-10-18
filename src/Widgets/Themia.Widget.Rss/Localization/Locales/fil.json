@@ -4,8 +4,6 @@
   "widgetsC.rss.untitled": "(walang pamagat)",
   "widgetsC.rss.copyLink": "Kopyahin ang link",
   "widgetsC.rss.noArticles": "Walang artikulo ang feed na ito",
-  "widgetsC.rss.savedRefreshing": "Na-save {age}; nire-refresh",
-  "widgetsC.rss.refreshed": "Na-refresh {age}",
   "widgetsC.rss.settings.feeds": "Mga feed",
   "widgetsC.rss.settings.empty": "Wala pang feed. Idagdag ang address ng isang RSS o Atom feed.",
   "widgetsC.rss.settings.add.title": "Magdagdag ng feed",

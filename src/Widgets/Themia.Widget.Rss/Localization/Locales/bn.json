@@ -4,8 +4,6 @@
   "widgetsC.rss.untitled": "(শিরোনামহীন)",
   "widgetsC.rss.copyLink": "লিঙ্ক কপি করুন",
   "widgetsC.rss.noArticles": "এই ফিডে কোনো নিবন্ধ নেই",
-  "widgetsC.rss.savedRefreshing": "সংরক্ষিত {age}; রিফ্রেশ হচ্ছে",
-  "widgetsC.rss.refreshed": "রিফ্রেশ হয়েছে {age}",
   "widgetsC.rss.settings.feeds": "ফিড",
   "widgetsC.rss.settings.empty": "এখনও কোনো ফিড নেই। একটি RSS বা Atom ফিডের ঠিকানা যোগ করুন।",
   "widgetsC.rss.settings.add.title": "একটি ফিড যোগ করুন",

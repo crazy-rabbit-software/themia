@@ -39,7 +39,6 @@
   "widgetsB.email.changeFailed": "Bu işe yaramadı. themia.log dosyasına bakın.",
   "widgetsB.email.compose": "E-posta yaz",
   "widgetsB.email.composeFrom": "{account} hesabından e-posta yaz",
-  "widgetsB.email.refreshUpdated": "Yenile · {age} güncellendi",
   "widgetsB.email.couldNotCompose": "Yeni e-posta başlatılamadı.",
   "widgetsB.settings.email.messages": "İletiler",
   "widgetsB.settings.email.folder.desc": "Her hesabın hangi klasörünün listeleneceği",

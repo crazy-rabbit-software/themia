@@ -9,7 +9,5 @@
   "widgetsA.catalog.forecast.description": "తదుపరి కొన్ని రోజులు",
   "widgetsA.catalog.forecast.label": "సూచన",
   "widgetsC.weather.settings.showPrecipitation.desc": "ఏదైనా ఉన్న చోట, రోజు మొత్తం వర్షం లేదా మంచు",
-  "widgetsC.weather.settings.showPrecipitation.label": "అవపాతాన్ని చూపించు",
-  "widgetsC.weather.tooltip.forecastFailed": "{problem}. {age} నాటి సూచనను చూపిస్తోంది.",
-  "widgetsC.weather.tooltip.forecastSaved": "{age} నాటి సేవ్ చేసిన సూచన; రిఫ్రెష్ అవుతోంది."
+  "widgetsC.weather.settings.showPrecipitation.label": "అవపాతాన్ని చూపించు"
 }

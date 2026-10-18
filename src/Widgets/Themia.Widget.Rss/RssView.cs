@@ -34,13 +34,6 @@ namespace Themia.App.Widgets;
 internal sealed partial class RssView : Grid, IWidgetView, IWidgetHeaderContent, IWidgetSurfaceAware,
     IWidgetSizeAware, IWidgetContextActions, IWidgetKeys
 {
-    private readonly TextBlock _freshness = Fluent.Text(FluentType.Caption, "TextFillColorTertiaryBrush");
-    private readonly ProgressRing _spinner = new() { Width = 12, Height = 12, IsActive = false, Visibility = Visibility.Collapsed };
-    private readonly StackPanel _trailing = new() { Orientation = Orientation.Horizontal, Spacing = Fluent.Space1 };
-
-    private readonly Brush _freshBrush = ThemeBrush.Of("TextFillColorTertiaryBrush", Colors.Gray);
-    private readonly Brush _staleBrush = ThemeBrush.Of("SystemFillColorCautionBrush", Colors.Goldenrod);
-
     private readonly KitBinding _binding;
     private readonly FeedSource _source;
 
@@ -58,21 +51,17 @@ internal sealed partial class RssView : Grid, IWidgetView, IWidgetHeaderContent,
     {
         _source = new FeedSource(host.Feeds);
         _binding = new KitBinding(host, RssSpec.Spec, Glyphs.Rss, RssSpec.Actions);
-        _binding.Rendered += OnRendered;
-
-        _spinner.VerticalAlignment = VerticalAlignment.Center;
-        _trailing.Children.Add(_spinner);
-        _trailing.Children.Add(_freshness);
 
         Children.Add(_binding.List);
         Children.Add(_binding.State);
     }
 
     /// <summary>
-    /// The age of the feeds and, while a refresh is out, a spinner ([S-1303]). Built in the
-    /// constructor because the card reads this once, when it builds that header.
+    /// [S-7064] The kit's header: the problem glyph while a feed failed under the articles on screen
+    /// ([S-7042]) and the ring while a refresh is out ([S-1303]). Built in the constructor because the
+    /// card reads this once, when it builds that header.
     /// </summary>
-    public FrameworkElement? HeaderTrailing => _trailing;
+    public FrameworkElement? HeaderTrailing => _binding.Header;
 
     /// <summary>[S-1303] Refresh: the network now, past the cache and any back-off.</summary>
     public IReadOnlyList<WidgetAction> ContextActions => _binding.CardActions;
@@ -132,65 +121,10 @@ internal sealed partial class RssView : Grid, IWidgetView, IWidgetHeaderContent,
     /// </summary>
     public bool HandleKey(WidgetKey key) => _binding.HandleKey(key);
 
-    /// <summary>After every draw: the header's age and spinner.</summary>
-    private void OnRendered()
-    {
-        ShowSpinner(_source.Busy);
-        UpdateFreshness(DateTimeOffset.Now);
-    }
-
-    private void ShowSpinner(bool on)
-    {
-        _spinner.IsActive = on;
-        _spinner.Visibility = on ? Visibility.Visible : Visibility.Collapsed;
-    }
-
-    /// <summary>
-    /// [S-1303] The header's age: of the oldest list in hand, in the caution colour when a feed
-    /// failed, when it is overdue, or when it was restored from disk and not yet refreshed
-    /// ([S-1300]); the tooltip names every failing feed and its reason.
-    /// </summary>
-    private void UpdateFreshness(DateTimeOffset now)
-    {
-        var held = _source.Held;
-
-        if (_binding.Screen.Kind != KitScreenKind.Items || held.Count == 0)
-        {
-            _freshness.Text = string.Empty;
-            ToolTipService.SetToolTip(_freshness, null);
-            return;
-        }
-
-        var at = held.Min(p => p.At);
-        var restored = held.Any(p => p.Restored);
-        var problems = _binding.Screen.HeaderProblems;
-        var failed = problems.Count > 0;
-        var stale = failed || restored || FetchState.IsStale(at, now, _config.TickInterval);
-        var age = FetchState.Freshness(at, now);
-
-        _freshness.Text = age;
-        _freshness.Foreground = stale ? _staleBrush : _freshBrush;
-
-        // [S-1303] A compact tile's header has room for its title or the age, not both: the age is a
-        // phrase in some languages ("vor 3 Min."), and it would sit on top of the title. The title
-        // wins; the age stays one step away in the tooltip and on every larger size.
-        var area = _binding.Area;
-        _freshness.Visibility = area.IsMeasured && area.WidthClass == SizeClass.Compact ? Visibility.Collapsed : Visibility.Visible;
-
-        var tip = failed
-            ? Str.WidgetUi_RefreshFailedSince.Format(("reason", string.Join("; ", problems)), ("time", age))
-            : restored
-                ? RssStr.WidgetsC_Rss_SavedRefreshing.Format(("age", age))
-                : RssStr.WidgetsC_Rss_Refreshed.Format(("age", age));
-
-        ToolTipService.SetToolTip(_freshness, tip);
-    }
-
     public void Detach()
     {
         _binding.Dispose();
         _source.Detach();
-        ShowSpinner(false);
         _ticker = null;
     }
 
@@ -208,9 +142,6 @@ internal sealed partial class RssView : Grid, IWidgetView, IWidgetHeaderContent,
         private bool _listening;
 
         public event Action? Changed;
-
-        /// <summary>The held answers of the feeds read now (for the header's age).</summary>
-        public IReadOnlyList<Fetched<FeedDocument>> Held => [.. _parts.Values.Where(p => p.Value is not null)];
 
         public bool Busy => _config.FeedUrls.Any(url => feeds.Busy(url, _config.EffectiveMaxItems));
 

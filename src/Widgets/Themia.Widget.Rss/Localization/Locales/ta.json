@@ -4,8 +4,6 @@
   "widgetsC.rss.untitled": "(தலைப்பில்லை)",
   "widgetsC.rss.copyLink": "இணைப்பை நகலெடு",
   "widgetsC.rss.noArticles": "இந்த ஊட்டத்தில் கட்டுரைகள் இல்லை",
-  "widgetsC.rss.savedRefreshing": "{age} சேமித்தது; புதுப்பிக்கிறது",
-  "widgetsC.rss.refreshed": "{age} புதுப்பிக்கப்பட்டது",
   "widgetsC.rss.settings.feeds": "ஊட்டங்கள்",
   "widgetsC.rss.settings.empty": "இன்னும் ஊட்டங்கள் இல்லை. RSS அல்லது Atom ஊட்டத்தின் முகவரியைச் சேர்க்கவும்.",
   "widgetsC.rss.settings.add.title": "ஊட்டத்தைச் சேர்",

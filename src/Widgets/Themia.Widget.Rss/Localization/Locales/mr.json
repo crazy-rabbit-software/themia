@@ -4,8 +4,6 @@
   "widgetsC.rss.untitled": "(शीर्षकहीन)",
   "widgetsC.rss.copyLink": "लिंक कॉपी करा",
   "widgetsC.rss.noArticles": "या फीडमध्ये लेख नाहीत",
-  "widgetsC.rss.savedRefreshing": "जतन: {age}; रीफ्रेश होत आहे",
-  "widgetsC.rss.refreshed": "रीफ्रेश: {age}",
   "widgetsC.rss.settings.feeds": "फीड",
   "widgetsC.rss.settings.empty": "अद्याप फीड नाहीत. RSS किंवा Atom फीडचा पत्ता जोडा.",
   "widgetsC.rss.settings.add.title": "फीड जोडा",

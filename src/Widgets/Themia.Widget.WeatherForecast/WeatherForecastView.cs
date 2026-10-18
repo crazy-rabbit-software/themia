@@ -10,6 +10,7 @@ using Themia.Core.Model;
 using Themia.Core.Sync;
 using Themia.Core.Widgets;
 using Themia.Sdk.WinUI;
+using Themia.Sdk.WinUI.Kit;
 using Themia.Widget.WeatherForecast;
 
 namespace Themia.App.Widgets;
@@ -34,15 +35,14 @@ internal sealed partial class WeatherForecastView : Grid, IWidgetView, IWidgetHe
 {
     private const string Scope = "forecast";
 
-    private readonly TextBlock _freshness = Fluent.Text(FluentType.Caption, "TextFillColorTertiaryBrush");
+    /// <summary>[S-7064] The header's problem glyph ([S-7042]): the one stale rule, no age.</summary>
+    private readonly KitHeader _header;
     private readonly Grid _body = new();
     private readonly StackPanel _emptyState;
     private readonly TextBlock _emptyMessage = new();
 
     private readonly List<IDisposable> _hovers = [];
 
-    private readonly Brush _freshBrush = ThemeBrush.Of("TextFillColorTertiaryBrush", Colors.Gray);
-    private readonly Brush _staleBrush = ThemeBrush.Of("SystemFillColorCautionBrush", Colors.Goldenrod);
     // [S-837] The range bar's track is a slider's (SliderTrackFill), not the disabled fill: the item
     // layer's track ([S-6513]). Today's column or row is a selected chip of it.
     private readonly Brush _barBrush = ThemeBrush.Of("AccentFillColorDefaultBrush", Colors.DodgerBlue);
@@ -92,6 +92,7 @@ internal sealed partial class WeatherForecastView : Grid, IWidgetView, IWidgetHe
     public WeatherForecastView(IWidgetHost host)
     {
         _host = host;
+        _header = new KitHeader(host);
         _emptyState = Fluent.EmptyState(WeatherForecastModule.Glyph, _emptyMessage, out _);
         _emptyState.Visibility = Visibility.Collapsed;
 
@@ -103,13 +104,13 @@ internal sealed partial class WeatherForecastView : Grid, IWidgetView, IWidgetHe
     /// The age of the forecast, in the card's header. Built in the constructor because the card
     /// reads this once, when it builds that header.
     /// </summary>
-    public FrameworkElement? HeaderTrailing => _freshness;
+    public FrameworkElement? HeaderTrailing => _header;
 
     /// <summary>
     /// [S-730] Refresh. The style is chosen on the properties strip and the settings page ([S-6007]).
     /// </summary>
     public IReadOnlyList<WidgetAction> ContextActions =>
-        _config.HasLocation ? [new WidgetAction(Glyphs.Refresh, Str.Common_Refresh.Text(), () => Reload(force: true))] : [];
+        _config.HasLocation ? [new WidgetAction(Glyphs.Refresh, OnlineParts.RefreshLabel(_forecast), () => Reload(force: true))] : [];
 
     public void Attach(Ticker ticker, WidgetConfig config)
     {
@@ -277,35 +278,18 @@ internal sealed partial class WeatherForecastView : Grid, IWidgetView, IWidgetHe
 
             _emptyState.Visibility = Visibility.Visible;
             _body.Visibility = Visibility.Collapsed;
-            _freshness.Text = string.Empty;
+            _header.Clear();
             ClearBody();
             return;
         }
 
         _emptyState.Visibility = Visibility.Collapsed;
         _body.Visibility = Visibility.Visible;
-        UpdateFreshness(held!, now);
+        _header.Show(OnlineParts.Problems(held), busy: false);
 
         // New data always rebuilds; a tick with the same data rebuilds only when the day changed.
         _built = null;
         Lay();
-    }
-
-    private void UpdateFreshness(Fetched<Forecast> held, DateTimeOffset now)
-    {
-        var failed = FetchState.IsFailure(held.Status);
-        var stale = failed || held.Restored || FetchState.IsStale(held.At, now, _config.TickInterval);
-        var age = FetchState.Freshness(held.At, now);
-
-        _freshness.Text = age;
-        _freshness.Foreground = stale ? _staleBrush : _freshBrush;
-
-        var inline = OnlineParts.InlineAge(age);
-        ToolTipService.SetToolTip(
-            _freshness,
-            failed ? WeatherForecastStr.WidgetsC_Weather_Tooltip_ForecastFailed.Format(("problem", FetchState.Message(held.Status)), ("age", inline))
-            : held.Restored ? WeatherForecastStr.WidgetsC_Weather_Tooltip_ForecastSaved.Format(("age", inline))
-            : Str.WidgetsC_Weather_Tooltip_Updated.Format(("age", inline)));
     }
 
     /// <summary>Pick the style's plan for the current area, and rebuild only if it changed.</summary>

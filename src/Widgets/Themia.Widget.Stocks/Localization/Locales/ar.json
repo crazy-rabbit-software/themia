@@ -51,8 +51,5 @@
   "widgetsC.stocks.settings.symbolRefused": "اختر نتيجة بحث، أو اكتب رمزًا: أحرف وأرقام و. - ^ = فقط",
   "widgetsC.stocks.settings.symbol.desc": "ابحث بالاسم أو الرمز: أسهم، صناديق، مؤشرات، عملات",
   "widgetsC.stocks.settings.windowsGreen": "أخضر Windows",
-  "widgetsC.stocks.settings.windowsRed": "أحمر Windows",
-  "widgetsC.stocks.tooltip.failed": "{problem}. عرض السعر من {age}.",
-  "widgetsC.stocks.tooltip.priced": "السعر {age}",
-  "widgetsC.stocks.tooltip.saved": "محفوظ {age}؛ جارٍ التحديث"
+  "widgetsC.stocks.settings.windowsRed": "أحمر Windows"
 }

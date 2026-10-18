@@ -9,7 +9,5 @@
   "widgetsA.catalog.forecast.description": "สองสามวันข้างหน้า",
   "widgetsA.catalog.forecast.label": "พยากรณ์อากาศ",
   "widgetsC.weather.settings.showPrecipitation.desc": "ปริมาณฝนหรือหิมะรวมของวัน หากมี",
-  "widgetsC.weather.settings.showPrecipitation.label": "แสดงปริมาณน้ำฝน",
-  "widgetsC.weather.tooltip.forecastFailed": "{problem} กำลังแสดงพยากรณ์จาก {age}",
-  "widgetsC.weather.tooltip.forecastSaved": "พยากรณ์ที่บันทึกไว้จาก {age} กำลังรีเฟรช"
+  "widgetsC.weather.settings.showPrecipitation.label": "แสดงปริมาณน้ำฝน"
 }

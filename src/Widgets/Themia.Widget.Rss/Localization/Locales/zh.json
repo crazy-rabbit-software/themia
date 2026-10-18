@@ -4,8 +4,6 @@
   "widgetsC.rss.untitled": "（无标题）",
   "widgetsC.rss.copyLink": "复制链接",
   "widgetsC.rss.noArticles": "此订阅源没有文章",
-  "widgetsC.rss.savedRefreshing": "保存于{age}；正在刷新",
-  "widgetsC.rss.refreshed": "刷新于{age}",
   "widgetsC.rss.settings.feeds": "订阅源",
   "widgetsC.rss.settings.empty": "还没有订阅源。请添加 RSS 或 Atom 订阅源的地址。",
   "widgetsC.rss.settings.add.title": "添加订阅源",

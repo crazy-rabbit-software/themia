@@ -4,8 +4,6 @@
   "widgetsC.rss.untitled": "(بلا عنوان)",
   "widgetsC.rss.copyLink": "نسخ الارتباط",
   "widgetsC.rss.noArticles": "لا توجد مقالات في هذا الموجز",
-  "widgetsC.rss.savedRefreshing": "محفوظ {age}؛ جارٍ التحديث",
-  "widgetsC.rss.refreshed": "تم التحديث {age}",
   "widgetsC.rss.settings.feeds": "الموجزات",
   "widgetsC.rss.settings.empty": "لا توجد موجزات بعد. أضف عنوان موجز RSS أو Atom.",
   "widgetsC.rss.settings.add.title": "إضافة موجز",

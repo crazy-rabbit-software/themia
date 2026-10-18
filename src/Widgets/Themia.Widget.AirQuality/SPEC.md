@@ -2,8 +2,8 @@
 
 The module `airQuality` ([S-6911]): air quality, UV and pollen at a place. Its tags are this file's
 alone; the root `SPEC.md` holds the host's sections and what the online widgets share (Air quality,
-rain and exchange rates: the air reply's wire [S-5102] in the SDK's `AirQuality.cs`, the header's age
-line [S-5160], the offline shelf [S-5161]; the background web sync [S-2663]; the meters' gauge [S-6302]).
+rain and exchange rates: the air reply's wire [S-5102] in the SDK's `AirQuality.cs`, the header's stale
+rule [S-5160], the offline shelf [S-5161]; the background web sync [S-2663]; the meters' gauge [S-6302]).
 
 Owning files: everything in this folder: `AirQualityModule.cs` (descriptor, view factory, settings
 rows, JSON context, its glyph), `AirQualityConfig.cs` (with its index scale and styles),

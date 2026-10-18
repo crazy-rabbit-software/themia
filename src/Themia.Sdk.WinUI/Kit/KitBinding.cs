@@ -50,11 +50,15 @@ public sealed class KitBinding : IDisposable
         _spec = spec;
         _handle = handle;
         List = new KitList(host, spec, actions, Run);
+        Header = new KitHeader(host);
         State = new KitStatePanel(glyph, host) { Visibility = Visibility.Collapsed };
     }
 
     /// <summary>The list part: the view puts it in its slot.</summary>
     public KitList List { get; }
+
+    /// <summary>[S-7064] The header extras: the view hands it to the card as its <c>HeaderTrailing</c>.</summary>
+    public KitHeader Header { get; }
 
     /// <summary>The empty and problem state: the view puts it over the list.</summary>
     public KitStatePanel State { get; }
@@ -68,13 +72,13 @@ public sealed class KitBinding : IDisposable
     /// <summary>The area of the last draw.</summary>
     public WidgetArea Area => _area;
 
-    /// <summary>Raised after every draw, for the view's header.</summary>
-    public event Action? Rendered;
-
-    /// <summary>[S-1303] The card menu's Refresh, while the widget has something to read.</summary>
+    /// <summary>
+    /// [S-1303] [S-7042] The card menu's Refresh, while the widget has something to read, with the age
+    /// of the oldest copy on screen ("Refresh · updated 4 min ago").
+    /// </summary>
     public IReadOnlyList<WidgetAction> CardActions
         => _config is { Configured: true } && _source is not null
-            ? [new WidgetAction(Glyphs.Refresh, Str.Common_Refresh.Text(), () => _source?.Show(refresh: true))]
+            ? [new WidgetAction(Glyphs.Refresh, KitFreshness.RefreshLabel(Strings.Current, Last.Outcomes, DateTimeOffset.Now), () => _source?.Show(refresh: true))]
             : [];
 
     /// <summary>Start: listen to the source and the language, draw what it holds, and tell it the widget is on screen.</summary>
@@ -183,9 +187,13 @@ public sealed class KitBinding : IDisposable
             {
                 State.Hide();
                 List.Visibility = Visibility.Visible;
-                List.Show(items, KitLadder.Plan(_area, _spec, _config.Shows), _area, DateTimeOffset.Now);
+                var now = DateTimeOffset.Now;
+                List.Show(items, KitLadder.Plan(_area, _spec, _config.Shows), _area, now);
+
+                // [S-7042] The one stale rule: a copy on screen the last attempt of some source could
+                // not improve on is the header's problem glyph, one line per source and problem.
+                Header.Show(KitFreshness.Lines(Strings.Current, read.Outcomes, now), _source.Busy, Screen.OffersAccounts);
                 PublishTitle();
-                Rendered?.Invoke();
                 return;
             }
         }
@@ -193,8 +201,8 @@ public sealed class KitBinding : IDisposable
         List.Clear();
         List.Visibility = Visibility.Collapsed;
         State.Show(Screen);
+        Header.Show([], _source.Busy);
         PublishTitle();
-        Rendered?.Invoke();
     }
 
     private void PublishTitle()
@@ -263,5 +271,6 @@ public sealed class KitBinding : IDisposable
         _ticker = null;
         List.Detach();
         State.Detach();
+        Header.Detach();
     }
 }

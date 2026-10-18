@@ -13,11 +13,11 @@ namespace Themia.App.Widgets;
 /// </summary>
 internal sealed partial class ExchangeRatesView : IWidgetPreviewState
 {
-    public IReadOnlyList<string> PreviewStates { get; } = ["sample"];
+    public IReadOnlyList<string> PreviewStates { get; } = ["sample", "stale"];
 
     public Task ShowPreviewStateAsync(string state)
     {
-        if (state != "sample")
+        if (state is not ("sample" or "stale"))
         {
             return Task.CompletedTask;
         }
@@ -50,6 +50,11 @@ internal sealed partial class ExchangeRatesView : IWidgetPreviewState
 
         _config = new ExchangeRatesConfig { BaseCurrency = "CHF", QuoteCurrency = "EUR", Style = _config.Style };
         _table = new Fetched<RateTable>(FetchStatus.Ok, EcbWire.Parse(xml.ToString()).Value, null, DateTimeOffset.Now.AddHours(-2));
+        if (state == "stale")
+        {
+            // [S-7042] The answer on screen, and the last refresh failed: the header's problem glyph.
+            _table = _table.Stale(FetchStatus.Offline, null);
+        }
         _web = null;
         PublishTitle();
         Render();

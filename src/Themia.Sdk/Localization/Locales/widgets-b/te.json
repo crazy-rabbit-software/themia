@@ -39,7 +39,6 @@
   "widgetsB.email.changeFailed": "అది పని చేయలేదు. themia.log చూడండి.",
   "widgetsB.email.compose": "ఇమెయిల్ రాయండి",
   "widgetsB.email.composeFrom": "{account} నుండి ఇమెయిల్ రాయండి",
-  "widgetsB.email.refreshUpdated": "రిఫ్రెష్ · అప్‌డేట్ అయింది {age}",
   "widgetsB.email.couldNotCompose": "కొత్త ఇమెయిల్ ప్రారంభించడం సాధ్యం కాలేదు.",
   "widgetsB.settings.email.messages": "సందేశాలు",
   "widgetsB.settings.email.folder.desc": "ప్రతి ఖాతాలో ఏ ఫోల్డర్‌ను జాబితా చేయాలి",

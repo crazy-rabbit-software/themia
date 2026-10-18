@@ -39,8 +39,5 @@
   "widgetsC.stocks.settings.symbolRefused": "Kies een zoekresultaat of typ een symbool: alleen letters, cijfers en . - ^ =",
   "widgetsC.stocks.settings.symbol.desc": "Zoek op naam of ticker: aandelen, fondsen, indexen, munten",
   "widgetsC.stocks.settings.windowsGreen": "Windows-groen",
-  "widgetsC.stocks.settings.windowsRed": "Windows-rood",
-  "widgetsC.stocks.tooltip.failed": "{problem}. De koers van {age} wordt getoond.",
-  "widgetsC.stocks.tooltip.priced": "Koers van {age}",
-  "widgetsC.stocks.tooltip.saved": "Opgeslagen {age}; wordt vernieuwd"
+  "widgetsC.stocks.settings.windowsRed": "Windows-rood"
 }

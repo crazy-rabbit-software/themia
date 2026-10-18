@@ -650,7 +650,7 @@ internal sealed partial class EmailView : Grid, IWidgetView, IWidgetHeaderConten
             var age = MailScreens.UpdatedAgo(Strings.Current, _feed?.Snapshot.Outcomes ?? [], DateTimeOffset.Now);
             var actions = new List<WidgetAction>
             {
-                new(Glyphs.Refresh, age is null ? Str.Common_Refresh.Text() : Str.WidgetsB_Email_RefreshUpdated.Format(("age", age)), Refresh),
+                new(Glyphs.Refresh, age is null ? Str.Common_Refresh.Text() : Str.Kit_RefreshUpdated.Format(("age", age)), Refresh),
             };
 
             var writers = ComposeAccounts();

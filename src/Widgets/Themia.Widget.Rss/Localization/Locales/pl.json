@@ -4,8 +4,6 @@
   "widgetsC.rss.untitled": "(bez tytułu)",
   "widgetsC.rss.copyLink": "Kopiuj link",
   "widgetsC.rss.noArticles": "Ten kanał nie zawiera artykułów",
-  "widgetsC.rss.savedRefreshing": "Zapisano {age}; odświeżanie",
-  "widgetsC.rss.refreshed": "Odświeżono {age}",
   "widgetsC.rss.settings.feeds": "Kanały",
   "widgetsC.rss.settings.empty": "Brak kanałów. Dodaj adres kanału RSS lub Atom.",
   "widgetsC.rss.settings.add.title": "Dodaj kanał",

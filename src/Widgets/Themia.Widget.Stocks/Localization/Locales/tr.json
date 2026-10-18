@@ -39,8 +39,5 @@
   "widgetsC.stocks.settings.symbolRefused": "Bir arama sonucu seçin veya bir sembol yazın: yalnızca harfler, rakamlar ve . - ^ =",
   "widgetsC.stocks.settings.symbol.desc": "Ada veya koda göre arayın: hisseler, fonlar, endeksler, kripto paralar",
   "widgetsC.stocks.settings.windowsGreen": "Windows yeşili",
-  "widgetsC.stocks.settings.windowsRed": "Windows kırmızısı",
-  "widgetsC.stocks.tooltip.failed": "{problem}. {age} tarihli fiyat gösteriliyor.",
-  "widgetsC.stocks.tooltip.priced": "Fiyat zamanı: {age}",
-  "widgetsC.stocks.tooltip.saved": "Kaydedildi: {age}; yenileniyor"
+  "widgetsC.stocks.settings.windowsRed": "Windows kırmızısı"
 }

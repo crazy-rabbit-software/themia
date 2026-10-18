@@ -39,7 +39,6 @@
   "widgetsB.email.changeFailed": "操作できませんでした。themia.log を確認してください。",
   "widgetsB.email.compose": "メールを作成",
   "widgetsB.email.composeFrom": "{account} からメールを作成",
-  "widgetsB.email.refreshUpdated": "更新 · {age}に更新",
   "widgetsB.email.couldNotCompose": "新しいメールを開始できませんでした。",
   "widgetsB.settings.email.messages": "メッセージ",
   "widgetsB.settings.email.folder.desc": "各アカウントで表示するフォルダー",

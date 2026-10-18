@@ -39,7 +39,6 @@
   "widgetsB.email.changeFailed": "To się nie udało. Zobacz themia.log.",
   "widgetsB.email.compose": "Napisz e-mail",
   "widgetsB.email.composeFrom": "Napisz e-mail z konta {account}",
-  "widgetsB.email.refreshUpdated": "Odśwież · zaktualizowano {age}",
   "widgetsB.email.couldNotCompose": "Nie udało się rozpocząć nowego e-maila.",
   "widgetsB.settings.email.messages": "Wiadomości",
   "widgetsB.settings.email.folder.desc": "Który folder każdego konta wyświetlać",

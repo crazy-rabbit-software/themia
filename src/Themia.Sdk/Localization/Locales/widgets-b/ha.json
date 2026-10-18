@@ -39,7 +39,6 @@
   "widgetsB.email.changeFailed": "Hakan bai yi aiki ba. Duba themia.log.",
   "widgetsB.email.compose": "Rubuta imel",
   "widgetsB.email.composeFrom": "Rubuta imel daga {account}",
-  "widgetsB.email.refreshUpdated": "Sabunta · an sabunta {age}",
   "widgetsB.email.couldNotCompose": "Ba a iya fara sabon imel ba.",
   "widgetsB.settings.email.messages": "Saƙonni",
   "widgetsB.settings.email.folder.desc": "Wane babban fayil na kowane asusu za a lissafa",

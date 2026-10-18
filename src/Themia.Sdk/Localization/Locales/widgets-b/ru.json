@@ -39,7 +39,6 @@
   "widgetsB.email.changeFailed": "Не получилось. См. themia.log.",
   "widgetsB.email.compose": "Написать письмо",
   "widgetsB.email.composeFrom": "Написать письмо от {account}",
-  "widgetsB.email.refreshUpdated": "Обновить · обновлено {age}",
   "widgetsB.email.couldNotCompose": "Не удалось начать новое письмо.",
   "widgetsB.settings.email.messages": "Письма",
   "widgetsB.settings.email.folder.desc": "Какую папку каждой учетной записи показывать",

@@ -4,8 +4,6 @@
   "widgetsC.rss.untitled": "(sin título)",
   "widgetsC.rss.copyLink": "Copiar vínculo",
   "widgetsC.rss.noArticles": "Esta fuente no tiene artículos",
-  "widgetsC.rss.savedRefreshing": "Guardado {age}; actualizando",
-  "widgetsC.rss.refreshed": "Actualizado {age}",
   "widgetsC.rss.settings.feeds": "Fuentes",
   "widgetsC.rss.settings.empty": "Aún no hay fuentes. Añade la dirección de una fuente RSS o Atom.",
   "widgetsC.rss.settings.add.title": "Añadir una fuente",

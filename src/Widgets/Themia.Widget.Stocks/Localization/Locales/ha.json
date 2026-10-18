@@ -39,8 +39,5 @@
   "widgetsC.stocks.settings.symbolRefused": "Zaɓi sakamakon bincike, ko rubuta alama: haruffa, lambobi da . - ^ = kawai",
   "widgetsC.stocks.settings.symbol.desc": "Bincika da suna ko alama: hannun jari, kuɗaɗen jari, ma'auni, tsabar kuɗi",
   "widgetsC.stocks.settings.windowsGreen": "Koren Windows",
-  "widgetsC.stocks.settings.windowsRed": "Jan Windows",
-  "widgetsC.stocks.tooltip.failed": "{problem}. Ana nuna farashin daga {age}.",
-  "widgetsC.stocks.tooltip.priced": "An ƙididdige farashi {age}",
-  "widgetsC.stocks.tooltip.saved": "An ajiye {age}; ana wartsakewa"
+  "widgetsC.stocks.settings.windowsRed": "Jan Windows"
 }
