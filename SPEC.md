@@ -950,6 +950,23 @@ The shared parts a list widget is built from, and the rules they keep (design an
   (from 440px), the badge (from 560px), the time (at least 36px). Rows go compact under 200px of
   height; the list fills the slot and scrolls under the fade ([S-1281]); times are re-labelled
   without rebuilding a row. The ladder's measures are the list's (a test pins them).
+- **[S-7035]** `KitOverflow.Page`: pages of the rows that fit whole, never scrolled ([S-2709]): a
+  page is the plan's columns filled one after the other, each group's heading (a day's: "Today",
+  "Tomorrow" with the date where the line holds it whole, else the date, [S-2716]; in the accent for
+  the selected day, [S-3622]) over its first row and again over a column that starts mid-group;
+  on a tile under 128px a first group that is today drops its heading ([S-1267]); at least one row
+  per column, so paging always moves. Rows are fitted at one title line; what is left under a
+  column's rows gives long titles their second line in order ([S-2717], `Disclosure.SecondLines`).
+  The widget turns the page (`KitList.Page`); the cursor takes the page with it.
+- **[S-7036]** The `Schedule` look (the agenda's): the stripe in the item's calendar colour (or its
+  tone, a birthday's caution), the time column (start over end; a word such as "All day" or "Now"
+  in the strong step trims, a clock never; the lead's glyph for an item with no time), measured for
+  the widest of the spec's labels in the current language on the 4px grid (at least 52px, at most
+  35% of the column), then the title over its detail. Two columns from 720px; under 260px of column
+  the time folds into the detail line ("10:30–11:30 · Room 4"); from 480px of column on a tile that
+  is not compact where and who get columns of their own; rows of one height (two lines unless the
+  tile is compact and wide), headings of one height. A view may hook its rows (`KitList.Decorate`:
+  the calendar's links across widgets).
 - **[S-7033]** Inline actions: a spec's actions flagged inline (and runnable) swap in for the time on
   a `Line` row under the pointer or the keyboard, on a Huge-wide tile only; the slot is always as
   wide as the wider of the two, the hidden time keeps its box and the buttons overhang the line, so

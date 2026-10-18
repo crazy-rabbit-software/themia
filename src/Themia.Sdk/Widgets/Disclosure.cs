@@ -190,4 +190,24 @@ public sealed class Disclosure
     private double Cost(double height) => Usable(height) + (_taken > 0 ? _gap : 0);
 
     private static double Usable(double value) => double.IsFinite(value) && value > 0 ? value : 0;
+
+    /// <summary>
+    /// [S-2717] Which of a list's rows get a wrapped title's second line. The rows were fitted at one
+    /// line each, so every row that fits is shown first; then, in order, each row whose title runs
+    /// past its line takes one more line of <paramref name="extraLine"/> while
+    /// <paramref name="leftover"/> holds it. A title that fits its line takes nothing.
+    /// </summary>
+    public static IReadOnlyList<bool> SecondLines(IReadOnlyList<bool> wraps, double leftover, double extraLine)
+    {
+        ArgumentNullException.ThrowIfNull(wraps);
+        var room = new Disclosure(1, leftover);
+        var result = new bool[wraps.Count];
+        for (var i = 0; i < wraps.Count; i++)
+        {
+            // A row that does not wrap asks for nothing; one that no longer fits ends the wrapping.
+            result[i] = wraps[i] && room.Take(extraLine);
+        }
+
+        return result;
+    }
 }

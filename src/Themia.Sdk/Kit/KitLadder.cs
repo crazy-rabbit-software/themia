@@ -32,6 +32,14 @@ public enum KitRowLook
     /// least essential shed first, with the columns' titles over them where the height affords it. Mail.
     /// </summary>
     Table,
+
+    /// <summary>
+    /// [S-7036] A scheduled item: the stripe in its calendar's colour, the time column (start over
+    /// end), the title over its detail; on a narrow column the time folds into the detail line, on a
+    /// wide one where and who get columns of their own. Rows of one height, in pages with day
+    /// groups ([S-7035]). The agenda.
+    /// </summary>
+    Schedule,
 }
 
 /// <summary>[S-7034] A table look's column: which field of the item it shows.</summary>
@@ -90,6 +98,9 @@ public enum KitOverflow
 {
     /// <summary>A scroll away, under the shared fade ([S-1281]).</summary>
     Scroll,
+
+    /// <summary>[S-7035] Pages of the rows that fit whole, turned by the widget's own controls and keys; never scrolled.</summary>
+    Page,
 }
 
 /// <summary>
@@ -113,6 +124,13 @@ public sealed record KitSpec(
 
     /// <summary>[S-7034] How a table's time column writes it.</summary>
     public KitTime ColumnTime { get; init; } = KitTime.Stamp;
+
+    /// <summary>
+    /// [S-7036] Every label a schedule's time column may show at its widest ("All day", "Now" in the
+    /// strong step, a clock in the language's digits), measured in the current language for the
+    /// column's width.
+    /// </summary>
+    public Func<IReadOnlyList<(string Text, bool Strong)>>? TimeLabels { get; init; }
 }
 
 /// <summary>[S-7030] What one size of a kit list shows; chosen by <see cref="KitLadder.Plan"/>.</summary>
@@ -128,6 +146,10 @@ public sealed record KitSpec(
 /// <param name="ColumnHeader">[S-7034] The table's column titles over its rows.</param>
 /// <param name="InlineActions">[S-7033] The spec's inline actions on the hovered and the focused row.</param>
 /// <param name="Table">[S-7034] The table's columns at their widths, in the user's order; null for any other look.</param>
+/// <param name="Narrow">[S-7036] A narrow column: the time folds into the detail line.</param>
+/// <param name="Details">[S-7036] Where and who in columns of their own.</param>
+/// <param name="RowHeight">[S-7035] A paged look's one row height (one title line).</param>
+/// <param name="HeadingHeight">[S-7035] A group heading's height.</param>
 public readonly record struct KitPlan(
     KitRowLook Look,
     int Columns,
@@ -141,7 +163,11 @@ public readonly record struct KitPlan(
     bool Compact = false,
     bool ColumnHeader = false,
     bool InlineActions = false,
-    IReadOnlyList<KitColumnFit>? Table = null)
+    IReadOnlyList<KitColumnFit>? Table = null,
+    bool Narrow = false,
+    bool Details = false,
+    double RowHeight = 0,
+    double HeadingHeight = 0)
 {
     /// <summary>The line under the title and preview: the time, and the lead when the subtitle has no line.</summary>
     public bool MetaLine => When || (Lead && !Subtitle);
@@ -191,6 +217,11 @@ public static class KitLadder
     {
         ArgumentNullException.ThrowIfNull(spec);
         ArgumentNullException.ThrowIfNull(choices);
+
+        if (spec.Look == KitRowLook.Schedule)
+        {
+            return Scheduled(area, spec);
+        }
 
         if (spec.Look != KitRowLook.Rich)
         {
@@ -547,4 +578,73 @@ public static class KitLadder
             }),
         ];
     }
+
+    // ---- the schedule look ([S-7035], [S-7036]) -------------------------------------------------
+
+    /// <summary>[S-1267] From this column width a schedule row puts where and who in columns of their own.</summary>
+    public const double DetailsFrom = 480;
+
+    /// <summary>[S-1267] From this width a schedule flows its days into two columns.</summary>
+    public const double TwoScheduleColumnsFrom = 720;
+
+    /// <summary>[S-574] Below this column width the time column folds into the line under the title.</summary>
+    public const double ScheduleNarrowBelow = 260;
+
+    /// <summary>[S-571] The time column at its narrowest: a clock and the English "All day".</summary>
+    public const double TimeColumnMin = 52;
+
+    /// <summary>The space between a schedule's two columns (Fluent's Space2).</summary>
+    public const double ScheduleGutter = 8;
+
+    /// <summary>The list's padding under its last row (Fluent's ListPadding).</summary>
+    public const double ListFoot = 8;
+
+    /// <summary>A schedule row's padding above and below, and a heading's (Fluent's Space1 and Space2).</summary>
+    private const double PadSmall = 4;
+
+    private const double PadLarge = 8;
+
+    /// <summary>
+    /// [S-7036] The schedule's plan: two columns from 720px, a narrow column under 260px (the time in
+    /// the detail line), where and who in columns from 480px of column width on a tile that is not
+    /// compact; rows of one height (two lines where a second is drawn: always but on a compact wide
+    /// tile), headings of one height.
+    /// </summary>
+    private static KitPlan Scheduled(WidgetArea area, KitSpec spec)
+    {
+        var width = area.Width;
+        var height = area.Height;
+        var columns = width >= TwoScheduleColumnsFrom ? 2 : 1;
+        var column = columns == 1 ? width : (width - ScheduleGutter) / 2;
+        var compact = height > 0 && height < CompactBelow;
+        var narrow = column > 0 && column < ScheduleNarrowBelow;
+        var details = column >= DetailsFrom && !compact;
+        var twoLines = narrow || !compact;
+        var row = twoLines
+            ? FluentType.BodyStrong.LineHeight + FluentType.Caption.LineHeight + (2 * PadSmall)
+            : Math.Max(CompactRow, FluentType.BodyStrong.LineHeight + (2 * PadSmall));
+
+        return new KitPlan(
+            spec.Look,
+            columns,
+            column,
+            false,
+            twoLines,
+            1,
+            0,
+            true,
+            Compact: compact,
+            Narrow: narrow,
+            Details: details,
+            RowHeight: row,
+            HeadingHeight: FluentType.BodyStrong.LineHeight + PadLarge + PadSmall);
+    }
+
+    /// <summary>
+    /// [S-571] The time column for a widest label of <paramref name="widestLabel"/> DIPs: wide enough
+    /// for it on the 4px grid, so a long word for "all day" is not cut, but never more than 35% of the
+    /// row, where the title keeps the rest and an even longer label trims.
+    /// </summary>
+    public static double TimeColumn(double widestLabel, double columnWidth)
+        => Math.Clamp(Math.Ceiling(widestLabel / 4) * 4, TimeColumnMin, Math.Max(TimeColumnMin, Math.Floor(columnWidth * 0.35)));
 }

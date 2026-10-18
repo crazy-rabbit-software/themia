@@ -32,6 +32,7 @@ public static class KitIcons
         KitIcon.Compose => Glyphs.MailCompose,
         KitIcon.Sort => Glyphs.Sort,
         KitIcon.Undo => Glyphs.Undo,
+        KitIcon.Gift => Glyphs.Gift,
         KitIcon.Default => Glyphs.Info,
         _ => throw new ArgumentOutOfRangeException(nameof(icon), icon, null),
     };

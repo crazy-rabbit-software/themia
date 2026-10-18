@@ -94,8 +94,11 @@ public sealed partial class KitList : Grid
         _columnHeader.Visibility = Visibility.Collapsed;
         SetRow(_columnHeader, 0);
         SetRow(_scroll, 1);
+        SetRow(_page, 1);
         Children.Add(_columnHeader);
-        Children.Add(_scroll);
+
+        // [S-7035] A paged list draws its page in the slot; it never scrolls.
+        Children.Add(spec.Overflow == KitOverflow.Page ? _page : _scroll);
     }
 
     /// <summary>The items shown, in order.</summary>
@@ -111,7 +114,10 @@ public sealed partial class KitList : Grid
     public void Attach()
     {
         _detached = false;
-        _fade ??= new ScrollFade(_scroll, _rows);
+        if (!Paged)
+        {
+            _fade ??= new ScrollFade(_scroll, _rows);
+        }
     }
 
     /// <summary>Draw <paramref name="items"/> for <paramref name="plan"/> in <paramref name="area"/>; the cursor follows its item.</summary>
@@ -163,6 +169,17 @@ public sealed partial class KitList : Grid
     private void BuildRows(DateTimeOffset now)
     {
         ClearRows();
+
+        if (Paged)
+        {
+            BuildPage(now);
+            if (_cursorIndex >= 0 && _cursorIndex < _rowElements.Count)
+            {
+                Mark(_cursorIndex, true);
+            }
+
+            return;
+        }
 
         var columns = Math.Max(1, _plan.Columns);
 
@@ -429,6 +446,7 @@ public sealed partial class KitList : Grid
         }
 
         _rowElements.Clear();
+        _page.Children.Clear();
         _rows.Children.Clear();
         _rows.ColumnDefinitions.Clear();
         _rows.RowDefinitions.Clear();
@@ -576,6 +594,9 @@ public sealed partial class KitList : Grid
 
         _cursorIndex = index;
         _cursorId = _items[index].Id;
+
+        // [S-7035] The cursor takes the page with it (a turned page is drawn with the cursor on it).
+        TurnTo(index);
         Mark(index, true);
     }
 

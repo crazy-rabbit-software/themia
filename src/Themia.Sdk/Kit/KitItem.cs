@@ -17,6 +17,7 @@ namespace Themia.Sdk.Kit;
 /// <param name="Link">The primary open target: a web address the item rules accepted.</param>
 /// <param name="Group">The group the row is in; its heading is drawn by the kit.</param>
 /// <param name="Tooltip">The row's hover text, when the spec writes one (whom a message is from, its date); else its link.</param>
+/// <param name="Schedule">[S-7036] A scheduled item's time column and details (the agenda's look).</param>
 public sealed record KitItem(
     string Id,
     string Title,
@@ -29,7 +30,31 @@ public sealed record KitItem(
     IReadOnlyList<KitBadge>? Badges = null,
     Uri? Link = null,
     KitGroup? Group = null,
-    string? Tooltip = null);
+    string? Tooltip = null,
+    KitSchedule? Schedule = null);
+
+/// <summary>
+/// [S-7036] What a scheduled item's row shows beside its title, written by the source's rules: the
+/// time column (the start over the end, or a word such as "All day" or "Now" in the strong step, or
+/// the item's lead glyph when it has no time), the span the narrow row writes under the title, where
+/// and who, a note that always takes the second line (a birthday), and the calendar's own colour.
+/// </summary>
+/// <param name="Start">The time column's first line; null for the lead glyph instead.</param>
+/// <param name="End">Its second line (the end), shown where rows have two lines.</param>
+/// <param name="Strong">The start in the strong step (an event under way).</param>
+/// <param name="Word">The start is a word, which trims, not a clock, which is never cut.</param>
+/// <param name="Span">The time as one phrase ("10:30–11:30"), for the line under the title on a narrow row.</param>
+/// <param name="Mark">The stripe's colour, "#RRGGBB", the user's for its calendar; null for the item's tone or none.</param>
+public sealed record KitSchedule(
+    string? Start,
+    string? End = null,
+    bool Strong = false,
+    bool Word = false,
+    string? Span = null,
+    string? Where = null,
+    string? Who = null,
+    string? Note = null,
+    string? Mark = null);
 
 /// <summary>What leads a row. <see cref="KitLeadKind.Icon"/> names a <see cref="KitIcon"/>; <see cref="KitLeadKind.SiteIcon"/> a web address whose site's own icon it is.</summary>
 public readonly record struct KitLead(KitLeadKind Kind, string? Value = null, KitTone Tone = KitTone.Neutral)
@@ -108,7 +133,8 @@ public readonly record struct KitWhen
 /// A group: a day (its heading written by the kit) or a named key whose heading the rules give (a
 /// repository, a project).
 /// </summary>
-public readonly record struct KitGroup(string Key, string? Heading = null, DateOnly? Day = null);
+/// <param name="Selected">[S-3622] The group stands out (the day selected on the view): its heading in the accent.</param>
+public readonly record struct KitGroup(string Key, string? Heading = null, DateOnly? Day = null, bool Selected = false);
 
 /// <summary>
 /// The line above a list ("main · checks passing"). <paramref name="Fraction"/> draws the thin
@@ -145,4 +171,5 @@ public enum KitIcon
     Compose,
     Sort,
     Undo,
+    Gift,
 }
