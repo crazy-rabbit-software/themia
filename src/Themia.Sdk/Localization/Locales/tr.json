@@ -331,11 +331,8 @@
   "screentime.last7Days": "Son {count} gün",
   "screentime.last30Days": "Son {count} gün",
   "screentime.perDay": "{value}/gün",
-  "screentime.goalPerDay": "/ {value}/gün",
   "screentime.cfg.period": "Dönem",
   "screentime.cfg.periodDay": "Gün",
-  "screentime.cfg.style": "Stil",
-  "screentime.cfg.styleBars": "Çubuklar",
   "screentime.cfg.hidden": "Gizli uygulamalar",
   "account.addAccount": "Hesap ekle",
   "account.signOut": "Oturumu kapat"

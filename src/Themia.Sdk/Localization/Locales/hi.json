@@ -331,11 +331,8 @@
   "screentime.last7Days": "पिछले {count} दिन",
   "screentime.last30Days": "पिछले {count} दिन",
   "screentime.perDay": "{value}/दिन",
-  "screentime.goalPerDay": "{value}/दिन में से",
   "screentime.cfg.period": "अवधि",
   "screentime.cfg.periodDay": "दिन",
-  "screentime.cfg.style": "शैली",
-  "screentime.cfg.styleBars": "बार",
   "screentime.cfg.hidden": "छिपे ऐप",
   "account.addAccount": "खाता जोड़ें",
   "account.signOut": "साइन आउट करें"

@@ -2,15 +2,13 @@ using Themia.Core.Model;
 using Themia.Core.Widgets;
 using Xunit;
 
-namespace Themia.Core.Tests;
+namespace Themia.Widget.ScreenTimeChart.Tests;
 
-public sealed class ScreenTimeLayoutTests
+/// <summary>[S-3332] The chart's ladder. Moved with the widget from Core's ScreenTimeLayoutTests (the donut's and the list's with theirs), unchanged in what they assert (the ladder is ScreenTimeChartLayout's now).</summary>
+public sealed class ScreenTimeChartTests
 {
     /// <summary>The card's header, which the content area is the card less.</summary>
     private const double Header = 44;
-
-    /// <summary>A compact list row (Fluent's 32).</summary>
-    private const double Row = 32;
 
     private static WidgetArea Content(WidgetTier tier) => new(tier.Width, tier.Height - Header);
 
@@ -37,23 +35,23 @@ public sealed class ScreenTimeLayoutTests
 
         foreach (var style in Enum.GetValues<ScreenTimeChartStyle>())
         {
-            var plan = ScreenTimeLayout.Chart(area, 7, style);
+            var plan = ScreenTimeChartLayout.Chart(area, 7, style);
             var spent = plan.Drawing
                 + (plan.Total is { } total ? total.LineHeight + ScreenTimeLayout.Gap : 0)
                 + (plan.Labels ? FluentType.Caption.LineHeight + 2 + ScreenTimeLayout.Gap : 0)
                 + (plan.Detail ? FluentType.Caption.LineHeight + ScreenTimeLayout.Gap : 0);
 
-            Assert.True(plan.Drawing >= ScreenTimeLayout.MinDrawing);
-            Assert.True(spent <= Math.Max(area.Height - ScreenTimeLayout.Gap, ScreenTimeLayout.MinDrawing) + 0.5, $"{name} {style}: {spent} > {area.Height}");
+            Assert.True(plan.Drawing >= ScreenTimeChartLayout.MinDrawing);
+            Assert.True(spent <= Math.Max(area.Height - ScreenTimeLayout.Gap, ScreenTimeChartLayout.MinDrawing) + 0.5, $"{name} {style}: {spent} > {area.Height}");
         }
     }
 
     [Fact]
     public void S3332_the_figure_comes_before_the_labels_and_the_detail()
     {
-        var xs = ScreenTimeLayout.Chart(Content(Tier("XS")), 7, ScreenTimeChartStyle.Bars);
-        var m = ScreenTimeLayout.Chart(Content(Tier("M")), 7, ScreenTimeChartStyle.Bars);
-        var l = ScreenTimeLayout.Chart(Content(Tier("L")), 7, ScreenTimeChartStyle.Bars);
+        var xs = ScreenTimeChartLayout.Chart(Content(Tier("XS")), 7, ScreenTimeChartStyle.Bars);
+        var m = ScreenTimeChartLayout.Chart(Content(Tier("M")), 7, ScreenTimeChartStyle.Bars);
+        var l = ScreenTimeChartLayout.Chart(Content(Tier("L")), 7, ScreenTimeChartStyle.Bars);
 
         Assert.NotNull(m.Total);
         Assert.True(m.Labels);
@@ -66,7 +64,7 @@ public sealed class ScreenTimeLayoutTests
     [Fact]
     public void S3332_a_month_and_a_calendar_carry_no_weekday_row()
     {
-        Assert.False(ScreenTimeLayout.Chart(Content(Tier("L")), 30, ScreenTimeChartStyle.Bars).Labels);
-        Assert.False(ScreenTimeLayout.Chart(Content(Tier("L")), 7, ScreenTimeChartStyle.Heatmap).Labels);
+        Assert.False(ScreenTimeChartLayout.Chart(Content(Tier("L")), 30, ScreenTimeChartStyle.Bars).Labels);
+        Assert.False(ScreenTimeChartLayout.Chart(Content(Tier("L")), 7, ScreenTimeChartStyle.Heatmap).Labels);
     }
 }

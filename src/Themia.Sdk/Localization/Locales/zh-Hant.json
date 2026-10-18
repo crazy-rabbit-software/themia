@@ -330,11 +330,8 @@
   "screentime.last7Days": "過去 {count} 天",
   "screentime.last30Days": "過去 {count} 天",
   "screentime.perDay": "{value}/天",
-  "screentime.goalPerDay": "/ 每天 {value}",
   "screentime.cfg.period": "時間範圍",
   "screentime.cfg.periodDay": "日",
-  "screentime.cfg.style": "樣式",
-  "screentime.cfg.styleBars": "長條圖",
   "screentime.cfg.hidden": "已隱藏的應用程式",
   "account.addAccount": "新增帳戶",
   "account.signOut": "登出"

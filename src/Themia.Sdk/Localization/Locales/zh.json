@@ -329,11 +329,8 @@
   "screentime.last7Days": "最近 {count} 天",
   "screentime.last30Days": "最近 {count} 天",
   "screentime.perDay": "{value}/天",
-  "screentime.goalPerDay": "/ {value} 每天",
   "screentime.cfg.period": "时间范围",
   "screentime.cfg.periodDay": "日",
-  "screentime.cfg.style": "样式",
-  "screentime.cfg.styleBars": "柱状图",
   "screentime.cfg.hidden": "已隐藏的应用",
   "account.addAccount": "添加账户",
   "account.signOut": "退出登录"

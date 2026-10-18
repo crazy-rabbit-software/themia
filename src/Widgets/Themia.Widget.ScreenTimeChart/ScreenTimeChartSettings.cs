@@ -6,6 +6,7 @@ using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
 using Themia.Sdk.WinUI;
+using Themia.Widget.ScreenTimeChart;
 
 namespace Themia.App.Shell.Config;
 
@@ -18,26 +19,26 @@ namespace Themia.App.Shell.Config;
 /// screen-time widget shares ([S-3322]), which write through the tracker rather than the config.
 /// </para>
 /// </summary>
-internal static partial class WidgetSettings
+internal static class ScreenTimeChartSettings
 {
     /// <summary>[S-3330] The chart: a week or a month, as bars or a calendar; then the shared rows.</summary>
-    public static void ScreenTimeChart(List<FrameworkElement> rows, ScreenTimeChartConfig config, Action save)
+    public static void Rows(List<FrameworkElement> rows, ScreenTimeChartConfig config, Action save)
     {
         ArgumentNullException.ThrowIfNull(rows);
         ArgumentNullException.ThrowIfNull(config);
         ArgumentNullException.ThrowIfNull(save);
 
-        rows.Add(FluentLayout.Header(Str.WidgetsC_ScreenTime_Chart_Label.Text()));
+        rows.Add(FluentLayout.Header(ScreenTimeChartStr.WidgetsC_ScreenTime_Chart_Label.Text()));
 
-        rows.Add(FluentLayout.Row(Glyphs.Calendar, Str.Screentime_Cfg_Period.Text(), Str.WidgetsC_ScreenTime_Settings_ChartPeriod_Desc.Text(),
+        rows.Add(FluentLayout.Row(Glyphs.Calendar, Str.Screentime_Cfg_Period.Text(), ScreenTimeChartStr.WidgetsC_ScreenTime_Settings_ChartPeriod_Desc.Text(),
             FluentLayout.Choice(
                 [(ScreenTimePeriod.Week, ScreenTimeRules.PeriodLabel(ScreenTimePeriod.Week)), (ScreenTimePeriod.Month, ScreenTimeRules.PeriodLabel(ScreenTimePeriod.Month))],
                 ScreenTimeRules.ChartPeriod(config.Period),
                 value => { config.Period = value; save(); })));
 
-        rows.Add(FluentLayout.Row(Glyphs.Palette, Str.Screentime_Cfg_Style.Text(), Str.WidgetsC_ScreenTime_Settings_ChartStyle_Desc.Text(),
+        rows.Add(FluentLayout.Row(Glyphs.Palette, ScreenTimeChartStr.Screentime_Cfg_Style.Text(), ScreenTimeChartStr.WidgetsC_ScreenTime_Settings_ChartStyle_Desc.Text(),
             FluentLayout.Choice(
-                [(ScreenTimeChartStyle.Bars, Str.Screentime_Cfg_StyleBars.Text()), (ScreenTimeChartStyle.Heatmap, Str.WidgetsC_ScreenTime_Settings_StyleCalendar.Text())],
+                [(ScreenTimeChartStyle.Bars, ScreenTimeChartStr.Screentime_Cfg_StyleBars.Text()), (ScreenTimeChartStyle.Heatmap, ScreenTimeChartStr.WidgetsC_ScreenTime_Settings_StyleCalendar.Text())],
                 ScreenTimeRules.ClampChartStyle(config.Style),
                 value => { config.Style = value; save(); })));
 

@@ -330,11 +330,8 @@
   "screentime.last7Days": "{count} hari terakhir",
   "screentime.last30Days": "{count} hari terakhir",
   "screentime.perDay": "{value}/hari",
-  "screentime.goalPerDay": "dari {value}/hari",
   "screentime.cfg.period": "Periode",
   "screentime.cfg.periodDay": "Hari",
-  "screentime.cfg.style": "Gaya",
-  "screentime.cfg.styleBars": "Batang",
   "screentime.cfg.hidden": "Aplikasi tersembunyi",
   "account.addAccount": "Tambah akun",
   "account.signOut": "Keluar"

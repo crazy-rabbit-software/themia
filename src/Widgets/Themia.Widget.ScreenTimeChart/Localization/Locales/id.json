@@ -1,0 +1,10 @@
+{
+  "screentime.cfg.style": "Gaya",
+  "screentime.cfg.styleBars": "Batang",
+  "screentime.goalPerDay": "dari {value}/hari",
+  "widgetsC.screenTime.chart.desc": "Waktu layar Anda per hari, selama seminggu atau sebulan",
+  "widgetsC.screenTime.chart.label": "Grafik waktu layar",
+  "widgetsC.screenTime.settings.chartPeriod.desc": "Seminggu atau sebulan bergulir yang berakhir hari ini",
+  "widgetsC.screenTime.settings.chartStyle.desc": "Batang bertumpuk per aplikasi, atau kalender yang diarsir sesuai penggunaan",
+  "widgetsC.screenTime.settings.styleCalendar": "Kalender"
+}

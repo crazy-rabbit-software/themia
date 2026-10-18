@@ -331,11 +331,8 @@
   "screentime.last7Days": "Huling {count} araw",
   "screentime.last30Days": "Huling {count} araw",
   "screentime.perDay": "{value}/araw",
-  "screentime.goalPerDay": "sa {value}/araw",
   "screentime.cfg.period": "Panahon",
   "screentime.cfg.periodDay": "Araw",
-  "screentime.cfg.style": "Estilo",
-  "screentime.cfg.styleBars": "Mga bar",
   "screentime.cfg.hidden": "Mga nakatagong app",
   "account.addAccount": "Magdagdag ng account",
   "account.signOut": "Mag-sign out"

@@ -331,11 +331,8 @@
   "screentime.last7Days": "Kwana {count} na ƙarshe",
   "screentime.last30Days": "Kwana {count} na ƙarshe",
   "screentime.perDay": "{value}/rana",
-  "screentime.goalPerDay": "na {value}/rana",
   "screentime.cfg.period": "Lokaci",
   "screentime.cfg.periodDay": "Rana",
-  "screentime.cfg.style": "Salo",
-  "screentime.cfg.styleBars": "Sanduna",
   "screentime.cfg.hidden": "Manhajojin da aka ɓoye",
   "account.addAccount": "Ƙara asusu",
   "account.signOut": "Fita"

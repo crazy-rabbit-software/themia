@@ -333,11 +333,8 @@
   "screentime.last7Days": "Последние {count} дней",
   "screentime.last30Days": "Последние {count} дней",
   "screentime.perDay": "{value}/день",
-  "screentime.goalPerDay": "из {value}/день",
   "screentime.cfg.period": "Период",
   "screentime.cfg.periodDay": "День",
-  "screentime.cfg.style": "Стиль",
-  "screentime.cfg.styleBars": "Столбцы",
   "screentime.cfg.hidden": "Скрытые приложения",
   "account.addAccount": "Добавить учетную запись",
   "account.signOut": "Выйти"

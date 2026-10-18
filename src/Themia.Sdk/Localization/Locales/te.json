@@ -331,11 +331,8 @@
   "screentime.last7Days": "గత {count} రోజులు",
   "screentime.last30Days": "గత {count} రోజులు",
   "screentime.perDay": "{value}/రోజు",
-  "screentime.goalPerDay": "{value}/రోజులో",
   "screentime.cfg.period": "వ్యవధి",
   "screentime.cfg.periodDay": "రోజు",
-  "screentime.cfg.style": "శైలి",
-  "screentime.cfg.styleBars": "బార్‌లు",
   "screentime.cfg.hidden": "దాచిన యాప్‌లు",
   "account.addAccount": "ఖాతాను జోడించు",
   "account.signOut": "సైన్ అవుట్"

@@ -330,11 +330,8 @@
   "screentime.last7Days": "최근 {count}일",
   "screentime.last30Days": "최근 {count}일",
   "screentime.perDay": "{value}/일",
-  "screentime.goalPerDay": "/ {value}/일",
   "screentime.cfg.period": "기간",
   "screentime.cfg.periodDay": "일",
-  "screentime.cfg.style": "스타일",
-  "screentime.cfg.styleBars": "막대",
   "screentime.cfg.hidden": "숨긴 앱",
   "account.addAccount": "계정 추가",
   "account.signOut": "로그아웃"

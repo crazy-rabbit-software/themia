@@ -1,0 +1,10 @@
+{
+  "screentime.cfg.style": "樣式",
+  "screentime.cfg.styleBars": "長條圖",
+  "screentime.goalPerDay": "/ 每天 {value}",
+  "widgetsC.screenTime.chart.desc": "逐日顯示一週或一個月的螢幕使用時間",
+  "widgetsC.screenTime.chart.label": "螢幕使用時間圖表",
+  "widgetsC.screenTime.settings.chartPeriod.desc": "截至今天的一週或一個月",
+  "widgetsC.screenTime.settings.chartStyle.desc": "依應用程式堆疊的長條圖，或依使用量著色的行事曆",
+  "widgetsC.screenTime.settings.styleCalendar": "行事曆"
+}

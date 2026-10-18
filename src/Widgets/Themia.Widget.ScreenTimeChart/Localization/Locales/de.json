@@ -1,0 +1,10 @@
+{
+  "screentime.cfg.style": "Stil",
+  "screentime.cfg.styleBars": "Balken",
+  "screentime.goalPerDay": "von {value}/Tag",
+  "widgetsC.screenTime.chart.desc": "Deine Bildschirmzeit Tag für Tag, über eine Woche oder einen Monat",
+  "widgetsC.screenTime.chart.label": "Bildschirmzeit-Diagramm",
+  "widgetsC.screenTime.settings.chartPeriod.desc": "Eine gleitende Woche oder ein gleitender Monat bis heute",
+  "widgetsC.screenTime.settings.chartStyle.desc": "Balken nach App gestapelt oder ein Kalender nach Nutzung schattiert",
+  "widgetsC.screenTime.settings.styleCalendar": "Kalender"
+}

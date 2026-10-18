@@ -1,0 +1,10 @@
+{
+  "screentime.cfg.style": "शैली",
+  "screentime.cfg.styleBars": "बार",
+  "screentime.goalPerDay": "{value}/दिवस पैकी",
+  "widgetsC.screenTime.chart.desc": "आठवडा किंवा महिन्याभरातील तुमचा दररोजचा स्क्रीन टाइम",
+  "widgetsC.screenTime.chart.label": "स्क्रीन टाइम चार्ट",
+  "widgetsC.screenTime.settings.chartPeriod.desc": "आज संपणारा चालू आठवडा किंवा महिना",
+  "widgetsC.screenTime.settings.chartStyle.desc": "अ‍ॅपनुसार रचलेले बार, किंवा वापरानुसार छटा असलेले कॅलेंडर",
+  "widgetsC.screenTime.settings.styleCalendar": "कॅलेंडर"
+}

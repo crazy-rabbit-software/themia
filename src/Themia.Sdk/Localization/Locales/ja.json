@@ -329,11 +329,8 @@
   "screentime.last7Days": "過去 {count} 日",
   "screentime.last30Days": "過去 {count} 日",
   "screentime.perDay": "{value}/日",
-  "screentime.goalPerDay": "/ {value} 毎日",
   "screentime.cfg.period": "期間",
   "screentime.cfg.periodDay": "1 日",
-  "screentime.cfg.style": "スタイル",
-  "screentime.cfg.styleBars": "棒グラフ",
   "screentime.cfg.hidden": "隠したアプリ",
   "account.addAccount": "アカウントを追加",
   "account.signOut": "サインアウト"

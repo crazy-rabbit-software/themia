@@ -10,6 +10,7 @@ using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
 using Themia.Sdk.WinUI;
+using Themia.Widget.ScreenTimeChart;
 using Glyphs = Themia.App.Shell.Glyphs;
 
 namespace Themia.App.Widgets;
@@ -221,7 +222,7 @@ internal sealed partial class ScreenTimeChartView : Grid, IWidgetView, IWidgetSu
         }
 
         Clear();
-        _plan = ScreenTimeLayout.Chart(_area, data.Range.Count, ChartStyle);
+        _plan = ScreenTimeChartLayout.Chart(_area, data.Range.Count, ChartStyle);
         _segments = ScreenTimeRules.Segments(data.Apps, data.Total, ScreenTimeRules.DrawingApps, Str.Screentime_Other.Text());
 
         _readout.Visibility = _plan.Total is null ? Visibility.Collapsed : Visibility.Visible;
@@ -542,7 +543,7 @@ internal sealed partial class ScreenTimeChartView : Grid, IWidgetView, IWidgetSu
             // [S-457] A window judges its daily average against the daily limit.
             if (ScreenTimeRules.Goal(average, data.DayLimit) is { } goal)
             {
-                parts.Add(Str.Screentime_GoalPerDay.Format(("value", ScreenTimeRules.FormatLimit(goal.Limit))));
+                parts.Add(ScreenTimeChartStr.Screentime_GoalPerDay.Format(("value", ScreenTimeRules.FormatLimit(goal.Limit))));
                 over = goal.Over;
             }
 

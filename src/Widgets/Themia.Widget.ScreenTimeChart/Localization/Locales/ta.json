@@ -1,0 +1,10 @@
+{
+  "screentime.cfg.style": "நடை",
+  "screentime.cfg.styleBars": "பட்டைகள்",
+  "screentime.goalPerDay": "{value}/நாள் இல்",
+  "widgetsC.screenTime.chart.desc": "ஒரு வாரம் அல்லது மாதத்தில், நாள்தோறும் உங்கள் திரை நேரம்",
+  "widgetsC.screenTime.chart.label": "திரை நேர விளக்கப்படம்",
+  "widgetsC.screenTime.settings.chartPeriod.desc": "இன்றுடன் முடியும் நகரும் வாரம் அல்லது மாதம்",
+  "widgetsC.screenTime.settings.chartStyle.desc": "பயன்பாட்டின்படி அடுக்கிய பட்டைகள், அல்லது பயன்பாட்டின்படி நிழலிட்ட நாள்காட்டி",
+  "widgetsC.screenTime.settings.styleCalendar": "நாள்காட்டி"
+}

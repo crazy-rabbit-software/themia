@@ -1,0 +1,10 @@
+{
+  "screentime.cfg.style": "Stijl",
+  "screentime.cfg.styleBars": "Staven",
+  "screentime.goalPerDay": "van {value}/dag",
+  "widgetsC.screenTime.chart.desc": "Je schermtijd per dag, over een week of een maand",
+  "widgetsC.screenTime.chart.label": "Schermtijdgrafiek",
+  "widgetsC.screenTime.settings.chartPeriod.desc": "Een doorlopende week of maand die vandaag eindigt",
+  "widgetsC.screenTime.settings.chartStyle.desc": "Staven gestapeld per app, of een kalender gekleurd naar gebruik",
+  "widgetsC.screenTime.settings.styleCalendar": "Kalender"
+}

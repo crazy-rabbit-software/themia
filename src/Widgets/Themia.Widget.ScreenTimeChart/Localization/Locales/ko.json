@@ -1,0 +1,10 @@
+{
+  "screentime.cfg.style": "스타일",
+  "screentime.cfg.styleBars": "막대",
+  "screentime.goalPerDay": "/ {value}/일",
+  "widgetsC.screenTime.chart.desc": "일주일 또는 한 달 동안의 일별 화면 사용 시간",
+  "widgetsC.screenTime.chart.label": "화면 사용 시간 차트",
+  "widgetsC.screenTime.settings.chartPeriod.desc": "오늘로 끝나는 이동 주 또는 이동 월",
+  "widgetsC.screenTime.settings.chartStyle.desc": "앱별로 쌓인 막대 또는 사용량에 따라 음영이 있는 달력",
+  "widgetsC.screenTime.settings.styleCalendar": "달력"
+}

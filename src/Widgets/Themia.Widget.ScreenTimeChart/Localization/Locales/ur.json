@@ -1,0 +1,10 @@
+{
+  "screentime.cfg.style": "انداز",
+  "screentime.cfg.styleBars": "بارز",
+  "screentime.goalPerDay": "{value}/دن میں سے",
+  "widgetsC.screenTime.chart.desc": "ہفتے یا مہینے میں دن بہ دن آپ کا اسکرین ٹائم",
+  "widgetsC.screenTime.chart.label": "اسکرین ٹائم چارٹ",
+  "widgetsC.screenTime.settings.chartPeriod.desc": "آج ختم ہونے والا مسلسل ہفتہ یا مہینہ",
+  "widgetsC.screenTime.settings.chartStyle.desc": "ایپ کے لحاظ سے بارز، یا استعمال کے مطابق رنگا ہوا کیلنڈر",
+  "widgetsC.screenTime.settings.styleCalendar": "کیلنڈر"
+}

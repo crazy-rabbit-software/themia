@@ -1,0 +1,10 @@
+{
+  "screentime.cfg.style": "Estilo",
+  "screentime.cfg.styleBars": "Mga bar",
+  "screentime.goalPerDay": "sa {value}/araw",
+  "widgetsC.screenTime.chart.desc": "Ang iyong screen time araw-araw, sa loob ng isang linggo o buwan",
+  "widgetsC.screenTime.chart.label": "Chart ng screen time",
+  "widgetsC.screenTime.settings.chartPeriod.desc": "Isang rolling na linggo o buwan na nagtatapos ngayong araw",
+  "widgetsC.screenTime.settings.chartStyle.desc": "Mga bar na nakapatong ayon sa app, o kalendaryong may lilim ayon sa paggamit",
+  "widgetsC.screenTime.settings.styleCalendar": "Kalendaryo"
+}

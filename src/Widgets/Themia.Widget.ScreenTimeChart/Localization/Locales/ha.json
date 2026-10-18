@@ -1,0 +1,10 @@
+{
+  "screentime.cfg.style": "Salo",
+  "screentime.cfg.styleBars": "Sanduna",
+  "screentime.goalPerDay": "na {value}/rana",
+  "widgetsC.screenTime.chart.desc": "Lokacin allonka rana bayan rana, a cikin mako ko wata",
+  "widgetsC.screenTime.chart.label": "Jadawalin lokacin allo",
+  "widgetsC.screenTime.settings.chartPeriod.desc": "Mako ko wata mai jujjuyawa da ke ƙarewa yau",
+  "widgetsC.screenTime.settings.chartStyle.desc": "Sanduna da aka tara ta manhaja, ko kalanda mai inuwa gwargwadon amfani",
+  "widgetsC.screenTime.settings.styleCalendar": "Kalanda"
+}

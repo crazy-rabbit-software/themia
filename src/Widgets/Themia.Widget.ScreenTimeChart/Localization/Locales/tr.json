@@ -1,0 +1,10 @@
+{
+  "screentime.cfg.style": "Stil",
+  "screentime.cfg.styleBars": "Çubuklar",
+  "screentime.goalPerDay": "/ {value}/gün",
+  "widgetsC.screenTime.chart.desc": "Bir hafta veya ay boyunca gün gün ekran süreniz",
+  "widgetsC.screenTime.chart.label": "Ekran süresi grafiği",
+  "widgetsC.screenTime.settings.chartPeriod.desc": "Bugün biten kayan bir hafta veya ay",
+  "widgetsC.screenTime.settings.chartStyle.desc": "Uygulamaya göre yığılmış çubuklar veya kullanıma göre gölgelenmiş takvim",
+  "widgetsC.screenTime.settings.styleCalendar": "Takvim"
+}

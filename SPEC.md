@@ -1597,7 +1597,7 @@ Not ported: the poll `interval` setting (there is no poll).
 Since [S-3320] screen time is three widgets (chart, donut, apps); the rules below that still hold
 are cited from there, the ones it replaced are marked.
 
-- **[S-450]** The widget draws the app's one tracker ([S-458]) through `AppServices.ScreenTime`; it
+- **[S-450]** The widget draws the app's one tracker ([S-458]) through `IWidgetHost.ScreenTime`; it
   has no timer of its own and redraws when the tracker says something changed.
 - **[S-451]** *(Retired by [S-3321]/[S-3330]: the period is per widget and only the chart has a
   style.)* `Period` (Day, Week = last 7 days, Month = last 30 days; rolling windows ending today)
@@ -1665,12 +1665,16 @@ by the list.
 ## Screen time: chart, donut and apps (SCREENTIME-SPLIT)
 
 Screen time is three widgets on the one tracker, so a view can put the week, the share and the list
-side by side and they light the same app together. Owning files: Core
-`Model/Configs/ScreenTimeConfigs.cs`, `Widgets/{ScreenTimeRules,ScreenTimeLayout,ScreenTimePreferences}.cs`,
-`Storage/ScreenTimeStore.cs`; App `Widgets/ScreenTime{Chart,Donut,Apps}View*.cs`,
-`Widgets/ScreenTimeShared.cs` (data, links, look, day navigation), `Widgets/ScreenTimePreview.cs`
-(debug fixture), `Services/ScreenTimeService.cs`, `Shell/Config/WidgetSettings.SystemWidgets.cs`.
-Tests `ScreenTimeRulesTests`, `ScreenTimeLayoutTests`, `ScreenTimeStoreTests` (`S33xx_`).
+side by side and they light the same app together. Each is a module of its own
+(`src/Widgets/Themia.Widget.ScreenTimeChart`, `.ScreenTimeDonut`, `.ScreenTimeApps`, each its SPEC.md and
+its own ladder). What they share stays here: the SDK's `Widgets/{ScreenTimeRules,ScreenTimeLayout,
+ScreenTimePreferences,ScreenTimeDay}.cs` and `Model/Configs/ScreenTimeSettings.cs` (the period, the chart
+style, the settings and the app limits the configs share), Themia.Sdk.WinUI's `Widgets/ScreenTimeShared.cs`
+(data, links, look, day navigation), `Widgets/ScreenTimeSample.cs` (the previews' fixture) and
+`Shell/ScreenTimeSettingsRows.cs` (the pages' shared rows), the `IScreenTimeSource` contract; Core's
+`Widgets/ScreenTimeTracker.cs` and `Storage/ScreenTimeStore.cs`; the host's `Services/ScreenTimeService.cs`.
+Tests `ScreenTimeRulesTests`, `ScreenTimeStoreTests`, `LocalStoreFixtureTests`, the module host's
+`ScreenTimeHostTests` (`S33xx_`).
 
 - **[S-3320]** Three kinds replace Screen time (41, gone; load validation drops unknown kinds):
   `ScreenTimeChart` (80), `ScreenTimeDonut` (81), `ScreenTimeApps` (82), each with its own config
@@ -1693,21 +1697,7 @@ Tests `ScreenTimeRulesTests`, `ScreenTimeLayoutTests`, `ScreenTimeStoreTests` (`
 
 - **[S-3330]** `ScreenTimeChartConfig`: `Period` Week (default) or Month (a day reads as the week)
   and `Style` Bars (default) or Heatmap (shown as "Calendar"; unknown reads as Bars).
-- **[S-3331]** Bars: one bar per day, oldest left, stacked by app in the ring's order (the busiest
-  seven, `ScreenTimeRules.DrawingApps`, then Other), scaled to the busiest day, today's weekday in the
-  accent. Heatmap: [S-456]'s calendar.
-- **[S-3332]** Ladder (`ScreenTimeLayout.Chart`): the drawing (never dropped, at least 32), then the
-  figure over it (Subtitle from Expanded height at Regular width, else BodyStrong), the weekday row
-  under a week's bars (when each column has 16 DIPs), the detail line; the drawing takes the rest.
-  The figure is the window's total and the line its per-day average and the "of 4h/day" limit
-  ([S-457]); a hovered day (pointer, or Left / Right) shows that day.
-- **[S-3333]** Linked focus ([S-3310]): the focused app's part of every bar is lit and every other
-  part dimmed; the calendar shades by that app's seconds per day; the figure is that app's time over
-  the window (or on the hovered day) with its share. Hovering a part hovers its app; clicking it
-  selects (again: lets go); clicking empty space clears the selection.
-- **[S-3334]** Keys: Up/Down, PgUp/PgDn, Home/End step through the apps in the ring's order (the
-  linked cursor, [S-3307]); Enter/Space select; Left / Right step the day the figure speaks of; Menu
-  hides; Escape lets the cursor and the day go.
+- [S-3331], [S-3332], [S-3333], [S-3334]: moved with the Screen time: chart widget into its module's `SPEC.md` (`src/Widgets/Themia.Widget.ScreenTimeChart/`).
 
 ### Donut
 

@@ -1,0 +1,10 @@
+{
+  "screentime.cfg.style": "スタイル",
+  "screentime.cfg.styleBars": "棒グラフ",
+  "screentime.goalPerDay": "/ {value} 毎日",
+  "widgetsC.screenTime.chart.desc": "1 週間または 1 か月のスクリーン タイムを日ごとに表示",
+  "widgetsC.screenTime.chart.label": "スクリーン タイム グラフ",
+  "widgetsC.screenTime.settings.chartPeriod.desc": "今日までの 1 週間または 1 か月",
+  "widgetsC.screenTime.settings.chartStyle.desc": "アプリごとに積み上げた棒グラフ、または使用量で色分けしたカレンダー",
+  "widgetsC.screenTime.settings.styleCalendar": "カレンダー"
+}

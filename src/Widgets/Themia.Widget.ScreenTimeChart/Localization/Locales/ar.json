@@ -1,0 +1,10 @@
+{
+  "screentime.cfg.style": "النمط",
+  "screentime.cfg.styleBars": "أشرطة",
+  "screentime.goalPerDay": "من {value}/يوم",
+  "widgetsC.screenTime.chart.desc": "وقت الشاشة يومًا بيوم، على مدى أسبوع أو شهر",
+  "widgetsC.screenTime.chart.label": "مخطط وقت الشاشة",
+  "widgetsC.screenTime.settings.chartPeriod.desc": "أسبوع أو شهر متحرك ينتهي اليوم",
+  "widgetsC.screenTime.settings.chartStyle.desc": "أشرطة مكدسة حسب التطبيق، أو تقويم مظلل حسب الاستخدام",
+  "widgetsC.screenTime.settings.styleCalendar": "تقويم"
+}

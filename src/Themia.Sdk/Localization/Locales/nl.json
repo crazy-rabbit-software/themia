@@ -331,11 +331,8 @@
   "screentime.last7Days": "Afgelopen {count} dagen",
   "screentime.last30Days": "Afgelopen {count} dagen",
   "screentime.perDay": "{value}/dag",
-  "screentime.goalPerDay": "van {value}/dag",
   "screentime.cfg.period": "Periode",
   "screentime.cfg.periodDay": "Dag",
-  "screentime.cfg.style": "Stijl",
-  "screentime.cfg.styleBars": "Staven",
   "screentime.cfg.hidden": "Verborgen apps",
   "account.addAccount": "Account toevoegen",
   "account.signOut": "Afmelden"

@@ -331,11 +331,8 @@
   "screentime.last7Days": "கடந்த {count} நாட்கள்",
   "screentime.last30Days": "கடந்த {count} நாட்கள்",
   "screentime.perDay": "{value}/நாள்",
-  "screentime.goalPerDay": "{value}/நாள் இல்",
   "screentime.cfg.period": "காலம்",
   "screentime.cfg.periodDay": "நாள்",
-  "screentime.cfg.style": "நடை",
-  "screentime.cfg.styleBars": "பட்டைகள்",
   "screentime.cfg.hidden": "மறைக்கப்பட்ட பயன்பாடுகள்",
   "account.addAccount": "கணக்கைச் சேர்",
   "account.signOut": "வெளியேறு"

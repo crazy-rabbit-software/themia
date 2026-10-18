@@ -330,11 +330,8 @@
   "screentime.last7Days": "{count} ngày qua",
   "screentime.last30Days": "{count} ngày qua",
   "screentime.perDay": "{value}/ngày",
-  "screentime.goalPerDay": "trên {value}/ngày",
   "screentime.cfg.period": "Khoảng thời gian",
   "screentime.cfg.periodDay": "Ngày",
-  "screentime.cfg.style": "Kiểu",
-  "screentime.cfg.styleBars": "Thanh",
   "screentime.cfg.hidden": "Ứng dụng bị ẩn",
   "account.addAccount": "Thêm tài khoản",
   "account.signOut": "Đăng xuất"

@@ -1,0 +1,11 @@
+{
+  "$englishOnly": [],
+  "screentime.cfg.style": "Style",
+  "screentime.cfg.styleBars": "Bars",
+  "screentime.goalPerDay": "of {value}/day",
+  "widgetsC.screenTime.chart.desc": "Your screen time day by day, over a week or a month",
+  "widgetsC.screenTime.chart.label": "Screen time chart",
+  "widgetsC.screenTime.settings.chartPeriod.desc": "A rolling week or month that ends today",
+  "widgetsC.screenTime.settings.chartStyle.desc": "Bars stacked by app, or a calendar shaded by use",
+  "widgetsC.screenTime.settings.styleCalendar": "Calendar"
+}

@@ -331,11 +331,8 @@
   "screentime.last7Days": "{count} روز گذشته",
   "screentime.last30Days": "{count} روز گذشته",
   "screentime.perDay": "{value}/روز",
-  "screentime.goalPerDay": "از {value}/روز",
   "screentime.cfg.period": "دوره",
   "screentime.cfg.periodDay": "روز",
-  "screentime.cfg.style": "سبک",
-  "screentime.cfg.styleBars": "میله‌ها",
   "screentime.cfg.hidden": "برنامه‌های پنهان",
   "account.addAccount": "افزودن حساب",
   "account.signOut": "خروج از حساب"

@@ -1,0 +1,10 @@
+{
+  "screentime.cfg.style": "سبک",
+  "screentime.cfg.styleBars": "میله‌ها",
+  "screentime.goalPerDay": "از {value}/روز",
+  "widgetsC.screenTime.chart.desc": "زمان استفاده شما روز به روز، در یک هفته یا یک ماه",
+  "widgetsC.screenTime.chart.label": "نمودار زمان استفاده",
+  "widgetsC.screenTime.settings.chartPeriod.desc": "یک هفته یا ماه متحرک که به امروز ختم می‌شود",
+  "widgetsC.screenTime.settings.chartStyle.desc": "میله‌های انباشته بر اساس برنامه، یا تقویمی سایه‌خورده بر اساس استفاده",
+  "widgetsC.screenTime.settings.styleCalendar": "تقویم"
+}

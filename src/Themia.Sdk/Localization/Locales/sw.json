@@ -331,11 +331,8 @@
   "screentime.last7Days": "Siku {count} zilizopita",
   "screentime.last30Days": "Siku {count} zilizopita",
   "screentime.perDay": "{value}/siku",
-  "screentime.goalPerDay": "kati ya {value}/siku",
   "screentime.cfg.period": "Kipindi",
   "screentime.cfg.periodDay": "Siku",
-  "screentime.cfg.style": "Mtindo",
-  "screentime.cfg.styleBars": "Pau",
   "screentime.cfg.hidden": "Programu zilizofichwa",
   "account.addAccount": "Ongeza akaunti",
   "account.signOut": "Ondoka"

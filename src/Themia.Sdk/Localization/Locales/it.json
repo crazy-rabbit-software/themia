@@ -330,11 +330,8 @@
   "screentime.last7Days": "Ultimi {count} giorni",
   "screentime.last30Days": "Ultimi {count} giorni",
   "screentime.perDay": "{value}/giorno",
-  "screentime.goalPerDay": "di {value}/giorno",
   "screentime.cfg.period": "Periodo",
   "screentime.cfg.periodDay": "Giorno",
-  "screentime.cfg.style": "Stile",
-  "screentime.cfg.styleBars": "Barre",
   "screentime.cfg.hidden": "App nascoste",
   "account.addAccount": "Aggiungi account",
   "account.signOut": "Esci"

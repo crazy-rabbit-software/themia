@@ -331,11 +331,8 @@
   "screentime.last7Days": "پچھلے {count} دن",
   "screentime.last30Days": "پچھلے {count} دن",
   "screentime.perDay": "{value}/دن",
-  "screentime.goalPerDay": "{value}/دن میں سے",
   "screentime.cfg.period": "مدت",
   "screentime.cfg.periodDay": "دن",
-  "screentime.cfg.style": "انداز",
-  "screentime.cfg.styleBars": "بارز",
   "screentime.cfg.hidden": "پوشیدہ ایپس",
   "account.addAccount": "اکاؤنٹ شامل کریں",
   "account.signOut": "سائن آؤٹ"

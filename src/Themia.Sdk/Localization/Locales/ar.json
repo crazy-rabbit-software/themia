@@ -335,11 +335,8 @@
   "screentime.last7Days": "آخر {count} أيام",
   "screentime.last30Days": "آخر {count} يومًا",
   "screentime.perDay": "{value}/يوم",
-  "screentime.goalPerDay": "من {value}/يوم",
   "screentime.cfg.period": "الفترة",
   "screentime.cfg.periodDay": "يوم",
-  "screentime.cfg.style": "النمط",
-  "screentime.cfg.styleBars": "أشرطة",
   "screentime.cfg.hidden": "التطبيقات المخفية",
   "account.addAccount": "إضافة حساب",
   "account.signOut": "تسجيل الخروج"

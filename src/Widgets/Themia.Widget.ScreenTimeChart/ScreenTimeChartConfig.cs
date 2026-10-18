@@ -1,7 +1,6 @@
 using System.Text.Json.Serialization;
 using Themia.App.Shell;
 using Themia.Core.Localization;
-using Themia.Core.Storage;
 using Themia.Core.Widgets;
 using Themia.Sdk;
 
@@ -20,24 +19,6 @@ public sealed class ScreenTimeChartConfig : WidgetConfig, IShownSettings<ScreenT
     /// <summary>[S-6074] The chart sums the day against the daily limit; no app's limit shows on it.</summary>
     [JsonIgnore]
     public IReadOnlyList<ScreenTimeSetting> ShownSettings => [ScreenTimeSetting.DailyLimit];
-
-
-    /// <summary>[S-6902] This widget's descriptor: what the host knows of it without its UI.</summary>
-    public static WidgetDescriptor Descriptor { get; } = new()
-    {
-        Id = new("screenTimeChart"),
-        ConfigType = typeof(ScreenTimeChartConfig),
-        CreateDefault = () => new ScreenTimeChartConfig(),
-        Json = WidgetConfigJsonContext.Default,
-        Keywords = ["usage", "productivity", "time tracking", "screen time", "history", "week", "chart", "statistics"],
-        Label = Str.WidgetsC_ScreenTime_Chart_Label.Local(),
-        Description = Str.WidgetsC_ScreenTime_Chart_Desc.Local(),
-        Glyph = Glyphs.ScreenTimeChart,
-        DefaultWidth = 320,
-        DefaultHeight = 220,
-        Traits = WidgetTraits.CanHaveHeader,
-        Add = new(AddFolderId.ScreenTime, 0, 0),
-    };
 
     /// <summary>Week or Month; a day is the donut's and the list's ([S-3330]).</summary>
     public ScreenTimePeriod Period { get; set; } = ScreenTimePeriod.Week;

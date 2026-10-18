@@ -422,7 +422,7 @@ internal static class SwitchCheck
             (new WidgetId("memory"), new FracRect(0.60, 0.26, 0.14, 0.18)),
             (new WidgetId("network"), new FracRect(0.02, 0.48, 0.20, 0.18)),
             (new WidgetId("cpuDetails"), new FracRect(0.24, 0.48, 0.24, 0.30)),
-            (ScreenTimeChartConfig.Descriptor.Id, new FracRect(0.50, 0.48, 0.24, 0.30)),
+            (new WidgetId("screenTimeChart"), new FracRect(0.50, 0.48, 0.24, 0.30)),
             (new WidgetId("clock"), new FracRect(0.02, 0.70, 0.20, 0.14)),
         ];
 
