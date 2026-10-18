@@ -1,0 +1,22 @@
+{
+  "music.hideWhenIdle.label": "閒置時隱藏",
+  "music.hideWhenIdle.never": "永不",
+  "styles.music.artwork": "封面和文字",
+  "styles.music.cover": "全幅封面",
+  "styles.music.text": "僅文字",
+  "widgetsA.catalog.music.description": "Windows 正在播放的內容",
+  "widgetsA.catalog.music.label": "正在播放",
+  "widgetsB.music.next": "下一首",
+  "widgetsB.music.pause": "暫停",
+  "widgetsB.music.play": "播放",
+  "widgetsB.music.playPause": "播放或暫停",
+  "widgetsB.music.previous": "上一首",
+  "widgetsB.settings.music.header": "正在播放",
+  "widgetsB.settings.music.hideWhenIdle.desc": "編輯模式下仍會顯示",
+  "widgetsB.settings.music.hideWhenIdle.noSession": "沒有開啟播放器時",
+  "widgetsB.settings.music.hideWhenIdle.notPlaying": "沒有播放內容時",
+  "widgetsB.settings.music.progress.desc": "進度列以及已播放時間和總時間",
+  "widgetsB.settings.music.progress.label": "顯示進度",
+  "widgetsB.settings.music.transport.desc": "上一首、播放或暫停、下一首",
+  "widgetsB.settings.music.transport.label": "顯示播放控制項"
+}

@@ -1,0 +1,22 @@
+{
+  "music.hideWhenIdle.label": "নিষ্ক্রিয় থাকলে লুকান",
+  "music.hideWhenIdle.never": "কখনও না",
+  "styles.music.artwork": "কভার ও লেখা",
+  "styles.music.cover": "পুরো কভার",
+  "styles.music.text": "শুধু লেখা",
+  "widgetsA.catalog.music.description": "Windows যা চালাচ্ছে",
+  "widgetsA.catalog.music.label": "এখন চলছে",
+  "widgetsB.music.next": "পরের",
+  "widgetsB.music.pause": "থামান",
+  "widgetsB.music.play": "চালান",
+  "widgetsB.music.playPause": "চালান বা থামান",
+  "widgetsB.music.previous": "আগের",
+  "widgetsB.settings.music.header": "এখন চলছে",
+  "widgetsB.settings.music.hideWhenIdle.desc": "সম্পাদনা মোডে তবুও দেখায়",
+  "widgetsB.settings.music.hideWhenIdle.noSession": "কোনো প্লেয়ার খোলা না থাকলে",
+  "widgetsB.settings.music.hideWhenIdle.notPlaying": "কিছু না চললে",
+  "widgetsB.settings.music.progress.desc": "সিক বার, এবং অতিবাহিত ও মোট সময়",
+  "widgetsB.settings.music.progress.label": "অগ্রগতি দেখান",
+  "widgetsB.settings.music.transport.desc": "আগের, চালান বা থামান, পরের",
+  "widgetsB.settings.music.transport.label": "প্লেব্যাক বোতাম দেখান"
+}

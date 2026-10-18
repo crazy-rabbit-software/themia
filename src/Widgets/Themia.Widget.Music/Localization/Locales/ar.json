@@ -1,0 +1,22 @@
+{
+  "music.hideWhenIdle.label": "الإخفاء عند الخمول",
+  "music.hideWhenIdle.never": "أبدًا",
+  "styles.music.artwork": "الغلاف والنص",
+  "styles.music.cover": "الغلاف كاملًا",
+  "styles.music.text": "النص فقط",
+  "widgetsA.catalog.music.description": "كل ما يشغّله Windows",
+  "widgetsA.catalog.music.label": "قيد التشغيل",
+  "widgetsB.music.next": "التالي",
+  "widgetsB.music.pause": "إيقاف مؤقت",
+  "widgetsB.music.play": "تشغيل",
+  "widgetsB.music.playPause": "تشغيل أو إيقاف مؤقت",
+  "widgetsB.music.previous": "السابق",
+  "widgetsB.settings.music.header": "قيد التشغيل",
+  "widgetsB.settings.music.hideWhenIdle.desc": "يظل ظاهرًا في وضع التحرير",
+  "widgetsB.settings.music.hideWhenIdle.noSession": "عند عدم فتح أي مشغّل",
+  "widgetsB.settings.music.hideWhenIdle.notPlaying": "عند عدم تشغيل أي شيء",
+  "widgetsB.settings.music.progress.desc": "شريط التقديم، والوقت المنقضي والإجمالي",
+  "widgetsB.settings.music.progress.label": "إظهار التقدم",
+  "widgetsB.settings.music.transport.desc": "السابق، التشغيل أو الإيقاف المؤقت، التالي",
+  "widgetsB.settings.music.transport.label": "إظهار عناصر التحكم"
+}

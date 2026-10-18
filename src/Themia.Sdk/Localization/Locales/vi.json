@@ -181,8 +181,6 @@
   "pomodoro.alarmSound.buzzer": "Còi báo",
   "clipboard.clearHistory": "Xóa lịch sử",
   "music.albumArtLabel": "Hiện ảnh bìa album",
-  "music.hideWhenIdle.label": "Ẩn khi không phát",
-  "music.hideWhenIdle.never": "Không bao giờ",
   "sunMoon.locationTab": "Vị trí",
   "sunMoon.inTime": "sau {n}",
   "sunMoon.latitude.label": "Vĩ độ",

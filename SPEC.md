@@ -1799,8 +1799,7 @@ removed, [S-1863]). Sizing rules live in Core with tests in
   ranked one, and on a narrow tile the columns stop holding open their widest value. The "by CPU"
   label leaves a tile too narrow for it and the title both.
 - [S-649]: moved with the Sun widget into its module's `SPEC.md` (`src/Widgets/Themia.Widget.Sun/`).
-- **[S-650]** Now playing stacks on a tall, narrow tile (art, lines, transport) and moves the
-  transport under the lines when beside them it would leave the title under 120px.
+- [S-650]: moved with the Music widget into its module's `SPEC.md` (`src/Widgets/Themia.Widget.Music/`).
 - [S-651]: moved with the Scratchpad widget into its module's `SPEC.md` (`src/Widgets/Themia.Widget.Scratchpad/`).
 - **[S-652]** Glyph code points are checked against the font's cmap. The weather set, Quote and
   Wrap were not in Segoe Fluent Icons (or MDL2) and drew as boxes; the forecast folded rain, snow
@@ -5246,22 +5245,7 @@ displays, the ghost following the pointer across displays, Ctrl+A/Escape order.
 - **[S-1472]** *(Retired: moved to [S-3203].)*
 - **[S-1473]** *(Retired: moved to [S-3204].)*
 - **[S-1474]** *(Retired: the debug widget gallery and its fixtures are gone, [S-1863].)*
-- **[S-1475]** Music ladder: XS title (+ artist) over play/pause; S/Wide lines with the transport
-  beside (or under, or play only) and art on a strip, seek bar along the bottom (times beside it
-  on a wide one); M art + lines + transport, seek bar with the times under it; Tall stacked like
-  the media flyout (art, lines, seek, times, transport); L/XL art up to half the width beside
-  title/artist/album/40px transport, seek row with times along the bottom. No spectrum ([S-3200]).
-- **[S-6406]** Now playing's styles ([S-6000]), `MusicConfig.Style` (`MusicStyle`,
-  `"style": "artwork"`): **Artwork and text** (the ladder above), **Full artwork** ([S-6407]) and
-  **Text only** (the same ladder with no art, none fetched), in that order: what was "Show album
-  art", which is gone. Transport, progress and hide-when-idle stay settings for every style.
-- **[S-6407]** Full artwork: the art fills the card edge to edge (cropped to fill; the music glyph
-  on the control fill without one), and the title (BodyStrong, Subtitle at L/XL) with the artist
-  where it fits, the transport beside them (play/pause alone on a Compact-wide card or when the
-  lines would get under 120 DIPs) and the seek bar under them (its times beside it from Expanded
-  width) sit at its foot over a scrim: the theme's own base fill fading in, eased, over a band as tall as the foot, to 80 %,
-  so the text keeps its theme colours on any art. The foot never takes more than 60 % of the card;
-  the artist and then the bar give way first.
+- [S-1475], [S-6406], [S-6407]: moved with the Music widget into its module's `SPEC.md` (`src/Widgets/Themia.Widget.Music/`).
 - Not ported: the compact-header default of the original's [S-21] (WinUI header modes differ);
   `pollInterval` (legacy, unused).
   Not live-verified: actual sound output of the cues and the preview, single-flight stop, seeking

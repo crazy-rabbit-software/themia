@@ -1,0 +1,22 @@
+{
+  "music.hideWhenIdle.label": "Ausblenden bei Inaktivität",
+  "music.hideWhenIdle.never": "Nie",
+  "styles.music.artwork": "Cover und Text",
+  "styles.music.cover": "Ganzes Cover",
+  "styles.music.text": "Nur Text",
+  "widgetsA.catalog.music.description": "Was Windows gerade wiedergibt",
+  "widgetsA.catalog.music.label": "Aktuelle Wiedergabe",
+  "widgetsB.music.next": "Nächster Titel",
+  "widgetsB.music.pause": "Pause",
+  "widgetsB.music.play": "Wiedergabe",
+  "widgetsB.music.playPause": "Wiedergabe oder Pause",
+  "widgetsB.music.previous": "Vorheriger Titel",
+  "widgetsB.settings.music.header": "Aktuelle Wiedergabe",
+  "widgetsB.settings.music.hideWhenIdle.desc": "Im Bearbeitungsmodus bleibt es sichtbar",
+  "widgetsB.settings.music.hideWhenIdle.noSession": "Wenn kein Player geöffnet ist",
+  "widgetsB.settings.music.hideWhenIdle.notPlaying": "Wenn nichts wiedergegeben wird",
+  "widgetsB.settings.music.progress.desc": "Die Suchleiste sowie die verstrichene und die Gesamtzeit",
+  "widgetsB.settings.music.progress.label": "Fortschritt anzeigen",
+  "widgetsB.settings.music.transport.desc": "Zurück, Wiedergabe oder Pause, Weiter",
+  "widgetsB.settings.music.transport.label": "Wiedergabesteuerung anzeigen"
+}

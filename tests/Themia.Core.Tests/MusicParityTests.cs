@@ -21,17 +21,6 @@ public class MusicParityTests
     public void S1464_which_states_hide_the_tile(MusicHideWhenIdle mode, MusicState state, bool hides)
         => Assert.Equal(hides, MusicRules.Hides(mode, state));
 
-    [Fact]
-    public void S1464_an_unknown_mode_reads_as_never_the_visible_state()
-    {
-        var config = Assert.IsType<MusicConfig>(ConfigJson.Read("Music", """{"kind":"music","hideWhenIdle":"sometimes"}"""));
-        Assert.Equal(MusicHideWhenIdle.Never, config.HideWhenIdle);
-    }
-
-    [Fact]
-    public void S1464_defaults_never_hide()
-        => Assert.Equal(MusicHideWhenIdle.Never, new MusicConfig().HideWhenIdle);
-
     [Theory]
     [InlineData(50, 200, 0.25)]
     [InlineData(-10, 200, 0)]

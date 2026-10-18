@@ -1,0 +1,22 @@
+{
+  "music.hideWhenIdle.label": "నిష్క్రియంగా ఉన్నప్పుడు దాచు",
+  "music.hideWhenIdle.never": "ఎప్పుడూ కాదు",
+  "styles.music.artwork": "కవర్ మరియు వచనం",
+  "styles.music.cover": "పూర్తి కవర్",
+  "styles.music.text": "వచనం మాత్రమే",
+  "widgetsA.catalog.music.description": "Windows ప్లే చేస్తున్నది ఏదైనా",
+  "widgetsA.catalog.music.label": "ఇప్పుడు ప్లే అవుతోంది",
+  "widgetsB.music.next": "తదుపరి",
+  "widgetsB.music.pause": "పాజ్",
+  "widgetsB.music.play": "ప్లే",
+  "widgetsB.music.playPause": "ప్లే లేదా పాజ్",
+  "widgetsB.music.previous": "మునుపటి",
+  "widgetsB.settings.music.header": "ఇప్పుడు ప్లే అవుతోంది",
+  "widgetsB.settings.music.hideWhenIdle.desc": "సవరణ మోడ్ దీన్ని ఇప్పటికీ చూపిస్తుంది",
+  "widgetsB.settings.music.hideWhenIdle.noSession": "ఏ ప్లేయర్ తెరవబడనప్పుడు",
+  "widgetsB.settings.music.hideWhenIdle.notPlaying": "ఏదీ ప్లే అవ్వనప్పుడు",
+  "widgetsB.settings.music.progress.desc": "సీక్ బార్, మరియు గడిచిన మరియు మొత్తం సమయాలు",
+  "widgetsB.settings.music.progress.label": "పురోగతిని చూపించు",
+  "widgetsB.settings.music.transport.desc": "మునుపటి, ప్లే లేదా పాజ్, తదుపరి",
+  "widgetsB.settings.music.transport.label": "నియంత్రణలను చూపించు"
+}

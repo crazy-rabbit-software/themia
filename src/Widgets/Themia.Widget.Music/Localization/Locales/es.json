@@ -1,0 +1,22 @@
+{
+  "music.hideWhenIdle.label": "Ocultar cuando esté inactivo",
+  "music.hideWhenIdle.never": "Nunca",
+  "styles.music.artwork": "Carátula y texto",
+  "styles.music.cover": "Carátula completa",
+  "styles.music.text": "Solo texto",
+  "widgetsA.catalog.music.description": "Lo que Windows esté reproduciendo",
+  "widgetsA.catalog.music.label": "Reproduciendo",
+  "widgetsB.music.next": "Siguiente",
+  "widgetsB.music.pause": "Pausar",
+  "widgetsB.music.play": "Reproducir",
+  "widgetsB.music.playPause": "Reproducir o pausar",
+  "widgetsB.music.previous": "Anterior",
+  "widgetsB.settings.music.header": "Reproduciendo ahora",
+  "widgetsB.settings.music.hideWhenIdle.desc": "El modo de edición lo sigue mostrando",
+  "widgetsB.settings.music.hideWhenIdle.noSession": "Cuando no hay ningún reproductor abierto",
+  "widgetsB.settings.music.hideWhenIdle.notPlaying": "Cuando no se reproduce nada",
+  "widgetsB.settings.music.progress.desc": "La barra de búsqueda y los tiempos transcurrido y total",
+  "widgetsB.settings.music.progress.label": "Mostrar el progreso",
+  "widgetsB.settings.music.transport.desc": "Anterior, reproducir o pausar, siguiente",
+  "widgetsB.settings.music.transport.label": "Mostrar los controles de reproducción"
+}

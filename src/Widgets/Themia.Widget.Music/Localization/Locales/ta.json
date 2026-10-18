@@ -1,0 +1,22 @@
+{
+  "music.hideWhenIdle.label": "செயலற்றபோது மறை",
+  "music.hideWhenIdle.never": "ஒருபோதும் இல்லை",
+  "styles.music.artwork": "அட்டைப்படமும் உரையும்",
+  "styles.music.cover": "முழு அட்டைப்படம்",
+  "styles.music.text": "உரை மட்டும்",
+  "widgetsA.catalog.music.description": "Windows இயக்கும் எதுவும்",
+  "widgetsA.catalog.music.label": "இப்போது இயங்குவது",
+  "widgetsB.music.next": "அடுத்தது",
+  "widgetsB.music.pause": "இடைநிறுத்து",
+  "widgetsB.music.play": "இயக்கு",
+  "widgetsB.music.playPause": "இயக்கு அல்லது இடைநிறுத்து",
+  "widgetsB.music.previous": "முந்தையது",
+  "widgetsB.settings.music.header": "இப்போது இயங்குவது",
+  "widgetsB.settings.music.hideWhenIdle.desc": "திருத்தப் பயன்முறையில் இன்னும் காட்டப்படும்",
+  "widgetsB.settings.music.hideWhenIdle.noSession": "எந்த பிளேயரும் திறக்கப்படாதபோது",
+  "widgetsB.settings.music.hideWhenIdle.notPlaying": "எதுவும் இயங்காதபோது",
+  "widgetsB.settings.music.progress.desc": "தேடல் பட்டி, கடந்த மற்றும் மொத்த நேரங்கள்",
+  "widgetsB.settings.music.progress.label": "முன்னேற்றத்தைக் காட்டு",
+  "widgetsB.settings.music.transport.desc": "முந்தையது, இயக்கு அல்லது இடைநிறுத்து, அடுத்தது",
+  "widgetsB.settings.music.transport.label": "இயக்கக் கட்டுப்பாடுகளைக் காட்டு"
+}

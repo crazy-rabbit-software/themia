@@ -181,8 +181,6 @@
   "pomodoro.alarmSound.buzzer": "பஸ்ஸர்",
   "clipboard.clearHistory": "வரலாற்றை அழி",
   "music.albumArtLabel": "ஆல்பம் படத்தைக் காட்டு",
-  "music.hideWhenIdle.label": "செயலற்றபோது மறை",
-  "music.hideWhenIdle.never": "ஒருபோதும் இல்லை",
   "sunMoon.locationTab": "இருப்பிடம்",
   "sunMoon.inTime": "{n} இல்",
   "sunMoon.latitude.label": "அட்சரேகை",

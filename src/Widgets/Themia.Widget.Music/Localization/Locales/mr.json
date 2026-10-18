@@ -1,0 +1,22 @@
+{
+  "music.hideWhenIdle.label": "निष्क्रिय असताना लपवा",
+  "music.hideWhenIdle.never": "कधीही नाही",
+  "styles.music.artwork": "कव्हर आणि मजकूर",
+  "styles.music.cover": "पूर्ण कव्हर",
+  "styles.music.text": "फक्त मजकूर",
+  "widgetsA.catalog.music.description": "Windows जे काही वाजवत आहे ते",
+  "widgetsA.catalog.music.label": "आता वाजत आहे",
+  "widgetsB.music.next": "पुढील",
+  "widgetsB.music.pause": "पॉज",
+  "widgetsB.music.play": "प्ले",
+  "widgetsB.music.playPause": "प्ले किंवा पॉज",
+  "widgetsB.music.previous": "मागील",
+  "widgetsB.settings.music.header": "आता वाजत आहे",
+  "widgetsB.settings.music.hideWhenIdle.desc": "संपादन मोड तरीही ते दाखवतो",
+  "widgetsB.settings.music.hideWhenIdle.noSession": "कोणताही प्लेअर उघडा नसताना",
+  "widgetsB.settings.music.hideWhenIdle.notPlaying": "काहीही वाजत नसताना",
+  "widgetsB.settings.music.progress.desc": "सीक बार, आणि झालेला व एकूण वेळ",
+  "widgetsB.settings.music.progress.label": "प्रगती दाखवा",
+  "widgetsB.settings.music.transport.desc": "मागील, प्ले किंवा पॉज, पुढील",
+  "widgetsB.settings.music.transport.label": "प्लेबॅक नियंत्रणे दाखवा"
+}

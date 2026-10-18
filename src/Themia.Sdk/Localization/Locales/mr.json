@@ -181,8 +181,6 @@
   "pomodoro.alarmSound.buzzer": "बझर",
   "clipboard.clearHistory": "इतिहास साफ करा",
   "music.albumArtLabel": "अल्बम आर्ट दाखवा",
-  "music.hideWhenIdle.label": "निष्क्रिय असताना लपवा",
-  "music.hideWhenIdle.never": "कधीही नाही",
   "sunMoon.locationTab": "स्थान",
   "sunMoon.inTime": "{n} मध्ये",
   "sunMoon.latitude.label": "अक्षांश",

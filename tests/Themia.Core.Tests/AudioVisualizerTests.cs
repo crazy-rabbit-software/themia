@@ -79,13 +79,6 @@ public class AudioVisualizerTests
     public void S3216_the_visualizer_starts_without_a_header()
         => Assert.Equal(HeaderPlacement.Hidden, WidgetInstance.Create(AudioVisualizerConfig.Descriptor.Id, new FracRect(0, 0, 0.1, 0.1)).Header);
 
-    [Fact]
-    public void S3200_music_no_longer_has_a_spectrum_switch()
-    {
-        var json = JsonSerializer.Serialize<WidgetConfig>(new MusicConfig(), StateJson.WidgetConfig);
-        Assert.DoesNotContain("spectrum", json, StringComparison.OrdinalIgnoreCase);
-    }
-
     [Theory]
     [InlineData("XS", 12)]
     [InlineData("S", 24)]

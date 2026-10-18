@@ -181,8 +181,6 @@
   "pomodoro.alarmSound.buzzer": "বাজার",
   "clipboard.clearHistory": "ইতিহাস মুছুন",
   "music.albumArtLabel": "অ্যালবাম আর্ট দেখান",
-  "music.hideWhenIdle.label": "নিষ্ক্রিয় থাকলে লুকান",
-  "music.hideWhenIdle.never": "কখনও না",
   "sunMoon.locationTab": "অবস্থান",
   "sunMoon.inTime": "{n} পরে",
   "sunMoon.latitude.label": "অক্ষাংশ",

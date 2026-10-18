@@ -25,14 +25,6 @@ public class ListStylesTests
     }
 
     [Fact]
-    public void S6406_text_only_draws_and_fetches_no_art()
-    {
-        Assert.True(new MusicConfig { Style = MusicStyle.Artwork }.ShowsArt);
-        Assert.True(new MusicConfig { Style = MusicStyle.Cover }.ShowsArt);
-        Assert.False(new MusicConfig { Style = MusicStyle.Text }.ShowsArt);
-    }
-
-    [Fact]
     public void S6408_only_the_dots_draw_the_run_and_the_history()
     {
         Assert.Equal([HabitsSetting.Streak, HabitsSetting.History], new HabitTrackerConfig { Style = HabitTrackerStyle.Dots }.ShownSettings);

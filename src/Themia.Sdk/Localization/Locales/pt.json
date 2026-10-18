@@ -180,8 +180,6 @@
   "pomodoro.alarmSound.buzzer": "Cigarra",
   "clipboard.clearHistory": "Limpar histórico",
   "music.albumArtLabel": "Mostrar capa do álbum",
-  "music.hideWhenIdle.label": "Ocultar quando inativo",
-  "music.hideWhenIdle.never": "Nunca",
   "sunMoon.locationTab": "Localização",
   "sunMoon.inTime": "em {n}",
   "sunMoon.latitude.label": "Latitude",

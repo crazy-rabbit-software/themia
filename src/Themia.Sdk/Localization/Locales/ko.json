@@ -181,8 +181,6 @@
   "pomodoro.alarmSound.buzzer": "부저",
   "clipboard.clearHistory": "기록 지우기",
   "music.albumArtLabel": "앨범 아트 표시",
-  "music.hideWhenIdle.label": "유휴 상태일 때 숨기기",
-  "music.hideWhenIdle.never": "안 함",
   "sunMoon.locationTab": "위치",
   "sunMoon.inTime": "{n} 후",
   "sunMoon.latitude.label": "위도",

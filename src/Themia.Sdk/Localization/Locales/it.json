@@ -180,8 +180,6 @@
   "pomodoro.alarmSound.buzzer": "Cicalino",
   "clipboard.clearHistory": "Cancella cronologia",
   "music.albumArtLabel": "Mostra copertina",
-  "music.hideWhenIdle.label": "Nascondi quando inattivo",
-  "music.hideWhenIdle.never": "Mai",
   "sunMoon.locationTab": "Posizione",
   "sunMoon.inTime": "tra {n}",
   "sunMoon.latitude.label": "Latitudine",

@@ -181,8 +181,6 @@
   "pomodoro.alarmSound.buzzer": "طنان",
   "clipboard.clearHistory": "مسح المحفوظات",
   "music.albumArtLabel": "إظهار صورة الألبوم",
-  "music.hideWhenIdle.label": "الإخفاء عند الخمول",
-  "music.hideWhenIdle.never": "أبدًا",
   "sunMoon.locationTab": "الموقع",
   "sunMoon.inTime": "بعد {n}",
   "sunMoon.latitude.label": "خط العرض",

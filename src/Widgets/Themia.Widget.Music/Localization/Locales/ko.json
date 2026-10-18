@@ -1,0 +1,22 @@
+{
+  "music.hideWhenIdle.label": "유휴 상태일 때 숨기기",
+  "music.hideWhenIdle.never": "안 함",
+  "styles.music.artwork": "앨범 아트와 텍스트",
+  "styles.music.cover": "전체 앨범 아트",
+  "styles.music.text": "텍스트만",
+  "widgetsA.catalog.music.description": "Windows에서 재생 중인 항목",
+  "widgetsA.catalog.music.label": "지금 재생 중",
+  "widgetsB.music.next": "다음",
+  "widgetsB.music.pause": "일시 중지",
+  "widgetsB.music.play": "재생",
+  "widgetsB.music.playPause": "재생 또는 일시 중지",
+  "widgetsB.music.previous": "이전",
+  "widgetsB.settings.music.header": "지금 재생 중",
+  "widgetsB.settings.music.hideWhenIdle.desc": "편집 모드에서는 계속 표시됩니다",
+  "widgetsB.settings.music.hideWhenIdle.noSession": "열린 플레이어가 없을 때",
+  "widgetsB.settings.music.hideWhenIdle.notPlaying": "재생 중인 항목이 없을 때",
+  "widgetsB.settings.music.progress.desc": "탐색 막대와 경과 시간 및 전체 시간",
+  "widgetsB.settings.music.progress.label": "진행률 표시",
+  "widgetsB.settings.music.transport.desc": "이전, 재생 또는 일시 중지, 다음",
+  "widgetsB.settings.music.transport.label": "재생 컨트롤 표시"
+}

@@ -181,8 +181,6 @@
   "pomodoro.alarmSound.buzzer": "Buzzer",
   "clipboard.clearHistory": "I-clear ang history",
   "music.albumArtLabel": "Ipakita ang album art",
-  "music.hideWhenIdle.label": "Itago kapag idle",
-  "music.hideWhenIdle.never": "Hindi kailanman",
   "sunMoon.locationTab": "Lokasyon",
   "sunMoon.inTime": "sa loob ng {n}",
   "sunMoon.latitude.label": "Latitud",

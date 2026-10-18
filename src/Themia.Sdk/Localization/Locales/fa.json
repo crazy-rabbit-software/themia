@@ -181,8 +181,6 @@
   "pomodoro.alarmSound.buzzer": "بیزر",
   "clipboard.clearHistory": "پاک کردن سابقه",
   "music.albumArtLabel": "نمایش تصویر آلبوم",
-  "music.hideWhenIdle.label": "پنهان کردن در حالت بیکار",
-  "music.hideWhenIdle.never": "هرگز",
   "sunMoon.locationTab": "مکان",
   "sunMoon.inTime": "{n} دیگر",
   "sunMoon.latitude.label": "عرض جغرافیایی",

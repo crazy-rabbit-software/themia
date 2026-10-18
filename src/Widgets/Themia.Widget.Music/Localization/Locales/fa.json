@@ -1,0 +1,22 @@
+{
+  "music.hideWhenIdle.label": "پنهان کردن در حالت بیکار",
+  "music.hideWhenIdle.never": "هرگز",
+  "styles.music.artwork": "جلد و متن",
+  "styles.music.cover": "جلد کامل",
+  "styles.music.text": "فقط متن",
+  "widgetsA.catalog.music.description": "هر چه Windows در حال پخش است",
+  "widgetsA.catalog.music.label": "در حال پخش",
+  "widgetsB.music.next": "بعدی",
+  "widgetsB.music.pause": "توقف",
+  "widgetsB.music.play": "پخش",
+  "widgetsB.music.playPause": "پخش یا توقف",
+  "widgetsB.music.previous": "قبلی",
+  "widgetsB.settings.music.header": "در حال پخش",
+  "widgetsB.settings.music.hideWhenIdle.desc": "حالت ویرایش همچنان آن را نشان می‌دهد",
+  "widgetsB.settings.music.hideWhenIdle.noSession": "وقتی پخش‌کننده‌ای باز نیست",
+  "widgetsB.settings.music.hideWhenIdle.notPlaying": "وقتی چیزی پخش نمی‌شود",
+  "widgetsB.settings.music.progress.desc": "نوار جستجو و زمان سپری‌شده و کل",
+  "widgetsB.settings.music.progress.label": "نمایش پیشرفت",
+  "widgetsB.settings.music.transport.desc": "قبلی، پخش یا توقف، بعدی",
+  "widgetsB.settings.music.transport.label": "نمایش کنترل‌های پخش"
+}

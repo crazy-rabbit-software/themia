@@ -181,8 +181,6 @@
   "pomodoro.alarmSound.buzzer": "Zoemer",
   "clipboard.clearHistory": "Geschiedenis wissen",
   "music.albumArtLabel": "Albumhoes weergeven",
-  "music.hideWhenIdle.label": "Verbergen bij inactiviteit",
-  "music.hideWhenIdle.never": "Nooit",
   "sunMoon.locationTab": "Locatie",
   "sunMoon.inTime": "over {n}",
   "sunMoon.latitude.label": "Breedtegraad",

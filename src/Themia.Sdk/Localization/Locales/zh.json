@@ -180,8 +180,6 @@
   "pomodoro.alarmSound.buzzer": "蜂鸣器",
   "clipboard.clearHistory": "清除历史记录",
   "music.albumArtLabel": "显示专辑封面",
-  "music.hideWhenIdle.label": "空闲时隐藏",
-  "music.hideWhenIdle.never": "从不",
   "sunMoon.locationTab": "位置",
   "sunMoon.inTime": "{n}后",
   "sunMoon.latitude.label": "纬度",

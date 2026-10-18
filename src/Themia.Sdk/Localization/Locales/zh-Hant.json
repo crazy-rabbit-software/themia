@@ -181,8 +181,6 @@
   "pomodoro.alarmSound.buzzer": "蜂鳴器",
   "clipboard.clearHistory": "清除歷程記錄",
   "music.albumArtLabel": "顯示專輯封面",
-  "music.hideWhenIdle.label": "閒置時隱藏",
-  "music.hideWhenIdle.never": "永不",
   "sunMoon.locationTab": "位置",
   "sunMoon.inTime": "{n}後",
   "sunMoon.latitude.label": "緯度",

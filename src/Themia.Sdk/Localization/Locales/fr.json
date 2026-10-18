@@ -180,8 +180,6 @@
   "pomodoro.alarmSound.buzzer": "Sonnerie",
   "clipboard.clearHistory": "Effacer l'historique",
   "music.albumArtLabel": "Afficher la pochette",
-  "music.hideWhenIdle.label": "Masquer en veille",
-  "music.hideWhenIdle.never": "Jamais",
   "sunMoon.locationTab": "Position",
   "sunMoon.inTime": "dans {n}",
   "sunMoon.latitude.label": "Latitude",

@@ -519,7 +519,7 @@ internal static class SettingsRender
         work.Widgets.Add(WidgetInstance.Create(EmailConfig.Descriptor.Id, new FracRect(0.30, 0.08, 0.25, 0.30)));
 
         var evening = ViewState.Create("Evening");
-        evening.Widgets.Add(WidgetInstance.Create(MusicConfig.Descriptor.Id, new FracRect(0.05, 0.70, 0.20, 0.12)));
+        evening.Widgets.Add(WidgetInstance.Create(new WidgetId("music"), new FracRect(0.05, 0.70, 0.20, 0.12)));
 
         return new AppState
         {

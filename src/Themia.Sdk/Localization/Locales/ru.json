@@ -181,8 +181,6 @@
   "pomodoro.alarmSound.buzzer": "Зуммер",
   "clipboard.clearHistory": "Очистить журнал",
   "music.albumArtLabel": "Показывать обложку альбома",
-  "music.hideWhenIdle.label": "Скрывать без воспроизведения",
-  "music.hideWhenIdle.never": "Никогда",
   "sunMoon.locationTab": "Расположение",
   "sunMoon.inTime": "через {n}",
   "sunMoon.latitude.label": "Широта",

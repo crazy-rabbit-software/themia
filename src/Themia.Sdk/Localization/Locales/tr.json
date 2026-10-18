@@ -181,8 +181,6 @@
   "pomodoro.alarmSound.buzzer": "Vızıltı",
   "clipboard.clearHistory": "Geçmişi temizle",
   "music.albumArtLabel": "Albüm kapağını göster",
-  "music.hideWhenIdle.label": "Boştayken gizle",
-  "music.hideWhenIdle.never": "Hiçbir zaman",
   "sunMoon.locationTab": "Konum",
   "sunMoon.inTime": "{n} sonra",
   "sunMoon.latitude.label": "Enlem",

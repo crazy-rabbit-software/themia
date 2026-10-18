@@ -1,0 +1,22 @@
+{
+  "music.hideWhenIdle.label": "غیر فعال ہونے پر چھپائیں",
+  "music.hideWhenIdle.never": "کبھی نہیں",
+  "styles.music.artwork": "سرورق اور متن",
+  "styles.music.cover": "پورا سرورق",
+  "styles.music.text": "صرف متن",
+  "widgetsA.catalog.music.description": "جو کچھ بھی Windows چلا رہا ہے",
+  "widgetsA.catalog.music.label": "ابھی چل رہا ہے",
+  "widgetsB.music.next": "اگلا",
+  "widgetsB.music.pause": "موقوف کریں",
+  "widgetsB.music.play": "چلائیں",
+  "widgetsB.music.playPause": "چلائیں یا موقوف کریں",
+  "widgetsB.music.previous": "پچھلا",
+  "widgetsB.settings.music.header": "ابھی چل رہا ہے",
+  "widgetsB.settings.music.hideWhenIdle.desc": "ترمیمی وضع میں پھر بھی دکھتا ہے",
+  "widgetsB.settings.music.hideWhenIdle.noSession": "جب کوئی پلیئر کھلا نہ ہو",
+  "widgetsB.settings.music.hideWhenIdle.notPlaying": "جب کچھ نہ چل رہا ہو",
+  "widgetsB.settings.music.progress.desc": "سیک بار، اور گزرا ہوا اور کل وقت",
+  "widgetsB.settings.music.progress.label": "پیش رفت دکھائیں",
+  "widgetsB.settings.music.transport.desc": "پچھلا، چلائیں یا موقوف، اگلا",
+  "widgetsB.settings.music.transport.label": "کنٹرولز دکھائیں"
+}
