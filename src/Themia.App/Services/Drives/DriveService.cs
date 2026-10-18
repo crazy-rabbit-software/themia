@@ -1,6 +1,7 @@
 using Microsoft.UI.Dispatching;
 using Themia.Core.Diagnostics;
 using Themia.Core.Widgets;
+using Themia.Sdk.WinUI;
 
 namespace Themia.App.Services.Drives;
 
@@ -14,7 +15,7 @@ namespace Themia.App.Services.Drives;
 /// the shared ticker, only while a widget watches). A walk that changes nothing a widget shows
 /// (<see cref="DriveRules.SameAs"/>) tells nobody. UI thread only, except the walk itself.
 /// </summary>
-internal sealed class DriveService
+internal sealed class DriveService : IDrives
 {
     private const string Scope = "drives";
 

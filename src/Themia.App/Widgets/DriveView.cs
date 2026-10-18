@@ -8,6 +8,7 @@ using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
 using Themia.Sdk.WinUI;
+using Themia.Sdk;
 
 namespace Themia.App.Widgets;
 
@@ -97,7 +98,7 @@ internal sealed partial class DriveView : Grid, IWidgetView, IWidgetSizeAware, I
         UseStyle();
 
         _watch?.Dispose();
-        _watch = DriveService.Shared.Watch(ticker, Show);
+        _watch = _widgetHost.Drives.Watch(ticker, Show);
 
         Show();
     }
@@ -120,13 +121,13 @@ internal sealed partial class DriveView : Grid, IWidgetView, IWidgetSizeAware, I
     /// <summary>The drive the config names, from the last walk.</summary>
     private void Show()
     {
-        var service = DriveService.Shared;
+        var service = _widgetHost.Drives;
         if (_previewDrive is null && !service.HasValue)
         {
             return;
         }
 
-        _drive = _previewDrive ?? DriveRules.Pick(service.Drives, _config.Drive, DriveCatalog.SystemRoot);
+        _drive = _previewDrive ?? DriveRules.Pick(service.Drives, _config.Drive, SystemDrive.Root);
         _surface?.SetHeaderTitle(DriveRules.Title(Strings.Current, _drive));
         Lay();
     }
@@ -227,7 +228,7 @@ internal sealed partial class DriveView : Grid, IWidgetView, IWidgetSizeAware, I
         {
             if (_drive is not { } drive || drive.State == DriveState.Missing)
             {
-                return [new WidgetAction(Glyphs.Refresh, Str.Common_Refresh.Text(), DriveService.Shared.Refresh)];
+                return [new WidgetAction(Glyphs.Refresh, Str.Common_Refresh.Text(), _widgetHost.Drives.Refresh)];
             }
 
             var actions = new List<WidgetAction>
@@ -240,7 +241,7 @@ internal sealed partial class DriveView : Grid, IWidgetView, IWidgetSizeAware, I
                 actions.Add(new WidgetAction(Glyphs.Usb, Str.Drives_Eject.Text(), () => _widgetHost.Launcher.Eject(drive.Root)));
             }
 
-            actions.Add(new WidgetAction(Glyphs.Refresh, Str.Common_Refresh.Text(), DriveService.Shared.Refresh));
+            actions.Add(new WidgetAction(Glyphs.Refresh, Str.Common_Refresh.Text(), _widgetHost.Drives.Refresh));
             return actions;
         }
     }

@@ -69,7 +69,7 @@ internal sealed partial class RemovableDrivesView : Grid, IWidgetView, IWidgetSi
         Strings.Changed -= OnLanguage;
         Strings.Changed += OnLanguage;
         _watch?.Dispose();
-        _watch = DriveService.Shared.Watch(ticker, Show);
+        _watch = _widgetHost.Drives.Watch(ticker, Show);
         Show();
     }
 
@@ -85,12 +85,12 @@ internal sealed partial class RemovableDrivesView : Grid, IWidgetView, IWidgetSi
 
     private void Show()
     {
-        if (_previewDevices is null && !DriveService.Shared.HasValue)
+        if (_previewDevices is null && !_widgetHost.Drives.HasValue)
         {
             return;
         }
 
-        _devices = _previewDevices ?? DriveRules.Removables(DriveService.Shared.Drives);
+        _devices = _previewDevices ?? DriveRules.Removables(_widgetHost.Drives.Drives);
         Lay();
     }
 

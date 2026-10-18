@@ -56,7 +56,6 @@ internal static unsafe partial class DriveCatalog
     public static event Action? NetworkAnswered;
 
     /// <summary>The system drive's root, what a widget naming no drive shows.</summary>
-    public static string SystemRoot => Path.GetPathRoot(Environment.SystemDirectory) ?? "C:\\";
 
     /// <summary>
     /// Every drive, by letter: local ones always, mapped network drives when <paramref name="network"/>.

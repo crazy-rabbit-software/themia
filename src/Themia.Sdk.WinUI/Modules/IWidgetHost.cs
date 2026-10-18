@@ -61,4 +61,7 @@ public interface IWidgetHost
     /// host's one hub. Null only before the host has started it, where there is nothing to read yet.
     /// </summary>
     ISystemFeeds? System { get; }
+
+    /// <summary>[S-4655] The drives: the host's one walk every drive widget shares.</summary>
+    IDrives Drives { get; }
 }

@@ -128,5 +128,5 @@ internal sealed class DiskMeter(IWidgetHost widgetHost) : MeterPart
     /// [S-1161] "System (C:)" for a drive Windows lists, "C:" for one it does not, "All drives" for
     /// every one. From the last walk, never a new one: a title touches no drive.
     /// </summary>
-    private string Title() => DiskRules.HeaderTitle(Strings.Current, _config.Scope, _root, DiskMetrics.Volumes());
+    private string Title() => DiskRules.HeaderTitle(Strings.Current, _config.Scope, _root, DriveRules.LocalVolumes(widgetHost.Drives.Drives));
 }

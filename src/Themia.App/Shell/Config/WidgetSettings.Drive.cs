@@ -3,6 +3,7 @@ using Themia.App.Services.Drives;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
+using Themia.Sdk;
 
 namespace Themia.App.Shell.Config;
 
@@ -20,14 +21,14 @@ internal static partial class WidgetSettings
         ArgumentNullException.ThrowIfNull(save);
 
         var locale = Strings.Current;
-        var system = DiskRules.Root(DriveCatalog.SystemRoot) ?? "C:\\";
+        var system = DiskRules.Root(SystemDrive.Root) ?? "C:\\";
         var options = new List<(string Value, string Label)>
         {
             (string.Empty, Str.Shell_Meters_SystemDrive.Format(("drive", DiskRules.Instance(system)))),
         };
 
         // The last walk if a drive widget made one, else one now: local drives at once, a share pending.
-        foreach (var drive in DriveService.Shared.Now())
+        foreach (var drive in DriveList.Now())
         {
             options.Add((drive.Root, DriveRules.Title(locale, drive)));
         }

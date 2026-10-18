@@ -38,6 +38,8 @@ internal sealed class CardWidgetHost(IWidgetCardHost card) : IWidgetHost
 
     public ISystemFeeds? System => AppServices.System;
 
+    public IDrives Drives => Services.Drives.DriveService.Shared;
+
     public bool ShowAccounts()
     {
         if (AppServices.ShowAccounts is not { } show)
