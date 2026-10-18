@@ -67,4 +67,7 @@ public interface IWidgetHost
 
     /// <summary>[S-440] [S-1220] The output devices, their levels and sessions: the host's one Core Audio worker.</summary>
     IAudioOutputs Audio { get; }
+
+    /// <summary>[S-4441] Every display's brightness: the host's one worker.</summary>
+    IBrightness Brightness { get; }
 }

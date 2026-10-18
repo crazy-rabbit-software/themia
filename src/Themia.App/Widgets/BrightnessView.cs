@@ -23,7 +23,7 @@ namespace Themia.App.Widgets;
 /// [S-4442] It sets every display whose brightness can be set, together, or with "Only the screen it's
 /// on" the display its surface is on — one window per display, so the display is the window's. It shows
 /// the level of its own display, or of the first that has one. The levels come from
-/// <see cref="BrightnessService"/>, which hears a built-in panel change and reads a monitor again when the
+/// the host's brightness service (<see cref="IBrightness"/>), which hears a built-in panel change and reads a monitor again when the
 /// pointer comes by; while the thumb is held a reading never moves it.
 /// </para>
 /// </summary>
@@ -41,7 +41,8 @@ internal sealed partial class BrightnessView : Grid, IWidgetView, IWidgetSizeAwa
 
     private BrightnessConfig _config = new();
     private IWidgetSurface? _surface;
-    private BrightnessLease? _lease;
+    private readonly IBrightness _brightness;
+    private IDisposable? _lease;
     private WidgetArea _area;
     private VolumeAxis? _axis;
     private string? _own;
@@ -51,8 +52,9 @@ internal sealed partial class BrightnessView : Grid, IWidgetView, IWidgetSizeAwa
     private bool _grabbed;
     private bool _detached = true;
 
-    public BrightnessView()
+    public BrightnessView(IWidgetHost host)
     {
+        _brightness = host.Brightness;
         _sun = Fluent.Icon(Glyphs.Brightness, "TextFillColorPrimaryBrush");
         _sun.HorizontalAlignment = HorizontalAlignment.Center;
         _sun.VerticalAlignment = VerticalAlignment.Center;
@@ -90,7 +92,7 @@ internal sealed partial class BrightnessView : Grid, IWidgetView, IWidgetSizeAwa
         // [S-1251] A debug render reads and sets nothing.
         if (_surface is not { IsPreview: true })
         {
-            _lease = BrightnessService.Acquire(Lay);
+            _lease = _brightness.Acquire(Lay);
         }
         else if (!_preview.Ready)
         {
@@ -141,7 +143,7 @@ internal sealed partial class BrightnessView : Grid, IWidgetView, IWidgetSizeAwa
         _lease = null;
     }
 
-    private BrightnessSnapshot Snapshot => _lease is null ? _preview : BrightnessService.Snapshot;
+    private BrightnessSnapshot Snapshot => _lease is null ? _preview : _brightness.Snapshot;
 
     /// <summary>The display this surface is on (its window's), worked out once the view is in a window.</summary>
     private string? Own()
@@ -167,7 +169,7 @@ internal sealed partial class BrightnessView : Grid, IWidgetView, IWidgetSizeAwa
             return null;
         }
 
-        return (_lease is null ? null : BrightnessService.Asked(shown.Device)) ?? shown.Level;
+        return (_lease is null ? null : _brightness.Asked(shown.Device)) ?? shown.Level;
     }
 
     private void Orient(VolumeAxis axis)
@@ -274,7 +276,7 @@ internal sealed partial class BrightnessView : Grid, IWidgetView, IWidgetSizeAwa
             return;
         }
 
-        _ = BrightnessService.Set(Own(), _config.Screens, level);
+        _ = _brightness.Set(Own(), _config.Screens, level);
     }
 
     private void OnSliderChanged(object sender, RangeBaseValueChangedEventArgs args)
@@ -300,7 +302,7 @@ internal sealed partial class BrightnessView : Grid, IWidgetView, IWidgetSizeAwa
     {
         if (_lease is not null && !_grabbed)
         {
-            BrightnessService.Refresh();
+            _brightness.Refresh();
         }
     }
 

@@ -8,12 +8,6 @@ using Themia.Core.Widgets;
 
 namespace Themia.App.Services.Brightness;
 
-/// <summary>What the brightness widgets show: whether the displays have been looked at, and those with a brightness.</summary>
-internal sealed record BrightnessSnapshot(bool Ready, IReadOnlyList<BrightnessDisplay> Displays)
-{
-    public static BrightnessSnapshot Pending { get; } = new(false, []);
-}
-
 /// <summary>
 /// [S-4441] Every display's brightness, as Karpo's <c>Brightness.cs</c> has it, without WMI (Native AOT):
 /// <list type="bullet">

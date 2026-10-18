@@ -79,17 +79,6 @@ public sealed class FocusSessionConfig : WidgetConfig
     }
 }
 
-/// <summary>[S-4442] Which displays the brightness slider sets.</summary>
-[JsonConverter(typeof(JsonStringEnumConverter<BrightnessScreens>))]
-public enum BrightnessScreens
-{
-    /// <summary>Every display whose brightness can be set, together, to one level (Karpo's default).</summary>
-    All = 0,
-
-    /// <summary>Only the display the widget is on.</summary>
-    ThisDisplay = 1,
-}
-
 /// <summary>[S-4440] The display brightness, one slider.</summary>
 public sealed class BrightnessConfig : WidgetConfig
 {

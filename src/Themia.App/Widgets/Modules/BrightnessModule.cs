@@ -16,5 +16,5 @@ public sealed class BrightnessModule : IWidgetModule
     public void SettingsRows(WidgetSettingsRows rows, WidgetConfig config)
         => WidgetSettings.Brightness(rows.Rows, (BrightnessConfig)config, rows.Save);
 
-    public FrameworkElement CreateView(IWidgetHost host) => new BrightnessView();
+    public FrameworkElement CreateView(IWidgetHost host) => new BrightnessView(host);
 }
