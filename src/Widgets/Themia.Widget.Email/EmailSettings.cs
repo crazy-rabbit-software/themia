@@ -10,6 +10,7 @@ using Themia.Core.Widgets;
 using Themia.Sdk;
 
 using Themia.Sdk.WinUI;
+using Themia.Sdk.WinUI.Kit;
 using Themia.App.Shell;
 using Themia.App.Shell.Config;
 
@@ -93,100 +94,15 @@ internal static class EmailSettings
         MailColumnRows(columns, email, save);
     }
 
-    /// <summary>
-    /// "Every mail account", or a choice of them. Every is the default and means accounts added later
-    /// join too; turning it off starts from the accounts there are now, so nothing disappears.
-    /// </summary>
+    /// <summary>[S-541] [S-7063] "Every mail account", or a choice of them: the kit's accounts row.</summary>
     private static void MailAccountRows(List<FrameworkElement> rows, EmailConfig email, Action save, Action openAccounts)
     {
-        var accounts = SettingsHost.AccountsWith(HostFeatures.Mail);
-
-        var manage = new Button { Content = accounts.Count == 0 ? EmailStr.WidgetsB_Settings_Email_AddAccount.Text() : EmailStr.WidgetsB_Settings_Email_ManageAccounts.Text() };
-        manage.Click += (_, _) => openAccounts();
-
-        if (accounts.Count == 0)
-        {
-            rows.Add(FluentLayout.Row(Glyphs.Mail, EmailStr.WidgetsB_Settings_Email_NoAccount_Label.Text(),
-                EmailStr.WidgetsB_Settings_Email_NoAccount_Desc.Text(), manage));
-            return;
-        }
-
-        var toggles = new List<ToggleSwitch>();
-        var chosenRows = new List<FrameworkElement>();
-
-        // Set while this page moves a switch itself, so the switch's own handler does not take that
-        // for the user choosing one account.
-        var quiet = false;
-        var every = email.EffectiveAccountIds.Count == 0;
-
-        void ShowChoice()
-        {
-            foreach (var row in chosenRows)
-            {
-                row.Visibility = email.EffectiveAccountIds.Count == 0 ? Visibility.Collapsed : Visibility.Visible;
-            }
-        }
-
-        rows.Add(FluentLayout.Row(Glyphs.Mail, EmailStr.WidgetsB_Settings_Email_Every_Label.Text(), EmailStr.WidgetsB_Settings_Email_Every_Desc.Text(),
-            FluentLayout.Toggle(every, on =>
-            {
-                // Off starts from every account there is now, so turning it off changes nothing on
-                // screen until an account is then turned off.
-                email.AccountIds = on ? [] : [.. accounts.Select(a => a.Id)];
-
-                quiet = true;
-                foreach (var toggle in toggles)
-                {
-                    toggle.IsOn = true;
-                }
-
-                quiet = false;
-
-                save();
-                ShowChoice();
-            })));
-
-        foreach (var account in accounts)
-        {
-            var index = toggles.Count;
-            var toggle = FluentLayout.Toggle(every || email.EffectiveAccountIds.Contains(account.Id), on =>
-            {
-                if (quiet)
-                {
-                    return;
-                }
-
-                var ids = email.EffectiveAccountIds.ToList();
-                ids.Remove(account.Id);
-                if (on)
-                {
-                    ids.Add(account.Id);
-                }
-
-                // At least one stays: an empty list means "every account", the opposite of the
-                // user turning the last one off.
-                if (ids.Count == 0)
-                {
-                    quiet = true;
-                    toggles[index].IsOn = true;
-                    quiet = false;
-                    return;
-                }
-
-                email.AccountIds = [.. accounts.Select(a => a.Id).Where(ids.Contains)];
-                save();
-            });
-
-            toggles.Add(toggle);
-
-            var description = account.Problem ?? $"{ProviderCatalog.Of(account.Provider).Label.Text()} · {account.Address}";
-            var row = FluentLayout.Row(EmailView.FolderGlyph(MailFolder.Inbox), account.Label, description, toggle);
-            chosenRows.Add(row);
-            rows.Add(row);
-        }
-
-        rows.Add(FluentLayout.Row(Glyphs.Contact, Str.WidgetUi_AccountsLabel.Text(), EmailStr.WidgetsB_Settings_Email_Accounts_Desc.Text(), manage));
-        ShowChoice();
+        var accounts = SettingsHost.AccountsWith(HostFeatures.Mail)
+            .Select(a => new KitAccountRow(a.Id, a.Label, a.Problem ?? $"{ProviderCatalog.Of(a.Provider).Label.Text()} · {a.Address}"))
+            .ToList();
+        KitRows.Accounts(rows, Glyphs.Mail, accounts,
+            new KitAccountTexts(EmailStr.WidgetsB_Settings_Email_NoAccount_Label.Text(), EmailStr.WidgetsB_Settings_Email_Every_Label.Text(), EmailStr.WidgetsB_Settings_Email_NoAccount_Desc.Text()),
+            () => [.. email.EffectiveAccountIds], ids => email.AccountIds = ids, save, openAccounts);
     }
 
     /// <summary>

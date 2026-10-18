@@ -944,6 +944,13 @@ The shared parts a list widget is built from, and the rules they keep (design an
   the shared sentence ([S-62]).
 - **[S-7041]** The accounts a kit widget reads: every account offering its need when it names none,
   else the named ones still signed in.
+- **[S-7063]** `KitRows`: a kit widget's standard settings rows, built only from `FluentLayout`: the
+  accounts it reads, a free input checked by the widget's own validator, a count, its optional
+  fields. One accounts row: "Every <kind> account" (on by default, accounts added later join), then
+  a switch per signed-in account while it is off (the last one cannot be turned off), then the
+  Accounts link; with no account one row that says so and opens Settings › Accounts. Every widget
+  page that chooses among accounts builds it with `KitRows.Accounts` (mail, calendars, contacts,
+  next meeting, week planner), its button and description words the shared ones.
 - **[S-7042]** `KitFreshness`, the one stale rule's words: one line per source and problem, folded,
   stamped with the oldest copy among them ("Work: No network · updated Mon 10:42", [S-2664]); the
   Refresh line with the age of the oldest copy on screen ("Refresh · updated 4 min ago").

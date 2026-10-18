@@ -111,6 +111,25 @@ public sealed partial class KitConformanceTests
         Assert.Empty(offending);
     }
 
+    /// <summary>
+    /// [S-7063] One accounts row: a widget page that lets the user choose among the signed-in accounts
+    /// builds the choice with <c>KitRows.Accounts</c> (directly, or through the SDK's office rows), never
+    /// its own switches, so every page says "every account" the same way.
+    /// </summary>
+    [Fact]
+    public void S7063_a_page_that_chooses_accounts_builds_the_kits_accounts_row()
+    {
+        var offending = RepoFiles.WidgetModules()
+            .SelectMany(RepoFiles.CSharp)
+            .Where(RepoFiles.IsSettingsPage)
+            .Where(f => Code(f) is var code && code.Contains("SettingsHost.AccountsWith(", StringComparison.Ordinal)
+                && !code.Contains("KitRows.Accounts(", StringComparison.Ordinal))
+            .Select(Path.GetFileName)
+            .ToList();
+
+        Assert.Empty(offending);
+    }
+
     /// <summary>[S-7069] A kit view builds no menu entry: its item menus are its actions, through <c>KitMenu</c>.</summary>
     [Fact]
     public void S7069_only_the_kits_list_turns_actions_into_menu_entries()
