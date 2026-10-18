@@ -12,5 +12,5 @@ public sealed class RestartModule : IWidgetModule
 {
     public WidgetDescriptor Descriptor => RestartConfig.Descriptor;
 
-    public FrameworkElement CreateView(IWidgetHost host) => new PowerButtonView(RestartConfig.Descriptor.Id);
+    public FrameworkElement CreateView(IWidgetHost host) => new PowerButtonView(RestartConfig.Descriptor.Id, host);
 }

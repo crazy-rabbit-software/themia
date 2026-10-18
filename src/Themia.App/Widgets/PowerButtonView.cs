@@ -78,8 +78,12 @@ internal sealed partial class PowerButtonView : Grid, IWidgetView, IWidgetSizeAw
     private bool _pressed;
     private bool _detached = true;
 
-    public PowerButtonView(WidgetId kind)
+    /// <summary>[S-6913] What the view asks of the host: what runs the action.</summary>
+    private readonly IWidgetHost _widgetHost;
+
+    public PowerButtonView(WidgetId kind, IWidgetHost host)
     {
+        _widgetHost = host;
         _action = PowerActionRules.ForKind(kind) ?? PowerAction.Lock;
 
         if (PowerActionRules.ForKind(kind) is null)
@@ -143,9 +147,8 @@ internal sealed partial class PowerButtonView : Grid, IWidgetView, IWidgetSizeAw
     {
         _detached = false;
 
-        // [S-1251] Inert unless the card is a real widget on the desktop.
-        IPowerBackend backend = _surface is { IsPreview: false } ? Win32PowerActions.Instance : InertPowerActions.Instance;
-        _button = new PowerButton(_action, backend);
+        // [S-1251] The host's backend: inert unless the card is a real widget on the desktop.
+        _button = new PowerButton(_action, _widgetHost.Power);
 
         // [S-1881] Subscribed here, not in the constructor: a handler roots the view from the native
         // side, and a view parked under the Set up button is built but never attached or detached.

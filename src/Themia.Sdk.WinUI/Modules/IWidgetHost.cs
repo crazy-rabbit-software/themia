@@ -1,5 +1,6 @@
 using Microsoft.UI.Dispatching;
 using Themia.App.Services;
+using Themia.Core.Widgets;
 
 namespace Themia.Sdk.WinUI;
 
@@ -35,4 +36,10 @@ public interface IWidgetHost
 
     /// <summary>[S-4863] The Recycle Bin: the one answer how full it is, and Windows' own empty.</summary>
     IRecycleBin RecycleBin { get; }
+
+    /// <summary>
+    /// [S-1243] [S-1251] What runs a power action: the machine's own calls on a desktop card, an inert
+    /// backend that logs and runs nothing on a preview (a debug render). Asked when the view attaches.
+    /// </summary>
+    IPowerBackend Power { get; }
 }

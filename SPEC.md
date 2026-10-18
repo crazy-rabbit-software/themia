@@ -932,7 +932,8 @@ Module sections live in `src/Widgets/*/SPEC.md` and `src/Providers/*/SPEC.md` ([
   string, each link kind on its own allow list, never a command line), whether its card is a
   preview ([S-1251]), Settings › Accounts (false where there is none, a debug render), and the
   host's services a widget reads: the Recycle Bin (`IRecycleBin`: the one answer how full it is and
-  Windows' own empty, [S-4863]). The host makes one per card, every member shared by all of them. What a widget shares with the settings
+  Windows' own empty, [S-4863]) and what runs a power action (`IPowerBackend`: the machine's calls,
+  inert on a preview, [S-1243], [S-1251]). The host makes one per card, every member shared by all of them. What a widget shares with the settings
   window is in `Themia.Sdk.WinUI` too: the settings rows (`FluentLayout`, `ColorChoice`,
   `RowReorder`, `SettingRow`), the item menu (`ItemMenu`), `Notices`, a drop target's contract
   (`IWidgetDropTarget` over `IWidgetDrag`); the parts that need Win32 (the eyedropper, a file's
@@ -3164,9 +3165,9 @@ Power: one widget per action (R7-POWER), replacing the port of `main`'s Power ti
 - **[S-1249]** *(Retired: no status panel, [S-1910].)*
 - **[S-1250]** *(Retired: no status strip, [S-1910].)*
 - **[S-1251]** A debug render's cards are previews (`IWidgetSurface.IsPreview`, from the render's
-  card host): a power widget's backend is `InertPowerActions` there, which logs and runs nothing (it
-  still answers the hibernate probe truthfully). Only a card on a non-preview surface gets
-  `Win32PowerActions` (orig. [S-08] demo mode).
+  card host): a power widget's backend, the host's `IWidgetHost.Power`, is `InertPowerActions`
+  there, which logs and runs nothing (it still answers the hibernate probe truthfully). Only a card
+  on a non-preview surface gets `Win32PowerActions` (orig. [S-08] demo mode).
 - **[S-1252]** *(Retired: a power widget always has its action, [S-1910].)*
 - **[S-1253]** *(Retired: the debug widget gallery and its fixtures are gone, [S-1863].)*
 - [S-1254], [S-1255], [S-1256], [S-1257], [S-1258], [S-1259], [S-3252], [S-3253], [S-3254], [S-3961]: moved with the Bluetooth widget into its module's `SPEC.md` (`src/Widgets/Themia.Widget.Bluetooth/`).
