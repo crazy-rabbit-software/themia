@@ -36,6 +36,7 @@ internal sealed partial class AlarmView : Grid, IWidgetView, IWidgetSizeAware, I
 
     private Ticker? _ticker;
     private IDisposable? _minute;
+    private readonly IWidgetHost _host;
     private IWidgetSurface? _surface;
     private AlarmConfig _config = new();
     private WidgetArea _area;
@@ -52,8 +53,9 @@ internal sealed partial class AlarmView : Grid, IWidgetView, IWidgetSizeAware, I
     private AlarmStatus? _previewStatus => null;
 #endif
 
-    public AlarmView()
+    public AlarmView(IWidgetHost host)
     {
+        _host = host;
         ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
         ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
         RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
@@ -98,7 +100,7 @@ internal sealed partial class AlarmView : Grid, IWidgetView, IWidgetSizeAware, I
         Strings.Changed -= OnLanguage;
         Strings.Changed += OnLanguage;
 
-        if (AppServices.Alarms is { } alarms)
+        if (_host.Alarms is { } alarms)
         {
             alarms.Changed -= Render;
             alarms.Changed += Render;
@@ -132,7 +134,7 @@ internal sealed partial class AlarmView : Grid, IWidgetView, IWidgetSizeAware, I
             return preview;
         }
 
-        if (AppServices.Alarms is { } alarms)
+        if (_host.Alarms is { } alarms)
         {
             return alarms.Status(WidgetId);
         }
@@ -153,13 +155,13 @@ internal sealed partial class AlarmView : Grid, IWidgetView, IWidgetSizeAware, I
 
         _config.On = on;
         _surface?.RequestSave();
-        AppServices.Alarms?.Sync();
+        _host.Alarms?.Sync();
         Render();
     }
 
-    private void Snooze() => AppServices.Alarms?.Snooze(WidgetId);
+    private void Snooze() => _host.Alarms?.Snooze(WidgetId);
 
-    private void Dismiss() => AppServices.Alarms?.Dismiss(WidgetId);
+    private void Dismiss() => _host.Alarms?.Dismiss(WidgetId);
 
     /// <summary>[S-4628] The card menu answers a ring too.</summary>
     public IReadOnlyList<WidgetAction> ContextActions => Status().Phase == AlarmPhase.Ringing
@@ -268,7 +270,7 @@ internal sealed partial class AlarmView : Grid, IWidgetView, IWidgetSizeAware, I
 
         var locale = Strings.Current;
         var now = DateTime.UtcNow;
-        var zone = AppServices.Alarms?.Zone ?? TimeZoneInfo.Local;
+        var zone = _host.Alarms?.Zone ?? TimeZoneInfo.Local;
         var status = Status();
         var off = status.Phase == AlarmPhase.Off;
         var ringing = status.Phase == AlarmPhase.Ringing;
@@ -313,7 +315,7 @@ internal sealed partial class AlarmView : Grid, IWidgetView, IWidgetSizeAware, I
         _detached = true;
         Strings.Changed -= OnLanguage;
 
-        if (AppServices.Alarms is { } alarms)
+        if (_host.Alarms is { } alarms)
         {
             alarms.Changed -= Render;
         }

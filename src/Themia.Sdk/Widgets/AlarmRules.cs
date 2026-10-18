@@ -98,7 +98,7 @@ public static class AlarmDays
 /// <summary>What an alarm is set to: its time, its days (a mask; none rings once) and whether it is on.</summary>
 public readonly record struct AlarmPlan(int Minutes, int Days, bool On)
 {
-    public static AlarmPlan Of(AlarmConfig? alarm) =>
+    public static AlarmPlan Of(IAlarm? alarm) =>
         alarm is null ? new AlarmPlan(AlarmTimes.Default, 0, false) : new AlarmPlan(AlarmTimes.Minutes(alarm.Time), AlarmDays.Mask(alarm.Days), alarm.On);
 
     /// <summary>It rings on its days, every week; with none it rings once.</summary>
@@ -185,32 +185,7 @@ public enum AlarmPhase
 public readonly record struct AlarmStatus(AlarmPhase Phase, DateTime? Next = null, DateTime? Until = null);
 
 /// <summary>One alarm the book is handed: its key (its widget's id) and the widget's alarm itself.</summary>
-public readonly record struct AlarmSlot(string Key, AlarmConfig Alarm)
-{
-    /// <summary>
-    /// [S-4623] The alarms there are: one per alarm widget, of every view, whichever is shown. A widget
-    /// id met twice (never written so, but a hand-edited file) is the first one's.
-    /// </summary>
-    public static IReadOnlyList<AlarmSlot> Of(IEnumerable<ViewState> views)
-    {
-        ArgumentNullException.ThrowIfNull(views);
-        var slots = new List<AlarmSlot>();
-        var seen = new HashSet<string>(StringComparer.Ordinal);
-
-        foreach (var view in views)
-        {
-            foreach (var widget in view.Widgets)
-            {
-                if (widget.Config is AlarmConfig alarm && seen.Add(widget.Id))
-                {
-                    slots.Add(new AlarmSlot(widget.Id, alarm));
-                }
-            }
-        }
-
-        return slots;
-    }
-}
+public readonly record struct AlarmSlot(string Key, IAlarm Alarm);
 
 /// <summary>
 /// [S-4622]..[S-4625] The alarm of every alarm widget, by key: what each is doing and when the next
@@ -558,6 +533,6 @@ public static class AlarmWords
         LocaleFormat.Time(locale, new TimeOnly(plan.Minutes / 60, plan.Minutes % 60));
 
     /// <summary>Its name, or "Alarm".</summary>
-    public static string Name(Locale locale, AlarmConfig alarm) =>
+    public static string Name(Locale locale, IAlarm alarm) =>
         string.IsNullOrWhiteSpace(alarm.Label) ? Strings.Get(locale, Str.Alarm_Untitled) : alarm.Label;
 }

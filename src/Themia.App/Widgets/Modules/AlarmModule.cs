@@ -16,5 +16,5 @@ public sealed class AlarmModule : IWidgetModule
     public void SettingsRows(WidgetSettingsRows rows, WidgetConfig config)
         => WidgetSettings.Alarm(rows.Rows, (AlarmConfig)config, rows.Save);
 
-    public FrameworkElement CreateView(IWidgetHost host) => new AlarmView();
+    public FrameworkElement CreateView(IWidgetHost host) => new AlarmView(host);
 }

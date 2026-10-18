@@ -50,6 +50,8 @@ internal sealed class CardWidgetHost(IWidgetCardHost card) : IWidgetHost
 
     public IClipboardHistory? ClipboardHistory => AppServices.Clipboard;
 
+    public IAlarms? Alarms => AppServices.Alarms;
+
     public bool CopyText(string text) => ClipboardWatcher.SetText(text);
 
     public bool ShowAccounts()

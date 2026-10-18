@@ -7,6 +7,7 @@ using Themia.Core.Diagnostics;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
+using Themia.Sdk.WinUI;
 
 namespace Themia.App.Services;
 
@@ -24,7 +25,7 @@ namespace Themia.App.Services;
 /// silent itself since the sound is ours. Alarms ring only while Themia runs.
 /// </para>
 /// </summary>
-internal sealed partial class AlarmService : IDisposable
+internal sealed partial class AlarmService : IAlarms, IDisposable
 {
     private const string Scope = "alarms";
     private const string Group = "alarms";
@@ -242,7 +243,7 @@ internal sealed partial class AlarmService : IDisposable
         }
     }
 
-    private void ShowNotification(string key, AlarmConfig alarm)
+    private void ShowNotification(string key, IAlarm alarm)
     {
         if (!_notifications)
         {
