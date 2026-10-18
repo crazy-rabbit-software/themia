@@ -19,8 +19,8 @@ AOT (section 4.11).
 Status: the module architecture (M1..M4, section 11.1), the kit's core and UI parts with their
 first widget, RSS (section 11.2 steps 1..3, 7 and 8), and the service layer (sections 5.7 and 6.5;
 steps 9..12, "service layer as built" in 11.2) are built, and every widget is a module project
-(the account widgets as group 8 of 11.1); Email and the calendar's agenda draw through the kit
-("account widgets on the kit" in 11.2); the pilots (steps 13..15) and Tasks' kit migration are not. Where the build
+(the account widgets as group 8 of 11.1); Email, the calendar's agenda and Tasks draw through the
+kit ("account widgets on the kit" in 11.2); the pilots (steps 13..15) are not. Where the build
 differs from the design below, the "as built" paragraph of 11.2 says how and why, and it wins. The
 plan of commits is kept outside the repository; this file is the design an implementation must
 follow, and the guide new agents read afterwards.
@@ -2006,8 +2006,8 @@ registration path: when a table becomes a descriptor member, the table is delete
   identical); Release AOT publish 0 warnings (50.8 MB), Debug AOT publish (83.7 MB) and its renders of
   the six widgets, the agenda style and the six pages finish.
 
-  *Kit migration of the account widgets: Email and the agenda done (see "account widgets on the
-  kit" in 11.2); Tasks not.* They moved with their views as they were. What each needs, as found: Email the kit's row looks beyond `Rich` (a
+  *Kit migration of the account widgets: Email, the agenda and Tasks done (see "account widgets on
+  the kit" in 11.2).* They moved with their views as they were. What each needs, as found: Email the kit's row looks beyond `Rich` (a
   compact two-line row and the Table look with its column header and user-ordered columns), inline
   hover actions (mark read, delete) on a row, the compose button in `KitHeader`, and `MailScreens`
   folded into `KitScreens` (its sentences are mail's own: a behaviour commit, test first); the
@@ -2216,10 +2216,32 @@ off the kit; they already have their own frameworks or needs no shared list serv
   layer is for items, [S-6570]). The problem glyph keeps no width gate of Mail's own (the kit's one
   header): at 120px it takes the folder name's room. Mail's lists still scroll under the fade over
   the whole slot (its look), the rich look still fits whole rows.
+- **Tasks (2026-10-19), after the above.** Kit gaps first: `KitKeys` MoveUp/MoveDown; the primary
+  action of an item with no Open is its Rename (a task opens for editing); a toggle without a state is
+  a plain line (`KitAction.Checked` nullable); `RowFocus.Overlay` (the ring laid over a row, so it
+  takes no room: the agenda's and Tasks' rows); the `Check` look (`KitChecks`: Tasks' ladder proved
+  equal to `TaskLayout.Plan` rung for rung, then gone; `KitLead.Check`, `KitDue`, `KitRowsPanel`
+  and `KitListHost` (Tasks' panel and whole-line host, now the kit's), the optimistic toggle, rename
+  in place with Tab, the add row, drag reorder within a group, `KitList.Overlay`); `KitStatePanel`'s
+  own way out (`[S-7039]`). Drag reorder is the kit's: it is a slot order of the rows panel the kit
+  already draws, with nothing Tasks-specific in it. Behaviour commits, each with renders: the one
+  stale rule (`KitHeader`, `TaskFreshness`; renders unchanged; the S-7042 allow list is now empty);
+  the ring instead of XAML focus and the system focus rect (only the keys renders change:
+  `TestResults/kitacc/cmp-t2`); the kit's menu and keys (Enter renames rather than ticks, Space
+  ticks; `TaskLayout.Decide` gone); the kit's state panel (`TestResults/kitacc/cmp-t6`: the
+  failed and nolocal states keep their link at every size). Refactor: the rows onto `KitList`
+  (58 renders against `675ebdcd`, 0 differ in serial renders; the done fade differs between two
+  runs of the before build itself under load). Tags `[S-7037]`..`[S-7039]`, Tasks' `[S-615]`..`[S-617]`
+  (606..609 are retired). Where it differs: Tasks is not an `IKitConfig` and not a `KitBinding`
+  view (its source resolves the default list asynchronously, has a list on this PC, and screens the
+  kit's screens do not have: no lists, start a list, try again), so [S-7069]'s thin-view check does
+  not cover it; its rows, header and state panel are the kit's.
 - **Owed, live:** a signed-in Microsoft, Google and IMAP account for Mail (the three styles, quick
   actions landing on the server, compose from several accounts, a refusal as a header note); a
   signed-in calendar for the agenda (double-click opening Outlook or the provider's page, the links
-  across widgets, paging by keys).
+  across widgets, paging by keys); a signed-in To Do and Google Tasks account and a list on this PC
+  (ticking, renaming with Tab, adding several in a row, dragging in one and two columns, Alt+Shift
+  moves, Today's list names), and the showcase views on the live desktop for all three.
 
 *Service layer as built (2026-10-18): steps 9..12.* Tags `[S-9900]..[S-9931]`, root `SPEC.md`
 section "The service layer (SERVICES)"; tests `ServiceLayerTests`, `ServiceSignInTests`,

@@ -65,7 +65,7 @@ state store.
 ```
 src/Themia.Sdk/    the widget SDK, pure (docs/WIDGET-KIT.md 4.2): no assembly of ours; Core builds on it.
   Localization/ (+ Locales/*.json: the host's Str; StringTable, LocalText) Diagnostics/ (Log) Links/ Time/ (CalendarDays) Shell/ (Glyphs)
-  Kit/ (the widget kit's pure parts: KitItem, KitAction/KitMenu, KitKeys, KitSpec/KitLadder (rich, lined, table, schedule looks), KitPages/KitDays, KitScreens, KitFreshness, IKitConfig, IKitSource)
+  Kit/ (the widget kit's pure parts: KitItem, KitAction/KitMenu, KitKeys, KitSpec/KitLadder (rich, lined, table, schedule, check looks), KitPages/KitDays, KitChecks, KitScreens, KitFreshness, IKitConfig, IKitSource)
   Services/ (the service layer: ServiceDescriptor and its strategy sets, sign-in members, RateLimitRules, ServiceFailures, paging, GraphQL/form envelopes)
   Model/ (WidgetConfig, FillChoice, RefreshPreferences, ContentAlign; Configs/: the shared config bases QuickToggle-,
   PowerButton-, Weather-, SkyPlace-, Detail-, GaugeConfig and the config contracts ISetupRule, IPlaced, IContentAligned)
