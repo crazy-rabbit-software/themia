@@ -1,0 +1,6 @@
+{
+  "details.catalog.network.desc": "Скорость, трафик, адреса и адаптеры",
+  "details.catalog.network.label": "Сведения о сети",
+  "details.settings.network.public.desc": "Запрашивает api.ipify.org не чаще раза в {minutes} минут",
+  "details.settings.network.public.label": "Публичный адрес"
+}

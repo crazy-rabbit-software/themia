@@ -1,7 +1,5 @@
 {
   "$comment": "Machine-written translations: every string in this file needs native review.",
-  "details.catalog.network.label": "Ağ ayrıntıları",
-  "details.catalog.network.desc": "Hızlar, kullanılan veri, adresler ve bağdaştırıcılar",
   "details.catalog.battery.label": "Pil ayrıntıları",
   "details.catalog.battery.desc": "Durum, kalan süre, sağlık ve döngüler",
   "details.catalog.ping.label": "Ping istatistikleri",
@@ -82,8 +80,6 @@
   "details.gpu.clock": "GPU saat hızı",
   "details.gpu.memoryClock": "Bellek saat hızı",
   "details.gpu.none": "Grafik bağdaştırıcısı yok",
-  "details.settings.network.public.label": "Genel adres",
-  "details.settings.network.public.desc": "En fazla {minutes} dakikada bir api.ipify.org'a sorar",
   "details.settings.ping.window.label": "İstatistik kapsamı",
   "details.settings.ping.window.desc": "Değerlerin kaç son yoklamayı kapsadığı",
   "details.settings.ping.window.probes": "{count} yoklama",

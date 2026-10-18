@@ -1,7 +1,5 @@
 {
   "$comment": "Machine-written translations: every string in this file needs native review.",
-  "details.catalog.network.label": "Netwerkdetails",
-  "details.catalog.network.desc": "Snelheden, dataverbruik, adressen en adapters",
   "details.catalog.battery.label": "Batterijdetails",
   "details.catalog.battery.desc": "Status, resterende tijd, conditie en cycli",
   "details.catalog.ping.label": "Pingstatistieken",
@@ -82,8 +80,6 @@
   "details.gpu.clock": "GPU-klok",
   "details.gpu.memoryClock": "Geheugenklok",
   "details.gpu.none": "Geen grafische adapter",
-  "details.settings.network.public.label": "Openbaar adres",
-  "details.settings.network.public.desc": "Vraagt het op bij api.ipify.org, hoogstens om de {minutes} minuten",
   "details.settings.ping.window.label": "Statistieken over",
   "details.settings.ping.window.desc": "Over hoeveel recente metingen de cijfers gaan",
   "details.settings.ping.window.probes": "{count} metingen",

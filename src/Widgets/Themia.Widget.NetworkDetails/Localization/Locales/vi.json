@@ -1,0 +1,6 @@
+{
+  "details.catalog.network.desc": "Tốc độ, dữ liệu đã dùng, địa chỉ và bộ điều hợp",
+  "details.catalog.network.label": "Chi tiết mạng",
+  "details.settings.network.public.desc": "Truy vấn api.ipify.org, tối đa {minutes} phút một lần",
+  "details.settings.network.public.label": "Địa chỉ công khai"
+}

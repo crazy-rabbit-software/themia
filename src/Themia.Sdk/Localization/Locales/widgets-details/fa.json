@@ -1,7 +1,5 @@
 {
   "$comment": "Machine-written translations: every string in this file needs native review.",
-  "details.catalog.network.label": "جزئیات شبکه",
-  "details.catalog.network.desc": "سرعت‌ها، داده مصرفی، نشانی‌ها و آداپتورها",
   "details.catalog.battery.label": "جزئیات باتری",
   "details.catalog.battery.desc": "وضعیت، زمان باقی‌مانده، سلامت و چرخه‌ها",
   "details.catalog.ping.label": "آمار پینگ",
@@ -82,8 +80,6 @@
   "details.gpu.clock": "فرکانس GPU",
   "details.gpu.memoryClock": "فرکانس حافظه",
   "details.gpu.none": "آداپتور گرافیکی نیست",
-  "details.settings.network.public.label": "نشانی عمومی",
-  "details.settings.network.public.desc": "از api.ipify.org می‌پرسد، حداکثر هر {minutes} دقیقه",
   "details.settings.ping.window.label": "دامنه آمار",
   "details.settings.ping.window.desc": "ارقام چند کاوش اخیر را پوشش دهند",
   "details.settings.ping.window.probes": "{count} کاوش",

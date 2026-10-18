@@ -1,0 +1,6 @@
+{
+  "details.catalog.network.desc": "속도, 데이터 사용량, 주소 및 어댑터",
+  "details.catalog.network.label": "네트워크 세부 정보",
+  "details.settings.network.public.desc": "api.ipify.org에 최대 {minutes}분마다 한 번 요청합니다",
+  "details.settings.network.public.label": "공용 주소"
+}

@@ -1,7 +1,5 @@
 {
   "$comment": "[S-2400] The system detail widgets (CPU, memory, processes, network, battery, ping, GPU).",
-  "details.catalog.network.label": "Network details",
-  "details.catalog.network.desc": "Rates, data used, addresses and adapters",
   "details.catalog.battery.label": "Battery details",
   "details.catalog.battery.desc": "Status, time left, health and cycles",
   "details.catalog.ping.label": "Ping statistics",
@@ -82,8 +80,6 @@
   "details.gpu.clock": "GPU clock",
   "details.gpu.memoryClock": "Memory clock",
   "details.gpu.none": "No graphics adapter",
-  "details.settings.network.public.label": "Public address",
-  "details.settings.network.public.desc": "Asks api.ipify.org, at most every {minutes} minutes",
   "details.settings.ping.window.label": "Statistics cover",
   "details.settings.ping.window.desc": "How many recent probes the figures cover",
   "details.settings.ping.window.probes": "{count} probes",

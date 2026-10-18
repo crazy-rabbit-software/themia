@@ -1,7 +1,5 @@
 {
   "$comment": "Machine-written translations: every string in this file needs native review.",
-  "details.catalog.network.label": "Detalles de red",
-  "details.catalog.network.desc": "Velocidades, datos usados, direcciones y adaptadores",
   "details.catalog.battery.label": "Detalles de batería",
   "details.catalog.battery.desc": "Estado, tiempo restante, salud y ciclos",
   "details.catalog.ping.label": "Estadísticas de ping",
@@ -82,8 +80,6 @@
   "details.gpu.clock": "Frecuencia de GPU",
   "details.gpu.memoryClock": "Frecuencia de memoria",
   "details.gpu.none": "No hay adaptador gráfico",
-  "details.settings.network.public.label": "Dirección pública",
-  "details.settings.network.public.desc": "Consulta api.ipify.org, como mucho cada {minutes} minutos",
   "details.settings.ping.window.label": "Estadísticas de",
   "details.settings.ping.window.desc": "Cuántos sondeos recientes abarcan las cifras",
   "details.settings.ping.window.probes": "{count} sondeos",

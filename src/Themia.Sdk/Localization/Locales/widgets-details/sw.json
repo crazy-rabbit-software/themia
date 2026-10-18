@@ -1,7 +1,5 @@
 {
   "$comment": "Machine-written translations: every string in this file needs native review.",
-  "details.catalog.network.label": "Maelezo ya mtandao",
-  "details.catalog.network.desc": "Viwango, data iliyotumika, anwani na adapta",
   "details.catalog.battery.label": "Maelezo ya betri",
   "details.catalog.battery.desc": "Hali, muda uliobaki, afya na mizunguko",
   "details.catalog.ping.label": "Takwimu za ping",
@@ -82,8 +80,6 @@
   "details.gpu.clock": "Saa ya GPU",
   "details.gpu.memoryClock": "Saa ya kumbukumbu",
   "details.gpu.none": "Hakuna adapta ya michoro",
-  "details.settings.network.public.label": "Anwani ya umma",
-  "details.settings.network.public.desc": "Huuliza api.ipify.org, si zaidi ya kila dakika {minutes}",
   "details.settings.ping.window.label": "Takwimu zinahusu",
   "details.settings.ping.window.desc": "Majaribio mangapi ya hivi karibuni yanahusika katika takwimu",
   "details.settings.ping.window.probes": "Majaribio {count}",

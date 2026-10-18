@@ -1,0 +1,6 @@
+{
+  "details.catalog.network.desc": "दर, वापरलेला डेटा, पत्ते आणि अ‍ॅडॉप्टर",
+  "details.catalog.network.label": "नेटवर्क तपशील",
+  "details.settings.network.public.desc": "api.ipify.org ला विचारते, जास्तीत जास्त दर {minutes} मिनिटांनी",
+  "details.settings.network.public.label": "सार्वजनिक पत्ता"
+}

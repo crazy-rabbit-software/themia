@@ -1,7 +1,5 @@
 {
   "$comment": "Machine-written translations: every string in this file needs native review.",
-  "details.catalog.network.label": "నెట్‌వర్క్ వివరాలు",
-  "details.catalog.network.desc": "వేగాలు, ఉపయోగించిన డేటా, చిరునామాలు మరియు అడాప్టర్‌లు",
   "details.catalog.battery.label": "బ్యాటరీ వివరాలు",
   "details.catalog.battery.desc": "స్థితి, మిగిలిన సమయం, ఆరోగ్యం మరియు సైకిల్‌లు",
   "details.catalog.ping.label": "పింగ్ గణాంకాలు",
@@ -82,8 +80,6 @@
   "details.gpu.clock": "GPU క్లాక్",
   "details.gpu.memoryClock": "మెమరీ క్లాక్",
   "details.gpu.none": "గ్రాఫిక్స్ అడాప్టర్ లేదు",
-  "details.settings.network.public.label": "పబ్లిక్ చిరునామా",
-  "details.settings.network.public.desc": "api.ipify.orgని అడుగుతుంది, గరిష్ఠంగా ప్రతి {minutes} నిమిషాలకు ఒకసారి",
   "details.settings.ping.window.label": "గణాంకాల పరిధి",
   "details.settings.ping.window.desc": "గణాంకాలు ఎన్ని ఇటీవలి ప్రోబ్‌లను కవర్ చేస్తాయి",
   "details.settings.ping.window.probes": "{count} ప్రోబ్‌లు",

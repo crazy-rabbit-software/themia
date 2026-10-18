@@ -1,0 +1,6 @@
+{
+  "details.catalog.network.desc": "Kecepatan, data terpakai, alamat, dan adaptor",
+  "details.catalog.network.label": "Detail jaringan",
+  "details.settings.network.public.desc": "Menanyakan api.ipify.org, paling sering setiap {minutes} menit",
+  "details.settings.network.public.label": "Alamat publik"
+}

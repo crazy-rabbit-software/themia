@@ -1,7 +1,5 @@
 {
   "$comment": "Machine-written translations: every string in this file needs native review.",
-  "details.catalog.network.label": "नेटवर्क विवरण",
-  "details.catalog.network.desc": "दरें, उपयोग किया गया डेटा, पते और एडेप्टर",
   "details.catalog.battery.label": "बैटरी विवरण",
   "details.catalog.battery.desc": "स्थिति, बचा समय, सेहत और चक्र",
   "details.catalog.ping.label": "पिंग आँकड़े",
@@ -82,8 +80,6 @@
   "details.gpu.clock": "GPU क्लॉक",
   "details.gpu.memoryClock": "मेमोरी क्लॉक",
   "details.gpu.none": "कोई ग्राफ़िक्स एडेप्टर नहीं",
-  "details.settings.network.public.label": "सार्वजनिक पता",
-  "details.settings.network.public.desc": "api.ipify.org से पूछता है, अधिकतम हर {minutes} मिनट में",
   "details.settings.ping.window.label": "आँकड़ों का दायरा",
   "details.settings.ping.window.desc": "आँकड़े कितनी हाल की जाँचों पर आधारित हों",
   "details.settings.ping.window.probes": "{count} जाँचें",

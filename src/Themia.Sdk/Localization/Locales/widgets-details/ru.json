@@ -1,7 +1,5 @@
 {
   "$comment": "Machine-written translations: every string in this file needs native review.",
-  "details.catalog.network.label": "Сведения о сети",
-  "details.catalog.network.desc": "Скорость, трафик, адреса и адаптеры",
   "details.catalog.battery.label": "Сведения о батарее",
   "details.catalog.battery.desc": "Состояние, оставшееся время, износ и циклы",
   "details.catalog.ping.label": "Статистика пинга",
@@ -82,8 +80,6 @@
   "details.gpu.clock": "Частота GPU",
   "details.gpu.memoryClock": "Частота памяти",
   "details.gpu.none": "Нет графического адаптера",
-  "details.settings.network.public.label": "Публичный адрес",
-  "details.settings.network.public.desc": "Запрашивает api.ipify.org не чаще раза в {minutes} минут",
   "details.settings.ping.window.label": "Охват статистики",
   "details.settings.ping.window.desc": "Сколько последних проверок учитывают показатели",
   "details.settings.ping.window.probes": "Проверок: {count}",

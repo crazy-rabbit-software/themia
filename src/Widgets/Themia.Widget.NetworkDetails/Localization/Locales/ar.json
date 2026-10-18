@@ -1,0 +1,6 @@
+{
+  "details.catalog.network.desc": "السرعات والبيانات المستخدمة والعناوين والمحولات",
+  "details.catalog.network.label": "تفاصيل الشبكة",
+  "details.settings.network.public.desc": "يستعلم من api.ipify.org، مرة كل {minutes} دقائق على الأكثر",
+  "details.settings.network.public.label": "العنوان العام"
+}

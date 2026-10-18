@@ -1,7 +1,5 @@
 {
   "$comment": "Machine-written translations: every string in this file needs native review.",
-  "details.catalog.network.label": "ネットワークの詳細",
-  "details.catalog.network.desc": "速度、使用データ量、アドレス、アダプター",
   "details.catalog.battery.label": "バッテリーの詳細",
   "details.catalog.battery.desc": "状態、残り時間、健全性、サイクル数",
   "details.catalog.ping.label": "Ping の統計",
@@ -82,8 +80,6 @@
   "details.gpu.clock": "GPU クロック",
   "details.gpu.memoryClock": "メモリ クロック",
   "details.gpu.none": "グラフィックス アダプターがありません",
-  "details.settings.network.public.label": "パブリック アドレス",
-  "details.settings.network.public.desc": "api.ipify.org に問い合わせます (最短 {minutes} 分間隔)",
   "details.settings.ping.window.label": "統計の対象",
   "details.settings.ping.window.desc": "統計に含める最近のプローブ数",
   "details.settings.ping.window.probes": "{count} 回",

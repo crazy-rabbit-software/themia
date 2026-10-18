@@ -1,7 +1,5 @@
 {
   "$comment": "Machine-written translations: every string in this file needs native review.",
-  "details.catalog.network.label": "Mga detalye ng network",
-  "details.catalog.network.desc": "Mga rate, nagamit na data, address at adapter",
   "details.catalog.battery.label": "Mga detalye ng baterya",
   "details.catalog.battery.desc": "Status, natitirang oras, kalusugan at mga cycle",
   "details.catalog.ping.label": "Mga istatistika ng ping",
@@ -82,8 +80,6 @@
   "details.gpu.clock": "Clock ng GPU",
   "details.gpu.memoryClock": "Clock ng memory",
   "details.gpu.none": "Walang graphics adapter",
-  "details.settings.network.public.label": "Pampublikong address",
-  "details.settings.network.public.desc": "Nagtatanong sa api.ipify.org, hindi hihigit sa bawat {minutes} minuto",
   "details.settings.ping.window.label": "Saklaw ng istatistika",
   "details.settings.ping.window.desc": "Ilang kamakailang probe ang saklaw ng mga numero",
   "details.settings.ping.window.probes": "{count} probe",

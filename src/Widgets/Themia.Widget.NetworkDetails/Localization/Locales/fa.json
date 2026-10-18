@@ -1,0 +1,6 @@
+{
+  "details.catalog.network.desc": "سرعت‌ها، داده مصرفی، نشانی‌ها و آداپتورها",
+  "details.catalog.network.label": "جزئیات شبکه",
+  "details.settings.network.public.desc": "از api.ipify.org می‌پرسد، حداکثر هر {minutes} دقیقه",
+  "details.settings.network.public.label": "نشانی عمومی"
+}

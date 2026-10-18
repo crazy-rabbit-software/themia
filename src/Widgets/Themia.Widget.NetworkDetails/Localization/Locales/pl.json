@@ -1,0 +1,6 @@
+{
+  "details.catalog.network.desc": "Szybkości, zużyte dane, adresy i karty sieciowe",
+  "details.catalog.network.label": "Szczegóły sieci",
+  "details.settings.network.public.desc": "Pyta api.ipify.org, najwyżej co {minutes} minut",
+  "details.settings.network.public.label": "Adres publiczny"
+}

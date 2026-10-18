@@ -1,0 +1,6 @@
+{
+  "details.catalog.network.desc": "Raten, Datenverbrauch, Adressen und Adapter",
+  "details.catalog.network.label": "Netzwerk-Details",
+  "details.settings.network.public.desc": "Fragt api.ipify.org, höchstens alle {minutes} Minuten",
+  "details.settings.network.public.label": "Öffentliche Adresse"
+}

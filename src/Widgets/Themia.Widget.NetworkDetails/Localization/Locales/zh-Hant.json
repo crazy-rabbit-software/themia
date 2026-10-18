@@ -1,0 +1,6 @@
+{
+  "details.catalog.network.desc": "速率、已用數據、位址和介面卡",
+  "details.catalog.network.label": "網路詳細資料",
+  "details.settings.network.public.desc": "查詢 api.ipify.org，最多每 {minutes} 分鐘一次",
+  "details.settings.network.public.label": "公用位址"
+}

@@ -1,7 +1,5 @@
 {
   "$comment": "Machine-written translations: every string in this file needs native review.",
-  "details.catalog.network.label": "Detail jaringan",
-  "details.catalog.network.desc": "Kecepatan, data terpakai, alamat, dan adaptor",
   "details.catalog.battery.label": "Detail baterai",
   "details.catalog.battery.desc": "Status, sisa waktu, kesehatan, dan siklus",
   "details.catalog.ping.label": "Statistik ping",
@@ -82,8 +80,6 @@
   "details.gpu.clock": "Clock GPU",
   "details.gpu.memoryClock": "Clock memori",
   "details.gpu.none": "Tidak ada adaptor grafis",
-  "details.settings.network.public.label": "Alamat publik",
-  "details.settings.network.public.desc": "Menanyakan api.ipify.org, paling sering setiap {minutes} menit",
   "details.settings.ping.window.label": "Cakupan statistik",
   "details.settings.ping.window.desc": "Berapa banyak probe terbaru yang dicakup angka",
   "details.settings.ping.window.probes": "{count} probe",

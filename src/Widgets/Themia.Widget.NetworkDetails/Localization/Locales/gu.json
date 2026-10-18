@@ -1,0 +1,6 @@
+{
+  "details.catalog.network.desc": "દરો, વપરાયેલ ડેટા, સરનામાં અને ઍડૅપ્ટર",
+  "details.catalog.network.label": "નેટવર્ક વિગતો",
+  "details.settings.network.public.desc": "api.ipify.org ને પૂછે છે, વધુમાં વધુ દર {minutes} મિનિટે",
+  "details.settings.network.public.label": "સાર્વજનિક સરનામું"
+}

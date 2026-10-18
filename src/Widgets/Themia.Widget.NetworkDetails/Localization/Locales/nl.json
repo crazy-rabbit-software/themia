@@ -1,0 +1,6 @@
+{
+  "details.catalog.network.desc": "Snelheden, dataverbruik, adressen en adapters",
+  "details.catalog.network.label": "Netwerkdetails",
+  "details.settings.network.public.desc": "Vraagt het op bij api.ipify.org, hoogstens om de {minutes} minuten",
+  "details.settings.network.public.label": "Openbaar adres"
+}

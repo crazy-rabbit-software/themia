@@ -1,7 +1,5 @@
 {
   "$comment": "Machine-written translations: every string in this file needs native review.",
-  "details.catalog.network.label": "Chi tiết mạng",
-  "details.catalog.network.desc": "Tốc độ, dữ liệu đã dùng, địa chỉ và bộ điều hợp",
   "details.catalog.battery.label": "Chi tiết pin",
   "details.catalog.battery.desc": "Trạng thái, thời gian còn lại, độ chai và số chu kỳ",
   "details.catalog.ping.label": "Thống kê ping",
@@ -82,8 +80,6 @@
   "details.gpu.clock": "Xung nhịp GPU",
   "details.gpu.memoryClock": "Xung nhịp bộ nhớ",
   "details.gpu.none": "Không có bộ điều hợp đồ họa",
-  "details.settings.network.public.label": "Địa chỉ công khai",
-  "details.settings.network.public.desc": "Truy vấn api.ipify.org, tối đa {minutes} phút một lần",
   "details.settings.ping.window.label": "Phạm vi thống kê",
   "details.settings.ping.window.desc": "Số lần thăm dò gần nhất mà số liệu bao gồm",
   "details.settings.ping.window.probes": "{count} lần ping",

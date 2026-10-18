@@ -1,7 +1,5 @@
 {
   "$comment": "Machine-written translations: every string in this file needs native review.",
-  "details.catalog.network.label": "नेटवर्क तपशील",
-  "details.catalog.network.desc": "दर, वापरलेला डेटा, पत्ते आणि अ‍ॅडॉप्टर",
   "details.catalog.battery.label": "बॅटरी तपशील",
   "details.catalog.battery.desc": "स्थिती, उरलेला वेळ, आरोग्य आणि सायकल",
   "details.catalog.ping.label": "पिंग आकडेवारी",
@@ -82,8 +80,6 @@
   "details.gpu.clock": "GPU क्लॉक",
   "details.gpu.memoryClock": "मेमरी क्लॉक",
   "details.gpu.none": "ग्राफिक्स अ‍ॅडॉप्टर नाही",
-  "details.settings.network.public.label": "सार्वजनिक पत्ता",
-  "details.settings.network.public.desc": "api.ipify.org ला विचारते, जास्तीत जास्त दर {minutes} मिनिटांनी",
   "details.settings.ping.window.label": "आकडेवारीची व्याप्ती",
   "details.settings.ping.window.desc": "आकडे किती अलीकडील प्रोब समाविष्ट करतात",
   "details.settings.ping.window.probes": "{count} प्रोब",

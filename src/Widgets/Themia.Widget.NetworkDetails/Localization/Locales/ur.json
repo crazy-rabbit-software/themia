@@ -1,0 +1,6 @@
+{
+  "details.catalog.network.desc": "رفتار، استعمال شدہ ڈیٹا، پتے اور اڈاپٹرز",
+  "details.catalog.network.label": "نیٹ ورک کی تفصیلات",
+  "details.settings.network.public.desc": "api.ipify.org سے پوچھتا ہے، زیادہ سے زیادہ ہر {minutes} منٹ بعد",
+  "details.settings.network.public.label": "عوامی پتہ"
+}

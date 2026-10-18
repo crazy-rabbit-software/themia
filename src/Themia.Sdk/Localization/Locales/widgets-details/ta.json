@@ -1,7 +1,5 @@
 {
   "$comment": "Machine-written translations: every string in this file needs native review.",
-  "details.catalog.network.label": "நெட்வொர்க் விவரங்கள்",
-  "details.catalog.network.desc": "வேகங்கள், பயன்படுத்திய தரவு, முகவரிகள் மற்றும் அடாப்டர்கள்",
   "details.catalog.battery.label": "பேட்டரி விவரங்கள்",
   "details.catalog.battery.desc": "நிலை, மீதமுள்ள நேரம், ஆரோக்கியம் மற்றும் சுழற்சிகள்",
   "details.catalog.ping.label": "பிங் புள்ளிவிவரங்கள்",
@@ -82,8 +80,6 @@
   "details.gpu.clock": "GPU கடிகாரம்",
   "details.gpu.memoryClock": "நினைவகக் கடிகாரம்",
   "details.gpu.none": "கிராஃபிக்ஸ் அடாப்டர் இல்லை",
-  "details.settings.network.public.label": "பொது முகவரி",
-  "details.settings.network.public.desc": "api.ipify.org இடம் கேட்கும், அதிகபட்சம் {minutes} நிமிடங்களுக்கு ஒருமுறை",
   "details.settings.ping.window.label": "புள்ளிவிவர வரம்பு",
   "details.settings.ping.window.desc": "எண்ணிக்கைகள் எத்தனை சமீபத்திய சோதனைகளை உள்ளடக்கும்",
   "details.settings.ping.window.probes": "{count} சோதனைகள்",

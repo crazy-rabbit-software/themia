@@ -1,0 +1,6 @@
+{
+  "details.catalog.network.desc": "速率、已用流量、地址和适配器",
+  "details.catalog.network.label": "网络详细信息",
+  "details.settings.network.public.desc": "查询 api.ipify.org，最多每 {minutes} 分钟一次",
+  "details.settings.network.public.label": "公网地址"
+}

@@ -8,45 +8,6 @@ using Themia.Sdk;
 
 namespace Themia.Core.Model;
 
-/// <summary>[S-2415] Down and up, the session's totals, the addresses and every adapter.</summary>
-public sealed class NetworkDetailsConfig : DetailConfig, IReadsSystem
-{
-
-    /// <summary>[S-6902] This widget's descriptor: what the host knows of it without its UI.</summary>
-    public static WidgetDescriptor Descriptor { get; } = new()
-    {
-        Id = new("networkDetails"),
-        ConfigType = typeof(NetworkDetailsConfig),
-        CreateDefault = () => new NetworkDetailsConfig(),
-        Json = WidgetConfigJsonContext.Default,
-        Keywords = ["internet", "adapters", "ip address", "public ip", "wifi", "ethernet", "data used"],
-        Label = Str.Details_Catalog_Network_Label.Local(),
-        Description = Str.Details_Catalog_Network_Desc.Local(),
-        Glyph = Glyphs.Network,
-        DefaultWidth = 300,
-        DefaultHeight = 280,
-        Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader,
-        Add = new(AddFolderId.NetworkReading, 0, 1),
-    };
-
-    /// <summary>
-    /// [S-2417] Ask a public service for this connection's public address. Off by default: it is a
-    /// request to somebody else's server, and the user should choose it.
-    /// </summary>
-    public bool ShowPublicAddress { get; set; }
-
-    /// <summary>[S-2513] The addresses and the throughput; [S-2417] the public lookup only while the setting is on: it asks a third party.</summary>
-    public SystemInterests SystemWants(string systemRoot) => ShowPublicAddress
-        ? SystemInterests.Read(SystemSource.LocalAddresses, SystemSource.PublicAddress, SystemSource.Network)
-        : SystemInterests.Read(SystemSource.LocalAddresses, SystemSource.Network);
-
-    public override WidgetConfig Clone()
-    {
-        var copy = new NetworkDetailsConfig { ShowPublicAddress = ShowPublicAddress };
-        return copy;
-    }
-}
-
 /// <summary>[S-2423] What the battery itself reports: status, time, health, cycles, voltage, rate.</summary>
 public sealed class BatteryDetailsConfig : DetailConfig, IReadsSystem
 {

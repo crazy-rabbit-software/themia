@@ -210,10 +210,6 @@ public sealed class SystemDetailsTests
         Assert.Equal(PingDetailsConfig.MinWindow, config.Window);
     }
 
-    [Fact]
-    public void S2417_the_public_address_is_off_by_default()
-        => Assert.False(new NetworkDetailsConfig().ShowPublicAddress);
-
     // ---- [S-2405]..[S-2407] CPU ----------------------------------------------------------------
 
     [Fact]

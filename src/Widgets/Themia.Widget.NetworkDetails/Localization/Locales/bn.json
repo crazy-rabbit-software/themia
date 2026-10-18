@@ -1,0 +1,6 @@
+{
+  "details.catalog.network.desc": "গতি, ব্যবহৃত ডেটা, ঠিকানা ও অ্যাডাপ্টার",
+  "details.catalog.network.label": "নেটওয়ার্কের বিবরণ",
+  "details.settings.network.public.desc": "api.ipify.org-কে জিজ্ঞাসা করে, সর্বোচ্চ প্রতি {minutes} মিনিটে",
+  "details.settings.network.public.label": "পাবলিক ঠিকানা"
+}

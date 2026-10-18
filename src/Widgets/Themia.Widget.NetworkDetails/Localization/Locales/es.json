@@ -1,0 +1,6 @@
+{
+  "details.catalog.network.desc": "Velocidades, datos usados, direcciones y adaptadores",
+  "details.catalog.network.label": "Detalles de red",
+  "details.settings.network.public.desc": "Consulta api.ipify.org, como mucho cada {minutes} minutos",
+  "details.settings.network.public.label": "Dirección pública"
+}

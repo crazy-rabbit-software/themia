@@ -1,7 +1,5 @@
 {
   "$comment": "Machine-written translations: every string in this file needs native review.",
-  "details.catalog.network.label": "Bayanan cibiyar sadarwa",
-  "details.catalog.network.desc": "Gudu, bayanan da aka yi amfani, adireshi da adaftoci",
   "details.catalog.battery.label": "Bayanan batir",
   "details.catalog.battery.desc": "Matsayi, lokacin da ya rage, lafiya da zagaye",
   "details.catalog.ping.label": "Ƙididdigar ping",
@@ -82,8 +80,6 @@
   "details.gpu.clock": "Agogon GPU",
   "details.gpu.memoryClock": "Agogon ƙwaƙwalwa",
   "details.gpu.none": "Babu adaftar zane",
-  "details.settings.network.public.label": "Adireshin jama'a",
-  "details.settings.network.public.desc": "Yana tambayar api.ipify.org, aƙalla kowane minti {minutes}",
   "details.settings.ping.window.label": "Ƙididdiga ta ƙunshi",
   "details.settings.ping.window.desc": "Gwaje-gwaje nawa na kwanan nan alƙaluman suka ƙunsa",
   "details.settings.ping.window.probes": "Gwaje-gwaje {count}",

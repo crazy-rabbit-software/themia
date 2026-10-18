@@ -1,0 +1,6 @@
+{
+  "details.catalog.network.desc": "ਦਰਾਂ, ਵਰਤਿਆ ਡਾਟਾ, ਪਤੇ ਅਤੇ ਅਡੈਪਟਰ",
+  "details.catalog.network.label": "ਨੈੱਟਵਰਕ ਵੇਰਵੇ",
+  "details.settings.network.public.desc": "api.ipify.org ਤੋਂ ਪੁੱਛਦਾ ਹੈ, ਵੱਧ ਤੋਂ ਵੱਧ ਹਰ {minutes} ਮਿੰਟ ਵਿੱਚ",
+  "details.settings.network.public.label": "ਜਨਤਕ ਪਤਾ"
+}

@@ -19,7 +19,7 @@ internal sealed class NetworkDetailPart : DetailPart
     private readonly WatchSlot<PublicAddressReading> _public = new();
     private IDetailHost? _host;
 
-    public override WidgetId Kind => NetworkDetailsConfig.Descriptor.Id;
+    public override WidgetId Kind => new WidgetId("networkDetails");
 
     public override double HeroCharacters => NetworkDetailRules.HeroCharacters;
 

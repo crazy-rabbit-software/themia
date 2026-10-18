@@ -4202,8 +4202,7 @@ details, Ping statistics, GPU details. One view, `DetailView` (+ `.List.cs`), on
   gets no row), busiest first: its kind's icon (Wi-Fi, cable, cellular, other: `NetworkRules.MediumOf`
   the interface type), its name, "↓ x" at the right ("↑ y" beside it from 280 px), and its address and
   link speed under it. No adapter is "No connection".
-- **[S-2417]** `ShowPublicAddress` (off by default: it asks a third party) asks `api.ipify.org` through the
-  guarded `WebFetch` client, only while such a widget lives.
+- [S-2417]: moved with the Network details widget into its module's `SPEC.md` (`src/Widgets/Themia.Widget.NetworkDetails/`).
 - **[S-2418]** The answer is shown only when it is one IPv4 or IPv6 address; it is trusted 10 minutes and
   asked again at once after the machine's addresses change. A failure is logged without the body.
 - **[S-2419]** An adapter's local address is its first IPv4 that is not link-local, else its first global

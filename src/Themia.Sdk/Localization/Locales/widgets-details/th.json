@@ -1,7 +1,5 @@
 {
   "$comment": "Machine-written translations: every string in this file needs native review.",
-  "details.catalog.network.label": "รายละเอียดเครือข่าย",
-  "details.catalog.network.desc": "อัตรา ข้อมูลที่ใช้ ที่อยู่ และอะแดปเตอร์",
   "details.catalog.battery.label": "รายละเอียดแบตเตอรี่",
   "details.catalog.battery.desc": "สถานะ เวลาที่เหลือ สภาพ และรอบการชาร์จ",
   "details.catalog.ping.label": "สถิติ Ping",
@@ -82,8 +80,6 @@
   "details.gpu.clock": "สัญญาณนาฬิกา GPU",
   "details.gpu.memoryClock": "สัญญาณนาฬิกาหน่วยความจำ",
   "details.gpu.none": "ไม่มีอะแดปเตอร์กราฟิก",
-  "details.settings.network.public.label": "ที่อยู่สาธารณะ",
-  "details.settings.network.public.desc": "สอบถาม api.ipify.org อย่างมากทุก {minutes} นาที",
   "details.settings.ping.window.label": "สถิติครอบคลุม",
   "details.settings.ping.window.desc": "จำนวนการตรวจสอบล่าสุดที่ตัวเลขครอบคลุม",
   "details.settings.ping.window.probes": "{count} การตรวจสอบ",

@@ -1,0 +1,6 @@
+{
+  "details.catalog.network.desc": "Hızlar, kullanılan veri, adresler ve bağdaştırıcılar",
+  "details.catalog.network.label": "Ağ ayrıntıları",
+  "details.settings.network.public.desc": "En fazla {minutes} dakikada bir api.ipify.org'a sorar",
+  "details.settings.network.public.label": "Genel adres"
+}

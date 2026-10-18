@@ -1,0 +1,6 @@
+{
+  "details.catalog.network.desc": "Débits, données utilisées, adresses et cartes",
+  "details.catalog.network.label": "Détails du réseau",
+  "details.settings.network.public.desc": "Interroge api.ipify.org, au plus toutes les {minutes} minutes",
+  "details.settings.network.public.label": "Adresse publique"
+}

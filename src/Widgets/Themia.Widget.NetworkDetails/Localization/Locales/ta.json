@@ -1,0 +1,6 @@
+{
+  "details.catalog.network.desc": "வேகங்கள், பயன்படுத்திய தரவு, முகவரிகள் மற்றும் அடாப்டர்கள்",
+  "details.catalog.network.label": "நெட்வொர்க் விவரங்கள்",
+  "details.settings.network.public.desc": "api.ipify.org இடம் கேட்கும், அதிகபட்சம் {minutes} நிமிடங்களுக்கு ஒருமுறை",
+  "details.settings.network.public.label": "பொது முகவரி"
+}

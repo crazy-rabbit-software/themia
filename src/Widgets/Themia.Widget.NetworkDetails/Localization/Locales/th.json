@@ -1,0 +1,6 @@
+{
+  "details.catalog.network.desc": "อัตรา ข้อมูลที่ใช้ ที่อยู่ และอะแดปเตอร์",
+  "details.catalog.network.label": "รายละเอียดเครือข่าย",
+  "details.settings.network.public.desc": "สอบถาม api.ipify.org อย่างมากทุก {minutes} นาที",
+  "details.settings.network.public.label": "ที่อยู่สาธารณะ"
+}

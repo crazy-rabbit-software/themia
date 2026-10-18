@@ -1,0 +1,6 @@
+{
+  "details.catalog.network.desc": "Mga rate, nagamit na data, address at adapter",
+  "details.catalog.network.label": "Mga detalye ng network",
+  "details.settings.network.public.desc": "Nagtatanong sa api.ipify.org, hindi hihigit sa bawat {minutes} minuto",
+  "details.settings.network.public.label": "Pampublikong address"
+}

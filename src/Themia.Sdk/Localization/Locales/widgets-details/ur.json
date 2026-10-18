@@ -1,7 +1,5 @@
 {
   "$comment": "Machine-written translations: every string in this file needs native review.",
-  "details.catalog.network.label": "نیٹ ورک کی تفصیلات",
-  "details.catalog.network.desc": "رفتار، استعمال شدہ ڈیٹا، پتے اور اڈاپٹرز",
   "details.catalog.battery.label": "بیٹری کی تفصیلات",
   "details.catalog.battery.desc": "حالت، باقی وقت، صحت اور سائیکلز",
   "details.catalog.ping.label": "پنگ کے اعداد و شمار",
@@ -82,8 +80,6 @@
   "details.gpu.clock": "GPU کلاک",
   "details.gpu.memoryClock": "میموری کلاک",
   "details.gpu.none": "کوئی گرافکس اڈاپٹر نہیں",
-  "details.settings.network.public.label": "عوامی پتہ",
-  "details.settings.network.public.desc": "api.ipify.org سے پوچھتا ہے، زیادہ سے زیادہ ہر {minutes} منٹ بعد",
   "details.settings.ping.window.label": "اعداد و شمار کا دائرہ",
   "details.settings.ping.window.desc": "اعداد کتنی حالیہ جانچوں پر مبنی ہوں",
   "details.settings.ping.window.probes": "{count} جانچیں",

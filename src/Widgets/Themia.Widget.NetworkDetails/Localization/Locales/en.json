@@ -1,0 +1,7 @@
+{
+  "$englishOnly": [],
+  "details.catalog.network.desc": "Rates, data used, addresses and adapters",
+  "details.catalog.network.label": "Network details",
+  "details.settings.network.public.desc": "Asks api.ipify.org, at most every {minutes} minutes",
+  "details.settings.network.public.label": "Public address"
+}

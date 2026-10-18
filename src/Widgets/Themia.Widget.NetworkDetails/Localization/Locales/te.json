@@ -1,0 +1,6 @@
+{
+  "details.catalog.network.desc": "వేగాలు, ఉపయోగించిన డేటా, చిరునామాలు మరియు అడాప్టర్‌లు",
+  "details.catalog.network.label": "నెట్‌వర్క్ వివరాలు",
+  "details.settings.network.public.desc": "api.ipify.orgని అడుగుతుంది, గరిష్ఠంగా ప్రతి {minutes} నిమిషాలకు ఒకసారి",
+  "details.settings.network.public.label": "పబ్లిక్ చిరునామా"
+}

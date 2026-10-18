@@ -1,0 +1,6 @@
+{
+  "details.catalog.network.desc": "速度、使用データ量、アドレス、アダプター",
+  "details.catalog.network.label": "ネットワークの詳細",
+  "details.settings.network.public.desc": "api.ipify.org に問い合わせます (最短 {minutes} 分間隔)",
+  "details.settings.network.public.label": "パブリック アドレス"
+}
