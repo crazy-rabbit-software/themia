@@ -81,6 +81,20 @@ public sealed partial class KitList : Grid
             VerticalAlignment = VerticalAlignment.Top,
         };
 
+        // [S-7032] The lined looks fill the slot and scroll under the fade, the table's column
+        // titles over them; the rich look is given the height of its whole rows (FitWholeRows).
+        if (spec.Look != KitRowLook.Rich)
+        {
+            _scroll.Padding = Fluent.ListPadding;
+            _scroll.VerticalAlignment = VerticalAlignment.Stretch;
+        }
+
+        RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
+        RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
+        _columnHeader.Visibility = Visibility.Collapsed;
+        SetRow(_columnHeader, 0);
+        SetRow(_scroll, 1);
+        Children.Add(_columnHeader);
         Children.Add(_scroll);
     }
 
@@ -162,9 +176,18 @@ public sealed partial class KitList : Grid
             _rows.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
         }
 
+        if (_spec.Look == KitRowLook.Table)
+        {
+            BuildColumnHeader();
+        }
+        else
+        {
+            _columnHeader.Visibility = Visibility.Collapsed;
+        }
+
         for (var i = 0; i < _items.Count; i++)
         {
-            var row = BuildRow(_items[i], i, now);
+            var row = _spec.Look == KitRowLook.Rich ? BuildRow(_items[i], i, now) : BuildLinedRow(_items[i], i, now);
             SetRow(row, i / columns);
             SetColumn(row, i % columns);
             _rows.Children.Add(row);
@@ -173,10 +196,14 @@ public sealed partial class KitList : Grid
 
         if (_cursorIndex >= 0 && _cursorIndex < _rowElements.Count)
         {
-            RowFocus.Mark(_rowElements[_cursorIndex], true);
+            Mark(_cursorIndex, true);
         }
 
-        FitWholeRows(columns);
+        if (_spec.Look == KitRowLook.Rich)
+        {
+            FitWholeRows(columns);
+        }
+
         _fade?.Refresh();
     }
 
@@ -288,9 +315,9 @@ public sealed partial class KitList : Grid
         _rowHooks.Add(Fluent.Hover(row));
         _rowHooks.Add(ItemMenu.Attach(row, () => Entries(item)));
 
-        if (item.Link is { } link)
+        if ((item.Tooltip ?? item.Link?.OriginalString) is { } tip)
         {
-            ToolTipService.SetToolTip(row, link.OriginalString);
+            ToolTipService.SetToolTip(row, tip);
         }
 
         row.Tapped += OnRowTapped;
@@ -392,6 +419,8 @@ public sealed partial class KitList : Grid
         }
 
         _rowHooks.Clear();
+        _times.Clear();
+        _reveals.Clear();
 
         foreach (var row in _rowElements)
         {
@@ -542,12 +571,12 @@ public sealed partial class KitList : Grid
 
         if (_cursorIndex >= 0 && _cursorIndex < _rowElements.Count)
         {
-            RowFocus.Mark(_rowElements[_cursorIndex], false);
+            Mark(_cursorIndex, false);
         }
 
         _cursorIndex = index;
         _cursorId = _items[index].Id;
-        RowFocus.Mark(_rowElements[index], true);
+        Mark(index, true);
     }
 
     /// <summary>Drop the cursor.</summary>
@@ -555,7 +584,7 @@ public sealed partial class KitList : Grid
     {
         if (_cursorIndex >= 0 && _cursorIndex < _rowElements.Count)
         {
-            RowFocus.Mark(_rowElements[_cursorIndex], false);
+            Mark(_cursorIndex, false);
         }
 
         _cursorIndex = -1;

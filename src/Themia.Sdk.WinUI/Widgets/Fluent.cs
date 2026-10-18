@@ -316,4 +316,10 @@ public static class Fluent
     /// scroll content, a whole view's hit area): never the item layer's, which would fill it.
     /// </summary>
     public static Brush Clear() => ThemeBrush.Of("SubtleFillColorTransparentBrush", Colors.Transparent);
+
+    /// <summary>
+    /// The theme brush named <paramref name="key"/> (a <c>…Brush</c> resource), for parts that may
+    /// name no colour themselves (the kit's, [S-7066]); the theme has every key they use.
+    /// </summary>
+    public static Brush Brush(string key) => ThemeBrush.Of(key, Colors.Gray);
 }

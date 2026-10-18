@@ -24,6 +24,14 @@ public static class KitIcons
         KitIcon.Task => Glyphs.Task,
         KitIcon.Event => Glyphs.Calendar,
         KitIcon.Warning => Glyphs.Warning,
+        KitIcon.Reply => Glyphs.MailReply,
+        KitIcon.MailRead => Glyphs.MailRead,
+        KitIcon.MailUnread => Glyphs.Unread,
+        KitIcon.Archive => Glyphs.Archive,
+        KitIcon.Junk => Glyphs.Junk,
+        KitIcon.Compose => Glyphs.MailCompose,
+        KitIcon.Sort => Glyphs.Sort,
+        KitIcon.Undo => Glyphs.Undo,
         KitIcon.Default => Glyphs.Info,
         _ => throw new ArgumentOutOfRangeException(nameof(icon), icon, null),
     };
@@ -37,6 +45,7 @@ public static class KitIcons
         {
             KitActionKind.Open => KitIcon.Open,
             KitActionKind.OpenTo => KitIcon.Web,
+            KitActionKind.Change => KitIcon.Check,
             KitActionKind.CopyLink => KitIcon.Link,
             KitActionKind.CopyText => KitIcon.Copy,
             KitActionKind.Toggle => KitIcon.Check,

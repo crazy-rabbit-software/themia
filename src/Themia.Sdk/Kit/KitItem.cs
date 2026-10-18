@@ -16,6 +16,7 @@ namespace Themia.Sdk.Kit;
 /// <param name="Badges">Short labels after the title ("Draft", "3").</param>
 /// <param name="Link">The primary open target: a web address the item rules accepted.</param>
 /// <param name="Group">The group the row is in; its heading is drawn by the kit.</param>
+/// <param name="Tooltip">The row's hover text, when the spec writes one (whom a message is from, its date); else its link.</param>
 public sealed record KitItem(
     string Id,
     string Title,
@@ -27,7 +28,8 @@ public sealed record KitItem(
     bool Emphasis = false,
     IReadOnlyList<KitBadge>? Badges = null,
     Uri? Link = null,
-    KitGroup? Group = null);
+    KitGroup? Group = null,
+    string? Tooltip = null);
 
 /// <summary>What leads a row. <see cref="KitLeadKind.Icon"/> names a <see cref="KitIcon"/>; <see cref="KitLeadKind.SiteIcon"/> a web address whose site's own icon it is.</summary>
 public readonly record struct KitLead(KitLeadKind Kind, string? Value = null, KitTone Tone = KitTone.Neutral)
@@ -73,6 +75,12 @@ public enum KitTime
 
     /// <summary>The day ("Mar 4").</summary>
     Date,
+
+    /// <summary>[S-548] An age in a list's few characters: "now", "5m", "3h", "2d", then the date ("Sep 28").</summary>
+    Compact,
+
+    /// <summary>[S-548] A table's time: the clock time today, the weekday within the week, then the date.</summary>
+    Stamp,
 }
 
 /// <summary>
@@ -129,4 +137,12 @@ public enum KitIcon
     Task,
     Event,
     Warning,
+    Reply,
+    MailRead,
+    MailUnread,
+    Archive,
+    Junk,
+    Compose,
+    Sort,
+    Undo,
 }

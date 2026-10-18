@@ -200,7 +200,54 @@ public static class KitText
             KitTime.Age => Age(locale, at, now),
             KitTime.Clock => LocaleFormat.Time(locale, at.ToOffset(now.Offset).DateTime),
             KitTime.Date => LocaleFormat.Date(locale, at.ToOffset(now.Offset).DateTime, DateStyle.MonthDayShort),
+            KitTime.Compact => Compact(locale, at, now),
+            KitTime.Stamp => Stamp(locale, at, now),
             _ => string.Empty,
         };
     }
+
+    /// <summary>[S-548] "now", "5m", "3h", "2d", then the language's short month-day; a clock ahead of this one reads "now".</summary>
+    public static string Compact(Locale locale, DateTimeOffset at, DateTimeOffset now)
+    {
+        var age = now - at;
+
+        if (age < TimeSpan.FromMinutes(1))
+        {
+            return LocaleFormat.Relative(locale, TimeSpan.Zero);
+        }
+
+        if (age < TimeSpan.FromHours(1))
+        {
+            return Strings.Format(locale, Str.WidgetsB_Time_MinutesCompact, ("count", (long)age.TotalMinutes));
+        }
+
+        if (age < TimeSpan.FromDays(1))
+        {
+            return Strings.Format(locale, Str.WidgetsB_Time_HoursCompact, ("count", (long)age.TotalHours));
+        }
+
+        if (age < TimeSpan.FromDays(7))
+        {
+            return Strings.Format(locale, Str.WidgetsB_Time_DaysCompact, ("count", (long)age.TotalDays));
+        }
+
+        return MonthDay(at.ToOffset(now.Offset), locale);
+    }
+
+    /// <summary>[S-548] The clock time within a day, the short weekday within a week, then the short month-day.</summary>
+    public static string Stamp(Locale locale, DateTimeOffset at, DateTimeOffset now)
+    {
+        var local = at.ToOffset(now.Offset);
+        var age = now - at;
+
+        if (age < TimeSpan.FromDays(1))
+        {
+            return LocaleFormat.Time(locale, local.DateTime);
+        }
+
+        return age < TimeSpan.FromDays(7) ? LocaleFormat.WeekdayName(locale, local.DayOfWeek, NameWidth.Short) : MonthDay(local, locale);
+    }
+
+    /// <summary>"Sep 28" · "28. Sept.": the language's short month-day.</summary>
+    private static string MonthDay(DateTimeOffset at, Locale locale) => LocaleFormat.Date(locale, DateOnly.FromDateTime(at.DateTime), DateStyle.MonthDayShort);
 }

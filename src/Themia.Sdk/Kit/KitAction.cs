@@ -4,8 +4,10 @@ namespace Themia.Sdk.Kit;
 
 /// <summary>
 /// [S-7010] What an item action does: a closed set. There is no kind for a view, sort, column or
-/// "show" switch, so a kit menu cannot change how a widget looks ([S-1746]); and none for a write
-/// to a service: a change the user wants made is an <see cref="OpenTo"/> to the service's own page.
+/// "show" switch, so a kit menu cannot change how a widget looks ([S-1746]); and a kit service is
+/// read-only: a change the user wants made there is an <see cref="OpenTo"/> to the service's own page.
+/// The host's account widgets (mail, tasks) keep the writes their own sources make
+/// (<see cref="Change"/>, <see cref="Toggle"/>, <see cref="Rename"/>, <see cref="Delete"/>, [S-7013]).
 /// </summary>
 public enum KitActionKind
 {
@@ -14,6 +16,13 @@ public enum KitActionKind
 
     /// <summary>"&lt;verb&gt; on &lt;Service&gt;": a web page where the user does what Themia will not.</summary>
     OpenTo,
+
+    /// <summary>
+    /// [S-7013] A change the widget's own account source makes to the item (mark read, archive): the
+    /// host's account widgets only, carried out by the view's handler by <see cref="KitAction.Id"/>;
+    /// never a kit service's.
+    /// </summary>
+    Change,
 
     /// <summary>The link to the clipboard.</summary>
     CopyLink,
@@ -39,10 +48,11 @@ public enum KitActionKind
 /// </summary>
 /// <param name="Label">What the line says, in the current language ("Open", "Merge on GitHub").</param>
 /// <param name="Icon">The line's glyph; <see cref="KitIcon.Default"/> is the kind's own.</param>
-/// <param name="Target">Open and OpenTo: the address; without one the line is shown disabled.</param>
+/// <param name="Target">Open and OpenTo: the address; without one (and without an <paramref name="Id"/> the view opens by) the line is shown disabled.</param>
 /// <param name="Text">CopyLink and CopyText: what goes on the clipboard; without it the line is shown disabled.</param>
 /// <param name="Checked">Toggle: the state the check shows.</param>
-/// <param name="Id">Toggle, Rename, Delete: which of the view's handlers runs.</param>
+/// <param name="Id">Toggle, Change, Rename, Delete: which of the view's handlers runs; on an Open or OpenTo without an address, the view opens it itself ([S-7013]: mail opens where the user reads it).</param>
+/// <param name="Inline">[S-7033] The action is one of the row's inline buttons where the plan affords them (the menu has it too).</param>
 public sealed record KitAction(
     KitActionKind Kind,
     string Label,
@@ -51,12 +61,13 @@ public sealed record KitAction(
     string? Text = null,
     bool Disabled = false,
     bool Checked = false,
-    string? Id = null)
+    string? Id = null,
+    bool Inline = false)
 {
     /// <summary>Whether the line can run: it is not disabled and has what its kind needs.</summary>
     public bool Runnable => !Disabled && Kind switch
     {
-        KitActionKind.Open or KitActionKind.OpenTo => Target is not null,
+        KitActionKind.Open or KitActionKind.OpenTo => Target is not null || Id is not null,
         KitActionKind.CopyLink or KitActionKind.CopyText => !string.IsNullOrEmpty(Text),
         _ => true,
     };
@@ -74,7 +85,7 @@ public sealed record KitMenuLine(KitAction? Action, QuickCommand? Quick = null, 
 
 /// <summary>
 /// [S-7011] An item's actions as its menu: one order for every kit widget. The item's own group
-/// (Open, a check, the "&lt;verb&gt; on &lt;Service&gt;" lines in the spec's order, the copies), then
+/// (Open, a check, the "&lt;verb&gt; on &lt;Service&gt;" lines and the changes in the spec's order, the copies), then
 /// Rename, then Delete, then Refresh, each group after a separator (an empty group, and with it its
 /// separator, is left out). The first copy is the icon row's Copy, Rename and Delete are theirs
 /// ([S-1740]; the row shows only with two or more, [S-1741]). A line whose key the list takes says
@@ -84,7 +95,7 @@ public static class KitMenu
 {
     private static readonly KitActionKind[][] Groups =
     [
-        [KitActionKind.Open, KitActionKind.Toggle, KitActionKind.OpenTo, KitActionKind.CopyLink, KitActionKind.CopyText],
+        [KitActionKind.Open, KitActionKind.Toggle, KitActionKind.OpenTo, KitActionKind.Change, KitActionKind.CopyLink, KitActionKind.CopyText],
         [KitActionKind.Rename],
         [KitActionKind.Delete],
         [KitActionKind.Refresh],
@@ -142,10 +153,10 @@ public static class KitMenu
 
     /// <summary>
     /// [S-7011] An item has one Open, one check, one Rename, one Delete and one Refresh; only the web
-    /// pages and the copies may be several. A repeat of a single kind is left out.
+    /// pages, the changes and the copies may be several. A repeat of a single kind is left out.
     /// </summary>
     private static bool IsFirstOfItsKind(IReadOnlyList<KitAction> actions, KitAction action)
-        => action.Kind is KitActionKind.OpenTo or KitActionKind.CopyLink or KitActionKind.CopyText
+        => action.Kind is KitActionKind.OpenTo or KitActionKind.Change or KitActionKind.CopyLink or KitActionKind.CopyText
             || ReferenceEquals(actions.First(a => a.Kind == action.Kind), action);
 
     /// <summary>[S-7011] The action Enter and a double-click run: the item's Open, when it can run.</summary>

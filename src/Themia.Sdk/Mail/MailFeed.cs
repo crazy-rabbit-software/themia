@@ -297,60 +297,13 @@ public static class MailScreens
 /// <summary>[S-548] When a message arrived, in a list's few characters.</summary>
 public static class MailTime
 {
-    /// <summary>List and compact rows: now, 5m, 3h, 2d, then a date.</summary>
+    /// <summary>List and compact rows: now, 5m, 3h, 2d, then a date (the kit's <see cref="Themia.Sdk.Kit.KitTime.Compact"/>).</summary>
     public static string Short(DateTimeOffset? when, DateTimeOffset now, Locale locale)
-    {
-        if (when is not { } at)
-        {
-            return string.Empty;
-        }
+        => when is { } at ? Themia.Sdk.Kit.KitText.Compact(locale, at, now) : string.Empty;
 
-        var age = now - at;
-
-        if (age < TimeSpan.FromMinutes(1))
-        {
-            return LocaleFormat.Relative(locale, TimeSpan.Zero); // "now", also for a provider clock running ahead of this one
-        }
-
-        if (age < TimeSpan.FromHours(1))
-        {
-            return Strings.Format(locale, Str.WidgetsB_Time_MinutesCompact, ("count", (long)age.TotalMinutes));
-        }
-
-        if (age < TimeSpan.FromDays(1))
-        {
-            return Strings.Format(locale, Str.WidgetsB_Time_HoursCompact, ("count", (long)age.TotalHours));
-        }
-
-        if (age < TimeSpan.FromDays(7))
-        {
-            return Strings.Format(locale, Str.WidgetsB_Time_DaysCompact, ("count", (long)age.TotalDays));
-        }
-
-        return MonthDay(at.ToOffset(now.Offset), locale);
-    }
-
-    /// <summary>The row view's date column: a time today, a weekday this week, then a date.</summary>
+    /// <summary>The row view's date column: a time today, a weekday this week, then a date (the kit's <see cref="Themia.Sdk.Kit.KitTime.Stamp"/>).</summary>
     public static string Full(DateTimeOffset? when, DateTimeOffset now, Locale locale)
-    {
-        if (when is not { } at)
-        {
-            return string.Empty;
-        }
-
-        var local = at.ToOffset(now.Offset);
-        var age = now - at;
-
-        if (age < TimeSpan.FromDays(1))
-        {
-            return LocaleFormat.Time(locale, local.DateTime);
-        }
-
-        return age < TimeSpan.FromDays(7) ? LocaleFormat.WeekdayName(locale, local.DayOfWeek, NameWidth.Short) : MonthDay(local, locale);
-    }
-
-    /// <summary>"Sep 28" · "28. Sept.": the language's short month-day.</summary>
-    private static string MonthDay(DateTimeOffset at, Locale locale) => LocaleFormat.Date(locale, DateOnly.FromDateTime(at.DateTime), DateStyle.MonthDayShort);
+        => when is { } at ? Themia.Sdk.Kit.KitText.Stamp(locale, at, now) : string.Empty;
 }
 
 /// <summary>[S-1286] How many messages of a folder are kept and listed: the shelf's bound and the widget's whole list.</summary>
