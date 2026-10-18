@@ -73,4 +73,7 @@ public interface IWidgetHost
 
     /// <summary>[S-6913] Windows' own media session: what is playing, its transport and position.</summary>
     IMediaSessions Media { get; }
+
+    /// <summary>[S-3203] What the speakers play: the host's one loopback capture, for the visualizer.</summary>
+    IAudioCapture Loopback { get; }
 }

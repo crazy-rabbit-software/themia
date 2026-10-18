@@ -6,6 +6,7 @@ using Themia.Core.Diagnostics;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
+using Themia.Sdk.WinUI;
 using Themia.Sdk;
 
 namespace Themia.App.Widgets;
@@ -16,7 +17,7 @@ namespace Themia.App.Widgets;
 /// [S-3212] The waveform style draws the frame's trace instead of its bands; it holds the same capture.
 /// [S-6005] A style change swaps the drawing for one of the new style; the capture stays held.
 /// <para>
-/// The bars come from the one shared loopback capture (<see cref="AudioLoopback"/>, [S-3203]),
+/// The bars come from the one shared loopback capture (the host's, <see cref="IAudioCapture"/>, [S-3203]),
 /// held exactly while this tile can be seen: attached, in the tree, not a preview. Game mode
 /// detaches every widget, so it lets go too. In silence the bars rest on a flat baseline
 /// ([S-3206]); only a device the capture cannot reach puts a sentence in their place ([S-3204]).
@@ -36,14 +37,16 @@ internal sealed partial class AudioVisualizerView : Grid, IWidgetView, IWidgetSi
     private AudioFrame? _last;
 
     private DispatcherQueue? _queue;
+    private readonly IAudioCapture _capture;
     private IDisposable? _loopback;
     private AudioFrame? _pending;
     private int _drawQueued;
     private bool _detached = true;
     private bool _preview;
 
-    public AudioVisualizerView()
+    public AudioVisualizerView(IWidgetHost host)
     {
+        _capture = host.Loopback;
         _style = AudioVisualizerStyle.Bars;
         _bars = new SpectrumCanvas(_style);
 
@@ -113,7 +116,7 @@ internal sealed partial class AudioVisualizerView : Grid, IWidgetView, IWidgetSi
 
         if (wanted && _loopback is null)
         {
-            _loopback = AudioLoopback.Subscribe(OnFrame, OnAvailability);
+            _loopback = _capture.Subscribe(OnFrame, OnAvailability);
         }
         else if (!wanted && _loopback is not null)
         {

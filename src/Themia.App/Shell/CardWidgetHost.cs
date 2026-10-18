@@ -46,6 +46,8 @@ internal sealed class CardWidgetHost(IWidgetCardHost card) : IWidgetHost
 
     public IMediaSessions Media => HostMediaSessions.Instance;
 
+    public IAudioCapture Loopback => HostAudioCapture.Instance;
+
     public bool ShowAccounts()
     {
         if (AppServices.ShowAccounts is not { } show)

@@ -648,3 +648,15 @@ internal static unsafe partial class AudioLoopback
     [LibraryImport("ole32.dll")]
     private static partial void CoTaskMemFree(void* memory);
 }
+
+/// <summary>[S-6913] The capture a widget asks for (<see cref="Themia.Sdk.WinUI.IWidgetHost.Loopback"/>): the app's one <see cref="AudioLoopback"/>.</summary>
+internal sealed class HostAudioCapture : Themia.Sdk.WinUI.IAudioCapture
+{
+    public static HostAudioCapture Instance { get; } = new();
+
+    private HostAudioCapture()
+    {
+    }
+
+    public IDisposable Subscribe(Action<AudioFrame> onFrame, Action<bool> onAvailability) => AudioLoopback.Subscribe(onFrame, onAvailability);
+}
