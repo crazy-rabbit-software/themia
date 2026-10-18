@@ -33,7 +33,8 @@ public partial class App : Application
         Themia.Sdk.WinUI.AppIconSource.Install(Services.AppIcons.GetAsync, Services.AppIcons.DefaultSize);
         Themia.Sdk.WinUI.SettingsHost.Install(() => Services.AppServices.Notes, () => Services.AppServices.Habits, () => Services.AppServices.ScreenTime, Services.HostLauncher.Instance,
             picker => WinRT.Interop.InitializeWithWindow.Initialize(picker, Interop.Win32.GetForegroundWindow()), Services.HostAppLayouts.Instance,
-            () => Services.Office.OfficeSources.Current);
+            () => Services.Office.OfficeSources.Current, () => Services.AppServices.Tasks,
+            feature => Services.AppServices.Accounts?.WithFeature(feature) ?? []);
         Widgets.GlideMotion.InstallSmooth(windows => Themia.Core.Motion.GlideSwitch.Smooth(Shell.DesignApplier.Current, windows));
         Services.SoundCue.Install(new Services.HostCuePlayer());
 

@@ -109,10 +109,10 @@ public sealed class EmailConfig : WidgetConfig, IStyled, IShownSettings<EmailSet
 
     /// <summary>
     /// [S-1286] How many messages a widget asks for: the whole shelf the sync keeps per folder
-    /// (<see cref="MailShelves.MaxPerFolder"/>), newest first. The list scrolls past what fits, so
+    /// (<see cref="MailLimits.PerFolder"/>), newest first. The list scrolls past what fits, so
     /// the tile's size never changes what is fetched and no count needs choosing.
     /// </summary>
-    public const int FetchCount = MailShelves.MaxPerFolder;
+    public const int FetchCount = MailLimits.PerFolder;
 
     [JsonIgnore]
     public int EffectivePreviewLines => Math.Clamp(PreviewLines, 1, 5);

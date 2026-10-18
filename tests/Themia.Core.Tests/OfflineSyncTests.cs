@@ -531,9 +531,9 @@ public sealed class OfflineSyncTests : IDisposable
         var clean = MailShelves.Validate(shelf, ref dropped);
 
         var inbox = Assert.Single(clean.Folders);
-        Assert.Equal(MailShelves.MaxPerFolder, inbox.Messages.Count);
+        Assert.Equal(MailLimits.PerFolder, inbox.Messages.Count);
         Assert.True(inbox.Messages.All(m => m.Preview.Length <= 400));
-        Assert.Equal(MailShelves.MaxPerFolder, inbox.Count);
+        Assert.Equal(MailLimits.PerFolder, inbox.Count);
         Assert.Null(inbox.Total);
         Assert.Equal(["1"], clean.Pending.Select(w => w.Id));
         Assert.True(dropped > 0);

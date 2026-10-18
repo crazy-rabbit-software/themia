@@ -17,7 +17,7 @@ namespace Themia.App.Services.Tasks;
 /// <see cref="Changed"/> is raised there.
 /// </para>
 /// </summary>
-internal sealed class TaskFeed
+internal sealed class TaskFeed : ITaskFeed
 {
     internal TaskFeed(TaskService.Box box, string listId, bool showCompleted)
     {
@@ -116,7 +116,7 @@ internal sealed class TaskFeed
 /// waits and retries, still shown; a refusal takes it back and says why.
 /// </para>
 /// </summary>
-internal sealed class TaskService : IDisposable
+internal sealed class TaskService : ITaskSource, IDisposable
 {
     private const string Scope = "tasks";
 
@@ -148,6 +148,8 @@ internal sealed class TaskService : IDisposable
     /// <summary>The lists kept on this PC.</summary>
     public LocalTaskPool Local { get; }
 
+    ILocalTaskLists ITaskSource.Local => Local;
+
     public IReadOnlyList<TaskAccount> Accounts => _remote.Accounts;
 
     public TaskAccount? Find(string? accountId)
@@ -178,7 +180,7 @@ internal sealed class TaskService : IDisposable
     }
 
     /// <summary>Hold a feed. Every <see cref="Acquire"/> is matched by one <see cref="Release"/>.</summary>
-    public TaskFeed Acquire(string accountId, string listId, bool showCompleted)
+    public ITaskFeed Acquire(string accountId, string listId, bool showCompleted)
     {
         var key = TaskFeed.Of(accountId, listId, showCompleted);
 
@@ -195,8 +197,9 @@ internal sealed class TaskService : IDisposable
         return feed;
     }
 
-    public void Release(TaskFeed feed)
+    public void Release(ITaskFeed shared)
     {
+        var feed = (TaskFeed)shared;
         ArgumentNullException.ThrowIfNull(feed);
 
         if (--feed.Holders <= 0 && _feeds.TryGetValue(feed.Key, out var held) && ReferenceEquals(held, feed))
@@ -210,8 +213,9 @@ internal sealed class TaskService : IDisposable
     /// [S-2609] Sync the feed's account. Only <paramref name="force"/> asks (a user action, a changed
     /// setting, a list never synced): the timer is the service's, not the widget's.
     /// </summary>
-    public void Refresh(TaskFeed feed, TimeSpan interval, bool force)
+    public void Refresh(ITaskFeed shared, TimeSpan interval, bool force)
     {
+        var feed = (TaskFeed)shared;
         ArgumentNullException.ThrowIfNull(feed);
 
         if (_disposed || !force)
@@ -226,8 +230,9 @@ internal sealed class TaskService : IDisposable
     // ---- writes ----------------------------------------------------------------------------------
 
     /// <summary>[S-597] Complete or reopen a task, optimistically.</summary>
-    public Task SetCompletedAsync(TaskFeed feed, TaskItem task, bool completed)
+    public Task SetCompletedAsync(ITaskFeed shared, TaskItem task, bool completed)
     {
+        var feed = (TaskFeed)shared;
         ArgumentNullException.ThrowIfNull(feed);
         ArgumentNullException.ThrowIfNull(task);
 
@@ -240,8 +245,9 @@ internal sealed class TaskService : IDisposable
     }
 
     /// <summary>[S-600] Rename a task. A blank or unchanged title writes nothing.</summary>
-    public Task RenameAsync(TaskFeed feed, TaskItem task, string title)
+    public Task RenameAsync(ITaskFeed shared, TaskItem task, string title)
     {
+        var feed = (TaskFeed)shared;
         ArgumentNullException.ThrowIfNull(feed);
         ArgumentNullException.ThrowIfNull(task);
 
@@ -273,8 +279,9 @@ internal sealed class TaskService : IDisposable
     }
 
     /// <summary>[S-597] Delete a task; a refusal puts it back where it was.</summary>
-    public Task DeleteAsync(TaskFeed feed, TaskItem task)
+    public Task DeleteAsync(ITaskFeed shared, TaskItem task)
     {
+        var feed = (TaskFeed)shared;
         ArgumentNullException.ThrowIfNull(feed);
         ArgumentNullException.ThrowIfNull(task);
 
@@ -292,8 +299,9 @@ internal sealed class TaskService : IDisposable
     /// into. Returns the provider's task once it confirmed, the temporary one while it waits to sync,
     /// or null when nothing was created.
     /// </summary>
-    public async Task<TaskItem?> CreateAsync(TaskFeed feed, string title)
+    public async Task<TaskItem?> CreateAsync(ITaskFeed shared, string title)
     {
+        var feed = (TaskFeed)shared;
         ArgumentNullException.ThrowIfNull(feed);
 
         var clean = title.Trim();

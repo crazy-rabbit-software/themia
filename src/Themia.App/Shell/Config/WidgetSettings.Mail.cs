@@ -1,4 +1,4 @@
-﻿using Microsoft.UI.Xaml;
+using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Themia.App.Services;
 using Themia.App.Widgets;
@@ -8,6 +8,8 @@ using Themia.Core.Mail;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
 using Themia.Sdk;
+
+using Themia.Sdk.WinUI;
 
 namespace Themia.App.Shell.Config;
 
@@ -95,7 +97,7 @@ internal static partial class WidgetSettings
     /// </summary>
     private static void MailAccountRows(List<FrameworkElement> rows, EmailConfig email, Action save, Action openAccounts)
     {
-        var accounts = AppServices.Accounts?.WithFeature(HostFeatures.Mail) ?? [];
+        var accounts = SettingsHost.AccountsWith(HostFeatures.Mail);
 
         var manage = new Button { Content = accounts.Count == 0 ? Str.WidgetsB_Settings_Email_AddAccount.Text() : Str.WidgetsB_Settings_Email_ManageAccounts.Text() };
         manage.Click += (_, _) => openAccounts();

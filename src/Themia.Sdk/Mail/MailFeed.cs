@@ -352,3 +352,9 @@ public static class MailTime
     /// <summary>"Sep 28" · "28. Sept.": the language's short month-day.</summary>
     private static string MonthDay(DateTimeOffset at, Locale locale) => LocaleFormat.Date(locale, DateOnly.FromDateTime(at.DateTime), DateStyle.MonthDayShort);
 }
+
+/// <summary>[S-1286] How many messages of a folder are kept and listed: the shelf's bound and the widget's whole list.</summary>
+public static class MailLimits
+{
+    public const int PerFolder = 50;
+}

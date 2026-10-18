@@ -63,7 +63,6 @@ public sealed class StoredMail
 public static class MailShelves
 {
     /// <summary>[S-2620] The most messages kept per folder: the most any Mail widget shows ([S-540]).</summary>
-    public const int MaxPerFolder = 50;
 
     private const int MaxSubject = 1000;
     private const int MaxName = 500;
@@ -109,7 +108,7 @@ public static class MailShelves
     /// <summary>
     /// [S-2621] The trust boundary for a mail shelf that opened: folders repeat or are not listed →
     /// the first listed one kept; messages without an id or repeated → dropped; strings cut to their
-    /// bounds; at most <see cref="MaxPerFolder"/> a folder; counts never negative; the queue through
+    /// bounds; at most <see cref="MailLimits.PerFolder"/> a folder; counts never negative; the queue through
     /// <see cref="WriteQueue.Validate"/> with only mail changes kept.
     /// </summary>
     public static MailShelf Validate(MailShelf shelf, ref int dropped)
@@ -132,7 +131,7 @@ public static class MailShelves
 
             foreach (var message in folder.Messages ?? [])
             {
-                if (message is null || string.IsNullOrEmpty(message.RawId) || !ids.Add(message.RawId) || messages.Count >= MaxPerFolder)
+                if (message is null || string.IsNullOrEmpty(message.RawId) || !ids.Add(message.RawId) || messages.Count >= MailLimits.PerFolder)
                 {
                     dropped++;
                     continue;
@@ -155,7 +154,7 @@ public static class MailShelves
             {
                 Folder = folder.Folder,
                 At = folder.At,
-                Count = Math.Clamp(folder.Count, 0, MaxPerFolder),
+                Count = Math.Clamp(folder.Count, 0, MailLimits.PerFolder),
                 Total = folder.Total is >= 0 ? folder.Total : null,
                 Unread = folder.Unread is >= 0 ? folder.Unread : null,
                 Messages = messages,

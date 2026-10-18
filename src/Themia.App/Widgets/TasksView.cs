@@ -53,10 +53,10 @@ internal sealed partial class TasksView : Grid, IWidgetView, IWidgetHeaderConten
 
     /// <summary>The second way out of the no-account state: a list on this PC needs no account.</summary>
 
-    private TaskService? _service;
+    private ITaskSource? _service;
 
     /// <summary>The lists on this PC the rows are read from: the service's (a debug render's own fixture).</summary>
-    private LocalTaskPool? _local;
+    private ILocalTaskLists? _local;
     private Ticker? _ticker;
     private IWidgetSurface? _surface;
     private IDisposable? _subscription;
@@ -64,7 +64,7 @@ internal sealed partial class TasksView : Grid, IWidgetView, IWidgetHeaderConten
     private TasksConfig _config = new();
 
     /// <summary>The account feed this widget holds, or null for a list on this PC or no list at all.</summary>
-    private TaskFeed? _feed;
+    private ITaskFeed? _feed;
 
     /// <summary>The list on this PC this widget shows, or null.</summary>
     private string? _localListId;
@@ -195,7 +195,7 @@ internal sealed partial class TasksView : Grid, IWidgetView, IWidgetHeaderConten
     {
         _detached = false;
         _ticker = ticker;
-        _service = AppServices.Tasks;
+        _service = _widgetHost.Tasks;
         _local = _service?.Local;
 
         if (_service is not null)
@@ -560,7 +560,7 @@ internal sealed partial class TasksView : Grid, IWidgetView, IWidgetHeaderConten
     /// [S-598] [S-610] Every task of an account feed (Today's for Today) in the widget's order, hidden
     /// ones included: what the rows are filtered from, and what an order is written over.
     /// </summary>
-    private IReadOnlyList<TaskItem> Arranged(TaskFeed feed, DateOnly today)
+    private IReadOnlyList<TaskItem> Arranged(ITaskFeed feed, DateOnly today)
     {
         var tasks = feed.IsToday ? TaskRules.Today(feed.Tasks, today, TimeZoneInfo.Local) : feed.Tasks;
         return TaskRules.ApplyOrder(tasks, TaskRules.CleanOrder(_config.TaskOrder), t => t.Id, _config.NewOnTop);

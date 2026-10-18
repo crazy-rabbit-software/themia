@@ -125,7 +125,7 @@ internal sealed class MailService : IMailSource, IDisposable
                     wanted[account.Id] = folders;
                 }
 
-                folders[folder] = Math.Max(folders.GetValueOrDefault(folder), Math.Clamp(count, 1, MailShelves.MaxPerFolder));
+                folders[folder] = Math.Max(folders.GetValueOrDefault(folder), Math.Clamp(count, 1, MailLimits.PerFolder));
             }
         }
 
@@ -743,7 +743,7 @@ internal sealed class MailService : IMailSource, IDisposable
             {
                 var counts = await _owner.ProbeAsync(this, folder.Folder, token).ConfigureAwait(true);
                 var now = DateTimeOffset.UtcNow;
-                var count = Math.Clamp(Math.Max(folder.Wanted, 1), 1, MailShelves.MaxPerFolder);
+                var count = Math.Clamp(Math.Max(folder.Wanted, 1), 1, MailLimits.PerFolder);
 
                 if (force || count > folder.Held || MailRefresh.NeedsFetch(folder.Known, counts, folder.LastFetch, now))
                 {
@@ -1008,7 +1008,7 @@ internal sealed class MailService : IMailSource, IDisposable
                     Count = f.Held,
                     Total = f.Known?.Total,
                     Unread = f.Known?.Unread,
-                    Messages = [.. f.Messages.Take(MailShelves.MaxPerFolder).Select(MailShelves.Store)],
+                    Messages = [.. f.Messages.Take(MailLimits.PerFolder).Select(MailShelves.Store)],
                     Cursor = f.Cursor,
                 })],
                 Pending = [.. _pending],

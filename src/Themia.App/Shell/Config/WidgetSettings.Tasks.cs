@@ -10,6 +10,8 @@ using Themia.Core.Model;
 using Themia.Core.Tasks;
 using Themia.Core.Widgets;
 
+using Themia.Sdk.WinUI;
+
 namespace Themia.App.Shell.Config;
 
 /// <summary>
@@ -32,7 +34,7 @@ internal static partial class WidgetSettings
         ArgumentNullException.ThrowIfNull(save);
         ArgumentNullException.ThrowIfNull(showAccounts);
 
-        var service = AppServices.Tasks;
+        var service = SettingsHost.Tasks;
 
         rows.Add(FluentLayout.Header(Str.WidgetsC_Tasks_Settings_Source.Text()));
 
@@ -154,7 +156,7 @@ internal static partial class WidgetSettings
 
     /// <summary>The source picker, then what that source offers: an account's lists, or this PC's.</summary>
     private static IEnumerable<FrameworkElement> TaskSourceRows(
-        TaskService? service,
+        ITaskSource? service,
         TasksConfig config,
         Action save,
         Action showAccounts,
@@ -259,7 +261,7 @@ internal static partial class WidgetSettings
     /// Today — every list's tasks due today or overdue — then the lists themselves. Read once and
     /// shared with the widget through the service's cache.
     /// </summary>
-    private static Border AccountListRow(TaskService service, TaskAccount account, TasksConfig config, Action save)
+    private static Border AccountListRow(ITaskSource service, TaskAccount account, TasksConfig config, Action save)
     {
         var combo = new ComboBox { MinWidth = 260, IsEnabled = false, PlaceholderText = Str.Todo_LoadingLists.Text() };
         var row = FluentLayout.Row(Glyphs.Task, Str.WidgetsC_Tasks_Settings_List_Label.Text(), Str.WidgetsC_Tasks_Settings_List_From.Format(("account", account.Label)), combo);
@@ -314,7 +316,7 @@ internal static partial class WidgetSettings
     /// [S-604] The lists kept on this PC: pick one, rename it as you type, add one, delete one after
     /// asking. A pool every Tasks widget shares, so renaming here retitles each widget showing it.
     /// </summary>
-    private static IEnumerable<FrameworkElement> LocalListRows(LocalTaskPool pool, TasksConfig config, Action save, Action rebuild)
+    private static IEnumerable<FrameworkElement> LocalListRows(ILocalTaskLists pool, TasksConfig config, Action save, Action rebuild)
     {
         if (pool.Problem is { } problem)
         {

@@ -40,6 +40,10 @@ internal sealed class CardWidgetHost(IWidgetCardHost card) : IWidgetHost
 
     public Themia.App.Services.Office.IOfficeSource? Office => Themia.App.Services.Office.OfficeSources.Current;
 
+    public Themia.App.Services.Tasks.ITaskSource? Tasks => Themia.App.Services.AppServices.Tasks;
+
+    public Themia.App.Services.Mail.IMailSource? Mail => Themia.App.Services.AppServices.Mail;
+
     /// <summary>[S-9925] The host's one service sync; a preview card replays the providers' recorded answers ([S-9929]).</summary>
     public IServiceSources Services => Themia.App.Services.Kit.HostServiceSources.For(card);
 

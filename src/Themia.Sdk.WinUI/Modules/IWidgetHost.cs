@@ -65,6 +65,12 @@ public interface IWidgetHost
     /// </summary>
     Themia.App.Services.Office.IOfficeSource? Office { get; }
 
+    /// <summary>[S-546] Where the mail widgets read: the host's one mail service. Null while the host has none (before it starts, a debug render).</summary>
+    Themia.App.Services.Mail.IMailSource? Mail { get; }
+
+    /// <summary>[S-590] Where the task widgets read and write: the host's one task service. Null while the host has none (before it starts, a debug render).</summary>
+    Themia.App.Services.Tasks.ITaskSource? Tasks { get; }
+
     /// <summary>[S-9925] The kit services the background sync keeps fresh: one source per widget over the host's one service sync.</summary>
     IServiceSources Services { get; }
 

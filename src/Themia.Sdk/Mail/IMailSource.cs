@@ -6,7 +6,7 @@ namespace Themia.App.Services.Mail;
 /// Where Mail widgets read from: the app's one <see cref="MailService"/>.
 /// Everything here is on the UI thread.
 /// </summary>
-internal interface IMailSource
+public interface IMailSource
 {
     /// <summary>Raised when a mail account is added, removed, renamed or changes health.</summary>
     event Action? AccountsChanged;
@@ -38,7 +38,7 @@ internal interface IMailSource
 }
 
 /// <summary>One widget's handle on a shared feed.</summary>
-internal interface IMailFeed : IDisposable
+public interface IMailFeed : IDisposable
 {
     /// <summary>Raised on the UI thread whenever <see cref="Snapshot"/> changes.</summary>
     event Action? Updated;

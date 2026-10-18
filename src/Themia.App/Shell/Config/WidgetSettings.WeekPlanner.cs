@@ -39,7 +39,7 @@ internal static partial class WidgetSettings
 
         // The first account with tasks, then each account by name; a chosen account that has since
         // been signed out stays listed by its id, so the choice is never silently swapped ([S-590]).
-        var accounts = AppServices.Tasks?.Accounts ?? [];
+        var accounts = SettingsHost.Tasks?.Accounts ?? [];
         var ids = new List<string> { string.Empty };
         ids.AddRange(accounts.Select(account => account.Id));
 

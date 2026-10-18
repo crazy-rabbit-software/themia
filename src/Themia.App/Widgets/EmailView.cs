@@ -201,7 +201,7 @@ internal sealed partial class EmailView : Grid, IWidgetView, IWidgetHeaderConten
     public void Attach(Ticker ticker, WidgetConfig config)
     {
         _detached = false;
-        _source = AppServices.Mail;
+        _source = _widgetHost.Mail;
         _fade = new ScrollFade(_scroll, _list);
 
         if (_source is not null)
@@ -529,7 +529,7 @@ internal sealed partial class EmailView : Grid, IWidgetView, IWidgetHeaderConten
 
         menu.Add(Item(Glyphs.Copy, Str.CtxMenu_CopySubject.Text(), () =>
         {
-            if (!ClipboardWatcher.SetText(message.SubjectLine))
+            if (!_widgetHost.CopyText(message.SubjectLine))
             {
                 ShowProblem(Str.WidgetsB_Email_CouldNotCopy.Text());
             }

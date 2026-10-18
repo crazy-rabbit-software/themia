@@ -56,8 +56,8 @@ internal sealed partial class WeekPlannerView : Grid, IWidgetView, IWidgetSurfac
 
     private IWidgetSurface? _surface;
     private ICalendarData? _data;
-    private TaskService? _service;
-    private TaskFeed? _feed;
+    private ITaskSource? _service;
+    private ITaskFeed? _feed;
     private IDisposable? _poll;
     private IDisposable? _tick;
     private WeekPlannerConfig _config = new();
@@ -114,7 +114,7 @@ internal sealed partial class WeekPlannerView : Grid, IWidgetView, IWidgetSurfac
         UseData(_widgetHost.Office is { } source ? new OfficeCalendarData(source) : null);
         Strings.Changed += OnLanguage;
 
-        _service = AppServices.Tasks;
+        _service = _widgetHost.Tasks;
         if (_service is not null)
         {
             _service.AccountsChanged += OnTaskAccountsChanged;

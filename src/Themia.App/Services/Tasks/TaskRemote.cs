@@ -10,10 +10,6 @@ using Themia.Sdk;
 
 namespace Themia.App.Services.Tasks;
 
-/// <summary>An account that can feed the Tasks widget, as the widget and its settings see it.</summary>
-/// <param name="Problem">Why it cannot be used until the user signs in again, or null.</param>
-internal sealed record TaskAccount(string Id, ProviderId Provider, string Label, string? Problem);
-
 /// <summary>
 /// Where account tasks come from. One implementation, over Themia's own accounts.
 /// </summary>

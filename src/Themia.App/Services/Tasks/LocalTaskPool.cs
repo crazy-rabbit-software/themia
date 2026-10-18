@@ -15,7 +15,7 @@ namespace Themia.App.Services.Tasks;
 /// one more write, of the latest snapshot, and never two writers at once.
 /// </para>
 /// </summary>
-internal sealed class LocalTaskPool
+internal sealed class LocalTaskPool : ILocalTaskLists
 {
     private const string Scope = "tasks";
 

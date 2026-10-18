@@ -141,7 +141,7 @@ public sealed class MailDriveLayoutTests
 
     [Fact]
     public void S1286_every_widget_asks_for_the_whole_shelf_whatever_its_size()
-        => Assert.Equal(Themia.Core.Sync.MailShelves.MaxPerFolder, EmailConfig.FetchCount);
+        => Assert.Equal(MailLimits.PerFolder, EmailConfig.FetchCount);
 
     [Fact]
     public void S1287_a_wide_row_view_adds_the_preview_after_a_lone_subject()
