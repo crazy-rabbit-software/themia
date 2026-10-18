@@ -32,18 +32,26 @@ public static class GpuAdapters
 public static class ProcessPaths
 {
     private static Func<uint, string?>? _exePath;
+    private static Func<string, string?>? _displayName;
 
     /// <summary>The full path of the process's executable, or null where Windows will not say.</summary>
     public static string? ExePath(uint pid)
         => (Volatile.Read(ref _exePath) ?? throw new InvalidOperationException("no process paths installed: the host installs them before any widget is drawn"))(pid);
 
-    /// <summary>The host's query. Once per process.</summary>
-    internal static void Install(Func<uint, string?> exePath)
+    /// <summary>[S-458] What an executable calls itself (its version resource's description), or null where it says nothing.</summary>
+    public static string? DisplayName(string path)
+        => (Volatile.Read(ref _displayName) ?? throw new InvalidOperationException("no process paths installed: the host installs them before any widget is drawn"))(path);
+
+    /// <summary>The host's queries. Once per process.</summary>
+    internal static void Install(Func<uint, string?> exePath, Func<string, string?> displayName)
     {
         ArgumentNullException.ThrowIfNull(exePath);
+        ArgumentNullException.ThrowIfNull(displayName);
         if (Interlocked.CompareExchange(ref _exePath, exePath, null) is not null)
         {
             throw new InvalidOperationException("the process paths are installed once per process");
         }
+
+        Volatile.Write(ref _displayName, displayName);
     }
 }

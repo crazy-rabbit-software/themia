@@ -1,5 +1,6 @@
 #if DEBUG
 using Themia.App.Services;
+using Themia.Sdk;
 using Themia.App.Shell.Gallery;
 using Themia.Core.Widgets;
 
@@ -13,7 +14,7 @@ namespace Themia.App.Widgets;
 /// <c>packaged</c> lists the packaged (Store) apps running on this machine by their real executables,
 /// so their icons go through the one icon path ([S-3960]) as a tracked app's do.
 /// </summary>
-internal sealed class SampleScreenTime : IScreenTimeSource
+public sealed class SampleScreenTime : IScreenTimeSource
 {
     public const string HoveredApp = "code";
     public const string SelectedApp = "chrome";
@@ -93,7 +94,7 @@ internal sealed class SampleScreenTime : IScreenTimeSource
         {
             foreach (var process in processes)
             {
-                if (ProcessNames.ExePath((uint)process.Id) is not { } path
+                if (ProcessPaths.ExePath((uint)process.Id) is not { } path
                     || PackagedApps.PackageOf(path) is null
                     || AppNames.ExeStem(path) is not { } stem
                     || !seen.Add(stem))
@@ -101,7 +102,7 @@ internal sealed class SampleScreenTime : IScreenTimeSource
                     continue;
                 }
 
-                found.Add((stem.ToLowerInvariant(), ProcessNames.DisplayName(path) ?? stem, 0, path));
+                found.Add((stem.ToLowerInvariant(), ProcessPaths.DisplayName(path) ?? stem, 0, path));
             }
         }
         finally
@@ -127,47 +128,8 @@ internal sealed class SampleScreenTime : IScreenTimeSource
     }
 }
 
-internal sealed partial class ScreenTimeDonutView : IWidgetPreviewState
-{
-    public IReadOnlyList<string> PreviewStates => SampleScreenTime.States;
-
-    public Task ShowPreviewStateAsync(string state)
-    {
-        UseSource(new SampleScreenTime(state));
-        ScreenTimePreviewStates.Apply(_links, state);
-        Render();
-        return Task.CompletedTask;
-    }
-}
-
-internal sealed partial class ScreenTimeAppsView : IWidgetPreviewState
-{
-    public IReadOnlyList<string> PreviewStates => SampleScreenTime.States;
-
-    public Task ShowPreviewStateAsync(string state)
-    {
-        UseSource(new SampleScreenTime(state));
-        ScreenTimePreviewStates.Apply(_links, state);
-        Render();
-        return Task.CompletedTask;
-    }
-}
-
-internal sealed partial class ScreenTimeChartView : IWidgetPreviewState
-{
-    public IReadOnlyList<string> PreviewStates => SampleScreenTime.States;
-
-    public Task ShowPreviewStateAsync(string state)
-    {
-        UseSource(new SampleScreenTime(state));
-        ScreenTimePreviewStates.Apply(_links, state);
-        Render();
-        return Task.CompletedTask;
-    }
-}
-
 /// <summary>The linked states a render can ask for.</summary>
-internal static class ScreenTimePreviewStates
+public static class ScreenTimePreviewStates
 {
     public static void Apply(ScreenTimeLinks links, string state)
     {

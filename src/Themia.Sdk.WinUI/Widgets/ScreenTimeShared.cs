@@ -17,7 +17,7 @@ namespace Themia.App.Widgets;
 /// [S-3321] Everything one render of a screen-time widget draws from, worked out before anything
 /// is drawn: the period's apps (hidden ones left out, [S-3322]), its days, and the shared limits.
 /// </summary>
-internal sealed record ScreenTimeData(
+public sealed record ScreenTimeData(
     bool Window,
     int Days,
     long Total,
@@ -63,7 +63,7 @@ internal sealed record ScreenTimeData(
 /// kept in step with the other screen-time widgets on the view. Without a board (no view) it is the
 /// same state, unshared. UI thread only, as the board is ([S-3306]).
 /// </summary>
-internal sealed class ScreenTimeLinks
+public sealed class ScreenTimeLinks
 {
     private readonly Action _changed;
     private LinkMember? _member;
@@ -211,7 +211,7 @@ internal sealed class ScreenTimeLinks
 }
 
 /// <summary>The screen-time widgets' shared look: per-app colours, the brushes, durations in tooltips.</summary>
-internal static class ScreenTimeLook
+public static class ScreenTimeLook
 {
     /// <summary>[S-3312] A dimmed part's opacity: present, so the whole still reads, but clearly not the point.</summary>
     public const double DimOpacity = 0.35;
@@ -292,7 +292,7 @@ internal static class ScreenTimeLook
 /// today) for a day period; the window's name for a week or a month. The donut and the app list
 /// each have one; the pinned day is the widget's own.
 /// </summary>
-internal sealed class ScreenTimeDayNav
+public sealed class ScreenTimeDayNav
 {
     /// <summary>Below this width the header has room for the widget's name and nothing else.</summary>
     private const double HidesBelow = 170;
