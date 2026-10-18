@@ -31,7 +31,6 @@
   "widgetsC.pomodoro.skip": "Sonraki aşamaya geç",
   "widgetsC.pomodoro.next": "Sıradaki: {phase} {time}",
   "widgetsC.pomodoro.minutesUnit": " dk",
-  "widgetsC.power.desc.signOut": "Uygulamalarınızı kapatır ve oturumunuzu sonlandırır",
   "widgetsC.power.desc.screenOff": "Ekranları kapatır; herhangi bir giriş onları uyandırır",
   "widgetsC.power.verb.shutdown": "kapat",
   "widgetsC.power.verb.restart": "yeniden başlat",

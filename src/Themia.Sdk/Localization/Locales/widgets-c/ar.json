@@ -31,7 +31,6 @@
   "widgetsC.pomodoro.skip": "التخطي إلى المرحلة التالية",
   "widgetsC.pomodoro.next": "التالي: {phase} {time}",
   "widgetsC.pomodoro.minutesUnit": " د",
-  "widgetsC.power.desc.signOut": "يُغلق تطبيقاتك وينهي جلستك",
   "widgetsC.power.desc.screenOff": "يوقف تشغيل الشاشات؛ أي إدخال يوقظها",
   "widgetsC.power.verb.shutdown": "إيقاف التشغيل",
   "widgetsC.power.verb.restart": "إعادة التشغيل",

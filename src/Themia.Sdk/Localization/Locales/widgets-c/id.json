@@ -31,7 +31,6 @@
   "widgetsC.pomodoro.skip": "Lewati ke fase berikutnya",
   "widgetsC.pomodoro.next": "Berikutnya: {phase} {time}",
   "widgetsC.pomodoro.minutesUnit": " mnt",
-  "widgetsC.power.desc.signOut": "Menutup aplikasi Anda dan mengakhiri sesi",
   "widgetsC.power.desc.screenOff": "Mematikan layar; input apa pun menyalakannya lagi",
   "widgetsC.power.verb.shutdown": "mematikan",
   "widgetsC.power.verb.restart": "memulai ulang",

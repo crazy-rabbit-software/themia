@@ -31,7 +31,6 @@
   "widgetsC.pomodoro.skip": "Przejdź do następnej fazy",
   "widgetsC.pomodoro.next": "Następnie: {phase} {time}",
   "widgetsC.pomodoro.minutesUnit": " min",
-  "widgetsC.power.desc.signOut": "Zamyka aplikacje i kończy sesję",
   "widgetsC.power.desc.screenOff": "Wyłącza ekrany; dowolna czynność je wybudza",
   "widgetsC.power.verb.shutdown": "zamknąć system",
   "widgetsC.power.verb.restart": "uruchomić ponownie",

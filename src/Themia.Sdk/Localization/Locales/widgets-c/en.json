@@ -30,7 +30,6 @@
   "widgetsC.pomodoro.skip": "Skip to the next phase",
   "widgetsC.pomodoro.next": "Next: {phase} {time}",
   "widgetsC.pomodoro.minutesUnit": " min",
-  "widgetsC.power.desc.signOut": "Closes your apps and ends your session",
   "widgetsC.power.desc.screenOff": "Turns the displays off; any input wakes them",
   "widgetsC.power.verb.shutdown": "shut down",
   "widgetsC.power.verb.restart": "restart",

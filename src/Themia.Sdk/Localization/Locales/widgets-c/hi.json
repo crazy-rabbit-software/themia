@@ -31,7 +31,6 @@
   "widgetsC.pomodoro.skip": "अगले चरण पर जाएँ",
   "widgetsC.pomodoro.next": "अगला: {phase} {time}",
   "widgetsC.pomodoro.minutesUnit": " मि",
-  "widgetsC.power.desc.signOut": "आपके ऐप बंद करके सत्र समाप्त करता है",
   "widgetsC.power.desc.screenOff": "डिस्प्ले बंद करता है; कोई भी इनपुट उन्हें जगाता है",
   "widgetsC.power.verb.shutdown": "शट डाउन",
   "widgetsC.power.verb.restart": "पुनः आरंभ",

@@ -31,7 +31,6 @@
   "widgetsC.pomodoro.skip": "తదుపరి దశకు దాటవేయి",
   "widgetsC.pomodoro.next": "తదుపరి: {phase} {time}",
   "widgetsC.pomodoro.minutesUnit": " నిమి",
-  "widgetsC.power.desc.signOut": "మీ యాప్‌లను మూసివేసి మీ సెషన్‌ను ముగిస్తుంది",
   "widgetsC.power.desc.screenOff": "డిస్‌ప్లేలను ఆఫ్ చేస్తుంది; ఏ ఇన్‌పుట్ అయినా వాటిని మేల్కొలుపుతుంది",
   "widgetsC.power.verb.shutdown": "షట్ డౌన్ చేయడానికి",
   "widgetsC.power.verb.restart": "పునఃప్రారంభించడానికి",

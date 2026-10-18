@@ -22,7 +22,7 @@ public class PowerActionTests
     private static readonly DateTimeOffset T0 = new(2026, 10, 4, 12, 0, 0, TimeSpan.Zero);
 
     private static readonly WidgetId[] PowerKinds =
-        [new WidgetId("shutdown"), new WidgetId("restart"), new WidgetId("sleep"), new WidgetId("hibernate"), new WidgetId("lock"), SignOutConfig.Descriptor.Id, ScreenOffConfig.Descriptor.Id];
+        [new WidgetId("shutdown"), new WidgetId("restart"), new WidgetId("sleep"), new WidgetId("hibernate"), new WidgetId("lock"), new WidgetId("signOut"), ScreenOffConfig.Descriptor.Id];
 
     /// <summary>A backend that records what it was asked to run and answers what the test says.</summary>
     private sealed class FakeBackend(bool canHibernate = true) : IPowerBackend

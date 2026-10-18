@@ -31,7 +31,6 @@
   "widgetsC.pomodoro.skip": "Перейти к следующему этапу",
   "widgetsC.pomodoro.next": "Далее: {phase} {time}",
   "widgetsC.pomodoro.minutesUnit": " мин",
-  "widgetsC.power.desc.signOut": "Закрывает ваши приложения и завершает сеанс",
   "widgetsC.power.desc.screenOff": "Выключает дисплеи; любое действие их включает",
   "widgetsC.power.verb.shutdown": "завершить работу",
   "widgetsC.power.verb.restart": "перезагрузить",

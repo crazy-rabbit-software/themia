@@ -31,7 +31,6 @@
   "widgetsC.pomodoro.skip": "Lumaktaw sa susunod na yugto",
   "widgetsC.pomodoro.next": "Susunod: {phase} {time}",
   "widgetsC.pomodoro.minutesUnit": " min",
-  "widgetsC.power.desc.signOut": "Isinasara ang iyong mga app at tinatapos ang iyong session",
   "widgetsC.power.desc.screenOff": "Pinapatay ang mga display; ginigising sila ng anumang input",
   "widgetsC.power.verb.shutdown": "mag-shut down",
   "widgetsC.power.verb.restart": "mag-restart",
