@@ -3086,10 +3086,9 @@ the chart plots and how it is coloured. Layout is Core `MeterFace` (tests `Meter
 ## Power and Bluetooth
 
 Power: one widget per action (R7-POWER), replacing the port of `main`'s Power tile
-(`widgets/system/power`, [S-01]..[S-11]). Bluetooth: port of `main`'s Bluetooth
-(`widgets/system/bluetooth`, [S-01]..[S-16]) plus the round-3 ladder. Core: `PowerActionRules`,
-`PowerButton`, `PowerFace`, `BluetoothRules`, `BluetoothLayout`; App: `PowerButtonView`,
-`Win32PowerActions`; tests `PowerActionTests`, `BluetoothLadderTests`.
+(`widgets/system/power`, [S-01]..[S-11]). Core: `PowerActionRules`, `PowerButton`, `PowerFace`; App:
+`PowerButtonView`, `Win32PowerActions`; tests `PowerActionTests`. Bluetooth is a module of its own
+(`src/Widgets/Themia.Widget.Bluetooth`, its SPEC.md).
 
 - **[S-1910]** Each power action is its own widget kind and picker entry, with its own glyph, name and
   description: **Shut down** (`Shutdown`), **Restart**, **Sleep**, **Hibernate**, **Lock**, **Sign
@@ -3170,44 +3169,7 @@ Power: one widget per action (R7-POWER), replacing the port of `main`'s Power ti
   `Win32PowerActions` (orig. [S-08] demo mode).
 - **[S-1252]** *(Retired: a power widget always has its action, [S-1910].)*
 - **[S-1253]** *(Retired: the debug widget gallery and its fixtures are gone, [S-1863].)*
-- **[S-1254]** Bluetooth ladder (`BluetoothLayout`): the list takes every whole row the tile has
-  (snapped, the rest scrolls); `BluetoothConfig.MaxDevices` (30) is a ceiling, not a target and not a setting ([S-3794]). Battery %
-  from a 180 px column ([S-3253]); status word from a 260 px column; signal from a 400 px column,
-  where a two-line row also keeps battery and signal in columns (`FactColumns`); "2 connected" in the
-  header from Expanded width; two columns at Huge width when one cannot hold the list.
-- **[S-1255]** Regular×Expanded and up: two-line rows — name, then kind · connection · battery ·
-  signal (each only when enabled and reported; a wide row keeps battery and signal in columns).
-- **[S-1256]** `ShowSignal` (default off): RSSI from the association endpoint's
-  `System.Devices.Aep.SignalStrength`, plus a passive 3 s LE advertisement scan per refresh matched by
-  device address. Shown as "-67 dBm"; no reading or an implausible one (≥ 0, < -127) is no column
-  (orig. [S-16]).
-- **[S-1257]** `ShowIcon` and `ShowConnection` (default on) are the original's `type` and
-  `connection` metrics; the name is always shown (orig. [S-14]/[S-15]).
-- **[S-1258]** *(Retired: the debug widget gallery and its fixtures are gone, [S-1863].)*
-- **[S-1259]** Context menu "Refresh" enumerates now (orig. [S-09]).
-- **[S-3252]** `ShowBattery` (default on): each **connected** device's battery, refreshed with the
-  list on its interval. First the level Windows itself holds (`DEVPKEY_Bluetooth_Battery`,
-  `{104EA319-6EE2-4701-BD47-8DDBF425BBE5} 2`, a byte): the paired endpoints are enumerated with
-  `System.Devices.Aep.ContainerId`, and one `DeviceInformation` query over the device nodes of those
-  containers reads the property (the highest valid reading per container; hands-free headsets carry
-  it on a service node). This is what was missing: only a GATT read was tried, which Classic headsets
-  never answer. Then, within the 8 s budget, a GATT Battery Service read for a connected LE device the
-  property left without one. A disconnected device shows none (the property keeps a stale value);
-  255, out-of-range or a non-integer value is no reading. No reading is no column and nothing in the
-  second line, never "–" or 0%. A failed property query is logged and the list still shows.
-- **[S-3253]** The battery % rides on every one-line row from a 180 px column (was 260): the name
-  ellipsises first. Narrower (XS) only the tooltip carries it.
-- **[S-3254]** 20% and below is low: the battery number takes the theme's critical fill
-  (`SystemFillColorCriticalBrush`), as the tray does (`BluetoothRules.IsLowBattery`).
-  Debug renders: `--widget-png Bluetooth <out> --state devices` draws a fixed set of devices.
-- **[S-3961]** No battery bar and no connection dot: the battery is its percentage as text, and the
-  state is the device icon's colour (primary connected, secondary paired), the status word where the
-  row has room and the second line. `ShowConnection` governs the word and the second line's state.
-  No count badge in the header either: the connected count is the "2 connected" words where
-  [S-1254] gives the header room, and nothing on smaller tiles.
-
-Not ported: Bluetooth's 1–30 s refresh choices (kept 5–300 s: enumeration and GATT reads take
-seconds); per-metric `visibleMetrics` ordering (fixed ladder order).
+- [S-1254], [S-1255], [S-1256], [S-1257], [S-1258], [S-1259], [S-3252], [S-3253], [S-3254], [S-3961]: moved with the Bluetooth widget into its module's `SPEC.md` (`src/Widgets/Themia.Widget.Bluetooth/`).
 
 ## Habits
 
@@ -5045,9 +5007,7 @@ Keyboard lease in the remaining lists, Accounts links, and four layout gaps.
   at some sizes says no while it is off screen, so the click does not take the keyboard. The card's
   `TakesKeys` honours it.
 - **[S-1568]** RSS: the Menu key opens the focused item's menu.
-- **[S-1569]** *(Retired: no Bluetooth detail panel. A short list on a large tile stays the list;
-  the rows' second line and tooltip carry each device's facts.)*
-- **[S-1988]** *(Retired with the detail panel: the Bluetooth list takes no lease keys.)*
+- [S-1569], [S-1988]: moved with the Bluetooth widget into its module's `SPEC.md` (`src/Widgets/Themia.Widget.Bluetooth/`).
 - **[S-1571]** *(Retired: no summary line or strip at any size, [S-1427]; the header's "3/5" keeps
   the count.)*
 - **[S-1380]** Config (original S-21..S-23, S-33, S-46..S-48, S-71): `Style` Grid (default) / List /
@@ -7492,8 +7452,7 @@ Strings in `Locales/language-region` and `Locales/widget-prefs`. Tests `WidgetPr
   hub's one cadence ([S-1120], [S-2401], [S-2503]); a stored `intervalSeconds` is ignored. Bluetooth
   enumerates every 30 seconds ([S-3794]). The camera's snapshot interval stays the stream's own
   ([S-470]): it is how a camera is read, not how often a service is asked.
-- **[S-3794]** Bluetooth: no device-count and no refresh setting; the list holds at most 30 devices
-  and fills the tile.
+- [S-3794]: moved with the Bluetooth widget into its module's `SPEC.md` (`src/Widgets/Themia.Widget.Bluetooth/`).
 - **[S-3795]** Long widget pages fold related rows into `FluentLayout.Expander` groups: Stocks' period and
   colours (timeframe, high and low, colours; whether a chart is drawn is the style, [S-6165]); the clock's zone (label, offset);
   Shortcuts' view (tile and row size, icon only, stretch) and the Windows locations; Folder's sort

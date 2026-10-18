@@ -2,7 +2,7 @@ using Themia.Core.Localization;
 using Themia.Core.Widgets;
 using Xunit;
 
-namespace Themia.Core.Tests;
+namespace Themia.Widget.Bluetooth.Tests;
 
 /// <summary>
 /// The rules a Bluetooth list is drawn by. [S-240] [S-241] [S-242] [S-243]

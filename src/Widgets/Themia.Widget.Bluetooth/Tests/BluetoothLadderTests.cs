@@ -2,7 +2,7 @@ using Themia.Core.Localization;
 using Themia.Core.Widgets;
 using Xunit;
 
-namespace Themia.Core.Tests;
+namespace Themia.Widget.Bluetooth.Tests;
 
 /// <summary>
 /// The Bluetooth list's ladder and the signal/address rules behind its new columns. [S-1254..S-1257]

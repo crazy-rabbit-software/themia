@@ -1,4 +1,5 @@
 using Themia.Core.Localization;
+using Themia.Widget.Bluetooth;
 namespace Themia.Core.Widgets;
 
 /// <summary>
@@ -155,14 +156,14 @@ public static class BluetoothRules
     {
         if (string.IsNullOrWhiteSpace(raw))
         {
-            return Strings.Get(locale, Str.WidgetsA_Bluetooth_UnknownDevice);
+            return BluetoothStr.WidgetsA_Bluetooth_UnknownDevice.Text(locale);
         }
 
         var words = raw.Split((char[]?)null, StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
 
         if (words.Length == 0)
         {
-            return Strings.Get(locale, Str.WidgetsA_Bluetooth_UnknownDevice);
+            return BluetoothStr.WidgetsA_Bluetooth_UnknownDevice.Text(locale);
         }
 
         var collapsed = string.Join(' ', words);
@@ -340,17 +341,17 @@ public static class BluetoothRules
     }
 
     /// <summary>[S-1255] What a device is, in words, for a two-line row's second line.</summary>
-    public static string KindLabel(BluetoothDeviceKind kind, Locale locale) => Strings.Get(locale, kind switch
+    public static string KindLabel(BluetoothDeviceKind kind, Locale locale) => (kind switch
     {
-        BluetoothDeviceKind.Audio => Str.WidgetsA_Bluetooth_Kind_Audio,
-        BluetoothDeviceKind.Mouse => Str.WidgetsA_Bluetooth_Kind_Mouse,
-        BluetoothDeviceKind.Keyboard => Str.WidgetsA_Bluetooth_Kind_Keyboard,
-        BluetoothDeviceKind.Phone => Str.WidgetsA_Bluetooth_Kind_Phone,
-        BluetoothDeviceKind.Gamepad => Str.WidgetsA_Bluetooth_Kind_Controller,
-        BluetoothDeviceKind.Pen => Str.WidgetsA_Bluetooth_Kind_Pen,
-        BluetoothDeviceKind.Watch => Str.WidgetsA_Bluetooth_Kind_Watch,
-        _ => Str.WidgetsA_Bluetooth_Kind_Device,
-    });
+        BluetoothDeviceKind.Audio => BluetoothStr.WidgetsA_Bluetooth_Kind_Audio,
+        BluetoothDeviceKind.Mouse => BluetoothStr.WidgetsA_Bluetooth_Kind_Mouse,
+        BluetoothDeviceKind.Keyboard => BluetoothStr.WidgetsA_Bluetooth_Kind_Keyboard,
+        BluetoothDeviceKind.Phone => BluetoothStr.WidgetsA_Bluetooth_Kind_Phone,
+        BluetoothDeviceKind.Gamepad => BluetoothStr.WidgetsA_Bluetooth_Kind_Controller,
+        BluetoothDeviceKind.Pen => BluetoothStr.WidgetsA_Bluetooth_Kind_Pen,
+        BluetoothDeviceKind.Watch => BluetoothStr.WidgetsA_Bluetooth_Kind_Watch,
+        _ => BluetoothStr.WidgetsA_Bluetooth_Kind_Device,
+    }).Text(locale);
 
     /// <summary>
     /// [S-1255] A two-line row's second line: what the device is, then each enabled fact the device
@@ -380,22 +381,22 @@ public static class BluetoothRules
 
     /// <summary>[S-1255] The header's summary at large sizes: "2 connected", or null when none is.</summary>
     public static string? ConnectedSummary(int connected, Locale locale)
-        => connected > 0 ? Strings.Plural(locale, Str.WidgetsA_Bluetooth_ConnectedCount, connected) : null;
+        => connected > 0 ? BluetoothStr.WidgetsA_Bluetooth_ConnectedCount.Plural(locale, connected) : null;
 
     /// <summary>The connection state, in words. Carried by text as well as by the dot beside it.</summary>
     public static string ConnectionLabel(bool connected, Locale locale)
-        => Strings.Get(locale, connected ? Str.WidgetsA_Bluetooth_Connected : Str.WidgetsA_Bluetooth_Paired);
+        => (connected ? BluetoothStr.WidgetsA_Bluetooth_Connected : BluetoothStr.WidgetsA_Bluetooth_Paired).Text(locale);
 
     /// <summary>The sentence a tile with no rows shows. Every state names itself.</summary>
-    public static string StatusMessage(BluetoothStatus status, Locale locale) => Strings.Get(locale, status switch
+    public static string StatusMessage(BluetoothStatus status, Locale locale) => (status switch
     {
-        BluetoothStatus.Loading => Str.WidgetsA_Bluetooth_Status_Loading,
-        BluetoothStatus.NoRadio => Str.WidgetsA_Bluetooth_Status_NoRadio,
-        BluetoothStatus.RadioOff => Str.WidgetsA_Bluetooth_Status_RadioOff,
-        BluetoothStatus.PermissionDenied => Str.WidgetsA_Bluetooth_Status_PermissionDenied,
-        BluetoothStatus.Failed => Str.WidgetsA_Bluetooth_Status_Failed,
-        _ => Str.WidgetsA_Bluetooth_Status_None,
-    });
+        BluetoothStatus.Loading => BluetoothStr.WidgetsA_Bluetooth_Status_Loading,
+        BluetoothStatus.NoRadio => BluetoothStr.WidgetsA_Bluetooth_Status_NoRadio,
+        BluetoothStatus.RadioOff => BluetoothStr.WidgetsA_Bluetooth_Status_RadioOff,
+        BluetoothStatus.PermissionDenied => BluetoothStr.WidgetsA_Bluetooth_Status_PermissionDenied,
+        BluetoothStatus.Failed => BluetoothStr.WidgetsA_Bluetooth_Status_Failed,
+        _ => BluetoothStr.WidgetsA_Bluetooth_Status_None,
+    }).Text(locale);
 
     /// <summary>
     /// Merge, filter and order what the two enumerations returned.

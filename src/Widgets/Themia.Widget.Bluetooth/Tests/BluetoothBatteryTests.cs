@@ -1,7 +1,7 @@
 using Themia.Core.Widgets;
 using Xunit;
 
-namespace Themia.Core.Tests;
+namespace Themia.Widget.Bluetooth.Tests;
 
 /// <summary>
 /// [S-3252]..[S-3254] Where a paired device's battery comes from (the Windows device property, by
