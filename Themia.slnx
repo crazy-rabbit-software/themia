@@ -50,6 +50,7 @@
     <Project Path="src/Widgets/Themia.Widget.Stocks/Themia.Widget.Stocks.csproj" />
     <Project Path="src/Widgets/Themia.Widget.Stopwatch/Themia.Widget.Stopwatch.csproj" />
     <Project Path="src/Widgets/Themia.Widget.Sun/Themia.Widget.Sun.csproj" />
+    <Project Path="src/Widgets/Themia.Widget.TopProcesses/Themia.Widget.TopProcesses.csproj" />
     <Project Path="src/Widgets/Themia.Widget.WeatherForecast/Themia.Widget.WeatherForecast.csproj" />
     <Project Path="src/Widgets/Themia.Widget.WeatherNow/Themia.Widget.WeatherNow.csproj" />
     <Project Path="src/Widgets/Themia.Widget.WifiToggle/Themia.Widget.WifiToggle.csproj" />

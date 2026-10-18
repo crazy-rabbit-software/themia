@@ -417,7 +417,7 @@ internal static class SwitchCheck
         [
             (VideoStreamConfig.Descriptor.Id, new FracRect(0.02, 0.04, 0.40, 0.40)),
             (AudioVisualizerConfig.Descriptor.Id, new FracRect(0.44, 0.04, 0.30, 0.20)),
-            (TopProcessesConfig.Descriptor.Id, new FracRect(0.76, 0.04, 0.22, 0.60)),
+            (new WidgetId("topProcesses"), new FracRect(0.76, 0.04, 0.22, 0.60)),
             (new WidgetId("cpu"), new FracRect(0.44, 0.26, 0.14, 0.18)),
             (new WidgetId("memory"), new FracRect(0.60, 0.26, 0.14, 0.18)),
             (new WidgetId("network"), new FracRect(0.02, 0.48, 0.20, 0.18)),

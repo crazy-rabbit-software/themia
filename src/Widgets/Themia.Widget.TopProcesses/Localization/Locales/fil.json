@@ -1,0 +1,13 @@
+{
+  "details.catalog.processes.desc": "Ang mga pinakaabalang app, ayon sa processor o memory",
+  "details.processes.unavailable": "Ayaw ilista ng Windows ang mga proseso",
+  "details.catalog.processes.label": "Mga nangungunang proseso",
+  "details.settings.processes.group.desc": "Iisang row ang lahat ng proseso ng isang program",
+  "details.settings.processes.group.label": "Ipangkat ayon sa app",
+  "details.settings.processes.rows.desc": "Hanggang ganito karaming proseso; maaaring mas kaunti ang ipakita ng tile",
+  "details.settings.processes.rows.fit": "Hangga't kasya",
+  "details.settings.processes.rows.label": "Mga row",
+  "details.settings.processes.sort.cpu": "Processor",
+  "details.settings.processes.sort.label": "I-ranggo ayon sa",
+  "details.settings.processes.sort.memory": "Memory"
+}

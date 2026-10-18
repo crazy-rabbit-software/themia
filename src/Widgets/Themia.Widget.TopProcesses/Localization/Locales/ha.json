@@ -1,0 +1,13 @@
+{
+  "details.catalog.processes.desc": "Manhajojin da suka fi aiki, ta na'ura mai sarrafawa ko ƙwaƙwalwa",
+  "details.processes.unavailable": "Windows ba ta lissafa tsare-tsaren ba",
+  "details.catalog.processes.label": "Manyan tsare-tsare",
+  "details.settings.processes.group.desc": "Kowane tsari na shiri ɗaya layi ɗaya ne",
+  "details.settings.processes.group.label": "Tara ta manhaja",
+  "details.settings.processes.rows.desc": "Mafi yawa wannan adadin tsare-tsare; tayil na iya nuna ƙasa da haka",
+  "details.settings.processes.rows.fit": "Gwargwadon yadda suka dace",
+  "details.settings.processes.rows.label": "Layuka",
+  "details.settings.processes.sort.cpu": "Na'ura mai sarrafawa",
+  "details.settings.processes.sort.label": "Jera ta",
+  "details.settings.processes.sort.memory": "Ƙwaƙwalwa"
+}

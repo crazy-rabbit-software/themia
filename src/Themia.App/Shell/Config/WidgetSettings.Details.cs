@@ -20,9 +20,6 @@ internal static partial class WidgetSettings
 
         switch (config)
         {
-            case TopProcessesConfig processes:
-                ProcessRows(rows, processes, save);
-                break;
             case NetworkDetailsConfig network:
                 rows.Add(FluentLayout.Header(Str.Details_Catalog_Network_Label.Text()));
                 rows.Add(FluentLayout.Row(Glyphs.Globe, Str.Details_Settings_Network_Public_Label.Text(), Str.Details_Settings_Network_Public_Desc.Format(("minutes", (long)NetworkDetailRules.PublicAddressLifetime.TotalMinutes)),
@@ -38,30 +35,6 @@ internal static partial class WidgetSettings
             default:
                 break;
         }
-    }
-
-    /// <summary>[S-2411]..[S-2413] Rank by, how many rows, and whether a program's processes are one row.</summary>
-    private static void ProcessRows(List<FrameworkElement> rows, TopProcessesConfig config, Action save)
-    {
-        rows.Add(FluentLayout.Header(Str.Details_Catalog_Processes_Label.Text()));
-
-        rows.Add(FluentLayout.Row(Glyphs.Sort, Str.Details_Settings_Processes_Sort_Label.Text(), null,
-            FluentLayout.Choice(
-                [(ProcessSort.Cpu, Str.Details_Settings_Processes_Sort_Cpu.Text()), (ProcessSort.Memory, Str.Details_Settings_Processes_Sort_Memory.Text())],
-                config.SortBy,
-                value => { config.SortBy = value; save(); }),
-            "sort", "order"));
-
-        (int Value, string Label)[] counts = [(0, Str.Details_Settings_Processes_Rows_Fit.Text()), (3, "3"), (5, "5"), (10, "10"), (20, "20"), (TopProcessesConfig.MaxRowsLimit, "50")];
-        var current = counts.Any(c => c.Value == config.MaxRows) ? config.MaxRows : 0;
-
-        rows.Add(FluentLayout.Row(Glyphs.ListLayout, Str.Details_Settings_Processes_Rows_Label.Text(), Str.Details_Settings_Processes_Rows_Desc.Text(),
-            FluentLayout.Choice(counts, current, value => { config.MaxRows = value; save(); }),
-            "count", "rows"));
-
-        rows.Add(FluentLayout.Row(Glyphs.BulletList, Str.Details_Settings_Processes_Group_Label.Text(), Str.Details_Settings_Processes_Group_Desc.Text(),
-            FluentLayout.Toggle(config.GroupByName, on => { config.GroupByName = on; save(); }),
-            "group"));
     }
 
     /// <summary>[S-2426] [S-2427] The host, as the ping meter's page has it, then the window.</summary>

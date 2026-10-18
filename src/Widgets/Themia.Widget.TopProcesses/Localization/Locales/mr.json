@@ -1,0 +1,13 @@
+{
+  "details.catalog.processes.desc": "प्रोसेसर किंवा मेमरीनुसार सर्वात व्यस्त अ‍ॅप्स",
+  "details.processes.unavailable": "Windows ने प्रक्रियांची सूची दिली नाही",
+  "details.catalog.processes.label": "प्रमुख प्रक्रिया",
+  "details.settings.processes.group.desc": "एका प्रोग्रामच्या सर्व प्रक्रिया एका ओळीत",
+  "details.settings.processes.group.label": "अ‍ॅपनुसार गट करा",
+  "details.settings.processes.rows.desc": "जास्तीत जास्त इतक्या प्रक्रिया; टाइल कमी दाखवू शकते",
+  "details.settings.processes.rows.fit": "जितक्या बसतील तितक्या",
+  "details.settings.processes.rows.label": "ओळी",
+  "details.settings.processes.sort.cpu": "प्रोसेसर",
+  "details.settings.processes.sort.label": "यानुसार क्रम",
+  "details.settings.processes.sort.memory": "मेमरी"
+}

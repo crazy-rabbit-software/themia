@@ -1,0 +1,13 @@
+{
+  "details.catalog.processes.desc": "Os apps mais ativos, por processador ou memória",
+  "details.processes.unavailable": "O Windows não listou os processos",
+  "details.catalog.processes.label": "Principais processos",
+  "details.settings.processes.group.desc": "Todos os processos de um programa em uma linha",
+  "details.settings.processes.group.label": "Agrupar por app",
+  "details.settings.processes.rows.desc": "No máximo este número de processos; o mosaico pode mostrar menos",
+  "details.settings.processes.rows.fit": "Quantos couberem",
+  "details.settings.processes.rows.label": "Linhas",
+  "details.settings.processes.sort.cpu": "Processador",
+  "details.settings.processes.sort.label": "Classificar por",
+  "details.settings.processes.sort.memory": "Memória"
+}

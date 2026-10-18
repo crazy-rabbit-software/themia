@@ -4,6 +4,7 @@ using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
 using Themia.Sdk;
+using Themia.Widget.TopProcesses;
 
 namespace Themia.App.Widgets.Details;
 
@@ -12,7 +13,7 @@ namespace Themia.App.Widgets.Details;
 /// program, grouped). The list scrolls, fades at its foot and is walked with the keys ([S-2404]). The
 /// snapshot is the hub's, one per due tick for every list ([S-2501]). [S-2433] Each row leads with its
 /// program's icon, as Task Manager's does: the executable's path is asked once per process (shared by
-/// every list) and the icon once per path and size (<see cref="AppIcons"/>).
+/// every list) and the icon once per path and size (<see cref="Themia.Sdk.WinUI.AppIconSource"/>).
 /// </summary>
 internal sealed class ProcessesPart : DetailPart
 {
@@ -29,7 +30,7 @@ internal sealed class ProcessesPart : DetailPart
     private TopProcessesConfig _config = new();
     private IDetailHost? _host;
 
-    public override WidgetId Kind => TopProcessesConfig.Descriptor.Id;
+    public override WidgetId Kind => new WidgetId("topProcesses");
 
     public override bool HasHero => false;
 
@@ -54,7 +55,7 @@ internal sealed class ProcessesPart : DetailPart
 
         if (_processes.Value is not { } samples)
         {
-            host.Present(new DetailSheet(null, null, [], [], Note: Str.Details_Processes_Unavailable.Text()));
+            host.Present(new DetailSheet(null, null, [], [], Note: TopProcessesStr.Details_Processes_Unavailable.Text()));
             return;
         }
 

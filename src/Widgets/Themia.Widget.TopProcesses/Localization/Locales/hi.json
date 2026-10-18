@@ -1,0 +1,13 @@
+{
+  "details.catalog.processes.desc": "सबसे व्यस्त ऐप, प्रोसेसर या मेमोरी के अनुसार",
+  "details.processes.unavailable": "Windows ने प्रोसेस की सूची नहीं दी",
+  "details.catalog.processes.label": "शीर्ष प्रोसेस",
+  "details.settings.processes.group.desc": "एक प्रोग्राम के सभी प्रोसेस एक पंक्ति में",
+  "details.settings.processes.group.label": "ऐप के अनुसार समूह",
+  "details.settings.processes.rows.desc": "अधिकतम इतने प्रोसेस; टाइल कम भी दिखा सकती है",
+  "details.settings.processes.rows.fit": "जितने समा सकें",
+  "details.settings.processes.rows.label": "पंक्तियाँ",
+  "details.settings.processes.sort.cpu": "प्रोसेसर",
+  "details.settings.processes.sort.label": "क्रम का आधार",
+  "details.settings.processes.sort.memory": "मेमोरी"
+}

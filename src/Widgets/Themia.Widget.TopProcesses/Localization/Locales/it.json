@@ -1,0 +1,13 @@
+{
+  "details.catalog.processes.desc": "Le app più attive, per processore o memoria",
+  "details.processes.unavailable": "Windows non ha elencato i processi",
+  "details.catalog.processes.label": "Processi principali",
+  "details.settings.processes.group.desc": "Tutti i processi di un programma in una riga",
+  "details.settings.processes.group.label": "Raggruppa per app",
+  "details.settings.processes.rows.desc": "Al massimo questo numero di processi; il riquadro può mostrarne meno",
+  "details.settings.processes.rows.fit": "Quanti ne entrano",
+  "details.settings.processes.rows.label": "Righe",
+  "details.settings.processes.sort.cpu": "Processore",
+  "details.settings.processes.sort.label": "Ordina per",
+  "details.settings.processes.sort.memory": "Memoria"
+}

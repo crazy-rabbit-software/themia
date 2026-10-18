@@ -1,0 +1,13 @@
+{
+  "details.catalog.processes.desc": "İşlemciye veya belleğe göre en meşgul uygulamalar",
+  "details.processes.unavailable": "Windows işlemleri listelemedi",
+  "details.catalog.processes.label": "En yoğun işlemler",
+  "details.settings.processes.group.desc": "Bir programın tüm işlemleri tek satırdır",
+  "details.settings.processes.group.label": "Uygulamaya göre grupla",
+  "details.settings.processes.rows.desc": "En fazla bu kadar işlem; kutucuk daha azını gösterebilir",
+  "details.settings.processes.rows.fit": "Sığdığı kadar",
+  "details.settings.processes.rows.label": "Satırlar",
+  "details.settings.processes.sort.cpu": "İşlemci",
+  "details.settings.processes.sort.label": "Sıralama ölçütü",
+  "details.settings.processes.sort.memory": "Bellek"
+}

@@ -1,0 +1,13 @@
+{
+  "details.catalog.processes.desc": "Aplikasi tersibuk, menurut prosesor atau memori",
+  "details.processes.unavailable": "Windows tidak mau menampilkan daftar proses",
+  "details.catalog.processes.label": "Proses teratas",
+  "details.settings.processes.group.desc": "Semua proses dari satu program menjadi satu baris",
+  "details.settings.processes.group.label": "Kelompokkan per aplikasi",
+  "details.settings.processes.rows.desc": "Paling banyak sejumlah proses ini; widget bisa menampilkan lebih sedikit",
+  "details.settings.processes.rows.fit": "Sebanyak yang muat",
+  "details.settings.processes.rows.label": "Baris",
+  "details.settings.processes.sort.cpu": "Prosesor",
+  "details.settings.processes.sort.label": "Urutkan menurut",
+  "details.settings.processes.sort.memory": "Memori"
+}

@@ -1,0 +1,13 @@
+{
+  "details.catalog.processes.desc": "ਸਭ ਤੋਂ ਰੁੱਝੀਆਂ ਐਪਾਂ, ਪ੍ਰੋਸੈਸਰ ਜਾਂ ਮੈਮੋਰੀ ਅਨੁਸਾਰ",
+  "details.processes.unavailable": "Windows ਨੇ ਪ੍ਰਕਿਰਿਆਵਾਂ ਦੀ ਸੂਚੀ ਨਹੀਂ ਦਿੱਤੀ",
+  "details.catalog.processes.label": "ਮੁੱਖ ਪ੍ਰਕਿਰਿਆਵਾਂ",
+  "details.settings.processes.group.desc": "ਇੱਕ ਪ੍ਰੋਗਰਾਮ ਦੀ ਹਰ ਪ੍ਰਕਿਰਿਆ ਇੱਕ ਕਤਾਰ ਹੈ",
+  "details.settings.processes.group.label": "ਐਪ ਅਨੁਸਾਰ ਸਮੂਹ",
+  "details.settings.processes.rows.desc": "ਵੱਧ ਤੋਂ ਵੱਧ ਇੰਨੀਆਂ ਪ੍ਰਕਿਰਿਆਵਾਂ; ਟਾਈਲ ਘੱਟ ਦਿਖਾ ਸਕਦੀ ਹੈ",
+  "details.settings.processes.rows.fit": "ਜਿੰਨੀਆਂ ਸਮਾ ਸਕਣ",
+  "details.settings.processes.rows.label": "ਕਤਾਰਾਂ",
+  "details.settings.processes.sort.cpu": "ਪ੍ਰੋਸੈਸਰ",
+  "details.settings.processes.sort.label": "ਇਸ ਅਨੁਸਾਰ ਦਰਜਾ",
+  "details.settings.processes.sort.memory": "ਮੈਮੋਰੀ"
+}

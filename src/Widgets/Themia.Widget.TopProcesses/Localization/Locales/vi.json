@@ -1,0 +1,13 @@
+{
+  "details.catalog.processes.desc": "Ứng dụng bận nhất, theo bộ xử lý hoặc bộ nhớ",
+  "details.processes.unavailable": "Windows không liệt kê được các tiến trình",
+  "details.catalog.processes.label": "Tiến trình hàng đầu",
+  "details.settings.processes.group.desc": "Mọi tiến trình của một chương trình gộp thành một hàng",
+  "details.settings.processes.group.label": "Nhóm theo ứng dụng",
+  "details.settings.processes.rows.desc": "Tối đa chừng này tiến trình; ô có thể hiện ít hơn",
+  "details.settings.processes.rows.fit": "Nhiều nhất có thể",
+  "details.settings.processes.rows.label": "Số hàng",
+  "details.settings.processes.sort.cpu": "Bộ xử lý",
+  "details.settings.processes.sort.label": "Xếp hạng theo",
+  "details.settings.processes.sort.memory": "Bộ nhớ"
+}
