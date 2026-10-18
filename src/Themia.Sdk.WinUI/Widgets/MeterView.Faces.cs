@@ -8,7 +8,7 @@ namespace Themia.App.Widgets;
 /// network's numbers, the battery's shape and ring, the ping's signal bars). Built and dropped with
 /// the look like every other look's part (<c>UseLook</c>); the readout and the history stand aside.
 /// </summary>
-internal sealed partial class MeterView
+public sealed partial class MeterView
 {
     // The look's own face; null for every look that keeps the readout.
     private MeterStyleFace? _face;

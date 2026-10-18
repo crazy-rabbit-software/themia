@@ -8,7 +8,7 @@ using Themia.Sdk;
 namespace Themia.App.Widgets.Meters;
 
 /// <summary>What a meter part may ask of the shared <see cref="MeterView"/>.</summary>
-internal interface IMeterHost
+public interface IMeterHost
 {
     /// <summary>[S-1167] Offer the card a title the kind knows (a drive's name, a host's label); null for the catalogue's.</summary>
     void SetTitle(string? title);
@@ -22,7 +22,7 @@ internal interface IMeterHost
 /// the reading, or the kind's items (cores, a used/free bar) as bars or tiles. The shared
 /// <see cref="MeterView"/> lays each on the same ladder; a kind only says which (<see cref="MeterPart.Look"/>).
 /// </summary>
-internal enum MeterLook
+public enum MeterLook
 {
     /// <summary>[S-1762] The reading over its history.</summary>
     Graph = 0,
@@ -56,10 +56,10 @@ internal enum MeterLook
 }
 
 /// <summary>[S-6300] One item a bar or tile look draws: its share (null: no reading), its colour, and a row's words.</summary>
-internal readonly record struct MeterItem(double? Fraction, MeterPressure Pressure, string? Label = null, string? Value = null);
+public readonly record struct MeterItem(double? Fraction, MeterPressure Pressure, string? Label = null, string? Value = null);
 
 /// <summary>[S-6300] A kind's items as the hub reads them: the latest, and every read after through the callback.</summary>
-internal sealed class MeterItemsWatch : IDisposable
+public sealed class MeterItemsWatch : IDisposable
 {
     private readonly IDisposable _watch;
     private readonly Func<IReadOnlyList<MeterItem>?> _current;
@@ -113,7 +113,7 @@ internal sealed class MeterItemsWatch : IDisposable
 /// (<see cref="Series"/>), which every meter of the same series shares.
 /// </para>
 /// </summary>
-internal abstract class MeterPart
+public abstract class MeterPart
 {
     protected const string Scope = "meter";
 

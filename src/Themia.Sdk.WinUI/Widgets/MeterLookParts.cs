@@ -29,7 +29,7 @@ namespace Themia.App.Widgets;
 // clockwise and the first core is on the left in every language).
 
 /// <summary>[S-6303] [S-6304] How a <see cref="BarList"/> draws its items.</summary>
-internal enum BarListShape
+public enum BarListShape
 {
     /// <summary>[S-6303] Unlabelled vertical bars side by side, filling from the bottom (a CPU's cores).</summary>
     Columns = 0,
@@ -42,7 +42,7 @@ internal enum BarListShape
 /// [S-6303] [S-6304] Bars, one per item, each a track with the item's share filled in its own brush.
 /// Items are kept and rewritten in place, so a tick restyles bars rather than rebuilding them.
 /// </summary>
-internal sealed partial class BarList : Grid
+public sealed partial class BarList : Grid
 {
     private readonly BarListShape _shape;
     private readonly StackPanel _stack;
@@ -236,7 +236,7 @@ internal sealed partial class BarList : Grid
 /// [S-6305] A tile per item (a core), filling the box in <see cref="BarLayout.Tiles"/>' grid, each
 /// shaded by its load (<see cref="LoadTint"/>): the pressure colour at an opacity that rises with it.
 /// </summary>
-internal sealed partial class TileGrid : Grid
+public sealed partial class TileGrid : Grid
 {
     private readonly List<Border> _tiles = [];
     private readonly List<Shade> _shades = [];

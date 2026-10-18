@@ -5,15 +5,19 @@ using Themia.Core.Widgets;
 
 namespace Themia.App.Shell.Config;
 
-/// <summary>The rows every meter shares.</summary>
-internal static partial class WidgetSettings
+/// <summary>The rows every meter's settings page shares.</summary>
+public static class MeterSettingsRows
 {
     /// <summary>
     /// [S-1122] What every meter's page ends with: whether it draws its history and how much of it.
     /// How often it samples is the kind's own ([S-3793]). A kind's own rows go above these.
     /// </summary>
-    private static void MeterRows(List<FrameworkElement> rows, GaugeConfig gauge, Action save)
+    public static void Rows(List<FrameworkElement> rows, GaugeConfig gauge, Action save)
     {
+        ArgumentNullException.ThrowIfNull(rows);
+        ArgumentNullException.ThrowIfNull(gauge);
+        ArgumentNullException.ThrowIfNull(save);
+
         // [S-6000] A styled meter's history is its graph style, chosen in the Style row: no switch
         // beside it; [S-6074] and no span in a look that draws no history, nor a section heading
         // over nothing.

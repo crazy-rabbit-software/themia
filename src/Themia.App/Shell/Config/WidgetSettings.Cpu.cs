@@ -13,6 +13,6 @@ internal static partial class WidgetSettings
         ArgumentNullException.ThrowIfNull(cpu);
         ArgumentNullException.ThrowIfNull(save);
 
-        MeterRows(rows, cpu, save);
+        MeterSettingsRows.Rows(rows, cpu, save);
     }
 }

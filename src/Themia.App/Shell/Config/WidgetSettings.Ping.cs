@@ -18,7 +18,7 @@ internal static partial class WidgetSettings
 
         AddHostRow(rows, () => config.Host, value => config.Host = value, save);
 
-        MeterRows(rows, config, save);
+        MeterSettingsRows.Rows(rows, config, save);
     }
 
     /// <summary>

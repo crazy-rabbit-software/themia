@@ -12,7 +12,7 @@ namespace Themia.App.Widgets;
 /// on the same ladder in every look; only the part beside it changes, and what one look builds or
 /// watches is released when another is chosen ([S-6005]).
 /// </summary>
-internal sealed partial class MeterView
+public sealed partial class MeterView
 {
     /// <summary>The air under a gauge or a bar part, above the card's bottom edge.</summary>
     private const double BodyBottom = Fluent.Space3;

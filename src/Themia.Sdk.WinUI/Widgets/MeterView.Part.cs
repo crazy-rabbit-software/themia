@@ -9,7 +9,7 @@ namespace Themia.App.Widgets;
 /// element at the right of the header (a status dot). The view only passes them through; each kind
 /// decides in its own <see cref="MeterPart"/>.
 /// </summary>
-internal sealed partial class MeterView : IWidgetContextActions, IWidgetHeaderContent
+public sealed partial class MeterView : IWidgetContextActions, IWidgetHeaderContent
 {
     private IWidgetSurface? _surface;
     private string? _title;

@@ -13,7 +13,7 @@ namespace Themia.App.Widgets;
 /// renders the same picture on every machine. With <c>--tween p</c> the sample is drawn that far
 /// from a lower reading and shifted items ([S-6328]): every glide between two values, still.
 /// </summary>
-internal sealed partial class MeterView : IWidgetPreviewState
+public sealed partial class MeterView : IWidgetPreviewState
 {
     public IReadOnlyList<string> PreviewStates { get; } = ["history", "sample"];
 

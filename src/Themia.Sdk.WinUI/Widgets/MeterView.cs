@@ -33,7 +33,7 @@ namespace Themia.App.Widgets;
 /// it; the card's rounded corners clip it. Only the reading carries the content inset.
 /// </para>
 /// </summary>
-internal sealed partial class MeterView : Grid, IWidgetView, IWidgetSizeAware, IWidgetSurfaceAware, IMeterHost
+public sealed partial class MeterView : Grid, IWidgetView, IWidgetSizeAware, IWidgetSurfaceAware, IMeterHost
 {
     private const string Scope = "meter";
 

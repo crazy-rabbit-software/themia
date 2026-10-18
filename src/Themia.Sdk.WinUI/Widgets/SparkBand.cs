@@ -39,7 +39,7 @@ namespace Themia.App.Widgets;
 /// bounds, so the slot sliding out at the left and the newest point beyond the right never show.
 /// </para>
 /// </summary>
-internal sealed partial class SparkBand : Grid
+public sealed partial class SparkBand : Grid
 {
     private readonly Polygon _fill = new();
     private readonly Polyline _line = new();

@@ -17,7 +17,7 @@ namespace Themia.App.Widgets;
 /// (<see cref="CoreGraphLayout.Tile"/>) gliding as the reading does ([S-6325]). Tiles are kept and
 /// rewritten in place; the history comes from the hub ([S-6318]), so a grid built again draws it at once.
 /// </summary>
-internal sealed partial class CoreGraphGrid : Grid
+public sealed partial class CoreGraphGrid : Grid
 {
     /// <summary>The tile's own wash: the columns' track, so the lines lead.</summary>
     private const double TrackOpacity = 0.3;

@@ -19,7 +19,7 @@ internal static partial class WidgetSettings
         AdapterRow(rows, config.Adapter, value => config.Adapter = value, save);
 
         // [S-1200] The history toggle, its span and the refresh: the rows every meter ends with.
-        MeterRows(rows, config, save);
+        MeterSettingsRows.Rows(rows, config, save);
     }
 
     /// <summary>
