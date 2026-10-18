@@ -13,7 +13,7 @@ namespace Themia.App.Widgets;
 /// <summary>
 /// [S-4860] How full the Recycle Bin is: its size, its item count and an Empty button that hands the
 /// emptying to Windows, confirmation and all. A click elsewhere on the tile opens the bin. The
-/// answer is the shared <see cref="RecycleBinStatus"/> the Shortcuts badge reads, on its cadence:
+/// answer is the host's one answer (<see cref="IWidgetHost.RecycleBin"/>) the Shortcuts badge reads, on its cadence:
 /// one query for every widget showing the bin.
 /// </summary>
 internal sealed partial class RecycleBinView : Grid, IWidgetView, IWidgetSizeAware, IWidgetSurfaceAware, IWidgetContextActions
@@ -32,14 +32,15 @@ internal sealed partial class RecycleBinView : Grid, IWidgetView, IWidgetSizeAwa
     private bool _detached;
 
     /// <summary>The answer drawn: the shared one, which a preview replaces.</summary>
-    private Func<RecycleBinState?> _state = static () => RecycleBinStatus.Current;
+    private Func<RecycleBinState?> _state;
 
-    /// <summary>[S-6913] What the view asks of the host: the launcher, the Accounts page.</summary>
+    /// <summary>[S-6913] What the view asks of the host: the launcher, the Recycle Bin.</summary>
     private readonly IWidgetHost _widgetHost;
 
     public RecycleBinView(IWidgetHost host)
     {
         _widgetHost = host;
+        _state = () => host.RecycleBin.Current;
         _size.TextTrimming = TextTrimming.CharacterEllipsis;
         _count.TextTrimming = TextTrimming.CharacterEllipsis;
         Microsoft.UI.Xaml.Documents.Typography.SetNumeralAlignment(_size, FontNumeralAlignment.Tabular);
@@ -71,8 +72,8 @@ internal sealed partial class RecycleBinView : Grid, IWidgetView, IWidgetSizeAwa
     {
         _detached = false;
         Strings.Changed += OnLanguage;
-        RecycleBinStatus.Changed += Render;
-        _binWatch ??= RecycleBinStatus.Watch();
+        _widgetHost.RecycleBin.Changed += Render;
+        _binWatch ??= _widgetHost.RecycleBin.Watch();
         Render();
     }
 
@@ -101,7 +102,7 @@ internal sealed partial class RecycleBinView : Grid, IWidgetView, IWidgetSizeAwa
 
         _detached = true;
         Strings.Changed -= OnLanguage;
-        RecycleBinStatus.Changed -= Render;
+        _widgetHost.RecycleBin.Changed -= Render;
         _binWatch?.Dispose();
         _binWatch = null;
         _empty.Click -= OnEmptyClicked;
@@ -168,7 +169,7 @@ internal sealed partial class RecycleBinView : Grid, IWidgetView, IWidgetSizeAwa
         _buttonLabel.Text = Str.RecycleBin_Empty.Text();
 
         // Empty is offered only when there is something to empty, and not twice at once (process-wide).
-        _empty.IsEnabled = RecycleBinState.CanEmpty(state, RecycleBinStatus.Emptying);
+        _empty.IsEnabled = RecycleBinState.CanEmpty(state, _widgetHost.RecycleBin.Emptying);
         ToolTipService.SetToolTip(this, ShortcutRules.BinTooltip(locale, Str.WidgetsC_Location_RecycleBin.Text(), state));
     }
 
@@ -176,7 +177,7 @@ internal sealed partial class RecycleBinView : Grid, IWidgetView, IWidgetSizeAwa
 
     /// <summary>[S-4863] Windows asks; the widget never empties on its own say. The shared status guards and redraws.</summary>
     private Task EmptyAsync()
-        => _detached || _surface?.IsPreview == true ? Task.CompletedTask : RecycleBinStatus.EmptyAsync();
+        => _detached || _surface?.IsPreview == true ? Task.CompletedTask : _widgetHost.RecycleBin.EmptyAsync();
 
     private void OnTapped(object sender, TappedRoutedEventArgs args)
     {

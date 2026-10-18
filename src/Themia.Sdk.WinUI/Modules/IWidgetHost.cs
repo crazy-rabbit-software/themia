@@ -32,4 +32,7 @@ public interface IWidgetHost
 
     /// <summary>Open Settings › Accounts, for a widget whose empty state is "sign in". False where there is none to open (a debug render).</summary>
     bool ShowAccounts();
+
+    /// <summary>[S-4863] The Recycle Bin: the one answer how full it is, and Windows' own empty.</summary>
+    IRecycleBin RecycleBin { get; }
 }

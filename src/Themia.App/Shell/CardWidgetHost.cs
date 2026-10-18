@@ -19,6 +19,8 @@ internal sealed class CardWidgetHost(IWidgetCardHost card) : IWidgetHost
 
     public bool IsPreview => card.IsPreview;
 
+    public IRecycleBin RecycleBin => HostRecycleBin.Instance;
+
     public bool ShowAccounts()
     {
         if (AppServices.ShowAccounts is not { } show)

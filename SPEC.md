@@ -930,8 +930,9 @@ Module sections live in `src/Widgets/*/SPEC.md` and `src/Providers/*/SPEC.md` ([
   module's `CreateView` is handed, never through the host's statics: the shared ticker and the UI
   thread's dispatcher, the one launcher (`IShellLauncher`: every target classified on the literal
   string, each link kind on its own allow list, never a command line), whether its card is a
-  preview ([S-1251]), and Settings › Accounts (false where there is none, a debug render). The host
-  makes one per card, every member shared by all of them. What a widget shares with the settings
+  preview ([S-1251]), Settings › Accounts (false where there is none, a debug render), and the
+  host's services a widget reads: the Recycle Bin (`IRecycleBin`: the one answer how full it is and
+  Windows' own empty, [S-4863]). The host makes one per card, every member shared by all of them. What a widget shares with the settings
   window is in `Themia.Sdk.WinUI` too: the settings rows (`FluentLayout`, `ColorChoice`,
   `RowReorder`, `SettingRow`), the item menu (`ItemMenu`), `Notices`, a drop target's contract
   (`IWidgetDropTarget` over `IWidgetDrag`); the parts that need Win32 (the eyedropper, a file's
