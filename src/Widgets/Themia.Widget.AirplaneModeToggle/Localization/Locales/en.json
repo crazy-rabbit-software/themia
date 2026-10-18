@@ -1,0 +1,5 @@
+{
+  "$englishOnly": [],
+  "toggles.airplaneMode.label": "Airplane mode on/off",
+  "toggles.airplaneMode.desc": "Turns every wireless radio off, or back on"
+}

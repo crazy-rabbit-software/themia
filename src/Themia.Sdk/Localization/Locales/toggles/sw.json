@@ -4,8 +4,6 @@
   "toggles.wifi.name": "Wi-Fi",
   "toggles.bluetooth.name": "Bluetooth",
   "toggles.airplaneMode.name": "Hali ya ndegeni",
-  "toggles.airplaneMode.label": "Hali ya ndegeni washa/zima",
-  "toggles.airplaneMode.desc": "Huzima kila redio isiyotumia waya, au kuiwasha tena",
   "toggles.energySaver.name": "Kiokoa nishati",
   "toggles.energySaver.label": "Kiokoa nishati washa/zima",
   "toggles.energySaver.desc": "Huokoa nishati kwa kupunguza kazi za chinichini",

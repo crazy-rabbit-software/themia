@@ -4,8 +4,6 @@
   "toggles.wifi.name": "Wi-Fi",
   "toggles.bluetooth.name": "Bluetooth",
   "toggles.airplaneMode.name": "Modo avión",
-  "toggles.airplaneMode.label": "Modo avión activado/desactivado",
-  "toggles.airplaneMode.desc": "Apaga todas las radios inalámbricas, o las vuelve a encender",
   "toggles.energySaver.name": "Ahorro de energía",
   "toggles.energySaver.label": "Ahorro de energía activado/desactivado",
   "toggles.energySaver.desc": "Ahorra energía reduciendo el trabajo en segundo plano",

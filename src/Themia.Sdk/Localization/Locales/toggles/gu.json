@@ -4,8 +4,6 @@
   "toggles.wifi.name": "Wi-Fi",
   "toggles.bluetooth.name": "Bluetooth",
   "toggles.airplaneMode.name": "એરપ્લેન મોડ",
-  "toggles.airplaneMode.label": "એરપ્લેન મોડ ચાલુ/બંધ",
-  "toggles.airplaneMode.desc": "બધા વાયરલેસ રેડિયો બંધ કરે છે, અથવા ફરી ચાલુ કરે છે",
   "toggles.energySaver.name": "ઊર્જા બચતકર્તા",
   "toggles.energySaver.label": "ઊર્જા બચતકર્તા ચાલુ/બંધ",
   "toggles.energySaver.desc": "બૅકગ્રાઉન્ડ કાર્ય ઘટાડીને પાવર બચાવે છે",

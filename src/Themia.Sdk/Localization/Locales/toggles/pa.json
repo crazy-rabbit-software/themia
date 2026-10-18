@@ -4,8 +4,6 @@
   "toggles.wifi.name": "Wi-Fi",
   "toggles.bluetooth.name": "Bluetooth",
   "toggles.airplaneMode.name": "ਹਵਾਈ ਜਹਾਜ਼ ਮੋਡ",
-  "toggles.airplaneMode.label": "ਹਵਾਈ ਜਹਾਜ਼ ਮੋਡ ਚਾਲੂ/ਬੰਦ",
-  "toggles.airplaneMode.desc": "ਹਰ ਵਾਇਰਲੈੱਸ ਰੇਡੀਓ ਨੂੰ ਬੰਦ, ਜਾਂ ਮੁੜ ਚਾਲੂ ਕਰਦਾ ਹੈ",
   "toggles.energySaver.name": "ਊਰਜਾ ਬਚਤ",
   "toggles.energySaver.label": "ਊਰਜਾ ਬਚਤ ਚਾਲੂ/ਬੰਦ",
   "toggles.energySaver.desc": "ਬੈਕਗ੍ਰਾਊਂਡ ਕੰਮ ਘਟਾ ਕੇ ਪਾਵਰ ਬਚਾਉਂਦਾ ਹੈ",

@@ -4,8 +4,6 @@
   "toggles.wifi.name": "Wi-Fi",
   "toggles.bluetooth.name": "Bluetooth",
   "toggles.airplaneMode.name": "ہوائی جہاز وضع",
-  "toggles.airplaneMode.label": "ہوائی جہاز وضع آن/آف",
-  "toggles.airplaneMode.desc": "ہر وائرلیس ریڈیو آف کرتا ہے، یا دوبارہ آن",
   "toggles.energySaver.name": "انرجی سیور",
   "toggles.energySaver.label": "انرجی سیور آن/آف",
   "toggles.energySaver.desc": "پس منظر کا کام کم کر کے پاور بچاتا ہے",

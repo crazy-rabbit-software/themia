@@ -4,8 +4,6 @@
   "toggles.wifi.name": "Wi-Fi",
   "toggles.bluetooth.name": "Bluetooth",
   "toggles.airplaneMode.name": "機内モード",
-  "toggles.airplaneMode.label": "機内モード オン/オフ",
-  "toggles.airplaneMode.desc": "すべてのワイヤレス通信をオフにするか、元に戻します",
   "toggles.energySaver.name": "省エネ機能",
   "toggles.energySaver.label": "省エネ機能 オン/オフ",
   "toggles.energySaver.desc": "バックグラウンドの処理を抑えて電力を節約します",

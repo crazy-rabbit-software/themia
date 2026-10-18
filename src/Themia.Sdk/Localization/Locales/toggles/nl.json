@@ -4,8 +4,6 @@
   "toggles.wifi.name": "Wi-Fi",
   "toggles.bluetooth.name": "Bluetooth",
   "toggles.airplaneMode.name": "Vliegtuigmodus",
-  "toggles.airplaneMode.label": "Vliegtuigmodus aan/uit",
-  "toggles.airplaneMode.desc": "Zet alle draadloze radio's uit, of weer aan",
   "toggles.energySaver.name": "Energiebesparing",
   "toggles.energySaver.label": "Energiebesparing aan/uit",
   "toggles.energySaver.desc": "Bespaart energie door achtergrondwerk te beperken",

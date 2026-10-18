@@ -4,8 +4,6 @@
   "toggles.wifi.name": "Wi-Fi",
   "toggles.bluetooth.name": "Bluetooth",
   "toggles.airplaneMode.name": "हवाई जहाज़ मोड",
-  "toggles.airplaneMode.label": "हवाई जहाज़ मोड चालू/बंद",
-  "toggles.airplaneMode.desc": "हर वायरलेस रेडियो बंद करता है, या फिर से चालू करता है",
   "toggles.energySaver.name": "ऊर्जा सेवर",
   "toggles.energySaver.label": "ऊर्जा सेवर चालू/बंद",
   "toggles.energySaver.desc": "पृष्ठभूमि का काम घटाकर पावर बचाता है",

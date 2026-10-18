@@ -7,33 +7,6 @@ using Themia.Sdk;
 
 namespace Themia.Core.Model;
 
-/// <summary>[S-3900] Airplane mode.</summary>
-public sealed class AirplaneModeToggleConfig : QuickToggleConfig
-{
-    /// <summary>The toggle it stands for.</summary>
-    [JsonIgnore]
-    public override QuickToggle Toggle => QuickToggle.AirplaneMode;
-
-    /// <summary>[S-6902] This widget's descriptor: what the host knows of it without its UI.</summary>
-    public static WidgetDescriptor Descriptor { get; } = new()
-    {
-        Id = new("airplaneModeToggle"),
-        ConfigType = typeof(AirplaneModeToggleConfig),
-        CreateDefault = () => new AirplaneModeToggleConfig(),
-        Json = WidgetConfigJsonContext.Default,
-        Keywords = ["quick settings", "toggle", "flight mode", "flight", "radios off", "offline"],
-        Label = Str.Toggles_AirplaneMode_Label.Local(),
-        Description = Str.Toggles_AirplaneMode_Desc.Local(),
-        Glyph = Glyphs.Airplane,
-        DefaultWidth = 120,
-        DefaultHeight = 120,
-        Traits = WidgetTraits.HasItems,
-        Add = new(AddFolderId.QuickSettings, 0, 2),
-    };
-
-    public override WidgetConfig Clone() => new AirplaneModeToggleConfig { Style = Style };
-}
-
 /// <summary>[S-3900] Energy saver.</summary>
 public sealed class EnergySaverToggleConfig : QuickToggleConfig
 {

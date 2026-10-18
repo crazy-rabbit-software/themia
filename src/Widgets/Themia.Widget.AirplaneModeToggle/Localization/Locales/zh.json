@@ -1,0 +1,4 @@
+{
+  "toggles.airplaneMode.label": "飞行模式 开/关",
+  "toggles.airplaneMode.desc": "关闭所有无线通信，或重新打开"
+}

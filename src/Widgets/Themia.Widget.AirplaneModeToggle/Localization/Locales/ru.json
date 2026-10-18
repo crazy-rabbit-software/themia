@@ -1,0 +1,4 @@
+{
+  "toggles.airplaneMode.label": "Режим «в самолете» вкл./откл.",
+  "toggles.airplaneMode.desc": "Отключает все беспроводные модули или включает их снова"
+}

@@ -4,8 +4,6 @@
   "toggles.wifi.name": "Wi-Fi",
   "toggles.bluetooth.name": "Bluetooth",
   "toggles.airplaneMode.name": "โหมดเครื่องบิน",
-  "toggles.airplaneMode.label": "เปิด/ปิดโหมดเครื่องบิน",
-  "toggles.airplaneMode.desc": "ปิดสัญญาณไร้สายทั้งหมด หรือเปิดกลับมา",
   "toggles.energySaver.name": "โปรแกรมประหยัดพลังงาน",
   "toggles.energySaver.label": "เปิด/ปิดโปรแกรมประหยัดพลังงาน",
   "toggles.energySaver.desc": "ประหยัดพลังงานโดยลดงานในเบื้องหลัง",

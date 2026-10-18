@@ -4,8 +4,6 @@
   "toggles.wifi.name": "Wi-Fi",
   "toggles.bluetooth.name": "Bluetooth",
   "toggles.airplaneMode.name": "Uçak modu",
-  "toggles.airplaneMode.label": "Uçak modu aç/kapat",
-  "toggles.airplaneMode.desc": "Tüm kablosuz radyoları kapatır veya yeniden açar",
   "toggles.energySaver.name": "Enerji tasarrufu",
   "toggles.energySaver.label": "Enerji tasarrufu aç/kapat",
   "toggles.energySaver.desc": "Arka plan işlerini azaltarak güç tasarrufu sağlar",

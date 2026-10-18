@@ -4,8 +4,6 @@
   "toggles.wifi.name": "WLAN",
   "toggles.bluetooth.name": "Bluetooth",
   "toggles.airplaneMode.name": "Flugzeugmodus",
-  "toggles.airplaneMode.label": "Flugzeugmodus ein/aus",
-  "toggles.airplaneMode.desc": "Schaltet alle Funkverbindungen aus oder wieder ein",
   "toggles.energySaver.name": "Energiesparmodus",
   "toggles.energySaver.label": "Energiesparmodus ein/aus",
   "toggles.energySaver.desc": "Spart Strom, indem Hintergrundarbeit gedrosselt wird",

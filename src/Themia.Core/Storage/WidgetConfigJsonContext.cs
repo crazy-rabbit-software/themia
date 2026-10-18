@@ -14,7 +14,6 @@ namespace Themia.Core.Storage;
     PropertyNamingPolicy = JsonKnownNamingPolicy.CamelCase,
     DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull)]
 [JsonSerializable(typeof(AirQualityConfig))]
-[JsonSerializable(typeof(AirplaneModeToggleConfig))]
 [JsonSerializable(typeof(AlarmConfig))]
 [JsonSerializable(typeof(AudioVisualizerConfig))]
 [JsonSerializable(typeof(BatteryConfig))]

@@ -3,8 +3,6 @@
   "toggles.wifi.name": "Wi-Fi",
   "toggles.bluetooth.name": "Bluetooth",
   "toggles.airplaneMode.name": "Airplane mode",
-  "toggles.airplaneMode.label": "Airplane mode on/off",
-  "toggles.airplaneMode.desc": "Turns every wireless radio off, or back on",
   "toggles.energySaver.name": "Energy saver",
   "toggles.energySaver.label": "Energy saver on/off",
   "toggles.energySaver.desc": "Saves power by easing off background work",

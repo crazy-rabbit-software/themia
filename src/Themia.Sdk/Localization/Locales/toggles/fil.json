@@ -4,8 +4,6 @@
   "toggles.wifi.name": "Wi-Fi",
   "toggles.bluetooth.name": "Bluetooth",
   "toggles.airplaneMode.name": "Airplane mode",
-  "toggles.airplaneMode.label": "I-on/i-off ang Airplane mode",
-  "toggles.airplaneMode.desc": "Ino-off ang bawat wireless radio, o ino-on muli",
   "toggles.energySaver.name": "Energy saver",
   "toggles.energySaver.label": "I-on/i-off ang Energy saver",
   "toggles.energySaver.desc": "Nagtitipid ng power sa pagbabawas ng gawain sa background",

@@ -4,8 +4,6 @@
   "toggles.wifi.name": "Wi-Fi",
   "toggles.bluetooth.name": "புளூடூத்",
   "toggles.airplaneMode.name": "விமானப் பயன்முறை",
-  "toggles.airplaneMode.label": "விமானப் பயன்முறை இயக்கு/முடக்கு",
-  "toggles.airplaneMode.desc": "எல்லா வயர்லெஸ் ரேடியோக்களையும் முடக்கும், அல்லது மீண்டும் இயக்கும்",
   "toggles.energySaver.name": "ஆற்றல் சேமிப்பான்",
   "toggles.energySaver.label": "ஆற்றல் சேமிப்பான் இயக்கு/முடக்கு",
   "toggles.energySaver.desc": "பின்னணி வேலையைக் குறைத்து மின்சக்தியைச் சேமிக்கும்",

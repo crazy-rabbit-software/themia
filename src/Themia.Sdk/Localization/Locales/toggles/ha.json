@@ -4,8 +4,6 @@
   "toggles.wifi.name": "Wi-Fi",
   "toggles.bluetooth.name": "Bluetooth",
   "toggles.airplaneMode.name": "Yanayin jirgin sama",
-  "toggles.airplaneMode.label": "Kunna/kashe yanayin jirgin sama",
-  "toggles.airplaneMode.desc": "Yana kashe duk rediyon mara waya, ko ya sake kunna su",
   "toggles.energySaver.name": "Mai adana wuta",
   "toggles.energySaver.label": "Kunna/kashe mai adana wuta",
   "toggles.energySaver.desc": "Yana adana wuta ta hanyar rage aikin bango",

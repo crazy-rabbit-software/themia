@@ -4,8 +4,6 @@
   "toggles.wifi.name": "Wi-Fi",
   "toggles.bluetooth.name": "Bluetooth",
   "toggles.airplaneMode.name": "Mode pesawat",
-  "toggles.airplaneMode.label": "Mode pesawat aktif/nonaktif",
-  "toggles.airplaneMode.desc": "Mematikan semua radio nirkabel, atau menyalakannya lagi",
   "toggles.energySaver.name": "Penghemat energi",
   "toggles.energySaver.label": "Penghemat energi aktif/nonaktif",
   "toggles.energySaver.desc": "Menghemat daya dengan mengurangi aktivitas latar belakang",

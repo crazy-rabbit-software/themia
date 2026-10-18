@@ -4,8 +4,6 @@
   "toggles.wifi.name": "WLAN",
   "toggles.bluetooth.name": "蓝牙",
   "toggles.airplaneMode.name": "飞行模式",
-  "toggles.airplaneMode.label": "飞行模式 开/关",
-  "toggles.airplaneMode.desc": "关闭所有无线通信，或重新打开",
   "toggles.energySaver.name": "节能模式",
   "toggles.energySaver.label": "节能模式 开/关",
   "toggles.energySaver.desc": "减少后台活动以节省电量",

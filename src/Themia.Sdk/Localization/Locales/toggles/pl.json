@@ -4,8 +4,6 @@
   "toggles.wifi.name": "Wi-Fi",
   "toggles.bluetooth.name": "Bluetooth",
   "toggles.airplaneMode.name": "Tryb samolotowy",
-  "toggles.airplaneMode.label": "Tryb samolotowy wł./wył.",
-  "toggles.airplaneMode.desc": "Wyłącza wszystkie radia bezprzewodowe lub włącza je z powrotem",
   "toggles.energySaver.name": "Oszczędzanie energii",
   "toggles.energySaver.label": "Oszczędzanie energii wł./wył.",
   "toggles.energySaver.desc": "Oszczędza energię, ograniczając pracę w tle",

@@ -4,8 +4,6 @@
   "toggles.wifi.name": "Wi-Fi",
   "toggles.bluetooth.name": "Bluetooth",
   "toggles.airplaneMode.name": "Режим «в самолете»",
-  "toggles.airplaneMode.label": "Режим «в самолете» вкл./откл.",
-  "toggles.airplaneMode.desc": "Отключает все беспроводные модули или включает их снова",
   "toggles.energySaver.name": "Экономия заряда",
   "toggles.energySaver.label": "Экономия заряда вкл./откл.",
   "toggles.energySaver.desc": "Экономит энергию, ограничивая фоновую работу",

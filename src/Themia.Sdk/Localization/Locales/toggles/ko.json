@@ -4,8 +4,6 @@
   "toggles.wifi.name": "Wi-Fi",
   "toggles.bluetooth.name": "Bluetooth",
   "toggles.airplaneMode.name": "비행기 모드",
-  "toggles.airplaneMode.label": "비행기 모드 켜기/끄기",
-  "toggles.airplaneMode.desc": "모든 무선 장치를 끄거나 다시 켭니다",
   "toggles.energySaver.name": "에너지 절약",
   "toggles.energySaver.label": "에너지 절약 켜기/끄기",
   "toggles.energySaver.desc": "백그라운드 작업을 줄여 전원을 절약합니다",

@@ -4,8 +4,6 @@
   "toggles.wifi.name": "Wi-Fi",
   "toggles.bluetooth.name": "Bluetooth",
   "toggles.airplaneMode.name": "বিমান মোড",
-  "toggles.airplaneMode.label": "বিমান মোড চালু/বন্ধ",
-  "toggles.airplaneMode.desc": "সব ওয়্যারলেস রেডিও বন্ধ করে, বা আবার চালু করে",
   "toggles.energySaver.name": "এনার্জি সেভার",
   "toggles.energySaver.label": "এনার্জি সেভার চালু/বন্ধ",
   "toggles.energySaver.desc": "ব্যাকগ্রাউন্ডের কাজ কমিয়ে পাওয়ার বাঁচায়",

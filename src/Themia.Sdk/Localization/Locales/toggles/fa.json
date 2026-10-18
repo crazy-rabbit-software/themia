@@ -4,8 +4,6 @@
   "toggles.wifi.name": "Wi-Fi",
   "toggles.bluetooth.name": "Bluetooth",
   "toggles.airplaneMode.name": "حالت هواپیما",
-  "toggles.airplaneMode.label": "روشن/خاموش حالت هواپیما",
-  "toggles.airplaneMode.desc": "همه رادیوهای بی‌سیم را خاموش یا دوباره روشن می‌کند",
   "toggles.energySaver.name": "صرفه‌جویی انرژی",
   "toggles.energySaver.label": "روشن/خاموش صرفه‌جویی انرژی",
   "toggles.energySaver.desc": "با کاهش کارهای پس‌زمینه در مصرف انرژی صرفه‌جویی می‌کند",
