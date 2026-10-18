@@ -451,6 +451,7 @@ public sealed class StringTableGenerator : IIncrementalGenerator
             sb.Append("    public static string Format(this ").Append(e).Append(" id, params global::System.ReadOnlySpan<StringArg> args) => ").Append(t).AppendLine(".Format(global::Themia.Core.Localization.Strings.Current, (int)id, args);");
             sb.Append("    public static string Format(this ").Append(e).Append(" id, Locale locale, params global::System.ReadOnlySpan<StringArg> args) => ").Append(t).AppendLine(".Format(locale, (int)id, args);");
             sb.Append("    public static string Plural(this ").Append(e).Append(" id, long count, params global::System.ReadOnlySpan<StringArg> args) => ").Append(t).AppendLine(".Plural(global::Themia.Core.Localization.Strings.Current, (int)id, count, args);");
+            sb.Append("    public static string Plural(this ").Append(e).Append(" id, Locale locale, long count, params global::System.ReadOnlySpan<StringArg> args) => ").Append(t).AppendLine(".Plural(locale, (int)id, count, args);");
             sb.Append("    public static string Key(this ").Append(e).Append(" id) => ").Append(t).AppendLine(".Key((int)id);");
             sb.Append("    public static global::Themia.Sdk.LocalText Local(this ").Append(e).Append(" id) => new(").Append(t).AppendLine(", (int)id);");
             sb.AppendLine("}");
