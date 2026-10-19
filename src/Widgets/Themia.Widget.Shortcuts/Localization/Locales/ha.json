@@ -23,8 +23,6 @@
   "widgetsC.shortcuts.menu.addLink": "Adireshin yanar gizo ko hanya…",
   "widgetsC.shortcuts.menu.changeTarget": "Canza manufa…",
   "widgetsC.shortcuts.menu.closeSearch": "Rufe bincike",
-  "widgetsC.shortcuts.menu.moveDown": "Matsar ƙasa",
-  "widgetsC.shortcuts.menu.moveUp": "Matsar sama",
   "widgetsC.shortcuts.menu.openLayout": "Buɗe tsari",
   "widgetsC.shortcuts.menu.openMany": {
     "one": "Buɗe gajeriyar hanya {count}",
@@ -34,7 +32,6 @@
     "one": "Cire gajeriyar hanya {count}",
     "other": "Cire gajerun hanyoyi {count}"
   },
-  "widgetsC.shortcuts.menu.rename": "Sake suna…",
   "widgetsC.shortcuts.menu.undoRemove": "Soke cirewa",
   "widgetsC.shortcuts.menu.undoRemoveCount": {
     "one": "Soke cirewa ({count})",

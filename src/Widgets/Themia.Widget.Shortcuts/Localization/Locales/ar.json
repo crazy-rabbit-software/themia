@@ -23,8 +23,6 @@
   "widgetsC.shortcuts.menu.addLink": "عنوان ويب أو مسار…",
   "widgetsC.shortcuts.menu.changeTarget": "تغيير الهدف…",
   "widgetsC.shortcuts.menu.closeSearch": "إغلاق البحث",
-  "widgetsC.shortcuts.menu.moveDown": "نقل لأسفل",
-  "widgetsC.shortcuts.menu.moveUp": "نقل لأعلى",
   "widgetsC.shortcuts.menu.openLayout": "فتح التخطيط",
   "widgetsC.shortcuts.menu.openMany": {
     "zero": "فتح {count} اختصار",
@@ -42,7 +40,6 @@
     "many": "إزالة {count} اختصارًا",
     "other": "إزالة {count} اختصار"
   },
-  "widgetsC.shortcuts.menu.rename": "إعادة تسمية…",
   "widgetsC.shortcuts.menu.undoRemove": "التراجع عن الإزالة",
   "widgetsC.shortcuts.menu.undoRemoveCount": {
     "zero": "التراجع عن الإزالة ({count})",

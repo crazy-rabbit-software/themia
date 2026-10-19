@@ -6,6 +6,5 @@
   "shell.items.textShort": "項目の文字",
   "shell.fill.transparent": "透明",
   "shell.fill.opacity": "不透明度",
-  "shell.fill.withOpacity": "{colour}、{percent}",
-  "shell.fill.noItems": "このウィジェットには項目がありません"
+  "shell.fill.withOpacity": "{colour}、{percent}"
 }

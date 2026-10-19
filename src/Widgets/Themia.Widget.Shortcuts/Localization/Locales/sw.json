@@ -23,8 +23,6 @@
   "widgetsC.shortcuts.menu.addLink": "Anwani ya wavuti au njia…",
   "widgetsC.shortcuts.menu.changeTarget": "Badilisha lengo…",
   "widgetsC.shortcuts.menu.closeSearch": "Funga utafutaji",
-  "widgetsC.shortcuts.menu.moveDown": "Sogeza chini",
-  "widgetsC.shortcuts.menu.moveUp": "Sogeza juu",
   "widgetsC.shortcuts.menu.openLayout": "Fungua mpangilio",
   "widgetsC.shortcuts.menu.openMany": {
     "one": "Fungua njia ya mkato {count}",
@@ -34,7 +32,6 @@
     "one": "Ondoa njia ya mkato {count}",
     "other": "Ondoa njia za mkato {count}"
   },
-  "widgetsC.shortcuts.menu.rename": "Badilisha jina…",
   "widgetsC.shortcuts.menu.undoRemove": "Tendua kuondoa",
   "widgetsC.shortcuts.menu.undoRemoveCount": {
     "one": "Tendua kuondoa ({count})",

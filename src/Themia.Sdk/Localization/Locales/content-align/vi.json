@@ -2,7 +2,5 @@
   "widget.align.label": "Căn chỉnh",
   "widget.align.left": "Trái",
   "widget.align.center": "Giữa",
-  "widget.align.right": "Phải",
-  "widget.align.none": "Tiện ích này không có gì để căn chỉnh",
-  "widget.align.noStyle": "Không khả dụng ở kiểu này"
+  "widget.align.right": "Phải"
 }

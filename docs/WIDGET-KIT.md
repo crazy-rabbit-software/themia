@@ -2760,3 +2760,64 @@ the service's SPEC section.
 - [T7] Secondary: Airbyte issue on REST v2 returning 410: https://github.com/airbytehq/airbyte/issues/86899
 - [T8] Todoist API v1, Sync (request and response fields, full sync delay) and the User object (`tz_info`): https://developer.todoist.com/api/v1/ (sections "Sync", "User")
 - [N1] The module spike (section 4.11), 2026-10-17. The .NET behaviour it relied on was measured, not read: module initializer timing under CoreCLR and Native AOT, resolver combination and contract modifiers under AOT, XAML in a WinUI class library.
+
+## 15. Porting a widget's settings to the properties menu
+
+User decision 2026-10-19: a widget's options live on the selection's properties menu in edit mode
+(SPEC "QUICKSET", [S-3716]..[S-3730]), not on a settings page. The widgets move one at a time;
+Shortcuts (`src/Widgets/Themia.Widget.Shortcuts/ShortcutsMenu.cs`) and Clock
+(`src/Widgets/Themia.Widget.Clock/ClockMenu.cs`) are the references, Weather now, Weather forecast
+and Air quality are done too.
+
+### 15.1 The vocabulary
+
+The module implements `IWidgetModule.MenuLines(WidgetMenuLines menu, WidgetConfig config)` (usually
+one line calling a static `<Name>Menu.Lines(menu, (<Name>Config)config, …)`). Every line is an
+`ItemMenuEntry` built by `WidgetMenuLines` (`src/Themia.Sdk.WinUI/Modules/WidgetMenuLines.cs`); each
+helper sets the value and calls the save itself, and the host builds the menu again after every
+change, so a closure may keep the value it was built with.
+
+| Setting | Helper | On the menu |
+|---|---|---|
+| bool | `menu.Toggle(glyph, text, on, set)` | the tick at the line's end; best without a glyph under a submenu |
+| enum, any closed set | `menu.Choice(glyph, text, [(value, words)…], current, set)` | a submenu of dots; the line shows the option that holds |
+| number | `menu.Number(glyph, text, value, min, max, step, format, set)` (any `INumber<T>`) | dots up to `MaxNumberSteps` (20) steps, else asked for as text, range-checked and rounded to a step; the value at the end |
+| colour `#RRGGBB` or empty | `menu.Colour(text, current, set, options?)` (`ColorChoiceOptions`: `DefaultLabel` null when a colour is required, `Presets` `ColorPresets.Surfaces` by default or `ColorPresets.Windows`, `AllowCustom`) | the same colour submenu as Appearance › Item text; the swatch is the line's icon |
+| `FillChoice` | `menu.Fill(text, current, set, options?)` (`FillChoiceOptions`) | the same submenu as Appearance › Background |
+| text | `menu.Ask(new WidgetTextAsk(title, placeholder, accept, refuse, done, Initial:, AllowEmpty:))` from a line's action | a small flyout beside the menu; `refuse` is the trust boundary (validate as typed) |
+| a place, a zone, anything searched | `WidgetMenuLines.Search(glyph, text, value, new MenuSearch(placeholder, find, fixedLines, settle))` | box on top, five answers and Show all, fixed lines under them |
+| a folder | `menu.PickFolder(glyph, text, path, set)` | Windows' folder picker; the folder's name at the end |
+| a list (feeds, symbols, hosts) | `menu.List(glyph, text, items, new MenuList<T>(name, emptySentence) { Rename, Extra, Add, AddLines, Max, Reorder, Glyph, IconFile })` | a submenu of items (Rename…, own lines, Move up/down, Remove), Add… |
+| a destructive command | `menu.Confirm(glyph, text, question, confirmWords, action, danger: true, disabled:)` | asks beside the menu first; danger lines in the critical colour |
+| a change, a command | `menu.Command(glyph, text, change, disabled:)` or a plain `new ItemMenuEntry(glyph, text, action)` | runs on a click (a plain command does not save) |
+| words only | `WidgetMenuLines.Note(text)` | greyed, never clickable (a data source's credit) |
+| a group | `WidgetMenuLines.Submenu(glyph, text, lines)`, `ItemMenuEntry.Separator` | |
+
+Where lines go: `menu.StyleLines` (under Style, after the styles) for what only the current look
+draws, `menu.Lines` for the rest, and `menu.PlaceCard()` once, where the card's Appearance submenu
+stands (call it first unless something matters more than the look; without it Appearance stands
+first anyway). Something the vocabulary lacks is an SDK change first, in its own commit, with tests
+in `tests/Themia.Modules.Tests/WidgetMenuLinesTests.cs`, rendered in `--editbar-png`
+(`props-*-vocabulary*.png`).
+
+### 15.2 The rules
+
+- **StyleLines for what the look draws.** An option only some styles draw goes under Style, guarded
+  by the config's `Offers(setting)` ([S-6070], `IShownSettings<T>`), so a style that does not draw it
+  never shows it (Clock: seconds and the date; Shortcuts: tile size, icons only, stretch).
+- **PlaceCard early.** Appearance is the card's look; the widget's own data lines follow it.
+- **No settings page left.** Every row of the page becomes a line; then delete `<Name>Settings.cs`,
+  the module's `SettingsRows` override (so `HasSettings` is false and More settings goes, [S-1750]),
+  and any page-only helpers. A row that only makes sense on a page (a long explanation) becomes a
+  `Note` or goes.
+- **Dead strings go.** Remove every locale key the page used that nothing reads any more, from all
+  30 locale files of the module (and of the SDK area if it was the SDK's). New words go into `en.json`
+  and its `$englishOnly` list.
+- **Tests in the module's `Tests/`**, named after its own SPEC tags (`S1388_…`, see
+  `ShortcutsMenuTests`, `ClockMenuTests`): what each style offers under Style, the first level's
+  order, what a click sets and that it saves once, that picking the current value saves nothing, and
+  the `refuse` checks of every typed value.
+- **The module's `SPEC.md`** says its options are on the properties menu ([S-3719], with the date of
+  the user's request) and lists them; retire the page's lines there.
+- **Render it**: `--editbar-png` with the widget selected and its submenus open (add a case to
+  `EditBarRender.PropsShots`), and look at the PNGs.

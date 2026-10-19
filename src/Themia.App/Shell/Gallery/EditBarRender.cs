@@ -13,6 +13,7 @@ using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
 using Themia.Sdk;
+using Themia.Sdk.WinUI;
 using Windows.Foundation;
 using Windows.Graphics;
 
@@ -30,11 +31,14 @@ namespace Themia.App.Shell.Gallery;
 /// <c>-many.png</c> (three of mixed headers), <c>-toggle.png</c> (no Header choice) and
 /// <c>-hidden.png</c> (header hidden, beside the same widget with one), [S-6569] <c>-fills.png</c>
 /// (backgrounds Default, Transparent and a colour at 50 %, item backgrounds Default, Transparent and
-/// a colour), <c>-noitems.png</c> (a stopwatch: the Item background row greyed) and
-/// <c>-picker.png</c> (the Background control's panel open beside the panel: Transparent and the
-/// opacity slider), [S-6586] <c>-align.png</c> (a clock aligned right), <c>-alignmany.png</c> (a clock
-/// and a quote of different alignments) and <c>-alignstyle.png</c> (the moon's month: the row greyed) — all over a busy stand-in wallpaper, so the panel's surface is judged against
-/// one ([S-3715]).
+/// a colour), <c>-noitems.png</c> (a stopwatch's Appearance: no item lines) and
+/// <c>-picker.png</c> (Appearance › Background open: Transparent and the opacity), [S-6586]
+/// <c>-align.png</c> (a clock aligned right), <c>-alignmany.png</c> (a clock and a quote of different
+/// alignments) and <c>-alignstyle.png</c> (the moon's month: no Alignment line), and the submenus
+/// open along a path (<c>-countdown-appearance.png</c>, a widget not yet on the menu;
+/// <c>-many-appearance.png</c>, several; the searches with few and many answers; [S-3724]..[S-3730]
+/// <c>-vocabulary*.png</c>, one line of each kind on a stand-in widget) — all over a busy
+/// stand-in wallpaper, so the panel's surface is judged against one ([S-3715]).
 /// </summary>
 internal static class EditBarRender
 {
@@ -244,11 +248,8 @@ internal static class EditBarRender
                 new(new WidgetId("clock"), 380, 200, 300, 220, HeaderPlacement.Top, true, "50 %", "flip", Background: FillChoice.Of("#1B2030", 0.5), Items: FillChoice.Of("#3A6EA5", 0.8)),
             ],
 
-            // [S-6571] A stopwatch has no items: the row is greyed.
-            [new(new WidgetId("stopwatch"), 500, 200, 280, 180, HeaderPlacement.Top, true)],
-
             // [S-6584] A clock aligned right: Right lit. Two of different alignments: none lit. The
-            // moon's month style: the row greyed, "Not available in this style".
+            // moon's month style: no Alignment line.
             [new(new WidgetId("clock"), 500, 200, 300, 180, HeaderPlacement.Top, true, "Right", Align: ContentAlign.Right)],
             [
                 new(new WidgetId("clock"), 300, 200, 280, 160, HeaderPlacement.Top, true, "Left", Align: ContentAlign.Left),
@@ -256,23 +257,32 @@ internal static class EditBarRender
             ],
             [new(new WidgetId("moon"), 500, 200, 280, 220, HeaderPlacement.Top, true, Style: "phaseMonth")],
         ];
-        string[] names = ["right", "left", "below", "many", "toggle", "hidden", "fills", "noitems", "align", "alignmany", "alignstyle"];
+        string[] names = ["right", "left", "below", "many", "toggle", "hidden", "fills", "align", "alignmany", "alignstyle"];
 
         for (var i = 0; i < cases.Length; i++)
         {
             await PropsShot(screen, ticker, cases[i], System.IO.Path.Combine(outDir, $"props-{theme}-{names[i]}.png")).ConfigureAwait(true);
         }
 
-        // [S-6569] The Background control's panel, open beside the properties panel.
+        // [S-3718] [S-3723] [S-3725] The submenus along a path open (and a search typed into).
+        var appearance = Str.Settings_Section_Appearance.Text();
         PropsCard[] picker = [new(new WidgetId("clock"), 200, 160, 300, 200, HeaderPlacement.Top, true, Style: "flip", Background: FillChoice.Of("#1B2030", 0.5))];
-        await PropsShot(screen, ticker, picker, System.IO.Path.Combine(outDir, $"props-{theme}-picker.png"), openBackground: true).ConfigureAwait(true);
-
-        // [S-3718] [S-3723] The widgets on the new structure, a submenu open (and a search typed into).
+        PropsCard[] stopwatch = [new(new WidgetId("stopwatch"), 200, 160, 280, 180, HeaderPlacement.Top, true)];
+        PropsCard[] countdown = [new(new WidgetId("countdown"), 200, 160, 280, 180, HeaderPlacement.Top, true)];
+        PropsCard[] many =
+        [
+            new(new WidgetId("clock"), 120, 160, 220, 160, HeaderPlacement.Top, true),
+            new(new WidgetId("countdown"), 360, 160, 260, 180, HeaderPlacement.Bottom, true, Scale: 0.9),
+        ];
         PropsCard[] shortcuts = [new(new WidgetId("shortcuts"), 120, 140, 520, 220, HeaderPlacement.Top, true)];
         PropsCard[] clock = [new(new WidgetId("clock"), 200, 160, 300, 200, HeaderPlacement.Top, true, "Zürich", "digital")];
         PropsCard[] weather = [new(new WidgetId("weatherNow"), 200, 160, 300, 200, HeaderPlacement.Top, true)];
         (PropsCard[] Layout, string Name, string Open, string? Type)[] submenus =
         [
+            (picker, "picker", appearance + "/" + Str.Settings_Style_BgLabel.Text(), null),
+            (stopwatch, "noitems", appearance, null),
+            (countdown, "countdown-appearance", appearance, null),
+            (many, "many-appearance", appearance + "/" + Str.Shell_Items_TextShort.Text(), null),
             (shortcuts, "shortcuts-style", Str.Styles_Label.Text(), null),
             (shortcuts, "shortcuts-appearance", Str.Settings_Section_Appearance.Text(), null),
             (shortcuts, "shortcuts-background", Str.Settings_Section_Appearance.Text() + "/" + Str.Settings_Style_BgLabel.Text(), null),
@@ -280,6 +290,8 @@ internal static class EditBarRender
             (shortcuts, "shortcuts-items", "Shortcuts", null),
             (clock, "clock-style", Str.Styles_Label.Text(), null),
             (clock, "clock-zone", "Timezone", "tok"),
+            (clock, "clock-zone-many", "Timezone", "a"),
+            (clock, "clock-zone-none", "Timezone", "qqqq"),
             (weather, "weather-location", Str.Shell_Place_Location.Text(), null),
         ];
 
@@ -287,6 +299,35 @@ internal static class EditBarRender
         {
             await PropsShot(screen, ticker, layout, System.IO.Path.Combine(outDir, $"props-{theme}-{name}.png"), open: path, type: type).ConfigureAwait(true);
         }
+
+        // [S-3724]..[S-3730] Every line of the menu vocabulary on a stand-in widget's menu: the first
+        // level (a note, a colour, a fill, numbers, a folder, a confirmed danger line), the list open,
+        // and the colour open.
+        (string Name, string? Open)[] vocabulary = [("vocabulary", null), ("vocabulary-list", "Feeds"), ("vocabulary-colour", "Accent")];
+        foreach (var (name, path) in vocabulary)
+        {
+            await PropsShot(screen, ticker, countdown, System.IO.Path.Combine(outDir, $"props-{theme}-{name}.png"), open: path, lines: Vocabulary).ConfigureAwait(true);
+        }
+    }
+
+    /// <summary>[S-3724]..[S-3730] A stand-in widget's lines: one of each kind the SDK builds, as a ported widget would add them.</summary>
+    private static void Vocabulary(WidgetMenuLines menu)
+    {
+        List<string> feeds = ["https://blog.example/feed", "https://news.example/rss"];
+        menu.PlaceCard();
+        menu.Lines.Add(menu.Colour("Accent", "#3A6EA5", _ => { }));
+        menu.Lines.Add(menu.Fill("Accent fill", FillChoice.Of("#3A6EA5", 0.6), _ => { }));
+        menu.Lines.Add(menu.Number(Glyphs.Count, "Rows", 4, 1, 10, 1, n => LocaleFormat.Integer(n), _ => { }));
+        menu.Lines.Add(menu.Number(Glyphs.Timer, "Refresh every", 30, 5, 600, 5, n => LocaleFormat.Integer(n) + " min", _ => { }));
+        menu.Lines.Add(menu.PickFolder(Glyphs.Folder, "Folder", @"C:\Users\Me\Pictures\Wallpapers", _ => { }));
+        menu.Lines.Add(menu.List(Glyphs.Rss, "Feeds", feeds, new MenuList<string>(f => f, "No feeds yet")
+        {
+            Rename = new MenuListRename<string>((_, _) => false),
+            Add = new MenuListAdd<string>("Add a feed", "https://…", _ => null, f => f),
+        }));
+        menu.Lines.Add(ItemMenuEntry.Separator);
+        menu.Lines.Add(menu.Confirm(Glyphs.Delete, "Clear history", "Clear the whole history?", "Clear", () => { }));
+        menu.Lines.Add(WidgetMenuLines.Note("Weather data by Open-Meteo.com, under CC BY 4.0, with a long credit that wraps onto a second line"));
     }
 
     /// <summary>
@@ -328,12 +369,12 @@ internal static class EditBarRender
         }
     }
 
-    private static async Task PropsShot(Grid screen, Ticker ticker, PropsCard[] layout, string path, bool openBackground = false, string? open = null, string? type = null)
+    private static async Task PropsShot(Grid screen, Ticker ticker, PropsCard[] layout, string path, string? open = null, string? type = null, Action<WidgetMenuLines>? lines = null)
     {
         screen.Children.Clear();
 
         // The open control's panel hangs below the display's lower edge: the picture is taller.
-        screen.Height = openBackground || open is not null ? OpenHeight : PropsHeight;
+        screen.Height = open is not null ? OpenHeight : PropsHeight;
         var flat = screen.Background;
         screen.Background = Wallpaper();
 
@@ -392,7 +433,7 @@ internal static class EditBarRender
         var strip = new PropertiesStrip(new PropertiesCommands(_ => { }, _ => { }, (_, _) => { }, () => { }, _ => { }, _ => { }, _ => { }, _ => { }, _ => { },
             id => view.Find(id) is { } found && Config.ConfigPages.HasWidgetSettings(found),
             Cut: () => { }, Copy: () => { }, Delete: () => { },
-            WidgetLines: (id, ask) => view.Find(id) is { } found ? Services.ModuleHost.MenuLines(found, () => { }, ask) : null));
+            WidgetLines: (id, ask, confirm) => lines is not null ? Stand(lines, ask, confirm) : view.Find(id) is { } found ? Services.ModuleHost.MenuLines(found, () => { }, ask, confirm) : null));
         UiLanguage.ApplyFlow(strip);
         strip.ShowSelection(QuickSet.For(state, selection, view.Id));
         strip.Visibility = Visibility.Visible;
@@ -405,28 +446,6 @@ internal static class EditBarRender
             var spot = StripPlacement.Place(box, strip.DesiredSize.Width, strip.DesiredSize.Height, new PixelRect(0, 0, ScreenWidth, PropsHeight), [barRect], UiLanguage.Flow == FlowDirection.RightToLeft);
             Canvas.SetLeft(strip, Math.Round(spot.X));
             Canvas.SetTop(strip, Math.Round(spot.Y));
-
-            // The flyout of the Background control, as it hangs under its button (a flyout on an
-            // off-screen, never-activated window does not render, so its panel is drawn in place).
-            if (openBackground)
-            {
-                strip.UpdateLayout();
-                if (PropertiesStrip.FindLine(strip, Str.Settings_Style_BgLabel.Text()) is { } choice && ColorChoice.DebugPanel(choice) is { } panel)
-                {
-                    var flyout = new Border { Child = panel, Padding = new Thickness(Fluent.Space4) };
-                    var hanging = new Grid { Children = { flyout } };
-                    FlyoutSurface.Apply(hanging, flyout);
-                    canvas.Children.Add(hanging);
-                    var at = choice.TransformToVisual(canvas).TransformPoint(new Point(0, 0));
-                    hanging.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
-                    Canvas.SetLeft(hanging, Math.Round(at.X + choice.ActualWidth + Fluent.Space1));
-                    Canvas.SetTop(hanging, Math.Round(at.Y));
-                }
-                else
-                {
-                    Log.Warn(Scope, "the Background control was not found; the picker shot shows the panel alone");
-                }
-            }
         }
 
         // [S-3718] The submenus along a path open, as clicks would open them; a search is typed into.
@@ -454,6 +473,13 @@ internal static class EditBarRender
         {
             card.Detach();
         }
+    }
+
+    private static WidgetMenuLines Stand(Action<WidgetMenuLines> build, Action<WidgetTextAsk> ask, Action<WidgetConfirm> confirm)
+    {
+        var menu = new WidgetMenuLines(() => { }, ask, confirm);
+        build(menu);
+        return menu;
     }
 
     /// <summary>

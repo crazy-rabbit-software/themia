@@ -1366,12 +1366,10 @@ rules in Core `Model/QuickSet.cs` and `Geometry/StripPlacement.cs` (tests `Quick
   selection change and every state change (an undo, a change from another display).
 - **[S-3702]** One widget: the icon row ([S-3717]), the title box (32 tall, the kind's name as its
   placeholder), then Style ([S-6007]) and the widget's own lines ([S-3719]) with the card's among
-  them as Appearance where it places them ([S-3723]), else the card's lines after them: Header,
-  Alignment ([S-6584]), Background, Item background ([S-6521]), Item text ([S-6544]) and Scale
-  ([S-6531]); More settings last where its page still has rows ([S-6009]). Several: the icon row,
-  the words "N selected", then Style (one kind only) and the card's lines as their own group, and
-  **no title**, no widget lines and no More settings: a title names one widget, so one typed for
-  many would make them indistinguishable.
+  them as one Appearance submenu ([S-3723]): where the widget places it, else right after Style;
+  More settings last where its page still has rows ([S-6009]). Several: the icon row, the words "N
+  selected", then Style (one kind only) and Appearance, and **no title**, no widget lines and no
+  More settings: a title names one widget, so one typed for many would make them indistinguishable.
 - **[S-3703]** With several, a value the widgets share is ticked and a mixed one ticks nothing
   (`QuickSet.Common`); a pick sets it on every selected widget of the view (`SetHeader`,
   `SetBackground`) in one `Mutate`, so one undo step ([S-884]) however many it reached.
@@ -1418,23 +1416,27 @@ rules in Core `Model/QuickSet.cs` and `Geometry/StripPlacement.cs` (tests `Quick
   never reaches one; it is created headerless; load validation takes a header off it and says so;
   and the card draws it headerless whatever the file holds (`WidgetInstance.ShownHeader`).
 - **[S-3716]** The panel looks like **Windows 11's context menu** (user request 2026-10-19): the
-  icon row on top, a hairline under it, then 32-DIP lines inset 4 DIPs with a 4-DIP hover, each a
-  tick column (where the list has switches or choices), an icon column (where it has icons), its
-  words, its value (or a shortcut) in the secondary colour at the end, and a chevron where the line
-  opens a submenu; dividers between groups (none leading, trailing or doubled). It is not a
-  light-dismiss menu: it stays standing beside the selection while it is used, and so do its
-  submenus. It is never narrower than 256 DIPs. The menu is built again from the offer and the
-  widget's lines on every change; lines are drawn again only when a list's shape (which lines there
-  are) changed, and a change of value (a tick, a dot, the words at the end, an icon) is written into
-  the lines in place, so an open submenu, a search's box and the focus stay where they are.
+  icon row on top, a hairline under it, then 32-DIP lines inset 4 DIPs with a 4-DIP hover, each an
+  icon column (where the list has icons), its words (starting at the line's start where it has none),
+  its value (or a shortcut) in the secondary colour, and at the **end** a column of its own,
+  right-aligned inside the line's padding (user request 2026-10-19): the tick of a switch that is on,
+  the dot of the choice that holds, or the chevron of a line that opens a submenu. A line with a mark
+  never has a chevron, and every line of a list keeps the end column when any has one, so the values
+  stand in one column and never meet a mark. Dividers between groups (none leading, trailing or
+  doubled). It is not a light-dismiss menu: it stays standing beside the selection while it is used,
+  and so do its submenus. It is never narrower than 256 DIPs. The menu is built again from the offer
+  and the widget's lines on every change; lines are drawn again only when a list's shape (which lines
+  there are) changed, and a change of value (a tick, a dot, the words at the end, an icon) is written
+  into the lines in place, so an open submenu, a search's box and the focus stay where they are.
   (`PropertiesStrip`; renders `--editbar-png` `props-*`.)
-- **[S-3717]** The **icon row**: Cut, Copy and Paste at its start, Delete at its far end (apart from
+- **[S-3717]** The **icon row**: Cut and Copy at its start, Delete at its far end (apart from
   them, where a slip on Cut does not reach it), Explorer's two-tone icons, 40-DIP buttons, the words
   with the key as the tooltip ("Cut (Ctrl+X)"; "Cut 3 widgets" for several), the same commands as the
-  keys and the card menu (`CutSelected`, `CopySelected`, `Paste`, `DeleteSelected`). Paste is greyed
-  while the widget clipboard is empty and follows it. A cut shows at once: in edit mode the widgets
-  cut and not yet pasted are faded (0.35, as a move's originals while it is aimed, [S-78]), as
-  Explorer dims a cut file, until the paste lands or another cut or copy replaces it.
+  keys and the card menu (`CutSelected`, `CopySelected`, `DeleteSelected`). No Paste (user request
+  2026-10-19): a paste lands where the desktop is clicked ([S-74]), never on the selection, so on the
+  panel it could only ever stand greyed; Ctrl+V and the desktop's menu paste. A cut shows at once: in
+  edit mode the widgets cut and not yet pasted are faded (0.35, as a move's originals while it is
+  aimed, [S-78]), as Explorer dims a cut file, until the paste lands or another cut or copy replaces it.
 - **[S-3718]** A **submenu** opens beside its line (the end side, the start side where the window
   has no room, slid up to fit, scrolled when taller than the window) on a click, Enter or the arrow
   towards it, and the line stays lit while it is open; a click on the line again, Escape or the
@@ -1443,21 +1445,22 @@ rules in Core `Model/QuickSet.cs` and `Geometry/StripPlacement.cs` (tests `Quick
   open** (user request 2026-10-19): a pick moves the dot there, a switch ticks, a command runs.
   Choices of one are Windows' dots (`ItemMenuEntry.Group`), switches its ticks; the line of a choice
   shows the option that holds. Header, Alignment, Style and Scale are submenus of their options. A
-  line that cannot apply is greyed with its reason as the tooltip (Alignment, [S-6584]; the item
-  lines, [S-6571]). For a widget not yet on [S-3723], Background, Item background and Item text
-  open the one colour control's panel beside their line ([S-6567], `ColorChoice.AttachFill` /
-  `Attach`, `keepOpen`: a pick leaves it open too).
+  card line that cannot apply is **not there** (user request 2026-10-19), never greyed: Header for a
+  kind that never has one ([S-3711]), Alignment where nothing selected aligns ([S-6584]), Item
+  background and Item text where nothing selected has items ([S-6571]).
 - **[S-3719]** A widget's **own lines** come from its module (`IWidgetModule.MenuLines`, over a
   `WidgetMenuLines`): `Lines` stand after Style on the first level, `StyleLines` under Style after the
   styles and a divider (what only the current look draws with, [S-6070]), and `PlaceCard` puts the
-  card's lines among them ([S-3723]). They are the one menu vocabulary, `ItemMenuEntry`: `Toggle`,
-  `Choice` (a submenu of dots, any value type), `Submenu`, `Search` ([S-3722]), `Command` (a change
-  and its save) or a plain command. The lines are built again on every selection and state change
-  over the live config (a change edits it in place and saves as the settings page does), so they
-  always say what the widget holds. A module without lines (the default) keeps its options on its
-  settings page. Shortcuts ([S-1388]), Clock ([S-1478]), the current conditions ([S-6174]), the
-  forecast ([S-6173]) and air quality ([S-5108]) have all their options here and no page; the others
-  move one at a time.
+  card's Appearance among them ([S-3723]). They are the one menu vocabulary, `ItemMenuEntry`:
+  `Toggle`, `Choice` (a submenu of dots, any value type), `Submenu`, `Search` ([S-3722]), `Command`
+  (a change and its save), `Ask` ([S-3721]), `Colour` and `Fill` ([S-3724]), `Number` ([S-3726]),
+  `Confirm` ([S-3727]), `Note` ([S-3728]), `List` ([S-3729]), `PickFolder` ([S-3730]) or a plain
+  command. The lines are built again on every selection and state change over the live config (a
+  change edits it in place and saves as the settings page does), so they always say what the widget
+  holds. A module without lines (the default) keeps its options on its settings page. Shortcuts
+  ([S-1388]), Clock ([S-1478]), the current conditions ([S-6174]), the forecast ([S-6173]) and air
+  quality ([S-5108]) have all their options here and no page; the others move one at a time
+  (docs/WIDGET-KIT.md "Porting a widget's settings to the properties menu").
 - **[S-3721]** A line may **ask for one line of text** (`WidgetMenuLines.Ask`, `WidgetTextAsk`): a
   small flyout beside the menu with a heading, the box (holding `Initial`, selected, for a name
   being changed), the reason under it while the widget's check refuses what is typed (nothing while
@@ -1473,16 +1476,48 @@ rules in Core `Model/QuickSet.cs` and `Geometry/StripPlacement.cs` (tests `Quick
   word in place of lines (no match, offline). Enter picks the first answer, Down moves to it, and the
   submenu stays open on a pick. The Clock's zone ([S-1478]) and the weather family's location
   (`WeatherPlaceRows.LocationLine`, [S-6174]) are searches.
-- **[S-3723]** Where a widget places them (`PlaceCard`), the card's own lines are one **Appearance**
-  submenu among its lines (user request 2026-10-19: not a group of their own), submenus throughout:
-  Header, Alignment, Background, Item background, Item text and Scale. A colour is a submenu of
-  menu lines, not the colour control's panel: Default (the app-wide one) and, for a fill,
-  Transparent with the dot; the swatches (the neutrals and Windows' palette, eight to a row, 24 DIPs,
-  the chosen one ticked and ringed in the accent, each one's name as its tooltip); a fill's Opacity
-  (100 % to 10 % in tens, a colour only); Custom colour (the picker's dialog) and Pick a colour from
-  the screen (the eyedropper, [S-1556]). The line shows the colour's swatch in its icon column and its
-  words at the end; a mixed selection reads as a dash. Several selected, or a widget that places
-  nothing, keep the card's lines as their own group.
+- **[S-3725]** A search shows its **first five answers** and under them a last line **Show all (N)**
+  (user request 2026-10-19), which shows every answer until the next question (a new text typed, the
+  submenu opened again); Enter still picks the first answer. The answers' room is never less than
+  five lines: under a word in place of answers (searching, no match) or fewer than five, the rest
+  stays empty, so the fixed lines under it do not jump while it is typed into.
+- **[S-3723]** The card's own lines are one **Appearance** submenu (user request 2026-10-19: not a
+  group of their own), for every widget and for several selected: where the widget places it
+  (`PlaceCard`), else first, right after Style. Submenus throughout: Header, Alignment, Background,
+  Item background, Item text and Scale, each where it applies ([S-3718]). Its colours are the menu's
+  one colour vocabulary ([S-3724]): Background and Item background fills, Item text a colour, built
+  by the host as `ItemMenuEntry` colour lines and drawn by the same path as a widget's own; a mixed
+  selection reads as a dash and holds no dot.
+- **[S-3724]** A **colour** setting (`WidgetMenuLines.Colour`: `#RRGGBB`, or empty to follow the
+  default) and a **fill** setting (`WidgetMenuLines.Fill`: a `FillChoice`) are lines whose submenu is
+  the one colour submenu (`MenuColour` holds the value and what a pick does): Default (the options'
+  label; none when a colour is required, which then shows its first swatch) and a fill's Transparent
+  with the dot; the swatches (the options' presets, `ColorPresets.Surfaces` unless given, eight to a
+  row, 24 DIPs, the chosen one ticked and ringed in the accent, each one's name as its tooltip); a
+  fill's Opacity (100 % to 10 % in tens, a colour only); Custom colour (the picker's dialog) and Pick
+  a colour from the screen (the eyedropper, [S-1556]), both only where custom colours are allowed. A
+  swatch keeps a fill's opacity. The line shows the colour's swatch in its icon column and its words
+  at the end. A pick sets and saves; the value that holds changes nothing.
+- **[S-3726]** A **number** (`WidgetMenuLines.Number`: a value, its range, its step and how it is
+  written) shows its value at the end of its line. Up to twenty steps it is a choice of one, one dot
+  per step; more is a line that asks for it as text ([S-3721]), refused outside the range with the
+  range as the reason, a decimal comma read as a point, and rounded to the nearest step.
+- **[S-3727]** A **confirmed** line (`WidgetMenuLines.Confirm`) asks beside the menu before it does
+  what cannot be undone (a history cleared): the app's one question (`ConfirmFlyout`: the question,
+  the action and Cancel); only the action runs it and saves, Cancel, Escape or a click away change
+  nothing, and with nothing to ask nothing runs. A danger line's words and icon are the critical colour.
+- **[S-3728]** A **note** (`WidgetMenuLines.Note`) is words only, in the disabled colour, never
+  clickable (a data source's credit): wrapped to three lines within the menu's width, trimmed past
+  them, the whole as its tooltip.
+- **[S-3729]** An **editable list** (`WidgetMenuLines.List` over a `MenuList<T>`: feeds, symbols,
+  hosts, shortcuts) is a submenu of its items, each a submenu of its own: Rename… (asked for, starting
+  from the name; saved only when it changed), the list's own lines for it, Move up and Move down (the
+  ends greyed; left out for a list whose order means nothing) and Remove; while there are none, its
+  empty sentence as a note; then Add… (asked for and checked as it is typed) or the caller's add
+  lines, greyed at the list's limit. Every change is made in the list and saved.
+- **[S-3730]** A **folder** (`WidgetMenuLines.PickFolder`) is a line with the folder's name at its
+  end (a drive as itself) whose click opens Windows' folder picker (`FolderBrowse.PickAsync`, the one
+  picker the settings' path boxes use too); a folder picked sets and saves, a cancel changes nothing.
 - **[S-3712]** Header Hidden leaves no trace on the card ([S-401]): no strip, no icon, no title, no
   reserved row; the content area is the whole card at every size tier.
 - **[S-3714]** Beside the selection the panel is **centred on its height** (`StripPlacement.Place`:
@@ -1507,10 +1542,10 @@ rules in Core `Model/QuickSet.cs` and `Geometry/StripPlacement.cs` (tests `Quick
   differ — the control then reads a dash until a pick. Each pick is one `Mutate`, one undo step; an
   opacity dragged is stored once, when the slider is let go.
 - **[S-6571]** Where no selected widget has items ([S-6570]), the **Item background** and **Item
-  text** rows are greyed out: the control disabled, the name in the disabled text colour, and "This
-  widget has no items" as the tooltip of both. Decided for a multi-selection: the rows are on when
-  **any** selected widget has items, read the fill (and text colour) of those widgets only, and a pick
-  reaches only them (`SetItemBackground` and `SetItemTextColor` skip a kind without items).
+  text** lines are not on the menu at all (user request 2026-10-19: hidden, not greyed). Decided for a
+  multi-selection: the lines are there when **any** selected widget has items, read the fill (and
+  text colour) of those widgets only, and a pick reaches only them (`SetItemBackground` and
+  `SetItemTextColor` skip a kind without items).
 - **[S-6572]** A widget without items keeps whatever item background and text colour it holds (a
   pick never writes one), and they draw nothing: there is nothing for them to reach.
 - **[S-6544]** **Item text** follows (after Item background, before Scale): the colour control with
@@ -1571,39 +1606,33 @@ rules in Core `Model/QuickSet.cs` and `Geometry/StripPlacement.cs` (tests `Quick
   it), the readings under it keep their grid; the large-icon and minimal reading and the gauge; the
   rate and the price; the countdown's lines, ring and cards; the quote's mark, lines and author; the
   moon's disc and name over its rows (beside the disc on a strip the text still reads from it).
-- **[S-6584]** The properties panel's **Alignment** row, after Header: three icon buttons across the
-  control column (Segoe AlignLeft, AlignCenter, AlignRight; the word as tooltip and name), the
-  current one lit with the accent, none for a mixed selection. A press sets every selected widget
-  that aligns in its style (`QuickSet.SetAlign`; the others keep theirs) in one `Mutate`, one undo
-  step. Where none does, the row is greyed as the item rows are ([S-6571]), its tooltip "This widget
-  has nothing to align", or "Not available in this style" when the kind aligns in another style. Not
-  on any settings page ([S-6536]): the clock's page lost its Alignment row.
+- **[S-6584]** The properties panel's **Alignment** line, after Header: a submenu of Left, Centre
+  and Right (Segoe AlignLeft, AlignCenter, AlignRight), the current one with the dot, none for a
+  mixed selection. A pick sets every selected widget that aligns in its style (`QuickSet.SetAlign`;
+  the others keep theirs) in one `Mutate`, one undo step. Where none does (a kind with nothing to
+  align, or one that aligns only in another style), the line is not there ([S-3718]). Not on any
+  settings page ([S-6536]): the clock's page lost its Alignment row.
 - **[S-6585]** Load validation drops an alignment outside the set, or one on a kind that never
   aligns, and says so; one on a style that does not align is kept for the style that does.
 - **[S-6586]** Debug: `--widget-png <Kind> <out.png> --align left|center|right` draws the cards with
   that alignment; `--editbar-png` also writes `props-<theme>-align.png` (a clock aligned right),
   `-alignmany.png` (a clock and a quote of different alignments: none lit) and `-alignstyle.png`
-  (the moon's month: the row greyed).
+  (the moon's month: no Alignment line).
 - **[S-3713]** Debug: `--editbar-png <outDir> [--theme light|dark]` also writes the panel beside
   real cards in edit mode on a stand-in display: `props-<theme>-right.png` (one flip clock in the
-  middle with a title, an item colour of its own and a scale of 125 %: Style with the flip icon,
-  Item background "Custom, 80%", Scale and More settings), `-left.png` (a widget at the right edge of the display),
-  `-below.png` (a widget spanning the width), `-many.png` (three of mixed headers and scales,
-  "3 selected"), `-toggle.png` (a Wi-Fi toggle: no Header choice), `-hidden.png` (header hidden,
+  middle with a title, an item colour of its own and a scale of 125 %), `-left.png` (a widget at the
+  right edge of the display), `-below.png` (a widget spanning the width), `-many.png` (three of mixed
+  headers and scales, "3 selected"), `-toggle.png` (a Wi-Fi toggle), `-hidden.png` (header hidden,
   beside the same kind with a header), [S-6569] `-fills.png` (flip clocks with the background
-  Default, Transparent and a colour at 50 %, and item backgrounds to match), `-noitems.png` (a
-  stopwatch: Item background and Item text greyed) and `-picker.png` (the Background control open
-  beside the panel: Default, Transparent, the colours, the opacity slider), all over a busy stand-in
-  wallpaper so the panel's surface is judged against one ([S-3715]). The render cannot show the
-  drop shadow (a composition visual is not in a `RenderTargetBitmap`).
-
-Needs a live pass: typing a title on the desktop (focus, IME, Enter / Escape / a click on another
-card), a pick from the Header and Background menus on a multi-selection, and undo of each; the strip
-following a selection change, a drag and a resize (away, then back where they landed), at a top
-taskbar, by the edit bar, and on a second display at another DPI; the panel's drop shadow on the
-transparent surface over the real wallpaper ([S-3715]), and an opacity dragged in the fill control
-landing as one undo step ([S-6567]).
-
+  Default, Transparent and a colour at 50 %, and item backgrounds to match), and submenus opened
+  along a path as clicks open them: `-picker.png` (Appearance › Background: Default, Transparent, the
+  swatches, Opacity), `-noitems.png` (a stopwatch's Appearance: no item lines), `-countdown-appearance.png`
+  (a widget not yet on the menu), `-many-appearance.png` (two selected, Appearance › Item text), the
+  Shortcuts, Clock and weather submenus, `-clock-zone*.png` (a search with a few answers, many with
+  Show all, and none), and [S-3724]..[S-3730] `-vocabulary*.png` (a stand-in widget with one line of
+  each kind, its list and its colour open), all over a busy stand-in wallpaper so the panel's surface
+  is judged against one ([S-3715]). The render cannot show the drop shadow (a composition visual is
+  not in a `RenderTargetBitmap`).
 ## Widget styles (STYLES)
 
 A different look of the same widget with the same data and the same settings, chosen next to the
@@ -4555,7 +4584,8 @@ card is re-created, no tick restarts. Pure rules live in Core (`DesignLook`, `De
   #1B2030 at 55 % (its items #2A3248 at 60 %), Terminal #050D07 at 97 %, Paper #FAF7F0 at 100 %.
   Applying one writes copies, never the preset's own objects.
 - **[S-6567]** The **fill control** (`ColorChoice.CreateFill`, `FluentLayout.FillPickerRow`), one
-  path for both fills, in the panel and on the Appearance page: the colour control's swatch button
+  path for both fills on the Appearance page (the properties menu draws its fills as menu lines,
+  [S-3724]): the colour control's swatch button
   and flyout ([S-1549]) with **Default**, **Transparent** (an empty swatch), the swatches, Custom
   colour (WinUI's picker with its **alpha slider** too) and the eyedropper, and an **Opacity**
   slider (0..100 % in 5 % steps, on once a colour is chosen) under them. The button reads Default's

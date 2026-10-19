@@ -19,12 +19,11 @@ namespace Themia.Core.Model;
 /// <param name="StyleKind">[S-6007] The one kind whose style the Style choice sets: every selected widget is of it and it has styles. Null hides the choice.</param>
 /// <param name="Style">[S-6007] Their style, or null when they differ.</param>
 /// <param name="Items">[S-6521] The own item background the widgets with items share, or null when they differ.</param>
-/// <param name="HasItems">[S-6571] Whether any selected widget has items ([S-6570]); the Item background row is greyed without.</param>
+/// <param name="HasItems">[S-6571] Whether any selected widget has items ([S-6570]); the item lines are not shown without.</param>
 /// <param name="Scale">[S-6531] Their own content scale, or null when they differ.</param>
 /// <param name="ItemText">[S-6544] Their own item text colour (empty: they follow the app-wide one), or null when they differ.</param>
-/// <param name="CanAlign">[S-6584] Whether any selected widget can align its content in its style ([S-6581]); the Alignment row is greyed without.</param>
+/// <param name="CanAlign">[S-6584] Whether any selected widget can align its content in its style ([S-6581]); the Alignment line is not shown without.</param>
 /// <param name="Align">[S-6584] Where the widgets that can align draw their content, or null when they differ.</param>
-/// <param name="AlignKind">[S-6584] Whether any selected widget's kind aligns in another style: why the row is greyed.</param>
 public sealed record QuickSetOffer(
     int Count,
     HeaderPlacement? Header,
@@ -40,8 +39,7 @@ public sealed record QuickSetOffer(
     double? Scale = 1.0,
     string? ItemText = "",
     bool CanAlign = false,
-    ContentAlign? Align = null,
-    bool AlignKind = false)
+    ContentAlign? Align = null)
 {
     public static readonly QuickSetOffer None = new(0, null, null, null, null, null, false);
 
@@ -110,15 +108,14 @@ public static class QuickSet
         var aligned = widgets.Where(ContentAlignment.Applies).ToList();
         var canAlign = aligned.Count > 0;
         var align = canAlign ? Common(aligned.Select(ContentAlignment.Shown)) : null;
-        var alignKind = widgets.Exists(w => ContentAlignment.Offers(w.Kind));
 
         if (widgets.Count == 1)
         {
             var only = widgets[0];
-            return new QuickSetOffer(1, header, background, only.Id, only.Kind, only.Label, hasHeader, styleKind, style, items, hasItems, scale, itemText, canAlign, align, alignKind);
+            return new QuickSetOffer(1, header, background, only.Id, only.Kind, only.Label, hasHeader, styleKind, style, items, hasItems, scale, itemText, canAlign, align);
         }
 
-        return new QuickSetOffer(widgets.Count, header, background, null, null, null, hasHeader, styleKind, style, items, hasItems, scale, itemText, canAlign, align, alignKind);
+        return new QuickSetOffer(widgets.Count, header, background, null, null, null, hasHeader, styleKind, style, items, hasItems, scale, itemText, canAlign, align);
     }
 
     /// <summary>

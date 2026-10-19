@@ -23,8 +23,6 @@
   "widgetsC.shortcuts.menu.addLink": "ਵੈੱਬ ਪਤਾ ਜਾਂ ਪਾਥ…",
   "widgetsC.shortcuts.menu.changeTarget": "ਟੀਚਾ ਬਦਲੋ…",
   "widgetsC.shortcuts.menu.closeSearch": "ਖੋਜ ਬੰਦ ਕਰੋ",
-  "widgetsC.shortcuts.menu.moveDown": "ਹੇਠਾਂ ਲਿਜਾਓ",
-  "widgetsC.shortcuts.menu.moveUp": "ਉੱਪਰ ਲਿਜਾਓ",
   "widgetsC.shortcuts.menu.openLayout": "ਖਾਕਾ ਖੋਲ੍ਹੋ",
   "widgetsC.shortcuts.menu.openMany": {
     "one": "{count} ਸ਼ਾਰਟਕੱਟ ਖੋਲ੍ਹੋ",
@@ -34,7 +32,6 @@
     "one": "{count} ਸ਼ਾਰਟਕੱਟ ਹਟਾਓ",
     "other": "{count} ਸ਼ਾਰਟਕੱਟ ਹਟਾਓ"
   },
-  "widgetsC.shortcuts.menu.rename": "ਨਾਮ ਬਦਲੋ…",
   "widgetsC.shortcuts.menu.undoRemove": "ਹਟਾਉਣਾ ਵਾਪਸ ਕਰੋ",
   "widgetsC.shortcuts.menu.undoRemoveCount": {
     "one": "ਹਟਾਉਣਾ ਵਾਪਸ ਕਰੋ ({count})",

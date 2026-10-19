@@ -6,6 +6,5 @@
   "shell.items.textShort": "Teksto ng item",
   "shell.fill.transparent": "Transparent",
   "shell.fill.opacity": "Opacity",
-  "shell.fill.withOpacity": "{colour}, {percent}",
-  "shell.fill.noItems": "Walang mga item ang widget na ito"
+  "shell.fill.withOpacity": "{colour}, {percent}"
 }

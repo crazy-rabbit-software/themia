@@ -2,7 +2,5 @@
   "widget.align.label": "对齐方式",
   "widget.align.left": "左对齐",
   "widget.align.center": "居中",
-  "widget.align.right": "右对齐",
-  "widget.align.none": "此小组件没有可对齐的内容",
-  "widget.align.noStyle": "此样式不可用"
+  "widget.align.right": "右对齐"
 }

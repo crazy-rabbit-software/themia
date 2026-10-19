@@ -23,8 +23,6 @@
   "widgetsC.shortcuts.menu.addLink": "Web アドレスまたはパス…",
   "widgetsC.shortcuts.menu.changeTarget": "リンク先の変更…",
   "widgetsC.shortcuts.menu.closeSearch": "検索を閉じる",
-  "widgetsC.shortcuts.menu.moveDown": "下へ移動",
-  "widgetsC.shortcuts.menu.moveUp": "上へ移動",
   "widgetsC.shortcuts.menu.openLayout": "レイアウトを開く",
   "widgetsC.shortcuts.menu.openMany": {
     "other": "{count} 件のショートカットを開く"
@@ -32,7 +30,6 @@
   "widgetsC.shortcuts.menu.removeMany": {
     "other": "{count} 件のショートカットを削除"
   },
-  "widgetsC.shortcuts.menu.rename": "名前の変更…",
   "widgetsC.shortcuts.menu.undoRemove": "削除を元に戻す",
   "widgetsC.shortcuts.menu.undoRemoveCount": {
     "other": "削除を元に戻す ({count})"

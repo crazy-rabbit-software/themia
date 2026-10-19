@@ -6,6 +6,5 @@
   "shell.items.textShort": "Tekst elementów",
   "shell.fill.transparent": "Przezroczyste",
   "shell.fill.opacity": "Krycie",
-  "shell.fill.withOpacity": "{colour}, {percent}",
-  "shell.fill.noItems": "Ten widżet nie ma elementów"
+  "shell.fill.withOpacity": "{colour}, {percent}"
 }

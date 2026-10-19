@@ -23,8 +23,6 @@
   "widgetsC.shortcuts.menu.addLink": "Alamat web atau jalur…",
   "widgetsC.shortcuts.menu.changeTarget": "Ubah target…",
   "widgetsC.shortcuts.menu.closeSearch": "Tutup pencarian",
-  "widgetsC.shortcuts.menu.moveDown": "Pindahkan ke bawah",
-  "widgetsC.shortcuts.menu.moveUp": "Pindahkan ke atas",
   "widgetsC.shortcuts.menu.openLayout": "Buka tata letak",
   "widgetsC.shortcuts.menu.openMany": {
     "other": "Buka {count} pintasan"
@@ -32,7 +30,6 @@
   "widgetsC.shortcuts.menu.removeMany": {
     "other": "Hapus {count} pintasan"
   },
-  "widgetsC.shortcuts.menu.rename": "Ganti nama…",
   "widgetsC.shortcuts.menu.undoRemove": "Urungkan penghapusan",
   "widgetsC.shortcuts.menu.undoRemoveCount": {
     "other": "Urungkan penghapusan ({count})"

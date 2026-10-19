@@ -6,6 +6,5 @@
   "shell.items.textShort": "Itemtekst",
   "shell.fill.transparent": "Transparant",
   "shell.fill.opacity": "Dekking",
-  "shell.fill.withOpacity": "{colour}, {percent}",
-  "shell.fill.noItems": "Deze widget heeft geen items"
+  "shell.fill.withOpacity": "{colour}, {percent}"
 }

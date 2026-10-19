@@ -2,7 +2,5 @@
   "widget.align.label": "संरेखण",
   "widget.align.left": "बाएँ",
   "widget.align.center": "मध्य",
-  "widget.align.right": "दाएँ",
-  "widget.align.none": "इस विजेट में संरेखित करने के लिए कुछ नहीं है",
-  "widget.align.noStyle": "इस शैली में उपलब्ध नहीं"
+  "widget.align.right": "दाएँ"
 }

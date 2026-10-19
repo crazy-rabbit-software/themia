@@ -26,13 +26,14 @@ internal static class ModuleHost
     /// <summary>
     /// [S-3719] A widget's own lines on its properties menu, built by its module over
     /// <paramref name="widget"/>'s config (the live one: the lines change it in place and
-    /// <paramref name="save"/> stores it). A module that throws is logged and has none.
+    /// <paramref name="save"/> stores it), asking for text and confirmations beside the menu. A
+    /// module that throws is logged and has none.
     /// </summary>
-    public static WidgetMenuLines? MenuLines(WidgetInstance widget, Action save, Action<WidgetTextAsk> ask)
+    public static WidgetMenuLines? MenuLines(WidgetInstance widget, Action save, Action<WidgetTextAsk> ask, Action<WidgetConfirm> confirm)
     {
         ArgumentNullException.ThrowIfNull(widget);
 
-        var lines = new WidgetMenuLines(save, ask);
+        var lines = new WidgetMenuLines(save, ask, confirm);
         try
         {
             Module(widget.Kind).MenuLines(lines, widget.Config);

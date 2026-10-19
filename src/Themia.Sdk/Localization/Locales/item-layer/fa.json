@@ -6,6 +6,5 @@
   "shell.items.textShort": "متن موارد",
   "shell.fill.transparent": "شفاف",
   "shell.fill.opacity": "کدری",
-  "shell.fill.withOpacity": "{colour}، {percent}",
-  "shell.fill.noItems": "این ویجت هیچ موردی ندارد"
+  "shell.fill.withOpacity": "{colour}، {percent}"
 }

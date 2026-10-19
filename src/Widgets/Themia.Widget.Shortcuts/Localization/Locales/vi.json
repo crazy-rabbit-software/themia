@@ -23,8 +23,6 @@
   "widgetsC.shortcuts.menu.addLink": "Địa chỉ web hoặc đường dẫn…",
   "widgetsC.shortcuts.menu.changeTarget": "Đổi đích…",
   "widgetsC.shortcuts.menu.closeSearch": "Đóng tìm kiếm",
-  "widgetsC.shortcuts.menu.moveDown": "Chuyển xuống",
-  "widgetsC.shortcuts.menu.moveUp": "Chuyển lên",
   "widgetsC.shortcuts.menu.openLayout": "Mở bố cục",
   "widgetsC.shortcuts.menu.openMany": {
     "other": "Mở {count} lối tắt"
@@ -32,7 +30,6 @@
   "widgetsC.shortcuts.menu.removeMany": {
     "other": "Gỡ {count} lối tắt"
   },
-  "widgetsC.shortcuts.menu.rename": "Đổi tên…",
   "widgetsC.shortcuts.menu.undoRemove": "Hoàn tác gỡ bỏ",
   "widgetsC.shortcuts.menu.undoRemoveCount": {
     "other": "Hoàn tác gỡ bỏ ({count})"

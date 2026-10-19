@@ -23,8 +23,6 @@
   "widgetsC.shortcuts.menu.addLink": "Indirizzo web o percorso…",
   "widgetsC.shortcuts.menu.changeTarget": "Cambia destinazione…",
   "widgetsC.shortcuts.menu.closeSearch": "Chiudi ricerca",
-  "widgetsC.shortcuts.menu.moveDown": "Sposta giù",
-  "widgetsC.shortcuts.menu.moveUp": "Sposta su",
   "widgetsC.shortcuts.menu.openLayout": "Apri disposizione",
   "widgetsC.shortcuts.menu.openMany": {
     "one": "Apri {count} collegamento",
@@ -34,7 +32,6 @@
     "one": "Rimuovi {count} collegamento",
     "other": "Rimuovi {count} collegamenti"
   },
-  "widgetsC.shortcuts.menu.rename": "Rinomina…",
   "widgetsC.shortcuts.menu.undoRemove": "Annulla rimozione",
   "widgetsC.shortcuts.menu.undoRemoveCount": {
     "one": "Annulla rimozione ({count})",

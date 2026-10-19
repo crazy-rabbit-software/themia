@@ -2,7 +2,5 @@
   "widget.align.label": "Alignement",
   "widget.align.left": "Gauche",
   "widget.align.center": "Centré",
-  "widget.align.right": "Droite",
-  "widget.align.none": "Ce widget n’a rien à aligner",
-  "widget.align.noStyle": "Non disponible dans ce style"
+  "widget.align.right": "Droite"
 }

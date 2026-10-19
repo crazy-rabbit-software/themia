@@ -116,10 +116,10 @@ public sealed class ShortcutsMenuTests
         var first = ItemLines(built)[0].Children!;
         var last = ItemLines(built)[2].Children!;
 
-        Assert.True(Line(first, ShortcutsStr.WidgetsC_Shortcuts_Menu_MoveUp.Text()).Disabled);
-        Assert.True(Line(last, ShortcutsStr.WidgetsC_Shortcuts_Menu_MoveDown.Text()).Disabled);
+        Assert.True(Line(first, Str.Menu_MoveUp.Text()).Disabled);
+        Assert.True(Line(last, Str.Menu_MoveDown.Text()).Disabled);
 
-        Line(first, ShortcutsStr.WidgetsC_Shortcuts_Menu_MoveDown.Text()).Action!();
+        Line(first, Str.Menu_MoveDown.Text()).Action!();
         Assert.Equal(["b", "a", "c"], config.Items.Select(i => i.Id));
         Assert.Equal(1, built.Saves);
     }
@@ -142,7 +142,7 @@ public sealed class ShortcutsMenuTests
         var config = Three();
         var built = Build(config);
 
-        Line(ItemLines(built)[1].Children!, ShortcutsStr.WidgetsC_Shortcuts_Menu_Rename.Text()).Action!();
+        Line(ItemLines(built)[1].Children!, Str.Menu_Rename.Text()).Action!();
         var ask = Assert.IsType<WidgetTextAsk>(built.Asked);
         Assert.Equal("Bee", ask.Initial);
         Assert.True(ask.AllowEmpty);

@@ -23,8 +23,6 @@
   "widgetsC.shortcuts.menu.addLink": "نشانی وب یا مسیر…",
   "widgetsC.shortcuts.menu.changeTarget": "تغییر مقصد…",
   "widgetsC.shortcuts.menu.closeSearch": "بستن جستجو",
-  "widgetsC.shortcuts.menu.moveDown": "انتقال به پایین",
-  "widgetsC.shortcuts.menu.moveUp": "انتقال به بالا",
   "widgetsC.shortcuts.menu.openLayout": "باز کردن چیدمان",
   "widgetsC.shortcuts.menu.openMany": {
     "one": "باز کردن {count} میان‌بر",
@@ -34,7 +32,6 @@
     "one": "برداشتن {count} میان‌بر",
     "other": "برداشتن {count} میان‌بر"
   },
-  "widgetsC.shortcuts.menu.rename": "تغییر نام…",
   "widgetsC.shortcuts.menu.undoRemove": "واگرد برداشتن",
   "widgetsC.shortcuts.menu.undoRemoveCount": {
     "one": "واگرد برداشتن ({count})",

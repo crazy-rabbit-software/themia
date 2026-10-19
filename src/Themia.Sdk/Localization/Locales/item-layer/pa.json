@@ -6,6 +6,5 @@
   "shell.items.textShort": "ਆਈਟਮ ਲਿਖਤ",
   "shell.fill.transparent": "ਪਾਰਦਰਸ਼ੀ",
   "shell.fill.opacity": "ਅਪਾਰਦਰਸ਼ਤਾ",
-  "shell.fill.withOpacity": "{colour}, {percent}",
-  "shell.fill.noItems": "ਇਸ ਵਿਜੇਟ ਵਿੱਚ ਕੋਈ ਆਈਟਮ ਨਹੀਂ ਹੈ"
+  "shell.fill.withOpacity": "{colour}, {percent}"
 }

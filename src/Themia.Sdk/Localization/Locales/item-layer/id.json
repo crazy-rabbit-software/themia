@@ -6,6 +6,5 @@
   "shell.items.textShort": "Teks item",
   "shell.fill.transparent": "Transparan",
   "shell.fill.opacity": "Opasitas",
-  "shell.fill.withOpacity": "{colour}, {percent}",
-  "shell.fill.noItems": "Widget ini tidak memiliki item"
+  "shell.fill.withOpacity": "{colour}, {percent}"
 }

@@ -2,7 +2,5 @@
   "widget.align.label": "Wyrównanie",
   "widget.align.left": "Do lewej",
   "widget.align.center": "Do środka",
-  "widget.align.right": "Do prawej",
-  "widget.align.none": "Ten widżet nie ma czego wyrównać",
-  "widget.align.noStyle": "Niedostępne w tym stylu"
+  "widget.align.right": "Do prawej"
 }

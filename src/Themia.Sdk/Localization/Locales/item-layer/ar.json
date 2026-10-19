@@ -6,6 +6,5 @@
   "shell.items.textShort": "نص العناصر",
   "shell.fill.transparent": "شفاف",
   "shell.fill.opacity": "العتامة",
-  "shell.fill.withOpacity": "{colour}، {percent}",
-  "shell.fill.noItems": "لا تحتوي هذه الأداة على عناصر"
+  "shell.fill.withOpacity": "{colour}، {percent}"
 }

@@ -6,6 +6,5 @@
   "shell.items.textShort": "项目文字",
   "shell.fill.transparent": "透明",
   "shell.fill.opacity": "不透明度",
-  "shell.fill.withOpacity": "{colour}，{percent}",
-  "shell.fill.noItems": "此小组件没有项目"
+  "shell.fill.withOpacity": "{colour}，{percent}"
 }

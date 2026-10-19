@@ -3,7 +3,5 @@
   "widget.align.label": "Alignment",
   "widget.align.left": "Left",
   "widget.align.center": "Center",
-  "widget.align.right": "Right",
-  "widget.align.none": "This widget has nothing to align",
-  "widget.align.noStyle": "Not available in this style"
+  "widget.align.right": "Right"
 }

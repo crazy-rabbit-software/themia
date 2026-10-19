@@ -79,68 +79,38 @@ internal static class ShortcutsMenu
         menu.PlaceCard();
         menu.Lines.Add(menu.Choice(Glyphs.Open, ShortcutsStr.WidgetsC_Shortcuts_Settings_OpenWith_Label.Text(), Clicks(), config.ClickMode, value => config.ClickMode = value));
         menu.Lines.Add(WidgetMenuLines.Submenu(Glyphs.Add, Str.Common_Add.Text(), Add(menu, config, layouts)));
-        menu.Lines.Add(WidgetMenuLines.Submenu(ShortcutsModule.Glyph, ShortcutsStr.WidgetsA_Catalog_Shortcuts_Label.Text(), Items(menu, config, layouts)));
+        menu.Lines.Add(Items(menu, config, layouts));
     }
 
     /// <summary>
-    /// [S-1388] The shortcuts themselves, in their order, each a submenu: Rename…, Change target…
-    /// (Edit layout… for a layout), Move up, Move down and Remove. In edit mode the widget is a card
-    /// being arranged and takes no clicks of its own ([S-1751]), so this is where its items are kept.
+    /// [S-1388] The shortcuts themselves, in their order, as the menu's editable list ([S-3729]):
+    /// each a submenu of Rename…, Change target… (Edit layout… for a layout), Move up, Move down and
+    /// Remove. In edit mode the widget is a card being arranged and takes no clicks of its own
+    /// ([S-1751]), so this is where its items are kept. Adding is the Add submenu's.
     /// </summary>
-    private static List<ItemMenuEntry> Items(WidgetMenuLines menu, ShortcutsConfig config, IAppLayouts layouts)
-    {
-        if (config.Items.Count == 0)
-        {
-            return [new(null, ShortcutsStr.WidgetsC_Shortcuts_Settings_List_Empty.Text(), () => { }, Disabled: true)];
-        }
-
-        var lines = new List<ItemMenuEntry>(config.Items.Count);
-        for (var i = 0; i < config.Items.Count; i++)
-        {
-            var item = config.Items[i];
-            var name = ShownName(item, config);
-            var actions = new List<ItemMenuEntry>
+    private static ItemMenuEntry Items(WidgetMenuLines menu, ShortcutsConfig config, IAppLayouts layouts)
+        => menu.List(ShortcutsModule.Glyph, ShortcutsStr.WidgetsA_Catalog_Shortcuts_Label.Text(), config.Items,
+            new MenuList<ShortcutItem>(item => ShownName(item, config), ShortcutsStr.WidgetsC_Shortcuts_Settings_List_Empty.Text())
             {
-                new(Glyphs.Rename, ShortcutsStr.WidgetsC_Shortcuts_Menu_Rename.Text(), () => menu.Ask(new WidgetTextAsk(
-                    Str.Common_Rename.Text(),
-                    DerivedName(item, config),
-                    Str.Common_Rename.Text(),
-                    _ => null,
-                    typed => Rename(item, typed, config, menu),
-                    Initial: name,
-                    AllowEmpty: true))),
-            };
+                Glyph = KindGlyph,
 
-            if (item.IsLayout)
-            {
-                actions.Add(new(Glyphs.Edit, ShortcutsStr.Shortcut_EditLayoutMenu.Text(), () => layouts.Edit(item.Id), Disabled: !layouts.CanEdit));
-            }
-            else
-            {
-                actions.Add(new(Glyphs.Link, ShortcutsStr.WidgetsC_Shortcuts_Menu_ChangeTarget.Text(), () => menu.Ask(new WidgetTextAsk(
-                    ShortcutsStr.WidgetsC_Shortcuts_Menu_ChangeTarget.Text().TrimEnd('…'),
-                    @"https://example.com  ·  C:\Users\…  ·  shell:Downloads",
-                    Str.Common_Save.Text(),
-                    Refusal,
-                    typed => Retarget(item, typed, menu),
-                    Initial: item.Target))));
-            }
-
-            actions.Add(ItemMenuEntry.Separator);
-            actions.Add(menu.Command(Glyphs.MoveUp, ShortcutsStr.WidgetsC_Shortcuts_Menu_MoveUp.Text(), () => ShortcutRules.Move(config.Items, item.Id, -1), disabled: i == 0));
-            actions.Add(menu.Command(Glyphs.MoveDown, ShortcutsStr.WidgetsC_Shortcuts_Menu_MoveDown.Text(), () => ShortcutRules.Move(config.Items, item.Id, 1), disabled: i == config.Items.Count - 1));
-            actions.Add(ItemMenuEntry.Separator);
-            actions.Add(menu.Command(Glyphs.Delete, Str.Common_Remove.Text(), () => config.Items.RemoveAll(x => x.Id == item.Id)));
-
-            // A file, a folder or a Windows location carries Explorer's own icon, as on the widget.
-            var line = WidgetMenuLines.Submenu(KindGlyph(item), name, actions);
-            lines.Add(!item.IsLayout && LaunchTargets.Classify(item.Target).Kind is not (LaunchKind.Web or LaunchKind.Refused)
-                ? line with { IconFile = item.Target }
-                : line);
-        }
-
-        return lines;
-    }
+                // A file, a folder or a Windows location carries Explorer's own icon, as on the widget.
+                IconFile = item => !item.IsLayout && LaunchTargets.Classify(item.Target).Kind is not (LaunchKind.Web or LaunchKind.Refused) ? item.Target : null,
+                Rename = new MenuListRename<ShortcutItem>((item, typed) => Rename(item, typed, config))
+                {
+                    Placeholder = item => DerivedName(item, config),
+                    AllowEmpty = true,
+                },
+                Extra = item => item.IsLayout
+                    ? [new(Glyphs.Edit, ShortcutsStr.Shortcut_EditLayoutMenu.Text(), () => layouts.Edit(item.Id), Disabled: !layouts.CanEdit)]
+                    : [new(Glyphs.Link, ShortcutsStr.WidgetsC_Shortcuts_Menu_ChangeTarget.Text(), () => menu.Ask(new WidgetTextAsk(
+                        ShortcutsStr.WidgetsC_Shortcuts_Menu_ChangeTarget.Text().TrimEnd('…'),
+                        @"https://example.com  ·  C:\Users\…  ·  shell:Downloads",
+                        Str.Common_Save.Text(),
+                        Refusal,
+                        typed => Retarget(item, typed, menu),
+                        Initial: item.Target)))],
+            });
 
     /// <summary>[S-1381] The name an item shows: its label, else the one its target gives it.</summary>
     internal static string ShownName(ShortcutItem item, ShortcutsConfig config)
@@ -149,8 +119,8 @@ internal static class ShortcutsMenu
     private static string DerivedName(ShortcutItem item, ShortcutsConfig config)
         => item.IsLayout ? ShortcutRules.LayoutKindLabel() : LaunchTargets.DisplayName(null, item.Target, config.ShowFileExtension);
 
-    /// <summary>[S-1387] A typed name; the one the target gives (or nothing) clears the label, as renaming on the widget does.</summary>
-    internal static void Rename(ShortcutItem item, string typed, ShortcutsConfig config, WidgetMenuLines menu)
+    /// <summary>[S-1387] A typed name; the one the target gives (or nothing) clears the label, as renaming on the widget does. True when it changed.</summary>
+    internal static bool Rename(ShortcutItem item, string typed, ShortcutsConfig config)
     {
         var label = typed.Trim();
         if (label == DerivedName(item, config))
@@ -158,11 +128,13 @@ internal static class ShortcutsMenu
             label = string.Empty;
         }
 
-        if (label != item.Label)
+        if (label == item.Label)
         {
-            item.Label = label;
-            menu.Save();
+            return false;
         }
+
+        item.Label = label;
+        return true;
     }
 
     /// <summary>A typed target, checked by <see cref="Refusal"/> before it gets here; the label stays.</summary>
@@ -197,7 +169,7 @@ internal static class ShortcutsMenu
         var lines = new List<ItemMenuEntry>
         {
             new(Glyphs.File, ShortcutsStr.WidgetsC_Shortcuts_Settings_Pick_File.Text(), () => _ = PickFileAsync(Append)),
-            new(Glyphs.Folder, ShortcutsStr.WidgetsC_Shortcuts_Settings_Pick_Folder.Text(), () => _ = PickFolderAsync(Append)),
+            new(Glyphs.Folder, ShortcutsStr.WidgetsC_Shortcuts_Settings_Pick_Folder.Text(), () => _ = FolderBrowse.PickAsync(path => Append(ShortcutItem.Create(path, string.Empty)))),
             new(Glyphs.Link, ShortcutsStr.WidgetsC_Shortcuts_Menu_AddLink.Text(), () => menu.Ask(new WidgetTextAsk(
                 ShortcutsStr.Shortcut_AddTitle.Text(),
                 @"https://example.com  ·  C:\Users\…  ·  shell:Downloads",
@@ -272,29 +244,6 @@ internal static class ShortcutsMenu
         {
             // The dialog is a convenience over a drop or a typed path that still work.
             Log.Error(Scope, "the file picker could not be shown", ex);
-        }
-    }
-
-    private static async Task PickFolderAsync(Action<ShortcutItem> add)
-    {
-        try
-        {
-            var picker = new Windows.Storage.Pickers.FolderPicker();
-            picker.FileTypeFilter.Add("*");
-
-            SettingsHost.OwnPicker(picker);
-
-            var folder = await picker.PickSingleFolderAsync();
-            if (folder is null)
-            {
-                return; // ignore: the user cancelled the dialog.
-            }
-
-            add(ShortcutItem.Create(folder.Path, string.Empty));
-        }
-        catch (Exception ex)
-        {
-            Log.Error(Scope, "the folder picker could not be shown", ex);
         }
     }
 }

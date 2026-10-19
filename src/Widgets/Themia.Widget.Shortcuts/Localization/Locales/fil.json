@@ -23,8 +23,6 @@
   "widgetsC.shortcuts.menu.addLink": "Web address o path…",
   "widgetsC.shortcuts.menu.changeTarget": "Palitan ang target…",
   "widgetsC.shortcuts.menu.closeSearch": "Isara ang paghahanap",
-  "widgetsC.shortcuts.menu.moveDown": "Ilipat pababa",
-  "widgetsC.shortcuts.menu.moveUp": "Ilipat pataas",
   "widgetsC.shortcuts.menu.openLayout": "Buksan ang layout",
   "widgetsC.shortcuts.menu.openMany": {
     "one": "Buksan ang {count} shortcut",
@@ -34,7 +32,6 @@
     "one": "Alisin ang {count} shortcut",
     "other": "Alisin ang {count} shortcut"
   },
-  "widgetsC.shortcuts.menu.rename": "Palitan ang pangalan…",
   "widgetsC.shortcuts.menu.undoRemove": "I-undo ang pag-alis",
   "widgetsC.shortcuts.menu.undoRemoveCount": {
     "one": "I-undo ang pag-alis ({count})",

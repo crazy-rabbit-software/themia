@@ -17,10 +17,26 @@ public static class FolderBrowse
 {
     private const string Scope = "folder-settings";
 
-    public static async Task IntoAsync(TextBox box, Action commit)
+    public static Task IntoAsync(TextBox box, Action commit)
     {
         ArgumentNullException.ThrowIfNull(box);
         ArgumentNullException.ThrowIfNull(commit);
+
+        return PickAsync(path =>
+        {
+            box.Text = path;
+            commit();
+        });
+    }
+
+    /// <summary>
+    /// [S-3730] The picker on its own: <paramref name="chosen"/> gets the folder picked, and nothing
+    /// happens on a cancel. The properties menu's folder line ([S-3730]) and the path boxes above go
+    /// through it, so there is one picker.
+    /// </summary>
+    public static async Task PickAsync(Action<string> chosen)
+    {
+        ArgumentNullException.ThrowIfNull(chosen);
 
         try
         {
@@ -38,13 +54,12 @@ public static class FolderBrowse
                 return; // ignore: the user cancelled the dialog.
             }
 
-            box.Text = folder.Path;
-            commit();
+            chosen(folder.Path);
         }
         catch (Exception ex)
         {
-            // The dialog is a convenience over a box that still works. Losing it must not take the
-            // settings window down with it.
+            // The dialog is a convenience over a box or a line that still works. Losing it must not
+            // take the window it was opened from down with it.
             Log.Error(Scope, "the folder picker could not be shown", ex);
         }
     }

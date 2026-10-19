@@ -2,7 +2,5 @@
   "widget.align.label": "সারিবদ্ধকরণ",
   "widget.align.left": "বাম",
   "widget.align.center": "মাঝখানে",
-  "widget.align.right": "ডান",
-  "widget.align.none": "এই উইজেটে সারিবদ্ধ করার কিছু নেই",
-  "widget.align.noStyle": "এই শৈলীতে উপলব্ধ নয়"
+  "widget.align.right": "ডান"
 }

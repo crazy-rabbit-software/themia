@@ -23,8 +23,6 @@
   "widgetsC.shortcuts.menu.addLink": "Веб-адрес или путь…",
   "widgetsC.shortcuts.menu.changeTarget": "Изменить объект…",
   "widgetsC.shortcuts.menu.closeSearch": "Закрыть поиск",
-  "widgetsC.shortcuts.menu.moveDown": "Вниз",
-  "widgetsC.shortcuts.menu.moveUp": "Вверх",
   "widgetsC.shortcuts.menu.openLayout": "Открыть макет",
   "widgetsC.shortcuts.menu.openMany": {
     "one": "Открыть {count} ярлык",
@@ -38,7 +36,6 @@
     "many": "Удалить {count} ярлыков",
     "other": "Удалить {count} ярлыка"
   },
-  "widgetsC.shortcuts.menu.rename": "Переименовать…",
   "widgetsC.shortcuts.menu.undoRemove": "Отменить удаление",
   "widgetsC.shortcuts.menu.undoRemoveCount": {
     "one": "Отменить удаление ({count})",

@@ -2,7 +2,5 @@
   "widget.align.label": "Uitlijning",
   "widget.align.left": "Links",
   "widget.align.center": "Midden",
-  "widget.align.right": "Rechts",
-  "widget.align.none": "Deze widget heeft niets om uit te lijnen",
-  "widget.align.noStyle": "Niet beschikbaar in deze stijl"
+  "widget.align.right": "Rechts"
 }

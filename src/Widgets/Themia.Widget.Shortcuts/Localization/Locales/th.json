@@ -23,8 +23,6 @@
   "widgetsC.shortcuts.menu.addLink": "ที่อยู่เว็บหรือเส้นทาง…",
   "widgetsC.shortcuts.menu.changeTarget": "เปลี่ยนเป้าหมาย…",
   "widgetsC.shortcuts.menu.closeSearch": "ปิดการค้นหา",
-  "widgetsC.shortcuts.menu.moveDown": "เลื่อนลง",
-  "widgetsC.shortcuts.menu.moveUp": "เลื่อนขึ้น",
   "widgetsC.shortcuts.menu.openLayout": "เปิดเค้าโครง",
   "widgetsC.shortcuts.menu.openMany": {
     "other": "เปิด {count} ทางลัด"
@@ -32,7 +30,6 @@
   "widgetsC.shortcuts.menu.removeMany": {
     "other": "เอา {count} ทางลัดออก"
   },
-  "widgetsC.shortcuts.menu.rename": "เปลี่ยนชื่อ…",
   "widgetsC.shortcuts.menu.undoRemove": "เลิกทำการเอาออก",
   "widgetsC.shortcuts.menu.undoRemoveCount": {
     "other": "เลิกทำการเอาออก ({count})"

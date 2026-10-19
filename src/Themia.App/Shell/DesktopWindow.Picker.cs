@@ -241,7 +241,7 @@ internal sealed partial class DesktopWindow
         }
     }
 
-    /// <summary>[S-3717] The clipboard changed: the cut's fade and the menu's Paste follow it.</summary>
+    /// <summary>[S-3717] The clipboard changed: the cut's fade follows it.</summary>
     private void OnClipboardChanged()
     {
         if (_closed)
@@ -250,7 +250,6 @@ internal sealed partial class DesktopWindow
         }
 
         FadeLeaving();
-        SyncProperties();
     }
 
     /// <summary>

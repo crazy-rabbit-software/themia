@@ -2,7 +2,5 @@
   "widget.align.label": "Pagkakahanay",
   "widget.align.left": "Kaliwa",
   "widget.align.center": "Gitna",
-  "widget.align.right": "Kanan",
-  "widget.align.none": "Walang maihahanay sa widget na ito",
-  "widget.align.noStyle": "Hindi available sa estilong ito"
+  "widget.align.right": "Kanan"
 }

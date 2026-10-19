@@ -6,6 +6,5 @@
   "shell.items.textShort": "আইটেমের লেখা",
   "shell.fill.transparent": "স্বচ্ছ",
   "shell.fill.opacity": "অস্বচ্ছতা",
-  "shell.fill.withOpacity": "{colour}, {percent}",
-  "shell.fill.noItems": "এই উইজেটে কোনো আইটেম নেই"
+  "shell.fill.withOpacity": "{colour}, {percent}"
 }

@@ -2,7 +2,5 @@
   "widget.align.label": "Hizalama",
   "widget.align.left": "Sol",
   "widget.align.center": "Orta",
-  "widget.align.right": "Sağ",
-  "widget.align.none": "Bu pencere öğesinde hizalanacak bir şey yok",
-  "widget.align.noStyle": "Bu stilde kullanılamaz"
+  "widget.align.right": "Sağ"
 }

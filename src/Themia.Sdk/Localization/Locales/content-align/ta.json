@@ -2,7 +2,5 @@
   "widget.align.label": "சீரமைப்பு",
   "widget.align.left": "இடம்",
   "widget.align.center": "மையம்",
-  "widget.align.right": "வலம்",
-  "widget.align.none": "இந்த விட்ஜெட்டில் சீரமைக்க எதுவும் இல்லை",
-  "widget.align.noStyle": "இந்த நடையில் கிடைக்காது"
+  "widget.align.right": "வலம்"
 }

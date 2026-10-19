@@ -44,6 +44,12 @@ namespace Themia.App.Widgets;
 /// (Windows draws a dot, not a tick): the entries of one group sharing this name.
 /// </param>
 /// <param name="Search">[S-3722] The properties menu's search, opened beside the line; item menus have none.</param>
+/// <param name="Value">
+/// [S-3726] What the line holds, at its end in the secondary colour (a number, a folder's name); the
+/// properties menu draws it, item menus write a shortcut there instead.
+/// </param>
+/// <param name="Colour">[S-3724] The properties menu's colour line: its submenu is the one colour submenu; item menus have none.</param>
+/// <param name="Note">[S-3728] A line of words only (a data source's credit): greyed, never clickable, trimmed with the whole as its tooltip.</param>
 public readonly record struct ItemMenuEntry(
     string? Glyph,
     string Text,
@@ -56,12 +62,15 @@ public readonly record struct ItemMenuEntry(
     KeyChord? Shortcut = null,
     string? IconFile = null,
     string? Group = null,
-    Themia.Sdk.WinUI.MenuSearch? Search = null)
+    Themia.Sdk.WinUI.MenuSearch? Search = null,
+    string? Value = null,
+    Themia.Sdk.WinUI.MenuColour? Colour = null,
+    bool Note = false)
 {
     /// <summary>A divider between groups. Leading, trailing and doubled separators are dropped.</summary>
     public static ItemMenuEntry Separator => new(null, string.Empty, null);
 
-    public bool IsSeparator => Action is null && Children is null && Search is null;
+    public bool IsSeparator => Action is null && Children is null && Search is null && Colour is null && !Note;
 
     /// <summary>[S-1740] Toggles and submenus never go to the icon row: an icon cannot show a check or an arrow.</summary>
     internal MenuLine Line => IsSeparator ? MenuLine.Separator : MenuLine.Entry(Checked is null && Children is null ? Quick : null);

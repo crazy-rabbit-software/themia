@@ -6,6 +6,5 @@
   "shell.items.textShort": "Öğe metni",
   "shell.fill.transparent": "Saydam",
   "shell.fill.opacity": "Opaklık",
-  "shell.fill.withOpacity": "{colour}, {percent}",
-  "shell.fill.noItems": "Bu pencere öğesinde öğe yok"
+  "shell.fill.withOpacity": "{colour}, {percent}"
 }

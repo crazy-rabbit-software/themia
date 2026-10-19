@@ -2,7 +2,5 @@
   "widget.align.label": "對齊方式",
   "widget.align.left": "靠左",
   "widget.align.center": "置中",
-  "widget.align.right": "靠右",
-  "widget.align.none": "此小工具沒有可對齊的內容",
-  "widget.align.noStyle": "此樣式無法使用"
+  "widget.align.right": "靠右"
 }

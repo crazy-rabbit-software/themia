@@ -6,6 +6,5 @@
   "shell.items.textShort": "అంశం వచనం",
   "shell.fill.transparent": "పారదర్శకం",
   "shell.fill.opacity": "అపారదర్శకత",
-  "shell.fill.withOpacity": "{colour}, {percent}",
-  "shell.fill.noItems": "ఈ విడ్జెట్‌లో అంశాలు లేవు"
+  "shell.fill.withOpacity": "{colour}, {percent}"
 }

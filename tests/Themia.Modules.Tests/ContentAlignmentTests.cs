@@ -179,18 +179,14 @@ public sealed partial class ContentAlignmentTests
     }
 
     [Fact]
-    public void S6584_the_row_is_greyed_for_a_widget_with_nothing_to_align_and_says_why()
+    public void S6584_the_line_is_not_offered_for_a_widget_with_nothing_to_align_in_its_style()
     {
         var (state, view, selection) = Selected(Widget(new WidgetId("tasks")));
-        var tasks = QuickSet.For(state, selection, view.Id);
-        Assert.False(tasks.CanAlign);
-        Assert.False(tasks.AlignKind);
+        Assert.False(QuickSet.For(state, selection, view.Id).CanAlign);
 
-        // The moon aligns, only not in its month style: the row says so.
+        // The moon aligns, only not in its month style: no line either.
         (state, view, selection) = Selected(Widget(new WidgetId("moon"), (int)MoonStyle.PhaseMonth));
-        var month = QuickSet.For(state, selection, view.Id);
-        Assert.False(month.CanAlign);
-        Assert.True(month.AlignKind);
+        Assert.False(QuickSet.For(state, selection, view.Id).CanAlign);
     }
 
     [Fact]

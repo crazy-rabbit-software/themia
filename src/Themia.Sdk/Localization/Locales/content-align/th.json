@@ -2,7 +2,5 @@
   "widget.align.label": "การจัดแนว",
   "widget.align.left": "ซ้าย",
   "widget.align.center": "กึ่งกลาง",
-  "widget.align.right": "ขวา",
-  "widget.align.none": "วิดเจ็ตนี้ไม่มีสิ่งที่ต้องจัดแนว",
-  "widget.align.noStyle": "ไม่พร้อมใช้งานในสไตล์นี้"
+  "widget.align.right": "ขวา"
 }

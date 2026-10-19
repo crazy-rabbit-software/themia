@@ -6,6 +6,5 @@
   "shell.items.textShort": "항목 텍스트",
   "shell.fill.transparent": "투명",
   "shell.fill.opacity": "불투명도",
-  "shell.fill.withOpacity": "{colour}, {percent}",
-  "shell.fill.noItems": "이 위젯에는 항목이 없습니다"
+  "shell.fill.withOpacity": "{colour}, {percent}"
 }

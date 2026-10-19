@@ -23,8 +23,6 @@
   "widgetsC.shortcuts.menu.addLink": "Adresse web ou chemin…",
   "widgetsC.shortcuts.menu.changeTarget": "Modifier la cible…",
   "widgetsC.shortcuts.menu.closeSearch": "Fermer la recherche",
-  "widgetsC.shortcuts.menu.moveDown": "Descendre",
-  "widgetsC.shortcuts.menu.moveUp": "Monter",
   "widgetsC.shortcuts.menu.openLayout": "Ouvrir la disposition",
   "widgetsC.shortcuts.menu.openMany": {
     "one": "Ouvrir {count} raccourci",
@@ -34,7 +32,6 @@
     "one": "Supprimer {count} raccourci",
     "other": "Supprimer {count} raccourcis"
   },
-  "widgetsC.shortcuts.menu.rename": "Renommer…",
   "widgetsC.shortcuts.menu.undoRemove": "Annuler la suppression",
   "widgetsC.shortcuts.menu.undoRemoveCount": {
     "one": "Annuler la suppression ({count})",

@@ -34,9 +34,7 @@ namespace Themia.App.Shell;
 /// <param name="Cut">[S-3717] Cut the selection, as Ctrl+X does.</param>
 /// <param name="Copy">[S-3717] Copy the selection, as Ctrl+C does.</param>
 /// <param name="Delete">[S-3717] Delete the selection, as the Delete key does.</param>
-/// <param name="WidgetLines">[S-3719] One widget's own lines, by id, built over its live config; null for none.</param>
-/// <param name="Paste">[S-3717] Paste the widget clipboard, as Ctrl+V does.</param>
-/// <param name="CanPaste">[S-3717] Whether the widget clipboard holds something to paste.</param>
+/// <param name="WidgetLines">[S-3719] One widget's own lines, by id, built over its live config (asking for text and confirmations beside the menu); null for none.</param>
 internal sealed record PropertiesCommands(
     Action<HeaderPlacement> SetHeader,
     Action<FillChoice> SetBackground,
@@ -52,20 +50,18 @@ internal sealed record PropertiesCommands(
     Action? Cut = null,
     Action? Copy = null,
     Action? Delete = null,
-    Func<string, Action<WidgetTextAsk>, WidgetMenuLines?>? WidgetLines = null,
-    Action? Paste = null,
-    Func<bool>? CanPaste = null);
+    Func<string, Action<WidgetTextAsk>, Action<WidgetConfirm>, WidgetMenuLines?>? WidgetLines = null);
 
 /// <summary>
 /// [S-3716] The selected widgets' properties, as a menu that stands beside the selection: drawn as
-/// Windows 11 draws a context menu (the flyout's surface, the icon row on top, 32-DIP lines with a
-/// tick column, an icon column, a value column and a chevron), but it stays open while it is used,
-/// and so do its submenus: a pick in one is drawn where it is, and the menu stays as it was ([S-3718]).
-/// The icon row is Cut, Copy and Paste, Delete at its far end ([S-3717]); then the title (one
-/// widget) or "N selected", Style, the widget's own lines ([S-3719]), and the card's own (Header,
-/// Alignment, Background, Item background, Item text, Scale): an Appearance submenu among the
-/// widget's lines where it places them ([S-3723]), else their own group; More settings last where
-/// the widget still has a page ([S-6009]). After Karpo's properties panel (docs/widgets.md §145).
+/// Windows 11 draws a context menu (the flyout's surface, the icon row on top, 32-DIP lines with an
+/// icon column, the words, a value column and at the end the mark or the chevron), but it stays open
+/// while it is used, and so do its submenus: a pick in one is drawn where it is, and the menu stays as
+/// it was ([S-3718]). The icon row is Cut and Copy, Delete at its far end ([S-3717]); then the title
+/// (one widget) or "N selected", Style, the widget's own lines ([S-3719]), and the card's own (Header,
+/// Alignment, Background, Item background, Item text, Scale) as one Appearance submenu: where the
+/// widget places it, else right after Style ([S-3723]); More settings last where the widget still has
+/// a page ([S-6009]). After Karpo's properties panel (docs/widgets.md §145).
 /// <para>
 /// The menu is a list of <see cref="Node"/>s, built again from the offer and the widget's lines on
 /// every change. Lines are drawn again only when a list's shape changed (which lines there are); a
@@ -85,7 +81,7 @@ internal sealed partial class PropertiesStrip : Grid
     /// <summary>The icon row's buttons: the size of Explorer's.</summary>
     private const double RowButton = 40;
 
-    /// <summary>A column of a line before its words: an icon or a tick (16) and its gap (12).</summary>
+    /// <summary>A column of a line before its words: an icon (16) and its gap (12).</summary>
     private const double LeadColumn = Fluent.IconSize + Fluent.Space3;
 
     /// <summary>The narrowest the menu is: Explorer's menus are never a sliver.</summary>
@@ -105,8 +101,11 @@ internal sealed partial class PropertiesStrip : Grid
     /// <summary>The chevron of a line with a submenu: Windows' "ChevronRightMed", at the menu's size.</summary>
     private static readonly string Chevron = char.ConvertFromUtf32(0xE974);
 
-    /// <summary>[S-3723] A fill's opacity steps on its submenu.</summary>
-    private static readonly double[] OpacitySteps = [1.0, 0.9, 0.8, 0.7, 0.6, 0.5, 0.4, 0.3, 0.2, 0.1];
+    /// <summary>[S-3725] The answers a search shows before its Show all line, and the lines its answers' room never shrinks below.</summary>
+    private const int SearchAnswers = 5;
+
+    /// <summary>[S-3728] The most lines a note wraps to; the rest is trimmed, the whole in its tooltip.</summary>
+    private const int NoteLines = 3;
 
     private readonly Border _frame = new() { MinWidth = MinMenuWidth };
 
@@ -121,9 +120,6 @@ internal sealed partial class PropertiesStrip : Grid
 
     /// <summary>The panel's list first, then each open submenu, deepest last.</summary>
     private readonly List<Level> _levels = [];
-
-    /// <summary>What the legacy colour lines show, written again from the offer when it changes.</summary>
-    private readonly List<Action> _colourShows = [];
 
     private PropertiesCommands _commands;
 
@@ -216,10 +212,6 @@ internal sealed partial class PropertiesStrip : Grid
         }
 
         Update(_levels[0], nodes);
-        foreach (var show in _colourShows)
-        {
-            show();
-        }
 
         for (var i = 1; i < _levels.Count; i++)
         {
@@ -258,9 +250,9 @@ internal sealed partial class PropertiesStrip : Grid
         }
     }
 
-    /// <summary>What the frame shows: the selection's count or the one widget, whether Paste can, whether there is a menu at all.</summary>
+    /// <summary>What the frame shows: the selection's count or the one widget, whether there is a menu at all.</summary>
     private string FrameKey()
-        => _offer.Shows + "|" + _offer.TitleWidgetId + "|" + (_offer.HasTitle ? 0 : _offer.Count) + "|" + (_commands.CanPaste?.Invoke() ?? false);
+        => _offer.Shows + "|" + _offer.TitleWidgetId + "|" + (_offer.HasTitle ? 0 : _offer.Count);
 
     private WidgetMenuLines? WidgetLines()
     {
@@ -271,7 +263,7 @@ internal sealed partial class PropertiesStrip : Grid
 
         try
         {
-            return lines(id, Ask);
+            return lines(id, Ask, Confirm);
         }
         catch (Exception ex)
         {
@@ -306,16 +298,20 @@ internal sealed partial class PropertiesStrip : Grid
         Line,
         Separator,
 
-        /// <summary>A legacy colour line: the colour control's own panel beside it (widgets not yet on [S-3723]).</summary>
-        Colour,
-
         /// <summary>Something drawn whole, not a line (a colour submenu's swatches), drawn again when its <see cref="Node.ValueKey"/> changes.</summary>
         Custom,
+
+        /// <summary>[S-3728] Words only, greyed and never clickable.</summary>
+        Note,
+
+        /// <summary>[S-3725] Room kept free under a search's answers, <see cref="Node.Height"/> tall.</summary>
+        Spacer,
     }
 
     /// <summary>
     /// One line of the menu or of a submenu: its words, the value at its end, its icon (and what the
-    /// icon is, to tell a change), a tick or a dot, a submenu or a search, or what a click does.
+    /// icon is, to tell a change), a tick or a dot, a submenu or a search, or what a click does; a
+    /// danger line is drawn in the critical colour.
     /// <see cref="Key"/> names it across rebuilds.
     /// </summary>
     private sealed record Node(string Key, NodeKind Kind = NodeKind.Line)
@@ -336,9 +332,11 @@ internal sealed partial class PropertiesStrip : Grid
 
         public bool Disabled { get; init; }
 
-        public string? Why { get; init; }
+        public bool Danger { get; init; }
 
         public string? Tip { get; init; }
+
+        public double Height { get; init; }
 
         public IReadOnlyList<Node>? Children { get; init; }
 
@@ -354,7 +352,7 @@ internal sealed partial class PropertiesStrip : Grid
     private static bool Opens(Node node) => node.Children is not null || node.Search is not null;
 
     /// <summary>A drawn line: its node now, and the parts a change of value is written into.</summary>
-    private sealed class LineView(Node node, Button button, FrameworkElement root, Border lead, Border check, TextBlock words, TextBlock value)
+    private sealed class LineView(Node node, Button button, FrameworkElement root, Border lead, Border trail, TextBlock words, TextBlock value)
     {
         public Node Node { get; set; } = node;
 
@@ -366,7 +364,8 @@ internal sealed partial class PropertiesStrip : Grid
 
         public Border Lead { get; } = lead;
 
-        public Border Check { get; } = check;
+        /// <summary>[S-3716] The end column: the tick or the dot, or the chevron of a line that opens a submenu.</summary>
+        public Border Trail { get; } = trail;
 
         public TextBlock Words { get; } = words;
 
@@ -388,7 +387,8 @@ internal sealed partial class PropertiesStrip : Grid
 
         public LineView? Anchor { get; set; }
 
-        public bool Ticks { get; set; }
+        /// <summary>[S-3716] Some line has a mark or a chevron: every line keeps the end column, so the values stand in one column.</summary>
+        public bool Trail { get; set; }
 
         public bool Icons { get; set; }
 
@@ -399,6 +399,9 @@ internal sealed partial class PropertiesStrip : Grid
 
         public List<Node> Results { get; set; } = [];
 
+        /// <summary>[S-3725] Show all was clicked: every answer shows until the next question.</summary>
+        public bool ShowAll { get; set; }
+
         public CancellationTokenSource? Pending { get; set; }
 
         public Microsoft.UI.Dispatching.DispatcherQueueTimer? Settle { get; set; }
@@ -407,17 +410,39 @@ internal sealed partial class PropertiesStrip : Grid
     /// <summary>Which lines there are, as one string: values (ticks, words at the end, icons) are not in it.</summary>
     private static string Shape(IReadOnlyList<Node> nodes)
         => string.Join(";", nodes.Select(n => n.Key + "|" + (int)n.Kind + "|" + (n.Disabled ? 'd' : 'e') + "|"
-            + (Opens(n) ? 's' : '-') + "|" + (n.Checked is null ? '-' : 'c') + "|" + (n.Icon is null ? '-' : 'i') + "|" + n.Why));
+            + (Opens(n) ? 's' : '-') + "|" + (n.Checked is null ? '-' : 'c') + "|" + (n.Icon is null ? '-' : 'i') + "|" + (n.Danger ? '!' : '-')));
 
-    /// <summary>The lines of the level a node opens: its submenu, or a search's answers and its fixed lines.</summary>
-    private static List<Node> LevelNodes(Level level, Node owner)
+    /// <summary>
+    /// The lines of the level a node opens: its submenu, or a search's answers and its fixed lines.
+    /// [S-3725] A search shows its first five answers and Show all (N) under them until that is
+    /// clicked, and the answers' room is never less than five lines (kept free under a note or a few
+    /// answers), so the fixed lines do not jump while it is typed into.
+    /// </summary>
+    private List<Node> LevelNodes(Level level, Node owner)
     {
         if (owner.Search is not { } search)
         {
             return [.. owner.Children ?? []];
         }
 
-        var nodes = new List<Node>(level.Results);
+        var answers = level.Results;
+        var cut = !level.ShowAll && answers.Count > SearchAnswers;
+        var nodes = new List<Node>(cut ? answers.Take(SearchAnswers) : answers);
+        if (cut)
+        {
+            nodes.Add(new Node(owner.Key + "/all")
+            {
+                Text = Str.Menu_ShowAll.Format(("count", LocaleFormat.Integer(answers.Count))),
+                Run = () => ShowAllAnswers(level),
+            });
+        }
+
+        if (nodes.Count < SearchAnswers)
+        {
+            var free = SearchAnswers - nodes.Count;
+            nodes.Add(new Node(owner.Key + "/pad" + free, NodeKind.Spacer) { Height = free * LineHeight });
+        }
+
         if (search.Fixed.Count > 0)
         {
             nodes.Add(Node.Separator(owner.Key + "/-fixed"));
@@ -470,31 +495,18 @@ internal sealed partial class PropertiesStrip : Grid
             });
         }
 
-        var card = CardNodes(commands, legacy: _widget?.CardAt is null);
-
-        // [S-3719] The widget's own lines, in its order; [S-3723] the card's among them where it says.
-        if (_widget is { } own)
+        // [S-3719] The widget's own lines, in its order; [S-3723] the card's as one Appearance
+        // submenu among them where the widget places it, else first, right after Style: for every
+        // widget and for several.
+        var lines = _widget is { } own ? FromEntries(own.Lines, "w") : [];
+        lines.Insert(Math.Clamp(_widget?.CardAt ?? 0, 0, lines.Count), new Node("appearance")
         {
-            var lines = FromEntries(own.Lines, "w");
-            if (own.CardAt is { } at)
-            {
-                lines.Insert(Math.Clamp(at, 0, lines.Count), new Node("appearance")
-                {
-                    Text = Str.Settings_Section_Appearance.Text(),
-                    IconKey = "appearance",
-                    Icon = () => Glyph(Glyphs.Palette),
-                    Children = card,
-                });
-            }
-
-            nodes.AddRange(lines);
-        }
-
-        if (_widget?.CardAt is null)
-        {
-            nodes.Add(Node.Separator("-card"));
-            nodes.AddRange(card);
-        }
+            Text = Str.Settings_Section_Appearance.Text(),
+            IconKey = "appearance",
+            Icon = () => Glyph(Glyphs.Palette),
+            Children = CardNodes(commands),
+        });
+        nodes.AddRange(lines);
 
         // [S-6009] More settings: the widget's options still on its page (the menu holds the rest,
         // [S-6536]), one widget only and only when its page has lines ([S-1750]).
@@ -515,15 +527,16 @@ internal sealed partial class PropertiesStrip : Grid
     }
 
     /// <summary>
-    /// The card's own lines: Header, Alignment, Background, Item background, Item text and Scale.
-    /// [S-3723] Where the widget places them they are submenus throughout, the colours too; else
-    /// ([S-3718]) the colours are the colour control's panel beside their line, until every widget moves.
+    /// [S-3723] The card's own lines, submenus throughout: Header, Alignment, Background, Item
+    /// background, Item text and Scale. A line that cannot apply is not there ([S-3718]): Header for
+    /// a kind that never has one ([S-3711]), Alignment where nothing selected aligns ([S-6584]), the
+    /// item lines where nothing selected has items ([S-6571]). The colours are the menu's one colour
+    /// vocabulary ([S-3724]), the same lines a widget's own colour gets.
     /// </summary>
-    private List<Node> CardNodes(PropertiesCommands commands, bool legacy)
+    private List<Node> CardNodes(PropertiesCommands commands)
     {
         var nodes = new List<Node>();
 
-        // [S-3711] Only where every selected widget can have a header: never for a toggle.
         if (_offer.HasHeader)
         {
             var header = Array.Find(HeaderOptions(), o => o.Value == _offer.Header);
@@ -539,54 +552,41 @@ internal sealed partial class PropertiesStrip : Grid
             });
         }
 
-        // [S-6584] Where the content sits across the card. Greyed when nothing selected can align
-        // in its style ([S-6581]), as the item lines are without items.
+        // [S-6584] Where the content sits across the card, for the widgets that align in their style ([S-6581]).
+        if (_offer.CanAlign)
         {
             var align = AlignOptions();
-            var now = _offer.CanAlign ? _offer.Align : null;
+            var now = _offer.Align;
             var at = Array.FindIndex(align, o => o.Value == now);
             var glyph = at >= 0 ? align[at].Glyph : Glyphs.AlignLeft;
             nodes.Add(new Node("align")
             {
                 Text = Str.Widget_Align_Label.Text(),
-                Value = at >= 0 ? align[at].Name.Text() : (_offer.CanAlign ? Mixed : null),
+                Value = at >= 0 ? align[at].Name.Text() : Mixed,
                 IconKey = glyph,
                 Icon = () => Glyph(glyph),
-                Disabled = !_offer.CanAlign,
-                Why = _offer.CanAlign ? null : _offer.AlignKind ? Str.Widget_Align_NoStyle.Text() : Str.Widget_Align_None.Text(),
                 Children = [.. align.Select(o => Option("align/" + o.Value, o.Name.Text(), o.Glyph, () => Glyph(o.Glyph), now == o.Value, () => commands.SetAlign?.Invoke(o.Value)))],
             });
         }
 
-        // [S-6566] The widgets' own background and item background: one fill choice each, Default
-        // for the app-wide one. [S-6571] The item lines are greyed for widgets that have no items;
-        // [S-6544] the colour of the text on their items, "Default" for the app-wide one.
-        var noItems = _offer.HasItems ? null : Str.Shell_Fill_NoItems.Text();
-        if (legacy)
+        // [S-6566] The widgets' own background and item background: one fill each, Default for the
+        // app-wide one; [S-6544] the colour of the text on their items, Default for the app-wide one.
+        // A mixed selection's value is null: the line reads as a dash and nothing holds.
+        var colours = new List<ItemMenuEntry>
         {
-            nodes.Add(new Node("background", NodeKind.Colour)
-            {
-                Build = () => FillLine(Str.Settings_Style_BgLabel.Text(), () => _offer.Background, commands.SetBackground, AppBackgroundColour),
-            });
-            nodes.Add(new Node("items", NodeKind.Colour)
-            {
-                Disabled = !_offer.HasItems,
-                Why = noItems,
-                Build = () => FillLine(Str.Shell_Items_Background.Text(), () => _offer.Items, commands.SetItemBackground, AppItemColour),
-            });
-            nodes.Add(new Node("itemText", NodeKind.Colour)
-            {
-                Disabled = !_offer.HasItems,
-                Why = noItems,
-                Build = () => ItemTextLine(commands),
-            });
-        }
-        else
+            new(null, Str.Settings_Style_BgLabel.Text(), null, Colour: MenuColour.OfFill(_offer.Background, commands.SetBackground,
+                new FillChoiceOptions { DefaultLabel = Str.Common_Default.Text(), DefaultColor = AppBackgroundColour })),
+        };
+
+        if (_offer.HasItems)
         {
-            nodes.Add(FillNode("background", Str.Settings_Style_BgLabel.Text(), _offer.Background, commands.SetBackground, AppBackgroundColour, null));
-            nodes.Add(FillNode("items", Str.Shell_Items_Background.Text(), _offer.Items, commands.SetItemBackground, AppItemColour, noItems));
-            nodes.Add(ItemTextNode(commands, noItems));
+            colours.Add(new(null, Str.Shell_Items_Background.Text(), null, Colour: MenuColour.OfFill(_offer.Items, commands.SetItemBackground,
+                new FillChoiceOptions { DefaultLabel = Str.Common_Default.Text(), DefaultColor = AppItemColour })));
+            colours.Add(new(null, Str.Shell_Items_TextShort.Text(), null, Colour: MenuColour.Of(_offer.ItemText, commands.SetItemTextColor,
+                new ColorChoiceOptions { DefaultLabel = Str.Common_Default.Text(), Presets = ColorPresets.Surfaces, DefaultColor = AppItemTextColour })));
         }
+
+        nodes.AddRange(FromEntries(colours, "card"));
 
         // [S-6531] The widgets' own content scale, in steps, after the look of the card it magnifies.
         {
@@ -606,120 +606,109 @@ internal sealed partial class PropertiesStrip : Grid
     }
 
     /// <summary>
-    /// [S-3723] A fill as a submenu: Default (the app-wide fill) and Transparent with the dot, the
-    /// swatches, the opacity in steps (a colour only), Custom colour… (the picker's dialog) and Pick
-    /// from screen. The line shows the fill's swatch and its words; a mixed selection reads as a dash.
+    /// [S-3724] A colour line and its submenu, the one path every colour of the menu takes (the
+    /// card's and a widget's own): Default (where the setting has one) and a fill's Transparent with
+    /// the dot, the swatches, a fill's Opacity in steps (a colour only), Custom colour… (the picker's
+    /// dialog) and Pick a colour from the screen (the eyedropper), those two where custom colours are
+    /// allowed. The line shows the colour's swatch and its words; a mixed selection reads as a dash.
     /// </summary>
-    private Node FillNode(string key, string name, FillChoice? current, Action<FillChoice> set, Func<Windows.UI.Color?> appWide, string? why)
+    private Node ColourNode(string key, string text, MenuColour colour, bool disabled)
     {
-        var options = new ColorChoiceOptions { DefaultLabel = Str.Common_Default.Text(), DefaultColor = appWide, Presets = ColorPresets.Surfaces };
-        var opacity = current is { Kind: FillKind.Colour } ? current.Opacity : 1.0;
-        var colour = current is { Kind: FillKind.Colour } ? HexColor.Normalise(current.Colour) : string.Empty;
-        string anchorKey = key;
+        var options = colour.Options;
+        var chosen = colour.Chosen;
 
-        var children = new List<Node>
+        // Every part of the value, so the swatches are drawn again (with a pick's opacity) when any changes.
+        var held = colour.Mixed ? "mixed" : colour.IsFill ? colour.Fill!.Kind + "|" + chosen + "|" + colour.Opacity : "c|" + chosen;
+
+        void Paint(Border swatch)
         {
-            Option(key + "/default", Str.Common_Default.Text(), "default", () => Swatch(b => ColorChoice.PaintFill(b, FillChoice.Default(), options)),
-                current is { Kind: FillKind.Default }, () => set(FillChoice.Default())),
-            Option(key + "/transparent", Str.Shell_Fill_Transparent.Text(), "transparent", () => Swatch(b => ColorChoice.PaintFill(b, FillChoice.Transparent(), options)),
-                current is { Kind: FillKind.Transparent }, () => set(FillChoice.Transparent())),
-            Node.Separator(key + "/-swatches"),
-            new(key + "/swatches", NodeKind.Custom)
+            if (colour.Mixed)
             {
-                ValueKey = colour,
-                Build = () => Swatches(ColorPresets.Surfaces, colour, hex => set(FillChoice.Of(hex, opacity))),
-            },
-            Node.Separator(key + "/-more"),
-            new(key + "/opacity")
+                return;
+            }
+
+            if (colour.IsFill)
+            {
+                ColorChoice.PaintFill(swatch, colour.Fill!, options);
+            }
+            else
+            {
+                ColorChoice.PaintSwatch(swatch, chosen, options);
+            }
+        }
+
+        var children = new List<Node>();
+        if (options.DefaultLabel is { } defaultLabel)
+        {
+            children.Add(Option(key + "/default", defaultLabel, "default", () => Swatch(b =>
+            {
+                if (colour.IsFill)
+                {
+                    ColorChoice.PaintFill(b, FillChoice.Default(), options);
+                }
+                else
+                {
+                    ColorChoice.PaintSwatch(b, string.Empty, options);
+                }
+            }), colour.DefaultHolds, colour.ChooseDefault));
+        }
+
+        if (colour.IsFill)
+        {
+            children.Add(Option(key + "/transparent", Str.Shell_Fill_Transparent.Text(), "transparent", () => Swatch(b => ColorChoice.PaintFill(b, FillChoice.Transparent(), options)),
+                colour.TransparentHolds, colour.ChooseTransparent));
+        }
+
+        children.Add(Node.Separator(key + "/-swatches"));
+        children.Add(new Node(key + "/swatches", NodeKind.Custom)
+        {
+            ValueKey = held,
+            Build = () => Swatches(options.Presets, chosen, colour.Choose),
+        });
+        children.Add(Node.Separator(key + "/-more"));
+
+        if (colour.IsFill)
+        {
+            children.Add(new Node(key + "/opacity")
             {
                 Text = Str.Shell_Fill_Opacity.Text(),
-                Value = current is { Kind: FillKind.Colour } ? LocaleFormat.Percent(Strings.Current, (int)Math.Round(opacity * 100)) : null,
-                Disabled = current is not { Kind: FillKind.Colour },
-                Children = [.. OpacitySteps.Select(step => Option(key + "/opacity/" + step, LocaleFormat.Percent(Strings.Current, (int)Math.Round(step * 100)), string.Empty, null,
-                    current is { Kind: FillKind.Colour } && Math.Abs(current.Opacity - step) < 0.005, () => set(FillChoice.Of(colour, step))))],
-            },
-            new(key + "/custom")
+                Value = colour.HasOpacity ? Percent(colour.Opacity) : null,
+                Disabled = !colour.HasOpacity,
+                Children = [.. MenuColour.OpacitySteps.Select(step => Option(key + "/opacity/" + step, Percent(step), string.Empty, null,
+                    colour.HasOpacity && Math.Abs(colour.Opacity - step) < 0.005, () => colour.ChooseOpacity(step)))],
+            });
+        }
+
+        if (options.AllowCustom)
+        {
+            children.Add(new Node(key + "/custom")
             {
                 Text = Str.Shell_Color_Custom.Text(),
                 IconKey = "custom",
                 Icon = () => Glyph(Glyphs.Palette),
-                Run = () => Custom(anchorKey, colour, options, opacity, (hex, alpha) => set(FillChoice.Of(hex, alpha))),
-            },
-            new(key + "/screen")
+                Run = () => Custom(key, chosen, options, colour.IsFill ? colour.Opacity : null, colour.ChooseCustom),
+            });
+            children.Add(new Node(key + "/screen")
             {
                 Text = Str.Shell_Color_PickFromScreen.Text(),
                 IconKey = "screen",
                 Icon = () => Glyph(Glyphs.Eyedropper),
-                Run = () => ColorChoice.PickFromScreen(hex => set(FillChoice.Of(hex, opacity))),
-            },
-        };
+                Run = () => ColorChoice.PickFromScreen(colour.Choose),
+            });
+        }
 
         return new Node(key)
         {
-            Text = name,
-            Value = current is null ? Mixed : ColorChoice.DescribeFill(current, options),
-            IconKey = current is null ? "mixed" : current.Kind + current.Colour + current.Opacity,
-            Icon = () => Swatch(b =>
-            {
-                if (current is not null)
-                {
-                    ColorChoice.PaintFill(b, current, options);
-                }
-            }),
-            Disabled = why is not null,
-            Why = why,
+            Text = text,
+            Value = colour.Mixed ? Mixed : colour.IsFill ? ColorChoice.DescribeFill(colour.Fill!, options) : ColorChoice.Describe(chosen, options),
+            IconKey = held,
+            Icon = () => Swatch(Paint),
+            Disabled = disabled,
             Children = children,
         };
     }
 
-    /// <summary>[S-3723] The item text colour as a submenu: Default (the app-wide one), the swatches, Custom colour… and Pick from screen.</summary>
-    private Node ItemTextNode(PropertiesCommands commands, string? why)
-    {
-        var options = new ColorChoiceOptions { DefaultLabel = Str.Common_Default.Text(), Presets = ColorPresets.Surfaces, DefaultColor = AppItemTextColour };
-        var current = _offer.ItemText is null ? null : HexColor.Normalise(_offer.ItemText);
-        var set = commands.SetItemTextColor;
-
-        return new Node("itemText")
-        {
-            Text = Str.Shell_Items_TextShort.Text(),
-            Value = current is null ? Mixed : ColorChoice.Describe(current, options),
-            IconKey = current ?? "mixed",
-            Icon = () => Swatch(b =>
-            {
-                if (current is not null)
-                {
-                    ColorChoice.PaintSwatch(b, current, options);
-                }
-            }),
-            Disabled = why is not null,
-            Why = why,
-            Children =
-            [
-                Option("itemText/default", Str.Common_Default.Text(), "default", () => Swatch(b => ColorChoice.PaintSwatch(b, string.Empty, options)), current is { Length: 0 }, () => set(string.Empty)),
-                Node.Separator("itemText/-swatches"),
-                new("itemText/swatches", NodeKind.Custom)
-                {
-                    ValueKey = current ?? string.Empty,
-                    Build = () => Swatches(ColorPresets.Surfaces, current ?? string.Empty, set),
-                },
-                Node.Separator("itemText/-more"),
-                new("itemText/custom")
-                {
-                    Text = Str.Shell_Color_Custom.Text(),
-                    IconKey = "custom",
-                    Icon = () => Glyph(Glyphs.Palette),
-                    Run = () => Custom("itemText", current ?? string.Empty, options, null, (hex, _) => set(hex)),
-                },
-                new("itemText/screen")
-                {
-                    Text = Str.Shell_Color_PickFromScreen.Text(),
-                    IconKey = "screen",
-                    Icon = () => Glyph(Glyphs.Eyedropper),
-                    Run = () => ColorChoice.PickFromScreen(set),
-                },
-            ],
-        };
-    }
+    private static string Percent(double fraction) => LocaleFormat.Percent(Strings.Current, (int)Math.Round(fraction * 100));
 
     /// <summary>[S-3723] The custom colour dialog, from the line that asked for it.</summary>
     private void Custom(string key, string current, ColorChoiceOptions options, double? opacity, Action<string, double> choose)
@@ -822,8 +811,11 @@ internal sealed partial class PropertiesStrip : Grid
     private static Node Option(string key, string text, string iconKey, Func<UIElement?>? icon, bool holds, Action pick)
         => new(key) { Text = text, IconKey = iconKey, Icon = icon, Checked = holds, Radio = true, Run = pick };
 
-    /// <summary>[S-3719] The widget's own lines as the menu's: its submenus, searches, switches, choices and commands.</summary>
-    private static List<Node> FromEntries(IReadOnlyList<ItemMenuEntry> entries, string prefix)
+    /// <summary>
+    /// [S-3719] The widget's own lines (and the card's colours) as the menu's: its submenus,
+    /// searches, switches, choices, commands, colours ([S-3724]) and notes ([S-3728]).
+    /// </summary>
+    private List<Node> FromEntries(IReadOnlyList<ItemMenuEntry> entries, string prefix)
     {
         var nodes = new List<Node>(entries.Count);
         for (var i = 0; i < entries.Count; i++)
@@ -836,7 +828,19 @@ internal sealed partial class PropertiesStrip : Grid
             }
 
             var key = prefix + "/" + entry.Text;
-            var value = entry.Shortcut is { } chord ? KeyChordText.Format(chord) : entry.Search?.Value;
+            if (entry.Colour is { } colour)
+            {
+                nodes.Add(ColourNode(key, entry.Text, colour, entry.Disabled));
+                continue;
+            }
+
+            if (entry.Note)
+            {
+                nodes.Add(new Node(key, NodeKind.Note) { Text = entry.Text });
+                continue;
+            }
+
+            var value = entry.Value ?? (entry.Shortcut is { } chord ? KeyChordText.Format(chord) : entry.Search?.Value);
             List<Node>? children = null;
             if (entry.Children is { } kids)
             {
@@ -846,7 +850,7 @@ internal sealed partial class PropertiesStrip : Grid
                 var chosen = kids.FirstOrDefault(k => k is { Checked: true, Group: not null });
                 if (chosen.Group is not null)
                 {
-                    value = chosen.Text;
+                    value ??= chosen.Text;
                 }
             }
 
@@ -860,6 +864,7 @@ internal sealed partial class PropertiesStrip : Grid
                 Checked = entry.Checked,
                 Radio = entry.Group is not null,
                 Disabled = entry.Disabled,
+                Danger = entry.Danger,
                 Children = children,
                 Search = entry.Search,
             });
@@ -878,7 +883,6 @@ internal sealed partial class PropertiesStrip : Grid
         var open = _levels.Skip(1).Select(l => l.Anchor!.Node.Key).ToList();
         CloseFrom(1);
         _levels.Clear();
-        _colourShows.Clear();
         _menu.Children.Clear();
         _title = null;
         _titleId = null;
@@ -930,7 +934,7 @@ internal sealed partial class PropertiesStrip : Grid
         level.Views.Clear();
         level.Nodes = [.. nodes];
         level.Shape = Shape(nodes);
-        level.Ticks = nodes.Any(n => n.Checked is not null);
+        level.Trail = nodes.Any(n => n.Kind == NodeKind.Line && (n.Checked is not null || Opens(n)));
         level.Icons |= nodes.Any(n => n.Kind == NodeKind.Line && n.Icon is not null);
 
         foreach (var node in nodes)
@@ -941,9 +945,12 @@ internal sealed partial class PropertiesStrip : Grid
                     level.Lines.Children.Add(Divider(full: false));
                     level.Views.Add(null);
                     break;
-                case NodeKind.Colour:
-                    var colour = node.Build!();
-                    level.Lines.Children.Add(node.Disabled && colour is Button greyed ? Unavailable(greyed, node.Why) : colour);
+                case NodeKind.Note:
+                    level.Lines.Children.Add(NoteLine(node.Text, level.Icons));
+                    level.Views.Add(null);
+                    break;
+                case NodeKind.Spacer:
+                    level.Lines.Children.Add(new Border { Height = node.Height, IsHitTestVisible = false });
                     level.Views.Add(null);
                     break;
                 case NodeKind.Custom:
@@ -999,7 +1006,7 @@ internal sealed partial class PropertiesStrip : Grid
             {
                 Apply(level, view, node);
             }
-            else if (node.Kind == NodeKind.Custom && i < level.Nodes.Count
+            else if (node.Kind is NodeKind.Custom && i < level.Nodes.Count
                 && !string.Equals(level.Nodes[i].ValueKey, node.ValueKey, StringComparison.Ordinal))
             {
                 level.Lines.Children[i] = node.Build!();
@@ -1021,7 +1028,12 @@ internal sealed partial class PropertiesStrip : Grid
             view.Lead.Child = node.Icon?.Invoke();
         }
 
-        view.Check.Child = node.Checked == true ? Mark(node.Radio) : null;
+        // [S-3716] The mark at the end of the line, where a line that opens a submenu has its chevron.
+        if (!Opens(node))
+        {
+            view.Trail.Child = node.Checked == true ? Mark(node.Radio) : null;
+        }
+
         AutomationProperties.SetName(view.Button, node.Value is { Length: > 0 } value ? node.Text + ", " + value : node.Text);
         if (node.Checked is { } on)
         {
@@ -1042,14 +1054,28 @@ internal sealed partial class PropertiesStrip : Grid
         : new FontIcon { Glyph = Glyphs.Done, FontSize = 12, HorizontalAlignment = HorizontalAlignment.Center, VerticalAlignment = VerticalAlignment.Center };
 
     /// <summary>
-    /// [S-3716] One line: a tick column (where the level has switches or choices), an icon column
-    /// (where it has icons), its words, a value (or a shortcut) in the secondary colour where a menu
-    /// writes a shortcut, and the chevron when it opens a submenu.
+    /// [S-3716] One line: an icon column (where the level has icons), its words, a value (or a
+    /// shortcut) in the secondary colour where a menu writes a shortcut, and at the end, right-aligned
+    /// in its own column, the tick or the dot of a switch or a choice, or the chevron of a line that
+    /// opens a submenu (a line is never both). A danger line's words and icon are the critical colour.
     /// </summary>
     private LineView MakeLine(Level level, Node node)
     {
-        var check = new Border { Width = Fluent.IconSize, HorizontalAlignment = HorizontalAlignment.Left };
         var lead = new Border { Width = Fluent.IconSize, HorizontalAlignment = HorizontalAlignment.Left, Child = node.Icon?.Invoke() };
+        var trail = new Border { Width = Fluent.IconSize, HorizontalAlignment = HorizontalAlignment.Right };
+        if (Opens(node))
+        {
+            trail.Child = new FontIcon
+            {
+                Glyph = Chevron,
+                FontSize = 12,
+                MirroredWhenRightToLeft = true,
+                Foreground = ThemeBrush.Of("TextFillColorSecondaryBrush", Colors.Gray),
+                HorizontalAlignment = HorizontalAlignment.Center,
+                VerticalAlignment = VerticalAlignment.Center,
+            };
+        }
+
         var words = new TextBlock
         {
             FontSize = FluentType.Body.FontSize,
@@ -1058,15 +1084,25 @@ internal sealed partial class PropertiesStrip : Grid
         };
         var value = Fluent.Text(FluentType.Caption, "TextFillColorSecondaryBrush");
 
-        var button = LineButton(level.Ticks ? check : null, level.Icons ? lead : null, words, value, Opens(node));
-        var root = node.Disabled ? Unavailable(button, node.Why) : button;
+        if (node.Danger && !node.Disabled)
+        {
+            var critical = ThemeBrush.Of("SystemFillColorCriticalBrush", Colors.IndianRed);
+            words.Foreground = critical;
+            if (lead.Child is IconElement icon)
+            {
+                icon.Foreground = critical;
+            }
+        }
+
+        var button = LineButton(level.Icons ? lead : null, words, value, level.Trail ? trail : null);
+        button.IsEnabled = !node.Disabled;
         if (node.Tip is { } tip)
         {
             ToolTipService.SetToolTip(button, tip);
             AutomationProperties.SetHelpText(button, tip);
         }
 
-        var view = new LineView(node, button, root, lead, check, words, value);
+        var view = new LineView(node, button, button, lead, trail, words, value);
         Apply(level, view, node);
 
         button.Click += (_, _) => OnLine(level, view);
@@ -1094,7 +1130,7 @@ internal sealed partial class PropertiesStrip : Grid
     }
 
     /// <summary>The button of a line, its parts in their columns (the ones given), 32 DIPs, inset 4.</summary>
-    private static Button LineButton(UIElement? check, UIElement? lead, TextBlock words, TextBlock value, bool submenu)
+    private static Button LineButton(UIElement? lead, TextBlock words, TextBlock value, UIElement? trail)
     {
         var parts = new Grid();
         var column = 0;
@@ -1106,11 +1142,6 @@ internal sealed partial class PropertiesStrip : Grid
             parts.Children.Add(element);
         }
 
-        if (check is not null)
-        {
-            Add(check, new GridLength(LeadColumn));
-        }
-
         if (lead is not null)
         {
             Add(lead, new GridLength(LeadColumn));
@@ -1118,22 +1149,16 @@ internal sealed partial class PropertiesStrip : Grid
 
         Add(words, new GridLength(1, GridUnitType.Star));
 
+        // The value and the end column never meet: the value keeps a gap before the mark or chevron.
         value.VerticalAlignment = VerticalAlignment.Center;
-        value.Margin = new Thickness(Fluent.Space6, 0, submenu ? Fluent.Space2 : 0, 0);
+        value.Margin = new Thickness(Fluent.Space6, 0, trail is null ? 0 : Fluent.Space2, 0);
         value.MaxWidth = 140;
         value.TextTrimming = TextTrimming.CharacterEllipsis;
         Add(value, GridLength.Auto);
 
-        if (submenu)
+        if (trail is not null)
         {
-            Add(new FontIcon
-            {
-                Glyph = Chevron,
-                FontSize = 12,
-                MirroredWhenRightToLeft = true,
-                Foreground = ThemeBrush.Of("TextFillColorSecondaryBrush", Colors.Gray),
-                VerticalAlignment = VerticalAlignment.Center,
-            }, GridLength.Auto);
+            Add(trail, new GridLength(Fluent.IconSize));
         }
 
         var line = new Button
@@ -1306,6 +1331,7 @@ internal sealed partial class PropertiesStrip : Grid
             level.Pending = cts;
 
             // A question that goes out to the network says so while it is out.
+            level.ShowAll = false;
             if (search.Settle > TimeSpan.Zero && typed.Trim().Length > 0)
             {
                 level.Results = [new Node(anchor.Node.Key + "/q/note") { Text = Str.Shell_Place_Searching.Text(), Disabled = true }];
@@ -1333,6 +1359,26 @@ internal sealed partial class PropertiesStrip : Grid
         {
             // An async void from a XAML event: nothing may escape.
             Log.Error(Scope, "a properties search failed", ex);
+        }
+    }
+
+    /// <summary>[S-3725] Show all: every answer of the search, until the next question; the keyboard goes on to the sixth.</summary>
+    private void ShowAllAnswers(Level level)
+    {
+        var at = _levels.IndexOf(level);
+        if (level.Anchor is not { } anchor || at < 0)
+        {
+            return;
+        }
+
+        var focused = level.Views.Any(v => v is not null && v.Node.Key.EndsWith("/all", StringComparison.Ordinal) && v.Button.FocusState == FocusState.Keyboard);
+        level.ShowAll = true;
+        FillLevel(level, LevelNodes(level, anchor.Node));
+        Place(level, at);
+
+        if (focused && level.Views.Where(v => v is { Button.IsEnabled: true }).Skip(SearchAnswers).FirstOrDefault() is { } next)
+        {
+            next.Button.Focus(FocusState.Keyboard);
         }
     }
 
@@ -1411,9 +1457,9 @@ internal sealed partial class PropertiesStrip : Grid
     }
 
     /// <summary>
-    /// [S-3717] The icon row: Cut, Copy and Paste at its start, Delete at its far end, as icons with
-    /// their words and keys as the tooltip (Explorer's row; Delete kept apart, where a slip does not
-    /// reach it). Paste is greyed while the widget clipboard is empty.
+    /// [S-3717] The icon row: Cut and Copy at its start, Delete at its far end, as icons with their
+    /// words and keys as the tooltip (Explorer's row; Delete kept apart, where a slip does not reach
+    /// it). No Paste: a paste lands on the desktop where it is clicked, never on the selection.
     /// </summary>
     private Grid QuickRow(PropertiesCommands commands)
     {
@@ -1425,7 +1471,6 @@ internal sealed partial class PropertiesStrip : Grid
             {
                 new ColumnDefinition { Width = GridLength.Auto },
                 new ColumnDefinition { Width = GridLength.Auto },
-                new ColumnDefinition { Width = GridLength.Auto },
                 new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) },
                 new ColumnDefinition { Width = GridLength.Auto },
             },
@@ -1433,15 +1478,14 @@ internal sealed partial class PropertiesStrip : Grid
 
         string Verb(Str one, Str many) => _offer.Count > 1 ? many.Plural(_offer.Count) : one.Text();
 
-        Add(0, Glyphs.Cut, Verb(Str.CtxMenu_Cut, Str.Shell_Card_CutMany), KeyChord.Ctrl(ChordKey.X), commands.Cut, true);
-        Add(1, Glyphs.Copy, Verb(Str.CtxMenu_Copy, Str.Shell_Card_CopyMany), KeyChord.Ctrl(ChordKey.C), commands.Copy, true);
-        Add(2, Glyphs.Paste, Str.CtxMenu_Paste.Text(), KeyChord.Ctrl(ChordKey.V), commands.Paste, commands.CanPaste?.Invoke() ?? false);
-        Add(4, Glyphs.Delete, Verb(Str.Common_Delete, Str.Shell_Card_DeleteMany), KeyChord.Plain(ChordKey.Delete), commands.Delete, true);
+        Add(0, Glyphs.Cut, Verb(Str.CtxMenu_Cut, Str.Shell_Card_CutMany), KeyChord.Ctrl(ChordKey.X), commands.Cut);
+        Add(1, Glyphs.Copy, Verb(Str.CtxMenu_Copy, Str.Shell_Card_CopyMany), KeyChord.Ctrl(ChordKey.C), commands.Copy);
+        Add(3, Glyphs.Delete, Verb(Str.Common_Delete, Str.Shell_Card_DeleteMany), KeyChord.Plain(ChordKey.Delete), commands.Delete);
         return row;
 
-        void Add(int column, string glyph, string words, KeyChord chord, Action? run, bool enabled)
+        void Add(int column, string glyph, string words, KeyChord chord, Action? run)
         {
-            var on = run is not null && enabled;
+            var on = run is not null;
             var button = new Button
             {
                 Content = on ? MenuArtIcons.IconOrGlyph(glyph) : UiLanguage.Mirrored(new FontIcon { Glyph = glyph, FontSize = Fluent.IconSize }),
@@ -1469,21 +1513,27 @@ internal sealed partial class PropertiesStrip : Grid
     }
 
     /// <summary>
-    /// [S-6571] [S-6584] Grey a line out with <paramref name="why"/> as its tooltip, held by a frame
-    /// around it: a disabled line takes no pointer, the frame does.
+    /// [S-3728] A note: words only in the disabled colour, where a line's words start, wrapped to a
+    /// few lines within the menu's width and trimmed past them, the whole as its tooltip.
     /// </summary>
-    private static FrameworkElement Unavailable(Button line, string? why)
+    private static FrameworkElement NoteLine(string text, bool icons)
     {
-        line.IsEnabled = false;
-        if (why is null)
-        {
-            return line;
-        }
+        var words = Fluent.Text(FluentType.Caption, "TextFillColorTertiaryBrush");
+        words.Text = text;
+        words.TextWrapping = TextWrapping.WrapWholeWords;
+        words.TextTrimming = TextTrimming.CharacterEllipsis;
+        words.MaxLines = NoteLines;
+        words.MaxWidth = MinMenuWidth - (2 * (Fluent.Space1 + Fluent.Space3)) - (icons ? LeadColumn : 0);
+        words.HorizontalAlignment = HorizontalAlignment.Left;
+        ToolTipService.SetToolTip(words, text);
+        AutomationProperties.SetName(words, text);
 
-        AutomationProperties.SetHelpText(line, why);
-        var frame = new Grid { Background = new SolidColorBrush(Colors.Transparent), Children = { line } };
-        ToolTipService.SetToolTip(frame, why);
-        return frame;
+        return new Border
+        {
+            Child = words,
+            Background = new SolidColorBrush(Colors.Transparent),
+            Padding = new Thickness(Fluent.Space1 + Fluent.Space3 + (icons ? LeadColumn : 0), Fluent.Space2, Fluent.Space1 + Fluent.Space3, Fluent.Space2),
+        };
     }
 
     /// <summary>A divider between groups: across the menu under the icon row, inset in the list.</summary>
@@ -1540,26 +1590,6 @@ internal sealed partial class PropertiesStrip : Grid
 
         box.Text = text;
         return true;
-    }
-
-    /// <summary>Debug renders only: the line a screen reader calls <paramref name="label"/>, its value aside.</summary>
-    internal static Button? FindLine(DependencyObject root, string label)
-    {
-        if (root is Button button && AutomationProperties.GetName(button) is { } name
-            && (name == label || name.StartsWith(label + ", ", StringComparison.Ordinal)))
-        {
-            return button;
-        }
-
-        for (var i = 0; i < VisualTreeHelper.GetChildrenCount(root); i++)
-        {
-            if (FindLine(VisualTreeHelper.GetChild(root, i), label) is { } found)
-            {
-                return found;
-            }
-        }
-
-        return null;
     }
 #endif
 
@@ -1644,6 +1674,18 @@ internal sealed partial class PropertiesStrip : Grid
         flyout.ShowAt(_levels.Count > 1 ? _levels[^1].Root : _frame);
     }
 
+    /// <summary>
+    /// [S-3727] Ask beside the menu before a line destroys something: the app's one "are you sure?"
+    /// (<see cref="ConfirmFlyout"/>: the question, the action and Cancel). Only the action runs it;
+    /// Cancel, Escape or a click away leave everything as it was.
+    /// </summary>
+    private void Confirm(WidgetConfirm confirm)
+    {
+        var flyout = ConfirmFlyout.Create(confirm.Question, confirm.Accept, () => Run(confirm.Done), FlyoutPlacementMode.RightEdgeAlignedTop);
+        flyout.Closed += (_, _) => _commands.ReleaseFocus();
+        flyout.ShowAt(_levels.Count > 1 ? _levels[^1].Root : _frame);
+    }
+
     private static (ContentAlign Value, string Glyph, Str Name)[] AlignOptions() =>
     [
         (ContentAlign.Left, Glyphs.AlignLeft, Str.Widget_Align_Left),
@@ -1662,63 +1704,6 @@ internal sealed partial class PropertiesStrip : Grid
         (HeaderPlacement.Right, (Glyphs.HeaderRight, false), Str.Group_HeaderSide_Right.Text()),
         (HeaderPlacement.Hidden, (Glyphs.Hide, false), Str.Toggle_Hidden.Text()),
     ];
-
-    /// <summary>
-    /// [S-6566] A legacy fill line (a widget not yet on [S-3723]): the fill's swatch in the icon
-    /// column and its words as the value; the one fill control's panel ([S-6567]) opens beside it
-    /// and stays open on a pick ([S-3718]). A change made elsewhere is shown in place.
-    /// </summary>
-    private Button FillLine(string name, Func<FillChoice?> current, Action<FillChoice> set, Func<Windows.UI.Color?> appWide)
-    {
-        var options = new FillChoiceOptions
-        {
-            DefaultLabel = Str.Common_Default.Text(),
-            DefaultColor = appWide,
-            MixedLabel = Mixed,
-        };
-
-        var (line, swatch, words, flyout) = ColourLine(name);
-        var show = ColorChoice.AttachFill(line, swatch, words, flyout, current(), set, options, keepOpen: true);
-        _colourShows.Add(() => show(current()));
-        return line;
-    }
-
-    /// <summary>[S-6544] The legacy item text colour line: the one colour control's panel beside it.</summary>
-    private Button ItemTextLine(PropertiesCommands commands)
-    {
-        var options = new ColorChoiceOptions
-        {
-            DefaultLabel = Str.Common_Default.Text(),
-            Presets = ColorPresets.Surfaces,
-            DefaultColor = AppItemTextColour,
-        };
-
-        var (line, swatch, words, flyout) = ColourLine(Str.Shell_Items_TextShort.Text());
-        var show = ColorChoice.Attach(line, swatch, words, flyout, _offer.ItemText ?? string.Empty, commands.SetItemTextColor, options, keepOpen: true);
-        _colourShows.Add(() => show(_offer.ItemText ?? string.Empty));
-        return line;
-    }
-
-    /// <summary>A legacy colour line: the swatch in the icon column, the value's words at the end, its panel beside it.</summary>
-    private (Button Line, Border Swatch, TextBlock Words, Flyout Panel) ColourLine(string name)
-    {
-        var swatch = Swatch(_ => { });
-        var label = new TextBlock { Text = name, FontSize = FluentType.Body.FontSize, VerticalAlignment = VerticalAlignment.Center, TextTrimming = TextTrimming.CharacterEllipsis };
-        var words = Fluent.Text(FluentType.Caption, "TextFillColorSecondaryBrush");
-        var line = LineButton(null, swatch, label, words, submenu: true);
-        AutomationProperties.SetName(line, name);
-
-        var flyout = new Flyout { ShouldConstrainToRootBounds = true };
-        flyout.Opened += (_, _) => line.Background = ThemeBrush.Of("SubtleFillColorSecondaryBrush", Colors.Gray);
-        flyout.Closed += (_, _) => line.ClearValue(Control.BackgroundProperty);
-        line.Click += (_, _) =>
-        {
-            CloseFrom(1);
-            flyout.ShowAt(line, new FlyoutShowOptions { Placement = FlyoutPlacementMode.RightEdgeAlignedTop, ShowMode = FlyoutShowMode.Standard });
-        };
-
-        return (line, swatch, words, flyout);
-    }
 
     /// <summary>What the text "Default" paints its swatch with: the app-wide item text colour, or nothing (the theme's).</summary>
     private static Windows.UI.Color? AppItemTextColour()

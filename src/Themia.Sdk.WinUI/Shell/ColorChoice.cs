@@ -54,9 +54,6 @@ public sealed class FillChoiceOptions
 
     /// <summary>The swatches.</summary>
     public IReadOnlyList<ColorPreset> Presets { get; init; } = ColorPresets.Surfaces;
-
-    /// <summary>What the button reads while a mixed selection has no one value (a null value); null reads Default.</summary>
-    public string? MixedLabel { get; init; }
 }
 
 /// <summary>The fill entries a fill control's panel adds to the colour panel ([S-6567]).</summary>
@@ -120,24 +117,16 @@ public static class ColorChoice
     public static DropDownButton Create(string? value, Action<string> onChanged, ColorChoiceOptions? options = null, string? name = null)
     {
         var button = SwatchButton(name, out var swatch, out var label, out var flyout);
-        _ = Attach(button, swatch, label, flyout, value, onChanged, options);
+        Attach(button, swatch, label, flyout, value, onChanged, options);
         return button;
     }
 
     /// <summary>
-    /// [S-3718] The colour choice on an element of the caller's (a line of the properties menu):
-    /// <paramref name="flyout"/> is its panel, opened by the caller from <paramref name="source"/>;
-    /// <paramref name="swatch"/> and <paramref name="label"/> show the value. The same choice as
-    /// <see cref="Create"/>, which is this on its swatch button. With <paramref name="keepOpen"/> a pick
-    /// leaves the panel open, its ring moved to the pick ([S-3718]: the properties menu stays open).
-    /// Returns what shows a value set elsewhere (an undo) without saving it.
+    /// The colour choice on its swatch button: <paramref name="flyout"/> is its panel, opened from
+    /// <paramref name="source"/>; <paramref name="swatch"/> and <paramref name="label"/> show the value.
     /// </summary>
-    public static Action<string?> Attach(FrameworkElement source, Border swatch, TextBlock label, Flyout flyout, string? value, Action<string> onChanged, ColorChoiceOptions? options = null, bool keepOpen = false)
+    private static void Attach(FrameworkElement source, Border swatch, TextBlock label, Flyout flyout, string? value, Action<string> onChanged, ColorChoiceOptions? options)
     {
-        ArgumentNullException.ThrowIfNull(source);
-        ArgumentNullException.ThrowIfNull(swatch);
-        ArgumentNullException.ThrowIfNull(label);
-        ArgumentNullException.ThrowIfNull(flyout);
         ArgumentNullException.ThrowIfNull(onChanged);
         options ??= new ColorChoiceOptions();
 
@@ -170,11 +159,7 @@ public static class ColorChoice
 
         void Choose(string hex)
         {
-            if (!keepOpen)
-            {
-                flyout.Hide();
-            }
-
+            flyout.Hide();
             if (hex == current)
             {
                 return;
@@ -182,10 +167,6 @@ public static class ColorChoice
 
             current = hex;
             Show();
-            if (keepOpen && flyout.IsOpen)
-            {
-                flyout.Content = Build();
-            }
 
             try
             {
@@ -207,16 +188,6 @@ public static class ColorChoice
         // never-activated window does not render.
         DebugPanels.AddOrUpdate(source, new Func<FrameworkElement>(() => Panel(current, options, _ => { }, () => { }, () => { })));
 #endif
-
-        return shown =>
-        {
-            var next = HexColor.Normalise(shown);
-            if (next != current)
-            {
-                current = next;
-                Show();
-            }
-        };
     }
 
     /// <summary>
@@ -230,21 +201,13 @@ public static class ColorChoice
     public static DropDownButton CreateFill(FillChoice? value, Action<FillChoice> onChanged, FillChoiceOptions options, string? name = null)
     {
         var button = SwatchButton(name, out var swatch, out var label, out var flyout);
-        _ = AttachFill(button, swatch, label, flyout, value, onChanged, options);
+        AttachFill(button, swatch, label, flyout, value, onChanged, options);
         return button;
     }
 
-    /// <summary>
-    /// [S-3718] The fill control on an element of the caller's (a line of the properties menu), as
-    /// <see cref="Attach"/> is the colour choice's; <see cref="CreateFill"/> is this on its swatch button.
-    /// <paramref name="keepOpen"/> and the result as there (a null value shows the mixed words).
-    /// </summary>
-    public static Action<FillChoice?> AttachFill(FrameworkElement source, Border swatch, TextBlock label, Flyout flyout, FillChoice? value, Action<FillChoice> onChanged, FillChoiceOptions options, bool keepOpen = false)
+    /// <summary>The fill control on its swatch button, as <see cref="Attach"/> is the colour choice's (a null value is Default).</summary>
+    private static void AttachFill(FrameworkElement source, Border swatch, TextBlock label, Flyout flyout, FillChoice? value, Action<FillChoice> onChanged, FillChoiceOptions options)
     {
-        ArgumentNullException.ThrowIfNull(source);
-        ArgumentNullException.ThrowIfNull(swatch);
-        ArgumentNullException.ThrowIfNull(label);
-        ArgumentNullException.ThrowIfNull(flyout);
         ArgumentNullException.ThrowIfNull(onChanged);
         ArgumentNullException.ThrowIfNull(options);
 
@@ -256,9 +219,6 @@ public static class ColorChoice
 
         var pending = current.Opacity;
 
-        // [S-6566] A selection that does not share one fill reads as mixed until something is picked.
-        var mixed = value is null && options.MixedLabel is not null;
-
         void Show(FillChoice shown)
         {
             PaintFill(swatch, shown, colourOptions);
@@ -269,14 +229,13 @@ public static class ColorChoice
         void Commit(FillChoice next)
         {
             pending = next.Opacity;
-            if (next.SameAs(current) && !mixed)
+            if (next.SameAs(current))
             {
                 Show(current);
                 return;
             }
 
             current = next;
-            mixed = false;
             Show(current);
 
             try
@@ -293,26 +252,8 @@ public static class ColorChoice
 
         void Choose(string hex)
         {
-            Close();
+            flyout.Hide();
             Commit(hex.Length == 0 ? With(FillKind.Default) : FillChoice.Of(hex, current.Opacity));
-            Refill();
-        }
-
-        // [S-3718] On the properties menu a pick leaves the panel open, drawn again around the pick.
-        void Close()
-        {
-            if (!keepOpen)
-            {
-                flyout.Hide();
-            }
-        }
-
-        void Refill()
-        {
-            if (keepOpen && flyout.IsOpen)
-            {
-                flyout.Content = Build();
-            }
         }
 
         void CommitOpacity()
@@ -324,16 +265,15 @@ public static class ColorChoice
         }
 
         FillExtras Extras() => new(
-            !mixed && current.Kind == FillKind.Default,
-            !mixed && current.Kind == FillKind.Transparent,
+            current.Kind == FillKind.Default,
+            current.Kind == FillKind.Transparent,
             () =>
             {
-                Close();
+                flyout.Hide();
                 Commit(With(FillKind.Transparent));
-                Refill();
             },
             current.Opacity,
-            !mixed && current.Kind == FillKind.Colour,
+            current.Kind == FillKind.Colour,
             opacity =>
             {
                 pending = opacity;
@@ -345,7 +285,7 @@ public static class ColorChoice
                 CommitOpacity();
             });
 
-        string Hex() => !mixed && current.Kind == FillKind.Colour ? current.Colour : string.Empty;
+        string Hex() => current.Kind == FillKind.Colour ? current.Colour : string.Empty;
 
         FrameworkElement Build() => Panel(
             Hex(),
@@ -364,41 +304,11 @@ public static class ColorChoice
         // A drag let go outside the slider still ends with the flyout.
         flyout.Closed += (_, _) => CommitOpacity();
 
-        void ShowHeld()
-        {
-            if (mixed)
-            {
-                swatch.Background = null;
-                label.Text = options.MixedLabel;
-                ToolTipService.SetToolTip(source, label.Text);
-            }
-            else
-            {
-                Show(current);
-            }
-        }
-
-        ShowHeld();
+        Show(current);
 
 #if DEBUG
         DebugPanels.AddOrUpdate(source, new Func<FrameworkElement>(() => Panel(Hex(), colourOptions, _ => { }, () => { }, () => { }, Extras())));
 #endif
-
-        return shown =>
-        {
-            var nowMixed = shown is null && options.MixedLabel is not null;
-            if (nowMixed == mixed && (shown is null || shown.SameAs(current)))
-            {
-                return;
-            }
-
-            mixed = nowMixed;
-            current = shown?.Clone() ?? new FillChoice();
-            // ignore: what Repair reports was logged when the state loaded; here it only keeps the control total.
-            _ = current.Repair("fill choice");
-            pending = current.Opacity;
-            ShowHeld();
-        };
     }
 
     /// <summary>The swatch button both controls are: a swatch, the value's words, and a flyout kept inside the window.</summary>

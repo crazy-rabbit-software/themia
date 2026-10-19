@@ -23,8 +23,6 @@
   "widgetsC.shortcuts.menu.addLink": "वेब पता या पथ…",
   "widgetsC.shortcuts.menu.changeTarget": "लक्ष्य बदलें…",
   "widgetsC.shortcuts.menu.closeSearch": "खोज बंद करें",
-  "widgetsC.shortcuts.menu.moveDown": "नीचे ले जाएँ",
-  "widgetsC.shortcuts.menu.moveUp": "ऊपर ले जाएँ",
   "widgetsC.shortcuts.menu.openLayout": "लेआउट खोलें",
   "widgetsC.shortcuts.menu.openMany": {
     "one": "{count} शॉर्टकट खोलें",
@@ -34,7 +32,6 @@
     "one": "{count} शॉर्टकट निकालें",
     "other": "{count} शॉर्टकट निकालें"
   },
-  "widgetsC.shortcuts.menu.rename": "नाम बदलें…",
   "widgetsC.shortcuts.menu.undoRemove": "निकालना पूर्ववत करें",
   "widgetsC.shortcuts.menu.undoRemoveCount": {
     "one": "निकालना पूर्ववत करें ({count})",

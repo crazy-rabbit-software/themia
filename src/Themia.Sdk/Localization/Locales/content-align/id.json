@@ -2,7 +2,5 @@
   "widget.align.label": "Perataan",
   "widget.align.left": "Kiri",
   "widget.align.center": "Tengah",
-  "widget.align.right": "Kanan",
-  "widget.align.none": "Widget ini tidak memiliki apa pun untuk diratakan",
-  "widget.align.noStyle": "Tidak tersedia dalam gaya ini"
+  "widget.align.right": "Kanan"
 }

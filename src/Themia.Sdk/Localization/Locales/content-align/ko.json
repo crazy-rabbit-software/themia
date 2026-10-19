@@ -2,7 +2,5 @@
   "widget.align.label": "맞춤",
   "widget.align.left": "왼쪽",
   "widget.align.center": "가운데",
-  "widget.align.right": "오른쪽",
-  "widget.align.none": "이 위젯에는 맞출 내용이 없습니다",
-  "widget.align.noStyle": "이 스타일에서는 사용할 수 없습니다"
+  "widget.align.right": "오른쪽"
 }

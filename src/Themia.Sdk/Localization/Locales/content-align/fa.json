@@ -2,7 +2,5 @@
   "widget.align.label": "تراز",
   "widget.align.left": "چپ",
   "widget.align.center": "وسط",
-  "widget.align.right": "راست",
-  "widget.align.none": "این ابزارک چیزی برای تراز کردن ندارد",
-  "widget.align.noStyle": "در این سبک در دسترس نیست"
+  "widget.align.right": "راست"
 }

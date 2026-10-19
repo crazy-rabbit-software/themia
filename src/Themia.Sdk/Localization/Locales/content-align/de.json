@@ -2,7 +2,5 @@
   "widget.align.label": "Ausrichtung",
   "widget.align.left": "Links",
   "widget.align.center": "Zentriert",
-  "widget.align.right": "Rechts",
-  "widget.align.none": "Dieses Widget hat nichts zum Ausrichten",
-  "widget.align.noStyle": "In diesem Stil nicht verfügbar"
+  "widget.align.right": "Rechts"
 }

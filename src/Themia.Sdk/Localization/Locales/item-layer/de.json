@@ -6,6 +6,5 @@
   "shell.items.textShort": "Elementtext",
   "shell.fill.transparent": "Transparent",
   "shell.fill.opacity": "Deckkraft",
-  "shell.fill.withOpacity": "{colour}, {percent}",
-  "shell.fill.noItems": "Dieses Widget hat keine Elemente"
+  "shell.fill.withOpacity": "{colour}, {percent}"
 }
