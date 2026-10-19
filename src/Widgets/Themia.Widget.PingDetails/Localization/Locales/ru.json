@@ -8,7 +8,6 @@
   "details.ping.maximum": "Максимум",
   "details.ping.minimum": "Минимум",
   "details.catalog.ping.label": "Статистика пинга",
-  "details.settings.ping.window.desc": "Сколько последних проверок учитывают показатели",
   "details.settings.ping.window.label": "Охват статистики",
   "details.settings.ping.window.probes": "Проверок: {count}"
 }

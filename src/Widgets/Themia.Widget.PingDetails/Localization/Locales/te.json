@@ -8,7 +8,6 @@
   "details.ping.maximum": "గరిష్ఠం",
   "details.ping.minimum": "కనిష్ఠం",
   "details.catalog.ping.label": "పింగ్ గణాంకాలు",
-  "details.settings.ping.window.desc": "గణాంకాలు ఎన్ని ఇటీవలి ప్రోబ్‌లను కవర్ చేస్తాయి",
   "details.settings.ping.window.label": "గణాంకాల పరిధి",
   "details.settings.ping.window.probes": "{count} ప్రోబ్‌లు"
 }

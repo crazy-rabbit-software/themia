@@ -8,7 +8,6 @@
   "details.ping.maximum": "সর্বোচ্চ",
   "details.ping.minimum": "সর্বনিম্ন",
   "details.catalog.ping.label": "পিং পরিসংখ্যান",
-  "details.settings.ping.window.desc": "সাম্প্রতিক কতগুলো প্রোব হিসাবে ধরা হয়",
   "details.settings.ping.window.label": "পরিসংখ্যানের পরিধি",
   "details.settings.ping.window.probes": "{count}টি প্রোব"
 }

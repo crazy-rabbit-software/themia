@@ -8,7 +8,6 @@
   "details.ping.maximum": "Maximum",
   "details.ping.minimum": "Minimum",
   "details.catalog.ping.label": "Ping-Statistik",
-  "details.settings.ping.window.desc": "Über wie viele letzte Pings die Werte gehen",
   "details.settings.ping.window.label": "Statistik über",
   "details.settings.ping.window.probes": "{count} Pings"
 }

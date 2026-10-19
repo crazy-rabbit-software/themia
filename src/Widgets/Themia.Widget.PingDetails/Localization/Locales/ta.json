@@ -8,7 +8,6 @@
   "details.ping.maximum": "அதிகபட்சம்",
   "details.ping.minimum": "குறைந்தபட்சம்",
   "details.catalog.ping.label": "பிங் புள்ளிவிவரங்கள்",
-  "details.settings.ping.window.desc": "எண்ணிக்கைகள் எத்தனை சமீபத்திய சோதனைகளை உள்ளடக்கும்",
   "details.settings.ping.window.label": "புள்ளிவிவர வரம்பு",
   "details.settings.ping.window.probes": "{count} சோதனைகள்"
 }

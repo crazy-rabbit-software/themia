@@ -35,8 +35,9 @@ public sealed class PingDetailsModule : IWidgetModule
         Add = new(AddFolderId.PingReading, 0, 1),
     };
 
-    public void SettingsRows(WidgetSettingsRows rows, WidgetConfig config)
-        => PingDetailsSettings.Rows(rows.Rows, (PingDetailsConfig)config, rows.Save);
+    /// <summary>[S-3719] Every option is on the properties menu: the widget has no settings page.</summary>
+    public void MenuLines(WidgetMenuLines menu, WidgetConfig config)
+        => PingDetailsMenu.Lines(menu, (PingDetailsConfig)config);
 
     public FrameworkElement CreateView(IWidgetHost host) => new DetailView(host, new PingDetailPart());
 }

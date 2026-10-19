@@ -8,7 +8,6 @@
   "details.ping.maximum": "최대",
   "details.ping.minimum": "최소",
   "details.catalog.ping.label": "Ping 통계",
-  "details.settings.ping.window.desc": "수치에 포함할 최근 프로브 수",
   "details.settings.ping.window.label": "통계 범위",
   "details.settings.ping.window.probes": "프로브 {count}개"
 }

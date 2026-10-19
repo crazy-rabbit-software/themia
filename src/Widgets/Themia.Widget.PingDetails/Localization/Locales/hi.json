@@ -8,7 +8,6 @@
   "details.ping.maximum": "अधिकतम",
   "details.ping.minimum": "न्यूनतम",
   "details.catalog.ping.label": "पिंग आँकड़े",
-  "details.settings.ping.window.desc": "आँकड़े कितनी हाल की जाँचों पर आधारित हों",
   "details.settings.ping.window.label": "आँकड़ों का दायरा",
   "details.settings.ping.window.probes": "{count} जाँचें"
 }

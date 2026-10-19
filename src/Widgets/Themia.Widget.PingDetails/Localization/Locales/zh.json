@@ -8,7 +8,6 @@
   "details.ping.maximum": "最大值",
   "details.ping.minimum": "最小值",
   "details.catalog.ping.label": "Ping 统计",
-  "details.settings.ping.window.desc": "统计数据涵盖的最近探测次数",
   "details.settings.ping.window.label": "统计范围",
   "details.settings.ping.window.probes": "{count} 次探测"
 }

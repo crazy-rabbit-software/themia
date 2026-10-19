@@ -35,8 +35,9 @@ public sealed class PingModule : IWidgetModule
         Add = new(AddFolderId.PingReading, 0, 0),
     };
 
-    public void SettingsRows(WidgetSettingsRows rows, WidgetConfig config)
-        => PingSettings.Rows(rows.Rows, (PingConfig)config, rows.Save);
+    /// <summary>[S-3719] Every option is on the properties menu: the widget has no settings page.</summary>
+    public void MenuLines(WidgetMenuLines menu, WidgetConfig config)
+        => PingMenu.Lines(menu, (PingConfig)config);
 
     public FrameworkElement CreateView(IWidgetHost host) => new MeterView(host, new PingMeter());
 }

@@ -8,7 +8,6 @@
   "details.ping.maximum": "Maximum",
   "details.ping.minimum": "Minimum",
   "details.catalog.ping.label": "Pingstatistieken",
-  "details.settings.ping.window.desc": "Over hoeveel recente metingen de cijfers gaan",
   "details.settings.ping.window.label": "Statistieken over",
   "details.settings.ping.window.probes": "{count} metingen"
 }

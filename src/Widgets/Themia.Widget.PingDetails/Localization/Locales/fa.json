@@ -8,7 +8,6 @@
   "details.ping.maximum": "بیشینه",
   "details.ping.minimum": "کمینه",
   "details.catalog.ping.label": "آمار پینگ",
-  "details.settings.ping.window.desc": "ارقام چند کاوش اخیر را پوشش دهند",
   "details.settings.ping.window.label": "دامنه آمار",
   "details.settings.ping.window.probes": "{count} کاوش"
 }

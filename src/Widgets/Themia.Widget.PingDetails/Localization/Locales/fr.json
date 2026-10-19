@@ -8,7 +8,6 @@
   "details.ping.maximum": "Maximum",
   "details.ping.minimum": "Minimum",
   "details.catalog.ping.label": "Statistiques de ping",
-  "details.settings.ping.window.desc": "Le nombre de sondes récentes prises en compte",
   "details.settings.ping.window.label": "Statistiques sur",
   "details.settings.ping.window.probes": "{count} sondes"
 }

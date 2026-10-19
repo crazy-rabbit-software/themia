@@ -8,7 +8,6 @@
   "details.ping.maximum": "زیادہ سے زیادہ",
   "details.ping.minimum": "کم از کم",
   "details.catalog.ping.label": "پنگ کے اعداد و شمار",
-  "details.settings.ping.window.desc": "اعداد کتنی حالیہ جانچوں پر مبنی ہوں",
   "details.settings.ping.window.label": "اعداد و شمار کا دائرہ",
   "details.settings.ping.window.probes": "{count} جانچیں"
 }

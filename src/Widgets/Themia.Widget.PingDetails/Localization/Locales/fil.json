@@ -8,7 +8,6 @@
   "details.ping.maximum": "Pinakamataas",
   "details.ping.minimum": "Pinakamababa",
   "details.catalog.ping.label": "Mga istatistika ng ping",
-  "details.settings.ping.window.desc": "Ilang kamakailang probe ang saklaw ng mga numero",
   "details.settings.ping.window.label": "Saklaw ng istatistika",
   "details.settings.ping.window.probes": "{count} probe"
 }

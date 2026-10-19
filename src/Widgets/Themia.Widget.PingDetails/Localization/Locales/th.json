@@ -8,7 +8,6 @@
   "details.ping.maximum": "สูงสุด",
   "details.ping.minimum": "ต่ำสุด",
   "details.catalog.ping.label": "สถิติ Ping",
-  "details.settings.ping.window.desc": "จำนวนการตรวจสอบล่าสุดที่ตัวเลขครอบคลุม",
   "details.settings.ping.window.label": "สถิติครอบคลุม",
   "details.settings.ping.window.probes": "{count} การตรวจสอบ"
 }

@@ -8,7 +8,6 @@
   "details.ping.maximum": "Maksimum",
   "details.ping.minimum": "Minimum",
   "details.catalog.ping.label": "Statistik ping",
-  "details.settings.ping.window.desc": "Berapa banyak probe terbaru yang dicakup angka",
   "details.settings.ping.window.label": "Cakupan statistik",
   "details.settings.ping.window.probes": "{count} probe"
 }

@@ -8,7 +8,6 @@
   "details.ping.maximum": "Kiwango cha juu",
   "details.ping.minimum": "Kiwango cha chini",
   "details.catalog.ping.label": "Takwimu za ping",
-  "details.settings.ping.window.desc": "Majaribio mangapi ya hivi karibuni yanahusika katika takwimu",
   "details.settings.ping.window.label": "Takwimu zinahusu",
   "details.settings.ping.window.probes": "Majaribio {count}"
 }

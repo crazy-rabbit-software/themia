@@ -8,7 +8,6 @@
   "details.ping.maximum": "الأقصى",
   "details.ping.minimum": "الأدنى",
   "details.catalog.ping.label": "إحصاءات Ping",
-  "details.settings.ping.window.desc": "عدد الفحوص الأخيرة التي تشملها الأرقام",
   "details.settings.ping.window.label": "نطاق الإحصاءات",
   "details.settings.ping.window.probes": "{count} فحص"
 }
