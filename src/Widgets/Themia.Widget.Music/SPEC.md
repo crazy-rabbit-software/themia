@@ -34,8 +34,8 @@ module host's `MusicHostTests`.
   the artist and then the bar give way first.
 - **[S-1479]** Its options are all on the properties menu ([S-3719], user request 2026-10-19); it
   has no settings page. Appearance ([S-3723]), then **Show the transport** and **Show progress**
-  (switches, for every style) and **Hide when idle** (Never / When no player is open / When nothing
-  is playing, [S-1464]; edit mode still shows it). (Tests `MusicMenuTests`.)
+  (switches, for every style), a divider, and **Hide when idle** (Never / When no player is open /
+  When nothing is playing, [S-1464]; edit mode still shows it). (Tests `MusicMenuTests`.)
 
 Needs a manual pass: the widget on a live desktop (a player started, paused, skipped and sought, a
 stream with nothing to seek, art and no art, each style, hide when idle).

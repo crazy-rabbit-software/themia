@@ -8,7 +8,7 @@ namespace Themia.App.Shell.Config;
 
 /// <summary>
 /// [S-1479] Now playing's options, all on its properties menu ([S-3719]): Appearance ([S-3723]),
-/// then the transport and the progress switches and when it hides ([S-1464]). Nothing about players
+/// then the transport and the progress switches and, behind a divider, when it hides ([S-1464]). Nothing about players
 /// or accounts: it reads Windows' own media session. It has no settings page.
 /// </summary>
 internal static class MusicMenu
@@ -22,7 +22,8 @@ internal static class MusicMenu
         menu.Lines.Add(menu.Toggle(Glyphs.Play, MusicStr.WidgetsB_Settings_Music_Transport_Label.Text(), config.ShowTransport, on => config.ShowTransport = on));
         menu.Lines.Add(menu.Toggle(Glyphs.Motion, MusicStr.WidgetsB_Settings_Music_Progress_Label.Text(), config.ShowProgress, on => config.ShowProgress = on));
 
-        // [S-1464] Edit mode always shows a hidden widget, so it can still be found and changed.
+        // [S-1464] When it shows at all, apart from what it shows. Edit mode always shows a hidden widget, so it can still be found and changed.
+        menu.Lines.Add(ItemMenuEntry.Separator);
         menu.Lines.Add(menu.Choice(Glyphs.Hide, MusicStr.Music_HideWhenIdle_Label.Text(),
             [
                 (MusicHideWhenIdle.Never, MusicStr.Music_HideWhenIdle_Never.Text()),
