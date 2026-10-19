@@ -35,8 +35,9 @@ public sealed class TopProcessesModule : IWidgetModule
         Add = new(AddFolderId.Processor, 0, 2),
     };
 
-    public void SettingsRows(WidgetSettingsRows rows, WidgetConfig config)
-        => TopProcessesSettings.Rows(rows.Rows, (TopProcessesConfig)config, rows.Save);
+    /// <summary>[S-3719] Every option is on the properties menu: the widget has no settings page.</summary>
+    public void MenuLines(WidgetMenuLines menu, WidgetConfig config)
+        => TopProcessesMenu.Lines(menu, (TopProcessesConfig)config);
 
     public FrameworkElement CreateView(IWidgetHost host) => new DetailView(host, new ProcessesPart());
 }
