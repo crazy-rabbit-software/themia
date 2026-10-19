@@ -2252,20 +2252,49 @@ internal sealed partial class PropertiesStrip : Grid
 #if DEBUG
     /// <summary>
     /// Debug renders only: open the submenus along <paramref name="path"/> (the lines' words, "/"
-    /// between levels), as clicks would. False when a line on the way is not there.
+    /// between levels), as clicks would; a last line that opens nothing is clicked (what it asks
+    /// beside the menu shows). False when a line on the way is not there.
     /// </summary>
     internal bool DebugOpen(string path)
     {
-        foreach (var words in path.Split('/'))
+        var parts = path.Split('/');
+        for (var i = 0; i < parts.Length; i++)
         {
-            if (_levels.Count == 0
-                || _levels[^1].Views.FirstOrDefault(v => v is not null && Opens(v.Node) && v.Node.Text == words) is not { } line
-                || !OpenSubmenu(line, focus: false))
+            var words = parts[i];
+            if (_levels.Count == 0)
+            {
+                return false;
+            }
+
+            var level = _levels[^1];
+            if (level.Views.FirstOrDefault(v => v is not null && Opens(v.Node) && v.Node.Text == words) is { } line)
+            {
+                if (!OpenSubmenu(line, focus: false))
+                {
+                    return false;
+                }
+
+                continue;
+            }
+
+            if (i < parts.Length - 1 || !DebugClick(words))
             {
                 return false;
             }
         }
 
+        return true;
+    }
+
+    /// <summary>Debug renders only: click the deepest open level's line of <paramref name="words"/> (Show all, a line that asks). False when it is not there.</summary>
+    internal bool DebugClick(string words)
+    {
+        if (_levels.Count == 0 || _levels[^1].Views.FirstOrDefault(v => v is not null && v.Node.Text == words) is not { } line)
+        {
+            return false;
+        }
+
+        OnLine(_levels[^1], line);
         return true;
     }
 
@@ -2323,7 +2352,6 @@ internal sealed partial class PropertiesStrip : Grid
         {
             Text = ask.Initial ?? string.Empty,
             PlaceholderText = ask.Placeholder,
-            MinWidth = 280,
             IsSpellCheckEnabled = false,
             IsTextPredictionEnabled = false,
         };
@@ -2331,7 +2359,6 @@ internal sealed partial class PropertiesStrip : Grid
 
         var reason = Fluent.Text(FluentType.Caption, "SystemFillColorCriticalBrush");
         reason.TextWrapping = TextWrapping.Wrap;
-        reason.MaxWidth = 280;
         reason.Visibility = Visibility.Collapsed;
 
         var accept = new Button { Content = ask.Accept, HorizontalAlignment = HorizontalAlignment.Right };
@@ -2342,6 +2369,7 @@ internal sealed partial class PropertiesStrip : Grid
             Content = new StackPanel { Spacing = Fluent.Space2, Children = { heading, box, reason, accept } },
             Placement = FlyoutPlacementMode.RightEdgeAlignedTop,
             ShouldConstrainToRootBounds = true,
+            FlyoutPresenterStyle = MenuWide(),
         };
 
         string? Check()
@@ -2398,9 +2426,24 @@ internal sealed partial class PropertiesStrip : Grid
     private void Confirm(WidgetConfirm confirm)
     {
         var flyout = ConfirmFlyout.Create(confirm.Question, confirm.Accept, () => Run(confirm.Done), FlyoutPlacementMode.RightEdgeAlignedTop, confirm.Detail);
+        flyout.FlyoutPresenterStyle = MenuWide();
         flyout.Closed += (_, _) => _commands.ReleaseFocus();
         flyout.ShowAt(_levels.Count > 1 ? _levels[^1].Root : _frame);
     }
+
+    /// <summary>
+    /// [S-3734] The menu's one width for what it asks beside itself too (a line of text, an "are you
+    /// sure?"): the question never grows or shrinks with its words or the reason under the box.
+    /// </summary>
+    private static Style MenuWide() => new(typeof(FlyoutPresenter))
+    {
+        Setters =
+        {
+            new Setter(FrameworkElement.WidthProperty, MenuWidth),
+            new Setter(FrameworkElement.MinWidthProperty, MenuWidth),
+            new Setter(FrameworkElement.MaxWidthProperty, MenuWidth),
+        },
+    };
 
     private static (ContentAlign Value, string Glyph, Str Name)[] AlignOptions() =>
     [

@@ -1574,8 +1574,11 @@ and the SDK's `Settings/ListDrop.cs` (tests `QuickSetTests`, `StripPlacementTest
 - **[S-3734]** The panel and **every submenu are one width**, 300 DIPs (user request 2026-10-19),
   searches included: room for a city and its country and for "Item background" with its colour's
   name, so the levels line up and the panel never changes size as it is used (and the panel's
-  placement, [S-3708], measures that width). Words or a value longer than their room are trimmed
-  with an ellipsis and shown whole as their tooltip; the words keep the room before a long value.
+  placement, [S-3708], measures that width). What the menu asks beside itself, a line of text
+  ([S-3721]) and the "are you sure?" ([S-3727]), stands at that width too (user request 2026-10-19:
+  every configuration modal one width), its words wrapped inside it. Words or a value longer than
+  their room are trimmed with an ellipsis and shown whole as their tooltip; the words keep the room
+  before a long value. (Renders `props-*-vocabulary-ask` and `-confirm`, each with its `-popup0`.)
 - **[S-3735]** The menu's **sections** (user request 2026-10-19), a divider between each: the icon
   row; the **Header** line; Style and the options only that look draws; the widget's own lines in the
   sections it marks with separators; Appearance (where the widget places it, a section of its own).

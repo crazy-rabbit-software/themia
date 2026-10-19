@@ -396,7 +396,9 @@ internal static class EditBarRender
         // [S-3724]..[S-3730] Every line of the menu vocabulary on a stand-in widget's menu: the first
         // level (a note, a colour, a fill, numbers, a folder, a confirmed danger line), the list open,
         // and the colour open.
-        (string Name, string? Open)[] vocabulary = [("vocabulary", null), ("vocabulary-list", "Feeds"), ("vocabulary-colour", "Accent")];
+        // [S-3734] What is asked beside the menu stands at the menu's width: a number asked for as text and the "are you sure?".
+        (string Name, string? Open)[] vocabulary = [("vocabulary", null), ("vocabulary-list", "Feeds"), ("vocabulary-colour", "Accent"), ("vocabulary-ask", "Refresh every"), ("vocabulary-confirm", "Clear history")];
+        ConfirmFlyout.RenderInWindow = true;
         foreach (var (name, path) in vocabulary)
         {
             await PropsShot(screen, ticker, countdown, System.IO.Path.Combine(outDir, $"props-{theme}-{name}.png"), open: path, lines: Vocabulary).ConfigureAwait(true);
@@ -618,6 +620,31 @@ internal static class EditBarRender
         await RenderPng.SaveAsync(screen, path).ConfigureAwait(true);
         Console.WriteLine($"editbar: wrote {path}");
         screen.Background = flat;
+
+        // [S-3734] What a line asks beside the menu is a popup, not part of the screen's bitmap: each
+        // open one is written beside it, its width said, and closed before the next case.
+        var popups = VisualTreeHelper.GetOpenPopupsForXamlRoot(screen.XamlRoot);
+        for (var i = 0; i < popups.Count; i++)
+        {
+            if (popups[i].Child is FrameworkElement shown)
+            {
+                var popupPath = System.IO.Path.ChangeExtension(path, null) + $"-popup{i}.png";
+                try
+                {
+                    var drawn = shown is ContentControl { Content: UIElement presented } ? presented : shown;
+                    await RenderPng.SaveAsync(drawn, popupPath).ConfigureAwait(true);
+                    Console.WriteLine($"editbar: wrote {popupPath} ({shown.ActualWidth:0} DIPs wide)");
+                }
+                catch (Exception ex)
+                {
+                    // A popup with nothing laid out (a closing tooltip) cannot be drawn; the screen already was.
+                    Log.Warn("editbar", $"popup {i} could not be drawn", ex);
+                    Console.WriteLine($"editbar: popup {i} could not be drawn: {ex.Message}");
+                }
+            }
+
+            popups[i].IsOpen = false;
+        }
 
         foreach (var card in cards)
         {
