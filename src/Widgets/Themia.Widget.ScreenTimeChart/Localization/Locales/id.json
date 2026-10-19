@@ -1,8 +1,7 @@
 {
-  "screentime.cfg.style": "Gaya",
-  "screentime.cfg.styleBars": "Batang",
   "screentime.goalPerDay": "dari {value}/hari",
+  "styles.screenTimeChart.bars": "Batang",
+  "styles.screenTimeChart.calendar": "Kalender",
   "widgetsC.screenTime.chart.desc": "Waktu layar Anda per hari, selama seminggu atau sebulan",
-  "widgetsC.screenTime.chart.label": "Grafik waktu layar",
-  "widgetsC.screenTime.settings.styleCalendar": "Kalender"
+  "widgetsC.screenTime.chart.label": "Grafik waktu layar"
 }

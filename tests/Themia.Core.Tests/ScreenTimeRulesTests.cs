@@ -175,8 +175,6 @@ public sealed class ScreenTimeRulesTests
         Assert.Equal(ScreenTimePeriod.Week, ScreenTimeRules.ChartPeriod(ScreenTimePeriod.Week));
         Assert.Equal(ScreenTimePeriod.Month, ScreenTimeRules.ChartPeriod(ScreenTimePeriod.Month));
         Assert.Equal(ScreenTimePeriod.Week, ScreenTimeRules.ChartPeriod((ScreenTimePeriod)42));
-        Assert.Equal(ScreenTimeChartStyle.Bars, ScreenTimeRules.ClampChartStyle((ScreenTimeChartStyle)42));
-        Assert.Equal(ScreenTimeChartStyle.Heatmap, ScreenTimeRules.ClampChartStyle(ScreenTimeChartStyle.Heatmap));
     }
 
     [Fact]

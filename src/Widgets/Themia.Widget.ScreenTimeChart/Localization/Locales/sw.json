@@ -1,8 +1,7 @@
 {
-  "screentime.cfg.style": "Mtindo",
-  "screentime.cfg.styleBars": "Pau",
   "screentime.goalPerDay": "kati ya {value}/siku",
+  "styles.screenTimeChart.bars": "Pau",
+  "styles.screenTimeChart.calendar": "Kalenda",
   "widgetsC.screenTime.chart.desc": "Muda wako wa skrini siku kwa siku, kwa wiki au mwezi",
-  "widgetsC.screenTime.chart.label": "Chati ya muda wa skrini",
-  "widgetsC.screenTime.settings.styleCalendar": "Kalenda"
+  "widgetsC.screenTime.chart.label": "Chati ya muda wa skrini"
 }

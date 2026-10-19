@@ -2180,7 +2180,7 @@ are cited from there, the ones it replaced are marked.
   Right-click "Hide from list" adds an app key to `HiddenApps`; hidden apps leave every
   view and the totals re-base. The properties menu lists them with a way back ([S-3323]).
 - **[S-456]** A window of Bars: one bar per day, stacked by app in the legend's order, scaled to the
-  busiest day, weekday labels for a week. Heatmap: seven columns, padded so the window ends on the
+  busiest day, weekday labels for a week. Calendar: seven columns, padded so the window ends on the
   last cell, shaded in quartiles of the busiest day (any use is at least level 1), today outlined.
 - **[S-457]** *(Stored in the shared preferences since [S-3322].)* Limits are daily, in seconds:
   `GoalSeconds` for the whole and `AppLimits` per app; zero
@@ -2255,7 +2255,7 @@ Tests `ScreenTimeRulesTests`, `ScreenTimeStoreTests`, `LocalStoreFixtureTests`, 
 ### Chart
 
 - **[S-3330]** `ScreenTimeChartConfig`: `Period` Week (default) or Month (a day reads as the week)
-  and `Style` Bars (default) or Heatmap (shown as "Calendar"; unknown reads as Bars).
+  and its style Bars (default) or Calendar ([S-3336]: an unknown one is repaired to Bars at load).
 - [S-3331], [S-3332], [S-3333], [S-3334]: moved with the Screen time: chart widget into its module's `SPEC.md` (`src/Widgets/Themia.Widget.ScreenTimeChart/`).
 
 ### Donut

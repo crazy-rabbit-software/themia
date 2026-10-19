@@ -19,17 +19,6 @@ public enum ScreenTimePeriod
     Month = 2,
 }
 
-/// <summary>[S-3330] How the chart draws its days.</summary>
-[JsonConverter(typeof(JsonStringEnumConverter<ScreenTimeChartStyle>))]
-public enum ScreenTimeChartStyle
-{
-    /// <summary>One bar per day, stacked by app.</summary>
-    Bars = 0,
-
-    /// <summary>A calendar of the window's days, shaded by use.</summary>
-    Heatmap = 1,
-}
-
 /// <summary>
 /// [S-6074] The screen-time rows only some of the three widgets draw with. The limits and the
 /// hidden apps are one set for the machine ([S-3322]); a menu offers the part its widget shows.

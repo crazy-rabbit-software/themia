@@ -10,7 +10,7 @@ calendar ([S-456]), the linked focus ([S-3310]) and the sample history the previ
 SDK's `SampleScreenTime`).
 
 Owning files: everything in this folder: `ScreenTimeChartModule.cs` (descriptor, view factory, menu
-lines, JSON context), `ScreenTimeChartConfig.cs` (the period and the style), `ScreenTimeChartView.cs`
+lines, JSON context), `ScreenTimeChartConfig.cs` (the period and the style, `ScreenTimeChartStyle`), `ScreenTimeChartView.cs`
 (the bars and the calendar through its host, the keys), `ScreenTimeChartLayout.cs` (the ladder),
 `ScreenTimeChartMenu.cs` (its properties menu, ending with the shared lines), `Preview/` (Debug renders:
 `--state sample|hovered|selected|packaged`), `Localization/Locales/` (its own `ScreenTimeChartStr`, 30
@@ -18,11 +18,16 @@ languages). Tests: `Tests/ScreenTimeChartTests.cs`, `Tests/ScreenTimeChartMenuTe
 
 - **[S-3335]** Every option is on the properties menu ([S-3719], user request 2026-10-19); there is
   no settings page: Appearance ([S-3723]), **Period** (Week, Month: a day reads as the week,
-  [S-3330]), **Style** (Bars, Calendar: a choice of the widget's own, not a registry style), then the
-  shared lines ([S-3323]: of the limits the day's).
+  [S-3330]), then the shared lines ([S-3323]: of the limits the day's). Bars or Calendar is the
+  menu's Style line ([S-3336]), not a line of its own.
+- **[S-3336]** Bars and Calendar are the widget's **styles** ([S-6000]; what was its own Style choice
+  is the style, never a second setting): `ScreenTimeChartStyle` (Bars the default, then Calendar),
+  `ScreenTimeChartConfig.Style` over `IStyled`, stored as `"style": "bars" | "calendar"`
+  (`StyleJsonConverter`; an unknown name is repaired to Bars at load, [S-6004]), copied in `Clone`,
+  its labels `styles.screenTimeChart.*`. `--widget-png ScreenTimeChart … --style calendar` draws it.
 - **[S-3331]** Bars: one bar per day, oldest left, stacked by app in the ring's order (the busiest
   seven, `ScreenTimeRules.DrawingApps`, then Other), scaled to the busiest day, today's weekday in the
-  accent. Heatmap: [S-456]'s calendar.
+  accent. Calendar: [S-456]'s calendar.
 - **[S-3332]** Ladder (`ScreenTimeChartLayout.Chart`): the drawing (never dropped, at least 32), then the
   figure over it (Subtitle from Expanded height at Regular width, else BodyStrong), the weekday row
   under a week's bars (when each column has 16 DIPs), the detail line; the drawing takes the rest.

@@ -1,8 +1,7 @@
 {
-  "screentime.cfg.style": "样式",
-  "screentime.cfg.styleBars": "柱状图",
   "screentime.goalPerDay": "/ {value} 每天",
+  "styles.screenTimeChart.bars": "柱状图",
+  "styles.screenTimeChart.calendar": "日历",
   "widgetsC.screenTime.chart.desc": "按天显示一周或一个月的屏幕使用时间",
-  "widgetsC.screenTime.chart.label": "屏幕使用时间图表",
-  "widgetsC.screenTime.settings.styleCalendar": "日历"
+  "widgetsC.screenTime.chart.label": "屏幕使用时间图表"
 }

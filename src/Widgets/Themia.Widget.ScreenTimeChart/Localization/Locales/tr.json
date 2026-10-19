@@ -1,8 +1,7 @@
 {
-  "screentime.cfg.style": "Stil",
-  "screentime.cfg.styleBars": "Çubuklar",
   "screentime.goalPerDay": "/ {value}/gün",
+  "styles.screenTimeChart.bars": "Çubuklar",
+  "styles.screenTimeChart.calendar": "Takvim",
   "widgetsC.screenTime.chart.desc": "Bir hafta veya ay boyunca gün gün ekran süreniz",
-  "widgetsC.screenTime.chart.label": "Ekran süresi grafiği",
-  "widgetsC.screenTime.settings.styleCalendar": "Takvim"
+  "widgetsC.screenTime.chart.label": "Ekran süresi grafiği"
 }

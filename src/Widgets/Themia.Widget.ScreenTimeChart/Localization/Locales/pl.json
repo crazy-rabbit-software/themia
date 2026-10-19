@@ -1,8 +1,7 @@
 {
-  "screentime.cfg.style": "Styl",
-  "screentime.cfg.styleBars": "Słupki",
   "screentime.goalPerDay": "z {value}/dzień",
+  "styles.screenTimeChart.bars": "Słupki",
+  "styles.screenTimeChart.calendar": "Kalendarz",
   "widgetsC.screenTime.chart.desc": "Twój czas przed ekranem dzień po dniu, w tygodniu lub miesiącu",
-  "widgetsC.screenTime.chart.label": "Wykres czasu przed ekranem",
-  "widgetsC.screenTime.settings.styleCalendar": "Kalendarz"
+  "widgetsC.screenTime.chart.label": "Wykres czasu przed ekranem"
 }

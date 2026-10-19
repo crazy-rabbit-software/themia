@@ -1,8 +1,7 @@
 {
-  "screentime.cfg.style": "Стиль",
-  "screentime.cfg.styleBars": "Столбцы",
   "screentime.goalPerDay": "из {value}/день",
+  "styles.screenTimeChart.bars": "Столбцы",
+  "styles.screenTimeChart.calendar": "Календарь",
   "widgetsC.screenTime.chart.desc": "Ваше время использования по дням за неделю или месяц",
-  "widgetsC.screenTime.chart.label": "График времени использования",
-  "widgetsC.screenTime.settings.styleCalendar": "Календарь"
+  "widgetsC.screenTime.chart.label": "График времени использования"
 }

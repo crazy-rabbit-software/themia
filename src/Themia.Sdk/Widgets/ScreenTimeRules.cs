@@ -183,10 +183,6 @@ public static class ScreenTimeRules
     public static ScreenTimePeriod ChartPeriod(ScreenTimePeriod period)
         => period == ScreenTimePeriod.Month ? ScreenTimePeriod.Month : ScreenTimePeriod.Week;
 
-    /// <summary>[S-3330] An unknown style from a hand-edited file reads as bars.</summary>
-    public static ScreenTimeChartStyle ClampChartStyle(ScreenTimeChartStyle style)
-        => Enum.IsDefined(style) ? style : ScreenTimeChartStyle.Bars;
-
     /// <summary>[S-451] Days a period covers: 1, 7 or 30.</summary>
     public static int RangeLength(ScreenTimePeriod period) => period switch
     {

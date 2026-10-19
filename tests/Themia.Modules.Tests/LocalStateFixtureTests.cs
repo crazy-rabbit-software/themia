@@ -57,7 +57,7 @@ public sealed class LocalStateFixtureTests
         var focus = Assert.IsType<FocusSessionConfig>(configs[5]);
         Assert.Equal((50, false), (focus.Minutes, focus.DoNotDisturb));
         var chart = Assert.IsType<ScreenTimeChartConfig>(configs[6]);
-        Assert.Equal((ScreenTimePeriod.Month, ScreenTimeChartStyle.Heatmap), (chart.Period, chart.Style));
+        Assert.Equal((ScreenTimePeriod.Month, ScreenTimeChartStyle.Calendar), (chart.Period, chart.Style));
         Assert.Equal(ScreenTimePeriod.Week, Assert.IsType<ScreenTimeDonutConfig>(configs[7]).Period);
         var apps = Assert.IsType<ScreenTimeAppsConfig>(configs[8]);
         Assert.Equal((ScreenTimePeriod.Month, 8, false, true), (apps.Period, apps.MaxApps, apps.ShowAverage, apps.ShowPercent));

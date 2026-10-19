@@ -1457,7 +1457,7 @@
           "config": {
             "kind": "screenTimeChart",
             "period": "Week",
-            "style": "Bars"
+            "style": "bars"
           }
         },
         {

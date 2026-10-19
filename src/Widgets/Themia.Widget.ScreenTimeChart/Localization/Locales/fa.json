@@ -1,8 +1,7 @@
 {
-  "screentime.cfg.style": "سبک",
-  "screentime.cfg.styleBars": "میله‌ها",
   "screentime.goalPerDay": "از {value}/روز",
+  "styles.screenTimeChart.bars": "میله‌ها",
+  "styles.screenTimeChart.calendar": "تقویم",
   "widgetsC.screenTime.chart.desc": "زمان استفاده شما روز به روز، در یک هفته یا یک ماه",
-  "widgetsC.screenTime.chart.label": "نمودار زمان استفاده",
-  "widgetsC.screenTime.settings.styleCalendar": "تقویم"
+  "widgetsC.screenTime.chart.label": "نمودار زمان استفاده"
 }

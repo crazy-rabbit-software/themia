@@ -1,8 +1,7 @@
 {
-  "screentime.cfg.style": "Kiểu",
-  "screentime.cfg.styleBars": "Thanh",
   "screentime.goalPerDay": "trên {value}/ngày",
+  "styles.screenTimeChart.bars": "Thanh",
+  "styles.screenTimeChart.calendar": "Lịch",
   "widgetsC.screenTime.chart.desc": "Thời gian sử dụng theo từng ngày, trong một tuần hoặc một tháng",
-  "widgetsC.screenTime.chart.label": "Biểu đồ thời gian sử dụng",
-  "widgetsC.screenTime.settings.styleCalendar": "Lịch"
+  "widgetsC.screenTime.chart.label": "Biểu đồ thời gian sử dụng"
 }

@@ -65,6 +65,6 @@ public sealed class ScreenTimeChartTests
     public void S3332_a_month_and_a_calendar_carry_no_weekday_row()
     {
         Assert.False(ScreenTimeChartLayout.Chart(Content(Tier("L")), 30, ScreenTimeChartStyle.Bars).Labels);
-        Assert.False(ScreenTimeChartLayout.Chart(Content(Tier("L")), 7, ScreenTimeChartStyle.Heatmap).Labels);
+        Assert.False(ScreenTimeChartLayout.Chart(Content(Tier("L")), 7, ScreenTimeChartStyle.Calendar).Labels);
     }
 }

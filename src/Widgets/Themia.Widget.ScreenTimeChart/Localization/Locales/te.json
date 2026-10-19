@@ -1,8 +1,7 @@
 {
-  "screentime.cfg.style": "శైలి",
-  "screentime.cfg.styleBars": "బార్‌లు",
   "screentime.goalPerDay": "{value}/రోజులో",
+  "styles.screenTimeChart.bars": "బార్‌లు",
+  "styles.screenTimeChart.calendar": "క్యాలెండర్",
   "widgetsC.screenTime.chart.desc": "వారం లేదా నెలలో, రోజు వారీగా మీ స్క్రీన్ సమయం",
-  "widgetsC.screenTime.chart.label": "స్క్రీన్ సమయం చార్ట్",
-  "widgetsC.screenTime.settings.styleCalendar": "క్యాలెండర్"
+  "widgetsC.screenTime.chart.label": "స్క్రీన్ సమయం చార్ట్"
 }

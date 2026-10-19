@@ -10,8 +10,9 @@ namespace Themia.App.Shell.Config;
 
 /// <summary>
 /// [S-3335] The chart's options, all on its properties menu ([S-3719]): Appearance ([S-3723]), the
-/// period (a week or a month: a day is the donut's and the list's, [S-3330]), bars or a calendar;
-/// then the limits and hidden apps every screen-time widget shares ([S-3323]). It has no settings page.
+/// period (a week or a month: a day is the donut's and the list's, [S-3330]); then the limits and
+/// hidden apps every screen-time widget shares ([S-3323]). Bars or a calendar is its style
+/// ([S-3336]), on the menu's Style line. It has no settings page.
 /// </summary>
 internal static class ScreenTimeChartMenu
 {
@@ -24,9 +25,6 @@ internal static class ScreenTimeChartMenu
         menu.Lines.Add(menu.Choice(Glyphs.Calendar, Str.Screentime_Cfg_Period.Text(),
             [(ScreenTimePeriod.Week, ScreenTimeRules.PeriodLabel(ScreenTimePeriod.Week)), (ScreenTimePeriod.Month, ScreenTimeRules.PeriodLabel(ScreenTimePeriod.Month))],
             ScreenTimeRules.ChartPeriod(config.Period), value => config.Period = value));
-        menu.Lines.Add(menu.Choice(Glyphs.Palette, ScreenTimeChartStr.Screentime_Cfg_Style.Text(),
-            [(ScreenTimeChartStyle.Bars, ScreenTimeChartStr.Screentime_Cfg_StyleBars.Text()), (ScreenTimeChartStyle.Heatmap, ScreenTimeChartStr.WidgetsC_ScreenTime_Settings_StyleCalendar.Text())],
-            ScreenTimeRules.ClampChartStyle(config.Style), value => config.Style = value));
         ScreenTimeMenuLines.AddShared(menu, config, source);
     }
 }

@@ -1,8 +1,7 @@
 {
-  "screentime.cfg.style": "Salo",
-  "screentime.cfg.styleBars": "Sanduna",
   "screentime.goalPerDay": "na {value}/rana",
+  "styles.screenTimeChart.bars": "Sanduna",
+  "styles.screenTimeChart.calendar": "Kalanda",
   "widgetsC.screenTime.chart.desc": "Lokacin allonka rana bayan rana, a cikin mako ko wata",
-  "widgetsC.screenTime.chart.label": "Jadawalin lokacin allo",
-  "widgetsC.screenTime.settings.styleCalendar": "Kalanda"
+  "widgetsC.screenTime.chart.label": "Jadawalin lokacin allo"
 }

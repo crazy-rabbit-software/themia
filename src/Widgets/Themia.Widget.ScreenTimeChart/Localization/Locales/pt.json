@@ -1,8 +1,7 @@
 {
-  "screentime.cfg.style": "Estilo",
-  "screentime.cfg.styleBars": "Barras",
   "screentime.goalPerDay": "de {value}/dia",
+  "styles.screenTimeChart.bars": "Barras",
+  "styles.screenTimeChart.calendar": "Calendário",
   "widgetsC.screenTime.chart.desc": "Seu tempo de tela dia a dia, em uma semana ou um mês",
-  "widgetsC.screenTime.chart.label": "Gráfico do tempo de tela",
-  "widgetsC.screenTime.settings.styleCalendar": "Calendário"
+  "widgetsC.screenTime.chart.label": "Gráfico do tempo de tela"
 }

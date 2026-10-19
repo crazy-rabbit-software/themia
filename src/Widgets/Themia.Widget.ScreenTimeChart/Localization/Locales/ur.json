@@ -1,8 +1,7 @@
 {
-  "screentime.cfg.style": "انداز",
-  "screentime.cfg.styleBars": "بارز",
   "screentime.goalPerDay": "{value}/دن میں سے",
+  "styles.screenTimeChart.bars": "بارز",
+  "styles.screenTimeChart.calendar": "کیلنڈر",
   "widgetsC.screenTime.chart.desc": "ہفتے یا مہینے میں دن بہ دن آپ کا اسکرین ٹائم",
-  "widgetsC.screenTime.chart.label": "اسکرین ٹائم چارٹ",
-  "widgetsC.screenTime.settings.styleCalendar": "کیلنڈر"
+  "widgetsC.screenTime.chart.label": "اسکرین ٹائم چارٹ"
 }

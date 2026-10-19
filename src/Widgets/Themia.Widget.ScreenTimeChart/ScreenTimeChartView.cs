@@ -150,7 +150,7 @@ internal sealed partial class ScreenTimeChartView : Grid, IWidgetView, IWidgetSu
 
     private ScreenTimePeriod Period => ScreenTimeRules.ChartPeriod(_config.Period);
 
-    private ScreenTimeChartStyle ChartStyle => ScreenTimeRules.ClampChartStyle(_config.Style);
+    private ScreenTimeChartStyle ChartStyle => _config.Style;
 
     private LocalDay Today => _source?.Today ?? LocalDay.From(DateTimeOffset.Now);
 
@@ -235,7 +235,7 @@ internal sealed partial class ScreenTimeChartView : Grid, IWidgetView, IWidgetSu
 
         var width = Math.Max(1, _area.Width - (2 * ScreenTimeLayout.Inset));
         var height = Math.Max(1, _plan.Drawing);
-        var drawing = ChartStyle == ScreenTimeChartStyle.Heatmap ? Heatmap(data, width, height) : Bars(data, width, height);
+        var drawing = ChartStyle == ScreenTimeChartStyle.Calendar ? Heatmap(data, width, height) : Bars(data, width, height);
         _drawing.Children.Add(drawing);
 
         ApplyFocus();
