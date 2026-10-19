@@ -4877,6 +4877,13 @@ log into `Log`). Not done here: the original's pre-release gate on the Google si
   picker of its own at any size (user decision: choosing the output is Windows' job, not the
   widget's); the device line, the volume caption's menu and the XL panel's device list are gone.
   Context action "Follow the default output" when a device is chosen. Inert in previews.
+- **[S-1236]** The Output device line is offered only where it changes something
+  (`AudioDeviceLine.Offers`, user request 2026-10-19): with two output devices or more connected,
+  while a device is chosen (so the widget can always go back to the default), or when the devices
+  could not be listed. With one device "Default output" and that device are the same sound, so the
+  line is not there. The devices are read as the menu is built (`AudioDeviceLine.Outputs`, a
+  `MenuLoads` read, [S-3746]): until the first answer the line is not there, and an answer that
+  differs builds the menu again.
 - **[S-1223]** *(Retired: the mixer has no level meter under its sliders (user decision). The
   `ShowPeaks` setting, `AudioPeaks` and the worker's `IAudioMeterInformation` sampling are gone:
   nothing in the worker is sampled any more, it sleeps until a notification or a write wakes it.)*

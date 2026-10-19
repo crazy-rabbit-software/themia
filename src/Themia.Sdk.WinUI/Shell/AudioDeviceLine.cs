@@ -12,17 +12,43 @@ public static class AudioDeviceLine
 {
     private const string Scope = "audio-device";
 
+    /// <summary>[S-1236] The output devices connected, as the menus last read them: one read per build, a different answer builds the menu again.</summary>
+    private static readonly MenuLoads<IReadOnlyList<AudioDevice>> Loads = new((a, b) => a.Select(d => d.Id).SequenceEqual(b.Select(d => d.Id), StringComparer.OrdinalIgnoreCase));
+
+    /// <summary>[S-1236] The output devices Windows lists, as held for the menu being built (a read starts; an answer that differs outdates it).</summary>
+    public static MenuLoaded<IReadOnlyList<AudioDevice>> Outputs(WidgetMenuLines menu)
+    {
+        ArgumentNullException.ThrowIfNull(menu);
+        return Loads.Read("outputs", menu, AudioDevices.OutputsAsync);
+    }
+
+    /// <summary>
+    /// [S-1236] Whether the device line changes anything: with one output device (or none)
+    /// "Default output" and that device are the same sound, so the line is offered only with two or
+    /// more connected, or while a device is chosen (so the choice can always go back to the default),
+    /// or when the devices could not be listed (the choice keeps working). Until the first answer it
+    /// is not offered; the answer builds the menu again.
+    /// </summary>
+    public static bool Offers(MenuLoaded<IReadOnlyList<AudioDevice>> outputs, string? chosenId)
+        => chosenId is not null || outputs.Failed || outputs.Value is { Count: >= 2 };
+
     /// <summary>
     /// [S-1222] The output device an audio widget is bound to, as a search on the properties menu
     /// ([S-3722]): Windows' devices are asked for as its submenu opens, so the list is the one
     /// connected now. "Default output" (which follows Windows) heads it, then each device; the one
     /// that holds has the dot, and a chosen device that is not connected stays listed by the name it
-    /// was chosen under, so the choice is never silently lost.
+    /// was chosen under, so the choice is never silently lost. Null where it would change nothing
+    /// (<see cref="Offers"/>, [S-1236]).
     /// </summary>
-    public static ItemMenuEntry Line(WidgetMenuLines menu, string? chosenId, string? chosenName, Action<string?, string?> set)
+    public static ItemMenuEntry? Line(WidgetMenuLines menu, MenuLoaded<IReadOnlyList<AudioDevice>> outputs, string? chosenId, string? chosenName, Action<string?, string?> set)
     {
         ArgumentNullException.ThrowIfNull(menu);
         ArgumentNullException.ThrowIfNull(set);
+
+        if (!Offers(outputs, chosenId))
+        {
+            return null;
+        }
 
         void Pick(string? id, string? name)
         {

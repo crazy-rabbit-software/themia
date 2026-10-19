@@ -20,7 +20,9 @@ slider and the speaker through the shared `AudioFeed`), `VolumeMenu.cs` (its pro
   controls rather than hiding them. Unavailable/missing device shows the empty state.
 - **[S-2734]** Its options are all on the properties menu ([S-3719], user request 2026-10-19); it
   has no settings page. Appearance ([S-3723]), then **Output device** (the shared search of
-  [S-1222]), **Allow changes** (a switch) and, as a note, how the keys work ([S-1226]).
+  [S-1222]; only where there is a choice, [S-1236]), a divider, **Allow changes** (a switch) and,
+  while changes are allowed, as a note, how the keys work ([S-1226]: the keys are ignored without,
+  so the note is not there).
 
 Needs a manual pass: the tile on a live desktop (the level moved by Windows' own slider and by the
 tile, muted, a second device chosen and unplugged, the keys and the wheel), never in a render: a

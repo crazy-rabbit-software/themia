@@ -24,9 +24,10 @@ volume tile's is the module host's `AudioHostTests`, its menu `Tests/MixerMenuTe
   glyph's band (crossed out when muted). No percent beside a row at any width. The slider's own
   drag tooltip is the only number, while dragging.
 - **[S-1235]** Its options are all on the properties menu ([S-3719], user request 2026-10-19); it
-  has no settings page. Appearance ([S-3723]), then **Output device** (the shared search of
-  [S-1222]), **One row per app** ([S-442]), **Only apps playing now**, **System sounds**, **App
-  icons** (switches) and, as a note, how the keys work ([S-1225]).
+  has no settings page. Appearance ([S-3723]), then in groups behind dividers: **Output device**
+  (the shared search of [S-1222]; only where there is a choice, [S-1236]); which rows the list
+  holds, **One row per app** ([S-442]), **Only apps playing now** and **System sounds** ([S-445]);
+  what a row shows, **App icons**; and, as a note, how the keys work ([S-1225]).
 
 Needs a manual pass: the mixer on a live desktop (apps playing, one muted and dragged, a second
 output device chosen and unplugged, the keys), never in a render: a render's sliders are inert.
