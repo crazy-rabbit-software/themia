@@ -83,4 +83,27 @@ public enum WidgetKey
 
     /// <summary>[S-3802] Alt+Shift+Down: move the focused item one place down.</summary>
     MoveDown,
+
+    /// <summary>[S-6623] Ctrl+Up: move the focus, not the selection, as on the desktop.</summary>
+    FocusUp,
+
+    /// <summary>[S-6623] Ctrl+Down: move the focus, not the selection.</summary>
+    FocusDown,
+
+    /// <summary>[S-6623] Ctrl+Left: move the focus, not the selection.</summary>
+    FocusLeft,
+
+    /// <summary>[S-6623] Ctrl+Right: move the focus, not the selection.</summary>
+    FocusRight,
+
+    /// <summary>[S-6623] Ctrl+Space: the focused item in or out of the selection.</summary>
+    ToggleSelection,
+
+    /// <summary>
+    /// [S-6626] Not a key: the session left the widget (a press on another widget, another app taking
+    /// the foreground) while Escape was not pressed. Sent instead of <see cref="Escape"/> only to a
+    /// view that keeps its selection then (<c>IWidgetKeys.KeepsSelectionWhenLeft</c>), which draws it
+    /// inactive, as the desktop keeps its icons selected while another window is active.
+    /// </summary>
+    Deactivate,
 }

@@ -49,13 +49,17 @@ internal sealed partial class ShortcutsView : Grid, IWidgetView, IWidgetSurfaceA
     private readonly Grid _columnHeader = new();
     private readonly Grid _panel = new();
     private readonly Canvas _bandLayer = new() { IsHitTestVisible = false };
-    private readonly Microsoft.UI.Xaml.Shapes.Rectangle _band;
+    private readonly Border _band = new() { Visibility = Visibility.Collapsed, IsHitTestVisible = false };
+    private readonly SelectionLabel _fullName;
     private readonly Grid _surface = new();
     private readonly ScrollViewer _scroll;
     private readonly Button _searchButton;
     private readonly ScrollFade _fade;
 
-    private readonly ShortcutSelection _selection = new();
+    private readonly ItemSelection _selection = new();
+
+    /// <summary>[S-6626] Whether the widget has the keyboard: a selection without it is drawn inactive.</summary>
+    private bool _active;
     private readonly List<Cell> _cells = [];
     private readonly Dictionary<string, TargetHealth> _health = new(StringComparer.OrdinalIgnoreCase);
 
@@ -105,14 +109,10 @@ internal sealed partial class ShortcutsView : Grid, IWidgetView, IWidgetSurfaceA
         _columnHeader.Padding = new Thickness(Fluent.Space4, Fluent.Space1, Fluent.Space4, Fluent.Space1);
         _columnHeader.Visibility = Visibility.Collapsed;
 
-        _band = new Microsoft.UI.Xaml.Shapes.Rectangle
-        {
-            Stroke = ThemeBrush.Of("AccentFillColorDefaultBrush", Colors.DodgerBlue),
-            StrokeThickness = Fluent.Hairline,
-            Visibility = Visibility.Collapsed,
-        };
-
+        // [S-6624] The desktop's rubber band, and [S-6629] a selected tile's full name, over the items.
+        SelectionChrome.PaintBand(_band);
         _bandLayer.Children.Add(_band);
+        _fullName = new SelectionLabel(_bandLayer);
 
         _surface.Background = ThemeBrush.Of("SubtleFillColorTransparentBrush", Colors.Transparent);
         _surface.Children.Add(_panel);
@@ -189,7 +189,7 @@ internal sealed partial class ShortcutsView : Grid, IWidgetView, IWidgetSurfaceA
     public void ApplyConfig(WidgetConfig config)
     {
         _config = config as ShortcutsConfig ?? new ShortcutsConfig();
-        _selection.Prune(_config.Items.Select(item => item.Id).ToList());
+        _selection.SetOrder(_config.Items.Select(item => item.Id).ToList());
         Changed(rebuild: true);
     }
 

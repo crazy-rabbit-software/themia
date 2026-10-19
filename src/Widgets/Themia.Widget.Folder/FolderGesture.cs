@@ -13,22 +13,6 @@ public enum GestureStep
     Band,
 }
 
-/// <summary>A rectangle between two pointer positions, in the view's own DIPs.</summary>
-public readonly record struct BandRect(double X1, double Y1, double X2, double Y2)
-{
-    public double Left => Math.Min(X1, X2);
-
-    public double Top => Math.Min(Y1, Y2);
-
-    public double Width => Math.Abs(X2 - X1);
-
-    public double Height => Math.Abs(Y2 - Y1);
-
-    /// <summary>Whether a box at (x, y, w, h) overlaps the band at all, as Explorer's band selects.</summary>
-    public bool Hits(double x, double y, double w, double h)
-        => x < Left + Width && x + w > Left && y < Top + Height && y + h > Top;
-}
-
 /// <summary>
 /// [S-1328] The press → click | rubber band | file drag decision, ported from the original's
 /// <c>gesture.ts</c> ([S-65], issue #58). Pure, so the "every exit path resets" rule is tested.
@@ -42,8 +26,8 @@ public readonly record struct BandRect(double X1, double Y1, double X2, double Y
 /// </summary>
 public sealed class FolderGesture
 {
-    /// <summary>A 5 DIP dead zone: movement below it is still a click.</summary>
-    public const double Threshold = 5;
+    /// <summary>A 5 DIP dead zone: movement below it is still a click ([S-6624]: the one every item-selecting widget uses).</summary>
+    public const double Threshold = SelectionBand.Threshold;
 
     private (double X, double Y)? _fileStart;
     private (double X, double Y)? _bandOrigin;
@@ -66,7 +50,7 @@ public sealed class FolderGesture
     /// <summary>Whether a press is in flight.</summary>
     public bool Pressed => _fileStart is not null || _bandOrigin is not null;
 
-    public static bool PastThreshold(double dx, double dy) => (dx * dx) + (dy * dy) >= Threshold * Threshold;
+    public static bool PastThreshold(double dx, double dy) => SelectionBand.PastThreshold(dx, dy);
 
     /// <summary>
     /// A left press. Wipes every earlier candidate and suppress flag first, then arms exactly one:

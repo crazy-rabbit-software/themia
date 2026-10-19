@@ -95,6 +95,10 @@ internal sealed partial class ShortcutsView
                 : [cell.Item.Id];
             _reordering = true;
             _previewBefore = null;
+
+            // [S-6621] The drag carries the selection it started on: the press does not narrow it.
+            _selection.CancelPress();
+            _pressedId = null;
             DimDragged(true);
         }
 

@@ -37,6 +37,15 @@ public interface IWidgetKeys
     bool WantsKeys => true;
 
     /// <summary>
+    /// [S-6626] Whether the view keeps its item selection when the user goes on to another widget or
+    /// window, drawn inactive, as the desktop keeps its icons selected (the item-selecting widgets,
+    /// [S-6620]). Such a view is sent <see cref="WidgetKey.Deactivate"/> instead of
+    /// <see cref="WidgetKey.Escape"/> then; Escape itself, a press on its own empty space and edit
+    /// mode still clear it.
+    /// </summary>
+    bool KeepsSelectionWhenLeft => false;
+
+    /// <summary>
     /// [S-1980]/[S-1997] A character typed while the widget holds the lease and no text box has focus:
     /// type-ahead in a long list (<see cref="TypeAhead"/>). Return whether it was used. Arrives after
     /// the key's own <see cref="HandleKey"/>, so a letter that is a widget key (M) reaches both; a

@@ -40,7 +40,7 @@ internal sealed partial class FolderView : Grid, IWidgetView, IWidgetHeaderConte
     private static readonly string ProfileFolder =
         Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
 
-    private readonly FolderSelection _selection = new();
+    private readonly ItemSelection _selection = new(StringComparer.OrdinalIgnoreCase);
     private readonly FolderGesture _gesture = new();
     private readonly FolderHistory _history = new(string.Empty);
 
@@ -473,13 +473,7 @@ internal sealed partial class FolderView : Grid, IWidgetView, IWidgetHeaderConte
     }
 
     /// <summary>Whether Shift is held now (for Shift+arrows, which the lease delivers as plain arrows).</summary>
-    private static bool ShiftDown()
-        => Microsoft.UI.Input.InputKeyboardSource.GetKeyStateForCurrentThread(Windows.System.VirtualKey.Shift)
-            .HasFlag(Windows.UI.Core.CoreVirtualKeyStates.Down);
-
-    private static bool CtrlDown()
-        => Microsoft.UI.Input.InputKeyboardSource.GetKeyStateForCurrentThread(Windows.System.VirtualKey.Control)
-            .HasFlag(Windows.UI.Core.CoreVirtualKeyStates.Down);
+    private static bool ShiftDown() => SelectionInput.ShiftHeld();
 
     /// <inheritdoc />
     public FrameworkElement? HeaderTrailing => _trailing;

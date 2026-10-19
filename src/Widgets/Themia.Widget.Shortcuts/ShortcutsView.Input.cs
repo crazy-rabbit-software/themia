@@ -17,9 +17,9 @@ using Windows.System;
 namespace Themia.App.Widgets;
 
 /// <summary>
-/// The Shortcuts widget's input: selection by click, Ctrl, Shift and rubber band ([S-1390]), the
-/// keyboard while the widget holds the lease ([S-1390]), the item menu ([S-1387]), rename in place,
-/// remove with one step of undo, and search ([S-1385]).
+/// The Shortcuts widget's input: selection by click, Ctrl, Shift and rubber band, and the keys while
+/// the widget holds the lease, through the one item selection ([S-1390], [S-6620]..[S-6626]); the
+/// item menu ([S-1387]), rename in place, remove with one step of undo, and search ([S-1385]).
 /// <para>
 /// Pointer presses are never marked handled and never captured on the press: in edit mode the card
 /// takes the pointer for a drag and this view simply stops seeing the gesture (the Scratchpad's
@@ -28,13 +28,13 @@ namespace Themia.App.Widgets;
 /// </summary>
 internal sealed partial class ShortcutsView
 {
-    /// <summary>How far the pointer must travel from a background press before it is a band, not a click.</summary>
-    private const double BandThreshold = 5;
-
     private Point? _bandStart;
     private bool _bandActive;
     private bool _cellPressed;
     private VirtualKeyModifiers _pressModifiers;
+
+    /// <summary>The item a left press landed on, for its release ([S-6621]).</summary>
+    private string? _pressedId;
 
     private Cell? _renaming;
     private TextBox? _renameBox;
@@ -52,6 +52,10 @@ internal sealed partial class ShortcutsView
         _cellPressed = true;
         _pressModifiers = args.KeyModifiers;
 
+        // [S-6626] A press takes the keyboard lease ([S-800]): the selection is the active one again.
+        _active = true;
+        _pressedId = null;
+
         if (!args.GetCurrentPoint(cell.Root).Properties.IsLeftButtonPressed)
         {
             return;
@@ -65,7 +69,9 @@ internal sealed partial class ShortcutsView
         var ctrl = args.KeyModifiers.HasFlag(VirtualKeyModifiers.Control);
         var shift = args.KeyModifiers.HasFlag(VirtualKeyModifiers.Shift);
 
-        _selection.Click(Order(), cell.Item.Id, ctrl, shift);
+        // [S-6621] A plain press on a selected item waits for the release, so a drag carries the whole selection.
+        _pressedId = cell.Item.Id;
+        _selection.Press(_selection.IndexOf(cell.Item.Id), ctrl, shift);
         PaintAll();
 
         // [S-1410] A press on an item may become a drag to reorder it.
@@ -107,7 +113,8 @@ internal sealed partial class ShortcutsView
             return;
         }
 
-        _selection.ContextPress(cell.Item.Id);
+        _active = true;
+        _selection.Context(_selection.IndexOf(cell.Item.Id));
         PaintAll();
 
         try
@@ -143,6 +150,8 @@ internal sealed partial class ShortcutsView
 
         _bandStart = point;
         _pressModifiers = args.KeyModifiers;
+        _active = true;
+        _pressedId = null;
     }
 
     private void OnRootPointerMoved(object sender, PointerRoutedEventArgs args)
@@ -168,7 +177,7 @@ internal sealed partial class ShortcutsView
 
         if (!_bandActive)
         {
-            if (Math.Abs(point.X - start.X) < BandThreshold && Math.Abs(point.Y - start.Y) < BandThreshold)
+            if (!SelectionBand.PastThreshold(point.X - start.X, point.Y - start.Y))
             {
                 return;
             }
@@ -180,53 +189,55 @@ internal sealed partial class ShortcutsView
             }
 
             _bandActive = true;
-            _selection.BeginBand(additive: _pressModifiers.HasFlag(VirtualKeyModifiers.Control));
-            // The fill is the accent at a fifth, the stroke the accent itself: Explorer's marquee. A
-            // brush of its own, made per band so it follows the theme: the themed brush is shared,
-            // and dimming it would dim the accent everywhere.
-            var accent = ThemeBrush.Of("AccentFillColorDefaultBrush", Microsoft.UI.Colors.DodgerBlue);
-            _band.Fill = new Microsoft.UI.Xaml.Media.SolidColorBrush(
-                (accent as Microsoft.UI.Xaml.Media.SolidColorBrush)?.Color ?? Microsoft.UI.Colors.DodgerBlue) { Opacity = 0.2 };
-            _band.Stroke = accent;
+
+            // [S-6625] Ctrl toggles what the band covers, Shift adds it, neither replaces.
+            _selection.BeginBand(SelectionBand.Mode(
+                _pressModifiers.HasFlag(VirtualKeyModifiers.Control),
+                _pressModifiers.HasFlag(VirtualKeyModifiers.Shift)));
             _band.Visibility = Visibility.Visible;
         }
 
-        var band = new Rect(
-            Math.Min(start.X, point.X),
-            Math.Min(start.Y, point.Y),
-            Math.Abs(point.X - start.X),
-            Math.Abs(point.Y - start.Y));
-
-        Canvas.SetLeft(_band, band.X);
-        Canvas.SetTop(_band, band.Y);
-        _band.Width = band.Width;
-        _band.Height = band.Height;
-
-        var touched = new List<string>();
-
-        foreach (var cell in _cells)
-        {
-            var bounds = cell.Root.TransformToVisual(_surface).TransformBounds(new Rect(0, 0, cell.Root.ActualWidth, cell.Root.ActualHeight));
-            var overlap = band;
-            overlap.Intersect(bounds);
-
-            if (!overlap.IsEmpty && overlap.Width > 0 && overlap.Height > 0)
-            {
-                touched.Add(cell.Item.Id);
-            }
-        }
-
-        _selection.Band(Order(), touched);
-        PaintAll();
+        DrawBand(start, point);
         args.Handled = true;
+    }
+
+    /// <summary>[S-6624] Draw the band from <paramref name="start"/> to <paramref name="point"/> (the surface's DIPs) and select what it covers.</summary>
+    private void DrawBand(Point start, Point point)
+    {
+        var band = SelectionBand.Clamp(new BandRect(start.X, start.Y, point.X, point.Y), _surface.ActualWidth, _surface.ActualHeight);
+
+        Canvas.SetLeft(_band, band.Left);
+        Canvas.SetTop(_band, band.Top);
+        _band.Width = Math.Max(1, band.Width);
+        _band.Height = Math.Max(1, band.Height);
+
+        // [S-6624] Every cell the band overlaps, live; the cells are drawn in the selection's order.
+        var boxes = _cells
+            .Select(cell => cell.Root.TransformToVisual(_surface).TransformBounds(new Rect(0, 0, cell.Root.ActualWidth, cell.Root.ActualHeight)))
+            .Select(r => new ItemBox(r.X, r.Y, r.Width, r.Height))
+            .ToList();
+
+        _selection.Band(SelectionBand.Hits(band, boxes));
+        PaintAll();
     }
 
     private void OnRootPointerReleased(object sender, PointerRoutedEventArgs args)
     {
+        var pressed = _pressedId;
+        _pressedId = null;
+
         if (ReleaseDrag())
         {
+            _selection.CancelPress();
             args.Handled = true;
             return;
+        }
+
+        if (pressed is not null)
+        {
+            // [S-6621] A plain click on a selected item narrows the selection to it now.
+            _selection.Release(_selection.IndexOf(pressed));
+            PaintAll();
         }
 
         if (_bandStart is null)
@@ -234,13 +245,12 @@ internal sealed partial class ShortcutsView
             return;
         }
 
-        if (!_bandActive)
+        // [S-6620] A background click that never became a band clears the selection, as on the
+        // desktop; Ctrl or Shift keeps it.
+        if (!_bandActive && !_pressModifiers.HasFlag(VirtualKeyModifiers.Control) && !_pressModifiers.HasFlag(VirtualKeyModifiers.Shift)
+            && _selection.Clear())
         {
-            // A background click that never became a band clears the selection, as in Explorer.
-            if (_selection.Clear())
-            {
-                PaintAll();
-            }
+            PaintAll();
         }
 
         EndBand();
@@ -270,6 +280,9 @@ internal sealed partial class ShortcutsView
 
     // ---- keys ([S-1390]) -------------------------------------------------------------------------
 
+    /// <summary>[S-6626] The selection stays, drawn inactive, while the user is in another widget or window.</summary>
+    public bool KeepsSelectionWhenLeft => true;
+
     /// <inheritdoc />
     public bool HandleKey(WidgetKey key)
     {
@@ -278,10 +291,29 @@ internal sealed partial class ShortcutsView
             return false;
         }
 
-        var order = Order();
+        // [S-6626] Keys arrive only while the widget holds the lease.
+        _active = key != WidgetKey.Deactivate;
+
+        // [S-6623] The selection keys, the same in every item-selecting widget.
+        if (key is not (WidgetKey.Escape or WidgetKey.Deactivate)
+            && _selection.Key(key, SelectionInput.ShiftHeld(), Columns(), PageRows()))
+        {
+            PaintAll();
+            CursorCell()?.Root.StartBringIntoView();
+            return true;
+        }
 
         switch (key)
         {
+            case WidgetKey.Deactivate:
+                // [S-6626] The user went to another widget or window: the selection stays, drawn
+                // inactive as the desktop's; the focus cue, a rename and a half-typed name go.
+                _typeAhead.Reset();
+                EndRename(commit: true);
+                _selection.Deactivate();
+                PaintAll();
+                return true;
+
             case WidgetKey.Escape:
                 _typeAhead.Reset();
                 if (_renaming is not null)
@@ -308,15 +340,6 @@ internal sealed partial class ShortcutsView
                 }
 
                 Open(chosen);
-                return true;
-
-            case WidgetKey.Space:
-                if (!_selection.ToggleCursor())
-                {
-                    return false;
-                }
-
-                PaintAll();
                 return true;
 
             case WidgetKey.Delete:
@@ -350,14 +373,7 @@ internal sealed partial class ShortcutsView
                 return true;
 
             default:
-                if (!_selection.Move(order, key, Columns()))
-                {
-                    return false;
-                }
-
-                PaintAll();
-                CursorCell()?.Root.StartBringIntoView();
-                return true;
+                return false;
         }
     }
 
@@ -375,13 +391,14 @@ internal sealed partial class ShortcutsView
             return false;
         }
 
-        var current = _selection.Cursor is { } id ? _cells.FindIndex(cell => cell.Item.Id == id) : -1;
+        var current = _selection.FocusIndex;
         if (_typeAhead.Type(character, Environment.TickCount64, [.. _cells.Select(cell => cell.Name.Text)], current) is not { } index)
         {
             return _typeAhead.Prefix.Length > 0;
         }
 
-        _selection.Click(Order(), _cells[index].Item.Id, ctrl: false, shift: false);
+        _active = true;
+        _selection.Type(index);
         PaintAll();
         _cells[index].Root.StartBringIntoView();
         return true;
@@ -392,12 +409,19 @@ internal sealed partial class ShortcutsView
         ? Math.Max(1, _shape.Tiles.Columns)
         : Math.Max(1, _shape.Rows.Columns);
 
-    private Cell? CursorCell() => _selection.Cursor is { } id ? _cells.Find(cell => cell.Item.Id == id) : null;
+    /// <summary>How many rows a Page Up / Down steps: what the scroller shows.</summary>
+    private int PageRows()
+    {
+        var row = _config.Style == ShortcutsStyle.Grid ? _shape.Tiles.TileHeight + ShortcutLayout.Gap : _shape.Rows.RowHeight;
+        return Math.Max(1, (int)(_scroll.ViewportHeight / Math.Max(1, row)));
+    }
+
+    private Cell? CursorCell() => _selection.Focus is { } id ? _cells.Find(cell => cell.Item.Id == id) : null;
 
     /// <summary>The selected cells in visible order, or the cursor's when nothing is selected.</summary>
     private List<Cell> Selected()
     {
-        var ids = _selection.Ordered(Order());
+        var ids = _selection.Selected;
 
         if (ids.Count == 0 && CursorCell() is { } cursor)
         {
@@ -409,7 +433,7 @@ internal sealed partial class ShortcutsView
 
     private void SelectAll()
     {
-        _selection.SelectAll(Order());
+        _selection.SelectAll();
         PaintAll();
     }
 

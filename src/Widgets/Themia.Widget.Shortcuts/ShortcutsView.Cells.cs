@@ -34,6 +34,12 @@ internal sealed partial class ShortcutsView
 
         public required Border Root { get; init; }
 
+        /// <summary>[S-6627] The selection's mark, inside the root and over its item fill.</summary>
+        public required Border Chrome { get; init; }
+
+        /// <summary>A labelled tile, whose name may be shown in full when selected ([S-6629]).</summary>
+        public bool Tile { get; init; }
+
         /// <summary>Everything inside the root; dimmed for a missing target (the root's opacity is the scroll fade's).</summary>
         public required FrameworkElement Content { get; init; }
 
@@ -85,7 +91,7 @@ internal sealed partial class ShortcutsView
             RenderRows(visible, _shape.Rows);
         }
 
-        _selection.Prune(Order());
+        _selection.SetOrder(Order());
         PaintAll();
         _fade.Refresh();
     }
@@ -151,12 +157,14 @@ internal sealed partial class ShortcutsView
             stack.Children.Add(detail);
         }
 
+        // [S-6627] The whole tile, icon and name, is the item's mark.
+        var chrome = SelectionChrome.Wrap(stack);
+        chrome.Padding = new Thickness(Fluent.Space1, 0, Fluent.Space1, 0);
+
         var root = new Border
         {
-            Child = stack,
-            Padding = new Thickness(Fluent.Space1, 0, Fluent.Space1, 0),
+            Child = chrome,
             CornerRadius = new CornerRadius(Fluent.ControlRadius),
-            BorderThickness = new Thickness(Fluent.Hairline),
         };
 
         if (!plan.Labels)
@@ -165,7 +173,7 @@ internal sealed partial class ShortcutsView
             ToolTipService.SetToolTip(root, NameOf(item));
         }
 
-        return NewCell(item, target, root, stack, image, fallback, name, badge, badgeText, null, plan.Icon);
+        return NewCell(item, target, root, chrome, stack, image, fallback, name, badge, badgeText, null, plan.Icon, tile: plan.Labels);
     }
 
     private void RenderRows(List<ShortcutItem> visible, ShortcutRowPlan plan)
@@ -253,17 +261,19 @@ internal sealed partial class ShortcutsView
             grid.Children.Add(kind);
         }
 
+        grid.VerticalAlignment = VerticalAlignment.Center;
+
+        // [S-6627] The whole row is the item's mark.
+        var chrome = SelectionChrome.Wrap(grid);
+        chrome.Padding = new Thickness(Fluent.Space4, 0, Fluent.Space4, 0);
+
         var root = new Border
         {
-            Child = grid,
-            Padding = new Thickness(Fluent.Space4, 0, Fluent.Space4, 0),
-            BorderThickness = new Thickness(Fluent.Hairline),
+            Child = chrome,
             CornerRadius = new CornerRadius(Fluent.ControlRadius),
         };
 
-        grid.VerticalAlignment = VerticalAlignment.Center;
-
-        return NewCell(item, target, root, grid, image, fallback, name, badge, badgeText, kind, plan.Icon);
+        return NewCell(item, target, root, chrome, grid, image, fallback, name, badge, badgeText, kind, plan.Icon, tile: false);
     }
 
     /// <summary>The details table's columns: icon, name, then target and kind where the plan has them.</summary>
@@ -366,6 +376,7 @@ internal sealed partial class ShortcutsView
         ShortcutItem item,
         LaunchTarget target,
         Border root,
+        Border chrome,
         FrameworkElement content,
         Image image,
         FontIcon fallback,
@@ -373,13 +384,16 @@ internal sealed partial class ShortcutsView
         Border badge,
         TextBlock badgeText,
         TextBlock? kind,
-        double iconSize)
+        double iconSize,
+        bool tile)
     {
         var cell = new Cell
         {
             Item = item,
             Target = target,
             Root = root,
+            Chrome = chrome,
+            Tile = tile,
             Content = content,
             Image = image,
             Fallback = fallback,
@@ -450,6 +464,7 @@ internal sealed partial class ShortcutsView
             root.RightTapped -= OnCellRightTapped;
         }
 
+        _fullName.Hide();
         _cells.Clear();
         _panel.Children.Clear();
     }
@@ -474,6 +489,12 @@ internal sealed partial class ShortcutsView
 
     private void PaintAll()
     {
+        // The focused tile places its full name in its own Paint; with no focused tile there is none.
+        if (_selection.Focus is not { } focus || _cells.Find(cell => cell.Item.Id == focus) is not { Tile: true })
+        {
+            _fullName.Hide();
+        }
+
         foreach (var cell in _cells)
         {
             Paint(cell);
@@ -481,22 +502,20 @@ internal sealed partial class ShortcutsView
     }
 
     /// <summary>
-    /// Hover, selection and the keyboard cursor. Selected is the subtle fill plus an accent edge, so
-    /// it reads as selected and not merely hovered; the cursor alone (no selection) is the edge only.
+    /// [S-6627] Hover, selection (inactive without the keyboard) and the focus after keyboard use, the
+    /// desktop's look through the one selection chrome, laid over the item's fill ([S-6513], painted
+    /// once at rest). [S-6629] A selected tile's cut-short name shows in full.
     /// </summary>
     private void Paint(Cell cell)
     {
-        var selected = _selection.Contains(cell.Item.Id);
-        var cursor = _selection.Cursor == cell.Item.Id;
+        var id = cell.Item.Id;
+        var cue = new SelectionCue(_selection.IsSelected(id), cell.Hovered, _selection.IsFocus(id), _selection.Cues, _active);
+        SelectionChrome.Paint(cell.Chrome, cue);
 
-        // [S-6513] The item layer's row, in the cell's state.
-        ItemFill.Paint(cell.Root, ItemRole.Row, selected ? (cell.Hovered ? ItemState.SelectedHover : ItemState.Selected)
-            : cell.Hovered ? ItemState.Hover
-            : ItemState.Rest);
-
-        cell.Root.BorderBrush = selected || cursor
-            ? ThemeBrush.Of("AccentFillColorDefaultBrush", Colors.DodgerBlue)
-            : ThemeBrush.Of("SubtleFillColorTransparentBrush", Colors.Transparent);
+        if (cell.Tile && cue.Focused)
+        {
+            _fullName.Update(cell.Chrome, cell.Name, cue, renaming: _renaming is not null);
+        }
     }
 
     /// <summary>[S-1386] A missing local target: dimmed, its name struck through, and the tooltip says so.</summary>

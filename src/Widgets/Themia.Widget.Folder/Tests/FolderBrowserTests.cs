@@ -48,28 +48,6 @@ public sealed class FolderBrowserTests
         Assert.DoesNotContain(FolderColumn.Git, config.Columns);
     }
 
-    // ---- selection ------------------------------------------------------------------------------
-
-    private static FolderSelection Selection(int count)
-    {
-        var selection = new FolderSelection();
-        selection.SetOrder([.. Enumerable.Range(0, count).Select(i => $@"C:\Root\{i}")]);
-        return selection;
-    }
-
-    [Fact]
-    public void S1328_an_additive_band_keeps_what_was_selected()
-    {
-        var s = Selection(5);
-        s.Click(0, false, false);
-
-        s.Band([2, 3], before: [@"C:\Root\0"], BandMode.Add);
-        Assert.Equal([@"C:\Root\0", @"C:\Root\2", @"C:\Root\3"], s.Selected);
-
-        s.Band([3], before: null, BandMode.Replace);
-        Assert.Equal([@"C:\Root\3"], s.Selected);
-    }
-
     // ---- gesture (gesture.test.ts, #58) ---------------------------------------------------------
 
     [Fact]

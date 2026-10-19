@@ -88,14 +88,16 @@ through `SettingsHost.OwnPicker`, the layout editor through `SettingsHost.AppLay
   change asks again only while a widget holds the bin (`RecycleBinStatus.Watch`); a change with nobody
   watching marks the answer stale and the next watcher asks once. A change during a query asks once more
   after it, so a burst costs two queries. It keeps the last answer on failure, and the icon is fetched per state (empty / full).
-- **[S-1390]** Selection (original S-40..S-42, S-62, S-63): click selects one, Ctrl toggles, Shift
-  selects the range from the anchor (Ctrl+Shift adds it); right-click outside the selection moves it;
-  a background press past 5 px draws a rubber band (accent fill at 20 %) that selects live, Ctrl adds
-  to the selection; a background click clears it. Keys while the widget holds the lease (`IWidgetKeys`,
-  [S-800]): arrows (Up/Down by a row of the grid), Home/End, PageUp/PageDown, Space toggles,
-  Enter opens the selection, Delete removes it, F2 renames, the Menu key opens the item menu,
-  Escape cancels rename, then closes search, then clears the selection. Ctrl+A is "Select all" on the
-  card menu (the lease never maps Ctrl chords, [S-803]).
+- **[S-1390]** Selection (original S-40..S-42, S-62, S-63) is the desktop's, through the one item
+  selection ([S-6620]..[S-6629]): click, Ctrl, Shift, a press on a selected item narrowing on release
+  (dragging it reorders the whole selection, [S-1410]), right-click, the rubber band from the empty
+  space (Ctrl toggles, Shift adds, [S-6625]), a background click clearing it (Ctrl or Shift keeps it),
+  the selection keys (arrows by the grid, Shift extends, Ctrl+arrows move the focus, Space/Ctrl+Space
+  toggle, Home/End, PageUp/PageDown, Ctrl+A) and the look, a labelled tile's full name included
+  ([S-6629]); the selection stays, drawn inactive, while the user is elsewhere ([S-6626]). The
+  widget's own keys while it holds the lease (`IWidgetKeys`, [S-800]): Enter opens the selection,
+  Delete removes it, F2 renames, the Menu key opens the item menu, Escape cancels rename, then closes
+  search, then clears the selection. "Select all" is on the card menu too.
 - **[S-1995]** Type-ahead ([S-1980]) over the shortcut names selects the match alone and moves the
   cursor to it; not while a rename box or the search box is open.
 - **[S-1391]** Card menu (original S-27, S-49): Search, Open on single / double click, Select all,

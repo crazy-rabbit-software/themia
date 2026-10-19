@@ -53,7 +53,7 @@ internal sealed partial class AppHost
     /// <summary>[S-802] Escape reached the holder's surface.</summary>
     public void KeyboardEscape()
     {
-        ApplyLease(null, _keyboard.Escape());
+        ApplyLease(null, _keyboard.Escape(), escaped: true);
         FinishSession();
     }
 
@@ -79,7 +79,7 @@ internal sealed partial class AppHost
         LeaveSessionOn(surface);
     }
 
-    private void ApplyLease(DesktopWindow? gainedOn, LeaseChange<WidgetCard> change)
+    private void ApplyLease(DesktopWindow? gainedOn, LeaseChange<WidgetCard> change, bool escaped = false)
     {
         if (change.IsNone)
         {
@@ -98,7 +98,7 @@ internal sealed partial class AppHost
             // without a press) is told here instead, so no view keeps a cursor without the keyboard.
             if (!ReferenceEquals(lost, _session.Active))
             {
-                lost.SendKey(WidgetKey.Escape);
+                LeaveWidget(lost, escaped);
             }
         }
 

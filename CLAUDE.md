@@ -254,6 +254,8 @@ line in `ConfigPages.AppPages`; a widget has no settings page ([S-6536]).
 - **Settings rows** (the app's pages; a widget has none) come only from `FluentLayout`
   (`SettingsCard`/`SettingsExpander`), so a restyle reaches every page. Never build a card by hand. Each row's frame carries a `SettingRow` for search.
 - **Item menus** through `ItemMenu`; icons through `Glyphs`; lists keep `RowFocus`/`ScrollFade`.
+- **Item selection** (files, shortcuts: anything selected like desktop icons) through the SDK's one rule set
+  `ItemSelection` (+ `SelectionBand`) and one look `SelectionChrome` ([S-6620]..[S-6629]); never a selection of its own.
 - **The properties menu** ([S-3716]..[S-3730]): the selection's panel in edit mode is drawn as a
   Windows 11 context menu (Cut, Copy … Delete on top, lines with submenus that stay open on a pick,
   the tick/dot/chevron at the line's end). Every option a widget has lives there; there is no widget

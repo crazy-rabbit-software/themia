@@ -14,20 +14,21 @@ using Windows.System;
 
 namespace Themia.App.Widgets;
 
-/// <summary>[S-1327]/[S-1328]/[S-1332] Pointer, keys, selection visuals, and drag and drop.</summary>
+/// <summary>[S-1327]/[S-1328]/[S-1332] Pointer, keys, selection visuals ([S-6620]..[S-6629]), and drag and drop.</summary>
 internal sealed partial class FolderView : IWidgetDropTarget
 {
     private const string DropScope = "folder-drop";
 
     private readonly List<IDisposable> _itemHovers = [];
 
-    /// <summary>A press on an already-selected item: the selection is narrowed on release, not press, so a multi-item drag keeps it.</summary>
-    private int? _deferredClick;
+    /// <summary>The item a left press landed on, for its release ([S-6621]).</summary>
+    private int? _pressed;
 
-    /// <summary>The selection when a Shift or Ctrl rubber band started ([S-6413]).</summary>
-    private IReadOnlyCollection<string>? _bandBefore;
-
+    /// <summary>How the band of the press in flight combines with the selection ([S-6625]).</summary>
     private BandMode _bandMode;
+
+    /// <summary>[S-6626] Whether the widget has the keyboard: a selection without it is drawn inactive.</summary>
+    private bool _active;
 
     /// <summary>[S-6412] The item whose empty part was pressed: a click there selects it on release.</summary>
     private int? _blankPress;
@@ -37,9 +38,6 @@ internal sealed partial class FolderView : IWidgetDropTarget
 
     private bool _bandTicking;
     private TimeSpan? _bandFrame;
-
-    /// <summary>The cursor ring shows only once the keys have moved it, as Explorer's focus rectangle.</summary>
-    private bool _keyboardActive;
 
     private ItemVisual? _dropVisual;
 
@@ -129,8 +127,11 @@ internal sealed partial class FolderView : IWidgetDropTarget
         var ctrl = e.KeyModifiers.HasFlag(VirtualKeyModifiers.Control);
         var shift = e.KeyModifiers.HasFlag(VirtualKeyModifiers.Shift);
         var visual = VisualAt(e.OriginalSource);
-        _keyboardActive = false;
+
+        // [S-6626] A press takes the keyboard lease ([S-800]): the selection is the active one again.
+        _active = true;
         _blankPress = null;
+        _pressed = null;
 
         // [S-6412] Only the icon and the name carry the item; the rest of a row or tile starts a band.
         var source = e.OriginalSource as DependencyObject;
@@ -140,25 +141,18 @@ internal sealed partial class FolderView : IWidgetDropTarget
 
         if (visual is not null && press == FolderPress.Item)
         {
-            if (!ctrl && !shift && _selection.IsSelected(visual.Entry.FullPath))
-            {
-                _deferredClick = visual.Index;
-            }
-            else
-            {
-                _deferredClick = null;
-                _selection.Click(visual.Index, ctrl, shift);
-            }
+            // [S-6621] A plain press on a selected item waits for the release, so a drag carries the whole selection.
+            _pressed = visual.Index;
+            _selection.Press(visual.Index, ctrl, shift);
 
             var paths = _selection.IsSelected(visual.Entry.FullPath) ? _selection.Selected : [visual.Entry.FullPath];
             _gesture.BeginPress(point.Position.X, point.Position.Y, FolderPress.Item, paths);
         }
         else
         {
-            _deferredClick = null;
             _blankPress = visual?.Index;
-            _bandMode = FolderLasso.Mode(ctrl, shift);
-            _bandBefore = _bandMode == BandMode.Replace ? null : [.. _selection.Selected];
+            _bandMode = SelectionBand.Mode(ctrl, shift);
+            _selection.CancelPress();
             _gesture.BeginPress(point.Position.X, point.Position.Y, press);
         }
 
@@ -191,6 +185,7 @@ internal sealed partial class FolderView : IWidgetDropTarget
                 if (_scrollContent.PointerCaptures is not { Count: > 0 })
                 {
                     _scrollContent.CapturePointer(e.Pointer);
+                    _selection.BeginBand(_bandMode);
                 }
 
                 _blankPress = null;
@@ -207,22 +202,24 @@ internal sealed partial class FolderView : IWidgetDropTarget
         HideBand();
         _scrollContent.ReleasePointerCaptures();
         var blank = _blankPress;
+        var pressed = _pressed;
         _blankPress = null;
+        _pressed = null;
 
         if (wasDrag || wasBand)
         {
-            _deferredClick = null;
+            _selection.CancelPress();
             return;
         }
 
         var ctrl = e.KeyModifiers.HasFlag(VirtualKeyModifiers.Control);
         var shift = e.KeyModifiers.HasFlag(VirtualKeyModifiers.Shift);
 
-        if (blank is { } pressed && pressed < _visuals.Count)
+        if (blank is { } beside && beside < _visuals.Count)
         {
             // [S-6412] A click beside the name selects the item, as Explorer's full-row select; it
             // never opens (single-click mode opens from the icon or the name).
-            _selection.Click(pressed, ctrl, shift);
+            _selection.Click(beside, ctrl, shift);
             RefreshSelectionVisuals();
             return;
         }
@@ -241,13 +238,11 @@ internal sealed partial class FolderView : IWidgetDropTarget
             return;
         }
 
-        if (_deferredClick == visual.Index)
+        if (pressed == visual.Index)
         {
-            _selection.Click(visual.Index, ctrl: false, shift: false);
+            _selection.Release(visual.Index);
             RefreshSelectionVisuals();
         }
-
-        _deferredClick = null;
 
         // [S-1327] Single-click mode opens on a plain click; Ctrl/Shift clicks only ever select.
         if (_config.ClickMode == ItemClickMode.Single && !ctrl && !shift && e.Pointer.PointerDeviceType != Microsoft.UI.Input.PointerDeviceType.Pen)
@@ -261,7 +256,8 @@ internal sealed partial class FolderView : IWidgetDropTarget
     private void EndGesture()
     {
         _gesture.Release();
-        _deferredClick = null;
+        _selection.CancelPress();
+        _pressed = null;
         _blankPress = null;
         HideBand();
     }
@@ -281,7 +277,7 @@ internal sealed partial class FolderView : IWidgetDropTarget
     /// </summary>
     private void DrawBand(BandRect raw)
     {
-        var rect = FolderLasso.Clamp(raw, _scrollContent.ActualWidth, _scrollContent.ActualHeight);
+        var rect = SelectionBand.Clamp(raw, _scrollContent.ActualWidth, _scrollContent.ActualHeight);
         Canvas.SetLeft(_band, rect.Left);
         Canvas.SetTop(_band, rect.Top);
         _band.Width = Math.Max(1, rect.Width);
@@ -292,13 +288,14 @@ internal sealed partial class FolderView : IWidgetDropTarget
             ? (Math.Max(1, grid.Columns), grid.CellWidth, grid.CellHeight)
             : (1, _items.ActualWidth, _plan?.RowHeight ?? FolderLayout.RowHeight(_config.Rows));
 
-        _selection.Band(FolderLasso.Hits(rect, _shown.Count, columns, cellWidth, cellHeight), _bandBefore, _bandMode);
+        _selection.Band(SelectionBand.GridHits(rect, _shown.Count, columns, cellWidth, cellHeight));
         RefreshSelectionVisuals();
     }
 
     private void HideBand()
     {
         _band.Visibility = Visibility.Collapsed;
+        _selection.EndBand();
         StopBandScroll();
     }
 
@@ -411,6 +408,13 @@ internal sealed partial class FolderView : IWidgetDropTarget
 
     private void RefreshSelectionVisuals()
     {
+        // The focused tile places its full name in its own Paint; with no focused tile there is none.
+        var focus = _selection.FocusIndex;
+        if (focus < 0 || focus >= _visuals.Count || !_visuals[focus].Tile)
+        {
+            _fullName.Hide();
+        }
+
         foreach (var visual in _visuals)
         {
             Paint(visual);
@@ -418,34 +422,33 @@ internal sealed partial class FolderView : IWidgetDropTarget
     }
 
     /// <summary>
-    /// One item's look, as WinUI's own list draws it: hover and selection share the subtle fill, a
-    /// selected row adds the accent pill, a selected tile the accent outline; the keyboard cursor and
-    /// a drop target get the accent ring.
+    /// [S-6627] One item's look, the desktop's: hover, selection (inactive without the keyboard), the
+    /// focus after keyboard use, a drop target, all through the one selection chrome laid over the
+    /// item's fill. [S-6629] A selected tile's cut-short name shows in full.
     /// </summary>
     private void Paint(ItemVisual visual)
     {
-        var selected = _selection.IsSelected(visual.Entry.FullPath);
-        var focused = _keyboardActive && string.Equals(_selection.Focus, visual.Entry.FullPath, StringComparison.OrdinalIgnoreCase);
-        var tile = visual.Pill is null;
+        var path = visual.Entry.FullPath;
+        var cue = new SelectionCue(
+            _selection.IsSelected(path),
+            visual.Hovered,
+            _selection.IsFocus(path),
+            _selection.Cues,
+            _active,
+            visual.DropTarget);
 
-        // [S-6513] The item layer's row, in the item's state.
-        ItemFill.Paint(visual.Root, ItemRole.Row, selected && visual.Hovered ? ItemState.SelectedHover
-            : selected ? ItemState.Selected
-            : visual.Hovered ? ItemState.Hover
-            : ItemState.Rest);
+        SelectionChrome.Paint(visual.Chrome, cue);
 
-        if (visual.Pill is { } pill)
+        if (visual.Tile && cue.Focused)
         {
-            pill.Visibility = selected ? Visibility.Visible : Visibility.Collapsed;
+            _fullName.Update(visual.Chrome, visual.Name, cue, renaming: _renaming is not null);
         }
-
-        var ring = focused || visual.DropTarget || (tile && selected);
-        visual.Root.BorderBrush = ring
-            ? ThemeBrush.Of("AccentFillColorDefaultBrush", Colors.DodgerBlue)
-            : ThemeBrush.Of("SubtleFillColorTransparentBrush", Colors.Transparent);
     }
 
     // ---- keys -----------------------------------------------------------------------------------
+
+    /// <summary>[S-6626] The selection stays, drawn inactive, while the user is in another widget or window.</summary>
+    public bool KeepsSelectionWhenLeft => true;
 
     /// <inheritdoc />
     public bool HandleKey(WidgetKey key)
@@ -456,30 +459,19 @@ internal sealed partial class FolderView : IWidgetDropTarget
             return false;
         }
 
+        // [S-6626] Keys arrive only while the widget holds the lease.
+        _active = key != WidgetKey.Deactivate;
+
+        // [S-6623] The selection keys, the same in every item-selecting widget.
+        if (key is not (WidgetKey.Escape or WidgetKey.Deactivate) && MoveCursor(key))
+        {
+            return true;
+        }
+
         switch (key)
         {
-            case WidgetKey.Up: return MoveCursor(FolderMove.Up, ShiftDown());
-            case WidgetKey.Down: return MoveCursor(FolderMove.Down, ShiftDown());
-            case WidgetKey.Left: return MoveCursor(FolderMove.Left, false);
-            case WidgetKey.Right: return MoveCursor(FolderMove.Right, false);
-            case WidgetKey.ShiftLeft: return MoveCursor(FolderMove.Left, true);
-            case WidgetKey.ShiftRight: return MoveCursor(FolderMove.Right, true);
-            case WidgetKey.Home: return MoveCursor(FolderMove.Home, ShiftDown());
-            case WidgetKey.End: return MoveCursor(FolderMove.End, ShiftDown());
-            case WidgetKey.PageUp: return MoveCursor(FolderMove.PageUp, ShiftDown());
-            case WidgetKey.PageDown: return MoveCursor(FolderMove.PageDown, ShiftDown());
-
             case WidgetKey.Enter:
                 OpenSelection();
-                return true;
-
-            case WidgetKey.Space:
-                if (_selection.FocusIndex is var focus and >= 0)
-                {
-                    _selection.Click(focus, ctrl: CtrlDown(), shift: false);
-                    RefreshSelectionVisuals();
-                }
-
                 return true;
 
             case WidgetKey.Delete:
@@ -525,11 +517,6 @@ internal sealed partial class FolderView : IWidgetDropTarget
                 ShowProperties();
                 return true;
 
-            case WidgetKey.SelectAll:
-                _selection.SelectAll();
-                RefreshSelectionVisuals();
-                return true;
-
             case WidgetKey.Back:
                 if (!Navigates)
                 {
@@ -540,12 +527,20 @@ internal sealed partial class FolderView : IWidgetDropTarget
                 return true;
 
             case WidgetKey.Escape:
-                // Also how the lease says it ended ([S-802]): drop the cursor, the selection and any
-                // open rename; the paste target (this folder) is untouched.
+                // Escape, a press on the empty space, edit mode ([S-802]): drop the focus, the
+                // selection and any open rename; the paste target (this folder) is untouched.
                 CancelRename();
-                _keyboardActive = false;
                 _typeAhead.Reset();
                 _selection.Clear();
+                RefreshSelectionVisuals();
+                return true;
+
+            case WidgetKey.Deactivate:
+                // [S-6626] The user went to another widget or window: the selection stays, drawn
+                // inactive as the desktop's; the focus cue and a half-typed name go.
+                CommitRename();
+                _typeAhead.Reset();
+                _selection.Deactivate();
                 RefreshSelectionVisuals();
                 return true;
 
@@ -573,24 +568,27 @@ internal sealed partial class FolderView : IWidgetDropTarget
             return _typeAhead.Prefix.Length > 0;
         }
 
-        _keyboardActive = true;
-        _selection.Click(index, ctrl: false, shift: false);
+        _active = true;
+        _selection.Type(index);
         RealizeThrough(index);
         RefreshSelectionVisuals();
         BringIntoView(index);
         return true;
     }
 
-    private bool MoveCursor(FolderMove move, bool extend)
+    /// <summary>[S-6623] A selection key through the one rule set, grid aware; false for any other key.</summary>
+    private bool MoveCursor(WidgetKey key)
     {
         var columns = _plan?.Grid?.Columns ?? 1;
         var row = _plan?.Grid?.CellHeight ?? _plan?.RowHeight ?? Fluent.RowHeightCompact;
         var pageRows = Math.Max(1, (int)(_scroll.ViewportHeight / Math.Max(1, row)));
 
-        _keyboardActive = true;
-        _selection.Move(move, columns, pageRows, extend);
+        if (!_selection.Key(key, ShiftDown(), columns, pageRows))
+        {
+            return false;
+        }
 
-        // [S-1887] End or Page down may land on an item not built yet.
+        // [S-1887] End, Page down or Ctrl+A may reach an item not built yet.
         RealizeThrough(_selection.FocusIndex);
         RefreshSelectionVisuals();
 
@@ -627,7 +625,7 @@ internal sealed partial class FolderView : IWidgetDropTarget
             return;
         }
 
-        _deferredClick = null;
+        _selection.CancelPress();
 
         queue.TryEnqueue(() =>
         {

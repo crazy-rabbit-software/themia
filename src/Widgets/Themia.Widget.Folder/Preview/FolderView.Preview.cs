@@ -9,7 +9,10 @@ namespace Themia.App.Widgets;
 /// Debug renders only ([S-4122]): point the widget at a folder every Windows PC has, read-only, so a
 /// render shows real names, icons and thumbnails rather than whoever runs it's profile.
 /// "web" is <c>%WINDIR%\Web</c> (folders), "wallpapers" its Windows wallpapers (pictures), "lasso"
-/// the web listing with a band dragged from beside the first name down past the last row ([S-6412]).
+/// the web listing with a band dragged from beside the first name down past the last row ([S-6412]),
+/// "selected" the web listing with two items selected, a third under the pointer and the focus moved
+/// on by Ctrl+Right ([S-6627]), "inactive" the same selection after the widget lost the keyboard
+/// ([S-6626]), and "fullname" a tile whose long name is selected and shown in full ([S-6629]).
 /// </summary>
 internal sealed partial class FolderView : IWidgetPreviewState, IWidgetPreviewMenus
 {
@@ -41,15 +44,15 @@ internal sealed partial class FolderView : IWidgetPreviewState, IWidgetPreviewMe
         return ItemEntries();
     }
 
-    public IReadOnlyList<string> PreviewStates { get; } = ["web", "wallpapers", "lasso"];
+    public IReadOnlyList<string> PreviewStates { get; } = ["web", "wallpapers", "lasso", "selected", "inactive", "fullname"];
 
     public async Task ShowPreviewStateAsync(string state)
     {
         var windows = Environment.GetFolderPath(Environment.SpecialFolder.Windows);
         var path = state switch
         {
-            "web" or "lasso" => System.IO.Path.Combine(windows, "Web"),
-            "wallpapers" => System.IO.Path.Combine(windows, "Web", "Wallpaper", "Windows"),
+            "web" or "lasso" or "selected" or "inactive" => System.IO.Path.Combine(windows, "Web"),
+            "wallpapers" or "fullname" => System.IO.Path.Combine(windows, "Web", "Wallpaper", "Windows"),
             _ => null,
         };
 
@@ -70,11 +73,40 @@ internal sealed partial class FolderView : IWidgetPreviewState, IWidgetPreviewMe
             // The same calls a real drag makes, from the empty part of the first row.
             var row = _plan?.RowHeight ?? 32;
             var x = Math.Max(0, _items.ActualWidth - 140);
-            _bandMode = BandMode.Replace;
-            _bandBefore = null;
+            _active = true;
+            _selection.BeginBand(BandMode.Replace);
             _gesture.BeginPress(x, row / 2, FolderPress.ItemBlank);
             _gesture.Move(x + 90, row * 6);
             DrawBand(_gesture.BandRect);
+        }
+
+        if (state is "selected" or "inactive" && _visuals.Count >= 4)
+        {
+            // The calls a click, a Ctrl+click, a pointer over a third and Ctrl+Right make.
+            _active = true;
+            _selection.Click(0, ctrl: false, shift: false);
+            _selection.Click(1, ctrl: true, shift: false);
+            HandleKey(WidgetKey.FocusRight);
+            HandleKey(WidgetKey.FocusDown);
+            _visuals[3].Hovered = true;
+
+            if (state == "inactive")
+            {
+                HandleKey(WidgetKey.Deactivate);
+            }
+
+            RefreshSelectionVisuals();
+        }
+
+        if (state == "fullname" && _shown.Count > 0)
+        {
+            // The longest name, selected by type-ahead as a keyboard user would.
+            var longest = _shown.Select((e, i) => (e.Name.Length, i)).Max().i;
+            _active = true;
+            _selection.Type(longest);
+            RealizeThrough(longest);
+            RefreshSelectionVisuals();
+            BringIntoView(longest);
         }
     }
 }

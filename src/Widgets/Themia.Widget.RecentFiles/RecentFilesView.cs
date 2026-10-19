@@ -30,6 +30,12 @@ internal sealed partial class RecentFilesView : Grid, IWidgetView, IWidgetSizeAw
     private readonly StackPanel _empty;
     private readonly TextBlock _emptyText = new();
     private readonly List<Border> _rows = [];
+
+    /// <summary>[S-6627] Each row's selection chrome, by row.</summary>
+    private readonly List<Border> _chromes = [];
+
+    /// <summary>The row under the pointer, or -1.</summary>
+    private int _hovered = -1;
     private readonly List<IDisposable> _rowHandles = [];
 
     private IWidgetSurface? _surface;
@@ -225,11 +231,25 @@ internal sealed partial class RecentFilesView : Grid, IWidgetView, IWidgetSizeAw
             row.Padding = new Thickness(Fluent.Space4, Fluent.Space2, Fluent.Space4, Fluent.Space2);
         }
 
-        RowFocus.Prepare(row);
+        // [S-6627] The focused file is marked as the desktop marks a selected one: the one selection chrome,
+        // inside the row and over its item fill.
+        row.Child = null;
+        var chrome = SelectionChrome.Wrap(grid);
+        chrome.Padding = row.Padding;
+        row.Padding = new Thickness(0);
+        row.Child = chrome;
+        _chromes.Add(chrome);
+
+        WidgetItems.Mark(row); // [S-814] a press here is the row's, not the background's
         row.Tag = file;
         row.Tapped += OnRowTapped;
         row.DoubleTapped += OnRowDoubleTapped;
-        _rowHandles.Add(Fluent.Hover(row));
+        var index = _chromes.Count - 1;
+        _rowHandles.Add(SelectionChrome.Hover(row, over =>
+        {
+            _hovered = over ? index : _hovered == index ? -1 : _hovered;
+            ShowCursor(bringIntoView: false);
+        }));
         _rowHandles.Add(ItemMenu.Attach(row, () => RowMenu(file)));
         ToolTipService.SetToolTip(row, $"{file.Path}{Environment.NewLine}{LocaleFormat.Date(Strings.Current, file.Opened.LocalDateTime, DateStyle.Medium)} {LocaleFormat.Time(Strings.Current, file.Opened.LocalDateTime)}");
         return row;
@@ -328,6 +348,8 @@ internal sealed partial class RecentFilesView : Grid, IWidgetView, IWidgetSizeAw
         }
 
         _rows.Clear();
+        _chromes.Clear();
+        _hovered = -1;
         _list.Children.Clear();
     }
 
@@ -378,11 +400,17 @@ internal sealed partial class RecentFilesView : Grid, IWidgetView, IWidgetSizeAw
         }
     }
 
-    private void ShowCursor()
+    /// <summary>[S-6627] The focused row drawn selected, the hovered one lit, the desktop's look.</summary>
+    private void ShowCursor(bool bringIntoView = true)
     {
-        for (var i = 0; i < _rows.Count; i++)
+        for (var i = 0; i < _chromes.Count; i++)
         {
-            RowFocus.Mark(_rows[i], i == _cursor);
+            SelectionChrome.Paint(_chromes[i], new SelectionCue(Selected: i == _cursor, Hovered: i == _hovered));
+        }
+
+        if (bringIntoView && _cursor >= 0 && _cursor < _rows.Count)
+        {
+            _rows[_cursor].StartBringIntoView();
         }
     }
 }

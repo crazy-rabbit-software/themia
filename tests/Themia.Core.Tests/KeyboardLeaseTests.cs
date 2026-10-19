@@ -216,7 +216,7 @@ public sealed class KeyboardLeaseTests
     [InlineData(0x41, false, false, false)] // a letter: type-ahead is not a widget key
     [InlineData(0x79, false, false, false)] // F10 alone is the menu bar
     [InlineData(0x2E, true, false, false)] // Shift+Delete: never a permanent delete by accident
-    [InlineData(0x28, false, true, false)] // Ctrl+Down
+    [InlineData(0x22, false, true, false)] // Ctrl+Page Down (Ctrl+arrows are the selection keys, [S-6623])
     [InlineData(0x25, false, false, true)] // Alt+Left
     [InlineData(0x1B, false, true, false)] // Ctrl+Esc is the Start menu
     public void S803_chords_and_other_keys_are_not_widget_keys(int vk, bool shift, bool ctrl, bool alt)

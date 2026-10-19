@@ -17,7 +17,8 @@ meeting's is the module host's `DeskInfoHostTests`.
 - **[S-4842]** The ladder (`RecentFilesLayout.Plan`): compact one-line rows on a Compact height; the
   folder under the name from a Regular width and height; when, as a column at the end from an
   Expanded width (else after the folder). The rest scrolls.
-- **[S-4844]** A click focuses the row; a double-click or Enter opens the file (a gone one reads
+- **[S-4844]** A click focuses the row, drawn as the desktop draws a selected file and the row
+  under the pointer lit as its hover ([S-6627]; one row, no multi-selection); a double-click or Enter opens the file (a gone one reads
   the list again; [S-7065], it opened on a click and checked edit mode itself, which the card does). The row menu: Open, Open
   file location (Explorer with it selected), Remove from list, which deletes its Recent Items
   shortcut as Explorer's "Remove from Recent" does; the file is never touched, and nothing outside

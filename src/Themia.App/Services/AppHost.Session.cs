@@ -1,5 +1,6 @@
 using Themia.App.Interop;
 using Themia.App.Shell;
+using Themia.App.Widgets;
 using Themia.Core.Diagnostics;
 using Themia.Core.Widgets;
 
@@ -42,7 +43,7 @@ internal sealed partial class AppHost
     }
 
     /// <summary>[S-815] Escape ended the session.</summary>
-    private void FinishSession() => ApplySession(null, null, _session.Finish());
+    private void FinishSession() => ApplySession(null, null, _session.Finish(), escaped: true);
 
     /// <summary>[S-815] <paramref name="surface"/> lost the keyboard, entered edit mode or is closing.</summary>
     private void LeaveSessionOn(DesktopWindow surface)
@@ -63,7 +64,7 @@ internal sealed partial class AppHost
         }
     }
 
-    private void ApplySession(DesktopWindow? pressedOn, DesktopWindow? activeOn, SessionChange<WidgetCard> change)
+    private void ApplySession(DesktopWindow? pressedOn, DesktopWindow? activeOn, SessionChange<WidgetCard> change, bool escaped = false)
     {
         _sessionSurface = _session.Active is null ? null : activeOn ?? _sessionSurface;
 
@@ -73,7 +74,12 @@ internal sealed partial class AppHost
         }
 
         // The one place a view drops its selection or cursor ([S-802]): Escape, guarded by the card.
-        change.Left?.SendKey(WidgetKey.Escape);
+        // [S-6626] A widget the user only went away from keeps its item selection, drawn inactive.
+        if (change.Left is { } left)
+        {
+            LeaveWidget(left, escaped);
+        }
+
         change.Reset?.SendKey(WidgetKey.Escape);
 
         switch (change.Popups)
@@ -107,6 +113,18 @@ internal sealed partial class AppHost
         {
             _outsideWatch?.Disarm();
         }
+    }
+
+    /// <summary>
+    /// [S-6626] Tell a widget the user is done with it: Escape, so it drops its selection and cursor —
+    /// except that a view keeping its item selection when left (<see cref="IWidgetKeys.KeepsSelectionWhenLeft"/>)
+    /// hears <see cref="WidgetKey.Deactivate"/> when the user only went elsewhere: not on Escape
+    /// itself, and not on entering edit mode, where cards are inert ([S-1751]).
+    /// </summary>
+    private void LeaveWidget(WidgetCard card, bool escaped)
+    {
+        var keeps = !escaped && !_editMode && card.View is IWidgetKeys { KeepsSelectionWhenLeft: true };
+        card.SendKey(keeps ? WidgetKey.Deactivate : WidgetKey.Escape);
     }
 
     private OutsideClickWatcher? OutsideWatch()

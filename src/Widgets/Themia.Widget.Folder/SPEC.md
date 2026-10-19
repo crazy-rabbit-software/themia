@@ -59,12 +59,12 @@ by `tests/Themia.Modules.Tests`); its config and rules under the root's tags are
   items, draws the band once it passes the dead zone. A click there selects that item (never opens); on the background
   it clears. The content is at least the viewport tall, so the band can be drawn down to the bottom. Works outside edit
   mode (the press takes the keyboard lease as every widget press does, [S-800]); the band captures the pointer.
-- **[S-6413]** How the band combines (`FolderLasso.Mode`, `FolderSelection.Band`): no modifier replaces the selection
+- **[S-6413]** How the band combines (now every item-selecting widget's, [S-6625]: `SelectionBand.Mode`, `ItemSelection.Band`): no modifier replaces the selection
   with what the band covers; Shift adds it to the selection the band started with; Ctrl toggles each covered item against
   it (Ctrl wins with both). Live: shrinking the band gives items back. The focus goes to the last covered item.
-- **[S-6414]** What it covers (`FolderLasso.Hits`): every item cell the band overlaps at all, from the layout's geometry
+- **[S-6414]** What it covers ([S-6624], `SelectionBand.GridHits`): every item cell the band overlaps at all, from the layout's geometry
   (rows the list's width × row height; tiles the plan's cells), so items not built yet ([S-1887]) are selected too. The
-  band is kept inside the content. Look: the accent's 1 px border over a 25 % accent fill, above the items.
+  band is kept inside the content. Look: the desktop's band ([S-6624]), above the items; the items' marks are [S-6627].
 - **[S-6415]** Edge scroll (`FolderLasso.ScrollVelocity`/`Step`): with the band's pointer within 24 DIPs of the list's top
   or bottom (a quarter of a short list), or past it, the list scrolls that way at 20 DIP/s per DIP of depth, at most
   2400 DIP/s, and the band follows. A frame tick (`CompositionTarget.Rendering`) runs only while the pointer is in a

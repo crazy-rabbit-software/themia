@@ -45,6 +45,9 @@ public static class WidgetKeys
         // [S-1327] The four clipboard chords are the one exception: in a file list they are what
         // the user expects, and a view without a clipboard does not answer them, so they carry on
         // to wherever they went before.
+        // [S-6623] Ctrl+arrows and Ctrl+Space are the desktop's selection keys: move the focus
+        // without the selection, and toggle the focused item. A view that selects no items does not
+        // answer them, and they carry on as before.
         if (ctrl && !alt && !shift)
         {
             return virtualKey switch
@@ -53,6 +56,11 @@ public static class WidgetKeys
                 VkX => WidgetKey.Cut,
                 VkV => WidgetKey.Paste,
                 VkA => WidgetKey.SelectAll,
+                VkUp => WidgetKey.FocusUp,
+                VkDown => WidgetKey.FocusDown,
+                VkLeft => WidgetKey.FocusLeft,
+                VkRight => WidgetKey.FocusRight,
+                VkSpace => WidgetKey.ToggleSelection,
                 _ => null,
             };
         }

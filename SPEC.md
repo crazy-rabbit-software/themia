@@ -16,7 +16,7 @@ Owning files: `Themia.Core/Geometry/*`, `Themia.Core/Model/*`, `Themia.Core/Stor
 Sections, grouped by area (file order below; search for the heading).
 
 - **Foundations.** Geometry model; Rendering; Grid snap aid; Constraints; Defaults & placement; Views & displays; Window layering; Transparency; Ticking; Live widgets and resource use (R6-RESOURCES); Memory; Persistence; Failure rules; Clipboard & transfer between displays; No backwards compatibility; Widget modules and the registry (MODULES); The widget kit (KIT); The service layer (SERVICES).
-- **Shell, windows and settings.** Displays (WP2); Desktop integration and suspend (WP3); Appearance engine (WP1); Notices, resilience and undo (WP4); Widget picker: search (WP5); Multi-select and the placement session (MULTISELECT-PLACEMENT); Widget styles (STYLES); Context menus (R4-MENUS); Views and the view bar (WP8); The Displays and Views pages (R4-NAV, R5-PAGES); Icon picker and showcase views (R4-ICONS); Keyboard lease (WP11); Widget keys (WIDGET-KEYS); View links (VIEW-LINKS); Keyboard in the shell (SHELL-KEYS); Motion: intros, hyperspace, hacker (WP9-MOTION); Desktop surface drops (WP10-SURFACE); Opening a widget's app (R7-OPEN, retired); Shell hooks (PA); Removed widgets (R7-REMOVE); Shell skeleton and shared settings; Shared widget settings: region and updates (SETTINGS-AUDIT); Settings window: Windows 11 Settings; Settings navigation icons (NAV-ICONS); Logging (WP7); Network safety (WP6); Localization infrastructure (LOC-INFRA); Microsoft Store package and licensing; Gallery.
+- **Shell, windows and settings.** Displays (WP2); Desktop integration and suspend (WP3); Appearance engine (WP1); Notices, resilience and undo (WP4); Widget picker: search (WP5); Multi-select and the placement session (MULTISELECT-PLACEMENT); Widget styles (STYLES); Context menus (R4-MENUS); Views and the view bar (WP8); The Displays and Views pages (R4-NAV, R5-PAGES); Icon picker and showcase views (R4-ICONS); Keyboard lease (WP11); Widget keys (WIDGET-KEYS); Item selection (ITEM-SELECTION); View links (VIEW-LINKS); Keyboard in the shell (SHELL-KEYS); Motion: intros, hyperspace, hacker (WP9-MOTION); Desktop surface drops (WP10-SURFACE); Opening a widget's app (R7-OPEN, retired); Shell hooks (PA); Removed widgets (R7-REMOVE); Shell skeleton and shared settings; Shared widget settings: region and updates (SETTINGS-AUDIT); Settings window: Windows 11 Settings; Settings navigation icons (NAV-ICONS); Logging (WP7); Network safety (WP6); Localization infrastructure (LOC-INFRA); Microsoft Store package and licensing; Gallery.
 - **Look and layout.** Rows and the card edge; Looking like Windows; The widget header; Responsive layout (shared foundation); Adding a widget; Layout pass over the ported widgets; Widget polish 1 (POLISH-1); Widget polish 2: leftover parity and layout gaps (POLISH-2); The Set up button (R5-SETUP).
 - **Accounts and sign-in.** Where account data comes from; Accounts and sign-in.
 - **System widgets.** (The seven meters, the seven detail widgets, Drive, Removable drives, Brightness, Mixer, Volume, Music, the Audio visualizer, the three screen-time widgets, Notifications and the Focus session are modules: their sections are their projects' `SPEC.md`; the sections named here keep the hub, the samplers and the rules they share, the SDK's.) System data hub (SYS-HUB); System meters; Meter framework and memory; CPU; Disk and ping; Battery and network; Network and ping; System widgets: GPU, mixer and screen time; Screen time: chart, donut and apps (SCREENTIME-SPLIT); GPU and screen time: the whole tile (SYS-P4); System details (SYS-DETAILS); Mixer and Volume (SYS-P5); Power and Bluetooth; Device and location (DEVICE-AND-LOCATION); Quick-setting toggles (QUICK-TOGGLES); Windows' panels: notifications, focus session, brightness (WINDOWS-PANELS).
@@ -3885,7 +3885,8 @@ the keyboard through one lease. Rules in Core `KeyboardLease<T>` / `WidgetKeys` 
   holder's card so no caret is left blinking; its view hears `WidgetKey.Escape` through the session
   ([S-813]), or directly when the session does not know the holder (a box focused without a press).
 - **[S-803]** Keys: arrows, Page Up/Down, Home/End, Tab / Shift+Tab, Enter, Space, Delete, F2
-  (Rename), the Menu key / Shift+F10 (Menu), Escape. Ctrl and Alt chords are never widget keys;
+  (Rename), the Menu key / Shift+F10 (Menu), Escape. Ctrl and Alt chords are never widget keys
+  (but the clipboard's, [S-1327], [S-6417], and the selection's Ctrl+arrows and Ctrl+Space, [S-6623]);
   Shift+Delete, Shift+Space and Shift+F2 are not either. A view returns whether it used the key; an
   unused key carries on (Tab still moves focus).
 - **[S-804]** While a text box on the surface has focus, every key but Escape is the box's. Escape
@@ -3905,7 +3906,8 @@ the keyboard through one lease. Rules in Core `KeyboardLease<T>` / `WidgetKeys` 
   `AppHost.Session.cs`, `DesktopWindow.Session.cs`): from a press on any surface until the user is done.
   It names the widget being worked in — every widget, keys or not — and is the one rule for when a
   selection or cursor goes: its view hears `WidgetKey.Escape` (`IWidgetKeys`) whenever the session
-  leaves it. A refused foreground ([S-800]) no longer drops the selection the click just made.
+  leaves it — or `WidgetKey.Deactivate` when it keeps its item selection and the user only went
+  elsewhere ([S-6626]). A refused foreground ([S-800]) no longer drops the selection the click just made.
 - **[S-814]** A press inside the active widget on its **background** (not an item, not a control,
   not a press a handler took) clears its selection; with Ctrl or Shift held (extending), or while the
   user is typing in it, nothing changes. Items are marked once (`WidgetItems.Mark`; `RowFocus.Prepare`
@@ -3962,8 +3964,8 @@ Every widget view's keys in one place. The maps are Core (`ListKeys`, `ItemCurso
 | Contacts | Up/Down, PgUp/PgDn, Home/End; Enter writes or calls; type-ahead ([S-1277], [S-1983]) |
 | Tasks | Up/Down, PgUp/PgDn, Home/End; Enter/Space tick; Delete; F2; Esc ([S-787], [S-1981]) |
 | Habits | as Tasks, plus Tab/Shift+Tab wrap ([S-1428], [S-1982]) |
-| Folder | arrows (grid aware), PgUp/PgDn, Home/End, Shift extends; Enter; Space; Delete; F2; Menu; Ctrl+C/X/V/A; Backspace; type-ahead ([S-1327], [S-1993]) |
-| Shortcuts | arrows, Home/End, PgUp/PgDn; Enter opens; Space toggles; Delete; F2; Menu; type-ahead ([S-1390], [S-1995]) |
+| Folder | the selection keys ([S-6623]: arrows grid aware, Shift extends, Ctrl+arrows focus, Space/Ctrl+Space toggle, Home/End, PgUp/PgDn, Ctrl+A); Enter; Delete; F2; Menu; Ctrl+C/X/V; Backspace; type-ahead ([S-1327], [S-1993]) |
+| Shortcuts | the selection keys ([S-6623]); Enter opens; Delete; F2; Menu; type-ahead ([S-1390], [S-1995]) |
 | RSS | the kit's list map: Up/Down/Left/Right, PgUp/PgDn, Home/End; Enter opens; Menu; Esc ([S-1306], [S-7020]) |
 | Clipboard | Up/Down, PgUp/PgDn, Home/End; Enter copies; Delete; Menu ([S-1444]) |
 | Pictures (slideshow) | Left/Right; Home/End; Space pauses; Enter opens ([S-811], [S-1992]) |
@@ -3974,6 +3976,78 @@ Every widget view's keys in one place. The maps are Core (`ListKeys`, `ItemCurso
 | Screen time chart, donut, apps | Up/Down, PgUp/PgDn, Home/End move the linked cursor; Enter/Space select; Menu hides; Left/Right a day ([S-3307], [S-3334], [S-3344], [S-3354]) |
 | Quote | Right/Space/Enter next; Left previous ([S-1990]) |
 | Video stream | Space pause ([S-1991]) |
+
+## Item selection (ITEM-SELECTION)
+
+Selecting items in a widget looks and behaves as selecting icons on the Windows 11 desktop (user
+request 2026-10-19). One rule set and one look for every widget whose items are selected: the
+Folder ([S-1327]), Shortcuts ([S-1390]); Recent files' single cursor takes the look ([S-4845]).
+Owning files: SDK `Themia.Sdk/Widgets/ItemSelection.cs` (the rules), `SelectionBand.cs` (the
+rubber band), `SelectionLook.cs` (the look's rule); SDK WinUI `Widgets/SelectionChrome.cs`
+(`SelectionChrome`, `SelectionLabel`, `SelectionInput`). Tests `ItemSelectionTests` (`S662x_`).
+Outside edit mode only: there the cards are inert ([S-1751]) and edit mode clears a selection.
+
+- **[S-6620]** Clicks (`ItemSelection.Click`): a click selects the item alone and focuses it; Ctrl
+  toggles it; Shift selects the range from the anchor (Ctrl+Shift adds that range). A click on the
+  widget's empty space clears the selection (Ctrl or Shift held keeps it, [S-814]). The selection is
+  kept by id against the order drawn (`SetOrder`): a redraw, a re-read or a search keeps what is
+  still shown and drops the rest, focus and anchor included. Whether a click also opens is the
+  widget's `ClickMode` (single: a plain click; double: a double-click), unchanged.
+- **[S-6621]** A plain press on an item already selected changes nothing until the release
+  (`Press`/`Release`), so dragging it drags the whole selection (the folder's files out, the
+  shortcuts' reorder); a click without a drag then selects it alone. A press elsewhere or with a
+  modifier acts at once.
+- **[S-6622]** A right press (`Context`) on an item outside the selection selects it alone; on one
+  inside, the selection stays and the item menu acts on all of it.
+- **[S-6623]** Keys, with the widget's keyboard lease ([S-800]), one map (`ItemSelection.Key`):
+  arrows move the focus and select it alone (a grid: Up/Down a row, Left/Right an item; a one-column
+  list ignores Left/Right; Down past the last full row lands on the last item; Up from the top row
+  stays); Shift+arrows, Shift+Home/End/Page keys extend from the anchor (Shift is read as the key
+  arrives, `SelectionInput.ShiftHeld`); **Ctrl+arrows** move the focus only and **Space / Ctrl+Space**
+  toggle the focused item (`WidgetKey.FocusUp/Down/Left/Right`, `ToggleSelection`: the lease's only
+  Ctrl chords besides the clipboard's, [S-803]); Home/End, Page Up/Down; Ctrl+A selects all. The
+  first key with nothing focused lands on the first item (End on the last). Enter opens, Delete,
+  F2, the Menu key and Escape stay the widget's own. Type-ahead ([S-1980]) selects the match alone.
+- **[S-6624]** The rubber band (`SelectionBand`): a press on the empty space (the folder: also beside
+  a name, [S-6412]) that moves past the 5 DIP dead zone draws a band; every item whose box it
+  overlaps at all is selected, live as it grows and shrinks (`Hits` over the drawn boxes;
+  `GridHits` over a layout's cells, so a folder's rows not built yet are covered, [S-1887]). The
+  band stays inside the items' area. Look: the highlight colour at 28 % under a solid 1-DIP border
+  of it (`SelectionLook.Band`, `SelectionChrome.PaintBand`), above the items.
+- **[S-6625]** How the band combines (`SelectionBand.Mode`, `BeginBand`/`Band`/`EndBand`): no
+  modifier replaces the selection; Shift adds to the selection the band started with; Ctrl toggles
+  each covered item against it (Ctrl wins with both), as the desktop's Ctrl+drag. Live: an item the
+  band leaves again goes back to how it was. The focus goes to the last item covered.
+- **[S-6626]** Going elsewhere keeps the selection, as the desktop keeps its icons selected while
+  another window is active: a view that keeps it (`IWidgetKeys.KeepsSelectionWhenLeft`: the Folder,
+  Shortcuts) hears `WidgetKey.Deactivate` instead of Escape when the session leaves it ([S-813]: a
+  press on another widget, on the chrome, outside every surface, another app taking the
+  foreground) and draws the selection inactive; the focus cue, a pending press, a half-typed name
+  and an open rename (committed) go. Escape, a press on its own empty space ([S-814]) and edit mode
+  still clear it (`AppHost.LeaveWidget`). A press in the widget makes it active again.
+- **[S-6627]** The look (`SelectionLook.Ink`, `SelectionChrome`): each item's content sits in one
+  chrome border (`SelectionChrome.Wrap`: 1 DIP, `ControlRadius` 4, over the whole tile or row, icon
+  and name), inside the item and over its item fill ([S-6513], painted once at rest), so the user's
+  item background ([S-6562]) stays the item's rest and the selection is laid over it, behind the
+  text; the text keeps its colour ([S-6540]). Colour: Windows' highlight (`UISettings` Highlight,
+  `COLOR_HIGHLIGHT`; the contrast theme's in high contrast; #0078D7 if it cannot be read), the same
+  in light and dark, recoloured when Windows' colours change. Opacities, fill / border: hover
+  12 % / 35 %; selected 32 % / 65 %; selected under the pointer 40 % / 75 %; selected without the
+  keyboard a neutral grey (#808080) 28 % / 42 % (34 % / 50 % under the pointer); the focus alone a
+  65 % border; a drop target as selected under the pointer. Nothing at rest.
+- **[S-6628]** The focus shows (a border only, [S-6627]) only after keyboard use and while the
+  widget has the keyboard (`ItemSelection.Cues`): a key that moves or toggles shows it; a press, a
+  right press, a band, Escape and leaving hide it.
+- **[S-6629]** A selected tile's full name (`SelectionLabel`): when the focused item is selected, its
+  name is cut short and the widget has the keyboard (`SelectionLook.ShowsFullName`), the whole name
+  is shown in an overlay over the tiles below (the band's layer, so no tile moves), on the default
+  card's colour with the selection's mark, wrapped to the tile's width; it takes no presses. Not
+  while renaming. Tiles only (the folder's Grid and Icons, the shortcuts' labelled grid); rows keep
+  trimming.
+- **[S-6630]** Debug: `--widget-png Folder|Shortcuts … --state selected|inactive|lasso|fullname`
+  draws two items selected, one under the pointer and the focus moved by Ctrl+arrows (`selected`), the
+  same after the widget lost the keyboard (`inactive`), a band (`lasso`) and a long name shown in full
+  (`fullname`); the folder's `fullname` picks its longest name.
 
 ## View links (VIEW-LINKS)
 
@@ -6211,12 +6285,13 @@ Shortcuts, Recent files and the shell, and the shared rules (the SDK's `FolderBa
 - **[S-1325]** Git: only when a `.git` exists up the tree; `git --no-optional-locks status --porcelain=v1 --branch -z`
   off-thread, single-flight per repository; no git = no badge. Header badge "main ~2 ?3" (List/Details, by width) and the
   Git column (file code; "•" for a folder with changes beneath).
-- **[S-1327]** Selection as Explorer: click selects, Ctrl toggles, Shift ranges from the anchor (Ctrl+Shift adds), a press
-  on a selected item narrows on release (a multi-item drag keeps it), background click clears, right-click on an unselected
-  item selects it. Keys via the lease (`IWidgetKeys`): arrows/Home/End/PgUp/PgDn (grid-aware, Shift extends), Enter opens,
-  Space selects (Ctrl+Space toggles), Delete, F2, Menu, Ctrl+C/X/V/A (new `WidgetKey.Copy/Cut/Paste/SelectAll`, Ctrl
-  alone; other chords still never reach widgets), Backspace (`WidgetKey.Back`); Escape (and lease end) clears selection and
-  cursor. Double-click mode opens on double-click; Single opens on a plain click (Ctrl/Shift only select).
+- **[S-1327]** Selection is the desktop's, through the one item selection ([S-6620]..[S-6629]): click, Ctrl, Shift,
+  a press on a selected item narrowing on release (a multi-item drag keeps it), background click clears, right-click,
+  the band, the selection keys (Ctrl+arrows, Space/Ctrl+Space, Ctrl+A among them) and the look; the selection stays,
+  drawn inactive, while the user is elsewhere ([S-6626]). The widget's own keys via the lease (`IWidgetKeys`): Enter opens,
+  Delete, F2, Menu, Ctrl+C/X/V (`WidgetKey.Copy/Cut/Paste`, Ctrl alone; other chords still never reach widgets),
+  Backspace (`WidgetKey.Back`); Escape clears selection and focus. Double-click mode opens on double-click; Single opens
+  on a plain click (Ctrl/Shift only select).
 - **[S-1329]** The file clipboard is the real Windows one: the shell's data object (CF_HDROP, shell ID lists) plus
   `Preferred DropEffect` (Move for cut), `OleSetClipboard` + `OleFlushClipboard`. Paste reads CF_HDROP and the effect from any
   source (Explorer, other widgets); a cut-paste moves, then empties the clipboard. Cut items are dimmed while the clipboard
@@ -6231,7 +6306,7 @@ Shortcuts, Recent files and the shell, and the shared rules (the SDK's `FolderBa
   name rules and keeps the item selected.
 - **[S-1332]** Drag out: an OLE drag of the shell data object with our `IDropSource` (`SHDoDragDrop`), posted after the
   pointer handler. Drop in: through the surface's OLE target ([S-1020]..[S-1024], `IWidgetDropTarget`): plain drop moves,
-  Ctrl copies, into the folder row under the pointer (accent ring) or the folder on screen, carried out by that folder's
+  Ctrl copies, into the folder row under the pointer (marked as a drop target, [S-6627]) or the folder on screen, carried out by that folder's
   shell drop target; a drag whose every item is already there or is the destination's ancestor is refused
   (`FileDrops.Pastable`, orig. `dropTarget.ts`). Virtual files (`FileGroupDescriptorW`, SDK layout 592 bytes / name at 72)
   are saved on paste, and on drop by the shell's target.
@@ -6363,7 +6438,7 @@ shortcut S-28..S-34.
   drawn over the surface; the caption beside it is a `DropDescription` in the shell's words — "Move
   to %1", "Copy to %1", "Create link in %1" with the place inserted (`WidgetDrag.Place`, set by the
   view; the Desktop's name on bare surface). Cleared when the drag leaves, is refused or drops, so it
-  never lingers over another app. Folder rows also show the accent ring on the folder a drop enters.
+  never lingers over another app. Folder rows also mark the folder a drop enters as a drop target ([S-6627]).
 - **[S-1025]** Untrusted text payloads: a Chromium app's `file:///` lines (VS Code offers CF_HDROP
   and fails to render it) become paths with percent escapes decoded as UTF-8 bytes; only absolute
   local or UNC paths, each once. Wide text stops at its NUL.

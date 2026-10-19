@@ -20,12 +20,15 @@ public sealed partial class KitConformanceTests
     /// <summary>
     /// [S-822] Today's views that still make a colour from numbers (an avatar's initials, a chart's
     /// own palette, a fade): the list may only shrink. A view takes its colours from the theme
-    /// (<c>ThemeBrush</c>), the item layer (<c>ItemFill</c>) or the user's own choice.
+    /// (<c>ThemeBrush</c>), the item layer (<c>ItemFill</c>) or the user's own choice. Not an
+    /// offender but on the list for the same match: <c>SelectionChrome.cs</c>, the one place the
+    /// selection's translucent marks are made from Windows' highlight colour, by
+    /// <c>SelectionLook</c>'s tested rule ([S-6627]).
     /// </summary>
     private static readonly string[] LiteralColourToday =
     [
         "CalendarView.cs", "ClipboardView.cs", "ContactsView.cs", "Glides.cs", "ItemPalette.cs", "MarkdownEditor.cs",
-        "MusicView.Layout.cs", "ScratchpadView.cs", "ScreenTimeShared.cs", "StocksView.cs", "WeekPlannerView.cs",
+        "MusicView.Layout.cs", "ScratchpadView.cs", "ScreenTimeShared.cs", "SelectionChrome.cs", "StocksView.cs", "WeekPlannerView.cs",
     ];
 
     [GeneratedRegex(@"\bProcess\.Start\b|\bUseShellExecute\b")]

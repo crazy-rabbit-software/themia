@@ -39,6 +39,7 @@ internal sealed partial class FolderView
     private Panel _items = null!;
     private Canvas _bandLayer = null!;
     private Border _band = null!;
+    private SelectionLabel _fullName = null!;
     private Border _messageHost = null!;
     private TextBlock _message = null!;
     private ScrollFade? _fade;
@@ -61,6 +62,9 @@ internal sealed partial class FolderView
 
         public required Border Root { get; init; }
 
+        /// <summary>[S-6627] The selection's mark, inside the root and over its item fill.</summary>
+        public required Border Chrome { get; init; }
+
         /// <summary>Dimmed while the item is cut; the row itself carries the scroll fade's opacity.</summary>
         public required FrameworkElement Content { get; init; }
 
@@ -74,7 +78,8 @@ internal sealed partial class FolderView
 
         public required Grid NameCell { get; init; }
 
-        public Border? Pill { get; init; }
+        /// <summary>A tile, not a row: its name may be shown in full when selected ([S-6629]).</summary>
+        public bool Tile { get; init; }
 
         public Dictionary<FolderColumn, TextBlock> Cells { get; } = [];
 
@@ -168,19 +173,11 @@ internal sealed partial class FolderView
         SetRow(_columnHeader, 2);
 
         _items = new StackPanel();
-        _band = new Border
-        {
-            BorderThickness = new Thickness(1),
-            BorderBrush = ThemeBrush.Of("AccentFillColorDefaultBrush", Colors.DodgerBlue),
-            Child = new Border
-            {
-                Background = ThemeBrush.Of("AccentFillColorDefaultBrush", Colors.DodgerBlue),
-                Opacity = 0.25,
-            },
-            Visibility = Visibility.Collapsed,
-            IsHitTestVisible = false,
-        };
+        // [S-6624] The desktop's rubber band.
+        _band = new Border { Visibility = Visibility.Collapsed, IsHitTestVisible = false };
+        SelectionChrome.PaintBand(_band);
         _bandLayer = new Canvas { IsHitTestVisible = false, Children = { _band } };
+        _fullName = new SelectionLabel(_bandLayer);
 
         // Transparent, not null: the empty area below the items must still take presses (the band,
         // the background menu, a click that clears the selection) and drops.
@@ -588,6 +585,7 @@ internal sealed partial class FolderView
         }
 
         _itemHovers.Clear();
+        _fullName.Hide();
         _visuals.Clear();
         _items.Children.Clear();
         _tail = null;
@@ -622,30 +620,21 @@ internal sealed partial class FolderView
         content.Children.Add(iconBox);
         content.Children.Add(nameCell);
 
-        var pill = new Border
-        {
-            Width = 3,
-            Height = Math.Max(8, rowHeight / 2),
-            CornerRadius = new CornerRadius(1.5),
-            Background = ThemeBrush.Of("AccentFillColorDefaultBrush", Colors.DodgerBlue),
-            HorizontalAlignment = HorizontalAlignment.Left,
-            VerticalAlignment = VerticalAlignment.Center,
-            Margin = new Thickness(4, 0, 0, 0),
-            Visibility = Visibility.Collapsed,
-        };
+        // [S-6627] The whole row is the item's mark, as the desktop marks the whole icon and name.
+        var chrome = SelectionChrome.Wrap(content);
 
         var visual = new ItemVisual
         {
             Entry = entry,
             Index = index,
-            Root = new Border { Height = rowHeight, Child = new Grid { Children = { content, pill } }, Tag = index },
+            Root = new Border { Height = rowHeight, Child = chrome, Tag = index },
+            Chrome = chrome,
             Content = content,
             Image = image,
             Glyph = glyph,
             IconBox = iconBox,
             Name = name,
             NameCell = nameCell,
-            Pill = pill,
         };
 
         for (var c = 0; c < columns.Count; c++)
@@ -660,7 +649,8 @@ internal sealed partial class FolderView
             visual.Cells[column] = cell;
         }
 
-        RowFocus.Prepare(visual.Root);
+        WidgetItems.Mark(visual.Root); // [S-814] a press here is the item's, not the background's
+        ItemFill.Paint(visual.Root, ItemRole.Row); // [S-6513] the item layer at rest; the selection is laid over it
         Prime(visual);
         ToolTipService.SetToolTip(visual.Root, entry.FullPath);
         return visual;
@@ -768,26 +758,32 @@ internal sealed partial class FolderView
             Children = { iconBox, nameCell },
         };
 
+        // [S-6627] The tile, icon and name, is the item's mark.
+        var chrome = SelectionChrome.Wrap(content);
+
         var visual = new ItemVisual
         {
             Entry = entry,
             Index = index,
             Root = new Border
             {
-                Child = content,
+                Child = chrome,
                 Margin = new Thickness(1),
                 CornerRadius = new CornerRadius(Fluent.ControlRadius),
                 Tag = index,
             },
+            Chrome = chrome,
             Content = content,
             Image = image,
             Glyph = glyph,
             IconBox = iconBox,
             Name = name,
             NameCell = nameCell,
+            Tile = true,
         };
 
-        RowFocus.Prepare(visual.Root);
+        WidgetItems.Mark(visual.Root); // [S-814] a press here is the item's, not the background's
+        ItemFill.Paint(visual.Root, ItemRole.Row); // [S-6513] the item layer at rest; the selection is laid over it
         Prime(visual);
         ToolTipService.SetToolTip(visual.Root, labelled ? entry.FullPath : $"{entry.Name}\n{entry.FullPath}");
         return visual;
