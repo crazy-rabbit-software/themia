@@ -267,6 +267,7 @@ internal static class EditBarRender
 
         // [S-3718] [S-3723] [S-3725] The submenus along a path open (and a search typed into).
         var appearance = Str.Settings_Section_Appearance.Text();
+        var header = Str.App_ConfigHeaderLabel.Text();
         PropsCard[] picker = [new(new WidgetId("clock"), 200, 160, 300, 200, HeaderPlacement.Top, true, Style: "flip", Background: FillChoice.Of("#1B2030", 0.5))];
         PropsCard[] stopwatch = [new(new WidgetId("stopwatch"), 200, 160, 280, 180, HeaderPlacement.Top, true)];
         PropsCard[] countdown = [new(new WidgetId("countdown"), 200, 160, 280, 180, HeaderPlacement.Top, true)];
@@ -290,6 +291,17 @@ internal static class EditBarRender
             (shortcuts, "shortcuts-add", Str.Common_Add.Text(), null),
             (shortcuts, "shortcuts-items", "Shortcuts", null),
             (clock, "clock-style", Str.Styles_Label.Text(), null),
+
+            // [S-3735] The Header submenu: the title box and the positions for one, the positions for several.
+            (clock, "header", header, null),
+            (many, "many-header", header, null),
+
+            // [S-3733] Where a submenu goes when the end side would cover something: a widget at the
+            // work area's right edge (the panel on its left, the submenus further left), one at its
+            // bottom (slid up inside the area), and a second level clear of the first.
+            ([new(new WidgetId("clock"), 940, 160, 320, 220, HeaderPlacement.Top, true, Style: "flip")], "flip-right", appearance + "/" + Str.Settings_Style_BgLabel.Text(), null),
+            ([new(new WidgetId("clock"), 200, 700, 300, 180, HeaderPlacement.Top, true, Style: "flip")], "flip-bottom", appearance + "/" + Str.Settings_Style_BgLabel.Text(), null),
+            ([new(new WidgetId("clock"), 400, 120, 400, 300, HeaderPlacement.Top, true, Style: "flip")], "flip-wide", appearance + "/" + Str.Settings_Style_BgLabel.Text(), null),
             (clock, "clock-zone", "Timezone", "tok"),
             (clock, "clock-zone-many", "Timezone", "a"),
             (clock, "clock-zone-none", "Timezone", "qqqq"),
@@ -302,7 +314,7 @@ internal static class EditBarRender
             ([new(new WidgetId("gallery"), 200, 160, 320, 240, HeaderPlacement.Top, true)], "setup-gallery", SetupOpen, null),
 
             // The meters' and details' lines: the span under Style, a drive, the ping host, a choice.
-            ([new(new WidgetId("cpu"), 200, 160, 280, 180, HeaderPlacement.Top, true)], "cpu-span", Str.Styles_Label.Text() + "/" + Str.WidgetsB_Settings_Meters_ChartSpan_Label.Text(), null),
+            ([new(new WidgetId("cpu"), 200, 160, 280, 180, HeaderPlacement.Top, true)], "cpu-span", Str.WidgetsB_Settings_Meters_ChartSpan_Label.Text(), null),
             ([new(new WidgetId("ping"), 200, 160, 280, 180, HeaderPlacement.Top, true)], "ping-style", Str.Styles_Label.Text(), null),
             ([new(new WidgetId("disk"), 200, 160, 280, 180, HeaderPlacement.Top, true)], "disk-drive", "Drive", null),
             ([new(new WidgetId("pingDetails"), 200, 160, 300, 220, HeaderPlacement.Top, true)], "pingdetails-window", "Statistics cover", null),
@@ -333,7 +345,7 @@ internal static class EditBarRender
             ([new(new WidgetId("quote"), 200, 160, 320, 180, HeaderPlacement.Top, true)], "quote-quotes", "Quotes", null),
 
             // The files', media's, devices' and markets' widgets: what is under Style, a path, a device, a pair.
-            ([new(new WidgetId("folder"), 200, 160, 320, 240, HeaderPlacement.Top, true, Style: "list")], "folder-style", Str.Styles_Label.Text() + "/Sort by", null),
+            ([new(new WidgetId("folder"), 200, 160, 320, 240, HeaderPlacement.Top, true, Style: "list")], "folder-style", "Sort by", null),
             ([new(new WidgetId("folder"), 200, 160, 320, 240, HeaderPlacement.Top, true)], "folder-folder", "Folder", null),
             ([new(new WidgetId("gallery"), 200, 160, 320, 240, HeaderPlacement.Top, true)], "gallery-source", "Source", null),
             ([new(new WidgetId("mixer"), 200, 160, 320, 240, HeaderPlacement.Top, true)], "mixer-device", "Output device", null),
@@ -346,9 +358,9 @@ internal static class EditBarRender
             // The account and list widgets: the feeds, the accounts (none signed in to a render), a
             // style's own lines, where tasks come from and their filters.
             ([new(new WidgetId("rss"), 200, 160, 340, 260, HeaderPlacement.Top, true)], "rss-feeds", "Feeds", null),
-            ([new(new WidgetId("email"), 200, 160, 340, 260, HeaderPlacement.Top, true, Style: "table")], "email-columns", Str.Styles_Label.Text() + "/Columns", null),
+            ([new(new WidgetId("email"), 200, 160, 340, 260, HeaderPlacement.Top, true, Style: "table")], "email-columns", "Columns", null),
             ([new(new WidgetId("email"), 200, 160, 340, 260, HeaderPlacement.Top, true)], "email-accounts", Str.WidgetUi_AccountsLabel.Text(), null),
-            ([new(new WidgetId("calendar"), 200, 160, 340, 260, HeaderPlacement.Top, true, Style: "agenda")], "calendar-range", Str.Styles_Label.Text() + "/Date range", null),
+            ([new(new WidgetId("calendar"), 200, 160, 340, 260, HeaderPlacement.Top, true, Style: "agenda")], "calendar-range", "Date range", null),
             ([new(new WidgetId("contacts"), 200, 160, 320, 240, HeaderPlacement.Top, true)], "contacts-layout", "Layout", null),
             ([new(new WidgetId("weekPlanner"), 200, 160, 400, 240, HeaderPlacement.Top, true)], "weekplanner-tasks", "Tasks from", null),
             ([new(new WidgetId("tasks"), 200, 160, 300, 260, HeaderPlacement.Top, true)], "tasks-source", "Show tasks from", null),
@@ -364,6 +376,9 @@ internal static class EditBarRender
         {
             await PropsShot(screen, ticker, layout, System.IO.Path.Combine(outDir, $"props-{theme}-{name}.png"), open: path, type: type).ConfigureAwait(true);
         }
+
+        // [S-3732] The shortcuts' list with its first line held over the gap after the last.
+        await PropsShot(screen, ticker, shortcuts, System.IO.Path.Combine(outDir, $"props-{theme}-shortcuts-drag.png"), open: "Shortcuts", drag: "drag:0:2").ConfigureAwait(true);
 
         // [S-3724]..[S-3730] Every line of the menu vocabulary on a stand-in widget's menu: the first
         // level (a note, a colour, a fill, numbers, a folder, a confirmed danger line), the list open,
@@ -422,6 +437,7 @@ internal static class EditBarRender
         menu.Lines.Add(menu.Fill("Accent fill", FillChoice.Of("#3A6EA5", 0.6), _ => { }));
         menu.Lines.Add(menu.Number(Glyphs.Count, "Rows", 4, 1, 10, 1, n => LocaleFormat.Integer(n), _ => { }));
         menu.Lines.Add(menu.Number(Glyphs.Timer, "Refresh every", 30, 5, 600, 5, n => LocaleFormat.Integer(n) + " min", _ => { }));
+        menu.Lines.Add(menu.Slider(Glyphs.Volume, "Volume", 40, 0, 100, 5, n => LocaleFormat.Percent(Strings.Current, n), _ => { }));
         menu.Lines.Add(menu.PickFolder(Glyphs.Folder, "Folder", @"C:\Users\Me\Pictures\Wallpapers", _ => { }));
         menu.Lines.Add(menu.List(Glyphs.Rss, "Feeds", feeds, new MenuList<string>(f => f, "No feeds yet")
         {
@@ -475,7 +491,7 @@ internal static class EditBarRender
     /// <summary>[S-1862] The path that opens the menu as the card's Set up button does.</summary>
     private const string SetupOpen = "<setup>";
 
-    private static async Task PropsShot(Grid screen, Ticker ticker, PropsCard[] layout, string path, string? open = null, string? type = null, Action<WidgetMenuLines>? lines = null)
+    private static async Task PropsShot(Grid screen, Ticker ticker, PropsCard[] layout, string path, string? open = null, string? type = null, Action<WidgetMenuLines>? lines = null, string? drag = null)
     {
         screen.Children.Clear();
 
@@ -548,9 +564,13 @@ internal static class EditBarRender
         var target = StripPlacement.Bounds(widgets.Where(w => w.Spec.Selected).Select(w => new PixelRect(w.Spec.X, w.Spec.Y, w.Spec.W, w.Spec.H)));
         if (target is { } box)
         {
-            var spot = StripPlacement.Place(box, strip.DesiredSize.Width, strip.DesiredSize.Height, new PixelRect(0, 0, ScreenWidth, PropsHeight), [barRect], UiLanguage.Flow == FlowDirection.RightToLeft);
+            var area = new PixelRect(0, 0, ScreenWidth, screen.Height);
+            var spot = StripPlacement.Place(box, strip.DesiredSize.Width, strip.DesiredSize.Height, area, [barRect], UiLanguage.Flow == FlowDirection.RightToLeft);
             Canvas.SetLeft(strip, Math.Round(spot.X));
             Canvas.SetTop(strip, Math.Round(spot.Y));
+
+            // [S-3733] The submenus keep clear of the widget, the bar and the levels above them, inside the stand-in work area.
+            strip.Room = new PropertiesRoom(area, box, [barRect]);
         }
 
         // [S-3718] The submenus along a path open, as clicks would open them; a search is typed into.
@@ -566,6 +586,12 @@ internal static class EditBarRender
             {
                 await Task.Delay(100).ConfigureAwait(true);
                 strip.DebugType(type);
+            }
+
+            // [S-3732] A list's line held mid-drag: "drag:<from>:<gap>".
+            if (drag is { } held && held.Split(':') is [_, var from, var gap] && !strip.DebugDrag(int.Parse(from, System.Globalization.CultureInfo.InvariantCulture), int.Parse(gap, System.Globalization.CultureInfo.InvariantCulture)))
+            {
+                Console.WriteLine($"editbar: no drag {held} for {path}");
             }
         }
 

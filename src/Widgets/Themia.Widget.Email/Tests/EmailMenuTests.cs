@@ -73,7 +73,7 @@ public sealed class EmailMenuTests
     {
         var config = new EmailConfig { Style = EmailStyle.Table, RowColumns = [MailColumn.From, MailColumn.Subject] };
         var subject = Line(Line(Build(config).StyleLines, Columns).Children!, MailColumn.Subject.Label());
-        Line(subject.Children!, Str.Menu_MoveUp.Text()).Action!();
+        subject.Order!.Move(1, 0);
         Assert.Equal([MailColumn.Subject, MailColumn.From], config.RowColumns);
 
         Line(Line(Line(Build(config).StyleLines, Columns).Children!, MailColumn.From.Label()).Children!, Str.Common_Remove.Text()).Action!();

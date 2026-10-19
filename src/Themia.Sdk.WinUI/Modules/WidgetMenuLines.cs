@@ -12,12 +12,12 @@ namespace Themia.Sdk.WinUI;
 
 /// <summary>
 /// [S-3719] What a module's own lines on the properties menu ([S-3716]) are built into: the lines of
-/// the menu's first level (<see cref="Lines"/>), the lines under its Style submenu after the styles
+/// the menu's first level (<see cref="Lines"/>), the lines right under its Style line
 /// (<see cref="StyleLines"/>: what only the look draws with), where the card's own lines go
 /// (<see cref="PlaceCard"/>), and the save to call after a change. The lines are the one menu
 /// vocabulary (<see cref="ItemMenuEntry"/>): a switch, a choice of one (a submenu of dots), a
-/// submenu, a search, a command, a colour or a fill, a number, a confirmed command, a note, an
-/// editable list and a folder. The host builds them again after every change, so a line says what
+/// submenu, a search, a command, a colour or a fill, a number, a slider, a confirmed command, a note,
+/// an editable list and a folder. The host builds them again after every change, so a line says what
 /// the widget holds now and a closure may keep the value it was built with.
 /// </summary>
 public sealed class WidgetMenuLines
@@ -59,7 +59,7 @@ public sealed class WidgetMenuLines
     /// <summary>The menu's first level, after Style.</summary>
     public List<ItemMenuEntry> Lines { get; } = [];
 
-    /// <summary>Under Style, after the styles and a divider: the options only the current look draws with.</summary>
+    /// <summary>[S-3735] On the first level right under the Style line, in its section: the options only the current look draws with.</summary>
     public List<ItemMenuEntry> StyleLines { get; } = [];
 
     /// <summary>
@@ -245,6 +245,38 @@ public sealed class WidgetMenuLines
             Initial: value.ToString(null, CultureInfo.InvariantCulture))), Value: format(value));
     }
 
+    /// <summary>
+    /// [S-3731] A number set by feel (a volume, a size) as an inline slider: one line of its words,
+    /// the slider and the value as <paramref name="format"/> writes it, from <paramref name="min"/>
+    /// to <paramref name="max"/> on the grain of <paramref name="step"/>. A drag shows the value at
+    /// the line's end and stores once on the release; a key steps it and stores the step. The value
+    /// that holds changes nothing. A number the user types or picks from a few values is
+    /// <see cref="Number{T}"/>.
+    /// </summary>
+    public ItemMenuEntry Slider<T>(string? glyph, string text, T value, T min, T max, T step, Func<T, string> format, Action<T> set)
+        where T : INumber<T>
+    {
+        ArgumentNullException.ThrowIfNull(format);
+        ArgumentNullException.ThrowIfNull(set);
+        if (step <= T.Zero || max < min)
+        {
+            throw new ArgumentOutOfRangeException(nameof(step), "a slider needs a positive step and min ≤ max");
+        }
+
+        var slider = new MenuSlider(
+            double.CreateChecked(value),
+            double.CreateChecked(min),
+            double.CreateChecked(max),
+            double.CreateChecked(step),
+            v => format(T.CreateChecked(v)),
+            v =>
+            {
+                set(T.CreateChecked(v));
+                _save();
+            });
+        return new(glyph, text, null, Slider: slider, Value: format(value));
+    }
+
     /// <summary>[S-3726] The steps a number offers, from <paramref name="min"/> up to <paramref name="max"/>.</summary>
     public static IReadOnlyList<T> NumberSteps<T>(T min, T max, T step)
         where T : INumber<T>
@@ -325,7 +357,8 @@ public sealed class WidgetMenuLines
     /// <summary>
     /// [S-3729] An editable list setting (feeds, symbols, hosts, shortcuts) as a submenu: each item a
     /// submenu of its own (Rename… where <see cref="MenuList{T}.Rename"/> is given, the
-    /// <see cref="MenuList{T}.Extra"/> lines, Move up and Move down with the ends greyed, Remove), the
+    /// <see cref="MenuList{T}.Extra"/> lines, Remove), its line dragged up and down to reorder
+    /// ([S-3732], <see cref="ItemMenuEntry.Order"/>; Alt+Shift+Up / Down on it), the
     /// <see cref="MenuList{T}.Empty"/> sentence while there are none, then Add… (asked for and checked
     /// by <see cref="MenuList{T}.Add"/>) or the caller's own <see cref="MenuList{T}.AddLines"/>. Every
     /// change is made in <paramref name="items"/> and saved.
@@ -334,6 +367,17 @@ public sealed class WidgetMenuLines
     {
         ArgumentNullException.ThrowIfNull(items);
         ArgumentNullException.ThrowIfNull(list);
+
+        // [S-3732] The items as built: a drop names places in this list, so the move finds the item
+        // that stood there even where the list changed under the lines.
+        var built = items.ToList();
+        void Reorder(int from, int to)
+        {
+            if (from >= 0 && from < built.Count && Move(items, built[from], from, to))
+            {
+                _save();
+            }
+        }
 
         var lines = new List<ItemMenuEntry>(items.Count + 3);
         if (items.Count == 0)
@@ -345,6 +389,7 @@ public sealed class WidgetMenuLines
         {
             var item = items[i];
             var at = i;
+            var order = new MenuOrder(i, items.Count, Reorder);
             var actions = new List<ItemMenuEntry>();
             if (list.Rename is { } rename)
             {
@@ -369,13 +414,6 @@ public sealed class WidgetMenuLines
                 actions.AddRange(extra);
             }
 
-            if (list.Reorder)
-            {
-                actions.Add(ItemMenuEntry.Separator);
-                actions.Add(Command(Glyphs.MoveUp, Str.Menu_MoveUp.Text(), () => Move(items, item, at, -1), disabled: i == 0));
-                actions.Add(Command(Glyphs.MoveDown, Str.Menu_MoveDown.Text(), () => Move(items, item, at, 1), disabled: i == items.Count - 1));
-            }
-
             actions.Add(ItemMenuEntry.Separator);
             actions.Add(Command(Glyphs.Delete, Str.Common_Remove.Text(), () =>
             {
@@ -385,7 +423,11 @@ public sealed class WidgetMenuLines
                 }
             }, disabled: items.Count <= list.Min));
 
-            lines.Add(Submenu(list.Glyph?.Invoke(item), list.Name(item), actions) with { IconFile = list.IconFile?.Invoke(item) });
+            lines.Add(Submenu(list.Glyph?.Invoke(item), list.Name(item), actions) with
+            {
+                IconFile = list.IconFile?.Invoke(item),
+                Order = list.Reorder ? order : null,
+            });
         }
 
         var full = list.Max is { } max && items.Count >= max;
@@ -445,17 +487,22 @@ public sealed class WidgetMenuLines
         return name.Length > 0 ? name : trimmed;
     }
 
-    /// <summary>[S-3729] Move the item a step; where the list changed under the line, the item is found again.</summary>
-    private static void Move<T>(IList<T> items, T item, int at, int by)
+    /// <summary>
+    /// [S-3732] Move the item to <paramref name="to"/>, the others closing up behind it; where the
+    /// list changed under the lines, the item is found again. False when nothing moved (the same
+    /// place, a place outside the list, an item gone).
+    /// </summary>
+    private static bool Move<T>(IList<T> items, T item, int at, int to)
     {
         var from = IndexOf(items, item, at);
-        var to = from + by;
-        if (from < 0 || to < 0 || to >= items.Count)
+        if (from < 0 || to < 0 || to >= items.Count || to == from)
         {
-            return;
+            return false;
         }
 
-        (items[from], items[to]) = (items[to], items[from]);
+        items.RemoveAt(from);
+        items.Insert(to, item);
+        return true;
     }
 
     /// <summary>Where <paramref name="item"/> is: at <paramref name="at"/> as built, else found again, else -1.</summary>
@@ -496,7 +543,7 @@ public sealed record MenuList<T>(Func<T, string> Name, string Empty)
     /// <summary>[S-3729] The fewest items the list keeps (a table's last column): Remove is greyed at it.</summary>
     public int Min { get; init; }
 
-    /// <summary>Whether the order means something (Move up and Move down). On by default.</summary>
+    /// <summary>[S-3732] Whether the order means something (the item lines are dragged to reorder). On by default.</summary>
     public bool Reorder { get; init; } = true;
 }
 

@@ -37,7 +37,22 @@ internal sealed partial class DesktopWindow
         Cut: _host.CutSelected,
         Copy: _host.CopySelected,
         Delete: _host.DeleteSelected,
-        WidgetLines: _host.WidgetMenuLines);
+        WidgetLines: _host.WidgetMenuLines,
+        Preview: PreviewSelected);
+
+    /// <summary>
+    /// [S-3731] While a slider of the menu is dragged the selected cards here show its value (their
+    /// scale, a fill at an opacity) without storing it; null shows what they hold again.
+    /// </summary>
+    private void PreviewSelected(CardPreview? preview)
+    {
+        var selection = _host.Selection;
+        foreach (var card in _cards.Where(c => selection.Contains(c.Model.Id)))
+        {
+            card.Preview(preview);
+            card.ApplyContentScale(ContentScale(card.Model, preview?.Scale));
+        }
+    }
 
     /// <summary>[S-3701] The strip shows what is selected in the view this display shows, and nothing otherwise.</summary>
     private void SyncProperties()
@@ -93,6 +108,9 @@ internal sealed partial class DesktopWindow
         var spot = StripPlacement.Place(target, size.Width, size.Height, area, avoid, UiLanguage.Flow == FlowDirection.RightToLeft);
         Canvas.SetLeft(_properties, Math.Round(spot.X));
         Canvas.SetTop(_properties, Math.Round(spot.Y));
+
+        // [S-3733] Its submenus keep clear of the selection, the bars and the levels above them.
+        _properties.Room = new PropertiesRoom(area, target, avoid);
     }
 
     /// <summary>[S-3709] The painted box around every selected card this display shows, where it is now.</summary>

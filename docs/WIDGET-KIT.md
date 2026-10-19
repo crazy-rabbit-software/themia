@@ -2785,6 +2785,7 @@ change, so a closure may keep the value it was built with.
 | bool | `menu.Toggle(glyph, text, on, set)` | the tick at the line's end; best without a glyph under a submenu |
 | enum, any closed set | `menu.Choice(glyph, text, [(value, words)…], current, set)` | a submenu of dots; the line shows the option that holds |
 | number | `menu.Number(glyph, text, value, min, max, step, format, set)` (any `INumber<T>`) | dots up to `MaxNumberSteps` (20) steps, else asked for as text, range-checked and rounded to a step; the value at the end |
+| number set by feel (a volume, a size) | `menu.Slider(glyph, text, value, min, max, step, format, set)` (any `INumber<T>`) | an inline slider in its line (words, slider, value); a drag shows the value and stores once on the release, a key steps and stores ([S-3731]) |
 | colour `#RRGGBB` or empty | `menu.Colour(text, current, set, options?)` (`ColorChoiceOptions`: `DefaultLabel` null when a colour is required, `Presets` `ColorPresets.Surfaces` by default or `ColorPresets.Windows`, `AllowCustom`) | the same colour submenu as Appearance › Item text; the swatch is the line's icon |
 | `FillChoice` | `menu.Fill(text, current, set, options?)` (`FillChoiceOptions`) | the same submenu as Appearance › Background |
 | text | `menu.Ask(new WidgetTextAsk(title, placeholder, accept, refuse, done, Initial:, AllowEmpty:))` from a line's action | a small flyout beside the menu; `refuse` is the trust boundary (validate as typed) |
@@ -2792,17 +2793,20 @@ change, so a closure may keep the value it was built with.
 | a folder | `menu.PickFolder(glyph, text, path, set)` | Windows' folder picker; the folder's name at the end |
 | the accounts a widget reads | `KitMenuLines.Accounts(…)` / `OfficeMenuLines.Accounts`, `.CalendarAccounts` | Every account, a switch each, Manage accounts (`menu.AccountsLine`, Settings › Accounts, [S-3745]) |
 | something read asynchronously (an account's calendars, its lists) | a static `MenuLoads<T>` keyed per source, `Read(key, menu, read)` | what is held now ("Looking…" note until it comes); an answer that differs outdates the menu (`WidgetMenuLines.Outdated`) and the host builds it again ([S-3746]) |
-| a list (feeds, symbols, hosts) | `menu.List(glyph, text, items, new MenuList<T>(name, emptySentence) { Rename, Extra, Add, AddLines, Max, Reorder, Glyph, IconFile })` | a submenu of items (Rename…, own lines, Move up/down, Remove greyed at `Min`), Add… |
+| a list (feeds, symbols, hosts) | `menu.List(glyph, text, items, new MenuList<T>(name, emptySentence) { Rename, Extra, Add, AddLines, Max, Reorder, Glyph, IconFile })` | a submenu of items (Rename…, own lines, Remove greyed at `Min`), Add…; the item lines are dragged up and down to reorder, or Alt+Shift+Up / Down (`ItemMenuEntry.Order`, [S-3732]) |
 | a destructive command | `menu.Confirm(glyph, text, question, confirmWords, action, danger: true, disabled:)` | asks beside the menu first; danger lines in the critical colour |
 | a change, a command | `menu.Command(glyph, text, change, disabled:)` or a plain `new ItemMenuEntry(glyph, text, action)` | runs on a click (a plain command does not save) |
 | words only | `WidgetMenuLines.Note(text)` | greyed, never clickable (a data source's credit) |
 | where setup happens | `WidgetMenuLines.SetsUp(line)` around the line that sets what the widget waits for (`ISetupRule`) | the card's Set up button opens the menu at it, as a click would ([S-1862]); one per widget |
 | a group | `WidgetMenuLines.Submenu(glyph, text, lines)`, `ItemMenuEntry.Separator` | |
 
-Where lines go: `menu.StyleLines` (under Style, after the styles) for what only the current look
-draws, `menu.Lines` for the rest, and `menu.PlaceCard()` once, where the card's Appearance submenu
-stands (call it first unless something matters more than the look; without it Appearance stands
-first anyway). Something the vocabulary lacks is an SDK change first, in its own commit, with tests
+Where lines go: `menu.StyleLines` (on the first level right under the Style line, in its section;
+the Style submenu holds the styles only) for what only the current look draws, `menu.Lines` for the
+rest, in groups the widget marks with `ItemMenuEntry.Separator` (the host draws the dividers and
+drops stray ones), and `menu.PlaceCard()` once, where the card's Appearance submenu stands, a
+section of its own (call it first unless something matters more than the look; without it
+Appearance stands first anyway). The host draws the Header line (title and positions) first, above
+Style, for every widget that can have a header ([S-3735]). Something the vocabulary lacks is an SDK change first, in its own commit, with tests
 in `tests/Themia.Modules.Tests/WidgetMenuLinesTests.cs`, rendered in `--editbar-png`
 (`props-*-vocabulary*.png`).
 

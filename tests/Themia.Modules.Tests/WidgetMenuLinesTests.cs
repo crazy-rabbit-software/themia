@@ -232,6 +232,107 @@ public sealed class WidgetMenuLinesTests
     public void S3726_a_number_without_a_positive_step_is_refused_where_it_is_built()
         => Assert.Throws<ArgumentOutOfRangeException>(() => Lines().Number(null, "Rows", 1, 1, 10, 0, n => n.ToString(System.Globalization.CultureInfo.InvariantCulture), _ => { }));
 
+    // ---- sliders ------------------------------------------------------------------------------
+
+    [Fact]
+    public void S3731_a_slider_is_one_line_with_its_value_at_the_end_and_no_submenu()
+    {
+        var line = Lines().Slider(Glyphs.Volume, "Volume", 40, 0, 100, 5, v => v + " %", _ => { });
+
+        Assert.NotNull(line.Slider);
+        Assert.Null(line.Children);
+        Assert.Null(line.Action);
+        Assert.False(line.IsSeparator);
+        Assert.Equal("40 %", line.Value);
+        Assert.Equal(40, line.Slider!.Value);
+        Assert.Equal((0, 100, 5), (line.Slider.Min, line.Slider.Max, line.Slider.Step));
+    }
+
+    [Fact]
+    public void S3731_a_drag_previews_and_only_the_release_stores_once()
+    {
+        var set = new List<int>();
+        var slider = Lines().Slider(null, "Volume", 40, 0, 100, 5, v => v + " %", set.Add).Slider!;
+
+        slider.Preview(52);
+        slider.Preview(71);
+        Assert.Empty(set);
+        Assert.Equal("70 %", slider.Format(71));
+
+        Assert.True(slider.Commit(71));
+        Assert.Equal([70], set);
+        Assert.Equal(1, _saves);
+    }
+
+    [Fact]
+    public void S3731_releasing_on_the_value_that_holds_stores_nothing()
+    {
+        var set = new List<int>();
+        var slider = Lines().Slider(null, "Volume", 40, 0, 100, 5, v => v + " %", set.Add).Slider!;
+
+        Assert.False(slider.Commit(41));
+        Assert.Empty(set);
+        Assert.Equal(0, _saves);
+    }
+
+    [Theory]
+    [InlineData(-20, 0)]
+    [InlineData(250, 100)]
+    [InlineData(12.4, 10)]
+    [InlineData(12.5, 15)]
+    [InlineData(double.NaN, 0)]
+    public void S3731_a_value_is_kept_in_range_on_the_grain(double value, double snapped)
+        => Assert.Equal(snapped, new MenuSlider(0, 0, 100, 5, v => v.ToString(), _ => { }).Snap(value));
+
+    [Fact]
+    public void S3731_the_preview_ends_on_the_release_and_on_a_cancel()
+    {
+        var previews = new List<double?>();
+        var slider = new MenuSlider(1.0, 0.5, 2.0, 0.05, v => v.ToString(), _ => { }, previews.Add);
+
+        slider.Preview(1.23);
+        slider.Commit(1.23);
+        slider.Preview(0.6);
+        slider.Cancel();
+
+        Assert.Equal([1.25, null, 0.6, null], previews);
+    }
+
+    [Fact]
+    public void S3731_a_slider_without_a_positive_step_is_refused_where_it_is_built()
+        => Assert.Throws<ArgumentOutOfRangeException>(() => Lines().Slider(null, "Volume", 1, 0, 10, 0, v => v.ToString(), _ => { }));
+
+    [Fact]
+    public void S3731_a_fills_opacity_is_a_slider_that_previews_the_colour_and_stores_once()
+    {
+        var set = new List<FillChoice>();
+        var previews = new List<FillChoice?>();
+        var colour = MenuColour.OfFill(FillChoice.Of("#102030", 0.5), set.Add, new FillChoiceOptions { DefaultLabel = "Default" }, previews.Add);
+        var slider = colour.OpacitySlider(v => v.ToString())!;
+
+        Assert.Equal(0.5, slider.Value);
+        Assert.Equal((MenuColour.OpacityMin, MenuColour.OpacityMax), (slider.Min, slider.Max));
+
+        slider.Preview(0.32);
+        Assert.True(FillChoice.Of("#102030", 0.3).SameAs(previews[^1]));
+        Assert.Empty(set);
+
+        slider.Commit(0.32);
+        Assert.True(FillChoice.Of("#102030", 0.3).SameAs(Assert.Single(set)));
+        Assert.Null(previews[^1]);
+    }
+
+    [Fact]
+    public void S3731_a_colour_has_no_opacity_slider_and_a_fill_without_a_colour_stores_none()
+    {
+        Assert.Null(Lines().Colour("Ink", "#102030", _ => { }).Colour!.OpacitySlider(v => v.ToString()));
+
+        var set = new List<FillChoice>();
+        var slider = Lines().Fill("Fill", FillChoice.Default(), set.Add).Colour!.OpacitySlider(v => v.ToString())!;
+        slider.Commit(0.4);
+        Assert.Empty(set);
+    }
+
     // ---- confirm and note ---------------------------------------------------------------------
 
     [Fact]
@@ -306,25 +407,66 @@ public sealed class WidgetMenuLinesTests
     }
 
     [Fact]
-    public void S3729_each_item_is_a_submenu_of_rename_move_and_remove_with_the_ends_greyed()
+    public void S3729_each_item_is_a_submenu_of_rename_and_remove_with_no_move_lines()
     {
         var items = new List<string> { "a", "b", "c" };
         var lines = Lines().List(null, "Feeds", items, Feeds()).Children!;
 
         Assert.Equal(["A", "B", "C"], lines.Take(3).Select(l => l.Text));
         var first = lines[0].Children!.Where(l => !l.IsSeparator).ToList();
-        Assert.Equal([Str.Menu_Rename.Text(), Str.Menu_MoveUp.Text(), Str.Menu_MoveDown.Text(), Str.Common_Remove.Text()], first.Select(l => l.Text));
-        Assert.True(first[1].Disabled);
-        Assert.True(lines[2].Children!.Single(l => l.Text == Str.Menu_MoveDown.Text()).Disabled);
+        Assert.Equal([Str.Menu_Rename.Text(), Str.Common_Remove.Text()], first.Select(l => l.Text));
     }
 
     [Fact]
-    public void S3729_move_and_remove_change_the_list_and_save()
+    public void S3732_each_item_line_carries_its_place_in_the_list_for_the_drag()
     {
         var items = new List<string> { "a", "b", "c" };
         var lines = Lines().List(null, "Feeds", items, Feeds()).Children!;
 
-        lines[0].Children!.Single(l => l.Text == Str.Menu_MoveDown.Text()).Action!();
+        Assert.Equal([0, 1, 2], lines.Take(3).Select(l => l.Order!.Index));
+        Assert.All(lines.Take(3), l => Assert.Equal(3, l.Order!.Count));
+        Assert.All(lines.Skip(3), l => Assert.Null(l.Order));
+    }
+
+    [Fact]
+    public void S3732_a_drop_moves_the_item_there_and_saves_once()
+    {
+        var items = new List<string> { "a", "b", "c", "d" };
+        var lines = Lines().List(null, "Feeds", items, Feeds()).Children!;
+
+        lines[0].Order!.Move(0, 2);
+        Assert.Equal(["b", "c", "a", "d"], items);
+        Assert.Equal(1, _saves);
+
+        // Built before that move: the line still names the item that stood at its place ("d").
+        lines[3].Order!.Move(3, 0);
+        Assert.Equal(["d", "b", "c", "a"], items);
+        Assert.Equal(2, _saves);
+    }
+
+    [Theory]
+    [InlineData(1, 1)]
+    [InlineData(0, -1)]
+    [InlineData(2, 3)]
+    [InlineData(5, 0)]
+    public void S3732_a_drop_on_its_own_place_or_outside_the_list_changes_nothing(int from, int to)
+    {
+        var items = new List<string> { "a", "b", "c" };
+        var lines = Lines().List(null, "Feeds", items, Feeds()).Children!;
+
+        lines[0].Order!.Move(from, to);
+
+        Assert.Equal(["a", "b", "c"], items);
+        Assert.Equal(0, _saves);
+    }
+
+    [Fact]
+    public void S3729_remove_changes_the_list_and_saves()
+    {
+        var items = new List<string> { "a", "b", "c" };
+        var lines = Lines().List(null, "Feeds", items, Feeds()).Children!;
+
+        lines[0].Order!.Move(0, 1);
         Assert.Equal(["b", "a", "c"], items);
 
         // Built before the move: the line still finds its item.
@@ -369,14 +511,14 @@ public sealed class WidgetMenuLinesTests
     }
 
     [Fact]
-    public void S3729_the_callers_add_lines_follow_the_items_and_an_unordered_list_has_no_moves()
+    public void S3729_the_callers_add_lines_follow_the_items_and_an_unordered_list_is_not_dragged()
     {
         var pick = new ItemMenuEntry(null, "Pick a file…", () => { });
         var list = new MenuList<string>(s => s, "None") { AddLines = [pick], Reorder = false };
         var lines = Lines().List(null, "Files", new List<string> { "x" }, list).Children!;
 
         Assert.Equal("Pick a file…", lines[^1].Text);
-        Assert.DoesNotContain(lines[0].Children!, l => l.Text == Str.Menu_MoveUp.Text());
+        Assert.Null(lines[0].Order);
     }
 
     // ---- folders ------------------------------------------------------------------------------

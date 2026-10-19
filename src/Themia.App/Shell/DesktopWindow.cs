@@ -214,10 +214,10 @@ internal sealed partial class DesktopWindow : IWidgetCardHost
     /// scale times the app-wide widget scale times the widget's own. Content only — a widget's cell
     /// stays where it is and the same size.
     /// </summary>
-    private double ContentScale(WidgetInstance widget)
+    private double ContentScale(WidgetInstance widget, double? previewed = null)
     {
         var display = _host.State.MonitorScales.TryGetValue(_monitor.Id, out var own) ? own : 1.0;
-        return WidgetScale.Effective(display, Design.UiScale, widget.Scale);
+        return WidgetScale.Effective(display, Design.UiScale, previewed ?? widget.Scale);
     }
 
     /// <summary>The id of the view this surface is currently showing.</summary>

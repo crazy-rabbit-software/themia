@@ -1,7 +1,5 @@
 {
   "menu.rename": "Umbenennen…",
-  "menu.moveUp": "Nach oben",
-  "menu.moveDown": "Nach unten",
   "menu.add": "Hinzufügen…",
   "menu.showAll": "Alle anzeigen ({count})",
   "menu.numberRange": "Gib eine Zahl von {min} bis {max} ein"

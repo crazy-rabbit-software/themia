@@ -32,7 +32,7 @@ Tests: `Tests/` (run by `tests/Themia.Modules.Tests`).
 - **[S-1502]** Its options are all on the properties menu ([S-3719], user request 2026-10-19); it
   has no settings page. Appearance ([S-3723]), then **Quotes**, the editable list ([S-3729]) in the
   rotation's order: each quote by its text, a submenu of Rename… (its text; never empty), Author…
-  (empty takes it off; the author at the end of its line), Move up, Move down and Remove; while there
+  (empty takes it off; the author at the end of its line) and Remove, the lines dragged to reorder ([S-3732]); while there
   are none the sentence that the widget will say so; Add… asks for a new quote's text (256 at most).
   Then **Show author** (a switch); under a divider, only with two quotes or more to turn between
   (one, or none, shows the same whatever they say: [S-6070]), **Shuffle** (a switch), **Reshuffle**

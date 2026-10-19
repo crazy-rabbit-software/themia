@@ -256,13 +256,15 @@ line in `ConfigPages.AppPages`; a widget has no settings page ([S-6536]).
 - **Item menus** through `ItemMenu`; icons through `Glyphs`; lists keep `RowFocus`/`ScrollFade`.
 - **Item selection** (files, shortcuts: anything selected like desktop icons) through the SDK's one rule set
   `ItemSelection` (+ `SelectionBand`) and one look `SelectionChrome` ([S-6620]..[S-6629]); never a selection of its own.
-- **The properties menu** ([S-3716]..[S-3730]): the selection's panel in edit mode is drawn as a
-  Windows 11 context menu (Cut, Copy … Delete on top, lines with submenus that stay open on a pick,
-  the tick/dot/chevron at the line's end). Every option a widget has lives there; there is no widget
-  settings page ([S-6536]): its module's `MenuLines(WidgetMenuLines, config)` adds `Lines` (first
-  level) and `StyleLines` (under Style, what `config.Offers` says the look draws) as
-  `ItemMenuEntry`s (`Toggle`, `Choice`, `Number`, `Colour`, `Fill`, `Submenu`, `Search`, `Command`,
-  `Ask`, `Confirm`, `Note`, `List`, `PickFolder`), calls `PlaceCard()` where the card's Appearance
+- **The properties menu** ([S-3716]..[S-3735]): the selection's panel in edit mode is drawn as a
+  Windows 11 context menu (Cut, Copy … Delete on top, then Header, lines with submenus that stay open
+  on a pick, the tick/dot/chevron at the line's end; one 300-DIP width for every level; submenus
+  placed clear of the widgets and the levels above by `SubmenuPlacement`). Every option a widget has
+  lives there; there is no widget settings page ([S-6536]): its module's `MenuLines(WidgetMenuLines,
+  config)` adds `Lines` (first level) and `StyleLines` (right under the Style line, what
+  `config.Offers` says the look draws) as `ItemMenuEntry`s (`Toggle`, `Choice`, `Number`, `Slider`,
+  `Colour`, `Fill`, `Submenu`, `Search`, `Command`, `Ask`, `Confirm`, `Note`, `List` (its items
+  dragged to reorder), `PickFolder`), separators between its groups, calls `PlaceCard()` where the card's Appearance
   submenu goes (it is first otherwise) and marks the line the Set up button opens with
   `WidgetMenuLines.SetsUp` ([S-1862]). Shortcuts and Clock are the references; docs/WIDGET-KIT.md 15
   is the guide.

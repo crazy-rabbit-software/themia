@@ -1361,9 +1361,10 @@ the selection. After Karpo's properties panel (`karpo-app`, `docs/widgets.md` §
 only selects and a small panel of the selection's own properties stands by it) and its selected
 widget's flyout (§65: closed while the selection is carried, opened again where it lands). Owning
 files: `Shell/PropertiesStrip.cs`, `Shell/DesktopWindow.Properties.cs`, `Services/AppHost.QuickSet.cs`;
-rules in Core `Model/QuickSet.cs` and `Geometry/StripPlacement.cs` (tests `QuickSetTests`,
-`StripPlacementTests`); a widget's own lines in the SDK's `Modules/WidgetMenuLines.cs` (tests
-`WidgetMenuLinesTests` in the module host).
+rules in Core `Model/QuickSet.cs`, `Geometry/StripPlacement.cs` and `Geometry/SubmenuPlacement.cs`
+and the SDK's `Settings/ListDrop.cs` (tests `QuickSetTests`, `StripPlacementTests`,
+`SubmenuPlacementTests`, `ListDropTests`); a widget's own lines in the SDK's
+`Modules/WidgetMenuLines.cs` and `Modules/MenuSlider.cs` (tests `WidgetMenuLinesTests` in the module host).
 
 - **[S-3700]** *(Retired by [S-3707]: the controls are no longer a group on the edit bar. A user
   looked for them at the widget, and the bar's group re-centred the bar every time the selection
@@ -1371,16 +1372,19 @@ rules in Core `Model/QuickSet.cs` and `Geometry/StripPlacement.cs` (tests `Quick
 - **[S-3701]** The strip shows on a display only while the selection ([S-1580]) has widgets in the
   view that display shows (`QuickSet.For`); ids no longer in it are not counted. It follows every
   selection change and every state change (an undo, a change from another display).
-- **[S-3702]** One widget: the icon row ([S-3717]), the title box (32 tall, the kind's name as its
-  placeholder), then Style ([S-6007]) and the widget's own lines ([S-3719]) with the card's among
-  them as one Appearance submenu ([S-3723]): where the widget places it, else right after Style.
-  Several: the icon row, the words "N selected", then Style (one kind only) and Appearance, and **no
+- **[S-3702]** One widget: the icon row ([S-3717]), the Header line ([S-3735]), then Style ([S-6007])
+  with the options only that look draws right under it, and the widget's own lines ([S-3719]) with
+  the card's among them as one Appearance submenu ([S-3723]): where the widget places it, else right
+  after Style; each a section behind a divider ([S-3735]). Several: the icon row, the words "N
+  selected", then Header (its positions only), Style (one kind only) and Appearance, and **no
   title** and no widget lines: a title names one widget, so one typed for many would make them
   indistinguishable.
 - **[S-3703]** With several, a value the widgets share is ticked and a mixed one ticks nothing
   (`QuickSet.Common`); a pick sets it on every selected widget of the view (`SetHeader`,
   `SetBackground`) in one `Mutate`, so one undo step ([S-884]) however many it reached.
-- **[S-3704]** The title commits on Enter or when the box loses the focus, and Escape puts back what
+- **[S-3704]** The title is typed in a box at the top of the Header submenu ([S-3735]), one line of
+  the menu (32 DIPs, as every line), the kind's name as its placeholder. It commits on Enter or when
+  the box loses the focus or its submenu closes, and Escape puts back what
   it held; Enter and Escape hand the keyboard back to the surface. While the box has the focus the
   edit keys do not fire ([S-804]): Delete, arrows and Ctrl+Z are the box's. What is stored
   (`QuickSet.Title`): trimmed, and nothing (the kind's name, in the current language) for a blank
@@ -1416,8 +1420,9 @@ rules in Core `Model/QuickSet.cs` and `Geometry/StripPlacement.cs` (tests `Quick
   flip sides on every move. It comes back on the drop, placed against where the widgets landed. It
   is away too outside edit mode, while placing ([S-421]) and with nothing selected on the display.
 - **[S-3711]** Some kinds can never have a header (`WidgetInstance.CanHaveHeader`): the thirteen
-  quick-setting toggles ([S-3901]) and all six audio visualizer designs ([S-3200], [S-3212]). For a selection holding one, the strip has no Header choice and
-  shows only what every selected widget can take (Background, and the title for one); `SetHeader`
+  quick-setting toggles ([S-3901]) and all six audio visualizer designs ([S-3200], [S-3212]). For a selection holding one, the strip has no Header line at all
+  (no positions, and such a widget's title is shown nowhere, so it has no title box either) and
+  shows only what every selected widget can take; `SetHeader`
   never reaches one; it is created headerless; load validation takes a header off it and says so;
   and the card draws it headerless whatever the file holds (`WidgetInstance.ShownHeader`).
 - **[S-3716]** The panel looks like **Windows 11's context menu** (user request 2026-10-19): the
@@ -1429,7 +1434,7 @@ rules in Core `Model/QuickSet.cs` and `Geometry/StripPlacement.cs` (tests `Quick
   never has a chevron, and every line of a list keeps the end column when any has one, so the values
   stand in one column and never meet a mark. Dividers between groups (none leading, trailing or
   doubled). It is not a light-dismiss menu: it stays standing beside the selection while it is used,
-  and so do its submenus. It is never narrower than 256 DIPs. The menu is built again from the offer
+  and so do its submenus. It is one width with all its submenus ([S-3734]). The menu is built again from the offer
   and the widget's lines on every change; lines are drawn again only when a list's shape (which lines
   there are) changed, and a change of value (a tick, a dot, the words at the end, an icon) is written
   into the lines in place, so an open submenu, a search's box and the focus stay where they are.
@@ -1442,23 +1447,25 @@ rules in Core `Model/QuickSet.cs` and `Geometry/StripPlacement.cs` (tests `Quick
   panel it could only ever stand greyed; Ctrl+V and the desktop's menu paste. A cut shows at once: in
   edit mode the widgets cut and not yet pasted are faded (0.35, as a move's originals while it is
   aimed, [S-78]), as Explorer dims a cut file, until the paste lands or another cut or copy replaces it.
-- **[S-3718]** A **submenu** opens beside its line (the end side, the start side where the window
-  has no room, slid up to fit, scrolled when taller than the window) on a click, Enter or the arrow
+- **[S-3718]** A **submenu** opens beside its line (where [S-3733] says: clear of the widgets and
+  the levels above it, scrolled when taller than the work area) on a click, Enter or the arrow
   towards it, and the line stays lit while it is open; a click on the line again, Escape or the
   arrow away closes it, and opening another line's closes it. It is drawn by the panel itself, in
   the same window (never a light-dismiss popup), so **a click in it does what it does and leaves it
   open** (user request 2026-10-19): a pick moves the dot there, a switch ticks, a command runs.
   Choices of one are Windows' dots (`ItemMenuEntry.Group`), switches its ticks; the line of a choice
-  shows the option that holds. Header, Alignment, Style and Scale are submenus of their options. A
+  shows the option that holds. Header, Alignment and Style are submenus of their options; Scale and
+  a fill's Opacity are inline sliders ([S-3731]). A
   card line that cannot apply is **not there** (user request 2026-10-19), never greyed: Header for a
   kind that never has one ([S-3711]), Alignment where nothing selected aligns ([S-6584]), Item
   background and Item text where nothing selected has items ([S-6571]).
 - **[S-3719]** A widget's **own lines** come from its module (`IWidgetModule.MenuLines`, over a
-  `WidgetMenuLines`): `Lines` stand after Style on the first level, `StyleLines` under Style after the
-  styles and a divider (what only the current look draws with, [S-6070]), and `PlaceCard` puts the
+  `WidgetMenuLines`): `StyleLines` on the first level right under the Style line, in its section
+  (what only the current look draws with, [S-6070]; user request 2026-10-19: not inside the Style
+  submenu, which holds the styles only), `Lines` after that section, and `PlaceCard` puts the
   card's Appearance among them ([S-3723]). They are the one menu vocabulary, `ItemMenuEntry`:
   `Toggle`, `Choice` (a submenu of dots, any value type), `Submenu`, `Search` ([S-3722]), `Command`
-  (a change and its save), `Ask` ([S-3721]), `Colour` and `Fill` ([S-3724]), `Number` ([S-3726]),
+  (a change and its save), `Ask` ([S-3721]), `Colour` and `Fill` ([S-3724]), `Number` ([S-3726]), `Slider` ([S-3731]),
   `Confirm` ([S-3727]), `Note` ([S-3728]), `List` ([S-3729]), `PickFolder` ([S-3730]) or a plain
   command. The lines are built again on every selection and state change over the live config (a
   change edits it in place and saves), so they always say what the widget holds. They are **every**
@@ -1487,8 +1494,10 @@ rules in Core `Model/QuickSet.cs` and `Geometry/StripPlacement.cs` (tests `Quick
   stays empty, so the fixed lines under it do not jump while it is typed into.
 - **[S-3723]** The card's own lines are one **Appearance** submenu (user request 2026-10-19: not a
   group of their own), for every widget and for several selected: where the widget places it
-  (`PlaceCard`), else first, right after Style. Submenus throughout: Header, Alignment, Background,
-  Item background, Item text and Scale, each where it applies ([S-3718]). Its colours are the menu's
+  (`PlaceCard`), else first, right after Style; a section of its own ([S-3735]). In it: Alignment;
+  then, behind a divider, the colours (Background, Item background, Item text, submenus); then,
+  behind another, Scale, a slider ([S-3731], [S-6531]); each where it applies ([S-3718]). Header is
+  not in it (user request 2026-10-19): it is the first line of the menu ([S-3735]). Its colours are the menu's
   one colour vocabulary ([S-3724]): Background and Item background fills, Item text a colour, built
   by the host as `ItemMenuEntry` colour lines and drawn by the same path as a widget's own; a mixed
   selection reads as a dash and holds no dot.
@@ -1498,7 +1507,9 @@ rules in Core `Model/QuickSet.cs` and `Geometry/StripPlacement.cs` (tests `Quick
   label; none when a colour is required, which then shows its first swatch) and a fill's Transparent
   with the dot; the swatches (the options' presets, `ColorPresets.Surfaces` unless given, eight to a
   row, 24 DIPs, the chosen one ticked and ringed in the accent, each one's name as its tooltip); a
-  fill's Opacity (100 % to 10 % in tens, a colour only); Custom colour (the picker's dialog) and Pick
+  fill's Opacity, an inline slider from 10 % to 100 % in fives (`MenuColour.OpacitySlider`, [S-3731];
+  greyed at 100 % while the fill holds no colour; a drag of the card's own shows on the widgets as it
+  goes); Custom colour (the picker's dialog) and Pick
   a colour from the screen (the eyedropper, [S-1556]), both only where custom colours are allowed. A
   swatch keeps a fill's opacity. The line shows the colour's swatch in its icon column and its words
   at the end. A pick sets and saves; the value that holds changes nothing.
@@ -1519,14 +1530,59 @@ rules in Core `Model/QuickSet.cs` and `Geometry/StripPlacement.cs` (tests `Quick
   them, the whole as its tooltip.
 - **[S-3729]** An **editable list** (`WidgetMenuLines.List` over a `MenuList<T>`: feeds, symbols,
   hosts, shortcuts) is a submenu of its items, each a submenu of its own: Rename… (asked for, starting
-  from the name; saved only when it changed), the list's own lines for it, Move up and Move down (the
-  ends greyed; left out for a list whose order means nothing) and Remove; while there are none, its
+  from the name; saved only when it changed), the list's own lines for it and Remove; the items' lines
+  are dragged up and down to reorder ([S-3732]; not for a list whose order means nothing), so there
+  is no Move up or Move down (user request 2026-10-19); while there are none, its
   empty sentence as a note; then Add… (asked for and checked as it is typed) or the caller's add
   lines, greyed at the list's limit; Remove is greyed at its fewest (`Min`: a table's last column).
   Every change is made in the list and saved.
 - **[S-3730]** A **folder** (`WidgetMenuLines.PickFolder`) is a line with the folder's name at its
   end (a drive as itself) whose click opens Windows' folder picker (`FolderBrowse.PickAsync`, the one
   picker the settings' path boxes use too); a folder picked sets and saves, a cancel changes nothing.
+- **[S-3731]** A **slider** (`WidgetMenuLines.Slider`, `MenuSlider`; user request 2026-10-19: the
+  card's Scale and a fill's Opacity, and a widget's own number set by feel) is one 32-DIP line: the
+  icon column, its words, the slider and its value as the line writes it, its end column kept so the
+  value stands in the values' column. A drag shows the value at the line's end as it goes (and, for
+  the card's Scale and fills, on the selected widgets: `CardPreview`, painted only) and **stores once
+  on the release**, one change and one undo step; a key (Left, Right, Home, End, Page Up/Down) steps
+  it and stores the step; Up and Down move between the lines as on any line. A value is kept inside
+  the range on the step's grain (`MenuSlider.Snap`); the value that holds stores nothing. A mixed
+  selection's slider reads as a dash. Closing its submenu mid-drag stores nothing.
+- **[S-3732]** An **ordered list**'s item lines ([S-3729], `ItemMenuEntry.Order`, `MenuOrder`) are
+  **dragged up and down** inside their submenu (user request 2026-10-19): a mouse press that travels 4
+  DIPs ([S-913]) starts it (the line fades, the open item submenu closes), an accent drop line shows
+  the gap it lands in (`ListDrop.Gap`: before the first line whose middle is below the pointer), and
+  the release moves the item there (`ListDrop.Target`; the gaps either side of it leave it where it
+  is) and saves once. It is drawn in the panel's own window with the pointer captured, never an OLE
+  drag. Alt+Shift+Up / Down on a focused item line moves it a place ([S-3802]), the focus staying
+  on it. Each item line carries a grip before its chevron and says both ways in its tooltip and its
+  automation help ("Drag to reorder, or press Alt+Shift+Up or Alt+Shift+Down"). A release on the
+  line it started on is not a click.
+- **[S-3733]** Where a **submenu** stands (`SubmenuPlacement.Place`; user request 2026-10-19):
+  beside its parent level, its first line level with the line that opened it, inside the work area,
+  covering neither the selected widgets' box ([S-3709]), the edit bar and the view bar, nor its
+  parent and the levels above it (a submenu laps 4 DIPs over its parent's padding, never over a line,
+  and that is not counted). In order: the parent's end side at the line, its start side, then both
+  slid up or down to just clear of each thing in the way (the nearest first, the end side first on a
+  tie), then the same beside the levels further up (beyond the panel, where the parent is hemmed in
+  between the panel and the screen's edge); the first that covers nothing stands, and only when
+  every place covers something the one covering least. Right to left the sides mirror. The surface
+  gives the panel the work area, the selection's box and the bars each time it places it
+  (`PropertiesRoom`), and the open submenus are placed again then. A submenu is never taller than
+  the work area: its lines scroll.
+- **[S-3734]** The panel and **every submenu are one width**, 300 DIPs (user request 2026-10-19),
+  searches included: room for a city and its country and for "Item background" with its colour's
+  name, so the levels line up and the panel never changes size as it is used (and the panel's
+  placement, [S-3708], measures that width). Words or a value longer than their room are trimmed
+  with an ellipsis and shown whole as their tooltip; the words keep the room before a long value.
+- **[S-3735]** The menu's **sections** (user request 2026-10-19), a divider between each: the icon
+  row; the **Header** line; Style and the options only that look draws; the widget's own lines in the
+  sections it marks with separators; Appearance (where the widget places it, a section of its own).
+  The Header line's value is the title as it reads (the kind's name for none) for one widget, where
+  the header stands for several (a dash when they differ); its submenu holds, for one widget, the
+  title box ([S-3704]) and a divider, then the header's positions (Top, Bottom, Left, Right, Hidden,
+  each with its icon, the dot on the one that holds). Several get the positions only. A selection
+  holding a kind that never has a header has no Header line ([S-3711]).
 - **[S-3745]** An account widget's lines open **Settings › Accounts** (`WidgetMenuLines.AccountsLine`:
   Manage accounts, Add an account) through the host's `ShowAccounts`; the line changes and saves
   nothing, and is greyed where the host has no settings window (a render). No account is ever signed
@@ -1582,11 +1638,12 @@ rules in Core `Model/QuickSet.cs` and `Geometry/StripPlacement.cs` (tests `Quick
   A new widget is at 100 %; a copy keeps its scale. It magnifies the whole card's content —
   header, text, icons, padding, the [S-850] way — never the card's cell, which stays where it is
   and the same size.
-- **[S-6531]** The properties panel's **Scale** row, after Item background and Item text: a drop-down showing the scale's icon and percentage (a dash when the selected
-  widgets differ, `QuickSet.Common` over the stored values) whose menu offers 75, 90, 100, 110,
-  125 and 150 % (`WidgetScale.Steps`) and ticks the current one; a scale between them (an imported or hand-edited one)
-  between them is listed in its place (`WidgetScale.Offered`), so the menu always shows what the
-  widget has. A pick sets every selected widget (`QuickSet.SetScale`) in one `Mutate`, one undo step.
+- **[S-6531]** The properties menu's **Scale** line, last in Appearance after the colours: an inline
+  slider ([S-3731], user request 2026-10-19) from 50 to 200 % on the stored 5 % grain
+  (`WidgetScale.Min`, `Max`, `Step`), its percentage at the end (a dash when the selected widgets
+  differ, `QuickSet.Common` over the stored values). A drag shows the scale on the selected cards as
+  it goes and the release sets every selected widget (`QuickSet.SetScale`) in one `Mutate`, one
+  undo step; a key steps it by 5 %.
 - **[S-6532]** The scale a card's content is drawn at (`WidgetScale.Effective`) is the display's
   scale ([S-850]) × the app-wide widget scale (`Design.UiScale`) × the widget's own, each factor
   that is not a positive number read as 1. It is the one input to the card's content transform:
@@ -1653,8 +1710,13 @@ rules in Core `Model/QuickSet.cs` and `Geometry/StripPlacement.cs` (tests `Quick
   (a countdown's Appearance), `-many-appearance.png` (two selected, Appearance › Item text), the
   Shortcuts, Clock and weather submenus, `-clock-zone*.png` (a search with a few answers, many with
   Show all, and none), [S-1862] `-setup-*.png` (the menu as the Set up button opens it: the weather's
-  location search, the feeds, the stock's symbol search, the pictures' folder), and [S-3724]..[S-3730] `-vocabulary*.png` (a stand-in widget with one line of
-  each kind, its list and its colour open), all over a busy stand-in wallpaper so the panel's surface
+  location search, the feeds, the stock's symbol search, the pictures' folder), [S-3724]..[S-3731] `-vocabulary*.png` (a stand-in widget with one line of
+  each kind, a slider among them, its list and its colour open), [S-3735] `-header.png` and
+  `-many-header.png` (the Header submenu for one and for several), [S-3733] `-flip-right.png` (a
+  widget at the right edge: the panel on its left and Appearance › Background further left),
+  `-flip-bottom.png` (one at the bottom: the submenus slid up), `-flip-wide.png` (a wide widget), and
+  [S-3732] `-shortcuts-drag.png` (the shortcuts' list with a line held mid-drag over its drop line),
+  all over a busy stand-in wallpaper so the panel's surface
   is judged against one ([S-3715]). The render cannot show the drop shadow (a composition visual is
   not in a `RenderTargetBitmap`).
 ## Widget styles (STYLES)
@@ -6108,7 +6170,7 @@ Owning files: `Shell/Config/ConfigPages.Displays.cs`, `ConfigPages.Views.cs`,
   editors (quotes, feeds, shortcuts, screen-time limits) and the mail row view's
   columns (the ones switched on). A row is dragged onto another (it takes that one's place,
   `DeskListOrder.MoveTo`); a press in one of its controls never starts a drag. A hint under a list of
-  two or more says so. No list, settings page or widget menu has arrow buttons or Move up / Move
+  two or more says so; the properties menu's lists are dragged in place ([S-3732]). No list, settings page or widget menu has arrow buttons or Move up / Move
   down / Move to start: in the Tasks, Habits and Shortcuts widgets the keyboard lease carries the
   shortcut as `WidgetKey.MoveUp` / `MoveDown` (`WidgetKeys`), moving the focused task, habit or the
   cursor's shortcut.

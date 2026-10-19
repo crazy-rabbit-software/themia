@@ -94,7 +94,7 @@ its rows the kit's `KitList`), `EmailMenu.cs` (its properties-menu lines), `Prev
 - **[S-7512]** Its options are on the properties menu ([S-3719], user request 2026-10-19; the
   settings page is gone). Under Style: Show subject and Show account (List and Compact), Preview
   lines 1 to 5 (List), and for the Table its **Columns**, the menu's list ([S-3729]): the columns
-  that are on in their order, each with Move up, Move down and Remove (greyed on the last: one always
+  that are on in their order, dragged to reorder ([S-3732]), each with Remove (greyed on the last: one always
   stays), the ones that are off to add at the end, and what a narrow table drops first as a note.
   Then Appearance, **Accounts** (the kit's Accounts submenu over the signed-in mail accounts: Every
   mail account, a switch each, the last one greyed, Manage accounts) and **Folder** (Inbox, Sent,

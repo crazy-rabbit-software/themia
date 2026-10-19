@@ -9,18 +9,23 @@ namespace Themia.Sdk.WinUI;
 /// colour (<c>#RRGGBB</c>, or empty for the default) or a fill (<see cref="FillChoice"/>: Default,
 /// Transparent or a colour at an opacity). The host draws every one as the same colour submenu,
 /// the card's own Background, Item background and Item text among them ([S-3723]): Default (and a
-/// fill's Transparent) with the dot, the swatches, a fill's Opacity, Custom colour… and Pick a colour
+/// fill's Transparent) with the dot, the swatches, a fill's Opacity slider ([S-3731]), Custom colour… and Pick a colour
 /// from the screen. The rules are here, so a module's tests can run a pick without a window.
 /// </summary>
 public sealed class MenuColour
 {
-    /// <summary>[S-3723] A fill's opacity steps, 100 % to 10 % in tens.</summary>
-    public static IReadOnlyList<double> OpacitySteps { get; } = [1.0, 0.9, 0.8, 0.7, 0.6, 0.5, 0.4, 0.3, 0.2, 0.1];
+    /// <summary>[S-3731] A fill's Opacity slider: from 10 % (fully clear is Transparent) to 100 %, in steps of 5 %.</summary>
+    public const double OpacityMin = 0.1;
+
+    public const double OpacityMax = 1.0;
+
+    public const double OpacityStep = 0.05;
 
     private readonly Action<string>? _setColour;
     private readonly Action<FillChoice>? _setFill;
+    private readonly Action<FillChoice?>? _previewFill;
 
-    private MenuColour(string? hex, FillChoice? fill, bool isFill, ColorChoiceOptions options, Action<string>? setColour, Action<FillChoice>? setFill)
+    private MenuColour(string? hex, FillChoice? fill, bool isFill, ColorChoiceOptions options, Action<string>? setColour, Action<FillChoice>? setFill, Action<FillChoice?>? previewFill)
     {
         Hex = hex;
         Fill = fill;
@@ -28,6 +33,7 @@ public sealed class MenuColour
         Options = options;
         _setColour = setColour;
         _setFill = setFill;
+        _previewFill = previewFill;
     }
 
     /// <summary>
@@ -47,11 +53,15 @@ public sealed class MenuColour
             hex = HexColor.Normalise(options.Presets[0].Hex);
         }
 
-        return new MenuColour(hex, null, false, options, set, null);
+        return new MenuColour(hex, null, false, options, set, null, null);
     }
 
-    /// <summary>A fill: <paramref name="current"/> as stored, null for a selection whose fills differ.</summary>
-    public static MenuColour OfFill(FillChoice? current, Action<FillChoice> set, FillChoiceOptions options)
+    /// <summary>
+    /// A fill: <paramref name="current"/> as stored, null for a selection whose fills differ.
+    /// <paramref name="preview"/> shows a fill on the widgets without storing it while the Opacity
+    /// slider is dragged ([S-3731]), then null; none for a fill that shows its value only on the line.
+    /// </summary>
+    public static MenuColour OfFill(FillChoice? current, Action<FillChoice> set, FillChoiceOptions options, Action<FillChoice?>? preview = null)
     {
         ArgumentNullException.ThrowIfNull(set);
         ArgumentNullException.ThrowIfNull(options);
@@ -61,7 +71,7 @@ public sealed class MenuColour
         // ignore: what Repair reports was logged when the state loaded; here it only keeps the line total.
         _ = fill?.Repair("menu fill");
         var colour = new ColorChoiceOptions { DefaultLabel = options.DefaultLabel, DefaultColor = options.DefaultColor, Presets = options.Presets };
-        return new MenuColour(null, fill, true, colour, null, set);
+        return new MenuColour(null, fill, true, colour, null, set, preview);
     }
 
     /// <summary>A fill (Default, Transparent, Opacity), not a plain colour.</summary>
@@ -132,13 +142,38 @@ public sealed class MenuColour
         }
     }
 
-    /// <summary>A fill's opacity step, on the colour that holds; nothing while no colour holds.</summary>
+    /// <summary>A fill's opacity, on the colour that holds; nothing while no colour holds.</summary>
     public void ChooseOpacity(double opacity)
     {
         if (Fill is { Kind: FillKind.Colour } colour)
         {
             Store(FillChoice.Of(colour.Colour, opacity));
         }
+    }
+
+    /// <summary>
+    /// [S-3731] A fill's Opacity as the colour submenu's inline slider (10 % to 100 % in fives,
+    /// written as <paramref name="format"/> writes a fraction): a drag previews the colour at that
+    /// opacity, the release stores it once. Null for a colour, which has no opacity; at a fixed 100 %
+    /// while the fill holds no colour (the host greys it).
+    /// </summary>
+    public MenuSlider? OpacitySlider(Func<double, string> format)
+    {
+        ArgumentNullException.ThrowIfNull(format);
+        if (!IsFill)
+        {
+            return null;
+        }
+
+        var colour = Fill is { Kind: FillKind.Colour } held ? held.Colour : null;
+        return new MenuSlider(
+            HasOpacity ? Opacity : (Mixed ? null : OpacityMax),
+            OpacityMin,
+            OpacityMax,
+            OpacityStep,
+            format,
+            ChooseOpacity,
+            _previewFill is { } preview && colour is not null ? v => preview(v is { } o ? FillChoice.Of(colour, o) : null) : null);
     }
 
     /// <summary>What the custom colour dialog gave: the colour, and for a fill its alpha as the opacity.</summary>

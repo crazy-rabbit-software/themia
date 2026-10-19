@@ -13,11 +13,8 @@ public static class WidgetScale
     /// <summary>[S-6530] The largest widget scale, as a factor: double size, like the display scale.</summary>
     public const double Max = 2.0;
 
-    /// <summary>[S-6530] The grain of a stored scale: 5 %, the settings page's slider step.</summary>
+    /// <summary>[S-6530] The grain of a stored scale: 5 %, the properties menu's Scale slider's step ([S-6531]).</summary>
     public const double Step = 0.05;
-
-    /// <summary>[S-6531] The scales the properties panel's menu offers, smallest first.</summary>
-    public static IReadOnlyList<double> Steps { get; } = [0.75, 0.9, 1.0, 1.1, 1.25, 1.5];
 
     /// <summary>
     /// [S-6530] What a scale is stored as: inside <see cref="Min"/>..<see cref="Max"/>, on the 5 %
@@ -55,27 +52,6 @@ public static class WidgetScale
             : "not a number";
         widget.Scale = normal;
         return $"scale {was} was outside {Min:0.#}–{Max:0.#} or off the 5 % grain";
-    }
-
-    /// <summary>
-    /// [S-6531] The panel menu's entries for a widget at <paramref name="current"/>: the
-    /// <see cref="Steps"/>, plus the current scale in its place when the settings page set one
-    /// between them, so the menu always ticks what the widget has. Null (a mixed selection) adds nothing.
-    /// </summary>
-    public static IReadOnlyList<double> Offered(double? current)
-    {
-        if (current is not { } value)
-        {
-            return Steps;
-        }
-
-        var normal = Normalise(value);
-        if (Steps.Contains(normal))
-        {
-            return Steps;
-        }
-
-        return [.. Steps.Append(normal).Order()];
     }
 
     /// <summary>

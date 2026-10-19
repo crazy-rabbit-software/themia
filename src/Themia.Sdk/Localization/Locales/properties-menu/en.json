@@ -1,14 +1,14 @@
 {
-  "$comment": "[S-3724]..[S-3731] The properties menu's own vocabulary: a list's lines, a search's Show all, a number asked for.",
+  "$comment": "[S-3724]..[S-3732] The properties menu's own vocabulary: a list's lines and how they are reordered, a search's Show all, a number asked for.",
   "$englishOnly": [
     "menu.add",
     "menu.numberRange",
+    "menu.reorderHint",
     "menu.showAll"
   ],
   "menu.rename": "Rename…",
-  "menu.moveUp": "Move up",
-  "menu.moveDown": "Move down",
   "menu.add": "Add…",
+  "menu.reorderHint": "Drag to reorder, or press Alt+Shift+Up or Alt+Shift+Down",
   "menu.showAll": "Show all ({count})",
   "menu.numberRange": "Enter a number from {min} to {max}"
 }

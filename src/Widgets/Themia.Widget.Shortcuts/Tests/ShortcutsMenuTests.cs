@@ -119,17 +119,12 @@ public sealed class ShortcutsMenuTests
     }
 
     [Fact]
-    public void S1388_an_item_moves_up_and_down_and_the_ends_are_greyed()
+    public void S1388_an_item_is_dragged_to_another_place_and_saves_once()
     {
         var config = Three();
         var built = Build(config);
-        var first = ItemLines(built)[0].Children!;
-        var last = ItemLines(built)[2].Children!;
 
-        Assert.True(Line(first, Str.Menu_MoveUp.Text()).Disabled);
-        Assert.True(Line(last, Str.Menu_MoveDown.Text()).Disabled);
-
-        Line(first, Str.Menu_MoveDown.Text()).Action!();
+        ItemLines(built)[0].Order!.Move(0, 1);
         Assert.Equal(["b", "a", "c"], config.Items.Select(i => i.Id));
         Assert.Equal(1, built.Saves);
     }

@@ -54,6 +54,8 @@ namespace Themia.App.Widgets;
 /// [S-1862] The properties menu's line where what the widget waits for is set: the card's Set up
 /// button opens the menu at it (<see cref="Themia.Sdk.WinUI.WidgetMenuLines.SetsUp"/>); item menus have none.
 /// </param>
+/// <param name="Slider">[S-3731] The properties menu's inline slider (words, slider, value in one line); item menus have none.</param>
+/// <param name="Order">[S-3732] The properties menu's ordered list item: its line is dragged up and down among the list's; item menus have none.</param>
 public readonly record struct ItemMenuEntry(
     string? Glyph,
     string Text,
@@ -70,12 +72,14 @@ public readonly record struct ItemMenuEntry(
     string? Value = null,
     Themia.Sdk.WinUI.MenuColour? Colour = null,
     bool Note = false,
-    bool SetsUp = false)
+    bool SetsUp = false,
+    Themia.Sdk.WinUI.MenuSlider? Slider = null,
+    Themia.Sdk.WinUI.MenuOrder? Order = null)
 {
     /// <summary>A divider between groups. Leading, trailing and doubled separators are dropped.</summary>
     public static ItemMenuEntry Separator => new(null, string.Empty, null);
 
-    public bool IsSeparator => Action is null && Children is null && Search is null && Colour is null && !Note;
+    public bool IsSeparator => Action is null && Children is null && Search is null && Colour is null && Slider is null && !Note;
 
     /// <summary>[S-1740] Toggles and submenus never go to the icon row: an icon cannot show a check or an arrow.</summary>
     internal MenuLine Line => IsSeparator ? MenuLine.Separator : MenuLine.Entry(Checked is null && Children is null ? Quick : null);

@@ -450,7 +450,8 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface, IItemPaletteOwn
         var radius = new CornerRadius(radiusPx);
 
         // [S-6510] The second layer: the view's items, on their own colour whatever the card's fill.
-        _items.Apply(ItemLook.Effective(design, Model), ItemLook.TextColour(design, Model), DesignApplier.IsDark);
+        var items = _preview?.Items is { } previewed ? FillChoice.Effective(design.ItemBackground ?? new FillChoice(), previewed) : ItemLook.Effective(design, Model);
+        _items.Apply(items, ItemLook.TextColour(design, Model), DesignApplier.IsDark);
 
         ApplyBodyFill();
 
@@ -573,8 +574,22 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface, IItemPaletteOwn
         return DesignLook.TintInset(DesignLook.Border(CardFillNow(), design.BorderStyle, design.BorderWidthPx, design.BorderOpacity));
     }
 
-    /// <summary>[S-6563] What this card's background paints: its own choice, or the app-wide one for Default.</summary>
-    private CardFill CardFillNow() => DesignLook.Card(FillChoice.Effective(_host.Design.Background, Model.Background));
+    /// <summary>[S-6563] What this card's background paints: its own choice (or one previewed, [S-3731]), or the app-wide one for Default.</summary>
+    private CardFill CardFillNow() => DesignLook.Card(FillChoice.Effective(_host.Design.Background, _preview?.Background ?? Model.Background));
+
+    /// <summary>[S-3731] A fill the properties menu's slider shows while it is dragged; null: the card's own.</summary>
+    private CardPreview? _preview;
+
+    /// <summary>
+    /// [S-3731] Show a background or item fill not yet stored while a slider of the properties menu
+    /// is dragged, or the card's own again (null). Paints only: nothing is stored or rebuilt. The
+    /// content scale is the surface's (<see cref="ApplyContentScale"/>).
+    /// </summary>
+    public void Preview(CardPreview? preview)
+    {
+        _preview = preview;
+        ApplyDesign();
+    }
 
     /// <summary>[S-823] The user's colour of a colour fill, opaque (the fill's opacity is the element's), else null for the Fluent base.</summary>
     private static SolidColorBrush? ColourBrush(CardFill fill)

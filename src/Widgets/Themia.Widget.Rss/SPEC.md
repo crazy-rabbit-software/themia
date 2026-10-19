@@ -51,7 +51,7 @@ sample|single|stale|failed|empty|loading`, sample feeds on the reserved `.exampl
 
 - **[S-7510]** Its options are on the properties menu ([S-3719], user request 2026-10-19; the
   settings page is gone): Appearance first, then **Feeds**, the menu's editable list ([S-3729]): a
-  feed's line is its address without the scheme, its submenu Change address…, Move up, Move down and
+  feed's line is its address without the scheme, dragged to reorder ([S-3732]), its submenu Change address… and
   Remove; Add… asks for an address; both are checked by `WebInput` as they are typed (the trust
   boundary: refused with the reason, never repaired, trimmed when given), and Add… is greyed at 12.
   Then the kit's switches (`KitMenuLines.Shows`): Show source, Show preview, Show date; and

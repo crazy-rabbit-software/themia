@@ -66,14 +66,13 @@ public sealed class WidgetScaleTests
         => Assert.Equal(stored, WidgetScale.Normalise(scale));
 
     [Fact]
-    public void S6530_every_step_is_already_stored_as_itself()
+    public void S6531_every_step_of_the_slider_is_already_stored_as_itself()
     {
-        foreach (var step in WidgetScale.Steps)
+        for (var scale = WidgetScale.Min; scale <= WidgetScale.Max + 1e-9; scale += WidgetScale.Step)
         {
+            var step = Math.Round(scale, 2);
             Assert.Equal(step, WidgetScale.Normalise(step));
         }
-
-        Assert.Equal([0.75, 0.9, 1.0, 1.1, 1.25, 1.5], WidgetScale.Steps);
     }
 
     [Fact]
@@ -121,16 +120,6 @@ public sealed class WidgetScaleTests
 
         Assert.Null(WidgetScale.Repair(widget));
         Assert.Equal(0.75, widget.Scale);
-    }
-
-    [Fact]
-    public void S6531_the_menu_offers_the_steps_and_a_scale_between_them_in_its_place()
-    {
-        Assert.Equal(WidgetScale.Steps, WidgetScale.Offered(1.0));
-        Assert.Equal(WidgetScale.Steps, WidgetScale.Offered(null));
-        Assert.Equal([0.75, 0.9, 1.0, 1.1, 1.25, 1.35, 1.5], WidgetScale.Offered(1.35));
-        Assert.Equal([0.5, 0.75, 0.9, 1.0, 1.1, 1.25, 1.5], WidgetScale.Offered(0.5));
-        Assert.Equal([0.75, 0.9, 1.0, 1.1, 1.25, 1.5, 2.0], WidgetScale.Offered(2.0));
     }
 
     [Fact]

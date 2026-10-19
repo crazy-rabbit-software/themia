@@ -1,4 +1,5 @@
 using Microsoft.UI;
+using Microsoft.UI.Input;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Automation;
 using Microsoft.UI.Xaml.Controls;
@@ -8,6 +9,7 @@ using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Shapes;
 using Themia.App.Widgets;
 using Themia.Core.Diagnostics;
+using Themia.Core.Geometry;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Settings;
@@ -33,6 +35,7 @@ namespace Themia.App.Shell;
 /// <param name="Copy">[S-3717] Copy the selection, as Ctrl+C does.</param>
 /// <param name="Delete">[S-3717] Delete the selection, as the Delete key does.</param>
 /// <param name="WidgetLines">[S-3719] One widget's own lines, by id, built over its live config (asking for text and confirmations beside the menu); null for none.</param>
+/// <param name="Preview">[S-3731] Shows the selected widgets at a slider's value while it is dragged (a scale, a fill's opacity), without storing it; null ends it. A render's stand-in may leave it out.</param>
 internal sealed record PropertiesCommands(
     Action<HeaderPlacement> SetHeader,
     Action<FillChoice> SetBackground,
@@ -46,7 +49,17 @@ internal sealed record PropertiesCommands(
     Action? Cut = null,
     Action? Copy = null,
     Action? Delete = null,
-    Func<string, Action<WidgetTextAsk>, Action<WidgetConfirm>, WidgetMenuLines?>? WidgetLines = null);
+    Func<string, Action<WidgetTextAsk>, Action<WidgetConfirm>, WidgetMenuLines?>? WidgetLines = null,
+    Action<CardPreview?>? Preview = null);
+
+/// <summary>[S-3731] What the selected cards show while a slider of the menu is dragged: a scale or a fill not yet stored.</summary>
+internal sealed record CardPreview(double? Scale = null, FillChoice? Background = null, FillChoice? Items = null);
+
+/// <summary>
+/// [S-3733] What the panel's submenus keep clear of, in the coordinates of the layer the panel stands
+/// on: the work area they stay inside, the selected widgets' box, and the bars.
+/// </summary>
+internal sealed record PropertiesRoom(PixelRect Area, PixelRect? Widgets, IReadOnlyList<PixelRect> Bars);
 
 /// <summary>
 /// [S-3716] The selected widgets' properties, as a menu that stands beside the selection: drawn as
@@ -80,16 +93,21 @@ internal sealed partial class PropertiesStrip : Grid
     /// <summary>A column of a line before its words: an icon (16) and its gap (12).</summary>
     private const double LeadColumn = Fluent.IconSize + Fluent.Space3;
 
-    /// <summary>The narrowest the menu is: Explorer's menus are never a sliver.</summary>
-    private const double MinMenuWidth = 256;
+    /// <summary>
+    /// [S-3734] The one width of the menu and of every submenu, searches included: room for the
+    /// longest common lines (a city and its country, "Item background" and its colour's name), so the
+    /// levels line up and the panel does not change size as it is used. Longer words are trimmed,
+    /// the whole as their tooltip.
+    /// </summary>
+    private const double MenuWidth = 300;
 
-    /// <summary>The narrowest a submenu is; a search's is wider, for a city and its country.</summary>
-    private const double MinSubmenuWidth = 200;
+    /// <summary>[S-3731] An inline slider's track, and the column its value stands in at the line's end.</summary>
+    private const double SliderWidth = 100;
 
-    private const double SearchWidth = 300;
+    private const double SliderValueWidth = 40;
 
-    /// <summary>The widest a submenu is: a long line (a zone's cities) is trimmed, not a menu across the screen.</summary>
-    private const double MaxSubmenuWidth = 400;
+    /// <summary>[S-3732] The pointer's travel, in DIPs, that turns a press on a list's line into a drag ([S-913]'s threshold).</summary>
+    private const double DragThreshold = 4;
 
     /// <summary>[S-3723] A swatch of a colour submenu's grid, eight to a row as Windows lays its palette out.</summary>
     private const double SwatchSize = 24;
@@ -103,7 +121,7 @@ internal sealed partial class PropertiesStrip : Grid
     /// <summary>[S-3728] The most lines a note wraps to; the rest is trimmed, the whole in its tooltip.</summary>
     private const int NoteLines = 3;
 
-    private readonly Border _frame = new() { MinWidth = MinMenuWidth };
+    private readonly Border _frame = new() { Width = MenuWidth };
 
     private readonly StackPanel _menu = new();
 
@@ -133,6 +151,18 @@ internal sealed partial class PropertiesStrip : Grid
     private string? _titleId;
 
     private string _titleCommitted = string.Empty;
+
+    /// <summary>[S-3733] What the submenus keep clear of; null until the surface has placed the panel (the window then).</summary>
+    private PropertiesRoom? _room;
+
+    /// <summary>[S-3732] A list's line being dragged (or pressed, before it travels far enough).</summary>
+    private LineDrag? _drag;
+
+    /// <summary>[S-3732] A drag just ended: the click its release raises is not a click on the line.</summary>
+    private bool _swallowClick;
+
+    /// <summary>[S-3732] The line a keyboard move moved: it takes the focus back once its list is drawn again.</summary>
+    private string? _refocus;
 
     public PropertiesStrip(PropertiesCommands commands)
     {
@@ -170,6 +200,23 @@ internal sealed partial class PropertiesStrip : Grid
 
     /// <summary>What the panel offers now; <see cref="QuickSetOffer.Shows"/> false when it has nothing to show.</summary>
     public QuickSetOffer Offer => _offer;
+
+    /// <summary>
+    /// [S-3733] What the submenus keep clear of, given by the surface each time it places the panel
+    /// (in the coordinates of the layer the panel stands on); the open submenus are placed again.
+    /// </summary>
+    public PropertiesRoom? Room
+    {
+        get => _room;
+        set
+        {
+            _room = value;
+            for (var i = 1; i < _levels.Count; i++)
+            {
+                Place(_levels[i], i);
+            }
+        }
+    }
 
     /// <summary>Rebuild the choices in the current language. Called again on a language switch.</summary>
     public void Fill(PropertiesCommands commands)
@@ -315,6 +362,9 @@ internal sealed partial class PropertiesStrip : Grid
 
         /// <summary>[S-3725] Room kept free under a search's answers, <see cref="Node.Height"/> tall.</summary>
         Spacer,
+
+        /// <summary>[S-3731] An inline slider: its words, the slider and its value in one line.</summary>
+        Slider,
     }
 
     /// <summary>
@@ -356,6 +406,12 @@ internal sealed partial class PropertiesStrip : Grid
         /// <summary>[S-1862] Where what the widget waits for is set: <see cref="OpenSetup"/> opens the menu at it.</summary>
         public bool SetsUp { get; init; }
 
+        /// <summary>[S-3731] The slider of a <see cref="NodeKind.Slider"/> line.</summary>
+        public MenuSlider? Slider { get; init; }
+
+        /// <summary>[S-3732] An ordered list's item: its line is dragged up and down among the list's.</summary>
+        public MenuOrder? Order { get; init; }
+
         public static Node Separator(string key) => new(key, NodeKind.Separator);
     }
 
@@ -382,12 +438,53 @@ internal sealed partial class PropertiesStrip : Grid
         public TextBlock Value { get; } = value;
     }
 
+    /// <summary>[S-3731] A drawn slider line: its node now, and the parts a change of value is written into.</summary>
+    private sealed class SliderView(Node node, Slider slider, TextBlock words, TextBlock value)
+    {
+        public Node Node { get; set; } = node;
+
+        public Slider Slider { get; } = slider;
+
+        public TextBlock Words { get; } = words;
+
+        public TextBlock Value { get; } = value;
+
+        /// <summary>The value is being written in from the menu's state: not a move of the user's.</summary>
+        public bool Writing { get; set; }
+
+        /// <summary>A key is stepping it: the step is stored at once.</summary>
+        public bool Keyed { get; set; }
+
+        /// <summary>The pointer moved it: stored on the release, previewed until then.</summary>
+        public bool Pending { get; set; }
+    }
+
+    /// <summary>[S-3732] A press on a list's line, and the drag it became once it travelled far enough.</summary>
+    private sealed class LineDrag(Level level, LineView view, double startY)
+    {
+        public Level Level { get; } = level;
+
+        public LineView View { get; } = view;
+
+        public double StartY { get; } = startY;
+
+        public bool Active { get; set; }
+
+        public int Gap { get; set; } = -1;
+    }
+
     /// <summary>The panel's list or one open submenu: its lines, the surface they are on, and the line that opened it.</summary>
-    private sealed class Level(StackPanel lines, FrameworkElement root)
+    private sealed class Level(StackPanel lines, FrameworkElement root, Canvas overlay)
     {
         public StackPanel Lines { get; } = lines;
 
         public FrameworkElement Root { get; } = root;
+
+        /// <summary>[S-3732] Over the lines: where a dragged line's drop line is drawn.</summary>
+        public Canvas Overlay { get; } = overlay;
+
+        /// <summary>[S-3731] The slider lines, by their place in <see cref="Nodes"/>.</summary>
+        public Dictionary<int, SliderView> Sliders { get; } = [];
 
         public List<LineView?> Views { get; } = [];
 
@@ -420,7 +517,8 @@ internal sealed partial class PropertiesStrip : Grid
     /// <summary>Which lines there are, as one string: values (ticks, words at the end, icons) are not in it.</summary>
     private static string Shape(IReadOnlyList<Node> nodes)
         => string.Join(";", nodes.Select(n => n.Key + "|" + (int)n.Kind + "|" + (n.Disabled ? 'd' : 'e') + "|"
-            + (Opens(n) ? 's' : '-') + "|" + (n.Checked is null ? '-' : 'c') + "|" + (n.Icon is null ? '-' : 'i') + "|" + (n.Danger ? '!' : '-')));
+            + (Opens(n) ? 's' : '-') + "|" + (n.Checked is null ? '-' : 'c') + "|" + (n.Icon is null ? '-' : 'i') + "|" + (n.Danger ? '!' : '-')
+            + "|" + (n.Order is null ? '-' : 'o')));
 
     /// <summary>
     /// The lines of the level a node opens: its submenu, or a search's answers and its fixed lines.
@@ -462,7 +560,12 @@ internal sealed partial class PropertiesStrip : Grid
         return nodes;
     }
 
-    /// <summary>The menu's first level, from the offer, the widget's lines and the commands.</summary>
+    /// <summary>
+    /// [S-3702] [S-3735] The menu's first level, from the offer, the widget's lines and the commands,
+    /// in sections with a divider between them: the Header line; Style and the options only that look
+    /// draws with ([S-3719]); the widget's own lines in the sections it marks, with the card's
+    /// Appearance as a section of its own where the widget places it, else right after Style ([S-3723]).
+    /// </summary>
     private List<Node> Nodes()
     {
         var nodes = new List<Node>();
@@ -473,8 +576,14 @@ internal sealed partial class PropertiesStrip : Grid
 
         var commands = _commands;
 
+        if (HeaderNode(commands) is { } header)
+        {
+            nodes.Add(header);
+            nodes.Add(Node.Separator("-header"));
+        }
+
         // [S-6007] The look first: it changes the widget most. Only for one kind with styles; the
-        // options only that look draws with are under it ([S-3719]).
+        // options only that look draws with stand right under it, on this level ([S-3719]).
         if (_offer.StyleKind is { } styled && WidgetStyles.For(styled) is { Count: > 0 } styles)
         {
             var now = _offer.Style;
@@ -488,12 +597,6 @@ internal sealed partial class PropertiesStrip : Grid
                 options.Add(Option("style/" + value, style.Label.Text(), glyph, () => EditBar.Icon(glyph, false, Fluent.IconSize), now == value, () => commands.SetStyle(value)));
             }
 
-            if (_widget is { StyleLines.Count: > 0 } widget)
-            {
-                options.Add(Node.Separator("style/-"));
-                options.AddRange(FromEntries(widget.StyleLines, "style/w"));
-            }
-
             var icon = char.ConvertFromUtf32(shown.Glyph);
             nodes.Add(new Node("style")
             {
@@ -503,48 +606,96 @@ internal sealed partial class PropertiesStrip : Grid
                 Icon = () => Glyph(icon),
                 Children = options,
             });
+
+            if (_widget is { StyleLines.Count: > 0 } widget)
+            {
+                nodes.AddRange(FromEntries(widget.StyleLines, "style/w"));
+            }
+
+            nodes.Add(Node.Separator("-style"));
         }
 
         // [S-3719] The widget's own lines, in its order; [S-3723] the card's as one Appearance
         // submenu among them where the widget places it, else first, right after Style: for every
-        // widget and for several.
+        // widget and for several. [S-3735] A section of its own either way.
         var lines = _widget is { } own ? FromEntries(own.Lines, "w") : [];
-        lines.Insert(Math.Clamp(_widget?.CardAt ?? 0, 0, lines.Count), new Node("appearance")
-        {
-            Text = Str.Settings_Section_Appearance.Text(),
-            IconKey = "appearance",
-            Icon = () => Glyph(Glyphs.Palette),
-            Children = CardNodes(commands),
-        });
+        lines.InsertRange(Math.Clamp(_widget?.CardAt ?? 0, 0, lines.Count),
+        [
+            Node.Separator("-appearance"),
+            new Node("appearance")
+            {
+                Text = Str.Settings_Section_Appearance.Text(),
+                IconKey = "appearance",
+                Icon = () => Glyph(Glyphs.Palette),
+                Children = CardNodes(commands),
+            },
+            Node.Separator("-appearance/"),
+        ]);
         nodes.AddRange(lines);
         return nodes;
     }
 
     /// <summary>
-    /// [S-3723] The card's own lines, submenus throughout: Header, Alignment, Background, Item
-    /// background, Item text and Scale. A line that cannot apply is not there ([S-3718]): Header for
-    /// a kind that never has one ([S-3711]), Alignment where nothing selected aligns ([S-6584]), the
-    /// item lines where nothing selected has items ([S-6571]). The colours are the menu's one colour
-    /// vocabulary ([S-3724]), the same lines a widget's own colour gets.
+    /// [S-3735] The Header line, first under the icon row: its value the title as it reads (one
+    /// widget) or where the header stands (several), its submenu the title box ([S-3704]: one widget
+    /// only, a title names one widget) and the header's positions with the dot. None for a selection
+    /// holding a kind that never has a header ([S-3711]): it would have no positions, and such a
+    /// widget's title is shown nowhere.
+    /// </summary>
+    private Node? HeaderNode(PropertiesCommands commands)
+    {
+        if (!_offer.HasHeader)
+        {
+            return null;
+        }
+
+        var options = HeaderOptions();
+        var header = Array.Find(options, o => o.Value == _offer.Header);
+        var (glyph, turned) = header.Icon ?? (Glyphs.HeaderBottom, true);
+        var children = new List<Node>();
+        string? value;
+
+        if (_offer is { TitleWidgetId: { } id, TitleKind: { } kind })
+        {
+            var name = ModuleCatalog.Of(kind).Name;
+            var label = _offer.Label;
+            value = string.IsNullOrWhiteSpace(label) ? name : label;
+            children.Add(new Node("header/title", NodeKind.Custom)
+            {
+                ValueKey = id,
+                Build = () => TitleBox(commands, id, name, _offer.Label),
+            });
+            children.Add(Node.Separator("header/-"));
+        }
+        else
+        {
+            value = _offer.Header is null ? Mixed : header.Text;
+        }
+
+        children.AddRange(options.Select(o => Option("header/" + o.Value, o.Text, o.Icon!.Value.Glyph + o.Icon.Value.Turned,
+            () => EditBar.Icon(o.Icon!.Value.Glyph, o.Icon.Value.Turned, Fluent.IconSize), _offer.Header == o.Value, () => commands.SetHeader(o.Value))));
+
+        return new Node("header")
+        {
+            Text = Str.App_ConfigHeaderLabel.Text(),
+            Value = value,
+            IconKey = glyph + turned,
+            Icon = () => EditBar.Icon(glyph, turned, Fluent.IconSize),
+            Children = children,
+        };
+    }
+
+    /// <summary>
+    /// [S-3723] The card's own lines, submenus throughout but Scale: Alignment; then the colours
+    /// (Background, Item background, Item text) as a section of their own ([S-3735]); then Scale, an
+    /// inline slider ([S-3731]). A line that cannot apply is not there ([S-3718]): Alignment where
+    /// nothing selected aligns ([S-6584]), the item lines where nothing selected has items ([S-6571]).
+    /// The colours are the menu's one colour vocabulary ([S-3724]), the same lines a widget's own
+    /// colour gets; a drag of a fill's Opacity or of Scale shows on the widgets as it goes.
     /// </summary>
     private List<Node> CardNodes(PropertiesCommands commands)
     {
         var nodes = new List<Node>();
-
-        if (_offer.HasHeader)
-        {
-            var header = Array.Find(HeaderOptions(), o => o.Value == _offer.Header);
-            var (glyph, turned) = header.Icon ?? (Glyphs.HeaderBottom, true);
-            nodes.Add(new Node("header")
-            {
-                Text = Str.App_ConfigHeaderLabel.Text(),
-                Value = _offer.Header is null ? Mixed : header.Text,
-                IconKey = glyph + turned,
-                Icon = () => EditBar.Icon(glyph, turned, Fluent.IconSize),
-                Children = [.. HeaderOptions().Select(o => Option("header/" + o.Value, o.Text, o.Icon!.Value.Glyph + o.Icon.Value.Turned,
-                    () => EditBar.Icon(o.Icon!.Value.Glyph, o.Icon.Value.Turned, Fluent.IconSize), _offer.Header == o.Value, () => commands.SetHeader(o.Value)))],
-            });
-        }
 
         // [S-6584] Where the content sits across the card, for the widgets that align in their style ([S-6581]).
         if (_offer.CanAlign)
@@ -561,40 +712,43 @@ internal sealed partial class PropertiesStrip : Grid
                 Icon = () => Glyph(glyph),
                 Children = [.. align.Select(o => Option("align/" + o.Value, o.Name.Text(), o.Glyph, () => Glyph(o.Glyph), now == o.Value, () => commands.SetAlign?.Invoke(o.Value)))],
             });
+            nodes.Add(Node.Separator("-align"));
         }
 
         // [S-6566] The widgets' own background and item background: one fill each, Default for the
         // app-wide one; [S-6544] the colour of the text on their items, Default for the app-wide one.
         // A mixed selection's value is null: the line reads as a dash and nothing holds.
+        void Preview(CardPreview? preview) => commands.Preview?.Invoke(preview);
         var colours = new List<ItemMenuEntry>
         {
             new(null, Str.Settings_Style_BgLabel.Text(), null, Colour: MenuColour.OfFill(_offer.Background, commands.SetBackground,
-                new FillChoiceOptions { DefaultLabel = Str.Common_Default.Text(), DefaultColor = AppBackgroundColour })),
+                new FillChoiceOptions { DefaultLabel = Str.Common_Default.Text(), DefaultColor = AppBackgroundColour },
+                fill => Preview(fill is null ? null : new CardPreview(Background: fill)))),
         };
 
         if (_offer.HasItems)
         {
             colours.Add(new(null, Str.Shell_Items_Background.Text(), null, Colour: MenuColour.OfFill(_offer.Items, commands.SetItemBackground,
-                new FillChoiceOptions { DefaultLabel = Str.Common_Default.Text(), DefaultColor = AppItemColour })));
+                new FillChoiceOptions { DefaultLabel = Str.Common_Default.Text(), DefaultColor = AppItemColour },
+                fill => Preview(fill is null ? null : new CardPreview(Items: fill)))));
             colours.Add(new(null, Str.Shell_Items_TextShort.Text(), null, Colour: MenuColour.Of(_offer.ItemText, commands.SetItemTextColor,
                 new ColorChoiceOptions { DefaultLabel = Str.Common_Default.Text(), Presets = ColorPresets.Surfaces, DefaultColor = AppItemTextColour })));
         }
 
         nodes.AddRange(FromEntries(colours, "card"));
+        nodes.Add(Node.Separator("-colours"));
 
-        // [S-6531] The widgets' own content scale, in steps, after the look of the card it magnifies.
+        // [S-6531] The widgets' own content scale, a slider on the stored grain, after the look of the card it magnifies.
+        var scale = _offer.Scale;
+        nodes.Add(new Node("scale", NodeKind.Slider)
         {
-            var now = _offer.Scale;
-            nodes.Add(new Node("scale")
-            {
-                Text = Str.Widget_Scale_Label.Text(),
-                Value = now is { } scale ? ScaleText(scale) : Mixed,
-                IconKey = "scale",
-                Icon = () => Glyph(Glyphs.Scale),
-                Children = [.. WidgetScale.Offered(now).Select(step => Option("scale/" + step, ScaleText(step), string.Empty, null,
-                    now is { } v && v.Equals(step), () => commands.SetScale(step)))],
-            });
-        }
+            Text = Str.Widget_Scale_Label.Text(),
+            Value = scale is { } s ? ScaleText(s) : Mixed,
+            IconKey = "scale",
+            Icon = () => Glyph(Glyphs.Scale),
+            Slider = new MenuSlider(scale, WidgetScale.Min, WidgetScale.Max, WidgetScale.Step, ScaleText, commands.SetScale,
+                v => Preview(v is { } at ? new CardPreview(Scale: at) : null)),
+        });
 
         return nodes;
     }
@@ -602,7 +756,7 @@ internal sealed partial class PropertiesStrip : Grid
     /// <summary>
     /// [S-3724] A colour line and its submenu, the one path every colour of the menu takes (the
     /// card's and a widget's own): Default (where the setting has one) and a fill's Transparent with
-    /// the dot, the swatches, a fill's Opacity in steps (a colour only), Custom colour… (the picker's
+    /// the dot, the swatches, a fill's Opacity slider ([S-3731], a colour only), Custom colour… (the picker's
     /// dialog) and Pick a colour from the screen (the eyedropper), those two where custom colours are
     /// allowed. The line shows the colour's swatch and its words; a mixed selection reads as a dash.
     /// </summary>
@@ -661,15 +815,15 @@ internal sealed partial class PropertiesStrip : Grid
         });
         children.Add(Node.Separator(key + "/-more"));
 
-        if (colour.IsFill)
+        // [S-3731] A fill's opacity: an inline slider, greyed while no colour holds.
+        if (colour.OpacitySlider(Percent) is { } opacity)
         {
-            children.Add(new Node(key + "/opacity")
+            children.Add(new Node(key + "/opacity", NodeKind.Slider)
             {
                 Text = Str.Shell_Fill_Opacity.Text(),
                 Value = colour.HasOpacity ? Percent(colour.Opacity) : null,
                 Disabled = !colour.HasOpacity,
-                Children = [.. MenuColour.OpacitySteps.Select(step => Option(key + "/opacity/" + step, Percent(step), string.Empty, null,
-                    colour.HasOpacity && Math.Abs(colour.Opacity - step) < 0.005, () => colour.ChooseOpacity(step)))],
+                Slider = opacity,
             });
         }
 
@@ -834,6 +988,20 @@ internal sealed partial class PropertiesStrip : Grid
                 continue;
             }
 
+            if (entry.Slider is { } slider)
+            {
+                nodes.Add(new Node(key, NodeKind.Slider)
+                {
+                    Text = entry.Text,
+                    Value = entry.Value,
+                    IconKey = entry.Glyph ?? string.Empty,
+                    Icon = entry.Glyph is null ? null : () => ItemMenu.IconFor(entry),
+                    Disabled = entry.Disabled,
+                    Slider = slider,
+                });
+                continue;
+            }
+
             var value = entry.Value ?? (entry.Shortcut is { } chord ? KeyChordText.Format(chord) : entry.Search?.Value);
             List<Node>? children = null;
             if (entry.Children is { } kids)
@@ -862,6 +1030,7 @@ internal sealed partial class PropertiesStrip : Grid
                 Children = children,
                 Search = entry.Search,
                 SetsUp = entry.SetsUp,
+                Order = entry.Order,
             });
         }
 
@@ -892,13 +1061,9 @@ internal sealed partial class PropertiesStrip : Grid
         _menu.Children.Add(QuickRow(commands));
         _menu.Children.Add(Divider(full: true));
 
-        if (_offer is { TitleWidgetId: { } id, TitleKind: { } kind })
+        if (!_offer.HasTitle)
         {
-            _menu.Children.Add(TitleBox(commands, id, ModuleCatalog.Of(kind).Name, _offer.Label));
-        }
-        else
-        {
-            // [S-3702] Several: no title, but how many the choices reach, over the lines.
+            // [S-3702] Several: how many the choices reach, over the lines.
             var count = Fluent.Text(FluentType.BodyStrong);
             count.Text = Str.Shell_EditBar_Selected.Plural(_offer.Count);
             count.Margin = new Thickness(Fluent.Space4, Fluent.Space2, Fluent.Space4, 0);
@@ -906,9 +1071,10 @@ internal sealed partial class PropertiesStrip : Grid
         }
 
         var list = new StackPanel { Padding = new Thickness(0, Fluent.Space1, 0, Fluent.Space1), XYFocusKeyboardNavigation = XYFocusKeyboardNavigationMode.Enabled };
-        _menu.Children.Add(list);
+        var overlay = Overlay();
+        _menu.Children.Add(new Grid { Children = { list, overlay } });
 
-        var main = new Level(list, _frame) { Icons = true };
+        var main = new Level(list, _frame, overlay) { Icons = true };
         _levels.Add(main);
         FillLevel(main, nodes);
 
@@ -922,18 +1088,28 @@ internal sealed partial class PropertiesStrip : Grid
         }
     }
 
+    /// <summary>[S-3732] The layer over a level's lines a dragged line's drop line is drawn on.</summary>
+    private static Canvas Overlay() => new() { IsHitTestVisible = false };
+
     /// <summary>Draw <paramref name="nodes"/> into <paramref name="level"/>, replacing what it held.</summary>
     private void FillLevel(Level level, IReadOnlyList<Node> nodes)
     {
+        if (_drag is { } drag && ReferenceEquals(drag.Level, level))
+        {
+            EndDrag(drop: false);
+        }
+
         level.Lines.Children.Clear();
         level.Views.Clear();
+        level.Sliders.Clear();
         level.Nodes = [.. nodes];
         level.Shape = Shape(nodes);
         level.Trail = nodes.Any(n => n.Kind == NodeKind.Line && (n.Checked is not null || Opens(n)));
-        level.Icons |= nodes.Any(n => n.Kind == NodeKind.Line && n.Icon is not null);
+        level.Icons |= nodes.Any(n => n.Kind is NodeKind.Line or NodeKind.Slider && n.Icon is not null);
 
-        foreach (var node in nodes)
+        for (var i = 0; i < nodes.Count; i++)
         {
+            var node = nodes[i];
             switch (node.Kind)
             {
                 case NodeKind.Separator:
@@ -952,6 +1128,12 @@ internal sealed partial class PropertiesStrip : Grid
                     level.Lines.Children.Add(node.Build!());
                     level.Views.Add(null);
                     break;
+                case NodeKind.Slider:
+                    var slider = MakeSlider(level, node);
+                    level.Lines.Children.Add(slider.Root);
+                    level.Sliders[i] = slider.View;
+                    level.Views.Add(null);
+                    break;
                 default:
                     var view = MakeLine(level, node);
                     level.Lines.Children.Add(view.Root);
@@ -962,6 +1144,13 @@ internal sealed partial class PropertiesStrip : Grid
 
         // Leading, trailing and doubled dividers go, as the card menu drops them ([S-1742]).
         HideStrayDividers(level.Lines);
+
+        // [S-3732] A keyboard move drew the list again: the moved line takes the focus back.
+        if (_refocus is { } refocus && level.Views.FirstOrDefault(v => v is not null && v.Node.Key == refocus) is { } moved)
+        {
+            _refocus = null;
+            _ = DispatcherQueue?.TryEnqueue(() => moved.Button.Focus(FocusState.Keyboard));
+        }
     }
 
     private static void HideStrayDividers(StackPanel lines)
@@ -1001,6 +1190,10 @@ internal sealed partial class PropertiesStrip : Grid
             {
                 Apply(level, view, node);
             }
+            else if (level.Sliders.TryGetValue(i, out var slider))
+            {
+                ApplySlider(slider, node);
+            }
             else if (node.Kind is NodeKind.Custom && i < level.Nodes.Count
                 && !string.Equals(level.Nodes[i].ValueKey, node.ValueKey, StringComparison.Ordinal))
             {
@@ -1016,6 +1209,8 @@ internal sealed partial class PropertiesStrip : Grid
         view.Node = node;
         view.Words.Text = node.Text;
         view.Value.Text = node.Value ?? string.Empty;
+        TipWhenTrimmed(view.Words);
+        TipWhenTrimmed(view.Value);
 
         if (!string.Equals(view.IconKey, node.IconKey, StringComparison.Ordinal))
         {
@@ -1036,6 +1231,21 @@ internal sealed partial class PropertiesStrip : Grid
         }
     }
 
+    /// <summary>
+    /// [S-3734] Words cut short by the menu's one width show in full as their tooltip; words that fit
+    /// have none (a line's own tooltip, a list's reorder hint, shows there).
+    /// </summary>
+    private static void TipWhenTrimmed(TextBlock text)
+    {
+        if (text.Tag is null)
+        {
+            text.Tag = Scope;
+            text.IsTextTrimmedChanged += (sender, _) => ToolTipService.SetToolTip(sender, sender.IsTextTrimmed ? sender.Text : null);
+        }
+
+        ToolTipService.SetToolTip(text, text.IsTextTrimmed ? text.Text : null);
+    }
+
     /// <summary>A tick for a switch that is on, the small dot for the option that holds, as Windows draws them.</summary>
     private static FrameworkElement Mark(bool radio) => radio
         ? new Ellipse
@@ -1053,6 +1263,7 @@ internal sealed partial class PropertiesStrip : Grid
     /// shortcut) in the secondary colour where a menu writes a shortcut, and at the end, right-aligned
     /// in its own column, the tick or the dot of a switch or a choice, or the chevron of a line that
     /// opens a submenu (a line is never both). A danger line's words and icon are the critical colour.
+    /// [S-3732] A line of an ordered list carries a grip before its end column and is dragged.
     /// </summary>
     private LineView MakeLine(Level level, Node node)
     {
@@ -1089,7 +1300,16 @@ internal sealed partial class PropertiesStrip : Grid
             }
         }
 
-        var button = LineButton(level.Icons ? lead : null, words, value, level.Trail ? trail : null);
+        var grip = node.Order is null ? null : new FontIcon
+        {
+            Glyph = Glyphs.GripperHorizontal,
+            FontSize = 12,
+            Foreground = ThemeBrush.Of("TextFillColorTertiaryBrush", Colors.Gray),
+            VerticalAlignment = VerticalAlignment.Center,
+            Margin = new Thickness(Fluent.Space2, 0, Fluent.Space2, 0),
+        };
+
+        var button = LineButton(level.Icons ? lead : null, words, value, grip, level.Trail ? trail : null);
         button.IsEnabled = !node.Disabled;
 
         var view = new LineView(node, button, button, lead, trail, words, value);
@@ -1116,11 +1336,16 @@ internal sealed partial class PropertiesStrip : Grid
             }
         };
 
+        if (node.Order is not null)
+        {
+            Orderable(level, view);
+        }
+
         return view;
     }
 
     /// <summary>The button of a line, its parts in their columns (the ones given), 32 DIPs, inset 4.</summary>
-    private static Button LineButton(UIElement? lead, TextBlock words, TextBlock value, UIElement? trail)
+    private static Button LineButton(UIElement? lead, TextBlock words, TextBlock value, UIElement? grip, UIElement? trail)
     {
         var parts = new Grid();
         var column = 0;
@@ -1142,9 +1367,14 @@ internal sealed partial class PropertiesStrip : Grid
         // The value and the end column never meet: the value keeps a gap before the mark or chevron.
         value.VerticalAlignment = VerticalAlignment.Center;
         value.Margin = new Thickness(Fluent.Space6, 0, trail is null ? 0 : Fluent.Space2, 0);
-        value.MaxWidth = 140;
+        value.MaxWidth = 120;
         value.TextTrimming = TextTrimming.CharacterEllipsis;
         Add(value, GridLength.Auto);
+
+        if (grip is not null)
+        {
+            Add(grip, GridLength.Auto);
+        }
 
         if (trail is not null)
         {
@@ -1165,11 +1395,355 @@ internal sealed partial class PropertiesStrip : Grid
     }
 
     /// <summary>
+    /// [S-3731] An inline slider's line, 32 DIPs as every line: the icon column (where the level has
+    /// icons), its words, the slider and its value, then the end column kept empty where the level has
+    /// one, so its value stands in the values' column. A drag shows the value (and the widgets, where
+    /// the line previews them) and stores once on the release; a key steps it and stores the step; Up
+    /// and Down move between the lines as on any other line.
+    /// </summary>
+    private (FrameworkElement Root, SliderView View) MakeSlider(Level level, Node node)
+    {
+        var rule = node.Slider!;
+        var parts = new Grid
+        {
+            Height = LineHeight,
+            Margin = new Thickness(Fluent.Space1, 0, Fluent.Space1, 0),
+            Padding = new Thickness(Fluent.Space3, 0, Fluent.Space3, 0),
+            Background = new SolidColorBrush(Colors.Transparent),
+        };
+        var column = 0;
+
+        void Add(FrameworkElement element, GridLength width)
+        {
+            parts.ColumnDefinitions.Add(new ColumnDefinition { Width = width });
+            Grid.SetColumn(element, column++);
+            parts.Children.Add(element);
+        }
+
+        if (level.Icons)
+        {
+            Add(new Border { Width = Fluent.IconSize, HorizontalAlignment = HorizontalAlignment.Left, VerticalAlignment = VerticalAlignment.Center, Child = node.Icon?.Invoke() }, new GridLength(LeadColumn));
+        }
+
+        var words = new TextBlock
+        {
+            FontSize = FluentType.Body.FontSize,
+            VerticalAlignment = VerticalAlignment.Center,
+            TextTrimming = TextTrimming.CharacterEllipsis,
+        };
+        Add(words, new GridLength(1, GridUnitType.Star));
+
+        var slider = new Slider
+        {
+            Width = SliderWidth,
+            Minimum = rule.Min,
+            Maximum = rule.Max,
+            StepFrequency = rule.Step,
+            SmallChange = rule.Step,
+            LargeChange = rule.Step * 5,
+            IsThumbToolTipEnabled = false,
+            VerticalAlignment = VerticalAlignment.Center,
+            Margin = new Thickness(Fluent.Space2, 0, 0, 0),
+        };
+        Add(slider, GridLength.Auto);
+
+        var value = Fluent.Text(FluentType.Caption, "TextFillColorSecondaryBrush");
+        value.VerticalAlignment = VerticalAlignment.Center;
+        value.HorizontalAlignment = HorizontalAlignment.Right;
+        value.TextAlignment = TextAlignment.Right;
+        value.TextTrimming = TextTrimming.CharacterEllipsis;
+        Add(value, new GridLength(SliderValueWidth));
+
+        if (level.Trail)
+        {
+            Add(new Border { Width = Fluent.IconSize + Fluent.Space2 }, GridLength.Auto);
+        }
+
+        var view = new SliderView(node, slider, words, value);
+        ApplySlider(view, node);
+
+        slider.ValueChanged += (_, e) =>
+        {
+            if (view.Writing)
+            {
+                return;
+            }
+
+            var held = view.Node.Slider!;
+            view.Value.Text = held.Format(e.NewValue);
+            if (view.Keyed)
+            {
+                view.Keyed = false;
+                Run(() => held.Commit(e.NewValue));
+                return;
+            }
+
+            view.Pending = true;
+            Run(() => held.Preview(e.NewValue));
+        };
+
+        // A pointer's move is stored once, when it lets go; the slider marks those events handled.
+        void Release()
+        {
+            if (view.Pending)
+            {
+                view.Pending = false;
+                var held = view.Node.Slider!;
+                Run(() => held.Commit(slider.Value));
+            }
+        }
+
+        slider.AddHandler(PointerReleasedEvent, new PointerEventHandler((_, _) => Release()), handledEventsToo: true);
+        slider.AddHandler(PointerCaptureLostEvent, new PointerEventHandler((_, _) => Release()), handledEventsToo: true);
+
+        slider.PreviewKeyDown += (_, e) =>
+        {
+            switch (e.Key)
+            {
+                // [S-3707] Up and Down move between the lines here too; the slider steps on the others.
+                case Windows.System.VirtualKey.Up or Windows.System.VirtualKey.Down:
+                    e.Handled = FocusManager.TryMoveFocus(
+                        e.Key == Windows.System.VirtualKey.Up ? FocusNavigationDirection.Up : FocusNavigationDirection.Down,
+                        new FindNextElementOptions { SearchRoot = level.Root });
+                    break;
+                case Windows.System.VirtualKey.Left or Windows.System.VirtualKey.Right or Windows.System.VirtualKey.Home
+                    or Windows.System.VirtualKey.End or Windows.System.VirtualKey.PageUp or Windows.System.VirtualKey.PageDown:
+                    view.Keyed = true;
+                    break;
+            }
+        };
+        slider.KeyUp += (_, _) => view.Keyed = false;
+
+        return (parts, view);
+    }
+
+    /// <summary>[S-3731] Write a slider line's node in: its words, its value and where its thumb stands; never while it is dragged.</summary>
+    private static void ApplySlider(SliderView view, Node node)
+    {
+        view.Node = node;
+        view.Words.Text = node.Text;
+        view.Words.Foreground = ThemeBrush.Of(node.Disabled ? "TextFillColorDisabledBrush" : "TextFillColorPrimaryBrush", Colors.White);
+        TipWhenTrimmed(view.Words);
+        view.Slider.IsEnabled = !node.Disabled;
+        AutomationProperties.SetName(view.Slider, node.Text);
+
+        if (view.Pending)
+        {
+            return;
+        }
+
+        var rule = node.Slider!;
+        view.Writing = true;
+        try
+        {
+            view.Slider.Minimum = rule.Min;
+            view.Slider.Maximum = rule.Max;
+            view.Slider.StepFrequency = rule.Step;
+            view.Slider.Value = rule.Value ?? rule.Min;
+        }
+        finally
+        {
+            view.Writing = false;
+        }
+
+        view.Value.Text = node.Value ?? string.Empty;
+    }
+
+    /// <summary>
+    /// [S-3732] A line of an ordered list (<see cref="MenuOrder"/>): a mouse press that travels up or
+    /// down past the threshold drags it among the list's lines, a drop line showing where it lands,
+    /// and the release moves the item there (one change, saved once); Alt+Shift+Up / Down moves it a
+    /// place ([S-3802]), the focus staying on it. Its tooltip and automation help say both. Drawn in
+    /// the panel's own window with the pointer captured, never an OLE drag: the surface takes no
+    /// drops and a drag image would hide the list it is dropped into.
+    /// </summary>
+    private void Orderable(Level level, LineView view)
+    {
+        var button = view.Button;
+        var hint = Str.Menu_ReorderHint.Text();
+        ToolTipService.SetToolTip(button, hint);
+        AutomationProperties.SetHelpText(button, hint);
+
+        button.AddHandler(PointerPressedEvent, new PointerEventHandler((_, e) =>
+        {
+            var point = e.GetCurrentPoint(level.Lines);
+            _drag = e.Pointer.PointerDeviceType == PointerDeviceType.Mouse && point.Properties.IsLeftButtonPressed
+                ? new LineDrag(level, view, point.Position.Y)
+                : null;
+        }), handledEventsToo: true);
+
+        button.AddHandler(PointerMovedEvent, new PointerEventHandler((_, e) =>
+        {
+            if (_drag is not { } drag || !ReferenceEquals(drag.View, view))
+            {
+                return;
+            }
+
+            var point = e.GetCurrentPoint(level.Lines);
+            if (!point.Properties.IsLeftButtonPressed)
+            {
+                EndDrag(drop: false);
+                return;
+            }
+
+            if (!drag.Active)
+            {
+                if (Math.Abs(point.Position.Y - drag.StartY) < DragThreshold)
+                {
+                    return;
+                }
+
+                drag.Active = true;
+                _swallowClick = true;
+                view.Root.Opacity = 0.5;
+                CloseFrom(_levels.IndexOf(level) + 1);
+                button.CapturePointer(e.Pointer);
+            }
+
+            ShowDrop(drag, point.Position.Y);
+        }), handledEventsToo: true);
+
+        button.AddHandler(PointerReleasedEvent, new PointerEventHandler((_, _) =>
+        {
+            if (_drag is { } drag && ReferenceEquals(drag.View, view))
+            {
+                EndDrag(drop: drag.Active);
+            }
+        }), handledEventsToo: true);
+
+        button.AddHandler(PointerCaptureLostEvent, new PointerEventHandler((_, _) =>
+        {
+            if (_drag is { Active: true } drag && ReferenceEquals(drag.View, view))
+            {
+                EndDrag(drop: false);
+            }
+        }), handledEventsToo: true);
+
+        // Tunnelling, so the line's own arrow keys (a submenu's) never see the shortcut.
+        button.PreviewKeyDown += (_, e) =>
+        {
+            var arrow = e.Key switch
+            {
+                Windows.System.VirtualKey.Up => ReorderArrow.Up,
+                Windows.System.VirtualKey.Down => ReorderArrow.Down,
+                _ => (ReorderArrow?)null,
+            };
+
+            if (arrow is not { } pressed || view.Node.Order is not { } order)
+            {
+                return;
+            }
+
+            var delta = ReorderKeys.Delta(pressed, IsKeyDown(Windows.System.VirtualKey.Menu), IsKeyDown(Windows.System.VirtualKey.Shift), IsKeyDown(Windows.System.VirtualKey.Control));
+            if (delta == 0)
+            {
+                return;
+            }
+
+            e.Handled = true;
+            var to = order.Index + delta;
+            if (to < 0 || to >= order.Count)
+            {
+                return; // ignore: the first item has nowhere further up to go, the last nowhere down.
+            }
+
+            _refocus = view.Node.Key;
+            Later(() => order.Move(order.Index, to));
+        };
+    }
+
+    private static bool IsKeyDown(Windows.System.VirtualKey key)
+        => InputKeyboardSource.GetKeyStateForCurrentThread(key).HasFlag(Windows.UI.Core.CoreVirtualKeyStates.Down);
+
+    /// <summary>[S-3732] The lines of the dragged line's list, top to bottom: the level's lines of the same order.</summary>
+    private static List<LineView> OrderLines(LineDrag drag)
+        => [.. drag.Level.Views.OfType<LineView>().Where(v => v.Node.Order is { } o && o.Move == drag.View.Node.Order!.Move)];
+
+    /// <summary>[S-3732] Draw the drop line in the gap the pointer is nearest (<see cref="ListDrop.Gap"/>).</summary>
+    private void ShowDrop(LineDrag drag, double y)
+    {
+        var lines = OrderLines(drag);
+        if (lines.Count == 0)
+        {
+            return;
+        }
+
+        var boxes = lines.Select(v => v.Root.TransformToVisual(drag.Level.Lines).TransformBounds(new Rect(0, 0, v.Root.ActualWidth, v.Root.ActualHeight))).ToList();
+        var gap = ListDrop.Gap([.. boxes.Select(b => b.Y + (b.Height / 2))], y);
+        if (gap == drag.Gap)
+        {
+            return;
+        }
+
+        drag.Gap = gap;
+        var at = gap < boxes.Count ? boxes[gap].Y : boxes[^1].Y + boxes[^1].Height;
+        var overlay = drag.Level.Overlay;
+        overlay.Children.Clear();
+        var mark = new Rectangle
+        {
+            Height = 2,
+            Width = Math.Max(0, boxes[0].Width - (Fluent.Space2 * 2)),
+            RadiusX = 1,
+            RadiusY = 1,
+            Fill = ThemeBrush.Of("AccentFillColorDefaultBrush", Colors.DodgerBlue),
+        };
+        Canvas.SetLeft(mark, boxes[0].X + Fluent.Space2);
+        Canvas.SetTop(mark, at - 1);
+        overlay.Children.Add(mark);
+    }
+
+    /// <summary>[S-3732] The drag is over: the drop line goes, and where it was dropped the item moves there.</summary>
+    private void EndDrag(bool drop)
+    {
+        if (_drag is not { } drag)
+        {
+            return;
+        }
+
+        _drag = null;
+        drag.View.Root.Opacity = 1;
+        drag.Level.Overlay.Children.Clear();
+        drag.View.Button.ReleasePointerCaptures();
+        if (!drag.Active)
+        {
+            return;
+        }
+
+        // The click the release raises runs before this is queued back: it is swallowed, then the next counts.
+        Later(() => _swallowClick = false);
+
+        if (drop && drag.Gap >= 0 && drag.View.Node.Order is { } order)
+        {
+            var to = ListDrop.Target(order.Index, drag.Gap);
+            if (to != order.Index)
+            {
+                Later(() => order.Move(order.Index, to));
+            }
+        }
+    }
+
+    /// <summary>Run <paramref name="action"/> once the event in progress has finished: a move draws the line it is raised on again.</summary>
+    private void Later(Action action)
+    {
+        if (DispatcherQueue is not { } queue || !queue.TryEnqueue(() => Run(action)))
+        {
+            Log.Error(Scope, "could not queue a menu list's move");
+        }
+    }
+
+    /// <summary>
     /// [S-3718] A click on a line: a submenu line opens its submenu beside it (or closes it again);
     /// anything else does what it does, and the menu and the submenu it is in stay open.
     /// </summary>
     private void OnLine(Level level, LineView view)
     {
+        // [S-3732] The release that ends a drag is not a click on the line it started on.
+        if (_swallowClick)
+        {
+            _swallowClick = false;
+            return;
+        }
+
         var at = _levels.IndexOf(level);
         if (at < 0)
         {
@@ -1201,24 +1775,27 @@ internal sealed partial class PropertiesStrip : Grid
         }
 
         var lines = new StackPanel { Padding = new Thickness(0, Fluent.Space1, 0, Fluent.Space1), XYFocusKeyboardNavigation = XYFocusKeyboardNavigationMode.Enabled };
+        var overlay = Overlay();
         var scroll = new ScrollViewer
         {
-            Content = lines,
+            Content = new Grid { Children = { lines, overlay } },
             VerticalScrollBarVisibility = ScrollBarVisibility.Auto,
             HorizontalScrollBarVisibility = ScrollBarVisibility.Disabled,
-            MaxHeight = Math.Max(LineHeight * 4, (XamlRoot?.Size.Height ?? 800) - (Fluent.Space6 * 3)),
+
+            // [S-3733] Never taller than the work area: a long list scrolls inside it.
+            MaxHeight = Math.Max(LineHeight * 4, RoomArea().Height - (SubmenuPlacement.Gap * 2) - (Fluent.Space1 * 2) - LineHeight),
         };
         var body = new Grid { RowDefinitions = { new RowDefinition { Height = GridLength.Auto }, new RowDefinition { Height = GridLength.Auto } } };
         Grid.SetRow(scroll, 1);
         body.Children.Add(scroll);
 
         var search = anchor.Node.Search;
-        var frame = new Border { Child = body, MinWidth = search is null ? MinSubmenuWidth : SearchWidth, MaxWidth = MaxSubmenuWidth, TabFocusNavigation = KeyboardNavigationMode.Cycle };
+        var frame = new Border { Child = body, Width = MenuWidth, TabFocusNavigation = KeyboardNavigationMode.Cycle };
         var host = new Grid { Children = { frame } };
         FlyoutSurface.Apply(host, frame);
         host.PointerPressed += (_, e) => e.Handled = true;
 
-        var level = new Level(lines, host) { Anchor = anchor, Search = search };
+        var level = new Level(lines, host, overlay) { Anchor = anchor, Search = search };
         if (search is not null)
         {
             var box = SearchBox(level, search);
@@ -1240,9 +1817,9 @@ internal sealed partial class PropertiesStrip : Grid
                 level.Box!.Focus(FocusState.Keyboard);
             }
         }
-        else if (focus && level.Views.FirstOrDefault(v => v is { Button.IsEnabled: true }) is { } first)
+        else if (focus && FocusManager.FindFirstFocusableElement(lines) is Control first)
         {
-            first.Button.Focus(FocusState.Keyboard);
+            first.Focus(FocusState.Keyboard);
         }
 
         return true;
@@ -1373,46 +1950,76 @@ internal sealed partial class PropertiesStrip : Grid
     }
 
     /// <summary>
-    /// Put a submenu beside the level before it, its first line level with the line that opened it:
-    /// on the end side, else the start side where the end has no room in the window, slid up to fit.
+    /// [S-3733] Put a submenu beside the level before it, its first line level with the line that
+    /// opened it, where it covers neither the selected widgets, the bars, nor the levels above it
+    /// (<see cref="SubmenuPlacement"/>: the end side, the start side, then slid up or down; the least
+    /// covered place only when no place is clear), inside the work area. Measured in the submenus'
+    /// own layer, whose end side is the flow's: right to left the sides mirror with it.
     /// </summary>
     private void Place(Level level, int at)
     {
-        if (at < 1 || level.Anchor is not { } anchorView)
+        if (at < 1 || at >= _levels.Count || level.Anchor is not { } anchorView || !_subs.Children.Contains(level.Root))
         {
             return;
         }
 
-        var parent = _levels[at - 1].Root;
         UpdateLayout();
 
         var size = level.Root.DesiredSize;
-        var origin = parent.TransformToVisual(_subs).TransformPoint(new Point(0, 0));
         var line = anchorView.Root.TransformToVisual(_subs).TransformPoint(new Point(0, 0));
         var top = line.Y - Fluent.Space1 - Fluent.Hairline;
+        var levels = _levels.Take(at).Select(l => BoxInSubs(l.Root)).ToList();
 
-        Canvas.SetLeft(level.Root, origin.X + parent.ActualWidth - Fluent.Space1);
-        Canvas.SetTop(level.Root, top);
-        UpdateLayout();
-
-        if (XamlRoot is not { } root)
+        var avoid = new List<PixelRect>();
+        if (_room is { } room)
         {
-            return;
+            if (room.Widgets is { } widgets)
+            {
+                avoid.Add(FromLayer(widgets));
+            }
+
+            avoid.AddRange(room.Bars.Select(FromLayer));
         }
 
-        var window = root.Size;
-        var bounds = level.Root.TransformToVisual(null).TransformBounds(new Rect(0, 0, size.Width, size.Height));
-        if (bounds.Right > window.Width - Fluent.Space2 || bounds.Left < Fluent.Space2)
+        var spot = SubmenuPlacement.Place(levels[^1], top, size.Width, size.Height, RoomArea(), avoid, levels);
+        Canvas.SetLeft(level.Root, Math.Round(spot.X));
+        Canvas.SetTop(level.Root, Math.Round(spot.Y));
+    }
+
+    /// <summary>[S-3733] An element's box in the submenus' layer.</summary>
+    private PixelRect BoxInSubs(FrameworkElement element)
+    {
+        var box = element.TransformToVisual(_subs).TransformBounds(new Rect(0, 0, element.ActualWidth, element.ActualHeight));
+        return new PixelRect(box.X, box.Y, box.Width, box.Height);
+    }
+
+    /// <summary>[S-3733] A rect of the layer the panel stands on, in the submenus' layer.</summary>
+    private PixelRect FromLayer(PixelRect rect)
+    {
+        if (Parent is not UIElement layer)
         {
-            Canvas.SetLeft(level.Root, origin.X - size.Width + Fluent.Space1);
+            return rect;
         }
 
-        var under = bounds.Bottom - (window.Height - Fluent.Space2);
-        if (under > 0)
+        var box = layer.TransformToVisual(_subs).TransformBounds(new Rect(rect.X, rect.Y, rect.Width, rect.Height));
+        return new PixelRect(box.X, box.Y, box.Width, box.Height);
+    }
+
+    /// <summary>[S-3733] The work area in the submenus' layer: the surface's, else the window's.</summary>
+    private PixelRect RoomArea()
+    {
+        if (_room is { } room)
         {
-            var above = bounds.Top - Fluent.Space2;
-            Canvas.SetTop(level.Root, top - Math.Min(under, Math.Max(0, above)));
+            return FromLayer(room.Area);
         }
+
+        if (XamlRoot is { Content: UIElement content } root)
+        {
+            var box = content.TransformToVisual(_subs).TransformBounds(new Rect(0, 0, root.Size.Width, root.Size.Height));
+            return new PixelRect(box.X, box.Y, box.Width, box.Height);
+        }
+
+        return new PixelRect(0, 0, 1280, 800);
     }
 
     /// <summary>Close the submenus from level <paramref name="at"/> down; the panel's own list (level 0) stays.</summary>
@@ -1423,6 +2030,25 @@ internal sealed partial class PropertiesStrip : Grid
             var level = _levels[i];
             level.Pending?.Cancel();
             level.Settle?.Stop();
+
+            // [S-3704] The title box goes with the Header submenu: what it held still lands.
+            if (_title is { } title && level.Lines.Children.Contains(title))
+            {
+                CommitTitleLater();
+                _title = null;
+            }
+
+            if (_drag is { } drag && ReferenceEquals(drag.Level, level))
+            {
+                EndDrag(drop: false);
+            }
+
+            foreach (var slider in level.Sliders.Values.Where(s => s.Pending))
+            {
+                slider.Pending = false;
+                Run(slider.Node.Slider!.Cancel);
+            }
+
             _subs.Children.Remove(level.Root);
             if (level.Anchor is { } anchor)
             {
@@ -1513,7 +2139,7 @@ internal sealed partial class PropertiesStrip : Grid
         words.TextWrapping = TextWrapping.WrapWholeWords;
         words.TextTrimming = TextTrimming.CharacterEllipsis;
         words.MaxLines = NoteLines;
-        words.MaxWidth = MinMenuWidth - (2 * (Fluent.Space1 + Fluent.Space3)) - (icons ? LeadColumn : 0);
+        words.MaxWidth = MenuWidth - (2 * (Fluent.Space1 + Fluent.Space3)) - (icons ? LeadColumn : 0);
         words.HorizontalAlignment = HorizontalAlignment.Left;
         ToolTipService.SetToolTip(words, text);
         AutomationProperties.SetName(words, text);
@@ -1628,6 +2254,33 @@ internal sealed partial class PropertiesStrip : Grid
             }
         }
 
+        return true;
+    }
+
+    /// <summary>
+    /// Debug renders only: show the deepest open submenu's ordered line <paramref name="from"/> being
+    /// dragged, its drop line in <paramref name="gap"/> ([S-3732]), as a pointer would hold it.
+    /// </summary>
+    internal bool DebugDrag(int from, int gap)
+    {
+        if (_levels.Count < 2)
+        {
+            return false;
+        }
+
+        var level = _levels[^1];
+        var lines = level.Views.OfType<LineView>().Where(v => v.Node.Order is not null).ToList();
+        if (from < 0 || from >= lines.Count || gap < 0 || gap > lines.Count)
+        {
+            return false;
+        }
+
+        UpdateLayout();
+        var drag = new LineDrag(level, lines[from], 0) { Active = true };
+        _drag = drag;
+        lines[from].Root.Opacity = 0.5;
+        var middles = lines.Select(v => v.Root.TransformToVisual(level.Lines).TransformPoint(new Point(0, v.Root.ActualHeight / 2)).Y).ToList();
+        ShowDrop(drag, gap == 0 ? double.NegativeInfinity : middles[gap - 1] + 1);
         return true;
     }
 
@@ -1776,9 +2429,10 @@ internal sealed partial class PropertiesStrip : Grid
     private static string ScaleText(double scale) => LocaleFormat.Percent(Strings.Current, WidgetScale.Percent(scale));
 
     /// <summary>
-    /// [S-3704] The title, edited in place under the icon row: the kind's name as the placeholder,
-    /// Enter (or leaving the box) commits, Escape puts back what was there. While it has the focus
-    /// the edit keys do not fire ([S-804]); Enter and Escape hand the keyboard back to the surface.
+    /// [S-3704] [S-3735] The title, edited in place at the top of the Header submenu, one line of the
+    /// menu (32 DIPs, as every line): the kind's name as the placeholder, Enter (or leaving the box)
+    /// commits, Escape puts back what was there. While it has the focus the edit keys do not fire
+    /// ([S-804]); Enter and Escape hand the keyboard back to the surface.
     /// </summary>
     private TextBox TitleBox(PropertiesCommands commands, string widgetId, string defaultTitle, string? label)
     {
@@ -1792,11 +2446,13 @@ internal sealed partial class PropertiesStrip : Grid
             MinHeight = LineHeight,
             Height = LineHeight,
             HorizontalAlignment = HorizontalAlignment.Stretch,
-            Margin = new Thickness(Fluent.Space2, Fluent.Space2, Fluent.Space2, 0),
+            VerticalAlignment = VerticalAlignment.Center,
+            Margin = new Thickness(Fluent.Space1, 0, Fluent.Space1, 0),
+            IsSpellCheckEnabled = false,
+            IsTextPredictionEnabled = false,
         };
         AutomationProperties.SetName(box, Str.Group_Title_Label.Text());
 
-        box.GotFocus += (_, _) => CloseFrom(1);
         box.KeyDown += (_, e) =>
         {
             if (e.Key == Windows.System.VirtualKey.Enter)
@@ -1845,6 +2501,7 @@ internal sealed partial class PropertiesStrip : Grid
 
         var text = box.Text;
         var commands = _commands;
+        _titleCommitted = text;
         _ = DispatcherQueue.TryEnqueue(() => commands.SetTitle(id, text));
     }
 }
