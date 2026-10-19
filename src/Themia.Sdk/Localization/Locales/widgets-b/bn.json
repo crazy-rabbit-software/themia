@@ -4,7 +4,6 @@
   "widgetsB.email.folderArchive": "আর্কাইভ",
   "widgetsB.email.noMessagesIn": "{folder}-এ কোনো বার্তা নেই।",
   "widgetsB.email.changeFailed": "এটি কাজ করেনি। themia.log দেখুন।",
-  "widgetsB.settings.email.display": "প্রদর্শন",
   "widgetsB.settings.email.view.desc": "তালিকা: তিন লাইন। কমপ্যাক্ট: দুই। সারি: এক।",
   "widgetsB.settings.email.showPreview.label": "প্রিভিউ দেখান",
   "widgetsB.settings.email.showPreview.desc": "তালিকা ভিউতে বার্তার শুরুর অংশ",

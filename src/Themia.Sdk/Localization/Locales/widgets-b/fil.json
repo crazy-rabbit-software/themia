@@ -4,7 +4,6 @@
   "widgetsB.email.folderArchive": "Archive",
   "widgetsB.email.noMessagesIn": "Walang mensahe sa {folder}.",
   "widgetsB.email.changeFailed": "Hindi iyon gumana. Tingnan ang themia.log.",
-  "widgetsB.settings.email.display": "Display",
   "widgetsB.settings.email.view.desc": "Listahan: tatlong linya. Siksik: dalawa. Row: isa.",
   "widgetsB.settings.email.showPreview.label": "Ipakita ang preview",
   "widgetsB.settings.email.showPreview.desc": "Ang simula ng mensahe, sa list view",

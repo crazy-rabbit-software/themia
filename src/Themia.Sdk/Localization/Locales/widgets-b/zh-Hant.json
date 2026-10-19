@@ -4,7 +4,6 @@
   "widgetsB.email.folderArchive": "封存",
   "widgetsB.email.noMessagesIn": "{folder}中沒有郵件。",
   "widgetsB.email.changeFailed": "操作未成功。請查看 themia.log。",
-  "widgetsB.settings.email.display": "顯示",
   "widgetsB.settings.email.view.desc": "清單：三行。精簡：兩行。單列：一行。",
   "widgetsB.settings.email.showPreview.label": "顯示預覽",
   "widgetsB.settings.email.showPreview.desc": "在清單檢視中顯示郵件開頭",

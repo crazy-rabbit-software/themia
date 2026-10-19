@@ -4,7 +4,6 @@
   "widgetsB.email.folderArchive": "Arsip",
   "widgetsB.email.noMessagesIn": "Tidak ada pesan di {folder}.",
   "widgetsB.email.changeFailed": "Itu tidak berhasil. Lihat themia.log.",
-  "widgetsB.settings.email.display": "Tampilan",
   "widgetsB.settings.email.view.desc": "Daftar: tiga baris. Ringkas: dua. Baris: satu.",
   "widgetsB.settings.email.showPreview.label": "Tampilkan pratinjau",
   "widgetsB.settings.email.showPreview.desc": "Awal pesan, di tampilan daftar",

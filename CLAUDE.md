@@ -86,7 +86,7 @@ src/Themia.Core/   pure logic, no UI types, no Windows dependency. The host's ru
   Services/ (the service sync's engine: ServiceClient, ServiceMemory, ServiceEntries, FixtureReplay; Sync/ServiceShelf)
   Model/FirstRunDesktop.cs (the first-run seed as data: ids and config fragments)
 src/Themia.Sdk.WinUI/  the widget SDK, WinUI: IWidgetModule, IWidgetHost (+ IShellLauncher), WidgetSettingsRows, view
-                   Kit/ (KitList, KitHeader, KitStatePanel, KitBinding, KitRows: the kit's UI parts),
+                   Kit/ (KitList, KitHeader, KitStatePanel, KitBinding, KitMenuLines: the kit's UI parts),
                    contracts (IWidgetView, IWidgetSurface, IWidgetKeys, IWidgetDropTarget, ...), Ticker, Fluent,
                    WidgetLayout, ThemeBrush, ItemFill, ItemMenu, RowFocus, WidgetItems, ConfirmFlyout, RingPart,
                    UiLanguage, ScrollFade, EmptyStatePanel, Notices, the meters' and details' shared views (MeterView,
@@ -141,8 +141,8 @@ through the SDK's `IInterests`/`InterestsBuilder.Of<T>()`, its hub wants through
 alarm through `IAlarm` and the clipboard history through `IKeepsClipboardHistory`; the account
 widgets read `Office` (calendars, contacts, meetings), `Mail` and `Tasks` (`ITaskSource`, its feeds and
 `ILocalTaskLists`) and a kit widget `Services`, while the sync services behind them stay host code;
-their pages read `SettingsHost.Office`, `Tasks` and `AccountsWith(feature)` and choose accounts with
-`KitRows.Accounts` ([S-7063]). The stores' files (`notes/`, `habits.json`,
+their menu lines read `SettingsHost.Office`, `Tasks` and `AccountsWith(feature)` and choose accounts with
+`KitMenuLines.Accounts` (or the SDK's `OfficeMenuLines`, [S-7063]). The stores' files (`notes/`, `habits.json`,
 `usage_stats.json`) stay host code with their validation; `LocalStoreFixtureTests` pins their shapes. A host test that needs a real widget (the seed, placement, the
 add menu, styles over every kind) lives in `tests/Themia.Modules.Tests`, which has every widget and
 Core's internals; Core's own tests run over a registry of no widget. App settings pages register one
@@ -217,8 +217,8 @@ line in `ConfigPages.AppPages`.
   one `KitOutcome` per source, the title; `Changed`; `Busy`; `Show(refresh)`); a view of a few lines
   that owns a `KitBinding` and forwards to it (`Attach`, `ApplyConfig` to `Apply`, `ApplySize` to
   `Size`, `Bind` to `Surface`, `HandleKey`, `ContextActions` to `CardActions`, `HeaderTrailing` to
-  `Header`, `Detach` to `Dispose`; children `List` and `State`); settings from `KitRows` (`Accounts`,
-  `InputBox`, `Count`, `Shows`). The kit decides the screen (`KitScreens`), the breakpoints
+  `Header`, `Detach` to `Dispose`; children `List` and `State`); its properties-menu lines from `KitMenuLines`
+  (`Accounts`, `Count`, `Shows`; a free input is the menu's ask or list, [S-3719]). The kit decides the screen (`KitScreens`), the breakpoints
   (`KitLadder`), the keys (`KitKeys`: click focuses, double-click/Enter opens, Ctrl+C copies), the menu
   (`KitMenu`, through `ItemMenu`), the stale rule (`KitFreshness`: a problem glyph, the age on the
   Refresh line, never in the header) and opening (through `IWidgetHost.Launcher` only). A kit view

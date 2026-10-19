@@ -4,7 +4,6 @@
   "widgetsB.email.folderArchive": "Lưu trữ",
   "widgetsB.email.noMessagesIn": "Không có thư trong {folder}.",
   "widgetsB.email.changeFailed": "Thao tác không thành công. Xem themia.log.",
-  "widgetsB.settings.email.display": "Hiển thị",
   "widgetsB.settings.email.view.desc": "Danh sách: ba dòng. Thu gọn: hai. Hàng: một.",
   "widgetsB.settings.email.showPreview.label": "Hiện xem trước",
   "widgetsB.settings.email.showPreview.desc": "Phần đầu của thư, trong kiểu xem danh sách",

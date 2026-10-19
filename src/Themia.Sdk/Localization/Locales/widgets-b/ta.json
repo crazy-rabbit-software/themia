@@ -4,7 +4,6 @@
   "widgetsB.email.folderArchive": "காப்பகம்",
   "widgetsB.email.noMessagesIn": "{folder} இல் செய்திகள் இல்லை.",
   "widgetsB.email.changeFailed": "அது வேலை செய்யவில்லை. themia.log ஐப் பார்க்கவும்.",
-  "widgetsB.settings.email.display": "காட்சி",
   "widgetsB.settings.email.view.desc": "பட்டியல்: மூன்று வரிகள். கச்சிதம்: இரண்டு. வரிசை: ஒன்று.",
   "widgetsB.settings.email.showPreview.label": "முன்னோட்டத்தைக் காட்டு",
   "widgetsB.settings.email.showPreview.desc": "பட்டியல் காட்சியில், செய்தியின் தொடக்கம்",

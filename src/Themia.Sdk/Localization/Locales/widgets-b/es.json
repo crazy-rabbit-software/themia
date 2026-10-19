@@ -4,7 +4,6 @@
   "widgetsB.email.folderArchive": "Archivo",
   "widgetsB.email.noMessagesIn": "No hay mensajes en {folder}.",
   "widgetsB.email.changeFailed": "No funcionó. Consulta themia.log.",
-  "widgetsB.settings.email.display": "Presentación",
   "widgetsB.settings.email.view.desc": "Lista: tres líneas. Compacta: dos. Fila: una.",
   "widgetsB.settings.email.showPreview.label": "Mostrar vista previa",
   "widgetsB.settings.email.showPreview.desc": "El comienzo del mensaje, en la vista de lista",

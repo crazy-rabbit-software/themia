@@ -4,7 +4,6 @@
   "widgetsB.email.folderArchive": "เก็บถาวร",
   "widgetsB.email.noMessagesIn": "ไม่มีข้อความใน {folder}",
   "widgetsB.email.changeFailed": "การดำเนินการไม่สำเร็จ ดูที่ themia.log",
-  "widgetsB.settings.email.display": "การแสดงผล",
   "widgetsB.settings.email.view.desc": "รายการ: สามบรรทัด กะทัดรัด: สองบรรทัด แถว: หนึ่งบรรทัด",
   "widgetsB.settings.email.showPreview.label": "แสดงตัวอย่าง",
   "widgetsB.settings.email.showPreview.desc": "ส่วนต้นของข้อความ ในมุมมองรายการ",

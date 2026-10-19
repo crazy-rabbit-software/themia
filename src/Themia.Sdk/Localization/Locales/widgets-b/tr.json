@@ -4,7 +4,6 @@
   "widgetsB.email.folderArchive": "Arşiv",
   "widgetsB.email.noMessagesIn": "Bu klasörde ileti yok: {folder}.",
   "widgetsB.email.changeFailed": "Bu işe yaramadı. themia.log dosyasına bakın.",
-  "widgetsB.settings.email.display": "Görüntü",
   "widgetsB.settings.email.view.desc": "Liste: üç satır. Sıkışık: iki. Satır: bir.",
   "widgetsB.settings.email.showPreview.label": "Önizlemeyi göster",
   "widgetsB.settings.email.showPreview.desc": "Liste görünümünde iletinin başlangıcı",

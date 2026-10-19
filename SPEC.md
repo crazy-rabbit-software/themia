@@ -1013,13 +1013,17 @@ The shared parts a list widget is built from, and the rules they keep (design an
   the shared sentence ([S-62]).
 - **[S-7041]** The accounts a kit widget reads: every account offering its need when it names none,
   else the named ones still signed in.
-- **[S-7063]** `KitRows`: a kit widget's standard settings rows, built only from `FluentLayout`: the
-  accounts it reads, a free input checked by the widget's own validator, a count, its optional
-  fields. One accounts row: "Every <kind> account" (on by default, accounts added later join), then
-  a switch per signed-in account while it is off (the last one cannot be turned off), then the
-  Accounts link; with no account one row that says so and opens Settings › Accounts. Every widget
-  page that chooses among accounts builds it with `KitRows.Accounts` (mail, calendars, contacts,
-  next meeting, week planner), its button and description words the shared ones.
+- **[S-7063]** `KitMenuLines`: a kit widget's standard lines on its properties menu ([S-3719];
+  user request 2026-10-19: they were `KitRows`, a settings page's rows), built only from the menu's
+  vocabulary: the accounts it reads, a count (`Count`, a number, [S-3726]), its optional fields
+  (`Shows`, switches); a free input is the menu's ask or list, checked by the widget's own validator
+  as it is typed ([S-3721], [S-3729]). One Accounts submenu: "Every <kind> account" (on by default,
+  accounts added later join), then a switch per signed-in account, its provider or problem at the
+  end (turning Every off starts from every account there is; the last chosen one is greyed), then
+  Manage accounts, which opens Settings › Accounts ([S-3745]); with no account the widget's sentence
+  and Add an account. Every widget that chooses among accounts builds it with
+  `KitMenuLines.Accounts` (directly, or through the SDK's `OfficeMenuLines`: mail, calendars,
+  contacts, next meeting, week planner).
 - **[S-7042]** `KitFreshness`, the one stale rule's words: one line per source and problem, folded,
   stamped with the oldest copy among them ("Work: No network · updated Mon 10:42", [S-2664]); the
   Refresh line with the age of the oldest copy on screen ("Refresh · updated 4 min ago").
@@ -1464,7 +1468,9 @@ rules in Core `Model/QuickSet.cs` and `Geometry/StripPlacement.cs` (tests `Quick
   holds. A module without lines (the default) keeps its options on its settings page. Shortcuts
   ([S-1388]), Clock ([S-1478]), the current conditions ([S-6174]), the forecast ([S-6173]) and air
   quality ([S-5108]), Sun ([S-3107]), Moon ([S-3108]), rain ([S-5127]) and the screen-time chart,
-  donut and app list ([S-3335], [S-3345], [S-3356]) have all their options here and no page; the others move one at a time
+  donut and app list ([S-3335], [S-3345], [S-3356]), the feed ([S-7510]), contacts ([S-7511]), mail
+  ([S-7512]), the calendar ([S-7513]), next meeting ([S-4826]), the week planner ([S-5324]) and
+  tasks ([S-7516]) have all their options here and no page; the others move one at a time
   (docs/WIDGET-KIT.md "Porting a widget's settings to the properties menu").
 - **[S-3721]** A line may **ask for one line of text** (`WidgetMenuLines.Ask`, `WidgetTextAsk`): a
   small flyout beside the menu with a heading, the box (holding `Initial`, selected, for a name
@@ -2487,7 +2493,7 @@ the shared source stay here under their tags.
 
 The classic Calendar and Contacts widgets, on Themia's own accounts ([S-529]) instead of the earlier hub
 hub. Pure rules in `Themia.Core/Office` (tested), one shared source in `Services/Office`, the views in
-`CalendarView*.cs` / `ContactsView.cs`, settings in `WidgetSettings.Calendar.cs` / `.Office.cs`.
+`CalendarView*.cs` / `ContactsView.cs`, options in the SDK's `OfficeMenuLines` (the properties menu, [S-3719]).
 
 - **[S-560]** Calendar shows events from Microsoft Graph (`calendarView`, `Prefer:
   outlook.timezone="UTC"`), Google Calendar (`events`, `singleEvents=true`) and CalDAV (`REPORT
@@ -2499,7 +2505,7 @@ hub. Pure rules in `Themia.Core/Office` (tested), one shared source in `Services
   `agendaCount` (1–100, 20) and `agendaDays` ([S-3636]). No `layout`: the style is the layout
   ([S-3640]). The context menu offers Refresh.
 - **[S-562]** An empty `accountIds` means every calendar account (later ones too — the Mail
-  pattern); settings offer "Every calendar account" or a choice where the last cannot be turned off.
+  pattern); the menu offers "Every calendar account" or a choice where the last cannot be turned off.
   Chosen accounts that were signed out are skipped; when none are left the widget says so with a
   link to Settings › Accounts.
 - **[S-563]** Every value is read leniently: a wrong type or unknown name becomes the default
@@ -2517,9 +2523,10 @@ hub. Pure rules in `Themia.Core/Office` (tested), one shared source in `Services
   per calendar (keyed by calendar id, or account id for a default calendar) wins; provider colours
   are normalised (`#rrggbbaa` → `#rrggbb`, `""`/`auto` → none). Chips carry colour when more than one
   calendar is shown or an override is set. Birthdays use the caution hue.
-- **[S-567]** Several calendars per account: settings list each account's calendars (Graph
-  `/me/calendars`, Google `calendarList`, CalDAV home-set listing) with a colour (Automatic or one of
-  the six) and, when there is more than one, a switch. No selection means the default calendar;
+- **[S-567]** Several calendars per account: the menu's Calendars line lists each chosen account's
+  calendars (Graph `/me/calendars`, Google `calendarList`, CalDAV home-set listing; one account's
+  straight in it, several a submenu each, read as [S-3746] says) with a colour (Automatic or one of
+  the six, under Calendar colors when there are several) and, when there is more than one, a switch. No selection means the default calendar;
   deselecting the last one goes back to it. A Google sign-in whose scope cannot list calendars
   (403) is offered its primary calendar.
 - **[S-568]** Ranges: month = whole weeks around the month; week = its days ([S-2719], a whole week
@@ -3521,20 +3528,20 @@ The calendar's layouts are its five styles, and the calendars on one view share 
 the event pointed at. Configs and their descriptors in Core's `Model/Configs/OfficeConfigs.cs`;
 the sharing rules in `Office/CalendarShare.cs`; provider reading in `Office/OfficeWire.cs`,
 `Office/CalendarRules.cs`, `Office/IcsEvents.cs`. One view, `CalendarView*.cs` (`CalendarView.Links.cs`
-for the links), one settings builder, `WidgetSettings.Calendar.cs`. Tests `OfficeConfigTests`
+for the links), one set of menu lines, the SDK's `OfficeMenuLines`. Tests `OfficeConfigTests`
 (`S36xx_`), `CalendarDaysTests`, `CalendarShareTests`, `CalendarProviderTests`.
 
 - **[S-3600]** *(Retired: five widget kinds, one per layout; they are one kind with five styles,
   [S-3640].)*
-- **[S-3601]** One settings builder for every calendar widget (the calendar, Next meeting, the week
-  planner): accounts and their calendars with colours ([S-562], [S-566], [S-567]) and birthdays,
+- **[S-3601]** One set of menu lines for every calendar widget (`OfficeMenuLines`: the calendar, Next
+  meeting, the week planner): accounts and their calendars with colours ([S-562], [S-566], [S-567]) and birthdays,
   plus only what the calendar's style uses ([S-3641]). No calendar stores a week start ([S-564]).
 - **[S-3602]** One data seam and one sync for every style ([S-2701], [S-588]): two calendar widgets on
   a desktop ask the same shared source and store, never their own.
 - **[S-3636]** The agenda's date range (`CalendarWidgetConfig.AgendaDays`, 1–365, 30): how many days it
   covers from today, today included; it replaces the fixed 30 days in the one range path
-  (`CalendarRules.ViewRange`). Settings offer Today, Today and tomorrow, 3, 7 and 30 days, and Custom,
-  which shows a number of days of its own; the length (`agendaCount`) still caps the entries within
+  (`CalendarRules.ViewRange`). The menu offers Today, Today and tomorrow, 3, 7 and 30 days, and
+  Custom…, which asks for a number of days of its own; the length (`agendaCount`) still caps the entries within
   it. A value out of range is brought inside it at load and logged.
 - **[S-3637]** The week's own days (`CalendarWidgetConfig`): `weekDays` (1–14, 7) and `weekFrom`
   (`week`, the regional first day of the week, or `today`); a working week is 5 from the week

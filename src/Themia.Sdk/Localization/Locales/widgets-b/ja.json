@@ -4,7 +4,6 @@
   "widgetsB.email.folderArchive": "アーカイブ",
   "widgetsB.email.noMessagesIn": "{folder} にメッセージはありません。",
   "widgetsB.email.changeFailed": "操作できませんでした。themia.log を確認してください。",
-  "widgetsB.settings.email.display": "表示",
   "widgetsB.settings.email.view.desc": "リスト: 3 行。コンパクト: 2 行。行: 1 行。",
   "widgetsB.settings.email.showPreview.label": "プレビューを表示",
   "widgetsB.settings.email.showPreview.desc": "リスト表示でメッセージの冒頭を表示します",

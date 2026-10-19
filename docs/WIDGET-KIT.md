@@ -153,7 +153,7 @@ KitAction, KitActionKind  ---- KitMenu.Entries -->   KitMenu          -> ItemMen
 KitKeys (one key map)                                KitHeader        busy ring, problem glyph, badge
 KitPlan = KitLadder.Plan(area, spec, show)           KitStatePanel    loading / empty / problem + link
 KitScreen = KitScreens.Decide(...)                   KitBinding       source <-> KitList, Detach-safe
-KitFreshness (the one stale rule)                    KitRows          standard settings rows
+KitFreshness (the one stale rule)                    KitMenuLines     standard properties-menu lines
 IKitConfig  (setup, interest, shown rows)            IWidgetModule, IWidgetView & co, Fluent, Glyphs
 ServiceDescriptor (data) picks strategies:
   Transport, Paging, Auth, Freshness,                Themia.App  (host, generic)
@@ -168,7 +168,7 @@ src/Widgets/Themia.Widget.<Name>/          config, KitSpec, view, settings rows,
 
 A kit widget's own code is its project: its config, a `KitSpec` (which fields, which actions,
 which sentences), a view of about a hundred lines that hands the spec and the source to
-`KitList`, and settings rows made of `KitRows`. A service is its provider project: descriptor,
+`KitList`, and properties-menu lines made of `KitMenuLines`. A service is its provider project: descriptor,
 wire types, rules, queries. A service has **no App code of its own**: the client, sign-in,
 cadence and storage are generic host code and read the descriptor.
 
@@ -1180,20 +1180,23 @@ server, Q6), validated as https on a public host. Anonymous reads (only where th
 `PublicReads`) use the same client without credentials; a 401 there reads as `Forbidden` (there is
 no sign-in to mend).
 
-### 6.6 Standard settings rows (`KitRows`)
+### 6.6 Standard properties-menu lines (`KitMenuLines`)
 
-In `src/Themia.Sdk.WinUI/Kit/KitRows.cs`, built only from `FluentLayout`, each with its
-`SettingRow` for search:
+User decision 2026-10-19: a widget's options are on its properties menu (section 15), so the kit's
+standard settings rows (`KitRows`) became lines, in `src/Themia.Sdk.WinUI/Kit/KitMenuLines.cs`,
+built only from the menu's vocabulary (`WidgetMenuLines`):
 
-- `KitRows.Accounts(rows, feature, config, save, openAccounts)`: "Every account" plus one toggle
-  per signed-in account offering the feature, or one row with "Add an account" when there is none.
-  Replaces `MailAccountRows`, `OfficeAccountRows` and Tasks' account rows when those migrate.
-- `KitRows.Query(...)`: the closed set of the service's lists as a choice row (`MultiChoice`), and
-  for free input (a repository, a label) `FluentLayout.ListEditor` with the Core validator's verdict
-  under the box, committed on Enter or leaving the box, never repaired ([S-1302]'s pattern).
-- `KitRows.Count(...)`: how many items, a slider within the service's bound.
-- `KitRows.Shows(...)`: one toggle per optional field in `KitShow`, offered through
-  `IShownSettings<KitShow>` only where the current style draws it ([S-6070]).
+- `KitMenuLines.Accounts(menu, glyph, accounts, words, chosenIds, setIds)`: the Accounts submenu,
+  "Every account" plus one switch per signed-in account offering the feature (its provider or
+  problem at the end, the last chosen one greyed), then Manage accounts (`menu.AccountsLine`,
+  Settings › Accounts, [S-3745]); with none, the widget's sentence and Add an account. The office
+  widgets go through `OfficeMenuLines` (`Accounts`, `CalendarAccounts` with each account's
+  calendars and colours, read through `MenuLoads`, [S-3746], `Birthdays`).
+- Free input (a feed, a repository, a label): the menu's list (`menu.List` with `Add` and the
+  validator as its `Refuse`, checked as it is typed, never repaired; [S-1302]'s pattern) or `Ask`.
+- `KitMenuLines.Count(...)`: how many items, a number within the service's bound ([S-3726]).
+- `KitMenuLines.Shows(...)`: one switch per optional field in `KitShow`, offered only where the
+  current style draws it ([S-6070]).
 
 No refresh row ([S-3780]): the service's cadence is a line in Settings › Widgets › Updates, added
 by its provider's `CadenceRow`. No title, style, header, background, scale or alignment row: those are the
@@ -1243,8 +1246,8 @@ section 13 walks them for Linear and Todoist.
 5. **Test first** where it is logic, in the module's `Tests/`: the mapping on fixtures, the merge
    across accounts, the query key, the ladder plan at all seven tiers (`WidgetTiers`), the screen
    decisions. Names mirror tags: `S7104_a_draft_pull_request_carries_the_draft_badge`.
-6. **View and settings rows**: the generated view is complete for a kit list; the rows are `KitRows`
-   calls. Write the strings into the module's `Localization/Locales/en.json` (new keys in
+6. **View and menu lines**: the generated view is complete for a kit list; its options are
+   `KitMenuLines` calls in its `MenuLines` (section 15). Write the strings into the module's `Localization/Locales/en.json` (new keys in
    `$englishOnly` until translated, Q8).
 7. **SPEC**: the module's `SPEC.md` with tagged lines for every behaviour (its own block), owning
    files and tests, and what needs a manual pass.
@@ -1273,7 +1276,7 @@ A widget module:
 | `<Name>Config.cs` | `sealed class … : WidgetConfig` (+ `IKitConfig` for a kit list, `IStyled` when asked), `Clone`, `Repair`; its JSON context |
 | `<Name>Spec.cs` | the `KitSpec`, mapping and actions (a kit list), or the view's Core rules (`Stat`, `Custom`) |
 | `<Name>View.cs` | the kit view of section 6.4, or a `Stat`/`Custom` skeleton implementing `IWidgetSizeAware` |
-| `<Name>Page.cs` | `KitRows` calls, or nothing (no page, [S-1750]) |
+| `<Name>Menu.cs` | `KitMenuLines` calls for `MenuLines` (section 15), or nothing |
 | `Localization/Locales/en.json` | label, description, keywords, sentences, `$englishOnly` |
 | `Preview/` | preview states when the widget is not a kit list (kit lists get theirs from fixtures) |
 | `Tests/<Name>Tests.cs` | one failing test per skeleton tag |
@@ -2787,7 +2790,9 @@ change, so a closure may keep the value it was built with.
 | text | `menu.Ask(new WidgetTextAsk(title, placeholder, accept, refuse, done, Initial:, AllowEmpty:))` from a line's action | a small flyout beside the menu; `refuse` is the trust boundary (validate as typed) |
 | a place, a zone, anything searched | `WidgetMenuLines.Search(glyph, text, value, new MenuSearch(placeholder, find, fixedLines, settle))` | box on top, five answers and Show all, fixed lines under them |
 | a folder | `menu.PickFolder(glyph, text, path, set)` | Windows' folder picker; the folder's name at the end |
-| a list (feeds, symbols, hosts) | `menu.List(glyph, text, items, new MenuList<T>(name, emptySentence) { Rename, Extra, Add, AddLines, Max, Reorder, Glyph, IconFile })` | a submenu of items (Rename…, own lines, Move up/down, Remove), Add… |
+| the accounts a widget reads | `KitMenuLines.Accounts(…)` / `OfficeMenuLines.Accounts`, `.CalendarAccounts` | Every account, a switch each, Manage accounts (`menu.AccountsLine`, Settings › Accounts, [S-3745]) |
+| something read asynchronously (an account's calendars, its lists) | a static `MenuLoads<T>` keyed per source, `Read(key, menu, read)` | what is held now ("Looking…" note until it comes); an answer that differs outdates the menu (`WidgetMenuLines.Outdated`) and the host builds it again ([S-3746]) |
+| a list (feeds, symbols, hosts) | `menu.List(glyph, text, items, new MenuList<T>(name, emptySentence) { Rename, Extra, Add, AddLines, Max, Reorder, Glyph, IconFile })` | a submenu of items (Rename…, own lines, Move up/down, Remove greyed at `Min`), Add… |
 | a destructive command | `menu.Confirm(glyph, text, question, confirmWords, action, danger: true, disabled:)` | asks beside the menu first; danger lines in the critical colour |
 | a change, a command | `menu.Command(glyph, text, change, disabled:)` or a plain `new ItemMenuEntry(glyph, text, action)` | runs on a click (a plain command does not save) |
 | words only | `WidgetMenuLines.Note(text)` | greyed, never clickable (a data source's credit) |

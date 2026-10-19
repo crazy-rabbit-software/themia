@@ -4,7 +4,6 @@
   "widgetsB.email.folderArchive": "보관",
   "widgetsB.email.noMessagesIn": "{folder}에 메시지가 없습니다.",
   "widgetsB.email.changeFailed": "작업을 완료하지 못했습니다. themia.log를 참조하세요.",
-  "widgetsB.settings.email.display": "표시",
   "widgetsB.settings.email.view.desc": "목록: 세 줄. 간단히: 두 줄. 행: 한 줄.",
   "widgetsB.settings.email.showPreview.label": "미리 보기 표시",
   "widgetsB.settings.email.showPreview.desc": "목록 보기에서 메시지의 시작 부분",

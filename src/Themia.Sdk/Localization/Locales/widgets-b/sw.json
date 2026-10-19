@@ -4,7 +4,6 @@
   "widgetsB.email.folderArchive": "Kumbukumbu",
   "widgetsB.email.noMessagesIn": "Hakuna jumbe katika {folder}.",
   "widgetsB.email.changeFailed": "Hilo halikufanya kazi. Angalia themia.log.",
-  "widgetsB.settings.email.display": "Onyesho",
   "widgetsB.settings.email.view.desc": "Orodha: mistari mitatu. Fupi: miwili. Safu mlalo: mmoja.",
   "widgetsB.settings.email.showPreview.label": "Onyesha onyesho la kuchungulia",
   "widgetsB.settings.email.showPreview.desc": "Mwanzo wa ujumbe, katika mwonekano wa orodha",

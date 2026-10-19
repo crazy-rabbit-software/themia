@@ -4,7 +4,6 @@
   "widgetsB.email.folderArchive": "ఆర్కైవ్",
   "widgetsB.email.noMessagesIn": "{folder}లో సందేశాలు లేవు.",
   "widgetsB.email.changeFailed": "అది పని చేయలేదు. themia.log చూడండి.",
-  "widgetsB.settings.email.display": "ప్రదర్శన",
   "widgetsB.settings.email.view.desc": "జాబితా: మూడు పంక్తులు. కాంపాక్ట్: రెండు. వరుస: ఒకటి.",
   "widgetsB.settings.email.showPreview.label": "ప్రివ్యూ చూపించు",
   "widgetsB.settings.email.showPreview.desc": "జాబితా వీక్షణలో, సందేశం ప్రారంభం",

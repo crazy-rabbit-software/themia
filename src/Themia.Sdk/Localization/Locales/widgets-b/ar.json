@@ -4,7 +4,6 @@
   "widgetsB.email.folderArchive": "الأرشيف",
   "widgetsB.email.noMessagesIn": "لا رسائل في {folder}.",
   "widgetsB.email.changeFailed": "لم ينجح ذلك. راجع themia.log.",
-  "widgetsB.settings.email.display": "العرض",
   "widgetsB.settings.email.view.desc": "قائمة: ثلاثة أسطر. مضغوط: سطران. صف: سطر واحد.",
   "widgetsB.settings.email.showPreview.label": "إظهار المعاينة",
   "widgetsB.settings.email.showPreview.desc": "بداية الرسالة، في طريقة عرض القائمة",

@@ -4,7 +4,6 @@
   "widgetsB.email.folderArchive": "संग्रह",
   "widgetsB.email.noMessagesIn": "{folder} में कोई संदेश नहीं।",
   "widgetsB.email.changeFailed": "यह काम नहीं किया। themia.log देखें।",
-  "widgetsB.settings.email.display": "प्रदर्शन",
   "widgetsB.settings.email.view.desc": "सूची: तीन पंक्तियाँ। कॉम्पैक्ट: दो। पंक्ति: एक।",
   "widgetsB.settings.email.showPreview.label": "पूर्वावलोकन दिखाएँ",
   "widgetsB.settings.email.showPreview.desc": "सूची व्यू में संदेश की शुरुआत",

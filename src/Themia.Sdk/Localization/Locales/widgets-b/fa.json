@@ -4,7 +4,6 @@
   "widgetsB.email.folderArchive": "بایگانی",
   "widgetsB.email.noMessagesIn": "پیامی در {folder} نیست.",
   "widgetsB.email.changeFailed": "انجام نشد. themia.log را ببینید.",
-  "widgetsB.settings.email.display": "نمایش",
   "widgetsB.settings.email.view.desc": "فهرست: سه خط. فشرده: دو. ردیف: یک.",
   "widgetsB.settings.email.showPreview.label": "نمایش پیش‌نمایش",
   "widgetsB.settings.email.showPreview.desc": "ابتدای پیام، در نمای فهرست",

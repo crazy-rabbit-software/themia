@@ -335,6 +335,17 @@ internal static class EditBarRender
             ([new(new WidgetId("videoStream"), 200, 160, 320, 200, HeaderPlacement.Top, true)], "videostream-rotation", "Rotation", null),
             ([new(new WidgetId("stocks"), 200, 160, 300, 200, HeaderPlacement.Top, true)], "stocks-period", "Timeframe", null),
             ([new(new WidgetId("exchangeRates"), 200, 160, 300, 200, HeaderPlacement.Top, true)], "rates-base", "Base currency", "c"),
+
+            // The account and list widgets: the feeds, the accounts (none signed in to a render), a
+            // style's own lines, where tasks come from and their filters.
+            ([new(new WidgetId("rss"), 200, 160, 340, 260, HeaderPlacement.Top, true)], "rss-feeds", "Feeds", null),
+            ([new(new WidgetId("email"), 200, 160, 340, 260, HeaderPlacement.Top, true, Style: "table")], "email-columns", Str.Styles_Label.Text() + "/Columns", null),
+            ([new(new WidgetId("email"), 200, 160, 340, 260, HeaderPlacement.Top, true)], "email-accounts", Str.WidgetUi_AccountsLabel.Text(), null),
+            ([new(new WidgetId("calendar"), 200, 160, 340, 260, HeaderPlacement.Top, true, Style: "agenda")], "calendar-range", Str.Styles_Label.Text() + "/Date range", null),
+            ([new(new WidgetId("contacts"), 200, 160, 320, 240, HeaderPlacement.Top, true)], "contacts-layout", "Layout", null),
+            ([new(new WidgetId("weekPlanner"), 200, 160, 400, 240, HeaderPlacement.Top, true)], "weekplanner-tasks", "Tasks from", null),
+            ([new(new WidgetId("tasks"), 200, 160, 300, 260, HeaderPlacement.Top, true)], "tasks-source", "Show tasks from", null),
+            ([new(new WidgetId("tasks"), 200, 160, 300, 260, HeaderPlacement.Top, true)], "tasks-filter", "Filter", null),
         ];
 
         // [S-2847] The location searches answer from fixture places; [S-3323] the screen-time lines read the sample history.

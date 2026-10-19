@@ -111,18 +111,19 @@ public sealed partial class KitConformanceTests
     }
 
     /// <summary>
-    /// [S-7063] One accounts row: a widget page that lets the user choose among the signed-in accounts
-    /// builds the choice with <c>KitRows.Accounts</c> (directly, or through the SDK's office rows), never
-    /// its own switches, so every page says "every account" the same way.
+    /// [S-7063] One Accounts submenu: a widget that lets the user choose among the signed-in accounts
+    /// (it reads <c>SettingsHost.AccountsWith</c> or the office source's accounts) builds the choice
+    /// with <c>KitMenuLines.Accounts</c> (directly, or through the SDK's <c>OfficeMenuLines</c>), never
+    /// its own switches, so every widget says "every account" the same way.
     /// </summary>
     [Fact]
-    public void S7063_a_page_that_chooses_accounts_builds_the_kits_accounts_row()
+    public void S7063_a_widget_that_chooses_accounts_builds_the_kits_accounts_submenu()
     {
         var offending = RepoFiles.WidgetModules()
-            .SelectMany(RepoFiles.CSharp)
-            .Where(RepoFiles.IsSettingsPage)
-            .Where(f => Code(f) is var code && code.Contains("SettingsHost.AccountsWith(", StringComparison.Ordinal)
-                && !code.Contains("KitRows.Accounts(", StringComparison.Ordinal))
+            .Where(dir => string.Concat(RepoFiles.CSharp(dir).Select(Code)) is var code
+                && (code.Contains("SettingsHost.AccountsWith(", StringComparison.Ordinal) || code.Contains("SettingsHost.Office", StringComparison.Ordinal))
+                && !code.Contains("KitMenuLines.Accounts(", StringComparison.Ordinal)
+                && !code.Contains("OfficeMenuLines.", StringComparison.Ordinal))
             .Select(Path.GetFileName)
             .ToList();
 

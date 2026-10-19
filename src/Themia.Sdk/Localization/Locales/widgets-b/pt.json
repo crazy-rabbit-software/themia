@@ -4,7 +4,6 @@
   "widgetsB.email.folderArchive": "Arquivo morto",
   "widgetsB.email.noMessagesIn": "Nenhuma mensagem em {folder}.",
   "widgetsB.email.changeFailed": "Não funcionou. Veja themia.log.",
-  "widgetsB.settings.email.display": "Exibição",
   "widgetsB.settings.email.view.desc": "Lista: três linhas. Compacta: duas. Linha: uma.",
   "widgetsB.settings.email.showPreview.label": "Mostrar visualização",
   "widgetsB.settings.email.showPreview.desc": "O início da mensagem, na exibição em lista",

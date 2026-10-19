@@ -4,7 +4,6 @@
   "widgetsB.email.folderArchive": "Архив",
   "widgetsB.email.noMessagesIn": "В папке «{folder}» нет писем.",
   "widgetsB.email.changeFailed": "Не получилось. См. themia.log.",
-  "widgetsB.settings.email.display": "Отображение",
   "widgetsB.settings.email.view.desc": "Список: три строки. Компактный: две. Строка: одна.",
   "widgetsB.settings.email.showPreview.label": "Показывать предпросмотр",
   "widgetsB.settings.email.showPreview.desc": "Начало письма в виде списка",
