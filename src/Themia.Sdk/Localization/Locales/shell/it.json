@@ -348,7 +348,6 @@
   "shell.accounts.connectedContacts": "Rubrica di {address} connessa.",
   "shell.accounts.checking": "Verifica…",
   "shell.accounts.didNotWork": "Non ha funzionato: {reason}",
-  "shell.refresh.header": "Aggiornamento",
   "shell.refresh.secondsUnit": "s",
   "shell.refresh.everyMinutes": {
     "one": "Ogni {count} minuto",

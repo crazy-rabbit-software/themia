@@ -681,35 +681,6 @@ public static class FluentLayout
     }
 
     // ---------------------------------------------------------------------------------------
-    // How often a widget updates
-    // ---------------------------------------------------------------------------------------
-
-    /// <summary>
-    /// A refresh row in seconds, for the one widget whose cadence is its own (a camera's snapshot
-    /// interval). Online sources share their cadence in Settings › Widgets ([S-3780]); local reads
-    /// use the kind's own fixed cadence ([S-3793]).
-    /// </summary>
-    /// <param name="description">
-    /// The row's description as one whole sentence in the current language — "How often the
-    /// devices are enumerated" — never a fragment this method completes: word order differs per
-    /// language, so each caller owns its own key.
-    /// </param>
-    public static void RefreshSeconds(
-        List<FrameworkElement> rows,
-        string description,
-        double current,
-        double min,
-        double max,
-        double step,
-        Action<int> onChanged)
-    {
-        rows.Add(Header(Str.Shell_Refresh_Header.Text()));
-
-        rows.Add(Row(Glyphs.Timer, Str.Common_Refresh.Text(), description,
-            Slider(current, min, max, step, Str.Shell_Refresh_SecondsUnit.Text(), value => onChanged((int)Math.Round(value)))));
-    }
-
-    // ---------------------------------------------------------------------------------------
     // Destroying something
     // ---------------------------------------------------------------------------------------
 

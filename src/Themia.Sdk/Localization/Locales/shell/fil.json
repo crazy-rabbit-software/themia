@@ -348,7 +348,6 @@
   "shell.accounts.connectedContacts": "Nakakonekta ang address book ng {address}.",
   "shell.accounts.checking": "Sinusuri…",
   "shell.accounts.didNotWork": "Hindi iyon gumana: {reason}",
-  "shell.refresh.header": "Pag-update",
   "shell.refresh.secondsUnit": "s",
   "shell.refresh.everyMinutes": {
     "one": "Kada {count} minuto",

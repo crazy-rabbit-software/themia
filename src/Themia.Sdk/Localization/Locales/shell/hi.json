@@ -348,7 +348,6 @@
   "shell.accounts.connectedContacts": "{address} की पता पुस्तिका कनेक्ट हो गई।",
   "shell.accounts.checking": "जाँच हो रही है…",
   "shell.accounts.didNotWork": "यह काम नहीं किया: {reason}",
-  "shell.refresh.header": "अपडेट",
   "shell.refresh.secondsUnit": "s",
   "shell.refresh.everyMinutes": {
     "one": "हर {count} मिनट",

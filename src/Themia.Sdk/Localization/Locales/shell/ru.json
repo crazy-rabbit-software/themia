@@ -364,7 +364,6 @@
   "shell.accounts.connectedContacts": "Подключена адресная книга {address}.",
   "shell.accounts.checking": "Проверка…",
   "shell.accounts.didNotWork": "Не получилось: {reason}",
-  "shell.refresh.header": "Обновление",
   "shell.refresh.secondsUnit": "с",
   "shell.refresh.everyMinutes": {
     "one": "Каждую {count} минуту",

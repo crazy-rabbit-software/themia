@@ -340,7 +340,6 @@
   "shell.accounts.connectedContacts": "Buku alamat {address} terhubung.",
   "shell.accounts.checking": "Memeriksa…",
   "shell.accounts.didNotWork": "Itu tidak berhasil: {reason}",
-  "shell.refresh.header": "Pembaruan",
   "shell.refresh.secondsUnit": "d",
   "shell.refresh.everyMinutes": {
     "other": "Setiap {count} menit"

@@ -348,7 +348,6 @@
   "shell.accounts.connectedContacts": "An haɗa littafin adireshin {address}.",
   "shell.accounts.checking": "Ana dubawa…",
   "shell.accounts.didNotWork": "Hakan bai yi aiki ba: {reason}",
-  "shell.refresh.header": "Sabuntawa",
   "shell.refresh.secondsUnit": "d",
   "shell.refresh.everyMinutes": {
     "one": "Kowane minti {count}",

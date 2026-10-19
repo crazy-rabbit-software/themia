@@ -348,7 +348,6 @@
   "shell.accounts.connectedContacts": "{address} இன் முகவரிப் புத்தகம் இணைக்கப்பட்டது.",
   "shell.accounts.checking": "சரிபார்க்கிறது…",
   "shell.accounts.didNotWork": "அது வேலை செய்யவில்லை: {reason}",
-  "shell.refresh.header": "புதுப்பித்தல்",
   "shell.refresh.secondsUnit": "வி",
   "shell.refresh.everyMinutes": {
     "one": "ஒவ்வொரு {count} நிமிடமும்",

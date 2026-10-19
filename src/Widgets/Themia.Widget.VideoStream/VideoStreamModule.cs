@@ -37,8 +37,9 @@ public sealed class VideoStreamModule : IWidgetModule
         Add = new(AddFolderId.Media, 1, 1),
     };
 
-    public void SettingsRows(WidgetSettingsRows rows, WidgetConfig config)
-        => VideoStreamSettings.Rows(rows.Rows, (VideoStreamConfig)config, rows.Save);
+    /// <summary>[S-3719] Every option is on the properties menu: the widget has no settings page.</summary>
+    public void MenuLines(WidgetMenuLines menu, WidgetConfig config)
+        => VideoStreamMenu.Lines(menu, (VideoStreamConfig)config);
 
     public FrameworkElement CreateView(IWidgetHost host) => new VideoStreamView(host);
 }

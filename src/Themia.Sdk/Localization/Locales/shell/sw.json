@@ -348,7 +348,6 @@
   "shell.accounts.connectedContacts": "Imeunganisha kitabu cha anwani cha {address}.",
   "shell.accounts.checking": "Inakagua…",
   "shell.accounts.didNotWork": "Hilo halikufanya kazi: {reason}",
-  "shell.refresh.header": "Kusasisha",
   "shell.refresh.secondsUnit": "s",
   "shell.refresh.everyMinutes": {
     "one": "Kila dakika {count}",

@@ -340,7 +340,6 @@
   "shell.accounts.connectedContacts": "{address}의 주소록을 연결했습니다.",
   "shell.accounts.checking": "확인 중…",
   "shell.accounts.didNotWork": "작업을 완료하지 못했습니다: {reason}",
-  "shell.refresh.header": "업데이트",
   "shell.refresh.secondsUnit": "초",
   "shell.refresh.everyMinutes": {
     "other": "{count}분마다"

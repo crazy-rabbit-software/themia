@@ -348,7 +348,6 @@
   "shell.accounts.connectedContacts": "{address} ਦੀ ਐਡਰੈੱਸ ਬੁੱਕ ਕਨੈਕਟ ਕੀਤੀ।",
   "shell.accounts.checking": "ਜਾਂਚ ਹੋ ਰਹੀ ਹੈ…",
   "shell.accounts.didNotWork": "ਉਹ ਕੰਮ ਨਹੀਂ ਕੀਤਾ: {reason}",
-  "shell.refresh.header": "ਅੱਪਡੇਟ ਹੋਣਾ",
   "shell.refresh.secondsUnit": "ਸ",
   "shell.refresh.everyMinutes": {
     "one": "ਹਰ {count} ਮਿੰਟ",

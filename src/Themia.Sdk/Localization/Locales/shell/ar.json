@@ -380,7 +380,6 @@
   "shell.accounts.connectedContacts": "تم توصيل دفتر عناوين {address}.",
   "shell.accounts.checking": "جارٍ التحقق…",
   "shell.accounts.didNotWork": "لم ينجح ذلك: {reason}",
-  "shell.refresh.header": "التحديث",
   "shell.refresh.secondsUnit": "ث",
   "shell.refresh.everyMinutes": {
     "zero": "كل {count} دقيقة",

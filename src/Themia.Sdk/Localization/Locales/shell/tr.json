@@ -348,7 +348,6 @@
   "shell.accounts.connectedContacts": "Adres defteri bağlandı: {address}.",
   "shell.accounts.checking": "Denetleniyor…",
   "shell.accounts.didNotWork": "Bu işe yaramadı: {reason}",
-  "shell.refresh.header": "Güncelleme",
   "shell.refresh.secondsUnit": "sn",
   "shell.refresh.everyMinutes": {
     "one": "{count} dakikada bir",

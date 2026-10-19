@@ -364,7 +364,6 @@
   "shell.accounts.connectedContacts": "Połączono książkę adresową konta {address}.",
   "shell.accounts.checking": "Sprawdzanie…",
   "shell.accounts.didNotWork": "To nie zadziałało: {reason}",
-  "shell.refresh.header": "Aktualizacja",
   "shell.refresh.secondsUnit": "s",
   "shell.refresh.everyMinutes": {
     "one": "Co {count} minutę",

@@ -348,7 +348,6 @@
   "shell.accounts.connectedContacts": "Adresboek van {address} verbonden.",
   "shell.accounts.checking": "Controleren…",
   "shell.accounts.didNotWork": "Dat is niet gelukt: {reason}",
-  "shell.refresh.header": "Bijwerken",
   "shell.refresh.secondsUnit": "s",
   "shell.refresh.everyMinutes": {
     "one": "Om de {count} minuut",

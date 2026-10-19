@@ -340,7 +340,6 @@
   "shell.accounts.connectedContacts": "{address} のアドレス帳に接続しました。",
   "shell.accounts.checking": "確認しています…",
   "shell.accounts.didNotWork": "うまくいきませんでした: {reason}",
-  "shell.refresh.header": "更新",
   "shell.refresh.secondsUnit": "秒",
   "shell.refresh.everyMinutes": {
     "other": "{count} 分ごと"

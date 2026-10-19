@@ -340,7 +340,6 @@
   "shell.accounts.connectedContacts": "已連線 {address} 的通訊錄。",
   "shell.accounts.checking": "正在檢查…",
   "shell.accounts.didNotWork": "未成功：{reason}",
-  "shell.refresh.header": "更新",
   "shell.refresh.secondsUnit": "秒",
   "shell.refresh.everyMinutes": {
     "other": "每 {count} 分鐘"

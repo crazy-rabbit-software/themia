@@ -348,7 +348,6 @@
   "shell.accounts.connectedContacts": "Catálogo de endereços de {address} conectado.",
   "shell.accounts.checking": "Verificando…",
   "shell.accounts.didNotWork": "Não funcionou: {reason}",
-  "shell.refresh.header": "Atualização",
   "shell.refresh.secondsUnit": "s",
   "shell.refresh.everyMinutes": {
     "one": "A cada {count} minuto",

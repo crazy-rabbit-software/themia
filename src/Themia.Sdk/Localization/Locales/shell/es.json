@@ -348,7 +348,6 @@
   "shell.accounts.connectedContacts": "Libreta de direcciones de {address} conectada.",
   "shell.accounts.checking": "Comprobando…",
   "shell.accounts.didNotWork": "No funcionó: {reason}",
-  "shell.refresh.header": "Actualización",
   "shell.refresh.secondsUnit": "s",
   "shell.refresh.everyMinutes": {
     "one": "Cada {count} minuto",

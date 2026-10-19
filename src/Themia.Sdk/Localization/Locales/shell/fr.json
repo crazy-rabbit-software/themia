@@ -348,7 +348,6 @@
   "shell.accounts.connectedContacts": "Carnet d’adresses de {address} connecté.",
   "shell.accounts.checking": "Vérification…",
   "shell.accounts.didNotWork": "Cela n’a pas fonctionné : {reason}",
-  "shell.refresh.header": "Mise à jour",
   "shell.refresh.secondsUnit": "s",
   "shell.refresh.everyMinutes": {
     "one": "Toutes les {count} minute",

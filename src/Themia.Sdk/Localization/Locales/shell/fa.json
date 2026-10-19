@@ -348,7 +348,6 @@
   "shell.accounts.connectedContacts": "دفترچه نشانی {address} متصل شد.",
   "shell.accounts.checking": "در حال بررسی…",
   "shell.accounts.didNotWork": "انجام نشد: {reason}",
-  "shell.refresh.header": "به‌روزرسانی",
   "shell.refresh.secondsUnit": "ثانیه",
   "shell.refresh.everyMinutes": {
     "one": "هر {count} دقیقه",

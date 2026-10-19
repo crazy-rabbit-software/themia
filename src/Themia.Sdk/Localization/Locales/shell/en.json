@@ -347,7 +347,6 @@
   "shell.accounts.connectedContacts": "Connected {address}'s address book.",
   "shell.accounts.checking": "Checking…",
   "shell.accounts.didNotWork": "That did not work: {reason}",
-  "shell.refresh.header": "Updating",
   "shell.refresh.secondsUnit": "s",
   "shell.refresh.everyMinutes": {
     "one": "Every {count} minute",

@@ -340,7 +340,6 @@
   "shell.accounts.connectedContacts": "Đã kết nối sổ địa chỉ của {address}.",
   "shell.accounts.checking": "Đang kiểm tra…",
   "shell.accounts.didNotWork": "Không thành công: {reason}",
-  "shell.refresh.header": "Cập nhật",
   "shell.refresh.secondsUnit": "s",
   "shell.refresh.everyMinutes": {
     "other": "Mỗi {count} phút"

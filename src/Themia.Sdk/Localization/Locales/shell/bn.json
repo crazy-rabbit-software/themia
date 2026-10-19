@@ -348,7 +348,6 @@
   "shell.accounts.connectedContacts": "{address}-এর ঠিকানা বই সংযুক্ত হয়েছে।",
   "shell.accounts.checking": "পরীক্ষা হচ্ছে…",
   "shell.accounts.didNotWork": "এটি কাজ করেনি: {reason}",
-  "shell.refresh.header": "আপডেট",
   "shell.refresh.secondsUnit": "সে",
   "shell.refresh.everyMinutes": {
     "one": "প্রতি {count} মিনিটে",

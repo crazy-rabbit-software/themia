@@ -348,7 +348,6 @@
   "shell.accounts.connectedContacts": "{address} کی ایڈریس بک منسلک ہو گئی۔",
   "shell.accounts.checking": "چیک ہو رہا ہے…",
   "shell.accounts.didNotWork": "یہ کام نہیں کیا: {reason}",
-  "shell.refresh.header": "اپ ڈیٹ",
   "shell.refresh.secondsUnit": "سیکنڈ",
   "shell.refresh.everyMinutes": {
     "one": "ہر {count} منٹ",

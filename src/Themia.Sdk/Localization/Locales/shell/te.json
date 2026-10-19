@@ -348,7 +348,6 @@
   "shell.accounts.connectedContacts": "{address} చిరునామా పుస్తకం కనెక్ట్ అయింది.",
   "shell.accounts.checking": "తనిఖీ చేస్తోంది…",
   "shell.accounts.didNotWork": "అది పని చేయలేదు: {reason}",
-  "shell.refresh.header": "నవీకరణ",
   "shell.refresh.secondsUnit": "సె",
   "shell.refresh.everyMinutes": {
     "one": "ప్రతి {count} నిమిషానికి",

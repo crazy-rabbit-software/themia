@@ -340,7 +340,6 @@
   "shell.accounts.connectedContacts": "เชื่อมต่อสมุดรายชื่อของ {address} แล้ว",
   "shell.accounts.checking": "กำลังตรวจสอบ…",
   "shell.accounts.didNotWork": "ไม่สำเร็จ: {reason}",
-  "shell.refresh.header": "การอัปเดต",
   "shell.refresh.secondsUnit": "วิ",
   "shell.refresh.everyMinutes": {
     "other": "ทุก {count} นาที"

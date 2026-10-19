@@ -9,12 +9,12 @@ behind `IWidgetHost.Streams`), Space to pause ([S-1991], the SDK's `ControlKeys`
 ([S-6602], the SDK's `HlsVariants`).
 
 Owning files: everything in this folder: `VideoStreamModule.cs` (descriptor, glyph, view factory,
-settings rows, JSON context), `VideoStreamConfig.cs` (the address gate, fit, rotation, paused, refresh,
+menu lines, JSON context), `VideoStreamConfig.cs` (the address gate, fit, rotation, paused, refresh,
 the chrome's two switches), `VideoStreamView.cs` (the session through `IWidgetHost.Streams`, the frames,
 Windows' player for a video) with `.Overlay.cs` (the hover strip, the controls, the chip),
 `ShownWatch.cs` (whether the card can be seen), `StreamChromeRules.cs` (the chrome ladder, its words,
-the frame-rate meter), `VideoStreamSettings.cs` (its page), `Localization/Locales/` (its own
-`VideoStreamStr`, 30 languages). Tests: `Tests/StreamChromeTests.cs`, `Tests/VideoStreamConfigTests.cs`
+the frame-rate meter), `VideoStreamMenu.cs` (its properties-menu lines), `Localization/Locales/` (its own
+`VideoStreamStr`, 30 languages). Tests: `Tests/StreamChromeTests.cs`, `Tests/VideoStreamConfigTests.cs`, `Tests/VideoStreamMenuTests.cs`
 (run by `tests/Themia.Modules.Tests`); its config under the root's rules is the module host's
 `VideoStreamHostTests`.
 
@@ -29,18 +29,27 @@ releases everything.
 - **[S-466]** Fit: whole picture (letterbox, default), fill and crop, stretch (was [S-16]). One
   `Stretch` mapping drives both the decoded-frame `Image` and the video player.
 - **[S-467]** The stream address is checked by `WebInput.Url` on every read — http/https only, no
-  credentials, no UNC, refused rather than repaired — and the settings box explains a refusal (was
+  credentials, no UNC, refused rather than repaired — and the menu's address box explains a refusal as it is typed (was
   [S-09]). A refused address shows its reason in place of the picture; an empty one is the Set up button
   ([S-1862], was [S-02]).
 - **[S-469]** Paused is persisted, so a parked camera stays parked across restarts and uses no network;
   it shows "Paused" (was [S-07]).
+- **[S-473]** Its options are all on the properties menu ([S-3719], user request 2026-10-19); it
+  has no settings page. Appearance ([S-3723]), then **Address** (asked beside the menu, [S-3721],
+  starting from what is there; its host at the line's end; checked as typed, [S-467]: "Only http and
+  https addresses" for another scheme, `WebInput`'s reason otherwise; stored trimmed; empty clears it
+  and the widget waits for setup), **Fit** ([S-466]), **Rotation** (None / 90° / 180° / 270°,
+  [S-468]), **Refresh** (0 to 300 s, asked for as a number, [S-3726]; 0 reads "Live" and keeps the
+  stream open), **Controls on hover** and **Status chip** ([S-1312]), and a note: pause, rotate and
+  reconnect are on the right-click menu, cameras that need a password are not supported.
+  (Tests `VideoStreamMenuTests`.)
 - **[S-1312]** Video stream chrome ladder (`StreamChromeRules.Chrome`, `IWidgetSizeAware`). The
   picture is the widget at every size; nothing else ever shows on XS, S or a Wide strip (height
   under Regular). From M (Regular × Regular, so Tall too), with the pointer on the picture, a
   bottom strip shows a state dot, the state and the frame's age. From L (Expanded × Expanded) the
   strip adds Pause/Resume, Rotate and Refresh (the same handlers as the context menu's) and
   the camera's resolution and measured frame rate. At XL (Huge × Huge) a persistent top-left chip
-  shows the state and transport. Two settings: `HoverControls` (default **on**: invisible until
+  shows the state and transport. Two switches ([S-473]): `HoverControls` (default **on**: invisible until
   hovered, and never on the small sizes) gates every hover part; `ShowStatus` (default **off**,
   because the original had no chrome) gates the chip. The view's own `SizeChanged` is gone: the
   decode size, the message's shedding and the chrome all follow the card's area.

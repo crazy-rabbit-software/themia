@@ -348,7 +348,6 @@
   "shell.accounts.connectedContacts": "{address} ની સરનામા પુસ્તિકા કનેક્ટ થઈ.",
   "shell.accounts.checking": "તપાસી રહ્યાં છીએ…",
   "shell.accounts.didNotWork": "તે કામ કર્યું નહીં: {reason}",
-  "shell.refresh.header": "અપડેટ",
   "shell.refresh.secondsUnit": "સે",
   "shell.refresh.everyMinutes": {
     "one": "દર {count} મિનિટે",

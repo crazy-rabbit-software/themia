@@ -348,7 +348,6 @@
   "shell.accounts.connectedContacts": "{address} चे अ‍ॅड्रेस बुक कनेक्ट केले.",
   "shell.accounts.checking": "तपासत आहे…",
   "shell.accounts.didNotWork": "ते काम झाले नाही: {reason}",
-  "shell.refresh.header": "अपडेट",
   "shell.refresh.secondsUnit": "s",
   "shell.refresh.everyMinutes": {
     "one": "दर {count} मिनिटाला",
