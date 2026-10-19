@@ -94,7 +94,7 @@ src/Themia.Sdk.WinUI/  the widget SDK, WinUI: IWidgetModule, IWidgetHost (+ IShe
                    RotatedBox; Modules/: the host's contracts (IWidgetHost's members, among them the file shell's:
                    FileIcons, FileClipboard, Folders, FileOps, ExplorerMenus, RecentFiles, AppLayouts, Streams;
                    SettingsHost for a settings page); Shell/: FluentLayout (settings rows), ColorChoice, RowReorder, SettingRow, PlaceSearch,
-                   MenuArtIcons, FolderBrowse, ScreenTimeSettingsRows. References Themia.Sdk only, never Core. What
+                   MenuArtIcons, FolderBrowse, ScreenTimeMenuLines, SkyPlaceRows. References Themia.Sdk only, never Core. What
                    needs Win32 (eyedropper, file icons, geocoder, OLE drag, the shell's file operations and menus)
                    is the host's, behind those contracts or installed at start (App()).
                    Files moved into the SDKs keep their Themia.Core.* / Themia.App.* namespaces.

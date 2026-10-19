@@ -5,9 +5,5 @@
   "widgetsC.screenTime.apps.label": "تطبيقات وقت الشاشة",
   "widgetsC.screenTime.limitOverTip": "الحد {limit} (تم تجاوزه)",
   "widgetsC.screenTime.limitTip": "الحد {limit}",
-  "widgetsC.screenTime.settings.average.desc": "في فترة، بجوار الإجمالي وعلى كل تطبيق",
-  "widgetsC.screenTime.settings.figures": "الأرقام",
-  "widgetsC.screenTime.settings.most.desc": "{zero} يسرد بقدر ما تتسع الأداة",
-  "widgetsC.screenTime.settings.most.label": "أقصى عدد للتطبيقات المسرودة",
-  "widgetsC.screenTime.settings.share.desc": "حصة كل تطبيق من الإجمالي، كنسبة مئوية"
+  "widgetsC.screenTime.settings.most.label": "أقصى عدد للتطبيقات المسرودة"
 }

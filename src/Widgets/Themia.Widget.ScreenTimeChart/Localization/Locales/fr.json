@@ -4,7 +4,5 @@
   "screentime.goalPerDay": "sur {value}/jour",
   "widgetsC.screenTime.chart.desc": "Votre temps d’écran jour après jour, sur une semaine ou un mois",
   "widgetsC.screenTime.chart.label": "Graphique du temps d’écran",
-  "widgetsC.screenTime.settings.chartPeriod.desc": "Une semaine ou un mois glissant qui se termine aujourd’hui",
-  "widgetsC.screenTime.settings.chartStyle.desc": "Des barres empilées par application, ou un calendrier ombré selon l’usage",
   "widgetsC.screenTime.settings.styleCalendar": "Calendrier"
 }

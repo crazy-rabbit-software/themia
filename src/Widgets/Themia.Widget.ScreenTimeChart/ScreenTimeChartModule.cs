@@ -34,8 +34,9 @@ public sealed class ScreenTimeChartModule : IWidgetModule
         Add = new(AddFolderId.ScreenTime, 0, 0),
     };
 
-    public void SettingsRows(WidgetSettingsRows rows, WidgetConfig config)
-        => ScreenTimeChartSettings.Rows(rows.Rows, (ScreenTimeChartConfig)config, rows.Save);
+    /// <summary>[S-3719] Every option is on the properties menu: the widget has no settings page.</summary>
+    public void MenuLines(WidgetMenuLines menu, WidgetConfig config)
+        => ScreenTimeChartMenu.Lines(menu, (ScreenTimeChartConfig)config, SettingsHost.ScreenTime);
 
     public FrameworkElement CreateView(IWidgetHost host) => new ScreenTimeChartView(host);
 }

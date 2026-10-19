@@ -5,9 +5,5 @@
   "widgetsC.screenTime.apps.label": "屏幕使用时间应用",
   "widgetsC.screenTime.limitOverTip": "限制 {limit}（已超出）",
   "widgetsC.screenTime.limitTip": "限制 {limit}",
-  "widgetsC.screenTime.settings.average.desc": "在时段中显示于总计旁和每个应用上",
-  "widgetsC.screenTime.settings.figures": "数值",
-  "widgetsC.screenTime.settings.most.desc": "设为 {zero} 时按小组件可容纳的数量列出",
-  "widgetsC.screenTime.settings.most.label": "最多列出的应用数",
-  "widgetsC.screenTime.settings.share.desc": "每个应用占总时长的百分比"
+  "widgetsC.screenTime.settings.most.label": "最多列出的应用数"
 }

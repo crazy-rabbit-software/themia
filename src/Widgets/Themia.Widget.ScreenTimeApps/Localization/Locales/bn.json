@@ -5,9 +5,5 @@
   "widgetsC.screenTime.apps.label": "স্ক্রিন টাইম অ্যাপ",
   "widgetsC.screenTime.limitOverTip": "সীমা {limit} (পেরিয়েছে)",
   "widgetsC.screenTime.limitTip": "সীমা {limit}",
-  "widgetsC.screenTime.settings.average.desc": "সময়কালে, মোটের পাশে ও প্রতিটি অ্যাপে",
-  "widgetsC.screenTime.settings.figures": "পরিসংখ্যান",
-  "widgetsC.screenTime.settings.most.desc": "{zero} দিলে উইজেটে যতগুলো ধরে ততগুলো দেখায়",
-  "widgetsC.screenTime.settings.most.label": "সর্বোচ্চ অ্যাপ সংখ্যা",
-  "widgetsC.screenTime.settings.share.desc": "মোটের মধ্যে প্রতিটি অ্যাপের অংশ, শতাংশে"
+  "widgetsC.screenTime.settings.most.label": "সর্বোচ্চ অ্যাপ সংখ্যা"
 }

@@ -5,9 +5,5 @@
   "widgetsC.screenTime.apps.label": "اسکرین ٹائم ایپس",
   "widgetsC.screenTime.limitOverTip": "حد {limit} (تجاوز)",
   "widgetsC.screenTime.limitTip": "حد {limit}",
-  "widgetsC.screenTime.settings.average.desc": "مدت میں، کُل کے ساتھ اور ہر ایپ پر",
-  "widgetsC.screenTime.settings.figures": "اعداد",
-  "widgetsC.screenTime.settings.most.desc": "{zero} پر جتنی ویجیٹ میں سما سکیں",
-  "widgetsC.screenTime.settings.most.label": "زیادہ سے زیادہ ایپس",
-  "widgetsC.screenTime.settings.share.desc": "کُل میں ہر ایپ کا حصہ، فیصد میں"
+  "widgetsC.screenTime.settings.most.label": "زیادہ سے زیادہ ایپس"
 }

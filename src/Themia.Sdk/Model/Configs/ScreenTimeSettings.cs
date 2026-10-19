@@ -30,18 +30,9 @@ public enum ScreenTimeChartStyle
     Heatmap = 1,
 }
 
-/// <summary>[S-457] A daily limit on one app, as the settings page edits it: its key and its seconds.</summary>
-public sealed class ScreenTimeAppLimit
-{
-    public string App { get; set; } = string.Empty;
-
-    /// <summary>Seconds per day. Zero or less means no limit.</summary>
-    public int Seconds { get; set; }
-}
-
 /// <summary>
 /// [S-6074] The screen-time rows only some of the three widgets draw with. The limits and the
-/// hidden apps are one set for the machine ([S-3322]); a page offers the part its widget shows.
+/// hidden apps are one set for the machine ([S-3322]); a menu offers the part its widget shows.
 /// </summary>
 public enum ScreenTimeSetting
 {

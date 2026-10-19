@@ -4,7 +4,5 @@
   "screentime.goalPerDay": "{value}/দিনের মধ্যে",
   "widgetsC.screenTime.chart.desc": "সপ্তাহ বা মাস জুড়ে দিনে দিনে আপনার স্ক্রিন টাইম",
   "widgetsC.screenTime.chart.label": "স্ক্রিন টাইম চার্ট",
-  "widgetsC.screenTime.settings.chartPeriod.desc": "আজ শেষ হওয়া একটি চলমান সপ্তাহ বা মাস",
-  "widgetsC.screenTime.settings.chartStyle.desc": "অ্যাপ অনুযায়ী স্তূপ করা বার, বা ব্যবহার অনুযায়ী রঙিন ক্যালেন্ডার",
   "widgetsC.screenTime.settings.styleCalendar": "ক্যালেন্ডার"
 }

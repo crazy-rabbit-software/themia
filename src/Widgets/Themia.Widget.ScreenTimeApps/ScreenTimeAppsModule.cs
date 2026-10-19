@@ -34,8 +34,9 @@ public sealed class ScreenTimeAppsModule : IWidgetModule
         Add = new(AddFolderId.ScreenTime, 0, 2),
     };
 
-    public void SettingsRows(WidgetSettingsRows rows, WidgetConfig config)
-        => ScreenTimeAppsSettings.Rows(rows.Rows, (ScreenTimeAppsConfig)config, rows.Save);
+    /// <summary>[S-3719] Every option is on the properties menu: the widget has no settings page.</summary>
+    public void MenuLines(WidgetMenuLines menu, WidgetConfig config)
+        => ScreenTimeAppsMenu.Lines(menu, (ScreenTimeAppsConfig)config, SettingsHost.ScreenTime);
 
     public FrameworkElement CreateView(IWidgetHost host) => new ScreenTimeAppsView(host);
 }

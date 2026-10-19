@@ -1843,8 +1843,8 @@ registration path: when a table becomes a descriptor member, the table is delete
   `HabitPeriods` and `LocalDay`, `AddFooterRow`/`AddFooter` (the habit tracker and the task list),
   `ScreenTimeDay`/`ScreenTimePreferences`/`ScreenTimeRules`/`ScreenTimeLayout` (the measures the three
   share) and the configs' shared settings, the three screen-time widgets' shared view parts
-  (`ScreenTimeShared`), their preview fixture (`SampleScreenTime`) and settings rows
-  (`ScreenTimeSettingsRows`), `PackagedApps`, `StickerRules`, `RotatedBox` with `StreamRotation` (the
+  (`ScreenTimeShared`), their preview fixture (`SampleScreenTime`) and menu lines
+  (`ScreenTimeMenuLines`, the settings rows until 2026-10-19), `PackagedApps`, `StickerRules`, `RotatedBox` with `StreamRotation` (the
   gallery and the video stream), `ControlKeys`, `ImageFiles`, `FolderFormatting` with `FolderEntry`,
   `FolderBrowse` (the folder's and the gallery's pages), `GallerySource`, `GalleryMemory` (the source key
   with the rescan interval), `GalleryStates`, `BingPhoto`; and `StateJson.Merged` (a config fragment over

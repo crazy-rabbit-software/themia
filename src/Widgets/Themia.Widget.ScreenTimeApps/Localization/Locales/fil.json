@@ -5,9 +5,5 @@
   "widgetsC.screenTime.apps.label": "Mga app sa screen time",
   "widgetsC.screenTime.limitOverTip": "limitasyon {limit} (lampas)",
   "widgetsC.screenTime.limitTip": "limitasyon {limit}",
-  "widgetsC.screenTime.settings.average.desc": "Sa isang window, katabi ng kabuuan at sa bawat app",
-  "widgetsC.screenTime.settings.figures": "Mga numero",
-  "widgetsC.screenTime.settings.most.desc": "Sa {zero}, ililista hangga't may puwang ang widget",
-  "widgetsC.screenTime.settings.most.label": "Pinakamaraming app na ililista",
-  "widgetsC.screenTime.settings.share.desc": "Bahagi ng bawat app sa kabuuan, bilang porsyento"
+  "widgetsC.screenTime.settings.most.label": "Pinakamaraming app na ililista"
 }

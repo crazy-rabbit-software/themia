@@ -4,7 +4,5 @@
   "screentime.goalPerDay": "จาก {value}/วัน",
   "widgetsC.screenTime.chart.desc": "เวลาหน้าจอของคุณรายวัน ตลอดหนึ่งสัปดาห์หรือหนึ่งเดือน",
   "widgetsC.screenTime.chart.label": "แผนภูมิเวลาหน้าจอ",
-  "widgetsC.screenTime.settings.chartPeriod.desc": "สัปดาห์หรือเดือนต่อเนื่องที่สิ้นสุดวันนี้",
-  "widgetsC.screenTime.settings.chartStyle.desc": "แท่งซ้อนกันตามแอป หรือปฏิทินที่แรเงาตามการใช้งาน",
   "widgetsC.screenTime.settings.styleCalendar": "ปฏิทิน"
 }

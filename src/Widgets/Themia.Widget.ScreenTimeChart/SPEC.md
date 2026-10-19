@@ -3,19 +3,23 @@
 The module `screenTimeChart` ([S-6911]): the screen-time history over a week or a month. Its tags are
 this file's alone; the root `SPEC.md` holds the host's sections and what the three screen-time widgets
 share, with their root tags: the one tracker and its file ([S-450], [S-454], [S-458], [S-459], the
-host's `ScreenTimeService` behind `IWidgetHost.ScreenTime` and, for the settings page,
-`SettingsHost.ScreenTime`), the shared hidden apps and limits ([S-3322], `ScreenTimeSettingsRows`), the
+host's `ScreenTimeService` behind `IWidgetHost.ScreenTime` and, for the properties menu,
+`SettingsHost.ScreenTime`), the shared hidden apps and limits ([S-3322], [S-3323], `ScreenTimeMenuLines`), the
 period and the chart's own period and style rules ([S-3321], [S-3330], the SDK's `ScreenTimeRules`), the
 calendar ([S-456]), the linked focus ([S-3310]) and the sample history the previews draw ([S-3355], the
 SDK's `SampleScreenTime`).
 
-Owning files: everything in this folder: `ScreenTimeChartModule.cs` (descriptor, view factory, settings
-rows, JSON context), `ScreenTimeChartConfig.cs` (the period and the style), `ScreenTimeChartView.cs`
+Owning files: everything in this folder: `ScreenTimeChartModule.cs` (descriptor, view factory, menu
+lines, JSON context), `ScreenTimeChartConfig.cs` (the period and the style), `ScreenTimeChartView.cs`
 (the bars and the calendar through its host, the keys), `ScreenTimeChartLayout.cs` (the ladder),
-`ScreenTimeChartSettings.cs` (its page, ending with the shared rows), `Preview/` (Debug renders:
+`ScreenTimeChartMenu.cs` (its properties menu, ending with the shared lines), `Preview/` (Debug renders:
 `--state sample|hovered|selected|packaged`), `Localization/Locales/` (its own `ScreenTimeChartStr`, 30
-languages). Tests: `Tests/ScreenTimeChartTests.cs` (run by `tests/Themia.Modules.Tests`).
+languages). Tests: `Tests/ScreenTimeChartTests.cs`, `Tests/ScreenTimeChartMenuTests.cs` (run by `tests/Themia.Modules.Tests`).
 
+- **[S-3335]** Every option is on the properties menu ([S-3719], user request 2026-10-19); there is
+  no settings page: Appearance ([S-3723]), **Period** (Week, Month: a day reads as the week,
+  [S-3330]), **Style** (Bars, Calendar: a choice of the widget's own, not a registry style), then the
+  shared lines ([S-3323]: of the limits the day's).
 - **[S-3331]** Bars: one bar per day, oldest left, stacked by app in the ring's order (the busiest
   seven, `ScreenTimeRules.DrawingApps`, then Other), scaled to the busiest day, today's weekday in the
   accent. Heatmap: [S-456]'s calendar.

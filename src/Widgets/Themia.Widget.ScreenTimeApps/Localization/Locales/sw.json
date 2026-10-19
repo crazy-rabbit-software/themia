@@ -5,9 +5,5 @@
   "widgetsC.screenTime.apps.label": "Programu za muda wa skrini",
   "widgetsC.screenTime.limitOverTip": "kikomo {limit} (kimepitwa)",
   "widgetsC.screenTime.limitTip": "kikomo {limit}",
-  "widgetsC.screenTime.settings.average.desc": "Katika kipindi, kando ya jumla na kwenye kila programu",
-  "widgetsC.screenTime.settings.figures": "Takwimu",
-  "widgetsC.screenTime.settings.most.desc": "{zero} huorodhesha nyingi kadiri wijeti ina nafasi",
-  "widgetsC.screenTime.settings.most.label": "Programu nyingi zaidi zinazoorodheshwa",
-  "widgetsC.screenTime.settings.share.desc": "Sehemu ya kila programu katika jumla, kama asilimia"
+  "widgetsC.screenTime.settings.most.label": "Programu nyingi zaidi zinazoorodheshwa"
 }

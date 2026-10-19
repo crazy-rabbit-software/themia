@@ -5,9 +5,5 @@
   "widgetsC.screenTime.apps.label": "Aplicativos do tempo de tela",
   "widgetsC.screenTime.limitOverTip": "limite {limit} (excedido)",
   "widgetsC.screenTime.limitTip": "limite {limit}",
-  "widgetsC.screenTime.settings.average.desc": "Em um período, ao lado do total e em cada aplicativo",
-  "widgetsC.screenTime.settings.figures": "Números",
-  "widgetsC.screenTime.settings.most.desc": "{zero} lista quantos couberem no widget",
-  "widgetsC.screenTime.settings.most.label": "Máximo de aplicativos",
-  "widgetsC.screenTime.settings.share.desc": "A parte de cada aplicativo no total, em porcentagem"
+  "widgetsC.screenTime.settings.most.label": "Máximo de aplicativos"
 }

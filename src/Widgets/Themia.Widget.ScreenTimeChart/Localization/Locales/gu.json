@@ -4,7 +4,5 @@
   "screentime.goalPerDay": "{value}/દિવસ માંથી",
   "widgetsC.screenTime.chart.desc": "તમારો સ્ક્રીન સમય દિવસ પ્રમાણે, અઠવાડિયા કે મહિના દરમિયાન",
   "widgetsC.screenTime.chart.label": "સ્ક્રીન સમય ચાર્ટ",
-  "widgetsC.screenTime.settings.chartPeriod.desc": "આજે સમાપ્ત થતું અઠવાડિયું કે મહિનો",
-  "widgetsC.screenTime.settings.chartStyle.desc": "ઍપ પ્રમાણે સ્ટૅક કરેલા બાર, અથવા ઉપયોગ પ્રમાણે છાયાંકિત કૅલેન્ડર",
   "widgetsC.screenTime.settings.styleCalendar": "કૅલેન્ડર"
 }

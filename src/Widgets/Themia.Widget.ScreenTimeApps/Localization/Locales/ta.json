@@ -5,9 +5,5 @@
   "widgetsC.screenTime.apps.label": "திரை நேரப் பயன்பாடுகள்",
   "widgetsC.screenTime.limitOverTip": "வரம்பு {limit} (மீறியது)",
   "widgetsC.screenTime.limitTip": "வரம்பு {limit}",
-  "widgetsC.screenTime.settings.average.desc": "ஒரு காலத்தில், மொத்தத்துக்கு அருகிலும் ஒவ்வொரு பயன்பாட்டிலும்",
-  "widgetsC.screenTime.settings.figures": "எண்ணிக்கைகள்",
-  "widgetsC.screenTime.settings.most.desc": "{zero} என்றால் விட்ஜெட்டில் இடம் உள்ள அளவு பட்டியலிடும்",
-  "widgetsC.screenTime.settings.most.label": "பட்டியலிடும் அதிகபட்சப் பயன்பாடுகள்",
-  "widgetsC.screenTime.settings.share.desc": "மொத்தத்தில் ஒவ்வொரு பயன்பாட்டின் பங்கு, சதவீதமாக"
+  "widgetsC.screenTime.settings.most.label": "பட்டியலிடும் அதிகபட்சப் பயன்பாடுகள்"
 }

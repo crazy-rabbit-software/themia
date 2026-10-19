@@ -5,9 +5,5 @@
   "widgetsC.screenTime.apps.label": "Manhajojin lokacin allo",
   "widgetsC.screenTime.limitOverTip": "iyaka {limit} (an wuce)",
   "widgetsC.screenTime.limitTip": "iyaka {limit}",
-  "widgetsC.screenTime.settings.average.desc": "A cikin taga, kusa da jimla da kan kowace manhaja",
-  "widgetsC.screenTime.settings.figures": "Alƙaluma",
-  "widgetsC.screenTime.settings.most.desc": "{zero} yana lissafa gwargwadon wurin da widget ke da shi",
-  "widgetsC.screenTime.settings.most.label": "Mafi yawan manhajojin da aka lissafa",
-  "widgetsC.screenTime.settings.share.desc": "Kason kowace manhaja na jimla, a matsayin kashi"
+  "widgetsC.screenTime.settings.most.label": "Mafi yawan manhajojin da aka lissafa"
 }

@@ -5,9 +5,5 @@
   "widgetsC.screenTime.apps.label": "スクリーン タイム アプリ",
   "widgetsC.screenTime.limitOverTip": "制限 {limit} (超過)",
   "widgetsC.screenTime.limitTip": "制限 {limit}",
-  "widgetsC.screenTime.settings.average.desc": "期間表示で、合計の横と各アプリに表示",
-  "widgetsC.screenTime.settings.figures": "数値",
-  "widgetsC.screenTime.settings.most.desc": "{zero} にするとウィジェットに収まるだけ表示します",
-  "widgetsC.screenTime.settings.most.label": "表示するアプリの最大数",
-  "widgetsC.screenTime.settings.share.desc": "合計に占める各アプリの割合 (パーセント)"
+  "widgetsC.screenTime.settings.most.label": "表示するアプリの最大数"
 }

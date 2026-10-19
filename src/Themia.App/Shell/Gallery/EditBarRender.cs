@@ -301,7 +301,21 @@ internal static class EditBarRender
             ([new(new WidgetId("pingDetails"), 200, 160, 300, 220, HeaderPlacement.Top, true)], "pingdetails-window", "Statistics cover", null),
             ([new(new WidgetId("topProcesses"), 200, 160, 300, 240, HeaderPlacement.Top, true)], "processes-rows", "Rows", null),
             ([new(new WidgetId("networkDetails"), 200, 160, 300, 240, HeaderPlacement.Top, true)], "networkdetails-appearance", appearance, null),
+
+            // The sky's and the rain's location searches, typed into against the fixture geocoder; the
+            // screen-time lines over the sample history.
+            ([new(new WidgetId("sun"), 200, 160, 320, 240, HeaderPlacement.Top, true)], "sun-location", Str.Shell_Place_Location.Text(), "zur"),
+            ([new(new WidgetId("sun"), 200, 160, 320, 240, HeaderPlacement.Top, true)], "sun-style", Str.Styles_Label.Text(), null),
+            ([new(new WidgetId("moon"), 200, 160, 280, 220, HeaderPlacement.Top, true, Style: "phaseMonth")], "moon-location", Str.Shell_Place_Location.Text(), null),
+            ([new(new WidgetId("rainNextHour"), 200, 160, 300, 180, HeaderPlacement.Top, true)], "rain-location", Str.Shell_Place_Location.Text(), "spring"),
+            ([new(new WidgetId("screenTimeApps"), 200, 160, 300, 240, HeaderPlacement.Top, true)], "screentimeapps-limits", Str.WidgetsC_ScreenTime_Settings_Limits.Text(), null),
+            ([new(new WidgetId("screenTimeChart"), 200, 160, 320, 200, HeaderPlacement.Top, true)], "screentimechart-limits", Str.WidgetsC_ScreenTime_Settings_Limits.Text(), null),
+            ([new(new WidgetId("screenTimeDonut"), 200, 160, 240, 240, HeaderPlacement.Top, true)], "screentimedonut-period", Str.Screentime_Cfg_Period.Text(), null),
         ];
+
+        // [S-2847] The location searches answer from fixture places; [S-3323] the screen-time lines read the sample history.
+        PlaceRender.UseFixture();
+        AppServices.ScreenTime ??= new SampleScreenTime();
 
         foreach (var (layout, name, path, type) in submenus)
         {

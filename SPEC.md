@@ -1463,7 +1463,8 @@ rules in Core `Model/QuickSet.cs` and `Geometry/StripPlacement.cs` (tests `Quick
   change edits it in place and saves as the settings page does), so they always say what the widget
   holds. A module without lines (the default) keeps its options on its settings page. Shortcuts
   ([S-1388]), Clock ([S-1478]), the current conditions ([S-6174]), the forecast ([S-6173]) and air
-  quality ([S-5108]) have all their options here and no page; the others move one at a time
+  quality ([S-5108]), Sun ([S-3107]), Moon ([S-3108]), rain ([S-5127]) and the screen-time chart,
+  donut and app list ([S-3335], [S-3345], [S-3356]) have all their options here and no page; the others move one at a time
   (docs/WIDGET-KIT.md "Porting a widget's settings to the properties menu").
 - **[S-3721]** A line may **ask for one line of text** (`WidgetMenuLines.Ask`, `WidgetTextAsk`): a
   small flyout beside the menu with a heading, the box (holding `Initial`, selected, for a name
@@ -2075,7 +2076,7 @@ are cited from there, the ones it replaced are marked.
   running processes.
 - **[S-455]** *(The list moved out of the config into the shared preferences, [S-3322].)*
   Right-click "Hide from list" adds an app key to `HiddenApps`; hidden apps leave every
-  view and the totals re-base. Settings list them with a way back.
+  view and the totals re-base. The properties menu lists them with a way back ([S-3323]).
 - **[S-456]** A window of Bars: one bar per day, stacked by app in the legend's order, scaled to the
   busiest day, weekday labels for a week. Heatmap: seven columns, padded so the window ends on the
   last cell, shaded in quartiles of the busiest day (any use is at least level 1), today outlined.
@@ -2114,9 +2115,9 @@ side by side and they light the same app together. Each is a module of its own
 (`src/Widgets/Themia.Widget.ScreenTimeChart`, `.ScreenTimeDonut`, `.ScreenTimeApps`, each its SPEC.md and
 its own ladder). What they share stays here: the SDK's `Widgets/{ScreenTimeRules,ScreenTimeLayout,
 ScreenTimePreferences,ScreenTimeDay}.cs` and `Model/Configs/ScreenTimeSettings.cs` (the period, the chart
-style, the settings and the app limits the configs share), Themia.Sdk.WinUI's `Widgets/ScreenTimeShared.cs`
+style and the settings the configs share), Themia.Sdk.WinUI's `Widgets/ScreenTimeShared.cs`
 (data, links, look, day navigation), `Widgets/ScreenTimeSample.cs` (the previews' fixture) and
-`Shell/ScreenTimeSettingsRows.cs` (the pages' shared rows), the `IScreenTimeSource` contract; Core's
+`Shell/ScreenTimeMenuLines.cs` (the menus' shared lines), the `IScreenTimeSource` contract; Core's
 `Widgets/ScreenTimeTracker.cs` and `Storage/ScreenTimeStore.cs`; the host's `Services/ScreenTimeService.cs`.
 Tests `ScreenTimeRulesTests`, `ScreenTimeStoreTests`, `LocalStoreFixtureTests`, the module host's
 `ScreenTimeHostTests` (`S33xx_`).
@@ -2132,7 +2133,7 @@ Tests `ScreenTimeRulesTests`, `ScreenTimeStoreTests`, `LocalStoreFixtureTests`, 
   machine, `ScreenTimePreferences`, kept in `usage_stats.json` with the history (`hidden`,
   `goalSeconds`, `appLimits`, omitted when empty) and saved by the tracker on its flush ([S-459]). So
   the three always add up to the same figures, and app keys never travel with a layout or an
-  export. Every screen-time settings page shows them (with a note that they apply to all) and
+  export. Every screen-time widget's properties menu shows them ([S-3323]) and
   writes them through `IScreenTimeSource.SetPreferences`, which replaces the whole set and redraws
   every widget. On load, blank keys and limits of zero or less are dropped; preferences changed
   before the file was read win the merge. Right-click "Hide from list" works in all three, never
@@ -2153,6 +2154,16 @@ Tests `ScreenTimeRulesTests`, `ScreenTimeStoreTests`, `LocalStoreFixtureTests`, 
 - [S-3350], [S-3352], [S-3353], [S-3354]: moved with the Screen time: apps widget into its module's `SPEC.md` (`src/Widgets/Themia.Widget.ScreenTimeApps/`).
 - **[S-3960]** A packaged (Store / MSIX) app's icon is its package's logo, as Start shows it: its
   executable (under `WindowsApps\<package full name>\`) is asked for as the Apps-folder item
+- **[S-3323]** The shared lines (`ScreenTimeMenuLines`, user request 2026-10-19: no settings page),
+  after each widget's own on its properties menu ([S-3719]): **Limits**, a submenu of the kind the
+  widget draws with ([S-6074]): the chart and the donut the **Daily limit** (typed minutes, 0 to
+  1440 in quarter hours, [S-3726]; 0 is no limit and reads Off), the list each app's (an app's line
+  with its limit at the end, its submenu the limit, typed minutes 15 to 720 in quarter hours, and
+  Remove; "No app has a limit of its own." while none; then **Limit an app**, a search over the
+  apps of the last month without a limit, a pick starting at an hour); **Hidden apps**, each with
+  Show again ("No hidden apps…" while none); both end with the note that they apply to every
+  screen-time widget. Last the privacy note. Without a tracker the lines are the not-recording and
+  privacy notes alone. Every change replaces the whole set through the tracker.
   `shell:AppsFolder\<family>!<app id>` (`PackagedApps.AppsFolderTarget`: the manifest's
   `Application` whose `Executable` is the file, else the package's only app; a manifest that is
   absent, not XML, has a DTD or does not say gives the file's own icon). WhatsApp's

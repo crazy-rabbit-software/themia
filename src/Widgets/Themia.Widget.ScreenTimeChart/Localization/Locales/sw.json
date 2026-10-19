@@ -4,7 +4,5 @@
   "screentime.goalPerDay": "kati ya {value}/siku",
   "widgetsC.screenTime.chart.desc": "Muda wako wa skrini siku kwa siku, kwa wiki au mwezi",
   "widgetsC.screenTime.chart.label": "Chati ya muda wa skrini",
-  "widgetsC.screenTime.settings.chartPeriod.desc": "Wiki au mwezi unaosogea unaoishia leo",
-  "widgetsC.screenTime.settings.chartStyle.desc": "Pau zilizopangwa kwa programu, au kalenda iliyotiwa kivuli kwa matumizi",
   "widgetsC.screenTime.settings.styleCalendar": "Kalenda"
 }

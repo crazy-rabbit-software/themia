@@ -4,7 +4,5 @@
   "screentime.goalPerDay": "/ {value} 每天",
   "widgetsC.screenTime.chart.desc": "按天显示一周或一个月的屏幕使用时间",
   "widgetsC.screenTime.chart.label": "屏幕使用时间图表",
-  "widgetsC.screenTime.settings.chartPeriod.desc": "截至今天的一周或一个月",
-  "widgetsC.screenTime.settings.chartStyle.desc": "按应用堆叠的条形图，或按使用量着色的日历",
   "widgetsC.screenTime.settings.styleCalendar": "日历"
 }

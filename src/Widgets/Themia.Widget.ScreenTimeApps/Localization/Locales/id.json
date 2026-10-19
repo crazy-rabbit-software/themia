@@ -5,9 +5,5 @@
   "widgetsC.screenTime.apps.label": "Aplikasi waktu layar",
   "widgetsC.screenTime.limitOverTip": "batas {limit} (terlampaui)",
   "widgetsC.screenTime.limitTip": "batas {limit}",
-  "widgetsC.screenTime.settings.average.desc": "Dalam rentang, di samping total dan pada setiap aplikasi",
-  "widgetsC.screenTime.settings.figures": "Angka",
-  "widgetsC.screenTime.settings.most.desc": "{zero} mencantumkan sebanyak yang muat di widget",
-  "widgetsC.screenTime.settings.most.label": "Maks. aplikasi dicantumkan",
-  "widgetsC.screenTime.settings.share.desc": "Bagian setiap aplikasi dari total, dalam persen"
+  "widgetsC.screenTime.settings.most.label": "Maks. aplikasi dicantumkan"
 }
