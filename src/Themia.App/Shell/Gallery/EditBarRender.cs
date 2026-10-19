@@ -218,7 +218,7 @@ internal static class EditBarRender
     }
 
     /// <summary>One widget of a properties shot: its kind, where its card is, its header, its title, and whether it is selected.</summary>
-    private sealed record PropsCard(WidgetId Kind, double X, double Y, double W, double H, HeaderPlacement Header, bool Selected, string? Label = null, string? Style = null, string? ItemColor = null, double Scale = 1.0, string ItemText = "", FillChoice? Background = null, FillChoice? Items = null, ContentAlign? Align = null);
+    private sealed record PropsCard(WidgetId Kind, double X, double Y, double W, double H, HeaderPlacement Header, bool Selected, string? Label = null, string? Style = null, string? ItemColor = null, double Scale = 1.0, string ItemText = "", FillChoice? Background = null, FillChoice? Items = null, ContentAlign? Align = null, string? Config = null);
 
     /// <summary>[S-3713] The panel beside real cards in edit mode, each case on the stand-in display.</summary>
     private static async Task PropsShots(Grid screen, Ticker ticker, string outDir, string theme)
@@ -279,7 +279,7 @@ internal static class EditBarRender
         PropsCard[] shortcuts = [new(new WidgetId("shortcuts"), 120, 140, 520, 220, HeaderPlacement.Top, true)];
         PropsCard[] clock = [new(new WidgetId("clock"), 200, 160, 300, 200, HeaderPlacement.Top, true, "Zürich", "digital")];
         PropsCard[] weather = [new(new WidgetId("weatherNow"), 200, 160, 300, 200, HeaderPlacement.Top, true)];
-        (PropsCard[] Layout, string Name, string Open, string? Type)[] submenus =
+        (PropsCard[] Layout, string Name, string? Open, string? Type)[] submenus =
         [
             (picker, "picker", appearance + "/" + Str.Settings_Style_BgLabel.Text(), null),
             (stopwatch, "noitems", appearance, null),
@@ -348,7 +348,8 @@ internal static class EditBarRender
             ([new(new WidgetId("folder"), 200, 160, 320, 240, HeaderPlacement.Top, true, Style: "list")], "folder-style", "Sort by", null),
             ([new(new WidgetId("folder"), 200, 160, 320, 240, HeaderPlacement.Top, true)], "folder-folder", "Folder", null),
             ([new(new WidgetId("gallery"), 200, 160, 320, 240, HeaderPlacement.Top, true)], "gallery-source", "Source", null),
-            ([new(new WidgetId("mixer"), 200, 160, 320, 240, HeaderPlacement.Top, true)], "mixer-device", "Output device", null),
+            // [S-1236] With one output device the line is there while a device is chosen, so the choice can go back to the default.
+            ([new(new WidgetId("mixer"), 200, 160, 320, 240, HeaderPlacement.Top, true, Config: """{"deviceId":"{0.0.0.00000000}.{render-headphones}","deviceName":"Headphones (Render)"}""")], "mixer-device", "Output device", null),
             ([new(new WidgetId("music"), 200, 160, 340, 160, HeaderPlacement.Top, true)], "music-hide", "Hide when idle", null),
             ([new(new WidgetId("bluetooth"), 200, 160, 300, 240, HeaderPlacement.Top, true)], "bluetooth", appearance, null),
             ([new(new WidgetId("videoStream"), 200, 160, 320, 200, HeaderPlacement.Top, true)], "videostream-rotation", "Rotation", null),
@@ -362,9 +363,21 @@ internal static class EditBarRender
             ([new(new WidgetId("email"), 200, 160, 340, 260, HeaderPlacement.Top, true)], "email-accounts", Str.WidgetUi_AccountsLabel.Text(), null),
             ([new(new WidgetId("calendar"), 200, 160, 340, 260, HeaderPlacement.Top, true, Style: "agenda")], "calendar-range", "Date range", null),
             ([new(new WidgetId("contacts"), 200, 160, 320, 240, HeaderPlacement.Top, true)], "contacts-layout", "Layout", null),
-            ([new(new WidgetId("weekPlanner"), 200, 160, 400, 240, HeaderPlacement.Top, true)], "weekplanner-tasks", "Tasks from", null),
-            ([new(new WidgetId("tasks"), 200, 160, 300, 260, HeaderPlacement.Top, true)], "tasks-source", "Show tasks from", null),
+            // [S-5324] No task account is signed in to a render: a chosen one since signed out keeps the line, listed by its id.
+            ([new(new WidgetId("weekPlanner"), 200, 160, 400, 240, HeaderPlacement.Top, true, Config: """{"taskAccountId":"signed-out-account"}""")], "weekplanner-tasks", "Tasks from", null),
+
+            // [S-7516] No task service runs in a render: the first level says so, over the lines that do not need one.
+            ([new(new WidgetId("tasks"), 200, 160, 300, 260, HeaderPlacement.Top, true)], "tasks-lines", null, null),
             ([new(new WidgetId("tasks"), 200, 160, 300, 260, HeaderPlacement.Top, true)], "tasks-filter", "Filter", null),
+
+            // [S-6075] A gallery of one picture: no Style line, its Picture size on top. [S-2849] A weather
+            // widget under a typed title: no Location name switch. [S-6573] [S-6574] A meter's graph: no
+            // item lines; its cores: Item background without Item text. The chart's styles ([S-3336]).
+            ([new(new WidgetId("gallery"), 200, 160, 320, 240, HeaderPlacement.Top, true, Config: """{"source":"Bing"}""")], "gallery-one", null, null),
+            ([new(new WidgetId("weatherNow"), 200, 160, 300, 200, HeaderPlacement.Top, true, "Home")], "weather-titled", Str.Shell_Place_Location.Text(), null),
+            ([new(new WidgetId("cpu"), 200, 160, 280, 180, HeaderPlacement.Top, true)], "cpu-appearance", appearance, null),
+            ([new(new WidgetId("cpu"), 200, 160, 280, 180, HeaderPlacement.Top, true, Style: "cores")], "cores-appearance", appearance, null),
+            ([new(new WidgetId("screenTimeChart"), 200, 160, 320, 200, HeaderPlacement.Top, true)], "screentimechart-style", Str.Styles_Label.Text(), null),
         ];
 
         // [S-2847] The location searches answer from fixture places; [S-3323] the screen-time lines read the sample history.
@@ -523,6 +536,12 @@ internal static class EditBarRender
             model.Scale = spec.Scale;
             model.ItemTextColor = spec.ItemText;
             model.Align = spec.Align;
+            if (spec.Config is { } fragment)
+            {
+                // A config other than the default, as the state file would hold it (a chosen device, a signed-out account).
+                model.Config = Themia.Core.Storage.StateJson.Merged(model.Config, fragment);
+            }
+
             if (spec.Style is { } style && WidgetStyles.Find(spec.Kind, style) is { } option)
             {
                 WidgetStyles.Set(model.Config, option.Value); // [S-6007] the strip's Style shows the current one's icon
