@@ -27,6 +27,6 @@ internal static class SunMenu
         // The look (Style, Appearance), a divider, then the place.
         menu.PlaceCard();
         menu.Lines.Add(ItemMenuEntry.Separator);
-        menu.Lines.Add(SkyPlaceRows.LocationLine(menu, config));
+        menu.Lines.AddRange(SkyPlaceRows.Lines(menu, config));
     }
 }

@@ -51,15 +51,43 @@ internal static class PlaceRender
             return Task.FromResult<(PlaceOutcome, IReadOnlyList<PlaceMatch>, string?)>((places.Count == 0 ? PlaceOutcome.NoMatch : PlaceOutcome.Matches, places, null));
         };
 
-    /// <summary>[S-2848] <c>--place-cleared</c> on one widget's config.</summary>
+    /// <summary>
+    /// [S-2848] <c>--place-cleared</c> on one widget's config; [S-2855] <c>--device
+    /// locating|denied|unavailable|located</c> turns its Use my location on over that stand-in state
+    /// (located: Zurich), never Windows' own.
+    /// </summary>
     public static void Apply(WidgetConfig config)
     {
         ArgumentNullException.ThrowIfNull(config);
 
-        if (Array.IndexOf(Environment.GetCommandLineArgs(), "--place-cleared") >= 0 && config is IPlaced placed)
+        var args = Environment.GetCommandLineArgs();
+        if (Array.IndexOf(args, "--place-cleared") >= 0 && config is IPlaced placed)
         {
             placed.ClearLocation();
         }
+
+        var at = Array.IndexOf(args, "--device");
+        if (at >= 0 && config is IPlaced device)
+        {
+            if (at + 1 >= args.Length || Device(args[at + 1]) is not { } state)
+            {
+                Console.WriteLine("widget: --device takes locating, denied, unavailable or located");
+                return;
+            }
+
+            device.UseDeviceLocation = true;
+            Services.AppServices.DebugDeviceLocation = state;
+        }
     }
+
+    /// <summary>[S-2855] A stand-in device location by its name; located is Zurich.</summary>
+    public static DeviceLocation? Device(string name) => name switch
+    {
+        "locating" => DeviceLocation.Locating,
+        "denied" => DeviceLocation.Denied,
+        "unavailable" => DeviceLocation.Unavailable,
+        "located" => DeviceLocation.At(47.3769, 8.5417),
+        _ => null,
+    };
 }
 #endif

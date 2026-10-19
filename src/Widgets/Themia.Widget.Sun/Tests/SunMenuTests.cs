@@ -21,7 +21,7 @@ public sealed class SunMenuTests
         return lines;
     }
 
-    private MenuSearch Location(SunConfig config) => Assert.Single(Build(config).Lines, l => !l.IsSeparator).Search!;
+    private MenuSearch Location(SunConfig config) => Assert.Single(Build(config).Lines, l => l.Search is not null).Search!;
 
     private static ItemMenuEntry Fixed(MenuSearch search, string text) => Assert.Single(search.Fixed, f => f.Text == text);
 
@@ -47,13 +47,14 @@ public sealed class SunMenuTests
     }
 
     [Fact]
-    public void S3107_the_first_level_is_appearance_then_the_location_search()
+    public void S3107_the_first_level_is_appearance_then_use_my_location_and_the_location_search()
     {
         var lines = Build(new SunConfig());
 
         Assert.Equal(0, lines.CardAt);
         Assert.True(lines.Lines[0].IsSeparator);
-        var location = Assert.Single(lines.Lines, l => !l.IsSeparator);
+        Assert.Equal(Str.Shell_Place_UseDevice.Text(), lines.Lines[1].Text);
+        var location = Assert.Single(lines.Lines, l => l.Search is not null);
         Assert.Equal(Str.Shell_Place_Location.Text(), location.Text);
         Assert.NotNull(location.Search);
         Assert.Equal(

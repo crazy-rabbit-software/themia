@@ -528,7 +528,8 @@
             "style": "standard",
             "showDetails": true,
             "locationName": "",
-            "hideLocation": false
+            "hideLocation": false,
+            "useDeviceLocation": false
           }
         },
         {
@@ -557,7 +558,8 @@
             "showPrecipitation": true,
             "style": "rows",
             "locationName": "",
-            "hideLocation": false
+            "hideLocation": false,
+            "useDeviceLocation": false
           }
         },
         {
@@ -1345,7 +1347,8 @@
             "showEvents": true,
             "latitude": 47.37,
             "longitude": 8.54,
-            "place": "Zurich"
+            "place": "Zurich",
+            "useDeviceLocation": false
           }
         },
         {
@@ -1373,7 +1376,8 @@
             "style": "disc",
             "latitude": 47.37,
             "longitude": 8.54,
-            "place": "Zurich"
+            "place": "Zurich",
+            "useDeviceLocation": false
           }
         },
         {
@@ -2146,7 +2150,8 @@
             "style": "number",
             "scale": "Auto",
             "locationName": "",
-            "hideLocation": false
+            "hideLocation": false,
+            "useDeviceLocation": false
           }
         },
         {
@@ -2172,7 +2177,8 @@
           "config": {
             "kind": "rainNextHour",
             "locationName": "",
-            "hideLocation": false
+            "hideLocation": false,
+            "useDeviceLocation": false
           }
         },
         {

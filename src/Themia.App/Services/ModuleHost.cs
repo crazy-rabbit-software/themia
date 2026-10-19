@@ -34,7 +34,14 @@ internal static class ModuleHost
     {
         ArgumentNullException.ThrowIfNull(widget);
 
-        var lines = new WidgetMenuLines(save, ask, confirm) { ShowAccounts = showAccounts, Card = QuickSet.Card(widget) };
+        // [S-2851] Where Windows' location stands, and its settings page where there is a host to open it.
+        var lines = new WidgetMenuLines(save, ask, confirm)
+        {
+            ShowAccounts = showAccounts,
+            Card = QuickSet.Card(widget),
+            Device = AppServices.DeviceLocationNow,
+            OpenLocationSettings = AppServices.DeviceLocation is null ? null : DeviceLocationService.OpenSettings,
+        };
         try
         {
             Module(widget.Kind).MenuLines(lines, widget.Config);

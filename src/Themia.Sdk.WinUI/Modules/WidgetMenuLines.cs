@@ -54,6 +54,18 @@ public sealed class WidgetMenuLines
     public MenuCard Card { get; init; } = MenuCard.Plain;
 
     /// <summary>
+    /// [S-2851] Where Windows' location stands, for a place widget's Use my location line:
+    /// <see cref="DeviceLocation.Off"/> where the host has none (a test).
+    /// </summary>
+    public DeviceLocation Device { get; init; } = DeviceLocation.Off;
+
+    /// <summary>
+    /// [S-2851] Opens Windows' location privacy page, where location is turned on for the device and
+    /// for Themia. Null where the host has none (a render, a test): the line is greyed.
+    /// </summary>
+    public Action? OpenLocationSettings { get; init; }
+
+    /// <summary>
     /// [S-3746] Raised when something a line showed while it was still being read has come (an
     /// account's calendars, its lists): the host builds the lines again, so they say what is there.
     /// </summary>

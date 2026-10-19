@@ -25,7 +25,7 @@ public sealed class WeatherForecastMenuTests
 
         Assert.Equal(0, lines.CardAt);
         Assert.Equal(
-            ["-", Str.Shell_Place_Location.Text(), Str.Weather_LocationNameLabel.Text(), "-", WeatherForecastStr.Forecast_DaysLabel.Text(), WeatherForecastStr.WidgetsC_Weather_Settings_ShowPrecipitation_Label.Text()],
+            ["-", Str.Shell_Place_UseDevice.Text(), Str.Shell_Place_Location.Text(), Str.Weather_LocationNameLabel.Text(), "-", WeatherForecastStr.Forecast_DaysLabel.Text(), WeatherForecastStr.WidgetsC_Weather_Settings_ShowPrecipitation_Label.Text()],
             lines.Lines.Select(l => l.IsSeparator ? "-" : l.Text));
     }
 

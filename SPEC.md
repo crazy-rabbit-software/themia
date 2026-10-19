@@ -651,7 +651,7 @@ shared row and moon drawing) and `SkyPlaceRows` (the shared place line on their 
   a state file holding it drops that widget at load like any unknown kind ([S-1900], [S-1050]).
 - **[S-3101]** Both carry the observer's place (`SkyPlaceConfig`: latitude, longitude, place name)
   and share one line on their properties menus ([S-3719], user request 2026-10-19; no settings
-  page): **Location** (`SkyPlaceRows.LocationLine`), the city search ([S-1494], [S-2840], [S-3722])
+  page): **Use my location** ([S-2850]) and, while it is off, **Location** (`SkyPlaceRows.Lines`), the city search ([S-1494], [S-2840], [S-3722])
   with, under its answers, Clear location ([S-2848]), Place name (the header's title, may be
   emptied, cut at 80), Latitude and Longitude, each asked for as text ([S-3721]) and validated
   ([S-171]). Sun adds the Events switch under Style ([S-3107]); Moon has nothing else ([S-3108]; how
@@ -2969,8 +2969,8 @@ their `SPEC.md`); this section keeps what they share. Shared rules in `Themia.Sd
   Sun and Moon (`SkyPlaceRows.LocationLine`, [S-3101]), both over `PlaceSearch.MenuAnswerAsync`:
   title "Location", the chosen place's city at the line's end (none: nothing); its submenu's box
   says "Search for a city". The box is only ever a question, never the choice: a pick stores
-  coordinates + label. No Change mode; clearing is [S-2848]. No "use my location": the
-  app has no location source, and there is no app-wide default place to fall back to.
+  coordinates + label. No Change mode; clearing is [S-2848]. The device's own location is the
+  Use my location switch before it ([S-2850]); there is no app-wide default place to fall back to.
 - **[S-2841]** Queries (`PlaceQuery`, Core): trimmed, runs of whitespace made one space, cut at 80.
   Typing searches 300 ms after the last keystroke once 2+ characters; Enter or the search glyph
   searches at once from 1 (津 is a city); text without a letter says "Type a place name" and asks
@@ -3002,7 +3002,7 @@ their `SPEC.md`); this section keeps what they share. Shared rules in `Themia.Sd
   about a place implements `IPlaced` (`HasLocation`, `ClearLocation`): current conditions, forecast,
   air quality, rain, Sun and Moon. Under the location search's answers, Clear location
   (`Glyphs.Dismiss`, greyed while none is chosen) forgets the coordinates and the name (the
-  location-name switch stays) and saves. A cleared place is no place for every kind alike: the widget shows
+  location-name switch stays; Use my location goes off, [S-2850]) and saves. A cleared place is no place for every kind alike: the widget shows
   its Set up button ([S-1860]) with its view parked ([S-1881]), asks the sync for nothing, and a later
   pick starts a fresh view, so nothing fetched for the old place is drawn. No kind falls back to a
   default. Sun and Moon still start at Zurich; cleared, their coordinates are stored as `null` (always
@@ -3016,6 +3016,49 @@ their `SPEC.md`); this section keeps what they share. Shared rules in `Themia.Sd
   the host (`WidgetMenuLines.Card`, `QuickSet.Card`: the header as drawn, `ShownHeader`, and a typed
   title); a header shown or a title cleared builds the menu again with it. Its value is kept while
   hidden. Clear location stays either way.
+- **[S-2850]** **Use my location** (user request 2026-10-19), a switch every widget about a place
+  has (`IPlaced.UseDeviceLocation`: current conditions, forecast, air quality, rain, Sun, Moon), on
+  the first level right before the Location line (`DevicePlaceRows`, Windows' location glyph): on,
+  the place is wherever Windows says the device is, and the Location search is not there (one source
+  of the place at a time, [S-3718]); off again, the place chosen by hand, kept meanwhile, is back.
+  The config stores the switch only, never the device's coordinates; it round-trips, a missing one
+  reads as off. Setup ([S-1862]): a widget with the switch on is set up, place or not; Clear
+  location turns it off with the place.
+- **[S-2851]** One host service (`DeviceLocationService`, `Windows.Devices.Geolocation`) runs only
+  while some view holds a widget with the switch on (`DeviceLocationInterest.Wanted`) and stops,
+  forgetting the position, when none does. On start it asks for access (`RequestAccessAsync`,
+  Windows' own prompt where it has one), reads one position (Windows' fix if under 30 min old, else a
+  fresh one within 30 s), then hears only the locator's events: a move of 1 km or more and its status
+  (location turned off or on in Settings). No timer, no polling. The state (`DeviceLocationRules`,
+  pure): Off; Locating; Located; **Denied** (access refused, or location turned off: the menu says
+  "Location is turned off in Windows settings" as a note under the switch and offers **Location
+  settings**, which opens `ms-settings:privacy-location`; turned back on, it looks again by itself);
+  **Unavailable** (no position to give, a failure: "Windows can't find your location right now"); a
+  position held stays through a passing failure. While locating the note says "Finding your
+  location…". A change is applied on the UI thread and is a state change for the cards, the sync and
+  the menu. The manifest declares `location` ([S-1061]). A debug render never starts it.
+- **[S-2852]** Privacy: a position is rounded to 0.01° (about 1 km) the moment it is heard, and only
+  the rounded one is held, drawn, asked for or cached; a new one replaces it only after a move of
+  2 km or more from it (so a reading wobbling across a rounding edge moves nothing). No coordinate is
+  logged at any precision: the log says states only. Nothing is written to disk but the weather the
+  sync keeps for the rounded place, as for any place.
+- **[S-2853]** The widget reads a copy of its config at the device's position (`DevicePlaces.Resolve`,
+  `IPlaced.AtDevice`): its view, its header's title ("My location"; the weather's Location name
+  switch still applies) and its sync wants (`SyncInterests.From(state, device)`) alike, so no view
+  knows where its coordinates came from; the stored config is never written by it. The name is "My
+  location": the geocoder answers names, not places, so there is no reverse lookup.
+- **[S-2854]** While the switch is on and Windows gives no position, the card's body is the widget's
+  wait (`DevicePlaces.Waits`): Windows' location glyph over the sentence of the state (finding it,
+  turned off in Windows settings, not available), the view parked as under Set up ([S-1881]), so
+  nothing is fetched or drawn for a place it does not have and no other place stands in.
+- **[S-2855]** Debug renders: `--editbar-png` draws `props-*-device-off`, `-located`, `-locating`,
+  `-denied`, `-unavailable` and `-sun` over a stand-in state (`AppServices.DebugDeviceLocation`);
+  `--device locating|denied|unavailable|located` on `--widget-png` turns the switch on over one
+  (located: Zurich). Neither asks Windows.
+
+Needs a live pass (Use my location): Windows' permission prompt in the packaged build and the
+unpackaged one; location turned off for the device and for Themia in Settings, then on again while
+Themia runs; a laptop moved more than 2 km (or a changed Wi-Fi place); no Wi-Fi to place it.
 - **[S-733]** Reading glyphs, checked against the font: droplet EB42, thermometer E9CA, wind E7BC;
   layouts: list E8FD, columns E8C0, grid E8A9.
 
@@ -5358,9 +5401,9 @@ installer). Release steps and the manual sideload test: `docs/STORE.md`.
   compiled XAML, no managed Themia assembly and no signature. No certificate is made, imported or
   trusted by any script. Logos are drawn at every requested size from the Themia mark by
   `scripts/package-logos.py` into `Assets/Package/`.
-- **[S-1061]** Capabilities: `runFullTrust`, plus `radios` and `bluetooth` for the Bluetooth widget.
-  Not declared: `location` (nothing reads the Wi-Fi name since [S-1762]), `internetClient` (not
-  enforced for full trust), and every broad capability.
+- **[S-1061]** Capabilities: `runFullTrust`, plus `radios` and `bluetooth` for the Bluetooth widget,
+  and `location` for a place widget's Use my location ([S-2851]; the Wi-Fi name is still never read,
+  [S-1762]). Not declared: `internetClient` (not enforced for full trust), and every broad capability.
 - **[S-1062]** The manifest declares the `windows.startupTask` `ThemiaStartup` (disabled by default)
   that the packaged autostart ([S-937]) asks for. No event-log source is declared: MSIX can only
   register one with a message file, and Themia ships none; `EventLogSink` already writes under the

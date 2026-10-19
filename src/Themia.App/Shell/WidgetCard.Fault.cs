@@ -77,7 +77,7 @@ internal sealed partial class WidgetCard
             return;
         }
 
-        if (!WidgetLiveness.Runs(Model.Config, SignedIn()))
+        if (!Runs(SignedIn()))
         {
             _parked = true;
             return;
@@ -105,7 +105,7 @@ internal sealed partial class WidgetCard
 #if DEBUG
                 Gallery.LiveCensus.ViewAttached(_view);
 #endif
-                widgetView.Attach(_host.Ticker, Model.Config);
+                widgetView.Attach(_host.Ticker, ViewConfig);
             }
         }
         catch (Exception ex)
@@ -165,7 +165,7 @@ internal sealed partial class WidgetCard
         try
         {
             using var faults = _host.Ticker.CatchFaults(OnTickFault);
-            widgetView.ApplyConfig(Model.Config);
+            widgetView.ApplyConfig(ViewConfig);
         }
         catch (Exception ex)
         {

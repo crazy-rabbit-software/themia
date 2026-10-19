@@ -97,8 +97,9 @@
     - runFullTrust: Themia is a Win32 desktop app (desktop windows, hooks, WASAPI).
     - radios + bluetooth: the Bluetooth widget reads the radio state, paired devices and their
       battery over GATT; with package identity those WinRT calls are refused without them.
-    Deliberately NOT declared: location (nothing reads the Wi-Fi network name any more, [S-1762]),
-    internetClient (full-trust apps are not subject to it), broadFileSystemAccess, and every other
+    - location: [S-2851] a place widget's "Use my location" reads Windows' location (Geolocator),
+      only while one has it on; the Wi-Fi network name is still never read ([S-1762]).
+    Deliberately NOT declared: internetClient (full-trust apps are not subject to it), broadFileSystemAccess, and every other
     broad capability.
   -->
   <Capabilities>
@@ -107,5 +108,6 @@
     <rescap:Capability Name="runFullTrust" />
     <DeviceCapability Name="radios" />
     <DeviceCapability Name="bluetooth" />
+    <DeviceCapability Name="location" />
   </Capabilities>
 </Package>

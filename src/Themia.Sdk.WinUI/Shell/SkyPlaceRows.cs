@@ -21,16 +21,31 @@ namespace Themia.App.Shell.Config;
 public static class SkyPlaceRows
 {
     /// <summary>
+    /// [S-3101] [S-2850] The place's lines: Use my location (with what Windows says while it gives no
+    /// position), then, while it is off, the location's search (<see cref="LocationLine"/>).
+    /// </summary>
+    public static IReadOnlyList<ItemMenuEntry> Lines(WidgetMenuLines menu, SkyPlaceConfig config, bool longitude = true)
+    {
+        ArgumentNullException.ThrowIfNull(menu);
+        ArgumentNullException.ThrowIfNull(config);
+
+        List<ItemMenuEntry> lines = [.. DevicePlaceRows.Lines(menu, config)];
+        if (!config.UseDeviceLocation)
+        {
+            lines.Add(LocationLine(menu, config, longitude));
+        }
+
+        return lines;
+    }
+
+    /// <summary>
     /// [S-3101] [S-3722] The location as a search: the chosen place (or its coordinates) at the end of
     /// its line; in its submenu the search box and the places it finds (a pick replaces the place and
     /// its coordinates), then Clear location ([S-2848]), the place name, the latitude and, where the
     /// style reads it (<paramref name="longitude"/>, [S-6074]), the longitude.
     /// </summary>
-    public static ItemMenuEntry LocationLine(WidgetMenuLines menu, SkyPlaceConfig config, bool longitude = true)
+    private static ItemMenuEntry LocationLine(WidgetMenuLines menu, SkyPlaceConfig config, bool longitude)
     {
-        ArgumentNullException.ThrowIfNull(menu);
-        ArgumentNullException.ThrowIfNull(config);
-
         List<ItemMenuEntry> under =
         [
             menu.Command(Glyphs.Dismiss, Str.Shell_Place_Clear.Text(), config.ClearLocation, disabled: !config.HasLocation),

@@ -72,6 +72,9 @@ public static class Glyphs
     public static readonly string Sun = From(0xE706);
     public static readonly string Moon = From(0xE708);
     public static readonly string Place = From(0xE707);
+
+    /// <summary>[S-2850] Windows' own location glyph (Segoe "Location"): the device's location, not a place picked.</summary>
+    public static readonly string Location = From(0xE81D);
     public static readonly string Sort = From(0xE8CB);
 
     /// <summary>[S-611] To Do's importance star (Segoe "FavoriteStar"), for the Tasks importance filter.</summary>

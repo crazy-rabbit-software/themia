@@ -3,6 +3,8 @@ using Themia.App.Services;
 using Themia.App.Widgets;
 using Themia.Core.Accounts;
 using Themia.Core.Diagnostics;
+using Themia.Core.Localization;
+using Themia.Core.Model;
 using Themia.Core.Widgets;
 using Themia.Sdk;
 
@@ -59,11 +61,56 @@ internal sealed partial class WidgetCard
         }
     }
 
+    /// <summary>[S-2854] The sentence in place of the body while the widget waits for the device's location, and the state it says.</summary>
+    private StackPanel? _waiting;
+
+    private DeviceLocationState? _waitingFor;
+
+    /// <summary>
+    /// [S-2853] The config as the view, its title and its sync read it: the widget's own, or, while it
+    /// uses the device's location, a copy at the device's position (rounded) named "My location".
+    /// The stored config is never touched.
+    /// </summary>
+    private WidgetConfig ViewConfig => DevicePlaces.Resolve(Model.Config, AppServices.DeviceLocationNow, Str.Shell_Place_MyLocation.Text());
+
+    /// <summary>[S-1881] [S-2854] Whether the view runs: set up, and not waiting for the device's location.</summary>
+    private bool Runs(FeatureSet signedIn)
+        => WidgetLiveness.Runs(Model.Config, signedIn) && DevicePlaces.Waits(Model.Config, AppServices.DeviceLocationNow) is null;
+
+    /// <summary>
+    /// [S-2854] While the widget uses the device's location and Windows gives none, its body says why
+    /// (finding it, turned off in Windows settings, not available) over its glyph, the view parked:
+    /// nothing is fetched or drawn for a place it does not have, and no other place stands in.
+    /// </summary>
+    private void ApplyWaiting(DeviceLocationState? waits)
+    {
+        if (waits == _waitingFor)
+        {
+            return;
+        }
+
+        if (_waiting is not null)
+        {
+            _content.Children.Remove(_waiting);
+            _waiting = null;
+        }
+
+        _waitingFor = waits;
+        if (waits is { } state)
+        {
+            _waiting = Fluent.EmptyState(Glyphs.Location, new TextBlock { Text = Config.DevicePlaceRows.Sentence(state) }, out _);
+            Grid.SetRow(_waiting, 1);
+            Grid.SetColumn(_waiting, 1);
+            _content.Children.Add(_waiting);
+        }
+    }
+
     /// <summary>Show or take away the button to match the config and the accounts signed in now.</summary>
     private void ApplySetup()
     {
         var signedIn = SignedIn();
         var needed = !IsFaulted && WidgetSetup.Needed(Model.Config, signedIn);
+        ApplyWaiting(IsFaulted || needed ? null : DevicePlaces.Waits(Model.Config, AppServices.DeviceLocationNow));
 
         if (needed && _setup is null)
         {
@@ -80,14 +127,15 @@ internal sealed partial class WidgetCard
 
         // [S-1881] Run exactly when the widget is useful. Unparking swaps a fresh view in, which runs
         // this check again for the new view, so this pass ends there.
-        if (!IsFaulted && Unpark(WidgetLiveness.Runs(Model.Config, signedIn)))
+        if (!IsFaulted && Unpark(Runs(signedIn)))
         {
             return;
         }
 
         // Every time, not only on a change: a retried view arrives fresh, fully visible.
-        _view.Opacity = _setup is null ? 1 : 0;
-        _view.IsHitTestVisible = _setup is null;
+        var covered = _setup is not null || _waiting is not null;
+        _view.Opacity = covered ? 0 : 1;
+        _view.IsHitTestVisible = !covered;
     }
 
     /// <summary>
@@ -147,7 +195,7 @@ internal sealed partial class WidgetCard
 
         _running = true;
         Gallery.LiveCensus.ViewAttached(_view);
-        widgetView.Attach(_host.Ticker, Model.Config);
+        widgetView.Attach(_host.Ticker, ViewConfig);
 
         // The slot was measured while the view was parked, which it did not hear ([S-1881]).
         if (_view is IWidgetSizeAware sizeAware && _view.ActualWidth > 0 && _view.ActualHeight > 0)

@@ -408,6 +408,28 @@ internal static class EditBarRender
             await PropsShot(screen, ticker, layout, System.IO.Path.Combine(outDir, $"props-{theme}-{name}.png"), open: path, type: type, click: click).ConfigureAwait(true);
         }
 
+        // [S-2855] Use my location on the first level: off (the search under it), on and located (no
+        // search), finding it, turned off in Windows (with the settings line) and not available; and
+        // the Sun's, on. A stand-in state, never Windows' own.
+        PropsCard[] sun = [new(new WidgetId("sun"), 200, 160, 320, 240, HeaderPlacement.Top, true)];
+        (PropsCard[] Layout, string Name, string? Device)[] devices =
+        [
+            (weather, "device-off", null),
+            (weather, "device-located", "located"),
+            (weather, "device-locating", "locating"),
+            (weather, "device-denied", "denied"),
+            (weather, "device-unavailable", "unavailable"),
+            (sun, "device-sun", "located"),
+        ];
+        foreach (var (layout, name, device) in devices)
+        {
+            AppServices.DebugDeviceLocation = device is null ? null : PlaceRender.Device(device);
+            var config = device is null ? null : """{"useDeviceLocation":true}""";
+            await PropsShot(screen, ticker, [.. layout.Select(c => c with { Config = config })], System.IO.Path.Combine(outDir, $"props-{theme}-{name}.png")).ConfigureAwait(true);
+        }
+
+        AppServices.DebugDeviceLocation = null;
+
         // [S-3732] The shortcuts' list with its first line held over the gap after the last.
         await PropsShot(screen, ticker, shortcuts, System.IO.Path.Combine(outDir, $"props-{theme}-shortcuts-drag.png"), open: "Shortcuts", drag: "drag:0:2").ConfigureAwait(true);
 

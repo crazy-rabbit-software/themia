@@ -34,6 +34,9 @@ public abstract class SkyPlaceConfig : WidgetConfig, IPlaced
     /// <summary>The place name shown in the header.</summary>
     public string Place { get; set; } = DefaultPlace;
 
+    /// <summary>[S-2850] The observer is where Windows says the device is; the place chosen by hand is kept for when this goes off.</summary>
+    public bool UseDeviceLocation { get; set; }
+
     /// <summary>[S-2848] Whether a place is chosen. Zero is a real coordinate, so a null test.</summary>
     [JsonIgnore]
     public bool HasLocation => Latitude is { } lat
@@ -47,6 +50,17 @@ public abstract class SkyPlaceConfig : WidgetConfig, IPlaced
         Latitude = null;
         Longitude = null;
         Place = string.Empty;
+        UseDeviceLocation = false;
+    }
+
+    /// <summary>[S-2853] A copy at the device's position, named <paramref name="name"/> (the header's "My location").</summary>
+    public WidgetConfig AtDevice(double? latitude, double? longitude, string name)
+    {
+        var copy = (SkyPlaceConfig)Clone();
+        copy.Latitude = latitude;
+        copy.Longitude = longitude;
+        copy.Place = latitude is null ? string.Empty : name;
+        return copy;
     }
 
     /// <summary>
@@ -109,6 +123,7 @@ public abstract class SkyPlaceConfig : WidgetConfig, IPlaced
         target.Latitude = Latitude;
         target.Longitude = Longitude;
         target.Place = Place;
+        target.UseDeviceLocation = UseDeviceLocation;
         return target;
     }
 

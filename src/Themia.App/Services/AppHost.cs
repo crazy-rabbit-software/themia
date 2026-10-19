@@ -34,6 +34,9 @@ internal sealed partial class AppHost : IDisposable
     private readonly SystemData.SystemHub _system;
     private readonly GalleryService _gallery;
     private readonly ClipboardHistoryService _clipboard = new();
+
+    /// <summary>[S-2851] Null for a detached state (a debug render).</summary>
+    private DeviceLocationService? _deviceLocation;
     private bool _editMode;
     private bool _disposed;
 
@@ -79,8 +82,20 @@ internal sealed partial class AppHost : IDisposable
         // widgets need from it ([S-2608]). A detached state (a debug render) gets a detached store.
         Sync = Services.Sync.SyncHost.Open(dispatcher, store.Persists ? Services.Sync.SyncHost.DirectoryFor(store.Path) : null);
         AppServices.Sync = Sync;
-        Sync.SetInterests(Themia.Core.Sync.SyncInterests.From(state));
-        StateChanged += () => Sync.SetInterests(Themia.Core.Sync.SyncInterests.From(State));
+        // [S-2851] Windows' location, asked for only while a widget uses it; never for a detached state
+        // (a debug render must not prompt for or read the location). A change of what it gives is a
+        // change every card, the sync and the menu follow, as a state change.
+        if (store.Persists)
+        {
+            _deviceLocation = new DeviceLocationService(dispatcher);
+            AppServices.DeviceLocation = _deviceLocation;
+            _deviceLocation.SetWanted(Themia.Core.Widgets.DeviceLocationInterest.Wanted(state));
+            StateChanged += () => _deviceLocation.SetWanted(Themia.Core.Widgets.DeviceLocationInterest.Wanted(State));
+            _deviceLocation.Changed += () => StateChanged?.Invoke();
+        }
+
+        Sync.SetInterests(Themia.Core.Sync.SyncInterests.From(state, AppServices.DeviceLocationNow));
+        StateChanged += () => Sync.SetInterests(Themia.Core.Sync.SyncInterests.From(State, AppServices.DeviceLocationNow));
 
         // [S-2513] The system hub reads what every view's system widgets need from the start, so a
         // view switched to shows its charts with their history and its details already read.
@@ -386,6 +401,8 @@ internal sealed partial class AppHost : IDisposable
         AppServices.EditAppLayout = null;
         CloseLayoutEditor();
         _mail.Dispose();
+        AppServices.DeviceLocation = null;
+        _deviceLocation?.Dispose();
         Office.OfficeSources.Current = null;
         _office.Dispose();
         AppServices.Feeds?.Dispose();

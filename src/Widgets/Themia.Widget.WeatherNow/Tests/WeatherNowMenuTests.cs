@@ -27,13 +27,14 @@ public sealed class WeatherNowMenuTests
     }
 
     [Fact]
-    public void S6174_the_first_level_is_appearance_then_the_location_search_and_the_name_switch()
+    public void S6174_the_first_level_is_appearance_then_use_my_location_the_location_search_and_the_name_switch()
     {
         var lines = Build(new WeatherNowConfig());
 
         Assert.Equal(0, lines.CardAt);
         Assert.Collection(lines.Lines,
             divider => Assert.True(divider.IsSeparator),
+            use => Assert.Equal(Str.Shell_Place_UseDevice.Text(), use.Text),
             location =>
             {
                 Assert.NotNull(location.Search);

@@ -15,11 +15,25 @@ public interface IPlaced : ISetupRule
     bool HasLocation { get; }
 
     /// <summary>
-    /// Forget the place: the coordinates and the name it resolved to. Display preferences (whether
-    /// the header names the place) are the user's and stay.
+    /// [S-2850] The place is wherever Windows says the device is, not the one chosen by hand (which is
+    /// kept, unused, for when the switch goes off). The config stores the switch only, never the
+    /// device's coordinates: the host hands the widget a copy at them (<see cref="DevicePlaces.Resolve"/>).
+    /// </summary>
+    bool UseDeviceLocation { get; set; }
+
+    /// <summary>
+    /// Forget the place: the coordinates and the name it resolved to, and the device's location as
+    /// its source. Display preferences (whether the header names the place) are the user's and stay.
     /// </summary>
     void ClearLocation();
 
-    /// <summary>[S-2848] No place chosen, or cleared, is the Set up state.</summary>
-    bool ISetupRule.NeedsSetup(FeatureSet signedIn) => !HasLocation;
+    /// <summary>
+    /// [S-2853] A copy of the config at the device's position (<paramref name="latitude"/> and
+    /// <paramref name="longitude"/> already rounded; both null while there is none) under
+    /// <paramref name="name"/>: what the widget reads while it uses the device's location.
+    /// </summary>
+    WidgetConfig AtDevice(double? latitude, double? longitude, string name);
+
+    /// <summary>[S-2848] [S-2850] No place chosen, or cleared, is the Set up state; the device's location is a place.</summary>
+    bool ISetupRule.NeedsSetup(FeatureSet signedIn) => !HasLocation && !UseDeviceLocation;
 }

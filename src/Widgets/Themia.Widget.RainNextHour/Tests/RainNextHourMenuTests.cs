@@ -28,6 +28,7 @@ public sealed class RainNextHourMenuTests
         Assert.Empty(lines.StyleLines);
         Assert.Collection(lines.Lines,
             divider => Assert.True(divider.IsSeparator),
+            use => Assert.Equal(Str.Shell_Place_UseDevice.Text(), use.Text),
             location => Assert.Equal(Str.Shell_Place_Location.Text(), location.Text),
             name => Assert.Equal(Str.Weather_LocationNameLabel.Text(), name.Text),
             divider => Assert.True(divider.IsSeparator),

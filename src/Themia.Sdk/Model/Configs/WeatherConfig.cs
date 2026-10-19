@@ -31,6 +31,9 @@ public abstract class WeatherConfig : WidgetConfig, IPlaced
     /// </summary>
     public bool HideLocation { get; set; }
 
+    /// <summary>[S-2850] The place is the device's, from Windows' location; the chosen one is kept for when this goes off.</summary>
+    public bool UseDeviceLocation { get; set; }
+
     /// <summary>
     /// [S-728] The header title for the chosen place: the city, the first part of the name the
     /// geocoder gave ("Zürich" of "Zürich, Zurich, Switzerland"), not the text that was typed to
@@ -71,6 +74,17 @@ public abstract class WeatherConfig : WidgetConfig, IPlaced
         Latitude = null;
         Longitude = null;
         LocationName = string.Empty;
+        UseDeviceLocation = false;
+    }
+
+    /// <summary>[S-2853] A copy at the device's position, named <paramref name="name"/> (the header's "My location").</summary>
+    public WidgetConfig AtDevice(double? latitude, double? longitude, string name)
+    {
+        var copy = (WeatherConfig)Clone();
+        copy.Latitude = latitude;
+        copy.Longitude = longitude;
+        copy.LocationName = latitude is null ? string.Empty : name;
+        return copy;
     }
 
     /// <summary>
@@ -94,5 +108,6 @@ public abstract class WeatherConfig : WidgetConfig, IPlaced
         other.Longitude = Longitude;
         other.LocationName = LocationName;
         other.HideLocation = HideLocation;
+        other.UseDeviceLocation = UseDeviceLocation;
     }
 }

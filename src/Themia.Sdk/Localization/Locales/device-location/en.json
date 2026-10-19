@@ -1,0 +1,17 @@
+{
+  "$comment": "[S-2850]..[S-2855] A place widget's device-location switch on its properties menu, the states it can be in, and the card while it waits.",
+  "$englishOnly": [
+    "shell.place.useDevice",
+    "shell.place.myLocation",
+    "shell.place.deviceLocating",
+    "shell.place.deviceDenied",
+    "shell.place.deviceUnavailable",
+    "shell.place.deviceSettings"
+  ],
+  "shell.place.useDevice": "Use my location",
+  "shell.place.myLocation": "My location",
+  "shell.place.deviceLocating": "Finding your location…",
+  "shell.place.deviceDenied": "Location is turned off in Windows settings",
+  "shell.place.deviceUnavailable": "Windows can't find your location right now",
+  "shell.place.deviceSettings": "Location settings"
+}

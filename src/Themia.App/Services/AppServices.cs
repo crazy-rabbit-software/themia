@@ -109,4 +109,23 @@ internal static class AppServices
     /// one pool over <c>notes\</c> beside the state file.
     /// </summary>
     public static Notes.NotePool? Notes { get; internal set; }
+
+    /// <summary>
+    /// [S-2851] Windows' location for the widgets that use it: the host's one service, started only
+    /// while a widget's Use my location is on. Null in a debug render, which never asks Windows.
+    /// </summary>
+    public static DeviceLocationService? DeviceLocation { get; internal set; }
+
+#if DEBUG
+    /// <summary>Debug renders only: the device location a render draws (the menu's lines, the waiting card), in place of Windows'.</summary>
+    internal static Themia.Core.Model.DeviceLocation? DebugDeviceLocation { get; set; }
+#endif
+
+    /// <summary>[S-2853] The device location as the widgets see it now: the service's, Off where there is none.</summary>
+    public static Themia.Core.Model.DeviceLocation DeviceLocationNow
+#if DEBUG
+        => DebugDeviceLocation ?? DeviceLocation?.Current ?? Themia.Core.Model.DeviceLocation.Off;
+#else
+        => DeviceLocation?.Current ?? Themia.Core.Model.DeviceLocation.Off;
+#endif
 }

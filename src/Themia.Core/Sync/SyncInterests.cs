@@ -119,7 +119,11 @@ public sealed record SyncInterests(
         return text.ToString();
     }
 
-    public static SyncInterests From(AppState state)
+    /// <summary>
+    /// What every widget of every view wants kept fresh. [S-2853] A widget that uses the device's
+    /// location wants it at <paramref name="device"/>'s position, and nothing while there is none.
+    /// </summary>
+    public static SyncInterests From(AppState state, DeviceLocation device = default)
     {
         ArgumentNullException.ThrowIfNull(state);
 
@@ -129,7 +133,7 @@ public sealed record SyncInterests(
         foreach (var widget in state.Views.SelectMany(v => v.Widgets))
         {
             // [S-6906] Each widget says what it wants; the host names none.
-            (widget.Config as IInterests)?.AddInterests(interests);
+            (DevicePlaces.Resolve(widget.Config, device, string.Empty) as IInterests)?.AddInterests(interests);
         }
 
         return new SyncInterests(
