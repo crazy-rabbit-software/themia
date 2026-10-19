@@ -34,6 +34,7 @@
   "widgetsB.settings.habits.customInterval": "بازه سفارشی",
   "widgetsB.settings.habits.dataFolder.desc": "فهرست‌های عادت در این رایانه در habits.json نگهداری می‌شوند",
   "widgetsB.settings.habits.dataFolder.label": "پوشهٔ داده‌ها",
+  "widgetsB.settings.habits.deleteQuestion": "این فهرست حذف شود؟",
   "widgetsB.settings.habits.deleteEmpty": "«{name}» از این رایانه حذف می‌شود.",
   "widgetsB.settings.habits.deleteFull": {
     "one": "«{name}» و {count} عادت آن، همراه با سابقه‌اش، از این رایانه حذف می‌شوند. این کار قابل بازگشت نیست.",

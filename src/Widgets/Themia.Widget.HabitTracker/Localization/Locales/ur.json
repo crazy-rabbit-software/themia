@@ -34,6 +34,7 @@
   "widgetsB.settings.habits.customInterval": "حسب ضرورت وقفہ",
   "widgetsB.settings.habits.dataFolder.desc": "عادتوں کی فہرستیں اس PC پر habits.json میں رکھی جاتی ہیں",
   "widgetsB.settings.habits.dataFolder.label": "ڈیٹا فولڈر",
+  "widgetsB.settings.habits.deleteQuestion": "یہ فہرست حذف کریں؟",
   "widgetsB.settings.habits.deleteEmpty": "\"{name}\" اس PC سے حذف ہو جائے گی۔",
   "widgetsB.settings.habits.deleteFull": {
     "one": "\"{name}\" اور اس کی {count} عادت، سرگزشت سمیت، اس PC سے حذف ہو جائیں گی۔ اسے کالعدم نہیں کیا جا سکتا۔",

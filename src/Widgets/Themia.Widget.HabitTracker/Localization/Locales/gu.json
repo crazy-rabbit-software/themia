@@ -34,6 +34,7 @@
   "widgetsB.settings.habits.customInterval": "કસ્ટમ અંતરાલ",
   "widgetsB.settings.habits.dataFolder.desc": "ટેવોની યાદીઓ આ PC પર habits.json માં રાખવામાં આવે છે",
   "widgetsB.settings.habits.dataFolder.label": "ડેટા ફોલ્ડર",
+  "widgetsB.settings.habits.deleteQuestion": "આ સૂચિ કાઢી નાખીએ?",
   "widgetsB.settings.habits.deleteEmpty": "\"{name}\" આ PC પરથી કાઢી નખાશે.",
   "widgetsB.settings.habits.deleteFull": {
     "one": "\"{name}\" અને તેની {count} આદત, તેના ઇતિહાસ સાથે, આ PC પરથી કાઢી નખાશે. આ પૂર્વવત્ કરી શકાશે નહીં.",

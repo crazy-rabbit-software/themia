@@ -34,6 +34,7 @@
   "widgetsC.tasks.rowHint": "క్రమం మార్చడానికి లాగండి; పేరు మార్చడానికి డబుల్-క్లిక్ లేదా F2; మరిన్నింటికి కుడి-క్లిక్",
   "widgetsC.tasks.settings.addList": "జాబితాను జోడించు",
   "widgetsC.tasks.settings.deleteList": "ఈ జాబితాను తొలగించు",
+  "widgetsC.tasks.settings.deleteListConfirm": "ఈ జాబితాను తొలగించాలా?",
   "widgetsC.tasks.settings.deleteListEmpty": "\"{name}\" ఈ PC నుండి తొలగించబడుతుంది.",
   "widgetsC.tasks.settings.deleteListWithTasks": {
     "one": "\"{name}\" మరియు దాని {count} పని ఈ PC నుండి తొలగించబడతాయి. దీన్ని రద్దు చేయడం సాధ్యం కాదు.",

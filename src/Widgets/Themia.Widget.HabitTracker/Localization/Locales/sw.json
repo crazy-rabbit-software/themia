@@ -34,6 +34,7 @@
   "widgetsB.settings.habits.customInterval": "Kipindi maalum",
   "widgetsB.settings.habits.dataFolder.desc": "Orodha za mazoea zinahifadhiwa kwenye PC hii katika habits.json",
   "widgetsB.settings.habits.dataFolder.label": "Folda ya data",
+  "widgetsB.settings.habits.deleteQuestion": "Futa orodha hii?",
   "widgetsB.settings.habits.deleteEmpty": "\"{name}\" itafutwa kwenye Kompyuta hii.",
   "widgetsB.settings.habits.deleteFull": {
     "one": "\"{name}\" na zoea lake {count}, pamoja na historia yake, vitafutwa kwenye Kompyuta hii. Hili haliwezi kutenduliwa.",

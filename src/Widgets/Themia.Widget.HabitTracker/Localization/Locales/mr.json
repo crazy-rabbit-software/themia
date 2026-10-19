@@ -34,6 +34,7 @@
   "widgetsB.settings.habits.customInterval": "सानुकूल अंतराल",
   "widgetsB.settings.habits.dataFolder.desc": "सवयींच्या याद्या या PC वर habits.json मध्ये ठेवल्या जातात",
   "widgetsB.settings.habits.dataFolder.label": "डेटा फोल्डर",
+  "widgetsB.settings.habits.deleteQuestion": "ही सूची हटवायची?",
   "widgetsB.settings.habits.deleteEmpty": "\"{name}\" या PC वरून हटवली जाईल.",
   "widgetsB.settings.habits.deleteFull": {
     "one": "\"{name}\" आणि तिची {count} सवय, इतिहासासह, या PC वरून हटवली जाईल. हे पूर्ववत करता येणार नाही.",

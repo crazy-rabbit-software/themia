@@ -34,6 +34,7 @@
   "widgetsB.settings.habits.customInterval": "사용자 지정 간격",
   "widgetsB.settings.habits.dataFolder.desc": "습관 목록은 이 PC의 habits.json에 저장됩니다",
   "widgetsB.settings.habits.dataFolder.label": "데이터 폴더",
+  "widgetsB.settings.habits.deleteQuestion": "이 목록을 삭제할까요?",
   "widgetsB.settings.habits.deleteEmpty": "\"{name}\"이(가) 이 PC에서 삭제됩니다.",
   "widgetsB.settings.habits.deleteFull": {
     "other": "\"{name}\"과(와) 해당 습관 {count}개 및 기록이 이 PC에서 삭제됩니다. 실행 취소할 수 없습니다."

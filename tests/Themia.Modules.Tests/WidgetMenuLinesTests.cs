@@ -197,6 +197,10 @@ public sealed class WidgetMenuLinesTests
         line.Action!();
         var ask = Assert.IsType<WidgetTextAsk>(_asked);
         Assert.Equal("30", ask.Initial);
+
+        // The box says the range in the number's own unit before anything is typed.
+        Assert.Contains("5 min", ask.Placeholder);
+        Assert.Contains("600 min", ask.Placeholder);
         Assert.Contains("5 min", ask.Refuse("2"));
         Assert.Contains("600 min", ask.Refuse("601"));
         Assert.NotNull(ask.Refuse("many"));
@@ -240,6 +244,7 @@ public sealed class WidgetMenuLinesTests
         line.Action!();
         var confirm = Assert.IsType<WidgetConfirm>(_confirm);
         Assert.Equal("Clear the whole history?", confirm.Question);
+        Assert.Null(confirm.Detail);
         Assert.Equal("Clear", confirm.Accept);
         Assert.Equal(0, cleared);
         Assert.Equal(0, _saves);
@@ -247,6 +252,16 @@ public sealed class WidgetMenuLinesTests
         confirm.Done();
         Assert.Equal(1, cleared);
         Assert.Equal(1, _saves);
+    }
+
+    [Fact]
+    public void S3727_a_confirmed_line_may_say_what_goes_under_its_question()
+    {
+        Lines().Confirm(null, "Delete this list", "Delete this list?", "Delete", () => { }, detail: "Its 4 habits go too.").Action!();
+
+        var confirm = Assert.IsType<WidgetConfirm>(_confirm);
+        Assert.Equal("Delete this list?", confirm.Question);
+        Assert.Equal("Its 4 habits go too.", confirm.Detail);
     }
 
     [Fact]

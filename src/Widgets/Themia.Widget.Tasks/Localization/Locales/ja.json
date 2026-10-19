@@ -34,6 +34,7 @@
   "widgetsC.tasks.rowHint": "ドラッグで並べ替え、ダブルクリックまたは F2 で名前の変更、右クリックでその他の操作",
   "widgetsC.tasks.settings.addList": "リストを追加",
   "widgetsC.tasks.settings.deleteList": "このリストを削除",
+  "widgetsC.tasks.settings.deleteListConfirm": "このリストを削除しますか?",
   "widgetsC.tasks.settings.deleteListEmpty": "「{name}」はこの PC から削除されます。",
   "widgetsC.tasks.settings.deleteListWithTasks": {
     "other": "「{name}」とその {count} 件のタスクはこの PC から削除されます。この操作は元に戻せません。"

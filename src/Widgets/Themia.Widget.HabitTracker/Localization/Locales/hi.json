@@ -34,6 +34,7 @@
   "widgetsB.settings.habits.customInterval": "कस्टम अंतराल",
   "widgetsB.settings.habits.dataFolder.desc": "आदतों की सूचियाँ इस PC पर habits.json में रखी जाती हैं",
   "widgetsB.settings.habits.dataFolder.label": "डेटा फ़ोल्डर",
+  "widgetsB.settings.habits.deleteQuestion": "यह सूची हटाएँ?",
   "widgetsB.settings.habits.deleteEmpty": "\"{name}\" इस PC से हटा दी जाएगी।",
   "widgetsB.settings.habits.deleteFull": {
     "one": "\"{name}\" और इसकी {count} आदत, इतिहास सहित, इस PC से हटा दी जाएगी। इसे पूर्ववत नहीं किया जा सकता।",

@@ -34,6 +34,7 @@
   "widgetsC.tasks.rowHint": "ક્રમ બદલવા ખેંચો; નામ બદલવા ડબલ-ક્લિક કે F2; વધુ માટે રાઇટ-ક્લિક",
   "widgetsC.tasks.settings.addList": "સૂચિ ઉમેરો",
   "widgetsC.tasks.settings.deleteList": "આ સૂચિ કાઢી નાખો",
+  "widgetsC.tasks.settings.deleteListConfirm": "આ સૂચિ કાઢી નાખીએ?",
   "widgetsC.tasks.settings.deleteListEmpty": "\"{name}\" આ PC પરથી કાઢી નખાશે.",
   "widgetsC.tasks.settings.deleteListWithTasks": {
     "one": "\"{name}\" અને તેનું {count} કાર્ય આ PC પરથી કાઢી નખાશે. આ પૂર્વવત્ કરી શકાશે નહીં.",

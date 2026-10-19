@@ -34,6 +34,7 @@
   "widgetsC.tasks.rowHint": "மறுவரிசைப்படுத்த இழுக்கவும்; மறுபெயரிட இருமுறை கிளிக் அல்லது F2; மேலும் விருப்பங்களுக்கு வலது கிளிக்",
   "widgetsC.tasks.settings.addList": "பட்டியலைச் சேர்",
   "widgetsC.tasks.settings.deleteList": "இந்தப் பட்டியலை நீக்கு",
+  "widgetsC.tasks.settings.deleteListConfirm": "இந்தப் பட்டியலை நீக்கவா?",
   "widgetsC.tasks.settings.deleteListEmpty": "\"{name}\" இந்த PC இலிருந்து நீக்கப்படும்.",
   "widgetsC.tasks.settings.deleteListWithTasks": {
     "one": "\"{name}\" மற்றும் அதன் {count} பணி இந்த PC இலிருந்து நீக்கப்படும். இதைச் செயல்தவிர்க்க முடியாது.",

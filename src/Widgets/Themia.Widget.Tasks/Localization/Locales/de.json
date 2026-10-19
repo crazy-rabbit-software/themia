@@ -34,6 +34,7 @@
   "widgetsC.tasks.rowHint": "Ziehen zum Sortieren; Doppelklick oder F2 zum Umbenennen; Rechtsklick für mehr",
   "widgetsC.tasks.settings.addList": "Liste hinzufügen",
   "widgetsC.tasks.settings.deleteList": "Diese Liste löschen",
+  "widgetsC.tasks.settings.deleteListConfirm": "Diese Liste löschen?",
   "widgetsC.tasks.settings.deleteListEmpty": "„{name}“ wird von diesem PC gelöscht.",
   "widgetsC.tasks.settings.deleteListWithTasks": {
     "one": "„{name}“ und {count} Aufgabe darin werden von diesem PC gelöscht. Dies kann nicht rückgängig gemacht werden.",

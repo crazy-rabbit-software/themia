@@ -34,6 +34,7 @@
   "widgetsC.tasks.rowHint": "क्रम बदलण्यासाठी ड्रॅग करा; नाव बदलण्यासाठी डबल-क्लिक किंवा F2; अधिकसाठी राइट-क्लिक",
   "widgetsC.tasks.settings.addList": "सूची जोडा",
   "widgetsC.tasks.settings.deleteList": "ही सूची हटवा",
+  "widgetsC.tasks.settings.deleteListConfirm": "ही सूची हटवायची?",
   "widgetsC.tasks.settings.deleteListEmpty": "\"{name}\" या PC वरून हटवली जाईल.",
   "widgetsC.tasks.settings.deleteListWithTasks": {
     "one": "\"{name}\" आणि तिचे {count} कार्य या PC वरून हटवले जाईल. हे पूर्ववत करता येणार नाही.",

@@ -34,6 +34,7 @@
   "widgetsB.settings.habits.customInterval": "Aangepast interval",
   "widgetsB.settings.habits.dataFolder.desc": "De gewoontelijsten staan op deze pc in habits.json",
   "widgetsB.settings.habits.dataFolder.label": "Gegevensmap",
+  "widgetsB.settings.habits.deleteQuestion": "Deze lijst verwijderen?",
   "widgetsB.settings.habits.deleteEmpty": "“{name}” wordt van deze pc verwijderd.",
   "widgetsB.settings.habits.deleteFull": {
     "one": "“{name}” en de {count} gewoonte erin, met de geschiedenis, worden van deze pc verwijderd. Dit kan niet ongedaan worden gemaakt.",

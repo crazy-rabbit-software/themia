@@ -1504,11 +1504,15 @@ rules in Core `Model/QuickSet.cs` and `Geometry/StripPlacement.cs` (tests `Quick
   at the end. A pick sets and saves; the value that holds changes nothing.
 - **[S-3726]** A **number** (`WidgetMenuLines.Number`: a value, its range, its step and how it is
   written) shows its value at the end of its line. Up to twenty steps it is a choice of one, one dot
-  per step; more is a line that asks for it as text ([S-3721]), refused outside the range with the
-  range as the reason, a decimal comma read as a point, and rounded to the nearest step.
+  per step; more is a line that asks for it as text ([S-3721]): the box's placeholder says the range
+  in the number's own words, its unit included ("Enter a number from 15 min to 720 min", the line's
+  format; the calendar's custom range in days), refused outside the range with the same words as the
+  reason, a decimal comma read as a point, and rounded to the nearest step.
 - **[S-3727]** A **confirmed** line (`WidgetMenuLines.Confirm`) asks beside the menu before it does
   what cannot be undone (a history cleared): the app's one question (`ConfirmFlyout`: the question,
-  the action and Cancel); only the action runs it and saves, Cancel, Escape or a click away change
+  the action and Cancel, and under the question what goes with it where the line says (`detail`: the
+  habits and streaks of a habit list, a note's text for every widget showing it, a task list's tasks);
+  only the action runs it and saves, Cancel, Escape or a click away change
   nothing, and with nothing to ask nothing runs. A danger line's words and icon are the critical colour.
 - **[S-3728]** A **note** (`WidgetMenuLines.Note`) is words only, in the disabled colour, never
   clickable (a data source's credit): wrapped to three lines within the menu's width, trimmed past

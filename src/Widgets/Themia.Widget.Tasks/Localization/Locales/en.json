@@ -35,6 +35,7 @@
   "widgetsC.tasks.rowHint": "Drag to reorder; double-click or F2 to rename; right-click for more",
   "widgetsC.tasks.settings.addList": "Add a list",
   "widgetsC.tasks.settings.deleteList": "Delete this list",
+  "widgetsC.tasks.settings.deleteListConfirm": "Delete this list?",
   "widgetsC.tasks.settings.deleteListEmpty": "\"{name}\" will be deleted from this PC.",
   "widgetsC.tasks.settings.deleteListWithTasks": {
     "one": "\"{name}\" and its {count} task will be deleted from this PC. This cannot be undone.",

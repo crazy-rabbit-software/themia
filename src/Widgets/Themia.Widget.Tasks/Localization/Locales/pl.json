@@ -34,6 +34,7 @@
   "widgetsC.tasks.rowHint": "Przeciągnij, aby zmienić kolejność; kliknij dwukrotnie lub F2, aby zmienić nazwę; prawy przycisk – więcej",
   "widgetsC.tasks.settings.addList": "Dodaj listę",
   "widgetsC.tasks.settings.deleteList": "Usuń tę listę",
+  "widgetsC.tasks.settings.deleteListConfirm": "Usunąć tę listę?",
   "widgetsC.tasks.settings.deleteListEmpty": "Lista „{name}” zostanie usunięta z tego komputera.",
   "widgetsC.tasks.settings.deleteListWithTasks": {
     "one": "Lista „{name}” i {count} zadanie zostaną usunięte z tego komputera. Tej operacji nie można cofnąć.",

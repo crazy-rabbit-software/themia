@@ -2,7 +2,6 @@
   "$comment": "[S-3724]..[S-3731] The properties menu's own vocabulary: a list's lines, a search's Show all, a number asked for.",
   "$englishOnly": [
     "menu.add",
-    "menu.numberAsk",
     "menu.numberRange",
     "menu.showAll"
   ],
@@ -11,6 +10,5 @@
   "menu.moveDown": "Move down",
   "menu.add": "Add…",
   "menu.showAll": "Show all ({count})",
-  "menu.numberRange": "Enter a number from {min} to {max}",
-  "menu.numberAsk": "Enter a number"
+  "menu.numberRange": "Enter a number from {min} to {max}"
 }

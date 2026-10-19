@@ -34,6 +34,7 @@
   "widgetsB.settings.habits.customInterval": "Interval kustom",
   "widgetsB.settings.habits.dataFolder.desc": "Daftar kebiasaan disimpan di PC ini dalam habits.json",
   "widgetsB.settings.habits.dataFolder.label": "Folder data",
+  "widgetsB.settings.habits.deleteQuestion": "Hapus daftar ini?",
   "widgetsB.settings.habits.deleteEmpty": "\"{name}\" akan dihapus dari PC ini.",
   "widgetsB.settings.habits.deleteFull": {
     "other": "\"{name}\" dan {count} kebiasaannya, beserta riwayatnya, akan dihapus dari PC ini. Tindakan ini tidak dapat dibatalkan."

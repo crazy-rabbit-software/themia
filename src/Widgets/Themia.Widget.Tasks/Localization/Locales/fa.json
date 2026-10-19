@@ -34,6 +34,7 @@
   "widgetsC.tasks.rowHint": "برای تغییر ترتیب بکشید؛ برای تغییر نام دوبار کلیک کنید یا F2؛ برای موارد بیشتر راست‌کلیک کنید",
   "widgetsC.tasks.settings.addList": "افزودن فهرست",
   "widgetsC.tasks.settings.deleteList": "حذف این فهرست",
+  "widgetsC.tasks.settings.deleteListConfirm": "این فهرست حذف شود؟",
   "widgetsC.tasks.settings.deleteListEmpty": "«{name}» از این رایانه حذف می‌شود.",
   "widgetsC.tasks.settings.deleteListWithTasks": {
     "one": "«{name}» و {count} کار آن از این رایانه حذف می‌شوند. این کار قابل بازگشت نیست.",

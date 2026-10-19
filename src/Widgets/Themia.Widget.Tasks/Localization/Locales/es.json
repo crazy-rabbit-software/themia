@@ -34,6 +34,7 @@
   "widgetsC.tasks.rowHint": "Arrastra para reordenar; doble clic o F2 para cambiar el nombre; clic derecho para más",
   "widgetsC.tasks.settings.addList": "Añadir una lista",
   "widgetsC.tasks.settings.deleteList": "Eliminar esta lista",
+  "widgetsC.tasks.settings.deleteListConfirm": "¿Eliminar esta lista?",
   "widgetsC.tasks.settings.deleteListEmpty": "«{name}» se eliminará de este equipo.",
   "widgetsC.tasks.settings.deleteListWithTasks": {
     "one": "«{name}» y su {count} tarea se eliminarán de este equipo. No se puede deshacer.",

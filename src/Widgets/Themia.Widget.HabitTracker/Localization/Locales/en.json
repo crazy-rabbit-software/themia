@@ -35,6 +35,7 @@
   "widgetsB.settings.habits.customInterval": "Custom interval",
   "widgetsB.settings.habits.dataFolder.desc": "The habit lists are kept on this PC in habits.json",
   "widgetsB.settings.habits.dataFolder.label": "Data folder",
+  "widgetsB.settings.habits.deleteQuestion": "Delete this list?",
   "widgetsB.settings.habits.deleteEmpty": "\"{name}\" will be deleted from this PC.",
   "widgetsB.settings.habits.deleteFull": {
     "one": "\"{name}\" and its {count} habit, with its history, will be deleted from this PC. This cannot be undone.",

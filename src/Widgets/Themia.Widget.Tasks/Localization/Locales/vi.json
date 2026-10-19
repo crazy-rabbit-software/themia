@@ -34,6 +34,7 @@
   "widgetsC.tasks.rowHint": "Kéo để sắp xếp lại; nhấp đúp hoặc F2 để đổi tên; nhấp chuột phải để xem thêm",
   "widgetsC.tasks.settings.addList": "Thêm danh sách",
   "widgetsC.tasks.settings.deleteList": "Xóa danh sách này",
+  "widgetsC.tasks.settings.deleteListConfirm": "Xóa danh sách này?",
   "widgetsC.tasks.settings.deleteListEmpty": "\"{name}\" sẽ bị xóa khỏi PC này.",
   "widgetsC.tasks.settings.deleteListWithTasks": {
     "other": "\"{name}\" và {count} tác vụ của nó sẽ bị xóa khỏi PC này. Không thể hoàn tác thao tác này."

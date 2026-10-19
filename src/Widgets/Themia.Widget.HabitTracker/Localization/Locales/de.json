@@ -34,6 +34,7 @@
   "widgetsB.settings.habits.customInterval": "Eigenes Intervall",
   "widgetsB.settings.habits.dataFolder.desc": "Die Gewohnheitslisten liegen auf diesem PC in habits.json",
   "widgetsB.settings.habits.dataFolder.label": "Datenordner",
+  "widgetsB.settings.habits.deleteQuestion": "Diese Liste löschen?",
   "widgetsB.settings.habits.deleteEmpty": "„{name}“ wird von diesem PC gelöscht.",
   "widgetsB.settings.habits.deleteFull": {
     "one": "„{name}“ und seine {count} Gewohnheit samt Verlauf werden von diesem PC gelöscht. Dies kann nicht rückgängig gemacht werden.",

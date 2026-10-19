@@ -34,6 +34,7 @@
   "widgetsB.settings.habits.customInterval": "কাস্টম ব্যবধান",
   "widgetsB.settings.habits.dataFolder.desc": "অভ্যাসের তালিকাগুলো এই PC-তে habits.json-এ রাখা হয়",
   "widgetsB.settings.habits.dataFolder.label": "ডেটা ফোল্ডার",
+  "widgetsB.settings.habits.deleteQuestion": "এই তালিকা মুছবেন?",
   "widgetsB.settings.habits.deleteEmpty": "\"{name}\" এই PC থেকে মুছে ফেলা হবে।",
   "widgetsB.settings.habits.deleteFull": {
     "one": "\"{name}\" ও এর {count}টি অভ্যাস, ইতিহাসসহ, এই PC থেকে মুছে ফেলা হবে। এটি আর ফেরানো যাবে না।",

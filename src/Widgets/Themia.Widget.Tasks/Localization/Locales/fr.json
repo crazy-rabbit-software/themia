@@ -34,6 +34,7 @@
   "widgetsC.tasks.rowHint": "Faites glisser pour réorganiser ; double-cliquez ou F2 pour renommer ; clic droit pour plus d’options",
   "widgetsC.tasks.settings.addList": "Ajouter une liste",
   "widgetsC.tasks.settings.deleteList": "Supprimer cette liste",
+  "widgetsC.tasks.settings.deleteListConfirm": "Supprimer cette liste ?",
   "widgetsC.tasks.settings.deleteListEmpty": "« {name} » sera supprimée de ce PC.",
   "widgetsC.tasks.settings.deleteListWithTasks": {
     "one": "« {name} » et sa {count} tâche seront supprimées de ce PC. Cette action est irréversible.",

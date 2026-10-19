@@ -34,6 +34,7 @@
   "widgetsB.settings.habits.customInterval": "Własny interwał",
   "widgetsB.settings.habits.dataFolder.desc": "Listy nawyków są przechowywane na tym komputerze w pliku habits.json",
   "widgetsB.settings.habits.dataFolder.label": "Folder danych",
+  "widgetsB.settings.habits.deleteQuestion": "Usunąć tę listę?",
   "widgetsB.settings.habits.deleteEmpty": "Lista „{name}” zostanie usunięta z tego komputera.",
   "widgetsB.settings.habits.deleteFull": {
     "one": "Lista „{name}” i jej {count} nawyk wraz z historią zostaną usunięte z tego komputera. Tej operacji nie można cofnąć.",

@@ -34,6 +34,7 @@
   "widgetsC.tasks.rowHint": "Arraste para reordenar; clique duas vezes ou F2 para renomear; clique com o botão direito para mais",
   "widgetsC.tasks.settings.addList": "Adicionar uma lista",
   "widgetsC.tasks.settings.deleteList": "Excluir esta lista",
+  "widgetsC.tasks.settings.deleteListConfirm": "Excluir esta lista?",
   "widgetsC.tasks.settings.deleteListEmpty": "\"{name}\" será excluída deste PC.",
   "widgetsC.tasks.settings.deleteListWithTasks": {
     "one": "\"{name}\" e sua {count} tarefa serão excluídas deste PC. Esta ação não pode ser desfeita.",

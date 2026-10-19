@@ -34,6 +34,7 @@
   "widgetsB.settings.habits.customInterval": "Custom na interval",
   "widgetsB.settings.habits.dataFolder.desc": "Nakatago ang mga listahan ng gawi sa PC na ito sa habits.json",
   "widgetsB.settings.habits.dataFolder.label": "Folder ng data",
+  "widgetsB.settings.habits.deleteQuestion": "Burahin ang listahang ito?",
   "widgetsB.settings.habits.deleteEmpty": "Buburahin ang \"{name}\" sa PC na ito.",
   "widgetsB.settings.habits.deleteFull": {
     "one": "Buburahin sa PC na ito ang \"{name}\" at ang {count} gawi nito, kasama ang history. Hindi na ito maa-undo.",

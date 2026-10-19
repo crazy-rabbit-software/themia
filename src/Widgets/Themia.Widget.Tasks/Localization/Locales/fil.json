@@ -34,6 +34,7 @@
   "widgetsC.tasks.rowHint": "I-drag para ayusin; i-double-click o F2 para palitan ang pangalan; i-right-click para sa iba pa",
   "widgetsC.tasks.settings.addList": "Magdagdag ng listahan",
   "widgetsC.tasks.settings.deleteList": "Burahin ang listahang ito",
+  "widgetsC.tasks.settings.deleteListConfirm": "Burahin ang listahang ito?",
   "widgetsC.tasks.settings.deleteListEmpty": "Buburahin ang \"{name}\" sa PC na ito.",
   "widgetsC.tasks.settings.deleteListWithTasks": {
     "one": "Buburahin sa PC na ito ang \"{name}\" at ang {count} gawain nito. Hindi na ito maa-undo.",

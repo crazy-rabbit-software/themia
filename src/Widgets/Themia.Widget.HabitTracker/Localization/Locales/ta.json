@@ -34,6 +34,7 @@
   "widgetsB.settings.habits.customInterval": "தனிப்பயன் இடைவெளி",
   "widgetsB.settings.habits.dataFolder.desc": "பழக்கப் பட்டியல்கள் இந்த PC-யில் habits.json இல் வைக்கப்படுகின்றன",
   "widgetsB.settings.habits.dataFolder.label": "தரவுக் கோப்புறை",
+  "widgetsB.settings.habits.deleteQuestion": "இந்தப் பட்டியலை நீக்கவா?",
   "widgetsB.settings.habits.deleteEmpty": "\"{name}\" இந்த PC இலிருந்து நீக்கப்படும்.",
   "widgetsB.settings.habits.deleteFull": {
     "one": "\"{name}\" மற்றும் அதன் {count} பழக்கம், அதன் வரலாற்றுடன், இந்த PC இலிருந்து நீக்கப்படும். இதைச் செயல்தவிர்க்க முடியாது.",

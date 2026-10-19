@@ -161,7 +161,7 @@ internal static class HabitTrackerMenu
         {
             // [S-1429] Always asked, empty or not: it takes every habit and streak in it.
             var label = Shown(current);
-            var question = current.Habits.Count == 0
+            var detail = current.Habits.Count == 0
                 ? HabitTrackerStr.WidgetsB_Settings_Habits_DeleteEmpty.Format(("name", label))
                 : HabitTrackerStr.WidgetsB_Settings_Habits_DeleteFull.Plural(current.Habits.Count, ("name", label));
             var currentId = current.Id;
@@ -169,8 +169,8 @@ internal static class HabitTrackerMenu
             lines.Add(ItemMenuEntry.Separator);
 
             // Every widget showing it says so rather than being handed another list's habits.
-            lines.Add(menu.Confirm(Glyphs.Delete, HabitTrackerStr.WidgetsB_Settings_Habits_DeleteList.Text(), question, Str.Common_Delete.Text(),
-                () => pool.Delete(currentId), danger: true, disabled: !pool.Writable));
+            lines.Add(menu.Confirm(Glyphs.Delete, HabitTrackerStr.WidgetsB_Settings_Habits_DeleteList.Text(), HabitTrackerStr.WidgetsB_Settings_Habits_DeleteQuestion.Text(), Str.Common_Delete.Text(),
+                () => pool.Delete(currentId), danger: true, disabled: !pool.Writable, detail: detail));
         }
 
         return WidgetMenuLines.Submenu(Glyphs.Checklist, title, lines) with { Value = current is null ? null : Shown(current) };

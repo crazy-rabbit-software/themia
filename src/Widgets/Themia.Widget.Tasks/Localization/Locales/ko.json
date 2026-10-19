@@ -34,6 +34,7 @@
   "widgetsC.tasks.rowHint": "끌어서 순서 변경, 두 번 클릭 또는 F2로 이름 바꾸기, 마우스 오른쪽 단추로 추가 옵션",
   "widgetsC.tasks.settings.addList": "목록 추가",
   "widgetsC.tasks.settings.deleteList": "이 목록 삭제",
+  "widgetsC.tasks.settings.deleteListConfirm": "이 목록을 삭제할까요?",
   "widgetsC.tasks.settings.deleteListEmpty": "\"{name}\"이(가) 이 PC에서 삭제됩니다.",
   "widgetsC.tasks.settings.deleteListWithTasks": {
     "other": "\"{name}\"과(와) 해당 작업 {count}개가 이 PC에서 삭제됩니다. 실행 취소할 수 없습니다."

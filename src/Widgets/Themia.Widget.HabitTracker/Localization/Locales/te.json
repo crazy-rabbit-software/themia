@@ -34,6 +34,7 @@
   "widgetsB.settings.habits.customInterval": "అనుకూల విరామం",
   "widgetsB.settings.habits.dataFolder.desc": "అలవాట్ల జాబితాలు ఈ PCలో habits.jsonలో ఉంచబడతాయి",
   "widgetsB.settings.habits.dataFolder.label": "డేటా ఫోల్డర్",
+  "widgetsB.settings.habits.deleteQuestion": "ఈ జాబితాను తొలగించాలా?",
   "widgetsB.settings.habits.deleteEmpty": "\"{name}\" ఈ PC నుండి తొలగించబడుతుంది.",
   "widgetsB.settings.habits.deleteFull": {
     "one": "\"{name}\" మరియు దాని {count} అలవాటు, దాని చరిత్రతో సహా, ఈ PC నుండి తొలగించబడతాయి. దీన్ని రద్దు చేయడం సాధ్యం కాదు.",

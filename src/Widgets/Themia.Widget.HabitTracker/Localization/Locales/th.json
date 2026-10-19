@@ -34,6 +34,7 @@
   "widgetsB.settings.habits.customInterval": "ช่วงเวลาที่กำหนดเอง",
   "widgetsB.settings.habits.dataFolder.desc": "รายการนิสัยถูกเก็บไว้ในพีซีเครื่องนี้ใน habits.json",
   "widgetsB.settings.habits.dataFolder.label": "โฟลเดอร์ข้อมูล",
+  "widgetsB.settings.habits.deleteQuestion": "ลบรายการนี้หรือไม่",
   "widgetsB.settings.habits.deleteEmpty": "\"{name}\" จะถูกลบออกจากพีซีเครื่องนี้",
   "widgetsB.settings.habits.deleteFull": {
     "other": "\"{name}\" และ {count} นิสัยในรายการ พร้อมประวัติ จะถูกลบออกจากพีซีเครื่องนี้ การดำเนินการนี้ไม่สามารถเลิกทำได้"

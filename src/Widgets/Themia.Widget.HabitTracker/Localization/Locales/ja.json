@@ -34,6 +34,7 @@
   "widgetsB.settings.habits.customInterval": "カスタム間隔",
   "widgetsB.settings.habits.dataFolder.desc": "習慣リストはこの PC の habits.json に保存されています",
   "widgetsB.settings.habits.dataFolder.label": "データ フォルダー",
+  "widgetsB.settings.habits.deleteQuestion": "このリストを削除しますか?",
   "widgetsB.settings.habits.deleteEmpty": "\"{name}\" はこの PC から削除されます。",
   "widgetsB.settings.habits.deleteFull": {
     "other": "\"{name}\" と {count} 個の習慣、その履歴がこの PC から削除されます。この操作は元に戻せません。"

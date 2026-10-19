@@ -83,11 +83,14 @@ internal static class CalendarMenu
         }
 
         var custom = CalendarStr.WidgetsA_Calendar_Settings_AgendaRange_Custom.Text();
-        var reason = Str.Menu_NumberRange.Format(("min", LocaleFormat.Integer(CalendarPeriod.AgendaMinDays)), ("max", LocaleFormat.Integer(CalendarPeriod.AgendaMaxDays)));
+        // [S-3726] The box says the range in days, as a number line's does in its own unit.
+        var reason = Str.Menu_NumberRange.Format(
+            ("min", CalendarStr.WidgetsA_Calendar_Settings_AgendaRange_Days.Plural(CalendarPeriod.AgendaMinDays)),
+            ("max", CalendarStr.WidgetsA_Calendar_Settings_AgendaRange_Days.Plural(CalendarPeriod.AgendaMaxDays)));
         lines.Add(ItemMenuEntry.Separator);
         lines.Add(new(null, custom + "…", () => menu.Ask(new WidgetTextAsk(
             CalendarStr.WidgetsA_Calendar_Settings_Days_Label.Text(),
-            Str.Menu_NumberAsk.Text(),
+            reason,
             Str.Common_Save.Text(),
             typed => Days(typed, out _) ? null : reason,
             typed =>

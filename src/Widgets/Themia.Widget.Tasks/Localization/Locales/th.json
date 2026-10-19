@@ -34,6 +34,7 @@
   "widgetsC.tasks.rowHint": "ลากเพื่อจัดลำดับใหม่ ดับเบิลคลิกหรือกด F2 เพื่อเปลี่ยนชื่อ คลิกขวาเพื่อดูเพิ่มเติม",
   "widgetsC.tasks.settings.addList": "เพิ่มรายการ",
   "widgetsC.tasks.settings.deleteList": "ลบรายการนี้",
+  "widgetsC.tasks.settings.deleteListConfirm": "ลบรายการนี้หรือไม่",
   "widgetsC.tasks.settings.deleteListEmpty": "\"{name}\" จะถูกลบออกจากพีซีเครื่องนี้",
   "widgetsC.tasks.settings.deleteListWithTasks": {
     "other": "\"{name}\" และ {count} งานในรายการจะถูกลบออกจากพีซีเครื่องนี้ การดำเนินการนี้ไม่สามารถเลิกทำได้"

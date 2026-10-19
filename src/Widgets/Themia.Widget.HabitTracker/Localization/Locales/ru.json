@@ -34,6 +34,7 @@
   "widgetsB.settings.habits.customInterval": "Свой интервал",
   "widgetsB.settings.habits.dataFolder.desc": "Списки привычек хранятся на этом компьютере в файле habits.json",
   "widgetsB.settings.habits.dataFolder.label": "Папка данных",
+  "widgetsB.settings.habits.deleteQuestion": "Удалить этот список?",
   "widgetsB.settings.habits.deleteEmpty": "«{name}» будет удален с этого ПК.",
   "widgetsB.settings.habits.deleteFull": {
     "one": "«{name}» и его {count} привычка вместе с историей будут удалены с этого ПК. Это нельзя отменить.",

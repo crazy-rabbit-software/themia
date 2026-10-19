@@ -34,6 +34,7 @@
   "widgetsB.settings.habits.customInterval": "فترة مخصصة",
   "widgetsB.settings.habits.dataFolder.desc": "تُحفظ قوائم العادات على هذا الكمبيوتر في habits.json",
   "widgetsB.settings.habits.dataFolder.label": "مجلد البيانات",
+  "widgetsB.settings.habits.deleteQuestion": "هل تريد حذف هذه القائمة؟",
   "widgetsB.settings.habits.deleteEmpty": "سيُحذف «{name}» من هذا الكمبيوتر.",
   "widgetsB.settings.habits.deleteFull": {
     "zero": "سيُحذف «{name}» و{count} عادة فيه مع سجلها من هذا الكمبيوتر. لا يمكن التراجع عن ذلك.",

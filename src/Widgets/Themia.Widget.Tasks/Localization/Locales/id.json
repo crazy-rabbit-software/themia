@@ -34,6 +34,7 @@
   "widgetsC.tasks.rowHint": "Seret untuk mengurutkan ulang; klik ganda atau F2 untuk ganti nama; klik kanan untuk lainnya",
   "widgetsC.tasks.settings.addList": "Tambah daftar",
   "widgetsC.tasks.settings.deleteList": "Hapus daftar ini",
+  "widgetsC.tasks.settings.deleteListConfirm": "Hapus daftar ini?",
   "widgetsC.tasks.settings.deleteListEmpty": "\"{name}\" akan dihapus dari PC ini.",
   "widgetsC.tasks.settings.deleteListWithTasks": {
     "other": "\"{name}\" dan {count} tugasnya akan dihapus dari PC ini. Tindakan ini tidak dapat dibatalkan."

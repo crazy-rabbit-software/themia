@@ -34,6 +34,7 @@
   "widgetsC.tasks.rowHint": "ਕ੍ਰਮ ਬਦਲਣ ਲਈ ਖਿੱਚੋ; ਨਾਮ ਬਦਲਣ ਲਈ ਡਬਲ-ਕਲਿੱਕ ਜਾਂ F2; ਹੋਰ ਲਈ ਸੱਜਾ-ਕਲਿੱਕ",
   "widgetsC.tasks.settings.addList": "ਸੂਚੀ ਜੋੜੋ",
   "widgetsC.tasks.settings.deleteList": "ਇਹ ਸੂਚੀ ਮਿਟਾਓ",
+  "widgetsC.tasks.settings.deleteListConfirm": "ਇਹ ਸੂਚੀ ਮਿਟਾਉਣੀ ਹੈ?",
   "widgetsC.tasks.settings.deleteListEmpty": "\"{name}\" ਇਸ PC ਤੋਂ ਮਿਟਾ ਦਿੱਤੀ ਜਾਵੇਗੀ।",
   "widgetsC.tasks.settings.deleteListWithTasks": {
     "one": "\"{name}\" ਅਤੇ ਇਸਦਾ {count} ਕਾਰਜ ਇਸ PC ਤੋਂ ਮਿਟਾ ਦਿੱਤੇ ਜਾਣਗੇ। ਇਸਨੂੰ ਵਾਪਸ ਨਹੀਂ ਕੀਤਾ ਜਾ ਸਕਦਾ।",

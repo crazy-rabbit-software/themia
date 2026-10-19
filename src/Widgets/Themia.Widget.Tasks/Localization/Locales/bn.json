@@ -34,6 +34,7 @@
   "widgetsC.tasks.rowHint": "ক্রম বদলাতে টেনে আনুন; নাম বদলাতে ডাবল-ক্লিক বা F2; আরও কিছুর জন্য রাইট-ক্লিক",
   "widgetsC.tasks.settings.addList": "একটি তালিকা যোগ করুন",
   "widgetsC.tasks.settings.deleteList": "এই তালিকা মুছুন",
+  "widgetsC.tasks.settings.deleteListConfirm": "এই তালিকা মুছবেন?",
   "widgetsC.tasks.settings.deleteListEmpty": "\"{name}\" এই PC থেকে মুছে ফেলা হবে।",
   "widgetsC.tasks.settings.deleteListWithTasks": {
     "one": "\"{name}\" ও এর {count}টি কাজ এই PC থেকে মুছে ফেলা হবে। এটি আর ফেরানো যাবে না।",

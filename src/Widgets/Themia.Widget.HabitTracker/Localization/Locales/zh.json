@@ -34,6 +34,7 @@
   "widgetsB.settings.habits.customInterval": "自定义间隔",
   "widgetsB.settings.habits.dataFolder.desc": "习惯列表保存在此电脑的 habits.json 中",
   "widgetsB.settings.habits.dataFolder.label": "数据文件夹",
+  "widgetsB.settings.habits.deleteQuestion": "删除此列表？",
   "widgetsB.settings.habits.deleteEmpty": "将从此电脑中删除“{name}”。",
   "widgetsB.settings.habits.deleteFull": {
     "other": "将从此电脑中删除“{name}”及其 {count} 个习惯和历史记录。此操作无法撤消。"

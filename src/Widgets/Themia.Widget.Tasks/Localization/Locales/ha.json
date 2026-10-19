@@ -34,6 +34,7 @@
   "widgetsC.tasks.rowHint": "Ja don sake tsarawa; danna sau biyu ko F2 don sake suna; danna-dama don ƙari",
   "widgetsC.tasks.settings.addList": "Ƙara jeri",
   "widgetsC.tasks.settings.deleteList": "Goge wannan jeri",
+  "widgetsC.tasks.settings.deleteListConfirm": "Goge wannan jeri?",
   "widgetsC.tasks.settings.deleteListEmpty": "Za a goge \"{name}\" daga wannan kwamfuta.",
   "widgetsC.tasks.settings.deleteListWithTasks": {
     "one": "Za a goge \"{name}\" da aikinsa {count} daga wannan kwamfuta. Ba za a iya sokewa ba.",

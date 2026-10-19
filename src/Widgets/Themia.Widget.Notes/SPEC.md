@@ -43,7 +43,7 @@ ladder and the header bar), `NotesMenu.cs` (its properties-menu lines), `Preview
   has no settings page. Appearance ([S-3723]), then **Note** (the note shown at the end of its line;
   its submenu: a note when the shown note was deleted, the notes on this PC as a choice of one, each
   with when it was last written, "no notes" as a note; then Rename… for the note shown, New note
-  (makes one and shows it) and Delete note, always confirmed, the question naming it; without a pool a
+  (makes one and shows it) and Delete note, always confirmed ("Delete this note?", naming it under the question, [S-3727]); without a pool a
   note says notes are not available), **Font size** (typed, 8–48 px, [S-3726]) and, under a divider,
   **Clear note** ([S-130], confirmed, greyed while the note is empty). The menu is built again on
   every change, so it follows the pool (original S-38). (Tests `NotesMenuTests`.)

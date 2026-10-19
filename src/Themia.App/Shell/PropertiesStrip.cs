@@ -1732,7 +1732,7 @@ internal sealed partial class PropertiesStrip : Grid
     /// </summary>
     private void Confirm(WidgetConfirm confirm)
     {
-        var flyout = ConfirmFlyout.Create(confirm.Question, confirm.Accept, () => Run(confirm.Done), FlyoutPlacementMode.RightEdgeAlignedTop);
+        var flyout = ConfirmFlyout.Create(confirm.Question, confirm.Accept, () => Run(confirm.Done), FlyoutPlacementMode.RightEdgeAlignedTop, confirm.Detail);
         flyout.Closed += (_, _) => _commands.ReleaseFocus();
         flyout.ShowAt(_levels.Count > 1 ? _levels[^1].Root : _frame);
     }

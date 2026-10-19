@@ -34,6 +34,7 @@
   "widgetsB.settings.habits.customInterval": "Intervalo personalizado",
   "widgetsB.settings.habits.dataFolder.desc": "Las listas de hábitos se guardan en este PC en habits.json",
   "widgetsB.settings.habits.dataFolder.label": "Carpeta de datos",
+  "widgetsB.settings.habits.deleteQuestion": "¿Eliminar esta lista?",
   "widgetsB.settings.habits.deleteEmpty": "\"{name}\" se eliminará de este PC.",
   "widgetsB.settings.habits.deleteFull": {
     "one": "\"{name}\" y su {count} hábito, con su historial, se eliminarán de este PC. Esta acción no se puede deshacer.",

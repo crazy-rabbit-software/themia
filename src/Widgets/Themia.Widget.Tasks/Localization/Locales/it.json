@@ -34,6 +34,7 @@
   "widgetsC.tasks.rowHint": "Trascina per riordinare; doppio clic o F2 per rinominare; clic destro per altre opzioni",
   "widgetsC.tasks.settings.addList": "Aggiungi un elenco",
   "widgetsC.tasks.settings.deleteList": "Elimina questo elenco",
+  "widgetsC.tasks.settings.deleteListConfirm": "Eliminare questo elenco?",
   "widgetsC.tasks.settings.deleteListEmpty": "«{name}» verrà eliminato da questo PC.",
   "widgetsC.tasks.settings.deleteListWithTasks": {
     "one": "«{name}» e la sua {count} attività verranno eliminati da questo PC. L'operazione non può essere annullata.",

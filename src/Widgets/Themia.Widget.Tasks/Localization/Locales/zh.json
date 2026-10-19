@@ -34,6 +34,7 @@
   "widgetsC.tasks.rowHint": "拖动以重新排序；双击或按 F2 重命名；右键单击查看更多",
   "widgetsC.tasks.settings.addList": "添加列表",
   "widgetsC.tasks.settings.deleteList": "删除此列表",
+  "widgetsC.tasks.settings.deleteListConfirm": "要删除此列表吗？",
   "widgetsC.tasks.settings.deleteListEmpty": "“{name}”将从此电脑中删除。",
   "widgetsC.tasks.settings.deleteListWithTasks": {
     "other": "“{name}”及其中的 {count} 个任务将从此电脑中删除。此操作无法撤销。"

@@ -207,8 +207,9 @@ public sealed class WidgetMenuLines
     /// [S-3726] A number from <paramref name="min"/> to <paramref name="max"/> in steps of
     /// <paramref name="step"/>, shown at the end of its line as <paramref name="format"/> writes it.
     /// Up to <see cref="MaxNumberSteps"/> steps it is a choice of one (a submenu of dots, one per
-    /// step); more is a line that asks for the number as text, refused outside the range (the range is
-    /// the reason) and rounded to the nearest step. A pick or a typed number sets and saves; the value
+    /// step); more is a line that asks for the number as text, its box saying the range in the
+    /// number's own words (<paramref name="format"/>'s, so typed minutes say minutes: "from 15 min to
+    /// 720 min"), refused outside it (the same words are the reason) and rounded to the nearest step. A pick or a typed number sets and saves; the value
     /// that holds changes nothing.
     /// </summary>
     public ItemMenuEntry Number<T>(string? glyph, string text, T value, T min, T max, T step, Func<T, string> format, Action<T> set)
@@ -230,7 +231,7 @@ public sealed class WidgetMenuLines
         var reason = Str.Menu_NumberRange.Format(("min", format(min)), ("max", format(max)));
         return new(glyph, text, () => _ask(new WidgetTextAsk(
             text,
-            Str.Menu_NumberAsk.Text(),
+            reason,
             Str.Common_Save.Text(),
             typed => ParseNumber(typed, min, max, step, out T _) ? null : reason,
             typed =>
@@ -290,17 +291,19 @@ public sealed class WidgetMenuLines
 
     /// <summary>
     /// [S-3727] A command that destroys something (clear a history): its click asks beside the menu
-    /// first — <paramref name="question"/>, Cancel and <paramref name="confirmWords"/> — and only the
-    /// answer runs <paramref name="action"/> and saves. Danger lines are drawn in the critical colour.
+    /// first — <paramref name="question"/>, under it <paramref name="detail"/> (what goes with it,
+    /// when there is more to say than the question), Cancel and <paramref name="confirmWords"/> — and
+    /// only the answer runs <paramref name="action"/> and saves. Danger lines are drawn in the
+    /// critical colour.
     /// </summary>
-    public ItemMenuEntry Confirm(string? glyph, string text, string question, string confirmWords, Action action, bool danger = true, bool disabled = false)
+    public ItemMenuEntry Confirm(string? glyph, string text, string question, string confirmWords, Action action, bool danger = true, bool disabled = false, string? detail = null)
     {
         ArgumentNullException.ThrowIfNull(action);
         var confirm = new WidgetConfirm(question, confirmWords, () =>
         {
             action();
             _save();
-        }, danger);
+        }, danger, detail);
 
         return new(glyph, text, () =>
         {
@@ -529,10 +532,11 @@ public sealed record WidgetTextAsk(string Title, string Placeholder, string Acce
 
 /// <summary>
 /// [S-3727] An "are you sure?" beside the properties menu: the question, the words of the button
-/// that does it (in the critical colour's line where <paramref name="Danger"/>), and what it does.
-/// Cancel, Escape or a click away do nothing.
+/// that does it (in the critical colour's line where <paramref name="Danger"/>), what it does, and
+/// optionally <paramref name="Detail"/> under the question (what goes with it: "Its 4 habits and
+/// their streaks go too"). Cancel, Escape or a click away do nothing.
 /// </summary>
-public sealed record WidgetConfirm(string Question, string Accept, Action Done, bool Danger = true);
+public sealed record WidgetConfirm(string Question, string Accept, Action Done, bool Danger = true, string? Detail = null);
 
 /// <summary>
 /// [S-3722] A search on the properties menu: the box's placeholder, the answer for what is typed

@@ -198,7 +198,9 @@ public sealed class TasksMenuTests
 
         Line(Line(Build(config, service).Lines, ListLabel).Children!, TasksStr.WidgetsC_Tasks_Settings_DeleteList.Text() + "…").Action!();
         Assert.NotNull(pool.Find("p2"));
-        _confirm!.Done();
+        Assert.Equal(TasksStr.WidgetsC_Tasks_Settings_DeleteListConfirm.Text(), _confirm!.Question);
+        Assert.Equal(TasksStr.WidgetsC_Tasks_Settings_DeleteListEmpty.Format(("name", "Shop")), _confirm.Detail);
+        _confirm.Done();
         Assert.Null(pool.Find("p2"));
         Assert.Empty(config.LocalListId);
 

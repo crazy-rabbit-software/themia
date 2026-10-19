@@ -34,6 +34,7 @@
   "widgetsB.settings.habits.customInterval": "Chu kỳ tùy chỉnh",
   "widgetsB.settings.habits.dataFolder.desc": "Danh sách thói quen được lưu trên PC này trong habits.json",
   "widgetsB.settings.habits.dataFolder.label": "Thư mục dữ liệu",
+  "widgetsB.settings.habits.deleteQuestion": "Xóa danh sách này?",
   "widgetsB.settings.habits.deleteEmpty": "\"{name}\" sẽ bị xóa khỏi PC này.",
   "widgetsB.settings.habits.deleteFull": {
     "other": "\"{name}\" và {count} thói quen của nó, cùng lịch sử, sẽ bị xóa khỏi PC này. Không thể hoàn tác thao tác này."

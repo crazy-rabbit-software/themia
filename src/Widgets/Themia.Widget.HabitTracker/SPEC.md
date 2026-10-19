@@ -45,7 +45,7 @@ module host's `HabitHostTests` and `SettingRulesTests`.
   **Habit list** (the list shown at the end of its line; its submenu: the lists on this PC as a
   choice of one, each with its habit count, the pool's problem or "no lists" as a note; then
   Rename… and Delete this list for the list shown, and Add a list, which creates one and shows it;
-  deleting is always confirmed, empty or not, original S-24, the question naming what goes; all
+  deleting is always confirmed, empty or not, original S-24, "Delete this list?" with what goes under it ([S-3727]); all
   greyed while the pool is read-only; without a pool a note says the lists are not available),
   **Resets** (Every hour / day / week / month, Custom interval) and **Interval** (custom only, typed
   and read by `HabitCadence.TryParseMinutes`, its reason under the box). Renaming a list retitles

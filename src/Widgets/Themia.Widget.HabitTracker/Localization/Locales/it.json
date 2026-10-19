@@ -34,6 +34,7 @@
   "widgetsB.settings.habits.customInterval": "Intervallo personalizzato",
   "widgetsB.settings.habits.dataFolder.desc": "Gli elenchi delle abitudini sono salvati su questo PC in habits.json",
   "widgetsB.settings.habits.dataFolder.label": "Cartella dei dati",
+  "widgetsB.settings.habits.deleteQuestion": "Eliminare questo elenco?",
   "widgetsB.settings.habits.deleteEmpty": "\"{name}\" verrà eliminato da questo PC.",
   "widgetsB.settings.habits.deleteFull": {
     "one": "\"{name}\" e la sua {count} abitudine, con la cronologia, verranno eliminati da questo PC. L’operazione non può essere annullata.",

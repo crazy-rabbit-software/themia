@@ -34,6 +34,7 @@
   "widgetsC.tasks.rowHint": "Buruta ili kupanga upya; bofya mara mbili au F2 ili kubadilisha jina; bofya kulia kwa zaidi",
   "widgetsC.tasks.settings.addList": "Ongeza orodha",
   "widgetsC.tasks.settings.deleteList": "Futa orodha hii",
+  "widgetsC.tasks.settings.deleteListConfirm": "Futa orodha hii?",
   "widgetsC.tasks.settings.deleteListEmpty": "\"{name}\" itafutwa kwenye Kompyuta hii.",
   "widgetsC.tasks.settings.deleteListWithTasks": {
     "one": "\"{name}\" na kazi yake {count} vitafutwa kwenye Kompyuta hii. Hili haliwezi kutenduliwa.",

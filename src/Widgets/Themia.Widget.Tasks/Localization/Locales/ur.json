@@ -34,6 +34,7 @@
   "widgetsC.tasks.rowHint": "ترتیب بدلنے کے لیے گھسیٹیں؛ نام بدلنے کے لیے ڈبل کلک یا F2؛ مزید کے لیے رائٹ کلک",
   "widgetsC.tasks.settings.addList": "فہرست شامل کریں",
   "widgetsC.tasks.settings.deleteList": "یہ فہرست حذف کریں",
+  "widgetsC.tasks.settings.deleteListConfirm": "یہ فہرست حذف کریں؟",
   "widgetsC.tasks.settings.deleteListEmpty": "\"{name}\" اس PC سے حذف ہو جائے گی۔",
   "widgetsC.tasks.settings.deleteListWithTasks": {
     "one": "\"{name}\" اور اس کا {count} کام اس PC سے حذف ہو جائیں گے۔ اسے کالعدم نہیں کیا جا سکتا۔",

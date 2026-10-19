@@ -90,7 +90,8 @@ public sealed class NotesMenuTests
         Assert.Equal(2, pool.Notes.Count);
 
         var confirm = Assert.IsType<WidgetConfirm>(_confirm);
-        Assert.Equal(NotesStr.WidgetsC_Notes_DeleteConfirmBody.Format(("name", "Shopping")), confirm.Question);
+        Assert.Equal(NotesStr.WidgetsC_Notes_DeleteConfirmTitle.Text(), confirm.Question);
+        Assert.Equal(NotesStr.WidgetsC_Notes_DeleteConfirmBody.Format(("name", "Shopping")), confirm.Detail);
         confirm.Done();
         Assert.Null(pool.Find("a"));
     }

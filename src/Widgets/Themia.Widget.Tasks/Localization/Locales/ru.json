@@ -34,6 +34,7 @@
   "widgetsC.tasks.rowHint": "Перетащите, чтобы изменить порядок; двойной щелчок или F2 — переименовать; правая кнопка — еще",
   "widgetsC.tasks.settings.addList": "Добавить список",
   "widgetsC.tasks.settings.deleteList": "Удалить этот список",
+  "widgetsC.tasks.settings.deleteListConfirm": "Удалить этот список?",
   "widgetsC.tasks.settings.deleteListEmpty": "«{name}» будет удален с этого ПК.",
   "widgetsC.tasks.settings.deleteListWithTasks": {
     "one": "«{name}» и его {count} задача будут удалены с этого ПК. Это нельзя отменить.",

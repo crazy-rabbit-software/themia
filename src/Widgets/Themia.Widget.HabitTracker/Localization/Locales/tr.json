@@ -34,6 +34,7 @@
   "widgetsB.settings.habits.customInterval": "Özel aralık",
   "widgetsB.settings.habits.dataFolder.desc": "Alışkanlık listeleri bu bilgisayarda habits.json dosyasında tutulur",
   "widgetsB.settings.habits.dataFolder.label": "Veri klasörü",
+  "widgetsB.settings.habits.deleteQuestion": "Bu liste silinsin mi?",
   "widgetsB.settings.habits.deleteEmpty": "\"{name}\" bu bilgisayardan silinecek.",
   "widgetsB.settings.habits.deleteFull": {
     "one": "\"{name}\" ve içindeki {count} alışkanlık, geçmişiyle birlikte bu bilgisayardan silinecek. Bu işlem geri alınamaz.",

@@ -34,6 +34,7 @@
   "widgetsB.settings.habits.customInterval": "Intervalle personnalisé",
   "widgetsB.settings.habits.dataFolder.desc": "Les listes d’habitudes sont enregistrées sur ce PC dans habits.json",
   "widgetsB.settings.habits.dataFolder.label": "Dossier des données",
+  "widgetsB.settings.habits.deleteQuestion": "Supprimer cette liste ?",
   "widgetsB.settings.habits.deleteEmpty": "« {name} » sera supprimée de ce PC.",
   "widgetsB.settings.habits.deleteFull": {
     "one": "« {name} » et son habitude ({count}), avec son historique, seront supprimées de ce PC. Cette action est irréversible.",

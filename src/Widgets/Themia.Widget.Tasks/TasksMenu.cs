@@ -273,7 +273,7 @@ internal static class TasksMenu
             var detail = shown.Tasks.Count == 0
                 ? TasksStr.WidgetsC_Tasks_Settings_DeleteListEmpty.Format(("name", Display(shown.Name)))
                 : TasksStr.WidgetsC_Tasks_Settings_DeleteListWithTasks.Plural(shown.Tasks.Count, ("name", Display(shown.Name)));
-            lines.Add(menu.Confirm(Glyphs.Delete, TasksStr.WidgetsC_Tasks_Settings_DeleteList.Text() + "…", detail, Str.Common_Delete.Text(), () =>
+            lines.Add(menu.Confirm(Glyphs.Delete, TasksStr.WidgetsC_Tasks_Settings_DeleteList.Text() + "…", TasksStr.WidgetsC_Tasks_Settings_DeleteListConfirm.Text(), Str.Common_Delete.Text(), () =>
             {
                 pool.Delete(shownId);
 
@@ -282,7 +282,7 @@ internal static class TasksMenu
                 {
                     config.LocalListId = string.Empty;
                 }
-            }, disabled: !pool.Writable));
+            }, disabled: !pool.Writable, detail: detail));
         }
 
         return WidgetMenuLines.Submenu(Glyphs.Task, text, lines) with { Value = shown is null ? null : Display(shown.Name) };

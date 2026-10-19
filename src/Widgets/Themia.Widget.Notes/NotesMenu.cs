@@ -123,8 +123,8 @@ internal static class NotesMenu
 
             // Every widget showing it then says so ([S-1347]) rather than showing another note.
             lines.Add(menu.Confirm(Glyphs.Delete, NotesStr.Notes_DeleteTitle.Text(),
-                NotesStr.WidgetsC_Notes_DeleteConfirmBody.Format(("name", Shown(current.Title))), Str.Common_Delete.Text(),
-                () => pool.Delete(currentId), danger: true));
+                NotesStr.WidgetsC_Notes_DeleteConfirmTitle.Text(), Str.Common_Delete.Text(),
+                () => pool.Delete(currentId), danger: true, detail: NotesStr.WidgetsC_Notes_DeleteConfirmBody.Format(("name", Shown(current.Title)))));
         }
 
         return WidgetMenuLines.Submenu(Glyphs.Note, title, lines) with { Value = current is null ? null : Shown(current.Title) };

@@ -34,6 +34,7 @@
   "widgetsC.tasks.rowHint": "Yeniden sıralamak için sürükleyin; yeniden adlandırmak için çift tıklayın veya F2'ye basın; daha fazlası için sağ tıklayın",
   "widgetsC.tasks.settings.addList": "Liste ekle",
   "widgetsC.tasks.settings.deleteList": "Bu listeyi sil",
+  "widgetsC.tasks.settings.deleteListConfirm": "Bu liste silinsin mi?",
   "widgetsC.tasks.settings.deleteListEmpty": "\"{name}\" bu bilgisayardan silinecek.",
   "widgetsC.tasks.settings.deleteListWithTasks": {
     "one": "\"{name}\" ve içindeki {count} görev bu bilgisayardan silinecek. Bu işlem geri alınamaz.",

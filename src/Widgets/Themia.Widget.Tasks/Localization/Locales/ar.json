@@ -34,6 +34,7 @@
   "widgetsC.tasks.rowHint": "اسحب لإعادة الترتيب؛ انقر نقرًا مزدوجًا أو اضغط F2 لإعادة التسمية؛ انقر بزر الماوس الأيمن للمزيد",
   "widgetsC.tasks.settings.addList": "إضافة قائمة",
   "widgetsC.tasks.settings.deleteList": "حذف هذه القائمة",
+  "widgetsC.tasks.settings.deleteListConfirm": "هل تريد حذف هذه القائمة؟",
   "widgetsC.tasks.settings.deleteListEmpty": "ستُحذف «{name}» من هذا الكمبيوتر.",
   "widgetsC.tasks.settings.deleteListWithTasks": {
     "zero": "ستُحذف «{name}» و{count} مهمة فيها من هذا الكمبيوتر. لا يمكن التراجع عن ذلك.",

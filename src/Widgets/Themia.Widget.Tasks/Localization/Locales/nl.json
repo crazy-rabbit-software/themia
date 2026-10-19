@@ -34,6 +34,7 @@
   "widgetsC.tasks.rowHint": "Sleep om de volgorde te wijzigen; dubbelklik of F2 om de naam te wijzigen; klik met rechts voor meer",
   "widgetsC.tasks.settings.addList": "Een lijst toevoegen",
   "widgetsC.tasks.settings.deleteList": "Deze lijst verwijderen",
+  "widgetsC.tasks.settings.deleteListConfirm": "Deze lijst verwijderen?",
   "widgetsC.tasks.settings.deleteListEmpty": "“{name}” wordt van deze pc verwijderd.",
   "widgetsC.tasks.settings.deleteListWithTasks": {
     "one": "“{name}” en de {count} taak erin worden van deze pc verwijderd. Dit kan niet ongedaan worden gemaakt.",

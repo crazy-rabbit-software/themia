@@ -105,7 +105,8 @@ public sealed class HabitTrackerMenuTests
         delete.Action!();
         Assert.Equal(2, pool.Lists.Count);
         var confirm = Assert.IsType<WidgetConfirm>(_confirm);
-        Assert.Equal(HabitTrackerStr.WidgetsB_Settings_Habits_DeleteFull.Plural(2, ("name", "Gym")), confirm.Question);
+        Assert.Equal(HabitTrackerStr.WidgetsB_Settings_Habits_DeleteQuestion.Text(), confirm.Question);
+        Assert.Equal(HabitTrackerStr.WidgetsB_Settings_Habits_DeleteFull.Plural(2, ("name", "Gym")), confirm.Detail);
 
         confirm.Done();
         Assert.Null(pool.Find("a"));

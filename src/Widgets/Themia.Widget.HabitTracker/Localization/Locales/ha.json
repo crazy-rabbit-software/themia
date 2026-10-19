@@ -34,6 +34,7 @@
   "widgetsB.settings.habits.customInterval": "Tazara ta musamman",
   "widgetsB.settings.habits.dataFolder.desc": "Ana ajiye jerin ɗabi'u a wannan PC a cikin habits.json",
   "widgetsB.settings.habits.dataFolder.label": "Fayil ɗin bayanai",
+  "widgetsB.settings.habits.deleteQuestion": "Goge wannan jeri?",
   "widgetsB.settings.habits.deleteEmpty": "Za a goge \"{name}\" daga wannan kwamfuta.",
   "widgetsB.settings.habits.deleteFull": {
     "one": "Za a goge \"{name}\" da ɗabi'arsa {count}, tare da tarihinta, daga wannan kwamfuta. Ba za a iya sokewa ba.",
