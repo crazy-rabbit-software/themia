@@ -1045,7 +1045,7 @@ The shared parts a list widget is built from, and the rules they keep (design an
   - **[S-7066]** The kit's parts name no colour at all.
   - **[S-7067]** No view sets a literal font size or family beyond today's four.
   - **[S-7068]** No view or kit part shows a literal sentence (an example web address in a
-    placeholder and a preview's sample data aside; today's: the Stocks page's example tickers).
+    placeholder and a preview's sample data aside; none today).
   - **[S-7069]** A kit widget's view builds no list plumbing of its own, and only the kit's list
     turns actions into menu entries.
   - **[S-7070]** Every fixture parses and holds no token's shape, bearer header or address outside
