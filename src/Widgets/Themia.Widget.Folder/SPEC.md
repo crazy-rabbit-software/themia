@@ -12,18 +12,18 @@ the shell's operations ([S-1330], [S-1331], `IWidgetHost.FileOps`), drops and vi
 `IWidgetDropTarget`, the SDK's `FileDrops`), the folder watch ([S-1333], `IWidgetHost.Folders`) and the
 tests' rule ([S-1336]).
 
-Owning files: everything in this folder: `FolderModule.cs` (descriptor, view factory, settings rows,
+Owning files: everything in this folder: `FolderModule.cs` (descriptor, view factory, menu lines,
 JSON context), `FolderConfig.cs` (with its styles, sizes, sort and navigation), `FolderView.cs` (the
 listing and the watch through `IWidgetHost.Folders`, navigation) with `.Render.cs` (the ladder, rows,
 tiles, icons through `IWidgetHost.FileIcons`), `.Input.cs` (pointer, keys, selection, the lasso, drag
 out through `IWidgetHost.FileOps`, drops) and `.Commands.cs` (Explorer's menus through
 `IWidgetHost.ExplorerMenus`, the file operations and clipboard through `IWidgetHost.FileOps` and
 `IWidgetHost.FileClipboard`), its rules (`FolderColumns`, `FolderFilter`, `FolderGesture`, `FolderHistory`,
-`FolderLasso`, `FolderLayout`, `FolderMenu`, `FolderRules`, `FolderSelection`), `FolderSettings.cs` (its
-page: the folder through the SDK's `FolderBrowse`), `Preview/` (Debug renders: `--state
+`FolderLasso`, `FolderLayout`, `FolderMenu`, `FolderRules`, `FolderSelection`), `FolderPropertiesMenu.cs` (its
+properties-menu lines: the folder through the SDK's `PickFolder`), `Preview/` (Debug renders: `--state
 web|wallpapers|lasso`, Windows' own folders; `--menu-png`'s folder menus through `IWidgetPreviewMenus`),
 `Localization/Locales/` (its own `FolderStr`, 30 languages, its style names included). Tests:
-`Tests/FolderBrowserTests.cs`, `FolderLassoTests.cs`, `FolderMenuTests.cs`, `FolderRulesTests.cs` (run
+`Tests/FolderBrowserTests.cs`, `FolderLassoTests.cs`, `FolderMenuTests.cs`, `FolderPropertiesMenuTests.cs`, `FolderRulesTests.cs` (run
 by `tests/Themia.Modules.Tests`); its config and rules under the root's tags are the module host's
 `FolderKindsTests` and `FolderHostTests`.
 
@@ -104,8 +104,17 @@ by `tests/Themia.Modules.Tests`); its config and rules under the root's tags are
   columns, file extensions; no sort row (its column headers sort, saved). Grid: tile size, file
   extensions, Sort by + Reverse. Icons: tile size, Sort by + Reverse; no extensions (it draws no
   names; a rename there edits the stem). One tile size for grid and icons (default Medium). Picking
-  another style rebuilds the page ([S-6071]). Retired for every style: the stored keyword filter (the
+  another style builds the menu again ([S-6071]); these lines stand under Style ([S-1337]). Retired for every style: the stored keyword filter (the
   header search covers it), Folders first (always on), Stretch tiles (tiles keep their preset height).
+- **[S-1337]** Its options are all on the properties menu ([S-3719], user request 2026-10-19); it
+  has no settings page. Under Style what the style draws ([S-4121]): Row size or Tile size (a
+  choice), Details columns (a submenu of switches), Show file extensions, Sort by (Name / Date
+  modified / Size, with Reverse order under them). Then Appearance ([S-3723]), **Folder** (its name
+  at the line's end, the user folder's while empty) with Browse… (Windows' folder picker, [S-3730])
+  and Type a path… (asked beside the menu, [S-3721]: checked by `FolderPath` as it is typed and
+  refused with the reason, never repaired; empty means the user folder), **Show hidden items**,
+  **Open items with** (Double / Single click) and **Open folders** (In Explorer / Inside the widget).
+  (Tests `FolderPropertiesMenuTests`.)
 - **[S-4122]** Debug renders: `--widget-png Folder <out> --style list|details|grid|icons --state web|wallpapers`
   lists `%WINDIR%\Web` or its Windows wallpapers (read-only) instead of the profile;
   `--settings-png Widget:Folder <out> --style <name>` its settings page in that style.

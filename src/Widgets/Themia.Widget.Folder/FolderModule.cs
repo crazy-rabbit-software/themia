@@ -40,8 +40,9 @@ public sealed class FolderModule : IWidgetModule
         Add = new(AddFolderId.Files, 0, 0, Popular: 9),
     };
 
-    public void SettingsRows(WidgetSettingsRows rows, WidgetConfig config)
-        => FolderSettings.Rows(rows.Rows, (FolderConfig)config, rows.Save);
+    /// <summary>[S-3719] Every option is on the properties menu: the widget has no settings page.</summary>
+    public void MenuLines(WidgetMenuLines menu, WidgetConfig config)
+        => FolderPropertiesMenu.Lines(menu, (FolderConfig)config);
 
     public FrameworkElement CreateView(IWidgetHost host) => new FolderView(host);
 }

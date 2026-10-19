@@ -1846,7 +1846,7 @@ registration path: when a table becomes a descriptor member, the table is delete
   (`ScreenTimeShared`), their preview fixture (`SampleScreenTime`) and menu lines
   (`ScreenTimeMenuLines`, the settings rows until 2026-10-19), `PackagedApps`, `StickerRules`, `RotatedBox` with `StreamRotation` (the
   gallery and the video stream), `ControlKeys`, `ImageFiles`, `FolderFormatting` with `FolderEntry`,
-  `FolderBrowse` (the folder's and the gallery's pages), `GallerySource`, `GalleryMemory` (the source key
+  `FolderBrowse` (the properties menu's folder lines), `GallerySource`, `GalleryMemory` (the source key
   with the rescan interval), `GalleryStates`, `BingPhoto`; and `StateJson.Merged` (a config fragment over
   a default, out of the first-run desktop, so a debug scene names the gallery by id). The stores and
   files stay Core's and the host's, with their validation and tests: `NoteStore` (`notes/*.md`,

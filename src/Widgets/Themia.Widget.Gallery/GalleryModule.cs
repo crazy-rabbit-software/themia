@@ -37,8 +37,9 @@ public sealed class GalleryModule : IWidgetModule
         Add = new(AddFolderId.Media, 1, 0),
     };
 
-    public void SettingsRows(WidgetSettingsRows rows, WidgetConfig config)
-        => GallerySettings.Rows(rows.Rows, (GalleryConfig)config, rows.Save);
+    /// <summary>[S-3719] Every option is on the properties menu: the widget has no settings page.</summary>
+    public void MenuLines(WidgetMenuLines menu, WidgetConfig config)
+        => GalleryMenu.Lines(menu, (GalleryConfig)config);
 
     public FrameworkElement CreateView(IWidgetHost host) => new GalleryView(host);
 }
