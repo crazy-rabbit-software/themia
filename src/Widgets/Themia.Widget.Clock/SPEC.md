@@ -49,6 +49,12 @@ them). Tests: `Tests/` (run by `tests/Themia.Modules.Tests`).
   a tall column when that draws it larger ([S-1483]).
 - **[S-6015]** `ClockConfig.DrawsSeconds`: seconds are drawn (and asked for, [S-52]) only when they
   are on and the style is not Words, Minimal or Date.
+- **[S-6016]** Any style may follow any other, in any order, with seconds and the date on or
+  off: the view lets go of what the last style built (the flip cards and the AM/PM caption they
+  carry included) before the next one is laid, and never shows its error card for a style
+  change. Covered by the Debug run `Themia.exe --clock-style-check <outDir>`, which hands one live
+  card every style after every other, both ways and to and from Flip, the seconds toggled on Flip
+  at four sizes, and exits 1 on a fault (it did on Flip, another style, Flip again, before the fix).
 - **[S-6020]** `WordClock.Compose`: each language writes its own rules into its locale strings
   (its own `Localization/Locales/<code>.json`), never code. `wordClock.hours` is one or more hour forms (`;`
   between forms, `|` between entries), each 12 entries (index 0 is twelve, then one to eleven;

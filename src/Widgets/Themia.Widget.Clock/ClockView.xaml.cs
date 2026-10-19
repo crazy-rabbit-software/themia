@@ -177,8 +177,7 @@ public sealed partial class ClockView : UserControl, IWidgetView, IWidgetSizeAwa
 
         if (style != ClockStyle.Flip)
         {
-            FlipRow.Children.Clear();
-            _flipCards.Clear();
+            ClearFlipCards();
         }
 
         // [S-6012] A changed config or language redraws the cards at once: only a tick flips them.
@@ -433,6 +432,24 @@ public sealed partial class ClockView : UserControl, IWidgetView, IWidgetSizeAwa
         _flipMeridiem.Margin = new Thickness(Fluent.Space2, 0, 0, Fluent.Space1);
     }
 
+    /// <summary>
+    /// [S-6016] Let the cards go, and first take the meridiem out of the hours card: it is the one
+    /// element the cards share with the view, and it would otherwise stay the child of a card that
+    /// is no longer in the tree. It is removed from that card's children directly, not through its
+    /// <c>Parent</c>, which did not report the card once the card had left the live tree, so the
+    /// next set of cards could not take it ("Element is already the child of another element").
+    /// </summary>
+    private void ClearFlipCards()
+    {
+        if (_flipCards.Count > 0)
+        {
+            _flipCards[0].Root.Children.Remove(_flipMeridiem);
+        }
+
+        FlipRow.Children.Clear();
+        _flipCards.Clear();
+    }
+
     private void EnsureFlipCards(int count)
     {
         if (_flipCards.Count == count)
@@ -440,9 +457,7 @@ public sealed partial class ClockView : UserControl, IWidgetView, IWidgetSizeAwa
             return;
         }
 
-        FlipRow.Children.Clear();
-        _flipCards.Clear();
-        (_flipMeridiem.Parent as Panel)?.Children.Remove(_flipMeridiem);
+        ClearFlipCards();
 
         for (var i = 0; i < count; i++)
         {
