@@ -35,6 +35,7 @@ Render flags draw off-screen to PNG and exit. Look at the PNGs; they are how UI 
 Themia.exe --settings-png <Page|Widget:<Kind>> <out.png> [waitMs] [--theme light|dark] [--search t] [--land t]
            [--flyout row] [--width dips] [--open first|name] [--views n]      # Page: General..About, Displays, Views
 Themia.exe --widget-png <Kind> <out.png> [w h] [--theme light|dark] [--state name] [--style name] [--sizes WxH,..|tiers] [--keys k1,k2|text:abc]
+           [--place-cleared]   # a widget about a place with its place cleared [S-2848]
            # the 7 tiers (or w×h); a wrong --state prints the kind's states (Stocks: quote|falling)
            [--design border=dashed,borderWidth=4,borderOpacity=0.5,borderColor=#FF0000,radius=4,preset=Midnight,...]
            # --style: any styled kind in one of its styles [S-6006] (Clock: digital|analog|stacked|flip|word|minimal; --state sample fixes 10:42)

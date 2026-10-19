@@ -2160,6 +2160,16 @@ Tests `ScreenTimeRulesTests`, `ScreenTimeStoreTests`, `LocalStoreFixtureTests`, 
   every widget. On load, blank keys and limits of zero or less are dropped; preferences changed
   before the file was read win the merge. Right-click "Hide from list" works in all three, never
   on Other.
+- **[S-3323]** The shared lines (`ScreenTimeMenuLines`, user request 2026-10-19: no settings page),
+  after each widget's own on its properties menu ([S-3719]): **Limits**, a submenu of the kind the
+  widget draws with ([S-6074]): the chart and the donut the **Daily limit** (typed minutes, 0 to
+  1440 in quarter hours, [S-3726]; 0 is no limit and reads Off), the list each app's (an app's line
+  with its limit at the end, its submenu the limit, typed minutes 15 to 720 in quarter hours, and
+  Remove; "No app has a limit of its own." while none; then **Limit an app**, a search over the
+  apps of the last month without a limit, a pick starting at an hour); **Hidden apps**, each with
+  Show again ("No hidden apps…" while none); both end with the note that they apply to every
+  screen-time widget. Last the privacy note. Without a tracker the lines are the not-recording and
+  privacy notes alone. Every change replaces the whole set through the tracker.
 
 ### Chart
 
@@ -2176,16 +2186,6 @@ Tests `ScreenTimeRulesTests`, `ScreenTimeStoreTests`, `LocalStoreFixtureTests`, 
 - [S-3350], [S-3352], [S-3353], [S-3354]: moved with the Screen time: apps widget into its module's `SPEC.md` (`src/Widgets/Themia.Widget.ScreenTimeApps/`).
 - **[S-3960]** A packaged (Store / MSIX) app's icon is its package's logo, as Start shows it: its
   executable (under `WindowsApps\<package full name>\`) is asked for as the Apps-folder item
-- **[S-3323]** The shared lines (`ScreenTimeMenuLines`, user request 2026-10-19: no settings page),
-  after each widget's own on its properties menu ([S-3719]): **Limits**, a submenu of the kind the
-  widget draws with ([S-6074]): the chart and the donut the **Daily limit** (typed minutes, 0 to
-  1440 in quarter hours, [S-3726]; 0 is no limit and reads Off), the list each app's (an app's line
-  with its limit at the end, its submenu the limit, typed minutes 15 to 720 in quarter hours, and
-  Remove; "No app has a limit of its own." while none; then **Limit an app**, a search over the
-  apps of the last month without a limit, a pick starting at an hour); **Hidden apps**, each with
-  Show again ("No hidden apps…" while none); both end with the note that they apply to every
-  screen-time widget. Last the privacy note. Without a tracker the lines are the not-recording and
-  privacy notes alone. Every change replaces the whole set through the tracker.
   `shell:AppsFolder\<family>!<app id>` (`PackagedApps.AppsFolderTarget`: the manifest's
   `Application` whose `Executable` is the file, else the package's only app; a manifest that is
   absent, not XML, has a DTD or does not say gives the file's own icon). WhatsApp's
