@@ -115,9 +115,6 @@ internal sealed partial class PropertiesStrip : Grid
     /// <summary>The chevron of a line with a submenu: Windows' "ChevronRightMed", at the menu's size.</summary>
     private static readonly string Chevron = char.ConvertFromUtf32(0xE974);
 
-    /// <summary>[S-3725] The answers a search shows before its Show all line, and the lines its answers' room never shrinks below.</summary>
-    private const int SearchAnswers = 5;
-
     /// <summary>[S-3728] The most lines a note wraps to; the rest is trimmed, the whole in its tooltip.</summary>
     private const int NoteLines = 3;
 
@@ -523,8 +520,9 @@ internal sealed partial class PropertiesStrip : Grid
     /// <summary>
     /// The lines of the level a node opens: its submenu, or a search's answers and its fixed lines.
     /// [S-3725] A search shows its first five answers and Show all (N) under them until that is
-    /// clicked, and the answers' room is never less than five lines (kept free under a note or a few
-    /// answers), so the fixed lines do not jump while it is typed into.
+    /// clicked, and the answers' room is always six lines (<see cref="SearchRoom"/>: five answers and
+    /// Show all's slot, kept free under a word or fewer answers), so the submenu keeps its height
+    /// while it is typed into.
     /// </summary>
     private List<Node> LevelNodes(Level level, Node owner)
     {
@@ -534,9 +532,9 @@ internal sealed partial class PropertiesStrip : Grid
         }
 
         var answers = level.Results;
-        var cut = !level.ShowAll && answers.Count > SearchAnswers;
-        var nodes = new List<Node>(cut ? answers.Take(SearchAnswers) : answers);
-        if (cut)
+        var fill = SearchRoom.Fill(answers.Count, level.ShowAll);
+        var nodes = new List<Node>(answers.Take(fill.Shown));
+        if (fill.ShowAll)
         {
             nodes.Add(new Node(owner.Key + "/all")
             {
@@ -545,10 +543,9 @@ internal sealed partial class PropertiesStrip : Grid
             });
         }
 
-        if (nodes.Count < SearchAnswers)
+        if (fill.Free > 0)
         {
-            var free = SearchAnswers - nodes.Count;
-            nodes.Add(new Node(owner.Key + "/pad" + free, NodeKind.Spacer) { Height = free * LineHeight });
+            nodes.Add(new Node(owner.Key + "/pad" + fill.Free, NodeKind.Spacer) { Height = fill.Free * LineHeight });
         }
 
         if (search.Fixed.Count > 0)
@@ -1955,7 +1952,7 @@ internal sealed partial class PropertiesStrip : Grid
         FillLevel(level, LevelNodes(level, anchor.Node));
         Place(level, at);
 
-        if (focused && level.Views.Where(v => v is { Button.IsEnabled: true }).Skip(SearchAnswers).FirstOrDefault() is { } next)
+        if (focused && level.Views.Where(v => v is { Button.IsEnabled: true }).Skip(SearchRoom.Answers).FirstOrDefault() is { } next)
         {
             next.Button.Focus(FocusState.Keyboard);
         }

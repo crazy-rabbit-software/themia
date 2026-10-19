@@ -1490,9 +1490,12 @@ and the SDK's `Settings/ListDrop.cs` (tests `QuickSetTests`, `StripPlacementTest
   (`WeatherPlaceRows.LocationLine`, [S-6174]) are searches.
 - **[S-3725]** A search shows its **first five answers** and under them a last line **Show all (N)**
   (user request 2026-10-19), which shows every answer until the next question (a new text typed, the
-  submenu opened again); Enter still picks the first answer. The answers' room is never less than
-  five lines: under a word in place of answers (searching, no match) or fewer than five, the rest
-  stays empty, so the fixed lines under it do not jump while it is typed into.
+  submenu opened again); Enter still picks the first answer. The answers' room is **always six
+  lines** (`SearchRoom`; user bug 2026-10-19: the submenu grew by Show all's line once there were
+  more than five): five answers and Show all's slot, kept empty under a word in place of answers
+  (searching, no match), fewer than five or exactly five, so the submenu keeps one height while it is
+  typed into; only Show all makes it grow, by the answers past the fifth. (Renders
+  `props-*-search-empty`, `-searching`, `-two`, `-five`, `-six`, `-six-all`, `-zone-all`.)
 - **[S-3723]** The card's own lines are one **Appearance** submenu (user request 2026-10-19: not a
   group of their own), for every widget and for several selected: where the widget places it
   (`PlaceCard`), else first, right after Style; a section of its own ([S-3735]). In it: Alignment;

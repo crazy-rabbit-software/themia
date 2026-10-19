@@ -390,6 +390,24 @@ internal static class EditBarRender
             await PropsShot(screen, ticker, layout, System.IO.Path.Combine(outDir, $"props-{theme}-{name}.png"), open: path, type: type).ConfigureAwait(true);
         }
 
+        // [S-3725] A search keeps one height while it is typed into: nothing typed, a question out,
+        // two answers, five, six (five and Show all) and every one shown; the zone's 41 the same.
+        string ShowAll(int count) => Str.Menu_ShowAll.Format(("count", LocaleFormat.Integer(count)));
+        (PropsCard[] Layout, string Name, string Open, string? Type, string? Click)[] heights =
+        [
+            (weather, "search-empty", Str.Shell_Place_Location.Text(), null, null),
+            (weather, "search-searching", Str.Shell_Place_Location.Text(), PlaceRender.Unanswered, null),
+            (weather, "search-two", Str.Shell_Place_Location.Text(), "zur", null),
+            (weather, "search-five", Str.Shell_Place_Location.Text(), "spring", null),
+            (weather, "search-six", Str.Shell_Place_Location.Text(), "san", null),
+            (weather, "search-six-all", Str.Shell_Place_Location.Text(), "san", ShowAll(6)),
+            (clock, "search-zone-all", "Timezone", "a", ShowAll(41)),
+        ];
+        foreach (var (layout, name, path, type, click) in heights)
+        {
+            await PropsShot(screen, ticker, layout, System.IO.Path.Combine(outDir, $"props-{theme}-{name}.png"), open: path, type: type, click: click).ConfigureAwait(true);
+        }
+
         // [S-3732] The shortcuts' list with its first line held over the gap after the last.
         await PropsShot(screen, ticker, shortcuts, System.IO.Path.Combine(outDir, $"props-{theme}-shortcuts-drag.png"), open: "Shortcuts", drag: "drag:0:2").ConfigureAwait(true);
 
@@ -506,7 +524,7 @@ internal static class EditBarRender
     /// <summary>[S-1862] The path that opens the menu as the card's Set up button does.</summary>
     private const string SetupOpen = "<setup>";
 
-    private static async Task PropsShot(Grid screen, Ticker ticker, PropsCard[] layout, string path, string? open = null, string? type = null, Action<WidgetMenuLines>? lines = null, string? drag = null)
+    private static async Task PropsShot(Grid screen, Ticker ticker, PropsCard[] layout, string path, string? open = null, string? type = null, Action<WidgetMenuLines>? lines = null, string? drag = null, string? click = null)
     {
         screen.Children.Clear();
 
@@ -607,6 +625,16 @@ internal static class EditBarRender
             {
                 await Task.Delay(100).ConfigureAwait(true);
                 strip.DebugType(type);
+            }
+
+            // A line of the answers clicked once they have come (Show all).
+            if (click is not null)
+            {
+                await Task.Delay(700).ConfigureAwait(true);
+                if (!strip.DebugClick(click))
+                {
+                    Console.WriteLine($"editbar: no line {click} for {path}");
+                }
             }
 
             // [S-3732] A list's line held mid-drag: "drag:<from>:<gap>".
