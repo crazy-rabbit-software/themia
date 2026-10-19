@@ -2971,6 +2971,12 @@ their `SPEC.md`); this section keeps what they share. Shared rules in `Themia.Sd
   written, so they never read back as Zurich), their coordinate lines show nothing (their asks start
   empty), and a place typed into the coordinate lines counts as chosen (named by its coordinates
   when it has no name).
+- **[S-2849]** The location-name switch ([S-728]) only changes the header's title, so it stands under
+  the answers only while the card's header shows and no typed title wins over the place's
+  (`MenuCard.ReadsWidgetTitle`; [S-6070]). What a widget's lines know of its card is handed to them by
+  the host (`WidgetMenuLines.Card`, `QuickSet.Card`: the header as drawn, `ShownHeader`, and a typed
+  title); a header shown or a title cleared builds the menu again with it. Its value is kept while
+  hidden. Clear location stays either way.
 - **[S-733]** Reading glyphs, checked against the font: droplet EB42, thermometer E9CA, wind E7BC;
   layouts: list E8FD, columns E8C0, grid E8A9.
 

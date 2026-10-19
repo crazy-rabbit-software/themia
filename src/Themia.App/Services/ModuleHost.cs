@@ -28,13 +28,13 @@ internal static class ModuleHost
     /// <paramref name="widget"/>'s config (the live one: the lines change it in place and
     /// <paramref name="save"/> stores it), asking for text and confirmations beside the menu. A
     /// module that throws is logged and has none. [S-3745] <paramref name="showAccounts"/> opens
-    /// Settings › Accounts from an account widget's lines.
+    /// Settings › Accounts from an account widget's lines. [S-2849] They know the card's header and title.
     /// </summary>
     public static WidgetMenuLines? MenuLines(WidgetInstance widget, Action save, Action<WidgetTextAsk> ask, Action<WidgetConfirm> confirm, Action? showAccounts = null)
     {
         ArgumentNullException.ThrowIfNull(widget);
 
-        var lines = new WidgetMenuLines(save, ask, confirm) { ShowAccounts = showAccounts };
+        var lines = new WidgetMenuLines(save, ask, confirm) { ShowAccounts = showAccounts, Card = QuickSet.Card(widget) };
         try
         {
             Module(widget.Kind).MenuLines(lines, widget.Config);

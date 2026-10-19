@@ -48,6 +48,12 @@ public sealed class WidgetMenuLines
     public Action? ShowAccounts { get; init; }
 
     /// <summary>
+    /// [S-2849] The card the lines are built for: whether its header shows and holds a typed title.
+    /// <see cref="MenuCard.Plain"/> where no card is known (a test).
+    /// </summary>
+    public MenuCard Card { get; init; } = MenuCard.Plain;
+
+    /// <summary>
     /// [S-3746] Raised when something a line showed while it was still being read has come (an
     /// account's calendars, its lists): the host builds the lines again, so they say what is there.
     /// </summary>
