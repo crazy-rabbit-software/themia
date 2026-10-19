@@ -10,14 +10,14 @@ app layouts (the tree, the walk, the placement and window matching, the editor: 
 `AppLayoutLauncher` and `LayoutEditorWindow` behind `IWidgetHost.AppLayouts`, which finds an item
 through `IHoldsAppLayouts`) and the layout item's naming, menu and repair ([S-1405], [S-1406]).
 
-Owning files: everything in this folder: `ShortcutsModule.cs` (descriptor, glyph, view factory, settings
-rows, JSON context), `ShortcutsConfig.cs` (the items, the styles, sizes and switches, the layout items),
+Owning files: everything in this folder: `ShortcutsModule.cs` (descriptor, glyph, view factory, menu
+lines, JSON context), `ShortcutsConfig.cs` (the items, the styles, sizes and switches, the layout items),
 `ShortcutsView.cs` (the items, health, search, the bin badge through `IWidgetHost.RecycleBin`) with
 `.Cells.cs` (tiles, rows, icons through `AppIconSource`, site icons through `IWidgetHost.Favicons`),
 `.Input.cs` (selection, keys, the item menu, opening through its launcher, layouts through
 `IWidgetHost.AppLayouts`) and `.Drop.cs` (drops through `IWidgetDropTarget`, a Start-menu app through
 `IWidgetHost.InstalledApps`, reorder, the drag out through `IWidgetHost.FileOps`), `ShortcutRules.cs`,
-`ShortcutDrop.cs`, `ShortcutLayout.cs`, `ShortcutSelection.cs`, `ShortcutsSettings.cs` (its page: pickers
+`ShortcutDrop.cs`, `ShortcutLayout.cs`, `ShortcutSelection.cs`, `ShortcutsMenu.cs` (its properties-menu lines: pickers
 through `SettingsHost.OwnPicker`, the layout editor through `SettingsHost.AppLayouts`), `Preview/`
 (Debug renders: `--state sample|grid3|grid7|grid20|list7|details7`), `Localization/Locales/` (its own
 `ShortcutsStr`, 30 languages). Tests: `Tests/ShortcutsTests.cs`, `Tests/ShortcutDropTests.cs` (run by
@@ -31,8 +31,9 @@ through `SettingsHost.OwnPicker`, the layout editor through `SettingsHost.AppLay
   `ShowTarget` and `OpenOnSingleClick` are gone (the details view and `ClickMode` replace them).
 - **[S-6401]** Shortcuts' styles ([S-6000]) are its views, `ShortcutsConfig.Style`
   (`ShortcutsStyle`, `"style": "grid"`): **Tiles** (Grid), **List** and **Details**, in that order;
-  the View expander is gone. The page offers the tile size, icons only and stretch for Tiles
-  (`ShortcutsConfig.ShownSettings`, [S-6070]), the row size for List and Details.
+  the View expander is gone. Under Style the menu offers the tile size, icons only and stretch for
+  Tiles (`ShortcutsConfig.ShownSettings`, [S-6070]), the row size for List and Details, and file
+  extensions for all three.
 - **[S-1381]** Display name: label, else host without `www.`, else the Windows location's name, else
   the file name without its extension unless `ShowFileExtension` (original S-05, S-18, S-48).
 - **[S-1382]** Grid ladder (`ShortcutLayout.Grid`): tiles keep the chosen size and the columns share
@@ -69,9 +70,16 @@ through `SettingsHost.OwnPicker`, the layout editor through `SettingsHost.AppLay
   Down on the cursor, [S-3802]); Remove / Remove N (danger). Remove keeps one
   step of "Undo remove" on the card menu. Rename edits in place (Enter / losing focus commits,
   Escape cancels); a name equal to the derived one clears the label.
-- **[S-1388]** Settings (original S-16, S-45, S-61): Display first, then Add (file / folder pickers
-  and one switch per Windows location with its real icon; on adds it, off removes every item
-  pointing there; the switches follow the list), the list editor last.
+- **[S-1388]** Options (original S-16, S-45, S-61), all on the properties menu ([S-3719], user request
+  2026-10-19); the widget has **no settings page**, so no More settings line and no Settings on its
+  card menu ([S-1750]). Under Style: what the look draws with ([S-6401]); then **Open with** (Double
+  click / Single click) and **Add**: File… and Folder… (the pickers), Web address or path… (asked
+  beside the menu, [S-3721]: `LaunchTargets` refuses it as it is typed, with the reason, and it
+  cannot be added while refused; nothing is corrected), App layout… (added, then its editor,
+  [S-1411]; greyed where there is none), and Windows locations, one switch each with Explorer's
+  icon: on adds it, off removes every item pointing there, so the switch says what the widget holds.
+  Shortcuts are ordered, renamed and removed on the widget ([S-1387], [S-1410]); the list editor
+  is gone. (Tests `ShortcutsMenuTests`.)
 - **[S-1389]** Recycle Bin (original S-75): an item pointing at `shell:RecycleBinFolder` shows a
   count badge ("99+" cap; a dot under a 24 px icon), none when empty or unknown; tooltip
   "name — N items (size)" / "name — empty". `RecycleBinStatus` is process-wide, single-flight,
@@ -91,7 +99,7 @@ through `SettingsHost.OwnPicker`, the layout editor through `SettingsHost.AppLay
 - **[S-1995]** Type-ahead ([S-1980]) over the shortcut names selects the match alone and moves the
   cursor to it; not while a rename box or the search box is open.
 - **[S-1391]** Card menu (original S-27, S-49): Search, Open on single / double click, Select all,
-  Undo remove. The view, sizes, icons only, stretch and file extensions are settings only ([S-1746]).
+  Undo remove. The view, sizes, icons only, stretch and file extensions are on the properties menu only ([S-1746], [S-1388]).
 - **[S-1392]** Items enter the widget's own surface through one method (`AddItems`); every
   target-specific choice (icon, menu, open, health) switches on `LaunchKind`. The seams PD builds on.
 - **[S-1393]** A new Shortcuts widget starts with the Recycle Bin and This PC (original S-20); the
@@ -122,10 +130,10 @@ through `SettingsHost.OwnPicker`, the layout editor through `SettingsHost.AppLay
   multi-selection. (Tests `S4864_`, `S4863_`.)
 
 Not ported: Ctrl+Z op log (S-36: one-step "Undo remove" instead); "Change file…" from the widget
-(the picker needs an owner window the desktop layer cannot lend; the target is edited in settings);
-the dedicated "Add shortcut" window (S-66: the settings page carries the same affordances);
+(the picker needs an owner window the desktop layer cannot lend; a wrong target is removed and added again);
+the dedicated "Add shortcut" window (S-66: the menu's Add carries the same affordances);
 favicons are cached per run in memory, not on disk.
 
 Needs a live pass: drops from Explorer, Edge, Chrome and the Start menu, pointer reorder and the drag
 out on the real surface, a full and an empty Recycle Bin item, real icons and site icons, a layout
-launched from an item, the settings page's pickers.
+launched from an item, the Add submenu's pickers and typed address on the desktop.

@@ -37,8 +37,9 @@ public sealed class ShortcutsModule : IWidgetModule
         Add = new(AddFolderId.Files, 0, 1, Popular: 10),
     };
 
-    public void SettingsRows(WidgetSettingsRows rows, WidgetConfig config)
-        => ShortcutsSettings.Rows(rows.Rows, (ShortcutsConfig)config, rows.Save);
+    /// <summary>[S-1388] Every option is on the properties menu ([S-3719]): the widget has no settings page.</summary>
+    public void MenuLines(WidgetMenuLines menu, WidgetConfig config)
+        => ShortcutsMenu.Lines(menu, (ShortcutsConfig)config, SettingsHost.AppLayouts);
 
     public FrameworkElement CreateView(IWidgetHost host) => new ShortcutsView(host);
 }
