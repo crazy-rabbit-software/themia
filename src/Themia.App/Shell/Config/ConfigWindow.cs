@@ -9,13 +9,14 @@ using Themia.Core.Settings;
 namespace Themia.App.Shell.Config;
 
 /// <summary>
-/// The one settings window: app options, views, displays and every widget's own settings, reached
-/// through a navigation pane — drawn as Windows 11's Settings app. [S-1540]
+/// The one settings window: app options, accounts, views and displays, reached through a
+/// navigation pane — drawn as Windows 11's Settings app. [S-1540] A widget's own options are not
+/// here: they are on its properties menu, beside it in edit mode ([S-6536]).
 /// <para>
-/// One window rather than a modal over the desktop surface. A widget's settings are not a transient
-/// prompt — you change something, look at the result on the desktop behind, then change something
-/// else — and a modal hosted by a full-screen click-through surface dims the very desktop the user
-/// is trying to judge.
+/// One window rather than a modal over the desktop surface. Settings are not a transient prompt —
+/// you change something, look at the result on the desktop behind, then change something else — and
+/// a modal hosted by a full-screen click-through surface dims the very desktop the user is trying
+/// to judge.
 /// </para>
 /// <para>
 /// The shape is Settings': Mica behind everything, a tall title bar with the app's mark and name, a
@@ -59,8 +60,6 @@ internal sealed partial class ConfigWindow
     /// <summary>A catch-up is queued; the state changes before it runs fold into it.</summary>
     private bool _syncQueued;
 
-    /// <summary>[S-6071] A widget page's rebuild for its new style is queued.</summary>
-    private bool _restyleQueued;
 
     public ConfigWindow(AppHost host)
     {
@@ -131,15 +130,7 @@ internal sealed partial class ConfigWindow
         // under the user's own hand: the change came from the page itself, and it has to show it.
         if (Shape(_target) != _shownShape)
         {
-            if (_target is ConfigTarget.Widget)
-            {
-                QueueRestyle();
-            }
-            else
-            {
-                RenderBody(keepScroll: true);
-            }
-
+            RenderBody(keepScroll: true);
             return;
         }
 
@@ -192,161 +183,29 @@ internal sealed partial class ConfigWindow
         }
     }
 
-    /// <summary>
-    /// [S-6071] A widget page whose style was picked, or whose switch other rows depend on
-    /// was turned, shows the rows that now apply: built again once the pick has finished, since
-    /// rebuilding inside it would tear down the control raising it. The groups that were open stay
-    /// open and the focus goes back to the row that had it, so a keyboard user stays on the switch
-    /// they just turned.
-    /// </summary>
-    private void QueueRestyle()
-    {
-        if (_restyleQueued)
-        {
-            return;
-        }
-
-        _restyleQueued = _window.DispatcherQueue.TryEnqueue(() =>
-        {
-            _restyleQueued = false;
-            if (!_closed && Shape(_target) != _shownShape)
-            {
-                var focus = FocusedRow();
-                var open = OpenGroups(_pageColumn.Child as FrameworkElement);
-                var page = RenderBody(keepScroll: true);
-                Reopen(page, open);
-                if (focus is { } had)
-                {
-                    Refocus(page, had.Title, had.State);
-                }
-            }
-        });
-
-        if (!_restyleQueued)
-        {
-            Log.Warn(Scope, "could not queue the widget page for its new style; reopen it to see the style's rows");
-        }
-    }
-
-    /// <summary>The title of the page row holding the focus, and how it got it; null when no row has it.</summary>
-    private (string Title, FocusState State)? FocusedRow()
-    {
-        if (_pageColumn.XamlRoot is not { } root || _pageColumn.Child is not FrameworkElement page
-            || FocusManager.GetFocusedElement(root) is not DependencyObject focused)
-        {
-            return null;
-        }
-
-        var state = focused is Control control ? control.FocusState : FocusState.Programmatic;
-        foreach (var (row, _) in SettingsIndex.Collect(page))
-        {
-            for (var at = focused; at is not null; at = Microsoft.UI.Xaml.Media.VisualTreeHelper.GetParent(at))
-            {
-                if (ReferenceEquals(at, row.Control))
-                {
-                    return (row.Title, state);
-                }
-            }
-        }
-
-        return null;
-    }
-
-    /// <summary>The titles of the page's expanders that are open.</summary>
-    private static HashSet<string> OpenGroups(FrameworkElement? page)
-    {
-        var open = new HashSet<string>(StringComparer.Ordinal);
-        if (page is null)
-        {
-            return open;
-        }
-
-        foreach (var (row, _) in SettingsIndex.Collect(page))
-        {
-            if (row.Parent is { IsExpanded: true, Header: string title })
-            {
-                open.Add(title);
-            }
-        }
-
-        return open;
-    }
-
-    /// <summary>Open again the rebuilt page's expanders that were open before.</summary>
-    private static void Reopen(FrameworkElement page, HashSet<string> open)
-    {
-        if (open.Count == 0)
-        {
-            return;
-        }
-
-        foreach (var (row, _) in SettingsIndex.Collect(page))
-        {
-            if (row.Parent is { Header: string title } expander && open.Contains(title))
-            {
-                expander.IsExpanded = true;
-            }
-        }
-    }
-
-    /// <summary>Put the focus back on the row titled <paramref name="title"/> once the rebuilt page is laid out.</summary>
-    private static void Refocus(FrameworkElement page, string title, FocusState state)
-    {
-        void Focus()
-        {
-            foreach (var (row, _) in SettingsIndex.Collect(page))
-            {
-                if (row.Title == title && row.Control is { } control)
-                {
-                    var target = control as Control ?? FocusManager.FindFirstFocusableElement(control) as Control;
-                    target?.Focus(state == FocusState.Unfocused ? FocusState.Programmatic : state);
-                    return;
-                }
-            }
-        }
-
-        if (page.IsLoaded)
-        {
-            Focus();
-            return;
-        }
-
-        void OnLoaded(object sender, RoutedEventArgs args)
-        {
-            page.Loaded -= OnLoaded;
-            Focus();
-        }
-
-        page.Loaded += OnLoaded;
-    }
-
     /// <summary>[S-1721] The signature of what a target's page shows.</summary>
     private string Signature(ConfigTarget target)
-        => SettingsPageSync.Signature(_host.State, ScopeOf(target), (target as ConfigTarget.Widget)?.WidgetId, DisplayIds());
+        => SettingsPageSync.Signature(_host.State, ScopeOf(target), DisplayIds());
 
     /// <summary>[S-1834] The groups of a target's page; empty for a page that is not a list.</summary>
-    private string Shape(ConfigTarget target) => SettingsPageSync.Shape(_host.State, ScopeOf(target), DisplayIds(), (target as ConfigTarget.Widget)?.WidgetId);
+    private string Shape(ConfigTarget target) => SettingsPageSync.Shape(_host.State, ScopeOf(target), DisplayIds());
 
     private static SettingsScope ScopeOf(ConfigTarget target) => target switch
     {
         ConfigTarget.App { Page: AppPage.Views } => SettingsScope.Views,
         ConfigTarget.App { Page: AppPage.Displays } => SettingsScope.Displays,
-        ConfigTarget.Widget => SettingsScope.Widget,
         _ => SettingsScope.App,
     };
 
     private string[] DisplayIds() => [.. _host.Displays.Select(d => d.Id)];
 
     /// <summary>
-    /// The pages that can come and go and what search shows of them (views, widgets, displays by
-    /// name): a change to any of it drops pages from the history and the search index.
+    /// What search shows of the list pages' groups (views and displays by name): a change to any of
+    /// it drops what the search index had of them.
     /// </summary>
     private string StructureSignature()
     {
-        var views = string.Join(
-            "|",
-            _host.State.Views.Select(v =>
-                $"{v.Id}~{v.Name}~{v.Icon}~{string.Join(",", v.Widgets.Select(w => $"{w.Id}={w.Kind}={w.Label}"))}"));
+        var views = string.Join("|", _host.State.Views.Select(v => $"{v.Id}~{v.Name}~{v.Icon}"));
 
         var displays = string.Join(",", _host.Displays.Select(d => $"{d.Describe()}~{_host.State.DisabledMonitors.Contains(d.Id)}"));
         return $"{views}||{displays}";
@@ -354,7 +213,6 @@ internal sealed partial class ConfigWindow
 
     private bool Exists(ConfigTarget target) => target switch
     {
-        ConfigTarget.Widget widget => _host.Find(widget.WidgetId) is not null,
         ConfigTarget.App app => ConfigPages.AppPages.Any(p => p.Page == app.Page),
         _ => true,
     };

@@ -35,7 +35,7 @@ internal static partial class ConfigPages
         var button = new Button { Content = Str.Shell_Uninstall_Action.Text() };
         button.Click += (_, _) => _ = UninstallAsync(host, button);
 
-        return FluentLayout.DangerRow(Glyphs.Delete, Str.Shell_Uninstall_Title.Text(),
+        return FluentLayout.Row(Glyphs.Delete, Str.Shell_Uninstall_Title.Text(),
             Str.Shell_Uninstall_Desc.Text(), button);
     }
 

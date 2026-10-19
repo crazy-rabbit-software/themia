@@ -124,6 +124,5 @@ public sealed class SettingsListPagesTests
         var state = AppState.CreateDefault();
 
         Assert.Equal(string.Empty, SettingsPageSync.Shape(state, SettingsScope.App));
-        Assert.Equal(string.Empty, SettingsPageSync.Shape(state, SettingsScope.Widget));
     }
 }

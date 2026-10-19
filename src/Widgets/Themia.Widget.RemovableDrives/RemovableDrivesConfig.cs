@@ -6,7 +6,7 @@ using Themia.Sdk;
 
 namespace Themia.Core.Model;
 
-/// <summary>[S-4660] The removable devices: no options, so no settings page ([S-1750]).</summary>
+/// <summary>[S-4660] The removable devices: no options, so no lines of its own on its menu ([S-3719]).</summary>
 public sealed class RemovableDrivesConfig : WidgetConfig
 {
     public override WidgetConfig Clone() => new RemovableDrivesConfig();

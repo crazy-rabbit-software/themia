@@ -34,11 +34,6 @@
                 <Setter Property="TextWrapping" Value="NoWrap" />
             </Style>
 
-            <Style x:Key="SettingsCrumbTextBlockStyle" BasedOn="{StaticResource TitleTextBlockStyle}" TargetType="TextBlock">
-                <Setter Property="Foreground" Value="{ThemeResource TextFillColorSecondaryBrush}" />
-                <Setter Property="TextWrapping" Value="NoWrap" />
-            </Style>
-
             <Style x:Key="SettingsDescriptionTextBlockStyle" BasedOn="{StaticResource BodyTextBlockStyle}" TargetType="TextBlock">
                 <Setter Property="Foreground" Value="{ThemeResource TextFillColorSecondaryBrush}" />
                 <Setter Property="TextWrapping" Value="Wrap" />

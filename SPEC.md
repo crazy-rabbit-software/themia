@@ -136,11 +136,11 @@ Sections, grouped by area (file order below; search for the heading).
 
 - **[S-12]** Views are switched as a whole. Each holds its own widget list. The last view cannot be
   deleted — a desktop with no view has nowhere to put a widget.
-- **[S-13]** The per-widget settings page edits the widget's **live** config and saves as each field
-  is committed — there is no Cancel. It does not mirror the config into local state and sync it
+- **[S-13]** A widget's properties menu ([S-3719]) edits the widget's **live** config and saves as
+  each pick is made — there is no Cancel. It does not mirror the config into local state and sync it
   back. Live, not a copy, because several widgets write their own config as they are used (a note's
-  text, a habit's check-offs): a settings page holding an older copy would overwrite those on save.
-- **[S-13a]** Because the page edits the object a view already holds, a view must never decide what
+  text, a habit's check-offs): a menu holding an older copy would overwrite those on save.
+- **[S-13a]** Because the menu edits the object a view already holds, a view must never decide what
   changed by comparing that object with itself. A view that reacts to particular settings keeps its
   own snapshot of the settings it last acted on and compares against that. Comparing the live object
   was the bug: a new feed address, stock symbol, weather place or folder sort stayed unfetched until
@@ -562,7 +562,7 @@ busy desktop ([S-6601]), Debug, private bytes.
   full in order to play two seconds of oscillators. `CuePlayer` copies the wave to native memory and
   plays it asynchronously, single-flight: the next cue stops the previous one (`PlaySound(NULL)`)
   before its buffer is freed, so at most one buffer is ever outstanding and nothing is GC-pinned.
-  A widget (the pomodoro, a settings page's preview) reaches it through the SDK's `SoundCue`, the
+  A widget (the pomodoro, a menu line's preview) reaches it through the SDK's `SoundCue`, the
   seam the host installs at start; the host's own alarm service calls `CuePlayer` itself.
   (The twelve ringtones and the volume: [S-1460]..[S-1463].)
 
@@ -783,11 +783,10 @@ Module sections live in `src/Widgets/*/SPEC.md` and `src/Providers/*/SPEC.md` ([
   indented, nulls left out), so a module's config is written as a built-in one is. A host with no
   widget installed reads and writes a state with none (the load drops every widget of an unknown
   kind first).
-- **[S-6904]** A widget's settings rows are its module's (`IWidgetModule.SettingsRows`), built only
-  from `FluentLayout` into the host's `WidgetSettingsRows` (the rows, the save, and Settings ›
-  Accounts as the one place a page may send the user); a module with none has no page ([S-1750]).
-  The host still lays every page out the same way ([S-3705], [S-1752]). There is no dispatch over
-  config types.
+- **[S-6904]** *(Retired 2026-10-19: `IWidgetModule.SettingsRows` and `WidgetSettingsRows` are gone
+  with the widget pages. A widget's options are its module's `MenuLines` over a `WidgetMenuLines`
+  ([S-3719]), Settings › Accounts its one way to the settings window ([S-3745]); there is still no
+  dispatch over config types.)*
 - **[S-6905]** What a widget's card offers is stated by its descriptor's `Traits`, in full (the
   member is required, so no widget takes another's by omission): `HasItems` ([S-6570], checked
   against what its view paints), `CanHaveHeader` ([S-3711]) and `StartsHeaderless` ([S-700]; only
@@ -1357,7 +1356,7 @@ edge too), the hover delay, the keys in the menu, and a pick starting the placem
 ### The selected widget's properties strip (QUICKSET)
 
 How a widget's card looks — its header, its background, its title — is set where the widget is, in
-edit mode, not on its settings page, and not on the edit bar: on a small panel that stands beside
+edit mode, not in the settings window, and not on the edit bar: on a small panel that stands beside
 the selection. After Karpo's properties panel (`karpo-app`, `docs/widgets.md` §145: a click in edit mode
 only selects and a small panel of the selection's own properties stands by it) and its selected
 widget's flyout (§65: closed while the selection is carried, opened again where it lands). Owning
@@ -1374,10 +1373,10 @@ rules in Core `Model/QuickSet.cs` and `Geometry/StripPlacement.cs` (tests `Quick
   selection change and every state change (an undo, a change from another display).
 - **[S-3702]** One widget: the icon row ([S-3717]), the title box (32 tall, the kind's name as its
   placeholder), then Style ([S-6007]) and the widget's own lines ([S-3719]) with the card's among
-  them as one Appearance submenu ([S-3723]): where the widget places it, else right after Style;
-  More settings last where its page still has rows ([S-6009]). Several: the icon row, the words "N
-  selected", then Style (one kind only) and Appearance, and **no title**, no widget lines and no
-  More settings: a title names one widget, so one typed for many would make them indistinguishable.
+  them as one Appearance submenu ([S-3723]): where the widget places it, else right after Style.
+  Several: the icon row, the words "N selected", then Style (one kind only) and Appearance, and **no
+  title** and no widget lines: a title names one widget, so one typed for many would make them
+  indistinguishable.
 - **[S-3703]** With several, a value the widgets share is ticked and a mixed one ticks nothing
   (`QuickSet.Common`); a pick sets it on every selected widget of the view (`SetHeader`,
   `SetBackground`) in one `Mutate`, so one undo step ([S-884]) however many it reached.
@@ -1388,10 +1387,8 @@ rules in Core `Model/QuickSet.cs` and `Geometry/StripPlacement.cs` (tests `Quick
   title or the kind's name itself. A commit that changes nothing records no step; one cut off by a
   click on another widget still lands, on the widget it was typed for. A change made elsewhere
   never replaces text half typed in the box.
-- **[S-3705]** The widget settings page has no Header, Background or Title row and no Delete row
-  and no Style, Item background, Item text or Scale row either ([S-6536]): it holds the widget's own options, then a Danger section only when the widget has a danger row
-  (`FluentLayout.DangerRow`, e.g. clearing the clipboard history). Delete stays on the card menu, the Delete key and
-  the undo notice ([S-1743]).
+- **[S-3705]** *(Retired 2026-10-19: a widget has no settings page any more; its options are its properties menu's, [S-3719].) Delete stays on the icon row, the card menu, the Delete key and the undo
+  notice ([S-1743]); a widget's own destructive line (clearing a history) is a confirmed line, [S-3727].)*
 - **[S-3706]** *(Retired by [S-3713]: the edit bar no longer draws a selection group.)*
 - **[S-3707]** The strip is a small **panel** on a flyout's surface ([S-3715]: the flyout's solid
   fill, stroke, 8-DIP corners and drop shadow), on its own layer over the cards and under the edit
@@ -1464,14 +1461,10 @@ rules in Core `Model/QuickSet.cs` and `Geometry/StripPlacement.cs` (tests `Quick
   (a change and its save), `Ask` ([S-3721]), `Colour` and `Fill` ([S-3724]), `Number` ([S-3726]),
   `Confirm` ([S-3727]), `Note` ([S-3728]), `List` ([S-3729]), `PickFolder` ([S-3730]) or a plain
   command. The lines are built again on every selection and state change over the live config (a
-  change edits it in place and saves as the settings page does), so they always say what the widget
-  holds. A module without lines (the default) keeps its options on its settings page. Shortcuts
-  ([S-1388]), Clock ([S-1478]), the current conditions ([S-6174]), the forecast ([S-6173]) and air
-  quality ([S-5108]), Sun ([S-3107]), Moon ([S-3108]), rain ([S-5127]) and the screen-time chart,
-  donut and app list ([S-3335], [S-3345], [S-3356]), the feed ([S-7510]), contacts ([S-7511]), mail
-  ([S-7512]), the calendar ([S-7513]), next meeting ([S-4826]), the week planner ([S-5324]) and
-  tasks ([S-7516]) have all their options here and no page; the others move one at a time
-  (docs/WIDGET-KIT.md "Porting a widget's settings to the properties menu").
+  change edits it in place and saves), so they always say what the widget holds. They are **every**
+  option a widget has (user request 2026-10-19): there is no widget settings page ([S-6536]). A
+  module without lines (the default) is a widget with no options of its own: its menu is the
+  card's lines. [S-1862] The one line Set up opens is marked `WidgetMenuLines.SetsUp`.
 - **[S-3721]** A line may **ask for one line of text** (`WidgetMenuLines.Ask`, `WidgetTextAsk`): a
   small flyout beside the menu with a heading, the box (holding `Initial`, selected, for a name
   being changed), the reason under it while the widget's check refuses what is typed (nothing while
@@ -1585,8 +1578,7 @@ rules in Core `Model/QuickSet.cs` and `Geometry/StripPlacement.cs` (tests `Quick
   A new widget is at 100 %; a copy keeps its scale. It magnifies the whole card's content —
   header, text, icons, padding, the [S-850] way — never the card's cell, which stays where it is
   and the same size.
-- **[S-6531]** The properties panel's **Scale** row, after Item background and Item text,
-  before More settings: a drop-down showing the scale's icon and percentage (a dash when the selected
+- **[S-6531]** The properties panel's **Scale** row, after Item background and Item text: a drop-down showing the scale's icon and percentage (a dash when the selected
   widgets differ, `QuickSet.Common` over the stored values) whose menu offers 75, 90, 100, 110,
   125 and 150 % (`WidgetScale.Steps`) and ticks the current one; a scale between them (an imported or hand-edited one)
   between them is listed in its place (`WidgetScale.Offered`), so the menu always shows what the
@@ -1601,14 +1593,15 @@ rules in Core `Model/QuickSet.cs` and `Geometry/StripPlacement.cs` (tests `Quick
 - **[S-6534]** *(Retired by [S-6536]: the settings page has no Scale row; the panel is the scale's one place.)*
 - **[S-6535]** Debug: `--widget-png <Kind> <out.png> --scale <f>` draws the cards at that widget
   scale, through the same content transform.
-- **[S-6536]** The properties panel is the **one place** for what it sets (user request
-  2026-10-16): no widget settings page has a Title, Style, Header, Background, Item background, Item
-  text or Scale row (`WidgetPageTests` checks the page builder's source for the panel's row names and
-  for a style or scale writer). The page holds only the widget's own options, so settings search
-  never finds those rows for a widget; the app-wide Widget scale (Appearance, Displays) is not the
-  widget's own and stays. The page's signature ([S-1721]) leaves the scale out, so a pick on the
-  panel does not rebuild an open page; a style pick still rebuilds it when the page's shape changes
-  ([S-6071]). Settings export and import carry all of them as before: they are the instance's.
+- **[S-6536]** The properties panel is the **one place** for a widget's options (user request
+  2026-10-16, and for the widget's own options 2026-10-19): its title, style, header, background,
+  item background, item text, scale and alignment, and every option of its own ([S-3719]). There is
+  **no widget settings page**: the settings window holds the app's pages only (no `ConfigTarget`
+  for a widget, no widget rows in its search, [S-1542]), and nothing opens a page for a widget: no
+  card menu Settings ([S-1743], [S-1758]), no More settings ([S-6009]), no Enter ([S-1974]), no click
+  following the window ([S-1745]); Set up goes to the menu ([S-1862]). The app-wide Widget scale
+  (Appearance, Displays) is not the widget's own and stays. Settings export and import carry all of
+  them as before: they are the instance's.
 - **[S-6580]** Each widget has an **alignment** of its own (`WidgetInstance.Align`, `ContentAlign`
   Left / Center / Right, a closed set saved by name): where its content block sits across its card.
   Left and Right are the reading direction's start and end, as Windows aligns text. None stored (the
@@ -1637,8 +1630,7 @@ rules in Core `Model/QuickSet.cs` and `Geometry/StripPlacement.cs` (tests `Quick
   and Right (Segoe AlignLeft, AlignCenter, AlignRight), the current one with the dot, none for a
   mixed selection. A pick sets every selected widget that aligns in its style (`QuickSet.SetAlign`;
   the others keep theirs) in one `Mutate`, one undo step. Where none does (a kind with nothing to
-  align, or one that aligns only in another style), the line is not there ([S-3718]). Not on any
-  settings page ([S-6536]): the clock's page lost its Alignment row.
+  align, or one that aligns only in another style), the line is not there ([S-3718]).
 - **[S-6585]** Load validation drops an alignment outside the set, or one on a kind that never
   aligns, and says so; one on a style that does not align is kept for the style that does.
 - **[S-6586]** Debug: `--widget-png <Kind> <out.png> --align left|center|right` draws the cards with
@@ -1654,7 +1646,7 @@ rules in Core `Model/QuickSet.cs` and `Geometry/StripPlacement.cs` (tests `Quick
   Default, Transparent and a colour at 50 %, and item backgrounds to match), and submenus opened
   along a path as clicks open them: `-picker.png` (Appearance › Background: Default, Transparent, the
   swatches, Opacity), `-noitems.png` (a stopwatch's Appearance: no item lines), `-countdown-appearance.png`
-  (a widget not yet on the menu), `-many-appearance.png` (two selected, Appearance › Item text), the
+  (a countdown's Appearance), `-many-appearance.png` (two selected, Appearance › Item text), the
   Shortcuts, Clock and weather submenus, `-clock-zone*.png` (a search with a few answers, many with
   Show all, and none), [S-1862] `-setup-*.png` (the menu as the Set up button opens it: the weather's
   location search, the feeds, the stock's symbol search, the pictures' folder), and [S-3724]..[S-3730] `-vocabulary*.png` (a stand-in widget with one line of
@@ -1697,10 +1689,8 @@ widget on the properties panel ([S-6007], its one place, [S-6536]). Owning files
   (`QuickSetOffer.Style` null). Mixed kinds: no Style.
 - **[S-6008]** A pick sets the style of every selected widget (`QuickSet.SetStyle`) in one `Mutate`:
   one undo step however many it reached.
-- **[S-6009]** The panel ends with a **More settings** line (the gear and the words, after a
-  divider; its tooltip "This widget's own options, in the settings window") that opens the widget's
-  settings page — "More", since the panel holds the rest of the widget's settings ([S-6536]); one widget only, and only when its page has rows in its current
-  style and state ([S-1750]): a style picked on the panel can bring the row or take it away. Several selected: no gear (which one's page would it be).
+- **[S-6009]** *(Retired by [S-6536], 2026-10-19: there is no **More settings** line; with every
+  option on the menu there is no widget page left for it to open.)*
 - **[S-6060]** One progress ring for every widget that draws one (`RingPart`, its geometry
   `RingArc`): a track in the control's strong rest fill, the arc in a brush the widget gives,
   clockwise from twelve, round caps, nothing under 0.05 % and the whole ring from 99.95 % (two half
@@ -1710,27 +1700,22 @@ widget on the properties panel ([S-6007], its one place, [S-6536]). Owning files
   month): every column count is tried and the one whose square cells are largest kept, on a tie
   the one with fewer empty cells in the last row; the gap is a quarter of the pitch, so a larger
   tile spaces the dots in proportion.
-- **[S-6010]** *(Retired by [S-6536]: the settings page has no Style row; the style is picked on the
-  properties panel only. A widget page's shape is still its style, so a pick there rebuilds an open
-  page whose rows differ by style, [S-6071].)*
-- **[S-6070]** A settings page offers only the rows that change what its widget visibly does or
+- **[S-6010]** *(Retired by [S-6536]: the style is picked on the properties panel only.)*
+- **[S-6070]** A widget's properties menu offers only the lines that change what it visibly does or
   shows in its current style and state (user rule). The rule is one Core property per config,
-  `IShownSettings<TSetting>.ShownSettings` (the kind's own `<Kind>Setting` enum, page order), read on
-  the page through `Offers(setting)`, never a check written in a page; a row every style and state
-  uses is not listed and always offered. A row left out is not built at all (no collapsed rows), so
-  search cannot find it. The values of rows left out are kept for when they apply again. Size is
-  not a state here: a row a small tile sheds ([S-660]) is still offered. A rule never reads a
-  slider's or a text box's value, so dragging or typing never rebuilds the page under the hand.
-- **[S-6071]** A widget page's shape (`SettingRules.Shape`, read by `SettingsPageSync.Shape`) is its
-  style (picked on the properties panel, [S-6536]) and the rows offered. A pick or a switch that changes it
-  builds the page again once its own event has finished (`QueueRestyle`), with the scroll kept,
-  the expanders that were open opened again and the focus back on the row that had it.
+  `IShownSettings<TSetting>.ShownSettings` (the kind's own `<Kind>Setting` enum, menu order), read by
+  the menu lines through `Offers(setting)`, never a check written in a menu; an option every style
+  and state uses is not listed and always offered. A line left out is not built at all (no greyed
+  lines). The values of options left out are kept for when they apply again. Size is not a state
+  here: an option a small tile sheds ([S-660]) is still offered. A rule never reads a typed value,
+  so typing a number never reshapes the menu.
+- **[S-6071]** *(Retired 2026-10-19 with the widget pages: no page shape to rebuild; the menu is
+  built again on every change and redraws only lines whose shape changed, [S-3716].)*
 - **[S-6072]** *(Retired by [S-6536]: with no Style row on the page there is nothing to leave out;
   `IShownSettings.OffersStyle` is gone.)*
-- **[S-6073]** The settings search indexes one page per kind **and page shape** in use, built over a
-  copy of a widget of that shape (`ConfigPages.BuildWidgetForIndex`), so a row one widget's style or
-  state leaves out is not found for it.
-- **[S-6074]** The rows each kind offers only in some styles or states: Mail: Subject/Account in List
+- **[S-6073]** *(Retired 2026-10-19 with the widget pages: the settings search indexes the app pages
+  only, [S-1542].)*
+- **[S-6074]** The options each kind offers only in some styles or states: Mail: Subject/Account in List
   and Compact, Preview lines in List, the columns in Table. Folder: [S-4121]. Calendar: [S-3641].
   Clock: Seconds in Digital, Analog, Stacked and Flip; Date, Label and date size, and Offset
   in all but Minimal and Date (there the zone is a plain row, not an expander). Quote: Reshuffle
@@ -1748,9 +1733,8 @@ widget on the properties panel ([S-6007], its one place, [S-6536]). Owning files
   Due and Important only for an account's tasks. Habits: Interval under the custom period, streaks
   and history in Dots. Pomodoro and Alarm: Volume while a sound is chosen. Contacts: the columns in
   Details. Screen time: the daily limit on the chart and the donut, the per-app limits on the app
-  list, its Daily average over a week or a month. Debug: `--settings-png Widget:<Kind> --config
-  '{"field":value}'` writes those fields over the demo widget's config (through the state file's
-  parse and repair) to render a state.
+  list, its Daily average over a week or a month. Debug: `--editbar-png` opens a kind's menu (and a
+  style's lines under Style) to look at them.
 
 Needs a live pass: picking a style on the strip for one widget and for several of one kind, the
 undo of it, the gear opening the right page, and the flip turning over on the desktop with Windows'
@@ -1783,7 +1767,8 @@ The settings window's About page. Owning files: `Shell/Config/ConfigPages.About.
   displays without an assignment a view as at startup. Start with Windows keeps this PC's value: it
   is a fact about the registry here, not a preference.
 - **[S-499]** Debug builds render one settings page to PNG with `--settings-png <AppPage> <out.png>
-  [waitMs]`, over a demo state and an `AppStateStore.Detached` store that accepts saves and writes
+  [waitMs]` (an app page only: the `Widget:<Kind>` pages went with the widget pages, [S-6536]; a
+  widget's options are drawn by `--editbar-png`), over a demo state and an `AppStateStore.Detached` store that accepts saves and writes
   nothing, so the render never touches `%APPDATA%`.
 
 Not ported, on purpose: Karpo's "isn't running / Start" card — the settings window here runs
@@ -2967,19 +2952,20 @@ The settings window is drawn as Windows 11's Settings app (S-1540..S-1559). Owni
   only through `FluentLayout` so every page — and every page added later — gets the look at once:
   header icon, title, secondary-text description, control on the right, card fill and stroke from
   the theme, 4 DIPs between cards, BodyStrong section headings 30 above / 6 below, switches with
-  "On"/"Off" to their left, drop-downs at least 200 wide. A card that drills into another page
-  (`NavRow`) carries the chevron; one that leaves the window (`ClickRow`) the open-elsewhere mark.
+  "On"/"Off" to their left, drop-downs at least 200 wide. A card that leaves the window
+  (`ClickRow`) carries the open-elsewhere mark.
   Mica behind the whole window; the page sits on the same surface as the pane. There is **no status
   bar** (the old "Themia 1.0.0 · N widgets" line is gone). Brushes on settings surfaces come from
   App.xaml styles with ThemeResource, so they follow the window's own light/dark choice.
-- **[S-1541]** The page title is a breadcrumb in the Title style above the scrolling cards, still
-  while they scroll: a widget's page reads "View › Widget" and the view crumb opens the view. A page
-  is a `SettingsPage` (title + optional description + rows); the window draws the title.
+- **[S-1541]** The page title is in the Title style above the scrolling cards, still while they
+  scroll; every page is a top-level page, so there are no parent crumbs (a widget's page, "View ›
+  Widget", went with the widget pages, [S-6536]). A page is a `SettingsPage` (title + optional
+  description + rows); the window draws the title.
 - **[S-1542]** "Find a setting" sits centred in the 48-DIP title bar. Its index is read off the pages
   themselves (`SettingRow` on every row's frame; section = the heading above it): every app page,
-  view and display page, and one page per widget kind in use (built over a throwaway widget,
-  offered for every widget of that kind as "View › Widget"). Built on first use, refreshed with the
-  live page on every visit, dropped when the navigation changes shape. Pages are results too.
+  the Views and Displays pages included. A widget's options are on its properties menu, so search
+  finds none of them ([S-6536]). Built on first use, refreshed with the live page on every visit,
+  dropped when the list pages' groups change. Pages are results too.
 - **[S-1543]** Matching: lower-cased words, British spellings folded to American on both sides
   ("color" finds "Border colour"); every query word must land in the title, keywords (including a
   drop-down's options: "dark" finds Theme), section, page path or description.
@@ -2993,8 +2979,8 @@ The settings window is drawn as Windows 11's Settings app (S-1540..S-1559). Owni
   a moment. "No results" when nothing matches.
 - **[S-1547]** Back in the title bar, Alt+Left/Alt+Right and the mouse's back/forward buttons step
   through the user's navigations (`NavHistory`): pushing from an older entry drops the forward
-  tail, repeats coalesce, pages that disappear (a deleted widget's) leave the history.
-- **[S-1548]** The debug render draws the real window: `--settings-png <Page|Widget:Kind> <out.png>
+  tail, repeats coalesce, pages that disappear leave the history.
+- **[S-1548]** The debug render draws the real window: `--settings-png <Page> <out.png>
   [waitMs] [--theme light|dark] [--search text] [--land text] [--open first|name]` (Page includes
   Displays and Views, [S-1835]); the window is as tall as the page,
   Mica is painted as its fallback colour; `--search` also writes the open suggestion list to
@@ -3063,8 +3049,8 @@ The settings window is drawn as Windows 11's Settings app (S-1540..S-1559). Owni
 - **[S-1721]** What a page shows (`SettingsPageSync.Signature`): an app page, the design, the
   preferences, the default view for new displays and the views by name; the Views page, for every
   view its name, icon, widgets by kind and label and the displays showing it; the Displays page,
-  the connected displays and for each its view, on/off, scale, view bar and the views it can pick from; a widget page, its config, label, surface,
-  header and parent. Never where widgets sit, so a drag on the desktop rebuilds nothing. Changes
+  the connected displays and for each its view, on/off, scale, view bar and the views it can pick from.
+  Never where widgets sit, so a drag on the desktop rebuilds nothing. Changes
   that do not raise `StateChanged` (`Mutate(relayout: false)`) are not followed.
 - **[S-1722]** The app pages: General, Appearance, Accounts, Language & region ([S-3797]), Displays,
   Views and Widgets in the main slot ([S-1830]); License and About in the footer. There is no Layout page: its two rows (gap between widgets, snap to grid) are the
@@ -3290,7 +3276,7 @@ tag each, [S-7400]..[S-8000]), and so is Bluetooth (`src/Widgets/Themia.Widget.B
   120×120. The kind maps to its `PowerAction` in Core (`PowerActionRules.ForKind`/`KindOf`); one
   view (`PowerButtonView`) serves all seven. Each kind has a config of its own (`ShutdownConfig` …
   `ScreenOffConfig`, base `PowerButtonConfig`): nothing to set beyond the card's common settings and
-  the style ([S-1919]), so the settings page shows only those, and a power widget never needs setting up.
+  the style ([S-1919]), so the menu shows only those, and a power widget never needs setting up.
   There is no combined power tile, no power-state strip (source, plan, battery saver, time left), no
   power plans or timeouts, and no power-state sampling. A state file with the old `power` kind fails
   load validation like any unknown kind ([S-1050]).
@@ -3564,7 +3550,7 @@ for the links), one set of menu lines, the SDK's `OfficeMenuLines`. Tests `Offic
   the hovered event keep working across calendars of any styles on a view ([S-3620]..[S-3624]).
 - **[S-3641]** The config holds what every style shares and the union of the styles' own fields
   (`weekDays`, `weekFrom`, `agendaCount`, `agendaDays`); a style reads only its own
-  (`Period`: a month, day or year is the week start alone). The settings page shows only the
+  (`Period`: a month, day or year is the week start alone). The menu shows only the
   current style's rows (`CalendarWidgetConfig.ShownSettings`, [S-6070]): Week: "Starts on" and "Days shown";
   Agenda: its date range and "Agenda events"; Month, Day, Year: none; then birthdays for every style.
   Picking another style rebuilds the page ([S-6071]).
@@ -3821,7 +3807,7 @@ they show the label, the reading and the history only ([S-1762]).
 
 - **[S-1160]** Disk reports on one `Drive` (a root, `C:\`; empty = the system drive). Load repairs it
   to its root and drops anything that is not a drive letter, logged. Changing the drive clears the
-  chart (original [S-22]). The settings page offers "System drive (C:)" and every drive Windows lists;
+  chart (original [S-22]). The menu offers "System drive (C:)" and every drive Windows lists;
   a chosen drive that has been removed stays offered as "not connected".
 - **[S-1161]** The header title names the drive as Explorer does ("System (C:)", "Local Disk (D:)",
   "USB Drive (E:)"), "C:" for a drive the walk did not list, "All drives" for every drive
@@ -4056,7 +4042,7 @@ there: Themia never takes a key from the app the user is typing in.
 | Edit mode | Alt+Arrows | Move one DIP, off the grid ([S-1972]) |
 | Edit mode | Shift+Arrows (+Ctrl / +Alt) | Resize by the right / bottom edge, same steps ([S-1971]) |
 | Edit mode | Tab / Shift+Tab | Select the next / previous widget ([S-1973]) |
-| Edit mode | Enter | Open the selected widget's settings ([S-1974]) |
+| Edit mode | Enter | Into the selection's properties menu ([S-1974]) |
 | Edit mode | Menu key / Shift+F10 | The selection's menu, or the surface's ([S-1974]) |
 | Edit mode | F6 / Shift+F6 | Widgets → toolbar → view bar → notices ([S-1975]) |
 | Edit mode | Delete | Delete the selection, undoable ([S-1592], [S-885]) |
@@ -4105,7 +4091,10 @@ there: Themia never takes a key from the app the user is typing in.
   selection Tab lands on the first and Shift+Tab on the last. The card takes the keyboard focus, so
   the selection outline is the focus indicator. With focus on the toolbar, the view bar or a notice,
   Tab, the arrows, Enter and the Menu key are those controls' own.
-- **[S-1974]** **Enter** opens the selected (primary) widget's settings page (nothing for a widget with none, [S-1750]); the **Menu key** or
+- **[S-1974]** **Enter** moves the keyboard into the selection's properties menu ([S-3707]), on its
+  first control, as F6 reaches it, where the widget's options are (decided 2026-10-19: there is no
+  widget page to open); nothing while the menu is away, and Escape there hands the keyboard back.
+  The **Menu key** or
   **Shift+F10** opens the selection's card menu on its card ([S-1743]), or the surface menu
   ([S-1744]) at the work area's centre when nothing is selected.
 - **[S-1975]** **F6 / Shift+F6** moves the keyboard round the surface's panes: the widgets (the
@@ -5544,7 +5533,7 @@ network meter's connection line ([S-1762]).
   Windows' default output and the widget kept following the default. "Follow the default output" and
   the device that already is the default change nothing in Windows (a bound widget just unbinds).
   The menu checks the device the widget shows (the default while following) and offers "Follow the
-  default output" only when bound. The settings page's device ComboBox still binds the widget.
+  default output" only when bound. The menu's device line still binds the widget.
 - **[S-1615]** The switch is `IPolicyConfig::SetDefaultEndpoint` (undocumented, CLSID
   `870AF99C-…`, IID `F8679F50-…`, vtable slot 13) on the Core Audio worker thread, for console,
   multimedia and communications in that order; a refused console role stops the switch, a later role
@@ -5577,7 +5566,7 @@ source per toggle, `ToggleHub`); tests `QuickToggleTests`.
   catalogue); one view serves all thirteen. Each is a module project of its own
   (`src/Widgets/Themia.Widget.WifiToggle` …, tags [S-8200]..[S-9400] in their `SPEC.md`), with a
   config of its own (`WifiToggleConfig` …, base `QuickToggleConfig`) whose
-  one setting is the style ([S-3916]), picked on the properties panel ([S-6536]), so it has no settings page ([S-1750]); it
+  one setting is the style ([S-3916]), picked on the properties panel ([S-6536]), so its menu has no lines of its own; it
   never needs setting up. The picker names it "<name> on/off" (the module's own label and
   description; the name on the tile is the SDK's, which the shared view reads) so it never
   reads as another widget ("Bluetooth on/off" beside the Bluetooth devices widget); the tile says the
@@ -6441,7 +6430,7 @@ mixed DPI, the editor's divider drag, pickers and app search.
 ## Context menus (R4-MENUS)
 
 Every right-click menu in the app — a widget's card, an item inside a widget, empty surface in edit
-mode, a view chip, the settings window — and how a click on a card in edit mode reaches the settings.
+mode, a view chip, the settings window — and how a click on a card in edit mode is told from a drag.
 Owning files: `Themia.Core/Shell/ContextMenus.cs` (`ContextMenuLayout`, `ShellMenus`, `CardGestures`);
 `Widgets/ItemMenu.cs` (the one builder), `WidgetCard.cs` (card menu, click), `DesktopWindow.Menu.cs`
 (surface menu), `Gallery/MenuRender.cs`; `Shell/KeyChord.cs`, `Shell/MenuArt.cs` (Core) and `Shell/MenuArtIcons.cs`.
@@ -6463,14 +6452,15 @@ Tests: `ContextMenuTests`, `MenuShortcutAndArtTests`.
   bar flyout with no row still draws an empty bar above its list).
 - **[S-1742]** The list keeps its callers' order; separators collapse (none leading, trailing or
   doubled), including where moving commands to the row emptied a group.
-- **[S-1743]** A widget card's menu in edit mode: the row is Cut, Copy, Paste (disabled with nothing to paste),
-  Settings and Delete, acting on the selection ([S-1592]); the list is the view's own
+- **[S-1743]** A widget card's menu in edit mode: the row is Cut, Copy, Paste (disabled with nothing to paste)
+  and Delete, acting on the selection ([S-1592]); no Settings, since a widget's options are its
+  properties menu's beside it ([S-6536]); the list is the view's own
   commands, Bring to front / Send to back, and Edit layout / Done editing. There is no Move:
   dragging and the arrow keys move a widget. There is no
   Duplicate: Copy then Paste already does it ([S-1589]), and one command is enough.
 - **[S-1758]** Outside edit mode the card menu is for using the widget, not arranging it: the view's own
-  commands (Refresh, Pause, which folder, [S-1746]), Settings (a labelled line, [S-1741]; none for a widget
-  without a page, [S-1750]) and Edit layout. No Cut, Copy, Paste, Delete, layering or icon row: with no
+  commands (Refresh, Pause, which folder, [S-1746]) and Edit layout, the way to the widget's options
+  ([S-6536]); no Settings. No Cut, Copy, Paste, Delete, layering or icon row: with no
   selection shown and nowhere to paste outside edit mode they did nothing the user could see (user report
   2026-10-17: "I right click and cut a widget, nothing happens"). Item menus inside a widget (a file's
   Explorer commands, [S-6416]) are the widget's own and unchanged; empty surface stays click-through ([S-1744]).
@@ -6481,18 +6471,17 @@ Tests: `ContextMenuTests`, `MenuShortcutAndArtTests`.
   with no widget), Snap to grid (checked when on, [S-06]) and Done editing in the list. Outside edit
   mode empty surface is click-through; while placing, the right-click cancels the placement and opens
   nothing.
-- **[S-1745]** In edit mode a plain click on a card — pressed and released on it, not on a resize
-  handle, without Ctrl, travelling less than 3 DIPs — shows that widget's page in the settings window
-  **if the window is already open**, without bringing it to the front (the desktop keeps the
-  keyboard) and leaving it alone when it already shows that page. A closed window is never opened by a
-  click; a drag, a resize, Ctrl+click and a gesture lost to capture are not clicks.
+- **[S-1745]** In edit mode a press on a card that travels 3 DIPs or more (`CardGestures.Travelled`)
+  is a drag; less is a click, which selects ([S-1580]). A click no longer follows an open settings
+  window to the widget's page (retired 2026-10-19 with the widget pages, [S-6536]): the properties
+  menu stands beside the selection instead.
 - **[S-1746]** A widget's menus never change how it looks: no view, layout, sort, size, label,
-  column, format or "show X" switches on the card menu or an item menu. Those are settings and live on
-  the widget's settings page only (each one already has a row there); the card's own header,
-  background and title are set on its properties strip ([S-3707]). The menus keep commands the user
+  column, format or "show X" switches on the card menu or an item menu. Those are options and live on
+  the widget's properties menu only ([S-3719]), with the card's own header, background and title
+  ([S-3707]). The menus keep commands the user
   runs while looking at the widget: refresh, pause, open, which folder, the click mode, search.
 - **[S-1747]** Debug: `--menu-png <outDir> [--theme light|dark]` opens the card menu (edit mode, one
-  widget; desktop, three widgets; desktop, a widget with view commands and one without settings, [S-1758]), the surface menu, two sample item menus and the folder widget's file, Open with,
+  widget; desktop, three widgets; desktop, a widget with view commands, [S-1758]), the surface menu, two sample item menus and the folder widget's file, Open with,
   folder and background menus (a real view over read-only Windows folders) for real, off-screen,
   and writes each open popup to a PNG.
 - **[S-1748]** A menu opened by the pointer opens down and to the right of it (top-left corner at the
@@ -6526,20 +6515,10 @@ Tests: `ContextMenuTests`, `MenuShortcutAndArtTests`.
 - **[S-1749]** The Add-widget picker opens centred under what opened it — the toolbar's Add button,
   or the point of a right-click on the surface — and flips above only
   when there is no room below.
-- **[S-1750]** A widget whose settings page would have no rows has no Settings: the card menu
-  leaves it out of the row, the properties panel has no More settings row ([S-6009]), and Enter
-  ([S-1974]), a click while the settings window is open ([S-1745]), the settings search and every
-  other way in do nothing for it. With the panel's properties off the page ([S-6536]) that is the
-  CPU, memory and battery details, the audio visualizer, the seven power buttons, the thirteen
-  quick-setting toggles, Year progress, Stopwatch, Removable drives, Notifications, Recent files and
-  the Recycle bin; the GPU details on a PC with one adapter; and the CPU, memory, battery and network
-  meters in a style that draws no history (their page is the history's span, [S-6074]). Whether a
-  page has rows is read off the page builder itself (a throwaway widget of the same kind and page
-  shape, [S-6071], once per kind and shape), never a list kept beside the pages, so the two cannot
-  drift. The edit bar has no per-widget Settings button.
-- **[S-1752]** A section heading with no row under it before the next heading or the page's end is
-  left out (`PageSections.Keep`), so a style that offers none of a section's rows leaves no heading
-  over nothing, and a page of headings alone has no rows ([S-1750]).
+- **[S-1750]** *(Retired 2026-10-19 by [S-6536]: no widget has a settings page, so none has a
+  Settings command anywhere; the edit bar has no per-widget Settings button either.)*
+- **[S-1752]** *(Retired 2026-10-19 with the widget pages: `PageSections` went with the only pages
+  whose headings could be left over nothing.)*
 - **[S-1751]** In edit mode a widget's own content is inert (`CardGestures.ContentTakesInput`): the
   card turns hit-testing off for its header and view, every widget's alike, so a press, right-click,
   long press or hover lands on the card and selects, drags ([S-1745]) or opens the card menu
@@ -6550,9 +6529,8 @@ Tests: `ContextMenuTests`, `MenuShortcutAndArtTests`.
 Needs a live pass (pointer and focus on the real desktop): the surface menu opening only on empty
 surface and at the pointer, Add widget's picker at the click then placing, the right-click that
 cancels a placement opening no menu, keyboard use of the menus (arrows across the icon row and into
-the list, Menu key / Shift+F10 on rows), submenus opening beside their line, a click on a card
-following an open settings window (and a double-click still leaving edit mode), and both menus on a
-second display with another DPI.
+the list, Menu key / Shift+F10 on rows), submenus opening beside their line, a double-click still
+leaving edit mode, and both menus on a second display with another DPI.
 
 ## Icon picker and showcase views (R4-ICONS)
 
@@ -6824,7 +6802,7 @@ queue, schedules, merges, interests), `Themia.App/Services/Sync/SyncHost.cs` (ke
   any it returns by id), keeps the rest and widens the window; one that does not touch the held
   window starts it again. A request inside the window is answered from the shelf, whatever it holds;
   a range outside it (paged more than a year away) is fetched on demand and held in memory only.
-  Calendar lists are refreshed every 6 hours when the settings page asks, birthdays daily. A
+  Calendar lists are refreshed every 6 hours when the menu asks, birthdays daily. A
   calendar whose provider reports changes ([S-2684]) is instead refreshed every 5 minutes as one
   round over the whole window; one never synced still draws the weeks around today first.
 - **[S-2632]** A calendar shelf on load: calendars need an id (once, at most 200), colours are
@@ -7162,7 +7140,7 @@ Moved with the widget into its module: `src/Widgets/Themia.Widget.Stopwatch/SPEC
   the alarm scenario, the name and the time, Snooze and Dismiss, its own audio muted. A button's
   arguments cross a trust boundary: only those two actions, and only for an alarm the service holds. The
   notice goes when the ring stops, however it stops.
-- **[S-4627]** **Alarms ring only while Themia runs**, and the settings page says so. One that came due
+- **[S-4627]** **Alarms ring only while Themia runs**, and its menu says so (a note). One that came due
   while Themia was closed does not ring at the next start (it is set from then).
 
 ### Drives
@@ -7205,7 +7183,7 @@ Moved with the widget into its module: `src/Widgets/Themia.Widget.Stopwatch/SPEC
   theme's critical colour.
 - **[S-4660]** Removable drives (add menu: Devices & power, [S-3511]): a row per USB stick or card (removable), disc
   (optical) and external disk (hot-plug fixed), by letter; an empty reader is left out, as Explorer
-  hides empty drives. Nothing plugged in says so, centred, under the stick glyph. No settings page.
+  hides empty drives. Nothing plugged in says so, centred, under the stick glyph. No options of its own.
 - [S-4661], [S-4662], [S-4664]: moved with the Removable drives widget into its module's `SPEC.md` (`src/Widgets/Themia.Widget.RemovableDrives/`).
 - **[S-4670]** Drive (add menu: Devices & power, [S-3511]): one drive (`drive`, a root; empty for the system drive; anything
   else is repaired to the system drive at load). A drive that is not there keeps its card, "Not
@@ -7266,7 +7244,7 @@ Exchange rates (`ExchangeRates`, 130):
   newest first; the daily file is the same shape). `EcbWire.Parse`: XML with DTDs prohibited and no
   resolver, at most 320 KB; no dated `Cube` is rejected; a bad date, a rate that is not a positive
   number or a code that is not three capitals is dropped, the rest of its day kept; nothing left is
-  Empty. ECB terms: free reuse with the source named (the settings page and the header tooltip do).
+  Empty. ECB terms: free reuse with the source named (the menu's note and the header tooltip do).
 - **[S-5142]** The currencies offered are the ECB's 30 plus the euro (`ExchangeRules.Published`).
 - **[S-5145]** Every pair is a cross rate through the euro (quote per euro ÷ base per euro); the change
   is against the newest earlier day holding both; a currency missing on the latest day is "Not
@@ -7276,7 +7254,7 @@ Shared:
 
 - **[S-5160]** The header follows the kit's one stale rule as weather does ([S-2612], [S-7042]): the
   problem glyph while the answer on screen is one the last attempt could not improve on, the age on
-  the Refresh line of the widget's menu ([S-730]); the source is named on the settings page.
+  the Refresh line of the widget's menu ([S-730]); the source is named on its menu (a note).
 - **[S-5161]** The last answers survive a restart in their own sealed web shelf (`web:online-cache`,
   never swept, [S-2665]): each reply as the service sent it, parsed again through the same parser on
   restore, so a stored copy is never trusted more than a fresh one. Newest 16 per source; not

@@ -157,10 +157,11 @@ public sealed class {{Name}}Module : IWidgetModule
     public FrameworkElement CreateView(IWidgetHost host) => new {{Name}}View();
 
     /// <summary>
-    /// [S-6904] Its settings rows; none, so it has no settings page ([S-1750]). Rows come from the
-    /// host's FluentLayout, which a module reaches once it is in the SDK (docs/WIDGET-KIT.md 11.1).
+    /// [S-3719] Its own lines on the properties menu (switches, choices, numbers, searches over a
+    /// WidgetMenuLines, docs/WIDGET-KIT.md 15); none yet. [S-1862] A widget that waits for setup
+    /// marks its line with WidgetMenuLines.SetsUp.
     /// </summary>
-    public void SettingsRows(WidgetSettingsRows rows, Themia.Core.Model.WidgetConfig config)
+    public void MenuLines(WidgetMenuLines menu, Themia.Core.Model.WidgetConfig config)
     {
     }
 }

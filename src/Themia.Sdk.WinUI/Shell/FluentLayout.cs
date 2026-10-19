@@ -27,11 +27,12 @@ namespace Themia.App.Shell;
 /// </para>
 /// <para>
 /// This is the whole vocabulary a settings page gets: a <see cref="Header"/>, a <see cref="Row"/>
-/// and the handful of controls that go in one. Everything a widget's settings page wants to draw is
-/// here rather than in the page, because thirty pages each inventing their own list editor, their
-/// own refusal message and their own confirmation dialog is how they drifted apart in the first
-/// place — and because restyling this file restyles every page at once, including pages written
-/// after it. A page that needs a shape that is not here adds it here.
+/// and the handful of controls that go in one. Everything a settings page wants to draw is here
+/// rather than in the page, because pages each inventing their own refusal message and their own
+/// confirmation dialog is how they drifted apart in the first place — and because restyling this
+/// file restyles every page at once, including pages written after it. A page that needs a shape
+/// that is not here adds it here. A widget has no page: its options are its properties menu's
+/// ([S-6536]).
 /// </para>
 /// <para>
 /// Every row is also registered for the window's "Find a setting" box (see <see cref="SettingRow"/>),
@@ -74,13 +75,6 @@ public static class FluentLayout
     /// </summary>
     public static Border ClickRow(string glyph, string title, string? description, Action onClick)
         => ActionRow(glyph, title, description, onClick, UiLanguage.Mirrored(new FontIcon { Glyph = Glyphs.OpenExternal, FontSize = 14 }));
-
-    /// <summary>
-    /// A row that is itself the button and goes to another page of this window — a view's widget,
-    /// the accounts page — with the chevron Settings puts on a card that drills in.
-    /// </summary>
-    public static Border NavRow(string glyph, string title, string? description, Action onClick)
-        => ActionRow(glyph, title, description, onClick, actionIcon: null);
 
     private static Border ActionRow(string glyph, string title, string? description, Action onClick, IconElement? actionIcon)
     {
@@ -581,75 +575,9 @@ public static class FluentLayout
         };
     }
 
-    /// <summary>
-    /// A whole-number box with up/down buttons and no upper bound, for a count a slider would cap
-    /// ([S-1276]). Typed text that is not a number is overwritten with the last good value; a number
-    /// under <paramref name="min"/> becomes <paramref name="min"/>. The buttons step by
-    /// <paramref name="step"/>.
-    /// </summary>
-    public static NumberBox Stepper(int value, int min, int step, Action<int> onChanged)
-    {
-        var box = new NumberBox
-        {
-            Value = Math.Max(min, value),
-            Minimum = min,
-            SmallChange = step,
-            LargeChange = step * 5,
-            SpinButtonPlacementMode = NumberBoxSpinButtonPlacementMode.Inline,
-            ValidationMode = NumberBoxValidationMode.InvalidInputOverwritten,
-            MinWidth = 140,
-            VerticalAlignment = VerticalAlignment.Center,
-        };
-
-        box.ValueChanged += (_, args) =>
-        {
-            if (double.IsNaN(args.NewValue))
-            {
-                // Cleared: the last good value goes back in, rather than a count of nothing.
-                box.Value = double.IsNaN(args.OldValue) ? min : args.OldValue;
-                return;
-            }
-
-            var whole = (int)Math.Clamp(Math.Round(args.NewValue), min, int.MaxValue);
-            if (whole != args.NewValue)
-            {
-                box.Value = whole;
-                return;
-            }
-
-            onChanged(whole);
-        };
-
-        return box;
-    }
-
     // ---------------------------------------------------------------------------------------
     // Fields that can be refused
     // ---------------------------------------------------------------------------------------
-
-    /// <summary>
-    /// A row whose control is a field with its verdict on the line underneath it.
-    /// <para>
-    /// Every text field on a settings page that can be wrong — a host, a feed address, a shortcut
-    /// target, a folder, a coordinate, a search template — reports through this one shape: the value
-    /// stays exactly as it was typed, and a single line under the field says why it was refused or
-    /// confirms what it actually resolved to. Nothing is ever silently corrected into something that
-    /// works, because a field that looks accepted and does something else is the failure all of this
-    /// checking exists to prevent.
-    /// </para>
-    /// </summary>
-    public static Border FieldRow(
-        string glyph,
-        string title,
-        string? description,
-        FrameworkElement field,
-        TextBlock verdict)
-        => Row(glyph, title, description, new StackPanel
-        {
-            Spacing = Fluent.Space1,
-            HorizontalAlignment = HorizontalAlignment.Right,
-            Children = { field, verdict },
-        });
 
     /// <summary>The line under a field, before anything has been said on it.</summary>
     public static TextBlock Verdict() => new()
@@ -684,16 +612,6 @@ public static class FluentLayout
     // Destroying something
     // ---------------------------------------------------------------------------------------
 
-    /// <summary>A row whose action cannot be undone. The page puts every one of these last.</summary>
-    public static Border DangerRow(string glyph, string title, string? description, FrameworkElement control)
-    {
-        var card = Card(GlyphIcon(glyph), title, description, control);
-        return new Border { Child = card, Tag = new SettingRow(title, description, control) { Card = card, IsDanger = true } };
-    }
-
-    /// <summary>Whether a row belongs in the page's danger section.</summary>
-    public static bool IsDanger(FrameworkElement element) => SettingRow.Of(element) is { IsDanger: true };
-
     /// <summary>
     /// A destructive row: a button that asks first, the same way everywhere.
     /// </summary>
@@ -714,7 +632,7 @@ public static class FluentLayout
         var button = new Button { Content = action, IsEnabled = describe() is not null };
         button.Click += (_, _) => _ = ConfirmClickAsync(button, action, question, describe, confirmed);
 
-        return DangerRow(glyph, title, description, button);
+        return Row(glyph, title, description, button);
     }
 
     /// <summary>
@@ -795,11 +713,7 @@ public static class FluentLayout
         button.IsEnabled = describe() is not null;
     }
 
-    // ---------------------------------------------------------------------------------------
-    // Editable lists
-    // ---------------------------------------------------------------------------------------
-
-    /// <summary>A compact icon command on a list card: move up, move down, remove.</summary>
+    /// <summary>A compact icon command on a card (a view's move up, move down, remove).</summary>
     public static Button IconCommand(string glyph, string tooltip)
     {
         var button = new Button
@@ -818,208 +732,6 @@ public static class FluentLayout
         Microsoft.UI.Xaml.Automation.AutomationProperties.SetName(button, tooltip);
         return button;
     }
-
-    /// <summary>
-    /// The one editable list on a settings page: a card per item with the item's own editor on the
-    /// left and remove on the right, a line saying so when there is nothing in it, and an add row
-    /// underneath. [S-3802] The order is dragged (a card onto another) or moved with Alt+Shift+Up /
-    /// Down, through <see cref="RowReorder{TKey}"/>; there are no arrow buttons.
-    /// <para>
-    /// Five widgets — timers, shortcuts, swatches, quotes and habits — had each grown their own
-    /// version of this, and no two agreed on where the commands sat, what the empty list said, or
-    /// whether the ends of the list could move past themselves. The differences were all accidents
-    /// of who wrote which page. What genuinely varies is the body of one item, which is the one
-    /// thing the caller supplies.
-    /// </para>
-    /// </summary>
-    /// <returns>
-    /// A handle for the pages that can add an item from somewhere other than the add button — the
-    /// shortcuts page adds from a file picker and from the Windows locations list, and both must go
-    /// through the same append so there is one way an item comes into being.
-    /// </returns>
-    public static ListEditorHandle<T> ListEditor<T>(List<FrameworkElement> rows, ListEditorOptions<T> options)
-        where T : class
-    {
-        ArgumentNullException.ThrowIfNull(rows);
-        ArgumentNullException.ThrowIfNull(options);
-
-        // One host whose children are rebuilt in place, because adding, removing and reordering all
-        // change the shape of this section while the page around it is built once.
-        var host = new StackPanel { Spacing = Fluent.Space1 };
-        rows.Add(host);
-
-        var add = new Button { Content = options.AddAction };
-        RowReorder<T>? reorder = null;
-
-        void Rebuild()
-        {
-            host.Children.Clear();
-
-            if (options.Items.Count == 0)
-            {
-                host.Children.Add(Note(options.EmptyText));
-            }
-
-            for (var index = 0; index < options.Items.Count; index++)
-            {
-                var item = options.Items[index];
-                var card = ItemCard(options, item, Rebuild);
-                reorder!.Attach(card, item);
-                host.Children.Add(card);
-            }
-
-            // Said once, under the list: the drag has no handle to see, the shortcut no button.
-            if (options.Items.Count > 1)
-            {
-                host.Children.Add(Note(Str.Shell_List_ReorderHint.Text()));
-            }
-
-            add.IsEnabled = options.Items.Count < options.Capacity;
-        }
-
-        // Items by identity, never by the index a card was built with: the list may have changed since.
-        bool Reordered(bool moved)
-        {
-            if (moved)
-            {
-                options.Save();
-                Rebuild();
-            }
-
-            return moved;
-        }
-
-        reorder = new RowReorder<T>(
-            (dragged, target) => Reordered(DeskListOrder.MoveTo(options.Items, options.Items.IndexOf(dragged), options.Items.IndexOf(target))),
-            (item, delta) => Reordered(DeskListOrder.Move(options.Items, options.Items.IndexOf(item), delta)));
-
-        void Append(T item)
-        {
-            if (options.Items.Count >= options.Capacity)
-            {
-                return; // ignore: the add button is already disabled at the cap.
-            }
-
-            options.Items.Add(item);
-            options.Save();
-            Rebuild();
-        }
-
-        add.Click += (_, _) => Append(options.Create());
-
-        Rebuild();
-
-        rows.Add(Row(Glyphs.Add, options.AddTitle, options.AddDescription, add));
-
-        return new ListEditorHandle<T>(Append, Rebuild);
-    }
-
-    private static Border ItemCard<T>(ListEditorOptions<T> options, T item, Action rebuild)
-        where T : class
-    {
-        var body = options.Body(item);
-        body.VerticalAlignment = VerticalAlignment.Center;
-        Grid.SetColumn(body, 0);
-
-        var remove = IconCommand(Glyphs.Delete, options.RemoveTooltip);
-        remove.Margin = new Thickness(Fluent.Space3, 0, 0, 0);
-        remove.Click += (_, _) => _ = RemoveAsync(options, item, remove, rebuild);
-        Grid.SetColumn(remove, 1);
-
-        return Card(new Grid
-        {
-            ColumnDefinitions =
-            {
-                new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) },
-                new ColumnDefinition { Width = GridLength.Auto },
-            },
-            Children = { body, remove },
-        });
-    }
-
-    private static async Task RemoveAsync<T>(
-        ListEditorOptions<T> options,
-        T item,
-        FrameworkElement source,
-        Action rebuild)
-        where T : class
-    {
-        if (options.ConfirmRemove is { } ask && !await ask(item, source).ConfigureAwait(true))
-        {
-            return;
-        }
-
-        // Removed by identity rather than by the index the card was built with: the list may have
-        // been reordered while a confirmation was up.
-        if (!options.Items.Remove(item))
-        {
-            return; // ignore: something else already took it out.
-        }
-
-        options.Save();
-        rebuild();
-    }
-}
-
-/// <summary>What one <see cref="FluentLayout.ListEditor{T}"/> needs to know about its list.</summary>
-public sealed class ListEditorOptions<T>
-    where T : class
-{
-    /// <summary>The live list out of the widget's config. Edited in place, never copied.</summary>
-    public required IList<T> Items { get; init; }
-
-    /// <summary>
-    /// One item's own editor — the only part of a list that genuinely differs between widgets. The
-    /// remove command is added beside whatever this returns; the card is dragged to reorder.
-    /// </summary>
-    public required Func<T, FrameworkElement> Body { get; init; }
-
-    public required Action Save { get; init; }
-
-    /// <summary>What the section says when the list is empty, in the widget's own words.</summary>
-    public required string EmptyText { get; init; }
-
-    /// <summary>The title of the add row, e.g. "Add a shortcut".</summary>
-    public required string AddTitle { get; init; }
-
-    /// <summary>The label on the add button, e.g. "Add".</summary>
-    public required string AddAction { get; init; }
-
-    /// <summary>A new, empty item. Nothing about it is filled in from anywhere else.</summary>
-    public required Func<T> Create { get; init; }
-
-    public string? AddDescription { get; init; }
-
-    /// <summary>The most the list may hold. The add button is disabled at the cap.</summary>
-    public int Capacity { get; init; } = int.MaxValue;
-
-    public string RemoveTooltip { get; init; } = Str.Common_Remove.Text();
-
-    /// <summary>
-    /// Ask before removing, for a list whose items carry something the user cannot get back. Left
-    /// unset, removing is immediate — which is right for a row that holds only what is on screen.
-    /// </summary>
-    public Func<T, FrameworkElement, Task<bool>>? ConfirmRemove { get; init; }
-}
-
-/// <summary>A way back into a built list editor, for a page that can add an item from elsewhere.</summary>
-public sealed class ListEditorHandle<T>
-    where T : class
-{
-    private readonly Action<T> _append;
-    private readonly Action _rebuild;
-
-    internal ListEditorHandle(Action<T> append, Action rebuild)
-    {
-        _append = append;
-        _rebuild = rebuild;
-    }
-
-    /// <summary>Append an item through the same path the add button uses.</summary>
-    public void Add(T item) => _append(item);
-
-    /// <summary>Redraw the cards from the list as it stands.</summary>
-    public void Refresh() => _rebuild();
 }
 
 /// <summary>[S-1708] One item of a <see cref="FluentLayout.MultiChoice"/>: its id, its name and, optionally, its icon (made fresh each time the list is built).</summary>

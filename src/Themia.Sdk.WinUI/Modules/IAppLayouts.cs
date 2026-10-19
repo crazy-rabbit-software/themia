@@ -4,7 +4,7 @@ namespace Themia.Sdk.WinUI;
 
 /// <summary>
 /// [S-1403] [S-1411] App layouts as a widget offers them (<see cref="IWidgetHost.AppLayouts"/>, and
-/// <see cref="SettingsHost.AppLayouts"/> for a settings page): open the host's one layout editor on an
+/// <see cref="SettingsHost.AppLayouts"/> for a menu line): open the host's one layout editor on an
 /// item, and launch a layout (the apps started and their windows put in their panes). The editor
 /// window and the window placement stay host code; the host finds the item through
 /// <see cref="IHoldsAppLayouts"/> on the configs.

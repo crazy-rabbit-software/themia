@@ -1,4 +1,3 @@
-using Microsoft.UI.Xaml;
 using Themia.Core.Model;
 using Themia.Core.SystemData;
 using Themia.Sdk.WinUI;
@@ -6,7 +5,7 @@ using Xunit;
 
 namespace Themia.Widget.BatteryDetails.Tests;
 
-/// <summary>[S-9800] The battery details widget as a module: the feeds it reads and its page of nothing.</summary>
+/// <summary>[S-9800] The battery details widget as a module: the feeds it reads and no options of its own.</summary>
 public sealed class BatteryDetailsTests
 {
     [Fact]
@@ -19,10 +18,11 @@ public sealed class BatteryDetailsTests
     }
 
     [Fact]
-    public void S9800_it_has_no_settings_page()
+    public void S9800_it_has_no_options_of_its_own()
     {
-        var rows = new List<FrameworkElement>();
-        ((IWidgetModule)new BatteryDetailsModule()).SettingsRows(new WidgetSettingsRows(rows, () => { }, () => { }), new BatteryDetailsConfig());
-        Assert.Empty(rows);
+        var menu = new WidgetMenuLines(() => { }, _ => { });
+        ((IWidgetModule)new BatteryDetailsModule()).MenuLines(menu, new BatteryDetailsConfig());
+        Assert.Empty(menu.Lines);
+        Assert.Empty(menu.StyleLines);
     }
 }

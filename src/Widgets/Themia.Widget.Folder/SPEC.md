@@ -116,8 +116,8 @@ by `tests/Themia.Modules.Tests`); its config and rules under the root's tags are
   **Open items with** (Double / Single click) and **Open folders** (In Explorer / Inside the widget).
   (Tests `FolderPropertiesMenuTests`.)
 - **[S-4122]** Debug renders: `--widget-png Folder <out> --style list|details|grid|icons --state web|wallpapers`
-  lists `%WINDIR%\Web` or its Windows wallpapers (read-only) instead of the profile;
-  `--settings-png Widget:Folder <out> --style <name>` its settings page in that style.
+  lists `%WINDIR%\Web` or its Windows wallpapers (read-only) instead of the profile; its menu's
+  lines are drawn by `--editbar-png` (`props-*-folder-*.png`).
 - **[S-4123]** One kind, **Folder** (`Folder`, 17, `FolderConfig`, `folder`, 300×280, glyph E8B7), with
   four styles ([S-6000]; `FolderStyle`, stored as `"style"`, menu order): **List** (the default,
   E8B7), **Details** (F12B FolderHorizontal), **Grid** (ECA5 Tiles) and **Icons** (F0E2 GridView).

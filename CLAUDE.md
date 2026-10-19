@@ -32,7 +32,7 @@ powershell -ExecutionPolicy Bypass -File scripts/package.ps1      # unsigned Sto
 Render flags draw off-screen to PNG and exit. Look at the PNGs; they are how UI work is verified.
 
 ```
-Themia.exe --settings-png <Page|Widget:<Kind>> <out.png> [waitMs] [--theme light|dark] [--search t] [--land t]
+Themia.exe --settings-png <Page> <out.png> [waitMs] [--theme light|dark] [--search t] [--land t]   # app pages only
            [--flyout row] [--width dips] [--open first|name] [--views n]      # Page: General..About, Displays, Views
 Themia.exe --widget-png <Kind> <out.png> [w h] [--theme light|dark] [--state name] [--style name] [--sizes WxH,..|tiers] [--keys k1,k2|text:abc]
            [--place-cleared]   # a widget about a place with its place cleared [S-2848]
@@ -86,7 +86,7 @@ src/Themia.Core/   pure logic, no UI types, no Windows dependency. The host's ru
   Settings/ Shell/ Motion/ Licensing/ Net/ Sync/   Accounts/HostProviders.cs (the five account providers as modules)
   Services/ (the service sync's engine: ServiceClient, ServiceMemory, ServiceEntries, FixtureReplay; Sync/ServiceShelf)
   Model/FirstRunDesktop.cs (the first-run seed as data: ids and config fragments)
-src/Themia.Sdk.WinUI/  the widget SDK, WinUI: IWidgetModule, IWidgetHost (+ IShellLauncher), WidgetSettingsRows, view
+src/Themia.Sdk.WinUI/  the widget SDK, WinUI: IWidgetModule, IWidgetHost (+ IShellLauncher), WidgetMenuLines, view
                    Kit/ (KitList, KitHeader, KitStatePanel, KitBinding, KitMenuLines: the kit's UI parts),
                    contracts (IWidgetView, IWidgetSurface, IWidgetKeys, IWidgetDropTarget, ...), Ticker, Fluent,
                    WidgetLayout, ThemeBrush, ItemFill, ItemMenu, RowFocus, WidgetItems, ConfirmFlyout, RingPart,
@@ -94,7 +94,7 @@ src/Themia.Sdk.WinUI/  the widget SDK, WinUI: IWidgetModule, IWidgetHost (+ IShe
                    DetailView, SparkBand, CoreGraphGrid), AudioFeed, the screen-time widgets' shared parts, AddFooterRow,
                    RotatedBox; Modules/: the host's contracts (IWidgetHost's members, among them the file shell's:
                    FileIcons, FileClipboard, Folders, FileOps, ExplorerMenus, RecentFiles, AppLayouts, Streams;
-                   SettingsHost for a settings page); Shell/: FluentLayout (settings rows), ColorChoice, RowReorder, SettingRow, PlaceSearch,
+                   SettingsHost for a module's menu lines); Shell/: FluentLayout (the app's settings rows), ColorChoice, RowReorder, SettingRow, PlaceSearch,
                    MenuArtIcons, FolderBrowse, ScreenTimeMenuLines, SkyPlaceRows. References Themia.Sdk only, never Core. What
                    needs Win32 (eyedropper, file icons, geocoder, OLE drag, the shell's file operations and menus)
                    is the host's, behind those contracts or installed at start (App()).
@@ -135,7 +135,7 @@ answers the sync keeps fresh (`Weather`, `Quotes`, `Rates` over `Fetched<T>`, `F
 sources (`System`: the hub's `Watch`/`WatchSeries` over `Sources`; `Drives`, `Audio`, `Brightness`,
 `Media`, `Loopback`) and the local stores (`ClipboardHistory` with `CopyText`, `Alarms`, `Focus`,
 `Notifications`, `Notes`, `Habits`, `ScreenTime`, `Gallery`), never `ShellLauncher`; a cue sounds
-through `SoundCue`; a settings page has no host, so what it reads of one is installed at start: its
+through `SoundCue`; a module's menu lines have no host, so what they read of one is installed at start: its
 lists (`DriveList`, `AudioDevices`, `GpuAdapters`, `SymbolLookup`) and `SettingsHost` (the notes, the
 habit lists, the screen-time history, the launcher, the picker's owner window); a config's sync wants go
 through the SDK's `IInterests`/`InterestsBuilder.Of<T>()`, its hub wants through `IReadsSystem`, an
@@ -147,7 +147,7 @@ their menu lines read `SettingsHost.Office`, `Tasks` and `AccountsWith(feature)`
 `usage_stats.json`) stay host code with their validation; `LocalStoreFixtureTests` pins their shapes. A host test that needs a real widget (the seed, placement, the
 add menu, styles over every kind) lives in `tests/Themia.Modules.Tests`, which has every widget and
 Core's internals; Core's own tests run over a registry of no widget. App settings pages register one
-line in `ConfigPages.AppPages`.
+line in `ConfigPages.AppPages`; a widget has no settings page ([S-6536]).
 
 ## Engineering principles (non-negotiable)
 
@@ -247,23 +247,23 @@ line in `ConfigPages.AppPages`.
 - **Widget styles** ([S-6000]..[S-6010]): a look of the same data. The kind's config implements
   `IStyled` over its own `<Kind>Style` enum (`[JsonConverter(typeof(StyleJsonConverter<…>))]`, property
   `Style`, default first, copied in `Clone`); its labels go in a `Locales/styles-<kind>/` area. The
-  registry, the strip's Style choice, the settings row, load repair and `--style` find it on their own:
+  registry, the strip's Style choice, load repair and `--style` find it on their own:
   no shared line to edit. An existing look option becomes the style, never a second setting.
 - **Colours are never typed.** Use `FluentLayout.ColorPickerRow` / `ColorChoice` (swatch button, accent
   presets, custom `ColorPicker`). Stored as `#RRGGBB`.
-- **Settings rows** come only from `FluentLayout` (`SettingsCard`/`SettingsExpander`), so a restyle
-  reaches every page. Never build a card by hand. Each row's frame carries a `SettingRow` for search.
+- **Settings rows** (the app's pages; a widget has none) come only from `FluentLayout`
+  (`SettingsCard`/`SettingsExpander`), so a restyle reaches every page. Never build a card by hand. Each row's frame carries a `SettingRow` for search.
 - **Item menus** through `ItemMenu`; icons through `Glyphs`; lists keep `RowFocus`/`ScrollFade`.
 - **The properties menu** ([S-3716]..[S-3730]): the selection's panel in edit mode is drawn as a
   Windows 11 context menu (Cut, Copy … Delete on top, lines with submenus that stay open on a pick,
-  the tick/dot/chevron at the line's end). A widget's own options live there instead of on its page:
-  its module's `MenuLines(WidgetMenuLines, config)` adds `Lines` (first level) and `StyleLines` (under
-  Style, what `config.Offers` says the look draws) as `ItemMenuEntry`s (`Toggle`, `Choice`, `Number`,
-  `Colour`, `Fill`, `Submenu`, `Search`, `Command`, `Ask`, `Confirm`, `Note`, `List`, `PickFolder`)
-  and calls `PlaceCard()` where the card's Appearance submenu goes (it is first otherwise). Shortcuts,
-  Clock, Weather now, Weather forecast and Air quality are on it with no page (Shortcuts and Clock are
-  the references); the other widgets keep their pages until they move, one at a time, by the guide
-  in docs/WIDGET-KIT.md 15.
+  the tick/dot/chevron at the line's end). Every option a widget has lives there; there is no widget
+  settings page ([S-6536]): its module's `MenuLines(WidgetMenuLines, config)` adds `Lines` (first
+  level) and `StyleLines` (under Style, what `config.Offers` says the look draws) as
+  `ItemMenuEntry`s (`Toggle`, `Choice`, `Number`, `Colour`, `Fill`, `Submenu`, `Search`, `Command`,
+  `Ask`, `Confirm`, `Note`, `List`, `PickFolder`), calls `PlaceCard()` where the card's Appearance
+  submenu goes (it is first otherwise) and marks the line the Set up button opens with
+  `WidgetMenuLines.SetsUp` ([S-1862]). Shortcuts and Clock are the references; docs/WIDGET-KIT.md 15
+  is the guide.
 - **Text** goes through the `Str` layer (`Str.X.Text()`); a new key goes into `en.json` and its
   `$englishOnly` list. Dates and numbers through `LocaleFormat`.
 - **Out of scope by decision:** tray icon, always-on-top pin, pop-out windows, Lemon Squeezy, updater,

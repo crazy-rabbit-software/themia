@@ -234,7 +234,7 @@ internal sealed class AccountsPage
 
         var signOut = FluentLayout.DangerButton(Str.Account_SignOut.Text());
         signOut.Click += (_, _) => _ = SignOutAsync(account, signOut);
-        rows.Add(FluentLayout.DangerRow(Glyphs.SignOut, Str.Account_SignOut.Text(), Str.Shell_Accounts_SignOutDesc.Text(), signOut));
+        rows.Add(FluentLayout.Row(Glyphs.SignOut, Str.Account_SignOut.Text(), Str.Shell_Accounts_SignOutDesc.Text(), signOut));
 
         var frame = FluentLayout.Expander(
             ProviderGlyph(account.Provider),

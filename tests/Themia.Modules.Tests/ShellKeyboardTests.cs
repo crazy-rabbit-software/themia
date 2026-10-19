@@ -47,7 +47,7 @@ public sealed class ShellKeyboardTests
     [InlineData(0x59, false, true, false, EditCommand.Redo)]
     [InlineData(0x2E, false, false, false, EditCommand.Delete)]
     [InlineData(0x1B, false, false, false, EditCommand.Back)]
-    [InlineData(0x0D, false, false, false, EditCommand.OpenSettings)]
+    [InlineData(0x0D, false, false, false, EditCommand.FocusProperties)]
     [InlineData(0x5D, false, false, false, EditCommand.OpenMenu)]
     [InlineData(0x79, true, false, false, EditCommand.OpenMenu)]
     [InlineData(0x75, false, false, false, EditCommand.SwitchPane)]

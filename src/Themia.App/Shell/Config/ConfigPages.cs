@@ -17,8 +17,8 @@ namespace Themia.App.Shell.Config;
 /// <para>
 /// Every page edits the live state and saves as it goes, rather than holding a draft behind an OK
 /// button: the desktop is visible behind this window, so a setting the user cannot see take effect
-/// is a setting they cannot judge. The exception is a widget's own config, which is a clone —
-/// see <see cref="BuildWidget"/>.
+/// is a setting they cannot judge. A widget's own options are not here: they are on its properties
+/// menu in edit mode ([S-6536]).
 /// </para>
 /// </summary>
 internal static partial class ConfigPages
@@ -51,7 +51,6 @@ internal static partial class ConfigPages
     public static FrameworkElement Build(PageContext context, ConfigTarget target) => target switch
     {
         ConfigTarget.App app => BuildApp(context, app.Page),
-        ConfigTarget.Widget widget => BuildWidget(context.Host, widget.WidgetId, context.Navigate),
         _ => Page(Str.Common_Settings.Text(), []),
     };
 

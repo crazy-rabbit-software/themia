@@ -31,7 +31,7 @@ public sealed class WidgetMenuLines
     private readonly Action<WidgetTextAsk> _ask;
     private readonly Action<WidgetConfirm>? _confirm;
 
-    /// <param name="save">Stores the config after a change, as a settings page stores one.</param>
+    /// <param name="save">Stores the config after a change (the live widget's, through the host's store).</param>
     /// <param name="ask">[S-3721] Shows a question for one line of text beside the menu.</param>
     /// <param name="confirm">[S-3727] Shows an "are you sure?" beside the menu; without one a confirmed line does nothing.</param>
     public WidgetMenuLines(Action save, Action<WidgetTextAsk> ask, Action<WidgetConfirm>? confirm = null)

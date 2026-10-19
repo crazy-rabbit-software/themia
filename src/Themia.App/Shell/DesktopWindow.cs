@@ -262,9 +262,6 @@ internal sealed partial class DesktopWindow : IWidgetCardHost
             Math.Clamp((point.Y - area.Top) / (double)area.Height, 0, 1));
     }
 
-    public void RequestConfigure(WidgetCard card)
-        => _host.ShowConfig(new ConfigTarget.Widget(card.Model.Id));
-
     /// <summary>
     /// [S-1862] Set up goes where the missing piece is set: Settings › Accounts when an account is all
     /// the widget lacks; otherwise edit mode, the widget selected alone and its properties menu opened
@@ -290,13 +287,6 @@ internal sealed partial class DesktopWindow : IWidgetCardHost
             Log.Debug(Scope, $"widget '{id}' ({card.Model.Kind}) names no setup line; its menu stands as it is");
         }
     }
-
-    /// <inheritdoc />
-    public bool SettingsOpen => _host.ConfigOpen;
-
-    /// <inheritdoc />
-    public void RequestFollowInSettings(WidgetCard card)
-        => _host.FollowConfig(new ConfigTarget.Widget(card.Model.Id));
 
     /// <summary>[S-1592] Delete the selection (the right-clicked card is in it).</summary>
     public void RequestDelete(WidgetCard card) => _host.DeleteSelected();

@@ -35,8 +35,9 @@ namespace Themia.App.Shell.Gallery;
 /// <c>-picker.png</c> (Appearance › Background open: Transparent and the opacity), [S-6586]
 /// <c>-align.png</c> (a clock aligned right), <c>-alignmany.png</c> (a clock and a quote of different
 /// alignments) and <c>-alignstyle.png</c> (the moon's month: no Alignment line), and the submenus
-/// open along a path (<c>-countdown-appearance.png</c>, a widget not yet on the menu;
-/// <c>-many-appearance.png</c>, several; the searches with few and many answers; [S-3724]..[S-3730]
+/// open along a path (<c>-countdown-appearance.png</c>, a countdown's Appearance;
+/// <c>-many-appearance.png</c>, several; the searches with few and many answers; [S-1862]
+/// <c>-setup-*.png</c>, the menu as the Set up button opens it; [S-3724]..[S-3730]
 /// <c>-vocabulary*.png</c>, one line of each kind on a stand-in widget) — all over a busy
 /// stand-in wallpaper, so the panel's surface is judged against one ([S-3715]).
 /// </summary>
@@ -535,8 +536,7 @@ internal static class EditBarRender
         var selection = new WidgetSelection();
         selection.Replace(view.Id, selected);
 
-        var strip = new PropertiesStrip(new PropertiesCommands(_ => { }, _ => { }, (_, _) => { }, () => { }, _ => { }, _ => { }, _ => { }, _ => { }, _ => { },
-            id => view.Find(id) is { } found && Config.ConfigPages.HasWidgetSettings(found),
+        var strip = new PropertiesStrip(new PropertiesCommands(_ => { }, _ => { }, (_, _) => { }, () => { }, _ => { }, _ => { }, _ => { }, _ => { },
             Cut: () => { }, Copy: () => { }, Delete: () => { },
             WidgetLines: (id, ask, confirm) => lines is not null ? Stand(lines, ask, confirm) : view.Find(id) is { } found ? Services.ModuleHost.MenuLines(found, () => { }, ask, confirm) : null));
         UiLanguage.ApplyFlow(strip);

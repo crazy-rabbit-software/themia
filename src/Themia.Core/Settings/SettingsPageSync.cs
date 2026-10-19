@@ -6,15 +6,14 @@ using Themia.Core.Storage;
 namespace Themia.Core.Settings;
 
 /// <summary>
-/// What a settings page edits: the app's own options, every view (the Views page), every connected
-/// display (the Displays page) or one widget.
+/// What a settings page edits: the app's own options, every view (the Views page) or every
+/// connected display (the Displays page). A widget's options are on its properties menu ([S-6536]).
 /// </summary>
 public enum SettingsScope
 {
     App,
     Views,
     Displays,
-    Widget,
 }
 
 /// <summary>
@@ -42,12 +41,10 @@ public static class SettingsPageSync
     /// <summary>
     /// [S-1721] Everything a page of <paramref name="scope"/> shows, as one comparable string — and
     /// nothing else, so a widget dragged on the desktop or a feed refreshing does not rebuild a page
-    /// that shows neither. <paramref name="id"/> is the widget id (<see cref="SettingsScope.Widget"/>
-    /// only); <paramref name="displays"/> the connected displays' ids, in the order the Displays page
-    /// lists them (<see cref="SettingsScope.Displays"/> only). A widget that no longer exists has a
-    /// signature of its own.
+    /// that shows neither. <paramref name="displays"/> is the connected displays' ids, in the order
+    /// the Displays page lists them (<see cref="SettingsScope.Displays"/> only).
     /// </summary>
-    public static string Signature(AppState state, SettingsScope scope, string? id = null, IReadOnlyList<string>? displays = null)
+    public static string Signature(AppState state, SettingsScope scope, IReadOnlyList<string>? displays = null)
     {
         ArgumentNullException.ThrowIfNull(state);
 
@@ -56,7 +53,6 @@ public static class SettingsPageSync
             SettingsScope.App => AppSignature(state),
             SettingsScope.Views => string.Join("\n--\n", state.Views.Select(v => v.Id + "\n" + ViewSignature(state, v.Id))),
             SettingsScope.Displays => string.Join("\n--\n", (displays ?? []).Select(d => d + "\n" + DisplaySignature(state, d))),
-            SettingsScope.Widget => WidgetSignature(state, id),
             _ => string.Empty,
         };
     }
@@ -67,13 +63,10 @@ public static class SettingsPageSync
     /// built again at once, even while its window is active — the change came from the page itself
     /// (Add view, Duplicate, Delete, Move up, a drag, switching a display off), and the page has to
     /// show the group it added or drop the one it deleted. A rename or a new icon keeps the shape:
-    /// those update their own group in place, so the box being typed in is never torn down.
-    /// [S-6071] A widget page's shape (<paramref name="id"/>) is its style and the rows its
-    /// config offers now (<see cref="Themia.Core.Widgets.SettingRules.Shape"/>): picking another style
-    /// or turning on a switch that other rows depend on builds the page again. Empty for every
-    /// other scope.
+    /// those update their own group in place, so the box being typed in is never torn down. Empty
+    /// for every other scope.
     /// </summary>
-    public static string Shape(AppState state, SettingsScope scope, IReadOnlyList<string>? displays = null, string? id = null)
+    public static string Shape(AppState state, SettingsScope scope, IReadOnlyList<string>? displays = null)
     {
         ArgumentNullException.ThrowIfNull(state);
 
@@ -84,25 +77,8 @@ public static class SettingsPageSync
             // Whether each display is on: the last display on cannot be switched off ([S-845]), so
             // switching one changes whether the others' switches can move.
             SettingsScope.Displays => string.Join(",", (displays ?? []).Select(d => $"{d}={state.DisabledMonitors.Contains(d)}")),
-            SettingsScope.Widget => WidgetShape(state, id),
             _ => string.Empty,
         };
-    }
-
-    private static string WidgetShape(AppState state, string? id)
-    {
-        foreach (var view in state.Views)
-        {
-            foreach (var widget in view.Widgets)
-            {
-                if (widget.Id == id)
-                {
-                    return Themia.Core.Widgets.SettingRules.Shape(widget.Config);
-                }
-            }
-        }
-
-        return string.Empty;
     }
 
     /// <summary>The design, the preferences, and the views by name (General offers them for new displays).</summary>
@@ -175,31 +151,5 @@ public static class SettingsPageSync
         }
 
         return text.Append("\nnew ").Append(state.DefaultViewForNewDisplays).ToString();
-    }
-
-    /// <summary>
-    /// The widget's config, label, background and header — not its position or size, and not its
-    /// scale, which only the properties panel shows ([S-6536]).
-    /// </summary>
-    private static string WidgetSignature(AppState state, string? id)
-    {
-        foreach (var view in state.Views)
-        {
-            foreach (var widget in view.Widgets)
-            {
-                if (widget.Id == id)
-                {
-                    return new StringBuilder()
-                        .Append(widget.Label).Append('\n')
-                        .Append(widget.Background.Kind).Append(' ').Append(widget.Background.Colour).Append(' ')
-                        .Append(widget.Background.Opacity.ToString("R", System.Globalization.CultureInfo.InvariantCulture)).Append('\n')
-                        .Append(widget.Header).Append('\n')
-                        .Append(JsonSerializer.Serialize(widget.Config, StateJson.WidgetConfig))
-                        .ToString();
-                }
-            }
-        }
-
-        return "-";
     }
 }

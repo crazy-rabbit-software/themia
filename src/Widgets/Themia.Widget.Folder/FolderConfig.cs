@@ -128,8 +128,8 @@ public sealed class FolderConfig : WidgetConfig, IStyled, IShownSettings<FolderS
     public FolderTileSize TileSize { get; set; } = FolderTileSize.Medium;
 
     /// <summary>
-    /// [S-4121] [S-4122] [S-6070] The rows the settings page shows for the current style, in page
-    /// order: only what that style draws. Picking another style rebuilds the page ([S-6071]).
+    /// [S-4121] [S-4122] [S-6070] The lines the properties menu shows for the current style, in
+    /// menu order: only what that style draws.
     /// </summary>
     [JsonIgnore]
     public IReadOnlyList<FolderSetting> ShownSettings => Style switch

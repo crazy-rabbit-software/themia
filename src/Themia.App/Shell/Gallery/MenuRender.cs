@@ -102,17 +102,8 @@ internal static class MenuRender
                 host.Set(editMode: false, selection: 3, canPaste: false);
                 await RenderAsync(root, card.CardMenu(), System.IO.Path.Combine(outDir, "card-desktop-3.png")).ConfigureAwait(true);
 
-                // [S-1750] A widget whose page would be empty (a power button): no Settings in the row.
-                var lockButton = WidgetInstance.Create(new WidgetId("lock"), new FracRect(0.1, 0.6, 0.1, 0.1));
-                view.Widgets.Add(lockButton);
-                var bare = new WidgetCard(host, lockButton) { Width = 120, Height = 120 };
-                root.Children.Add(new Canvas { Children = { bare } });
-                host.Set(editMode: true, selection: 1, canPaste: true);
-                await RenderAsync(root, bare.CardMenu(), System.IO.Path.Combine(outDir, "card-no-settings.png")).ConfigureAwait(true);
-
-                // [S-1758] Outside edit mode: the view's own commands, Settings and Edit layout, nothing that arranges.
+                // [S-1758] Outside edit mode: the view's own commands and Edit layout, nothing that arranges.
                 host.Set(editMode: false, selection: 1, canPaste: true);
-                await RenderAsync(root, bare.CardMenu(), System.IO.Path.Combine(outDir, "card-desktop-no-settings.png")).ConfigureAwait(true);
 
                 var drive = WidgetInstance.Create(new WidgetId("drive"), new FracRect(0.3, 0.6, 0.2, 0.2));
                 view.Widgets.Add(drive);
@@ -280,11 +271,6 @@ internal static class MenuRender
         public void OnGeometryCommitted(WidgetCard card)
         {
             // ignore: as above
-        }
-
-        public void RequestConfigure(WidgetCard card)
-        {
-            // ignore: the menu is drawn, never clicked
         }
 
         public void RequestSetup(WidgetCard card)

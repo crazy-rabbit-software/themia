@@ -36,7 +36,7 @@ internal sealed partial class DesktopWindow
 
         // A key on the toolbar or a notice is that control's: arrows, Tab and Enter work its buttons.
         if (FocusOnChrome() && action.Command is EditCommand.Move or EditCommand.Resize or EditCommand.Cycle
-            or EditCommand.OpenSettings or EditCommand.OpenMenu)
+            or EditCommand.FocusProperties or EditCommand.OpenMenu)
         {
             return false;
         }
@@ -95,14 +95,8 @@ internal sealed partial class DesktopWindow
             case EditCommand.Cycle:
                 return CycleSelection(action.Backwards);
 
-            case EditCommand.OpenSettings:
-                if (SelectedCardHere() is not { } selected)
-                {
-                    return false;
-                }
-
-                _host.ShowConfig(new ConfigTarget.Widget(selected.Model.Id));
-                return true;
+            case EditCommand.FocusProperties:
+                return FocusProperties();
 
             case EditCommand.OpenMenu:
                 return OpenMenuFromKeyboard();
@@ -298,6 +292,22 @@ internal sealed partial class DesktopWindow
         {
             _root.Focus(FocusState.Keyboard);
         }
+    }
+
+    /// <summary>
+    /// [S-1974] Enter: the keyboard goes into the selection's properties menu, on its first control,
+    /// as F6 reaches it ([S-1975]); Escape there hands it back. Nothing while the menu is away (no
+    /// selection on this display, a drag), so Enter goes on to whatever else takes it.
+    /// </summary>
+    private bool FocusProperties()
+    {
+        if (_properties.Visibility != Visibility.Visible || FocusManager.FindFirstFocusableElement(_properties) is not Control first)
+        {
+            return false;
+        }
+
+        first.Focus(FocusState.Keyboard);
+        return true;
     }
 
     /// <summary>Whether the keyboard is on the surface's chrome (the toolbar, the properties strip, the view bar, a notice) rather than the widgets.</summary>

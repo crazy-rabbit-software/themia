@@ -179,15 +179,4 @@ public sealed class WidgetScaleTests
         Assert.Equal(1.5, WidgetScale.Effective(-2, double.PositiveInfinity, 1.5));
         Assert.Equal(1.0, WidgetScale.Effective(1, 1, double.NaN));
     }
-
-    [Fact]
-    public void S6536_the_settings_page_shows_no_scale_so_a_scale_change_does_not_rebuild_it()
-    {
-        var (state, view) = State(Widget("a"));
-        var before = SettingsPageSync.Signature(state, SettingsScope.Widget, "a");
-
-        view.Find("a")!.Scale = 1.25;
-
-        Assert.Equal(before, SettingsPageSync.Signature(state, SettingsScope.Widget, "a"));
-    }
 }

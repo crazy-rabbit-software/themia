@@ -8,7 +8,7 @@ namespace Themia.Core.Model;
 
 /// <summary>
 /// [S-4400] Windows' notification list. Nothing to set: the list is Windows' own, and what it shows at a
-/// size is the ladder's ([S-4404]), so the widget has no settings page ([S-1750]).
+/// size is the ladder's ([S-4404]), so its menu has no lines of its own ([S-3719]).
 /// </summary>
 public sealed class NotificationsConfig : WidgetConfig
 {

@@ -37,8 +37,6 @@ internal interface IWidgetCardHost
     /// <summary>The drag ended: persist.</summary>
     void OnGeometryCommitted(WidgetCard card);
 
-    void RequestConfigure(WidgetCard card);
-
     /// <summary>
     /// [S-1862] The card's Set up button: go where what the widget waits for is set (its properties
     /// menu in edit mode, or Settings › Accounts when an account is all it lacks).
@@ -103,15 +101,6 @@ internal interface IWidgetCardHost
 
     /// <summary>[S-1580] Ctrl+click: add the card to the selection, or take it out.</summary>
     void RequestToggleSelect(WidgetCard card) => RequestSelect(card);
-
-    /// <summary>[S-1745] Whether the settings window is open; a click on a card only ever follows an open one.</summary>
-    bool SettingsOpen => false;
-
-    /// <summary>[S-1745] A plain click on the card in edit mode: show its page in the open settings window.</summary>
-    void RequestFollowInSettings(WidgetCard card)
-    {
-        // ignore: a host with no settings window (a debug render) has nothing to follow
-    }
 
     /// <summary>How many widgets are selected, so the card menu can say what its commands act on.</summary>
     int SelectionCount => 1;
@@ -945,18 +934,9 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface, IItemPaletteOwn
             return;
         }
 
-        // [S-1745] Read before the drag ends: a plain click, released here rather than lost to
-        // capture, shows this widget in a settings window that is already open.
-        var follow = CardGestures.FollowsInSettings(_press, _moved, released: true, _host.SettingsOpen);
-
         ReleasePointerCapture(e.Pointer);
         EndDrag();
         e.Handled = true;
-
-        if (follow)
-        {
-            _host.RequestFollowInSettings(this);
-        }
     }
 
     private void OnPointerCaptureLost(object sender, PointerRoutedEventArgs e)
@@ -1049,8 +1029,7 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface, IItemPaletteOwn
             CanBringToFront: cards?.CanBringToFront(Model.Id) == true,
             CanSendToBack: cards?.CanSendToBack(Model.Id) == true,
             SelectionCount: _host.SelectionCount,
-            CanPaste: _host.CanPaste,
-            HasSettings: Themia.App.Shell.Config.ConfigPages.HasWidgetSettings(Model));
+            CanPaste: _host.CanPaste);
 
         var entries = new List<ItemMenuEntry>();
         foreach (var item in ShellMenus.ForCard(facts))
@@ -1088,7 +1067,6 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface, IItemPaletteOwn
             ShellCommand.Cut => new(Glyphs.Cut, Verb(Str.CtxMenu_Cut, Str.Shell_Card_CutMany), () => _host.RequestCut(this), Quick: item.Quick, Shortcut: KeyChord.Ctrl(ChordKey.X)),
             ShellCommand.Copy => new(Glyphs.Copy, Verb(Str.CtxMenu_Copy, Str.Shell_Card_CopyMany), () => _host.RequestCopy(this), Quick: item.Quick, Shortcut: KeyChord.Ctrl(ChordKey.C)),
             ShellCommand.Paste => new(Glyphs.Paste, Str.CtxMenu_Paste.Text(), _host.RequestPaste, Disabled: disabled, Quick: item.Quick, Shortcut: KeyChord.Ctrl(ChordKey.V)),
-            ShellCommand.Configure => new(Glyphs.Settings, Str.CtxMenu_Configure.Text(), () => _host.RequestConfigure(this), Quick: item.Quick),
             ShellCommand.Delete => new(Glyphs.Delete, Verb(Str.Common_Delete, Str.Shell_Card_DeleteMany), () => _host.RequestDelete(this), Danger: true, Quick: item.Quick, Shortcut: KeyChord.Plain(ChordKey.Delete)),
             ShellCommand.BringToFront => new(Glyphs.MoveUp, Str.Shell_Card_BringToFront.Text(), () => _host.RequestZOrder(this, front: true), Disabled: disabled),
             ShellCommand.SendToBack => new(Glyphs.MoveDown, Str.Shell_Card_SendToBack.Text(), () => _host.RequestZOrder(this, front: false), Disabled: disabled),

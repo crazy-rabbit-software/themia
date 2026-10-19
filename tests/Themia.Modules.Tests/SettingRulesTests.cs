@@ -11,9 +11,9 @@ using Xunit;
 namespace Themia.Core.Tests;
 
 /// <summary>
-/// [S-6070]..[S-6074] A settings page offers only the rows that change what its widget shows in
-/// its current style and state: one Core rule per config (<see cref="IShownSettings{TSetting}"/>),
-/// pinned here per kind and style, and the page shape that rebuilds the page when it changes.
+/// [S-6070] [S-6074] A widget's properties menu offers only the options that change what it shows
+/// in its current style and state: one Core rule per config (<see cref="IShownSettings{TSetting}"/>),
+/// pinned here per kind and style.
 /// </summary>
 public class SettingRulesTests
 {
@@ -197,40 +197,6 @@ public class SettingRulesTests
         Assert.Equal([ScreenTimeSetting.DailyLimit], new ScreenTimeDonutConfig().ShownSettings);
         Assert.Equal([ScreenTimeSetting.AppLimits], new ScreenTimeAppsConfig { Period = ScreenTimePeriod.Day }.ShownSettings);
         Assert.Equal([ScreenTimeSetting.AppLimits, ScreenTimeSetting.Average], new ScreenTimeAppsConfig { Period = ScreenTimePeriod.Week }.ShownSettings);
-    }
-
-    [Fact]
-    public void S6071_the_page_shape_follows_the_style_and_a_parent_switch_but_not_a_plain_value()
-    {
-        var state = AppState.CreateDefault();
-        var widget = WidgetInstance.Create(new WidgetId("quote"), new FracRect(0.1, 0.1, 0.2, 0.2));
-        state.Views[0].Widgets.Add(widget);
-        var quote = (QuoteConfig)widget.Config;
-
-        string Shape() => SettingsPageSync.Shape(state, SettingsScope.Widget, id: widget.Id);
-        var before = Shape();
-
-        quote.ShowAuthor = !quote.ShowAuthor;
-        quote.Seed++;
-        Assert.Equal(before, Shape());
-
-        quote.Shuffle = !quote.Shuffle;
-        var shuffled = Shape();
-        Assert.NotEqual(before, shuffled);
-
-        quote.Style = quote.Style == QuoteStyle.Plain ? QuoteStyle.Marks : QuoteStyle.Plain;
-        Assert.NotEqual(shuffled, Shape());
-    }
-
-    [Fact]
-    public void S6071_a_slider_never_reshapes_the_gallery_page_under_the_pointer()
-    {
-        var gallery = new GalleryConfig { Source = GallerySource.File };
-        var shape = SettingRules.Shape(gallery);
-
-        gallery.Rotation = 45;
-        gallery.OutlineWidth = gallery.EffectiveOutlineWidth + 1;
-        Assert.Equal(shape, SettingRules.Shape(gallery));
     }
 
     [Fact]

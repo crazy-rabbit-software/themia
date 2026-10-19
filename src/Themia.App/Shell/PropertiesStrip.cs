@@ -25,11 +25,9 @@ namespace Themia.App.Shell;
 /// <param name="SetTitle">[S-3704] One widget's title, by id, as typed.</param>
 /// <param name="ReleaseFocus">[S-3704] Hands the keyboard back to the surface after the title box, so the edit keys work again.</param>
 /// <param name="SetStyle">[S-6008] The selected widgets' style, by the style enum's value.</param>
-/// <param name="OpenSettings">[S-6009] Opens one widget's settings page, by id.</param>
 /// <param name="SetItemBackground">[S-6521] The selected widgets' own item background (those with items, [S-6571]).</param>
 /// <param name="SetItemTextColor">[S-6544] The selected widgets' own item text colour, or empty for the app-wide one.</param>
 /// <param name="SetScale">[S-6531] The selected widgets' own content scale, as a factor.</param>
-/// <param name="HasSettings">[S-1750] Whether one widget, by id, has a settings page in its current style and state.</param>
 /// <param name="SetAlign">[S-6584] Where the selected widgets that can align draw their content. A render's stand-in may leave it out.</param>
 /// <param name="Cut">[S-3717] Cut the selection, as Ctrl+X does.</param>
 /// <param name="Copy">[S-3717] Copy the selection, as Ctrl+C does.</param>
@@ -41,11 +39,9 @@ internal sealed record PropertiesCommands(
     Action<string, string?> SetTitle,
     Action ReleaseFocus,
     Action<int> SetStyle,
-    Action<string> OpenSettings,
     Action<FillChoice> SetItemBackground,
     Action<string> SetItemTextColor,
     Action<double> SetScale,
-    Func<string, bool> HasSettings,
     Action<ContentAlign>? SetAlign = null,
     Action? Cut = null,
     Action? Copy = null,
@@ -60,8 +56,8 @@ internal sealed record PropertiesCommands(
 /// it was ([S-3718]). The icon row is Cut and Copy, Delete at its far end ([S-3717]); then the title
 /// (one widget) or "N selected", Style, the widget's own lines ([S-3719]), and the card's own (Header,
 /// Alignment, Background, Item background, Item text, Scale) as one Appearance submenu: where the
-/// widget places it, else right after Style ([S-3723]); More settings last where the widget still has
-/// a page ([S-6009]). After Karpo's properties panel (docs/widgets.md §145).
+/// widget places it, else right after Style ([S-3723]). It is where a widget's options are: there is
+/// no settings page for a widget ([S-6536]). After Karpo's properties panel (docs/widgets.md §145).
 /// <para>
 /// The menu is a list of <see cref="Node"/>s, built again from the offer and the widget's lines on
 /// every change. Lines are drawn again only when a list's shape changed (which lines there are); a
@@ -128,9 +124,6 @@ internal sealed partial class PropertiesStrip : Grid
     /// <summary>What the frame (the icon row, the title or count) was drawn for.</summary>
     private string _frameKey = string.Empty;
 
-    /// <summary>[S-6009] Whether the one selected widget has a settings page now ([S-1750]).</summary>
-    private bool _hasSettings;
-
     /// <summary>[S-3719] The one selected widget's own lines as last built.</summary>
     private WidgetMenuLines? _widget;
 
@@ -195,9 +188,6 @@ internal sealed partial class PropertiesStrip : Grid
     {
         ArgumentNullException.ThrowIfNull(offer);
         _offer = offer;
-
-        // [S-1750] A style picked here can give the widget a page or take it away (a meter's graph).
-        _hasSettings = offer.TitleWidgetId is { } id && _commands.HasSettings(id);
 
         // [S-3719] The widget's own lines are built again on every change: their closures hold the
         // config as it is now (an undo replaces it), and their ticks say what it holds now.
@@ -352,8 +342,6 @@ internal sealed partial class PropertiesStrip : Grid
         public bool Disabled { get; init; }
 
         public bool Danger { get; init; }
-
-        public string? Tip { get; init; }
 
         public double Height { get; init; }
 
@@ -529,22 +517,6 @@ internal sealed partial class PropertiesStrip : Grid
             Children = CardNodes(commands),
         });
         nodes.AddRange(lines);
-
-        // [S-6009] More settings: the widget's options still on its page (the menu holds the rest,
-        // [S-6536]), one widget only and only when its page has lines ([S-1750]).
-        if (_offer is { TitleWidgetId: { } settingsId } && _hasSettings)
-        {
-            nodes.Add(Node.Separator("-more"));
-            nodes.Add(new Node("more")
-            {
-                Text = Str.Shell_MoreSettings.Text(),
-                Tip = Str.Shell_MoreSettings_Tip.Text(),
-                IconKey = "more",
-                Icon = () => Glyph(Glyphs.Settings),
-                Run = () => commands.OpenSettings(settingsId),
-            });
-        }
-
         return nodes;
     }
 
@@ -1119,11 +1091,6 @@ internal sealed partial class PropertiesStrip : Grid
 
         var button = LineButton(level.Icons ? lead : null, words, value, level.Trail ? trail : null);
         button.IsEnabled = !node.Disabled;
-        if (node.Tip is { } tip)
-        {
-            ToolTipService.SetToolTip(button, tip);
-            AutomationProperties.SetHelpText(button, tip);
-        }
 
         var view = new LineView(node, button, button, lead, trail, words, value);
         Apply(level, view, node);

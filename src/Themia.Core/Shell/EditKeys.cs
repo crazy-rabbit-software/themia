@@ -33,8 +33,8 @@ public enum EditCommand
     /// <summary>[S-1973] Tab / Shift+Tab selects the next / previous widget in reading order.</summary>
     Cycle,
 
-    /// <summary>[S-1974] Enter opens the selected widget's settings.</summary>
-    OpenSettings,
+    /// <summary>[S-1974] Enter moves the keyboard into the selection's properties menu, where its options are.</summary>
+    FocusProperties,
 
     /// <summary>[S-1974] The Menu key or Shift+F10 opens the selection's context menu.</summary>
     OpenMenu,
@@ -161,7 +161,7 @@ public static class EditKeys
             VkDelete when !shift => new(EditCommand.Delete),
             VkEscape => new(EditCommand.Back),
             VkTab => new(EditCommand.Cycle, Backwards: shift),
-            VkReturn when !shift => new(EditCommand.OpenSettings),
+            VkReturn when !shift => new(EditCommand.FocusProperties),
             VkApps => new(EditCommand.OpenMenu),
             VkF10 when shift => new(EditCommand.OpenMenu),
             VkF6 => new(EditCommand.SwitchPane, Backwards: shift),

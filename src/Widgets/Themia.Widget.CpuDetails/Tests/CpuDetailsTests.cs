@@ -1,4 +1,3 @@
-using Microsoft.UI.Xaml;
 using Themia.Core.Model;
 using Themia.Core.SystemData;
 using Themia.Sdk.WinUI;
@@ -6,7 +5,7 @@ using Xunit;
 
 namespace Themia.Widget.CpuDetails.Tests;
 
-/// <summary>[S-9500] The CPU details widget as a module: the feeds it reads and its page of nothing.</summary>
+/// <summary>[S-9500] The CPU details widget as a module: the feeds it reads and no options of its own.</summary>
 public sealed class CpuDetailsTests
 {
     [Fact]
@@ -19,10 +18,11 @@ public sealed class CpuDetailsTests
     }
 
     [Fact]
-    public void S9500_it_has_no_settings_page()
+    public void S9500_it_has_no_options_of_its_own()
     {
-        var rows = new List<FrameworkElement>();
-        ((IWidgetModule)new CpuDetailsModule()).SettingsRows(new WidgetSettingsRows(rows, () => { }, () => { }), new CpuDetailsConfig());
-        Assert.Empty(rows);
+        var menu = new WidgetMenuLines(() => { }, _ => { });
+        ((IWidgetModule)new CpuDetailsModule()).MenuLines(menu, new CpuDetailsConfig());
+        Assert.Empty(menu.Lines);
+        Assert.Empty(menu.StyleLines);
     }
 }

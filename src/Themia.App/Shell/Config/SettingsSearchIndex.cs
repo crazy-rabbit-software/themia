@@ -20,10 +20,9 @@ internal sealed record SettingHit(SettingEntry Entry, ConfigTarget Target, strin
 /// <para>
 /// The index is the rows the pages build, collected through <see cref="SettingsIndex"/> — never a
 /// list written beside them. It is filled the first time the search box is used (every app page,
-/// Displays and Views included, and one page per widget kind in use, built off-screen and thrown away),
-/// refreshed with the live page each time a page is shown, and dropped when the navigation changes
-/// shape. A widget kind's rows are indexed once per page shape ([S-6071]) and offered for every
-/// widget of that kind and shape, under "View › Widget". A row in
+/// Displays and Views included, built off-screen and thrown away), refreshed with the live page each
+/// time a page is shown, and dropped when the navigation changes shape. A widget's own options are
+/// on its properties menu, not in this window ([S-6536]), so search finds none of them. A row in
 /// a group of the Displays or Views page is offered as "Views › Desktop" and opens that group ([S-1832]).
 /// </para>
 /// </summary>
@@ -50,7 +49,7 @@ internal sealed class SettingsSearchIndex(AppHost host)
         }
 
         // A list page opened on one of its groups is still the one page.
-        var key = target is ConfigTarget.App ? target.NavEntry() : target;
+        var key = target.NavEntry();
         Index(key, page, PathOf(key), Glyph(key));
     }
 
@@ -83,36 +82,6 @@ internal sealed class SettingsSearchIndex(AppHost host)
         foreach (var entry in ConfigPages.AppPages)
         {
             Build(new ConfigTarget.App(entry.Page));
-        }
-
-        // [S-6073] One page per kind and page shape in use, offered for every widget of that kind
-        // whose page has that shape: a row one widget's style or state leaves out is not found for it.
-        foreach (var group in host.State.Views
-                     .SelectMany(v => v.Widgets.Select(w => (View: v, Widget: w)))
-                     .GroupBy(x => (x.Widget.Kind, Shape: SettingRules.Shape(x.Widget.Config))))
-        {
-            SettingsPage page;
-            try
-            {
-                // [S-1750] A widget with no page in this shape has nothing to find.
-                if (!ConfigPages.HasWidgetSettings(group.First().Widget))
-                {
-                    continue;
-                }
-
-                page = ConfigPages.BuildWidgetForIndex(group.First().Widget);
-            }
-            catch (Exception ex)
-            {
-                Log.Error(Scope, $"could not index the {group.Key.Kind} settings", ex);
-                continue;
-            }
-
-            foreach (var (view, widget) in group)
-            {
-                var target = new ConfigTarget.Widget(widget.Id);
-                Index(target, page, PathOf(target), Glyph(target));
-            }
         }
     }
 
@@ -177,25 +146,18 @@ internal sealed class SettingsSearchIndex(AppHost host)
         return at < 0 ? path : path[(at + 3)..];
     }
 
-    /// <summary>Where a page is, as a suggestion shows it: "Appearance", "Views › Desktop › Clock".</summary>
-    public string PathOf(ConfigTarget target) => target switch
+    /// <summary>Where a page is, as a suggestion shows it: "Appearance", "Views".</summary>
+    private static string PathOf(ConfigTarget target) => target switch
     {
         ConfigTarget.App app => ConfigPages.AppPages.FirstOrDefault(p => p.Page == app.Page)?.Title ?? app.Page.ToString(),
-        ConfigTarget.Widget widget when host.Find(widget.WidgetId) is var (view, instance) && instance is not null =>
-            $"{Str.App_Views.Text()} › {view.Name} › {Label(instance)}",
         _ => Str.Common_Settings.Text(),
     };
 
-    private string Glyph(ConfigTarget target) => target switch
+    private static string Glyph(ConfigTarget target) => target switch
     {
         ConfigTarget.App app => ConfigPages.AppPages.FirstOrDefault(p => p.Page == app.Page)?.Glyph ?? Glyphs.Settings,
-        ConfigTarget.Widget widget when host.Find(widget.WidgetId) is var (_, instance) && instance is not null =>
-            ModuleCatalog.Of(instance.Kind).Glyph,
         _ => Glyphs.Settings,
     };
-
-    private static string Label(WidgetInstance widget)
-        => string.IsNullOrWhiteSpace(widget.Label) ? ModuleCatalog.Of(widget.Kind).Name : widget.Label!;
 
     private static string? GlyphOf(SettingRow row) => row.Card switch
     {

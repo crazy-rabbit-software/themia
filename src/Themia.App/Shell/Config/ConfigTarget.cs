@@ -12,20 +12,17 @@ internal abstract record ConfigTarget
     /// </param>
     public sealed record App(AppPage Page = AppPage.General, string? Item = null) : ConfigTarget;
 
-    /// <summary>One widget's settings, under Views.</summary>
-    public sealed record Widget(string WidgetId) : ConfigTarget;
-
     /// <summary>The Views page with this view's group open: what "View settings" opens.</summary>
     public static App ForView(string viewId) => new(AppPage.Views, viewId);
 
     /// <summary>
     /// The page without the item it opened: what the navigation selects for it and what search
-    /// keys it by. A widget's page sits under Views, so Views stays selected while one is open.
+    /// keys it by. A widget has no page here: its options are on its properties menu ([S-6536]).
     /// </summary>
     public App NavEntry() => this switch
     {
         App app => app.Item is null ? app : new App(app.Page),
-        _ => new App(AppPage.Views),
+        _ => new App(),
     };
 
     /// <summary>The list a page's groups belong to, or null for a page that is not a list.</summary>
@@ -75,7 +72,7 @@ internal enum AppPageSlot
 }
 
 /// <summary>What a page is built with.</summary>
-/// <param name="Navigate">Go to another page (a widget's row drills into its page).</param>
+/// <param name="Navigate">Go to another page (Add view lands on the new view's group).</param>
 /// <param name="Expansion">[S-1833] The open groups of the list pages, kept by the window.</param>
 internal sealed record PageContext(Services.AppHost Host, Action<ConfigTarget> Navigate, SettingsExpansion Expansion);
 

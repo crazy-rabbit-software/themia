@@ -99,31 +99,19 @@ public sealed class ContextMenuTests
         bool front = true,
         bool back = true,
         int count = 1,
-        bool paste = false,
-        bool settings = true)
-        => new(edit, front, back, count, paste, settings);
+        bool paste = false)
+        => new(edit, front, back, count, paste);
 
     private static List<ShellCommand> Commands(IReadOnlyList<ShellMenuItem> items) => [.. items.Select(i => i.Command)];
 
     [Fact]
-    public void S1743_the_card_row_is_cut_copy_paste_settings_delete()
+    public void S1743_the_card_row_is_cut_copy_paste_delete()
     {
         var items = ShellMenus.ForCard(Card());
         var split = ContextMenuLayout.Split([.. items.Select(i => i.Line)]);
 
-        // No Duplicate: Copy then Paste does that, one way to do it.
-        Assert.Equal(
-            [ShellCommand.Cut, ShellCommand.Copy, ShellCommand.Paste, ShellCommand.Configure, ShellCommand.Delete],
-            split.Row.Select(i => items[i].Command));
-    }
-
-    [Fact]
-    public void S1750_a_widget_with_an_empty_settings_page_has_no_settings_command()
-    {
-        var items = ShellMenus.ForCard(Card(settings: false));
-        var split = ContextMenuLayout.Split([.. items.Select(i => i.Line)]);
-
-        Assert.DoesNotContain(items, i => i.Command == ShellCommand.Configure);
+        // No Duplicate: Copy then Paste does that, one way to do it. No Settings: the widget's
+        // options are on its properties menu beside it ([S-6536]).
         Assert.Equal(
             [ShellCommand.Cut, ShellCommand.Copy, ShellCommand.Paste, ShellCommand.Delete],
             split.Row.Select(i => items[i].Command));
@@ -181,24 +169,15 @@ public sealed class ContextMenuTests
     }
 
     [Fact]
-    public void S1758_outside_edit_mode_the_card_menu_is_the_view_actions_settings_and_edit_layout()
+    public void S1758_outside_edit_mode_the_card_menu_is_the_view_actions_and_edit_layout()
     {
         var items = ShellMenus.ForCard(Card(edit: false));
         var split = ContextMenuLayout.Split([.. items.Select(i => i.Line)]);
 
-        Assert.Equal(
-            [ShellCommand.WidgetActions, ShellCommand.Separator, ShellCommand.Configure, ShellCommand.ToggleEditMode],
-            Commands(items));
-
-        // [S-1741] A lone Settings is a labelled line, not a one-icon row.
+        // [S-6536] No Settings: a widget's options are on its properties menu, in edit mode.
+        Assert.Equal([ShellCommand.WidgetActions, ShellCommand.Separator, ShellCommand.ToggleEditMode], Commands(items));
         Assert.Empty(split.Row);
     }
-
-    [Fact]
-    public void S1758_outside_edit_mode_a_widget_without_settings_offers_its_actions_and_edit_layout()
-        => Assert.Equal(
-            [ShellCommand.WidgetActions, ShellCommand.Separator, ShellCommand.ToggleEditMode],
-            Commands(ShellMenus.ForCard(Card(edit: false, settings: false))));
 
     [Fact]
     public void S1758_in_edit_mode_the_card_menu_keeps_its_editing_commands()
@@ -265,20 +244,4 @@ public sealed class ContextMenuTests
     [InlineData(double.NaN, 0, true)]
     public void S1745_travel_past_three_dips_on_either_axis_is_a_drag(double dx, double dy, bool travelled)
         => Assert.Equal(travelled, CardGestures.Travelled(dx, dy));
-
-    [Fact]
-    public void S1745_only_a_plain_released_click_follows_in_an_open_settings_window()
-    {
-        Assert.True(CardGestures.FollowsInSettings(CardPress.Move, travelled: false, released: true, settingsOpen: true));
-
-        // A closed window is never opened by a click.
-        Assert.False(CardGestures.FollowsInSettings(CardPress.Move, travelled: false, released: true, settingsOpen: false));
-
-        // A drag, a resize, Ctrl+click, or a gesture lost to capture is not a click.
-        Assert.False(CardGestures.FollowsInSettings(CardPress.Move, travelled: true, released: true, settingsOpen: true));
-        Assert.False(CardGestures.FollowsInSettings(CardPress.Resize, travelled: false, released: true, settingsOpen: true));
-        Assert.False(CardGestures.FollowsInSettings(CardPress.ToggleSelect, travelled: false, released: true, settingsOpen: true));
-        Assert.False(CardGestures.FollowsInSettings(CardPress.Move, travelled: false, released: false, settingsOpen: true));
-        Assert.False(CardGestures.FollowsInSettings(CardPress.None, travelled: false, released: true, settingsOpen: true));
-    }
 }

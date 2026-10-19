@@ -1,4 +1,3 @@
-using Microsoft.UI.Xaml;
 using Themia.Core.Model;
 using Themia.Core.SystemData;
 using Themia.Sdk.WinUI;
@@ -6,7 +5,7 @@ using Xunit;
 
 namespace Themia.Widget.MemoryDetails.Tests;
 
-/// <summary>[S-9600] The memory details widget as a module: the feed it reads and its page of nothing.</summary>
+/// <summary>[S-9600] The memory details widget as a module: the feed it reads and no options of its own.</summary>
 public sealed class MemoryDetailsTests
 {
     [Fact]
@@ -19,10 +18,11 @@ public sealed class MemoryDetailsTests
     }
 
     [Fact]
-    public void S9600_it_has_no_settings_page()
+    public void S9600_it_has_no_options_of_its_own()
     {
-        var rows = new List<FrameworkElement>();
-        ((IWidgetModule)new MemoryDetailsModule()).SettingsRows(new WidgetSettingsRows(rows, () => { }, () => { }), new MemoryDetailsConfig());
-        Assert.Empty(rows);
+        var menu = new WidgetMenuLines(() => { }, _ => { });
+        ((IWidgetModule)new MemoryDetailsModule()).MenuLines(menu, new MemoryDetailsConfig());
+        Assert.Empty(menu.Lines);
+        Assert.Empty(menu.StyleLines);
     }
 }

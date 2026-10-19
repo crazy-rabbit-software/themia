@@ -18,17 +18,9 @@ public interface IWidgetModule
     FrameworkElement CreateView(IWidgetHost host);
 
     /// <summary>
-    /// [S-6904] The widget's own settings rows for <paramref name="config"/> (always its own config
-    /// type). None, the default, is a widget without a settings page ([S-1750]).
-    /// </summary>
-    void SettingsRows(WidgetSettingsRows rows, Themia.Core.Model.WidgetConfig config)
-    {
-    }
-
-    /// <summary>
     /// [S-3719] The widget's own lines on its properties menu for <paramref name="config"/> (always
     /// its own config type, the live one: change it in place, then <see cref="WidgetMenuLines.Save"/>).
-    /// None, the default, is a widget whose options are all on its settings page.
+    /// None, the default, is a widget with no options of its own: its menu is the card's lines alone.
     /// </summary>
     void MenuLines(WidgetMenuLines menu, Themia.Core.Model.WidgetConfig config)
     {

@@ -280,57 +280,18 @@ internal sealed partial class ConfigWindow
     // -----------------------------------------------------------------------------------------
 
     /// <summary>
-    /// [S-1541] "Desktop › Clock": the parents as quiet, clickable crumbs, the page itself in the
-    /// title's full weight. Built from text blocks rather than the SDK's BreadcrumbBar so no
-    /// collection crosses into WinRT, which Native AOT would need marshalling code for.
+    /// [S-1541] The page's title in the title's full weight, as Settings draws a top-level page.
+    /// Built from a text block rather than the SDK's BreadcrumbBar so no collection crosses into
+    /// WinRT, which Native AOT would need marshalling code for.
     /// </summary>
     private void RenderCrumbs(string title)
     {
         _crumbs.Children.Clear();
 
-        foreach (var (name, target) in Parents(_target))
-        {
-            var text = new TextBlock { Text = name };
-            FluentLayout.ApplyStyle(text, "SettingsCrumbTextBlockStyle");
-
-            var crumb = new HyperlinkButton
-            {
-                Content = text,
-                Padding = new Thickness(0),
-                VerticalAlignment = VerticalAlignment.Bottom,
-            };
-
-            crumb.Click += (_, _) => Navigate(target);
-            _crumbs.Children.Add(crumb);
-
-            var chevron = UiLanguage.Mirrored(new FontIcon
-            {
-                Glyph = Glyphs.ChevronRight,
-                FontSize = 14,
-                Margin = new Thickness(11, 0, 11, 6),
-                VerticalAlignment = VerticalAlignment.Bottom,
-            });
-
-            _crumbs.Children.Add(chevron);
-        }
-
         var current = new TextBlock { Text = title, VerticalAlignment = VerticalAlignment.Bottom };
         FluentLayout.ApplyStyle(current, "SettingsPageTitleTextBlockStyle");
         AutomationProperties.SetHeadingLevel(current, Microsoft.UI.Xaml.Automation.Peers.AutomationHeadingLevel.Level1);
         _crumbs.Children.Add(current);
-    }
-
-    /// <summary>
-    /// [S-1831] The pages above this one: a widget sits under Views and its view, "Views › Desktop ›
-    /// Clock". Views opens the page; the view's crumb opens it with that view's group open.
-    /// </summary>
-    private IEnumerable<(string Name, ConfigTarget Target)> Parents(ConfigTarget target)
-    {
-        if (target is ConfigTarget.Widget widget && _host.Find(widget.WidgetId) is var (view, _) && view is not null)
-        {
-            yield return (Str.App_Views.Text(), new ConfigTarget.App(AppPage.Views));
-            yield return (view.Name, ConfigTarget.ForView(view.Id));
-        }
     }
 
     /// <summary>A page's name as the navigation shows it, for a page that did not name itself.</summary>
@@ -432,19 +393,6 @@ internal sealed partial class ConfigWindow
         _window.Activate();
         Win32.SetForegroundWindow(_hwnd);
         Show(target, record: true);
-    }
-
-    /// <summary>
-    /// [S-1745] Show <paramref name="target"/> without taking the foreground: a click on a widget in
-    /// edit mode follows it here, and the desktop must keep the keyboard for the next shortcut. The
-    /// page already shown is left as it is (its scroll position, a half-typed value).
-    /// </summary>
-    public void Follow(ConfigTarget target)
-    {
-        if (target != _target)
-        {
-            Show(target, record: true);
-        }
     }
 
     /// <summary>Make a target the current page. Only the user's own steps are recorded for back.</summary>

@@ -34,9 +34,6 @@ public sealed class SettingRow(string title, string? description, FrameworkEleme
     /// <summary>Extra words that find the row without being on it.</summary>
     public IReadOnlyList<string> Keywords { get; init; } = [];
 
-    /// <summary>A row whose action cannot be undone; the widget page hoists these to its end.</summary>
-    public bool IsDanger { get; init; }
-
     /// <summary>The card a search result rings when it lands here.</summary>
     public Control? Card { get; init; }
 

@@ -104,7 +104,7 @@ internal sealed partial class AppHost
 
     /// <summary>
     /// [S-3719] One widget's own lines on its properties menu, over its live config; a change they
-    /// make in place is stored as the settings page stores one. Null for a widget that is gone.
+    /// make in place is stored through the host's one state write. Null for a widget that is gone.
     /// </summary>
     public WidgetMenuLines? WidgetMenuLines(string widgetId, Action<WidgetTextAsk> ask, Action<WidgetConfirm> confirm)
         => Find(widgetId) is var (_, widget) && widget is not null ? ModuleHost.MenuLines(widget, () => Mutate(_ => { }), ask, confirm, AppServices.ShowAccounts) : null;

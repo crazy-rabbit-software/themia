@@ -3,7 +3,7 @@ using Themia.Core.Widgets;
 namespace Themia.App.Services;
 
 /// <summary>
-/// [S-458] Where a screen-time widget and its settings page read from (<see cref="Themia.Sdk.WinUI.IWidgetHost.ScreenTime"/>,
+/// [S-458] Where a screen-time widget and its properties menu read from (<see cref="Themia.Sdk.WinUI.IWidgetHost.ScreenTime"/>,
 /// <see cref="Themia.Sdk.WinUI.SettingsHost.ScreenTime"/>): the app's one tracker. The foreground hook,
 /// the tracker and its file (<c>usage_stats.json</c>) stay the host's.
 /// </summary>

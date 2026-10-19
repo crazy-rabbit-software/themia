@@ -283,7 +283,7 @@ public interface IWidgetModule
 {
     WidgetDescriptor Descriptor { get; }
     FrameworkElement CreateView(IWidgetHost host);                                  // implements IWidgetView & co
-    void SettingsRows(SettingsRows rows, WidgetConfig config, Action save) { }      // none: no page ([S-1750])
+    void MenuLines(WidgetMenuLines menu, WidgetConfig config) { }                    // its options on the properties menu (section 15)
 }
 ```
 
@@ -430,8 +430,8 @@ combined options.
   Debug and from the AOT executable. The MSIX package builds with a module library in it (M3:
   `package.ps1` puts `Themia.Widget.YearProgress.pri` beside `resources.pri`, as it does the
   toolkit's); installing it and a XAML module in it are a manual pass. Clock can move as it is.
-- **Settings rows** come from `IWidgetModule.SettingsRows`, built only from `FluentLayout` and
-  `KitRows` (both in `Themia.Sdk.WinUI`); the dispatch switch in `ConfigPages.Widget.cs` goes.
+- **A widget's options** come from `IWidgetModule.MenuLines` over a `WidgetMenuLines` (section 15);
+  there is no widget settings page (it went 2026-10-19, [S-6536]).
 - **Glyphs** moves to `Themia.Sdk.WinUI`. A module whose glyph is not there declares its own code
   point constant in its project instead of editing `Glyphs`; the menu-art rule applies to it as to
   any glyph.
@@ -1100,8 +1100,8 @@ public sealed class GitHubReviewsModule : IWidgetModule
         [GitHubReviewsStr.Keywords.ToText()], [GitHubProvider.Id], WidgetTraits.HasItems, GitHubReviewsStrTables.Table);
 
     public FrameworkElement CreateView(IWidgetHost host) => new GitHubReviewsView(host);
-    public void SettingsRows(SettingsRows rows, WidgetConfig config, Action save)
-        => GitHubReviewsPage.Rows(rows, (GitHubReviewsConfig)config, save);
+    public void MenuLines(WidgetMenuLines menu, WidgetConfig config)
+        => GitHubReviewsMenu.Lines(menu, (GitHubReviewsConfig)config);
 }
 
 internal sealed partial class GitHubReviewsView : Grid, IWidgetView, IWidgetHeaderContent,
@@ -1272,7 +1272,7 @@ A widget module:
 | File | What it holds |
 |---|---|
 | `Themia.Widget.<Name>.csproj` | `<Project Sdk="Microsoft.NET.Sdk" />` and, with `-Provider`, the provider's project reference |
-| `<Name>Module.cs` | `[assembly: ThemiaWidget("<id>", typeof(<Name>Module))]`, the `WidgetDescriptor` (label, description, glyph, default size, shelf, keywords, providers, traits), `CreateView`, `SettingsRows` |
+| `<Name>Module.cs` | `[assembly: ThemiaWidget("<id>", typeof(<Name>Module))]`, the `WidgetDescriptor` (label, description, glyph, default size, shelf, keywords, providers, traits), `CreateView`, `MenuLines` |
 | `<Name>Config.cs` | `sealed class … : WidgetConfig` (+ `IKitConfig` for a kit list, `IStyled` when asked), `Clone`, `Repair`; its JSON context |
 | `<Name>Spec.cs` | the `KitSpec`, mapping and actions (a kit list), or the view's Core rules (`Stat`, `Custom`) |
 | `<Name>View.cs` | the kit view of section 6.4, or a `Stat`/`Custom` skeleton implementing `IWidgetSizeAware` |
@@ -1327,7 +1327,7 @@ For every kit widget, before calling it done (outputs outside `artifacts/`, e.g.
   `de` (longest words), `ar` (right to left, own digits), `ja` (no spaces to wrap at).
 - The same at `--state` `items`, `many`, `loading`, `empty`, `stale`, `signin`, `ratelimited`, `hovered`, `focused`.
 - Each style (`--style`) when the kind has styles; `--header left` and `--header hidden` once.
-- `--settings-png Widget:<id>` in both themes and in `de`; with `--search` for one row.
+- `--editbar-png` with the widget selected and its submenus open, in both themes and in `de`.
 - `--menu-png` showing the item menu (icon row present only with two or more row commands, [S-1741]).
 - The showcase views (`--add-showcase-views`) on the live desktop: a manual pass, said so.
 
@@ -2764,13 +2764,13 @@ the service's SPEC section.
 - [T8] Todoist API v1, Sync (request and response fields, full sync delay) and the User object (`tz_info`): https://developer.todoist.com/api/v1/ (sections "Sync", "User")
 - [N1] The module spike (section 4.11), 2026-10-17. The .NET behaviour it relied on was measured, not read: module initializer timing under CoreCLR and Native AOT, resolver combination and contract modifiers under AOT, XAML in a WinUI class library.
 
-## 15. Porting a widget's settings to the properties menu
+## 15. A widget's options: the properties menu
 
 User decision 2026-10-19: a widget's options live on the selection's properties menu in edit mode
-(SPEC "QUICKSET", [S-3716]..[S-3730]), not on a settings page. The widgets move one at a time;
-Shortcuts (`src/Widgets/Themia.Widget.Shortcuts/ShortcutsMenu.cs`) and Clock
-(`src/Widgets/Themia.Widget.Clock/ClockMenu.cs`) are the references, Weather now, Weather forecast
-and Air quality are done too.
+(SPEC "QUICKSET", [S-3716]..[S-3730]). There is no widget settings page: every widget has moved, and
+`IWidgetModule.SettingsRows`, `WidgetSettingsRows`, the widget pages, More settings and the card
+menu's Settings are gone ([S-6536]). Shortcuts (`src/Widgets/Themia.Widget.Shortcuts/ShortcutsMenu.cs`)
+and Clock (`src/Widgets/Themia.Widget.Clock/ClockMenu.cs`) are the references.
 
 ### 15.1 The vocabulary
 
@@ -2796,6 +2796,7 @@ change, so a closure may keep the value it was built with.
 | a destructive command | `menu.Confirm(glyph, text, question, confirmWords, action, danger: true, disabled:)` | asks beside the menu first; danger lines in the critical colour |
 | a change, a command | `menu.Command(glyph, text, change, disabled:)` or a plain `new ItemMenuEntry(glyph, text, action)` | runs on a click (a plain command does not save) |
 | words only | `WidgetMenuLines.Note(text)` | greyed, never clickable (a data source's credit) |
+| where setup happens | `WidgetMenuLines.SetsUp(line)` around the line that sets what the widget waits for (`ISetupRule`) | the card's Set up button opens the menu at it, as a click would ([S-1862]); one per widget |
 | a group | `WidgetMenuLines.Submenu(glyph, text, lines)`, `ItemMenuEntry.Separator` | |
 
 Where lines go: `menu.StyleLines` (under Style, after the styles) for what only the current look
@@ -2811,13 +2812,12 @@ in `tests/Themia.Modules.Tests/WidgetMenuLinesTests.cs`, rendered in `--editbar-
   by the config's `Offers(setting)` ([S-6070], `IShownSettings<T>`), so a style that does not draw it
   never shows it (Clock: seconds and the date; Shortcuts: tile size, icons only, stretch).
 - **PlaceCard early.** Appearance is the card's look; the widget's own data lines follow it.
-- **No settings page left.** Every row of the page becomes a line; then delete `<Name>Settings.cs`,
-  the module's `SettingsRows` override (so `HasSettings` is false and More settings goes, [S-1750]),
-  and any page-only helpers. A row that only makes sense on a page (a long explanation) becomes a
+- **Every option is a line.** There is nowhere else for one to go; a long explanation becomes a
   `Note` or goes.
-- **Dead strings go.** Remove every locale key the page used that nothing reads any more, from all
-  30 locale files of the module (and of the SDK area if it was the SDK's). New words go into `en.json`
-  and its `$englishOnly` list.
+- **Set up opens a line.** A widget with a setup rule (`ISetupRule`, [S-1860]) that waits for an
+  option (not only an account) marks that option's line with `WidgetMenuLines.SetsUp` ([S-1862]).
+- **Dead strings go.** A locale key nothing reads any more is removed from all 30 locale files of
+  its area. New words go into `en.json` and its `$englishOnly` list.
 - **Tests in the module's `Tests/`**, named after its own SPEC tags (`S1388_…`, see
   `ShortcutsMenuTests`, `ClockMenuTests`): what each style offers under Style, the first level's
   order, what a click sets and that it saves once, that picking the current value saves nothing, and

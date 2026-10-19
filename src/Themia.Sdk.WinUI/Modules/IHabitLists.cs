@@ -3,7 +3,7 @@ using Themia.Core.Habits;
 namespace Themia.Sdk.WinUI;
 
 /// <summary>
-/// [S-1420] The habit lists kept on this PC as a habit tracker and its settings page reach them
+/// [S-1420] The habit lists kept on this PC as a habit tracker and its properties menu reach them
 /// (<see cref="IWidgetHost.Habits"/>, <see cref="SettingsHost.Habits"/>): the host's one pool, so two
 /// widgets can show one list and ticking a box in one ticks it in the other. The UI thread is the only
 /// mutator; every change is a pure <see cref="HabitLists"/> function on an immutable snapshot. The file

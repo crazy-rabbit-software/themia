@@ -6,9 +6,6 @@ public enum ShellCommand
     /// <summary>A divider.</summary>
     Separator,
 
-    /// <summary>The widget's settings page.</summary>
-    Configure,
-
     /// <summary>Where the widget view's own commands go (refresh, pause); the view supplies them.</summary>
     WidgetActions,
 
@@ -47,7 +44,7 @@ public readonly record struct ShellMenuItem(ShellCommand Command, bool Enabled =
         ShellCommand.Cut => QuickCommand.Cut,
         ShellCommand.Copy => QuickCommand.Copy,
         ShellCommand.Paste => QuickCommand.Paste,
-        ShellCommand.Configure or ShellCommand.Settings => QuickCommand.Settings,
+        ShellCommand.Settings => QuickCommand.Settings,
         ShellCommand.Delete => QuickCommand.Delete,
         _ => null,
     };
@@ -63,14 +60,12 @@ public readonly record struct ShellMenuItem(ShellCommand Command, bool Enabled =
 /// <param name="CanSendToBack">It is not already behind everything it overlaps.</param>
 /// <param name="SelectionCount">How many widgets the commands act on ([S-1592]).</param>
 /// <param name="CanPaste">Themia's widget clipboard holds something.</param>
-/// <param name="HasSettings">[S-1750] The widget's settings page has at least one row.</param>
 public readonly record struct CardMenuFacts(
     bool EditMode,
     bool CanBringToFront,
     bool CanSendToBack,
     int SelectionCount,
-    bool CanPaste,
-    bool HasSettings);
+    bool CanPaste);
 
 /// <summary>What the empty-surface menu depends on.</summary>
 /// <param name="EditMode">Whether the desktop is in edit mode; outside it empty surface is click-through.</param>
@@ -84,17 +79,16 @@ public readonly record struct SurfaceMenuFacts(bool EditMode, bool Placing, bool
 public static class ShellMenus
 {
     /// <summary>
-    /// [S-1743] A widget card's menu in edit mode (outside it, [S-1758]). The icon row is Cut, Copy, Paste, Settings and Delete
+    /// [S-1743] A widget card's menu in edit mode (outside it, [S-1758]). The icon row is Cut, Copy, Paste and Delete
     /// ([S-1740]); there is no Duplicate, Copy then Paste does that. The list holds the view's own
     /// commands, the layering pair, and entering or leaving edit mode. Nothing on it changes how the
-    /// widget looks: that lives in its settings ([S-1746]). A widget whose page would be empty has no
-    /// Settings at all ([S-1750]).
+    /// widget looks: that is its properties menu's ([S-1746], [S-6536]), so there is no Settings.
     /// </summary>
     public static IReadOnlyList<ShellMenuItem> ForCard(CardMenuFacts facts)
     {
         if (!facts.EditMode)
         {
-            return ForCardInUse(facts);
+            return ForCardInUse();
         }
 
         var many = facts.SelectionCount > 1;
@@ -103,14 +97,8 @@ public static class ShellMenus
             new(ShellCommand.Cut),
             new(ShellCommand.Copy),
             new(ShellCommand.Paste, Enabled: facts.CanPaste),
+            new(ShellCommand.Delete),
         };
-
-        if (facts.HasSettings)
-        {
-            items.Add(new(ShellCommand.Configure));
-        }
-
-        items.Add(new(ShellCommand.Delete));
 
         items.Add(new(ShellCommand.WidgetActions));
         items.Add(ShellMenuItem.Divider);
@@ -123,22 +111,12 @@ public static class ShellMenus
 
     /// <summary>
     /// [S-1758] A widget card's menu outside edit mode, while the widget is being used rather than
-    /// arranged: the view's own commands, its settings ([S-1750]) and the way into edit mode. No Cut,
+    /// arranged: the view's own commands and the way into edit mode, where its options are. No Cut,
     /// Copy, Paste, Delete or layering: those arrange the desktop, and outside edit mode there is
     /// nowhere to paste and no selection shown, so they did nothing the user could see.
     /// </summary>
-    private static List<ShellMenuItem> ForCardInUse(CardMenuFacts facts)
-    {
-        var items = new List<ShellMenuItem> { new(ShellCommand.WidgetActions), ShellMenuItem.Divider };
-
-        if (facts.HasSettings)
-        {
-            items.Add(new(ShellCommand.Configure));
-        }
-
-        items.Add(new(ShellCommand.ToggleEditMode));
-        return items;
-    }
+    private static List<ShellMenuItem> ForCardInUse()
+        => [new(ShellCommand.WidgetActions), ShellMenuItem.Divider, new(ShellCommand.ToggleEditMode)];
 
     /// <summary>
     /// [S-1744] The menu of empty surface, in edit mode and not while placing: Paste and Settings in
@@ -207,20 +185,6 @@ public static class CardGestures
     /// <summary>Whether the pointer has travelled far enough from the press to be a drag.</summary>
     public static bool Travelled(double dx, double dy)
         => !double.IsFinite(dx) || !double.IsFinite(dy) || Math.Abs(dx) >= DragThreshold || Math.Abs(dy) >= DragThreshold;
-
-    /// <summary>
-    /// [S-1745] Whether the gesture that just ended was a plain click: a press on the card (not a
-    /// handle, not Ctrl), released by the user rather than lost to capture, without travelling.
-    /// </summary>
-    public static bool IsClick(CardPress press, bool travelled, bool released)
-        => press == CardPress.Move && !travelled && released;
-
-    /// <summary>
-    /// [S-1745] Whether a click shows the widget's page in the settings window: only a plain click,
-    /// and only when the window is already open; a click never opens it.
-    /// </summary>
-    public static bool FollowsInSettings(CardPress press, bool travelled, bool released, bool settingsOpen)
-        => settingsOpen && IsClick(press, travelled, released);
 
     /// <summary>
     /// [S-1751] Whether the widget's own content (header and view) takes pointer input. In edit mode
