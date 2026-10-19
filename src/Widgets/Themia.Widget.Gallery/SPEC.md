@@ -75,12 +75,12 @@ the module host's `GalleryHostTests` and `GalleryPersistenceTests`.
   its own shape. Debug: `--widget-png Gallery … --state sticker` (the app's logo, −15°, white).
 - **[S-778]** Its options are all on the properties menu ([S-3719], user request 2026-10-19); it
   has no settings page. Under Style what the layout draws ([S-6074]): **Slide time** (1 s to an hour,
-  asked for as a number, [S-3726]) and **Picture size** (Fill / Fit). Then Appearance ([S-3723]),
-  **Source** (A folder / One picture / Bing photo of the day, [S-760]) and the source's own lines: a
+  asked for as a number, [S-3726]) and **Picture size** (Fill / Fit). Then Appearance ([S-3723])
+  and, each group behind a divider, **Source** (A folder / One picture / Bing photo of the day, [S-760]) and the source's own lines: a
   folder's **Folder** (its name at the line's end, or "No folder chosen"; Browse…, Windows' folder
-  picker, [S-3730], or Type a path…, asked beside the menu, [S-3721]), **Include subfolders**,
-  **Pictures** (1..60), **Shuffle** and Open in File Explorer (greyed without a folder); a picture
-  file's **Image** (Browse… offers only the types it draws; Type a path… refuses a name that is not a
+  picker, [S-3730], or Type a path…, asked beside the menu, [S-3721]), then **Include subfolders**,
+  **Pictures** (1..60) and **Shuffle**, then Open in File Explorer (greyed without a folder); a picture
+  file's **Image**, then (Browse… offers only the types it draws; Type a path… refuses a name that is not a
   picture, [S-761]), **Rotation** (−180..180°), **Outline**, and with it **Outline colour** (the
   colour submenu, [S-3724]) and **Outline width** (1..24 px). A typed path is checked by `FolderPath`
   as it is typed and refused with the reason, never repaired; empty means nothing chosen.

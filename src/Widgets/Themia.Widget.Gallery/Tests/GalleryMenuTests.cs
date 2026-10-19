@@ -1,4 +1,5 @@
 using Themia.App.Shell.Config;
+using Themia.App.Widgets;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
@@ -49,6 +50,24 @@ public sealed class GalleryMenuTests
     }
 
     [Fact]
+    public void S778_the_source_and_its_path_then_which_pictures_then_explorer_each_behind_a_divider()
+        => Assert.Equal(
+            [
+                "-",
+                GalleryStr.Gallery_SourceLabel.Text(),
+                GalleryStr.Gallery_FolderLabel.Text(),
+                "-",
+                GalleryStr.Gallery_RecursiveLabel.Text(),
+                GalleryStr.WidgetsB_Settings_Gallery_Count_Label.Text(),
+                GalleryStr.WidgetsB_Settings_Gallery_Shuffle_Label.Text(),
+                "-",
+                Str.Folder_OpenInExplorer.Text(),
+            ],
+            Build(new GalleryConfig { Source = GallerySource.Folder }).Lines.Select(l => l.IsSeparator ? "-" : l.Text));
+
+    private static List<ItemMenuEntry> Own(WidgetMenuLines lines) => [.. lines.Lines.Where(l => !l.IsSeparator)];
+
+    [Fact]
     public void S778_a_picture_shows_its_turn_and_outline_and_the_outline_its_colour_and_width()
     {
         var plain = Build(new GalleryConfig { Source = GallerySource.File, Outline = false }).Lines.Select(l => l.Text).ToList();
@@ -63,7 +82,7 @@ public sealed class GalleryMenuTests
 
     [Fact]
     public void S778_the_photo_of_the_day_has_no_path_and_no_count()
-        => Assert.Equal([GalleryStr.Gallery_SourceLabel.Text()], Build(new GalleryConfig { Source = GallerySource.Bing }).Lines.Select(l => l.Text));
+        => Assert.Equal([GalleryStr.Gallery_SourceLabel.Text()], Build(new GalleryConfig { Source = GallerySource.Bing }).Lines.Where(l => !l.IsSeparator).Select(l => l.Text));
 
     [Fact]
     public void S778_a_typed_path_is_refused_with_the_reason_and_a_picture_must_be_one()
@@ -79,7 +98,7 @@ public sealed class GalleryMenuTests
     public void S778_a_typed_folder_is_stored_once_and_shown_by_its_name()
     {
         var config = new GalleryConfig { Source = GallerySource.Folder };
-        var folder = Build(config).Lines[1];
+        var folder = Own(Build(config))[1];
         Assert.Equal(GalleryStr.WidgetsB_Settings_Gallery_NoFolder.Text(), folder.Value);
 
         folder.Children![1].Action!();
@@ -87,7 +106,7 @@ public sealed class GalleryMenuTests
 
         Assert.Equal(@"D:\Photos", config.Path);
         Assert.Equal(1, _saves);
-        Assert.Equal("Photos", Build(config).Lines[1].Value);
+        Assert.Equal("Photos", Own(Build(config))[1].Value);
     }
 
     [Fact]

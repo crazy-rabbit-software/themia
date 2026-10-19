@@ -47,7 +47,10 @@ internal static class GalleryMenu
         menu.PlaceCard();
         var lines = menu.Lines;
 
-        // [S-760] The source first: every other line depends on it.
+        // [S-778] After the look, each group behind a divider: where the pictures come from (the
+        // source and its folder or picture); which pictures (a folder's) or how the one is drawn (a
+        // picture file's); the way out to Explorer. [S-760] The source first: every other line depends on it.
+        lines.Add(ItemMenuEntry.Separator);
         lines.Add(menu.Choice(GalleryModule.Glyph, GalleryStr.Gallery_SourceLabel.Text(),
             [(GallerySource.Folder, GalleryStr.WidgetsB_Settings_Gallery_SourceFolder.Text()), (GallerySource.File, GalleryStr.WidgetsB_Settings_Gallery_SourceFile.Text()), (GallerySource.Bing, GalleryStr.WidgetsB_Settings_Gallery_SourceBing.Text())],
             config.Source, value => config.Source = value));
@@ -62,6 +65,7 @@ internal static class GalleryMenu
             lines.Add(WidgetMenuLines.SetsUp(PathLine(menu, config, picture: true)));
         }
 
+        lines.Add(ItemMenuEntry.Separator);
         if (config.Offers(GallerySetting.Recursive))
         {
             lines.Add(menu.Toggle(Glyphs.Folder, GalleryStr.Gallery_RecursiveLabel.Text(), config.Recursive, on => config.Recursive = on));
