@@ -45,9 +45,15 @@ them, `BluetoothRulesTests`, which carried these tags with no SPEC line):
 - **[S-1258]** *(Retired: the debug widget gallery and its fixtures are gone, [S-1863].)*
 - **[S-3255]** Its options are all on the properties menu ([S-3719], user request 2026-10-19); it
   has no settings page. Appearance ([S-3723]), then **Connected only** (paired but not connected
-  left out), and what a row shows: **Device icon**, **Connection** ([S-1257]), **Battery**
-  ([S-3252]: slower, it connects to each device) and **Signal strength** ([S-1256]: a short scan),
-  all switches. (Tests `BluetoothMenuTests`.)
+  left out), a divider, and what a row shows: **Device icon**, **Connection** ([S-1257]; not with
+  Connected only, [S-3256]), **Battery** ([S-3252]: slower, it connects to each device) and
+  **Signal strength** ([S-1256]: a short scan), all switches. (Tests `BluetoothMenuTests`.)
+- **[S-3256]** With **Connected only** on, every row is a connected device, so the connection word
+  and the second line's state would say "Connected" on every row: they are not drawn
+  (`BluetoothConfig.DrawsConnection`; the icon's colour still says it, [S-3961]) and the
+  **Connection** switch is not offered (`ShownSettings`, [S-6070]). Its value is kept: with every
+  paired device listed again the switch is back as it was (user request 2026-10-19: no option that
+  changes nothing).
 - **[S-1259]** Context menu "Refresh" enumerates now (orig. [S-09]).
 - **[S-3252]** `ShowBattery` (default on): each **connected** device's battery, refreshed with the
   list on its interval. First the level Windows itself holds (`DEVPKEY_Bluetooth_Battery`,

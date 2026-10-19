@@ -43,4 +43,30 @@ public sealed class BluetoothMenuTests
         Assert.True(config.ShowSignal);
         Assert.Equal(1, _saves);
     }
+
+    [Fact]
+    public void S3256_connected_only_offers_no_connection_switch_and_draws_no_connection()
+    {
+        var connection = BluetoothStr.WidgetsA_Bluetooth_Settings_Connection_Label.Text();
+        var config = new BluetoothConfig { ConnectedOnly = true, ShowConnection = true };
+
+        Assert.DoesNotContain(connection, Build(config).Lines.Select(l => l.Text));
+        Assert.False(config.DrawsConnection);
+
+        // Every paired device listed again: the switch is back with the value it kept.
+        config.ConnectedOnly = false;
+        Assert.True(Build(config).Lines.Single(l => l.Text == connection).Checked);
+        Assert.True(config.DrawsConnection);
+    }
+
+    [Fact]
+    public void S3256_turning_connected_only_on_from_the_menu_takes_the_connection_switch_away()
+    {
+        var config = new BluetoothConfig();
+        Build(config).Lines.Single(l => l.Text == BluetoothStr.WidgetsA_Bluetooth_Settings_ConnectedOnly_Label.Text()).Action!();
+
+        Assert.True(config.ConnectedOnly);
+        Assert.Equal(1, _saves);
+        Assert.Empty(config.ShownSettings);
+    }
 }

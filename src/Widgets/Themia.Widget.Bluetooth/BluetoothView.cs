@@ -395,7 +395,7 @@ internal sealed partial class BluetoothView : Grid, IWidgetView, IWidgetHeaderCo
         if (plan.TwoLine)
         {
             var detail = Fluent.Text(FluentType.Caption, "TextFillColorSecondaryBrush");
-            detail.Text = BluetoothRules.DetailLine(device, _config.ShowConnection, _config.ShowBattery && !batteryColumn, _config.ShowSignal && !signalColumn, Strings.Current);
+            detail.Text = BluetoothRules.DetailLine(device, _config.DrawsConnection, _config.ShowBattery && !batteryColumn, _config.ShowSignal && !signalColumn, Strings.Current);
 
             var stack = new StackPanel { VerticalAlignment = VerticalAlignment.Center, Children = { name, detail } };
             SetColumn(stack, 1);
@@ -425,7 +425,7 @@ internal sealed partial class BluetoothView : Grid, IWidgetView, IWidgetHeaderCo
         }
 
         // [S-3961] The state in words where the row has room; no dot beside it.
-        if (_config.ShowConnection && plan.StatusWord)
+        if (_config.DrawsConnection && plan.StatusWord)
         {
             var state = Detail(BluetoothRules.ConnectionLabel(device.Connected, Strings.Current));
             SetColumn(state, 4);
