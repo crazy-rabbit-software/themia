@@ -1,4 +1,5 @@
 {
+  "$englishOnly": ["widgetsA.calendar.settings.calendars"],
   "widgetsA.calendar.birthdayOf": "Birthday: {name}",
   "widgetsA.calendar.color.blue": "Blue",
   "widgetsA.calendar.color.green": "Green",
@@ -12,6 +13,7 @@
   "widgetsA.calendar.settings.accounts": "Accounts and calendars",
   "widgetsA.calendar.settings.addHint": "Sign in on the Accounts page",
   "widgetsA.calendar.headingWithDate": "{day} · {date}",
+  "widgetsA.calendar.settings.calendars": "Calendars",
   "widgetsA.calendar.settings.birthdays.desc": "Your contacts' birthdays, from Microsoft and Google accounts",
   "widgetsA.calendar.settings.colorAuto": "Automatic",
   "widgetsA.calendar.settings.colorOf": "{name} color",
