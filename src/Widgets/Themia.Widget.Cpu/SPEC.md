@@ -7,11 +7,10 @@ the system hub [S-2500]..[S-2513]; the per-core reads [S-6310], the cores' histo
 core graphs' tile figure [S-6319], which the SDK's `CoreHistory`, `CoreGraphLayout` and the host's
 `CpuCores` source keep).
 
-Owning files: everything in this folder: `CpuModule.cs` (descriptor, view factory, settings rows,
+Owning files: everything in this folder: `CpuModule.cs` (descriptor, view factory, menu lines,
 JSON context), `CpuConfig.cs` (with its styles and what it asks the hub, `IReadsSystem`),
 `CpuMeter.cs` (its half of the shared `MeterView`: the pressure, the look per style, the cores as
-items with their history, the debug sample's sixteen cores), `CpuSettings.cs` (its page: the rows every
-meter ends with), `Localization/Locales/` (its own `CpuStr`, 30 languages, its style names included).
+items with their history, the debug sample's sixteen cores), `Localization/Locales/` (its own `CpuStr`, 30 languages, its style names included).
 The view, its faces and the core graphs (`MeterView`, `CoreGraphGrid`, `SparkBand`) are the SDK's.
 Tests: `Tests/CpuTests.cs` (run by `tests/Themia.Modules.Tests`); what the hub reads for a style is
 the module host's `MeterHostTests` (`S6310_`, `S6318_`).
@@ -27,9 +26,12 @@ the module host's `MeterHostTests` (`S6310_`, `S6318_`).
   tile per logical processor in the Core grid's arrangement ([S-6305], `BarLayout.Tiles`), each
   that core's history drawn by the shared `SparkBand` edge to edge in its tile (sliding as the main
   graph does, [S-1826]) in its load's pressure colour over the columns' faint track, its load above
-  the line at the top left (`CoreGraphGrid`). The Chart span applies (the span row is offered in this
+  the line at the top left (`CoreGraphGrid`). The Chart span applies (the span line is offered in this
   style as in Graph, `GaugeConfig.StyleChartsHistory`). Debug: `--style coregraphs --state history`
   draws sixteen fixture cores.
+- Its options are on the properties menu ([S-3719], user request 2026-10-19), no settings page:
+  Appearance, and under Style in the Graph and Core graphs styles the Chart span every meter has
+  ([S-1122], `MeterMenuHostTests`).
 
 Needs a manual pass: the meter on a live desktop (the load moving, each style, the core graphs on a
 machine with many cores).

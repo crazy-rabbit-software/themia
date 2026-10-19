@@ -35,8 +35,12 @@ public sealed class NetworkModule : IWidgetModule
         Add = new(AddFolderId.NetworkReading, 0, 0),
     };
 
-    public void SettingsRows(WidgetSettingsRows rows, WidgetConfig config)
-        => NetworkSettings.Rows(rows.Rows, (NetworkConfig)config, rows.Save);
+    /// <summary>[S-3719] Every option is on the properties menu (the chart span under Style, [S-1122]): the widget has no settings page.</summary>
+    public void MenuLines(WidgetMenuLines menu, WidgetConfig config)
+    {
+        menu.PlaceCard();
+        MeterMenuLines.Lines(menu, (NetworkConfig)config);
+    }
 
     public FrameworkElement CreateView(IWidgetHost host) => new MeterView(host, new NetworkMeter());
 }

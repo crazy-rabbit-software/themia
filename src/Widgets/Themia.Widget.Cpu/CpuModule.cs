@@ -35,8 +35,12 @@ public sealed class CpuModule : IWidgetModule
         Add = new(AddFolderId.Processor, 0, 0, Popular: 8),
     };
 
-    public void SettingsRows(WidgetSettingsRows rows, WidgetConfig config)
-        => CpuSettings.Rows(rows.Rows, (CpuConfig)config, rows.Save);
+    /// <summary>[S-3719] Every option is on the properties menu (the chart span under Style, [S-1122]): the widget has no settings page.</summary>
+    public void MenuLines(WidgetMenuLines menu, WidgetConfig config)
+    {
+        menu.PlaceCard();
+        MeterMenuLines.Lines(menu, (CpuConfig)config);
+    }
 
     public FrameworkElement CreateView(IWidgetHost host) => new MeterView(host, new CpuMeter());
 }
