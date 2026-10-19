@@ -9,7 +9,33 @@ namespace Themia.Core.Model;
 /// <param name="Kind">The kind shown at every tier.</param>
 /// <param name="Name">The view's name: the kind's label.</param>
 /// <param name="Glyph">The view's icon: the kind's glyph.</param>
-public readonly record struct ShowcaseKind(WidgetId Kind, string Name, string Glyph);
+/// <param name="Style">[S-1815] The style every widget of the view is in (its wire name in the ids), or null for the kind's default.</param>
+public readonly record struct ShowcaseKind(WidgetId Kind, string Name, string Glyph, StyleOption? Style = null)
+{
+    /// <summary>
+    /// [S-1815] Every kind of the catalogue in its order, a styled kind once per style in menu
+    /// order, named "Clock · Flip" so each look gets its own view.
+    /// </summary>
+    public static List<ShowcaseKind> Catalog()
+    {
+        var kinds = new List<ShowcaseKind>();
+        foreach (var widget in ModuleCatalog.Widgets)
+        {
+            if (!WidgetStyles.Offers(widget.Id))
+            {
+                kinds.Add(new ShowcaseKind(widget.Id, widget.Name, widget.Glyph));
+                continue;
+            }
+
+            foreach (var style in WidgetStyles.For(widget.Id))
+            {
+                kinds.Add(new ShowcaseKind(widget.Id, $"{widget.Name} · {style.Label.Text()}", widget.Glyph, style));
+            }
+        }
+
+        return kinds;
+    }
+}
 
 /// <summary>
 /// [S-1810..S-1814] One view per widget kind holding that widget at every <see cref="WidgetTiers"/>
@@ -28,13 +54,13 @@ public static class ShowcaseViews
     /// <summary>Space kept clear inside the work area's edges, in DIPs.</summary>
     public const double Margin = 16;
 
-    /// <summary>[S-1811] The view for <paramref name="kind"/>; a second page of the same kind gets "-2".</summary>
-    public static string ViewId(WidgetId kind, int page = 0)
-        => page == 0 ? IdPrefix + Slug(kind) : $"{IdPrefix}{Slug(kind)}-{(page + 1).ToString(CultureInfo.InvariantCulture)}";
+    /// <summary>[S-1811] The view for <paramref name="kind"/> (in <paramref name="style"/>, [S-1815]); a second page of the same gets "-2".</summary>
+    public static string ViewId(WidgetId kind, int page = 0, string? style = null)
+        => page == 0 ? IdPrefix + Slug(kind, style) : $"{IdPrefix}{Slug(kind, style)}-{(page + 1).ToString(CultureInfo.InvariantCulture)}";
 
-    /// <summary>[S-1811] The widget showing <paramref name="kind"/> at <paramref name="tier"/>.</summary>
-    public static string WidgetId(WidgetId kind, WidgetTier tier)
-        => $"{IdPrefix}{Slug(kind)}-{tier.Name.ToLowerInvariant()}";
+    /// <summary>[S-1811] The widget showing <paramref name="kind"/> (in <paramref name="style"/>, [S-1815]) at <paramref name="tier"/>.</summary>
+    public static string WidgetId(WidgetId kind, WidgetTier tier, string? style = null)
+        => $"{IdPrefix}{Slug(kind, style)}-{tier.Name.ToLowerInvariant()}";
 
     public static bool IsShowcase(ViewState view)
     {
@@ -70,7 +96,7 @@ public static class ShowcaseViews
             {
                 var view = new ViewState
                 {
-                    Id = ViewId(kind.Kind, p),
+                    Id = ViewId(kind.Kind, p, kind.Style?.Name),
                     Name = pages.Count == 1 ? kind.Name : $"{kind.Name} ({(p + 1).ToString(CultureInfo.InvariantCulture)})",
                     Icon = string.IsNullOrEmpty(kind.Glyph) ? null : kind.Glyph,
                 };
@@ -82,7 +108,12 @@ public static class ShowcaseViews
                         cell.Y / screen.Height,
                         cell.Width / screen.Width,
                         cell.Height / screen.Height));
-                    widget.Id = WidgetId(kind.Kind, tier);
+                    widget.Id = WidgetId(kind.Kind, tier, kind.Style?.Name);
+                    if (kind.Style is { } style)
+                    {
+                        WidgetStyles.Set(widget.Config, style.Value);
+                    }
+
                     view.Widgets.Add(widget);
                 }
 
@@ -250,7 +281,8 @@ public static class ShowcaseViews
         }
     }
 
-    private static string Slug(WidgetId kind) => kind.ToString().ToLowerInvariant();
+    private static string Slug(WidgetId kind, string? style)
+        => style is null ? kind.ToString().ToLowerInvariant() : $"{kind.ToString().ToLowerInvariant()}-{style.ToLowerInvariant()}";
 
     private readonly record struct Segment(double X, double Width, double Y);
 }

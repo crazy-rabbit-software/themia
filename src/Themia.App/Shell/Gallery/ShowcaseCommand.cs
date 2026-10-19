@@ -105,9 +105,7 @@ internal static class ShowcaseCommand
         var displayScale = state.MonitorScales.TryGetValue(monitorId, out var own) && double.IsFinite(own) && own > 0 ? own : 1.0;
         var uiScale = double.IsFinite(state.Design.UiScale) && state.Design.UiScale > 0 ? state.Design.UiScale : 1.0;
 
-        var kinds = ModuleCatalog.Widgets
-            .Select(d => new ShowcaseKind(d.Id, d.Name, d.Glyph))
-            .ToList();
+        var kinds = ShowcaseKind.Catalog();
         var views = ShowcaseViews.Build(kinds, screen, state.Design.WidgetGapPx, displayScale * uiScale);
         var removed = ShowcaseViews.Replace(state, views);
 
@@ -121,7 +119,7 @@ internal static class ShowcaseCommand
             return 5;
         }
 
-        Say($"wrote {views.Count} showcase view(s) for {kinds.Count} widget kinds to {path} " +
+        Say($"wrote {views.Count} showcase view(s) for {kinds.Count} widget looks to {path} " +
             $"(replaced {removed}; primary display {screen.Width:0.#} x {screen.Height:0.#} DIPs, content scale {displayScale * uiScale:0.##})");
         return 0;
     }

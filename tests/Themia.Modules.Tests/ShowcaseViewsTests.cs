@@ -221,4 +221,29 @@ public sealed class ShowcaseViewsTests
         Assert.Empty(parsed.Repairs);
         Assert.Equal(state.Views.Count, parsed.State!.Views.Count);
     }
+
+    [Fact]
+    public void S1815_a_styled_kind_gets_one_view_per_style_each_widget_in_that_style()
+    {
+        var clock = new WidgetId("clock");
+        var styles = WidgetStyles.For(clock);
+        var catalog = ShowcaseKind.Catalog();
+        var views = ShowcaseViews.Build(catalog, FullHd, Gap);
+
+        Assert.True(styles.Count >= 2);
+        foreach (var style in styles)
+        {
+            var view = Assert.Single(views, v => v.Id == ShowcaseViews.ViewId(clock, style: style.Name));
+            Assert.Contains(style.Label.Text(), view.Name, StringComparison.Ordinal);
+            Assert.Equal(7, view.Widgets.Count);
+            Assert.All(view.Widgets, w => Assert.Equal(style.Value, WidgetStyles.Current(w.Config)));
+        }
+
+        // A kind without styles keeps its one plain view; every id stays unique.
+        var plain = ModuleCatalog.Widgets.Select(w => w.Id).First(k => !WidgetStyles.Offers(k));
+        Assert.Single(views, v => v.Id == ShowcaseViews.ViewId(plain));
+        Assert.Equal(catalog.Count, views.Count);
+        var ids = views.SelectMany(v => v.Widgets).Select(w => w.Id).Concat(views.Select(v => v.Id)).ToList();
+        Assert.Equal(ids.Count, ids.Distinct().Count());
+    }
 }

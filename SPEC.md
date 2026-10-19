@@ -6848,6 +6848,10 @@ that puts every widget on the real desktop at every size tier. Owning files: Cor
   untouched), 5 the write did not land. A missing file starts from the default layout. The free tier's
   limits ([S-1065]) are not involved: they gate creating in the running app, a loose build is
   unrestricted ([S-1064]), and nothing over a limit is ever hidden or deleted.
+- **[S-1815]** A kind with styles ([S-6000]) gets one showcase view per style, in its menu order,
+  named "<widget> · <style>" (ids `showcase-<kind>-<style>`, `showcase-<kind>-<style>-<tier>`), every
+  widget of it in that style, so each look can be gone through at every tier. A kind without styles
+  keeps its one view.
 
 Needs a manual pass: the picker's keyboard path inside the real flyout (Down from the box, Enter,
 Escape), and the showcase views on a real desktop (each tier's size at
