@@ -2151,14 +2151,15 @@ Tests `ScreenTimeRulesTests`, `ScreenTimeStoreTests`, `LocalStoreFixtureTests`, 
   before the file was read win the merge. Right-click "Hide from list" works in all three, never
   on Other.
 - **[S-3323]** The shared lines (`ScreenTimeMenuLines`, user request 2026-10-19: no settings page),
-  after each widget's own on its properties menu ([S-3719]): **Limits**, a submenu of the kind the
+  after each widget's own on its properties menu ([S-3719]) and apart from them under a divider
+  (they change every screen-time widget, user request 2026-10-19): **Limits**, a submenu of the kind the
   widget draws with ([S-6074]): the chart and the donut the **Daily limit** (typed minutes, 0 to
   1440 in quarter hours, [S-3726]; 0 is no limit and reads Off), the list each app's (an app's line
   with its limit at the end, its submenu the limit, typed minutes 15 to 720 in quarter hours, and
   Remove; "No app has a limit of its own." while none; then **Limit an app**, a search over the
   apps of the last month without a limit, a pick starting at an hour); **Hidden apps**, each with
   Show again ("No hidden apps…" while none); both end with the note that they apply to every
-  screen-time widget. Last the privacy note. Without a tracker the lines are the not-recording and
+  screen-time widget. Last, under another divider, the privacy note. Without a tracker the lines are the not-recording and
   privacy notes alone. Every change replaces the whole set through the tracker.
 
 ### Chart

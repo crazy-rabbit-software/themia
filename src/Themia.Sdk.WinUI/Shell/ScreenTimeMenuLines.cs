@@ -34,13 +34,16 @@ public static class ScreenTimeMenuLines
     /// [S-3323] The limits and the hidden apps, on every screen-time widget's menu: one set for the
     /// machine, changed from whichever widget's menu is open, saved with the history by
     /// <paramref name="source"/> (none: the history is not recorded, and the lines say so). Of the
-    /// limits only the kind the widget draws with ([S-6074]): the day's or each app's.
+    /// limits only the kind the widget draws with ([S-6074]): the day's or each app's. Under a divider,
+    /// apart from the widget's own lines, and the privacy sentence under another.
     /// </summary>
     public static void AddShared(WidgetMenuLines menu, IShownSettings<ScreenTimeSetting> widget, IScreenTimeSource? source)
     {
         ArgumentNullException.ThrowIfNull(menu);
         ArgumentNullException.ThrowIfNull(widget);
 
+        // The machine's lines stand apart from the widget's own: they change every screen-time widget.
+        menu.Lines.Add(ItemMenuEntry.Separator);
         if (source is null)
         {
             menu.Lines.Add(WidgetMenuLines.Note(Str.WidgetsC_ScreenTime_NotRecording.Text()));
@@ -73,6 +76,7 @@ public static class ScreenTimeMenuLines
         hidden.Add(WidgetMenuLines.Note(Str.WidgetsC_ScreenTime_Settings_Shared.Text()));
         menu.Lines.Add(WidgetMenuLines.Submenu(Glyphs.Hidden, Str.Screentime_Cfg_Hidden.Text(), hidden));
 
+        menu.Lines.Add(ItemMenuEntry.Separator);
         menu.Lines.Add(WidgetMenuLines.Note(Str.WidgetsC_ScreenTime_Settings_Privacy.Text()));
     }
 

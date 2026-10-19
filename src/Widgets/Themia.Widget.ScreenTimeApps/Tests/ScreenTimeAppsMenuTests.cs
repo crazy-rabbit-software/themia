@@ -66,14 +66,17 @@ public sealed class ScreenTimeAppsMenuTests
         Assert.Equal(
             [
                 Str.Screentime_Cfg_Period.Text(),
+                "|",
                 ScreenTimeAppsStr.WidgetsC_ScreenTime_Settings_Most_Label.Text(),
                 ScreenTimeAppsStr.Screentime_Metric_Average.Text(),
                 ScreenTimeAppsStr.Screentime_Metric_Percent.Text(),
+                "|",
                 Str.WidgetsC_ScreenTime_Settings_Limits.Text(),
                 Str.Screentime_Cfg_Hidden.Text(),
+                "|",
                 Str.WidgetsC_ScreenTime_Settings_Privacy.Text(),
             ],
-            lines.Lines.Select(l => l.Text));
+            lines.Lines.Select(l => l.IsSeparator ? "|" : l.Text));
     }
 
     [Fact]

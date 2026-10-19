@@ -22,9 +22,9 @@ properties menu, ending with the shared lines), `Preview/` (Debug renders: `--st
   `ShowPercent` (off). A row: icon (or initial chip in the app's colour), name, the average and the
   share when shown, the time last; over its own limit the time is critical, and the tooltip says the limit.
 - **[S-3356]** Every option is on the properties menu ([S-3719], user request 2026-10-19); there is
-  no settings page: Appearance ([S-3723]), **Period** (Day, Week, Month, [S-3321]), **Most apps
-  listed** (typed, 0 to 50; 0 reads "As many as fit", [S-1211]), **Daily average** (over a window
-  only, [S-6074]), **Share of total**, then the shared lines ([S-3323]: of the limits each app's).
+  no settings page: Appearance ([S-3723]), **Period** (Day, Week, Month, [S-3321]), under a divider
+  the list's own (user request 2026-10-19): **Most apps listed** (typed, 0 to 50; 0 reads "As many as fit", [S-1211]), **Daily average** (over a window
+  only, [S-6074]: a day's average is its time, so the figure would repeat it), **Share of total**, then the shared lines ([S-3323]: of the limits each app's).
 - **[S-3352]** Ladder (`ScreenTimeAppsLayout.Apps`): whole compact rows; the time always, the name from
   160 DIPs wide (under it a row is the icon and the time, the name in its tooltip: a squeezed name
   read as one letter), the share from 200, a window's average from 300. No headline, no footer ([S-666]): the total is the donut's and the chart's.

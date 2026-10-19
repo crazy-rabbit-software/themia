@@ -23,6 +23,9 @@ internal static class ScreenTimeAppsMenu
         menu.PlaceCard();
         menu.Lines.Add(ScreenTimeMenuLines.Period(menu, config.Period, value => config.Period = value));
 
+        // The list's own: how many apps and the figures beside each, apart from the period.
+        menu.Lines.Add(ItemMenuEntry.Separator);
+
         // [S-1211] A ceiling over what the tile has room for; 0 (the default) is as many as fit.
         var most = ScreenTimeRules.EffectiveMaxApps(config.MaxApps);
         var mostLine = menu.Number(Glyphs.Count, ScreenTimeAppsStr.WidgetsC_ScreenTime_Settings_Most_Label.Text(), most, 0, ScreenTimeRules.MaxAppsLimit, 1,
