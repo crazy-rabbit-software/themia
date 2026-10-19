@@ -35,8 +35,9 @@ public sealed class GpuDetailsModule : IWidgetModule
         Add = new(AddFolderId.Graphics, 0, 1),
     };
 
-    public void SettingsRows(WidgetSettingsRows rows, WidgetConfig config)
-        => GpuDetailsSettings.Rows(rows.Rows, (GpuDetailsConfig)config, rows.Save);
+    /// <summary>[S-3719] Every option is on the properties menu: the widget has no settings page.</summary>
+    public void MenuLines(WidgetMenuLines menu, WidgetConfig config)
+        => GpuDetailsMenu.Lines(menu, (GpuDetailsConfig)config, GpuAdapters.List());
 
     public FrameworkElement CreateView(IWidgetHost host) => new DetailView(host, new GpuDetailPart());
 }
