@@ -40,7 +40,7 @@ public static class SettingsHost
     public static IShellLauncher Launcher
         => Volatile.Read(ref _launcher) ?? throw new InvalidOperationException("no settings host installed: the host installs it before any settings page is shown");
 
-    /// <summary>[S-1411] The app-layout editor a Shortcuts page opens on a layout item.</summary>
+    /// <summary>[S-1411] The app-layout editor Shortcuts' menu opens on a new layout item.</summary>
     public static IAppLayouts AppLayouts
         => Volatile.Read(ref _appLayouts) ?? throw new InvalidOperationException("no settings host installed: the host installs it before any settings page is shown");
 

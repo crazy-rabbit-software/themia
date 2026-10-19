@@ -35,7 +35,11 @@ internal sealed partial class DesktopWindow
         SetItemTextColor: _host.SetSelectedItemTextColor,
         SetScale: _host.SetSelectedScale,
         HasSettings: id => _host.HasSettings(new Config.ConfigTarget.Widget(id)),
-        SetAlign: _host.SetSelectedAlign);
+        SetAlign: _host.SetSelectedAlign,
+        Cut: _host.CutSelected,
+        Copy: _host.CopySelected,
+        Delete: _host.DeleteSelected,
+        WidgetLines: _host.WidgetMenuLines);
 
     /// <summary>[S-3701] The strip shows what is selected in the view this display shows, and nothing otherwise.</summary>
     private void SyncProperties()

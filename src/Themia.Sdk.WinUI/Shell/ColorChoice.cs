@@ -119,6 +119,23 @@ public static class ColorChoice
     /// <param name="name">What a screen reader calls the button: the setting's title.</param>
     public static DropDownButton Create(string? value, Action<string> onChanged, ColorChoiceOptions? options = null, string? name = null)
     {
+        var button = SwatchButton(name, out var swatch, out var label, out var flyout);
+        Attach(button, swatch, label, flyout, value, onChanged, options);
+        return button;
+    }
+
+    /// <summary>
+    /// [S-3718] The colour choice on an element of the caller's (a line of the properties menu):
+    /// <paramref name="flyout"/> is its panel, opened by the caller from <paramref name="source"/>;
+    /// <paramref name="swatch"/> and <paramref name="label"/> show the value. The same choice as
+    /// <see cref="Create"/>, which is this on its swatch button.
+    /// </summary>
+    public static void Attach(FrameworkElement source, Border swatch, TextBlock label, Flyout flyout, string? value, Action<string> onChanged, ColorChoiceOptions? options = null)
+    {
+        ArgumentNullException.ThrowIfNull(source);
+        ArgumentNullException.ThrowIfNull(swatch);
+        ArgumentNullException.ThrowIfNull(label);
+        ArgumentNullException.ThrowIfNull(flyout);
         ArgumentNullException.ThrowIfNull(onChanged);
         options ??= new ColorChoiceOptions();
 
@@ -131,13 +148,11 @@ public static class ColorChoice
             current = HexColor.Normalise(options.Presets[0].Hex);
         }
 
-        var button = SwatchButton(name, out var swatch, out var label, out var flyout);
-
         void Show()
         {
             PaintSwatch(swatch, current, options);
             label.Text = Describe(current, options);
-            ToolTipService.SetToolTip(button, label.Text);
+            ToolTipService.SetToolTip(source, label.Text);
         }
 
         void Choose(string hex)
@@ -169,7 +184,7 @@ public static class ColorChoice
             () =>
             {
                 flyout.Hide();
-                _ = CustomAsync(button, current, options, null, (hex, _) => Choose(hex));
+                _ = CustomAsync(source, current, options, null, (hex, _) => Choose(hex));
             },
             () => PickFromScreen(flyout, Choose));
 
@@ -178,10 +193,8 @@ public static class ColorChoice
 #if DEBUG
         // The settings render draws the picker's panel in the page: a flyout on an off-screen,
         // never-activated window does not render.
-        DebugPanels.AddOrUpdate(button, new Func<FrameworkElement>(() => Panel(current, options, _ => { }, () => { }, () => { })));
+        DebugPanels.AddOrUpdate(source, new Func<FrameworkElement>(() => Panel(current, options, _ => { }, () => { }, () => { })));
 #endif
-
-        return button;
     }
 
     /// <summary>
@@ -194,6 +207,21 @@ public static class ColorChoice
     /// <param name="name">What a screen reader calls the button: the setting's title.</param>
     public static DropDownButton CreateFill(FillChoice? value, Action<FillChoice> onChanged, FillChoiceOptions options, string? name = null)
     {
+        var button = SwatchButton(name, out var swatch, out var label, out var flyout);
+        AttachFill(button, swatch, label, flyout, value, onChanged, options);
+        return button;
+    }
+
+    /// <summary>
+    /// [S-3718] The fill control on an element of the caller's (a line of the properties menu), as
+    /// <see cref="Attach"/> is the colour choice's; <see cref="CreateFill"/> is this on its swatch button.
+    /// </summary>
+    public static void AttachFill(FrameworkElement source, Border swatch, TextBlock label, Flyout flyout, FillChoice? value, Action<FillChoice> onChanged, FillChoiceOptions options)
+    {
+        ArgumentNullException.ThrowIfNull(source);
+        ArgumentNullException.ThrowIfNull(swatch);
+        ArgumentNullException.ThrowIfNull(label);
+        ArgumentNullException.ThrowIfNull(flyout);
         ArgumentNullException.ThrowIfNull(onChanged);
         ArgumentNullException.ThrowIfNull(options);
 
@@ -203,7 +231,6 @@ public static class ColorChoice
         _ = current.Repair("fill choice");
         var colourOptions = new ColorChoiceOptions { DefaultLabel = options.DefaultLabel, DefaultColor = options.DefaultColor, Presets = options.Presets };
 
-        var button = SwatchButton(name, out var swatch, out var label, out var flyout);
         var pending = current.Opacity;
 
         // [S-6566] A selection that does not share one fill reads as mixed until something is picked.
@@ -213,7 +240,7 @@ public static class ColorChoice
         {
             PaintFill(swatch, shown, colourOptions);
             label.Text = DescribeFill(shown, colourOptions);
-            ToolTipService.SetToolTip(button, label.Text);
+            ToolTipService.SetToolTip(source, label.Text);
         }
 
         void Commit(FillChoice next)
@@ -285,7 +312,7 @@ public static class ColorChoice
             () =>
             {
                 flyout.Hide();
-                _ = CustomAsync(button, Hex(), colourOptions, current.Opacity, (hex, alpha) => Commit(FillChoice.Of(hex, alpha)));
+                _ = CustomAsync(source, Hex(), colourOptions, current.Opacity, (hex, alpha) => Commit(FillChoice.Of(hex, alpha)));
             },
             () => PickFromScreen(flyout, Choose),
             Extras());
@@ -297,7 +324,7 @@ public static class ColorChoice
         {
             swatch.Background = null;
             label.Text = options.MixedLabel;
-            ToolTipService.SetToolTip(button, label.Text);
+            ToolTipService.SetToolTip(source, label.Text);
         }
         else
         {
@@ -305,10 +332,8 @@ public static class ColorChoice
         }
 
 #if DEBUG
-        DebugPanels.AddOrUpdate(button, new Func<FrameworkElement>(() => Panel(Hex(), colourOptions, _ => { }, () => { }, () => { }, Extras())));
+        DebugPanels.AddOrUpdate(source, new Func<FrameworkElement>(() => Panel(Hex(), colourOptions, _ => { }, () => { }, () => { }, Extras())));
 #endif
-
-        return button;
     }
 
     /// <summary>The swatch button both controls are: a swatch, the value's words, and a flyout kept inside the window.</summary>
@@ -383,11 +408,11 @@ public static class ColorChoice
     }
 
 #if DEBUG
-    private static readonly System.Runtime.CompilerServices.ConditionalWeakTable<DropDownButton, Func<FrameworkElement>> DebugPanels = [];
+    private static readonly System.Runtime.CompilerServices.ConditionalWeakTable<FrameworkElement, Func<FrameworkElement>> DebugPanels = [];
 
     /// <summary>Debug renders only: the panel this button's flyout would show.</summary>
-    internal static FrameworkElement? DebugPanel(DropDownButton button)
-        => DebugPanels.TryGetValue(button, out var build) ? build() : null;
+    internal static FrameworkElement? DebugPanel(FrameworkElement source)
+        => DebugPanels.TryGetValue(source, out var build) ? build() : null;
 #endif
 
     /// <summary>"Default blue", "Custom", or the default's own label.</summary>

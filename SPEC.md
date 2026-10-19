@@ -1355,7 +1355,8 @@ only selects and a small panel of the selection's own properties stands by it) a
 widget's flyout (§65: closed while the selection is carried, opened again where it lands). Owning
 files: `Shell/PropertiesStrip.cs`, `Shell/DesktopWindow.Properties.cs`, `Services/AppHost.QuickSet.cs`;
 rules in Core `Model/QuickSet.cs` and `Geometry/StripPlacement.cs` (tests `QuickSetTests`,
-`StripPlacementTests`).
+`StripPlacementTests`); a widget's own lines in the SDK's `Modules/WidgetMenuLines.cs` (tests
+`WidgetMenuLinesTests` in the module host).
 
 - **[S-3700]** *(Retired by [S-3707]: the controls are no longer a group on the edit bar. A user
   looked for them at the widget, and the bar's group re-centred the bar every time the selection
@@ -1363,11 +1364,13 @@ rules in Core `Model/QuickSet.cs` and `Geometry/StripPlacement.cs` (tests `Quick
 - **[S-3701]** The strip shows on a display only while the selection ([S-1580]) has widgets in the
   view that display shows (`QuickSet.For`); ids no longer in it are not counted. It follows every
   selection change and every state change (an undo, a change from another display).
-- **[S-3702]** One widget: a Title row (a box 32 tall, the kind's name as its placeholder), then
-  Style ([S-6007]), Header, Alignment ([S-6584]), Background, Item background ([S-6521]), Item text ([S-6544]) and Scale ([S-6531]), and the
-  More settings row ([S-6009]). Several: the words "N selected" over the rows, then Style (one kind
-  only), Header, Background, Item background, Item text and Scale, and **no title** and no More settings: a title names one widget, so
-  one typed for many would make them indistinguishable.
+- **[S-3702]** One widget: the icon row ([S-3717]), the title box (32 tall, the kind's name as its
+  placeholder), then Style ([S-6007]), the widget's own lines ([S-3719]), and the card's lines: Header,
+  Alignment ([S-6584]), Background, Item background ([S-6521]), Item text ([S-6544]) and Scale
+  ([S-6531]); More settings last where its page still has rows ([S-6009]). Several: the icon row,
+  the words "N selected", then Style (one kind only), Header, Alignment, Background, Item background,
+  Item text and Scale, and **no title**, no widget lines and no More settings: a title names one
+  widget, so one typed for many would make them indistinguishable.
 - **[S-3703]** With several, a value the widgets share is ticked and a mixed one ticks nothing
   (`QuickSet.Common`); a pick sets it on every selected widget of the view (`SetHeader`,
   `SetBackground`) in one `Mutate`, so one undo step ([S-884]) however many it reached.
@@ -1385,18 +1388,13 @@ rules in Core `Model/QuickSet.cs` and `Geometry/StripPlacement.cs` (tests `Quick
 - **[S-3706]** *(Retired by [S-3713]: the edit bar no longer draws a selection group.)*
 - **[S-3707]** The strip is a small **panel** on a flyout's surface ([S-3715]: the flyout's solid
   fill, stroke, 8-DIP corners and drop shadow), on its own layer over the cards and under the edit
-  bar, one per display. **[S-6520]** Its entries stack, one row per property: the property's name
-  in the secondary text colour, then its control in a 176-DIP column (32-DIP drop-downs and box),
-  4 DIPs between rows, after Karpo's properties panel (§145). Style, Header and Scale are
-  drop-downs that show the current value's icon and words (a dash for a mixed
-  selection) and whose menus tick it (Header: Top, Bottom, Left, Right, Hidden with their icons; Background:
-  and Item background are fill controls instead, [S-6566]), built as they open; Item text is the colour control ([S-1549]);
-  More settings is a full-width row with the gear and its words. A press on its padding or words stays
-  on it, so it never starts a rubber band or clears the selection. It is inside the work area
-  ([S-3708]), and in edit mode the hit region is the whole work area ([S-851]), so it always takes
-  its clicks. F6 reaches it after the edit bar while it shows ([S-1975]), and the keyboard on it
-  counts as the chrome's, not the widgets': Tab goes round its controls and stays in it, Up and Down
-  move between its rows, and Escape hands the keyboard back to the surface.
+  bar, one per display, laid out as a context menu ([S-3716]). **[S-6520]** *(Was: one row per
+  property, its name before a 176-DIP drop-down; replaced by the menu's lines, [S-3716].)* A press
+  on its padding or words stays on it, so it never starts a rubber band or clears the selection. It
+  is inside the work area ([S-3708]), and in edit mode the hit region is the whole work area
+  ([S-851]), so it always takes its clicks. F6 reaches it after the edit bar while it shows
+  ([S-1975]), and the keyboard on it counts as the chrome's, not the widgets': Tab goes round its
+  lines and stays in it, Up and Down move between them, and Escape hands the keyboard back to the surface.
 - **[S-3708]** Where it stands (`StripPlacement.Place`): **beside** the selection's box, 8 DIPs off
   its edge — to its **right**, or to its **left** where the right has no room (right to left the
   sides mirror: left first) — centred on the box's height ([S-3714]) and slid to stay inside the display's
@@ -1418,6 +1416,39 @@ rules in Core `Model/QuickSet.cs` and `Geometry/StripPlacement.cs` (tests `Quick
   shows only what every selected widget can take (Background, and the title for one); `SetHeader`
   never reaches one; it is created headerless; load validation takes a header off it and says so;
   and the card draws it headerless whatever the file holds (`WidgetInstance.ShownHeader`).
+- **[S-3716]** The panel looks like **Windows 11's context menu** (user request 2026-10-19): the
+  icon row on top, a hairline under it, then 32-DIP lines inset 4 DIPs with a 4-DIP hover, each an
+  icon in a 16-DIP column, its words 12 DIPs after it, its value (or a shortcut) in the secondary
+  colour at the end, and a chevron where the line opens a submenu; dividers between groups. It is not
+  a light-dismiss menu: it stays standing beside the selection while it is used, and a line's change
+  is drawn at once. It is never narrower than 256 DIPs. (`PropertiesStrip`; renders
+  `--editbar-png` `props-*`, `--menu-png` `props-header`, `props-shortcuts-style`, `props-shortcuts-add`.)
+- **[S-3717]** The **icon row**: Cut and Copy at its start, Delete at its far end (apart from them,
+  where a slip on Cut does not reach it), Explorer's two-tone icons, 40-DIP buttons, the words with
+  the key as the tooltip ("Cut (Ctrl+X)"; "Cut 3 widgets" for several), the same commands as the
+  keys and the card menu (`CutSelected`, `CopySelected`, `DeleteSelected`).
+- **[S-3718]** A **submenu** opens beside its line (right of it, left right to left) on a click,
+  Enter, Space or the arrow towards it, built as it opens, and the line stays lit while it is open.
+  Choices of one are Windows' dots (`RadioMenuFlyoutItem`, `ItemMenuEntry.Group`), switches its
+  ticks; the line of a choice shows the option that holds. Header, Alignment, Style and Scale are
+  submenus of their options; Background, Item background and Item text open the one colour control's
+  panel ([S-6567], `ColorChoice.AttachFill` / `Attach` on the line) beside the line, the swatch in the
+  icon column and the value's words at the end. A line that cannot apply is greyed with its reason
+  as the tooltip (Alignment, [S-6584]; the item lines, [S-6571]).
+- **[S-3719]** A widget's **own lines** come from its module (`IWidgetModule.MenuLines`, over a
+  `WidgetMenuLines`): `Lines` stand after Style on the first level, `StyleLines` under Style after the
+  styles and a divider (what only the current look draws with, [S-6070]). They are the one menu
+  vocabulary, `ItemMenuEntry`: `Toggle`, `Choice` (a submenu of dots), `Submenu`, a command. The
+  lines are built again on every selection and state change over the live config (a change edits it
+  in place and saves as the settings page does), so they always say what the widget holds and the
+  menu is drawn again only when what they show changed. A module without lines (the default) keeps
+  its options on its settings page. Shortcuts is the first and, for now, only widget whose options
+  are all here ([S-1388]); the others move one at a time.
+- **[S-3721]** A line may **ask for one line of text** (`WidgetMenuLines.Ask`, `WidgetTextAsk`): a
+  small flyout beside the panel with a heading, the box, the reason under it while the widget's
+  check refuses what is typed (nothing while it is empty), and the button that gives it, which is
+  off while refused; Enter gives it too, Escape or a click away drops it, and closing hands the
+  keyboard back to the surface.
 - **[S-3712]** Header Hidden leaves no trace on the card ([S-401]): no strip, no icon, no title, no
   reserved row; the content area is the whole card at every size tier.
 - **[S-3714]** Beside the selection the panel is **centred on its height** (`StripPlacement.Place`:
@@ -1575,8 +1606,8 @@ widget on the properties panel ([S-6007], its one place, [S-6536]). Owning files
   (`QuickSetOffer.Style` null). Mixed kinds: no Style.
 - **[S-6008]** A pick sets the style of every selected widget (`QuickSet.SetStyle`) in one `Mutate`:
   one undo step however many it reached.
-- **[S-6009]** The panel ends with a **More settings** row (the gear and the words, the panel's
-  width; its tooltip "This widget's own options, in the settings window") that opens the widget's
+- **[S-6009]** The panel ends with a **More settings** line (the gear and the words, after a
+  divider; its tooltip "This widget's own options, in the settings window") that opens the widget's
   settings page — "More", since the panel holds the rest of the widget's settings ([S-6536]); one widget only, and only when its page has rows in its current
   style and state ([S-1750]): a style picked on the panel can bring the row or take it away. Several selected: no gear (which one's page would it be).
 - **[S-6060]** One progress ring for every widget that draws one (`RingPart`, its geometry
@@ -6283,8 +6314,8 @@ Tests: `ShortcutsDropLayoutTests`; the layout item's config, the module host's `
   pane's exe (link target, file association, default https browser). Never an `explorer.exe` window that
   is not a folder window, never Themia's own. An app already running is moved instead of started when
   reuse is on (never for URLs or folders).
-- [S-1411] "Edit layout…" (item menu, settings row) and "New layout" (settings, then straight into the
-  editor) open one editor window for the app, retargeted when asked again; Escape and Done close it. It
+- [S-1411] "Edit layout…" (item menu) and "App layout…" (the properties menu's Add, [S-1388], then
+  straight into the editor) open one editor window for the app, retargeted when asked again; Escape and Done close it. It
   holds only the item id and writes through `AppHost.Mutate`; if the item disappears it says so.
 - [S-1412] The editor draws the panes in the primary display's shape (≤ 440 DIP tall); dividers drag
   live and save once on release.

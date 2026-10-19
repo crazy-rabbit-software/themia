@@ -39,6 +39,10 @@ namespace Themia.App.Widgets;
 /// [S-6416] A file whose shell icon is the line's icon, in place of <paramref name="Glyph"/> (an app in
 /// "Open with", as Explorer draws it).
 /// </param>
+/// <param name="Group">
+/// [S-3718] With <paramref name="Checked"/>, the entry is one of a set of choices of which one holds
+/// (Windows draws a dot, not a tick): the entries of one group sharing this name.
+/// </param>
 public readonly record struct ItemMenuEntry(
     string? Glyph,
     string Text,
@@ -49,7 +53,8 @@ public readonly record struct ItemMenuEntry(
     IReadOnlyList<ItemMenuEntry>? Children = null,
     QuickCommand? Quick = null,
     KeyChord? Shortcut = null,
-    string? IconFile = null)
+    string? IconFile = null,
+    string? Group = null)
 {
     /// <summary>A divider between groups. Leading, trailing and doubled separators are dropped.</summary>
     public static ItemMenuEntry Separator => new(null, string.Empty, null);
@@ -155,6 +160,19 @@ public static class ItemMenu
         }
     }
 
+    /// <summary>
+    /// [S-3718] Add <paramref name="entries"/> to a menu the caller built (a properties-menu
+    /// submenu that starts with choices of its own), as the lines of a menu with no icon row.
+    /// </summary>
+    public static void AddTo(MenuFlyout menu, IEnumerable<ItemMenuEntry> entries)
+    {
+        ArgumentNullException.ThrowIfNull(menu);
+        ArgumentNullException.ThrowIfNull(entries);
+
+        var list = entries.ToList();
+        FillList(menu.Items, list, ContextMenuLayout.Split([.. list.Select(e => e.IsSeparator ? MenuLine.Separator : MenuLine.Entry())]));
+    }
+
     /// <summary>[S-1741] The list alone, as a <see cref="MenuFlyout"/>: plain lines, toggles and submenus.</summary>
     private static void FillList(IList<MenuFlyoutItemBase> items, List<ItemMenuEntry> list, MenuSplit split)
     {
@@ -177,7 +195,12 @@ public static class ItemMenu
                 continue;
             }
 
-            MenuFlyoutItem item = entry.Checked is { } isChecked ? new ToggleMenuFlyoutItem { IsChecked = isChecked } : new MenuFlyoutItem();
+            MenuFlyoutItem item = entry.Checked switch
+            {
+                { } isChecked when entry.Group is { } group => new RadioMenuFlyoutItem { IsChecked = isChecked, GroupName = group },
+                { } isChecked => new ToggleMenuFlyoutItem { IsChecked = isChecked },
+                _ => new MenuFlyoutItem(),
+            };
             item.Text = entry.Text;
             item.IsEnabled = !entry.Disabled;
             item.Icon = IconFor(entry);

@@ -24,4 +24,13 @@ public interface IWidgetModule
     void SettingsRows(WidgetSettingsRows rows, Themia.Core.Model.WidgetConfig config)
     {
     }
+
+    /// <summary>
+    /// [S-3719] The widget's own lines on its properties menu for <paramref name="config"/> (always
+    /// its own config type, the live one: change it in place, then <see cref="WidgetMenuLines.Save"/>).
+    /// None, the default, is a widget whose options are all on its settings page.
+    /// </summary>
+    void MenuLines(WidgetMenuLines menu, Themia.Core.Model.WidgetConfig config)
+    {
+    }
 }

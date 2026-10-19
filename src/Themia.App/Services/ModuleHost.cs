@@ -23,6 +23,29 @@ internal static class ModuleHost
     /// <summary>Build the view for a kind: a <see cref="FrameworkElement"/> that also implements <c>IWidgetView</c>.</summary>
     public static FrameworkElement CreateView(WidgetId kind, IWidgetHost host) => Module(kind).CreateView(host);
 
+    /// <summary>
+    /// [S-3719] A widget's own lines on its properties menu, built by its module over
+    /// <paramref name="widget"/>'s config (the live one: the lines change it in place and
+    /// <paramref name="save"/> stores it). A module that throws is logged and has none.
+    /// </summary>
+    public static WidgetMenuLines? MenuLines(WidgetInstance widget, Action save, Action<WidgetTextAsk> ask)
+    {
+        ArgumentNullException.ThrowIfNull(widget);
+
+        var lines = new WidgetMenuLines(save, ask);
+        try
+        {
+            Module(widget.Kind).MenuLines(lines, widget.Config);
+        }
+        catch (Exception ex)
+        {
+            Themia.Core.Diagnostics.Log.Error("modules", $"the {widget.Kind} widget's menu lines could not be built", ex);
+            return null;
+        }
+
+        return lines;
+    }
+
     public static void Install()
     {
         var widgets = ModuleRegistry.Widgets;

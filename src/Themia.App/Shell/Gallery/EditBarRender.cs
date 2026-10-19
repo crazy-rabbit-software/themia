@@ -307,25 +307,6 @@ internal static class EditBarRender
         }
     }
 
-    /// <summary>The first drop-down in <paramref name="root"/>'s tree a screen reader calls <paramref name="name"/>.</summary>
-    private static DropDownButton? FindChoice(DependencyObject root, string name)
-    {
-        if (root is DropDownButton button && Microsoft.UI.Xaml.Automation.AutomationProperties.GetName(button) == name)
-        {
-            return button;
-        }
-
-        for (var i = 0; i < VisualTreeHelper.GetChildrenCount(root); i++)
-        {
-            if (FindChoice(VisualTreeHelper.GetChild(root, i), name) is { } found)
-            {
-                return found;
-            }
-        }
-
-        return null;
-    }
-
     private static async Task PropsShot(Grid screen, Ticker ticker, PropsCard[] layout, string path, bool openBackground = false)
     {
         screen.Children.Clear();
@@ -388,7 +369,9 @@ internal static class EditBarRender
         selection.Replace(view.Id, selected);
 
         var strip = new PropertiesStrip(new PropertiesCommands(_ => { }, _ => { }, (_, _) => { }, () => { }, _ => { }, _ => { }, _ => { }, _ => { }, _ => { },
-            id => view.Find(id) is { } found && Config.ConfigPages.HasWidgetSettings(found)));
+            id => view.Find(id) is { } found && Config.ConfigPages.HasWidgetSettings(found),
+            Cut: () => { }, Copy: () => { }, Delete: () => { },
+            WidgetLines: (id, ask) => view.Find(id) is { } found ? Services.ModuleHost.MenuLines(found, () => { }, ask) : null));
         UiLanguage.ApplyFlow(strip);
         strip.ShowSelection(QuickSet.For(state, selection, view.Id));
         strip.Visibility = Visibility.Visible;
@@ -407,7 +390,7 @@ internal static class EditBarRender
             if (openBackground)
             {
                 strip.UpdateLayout();
-                if (FindChoice(strip, Str.Settings_Style_BgLabel.Text()) is { } choice && ColorChoice.DebugPanel(choice) is { } panel)
+                if (PropertiesStrip.FindLine(strip, Str.Settings_Style_BgLabel.Text()) is { } choice && ColorChoice.DebugPanel(choice) is { } panel)
                 {
                     var flyout = new Border { Child = panel, Padding = new Thickness(Fluent.Space4) };
                     var hanging = new Grid { Children = { flyout } };
@@ -415,8 +398,8 @@ internal static class EditBarRender
                     canvas.Children.Add(hanging);
                     var at = choice.TransformToVisual(canvas).TransformPoint(new Point(0, 0));
                     hanging.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
-                    Canvas.SetLeft(hanging, Math.Round(at.X + choice.ActualWidth - hanging.DesiredSize.Width));
-                    Canvas.SetTop(hanging, Math.Round(at.Y + choice.ActualHeight + Fluent.Space1));
+                    Canvas.SetLeft(hanging, Math.Round(at.X + choice.ActualWidth + Fluent.Space1));
+                    Canvas.SetTop(hanging, Math.Round(at.Y));
                 }
                 else
                 {
