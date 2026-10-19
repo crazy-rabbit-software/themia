@@ -13,12 +13,6 @@
   "widgetsB.mixer.noDevice": "வெளியீட்டுச் சாதனம் இல்லை",
   "widgetsB.mixer.notPlaying": "{name} (இயங்கவில்லை)",
   "widgetsB.mixer.unavailable": "ஒலி கிடைக்கவில்லை",
-  "widgetsB.settings.mixer.groupByApp.desc": "ஒரு தாவலுக்கு அல்ல, ஒரு பயன்பாட்டுக்கு ஒரு ஸ்லைடர்",
   "widgetsB.settings.mixer.groupByApp.label": "ஒரு பயன்பாட்டுக்கு ஒரு வரிசை",
-  "widgetsB.settings.mixer.header": "மிக்சர்",
-  "widgetsB.settings.mixer.icons.desc": "பொதுவான ஐகானுக்குப் பதிலாக ஒவ்வொரு பயன்பாட்டின் சொந்த ஐகான்",
-  "widgetsB.settings.mixer.note": "மிக்சரைக் கிளிக் செய்யவும், பின்னர் ↑ மற்றும் ↓ வரிசையைத் தேர்ந்தெடுக்கும், ← மற்றும் → அதை மாற்றும், M ஒலியடக்கும்.",
-  "widgetsB.settings.mixer.onlyActive.desc": "அமைதியான பயன்பாடுகள் விடப்படும், அல்லது பெரிய மிக்சரில் மங்கலாக்கப்படும்",
-  "widgetsB.settings.mixer.rows": "வரிசைகள்",
-  "widgetsB.settings.mixer.systemSounds.desc": "Windows இன் சொந்த அறிவிப்பு ஒலிகள்"
+  "widgetsB.settings.mixer.note": "மிக்சரைக் கிளிக் செய்யவும், பின்னர் ↑ மற்றும் ↓ வரிசையைத் தேர்ந்தெடுக்கும், ← மற்றும் → அதை மாற்றும், M ஒலியடக்கும்."
 }

@@ -5,9 +5,7 @@
   "widgetsC.volume.followDefault": "Fuata towe chaguomsingi",
   "widgetsC.volume.noDevice": "Hakuna kifaa cha kutoa sauti",
   "widgetsC.volume.notConnected": "{device} hakijaunganishwa",
-  "widgetsC.volume.settings.allow.desc": "Ruhusu kigae hiki kibadilishe sauti ya mfumo",
   "widgetsC.volume.settings.allow.label": "Ruhusu mabadiliko",
-  "widgetsC.volume.settings.behaviour": "Tabia",
   "widgetsC.volume.settings.keysNote": "Bofya kigae, kisha tumia vitufe vya mishale au + na −; M hunyamazisha.",
   "widgetsC.volume.unavailable": "Sauti haipatikani"
 }

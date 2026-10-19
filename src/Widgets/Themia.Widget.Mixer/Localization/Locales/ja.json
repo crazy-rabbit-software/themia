@@ -13,12 +13,6 @@
   "widgetsB.mixer.noDevice": "出力デバイスがありません",
   "widgetsB.mixer.notPlaying": "{name} (再生していません)",
   "widgetsB.mixer.unavailable": "サウンドを利用できません",
-  "widgetsB.settings.mixer.groupByApp.desc": "タブごとではなくアプリごとに 1 つのスライダー",
   "widgetsB.settings.mixer.groupByApp.label": "アプリごとに 1 行",
-  "widgetsB.settings.mixer.header": "ミキサー",
-  "widgetsB.settings.mixer.icons.desc": "汎用アイコンではなく各アプリのアイコン",
-  "widgetsB.settings.mixer.note": "ミキサーをクリックし、↑↓ で行を選び、←→ で変更、M でミュート。",
-  "widgetsB.settings.mixer.onlyActive.desc": "無音のアプリは除外。大きいミキサーでは淡色表示",
-  "widgetsB.settings.mixer.rows": "行",
-  "widgetsB.settings.mixer.systemSounds.desc": "Windows 自体の通知音"
+  "widgetsB.settings.mixer.note": "ミキサーをクリックし、↑↓ で行を選び、←→ で変更、M でミュート。"
 }

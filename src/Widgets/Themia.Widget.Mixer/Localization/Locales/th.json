@@ -13,12 +13,6 @@
   "widgetsB.mixer.noDevice": "ไม่มีอุปกรณ์เอาต์พุต",
   "widgetsB.mixer.notPlaying": "{name} (ไม่ได้เล่น)",
   "widgetsB.mixer.unavailable": "เสียงไม่พร้อมใช้งาน",
-  "widgetsB.settings.mixer.groupByApp.desc": "แถบเลื่อนหนึ่งตัวต่อแอป ไม่ใช่ต่อแท็บ",
   "widgetsB.settings.mixer.groupByApp.label": "หนึ่งแถวต่อแอป",
-  "widgetsB.settings.mixer.header": "มิกเซอร์",
-  "widgetsB.settings.mixer.icons.desc": "ไอคอนของแต่ละแอปแทนไอคอนทั่วไป",
-  "widgetsB.settings.mixer.note": "คลิกมิกเซอร์ แล้วใช้ ↑ และ ↓ เลือกแถว ← และ → เปลี่ยนค่า M ปิดเสียง",
-  "widgetsB.settings.mixer.onlyActive.desc": "แอปที่เงียบจะถูกละไว้ หรือแสดงจางลงบนมิกเซอร์ขนาดใหญ่",
-  "widgetsB.settings.mixer.rows": "แถว",
-  "widgetsB.settings.mixer.systemSounds.desc": "เสียงแจ้งเตือนของ Windows เอง"
+  "widgetsB.settings.mixer.note": "คลิกมิกเซอร์ แล้วใช้ ↑ และ ↓ เลือกแถว ← และ → เปลี่ยนค่า M ปิดเสียง"
 }

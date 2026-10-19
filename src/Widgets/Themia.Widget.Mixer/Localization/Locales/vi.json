@@ -13,12 +13,6 @@
   "widgetsB.mixer.noDevice": "Không có thiết bị đầu ra",
   "widgetsB.mixer.notPlaying": "{name} (không phát)",
   "widgetsB.mixer.unavailable": "Âm thanh không khả dụng",
-  "widgetsB.settings.mixer.groupByApp.desc": "Một thanh trượt cho mỗi ứng dụng, không phải mỗi tab",
   "widgetsB.settings.mixer.groupByApp.label": "Mỗi ứng dụng một hàng",
-  "widgetsB.settings.mixer.header": "Bộ trộn âm",
-  "widgetsB.settings.mixer.icons.desc": "Biểu tượng riêng của từng ứng dụng thay vì biểu tượng chung",
-  "widgetsB.settings.mixer.note": "Nhấp vào bộ trộn, rồi ↑ và ↓ chọn hàng, ← và → điều chỉnh, M tắt tiếng.",
-  "widgetsB.settings.mixer.onlyActive.desc": "Ứng dụng im lặng bị bỏ qua, hoặc làm mờ trên bộ trộn lớn",
-  "widgetsB.settings.mixer.rows": "Hàng",
-  "widgetsB.settings.mixer.systemSounds.desc": "Âm thông báo của chính Windows"
+  "widgetsB.settings.mixer.note": "Nhấp vào bộ trộn, rồi ↑ và ↓ chọn hàng, ← và → điều chỉnh, M tắt tiếng."
 }

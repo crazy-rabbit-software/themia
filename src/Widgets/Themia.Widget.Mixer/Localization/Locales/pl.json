@@ -13,12 +13,6 @@
   "widgetsB.mixer.noDevice": "Brak urządzenia wyjściowego",
   "widgetsB.mixer.notPlaying": "{name} (nie odtwarza)",
   "widgetsB.mixer.unavailable": "Dźwięk jest niedostępny",
-  "widgetsB.settings.mixer.groupByApp.desc": "Jeden suwak na aplikację, nie na kartę",
   "widgetsB.settings.mixer.groupByApp.label": "Jeden wiersz na aplikację",
-  "widgetsB.settings.mixer.header": "Mikser",
-  "widgetsB.settings.mixer.icons.desc": "Własna ikona każdej aplikacji zamiast ogólnej",
-  "widgetsB.settings.mixer.note": "Kliknij mikser: ↑ i ↓ wybierają wiersz, ← i → go zmieniają, M wycisza.",
-  "widgetsB.settings.mixer.onlyActive.desc": "Ciche aplikacje są pomijane lub przygaszone w dużym mikserze",
-  "widgetsB.settings.mixer.rows": "Wiersze",
-  "widgetsB.settings.mixer.systemSounds.desc": "Własne dźwięki powiadomień Windows"
+  "widgetsB.settings.mixer.note": "Kliknij mikser: ↑ i ↓ wybierają wiersz, ← i → go zmieniają, M wycisza."
 }

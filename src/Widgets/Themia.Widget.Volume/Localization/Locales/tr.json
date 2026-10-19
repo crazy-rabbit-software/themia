@@ -5,9 +5,7 @@
   "widgetsC.volume.followDefault": "Varsayılan çıkışı izle",
   "widgetsC.volume.noDevice": "Çıkış cihazı yok",
   "widgetsC.volume.notConnected": "{device} bağlı değil",
-  "widgetsC.volume.settings.allow.desc": "Bu kutucuğun sistem ses düzeyini değiştirmesine izin ver",
   "widgetsC.volume.settings.allow.label": "Değişikliklere izin ver",
-  "widgetsC.volume.settings.behaviour": "Davranış",
   "widgetsC.volume.settings.keysNote": "Kutucuğa tıklayın, ardından ok tuşlarını veya + ve − tuşlarını kullanın; M sesi kapatır.",
   "widgetsC.volume.unavailable": "Ses kullanılamıyor"
 }

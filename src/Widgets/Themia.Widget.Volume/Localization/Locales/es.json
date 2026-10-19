@@ -5,9 +5,7 @@
   "widgetsC.volume.followDefault": "Seguir la salida predeterminada",
   "widgetsC.volume.noDevice": "No hay dispositivo de salida",
   "widgetsC.volume.notConnected": "{device} no está conectado",
-  "widgetsC.volume.settings.allow.desc": "Permitir que este icono cambie el volumen del sistema",
   "widgetsC.volume.settings.allow.label": "Permitir cambios",
-  "widgetsC.volume.settings.behaviour": "Comportamiento",
   "widgetsC.volume.settings.keysNote": "Haz clic en el mosaico y usa las flechas o + y −; M silencia.",
   "widgetsC.volume.unavailable": "El sonido no está disponible"
 }

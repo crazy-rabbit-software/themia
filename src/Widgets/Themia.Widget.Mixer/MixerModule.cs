@@ -34,8 +34,9 @@ public sealed class MixerModule : IWidgetModule
         Add = new(AddFolderId.Media, 0, 3),
     };
 
-    public void SettingsRows(WidgetSettingsRows rows, WidgetConfig config)
-        => MixerSettings.Rows(rows.Rows, (MixerConfig)config, rows.Save);
+    /// <summary>[S-3719] Every option is on the properties menu: the widget has no settings page.</summary>
+    public void MenuLines(WidgetMenuLines menu, WidgetConfig config)
+        => MixerMenu.Lines(menu, (MixerConfig)config);
 
     public FrameworkElement CreateView(IWidgetHost host) => new MixerView(host);
 }

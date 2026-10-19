@@ -13,12 +13,6 @@
   "widgetsB.mixer.noDevice": "کوئی آؤٹ پٹ آلہ نہیں",
   "widgetsB.mixer.notPlaying": "{name} (نہیں چل رہا)",
   "widgetsB.mixer.unavailable": "آواز دستیاب نہیں",
-  "widgetsB.settings.mixer.groupByApp.desc": "ہر ایپ کا ایک سلائیڈر، ہر ٹیب کا نہیں",
   "widgetsB.settings.mixer.groupByApp.label": "ہر ایپ کی ایک قطار",
-  "widgetsB.settings.mixer.header": "مکسر",
-  "widgetsB.settings.mixer.icons.desc": "عام آئیکن کی بجائے ہر ایپ کا اپنا آئیکن",
-  "widgetsB.settings.mixer.note": "مکسر پر کلک کریں، پھر ↑ اور ↓ قطار چنتے ہیں، ← اور → اسے بدلتے ہیں، M خاموش کرتا ہے۔",
-  "widgetsB.settings.mixer.onlyActive.desc": "خاموش ایپس نکال دی جاتی ہیں، یا بڑے مکسر پر مدھم دکھتی ہیں",
-  "widgetsB.settings.mixer.rows": "قطاریں",
-  "widgetsB.settings.mixer.systemSounds.desc": "Windows کی اپنی اطلاعی آوازیں"
+  "widgetsB.settings.mixer.note": "مکسر پر کلک کریں، پھر ↑ اور ↓ قطار چنتے ہیں، ← اور → اسے بدلتے ہیں، M خاموش کرتا ہے۔"
 }

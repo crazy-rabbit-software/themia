@@ -4770,7 +4770,7 @@ log into `Log`). Not done here: the original's pre-release gate on the Google si
 
 `Themia.App/Services/CoreAudio{,.Worker,.Native}.cs` (replaces `AudioSessions.cs` and the polled
 `AudioEndpoint.cs`) behind `IWidgetHost.Audio`; the widgets are modules (`src/Widgets/Themia.Widget.Mixer`,
-`.Volume`, their `SPEC.md`) over the SDK's `AudioFeed`, `AudioLook`, `AudioDeviceRow` and
+`.Volume`, their `SPEC.md`) over the SDK's `AudioFeed`, `AudioLook`, `AudioDeviceLine` and
 `{AudioRules,MixerRules,VolumeRules}.cs`, tests `AudioRulesTests`.
 
 - **[S-1220]** One Core Audio worker serves both widgets (the [S-440] MTA thread, now named
@@ -4784,8 +4784,10 @@ log into `Log`). Not done here: the original's pre-release gate on the Google si
   connected", never silently the default. The worker re-enumerates active render endpoints (friendly
   name from `PKEY_Device_FriendlyName`) on device added/removed/state/rename notifications. A blank
   id is repaired to null at load.
-- **[S-1222]** Device picker: settings ComboBox only ("Default output" + connected devices,
-  enumerated off the UI thread), which binds the widget to a device. Neither widget offers a device
+- **[S-1222]** Device picker: the Output device line on the widget's properties menu only
+  (`AudioDeviceLine`, a search, [S-3722]: "Default output" first, then the devices connected as its
+  submenu opens, enumerated off the UI thread, the chosen one with the dot; a chosen device that is
+  not connected stays listed as "… (not connected)"), which binds the widget to a device. Neither widget offers a device
   picker of its own at any size (user decision: choosing the output is Windows' job, not the
   widget's); the device line, the volume caption's menu and the XL panel's device list are gone.
   Context action "Follow the default output" when a device is chosen. Inert in previews.

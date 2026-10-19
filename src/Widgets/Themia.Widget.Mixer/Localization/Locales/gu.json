@@ -13,12 +13,6 @@
   "widgetsB.mixer.noDevice": "કોઈ આઉટપુટ ઉપકરણ નથી",
   "widgetsB.mixer.notPlaying": "{name} (વાગતું નથી)",
   "widgetsB.mixer.unavailable": "ધ્વનિ ઉપલબ્ધ નથી",
-  "widgetsB.settings.mixer.groupByApp.desc": "દરેક ઍપ માટે એક સ્લાઇડર, દરેક ટૅબ માટે નહીં",
   "widgetsB.settings.mixer.groupByApp.label": "દરેક ઍપ માટે એક પંક્તિ",
-  "widgetsB.settings.mixer.header": "મિક્સર",
-  "widgetsB.settings.mixer.icons.desc": "સામાન્ય આઇકનને બદલે દરેક ઍપનું પોતાનું આઇકન",
-  "widgetsB.settings.mixer.note": "મિક્સર પર ક્લિક કરો, પછી ↑ અને ↓ પંક્તિ પસંદ કરે છે, ← અને → તેને બદલે છે, M મ્યૂટ કરે છે.",
-  "widgetsB.settings.mixer.onlyActive.desc": "શાંત ઍપ્સ છોડી દેવાય છે, અથવા મોટા મિક્સર પર ઝાંખી કરાય છે",
-  "widgetsB.settings.mixer.rows": "પંક્તિઓ",
-  "widgetsB.settings.mixer.systemSounds.desc": "Windows ના પોતાના સૂચના ધ્વનિઓ"
+  "widgetsB.settings.mixer.note": "મિક્સર પર ક્લિક કરો, પછી ↑ અને ↓ પંક્તિ પસંદ કરે છે, ← અને → તેને બદલે છે, M મ્યૂટ કરે છે."
 }

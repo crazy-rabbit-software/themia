@@ -5,9 +5,7 @@
   "widgetsC.volume.followDefault": "Как устройство вывода по умолчанию",
   "widgetsC.volume.noDevice": "Нет устройства вывода",
   "widgetsC.volume.notConnected": "{device} не подключено",
-  "widgetsC.volume.settings.allow.desc": "Позволить этой плитке менять громкость системы",
   "widgetsC.volume.settings.allow.label": "Разрешить изменения",
-  "widgetsC.volume.settings.behaviour": "Поведение",
   "widgetsC.volume.settings.keysNote": "Щелкните плитку, затем используйте клавиши со стрелками или + и −; M выключает звук.",
   "widgetsC.volume.unavailable": "Звук недоступен"
 }

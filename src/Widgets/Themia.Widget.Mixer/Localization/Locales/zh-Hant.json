@@ -13,12 +13,6 @@
   "widgetsB.mixer.noDevice": "沒有輸出裝置",
   "widgetsB.mixer.notPlaying": "{name}（未在播放）",
   "widgetsB.mixer.unavailable": "無法使用音效",
-  "widgetsB.settings.mixer.groupByApp.desc": "每個應用程式一個滑桿，而非每個索引標籤",
   "widgetsB.settings.mixer.groupByApp.label": "每個應用程式一列",
-  "widgetsB.settings.mixer.header": "混音器",
-  "widgetsB.settings.mixer.icons.desc": "使用每個應用程式自己的圖示，而非通用圖示",
-  "widgetsB.settings.mixer.note": "按一下混音器，↑ 和 ↓ 選擇列，← 和 → 調整，M 靜音。",
-  "widgetsB.settings.mixer.onlyActive.desc": "無聲的應用程式會被省略，在大型混音器中則以淡色顯示",
-  "widgetsB.settings.mixer.rows": "列",
-  "widgetsB.settings.mixer.systemSounds.desc": "Windows 本身的通知音效"
+  "widgetsB.settings.mixer.note": "按一下混音器，↑ 和 ↓ 選擇列，← 和 → 調整，M 靜音。"
 }

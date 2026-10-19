@@ -13,12 +13,6 @@
   "widgetsB.mixer.noDevice": "출력 장치 없음",
   "widgetsB.mixer.notPlaying": "{name}(재생 중 아님)",
   "widgetsB.mixer.unavailable": "소리를 사용할 수 없습니다",
-  "widgetsB.settings.mixer.groupByApp.desc": "탭별이 아니라 앱별로 슬라이더 하나",
   "widgetsB.settings.mixer.groupByApp.label": "앱당 한 행",
-  "widgetsB.settings.mixer.header": "볼륨 믹서",
-  "widgetsB.settings.mixer.icons.desc": "일반 아이콘 대신 각 앱의 아이콘",
-  "widgetsB.settings.mixer.note": "믹서를 클릭한 다음 ↑ 및 ↓로 행을 선택하고, ← 및 →로 변경하고, M으로 음소거합니다.",
-  "widgetsB.settings.mixer.onlyActive.desc": "소리가 없는 앱은 제외되거나 큰 믹서에서는 흐리게 표시됩니다",
-  "widgetsB.settings.mixer.rows": "행",
-  "widgetsB.settings.mixer.systemSounds.desc": "Windows 자체 알림 소리"
+  "widgetsB.settings.mixer.note": "믹서를 클릭한 다음 ↑ 및 ↓로 행을 선택하고, ← 및 →로 변경하고, M으로 음소거합니다."
 }

@@ -5,9 +5,7 @@
   "widgetsC.volume.followDefault": "Bi fitarwar asali",
   "widgetsC.volume.noDevice": "Babu na'urar fitarwa",
   "widgetsC.volume.notConnected": "Ba a haɗa {device} ba",
-  "widgetsC.volume.settings.allow.desc": "Bari wannan tayil ya motsa ƙarar sautin tsarin aiki",
   "widgetsC.volume.settings.allow.label": "Ba da izinin canje-canje",
-  "widgetsC.volume.settings.behaviour": "Ɗabi'a",
   "widgetsC.volume.settings.keysNote": "Danna tayil ɗin, sannan yi amfani da maɓallan kibiya ko + da −; M yana bebe.",
   "widgetsC.volume.unavailable": "Babu sauti"
 }

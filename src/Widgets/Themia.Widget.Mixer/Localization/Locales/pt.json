@@ -13,12 +13,6 @@
   "widgetsB.mixer.noDevice": "Nenhum dispositivo de saída",
   "widgetsB.mixer.notPlaying": "{name} (não está tocando)",
   "widgetsB.mixer.unavailable": "O som não está disponível",
-  "widgetsB.settings.mixer.groupByApp.desc": "Um controlo por aplicação, não por separador",
   "widgetsB.settings.mixer.groupByApp.label": "Uma linha por aplicativo",
-  "widgetsB.settings.mixer.header": "Mixer",
-  "widgetsB.settings.mixer.icons.desc": "O ícone de cada aplicativo em vez de um genérico",
-  "widgetsB.settings.mixer.note": "Clique no misturador: ↑ e ↓ escolhem uma linha, ← e → alteram-na, M silencia.",
-  "widgetsB.settings.mixer.onlyActive.desc": "As aplicações em silêncio saem, ou ficam esbatidas num misturador grande",
-  "widgetsB.settings.mixer.rows": "Linhas",
-  "widgetsB.settings.mixer.systemSounds.desc": "Os sons de notificação do próprio Windows"
+  "widgetsB.settings.mixer.note": "Clique no misturador: ↑ e ↓ escolhem uma linha, ← e → alteram-na, M silencia."
 }

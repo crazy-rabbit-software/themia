@@ -13,12 +13,6 @@
   "widgetsB.mixer.noDevice": "Hakuna kifaa cha kutoa sauti",
   "widgetsB.mixer.notPlaying": "{name} (haichezi)",
   "widgetsB.mixer.unavailable": "Sauti haipatikani",
-  "widgetsB.settings.mixer.groupByApp.desc": "Kitelezi kimoja kwa kila programu, si kwa kila kichupo",
   "widgetsB.settings.mixer.groupByApp.label": "Safu mlalo moja kwa kila programu",
-  "widgetsB.settings.mixer.header": "Kichanganyaji",
-  "widgetsB.settings.mixer.icons.desc": "Aikoni ya kila programu badala ya aikoni ya jumla",
-  "widgetsB.settings.mixer.note": "Bofya kichanganyaji, kisha ↑ na ↓ huchagua safu mlalo, ← na → huibadilisha, M hunyamazisha.",
-  "widgetsB.settings.mixer.onlyActive.desc": "Programu kimya huachwa nje, au hufifishwa kwenye kichanganyaji kikubwa",
-  "widgetsB.settings.mixer.rows": "Safu mlalo",
-  "widgetsB.settings.mixer.systemSounds.desc": "Sauti za arifa za Windows zenyewe"
+  "widgetsB.settings.mixer.note": "Bofya kichanganyaji, kisha ↑ na ↓ huchagua safu mlalo, ← na → huibadilisha, M hunyamazisha."
 }

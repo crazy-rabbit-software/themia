@@ -13,12 +13,6 @@
   "widgetsB.mixer.noDevice": "आउटपुट डिव्हाइस नाही",
   "widgetsB.mixer.notPlaying": "{name} (वाजत नाही)",
   "widgetsB.mixer.unavailable": "ध्वनी उपलब्ध नाही",
-  "widgetsB.settings.mixer.groupByApp.desc": "प्रति टॅब नाही, प्रति अ‍ॅप एक स्लायडर",
   "widgetsB.settings.mixer.groupByApp.label": "प्रति अ‍ॅप एक ओळ",
-  "widgetsB.settings.mixer.header": "मिक्सर",
-  "widgetsB.settings.mixer.icons.desc": "सामान्य आयकॉनऐवजी प्रत्येक अ‍ॅपचा स्वतःचा आयकॉन",
-  "widgetsB.settings.mixer.note": "मिक्सरवर क्लिक करा, मग ↑ आणि ↓ ओळ निवडतात, ← आणि → ती बदलतात, M म्यूट करते.",
-  "widgetsB.settings.mixer.onlyActive.desc": "शांत अ‍ॅप्स वगळली जातात, किंवा मोठ्या मिक्सरवर फिकट दिसतात",
-  "widgetsB.settings.mixer.rows": "ओळी",
-  "widgetsB.settings.mixer.systemSounds.desc": "Windows चे स्वतःचे सूचना ध्वनी"
+  "widgetsB.settings.mixer.note": "मिक्सरवर क्लिक करा, मग ↑ आणि ↓ ओळ निवडतात, ← आणि → ती बदलतात, M म्यूट करते."
 }

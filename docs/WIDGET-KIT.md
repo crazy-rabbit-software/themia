@@ -1766,7 +1766,7 @@ registration path: when a table becomes a descriptor member, the table is delete
   `BarList`/`TileGrid`, `CoreGraphGrid`, `SparkBand` (`SparkScroll` with the data), `MeterMenuLines` (was `MeterSettingsRows`),
   `GaugeConfig`/`MeterTiming`; `DetailView` and `DetailPart` (the sample state asks the part for its
   fixture sheet, `DetailPart.SampleSheet`, instead of naming the battery details), `DetailFace`,
-  `FolderRealize`; the pairs' parts: `DriveIcon`/`DriveBar`, `AudioLook`, `AudioDeviceRow`,
+  `FolderRealize`; the pairs' parts: `DriveIcon`/`DriveBar`, `AudioLook`, `AudioDeviceLine`,
   `GpuAdapterLine`, `PingHostLine` (were the page rows) with `HostAddress.DefaultPingHost`. Widget-only rules went with their
   widget (`PingWindow` to the ping details, `VisualizerLayout` and `SpectrumCanvas` to the visualizer,
   `HugRow` to the mixer); Core's `DetailConfigs.cs`, `DriveConfigs.cs`, `WidgetSettings.Details.cs` and

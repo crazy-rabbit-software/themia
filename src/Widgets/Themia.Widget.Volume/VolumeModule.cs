@@ -34,8 +34,9 @@ public sealed class VolumeModule : IWidgetModule
         Add = new(AddFolderId.Media, 0, 2),
     };
 
-    public void SettingsRows(WidgetSettingsRows rows, WidgetConfig config)
-        => VolumeSettings.Rows(rows.Rows, (VolumeConfig)config, rows.Save);
+    /// <summary>[S-3719] Every option is on the properties menu: the widget has no settings page.</summary>
+    public void MenuLines(WidgetMenuLines menu, WidgetConfig config)
+        => VolumeMenu.Lines(menu, (VolumeConfig)config);
 
     public FrameworkElement CreateView(IWidgetHost host) => new VolumeView(host);
 }

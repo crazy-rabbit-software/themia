@@ -5,9 +5,7 @@
   "widgetsC.volume.followDefault": "跟随默认输出",
   "widgetsC.volume.noDevice": "没有输出设备",
   "widgetsC.volume.notConnected": "{device} 未连接",
-  "widgetsC.volume.settings.allow.desc": "允许此磁贴调整系统音量",
   "widgetsC.volume.settings.allow.label": "允许更改",
-  "widgetsC.volume.settings.behaviour": "行为",
   "widgetsC.volume.settings.keysNote": "单击磁贴，然后用方向键或 + 和 − 调节；M 静音。",
   "widgetsC.volume.unavailable": "声音不可用"
 }

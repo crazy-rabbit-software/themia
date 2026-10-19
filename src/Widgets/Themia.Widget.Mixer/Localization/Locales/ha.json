@@ -13,12 +13,6 @@
   "widgetsB.mixer.noDevice": "Babu na'urar fitarwa",
   "widgetsB.mixer.notPlaying": "{name} (ba ya kunnawa)",
   "widgetsB.mixer.unavailable": "Babu sauti",
-  "widgetsB.settings.mixer.groupByApp.desc": "Majanyi ɗaya kowace manhaja, ba kowane shafi ba",
   "widgetsB.settings.mixer.groupByApp.label": "Layi ɗaya kowace manhaja",
-  "widgetsB.settings.mixer.header": "Mahaɗin sauti",
-  "widgetsB.settings.mixer.icons.desc": "Gunkin kowace manhaja maimakon na gama-gari",
-  "widgetsB.settings.mixer.note": "Danna mahaɗin, sannan ↑ da ↓ suna zaɓar layi, ← da → suna canza shi, M yana bebe.",
-  "widgetsB.settings.mixer.onlyActive.desc": "Ana barin manhajoji masu shiru, ko a dushe su a babban mahaɗi",
-  "widgetsB.settings.mixer.rows": "Layuka",
-  "widgetsB.settings.mixer.systemSounds.desc": "Sautunan sanarwa na Windows"
+  "widgetsB.settings.mixer.note": "Danna mahaɗin, sannan ↑ da ↓ suna zaɓar layi, ← da → suna canza shi, M yana bebe."
 }

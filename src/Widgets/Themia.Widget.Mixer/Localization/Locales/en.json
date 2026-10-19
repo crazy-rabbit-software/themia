@@ -14,12 +14,6 @@
   "widgetsB.mixer.noDevice": "No output device",
   "widgetsB.mixer.notPlaying": "{name} (not playing)",
   "widgetsB.mixer.unavailable": "Sound is not available",
-  "widgetsB.settings.mixer.groupByApp.desc": "One slider per app, not per tab",
   "widgetsB.settings.mixer.groupByApp.label": "One row per app",
-  "widgetsB.settings.mixer.header": "Mixer",
-  "widgetsB.settings.mixer.icons.desc": "Each app's own icon rather than a generic one",
-  "widgetsB.settings.mixer.note": "Click the mixer, then ↑ and ↓ pick a row, ← and → change it, M mutes.",
-  "widgetsB.settings.mixer.onlyActive.desc": "Silent apps are left out, or dimmed on a large mixer",
-  "widgetsB.settings.mixer.rows": "Rows",
-  "widgetsB.settings.mixer.systemSounds.desc": "Windows' own notification sounds"
+  "widgetsB.settings.mixer.note": "Click the mixer, then ↑ and ↓ pick a row, ← and → change it, M mutes."
 }

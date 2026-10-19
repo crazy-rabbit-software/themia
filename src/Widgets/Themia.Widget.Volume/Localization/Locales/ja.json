@@ -5,9 +5,7 @@
   "widgetsC.volume.followDefault": "既定の出力に従う",
   "widgetsC.volume.noDevice": "出力デバイスがありません",
   "widgetsC.volume.notConnected": "{device} は接続されていません",
-  "widgetsC.volume.settings.allow.desc": "このタイルでシステムの音量を変更できるようにします",
   "widgetsC.volume.settings.allow.label": "変更を許可",
-  "widgetsC.volume.settings.behaviour": "動作",
   "widgetsC.volume.settings.keysNote": "タイルをクリックし、方向キーか + と − で調整。M でミュート。",
   "widgetsC.volume.unavailable": "サウンドを利用できません"
 }

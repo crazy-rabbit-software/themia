@@ -13,12 +13,6 @@
   "widgetsB.mixer.noDevice": "لا يوجد جهاز إخراج",
   "widgetsB.mixer.notPlaying": "{name} (لا يشغّل)",
   "widgetsB.mixer.unavailable": "الصوت غير متاح",
-  "widgetsB.settings.mixer.groupByApp.desc": "شريط تمرير واحد لكل تطبيق، لا لكل علامة تبويب",
   "widgetsB.settings.mixer.groupByApp.label": "صف واحد لكل تطبيق",
-  "widgetsB.settings.mixer.header": "الخالط",
-  "widgetsB.settings.mixer.icons.desc": "أيقونة كل تطبيق بدلًا من أيقونة عامة",
-  "widgetsB.settings.mixer.note": "انقر على الخالط، ثم يختار ↑ و↓ صفًا، ويغيّره ← و→، ويكتم M الصوت.",
-  "widgetsB.settings.mixer.onlyActive.desc": "تُستبعد التطبيقات الصامتة، أو تُعتَّم في الخالط الكبير",
-  "widgetsB.settings.mixer.rows": "الصفوف",
-  "widgetsB.settings.mixer.systemSounds.desc": "أصوات الإعلامات الخاصة بـ Windows"
+  "widgetsB.settings.mixer.note": "انقر على الخالط، ثم يختار ↑ و↓ صفًا، ويغيّره ← و→، ويكتم M الصوت."
 }

@@ -13,12 +13,6 @@
   "widgetsB.mixer.noDevice": "কোনো আউটপুট ডিভাইস নেই",
   "widgetsB.mixer.notPlaying": "{name} (চলছে না)",
   "widgetsB.mixer.unavailable": "শব্দ উপলব্ধ নয়",
-  "widgetsB.settings.mixer.groupByApp.desc": "প্রতি অ্যাপে একটি স্লাইডার, প্রতি ট্যাবে নয়",
   "widgetsB.settings.mixer.groupByApp.label": "প্রতি অ্যাপে এক সারি",
-  "widgetsB.settings.mixer.header": "মিক্সার",
-  "widgetsB.settings.mixer.icons.desc": "সাধারণ আইকনের বদলে প্রতিটি অ্যাপের নিজস্ব আইকন",
-  "widgetsB.settings.mixer.note": "মিক্সারে ক্লিক করুন, তারপর ↑ ও ↓ দিয়ে সারি বাছুন, ← ও → দিয়ে বদলান, M মিউট করে।",
-  "widgetsB.settings.mixer.onlyActive.desc": "নীরব অ্যাপ বাদ দেওয়া হয়, বা বড় মিক্সারে ঝাপসা দেখায়",
-  "widgetsB.settings.mixer.rows": "সারি",
-  "widgetsB.settings.mixer.systemSounds.desc": "Windows-এর নিজস্ব বিজ্ঞপ্তির শব্দ"
+  "widgetsB.settings.mixer.note": "মিক্সারে ক্লিক করুন, তারপর ↑ ও ↓ দিয়ে সারি বাছুন, ← ও → দিয়ে বদলান, M মিউট করে।"
 }

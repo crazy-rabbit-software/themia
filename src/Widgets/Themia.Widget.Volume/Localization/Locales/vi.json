@@ -5,9 +5,7 @@
   "widgetsC.volume.followDefault": "Theo đầu ra mặc định",
   "widgetsC.volume.noDevice": "Không có thiết bị đầu ra",
   "widgetsC.volume.notConnected": "{device} chưa được kết nối",
-  "widgetsC.volume.settings.allow.desc": "Cho ô này điều chỉnh âm lượng hệ thống",
   "widgetsC.volume.settings.allow.label": "Cho phép thay đổi",
-  "widgetsC.volume.settings.behaviour": "Hành vi",
   "widgetsC.volume.settings.keysNote": "Nhấp vào ô, rồi dùng phím mũi tên hoặc + và −; M tắt tiếng.",
   "widgetsC.volume.unavailable": "Âm thanh không khả dụng"
 }

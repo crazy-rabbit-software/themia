@@ -5,9 +5,7 @@
   "widgetsC.volume.followDefault": "डिफ़ॉल्ट आउटपुट का पालन करें",
   "widgetsC.volume.noDevice": "कोई आउटपुट डिवाइस नहीं",
   "widgetsC.volume.notConnected": "{device} कनेक्ट नहीं है",
-  "widgetsC.volume.settings.allow.desc": "इस टाइल को सिस्टम वॉल्यूम बदलने दें",
   "widgetsC.volume.settings.allow.label": "बदलाव की अनुमति दें",
-  "widgetsC.volume.settings.behaviour": "व्यवहार",
   "widgetsC.volume.settings.keysNote": "टाइल पर क्लिक करें, फिर तीर कुंजियाँ या + और − उपयोग करें; M म्यूट करता है।",
   "widgetsC.volume.unavailable": "ध्वनि उपलब्ध नहीं है"
 }

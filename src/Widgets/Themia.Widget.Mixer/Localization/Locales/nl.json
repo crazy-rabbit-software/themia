@@ -13,12 +13,6 @@
   "widgetsB.mixer.noDevice": "Geen uitvoerapparaat",
   "widgetsB.mixer.notPlaying": "{name} (speelt niet af)",
   "widgetsB.mixer.unavailable": "Geluid is niet beschikbaar",
-  "widgetsB.settings.mixer.groupByApp.desc": "Eén schuifregelaar per app, niet per tabblad",
   "widgetsB.settings.mixer.groupByApp.label": "Eén rij per app",
-  "widgetsB.settings.mixer.header": "Mixer",
-  "widgetsB.settings.mixer.icons.desc": "Het eigen pictogram van elke app in plaats van een algemeen pictogram",
-  "widgetsB.settings.mixer.note": "Klik op de mixer; ↑ en ↓ kiezen een rij, ← en → wijzigen hem, M dempt.",
-  "widgetsB.settings.mixer.onlyActive.desc": "Stille apps worden weggelaten, of gedimd in een grote mixer",
-  "widgetsB.settings.mixer.rows": "Rijen",
-  "widgetsB.settings.mixer.systemSounds.desc": "De eigen meldingsgeluiden van Windows"
+  "widgetsB.settings.mixer.note": "Klik op de mixer; ↑ en ↓ kiezen een rij, ← en → wijzigen hem, M dempt."
 }

@@ -13,12 +13,6 @@
   "widgetsB.mixer.noDevice": "Nessun dispositivo di uscita",
   "widgetsB.mixer.notPlaying": "{name} (non in riproduzione)",
   "widgetsB.mixer.unavailable": "L'audio non è disponibile",
-  "widgetsB.settings.mixer.groupByApp.desc": "Un cursore per app, non per scheda",
   "widgetsB.settings.mixer.groupByApp.label": "Una riga per app",
-  "widgetsB.settings.mixer.header": "Mixer",
-  "widgetsB.settings.mixer.icons.desc": "L'icona di ogni app invece di una generica",
-  "widgetsB.settings.mixer.note": "Fai clic sul mixer: ↑ e ↓ scelgono una riga, ← e → la cambiano, M silenzia.",
-  "widgetsB.settings.mixer.onlyActive.desc": "Le app silenziose vengono escluse, o attenuate in un mixer grande",
-  "widgetsB.settings.mixer.rows": "Righe",
-  "widgetsB.settings.mixer.systemSounds.desc": "I suoni di notifica di Windows"
+  "widgetsB.settings.mixer.note": "Fai clic sul mixer: ↑ e ↓ scelgono una riga, ← e → la cambiano, M silenzia."
 }

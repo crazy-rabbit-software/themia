@@ -5,9 +5,7 @@
   "widgetsC.volume.followDefault": "இயல்புநிலை வெளியீட்டைப் பின்பற்று",
   "widgetsC.volume.noDevice": "வெளியீட்டுச் சாதனம் இல்லை",
   "widgetsC.volume.notConnected": "{device} இணைக்கப்படவில்லை",
-  "widgetsC.volume.settings.allow.desc": "இந்த ஓடு சிஸ்டம் ஒலியளவை மாற்ற அனுமதி",
   "widgetsC.volume.settings.allow.label": "மாற்றங்களை அனுமதி",
-  "widgetsC.volume.settings.behaviour": "நடத்தை",
   "widgetsC.volume.settings.keysNote": "ஓட்டைக் கிளிக் செய்து, அம்பு விசைகள் அல்லது + மற்றும் − ஐப் பயன்படுத்தவும்; M ஒலியடக்கும்.",
   "widgetsC.volume.unavailable": "ஒலி கிடைக்கவில்லை"
 }
