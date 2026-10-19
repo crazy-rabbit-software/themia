@@ -324,6 +324,17 @@ internal static class EditBarRender
             ([new(new WidgetId("habitTracker"), 200, 160, 300, 240, HeaderPlacement.Top, true)], "habits-style", Str.Styles_Label.Text(), null),
             ([new(new WidgetId("notes"), 200, 160, 300, 240, HeaderPlacement.Top, true)], "notes-note", "Note", null),
             ([new(new WidgetId("quote"), 200, 160, 320, 180, HeaderPlacement.Top, true)], "quote-quotes", "Quotes", null),
+
+            // The files', media's, devices' and markets' widgets: what is under Style, a path, a device, a pair.
+            ([new(new WidgetId("folder"), 200, 160, 320, 240, HeaderPlacement.Top, true, Style: "list")], "folder-style", Str.Styles_Label.Text() + "/Sort by", null),
+            ([new(new WidgetId("folder"), 200, 160, 320, 240, HeaderPlacement.Top, true)], "folder-folder", "Folder", null),
+            ([new(new WidgetId("gallery"), 200, 160, 320, 240, HeaderPlacement.Top, true)], "gallery-source", "Source", null),
+            ([new(new WidgetId("mixer"), 200, 160, 320, 240, HeaderPlacement.Top, true)], "mixer-device", "Output device", null),
+            ([new(new WidgetId("music"), 200, 160, 340, 160, HeaderPlacement.Top, true)], "music-hide", "Hide when idle", null),
+            ([new(new WidgetId("bluetooth"), 200, 160, 300, 240, HeaderPlacement.Top, true)], "bluetooth", appearance, null),
+            ([new(new WidgetId("videoStream"), 200, 160, 320, 200, HeaderPlacement.Top, true)], "videostream-rotation", "Rotation", null),
+            ([new(new WidgetId("stocks"), 200, 160, 300, 200, HeaderPlacement.Top, true)], "stocks-period", "Timeframe", null),
+            ([new(new WidgetId("exchangeRates"), 200, 160, 300, 200, HeaderPlacement.Top, true)], "rates-base", "Base currency", "c"),
         ];
 
         // [S-2847] The location searches answer from fixture places; [S-3323] the screen-time lines read the sample history.
