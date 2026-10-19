@@ -23,15 +23,16 @@ public sealed class MoonMenuTests
         var lines = Build(new MoonConfig());
 
         Assert.Equal(0, lines.CardAt);
+        Assert.True(lines.Lines[0].IsSeparator);
         Assert.Empty(lines.StyleLines);
-        Assert.Equal(Str.Shell_Place_Location.Text(), Assert.Single(lines.Lines).Text);
+        Assert.Equal(Str.Shell_Place_Location.Text(), Assert.Single(lines.Lines, l => !l.IsSeparator).Text);
     }
 
     [Fact]
     public void S3108_the_month_of_phases_offers_no_longitude()
     {
-        var disc = Assert.Single(Build(new MoonConfig { Style = MoonStyle.Disc }).Lines).Search!;
-        var month = Assert.Single(Build(new MoonConfig { Style = MoonStyle.PhaseMonth }).Lines).Search!;
+        var disc = Assert.Single(Build(new MoonConfig { Style = MoonStyle.Disc }).Lines, l => !l.IsSeparator).Search!;
+        var month = Assert.Single(Build(new MoonConfig { Style = MoonStyle.PhaseMonth }).Lines, l => !l.IsSeparator).Search!;
 
         Assert.Contains(disc.Fixed, f => f.Text == Str.SunMoon_Longitude_Label.Text());
         Assert.DoesNotContain(month.Fixed, f => f.Text == Str.SunMoon_Longitude_Label.Text());

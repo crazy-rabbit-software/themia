@@ -1,3 +1,4 @@
+using Themia.App.Widgets;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
@@ -23,7 +24,9 @@ internal static class WeatherNowMenu
             menu.StyleLines.Add(menu.Toggle(null, WeatherNowStr.WidgetsC_Weather_Settings_ShowDetail_Label.Text(), config.ShowDetails, on => config.ShowDetails = on));
         }
 
+        // The look (Style, Appearance), a divider, then the place.
         menu.PlaceCard();
+        menu.Lines.Add(ItemMenuEntry.Separator);
         menu.Lines.Add(WeatherPlaceRows.LocationLine(menu, config));
     }
 }

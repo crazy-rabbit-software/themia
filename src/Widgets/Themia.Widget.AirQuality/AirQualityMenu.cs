@@ -19,8 +19,11 @@ internal static class AirQualityMenu
         ArgumentNullException.ThrowIfNull(menu);
         ArgumentNullException.ThrowIfNull(config);
 
+        // The look (Style, Appearance), then behind a divider each: the place; the index it is read on.
         menu.PlaceCard();
+        menu.Lines.Add(ItemMenuEntry.Separator);
         menu.Lines.Add(WeatherPlaceRows.LocationLine(menu, config));
+        menu.Lines.Add(ItemMenuEntry.Separator);
 
         (AirQualityScale, string)[] scales =
         [

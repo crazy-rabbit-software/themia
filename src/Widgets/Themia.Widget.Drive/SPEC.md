@@ -30,7 +30,7 @@ the module host's `DriveHostTests`, its styles beside the meters' `IoStylesHostT
   the ring on a wide strip, under it otherwise, as far as they fit; the ring takes the rest
   (`RingFace`, [S-6266]). The options, the menu and the drive walk are the same for both.
 - **[S-4674]** Its options are on the properties menu ([S-3719], user request 2026-10-19), no settings
-  page: Appearance, then Drive — the system drive (by name), every drive the walk lists (shares
+  page: Appearance, then behind a divider Drive — the system drive (by name), every drive the walk lists (shares
   included, never waited for), and a chosen drive that is gone as "not connected". The card menu has Open
   in Explorer, Eject for a removable drive, and Refresh.
 

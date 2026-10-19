@@ -19,14 +19,14 @@ public sealed class WeatherForecastMenuTests
     }
 
     [Fact]
-    public void S6173_appearance_then_location_days_and_precipitation()
+    public void S6173_appearance_then_the_location_then_days_and_precipitation_each_behind_a_divider()
     {
         var lines = Build(new WeatherForecastConfig());
 
         Assert.Equal(0, lines.CardAt);
         Assert.Equal(
-            [Str.Shell_Place_Location.Text(), WeatherForecastStr.Forecast_DaysLabel.Text(), WeatherForecastStr.WidgetsC_Weather_Settings_ShowPrecipitation_Label.Text()],
-            lines.Lines.Select(l => l.Text));
+            ["-", Str.Shell_Place_Location.Text(), "-", WeatherForecastStr.Forecast_DaysLabel.Text(), WeatherForecastStr.WidgetsC_Weather_Settings_ShowPrecipitation_Label.Text()],
+            lines.Lines.Select(l => l.IsSeparator ? "-" : l.Text));
     }
 
     [Fact]

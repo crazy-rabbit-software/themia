@@ -71,8 +71,8 @@ precipitation and days), `Preview/` (Debug renders: `--state sample`, the SDK's 
   forecast's scale, clamped to the bar's ends, in the colour text takes on the accent and ringed
   in the accent. No reading: no dot, and only the hairline on the curve.
 - **[S-6173]** Its options are all on the properties menu ([S-3719], user request 2026-10-19); it
-  has no settings page: Appearance ([S-3723]), Location (the weather family's search, [S-3722], as the
-  current conditions', [S-6174]), Days (1 to 14, the current one with the dot) and the precipitation
+  has no settings page: Appearance ([S-3723]), then behind a divider each Location (the weather family's search, [S-3722], as the
+  current conditions', [S-6174]), and Days (1 to 14, the current one with the dot) and the precipitation
   switch. (Tests `WeatherForecastMenuTests`.)
 
 Needs a live pass: the widget against the real service (1 and 14 days), offline with a restored shelf.

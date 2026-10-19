@@ -29,14 +29,14 @@ public sealed class CountdownMenuTests
     private static string Time => CountdownStr.WidgetsA_Countdown_Menu_Time.Text();
 
     [Fact]
-    public void S6037_appearance_then_name_date_time_and_format()
+    public void S6037_appearance_then_name_date_and_time_then_the_format_each_behind_a_divider()
     {
         var lines = Build(new CountdownConfig());
 
         Assert.Equal(0, lines.CardAt);
         Assert.Equal(
-            [CountdownStr.WidgetsA_Countdown_Settings_Name_Label.Text(), Date, Time, CountdownStr.WidgetsA_Countdown_Settings_Format_Label.Text()],
-            lines.Lines.Select(l => l.Text));
+            ["-", CountdownStr.WidgetsA_Countdown_Settings_Name_Label.Text(), Date, Time, "-", CountdownStr.WidgetsA_Countdown_Settings_Format_Label.Text()],
+            lines.Lines.Select(l => l.IsSeparator ? "-" : l.Text));
     }
 
     [Fact]

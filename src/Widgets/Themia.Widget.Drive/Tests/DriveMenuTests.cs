@@ -26,7 +26,8 @@ public sealed class DriveMenuTests
         var menu = new WidgetMenuLines(() => _saves++, _ => { });
         DriveMenu.Lines(menu, config, Drives);
         Assert.Equal(0, menu.CardAt);
-        return Assert.Single(menu.Lines);
+        Assert.True(menu.Lines[0].IsSeparator);
+        return Assert.Single(menu.Lines, l => !l.IsSeparator);
     }
 
     [Fact]

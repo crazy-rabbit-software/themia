@@ -47,12 +47,12 @@ words), `CountdownLayout.cs` (the ladder, the ring's share, the flip cards), `Co
   hand-edited file is repaired loudly: an unknown format reads Auto, a name of several lines or
   too long is cut to one short line.
 - **[S-6037]** Its options are all on the properties menu ([S-3719], user request 2026-10-19); it
-  has no settings page. Appearance ([S-3723]), then **Name** (typed, at most 60 characters, empty
+  has no settings page. Appearance ([S-3723]), then, each group behind a divider, **Name** (typed, at most 60 characters, empty
   for Untitled), **Date** (typed, [S-3738]; the day in the language's medium form at the end of the
   line; with no target yet the time is midnight, so a typed day counts to its start), **Time** (typed
   in either clock, [S-3738]; greyed while there is no day), each keeping the other part of the
   target, a new target restarting its progress ([S-1448]) and a DST-skipped one changing nothing
-  ([S-144]); and **Format** (Auto, Days only, Days · Hours · Min, Days · Hours · Min · Sec).
+  ([S-144]); then **Format** (Auto, Days only, Days · Hours · Min, Days · Hours · Min · Sec).
   (Tests `CountdownMenuTests`.)
 - **[S-1445]** *(Retired: one target per widget, [S-6036]; removing a countdown is removing its widget.)*
   The format is chosen on the properties menu only ([S-1746]); original C-60 and C-61 are moot.

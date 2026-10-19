@@ -21,7 +21,7 @@ public sealed class SunMenuTests
         return lines;
     }
 
-    private MenuSearch Location(SunConfig config) => Assert.Single(Build(config).Lines).Search!;
+    private MenuSearch Location(SunConfig config) => Assert.Single(Build(config).Lines, l => !l.IsSeparator).Search!;
 
     private static ItemMenuEntry Fixed(MenuSearch search, string text) => Assert.Single(search.Fixed, f => f.Text == text);
 
@@ -52,7 +52,8 @@ public sealed class SunMenuTests
         var lines = Build(new SunConfig());
 
         Assert.Equal(0, lines.CardAt);
-        var location = Assert.Single(lines.Lines);
+        Assert.True(lines.Lines[0].IsSeparator);
+        var location = Assert.Single(lines.Lines, l => !l.IsSeparator);
         Assert.Equal(Str.Shell_Place_Location.Text(), location.Text);
         Assert.NotNull(location.Search);
         Assert.Equal(

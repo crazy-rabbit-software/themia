@@ -32,7 +32,8 @@ public sealed class WeatherNowMenuTests
         var lines = Build(new WeatherNowConfig());
 
         Assert.Equal(0, lines.CardAt);
-        var location = Assert.Single(lines.Lines);
+        Assert.True(lines.Lines[0].IsSeparator);
+        var location = Assert.Single(lines.Lines, l => !l.IsSeparator);
         Assert.NotNull(location.Search);
         Assert.Equal(Str.Shell_Place_Location.Text(), location.Text);
     }
@@ -40,7 +41,7 @@ public sealed class WeatherNowMenuTests
     [Fact]
     public void S6174_without_a_place_the_line_shows_none_and_clear_is_greyed()
     {
-        var location = Assert.Single(Build(new WeatherNowConfig()).Lines);
+        var location = Assert.Single(Build(new WeatherNowConfig()).Lines, l => !l.IsSeparator);
 
         Assert.Null(location.Search!.Value);
         Assert.True(Assert.Single(location.Search.Fixed, f => f.Text == Str.Shell_Place_Clear.Text()).Disabled);
@@ -50,7 +51,7 @@ public sealed class WeatherNowMenuTests
     public void S6174_clear_forgets_the_place_and_the_name_switch_turns_the_city_off()
     {
         var config = new WeatherNowConfig { Latitude = 47.37, Longitude = 8.54, LocationName = "Zürich, Switzerland" };
-        var search = Assert.Single(Build(config).Lines).Search!;
+        var search = Assert.Single(Build(config).Lines, l => !l.IsSeparator).Search!;
 
         Assert.Equal("Zürich", search.Value);
         Assert.Single(search.Fixed, f => f.Text == Str.Weather_LocationNameLabel.Text()).Action!();
@@ -66,7 +67,7 @@ public sealed class WeatherNowMenuTests
     [InlineData("z")]
     public async Task S6174_nothing_typed_or_one_letter_asks_nothing(string typed)
     {
-        var search = Assert.Single(Build(new WeatherNowConfig()).Lines).Search!;
+        var search = Assert.Single(Build(new WeatherNowConfig()).Lines, l => !l.IsSeparator).Search!;
         var answer = await search.Find(typed, CancellationToken.None);
 
         Assert.Empty(answer.Lines);

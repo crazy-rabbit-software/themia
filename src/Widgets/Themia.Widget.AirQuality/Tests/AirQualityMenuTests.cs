@@ -17,12 +17,12 @@ public sealed class AirQualityMenuTests
     }
 
     [Fact]
-    public void S5108_appearance_then_location_and_index()
+    public void S5108_appearance_then_the_location_then_the_index_each_behind_a_divider()
     {
         var lines = Build(new AirQualityConfig());
 
         Assert.Equal(0, lines.CardAt);
-        Assert.Equal([Str.Shell_Place_Location.Text(), AirQualityStr.Online_Air_Settings_Index_Label.Text()], lines.Lines.Select(l => l.Text));
+        Assert.Equal(["-", Str.Shell_Place_Location.Text(), "-", AirQualityStr.Online_Air_Settings_Index_Label.Text()], lines.Lines.Select(l => l.IsSeparator ? "-" : l.Text));
     }
 
     [Fact]

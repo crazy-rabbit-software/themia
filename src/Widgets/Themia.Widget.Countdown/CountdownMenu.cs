@@ -33,7 +33,11 @@ internal static class CountdownMenu
         ArgumentNullException.ThrowIfNull(now);
 
         var locale = Strings.Current;
+
+        // [S-6037] After the look, each group behind a divider: what is counted to (its name, its
+        // day and time); how the time left reads.
         menu.PlaceCard();
+        menu.Lines.Add(ItemMenuEntry.Separator);
 
         menu.Lines.Add(new ItemMenuEntry(Glyphs.Rename, CountdownStr.WidgetsA_Countdown_Settings_Name_Label.Text(), () => menu.Ask(new WidgetTextAsk(
             CountdownStr.WidgetsA_Countdown_Settings_Name_Label.Text(),
@@ -103,6 +107,7 @@ internal static class CountdownMenu
             Disabled: day is null,
             Value: day is null ? null : LocaleFormat.Time(locale, TimeOnly.FromTimeSpan(time))));
 
+        menu.Lines.Add(ItemMenuEntry.Separator);
         menu.Lines.Add(menu.Choice(Glyphs.Countdown, CountdownStr.WidgetsA_Countdown_Settings_Format_Label.Text(), Formats(), config.Format, value => config.Format = value));
     }
 

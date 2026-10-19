@@ -24,7 +24,7 @@ lines, JSON context), `RainNextHourConfig.cs`, `RainNextHourView.cs` (it reads t
   (BodyStrong to Title; two lines on a tile too narrow for one), then the caption, then the bars
   where 32 DIP of them and their time line fit, taking the rest of the height.
 - **[S-5127]** Every option is on the properties menu ([S-3719], user request 2026-10-19); there is
-  no settings page: Appearance ([S-3723]), **Location** (the weather family's search, [S-2840],
+  no settings page: Appearance ([S-3723]), then behind a divider each **Location** (the weather family's search, [S-2840],
   [S-3722], the Location name switch under its answers, [S-728]) and the source's credit, a note
   ("Source: Open-Meteo").
 

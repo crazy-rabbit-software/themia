@@ -27,7 +27,7 @@ renders), `Localization/Locales/` (its own `MoonStr`, 30 languages). Tests: `Tes
   and phase. Concise: no rise, set or percentage rows in this style. Debug: `--state sample` pins
   12 October 2026, 21:00.
 - **[S-3108]** Every option is on the properties menu ([S-3719], user request 2026-10-19); there is
-  no settings page: Appearance ([S-3723]), then **Location**, the sky's shared search ([S-3101], as
+  no settings page: Appearance ([S-3723]), then behind a divider **Location**, the sky's shared search ([S-3101], as
   the Sun's [S-3107]). The month of phases offers no Longitude line ([S-6074]: one disc a day reads no
   longitude); nothing stands under Style.
 - **[S-6051]** `MoonMonth.Days`: every day of the month holding now in the machine's zone, each with

@@ -46,7 +46,7 @@ is the example of are in the module test host (`OnlineHostTests`, `SyncHousekeep
   [S-659], as the minimal clock, [S-6014]); no glyph, condition, range or readings.
 - **[S-6174]** Its options are all on the properties menu ([S-3719], user request 2026-10-19); it
   has no settings page. Under Style the readings line's switch (the standard style only, [S-6074]);
-  then Appearance ([S-3723]) and **Location**, the weather family's search ([S-3722],
+  then Appearance ([S-3723]) and behind a divider **Location**, the weather family's search ([S-3722],
   `WeatherPlaceRows.LocationLine`): the chosen place's city at the end of its line (nothing without one), the geocoder asked once typing pauses ([S-2841]), its places as lines (a click picks one,
   resolved once, [S-2840]) or what it said in their place ([S-2843]); under them Clear location
   (greyed without a place, [S-2848]) and the location-name switch ([S-728]). (Tests `WeatherNowMenuTests`.)

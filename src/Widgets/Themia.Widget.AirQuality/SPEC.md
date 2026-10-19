@@ -42,7 +42,7 @@ side-by-side family tests are in the module test host (`OnlineFamilyTests`, `Onl
   three columns where two fit across (not on a tall column), one stat line each on a tall or narrow
   tile, a side column on a strip ≥360 wide (two columns from 640). Spare height grows the hero.
 - **[S-5108]** Its options are all on the properties menu ([S-3719], user request 2026-10-19); it has
-  no settings page: Appearance ([S-3723]), Location (the weather family's search, [S-3722], the
+  no settings page: Appearance ([S-3723]), then behind a divider each Location (the weather family's search, [S-3722], the
   location-name switch under it) and Index (Auto / European / US, the current one with the dot), whose
   submenu ends with the source line, greyed: CAMS and Open-Meteo ask to be credited. (Tests `AirQualityMenuTests`.)
 - **[S-5109]** Once every reading is shown, the next rung is the band strip: six equal segments in
