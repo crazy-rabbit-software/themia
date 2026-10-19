@@ -365,6 +365,9 @@ internal sealed partial class PropertiesStrip : Grid
 
         public string ValueKey { get; init; } = string.Empty;
 
+        /// <summary>[S-1862] Where what the widget waits for is set: <see cref="OpenSetup"/> opens the menu at it.</summary>
+        public bool SetsUp { get; init; }
+
         public static Node Separator(string key) => new(key, NodeKind.Separator);
     }
 
@@ -886,6 +889,7 @@ internal sealed partial class PropertiesStrip : Grid
                 Danger = entry.Danger,
                 Children = children,
                 Search = entry.Search,
+                SetsUp = entry.SetsUp,
             });
         }
 
@@ -1577,6 +1581,67 @@ internal sealed partial class PropertiesStrip : Grid
         {
             Log.Error(Scope, "a properties command failed", ex);
         }
+    }
+
+    /// <summary>
+    /// [S-1862] The card's Set up button: open the menu at the line the widget's module names for what
+    /// it waits for (<see cref="WidgetMenuLines.SetsUp"/>), through the submenus on the way, as clicks
+    /// would: a submenu or a search opens (its first line or its box focused), any other line runs as
+    /// its click does (a question asked beside the menu). A widget that names none keeps the menu as it
+    /// stands. False when no line was opened.
+    /// </summary>
+    public bool OpenSetup()
+    {
+        if (_levels.Count == 0 || SetupPath(_levels[0].Nodes) is not { } path)
+        {
+            return false;
+        }
+
+        CloseFrom(1);
+        UpdateLayout();
+        for (var i = 0; i < path.Count; i++)
+        {
+            var key = path[i];
+            if (_levels[^1].Views.FirstOrDefault(v => v is not null && v.Node.Key == key) is not { } line || !line.Button.IsEnabled)
+            {
+                return false;
+            }
+
+            if (Opens(line.Node))
+            {
+                if (!OpenSubmenu(line, focus: i == path.Count - 1))
+                {
+                    return false;
+                }
+            }
+            else
+            {
+                line.Button.Focus(FocusState.Programmatic);
+                Run(line.Node.Run);
+            }
+        }
+
+        return true;
+    }
+
+    /// <summary>[S-1862] The keys of the lines from the first level down to the one that sets the widget up, or null.</summary>
+    private static List<string>? SetupPath(IReadOnlyList<Node> nodes)
+    {
+        foreach (var node in nodes)
+        {
+            if (node.SetsUp)
+            {
+                return [node.Key];
+            }
+
+            if (node.Children is { } children && SetupPath(children) is { } below)
+            {
+                below.Insert(0, node.Key);
+                return below;
+            }
+        }
+
+        return null;
     }
 
 #if DEBUG

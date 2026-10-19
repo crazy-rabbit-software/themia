@@ -8,7 +8,8 @@ namespace Themia.Core.Widgets;
 /// <summary>
 /// [S-1860] Whether a widget can show nothing useful until the user sets it up: no timer, no feed,
 /// no symbol, no place, no account to read from. Such a widget's body is one "Set up" button that
-/// opens its settings page, instead of a sentence telling the user where to go.
+/// goes where the missing piece is set ([S-1862], <see cref="Goes"/>), instead of a sentence telling
+/// the user where to go.
 /// <para>
 /// A pure function of the config and the account features signed in, so the card decides it the
 /// same way for every widget and it can be tested without a window. "Nothing right now" (no unread
@@ -31,6 +32,24 @@ public static class WidgetSetup
         return config is ISetupRule rule && rule.NeedsSetup(signedIn);
     }
 
+    /// <summary>
+    /// [S-1862] Where the Set up button goes: Settings › Accounts when an account is all the widget
+    /// lacks (it would be set up with every feature <paramref name="offerable"/> signed in, so adding
+    /// an account is the step), else the widget's properties menu in edit mode, where its options are
+    /// (an account widget that lacks something else too, a feed address say, goes there: its menu has
+    /// the Accounts line as well, [S-3745]).
+    /// </summary>
+    public static SetupGoes Goes(WidgetConfig config, FeatureSet signedIn, FeatureSet offerable)
+    {
+        ArgumentNullException.ThrowIfNull(config);
+        ArgumentNullException.ThrowIfNull(signedIn);
+        ArgumentNullException.ThrowIfNull(offerable);
+
+        return config is ISetupRule rule && rule.NeedsSetup(signedIn) && !rule.NeedsSetup(offerable)
+            ? SetupGoes.Accounts
+            : SetupGoes.Menu;
+    }
+
     /// <summary>Every feature the accounts' providers offer between them.</summary>
     public static FeatureSet Offered(IEnumerable<ProviderId> providers)
     {
@@ -44,4 +63,14 @@ public static class WidgetSetup
 
         return features;
     }
+}
+
+/// <summary>[S-1862] Where a widget's Set up button goes.</summary>
+public enum SetupGoes
+{
+    /// <summary>Edit mode, the widget selected alone, its properties menu open at the line its module names.</summary>
+    Menu,
+
+    /// <summary>Settings › Accounts: an account is all the widget lacks.</summary>
+    Accounts,
 }

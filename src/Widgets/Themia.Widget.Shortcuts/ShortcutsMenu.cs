@@ -78,7 +78,7 @@ internal static class ShortcutsMenu
         // [S-3723] The card's own lines first, as one Appearance submenu after Style.
         menu.PlaceCard();
         menu.Lines.Add(menu.Choice(Glyphs.Open, ShortcutsStr.WidgetsC_Shortcuts_Settings_OpenWith_Label.Text(), Clicks(), config.ClickMode, value => config.ClickMode = value));
-        menu.Lines.Add(WidgetMenuLines.Submenu(Glyphs.Add, Str.Common_Add.Text(), Add(menu, config, layouts)));
+        menu.Lines.Add(WidgetMenuLines.SetsUp(WidgetMenuLines.Submenu(Glyphs.Add, Str.Common_Add.Text(), Add(menu, config, layouts))));
         menu.Lines.Add(Items(menu, config, layouts));
     }
 

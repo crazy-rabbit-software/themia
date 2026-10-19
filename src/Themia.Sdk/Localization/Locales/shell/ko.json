@@ -135,7 +135,7 @@
   "shell.card.pausedShort": "일시 중지됨(안전 모드).",
   "shell.card.start": "시작",
   "shell.setup.button": "설정",
-  "shell.setup.hint": "이 위젯의 설정 열기",
+  "shell.setup.hint": "이 위젯에 필요한 항목 설정",
   "shell.toolbar.addWidget": "위젯 추가",
   "shell.toolbar.more": "더 보기",
   "shell.toolbar.snap": "맞추기",

@@ -1,8 +1,11 @@
 using Themia.Core.Accounts;
 using Themia.Core.Model;
 using Themia.Core.Tasks;
+using Themia.App.Widgets;
 using Themia.Core.Widgets;
+using Themia.Modules.Tests.Modules;
 using Themia.Sdk;
+using Themia.Sdk.WinUI;
 using Xunit;
 
 namespace Themia.Core.Tests;
@@ -107,4 +110,85 @@ public class WidgetSetupTests
         Assert.True(WidgetSetup.Offered([HostProviders.Microsoft]).Has(HostFeatures.Tasks));
         Assert.False(WidgetSetup.Offered([HostProviders.CardDav]).Has(HostFeatures.Tasks));
     }
+
+    [Theory]
+    [InlineData("email")]
+    [InlineData("calendar")]
+    [InlineData("nextMeeting")]
+    [InlineData("weekPlanner")]
+    [InlineData("contacts")]
+    [InlineData("tasks")]
+    public void S1862_set_up_goes_to_the_accounts_page_when_an_account_is_all_a_widget_lacks(string kindId)
+        => Assert.Equal(SetupGoes.Accounts, WidgetSetup.Goes(WidgetConfig.CreateDefault(new WidgetId(kindId)), FeatureSet.None, Everything));
+
+    [Theory]
+    [InlineData("countdown")]
+    [InlineData("rss")]
+    [InlineData("stocks")]
+    [InlineData("weatherNow")]
+    [InlineData("weatherForecast")]
+    [InlineData("airQuality")]
+    [InlineData("rainNextHour")]
+    [InlineData("videoStream")]
+    [InlineData("gallery")]
+    public void S1862_set_up_goes_to_the_menu_where_the_missing_piece_is_an_option(string kindId)
+        => Assert.Equal(SetupGoes.Menu, WidgetSetup.Goes(WidgetConfig.CreateDefault(new WidgetId(kindId)), Everything, Everything));
+
+    [Fact]
+    public void S1862_set_up_goes_to_the_menu_when_more_than_an_account_is_missing()
+    {
+        // An account would not be enough: the widget lacks an option too, which its menu holds.
+        Assert.Equal(SetupGoes.Menu, WidgetSetup.Goes(new QuoteConfig { Quotes = [] }, FeatureSet.None, Everything));
+        Assert.Equal(SetupGoes.Menu, WidgetSetup.Goes(new ShortcutsConfig(), FeatureSet.None, Everything));
+        Assert.Equal(SetupGoes.Menu, WidgetSetup.Goes(new RssConfig(), FeatureSet.None, Everything));
+    }
+
+    public static TheoryData<string> WaitingForAnOption() => ["countdown", "rss", "stocks", "weatherNow", "weatherForecast", "airQuality", "rainNextHour", "videoStream", "gallery"];
+
+    [Theory]
+    [MemberData(nameof(WaitingForAnOption))]
+    public void S1862_a_widget_waiting_for_an_option_names_the_one_menu_line_set_up_opens(string kindId)
+        => Assert.Single(SetupLines(WidgetConfig.CreateDefault(new WidgetId(kindId))));
+
+    [Fact]
+    public void S1862_an_emptied_list_names_its_line_too()
+    {
+        // The quotes' list, Add… in it (Shortcuts' Add: ShortcutsMenuTests).
+        Assert.NotNull(Assert.Single(SetupLines(new QuoteConfig { Quotes = [] })).Children);
+    }
+
+    [Fact]
+    public void S1862_a_picture_widget_names_the_line_of_its_source()
+    {
+        Assert.Single(SetupLines(new GalleryConfig { Source = GallerySource.Folder }));
+        Assert.Single(SetupLines(new GalleryConfig { Source = GallerySource.File }));
+    }
+
+    /// <summary>Every line of the widget's menu marked as where Set up opens it, at any depth.</summary>
+    private static List<ItemMenuEntry> SetupLines(WidgetConfig config)
+    {
+        var menu = new WidgetMenuLines(() => { }, _ => { });
+        ModuleRegistry.Widgets.Single(m => m.Descriptor.Id == config.Kind).MenuLines(menu, config);
+
+        var marked = new List<ItemMenuEntry>();
+        void Walk(IEnumerable<ItemMenuEntry> lines)
+        {
+            foreach (var line in lines)
+            {
+                if (line.SetsUp)
+                {
+                    marked.Add(line);
+                }
+
+                Walk(line.Children ?? []);
+            }
+        }
+
+        Walk(menu.Lines.Concat(menu.StyleLines));
+        return marked;
+    }
+
+    [Fact]
+    public void S1862_a_widget_that_waits_for_nothing_goes_to_its_menu()
+        => Assert.Equal(SetupGoes.Menu, WidgetSetup.Goes(WidgetConfig.CreateDefault(new WidgetId("clock")), FeatureSet.None, Everything));
 }

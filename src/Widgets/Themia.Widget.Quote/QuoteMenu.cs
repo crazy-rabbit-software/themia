@@ -31,7 +31,7 @@ internal static class QuoteMenu
         ArgumentNullException.ThrowIfNull(config);
 
         menu.PlaceCard();
-        menu.Lines.Add(Quotes(menu, config));
+        menu.Lines.Add(WidgetMenuLines.SetsUp(Quotes(menu, config)));
         menu.Lines.Add(menu.Toggle(Glyphs.Contact, QuoteStr.WidgetsC_Quote_Settings_ShowAuthor_Label.Text(), config.ShowAuthor, on => config.ShowAuthor = on));
 
         menu.Lines.Add(ItemMenuEntry.Separator);

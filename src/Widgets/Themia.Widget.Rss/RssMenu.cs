@@ -30,7 +30,7 @@ internal static class RssMenu
         ArgumentNullException.ThrowIfNull(config);
 
         menu.PlaceCard();
-        menu.Lines.Add(Feeds(menu, config));
+        menu.Lines.Add(WidgetMenuLines.SetsUp(Feeds(menu, config)));
         menu.Lines.Add(ItemMenuEntry.Separator);
         menu.Lines.AddRange(KitMenuLines.Shows(menu,
         [

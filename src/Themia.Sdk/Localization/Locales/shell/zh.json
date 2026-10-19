@@ -135,7 +135,7 @@
   "shell.card.pausedShort": "已暂停（安全模式）。",
   "shell.card.start": "启动",
   "shell.setup.button": "设置",
-  "shell.setup.hint": "打开此小组件的设置",
+  "shell.setup.hint": "设置此小组件所需的内容",
   "shell.toolbar.addWidget": "添加小组件",
   "shell.toolbar.more": "更多",
   "shell.toolbar.snap": "对齐",

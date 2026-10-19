@@ -47,6 +47,15 @@ public sealed class ShortcutsMenuTests
     private static ItemMenuEntry Add(Built built) => Line(built.Lines.Lines, Str.Common_Add.Text());
 
     [Fact]
+    public void S1862_set_up_opens_the_add_submenu_and_nothing_else()
+    {
+        var built = Build(new ShortcutsConfig());
+
+        Assert.True(Add(built).SetsUp);
+        Assert.Single(built.Lines.Lines.Concat(built.Lines.StyleLines), l => l.SetsUp);
+    }
+
+    [Fact]
     public void S1388_tiles_offer_their_size_icons_only_and_stretch_under_style()
     {
         var look = Build(new ShortcutsConfig { Style = ShortcutsStyle.Grid }).Lines.StyleLines.Select(l => l.Text).ToList();

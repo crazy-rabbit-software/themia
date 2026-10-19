@@ -137,7 +137,7 @@
   "shell.card.pausedShort": "Paused (safe mode).",
   "shell.card.start": "Start",
   "shell.setup.button": "Set up",
-  "shell.setup.hint": "Open this widget's settings",
+  "shell.setup.hint": "Set up what this widget needs",
   "shell.toolbar.addWidget": "Add widget",
   "shell.toolbar.more": "More",
   "shell.toolbar.snap": "Snap",

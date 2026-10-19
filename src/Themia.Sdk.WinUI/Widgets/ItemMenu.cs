@@ -50,6 +50,10 @@ namespace Themia.App.Widgets;
 /// </param>
 /// <param name="Colour">[S-3724] The properties menu's colour line: its submenu is the one colour submenu; item menus have none.</param>
 /// <param name="Note">[S-3728] A line of words only (a data source's credit): greyed, never clickable, trimmed with the whole as its tooltip.</param>
+/// <param name="SetsUp">
+/// [S-1862] The properties menu's line where what the widget waits for is set: the card's Set up
+/// button opens the menu at it (<see cref="Themia.Sdk.WinUI.WidgetMenuLines.SetsUp"/>); item menus have none.
+/// </param>
 public readonly record struct ItemMenuEntry(
     string? Glyph,
     string Text,
@@ -65,7 +69,8 @@ public readonly record struct ItemMenuEntry(
     Themia.Sdk.WinUI.MenuSearch? Search = null,
     string? Value = null,
     Themia.Sdk.WinUI.MenuColour? Colour = null,
-    bool Note = false)
+    bool Note = false,
+    bool SetsUp = false)
 {
     /// <summary>A divider between groups. Leading, trailing and doubled separators are dropped.</summary>
     public static ItemMenuEntry Separator => new(null, string.Empty, null);

@@ -67,7 +67,7 @@ internal sealed partial class WidgetCard
 
         if (needed && _setup is null)
         {
-            _setup = new SetupPrompt(ModuleCatalog.Of(Model.Kind).Glyph, () => _host.RequestConfigure(this));
+            _setup = new SetupPrompt(ModuleCatalog.Of(Model.Kind).Glyph, () => _host.RequestSetup(this));
             Grid.SetRow(_setup, 1);
             Grid.SetColumn(_setup, 1);
             _content.Children.Add(_setup);

@@ -1656,7 +1656,8 @@ rules in Core `Model/QuickSet.cs` and `Geometry/StripPlacement.cs` (tests `Quick
   swatches, Opacity), `-noitems.png` (a stopwatch's Appearance: no item lines), `-countdown-appearance.png`
   (a widget not yet on the menu), `-many-appearance.png` (two selected, Appearance › Item text), the
   Shortcuts, Clock and weather submenus, `-clock-zone*.png` (a search with a few answers, many with
-  Show all, and none), and [S-3724]..[S-3730] `-vocabulary*.png` (a stand-in widget with one line of
+  Show all, and none), [S-1862] `-setup-*.png` (the menu as the Set up button opens it: the weather's
+  location search, the feeds, the stock's symbol search, the pictures' folder), and [S-3724]..[S-3730] `-vocabulary*.png` (a stand-in widget with one line of
   each kind, its list and its colour open), all over a busy stand-in wallpaper so the panel's surface
   is judged against one ([S-3715]). The render cannot show the drop shadow (a composition visual is
   not in a `RenderTargetBitmap`).
@@ -6612,7 +6613,8 @@ the display's scale, the second page on a small or scaled display, the refusal w
 ## The Set up button (R5-SETUP)
 
 Owning files: `Themia.Core/Widgets/WidgetSetup.cs`, `Themia.App/Shell/WidgetCard.Setup.cs`,
-`Themia.App/Widgets/SetupPrompt.cs`. The section also records the removal of the debug widget
+`Themia.App/Widgets/SetupPrompt.cs`, `DesktopWindow.RequestSetup`, `PropertiesStrip.OpenSetup`; tests
+`WidgetSetupTests` (module host). The section also records the removal of the debug widget
 gallery ([S-1863]).
 
 - **[S-1860]** A widget that can show nothing useful until it is configured needs setting up, decided
@@ -6631,14 +6633,24 @@ gallery ([S-1863]).
   Calendar, Contacts, Tasks (account source only). The features are the union of the signed-in providers' (`WidgetSetup.Offered`); an
   account that needs signing in again still counts (the widget says so itself, with the Accounts link).
 - **[S-1862]** Such a widget's body is the Set up button and nothing else: the widget's glyph over one
-  accent button ("Set up"; tooltip "Open this widget's settings"), centred, no sentence. The glyph is
-  dropped on a body too short for both; the button stays at every size, XS included. A click opens
-  the settings window on the widget's page (opening the window if it is closed), the same request as
-  the card menu's Configure; the button takes no focus, so it works outside edit mode on the
-  `WS_EX_NOACTIVATE` surface. The card owns it, not the view: the view underneath is parked, not
-  running ([S-1881]), invisible and not hit-testable, and the button goes the moment the config (from
-  settings, or a change the view saves itself such as a shortcut dropped onto it) or a newly
-  signed-in account makes the widget useful. The views no longer carry their own "add one in settings" sentences.
+  accent button ("Set up"; tooltip "Set up what this widget needs"), centred, no sentence. The glyph is
+  dropped on a body too short for both; the button stays at every size, XS included. The button takes
+  no focus, so it works outside edit mode on the `WS_EX_NOACTIVATE` surface. A click goes where what
+  the widget waits for is set (`WidgetSetup.Goes`): where an **account** is all it lacks (it would be
+  set up with every feature the installed providers offer: Mail, Calendar, Contacts, Next meeting, the
+  week planner, Tasks from an account), **Settings › Accounts**, opening the window if it is closed,
+  since an account is added there and never from a widget's menu ([S-3745]); otherwise **edit mode**
+  is entered, the widget is selected alone and its **properties menu** ([S-3716]) opens at the line
+  its module names for it (`WidgetMenuLines.SetsUp`, one per widget), through the submenus on the
+  way, as clicks would (`PropertiesStrip.OpenSetup`): a submenu or a search opens, any other line runs
+  as its click does. The lines named: the location's search for Weather now, the forecast, Air
+  quality and Rain; the feeds for Feed; the symbol's search for Stocks; the day, asked for, for
+  Countdown; the address, asked for, for Video stream; the quotes for Quote; Add for Shortcuts; the
+  folder or the picture for Pictures. A module that names none leaves the menu as it stands. The card
+  owns the button, not the view: the view underneath is parked, not running ([S-1881]), invisible and
+  not hit-testable, and the button goes the moment the config (from the menu, or a change the view
+  saves itself such as a shortcut dropped onto it) or a newly signed-in account makes the widget
+  useful. The views carry no "add one in settings" sentences of their own.
 
 - **[S-1863]** There is no widget gallery: no `--gallery` window, no `--gallery-png` render, no
   toolbar entry, and no `#if DEBUG` sample data inside widget views or services. A widget's layout at
@@ -6647,8 +6659,10 @@ gallery ([S-1863]).
   `--notices-png`, `--menu-png`, `--iconpicker-png`, `--motion-png`, `--layout-editor-png`) stay and
   draw widgets with their default config. The tags that described the gallery's fixtures are retired.
 
-Needs a manual pass: the button on the live desktop outside edit mode (opens Settings on the right
-page, from a closed and from an open window), and the button going away when an account is added.
+Needs a manual pass: the button on the live desktop outside edit mode (an option widget: edit mode
+on, the widget selected, its menu open at the line beside it, a search's box taking typing; an
+account widget: Settings › Accounts from a closed and from an open window), and the button going
+away when an account is added.
 
 ## Opening a widget's app (R7-OPEN, retired)
 

@@ -294,6 +294,12 @@ internal static class EditBarRender
             (clock, "clock-zone-none", "Timezone", "qqqq"),
             (weather, "weather-location", Str.Shell_Place_Location.Text(), null),
 
+            // [S-1862] What the Set up button opens: the line the module names, through its submenus.
+            (weather, "setup-weather", SetupOpen, null),
+            ([new(new WidgetId("rss"), 200, 160, 340, 260, HeaderPlacement.Top, true)], "setup-rss", SetupOpen, null),
+            ([new(new WidgetId("stocks"), 200, 160, 300, 200, HeaderPlacement.Top, true)], "setup-stocks", SetupOpen, null),
+            ([new(new WidgetId("gallery"), 200, 160, 320, 240, HeaderPlacement.Top, true)], "setup-gallery", SetupOpen, null),
+
             // The meters' and details' lines: the span under Style, a drive, the ping host, a choice.
             ([new(new WidgetId("cpu"), 200, 160, 280, 180, HeaderPlacement.Top, true)], "cpu-span", Str.Styles_Label.Text() + "/" + Str.WidgetsB_Settings_Meters_ChartSpan_Label.Text(), null),
             ([new(new WidgetId("ping"), 200, 160, 280, 180, HeaderPlacement.Top, true)], "ping-style", Str.Styles_Label.Text(), null),
@@ -465,6 +471,9 @@ internal static class EditBarRender
         }
     }
 
+    /// <summary>[S-1862] The path that opens the menu as the card's Set up button does.</summary>
+    private const string SetupOpen = "<setup>";
+
     private static async Task PropsShot(Grid screen, Ticker ticker, PropsCard[] layout, string path, string? open = null, string? type = null, Action<WidgetMenuLines>? lines = null)
     {
         screen.Children.Clear();
@@ -548,7 +557,7 @@ internal static class EditBarRender
         if (open is not null)
         {
             strip.UpdateLayout();
-            if (!strip.DebugOpen(open))
+            if (open == SetupOpen ? !strip.OpenSetup() : !strip.DebugOpen(open))
             {
                 Console.WriteLine($"editbar: no submenu {open} for {path}");
             }

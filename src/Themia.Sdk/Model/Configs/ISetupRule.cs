@@ -15,7 +15,7 @@ public interface ISetupRule
 
     /// <summary>
     /// [S-1881] Whether it runs while it waits, because its setup happens in the widget itself
-    /// (the shortcuts' drop target) rather than on its settings page.
+    /// (the shortcuts' drop target) rather than on its properties menu.
     /// </summary>
     bool SetsUpInPlace => false;
 }

@@ -265,6 +265,32 @@ internal sealed partial class DesktopWindow : IWidgetCardHost
     public void RequestConfigure(WidgetCard card)
         => _host.ShowConfig(new ConfigTarget.Widget(card.Model.Id));
 
+    /// <summary>
+    /// [S-1862] Set up goes where the missing piece is set: Settings › Accounts when an account is all
+    /// the widget lacks; otherwise edit mode, the widget selected alone and its properties menu opened
+    /// at the line its module names (<see cref="PropertiesStrip.OpenSetup"/>), or the menu as it
+    /// stands where it names none.
+    /// </summary>
+    public void RequestSetup(WidgetCard card)
+    {
+        var id = card.Model.Id;
+        var signedIn = WidgetSetup.Offered(AppServices.Accounts?.Accounts.Select(a => a.Provider) ?? []);
+        var offerable = WidgetSetup.Offered(Themia.Sdk.ProviderCatalog.All.Select(p => p.Id));
+        if (WidgetSetup.Goes(card.Model.Config, signedIn, offerable) == SetupGoes.Accounts)
+        {
+            _host.ShowConfig(new ConfigTarget.App(AppPage.Accounts));
+            return;
+        }
+
+        _host.SetEditMode(true);
+        _host.Select(id);
+        SyncProperties();
+        if (!_properties.OpenSetup())
+        {
+            Log.Debug(Scope, $"widget '{id}' ({card.Model.Kind}) names no setup line; its menu stands as it is");
+        }
+    }
+
     /// <inheritdoc />
     public bool SettingsOpen => _host.ConfigOpen;
 

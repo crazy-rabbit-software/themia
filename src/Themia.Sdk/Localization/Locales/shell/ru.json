@@ -144,7 +144,7 @@
   "shell.card.pausedShort": "Пауза (безопасный режим).",
   "shell.card.start": "Запустить",
   "shell.setup.button": "Настроить",
-  "shell.setup.hint": "Открыть параметры этого виджета",
+  "shell.setup.hint": "Настроить то, что нужно этому виджету",
   "shell.toolbar.addWidget": "Добавить виджет",
   "shell.toolbar.more": "Еще",
   "shell.toolbar.snap": "Привязка",

@@ -135,7 +135,7 @@
   "shell.card.pausedShort": "已暫停（安全模式）。",
   "shell.card.start": "啟動",
   "shell.setup.button": "設定",
-  "shell.setup.hint": "開啟此小工具的設定",
+  "shell.setup.hint": "設定此小工具所需的項目",
   "shell.toolbar.addWidget": "新增小工具",
   "shell.toolbar.more": "更多",
   "shell.toolbar.snap": "對齊",

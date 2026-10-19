@@ -135,7 +135,7 @@
   "shell.card.pausedShort": "หยุดชั่วคราว (เซฟโหมด)",
   "shell.card.start": "เริ่ม",
   "shell.setup.button": "ตั้งค่า",
-  "shell.setup.hint": "เปิดการตั้งค่าของวิดเจ็ตนี้",
+  "shell.setup.hint": "ตั้งค่าสิ่งที่วิดเจ็ตนี้ต้องใช้",
   "shell.toolbar.addWidget": "เพิ่มวิดเจ็ต",
   "shell.toolbar.more": "เพิ่มเติม",
   "shell.toolbar.snap": "จัดชิด",

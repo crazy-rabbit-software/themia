@@ -40,7 +40,7 @@ internal static class StocksMenu
         var lines = menu.Lines;
 
         // [S-3790] The symbol is the whole choice: its service and its name come with the pick.
-        lines.Add(SymbolLine(menu, config, lookup));
+        lines.Add(WidgetMenuLines.SetsUp(SymbolLine(menu, config, lookup)));
 
         // [S-6074] Only where the market closes, and where extended hours exist and fit the period.
         if (config.Offers(StocksSetting.MarketState))

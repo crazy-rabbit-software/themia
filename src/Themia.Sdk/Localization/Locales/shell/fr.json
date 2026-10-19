@@ -138,7 +138,7 @@
   "shell.card.pausedShort": "En pause (mode sans échec).",
   "shell.card.start": "Démarrer",
   "shell.setup.button": "Configurer",
-  "shell.setup.hint": "Ouvrir les paramètres de ce widget",
+  "shell.setup.hint": "Configurer ce dont ce widget a besoin",
   "shell.toolbar.addWidget": "Ajouter un widget",
   "shell.toolbar.more": "Plus",
   "shell.toolbar.snap": "Aligner",

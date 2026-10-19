@@ -287,6 +287,11 @@ internal static class MenuRender
             // ignore: the menu is drawn, never clicked
         }
 
+        public void RequestSetup(WidgetCard card)
+        {
+            // ignore: the menu is drawn, never clicked
+        }
+
         public void RequestDelete(WidgetCard card)
         {
             // ignore: as above

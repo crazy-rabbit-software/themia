@@ -39,6 +39,12 @@ internal interface IWidgetCardHost
 
     void RequestConfigure(WidgetCard card);
 
+    /// <summary>
+    /// [S-1862] The card's Set up button: go where what the widget waits for is set (its properties
+    /// menu in edit mode, or Settings › Accounts when an account is all it lacks).
+    /// </summary>
+    void RequestSetup(WidgetCard card);
+
     void RequestDelete(WidgetCard card);
 
     void RequestEditMode(bool enabled);

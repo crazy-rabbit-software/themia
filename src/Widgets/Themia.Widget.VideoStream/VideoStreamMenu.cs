@@ -24,7 +24,7 @@ internal static class VideoStreamMenu
 
         menu.PlaceCard();
         var lines = menu.Lines;
-        lines.Add(AddressLine(menu, config));
+        lines.Add(WidgetMenuLines.SetsUp(AddressLine(menu, config)));
 
         // [S-466] Whole picture, fill and crop, or stretch.
         lines.Add(menu.Choice(Glyphs.Fit, VideoStreamStr.WidgetsC_VideoStream_Settings_Fit_Label.Text(),

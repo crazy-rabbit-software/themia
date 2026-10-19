@@ -54,12 +54,12 @@ internal static class GalleryMenu
 
         if (config.Offers(GallerySetting.Folder))
         {
-            lines.Add(PathLine(menu, config, picture: false));
+            lines.Add(WidgetMenuLines.SetsUp(PathLine(menu, config, picture: false)));
         }
 
         if (config.Offers(GallerySetting.File))
         {
-            lines.Add(PathLine(menu, config, picture: true));
+            lines.Add(WidgetMenuLines.SetsUp(PathLine(menu, config, picture: true)));
         }
 
         if (config.Offers(GallerySetting.Recursive))

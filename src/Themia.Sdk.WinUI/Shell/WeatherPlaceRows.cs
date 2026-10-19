@@ -38,7 +38,8 @@ public static class WeatherPlaceRows
             ],
             PlaceQuery.Debounce);
 
-        return WidgetMenuLines.Search(Glyphs.Place, Str.Shell_Place_Location.Text(),
-            config.HasLocation ? config.LocationName.Split(',', 2)[0].Trim() : null, search);
+        // [S-1862] A widget of the family waits for its place: Set up opens this search.
+        return WidgetMenuLines.SetsUp(WidgetMenuLines.Search(Glyphs.Place, Str.Shell_Place_Location.Text(),
+            config.HasLocation ? config.LocationName.Split(',', 2)[0].Trim() : null, search));
     }
 }

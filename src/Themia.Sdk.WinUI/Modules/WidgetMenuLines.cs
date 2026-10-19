@@ -71,8 +71,16 @@ public sealed class WidgetMenuLines
     /// <summary>[S-3723] The card's own lines go here, as one Appearance submenu among the widget's.</summary>
     public void PlaceCard() => CardAt = Lines.Count;
 
-    /// <summary>Store a change made to the config in place, as a settings page stores one.</summary>
+    /// <summary>Store a change made to the config in place.</summary>
     public void Save() => _save();
+
+    /// <summary>
+    /// [S-1862] Mark <paramref name="line"/> as where what the widget waits for is set (a place, a
+    /// feed, a target): the card's Set up button selects the widget and opens its menu at this line,
+    /// as a click on it would (its submenu opens, its question is asked). One line per widget; a line
+    /// inside a submenu is reached through it.
+    /// </summary>
+    public static ItemMenuEntry SetsUp(ItemMenuEntry line) => line with { SetsUp = true };
 
     /// <summary>[S-3721] Ask for one line of text beside the menu (a web address, a path, a name).</summary>
     public void Ask(WidgetTextAsk ask)

@@ -70,7 +70,8 @@ internal static class CountdownMenu
             menu.Save();
         }
 
-        menu.Lines.Add(new ItemMenuEntry(Glyphs.Calendar, CountdownStr.WidgetsA_Countdown_Menu_Date.Text(), () => menu.Ask(new WidgetTextAsk(
+        // [S-1862] A countdown waits for its day: Set up asks for it.
+        menu.Lines.Add(WidgetMenuLines.SetsUp(new ItemMenuEntry(Glyphs.Calendar, CountdownStr.WidgetsA_Countdown_Menu_Date.Text(), () => menu.Ask(new WidgetTextAsk(
             CountdownStr.WidgetsA_Countdown_Menu_Date.Text(),
             "2026-12-24",
             Str.Common_Save.Text(),
@@ -83,7 +84,7 @@ internal static class CountdownMenu
                 }
             },
             Initial: day is { } shown ? TypedTime.DateText(shown) : null)),
-            Value: day is { } d ? LocaleFormat.Date(locale, d, DateStyle.Medium) : null));
+            Value: day is { } d ? LocaleFormat.Date(locale, d, DateStyle.Medium) : null)));
 
         // The time needs a day to fall on: greyed until there is one.
         menu.Lines.Add(new ItemMenuEntry(Glyphs.Clock, CountdownStr.WidgetsA_Countdown_Menu_Time.Text(), () => menu.Ask(new WidgetTextAsk(
