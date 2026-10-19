@@ -39,10 +39,11 @@ public class SettingRulesTests
     }
 
     [Fact]
-    public void S6074_reshuffle_is_offered_with_the_shuffle_only()
+    public void S6074_reshuffle_is_offered_with_the_shuffle_only_and_the_rotation_with_two_quotes()
     {
-        Assert.Empty(new QuoteConfig { Shuffle = false }.ShownSettings);
-        Assert.Equal([QuoteSetting.Reshuffle], new QuoteConfig { Shuffle = true }.ShownSettings);
+        Assert.Equal([QuoteSetting.Shuffle, QuoteSetting.Cadence], new QuoteConfig { Shuffle = false }.ShownSettings);
+        Assert.Equal([QuoteSetting.Shuffle, QuoteSetting.Reshuffle, QuoteSetting.Cadence], new QuoteConfig { Shuffle = true }.ShownSettings);
+        Assert.Empty(new QuoteConfig { Shuffle = true, Quotes = [new() { Text = "Only" }] }.ShownSettings);
     }
 
     public static TheoryData<GallerySource, GalleryStyle, bool, GallerySetting[]> GalleryRows => new()

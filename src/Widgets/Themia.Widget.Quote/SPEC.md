@@ -34,8 +34,10 @@ Tests: `Tests/` (run by `tests/Themia.Modules.Tests`).
   rotation's order: each quote by its text, a submenu of Rename… (its text; never empty), Author…
   (empty takes it off; the author at the end of its line), Move up, Move down and Remove; while there
   are none the sentence that the widget will say so; Add… asks for a new quote's text (256 at most).
-  Then **Show author** (a switch); under a divider **Shuffle** (a switch), **Reshuffle** (a new seed,
-  only while shuffling, [S-6074]) and **Refresh** (On click only / Every hour / Every day).
+  Then **Show author** (a switch); under a divider, only with two quotes or more to turn between
+  (one, or none, shows the same whatever they say: [S-6070]), **Shuffle** (a switch), **Reshuffle**
+  (a new seed, only while shuffling, [S-6074]) and **Refresh** (On click only / Every hour / Every
+  day).
   (Tests `QuoteMenuTests`.)
 
 Needs a manual pass: both styles at every tier on the live desktop (showcase views, [S-1810]).

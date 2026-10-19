@@ -10,7 +10,8 @@ namespace Themia.App.Shell.Config;
 /// <summary>
 /// [S-1502] The quote widget's options, all on its properties menu ([S-3719]): Appearance
 /// ([S-3723]), the list it turns over (each quote's text and author, its place, Remove, Add), the
-/// author switch, the shuffle and how often it turns. It has no settings page.
+/// author switch, and with two quotes or more the shuffle and how often it turns. It has no settings
+/// page.
 /// <para>
 /// There is nothing here about a source, a feed or an account, because there is no network in this
 /// widget at all: the list is the user's own, seeded with a bundled set they can edit or throw away.
@@ -34,6 +35,12 @@ internal static class QuoteMenu
         menu.Lines.Add(WidgetMenuLines.SetsUp(Quotes(menu, config)));
         menu.Lines.Add(menu.Toggle(Glyphs.Contact, QuoteStr.WidgetsC_Quote_Settings_ShowAuthor_Label.Text(), config.ShowAuthor, on => config.ShowAuthor = on));
 
+        // [S-6074] The rotation: only with two quotes or more to turn between.
+        if (!config.Offers(QuoteSetting.Shuffle))
+        {
+            return;
+        }
+
         menu.Lines.Add(ItemMenuEntry.Separator);
         menu.Lines.Add(menu.Toggle(Glyphs.Shuffle, QuoteStr.Quote_Shuffle.Text(), config.Shuffle, on => config.Shuffle = on));
 
@@ -45,7 +52,10 @@ internal static class QuoteMenu
             menu.Lines.Add(menu.Command(Glyphs.Reset, QuoteStr.WidgetsC_Quote_Settings_Reshuffle_Label.Text(), () => config.Seed = unchecked(config.Seed + 1)));
         }
 
-        menu.Lines.Add(menu.Choice(Glyphs.Timer, Str.Common_Refresh.Text(), Cadences(), config.Cadence, value => config.Cadence = value));
+        if (config.Offers(QuoteSetting.Cadence))
+        {
+            menu.Lines.Add(menu.Choice(Glyphs.Timer, Str.Common_Refresh.Text(), Cadences(), config.Cadence, value => config.Cadence = value));
+        }
     }
 
     /// <summary>

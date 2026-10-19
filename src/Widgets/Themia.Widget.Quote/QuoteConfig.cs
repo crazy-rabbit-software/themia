@@ -18,11 +18,17 @@ public enum QuoteStyle
     Marks = 1,
 }
 
-/// <summary>[S-6074] The quote's rows that depend on another setting.</summary>
+/// <summary>[S-6074] The quote's rows that depend on another setting, in menu order.</summary>
 public enum QuoteSetting
 {
+    /// <summary>Shuffle: only with two quotes or more to turn between.</summary>
+    Shuffle,
+
     /// <summary>Reshuffle: only with Shuffle on.</summary>
     Reshuffle,
+
+    /// <summary>How often it turns: only with two quotes or more.</summary>
+    Cadence,
 }
 
 /// <summary>One quote, as stored.</summary>
@@ -86,9 +92,15 @@ public sealed class QuoteConfig : WidgetConfig, IStyled, IShownSettings<QuoteSet
     /// <summary>Which shuffle. Changing it reshuffles the whole rotation, deterministically.</summary>
     public int Seed { get; set; } = 1;
 
-    /// <summary>[S-6074] Reshuffle is a new seed, and the seed is only read by the shuffle: offered with Shuffle on.</summary>
+    /// <summary>
+    /// [S-6074] [S-1502] The rotation's lines turn between quotes, so they are offered with two or
+    /// more (one quote, or none, shows the same whatever they say); Reshuffle is a new seed, and the
+    /// seed is only read by the shuffle, so it is offered with Shuffle on.
+    /// </summary>
     [JsonIgnore]
-    public IReadOnlyList<QuoteSetting> ShownSettings => Shuffle ? [QuoteSetting.Reshuffle] : [];
+    public IReadOnlyList<QuoteSetting> ShownSettings => EffectiveQuotes.Count < 2 ? []
+        : Shuffle ? [QuoteSetting.Shuffle, QuoteSetting.Reshuffle, QuoteSetting.Cadence]
+        : [QuoteSetting.Shuffle, QuoteSetting.Cadence];
 
     /// <summary>Show who said it.</summary>
     public bool ShowAuthor { get; set; } = true;

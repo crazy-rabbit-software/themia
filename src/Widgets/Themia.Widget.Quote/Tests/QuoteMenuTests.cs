@@ -37,6 +37,20 @@ public sealed class QuoteMenuTests
     }
 
     [Fact]
+    public void S1502_with_one_quote_or_none_there_is_no_rotation_to_set()
+    {
+        foreach (var config in (QuoteConfig[])[new() { Quotes = [new() { Text = "Only" }] }, new() { Quotes = [] }, new() { Quotes = [new() { Text = "Only" }, new() { Text = " " }], Shuffle = true }])
+        {
+            var lines = Build(config).Lines;
+
+            Assert.Equal(
+                [QuoteStr.WidgetsC_Quote_Settings_Quotes.Text(), QuoteStr.WidgetsC_Quote_Settings_ShowAuthor_Label.Text()],
+                lines.Select(l => l.Text));
+            Assert.DoesNotContain(lines, l => l.IsSeparator);
+        }
+    }
+
+    [Fact]
     public void S1502_reshuffle_is_offered_with_the_shuffle_only_and_deals_a_new_seed()
     {
         var config = Two();
