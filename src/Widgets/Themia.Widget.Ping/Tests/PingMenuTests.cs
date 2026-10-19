@@ -33,7 +33,7 @@ public sealed class PingMenuTests
     }
 
     [Fact]
-    public void S109_with_no_host_typed_the_line_says_the_default_resolver()
+    public void S1175_with_no_host_typed_the_line_says_the_default_resolver()
     {
         Assert.Equal(HostAddress.DefaultPingHost, Assert.Single(Build(new PingConfig()).Lines).Value);
         Assert.Equal("example.com", Assert.Single(Build(new PingConfig { Host = "example.com" }).Lines).Value);
@@ -45,7 +45,7 @@ public sealed class PingMenuTests
     [InlineData("example.com")]
     [InlineData("192.168.1.1")]
     [InlineData("::1")]
-    public void S109_a_plausible_host_or_none_is_accepted(string typed)
+    public void S1175_a_plausible_host_or_none_is_accepted(string typed)
         => Assert.Null(PingHostLine.Refuse(typed));
 
     [Theory]
@@ -53,11 +53,11 @@ public sealed class PingMenuTests
     [InlineData("/c calc")]
     [InlineData("exa mple.com")]
     [InlineData(".example.com")]
-    public void S109_what_is_not_a_host_is_refused_as_typed(string typed)
+    public void S1175_what_is_not_a_host_is_refused_as_typed(string typed)
         => Assert.Equal(Str.WidgetsB_Settings_Ping_NotAHost.Text(), PingHostLine.Refuse(typed));
 
     [Fact]
-    public void S109_a_host_given_is_stored_trimmed_once_and_the_same_host_stores_nothing()
+    public void S1175_a_host_given_is_stored_trimmed_once_and_the_same_host_stores_nothing()
     {
         var config = new PingConfig { Host = "example.com" };
         Assert.Single(Build(config).Lines).Action!();
@@ -75,7 +75,7 @@ public sealed class PingMenuTests
     }
 
     [Fact]
-    public void S109_an_emptied_box_measures_the_default_and_a_refused_one_is_never_stored()
+    public void S1175_an_emptied_box_measures_the_default_and_a_refused_one_is_never_stored()
     {
         var config = new PingConfig { Host = "example.com" };
         Assert.Single(Build(config).Lines).Action!();
