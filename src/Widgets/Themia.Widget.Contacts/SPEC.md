@@ -23,7 +23,7 @@ host's (`ContactsHostTests`, `OfficeConfigTests`); the menu's are `Tests/Contact
 - **[S-7511]** Its options are on the properties menu ([S-3719], user request 2026-10-19; the
   settings page is gone): Appearance first, then **Accounts** (the kit's Accounts submenu over the
   signed-in contacts accounts, `OfficeMenuLines.Accounts`: Every contacts account, a switch per
-  account, the last one greyed, Manage accounts), **Layout** (List, Compact, Details, Grid), on the
+  account, the last one greyed, Manage accounts), then after a divider how they are listed: **Layout** (List, Compact, Details, Grid), on the
   details layout only **Columns** (a switch per column in canonical order, the last one on greyed,
   [S-582]) and **People**, a number asked for as text (`KitMenuLines.Count`, [S-3726]): 5 to 1000,
   rounded to a step of 5, anything else refused with the range as the reason (the count had no upper

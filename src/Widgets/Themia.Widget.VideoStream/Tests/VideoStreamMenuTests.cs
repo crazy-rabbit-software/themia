@@ -22,7 +22,7 @@ public sealed class VideoStreamMenuTests
     }
 
     [Fact]
-    public void S473_appearance_then_address_picture_refresh_and_the_overlay()
+    public void S473_appearance_then_the_address_and_its_refresh_the_picture_and_the_overlay()
     {
         var lines = Build(new VideoStreamConfig());
 
@@ -30,19 +30,22 @@ public sealed class VideoStreamMenuTests
         Assert.Equal(
             [
                 VideoStreamStr.WidgetsC_VideoStream_Settings_Address_Label.Text(),
+                Str.Common_Refresh.Text(),
+                string.Empty,
                 VideoStreamStr.WidgetsC_VideoStream_Settings_Fit_Label.Text(),
                 VideoStreamStr.VideoStream_RotationLabel.Text(),
-                Str.Common_Refresh.Text(),
+                string.Empty,
                 VideoStreamStr.WidgetsC_VideoStream_Settings_Hover_Label.Text(),
                 VideoStreamStr.WidgetsC_VideoStream_Settings_Chip_Label.Text(),
+                string.Empty,
                 VideoStreamStr.WidgetsC_VideoStream_Settings_Note.Text(),
             ],
-            lines.Lines.Where(l => !l.IsSeparator).Select(l => l.Text));
+            lines.Lines.Select(l => l.IsSeparator ? string.Empty : l.Text));
     }
 
     [Fact]
     public void S473_the_refresh_reads_live_at_zero()
-        => Assert.Equal(VideoStreamStr.VideoStream_Menu_Live.Text(), Build(new VideoStreamConfig { RefreshSeconds = 0 }).Lines[3].Value);
+        => Assert.Equal(VideoStreamStr.VideoStream_Menu_Live.Text(), Build(new VideoStreamConfig { RefreshSeconds = 0 }).Lines[1].Value);
 
     [Theory]
     [InlineData("ftp://cam.local/stream")]

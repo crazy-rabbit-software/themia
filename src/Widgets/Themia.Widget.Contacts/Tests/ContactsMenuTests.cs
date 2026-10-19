@@ -28,14 +28,14 @@ public sealed class ContactsMenuTests
     private static ItemMenuEntry Line(IEnumerable<ItemMenuEntry> lines, string text) => Assert.Single(lines, l => l.Text == text);
 
     [Fact]
-    public void S7511_the_first_level_is_appearance_accounts_layout_and_people()
+    public void S7511_the_first_level_is_appearance_accounts_then_after_a_divider_layout_and_people()
     {
         var lines = Build(new ContactsConfig());
 
         Assert.Equal(0, lines.CardAt);
         Assert.Equal(
-            [Str.WidgetUi_AccountsLabel.Text(), ContactsStr.WidgetsA_Contacts_Settings_Layout_Label.Text(), ContactsStr.WidgetsA_Contacts_Settings_Count_Label.Text()],
-            lines.Lines.Select(l => l.Text));
+            [Str.WidgetUi_AccountsLabel.Text(), string.Empty, ContactsStr.WidgetsA_Contacts_Settings_Layout_Label.Text(), ContactsStr.WidgetsA_Contacts_Settings_Count_Label.Text()],
+            lines.Lines.Select(l => l.IsSeparator ? string.Empty : l.Text));
     }
 
     [Fact]

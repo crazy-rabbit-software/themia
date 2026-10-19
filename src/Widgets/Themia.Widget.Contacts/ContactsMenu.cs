@@ -34,6 +34,8 @@ internal static class ContactsMenu
             new KitAccountWords(ContactsStr.WidgetsA_Contacts_NoAccount.Text(), ContactsStr.WidgetsA_Contacts_Settings_Every.Text()),
             config.AccountIds, ids => config.AccountIds = ids));
 
+        // [S-7511] Where the people come from, then how they are listed.
+        menu.Lines.Add(ItemMenuEntry.Separator);
         menu.Lines.Add(menu.Choice(Glyphs.View, ContactsStr.WidgetsA_Contacts_Settings_Layout_Label.Text(),
             [(ContactsLayout.List, ContactsStr.Apps_ViewList.Text()), (ContactsLayout.Compact, ContactsStr.Apps_ViewCompact.Text()), (ContactsLayout.Details, Str.CtxMenu_Details.Text()), (ContactsLayout.Grid, ContactsStr.Apps_ViewGrid.Text())],
             config.EffectiveLayout, value => config.Layout = value));

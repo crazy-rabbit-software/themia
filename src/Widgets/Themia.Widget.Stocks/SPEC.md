@@ -65,10 +65,12 @@ own `StocksStr`, 30 languages, its style names included). Tests: `Tests/` (run b
   read only as the change's baseline, [S-2775]).
 - **[S-2778]** Its options are all on the properties menu ([S-3719], user request 2026-10-19); it
   has no settings page. Under Style the chart's **High and low** markers (the chart style only,
-  [S-6074]); then Appearance ([S-3723]), **Symbol** (the search of [S-1307]), **Dim when closed**
-  (not for a coin), **Extended hours** (a listed symbol over one or five days, [S-1308]), **Shares
-  owned** ([S-2776]; the amount at the line's end), **Timeframe** (1 day … 10 years) and **Rising**
-  and **Falling colour** (Windows green / red by default, [S-1310]). (Tests `StocksMenuTests`.)
+  [S-6074]); then Appearance ([S-3723]), what it quotes: **Symbol** (the search of [S-1307]) and
+  **Shares owned** ([S-2776]; the amount at the line's end); after a divider the time it covers:
+  **Timeframe** (1 day … 10 years), **Dim when closed** (not for a coin, which never closes) and
+  **Extended hours** (only a listed symbol over one or five days, [S-1308]: elsewhere there are no
+  such bars to ask for, [S-6070]); after another **Rising** and **Falling colour** (Windows green /
+  red by default, [S-1310]). (Tests `StocksMenuTests`.)
 - **[S-6165]** The stock widget's styles ([S-6000]), `StocksConfig.Style` (`StocksStyle`): **Chart**
   ([S-1311], the default) and **Number**; what was its "Show chart" switch. The period and
   the colours are every style's, the markers the chart's ([S-2778]).

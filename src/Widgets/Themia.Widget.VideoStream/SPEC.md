@@ -38,10 +38,11 @@ releases everything.
   has no settings page. Appearance ([S-3723]), then **Address** (asked beside the menu, [S-3721],
   starting from what is there; its host at the line's end; checked as typed, [S-467]: "Only http and
   https addresses" for another scheme, `WebInput`'s reason otherwise; stored trimmed; empty clears it
-  and the widget waits for setup), **Fit** ([S-466]), **Rotation** (None / 90° / 180° / 270°,
-  [S-468]), **Refresh** (0 to 300 s, asked for as a number, [S-3726]; 0 reads "Live" and keeps the
-  stream open), **Controls on hover** and **Status chip** ([S-1312]), and a note: pause, rotate and
-  reconnect are on the right-click menu, cameras that need a password are not supported.
+  and the widget waits for setup) and how it is read, **Refresh** (0 to 300 s, asked for as a
+  number, [S-3726]; 0 reads "Live" and keeps the stream open); after a divider the picture,
+  **Fit** ([S-466]) and **Rotation** (None / 90° / 180° / 270°, [S-468]); after another **Controls
+  on hover** and **Status chip** ([S-1312]); and a note: pause, rotate and reconnect are on the
+  right-click menu, cameras that need a password are not supported.
   (Tests `VideoStreamMenuTests`.)
 - **[S-1312]** Video stream chrome ladder (`StreamChromeRules.Chrome`, `IWidgetSizeAware`). The
   picture is the widget at every size; nothing else ever shows on XS, S or a Wide strip (height

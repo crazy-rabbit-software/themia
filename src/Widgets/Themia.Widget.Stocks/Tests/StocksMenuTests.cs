@@ -31,7 +31,7 @@ public sealed class StocksMenuTests
     }
 
     [Fact]
-    public void S2778_a_listed_symbol_over_a_day_has_every_line_after_appearance()
+    public void S2778_a_listed_symbol_over_a_day_has_every_line_after_appearance_in_three_groups()
     {
         var lines = Build(new StocksConfig { Symbol = "MSFT", Market = QuoteMarket.Listed, Range = QuoteRange.Day });
 
@@ -39,14 +39,16 @@ public sealed class StocksMenuTests
         Assert.Equal(
             [
                 StocksStr.Stocks_Tab_Symbols.Text(),
+                StocksStr.WidgetsC_Stocks_Settings_Holding_Label.Text(),
+                string.Empty,
+                StocksStr.Stocks_Timeframe.Text(),
                 StocksStr.Stocks_DimWhenClosed.Text(),
                 StocksStr.Stocks_ExtendedHours.Text(),
-                StocksStr.WidgetsC_Stocks_Settings_Holding_Label.Text(),
-                StocksStr.Stocks_Timeframe.Text(),
+                string.Empty,
                 StocksStr.Stocks_UpColor.Text(),
                 StocksStr.Stocks_DownColor.Text(),
             ],
-            lines.Lines.Select(l => l.Text));
+            lines.Lines.Select(l => l.IsSeparator ? string.Empty : l.Text));
         Assert.Equal("MSFT", lines.Lines[0].Search!.Value);
     }
 
@@ -57,6 +59,15 @@ public sealed class StocksMenuTests
 
         Assert.DoesNotContain(StocksStr.Stocks_DimWhenClosed.Text(), texts);
         Assert.DoesNotContain(StocksStr.Stocks_ExtendedHours.Text(), texts);
+    }
+
+    [Theory]
+    [InlineData(QuoteRange.Month)]
+    [InlineData(QuoteRange.Year)]
+    public void S2778_extended_hours_are_offered_over_one_or_five_days_only(QuoteRange range)
+    {
+        Assert.Contains(Build(new StocksConfig { Symbol = "MSFT", Range = QuoteRange.FiveDays }).Lines, l => l.Text == StocksStr.Stocks_ExtendedHours.Text());
+        Assert.DoesNotContain(Build(new StocksConfig { Symbol = "MSFT", Range = range }).Lines, l => l.Text == StocksStr.Stocks_ExtendedHours.Text());
     }
 
     [Fact]

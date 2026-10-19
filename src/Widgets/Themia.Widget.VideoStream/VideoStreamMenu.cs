@@ -9,8 +9,9 @@ namespace Themia.App.Shell.Config;
 
 /// <summary>
 /// [S-473] The camera stream's options, all on its properties menu ([S-3719]): Appearance
-/// ([S-3723]), the address, how the picture fills and turns, how often it is read, the overlay's
-/// switches and a note on what the right-click menu does. It has no settings page.
+/// ([S-3723]), the address and how often it is read; after a divider how the picture fills and
+/// turns; after another the overlay's switches; then a note on what the right-click menu does. It has
+/// no settings page.
 /// </summary>
 internal static class VideoStreamMenu
 {
@@ -26,7 +27,12 @@ internal static class VideoStreamMenu
         var lines = menu.Lines;
         lines.Add(WidgetMenuLines.SetsUp(AddressLine(menu, config)));
 
+        // Zero keeps the stream live; otherwise one frame per interval: how the address is read.
+        lines.Add(menu.Number(Glyphs.Timer, Str.Common_Refresh.Text(), config.EffectiveRefreshSeconds,
+            VideoStreamRules.LiveRefreshSeconds, VideoStreamRules.MaxRefreshSeconds, 1, Interval, value => config.RefreshSeconds = value));
+
         // [S-466] Whole picture, fill and crop, or stretch.
+        lines.Add(ItemMenuEntry.Separator);
         lines.Add(menu.Choice(Glyphs.Fit, VideoStreamStr.WidgetsC_VideoStream_Settings_Fit_Label.Text(),
             [(StreamFit.Contain, VideoStreamStr.WidgetsC_VideoStream_Settings_Fit_Whole.Text()), (StreamFit.Cover, VideoStreamStr.WidgetsC_VideoStream_Settings_Fit_Crop.Text()), (StreamFit.Stretch, VideoStreamStr.VideoStream_FitStretch.Text())],
             config.EffectiveFit, value => config.Fit = value));
@@ -35,10 +41,6 @@ internal static class VideoStreamMenu
         lines.Add(menu.Choice(Glyphs.Rotate, VideoStreamStr.VideoStream_RotationLabel.Text(),
             [(StreamRotation.None, Str.Common_None.Text()), (StreamRotation.Quarter, "90°"), (StreamRotation.Half, "180°"), (StreamRotation.ThreeQuarter, "270°")],
             config.EffectiveRotation, value => config.Rotation = value));
-
-        // Zero keeps the stream live; otherwise one frame per interval.
-        lines.Add(menu.Number(Glyphs.Timer, Str.Common_Refresh.Text(), config.EffectiveRefreshSeconds,
-            VideoStreamRules.LiveRefreshSeconds, VideoStreamRules.MaxRefreshSeconds, 1, Interval, value => config.RefreshSeconds = value));
 
         // [S-1312] Both off the picture until there is room: never on the small sizes.
         lines.Add(ItemMenuEntry.Separator);

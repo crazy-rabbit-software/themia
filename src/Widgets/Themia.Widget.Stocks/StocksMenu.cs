@@ -12,8 +12,8 @@ namespace Themia.App.Shell.Config;
 /// <summary>
 /// [S-2778] The Stocks widget's options, all on its properties menu ([S-3719]): under Style the
 /// chart's markers (the chart style only, [S-6074]); then Appearance ([S-3723]), the symbol as a
-/// search ([S-1307], [S-3722]), when the market is closed and the extended hours where they apply,
-/// the holding, the period and the colours. It has no settings page.
+/// search ([S-1307], [S-3722]) and the holding; after a divider the period with the closed market and
+/// the extended hours where they apply; after another the colours. It has no settings page.
 /// </summary>
 internal static class StocksMenu
 {
@@ -42,20 +42,11 @@ internal static class StocksMenu
         // [S-3790] The symbol is the whole choice: its service and its name come with the pick.
         lines.Add(WidgetMenuLines.SetsUp(SymbolLine(menu, config, lookup)));
 
-        // [S-6074] Only where the market closes, and where extended hours exist and fit the period.
-        if (config.Offers(StocksSetting.MarketState))
-        {
-            lines.Add(menu.Toggle(Glyphs.Moon, StocksStr.Stocks_DimWhenClosed.Text(), config.ShowMarketState, on => config.ShowMarketState = on));
-        }
-
-        if (config.Offers(StocksSetting.ExtendedHours))
-        {
-            lines.Add(menu.Toggle(Glyphs.Sun, StocksStr.Stocks_ExtendedHours.Text(), config.ShowExtendedHours, on => config.ShowExtendedHours = on));
-        }
-
         // [S-2776] How many the user owns: the holding's worth under the price.
         lines.Add(HoldingLine(menu, config));
 
+        // [S-2778] The time it covers: the period, then what depends on it and on the market.
+        lines.Add(ItemMenuEntry.Separator);
         lines.Add(menu.Choice(Glyphs.Hours, StocksStr.Stocks_Timeframe.Text(),
             [
                 (QuoteRange.Day, StocksStr.WidgetsC_Stocks_Period_Days.Plural(1)),
@@ -70,6 +61,19 @@ internal static class StocksMenu
             ],
             config.Range, value => config.Range = value));
 
+        // [S-6074] Only where the market closes, and where extended hours exist and fit the period.
+        if (config.Offers(StocksSetting.MarketState))
+        {
+            lines.Add(menu.Toggle(Glyphs.Moon, StocksStr.Stocks_DimWhenClosed.Text(), config.ShowMarketState, on => config.ShowMarketState = on));
+        }
+
+        if (config.Offers(StocksSetting.ExtendedHours))
+        {
+            lines.Add(menu.Toggle(Glyphs.Sun, StocksStr.Stocks_ExtendedHours.Text(), config.ShowExtendedHours, on => config.ShowExtendedHours = on));
+        }
+
+        // [S-1310] The colours of a rise and a fall.
+        lines.Add(ItemMenuEntry.Separator);
         lines.Add(menu.Colour(StocksStr.Stocks_UpColor.Text(), config.UpColor, value => config.UpColor = value,
             new ColorChoiceOptions { DefaultLabel = StocksStr.WidgetsC_Stocks_Settings_WindowsGreen.Text(), DefaultColor = () => ThemeColor("SystemFillColorSuccessBrush") }));
         lines.Add(menu.Colour(StocksStr.Stocks_DownColor.Text(), config.DownColor, value => config.DownColor = value,
