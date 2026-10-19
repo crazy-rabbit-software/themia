@@ -11,12 +11,8 @@
   "widgetsB.music.play": "Reproduzir",
   "widgetsB.music.playPause": "Reproduzir ou pausar",
   "widgetsB.music.previous": "Anterior",
-  "widgetsB.settings.music.header": "Tocando agora",
-  "widgetsB.settings.music.hideWhenIdle.desc": "O modo de edição continua a mostrá-lo",
   "widgetsB.settings.music.hideWhenIdle.noSession": "Quando nenhum player está aberto",
   "widgetsB.settings.music.hideWhenIdle.notPlaying": "Quando nada está tocando",
-  "widgetsB.settings.music.progress.desc": "A barra de progresso e os tempos decorrido e total",
   "widgetsB.settings.music.progress.label": "Mostrar o progresso",
-  "widgetsB.settings.music.transport.desc": "Anterior, reproduzir ou pausar, próximo",
   "widgetsB.settings.music.transport.label": "Mostrar os controles de reprodução"
 }

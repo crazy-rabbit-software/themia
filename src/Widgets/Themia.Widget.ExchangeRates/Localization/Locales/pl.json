@@ -6,10 +6,8 @@
   "online.rates.perBase": "za 1 {code}",
   "online.rates.missing": "Nie publikowany",
   "online.rates.settings.base.label": "Waluta bazowa",
-  "online.rates.settings.base.desc": "Kurs podawany jest za jedną jednostkę tej waluty",
   "online.rates.settings.base.region": "Region systemu Windows ({code})",
   "online.rates.settings.quote.label": "Waluta",
-  "online.rates.settings.quote.desc": "Waluta, w której podawany jest kurs",
   "online.rates.settings.quote.default": "Domyślna ({code})",
   "styles.rates.chart": "Wykres",
   "styles.rates.number": "Liczba"

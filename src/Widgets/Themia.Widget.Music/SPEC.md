@@ -6,10 +6,10 @@ tags: hide when idle [S-1464], the seek bar's mapping [S-1465], the keys [S-1468
 [S-1469] are the SDK's `MusicRules`; the WinRT session manager is the host's (`MediaSession`, behind
 `IWidgetHost.Media`).
 
-Owning files: everything in this folder: `MusicModule.cs` (descriptor, view factory, settings rows,
+Owning files: everything in this folder: `MusicModule.cs` (descriptor, view factory, menu lines,
 JSON context), `MusicConfig.cs` (with its styles and when it hides), `MusicView.cs` (the session
 through its host, the transport, the keys) with `MusicView.Layout.cs` (the ladder and the styles) and
-`MusicSeekBar.cs`, `MusicSettings.cs` (its page), `Preview/` (Debug renders: `--state sample`),
+`MusicSeekBar.cs`, `MusicMenu.cs` (its properties-menu lines), `Preview/` (Debug renders: `--state sample`),
 `Localization/Locales/` (its own `MusicStr`, 30 languages, its style names included). Tests:
 `Tests/MusicTests.cs` (run by `tests/Themia.Modules.Tests`); its config under the root's rules is the
 module host's `MusicHostTests`.
@@ -24,7 +24,7 @@ module host's `MusicHostTests`.
 - **[S-6406]** Now playing's styles ([S-6000]), `MusicConfig.Style` (`MusicStyle`,
   `"style": "artwork"`): **Artwork and text** (the ladder above), **Full artwork** ([S-6407]) and
   **Text only** (the same ladder with no art, none fetched), in that order: what was "Show album
-  art", which is gone. Transport, progress and hide-when-idle stay settings for every style.
+  art", which is gone. Transport, progress and hide-when-idle stay options for every style ([S-1479]).
 - **[S-6407]** Full artwork: the art fills the card edge to edge (cropped to fill; the music glyph
   on the control fill without one), and the title (BodyStrong, Subtitle at L/XL) with the artist
   where it fits, the transport beside them (play/pause alone on a Compact-wide card or when the
@@ -32,6 +32,10 @@ module host's `MusicHostTests`.
   width) sit at its foot over a scrim: the theme's own base fill fading in, eased, over a band as tall as the foot, to 80 %,
   so the text keeps its theme colours on any art. The foot never takes more than 60 % of the card;
   the artist and then the bar give way first.
+- **[S-1479]** Its options are all on the properties menu ([S-3719], user request 2026-10-19); it
+  has no settings page. Appearance ([S-3723]), then **Show the transport** and **Show progress**
+  (switches, for every style) and **Hide when idle** (Never / When no player is open / When nothing
+  is playing, [S-1464]; edit mode still shows it). (Tests `MusicMenuTests`.)
 
 Needs a manual pass: the widget on a live desktop (a player started, paused, skipped and sought, a
 stream with nothing to seek, art and no art, each style, hide when idle).

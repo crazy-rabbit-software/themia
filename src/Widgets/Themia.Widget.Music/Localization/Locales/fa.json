@@ -11,12 +11,8 @@
   "widgetsB.music.play": "پخش",
   "widgetsB.music.playPause": "پخش یا توقف",
   "widgetsB.music.previous": "قبلی",
-  "widgetsB.settings.music.header": "در حال پخش",
-  "widgetsB.settings.music.hideWhenIdle.desc": "حالت ویرایش همچنان آن را نشان می‌دهد",
   "widgetsB.settings.music.hideWhenIdle.noSession": "وقتی پخش‌کننده‌ای باز نیست",
   "widgetsB.settings.music.hideWhenIdle.notPlaying": "وقتی چیزی پخش نمی‌شود",
-  "widgetsB.settings.music.progress.desc": "نوار جستجو و زمان سپری‌شده و کل",
   "widgetsB.settings.music.progress.label": "نمایش پیشرفت",
-  "widgetsB.settings.music.transport.desc": "قبلی، پخش یا توقف، بعدی",
   "widgetsB.settings.music.transport.label": "نمایش کنترل‌های پخش"
 }

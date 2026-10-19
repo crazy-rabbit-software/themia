@@ -34,8 +34,9 @@ public sealed class BluetoothModule : IWidgetModule
         Add = new(AddFolderId.Devices, 1, 1),
     };
 
-    public void SettingsRows(WidgetSettingsRows rows, WidgetConfig config)
-        => BluetoothSettings.Rows(rows.Rows, (BluetoothConfig)config, rows.Save);
+    /// <summary>[S-3719] Every option is on the properties menu: the widget has no settings page.</summary>
+    public void MenuLines(WidgetMenuLines menu, WidgetConfig config)
+        => BluetoothMenu.Lines(menu, (BluetoothConfig)config);
 
     public FrameworkElement CreateView(IWidgetHost host) => new BluetoothView();
 }

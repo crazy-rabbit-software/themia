@@ -11,12 +11,8 @@
   "widgetsB.music.play": "চালান",
   "widgetsB.music.playPause": "চালান বা থামান",
   "widgetsB.music.previous": "আগের",
-  "widgetsB.settings.music.header": "এখন চলছে",
-  "widgetsB.settings.music.hideWhenIdle.desc": "সম্পাদনা মোডে তবুও দেখায়",
   "widgetsB.settings.music.hideWhenIdle.noSession": "কোনো প্লেয়ার খোলা না থাকলে",
   "widgetsB.settings.music.hideWhenIdle.notPlaying": "কিছু না চললে",
-  "widgetsB.settings.music.progress.desc": "সিক বার, এবং অতিবাহিত ও মোট সময়",
   "widgetsB.settings.music.progress.label": "অগ্রগতি দেখান",
-  "widgetsB.settings.music.transport.desc": "আগের, চালান বা থামান, পরের",
   "widgetsB.settings.music.transport.label": "প্লেব্যাক বোতাম দেখান"
 }

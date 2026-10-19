@@ -11,12 +11,8 @@
   "widgetsB.music.play": "Riproduci",
   "widgetsB.music.playPause": "Riproduci o metti in pausa",
   "widgetsB.music.previous": "Precedente",
-  "widgetsB.settings.music.header": "In riproduzione",
-  "widgetsB.settings.music.hideWhenIdle.desc": "La modalità modifica lo mostra comunque",
   "widgetsB.settings.music.hideWhenIdle.noSession": "Quando nessun lettore è aperto",
   "widgetsB.settings.music.hideWhenIdle.notPlaying": "Quando non è in riproduzione nulla",
-  "widgetsB.settings.music.progress.desc": "La barra di avanzamento e i tempi trascorso e totale",
   "widgetsB.settings.music.progress.label": "Mostra l'avanzamento",
-  "widgetsB.settings.music.transport.desc": "Precedente, riproduci o pausa, successivo",
   "widgetsB.settings.music.transport.label": "Mostra i controlli di riproduzione"
 }

@@ -11,12 +11,8 @@
   "widgetsB.music.play": "ચલાવો",
   "widgetsB.music.playPause": "ચલાવો અથવા થોભાવો",
   "widgetsB.music.previous": "પાછલું",
-  "widgetsB.settings.music.header": "હમણાં વાગી રહ્યું છે",
-  "widgetsB.settings.music.hideWhenIdle.desc": "સંપાદન મોડ હજુ પણ તેને બતાવે છે",
   "widgetsB.settings.music.hideWhenIdle.noSession": "જ્યારે કોઈ પ્લેયર ખુલ્લું ન હોય",
   "widgetsB.settings.music.hideWhenIdle.notPlaying": "જ્યારે કંઈ વાગતું ન હોય",
-  "widgetsB.settings.music.progress.desc": "સીક બાર, અને વીતેલો અને કુલ સમય",
   "widgetsB.settings.music.progress.label": "પ્રગતિ બતાવો",
-  "widgetsB.settings.music.transport.desc": "પાછલું, ચલાવો કે થોભાવો, આગલું",
   "widgetsB.settings.music.transport.label": "પ્લેબૅક નિયંત્રણો બતાવો"
 }

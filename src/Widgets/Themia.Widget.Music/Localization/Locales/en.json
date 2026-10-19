@@ -12,12 +12,8 @@
   "widgetsB.music.play": "Play",
   "widgetsB.music.playPause": "Play or pause",
   "widgetsB.music.previous": "Previous",
-  "widgetsB.settings.music.header": "Now playing",
-  "widgetsB.settings.music.hideWhenIdle.desc": "Edit mode still shows it",
   "widgetsB.settings.music.hideWhenIdle.noSession": "When no player is open",
   "widgetsB.settings.music.hideWhenIdle.notPlaying": "When nothing is playing",
-  "widgetsB.settings.music.progress.desc": "The seek bar, and the elapsed and total times",
   "widgetsB.settings.music.progress.label": "Show progress",
-  "widgetsB.settings.music.transport.desc": "Previous, play or pause, next",
   "widgetsB.settings.music.transport.label": "Show the transport"
 }

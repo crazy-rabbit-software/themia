@@ -11,12 +11,8 @@
   "widgetsB.music.play": "चलाएँ",
   "widgetsB.music.playPause": "चलाएँ या रोकें",
   "widgetsB.music.previous": "पिछला",
-  "widgetsB.settings.music.header": "अभी चल रहा है",
-  "widgetsB.settings.music.hideWhenIdle.desc": "संपादन मोड में फिर भी दिखता है",
   "widgetsB.settings.music.hideWhenIdle.noSession": "जब कोई प्लेयर खुला न हो",
   "widgetsB.settings.music.hideWhenIdle.notPlaying": "जब कुछ न चल रहा हो",
-  "widgetsB.settings.music.progress.desc": "सीक बार, और बीता व कुल समय",
   "widgetsB.settings.music.progress.label": "प्रगति दिखाएँ",
-  "widgetsB.settings.music.transport.desc": "पिछला, चलाएँ या रोकें, अगला",
   "widgetsB.settings.music.transport.label": "प्लेबैक नियंत्रण दिखाएँ"
 }

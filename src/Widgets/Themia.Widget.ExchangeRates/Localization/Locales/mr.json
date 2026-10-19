@@ -6,10 +6,8 @@
   "online.rates.perBase": "प्रति {code}",
   "online.rates.missing": "प्रकाशित नाही",
   "online.rates.settings.base.label": "मूळ चलन",
-  "online.rates.settings.base.desc": "दर या चलनाच्या एका एककासाठी दिला जातो",
   "online.rates.settings.base.region": "Windows प्रदेश ({code})",
   "online.rates.settings.quote.label": "चलन",
-  "online.rates.settings.quote.desc": "ज्या चलनात दर दिला जातो",
   "online.rates.settings.quote.default": "डीफॉल्ट ({code})",
   "styles.rates.chart": "तक्ता",
   "styles.rates.number": "संख्या"

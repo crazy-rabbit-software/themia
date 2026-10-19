@@ -6,10 +6,8 @@
   "online.rates.perBase": "ஒரு {code} க்கு",
   "online.rates.missing": "வெளியிடப்படவில்லை",
   "online.rates.settings.base.label": "அடிப்படை நாணயம்",
-  "online.rates.settings.base.desc": "இந்த நாணயத்தின் ஒரு அலகுக்கு விகிதம் தரப்படுகிறது",
   "online.rates.settings.base.region": "Windows பிராந்தியம் ({code})",
   "online.rates.settings.quote.label": "நாணயம்",
-  "online.rates.settings.quote.desc": "விகிதம் தரப்படும் நாணயம்",
   "online.rates.settings.quote.default": "இயல்புநிலை ({code})",
   "styles.rates.chart": "விளக்கப்படம்",
   "styles.rates.number": "எண்"

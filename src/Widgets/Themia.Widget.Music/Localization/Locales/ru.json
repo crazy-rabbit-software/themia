@@ -11,12 +11,8 @@
   "widgetsB.music.play": "Воспроизвести",
   "widgetsB.music.playPause": "Воспроизведение или пауза",
   "widgetsB.music.previous": "Предыдущий",
-  "widgetsB.settings.music.header": "Сейчас играет",
-  "widgetsB.settings.music.hideWhenIdle.desc": "В режиме правки он все равно виден",
   "widgetsB.settings.music.hideWhenIdle.noSession": "Когда проигрыватель не открыт",
   "widgetsB.settings.music.hideWhenIdle.notPlaying": "Когда ничего не играет",
-  "widgetsB.settings.music.progress.desc": "Полоса перемотки, прошедшее и общее время",
   "widgetsB.settings.music.progress.label": "Показывать ход",
-  "widgetsB.settings.music.transport.desc": "Назад, воспроизведение или пауза, вперед",
   "widgetsB.settings.music.transport.label": "Показывать кнопки управления"
 }

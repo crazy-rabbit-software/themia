@@ -6,6 +6,5 @@
   "panels.brightness.none": "Không có độ sáng màn hình để chỉnh",
   "panels.brightness.own": "Chỉ màn hình chứa nó",
   "panels.brightness.ownNone": "Không thể chỉnh độ sáng của màn hình này",
-  "panels.brightness.screensDesc": "Một thanh trượt cho mọi màn hình, hoặc chỉ màn hình có tiện ích",
   "panels.brightness.screensLabel": "Màn hình được làm tối"
 }

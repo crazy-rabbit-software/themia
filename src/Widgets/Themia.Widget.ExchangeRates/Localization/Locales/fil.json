@@ -6,10 +6,8 @@
   "online.rates.perBase": "bawat {code}",
   "online.rates.missing": "Hindi nailathala",
   "online.rates.settings.base.label": "Batayang currency",
-  "online.rates.settings.base.desc": "Ang palitan ay para sa isang yunit nito",
   "online.rates.settings.base.region": "Rehiyon ng Windows ({code})",
   "online.rates.settings.quote.label": "Currency",
-  "online.rates.settings.quote.desc": "Ang currency kung saan ibinibigay ang palitan",
   "online.rates.settings.quote.default": "Default ({code})",
   "styles.rates.chart": "Chart",
   "styles.rates.number": "Numero"

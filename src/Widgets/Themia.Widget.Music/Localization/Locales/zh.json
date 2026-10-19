@@ -11,12 +11,8 @@
   "widgetsB.music.play": "播放",
   "widgetsB.music.playPause": "播放或暂停",
   "widgetsB.music.previous": "上一个",
-  "widgetsB.settings.music.header": "正在播放",
-  "widgetsB.settings.music.hideWhenIdle.desc": "编辑模式下仍会显示",
   "widgetsB.settings.music.hideWhenIdle.noSession": "没有打开播放器时",
   "widgetsB.settings.music.hideWhenIdle.notPlaying": "没有播放内容时",
-  "widgetsB.settings.music.progress.desc": "进度条以及已播放时间和总时长",
   "widgetsB.settings.music.progress.label": "显示进度",
-  "widgetsB.settings.music.transport.desc": "上一个、播放或暂停、下一个",
   "widgetsB.settings.music.transport.label": "显示播放控件"
 }

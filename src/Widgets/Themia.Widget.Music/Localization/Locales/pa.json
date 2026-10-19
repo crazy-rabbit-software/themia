@@ -11,12 +11,8 @@
   "widgetsB.music.play": "ਚਲਾਓ",
   "widgetsB.music.playPause": "ਚਲਾਓ ਜਾਂ ਰੋਕੋ",
   "widgetsB.music.previous": "ਪਿਛਲਾ",
-  "widgetsB.settings.music.header": "ਹੁਣ ਚੱਲ ਰਿਹਾ",
-  "widgetsB.settings.music.hideWhenIdle.desc": "ਸੰਪਾਦਨ ਮੋਡ ਫਿਰ ਵੀ ਇਸਨੂੰ ਦਿਖਾਉਂਦਾ ਹੈ",
   "widgetsB.settings.music.hideWhenIdle.noSession": "ਜਦੋਂ ਕੋਈ ਪਲੇਅਰ ਖੁੱਲ੍ਹਾ ਨਾ ਹੋਵੇ",
   "widgetsB.settings.music.hideWhenIdle.notPlaying": "ਜਦੋਂ ਕੁਝ ਨਾ ਚੱਲ ਰਿਹਾ ਹੋਵੇ",
-  "widgetsB.settings.music.progress.desc": "ਸੀਕ ਬਾਰ, ਅਤੇ ਬੀਤਿਆ ਤੇ ਕੁੱਲ ਸਮਾਂ",
   "widgetsB.settings.music.progress.label": "ਪ੍ਰਗਤੀ ਦਿਖਾਓ",
-  "widgetsB.settings.music.transport.desc": "ਪਿਛਲਾ, ਚਲਾਓ ਜਾਂ ਰੋਕੋ, ਅਗਲਾ",
   "widgetsB.settings.music.transport.label": "ਪਲੇਬੈਕ ਕੰਟਰੋਲ ਦਿਖਾਓ"
 }

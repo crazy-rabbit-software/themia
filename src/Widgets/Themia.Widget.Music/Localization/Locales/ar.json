@@ -11,12 +11,8 @@
   "widgetsB.music.play": "تشغيل",
   "widgetsB.music.playPause": "تشغيل أو إيقاف مؤقت",
   "widgetsB.music.previous": "السابق",
-  "widgetsB.settings.music.header": "قيد التشغيل",
-  "widgetsB.settings.music.hideWhenIdle.desc": "يظل ظاهرًا في وضع التحرير",
   "widgetsB.settings.music.hideWhenIdle.noSession": "عند عدم فتح أي مشغّل",
   "widgetsB.settings.music.hideWhenIdle.notPlaying": "عند عدم تشغيل أي شيء",
-  "widgetsB.settings.music.progress.desc": "شريط التقديم، والوقت المنقضي والإجمالي",
   "widgetsB.settings.music.progress.label": "إظهار التقدم",
-  "widgetsB.settings.music.transport.desc": "السابق، التشغيل أو الإيقاف المؤقت، التالي",
   "widgetsB.settings.music.transport.label": "إظهار عناصر التحكم"
 }

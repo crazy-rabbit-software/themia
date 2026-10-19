@@ -6,10 +6,8 @@
   "online.rates.perBase": "પ્રતિ {code}",
   "online.rates.missing": "પ્રકાશિત નથી",
   "online.rates.settings.base.label": "મૂળ ચલણ",
-  "online.rates.settings.base.desc": "દર આ ચલણના એક એકમ માટે બતાવાય છે",
   "online.rates.settings.base.region": "Windows પ્રદેશ ({code})",
   "online.rates.settings.quote.label": "ચલણ",
-  "online.rates.settings.quote.desc": "જે ચલણમાં દર બતાવાય છે",
   "online.rates.settings.quote.default": "ડિફૉલ્ટ ({code})",
   "styles.rates.chart": "ચાર્ટ",
   "styles.rates.number": "સંખ્યા"

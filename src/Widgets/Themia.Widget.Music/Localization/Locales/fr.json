@@ -11,12 +11,8 @@
   "widgetsB.music.play": "Lecture",
   "widgetsB.music.playPause": "Lecture ou pause",
   "widgetsB.music.previous": "Précédent",
-  "widgetsB.settings.music.header": "En cours de lecture",
-  "widgetsB.settings.music.hideWhenIdle.desc": "Le mode d'édition l'affiche toujours",
   "widgetsB.settings.music.hideWhenIdle.noSession": "Quand aucun lecteur n'est ouvert",
   "widgetsB.settings.music.hideWhenIdle.notPlaying": "Quand rien n'est en lecture",
-  "widgetsB.settings.music.progress.desc": "La barre de progression, et les durées écoulée et totale",
   "widgetsB.settings.music.progress.label": "Afficher la progression",
-  "widgetsB.settings.music.transport.desc": "Précédent, lecture ou pause, suivant",
   "widgetsB.settings.music.transport.label": "Afficher les commandes de lecture"
 }

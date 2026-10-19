@@ -37,8 +37,9 @@ public sealed class ExchangeRatesModule : IWidgetModule
         Add = new(AddFolderId.Markets, 0, 1),
     };
 
-    public void SettingsRows(WidgetSettingsRows rows, WidgetConfig config)
-        => ExchangeRatesSettings.Rows(rows.Rows, (ExchangeRatesConfig)config, rows.Save);
+    /// <summary>[S-3719] Every option is on the properties menu: the widget has no settings page.</summary>
+    public void MenuLines(WidgetMenuLines menu, WidgetConfig config)
+        => ExchangeRatesMenu.Lines(menu, (ExchangeRatesConfig)config);
 
     public FrameworkElement CreateView(IWidgetHost host) => new ExchangeRatesView(host);
 }

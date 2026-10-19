@@ -5,10 +5,10 @@ and signal; port of `main`'s Bluetooth (`widgets/system/bluetooth`, [S-01]..[S-1
 ladder. Its tags are this file's alone; the root `SPEC.md` holds the host's sections (the shared
 widget settings [S-3790], the ladder rules [S-660]..[S-666]).
 
-Owning files: everything in this folder: `BluetoothModule.cs` (descriptor, view factory, settings
-rows, JSON context), `BluetoothConfig.cs`, `BluetoothInventory.cs` (Windows' device, radio, GATT and
+Owning files: everything in this folder: `BluetoothModule.cs` (descriptor, view factory, menu
+lines, JSON context), `BluetoothConfig.cs`, `BluetoothInventory.cs` (Windows' device, radio, GATT and
 advertisement APIs: the widget's own reading, no host service), `BluetoothRules.cs`,
-`BluetoothLayout.cs`, `BluetoothView.cs`, `BluetoothSettings.cs` (its page), `Preview/` (Debug
+`BluetoothLayout.cs`, `BluetoothView.cs`, `BluetoothMenu.cs` (its properties-menu lines), `Preview/` (Debug
 renders), `Localization/Locales/` (its own `BluetoothStr`, 30 languages). Tests: `Tests/` (run by
 `tests/Themia.Modules.Tests`).
 
@@ -43,6 +43,11 @@ them, `BluetoothRulesTests`, which carried these tags with no SPEC line):
 - **[S-1257]** `ShowIcon` and `ShowConnection` (default on) are the original's `type` and
   `connection` metrics; the name is always shown (orig. [S-14]/[S-15]).
 - **[S-1258]** *(Retired: the debug widget gallery and its fixtures are gone, [S-1863].)*
+- **[S-3255]** Its options are all on the properties menu ([S-3719], user request 2026-10-19); it
+  has no settings page. Appearance ([S-3723]), then **Connected only** (paired but not connected
+  left out), and what a row shows: **Device icon**, **Connection** ([S-1257]), **Battery**
+  ([S-3252]: slower, it connects to each device) and **Signal strength** ([S-1256]: a short scan),
+  all switches. (Tests `BluetoothMenuTests`.)
 - **[S-1259]** Context menu "Refresh" enumerates now (orig. [S-09]).
 - **[S-3252]** `ShowBattery` (default on): each **connected** device's battery, refreshed with the
   list on its interval. First the level Windows itself holds (`DEVPKEY_Bluetooth_Battery`,

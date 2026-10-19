@@ -6,6 +6,5 @@
   "panels.brightness.none": "沒有可調整亮度的螢幕",
   "panels.brightness.own": "僅小工具所在的螢幕",
   "panels.brightness.ownNone": "無法調整此螢幕的亮度",
-  "panels.brightness.screensDesc": "一個滑桿調整所有螢幕，或僅調整小工具所在的螢幕",
   "panels.brightness.screensLabel": "調暗的螢幕"
 }

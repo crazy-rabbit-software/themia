@@ -11,12 +11,8 @@
   "widgetsB.music.play": "Kunna",
   "widgetsB.music.playPause": "Kunna ko dakata",
   "widgetsB.music.previous": "Na baya",
-  "widgetsB.settings.music.header": "Ana kunnawa yanzu",
-  "widgetsB.settings.music.hideWhenIdle.desc": "Yanayin gyara har yanzu yana nuna shi",
   "widgetsB.settings.music.hideWhenIdle.noSession": "Idan babu mai kunnawa a buɗe",
   "widgetsB.settings.music.hideWhenIdle.notPlaying": "Idan babu abin da ke kunnawa",
-  "widgetsB.settings.music.progress.desc": "Sandar nema, da lokacin da ya wuce da jimlar lokaci",
   "widgetsB.settings.music.progress.label": "Nuna ci gaba",
-  "widgetsB.settings.music.transport.desc": "Na baya, kunna ko dakata, na gaba",
   "widgetsB.settings.music.transport.label": "Nuna maɓallan kunnawa"
 }

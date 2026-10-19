@@ -6,10 +6,8 @@
   "online.rates.perBase": "每 1 {code}",
   "online.rates.missing": "未公布",
   "online.rates.settings.base.label": "基準貨幣",
-  "online.rates.settings.base.desc": "匯率以此貨幣的一個單位計",
   "online.rates.settings.base.region": "Windows 地區 ({code})",
   "online.rates.settings.quote.label": "貨幣",
-  "online.rates.settings.quote.desc": "匯率以此貨幣表示",
   "online.rates.settings.quote.default": "預設 ({code})",
   "styles.rates.chart": "圖表",
   "styles.rates.number": "數字"

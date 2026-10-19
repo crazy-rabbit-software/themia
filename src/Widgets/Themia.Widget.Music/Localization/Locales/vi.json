@@ -11,12 +11,8 @@
   "widgetsB.music.play": "Phát",
   "widgetsB.music.playPause": "Phát hoặc tạm dừng",
   "widgetsB.music.previous": "Trước",
-  "widgetsB.settings.music.header": "Đang phát",
-  "widgetsB.settings.music.hideWhenIdle.desc": "Chế độ chỉnh sửa vẫn hiện tiện ích",
   "widgetsB.settings.music.hideWhenIdle.noSession": "Khi không có trình phát nào mở",
   "widgetsB.settings.music.hideWhenIdle.notPlaying": "Khi không có gì đang phát",
-  "widgetsB.settings.music.progress.desc": "Thanh tua, thời gian đã phát và tổng thời gian",
   "widgetsB.settings.music.progress.label": "Hiện tiến trình",
-  "widgetsB.settings.music.transport.desc": "Trước, phát hoặc tạm dừng, tiếp",
   "widgetsB.settings.music.transport.label": "Hiện nút điều khiển"
 }

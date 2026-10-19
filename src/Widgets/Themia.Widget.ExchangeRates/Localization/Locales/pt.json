@@ -6,10 +6,8 @@
   "online.rates.perBase": "por {code}",
   "online.rates.missing": "Não publicado",
   "online.rates.settings.base.label": "Moeda base",
-  "online.rates.settings.base.desc": "A cotação é dada por uma unidade desta moeda",
   "online.rates.settings.base.region": "Região do Windows ({code})",
   "online.rates.settings.quote.label": "Moeda",
-  "online.rates.settings.quote.desc": "A moeda em que a cotação é dada",
   "online.rates.settings.quote.default": "Padrão ({code})",
   "styles.rates.chart": "Gráfico",
   "styles.rates.number": "Número"

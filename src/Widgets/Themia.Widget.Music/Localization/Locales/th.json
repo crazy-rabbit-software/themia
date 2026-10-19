@@ -11,12 +11,8 @@
   "widgetsB.music.play": "เล่น",
   "widgetsB.music.playPause": "เล่นหรือหยุดชั่วคราว",
   "widgetsB.music.previous": "ก่อนหน้า",
-  "widgetsB.settings.music.header": "กำลังเล่น",
-  "widgetsB.settings.music.hideWhenIdle.desc": "โหมดแก้ไขยังคงแสดงอยู่",
   "widgetsB.settings.music.hideWhenIdle.noSession": "เมื่อไม่มีเครื่องเล่นเปิดอยู่",
   "widgetsB.settings.music.hideWhenIdle.notPlaying": "เมื่อไม่มีสิ่งที่กำลังเล่น",
-  "widgetsB.settings.music.progress.desc": "แถบค้นหา และเวลาที่ผ่านไปกับเวลาทั้งหมด",
   "widgetsB.settings.music.progress.label": "แสดงความคืบหน้า",
-  "widgetsB.settings.music.transport.desc": "ก่อนหน้า เล่นหรือหยุดชั่วคราว ถัดไป",
   "widgetsB.settings.music.transport.label": "แสดงปุ่มควบคุม"
 }

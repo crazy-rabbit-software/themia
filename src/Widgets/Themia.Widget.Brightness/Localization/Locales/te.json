@@ -6,6 +6,5 @@
   "panels.brightness.none": "సెట్ చేయడానికి డిస్‌ప్లే ప్రకాశం లేదు",
   "panels.brightness.own": "ఇది ఉన్న స్క్రీన్ మాత్రమే",
   "panels.brightness.ownNone": "ఈ డిస్‌ప్లే ప్రకాశాన్ని సెట్ చేయడం సాధ్యం కాదు",
-  "panels.brightness.screensDesc": "ప్రతి స్క్రీన్‌కు ఒక స్లైడర్, లేదా విడ్జెట్ ఉన్న స్క్రీన్‌కు మాత్రమే",
   "panels.brightness.screensLabel": "ఇది మసకబార్చే స్క్రీన్‌లు"
 }

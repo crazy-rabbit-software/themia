@@ -11,12 +11,8 @@
   "widgetsB.music.play": "Afspelen",
   "widgetsB.music.playPause": "Afspelen of onderbreken",
   "widgetsB.music.previous": "Vorige",
-  "widgetsB.settings.music.header": "Wordt nu afgespeeld",
-  "widgetsB.settings.music.hideWhenIdle.desc": "In de bewerkingsmodus blijft hij zichtbaar",
   "widgetsB.settings.music.hideWhenIdle.noSession": "Als er geen speler open is",
   "widgetsB.settings.music.hideWhenIdle.notPlaying": "Als er niets wordt afgespeeld",
-  "widgetsB.settings.music.progress.desc": "De zoekbalk en de verstreken en totale tijd",
   "widgetsB.settings.music.progress.label": "Voortgang weergeven",
-  "widgetsB.settings.music.transport.desc": "Vorige, afspelen of onderbreken, volgende",
   "widgetsB.settings.music.transport.label": "Bedieningsknoppen weergeven"
 }

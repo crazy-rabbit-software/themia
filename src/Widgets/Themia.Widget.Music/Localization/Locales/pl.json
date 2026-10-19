@@ -11,12 +11,8 @@
   "widgetsB.music.play": "Odtwórz",
   "widgetsB.music.playPause": "Odtwórz lub wstrzymaj",
   "widgetsB.music.previous": "Poprzedni",
-  "widgetsB.settings.music.header": "Teraz odtwarzane",
-  "widgetsB.settings.music.hideWhenIdle.desc": "Tryb edycji nadal go pokazuje",
   "widgetsB.settings.music.hideWhenIdle.noSession": "Gdy żaden odtwarzacz nie jest otwarty",
   "widgetsB.settings.music.hideWhenIdle.notPlaying": "Gdy nic nie jest odtwarzane",
-  "widgetsB.settings.music.progress.desc": "Pasek przewijania oraz czas, który upłynął, i czas całkowity",
   "widgetsB.settings.music.progress.label": "Pokaż postęp",
-  "widgetsB.settings.music.transport.desc": "Poprzedni, odtwórz lub wstrzymaj, następny",
   "widgetsB.settings.music.transport.label": "Pokaż przyciski odtwarzania"
 }

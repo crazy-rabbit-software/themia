@@ -6,10 +6,8 @@
   "online.rates.perBase": "{code} başına",
   "online.rates.missing": "Yayımlanmıyor",
   "online.rates.settings.base.label": "Temel para birimi",
-  "online.rates.settings.base.desc": "Kur, bu para biriminin bir birimi için verilir",
   "online.rates.settings.base.region": "Windows bölgesi ({code})",
   "online.rates.settings.quote.label": "Para birimi",
-  "online.rates.settings.quote.desc": "Kurun verildiği para birimi",
   "online.rates.settings.quote.default": "Varsayılan ({code})",
   "styles.rates.chart": "Grafik",
   "styles.rates.number": "Sayı"

@@ -6,10 +6,8 @@
   "online.rates.perBase": "pro {code}",
   "online.rates.missing": "Nicht veröffentlicht",
   "online.rates.settings.base.label": "Basiswährung",
-  "online.rates.settings.base.desc": "Der Kurs gilt für eine Einheit dieser Währung",
   "online.rates.settings.base.region": "Windows-Region ({code})",
   "online.rates.settings.quote.label": "Währung",
-  "online.rates.settings.quote.desc": "Die Währung, in der der Kurs angegeben wird",
   "online.rates.settings.quote.default": "Standard ({code})",
   "styles.rates.chart": "Diagramm",
   "styles.rates.number": "Zahl"

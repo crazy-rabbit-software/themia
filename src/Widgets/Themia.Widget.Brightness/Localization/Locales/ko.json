@@ -6,6 +6,5 @@
   "panels.brightness.none": "조정할 수 있는 화면 밝기가 없습니다",
   "panels.brightness.own": "위젯이 있는 화면만",
   "panels.brightness.ownNone": "이 화면의 밝기는 조정할 수 없습니다",
-  "panels.brightness.screensDesc": "모든 화면에 슬라이더 하나, 또는 위젯이 있는 화면만",
   "panels.brightness.screensLabel": "어둡게 할 화면"
 }

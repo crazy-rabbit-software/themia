@@ -6,10 +6,8 @@
   "online.rates.perBase": "1 {code}당",
   "online.rates.missing": "게시되지 않음",
   "online.rates.settings.base.label": "기준 통화",
-  "online.rates.settings.base.desc": "이 통화 1단위당 환율을 표시합니다",
   "online.rates.settings.base.region": "Windows 지역 ({code})",
   "online.rates.settings.quote.label": "통화",
-  "online.rates.settings.quote.desc": "환율을 표시하는 통화",
   "online.rates.settings.quote.default": "기본값 ({code})",
   "styles.rates.chart": "차트",
   "styles.rates.number": "숫자"

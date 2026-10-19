@@ -11,12 +11,8 @@
   "widgetsB.music.play": "چلائیں",
   "widgetsB.music.playPause": "چلائیں یا موقوف کریں",
   "widgetsB.music.previous": "پچھلا",
-  "widgetsB.settings.music.header": "ابھی چل رہا ہے",
-  "widgetsB.settings.music.hideWhenIdle.desc": "ترمیمی وضع میں پھر بھی دکھتا ہے",
   "widgetsB.settings.music.hideWhenIdle.noSession": "جب کوئی پلیئر کھلا نہ ہو",
   "widgetsB.settings.music.hideWhenIdle.notPlaying": "جب کچھ نہ چل رہا ہو",
-  "widgetsB.settings.music.progress.desc": "سیک بار، اور گزرا ہوا اور کل وقت",
   "widgetsB.settings.music.progress.label": "پیش رفت دکھائیں",
-  "widgetsB.settings.music.transport.desc": "پچھلا، چلائیں یا موقوف، اگلا",
   "widgetsB.settings.music.transport.label": "کنٹرولز دکھائیں"
 }

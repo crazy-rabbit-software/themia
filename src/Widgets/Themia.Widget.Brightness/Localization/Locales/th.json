@@ -6,6 +6,5 @@
   "panels.brightness.none": "ไม่มีความสว่างของจอแสดงผลให้ตั้งค่า",
   "panels.brightness.own": "เฉพาะหน้าจอที่วิดเจ็ตอยู่",
   "panels.brightness.ownNone": "ไม่สามารถตั้งค่าความสว่างของจอแสดงผลนี้ได้",
-  "panels.brightness.screensDesc": "แถบเลื่อนเดียวสำหรับทุกหน้าจอ หรือเฉพาะหน้าจอที่วิดเจ็ตอยู่",
   "panels.brightness.screensLabel": "หน้าจอที่ปรับ"
 }

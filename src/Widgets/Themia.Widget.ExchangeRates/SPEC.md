@@ -6,10 +6,10 @@ rain and exchange rates: the ECB document's wire [S-5141], the published codes [
 rates [S-5145] in the SDK's `ExchangeRates.cs`, the header's stale rule [S-5160], the offline shelf
 [S-5161]; the background web sync [S-2663]).
 
-Owning files: everything in this folder: `ExchangeRatesModule.cs` (descriptor, view factory, settings
-rows, JSON context, its glyph), `ExchangeRatesConfig.cs` (with its styles), `ExchangeRatesView.cs` (it
+Owning files: everything in this folder: `ExchangeRatesModule.cs` (descriptor, view factory, menu
+lines, JSON context, its glyph), `ExchangeRatesConfig.cs` (with its styles), `ExchangeRatesView.cs` (it
 reads the table through `IWidgetHost.Rates`), `RatesLayout.cs` (both styles' ladders), `RatesText.cs`,
-`ExchangeRatesSettings.cs` (its page: base, currency and the source line), `Preview/` (Debug renders:
+`ExchangeRatesMenu.cs` (its properties-menu lines: base, currency and the source line), `Preview/` (Debug renders:
 `--state sample`), `Localization/Locales/` (its own `ExchangeRatesStr`, 30 languages, its style names
 included). Tests: `Tests/ExchangeRatesTests.cs` (run by `tests/Themia.Modules.Tests`); the document's
 and the cross rates' own tests stay Core's (`OnlineWidgetsTests`, `S5141_`, `S5143_`, `S5145_`).
@@ -32,8 +32,11 @@ and the cross rates' own tests stay Core's (`OnlineWidgetsTests`, `S5141_`, `S51
   beside it while the table on screen is one the last refresh could not improve on ([S-7042]).
 - **[S-5147]** One `RatesInterest` for all exchange-rate widgets; asked every three hours, no setting
   (`OnlineCadence.Rates`): the ECB publishes once per working day around 16:00 CET.
-- **[S-5148]** Settings: Base currency (Windows region first, naming it), Currency (the default
-  first, naming it, then the published codes), and the source line.
+- **[S-5148]** Its options are all on the properties menu ([S-3719], user request 2026-10-19); it
+  has no settings page. Appearance ([S-3723]), then **Base currency** (Windows region first, naming
+  it) and **Currency** (the default first, naming it), each a search ([S-3722]) over the published
+  codes that start with what is typed, the one that holds with the dot; then the source's credit as
+  a note. (Tests `ExchangeRatesMenuTests`.)
 - **[S-6167]** The exchange-rate widget's styles ([S-6000]), `ExchangeRatesConfig.Style`
   (`ExchangeRatesStyle`): **Chart** (the default and first, as for Stocks — user requirement: the
   rate shows with its graph) and **Number** ([S-5146]; what was **List** before one pair per widget,

@@ -11,12 +11,8 @@
   "widgetsB.music.play": "再生",
   "widgetsB.music.playPause": "再生または一時停止",
   "widgetsB.music.previous": "前へ",
-  "widgetsB.settings.music.header": "再生中の項目",
-  "widgetsB.settings.music.hideWhenIdle.desc": "編集モードでは表示されます",
   "widgetsB.settings.music.hideWhenIdle.noSession": "プレーヤーが開いていないとき",
   "widgetsB.settings.music.hideWhenIdle.notPlaying": "何も再生していないとき",
-  "widgetsB.settings.music.progress.desc": "シークバー、経過時間、合計時間",
   "widgetsB.settings.music.progress.label": "進行状況を表示",
-  "widgetsB.settings.music.transport.desc": "前へ、再生/一時停止、次へ",
   "widgetsB.settings.music.transport.label": "再生コントロールを表示"
 }

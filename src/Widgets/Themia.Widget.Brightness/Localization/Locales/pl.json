@@ -6,6 +6,5 @@
   "panels.brightness.none": "Brak jasności ekranu do ustawienia",
   "panels.brightness.own": "Tylko ekran, na którym jest",
   "panels.brightness.ownNone": "Nie można ustawić jasności tego ekranu",
-  "panels.brightness.screensDesc": "Jeden suwak dla wszystkich ekranów lub tylko dla ekranu widżetu",
   "panels.brightness.screensLabel": "Ściemniane ekrany"
 }

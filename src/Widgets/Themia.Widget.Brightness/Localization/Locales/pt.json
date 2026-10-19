@@ -6,6 +6,5 @@
   "panels.brightness.none": "Nenhum brilho de tela para ajustar",
   "panels.brightness.own": "Só a tela em que está",
   "panels.brightness.ownNone": "O brilho desta tela não pode ser ajustado",
-  "panels.brightness.screensDesc": "Um controle para todas as telas ou só para a do widget",
   "panels.brightness.screensLabel": "Telas que escurece"
 }

@@ -1,16 +1,17 @@
 {
-  "$englishOnly": [],
+  "$englishOnly": [
+    "online.rates.menu.find"
+  ],
   "online.rates.label": "Exchange rates",
   "online.rates.desc": "Reference rates from the European Central Bank",
   "online.rates.fix": "ECB, {date}",
   "online.rates.fixTooltip": "Reference rates of {date} from the European Central Bank",
   "online.rates.perBase": "per {code}",
   "online.rates.missing": "Not published",
+  "online.rates.menu.find": "Find a currency",
   "online.rates.settings.base.label": "Base currency",
-  "online.rates.settings.base.desc": "The rate is for one unit of it",
   "online.rates.settings.base.region": "Windows region ({code})",
   "online.rates.settings.quote.label": "Currency",
-  "online.rates.settings.quote.desc": "The currency the rate is given in",
   "online.rates.settings.quote.default": "Default ({code})",
   "styles.rates.chart": "Chart",
   "styles.rates.number": "Number"

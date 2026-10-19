@@ -6,6 +6,5 @@
   "panels.brightness.none": "没有可调节亮度的屏幕",
   "panels.brightness.own": "仅小组件所在的屏幕",
   "panels.brightness.ownNone": "无法调节此屏幕的亮度",
-  "panels.brightness.screensDesc": "一个滑块调节所有屏幕，或仅调节小组件所在的屏幕",
   "panels.brightness.screensLabel": "调暗的屏幕"
 }

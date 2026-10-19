@@ -6,6 +6,5 @@
   "panels.brightness.none": "সেট করার মতো কোনো ডিসপ্লে উজ্জ্বলতা নেই",
   "panels.brightness.own": "শুধু যে স্ক্রিনে আছে",
   "panels.brightness.ownNone": "এই ডিসপ্লের উজ্জ্বলতা সেট করা যায় না",
-  "panels.brightness.screensDesc": "সব স্ক্রিনের জন্য একটি স্লাইডার, বা শুধু উইজেটের স্ক্রিন",
   "panels.brightness.screensLabel": "যে স্ক্রিনগুলো ম্লান হয়"
 }

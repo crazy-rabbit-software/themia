@@ -11,12 +11,8 @@
   "widgetsB.music.play": "Cheza",
   "widgetsB.music.playPause": "Cheza au sitisha",
   "widgetsB.music.previous": "Iliyotangulia",
-  "widgetsB.settings.music.header": "Kinachocheza sasa",
-  "widgetsB.settings.music.hideWhenIdle.desc": "Hali ya kuhariri bado huionyesha",
   "widgetsB.settings.music.hideWhenIdle.noSession": "Wakati hakuna kicheza kilichofunguliwa",
   "widgetsB.settings.music.hideWhenIdle.notPlaying": "Wakati hakuna kinachocheza",
-  "widgetsB.settings.music.progress.desc": "Upau wa kutafuta, na muda uliopita na jumla",
   "widgetsB.settings.music.progress.label": "Onyesha maendeleo",
-  "widgetsB.settings.music.transport.desc": "Iliyotangulia, cheza au sitisha, inayofuata",
   "widgetsB.settings.music.transport.label": "Onyesha vidhibiti vya kucheza"
 }
