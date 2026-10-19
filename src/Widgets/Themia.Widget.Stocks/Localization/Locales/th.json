@@ -9,8 +9,6 @@
   "stocks.upColor": "สีขาขึ้น",
   "styles.stocks.chart": "แผนภูมิ",
   "styles.stocks.number": "ตัวเลข",
-  "styles.stocks.options": "ช่วงเวลาและสี",
-  "styles.stocks.optionsDesc": "ช่วงเวลาของการเปลี่ยนแปลง เครื่องหมายบนแผนภูมิ และสี",
   "widget.stocks.label": "หุ้น",
   "widgetsA.catalog.stocks.description": "หุ้นและคริปโต พร้อมกราฟเส้นขนาดเล็ก",
   "widgetsC.stocks.extendedLine": "{session} {price} {change} · {time}",
@@ -27,14 +25,9 @@
     "other": "{count} ปี"
   },
   "widgetsC.stocks.phaseTooltip": "{phase} {zone}",
-  "widgetsC.stocks.settings.classOnExchange": "{class} ใน {exchange}",
-  "widgetsC.stocks.settings.holding.desc": "จำนวนที่คุณถือ วิดเจ็ตจะแสดงมูลค่า เว้นว่างเพื่อซ่อน",
   "widgetsC.stocks.settings.holding.label": "จำนวนหุ้นที่ถือ",
   "widgetsC.stocks.settings.holding.refused": "พิมพ์จำนวนตั้งแต่ {zero} ขึ้นไป เช่น {example}",
-  "widgetsC.stocks.settings.instrument": "ตราสาร",
-  "widgetsC.stocks.settings.marketState.desc": "เฉพาะตราสารจดทะเบียน — คริปโตซื้อขายทุกวัน",
   "widgetsC.stocks.settings.symbolRefused": "เลือกผลการค้นหา หรือพิมพ์สัญลักษณ์: ตัวอักษร ตัวเลข และ . - ^ = เท่านั้น",
-  "widgetsC.stocks.settings.symbol.desc": "ค้นหาตามชื่อหรือสัญลักษณ์: หุ้น กองทุน ดัชนี เหรียญ",
   "widgetsC.stocks.settings.windowsGreen": "สีเขียวของ Windows",
   "widgetsC.stocks.settings.windowsRed": "สีแดงของ Windows"
 }

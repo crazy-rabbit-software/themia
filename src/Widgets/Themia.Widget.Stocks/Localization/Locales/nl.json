@@ -9,8 +9,6 @@
   "stocks.upColor": "Kleur bij winst",
   "styles.stocks.chart": "Grafiek",
   "styles.stocks.number": "Getal",
-  "styles.stocks.options": "Periode en kleuren",
-  "styles.stocks.optionsDesc": "Periode van de wijziging, markeringen in de grafiek en kleuren",
   "widget.stocks.label": "Aandelen",
   "widgetsA.catalog.stocks.description": "Aandelen en crypto, met een minigrafiek",
   "widgetsC.stocks.extendedLine": "{session} {price} {change} · {time}",
@@ -30,14 +28,9 @@
     "other": "{count} jaar"
   },
   "widgetsC.stocks.phaseTooltip": "{phase}. {zone}",
-  "widgetsC.stocks.settings.classOnExchange": "{class} op {exchange}",
-  "widgetsC.stocks.settings.holding.desc": "Hoeveel u er bezit; de widget toont wat ze waard zijn. Leeg verbergt het",
   "widgetsC.stocks.settings.holding.label": "Aantal in bezit",
   "widgetsC.stocks.settings.holding.refused": "Typ een aantal van {zero} of meer, zoals {example}",
-  "widgetsC.stocks.settings.instrument": "Instrument",
-  "widgetsC.stocks.settings.marketState.desc": "Alleen beursgenoteerde instrumenten — crypto wordt elke dag verhandeld",
   "widgetsC.stocks.settings.symbolRefused": "Kies een zoekresultaat of typ een symbool: alleen letters, cijfers en . - ^ =",
-  "widgetsC.stocks.settings.symbol.desc": "Zoek op naam of ticker: aandelen, fondsen, indexen, munten",
   "widgetsC.stocks.settings.windowsGreen": "Windows-groen",
   "widgetsC.stocks.settings.windowsRed": "Windows-rood"
 }

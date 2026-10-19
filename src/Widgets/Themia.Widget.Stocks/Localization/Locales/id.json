@@ -9,8 +9,6 @@
   "stocks.upColor": "Warna naik",
   "styles.stocks.chart": "Grafik",
   "styles.stocks.number": "Angka",
-  "styles.stocks.options": "Periode dan warna",
-  "styles.stocks.optionsDesc": "Periode perubahan, penanda grafik, dan warna",
   "widget.stocks.label": "Saham",
   "widgetsA.catalog.stocks.description": "Saham dan kripto, dengan grafik mini",
   "widgetsC.stocks.extendedLine": "{session} {price} {change} · {time}",
@@ -27,14 +25,9 @@
     "other": "{count} tahun"
   },
   "widgetsC.stocks.phaseTooltip": "{phase}. {zone}",
-  "widgetsC.stocks.settings.classOnExchange": "{class} di {exchange}",
-  "widgetsC.stocks.settings.holding.desc": "Berapa yang Anda miliki; widget menampilkan nilainya. Kosongkan untuk menyembunyikan",
   "widgetsC.stocks.settings.holding.label": "Jumlah dimiliki",
   "widgetsC.stocks.settings.holding.refused": "Ketik jumlah {zero} atau lebih, misalnya {example}",
-  "widgetsC.stocks.settings.instrument": "Instrumen",
-  "widgetsC.stocks.settings.marketState.desc": "Hanya instrumen tercatat — kripto diperdagangkan setiap hari",
   "widgetsC.stocks.settings.symbolRefused": "Pilih hasil pencarian, atau ketik simbol: hanya huruf, angka, dan . - ^ =",
-  "widgetsC.stocks.settings.symbol.desc": "Cari menurut nama atau ticker: saham, reksa dana, indeks, koin",
   "widgetsC.stocks.settings.windowsGreen": "Hijau Windows",
   "widgetsC.stocks.settings.windowsRed": "Merah Windows"
 }

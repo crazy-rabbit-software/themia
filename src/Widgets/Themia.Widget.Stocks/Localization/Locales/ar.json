@@ -9,8 +9,6 @@
   "stocks.upColor": "لون الارتفاع",
   "styles.stocks.chart": "مخطط",
   "styles.stocks.number": "رقم",
-  "styles.stocks.options": "الفترة والألوان",
-  "styles.stocks.optionsDesc": "فترة التغيّر وعلامات المخطط والألوان",
   "widget.stocks.label": "الأسهم",
   "widgetsA.catalog.stocks.description": "رموز الأسهم والعملات المشفرة، مع خط بياني",
   "widgetsC.stocks.extendedLine": "{session} {price} {change} · {time}",
@@ -42,14 +40,9 @@
     "other": "{count} سنة"
   },
   "widgetsC.stocks.phaseTooltip": "{phase}. {zone}",
-  "widgetsC.stocks.settings.classOnExchange": "{class} في {exchange}",
-  "widgetsC.stocks.settings.holding.desc": "كم تملك؛ تعرض الأداة قيمتها. اتركه فارغًا لإخفائها",
   "widgetsC.stocks.settings.holding.label": "الكمية المملوكة",
   "widgetsC.stocks.settings.holding.refused": "اكتب كمية {zero} أو أكثر، مثل {example}",
-  "widgetsC.stocks.settings.instrument": "الأداة المالية",
-  "widgetsC.stocks.settings.marketState.desc": "للأدوات المدرجة فقط — العملات المشفرة تُتداول كل يوم",
   "widgetsC.stocks.settings.symbolRefused": "اختر نتيجة بحث، أو اكتب رمزًا: أحرف وأرقام و. - ^ = فقط",
-  "widgetsC.stocks.settings.symbol.desc": "ابحث بالاسم أو الرمز: أسهم، صناديق، مؤشرات، عملات",
   "widgetsC.stocks.settings.windowsGreen": "أخضر Windows",
   "widgetsC.stocks.settings.windowsRed": "أحمر Windows"
 }

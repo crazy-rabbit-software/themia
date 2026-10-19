@@ -9,8 +9,6 @@
   "stocks.upColor": "லாப நிறம்",
   "styles.stocks.chart": "விளக்கப்படம்",
   "styles.stocks.number": "எண்",
-  "styles.stocks.options": "காலம் மற்றும் வண்ணங்கள்",
-  "styles.stocks.optionsDesc": "மாற்றத்தின் காலம், விளக்கப்படக் குறிகள் மற்றும் வண்ணங்கள்",
   "widget.stocks.label": "பங்குகள்",
   "widgetsA.catalog.stocks.description": "பங்குக் குறியீடுகளும் கிரிப்டோவும், சிறு வரைபடத்துடன்",
   "widgetsC.stocks.extendedLine": "{session} {price} {change} · {time}",
@@ -30,14 +28,9 @@
     "other": "{count} ஆண்டுகள்"
   },
   "widgetsC.stocks.phaseTooltip": "{phase}. {zone}",
-  "widgetsC.stocks.settings.classOnExchange": "{exchange} இல் {class}",
-  "widgetsC.stocks.settings.holding.desc": "நீங்கள் எத்தனை வைத்திருக்கிறீர்கள்; விட்ஜெட் அவற்றின் மதிப்பைக் காட்டும். காலியாக இருந்தால் மறைக்கும்",
   "widgetsC.stocks.settings.holding.label": "வைத்திருக்கும் பங்குகள்",
   "widgetsC.stocks.settings.holding.refused": "{zero} அல்லது அதற்கு மேற்பட்ட அளவைத் தட்டச்சு செய்யவும், {example} போல",
-  "widgetsC.stocks.settings.instrument": "கருவி",
-  "widgetsC.stocks.settings.marketState.desc": "பட்டியலிடப்பட்டவை மட்டும் — கிரிப்டோ ஒவ்வொரு நாளும் வர்த்தகமாகும்",
   "widgetsC.stocks.settings.symbolRefused": "தேடல் முடிவைத் தேர்ந்தெடுக்கவும், அல்லது குறியீட்டைத் தட்டச்சு செய்யவும்: எழுத்துகள், இலக்கங்கள் மற்றும் . - ^ = மட்டும்",
-  "widgetsC.stocks.settings.symbol.desc": "பெயர் அல்லது டிக்கர் மூலம் தேடவும்: பங்குகள், நிதிகள், குறியீட்டெண்கள், நாணயங்கள்",
   "widgetsC.stocks.settings.windowsGreen": "Windows பச்சை",
   "widgetsC.stocks.settings.windowsRed": "Windows சிவப்பு"
 }

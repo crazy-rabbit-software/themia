@@ -9,8 +9,6 @@
   "stocks.upColor": "Rangi ya faida",
   "styles.stocks.chart": "Chati",
   "styles.stocks.number": "Nambari",
-  "styles.stocks.options": "Kipindi na rangi",
-  "styles.stocks.optionsDesc": "Kipindi cha mabadiliko, alama za chati na rangi",
   "widget.stocks.label": "Hisa",
   "widgetsA.catalog.stocks.description": "Hisa na sarafu za kidijitali, na mstari wa mwenendo",
   "widgetsC.stocks.extendedLine": "{session} {price} {change} · {time}",
@@ -30,14 +28,9 @@
     "other": "Miaka {count}"
   },
   "widgetsC.stocks.phaseTooltip": "{phase}. {zone}",
-  "widgetsC.stocks.settings.classOnExchange": "{class} kwenye {exchange}",
-  "widgetsC.stocks.settings.holding.desc": "Unashikilia ngapi; wijeti huonyesha thamani yake. Tupu huificha",
   "widgetsC.stocks.settings.holding.label": "Hisa unazomiliki",
   "widgetsC.stocks.settings.holding.refused": "Andika kiasi cha {zero} au zaidi, kama {example}",
-  "widgetsC.stocks.settings.instrument": "Chombo",
-  "widgetsC.stocks.settings.marketState.desc": "Vyombo vilivyoorodheshwa tu — sarafu za kidijitali huuzwa kila siku",
   "widgetsC.stocks.settings.symbolRefused": "Chagua tokeo la utafutaji, au andika alama: herufi, tarakimu na . - ^ = tu",
-  "widgetsC.stocks.settings.symbol.desc": "Tafuta kwa jina au alama: hisa, mifuko, fahirisi, sarafu",
   "widgetsC.stocks.settings.windowsGreen": "Kijani cha Windows",
   "widgetsC.stocks.settings.windowsRed": "Nyekundu ya Windows"
 }

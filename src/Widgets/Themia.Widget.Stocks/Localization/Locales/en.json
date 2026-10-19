@@ -1,17 +1,18 @@
 {
-  "$englishOnly": [],
+  "$englishOnly": [
+    "stocks.menu.useTyped"
+  ],
   "stocks.dimWhenClosed": "Closed indicator",
   "stocks.downColor": "Loss color",
   "stocks.extendedHours": "Extended hours",
   "stocks.extendedHoursDesc": "Track pre-market and after-hours trading (1D and 5D)",
+  "stocks.menu.useTyped": "Use “{symbol}”",
   "stocks.showMinMax": "Min/max markers",
   "stocks.tab.symbols": "Symbol",
   "stocks.timeframe": "Timeframe",
   "stocks.upColor": "Gain color",
   "styles.stocks.chart": "Chart",
   "styles.stocks.number": "Number",
-  "styles.stocks.options": "Period and colours",
-  "styles.stocks.optionsDesc": "The change's period, the chart's markers and the colours",
   "widget.stocks.label": "Stocks",
   "widgetsA.catalog.stocks.description": "Tickers and crypto, with a sparkline",
   "widgetsC.stocks.extendedLine": "{session} {price} {change} · {time}",
@@ -31,14 +32,9 @@
     "other": "{count} years"
   },
   "widgetsC.stocks.phaseTooltip": "{phase}. {zone}",
-  "widgetsC.stocks.settings.classOnExchange": "{class} on {exchange}",
-  "widgetsC.stocks.settings.holding.desc": "How many you hold; the widget shows what they are worth. Empty hides it",
   "widgetsC.stocks.settings.holding.label": "Shares owned",
   "widgetsC.stocks.settings.holding.refused": "Type an amount of {zero} or more, such as {example}",
-  "widgetsC.stocks.settings.instrument": "Instrument",
-  "widgetsC.stocks.settings.marketState.desc": "Listed instruments only — crypto trades every day",
   "widgetsC.stocks.settings.symbolRefused": "Pick a search result, or type a symbol: letters, digits and . - ^ = only",
-  "widgetsC.stocks.settings.symbol.desc": "Search by name or ticker: shares, funds, indices, coins",
   "widgetsC.stocks.settings.windowsGreen": "Windows green",
   "widgetsC.stocks.settings.windowsRed": "Windows red"
 }

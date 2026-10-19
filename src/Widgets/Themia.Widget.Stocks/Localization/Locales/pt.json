@@ -9,8 +9,6 @@
   "stocks.upColor": "Cor de ganho",
   "styles.stocks.chart": "Gráfico",
   "styles.stocks.number": "Número",
-  "styles.stocks.options": "Período e cores",
-  "styles.stocks.optionsDesc": "Período da variação, marcadores do gráfico e cores",
   "widget.stocks.label": "Ações",
   "widgetsA.catalog.stocks.description": "Ações e cripto, com minigráfico",
   "widgetsC.stocks.extendedLine": "{session} {price} {change} · {time}",
@@ -30,14 +28,9 @@
     "other": "{count} anos"
   },
   "widgetsC.stocks.phaseTooltip": "{phase}. {zone}",
-  "widgetsC.stocks.settings.classOnExchange": "{class} em {exchange}",
-  "widgetsC.stocks.settings.holding.desc": "Quantas você tem; o widget mostra quanto valem. Vazio oculta",
   "widgetsC.stocks.settings.holding.label": "Quantidade detida",
   "widgetsC.stocks.settings.holding.refused": "Digite uma quantidade de {zero} ou mais, como {example}",
-  "widgetsC.stocks.settings.instrument": "Ativo",
-  "widgetsC.stocks.settings.marketState.desc": "Apenas ativos listados — cripto é negociada todos os dias",
   "widgetsC.stocks.settings.symbolRefused": "Escolha um resultado da pesquisa ou digite um símbolo: apenas letras, dígitos e . - ^ =",
-  "widgetsC.stocks.settings.symbol.desc": "Pesquise por nome ou símbolo: ações, fundos, índices, criptomoedas",
   "widgetsC.stocks.settings.windowsGreen": "Verde do Windows",
   "widgetsC.stocks.settings.windowsRed": "Vermelho do Windows"
 }

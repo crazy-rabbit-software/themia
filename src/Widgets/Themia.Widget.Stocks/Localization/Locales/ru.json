@@ -9,8 +9,6 @@
   "stocks.upColor": "Цвет роста",
   "styles.stocks.chart": "График",
   "styles.stocks.number": "Число",
-  "styles.stocks.options": "Период и цвета",
-  "styles.stocks.optionsDesc": "Период изменения, отметки на графике и цвета",
   "widget.stocks.label": "Акции",
   "widgetsA.catalog.stocks.description": "Тикеры и криптовалюты с мини-графиком",
   "widgetsC.stocks.extendedLine": "{session} {price} {change} · {time}",
@@ -36,14 +34,9 @@
     "other": "{count} года"
   },
   "widgetsC.stocks.phaseTooltip": "{phase}. {zone}",
-  "widgetsC.stocks.settings.classOnExchange": "{class} на {exchange}",
-  "widgetsC.stocks.settings.holding.desc": "Сколько у вас есть; виджет покажет их стоимость. Пусто — скрыто",
   "widgetsC.stocks.settings.holding.label": "Количество в собственности",
   "widgetsC.stocks.settings.holding.refused": "Введите количество от {zero}, например {example}",
-  "widgetsC.stocks.settings.instrument": "Инструмент",
-  "widgetsC.stocks.settings.marketState.desc": "Только биржевые инструменты — криптовалюты торгуются каждый день",
   "widgetsC.stocks.settings.symbolRefused": "Выберите результат поиска или введите тикер: только буквы, цифры и . - ^ =",
-  "widgetsC.stocks.settings.symbol.desc": "Поиск по названию или тикеру: акции, фонды, индексы, монеты",
   "widgetsC.stocks.settings.windowsGreen": "Зеленый Windows",
   "widgetsC.stocks.settings.windowsRed": "Красный Windows"
 }

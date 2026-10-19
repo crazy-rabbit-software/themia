@@ -9,8 +9,6 @@
   "stocks.upColor": "اضافے کا رنگ",
   "styles.stocks.chart": "چارٹ",
   "styles.stocks.number": "عدد",
-  "styles.stocks.options": "مدت اور رنگ",
-  "styles.stocks.optionsDesc": "تبدیلی کی مدت، چارٹ کے نشانات اور رنگ",
   "widget.stocks.label": "اسٹاکس",
   "widgetsA.catalog.stocks.description": "اسپارک لائن کے ساتھ ٹکرز اور کرپٹو",
   "widgetsC.stocks.extendedLine": "{session} {price} {change} · {time}",
@@ -30,14 +28,9 @@
     "other": "{count} سال"
   },
   "widgetsC.stocks.phaseTooltip": "{phase}۔ {zone}",
-  "widgetsC.stocks.settings.classOnExchange": "{exchange} پر {class}",
-  "widgetsC.stocks.settings.holding.desc": "آپ کے پاس کتنے ہیں؛ ویجیٹ ان کی مالیت دکھاتا ہے۔ خالی چھوڑنے پر چھپا رہتا ہے",
   "widgetsC.stocks.settings.holding.label": "ملکیتی مقدار",
   "widgetsC.stocks.settings.holding.refused": "{zero} یا اس سے زیادہ مقدار لکھیں، جیسے {example}",
-  "widgetsC.stocks.settings.instrument": "انسٹرومنٹ",
-  "widgetsC.stocks.settings.marketState.desc": "صرف لسٹڈ انسٹرومنٹس — کرپٹو کی ٹریڈنگ ہر دن ہوتی ہے",
   "widgetsC.stocks.settings.symbolRefused": "تلاش کا کوئی نتیجہ چنیں، یا علامت ٹائپ کریں: صرف حروف، ہندسے اور . - ^ =",
-  "widgetsC.stocks.settings.symbol.desc": "نام یا ٹکر سے تلاش کریں: حصص، فنڈز، انڈیکس، کوائنز",
   "widgetsC.stocks.settings.windowsGreen": "Windows سبز",
   "widgetsC.stocks.settings.windowsRed": "Windows سرخ"
 }

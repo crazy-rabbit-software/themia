@@ -9,8 +9,6 @@
   "stocks.upColor": "Màu tăng",
   "styles.stocks.chart": "Biểu đồ",
   "styles.stocks.number": "Con số",
-  "styles.stocks.options": "Khoảng thời gian và màu",
-  "styles.stocks.optionsDesc": "Khoảng thời gian của mức thay đổi, điểm đánh dấu trên biểu đồ và màu",
   "widget.stocks.label": "Chứng khoán",
   "widgetsA.catalog.stocks.description": "Mã cổ phiếu và tiền mã hóa, kèm biểu đồ nhỏ",
   "widgetsC.stocks.extendedLine": "{session} {price} {change} · {time}",
@@ -27,14 +25,9 @@
     "other": "{count} năm"
   },
   "widgetsC.stocks.phaseTooltip": "{phase}. {zone}",
-  "widgetsC.stocks.settings.classOnExchange": "{class} trên {exchange}",
-  "widgetsC.stocks.settings.holding.desc": "Số lượng bạn nắm giữ; tiện ích hiển thị giá trị của chúng. Để trống để ẩn",
   "widgetsC.stocks.settings.holding.label": "Số lượng sở hữu",
   "widgetsC.stocks.settings.holding.refused": "Nhập số lượng từ {zero} trở lên, ví dụ {example}",
-  "widgetsC.stocks.settings.instrument": "Công cụ",
-  "widgetsC.stocks.settings.marketState.desc": "Chỉ công cụ niêm yết — tiền mã hóa giao dịch mỗi ngày",
   "widgetsC.stocks.settings.symbolRefused": "Chọn một kết quả tìm kiếm, hoặc nhập mã: chỉ chữ, số và . - ^ =",
-  "widgetsC.stocks.settings.symbol.desc": "Tìm theo tên hoặc mã: cổ phiếu, quỹ, chỉ số, tiền mã hóa",
   "widgetsC.stocks.settings.windowsGreen": "Xanh lá Windows",
   "widgetsC.stocks.settings.windowsRed": "Đỏ Windows"
 }

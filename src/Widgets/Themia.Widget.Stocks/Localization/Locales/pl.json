@@ -9,8 +9,6 @@
   "stocks.upColor": "Kolor zysku",
   "styles.stocks.chart": "Wykres",
   "styles.stocks.number": "Liczba",
-  "styles.stocks.options": "Okres i kolory",
-  "styles.stocks.optionsDesc": "Okres zmiany, znaczniki wykresu i kolory",
   "widget.stocks.label": "Akcje",
   "widgetsA.catalog.stocks.description": "Notowania i kryptowaluty z wykresem",
   "widgetsC.stocks.extendedLine": "{session} {price} {change} · {time}",
@@ -36,14 +34,9 @@
     "other": "{count} roku"
   },
   "widgetsC.stocks.phaseTooltip": "{phase}. {zone}",
-  "widgetsC.stocks.settings.classOnExchange": "{class} ({exchange})",
-  "widgetsC.stocks.settings.holding.desc": "Ile posiadasz; widżet pokaże ich wartość. Puste ukrywa",
   "widgetsC.stocks.settings.holding.label": "Posiadana liczba",
   "widgetsC.stocks.settings.holding.refused": "Wpisz liczbę {zero} lub większą, np. {example}",
-  "widgetsC.stocks.settings.instrument": "Instrument",
-  "widgetsC.stocks.settings.marketState.desc": "Tylko instrumenty notowane — kryptowaluty są w obrocie codziennie",
   "widgetsC.stocks.settings.symbolRefused": "Wybierz wynik wyszukiwania lub wpisz symbol: tylko litery, cyfry i . - ^ =",
-  "widgetsC.stocks.settings.symbol.desc": "Szukaj po nazwie lub symbolu: akcje, fundusze, indeksy, kryptowaluty",
   "widgetsC.stocks.settings.windowsGreen": "Zielony Windows",
   "widgetsC.stocks.settings.windowsRed": "Czerwony Windows"
 }

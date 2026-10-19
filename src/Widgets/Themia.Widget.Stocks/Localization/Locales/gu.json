@@ -9,8 +9,6 @@
   "stocks.upColor": "વધારાનો રંગ",
   "styles.stocks.chart": "ચાર્ટ",
   "styles.stocks.number": "સંખ્યા",
-  "styles.stocks.options": "સમયગાળો અને રંગો",
-  "styles.stocks.optionsDesc": "ફેરફારનો સમયગાળો, ચાર્ટના ચિહ્નો અને રંગો",
   "widget.stocks.label": "સ્ટૉક્સ",
   "widgetsA.catalog.stocks.description": "ટિકર અને ક્રિપ્ટો, સ્પાર્કલાઇન સાથે",
   "widgetsC.stocks.extendedLine": "{session} {price} {change} · {time}",
@@ -30,14 +28,9 @@
     "other": "{count} વર્ષ"
   },
   "widgetsC.stocks.phaseTooltip": "{phase}. {zone}",
-  "widgetsC.stocks.settings.classOnExchange": "{exchange} પર {class}",
-  "widgetsC.stocks.settings.holding.desc": "તમારી પાસે કેટલા છે; વિજેટ તેમની કિંમત બતાવે છે. ખાલી હોય તો છુપાવે છે",
   "widgetsC.stocks.settings.holding.label": "માલિકીના શેર",
   "widgetsC.stocks.settings.holding.refused": "{zero} કે વધુની રકમ લખો, જેમ કે {example}",
-  "widgetsC.stocks.settings.instrument": "સાધન",
-  "widgetsC.stocks.settings.marketState.desc": "ફક્ત લિસ્ટેડ સાધનો — ક્રિપ્ટોનો વેપાર દરરોજ થાય છે",
   "widgetsC.stocks.settings.symbolRefused": "શોધ પરિણામ પસંદ કરો, અથવા પ્રતીક લખો: ફક્ત અક્ષરો, અંકો અને . - ^ =",
-  "widgetsC.stocks.settings.symbol.desc": "નામ કે ટિકરથી શોધો: શેર, ફંડ, સૂચકાંકો, કૉઇન",
   "widgetsC.stocks.settings.windowsGreen": "Windows લીલો",
   "widgetsC.stocks.settings.windowsRed": "Windows લાલ"
 }

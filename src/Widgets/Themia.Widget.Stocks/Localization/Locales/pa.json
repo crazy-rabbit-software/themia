@@ -9,8 +9,6 @@
   "stocks.upColor": "ਵਾਧੇ ਦਾ ਰੰਗ",
   "styles.stocks.chart": "ਚਾਰਟ",
   "styles.stocks.number": "ਸੰਖਿਆ",
-  "styles.stocks.options": "ਮਿਆਦ ਅਤੇ ਰੰਗ",
-  "styles.stocks.optionsDesc": "ਬਦਲਾਅ ਦੀ ਮਿਆਦ, ਚਾਰਟ ਦੇ ਨਿਸ਼ਾਨ ਅਤੇ ਰੰਗ",
   "widget.stocks.label": "ਸਟਾਕ",
   "widgetsA.catalog.stocks.description": "ਟਿਕਰ ਅਤੇ ਕ੍ਰਿਪਟੋ, ਸਪਾਰਕਲਾਈਨ ਨਾਲ",
   "widgetsC.stocks.extendedLine": "{session} {price} {change} · {time}",
@@ -30,14 +28,9 @@
     "other": "{count} ਸਾਲ"
   },
   "widgetsC.stocks.phaseTooltip": "{phase}। {zone}",
-  "widgetsC.stocks.settings.classOnExchange": "{exchange} ਉੱਤੇ {class}",
-  "widgetsC.stocks.settings.holding.desc": "ਤੁਹਾਡੇ ਕੋਲ ਕਿੰਨੇ ਹਨ; ਵਿਜੇਟ ਉਹਨਾਂ ਦੀ ਕੀਮਤ ਦਿਖਾਉਂਦਾ ਹੈ। ਖਾਲੀ ਇਸਨੂੰ ਲੁਕਾਉਂਦਾ ਹੈ",
   "widgetsC.stocks.settings.holding.label": "ਮਾਲਕੀ ਵਾਲੇ ਸ਼ੇਅਰ",
   "widgetsC.stocks.settings.holding.refused": "{zero} ਜਾਂ ਵੱਧ ਦੀ ਮਾਤਰਾ ਟਾਈਪ ਕਰੋ, ਜਿਵੇਂ {example}",
-  "widgetsC.stocks.settings.instrument": "ਸਾਧਨ",
-  "widgetsC.stocks.settings.marketState.desc": "ਸਿਰਫ਼ ਸੂਚੀਬੱਧ ਸਾਧਨ — ਕ੍ਰਿਪਟੋ ਦਾ ਵਪਾਰ ਹਰ ਰੋਜ਼ ਹੁੰਦਾ ਹੈ",
   "widgetsC.stocks.settings.symbolRefused": "ਕੋਈ ਖੋਜ ਨਤੀਜਾ ਚੁਣੋ, ਜਾਂ ਚਿੰਨ੍ਹ ਟਾਈਪ ਕਰੋ: ਸਿਰਫ਼ ਅੱਖਰ, ਅੰਕ ਅਤੇ . - ^ =",
-  "widgetsC.stocks.settings.symbol.desc": "ਨਾਮ ਜਾਂ ਟਿਕਰ ਨਾਲ ਖੋਜੋ: ਸ਼ੇਅਰ, ਫ਼ੰਡ, ਸੂਚਕਾਂਕ, ਸਿੱਕੇ",
   "widgetsC.stocks.settings.windowsGreen": "Windows ਹਰਾ",
   "widgetsC.stocks.settings.windowsRed": "Windows ਲਾਲ"
 }

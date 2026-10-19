@@ -9,8 +9,6 @@
   "stocks.upColor": "Kulay ng pagtaas",
   "styles.stocks.chart": "Chart",
   "styles.stocks.number": "Numero",
-  "styles.stocks.options": "Panahon at mga kulay",
-  "styles.stocks.optionsDesc": "Panahon ng pagbabago, mga marka sa chart at mga kulay",
   "widget.stocks.label": "Mga stock",
   "widgetsA.catalog.stocks.description": "Mga ticker at crypto, may sparkline",
   "widgetsC.stocks.extendedLine": "{session} {price} {change} · {time}",
@@ -30,14 +28,9 @@
     "other": "{count} taon"
   },
   "widgetsC.stocks.phaseTooltip": "{phase}. {zone}",
-  "widgetsC.stocks.settings.classOnExchange": "{class} sa {exchange}",
-  "widgetsC.stocks.settings.holding.desc": "Ilan ang hawak mo; ipinapakita ng widget ang halaga nila. Itinatago kapag walang laman",
   "widgetsC.stocks.settings.holding.label": "Mga share na pag-aari",
   "widgetsC.stocks.settings.holding.refused": "Mag-type ng halagang {zero} o higit pa, gaya ng {example}",
-  "widgetsC.stocks.settings.instrument": "Instrumento",
-  "widgetsC.stocks.settings.marketState.desc": "Mga nakalistang instrumento lang — araw-araw ang trading ng crypto",
   "widgetsC.stocks.settings.symbolRefused": "Pumili ng resulta ng paghahanap, o mag-type ng symbol: mga titik, numero at . - ^ = lang",
-  "widgetsC.stocks.settings.symbol.desc": "Maghanap ayon sa pangalan o ticker: mga share, fund, index, coin",
   "widgetsC.stocks.settings.windowsGreen": "Berde ng Windows",
   "widgetsC.stocks.settings.windowsRed": "Pula ng Windows"
 }

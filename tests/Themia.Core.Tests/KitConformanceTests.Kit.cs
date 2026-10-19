@@ -60,8 +60,7 @@ public sealed partial class KitConformanceTests
     /// [S-7068] [S-1102] Every word a widget or the kit shows goes through the strings layer: no
     /// literal text, content, placeholder or tooltip in a view or a kit part. An example web address
     /// in a placeholder is allowed (it is an address, not a sentence); so is a debug preview's sample
-    /// data (<c>Preview/</c>, never shipped). Today's offender: the Stocks page's placeholder of
-    /// example symbols ("AAPL, ^GSPC, BTC-USD"), which are tickers, not words.
+    /// data (<c>Preview/</c>, never shipped).
     /// </summary>
     [Fact]
     public void S7068_no_view_shows_a_literal_sentence()
@@ -83,7 +82,7 @@ public sealed partial class KitConformanceTests
             offending.AddRange(LiteralTooltip().Matches(code).Select(m => $"{Path.GetFileName(file)}: {m.Value}"));
         }
 
-        Assert.Equal(["StocksSettings.cs"], offending.Select(o => o[..o.IndexOf(':', StringComparison.Ordinal)]).Distinct());
+        Assert.Empty(offending);
     }
 
     [GeneratedRegex(@"\b(ScrollViewer|RowFocus|ItemMenu|ItemMenuEntry|ProgressRing|ItemCursor|ListKeys|Process)\b|Fluent\.EmptyState")]

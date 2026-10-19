@@ -9,8 +9,6 @@
   "stocks.upColor": "Launin riba",
   "styles.stocks.chart": "Jadawali",
   "styles.stocks.number": "Lamba",
-  "styles.stocks.options": "Lokaci da launuka",
-  "styles.stocks.optionsDesc": "Lokacin canjin, alamomin jadawali da launuka",
   "widget.stocks.label": "Hannun jari",
   "widgetsA.catalog.stocks.description": "Hannun jari da crypto, tare da ƙaramin jadawali",
   "widgetsC.stocks.extendedLine": "{session} {price} {change} · {time}",
@@ -30,14 +28,9 @@
     "other": "Shekaru {count}"
   },
   "widgetsC.stocks.phaseTooltip": "{phase}. {zone}",
-  "widgetsC.stocks.settings.classOnExchange": "{class} a {exchange}",
-  "widgetsC.stocks.settings.holding.desc": "Nawa kake riƙe; widget yana nuna darajarsu. Babu komai yana ɓoye shi",
   "widgetsC.stocks.settings.holding.label": "Hannun jarin da kake da su",
   "widgetsC.stocks.settings.holding.refused": "Rubuta adadi na {zero} ko fiye, kamar {example}",
-  "widgetsC.stocks.settings.instrument": "Kayan kasuwa",
-  "widgetsC.stocks.settings.marketState.desc": "Kayan da aka jera kawai — ana cinikin crypto kowace rana",
   "widgetsC.stocks.settings.symbolRefused": "Zaɓi sakamakon bincike, ko rubuta alama: haruffa, lambobi da . - ^ = kawai",
-  "widgetsC.stocks.settings.symbol.desc": "Bincika da suna ko alama: hannun jari, kuɗaɗen jari, ma'auni, tsabar kuɗi",
   "widgetsC.stocks.settings.windowsGreen": "Koren Windows",
   "widgetsC.stocks.settings.windowsRed": "Jan Windows"
 }

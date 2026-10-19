@@ -7,23 +7,24 @@ one baseline for the colour, the change and the line [S-2775], in the SDK's `Mar
 `TickerQuote` and `ExchangeTime`; the hero readout [S-667]; the background web sync [S-2663]; the
 market cadence [S-3780]).
 
-Owning files: everything in this folder: `StocksModule.cs` (descriptor, view factory, settings rows,
+Owning files: everything in this folder: `StocksModule.cs` (descriptor, view factory, menu lines,
 JSON context), `StocksConfig.cs` (with its styles and the rows only one style offers),
 `StocksView.cs` and `StocksView.Chart.cs` (the quote through `IWidgetHost.Quotes`), `StockLayout.cs`
 (both styles' ladders), `StockChartLabels.cs` (the chart's captions), `StockHolding.cs` (shares owned),
-`StocksSettings.cs` (its page: the symbol search through the SDK's `SymbolLookup`, the holding, the
-period and colours), `Preview/` (Debug renders: `--state quote|falling`), `Localization/Locales/` (its
+`StocksMenu.cs` (its properties-menu lines: the symbol search through the SDK's `SymbolLookup`, the
+holding, the period and colours), `Preview/` (Debug renders: `--state quote|falling`), `Localization/Locales/` (its
 own `StocksStr`, 30 languages, its style names included). Tests: `Tests/` (run by
 `tests/Themia.Modules.Tests`); the quote rules' own tests stay Core's (`StockWidgetTests`, `S1307_`,
 `S1308_`, `S1309_`, `S1310_`, `S2775_`, and `MarketQuoteTests`).
 
-- **[S-1307]** Stocks symbol search in settings (classic `SymbolSearch.tsx`, S-38): an
-  `AutoSuggestBox` asks Yahoo `v1/finance/search` and CoinGecko `search` together after a 300 ms
+- **[S-1307]** Stocks symbol search on the properties menu (classic `SymbolSearch.tsx`, S-38): the
+  Symbol line's search ([S-3722]) asks Yahoo `v1/finance/search` and CoinGecko `search` together after a 300 ms
   typing pause (the previous search abandoned), keeps only chartable kinds (EQUITY, ETF, MUTUALFUND,
   INDEX, CURRENCY, FUTURE), at most 8 per service, alternating, 12 in all; each line says name,
-  symbol, exchange and class. A pick sets symbol, market and name; typed text committed with Enter
-  is a raw symbol under the current market, through the old check. The chosen symbol's class
-  ("Index on SNP") shows under the box. A failing service contributes nothing (logged).
+  symbol, exchange and class. A pick sets symbol, market and name; typed text that is a plausible symbol
+  is offered first as "Use “…”", a listed symbol ([S-3790]); text no symbol has is said to be one in
+  place of the answers, never stripped. The chosen symbol is at the line's end. A failing service
+  contributes nothing (logged).
 - **[S-1308]** Extended hours (classic S-34/S-35, `ShowExtendedHours`, off): listed symbols on the
   1-day and 5-day charts ask `includePrePost=true` (part of the cache key). The last pre-market /
   after-hours bar against the regular close is shown under the price ("After hours 412.10 −0.36% ·
@@ -34,8 +35,8 @@ own `StocksStr`, 30 languages, its style names included). Tests: `Tests/` (run b
 - **[S-1310]** Chart options: **High and low** markers (dot and price at the period's first highest
   and lowest bar, the price above the high and under the low, kept inside the chart's width,
   `StockChartLabels.Place`); the area under the line is always filled (WinUI's look; no setting,
-  [S-3795]); **Rising/Falling colour** through the shared colour picker
-  (`ColorPickerRow`, never hex; empty = the theme's green/red; a hand-edited non-colour is repaired
+  [S-3795]); **Rising/Falling colour** through the menu's colour submenu
+  ([S-3724], never hex; empty = the theme's green/red; a hand-edited non-colour is repaired
   to empty at load).
 - **[S-1311]** Stocks ladder (`StockLayout.Plan`, replacing the 34%/120px chart band): rung 0 price +
   signed change, drawn as the hero readout ([S-667]: the change and the session on the price's
@@ -59,22 +60,28 @@ own `StocksStr`, 30 languages, its style names included). Tests: `Tests/` (run b
   session badge, the holding ([S-2777], only when set), the extended-hours line ([S-1308], off by
   default, one caption under the price) and the chart, nothing else at any size. No facts (previous close, day and 52-week range, volume,
   exchange; `MarketQuote.Facts`/`Volume` are gone) and no range chips on the widget: the period is
-  the **Timeframe** row in the widget's settings (`Range`, default 1 day). What they took goes to the
+  the **Timeframe** line on its properties menu (`Range`, default 1 day, [S-2778]). What they took goes to the
   chart. Those facts are not parsed or cached either (`QuoteStats` is gone; the previous close is
   read only as the change's baseline, [S-2775]).
+- **[S-2778]** Its options are all on the properties menu ([S-3719], user request 2026-10-19); it
+  has no settings page. Under Style the chart's **High and low** markers (the chart style only,
+  [S-6074]); then Appearance ([S-3723]), **Symbol** (the search of [S-1307]), **Dim when closed**
+  (not for a coin), **Extended hours** (a listed symbol over one or five days, [S-1308]), **Shares
+  owned** ([S-2776]; the amount at the line's end), **Timeframe** (1 day … 10 years) and **Rising**
+  and **Falling colour** (Windows green / red by default, [S-1310]). (Tests `StocksMenuTests`.)
 - **[S-6165]** The stock widget's styles ([S-6000]), `StocksConfig.Style` (`StocksStyle`): **Chart**
-  ([S-1311], the default) and **Number**; what was its "Show chart" switch. The period, the
-  markers and the colours are every style's (one "Period and colours" group, [S-3795]).
+  ([S-1311], the default) and **Number**; what was its "Show chart" switch. The period and
+  the colours are every style's, the markers the chart's ([S-2778]).
 - **[S-6166]** **Number** (`StockLayout.Plan` with `Number`): no chart at any size; the price and,
   on a line of its own under it, the change, both as large as the tile holds: the price on the ramp
   from Subtitle to Display and then Display grown in tenths to 1.5×, the change at the largest ramp
   step within half the price, never under Body (`NumberChangeStep`); the holding and the extended
   print keep their caption lines under them. Centred in the tile.
-- **[S-2776]** **Shares owned** (`StocksConfig.SharesOwned`, per widget, a field row on the Stocks
-  page; user request: "put in an amount that you own"). Typed in the language's decimals: one
+- **[S-2776]** **Shares owned** (`StocksConfig.SharesOwned`, per widget, a line on its properties menu
+  asked beside it, [S-3721]; user request: "put in an amount that you own"). Typed in the language's decimals: one
   separator, the language's, or a point where a point is not the language's grouping (German
   refuses "1.000" rather than guess a thousand or one); no sign, no grouping, no exponent, at most
-  10^12; kept to 8 decimals (`StockHolding.TryParse`). Anything else is refused under the field
+  10^12; kept to 8 decimals (`StockHolding.TryParse`). Anything else is refused as it is typed
   with an example in the language ("such as 12,5"), the last good value kept. Empty or 0 is no
   holding (null, not shown). At load a negative, non-finite or too-large amount is repaired to none
   and logged; 0 to none silently. The worth is amount × price in the quote's currency, never

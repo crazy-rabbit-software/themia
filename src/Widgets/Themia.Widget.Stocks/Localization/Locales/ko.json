@@ -9,8 +9,6 @@
   "stocks.upColor": "상승 색",
   "styles.stocks.chart": "차트",
   "styles.stocks.number": "숫자",
-  "styles.stocks.options": "기간 및 색",
-  "styles.stocks.optionsDesc": "변동 기간, 차트 표시 및 색",
   "widget.stocks.label": "주식",
   "widgetsA.catalog.stocks.description": "스파크라인이 있는 주식 및 암호화폐",
   "widgetsC.stocks.extendedLine": "{session} {price} {change} · {time}",
@@ -27,14 +25,9 @@
     "other": "{count}년"
   },
   "widgetsC.stocks.phaseTooltip": "{phase}. {zone}",
-  "widgetsC.stocks.settings.classOnExchange": "{exchange}의 {class}",
-  "widgetsC.stocks.settings.holding.desc": "보유한 수량입니다. 위젯에 평가액이 표시됩니다. 비워 두면 숨겨집니다",
   "widgetsC.stocks.settings.holding.label": "보유 수량",
   "widgetsC.stocks.settings.holding.refused": "{zero} 이상의 수량을 입력하세요(예: {example})",
-  "widgetsC.stocks.settings.instrument": "종목",
-  "widgetsC.stocks.settings.marketState.desc": "상장 종목만 해당 — 암호화폐는 매일 거래됩니다",
   "widgetsC.stocks.settings.symbolRefused": "검색 결과를 선택하거나 기호를 입력하세요: 문자, 숫자 및 . - ^ = 만 사용 가능",
-  "widgetsC.stocks.settings.symbol.desc": "이름 또는 티커로 검색: 주식, 펀드, 지수, 코인",
   "widgetsC.stocks.settings.windowsGreen": "Windows 녹색",
   "widgetsC.stocks.settings.windowsRed": "Windows 빨간색"
 }

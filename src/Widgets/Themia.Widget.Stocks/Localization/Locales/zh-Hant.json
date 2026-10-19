@@ -9,8 +9,6 @@
   "stocks.upColor": "上漲色彩",
   "styles.stocks.chart": "圖表",
   "styles.stocks.number": "數字",
-  "styles.stocks.options": "期間與色彩",
-  "styles.stocks.optionsDesc": "漲跌幅的期間、圖表標記與色彩",
   "widget.stocks.label": "股票",
   "widgetsA.catalog.stocks.description": "股票和加密貨幣，附迷你走勢圖",
   "widgetsC.stocks.extendedLine": "{session} {price} {change} · {time}",
@@ -27,14 +25,9 @@
     "other": "{count} 年"
   },
   "widgetsC.stocks.phaseTooltip": "{phase}。{zone}",
-  "widgetsC.stocks.settings.classOnExchange": "{exchange} 上的{class}",
-  "widgetsC.stocks.settings.holding.desc": "你持有的數量；小工具會顯示其市值。留空則不顯示",
   "widgetsC.stocks.settings.holding.label": "持有數量",
   "widgetsC.stocks.settings.holding.refused": "請輸入 {zero} 或更大的數量，例如 {example}",
-  "widgetsC.stocks.settings.instrument": "金融商品",
-  "widgetsC.stocks.settings.marketState.desc": "僅限上市商品；加密貨幣每天都在交易",
   "widgetsC.stocks.settings.symbolRefused": "請選擇搜尋結果或輸入代號：僅限字母、數字和 . - ^ =",
-  "widgetsC.stocks.settings.symbol.desc": "依名稱或代號搜尋：股票、基金、指數、加密貨幣",
   "widgetsC.stocks.settings.windowsGreen": "Windows 綠色",
   "widgetsC.stocks.settings.windowsRed": "Windows 紅色"
 }

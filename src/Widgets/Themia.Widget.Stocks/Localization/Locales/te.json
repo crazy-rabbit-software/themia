@@ -9,8 +9,6 @@
   "stocks.upColor": "లాభం రంగు",
   "styles.stocks.chart": "చార్ట్",
   "styles.stocks.number": "సంఖ్య",
-  "styles.stocks.options": "వ్యవధి మరియు రంగులు",
-  "styles.stocks.optionsDesc": "మార్పు వ్యవధి, చార్ట్ గుర్తులు మరియు రంగులు",
   "widget.stocks.label": "స్టాక్‌లు",
   "widgetsA.catalog.stocks.description": "స్పార్క్‌లైన్‌తో టిక్కర్‌లు మరియు క్రిప్టో",
   "widgetsC.stocks.extendedLine": "{session} {price} {change} · {time}",
@@ -30,14 +28,9 @@
     "other": "{count} సంవత్సరాలు"
   },
   "widgetsC.stocks.phaseTooltip": "{phase}. {zone}",
-  "widgetsC.stocks.settings.classOnExchange": "{exchange}లో {class}",
-  "widgetsC.stocks.settings.holding.desc": "మీ వద్ద ఎన్ని ఉన్నాయి; వాటి విలువను విడ్జెట్ చూపిస్తుంది. ఖాళీగా ఉంటే దాచబడుతుంది",
   "widgetsC.stocks.settings.holding.label": "స్వంత షేర్‌లు",
   "widgetsC.stocks.settings.holding.refused": "{example} లాగా {zero} లేదా అంతకంటే ఎక్కువ మొత్తాన్ని టైప్ చేయండి",
-  "widgetsC.stocks.settings.instrument": "సాధనం",
-  "widgetsC.stocks.settings.marketState.desc": "జాబితా చేయబడిన సాధనాలు మాత్రమే — క్రిప్టో ప్రతి రోజు ట్రేడ్ అవుతుంది",
   "widgetsC.stocks.settings.symbolRefused": "శోధన ఫలితాన్ని ఎంచుకోండి, లేదా చిహ్నాన్ని టైప్ చేయండి: అక్షరాలు, అంకెలు మరియు . - ^ = మాత్రమే",
-  "widgetsC.stocks.settings.symbol.desc": "పేరు లేదా టిక్కర్ ద్వారా శోధించండి: షేర్‌లు, ఫండ్‌లు, ఇండెక్స్‌లు, కాయిన్‌లు",
   "widgetsC.stocks.settings.windowsGreen": "Windows ఆకుపచ్చ",
   "widgetsC.stocks.settings.windowsRed": "Windows ఎరుపు"
 }

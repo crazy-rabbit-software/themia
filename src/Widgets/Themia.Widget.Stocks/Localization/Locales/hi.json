@@ -9,8 +9,6 @@
   "stocks.upColor": "बढ़त का रंग",
   "styles.stocks.chart": "चार्ट",
   "styles.stocks.number": "संख्या",
-  "styles.stocks.options": "अवधि और रंग",
-  "styles.stocks.optionsDesc": "बदलाव की अवधि, चार्ट के चिह्न और रंग",
   "widget.stocks.label": "स्टॉक",
   "widgetsA.catalog.stocks.description": "स्पार्कलाइन के साथ टिकर और क्रिप्टो",
   "widgetsC.stocks.extendedLine": "{session} {price} {change} · {time}",
@@ -30,14 +28,9 @@
     "other": "{count} वर्ष"
   },
   "widgetsC.stocks.phaseTooltip": "{phase}। {zone}",
-  "widgetsC.stocks.settings.classOnExchange": "{exchange} पर {class}",
-  "widgetsC.stocks.settings.holding.desc": "आपके पास कितने हैं; विजेट उनका मूल्य दिखाता है। खाली छोड़ने पर छिपा रहता है",
   "widgetsC.stocks.settings.holding.label": "स्वामित्व वाली मात्रा",
   "widgetsC.stocks.settings.holding.refused": "{zero} या अधिक की मात्रा लिखें, जैसे {example}",
-  "widgetsC.stocks.settings.instrument": "इंस्ट्रूमेंट",
-  "widgetsC.stocks.settings.marketState.desc": "केवल सूचीबद्ध इंस्ट्रूमेंट — क्रिप्टो हर दिन ट्रेड होता है",
   "widgetsC.stocks.settings.symbolRefused": "कोई खोज परिणाम चुनें, या सिंबल लिखें: केवल अक्षर, अंक और . - ^ =",
-  "widgetsC.stocks.settings.symbol.desc": "नाम या टिकर से खोजें: शेयर, फ़ंड, सूचकांक, कॉइन",
   "widgetsC.stocks.settings.windowsGreen": "Windows हरा",
   "widgetsC.stocks.settings.windowsRed": "Windows लाल"
 }

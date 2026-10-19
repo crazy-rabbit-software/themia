@@ -9,8 +9,6 @@
   "stocks.upColor": "Gewinnfarbe",
   "styles.stocks.chart": "Diagramm",
   "styles.stocks.number": "Zahl",
-  "styles.stocks.options": "Zeitraum und Farben",
-  "styles.stocks.optionsDesc": "Zeitraum der Änderung, Markierungen im Diagramm und Farben",
   "widget.stocks.label": "Aktien",
   "widgetsA.catalog.stocks.description": "Aktien und Krypto, mit Verlaufskurve",
   "widgetsC.stocks.extendedLine": "{session} {price} {change} · {time}",
@@ -30,14 +28,9 @@
     "other": "{count} Jahre"
   },
   "widgetsC.stocks.phaseTooltip": "{phase}. {zone}",
-  "widgetsC.stocks.settings.classOnExchange": "{class} ({exchange})",
-  "widgetsC.stocks.settings.holding.desc": "Wie viele Sie halten; das Widget zeigt ihren Wert. Leer blendet ihn aus",
   "widgetsC.stocks.settings.holding.label": "Anzahl im Besitz",
   "widgetsC.stocks.settings.holding.refused": "Geben Sie eine Menge ab {zero} ein, z. B. {example}",
-  "widgetsC.stocks.settings.instrument": "Wertpapier",
-  "widgetsC.stocks.settings.marketState.desc": "Nur börsennotierte Werte – Kryptowährungen werden täglich gehandelt",
   "widgetsC.stocks.settings.symbolRefused": "Wähle ein Suchergebnis aus oder gib ein Symbol ein: nur Buchstaben, Ziffern und . - ^ =",
-  "widgetsC.stocks.settings.symbol.desc": "Nach Name oder Kürzel suchen: Aktien, Fonds, Indizes, Kryptowährungen",
   "widgetsC.stocks.settings.windowsGreen": "Windows-Grün",
   "widgetsC.stocks.settings.windowsRed": "Windows-Rot"
 }
