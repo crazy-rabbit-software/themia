@@ -15,9 +15,6 @@
   "widgetsA.contacts.noAccount": "Noch kein Kontaktkonto",
   "widgetsA.contacts.none": "Keine Kontakte",
   "widgetsA.contacts.readFailed": "Kontakte konnten nicht gelesen werden. Siehe themia.log.",
-  "widgetsA.contacts.settings.addHint": "Auf der Seite Konten anmelden",
-  "widgetsA.contacts.settings.column": "Spalte „{name}“",
-  "widgetsA.contacts.settings.count.desc": "Wie viele aufgelistet werden, mindestens fünf; ein niedriges Widget zeigt weniger",
   "widgetsA.contacts.settings.count.label": "Personen",
   "widgetsA.contacts.settings.every": "Alle Kontaktkonten",
   "widgetsA.contacts.settings.layout.label": "Layout"

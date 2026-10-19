@@ -15,9 +15,6 @@
   "widgetsA.contacts.noAccount": "Ancora nessun account di contatti",
   "widgetsA.contacts.none": "Nessun contatto",
   "widgetsA.contacts.readFailed": "Impossibile leggere i contatti. Vedi themia.log.",
-  "widgetsA.contacts.settings.addHint": "Accedi nella pagina Account",
-  "widgetsA.contacts.settings.column": "Colonna {name}",
-  "widgetsA.contacts.settings.count.desc": "Quante elencarne, almeno cinque; un widget basso ne mostra meno",
   "widgetsA.contacts.settings.count.label": "Persone",
   "widgetsA.contacts.settings.every": "Tutti gli account di contatti",
   "widgetsA.contacts.settings.layout.label": "Layout"

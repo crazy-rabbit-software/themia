@@ -15,9 +15,6 @@
   "widgetsA.contacts.noAccount": "아직 연락처 계정이 없습니다",
   "widgetsA.contacts.none": "연락처 없음",
   "widgetsA.contacts.readFailed": "연락처를 읽을 수 없습니다. themia.log를 참조하세요.",
-  "widgetsA.contacts.settings.addHint": "계정 페이지에서 로그인하세요",
-  "widgetsA.contacts.settings.column": "{name} 열",
-  "widgetsA.contacts.settings.count.desc": "표시할 수(최소 5명). 위젯이 작으면 더 적게 표시됩니다",
   "widgetsA.contacts.settings.count.label": "사람",
   "widgetsA.contacts.settings.every": "모든 연락처 계정",
   "widgetsA.contacts.settings.layout.label": "레이아웃"

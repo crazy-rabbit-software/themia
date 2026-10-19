@@ -15,9 +15,6 @@
   "widgetsA.contacts.noAccount": "Учетной записи контактов пока нет",
   "widgetsA.contacts.none": "Нет контактов",
   "widgetsA.contacts.readFailed": "Не удалось прочитать контакты. См. themia.log.",
-  "widgetsA.contacts.settings.addHint": "Войдите на странице «Учетные записи»",
-  "widgetsA.contacts.settings.column": "Столбец «{name}»",
-  "widgetsA.contacts.settings.count.desc": "Сколько показывать, не меньше пяти; в низком виджете меньше",
   "widgetsA.contacts.settings.count.label": "Люди",
   "widgetsA.contacts.settings.every": "Все учетные записи контактов",
   "widgetsA.contacts.settings.layout.label": "Макет"

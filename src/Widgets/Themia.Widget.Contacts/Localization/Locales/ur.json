@@ -15,9 +15,6 @@
   "widgetsA.contacts.noAccount": "ابھی کوئی رابطوں کا اکاؤنٹ نہیں",
   "widgetsA.contacts.none": "کوئی رابطہ نہیں",
   "widgetsA.contacts.readFailed": "رابطے پڑھے نہیں جا سکے۔ themia.log دیکھیں۔",
-  "widgetsA.contacts.settings.addHint": "اکاؤنٹس کے صفحے پر سائن ان کریں",
-  "widgetsA.contacts.settings.column": "{name} کالم",
-  "widgetsA.contacts.settings.count.desc": "کتنے دکھائیں، کم از کم پانچ؛ چھوٹا ویجیٹ کم دکھاتا ہے",
   "widgetsA.contacts.settings.count.label": "لوگ",
   "widgetsA.contacts.settings.every": "ہر رابطوں کا اکاؤنٹ",
   "widgetsA.contacts.settings.layout.label": "لے آؤٹ"

@@ -15,9 +15,6 @@
   "widgetsA.contacts.noAccount": "尚無連絡人帳戶",
   "widgetsA.contacts.none": "沒有連絡人",
   "widgetsA.contacts.readFailed": "無法讀取連絡人。請查看 themia.log。",
-  "widgetsA.contacts.settings.addHint": "在「帳戶」頁面登入",
-  "widgetsA.contacts.settings.column": "「{name}」欄",
-  "widgetsA.contacts.settings.count.desc": "要列出的人數，至少五位；較矮的小工具會顯示較少",
   "widgetsA.contacts.settings.count.label": "人數",
   "widgetsA.contacts.settings.every": "所有連絡人帳戶",
   "widgetsA.contacts.settings.layout.label": "版面配置"

@@ -36,8 +36,9 @@ public sealed class ContactsModule : IWidgetModule
         Add = new(AddFolderId.CalendarMail, 1, 2),
     };
 
-    public void SettingsRows(WidgetSettingsRows rows, WidgetConfig config)
-        => ContactsSettings.Rows(rows, (ContactsConfig)config);
+    /// <summary>[S-3719] [S-7511] Every option is on the properties menu: the widget has no settings page.</summary>
+    public void MenuLines(WidgetMenuLines menu, WidgetConfig config)
+        => ContactsMenu.Lines(menu, (ContactsConfig)config, SettingsHost.Office?.Accounts(HostFeatures.Contacts) ?? []);
 
     public FrameworkElement CreateView(IWidgetHost host) => new ContactsView(host);
 }

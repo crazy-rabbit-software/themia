@@ -1,5 +1,5 @@
 {
-  "$englishOnly": [],
+  "$englishOnly": ["widgetsA.contacts.menu.columns"],
   "apps.viewCompact": "Compact",
   "apps.viewGrid": "Grid",
   "apps.viewList": "List",
@@ -16,10 +16,8 @@
   "widgetsA.contacts.noAccount": "No contacts account yet",
   "widgetsA.contacts.none": "No contacts",
   "widgetsA.contacts.readFailed": "Could not read contacts. See themia.log.",
-  "widgetsA.contacts.settings.addHint": "Sign in on the Accounts page",
-  "widgetsA.contacts.settings.column": "{name} column",
-  "widgetsA.contacts.settings.count.desc": "How many to list, at least five; a short widget shows fewer",
   "widgetsA.contacts.settings.count.label": "People",
   "widgetsA.contacts.settings.every": "Every contacts account",
-  "widgetsA.contacts.settings.layout.label": "Layout"
+  "widgetsA.contacts.settings.layout.label": "Layout",
+  "widgetsA.contacts.menu.columns": "Columns"
 }

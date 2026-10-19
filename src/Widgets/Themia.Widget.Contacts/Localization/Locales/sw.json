@@ -15,9 +15,6 @@
   "widgetsA.contacts.noAccount": "Bado hakuna akaunti ya anwani",
   "widgetsA.contacts.none": "Hakuna anwani",
   "widgetsA.contacts.readFailed": "Haikuweza kusoma anwani. Angalia themia.log.",
-  "widgetsA.contacts.settings.addHint": "Ingia kwenye ukurasa wa Akaunti",
-  "widgetsA.contacts.settings.column": "Safu wima ya {name}",
-  "widgetsA.contacts.settings.count.desc": "Ngapi zioredheshwe, angalau tano; wijeti fupi huonyesha chache",
   "widgetsA.contacts.settings.count.label": "Watu",
   "widgetsA.contacts.settings.every": "Kila akaunti ya anwani",
   "widgetsA.contacts.settings.layout.label": "Mpangilio"

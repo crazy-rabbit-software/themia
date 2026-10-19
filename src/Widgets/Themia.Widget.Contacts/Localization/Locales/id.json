@@ -15,9 +15,6 @@
   "widgetsA.contacts.noAccount": "Belum ada akun kontak",
   "widgetsA.contacts.none": "Tidak ada kontak",
   "widgetsA.contacts.readFailed": "Tidak dapat membaca kontak. Lihat themia.log.",
-  "widgetsA.contacts.settings.addHint": "Masuk di halaman Akun",
-  "widgetsA.contacts.settings.column": "Kolom {name}",
-  "widgetsA.contacts.settings.count.desc": "Berapa banyak yang dicantumkan, minimal lima; widget pendek menampilkan lebih sedikit",
   "widgetsA.contacts.settings.count.label": "Orang",
   "widgetsA.contacts.settings.every": "Semua akun kontak",
   "widgetsA.contacts.settings.layout.label": "Tata letak"

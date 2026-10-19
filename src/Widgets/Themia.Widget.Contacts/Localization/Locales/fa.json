@@ -15,9 +15,6 @@
   "widgetsA.contacts.noAccount": "هنوز حساب مخاطبینی نیست",
   "widgetsA.contacts.none": "مخاطبی نیست",
   "widgetsA.contacts.readFailed": "مخاطبین خوانده نشدند. themia.log را ببینید.",
-  "widgetsA.contacts.settings.addHint": "در صفحه حساب‌ها وارد شوید",
-  "widgetsA.contacts.settings.column": "ستون {name}",
-  "widgetsA.contacts.settings.count.desc": "چند نفر فهرست شوند، دست‌کم پنج نفر؛ ویجت کوتاه کمتر نشان می‌دهد",
   "widgetsA.contacts.settings.count.label": "افراد",
   "widgetsA.contacts.settings.every": "همه حساب‌های مخاطبین",
   "widgetsA.contacts.settings.layout.label": "چیدمان"

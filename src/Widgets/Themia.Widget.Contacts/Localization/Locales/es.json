@@ -15,9 +15,6 @@
   "widgetsA.contacts.noAccount": "Aún no hay ninguna cuenta de contactos",
   "widgetsA.contacts.none": "No hay contactos",
   "widgetsA.contacts.readFailed": "No se pudieron leer los contactos. Consulta themia.log.",
-  "widgetsA.contacts.settings.addHint": "Inicia sesión en la página Cuentas",
-  "widgetsA.contacts.settings.column": "Columna {name}",
-  "widgetsA.contacts.settings.count.desc": "Cuántas mostrar, al menos cinco; un widget bajo muestra menos",
   "widgetsA.contacts.settings.count.label": "Personas",
   "widgetsA.contacts.settings.every": "Todas las cuentas de contactos",
   "widgetsA.contacts.settings.layout.label": "Diseño"

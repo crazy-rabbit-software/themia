@@ -15,9 +15,6 @@
   "widgetsA.contacts.noAccount": "এখনও কোনো পরিচিতি অ্যাকাউন্ট নেই",
   "widgetsA.contacts.none": "কোনো পরিচিতি নেই",
   "widgetsA.contacts.readFailed": "পরিচিতি পড়া যায়নি। themia.log দেখুন।",
-  "widgetsA.contacts.settings.addHint": "অ্যাকাউন্ট পৃষ্ঠায় সাইন ইন করুন",
-  "widgetsA.contacts.settings.column": "{name} কলাম",
-  "widgetsA.contacts.settings.count.desc": "কতজনকে দেখাবে, অন্তত পাঁচ; ছোট উইজেট কম দেখায়",
   "widgetsA.contacts.settings.count.label": "মানুষ",
   "widgetsA.contacts.settings.every": "প্রতিটি পরিচিতি অ্যাকাউন্ট",
   "widgetsA.contacts.settings.layout.label": "লেআউট"

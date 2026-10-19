@@ -15,9 +15,6 @@
   "widgetsA.contacts.noAccount": "Brak konta kontaktów",
   "widgetsA.contacts.none": "Brak kontaktów",
   "widgetsA.contacts.readFailed": "Nie można odczytać kontaktów. Zobacz themia.log.",
-  "widgetsA.contacts.settings.addHint": "Zaloguj się na stronie Konta",
-  "widgetsA.contacts.settings.column": "Kolumna {name}",
-  "widgetsA.contacts.settings.count.desc": "Ile osób wyświetlić, co najmniej pięć; niski widżet pokazuje mniej",
   "widgetsA.contacts.settings.count.label": "Osoby",
   "widgetsA.contacts.settings.every": "Wszystkie konta kontaktów",
   "widgetsA.contacts.settings.layout.label": "Układ"

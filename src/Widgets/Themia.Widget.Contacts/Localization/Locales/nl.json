@@ -15,9 +15,6 @@
   "widgetsA.contacts.noAccount": "Nog geen contactenaccount",
   "widgetsA.contacts.none": "Geen contactpersonen",
   "widgetsA.contacts.readFailed": "Kan de contactpersonen niet lezen. Zie themia.log.",
-  "widgetsA.contacts.settings.addHint": "Meld je aan op de pagina Accounts",
-  "widgetsA.contacts.settings.column": "Kolom {name}",
-  "widgetsA.contacts.settings.count.desc": "Hoeveel er worden getoond, minstens vijf; een lage widget toont er minder",
   "widgetsA.contacts.settings.count.label": "Personen",
   "widgetsA.contacts.settings.every": "Elk contactenaccount",
   "widgetsA.contacts.settings.layout.label": "Indeling"

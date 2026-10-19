@@ -15,9 +15,6 @@
   "widgetsA.contacts.noAccount": "હજી કોઈ સંપર્ક એકાઉન્ટ નથી",
   "widgetsA.contacts.none": "કોઈ સંપર્કો નથી",
   "widgetsA.contacts.readFailed": "સંપર્કો વાંચી શકાયા નહીં. themia.log જુઓ.",
-  "widgetsA.contacts.settings.addHint": "એકાઉન્ટ્સ પેજ પર સાઇન ઇન કરો",
-  "widgetsA.contacts.settings.column": "{name} કૉલમ",
-  "widgetsA.contacts.settings.count.desc": "કેટલા સૂચિબદ્ધ કરવા, ઓછામાં ઓછા પાંચ; નાનું વિજેટ ઓછા બતાવે છે",
   "widgetsA.contacts.settings.count.label": "લોકો",
   "widgetsA.contacts.settings.every": "દરેક સંપર્ક એકાઉન્ટ",
   "widgetsA.contacts.settings.layout.label": "લેઆઉટ"

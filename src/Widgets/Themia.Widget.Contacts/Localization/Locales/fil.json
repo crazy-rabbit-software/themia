@@ -15,9 +15,6 @@
   "widgetsA.contacts.noAccount": "Wala pang account ng contact",
   "widgetsA.contacts.none": "Walang contact",
   "widgetsA.contacts.readFailed": "Hindi mabasa ang mga contact. Tingnan ang themia.log.",
-  "widgetsA.contacts.settings.addHint": "Mag-sign in sa page na Mga Account",
-  "widgetsA.contacts.settings.column": "Column ng {name}",
-  "widgetsA.contacts.settings.count.desc": "Ilan ang ililista, hindi bababa sa lima; mas kaunti ang ipapakita ng maikling widget",
   "widgetsA.contacts.settings.count.label": "Mga tao",
   "widgetsA.contacts.settings.every": "Bawat account ng contact",
   "widgetsA.contacts.settings.layout.label": "Layout"

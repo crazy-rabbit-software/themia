@@ -15,9 +15,6 @@
   "widgetsA.contacts.noAccount": "ਹਾਲੇ ਕੋਈ ਸੰਪਰਕ ਖਾਤਾ ਨਹੀਂ",
   "widgetsA.contacts.none": "ਕੋਈ ਸੰਪਰਕ ਨਹੀਂ",
   "widgetsA.contacts.readFailed": "ਸੰਪਰਕ ਪੜ੍ਹੇ ਨਹੀਂ ਜਾ ਸਕੇ। themia.log ਦੇਖੋ।",
-  "widgetsA.contacts.settings.addHint": "ਖਾਤੇ ਪੰਨੇ ਉੱਤੇ ਸਾਈਨ ਇਨ ਕਰੋ",
-  "widgetsA.contacts.settings.column": "{name} ਕਾਲਮ",
-  "widgetsA.contacts.settings.count.desc": "ਕਿੰਨੇ ਦਿਖਾਉਣੇ ਹਨ, ਘੱਟੋ-ਘੱਟ ਪੰਜ; ਛੋਟਾ ਵਿਜੇਟ ਘੱਟ ਦਿਖਾਉਂਦਾ ਹੈ",
   "widgetsA.contacts.settings.count.label": "ਲੋਕ",
   "widgetsA.contacts.settings.every": "ਹਰ ਸੰਪਰਕ ਖਾਤਾ",
   "widgetsA.contacts.settings.layout.label": "ਖਾਕਾ"

@@ -15,9 +15,6 @@
   "widgetsA.contacts.noAccount": "Babu asusun lambobin sadarwa tukuna",
   "widgetsA.contacts.none": "Babu lambobin sadarwa",
   "widgetsA.contacts.readFailed": "Ba a iya karanta lambobin sadarwa ba. Duba themia.log.",
-  "widgetsA.contacts.settings.addHint": "Shiga a shafin Asusu",
-  "widgetsA.contacts.settings.column": "Ginshiƙin {name}",
-  "widgetsA.contacts.settings.count.desc": "Nawa za a lissafa, aƙalla biyar; gajeren widget yana nuna ƙasa da haka",
   "widgetsA.contacts.settings.count.label": "Mutane",
   "widgetsA.contacts.settings.every": "Kowane asusun lambobin sadarwa",
   "widgetsA.contacts.settings.layout.label": "Tsari"

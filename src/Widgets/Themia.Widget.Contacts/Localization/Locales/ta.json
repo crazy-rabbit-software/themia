@@ -15,9 +15,6 @@
   "widgetsA.contacts.noAccount": "இன்னும் தொடர்புகள் கணக்கு இல்லை",
   "widgetsA.contacts.none": "தொடர்புகள் இல்லை",
   "widgetsA.contacts.readFailed": "தொடர்புகளைப் படிக்க முடியவில்லை. themia.log ஐப் பார்க்கவும்.",
-  "widgetsA.contacts.settings.addHint": "கணக்குகள் பக்கத்தில் உள்நுழையவும்",
-  "widgetsA.contacts.settings.column": "{name} நெடுவரிசை",
-  "widgetsA.contacts.settings.count.desc": "எத்தனை பட்டியலிட வேண்டும், குறைந்தது ஐந்து; சிறிய விட்ஜெட் குறைவாகக் காட்டும்",
   "widgetsA.contacts.settings.count.label": "நபர்கள்",
   "widgetsA.contacts.settings.every": "ஒவ்வொரு தொடர்புகள் கணக்கும்",
   "widgetsA.contacts.settings.layout.label": "தளவமைப்பு"

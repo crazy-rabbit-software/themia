@@ -15,9 +15,6 @@
   "widgetsA.contacts.noAccount": "Henüz kişiler hesabı yok",
   "widgetsA.contacts.none": "Kişi yok",
   "widgetsA.contacts.readFailed": "Kişiler okunamadı. themia.log dosyasına bakın.",
-  "widgetsA.contacts.settings.addHint": "Hesaplar sayfasında oturum açın",
-  "widgetsA.contacts.settings.column": "Sütun: {name}",
-  "widgetsA.contacts.settings.count.desc": "Kaç kişi listeleneceği, en az beş; kısa bir pencere öğesi daha azını gösterir",
   "widgetsA.contacts.settings.count.label": "Kişiler",
   "widgetsA.contacts.settings.every": "Tüm kişiler hesapları",
   "widgetsA.contacts.settings.layout.label": "Düzen"
