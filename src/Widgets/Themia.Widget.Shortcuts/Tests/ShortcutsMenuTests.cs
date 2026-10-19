@@ -47,8 +47,9 @@ public sealed class ShortcutsMenuTests
     private static ItemMenuEntry Add(Built built) => Line(built.Lines.Lines, Str.Common_Add.Text());
 
     [Fact]
-    public void S1862_set_up_opens_the_add_submenu_and_nothing_else()
+    public void S1388_set_up_opens_the_add_submenu_and_nothing_else()
     {
+        // [S-1862] An empty Shortcuts widget's Set up button opens its menu at Add.
         var built = Build(new ShortcutsConfig());
 
         Assert.True(Add(built).SetsUp);
