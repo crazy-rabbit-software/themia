@@ -190,6 +190,12 @@ public partial class App : Application
         {
             return;
         }
+
+        // And a live clock handed every style in turn ([S-6016]).
+        if (Shell.Gallery.ClockStyleRender.TryRunFromCommandLine(this, Environment.GetCommandLineArgs()))
+        {
+            return;
+        }
 #endif
 
         // Themia has no tray entry and no window in the taskbar, so launching it again is the
