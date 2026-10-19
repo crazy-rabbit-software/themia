@@ -41,12 +41,8 @@
     "one": "{count} నిమి",
     "other": "{count} నిమి"
   },
-  "widgetsA.countdown.settings.format.desc": "మిగిలిన సమయం ఎలా రాయబడుతుంది",
   "widgetsA.countdown.settings.format.label": "ఫార్మాట్",
   "widgetsA.countdown.settings.name.label": "పేరు",
-  "widgetsA.countdown.settings.pickDate": "తేదీని ఎంచుకోండి",
-  "widgetsA.countdown.settings.target.desc": "కౌంట్‌డౌన్ సున్నాకు చేరే క్షణం",
-  "widgetsA.countdown.settings.target.label": "తేదీ మరియు సమయం",
   "widgetsA.countdown.untitled": "పేరులేనిది",
   "styles.clock.flip": "ఫ్లిప్"
 }

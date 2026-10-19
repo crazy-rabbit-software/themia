@@ -36,12 +36,8 @@
   "widgetsA.countdown.minutes": {
     "other": "{count} phút"
   },
-  "widgetsA.countdown.settings.format.desc": "Cách viết thời gian còn lại",
   "widgetsA.countdown.settings.format.label": "Định dạng",
   "widgetsA.countdown.settings.name.label": "Tên",
-  "widgetsA.countdown.settings.pickDate": "Chọn ngày",
-  "widgetsA.countdown.settings.target.desc": "Thời điểm đếm ngược về không",
-  "widgetsA.countdown.settings.target.label": "Ngày và giờ",
   "widgetsA.countdown.untitled": "Không có tên",
   "styles.clock.flip": "Lật"
 }

@@ -34,8 +34,9 @@ public sealed class CountdownModule : IWidgetModule
         Add = new(AddFolderId.Time, 0, 2),
     };
 
-    public void SettingsRows(WidgetSettingsRows rows, WidgetConfig config)
-        => CountdownSettings.Rows(rows.Rows, (CountdownConfig)config, rows.Save);
+    /// <summary>[S-3719] Every option is on the properties menu: the widget has no settings page.</summary>
+    public void MenuLines(WidgetMenuLines menu, WidgetConfig config)
+        => CountdownMenu.Lines(menu, (CountdownConfig)config);
 
     public FrameworkElement CreateView(IWidgetHost host) => new CountdownView();
 }

@@ -36,12 +36,8 @@
   "widgetsA.countdown.minutes": {
     "other": "{count}分鐘"
   },
-  "widgetsA.countdown.settings.format.desc": "剩餘時間的寫法",
   "widgetsA.countdown.settings.format.label": "格式",
   "widgetsA.countdown.settings.name.label": "名稱",
-  "widgetsA.countdown.settings.pickDate": "選擇日期",
-  "widgetsA.countdown.settings.target.desc": "倒數歸零的時刻",
-  "widgetsA.countdown.settings.target.label": "日期和時間",
   "widgetsA.countdown.untitled": "未命名",
   "styles.clock.flip": "翻頁"
 }

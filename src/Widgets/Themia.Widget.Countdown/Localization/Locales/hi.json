@@ -41,12 +41,8 @@
     "one": "{count} मिनट",
     "other": "{count} मिनट"
   },
-  "widgetsA.countdown.settings.format.desc": "बचा समय कैसे लिखा जाए",
   "widgetsA.countdown.settings.format.label": "प्रारूप",
   "widgetsA.countdown.settings.name.label": "नाम",
-  "widgetsA.countdown.settings.pickDate": "तारीख चुनें",
-  "widgetsA.countdown.settings.target.desc": "वह क्षण जब उलटी गिनती शून्य पर पहुँचती है",
-  "widgetsA.countdown.settings.target.label": "दिनांक और समय",
   "widgetsA.countdown.untitled": "बिना शीर्षक",
   "styles.clock.flip": "फ़्लिप"
 }

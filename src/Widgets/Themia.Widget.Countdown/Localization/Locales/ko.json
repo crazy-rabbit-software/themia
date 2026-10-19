@@ -36,12 +36,8 @@
   "widgetsA.countdown.minutes": {
     "other": "{count}분"
   },
-  "widgetsA.countdown.settings.format.desc": "남은 시간 표시 방식",
   "widgetsA.countdown.settings.format.label": "형식",
   "widgetsA.countdown.settings.name.label": "이름",
-  "widgetsA.countdown.settings.pickDate": "날짜 선택",
-  "widgetsA.countdown.settings.target.desc": "카운트다운이 0이 되는 시각",
-  "widgetsA.countdown.settings.target.label": "날짜 및 시간",
   "widgetsA.countdown.untitled": "제목 없음",
   "styles.clock.flip": "플립"
 }

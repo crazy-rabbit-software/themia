@@ -51,12 +51,8 @@
     "many": "{count} min",
     "other": "{count} min"
   },
-  "widgetsA.countdown.settings.format.desc": "Jak zapisywany jest pozostały czas",
   "widgetsA.countdown.settings.format.label": "Format",
   "widgetsA.countdown.settings.name.label": "Nazwa",
-  "widgetsA.countdown.settings.pickDate": "Wybierz datę",
-  "widgetsA.countdown.settings.target.desc": "Chwila, w której odliczanie dochodzi do zera",
-  "widgetsA.countdown.settings.target.label": "Data i godzina",
   "widgetsA.countdown.untitled": "Bez nazwy",
   "styles.clock.flip": "Klapkowy"
 }

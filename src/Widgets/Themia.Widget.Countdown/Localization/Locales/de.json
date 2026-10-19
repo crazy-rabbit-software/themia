@@ -41,12 +41,8 @@
     "one": "{count} Min.",
     "other": "{count} Min."
   },
-  "widgetsA.countdown.settings.format.desc": "Wie die verbleibende Zeit geschrieben wird",
   "widgetsA.countdown.settings.format.label": "Format",
   "widgetsA.countdown.settings.name.label": "Name",
-  "widgetsA.countdown.settings.pickDate": "Datum auswählen",
-  "widgetsA.countdown.settings.target.desc": "Der Moment, in dem der Countdown null erreicht",
-  "widgetsA.countdown.settings.target.label": "Datum und Uhrzeit",
   "widgetsA.countdown.untitled": "Ohne Titel",
   "styles.clock.flip": "Klappzahlen"
 }

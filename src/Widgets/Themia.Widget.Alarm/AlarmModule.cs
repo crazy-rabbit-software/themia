@@ -37,8 +37,9 @@ public sealed class AlarmModule : IWidgetModule
         Add = new(AddFolderId.Time, 0, 1),
     };
 
-    public void SettingsRows(WidgetSettingsRows rows, WidgetConfig config)
-        => AlarmSettings.Rows(rows.Rows, (AlarmConfig)config, rows.Save);
+    /// <summary>[S-3719] Every option is on the properties menu: the widget has no settings page.</summary>
+    public void MenuLines(WidgetMenuLines menu, WidgetConfig config)
+        => AlarmMenu.Lines(menu, (AlarmConfig)config);
 
     public FrameworkElement CreateView(IWidgetHost host) => new AlarmView(host);
 }

@@ -8,11 +8,11 @@ and handed back ([S-4423], host-side through the quick-setting hub, never the wi
 focus followed ([S-4424], [S-4425]); the rules are the SDK's `FocusSessionRules`.
 
 Owning files: everything in this folder: `FocusSessionModule.cs` (descriptor, glyph, view factory,
-settings rows, JSON context), `FocusSessionConfig.cs` (length, do not disturb), `FocusSessionView.cs`
+menu lines, JSON context), `FocusSessionConfig.cs` (length, do not disturb), `FocusSessionView.cs`
 (the time, the ring, the button and steppers through its host, the keys), `FocusSessionLayout.cs` (the
-ladder), `FocusSessionSettings.cs` (its page), `Preview/` (Debug renders:
+ladder), `FocusSessionMenu.cs` (its properties-menu lines), `Preview/` (Debug renders:
 `--state idle|running|quiet|unavailable|windows|long`), `Localization/Locales/` (its own
-`FocusSessionStr`, 30 languages). Tests: `Tests/FocusSessionTests.cs` (run by
+`FocusSessionStr`, 30 languages). Tests: `Tests/FocusSessionTests.cs`, `Tests/FocusSessionMenuTests.cs` (run by
 `tests/Themia.Modules.Tests`); its config under the root's length rule is the module host's
 `WindowsPanelsHostTests`.
 
@@ -24,7 +24,10 @@ ladder), `FocusSessionSettings.cs` (its page), `Preview/` (Debug renders:
   Regular or more, −/+ beside it while idle; the status line (do not disturb, Windows' focus, or what
   Start will do) from Regular both ways; the ring of the time gone from Expanded both ways and 120 DIP.
 - **[S-4427]** Keys: Space/Enter start or end; Up/Right/+ and Down/Left/− change the length while idle.
-- **[S-4428]** Settings page: Length (slider, 5-minute steps) and Turn on do not disturb.
+- **[S-4428]** Its options are all on the properties menu ([S-3719], user request 2026-10-19); it
+  has no settings page. Appearance ([S-3723]), then **Length** (typed in minutes, 5–240, rounded to
+  5-minute steps, [S-3726]; the length at the end of its line) and **Turn on do not disturb** (a
+  switch). (Tests `FocusSessionMenuTests`.)
 
 Needs a manual pass: the widget on a live desktop ([S-4420], [S-4427], [S-4428]: a session started and
 ended from two focus widgets, do not disturb turned on and handed back, Windows' own focus shown, the

@@ -41,12 +41,8 @@
     "one": "Dak {count}",
     "other": "Dak {count}"
   },
-  "widgetsA.countdown.settings.format.desc": "Jinsi muda uliobaki unavyoandikwa",
   "widgetsA.countdown.settings.format.label": "Muundo",
   "widgetsA.countdown.settings.name.label": "Jina",
-  "widgetsA.countdown.settings.pickDate": "Chagua tarehe",
-  "widgetsA.countdown.settings.target.desc": "Wakati hesabu inapofika sifuri",
-  "widgetsA.countdown.settings.target.label": "Tarehe na saa",
   "widgetsA.countdown.untitled": "Bila jina",
   "styles.clock.flip": "Kugeuza"
 }

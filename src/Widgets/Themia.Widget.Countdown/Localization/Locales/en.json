@@ -1,5 +1,11 @@
 {
-  "$englishOnly": [],
+  "$englishOnly": [
+    "widgetsA.countdown.menu.date",
+    "widgetsA.countdown.menu.dateRefused",
+    "widgetsA.countdown.menu.nameTooLong",
+    "widgetsA.countdown.menu.time",
+    "widgetsA.countdown.menu.timeRefused"
+  ],
   "styles.countdown.ring": "Ring",
   "styles.countdown.text": "Text",
   "styles.countdown.unitDays": "days",
@@ -38,16 +44,17 @@
   "widgetsA.countdown.in": "in {duration}",
   "widgetsA.countdown.inAMoment": "in a moment",
   "widgetsA.countdown.justNow": "just now",
+  "widgetsA.countdown.menu.date": "Date",
+  "widgetsA.countdown.menu.dateRefused": "Type a date such as 2026-12-24 or 24.12.2026",
+  "widgetsA.countdown.menu.nameTooLong": "At most {max} characters",
+  "widgetsA.countdown.menu.time": "Time",
+  "widgetsA.countdown.menu.timeRefused": "Type a time such as 07:30, 19:30 or 7:30 pm",
   "widgetsA.countdown.minutes": {
     "one": "{count} min",
     "other": "{count} mins"
   },
-  "widgetsA.countdown.settings.format.desc": "How the time left is written",
   "widgetsA.countdown.settings.format.label": "Format",
   "widgetsA.countdown.settings.name.label": "Name",
-  "widgetsA.countdown.settings.pickDate": "Pick a date",
-  "widgetsA.countdown.settings.target.desc": "The moment the countdown reaches zero",
-  "widgetsA.countdown.settings.target.label": "Date and time",
   "widgetsA.countdown.untitled": "Untitled",
   "styles.clock.flip": "Flip"
 }

@@ -41,12 +41,8 @@
     "one": "{count} min",
     "other": "{count} min"
   },
-  "widgetsA.countdown.settings.format.desc": "Kung paano isinusulat ang natitirang oras",
   "widgetsA.countdown.settings.format.label": "Format",
   "widgetsA.countdown.settings.name.label": "Pangalan",
-  "widgetsA.countdown.settings.pickDate": "Pumili ng petsa",
-  "widgetsA.countdown.settings.target.desc": "Ang sandaling umabot sa zero ang countdown",
-  "widgetsA.countdown.settings.target.label": "Petsa at oras",
   "widgetsA.countdown.untitled": "Walang pamagat",
   "styles.clock.flip": "Flip"
 }

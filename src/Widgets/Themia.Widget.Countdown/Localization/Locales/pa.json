@@ -41,12 +41,8 @@
     "one": "{count} ਮਿੰਟ",
     "other": "{count} ਮਿੰਟ"
   },
-  "widgetsA.countdown.settings.format.desc": "ਬਾਕੀ ਸਮਾਂ ਕਿਵੇਂ ਲਿਖਿਆ ਜਾਂਦਾ ਹੈ",
   "widgetsA.countdown.settings.format.label": "ਫਾਰਮੈਟ",
   "widgetsA.countdown.settings.name.label": "ਨਾਮ",
-  "widgetsA.countdown.settings.pickDate": "ਮਿਤੀ ਚੁਣੋ",
-  "widgetsA.countdown.settings.target.desc": "ਉਹ ਪਲ ਜਦੋਂ ਉਲਟੀ ਗਿਣਤੀ ਸਿਫ਼ਰ 'ਤੇ ਪਹੁੰਚਦੀ ਹੈ",
-  "widgetsA.countdown.settings.target.label": "ਮਿਤੀ ਅਤੇ ਸਮਾਂ",
   "widgetsA.countdown.untitled": "ਬਿਨਾਂ ਸਿਰਲੇਖ",
   "styles.clock.flip": "ਫਲਿੱਪ"
 }

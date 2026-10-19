@@ -37,8 +37,9 @@ public sealed class PomodoroModule : IWidgetModule
         Add = new(AddFolderId.Time, 1, 0),
     };
 
-    public void SettingsRows(WidgetSettingsRows rows, WidgetConfig config)
-        => PomodoroSettings.Rows(rows.Rows, (PomodoroConfig)config, rows.Save);
+    /// <summary>[S-3719] Every option is on the properties menu: the widget has no settings page.</summary>
+    public void MenuLines(WidgetMenuLines menu, WidgetConfig config)
+        => PomodoroMenu.Lines(menu, (PomodoroConfig)config);
 
     public FrameworkElement CreateView(IWidgetHost host) => new PomodoroView();
 }

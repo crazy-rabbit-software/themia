@@ -37,8 +37,9 @@ public sealed class FocusSessionModule : IWidgetModule
         Add = new(AddFolderId.Time, 1, 1),
     };
 
-    public void SettingsRows(WidgetSettingsRows rows, WidgetConfig config)
-        => FocusSessionSettings.Rows(rows.Rows, (FocusSessionConfig)config, rows.Save);
+    /// <summary>[S-3719] Every option is on the properties menu: the widget has no settings page.</summary>
+    public void MenuLines(WidgetMenuLines menu, WidgetConfig config)
+        => FocusSessionMenu.Lines(menu, (FocusSessionConfig)config);
 
     public FrameworkElement CreateView(IWidgetHost host) => new FocusSessionView(host);
 }

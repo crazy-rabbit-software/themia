@@ -41,12 +41,8 @@
     "one": "{count} min",
     "other": "{count} min"
   },
-  "widgetsA.countdown.settings.format.desc": "Come viene scritto il tempo rimanente",
   "widgetsA.countdown.settings.format.label": "Formato",
   "widgetsA.countdown.settings.name.label": "Nome",
-  "widgetsA.countdown.settings.pickDate": "Scegli una data",
-  "widgetsA.countdown.settings.target.desc": "Il momento in cui il conto alla rovescia arriva a zero",
-  "widgetsA.countdown.settings.target.label": "Data e ora",
   "widgetsA.countdown.untitled": "Senza titolo",
   "styles.clock.flip": "Palette"
 }

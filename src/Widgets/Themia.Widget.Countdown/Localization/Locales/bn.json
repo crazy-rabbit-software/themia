@@ -41,12 +41,8 @@
     "one": "{count} মিনিট",
     "other": "{count} মিনিট"
   },
-  "widgetsA.countdown.settings.format.desc": "বাকি সময় কীভাবে লেখা হয়",
   "widgetsA.countdown.settings.format.label": "ফরম্যাট",
   "widgetsA.countdown.settings.name.label": "নাম",
-  "widgetsA.countdown.settings.pickDate": "তারিখ বেছে নিন",
-  "widgetsA.countdown.settings.target.desc": "যে মুহূর্তে কাউন্টডাউন শূন্যে পৌঁছায়",
-  "widgetsA.countdown.settings.target.label": "তারিখ ও সময়",
   "widgetsA.countdown.untitled": "শিরোনামহীন",
   "styles.clock.flip": "ফ্লিপ"
 }

@@ -36,12 +36,8 @@
   "widgetsA.countdown.minutes": {
     "other": "{count}分"
   },
-  "widgetsA.countdown.settings.format.desc": "残り時間の書き方",
   "widgetsA.countdown.settings.format.label": "表示形式",
   "widgetsA.countdown.settings.name.label": "名前",
-  "widgetsA.countdown.settings.pickDate": "日付を選択",
-  "widgetsA.countdown.settings.target.desc": "カウントダウンがゼロになる日時",
-  "widgetsA.countdown.settings.target.label": "日付と時刻",
   "widgetsA.countdown.untitled": "無題",
   "styles.clock.flip": "フリップ"
 }

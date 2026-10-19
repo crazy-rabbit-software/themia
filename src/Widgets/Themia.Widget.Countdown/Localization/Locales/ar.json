@@ -61,12 +61,8 @@
     "many": "{count} دقيقة",
     "other": "{count} دقيقة"
   },
-  "widgetsA.countdown.settings.format.desc": "كيف يُكتب الوقت المتبقي",
   "widgetsA.countdown.settings.format.label": "التنسيق",
   "widgetsA.countdown.settings.name.label": "الاسم",
-  "widgetsA.countdown.settings.pickDate": "اختر تاريخًا",
-  "widgetsA.countdown.settings.target.desc": "اللحظة التي يبلغ فيها العد التنازلي الصفر",
-  "widgetsA.countdown.settings.target.label": "التاريخ والوقت",
   "widgetsA.countdown.untitled": "بلا عنوان",
   "styles.clock.flip": "قلّابة"
 }

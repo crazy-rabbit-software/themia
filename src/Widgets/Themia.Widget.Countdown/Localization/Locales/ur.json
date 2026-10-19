@@ -41,12 +41,8 @@
     "one": "{count} منٹ",
     "other": "{count} منٹ"
   },
-  "widgetsA.countdown.settings.format.desc": "باقی وقت کیسے لکھا جائے",
   "widgetsA.countdown.settings.format.label": "فارمیٹ",
   "widgetsA.countdown.settings.name.label": "نام",
-  "widgetsA.countdown.settings.pickDate": "تاریخ چنیں",
-  "widgetsA.countdown.settings.target.desc": "وہ لمحہ جب الٹی گنتی صفر پر پہنچے",
-  "widgetsA.countdown.settings.target.label": "تاریخ اور وقت",
   "widgetsA.countdown.untitled": "بلا عنوان",
   "styles.clock.flip": "فلپ"
 }

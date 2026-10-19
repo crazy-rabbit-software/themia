@@ -41,12 +41,8 @@
     "one": "{count} मि",
     "other": "{count} मि"
   },
-  "widgetsA.countdown.settings.format.desc": "उरलेला वेळ कसा लिहिला जातो",
   "widgetsA.countdown.settings.format.label": "स्वरूप",
   "widgetsA.countdown.settings.name.label": "नाव",
-  "widgetsA.countdown.settings.pickDate": "तारीख निवडा",
-  "widgetsA.countdown.settings.target.desc": "ज्या क्षणी उलटी गणना शून्यावर पोहोचते",
-  "widgetsA.countdown.settings.target.label": "तारीख आणि वेळ",
   "widgetsA.countdown.untitled": "शीर्षकहीन",
   "styles.clock.flip": "फ्लिप"
 }

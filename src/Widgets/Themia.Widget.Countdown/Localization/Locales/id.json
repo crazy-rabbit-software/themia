@@ -36,12 +36,8 @@
   "widgetsA.countdown.minutes": {
     "other": "{count} mnt"
   },
-  "widgetsA.countdown.settings.format.desc": "Cara sisa waktu ditulis",
   "widgetsA.countdown.settings.format.label": "Format",
   "widgetsA.countdown.settings.name.label": "Nama",
-  "widgetsA.countdown.settings.pickDate": "Pilih tanggal",
-  "widgetsA.countdown.settings.target.desc": "Saat hitung mundur mencapai nol",
-  "widgetsA.countdown.settings.target.label": "Tanggal dan waktu",
   "widgetsA.countdown.untitled": "Tanpa judul",
   "styles.clock.flip": "Flip"
 }

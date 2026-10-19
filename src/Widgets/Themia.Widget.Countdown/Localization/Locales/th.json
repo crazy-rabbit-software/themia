@@ -36,12 +36,8 @@
   "widgetsA.countdown.minutes": {
     "other": "{count} นาที"
   },
-  "widgetsA.countdown.settings.format.desc": "วิธีเขียนเวลาที่เหลือ",
   "widgetsA.countdown.settings.format.label": "รูปแบบ",
   "widgetsA.countdown.settings.name.label": "ชื่อ",
-  "widgetsA.countdown.settings.pickDate": "เลือกวันที่",
-  "widgetsA.countdown.settings.target.desc": "เวลาที่การนับถอยหลังถึงศูนย์",
-  "widgetsA.countdown.settings.target.label": "วันที่และเวลา",
   "widgetsA.countdown.untitled": "ไม่มีชื่อ",
   "styles.clock.flip": "พลิก"
 }

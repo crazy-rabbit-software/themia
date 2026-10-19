@@ -41,12 +41,8 @@
     "one": "Minti {count}",
     "other": "Minti {count}"
   },
-  "widgetsA.countdown.settings.format.desc": "Yadda ake rubuta sauran lokaci",
   "widgetsA.countdown.settings.format.label": "Tsari",
   "widgetsA.countdown.settings.name.label": "Suna",
-  "widgetsA.countdown.settings.pickDate": "Zaɓi kwanan wata",
-  "widgetsA.countdown.settings.target.desc": "Lokacin da ƙirgawar za ta kai sifili",
-  "widgetsA.countdown.settings.target.label": "Kwanan wata da lokaci",
   "widgetsA.countdown.untitled": "Ba shi da suna",
   "styles.clock.flip": "Juyawa"
 }

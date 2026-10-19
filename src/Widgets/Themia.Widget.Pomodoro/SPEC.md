@@ -6,9 +6,9 @@ with the alarm (the ringtones themselves [S-1461]..[S-1463], the cue's player [S
 through the SDK's `SoundCue`; styles [S-6000], the ring [S-6060], the keyboard lease [S-800], the
 ladder rules [S-660]..[S-666]).
 
-Owning files: everything in this folder: `PomodoroModule.cs` (descriptor, view factory, settings
-rows, JSON context, glyph), `PomodoroConfig.cs`, `PomodoroCycle.cs` (the cycle as arithmetic, the key
-map `PomodoroKeys`), `PomodoroView.cs`, `PomodoroSettings.cs` (its page), `Preview/` (Debug renders),
+Owning files: everything in this folder: `PomodoroModule.cs` (descriptor, view factory, menu
+lines, JSON context, glyph), `PomodoroConfig.cs`, `PomodoroCycle.cs` (the cycle as arithmetic, the key
+map `PomodoroKeys`), `PomodoroView.cs`, `PomodoroMenu.cs` (its properties-menu lines), `Preview/` (Debug renders),
 `Localization/Locales/` (its own `PomodoroStr`, 30 languages). Tests: `Tests/` (run by
 `tests/Themia.Modules.Tests`).
 
@@ -42,7 +42,7 @@ from the tests that pinned them under those numbers, which are the root's geomet
   narrow one drops the progress bar. Stacked, a 120px tile had no room left for the digits.
 - **[S-1460]** Pomodoro `Sound` (`AlarmSound`: off + the original's twelve — chime (default),
   marimba, crystal, pluck, droplet, birdsong, zen, bell, gong, arcade, digital, buzzer; listed in
-  that order, gentle → insistent) and `Volume` 0..100 (default 70, row hidden while off). Unknown
+  that order, gentle → insistent) and `Volume` 0..100 (default 70, its line hidden while off). Unknown
   names read as chime (lenient converter); `Repair` clamps the volume. Changing either previews the
   focus cue. The old `Alarm` bool is gone (no compatibility).
 - **[S-1466]** Pomodoro ladder: XS digits over start/pause; short strips (S, Wide) phase + digits
@@ -54,6 +54,12 @@ from the tests that pinned them under those numbers, which are the root's geomet
   gone; XL shows the ring, the phase, the next phase and the controls like L.)*
 - **[S-1987]** Pomodoro keys (`PomodoroKeys.Of`): Space or Enter start / pause, Right skips to
   the next phase, Home resets: the three buttons in their order. Nothing after the card left.
+- **[S-8110]** Its options are all on the properties menu ([S-3719], user request 2026-10-19); it
+  has no settings page. Appearance ([S-3723]), then **Focus length** and **Break length** (typed,
+  1–180 min, [S-3726], the clamped length at the end of the line, [S-8101]); under a divider
+  **Alarm sound** (a choice of off and the twelve ringtones, [S-1460]) and **Alarm volume** (0–100 %
+  in tens, only while a sound is chosen, [S-6074]); a new sound or volume previews the focus cue
+  once. (Tests `PomodoroMenuTests`.)
 
 Needs a manual pass: a whole cycle on the live desktop with a sound (the cue on each flip, nothing
 on start, pause or reset) and every tier on the showcase views ([S-1810]).

@@ -41,12 +41,8 @@
     "one": "{count} دقیقه",
     "other": "{count} دقیقه"
   },
-  "widgetsA.countdown.settings.format.desc": "نحوهٔ نوشتن زمان باقی‌مانده",
   "widgetsA.countdown.settings.format.label": "قالب",
   "widgetsA.countdown.settings.name.label": "نام",
-  "widgetsA.countdown.settings.pickDate": "انتخاب تاریخ",
-  "widgetsA.countdown.settings.target.desc": "لحظه‌ای که شمارش معکوس به صفر می‌رسد",
-  "widgetsA.countdown.settings.target.label": "تاریخ و زمان",
   "widgetsA.countdown.untitled": "بدون عنوان",
   "styles.clock.flip": "ورقی"
 }

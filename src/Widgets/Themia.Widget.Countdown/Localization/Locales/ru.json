@@ -51,12 +51,8 @@
     "many": "{count} мин",
     "other": "{count} мин"
   },
-  "widgetsA.countdown.settings.format.desc": "Как записывается оставшееся время",
   "widgetsA.countdown.settings.format.label": "Формат",
   "widgetsA.countdown.settings.name.label": "Название",
-  "widgetsA.countdown.settings.pickDate": "Выберите дату",
-  "widgetsA.countdown.settings.target.desc": "Момент, когда отсчёт дойдёт до нуля",
-  "widgetsA.countdown.settings.target.label": "Дата и время",
   "widgetsA.countdown.untitled": "Без названия",
   "styles.clock.flip": "Перекидной"
 }

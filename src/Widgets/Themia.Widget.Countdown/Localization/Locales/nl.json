@@ -41,12 +41,8 @@
     "one": "{count} min",
     "other": "{count} min"
   },
-  "widgetsA.countdown.settings.format.desc": "Hoe de resterende tijd wordt geschreven",
   "widgetsA.countdown.settings.format.label": "Notatie",
   "widgetsA.countdown.settings.name.label": "Naam",
-  "widgetsA.countdown.settings.pickDate": "Kies een datum",
-  "widgetsA.countdown.settings.target.desc": "Het moment waarop het aftellen nul bereikt",
-  "widgetsA.countdown.settings.target.label": "Datum en tijd",
   "widgetsA.countdown.untitled": "Naamloos",
   "styles.clock.flip": "Flipklok"
 }
