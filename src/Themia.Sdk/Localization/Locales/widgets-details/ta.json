@@ -66,6 +66,5 @@
   "details.gpu.fan": "விசிறி",
   "details.gpu.clock": "GPU கடிகாரம்",
   "details.gpu.memoryClock": "நினைவகக் கடிகாரம்",
-  "details.settings.gpu.adapter.label": "அடாப்டர்",
-  "details.settings.gpu.adapter.desc": "எண்ணிக்கைகள் காட்டப்படும் கிராஃபிக்ஸ் அடாப்டர்"
+  "details.settings.gpu.adapter.label": "அடாப்டர்"
 }

@@ -66,6 +66,5 @@
   "details.gpu.fan": "Ventilador",
   "details.gpu.clock": "Frecuencia de GPU",
   "details.gpu.memoryClock": "Frecuencia de memoria",
-  "details.settings.gpu.adapter.label": "Adaptador",
-  "details.settings.gpu.adapter.desc": "El adaptador gráfico cuyos datos se muestran"
+  "details.settings.gpu.adapter.label": "Adaptador"
 }

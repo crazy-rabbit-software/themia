@@ -66,6 +66,5 @@
   "details.gpu.fan": "Fanka",
   "details.gpu.clock": "Agogon GPU",
   "details.gpu.memoryClock": "Agogon ƙwaƙwalwa",
-  "details.settings.gpu.adapter.label": "Adafta",
-  "details.settings.gpu.adapter.desc": "Adaftar zane da ake nuna alƙaluman sa"
+  "details.settings.gpu.adapter.label": "Adafta"
 }

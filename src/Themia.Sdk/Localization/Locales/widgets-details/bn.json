@@ -66,6 +66,5 @@
   "details.gpu.fan": "ফ্যান",
   "details.gpu.clock": "GPU ক্লক",
   "details.gpu.memoryClock": "মেমরি ক্লক",
-  "details.settings.gpu.adapter.label": "অ্যাডাপ্টার",
-  "details.settings.gpu.adapter.desc": "যে গ্রাফিক্স অ্যাডাপ্টারের তথ্য দেখানো হয়"
+  "details.settings.gpu.adapter.label": "অ্যাডাপ্টার"
 }

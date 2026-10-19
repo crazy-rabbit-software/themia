@@ -66,6 +66,5 @@
   "details.gpu.fan": "風扇",
   "details.gpu.clock": "GPU 時脈",
   "details.gpu.memoryClock": "記憶體時脈",
-  "details.settings.gpu.adapter.label": "介面卡",
-  "details.settings.gpu.adapter.desc": "顯示其數據的圖形介面卡"
+  "details.settings.gpu.adapter.label": "介面卡"
 }

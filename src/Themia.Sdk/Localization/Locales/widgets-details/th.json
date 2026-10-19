@@ -66,6 +66,5 @@
   "details.gpu.fan": "พัดลม",
   "details.gpu.clock": "สัญญาณนาฬิกา GPU",
   "details.gpu.memoryClock": "สัญญาณนาฬิกาหน่วยความจำ",
-  "details.settings.gpu.adapter.label": "อะแดปเตอร์",
-  "details.settings.gpu.adapter.desc": "อะแดปเตอร์กราฟิกที่แสดงตัวเลข"
+  "details.settings.gpu.adapter.label": "อะแดปเตอร์"
 }

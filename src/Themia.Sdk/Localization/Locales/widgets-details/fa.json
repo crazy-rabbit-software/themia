@@ -66,6 +66,5 @@
   "details.gpu.fan": "فن",
   "details.gpu.clock": "فرکانس GPU",
   "details.gpu.memoryClock": "فرکانس حافظه",
-  "details.settings.gpu.adapter.label": "آداپتور",
-  "details.settings.gpu.adapter.desc": "آداپتور گرافیکی که ارقامش نمایش داده می‌شود"
+  "details.settings.gpu.adapter.label": "آداپتور"
 }

@@ -1763,11 +1763,11 @@ registration path: when a table becomes a descriptor member, the table is delete
   is: `DriveList`, `AudioDevices`, `GpuAdapters`; so are a process's executable (`ProcessPaths`) and a
   row's shell icon (`AppIconSource`, `ThemeOf` with it). The shared parts into the SDK, public,
   namespaces kept: `MeterView` with its looks, faces and preview states, `MeterPart`/`MeterItemsWatch`,
-  `BarList`/`TileGrid`, `CoreGraphGrid`, `SparkBand` (`SparkScroll` with the data), `MeterSettingsRows`,
+  `BarList`/`TileGrid`, `CoreGraphGrid`, `SparkBand` (`SparkScroll` with the data), `MeterMenuLines` (was `MeterSettingsRows`),
   `GaugeConfig`/`MeterTiming`; `DetailView` and `DetailPart` (the sample state asks the part for its
   fixture sheet, `DetailPart.SampleSheet`, instead of naming the battery details), `DetailFace`,
   `FolderRealize`; the pairs' parts: `DriveIcon`/`DriveBar`, `AudioLook`, `AudioDeviceRow`,
-  `GpuAdapterRow`, `PingHostRow` with `HostAddress.DefaultPingHost`. Widget-only rules went with their
+  `GpuAdapterLine`, `PingHostLine` (were the page rows) with `HostAddress.DefaultPingHost`. Widget-only rules went with their
   widget (`PingWindow` to the ping details, `VisualizerLayout` and `SpectrumCanvas` to the visualizer,
   `HugRow` to the mixer); Core's `DetailConfigs.cs`, `DriveConfigs.cs`, `WidgetSettings.Details.cs` and
   the app's `Widgets/Meters`, `Widgets/Details` went with the last of their widgets. The recent

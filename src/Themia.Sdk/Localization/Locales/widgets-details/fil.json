@@ -66,6 +66,5 @@
   "details.gpu.fan": "Bentilador",
   "details.gpu.clock": "Clock ng GPU",
   "details.gpu.memoryClock": "Clock ng memory",
-  "details.settings.gpu.adapter.label": "Adapter",
-  "details.settings.gpu.adapter.desc": "Ang graphics adapter na ipinapakita ang mga numero"
+  "details.settings.gpu.adapter.label": "Adapter"
 }

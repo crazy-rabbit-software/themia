@@ -66,6 +66,5 @@
   "details.gpu.fan": "المروحة",
   "details.gpu.clock": "تردد GPU",
   "details.gpu.memoryClock": "تردد الذاكرة",
-  "details.settings.gpu.adapter.label": "المحول",
-  "details.settings.gpu.adapter.desc": "محول الرسومات الذي تُعرض أرقامه"
+  "details.settings.gpu.adapter.label": "المحول"
 }

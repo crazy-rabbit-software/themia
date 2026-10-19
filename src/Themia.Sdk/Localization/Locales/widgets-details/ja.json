@@ -66,6 +66,5 @@
   "details.gpu.fan": "ファン",
   "details.gpu.clock": "GPU クロック",
   "details.gpu.memoryClock": "メモリ クロック",
-  "details.settings.gpu.adapter.label": "アダプター",
-  "details.settings.gpu.adapter.desc": "値を表示するグラフィックス アダプター"
+  "details.settings.gpu.adapter.label": "アダプター"
 }

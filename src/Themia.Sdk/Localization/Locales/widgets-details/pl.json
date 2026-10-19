@@ -66,6 +66,5 @@
   "details.gpu.fan": "Wentylator",
   "details.gpu.clock": "Taktowanie GPU",
   "details.gpu.memoryClock": "Taktowanie pamięci",
-  "details.settings.gpu.adapter.label": "Karta",
-  "details.settings.gpu.adapter.desc": "Karta graficzna, której dane są pokazywane"
+  "details.settings.gpu.adapter.label": "Karta"
 }

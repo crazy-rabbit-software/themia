@@ -66,6 +66,5 @@
   "details.gpu.fan": "Feni",
   "details.gpu.clock": "Saa ya GPU",
   "details.gpu.memoryClock": "Saa ya kumbukumbu",
-  "details.settings.gpu.adapter.label": "Adapta",
-  "details.settings.gpu.adapter.desc": "Adapta ya michoro ambayo takwimu zake zinaonyeshwa"
+  "details.settings.gpu.adapter.label": "Adapta"
 }

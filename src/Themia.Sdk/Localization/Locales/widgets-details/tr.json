@@ -66,6 +66,5 @@
   "details.gpu.fan": "Fan",
   "details.gpu.clock": "GPU saat hızı",
   "details.gpu.memoryClock": "Bellek saat hızı",
-  "details.settings.gpu.adapter.label": "Bağdaştırıcı",
-  "details.settings.gpu.adapter.desc": "Değerleri gösterilen grafik bağdaştırıcısı"
+  "details.settings.gpu.adapter.label": "Bağdaştırıcı"
 }

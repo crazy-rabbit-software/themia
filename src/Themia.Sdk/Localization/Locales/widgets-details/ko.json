@@ -66,6 +66,5 @@
   "details.gpu.fan": "팬",
   "details.gpu.clock": "GPU 클럭",
   "details.gpu.memoryClock": "메모리 클럭",
-  "details.settings.gpu.adapter.label": "어댑터",
-  "details.settings.gpu.adapter.desc": "수치를 표시할 그래픽 어댑터"
+  "details.settings.gpu.adapter.label": "어댑터"
 }

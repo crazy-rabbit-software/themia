@@ -66,6 +66,5 @@
   "details.gpu.fan": "Ventola",
   "details.gpu.clock": "Frequenza GPU",
   "details.gpu.memoryClock": "Frequenza memoria",
-  "details.settings.gpu.adapter.label": "Scheda",
-  "details.settings.gpu.adapter.desc": "La scheda grafica di cui si mostrano i valori"
+  "details.settings.gpu.adapter.label": "Scheda"
 }

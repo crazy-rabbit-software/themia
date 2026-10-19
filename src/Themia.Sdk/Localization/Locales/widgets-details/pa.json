@@ -66,6 +66,5 @@
   "details.gpu.fan": "ਪੱਖਾ",
   "details.gpu.clock": "GPU ਕਲੌਕ",
   "details.gpu.memoryClock": "ਮੈਮੋਰੀ ਕਲੌਕ",
-  "details.settings.gpu.adapter.label": "ਅਡੈਪਟਰ",
-  "details.settings.gpu.adapter.desc": "ਉਹ ਗ੍ਰਾਫ਼ਿਕਸ ਅਡੈਪਟਰ ਜਿਸਦੇ ਅੰਕੜੇ ਦਿਖਾਏ ਜਾਂਦੇ ਹਨ"
+  "details.settings.gpu.adapter.label": "ਅਡੈਪਟਰ"
 }

@@ -66,6 +66,5 @@
   "details.gpu.fan": "ఫ్యాన్",
   "details.gpu.clock": "GPU క్లాక్",
   "details.gpu.memoryClock": "మెమరీ క్లాక్",
-  "details.settings.gpu.adapter.label": "అడాప్టర్",
-  "details.settings.gpu.adapter.desc": "గణాంకాలు చూపబడే గ్రాఫిక్స్ అడాప్టర్"
+  "details.settings.gpu.adapter.label": "అడాప్టర్"
 }

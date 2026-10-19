@@ -66,6 +66,5 @@
   "details.gpu.fan": "Lüfter",
   "details.gpu.clock": "GPU-Takt",
   "details.gpu.memoryClock": "Speichertakt",
-  "details.settings.gpu.adapter.label": "Grafikkarte",
-  "details.settings.gpu.adapter.desc": "Die Grafikkarte, deren Werte angezeigt werden"
+  "details.settings.gpu.adapter.label": "Grafikkarte"
 }

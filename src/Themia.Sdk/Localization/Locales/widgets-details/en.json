@@ -66,6 +66,5 @@
   "details.gpu.fan": "Fan",
   "details.gpu.clock": "GPU clock",
   "details.gpu.memoryClock": "Memory clock",
-  "details.settings.gpu.adapter.label": "Adapter",
-  "details.settings.gpu.adapter.desc": "The graphics adapter whose figures are shown"
+  "details.settings.gpu.adapter.label": "Adapter"
 }

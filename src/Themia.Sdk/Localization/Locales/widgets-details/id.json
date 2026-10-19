@@ -66,6 +66,5 @@
   "details.gpu.fan": "Kipas",
   "details.gpu.clock": "Clock GPU",
   "details.gpu.memoryClock": "Clock memori",
-  "details.settings.gpu.adapter.label": "Adaptor",
-  "details.settings.gpu.adapter.desc": "Adaptor grafis yang angkanya ditampilkan"
+  "details.settings.gpu.adapter.label": "Adaptor"
 }

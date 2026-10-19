@@ -66,6 +66,5 @@
   "details.gpu.fan": "पंखा",
   "details.gpu.clock": "GPU क्लॉक",
   "details.gpu.memoryClock": "मेमोरी क्लॉक",
-  "details.settings.gpu.adapter.label": "एडेप्टर",
-  "details.settings.gpu.adapter.desc": "वह ग्राफ़िक्स एडेप्टर जिसके आँकड़े दिखाए जाते हैं"
+  "details.settings.gpu.adapter.label": "एडेप्टर"
 }

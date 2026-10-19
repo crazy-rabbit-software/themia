@@ -293,6 +293,14 @@ internal static class EditBarRender
             (clock, "clock-zone-many", "Timezone", "a"),
             (clock, "clock-zone-none", "Timezone", "qqqq"),
             (weather, "weather-location", Str.Shell_Place_Location.Text(), null),
+
+            // The meters' and details' lines: the span under Style, a drive, the ping host, a choice.
+            ([new(new WidgetId("cpu"), 200, 160, 280, 180, HeaderPlacement.Top, true)], "cpu-span", Str.Styles_Label.Text() + "/" + Str.WidgetsB_Settings_Meters_ChartSpan_Label.Text(), null),
+            ([new(new WidgetId("ping"), 200, 160, 280, 180, HeaderPlacement.Top, true)], "ping-style", Str.Styles_Label.Text(), null),
+            ([new(new WidgetId("disk"), 200, 160, 280, 180, HeaderPlacement.Top, true)], "disk-drive", "Drive", null),
+            ([new(new WidgetId("pingDetails"), 200, 160, 300, 220, HeaderPlacement.Top, true)], "pingdetails-window", "Statistics cover", null),
+            ([new(new WidgetId("topProcesses"), 200, 160, 300, 240, HeaderPlacement.Top, true)], "processes-rows", "Rows", null),
+            ([new(new WidgetId("networkDetails"), 200, 160, 300, 240, HeaderPlacement.Top, true)], "networkdetails-appearance", appearance, null),
         ];
 
         foreach (var (layout, name, path, type) in submenus)

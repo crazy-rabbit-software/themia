@@ -66,6 +66,5 @@
   "details.gpu.fan": "Вентилятор",
   "details.gpu.clock": "Частота GPU",
   "details.gpu.memoryClock": "Частота памяти",
-  "details.settings.gpu.adapter.label": "Адаптер",
-  "details.settings.gpu.adapter.desc": "Графический адаптер, показатели которого отображаются"
+  "details.settings.gpu.adapter.label": "Адаптер"
 }

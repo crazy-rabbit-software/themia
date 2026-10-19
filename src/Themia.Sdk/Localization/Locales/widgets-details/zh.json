@@ -66,6 +66,5 @@
   "details.gpu.fan": "风扇",
   "details.gpu.clock": "GPU 频率",
   "details.gpu.memoryClock": "显存频率",
-  "details.settings.gpu.adapter.label": "适配器",
-  "details.settings.gpu.adapter.desc": "显示其数据的图形适配器"
+  "details.settings.gpu.adapter.label": "适配器"
 }

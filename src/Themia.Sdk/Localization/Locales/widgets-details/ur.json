@@ -66,6 +66,5 @@
   "details.gpu.fan": "پنکھا",
   "details.gpu.clock": "GPU کلاک",
   "details.gpu.memoryClock": "میموری کلاک",
-  "details.settings.gpu.adapter.label": "اڈاپٹر",
-  "details.settings.gpu.adapter.desc": "وہ گرافکس اڈاپٹر جس کے اعداد دکھائے جاتے ہیں"
+  "details.settings.gpu.adapter.label": "اڈاپٹر"
 }

@@ -535,9 +535,10 @@ busy desktop ([S-6601]), Debug, private bytes.
 - **[S-108]** A timeout or an unreachable host is a displayed state, not an error: logged once per
   transition, never once per tick, and the reading's tooltip names the host so `--` says what failed
   ([S-1762]: the tile carries no caption).
-- **[S-109]** The ping host is validated at **both** boundaries — the settings box and the probe. An
-  implausible value is never persisted, and an empty box means the default host, named in the panel,
-  never "probe nothing".
+- **[S-109]** The ping host is validated at **both** boundaries — the box it is typed in and the probe.
+  An implausible value is never persisted (the properties menu's Host question refuses it as typed,
+  `PingHostLine.Refuse`, 2026-10-19), and an empty box means the default host, named at the end of
+  the Host line, never "probe nothing".
 - **[S-111a]** A sparkline's x-axis is a fixed window of slots, not "spread whatever samples are held
   across the full width". The newest sample is pinned to the right edge and each older one steps left
   by exactly one slot, so the trace grows in from the right and reaches the left edge only when the
@@ -3080,9 +3081,12 @@ plots and how it is coloured. Layout is the SDK's `MeterFace` (tests `MeterFaceT
   screen and a burst is not averaged away. Slots are fixed by each point's absolute position
   (`SampleRing.Added`), so only the newest slot moves as points arrive. Defaults: CPU, memory,
   network, GPU 1 min; disk 5 min; battery and ping 15 min.
-- **[S-1122]** A meter's settings page ends with the shared rows: Show history, Chart span (no Refresh, no interval, [S-1120]). A styled meter has no Show history: its graph style is the history ([S-6267]).
-  The kind's own rows (a drive, a host, adapters) come first; CPU, memory, battery and network
-  have none.
+- **[S-1122]** A meter's history lines are shared (`MeterMenuLines`, on the properties menu since 2026-10-19,
+  [S-3719]; no settings page): Chart span under Style in the look that draws a history, none in a look
+  without one ([S-6074]); no Refresh, no interval ([S-1120]). A styled meter has no Show history: its
+  graph style is the history ([S-6267]); a meter without styles would have Show history and the span
+  on the first level. The kind's own lines (a drive, a host, adapters) stand on the first level,
+  after Appearance; CPU, memory, battery and network have none.
 - **[S-1123]** Pressure colours, as the original: usage accent < 70 %, caution 70–89 %, critical
   ≥ 90 % (CPU, memory); a battery success > 50 %, caution 21–50 %, critical ≤ 20 %,
   accent while charging. Compared in whole percent. They colour the chart (and the battery glyph) —
@@ -4156,7 +4160,7 @@ history are the same in every style. Tests `IoStylesTests` (`S626x_`, `S627x_`).
   ring on a wide strip when 120 DIPs are left for them, else under it, each only where it fits whole;
   the ring keeps at least 48 DIPs.
 - **[S-6267]** Only the graph style draws the history (`GaugeConfig.DrawsHistory`); a styled meter's
-  page offers no Show history switch ([S-1122]), the chart span stays.
+  menu offers no Show history switch ([S-1122]), the chart span stays (under Style).
 - [S-6270]: moved with the Network widget into its module's `SPEC.md` (`src/Widgets/Themia.Widget.Network/`).
 - **[S-6271]** Disk: `DiskConfig.Style`, **Graph** ([S-1820]) and **Bars** ([S-6265]). A bar's share
   is its rate against the top the graph would have: the doubling of 1 MB/s past the peak of the last

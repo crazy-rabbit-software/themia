@@ -66,6 +66,5 @@
   "details.gpu.fan": "Quạt",
   "details.gpu.clock": "Xung nhịp GPU",
   "details.gpu.memoryClock": "Xung nhịp bộ nhớ",
-  "details.settings.gpu.adapter.label": "Bộ điều hợp",
-  "details.settings.gpu.adapter.desc": "Bộ điều hợp đồ họa có số liệu được hiển thị"
+  "details.settings.gpu.adapter.label": "Bộ điều hợp"
 }
