@@ -37,8 +37,6 @@
   "widgetsC.tasks.overdueOn": "ਮਿਆਦ ਲੰਘੀ · {date}",
   "widgetsC.tasks.untitledTask": "(ਬਿਨਾਂ ਸਿਰਲੇਖ ਕਾਰਜ)",
   "widgetsC.tasks.markDone": "ਪੂਰਾ ਵਜੋਂ ਨਿਸ਼ਾਨ ਲਾਓ",
-  "widgetsC.tasks.settings.layout.label": "ਖਾਕਾ",
-  "widgetsC.tasks.settings.layout.desc": "ਸੂਚੀ: ਸਿਰਲੇਖ ਹੇਠਾਂ ਨਿਯਤ ਮਿਤੀ। ਸੰਖੇਪ: ਉਸਦੇ ਨਾਲ",
   "widgetsC.tasks.renameListFailed": "ਸੂਚੀ ਦਾ ਨਾਮ ਨਹੀਂ ਬਦਲਿਆ ਜਾ ਸਕਿਆ",
   "widgetsC.volume.settings.defaultOutput": "ਡਿਫ਼ੌਲਟ ਆਉਟਪੁੱਟ",
   "widgetsC.volume.settings.chosenDevice": "ਚੁਣੀ ਡਿਵਾਈਸ",

@@ -36,8 +36,6 @@
   "widgetsC.tasks.overdueOn": "Overdue · {date}",
   "widgetsC.tasks.untitledTask": "(untitled task)",
   "widgetsC.tasks.markDone": "Mark as done",
-  "widgetsC.tasks.settings.layout.label": "Layout",
-  "widgetsC.tasks.settings.layout.desc": "List: the due date under the title. Compact: beside it",
   "widgetsC.tasks.renameListFailed": "Could not rename the list",
   "widgetsC.volume.settings.defaultOutput": "Default output",
   "widgetsC.volume.settings.chosenDevice": "Chosen device",

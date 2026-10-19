@@ -19,7 +19,7 @@
   "widgetsC.tasks.dueOn": "期限: {date}",
   "widgetsC.tasks.dueOnOverdue": "期限: {date} (期限切れ)",
   "widgetsC.tasks.error.forbidden": "このアカウントは Themia にタスクの読み取りを許可していません。許可するには再度サインインしてください。",
-  "widgetsC.tasks.error.notFound": "そのタスク リストはもうありません。ウィジェットの設定で別のリストを選んでください。",
+  "widgetsC.tasks.error.notFound": "そのタスク リストはもうありません。編集モードで、ウィジェットのメニューから別のリストを選んでください。",
   "widgetsC.tasks.highPriority": "重要度: 高",
   "widgetsC.tasks.listEmpty": "このリストにはまだタスクがありません。",
   "widgetsC.tasks.loading": "タスクを読み込んでいます…",

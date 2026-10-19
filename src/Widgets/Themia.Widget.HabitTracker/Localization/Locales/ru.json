@@ -18,7 +18,7 @@
   "widgetsB.habits.empty": "Привычек пока нет.",
   "widgetsB.habits.emptyAdd": "Привычек пока нет.\nДобавьте ниже.",
   "widgetsB.habits.inARow": "{units} подряд",
-  "widgetsB.habits.listDeleted": "Этот список привычек удален.\nВыберите список в параметрах виджета.",
+  "widgetsB.habits.listDeleted": "Этот список привычек удален.\nВыберите список в меню виджета в режиме правки.",
   "widgetsB.habits.markDone": "Отметить как выполненное {when}",
   "widgetsB.habits.markNotDone": "Отметить как невыполненное {when}",
   "widgetsB.habits.namePlaceholder": "Название привычки",

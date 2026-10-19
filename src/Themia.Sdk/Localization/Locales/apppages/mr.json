@@ -1,7 +1,6 @@
 {
   "$comment": "Machine-written translations: every string in this file needs native review.",
   "shell.views.reorderHint": "दृश्य हलवण्यासाठी ते दुसऱ्यावर ड्रॅग करा, किंवा दृश्यावर Alt+Shift+Up किंवा Down दाबा.",
-  "shell.list.reorderHint": "आयटम हलवण्यासाठी तो दुसऱ्यावर ड्रॅग करा, किंवा आयटमवर Alt+Shift+Up किंवा Down दाबा.",
   "shell.view.colour": "रंग",
   "shell.view.colourDesc": "दृश्य बार आणि या विंडोमधील आयकॉनचा रंग",
   "shell.view.colourDefault": "मजकुराचा रंग",

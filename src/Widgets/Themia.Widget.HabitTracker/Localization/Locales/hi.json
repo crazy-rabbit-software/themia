@@ -18,7 +18,7 @@
   "widgetsB.habits.empty": "अभी कोई आदत नहीं।",
   "widgetsB.habits.emptyAdd": "अभी कोई आदत नहीं।\nनीचे एक जोड़ें।",
   "widgetsB.habits.inARow": "लगातार {units}",
-  "widgetsB.habits.listDeleted": "यह आदत सूची हटा दी गई।\nइस विजेट की सेटिंग्स में कोई सूची चुनें।",
+  "widgetsB.habits.listDeleted": "यह आदत सूची हटा दी गई।\nसंपादन मोड में इस विजेट के मेनू से कोई सूची चुनें।",
   "widgetsB.habits.markDone": "{when} पूरा चिह्नित करें",
   "widgetsB.habits.markNotDone": "{when} अधूरा चिह्नित करें",
   "widgetsB.habits.namePlaceholder": "आदत का नाम",

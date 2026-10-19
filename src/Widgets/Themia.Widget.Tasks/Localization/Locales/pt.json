@@ -19,7 +19,7 @@
   "widgetsC.tasks.dueOn": "Vence: {date}",
   "widgetsC.tasks.dueOnOverdue": "Vence: {date} (atrasada)",
   "widgetsC.tasks.error.forbidden": "Esta conta não permite que o Themia leia suas tarefas. Entre novamente para conceder o acesso.",
-  "widgetsC.tasks.error.notFound": "Essa lista de tarefas não existe mais. Escolha outra nas configurações deste widget.",
+  "widgetsC.tasks.error.notFound": "Essa lista de tarefas não existe mais. Escolha outra no menu deste widget, no modo de edição.",
   "widgetsC.tasks.highPriority": "Prioridade alta",
   "widgetsC.tasks.listEmpty": "Ainda não há tarefas nesta lista.",
   "widgetsC.tasks.loading": "Carregando tarefas…",

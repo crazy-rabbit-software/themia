@@ -19,7 +19,7 @@
   "widgetsC.tasks.dueOn": "Uiterlijk {date}",
   "widgetsC.tasks.dueOnOverdue": "Uiterlijk {date} (te laat)",
   "widgetsC.tasks.error.forbidden": "Dit account staat Themia niet toe de taken te lezen. Meld je opnieuw aan om toestemming te geven.",
-  "widgetsC.tasks.error.notFound": "Die takenlijst is er niet meer. Kies een andere in de instellingen van deze widget.",
+  "widgetsC.tasks.error.notFound": "Die takenlijst is er niet meer. Kies een andere in het menu van deze widget, in de bewerkmodus.",
   "widgetsC.tasks.highPriority": "Hoge prioriteit",
   "widgetsC.tasks.listEmpty": "Nog geen taken in deze lijst.",
   "widgetsC.tasks.loading": "Taken laden…",

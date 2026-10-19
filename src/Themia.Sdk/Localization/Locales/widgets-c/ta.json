@@ -37,8 +37,6 @@
   "widgetsC.tasks.overdueOn": "காலம் கடந்தது · {date}",
   "widgetsC.tasks.untitledTask": "(தலைப்பில்லாத பணி)",
   "widgetsC.tasks.markDone": "முடிந்ததாகக் குறி",
-  "widgetsC.tasks.settings.layout.label": "தளவமைப்பு",
-  "widgetsC.tasks.settings.layout.desc": "பட்டியல்: தலைப்பின் கீழ் இறுதித் தேதி. கச்சிதம்: அதன் அருகில்",
   "widgetsC.tasks.renameListFailed": "பட்டியலை மறுபெயரிட முடியவில்லை",
   "widgetsC.volume.settings.defaultOutput": "இயல்புநிலை வெளியீடு",
   "widgetsC.volume.settings.chosenDevice": "தேர்ந்தெடுத்த சாதனம்",

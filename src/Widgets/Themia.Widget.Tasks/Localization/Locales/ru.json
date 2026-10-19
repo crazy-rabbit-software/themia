@@ -19,7 +19,7 @@
   "widgetsC.tasks.dueOn": "Срок: {date}",
   "widgetsC.tasks.dueOnOverdue": "Срок: {date} (просрочено)",
   "widgetsC.tasks.error.forbidden": "Эта учетная запись не разрешает Themia читать задачи. Войдите снова, чтобы предоставить доступ.",
-  "widgetsC.tasks.error.notFound": "Этого списка задач больше нет. Выберите другой в параметрах виджета.",
+  "widgetsC.tasks.error.notFound": "Этого списка задач больше нет. Выберите другой в меню виджета в режиме правки.",
   "widgetsC.tasks.highPriority": "Высокий приоритет",
   "widgetsC.tasks.listEmpty": "В этом списке пока нет задач.",
   "widgetsC.tasks.loading": "Загрузка задач…",

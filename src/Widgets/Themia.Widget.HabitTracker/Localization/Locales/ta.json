@@ -18,7 +18,7 @@
   "widgetsB.habits.empty": "இன்னும் பழக்கங்கள் இல்லை.",
   "widgetsB.habits.emptyAdd": "இன்னும் பழக்கங்கள் இல்லை.\nகீழே ஒன்றைச் சேர்க்கவும்.",
   "widgetsB.habits.inARow": "தொடர்ந்து {units}",
-  "widgetsB.habits.listDeleted": "இந்தப் பழக்கப் பட்டியல் நீக்கப்பட்டது.\nஇந்த விட்ஜெட்டின் அமைப்புகளில் ஒரு பட்டியலைத் தேர்ந்தெடுக்கவும்.",
+  "widgetsB.habits.listDeleted": "இந்தப் பழக்கப் பட்டியல் நீக்கப்பட்டது.\nதிருத்தப் பயன்முறையில் இந்த விட்ஜெட்டின் மெனுவில் ஒரு பட்டியலைத் தேர்ந்தெடுக்கவும்.",
   "widgetsB.habits.markDone": "{when} முடிந்ததாகக் குறி",
   "widgetsB.habits.markNotDone": "{when} முடியாததாகக் குறி",
   "widgetsB.habits.namePlaceholder": "பழக்கத்தின் பெயர்",

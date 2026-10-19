@@ -18,7 +18,7 @@
   "widgetsB.habits.empty": "まだ習慣はありません。",
   "widgetsB.habits.emptyAdd": "まだ習慣はありません。\n下で追加してください。",
   "widgetsB.habits.inARow": "{units}連続",
-  "widgetsB.habits.listDeleted": "この習慣リストは削除されました。\nこのウィジェットの設定でリストを選んでください。",
+  "widgetsB.habits.listDeleted": "この習慣リストは削除されました。\n編集モードで、このウィジェットのメニューからリストを選んでください。",
   "widgetsB.habits.markDone": "{when}の完了にする",
   "widgetsB.habits.markNotDone": "{when}の未完了にする",
   "widgetsB.habits.namePlaceholder": "習慣の名前",

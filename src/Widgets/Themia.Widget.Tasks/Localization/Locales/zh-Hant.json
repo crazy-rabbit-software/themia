@@ -19,7 +19,7 @@
   "widgetsC.tasks.dueOn": "到期：{date}",
   "widgetsC.tasks.dueOnOverdue": "到期：{date}（已逾期）",
   "widgetsC.tasks.error.forbidden": "此帳戶不允許 Themia 讀取其工作。請重新登入以授予權限。",
-  "widgetsC.tasks.error.notFound": "該工作清單已不存在。請在此小工具的設定中選擇其他清單。",
+  "widgetsC.tasks.error.notFound": "該工作清單已不存在。請在編輯模式中，從此小工具的選單選擇其他清單。",
   "widgetsC.tasks.highPriority": "高優先順序",
   "widgetsC.tasks.listEmpty": "此清單中尚無工作。",
   "widgetsC.tasks.loading": "正在載入工作…",

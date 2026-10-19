@@ -19,7 +19,7 @@
   "widgetsC.tasks.dueOn": "Son tarih: {date}",
   "widgetsC.tasks.dueOnOverdue": "Son tarih: {date} (gecikmiş)",
   "widgetsC.tasks.error.forbidden": "Bu hesap Themia'nın görevlerini okumasına izin vermiyor. İzin vermek için yeniden oturum açın.",
-  "widgetsC.tasks.error.notFound": "Bu görev listesi artık yok. Bu pencere öğesinin ayarlarından başka bir liste seçin.",
+  "widgetsC.tasks.error.notFound": "Bu görev listesi artık yok. Düzenleme modunda bu pencere öğesinin menüsünden başka bir liste seçin.",
   "widgetsC.tasks.highPriority": "Yüksek öncelik",
   "widgetsC.tasks.listEmpty": "Bu listede henüz görev yok.",
   "widgetsC.tasks.loading": "Görevler yükleniyor…",

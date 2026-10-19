@@ -6,7 +6,7 @@
   "notes.namePlaceholder": "Notiztitel",
   "notes.newName": "Neue Notiz",
   "notes.newNote": "Neue Notiz",
-  "notes.noteGone": "Diese Notiz wurde gelöscht. Wähle in den Einstellungen eine andere.",
+  "notes.noteGone": "Diese Notiz wurde gelöscht. Wähle im Bearbeitungsmodus im Menü dieses Widgets eine andere.",
   "notes.notesLabel": "Notizen",
   "notes.placeholder": "Schreibe hier deine Notizen...",
   "widget.notes.fmt.bold": "Fett",

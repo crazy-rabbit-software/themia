@@ -19,7 +19,7 @@
   "widgetsC.tasks.dueOn": "নির্ধারিত {date}",
   "widgetsC.tasks.dueOnOverdue": "নির্ধারিত {date} (সময় পেরিয়েছে)",
   "widgetsC.tasks.error.forbidden": "এই অ্যাকাউন্ট Themia-কে কাজ পড়তে দেয় না। অনুমতি দিতে আবার সাইন ইন করুন।",
-  "widgetsC.tasks.error.notFound": "সেই কাজের তালিকাটি আর নেই। এই উইজেটের সেটিংসে অন্য একটি বেছে নিন।",
+  "widgetsC.tasks.error.notFound": "সেই কাজের তালিকাটি আর নেই। সম্পাদনা মোডে এই উইজেটের মেনু থেকে অন্য একটি বেছে নিন।",
   "widgetsC.tasks.highPriority": "উচ্চ অগ্রাধিকার",
   "widgetsC.tasks.listEmpty": "এই তালিকায় এখনও কোনো কাজ নেই।",
   "widgetsC.tasks.loading": "কাজ লোড হচ্ছে…",

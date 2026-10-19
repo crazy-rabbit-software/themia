@@ -37,8 +37,6 @@
   "widgetsC.tasks.overdueOn": "Te laat · {date}",
   "widgetsC.tasks.untitledTask": "(taak zonder titel)",
   "widgetsC.tasks.markDone": "Markeren als voltooid",
-  "widgetsC.tasks.settings.layout.label": "Indeling",
-  "widgetsC.tasks.settings.layout.desc": "Lijst: de vervaldatum onder de titel. Compact: ernaast",
   "widgetsC.tasks.renameListFailed": "De naam van de lijst kon niet worden gewijzigd",
   "widgetsC.volume.settings.defaultOutput": "Standaarduitvoer",
   "widgetsC.volume.settings.chosenDevice": "Gekozen apparaat",

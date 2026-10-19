@@ -18,7 +18,7 @@
   "widgetsB.habits.empty": "Nenhum hábito ainda.",
   "widgetsB.habits.emptyAdd": "Nenhum hábito ainda.\nAdicione um abaixo.",
   "widgetsB.habits.inARow": "{units} seguidos",
-  "widgetsB.habits.listDeleted": "Esta lista de hábitos foi excluída.\nEscolha uma lista nas configurações deste widget.",
+  "widgetsB.habits.listDeleted": "Esta lista de hábitos foi excluída.\nEscolha uma lista no menu deste widget, no modo de edição.",
   "widgetsB.habits.markDone": "Marcar como feito {when}",
   "widgetsB.habits.markNotDone": "Marcar como não feito {when}",
   "widgetsB.habits.namePlaceholder": "Nome do hábito",

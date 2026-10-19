@@ -37,8 +37,6 @@
   "widgetsC.tasks.overdueOn": "সময় পেরিয়েছে · {date}",
   "widgetsC.tasks.untitledTask": "(শিরোনামহীন কাজ)",
   "widgetsC.tasks.markDone": "সম্পন্ন হিসেবে চিহ্নিত করুন",
-  "widgetsC.tasks.settings.layout.label": "লেআউট",
-  "widgetsC.tasks.settings.layout.desc": "তালিকা: শিরোনামের নিচে তারিখ। কমপ্যাক্ট: পাশে",
   "widgetsC.tasks.renameListFailed": "তালিকার নাম বদলানো যায়নি",
   "widgetsC.volume.settings.defaultOutput": "ডিফল্ট আউটপুট",
   "widgetsC.volume.settings.chosenDevice": "বেছে নেওয়া ডিভাইস",

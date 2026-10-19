@@ -37,8 +37,6 @@
   "widgetsC.tasks.overdueOn": "Vencida · {date}",
   "widgetsC.tasks.untitledTask": "(tarea sin título)",
   "widgetsC.tasks.markDone": "Marcar como completada",
-  "widgetsC.tasks.settings.layout.label": "Diseño",
-  "widgetsC.tasks.settings.layout.desc": "Lista: la fecha debajo del título. Compacta: al lado",
   "widgetsC.tasks.renameListFailed": "No se pudo cambiar el nombre de la lista",
   "widgetsC.volume.settings.defaultOutput": "Salida predeterminada",
   "widgetsC.volume.settings.chosenDevice": "Dispositivo elegido",

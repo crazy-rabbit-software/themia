@@ -37,8 +37,6 @@
   "widgetsC.tasks.overdueOn": "Просрочено · {date}",
   "widgetsC.tasks.untitledTask": "(задача без названия)",
   "widgetsC.tasks.markDone": "Отметить как выполненную",
-  "widgetsC.tasks.settings.layout.label": "Макет",
-  "widgetsC.tasks.settings.layout.desc": "Список: срок под названием. Компактный: рядом с ним",
   "widgetsC.tasks.renameListFailed": "Не удалось переименовать список",
   "widgetsC.volume.settings.defaultOutput": "Устройство вывода по умолчанию",
   "widgetsC.volume.settings.chosenDevice": "Выбранное устройство",

@@ -18,7 +18,7 @@
   "widgetsB.habits.empty": "还没有习惯。",
   "widgetsB.habits.emptyAdd": "还没有习惯。\n请在下方添加。",
   "widgetsB.habits.inARow": "连续 {units}",
-  "widgetsB.habits.listDeleted": "此习惯列表已删除。\n请在此小组件的设置中选择列表。",
+  "widgetsB.habits.listDeleted": "此习惯列表已删除。\n请在编辑模式下，从此小组件的菜单中选择列表。",
   "widgetsB.habits.markDone": "标记为{when}已完成",
   "widgetsB.habits.markNotDone": "标记为{when}未完成",
   "widgetsB.habits.namePlaceholder": "习惯名称",

@@ -19,7 +19,7 @@
   "widgetsC.tasks.dueOn": "기한 {date}",
   "widgetsC.tasks.dueOnOverdue": "기한 {date}(지남)",
   "widgetsC.tasks.error.forbidden": "이 계정은 Themia가 작업을 읽도록 허용하지 않습니다. 다시 로그인하여 권한을 부여하세요.",
-  "widgetsC.tasks.error.notFound": "해당 작업 목록이 더 이상 없습니다. 이 위젯의 설정에서 다른 목록을 선택하세요.",
+  "widgetsC.tasks.error.notFound": "해당 작업 목록이 더 이상 없습니다. 편집 모드에서 이 위젯의 메뉴에서 다른 목록을 선택하세요.",
   "widgetsC.tasks.highPriority": "높은 우선 순위",
   "widgetsC.tasks.listEmpty": "아직 이 목록에 작업이 없습니다.",
   "widgetsC.tasks.loading": "작업을 불러오는 중…",

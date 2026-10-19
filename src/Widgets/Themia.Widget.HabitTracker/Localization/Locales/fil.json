@@ -18,7 +18,7 @@
   "widgetsB.habits.empty": "Wala pang gawi.",
   "widgetsB.habits.emptyAdd": "Wala pang gawi.\nMagdagdag sa ibaba.",
   "widgetsB.habits.inARow": "{units} nang sunod-sunod",
-  "widgetsB.habits.listDeleted": "Binura ang listahan ng gawi na ito.\nPumili ng listahan sa mga setting ng widget na ito.",
+  "widgetsB.habits.listDeleted": "Binura ang listahan ng gawi na ito.\nPumili ng listahan sa menu ng widget na ito sa edit mode.",
   "widgetsB.habits.markDone": "Markahan bilang tapos {when}",
   "widgetsB.habits.markNotDone": "Markahan bilang hindi tapos {when}",
   "widgetsB.habits.namePlaceholder": "Pangalan ng gawi",

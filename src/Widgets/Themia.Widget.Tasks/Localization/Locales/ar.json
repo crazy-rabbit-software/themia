@@ -19,7 +19,7 @@
   "widgetsC.tasks.dueOn": "تستحق {date}",
   "widgetsC.tasks.dueOnOverdue": "تستحق {date} (متأخرة)",
   "widgetsC.tasks.error.forbidden": "لا يسمح هذا الحساب لـ Themia بقراءة مهامه. سجّل الدخول مرة أخرى لمنح الإذن.",
-  "widgetsC.tasks.error.notFound": "لم تعد قائمة المهام هذه موجودة. اختر قائمة أخرى في إعدادات هذه الأداة.",
+  "widgetsC.tasks.error.notFound": "لم تعد قائمة المهام هذه موجودة. اختر قائمة أخرى من قائمة هذه الأداة في وضع التحرير.",
   "widgetsC.tasks.highPriority": "أولوية عالية",
   "widgetsC.tasks.listEmpty": "لا مهام في هذه القائمة بعد.",
   "widgetsC.tasks.loading": "جارٍ تحميل المهام…",

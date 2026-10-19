@@ -18,7 +18,7 @@
   "widgetsB.habits.empty": "अद्याप सवयी नाहीत.",
   "widgetsB.habits.emptyAdd": "अद्याप सवयी नाहीत.\nखाली एक जोडा.",
   "widgetsB.habits.inARow": "सलग {units}",
-  "widgetsB.habits.listDeleted": "ही सवय सूची हटवली गेली.\nया विजेटच्या सेटिंग्जमध्ये सूची निवडा.",
+  "widgetsB.habits.listDeleted": "ही सवय सूची हटवली गेली.\nसंपादन मोडमध्ये या विजेटच्या मेनूमधून सूची निवडा.",
   "widgetsB.habits.markDone": "{when} पूर्ण म्हणून चिन्हांकित करा",
   "widgetsB.habits.markNotDone": "{when} अपूर्ण म्हणून चिन्हांकित करा",
   "widgetsB.habits.namePlaceholder": "सवयीचे नाव",

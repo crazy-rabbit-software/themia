@@ -37,8 +37,6 @@
   "widgetsC.tasks.overdueOn": "Zaległe · {date}",
   "widgetsC.tasks.untitledTask": "(zadanie bez tytułu)",
   "widgetsC.tasks.markDone": "Oznacz jako ukończone",
-  "widgetsC.tasks.settings.layout.label": "Układ",
-  "widgetsC.tasks.settings.layout.desc": "Lista: termin pod tytułem. Kompaktowy: obok",
   "widgetsC.tasks.renameListFailed": "Nie udało się zmienić nazwy listy",
   "widgetsC.volume.settings.defaultOutput": "Domyślne wyjście",
   "widgetsC.volume.settings.chosenDevice": "Wybrane urządzenie",

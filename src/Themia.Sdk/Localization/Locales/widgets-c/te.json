@@ -37,8 +37,6 @@
   "widgetsC.tasks.overdueOn": "గడువు దాటింది · {date}",
   "widgetsC.tasks.untitledTask": "(పేరులేని పని)",
   "widgetsC.tasks.markDone": "పూర్తయినట్లు గుర్తించు",
-  "widgetsC.tasks.settings.layout.label": "లేఅవుట్",
-  "widgetsC.tasks.settings.layout.desc": "జాబితా: శీర్షిక కింద గడువు తేదీ. కాంపాక్ట్: దాని పక్కన",
   "widgetsC.tasks.renameListFailed": "జాబితా పేరు మార్చలేకపోయాము",
   "widgetsC.volume.settings.defaultOutput": "డిఫాల్ట్ అవుట్‌పుట్",
   "widgetsC.volume.settings.chosenDevice": "ఎంచుకున్న పరికరం",

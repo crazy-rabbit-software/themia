@@ -19,7 +19,7 @@
   "widgetsC.tasks.dueOn": "{date} સુધીમાં",
   "widgetsC.tasks.dueOnOverdue": "{date} સુધીમાં (મુદત વીતી ગઈ)",
   "widgetsC.tasks.error.forbidden": "આ એકાઉન્ટ Themia ને તેનાં કાર્યો વાંચવા દેતું નથી. મંજૂરી આપવા ફરીથી સાઇન ઇન કરો.",
-  "widgetsC.tasks.error.notFound": "તે કાર્ય સૂચિ હવે ત્યાં નથી. આ વિજેટના સેટિંગ્સમાં બીજી પસંદ કરો.",
+  "widgetsC.tasks.error.notFound": "તે કાર્ય સૂચિ હવે ત્યાં નથી. સંપાદન મોડમાં આ વિજેટના મેનૂમાંથી બીજી પસંદ કરો.",
   "widgetsC.tasks.highPriority": "ઉચ્ચ પ્રાથમિકતા",
   "widgetsC.tasks.listEmpty": "આ સૂચિમાં હજી કોઈ કાર્યો નથી.",
   "widgetsC.tasks.loading": "કાર્યો લોડ થઈ રહ્યાં છે…",

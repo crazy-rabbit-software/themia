@@ -18,7 +18,7 @@
   "widgetsB.habits.empty": "ยังไม่มีนิสัย",
   "widgetsB.habits.emptyAdd": "ยังไม่มีนิสัย\nเพิ่มนิสัยด้านล่าง",
   "widgetsB.habits.inARow": "ติดต่อกัน {units}",
-  "widgetsB.habits.listDeleted": "รายการนิสัยนี้ถูกลบแล้ว\nเลือกรายการในการตั้งค่าของวิดเจ็ตนี้",
+  "widgetsB.habits.listDeleted": "รายการนิสัยนี้ถูกลบแล้ว\nเลือกรายการในเมนูของวิดเจ็ตนี้ในโหมดแก้ไข",
   "widgetsB.habits.markDone": "ทำเครื่องหมายว่าทำแล้ว{when}",
   "widgetsB.habits.markNotDone": "ทำเครื่องหมายว่ายังไม่ได้ทำ{when}",
   "widgetsB.habits.namePlaceholder": "ชื่อนิสัย",

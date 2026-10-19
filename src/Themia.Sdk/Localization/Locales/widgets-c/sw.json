@@ -37,8 +37,6 @@
   "widgetsC.tasks.overdueOn": "Imechelewa · {date}",
   "widgetsC.tasks.untitledTask": "(kazi bila kichwa)",
   "widgetsC.tasks.markDone": "Weka alama kuwa imekamilika",
-  "widgetsC.tasks.settings.layout.label": "Mpangilio",
-  "widgetsC.tasks.settings.layout.desc": "Orodha: tarehe ya mwisho chini ya kichwa. Fupi: kando yake",
   "widgetsC.tasks.renameListFailed": "Imeshindwa kubadilisha jina la orodha",
   "widgetsC.volume.settings.defaultOutput": "Towe chaguomsingi",
   "widgetsC.volume.settings.chosenDevice": "Kifaa kilichochaguliwa",

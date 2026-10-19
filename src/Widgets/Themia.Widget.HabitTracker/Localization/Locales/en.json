@@ -19,7 +19,7 @@
   "widgetsB.habits.empty": "No habits yet.",
   "widgetsB.habits.emptyAdd": "No habits yet.\nAdd one below.",
   "widgetsB.habits.inARow": "{units} in a row",
-  "widgetsB.habits.listDeleted": "This habit list was deleted.\nPick a list in this widget's settings.",
+  "widgetsB.habits.listDeleted": "This habit list was deleted.\nPick a list on this widget's menu in edit mode.",
   "widgetsB.habits.markDone": "Mark as done {when}",
   "widgetsB.habits.markNotDone": "Mark as not done {when}",
   "widgetsB.habits.namePlaceholder": "Habit name",

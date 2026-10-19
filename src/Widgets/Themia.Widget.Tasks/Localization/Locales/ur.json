@@ -19,7 +19,7 @@
   "widgetsC.tasks.dueOn": "آخری تاریخ {date}",
   "widgetsC.tasks.dueOnOverdue": "آخری تاریخ {date} (تاخیر)",
   "widgetsC.tasks.error.forbidden": "یہ اکاؤنٹ Themia کو اپنے کام پڑھنے کی اجازت نہیں دیتا۔ اجازت دینے کے لیے دوبارہ سائن ان کریں۔",
-  "widgetsC.tasks.error.notFound": "کاموں کی وہ فہرست اب وہاں نہیں ہے۔ اس ویجیٹ کی ترتیبات میں کوئی اور چنیں۔",
+  "widgetsC.tasks.error.notFound": "کاموں کی وہ فہرست اب وہاں نہیں ہے۔ ترمیم کے موڈ میں اس ویجیٹ کے مینو سے کوئی اور چنیں۔",
   "widgetsC.tasks.highPriority": "اعلیٰ ترجیح",
   "widgetsC.tasks.listEmpty": "اس فہرست میں ابھی کوئی کام نہیں۔",
   "widgetsC.tasks.loading": "کام لوڈ ہو رہے ہیں…",

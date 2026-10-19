@@ -18,7 +18,7 @@
   "widgetsB.habits.empty": "لا عادات بعد.",
   "widgetsB.habits.emptyAdd": "لا عادات بعد.\nأضف عادة أدناه.",
   "widgetsB.habits.inARow": "{units} متتالية",
-  "widgetsB.habits.listDeleted": "حُذفت قائمة العادات هذه.\nاختر قائمة في إعدادات هذه الأداة.",
+  "widgetsB.habits.listDeleted": "حُذفت قائمة العادات هذه.\nاختر قائمة من قائمة هذه الأداة في وضع التحرير.",
   "widgetsB.habits.markDone": "وضع علامة كمنجزة {when}",
   "widgetsB.habits.markNotDone": "وضع علامة كغير منجزة {when}",
   "widgetsB.habits.namePlaceholder": "اسم العادة",

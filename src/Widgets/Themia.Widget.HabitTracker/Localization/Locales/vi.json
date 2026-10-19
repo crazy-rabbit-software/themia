@@ -18,7 +18,7 @@
   "widgetsB.habits.empty": "Chưa có thói quen.",
   "widgetsB.habits.emptyAdd": "Chưa có thói quen.\nHãy thêm một thói quen bên dưới.",
   "widgetsB.habits.inARow": "{units} liên tiếp",
-  "widgetsB.habits.listDeleted": "Danh sách thói quen này đã bị xóa.\nHãy chọn danh sách trong cài đặt của tiện ích này.",
+  "widgetsB.habits.listDeleted": "Danh sách thói quen này đã bị xóa.\nHãy chọn danh sách trong menu của tiện ích này ở chế độ chỉnh sửa.",
   "widgetsB.habits.markDone": "Đánh dấu đã xong {when}",
   "widgetsB.habits.markNotDone": "Đánh dấu chưa xong {when}",
   "widgetsB.habits.namePlaceholder": "Tên thói quen",

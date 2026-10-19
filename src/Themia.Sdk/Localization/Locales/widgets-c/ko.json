@@ -37,8 +37,6 @@
   "widgetsC.tasks.overdueOn": "기한 지남 · {date}",
   "widgetsC.tasks.untitledTask": "(제목 없는 작업)",
   "widgetsC.tasks.markDone": "완료로 표시",
-  "widgetsC.tasks.settings.layout.label": "레이아웃",
-  "widgetsC.tasks.settings.layout.desc": "목록: 제목 아래에 기한. 간단히: 제목 옆에 기한",
   "widgetsC.tasks.renameListFailed": "목록 이름을 바꿀 수 없습니다",
   "widgetsC.volume.settings.defaultOutput": "기본 출력",
   "widgetsC.volume.settings.chosenDevice": "선택한 장치",

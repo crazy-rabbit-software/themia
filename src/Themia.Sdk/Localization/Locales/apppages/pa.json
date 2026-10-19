@@ -1,7 +1,6 @@
 {
   "$comment": "Machine-written translations: every string in this file needs native review.",
   "shell.views.reorderHint": "ਕਿਸੇ ਵਿਊ ਨੂੰ ਹਿਲਾਉਣ ਲਈ ਉਸਨੂੰ ਦੂਜੇ ਉੱਤੇ ਖਿੱਚੋ, ਜਾਂ ਵਿਊ ਉੱਤੇ Alt+Shift+Up ਜਾਂ Down ਦਬਾਓ।",
-  "shell.list.reorderHint": "ਕਿਸੇ ਆਈਟਮ ਨੂੰ ਹਿਲਾਉਣ ਲਈ ਉਸਨੂੰ ਦੂਜੀ ਉੱਤੇ ਖਿੱਚੋ, ਜਾਂ ਆਈਟਮ ਉੱਤੇ Alt+Shift+Up ਜਾਂ Down ਦਬਾਓ।",
   "shell.view.colour": "ਰੰਗ",
   "shell.view.colourDesc": "ਵਿਊ ਬਾਰ ਵਿੱਚ ਅਤੇ ਇਸ ਵਿੰਡੋ ਵਿੱਚ ਆਈਕਨ ਦਾ ਰੰਗ",
   "shell.view.colourDefault": "ਟੈਕਸਟ ਦਾ ਰੰਗ",

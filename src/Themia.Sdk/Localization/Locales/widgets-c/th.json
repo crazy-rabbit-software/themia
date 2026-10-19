@@ -37,8 +37,6 @@
   "widgetsC.tasks.overdueOn": "เลยกำหนด · {date}",
   "widgetsC.tasks.untitledTask": "(งานที่ไม่มีชื่อ)",
   "widgetsC.tasks.markDone": "ทำเครื่องหมายว่าเสร็จแล้ว",
-  "widgetsC.tasks.settings.layout.label": "เค้าโครง",
-  "widgetsC.tasks.settings.layout.desc": "รายการ: วันครบกำหนดใต้ชื่อเรื่อง กะทัดรัด: ข้างชื่อเรื่อง",
   "widgetsC.tasks.renameListFailed": "ไม่สามารถเปลี่ยนชื่อรายการได้",
   "widgetsC.volume.settings.defaultOutput": "เอาต์พุตเริ่มต้น",
   "widgetsC.volume.settings.chosenDevice": "อุปกรณ์ที่เลือก",

@@ -1,7 +1,6 @@
 {
   "$comment": "Machine-written translations: every string in this file needs native review.",
   "shell.views.reorderHint": "將檢視拖曳到另一個檢視上即可移動，或在檢視上按 Alt+Shift+向上鍵或向下鍵。",
-  "shell.list.reorderHint": "將項目拖曳到另一個項目上即可移動，或在項目上按 Alt+Shift+向上鍵或向下鍵。",
   "shell.view.colour": "色彩",
   "shell.view.colourDesc": "圖示在檢視列和此視窗中的色彩",
   "shell.view.colourDefault": "文字色彩",

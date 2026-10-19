@@ -1,7 +1,6 @@
 {
   "$comment": "Machine-written translations: every string in this file needs native review.",
   "shell.views.reorderHint": "ビューを別のビューにドラッグして移動するか、ビュー上で Alt+Shift+↑ または ↓ キーを押します。",
-  "shell.list.reorderHint": "項目を別の項目にドラッグして移動するか、項目上で Alt+Shift+↑ または ↓ キーを押します。",
   "shell.view.colour": "色",
   "shell.view.colourDesc": "ビュー バーとこのウィンドウでのアイコンの色",
   "shell.view.colourDefault": "文字の色",

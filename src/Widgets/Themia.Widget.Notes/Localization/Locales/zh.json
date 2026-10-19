@@ -6,7 +6,7 @@
   "notes.namePlaceholder": "便签标题",
   "notes.newName": "新建便签",
   "notes.newNote": "新建便签",
-  "notes.noteGone": "此便签已被删除。请在设置中选择其他便签。",
+  "notes.noteGone": "此便签已被删除。请在编辑模式下，从此小组件的菜单中选择其他便签。",
   "notes.notesLabel": "便签",
   "notes.placeholder": "在此输入你的便签...",
   "widget.notes.fmt.bold": "粗体",

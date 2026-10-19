@@ -6,7 +6,7 @@
   "notes.namePlaceholder": "便箋標題",
   "notes.newName": "新便箋",
   "notes.newNote": "新增便箋",
-  "notes.noteGone": "此便箋已被刪除。請在設定中選擇其他便箋。",
+  "notes.noteGone": "此便箋已被刪除。請在編輯模式中，從此小工具的選單選擇其他便箋。",
   "notes.notesLabel": "便箋",
   "notes.placeholder": "在此輸入您的便箋...",
   "widget.notes.fmt.bold": "粗體",

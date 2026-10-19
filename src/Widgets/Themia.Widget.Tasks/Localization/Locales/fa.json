@@ -19,7 +19,7 @@
   "widgetsC.tasks.dueOn": "سررسید {date}",
   "widgetsC.tasks.dueOnOverdue": "سررسید {date} (گذشته)",
   "widgetsC.tasks.error.forbidden": "این حساب به Themia اجازه خواندن کارهایش را نمی‌دهد. برای دادن اجازه دوباره وارد شوید.",
-  "widgetsC.tasks.error.notFound": "آن فهرست کار دیگر وجود ندارد. در تنظیمات این ویجت فهرست دیگری انتخاب کنید.",
+  "widgetsC.tasks.error.notFound": "آن فهرست کار دیگر وجود ندارد. در حالت ویرایش، از منوی این ویجت فهرست دیگری انتخاب کنید.",
   "widgetsC.tasks.highPriority": "اولویت بالا",
   "widgetsC.tasks.listEmpty": "هنوز کاری در این فهرست نیست.",
   "widgetsC.tasks.loading": "در حال بارگیری کارها…",

@@ -18,7 +18,7 @@
   "widgetsB.habits.empty": "هنوز عادتی نیست.",
   "widgetsB.habits.emptyAdd": "هنوز عادتی نیست.\nدر پایین یکی اضافه کنید.",
   "widgetsB.habits.inARow": "{units} پیاپی",
-  "widgetsB.habits.listDeleted": "این فهرست عادت حذف شد.\nدر تنظیمات این ویجت فهرستی انتخاب کنید.",
+  "widgetsB.habits.listDeleted": "این فهرست عادت حذف شد.\nدر حالت ویرایش، از منوی این ویجت فهرستی انتخاب کنید.",
   "widgetsB.habits.markDone": "علامت‌گذاری به‌عنوان انجام‌شده {when}",
   "widgetsB.habits.markNotDone": "علامت‌گذاری به‌عنوان انجام‌نشده {when}",
   "widgetsB.habits.namePlaceholder": "نام عادت",

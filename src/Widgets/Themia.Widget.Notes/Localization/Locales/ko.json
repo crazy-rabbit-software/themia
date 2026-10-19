@@ -6,7 +6,7 @@
   "notes.namePlaceholder": "메모 제목",
   "notes.newName": "새 메모",
   "notes.newNote": "새 메모",
-  "notes.noteGone": "이 메모가 삭제되었습니다. 설정에서 다른 메모를 선택하세요.",
+  "notes.noteGone": "이 메모가 삭제되었습니다. 편집 모드에서 이 위젯의 메뉴에서 다른 메모를 선택하세요.",
   "notes.notesLabel": "메모",
   "notes.placeholder": "여기에 메모를 입력하세요...",
   "widget.notes.fmt.bold": "굵게",

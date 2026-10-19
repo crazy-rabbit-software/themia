@@ -19,7 +19,7 @@
   "widgetsC.tasks.dueOn": "Termin: {date}",
   "widgetsC.tasks.dueOnOverdue": "Termin: {date} (zaległe)",
   "widgetsC.tasks.error.forbidden": "To konto nie pozwala Themii czytać zadań. Zaloguj się ponownie, aby udzielić dostępu.",
-  "widgetsC.tasks.error.notFound": "Ta lista zadań już nie istnieje. Wybierz inną w ustawieniach widżetu.",
+  "widgetsC.tasks.error.notFound": "Ta lista zadań już nie istnieje. Wybierz inną w menu widżetu w trybie edycji.",
   "widgetsC.tasks.highPriority": "Wysoki priorytet",
   "widgetsC.tasks.listEmpty": "Na tej liście nie ma jeszcze zadań.",
   "widgetsC.tasks.loading": "Ładowanie zadań…",

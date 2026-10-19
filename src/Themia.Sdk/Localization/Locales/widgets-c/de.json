@@ -37,8 +37,6 @@
   "widgetsC.tasks.overdueOn": "Überfällig · {date}",
   "widgetsC.tasks.untitledTask": "(Aufgabe ohne Titel)",
   "widgetsC.tasks.markDone": "Als erledigt markieren",
-  "widgetsC.tasks.settings.layout.label": "Layout",
-  "widgetsC.tasks.settings.layout.desc": "Liste: Fälligkeit unter dem Titel. Kompakt: daneben",
   "widgetsC.tasks.renameListFailed": "Die Liste konnte nicht umbenannt werden",
   "widgetsC.volume.settings.defaultOutput": "Standardausgabe",
   "widgetsC.volume.settings.chosenDevice": "Ausgewähltes Gerät",

@@ -37,8 +37,6 @@
   "widgetsC.tasks.overdueOn": "Lokaci ya wuce · {date}",
   "widgetsC.tasks.untitledTask": "(aiki mara suna)",
   "widgetsC.tasks.markDone": "Yi alama an yi",
-  "widgetsC.tasks.settings.layout.label": "Tsari",
-  "widgetsC.tasks.settings.layout.desc": "Jeri: ranar wa'adi a ƙarƙashin take. Matse: kusa da shi",
   "widgetsC.tasks.renameListFailed": "Ba a iya sake sunan jerin ba",
   "widgetsC.volume.settings.defaultOutput": "Fitarwar asali",
   "widgetsC.volume.settings.chosenDevice": "Na'urar da aka zaɓa",

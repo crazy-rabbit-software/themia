@@ -18,7 +18,7 @@
   "widgetsB.habits.empty": "ابھی کوئی عادت نہیں۔",
   "widgetsB.habits.emptyAdd": "ابھی کوئی عادت نہیں۔\nنیچے ایک شامل کریں۔",
   "widgetsB.habits.inARow": "مسلسل {units}",
-  "widgetsB.habits.listDeleted": "عادات کی یہ فہرست حذف کر دی گئی۔\nاس ویجیٹ کی ترتیبات میں کوئی فہرست چنیں۔",
+  "widgetsB.habits.listDeleted": "عادات کی یہ فہرست حذف کر دی گئی۔\nترمیم کے موڈ میں اس ویجیٹ کے مینو سے کوئی فہرست چنیں۔",
   "widgetsB.habits.markDone": "{when} ہو گیا کے بطور نشان زد کریں",
   "widgetsB.habits.markNotDone": "{when} نہیں ہوا کے بطور نشان زد کریں",
   "widgetsB.habits.namePlaceholder": "عادت کا نام",

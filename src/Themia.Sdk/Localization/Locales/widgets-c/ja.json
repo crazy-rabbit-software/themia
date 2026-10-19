@@ -37,8 +37,6 @@
   "widgetsC.tasks.overdueOn": "期限切れ · {date}",
   "widgetsC.tasks.untitledTask": "(無題のタスク)",
   "widgetsC.tasks.markDone": "完了にする",
-  "widgetsC.tasks.settings.layout.label": "レイアウト",
-  "widgetsC.tasks.settings.layout.desc": "リスト: 期限をタイトルの下に表示。コンパクト: 横に表示",
   "widgetsC.tasks.renameListFailed": "リスト名を変更できませんでした",
   "widgetsC.volume.settings.defaultOutput": "既定の出力",
   "widgetsC.volume.settings.chosenDevice": "選択したデバイス",

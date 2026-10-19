@@ -18,7 +18,7 @@
   "widgetsB.habits.empty": "હજી કોઈ આદતો નથી.",
   "widgetsB.habits.emptyAdd": "હજી કોઈ આદતો નથી.\nનીચે એક ઉમેરો.",
   "widgetsB.habits.inARow": "સતત {units}",
-  "widgetsB.habits.listDeleted": "આ આદત સૂચિ કાઢી નખાઈ છે.\nઆ વિજેટના સેટિંગ્સમાં સૂચિ પસંદ કરો.",
+  "widgetsB.habits.listDeleted": "આ આદત સૂચિ કાઢી નખાઈ છે.\nસંપાદન મોડમાં આ વિજેટના મેનૂમાંથી સૂચિ પસંદ કરો.",
   "widgetsB.habits.markDone": "{when} પૂર્ણ તરીકે ચિહ્નિત કરો",
   "widgetsB.habits.markNotDone": "{when} અપૂર્ણ તરીકે ચિહ્નિત કરો",
   "widgetsB.habits.namePlaceholder": "આદતનું નામ",

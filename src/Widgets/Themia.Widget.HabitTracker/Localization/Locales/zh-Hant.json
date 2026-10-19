@@ -18,7 +18,7 @@
   "widgetsB.habits.empty": "尚無習慣。",
   "widgetsB.habits.emptyAdd": "尚無習慣。\n請在下方新增。",
   "widgetsB.habits.inARow": "連續 {units}",
-  "widgetsB.habits.listDeleted": "此習慣清單已被刪除。\n請在此小工具的設定中選擇清單。",
+  "widgetsB.habits.listDeleted": "此習慣清單已被刪除。\n請在編輯模式中，從此小工具的選單選擇清單。",
   "widgetsB.habits.markDone": "標示為{when}已完成",
   "widgetsB.habits.markNotDone": "標示為{when}未完成",
   "widgetsB.habits.namePlaceholder": "習慣名稱",

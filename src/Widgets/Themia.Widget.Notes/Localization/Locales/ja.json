@@ -6,7 +6,7 @@
   "notes.namePlaceholder": "メモのタイトル",
   "notes.newName": "新しいメモ",
   "notes.newNote": "新しいメモ",
-  "notes.noteGone": "このメモは削除されました。設定で別のメモを選んでください。",
+  "notes.noteGone": "このメモは削除されました。編集モードで、このウィジェットのメニューから別のメモを選んでください。",
   "notes.notesLabel": "メモ",
   "notes.placeholder": "ここにメモを入力...",
   "widget.notes.fmt.bold": "太字",

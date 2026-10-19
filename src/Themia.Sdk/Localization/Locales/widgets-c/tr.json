@@ -37,8 +37,6 @@
   "widgetsC.tasks.overdueOn": "Gecikmiş · {date}",
   "widgetsC.tasks.untitledTask": "(başlıksız görev)",
   "widgetsC.tasks.markDone": "Tamamlandı olarak işaretle",
-  "widgetsC.tasks.settings.layout.label": "Düzen",
-  "widgetsC.tasks.settings.layout.desc": "Liste: son tarih başlığın altında. Sıkışık: yanında",
   "widgetsC.tasks.renameListFailed": "Liste yeniden adlandırılamadı",
   "widgetsC.volume.settings.defaultOutput": "Varsayılan çıkış",
   "widgetsC.volume.settings.chosenDevice": "Seçilen cihaz",

@@ -37,8 +37,6 @@
   "widgetsC.tasks.overdueOn": "تاخیر · {date}",
   "widgetsC.tasks.untitledTask": "(بلا عنوان کام)",
   "widgetsC.tasks.markDone": "مکمل کے بطور نشان زد کریں",
-  "widgetsC.tasks.settings.layout.label": "لے آؤٹ",
-  "widgetsC.tasks.settings.layout.desc": "فہرست: آخری تاریخ عنوان کے نیچے۔ مختصر: اس کے ساتھ",
   "widgetsC.tasks.renameListFailed": "فہرست کا نام نہیں بدلا جا سکا",
   "widgetsC.volume.settings.defaultOutput": "ڈیفالٹ آؤٹ پٹ",
   "widgetsC.volume.settings.chosenDevice": "منتخب آلہ",

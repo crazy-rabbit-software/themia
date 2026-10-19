@@ -18,7 +18,7 @@
   "widgetsB.habits.empty": "Noch keine Gewohnheiten.",
   "widgetsB.habits.emptyAdd": "Noch keine Gewohnheiten.\nFügen Sie unten eine hinzu.",
   "widgetsB.habits.inARow": "{units} in Folge",
-  "widgetsB.habits.listDeleted": "Diese Gewohnheitsliste wurde gelöscht.\nWählen Sie eine Liste in den Einstellungen dieses Widgets.",
+  "widgetsB.habits.listDeleted": "Diese Gewohnheitsliste wurde gelöscht.\nWählen Sie im Bearbeitungsmodus im Menü dieses Widgets eine Liste.",
   "widgetsB.habits.markDone": "Für {when} als erledigt markieren",
   "widgetsB.habits.markNotDone": "Für {when} als nicht erledigt markieren",
   "widgetsB.habits.namePlaceholder": "Name der Gewohnheit",

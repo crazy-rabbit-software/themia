@@ -6,7 +6,7 @@
   "notes.namePlaceholder": "Titre de la note",
   "notes.newName": "Nouvelle note",
   "notes.newNote": "Nouvelle note",
-  "notes.noteGone": "Cette note a été supprimée. Choisis-en une autre dans les réglages.",
+  "notes.noteGone": "Cette note a été supprimée. Choisis-en une autre dans le menu de ce widget, en mode modification.",
   "notes.notesLabel": "Notes",
   "notes.placeholder": "Écris tes notes ici...",
   "widget.notes.fmt.bold": "Gras",

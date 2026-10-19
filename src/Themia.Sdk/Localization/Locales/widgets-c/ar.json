@@ -37,8 +37,6 @@
   "widgetsC.tasks.overdueOn": "متأخرة · {date}",
   "widgetsC.tasks.untitledTask": "(مهمة بلا عنوان)",
   "widgetsC.tasks.markDone": "وضع علامة كمكتملة",
-  "widgetsC.tasks.settings.layout.label": "التخطيط",
-  "widgetsC.tasks.settings.layout.desc": "قائمة: تاريخ الاستحقاق تحت العنوان. مضغوط: بجواره",
   "widgetsC.tasks.renameListFailed": "تعذّرت إعادة تسمية القائمة",
   "widgetsC.volume.settings.defaultOutput": "الإخراج الافتراضي",
   "widgetsC.volume.settings.chosenDevice": "الجهاز المختار",

@@ -19,7 +19,7 @@
   "widgetsC.tasks.dueOn": "Scadenza: {date}",
   "widgetsC.tasks.dueOnOverdue": "Scadenza: {date} (scaduta)",
   "widgetsC.tasks.error.forbidden": "Questo account non consente a Themia di leggere le sue attività. Accedi di nuovo per concederlo.",
-  "widgetsC.tasks.error.notFound": "Quell'elenco di attività non esiste più. Scegline un altro nelle impostazioni del widget.",
+  "widgetsC.tasks.error.notFound": "Quell'elenco di attività non esiste più. Scegline un altro nel menu del widget, in modalità modifica.",
   "widgetsC.tasks.highPriority": "Priorità alta",
   "widgetsC.tasks.listEmpty": "Ancora nessuna attività in questo elenco.",
   "widgetsC.tasks.loading": "Caricamento attività…",

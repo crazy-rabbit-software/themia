@@ -37,8 +37,6 @@
   "widgetsC.tasks.overdueOn": "मुदत उलटली · {date}",
   "widgetsC.tasks.untitledTask": "(शीर्षकहीन कार्य)",
   "widgetsC.tasks.markDone": "पूर्ण म्हणून चिन्हांकित करा",
-  "widgetsC.tasks.settings.layout.label": "लेआउट",
-  "widgetsC.tasks.settings.layout.desc": "सूची: शीर्षकाखाली मुदत तारीख. संक्षिप्त: शेजारी",
   "widgetsC.tasks.renameListFailed": "यादीचे नाव बदलता आले नाही",
   "widgetsC.volume.settings.defaultOutput": "डीफॉल्ट आउटपुट",
   "widgetsC.volume.settings.chosenDevice": "निवडलेले डिव्हाइस",

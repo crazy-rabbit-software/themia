@@ -1,7 +1,6 @@
 {
   "$comment": "Machine-written translations: every string in this file needs native review.",
   "shell.views.reorderHint": "Перетащите вид на другой, чтобы переместить его, или нажмите Alt+Shift+Стрелка вверх или вниз на виде.",
-  "shell.list.reorderHint": "Перетащите элемент на другой, чтобы переместить его, или нажмите Alt+Shift+Стрелка вверх или вниз на элементе.",
   "shell.view.colour": "Цвет",
   "shell.view.colourDesc": "Цвет значка на панели видов и в этом окне",
   "shell.view.colourDefault": "Цвет текста",

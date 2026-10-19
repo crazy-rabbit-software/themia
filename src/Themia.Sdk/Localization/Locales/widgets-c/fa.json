@@ -37,8 +37,6 @@
   "widgetsC.tasks.overdueOn": "سررسید گذشته · {date}",
   "widgetsC.tasks.untitledTask": "(کار بدون عنوان)",
   "widgetsC.tasks.markDone": "علامت‌گذاری به‌عنوان انجام‌شده",
-  "widgetsC.tasks.settings.layout.label": "چیدمان",
-  "widgetsC.tasks.settings.layout.desc": "فهرست: تاریخ سررسید زیر عنوان. فشرده: کنار آن",
   "widgetsC.tasks.renameListFailed": "تغییر نام فهرست ممکن نشد",
   "widgetsC.volume.settings.defaultOutput": "خروجی پیش‌فرض",
   "widgetsC.volume.settings.chosenDevice": "دستگاه انتخاب‌شده",

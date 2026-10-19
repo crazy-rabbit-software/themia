@@ -19,7 +19,7 @@
   "widgetsC.tasks.dueOn": "ਨਿਯਤ {date}",
   "widgetsC.tasks.dueOnOverdue": "ਨਿਯਤ {date} (ਮਿਆਦ ਲੰਘੀ)",
   "widgetsC.tasks.error.forbidden": "ਇਹ ਖਾਤਾ Themia ਨੂੰ ਆਪਣੇ ਕਾਰਜ ਪੜ੍ਹਨ ਨਹੀਂ ਦਿੰਦਾ। ਇਜਾਜ਼ਤ ਦੇਣ ਲਈ ਦੁਬਾਰਾ ਸਾਈਨ ਇਨ ਕਰੋ।",
-  "widgetsC.tasks.error.notFound": "ਉਹ ਕਾਰਜ ਸੂਚੀ ਹੁਣ ਉੱਥੇ ਨਹੀਂ ਹੈ। ਇਸ ਵਿਜੇਟ ਦੀਆਂ ਸੈਟਿੰਗਾਂ ਵਿੱਚ ਕੋਈ ਹੋਰ ਚੁਣੋ।",
+  "widgetsC.tasks.error.notFound": "ਉਹ ਕਾਰਜ ਸੂਚੀ ਹੁਣ ਉੱਥੇ ਨਹੀਂ ਹੈ। ਸੰਪਾਦਨ ਮੋਡ ਵਿੱਚ ਇਸ ਵਿਜੇਟ ਦੇ ਮੀਨੂ ਤੋਂ ਕੋਈ ਹੋਰ ਚੁਣੋ।",
   "widgetsC.tasks.highPriority": "ਉੱਚ ਤਰਜੀਹ",
   "widgetsC.tasks.listEmpty": "ਇਸ ਸੂਚੀ ਵਿੱਚ ਹਾਲੇ ਕੋਈ ਕਾਰਜ ਨਹੀਂ।",
   "widgetsC.tasks.loading": "ਕਾਰਜ ਲੋਡ ਹੋ ਰਹੇ ਹਨ…",

@@ -18,7 +18,7 @@
   "widgetsB.habits.empty": "Brak nawyków.",
   "widgetsB.habits.emptyAdd": "Brak nawyków.\nDodaj jeden poniżej.",
   "widgetsB.habits.inARow": "{units} z rzędu",
-  "widgetsB.habits.listDeleted": "Ta lista nawyków została usunięta.\nWybierz listę w ustawieniach widżetu.",
+  "widgetsB.habits.listDeleted": "Ta lista nawyków została usunięta.\nWybierz listę w menu widżetu w trybie edycji.",
   "widgetsB.habits.markDone": "Oznacz jako zrobione {when}",
   "widgetsB.habits.markNotDone": "Oznacz jako niezrobione {when}",
   "widgetsB.habits.namePlaceholder": "Nazwa nawyku",

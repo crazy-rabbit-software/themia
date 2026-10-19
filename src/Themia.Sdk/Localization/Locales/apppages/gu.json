@@ -1,7 +1,6 @@
 {
   "$comment": "Machine-written translations: every string in this file needs native review.",
   "shell.views.reorderHint": "વ્યૂને ખસેડવા માટે તેને બીજા પર ખેંચો, અથવા વ્યૂ પર Alt+Shift+Up કે Down દબાવો.",
-  "shell.list.reorderHint": "આઇટમને ખસેડવા માટે તેને બીજી પર ખેંચો, અથવા આઇટમ પર Alt+Shift+Up કે Down દબાવો.",
   "shell.view.colour": "રંગ",
   "shell.view.colourDesc": "વ્યૂ બારમાં અને આ વિન્ડોમાં આઇકનનો રંગ",
   "shell.view.colourDefault": "ટેક્સ્ટનો રંગ",

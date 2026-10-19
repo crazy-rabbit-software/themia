@@ -19,7 +19,7 @@
   "widgetsC.tasks.dueOn": "Hạn {date}",
   "widgetsC.tasks.dueOnOverdue": "Hạn {date} (quá hạn)",
   "widgetsC.tasks.error.forbidden": "Tài khoản này không cho Themia đọc tác vụ. Hãy đăng nhập lại để cấp quyền.",
-  "widgetsC.tasks.error.notFound": "Danh sách tác vụ đó không còn nữa. Hãy chọn danh sách khác trong cài đặt của tiện ích này.",
+  "widgetsC.tasks.error.notFound": "Danh sách tác vụ đó không còn nữa. Hãy chọn danh sách khác trong menu của tiện ích này ở chế độ chỉnh sửa.",
   "widgetsC.tasks.highPriority": "Ưu tiên cao",
   "widgetsC.tasks.listEmpty": "Danh sách này chưa có tác vụ.",
   "widgetsC.tasks.loading": "Đang tải tác vụ…",

@@ -1,7 +1,6 @@
 {
   "$comment": "Machine-written translations: every string in this file needs native review.",
   "shell.views.reorderHint": "برای جابه‌جایی، یک نما را روی نمای دیگر بکشید یا روی نما Alt+Shift+Up یا Down را فشار دهید.",
-  "shell.list.reorderHint": "برای جابه‌جایی، یک مورد را روی مورد دیگر بکشید یا روی مورد Alt+Shift+Up یا Down را فشار دهید.",
   "shell.view.colour": "رنگ",
   "shell.view.colourDesc": "رنگ نماد در نوار نما و در این پنجره",
   "shell.view.colourDefault": "رنگ متن",

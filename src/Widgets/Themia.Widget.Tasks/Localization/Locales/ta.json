@@ -19,7 +19,7 @@
   "widgetsC.tasks.dueOn": "{date} க்குள்",
   "widgetsC.tasks.dueOnOverdue": "{date} க்குள் (காலம் கடந்தது)",
   "widgetsC.tasks.error.forbidden": "இந்தக் கணக்கு அதன் பணிகளைப் படிக்க Themia ஐ அனுமதிக்கவில்லை. அனுமதி வழங்க மீண்டும் உள்நுழையவும்.",
-  "widgetsC.tasks.error.notFound": "அந்தப் பணிப் பட்டியல் இனி அங்கு இல்லை. இந்த விட்ஜெட்டின் அமைப்புகளில் வேறொன்றைத் தேர்ந்தெடுக்கவும்.",
+  "widgetsC.tasks.error.notFound": "அந்தப் பணிப் பட்டியல் இனி அங்கு இல்லை. திருத்தப் பயன்முறையில் இந்த விட்ஜெட்டின் மெனுவில் வேறொன்றைத் தேர்ந்தெடுக்கவும்.",
   "widgetsC.tasks.highPriority": "உயர் முன்னுரிமை",
   "widgetsC.tasks.listEmpty": "இந்தப் பட்டியலில் இன்னும் பணிகள் இல்லை.",
   "widgetsC.tasks.loading": "பணிகளை ஏற்றுகிறது…",

@@ -18,7 +18,7 @@
   "widgetsB.habits.empty": "아직 습관이 없습니다.",
   "widgetsB.habits.emptyAdd": "아직 습관이 없습니다.\n아래에서 추가하세요.",
   "widgetsB.habits.inARow": "{units} 연속",
-  "widgetsB.habits.listDeleted": "이 습관 목록이 삭제되었습니다.\n이 위젯의 설정에서 목록을 선택하세요.",
+  "widgetsB.habits.listDeleted": "이 습관 목록이 삭제되었습니다.\n편집 모드에서 이 위젯의 메뉴에서 목록을 선택하세요.",
   "widgetsB.habits.markDone": "{when} 완료로 표시",
   "widgetsB.habits.markNotDone": "{when} 완료 안 함으로 표시",
   "widgetsB.habits.namePlaceholder": "습관 이름",

@@ -18,7 +18,7 @@
   "widgetsB.habits.empty": "Henüz alışkanlık yok.",
   "widgetsB.habits.emptyAdd": "Henüz alışkanlık yok.\nAşağıdan bir tane ekleyin.",
   "widgetsB.habits.inARow": "Art arda {units}",
-  "widgetsB.habits.listDeleted": "Bu alışkanlık listesi silindi.\nBu pencere öğesinin ayarlarından bir liste seçin.",
+  "widgetsB.habits.listDeleted": "Bu alışkanlık listesi silindi.\nDüzenleme modunda bu pencere öğesinin menüsünden bir liste seçin.",
   "widgetsB.habits.markDone": "Yapıldı olarak işaretle: {when}",
   "widgetsB.habits.markNotDone": "Yapılmadı olarak işaretle: {when}",
   "widgetsB.habits.namePlaceholder": "Alışkanlık adı",

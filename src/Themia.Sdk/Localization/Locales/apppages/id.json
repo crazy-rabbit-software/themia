@@ -1,7 +1,6 @@
 {
   "$comment": "Machine-written translations: every string in this file needs native review.",
   "shell.views.reorderHint": "Seret tampilan ke tampilan lain untuk memindahkannya, atau tekan Alt+Shift+Atas atau Bawah pada tampilan.",
-  "shell.list.reorderHint": "Seret item ke item lain untuk memindahkannya, atau tekan Alt+Shift+Atas atau Bawah pada item.",
   "shell.view.colour": "Warna",
   "shell.view.colourDesc": "Warna ikon di bilah tampilan dan di jendela ini",
   "shell.view.colourDefault": "Warna teks",

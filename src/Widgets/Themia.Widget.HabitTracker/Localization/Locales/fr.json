@@ -18,7 +18,7 @@
   "widgetsB.habits.empty": "Aucune habitude pour l’instant.",
   "widgetsB.habits.emptyAdd": "Aucune habitude pour l’instant.\nAjoutez-en une ci-dessous.",
   "widgetsB.habits.inARow": "{units} d’affilée",
-  "widgetsB.habits.listDeleted": "Cette liste d’habitudes a été supprimée.\nChoisissez une liste dans les paramètres de ce widget.",
+  "widgetsB.habits.listDeleted": "Cette liste d’habitudes a été supprimée.\nChoisissez une liste dans le menu de ce widget, en mode modification.",
   "widgetsB.habits.markDone": "Marquer comme fait {when}",
   "widgetsB.habits.markNotDone": "Marquer comme pas fait {when}",
   "widgetsB.habits.namePlaceholder": "Nom de l’habitude",

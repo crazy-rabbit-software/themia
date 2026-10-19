@@ -37,8 +37,6 @@
   "widgetsC.tasks.overdueOn": "Terlambat · {date}",
   "widgetsC.tasks.untitledTask": "(tugas tanpa judul)",
   "widgetsC.tasks.markDone": "Tandai selesai",
-  "widgetsC.tasks.settings.layout.label": "Tata letak",
-  "widgetsC.tasks.settings.layout.desc": "Daftar: tanggal jatuh tempo di bawah judul. Ringkas: di sampingnya",
   "widgetsC.tasks.renameListFailed": "Tidak dapat mengganti nama daftar",
   "widgetsC.volume.settings.defaultOutput": "Output default",
   "widgetsC.volume.settings.chosenDevice": "Perangkat pilihan",

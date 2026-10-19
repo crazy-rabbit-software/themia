@@ -1,7 +1,6 @@
 {
   "$comment": "Machine-written translations: every string in this file needs native review.",
   "shell.views.reorderHint": "Arraste uma visualização sobre outra para movê-la ou pressione Alt+Shift+Seta para cima ou para baixo nela.",
-  "shell.list.reorderHint": "Arraste um item sobre outro para movê-lo ou pressione Alt+Shift+Seta para cima ou para baixo nele.",
   "shell.view.colour": "Cor",
   "shell.view.colourDesc": "Cor do ícone na barra de visualizações e aqui",
   "shell.view.colourDefault": "Cor do texto",

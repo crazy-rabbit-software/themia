@@ -19,7 +19,7 @@
   "widgetsC.tasks.dueOn": "Takdang petsa {date}",
   "widgetsC.tasks.dueOnOverdue": "Takdang petsa {date} (lampas na)",
   "widgetsC.tasks.error.forbidden": "Hindi pinapayagan ng account na ito ang Themia na basahin ang mga gawain nito. Mag-sign in ulit para payagan ito.",
-  "widgetsC.tasks.error.notFound": "Wala na roon ang listahan ng gawaing iyon. Pumili ng iba sa mga setting ng widget na ito.",
+  "widgetsC.tasks.error.notFound": "Wala na roon ang listahan ng gawaing iyon. Pumili ng iba sa menu ng widget na ito sa edit mode.",
   "widgetsC.tasks.highPriority": "Mataas na priyoridad",
   "widgetsC.tasks.listEmpty": "Wala pang gawain sa listahang ito.",
   "widgetsC.tasks.loading": "Nilo-load ang mga gawain…",

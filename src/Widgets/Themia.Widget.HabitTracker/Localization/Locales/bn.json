@@ -18,7 +18,7 @@
   "widgetsB.habits.empty": "এখনও কোনো অভ্যাস নেই।",
   "widgetsB.habits.emptyAdd": "এখনও কোনো অভ্যাস নেই।\nনিচে একটি যোগ করুন।",
   "widgetsB.habits.inARow": "টানা {units}",
-  "widgetsB.habits.listDeleted": "এই অভ্যাসের তালিকাটি মুছে ফেলা হয়েছে।\nএই উইজেটের সেটিংসে একটি তালিকা বেছে নিন।",
+  "widgetsB.habits.listDeleted": "এই অভ্যাসের তালিকাটি মুছে ফেলা হয়েছে।\nসম্পাদনা মোডে এই উইজেটের মেনু থেকে একটি তালিকা বেছে নিন।",
   "widgetsB.habits.markDone": "{when} সম্পন্ন হিসেবে চিহ্নিত করুন",
   "widgetsB.habits.markNotDone": "{when} অসম্পন্ন হিসেবে চিহ্নিত করুন",
   "widgetsB.habits.namePlaceholder": "অভ্যাসের নাম",

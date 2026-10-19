@@ -6,7 +6,7 @@
   "notes.namePlaceholder": "Название заметки",
   "notes.newName": "Новая заметка",
   "notes.newNote": "Новая заметка",
-  "notes.noteGone": "Эта заметка удалена. Выберите другую в параметрах.",
+  "notes.noteGone": "Эта заметка удалена. Выберите другую в меню виджета в режиме правки.",
   "notes.notesLabel": "Заметки",
   "notes.placeholder": "Введите заметки…",
   "widget.notes.fmt.bold": "Полужирный",

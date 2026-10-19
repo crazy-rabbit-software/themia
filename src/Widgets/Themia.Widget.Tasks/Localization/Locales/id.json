@@ -19,7 +19,7 @@
   "widgetsC.tasks.dueOn": "Jatuh tempo {date}",
   "widgetsC.tasks.dueOnOverdue": "Jatuh tempo {date} (terlambat)",
   "widgetsC.tasks.error.forbidden": "Akun ini tidak mengizinkan Themia membaca tugasnya. Masuk lagi untuk memberikan izin.",
-  "widgetsC.tasks.error.notFound": "Daftar tugas itu sudah tidak ada. Pilih daftar lain di pengaturan widget ini.",
+  "widgetsC.tasks.error.notFound": "Daftar tugas itu sudah tidak ada. Pilih daftar lain di menu widget ini dalam mode edit.",
   "widgetsC.tasks.highPriority": "Prioritas tinggi",
   "widgetsC.tasks.listEmpty": "Belum ada tugas di daftar ini.",
   "widgetsC.tasks.loading": "Memuat tugas…",

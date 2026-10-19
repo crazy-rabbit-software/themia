@@ -37,8 +37,6 @@
   "widgetsC.tasks.overdueOn": "अतिदेय · {date}",
   "widgetsC.tasks.untitledTask": "(बिना शीर्षक कार्य)",
   "widgetsC.tasks.markDone": "पूरा चिह्नित करें",
-  "widgetsC.tasks.settings.layout.label": "लेआउट",
-  "widgetsC.tasks.settings.layout.desc": "सूची: शीर्षक के नीचे नियत तिथि। कॉम्पैक्ट: बगल में",
   "widgetsC.tasks.renameListFailed": "सूची का नाम नहीं बदला जा सका",
   "widgetsC.volume.settings.defaultOutput": "डिफ़ॉल्ट आउटपुट",
   "widgetsC.volume.settings.chosenDevice": "चुना गया डिवाइस",

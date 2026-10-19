@@ -19,7 +19,7 @@
   "widgetsC.tasks.dueOn": "截止：{date}",
   "widgetsC.tasks.dueOnOverdue": "截止：{date}（已逾期）",
   "widgetsC.tasks.error.forbidden": "此帐户不允许 Themia 读取其任务。请重新登录以授予权限。",
-  "widgetsC.tasks.error.notFound": "该任务列表已不存在。请在此小组件的设置中选择其他列表。",
+  "widgetsC.tasks.error.notFound": "该任务列表已不存在。请在编辑模式下，从此小组件的菜单中选择其他列表。",
   "widgetsC.tasks.highPriority": "高优先级",
   "widgetsC.tasks.listEmpty": "此列表中还没有任务。",
   "widgetsC.tasks.loading": "正在加载任务…",

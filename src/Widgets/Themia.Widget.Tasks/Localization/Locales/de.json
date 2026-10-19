@@ -19,7 +19,7 @@
   "widgetsC.tasks.dueOn": "Fällig: {date}",
   "widgetsC.tasks.dueOnOverdue": "Fällig: {date} (überfällig)",
   "widgetsC.tasks.error.forbidden": "Dieses Konto erlaubt Themia nicht, seine Aufgaben zu lesen. Melde dich erneut an, um den Zugriff zu gewähren.",
-  "widgetsC.tasks.error.notFound": "Diese Aufgabenliste existiert nicht mehr. Wähle in den Einstellungen des Widgets eine andere aus.",
+  "widgetsC.tasks.error.notFound": "Diese Aufgabenliste existiert nicht mehr. Wähle im Bearbeitungsmodus im Menü des Widgets eine andere aus.",
   "widgetsC.tasks.highPriority": "Hohe Priorität",
   "widgetsC.tasks.listEmpty": "Diese Liste enthält noch keine Aufgaben.",
   "widgetsC.tasks.loading": "Aufgaben werden geladen…",

@@ -1,7 +1,6 @@
 {
   "$comment": "Machine-written translations: every string in this file needs native review.",
   "shell.views.reorderHint": "ลากมุมมองไปวางบนมุมมองอื่นเพื่อย้าย หรือกด Alt+Shift+Up หรือ Down บนมุมมอง",
-  "shell.list.reorderHint": "ลากรายการไปวางบนรายการอื่นเพื่อย้าย หรือกด Alt+Shift+Up หรือ Down บนรายการ",
   "shell.view.colour": "สี",
   "shell.view.colourDesc": "สีของไอคอนในแถบมุมมองและในหน้าต่างนี้",
   "shell.view.colourDefault": "สีข้อความ",

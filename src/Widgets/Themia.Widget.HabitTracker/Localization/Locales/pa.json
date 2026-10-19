@@ -18,7 +18,7 @@
   "widgetsB.habits.empty": "ਹਾਲੇ ਕੋਈ ਆਦਤ ਨਹੀਂ।",
   "widgetsB.habits.emptyAdd": "ਹਾਲੇ ਕੋਈ ਆਦਤ ਨਹੀਂ।\nਹੇਠਾਂ ਇੱਕ ਜੋੜੋ।",
   "widgetsB.habits.inARow": "ਲਗਾਤਾਰ {units}",
-  "widgetsB.habits.listDeleted": "ਇਹ ਆਦਤ ਸੂਚੀ ਮਿਟਾ ਦਿੱਤੀ ਗਈ ਸੀ।\nਇਸ ਵਿਜੇਟ ਦੀਆਂ ਸੈਟਿੰਗਾਂ ਵਿੱਚ ਕੋਈ ਸੂਚੀ ਚੁਣੋ।",
+  "widgetsB.habits.listDeleted": "ਇਹ ਆਦਤ ਸੂਚੀ ਮਿਟਾ ਦਿੱਤੀ ਗਈ ਸੀ।\nਸੰਪਾਦਨ ਮੋਡ ਵਿੱਚ ਇਸ ਵਿਜੇਟ ਦੇ ਮੀਨੂ ਤੋਂ ਕੋਈ ਸੂਚੀ ਚੁਣੋ।",
   "widgetsB.habits.markDone": "{when} ਹੋ ਗਿਆ ਵਜੋਂ ਨਿਸ਼ਾਨ ਲਾਓ",
   "widgetsB.habits.markNotDone": "{when} ਨਹੀਂ ਹੋਇਆ ਵਜੋਂ ਨਿਸ਼ਾਨ ਲਾਓ",
   "widgetsB.habits.namePlaceholder": "ਆਦਤ ਦਾ ਨਾਮ",

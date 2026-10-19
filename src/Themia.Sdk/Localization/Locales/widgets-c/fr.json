@@ -37,8 +37,6 @@
   "widgetsC.tasks.overdueOn": "En retard · {date}",
   "widgetsC.tasks.untitledTask": "(tâche sans titre)",
   "widgetsC.tasks.markDone": "Marquer comme terminée",
-  "widgetsC.tasks.settings.layout.label": "Disposition",
-  "widgetsC.tasks.settings.layout.desc": "Liste : l’échéance sous le titre. Compact : à côté",
   "widgetsC.tasks.renameListFailed": "Impossible de renommer la liste",
   "widgetsC.volume.settings.defaultOutput": "Sortie par défaut",
   "widgetsC.volume.settings.chosenDevice": "Périphérique choisi",

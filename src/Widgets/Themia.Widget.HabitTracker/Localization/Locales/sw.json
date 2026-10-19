@@ -18,7 +18,7 @@
   "widgetsB.habits.empty": "Bado hakuna mazoea.",
   "widgetsB.habits.emptyAdd": "Bado hakuna mazoea.\nOngeza moja hapa chini.",
   "widgetsB.habits.inARow": "{units} mfululizo",
-  "widgetsB.habits.listDeleted": "Orodha hii ya mazoea ilifutwa.\nChagua orodha kwenye mipangilio ya wijeti hii.",
+  "widgetsB.habits.listDeleted": "Orodha hii ya mazoea ilifutwa.\nChagua orodha kwenye menyu ya wijeti hii katika hali ya kuhariri.",
   "widgetsB.habits.markDone": "Weka alama kuwa imefanyika {when}",
   "widgetsB.habits.markNotDone": "Weka alama kuwa haijafanyika {when}",
   "widgetsB.habits.namePlaceholder": "Jina la zoea",

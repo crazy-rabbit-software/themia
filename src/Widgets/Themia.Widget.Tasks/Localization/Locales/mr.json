@@ -19,7 +19,7 @@
   "widgetsC.tasks.dueOn": "मुदत {date}",
   "widgetsC.tasks.dueOnOverdue": "मुदत {date} (उलटली)",
   "widgetsC.tasks.error.forbidden": "हे खाते Themia ला त्याची कार्ये वाचू देत नाही. परवानगी देण्यासाठी पुन्हा साइन इन करा.",
-  "widgetsC.tasks.error.notFound": "ती कार्य सूची आता तेथे नाही. या विजेटच्या सेटिंग्जमध्ये दुसरी निवडा.",
+  "widgetsC.tasks.error.notFound": "ती कार्य सूची आता तेथे नाही. संपादन मोडमध्ये या विजेटच्या मेनूमधून दुसरी निवडा.",
   "widgetsC.tasks.highPriority": "उच्च प्राधान्य",
   "widgetsC.tasks.listEmpty": "या सूचीत अद्याप कार्ये नाहीत.",
   "widgetsC.tasks.loading": "कार्ये लोड होत आहेत…",

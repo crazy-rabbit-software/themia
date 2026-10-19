@@ -19,7 +19,7 @@
   "widgetsC.tasks.dueOn": "Échéance : {date}",
   "widgetsC.tasks.dueOnOverdue": "Échéance : {date} (en retard)",
   "widgetsC.tasks.error.forbidden": "Ce compte n’autorise pas Themia à lire ses tâches. Reconnectez-vous pour l’accorder.",
-  "widgetsC.tasks.error.notFound": "Cette liste de tâches n’existe plus. Choisissez-en une autre dans les paramètres du widget.",
+  "widgetsC.tasks.error.notFound": "Cette liste de tâches n’existe plus. Choisissez-en une autre dans le menu du widget, en mode modification.",
   "widgetsC.tasks.highPriority": "Priorité haute",
   "widgetsC.tasks.listEmpty": "Aucune tâche dans cette liste pour l’instant.",
   "widgetsC.tasks.loading": "Chargement des tâches…",

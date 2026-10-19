@@ -18,7 +18,7 @@
   "widgetsB.habits.empty": "ఇంకా అలవాట్లు లేవు.",
   "widgetsB.habits.emptyAdd": "ఇంకా అలవాట్లు లేవు.\nకింద ఒకదాన్ని జోడించండి.",
   "widgetsB.habits.inARow": "వరుసగా {units}",
-  "widgetsB.habits.listDeleted": "ఈ అలవాట్ల జాబితా తొలగించబడింది.\nఈ విడ్జెట్ సెట్టింగ్‌లలో ఒక జాబితాను ఎంచుకోండి.",
+  "widgetsB.habits.listDeleted": "ఈ అలవాట్ల జాబితా తొలగించబడింది.\nసవరణ మోడ్‌లో ఈ విడ్జెట్ మెనూలో ఒక జాబితాను ఎంచుకోండి.",
   "widgetsB.habits.markDone": "{when} పూర్తయినట్లు గుర్తించు",
   "widgetsB.habits.markNotDone": "{when} పూర్తి కానట్లు గుర్తించు",
   "widgetsB.habits.namePlaceholder": "అలవాటు పేరు",

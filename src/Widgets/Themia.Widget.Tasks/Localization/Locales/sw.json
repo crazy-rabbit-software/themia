@@ -19,7 +19,7 @@
   "widgetsC.tasks.dueOn": "Inatakiwa {date}",
   "widgetsC.tasks.dueOnOverdue": "Inatakiwa {date} (imechelewa)",
   "widgetsC.tasks.error.forbidden": "Akaunti hii hairuhusu Themia isome kazi zake. Ingia tena ili kutoa ruhusa.",
-  "widgetsC.tasks.error.notFound": "Orodha hiyo ya kazi haipo tena. Chagua nyingine kwenye mipangilio ya wijeti hii.",
+  "widgetsC.tasks.error.notFound": "Orodha hiyo ya kazi haipo tena. Chagua nyingine kwenye menyu ya wijeti hii katika hali ya kuhariri.",
   "widgetsC.tasks.highPriority": "Kipaumbele cha juu",
   "widgetsC.tasks.listEmpty": "Bado hakuna kazi kwenye orodha hii.",
   "widgetsC.tasks.loading": "Inapakia kazi…",

@@ -37,8 +37,6 @@
   "widgetsC.tasks.overdueOn": "Lampas na · {date}",
   "widgetsC.tasks.untitledTask": "(gawaing walang pamagat)",
   "widgetsC.tasks.markDone": "Markahan bilang tapos",
-  "widgetsC.tasks.settings.layout.label": "Layout",
-  "widgetsC.tasks.settings.layout.desc": "Listahan: ang takdang petsa sa ilalim ng pamagat. Siksik: katabi nito",
   "widgetsC.tasks.renameListFailed": "Hindi mapalitan ang pangalan ng listahan",
   "widgetsC.volume.settings.defaultOutput": "Default na output",
   "widgetsC.volume.settings.chosenDevice": "Napiling device",

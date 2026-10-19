@@ -18,7 +18,7 @@
   "widgetsB.habits.empty": "Belum ada kebiasaan.",
   "widgetsB.habits.emptyAdd": "Belum ada kebiasaan.\nTambahkan di bawah.",
   "widgetsB.habits.inARow": "{units} berturut-turut",
-  "widgetsB.habits.listDeleted": "Daftar kebiasaan ini telah dihapus.\nPilih daftar di pengaturan widget ini.",
+  "widgetsB.habits.listDeleted": "Daftar kebiasaan ini telah dihapus.\nPilih daftar di menu widget ini dalam mode edit.",
   "widgetsB.habits.markDone": "Tandai selesai {when}",
   "widgetsB.habits.markNotDone": "Tandai belum selesai {when}",
   "widgetsB.habits.namePlaceholder": "Nama kebiasaan",

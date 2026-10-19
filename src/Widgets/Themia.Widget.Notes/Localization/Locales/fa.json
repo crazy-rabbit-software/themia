@@ -6,7 +6,7 @@
   "notes.namePlaceholder": "عنوان یادداشت",
   "notes.newName": "یادداشت جدید",
   "notes.newNote": "یادداشت جدید",
-  "notes.noteGone": "این یادداشت حذف شد. در تنظیمات یادداشت دیگری انتخاب کنید.",
+  "notes.noteGone": "این یادداشت حذف شد. در حالت ویرایش، از منوی این ویجت یادداشت دیگری انتخاب کنید.",
   "notes.notesLabel": "یادداشت‌ها",
   "notes.placeholder": "یادداشت‌های خود را اینجا بنویسید...",
   "widget.notes.fmt.bold": "پررنگ",

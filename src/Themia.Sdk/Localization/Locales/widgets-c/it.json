@@ -37,8 +37,6 @@
   "widgetsC.tasks.overdueOn": "Scaduta · {date}",
   "widgetsC.tasks.untitledTask": "(attività senza titolo)",
   "widgetsC.tasks.markDone": "Segna come completata",
-  "widgetsC.tasks.settings.layout.label": "Layout",
-  "widgetsC.tasks.settings.layout.desc": "Elenco: la scadenza sotto il titolo. Compatto: accanto",
   "widgetsC.tasks.renameListFailed": "Impossibile rinominare l'elenco",
   "widgetsC.volume.settings.defaultOutput": "Output predefinito",
   "widgetsC.volume.settings.chosenDevice": "Dispositivo scelto",

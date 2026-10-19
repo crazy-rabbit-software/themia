@@ -19,7 +19,7 @@
   "widgetsC.tasks.dueOn": "Wa'adi {date}",
   "widgetsC.tasks.dueOnOverdue": "Wa'adi {date} (lokaci ya wuce)",
   "widgetsC.tasks.error.forbidden": "Wannan asusu bai bari Themia ta karanta ayyukansa ba. Sake shiga don ba da izini.",
-  "widgetsC.tasks.error.notFound": "Wannan jerin ayyuka ba ya nan kuma. Zaɓi wani a saitunan wannan widget.",
+  "widgetsC.tasks.error.notFound": "Wannan jerin ayyuka ba ya nan kuma. Zaɓi wani a menu na wannan widget a yanayin gyara.",
   "widgetsC.tasks.highPriority": "Babban fifiko",
   "widgetsC.tasks.listEmpty": "Babu ayyuka a wannan jeri tukuna.",
   "widgetsC.tasks.loading": "Ana lodin ayyuka…",

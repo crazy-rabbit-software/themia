@@ -37,8 +37,6 @@
   "widgetsC.tasks.overdueOn": "Quá hạn · {date}",
   "widgetsC.tasks.untitledTask": "(tác vụ không tên)",
   "widgetsC.tasks.markDone": "Đánh dấu đã xong",
-  "widgetsC.tasks.settings.layout.label": "Bố cục",
-  "widgetsC.tasks.settings.layout.desc": "Danh sách: ngày đến hạn dưới tiêu đề. Thu gọn: bên cạnh",
   "widgetsC.tasks.renameListFailed": "Không thể đổi tên danh sách",
   "widgetsC.volume.settings.defaultOutput": "Đầu ra mặc định",
   "widgetsC.volume.settings.chosenDevice": "Thiết bị đã chọn",

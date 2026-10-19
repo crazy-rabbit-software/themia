@@ -1,7 +1,6 @@
 {
   "$comment": "Machine-written translations: every string in this file needs native review.",
   "shell.views.reorderHint": "보기를 다른 보기 위로 끌어 이동하거나, 보기에서 Alt+Shift+위쪽 또는 아래쪽 화살표를 누르세요.",
-  "shell.list.reorderHint": "항목을 다른 항목 위로 끌어 이동하거나, 항목에서 Alt+Shift+위쪽 또는 아래쪽 화살표를 누르세요.",
   "shell.view.colour": "색",
   "shell.view.colourDesc": "보기 표시줄과 이 창에 표시되는 아이콘 색",
   "shell.view.colourDefault": "텍스트 색",

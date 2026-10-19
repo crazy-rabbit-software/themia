@@ -19,7 +19,7 @@
   "widgetsC.tasks.dueOn": "नियत {date}",
   "widgetsC.tasks.dueOnOverdue": "नियत {date} (अतिदेय)",
   "widgetsC.tasks.error.forbidden": "यह खाता Themia को अपने कार्य पढ़ने नहीं देता। अनुमति देने के लिए फिर से साइन इन करें।",
-  "widgetsC.tasks.error.notFound": "वह कार्य सूची अब मौजूद नहीं है। इस विजेट की सेटिंग्स में कोई दूसरी चुनें।",
+  "widgetsC.tasks.error.notFound": "वह कार्य सूची अब मौजूद नहीं है। संपादन मोड में इस विजेट के मेनू से कोई दूसरी चुनें।",
   "widgetsC.tasks.highPriority": "उच्च प्राथमिकता",
   "widgetsC.tasks.listEmpty": "इस सूची में अभी कोई कार्य नहीं।",
   "widgetsC.tasks.loading": "कार्य लोड हो रहे हैं…",

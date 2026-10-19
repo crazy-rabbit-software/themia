@@ -37,8 +37,6 @@
   "widgetsC.tasks.overdueOn": "મુદત વીતી ગઈ · {date}",
   "widgetsC.tasks.untitledTask": "(શીર્ષક વિનાનું કાર્ય)",
   "widgetsC.tasks.markDone": "પૂર્ણ તરીકે ચિહ્નિત કરો",
-  "widgetsC.tasks.settings.layout.label": "લેઆઉટ",
-  "widgetsC.tasks.settings.layout.desc": "સૂચિ: શીર્ષક નીચે નિયત તારીખ. કૉમ્પેક્ટ: તેની બાજુમાં",
   "widgetsC.tasks.renameListFailed": "સૂચિનું નામ બદલી શકાયું નહીં",
   "widgetsC.volume.settings.defaultOutput": "ડિફૉલ્ટ આઉટપુટ",
   "widgetsC.volume.settings.chosenDevice": "પસંદ કરેલું ઉપકરણ",

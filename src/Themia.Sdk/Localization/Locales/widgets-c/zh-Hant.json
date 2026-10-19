@@ -37,8 +37,6 @@
   "widgetsC.tasks.overdueOn": "已逾期 · {date}",
   "widgetsC.tasks.untitledTask": "（無標題工作）",
   "widgetsC.tasks.markDone": "標示為已完成",
-  "widgetsC.tasks.settings.layout.label": "版面配置",
-  "widgetsC.tasks.settings.layout.desc": "清單：到期日在標題下方。精簡：在旁邊",
   "widgetsC.tasks.renameListFailed": "無法重新命名清單",
   "widgetsC.volume.settings.defaultOutput": "預設輸出",
   "widgetsC.volume.settings.chosenDevice": "所選裝置",

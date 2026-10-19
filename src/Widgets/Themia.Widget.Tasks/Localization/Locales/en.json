@@ -20,7 +20,7 @@
   "widgetsC.tasks.dueOn": "Due {date}",
   "widgetsC.tasks.dueOnOverdue": "Due {date} (overdue)",
   "widgetsC.tasks.error.forbidden": "This account does not allow Themia to read its tasks. Sign in again to grant it.",
-  "widgetsC.tasks.error.notFound": "That task list is not there any more. Pick another in this widget's settings.",
+  "widgetsC.tasks.error.notFound": "That task list is not there any more. Pick another on this widget's menu in edit mode.",
   "widgetsC.tasks.highPriority": "High priority",
   "widgetsC.tasks.listEmpty": "No tasks on this list yet.",
   "widgetsC.tasks.loading": "Loading tasks…",

@@ -1,7 +1,6 @@
 {
   "$comment": "Machine-written translations: every string in this file needs native review.",
   "shell.views.reorderHint": "Faites glisser une vue sur une autre pour la déplacer, ou appuyez sur Alt+Maj+Haut ou Bas sur une vue.",
-  "shell.list.reorderHint": "Faites glisser un élément sur un autre pour le déplacer, ou appuyez sur Alt+Maj+Haut ou Bas sur un élément.",
   "shell.view.colour": "Couleur",
   "shell.view.colourDesc": "Couleur de l’icône dans la barre des vues et ici",
   "shell.view.colourDefault": "Couleur du texte",
