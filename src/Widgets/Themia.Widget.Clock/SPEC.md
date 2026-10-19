@@ -131,8 +131,9 @@ them). Tests: `Tests/` (run by `tests/Themia.Modules.Tests`).
   Text size (Small / Default / Large, while a line under the time is drawn, [S-1476]); then
   Appearance ([S-3723]), a divider, and **Timezone**, a search
   ([S-3722]): the machine's own zone first as "Current: …", the cities that match after it (40 at
-  most, each with its offset now), the chosen one with the dot, a pick stores the IANA id; under the
-  answers Offset (None / From UTC / From local). (Tests `ClockMenuTests`.)
+  most, each with its offset now), the chosen one with the dot, a pick stores the IANA id; after it
+  on the same level Offset (None / From UTC / From local; user request 2026-10-19: what is shown is
+  chosen on the first level, never inside a search). (Tests `ClockMenuTests`.)
 
 - **[S-1489]** *(Retired: the debug widget gallery and its fixtures are gone, [S-1863].)*
 - **[S-5300]** *(Retired: the Date widget, kind 131, is gone; the weekday and the date, no time,

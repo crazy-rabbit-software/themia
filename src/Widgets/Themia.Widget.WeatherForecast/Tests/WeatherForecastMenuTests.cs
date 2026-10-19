@@ -19,13 +19,13 @@ public sealed class WeatherForecastMenuTests
     }
 
     [Fact]
-    public void S6173_appearance_then_the_location_then_days_and_precipitation_each_behind_a_divider()
+    public void S6173_appearance_then_the_location_and_its_name_then_days_and_precipitation_each_behind_a_divider()
     {
         var lines = Build(new WeatherForecastConfig());
 
         Assert.Equal(0, lines.CardAt);
         Assert.Equal(
-            ["-", Str.Shell_Place_Location.Text(), "-", WeatherForecastStr.Forecast_DaysLabel.Text(), WeatherForecastStr.WidgetsC_Weather_Settings_ShowPrecipitation_Label.Text()],
+            ["-", Str.Shell_Place_Location.Text(), Str.Weather_LocationNameLabel.Text(), "-", WeatherForecastStr.Forecast_DaysLabel.Text(), WeatherForecastStr.WidgetsC_Weather_Settings_ShowPrecipitation_Label.Text()],
             lines.Lines.Select(l => l.IsSeparator ? "-" : l.Text));
     }
 
@@ -47,7 +47,7 @@ public sealed class WeatherForecastMenuTests
     public void S6173_the_precipitation_switch_turns_it_the_other_way()
     {
         var config = new WeatherForecastConfig { ShowPrecipitation = true };
-        Build(config).Lines.Single(l => l.Checked is not null).Action!();
+        Build(config).Lines.Single(l => l.Text == WeatherForecastStr.WidgetsC_Weather_Settings_ShowPrecipitation_Label.Text()).Action!();
 
         Assert.False(config.ShowPrecipitation);
     }

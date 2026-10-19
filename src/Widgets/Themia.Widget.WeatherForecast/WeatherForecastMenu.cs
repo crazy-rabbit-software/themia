@@ -8,7 +8,7 @@ namespace Themia.App.Shell.Config;
 
 /// <summary>
 /// [S-2860] The forecast widget's options, all on its properties menu ([S-3719]): Appearance
-/// ([S-3723]), the location's search ([S-3722]) with the location-name switch under it, how many
+/// ([S-3723]), the location's search ([S-3722]) with the location-name switch after it, how many
 /// days (1 to 14) and the precipitation switch. It has no settings page.
 /// </summary>
 internal static class WeatherForecastMenu
@@ -21,7 +21,7 @@ internal static class WeatherForecastMenu
         // The look (Style, Appearance), then behind a divider each: the place; what each day shows.
         menu.PlaceCard();
         menu.Lines.Add(ItemMenuEntry.Separator);
-        menu.Lines.Add(WeatherPlaceRows.LocationLine(menu, config));
+        menu.Lines.AddRange(WeatherPlaceRows.Lines(menu, config));
         menu.Lines.Add(ItemMenuEntry.Separator);
 
         (int, string)[] days = [.. Enumerable.Range(1, 14).Select(n => (n, LocaleFormat.Integer(Strings.Current, n)))];

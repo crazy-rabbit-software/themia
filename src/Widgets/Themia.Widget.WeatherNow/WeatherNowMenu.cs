@@ -10,7 +10,7 @@ namespace Themia.App.Shell.Config;
 /// <summary>
 /// [S-2830] The current-conditions widget's options, all on its properties menu ([S-3719]): under
 /// Style the readings line (the standard style only, [S-6074]); then Appearance ([S-3723]) and the
-/// location's search ([S-3722]) with the location-name switch under it. It has no settings page.
+/// location's search ([S-3722]) with the location-name switch after it. It has no settings page.
 /// </summary>
 internal static class WeatherNowMenu
 {
@@ -27,6 +27,6 @@ internal static class WeatherNowMenu
         // The look (Style, Appearance), a divider, then the place.
         menu.PlaceCard();
         menu.Lines.Add(ItemMenuEntry.Separator);
-        menu.Lines.Add(WeatherPlaceRows.LocationLine(menu, config));
+        menu.Lines.AddRange(WeatherPlaceRows.Lines(menu, config));
     }
 }

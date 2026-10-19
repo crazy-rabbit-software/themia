@@ -10,7 +10,7 @@ namespace Themia.Modules.Tests;
 
 /// <summary>
 /// [S-2849] The weather family's Location name switch only changes the header's title, so it is on
-/// the menu only while the card's header shows and no typed title wins over it; the card the lines
+/// the menu's first level, after the Location line, only while the card's header shows and no typed title wins over it; the card the lines
 /// are built for comes from the widget (<see cref="QuickSet.Card"/>).
 /// </summary>
 public sealed class WeatherLocationNameTests
@@ -31,9 +31,12 @@ public sealed class WeatherLocationNameTests
         ModuleRegistry.Widgets.Single(m => m.Descriptor.Id == widget.Kind).MenuLines(menu, widget.Config);
         var location = Assert.Single(menu.Lines, l => l.Text == Str.Shell_Place_Location.Text());
 
-        // Clear location stays either way: it is the place, not the title.
-        Assert.Contains(location.Search!.Fixed, f => f.Text == Str.Shell_Place_Clear.Text());
-        return location.Search.Fixed.Any(f => f.Text == Str.Weather_LocationNameLabel.Text());
+        // Clear location stays either way, in the search: it is the place, not the title.
+        Assert.Equal([Str.Shell_Place_Clear.Text()], location.Search!.Fixed.Select(f => f.Text));
+        var at = menu.Lines.IndexOf(location);
+        var name = menu.Lines.FindIndex(l => l.Text == Str.Weather_LocationNameLabel.Text());
+        Assert.True(name < 0 || name == at + 1, "the name switch stands right after the Location line");
+        return name >= 0;
     }
 
     [Theory]

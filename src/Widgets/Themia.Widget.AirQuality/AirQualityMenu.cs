@@ -8,7 +8,7 @@ namespace Themia.App.Shell.Config;
 
 /// <summary>
 /// [S-5108] The air quality widget's options, all on its properties menu ([S-3719]): Appearance
-/// ([S-3723]), the location's search ([S-3722]) with the location-name switch under it, and the
+/// ([S-3723]), the location's search ([S-3722]) with the location-name switch after it, and the
 /// index, whose submenu also credits the data's source (CAMS and Open-Meteo ask to be credited). It
 /// has no settings page.
 /// </summary>
@@ -22,7 +22,7 @@ internal static class AirQualityMenu
         // The look (Style, Appearance), then behind a divider each: the place; the index it is read on.
         menu.PlaceCard();
         menu.Lines.Add(ItemMenuEntry.Separator);
-        menu.Lines.Add(WeatherPlaceRows.LocationLine(menu, config));
+        menu.Lines.AddRange(WeatherPlaceRows.Lines(menu, config));
         menu.Lines.Add(ItemMenuEntry.Separator);
 
         (AirQualityScale, string)[] scales =

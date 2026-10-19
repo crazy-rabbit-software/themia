@@ -13,22 +13,32 @@ namespace Themia.App.Shell.Config;
 public static class WeatherPlaceRows
 {
     /// <summary>
-    /// [S-2840] [S-3722] The location as a search on the properties menu, shared by the weather family:
-    /// the chosen place at the end of its line; in its submenu the search box, the places it finds (a
-    /// click picks one: replaced at once, resolved once), then Clear location ([S-2848]: the widget
-    /// waits for setup again) and the location-name switch ([S-728]), only while the card's header shows
-    /// with no typed title ([S-2849]): the place's name is only ever the header's title.
+    /// [S-2840] [S-3722] The place's lines on the properties menu, shared by the weather family: the
+    /// location as a search, the chosen place at the end of its line, in its submenu the search box,
+    /// the places it finds (a click picks one: replaced at once, resolved once) and Clear location
+    /// ([S-2848]: the widget waits for setup again); then, on the same level, the location-name switch
+    /// ([S-728]; user request 2026-10-19: what is shown is chosen on the first level, not inside a
+    /// search), only while the card's header shows with no typed title ([S-2849]): the place's name is
+    /// only ever the header's title.
     /// </summary>
-    public static ItemMenuEntry LocationLine(WidgetMenuLines menu, WeatherConfig config)
+    public static IReadOnlyList<ItemMenuEntry> Lines(WidgetMenuLines menu, WeatherConfig config)
     {
         ArgumentNullException.ThrowIfNull(menu);
         ArgumentNullException.ThrowIfNull(config);
 
-        List<ItemMenuEntry> under = [menu.Command(Glyphs.Dismiss, Str.Shell_Place_Clear.Text(), config.ClearLocation, disabled: !config.HasLocation)];
+        List<ItemMenuEntry> lines = [LocationLine(menu, config)];
         if (menu.Card.ReadsWidgetTitle)
         {
-            under.Add(menu.Toggle(null, Str.Weather_LocationNameLabel.Text(), !config.HideLocation, on => config.HideLocation = !on));
+            lines.Add(menu.Toggle(null, Str.Weather_LocationNameLabel.Text(), !config.HideLocation, on => config.HideLocation = !on));
         }
+
+        return lines;
+    }
+
+    /// <summary>[S-2840] The location's search: what is found, and Clear location under it.</summary>
+    private static ItemMenuEntry LocationLine(WidgetMenuLines menu, WeatherConfig config)
+    {
+        List<ItemMenuEntry> under = [menu.Command(Glyphs.Dismiss, Str.Shell_Place_Clear.Text(), config.ClearLocation, disabled: !config.HasLocation)];
 
         var search = new MenuSearch(
             Str.Shell_Place_SearchPlaceholder.Text(),

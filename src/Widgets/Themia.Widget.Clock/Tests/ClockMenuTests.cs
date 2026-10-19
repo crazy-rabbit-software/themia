@@ -26,21 +26,22 @@ public sealed class ClockMenuTests
             Build(new ClockConfig { Style = ClockStyle.Digital }).StyleLines.Select(l => l.Text));
 
     [Fact]
-    public void S1478_appearance_then_the_zone_with_only_the_offset_under_it()
+    public void S1478_appearance_then_the_zone_and_the_offset_after_it_on_the_first_level()
     {
         var lines = Build(new ClockConfig { Style = ClockStyle.Digital });
 
         Assert.Equal(0, lines.CardAt);
-        Assert.True(lines.Lines[0].IsSeparator);
-        var zone = Assert.Single(lines.Lines, l => !l.IsSeparator);
-        Assert.Equal([ClockStr.Clock_OffsetLabel.Text()], zone.Search!.Fixed.Select(f => f.Text));
+        Assert.Collection(lines.Lines,
+            divider => Assert.True(divider.IsSeparator),
+            zone => Assert.Empty(zone.Search!.Fixed),
+            offset => Assert.Equal(ClockStr.Clock_OffsetLabel.Text(), offset.Text));
     }
 
     [Fact]
     public async Task S1478_the_search_puts_the_machine_zone_first_and_a_pick_stores_the_city()
     {
         var config = new ClockConfig();
-        var search = Assert.Single(Build(config).Lines, l => !l.IsSeparator).Search!;
+        var search = Build(config).Lines.First(l => l.Search is not null).Search!;
 
         var answer = await search.Find("tokyo", CancellationToken.None);
         Assert.True(answer.Lines[0].Checked);

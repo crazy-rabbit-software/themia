@@ -29,6 +29,7 @@ public sealed class RainNextHourMenuTests
         Assert.Collection(lines.Lines,
             divider => Assert.True(divider.IsSeparator),
             location => Assert.Equal(Str.Shell_Place_Location.Text(), location.Text),
+            name => Assert.Equal(Str.Weather_LocationNameLabel.Text(), name.Text),
             divider => Assert.True(divider.IsSeparator),
             source =>
             {
@@ -41,10 +42,10 @@ public sealed class RainNextHourMenuTests
     public void S5127_the_location_name_switch_hides_the_city_and_saves_once()
     {
         var config = new RainNextHourConfig { Latitude = 47.37, Longitude = 8.54, LocationName = "Zürich, Switzerland" };
-        var search = Build(config).Lines.First(l => l.Search is not null).Search!;
+        var lines = Build(config).Lines;
 
-        Assert.Equal("Zürich", search.Value);
-        Assert.Single(search.Fixed, f => f.Text == Str.Weather_LocationNameLabel.Text()).Action!();
+        Assert.Equal("Zürich", lines.First(l => l.Search is not null).Search!.Value);
+        Assert.Single(lines, l => l.Text == Str.Weather_LocationNameLabel.Text()).Action!();
         Assert.True(config.HideLocation);
         Assert.Equal(1, _saves);
     }

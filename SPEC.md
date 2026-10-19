@@ -1511,7 +1511,9 @@ and the SDK's `Settings/ListDrop.cs` (tests `QuickSetTests`, `StripPlacementTest
   keyboard back to the surface.
 - **[S-3722]** A line may be a **search** (`WidgetMenuLines.Search`, `MenuSearch`): what is chosen at
   the end of its line; its submenu has the search box on top, the answers as lines under it and the
-  search's fixed lines after a divider (clear the choice, a switch about it). The empty text is asked
+  search's fixed lines after a divider (clear the choice, edit what was chosen; user request
+  2026-10-19: a switch or a choice of what the widget shows stands on the first level after the
+  search's line, never among them: the weather's Location name, the Clock's Offset). The empty text is asked
   as it opens; what is typed is asked once typing settles for `Settle` (at once for an answer in hand,
   the geocoder's pause, [S-2841], for a network one, "Searching…" while it is out), each answer
   replacing the one before and a newer question dropping an older one's answer; an answer may be a
@@ -3007,8 +3009,9 @@ their `SPEC.md`); this section keeps what they share. Shared rules in `Themia.Sd
   written, so they never read back as Zurich), their coordinate lines show nothing (their asks start
   empty), and a place typed into the coordinate lines counts as chosen (named by its coordinates
   when it has no name).
-- **[S-2849]** The location-name switch ([S-728]) only changes the header's title, so it stands under
-  the answers only while the card's header shows and no typed title wins over the place's
+- **[S-2849]** The location-name switch ([S-728]) only changes the header's title, so it stands on the
+  menu's first level right after the Location line (user request 2026-10-19: what is shown is chosen
+  on the first level, not inside the search) only while the card's header shows and no typed title wins over the place's
   (`MenuCard.ReadsWidgetTitle`; [S-6070]). What a widget's lines know of its card is handed to them by
   the host (`WidgetMenuLines.Card`, `QuickSet.Card`: the header as drawn, `ShownHeader`, and a typed
   title); a header shown or a title cleared builds the menu again with it. Its value is kept while

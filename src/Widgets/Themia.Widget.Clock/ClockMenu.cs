@@ -10,7 +10,8 @@ namespace Themia.App.Shell.Config;
 /// <summary>
 /// [S-1480] The Clock's options, all on its properties menu ([S-3719]): under Style what the look
 /// draws (seconds, the date line, the text size: [S-6074] only the ones the style draws); then
-/// Appearance ([S-3723]) and the time zone, a search ([S-3722]) with the offset line under it. It has no settings page.
+/// Appearance ([S-3723]) and the time zone, a search ([S-3722]), with the offset line after it on the
+/// same level (what is shown is chosen on the first level, not inside a search). It has no settings page.
 /// </summary>
 internal static class ClockMenu
 {
@@ -45,13 +46,23 @@ internal static class ClockMenu
         menu.PlaceCard();
         menu.Lines.Add(ItemMenuEntry.Separator);
         menu.Lines.Add(Zone(menu, clock));
+        if (clock.Offers(ClockSetting.Offset))
+        {
+            menu.Lines.Add(menu.Choice(Glyphs.Hours, ClockStr.Clock_OffsetLabel.Text(),
+                [
+                    (ClockOffsetMode.None, Str.Common_None.Text()),
+                    (ClockOffsetMode.Utc, ClockStr.WidgetsA_Clock_Settings_Offset_Utc.Text()),
+                    (ClockOffsetMode.Local, ClockStr.WidgetsA_Clock_Settings_Offset_Local.Text()),
+                ],
+                clock.OffsetMode, value => clock.OffsetMode = value));
+        }
     }
 
     /// <summary>
     /// [S-1481] The zone: a search over every IANA city Windows maps, the machine's own zone always
     /// first as "Current: …" (an unset zone), the chosen one with the dot. Picking writes the IANA id;
     /// it resolves through <see cref="ZoneCatalog"/> because IANA ids do not resolve under
-    /// <c>InvariantGlobalization</c>. [S-3795] Under the answers: the offset line.
+    /// <c>InvariantGlobalization</c>.
     /// </summary>
     private static ItemMenuEntry Zone(WidgetMenuLines menu, ClockConfig clock)
     {
@@ -75,20 +86,8 @@ internal static class ClockMenu
             }
         }, Checked: clock.TimeZoneId == ianaId, Group: group);
 
-        var under = new List<ItemMenuEntry>();
-        if (clock.Offers(ClockSetting.Offset))
-        {
-            under.Add(menu.Choice(Glyphs.Hours, ClockStr.Clock_OffsetLabel.Text(),
-                [
-                    (ClockOffsetMode.None, Str.Common_None.Text()),
-                    (ClockOffsetMode.Utc, ClockStr.WidgetsA_Clock_Settings_Offset_Utc.Text()),
-                    (ClockOffsetMode.Local, ClockStr.WidgetsA_Clock_Settings_Offset_Local.Text()),
-                ],
-                clock.OffsetMode, value => clock.OffsetMode = value));
-        }
-
         return WidgetMenuLines.Search(Glyphs.Place, group, ZoneText(clock.TimeZoneId) ?? current,
-            new MenuSearch(ClockStr.LocationSearch_Placeholder.Text(), Find, under));
+            new MenuSearch(ClockStr.LocationSearch_Placeholder.Text(), Find, []));
     }
 
     /// <summary>"Current: Amsterdam, Berlin, …": the machine's own zone, its places without the offset (it moves with daylight saving).</summary>
