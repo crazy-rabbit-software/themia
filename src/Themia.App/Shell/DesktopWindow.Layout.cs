@@ -77,6 +77,9 @@ internal sealed partial class DesktopWindow
         ApplyTheme();
         SyncToolbar();
         Relayout();
+
+        // A card built again (an undo, a paste of a copy) starts unfaded: the cut keeps its fade.
+        FadeLeaving();
     }
 
     private void OnEditModeChanged(bool editing)
@@ -88,6 +91,8 @@ internal sealed partial class DesktopWindow
         {
             card.ApplyEditMode(editing);
         }
+
+        FadeLeaving();
 
         // [S-802] Edit mode ends a keyboard lease: the keys are the edit shortcuts now.
         if (editing)

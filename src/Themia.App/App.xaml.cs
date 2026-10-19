@@ -22,7 +22,11 @@ public partial class App : Application
         // [S-822] The design engine behind every part's theme brushes, before anything is drawn.
         Themia.Sdk.WinUI.ThemeBrush.Install(Shell.DesignApplier.Brush);
         Widgets.ItemFill.Install(new Widgets.ItemInks.Engine());
-        Widgets.ItemMenu.InstallFileIcons((file, pixels) => Services.Files.FileIcons.IconAsync(new Themia.Core.Widgets.FolderEntry(Path.GetFileName(file), file, false, 0, default, false), pixels));
+        // A Windows location (shell:) is no file: its icon is its own, not the one every extensionless
+        // file shares, which drew This PC with the Recycle Bin's.
+        Widgets.ItemMenu.InstallFileIcons((file, pixels) => file.StartsWith("shell:", StringComparison.OrdinalIgnoreCase)
+            ? Themia.Sdk.WinUI.AppIconSource.GetAsync(file, pixels, Current.RequestedTheme == ApplicationTheme.Dark ? Themia.Core.Widgets.LogoTheme.Dark : Themia.Core.Widgets.LogoTheme.Light)
+            : Services.Files.FileIcons.IconAsync(new Themia.Core.Widgets.FolderEntry(Path.GetFileName(file), file, Directory.Exists(file), 0, default, false), pixels));
         Shell.ColorChoice.InstallEyedropper(new Interop.ScreenEyedropper());
         Shell.Config.PlaceSearch.InstallLookup(Services.Web.WeatherService.FindAsync);
         Themia.Sdk.SymbolLookup.Install(Services.Web.MarketService.SearchAsync);

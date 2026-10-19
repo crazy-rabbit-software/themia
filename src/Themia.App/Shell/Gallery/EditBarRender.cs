@@ -266,6 +266,27 @@ internal static class EditBarRender
         // [S-6569] The Background control's panel, open beside the properties panel.
         PropsCard[] picker = [new(new WidgetId("clock"), 200, 160, 300, 200, HeaderPlacement.Top, true, Style: "flip", Background: FillChoice.Of("#1B2030", 0.5))];
         await PropsShot(screen, ticker, picker, System.IO.Path.Combine(outDir, $"props-{theme}-picker.png"), openBackground: true).ConfigureAwait(true);
+
+        // [S-3718] [S-3723] The widgets on the new structure, a submenu open (and a search typed into).
+        PropsCard[] shortcuts = [new(new WidgetId("shortcuts"), 120, 140, 520, 220, HeaderPlacement.Top, true)];
+        PropsCard[] clock = [new(new WidgetId("clock"), 200, 160, 300, 200, HeaderPlacement.Top, true, "Zürich", "digital")];
+        PropsCard[] weather = [new(new WidgetId("weatherNow"), 200, 160, 300, 200, HeaderPlacement.Top, true)];
+        (PropsCard[] Layout, string Name, string Open, string? Type)[] submenus =
+        [
+            (shortcuts, "shortcuts-style", Str.Styles_Label.Text(), null),
+            (shortcuts, "shortcuts-appearance", Str.Settings_Section_Appearance.Text(), null),
+            (shortcuts, "shortcuts-background", Str.Settings_Section_Appearance.Text() + "/" + Str.Settings_Style_BgLabel.Text(), null),
+            (shortcuts, "shortcuts-add", Str.Common_Add.Text(), null),
+            (shortcuts, "shortcuts-items", "Shortcuts", null),
+            (clock, "clock-style", Str.Styles_Label.Text(), null),
+            (clock, "clock-zone", "Timezone", "tok"),
+            (weather, "weather-location", Str.Shell_Place_Location.Text(), null),
+        ];
+
+        foreach (var (layout, name, path, type) in submenus)
+        {
+            await PropsShot(screen, ticker, layout, System.IO.Path.Combine(outDir, $"props-{theme}-{name}.png"), open: path, type: type).ConfigureAwait(true);
+        }
     }
 
     /// <summary>
@@ -307,12 +328,12 @@ internal static class EditBarRender
         }
     }
 
-    private static async Task PropsShot(Grid screen, Ticker ticker, PropsCard[] layout, string path, bool openBackground = false)
+    private static async Task PropsShot(Grid screen, Ticker ticker, PropsCard[] layout, string path, bool openBackground = false, string? open = null, string? type = null)
     {
         screen.Children.Clear();
 
         // The open control's panel hangs below the display's lower edge: the picture is taller.
-        screen.Height = openBackground ? OpenHeight : PropsHeight;
+        screen.Height = openBackground || open is not null ? OpenHeight : PropsHeight;
         var flat = screen.Background;
         screen.Background = Wallpaper();
 
@@ -405,6 +426,22 @@ internal static class EditBarRender
                 {
                     Log.Warn(Scope, "the Background control was not found; the picker shot shows the panel alone");
                 }
+            }
+        }
+
+        // [S-3718] The submenus along a path open, as clicks would open them; a search is typed into.
+        if (open is not null)
+        {
+            strip.UpdateLayout();
+            if (!strip.DebugOpen(open))
+            {
+                Console.WriteLine($"editbar: no submenu {open} for {path}");
+            }
+
+            if (type is not null)
+            {
+                await Task.Delay(100).ConfigureAwait(true);
+                strip.DebugType(type);
             }
         }
 

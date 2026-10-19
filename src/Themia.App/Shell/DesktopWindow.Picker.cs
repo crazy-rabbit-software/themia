@@ -225,6 +225,35 @@ internal sealed partial class DesktopWindow
     }
 
     /// <summary>
+    /// [S-73] [S-3717] Fade the widgets that are about to go: the originals of a move while it is
+    /// aimed, and in edit mode the widgets cut and not yet pasted, as Explorer dims a cut file, so a
+    /// Cut shows at once that it took.
+    /// </summary>
+    private void FadeLeaving()
+    {
+        var placing = _host.Placing;
+        var clipboard = _host.Clipboard;
+        var cut = EditMode && clipboard.Mode == ClipboardMode.Cut ? clipboard.Payload : null;
+        foreach (var card in _cards)
+        {
+            var id = card.Model.Id;
+            card.SetLeaving((placing is { Mode: PlacementMode.Move } && placing.Holds(id)) || (cut?.Holds(id) ?? false));
+        }
+    }
+
+    /// <summary>[S-3717] The clipboard changed: the cut's fade and the menu's Paste follow it.</summary>
+    private void OnClipboardChanged()
+    {
+        if (_closed)
+        {
+            return;
+        }
+
+        FadeLeaving();
+        SyncProperties();
+    }
+
+    /// <summary>
     /// [S-421]/[S-1587] Enter or leave placing. The cards stop taking input while something is being
     /// placed, so a click over an existing widget drops the payload there instead of grabbing the old
     /// one, and the toolbar steps aside for a line saying what the click will do. The originals of a
@@ -240,10 +269,7 @@ internal sealed partial class DesktopWindow
         var placing = _host.Placing;
         _widgetLayer.IsHitTestVisible = placing is null;
 
-        foreach (var card in _cards)
-        {
-            card.SetLeaving(placing is { Mode: PlacementMode.Move } && placing.Holds(card.Model.Id));
-        }
+        FadeLeaving();
 
         if (placing is not null)
         {

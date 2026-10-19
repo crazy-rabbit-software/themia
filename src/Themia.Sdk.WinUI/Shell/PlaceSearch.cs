@@ -71,6 +71,47 @@ public static class PlaceSearch
     internal static Action<string>? DebugType { get; private set; }
 #endif
 
+    /// <summary>
+    /// [S-3722] The geocoder as a search on the properties menu: what the box says calls for nothing
+    /// (empty, one letter), a word (no letter in it), or the lookup ([S-2841]); its places as lines,
+    /// a click on one <paramref name="picked"/>; no match, offline and failed said in their place ([S-2843]).
+    /// </summary>
+    public static async Task<MenuSearchAnswer> MenuAnswerAsync(string typed, Action<PlaceMatch> picked, CancellationToken cancel)
+    {
+        ArgumentNullException.ThrowIfNull(picked);
+        var query = PlaceQuery.Normalise(typed);
+        switch (PlaceQuery.Classify(query, submitted: false))
+        {
+            case PlaceQueryStep.Idle:
+            case PlaceQueryStep.TooShort:
+                return new MenuSearchAnswer([]);
+            case PlaceQueryStep.NotAName:
+                return new MenuSearchAnswer([], Str.Shell_Place_TypeName.Text());
+        }
+
+#if DEBUG
+        var find = DebugLookup ?? Geocoder;
+#else
+        var find = Geocoder;
+#endif
+        var (outcome, places, detail) = await find(query, cancel).ConfigureAwait(true);
+        switch (outcome)
+        {
+            case PlaceOutcome.Matches:
+                return new MenuSearchAnswer([.. places.Select(place => new ItemMenuEntry(Glyphs.Place,
+                    place.Detail.Length > 0 ? place.Name + " · " + place.Detail : place.Name, () => picked(place)))]);
+            case PlaceOutcome.NoMatch:
+                return new MenuSearchAnswer([], Str.Shell_Place_NoMatch.Format(("query", query)));
+            case PlaceOutcome.Offline:
+                return new MenuSearchAnswer([], Str.Shell_Place_Offline.Text());
+            case PlaceOutcome.NotAName:
+                return new MenuSearchAnswer([], Str.Shell_Place_TypeName.Text());
+            default:
+                Log.Warn(Scope, $"place search failed: {detail}".TrimEnd());
+                return new MenuSearchAnswer([], Str.Shell_Place_Failed.Text());
+        }
+    }
+
     /// <returns>
     /// Says a place chosen some other way (the Sun and Moon's exact fields): the description and the
     /// clear button follow it.

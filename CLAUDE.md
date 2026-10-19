@@ -254,12 +254,14 @@ line in `ConfigPages.AppPages`.
 - **Settings rows** come only from `FluentLayout` (`SettingsCard`/`SettingsExpander`), so a restyle
   reaches every page. Never build a card by hand. Each row's frame carries a `SettingRow` for search.
 - **Item menus** through `ItemMenu`; icons through `Glyphs`; lists keep `RowFocus`/`ScrollFade`.
-- **The properties menu** ([S-3716]..[S-3721]): the selection's panel in edit mode is drawn as a
-  Windows 11 context menu (Cut, Copy … Delete on top, lines with submenus). A widget's own options
-  can live there instead of on its page: its module's `MenuLines(WidgetMenuLines, config)` adds
-  `Lines` (first level) and `StyleLines` (under Style) as `ItemMenuEntry`s (`Toggle`, `Choice`,
-  `Submenu`, commands, `Ask` for a line of text). Shortcuts is the reference and has no page; the
-  other widgets keep theirs until they move, one at a time.
+- **The properties menu** ([S-3716]..[S-3723]): the selection's panel in edit mode is drawn as a
+  Windows 11 context menu (Cut, Copy, Paste … Delete on top, lines with submenus that stay open on a
+  pick). A widget's own options live there instead of on its page: its module's
+  `MenuLines(WidgetMenuLines, config)` adds `Lines` (first level) and `StyleLines` (under Style) as
+  `ItemMenuEntry`s (`Toggle`, `Choice`, `Submenu`, `Search`, `Command`, `Ask` for a line of text) and
+  calls `PlaceCard()` where the card's Appearance submenu goes. Shortcuts, Clock, Weather now,
+  Weather forecast and Air quality are on it with no page (Shortcuts is the reference); the other
+  widgets keep their pages until they move, one at a time.
 - **Text** goes through the `Str` layer (`Str.X.Text()`); a new key goes into `en.json` and its
   `$englishOnly` list. Dates and numbers through `LocaleFormat`.
 - **Out of scope by decision:** tray icon, always-on-top pin, pop-out windows, Lemon Squeezy, updater,

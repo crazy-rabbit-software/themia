@@ -226,6 +226,7 @@ internal sealed partial class DesktopWindow
         _host.EditModeChanged -= OnEditModeChanged;
         _host.SelectionChanged -= OnSelectionChanged;
         _host.PlacementChanged -= OnPlacementChanged;
+        _host.Clipboard.Changed -= OnClipboardChanged;
         Strings.Changed -= OnLanguageChanged;
 
         foreach (var card in _cards)

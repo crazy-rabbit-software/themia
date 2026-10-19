@@ -120,7 +120,7 @@ public static class ColorChoice
     public static DropDownButton Create(string? value, Action<string> onChanged, ColorChoiceOptions? options = null, string? name = null)
     {
         var button = SwatchButton(name, out var swatch, out var label, out var flyout);
-        Attach(button, swatch, label, flyout, value, onChanged, options);
+        _ = Attach(button, swatch, label, flyout, value, onChanged, options);
         return button;
     }
 
@@ -128,9 +128,11 @@ public static class ColorChoice
     /// [S-3718] The colour choice on an element of the caller's (a line of the properties menu):
     /// <paramref name="flyout"/> is its panel, opened by the caller from <paramref name="source"/>;
     /// <paramref name="swatch"/> and <paramref name="label"/> show the value. The same choice as
-    /// <see cref="Create"/>, which is this on its swatch button.
+    /// <see cref="Create"/>, which is this on its swatch button. With <paramref name="keepOpen"/> a pick
+    /// leaves the panel open, its ring moved to the pick ([S-3718]: the properties menu stays open).
+    /// Returns what shows a value set elsewhere (an undo) without saving it.
     /// </summary>
-    public static void Attach(FrameworkElement source, Border swatch, TextBlock label, Flyout flyout, string? value, Action<string> onChanged, ColorChoiceOptions? options = null)
+    public static Action<string?> Attach(FrameworkElement source, Border swatch, TextBlock label, Flyout flyout, string? value, Action<string> onChanged, ColorChoiceOptions? options = null, bool keepOpen = false)
     {
         ArgumentNullException.ThrowIfNull(source);
         ArgumentNullException.ThrowIfNull(swatch);
@@ -155,9 +157,24 @@ public static class ColorChoice
             ToolTipService.SetToolTip(source, label.Text);
         }
 
+        FrameworkElement Build() => Panel(
+            current,
+            options,
+            Choose,
+            () =>
+            {
+                flyout.Hide();
+                _ = CustomAsync(source, current, options, null, (hex, _) => Choose(hex));
+            },
+            () => PickFromScreen(flyout, Choose));
+
         void Choose(string hex)
         {
-            flyout.Hide();
+            if (!keepOpen)
+            {
+                flyout.Hide();
+            }
+
             if (hex == current)
             {
                 return;
@@ -165,6 +182,10 @@ public static class ColorChoice
 
             current = hex;
             Show();
+            if (keepOpen && flyout.IsOpen)
+            {
+                flyout.Content = Build();
+            }
 
             try
             {
@@ -177,16 +198,7 @@ public static class ColorChoice
         }
 
         // Built each time it opens, so the ring sits on whatever is chosen now.
-        flyout.Opening += (_, _) => flyout.Content = Panel(
-            current,
-            options,
-            Choose,
-            () =>
-            {
-                flyout.Hide();
-                _ = CustomAsync(source, current, options, null, (hex, _) => Choose(hex));
-            },
-            () => PickFromScreen(flyout, Choose));
+        flyout.Opening += (_, _) => flyout.Content = Build();
 
         Show();
 
@@ -195,6 +207,16 @@ public static class ColorChoice
         // never-activated window does not render.
         DebugPanels.AddOrUpdate(source, new Func<FrameworkElement>(() => Panel(current, options, _ => { }, () => { }, () => { })));
 #endif
+
+        return shown =>
+        {
+            var next = HexColor.Normalise(shown);
+            if (next != current)
+            {
+                current = next;
+                Show();
+            }
+        };
     }
 
     /// <summary>
@@ -208,15 +230,16 @@ public static class ColorChoice
     public static DropDownButton CreateFill(FillChoice? value, Action<FillChoice> onChanged, FillChoiceOptions options, string? name = null)
     {
         var button = SwatchButton(name, out var swatch, out var label, out var flyout);
-        AttachFill(button, swatch, label, flyout, value, onChanged, options);
+        _ = AttachFill(button, swatch, label, flyout, value, onChanged, options);
         return button;
     }
 
     /// <summary>
     /// [S-3718] The fill control on an element of the caller's (a line of the properties menu), as
     /// <see cref="Attach"/> is the colour choice's; <see cref="CreateFill"/> is this on its swatch button.
+    /// <paramref name="keepOpen"/> and the result as there (a null value shows the mixed words).
     /// </summary>
-    public static void AttachFill(FrameworkElement source, Border swatch, TextBlock label, Flyout flyout, FillChoice? value, Action<FillChoice> onChanged, FillChoiceOptions options)
+    public static Action<FillChoice?> AttachFill(FrameworkElement source, Border swatch, TextBlock label, Flyout flyout, FillChoice? value, Action<FillChoice> onChanged, FillChoiceOptions options, bool keepOpen = false)
     {
         ArgumentNullException.ThrowIfNull(source);
         ArgumentNullException.ThrowIfNull(swatch);
@@ -270,8 +293,26 @@ public static class ColorChoice
 
         void Choose(string hex)
         {
-            flyout.Hide();
+            Close();
             Commit(hex.Length == 0 ? With(FillKind.Default) : FillChoice.Of(hex, current.Opacity));
+            Refill();
+        }
+
+        // [S-3718] On the properties menu a pick leaves the panel open, drawn again around the pick.
+        void Close()
+        {
+            if (!keepOpen)
+            {
+                flyout.Hide();
+            }
+        }
+
+        void Refill()
+        {
+            if (keepOpen && flyout.IsOpen)
+            {
+                flyout.Content = Build();
+            }
         }
 
         void CommitOpacity()
@@ -287,8 +328,9 @@ public static class ColorChoice
             !mixed && current.Kind == FillKind.Transparent,
             () =>
             {
-                flyout.Hide();
+                Close();
                 Commit(With(FillKind.Transparent));
+                Refill();
             },
             current.Opacity,
             !mixed && current.Kind == FillKind.Colour,
@@ -305,7 +347,7 @@ public static class ColorChoice
 
         string Hex() => !mixed && current.Kind == FillKind.Colour ? current.Colour : string.Empty;
 
-        flyout.Opening += (_, _) => flyout.Content = Panel(
+        FrameworkElement Build() => Panel(
             Hex(),
             colourOptions,
             Choose,
@@ -317,23 +359,46 @@ public static class ColorChoice
             () => PickFromScreen(flyout, Choose),
             Extras());
 
+        flyout.Opening += (_, _) => flyout.Content = Build();
+
         // A drag let go outside the slider still ends with the flyout.
         flyout.Closed += (_, _) => CommitOpacity();
 
-        if (mixed)
+        void ShowHeld()
         {
-            swatch.Background = null;
-            label.Text = options.MixedLabel;
-            ToolTipService.SetToolTip(source, label.Text);
+            if (mixed)
+            {
+                swatch.Background = null;
+                label.Text = options.MixedLabel;
+                ToolTipService.SetToolTip(source, label.Text);
+            }
+            else
+            {
+                Show(current);
+            }
         }
-        else
-        {
-            Show(current);
-        }
+
+        ShowHeld();
 
 #if DEBUG
         DebugPanels.AddOrUpdate(source, new Func<FrameworkElement>(() => Panel(Hex(), colourOptions, _ => { }, () => { }, () => { }, Extras())));
 #endif
+
+        return shown =>
+        {
+            var nowMixed = shown is null && options.MixedLabel is not null;
+            if (nowMixed == mixed && (shown is null || shown.SameAs(current)))
+            {
+                return;
+            }
+
+            mixed = nowMixed;
+            current = shown?.Clone() ?? new FillChoice();
+            // ignore: what Repair reports was logged when the state loaded; here it only keeps the control total.
+            _ = current.Repair("fill choice");
+            pending = current.Opacity;
+            ShowHeld();
+        };
     }
 
     /// <summary>The swatch button both controls are: a swatch, the value's words, and a flyout kept inside the window.</summary>
@@ -390,7 +455,7 @@ public static class ColorChoice
     }
 
     /// <summary>[S-6567] A fill's swatch: the colour at its opacity, nothing for Transparent, Default as <see cref="PaintSwatch"/> paints it.</summary>
-    private static void PaintFill(Border swatch, FillChoice fill, ColorChoiceOptions options)
+    internal static void PaintFill(Border swatch, FillChoice fill, ColorChoiceOptions options)
     {
         if (fill.Kind == FillKind.Transparent)
         {
@@ -426,7 +491,7 @@ public static class ColorChoice
         return ColorPresets.Find(options.Presets, hex)?.Name ?? Str.Settings_Style_Preset_Custom.Text();
     }
 
-    private static void PaintSwatch(Border swatch, string hex, ColorChoiceOptions options)
+    internal static void PaintSwatch(Border swatch, string hex, ColorChoiceOptions options)
     {
         if (HexColor.TryParse(hex, out var r, out var g, out var b))
         {
@@ -747,6 +812,16 @@ public static class ColorChoice
         flyout.Hide();
     }
 
+    /// <summary>[S-1556] [S-3723] The eyedropper from a line of the properties menu, which stays where it is.</summary>
+    internal static void PickFromScreen(Action<string> choose)
+    {
+        ArgumentNullException.ThrowIfNull(choose);
+        if (!Eyedropper.IsActive)
+        {
+            AfterNextFrame(() => _ = PickFromScreenAsync(choose));
+        }
+    }
+
     /// <summary>Run <paramref name="then"/> once the next XAML frame has been handed to the compositor.</summary>
     private static void AfterNextFrame(Action then)
     {
@@ -811,7 +886,7 @@ public static class ColorChoice
     /// alpha slider too, starting there; <paramref name="choose"/> gets the colour and the alpha (1
     /// for a plain colour).
     /// </summary>
-    private static async Task CustomAsync(FrameworkElement source, string current, ColorChoiceOptions options, double? opacity, Action<string, double> choose)
+    internal static async Task CustomAsync(FrameworkElement source, string current, ColorChoiceOptions options, double? opacity, Action<string, double> choose)
     {
         if (source.XamlRoot is not { } root)
         {

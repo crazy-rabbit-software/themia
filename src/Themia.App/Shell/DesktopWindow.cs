@@ -141,6 +141,7 @@ internal sealed partial class DesktopWindow : IWidgetCardHost
         _host.EditModeChanged += OnEditModeChanged;
         _host.SelectionChanged += OnSelectionChanged;
         _host.PlacementChanged += OnPlacementChanged;
+        _host.Clipboard.Changed += OnClipboardChanged;
 
         // [S-1110] One central redraw when the language changes; no card follows it on its own.
         ApplyFlow();

@@ -1365,12 +1365,13 @@ rules in Core `Model/QuickSet.cs` and `Geometry/StripPlacement.cs` (tests `Quick
   view that display shows (`QuickSet.For`); ids no longer in it are not counted. It follows every
   selection change and every state change (an undo, a change from another display).
 - **[S-3702]** One widget: the icon row ([S-3717]), the title box (32 tall, the kind's name as its
-  placeholder), then Style ([S-6007]), the widget's own lines ([S-3719]), and the card's lines: Header,
+  placeholder), then Style ([S-6007]) and the widget's own lines ([S-3719]) with the card's among
+  them as Appearance where it places them ([S-3723]), else the card's lines after them: Header,
   Alignment ([S-6584]), Background, Item background ([S-6521]), Item text ([S-6544]) and Scale
   ([S-6531]); More settings last where its page still has rows ([S-6009]). Several: the icon row,
-  the words "N selected", then Style (one kind only), Header, Alignment, Background, Item background,
-  Item text and Scale, and **no title**, no widget lines and no More settings: a title names one
-  widget, so one typed for many would make them indistinguishable.
+  the words "N selected", then Style (one kind only) and the card's lines as their own group, and
+  **no title**, no widget lines and no More settings: a title names one widget, so one typed for
+  many would make them indistinguishable.
 - **[S-3703]** With several, a value the widgets share is ticked and a mixed one ticks nothing
   (`QuickSet.Common`); a pick sets it on every selected widget of the view (`SetHeader`,
   `SetBackground`) in one `Mutate`, so one undo step ([S-884]) however many it reached.
@@ -1417,38 +1418,71 @@ rules in Core `Model/QuickSet.cs` and `Geometry/StripPlacement.cs` (tests `Quick
   never reaches one; it is created headerless; load validation takes a header off it and says so;
   and the card draws it headerless whatever the file holds (`WidgetInstance.ShownHeader`).
 - **[S-3716]** The panel looks like **Windows 11's context menu** (user request 2026-10-19): the
-  icon row on top, a hairline under it, then 32-DIP lines inset 4 DIPs with a 4-DIP hover, each an
-  icon in a 16-DIP column, its words 12 DIPs after it, its value (or a shortcut) in the secondary
-  colour at the end, and a chevron where the line opens a submenu; dividers between groups. It is not
-  a light-dismiss menu: it stays standing beside the selection while it is used, and a line's change
-  is drawn at once. It is never narrower than 256 DIPs. (`PropertiesStrip`; renders
-  `--editbar-png` `props-*`, `--menu-png` `props-header`, `props-shortcuts-style`, `props-shortcuts-add`.)
-- **[S-3717]** The **icon row**: Cut and Copy at its start, Delete at its far end (apart from them,
-  where a slip on Cut does not reach it), Explorer's two-tone icons, 40-DIP buttons, the words with
-  the key as the tooltip ("Cut (Ctrl+X)"; "Cut 3 widgets" for several), the same commands as the
-  keys and the card menu (`CutSelected`, `CopySelected`, `DeleteSelected`).
-- **[S-3718]** A **submenu** opens beside its line (right of it, left right to left) on a click,
-  Enter, Space or the arrow towards it, built as it opens, and the line stays lit while it is open.
-  Choices of one are Windows' dots (`RadioMenuFlyoutItem`, `ItemMenuEntry.Group`), switches its
-  ticks; the line of a choice shows the option that holds. Header, Alignment, Style and Scale are
-  submenus of their options; Background, Item background and Item text open the one colour control's
-  panel ([S-6567], `ColorChoice.AttachFill` / `Attach` on the line) beside the line, the swatch in the
-  icon column and the value's words at the end. A line that cannot apply is greyed with its reason
-  as the tooltip (Alignment, [S-6584]; the item lines, [S-6571]).
+  icon row on top, a hairline under it, then 32-DIP lines inset 4 DIPs with a 4-DIP hover, each a
+  tick column (where the list has switches or choices), an icon column (where it has icons), its
+  words, its value (or a shortcut) in the secondary colour at the end, and a chevron where the line
+  opens a submenu; dividers between groups (none leading, trailing or doubled). It is not a
+  light-dismiss menu: it stays standing beside the selection while it is used, and so do its
+  submenus. It is never narrower than 256 DIPs. The menu is built again from the offer and the
+  widget's lines on every change; lines are drawn again only when a list's shape (which lines there
+  are) changed, and a change of value (a tick, a dot, the words at the end, an icon) is written into
+  the lines in place, so an open submenu, a search's box and the focus stay where they are.
+  (`PropertiesStrip`; renders `--editbar-png` `props-*`.)
+- **[S-3717]** The **icon row**: Cut, Copy and Paste at its start, Delete at its far end (apart from
+  them, where a slip on Cut does not reach it), Explorer's two-tone icons, 40-DIP buttons, the words
+  with the key as the tooltip ("Cut (Ctrl+X)"; "Cut 3 widgets" for several), the same commands as the
+  keys and the card menu (`CutSelected`, `CopySelected`, `Paste`, `DeleteSelected`). Paste is greyed
+  while the widget clipboard is empty and follows it. A cut shows at once: in edit mode the widgets
+  cut and not yet pasted are faded (0.35, as a move's originals while it is aimed, [S-78]), as
+  Explorer dims a cut file, until the paste lands or another cut or copy replaces it.
+- **[S-3718]** A **submenu** opens beside its line (the end side, the start side where the window
+  has no room, slid up to fit, scrolled when taller than the window) on a click, Enter or the arrow
+  towards it, and the line stays lit while it is open; a click on the line again, Escape or the
+  arrow away closes it, and opening another line's closes it. It is drawn by the panel itself, in
+  the same window (never a light-dismiss popup), so **a click in it does what it does and leaves it
+  open** (user request 2026-10-19): a pick moves the dot there, a switch ticks, a command runs.
+  Choices of one are Windows' dots (`ItemMenuEntry.Group`), switches its ticks; the line of a choice
+  shows the option that holds. Header, Alignment, Style and Scale are submenus of their options. A
+  line that cannot apply is greyed with its reason as the tooltip (Alignment, [S-6584]; the item
+  lines, [S-6571]). For a widget not yet on [S-3723], Background, Item background and Item text
+  open the one colour control's panel beside their line ([S-6567], `ColorChoice.AttachFill` /
+  `Attach`, `keepOpen`: a pick leaves it open too).
 - **[S-3719]** A widget's **own lines** come from its module (`IWidgetModule.MenuLines`, over a
   `WidgetMenuLines`): `Lines` stand after Style on the first level, `StyleLines` under Style after the
-  styles and a divider (what only the current look draws with, [S-6070]). They are the one menu
-  vocabulary, `ItemMenuEntry`: `Toggle`, `Choice` (a submenu of dots), `Submenu`, a command. The
-  lines are built again on every selection and state change over the live config (a change edits it
-  in place and saves as the settings page does), so they always say what the widget holds and the
-  menu is drawn again only when what they show changed. A module without lines (the default) keeps
-  its options on its settings page. Shortcuts is the first and, for now, only widget whose options
-  are all here ([S-1388]); the others move one at a time.
+  styles and a divider (what only the current look draws with, [S-6070]), and `PlaceCard` puts the
+  card's lines among them ([S-3723]). They are the one menu vocabulary, `ItemMenuEntry`: `Toggle`,
+  `Choice` (a submenu of dots, any value type), `Submenu`, `Search` ([S-3722]), `Command` (a change
+  and its save) or a plain command. The lines are built again on every selection and state change
+  over the live config (a change edits it in place and saves as the settings page does), so they
+  always say what the widget holds. A module without lines (the default) keeps its options on its
+  settings page. Shortcuts ([S-1388]), Clock ([S-1478]), the current conditions ([S-6174]), the
+  forecast ([S-6173]) and air quality ([S-5108]) have all their options here and no page; the others
+  move one at a time.
 - **[S-3721]** A line may **ask for one line of text** (`WidgetMenuLines.Ask`, `WidgetTextAsk`): a
-  small flyout beside the panel with a heading, the box, the reason under it while the widget's
-  check refuses what is typed (nothing while it is empty), and the button that gives it, which is
-  off while refused; Enter gives it too, Escape or a click away drops it, and closing hands the
+  small flyout beside the menu with a heading, the box (holding `Initial`, selected, for a name
+  being changed), the reason under it while the widget's check refuses what is typed (nothing while
+  it is empty, and an empty box is refused unless `AllowEmpty`), and the button that gives it, which
+  is off while refused; Enter gives it too, Escape or a click away drops it, and closing hands the
   keyboard back to the surface.
+- **[S-3722]** A line may be a **search** (`WidgetMenuLines.Search`, `MenuSearch`): what is chosen at
+  the end of its line; its submenu has the search box on top, the answers as lines under it and the
+  search's fixed lines after a divider (clear the choice, a switch about it). The empty text is asked
+  as it opens; what is typed is asked once typing settles for `Settle` (at once for an answer in hand,
+  the geocoder's pause, [S-2841], for a network one, "Searching…" while it is out), each answer
+  replacing the one before and a newer question dropping an older one's answer; an answer may be a
+  word in place of lines (no match, offline). Enter picks the first answer, Down moves to it, and the
+  submenu stays open on a pick. The Clock's zone ([S-1478]) and the weather family's location
+  (`WeatherPlaceRows.LocationLine`, [S-6174]) are searches.
+- **[S-3723]** Where a widget places them (`PlaceCard`), the card's own lines are one **Appearance**
+  submenu among its lines (user request 2026-10-19: not a group of their own), submenus throughout:
+  Header, Alignment, Background, Item background, Item text and Scale. A colour is a submenu of
+  menu lines, not the colour control's panel: Default (the app-wide one) and, for a fill,
+  Transparent with the dot; the swatches (the neutrals and Windows' palette, eight to a row, 24 DIPs,
+  the chosen one ticked and ringed in the accent, each one's name as its tooltip); a fill's Opacity
+  (100 % to 10 % in tens, a colour only); Custom colour (the picker's dialog) and Pick a colour from
+  the screen (the eyedropper, [S-1556]). The line shows the colour's swatch in its icon column and its
+  words at the end; a mixed selection reads as a dash. Several selected, or a widget that places
+  nothing, keep the card's lines as their own group.
 - **[S-3712]** Header Hidden leaves no trace on the card ([S-401]): no strip, no icon, no title, no
   reserved row; the content area is the whole card at every size tier.
 - **[S-3714]** Beside the selection the panel is **centred on its height** (`StripPlacement.Place`:

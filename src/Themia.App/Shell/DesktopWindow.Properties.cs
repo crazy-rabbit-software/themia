@@ -38,6 +38,8 @@ internal sealed partial class DesktopWindow
         SetAlign: _host.SetSelectedAlign,
         Cut: _host.CutSelected,
         Copy: _host.CopySelected,
+        Paste: _host.Paste,
+        CanPaste: () => _host.Clipboard.HasContent,
         Delete: _host.DeleteSelected,
         WidgetLines: _host.WidgetMenuLines);
 

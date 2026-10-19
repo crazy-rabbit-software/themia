@@ -170,18 +170,6 @@ internal static class MenuRender
                     folderView.Detach();
                 }
 
-                // [S-6520] [S-404] The properties panel's Header menu, opened from its own drop-down
-                // for a widget whose header is on the left, so Left is ticked.
-                notes.Header = HeaderPlacement.Left;
-                await PanelMenuAsync(root, view, notes, Str.App_ConfigHeaderLabel.Text(), System.IO.Path.Combine(outDir, "props-header.png")).ConfigureAwait(true);
-
-                // [S-3719] Shortcuts' own lines: its Style submenu (the styles, then what tiles draw
-                // with) and its Add submenu.
-                var shortcuts = WidgetInstance.Create(new WidgetId("shortcuts"), new FracRect(0.1, 0.4, 0.3, 0.3));
-                view.Widgets.Add(shortcuts);
-                await PanelMenuAsync(root, view, shortcuts, Str.Styles_Label.Text(), System.IO.Path.Combine(outDir, "props-shortcuts-style.png")).ConfigureAwait(true);
-                await PanelMenuAsync(root, view, shortcuts, Str.Common_Add.Text(), System.IO.Path.Combine(outDir, "props-shortcuts-add.png")).ConfigureAwait(true);
-
                 // [S-1757] The menus' pictures must cost kilobytes, not a screen-sized raster each.
                 using var process = System.Diagnostics.Process.GetCurrentProcess();
                 Console.WriteLine($"menu: private {process.PrivateMemorySize64 / (1024.0 * 1024.0):0.0} MB after every menu");
@@ -211,34 +199,6 @@ internal static class MenuRender
         }
 
         await ShowAndSaveAsync(root, menu, path).ConfigureAwait(true);
-    }
-
-    /// <summary>A real properties panel for <paramref name="widget"/>, and the submenu its <paramref name="line"/> line opens.</summary>
-    private static async Task PanelMenuAsync(Grid root, ViewState view, WidgetInstance widget, string line, string path)
-    {
-        var selection = new WidgetSelection();
-        selection.Replace(view.Id, [widget.Id]);
-        var strip = new PropertiesStrip(new PropertiesCommands(_ => { }, _ => { }, (_, _) => { }, () => { }, _ => { }, _ => { }, _ => { }, _ => { }, _ => { },
-            id => view.Find(id) is { } found && Config.ConfigPages.HasWidgetSettings(found),
-            Cut: () => { }, Copy: () => { }, Delete: () => { },
-            WidgetLines: (id, ask) => view.Find(id) is { } found ? ModuleHost.MenuLines(found, () => { }, ask) : null));
-        UiLanguage.ApplyFlow(strip);
-        strip.ShowSelection(QuickSet.For(new AppState { Views = [view] }, selection, view.Id));
-        strip.Visibility = Visibility.Visible;
-        var holder = new Canvas { Children = { strip } };
-        root.Children.Add(holder);
-        await Task.Delay(300).ConfigureAwait(true);
-
-        if (strip.DebugSubmenu(line) is not { } menu)
-        {
-            Log.Error(Scope, "the properties panel has no such submenu line");
-            Console.WriteLine($"menu: no {line} line for {path}");
-            root.Children.Remove(holder);
-            return;
-        }
-
-        await ShowAndSaveAsync(root, menu, path).ConfigureAwait(true);
-        root.Children.Remove(holder);
     }
 
     /// <summary>Open the menu inside the window, draw the popup's content, close it.</summary>

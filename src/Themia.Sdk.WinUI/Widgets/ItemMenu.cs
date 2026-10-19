@@ -43,6 +43,7 @@ namespace Themia.App.Widgets;
 /// [S-3718] With <paramref name="Checked"/>, the entry is one of a set of choices of which one holds
 /// (Windows draws a dot, not a tick): the entries of one group sharing this name.
 /// </param>
+/// <param name="Search">[S-3722] The properties menu's search, opened beside the line; item menus have none.</param>
 public readonly record struct ItemMenuEntry(
     string? Glyph,
     string Text,
@@ -54,12 +55,13 @@ public readonly record struct ItemMenuEntry(
     QuickCommand? Quick = null,
     KeyChord? Shortcut = null,
     string? IconFile = null,
-    string? Group = null)
+    string? Group = null,
+    Themia.Sdk.WinUI.MenuSearch? Search = null)
 {
     /// <summary>A divider between groups. Leading, trailing and doubled separators are dropped.</summary>
     public static ItemMenuEntry Separator => new(null, string.Empty, null);
 
-    public bool IsSeparator => Action is null && Children is null;
+    public bool IsSeparator => Action is null && Children is null && Search is null;
 
     /// <summary>[S-1740] Toggles and submenus never go to the icon row: an icon cannot show a check or an arrow.</summary>
     internal MenuLine Line => IsSeparator ? MenuLine.Separator : MenuLine.Entry(Checked is null && Children is null ? Quick : null);
@@ -444,7 +446,7 @@ public static class ItemMenu
     /// can be clicked, File Explorer's two-tone picture of its glyph ([S-1754]); else the glyph
     /// itself (greyed by the menu when disabled); else none.
     /// </summary>
-    private static IconElement? IconFor(ItemMenuEntry entry)
+    internal static IconElement? IconFor(ItemMenuEntry entry)
     {
         if (entry.IconFile is { } file)
         {
