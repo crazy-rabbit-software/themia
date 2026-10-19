@@ -75,9 +75,12 @@ internal static class ShortcutsMenu
             look.Add(menu.Toggle(null, Str.Folder_ShowExtMenu.Text(), config.ShowFileExtension, on => config.ShowFileExtension = on));
         }
 
-        // [S-3723] The card's own lines first, as one Appearance submenu after Style.
+        // [S-3723] The card's own lines first, as one Appearance submenu after Style. [S-1388] Then,
+        // each group behind a divider: how a shortcut opens; the shortcuts and adding one.
         menu.PlaceCard();
+        menu.Lines.Add(ItemMenuEntry.Separator);
         menu.Lines.Add(menu.Choice(Glyphs.Open, ShortcutsStr.WidgetsC_Shortcuts_Settings_OpenWith_Label.Text(), Clicks(), config.ClickMode, value => config.ClickMode = value));
+        menu.Lines.Add(ItemMenuEntry.Separator);
         menu.Lines.Add(WidgetMenuLines.SetsUp(WidgetMenuLines.Submenu(Glyphs.Add, Str.Common_Add.Text(), Add(menu, config, layouts))));
         menu.Lines.Add(Items(menu, config, layouts));
     }

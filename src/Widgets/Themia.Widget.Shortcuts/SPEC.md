@@ -72,13 +72,13 @@ through `SettingsHost.OwnPicker`, the layout editor through `SettingsHost.AppLay
   Escape cancels); a name equal to the derived one clears the label.
 - **[S-1388]** Options (original S-16, S-45, S-61), all on the properties menu ([S-3719], user request
   2026-10-19); the widget has **no settings page**, so no More settings line and no Settings on its
-  card menu ([S-1750]). Under Style: what the look draws with ([S-6401]); then **Open with** (Double
-  click / Single click) and **Add**: File… and Folder… (the pickers), Web address or path… (asked
+  card menu ([S-1750]). Under Style: what the look draws with ([S-6401]); then Appearance and,
+  each group behind a divider, **Open with** (Double click / Single click), then **Add**: File… and Folder… (the pickers), Web address or path… (asked
   beside the menu, [S-3721]: `LaunchTargets` refuses it as it is typed, with the reason, and it
   cannot be added while refused; nothing is corrected), App layout… (added, then its editor,
   [S-1411]; greyed where there is none), and Windows locations, one switch each with Explorer's
-  icon: on adds it, off removes every item pointing there, so the switch says what the widget holds.
-  Shortcuts are ordered, renamed and removed on the widget ([S-1387], [S-1410]); the list editor
+  icon: on adds it, off removes every item pointing there, so the switch says what the widget holds;
+  and the shortcuts themselves ([S-3729]). Shortcuts are ordered, renamed and removed on the widget ([S-1387], [S-1410]); the list editor
   is gone. (Tests `ShortcutsMenuTests`.)
 - **[S-1389]** Recycle Bin (original S-75): an item pointing at `shell:RecycleBinFolder` shows a
   count badge ("99+" cap; a dot under a 24 px icon), none when empty or unknown; tooltip

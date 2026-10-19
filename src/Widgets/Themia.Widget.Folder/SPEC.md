@@ -109,11 +109,12 @@ by `tests/Themia.Modules.Tests`); its config and rules under the root's tags are
 - **[S-1337]** Its options are all on the properties menu ([S-3719], user request 2026-10-19); it
   has no settings page. Under Style what the style draws ([S-4121]): Row size or Tile size (a
   choice), Details columns (a submenu of switches), Show file extensions, Sort by (Name / Date
-  modified / Size, with Reverse order under them). Then Appearance ([S-3723]), **Folder** (its name
+  modified / Size, with Reverse order under them). Then Appearance ([S-3723]) and, each group
+  behind a divider, **Folder** (its name
   at the line's end, the user folder's while empty) with Browse… (Windows' folder picker, [S-3730])
   and Type a path… (asked beside the menu, [S-3721]: checked by `FolderPath` as it is typed and
-  refused with the reason, never repaired; empty means the user folder), **Show hidden items**,
-  **Open items with** (Double / Single click) and **Open folders** (In Explorer / Inside the widget).
+  refused with the reason, never repaired; empty means the user folder) and **Show hidden items**;
+  then **Open items with** (Double / Single click) and **Open folders** (In Explorer / Inside the widget).
   (Tests `FolderPropertiesMenuTests`.)
 - **[S-4122]** Debug renders: `--widget-png Folder <out> --style list|details|grid|icons --state web|wallpapers`
   lists `%WINDIR%\Web` or its Windows wallpapers (read-only) instead of the profile; its menu's

@@ -84,14 +84,14 @@ public sealed class ShortcutsMenuTests
     }
 
     [Fact]
-    public void S1388_the_first_level_is_appearance_then_open_with_add_and_the_shortcuts()
+    public void S1388_the_first_level_is_appearance_then_open_with_then_add_and_the_shortcuts_each_behind_a_divider()
     {
         var lines = Build(new ShortcutsConfig()).Lines;
 
         Assert.Equal(0, lines.CardAt);
         Assert.Equal(
-            [ShortcutsStr.WidgetsC_Shortcuts_Settings_OpenWith_Label.Text(), Str.Common_Add.Text(), ShortcutsStr.WidgetsA_Catalog_Shortcuts_Label.Text()],
-            lines.Lines.Select(l => l.Text));
+            ["-", ShortcutsStr.WidgetsC_Shortcuts_Settings_OpenWith_Label.Text(), "-", Str.Common_Add.Text(), ShortcutsStr.WidgetsA_Catalog_Shortcuts_Label.Text()],
+            lines.Lines.Select(l => l.IsSeparator ? "-" : l.Text));
     }
 
     private static ShortcutsConfig Three() => new()

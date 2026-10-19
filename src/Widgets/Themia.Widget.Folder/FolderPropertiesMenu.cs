@@ -10,7 +10,7 @@ namespace Themia.App.Shell.Config;
 /// <summary>
 /// [S-1337] The Folder widget's options, all on its properties menu ([S-3719]): under Style what the
 /// look draws ([S-4121]: row or tile size, the details columns, the extensions, the order); then
-/// Appearance ([S-3723]), the folder, hidden items and how items and folders open. It has no
+/// Appearance ([S-3723]), the folder and hidden items, and how items and folders open. It has no
 /// settings page. (Its item and background menus are <see cref="FolderMenu"/>.)
 /// </summary>
 internal static class FolderPropertiesMenu
@@ -22,10 +22,14 @@ internal static class FolderPropertiesMenu
 
         StyleLines(menu, config);
 
+        // [S-1337] After the look, each group behind a divider: the folder and what of it is
+        // listed; then how its items and its folders open.
         menu.PlaceCard();
         var lines = menu.Lines;
+        lines.Add(ItemMenuEntry.Separator);
         lines.Add(FolderLine(menu, config));
         lines.Add(menu.Toggle(Glyphs.Hidden, FolderStr.WidgetsB_Folder_ShowHiddenItems.Text(), config.ShowHidden, on => config.ShowHidden = on));
+        lines.Add(ItemMenuEntry.Separator);
         lines.Add(menu.Choice(Glyphs.Open, FolderStr.WidgetsB_Settings_Folder_OpenWith_Label.Text(),
             [(ItemClickMode.Double, FolderStr.WidgetsB_Settings_Folder_DoubleClick.Text()), (ItemClickMode.Single, FolderStr.WidgetsB_Settings_Folder_SingleClick.Text())],
             config.ClickMode, value => config.ClickMode = value));
