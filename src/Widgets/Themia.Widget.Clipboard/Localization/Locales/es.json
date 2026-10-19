@@ -8,9 +8,6 @@
   "widgetsA.clipboard.empty": "Aún no has copiado nada. Copia algo y aparecerá aquí.",
   "widgetsA.clipboard.noListener": "Windows no permitió que esta aplicación vigilara el portapapeles.",
   "widgetsA.clipboard.remove": "Quitar del historial",
-  "widgetsA.clipboard.settings.clear.desc": "Usa el botón de papelera del propio widget; pide confirmación",
-  "widgetsA.clipboard.settings.clear.where": "En el widget",
-  "widgetsA.clipboard.settings.entries.desc": "De {min} a {max}; al bajarlo se olvidan los más antiguos",
   "widgetsA.clipboard.settings.entries.label": "Entradas",
   "widgetsA.clipboard.settings.privacyNote": "El texto copiado solo se guarda en memoria. Nunca se leen archivos ni imágenes.",
   "widgetsA.clipboard.settings.timestamp.label": "Mostrar cuándo se copió"

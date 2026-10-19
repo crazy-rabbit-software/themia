@@ -8,9 +8,6 @@
   "widgetsA.clipboard.empty": "Rien n’a encore été copié. Copie quelque chose et cela apparaîtra ici.",
   "widgetsA.clipboard.noListener": "Windows n’a pas autorisé cette application à surveiller le presse-papiers.",
   "widgetsA.clipboard.remove": "Supprimer de l’historique",
-  "widgetsA.clipboard.settings.clear.desc": "Utilise le bouton corbeille du widget lui-même ; il demande d’abord confirmation",
-  "widgetsA.clipboard.settings.clear.where": "Sur le widget",
-  "widgetsA.clipboard.settings.entries.desc": "De {min} à {max} ; réduire oublie les plus anciens",
   "widgetsA.clipboard.settings.entries.label": "Entrées",
   "widgetsA.clipboard.settings.privacyNote": "Le texte copié reste en mémoire uniquement. Les fichiers et images ne sont jamais lus.",
   "widgetsA.clipboard.settings.timestamp.label": "Afficher quand c’était copié"

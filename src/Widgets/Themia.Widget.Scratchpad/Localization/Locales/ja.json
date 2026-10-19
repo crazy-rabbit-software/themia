@@ -1,10 +1,7 @@
 {
   "scratchpad.drawHere": "ここに描く",
-  "scratchpad.penColorDesc": "最初の色。ウィジェットのツール バーでも選べます",
   "scratchpad.penColorLabel": "ペンの色",
-  "scratchpad.penSizeDesc": "新しい線の初期の太さです。",
   "scratchpad.penSizeLabel": "ペンの太さ",
-  "scratchpad.penTab": "ペン",
   "widget.scratchpad.label": "らくがき帳",
   "widgetsA.catalog.scratchpad.description": "絵を描くスペース",
   "widgetsC.scratchpad.clearConfirm": "絵をすべてクリアしますか?",
@@ -20,9 +17,6 @@
   "widgetsC.scratchpad.ink.rose": "ローズ",
   "widgetsC.scratchpad.ink.violet": "バイオレット",
   "widgetsC.scratchpad.penSizeTip": "ペンの太さ {size} px",
-  "widgetsC.scratchpad.settings.inks": "インク",
-  "widgetsC.scratchpad.settings.showTools.desc": "ウィジェットのヘッダーにある消しゴム、元に戻す、クリアのボタン",
   "widgetsC.scratchpad.settings.showTools.label": "ツールを表示",
-  "widgetsC.scratchpad.settings.tools": "ツール",
   "widgetsC.scratchpad.undo": "元に戻す"
 }

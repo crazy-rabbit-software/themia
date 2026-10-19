@@ -1,10 +1,7 @@
 {
   "scratchpad.drawHere": "วาดที่นี่",
-  "scratchpad.penColorDesc": "สีเริ่มต้น และมีในแถบเครื่องมือของวิดเจ็ตด้วย",
   "scratchpad.penColorLabel": "สีปากกา",
-  "scratchpad.penSizeDesc": "ขนาดแปรงเริ่มต้นสำหรับเส้นใหม่",
   "scratchpad.penSizeLabel": "ขนาดปากกา",
-  "scratchpad.penTab": "ปากกา",
   "widget.scratchpad.label": "กระดานร่าง",
   "widgetsA.catalog.scratchpad.description": "พื้นที่สำหรับวาด",
   "widgetsC.scratchpad.clearConfirm": "ล้างภาพวาดทั้งหมดหรือไม่",
@@ -20,9 +17,6 @@
   "widgetsC.scratchpad.ink.rose": "ชมพูกุหลาบ",
   "widgetsC.scratchpad.ink.violet": "ม่วง",
   "widgetsC.scratchpad.penSizeTip": "ขนาดปากกา {size} px",
-  "widgetsC.scratchpad.settings.inks": "หมึก",
-  "widgetsC.scratchpad.settings.showTools.desc": "ปุ่มยางลบ เลิกทำ และล้าง ในส่วนหัวของวิดเจ็ต",
   "widgetsC.scratchpad.settings.showTools.label": "แสดงเครื่องมือ",
-  "widgetsC.scratchpad.settings.tools": "เครื่องมือ",
   "widgetsC.scratchpad.undo": "เลิกทำ"
 }

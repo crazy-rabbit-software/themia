@@ -1,10 +1,7 @@
 {
   "scratchpad.drawHere": "এখানে আঁকুন",
-  "scratchpad.penColorDesc": "শুরুর রং; উইজেটের টুলবারেও আছে",
   "scratchpad.penColorLabel": "কলমের রং",
-  "scratchpad.penSizeDesc": "নতুন স্ট্রোকের শুরুর ব্রাশ আকার।",
   "scratchpad.penSizeLabel": "কলমের আকার",
-  "scratchpad.penTab": "কলম",
   "widget.scratchpad.label": "স্ক্র্যাচপ্যাড",
   "widgetsA.catalog.scratchpad.description": "আঁকার একটি জায়গা",
   "widgetsC.scratchpad.clearConfirm": "পুরো আঁকা মুছে দেবেন?",
@@ -20,9 +17,6 @@
   "widgetsC.scratchpad.ink.rose": "গোলাপ",
   "widgetsC.scratchpad.ink.violet": "বেগুনি",
   "widgetsC.scratchpad.penSizeTip": "কলমের আকার {size} px",
-  "widgetsC.scratchpad.settings.inks": "কালি",
-  "widgetsC.scratchpad.settings.showTools.desc": "উইজেটের হেডারে ইরেজার, পূর্বাবস্থা ও মুছুন বোতাম",
   "widgetsC.scratchpad.settings.showTools.label": "টুল দেখান",
-  "widgetsC.scratchpad.settings.tools": "টুল",
   "widgetsC.scratchpad.undo": "পূর্বাবস্থায় ফেরান"
 }

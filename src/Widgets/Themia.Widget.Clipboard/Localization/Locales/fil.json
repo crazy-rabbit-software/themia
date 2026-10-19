@@ -8,9 +8,6 @@
   "widgetsA.clipboard.empty": "Wala pang kinopya. Kumopya ng kahit ano at lalabas ito rito.",
   "widgetsA.clipboard.noListener": "Hindi pinayagan ng Windows ang app na ito na bantayan ang clipboard.",
   "widgetsA.clipboard.remove": "Alisin sa history",
-  "widgetsA.clipboard.settings.clear.desc": "Gamitin ang bin button sa widget mismo; magtatanong muna ito",
-  "widgetsA.clipboard.settings.clear.where": "Sa widget",
-  "widgetsA.clipboard.settings.entries.desc": "{min} hanggang {max}; kapag ibinaba ay makakalimutan ang pinakaluma",
   "widgetsA.clipboard.settings.entries.label": "Mga entry",
   "widgetsA.clipboard.settings.privacyNote": "Nananatili lang sa memory ang kinopyang text. Hindi kailanman binabasa ang mga file at larawan.",
   "widgetsA.clipboard.settings.timestamp.label": "Ipakita kung kailan ito kinopya"

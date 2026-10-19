@@ -1,10 +1,7 @@
 {
   "scratchpad.drawHere": "在此绘制",
-  "scratchpad.penColorDesc": "初始颜色；也可在小组件工具栏中选择",
   "scratchpad.penColorLabel": "画笔颜色",
-  "scratchpad.penSizeDesc": "新笔画的初始粗细。",
   "scratchpad.penSizeLabel": "画笔粗细",
-  "scratchpad.penTab": "画笔",
   "widget.scratchpad.label": "草稿本",
   "widgetsA.catalog.scratchpad.description": "一块绘画区域",
   "widgetsC.scratchpad.clearConfirm": "要清除整个绘图吗？",
@@ -20,9 +17,6 @@
   "widgetsC.scratchpad.ink.rose": "玫红",
   "widgetsC.scratchpad.ink.violet": "紫罗兰",
   "widgetsC.scratchpad.penSizeTip": "笔触大小 {size} px",
-  "widgetsC.scratchpad.settings.inks": "墨色",
-  "widgetsC.scratchpad.settings.showTools.desc": "小组件标题栏中的橡皮擦、撤销和清除按钮",
   "widgetsC.scratchpad.settings.showTools.label": "显示工具",
-  "widgetsC.scratchpad.settings.tools": "工具",
   "widgetsC.scratchpad.undo": "撤销"
 }

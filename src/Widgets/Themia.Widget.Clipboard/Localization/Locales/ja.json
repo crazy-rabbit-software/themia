@@ -8,9 +8,6 @@
   "widgetsA.clipboard.empty": "まだ何もコピーされていません。コピーするとここに表示されます。",
   "widgetsA.clipboard.noListener": "Windows がこのアプリによるクリップボードの監視を許可しませんでした。",
   "widgetsA.clipboard.remove": "履歴から削除",
-  "widgetsA.clipboard.settings.clear.desc": "ウィジェット本体のごみ箱ボタンを使います。確認が表示されます",
-  "widgetsA.clipboard.settings.clear.where": "ウィジェット上",
-  "widgetsA.clipboard.settings.entries.desc": "{min}～{max}。減らすと古いものから消えます",
   "widgetsA.clipboard.settings.entries.label": "項目数",
   "widgetsA.clipboard.settings.privacyNote": "コピーしたテキストはメモリにのみ保持されます。ファイルや画像は読み取りません。",
   "widgetsA.clipboard.settings.timestamp.label": "コピーした時刻を表示"

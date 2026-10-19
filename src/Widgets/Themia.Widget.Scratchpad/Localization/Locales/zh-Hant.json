@@ -1,10 +1,7 @@
 {
   "scratchpad.drawHere": "在此繪製",
-  "scratchpad.penColorDesc": "初始色彩；也可在小工具的工具列中選擇",
   "scratchpad.penColorLabel": "畫筆色彩",
-  "scratchpad.penSizeDesc": "新筆畫的初始粗細。",
   "scratchpad.penSizeLabel": "畫筆粗細",
-  "scratchpad.penTab": "畫筆",
   "widget.scratchpad.label": "塗鴉板",
   "widgetsA.catalog.scratchpad.description": "一塊繪圖區域",
   "widgetsC.scratchpad.clearConfirm": "要清除整個繪圖嗎？",
@@ -20,9 +17,6 @@
   "widgetsC.scratchpad.ink.rose": "玫瑰紅",
   "widgetsC.scratchpad.ink.violet": "紫羅蘭",
   "widgetsC.scratchpad.penSizeTip": "筆觸大小 {size} px",
-  "widgetsC.scratchpad.settings.inks": "墨水色彩",
-  "widgetsC.scratchpad.settings.showTools.desc": "小工具標題列中的橡皮擦、復原和清除按鈕",
   "widgetsC.scratchpad.settings.showTools.label": "顯示工具",
-  "widgetsC.scratchpad.settings.tools": "工具",
   "widgetsC.scratchpad.undo": "復原"
 }

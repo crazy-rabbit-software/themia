@@ -1,10 +1,7 @@
 {
   "scratchpad.drawHere": "Dessine ici",
-  "scratchpad.penColorDesc": "Couleur de départ ; aussi dans la barre du widget",
   "scratchpad.penColorLabel": "Couleur du stylo",
-  "scratchpad.penSizeDesc": "Épaisseur initiale du pinceau pour les nouveaux traits.",
   "scratchpad.penSizeLabel": "Épaisseur du stylo",
-  "scratchpad.penTab": "Stylo",
   "widget.scratchpad.label": "Bloc à dessin",
   "widgetsA.catalog.scratchpad.description": "Un espace pour dessiner",
   "widgetsC.scratchpad.clearConfirm": "Effacer tout le dessin ?",
@@ -20,9 +17,6 @@
   "widgetsC.scratchpad.ink.rose": "Rose",
   "widgetsC.scratchpad.ink.violet": "Violet",
   "widgetsC.scratchpad.penSizeTip": "Taille du stylet {size} px",
-  "widgetsC.scratchpad.settings.inks": "Encres",
-  "widgetsC.scratchpad.settings.showTools.desc": "Les boutons gomme, annuler et effacer dans l’en-tête du widget",
   "widgetsC.scratchpad.settings.showTools.label": "Afficher les outils",
-  "widgetsC.scratchpad.settings.tools": "Outils",
   "widgetsC.scratchpad.undo": "Annuler"
 }

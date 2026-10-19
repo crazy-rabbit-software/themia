@@ -1,10 +1,7 @@
 {
   "scratchpad.drawHere": "Chora hapa",
-  "scratchpad.penColorDesc": "Rangi ya kuanzia; pia iko kwenye upau wa zana wa wijeti",
   "scratchpad.penColorLabel": "Rangi ya kalamu",
-  "scratchpad.penSizeDesc": "Ukubwa wa brashi wa kuanzia kwa mistari mipya.",
   "scratchpad.penSizeLabel": "Ukubwa wa kalamu",
-  "scratchpad.penTab": "Kalamu",
   "widget.scratchpad.label": "Ubao wa kuchorea",
   "widgetsA.catalog.scratchpad.description": "Mahali pa kuchora",
   "widgetsC.scratchpad.clearConfirm": "Futa mchoro wote?",
@@ -20,9 +17,6 @@
   "widgetsC.scratchpad.ink.rose": "Waridi",
   "widgetsC.scratchpad.ink.violet": "Urujuani",
   "widgetsC.scratchpad.penSizeTip": "Ukubwa wa kalamu {size} px",
-  "widgetsC.scratchpad.settings.inks": "Wino",
-  "widgetsC.scratchpad.settings.showTools.desc": "Vitufe vya kifutio, tendua na futa kwenye kichwa cha wijeti",
   "widgetsC.scratchpad.settings.showTools.label": "Onyesha zana",
-  "widgetsC.scratchpad.settings.tools": "Zana",
   "widgetsC.scratchpad.undo": "Tendua"
 }

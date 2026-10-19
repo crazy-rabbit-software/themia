@@ -5,16 +5,16 @@ undo, clear and full screen; the drawing is the widget's config. Its tags are th
 root `SPEC.md` holds the host's sections (the widgets' one confirmation [S-1500], the keyboard lease
 [S-800], the colour picker [S-1549], the ladder rules [S-660]..[S-666]).
 
-Owning files: everything in this folder: `ScratchpadModule.cs` (descriptor, view factory, settings
-rows, JSON context, glyph), `ScratchpadConfig.cs`, `InkGeometry.cs` (the strokes as stored, thinning,
-the eraser), `InkPalette.cs` (the inks and nibs), `ScratchpadView*.cs`, `ScratchpadSettings.cs` (its
-page), `Preview/` (Debug renders), `Localization/Locales/` (its own `ScratchpadStr`, 30 languages).
+Owning files: everything in this folder: `ScratchpadModule.cs` (descriptor, view factory, menu
+lines, JSON context, glyph), `ScratchpadConfig.cs`, `InkGeometry.cs` (the strokes as stored, thinning,
+the eraser), `InkPalette.cs` (the inks and nibs), `ScratchpadView*.cs`, `ScratchpadMenu.cs` (its
+properties-menu lines), `Preview/` (Debug renders), `Localization/Locales/` (its own `ScratchpadStr`, 30 languages).
 Tests: `Tests/` (run by `tests/Themia.Modules.Tests`).
 
 - **[S-651]** The scratchpad's header tools shed eraser, then clear; undo stays. A hidden eraser is
   switched off.
 - **[S-1497]** Scratchpad ink bar (original S-02 toolbar): six preset inks (`InkPalette`, shared
-  with the settings picker) and the original's three nibs 2/4/8 px at the foot of the pad from
+  with the pen colour's swatches on the properties menu, [S-1501]) and the original's three nibs 2/4/8 px at the foot of the pad from
   Regular × Regular; nibs only when the width holds both; nothing more on a larger pad (the stroke
   count at W ≥ Expanded is retired, concise widgets). Picking an
   ink or a nib leaves the eraser. Header tools still shed per S-651. Not ported: export as PNG.
@@ -32,6 +32,13 @@ Tests: `Tests/` (run by `tests/Themia.Modules.Tests`).
   units; another shape would stretch them), as large as the display holds. The tile's button
   leaves it; so does the widget detaching (a view switch, a removal). Needs a live pass: pointer and
   pen input in the popup, a top or side taskbar, mixed DPI.
+
+- **[S-1501]** Its options are all on the properties menu ([S-3719], user request 2026-10-19); it
+  has no settings page. Appearance ([S-3723]), then **Pen color** (the one colour submenu, [S-3724]:
+  the six inks first, no Default since a pen always has a colour, Custom colour and the eyedropper),
+  **Pen size** (typed, 1–24 px, [S-3726]) and **Show tools** (a switch: the eraser, undo and clear in
+  the header, [S-651]). Clearing the drawing stays on the pad, behind its confirmation ([S-1500]).
+  (Tests `ScratchpadMenuTests`.)
 
 Needs a manual pass: pen, touch and mouse drawing on the live desktop at every tier, and full
 screen on a top or side taskbar and mixed DPI ([S-1499]).

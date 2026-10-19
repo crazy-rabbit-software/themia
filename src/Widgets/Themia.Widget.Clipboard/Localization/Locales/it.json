@@ -8,9 +8,6 @@
   "widgetsA.clipboard.empty": "Non hai ancora copiato nulla. Copia qualcosa e comparirà qui.",
   "widgetsA.clipboard.noListener": "Windows non ha consentito a questa app di monitorare gli appunti.",
   "widgetsA.clipboard.remove": "Rimuovi dalla cronologia",
-  "widgetsA.clipboard.settings.clear.desc": "Usa il pulsante del cestino nel widget stesso; chiede prima conferma",
-  "widgetsA.clipboard.settings.clear.where": "Nel widget",
-  "widgetsA.clipboard.settings.entries.desc": "Da {min} a {max}; abbassarlo dimentica i più vecchi",
   "widgetsA.clipboard.settings.entries.label": "Voci",
   "widgetsA.clipboard.settings.privacyNote": "Il testo copiato resta solo in memoria. File e immagini non vengono mai letti.",
   "widgetsA.clipboard.settings.timestamp.label": "Mostra quando è stato copiato"

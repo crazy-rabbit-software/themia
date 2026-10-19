@@ -1,10 +1,7 @@
 {
   "scratchpad.drawHere": "Vẽ ở đây",
-  "scratchpad.penColorDesc": "Màu ban đầu; cũng có trên thanh công cụ của tiện ích",
   "scratchpad.penColorLabel": "Màu bút",
-  "scratchpad.penSizeDesc": "Cỡ bút ban đầu cho nét vẽ mới.",
   "scratchpad.penSizeLabel": "Cỡ bút",
-  "scratchpad.penTab": "Bút",
   "widget.scratchpad.label": "Bảng nháp",
   "widgetsA.catalog.scratchpad.description": "Một chỗ để vẽ",
   "widgetsC.scratchpad.clearConfirm": "Xóa toàn bộ bản vẽ?",
@@ -20,9 +17,6 @@
   "widgetsC.scratchpad.ink.rose": "Hồng",
   "widgetsC.scratchpad.ink.violet": "Tím",
   "widgetsC.scratchpad.penSizeTip": "Cỡ bút {size} px",
-  "widgetsC.scratchpad.settings.inks": "Màu mực",
-  "widgetsC.scratchpad.settings.showTools.desc": "Nút tẩy, hoàn tác và xóa trên tiêu đề của tiện ích",
   "widgetsC.scratchpad.settings.showTools.label": "Hiện công cụ",
-  "widgetsC.scratchpad.settings.tools": "Công cụ",
   "widgetsC.scratchpad.undo": "Hoàn tác"
 }

@@ -8,9 +8,6 @@
   "widgetsA.clipboard.empty": "এখনও কিছু কপি করা হয়নি। কিছু কপি করলে এখানে দেখাবে।",
   "widgetsA.clipboard.noListener": "Windows এই অ্যাপকে ক্লিপবোর্ড দেখতে দেয়নি।",
   "widgetsA.clipboard.remove": "ইতিহাস থেকে সরান",
-  "widgetsA.clipboard.settings.clear.desc": "উইজেটেই বিন বোতামটি ব্যবহার করুন; এটি আগে জিজ্ঞাসা করে",
-  "widgetsA.clipboard.settings.clear.where": "উইজেটে",
-  "widgetsA.clipboard.settings.entries.desc": "{min} থেকে {max}; কমালে সবচেয়ে পুরোনোগুলো মুছে যায়",
   "widgetsA.clipboard.settings.entries.label": "এন্ট্রি",
   "widgetsA.clipboard.settings.privacyNote": "কপি করা লেখা শুধু মেমরিতে থাকে। ফাইল ও ছবি কখনও পড়া হয় না।",
   "widgetsA.clipboard.settings.timestamp.label": "কখন কপি করা হয়েছে দেখান"

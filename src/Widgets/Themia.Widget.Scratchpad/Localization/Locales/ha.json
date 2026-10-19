@@ -1,10 +1,7 @@
 {
   "scratchpad.drawHere": "Zana a nan",
-  "scratchpad.penColorDesc": "Launin farawa; kuma a sandar kayan aikin widget",
   "scratchpad.penColorLabel": "Launin alƙalami",
-  "scratchpad.penSizeDesc": "Girman goga na farawa don sabbin zane.",
   "scratchpad.penSizeLabel": "Girman alƙalami",
-  "scratchpad.penTab": "Alƙalami",
   "widget.scratchpad.label": "Allon zane",
   "widgetsA.catalog.scratchpad.description": "Wuri don zana",
   "widgetsC.scratchpad.clearConfirm": "Share duk zanen?",
@@ -20,9 +17,6 @@
   "widgetsC.scratchpad.ink.rose": "Ja-ja",
   "widgetsC.scratchpad.ink.violet": "Shunayya",
   "widgetsC.scratchpad.penSizeTip": "Girman alƙalami {size} px",
-  "widgetsC.scratchpad.settings.inks": "Tawada",
-  "widgetsC.scratchpad.settings.showTools.desc": "Maɓallan goge, soke da share a kanun widget",
   "widgetsC.scratchpad.settings.showTools.label": "Nuna kayan aiki",
-  "widgetsC.scratchpad.settings.tools": "Kayan aiki",
   "widgetsC.scratchpad.undo": "Soke"
 }

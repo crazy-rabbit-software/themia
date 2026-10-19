@@ -1,10 +1,7 @@
 {
   "scratchpad.drawHere": "અહીં દોરો",
-  "scratchpad.penColorDesc": "શરૂઆતનો રંગ; વિજેટના ટૂલબારમાં પણ",
   "scratchpad.penColorLabel": "પેનનો રંગ",
-  "scratchpad.penSizeDesc": "નવા સ્ટ્રોક માટે બ્રશનું શરૂઆતનું કદ.",
   "scratchpad.penSizeLabel": "પેનનું કદ",
-  "scratchpad.penTab": "પેન",
   "widget.scratchpad.label": "સ્ક્રેચપૅડ",
   "widgetsA.catalog.scratchpad.description": "દોરવાની જગ્યા",
   "widgetsC.scratchpad.clearConfirm": "આખું ચિત્ર સાફ કરીએ?",
@@ -20,9 +17,6 @@
   "widgetsC.scratchpad.ink.rose": "ગુલાબી",
   "widgetsC.scratchpad.ink.violet": "જાંબલી",
   "widgetsC.scratchpad.penSizeTip": "પેનનું કદ {size} px",
-  "widgetsC.scratchpad.settings.inks": "શાહી",
-  "widgetsC.scratchpad.settings.showTools.desc": "વિજેટના હેડરમાં ઇરેઝર, પૂર્વવત્ અને સાફ કરો બટન",
   "widgetsC.scratchpad.settings.showTools.label": "સાધનો બતાવો",
-  "widgetsC.scratchpad.settings.tools": "સાધનો",
   "widgetsC.scratchpad.undo": "પૂર્વવત્ કરો"
 }

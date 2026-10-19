@@ -1,10 +1,7 @@
 {
   "scratchpad.drawHere": "Buraya çizin",
-  "scratchpad.penColorDesc": "Başlangıç rengi; pencere öğesinin araç çubuğunda da bulunur",
   "scratchpad.penColorLabel": "Kalem rengi",
-  "scratchpad.penSizeDesc": "Yeni çizgiler için başlangıç fırça boyutu.",
   "scratchpad.penSizeLabel": "Kalem boyutu",
-  "scratchpad.penTab": "Kalem",
   "widget.scratchpad.label": "Karalama defteri",
   "widgetsA.catalog.scratchpad.description": "Çizim yapılacak bir yer",
   "widgetsC.scratchpad.clearConfirm": "Tüm çizim temizlensin mi?",
@@ -20,9 +17,6 @@
   "widgetsC.scratchpad.ink.rose": "Gül",
   "widgetsC.scratchpad.ink.violet": "Menekşe",
   "widgetsC.scratchpad.penSizeTip": "Kalem boyutu {size} px",
-  "widgetsC.scratchpad.settings.inks": "Mürekkepler",
-  "widgetsC.scratchpad.settings.showTools.desc": "Pencere öğesinin başlığındaki silgi, geri al ve temizle düğmeleri",
   "widgetsC.scratchpad.settings.showTools.label": "Araçları göster",
-  "widgetsC.scratchpad.settings.tools": "Araçlar",
   "widgetsC.scratchpad.undo": "Geri al"
 }

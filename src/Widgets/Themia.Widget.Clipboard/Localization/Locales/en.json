@@ -9,9 +9,6 @@
   "widgetsA.clipboard.empty": "Nothing copied yet. Copy something and it appears here.",
   "widgetsA.clipboard.noListener": "Windows would not let this app watch the clipboard.",
   "widgetsA.clipboard.remove": "Remove from history",
-  "widgetsA.clipboard.settings.clear.desc": "Use the bin button on the widget itself; it asks first",
-  "widgetsA.clipboard.settings.clear.where": "On the widget",
-  "widgetsA.clipboard.settings.entries.desc": "{min} to {max}; lowering it forgets the oldest",
   "widgetsA.clipboard.settings.entries.label": "Entries",
   "widgetsA.clipboard.settings.privacyNote": "Copied text stays in memory only. Files and images are never read.",
   "widgetsA.clipboard.settings.timestamp.label": "Show when it was copied"

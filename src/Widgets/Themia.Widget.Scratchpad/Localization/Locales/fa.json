@@ -1,10 +1,7 @@
 {
   "scratchpad.drawHere": "اینجا بکشید",
-  "scratchpad.penColorDesc": "رنگ آغازین؛ در نوار ابزار ویجت هم هست",
   "scratchpad.penColorLabel": "رنگ قلم",
-  "scratchpad.penSizeDesc": "اندازه آغازین قلم‌مو برای خط‌های تازه.",
   "scratchpad.penSizeLabel": "اندازه قلم",
-  "scratchpad.penTab": "قلم",
   "widget.scratchpad.label": "چرک‌نویس",
   "widgetsA.catalog.scratchpad.description": "جایی برای نقاشی",
   "widgetsC.scratchpad.clearConfirm": "کل نقاشی پاک شود؟",
@@ -20,9 +17,6 @@
   "widgetsC.scratchpad.ink.rose": "گلی",
   "widgetsC.scratchpad.ink.violet": "بنفش",
   "widgetsC.scratchpad.penSizeTip": "اندازه قلم {size} px",
-  "widgetsC.scratchpad.settings.inks": "جوهرها",
-  "widgetsC.scratchpad.settings.showTools.desc": "دکمه‌های پاک‌کن، واگرد و پاک کردن در سرصفحه ویجت",
   "widgetsC.scratchpad.settings.showTools.label": "نمایش ابزارها",
-  "widgetsC.scratchpad.settings.tools": "ابزارها",
   "widgetsC.scratchpad.undo": "واگرد"
 }

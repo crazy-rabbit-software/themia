@@ -8,9 +8,6 @@
   "widgetsA.clipboard.empty": "ابھی کچھ کاپی نہیں ہوا۔ کچھ کاپی کریں اور یہ یہاں دکھے گا۔",
   "widgetsA.clipboard.noListener": "Windows نے اس ایپ کو کلپ بورڈ پر نظر رکھنے کی اجازت نہیں دی۔",
   "widgetsA.clipboard.remove": "سرگزشت سے ہٹائیں",
-  "widgetsA.clipboard.settings.clear.desc": "ویجیٹ پر موجود بن بٹن استعمال کریں؛ یہ پہلے پوچھتا ہے",
-  "widgetsA.clipboard.settings.clear.where": "ویجیٹ پر",
-  "widgetsA.clipboard.settings.entries.desc": "{min} سے {max}؛ کم کرنے پر سب سے پرانے بھلا دیے جاتے ہیں",
   "widgetsA.clipboard.settings.entries.label": "اندراجات",
   "widgetsA.clipboard.settings.privacyNote": "کاپی کیا گیا متن صرف میموری میں رہتا ہے۔ فائلیں اور تصاویر کبھی نہیں پڑھی جاتیں۔",
   "widgetsA.clipboard.settings.timestamp.label": "کاپی کرنے کا وقت دکھائیں"

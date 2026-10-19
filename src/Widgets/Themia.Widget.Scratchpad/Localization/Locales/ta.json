@@ -1,10 +1,7 @@
 {
   "scratchpad.drawHere": "இங்கே வரையவும்",
-  "scratchpad.penColorDesc": "தொடக்க நிறம்; விட்ஜெட்டின் கருவிப்பட்டியிலும் உள்ளது",
   "scratchpad.penColorLabel": "பேனா நிறம்",
-  "scratchpad.penSizeDesc": "புதிய கோடுகளுக்கான தொடக்கத் தூரிகை அளவு.",
   "scratchpad.penSizeLabel": "பேனா அளவு",
-  "scratchpad.penTab": "பேனா",
   "widget.scratchpad.label": "வரைதாள்",
   "widgetsA.catalog.scratchpad.description": "வரைவதற்கான இடம்",
   "widgetsC.scratchpad.clearConfirm": "முழு வரைபடத்தையும் அழிக்கவா?",
@@ -20,9 +17,6 @@
   "widgetsC.scratchpad.ink.rose": "ரோஜா",
   "widgetsC.scratchpad.ink.violet": "ஊதா",
   "widgetsC.scratchpad.penSizeTip": "பேனா அளவு {size} px",
-  "widgetsC.scratchpad.settings.inks": "மைகள்",
-  "widgetsC.scratchpad.settings.showTools.desc": "விட்ஜெட்டின் தலைப்பில் அழிப்பான், செயல்தவிர் மற்றும் அழி பொத்தான்கள்",
   "widgetsC.scratchpad.settings.showTools.label": "கருவிகளைக் காட்டு",
-  "widgetsC.scratchpad.settings.tools": "கருவிகள்",
   "widgetsC.scratchpad.undo": "செயல்தவிர்"
 }

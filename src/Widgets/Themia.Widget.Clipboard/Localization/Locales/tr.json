@@ -8,9 +8,6 @@
   "widgetsA.clipboard.empty": "Henüz bir şey kopyalanmadı. Bir şey kopyalayın, burada görünür.",
   "widgetsA.clipboard.noListener": "Windows bu uygulamanın panoyu izlemesine izin vermedi.",
   "widgetsA.clipboard.remove": "Geçmişten kaldır",
-  "widgetsA.clipboard.settings.clear.desc": "Pencere öğesinin üzerindeki çöp kutusu düğmesini kullanın; önce sorar",
-  "widgetsA.clipboard.settings.clear.where": "Pencere öğesinde",
-  "widgetsA.clipboard.settings.entries.desc": "{min} ile {max} arası; düşürmek en eskileri unutur",
   "widgetsA.clipboard.settings.entries.label": "Girişler",
   "widgetsA.clipboard.settings.privacyNote": "Kopyalanan metin yalnızca bellekte kalır. Dosyalar ve resimler hiçbir zaman okunmaz.",
   "widgetsA.clipboard.settings.timestamp.label": "Ne zaman kopyalandığını göster"

@@ -1,10 +1,7 @@
 {
   "scratchpad.drawHere": "Hier zeichnen",
-  "scratchpad.penColorDesc": "Anfangsfarbe; auch in der Symbolleiste des Widgets",
   "scratchpad.penColorLabel": "Stiftfarbe",
-  "scratchpad.penSizeDesc": "Anfängliche Pinselgröße für neue Striche.",
   "scratchpad.penSizeLabel": "Stiftgröße",
-  "scratchpad.penTab": "Stift",
   "widget.scratchpad.label": "Notizblock",
   "widgetsA.catalog.scratchpad.description": "Eine Fläche zum Zeichnen",
   "widgetsC.scratchpad.clearConfirm": "Die ganze Zeichnung löschen?",
@@ -20,9 +17,6 @@
   "widgetsC.scratchpad.ink.rose": "Rosé",
   "widgetsC.scratchpad.ink.violet": "Violett",
   "widgetsC.scratchpad.penSizeTip": "Stiftbreite {size} px",
-  "widgetsC.scratchpad.settings.inks": "Tinten",
-  "widgetsC.scratchpad.settings.showTools.desc": "Radierer, Rückgängig und Löschen in der Kopfzeile des Widgets",
   "widgetsC.scratchpad.settings.showTools.label": "Werkzeuge anzeigen",
-  "widgetsC.scratchpad.settings.tools": "Werkzeuge",
   "widgetsC.scratchpad.undo": "Rückgängig"
 }

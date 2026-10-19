@@ -33,8 +33,9 @@ public sealed class QuoteModule : IWidgetModule
         Add = new(AddFolderId.Notes, 1, 1),
     };
 
-    public void SettingsRows(WidgetSettingsRows rows, WidgetConfig config)
-        => QuoteSettings.Rows(rows.Rows, (QuoteConfig)config, rows.Save);
+    /// <summary>[S-3719] Every option is on the properties menu: the widget has no settings page.</summary>
+    public void MenuLines(WidgetMenuLines menu, WidgetConfig config)
+        => QuoteMenu.Lines(menu, (QuoteConfig)config);
 
     public FrameworkElement CreateView(IWidgetHost host) => new QuoteView();
 }

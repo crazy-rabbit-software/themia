@@ -1,10 +1,7 @@
 {
   "scratchpad.drawHere": "Teken hier",
-  "scratchpad.penColorDesc": "Beginkleur; ook in de werkbalk van de widget",
   "scratchpad.penColorLabel": "Penkleur",
-  "scratchpad.penSizeDesc": "Begingrootte van het penseel voor nieuwe streken.",
   "scratchpad.penSizeLabel": "Pengrootte",
-  "scratchpad.penTab": "Pen",
   "widget.scratchpad.label": "Kladblok",
   "widgetsA.catalog.scratchpad.description": "Een plek om te tekenen",
   "widgetsC.scratchpad.clearConfirm": "De hele tekening wissen?",
@@ -20,9 +17,6 @@
   "widgetsC.scratchpad.ink.rose": "Roze",
   "widgetsC.scratchpad.ink.violet": "Violet",
   "widgetsC.scratchpad.penSizeTip": "Pengrootte {size} px",
-  "widgetsC.scratchpad.settings.inks": "Inkt",
-  "widgetsC.scratchpad.settings.showTools.desc": "De knoppen gum, ongedaan maken en wissen in de koptekst van de widget",
   "widgetsC.scratchpad.settings.showTools.label": "Hulpmiddelen weergeven",
-  "widgetsC.scratchpad.settings.tools": "Hulpmiddelen",
   "widgetsC.scratchpad.undo": "Ongedaan maken"
 }

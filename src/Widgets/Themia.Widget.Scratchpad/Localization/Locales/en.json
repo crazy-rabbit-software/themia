@@ -1,11 +1,8 @@
 {
   "$englishOnly": [],
   "scratchpad.drawHere": "Draw here",
-  "scratchpad.penColorDesc": "Starting colour; also in the widget's toolbar",
   "scratchpad.penColorLabel": "Pen color",
-  "scratchpad.penSizeDesc": "Starting brush size for new strokes.",
   "scratchpad.penSizeLabel": "Pen size",
-  "scratchpad.penTab": "Pen",
   "widget.scratchpad.label": "Scratchpad",
   "widgetsA.catalog.scratchpad.description": "A place to draw",
   "widgetsC.scratchpad.clearConfirm": "Clear the whole drawing?",
@@ -21,9 +18,6 @@
   "widgetsC.scratchpad.ink.rose": "Rose",
   "widgetsC.scratchpad.ink.violet": "Violet",
   "widgetsC.scratchpad.penSizeTip": "Pen size {size} px",
-  "widgetsC.scratchpad.settings.inks": "Inks",
-  "widgetsC.scratchpad.settings.showTools.desc": "The eraser, undo and clear buttons in the widget's header",
   "widgetsC.scratchpad.settings.showTools.label": "Show tools",
-  "widgetsC.scratchpad.settings.tools": "Tools",
   "widgetsC.scratchpad.undo": "Undo"
 }

@@ -1,10 +1,7 @@
 {
   "scratchpad.drawHere": "Desenha aqui",
-  "scratchpad.penColorDesc": "Cor inicial; também na barra do widget",
   "scratchpad.penColorLabel": "Cor da caneta",
-  "scratchpad.penSizeDesc": "Espessura inicial do pincel para os novos traços.",
   "scratchpad.penSizeLabel": "Espessura da caneta",
-  "scratchpad.penTab": "Caneta",
   "widget.scratchpad.label": "Bloco de rascunho",
   "widgetsA.catalog.scratchpad.description": "Um espaço para desenhar",
   "widgetsC.scratchpad.clearConfirm": "Limpar todo o desenho?",
@@ -20,9 +17,6 @@
   "widgetsC.scratchpad.ink.rose": "Rosa",
   "widgetsC.scratchpad.ink.violet": "Violeta",
   "widgetsC.scratchpad.penSizeTip": "Tamanho da caneta {size} px",
-  "widgetsC.scratchpad.settings.inks": "Tintas",
-  "widgetsC.scratchpad.settings.showTools.desc": "Os botões de borracha, desfazer e limpar no cabeçalho do widget",
   "widgetsC.scratchpad.settings.showTools.label": "Mostrar ferramentas",
-  "widgetsC.scratchpad.settings.tools": "Ferramentas",
   "widgetsC.scratchpad.undo": "Desfazer"
 }

@@ -8,9 +8,6 @@
   "widgetsA.clipboard.empty": "હજી કંઈ કૉપિ કર્યું નથી. કંઈક કૉપિ કરો અને તે અહીં દેખાશે.",
   "widgetsA.clipboard.noListener": "Windows એ આ ઍપને ક્લિપબોર્ડ પર નજર રાખવા દીધી નહીં.",
   "widgetsA.clipboard.remove": "ઇતિહાસમાંથી દૂર કરો",
-  "widgetsA.clipboard.settings.clear.desc": "વિજેટ પરના જ કચરાપેટી બટનનો ઉપયોગ કરો; તે પહેલાં પૂછે છે",
-  "widgetsA.clipboard.settings.clear.where": "વિજેટ પર",
-  "widgetsA.clipboard.settings.entries.desc": "{min} થી {max}; ઘટાડવાથી સૌથી જૂની ભૂલી જવાય છે",
   "widgetsA.clipboard.settings.entries.label": "એન્ટ્રીઓ",
   "widgetsA.clipboard.settings.privacyNote": "કૉપિ કરેલો ટેક્સ્ટ ફક્ત મેમરીમાં રહે છે. ફાઇલો અને છબીઓ ક્યારેય વંચાતી નથી.",
   "widgetsA.clipboard.settings.timestamp.label": "ક્યારે કૉપિ થયું તે બતાવો"

@@ -1,10 +1,7 @@
 {
   "scratchpad.drawHere": "Gambar di sini",
-  "scratchpad.penColorDesc": "Warna awal; juga ada di bilah alat widget",
   "scratchpad.penColorLabel": "Warna pena",
-  "scratchpad.penSizeDesc": "Ukuran kuas awal untuk goresan baru.",
   "scratchpad.penSizeLabel": "Ukuran pena",
-  "scratchpad.penTab": "Pena",
   "widget.scratchpad.label": "Coretan",
   "widgetsA.catalog.scratchpad.description": "Tempat untuk menggambar",
   "widgetsC.scratchpad.clearConfirm": "Kosongkan seluruh gambar?",
@@ -20,9 +17,6 @@
   "widgetsC.scratchpad.ink.rose": "Mawar",
   "widgetsC.scratchpad.ink.violet": "Violet",
   "widgetsC.scratchpad.penSizeTip": "Ukuran pena {size} px",
-  "widgetsC.scratchpad.settings.inks": "Tinta",
-  "widgetsC.scratchpad.settings.showTools.desc": "Tombol penghapus, urungkan, dan kosongkan di header widget",
   "widgetsC.scratchpad.settings.showTools.label": "Tampilkan alat",
-  "widgetsC.scratchpad.settings.tools": "Alat",
   "widgetsC.scratchpad.undo": "Urungkan"
 }

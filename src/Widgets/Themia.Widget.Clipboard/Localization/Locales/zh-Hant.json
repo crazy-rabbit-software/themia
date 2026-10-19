@@ -8,9 +8,6 @@
   "widgetsA.clipboard.empty": "尚未複製任何內容。複製內容後會顯示在這裡。",
   "widgetsA.clipboard.noListener": "Windows 不允許此應用程式監看剪貼簿。",
   "widgetsA.clipboard.remove": "從歷程記錄中移除",
-  "widgetsA.clipboard.settings.clear.desc": "使用小工具上的垃圾桶按鈕，會先詢問確認",
-  "widgetsA.clipboard.settings.clear.where": "在小工具上",
-  "widgetsA.clipboard.settings.entries.desc": "{min} 到 {max}；調低會移除最舊的項目",
   "widgetsA.clipboard.settings.entries.label": "項目數",
   "widgetsA.clipboard.settings.privacyNote": "複製的文字只保存在記憶體中。絕不讀取檔案和圖片。",
   "widgetsA.clipboard.settings.timestamp.label": "顯示複製時間"

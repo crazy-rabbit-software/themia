@@ -8,9 +8,6 @@
   "widgetsA.clipboard.empty": "ਹਾਲੇ ਕੁਝ ਕਾਪੀ ਨਹੀਂ ਕੀਤਾ। ਕੁਝ ਕਾਪੀ ਕਰੋ ਅਤੇ ਇਹ ਇੱਥੇ ਦਿਖਾਈ ਦੇਵੇਗਾ।",
   "widgetsA.clipboard.noListener": "Windows ਨੇ ਇਸ ਐਪ ਨੂੰ ਕਲਿੱਪਬੋਰਡ ਦੇਖਣ ਨਹੀਂ ਦਿੱਤਾ।",
   "widgetsA.clipboard.remove": "ਇਤਿਹਾਸ ਵਿੱਚੋਂ ਹਟਾਓ",
-  "widgetsA.clipboard.settings.clear.desc": "ਵਿਜੇਟ ਉੱਤੇ ਹੀ ਬਿਨ ਬਟਨ ਵਰਤੋ; ਇਹ ਪਹਿਲਾਂ ਪੁੱਛਦਾ ਹੈ",
-  "widgetsA.clipboard.settings.clear.where": "ਵਿਜੇਟ ਉੱਤੇ",
-  "widgetsA.clipboard.settings.entries.desc": "{min} ਤੋਂ {max}; ਘਟਾਉਣ ਨਾਲ ਸਭ ਤੋਂ ਪੁਰਾਣੀਆਂ ਭੁੱਲ ਜਾਂਦੀਆਂ ਹਨ",
   "widgetsA.clipboard.settings.entries.label": "ਐਂਟਰੀਆਂ",
   "widgetsA.clipboard.settings.privacyNote": "ਕਾਪੀ ਕੀਤਾ ਟੈਕਸਟ ਸਿਰਫ਼ ਮੈਮੋਰੀ ਵਿੱਚ ਰਹਿੰਦਾ ਹੈ। ਫ਼ਾਈਲਾਂ ਅਤੇ ਤਸਵੀਰਾਂ ਕਦੇ ਨਹੀਂ ਪੜ੍ਹੀਆਂ ਜਾਂਦੀਆਂ।",
   "widgetsA.clipboard.settings.timestamp.label": "ਦਿਖਾਓ ਕਿ ਕਦੋਂ ਕਾਪੀ ਕੀਤਾ"

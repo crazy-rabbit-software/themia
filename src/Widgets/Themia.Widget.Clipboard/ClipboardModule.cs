@@ -37,8 +37,9 @@ public sealed class ClipboardModule : IWidgetModule
         Add = new(AddFolderId.Notes, 0, 2),
     };
 
-    public void SettingsRows(WidgetSettingsRows rows, WidgetConfig config)
-        => ClipboardSettings.Rows(rows.Rows, (ClipboardConfig)config, rows.Save);
+    /// <summary>[S-3719] Every option is on the properties menu: the widget has no settings page.</summary>
+    public void MenuLines(WidgetMenuLines menu, WidgetConfig config)
+        => ClipboardMenu.Lines(menu, (ClipboardConfig)config);
 
     public FrameworkElement CreateView(IWidgetHost host) => new ClipboardView(host);
 }

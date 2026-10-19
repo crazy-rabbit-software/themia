@@ -1,10 +1,7 @@
 {
   "scratchpad.drawHere": "ارسم هنا",
-  "scratchpad.penColorDesc": "اللون الأولي؛ متاح أيضًا في شريط أدوات الأداة",
   "scratchpad.penColorLabel": "لون القلم",
-  "scratchpad.penSizeDesc": "حجم الفرشاة الأولي للخطوط الجديدة.",
   "scratchpad.penSizeLabel": "حجم القلم",
-  "scratchpad.penTab": "القلم",
   "widget.scratchpad.label": "لوح الرسم",
   "widgetsA.catalog.scratchpad.description": "مكان للرسم",
   "widgetsC.scratchpad.clearConfirm": "هل تريد مسح الرسم بالكامل؟",
@@ -20,9 +17,6 @@
   "widgetsC.scratchpad.ink.rose": "وردي",
   "widgetsC.scratchpad.ink.violet": "بنفسجي",
   "widgetsC.scratchpad.penSizeTip": "حجم القلم {size} بكسل",
-  "widgetsC.scratchpad.settings.inks": "الأحبار",
-  "widgetsC.scratchpad.settings.showTools.desc": "أزرار الممحاة والتراجع والمسح في رأس الأداة",
   "widgetsC.scratchpad.settings.showTools.label": "إظهار الأدوات",
-  "widgetsC.scratchpad.settings.tools": "الأدوات",
   "widgetsC.scratchpad.undo": "تراجع"
 }

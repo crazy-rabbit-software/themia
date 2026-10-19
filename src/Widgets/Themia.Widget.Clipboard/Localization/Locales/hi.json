@@ -8,9 +8,6 @@
   "widgetsA.clipboard.empty": "अभी कुछ कॉपी नहीं हुआ। कुछ कॉपी करें, वह यहाँ दिखेगा।",
   "widgetsA.clipboard.noListener": "Windows ने इस ऐप को क्लिपबोर्ड देखने नहीं दिया।",
   "widgetsA.clipboard.remove": "इतिहास से निकालें",
-  "widgetsA.clipboard.settings.clear.desc": "विजेट पर ही बिन बटन का उपयोग करें; यह पहले पूछता है",
-  "widgetsA.clipboard.settings.clear.where": "विजेट पर",
-  "widgetsA.clipboard.settings.entries.desc": "{min} से {max}; कम करने पर सबसे पुरानी भुला दी जाती हैं",
   "widgetsA.clipboard.settings.entries.label": "प्रविष्टियाँ",
   "widgetsA.clipboard.settings.privacyNote": "कॉपी किया टेक्स्ट केवल मेमोरी में रहता है। फ़ाइलें और छवियाँ कभी नहीं पढ़ी जातीं।",
   "widgetsA.clipboard.settings.timestamp.label": "कॉपी करने का समय दिखाएँ"

@@ -8,9 +8,6 @@
   "widgetsA.clipboard.empty": "Пока ничего не скопировано. Скопируйте что-нибудь, и оно появится здесь.",
   "widgetsA.clipboard.noListener": "Windows не разрешила этому приложению следить за буфером обмена.",
   "widgetsA.clipboard.remove": "Удалить из журнала",
-  "widgetsA.clipboard.settings.clear.desc": "Используйте кнопку корзины в самом виджете; она сначала спросит",
-  "widgetsA.clipboard.settings.clear.where": "В виджете",
-  "widgetsA.clipboard.settings.entries.desc": "От {min} до {max}; при уменьшении забываются самые старые",
   "widgetsA.clipboard.settings.entries.label": "Записи",
   "widgetsA.clipboard.settings.privacyNote": "Скопированный текст хранится только в памяти. Файлы и изображения никогда не читаются.",
   "widgetsA.clipboard.settings.timestamp.label": "Показывать время копирования"

@@ -8,9 +8,6 @@
   "widgetsA.clipboard.empty": "尚未复制任何内容。复制内容后会显示在这里。",
   "widgetsA.clipboard.noListener": "Windows 不允许此应用监视剪贴板。",
   "widgetsA.clipboard.remove": "从历史记录中删除",
-  "widgetsA.clipboard.settings.clear.desc": "使用小组件上的回收站按钮，会先询问确认",
-  "widgetsA.clipboard.settings.clear.where": "在小组件上",
-  "widgetsA.clipboard.settings.entries.desc": "{min} 到 {max}；调低会忘记最旧的",
   "widgetsA.clipboard.settings.entries.label": "条目数",
   "widgetsA.clipboard.settings.privacyNote": "复制的文本只保存在内存中。从不读取文件和图片。",
   "widgetsA.clipboard.settings.timestamp.label": "显示复制时间"
