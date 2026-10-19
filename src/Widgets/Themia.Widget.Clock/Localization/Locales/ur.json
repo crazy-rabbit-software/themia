@@ -1,6 +1,5 @@
 {
   "clockText.large": "بڑا",
-  "clockText.sizeDesc": "جگہ، تاریخ اور وقت کے فرق کی لائن کتنی بڑی ہو",
   "clockText.sizeLabel": "جگہ اور تاریخ کا سائز",
   "clockText.small": "چھوٹا",
   "clock.dateLabel": "تاریخ دکھائیں",
@@ -23,11 +22,8 @@
   "widgetsA.clock.offset.sameAsLocal": "مقامی جیسا",
   "widgetsA.clock.settings.label.desc": "وقت کے اوپر دکھایا جاتا ہے۔ خالی ہو تو منتخب زون کا شہر",
   "widgetsA.clock.settings.label.none": "کوئی لیبل نہیں",
-  "widgetsA.clock.settings.offset.desc": "تاریخ کے نیچے زون کے فرق والی ایک لائن",
   "widgetsA.clock.settings.offset.local": "مقامی وقت سے",
   "widgetsA.clock.settings.offset.utc": "UTC سے",
-  "widgetsA.clock.settings.seconds.desc": "ایپ کو ایک منٹ کی بجائے ہر سیکنڈ جگاتا ہے",
-  "widgetsA.clock.settings.zone.desc": "کوئی شہر تلاش کریں؛ گھڑی عالمی گھڑی بن جاتی ہے",
   "wordClock.hours": "بارہ|ایک|دو|تین|چار|پانچ|چھ|سات|آٹھ|نو|دس|گیارہ;بارہ بجے ہیں|ایک بجا ہے|دو بجے ہیں|تین بجے ہیں|چار بجے ہیں|پانچ بجے ہیں|چھ بجے ہیں|سات بجے ہیں|آٹھ بجے ہیں|نو بجے ہیں|دس بجے ہیں|گیارہ بجے ہیں;ساڑھے بارہ|ڈیڑھ|ڈھائی|ساڑھے تین|ساڑھے چار|ساڑھے پانچ|ساڑھے چھ|ساڑھے سات|ساڑھے آٹھ|ساڑھے نو|ساڑھے دس|ساڑھے گیارہ",
   "wordClock.m00": "[h2]",
   "wordClock.m05": "[h] بج کر پانچ منٹ ہوئے ہیں",

@@ -21,7 +21,10 @@
   "widgetsC.shortcuts.kind.refused": "Non autorisé",
   "widgetsC.shortcuts.menu.addLayout": "Disposition d’applications…",
   "widgetsC.shortcuts.menu.addLink": "Adresse web ou chemin…",
+  "widgetsC.shortcuts.menu.changeTarget": "Modifier la cible…",
   "widgetsC.shortcuts.menu.closeSearch": "Fermer la recherche",
+  "widgetsC.shortcuts.menu.moveDown": "Descendre",
+  "widgetsC.shortcuts.menu.moveUp": "Monter",
   "widgetsC.shortcuts.menu.openLayout": "Ouvrir la disposition",
   "widgetsC.shortcuts.menu.openMany": {
     "one": "Ouvrir {count} raccourci",
@@ -31,12 +34,14 @@
     "one": "Supprimer {count} raccourci",
     "other": "Supprimer {count} raccourcis"
   },
+  "widgetsC.shortcuts.menu.rename": "Renommer…",
   "widgetsC.shortcuts.menu.undoRemove": "Annuler la suppression",
   "widgetsC.shortcuts.menu.undoRemoveCount": {
     "one": "Annuler la suppression ({count})",
     "other": "Annuler la suppression ({count})"
   },
   "widgetsC.shortcuts.search": "Rechercher des raccourcis",
+  "widgetsC.shortcuts.settings.list.empty": "Aucun raccourci pour l’instant.",
   "widgetsC.shortcuts.settings.locations": "Emplacements Windows",
   "widgetsC.shortcuts.settings.openWith.double": "Double-clic",
   "widgetsC.shortcuts.settings.openWith.label": "Ouvrir avec",

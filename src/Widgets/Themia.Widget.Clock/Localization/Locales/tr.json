@@ -1,6 +1,5 @@
 {
   "clockText.large": "Büyük",
-  "clockText.sizeDesc": "Yer, tarih ve fark satırının ne kadar büyük olduğu",
   "clockText.sizeLabel": "Yer ve tarih boyutu",
   "clockText.small": "Küçük",
   "clock.dateLabel": "Tarihi göster",
@@ -23,11 +22,8 @@
   "widgetsA.clock.offset.sameAsLocal": "yerel saatle aynı",
   "widgetsA.clock.settings.label.desc": "Saatin üstünde gösterilir. Boşsa: seçilen dilimin şehri",
   "widgetsA.clock.settings.label.none": "Etiket yok",
-  "widgetsA.clock.settings.offset.desc": "Tarihin altında dilimin farkını gösteren bir satır",
   "widgetsA.clock.settings.offset.local": "Yerel saate göre",
   "widgetsA.clock.settings.offset.utc": "UTC'ye göre",
-  "widgetsA.clock.settings.seconds.desc": "Uygulamayı dakikada bir yerine saniyede bir uyandırır",
-  "widgetsA.clock.settings.zone.desc": "Bir şehir arayın; saat dünya saatine dönüşür",
   "wordClock.hours": "on iki|bir|iki|üç|dört|beş|altı|yedi|sekiz|dokuz|on|on bir;on ikiyi|biri|ikiyi|üçü|dördü|beşi|altıyı|yediyi|sekizi|dokuzu|onu|on biri;on ikiye|bire|ikiye|üçe|dörde|beşe|altıya|yediye|sekize|dokuza|ona|on bire",
   "wordClock.m00": "Saat [h]",
   "wordClock.m05": "Saat [h2] beş geçiyor",

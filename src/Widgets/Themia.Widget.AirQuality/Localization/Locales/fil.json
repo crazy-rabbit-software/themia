@@ -32,7 +32,6 @@
   "online.air.pollenLevel.moderate": "Katamtaman",
   "online.air.pollenLevel.high": "Mataas",
   "online.air.settings.index.label": "Indeks",
-  "online.air.settings.index.desc": "Aling indeks ng kalidad ng hangin ang ipapakita",
   "online.air.settings.index.auto": "Awtomatiko: Europeo sa Europa",
   "online.air.settings.index.european": "Europeo (EAQI)",
   "online.air.settings.index.us": "US (AQI)",

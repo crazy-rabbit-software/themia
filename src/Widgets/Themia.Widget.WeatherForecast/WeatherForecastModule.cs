@@ -37,8 +37,9 @@ public sealed class WeatherForecastModule : IWidgetModule
         Add = new(AddFolderId.Weather, 0, 1, Popular: 2),
     };
 
-    public void SettingsRows(WidgetSettingsRows rows, WidgetConfig config)
-        => WeatherForecastSettings.Rows(rows.Rows, (WeatherForecastConfig)config, rows.Save);
+    /// <summary>[S-3719] Every option is on the properties menu: the widget has no settings page.</summary>
+    public void MenuLines(WidgetMenuLines menu, WidgetConfig config)
+        => WeatherForecastMenu.Lines(menu, (WeatherForecastConfig)config);
 
     public FrameworkElement CreateView(IWidgetHost host) => new WeatherForecastView(host);
 }

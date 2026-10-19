@@ -1,13 +1,10 @@
 {
-  "forecast.daysDesc": "Bilang ng mga araw ng forecast",
   "forecast.daysLabel": "Mga araw na ipinapakita",
   "forecast.layoutColumns": "Mga column",
   "forecast.layoutRows": "Mga row",
-  "forecast.title": "Taya ng panahon",
   "styles.forecast.curve": "Kurba ng temperatura",
   "styles.forecast.grid": "Grid",
   "widgetsA.catalog.forecast.description": "Ang susunod na ilang araw",
   "widgetsA.catalog.forecast.label": "Taya ng panahon",
-  "widgetsC.weather.settings.showPrecipitation.desc": "Ang kabuuang ulan o niyebe sa araw, kung mayroon",
   "widgetsC.weather.settings.showPrecipitation.label": "Ipakita ang presipitasyon"
 }

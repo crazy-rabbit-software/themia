@@ -2,7 +2,6 @@
   "styles.weatherNow.largeIcon": "Grande icône",
   "styles.weatherNow.minimal": "Minimal",
   "styles.weatherNow.standard": "Standard",
-  "weather.defaultLabel": "Météo",
   "weather.feelsLike": "Ressenti",
   "weather.humidity": "Humidité",
   "weather.wind": "Vent",
@@ -14,6 +13,5 @@
   "widgetsC.weather.fact.pressure": "Pression",
   "widgetsC.weather.fact.uvIndex": "Indice UV",
   "widgetsC.weather.feelsShort": "Ressenti {temperature}",
-  "widgetsC.weather.settings.showDetail.desc": "Ressenti, humidité et vent ; plus sur les grandes tuiles",
   "widgetsC.weather.settings.showDetail.label": "Afficher les détails"
 }

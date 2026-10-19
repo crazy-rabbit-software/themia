@@ -1,6 +1,5 @@
 {
   "clockText.large": "Lớn",
-  "clockText.sizeDesc": "Độ lớn của địa điểm, ngày và dòng chênh lệch giờ",
   "clockText.sizeLabel": "Cỡ địa điểm và ngày",
   "clockText.small": "Nhỏ",
   "clock.dateLabel": "Hiện ngày",
@@ -23,11 +22,8 @@
   "widgetsA.clock.offset.sameAsLocal": "trùng giờ địa phương",
   "widgetsA.clock.settings.label.desc": "Hiện phía trên giờ. Để trống: thành phố của múi giờ đã chọn",
   "widgetsA.clock.settings.label.none": "Không có nhãn",
-  "widgetsA.clock.settings.offset.desc": "Một dòng dưới ngày với độ chênh của múi giờ",
   "widgetsA.clock.settings.offset.local": "So với giờ địa phương",
   "widgetsA.clock.settings.offset.utc": "So với UTC",
-  "widgetsA.clock.settings.seconds.desc": "Đánh thức ứng dụng mỗi giây thay vì mỗi phút",
-  "widgetsA.clock.settings.zone.desc": "Tìm một thành phố; đồng hồ trở thành đồng hồ thế giới",
   "wordClock.hours": "mười hai|một|hai|ba|bốn|năm|sáu|bảy|tám|chín|mười|mười một",
   "wordClock.m00": "Bây giờ là [h] giờ đúng",
   "wordClock.m05": "Bây giờ là [h] giờ năm phút",

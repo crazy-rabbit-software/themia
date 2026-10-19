@@ -2,7 +2,6 @@
   "styles.weatherNow.largeIcon": "বড় আইকন",
   "styles.weatherNow.minimal": "ন্যূনতম",
   "styles.weatherNow.standard": "স্ট্যান্ডার্ড",
-  "weather.defaultLabel": "আবহাওয়া",
   "weather.feelsLike": "অনুভূত",
   "weather.humidity": "আর্দ্রতা",
   "weather.wind": "বাতাস",
@@ -14,6 +13,5 @@
   "widgetsC.weather.fact.pressure": "চাপ",
   "widgetsC.weather.fact.uvIndex": "UV সূচক",
   "widgetsC.weather.feelsShort": "অনুভূত {temperature}",
-  "widgetsC.weather.settings.showDetail.desc": "অনুভূত তাপমাত্রা, আর্দ্রতা ও বাতাস; বড় টাইলে আরও বেশি",
   "widgetsC.weather.settings.showDetail.label": "বিস্তারিত দেখান"
 }

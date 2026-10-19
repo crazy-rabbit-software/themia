@@ -32,7 +32,6 @@
   "online.air.pollenLevel.moderate": "Sedang",
   "online.air.pollenLevel.high": "Tinggi",
   "online.air.settings.index.label": "Indeks",
-  "online.air.settings.index.desc": "Indeks kualitas udara yang ditampilkan",
   "online.air.settings.index.auto": "Otomatis: Eropa di Eropa",
   "online.air.settings.index.european": "Eropa (EAQI)",
   "online.air.settings.index.us": "AS (AQI)",

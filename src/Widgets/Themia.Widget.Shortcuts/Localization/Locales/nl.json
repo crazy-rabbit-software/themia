@@ -21,7 +21,10 @@
   "widgetsC.shortcuts.kind.refused": "Niet toegestaan",
   "widgetsC.shortcuts.menu.addLayout": "App-indeling…",
   "widgetsC.shortcuts.menu.addLink": "Webadres of pad…",
+  "widgetsC.shortcuts.menu.changeTarget": "Doel wijzigen…",
   "widgetsC.shortcuts.menu.closeSearch": "Zoeken sluiten",
+  "widgetsC.shortcuts.menu.moveDown": "Omlaag",
+  "widgetsC.shortcuts.menu.moveUp": "Omhoog",
   "widgetsC.shortcuts.menu.openLayout": "Indeling openen",
   "widgetsC.shortcuts.menu.openMany": {
     "one": "{count} snelkoppeling openen",
@@ -31,12 +34,14 @@
     "one": "{count} snelkoppeling verwijderen",
     "other": "{count} snelkoppelingen verwijderen"
   },
+  "widgetsC.shortcuts.menu.rename": "Naam wijzigen…",
   "widgetsC.shortcuts.menu.undoRemove": "Verwijderen ongedaan maken",
   "widgetsC.shortcuts.menu.undoRemoveCount": {
     "one": "Verwijderen ongedaan maken ({count})",
     "other": "Verwijderen ongedaan maken ({count})"
   },
   "widgetsC.shortcuts.search": "Snelkoppelingen zoeken",
+  "widgetsC.shortcuts.settings.list.empty": "Nog geen snelkoppelingen.",
   "widgetsC.shortcuts.settings.locations": "Windows-locaties",
   "widgetsC.shortcuts.settings.openWith.double": "Dubbelklikken",
   "widgetsC.shortcuts.settings.openWith.label": "Openen met",

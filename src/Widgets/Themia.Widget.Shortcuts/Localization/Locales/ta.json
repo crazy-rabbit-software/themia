@@ -21,7 +21,10 @@
   "widgetsC.shortcuts.kind.refused": "அனுமதிக்கப்படவில்லை",
   "widgetsC.shortcuts.menu.addLayout": "ஆப்ஸ் தளவமைப்பு…",
   "widgetsC.shortcuts.menu.addLink": "இணைய முகவரி அல்லது பாதை…",
+  "widgetsC.shortcuts.menu.changeTarget": "இலக்கை மாற்று…",
   "widgetsC.shortcuts.menu.closeSearch": "தேடலை மூடு",
+  "widgetsC.shortcuts.menu.moveDown": "கீழே நகர்த்து",
+  "widgetsC.shortcuts.menu.moveUp": "மேலே நகர்த்து",
   "widgetsC.shortcuts.menu.openLayout": "தளவமைப்பைத் திற",
   "widgetsC.shortcuts.menu.openMany": {
     "one": "{count} குறுக்குவழியைத் திற",
@@ -31,12 +34,14 @@
     "one": "{count} குறுக்குவழியை அகற்று",
     "other": "{count} குறுக்குவழிகளை அகற்று"
   },
+  "widgetsC.shortcuts.menu.rename": "பெயர் மாற்று…",
   "widgetsC.shortcuts.menu.undoRemove": "அகற்றலைச் செயல்தவிர்",
   "widgetsC.shortcuts.menu.undoRemoveCount": {
     "one": "அகற்றலைச் செயல்தவிர் ({count})",
     "other": "அகற்றலைச் செயல்தவிர் ({count})"
   },
   "widgetsC.shortcuts.search": "குறுக்குவழிகளைத் தேடு",
+  "widgetsC.shortcuts.settings.list.empty": "இன்னும் குறுக்குவழிகள் இல்லை.",
   "widgetsC.shortcuts.settings.locations": "Windows இருப்பிடங்கள்",
   "widgetsC.shortcuts.settings.openWith.double": "இருமுறை கிளிக்",
   "widgetsC.shortcuts.settings.openWith.label": "திறக்கும் முறை",

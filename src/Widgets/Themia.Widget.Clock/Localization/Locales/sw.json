@@ -1,6 +1,5 @@
 {
   "clockText.large": "Kubwa",
-  "clockText.sizeDesc": "Jinsi mahali, tarehe na mstari wa tofauti ya saa vilivyo vikubwa",
   "clockText.sizeLabel": "Ukubwa wa mahali na tarehe",
   "clockText.small": "Ndogo",
   "clock.dateLabel": "Onyesha tarehe",
@@ -23,11 +22,8 @@
   "widgetsA.clock.offset.sameAsLocal": "sawa na ya ndani",
   "widgetsA.clock.settings.label.desc": "Huonyeshwa juu ya saa. Tupu: jiji la eneo lililochaguliwa",
   "widgetsA.clock.settings.label.none": "Hakuna lebo",
-  "widgetsA.clock.settings.offset.desc": "Mstari chini ya tarehe wenye tofauti ya saa ya eneo",
   "widgetsA.clock.settings.offset.local": "Kutoka saa ya ndani",
   "widgetsA.clock.settings.offset.utc": "Kutoka UTC",
-  "widgetsA.clock.settings.seconds.desc": "Huamsha programu kila sekunde badala ya kila dakika",
-  "widgetsA.clock.settings.zone.desc": "Tafuta jiji; saa inakuwa saa ya dunia",
   "wordClock.hours": "sita|saba|nane|tisa|kumi|kumi na moja|kumi na mbili|moja|mbili|tatu|nne|tano|sita|saba|nane|tisa|kumi|kumi na moja|kumi na mbili|moja|mbili|tatu|nne|tano;usiku|usiku|usiku|usiku|alfajiri|alfajiri|asubuhi|asubuhi|asubuhi|asubuhi|asubuhi|asubuhi|mchana|mchana|mchana|mchana|jioni|jioni|jioni|usiku|usiku|usiku|usiku|usiku",
   "wordClock.m00": "Ni saa [h] [h2]",
   "wordClock.m05": "Ni saa [h] na dakika tano [h2]",

@@ -22,7 +22,10 @@
   "widgetsC.shortcuts.kind.refused": "Not allowed",
   "widgetsC.shortcuts.menu.addLayout": "App layout…",
   "widgetsC.shortcuts.menu.addLink": "Web address or path…",
+  "widgetsC.shortcuts.menu.changeTarget": "Change target…",
   "widgetsC.shortcuts.menu.closeSearch": "Close search",
+  "widgetsC.shortcuts.menu.moveDown": "Move down",
+  "widgetsC.shortcuts.menu.moveUp": "Move up",
   "widgetsC.shortcuts.menu.openLayout": "Open layout",
   "widgetsC.shortcuts.menu.openMany": {
     "one": "Open {count} shortcut",
@@ -32,12 +35,14 @@
     "one": "Remove {count} shortcut",
     "other": "Remove {count} shortcuts"
   },
+  "widgetsC.shortcuts.menu.rename": "Rename…",
   "widgetsC.shortcuts.menu.undoRemove": "Undo remove",
   "widgetsC.shortcuts.menu.undoRemoveCount": {
     "one": "Undo remove ({count})",
     "other": "Undo remove ({count})"
   },
   "widgetsC.shortcuts.search": "Search shortcuts",
+  "widgetsC.shortcuts.settings.list.empty": "No shortcuts yet.",
   "widgetsC.shortcuts.settings.locations": "Windows locations",
   "widgetsC.shortcuts.settings.openWith.double": "Double click",
   "widgetsC.shortcuts.settings.openWith.label": "Open with",

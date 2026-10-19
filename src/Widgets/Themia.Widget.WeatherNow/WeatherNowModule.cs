@@ -34,8 +34,9 @@ public sealed class WeatherNowModule : IWidgetModule
         Add = new(AddFolderId.Weather, 0, 0, Popular: 1),
     };
 
-    public void SettingsRows(WidgetSettingsRows rows, WidgetConfig config)
-        => WeatherNowSettings.Rows(rows.Rows, (WeatherNowConfig)config, rows.Save);
+    /// <summary>[S-3719] Every option is on the properties menu: the widget has no settings page.</summary>
+    public void MenuLines(WidgetMenuLines menu, WidgetConfig config)
+        => WeatherNowMenu.Lines(menu, (WeatherNowConfig)config);
 
     public FrameworkElement CreateView(IWidgetHost host) => new WeatherNowView(host);
 }

@@ -1,13 +1,10 @@
 {
-  "forecast.daysDesc": "عدد أيام التوقعات",
   "forecast.daysLabel": "الأيام المعروضة",
   "forecast.layoutColumns": "أعمدة",
   "forecast.layoutRows": "صفوف",
-  "forecast.title": "التوقعات",
   "styles.forecast.curve": "منحنى درجة الحرارة",
   "styles.forecast.grid": "شبكة",
   "widgetsA.catalog.forecast.description": "الأيام القليلة القادمة",
   "widgetsA.catalog.forecast.label": "التوقعات",
-  "widgetsC.weather.settings.showPrecipitation.desc": "إجمالي المطر أو الثلج لليوم، إن وُجد",
   "widgetsC.weather.settings.showPrecipitation.label": "إظهار الهطول"
 }

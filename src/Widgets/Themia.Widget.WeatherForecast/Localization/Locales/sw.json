@@ -1,13 +1,10 @@
 {
-  "forecast.daysDesc": "Idadi ya siku za utabiri",
   "forecast.daysLabel": "Siku zinazoonyeshwa",
   "forecast.layoutColumns": "Safu wima",
   "forecast.layoutRows": "Safu mlalo",
-  "forecast.title": "Utabiri",
   "styles.forecast.curve": "Mkunjo wa halijoto",
   "styles.forecast.grid": "Gridi",
   "widgetsA.catalog.forecast.description": "Siku chache zijazo",
   "widgetsA.catalog.forecast.label": "Utabiri",
-  "widgetsC.weather.settings.showPrecipitation.desc": "Jumla ya mvua au theluji ya siku, ikiwepo",
   "widgetsC.weather.settings.showPrecipitation.label": "Onyesha mvua"
 }

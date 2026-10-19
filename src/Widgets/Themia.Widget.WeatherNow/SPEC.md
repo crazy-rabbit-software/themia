@@ -10,8 +10,8 @@ Owning files: everything in this folder: `WeatherNowModule.cs` (descriptor, view
 rows, JSON context), `WeatherNowConfig.cs` (with its styles and the row only one style offers),
 `WeatherNowView.cs` and `WeatherNowView.Styles.cs` (they read the reading through
 `IWidgetHost.Weather`), `WeatherNowLayout.cs` (the standard style's ladder), `WeatherNowStyles.cs`
-(the other two styles' fits), `WeatherFacts.cs` (its readings), `WeatherNowSettings.cs` (its page:
-the weather family's `WeatherPlaceRows` and Show detail), `Preview/` (Debug renders: `--state sample`,
+(the other two styles' fits), `WeatherFacts.cs` (its readings), `WeatherNowMenu.cs` (its properties-menu
+lines: the weather family's `WeatherPlaceRows.LocationLine` and Show detail), `Preview/` (Debug renders: `--state sample`,
 the SDK's `WeatherSample`), `Localization/Locales/` (its own `WeatherNowStr`, 30 languages, its style
 names included). Tests: `Tests/WeatherNowTests.cs` (run by `tests/Themia.Modules.Tests`); host rules it
 is the example of are in the module test host (`OnlineHostTests`, `SyncHousekeepingTests`,
@@ -44,6 +44,12 @@ is the example of are in the module test host (`OnlineHostTests`, `SyncHousekeep
 - **[S-6162]** **Minimal** (`WeatherNowStyles.Minimal`): the temperature and its unit alone, in
   Segoe's light weight, as large as the inset box holds it (the ramp, then filled past TitleLarge,
   [S-659], as the minimal clock, [S-6014]); no glyph, condition, range or readings.
+- **[S-6174]** Its options are all on the properties menu ([S-3719], user request 2026-10-19); it
+  has no settings page. Under Style the readings line's switch (the standard style only, [S-6074]);
+  then Appearance ([S-3723]) and **Location**, the weather family's search ([S-3722],
+  `WeatherPlaceRows.LocationLine`): the chosen place's city at the end of its line (nothing without one), the geocoder asked once typing pauses ([S-2841]), its places as lines (a click picks one,
+  resolved once, [S-2840]) or what it said in their place ([S-2843]); under them Clear location
+  (greyed without a place, [S-2848]) and the location-name switch ([S-728]). (Tests `WeatherNowMenuTests`.)
 
 Needs a live pass: the widget against the real service, offline with a restored shelf, the first-run
 desktop's bare large-icon reading.

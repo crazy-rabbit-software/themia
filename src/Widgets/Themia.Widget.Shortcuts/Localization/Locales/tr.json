@@ -21,7 +21,10 @@
   "widgetsC.shortcuts.kind.refused": "İzin verilmiyor",
   "widgetsC.shortcuts.menu.addLayout": "Uygulama düzeni…",
   "widgetsC.shortcuts.menu.addLink": "Web adresi veya yol…",
+  "widgetsC.shortcuts.menu.changeTarget": "Hedefi değiştir…",
   "widgetsC.shortcuts.menu.closeSearch": "Aramayı kapat",
+  "widgetsC.shortcuts.menu.moveDown": "Aşağı taşı",
+  "widgetsC.shortcuts.menu.moveUp": "Yukarı taşı",
   "widgetsC.shortcuts.menu.openLayout": "Düzeni aç",
   "widgetsC.shortcuts.menu.openMany": {
     "one": "{count} kısayolu aç",
@@ -31,12 +34,14 @@
     "one": "{count} kısayolu kaldır",
     "other": "{count} kısayolu kaldır"
   },
+  "widgetsC.shortcuts.menu.rename": "Yeniden adlandır…",
   "widgetsC.shortcuts.menu.undoRemove": "Kaldırmayı geri al",
   "widgetsC.shortcuts.menu.undoRemoveCount": {
     "one": "Kaldırmayı geri al ({count})",
     "other": "Kaldırmayı geri al ({count})"
   },
   "widgetsC.shortcuts.search": "Kısayollarda ara",
+  "widgetsC.shortcuts.settings.list.empty": "Henüz kısayol yok.",
   "widgetsC.shortcuts.settings.locations": "Windows konumları",
   "widgetsC.shortcuts.settings.openWith.double": "Çift tıklama",
   "widgetsC.shortcuts.settings.openWith.label": "Açma şekli",

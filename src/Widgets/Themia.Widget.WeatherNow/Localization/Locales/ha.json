@@ -2,7 +2,6 @@
   "styles.weatherNow.largeIcon": "Babban gunki",
   "styles.weatherNow.minimal": "Mafi sauƙi",
   "styles.weatherNow.standard": "Na yau da kullum",
-  "weather.defaultLabel": "Yanayi",
   "weather.feelsLike": "Yana ji kamar",
   "weather.humidity": "Danshi",
   "weather.wind": "Iska",
@@ -14,6 +13,5 @@
   "widgetsC.weather.fact.pressure": "Matsin iska",
   "widgetsC.weather.fact.uvIndex": "Ma'aunin UV",
   "widgetsC.weather.feelsShort": "Yana ji {temperature}",
-  "widgetsC.weather.settings.showDetail.desc": "Yadda ake ji, danshi da iska; ƙari a manyan tayil",
   "widgetsC.weather.settings.showDetail.label": "Nuna cikakken bayani"
 }

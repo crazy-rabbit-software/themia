@@ -2,7 +2,6 @@
   "styles.weatherNow.largeIcon": "Malaking icon",
   "styles.weatherNow.minimal": "Minimal",
   "styles.weatherNow.standard": "Karaniwan",
-  "weather.defaultLabel": "Panahon",
   "weather.feelsLike": "Pakiramdam",
   "weather.humidity": "Halumigmig",
   "weather.wind": "Hangin",
@@ -14,6 +13,5 @@
   "widgetsC.weather.fact.pressure": "Presyon",
   "widgetsC.weather.fact.uvIndex": "Indeks ng UV",
   "widgetsC.weather.feelsShort": "Pakiramdam {temperature}",
-  "widgetsC.weather.settings.showDetail.desc": "Pakiramdam, halumigmig at hangin; higit pa sa mas malalaking tile",
   "widgetsC.weather.settings.showDetail.label": "Ipakita ang detalye"
 }

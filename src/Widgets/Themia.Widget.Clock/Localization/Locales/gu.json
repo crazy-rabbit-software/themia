@@ -1,6 +1,5 @@
 {
   "clockText.large": "મોટું",
-  "clockText.sizeDesc": "સ્થળ, તારીખ અને ઑફસેટ લાઇન કેટલી મોટી હોય",
   "clockText.sizeLabel": "સ્થળ અને તારીખનું કદ",
   "clockText.small": "નાનું",
   "clock.dateLabel": "તારીખ બતાવો",
@@ -23,11 +22,8 @@
   "widgetsA.clock.offset.sameAsLocal": "સ્થાનિક જેવું જ",
   "widgetsA.clock.settings.label.desc": "સમયની ઉપર બતાવાય છે. ખાલી: પસંદ કરેલા ઝોનનું શહેર",
   "widgetsA.clock.settings.label.none": "કોઈ લેબલ નહીં",
-  "widgetsA.clock.settings.offset.desc": "તારીખ નીચે ઝોનના ઑફસેટવાળી પંક્તિ",
   "widgetsA.clock.settings.offset.local": "સ્થાનિક સમયથી",
   "widgetsA.clock.settings.offset.utc": "UTC થી",
-  "widgetsA.clock.settings.seconds.desc": "ઍપને મિનિટમાં એક વારને બદલે સેકન્ડમાં એક વાર જગાડે છે",
-  "widgetsA.clock.settings.zone.desc": "શહેર શોધો; ઘડિયાળ વિશ્વ ઘડિયાળ બની જાય છે",
   "wordClock.hours": "બાર|એક|બે|ત્રણ|ચાર|પાંચ|છ|સાત|આઠ|નવ|દસ|અગિયાર;બાર વાગ્યા છે|એક વાગ્યો છે|બે વાગ્યા છે|ત્રણ વાગ્યા છે|ચાર વાગ્યા છે|પાંચ વાગ્યા છે|છ વાગ્યા છે|સાત વાગ્યા છે|આઠ વાગ્યા છે|નવ વાગ્યા છે|દસ વાગ્યા છે|અગિયાર વાગ્યા છે;સાડા બાર|દોઢ|અઢી|સાડા ત્રણ|સાડા ચાર|સાડા પાંચ|સાડા છ|સાડા સાત|સાડા આઠ|સાડા નવ|સાડા દસ|સાડા અગિયાર",
   "wordClock.m00": "[h2]",
   "wordClock.m05": "[h] વાગીને પાંચ મિનિટ થઈ છે",

@@ -1,6 +1,5 @@
 {
   "clockText.large": "大",
-  "clockText.sizeDesc": "場所、日付、時差の行の大きさ",
   "clockText.sizeLabel": "場所と日付のサイズ",
   "clockText.small": "小",
   "clock.dateLabel": "日付を表示",
@@ -23,11 +22,8 @@
   "widgetsA.clock.offset.sameAsLocal": "現地時刻と同じ",
   "widgetsA.clock.settings.label.desc": "時刻の上に表示されます。空欄の場合は選んだタイム ゾーンの都市",
   "widgetsA.clock.settings.label.none": "ラベルなし",
-  "widgetsA.clock.settings.offset.desc": "日付の下にタイム ゾーンの時差を表示",
   "widgetsA.clock.settings.offset.local": "現地時刻との差",
   "widgetsA.clock.settings.offset.utc": "UTC との差",
-  "widgetsA.clock.settings.seconds.desc": "アプリを 1 分ごとではなく 1 秒ごとに動かします",
-  "widgetsA.clock.settings.zone.desc": "都市を検索すると、世界時計になります",
   "wordClock.hours": "午前零時|午前一時|午前二時|午前三時|午前四時|午前五時|午前六時|午前七時|午前八時|午前九時|午前十時|午前十一時|午後零時|午後一時|午後二時|午後三時|午後四時|午後五時|午後六時|午後七時|午後八時|午後九時|午後十時|午後十一時",
   "wordClock.m00": "[h]です",
   "wordClock.m05": "[h]五分です",

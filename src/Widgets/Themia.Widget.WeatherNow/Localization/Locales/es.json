@@ -2,7 +2,6 @@
   "styles.weatherNow.largeIcon": "Icono grande",
   "styles.weatherNow.minimal": "Mínimo",
   "styles.weatherNow.standard": "Estándar",
-  "weather.defaultLabel": "Tiempo",
   "weather.feelsLike": "Sensación",
   "weather.humidity": "Humedad",
   "weather.wind": "Viento",
@@ -14,6 +13,5 @@
   "widgetsC.weather.fact.pressure": "Presión",
   "widgetsC.weather.fact.uvIndex": "Índice UV",
   "widgetsC.weather.feelsShort": "Sensación {temperature}",
-  "widgetsC.weather.settings.showDetail.desc": "Sensación, humedad y viento; más en mosaicos grandes",
   "widgetsC.weather.settings.showDetail.label": "Mostrar detalles"
 }

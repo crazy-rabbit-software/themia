@@ -1,6 +1,5 @@
 {
   "clockText.large": "बड़ा",
-  "clockText.sizeDesc": "स्थान, तारीख और ऑफ़सेट पंक्ति कितनी बड़ी हों",
   "clockText.sizeLabel": "स्थान और तारीख का आकार",
   "clockText.small": "छोटा",
   "clock.dateLabel": "दिनांक दिखाएँ",
@@ -23,11 +22,8 @@
   "widgetsA.clock.offset.sameAsLocal": "स्थानीय जैसा",
   "widgetsA.clock.settings.label.desc": "समय के ऊपर दिखता है। खाली: चुने गए क्षेत्र का शहर",
   "widgetsA.clock.settings.label.none": "कोई लेबल नहीं",
-  "widgetsA.clock.settings.offset.desc": "दिनांक के नीचे क्षेत्र के ऑफ़सेट वाली पंक्ति",
   "widgetsA.clock.settings.offset.local": "स्थानीय समय से",
   "widgetsA.clock.settings.offset.utc": "UTC से",
-  "widgetsA.clock.settings.seconds.desc": "ऐप को मिनट में एक बार की जगह हर सेकंड जगाता है",
-  "widgetsA.clock.settings.zone.desc": "कोई शहर खोजें; घड़ी विश्व घड़ी बन जाती है",
   "wordClock.hours": "बारह|एक|दो|तीन|चार|पाँच|छह|सात|आठ|नौ|दस|ग्यारह;बारह बजे हैं|एक बजा है|दो बजे हैं|तीन बजे हैं|चार बजे हैं|पाँच बजे हैं|छह बजे हैं|सात बजे हैं|आठ बजे हैं|नौ बजे हैं|दस बजे हैं|ग्यारह बजे हैं;साढ़े बारह|डेढ़|ढाई|साढ़े तीन|साढ़े चार|साढ़े पाँच|साढ़े छह|साढ़े सात|साढ़े आठ|साढ़े नौ|साढ़े दस|साढ़े ग्यारह",
   "wordClock.m00": "[h2]",
   "wordClock.m05": "[h] बजकर पाँच मिनट हुए हैं",

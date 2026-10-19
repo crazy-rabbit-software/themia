@@ -38,8 +38,9 @@ public sealed class ClockModule : IWidgetModule
         Add = new(AddFolderId.Time, 0, 0, Popular: 0),
     };
 
-    public void SettingsRows(WidgetSettingsRows rows, WidgetConfig config)
-        => ClockSettings.Rows(rows.Rows, (ClockConfig)config, rows.Save);
+    /// <summary>[S-3719] Every option is on the properties menu: the widget has no settings page.</summary>
+    public void MenuLines(WidgetMenuLines menu, WidgetConfig config)
+        => ClockMenu.Lines(menu, (ClockConfig)config);
 
     public FrameworkElement CreateView(IWidgetHost host) => new ClockView();
 }

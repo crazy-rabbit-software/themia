@@ -21,7 +21,10 @@
   "widgetsC.shortcuts.kind.refused": "অনুমোদিত নয়",
   "widgetsC.shortcuts.menu.addLayout": "অ্যাপ লেআউট…",
   "widgetsC.shortcuts.menu.addLink": "ওয়েব ঠিকানা বা পাথ…",
+  "widgetsC.shortcuts.menu.changeTarget": "লক্ষ্য পরিবর্তন করুন…",
   "widgetsC.shortcuts.menu.closeSearch": "অনুসন্ধান বন্ধ করুন",
+  "widgetsC.shortcuts.menu.moveDown": "নিচে সরান",
+  "widgetsC.shortcuts.menu.moveUp": "উপরে সরান",
   "widgetsC.shortcuts.menu.openLayout": "লেআউট খুলুন",
   "widgetsC.shortcuts.menu.openMany": {
     "one": "{count}টি শর্টকাট খুলুন",
@@ -31,12 +34,14 @@
     "one": "{count}টি শর্টকাট সরান",
     "other": "{count}টি শর্টকাট সরান"
   },
+  "widgetsC.shortcuts.menu.rename": "নাম পরিবর্তন করুন…",
   "widgetsC.shortcuts.menu.undoRemove": "সরানো পূর্বাবস্থায় ফেরান",
   "widgetsC.shortcuts.menu.undoRemoveCount": {
     "one": "সরানো পূর্বাবস্থায় ফেরান ({count})",
     "other": "সরানো পূর্বাবস্থায় ফেরান ({count})"
   },
   "widgetsC.shortcuts.search": "শর্টকাট খুঁজুন",
+  "widgetsC.shortcuts.settings.list.empty": "এখনও কোনো শর্টকাট নেই।",
   "widgetsC.shortcuts.settings.locations": "Windows-এর অবস্থান",
   "widgetsC.shortcuts.settings.openWith.double": "ডাবল ক্লিক",
   "widgetsC.shortcuts.settings.openWith.label": "যেভাবে খুলবে",

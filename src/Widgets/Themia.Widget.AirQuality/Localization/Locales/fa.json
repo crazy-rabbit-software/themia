@@ -32,7 +32,6 @@
   "online.air.pollenLevel.moderate": "متوسط",
   "online.air.pollenLevel.high": "زیاد",
   "online.air.settings.index.label": "شاخص",
-  "online.air.settings.index.desc": "کدام شاخص کیفیت هوا نمایش داده شود",
   "online.air.settings.index.auto": "خودکار: اروپایی در اروپا",
   "online.air.settings.index.european": "اروپایی (EAQI)",
   "online.air.settings.index.us": "آمریکایی (AQI)",

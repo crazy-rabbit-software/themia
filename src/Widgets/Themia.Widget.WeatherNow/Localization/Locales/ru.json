@@ -2,7 +2,6 @@
   "styles.weatherNow.largeIcon": "Крупный значок",
   "styles.weatherNow.minimal": "Минимальный",
   "styles.weatherNow.standard": "Стандартный",
-  "weather.defaultLabel": "Погода",
   "weather.feelsLike": "Ощущается как",
   "weather.humidity": "Влажность",
   "weather.wind": "Ветер",
@@ -14,6 +13,5 @@
   "widgetsC.weather.fact.pressure": "Давление",
   "widgetsC.weather.fact.uvIndex": "УФ-индекс",
   "widgetsC.weather.feelsShort": "Ощущ. {temperature}",
-  "widgetsC.weather.settings.showDetail.desc": "Ощущаемая температура, влажность и ветер; на больших плитках больше",
   "widgetsC.weather.settings.showDetail.label": "Показывать подробности"
 }

@@ -21,7 +21,10 @@
   "widgetsC.shortcuts.kind.refused": "परवानगी नाही",
   "widgetsC.shortcuts.menu.addLayout": "अ‍ॅप लेआउट…",
   "widgetsC.shortcuts.menu.addLink": "वेब पत्ता किंवा पथ…",
+  "widgetsC.shortcuts.menu.changeTarget": "लक्ष्य बदला…",
   "widgetsC.shortcuts.menu.closeSearch": "शोध बंद करा",
+  "widgetsC.shortcuts.menu.moveDown": "खाली हलवा",
+  "widgetsC.shortcuts.menu.moveUp": "वर हलवा",
   "widgetsC.shortcuts.menu.openLayout": "लेआउट उघडा",
   "widgetsC.shortcuts.menu.openMany": {
     "one": "{count} शॉर्टकट उघडा",
@@ -31,12 +34,14 @@
     "one": "{count} शॉर्टकट काढा",
     "other": "{count} शॉर्टकट काढा"
   },
+  "widgetsC.shortcuts.menu.rename": "नाव बदला…",
   "widgetsC.shortcuts.menu.undoRemove": "काढणे पूर्ववत करा",
   "widgetsC.shortcuts.menu.undoRemoveCount": {
     "one": "काढणे पूर्ववत करा ({count})",
     "other": "काढणे पूर्ववत करा ({count})"
   },
   "widgetsC.shortcuts.search": "शॉर्टकट शोधा",
+  "widgetsC.shortcuts.settings.list.empty": "अद्याप शॉर्टकट नाहीत.",
   "widgetsC.shortcuts.settings.locations": "Windows स्थाने",
   "widgetsC.shortcuts.settings.openWith.double": "डबल क्लिक",
   "widgetsC.shortcuts.settings.openWith.label": "यासह उघडा",

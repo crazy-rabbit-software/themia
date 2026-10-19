@@ -1,13 +1,10 @@
 {
-  "forecast.daysDesc": "Số ngày dự báo",
   "forecast.daysLabel": "Số ngày hiển thị",
   "forecast.layoutColumns": "Cột",
   "forecast.layoutRows": "Hàng",
-  "forecast.title": "Dự báo",
   "styles.forecast.curve": "Đường cong nhiệt độ",
   "styles.forecast.grid": "Lưới",
   "widgetsA.catalog.forecast.description": "Vài ngày tới",
   "widgetsA.catalog.forecast.label": "Dự báo",
-  "widgetsC.weather.settings.showPrecipitation.desc": "Tổng lượng mưa hoặc tuyết trong ngày, nếu có",
   "widgetsC.weather.settings.showPrecipitation.label": "Hiện lượng mưa"
 }

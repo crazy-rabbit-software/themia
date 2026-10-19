@@ -2,7 +2,6 @@
   "styles.weatherNow.largeIcon": "Duża ikona",
   "styles.weatherNow.minimal": "Minimalny",
   "styles.weatherNow.standard": "Standardowy",
-  "weather.defaultLabel": "Pogoda",
   "weather.feelsLike": "Odczuwalna",
   "weather.humidity": "Wilgotność",
   "weather.wind": "Wiatr",
@@ -14,6 +13,5 @@
   "widgetsC.weather.fact.pressure": "Ciśnienie",
   "widgetsC.weather.fact.uvIndex": "Indeks UV",
   "widgetsC.weather.feelsShort": "Odczuwalna {temperature}",
-  "widgetsC.weather.settings.showDetail.desc": "Odczuwalna, wilgotność i wiatr; więcej na większych kafelkach",
   "widgetsC.weather.settings.showDetail.label": "Pokaż szczegóły"
 }

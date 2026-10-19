@@ -11,8 +11,8 @@ settings rows, JSON context, its glyph), `WeatherForecastConfig.cs` (with its st
 `WeatherForecastView.cs` and its `.Layouts.cs`, `.Curve.cs`, `.Grid.cs` parts (the forecast and the
 temperature now through `IWidgetHost.Weather`), `WeatherForecastLayout.cs` (rows and columns),
 `ForecastDays.cs` (the day parts' scale, the grid, the now mark), `ForecastCurve.cs`,
-`WeatherForecastSettings.cs` (its page: the weather family's `WeatherPlaceRows`, precipitation and
-days), `Preview/` (Debug renders: `--state sample`, the SDK's `WeatherSample`), `Localization/Locales/`
+`WeatherForecastMenu.cs` (its properties-menu lines: the weather family's `WeatherPlaceRows.LocationLine`,
+precipitation and days), `Preview/` (Debug renders: `--state sample`, the SDK's `WeatherSample`), `Localization/Locales/`
 (its own `WeatherForecastStr`, 30 languages, its style names included). Tests: `Tests/` (run by
 `tests/Themia.Modules.Tests`).
 
@@ -70,5 +70,9 @@ days), `Preview/` (Debug renders: `--state sample`, the SDK's `WeatherSample`), 
   and left before. On today's range bar (rows and columns): a dot at the temperature on the
   forecast's scale, clamped to the bar's ends, in the colour text takes on the accent and ringed
   in the accent. No reading: no dot, and only the hairline on the curve.
+- **[S-6173]** Its options are all on the properties menu ([S-3719], user request 2026-10-19); it
+  has no settings page: Appearance ([S-3723]), Location (the weather family's search, [S-3722], as the
+  current conditions', [S-6174]), Days (1 to 14, the current one with the dot) and the precipitation
+  switch. (Tests `WeatherForecastMenuTests`.)
 
 Needs a live pass: the widget against the real service (1 and 14 days), offline with a restored shelf.

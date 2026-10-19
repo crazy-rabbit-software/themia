@@ -1,6 +1,5 @@
 {
   "clockText.large": "Grande",
-  "clockText.sizeDesc": "Taille du lieu, de la date et de la ligne de décalage",
   "clockText.sizeLabel": "Taille du lieu et de la date",
   "clockText.small": "Petite",
   "clock.dateLabel": "Afficher la date",
@@ -23,11 +22,8 @@
   "widgetsA.clock.offset.sameAsLocal": "comme l’heure locale",
   "widgetsA.clock.settings.label.desc": "Affiché au-dessus de l’heure. Vide : la ville du fuseau choisi",
   "widgetsA.clock.settings.label.none": "Aucun libellé",
-  "widgetsA.clock.settings.offset.desc": "Une ligne sous la date avec le décalage du fuseau",
   "widgetsA.clock.settings.offset.local": "Par rapport à l’heure locale",
   "widgetsA.clock.settings.offset.utc": "Par rapport à UTC",
-  "widgetsA.clock.settings.seconds.desc": "Réveille l’application chaque seconde au lieu de chaque minute",
-  "widgetsA.clock.settings.zone.desc": "Recherche une ville ; l’horloge devient une horloge mondiale",
   "wordClock.hours": "minuit|une heure|deux heures|trois heures|quatre heures|cinq heures|six heures|sept heures|huit heures|neuf heures|dix heures|onze heures|midi|une heure|deux heures|trois heures|quatre heures|cinq heures|six heures|sept heures|huit heures|neuf heures|dix heures|onze heures;demi|demie|demie|demie|demie|demie|demie|demie|demie|demie|demie|demie|demi|demie|demie|demie|demie|demie|demie|demie|demie|demie|demie|demie",
   "wordClock.m00": "Il est [h]",
   "wordClock.m05": "Il est [h] cinq",

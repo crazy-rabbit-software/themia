@@ -32,7 +32,6 @@
   "online.air.pollenLevel.moderate": "মাঝারি",
   "online.air.pollenLevel.high": "বেশি",
   "online.air.settings.index.label": "সূচক",
-  "online.air.settings.index.desc": "কোন বায়ু মান সূচক দেখাবে",
   "online.air.settings.index.auto": "স্বয়ংক্রিয়: ইউরোপে ইউরোপীয়",
   "online.air.settings.index.european": "ইউরোপীয় (EAQI)",
   "online.air.settings.index.us": "মার্কিন (AQI)",

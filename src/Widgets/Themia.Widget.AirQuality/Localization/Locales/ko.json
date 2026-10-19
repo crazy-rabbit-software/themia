@@ -32,7 +32,6 @@
   "online.air.pollenLevel.moderate": "보통",
   "online.air.pollenLevel.high": "높음",
   "online.air.settings.index.label": "지수",
-  "online.air.settings.index.desc": "표시할 대기질 지수",
   "online.air.settings.index.auto": "자동: 유럽에서는 유럽 지수",
   "online.air.settings.index.european": "유럽 (EAQI)",
   "online.air.settings.index.us": "미국 (AQI)",

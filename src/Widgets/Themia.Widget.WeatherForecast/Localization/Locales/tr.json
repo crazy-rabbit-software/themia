@@ -1,13 +1,10 @@
 {
-  "forecast.daysDesc": "Tahmin günü sayısı",
   "forecast.daysLabel": "Gösterilen günler",
   "forecast.layoutColumns": "Sütunlar",
   "forecast.layoutRows": "Satırlar",
-  "forecast.title": "Tahmin",
   "styles.forecast.curve": "Sıcaklık eğrisi",
   "styles.forecast.grid": "Izgara",
   "widgetsA.catalog.forecast.description": "Önümüzdeki birkaç gün",
   "widgetsA.catalog.forecast.label": "Tahmin",
-  "widgetsC.weather.settings.showPrecipitation.desc": "Varsa günün toplam yağmuru veya karı",
   "widgetsC.weather.settings.showPrecipitation.label": "Yağışı göster"
 }

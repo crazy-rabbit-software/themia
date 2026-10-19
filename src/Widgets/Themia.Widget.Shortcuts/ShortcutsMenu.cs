@@ -75,9 +75,115 @@ internal static class ShortcutsMenu
             look.Add(menu.Toggle(null, Str.Folder_ShowExtMenu.Text(), config.ShowFileExtension, on => config.ShowFileExtension = on));
         }
 
+        // [S-3723] The card's own lines first, as one Appearance submenu after Style.
+        menu.PlaceCard();
         menu.Lines.Add(menu.Choice(Glyphs.Open, ShortcutsStr.WidgetsC_Shortcuts_Settings_OpenWith_Label.Text(), Clicks(), config.ClickMode, value => config.ClickMode = value));
         menu.Lines.Add(WidgetMenuLines.Submenu(Glyphs.Add, Str.Common_Add.Text(), Add(menu, config, layouts)));
+        menu.Lines.Add(WidgetMenuLines.Submenu(ShortcutsModule.Glyph, ShortcutsStr.WidgetsA_Catalog_Shortcuts_Label.Text(), Items(menu, config, layouts)));
     }
+
+    /// <summary>
+    /// [S-1388] The shortcuts themselves, in their order, each a submenu: Rename…, Change target…
+    /// (Edit layout… for a layout), Move up, Move down and Remove. In edit mode the widget is a card
+    /// being arranged and takes no clicks of its own ([S-1751]), so this is where its items are kept.
+    /// </summary>
+    private static List<ItemMenuEntry> Items(WidgetMenuLines menu, ShortcutsConfig config, IAppLayouts layouts)
+    {
+        if (config.Items.Count == 0)
+        {
+            return [new(null, ShortcutsStr.WidgetsC_Shortcuts_Settings_List_Empty.Text(), () => { }, Disabled: true)];
+        }
+
+        var lines = new List<ItemMenuEntry>(config.Items.Count);
+        for (var i = 0; i < config.Items.Count; i++)
+        {
+            var item = config.Items[i];
+            var name = ShownName(item, config);
+            var actions = new List<ItemMenuEntry>
+            {
+                new(Glyphs.Rename, ShortcutsStr.WidgetsC_Shortcuts_Menu_Rename.Text(), () => menu.Ask(new WidgetTextAsk(
+                    Str.Common_Rename.Text(),
+                    DerivedName(item, config),
+                    Str.Common_Rename.Text(),
+                    _ => null,
+                    typed => Rename(item, typed, config, menu),
+                    Initial: name,
+                    AllowEmpty: true))),
+            };
+
+            if (item.IsLayout)
+            {
+                actions.Add(new(Glyphs.Edit, ShortcutsStr.Shortcut_EditLayoutMenu.Text(), () => layouts.Edit(item.Id), Disabled: !layouts.CanEdit));
+            }
+            else
+            {
+                actions.Add(new(Glyphs.Link, ShortcutsStr.WidgetsC_Shortcuts_Menu_ChangeTarget.Text(), () => menu.Ask(new WidgetTextAsk(
+                    ShortcutsStr.WidgetsC_Shortcuts_Menu_ChangeTarget.Text().TrimEnd('…'),
+                    @"https://example.com  ·  C:\Users\…  ·  shell:Downloads",
+                    Str.Common_Save.Text(),
+                    Refusal,
+                    typed => Retarget(item, typed, menu),
+                    Initial: item.Target))));
+            }
+
+            actions.Add(ItemMenuEntry.Separator);
+            actions.Add(menu.Command(Glyphs.MoveUp, ShortcutsStr.WidgetsC_Shortcuts_Menu_MoveUp.Text(), () => ShortcutRules.Move(config.Items, item.Id, -1), disabled: i == 0));
+            actions.Add(menu.Command(Glyphs.MoveDown, ShortcutsStr.WidgetsC_Shortcuts_Menu_MoveDown.Text(), () => ShortcutRules.Move(config.Items, item.Id, 1), disabled: i == config.Items.Count - 1));
+            actions.Add(ItemMenuEntry.Separator);
+            actions.Add(menu.Command(Glyphs.Delete, Str.Common_Remove.Text(), () => config.Items.RemoveAll(x => x.Id == item.Id)));
+
+            // A file, a folder or a Windows location carries Explorer's own icon, as on the widget.
+            var line = WidgetMenuLines.Submenu(KindGlyph(item), name, actions);
+            lines.Add(!item.IsLayout && LaunchTargets.Classify(item.Target).Kind is not (LaunchKind.Web or LaunchKind.Refused)
+                ? line with { IconFile = item.Target }
+                : line);
+        }
+
+        return lines;
+    }
+
+    /// <summary>[S-1381] The name an item shows: its label, else the one its target gives it.</summary>
+    internal static string ShownName(ShortcutItem item, ShortcutsConfig config)
+        => item.Label.Length > 0 ? item.Label : DerivedName(item, config);
+
+    private static string DerivedName(ShortcutItem item, ShortcutsConfig config)
+        => item.IsLayout ? ShortcutRules.LayoutKindLabel() : LaunchTargets.DisplayName(null, item.Target, config.ShowFileExtension);
+
+    /// <summary>[S-1387] A typed name; the one the target gives (or nothing) clears the label, as renaming on the widget does.</summary>
+    internal static void Rename(ShortcutItem item, string typed, ShortcutsConfig config, WidgetMenuLines menu)
+    {
+        var label = typed.Trim();
+        if (label == DerivedName(item, config))
+        {
+            label = string.Empty;
+        }
+
+        if (label != item.Label)
+        {
+            item.Label = label;
+            menu.Save();
+        }
+    }
+
+    /// <summary>A typed target, checked by <see cref="Refusal"/> before it gets here; the label stays.</summary>
+    private static void Retarget(ShortcutItem item, string typed, WidgetMenuLines menu)
+    {
+        if (typed != item.Target)
+        {
+            item.Target = typed;
+            menu.Save();
+        }
+    }
+
+    /// <summary>What kind of thing a shortcut is, as its line's icon.</summary>
+    private static string KindGlyph(ShortcutItem item) => item.IsLayout
+        ? Glyphs.AppLayout
+        : LaunchTargets.Classify(item.Target).Kind switch
+        {
+            LaunchKind.Web => Glyphs.Link,
+            LaunchKind.ShellNamespace => Glyphs.Folder,
+            _ => Glyphs.File,
+        };
 
     /// <summary>[S-1388] The Add submenu: the pickers, a typed address, a new app layout, and the Windows locations.</summary>
     private static List<ItemMenuEntry> Add(WidgetMenuLines menu, ShortcutsConfig config, IAppLayouts layouts)

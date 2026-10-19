@@ -1,13 +1,10 @@
 {
-  "forecast.daysDesc": "पूर्वानुमान के दिनों की संख्या",
   "forecast.daysLabel": "दिखाए गए दिन",
   "forecast.layoutColumns": "कॉलम",
   "forecast.layoutRows": "पंक्तियाँ",
-  "forecast.title": "पूर्वानुमान",
   "styles.forecast.curve": "तापमान वक्र",
   "styles.forecast.grid": "ग्रिड",
   "widgetsA.catalog.forecast.description": "अगले कुछ दिन",
   "widgetsA.catalog.forecast.label": "पूर्वानुमान",
-  "widgetsC.weather.settings.showPrecipitation.desc": "दिन की कुल बारिश या बर्फ़, अगर हो",
   "widgetsC.weather.settings.showPrecipitation.label": "वर्षा दिखाएँ"
 }

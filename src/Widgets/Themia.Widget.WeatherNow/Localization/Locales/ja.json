@@ -2,7 +2,6 @@
   "styles.weatherNow.largeIcon": "大きいアイコン",
   "styles.weatherNow.minimal": "ミニマル",
   "styles.weatherNow.standard": "標準",
-  "weather.defaultLabel": "天気",
   "weather.feelsLike": "体感",
   "weather.humidity": "湿度",
   "weather.wind": "風",
@@ -14,6 +13,5 @@
   "widgetsC.weather.fact.pressure": "気圧",
   "widgetsC.weather.fact.uvIndex": "UV 指数",
   "widgetsC.weather.feelsShort": "体感 {temperature}",
-  "widgetsC.weather.settings.showDetail.desc": "体感、湿度、風。大きいタイルではさらに表示",
   "widgetsC.weather.settings.showDetail.label": "詳細を表示"
 }

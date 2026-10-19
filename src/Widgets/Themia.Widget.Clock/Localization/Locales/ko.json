@@ -1,6 +1,5 @@
 {
   "clockText.large": "크게",
-  "clockText.sizeDesc": "장소, 날짜, 시차 줄의 크기",
   "clockText.sizeLabel": "장소 및 날짜 크기",
   "clockText.small": "작게",
   "clock.dateLabel": "날짜 표시",
@@ -23,11 +22,8 @@
   "widgetsA.clock.offset.sameAsLocal": "현지 시간과 같음",
   "widgetsA.clock.settings.label.desc": "시간 위에 표시됩니다. 비워 두면 선택한 표준 시간대의 도시가 표시됩니다",
   "widgetsA.clock.settings.label.none": "레이블 없음",
-  "widgetsA.clock.settings.offset.desc": "날짜 아래에 표준 시간대의 시차를 한 줄로 표시합니다",
   "widgetsA.clock.settings.offset.local": "현지 시간 기준",
   "widgetsA.clock.settings.offset.utc": "UTC 기준",
-  "widgetsA.clock.settings.seconds.desc": "1분에 한 번이 아니라 1초에 한 번 앱을 깨웁니다",
-  "widgetsA.clock.settings.zone.desc": "도시를 검색하면 시계가 세계 시계가 됩니다",
   "wordClock.hours": "오전 열두|오전 한|오전 두|오전 세|오전 네|오전 다섯|오전 여섯|오전 일곱|오전 여덟|오전 아홉|오전 열|오전 열한|오후 열두|오후 한|오후 두|오후 세|오후 네|오후 다섯|오후 여섯|오후 일곱|오후 여덟|오후 아홉|오후 열|오후 열한",
   "wordClock.m00": "[h] 시입니다",
   "wordClock.m05": "[h] 시 오 분입니다",

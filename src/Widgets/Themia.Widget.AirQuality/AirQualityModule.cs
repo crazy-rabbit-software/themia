@@ -37,8 +37,9 @@ public sealed class AirQualityModule : IWidgetModule
         Add = new(AddFolderId.Weather, 0, 3),
     };
 
-    public void SettingsRows(WidgetSettingsRows rows, WidgetConfig config)
-        => AirQualitySettings.Rows(rows.Rows, (AirQualityConfig)config, rows.Save);
+    /// <summary>[S-3719] Every option is on the properties menu: the widget has no settings page.</summary>
+    public void MenuLines(WidgetMenuLines menu, WidgetConfig config)
+        => AirQualityMenu.Lines(menu, (AirQualityConfig)config);
 
     public FrameworkElement CreateView(IWidgetHost host) => new AirQualityView(host);
 }

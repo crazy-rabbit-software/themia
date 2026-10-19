@@ -2,7 +2,6 @@
   "styles.weatherNow.largeIcon": "పెద్ద చిహ్నం",
   "styles.weatherNow.minimal": "కనిష్ఠం",
   "styles.weatherNow.standard": "ప్రామాణికం",
-  "weather.defaultLabel": "వాతావరణం",
   "weather.feelsLike": "అనిపించేది",
   "weather.humidity": "తేమ",
   "weather.wind": "గాలి",
@@ -14,6 +13,5 @@
   "widgetsC.weather.fact.pressure": "పీడనం",
   "widgetsC.weather.fact.uvIndex": "UV సూచిక",
   "widgetsC.weather.feelsShort": "అనిపించేది {temperature}",
-  "widgetsC.weather.settings.showDetail.desc": "అనిపించే ఉష్ణోగ్రత, తేమ మరియు గాలి; పెద్ద టైల్‌లపై మరిన్ని",
   "widgetsC.weather.settings.showDetail.label": "వివరాలను చూపించు"
 }

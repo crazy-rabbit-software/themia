@@ -1,6 +1,5 @@
 {
   "clockText.large": "பெரியது",
-  "clockText.sizeDesc": "இடம், தேதி மற்றும் நேர வேறுபாட்டு வரி எவ்வளவு பெரியவை",
   "clockText.sizeLabel": "இடம் மற்றும் தேதி அளவு",
   "clockText.small": "சிறியது",
   "clock.dateLabel": "தேதியைக் காட்டு",
@@ -23,11 +22,8 @@
   "widgetsA.clock.offset.sameAsLocal": "உள்ளூர் நேரம் போலவே",
   "widgetsA.clock.settings.label.desc": "நேரத்துக்கு மேலே காட்டப்படும். காலியாக இருந்தால்: தேர்ந்தெடுத்த மண்டலத்தின் நகரம்",
   "widgetsA.clock.settings.label.none": "லேபிள் இல்லை",
-  "widgetsA.clock.settings.offset.desc": "தேதிக்குக் கீழே மண்டலத்தின் நேர வேறுபாட்டுடன் ஒரு வரி",
   "widgetsA.clock.settings.offset.local": "உள்ளூர் நேரத்திலிருந்து",
   "widgetsA.clock.settings.offset.utc": "UTC இலிருந்து",
-  "widgetsA.clock.settings.seconds.desc": "நிமிடத்துக்கு ஒருமுறைக்குப் பதிலாக விநாடிக்கு ஒருமுறை பயன்பாட்டை எழுப்பும்",
-  "widgetsA.clock.settings.zone.desc": "ஒரு நகரத்தைத் தேடவும்; கடிகாரம் உலகக் கடிகாரமாகும்",
   "wordClock.hours": "பன்னிரண்டு|ஒரு|இரண்டு|மூன்று|நான்கு|ஐந்து|ஆறு|ஏழு|எட்டு|ஒன்பது|பத்து|பதினொரு;பன்னிரண்டே|ஒன்றே|இரண்டே|மூன்றே|நான்கே|ஐந்தே|ஆறே|ஏழே|எட்டே|ஒன்பதே|பத்தே|பதினொன்றே",
   "wordClock.m00": "இப்போது [h] மணி",
   "wordClock.m05": "இப்போது [h] மணி ஐந்து நிமிடம்",

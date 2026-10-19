@@ -21,7 +21,10 @@
   "widgetsC.shortcuts.kind.refused": "Não permitido",
   "widgetsC.shortcuts.menu.addLayout": "Layout de aplicativos…",
   "widgetsC.shortcuts.menu.addLink": "Endereço da Web ou caminho…",
+  "widgetsC.shortcuts.menu.changeTarget": "Alterar destino…",
   "widgetsC.shortcuts.menu.closeSearch": "Fechar pesquisa",
+  "widgetsC.shortcuts.menu.moveDown": "Mover para baixo",
+  "widgetsC.shortcuts.menu.moveUp": "Mover para cima",
   "widgetsC.shortcuts.menu.openLayout": "Abrir disposição",
   "widgetsC.shortcuts.menu.openMany": {
     "one": "Abrir {count} atalho",
@@ -31,12 +34,14 @@
     "one": "Remover {count} atalho",
     "other": "Remover {count} atalhos"
   },
+  "widgetsC.shortcuts.menu.rename": "Renomear…",
   "widgetsC.shortcuts.menu.undoRemove": "Desfazer remoção",
   "widgetsC.shortcuts.menu.undoRemoveCount": {
     "one": "Desfazer remoção ({count})",
     "other": "Desfazer remoção ({count})"
   },
   "widgetsC.shortcuts.search": "Pesquisar atalhos",
+  "widgetsC.shortcuts.settings.list.empty": "Ainda não há atalhos.",
   "widgetsC.shortcuts.settings.locations": "Localizações do Windows",
   "widgetsC.shortcuts.settings.openWith.double": "Duplo clique",
   "widgetsC.shortcuts.settings.openWith.label": "Abrir com",

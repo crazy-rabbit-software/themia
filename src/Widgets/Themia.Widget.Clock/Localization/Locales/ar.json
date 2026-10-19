@@ -1,6 +1,5 @@
 {
   "clockText.large": "كبير",
-  "clockText.sizeDesc": "حجم المكان والتاريخ وسطر فرق التوقيت",
   "clockText.sizeLabel": "حجم المكان والتاريخ",
   "clockText.small": "صغير",
   "clock.dateLabel": "إظهار التاريخ",
@@ -23,11 +22,8 @@
   "widgetsA.clock.offset.sameAsLocal": "مثل المحلي",
   "widgetsA.clock.settings.label.desc": "يظهر فوق الوقت. فارغ: مدينة المنطقة المختارة",
   "widgetsA.clock.settings.label.none": "بلا تسمية",
-  "widgetsA.clock.settings.offset.desc": "سطر تحت التاريخ بفارق توقيت المنطقة",
   "widgetsA.clock.settings.offset.local": "عن التوقيت المحلي",
   "widgetsA.clock.settings.offset.utc": "عن UTC",
-  "widgetsA.clock.settings.seconds.desc": "يوقظ التطبيق مرة كل ثانية بدلًا من مرة كل دقيقة",
-  "widgetsA.clock.settings.zone.desc": "ابحث عن مدينة؛ تصبح الساعة ساعة عالمية",
   "wordClock.hours": "الثانية عشرة|الواحدة|الثانية|الثالثة|الرابعة|الخامسة|السادسة|السابعة|الثامنة|التاسعة|العاشرة|الحادية عشرة",
   "wordClock.m00": "الساعة [h] تماماً",
   "wordClock.m05": "الساعة [h] وخمس دقائق",

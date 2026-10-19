@@ -21,7 +21,10 @@
   "widgetsC.shortcuts.kind.refused": "허용되지 않음",
   "widgetsC.shortcuts.menu.addLayout": "앱 레이아웃…",
   "widgetsC.shortcuts.menu.addLink": "웹 주소 또는 경로…",
+  "widgetsC.shortcuts.menu.changeTarget": "대상 변경…",
   "widgetsC.shortcuts.menu.closeSearch": "검색 닫기",
+  "widgetsC.shortcuts.menu.moveDown": "아래로 이동",
+  "widgetsC.shortcuts.menu.moveUp": "위로 이동",
   "widgetsC.shortcuts.menu.openLayout": "레이아웃 열기",
   "widgetsC.shortcuts.menu.openMany": {
     "other": "바로 가기 {count}개 열기"
@@ -29,11 +32,13 @@
   "widgetsC.shortcuts.menu.removeMany": {
     "other": "바로 가기 {count}개 제거"
   },
+  "widgetsC.shortcuts.menu.rename": "이름 바꾸기…",
   "widgetsC.shortcuts.menu.undoRemove": "제거 실행 취소",
   "widgetsC.shortcuts.menu.undoRemoveCount": {
     "other": "제거 실행 취소({count})"
   },
   "widgetsC.shortcuts.search": "바로 가기 검색",
+  "widgetsC.shortcuts.settings.list.empty": "아직 바로 가기가 없습니다.",
   "widgetsC.shortcuts.settings.locations": "Windows 위치",
   "widgetsC.shortcuts.settings.openWith.double": "두 번 클릭",
   "widgetsC.shortcuts.settings.openWith.label": "열기 방법",

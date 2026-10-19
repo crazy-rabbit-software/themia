@@ -1,13 +1,10 @@
 {
-  "forecast.daysDesc": "Nombre de jours de prévision",
   "forecast.daysLabel": "Jours affichés",
   "forecast.layoutColumns": "Colonnes",
   "forecast.layoutRows": "Lignes",
-  "forecast.title": "Prévisions",
   "styles.forecast.curve": "Courbe de température",
   "styles.forecast.grid": "Grille",
   "widgetsA.catalog.forecast.description": "Les prochains jours",
   "widgetsA.catalog.forecast.label": "Prévisions",
-  "widgetsC.weather.settings.showPrecipitation.desc": "Le cumul de pluie ou de neige du jour, le cas échéant",
   "widgetsC.weather.settings.showPrecipitation.label": "Afficher les précipitations"
 }

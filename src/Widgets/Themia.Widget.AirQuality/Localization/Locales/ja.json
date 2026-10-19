@@ -32,7 +32,6 @@
   "online.air.pollenLevel.moderate": "やや多い",
   "online.air.pollenLevel.high": "多い",
   "online.air.settings.index.label": "指数",
-  "online.air.settings.index.desc": "表示する大気質指数",
   "online.air.settings.index.auto": "自動: ヨーロッパでは欧州指数",
   "online.air.settings.index.european": "欧州 (EAQI)",
   "online.air.settings.index.us": "米国 (AQI)",

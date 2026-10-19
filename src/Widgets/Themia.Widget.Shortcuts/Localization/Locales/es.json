@@ -21,7 +21,10 @@
   "widgetsC.shortcuts.kind.refused": "No permitido",
   "widgetsC.shortcuts.menu.addLayout": "Diseño de aplicaciones…",
   "widgetsC.shortcuts.menu.addLink": "Dirección web o ruta…",
+  "widgetsC.shortcuts.menu.changeTarget": "Cambiar destino…",
   "widgetsC.shortcuts.menu.closeSearch": "Cerrar búsqueda",
+  "widgetsC.shortcuts.menu.moveDown": "Bajar",
+  "widgetsC.shortcuts.menu.moveUp": "Subir",
   "widgetsC.shortcuts.menu.openLayout": "Abrir disposición",
   "widgetsC.shortcuts.menu.openMany": {
     "one": "Abrir {count} acceso directo",
@@ -31,12 +34,14 @@
     "one": "Quitar {count} acceso directo",
     "other": "Quitar {count} accesos directos"
   },
+  "widgetsC.shortcuts.menu.rename": "Cambiar nombre…",
   "widgetsC.shortcuts.menu.undoRemove": "Deshacer eliminación",
   "widgetsC.shortcuts.menu.undoRemoveCount": {
     "one": "Deshacer eliminación ({count})",
     "other": "Deshacer eliminación ({count})"
   },
   "widgetsC.shortcuts.search": "Buscar accesos directos",
+  "widgetsC.shortcuts.settings.list.empty": "Aún no hay accesos directos.",
   "widgetsC.shortcuts.settings.locations": "Ubicaciones de Windows",
   "widgetsC.shortcuts.settings.openWith.double": "Doble clic",
   "widgetsC.shortcuts.settings.openWith.label": "Abrir con",

@@ -2,7 +2,6 @@
   "styles.weatherNow.largeIcon": "बड़ा आइकन",
   "styles.weatherNow.minimal": "न्यूनतम",
   "styles.weatherNow.standard": "मानक",
-  "weather.defaultLabel": "मौसम",
   "weather.feelsLike": "महसूस होता है",
   "weather.humidity": "नमी",
   "weather.wind": "हवा",
@@ -14,6 +13,5 @@
   "widgetsC.weather.fact.pressure": "दबाव",
   "widgetsC.weather.fact.uvIndex": "UV सूचकांक",
   "widgetsC.weather.feelsShort": "महसूस {temperature}",
-  "widgetsC.weather.settings.showDetail.desc": "महसूस होने वाला तापमान, नमी और हवा; बड़ी टाइलों पर अधिक",
   "widgetsC.weather.settings.showDetail.label": "विवरण दिखाएँ"
 }

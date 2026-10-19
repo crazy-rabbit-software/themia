@@ -3,7 +3,6 @@
   "styles.weatherNow.largeIcon": "Large icon",
   "styles.weatherNow.minimal": "Minimal",
   "styles.weatherNow.standard": "Standard",
-  "weather.defaultLabel": "Weather",
   "weather.feelsLike": "Feels like",
   "weather.humidity": "Humidity",
   "weather.wind": "Wind",
@@ -15,6 +14,5 @@
   "widgetsC.weather.fact.pressure": "Pressure",
   "widgetsC.weather.fact.uvIndex": "UV index",
   "widgetsC.weather.feelsShort": "Feels {temperature}",
-  "widgetsC.weather.settings.showDetail.desc": "Feels-like, humidity and wind; more on larger tiles",
   "widgetsC.weather.settings.showDetail.label": "Show detail"
 }

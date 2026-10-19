@@ -1,6 +1,5 @@
 {
   "clockText.large": "Besar",
-  "clockText.sizeDesc": "Seberapa besar tempat, tanggal, dan baris selisih waktu",
   "clockText.sizeLabel": "Ukuran tempat dan tanggal",
   "clockText.small": "Kecil",
   "clock.dateLabel": "Tampilkan tanggal",
@@ -23,11 +22,8 @@
   "widgetsA.clock.offset.sameAsLocal": "sama dengan lokal",
   "widgetsA.clock.settings.label.desc": "Ditampilkan di atas waktu. Kosong: kota dari zona yang dipilih",
   "widgetsA.clock.settings.label.none": "Tanpa label",
-  "widgetsA.clock.settings.offset.desc": "Baris di bawah tanggal dengan selisih zona",
   "widgetsA.clock.settings.offset.local": "Dari waktu lokal",
   "widgetsA.clock.settings.offset.utc": "Dari UTC",
-  "widgetsA.clock.settings.seconds.desc": "Membangunkan aplikasi setiap detik, bukan setiap menit",
-  "widgetsA.clock.settings.zone.desc": "Cari kota; jam menjadi jam dunia",
   "wordClock.hours": "dua belas|satu|dua|tiga|empat|lima|enam|tujuh|delapan|sembilan|sepuluh|sebelas",
   "wordClock.m00": "Jam [h] tepat",
   "wordClock.m05": "Jam [h] lewat lima",

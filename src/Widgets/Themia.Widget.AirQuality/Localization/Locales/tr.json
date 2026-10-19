@@ -32,7 +32,6 @@
   "online.air.pollenLevel.moderate": "Orta",
   "online.air.pollenLevel.high": "Yüksek",
   "online.air.settings.index.label": "İndeks",
-  "online.air.settings.index.desc": "Hangi hava kalitesi indeksinin gösterileceği",
   "online.air.settings.index.auto": "Otomatik: Avrupa'da Avrupa indeksi",
   "online.air.settings.index.european": "Avrupa (EAQI)",
   "online.air.settings.index.us": "ABD (AQI)",

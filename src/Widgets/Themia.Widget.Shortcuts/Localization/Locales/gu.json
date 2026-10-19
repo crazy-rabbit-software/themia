@@ -21,7 +21,10 @@
   "widgetsC.shortcuts.kind.refused": "મંજૂરી નથી",
   "widgetsC.shortcuts.menu.addLayout": "ઍપ લેઆઉટ…",
   "widgetsC.shortcuts.menu.addLink": "વેબ સરનામું અથવા પાથ…",
+  "widgetsC.shortcuts.menu.changeTarget": "લક્ષ્ય બદલો…",
   "widgetsC.shortcuts.menu.closeSearch": "શોધ બંધ કરો",
+  "widgetsC.shortcuts.menu.moveDown": "નીચે ખસેડો",
+  "widgetsC.shortcuts.menu.moveUp": "ઉપર ખસેડો",
   "widgetsC.shortcuts.menu.openLayout": "લેઆઉટ ખોલો",
   "widgetsC.shortcuts.menu.openMany": {
     "one": "{count} શૉર્ટકટ ખોલો",
@@ -31,12 +34,14 @@
     "one": "{count} શૉર્ટકટ દૂર કરો",
     "other": "{count} શૉર્ટકટ દૂર કરો"
   },
+  "widgetsC.shortcuts.menu.rename": "નામ બદલો…",
   "widgetsC.shortcuts.menu.undoRemove": "દૂર કરવું પૂર્વવત્ કરો",
   "widgetsC.shortcuts.menu.undoRemoveCount": {
     "one": "દૂર કરવું પૂર્વવત્ કરો ({count})",
     "other": "દૂર કરવું પૂર્વવત્ કરો ({count})"
   },
   "widgetsC.shortcuts.search": "શૉર્ટકટ શોધો",
+  "widgetsC.shortcuts.settings.list.empty": "હજી કોઈ શૉર્ટકટ નથી.",
   "widgetsC.shortcuts.settings.locations": "Windows સ્થાનો",
   "widgetsC.shortcuts.settings.openWith.double": "ડબલ ક્લિક",
   "widgetsC.shortcuts.settings.openWith.label": "આનાથી ખોલો",

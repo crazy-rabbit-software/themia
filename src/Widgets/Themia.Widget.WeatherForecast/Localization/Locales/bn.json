@@ -1,13 +1,10 @@
 {
-  "forecast.daysDesc": "পূর্বাভাসের দিনের সংখ্যা",
   "forecast.daysLabel": "দেখানো দিন",
   "forecast.layoutColumns": "কলাম",
   "forecast.layoutRows": "সারি",
-  "forecast.title": "পূর্বাভাস",
   "styles.forecast.curve": "তাপমাত্রার বক্ররেখা",
   "styles.forecast.grid": "গ্রিড",
   "widgetsA.catalog.forecast.description": "আগামী কয়েক দিন",
   "widgetsA.catalog.forecast.label": "পূর্বাভাস",
-  "widgetsC.weather.settings.showPrecipitation.desc": "দিনের মোট বৃষ্টি বা তুষার, যদি থাকে",
   "widgetsC.weather.settings.showPrecipitation.label": "বৃষ্টিপাত দেখান"
 }

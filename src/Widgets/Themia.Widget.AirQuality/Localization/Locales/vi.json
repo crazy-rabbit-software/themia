@@ -32,7 +32,6 @@
   "online.air.pollenLevel.moderate": "Trung bình",
   "online.air.pollenLevel.high": "Cao",
   "online.air.settings.index.label": "Chỉ số",
-  "online.air.settings.index.desc": "Hiển thị chỉ số chất lượng không khí nào",
   "online.air.settings.index.auto": "Tự động: chỉ số châu Âu ở châu Âu",
   "online.air.settings.index.european": "Châu Âu (EAQI)",
   "online.air.settings.index.us": "Mỹ (AQI)",

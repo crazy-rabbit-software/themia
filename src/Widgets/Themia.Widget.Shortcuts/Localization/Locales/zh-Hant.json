@@ -21,7 +21,10 @@
   "widgetsC.shortcuts.kind.refused": "不允許",
   "widgetsC.shortcuts.menu.addLayout": "應用程式版面配置…",
   "widgetsC.shortcuts.menu.addLink": "網址或路徑…",
+  "widgetsC.shortcuts.menu.changeTarget": "變更目標…",
   "widgetsC.shortcuts.menu.closeSearch": "關閉搜尋",
+  "widgetsC.shortcuts.menu.moveDown": "下移",
+  "widgetsC.shortcuts.menu.moveUp": "上移",
   "widgetsC.shortcuts.menu.openLayout": "開啟版面配置",
   "widgetsC.shortcuts.menu.openMany": {
     "other": "開啟 {count} 個捷徑"
@@ -29,11 +32,13 @@
   "widgetsC.shortcuts.menu.removeMany": {
     "other": "移除 {count} 個捷徑"
   },
+  "widgetsC.shortcuts.menu.rename": "重新命名…",
   "widgetsC.shortcuts.menu.undoRemove": "復原移除",
   "widgetsC.shortcuts.menu.undoRemoveCount": {
     "other": "復原移除（{count}）"
   },
   "widgetsC.shortcuts.search": "搜尋捷徑",
+  "widgetsC.shortcuts.settings.list.empty": "尚無捷徑。",
   "widgetsC.shortcuts.settings.locations": "Windows 位置",
   "widgetsC.shortcuts.settings.openWith.double": "按兩下",
   "widgetsC.shortcuts.settings.openWith.label": "開啟方式",

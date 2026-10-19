@@ -2,7 +2,6 @@
   "styles.weatherNow.largeIcon": "मोठे चिन्ह",
   "styles.weatherNow.minimal": "किमान",
   "styles.weatherNow.standard": "मानक",
-  "weather.defaultLabel": "हवामान",
   "weather.feelsLike": "जाणवते",
   "weather.humidity": "आर्द्रता",
   "weather.wind": "वारा",
@@ -14,6 +13,5 @@
   "widgetsC.weather.fact.pressure": "दाब",
   "widgetsC.weather.fact.uvIndex": "UV निर्देशांक",
   "widgetsC.weather.feelsShort": "जाणवते {temperature}",
-  "widgetsC.weather.settings.showDetail.desc": "जाणवणारे तापमान, आर्द्रता आणि वारा; मोठ्या टाइलवर अधिक",
   "widgetsC.weather.settings.showDetail.label": "तपशील दाखवा"
 }

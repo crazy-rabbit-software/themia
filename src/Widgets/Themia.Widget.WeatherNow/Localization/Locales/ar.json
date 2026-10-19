@@ -2,7 +2,6 @@
   "styles.weatherNow.largeIcon": "أيقونة كبيرة",
   "styles.weatherNow.minimal": "بسيط",
   "styles.weatherNow.standard": "قياسي",
-  "weather.defaultLabel": "الطقس",
   "weather.feelsLike": "الإحساس",
   "weather.humidity": "الرطوبة",
   "weather.wind": "الرياح",
@@ -14,6 +13,5 @@
   "widgetsC.weather.fact.pressure": "الضغط",
   "widgetsC.weather.fact.uvIndex": "مؤشر الأشعة فوق البنفسجية",
   "widgetsC.weather.feelsShort": "الإحساس {temperature}",
-  "widgetsC.weather.settings.showDetail.desc": "درجة الإحساس والرطوبة والرياح؛ والمزيد في البطاقات الأكبر",
   "widgetsC.weather.settings.showDetail.label": "إظهار التفاصيل"
 }

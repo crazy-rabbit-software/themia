@@ -21,7 +21,10 @@
   "widgetsC.shortcuts.kind.refused": "అనుమతి లేదు",
   "widgetsC.shortcuts.menu.addLayout": "యాప్ లేఅవుట్…",
   "widgetsC.shortcuts.menu.addLink": "వెబ్ చిరునామా లేదా పాత్…",
+  "widgetsC.shortcuts.menu.changeTarget": "లక్ష్యాన్ని మార్చు…",
   "widgetsC.shortcuts.menu.closeSearch": "శోధనను మూసివేయి",
+  "widgetsC.shortcuts.menu.moveDown": "కిందికి తరలించు",
+  "widgetsC.shortcuts.menu.moveUp": "పైకి తరలించు",
   "widgetsC.shortcuts.menu.openLayout": "లేఅవుట్‌ను తెరువు",
   "widgetsC.shortcuts.menu.openMany": {
     "one": "{count} షార్ట్‌కట్‌ను తెరువు",
@@ -31,12 +34,14 @@
     "one": "{count} షార్ట్‌కట్‌ను తీసివేయి",
     "other": "{count} షార్ట్‌కట్‌లను తీసివేయి"
   },
+  "widgetsC.shortcuts.menu.rename": "పేరు మార్చు…",
   "widgetsC.shortcuts.menu.undoRemove": "తీసివేతను రద్దు చేయి",
   "widgetsC.shortcuts.menu.undoRemoveCount": {
     "one": "తీసివేతను రద్దు చేయి ({count})",
     "other": "తీసివేతను రద్దు చేయి ({count})"
   },
   "widgetsC.shortcuts.search": "షార్ట్‌కట్‌లను శోధించు",
+  "widgetsC.shortcuts.settings.list.empty": "ఇంకా షార్ట్‌కట్‌లు లేవు.",
   "widgetsC.shortcuts.settings.locations": "Windows స్థానాలు",
   "widgetsC.shortcuts.settings.openWith.double": "డబుల్ క్లిక్",
   "widgetsC.shortcuts.settings.openWith.label": "దీనితో తెరువు",

@@ -21,7 +21,10 @@
   "widgetsC.shortcuts.kind.refused": "Không được phép",
   "widgetsC.shortcuts.menu.addLayout": "Bố cục ứng dụng…",
   "widgetsC.shortcuts.menu.addLink": "Địa chỉ web hoặc đường dẫn…",
+  "widgetsC.shortcuts.menu.changeTarget": "Đổi đích…",
   "widgetsC.shortcuts.menu.closeSearch": "Đóng tìm kiếm",
+  "widgetsC.shortcuts.menu.moveDown": "Chuyển xuống",
+  "widgetsC.shortcuts.menu.moveUp": "Chuyển lên",
   "widgetsC.shortcuts.menu.openLayout": "Mở bố cục",
   "widgetsC.shortcuts.menu.openMany": {
     "other": "Mở {count} lối tắt"
@@ -29,11 +32,13 @@
   "widgetsC.shortcuts.menu.removeMany": {
     "other": "Gỡ {count} lối tắt"
   },
+  "widgetsC.shortcuts.menu.rename": "Đổi tên…",
   "widgetsC.shortcuts.menu.undoRemove": "Hoàn tác gỡ bỏ",
   "widgetsC.shortcuts.menu.undoRemoveCount": {
     "other": "Hoàn tác gỡ bỏ ({count})"
   },
   "widgetsC.shortcuts.search": "Tìm lối tắt",
+  "widgetsC.shortcuts.settings.list.empty": "Chưa có lối tắt.",
   "widgetsC.shortcuts.settings.locations": "Vị trí Windows",
   "widgetsC.shortcuts.settings.openWith.double": "Nhấp đúp",
   "widgetsC.shortcuts.settings.openWith.label": "Mở bằng",

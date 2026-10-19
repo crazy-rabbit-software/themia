@@ -1,13 +1,10 @@
 {
-  "forecast.daysDesc": "จำนวนวันของการพยากรณ์",
   "forecast.daysLabel": "จำนวนวันที่แสดง",
   "forecast.layoutColumns": "คอลัมน์",
   "forecast.layoutRows": "แถว",
-  "forecast.title": "พยากรณ์อากาศ",
   "styles.forecast.curve": "เส้นโค้งอุณหภูมิ",
   "styles.forecast.grid": "ตาราง",
   "widgetsA.catalog.forecast.description": "สองสามวันข้างหน้า",
   "widgetsA.catalog.forecast.label": "พยากรณ์อากาศ",
-  "widgetsC.weather.settings.showPrecipitation.desc": "ปริมาณฝนหรือหิมะรวมของวัน หากมี",
   "widgetsC.weather.settings.showPrecipitation.label": "แสดงปริมาณน้ำฝน"
 }

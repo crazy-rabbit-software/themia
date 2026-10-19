@@ -1,6 +1,5 @@
 {
   "clockText.large": "Grande",
-  "clockText.sizeDesc": "Qué tamaño tienen el lugar, la fecha y la diferencia horaria",
   "clockText.sizeLabel": "Tamaño del lugar y la fecha",
   "clockText.small": "Pequeño",
   "clock.dateLabel": "Mostrar fecha",
@@ -23,11 +22,8 @@
   "widgetsA.clock.offset.sameAsLocal": "igual que la local",
   "widgetsA.clock.settings.label.desc": "Se muestra sobre la hora. Vacía: la ciudad de la zona elegida",
   "widgetsA.clock.settings.label.none": "Sin etiqueta",
-  "widgetsA.clock.settings.offset.desc": "Una línea bajo la fecha con la diferencia horaria",
   "widgetsA.clock.settings.offset.local": "Respecto a la hora local",
   "widgetsA.clock.settings.offset.utc": "Respecto a UTC",
-  "widgetsA.clock.settings.seconds.desc": "Activa la aplicación cada segundo en lugar de cada minuto",
-  "widgetsA.clock.settings.zone.desc": "Busca una ciudad; el reloj pasa a ser un reloj mundial",
   "wordClock.hours": "Son las doce|Es la una|Son las dos|Son las tres|Son las cuatro|Son las cinco|Son las seis|Son las siete|Son las ocho|Son las nueve|Son las diez|Son las once",
   "wordClock.m00": "[h] en punto",
   "wordClock.m05": "[h] y cinco",

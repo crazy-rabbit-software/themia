@@ -1,13 +1,10 @@
 {
-  "forecast.daysDesc": "முன்னறிவிப்பு நாட்களின் எண்ணிக்கை",
   "forecast.daysLabel": "காட்டப்படும் நாட்கள்",
   "forecast.layoutColumns": "நெடுவரிசைகள்",
   "forecast.layoutRows": "வரிசைகள்",
-  "forecast.title": "முன்னறிவிப்பு",
   "styles.forecast.curve": "வெப்பநிலை வளைவு",
   "styles.forecast.grid": "கட்டம்",
   "widgetsA.catalog.forecast.description": "அடுத்த சில நாட்கள்",
   "widgetsA.catalog.forecast.label": "முன்னறிவிப்பு",
-  "widgetsC.weather.settings.showPrecipitation.desc": "அன்றைய மொத்த மழை அல்லது பனி, ஏதேனும் இருந்தால்",
   "widgetsC.weather.settings.showPrecipitation.label": "மழைப்பொழிவைக் காட்டு"
 }

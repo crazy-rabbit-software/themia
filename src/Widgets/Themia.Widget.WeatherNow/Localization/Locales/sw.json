@@ -2,7 +2,6 @@
   "styles.weatherNow.largeIcon": "Aikoni kubwa",
   "styles.weatherNow.minimal": "Rahisi",
   "styles.weatherNow.standard": "Kawaida",
-  "weather.defaultLabel": "Hali ya hewa",
   "weather.feelsLike": "Inahisi kama",
   "weather.humidity": "Unyevu",
   "weather.wind": "Upepo",
@@ -14,6 +13,5 @@
   "widgetsC.weather.fact.pressure": "Shinikizo",
   "widgetsC.weather.fact.uvIndex": "Kielezo cha UV",
   "widgetsC.weather.feelsShort": "Inahisi {temperature}",
-  "widgetsC.weather.settings.showDetail.desc": "Inavyohisi, unyevu na upepo; zaidi kwenye vigae vikubwa",
   "widgetsC.weather.settings.showDetail.label": "Onyesha maelezo"
 }

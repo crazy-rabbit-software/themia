@@ -9,8 +9,8 @@ Owning files: everything in this folder: `AirQualityModule.cs` (descriptor, view
 rows, JSON context, its glyph), `AirQualityConfig.cs` (with its index scale and styles),
 `AirQualityView.cs` and `AirQualityView.Gauge.cs` (they read the reading through
 `IWidgetHost.Weather`), `AirQualityRules.cs` (bands, tones, UV, pollen), `AirLayout.cs` (both
-styles' ladders), `AirText.cs` (its words), `AirQualitySettings.cs` (its page: the weather family's
-`WeatherPlaceRows`, the index and the source line), `Preview/` (Debug renders: `--state sample|poor`),
+styles' ladders), `AirText.cs` (its words), `AirQualityMenu.cs` (its properties-menu lines: the weather
+family's `WeatherPlaceRows.LocationLine`, the index and the source line), `Preview/` (Debug renders: `--state sample|poor`),
 `Localization/Locales/` (its own `AirQualityStr`, 30 languages, its style names included). Tests:
 `Tests/AirQualityTests.cs` (run by `tests/Themia.Modules.Tests`); the wire's own tests stay Core's
 (`OnlineWidgetsTests`, `S5102_`), the two that read the reply through this widget's rules and the
@@ -41,7 +41,10 @@ side-by-side family tests are in the module test host (`OnlineFamilyTests`, `Onl
   rungs) the other agency's index and each pollen in the air with its level, as stat cells in two or
   three columns where two fit across (not on a tall column), one stat line each on a tall or narrow
   tile, a side column on a strip ≥360 wide (two columns from 640). Spare height grows the hero.
-- **[S-5108]** Settings: Place, Location name, Index, and the source line.
+- **[S-5108]** Its options are all on the properties menu ([S-3719], user request 2026-10-19); it has
+  no settings page: Appearance ([S-3723]), Location (the weather family's search, [S-3722], the
+  location-name switch under it) and Index (Auto / European / US, the current one with the dot), whose
+  submenu ends with the source line, greyed: CAMS and Open-Meteo ask to be credited. (Tests `AirQualityMenuTests`.)
 - **[S-5109]** Once every reading is shown, the next rung is the band strip: six equal segments in
   their status colours, a marker at the index (placed linearly inside its band; the open last band
   as wide as the one before), the breakpoints under it in Caption.

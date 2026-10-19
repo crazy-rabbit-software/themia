@@ -2,7 +2,6 @@
   "styles.weatherNow.largeIcon": "大图标",
   "styles.weatherNow.minimal": "极简",
   "styles.weatherNow.standard": "标准",
-  "weather.defaultLabel": "天气",
   "weather.feelsLike": "体感",
   "weather.humidity": "湿度",
   "weather.wind": "风",
@@ -14,6 +13,5 @@
   "widgetsC.weather.fact.pressure": "气压",
   "widgetsC.weather.fact.uvIndex": "紫外线指数",
   "widgetsC.weather.feelsShort": "体感 {temperature}",
-  "widgetsC.weather.settings.showDetail.desc": "体感温度、湿度和风；磁贴越大显示越多",
   "widgetsC.weather.settings.showDetail.label": "显示详细信息"
 }

@@ -2,7 +2,6 @@
   "styles.weatherNow.largeIcon": "ਵੱਡਾ ਆਈਕਨ",
   "styles.weatherNow.minimal": "ਘੱਟੋ-ਘੱਟ",
   "styles.weatherNow.standard": "ਮਿਆਰੀ",
-  "weather.defaultLabel": "ਮੌਸਮ",
   "weather.feelsLike": "ਮਹਿਸੂਸ ਹੁੰਦਾ ਹੈ",
   "weather.humidity": "ਨਮੀ",
   "weather.wind": "ਹਵਾ",
@@ -14,6 +13,5 @@
   "widgetsC.weather.fact.pressure": "ਦਬਾਅ",
   "widgetsC.weather.fact.uvIndex": "UV ਸੂਚਕਾਂਕ",
   "widgetsC.weather.feelsShort": "ਮਹਿਸੂਸ {temperature}",
-  "widgetsC.weather.settings.showDetail.desc": "ਮਹਿਸੂਸ ਤਾਪਮਾਨ, ਨਮੀ ਅਤੇ ਹਵਾ; ਵੱਡੀਆਂ ਟਾਈਲਾਂ ਉੱਤੇ ਹੋਰ",
   "widgetsC.weather.settings.showDetail.label": "ਵੇਰਵਾ ਦਿਖਾਓ"
 }

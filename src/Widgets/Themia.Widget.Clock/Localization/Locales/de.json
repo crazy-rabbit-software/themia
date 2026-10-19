@@ -1,6 +1,5 @@
 {
   "clockText.large": "Groß",
-  "clockText.sizeDesc": "Wie groß Ort, Datum und Zeitverschiebung angezeigt werden",
   "clockText.sizeLabel": "Größe von Ort und Datum",
   "clockText.small": "Klein",
   "clock.dateLabel": "Datum anzeigen",
@@ -23,11 +22,8 @@
   "widgetsA.clock.offset.sameAsLocal": "wie Ortszeit",
   "widgetsA.clock.settings.label.desc": "Steht über der Uhrzeit. Leer: die Stadt der gewählten Zeitzone",
   "widgetsA.clock.settings.label.none": "Keine Beschriftung",
-  "widgetsA.clock.settings.offset.desc": "Eine Zeile unter dem Datum mit der Zeitverschiebung",
   "widgetsA.clock.settings.offset.local": "Zur Ortszeit",
   "widgetsA.clock.settings.offset.utc": "Zu UTC",
-  "widgetsA.clock.settings.seconds.desc": "Weckt die App jede Sekunde statt jede Minute",
-  "widgetsA.clock.settings.zone.desc": "Suche nach einer Stadt; die Uhr wird zur Weltuhr",
   "wordClock.hours": "zwölf|eins|zwei|drei|vier|fünf|sechs|sieben|acht|neun|zehn|elf;zwölf|ein|zwei|drei|vier|fünf|sechs|sieben|acht|neun|zehn|elf",
   "wordClock.m00": "Es ist [h2] Uhr",
   "wordClock.m05": "Es ist fünf nach [h]",

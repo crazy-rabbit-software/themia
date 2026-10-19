@@ -1,6 +1,5 @@
 {
   "clockText.large": "বড়",
-  "clockText.sizeDesc": "স্থান, তারিখ ও অফসেট লাইন কত বড় হবে",
   "clockText.sizeLabel": "স্থান ও তারিখের আকার",
   "clockText.small": "ছোট",
   "clock.dateLabel": "তারিখ দেখান",
@@ -23,11 +22,8 @@
   "widgetsA.clock.offset.sameAsLocal": "স্থানীয় সময়ের মতো",
   "widgetsA.clock.settings.label.desc": "সময়ের উপরে দেখানো হয়। খালি: বেছে নেওয়া অঞ্চলের শহর",
   "widgetsA.clock.settings.label.none": "লেবেল নেই",
-  "widgetsA.clock.settings.offset.desc": "তারিখের নিচে অঞ্চলের সময়ের পার্থক্যসহ একটি লাইন",
   "widgetsA.clock.settings.offset.local": "স্থানীয় সময় থেকে",
   "widgetsA.clock.settings.offset.utc": "UTC থেকে",
-  "widgetsA.clock.settings.seconds.desc": "অ্যাপকে মিনিটে একবারের বদলে সেকেন্ডে একবার জাগায়",
-  "widgetsA.clock.settings.zone.desc": "একটি শহর খুঁজুন; ঘড়িটি বিশ্ব ঘড়ি হয়ে যাবে",
   "wordClock.hours": "বারোটা|একটা|দুটো|তিনটে|চারটে|পাঁচটা|ছটা|সাতটা|আটটা|নটা|দশটা|এগারোটা;সাড়ে বারোটা|দেড়টা|আড়াইটা|সাড়ে তিনটে|সাড়ে চারটে|সাড়ে পাঁচটা|সাড়ে ছটা|সাড়ে সাতটা|সাড়ে আটটা|সাড়ে নটা|সাড়ে দশটা|সাড়ে এগারোটা",
   "wordClock.m00": "এখন [h] বাজে",
   "wordClock.m05": "এখন [h] বেজে পাঁচ মিনিট",

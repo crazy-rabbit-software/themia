@@ -32,7 +32,6 @@
   "online.air.pollenLevel.moderate": "Mäßig",
   "online.air.pollenLevel.high": "Stark",
   "online.air.settings.index.label": "Index",
-  "online.air.settings.index.desc": "Welcher Luftqualitätsindex angezeigt wird",
   "online.air.settings.index.auto": "Automatisch: europäisch in Europa",
   "online.air.settings.index.european": "Europäisch (EAQI)",
   "online.air.settings.index.us": "USA (AQI)",

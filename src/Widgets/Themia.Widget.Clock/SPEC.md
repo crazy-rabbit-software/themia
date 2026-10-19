@@ -7,10 +7,10 @@ the countdown shares [S-6032], `FlipCard` in the SDK; header defaults [S-700]; a
 hero readouts [S-641], [S-659]; the regional clock [S-3770]; the ladder rules [S-660]..[S-666]).
 The view is XAML (`ClockView.xaml`, compiled in this library).
 
-Owning files: everything in this folder: `ClockModule.cs` (descriptor, view factory, settings rows,
+Owning files: everything in this folder: `ClockModule.cs` (descriptor, view factory, menu lines,
 JSON context), `ClockConfig.cs`, `ClockFormatter.cs` (the reading, the offset, the words),
 `ClockText.cs` (the text sizes), `WordClock.cs`, `DateLayout.cs` (the Date style), `ZoneCatalog*.cs`
-(the zone table and picker), `ClockView.xaml(.cs)`, `ClockSettings.cs` (its page), `Preview/` (Debug
+(the zone table and picker), `ClockView.xaml(.cs)`, `ClockMenu.cs` (its properties-menu lines), `Preview/` (Debug
 renders), `Localization/Locales/` (its own `ClockStr`, 30 languages, the word clock's rules among
 them). Tests: `Tests/` (run by `tests/Themia.Modules.Tests`).
 
@@ -108,13 +108,21 @@ them). Tests: `Tests/` (run by `tests/Themia.Modules.Tests`).
   diameter changes): dial alone on XS, text under it on panels and columns, text beside it on a wide
   strip. The second hand still sweeps (S-51, deliberate).
 - **[S-1476]** Label and date size (issue #170: the place and the date were hard to read): a
-  per-widget `ClockConfig.TextSize` Small / Default / Large (a row on the clock's page). It moves the
+  per-widget `ClockConfig.TextSize` Small / Default / Large (under Style on its properties menu, [S-1478]). It moves the
   label's, the date's and the offset line's floor and ceiling along the type ramp (`ClockText`: Large
   lifts the floor one step, off Caption, and the ceiling two, so a date can reach Title; Small lowers
   the ceiling one) and scales the height share each line may ask for (×1.6 / ×0.75). Default is the
   ladder of [S-1487] unchanged. The lines stay regular weight (support, not a second title); the
   short-date switch measures against the size's floor; the time takes what the lines leave.
 - **[S-1477]** `ClockText.Shift` walks the ramp and stops at its ends, so no size invents a font size.
+- **[S-1478]** Its options are all on the properties menu ([S-3719], user request 2026-10-19); it
+  has no settings page. Under Style, what the style draws ([S-6074]): Seconds, Date (switches) and
+  Text size (Small / Default / Large); then Appearance ([S-3723]) and **Timezone**, a search
+  ([S-3722]): the machine's own zone first as "Current: …", the cities that match after it (40 at
+  most, each with its offset now), the chosen one with the dot, a pick stores the IANA id; under the
+  answers Label (asked beside the menu, [S-3721]: what is there now in the box, empty clears it) and
+  Offset (None / From UTC / From local). (Tests `ClockMenuTests`.)
+
 - **[S-1489]** *(Retired: the debug widget gallery and its fixtures are gone, [S-1863].)*
 - **[S-5300]** *(Retired: the Date widget, kind 131, is gone; the weekday and the date, no time,
   made for the wallpaper, is now the clock's **Date** style (`ClockStyle.Date`, glyph E8D1
@@ -133,7 +141,7 @@ them). Tests: `Tests/` (run by `tests/Themia.Modules.Tests`).
   for a weekday, 11 for a month): a line too narrow for its wide form takes the short name. The
   tooltip is the full date.
 - **[S-5303]** *(Retired: the Date widget's own settings. Show year is gone: the year is rarely the
-  news, and the other clock styles' dates leave it out too.)* The clock's page offers the Date style
+  news, and the other clock styles' dates leave it out too.)* The clock's menu offers the Date style
   only the alignment ([S-1484]) and the zone ([S-1481]); seconds, the date line, the text size, the
   label and the offset do not apply to it and are not shown.
 - **[S-5304]** One tick a minute on the shared ticker (`ClockConfig.TickInterval`): the date turns

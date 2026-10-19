@@ -32,7 +32,6 @@
   "online.air.pollenLevel.moderate": "ปานกลาง",
   "online.air.pollenLevel.high": "สูง",
   "online.air.settings.index.label": "ดัชนี",
-  "online.air.settings.index.desc": "ดัชนีคุณภาพอากาศที่จะแสดง",
   "online.air.settings.index.auto": "อัตโนมัติ: ยุโรปเมื่ออยู่ในยุโรป",
   "online.air.settings.index.european": "ยุโรป (EAQI)",
   "online.air.settings.index.us": "สหรัฐฯ (AQI)",

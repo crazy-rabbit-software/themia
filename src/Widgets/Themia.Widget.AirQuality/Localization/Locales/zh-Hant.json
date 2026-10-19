@@ -32,7 +32,6 @@
   "online.air.pollenLevel.moderate": "中等",
   "online.air.pollenLevel.high": "高",
   "online.air.settings.index.label": "指數",
-  "online.air.settings.index.desc": "要顯示哪種空氣品質指數",
   "online.air.settings.index.auto": "自動：在歐洲使用歐洲指數",
   "online.air.settings.index.european": "歐洲 (EAQI)",
   "online.air.settings.index.us": "美國 (AQI)",

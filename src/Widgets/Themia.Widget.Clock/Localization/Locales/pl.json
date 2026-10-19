@@ -1,6 +1,5 @@
 {
   "clockText.large": "Duży",
-  "clockText.sizeDesc": "Jak duże są miejsce, data i wiersz przesunięcia",
   "clockText.sizeLabel": "Rozmiar miejsca i daty",
   "clockText.small": "Mały",
   "clock.dateLabel": "Pokaż datę",
@@ -23,11 +22,8 @@
   "widgetsA.clock.offset.sameAsLocal": "jak czas lokalny",
   "widgetsA.clock.settings.label.desc": "Wyświetlana nad godziną. Pusta: miasto wybranej strefy",
   "widgetsA.clock.settings.label.none": "Bez etykiety",
-  "widgetsA.clock.settings.offset.desc": "Wiersz pod datą z przesunięciem strefy",
   "widgetsA.clock.settings.offset.local": "Względem czasu lokalnego",
   "widgetsA.clock.settings.offset.utc": "Względem UTC",
-  "widgetsA.clock.settings.seconds.desc": "Wybudza aplikację co sekundę zamiast co minutę",
-  "widgetsA.clock.settings.zone.desc": "Wyszukaj miasto; zegar stanie się zegarem światowym",
   "wordClock.hours": "dwunasta|pierwsza|druga|trzecia|czwarta|piąta|szósta|siódma|ósma|dziewiąta|dziesiąta|jedenasta;dwunastej|pierwszej|drugiej|trzeciej|czwartej|piątej|szóstej|siódmej|ósmej|dziewiątej|dziesiątej|jedenastej",
   "wordClock.m00": "Jest [h]",
   "wordClock.m05": "Jest pięć po [h2]",

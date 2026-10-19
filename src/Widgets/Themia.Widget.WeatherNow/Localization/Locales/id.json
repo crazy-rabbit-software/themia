@@ -2,7 +2,6 @@
   "styles.weatherNow.largeIcon": "Ikon besar",
   "styles.weatherNow.minimal": "Minimal",
   "styles.weatherNow.standard": "Standar",
-  "weather.defaultLabel": "Cuaca",
   "weather.feelsLike": "Terasa seperti",
   "weather.humidity": "Kelembapan",
   "weather.wind": "Angin",
@@ -14,6 +13,5 @@
   "widgetsC.weather.fact.pressure": "Tekanan",
   "widgetsC.weather.fact.uvIndex": "Indeks UV",
   "widgetsC.weather.feelsShort": "Terasa {temperature}",
-  "widgetsC.weather.settings.showDetail.desc": "Terasa seperti, kelembapan, dan angin; lebih banyak di widget besar",
   "widgetsC.weather.settings.showDetail.label": "Tampilkan detail"
 }

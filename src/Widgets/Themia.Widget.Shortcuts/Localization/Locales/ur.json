@@ -21,7 +21,10 @@
   "widgetsC.shortcuts.kind.refused": "اجازت نہیں",
   "widgetsC.shortcuts.menu.addLayout": "ایپ لے آؤٹ…",
   "widgetsC.shortcuts.menu.addLink": "ویب ایڈریس یا پاتھ…",
+  "widgetsC.shortcuts.menu.changeTarget": "ہدف تبدیل کریں…",
   "widgetsC.shortcuts.menu.closeSearch": "تلاش بند کریں",
+  "widgetsC.shortcuts.menu.moveDown": "نیچے منتقل کریں",
+  "widgetsC.shortcuts.menu.moveUp": "اوپر منتقل کریں",
   "widgetsC.shortcuts.menu.openLayout": "لے آؤٹ کھولیں",
   "widgetsC.shortcuts.menu.openMany": {
     "one": "{count} شارٹ کٹ کھولیں",
@@ -31,12 +34,14 @@
     "one": "{count} شارٹ کٹ ہٹائیں",
     "other": "{count} شارٹ کٹس ہٹائیں"
   },
+  "widgetsC.shortcuts.menu.rename": "نام تبدیل کریں…",
   "widgetsC.shortcuts.menu.undoRemove": "ہٹانا کالعدم کریں",
   "widgetsC.shortcuts.menu.undoRemoveCount": {
     "one": "ہٹانا کالعدم کریں ({count})",
     "other": "ہٹانا کالعدم کریں ({count})"
   },
   "widgetsC.shortcuts.search": "شارٹ کٹس تلاش کریں",
+  "widgetsC.shortcuts.settings.list.empty": "ابھی کوئی شارٹ کٹ نہیں۔",
   "widgetsC.shortcuts.settings.locations": "Windows مقامات",
   "widgetsC.shortcuts.settings.openWith.double": "ڈبل کلک",
   "widgetsC.shortcuts.settings.openWith.label": "کھولیں بذریعہ",

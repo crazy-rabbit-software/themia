@@ -1,6 +1,5 @@
 {
   "clockText.large": "大",
-  "clockText.sizeDesc": "地点、日期和时差行的大小",
   "clockText.sizeLabel": "地点和日期大小",
   "clockText.small": "小",
   "clock.dateLabel": "显示日期",
@@ -23,11 +22,8 @@
   "widgetsA.clock.offset.sameAsLocal": "与本地相同",
   "widgetsA.clock.settings.label.desc": "显示在时间上方。留空则显示所选时区的城市",
   "widgetsA.clock.settings.label.none": "无标签",
-  "widgetsA.clock.settings.offset.desc": "在日期下方显示时区偏移",
   "widgetsA.clock.settings.offset.local": "相对本地时间",
   "widgetsA.clock.settings.offset.utc": "相对 UTC",
-  "widgetsA.clock.settings.seconds.desc": "每秒唤醒一次应用，而不是每分钟一次",
-  "widgetsA.clock.settings.zone.desc": "搜索城市，时钟将变为世界时钟",
   "wordClock.hours": "凌晨零点|凌晨一点|凌晨两点|凌晨三点|凌晨四点|凌晨五点|早上六点|早上七点|早上八点|上午九点|上午十点|上午十一点|中午十二点|下午一点|下午两点|下午三点|下午四点|下午五点|晚上六点|晚上七点|晚上八点|晚上九点|晚上十点|晚上十一点",
   "wordClock.m00": "现在是[h]整",
   "wordClock.m05": "现在是[h]零五分",

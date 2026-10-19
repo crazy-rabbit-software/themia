@@ -2,7 +2,6 @@
   "styles.weatherNow.largeIcon": "பெரிய ஐகான்",
   "styles.weatherNow.minimal": "குறைந்தபட்சம்",
   "styles.weatherNow.standard": "நிலையானது",
-  "weather.defaultLabel": "வானிலை",
   "weather.feelsLike": "உணர்வது",
   "weather.humidity": "ஈரப்பதம்",
   "weather.wind": "காற்று",
@@ -14,6 +13,5 @@
   "widgetsC.weather.fact.pressure": "அழுத்தம்",
   "widgetsC.weather.fact.uvIndex": "UV குறியீடு",
   "widgetsC.weather.feelsShort": "உணர்வது {temperature}",
-  "widgetsC.weather.settings.showDetail.desc": "உணர்வது, ஈரப்பதம் மற்றும் காற்று; பெரிய ஓடுகளில் மேலும்",
   "widgetsC.weather.settings.showDetail.label": "விவரத்தைக் காட்டு"
 }

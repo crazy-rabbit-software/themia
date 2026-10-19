@@ -21,7 +21,10 @@
   "widgetsC.shortcuts.kind.refused": "Niedozwolone",
   "widgetsC.shortcuts.menu.addLayout": "Układ aplikacji…",
   "widgetsC.shortcuts.menu.addLink": "Adres internetowy lub ścieżka…",
+  "widgetsC.shortcuts.menu.changeTarget": "Zmień element docelowy…",
   "widgetsC.shortcuts.menu.closeSearch": "Zamknij wyszukiwanie",
+  "widgetsC.shortcuts.menu.moveDown": "Przenieś w dół",
+  "widgetsC.shortcuts.menu.moveUp": "Przenieś w górę",
   "widgetsC.shortcuts.menu.openLayout": "Otwórz układ",
   "widgetsC.shortcuts.menu.openMany": {
     "one": "Otwórz {count} skrót",
@@ -35,6 +38,7 @@
     "many": "Usuń {count} skrótów",
     "other": "Usuń {count} skrótu"
   },
+  "widgetsC.shortcuts.menu.rename": "Zmień nazwę…",
   "widgetsC.shortcuts.menu.undoRemove": "Cofnij usunięcie",
   "widgetsC.shortcuts.menu.undoRemoveCount": {
     "one": "Cofnij usunięcie ({count})",
@@ -43,6 +47,7 @@
     "other": "Cofnij usunięcie ({count})"
   },
   "widgetsC.shortcuts.search": "Szukaj skrótów",
+  "widgetsC.shortcuts.settings.list.empty": "Nie ma jeszcze skrótów.",
   "widgetsC.shortcuts.settings.locations": "Lokalizacje systemu Windows",
   "widgetsC.shortcuts.settings.openWith.double": "Dwukrotne kliknięcie",
   "widgetsC.shortcuts.settings.openWith.label": "Otwieranie",

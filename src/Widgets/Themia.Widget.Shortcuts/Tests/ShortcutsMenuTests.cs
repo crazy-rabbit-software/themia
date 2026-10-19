@@ -74,10 +74,101 @@ public sealed class ShortcutsMenuTests
     }
 
     [Fact]
-    public void S1388_the_first_level_is_open_with_then_add()
-        => Assert.Equal(
-            [ShortcutsStr.WidgetsC_Shortcuts_Settings_OpenWith_Label.Text(), Str.Common_Add.Text()],
-            Build(new ShortcutsConfig()).Lines.Lines.Select(l => l.Text));
+    public void S1388_the_first_level_is_appearance_then_open_with_add_and_the_shortcuts()
+    {
+        var lines = Build(new ShortcutsConfig()).Lines;
+
+        Assert.Equal(0, lines.CardAt);
+        Assert.Equal(
+            [ShortcutsStr.WidgetsC_Shortcuts_Settings_OpenWith_Label.Text(), Str.Common_Add.Text(), ShortcutsStr.WidgetsA_Catalog_Shortcuts_Label.Text()],
+            lines.Lines.Select(l => l.Text));
+    }
+
+    private static ShortcutsConfig Three() => new()
+    {
+        Items =
+        [
+            new ShortcutItem { Id = "a", Target = "https://a.example/" },
+            new ShortcutItem { Id = "b", Target = "https://b.example/", Label = "Bee" },
+            new ShortcutItem { Id = "c", Target = "https://c.example/" },
+        ],
+    };
+
+    private static IReadOnlyList<ItemMenuEntry> ItemLines(Built built)
+        => Line(built.Lines.Lines, ShortcutsStr.WidgetsA_Catalog_Shortcuts_Label.Text()).Children!;
+
+    [Fact]
+    public void S1388_the_shortcuts_are_listed_in_their_order_by_the_names_they_show()
+        => Assert.Equal(["a.example", "Bee", "c.example"], ItemLines(Build(Three())).Select(l => l.Text));
+
+    [Fact]
+    public void S1388_with_no_shortcut_the_list_says_so_and_offers_nothing()
+    {
+        var only = Assert.Single(ItemLines(Build(new ShortcutsConfig())));
+        Assert.True(only.Disabled);
+    }
+
+    [Fact]
+    public void S1388_an_item_moves_up_and_down_and_the_ends_are_greyed()
+    {
+        var config = Three();
+        var built = Build(config);
+        var first = ItemLines(built)[0].Children!;
+        var last = ItemLines(built)[2].Children!;
+
+        Assert.True(Line(first, ShortcutsStr.WidgetsC_Shortcuts_Menu_MoveUp.Text()).Disabled);
+        Assert.True(Line(last, ShortcutsStr.WidgetsC_Shortcuts_Menu_MoveDown.Text()).Disabled);
+
+        Line(first, ShortcutsStr.WidgetsC_Shortcuts_Menu_MoveDown.Text()).Action!();
+        Assert.Equal(["b", "a", "c"], config.Items.Select(i => i.Id));
+        Assert.Equal(1, built.Saves);
+    }
+
+    [Fact]
+    public void S1388_remove_takes_the_item_away_and_saves()
+    {
+        var config = Three();
+        var built = Build(config);
+
+        Line(ItemLines(built)[1].Children!, Str.Common_Remove.Text()).Action!();
+
+        Assert.Equal(["a", "c"], config.Items.Select(i => i.Id));
+        Assert.Equal(1, built.Saves);
+    }
+
+    [Fact]
+    public void S1388_rename_starts_from_the_name_shown_and_the_derived_name_clears_the_label()
+    {
+        var config = Three();
+        var built = Build(config);
+
+        Line(ItemLines(built)[1].Children!, ShortcutsStr.WidgetsC_Shortcuts_Menu_Rename.Text()).Action!();
+        var ask = Assert.IsType<WidgetTextAsk>(built.Asked);
+        Assert.Equal("Bee", ask.Initial);
+        Assert.True(ask.AllowEmpty);
+
+        ask.Done("b.example");
+        Assert.Equal(string.Empty, config.Items[1].Label);
+
+        ask.Done("Honey");
+        Assert.Equal("Honey", config.Items[1].Label);
+    }
+
+    [Fact]
+    public void S1388_change_target_is_checked_and_keeps_the_label()
+    {
+        var config = Three();
+        var built = Build(config);
+
+        Line(ItemLines(built)[1].Children!, ShortcutsStr.WidgetsC_Shortcuts_Menu_ChangeTarget.Text()).Action!();
+        var ask = Assert.IsType<WidgetTextAsk>(built.Asked);
+        Assert.Equal("https://b.example/", ask.Initial);
+        Assert.NotNull(ask.Refuse("not a target"));
+
+        ask.Done("https://bee.example/");
+        Assert.Equal("https://bee.example/", config.Items[1].Target);
+        Assert.Equal("Bee", config.Items[1].Label);
+    }
 
     [Fact]
     public void S1388_a_switch_shows_its_state_and_a_click_turns_it_and_saves_once()

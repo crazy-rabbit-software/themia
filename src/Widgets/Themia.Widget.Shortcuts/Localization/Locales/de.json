@@ -21,7 +21,10 @@
   "widgetsC.shortcuts.kind.refused": "Nicht zulässig",
   "widgetsC.shortcuts.menu.addLayout": "App-Layout…",
   "widgetsC.shortcuts.menu.addLink": "Webadresse oder Pfad…",
+  "widgetsC.shortcuts.menu.changeTarget": "Ziel ändern…",
   "widgetsC.shortcuts.menu.closeSearch": "Suche schließen",
+  "widgetsC.shortcuts.menu.moveDown": "Nach unten",
+  "widgetsC.shortcuts.menu.moveUp": "Nach oben",
   "widgetsC.shortcuts.menu.openLayout": "Layout öffnen",
   "widgetsC.shortcuts.menu.openMany": {
     "one": "{count} Verknüpfung öffnen",
@@ -31,12 +34,14 @@
     "one": "{count} Verknüpfung entfernen",
     "other": "{count} Verknüpfungen entfernen"
   },
+  "widgetsC.shortcuts.menu.rename": "Umbenennen…",
   "widgetsC.shortcuts.menu.undoRemove": "Entfernen rückgängig machen",
   "widgetsC.shortcuts.menu.undoRemoveCount": {
     "one": "Entfernen rückgängig machen ({count})",
     "other": "Entfernen rückgängig machen ({count})"
   },
   "widgetsC.shortcuts.search": "Verknüpfungen durchsuchen",
+  "widgetsC.shortcuts.settings.list.empty": "Noch keine Verknüpfungen.",
   "widgetsC.shortcuts.settings.locations": "Windows-Orte",
   "widgetsC.shortcuts.settings.openWith.double": "Doppelklick",
   "widgetsC.shortcuts.settings.openWith.label": "Öffnen mit",

@@ -1,6 +1,5 @@
 {
   "clockText.large": "بزرگ",
-  "clockText.sizeDesc": "اندازهٔ مکان، تاریخ و خط اختلاف ساعت",
   "clockText.sizeLabel": "اندازهٔ مکان و تاریخ",
   "clockText.small": "کوچک",
   "clock.dateLabel": "نمایش تاریخ",
@@ -23,11 +22,8 @@
   "widgetsA.clock.offset.sameAsLocal": "همانند محلی",
   "widgetsA.clock.settings.label.desc": "بالای ساعت نمایش داده می‌شود. خالی: شهر منطقه انتخاب‌شده",
   "widgetsA.clock.settings.label.none": "بدون برچسب",
-  "widgetsA.clock.settings.offset.desc": "خطی زیر تاریخ با اختلاف ساعت منطقه",
   "widgetsA.clock.settings.offset.local": "نسبت به زمان محلی",
   "widgetsA.clock.settings.offset.utc": "نسبت به UTC",
-  "widgetsA.clock.settings.seconds.desc": "برنامه را به‌جای هر دقیقه، هر ثانیه بیدار می‌کند",
-  "widgetsA.clock.settings.zone.desc": "شهری را جستجو کنید؛ ساعت به ساعت جهانی تبدیل می‌شود",
   "wordClock.hours": "دوازده|یک|دو|سه|چهار|پنج|شش|هفت|هشت|نه|ده|یازده",
   "wordClock.m00": "ساعت [h] است",
   "wordClock.m05": "ساعت [h] و پنج دقیقه است",
