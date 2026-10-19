@@ -10,11 +10,12 @@ service and its offline store ([S-590], [S-591], [S-596], [S-597]), due dates an
 Owning files: everything in this folder: `TasksModule.cs` (descriptor, view factory, JSON context),
 `TasksConfig.cs`, `TaskSpec.cs` (a task as a kit item, its actions, the check spec),
 `TaskFreshness.cs`, `TasksView*.cs` (over `IWidgetHost.Tasks`: the screens, the writes the kit's list
-hands back, the list picker), `TasksSettings.cs`, `Preview/` (Debug renders: `--state tasks|few|empty|done|stale`,
+hands back, the list picker), `TasksMenu.cs` (its properties-menu lines), `Preview/` (Debug renders: `--state tasks|few|empty|done|stale`,
 the lists on this PC in memory), `Localization/Locales/` (its own `TasksStr`, 30 languages). Tests:
 the config's are the module host's (`TasksConfigTests`, [S-611]); the rules' are Core's
 (`TaskRulesTests`, `TaskSyncTests`, `LocalTaskListsTests`, `TaskLayoutTests` over the kit's check
-look); the spec's are `Tests/TaskSpecTests.cs` and `Tests/TaskFreshnessTests.cs`.
+look); the spec's are `Tests/TaskSpecTests.cs` and `Tests/TaskFreshnessTests.cs`; the menu's
+`Tests/TasksMenuTests.cs`.
 
 - **[S-592]** The list picker offers the account's default list, Today, then its lists. The lists are
   stored per account ([S-2650]) and read again with every sync (single-flight; a failure with nothing
@@ -46,6 +47,19 @@ look); the spec's are `Tests/TaskSpecTests.cs` and `Tests/TaskFreshnessTests.cs`
   the user can mend it, and Tasks' own way out ([S-7039]: "Try again" for lists or a list that could
   not be read, "Start a list" for a list on this PC that is gone). The panel keeps its link at every
   size and sheds the glyph, then lines, first ([S-642]); Tasks' own host dropped the link under 140px.
+
+- **[S-7516]** Its options are on the properties menu ([S-3719], user request 2026-10-19; the
+  settings page is gone): Appearance; **Show tasks from** (the first account with tasks, named; each
+  account, its provider at the end or "sign in again"; a chosen account since signed out by its id,
+  never swapped, [S-590]; This PC, which takes the list it had, else the first, else a new one; then
+  Manage accounts or Add an account, [S-3745]): another account starts from its default list and a
+  fresh order. **List**: an account's default list, Today and its lists ([S-592], read through the
+  task service's cache, [S-3746]: "Loading lists…" until they come, the reason when they cannot be
+  read), or the lists on this PC ([S-604]: each with its task count, Add a list, Rename list… of the
+  one shown, Delete this list… asked first, [S-3727]). Then Show completed, Show due date (an
+  account's tasks only, [S-6074]), Title lines (1 to 6, dots), New tasks at the top, and **Filter**:
+  Due and Important only (an account's tasks only) and Title contains… (asked for as text, at most
+  100 characters, an empty box clears it, [S-611]).
 
 Needs a live pass: a signed-in Microsoft and Google account (the list picker, Today, ticking,
 renaming, deleting and adding a task landing on the server, offline edits catching up), a list on

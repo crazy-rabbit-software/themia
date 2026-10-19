@@ -36,8 +36,9 @@ public sealed class TasksModule : IWidgetModule
         Add = new(AddFolderId.CalendarMail, 1, 1, Popular: 5),
     };
 
-    public void SettingsRows(WidgetSettingsRows rows, WidgetConfig config)
-        => TasksSettings.Rows(rows.Rows, (TasksConfig)config, rows.Save, rows.ShowAccounts);
+    /// <summary>[S-3719] [S-7516] Every option is on the properties menu: the widget has no settings page.</summary>
+    public void MenuLines(WidgetMenuLines menu, WidgetConfig config)
+        => TasksMenu.Lines(menu, (TasksConfig)config, SettingsHost.Tasks);
 
     public FrameworkElement CreateView(IWidgetHost host) => new TasksView(host);
 }
