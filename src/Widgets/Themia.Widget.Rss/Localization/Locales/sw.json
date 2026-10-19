@@ -7,14 +7,8 @@
   "widgetsC.rss.settings.feeds": "Milisho",
   "widgetsC.rss.settings.empty": "Bado hakuna milisho. Ongeza anwani ya mlisho wa RSS au Atom.",
   "widgetsC.rss.settings.add.title": "Ongeza mlisho",
-  "widgetsC.rss.settings.add.desc": "Makala ya kila mlisho huunganishwa, mapya kwanza",
-  "widgetsC.rss.settings.add.action": "Ongeza mlisho",
-  "widgetsC.rss.settings.remove": "Ondoa mlisho",
   "widgetsC.rss.settings.articles": "Makala",
   "widgetsC.rss.settings.source.label": "Onyesha chanzo",
-  "widgetsC.rss.settings.source.desc": "Aikoni yake, na jina lake palipo na nafasi",
   "widgetsC.rss.settings.preview.label": "Onyesha onyesho la kuchungulia",
-  "widgetsC.rss.settings.preview.desc": "Mwanzo wa makala, wijeti ikiwa na nafasi",
-  "widgetsC.rss.settings.date.label": "Onyesha tarehe",
-  "widgetsC.rss.settings.date.desc": "Ilichapishwa muda gani uliopita"
+  "widgetsC.rss.settings.date.label": "Onyesha tarehe"
 }

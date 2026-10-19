@@ -7,14 +7,8 @@
   "widgetsC.rss.settings.feeds": "ఫీడ్‌లు",
   "widgetsC.rss.settings.empty": "ఇంకా ఫీడ్‌లు లేవు. RSS లేదా Atom ఫీడ్ చిరునామాను జోడించండి.",
   "widgetsC.rss.settings.add.title": "ఫీడ్‌ను జోడించు",
-  "widgetsC.rss.settings.add.desc": "ప్రతి ఫీడ్ వ్యాసాలు విలీనం చేయబడతాయి, కొత్తవి ముందు",
-  "widgetsC.rss.settings.add.action": "ఫీడ్ జోడించు",
-  "widgetsC.rss.settings.remove": "ఫీడ్‌ను తీసివేయి",
   "widgetsC.rss.settings.articles": "వ్యాసాలు",
   "widgetsC.rss.settings.source.label": "మూలాన్ని చూపించు",
-  "widgetsC.rss.settings.source.desc": "దాని చిహ్నం, మరియు స్థలం ఉన్న చోట దాని పేరు",
   "widgetsC.rss.settings.preview.label": "ప్రివ్యూ చూపించు",
-  "widgetsC.rss.settings.preview.desc": "విడ్జెట్‌లో స్థలం ఉన్న చోట, వ్యాసం ప్రారంభం",
-  "widgetsC.rss.settings.date.label": "తేదీని చూపించు",
-  "widgetsC.rss.settings.date.desc": "ఎంత కాలం క్రితం ప్రచురించబడింది"
+  "widgetsC.rss.settings.date.label": "తేదీని చూపించు"
 }

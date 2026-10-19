@@ -7,14 +7,8 @@
   "widgetsC.rss.settings.feeds": "피드",
   "widgetsC.rss.settings.empty": "아직 피드가 없습니다. RSS 또는 Atom 피드 주소를 추가하세요.",
   "widgetsC.rss.settings.add.title": "피드 추가",
-  "widgetsC.rss.settings.add.desc": "모든 피드의 기사가 최신 순으로 합쳐집니다",
-  "widgetsC.rss.settings.add.action": "피드 추가",
-  "widgetsC.rss.settings.remove": "피드 제거",
   "widgetsC.rss.settings.articles": "기사",
   "widgetsC.rss.settings.source.label": "출처 표시",
-  "widgetsC.rss.settings.source.desc": "아이콘과, 공간이 있으면 이름",
   "widgetsC.rss.settings.preview.label": "미리 보기 표시",
-  "widgetsC.rss.settings.preview.desc": "위젯에 공간이 있으면 기사의 시작 부분",
-  "widgetsC.rss.settings.date.label": "날짜 표시",
-  "widgetsC.rss.settings.date.desc": "게시된 지 얼마나 지났는지"
+  "widgetsC.rss.settings.date.label": "날짜 표시"
 }

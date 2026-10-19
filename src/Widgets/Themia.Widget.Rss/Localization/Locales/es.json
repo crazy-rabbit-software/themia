@@ -7,14 +7,8 @@
   "widgetsC.rss.settings.feeds": "Fuentes",
   "widgetsC.rss.settings.empty": "Aún no hay fuentes. Añade la dirección de una fuente RSS o Atom.",
   "widgetsC.rss.settings.add.title": "Añadir una fuente",
-  "widgetsC.rss.settings.add.desc": "Los artículos de todas las fuentes se combinan, los más recientes primero",
-  "widgetsC.rss.settings.add.action": "Añadir fuente",
-  "widgetsC.rss.settings.remove": "Quitar fuente",
   "widgetsC.rss.settings.articles": "Artículos",
   "widgetsC.rss.settings.source.label": "Mostrar origen",
-  "widgetsC.rss.settings.source.desc": "Su icono y, si cabe, su nombre",
   "widgetsC.rss.settings.preview.label": "Mostrar vista previa",
-  "widgetsC.rss.settings.preview.desc": "El comienzo del artículo, si el widget tiene espacio",
-  "widgetsC.rss.settings.date.label": "Mostrar fecha",
-  "widgetsC.rss.settings.date.desc": "Hace cuánto se publicó"
+  "widgetsC.rss.settings.date.label": "Mostrar fecha"
 }

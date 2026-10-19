@@ -7,14 +7,8 @@
   "widgetsC.rss.settings.feeds": "Feeds",
   "widgetsC.rss.settings.empty": "Ainda não há feeds. Adicione o endereço de um feed RSS ou Atom.",
   "widgetsC.rss.settings.add.title": "Adicionar um feed",
-  "widgetsC.rss.settings.add.desc": "Os artigos de todos os feeds são combinados, os mais recentes primeiro",
-  "widgetsC.rss.settings.add.action": "Adicionar feed",
-  "widgetsC.rss.settings.remove": "Remover feed",
   "widgetsC.rss.settings.articles": "Artigos",
   "widgetsC.rss.settings.source.label": "Mostrar fonte",
-  "widgetsC.rss.settings.source.desc": "O seu ícone e, se couber, o nome",
   "widgetsC.rss.settings.preview.label": "Mostrar prévia",
-  "widgetsC.rss.settings.preview.desc": "O início do artigo, quando o widget tem espaço",
-  "widgetsC.rss.settings.date.label": "Mostrar data",
-  "widgetsC.rss.settings.date.desc": "Há quanto tempo foi publicado"
+  "widgetsC.rss.settings.date.label": "Mostrar data"
 }

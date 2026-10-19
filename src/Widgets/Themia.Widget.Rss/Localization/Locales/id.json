@@ -7,14 +7,8 @@
   "widgetsC.rss.settings.feeds": "Feed",
   "widgetsC.rss.settings.empty": "Belum ada feed. Tambahkan alamat feed RSS atau Atom.",
   "widgetsC.rss.settings.add.title": "Tambah feed",
-  "widgetsC.rss.settings.add.desc": "Artikel dari semua feed digabungkan, terbaru dulu",
-  "widgetsC.rss.settings.add.action": "Tambah feed",
-  "widgetsC.rss.settings.remove": "Hapus feed",
   "widgetsC.rss.settings.articles": "Artikel",
   "widgetsC.rss.settings.source.label": "Tampilkan sumber",
-  "widgetsC.rss.settings.source.desc": "Ikonnya, dan namanya jika ada ruang",
   "widgetsC.rss.settings.preview.label": "Tampilkan pratinjau",
-  "widgetsC.rss.settings.preview.desc": "Awal artikel, jika widget punya ruang",
-  "widgetsC.rss.settings.date.label": "Tampilkan tanggal",
-  "widgetsC.rss.settings.date.desc": "Berapa lama yang lalu diterbitkan"
+  "widgetsC.rss.settings.date.label": "Tampilkan tanggal"
 }

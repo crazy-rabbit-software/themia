@@ -7,14 +7,8 @@
   "widgetsC.rss.settings.feeds": "Feeds",
   "widgetsC.rss.settings.empty": "Nog geen feeds. Voeg het adres van een RSS- of Atom-feed toe.",
   "widgetsC.rss.settings.add.title": "Een feed toevoegen",
-  "widgetsC.rss.settings.add.desc": "De artikelen van alle feeds worden samengevoegd, nieuwste eerst",
-  "widgetsC.rss.settings.add.action": "Feed toevoegen",
-  "widgetsC.rss.settings.remove": "Feed verwijderen",
   "widgetsC.rss.settings.articles": "Artikelen",
   "widgetsC.rss.settings.source.label": "Bron weergeven",
-  "widgetsC.rss.settings.source.desc": "Het pictogram, en de naam waar er ruimte is",
   "widgetsC.rss.settings.preview.label": "Voorbeeld weergeven",
-  "widgetsC.rss.settings.preview.desc": "Het begin van het artikel, waar de widget ruimte heeft",
-  "widgetsC.rss.settings.date.label": "Datum weergeven",
-  "widgetsC.rss.settings.date.desc": "Hoelang geleden het is gepubliceerd"
+  "widgetsC.rss.settings.date.label": "Datum weergeven"
 }

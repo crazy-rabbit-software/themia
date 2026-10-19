@@ -7,14 +7,8 @@
   "widgetsC.rss.settings.feeds": "ฟีด",
   "widgetsC.rss.settings.empty": "ยังไม่มีฟีด เพิ่มที่อยู่ของฟีด RSS หรือ Atom",
   "widgetsC.rss.settings.add.title": "เพิ่มฟีด",
-  "widgetsC.rss.settings.add.desc": "บทความของทุกฟีดจะรวมกัน ใหม่สุดก่อน",
-  "widgetsC.rss.settings.add.action": "เพิ่มฟีด",
-  "widgetsC.rss.settings.remove": "เอาฟีดออก",
   "widgetsC.rss.settings.articles": "บทความ",
   "widgetsC.rss.settings.source.label": "แสดงแหล่งที่มา",
-  "widgetsC.rss.settings.source.desc": "ไอคอน และชื่อเมื่อมีพื้นที่",
   "widgetsC.rss.settings.preview.label": "แสดงตัวอย่าง",
-  "widgetsC.rss.settings.preview.desc": "ส่วนต้นของบทความ เมื่อวิดเจ็ตมีพื้นที่",
-  "widgetsC.rss.settings.date.label": "แสดงวันที่",
-  "widgetsC.rss.settings.date.desc": "เผยแพร่เมื่อนานเท่าใด"
+  "widgetsC.rss.settings.date.label": "แสดงวันที่"
 }

@@ -7,14 +7,8 @@
   "widgetsC.rss.settings.feeds": "Flux",
   "widgetsC.rss.settings.empty": "Aucun flux pour l’instant. Ajoutez l’adresse d’un flux RSS ou Atom.",
   "widgetsC.rss.settings.add.title": "Ajouter un flux",
-  "widgetsC.rss.settings.add.desc": "Les articles de tous les flux sont fusionnés, les plus récents d’abord",
-  "widgetsC.rss.settings.add.action": "Ajouter le flux",
-  "widgetsC.rss.settings.remove": "Supprimer le flux",
   "widgetsC.rss.settings.articles": "Articles",
   "widgetsC.rss.settings.source.label": "Afficher la source",
-  "widgetsC.rss.settings.source.desc": "Son icône, et son nom s'il y a la place",
   "widgetsC.rss.settings.preview.label": "Afficher l’aperçu",
-  "widgetsC.rss.settings.preview.desc": "Le début de l’article, quand le widget a la place",
-  "widgetsC.rss.settings.date.label": "Afficher la date",
-  "widgetsC.rss.settings.date.desc": "Depuis combien de temps il a été publié"
+  "widgetsC.rss.settings.date.label": "Afficher la date"
 }

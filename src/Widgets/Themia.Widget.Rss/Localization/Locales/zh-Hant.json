@@ -7,14 +7,8 @@
   "widgetsC.rss.settings.feeds": "摘要",
   "widgetsC.rss.settings.empty": "尚無摘要。請新增 RSS 或 Atom 摘要的位址。",
   "widgetsC.rss.settings.add.title": "新增摘要",
-  "widgetsC.rss.settings.add.desc": "所有摘要的文章會合併顯示，最新的在前",
-  "widgetsC.rss.settings.add.action": "新增摘要",
-  "widgetsC.rss.settings.remove": "移除摘要",
   "widgetsC.rss.settings.articles": "文章",
   "widgetsC.rss.settings.source.label": "顯示來源",
-  "widgetsC.rss.settings.source.desc": "其圖示，空間足夠時還會顯示名稱",
   "widgetsC.rss.settings.preview.label": "顯示預覽",
-  "widgetsC.rss.settings.preview.desc": "小工具空間足夠時顯示文章開頭",
-  "widgetsC.rss.settings.date.label": "顯示日期",
-  "widgetsC.rss.settings.date.desc": "發佈於多久以前"
+  "widgetsC.rss.settings.date.label": "顯示日期"
 }

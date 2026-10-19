@@ -7,14 +7,8 @@
   "widgetsC.rss.settings.feeds": "خوراک‌ها",
   "widgetsC.rss.settings.empty": "هنوز خوراکی نیست. نشانی یک خوراک RSS یا Atom را اضافه کنید.",
   "widgetsC.rss.settings.add.title": "افزودن خوراک",
-  "widgetsC.rss.settings.add.desc": "مطالب همه خوراک‌ها با هم ادغام می‌شوند، جدیدترین اول",
-  "widgetsC.rss.settings.add.action": "افزودن خوراک",
-  "widgetsC.rss.settings.remove": "برداشتن خوراک",
   "widgetsC.rss.settings.articles": "مطالب",
   "widgetsC.rss.settings.source.label": "نمایش منبع",
-  "widgetsC.rss.settings.source.desc": "نماد آن، و نامش هر جا که جا باشد",
   "widgetsC.rss.settings.preview.label": "نمایش پیش‌نمایش",
-  "widgetsC.rss.settings.preview.desc": "ابتدای مطلب، هر جا که ویجت جا داشته باشد",
-  "widgetsC.rss.settings.date.label": "نمایش تاریخ",
-  "widgetsC.rss.settings.date.desc": "چه مدت پیش منتشر شده"
+  "widgetsC.rss.settings.date.label": "نمایش تاریخ"
 }

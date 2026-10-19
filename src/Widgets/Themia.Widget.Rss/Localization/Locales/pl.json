@@ -7,14 +7,8 @@
   "widgetsC.rss.settings.feeds": "Kanały",
   "widgetsC.rss.settings.empty": "Brak kanałów. Dodaj adres kanału RSS lub Atom.",
   "widgetsC.rss.settings.add.title": "Dodaj kanał",
-  "widgetsC.rss.settings.add.desc": "Artykuły ze wszystkich kanałów są łączone, najnowsze najpierw",
-  "widgetsC.rss.settings.add.action": "Dodaj kanał",
-  "widgetsC.rss.settings.remove": "Usuń kanał",
   "widgetsC.rss.settings.articles": "Artykuły",
   "widgetsC.rss.settings.source.label": "Pokaż źródło",
-  "widgetsC.rss.settings.source.desc": "Jej ikona i, jeśli jest miejsce, nazwa",
   "widgetsC.rss.settings.preview.label": "Pokaż podgląd",
-  "widgetsC.rss.settings.preview.desc": "Początek artykułu, gdy widżet ma miejsce",
-  "widgetsC.rss.settings.date.label": "Pokaż datę",
-  "widgetsC.rss.settings.date.desc": "Jak dawno opublikowano"
+  "widgetsC.rss.settings.date.label": "Pokaż datę"
 }

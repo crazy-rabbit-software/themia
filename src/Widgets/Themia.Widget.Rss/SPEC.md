@@ -11,13 +11,13 @@ Owning files: everything in this folder: `RssModule.cs` (descriptor, view factor
 `RssConfig.cs` (the feeds, the cap, the fields; an `IKitConfig`), `RssSpec.cs` (the kit spec, a feed
 entry as a kit item, a headline's actions), `FeedAggregate.cs` (the merge, the outcomes,
 the title), `RssView.cs` (a kit view over its `FeedSource` on `IWidgetHost.Feeds`, and the header's
-age), `RssSettings.cs` (its page, from `KitRows`), `Preview/` (Debug renders: `--state
+age), `RssMenu.cs` (its properties-menu lines, from `KitMenuLines`), `Preview/` (Debug renders: `--state
 sample|single|stale|failed|empty|loading`, sample feeds on the reserved `.example` domain),
-`Localization/Locales/` (its own `RssStr`, 30 languages). Tests: `Tests/RssTests.cs` (run by
+`Localization/Locales/` (its own `RssStr`, 30 languages). Tests: `Tests/RssTests.cs` and `Tests/RssMenuTests.cs` (run by
 `tests/Themia.Modules.Tests`); its configured state is the module host's `RssStateFixtureTests`.
 
-- **[S-1302]** Rss reads several feeds (`RssConfig.Feeds`, up to 12, a list editor in settings, each
-  address checked on commit), fetched in parallel through the shared cache and merged
+- **[S-1302]** Rss reads several feeds (`RssConfig.Feeds`, up to 12, the menu's list ([S-7510]), each
+  address checked as it is typed), fetched in parallel through the shared cache and merged
   (`FeedAggregate.Merge`, classic S-30): newest first, undated last in arrival order, capped at
   `MaxItems` across all feeds. Repeated and blank addresses fold; refused ones are not fetched. A
   feed that fails while others answer is a partial refresh: the header's problem glyph, one tooltip
@@ -48,6 +48,14 @@ sample|single|stale|failed|empty|loading`, sample feeds on the reserved `.exampl
   the menu, Escape lets go; with nothing focused every movement key but End lands on the newest
   headline (it was the last one for Up and Left, `ItemCursor`'s answer; now the one every list
   gives).
+
+- **[S-7510]** Its options are on the properties menu ([S-3719], user request 2026-10-19; the
+  settings page is gone): Appearance first, then **Feeds**, the menu's editable list ([S-3729]): a
+  feed's line is its address without the scheme, its submenu Change address…, Move up, Move down and
+  Remove; Add… asks for an address; both are checked by `WebInput` as they are typed (the trust
+  boundary: refused with the reason, never repaired, trimmed when given), and Add… is greyed at 12.
+  Then the kit's switches (`KitMenuLines.Shows`): Show source, Show preview, Show date; and
+  **Articles**, 5 to 50 in steps of 5 (`KitMenuLines.Count`, a choice of dots, [S-3726]).
 
 Needs a manual pass: real feeds (RSS and Atom, one on the local network, one failing beside two that
 answer), Refresh with the spinner while it is out, a headline opening in the browser by double-click
