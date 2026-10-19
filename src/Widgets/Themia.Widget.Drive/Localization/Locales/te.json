@@ -5,7 +5,6 @@
   "drives.fact.fileSystem": "ఫైల్ సిస్టమ్",
   "drives.fact.free": "ఖాళీ",
   "drives.fact.used": "ఉపయోగించినది",
-  "drives.settings.drive.desc": "ఈ విడ్జెట్ చూపించే డ్రైవ్: ఒక డిస్క్, ఒక స్టిక్ లేదా మ్యాప్ చేసిన నెట్‌వర్క్ డ్రైవ్",
   "drives.settings.drive.label": "డ్రైవ్",
   "drives.used": "{percent} ఉపయోగించబడింది",
   "styles.io.bar": "బార్"

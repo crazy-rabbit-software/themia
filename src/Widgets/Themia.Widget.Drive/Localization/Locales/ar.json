@@ -5,7 +5,6 @@
   "drives.fact.fileSystem": "نظام الملفات",
   "drives.fact.free": "متاح",
   "drives.fact.used": "مستخدم",
-  "drives.settings.drive.desc": "محرك الأقراص الذي تعرضه هذه الأداة: قرص أو ذاكرة USB أو محرك أقراص شبكة معيّن",
   "drives.settings.drive.label": "محرك أقراص",
   "drives.used": "{percent} مستخدم",
   "styles.io.bar": "شريط"

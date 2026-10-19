@@ -5,7 +5,6 @@
   "drives.fact.fileSystem": "Dosya sistemi",
   "drives.fact.free": "Boş",
   "drives.fact.used": "Kullanılan",
-  "drives.settings.drive.desc": "Bu widget'ın gösterdiği sürücü: bir disk, bellek veya eşlenmiş ağ sürücüsü",
   "drives.settings.drive.label": "Sürücü",
   "drives.used": "{percent} kullanılıyor",
   "styles.io.bar": "Çubuk"

@@ -1,10 +1,8 @@
 {
-  "shell.meters.drive.desc": "درایوی که خواندن و نوشتن آن عدد نمایش‌داده‌شده است",
   "shell.meters.drive.label": "درایو",
   "styles.io.bars": "نوارها",
   "styles.io.read": "خواندن",
   "styles.io.write": "نوشتن",
   "widgetsA.catalog.disk.description": "خواندن و نوشتن دیسک در ثانیه",
-  "widgetsA.catalog.disk.label": "دیسک",
-  "widgetsB.settings.disk.disk": "دیسک"
+  "widgetsA.catalog.disk.label": "دیسک"
 }

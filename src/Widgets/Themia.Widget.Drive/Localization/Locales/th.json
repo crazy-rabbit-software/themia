@@ -5,7 +5,6 @@
   "drives.fact.fileSystem": "ระบบไฟล์",
   "drives.fact.free": "ว่าง",
   "drives.fact.used": "ใช้ไป",
-  "drives.settings.drive.desc": "ไดรฟ์ที่วิดเจ็ตนี้แสดง: ดิสก์ แฟลชไดรฟ์ หรือไดรฟ์เครือข่ายที่แมปไว้",
   "drives.settings.drive.label": "ไดรฟ์",
   "drives.used": "ใช้ไป {percent}",
   "styles.io.bar": "แถบ"

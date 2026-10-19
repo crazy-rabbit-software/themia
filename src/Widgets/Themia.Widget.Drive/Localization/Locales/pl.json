@@ -5,7 +5,6 @@
   "drives.fact.fileSystem": "System plików",
   "drives.fact.free": "Wolne",
   "drives.fact.used": "Użyte",
-  "drives.settings.drive.desc": "Dysk pokazywany w tym widżecie: dysk, pamięć USB lub zamapowany dysk sieciowy",
   "drives.settings.drive.label": "Dysk",
   "drives.used": "Użyto {percent}",
   "styles.io.bar": "Pasek"

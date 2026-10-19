@@ -1,10 +1,8 @@
 {
-  "shell.meters.drive.desc": "Ang drive na ang mga pagbasa at pagsulat ang ipinapakitang numero",
   "shell.meters.drive.label": "Drive",
   "styles.io.bars": "Mga bar",
   "styles.io.read": "Pagbasa",
   "styles.io.write": "Pagsulat",
   "widgetsA.catalog.disk.description": "Mga pagbasa at pagsulat sa disk bawat segundo",
-  "widgetsA.catalog.disk.label": "Disk",
-  "widgetsB.settings.disk.disk": "Disk"
+  "widgetsA.catalog.disk.label": "Disk"
 }

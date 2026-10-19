@@ -5,7 +5,6 @@
   "drives.fact.fileSystem": "Sistema de archivos",
   "drives.fact.free": "Libre",
   "drives.fact.used": "Usado",
-  "drives.settings.drive.desc": "La unidad que muestra este widget: un disco, una memoria o una unidad de red asignada",
   "drives.settings.drive.label": "Unidad",
   "drives.used": "{percent} usado",
   "styles.io.bar": "Barra"

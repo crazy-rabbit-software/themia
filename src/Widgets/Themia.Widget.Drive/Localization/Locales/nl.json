@@ -5,7 +5,6 @@
   "drives.fact.fileSystem": "Bestandssysteem",
   "drives.fact.free": "Vrij",
   "drives.fact.used": "Gebruikt",
-  "drives.settings.drive.desc": "Het station dat deze widget toont: een schijf, een stick of een toegewezen netwerkstation",
   "drives.settings.drive.label": "Station",
   "drives.used": "{percent} gebruikt",
   "styles.io.bar": "Balk"

@@ -1,10 +1,8 @@
 {
-  "shell.meters.drive.desc": "Le lecteur dont les lectures et écritures sont le nombre",
   "shell.meters.drive.label": "Lecteur",
   "styles.io.bars": "Barres",
   "styles.io.read": "Lecture",
   "styles.io.write": "Écriture",
   "widgetsA.catalog.disk.description": "Lectures et écritures disque par seconde",
-  "widgetsA.catalog.disk.label": "Disque",
-  "widgetsB.settings.disk.disk": "Disque"
+  "widgetsA.catalog.disk.label": "Disque"
 }

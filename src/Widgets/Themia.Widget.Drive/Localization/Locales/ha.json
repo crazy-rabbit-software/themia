@@ -5,7 +5,6 @@
   "drives.fact.fileSystem": "Tsarin fayil",
   "drives.fact.free": "Babu komai",
   "drives.fact.used": "An yi amfani",
-  "drives.settings.drive.desc": "Faifan da wannan widget ke nunawa: faifai, sanda ko faifan cibiyar sadarwa",
   "drives.settings.drive.label": "Faifai",
   "drives.used": "An yi amfani da {percent}",
   "styles.io.bar": "Sanda"

@@ -1,10 +1,8 @@
 {
-  "shell.meters.drive.desc": "Ổ đĩa có lượt đọc và ghi được hiển thị",
   "shell.meters.drive.label": "Ổ đĩa",
   "styles.io.bars": "Thanh",
   "styles.io.read": "Đọc",
   "styles.io.write": "Ghi",
   "widgetsA.catalog.disk.description": "Lượt đọc và ghi ổ đĩa mỗi giây",
-  "widgetsA.catalog.disk.label": "Ổ đĩa",
-  "widgetsB.settings.disk.disk": "Ổ đĩa"
+  "widgetsA.catalog.disk.label": "Ổ đĩa"
 }

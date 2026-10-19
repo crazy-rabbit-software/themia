@@ -1,10 +1,8 @@
 {
-  "shell.meters.drive.desc": "وہ ڈرائیو جس کی ریڈز اور رائٹس دکھائی جاتی ہیں",
   "shell.meters.drive.label": "ڈرائیو",
   "styles.io.bars": "بارز",
   "styles.io.read": "پڑھنا",
   "styles.io.write": "لکھنا",
   "widgetsA.catalog.disk.description": "فی سیکنڈ ڈسک ریڈز اور رائٹس",
-  "widgetsA.catalog.disk.label": "ڈسک",
-  "widgetsB.settings.disk.disk": "ڈسک"
+  "widgetsA.catalog.disk.label": "ڈسک"
 }

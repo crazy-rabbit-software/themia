@@ -1,10 +1,8 @@
 {
-  "shell.meters.drive.desc": "Dysk, którego odczyty i zapisy to liczba",
   "shell.meters.drive.label": "Dysk",
   "styles.io.bars": "Paski",
   "styles.io.read": "Odczyt",
   "styles.io.write": "Zapis",
   "widgetsA.catalog.disk.description": "Odczyty i zapisy dysku na sekundę",
-  "widgetsA.catalog.disk.label": "Dysk",
-  "widgetsB.settings.disk.disk": "Dysk"
+  "widgetsA.catalog.disk.label": "Dysk"
 }

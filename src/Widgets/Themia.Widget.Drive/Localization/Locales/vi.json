@@ -5,7 +5,6 @@
   "drives.fact.fileSystem": "Hệ thống tệp",
   "drives.fact.free": "Còn trống",
   "drives.fact.used": "Đã dùng",
-  "drives.settings.drive.desc": "Ổ đĩa tiện ích này hiển thị: một ổ đĩa, USB hoặc ổ đĩa mạng đã ánh xạ",
   "drives.settings.drive.label": "Ổ đĩa",
   "drives.used": "Đã dùng {percent}",
   "styles.io.bar": "Thanh"

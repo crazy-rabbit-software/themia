@@ -5,7 +5,6 @@
   "drives.fact.fileSystem": "File system",
   "drives.fact.free": "Libre",
   "drives.fact.used": "Nagamit",
-  "drives.settings.drive.desc": "Ang drive na ipinapakita ng widget na ito: isang disk, stick o mapped network drive",
   "drives.settings.drive.label": "Drive",
   "drives.used": "{percent} ang nagamit",
   "styles.io.bar": "Bar"

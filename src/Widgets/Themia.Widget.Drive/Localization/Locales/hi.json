@@ -5,7 +5,6 @@
   "drives.fact.fileSystem": "फ़ाइल सिस्टम",
   "drives.fact.free": "खाली",
   "drives.fact.used": "उपयोग में",
-  "drives.settings.drive.desc": "यह विजेट जो ड्राइव दिखाता है: डिस्क, स्टिक या मैप की गई नेटवर्क ड्राइव",
   "drives.settings.drive.label": "ड्राइव",
   "drives.used": "{percent} उपयोग में",
   "styles.io.bar": "बार"

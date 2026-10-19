@@ -1,10 +1,8 @@
 {
-  "shell.meters.drive.desc": "Faifan da karatunsa da rubutunsa ne lambar",
   "shell.meters.drive.label": "Faifai",
   "styles.io.bars": "Sanduna",
   "styles.io.read": "Karatu",
   "styles.io.write": "Rubutu",
   "widgetsA.catalog.disk.description": "Karatu da rubutun faifai a kowace daƙiƙa",
-  "widgetsA.catalog.disk.label": "Faifai",
-  "widgetsB.settings.disk.disk": "Faifai"
+  "widgetsA.catalog.disk.label": "Faifai"
 }

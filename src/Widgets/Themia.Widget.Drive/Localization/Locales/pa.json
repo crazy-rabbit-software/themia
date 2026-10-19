@@ -5,7 +5,6 @@
   "drives.fact.fileSystem": "ਫ਼ਾਈਲ ਸਿਸਟਮ",
   "drives.fact.free": "ਖਾਲੀ",
   "drives.fact.used": "ਵਰਤੀ ਗਈ",
-  "drives.settings.drive.desc": "ਉਹ ਡਰਾਈਵ ਜੋ ਇਹ ਵਿਜੇਟ ਦਿਖਾਉਂਦਾ ਹੈ: ਇੱਕ ਡਿਸਕ, ਸਟਿੱਕ ਜਾਂ ਮੈਪ ਕੀਤੀ ਨੈੱਟਵਰਕ ਡਰਾਈਵ",
   "drives.settings.drive.label": "ਡਰਾਈਵ",
   "drives.used": "{percent} ਵਰਤੀ ਗਈ",
   "styles.io.bar": "ਬਾਰ"

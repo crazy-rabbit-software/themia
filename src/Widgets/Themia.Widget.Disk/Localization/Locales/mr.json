@@ -1,10 +1,8 @@
 {
-  "shell.meters.drive.desc": "ज्याचे रीड आणि राइट आकड्यात दाखवले जातात तो ड्राइव्ह",
   "shell.meters.drive.label": "ड्राइव्ह",
   "styles.io.bars": "पट्ट्या",
   "styles.io.read": "वाचन",
   "styles.io.write": "लेखन",
   "widgetsA.catalog.disk.description": "प्रति सेकंद डिस्क रीड आणि राइट",
-  "widgetsA.catalog.disk.label": "डिस्क",
-  "widgetsB.settings.disk.disk": "डिस्क"
+  "widgetsA.catalog.disk.label": "डिस्क"
 }

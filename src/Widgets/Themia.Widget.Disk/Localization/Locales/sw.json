@@ -1,10 +1,8 @@
 {
-  "shell.meters.drive.desc": "Hifadhi ambayo usomaji na uandishi wake ndio nambari",
   "shell.meters.drive.label": "Hifadhi",
   "styles.io.bars": "Pau",
   "styles.io.read": "Kusoma",
   "styles.io.write": "Kuandika",
   "widgetsA.catalog.disk.description": "Usomaji na uandishi wa diski kwa sekunde",
-  "widgetsA.catalog.disk.label": "Diski",
-  "widgetsB.settings.disk.disk": "Diski"
+  "widgetsA.catalog.disk.label": "Diski"
 }

@@ -1,10 +1,8 @@
 {
-  "shell.meters.drive.desc": "எந்த இயக்ககத்தின் வாசிப்பும் எழுதுதலும் எண்ணாகக் காட்டப்படும்",
   "shell.meters.drive.label": "இயக்ககம்",
   "styles.io.bars": "பட்டைகள்",
   "styles.io.read": "படித்தல்",
   "styles.io.write": "எழுதுதல்",
   "widgetsA.catalog.disk.description": "விநாடிக்கு வட்டு வாசிப்புகளும் எழுதுதல்களும்",
-  "widgetsA.catalog.disk.label": "வட்டு",
-  "widgetsB.settings.disk.disk": "வட்டு"
+  "widgetsA.catalog.disk.label": "வட்டு"
 }

@@ -1,10 +1,8 @@
 {
-  "shell.meters.drive.desc": "Okuma ve yazmaları gösterilen sürücü",
   "shell.meters.drive.label": "Sürücü",
   "styles.io.bars": "Çubuklar",
   "styles.io.read": "Okuma",
   "styles.io.write": "Yazma",
   "widgetsA.catalog.disk.description": "Saniyede disk okuma ve yazma",
-  "widgetsA.catalog.disk.label": "Disk",
-  "widgetsB.settings.disk.disk": "Disk"
+  "widgetsA.catalog.disk.label": "Disk"
 }

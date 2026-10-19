@@ -5,7 +5,6 @@
   "drives.fact.fileSystem": "ফাইল সিস্টেম",
   "drives.fact.free": "খালি",
   "drives.fact.used": "ব্যবহৃত",
-  "drives.settings.drive.desc": "এই উইজেট যে ড্রাইভ দেখায়: একটি ডিস্ক, স্টিক বা ম্যাপ করা নেটওয়ার্ক ড্রাইভ",
   "drives.settings.drive.label": "ড্রাইভ",
   "drives.used": "{percent} ব্যবহৃত",
   "styles.io.bar": "বার"

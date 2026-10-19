@@ -6,7 +6,6 @@
   "drives.fact.fileSystem": "File system",
   "drives.fact.free": "Free",
   "drives.fact.used": "Used",
-  "drives.settings.drive.desc": "The drive this widget shows: a disk, a stick or a mapped network drive",
   "drives.settings.drive.label": "Drive",
   "drives.used": "{percent} used",
   "styles.io.bar": "Bar"

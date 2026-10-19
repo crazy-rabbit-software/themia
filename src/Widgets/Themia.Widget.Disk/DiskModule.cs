@@ -35,8 +35,9 @@ public sealed class DiskModule : IWidgetModule
         Add = new(AddFolderId.System, 0, 3),
     };
 
-    public void SettingsRows(WidgetSettingsRows rows, WidgetConfig config)
-        => DiskSettings.Rows(rows.Rows, (DiskConfig)config, rows.Save);
+    /// <summary>[S-3719] Every option is on the properties menu: the widget has no settings page.</summary>
+    public void MenuLines(WidgetMenuLines menu, WidgetConfig config)
+        => DiskMenu.Lines(menu, (DiskConfig)config, DriveList.Now());
 
     public FrameworkElement CreateView(IWidgetHost host) => new MeterView(host, new DiskMeter(host));
 }

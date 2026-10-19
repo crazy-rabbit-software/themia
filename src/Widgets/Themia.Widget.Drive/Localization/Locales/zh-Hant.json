@@ -5,7 +5,6 @@
   "drives.fact.fileSystem": "檔案系統",
   "drives.fact.free": "可用",
   "drives.fact.used": "已使用",
-  "drives.settings.drive.desc": "此小工具顯示的磁碟機：磁碟、隨身碟或對應的網路磁碟機",
   "drives.settings.drive.label": "磁碟機",
   "drives.used": "已使用 {percent}",
   "styles.io.bar": "長條"

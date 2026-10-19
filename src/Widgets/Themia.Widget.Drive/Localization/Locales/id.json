@@ -5,7 +5,6 @@
   "drives.fact.fileSystem": "Sistem file",
   "drives.fact.free": "Kosong",
   "drives.fact.used": "Terpakai",
-  "drives.settings.drive.desc": "Drive yang ditampilkan widget ini: disk, stik, atau drive jaringan yang dipetakan",
   "drives.settings.drive.label": "Drive",
   "drives.used": "{percent} terpakai",
   "styles.io.bar": "Batang"

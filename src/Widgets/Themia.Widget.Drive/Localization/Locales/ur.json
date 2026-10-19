@@ -5,7 +5,6 @@
   "drives.fact.fileSystem": "فائل سسٹم",
   "drives.fact.free": "خالی",
   "drives.fact.used": "استعمال شدہ",
-  "drives.settings.drive.desc": "وہ ڈرائیو جو یہ ویجیٹ دکھاتا ہے: ڈسک، اسٹک یا میپ شدہ نیٹ ورک ڈرائیو",
   "drives.settings.drive.label": "ڈرائیو",
   "drives.used": "{percent} استعمال شدہ",
   "styles.io.bar": "بار"

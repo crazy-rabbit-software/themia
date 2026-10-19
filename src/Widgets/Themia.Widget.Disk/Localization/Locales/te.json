@@ -1,10 +1,8 @@
 {
-  "shell.meters.drive.desc": "రీడ్‌లు మరియు రైట్‌లు సంఖ్యగా చూపబడే డ్రైవ్",
   "shell.meters.drive.label": "డ్రైవ్",
   "styles.io.bars": "బార్లు",
   "styles.io.read": "చదవడం",
   "styles.io.write": "రాయడం",
   "widgetsA.catalog.disk.description": "సెకనుకు డిస్క్ రీడ్‌లు మరియు రైట్‌లు",
-  "widgetsA.catalog.disk.label": "డిస్క్",
-  "widgetsB.settings.disk.disk": "డిస్క్"
+  "widgetsA.catalog.disk.label": "డిస్క్"
 }

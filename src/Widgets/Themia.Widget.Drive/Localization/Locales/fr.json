@@ -5,7 +5,6 @@
   "drives.fact.fileSystem": "Système de fichiers",
   "drives.fact.free": "Libre",
   "drives.fact.used": "Utilisé",
-  "drives.settings.drive.desc": "Le lecteur affiché par ce widget : un disque, une clé ou un lecteur réseau",
   "drives.settings.drive.label": "Lecteur",
   "drives.used": "{percent} utilisé",
   "styles.io.bar": "Barre"
