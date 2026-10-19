@@ -1,3 +1,4 @@
+using Themia.App.Services.Brightness;
 using Themia.Core.Model;
 
 namespace Themia.Core.Widgets;
@@ -39,6 +40,18 @@ public static class BrightnessRules
         }
 
         return screens == BrightnessScreens.All && displays.Count > 0 ? displays[0] : null;
+    }
+
+    /// <summary>
+    /// [S-4447] Whether the choice of screens can change anything: with two displays with a brightness
+    /// or more, or while the widget's own screen alone is chosen (so the choice can always go back to
+    /// every screen). With one, "every screen" and "the one it is on" set the same display, or the own
+    /// choice sets none. Offered too until the displays have been looked at: nothing is known yet.
+    /// </summary>
+    public static bool OffersScreens(BrightnessSnapshot displays, BrightnessScreens screens)
+    {
+        ArgumentNullException.ThrowIfNull(displays);
+        return !displays.Ready || displays.Displays.Count >= 2 || screens != BrightnessScreens.All;
     }
 
     /// <summary>[S-4442] The displays one slider sets: every one with a brightness, or the widget's own alone.</summary>

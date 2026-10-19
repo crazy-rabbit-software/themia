@@ -280,6 +280,21 @@ public class WindowsPanelsTests
     private static readonly BrightnessDisplay Monitor = new(@"\\.\DISPLAY2", BrightnessPath.Ddc, 30);
 
     [Fact]
+    public void S4447_the_screens_choice_is_offered_only_where_it_changes_what_is_dimmed()
+    {
+        var one = new Themia.App.Services.Brightness.BrightnessSnapshot(true, [Panel]);
+        var two = new Themia.App.Services.Brightness.BrightnessSnapshot(true, [Panel, Monitor]);
+
+        Assert.False(BrightnessRules.OffersScreens(one, BrightnessScreens.All));
+        Assert.False(BrightnessRules.OffersScreens(new(true, []), BrightnessScreens.All));
+        Assert.True(BrightnessRules.OffersScreens(two, BrightnessScreens.All));
+
+        // The own screen chosen can always go back; before the displays answer nothing is known.
+        Assert.True(BrightnessRules.OffersScreens(one, BrightnessScreens.ThisDisplay));
+        Assert.True(BrightnessRules.OffersScreens(Themia.App.Services.Brightness.BrightnessSnapshot.Pending, BrightnessScreens.All));
+    }
+
+    [Fact]
     public void S4442_every_display_together_by_default_its_own_shown()
     {
         BrightnessDisplay[] both = [Panel, Monitor];

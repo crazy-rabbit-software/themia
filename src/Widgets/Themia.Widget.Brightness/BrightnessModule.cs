@@ -36,7 +36,7 @@ public sealed class BrightnessModule : IWidgetModule
 
     /// <summary>[S-3719] Every option is on the properties menu: the widget has no settings page.</summary>
     public void MenuLines(WidgetMenuLines menu, WidgetConfig config)
-        => BrightnessMenu.Lines(menu, (BrightnessConfig)config);
+        => BrightnessMenu.Lines(menu, (BrightnessConfig)config, BrightnessDisplays.Now());
 
     public FrameworkElement CreateView(IWidgetHost host) => new BrightnessView(host);
 }

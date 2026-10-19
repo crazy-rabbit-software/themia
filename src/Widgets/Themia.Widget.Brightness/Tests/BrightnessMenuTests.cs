@@ -1,5 +1,7 @@
+using Themia.App.Services.Brightness;
 using Themia.App.Shell.Config;
 using Themia.Core.Model;
+using Themia.Core.Widgets;
 using Themia.Sdk.WinUI;
 using Xunit;
 
@@ -10,10 +12,14 @@ public sealed class BrightnessMenuTests
 {
     private int _saves;
 
-    private WidgetMenuLines Build(BrightnessConfig config)
+    private static readonly BrightnessSnapshot Two = new(true, [new(@"\.\DISPLAY1", BrightnessPath.BuiltIn, 50), new(@"\.\DISPLAY2", BrightnessPath.Ddc, 80)]);
+
+    private static readonly BrightnessSnapshot One = new(true, [new(@"\.\DISPLAY1", BrightnessPath.BuiltIn, 50)]);
+
+    private WidgetMenuLines Build(BrightnessConfig config, BrightnessSnapshot? displays = null)
     {
         var lines = new WidgetMenuLines(() => _saves++, _ => { });
-        BrightnessMenu.Lines(lines, config);
+        BrightnessMenu.Lines(lines, config, displays ?? Two);
         return lines;
     }
 
@@ -40,5 +46,21 @@ public sealed class BrightnessMenuTests
         screens[1].Action!();
         Assert.Equal(BrightnessScreens.ThisDisplay, config.Screens);
         Assert.Equal(1, _saves);
+    }
+
+    [Fact]
+    public void S4447_one_display_with_a_brightness_has_no_screens_line()
+    {
+        var lines = Build(new BrightnessConfig(), One);
+
+        Assert.Equal(0, lines.CardAt);
+        Assert.Empty(lines.Lines);
+    }
+
+    [Fact]
+    public void S4447_the_own_screen_chosen_keeps_the_line_so_it_can_go_back_and_so_does_a_pending_read()
+    {
+        Assert.Single(Build(new BrightnessConfig { Screens = BrightnessScreens.ThisDisplay }, One).Lines);
+        Assert.Single(Build(new BrightnessConfig(), BrightnessSnapshot.Pending).Lines);
     }
 }

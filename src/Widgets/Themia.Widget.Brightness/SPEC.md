@@ -21,6 +21,12 @@ the sun, the levels through `IWidgetHost.Brightness`, its own display through it
 - **[S-4446]** Its options are all on the properties menu ([S-3719], user request 2026-10-19); it
   has no settings page. Appearance ([S-3723]), then **Screens it dims** (All screens / Only the
   screen it's on, [S-4442]).
+- **[S-4447]** Screens it dims is offered only where it changes what is dimmed
+  (`BrightnessRules.OffersScreens`, [S-6070]): with two displays with a brightness or more, or while
+  "Only the screen it's on" is chosen (so it can go back to every screen); with one, both set that
+  display (or the own choice sets none), so the line is not there. Until the displays have been
+  looked at it is offered. The menu reads the host's last answer (`BrightnessDisplays`, installed at
+  start, as `DriveList` is).
 
 Needs a manual pass: a laptop panel and a DDC/CI monitor (two displays, mixed DPI, "only the screen
 it's on"), the keys and Windows' quick settings moving the panel while the widget shows.

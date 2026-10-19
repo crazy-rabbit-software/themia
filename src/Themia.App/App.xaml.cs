@@ -33,6 +33,7 @@ public partial class App : Application
         Themia.Sdk.DriveList.Install(() => Services.Drives.DriveService.Shared.Now());
         Themia.Sdk.AudioDevices.Install(Services.CoreAudio.OutputDevicesAsync);
         Themia.Sdk.GpuAdapters.Install(Services.GpuSampler.Adapters);
+        Themia.Sdk.BrightnessDisplays.Install(() => Services.Brightness.BrightnessService.Snapshot);
         Themia.Sdk.ProcessPaths.Install(Services.ProcessNames.ExePath, Services.ProcessNames.DisplayName);
         Themia.Sdk.WinUI.AppIconSource.Install(Services.AppIcons.GetAsync, Services.AppIcons.DefaultSize);
         Themia.Sdk.WinUI.SettingsHost.Install(() => Services.AppServices.Notes, () => Services.AppServices.Habits, () => Services.AppServices.ScreenTime, Services.HostLauncher.Instance,
