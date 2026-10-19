@@ -19,11 +19,12 @@ namespace Themia.Core.Model;
 /// <param name="StyleKind">[S-6007] The one kind whose style the Style choice sets: every selected widget is of it and it has styles. Null hides the choice.</param>
 /// <param name="Style">[S-6007] Their style, or null when they differ.</param>
 /// <param name="Items">[S-6521] The own item background the widgets with items share, or null when they differ.</param>
-/// <param name="HasItems">[S-6571] Whether any selected widget has items ([S-6570]); the item lines are not shown without.</param>
+/// <param name="HasItems">[S-6571] [S-6573] Whether any selected widget draws items now ([S-6570]); the item lines are not shown without.</param>
 /// <param name="Scale">[S-6531] Their own content scale, or null when they differ.</param>
 /// <param name="ItemText">[S-6544] Their own item text colour (empty: they follow the app-wide one), or null when they differ.</param>
 /// <param name="CanAlign">[S-6584] Whether any selected widget can align its content in its style ([S-6581]); the Alignment line is not shown without.</param>
 /// <param name="Align">[S-6584] Where the widgets that can align draw their content, or null when they differ.</param>
+/// <param name="HasItemText">[S-6574] Whether any selected widget draws items with text on them (not tracks only); the Item text line is not shown without.</param>
 public sealed record QuickSetOffer(
     int Count,
     HeaderPlacement? Header,
@@ -39,7 +40,8 @@ public sealed record QuickSetOffer(
     double? Scale = 1.0,
     string? ItemText = "",
     bool CanAlign = false,
-    ContentAlign? Align = null)
+    ContentAlign? Align = null,
+    bool HasItemText = true)
 {
     public static readonly QuickSetOffer None = new(0, null, null, null, null, null, false);
 
@@ -90,19 +92,25 @@ public static class QuickSet
         var background = CommonFill(widgets.Select(w => w.Background));
 
         // [S-6007] A style choice only where it means one thing: every widget the same kind, and
-        // that kind with two styles or more.
+        // that kind with two styles or more; [S-6075] and the look able to change one of them now.
         var kind = widgets[0].Kind;
-        var styleKind = widgets.TrueForAll(w => w.Kind == kind) && WidgetStyles.Offers(kind) ? kind : (WidgetId?)null;
+        var styleKind = widgets.TrueForAll(w => w.Kind == kind) && WidgetStyles.Offers(kind) && widgets.Exists(w => WidgetStyles.Applies(w.Config))
+            ? kind
+            : (WidgetId?)null;
         var style = styleKind is null ? null : Common(widgets.Select(w => WidgetStyles.Current(w.Config) ?? 0));
 
-        // [S-6571] The item background of the widgets that have items: the others have none to show.
-        var withItems = widgets.Where(w => ItemKinds.Has(w.Kind)).ToList();
+        // [S-6571] [S-6573] The item background of the widgets that draw items now: the others have none to show.
+        var withItems = widgets.Where(ItemKinds.Draws).ToList();
         var hasItems = withItems.Count > 0;
         var items = hasItems ? CommonFill(withItems.Select(w => w.ItemBackground)) : new FillChoice();
 
         // [S-6531] Read as stored, so two widgets at the same percentage always share it.
         var scale = Common(widgets.Select(w => WidgetScale.Normalise(w.Scale)));
-        var itemText = CommonItemText(hasItems ? withItems : widgets);
+
+        // [S-6574] The item text of the widgets whose items carry text: a track has none.
+        var withText = withItems.Where(ItemKinds.DrawsText).ToList();
+        var hasItemText = withText.Count > 0;
+        var itemText = CommonItemText(hasItemText ? withText : widgets);
 
         // [S-6584] The alignment the widgets that can align draw with: the others have none to show.
         var aligned = widgets.Where(ContentAlignment.Applies).ToList();
@@ -112,10 +120,10 @@ public static class QuickSet
         if (widgets.Count == 1)
         {
             var only = widgets[0];
-            return new QuickSetOffer(1, header, background, only.Id, only.Kind, only.Label, hasHeader, styleKind, style, items, hasItems, scale, itemText, canAlign, align);
+            return new QuickSetOffer(1, header, background, only.Id, only.Kind, only.Label, hasHeader, styleKind, style, items, hasItems, scale, itemText, canAlign, align, hasItemText);
         }
 
-        return new QuickSetOffer(widgets.Count, header, background, null, null, null, hasHeader, styleKind, style, items, hasItems, scale, itemText, canAlign, align);
+        return new QuickSetOffer(widgets.Count, header, background, null, null, null, hasHeader, styleKind, style, items, hasItems, scale, itemText, canAlign, align, hasItemText);
     }
 
     /// <summary>
@@ -224,13 +232,13 @@ public static class QuickSet
 
     /// <summary>
     /// [S-6521] [S-6571] Set the item background of every selected widget of <paramref name="view"/>
-    /// that has items ([S-6570]) to a copy of <paramref name="fill"/>: Default follows the app-wide
-    /// one again. A widget without items is left as it is. Returns how many changed.
+    /// that draws items now ([S-6570], [S-6573]) to a copy of <paramref name="fill"/>: Default follows
+    /// the app-wide one again. A widget without items is left as it is. Returns how many changed.
     /// </summary>
     public static int SetItemBackground(ViewState view, IEnumerable<string> ids, FillChoice fill)
     {
         ArgumentNullException.ThrowIfNull(fill);
-        return Apply(view, ids, w => ItemKinds.Has(w.Kind) && !w.ItemBackground.SameAs(fill)
+        return Apply(view, ids, w => ItemKinds.Draws(w) && !w.ItemBackground.SameAs(fill)
             && Set(() => w.ItemBackground = fill.Clone()));
     }
 
@@ -241,9 +249,9 @@ public static class QuickSet
     /// </summary>
     public static int SetItemTextColor(ViewState view, IEnumerable<string> ids, string? hex)
     {
-        // [S-6571] Like the item background, only on widgets that have items.
+        // [S-6571] [S-6574] Only on widgets whose items carry text now: a track has none to colour.
         var colour = HexColor.Normalise(hex);
-        return Apply(view, ids, w => ItemKinds.Has(w.Kind)
+        return Apply(view, ids, w => ItemKinds.DrawsText(w)
             && !string.Equals(HexColor.Normalise(w.ItemTextColor), colour, StringComparison.Ordinal)
             && Set(() => w.ItemTextColor = colour));
     }

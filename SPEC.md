@@ -1458,7 +1458,8 @@ and the SDK's `Settings/ListDrop.cs` (tests `QuickSetTests`, `StripPlacementTest
   a fill's Opacity are inline sliders ([S-3731]). A
   card line that cannot apply is **not there** (user request 2026-10-19), never greyed: Header for a
   kind that never has one ([S-3711]), Alignment where nothing selected aligns ([S-6584]), Item
-  background and Item text where nothing selected has items ([S-6571]).
+  background and Item text where nothing selected has items in its look ([S-6571], [S-6573]), Item
+  text where they are tracks only ([S-6574]), Style where every look draws the same ([S-6075]).
 - **[S-3719]** A widget's **own lines** come from its module (`IWidgetModule.MenuLines`, over a
   `WidgetMenuLines`): `StyleLines` on the first level right under the Style line, in its section
   (what only the current look draws with, [S-6070]; user request 2026-10-19: not inside the Style
@@ -1628,6 +1629,23 @@ and the SDK's `Settings/ListDrop.cs` (tests `QuickSetTests`, `StripPlacementTest
   `SetItemTextColor` skip a kind without items).
 - **[S-6572]** A widget without items keeps whatever item background and text colour it holds (a
   pick never writes one), and they draw nothing: there is nothing for them to reach.
+- **[S-6573]** Per style and state too (user request 2026-10-19, [S-6070]): a widget of a kind with
+  items that paints none in its current look says so on its config (`IDrawsItems.DrawsItems`, read by
+  `ItemKinds.Draws`), and counts as without items for [S-6571]: the lines are not there, a pick does
+  not reach it. The clock in every style but Flip (its cards are the only items); the meters' graph
+  style, the network meter in both its styles and the battery meter in its graph and battery
+  styles (the shared meter view paints items only in its bars, rows, tiles, gauge, ring, core graphs
+  and signal bars); Pomodoro in Bar (a progress bar of its own) and Digits; Music with Show progress
+  off (its seek bar is its one item); a power button's Round style (its circle is an item only for
+  the moment a press failed, [S-1915], which is no reason to offer it). Size is not a state: a part a
+  small tile sheds still counts. A config without the contract draws what its kind's trait says;
+  only a kind with items may carry it (conformance).
+- **[S-6574]** Item text never reaches a track ([S-6546]), so where every item a widget draws is a
+  track (`IDrawsItems.DrawsItemText` false, `ItemKinds.DrawsText`) the menu has **Item background**
+  but no **Item text** (`QuickSetOffer.HasItemText`), and `SetItemTextColor` skips it: Focus session
+  (its ring), Pomodoro's ring, Music's seek bar and every meter (bars, tiles' washes, dials, rings
+  and signal bars are tracks). A multi-selection offers the line when any selected widget's items
+  carry text, and reads and sets those widgets only.
 - **[S-6544]** **Item text** follows (after Item background, before Scale): the colour control with
   **Default** (the app-wide item text colour, its swatch that colour) and the colours
   (`QuickSet.SetItemTextColor`); Default empties the widgets' own text colour, a colour sets it. It
@@ -1755,6 +1773,13 @@ widget on the properties panel ([S-6007], its one place, [S-6536]). Owning files
   (`QuickSetOffer.Style` null). Mixed kinds: no Style.
 - **[S-6008]** A pick sets the style of every selected widget (`QuickSet.SetStyle`) in one `Mutate`:
   one undo step however many it reached.
+- **[S-6075]** A style that cannot change anything now is not offered (user request 2026-10-19,
+  [S-6070]): the config says so (`IStyled.StyleApplies`, read by `WidgetStyles.Applies`), and the menu
+  has no Style line while no selected widget's look would differ (a gallery of one picture, a file or
+  the photo of the day, drawn full-bleed in every look). The style is kept for when it applies again.
+  The options only the look draws with that still apply (a single picture's Picture size) keep their
+  place at the top of the menu, in a section of their own, without the Style line over them. With
+  several of the kind, the line is there when any one's look would differ, and a pick sets every one.
 - **[S-6009]** *(Retired by [S-6536], 2026-10-19: there is no **More settings** line; with every
   option on the menu there is no widget page left for it to open.)*
 - **[S-6060]** One progress ring for every widget that draws one (`RingPart`, its geometry

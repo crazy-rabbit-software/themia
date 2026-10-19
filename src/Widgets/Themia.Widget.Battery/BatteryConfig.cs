@@ -56,6 +56,9 @@ public sealed class BatteryConfig : GaugeConfig, IStyled, IReadsSystem
     /// <summary>[S-2513] The charge and its history.</summary>
     public SystemInterests SystemWants(string systemRoot) => SystemInterests.Chart(SystemSource.Battery);
 
+    /// <summary>[S-6573] Only the ring's track is an item; the graph and the battery picture are the card's own drawing.</summary>
+    protected override bool StyleDrawsItems => Style == BatteryStyle.Ring;
+
     public override WidgetConfig Clone()
     {
         var copy = new BatteryConfig { Style = Style };

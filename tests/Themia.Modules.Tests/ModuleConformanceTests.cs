@@ -431,4 +431,21 @@ public sealed partial class ModuleConformanceTests
 
         Assert.Equal(paints, Module(id).Descriptor.Traits.HasFlag(WidgetTraits.HasItems));
     }
+
+    /// <summary>[S-6573] Only a kind with items can say which of its styles and states draw them: on any other the contract would claim items its view never paints.</summary>
+    [Theory]
+    [MemberData(nameof(WidgetsOrNone))]
+    public void S6573_a_config_that_says_what_items_it_draws_belongs_to_a_kind_with_items(string id)
+    {
+        if (id == "(none)")
+        {
+            return;
+        }
+
+        var descriptor = Module(id).Descriptor;
+        if (typeof(IDrawsItems).IsAssignableFrom(descriptor.ConfigType))
+        {
+            Assert.True(descriptor.Traits.HasFlag(WidgetTraits.HasItems), $"{id} says what items it draws but its kind has none");
+        }
+    }
 }

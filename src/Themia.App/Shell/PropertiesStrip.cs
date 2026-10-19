@@ -614,6 +614,13 @@ internal sealed partial class PropertiesStrip : Grid
 
             nodes.Add(Node.Separator("-style"));
         }
+        else if (_widget is { StyleLines.Count: > 0 } unstyled)
+        {
+            // [S-6075] No Style line while every look draws the same, but what the look draws with
+            // and still applies (a single picture's size) keeps its place and its section.
+            nodes.AddRange(FromEntries(unstyled.StyleLines, "style/w"));
+            nodes.Add(Node.Separator("-style"));
+        }
 
         // [S-3719] The widget's own lines, in its order; [S-3723] the card's as one Appearance
         // submenu among them where the widget places it, else first, right after Style: for every
@@ -731,6 +738,11 @@ internal sealed partial class PropertiesStrip : Grid
             colours.Add(new(null, Str.Shell_Items_Background.Text(), null, Colour: MenuColour.OfFill(_offer.Items, commands.SetItemBackground,
                 new FillChoiceOptions { DefaultLabel = Str.Common_Default.Text(), DefaultColor = AppItemColour },
                 fill => Preview(fill is null ? null : new CardPreview(Items: fill)))));
+        }
+
+        // [S-6574] The text on items: not where every item drawn is a track, which it never reaches.
+        if (_offer is { HasItems: true, HasItemText: true })
+        {
             colours.Add(new(null, Str.Shell_Items_TextShort.Text(), null, Colour: MenuColour.Of(_offer.ItemText, commands.SetItemTextColor,
                 new ColorChoiceOptions { DefaultLabel = Str.Common_Default.Text(), Presets = ColorPresets.Surfaces, DefaultColor = AppItemTextColour })));
         }

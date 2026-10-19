@@ -69,8 +69,11 @@ public enum ClockSetting
     Offset,
 }
 
-public sealed class ClockConfig : WidgetConfig, IStyled, IShownSettings<ClockSetting>, IContentAligned
+public sealed class ClockConfig : WidgetConfig, IStyled, IShownSettings<ClockSetting>, IContentAligned, IDrawsItems
 {
+    /// <summary>[S-6573] Only the flip clock's cards are items (<c>FlipCard</c>); every other face is the card's own text.</summary>
+    bool IDrawsItems.DrawsItems => Style == ClockStyle.Flip;
+
     /// <summary>[S-6581] Its one block aligns; where it sits when nothing was chosen.</summary>
     ContentAlign IContentAligned.DefaultAlign => ContentAlign.Center;
 

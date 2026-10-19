@@ -123,6 +123,9 @@ public sealed class GalleryConfig : WidgetConfig, IStyled, IShownSettings<Galler
         set => Style = (GalleryStyle)value;
     }
 
+    /// <summary>[S-6075] One picture (a file, the photo of the day) is drawn full-bleed in every look: the style has nothing to change.</summary>
+    bool IStyled.StyleApplies => !IsSingleSource;
+
     public GalleryFit Fit { get; set; } = GalleryFit.Fill;
 
     /// <summary>

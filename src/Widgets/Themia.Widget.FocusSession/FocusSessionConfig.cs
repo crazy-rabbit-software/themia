@@ -7,8 +7,11 @@ using Themia.Sdk;
 namespace Themia.Core.Model;
 
 /// <summary>[S-4420] A focus session: a length, and whether it holds Windows' do not disturb while it runs.</summary>
-public sealed class FocusSessionConfig : WidgetConfig
+public sealed class FocusSessionConfig : WidgetConfig, IDrawsItems
 {
+    /// <summary>[S-6574] Its one item is the ring's track, which the item text never reaches.</summary>
+    bool IDrawsItems.DrawsItemText => false;
+
     /// <summary>[S-4421] How long a session started here runs, in minutes (Windows' own default is 30).</summary>
     public int Minutes { get; set; } = FocusSessionRules.DefaultMinutes;
 

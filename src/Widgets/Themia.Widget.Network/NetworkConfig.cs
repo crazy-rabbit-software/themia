@@ -54,6 +54,9 @@ public sealed class NetworkConfig : GaugeConfig, IStyled, IReadsSystem
     /// <summary>[S-2513] The throughput and its history.</summary>
     public SystemInterests SystemWants(string systemRoot) => SystemInterests.Chart(SystemSource.Network);
 
+    /// <summary>[S-6573] Both looks are the card's own drawing: the history graph and the two figures paint no item.</summary>
+    protected override bool StyleDrawsItems => false;
+
     public override WidgetConfig Clone()
     {
         var copy = new NetworkConfig { Style = Style };

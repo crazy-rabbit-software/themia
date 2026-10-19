@@ -200,4 +200,28 @@ public sealed class WidgetStylesTests
         Assert.Equal(ClockStyle.Digital, ((ClockConfig)c.Config).Style);
         Assert.Equal(0, QuickSet.SetStyle(view, ["a", "b"], 99));
     }
+
+    [Fact]
+    public void S6075_a_gallery_of_one_picture_offers_no_style_and_keeps_it_for_a_folder()
+    {
+        var one = Widget(new WidgetId("gallery"), "one");
+        var folder = Widget(new WidgetId("gallery"), "folder");
+        ((GalleryConfig)one.Config).Source = GallerySource.File;
+        ((GalleryConfig)one.Config).Style = GalleryStyle.Mosaic;
+        var (state, view) = State(one, folder);
+
+        Assert.False(WidgetStyles.Applies(one.Config));
+        Assert.False(QuickSet.For(state, Selecting(view, "one"), view.Id).HasStyle);
+
+        // The photo of the day is one picture too.
+        ((GalleryConfig)one.Config).Source = GallerySource.Bing;
+        Assert.False(QuickSet.For(state, Selecting(view, "one"), view.Id).HasStyle);
+
+        // With a folder among them the looks differ again: the choice is there, and the style was kept.
+        Assert.True(QuickSet.For(state, Selecting(view, "one", "folder"), view.Id).HasStyle);
+        ((GalleryConfig)one.Config).Source = GallerySource.Folder;
+        var offer = QuickSet.For(state, Selecting(view, "one"), view.Id);
+        Assert.True(offer.HasStyle);
+        Assert.Equal((int)GalleryStyle.Mosaic, offer.Style);
+    }
 }

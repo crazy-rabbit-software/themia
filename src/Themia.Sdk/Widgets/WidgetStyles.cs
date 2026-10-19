@@ -51,6 +51,13 @@ public interface IStyled
 
     /// <summary>The current style, as its enum's int value. May be outside <see cref="Styles"/> until repaired.</summary>
     int StyleValue { get; set; }
+
+    /// <summary>
+    /// [S-6075] Whether the styles draw differently now: false where every look draws the same (a
+    /// gallery of one picture), so the properties menu has no Style line until they would differ
+    /// again. The style is kept for then.
+    /// </summary>
+    bool StyleApplies => true;
 }
 
 /// <summary>
@@ -76,6 +83,13 @@ public static class WidgetStyles
     {
         ArgumentNullException.ThrowIfNull(config);
         return config is IStyled styled ? styled.StyleValue : null;
+    }
+
+    /// <summary>[S-6075] Whether <paramref name="config"/>'s style changes what it draws now; false for a kind without styles.</summary>
+    public static bool Applies(WidgetConfig config)
+    {
+        ArgumentNullException.ThrowIfNull(config);
+        return config is IStyled styled && styled.StyleApplies;
     }
 
     /// <summary>

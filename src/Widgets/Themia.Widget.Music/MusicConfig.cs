@@ -30,8 +30,14 @@ public enum MusicStyle
 /// every player on the machine with no account, no token and no per-app setting.
 /// </para>
 /// </summary>
-public sealed class MusicConfig : WidgetConfig, IStyled
+public sealed class MusicConfig : WidgetConfig, IStyled, IDrawsItems
 {
+    /// <summary>[S-6573] The seek bar's track is the one item, drawn only with Show progress on.</summary>
+    bool IDrawsItems.DrawsItems => ShowProgress;
+
+    /// <summary>[S-6574] A track: the item text never reaches it.</summary>
+    bool IDrawsItems.DrawsItemText => false;
+
     /// <summary>[S-6406] Artwork and text, full artwork or text only: the widget's style (what was "Show album art").</summary>
     public MusicStyle Style { get; set; } = MusicStyle.Artwork;
 

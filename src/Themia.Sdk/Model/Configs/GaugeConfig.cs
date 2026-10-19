@@ -17,8 +17,21 @@ public enum MeterSetting
 /// How often it samples is not a setting: every system figure moves on the hub's one cadence
 /// ([S-2503]). Each kind's own options live in its own file beside this one.
 /// </summary>
-public abstract class GaugeConfig : WidgetConfig, IShownSettings<MeterSetting>
+public abstract class GaugeConfig : WidgetConfig, IShownSettings<MeterSetting>, IDrawsItems
 {
+    /// <summary>
+    /// [S-6573] The shared meter view paints items only in its bar, tile, gauge, ring, core-graph and
+    /// signal looks; the history graph (and the numbers and battery faces) are the card's own drawing.
+    /// </summary>
+    bool IDrawsItems.DrawsItems => StyleDrawsItems;
+
+    /// <summary>[S-6574] Every item a meter paints is a track (a bar, a tile's wash, a dial, a ring): no item text reaches one.</summary>
+    bool IDrawsItems.DrawsItemText => false;
+
+    /// <summary>[S-6573] Whether the current style paints items: by default every style but the graph, the first.</summary>
+    [System.Text.Json.Serialization.JsonIgnore]
+    protected virtual bool StyleDrawsItems => WidgetStyles.Current(this) is not (null or 0);
+
     /// <param name="graphSpanSeconds">This kind's default span, one of <see cref="MeterTiming.SpanChoices"/>.</param>
     protected GaugeConfig(int graphSpanSeconds) => GraphSpanSeconds = graphSpanSeconds;
 

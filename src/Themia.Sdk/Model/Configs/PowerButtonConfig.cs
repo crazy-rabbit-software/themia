@@ -41,8 +41,14 @@ public enum PowerButtonStyle
 /// card's own settings and its look, so the config carries which action its kind stands for and the
 /// style every power widget shares ([S-1919]).
 /// </summary>
-public abstract class PowerButtonConfig : WidgetConfig, IStyled
+public abstract class PowerButtonConfig : WidgetConfig, IStyled, IDrawsItems
 {
+    /// <summary>
+    /// [S-6573] The tile is an item; the round button's circle is the accent's own fill, an item only
+    /// for the moment a press failed ([S-1915]), which is no reason to offer a colour it would rarely show.
+    /// </summary>
+    bool IDrawsItems.DrawsItems => Style != PowerButtonStyle.Round;
+
     private static readonly StyleOption[] PowerStyles =
     [
         StyleOption.Of(PowerButtonStyle.Tile, Str.Styles_Toggles_Tile.Local(), 0xECA5),
