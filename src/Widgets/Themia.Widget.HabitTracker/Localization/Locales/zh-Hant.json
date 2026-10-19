@@ -1,7 +1,6 @@
 {
   "habitTracker.intervalLabel": "間隔",
   "habitTracker.lists.namePlaceholder": "清單名稱",
-  "habitTracker.resetDesc": "每個核取方塊多久清除一次",
   "styles.habits.cell": "{period}：{done}/{count}",
   "styles.habits.checklist": "檢查清單",
   "styles.habits.dots": "圓點",
@@ -32,9 +31,6 @@
   "widgetsB.habits.unreadable": "無法讀取習慣清單。",
   "widgetsB.habits.untitled": "未命名的習慣",
   "widgetsB.settings.habits.addList": "新增清單",
-  "widgetsB.settings.habits.clearsEvery": {
-    "other": "每 {count} 分鐘清除一次。"
-  },
   "widgetsB.settings.habits.customInterval": "自訂間隔",
   "widgetsB.settings.habits.dataFolder.desc": "習慣清單儲存在這台電腦的 habits.json 中",
   "widgetsB.settings.habits.dataFolder.label": "資料資料夾",
@@ -43,7 +39,6 @@
     "other": "將從此電腦中刪除「{name}」及其 {count} 個習慣和歷程記錄。此動作無法復原。"
   },
   "widgetsB.settings.habits.deleteList": "刪除此清單",
-  "widgetsB.settings.habits.deleteQuestion": "要刪除此清單嗎？",
   "widgetsB.settings.habits.everyDay": "每天",
   "widgetsB.settings.habits.everyHour": "每小時",
   "widgetsB.settings.habits.everyMonth": "每月",
@@ -51,14 +46,12 @@
   "widgetsB.settings.habits.habitCount": {
     "other": "{count} 個習慣"
   },
-  "widgetsB.settings.habits.history.desc": "以圓點顯示過去的週期；{zero} 表示隱藏",
   "widgetsB.settings.habits.history.label": "歷程記錄",
   "widgetsB.settings.habits.interval.desc": "每個時段的分鐘數，{min} 到 {max}",
   "widgetsB.settings.habits.list": "習慣清單",
   "widgetsB.settings.habits.listsUnavailable": "無法使用習慣清單。",
   "widgetsB.settings.habits.noLists": "此電腦上尚無習慣清單。",
   "widgetsB.settings.habits.resets.label": "重設",
-  "widgetsB.settings.habits.streaks.desc": "每個習慣目前的連續紀錄",
   "widgetsB.settings.habits.streaks.label": "顯示連續紀錄",
   "widgetsB.settings.habits.untitledList": "未命名的清單"
 }

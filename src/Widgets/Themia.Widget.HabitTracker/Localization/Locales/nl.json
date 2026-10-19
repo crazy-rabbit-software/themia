@@ -1,7 +1,6 @@
 {
   "habitTracker.intervalLabel": "Interval",
   "habitTracker.lists.namePlaceholder": "Lijstnaam",
-  "habitTracker.resetDesc": "Hoe vaak elk selectievakje wordt gewist",
   "styles.habits.cell": "{period}: {done} van {count}",
   "styles.habits.checklist": "Checklist",
   "styles.habits.dots": "Stippen",
@@ -32,10 +31,6 @@
   "widgetsB.habits.unreadable": "De gewoontelijsten konden niet worden gelezen.",
   "widgetsB.habits.untitled": "Naamloze gewoonte",
   "widgetsB.settings.habits.addList": "Een lijst toevoegen",
-  "widgetsB.settings.habits.clearsEvery": {
-    "one": "Wordt na {count} minuut gewist.",
-    "other": "Wordt om de {count} minuten gewist."
-  },
   "widgetsB.settings.habits.customInterval": "Aangepast interval",
   "widgetsB.settings.habits.dataFolder.desc": "De gewoontelijsten staan op deze pc in habits.json",
   "widgetsB.settings.habits.dataFolder.label": "Gegevensmap",
@@ -45,7 +40,6 @@
     "other": "“{name}” en de {count} gewoonten erin, met hun geschiedenis, worden van deze pc verwijderd. Dit kan niet ongedaan worden gemaakt."
   },
   "widgetsB.settings.habits.deleteList": "Deze lijst verwijderen",
-  "widgetsB.settings.habits.deleteQuestion": "Deze lijst verwijderen?",
   "widgetsB.settings.habits.everyDay": "Elke dag",
   "widgetsB.settings.habits.everyHour": "Elk uur",
   "widgetsB.settings.habits.everyMonth": "Elke maand",
@@ -54,14 +48,12 @@
     "one": "{count} gewoonte",
     "other": "{count} gewoonten"
   },
-  "widgetsB.settings.habits.history.desc": "Eerdere periodes als stippen; {zero} verbergt ze",
   "widgetsB.settings.habits.history.label": "Geschiedenis",
   "widgetsB.settings.habits.interval.desc": "Minuten per periode, {min} tot {max}",
   "widgetsB.settings.habits.list": "Gewoontelijst",
   "widgetsB.settings.habits.listsUnavailable": "Gewoontelijsten zijn niet beschikbaar.",
   "widgetsB.settings.habits.noLists": "Nog geen gewoontelijsten op deze pc.",
   "widgetsB.settings.habits.resets.label": "Opnieuw instellen",
-  "widgetsB.settings.habits.streaks.desc": "De reeks waarin elke gewoonte zit",
   "widgetsB.settings.habits.streaks.label": "Reeksen weergeven",
   "widgetsB.settings.habits.untitledList": "Naamloze lijst"
 }

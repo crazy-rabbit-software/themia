@@ -1,7 +1,6 @@
 {
   "habitTracker.intervalLabel": "Odstęp",
   "habitTracker.lists.namePlaceholder": "Nazwa listy",
-  "habitTracker.resetDesc": "Jak często każde pole się czyści",
   "styles.habits.cell": "{period}: {done} z {count}",
   "styles.habits.checklist": "Lista kontrolna",
   "styles.habits.dots": "Kropki",
@@ -32,12 +31,6 @@
   "widgetsB.habits.unreadable": "Nie można odczytać list nawyków.",
   "widgetsB.habits.untitled": "Nawyk bez nazwy",
   "widgetsB.settings.habits.addList": "Dodaj listę",
-  "widgetsB.settings.habits.clearsEvery": {
-    "one": "Czyszczone co {count} minutę.",
-    "few": "Czyszczone co {count} minuty.",
-    "many": "Czyszczone co {count} minut.",
-    "other": "Czyszczone co {count} minuty."
-  },
   "widgetsB.settings.habits.customInterval": "Własny interwał",
   "widgetsB.settings.habits.dataFolder.desc": "Listy nawyków są przechowywane na tym komputerze w pliku habits.json",
   "widgetsB.settings.habits.dataFolder.label": "Folder danych",
@@ -49,7 +42,6 @@
     "other": "Lista „{name}” i jej {count} nawyku wraz z historią zostaną usunięte z tego komputera. Tej operacji nie można cofnąć."
   },
   "widgetsB.settings.habits.deleteList": "Usuń tę listę",
-  "widgetsB.settings.habits.deleteQuestion": "Usunąć tę listę?",
   "widgetsB.settings.habits.everyDay": "Codziennie",
   "widgetsB.settings.habits.everyHour": "Co godzinę",
   "widgetsB.settings.habits.everyMonth": "Co miesiąc",
@@ -60,14 +52,12 @@
     "many": "{count} nawyków",
     "other": "{count} nawyku"
   },
-  "widgetsB.settings.habits.history.desc": "Minione okresy jako kropki; {zero} je ukrywa",
   "widgetsB.settings.habits.history.label": "Historia",
   "widgetsB.settings.habits.interval.desc": "Minuty na okres, od {min} do {max}",
   "widgetsB.settings.habits.list": "Lista nawyków",
   "widgetsB.settings.habits.listsUnavailable": "Listy nawyków są niedostępne.",
   "widgetsB.settings.habits.noLists": "Na tym komputerze nie ma jeszcze list nawyków.",
   "widgetsB.settings.habits.resets.label": "Resetowanie",
-  "widgetsB.settings.habits.streaks.desc": "Bieżąca seria każdego nawyku",
   "widgetsB.settings.habits.streaks.label": "Pokaż serie",
   "widgetsB.settings.habits.untitledList": "Lista bez nazwy"
 }

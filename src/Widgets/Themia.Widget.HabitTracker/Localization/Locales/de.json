@@ -1,7 +1,6 @@
 {
   "habitTracker.intervalLabel": "Intervall",
   "habitTracker.lists.namePlaceholder": "Listenname",
-  "habitTracker.resetDesc": "Wie oft jedes Kästchen geleert wird",
   "styles.habits.cell": "{period}: {done} von {count}",
   "styles.habits.checklist": "Checkliste",
   "styles.habits.dots": "Punkte",
@@ -32,10 +31,6 @@
   "widgetsB.habits.unreadable": "Die Gewohnheitslisten konnten nicht gelesen werden.",
   "widgetsB.habits.untitled": "Unbenannte Gewohnheit",
   "widgetsB.settings.habits.addList": "Liste hinzufügen",
-  "widgetsB.settings.habits.clearsEvery": {
-    "one": "Wird nach {count} Minute geleert.",
-    "other": "Wird alle {count} Minuten geleert."
-  },
   "widgetsB.settings.habits.customInterval": "Eigenes Intervall",
   "widgetsB.settings.habits.dataFolder.desc": "Die Gewohnheitslisten liegen auf diesem PC in habits.json",
   "widgetsB.settings.habits.dataFolder.label": "Datenordner",
@@ -45,7 +40,6 @@
     "other": "„{name}“ und seine {count} Gewohnheiten samt Verlauf werden von diesem PC gelöscht. Dies kann nicht rückgängig gemacht werden."
   },
   "widgetsB.settings.habits.deleteList": "Diese Liste löschen",
-  "widgetsB.settings.habits.deleteQuestion": "Diese Liste löschen?",
   "widgetsB.settings.habits.everyDay": "Jeden Tag",
   "widgetsB.settings.habits.everyHour": "Jede Stunde",
   "widgetsB.settings.habits.everyMonth": "Jeden Monat",
@@ -54,14 +48,12 @@
     "one": "{count} Gewohnheit",
     "other": "{count} Gewohnheiten"
   },
-  "widgetsB.settings.habits.history.desc": "Vergangene Zeiträume als Punkte; {zero} blendet sie aus",
   "widgetsB.settings.habits.history.label": "Verlauf",
   "widgetsB.settings.habits.interval.desc": "Minuten pro Zeitraum, {min} bis {max}",
   "widgetsB.settings.habits.list": "Gewohnheitsliste",
   "widgetsB.settings.habits.listsUnavailable": "Gewohnheitslisten sind nicht verfügbar.",
   "widgetsB.settings.habits.noLists": "Noch keine Gewohnheitslisten auf diesem PC.",
   "widgetsB.settings.habits.resets.label": "Zurücksetzen",
-  "widgetsB.settings.habits.streaks.desc": "Die aktuelle Serie jeder Gewohnheit",
   "widgetsB.settings.habits.streaks.label": "Serien anzeigen",
   "widgetsB.settings.habits.untitledList": "Unbenannte Liste"
 }

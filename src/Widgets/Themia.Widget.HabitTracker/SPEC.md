@@ -3,17 +3,17 @@
 The module `habitTracker` ([S-6911]): one of the habit lists kept on this PC. Its tags are this file's
 alone; the root `SPEC.md` holds the host's sections and what the lists share, with their root tags:
 the device-wide lists and `habits.json` ([S-1420], the host's `HabitPool` behind `IWidgetHost.Habits`
-and, for the settings page, `SettingsHost.Habits`), ticking ([S-1421]), the reset periods and their
+and, for the properties menu, `SettingsHost.Habits`), ticking ([S-1421]), the reset periods and their
 keys ([S-1422]), the streak and best run ([S-1423], [S-1424]) and the history dots ([S-1426]); the
 rules are the SDK's `HabitLists`, `HabitRules` and `HabitPeriods`, the file's store Core's
 `HabitListStore`. The add footer is the SDK's `AddFooterRow` ([S-3850]), shared with the task list.
 
 Owning files: everything in this folder: `HabitTrackerModule.cs` (descriptor, glyph, view factory,
-settings rows, JSON context), `HabitTrackerConfig.cs` (the list shown, its styles, period and
+menu lines, JSON context), `HabitTrackerConfig.cs` (the list shown, its styles, period and
 history), `HabitTrackerView.cs` (the list through its host) with `.Rows.cs` (the rows, the editor, the
 keys), `.Drag.cs` (reordering) and `.Heatmap.cs` (the heatmap style), `HabitLayout.cs` (the ladder and
-the key map), `HabitDrag.cs`, `HabitHeatmap.cs`, `HabitTrackerSettings.cs` (its page: the lists, the
-period, the data folder through `SettingsHost.Launcher`), `Preview/` (Debug renders:
+the key map), `HabitDrag.cs`, `HabitHeatmap.cs`, `HabitTrackerMenu.cs` (its properties-menu lines: the
+lists, the period, the data folder through `SettingsHost.Launcher`), `Preview/` (Debug renders:
 `--state sample|habits|few|empty`, over lists held in memory, `PreviewHabitLists`),
 `Localization/Locales/` (its own `HabitTrackerStr`, 30 languages, its style names included). Tests:
 `Tests/` (run by `tests/Themia.Modules.Tests`); its config and ladder under the root's rules are the
@@ -26,7 +26,7 @@ module host's `HabitHostTests` and `SettingRulesTests`.
   `ItemMenu`) has Done/Not done, Rename, Delete (danger,
   no dialog). A habit is moved by dragging ([S-1621]) or with Alt+Shift+Up / Down on the focused row
   ([S-3802]); no menu has Move up / Move down.
-  The settings page holds no habit editor (original S-23).
+  The properties menu holds no habit editor (original S-23).
 - **[S-1427]** Ladder (`HabitLayout.Plan`): XS box + name, two rows → S + run (number) → M + dots
   and the add footer ([S-3850], pinned at the bottom; always under an empty list) → Wide + run in words and a 7-period rate per row → L all of that → XL + best run
   per row. Rows are 40px (32 on a Compact side); the viewport holds whole rows and the rest scroll.
@@ -39,13 +39,21 @@ module host's `HabitHostTests` and `SettingRulesTests`.
   row past the last. Not verified live: needs a manual pass on the desktop.
 - **[S-1982]** Space ticks the focused habit as Enter does, and Page Up / Page Down jump ten rows
   (`HabitLayout.Decide`, clamped; from no row, the first).
-- **[S-1429]** Settings: the list picker/editor (pick, rename as typed, habit count, add, delete
-  — always confirmed, empty or not, original S-24), Resets, Interval (custom only), Show streaks,
-  History (both for the Dots style only, [S-6408]). Renaming a list retitles every widget showing it.
+- **[S-1429]** Its options are all on the properties menu ([S-3719], user request 2026-10-19); it
+  has no settings page. Under Style, for the Dots style only ([S-6408]): **Show streaks** (a switch)
+  and **History** (typed, 0–31 periods, 0 hides the strip, [S-3726]). Then Appearance ([S-3723]),
+  **Habit list** (the list shown at the end of its line; its submenu: the lists on this PC as a
+  choice of one, each with its habit count, the pool's problem or "no lists" as a note; then
+  Rename… and Delete this list for the list shown, and Add a list, which creates one and shows it;
+  deleting is always confirmed, empty or not, original S-24, the question naming what goes; all
+  greyed while the pool is read-only; without a pool a note says the lists are not available),
+  **Resets** (Every hour / day / week / month, Custom interval) and **Interval** (custom only, typed
+  and read by `HabitCadence.TryParseMinutes`, its reason under the box). Renaming a list retitles
+  every widget showing it. (Tests `HabitTrackerMenuTests`.)
 - **[S-6408]** Habits' styles ([S-6000]), `HabitTrackerConfig.Style` (`HabitTrackerStyle`,
   `"style": "dots"`): **Dots** (the rows of [S-1427]), **Heatmap** and **Checklist**, in that
   order, over the same list, log and cadence. Show streaks and History are the Dots style's own
-  (`HabitTrackerConfig.ShownSettings`, [S-6070]); the page offers them for it alone and keeps their values.
+  (`HabitTrackerConfig.ShownSettings`, [S-6070]); the menu offers them for it alone and keeps their values.
 - **[S-6409]** Heatmap (`HabitHeatmap`): GitHub's calendar over the log, columns of seven periods,
   the newest on the right. Under a daily cadence the rows are the weekdays from the language's first
   day, so a column is a calendar week and the days still to come this week are blank; any other
@@ -58,7 +66,8 @@ module host's `HabitHostTests` and `SettingRulesTests`.
 - **[S-6410]** Checklist: the current period only, each habit's box and name (`HabitLayoutInput.Checklist`):
   no run, dots, rate or best run at any size; the rows, the add footer and the keys are the Dots
   style's ([S-1427], [S-1428]).
-- **[S-1430]** Settings end with "Data folder" (issue #154): **Open in Explorer** opens the folder
+- **[S-1430]** The menu ends with "Data folder" (issue #154), a submenu of a note (where the lists
+  are kept) and **Open in Explorer**, which opens the folder
   holding `habits.json` (`IHabitLists.FilePath`, through `SettingsHost.Launcher.OpenContainingFolder`, so it is
   classified like every other launch), for a backup or another program. Off when the pool has no
   file (a debug render keeps it in memory).
@@ -74,5 +83,5 @@ module host's `HabitHostTests` and `SettingRulesTests`.
 
 Needs a manual pass: the widget on a live desktop ([S-1425], [S-1428], [S-1429], [S-1430], [S-1621]:
 a tick seen in a second widget of the same list, adding, renaming and deleting a habit in place, a
-drag, the keys through the lease, the settings page's lists and its data folder), never in a render or
+drag, the keys through the lease, the properties menu's lists and its data folder), never in a render or
 a test, which write no habits.json.

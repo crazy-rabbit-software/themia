@@ -1,7 +1,6 @@
 {
   "habitTracker.intervalLabel": "Intervallo",
   "habitTracker.lists.namePlaceholder": "Nome elenco",
-  "habitTracker.resetDesc": "Ogni quanto ogni casella si svuota",
   "styles.habits.cell": "{period}: {done} di {count}",
   "styles.habits.checklist": "Elenco di controllo",
   "styles.habits.dots": "Punti",
@@ -32,10 +31,6 @@
   "widgetsB.habits.unreadable": "Impossibile leggere gli elenchi di abitudini.",
   "widgetsB.habits.untitled": "Abitudine senza nome",
   "widgetsB.settings.habits.addList": "Aggiungi un elenco",
-  "widgetsB.settings.habits.clearsEvery": {
-    "one": "Si azzera ogni {count} minuto.",
-    "other": "Si azzera ogni {count} minuti."
-  },
   "widgetsB.settings.habits.customInterval": "Intervallo personalizzato",
   "widgetsB.settings.habits.dataFolder.desc": "Gli elenchi delle abitudini sono salvati su questo PC in habits.json",
   "widgetsB.settings.habits.dataFolder.label": "Cartella dei dati",
@@ -45,7 +40,6 @@
     "other": "\"{name}\" e le sue {count} abitudini, con la cronologia, verranno eliminati da questo PC. L’operazione non può essere annullata."
   },
   "widgetsB.settings.habits.deleteList": "Elimina questo elenco",
-  "widgetsB.settings.habits.deleteQuestion": "Eliminare questo elenco?",
   "widgetsB.settings.habits.everyDay": "Ogni giorno",
   "widgetsB.settings.habits.everyHour": "Ogni ora",
   "widgetsB.settings.habits.everyMonth": "Ogni mese",
@@ -54,14 +48,12 @@
     "one": "{count} abitudine",
     "other": "{count} abitudini"
   },
-  "widgetsB.settings.habits.history.desc": "Periodi passati come punti; {zero} li nasconde",
   "widgetsB.settings.habits.history.label": "Cronologia",
   "widgetsB.settings.habits.interval.desc": "Minuti per intervallo, da {min} a {max}",
   "widgetsB.settings.habits.list": "Elenco di abitudini",
   "widgetsB.settings.habits.listsUnavailable": "Gli elenchi di abitudini non sono disponibili.",
   "widgetsB.settings.habits.noLists": "Nessun elenco di abitudini su questo PC.",
   "widgetsB.settings.habits.resets.label": "Azzeramento",
-  "widgetsB.settings.habits.streaks.desc": "La serie di ogni abitudine",
   "widgetsB.settings.habits.streaks.label": "Mostra serie",
   "widgetsB.settings.habits.untitledList": "Elenco senza nome"
 }

@@ -1,7 +1,6 @@
 {
   "habitTracker.intervalLabel": "Интервал",
   "habitTracker.lists.namePlaceholder": "Название списка",
-  "habitTracker.resetDesc": "Как часто сбрасываются отметки",
   "styles.habits.cell": "{period}: {done} из {count}",
   "styles.habits.checklist": "Чек-лист",
   "styles.habits.dots": "Точки",
@@ -32,12 +31,6 @@
   "widgetsB.habits.unreadable": "Не удалось прочитать списки привычек.",
   "widgetsB.habits.untitled": "Привычка без названия",
   "widgetsB.settings.habits.addList": "Добавить список",
-  "widgetsB.settings.habits.clearsEvery": {
-    "one": "Сброс каждую {count} минуту.",
-    "few": "Сброс каждые {count} минуты.",
-    "many": "Сброс каждые {count} минут.",
-    "other": "Сброс каждые {count} минуты."
-  },
   "widgetsB.settings.habits.customInterval": "Свой интервал",
   "widgetsB.settings.habits.dataFolder.desc": "Списки привычек хранятся на этом компьютере в файле habits.json",
   "widgetsB.settings.habits.dataFolder.label": "Папка данных",
@@ -49,7 +42,6 @@
     "other": "«{name}» и его {count} привычки вместе с историей будут удалены с этого ПК. Это нельзя отменить."
   },
   "widgetsB.settings.habits.deleteList": "Удалить этот список",
-  "widgetsB.settings.habits.deleteQuestion": "Удалить этот список?",
   "widgetsB.settings.habits.everyDay": "Каждый день",
   "widgetsB.settings.habits.everyHour": "Каждый час",
   "widgetsB.settings.habits.everyMonth": "Каждый месяц",
@@ -60,14 +52,12 @@
     "many": "{count} привычек",
     "other": "{count} привычки"
   },
-  "widgetsB.settings.habits.history.desc": "Прошлые периоды точками; {zero} скрывает их",
   "widgetsB.settings.habits.history.label": "История",
   "widgetsB.settings.habits.interval.desc": "Минут в интервале, от {min} до {max}",
   "widgetsB.settings.habits.list": "Список привычек",
   "widgetsB.settings.habits.listsUnavailable": "Списки привычек недоступны.",
   "widgetsB.settings.habits.noLists": "На этом ПК пока нет списков привычек.",
   "widgetsB.settings.habits.resets.label": "Сброс",
-  "widgetsB.settings.habits.streaks.desc": "Текущая серия каждой привычки",
   "widgetsB.settings.habits.streaks.label": "Показывать серии",
   "widgetsB.settings.habits.untitledList": "Список без названия"
 }

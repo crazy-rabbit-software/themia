@@ -2,7 +2,6 @@
   "$englishOnly": [],
   "habitTracker.intervalLabel": "Interval",
   "habitTracker.lists.namePlaceholder": "List name",
-  "habitTracker.resetDesc": "How often each checkbox clears",
   "styles.habits.cell": "{period}: {done} of {count}",
   "styles.habits.checklist": "Checklist",
   "styles.habits.dots": "Dots",
@@ -33,10 +32,6 @@
   "widgetsB.habits.unreadable": "The habit lists could not be read.",
   "widgetsB.habits.untitled": "Untitled habit",
   "widgetsB.settings.habits.addList": "Add a list",
-  "widgetsB.settings.habits.clearsEvery": {
-    "one": "Clears every minute.",
-    "other": "Clears every {count} minutes."
-  },
   "widgetsB.settings.habits.customInterval": "Custom interval",
   "widgetsB.settings.habits.dataFolder.desc": "The habit lists are kept on this PC in habits.json",
   "widgetsB.settings.habits.dataFolder.label": "Data folder",
@@ -46,7 +41,6 @@
     "other": "\"{name}\" and its {count} habits, with their history, will be deleted from this PC. This cannot be undone."
   },
   "widgetsB.settings.habits.deleteList": "Delete this list",
-  "widgetsB.settings.habits.deleteQuestion": "Delete this list?",
   "widgetsB.settings.habits.everyDay": "Every day",
   "widgetsB.settings.habits.everyHour": "Every hour",
   "widgetsB.settings.habits.everyMonth": "Every month",
@@ -55,14 +49,12 @@
     "one": "{count} habit",
     "other": "{count} habits"
   },
-  "widgetsB.settings.habits.history.desc": "Past periods as dots; {zero} hides them",
   "widgetsB.settings.habits.history.label": "History",
   "widgetsB.settings.habits.interval.desc": "Minutes per window, {min} to {max}",
   "widgetsB.settings.habits.list": "Habit list",
   "widgetsB.settings.habits.listsUnavailable": "Habit lists are not available.",
   "widgetsB.settings.habits.noLists": "No habit lists on this PC yet.",
   "widgetsB.settings.habits.resets.label": "Resets",
-  "widgetsB.settings.habits.streaks.desc": "The run each habit is on",
   "widgetsB.settings.habits.streaks.label": "Show streaks",
   "widgetsB.settings.habits.untitledList": "Untitled list"
 }

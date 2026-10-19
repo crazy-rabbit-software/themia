@@ -1,7 +1,6 @@
 {
   "habitTracker.intervalLabel": "અંતરાલ",
   "habitTracker.lists.namePlaceholder": "સૂચિનું નામ",
-  "habitTracker.resetDesc": "દરેક ચેકબૉક્સ કેટલી વાર સાફ થાય",
   "styles.habits.cell": "{period}: {count} માંથી {done}",
   "styles.habits.checklist": "ચેકલિસ્ટ",
   "styles.habits.dots": "બિંદુઓ",
@@ -32,10 +31,6 @@
   "widgetsB.habits.unreadable": "આદત સૂચિઓ વાંચી શકાઈ નહીં.",
   "widgetsB.habits.untitled": "શીર્ષક વિનાની આદત",
   "widgetsB.settings.habits.addList": "સૂચિ ઉમેરો",
-  "widgetsB.settings.habits.clearsEvery": {
-    "one": "દર {count} મિનિટે સાફ થાય છે.",
-    "other": "દર {count} મિનિટે સાફ થાય છે."
-  },
   "widgetsB.settings.habits.customInterval": "કસ્ટમ અંતરાલ",
   "widgetsB.settings.habits.dataFolder.desc": "ટેવોની યાદીઓ આ PC પર habits.json માં રાખવામાં આવે છે",
   "widgetsB.settings.habits.dataFolder.label": "ડેટા ફોલ્ડર",
@@ -45,7 +40,6 @@
     "other": "\"{name}\" અને તેની {count} આદતો, તેમના ઇતિહાસ સાથે, આ PC પરથી કાઢી નખાશે. આ પૂર્વવત્ કરી શકાશે નહીં."
   },
   "widgetsB.settings.habits.deleteList": "આ સૂચિ કાઢી નાખો",
-  "widgetsB.settings.habits.deleteQuestion": "આ સૂચિ કાઢી નાખીએ?",
   "widgetsB.settings.habits.everyDay": "દરરોજ",
   "widgetsB.settings.habits.everyHour": "દર કલાકે",
   "widgetsB.settings.habits.everyMonth": "દર મહિને",
@@ -54,14 +48,12 @@
     "one": "{count} આદત",
     "other": "{count} આદતો"
   },
-  "widgetsB.settings.habits.history.desc": "પાછલા સમયગાળા ટપકાં તરીકે; {zero} તેમને છુપાવે છે",
   "widgetsB.settings.habits.history.label": "ઇતિહાસ",
   "widgetsB.settings.habits.interval.desc": "પ્રતિ વિન્ડો મિનિટ, {min} થી {max}",
   "widgetsB.settings.habits.list": "આદત સૂચિ",
   "widgetsB.settings.habits.listsUnavailable": "આદત સૂચિઓ ઉપલબ્ધ નથી.",
   "widgetsB.settings.habits.noLists": "આ PC પર હજી કોઈ આદત સૂચિઓ નથી.",
   "widgetsB.settings.habits.resets.label": "રીસેટ",
-  "widgetsB.settings.habits.streaks.desc": "દરેક આદતનો ચાલુ સિલસિલો",
   "widgetsB.settings.habits.streaks.label": "સિલસિલા બતાવો",
   "widgetsB.settings.habits.untitledList": "શીર્ષક વિનાની સૂચિ"
 }

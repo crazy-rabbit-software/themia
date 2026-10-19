@@ -1,7 +1,6 @@
 {
   "habitTracker.intervalLabel": "अंतराल",
   "habitTracker.lists.namePlaceholder": "सूचीचे नाव",
-  "habitTracker.resetDesc": "प्रत्येक चेकबॉक्स किती वेळाने साफ होतो",
   "styles.habits.cell": "{period}: {count} पैकी {done}",
   "styles.habits.checklist": "तपासणी यादी",
   "styles.habits.dots": "ठिपके",
@@ -32,10 +31,6 @@
   "widgetsB.habits.unreadable": "सवयींच्या सूची वाचता आल्या नाहीत.",
   "widgetsB.habits.untitled": "शीर्षकहीन सवय",
   "widgetsB.settings.habits.addList": "सूची जोडा",
-  "widgetsB.settings.habits.clearsEvery": {
-    "one": "दर {count} मिनिटाला साफ होते.",
-    "other": "दर {count} मिनिटांनी साफ होते."
-  },
   "widgetsB.settings.habits.customInterval": "सानुकूल अंतराल",
   "widgetsB.settings.habits.dataFolder.desc": "सवयींच्या याद्या या PC वर habits.json मध्ये ठेवल्या जातात",
   "widgetsB.settings.habits.dataFolder.label": "डेटा फोल्डर",
@@ -45,7 +40,6 @@
     "other": "\"{name}\" आणि तिच्या {count} सवयी, त्यांच्या इतिहासासह, या PC वरून हटवल्या जातील. हे पूर्ववत करता येणार नाही."
   },
   "widgetsB.settings.habits.deleteList": "ही सूची हटवा",
-  "widgetsB.settings.habits.deleteQuestion": "ही सूची हटवायची?",
   "widgetsB.settings.habits.everyDay": "दररोज",
   "widgetsB.settings.habits.everyHour": "दर तासाला",
   "widgetsB.settings.habits.everyMonth": "दर महिन्याला",
@@ -54,14 +48,12 @@
     "one": "{count} सवय",
     "other": "{count} सवयी"
   },
-  "widgetsB.settings.habits.history.desc": "मागील कालावधी ठिपक्यांच्या रूपात; {zero} ते लपवते",
   "widgetsB.settings.habits.history.label": "इतिहास",
   "widgetsB.settings.habits.interval.desc": "प्रति कालखंड मिनिटे, {min} ते {max}",
   "widgetsB.settings.habits.list": "सवय सूची",
   "widgetsB.settings.habits.listsUnavailable": "सवय सूची उपलब्ध नाहीत.",
   "widgetsB.settings.habits.noLists": "या PC वर अद्याप सवय सूची नाहीत.",
   "widgetsB.settings.habits.resets.label": "रीसेट",
-  "widgetsB.settings.habits.streaks.desc": "प्रत्येक सवयीची चालू सलगता",
   "widgetsB.settings.habits.streaks.label": "सलगता दाखवा",
   "widgetsB.settings.habits.untitledList": "शीर्षकहीन सूची"
 }

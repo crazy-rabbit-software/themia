@@ -1,7 +1,6 @@
 {
   "habitTracker.intervalLabel": "Muda wa kipindi",
   "habitTracker.lists.namePlaceholder": "Jina la orodha",
-  "habitTracker.resetDesc": "Kila kisanduku cha kuteua hufutwa mara ngapi",
   "styles.habits.cell": "{period}: {done} kati ya {count}",
   "styles.habits.checklist": "Orodha ya kukagua",
   "styles.habits.dots": "Vitone",
@@ -32,10 +31,6 @@
   "widgetsB.habits.unreadable": "Orodha za mazoea hazikuweza kusomwa.",
   "widgetsB.habits.untitled": "Zoea lisilo na jina",
   "widgetsB.settings.habits.addList": "Ongeza orodha",
-  "widgetsB.settings.habits.clearsEvery": {
-    "one": "Hufutwa kila dakika {count}.",
-    "other": "Hufutwa kila dakika {count}."
-  },
   "widgetsB.settings.habits.customInterval": "Kipindi maalum",
   "widgetsB.settings.habits.dataFolder.desc": "Orodha za mazoea zinahifadhiwa kwenye PC hii katika habits.json",
   "widgetsB.settings.habits.dataFolder.label": "Folda ya data",
@@ -45,7 +40,6 @@
     "other": "\"{name}\" na mazoea yake {count}, pamoja na historia yake, vitafutwa kwenye Kompyuta hii. Hili haliwezi kutenduliwa."
   },
   "widgetsB.settings.habits.deleteList": "Futa orodha hii",
-  "widgetsB.settings.habits.deleteQuestion": "Futa orodha hii?",
   "widgetsB.settings.habits.everyDay": "Kila siku",
   "widgetsB.settings.habits.everyHour": "Kila saa",
   "widgetsB.settings.habits.everyMonth": "Kila mwezi",
@@ -54,14 +48,12 @@
     "one": "Zoea {count}",
     "other": "Mazoea {count}"
   },
-  "widgetsB.settings.habits.history.desc": "Vipindi vilivyopita kama vitone; {zero} huvificha",
   "widgetsB.settings.habits.history.label": "Historia",
   "widgetsB.settings.habits.interval.desc": "Dakika kwa kila kipindi, {min} hadi {max}",
   "widgetsB.settings.habits.list": "Orodha ya mazoea",
   "widgetsB.settings.habits.listsUnavailable": "Orodha za mazoea hazipatikani.",
   "widgetsB.settings.habits.noLists": "Bado hakuna orodha za mazoea kwenye Kompyuta hii.",
   "widgetsB.settings.habits.resets.label": "Huwekwa upya",
-  "widgetsB.settings.habits.streaks.desc": "Mfululizo ambao kila zoea liko",
   "widgetsB.settings.habits.streaks.label": "Onyesha mfululizo",
   "widgetsB.settings.habits.untitledList": "Orodha isiyo na jina"
 }

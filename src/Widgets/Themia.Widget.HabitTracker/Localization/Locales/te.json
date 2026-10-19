@@ -1,7 +1,6 @@
 {
   "habitTracker.intervalLabel": "విరామం",
   "habitTracker.lists.namePlaceholder": "జాబితా పేరు",
-  "habitTracker.resetDesc": "ప్రతి చెక్‌బాక్స్ ఎంత తరచుగా క్లియర్ అవుతుంది",
   "styles.habits.cell": "{period}: {count}లో {done}",
   "styles.habits.checklist": "చెక్‌లిస్ట్",
   "styles.habits.dots": "చుక్కలు",
@@ -32,10 +31,6 @@
   "widgetsB.habits.unreadable": "అలవాట్ల జాబితాలను చదవడం సాధ్యం కాలేదు.",
   "widgetsB.habits.untitled": "పేరులేని అలవాటు",
   "widgetsB.settings.habits.addList": "జాబితాను జోడించు",
-  "widgetsB.settings.habits.clearsEvery": {
-    "one": "ప్రతి {count} నిమిషానికి క్లియర్ అవుతుంది.",
-    "other": "ప్రతి {count} నిమిషాలకు క్లియర్ అవుతుంది."
-  },
   "widgetsB.settings.habits.customInterval": "అనుకూల విరామం",
   "widgetsB.settings.habits.dataFolder.desc": "అలవాట్ల జాబితాలు ఈ PCలో habits.jsonలో ఉంచబడతాయి",
   "widgetsB.settings.habits.dataFolder.label": "డేటా ఫోల్డర్",
@@ -45,7 +40,6 @@
     "other": "\"{name}\" మరియు దాని {count} అలవాట్లు, వాటి చరిత్రతో సహా, ఈ PC నుండి తొలగించబడతాయి. దీన్ని రద్దు చేయడం సాధ్యం కాదు."
   },
   "widgetsB.settings.habits.deleteList": "ఈ జాబితాను తొలగించు",
-  "widgetsB.settings.habits.deleteQuestion": "ఈ జాబితాను తొలగించాలా?",
   "widgetsB.settings.habits.everyDay": "ప్రతి రోజు",
   "widgetsB.settings.habits.everyHour": "ప్రతి గంట",
   "widgetsB.settings.habits.everyMonth": "ప్రతి నెల",
@@ -54,14 +48,12 @@
     "one": "{count} అలవాటు",
     "other": "{count} అలవాట్లు"
   },
-  "widgetsB.settings.habits.history.desc": "గత వ్యవధులు చుక్కలుగా; {zero} వాటిని దాచుతుంది",
   "widgetsB.settings.habits.history.label": "చరిత్ర",
   "widgetsB.settings.habits.interval.desc": "ప్రతి విండోకు నిమిషాలు, {min} నుండి {max}",
   "widgetsB.settings.habits.list": "అలవాట్ల జాబితా",
   "widgetsB.settings.habits.listsUnavailable": "అలవాట్ల జాబితాలు అందుబాటులో లేవు.",
   "widgetsB.settings.habits.noLists": "ఈ PCలో ఇంకా అలవాట్ల జాబితాలు లేవు.",
   "widgetsB.settings.habits.resets.label": "రీసెట్‌లు",
-  "widgetsB.settings.habits.streaks.desc": "ప్రతి అలవాటు ఉన్న వరుస",
   "widgetsB.settings.habits.streaks.label": "వరుసలను చూపించు",
   "widgetsB.settings.habits.untitledList": "పేరులేని జాబితా"
 }

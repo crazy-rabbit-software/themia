@@ -1,7 +1,6 @@
 {
   "habitTracker.intervalLabel": "الفاصل الزمني",
   "habitTracker.lists.namePlaceholder": "اسم القائمة",
-  "habitTracker.resetDesc": "عدد مرات مسح كل خانة اختيار",
   "styles.habits.cell": "{period}: {done} من {count}",
   "styles.habits.checklist": "قائمة تحقق",
   "styles.habits.dots": "نقاط",
@@ -32,14 +31,6 @@
   "widgetsB.habits.unreadable": "تعذرت قراءة قوائم العادات.",
   "widgetsB.habits.untitled": "عادة بلا عنوان",
   "widgetsB.settings.habits.addList": "إضافة قائمة",
-  "widgetsB.settings.habits.clearsEvery": {
-    "zero": "تُمسح كل {count} دقيقة.",
-    "one": "تُمسح كل {count} دقيقة.",
-    "two": "تُمسح كل {count} دقيقتين.",
-    "few": "تُمسح كل {count} دقائق.",
-    "many": "تُمسح كل {count} دقيقة.",
-    "other": "تُمسح كل {count} دقيقة."
-  },
   "widgetsB.settings.habits.customInterval": "فترة مخصصة",
   "widgetsB.settings.habits.dataFolder.desc": "تُحفظ قوائم العادات على هذا الكمبيوتر في habits.json",
   "widgetsB.settings.habits.dataFolder.label": "مجلد البيانات",
@@ -53,7 +44,6 @@
     "other": "سيُحذف «{name}» و{count} عادة فيه مع سجلها من هذا الكمبيوتر. لا يمكن التراجع عن ذلك."
   },
   "widgetsB.settings.habits.deleteList": "حذف هذه القائمة",
-  "widgetsB.settings.habits.deleteQuestion": "هل تريد حذف هذه القائمة؟",
   "widgetsB.settings.habits.everyDay": "كل يوم",
   "widgetsB.settings.habits.everyHour": "كل ساعة",
   "widgetsB.settings.habits.everyMonth": "كل شهر",
@@ -66,14 +56,12 @@
     "many": "{count} عادة",
     "other": "{count} عادة"
   },
-  "widgetsB.settings.habits.history.desc": "الفترات السابقة كنقاط؛ {zero} يخفيها",
   "widgetsB.settings.habits.history.label": "السجل",
   "widgetsB.settings.habits.interval.desc": "الدقائق لكل فترة، من {min} إلى {max}",
   "widgetsB.settings.habits.list": "قائمة العادات",
   "widgetsB.settings.habits.listsUnavailable": "قوائم العادات غير متاحة.",
   "widgetsB.settings.habits.noLists": "لا توجد قوائم عادات على هذا الكمبيوتر بعد.",
   "widgetsB.settings.habits.resets.label": "إعادة التعيين",
-  "widgetsB.settings.habits.streaks.desc": "السلسلة الحالية لكل عادة",
   "widgetsB.settings.habits.streaks.label": "إظهار السلاسل المتتالية",
   "widgetsB.settings.habits.untitledList": "قائمة بلا عنوان"
 }

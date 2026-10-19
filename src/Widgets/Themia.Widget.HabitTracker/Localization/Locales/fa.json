@@ -1,7 +1,6 @@
 {
   "habitTracker.intervalLabel": "بازه",
   "habitTracker.lists.namePlaceholder": "نام فهرست",
-  "habitTracker.resetDesc": "هر کادر علامت هر چند وقت پاک شود",
   "styles.habits.cell": "{period}: {done} از {count}",
   "styles.habits.checklist": "چک‌لیست",
   "styles.habits.dots": "نقطه‌ها",
@@ -32,10 +31,6 @@
   "widgetsB.habits.unreadable": "فهرست‌های عادت خوانده نشدند.",
   "widgetsB.habits.untitled": "عادت بدون عنوان",
   "widgetsB.settings.habits.addList": "افزودن فهرست",
-  "widgetsB.settings.habits.clearsEvery": {
-    "one": "هر {count} دقیقه پاک می‌شود.",
-    "other": "هر {count} دقیقه پاک می‌شود."
-  },
   "widgetsB.settings.habits.customInterval": "بازه سفارشی",
   "widgetsB.settings.habits.dataFolder.desc": "فهرست‌های عادت در این رایانه در habits.json نگهداری می‌شوند",
   "widgetsB.settings.habits.dataFolder.label": "پوشهٔ داده‌ها",
@@ -45,7 +40,6 @@
     "other": "«{name}» و {count} عادت آن، همراه با سابقه‌شان، از این رایانه حذف می‌شوند. این کار قابل بازگشت نیست."
   },
   "widgetsB.settings.habits.deleteList": "حذف این فهرست",
-  "widgetsB.settings.habits.deleteQuestion": "این فهرست حذف شود؟",
   "widgetsB.settings.habits.everyDay": "هر روز",
   "widgetsB.settings.habits.everyHour": "هر ساعت",
   "widgetsB.settings.habits.everyMonth": "هر ماه",
@@ -54,14 +48,12 @@
     "one": "{count} عادت",
     "other": "{count} عادت"
   },
-  "widgetsB.settings.habits.history.desc": "دوره‌های گذشته به‌صورت نقطه؛ {zero} آن‌ها را پنهان می‌کند",
   "widgetsB.settings.habits.history.label": "سابقه",
   "widgetsB.settings.habits.interval.desc": "دقیقه برای هر بازه، از {min} تا {max}",
   "widgetsB.settings.habits.list": "فهرست عادت",
   "widgetsB.settings.habits.listsUnavailable": "فهرست‌های عادت در دسترس نیستند.",
   "widgetsB.settings.habits.noLists": "هنوز فهرست عادتی در این رایانه نیست.",
   "widgetsB.settings.habits.resets.label": "بازنشانی",
-  "widgetsB.settings.habits.streaks.desc": "پیوستگی فعلی هر عادت",
   "widgetsB.settings.habits.streaks.label": "نمایش پیوستگی‌ها",
   "widgetsB.settings.habits.untitledList": "فهرست بدون عنوان"
 }

@@ -1,7 +1,6 @@
 {
   "habitTracker.intervalLabel": "ช่วงเวลา",
   "habitTracker.lists.namePlaceholder": "ชื่อรายการ",
-  "habitTracker.resetDesc": "ความถี่ในการล้างช่องทำเครื่องหมายแต่ละช่อง",
   "styles.habits.cell": "{period}: {done} จาก {count}",
   "styles.habits.checklist": "รายการตรวจสอบ",
   "styles.habits.dots": "จุด",
@@ -32,9 +31,6 @@
   "widgetsB.habits.unreadable": "ไม่สามารถอ่านรายการนิสัยได้",
   "widgetsB.habits.untitled": "นิสัยที่ไม่มีชื่อ",
   "widgetsB.settings.habits.addList": "เพิ่มรายการ",
-  "widgetsB.settings.habits.clearsEvery": {
-    "other": "ล้างทุก {count} นาที"
-  },
   "widgetsB.settings.habits.customInterval": "ช่วงเวลาที่กำหนดเอง",
   "widgetsB.settings.habits.dataFolder.desc": "รายการนิสัยถูกเก็บไว้ในพีซีเครื่องนี้ใน habits.json",
   "widgetsB.settings.habits.dataFolder.label": "โฟลเดอร์ข้อมูล",
@@ -43,7 +39,6 @@
     "other": "\"{name}\" และ {count} นิสัยในรายการ พร้อมประวัติ จะถูกลบออกจากพีซีเครื่องนี้ การดำเนินการนี้ไม่สามารถเลิกทำได้"
   },
   "widgetsB.settings.habits.deleteList": "ลบรายการนี้",
-  "widgetsB.settings.habits.deleteQuestion": "ลบรายการนี้หรือไม่",
   "widgetsB.settings.habits.everyDay": "ทุกวัน",
   "widgetsB.settings.habits.everyHour": "ทุกชั่วโมง",
   "widgetsB.settings.habits.everyMonth": "ทุกเดือน",
@@ -51,14 +46,12 @@
   "widgetsB.settings.habits.habitCount": {
     "other": "{count} นิสัย"
   },
-  "widgetsB.settings.habits.history.desc": "ช่วงที่ผ่านมาเป็นจุด {zero} จะซ่อนไว้",
   "widgetsB.settings.habits.history.label": "ประวัติ",
   "widgetsB.settings.habits.interval.desc": "นาทีต่อช่วง {min} ถึง {max}",
   "widgetsB.settings.habits.list": "รายการนิสัย",
   "widgetsB.settings.habits.listsUnavailable": "รายการนิสัยไม่พร้อมใช้งาน",
   "widgetsB.settings.habits.noLists": "ยังไม่มีรายการนิสัยบนพีซีเครื่องนี้",
   "widgetsB.settings.habits.resets.label": "รีเซ็ต",
-  "widgetsB.settings.habits.streaks.desc": "สถิติต่อเนื่องปัจจุบันของแต่ละนิสัย",
   "widgetsB.settings.habits.streaks.label": "แสดงสถิติต่อเนื่อง",
   "widgetsB.settings.habits.untitledList": "รายการที่ไม่มีชื่อ"
 }

@@ -1,7 +1,6 @@
 {
   "habitTracker.intervalLabel": "间隔",
   "habitTracker.lists.namePlaceholder": "清单名称",
-  "habitTracker.resetDesc": "每个复选框多久清空一次",
   "styles.habits.cell": "{period}：{done}/{count}",
   "styles.habits.checklist": "清单",
   "styles.habits.dots": "圆点",
@@ -32,9 +31,6 @@
   "widgetsB.habits.unreadable": "无法读取习惯列表。",
   "widgetsB.habits.untitled": "未命名习惯",
   "widgetsB.settings.habits.addList": "添加列表",
-  "widgetsB.settings.habits.clearsEvery": {
-    "other": "每 {count} 分钟清除一次。"
-  },
   "widgetsB.settings.habits.customInterval": "自定义间隔",
   "widgetsB.settings.habits.dataFolder.desc": "习惯列表保存在此电脑的 habits.json 中",
   "widgetsB.settings.habits.dataFolder.label": "数据文件夹",
@@ -43,7 +39,6 @@
     "other": "将从此电脑中删除“{name}”及其 {count} 个习惯和历史记录。此操作无法撤消。"
   },
   "widgetsB.settings.habits.deleteList": "删除此列表",
-  "widgetsB.settings.habits.deleteQuestion": "删除此列表？",
   "widgetsB.settings.habits.everyDay": "每天",
   "widgetsB.settings.habits.everyHour": "每小时",
   "widgetsB.settings.habits.everyMonth": "每月",
@@ -51,14 +46,12 @@
   "widgetsB.settings.habits.habitCount": {
     "other": "{count} 个习惯"
   },
-  "widgetsB.settings.habits.history.desc": "以圆点显示过去的周期；{zero} 隐藏",
   "widgetsB.settings.habits.history.label": "历史记录",
   "widgetsB.settings.habits.interval.desc": "每个时段的分钟数，{min} 到 {max}",
   "widgetsB.settings.habits.list": "习惯列表",
   "widgetsB.settings.habits.listsUnavailable": "习惯列表不可用。",
   "widgetsB.settings.habits.noLists": "此电脑上还没有习惯列表。",
   "widgetsB.settings.habits.resets.label": "重置",
-  "widgetsB.settings.habits.streaks.desc": "每个习惯当前的连续记录",
   "widgetsB.settings.habits.streaks.label": "显示连续记录",
   "widgetsB.settings.habits.untitledList": "未命名列表"
 }

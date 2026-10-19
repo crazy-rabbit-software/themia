@@ -1,7 +1,6 @@
 {
   "habitTracker.intervalLabel": "ব্যবধান",
   "habitTracker.lists.namePlaceholder": "তালিকার নাম",
-  "habitTracker.resetDesc": "প্রতিটি চেকবক্স কত ঘন ঘন খালি হয়",
   "styles.habits.cell": "{period}: {count}টির মধ্যে {done}টি",
   "styles.habits.checklist": "চেকলিস্ট",
   "styles.habits.dots": "বিন্দু",
@@ -32,10 +31,6 @@
   "widgetsB.habits.unreadable": "অভ্যাসের তালিকা পড়া যায়নি।",
   "widgetsB.habits.untitled": "শিরোনামহীন অভ্যাস",
   "widgetsB.settings.habits.addList": "একটি তালিকা যোগ করুন",
-  "widgetsB.settings.habits.clearsEvery": {
-    "one": "প্রতি {count} মিনিটে খালি হয়।",
-    "other": "প্রতি {count} মিনিটে খালি হয়।"
-  },
   "widgetsB.settings.habits.customInterval": "কাস্টম ব্যবধান",
   "widgetsB.settings.habits.dataFolder.desc": "অভ্যাসের তালিকাগুলো এই PC-তে habits.json-এ রাখা হয়",
   "widgetsB.settings.habits.dataFolder.label": "ডেটা ফোল্ডার",
@@ -45,7 +40,6 @@
     "other": "\"{name}\" ও এর {count}টি অভ্যাস, ইতিহাসসহ, এই PC থেকে মুছে ফেলা হবে। এটি আর ফেরানো যাবে না।"
   },
   "widgetsB.settings.habits.deleteList": "এই তালিকা মুছুন",
-  "widgetsB.settings.habits.deleteQuestion": "এই তালিকা মুছবেন?",
   "widgetsB.settings.habits.everyDay": "প্রতিদিন",
   "widgetsB.settings.habits.everyHour": "প্রতি ঘণ্টায়",
   "widgetsB.settings.habits.everyMonth": "প্রতি মাসে",
@@ -54,14 +48,12 @@
     "one": "{count}টি অভ্যাস",
     "other": "{count}টি অভ্যাস"
   },
-  "widgetsB.settings.habits.history.desc": "অতীতের সময়কাল বিন্দু হিসেবে; {zero} দিলে লুকায়",
   "widgetsB.settings.habits.history.label": "ইতিহাস",
   "widgetsB.settings.habits.interval.desc": "প্রতি ব্যবধানে মিনিট, {min} থেকে {max}",
   "widgetsB.settings.habits.list": "অভ্যাসের তালিকা",
   "widgetsB.settings.habits.listsUnavailable": "অভ্যাসের তালিকা উপলব্ধ নয়।",
   "widgetsB.settings.habits.noLists": "এই PC-তে এখনও কোনো অভ্যাসের তালিকা নেই।",
   "widgetsB.settings.habits.resets.label": "রিসেট হয়",
-  "widgetsB.settings.habits.streaks.desc": "প্রতিটি অভ্যাস কত টানা চলছে",
   "widgetsB.settings.habits.streaks.label": "ধারা দেখান",
   "widgetsB.settings.habits.untitledList": "শিরোনামহীন তালিকা"
 }

@@ -1,7 +1,6 @@
 {
   "habitTracker.intervalLabel": "間隔",
   "habitTracker.lists.namePlaceholder": "リスト名",
-  "habitTracker.resetDesc": "各チェックがリセットされる頻度",
   "styles.habits.cell": "{period}: {count} 件中 {done} 件",
   "styles.habits.checklist": "チェックリスト",
   "styles.habits.dots": "ドット",
@@ -32,9 +31,6 @@
   "widgetsB.habits.unreadable": "習慣リストを読み取れませんでした。",
   "widgetsB.habits.untitled": "無題の習慣",
   "widgetsB.settings.habits.addList": "リストを追加",
-  "widgetsB.settings.habits.clearsEvery": {
-    "other": "{count} 分ごとにクリアされます。"
-  },
   "widgetsB.settings.habits.customInterval": "カスタム間隔",
   "widgetsB.settings.habits.dataFolder.desc": "習慣リストはこの PC の habits.json に保存されています",
   "widgetsB.settings.habits.dataFolder.label": "データ フォルダー",
@@ -43,7 +39,6 @@
     "other": "\"{name}\" と {count} 個の習慣、その履歴がこの PC から削除されます。この操作は元に戻せません。"
   },
   "widgetsB.settings.habits.deleteList": "このリストを削除",
-  "widgetsB.settings.habits.deleteQuestion": "このリストを削除しますか?",
   "widgetsB.settings.habits.everyDay": "毎日",
   "widgetsB.settings.habits.everyHour": "1 時間ごと",
   "widgetsB.settings.habits.everyMonth": "毎月",
@@ -51,14 +46,12 @@
   "widgetsB.settings.habits.habitCount": {
     "other": "{count} 個の習慣"
   },
-  "widgetsB.settings.habits.history.desc": "過去の期間を点で表示。{zero} で非表示",
   "widgetsB.settings.habits.history.label": "履歴",
   "widgetsB.settings.habits.interval.desc": "期間ごとの分数（{min}～{max}）",
   "widgetsB.settings.habits.list": "習慣リスト",
   "widgetsB.settings.habits.listsUnavailable": "習慣リストは利用できません。",
   "widgetsB.settings.habits.noLists": "この PC にはまだ習慣リストがありません。",
   "widgetsB.settings.habits.resets.label": "リセット",
-  "widgetsB.settings.habits.streaks.desc": "各習慣の現在の連続記録",
   "widgetsB.settings.habits.streaks.label": "連続記録を表示",
   "widgetsB.settings.habits.untitledList": "無題のリスト"
 }

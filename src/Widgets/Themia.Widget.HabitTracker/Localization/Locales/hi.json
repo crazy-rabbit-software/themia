@@ -1,7 +1,6 @@
 {
   "habitTracker.intervalLabel": "अंतराल",
   "habitTracker.lists.namePlaceholder": "सूची का नाम",
-  "habitTracker.resetDesc": "हर चेकबॉक्स कितनी बार साफ़ होता है",
   "styles.habits.cell": "{period}: {count} में से {done}",
   "styles.habits.checklist": "चेकलिस्ट",
   "styles.habits.dots": "बिंदु",
@@ -32,10 +31,6 @@
   "widgetsB.habits.unreadable": "आदत सूचियाँ पढ़ी नहीं जा सकीं।",
   "widgetsB.habits.untitled": "बिना शीर्षक आदत",
   "widgetsB.settings.habits.addList": "सूची जोड़ें",
-  "widgetsB.settings.habits.clearsEvery": {
-    "one": "हर {count} मिनट में साफ़ होती है।",
-    "other": "हर {count} मिनट में साफ़ होती है।"
-  },
   "widgetsB.settings.habits.customInterval": "कस्टम अंतराल",
   "widgetsB.settings.habits.dataFolder.desc": "आदतों की सूचियाँ इस PC पर habits.json में रखी जाती हैं",
   "widgetsB.settings.habits.dataFolder.label": "डेटा फ़ोल्डर",
@@ -45,7 +40,6 @@
     "other": "\"{name}\" और इसकी {count} आदतें, इतिहास सहित, इस PC से हटा दी जाएँगी। इसे पूर्ववत नहीं किया जा सकता।"
   },
   "widgetsB.settings.habits.deleteList": "यह सूची हटाएँ",
-  "widgetsB.settings.habits.deleteQuestion": "यह सूची हटाएँ?",
   "widgetsB.settings.habits.everyDay": "हर दिन",
   "widgetsB.settings.habits.everyHour": "हर घंटे",
   "widgetsB.settings.habits.everyMonth": "हर महीने",
@@ -54,14 +48,12 @@
     "one": "{count} आदत",
     "other": "{count} आदतें"
   },
-  "widgetsB.settings.habits.history.desc": "पिछली अवधियाँ बिंदुओं के रूप में; {zero} उन्हें छिपाता है",
   "widgetsB.settings.habits.history.label": "इतिहास",
   "widgetsB.settings.habits.interval.desc": "प्रति अवधि मिनट, {min} से {max}",
   "widgetsB.settings.habits.list": "आदत सूची",
   "widgetsB.settings.habits.listsUnavailable": "आदत सूचियाँ उपलब्ध नहीं हैं।",
   "widgetsB.settings.habits.noLists": "इस PC पर अभी कोई आदत सूची नहीं।",
   "widgetsB.settings.habits.resets.label": "रीसेट",
-  "widgetsB.settings.habits.streaks.desc": "हर आदत का मौजूदा सिलसिला",
   "widgetsB.settings.habits.streaks.label": "सिलसिले दिखाएँ",
   "widgetsB.settings.habits.untitledList": "बिना शीर्षक सूची"
 }

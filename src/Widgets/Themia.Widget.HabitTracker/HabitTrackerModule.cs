@@ -37,8 +37,9 @@ public sealed class HabitTrackerModule : IWidgetModule
         Add = new(AddFolderId.Notes, 1, 0),
     };
 
-    public void SettingsRows(WidgetSettingsRows rows, WidgetConfig config)
-        => HabitTrackerSettings.Rows(rows.Rows, (HabitTrackerConfig)config, rows.Save);
+    /// <summary>[S-3719] Every option is on the properties menu: the widget has no settings page.</summary>
+    public void MenuLines(WidgetMenuLines menu, WidgetConfig config)
+        => HabitTrackerMenu.Lines(menu, (HabitTrackerConfig)config, SettingsHost.Habits, file => SettingsHost.Launcher.OpenContainingFolder(file));
 
     public FrameworkElement CreateView(IWidgetHost host) => new HabitTrackerView(host);
 }

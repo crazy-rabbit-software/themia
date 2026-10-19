@@ -34,8 +34,9 @@ public sealed class NotesModule : IWidgetModule
         Add = new(AddFolderId.Notes, 0, 0, Popular: 6),
     };
 
-    public void SettingsRows(WidgetSettingsRows rows, WidgetConfig config)
-        => NotesSettings.Rows(rows.Rows, (NotesConfig)config, rows.Save);
+    /// <summary>[S-3719] Every option is on the properties menu: the widget has no settings page.</summary>
+    public void MenuLines(WidgetMenuLines menu, WidgetConfig config)
+        => NotesMenu.Lines(menu, (NotesConfig)config, SettingsHost.Notes, DateTimeOffset.Now);
 
     public FrameworkElement CreateView(IWidgetHost host) => new NotesView(host);
 }

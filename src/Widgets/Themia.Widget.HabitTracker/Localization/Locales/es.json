@@ -1,7 +1,6 @@
 {
   "habitTracker.intervalLabel": "Intervalo",
   "habitTracker.lists.namePlaceholder": "Nombre de la lista",
-  "habitTracker.resetDesc": "Cada cuánto se vacía cada casilla",
   "styles.habits.cell": "{period}: {done} de {count}",
   "styles.habits.checklist": "Lista de control",
   "styles.habits.dots": "Puntos",
@@ -32,10 +31,6 @@
   "widgetsB.habits.unreadable": "No se pudieron leer las listas de hábitos.",
   "widgetsB.habits.untitled": "Hábito sin nombre",
   "widgetsB.settings.habits.addList": "Agregar una lista",
-  "widgetsB.settings.habits.clearsEvery": {
-    "one": "Se borra cada {count} minuto.",
-    "other": "Se borra cada {count} minutos."
-  },
   "widgetsB.settings.habits.customInterval": "Intervalo personalizado",
   "widgetsB.settings.habits.dataFolder.desc": "Las listas de hábitos se guardan en este PC en habits.json",
   "widgetsB.settings.habits.dataFolder.label": "Carpeta de datos",
@@ -45,7 +40,6 @@
     "other": "\"{name}\" y sus {count} hábitos, con su historial, se eliminarán de este PC. Esta acción no se puede deshacer."
   },
   "widgetsB.settings.habits.deleteList": "Eliminar esta lista",
-  "widgetsB.settings.habits.deleteQuestion": "¿Eliminar esta lista?",
   "widgetsB.settings.habits.everyDay": "Cada día",
   "widgetsB.settings.habits.everyHour": "Cada hora",
   "widgetsB.settings.habits.everyMonth": "Cada mes",
@@ -54,14 +48,12 @@
     "one": "{count} hábito",
     "other": "{count} hábitos"
   },
-  "widgetsB.settings.habits.history.desc": "Periodos pasados como puntos; {zero} los oculta",
   "widgetsB.settings.habits.history.label": "Historial",
   "widgetsB.settings.habits.interval.desc": "Minutos por intervalo, de {min} a {max}",
   "widgetsB.settings.habits.list": "Lista de hábitos",
   "widgetsB.settings.habits.listsUnavailable": "Las listas de hábitos no están disponibles.",
   "widgetsB.settings.habits.noLists": "Aún no hay listas de hábitos en este PC.",
   "widgetsB.settings.habits.resets.label": "Se reinicia",
-  "widgetsB.settings.habits.streaks.desc": "La racha de cada hábito",
   "widgetsB.settings.habits.streaks.label": "Mostrar rachas",
   "widgetsB.settings.habits.untitledList": "Lista sin nombre"
 }

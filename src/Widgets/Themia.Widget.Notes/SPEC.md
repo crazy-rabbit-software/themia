@@ -5,17 +5,17 @@ tags are this file's alone; the root `SPEC.md` holds the host's sections and the
 tags: a note is a document the app owns ([S-1340]), atomic and single-writer files ([S-1341], the
 rename retried, [S-49]), ids by shape ([S-1342]), the index's trust boundary ([S-1343]), titles
 ([S-1344]), missing told from empty ([S-1345]) and the one pool ([S-1348], the host's `NotePool`
-behind `IWidgetHost.Notes` and, for the settings page, `SettingsHost.Notes`); `NoteStore` and the
+behind `IWidgetHost.Notes` and, for the properties menu, `SettingsHost.Notes`); `NoteStore` and the
 files stay Core's.
 
-Owning files: everything in this folder: `NotesModule.cs` (descriptor, view factory, settings rows,
+Owning files: everything in this folder: `NotesModule.cs` (descriptor, view factory, menu lines,
 JSON context), `NotesConfig.cs` (the note shown and its text size), `NotesView.cs` (the note through
 its host, the debounce, the header's title and bar) with `NotesView.Picker.cs` (the header's note
 picker), `MarkdownEditor.cs` (the editor), `Markdown/` (`NoteMarkdown`, `NoteEditing`, `NoteHistory`,
 `NoteText`: the grammar, the keys and commands, undo, the lines to redraw), `NotesLayout.cs` (the
-ladder and the header bar), `NotesSettings.cs` (its page), `Preview/` (Debug renders:
+ladder and the header bar), `NotesMenu.cs` (its properties-menu lines), `Preview/` (Debug renders:
 `--state sample|editing|confirm`), `Localization/Locales/` (its own `NotesStr`, 30 languages). Tests:
-`Tests/NoteMarkdownTests.cs`, `Tests/NoteEditingTests.cs`, `Tests/NotesLayoutTests.cs` (run by
+`Tests/NoteMarkdownTests.cs`, `Tests/NoteEditingTests.cs`, `Tests/NotesLayoutTests.cs`, `Tests/NotesMenuTests.cs` (run by
 `tests/Themia.Modules.Tests`); the store's are Core's `NoteStoreTests` and `LocalStoreFixtureTests`.
 
 - **[S-128]** The note is handed to the note pool on a 400 ms debounce and flushed on blur, on
@@ -37,12 +37,16 @@ ladder and the header bar), `NotesSettings.cs` (its page), `Preview/` (Debug ren
   the widget's label, else "Note") and saves the id. A preview card (a debug render) creates nothing: it
   shows an empty draft that is never saved (original S-32).
 - **[S-1347]** A widget whose note was deleted (anywhere) says "This note was deleted" and where to
-  pick another (settings, or the header's picker); it is never handed another note, and a pending edit to
+  pick another (the properties menu, or the header's picker); it is never handed another note, and a pending edit to
   it is dropped (original S-36).
-- **[S-1349]** Settings: one card per note (pick dot; title committed on Enter or blur, not per
-  keystroke; last-written age; delete behind a confirm), "New note" (creates and picks), and a line
-  when the shown note was deleted. The cards follow the pool while the page is on screen (original
-  S-38).
+- **[S-1349]** Its options are all on the properties menu ([S-3719], user request 2026-10-19); it
+  has no settings page. Appearance ([S-3723]), then **Note** (the note shown at the end of its line;
+  its submenu: a note when the shown note was deleted, the notes on this PC as a choice of one, each
+  with when it was last written, "no notes" as a note; then Rename… for the note shown, New note
+  (makes one and shows it) and Delete note, always confirmed, the question naming it; without a pool a
+  note says notes are not available), **Font size** (typed, 8–48 px, [S-3726]) and, under a divider,
+  **Clear note** ([S-130], confirmed, greyed while the note is empty). The menu is built again on
+  every change, so it follows the pool (original S-38). (Tests `NotesMenuTests`.)
 - **[S-1350]** Block syntax, one line each: `#`..`###` (a space after the hashes), `- ` `* ` `+ `
   bullets, `1. ` / `1) `, `> `, `---` `***` `___` rules, and fences (every line between two fence
   lines is code). Indent depth: two spaces or a tab a level, capped at 6 (original S-15).
@@ -109,4 +113,4 @@ ladder and the header bar), `NotesSettings.cs` (its page), `Preview/` (Debug ren
 Needs a manual pass: the widget on a live desktop ([S-128]..[S-130], [S-1346], [S-1347], [S-1349],
 [S-1364]..[S-1366]: typing saved and shown in a second widget of the same note, no fill or accent line on
 the focused text box, the header's picker and bar, Clear and Delete with their questions, an IME
-composition, the settings page's note cards), never in a render or a test, which save nothing.
+composition, the properties menu's notes), never in a render or a test, which save nothing.

@@ -1,7 +1,6 @@
 {
   "habitTracker.intervalLabel": "Chu kỳ",
   "habitTracker.lists.namePlaceholder": "Tên danh sách",
-  "habitTracker.resetDesc": "Tần suất mỗi ô đánh dấu được xóa",
   "styles.habits.cell": "{period}: {done}/{count}",
   "styles.habits.checklist": "Danh sách kiểm",
   "styles.habits.dots": "Chấm",
@@ -32,9 +31,6 @@
   "widgetsB.habits.unreadable": "Không đọc được danh sách thói quen.",
   "widgetsB.habits.untitled": "Thói quen không tên",
   "widgetsB.settings.habits.addList": "Thêm danh sách",
-  "widgetsB.settings.habits.clearsEvery": {
-    "other": "Xóa sau mỗi {count} phút."
-  },
   "widgetsB.settings.habits.customInterval": "Chu kỳ tùy chỉnh",
   "widgetsB.settings.habits.dataFolder.desc": "Danh sách thói quen được lưu trên PC này trong habits.json",
   "widgetsB.settings.habits.dataFolder.label": "Thư mục dữ liệu",
@@ -43,7 +39,6 @@
     "other": "\"{name}\" và {count} thói quen của nó, cùng lịch sử, sẽ bị xóa khỏi PC này. Không thể hoàn tác thao tác này."
   },
   "widgetsB.settings.habits.deleteList": "Xóa danh sách này",
-  "widgetsB.settings.habits.deleteQuestion": "Xóa danh sách này?",
   "widgetsB.settings.habits.everyDay": "Mỗi ngày",
   "widgetsB.settings.habits.everyHour": "Mỗi giờ",
   "widgetsB.settings.habits.everyMonth": "Mỗi tháng",
@@ -51,14 +46,12 @@
   "widgetsB.settings.habits.habitCount": {
     "other": "{count} thói quen"
   },
-  "widgetsB.settings.habits.history.desc": "Các kỳ trước dưới dạng chấm; {zero} sẽ ẩn chúng",
   "widgetsB.settings.habits.history.label": "Lịch sử",
   "widgetsB.settings.habits.interval.desc": "Số phút mỗi chu kỳ, từ {min} đến {max}",
   "widgetsB.settings.habits.list": "Danh sách thói quen",
   "widgetsB.settings.habits.listsUnavailable": "Danh sách thói quen không khả dụng.",
   "widgetsB.settings.habits.noLists": "Chưa có danh sách thói quen nào trên PC này.",
   "widgetsB.settings.habits.resets.label": "Đặt lại",
-  "widgetsB.settings.habits.streaks.desc": "Chuỗi liên tiếp hiện tại của mỗi thói quen",
   "widgetsB.settings.habits.streaks.label": "Hiện chuỗi",
   "widgetsB.settings.habits.untitledList": "Danh sách không tên"
 }

@@ -1,7 +1,6 @@
 {
   "habitTracker.intervalLabel": "간격",
   "habitTracker.lists.namePlaceholder": "목록 이름",
-  "habitTracker.resetDesc": "각 확인란이 초기화되는 빈도",
   "styles.habits.cell": "{period}: {count}개 중 {done}개",
   "styles.habits.checklist": "체크리스트",
   "styles.habits.dots": "점",
@@ -32,9 +31,6 @@
   "widgetsB.habits.unreadable": "습관 목록을 읽을 수 없습니다.",
   "widgetsB.habits.untitled": "제목 없는 습관",
   "widgetsB.settings.habits.addList": "목록 추가",
-  "widgetsB.settings.habits.clearsEvery": {
-    "other": "{count}분마다 초기화됩니다."
-  },
   "widgetsB.settings.habits.customInterval": "사용자 지정 간격",
   "widgetsB.settings.habits.dataFolder.desc": "습관 목록은 이 PC의 habits.json에 저장됩니다",
   "widgetsB.settings.habits.dataFolder.label": "데이터 폴더",
@@ -43,7 +39,6 @@
     "other": "\"{name}\"과(와) 해당 습관 {count}개 및 기록이 이 PC에서 삭제됩니다. 실행 취소할 수 없습니다."
   },
   "widgetsB.settings.habits.deleteList": "이 목록 삭제",
-  "widgetsB.settings.habits.deleteQuestion": "이 목록을 삭제할까요?",
   "widgetsB.settings.habits.everyDay": "매일",
   "widgetsB.settings.habits.everyHour": "매시간",
   "widgetsB.settings.habits.everyMonth": "매월",
@@ -51,14 +46,12 @@
   "widgetsB.settings.habits.habitCount": {
     "other": "습관 {count}개"
   },
-  "widgetsB.settings.habits.history.desc": "지난 기간을 점으로 표시합니다. {zero}이면 숨깁니다",
   "widgetsB.settings.habits.history.label": "기록",
   "widgetsB.settings.habits.interval.desc": "기간당 분({min}~{max})",
   "widgetsB.settings.habits.list": "습관 목록",
   "widgetsB.settings.habits.listsUnavailable": "습관 목록을 사용할 수 없습니다.",
   "widgetsB.settings.habits.noLists": "아직 이 PC에 습관 목록이 없습니다.",
   "widgetsB.settings.habits.resets.label": "초기화",
-  "widgetsB.settings.habits.streaks.desc": "각 습관의 현재 연속 기록",
   "widgetsB.settings.habits.streaks.label": "연속 기록 표시",
   "widgetsB.settings.habits.untitledList": "제목 없는 목록"
 }

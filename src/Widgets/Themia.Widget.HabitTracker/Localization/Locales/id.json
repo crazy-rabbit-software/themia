@@ -1,7 +1,6 @@
 {
   "habitTracker.intervalLabel": "Interval",
   "habitTracker.lists.namePlaceholder": "Nama daftar",
-  "habitTracker.resetDesc": "Seberapa sering setiap kotak centang dikosongkan",
   "styles.habits.cell": "{period}: {done} dari {count}",
   "styles.habits.checklist": "Daftar periksa",
   "styles.habits.dots": "Titik",
@@ -32,9 +31,6 @@
   "widgetsB.habits.unreadable": "Daftar kebiasaan tidak dapat dibaca.",
   "widgetsB.habits.untitled": "Kebiasaan tanpa judul",
   "widgetsB.settings.habits.addList": "Tambah daftar",
-  "widgetsB.settings.habits.clearsEvery": {
-    "other": "Dikosongkan setiap {count} menit."
-  },
   "widgetsB.settings.habits.customInterval": "Interval kustom",
   "widgetsB.settings.habits.dataFolder.desc": "Daftar kebiasaan disimpan di PC ini dalam habits.json",
   "widgetsB.settings.habits.dataFolder.label": "Folder data",
@@ -43,7 +39,6 @@
     "other": "\"{name}\" dan {count} kebiasaannya, beserta riwayatnya, akan dihapus dari PC ini. Tindakan ini tidak dapat dibatalkan."
   },
   "widgetsB.settings.habits.deleteList": "Hapus daftar ini",
-  "widgetsB.settings.habits.deleteQuestion": "Hapus daftar ini?",
   "widgetsB.settings.habits.everyDay": "Setiap hari",
   "widgetsB.settings.habits.everyHour": "Setiap jam",
   "widgetsB.settings.habits.everyMonth": "Setiap bulan",
@@ -51,14 +46,12 @@
   "widgetsB.settings.habits.habitCount": {
     "other": "{count} kebiasaan"
   },
-  "widgetsB.settings.habits.history.desc": "Periode lalu sebagai titik; {zero} menyembunyikannya",
   "widgetsB.settings.habits.history.label": "Riwayat",
   "widgetsB.settings.habits.interval.desc": "Menit per periode, {min} hingga {max}",
   "widgetsB.settings.habits.list": "Daftar kebiasaan",
   "widgetsB.settings.habits.listsUnavailable": "Daftar kebiasaan tidak tersedia.",
   "widgetsB.settings.habits.noLists": "Belum ada daftar kebiasaan di PC ini.",
   "widgetsB.settings.habits.resets.label": "Diatur ulang",
-  "widgetsB.settings.habits.streaks.desc": "Rentetan yang sedang dijalani setiap kebiasaan",
   "widgetsB.settings.habits.streaks.label": "Tampilkan rentetan",
   "widgetsB.settings.habits.untitledList": "Daftar tanpa judul"
 }
