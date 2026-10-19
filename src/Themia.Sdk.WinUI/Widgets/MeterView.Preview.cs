@@ -12,16 +12,30 @@ namespace Themia.App.Widgets;
 /// <c>sample</c> ([S-6300]) shows a fixed reading and the kind's fixed items, so every style
 /// renders the same picture on every machine. With <c>--tween p</c> the sample is drawn that far
 /// from a lower reading and shifted items ([S-6328]): every glide between two values, still.
+/// <c>unavailable</c> ([S-1940]) is the kind's reading for a thing not on this machine (no battery),
+/// for a kind that can be missing.
 /// </summary>
 public sealed partial class MeterView : IWidgetPreviewState
 {
-    public IReadOnlyList<string> PreviewStates { get; } = ["history", "sample"];
+    public IReadOnlyList<string> PreviewStates => _part.AbsentReading is null ? ["history", "sample"] : ["history", "sample", "unavailable"];
 
     public Task ShowPreviewStateAsync(string state)
     {
         if (state == "sample")
         {
             ShowSample();
+            return Task.CompletedTask;
+        }
+
+        if (state == "unavailable" && _part.AbsentReading is { } absent)
+        {
+            // The live series would put this machine's reading back.
+            _frozen = true;
+            _watch?.Dispose();
+            _watch = null;
+            _standIn = false;
+            Present(absent, settle: true);
+            Lay();
             return Task.CompletedTask;
         }
 

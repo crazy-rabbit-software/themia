@@ -113,7 +113,7 @@ public sealed partial class QuickToggleView
         var live = look is ToggleLook.On or ToggleLook.Off;
 
         // [S-6513] The tile is an item of the card's item layer, lit under the pointer while it works.
-        ItemFill.Paint(this, ItemRole.Row, live ? ItemFace() : ItemState.Rest);
+        ItemFill.Paint(this, ItemRole.Row, live ? ItemFace() : look == ToggleLook.Unavailable ? ItemState.Disabled : ItemState.Rest);
 
         Brush track;
         Brush edge;

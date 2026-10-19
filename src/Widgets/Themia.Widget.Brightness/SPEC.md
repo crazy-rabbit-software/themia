@@ -9,15 +9,17 @@ winning [S-4443]; the slider's look is the volume tile's (`VolumeRules`, [S-2731
 Owning files: everything in this folder: `BrightnessModule.cs` (descriptor, view factory, menu
 lines, JSON context), `BrightnessConfig.cs` (the screens it dims), `BrightnessView.cs` (the slider and
 the sun, the levels through `IWidgetHost.Brightness`, its own display through it too), `BrightnessMenu.cs`
-(its properties-menu lines), `Preview/` (Debug renders: `--state levels|dim|none|pending`), `Localization/Locales/` (its own
+(its properties-menu lines), `Preview/` (Debug renders: `--state levels|dim|unavailable|pending`), `Localization/Locales/` (its own
 `BrightnessStr`, 30 languages). Tests: its config under the root's rules is the module host's
 `WindowsPanelsHostTests`, its menu `Tests/BrightnessMenuTests.cs`.
 
 - **[S-4440]** Kind `Brightness` (123), add menu Devices & power ([S-3511]), 200×150, glyph the sun. One
   slider and the sun, no number, no display names (Karpo §35, §103: no flyout); a column stands it up
   as the volume tile ([S-2731]).
-- **[S-4445]** No display has a brightness: "No display brightness to set". Until the displays have
-  been looked at the widget draws its frame only.
+- **[S-4445]** No display has a brightness (or, with "Only the screen it's on", not that one): the sun
+  and the slider drawn disabled, the slider at the middle ([S-1940], [S-1941], user request 2026-10-19),
+  "No display brightness to set" as the tile's tooltip and the slider's name; no key or wheel moves it.
+  Until the displays have been looked at the widget draws its frame only.
 - **[S-4446]** Its options are all on the properties menu ([S-3719], user request 2026-10-19); it
   has no settings page. Appearance ([S-3723]), then **Screens it dims** (All screens / Only the
   screen it's on, [S-4442]).

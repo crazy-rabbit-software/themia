@@ -49,6 +49,9 @@ internal sealed partial class GpuView
         private NumberGlide? _number;
         private string _primary = string.Empty;
 
+        // [S-1940] No adapter at this index: drawn absent until a snapshot names one again.
+        private bool _absent;
+
         public Panel(int index)
         {
             _index = index;
@@ -126,10 +129,39 @@ internal sealed partial class GpuView
         }
 
         /// <summary>[S-430] The adapter's whole name, as the driver reports it, on the tile's tooltip (the header has the short one).</summary>
-        public void Name(GpuReading reading) => ToolTipService.SetToolTip(_root, reading.Name);
+        public void Name(GpuReading reading)
+        {
+            if (_absent)
+            {
+                // The stand-in line goes with the adapter's return; its own series fills the chart again.
+                _absent = false;
+                _spark.Clear();
+            }
+
+            UnavailableLook.Say(_root, reading.Name);
+        }
+
+        /// <summary>
+        /// [S-433] [S-1940] No adapter at all, or not the chosen one: the same tile in the disabled look —
+        /// "--", the history a flat line at the middle, the gauge at the middle ([S-1941]) — the reason on hover.
+        /// </summary>
+        public void Absent(string reason)
+        {
+            // The adapter's series reads nothing while it is not there; its readings do not undo this.
+            _absent = true;
+            _spark.Load(Unavailable.History(_spark.Holds));
+            ShowLoad(MeterReading.Missing(reason));
+            ShowAbsentEngines();
+            UnavailableLook.Say(_root, reason);
+        }
 
         private void OnUpdate(SeriesUpdate update)
         {
+            if (_absent)
+            {
+                return;
+            }
+
             ShowLoad(update.Reading);
 
             if (update.Point is { } point)
@@ -162,9 +194,14 @@ internal sealed partial class GpuView
                 _spark.SetBrush(Pressure(GpuRules.LoadPressure(percent)));
                 _dial?.SetBrush(Pressure(GpuRules.LoadPressure(percent)));
             }
+            else if (reading.Absent)
+            {
+                _spark.SetBrush(UnavailableLook.Fill);
+                _dial?.SetBrush(UnavailableLook.Fill);
+            }
 
-            // [S-6302] The gauge is the load's own share.
-            _dial?.SetFraction(reading.Available ? reading.Fraction : null);
+            // [S-6302] The gauge is the load's own share; [S-1941] the middle for an adapter not there.
+            _dial?.SetFraction(Unavailable.Fraction(reading));
         }
 
         /// <summary>[S-3860] The number and its smaller unit, split again only when the text changed.</summary>

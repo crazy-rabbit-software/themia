@@ -37,8 +37,7 @@ internal sealed partial class VolumeView : Grid, IWidgetView, IWidgetSizeAware, 
     private readonly Button _mute = new();
     private readonly FontIcon _muteIcon;
     private readonly Grid _band = new();
-    private readonly StackPanel _empty;
-    private readonly TextBlock _emptyText = new() { Text = VolumeStr.WidgetsC_Volume_NoDevice.Text() };
+    private readonly Microsoft.UI.Xaml.Media.Brush _iconBrush = ThemeBrush.Of("TextFillColorPrimaryBrush", Colors.White);
 
     /// <summary>
     /// The exact delegate instances the slider and the tile were hooked with. <c>RemoveHandler</c>
@@ -74,6 +73,13 @@ internal sealed partial class VolumeView : Grid, IWidgetView, IWidgetSizeAware, 
     private bool _grabbed;
 
     private bool _detached;
+
+#if DEBUG
+    // Debug renders: a fixture snapshot stands still; the live feed is not asked again over it.
+    private bool _frozen;
+#else
+    private const bool _frozen = false;
+#endif
 
     public VolumeView(IWidgetHost host)
     {
@@ -114,13 +120,9 @@ internal sealed partial class VolumeView : Grid, IWidgetView, IWidgetSizeAware, 
 
         _band.Children.Add(_mute);
         _band.Children.Add(_slider);
-
-        var definition = ModuleCatalog.Of(new WidgetId("volume"));
-        _empty = Fluent.EmptyState(definition.Glyph, _emptyText, out _);
-        _empty.Visibility = Visibility.Collapsed;
+        _band.Visibility = Visibility.Collapsed;
 
         Children.Add(_band);
-        Children.Add(_empty);
 
         Orient(VolumeAxis.Horizontal);
     }
@@ -244,7 +246,10 @@ internal sealed partial class VolumeView : Grid, IWidgetView, IWidgetSizeAware, 
             return;
         }
 
-        _feed.Want(new AudioWant(_config.DeviceId, Sessions: false));
+        if (!_frozen)
+        {
+            _feed.Want(new AudioWant(_config.DeviceId, Sessions: false));
+        }
 
         if (!_area.IsMeasured)
         {
@@ -258,17 +263,22 @@ internal sealed partial class VolumeView : Grid, IWidgetView, IWidgetSizeAware, 
             return;
         }
 
+        _band.Visibility = Visibility.Visible;
+
         if (snapshot.Status != AudioStatus.Ready || snapshot.Output is null)
         {
-            _emptyText.Text = snapshot.Status switch
+            // [S-1940] No device to set (none, the chosen one not connected, Core Audio not answering):
+            // the same slider and speaker, disabled at the middle ([S-1941]), the reason on hover.
+            UnavailableLook.Say(this, snapshot.Status switch
             {
                 AudioStatus.DeviceMissing => VolumeStr.WidgetsC_Volume_NotConnected.Format(("device", AudioRules.DeviceName(_config.DeviceId, snapshot.Devices, _config.DeviceName))),
                 AudioStatus.NoDevice => VolumeStr.WidgetsC_Volume_NoDevice.Text(),
                 _ => VolumeStr.WidgetsC_Volume_Unavailable.Text(),
-            };
-
-            _empty.Visibility = Visibility.Visible;
-            _band.Visibility = Visibility.Collapsed;
+            });
+            UnavailableLook.Enable(false, _slider, _mute);
+            _muteIcon.Foreground = UnavailableLook.Text;
+            ShowLevel(Unavailable.Share, muted: false);
+            ToolTipService.SetToolTip(_mute, null);
             return;
         }
 
@@ -281,14 +291,13 @@ internal sealed partial class VolumeView : Grid, IWidgetView, IWidgetSizeAware, 
             return;
         }
 
-        _empty.Visibility = Visibility.Collapsed;
-        _band.Visibility = Visibility.Visible;
+        UnavailableLook.Say(this, null);
+        _muteIcon.Foreground = _iconBrush;
 
         // Read-only is a state of the controls, not a reason to hide them: a greyed slider still
         // shows the level, and a tile that drops its slider when control is switched off looks
         // like a different widget.
-        _slider.IsEnabled = _config.AllowControl;
-        _mute.IsEnabled = _config.AllowControl;
+        UnavailableLook.Enable(_config.AllowControl, _slider, _mute);
 
         ShowLevel(level.Level, level.Muted);
     }

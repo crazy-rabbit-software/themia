@@ -33,8 +33,7 @@ internal sealed partial class BrightnessView : Grid, IWidgetView, IWidgetSizeAwa
     private readonly Slider _slider = new();
     private readonly FontIcon _sun;
     private readonly Grid _band = new();
-    private readonly StackPanel _empty;
-    private readonly TextBlock _emptyText = new();
+    private readonly Microsoft.UI.Xaml.Media.Brush _sunBrush = ThemeBrush.Of("TextFillColorPrimaryBrush", Colors.White);
 
     private readonly PointerEventHandler _grab;
     private readonly PointerEventHandler _release;
@@ -72,12 +71,9 @@ internal sealed partial class BrightnessView : Grid, IWidgetView, IWidgetSizeAwa
 
         _band.Children.Add(_sun);
         _band.Children.Add(_slider);
-
-        _empty = Fluent.EmptyState(Glyphs.Brightness, _emptyText, out _);
-        _empty.Visibility = Visibility.Collapsed;
+        _band.Visibility = Visibility.Collapsed;
 
         Children.Add(_band);
-        Children.Add(_empty);
 
         // The wheel anywhere on the tile, as on the volume tile.
         Background = ThemeBrush.Of("SubtleFillColorTransparentBrush", Colors.Transparent);
@@ -233,33 +229,30 @@ internal sealed partial class BrightnessView : Grid, IWidgetView, IWidgetSizeAwa
         {
             // Not looked at yet: the frame, never a wrong level (§11).
             _band.Visibility = Visibility.Collapsed;
-            _empty.Visibility = Visibility.Collapsed;
             return;
         }
 
-        if (Level() is not { } level)
-        {
-            // [S-4445] Nothing to set: none at all, or not the display this one is on.
-            _emptyText.Text = snapshot.Displays.Count == 0 ? BrightnessStr.Panels_Brightness_None.Text() : BrightnessStr.Panels_Brightness_OwnNone.Text();
-            _empty.Visibility = Visibility.Visible;
-            _band.Visibility = Visibility.Collapsed;
-            AutomationProperties.SetName(this, _emptyText.Text);
-            return;
-        }
-
-        _empty.Visibility = Visibility.Collapsed;
         _band.Visibility = Visibility.Visible;
+        var level = Level();
+
+        // [S-4445] [S-1940] Nothing to set (no display has a brightness, or not the one this is on):
+        // the same slider and sun, disabled at the middle ([S-1941]), the reason on hover.
+        var reason = level is not null ? null
+            : snapshot.Displays.Count == 0 ? BrightnessStr.Panels_Brightness_None.Text() : BrightnessStr.Panels_Brightness_OwnNone.Text();
+        UnavailableLook.Enable(level is not null, _slider);
+        _sun.Foreground = level is null ? UnavailableLook.Text : _sunBrush;
+        UnavailableLook.Say(this, reason);
 
         if (!_grabbed)
         {
             _echoing = true;
-            _slider.Value = level;
+            _slider.Value = Unavailable.Slider(level);
             _echoing = false;
         }
 
-        var words = BrightnessStr.Panels_Brightness_Level.Format(("level", Formatting.Percent(level / 100.0)));
+        var words = level is { } shown ? BrightnessStr.Panels_Brightness_Level.Format(("level", Formatting.Percent(shown / 100.0))) : reason;
         AutomationProperties.SetName(_slider, words);
-        ToolTipService.SetToolTip(_sun, words);
+        ToolTipService.SetToolTip(_sun, level is null ? null : words);
     }
 
     private void SetLevel(int level)

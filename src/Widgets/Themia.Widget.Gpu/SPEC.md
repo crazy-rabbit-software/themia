@@ -22,8 +22,10 @@ adapter, then the span every meter has), `Preview/` (Debug renders: `--state his
   `GpuConfig.Adapter`, a DXGI position (software adapters left out). DXGI lists the adapter driving
   the primary display first, so the default 0 is that one, else the first; a negative position is
   repaired to 0, loudly. The Adapter choice on the properties menu names each adapter and is offered only with two or more
-  (the GPU details' line, [S-2431]). A chosen adapter that is not there (an eGPU unplugged) is said
-  as a state. No panels, no stacking.
+  (the GPU details' line, [S-2431]). No adapter at all, or a chosen one that is not there (an eGPU
+  unplugged), draws the tile in the disabled look ([S-1940]): "--", the history a flat line at the
+  middle, the gauge at the middle, the engines "--" without a bar; the reason ("No graphics adapter",
+  "This adapter is not connected") is the tile's tooltip. No panels, no stacking. Render `--state unavailable`.
 - **[S-436]** Read on the hub's one cadence, every second ([S-2503]). Choosing another adapter
   watches that adapter's own series, so its history is its own.
 - **[S-6320]** GPU styles, `GpuConfig.Style` (`GpuStyle`): **Graph** ([S-430]), **Engines**

@@ -17,7 +17,9 @@ slider and the speaker through the shared `AudioFeed`), `VolumeMenu.cs` (its pro
   speaker button at the slider's start (glyph by level, crossed out when muted; click mutes, tooltip
   Mute/Unmute) and the 0..100 slider. No percentage, no level meter, no device name. The card header
   follows the shared header rules. Options ([S-2734]): output device and "Allow changes"; read-only greys the
-  controls rather than hiding them. Unavailable/missing device shows the empty state.
+  controls rather than hiding them. No device (none, the chosen one not connected, Core Audio not
+  answering) draws the speaker button and the slider disabled, the slider at the middle ([S-1940],
+  [S-1941]), the reason as the tile's tooltip; no key, wheel or click does anything. Renders `--state level|unavailable`.
 - **[S-2734]** Its options are all on the properties menu ([S-3719], user request 2026-10-19); it
   has no settings page. Appearance ([S-3723]), then **Output device** (the shared search of
   [S-1222]; only where there is a choice, [S-1236]), a divider, **Allow changes** (a switch) and,

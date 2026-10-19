@@ -30,7 +30,7 @@ internal sealed partial class SpectrumCanvas : Canvas
     private const double LineThickness = 2;
 
     private readonly AudioVisualizerStyle _style;
-    private readonly Brush _fill = ThemeBrush.Of("AccentFillColorDefaultBrush", Colors.DodgerBlue);
+    private readonly Brush _fill;
     private readonly float[] _grouped = new float[Spectrum.Bands];
     private VisualizerPlan _plan;
 
@@ -61,9 +61,11 @@ internal sealed partial class SpectrumCanvas : Canvas
     private readonly float[] _trace = new float[Oscilloscope.Points];
     private readonly float[] _scopePoints = new float[Oscilloscope.Points];
 
-    public SpectrumCanvas(AudioVisualizerStyle style)
+    /// <param name="available">[S-1940] False while the output cannot be captured: the same drawing in the disabled fill.</param>
+    public SpectrumCanvas(AudioVisualizerStyle style, bool available)
     {
         _style = style;
+        _fill = available ? ThemeBrush.Of("AccentFillColorDefaultBrush", Colors.DodgerBlue) : UnavailableLook.Fill;
         _plan = VisualizerLayout.Plan(default, style);
 
         var shapes = style switch

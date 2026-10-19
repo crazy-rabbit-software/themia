@@ -15,7 +15,9 @@ list through the shared `AudioFeed`), `MixerView.Row.cs` (a row: icon through th
 `Localization/Locales/` (its own `MixerStr`, 30 languages). Tests: its device choice beside the
 volume tile's is the module host's `AudioHostTests`, its menu `Tests/MixerMenuTests.cs`.
 
-- **[S-448]** No device: "No output device". No rows: "No app is playing audio". Failures are logged
+- **[S-448]** No device (none, the chosen one not connected, Core Audio not answering): one System
+  sounds row drawn disabled at the middle (`MixerRules.StandIn`, [S-1940]), no key, menu or write; the
+  reason ("No output device") is the tile's tooltip. Render `--state unavailable`. No rows on a device that is there: "No app is playing audio". Failures are logged
   once, and again only when they change.
 - **[S-449]** From 360 px a row is one line (name, slider, mute); narrower, the slider goes
   under the name; under 170 px a row is icon and mute ([S-2771]: no percent).

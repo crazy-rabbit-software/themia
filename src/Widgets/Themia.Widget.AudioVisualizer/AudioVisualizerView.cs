@@ -28,7 +28,6 @@ internal sealed partial class AudioVisualizerView : Grid, IWidgetView, IWidgetSi
 {
     private const string Scope = "visualizer";
 
-    private readonly StackPanel _unavailable;
     private AudioVisualizerStyle _style;
     private SpectrumCanvas _bars;
     private WidgetArea _area;
@@ -49,17 +48,12 @@ internal sealed partial class AudioVisualizerView : Grid, IWidgetView, IWidgetSi
     {
         _capture = host.Loopback;
         _style = AudioVisualizerStyle.Bars;
-        _bars = new SpectrumCanvas(_style);
+        _bars = new SpectrumCanvas(_style, available: true);
 
         // [S-1113] A spectrum is an axis (low to high), not text: left to right in every language.
         FlowDirection = Microsoft.UI.Xaml.FlowDirection.LeftToRight;
 
-        var message = new TextBlock { Text = AudioVisualizerStr.WidgetsC_Visualizer_Unavailable.Text() };
-        _unavailable = Fluent.EmptyState(ModuleCatalog.Of(new WidgetId("audioVisualizer")).Glyph, message, out _);
-        _unavailable.Visibility = Visibility.Collapsed;
-
         Children.Add(_bars);
-        Children.Add(_unavailable);
 
         Loaded += (_, _) => SyncCapture();
         Unloaded += (_, _) => SyncCapture();
@@ -90,7 +84,13 @@ internal sealed partial class AudioVisualizerView : Grid, IWidgetView, IWidgetSi
         }
 
         _style = style;
-        var next = new SpectrumCanvas(style) { Visibility = _bars.Visibility };
+        Redraw();
+    }
+
+    /// <summary>A new drawing for the style and the availability, laid out for the tile at once, from the newest frame.</summary>
+    private void Redraw()
+    {
+        var next = new SpectrumCanvas(_style, _available);
         Children[Children.IndexOf(_bars)] = next;
         _bars = next;
         _bars.Arrange(VisualizerLayout.Plan(_area, _style));
@@ -159,7 +159,10 @@ internal sealed partial class AudioVisualizerView : Grid, IWidgetView, IWidgetSi
         }
     }
 
-    /// <summary>[S-3204] The sentence instead of the bars only while the device cannot be reached.</summary>
+    /// <summary>
+    /// [S-3204] [S-1940] While the device cannot be reached: the idle baseline in the disabled fill, the
+    /// reason on hover; the spectrum comes back in the accent when the worker reaches it.
+    /// </summary>
     private void ShowAvailability(bool available)
     {
         if (_detached)
@@ -167,13 +170,21 @@ internal sealed partial class AudioVisualizerView : Grid, IWidgetView, IWidgetSi
             return;
         }
 
-        _available = available;
-        _bars.Visibility = available ? Visibility.Visible : Visibility.Collapsed;
-        _unavailable.Visibility = available ? Visibility.Collapsed : Visibility.Visible;
-
         if (!available)
         {
             _last = null;
+        }
+
+        UnavailableLook.Say(this, available ? null : AudioVisualizerStr.WidgetsC_Visualizer_Unavailable.Text());
+
+        if (available != _available)
+        {
+            _available = available;
+            Redraw();
+        }
+
+        if (!available)
+        {
             _bars.Clear();
         }
     }

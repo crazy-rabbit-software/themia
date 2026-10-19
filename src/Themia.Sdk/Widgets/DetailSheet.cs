@@ -53,8 +53,8 @@ public enum RowSymbol
 /// <param name="Facts">Most wanted first. A fact Windows does not report on this machine is left out, never "--".</param>
 /// <param name="Rows">The list, in display order.</param>
 /// <param name="Absent">
-/// [S-82a] The thing measured is not on this machine (no battery): the widget shows an empty state,
-/// not a sheet of "--".
+/// [S-82a] [S-1942] The thing measured is not on this machine (no battery): the sheet is the widget's own
+/// facts, each "--", drawn dimmed with <paramref name="Note"/> as the tooltip (<see cref="Unavailable.Sheet"/>).
 /// </param>
 /// <param name="Note">Why the sheet is empty or unavailable, for the empty state or the hero's tooltip.</param>
 /// <param name="HeroAvailable">False when the hero is "--": drawn dimmed.</param>
@@ -69,7 +69,4 @@ public sealed record DetailSheet(
 {
     /// <summary>Nothing read yet: a dimmed hero and no facts.</summary>
     public static DetailSheet Waiting { get; } = new("--", null, [], [], HeroAvailable: false);
-
-    /// <summary>[S-82a] Not on this machine.</summary>
-    public static DetailSheet Missing(string note) => new(null, null, [], [], Absent: true, Note: note);
 }

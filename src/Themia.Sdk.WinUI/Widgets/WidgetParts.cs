@@ -328,6 +328,9 @@ public sealed class StatPart
     /// <summary>The value's text block, for a caller that colours a reading that is not available.</summary>
     public TextBlock Figure => _figure;
 
+    /// <summary>The label's text block, for a caller that dims a fact of a thing not on this machine ([S-1942]).</summary>
+    public TextBlock Label => _name;
+
     /// <summary>Draw as a line or as a cell; nothing is touched when the shape is already this one.</summary>
     public StatPart Restyle(FactStyle style)
     {

@@ -15,7 +15,7 @@ Owning files: `Themia.Core/Geometry/*`, `Themia.Core/Model/*`, `Themia.Core/Stor
 
 Sections, grouped by area (file order below; search for the heading).
 
-- **Foundations.** Geometry model; Rendering; Grid snap aid; Constraints; Defaults & placement; Views & displays; Window layering; Transparency; Ticking; Live widgets and resource use (R6-RESOURCES); Memory; Persistence; Failure rules; Clipboard & transfer between displays; No backwards compatibility; Widget modules and the registry (MODULES); The widget kit (KIT); The service layer (SERVICES).
+- **Foundations.** Geometry model; Rendering; Grid snap aid; Constraints; Defaults & placement; Views & displays; Window layering; Transparency; Ticking; Live widgets and resource use (R6-RESOURCES); Memory; Persistence; Failure rules; Not on this machine (UNAVAILABLE); Clipboard & transfer between displays; No backwards compatibility; Widget modules and the registry (MODULES); The widget kit (KIT); The service layer (SERVICES).
 - **Shell, windows and settings.** Displays (WP2); Desktop integration and suspend (WP3); Appearance engine (WP1); Notices, resilience and undo (WP4); Widget picker: search (WP5); Multi-select and the placement session (MULTISELECT-PLACEMENT); Widget styles (STYLES); Context menus (R4-MENUS); Views and the view bar (WP8); The Displays and Views pages (R4-NAV, R5-PAGES); Icon picker and showcase views (R4-ICONS); Keyboard lease (WP11); Widget keys (WIDGET-KEYS); Item selection (ITEM-SELECTION); View links (VIEW-LINKS); Keyboard in the shell (SHELL-KEYS); Motion: intros, hyperspace, hacker (WP9-MOTION); Desktop surface drops (WP10-SURFACE); Opening a widget's app (R7-OPEN, retired); Shell hooks (PA); Removed widgets (R7-REMOVE); Shell skeleton and shared settings; Shared widget settings: region and updates (SETTINGS-AUDIT); Settings window: Windows 11 Settings; Settings navigation icons (NAV-ICONS); Logging (WP7); Network safety (WP6); Localization infrastructure (LOC-INFRA); Microsoft Store package and licensing; Gallery.
 - **Look and layout.** Rows and the card edge; Looking like Windows; The widget header; Responsive layout (shared foundation); Adding a widget; Layout pass over the ported widgets; Widget polish 1 (POLISH-1); Widget polish 2: leftover parity and layout gaps (POLISH-2); The Set up button (R5-SETUP).
 - **Accounts and sign-in.** Where account data comes from; Accounts and sign-in.
@@ -456,6 +456,35 @@ busy desktop ([S-6601]), Debug, private bytes.
   is the only toolbar action that cannot be undone and **Done** is the one next to it the user
   presses constantly.
 
+## Not on this machine (UNAVAILABLE)
+
+User request 2026-10-19: "if there is no brightness to set it should still show the slider just
+greyed out … do the same for the battery widget". Owning files: `Themia.Sdk/Widgets/Unavailable.cs`
+(the figures), `Themia.Sdk.WinUI/Widgets/UnavailableLook.cs` (the look). Tests `UnavailableTests`.
+
+- **[S-1940]** A widget whose subject is not on this machine (no battery, no display brightness, no
+  output device, no graphics adapter, an output the capture cannot reach, a quick setting Windows does
+  not offer here) draws its own content, the same ladder and parts as when the subject is there, in
+  Fluent's disabled look (`UnavailableLook`: `TextFillColorDisabledBrush` for text and glyphs,
+  `AccentFillColorDisabledBrush` for a level's fill, `ControlStrongStrokeColorDisabledBrush` for an
+  outline; its controls `IsEnabled = false`). Nothing on it takes a click, the wheel, a key or a menu;
+  the reason is the tile's tooltip and help text. No empty state replaces it. Not this rule: a widget
+  waiting for setup ([S-1862]), an online widget's states (the kit's), a list whose items are data that
+  is simply not there (Bluetooth devices, notifications, removable drives, a drive not connected:
+  their own states stay), and the properties menu (its options stay hidden where they change nothing).
+  As built: Brightness [S-4445], Volume, Mixer [S-448], Battery [S-6272], Battery details and GPU
+  details ([S-1942]), GPU [S-433], Audio visualizer [S-3206], the quick-setting toggles ([S-3904]: their
+  own item in its disabled state) and the power buttons (already so).
+- **[S-1941]** What the content stands at (`Unavailable`): a level part (a slider's thumb, a battery's
+  fill, a ring's sweep, a gauge, a meter's history) at the middle, `Share` 0.5 (`Percent` 50 on a
+  slider), claiming neither empty nor full; a number is never made up: the figure reads "--" ([S-82]).
+  Only a thing not on the machine stands at the middle; one that is there but unreadable right now is
+  [S-82]'s dimmed "--" with an empty part.
+- **[S-1942]** A detail widget's sheet for a thing not on this machine (`Unavailable.Sheet`): the hero
+  "--" and the facts it leads with when the thing is there, each "--", labels and figures dimmed, the
+  reason the tile's tooltip (battery: time left, health, full charge and design capacity, cycle count,
+  voltage; GPU: load, temperature, GPU clock, memory clock). `--state unavailable` renders it.
+
 ## Clipboard & transfer between displays
 
 - **[S-70]** In edit mode the surface handles **Ctrl+C / Ctrl+X / Ctrl+V / Ctrl+A**,
@@ -504,7 +533,8 @@ busy desktop ([S-6601]), Debug, private bytes.
 - **[S-82]** A meter that cannot be read says so (`--`, dimmed) rather than showing 0%. A machine
   with no battery reports 255 for the charge, which is "unknown", not "empty".
 - **[S-82a]** "Not present on this machine" and "present but unreadable right now" are different
-  states and look different: the first is a proper empty state, the second a dimmed `--`. A desktop
+  states and look different: the first is the meter drawn in the disabled look at the middle
+  ([S-1940], [S-1941]; it was an empty state until 2026-10-19), the second a dimmed `--`. A desktop
   with no battery is not a battery meter that failed. The reading carries a flag saying which;
   matching on the caption text, as a first attempt did, made a display decision depend on the exact
   wording of a string in another file.
@@ -4500,7 +4530,7 @@ strings in `Locales/widgets-details`.
   not shown. The rest is [S-3861]. Costs are line heights of the live ramp.
 - **[S-2403]** A fact Windows does not report on this machine is left out, never "--"; a fact that can be
   read but is not available right now (a lost probe) is a dimmed "--". A thing that is not on the machine
-  (no battery, no adapter) is the empty state ([S-82a]). Why the hero is dimmed is its tooltip.
+  (no battery, no adapter) is its facts, each "--", dimmed ([S-1942]). Why the hero is dimmed is its tooltip.
 - **[S-2404]** A list is Windows 11 rows in a scroller with the foot fade ([S-1281]) and a focus ring
   walked by the keyboard lease ([S-800], `ListKeys`): Up/Down, Page, Home/End, Escape; Enter opens where a
   row opens (a drive). The ring stays on its row's key across reads. Only a list on screen wants keys.

@@ -10,7 +10,7 @@ namespace Themia.App.Widgets.Details;
 /// <summary>
 /// [S-2423]..[S-2425] The battery's charge and status (the battery meter's own hub feed) and what the
 /// battery itself reports through the battery class driver (<see cref="BatteryDevice"/>): health,
-/// capacities, cycles, rate, voltage, temperature, chemistry and maker. A desktop shows the empty state.
+/// capacities, cycles, rate, voltage, temperature, chemistry and maker. A desktop draws a battery's facts dimmed ([S-1942]).
 /// The device is asked only while Windows says there is a battery: a desktop costs one status call.
 /// </summary>
 internal sealed class BatteryDetailPart : DetailPart
@@ -67,6 +67,10 @@ internal sealed class BatteryDetailPart : DetailPart
         var pack = new BatteryPack(false, 57_000, 51_300, 42_000, -9_400, 12_380, 214, 31, "Li-polymer", "SMP", 1);
         return BatteryDetailRules.Sheet(Strings.Current, power, pack);
     }
+
+    /// <summary>[S-1942] A desktop's sheet on any machine.</summary>
+    public override DetailSheet? AbsentSheet()
+        => BatteryDetailRules.Sheet(Strings.Current, new BatteryPower(false, null, true, false, null), null);
 #endif
 
     public override void Detach()

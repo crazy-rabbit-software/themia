@@ -241,14 +241,14 @@ public static class BatteryDetailRules
     /// [S-2425] The sheet: the charge as the hero and the status under it; then the time left (or to
     /// full), health, full-charge and design capacity, cycles, the charge or discharge rate, voltage,
     /// temperature, chemistry and maker — each only when the battery reports it. A machine without a
-    /// battery is the empty state ([S-82a]); one whose details the firmware hides still shows the
+    /// battery draws the facts a battery has, each "--", dimmed ([S-1942]); one whose details the firmware hides still shows the
     /// charge, the status and Windows' own time estimate.
     /// </summary>
     public static DetailSheet Sheet(Locale locale, BatteryPower power, BatteryPack? pack)
     {
         if (!power.HasBattery)
         {
-            return DetailSheet.Missing(Strings.Get(locale, Str.WidgetsB_Battery_None));
+            return Unavailable.Sheet(Strings.Get(locale, Str.WidgetsB_Battery_None), AbsentFacts.Select(label => Strings.Get(locale, label)));
         }
 
         var facts = new List<DetailFact>(11);
@@ -299,6 +299,17 @@ public static class BatteryDetailRules
             ? new DetailSheet(LocaleFormat.Percent(locale, percent), status, facts, [])
             : new DetailSheet("--", status, facts, [], HeroAvailable: false);
     }
+
+    /// <summary>[S-1942] What a battery's sheet shows where one is there, in its order: the stand-in a desktop dims.</summary>
+    private static readonly Str[] AbsentFacts =
+    [
+        Str.Details_Battery_TimeLeft,
+        Str.Details_Battery_Health,
+        Str.Details_Battery_FullCapacity,
+        Str.Details_Battery_DesignCapacity,
+        Str.Details_Battery_Cycles,
+        Str.Details_Battery_Voltage,
+    ];
 
     /// <summary>"2h 10m".</summary>
     private static string Hours(Locale locale, TimeSpan span)

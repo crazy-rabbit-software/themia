@@ -49,6 +49,7 @@ public sealed partial class DetailView : Grid, IWidgetView, IWidgetSizeAware, IW
 
     private readonly Brush _primaryBrush = ThemeBrush.Of("TextFillColorPrimaryBrush", Colors.White);
     private readonly Brush _disabledBrush = ThemeBrush.Of("TextFillColorDisabledBrush", Colors.Gray);
+    private readonly Brush _labelBrush = ThemeBrush.Of("TextFillColorSecondaryBrush", Colors.Gray);
 
     private WidgetConfig _config;
     private IWidgetSurface? _surface;
@@ -207,8 +208,11 @@ public sealed partial class DetailView : Grid, IWidgetView, IWidgetSizeAware, IW
 
     private static int LongestValue(DetailSheet sheet) => sheet.Facts.Count == 0 ? 0 : sheet.Facts.Max(f => f.Value.Length);
 
-    private bool ShowsEmpty => _sheet.Absent
-        || (_sheet.Hero is null && _sheet.Facts.Count == 0 && _sheet.Rows.Count == 0 && _sheet.Note is not null);
+    /// <summary>
+    /// A sheet with nothing but a note (the processes cannot be read) is the empty state; a thing not on
+    /// this machine is not: its sheet is its own facts, dimmed ([S-1942]).
+    /// </summary>
+    private bool ShowsEmpty => _sheet.Hero is null && _sheet.Facts.Count == 0 && _sheet.Rows.Count == 0 && _sheet.Note is not null;
 
     /// <summary>[S-2402] Plan the face for the area and the sheet's shape, then fill it.</summary>
     private void Lay()
@@ -338,14 +342,18 @@ public sealed partial class DetailView : Grid, IWidgetView, IWidgetSizeAware, IW
         }
 
         _heroBlock.ValueLine.Foreground = _sheet.HeroAvailable ? _primaryBrush : _disabledBrush;
-        ToolTipService.SetToolTip(_heroBlock, _sheet.HeroAvailable ? null : _sheet.Note);
+        ToolTipService.SetToolTip(_heroBlock, _sheet.HeroAvailable || _sheet.Absent ? null : _sheet.Note);
         _caption.Text = _sheet.Caption ?? string.Empty;
+
+        // [S-1940] Not on this machine: the whole tile says why, every part of it dimmed.
+        UnavailableLook.Say(this, _sheet.Absent ? _sheet.Note : null);
 
         for (var i = 0; i < plan.Facts && i < _sheet.Facts.Count && i < _cells.Count; i++)
         {
             var fact = _sheet.Facts[i];
             _cells[i].Show(fact.Label, fact.Value);
             _cells[i].Figure.Foreground = fact.Available ? _primaryBrush : _disabledBrush;
+            _cells[i].Label.Foreground = _sheet.Absent ? UnavailableLook.Text : _labelBrush;
         }
 
         FillList();

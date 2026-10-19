@@ -30,11 +30,11 @@ the wave and the waveform), `Preview/` (Debug renders: `--state playing|unavaila
   (bars: XS 12, S and up 24). Gap = run/100,
   2..6 DIP. A bar is the loudest band of its group; bad levels clamp to 0..1.
 - **[S-3206]** Idle is a flat baseline: every bar (spoke, curve point) a 3 DIP stub, the same on
-  every tile, no text; the LED columns light their first cell. Only a device the capture cannot
-  reach ([S-3204]) shows a sentence instead ("Audio output unavailable", the empty-state shape,
-  with the design's glyph); the spectrum comes back when the worker reaches it.
+  every tile, no text; the LED columns light their first cell. A device the capture cannot reach
+  ([S-3204]) draws that baseline in the disabled fill ([S-1940]), "Audio output unavailable" as the
+  tile's tooltip; the spectrum comes back in the accent when the worker reaches it.
 - **[S-3207]** Debug renders cannot capture sound: `--widget-png AudioVisualizer --style <name> --state playing`
-  draws a still synthetic spectrum, `--state unavailable` the sentence.
+  draws a still synthetic spectrum, `--state unavailable` the disabled baseline.
 - **[S-3211]** A frame writes numbers only, never allocates: a scale per bar or spoke, the opacity of
   the LED cells whose state changed, the wave's Bézier points. Shapes are placed once per layout
   (the LED pool only grows), so the cost per frame is the same as the bars'.

@@ -103,6 +103,13 @@ public static class GpuDetailRules
         => Strings.Format(locale, Str.Details_Units_Megahertz, ("value", LocaleFormat.Integer(locale, (long)Math.Round(Math.Max(0, mhz)))));
 
     /// <summary>
+    /// [S-1942] No adapter to read (or not the chosen one): the facts an adapter's sheet leads with, each
+    /// "--", dimmed, <paramref name="note"/> the tooltip.
+    /// </summary>
+    public static DetailSheet Absent(Locale locale, string note)
+        => Unavailable.Sheet(note, new[] { Str.Details_Gpu_Load, Str.Details_Gpu_Temperature, Str.Details_Gpu_Clock, Str.Details_Gpu_MemoryClock }.Select(label => Strings.Get(locale, label)));
+
+    /// <summary>
     /// [S-2430] The sheet: video memory in use as the hero, "of 8.0 GB video memory" under it; then
     /// load, shared memory, temperature, fan, GPU clock and memory clock — each only when reported.
     /// An integrated adapter (no video memory of its own) leads with its shared memory instead.

@@ -17,4 +17,4 @@ languages). Tests: `Tests/BatteryDetailsTests.cs` (run by `tests/Themia.Modules.
   page ([S-1750]).
 
 Needs a manual pass: the widget on a laptop (charging, discharging, full) and on a desktop with no
-battery (the empty state).
+battery (a battery's facts, each "--", dimmed, [S-1942]; `--state unavailable` renders it anywhere).

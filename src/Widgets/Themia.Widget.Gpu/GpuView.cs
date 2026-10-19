@@ -35,9 +35,6 @@ internal sealed partial class GpuView : Grid, IWidgetView, IWidgetSurfaceAware, 
 {
     private const string Scope = "gpu-widget";
 
-    private readonly StackPanel _empty;
-    private readonly TextBlock _emptyText = new();
-
     private IWidgetSurface? _surface;
     private GpuConfig _config = new();
     private readonly IWidgetHost _host;
@@ -51,11 +48,6 @@ internal sealed partial class GpuView : Grid, IWidgetView, IWidgetSurfaceAware, 
     public GpuView(IWidgetHost host)
     {
         _host = host;
-        _emptyText.Text = GpuStr.WidgetsB_Gpu_NoAdapter.Text();
-        _empty = Fluent.EmptyState(Glyphs.Gpu, _emptyText, out _);
-        _empty.Visibility = Visibility.Collapsed;
-
-        Children.Add(_empty);
     }
 
     public void Bind(IWidgetSurface surface)
@@ -87,7 +79,7 @@ internal sealed partial class GpuView : Grid, IWidgetView, IWidgetSurfaceAware, 
             }
 
             _panel = new Panel(index);
-            Children.Insert(0, _panel.Root);
+            Children.Add(_panel.Root);
         }
 
         _panel!.Configure(_config);
@@ -149,17 +141,16 @@ internal sealed partial class GpuView : Grid, IWidgetView, IWidgetSurfaceAware, 
             return;
         }
 
-        // [S-433] No adapter at all, or not the chosen one (an eGPU unplugged): said as a state, not
-        // as a tile of dashes.
+        // [S-433] [S-1940] No adapter at all, or not the chosen one (an eGPU unplugged): the same tile
+        // in the disabled look, the reason on hover — never an empty state in its place.
         var none = snapshot.Adapters.Count == 0;
         var gone = !none && panel.Index >= snapshot.Readings.Count;
-        _emptyText.Text = none ? GpuStr.WidgetsB_Gpu_NoAdapter.Text() : GpuStr.WidgetsB_Gpu_AdapterMissing.Text();
-        _empty.Visibility = none || gone ? Visibility.Visible : Visibility.Collapsed;
-        panel.Root.Visibility = none || gone ? Visibility.Collapsed : Visibility.Visible;
 
         if (none || gone)
         {
             _surface?.SetHeaderTitle(null);
+            panel.Absent(none ? GpuStr.WidgetsB_Gpu_NoAdapter.Text() : GpuStr.WidgetsB_Gpu_AdapterMissing.Text());
+            Arrange();
             return;
         }
 

@@ -323,7 +323,9 @@ public sealed partial class QuickToggleView : Grid, IWidgetView, IWidgetSizeAwar
                 break;
 
             case ToggleLook.Unavailable:
+                // [S-1940] The tile's own item in its disabled state, every part in the disabled text.
                 fill = null;
+                face = ItemState.Disabled;
                 iconBrush = _disabled;
                 nameBrush = _disabled;
                 stateBrush = _disabled;

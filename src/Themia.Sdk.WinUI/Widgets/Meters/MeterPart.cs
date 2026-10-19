@@ -129,8 +129,13 @@ public abstract class MeterPart
     /// <summary>[S-1124] What the top of the chart stands for.</summary>
     public virtual ChartScale Scale => ChartScale.Share;
 
-    /// <summary>Whether the measured thing can be missing from the machine (a battery), which shows an empty state.</summary>
-    public virtual bool CanBeAbsent => false;
+#if DEBUG
+    /// <summary>
+    /// [S-1940] Debug renders: the reading <c>--state unavailable</c> shows where the measured thing can be
+    /// missing from the machine (a battery), or null for a kind that is always there.
+    /// </summary>
+    public virtual MeterReading? AbsentReading => null;
+#endif
 
     /// <summary>What the meter shows before its series has a reading (a probe still out).</summary>
     public virtual MeterReading Waiting => new(null, "--", false);

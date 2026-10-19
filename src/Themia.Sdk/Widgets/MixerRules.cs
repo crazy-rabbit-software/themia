@@ -70,6 +70,12 @@ public static class MixerRules
     /// </summary>
     public const string MasterKey = "__master__";
 
+    /// <summary>
+    /// [S-1940] [S-1941] The row a mixer with no device to read draws, disabled: the system sounds, which
+    /// every output device has, at the middle. Never written: the view refuses every write while it shows.
+    /// </summary>
+    public static MixerRow StandIn { get; } = new(SystemSoundsKey, string.Empty, null, Unavailable.Share, false, false, true, 1);
+
     /// <summary>[S-1227] From this row width a row is one line.</summary>
     public const double OneLineWidth = 360;
 

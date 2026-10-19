@@ -535,7 +535,7 @@ public sealed class SystemDetailsTests
     }
 
     [Fact]
-    public void S2425_a_desktop_is_the_empty_state_and_a_laptop_leads_with_its_charge()
+    public void S2425_a_desktop_draws_the_sheet_absent_and_a_laptop_leads_with_its_charge()
     {
         Assert.True(BatteryDetailRules.Sheet(Locale.En, new BatteryPower(false, null, true, false, null), null).Absent);
 

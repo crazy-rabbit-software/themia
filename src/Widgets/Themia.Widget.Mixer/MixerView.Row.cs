@@ -22,6 +22,8 @@ internal sealed partial class MixerView
         private static readonly Brush PrimaryBrush = ThemeBrush.Of("TextFillColorPrimaryBrush", Colors.White);
         private static readonly Brush QuietBrush = ThemeBrush.Of("TextFillColorTertiaryBrush", Colors.Gray);
         private static readonly Brush MutedBrush = ThemeBrush.Of("TextFillColorDisabledBrush", Colors.Gray);
+        private static readonly Brush GlyphBrush = ThemeBrush.Of("TextFillColorSecondaryBrush", Colors.Gray);
+        private static readonly Brush DetailBrush = ThemeBrush.Of("TextFillColorTertiaryBrush", Colors.Gray);
 
         private readonly MixerView _owner;
         private readonly Grid _grid = new();
@@ -129,6 +131,9 @@ internal sealed partial class MixerView
         /// <summary>Whether the row is drawn as quiet (an app holding a session but silent).</summary>
         public bool Dimmed { get; private set; }
 
+        /// <summary>[S-1940] False while the row stands in for a device that is not there.</summary>
+        public bool Available { get; private set; } = true;
+
         /// <summary>
         /// [S-1227] Put the parts where this width wants them, at the height the ladder counted on.
         /// Gaps are margins on the parts rather than grid spacing, because spacing is paid between
@@ -213,16 +218,22 @@ internal sealed partial class MixerView
             SetColumnSpan(element, span);
         }
 
-        public void Show(MixerRow row, bool showIcons, bool dimmed)
+        /// <param name="available">[S-1940] False for the stand-in row of a mixer with no device: every part disabled, the view says why.</param>
+        public void Show(MixerRow row, bool showIcons, bool dimmed, bool available)
         {
             _row = row;
             Dimmed = dimmed;
+            Available = available;
 
             var name = RowName(row);
             _name.Text = name;
-            _name.Foreground = row.Muted ? MutedBrush : dimmed ? QuietBrush : PrimaryBrush;
+            _name.Foreground = !available ? UnavailableLook.Text : row.Muted ? MutedBrush : dimmed ? QuietBrush : PrimaryBrush;
             _detail.Text = MixerFill.Detail(row);
-            ToolTipService.SetToolTip(Host, dimmed ? MixerStr.WidgetsB_Mixer_NotPlaying.Format(("name", name)) : name);
+            _detail.Foreground = available ? DetailBrush : UnavailableLook.Text;
+            ToolTipService.SetToolTip(Host, !available ? null : dimmed ? MixerStr.WidgetsB_Mixer_NotPlaying.Format(("name", name)) : name);
+            UnavailableLook.Enable(available, _slider, _mute);
+            _muteIcon.Foreground = available ? PrimaryBrush : UnavailableLook.Text;
+            _glyph.Foreground = available ? GlyphBrush : UnavailableLook.Text;
 
             _count.Visibility = row.Sessions > 1 ? Visibility.Visible : Visibility.Collapsed;
             _countText.Text = LocaleFormat.Integer(row.Sessions);
@@ -231,7 +242,7 @@ internal sealed partial class MixerView
             var percent = MixerRules.DisplayPercent(row);
 
             _muteIcon.Glyph = AudioLook.OutputGlyph(row.Level, row.Muted);
-            ToolTipService.SetToolTip(_mute, row.Muted ? Str.Mixer_Unmute.Text() : Str.Mixer_Mute.Text());
+            ToolTipService.SetToolTip(_mute, !available ? null : row.Muted ? Str.Mixer_Unmute.Text() : Str.Mixer_Mute.Text());
 
             // A snapshot is the machine's truth, but not under a held thumb: writing it there would
             // snap the slider back to where the app was a moment ago.
@@ -328,7 +339,7 @@ internal sealed partial class MixerView
         /// <summary>[S-447] Mute or unmute the row, or put it back to 100% — by right-click or the Menu key.</summary>
         public void OpenMenu(Windows.Foundation.Point? at)
         {
-            if (_row is not { } row)
+            if (_row is not { } row || !Available)
             {
                 return;
             }

@@ -3,19 +3,32 @@ using Themia.App.Shell.Gallery;
 using Themia.App.Services;
 using Themia.Core.SystemData;
 using Themia.Core.Widgets;
+using Themia.Widget.Gpu;
 
 namespace Themia.App.Widgets;
 
 /// <summary>
 /// Debug renders only ([S-1917]): <c>history</c> fills the chart with a fixture series,
-/// as the meters' does, so the GPU's band can be compared with theirs without waiting for samples.
+/// as the meters' does, so the GPU's band can be compared with theirs without waiting for samples;
+/// <c>unavailable</c> a PC with no adapter to read ([S-1940]).
 /// </summary>
 internal sealed partial class GpuView : IWidgetPreviewState
 {
-    public IReadOnlyList<string> PreviewStates { get; } = ["history", "sample"];
+    public IReadOnlyList<string> PreviewStates { get; } = ["history", "sample", "unavailable"];
 
     public Task ShowPreviewStateAsync(string state)
     {
+        if (state == "unavailable")
+        {
+            _snapshots?.Dispose();
+            _snapshots = null;
+            _panel?.Unwatch();
+            _surface?.SetHeaderTitle(null);
+            _panel?.Absent(GpuStr.WidgetsB_Gpu_NoAdapter.Text());
+            Arrange();
+            return Task.CompletedTask;
+        }
+
         if (state is "history" or "sample")
         {
             // [S-6300] sample: the snapshots stop too, so the fixed load and engines stay on screen.

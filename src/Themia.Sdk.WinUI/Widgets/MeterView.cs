@@ -47,7 +47,6 @@ public sealed partial class MeterView : Grid, IWidgetView, IWidgetSizeAware, IWi
     // [S-3860] The shared hero readout: the number with its smaller unit, the battery's glyph as its icon.
     private readonly HeroReadout _reading = new();
     private readonly SparkBand _band;
-    private readonly StackPanel? _absentState;
 
     // Looked up once. The reading swaps between them on every sample, and a resource lookup per
     // sample per widget is a dictionary hit and a possible log line for nothing.
@@ -76,7 +75,9 @@ public sealed partial class MeterView : Grid, IWidgetView, IWidgetSizeAware, IWi
 
     private WidgetArea _area;
     private bool _graph;
-    private bool _absent;
+
+    // [S-1941] The history shows the stand-in line of a thing not on this machine.
+    private bool _standIn;
 
     // [S-6300] The style's look and what it builds: made when the look is chosen, let go when another is.
     private MeterLook _look;
@@ -125,43 +126,6 @@ public sealed partial class MeterView : Grid, IWidgetView, IWidgetSizeAware, IWi
         ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(0) });
         Children.Add(_reading);
         Children.Add(_band);
-
-        // Only a battery can be absent — every other meter that cannot be read is a meter that could
-        // be read a moment ago, which is [S-82]'s dimmed "--" rather than an empty state.
-        _absentState = _part.CanBeAbsent ? BuildAbsentState(ModuleCatalog.Of(_kind).Glyph) : null;
-
-        if (_absentState is not null)
-        {
-            SetRowSpan(_absentState, 2);
-            SetColumnSpan(_absentState, 2);
-            Children.Add(_absentState);
-        }
-    }
-
-    /// <summary>
-    /// The state a machine with no battery shows: the widget's own icon and one line, centred, the
-    /// shape Windows uses when a pane has nothing to show.
-    /// </summary>
-    private static StackPanel BuildAbsentState(string glyph)
-    {
-        var icon = Fluent.Icon(glyph, "TextFillColorTertiaryBrush");
-        icon.HorizontalAlignment = HorizontalAlignment.Center;
-
-        var text = Fluent.Text(FluentType.Body, "TextFillColorSecondaryBrush");
-        text.Text = Str.WidgetsB_Battery_None.Text();
-        text.HorizontalAlignment = HorizontalAlignment.Center;
-
-        var panel = new StackPanel
-        {
-            Spacing = Fluent.Space2,
-            HorizontalAlignment = HorizontalAlignment.Center,
-            VerticalAlignment = VerticalAlignment.Center,
-            Visibility = Visibility.Collapsed,
-        };
-
-        panel.Children.Add(icon);
-        panel.Children.Add(text);
-        return panel;
     }
 
     /// <summary>[S-663] The card's word on how much room the meter has.</summary>
@@ -174,24 +138,8 @@ public sealed partial class MeterView : Grid, IWidgetView, IWidgetSizeAware, IWi
     /// <summary>[S-1762] Place the reading and the history for the current area and size the reading.</summary>
     private void Lay()
     {
-        if (_absentState is not null)
-        {
-            _absentState.Visibility = _absent ? Visibility.Visible : Visibility.Collapsed;
-        }
-
-        _reading.Visibility = _absent ? Visibility.Collapsed : Visibility.Visible;
-
-        if (_absent)
-        {
-            _band.Visibility = Visibility.Collapsed;
-
-            if (_body is not null)
-            {
-                _body.Visibility = Visibility.Collapsed;
-            }
-
-            return;
-        }
+        // A face hides the readout; every other look shows it.
+        _reading.Visibility = Visibility.Visible;
 
         // [S-6300] A style other than the history lays its own part on the same ladder.
         if (_look != MeterLook.Graph)
@@ -360,12 +308,6 @@ public sealed partial class MeterView : Grid, IWidgetView, IWidgetSizeAware, IWi
             return;
         }
 
-        var wasAbsent = _absent;
-
-        // A desktop with no battery is not a battery meter that failed, so it gets an empty state
-        // rather than a dimmed "--".
-        _absent = reading.Absent;
-
         // [S-6325] A number glides to the reading's own text; anything else ("--") is shown at once.
         _primary = reading.Primary;
 
@@ -383,13 +325,32 @@ public sealed partial class MeterView : Grid, IWidgetView, IWidgetSizeAware, IWi
         // which stays legible whatever the load. Why it is unavailable is said on hover.
         _reading.ValueLine.Foreground = reading.Available ? _readingBrush : _unavailableBrush;
         // [S-1161] Available, it names what it is about (the disk's drive), for a card whose header is off.
-        ToolTipService.SetToolTip(_reading, reading.Available ? _part.ReadingTip : reading.Reason);
+        ToolTipService.SetToolTip(_reading, reading.Available ? _part.ReadingTip : reading.Absent ? null : reading.Reason);
 
-        var pressure = Pressure(_part.PressureOf(reading));
+        // [S-1940] [S-82a] Not on this machine (no battery): the same face in the disabled look, its
+        // level at the middle ([S-1941]), the reason on the whole tile — never an empty state.
+        UnavailableLook.Say(this, reading.Absent ? reading.Reason : null);
+
+        if (reading.Absent != _standIn)
+        {
+            // The chart is drawn where it would be: a flat line at the middle, gone with the first real reading.
+            _standIn = reading.Absent;
+
+            if (_standIn)
+            {
+                _band.Load(Unavailable.History(_band.Holds));
+            }
+            else
+            {
+                _band.Clear();
+            }
+        }
+
+        var pressure = LevelBrush(reading);
         _band.SetBrush(pressure);
 
         // [S-6302] The gauge is the reading's own share, in the colour the history would have.
-        _dial?.SetFraction(reading.Available ? reading.Fraction : null, settle);
+        _dial?.SetFraction(Unavailable.Fraction(reading), settle);
         _dial?.SetBrush(pressure, settle);
 
         // [S-6261]..[S-6266] A face that draws the reading itself (numbers, a battery, a ring, signal bars).
@@ -398,13 +359,12 @@ public sealed partial class MeterView : Grid, IWidgetView, IWidgetSizeAware, IWi
         var badge = _part.Badge(reading);
         var badged = badge is not null;
         _reading.Icon.Glyph = badge ?? string.Empty;
-        _reading.Icon.Foreground = pressure;
+        _reading.Icon.Foreground = reading.Absent ? UnavailableLook.Text : pressure;
 
         _part.Observe(reading, this);
 
-        // Only the absent state and a glyph coming or going change the face; every other reading
-        // keeps the layout it has.
-        if (wasAbsent != _absent || badged != _badged)
+        // Only a glyph coming or going changes the face; every other reading keeps the layout it has.
+        if (badged != _badged)
         {
             _badged = badged;
             _heroStep = null;
@@ -453,6 +413,9 @@ public sealed partial class MeterView : Grid, IWidgetView, IWidgetSizeAware, IWi
 
     /// <summary>[S-1167] Keep the surface for a kind's header title (MeterView.Part.cs).</summary>
     public void Bind(IWidgetSurface surface) => BindTitle(surface);
+
+    /// <summary>[S-1940] A reading's level colour: its pressure's, or the disabled fill for a thing not on this machine.</summary>
+    private Brush LevelBrush(MeterReading reading) => reading.Absent ? UnavailableLook.Fill : Pressure(_part.PressureOf(reading));
 
     private Brush Pressure(MeterPressure pressure) => pressure switch
     {

@@ -63,6 +63,26 @@ internal sealed partial class GpuView
         }
 
         /// <summary>[S-6322] The adapter's engine types as the newest sample has them; a different set is a different layout.</summary>
+        /// <summary>[S-1940] The engines every adapter has, drawn for one that is not there: no bar, "--", the disabled fill.</summary>
+        private static readonly GpuEngineLoad[] StandInEngines =
+        [
+            new(GpuEngineKind.ThreeD, 0),
+            new(GpuEngineKind.Copy, 0),
+            new(GpuEngineKind.VideoEncode, 0),
+            new(GpuEngineKind.VideoDecode, 0),
+        ];
+
+        /// <summary>[S-1940] [S-433] No adapter to read: the stand-in engines, each "--" without a bar.</summary>
+        private void ShowAbsentEngines()
+        {
+            ShowEngines(StandInEngines);
+
+            for (var i = 0; i < StandInEngines.Length && _engines is not null; i++)
+            {
+                _engines.SetItem(i, null, UnavailableLook.Fill, Label(StandInEngines[i].Kind), "--", settle: true);
+            }
+        }
+
         public void ShowEngines(IReadOnlyList<GpuEngineLoad> engines)
         {
             var recount = engines.Count != _engineLoads.Count;

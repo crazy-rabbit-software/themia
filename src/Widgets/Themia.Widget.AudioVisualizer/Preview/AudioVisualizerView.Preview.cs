@@ -7,7 +7,7 @@ namespace Themia.App.Widgets;
 /// <summary>
 /// Debug renders only ([S-3207]): a render cannot capture the PC's sound, so "playing" draws a still,
 /// synthetic spectrum (bass high, falling towards the treble with some unevenness) and
-/// "unavailable" the sentence a device the capture cannot reach shows.
+/// "unavailable" what a device the capture cannot reach draws: the idle baseline, disabled ([S-1940]).
 /// </summary>
 internal sealed partial class AudioVisualizerView : IWidgetPreviewState
 {

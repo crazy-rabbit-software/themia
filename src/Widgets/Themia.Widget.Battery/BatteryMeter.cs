@@ -1,5 +1,6 @@
 using Themia.App.Services;
 using Themia.App.Services.SystemData;
+using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
 using Themia.Sdk;
@@ -9,7 +10,8 @@ namespace Themia.App.Widgets.Meters;
 /// <summary>
 /// [S-1180] [S-1187] Charge level, led by the battery icon filled to the nearest tenth (with a bolt
 /// while charging), coloured by the original's charge scale. Its history is drawn like any other
-/// meter's when the graph is on ([S-1126]). A machine with no battery shows an empty state.
+/// meter's when the graph is on ([S-1126]). A machine with no battery draws the same meter in the
+/// disabled look, the battery half full and the figure "--" ([S-1940], [S-1941]).
 /// </summary>
 internal sealed class BatteryMeter : MeterPart
 {
@@ -22,8 +24,6 @@ internal sealed class BatteryMeter : MeterPart
         ["", "", "", "", "", "", "", "", "", "", ""];
 
     public override WidgetId Kind => new WidgetId("battery");
-
-    public override bool CanBeAbsent => true;
 
     /// <summary>[S-1187] The charge glyph leads the reading; the ladder measures it as the readout's glyph ([S-3860]).</summary>
     public override bool HasBadge => true;
@@ -42,9 +42,19 @@ internal sealed class BatteryMeter : MeterPart
     public override MeterPressure PressureOf(MeterReading reading)
         => MeterPressures.For(PressureScale.Charge, reading.Available ? reading.Fraction : null, reading.Charging);
 
-    /// <summary>[S-1187] The battery glyph, filled to the nearest tenth, with a bolt while charging.</summary>
-    public override string? Badge(MeterReading reading)
-        => reading is { Available: true, Fraction: { } fraction }
-            ? (reading.Charging ? ChargingLevels : Levels)[BatteryRules.Level((int)Math.Round(fraction * 100))]
-            : null;
+    /// <summary>
+    /// [S-1187] The battery glyph, filled to the nearest tenth, with a bolt while charging; [S-1941] no
+    /// battery on this machine is the glyph at the middle (drawn disabled by the view).
+    /// </summary>
+    public override string? Badge(MeterReading reading) => reading switch
+    {
+        { Available: true, Fraction: { } fraction } => (reading.Charging ? ChargingLevels : Levels)[BatteryRules.Level((int)Math.Round(fraction * 100))],
+        { Absent: true } => Levels[BatteryRules.Level(Unavailable.Percent)],
+        _ => null,
+    };
+
+#if DEBUG
+    /// <summary>[S-1940] A desktop's reading, on any machine.</summary>
+    public override MeterReading? AbsentReading => MeterReading.Missing(Str.WidgetsB_Battery_None.Text());
+#endif
 }

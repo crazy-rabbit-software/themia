@@ -13,9 +13,11 @@ the absent battery), `Localization/Locales/` (its own `BatteryStr`, 30 languages
 styles side by side with the other I/O meters' are the module host's `IoStylesHostTests`.
 
 - **[S-6272]** Battery: `BatteryConfig.Style`, **Graph** ([S-1187]), **Battery** ([S-6262]) and
-  **Ring** ([S-6266]). No battery is the empty state in every style ([S-82a]).
+  **Ring** ([S-6266]). No battery draws the same meter in every style in the disabled
+  look ([S-1940]): the glyph and the battery half full, the ring half swept, the history a flat line at
+  the middle ([S-1941]), the figure "--", "No battery" as the tooltip. Render `--state unavailable`.
 - Its options are on the properties menu ([S-3719], user request 2026-10-19), no settings page:
   Appearance, and under Style in the Graph style the Chart span every meter has ([S-1122]).
 
 Needs a manual pass: the meter on a laptop (charging, discharging, each style) and on a desktop with
-no battery (the empty state).
+no battery (the disabled meter).

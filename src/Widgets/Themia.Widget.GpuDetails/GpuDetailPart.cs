@@ -45,7 +45,7 @@ internal sealed class GpuDetailPart : DetailPart
         if (snapshot.Details.Count == 0)
         {
             host.SetTitle(null);
-            host.Present(DetailSheet.Missing(GpuDetailsStr.Details_Gpu_None.Text()));
+            host.Present(GpuDetailRules.Absent(Strings.Current, GpuDetailsStr.Details_Gpu_None.Text()));
             return;
         }
 
@@ -54,6 +54,11 @@ internal sealed class GpuDetailPart : DetailPart
         host.SetTitle(GpuRules.ShortName(detail.Name));
         host.Present(GpuDetailRules.Sheet(Strings.Current, detail));
     }
+
+#if DEBUG
+    /// <summary>[S-1942] No adapter, on any machine.</summary>
+    public override DetailSheet? AbsentSheet() => GpuDetailRules.Absent(Strings.Current, GpuDetailsStr.Details_Gpu_None.Text());
+#endif
 
     public override void Detach()
     {

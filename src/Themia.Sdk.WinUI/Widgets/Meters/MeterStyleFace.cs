@@ -302,8 +302,13 @@ internal sealed partial class BatteryFace : PictureFaceBase
         ShowFigure(reading.Available ? reading.Fraction : null, reading.Primary, reading.Available, settle);
         _colour.Set(pressure, GlidePeriod, settle);
 
-        // No reading is an empty battery at once, not one draining away.
-        var level = reading.Available ? reading.Fraction ?? 0 : 0;
+        // [S-1940] No battery on this machine: the same battery, its outline and fill disabled.
+        _body.Stroke = reading.Absent ? UnavailableLook.Stroke : OutlineBrush;
+        _cap.Fill = reading.Absent ? UnavailableLook.Stroke : OutlineBrush;
+
+        // No reading is an empty battery at once, not one draining away; no battery at all stands at
+        // the middle ([S-1941]).
+        var level = Unavailable.Fraction(reading) ?? 0;
         _level.Set(level, GlidePeriod, settle || !reading.Available);
         _bolt.Visibility = reading.Available && reading.Charging ? Visibility.Visible : Visibility.Collapsed;
     }
@@ -447,10 +452,11 @@ internal sealed partial class RingMeterFace : MeterStyleFace
 
     protected override void Draw(MeterReading reading, Brush pressure, bool settle)
     {
-        var fraction = reading.Available ? reading.Fraction : null;
-        _glide.Show(fraction, reading.Primary, reading.Available, GlidePeriod, settle);
+        // [S-1941] The figure is the reading's own; the sweep stands at the middle for a thing not on this machine.
+        var fraction = Unavailable.Fraction(reading);
+        _glide.Show(reading.Available ? reading.Fraction : null, reading.Primary, reading.Available, GlidePeriod, settle);
         _colour.Set(pressure, GlidePeriod, settle);
-        _sweep.Set(fraction, GlidePeriod, settle);
+        _sweep.Set(fraction, GlidePeriod, settle || !reading.Available);
 
         if (fraction is null)
         {
