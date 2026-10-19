@@ -41,7 +41,9 @@ internal static class ClockMenu
                 clock.TextSize, value => clock.TextSize = value));
         }
 
+        // [S-1478] The look (Style, Appearance), a divider, then what time it tells.
         menu.PlaceCard();
+        menu.Lines.Add(ItemMenuEntry.Separator);
         menu.Lines.Add(Zone(menu, clock));
     }
 

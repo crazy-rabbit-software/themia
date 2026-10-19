@@ -132,18 +132,38 @@ public sealed class ClockConfig : WidgetConfig, IStyled, IShownSettings<ClockSet
     public bool IsWorldClock => ZoneCatalog.Resolve(TimeZoneId) is not null;
 
     /// <summary>
-    /// [S-6074] The rows the page offers: seconds where the face ticks them; the date, text size
-    /// and offset lines wherever there are lines under the time, so neither on the minimal
-    /// clock ([S-6014]) nor on the date style ([S-5303]). The zone applies to every style; the alignment
-    /// is the properties panel's ([S-6580]).
+    /// [S-6074] The rows the menu offers: seconds where the face ticks them; the date and offset
+    /// lines wherever there are lines under the time, so neither on the minimal clock ([S-6014]) nor
+    /// on the date style ([S-5303]). [S-1476] The text size sizes the label, the date and the offset
+    /// line, so it is offered only while one of them is drawn: a city's label, the date switched on,
+    /// or an offset chosen. The zone applies to every style; the alignment is the properties panel's ([S-6580]).
     /// </summary>
     [JsonIgnore]
-    public IReadOnlyList<ClockSetting> ShownSettings => Style switch
+    public IReadOnlyList<ClockSetting> ShownSettings
     {
-        ClockStyle.Date or ClockStyle.Minimal => [],
-        ClockStyle.Word => [ClockSetting.Date, ClockSetting.TextSize, ClockSetting.Offset],
-        _ => [ClockSetting.Seconds, ClockSetting.Date, ClockSetting.TextSize, ClockSetting.Offset],
-    };
+        get
+        {
+            if (Style is ClockStyle.Date or ClockStyle.Minimal)
+            {
+                return [];
+            }
+
+            var shown = new List<ClockSetting>(4);
+            if (Style != ClockStyle.Word)
+            {
+                shown.Add(ClockSetting.Seconds);
+            }
+
+            shown.Add(ClockSetting.Date);
+            if (ShowDate || OffsetMode != ClockOffsetMode.None || IsWorldClock)
+            {
+                shown.Add(ClockSetting.TextSize);
+            }
+
+            shown.Add(ClockSetting.Offset);
+            return shown;
+        }
+    }
 
     /// <summary>
     /// [S-6015] Whether this style draws seconds at all: words come in five-minute steps, the

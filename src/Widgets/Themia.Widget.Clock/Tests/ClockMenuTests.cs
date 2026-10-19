@@ -1,6 +1,7 @@
 using Themia.App.Shell.Config;
 using Themia.Core.Localization;
 using Themia.Core.Model;
+using Themia.Core.Widgets;
 using Themia.Sdk.WinUI;
 using Xunit;
 
@@ -30,7 +31,8 @@ public sealed class ClockMenuTests
         var lines = Build(new ClockConfig { Style = ClockStyle.Digital });
 
         Assert.Equal(0, lines.CardAt);
-        var zone = Assert.Single(lines.Lines);
+        Assert.True(lines.Lines[0].IsSeparator);
+        var zone = Assert.Single(lines.Lines, l => !l.IsSeparator);
         Assert.Equal([ClockStr.Clock_OffsetLabel.Text()], zone.Search!.Fixed.Select(f => f.Text));
     }
 
@@ -38,7 +40,7 @@ public sealed class ClockMenuTests
     public async Task S1478_the_search_puts_the_machine_zone_first_and_a_pick_stores_the_city()
     {
         var config = new ClockConfig();
-        var search = Assert.Single(Build(config).Lines).Search!;
+        var search = Assert.Single(Build(config).Lines, l => !l.IsSeparator).Search!;
 
         var answer = await search.Find("tokyo", CancellationToken.None);
         Assert.True(answer.Lines[0].Checked);
@@ -49,6 +51,24 @@ public sealed class ClockMenuTests
         Assert.Equal("Asia/Tokyo", config.TimeZoneId);
         Assert.Equal(1, _saves);
     }
+
+    [Fact]
+    public void S1476_the_text_size_is_offered_only_while_a_line_under_the_time_is_drawn()
+    {
+        static bool Offered(ClockConfig c) => c.Offers(ClockSetting.TextSize);
+
+        Assert.True(Offered(new ClockConfig { ShowDate = true }));
+        Assert.False(Offered(new ClockConfig { ShowDate = false }));
+        Assert.True(Offered(new ClockConfig { ShowDate = false, OffsetMode = ClockOffsetMode.Utc }));
+        Assert.True(Offered(new ClockConfig { ShowDate = false, TimeZoneId = "Asia/Tokyo" }));
+        Assert.False(Offered(new ClockConfig { Style = ClockStyle.Minimal, ShowDate = true }));
+    }
+
+    [Fact]
+    public void S1476_with_nothing_under_the_time_the_style_lines_lose_the_text_size()
+        => Assert.Equal(
+            [ClockStr.Clock_SecondsLabel.Text(), ClockStr.Clock_DateLabel.Text()],
+            Build(new ClockConfig { Style = ClockStyle.Digital, ShowDate = false }).StyleLines.Select(l => l.Text));
 
     [Fact]
     public void S1478_the_seconds_switch_turns_them_the_other_way()

@@ -1721,8 +1721,8 @@ widget on the properties panel ([S-6007], its one place, [S-6536]). Owning files
   only, [S-1542].)*
 - **[S-6074]** The options each kind offers only in some styles or states: Mail: Subject/Account in List
   and Compact, Preview lines in List, the columns in Table. Folder: [S-4121]. Calendar: [S-3641].
-  Clock: Seconds in Digital, Analog, Stacked and Flip; Date, Label and date size, and Offset
-  in all but Minimal and Date (there the zone is a plain row, not an expander). Quote: Reshuffle
+  Clock: Seconds in Digital, Analog, Stacked and Flip; Date and Offset in all but Minimal and Date,
+  and Text size there only while a city's label, the date or an offset is drawn ([S-1476]). Quote: Reshuffle
   with Shuffle on. Gallery: a folder's rows (folder, subfolders, pictures, shuffle, Explorer) for the
   folder source, the slide time for its Slideshow, Picture size for Slideshow and Grid (Scatter and
   Mosaic always crop), for a picture file without an outline and for the photo of the day; a

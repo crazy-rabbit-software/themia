@@ -122,11 +122,14 @@ them). Tests: `Tests/` (run by `tests/Themia.Modules.Tests`).
   lifts the floor one step, off Caption, and the ceiling two, so a date can reach Title; Small lowers
   the ceiling one) and scales the height share each line may ask for (×1.6 / ×0.75). Default is the
   ladder of [S-1487] unchanged. The lines stay regular weight (support, not a second title); the
-  short-date switch measures against the size's floor; the time takes what the lines leave.
+  short-date switch measures against the size's floor; the time takes what the lines leave. With
+  none of those lines drawn (no city's label, the date off, no offset) it sizes nothing, so the
+  menu does not offer it ([S-6070]); it comes back with the first of them, its value kept.
 - **[S-1477]** `ClockText.Shift` walks the ramp and stops at its ends, so no size invents a font size.
 - **[S-1478]** Its options are all on the properties menu ([S-3719], user request 2026-10-19); it
   has no settings page. Under Style, what the style draws ([S-6074]): Seconds, Date (switches) and
-  Text size (Small / Default / Large); then Appearance ([S-3723]) and **Timezone**, a search
+  Text size (Small / Default / Large, while a line under the time is drawn, [S-1476]); then
+  Appearance ([S-3723]), a divider, and **Timezone**, a search
   ([S-3722]): the machine's own zone first as "Current: …", the cities that match after it (40 at
   most, each with its offset now), the chosen one with the dot, a pick stores the IANA id; under the
   answers Offset (None / From UTC / From local). (Tests `ClockMenuTests`.)
