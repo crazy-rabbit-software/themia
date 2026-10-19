@@ -506,7 +506,7 @@ internal sealed partial class TasksView : Grid, IWidgetView, IWidgetHeaderConten
 
     /// <summary>[S-595] [S-611] [S-612] The one filter rule over a list already in its order.</summary>
     private IReadOnlyList<TaskItem> Visible(IReadOnlyList<TaskItem> tasks, DateOnly today)
-        => TaskRules.Visible(tasks, _config.Filter(_feed?.IsToday == true && !IsLocal), today, TimeZoneInfo.Local, RegionFormat.Current.WeekStart);
+        => TaskRules.Visible(tasks, _config.Filter(_feed?.IsToday == true && !IsLocal, Importance), today, TimeZoneInfo.Local, RegionFormat.Current.WeekStart);
 
     /// <summary>
     /// [S-598] [S-610] Every task of an account feed (Today's for Today) in the widget's order, hidden
@@ -607,6 +607,9 @@ internal sealed partial class TasksView : Grid, IWidgetView, IWidgetHeaderConten
         UpdatePicker();
     }
 
+    /// <summary>[S-7516] Whether the account shown has importance, so "Important only" applies ([S-611]).</summary>
+    private bool Importance => TasksConfig.HasImportance(_account?.Provider);
+
     /// <summary>[S-615] The account list's last refresh as the kit's outcome; none for a list on this PC.</summary>
     private IReadOnlyList<KitOutcome> Outcomes()
         => IsLocal || _feed is not { } feed ? [] : TaskFreshness.Outcomes(_account?.Label ?? string.Empty, feed.Loaded, feed.Failure, feed.FetchedAt);
@@ -614,7 +617,7 @@ internal sealed partial class TasksView : Grid, IWidgetView, IWidgetHeaderConten
     private string EmptyListText()
     {
         // [S-611] A filter that leaves nothing says so, rather than "all done".
-        if (_config.Filter(today: false).Narrows)
+        if (_config.Filter(today: false, Importance).Narrows)
         {
             return TasksStr.WidgetsC_Tasks_NoMatch.Text();
         }

@@ -129,10 +129,19 @@ public sealed class TasksConfig : WidgetConfig, IStyled, IShownSettings<TasksSet
     /// [S-595] [S-611] [S-612] What the list keeps. Under Today ([S-596]) "Show completed" means the
     /// tasks finished today, as To Do's own My Day does. A list on this PC has no due dates or
     /// importance, so only its text filter applies: a due filter left from an account cannot empty it.
+    /// An account without importance (<paramref name="importance"/> false, <see cref="HasImportance"/>)
+    /// drops "Important only" the same way, so a value kept from another account cannot empty it.
     /// </summary>
-    public TaskFilter Filter(bool today) => Source == TaskSource.Local
+    public TaskFilter Filter(bool today, bool importance) => Source == TaskSource.Local
         ? new(ShowCompleted, Text: TextFilter)
-        : new(ShowCompleted, DueFilter, ImportantOnly, TextFilter, FinishedTodayOnly: today);
+        : new(ShowCompleted, DueFilter, ImportantOnly && importance, TextFilter, FinishedTodayOnly: today);
+
+    /// <summary>
+    /// [S-7516] Whether an account's tasks can be important: Microsoft To Do's star (Graph's
+    /// importance). Google Tasks has no such field, so "Important only" there would only ever empty
+    /// the list. An account that is gone (null) is given the benefit of the doubt.
+    /// </summary>
+    public static bool HasImportance(ProviderId? provider) => provider is not { } known || known == HostProviders.Microsoft;
 
     /// <summary>[S-591] [S-3780] How often an account list is asked: the shared accounts cadence (Settings › Widgets).</summary>
     [JsonIgnore]

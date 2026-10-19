@@ -75,10 +75,36 @@ public sealed class TasksMenuTests
         Assert.Equal(0, lines.CardAt);
         Assert.Equal(
             [
-                From, ListLabel, TasksStr.Todo_ShowCompleted_Label.Text(), TasksStr.WidgetsC_Tasks_Settings_ShowDue_Label.Text(),
-                TasksStr.Todo_TitleLines_Label.Text(), TasksStr.WidgetsC_Tasks_Settings_NewOnTop_Label.Text(), TasksStr.WidgetsC_Tasks_Settings_Filter.Text(),
+                From, ListLabel, string.Empty,
+                TasksStr.WidgetsC_Tasks_Settings_ShowDue_Label.Text(), TasksStr.Todo_TitleLines_Label.Text(), string.Empty,
+                TasksStr.Todo_ShowCompleted_Label.Text(), TasksStr.WidgetsC_Tasks_Settings_Filter.Text(), TasksStr.WidgetsC_Tasks_Settings_NewOnTop_Label.Text(),
             ],
-            lines.Lines.Where(l => !l.IsSeparator).Select(l => l.Text));
+            lines.Lines.Select(l => l.IsSeparator ? string.Empty : l.Text));
+    }
+
+    [Fact]
+    public void S7516_important_only_is_offered_for_microsoft_tasks_and_not_for_google_tasks()
+    {
+        var google = new Service([new("g", HostProviders.Google, "Home", null)], new MemoryTaskLists([]), _ => Task.FromResult(WorkLists));
+        string[] Filters(TasksConfig config, ITaskSource service)
+            => [.. Line(Build(config, service).Lines, TasksStr.WidgetsC_Tasks_Settings_Filter.Text()).Children!.Select(c => c.Text)];
+
+        Assert.Contains(TasksStr.WidgetsC_Tasks_Settings_ImportantOnly_Label.Text(), Filters(new TasksConfig(), Accounts()));
+        Assert.DoesNotContain(TasksStr.WidgetsC_Tasks_Settings_ImportantOnly_Label.Text(), Filters(new TasksConfig(), google));
+        Assert.DoesNotContain(TasksStr.WidgetsC_Tasks_Settings_ImportantOnly_Label.Text(), Filters(new TasksConfig { AccountId = "g" }, google));
+        Assert.Contains(TasksStr.WidgetsC_Tasks_Settings_DueFilter_Label.Text(), Filters(new TasksConfig(), google));
+    }
+
+    [Fact]
+    public void S7516_important_only_kept_from_another_account_does_not_filter_tasks_without_importance()
+    {
+        var config = new TasksConfig { ImportantOnly = true };
+
+        Assert.True(config.Filter(today: false, importance: true).ImportantOnly);
+        Assert.False(config.Filter(today: false, importance: false).ImportantOnly);
+        Assert.False(config.Filter(today: false, importance: false).Narrows);
+        Assert.True(TasksConfig.HasImportance(HostProviders.Microsoft));
+        Assert.False(TasksConfig.HasImportance(HostProviders.Google));
     }
 
     [Fact]

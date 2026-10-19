@@ -56,10 +56,15 @@ look); the spec's are `Tests/TaskSpecTests.cs` and `Tests/TaskFreshnessTests.cs`
   fresh order. **List**: an account's default list, Today and its lists ([S-592], read through the
   task service's cache, [S-3746]: "Loading lists…" until they come, the reason when they cannot be
   read), or the lists on this PC ([S-604]: each with its task count, Add a list, Rename list… of the
-  one shown, Delete this list… asked first, "Delete this list?" with its tasks under it, [S-3727]). Then Show completed, Show due date (an
-  account's tasks only, [S-6074]), Title lines (1 to 6, dots), New tasks at the top, and **Filter**:
-  Due and Important only (an account's tasks only) and Title contains… (asked for as text, at most
-  100 characters, an empty box clears it, [S-611]).
+  one shown, Delete this list… asked first, "Delete this list?" with its tasks under it, [S-3727]). Then,
+  after a divider, what each task shows: Show due date (an account's tasks only, [S-6074]) and Title
+  lines (1 to 6, dots); after another, which tasks the list keeps: Show completed, **Filter** (Due
+  and Important only for an account's tasks, Title contains…, asked for as text, at most 100
+  characters, an empty box clears it, [S-611]) and New tasks at the top. **Important only** is
+  offered only where tasks can be important (Microsoft To Do's star, `TasksConfig.HasImportance`,
+  [S-6070]): Google Tasks has no importance, so there it could only empty the list, and the filter
+  leaves it out there as it does on this PC, so a value kept from another account cannot hide every
+  task (user request 2026-10-19).
 
 Needs a live pass: a signed-in Microsoft and Google account (the list picker, Today, ticking,
 renaming, deleting and adding a task landing on the server, offline edits catching up), a list on

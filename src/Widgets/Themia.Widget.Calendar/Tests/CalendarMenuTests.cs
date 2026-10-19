@@ -1,7 +1,11 @@
+using Themia.App.Services.Accounts;
+using Themia.App.Services.Office;
 using Themia.App.Widgets;
+using Themia.Core.Accounts;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Office;
+using Themia.Sdk;
 using Themia.Sdk.WinUI;
 using Xunit;
 
@@ -14,11 +18,38 @@ public sealed class CalendarMenuTests
 
     private WidgetTextAsk? _asked;
 
-    private WidgetMenuLines Build(CalendarWidgetConfig config)
+    /// <summary>A Microsoft account (calendars and contacts) and a CalDAV one (a calendar alone).</summary>
+    private static readonly IReadOnlyList<AccountInfo> Accounts =
+    [
+        new("work", HostProviders.Microsoft, "work@example.com", "Work", null, null, null),
+        new("dav", HostProviders.CalDav, "dav@example.com", "Dav", null, "https://dav.example.com/", null),
+    ];
+
+    private WidgetMenuLines Build(CalendarWidgetConfig config, IOfficeSource? office = null)
     {
         var lines = new WidgetMenuLines(() => _saves++, ask => _asked = ask);
-        CalendarMenu.Lines(lines, config, office: null);
+        CalendarMenu.Lines(lines, config, office ?? new Office(Accounts));
         return lines;
+    }
+
+    /// <summary>The accounts, and no calendar lists yet (the Calendars line says it is looking).</summary>
+    private sealed class Office(IReadOnlyList<AccountInfo> accounts) : IOfficeSource
+    {
+        public event Action? Changed { add { } remove { } }
+
+        public IReadOnlyList<AccountInfo> Accounts(FeatureId feature) => accounts;
+
+        public Task<Synced<IReadOnlyList<CalendarEvent>>> EventsAsync(CalendarTarget target, DateTimeOffset from, DateTimeOffset to, bool force, CancellationToken cancellation)
+            => throw new NotSupportedException();
+
+        public Task<Synced<IReadOnlyList<CalendarInfo>>> CalendarsAsync(string accountId, bool force, CancellationToken cancellation)
+            => new TaskCompletionSource<Synced<IReadOnlyList<CalendarInfo>>>().Task;
+
+        public Task<Synced<IReadOnlyList<Birthday>>> BirthdaysAsync(string accountId, bool force, CancellationToken cancellation)
+            => throw new NotSupportedException();
+
+        public Task<Synced<IReadOnlyList<Contact>>> ContactsAsync(string accountId, int max, bool force, CancellationToken cancellation)
+            => throw new NotSupportedException();
     }
 
     private static ItemMenuEntry Line(IEnumerable<ItemMenuEntry> lines, string text) => Assert.Single(lines, l => l.Text == text);
@@ -44,12 +75,25 @@ public sealed class CalendarMenuTests
     }
 
     [Fact]
-    public void S7513_the_first_level_is_appearance_the_accounts_and_birthdays()
+    public void S7513_the_first_level_is_appearance_the_accounts_and_calendars_then_after_a_divider_birthdays()
     {
         var lines = Build(new CalendarWidgetConfig());
 
         Assert.Equal(0, lines.CardAt);
-        Assert.Equal([Str.WidgetUi_AccountsLabel.Text(), Str.Calendar_ShowBirthdays_Label.Text()], lines.Lines.Select(l => l.Text));
+        Assert.Equal(
+            [Str.WidgetUi_AccountsLabel.Text(), Str.WidgetsA_Calendar_Settings_Calendars.Text(), string.Empty, Str.Calendar_ShowBirthdays_Label.Text()],
+            lines.Lines.Select(l => l.IsSeparator ? string.Empty : l.Text));
+    }
+
+    [Fact]
+    public void S7513_birthdays_are_offered_while_a_chosen_account_has_contacts_and_not_for_a_caldav_calendar_alone()
+    {
+        var birthdays = Str.Calendar_ShowBirthdays_Label.Text();
+
+        Assert.Contains(Build(new CalendarWidgetConfig { AccountIds = ["work"] }).Lines, l => l.Text == birthdays);
+        Assert.DoesNotContain(Build(new CalendarWidgetConfig { AccountIds = ["dav"] }).Lines, l => l.Text == birthdays);
+        Assert.DoesNotContain(Build(new CalendarWidgetConfig(), new Office([])).Lines, l => l.Text == birthdays);
+        Assert.DoesNotContain(Build(new CalendarWidgetConfig { AccountIds = ["dav"] }).Lines, l => l.IsSeparator);
     }
 
     [Fact]

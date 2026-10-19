@@ -1733,8 +1733,11 @@ widget on the properties panel ([S-6007], its one place, [S-6536]). Owning files
   ([S-6300]). Current weather: Show detail in Standard. Stocks: Closed indicator for a listed symbol
   (not crypto), Extended hours for a listed symbol over one or five days (`WantsPrePost`), high and
   low markers in Chart. Sun: Events (and its Sky heading) not in Times, which is the events. Moon:
-  Longitude in Disc only. Week planner: "Tasks from" while today's tasks show. Tasks: Show due date,
-  Due and Important only for an account's tasks. Habits: Interval under the custom period, streaks
+  Longitude in Disc only. Week planner: "Tasks from" while today's tasks show and there are two
+  accounts with tasks or more. Tasks: Show due date, Due and Important only for an account's tasks,
+  Important only for one whose tasks can be important (Microsoft To Do, not Google). Calendar and
+  week planner: Show contact birthdays while a chosen account has contacts (not CalDAV alone). Next
+  meeting: no calendar colours (it draws none), so Calendars only for an account with two or more. Habits: Interval under the custom period, streaks
   and history in Dots. Pomodoro and Alarm: Volume while a sound is chosen. Contacts: the columns in
   Details. Screen time: the daily limit on the chart and the donut, the per-app limits on the app
   list, its Daily average over a week or a month. Debug: `--editbar-png` opens a kind's menu (and a

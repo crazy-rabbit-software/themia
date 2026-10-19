@@ -168,6 +168,39 @@ public sealed class AccountMenuLinesTests
     }
 
     [Fact]
+    public void S566_without_colours_one_calendar_has_nothing_to_choose_and_several_are_switches_only()
+    {
+        var one = new Office([Account("a", "Work")], _ => [new CalendarInfo("cal-1", "Calendar", true, null)]);
+        Assert.Single(OfficeMenuLines.CalendarAccounts(Lines(), new NextMeetingConfigProbe(), one, colours: false));
+
+        var several = new Office([Account("a", "Work")], _ => WorkCalendars);
+        var calendars = OfficeMenuLines.CalendarAccounts(Lines(), new NextMeetingConfigProbe(), several, colours: false).ToList()[1].Children!;
+        Assert.Equal(["Calendar", "Team"], calendars.Select(c => c.Text));
+        Assert.All(calendars, c => Assert.Null(c.Colour));
+    }
+
+    [Fact]
+    public void S566_without_colours_an_account_with_one_calendar_has_no_submenu_among_several()
+    {
+        var office = new Office([Account("a", "Work"), Account("b", "Home")], id => id == "a" ? WorkCalendars : [new CalendarInfo("cal-9", "Calendar", true, null)]);
+        var calendars = OfficeMenuLines.CalendarAccounts(Lines(), new NextMeetingConfigProbe(), office, colours: false).ToList()[1].Children!;
+
+        Assert.Equal(["Work"], calendars.Select(c => c.Text));
+    }
+
+    [Fact]
+    public void S575_birthdays_are_offered_while_a_chosen_calendar_account_has_contacts()
+    {
+        IReadOnlyList<AccountInfo> accounts = [Account("a", "Work"), new("d", HostProviders.CalDav, "d@example.com", "Dav", null, "https://dav.example.com/", null)];
+
+        Assert.True(OfficeMenuLines.OffersBirthdays([], accounts));
+        Assert.True(OfficeMenuLines.OffersBirthdays(["a"], accounts));
+        Assert.False(OfficeMenuLines.OffersBirthdays(["d"], accounts));
+        Assert.False(OfficeMenuLines.OffersBirthdays([], []));
+        Assert.Null(OfficeMenuLines.Birthdays(Lines(), new NextMeetingConfigProbe(), null));
+    }
+
+    [Fact]
     public void S566_a_colour_is_stored_lower_case_and_automatic_takes_it_out()
     {
         var colours = OfficeMenuLines.SetColour(new Dictionary<string, string>(), "a", "#AABBCC");

@@ -21,9 +21,12 @@ lines: the SDK's calendar lines, then Today's tasks), `Preview/` (Debug renders:
   change events, a minute tick to redraw).
 - **[S-5324]** Its options are on the properties menu ([S-3719], user request 2026-10-19; the
   settings page is gone): Appearance, every calendar's lines (Accounts, Calendars with their
-  colours, Show contact birthdays, [S-561]), then Show today's tasks (on by default) and, while they
-  show, Tasks from (the first account with tasks, or one
-  account; a chosen account that is signed out stays listed by its id, never swapped, [S-590]).
+  colours, [S-561]; Show contact birthdays while a chosen account has contacts, [S-575]), then after
+  a divider Show today's tasks (on by default) and, while they show and there is a choice, Tasks
+  from (the first account with tasks, or one account; a chosen account that is signed out stays
+  listed by its id, never swapped, [S-590]). With one account with tasks, "the first" is that
+  account, so the line is not offered (`WeekPlannerMenu.OffersTaskAccount`, [S-6070]) unless the
+  chosen one has been signed out.
   Lists kept on this PC are not offered: the planner is the synced schedule.
 - **[S-5325]** Setup and sync: it asks to be set up only while neither a calendar account nor (when
   it shows tasks) a task account is signed in; with tasks alone it is a week of tasks.

@@ -239,5 +239,5 @@ internal sealed partial class TasksView
     /// [S-611] Whether the add row may show: a list to add to, and no filter narrowing it — a task
     /// typed into a filtered list would vanish the moment it was added.
     /// </summary>
-    private bool CanAdd => Writable && !_config.Filter(today: false).Narrows;
+    private bool CanAdd => Writable && !_config.Filter(today: false, Importance).Narrows;
 }

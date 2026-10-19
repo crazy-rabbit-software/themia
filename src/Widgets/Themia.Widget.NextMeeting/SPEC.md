@@ -25,7 +25,9 @@ lines: the SDK's calendar lines), `Preview/` (Debug renders: `--state sample|run
   dims this one unless it is the same event.
 - **[S-4826]** Its options are on the properties menu ([S-3719], user request 2026-10-19; the
   settings page is gone): Appearance, then the calendar widgets' **Accounts** and **Calendars**
-  (`OfficeMenuLines.CalendarAccounts`, [S-561]), with no display lines (no birthdays). Debug: `--state sample` (a Teams meeting twelve minutes away), `running`, `none`.
+  (`OfficeMenuLines.CalendarAccounts`, [S-561]) without their colours (`colours: false`, [S-6070]:
+  it draws no calendar's colour), so an account with one calendar has nothing to choose and no line,
+  and Calendars is there only while a chosen account has two or more; no display lines (no birthdays). Debug: `--state sample` (a Teams meeting twelve minutes away), `running`, `none`.
 
 Needs a live pass: a signed-in Microsoft and Google account with a Teams, Zoom and Meet meeting
 (Join opening the app), a declined invitation, and the hover link with a calendar on the view.

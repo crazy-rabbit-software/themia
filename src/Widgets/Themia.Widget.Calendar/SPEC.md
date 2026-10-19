@@ -41,8 +41,10 @@ languages). Tests: the rules' are Core's; the config's are the module host's (`C
   **Date range** (Today, Today and tomorrow, 3, 7 or 30 days, and Custom…, which asks for 1 to 365
   days and holds the dot while the range is none of the others; the line shows the range) and
   **Agenda events** (1 to 100, asked for as text, [S-3726]). Then Appearance, the calendar widgets'
-  **Accounts** and **Calendars** (`OfficeMenuLines.CalendarAccounts`, [S-561]) and **Show contact
-  birthdays**.
+  **Accounts** and **Calendars** (`OfficeMenuLines.CalendarAccounts`, [S-561]) and, after a divider,
+  **Show contact birthdays**, offered only while a chosen account has contacts to read them from
+  (`OfficeMenuLines.OffersBirthdays`, [S-575], [S-6070]: a CalDAV calendar has no address book, and
+  with no account there is nothing to read).
 
 - **[S-1265]** Week columns ≥64 px spell the weekday; ≥100 px a timed chip shows start–end and its
   location under the title.

@@ -16,7 +16,8 @@ namespace Themia.Widget.Calendar;
 /// [S-7513] The calendar's options, all on its properties menu ([S-3719]): under Style only what the
 /// style uses ([S-3601], [S-6070]: the week's first column and length, the agenda's range and
 /// length); then Appearance ([S-3723]), every calendar widget's accounts and calendars with their
-/// colours ([S-561], the SDK's <see cref="OfficeMenuLines"/>) and birthdays. The week start is every
+/// colours ([S-561], the SDK's <see cref="OfficeMenuLines"/>) and, after a divider, birthdays while
+/// a chosen account has contacts ([S-575]). The week start is every
 /// widget's regional setting ([S-3770]). It has no settings page.
 /// </summary>
 internal static class CalendarMenu
@@ -34,7 +35,14 @@ internal static class CalendarMenu
 
         menu.PlaceCard();
         menu.Lines.AddRange(OfficeMenuLines.CalendarAccounts(menu, calendar, office));
-        menu.Lines.Add(OfficeMenuLines.Birthdays(menu, calendar));
+
+        // [S-575] What the view shows besides the events, apart from where they come from; only
+        // while a chosen account has the contacts the birthdays are read from.
+        if (OfficeMenuLines.Birthdays(menu, calendar, office) is { } birthdays)
+        {
+            menu.Lines.Add(ItemMenuEntry.Separator);
+            menu.Lines.Add(birthdays);
+        }
     }
 
     /// <summary>[S-3601] One of a style's own lines: the week's first column and length, the agenda's range and count.</summary>

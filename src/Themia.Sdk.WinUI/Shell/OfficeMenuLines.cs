@@ -61,7 +61,12 @@ public static class OfficeMenuLines
     /// several, and a colour each, [S-566]), read through <paramref name="source"/> (the host's office
     /// source, <see cref="SettingsHost.Office"/>). No Calendars line while no account is chosen.
     /// </summary>
-    public static IEnumerable<ItemMenuEntry> CalendarAccounts(WidgetMenuLines menu, CalendarConfig config, IOfficeSource? source)
+    /// <param name="colours">
+    /// [S-566] Whether the widget draws its events in their calendar's colour. Without (Next meeting)
+    /// there are no colour lines, and an account with one calendar has nothing to choose, so it is
+    /// left out, and the Calendars line with it when no chosen account has two ([S-6070]).
+    /// </param>
+    public static IEnumerable<ItemMenuEntry> CalendarAccounts(WidgetMenuLines menu, CalendarConfig config, IOfficeSource? source, bool colours = true)
     {
         ArgumentNullException.ThrowIfNull(menu);
         ArgumentNullException.ThrowIfNull(config);
@@ -71,7 +76,7 @@ public static class OfficeMenuLines
             new KitAccountWords(Str.WidgetsA_Calendar_NoAccount.Text(), Str.WidgetsA_Calendar_Settings_Every.Text()),
             config.AccountIds, ids => config.AccountIds = ids);
 
-        if (source is null || CalendarsLine(menu, config, source, accounts) is not { } calendars)
+        if (source is null || CalendarsLine(menu, config, source, accounts, colours) is not { } calendars)
         {
             yield break;
         }
@@ -79,12 +84,31 @@ public static class OfficeMenuLines
         yield return calendars;
     }
 
-    /// <summary>[S-575] Whether the calendar shows the accounts' contacts' birthdays.</summary>
-    public static ItemMenuEntry Birthdays(WidgetMenuLines menu, CalendarConfig config)
+    /// <summary>
+    /// [S-575] Whether the calendar shows the accounts' contacts' birthdays: offered only while a
+    /// chosen calendar account has an address book (<see cref="OffersBirthdays"/>), null otherwise.
+    /// </summary>
+    public static ItemMenuEntry? Birthdays(WidgetMenuLines menu, CalendarConfig config, IOfficeSource? source)
     {
         ArgumentNullException.ThrowIfNull(menu);
         ArgumentNullException.ThrowIfNull(config);
-        return menu.Toggle(Glyphs.Gift, Str.Calendar_ShowBirthdays_Label.Text(), config.ShowBirthdays, on => config.ShowBirthdays = on);
+        return OffersBirthdays(config.AccountIds, source?.Accounts(HostFeatures.Calendar) ?? [])
+            ? menu.Toggle(Glyphs.Gift, Str.Calendar_ShowBirthdays_Label.Text(), config.ShowBirthdays, on => config.ShowBirthdays = on)
+            : null;
+    }
+
+    /// <summary>
+    /// [S-575] [S-6070] Whether the birthdays switch changes anything: the birthdays are read from
+    /// the chosen calendar accounts' contacts, so only while one of them has contacts (a CalDAV
+    /// calendar has no address book behind it, and with no account there is nothing to read).
+    /// </summary>
+    public static bool OffersBirthdays(IReadOnlyList<string> chosenIds, IReadOnlyList<AccountInfo> accounts)
+    {
+        ArgumentNullException.ThrowIfNull(chosenIds);
+        ArgumentNullException.ThrowIfNull(accounts);
+
+        var selected = CalendarRules.SelectAccounts(chosenIds, [.. accounts.Select(a => a.Id)]);
+        return accounts.Any(a => selected.Contains(a.Id) && a.Features.Has(HostFeatures.Contacts));
     }
 
     /// <summary>
@@ -93,7 +117,7 @@ public static class OfficeMenuLines
     /// the account says it is looking, and a list that could not be read says why (the default
     /// calendar is shown meanwhile).
     /// </summary>
-    private static ItemMenuEntry? CalendarsLine(WidgetMenuLines menu, CalendarConfig config, IOfficeSource source, IReadOnlyList<AccountInfo> accounts)
+    private static ItemMenuEntry? CalendarsLine(WidgetMenuLines menu, CalendarConfig config, IOfficeSource source, IReadOnlyList<AccountInfo> accounts, bool colours)
     {
         var selected = CalendarRules.SelectAccounts(config.AccountIds, [.. accounts.Select(a => a.Id)]);
         if (selected.Count == 0)
@@ -114,26 +138,31 @@ public static class OfficeMenuLines
                 return [WidgetMenuLines.Note(note)];
             }
 
-            return CalendarLines(menu, config, account.Id, calendars, targets);
+            return CalendarLines(menu, config, account.Id, calendars, targets, colours);
         }
 
+        // An account with nothing to choose (one calendar and no colours) has no line of its own.
         var chosen = accounts.Where(a => selected.Contains(a.Id)).ToList();
         var lines = chosen.Count == 1
             ? Of(chosen[0])
-            : [.. chosen.Select(a => WidgetMenuLines.Submenu(null, a.Label, Of(a)))];
-        return WidgetMenuLines.Submenu(Glyphs.Calendar, label, lines);
+            : [.. chosen.Select(a => (Account: a, Lines: Of(a))).Where(a => a.Lines.Count > 0).Select(a => WidgetMenuLines.Submenu(null, a.Account.Label, a.Lines))];
+        return lines.Count == 0 ? null : WidgetMenuLines.Submenu(Glyphs.Calendar, label, lines);
     }
 
-    /// <summary>[S-567] One account's calendars: a switch each when there are several, then their colours.</summary>
-    private static List<ItemMenuEntry> CalendarLines(WidgetMenuLines menu, CalendarConfig config, string accountId, IReadOnlyList<CalendarInfo> calendars, IReadOnlyList<CalendarTarget> targets)
+    /// <summary>
+    /// [S-567] One account's calendars: a switch each when there are several, then their colours
+    /// where the widget draws them (<paramref name="withColours"/>); nothing when there is nothing to choose.
+    /// </summary>
+    private static List<ItemMenuEntry> CalendarLines(WidgetMenuLines menu, CalendarConfig config, string accountId, IReadOnlyList<CalendarInfo> calendars, IReadOnlyList<CalendarTarget> targets, bool withColours)
     {
         if (calendars.Count == 0)
         {
-            return [WidgetMenuLines.Note(Str.WidgetsA_Calendar_Settings_DefaultCalendar.Text())];
+            return withColours ? [WidgetMenuLines.Note(Str.WidgetsA_Calendar_Settings_DefaultCalendar.Text())] : [];
         }
 
         var colours = new List<ItemMenuEntry>();
-        foreach (var calendar in calendars)
+        IReadOnlyList<CalendarInfo> coloured = withColours ? calendars : [];
+        foreach (var calendar in coloured)
         {
             // The palette index is the calendar's place among everything the widget fetches,
             // exactly as the widget resolves it, so the swatch here is the chip there.

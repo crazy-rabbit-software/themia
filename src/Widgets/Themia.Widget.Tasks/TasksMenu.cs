@@ -17,7 +17,8 @@ namespace Themia.Widget.Tasks;
 /// [S-7516] The Tasks widget's options, all on its properties menu ([S-3719]): Appearance
 /// ([S-3723]); where the list comes from (an account, the first account with tasks, or this PC) and
 /// which list (an account's lists, its Today view, or a list kept on this PC, made, renamed and
-/// deleted here); then how rows are drawn and what they keep ([S-611]). It has no settings page.
+/// deleted here); then, each group after a divider, what each task shows and which tasks the list
+/// keeps ([S-611], [S-7516]). It has no settings page.
 /// <para>
 /// Accounts are signed in on the Accounts page, not here: the menu lists the accounts that can hold
 /// tasks and opens that page. Lists on this PC, by contrast, are made, renamed and deleted right
@@ -58,8 +59,8 @@ internal static class TasksMenu
             }
         }
 
+        // [S-7516] What each task shows.
         menu.Lines.Add(ItemMenuEntry.Separator);
-        menu.Lines.Add(menu.Toggle(Glyphs.Task, TasksStr.Todo_ShowCompleted_Label.Text(), config.ShowCompleted, on => config.ShowCompleted = on));
 
         // [S-6074] Due dates exist only on an account's tasks.
         if (config.Offers(TasksSetting.DueDate))
@@ -70,9 +71,25 @@ internal static class TasksMenu
         menu.Lines.Add(menu.Number(Glyphs.Wrap, TasksStr.Todo_TitleLines_Label.Text(), config.EffectiveTitleLines, TaskRules.TitleLinesMin, TaskRules.TitleLinesMax, 1,
             v => LocaleFormat.Integer(v), value => config.TitleLines = value));
 
+        // [S-7516] Which tasks the list keeps, and where a new one lands.
+        menu.Lines.Add(ItemMenuEntry.Separator);
+        menu.Lines.Add(menu.Toggle(Glyphs.Task, TasksStr.Todo_ShowCompleted_Label.Text(), config.ShowCompleted, on => config.ShowCompleted = on));
+        menu.Lines.Add(WidgetMenuLines.Submenu(Glyphs.Search, TasksStr.WidgetsC_Tasks_Settings_Filter.Text(), Filters(menu, config, Importance(config, service))));
+
         // [S-610] Where a new task lands; the stored order ([S-598]) is kept either way.
         menu.Lines.Add(menu.Toggle(Glyphs.Sort, TasksStr.WidgetsC_Tasks_Settings_NewOnTop_Label.Text(), config.NewOnTop, on => config.NewOnTop = on));
-        menu.Lines.Add(WidgetMenuLines.Submenu(Glyphs.Search, TasksStr.WidgetsC_Tasks_Settings_Filter.Text(), Filters(menu, config)));
+    }
+
+    /// <summary>[S-7516] Whether the account the widget reads has importance (before the service has started, assumed so).</summary>
+    private static bool Importance(TasksConfig config, ITaskSource? service)
+    {
+        if (service is null || config.Source == TaskSource.Local)
+        {
+            return true;
+        }
+
+        var account = string.IsNullOrEmpty(config.AccountId) ? service.Accounts.FirstOrDefault() : service.Find(config.AccountId);
+        return TasksConfig.HasImportance(account?.Provider);
     }
 
     /// <summary>
@@ -289,11 +306,11 @@ internal static class TasksMenu
     }
 
     /// <summary>
-    /// [S-611] Filters: the due and importance filters (an account's tasks only, [S-6074]), and the
-    /// words the titles must hold, asked for as text (at most <see cref="TasksConfig.TextFilterMax"/>
-    /// characters; an empty box clears it).
+    /// [S-611] Filters: the due and importance filters (an account's tasks only, [S-6074]; importance
+    /// only where the account has it, [S-7516]), and the words the titles must hold, asked for as
+    /// text (at most <see cref="TasksConfig.TextFilterMax"/> characters; an empty box clears it).
     /// </summary>
-    private static List<ItemMenuEntry> Filters(WidgetMenuLines menu, TasksConfig config)
+    private static List<ItemMenuEntry> Filters(WidgetMenuLines menu, TasksConfig config, bool importance)
     {
         var lines = new List<ItemMenuEntry>();
         if (config.Offers(TasksSetting.DueFilter))
@@ -309,7 +326,7 @@ internal static class TasksMenu
                 config.DueFilter, value => config.DueFilter = value));
         }
 
-        if (config.Offers(TasksSetting.ImportantOnly))
+        if (config.Offers(TasksSetting.ImportantOnly) && importance)
         {
             lines.Add(menu.Toggle(null, TasksStr.WidgetsC_Tasks_Settings_ImportantOnly_Label.Text(), config.ImportantOnly, on => config.ImportantOnly = on));
         }

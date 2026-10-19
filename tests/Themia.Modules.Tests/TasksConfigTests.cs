@@ -12,10 +12,10 @@ public sealed class TasksConfigTests
     public void S611_a_list_on_this_pc_keeps_only_its_text_filter()
     {
         var config = new TasksConfig { Source = TaskSource.Local, DueFilter = TaskDueFilter.Today, ImportantOnly = true, TextFilter = "milk", ShowCompleted = true };
-        Assert.Equal(new TaskFilter(true, Text: "milk"), config.Filter(today: false));
+        Assert.Equal(new TaskFilter(true, Text: "milk"), config.Filter(today: false, importance: true));
 
         config.Source = TaskSource.Account;
-        Assert.Equal(new TaskFilter(true, TaskDueFilter.Today, true, "milk", FinishedTodayOnly: true), config.Filter(today: true));
+        Assert.Equal(new TaskFilter(true, TaskDueFilter.Today, true, "milk", FinishedTodayOnly: true), config.Filter(today: true, importance: true));
     }
 
     [Fact]
