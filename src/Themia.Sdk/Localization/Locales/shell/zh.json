@@ -397,7 +397,6 @@
   "shell.place.searching": "正在搜索…",
   "shell.place.typeName": "请输入地点名称",
   "shell.place.searchPlaceholder": "搜索城市",
-  "shell.place.notChosen": "尚未选择。搜索城市进行设置。",
   "shell.place.noMatch": "没有与“{query}”匹配的地点。请检查拼写或尝试附近的城镇。",
   "shell.place.offline": "你已离线。请连接互联网以搜索地点。",
   "shell.place.failed": "地点搜索没有响应。请稍后重试。",

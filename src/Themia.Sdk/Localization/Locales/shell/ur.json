@@ -406,7 +406,6 @@
   "shell.place.searching": "تلاش ہو رہی ہے…",
   "shell.place.typeName": "جگہ کا نام ٹائپ کریں",
   "shell.place.searchPlaceholder": "شہر تلاش کریں",
-  "shell.place.notChosen": "ابھی کچھ نہیں چنا گیا۔ سیٹ کرنے کے لیے شہر تلاش کریں۔",
   "shell.place.noMatch": "“{query}” سے کوئی جگہ مماثل نہیں۔ ہجے چیک کریں یا کوئی قریبی قصبہ آزمائیں۔",
   "shell.place.offline": "آپ آف لائن ہیں۔ جگہیں تلاش کرنے کے لیے انٹرنیٹ سے منسلک ہوں۔",
   "shell.place.failed": "جگہ کی تلاش جواب نہیں دے رہی۔ تھوڑی دیر بعد دوبارہ کوشش کریں۔",

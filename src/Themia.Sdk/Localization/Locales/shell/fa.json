@@ -406,7 +406,6 @@
   "shell.place.searching": "در حال جستجو…",
   "shell.place.typeName": "نام مکان را تایپ کنید",
   "shell.place.searchPlaceholder": "جستجوی شهر",
-  "shell.place.notChosen": "هنوز انتخاب نشده. برای تنظیم، شهری را جستجو کنید.",
   "shell.place.noMatch": "هیچ مکانی با «{query}» مطابقت ندارد. املا را بررسی کنید یا شهری نزدیک را امتحان کنید.",
   "shell.place.offline": "آفلاین هستید. برای جستجوی مکان‌ها به اینترنت وصل شوید.",
   "shell.place.failed": "جستجوی مکان پاسخ نمی‌دهد. کمی بعد دوباره تلاش کنید.",

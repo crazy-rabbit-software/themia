@@ -406,7 +406,6 @@
   "shell.place.searching": "Aranıyor…",
   "shell.place.typeName": "Bir yer adı yazın",
   "shell.place.searchPlaceholder": "Şehir arayın",
-  "shell.place.notChosen": "Henüz seçilmedi. Ayarlamak için bir şehir arayın.",
   "shell.place.noMatch": "“{query}” ile eşleşen yer yok. Yazımı denetleyin veya yakındaki bir kasabayı deneyin.",
   "shell.place.offline": "Çevrimdışısınız. Yer aramak için internete bağlanın.",
   "shell.place.failed": "Yer araması yanıt vermiyor. Birazdan yeniden deneyin.",

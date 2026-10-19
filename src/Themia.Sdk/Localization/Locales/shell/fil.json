@@ -406,7 +406,6 @@
   "shell.place.searching": "Naghahanap…",
   "shell.place.typeName": "Mag-type ng pangalan ng lugar",
   "shell.place.searchPlaceholder": "Maghanap ng lungsod",
-  "shell.place.notChosen": "Wala pang napili. Maghanap ng lungsod para itakda ito.",
   "shell.place.noMatch": "Walang lugar na tumutugma sa “{query}”. Suriin ang spelling o subukan ang kalapit na bayan.",
   "shell.place.offline": "Offline ka. Kumonekta sa internet para maghanap ng mga lugar.",
   "shell.place.failed": "Hindi sumasagot ang paghahanap ng lugar. Subukan ulit mamaya.",

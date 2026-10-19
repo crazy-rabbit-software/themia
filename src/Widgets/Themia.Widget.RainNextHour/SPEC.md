@@ -5,12 +5,12 @@ alone; the root `SPEC.md` holds the host's sections and what the online widgets 
 and exchange rates: the nowcast's wire and rules [S-5122]..[S-5124] in the SDK's `RainNowcast.cs`, the
 header's stale rule [S-5160], the offline shelf [S-5161]; the background web sync [S-2663]).
 
-Owning files: everything in this folder: `RainNextHourModule.cs` (descriptor, view factory, settings
-rows, JSON context), `RainNextHourConfig.cs`, `RainNextHourView.cs` (it reads the nowcast through
-`IWidgetHost.Weather`), `RainLayout.cs` (its ladder), `RainText.cs` (its words), `RainNextHourSettings.cs`
-(its page: the weather family's `WeatherPlaceRows` and the source line), `Preview/` (Debug renders:
+Owning files: everything in this folder: `RainNextHourModule.cs` (descriptor, view factory, menu
+lines, JSON context), `RainNextHourConfig.cs`, `RainNextHourView.cs` (it reads the nowcast through
+`IWidgetHost.Weather`), `RainLayout.cs` (its ladder), `RainText.cs` (its words), `RainNextHourMenu.cs`
+(its properties menu: the weather family's `WeatherPlaceRows.LocationLine` and the source line), `Preview/` (Debug renders:
 `--state sample|dry`), `Localization/Locales/` (its own `RainNextHourStr`, 30 languages). Tests:
-`Tests/RainNextHourTests.cs` (run by `tests/Themia.Modules.Tests`); the nowcast's own tests stay Core's
+`Tests/RainNextHourTests.cs`, `Tests/RainNextHourMenuTests.cs` (run by `tests/Themia.Modules.Tests`); the nowcast's own tests stay Core's
 (`OnlineWidgetsTests`, `S5122_`..`S5124_`).
 
 - **[S-5120]** Rain in the next two hours at a place, a weather-family config like [S-5100], no
@@ -23,6 +23,9 @@ rows, JSON context), `RainNextHourConfig.cs`, `RainNextHourView.cs` (it reads th
 - **[S-5126]** Ladder (`RainLayout.Rain`): the sentence always, at the step its width allows
   (BodyStrong to Title; two lines on a tile too narrow for one), then the caption, then the bars
   where 32 DIP of them and their time line fit, taking the rest of the height.
-- **[S-5127]** Settings: Place, Location name, and the source line.
+- **[S-5127]** Every option is on the properties menu ([S-3719], user request 2026-10-19); there is
+  no settings page: Appearance ([S-3723]), **Location** (the weather family's search, [S-2840],
+  [S-3722], the Location name switch under its answers, [S-728]) and the source's credit, a note
+  ("Source: Open-Meteo").
 
 Needs a live pass: the widget against the real service (a rainy hour, a dry one), offline with a restored shelf.

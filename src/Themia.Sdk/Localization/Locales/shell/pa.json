@@ -406,7 +406,6 @@
   "shell.place.searching": "ਖੋਜ ਹੋ ਰਹੀ ਹੈ…",
   "shell.place.typeName": "ਥਾਂ ਦਾ ਨਾਮ ਟਾਈਪ ਕਰੋ",
   "shell.place.searchPlaceholder": "ਸ਼ਹਿਰ ਖੋਜੋ",
-  "shell.place.notChosen": "ਹਾਲੇ ਕੋਈ ਨਹੀਂ ਚੁਣਿਆ। ਸੈੱਟ ਕਰਨ ਲਈ ਕੋਈ ਸ਼ਹਿਰ ਖੋਜੋ।",
   "shell.place.noMatch": "“{query}” ਨਾਲ ਕੋਈ ਥਾਂ ਮੇਲ ਨਹੀਂ ਖਾਂਦੀ। ਸਪੈਲਿੰਗ ਜਾਂਚੋ ਜਾਂ ਨੇੜਲਾ ਕਸਬਾ ਅਜ਼ਮਾਓ।",
   "shell.place.offline": "ਤੁਸੀਂ ਔਫਲਾਈਨ ਹੋ। ਥਾਂਵਾਂ ਖੋਜਣ ਲਈ ਇੰਟਰਨੈੱਟ ਨਾਲ ਕਨੈਕਟ ਕਰੋ।",
   "shell.place.failed": "ਥਾਂ ਖੋਜ ਜਵਾਬ ਨਹੀਂ ਦੇ ਰਹੀ। ਥੋੜ੍ਹੀ ਦੇਰ ਬਾਅਦ ਮੁੜ ਕੋਸ਼ਿਸ਼ ਕਰੋ।",

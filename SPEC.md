@@ -601,7 +601,7 @@ busy desktop ([S-6601]), Debug, private bytes.
 - **[S-171]** (Reason superseded by [S-1494]: the place is now picked by city search; the validation
   below still governs the exact-coordinate fields.) There is no geocoding service here and widgets make no network calls, so the settings
   take latitude, longitude and place name directly. Input that is not a number in range is
-  **rejected** — the last good value stands and the row says why — never coerced to 0, which would
+  **rejected** — the last good value stands and the ask says why ([S-3721]) — never coerced to 0, which would
   silently move the user to the Gulf of Guinea.
 
 ### Two widgets: Sun and Moon (SKY-SPLIT)
@@ -609,7 +609,7 @@ busy desktop ([S-6601]), Debug, private bytes.
 Sun & moon is split in two (user rule: one widget, one thing). Each is a module of its own
 (`src/Widgets/Themia.Widget.Sun`, `src/Widgets/Themia.Widget.Moon`, their SPEC.md files). The SDK:
 `SkyPlaceConfig`, the astronomy (`MoonPhase.NextRiseSet`, `SkyText.EventTime`), `SkyParts` (the
-shared row and moon drawing) and `SkyPlaceRows` (the shared place rows); tests `SkyWidgetsTests`
+shared row and moon drawing) and `SkyPlaceRows` (the shared place line on their properties menus); tests `SkyWidgetsTests`
 (`S310x_`, the astronomy), the pair's in the module host's `SkyWidgetsHostTests`.
 
 - **[S-3100]** **Sun** (`sun`, 320×240, sun glyph) is the sun's day: the path graphic, the
@@ -620,9 +620,12 @@ shared row and moon drawing) and `SkyPlaceRows` (the shared place rows); tests `
   need setting up only once their place is cleared ([S-2848]), and have no keys ([S-1996]). There is no combined kind: `SunMoon` (16) is gone and
   a state file holding it drops that widget at load like any unknown kind ([S-1900], [S-1050]).
 - **[S-3101]** Both carry the observer's place (`SkyPlaceConfig`: latitude, longitude, place name)
-  and share one settings block: city search ([S-1494], [S-2840]) and the validated exact
-  coordinates ([S-171]). Sun adds the Events switch; Moon has nothing else (how each draws itself
-  is its style, [S-6045], [S-6050]). `Repair` at load: a latitude or longitude that is not a number
+  and share one line on their properties menus ([S-3719], user request 2026-10-19; no settings
+  page): **Location** (`SkyPlaceRows.LocationLine`), the city search ([S-1494], [S-2840], [S-3722])
+  with, under its answers, Clear location ([S-2848]), Place name (the header's title, may be
+  emptied, cut at 80), Latitude and Longitude, each asked for as text ([S-3721]) and validated
+  ([S-171]). Sun adds the Events switch under Style ([S-3107]); Moon has nothing else ([S-3108]; how
+  each draws itself is its style, [S-6045], [S-6050]). `Repair` at load: a latitude or longitude that is not a number
   in range sends both, and the name, back to Zurich (a `null` one is a cleared place, [S-2848], and
   is left alone); a place name over 80 characters is cut; each
   repair is logged.
@@ -2808,12 +2811,12 @@ their `SPEC.md`); this section keeps what they share. Shared rules in `Themia.Sd
 - **[S-731]** *(Retired: the debug widget gallery and its fixtures are gone, [S-1863].)*
 - **[S-732]** *(Retired by [S-2840]..[S-2846]: the two-row search, its separate results drop-down
   and the "Change" button that cleared the place are gone.)*
-- **[S-2840]** The location is one settings row, `PlaceSearch` + `PlaceSearchBinding`, shared by both
-  weather widgets (and Sun and Moon while they exist): title "Location", description the chosen place's
-  label in full ("Zürich, Zurich, Switzerland") or "None chosen yet. Search for a city to set it.";
-  the control is one search box (`AutoSuggestBox`, search glyph, "Search for a city", 300 wide). The
-  box is only ever a question, never the choice: a pick stores coordinates + label, updates the
-  description and empties the box. No Change mode; clearing is [S-2848]. No "use my location": the
+- **[S-2840]** The location is one line on the properties menu, a search ([S-3722], user request
+  2026-10-19: no settings page), shared by the weather family (`WeatherPlaceRows.LocationLine`) and
+  Sun and Moon (`SkyPlaceRows.LocationLine`, [S-3101]), both over `PlaceSearch.MenuAnswerAsync`:
+  title "Location", the chosen place's city at the line's end (none: nothing); its submenu's box
+  says "Search for a city". The box is only ever a question, never the choice: a pick stores
+  coordinates + label. No Change mode; clearing is [S-2848]. No "use my location": the
   app has no location source, and there is no app-wide default place to fall back to.
 - **[S-2841]** Queries (`PlaceQuery`, Core): trimmed, runs of whitespace made one space, cut at 80.
   Typing searches 300 ms after the last keystroke once 2+ characters; Enter or the search glyph
@@ -2830,30 +2833,28 @@ their `SPEC.md`); this section keeps what they share. Shared rules in `Themia.Sd
   a ring; "No places match “x”. Check the spelling or try a nearby town."; offline (no network:
   "You're offline…", not an error); any other failure "The place search isn't answering…" in the
   critical colour, logged. Every fetch status maps to exactly one of these (`PlaceQuery.Outcome`).
-- **[S-2844]** Keys: Down/Up move through the suggestions without committing or rewriting the box;
-  Enter or a click picks the highlighted place; Enter with none highlighted picks the best match when
-  the list answers what the box says, else searches now; Escape closes the list.
+- **[S-2844]** *(Retired with the settings page's search box, 2026-10-19: the menu search's keys are
+  [S-3722]'s.)*
 - **[S-2845]** One search at a time, a newer one cancels the older. Answers (places or no match) are
   kept for the session in a 32-entry LRU keyed by the query in any case and the app language;
   failures are not kept. The geocoder is asked in the app language (`language=`), through the
   guarded `WebFetch` and the source-generated JSON context only.
 - **[S-2846]** The typed query is not stored: `WeatherConfig.Place` is gone (a half-typed word is not
   a place and must not title the widget).
-- **[S-2847]** Debug renders: `--settings-png Widget:<Kind> … [--place-chosen] [--place-query text
-  [--place-reply results|none|offline|error|searching]]` draws the row chosen or not, and the open
-  list (`<out>-place.png`) against a fixture geocoder; nothing touches the network. `--place-cleared`
-  (also on `--widget-png`) clears the demo widget's place ([S-2848]): a Sun or Moon starts at Zurich.
+- **[S-2847]** Debug renders: `--editbar-png` opens the location searches and types into them
+  against a fixture geocoder (`PlaceRender.UseFixture`); nothing touches the network.
+  `--place-cleared` on `--widget-png` clears the widget's place ([S-2848]): a Sun or Moon starts at
+  Zurich. (The settings page's `--place-chosen`, `--place-query` and `--place-reply` went with it.)
 - **[S-2848]** Clear (user requirement: a place can be cleared, not only overwritten). Every widget
   about a place implements `IPlaced` (`HasLocation`, `ClearLocation`): current conditions, forecast,
-  air quality, rain, Sun and Moon. While a place is chosen the location row shows a clear button
-  (`Glyphs.Dismiss`, tooltip and name "Clear location") left of the search box; it forgets the
-  coordinates and the name (the location-name switch stays), saves, says "None chosen yet…", hides
-  itself and focuses the search. A cleared place is no place for every kind alike: the widget shows
+  air quality, rain, Sun and Moon. Under the location search's answers, Clear location
+  (`Glyphs.Dismiss`, greyed while none is chosen) forgets the coordinates and the name (the
+  location-name switch stays) and saves. A cleared place is no place for every kind alike: the widget shows
   its Set up button ([S-1860]) with its view parked ([S-1881]), asks the sync for nothing, and a later
   pick starts a fresh view, so nothing fetched for the old place is drawn. No kind falls back to a
   default. Sun and Moon still start at Zurich; cleared, their coordinates are stored as `null` (always
-  written, so they never read back as Zurich), their exact fields are empty (leaving an empty one is
-  not refused), and a place typed into the exact fields counts as chosen (named by its coordinates
+  written, so they never read back as Zurich), their coordinate lines show nothing (their asks start
+  empty), and a place typed into the coordinate lines counts as chosen (named by its coordinates
   when it has no name).
 - **[S-733]** Reading glyphs, checked against the font: droplet EB42, thermometer E9CA, wind E7BC;
   layouts: list E8FD, columns E8C0, grid E8A9.
@@ -5471,7 +5472,8 @@ the quote and the scratchpad are modules of their own, each with its SPEC.md and
 - **[S-1493]** *(Retired by [S-1746].)* The sun path's modes and the event rows are settings only;
   the widget has no menu entries of its own.
 - **[S-1494]** The place is picked by city name through the shared `PlaceSearch` ([S-2840], Open-Meteo
-  geocoder, resolved once at the pick); exact name/latitude/longitude stay editable and validated
+  geocoder, resolved once at the pick); exact name/latitude/longitude stay editable (asked for as
+  text under the search's answers, [S-3101]) and validated
   (S-171's refusal rule unchanged). This supersedes S-171's "no geocoding service" reason.
 - [S-1495], [S-1990], [S-1496], [S-6404], [S-6405]: moved with the Quote widget into its module's `SPEC.md` (`src/Widgets/Themia.Widget.Quote/`).
 - [S-1497], [S-1498], [S-1499]: moved with the Scratchpad widget into its module's `SPEC.md` (`src/Widgets/Themia.Widget.Scratchpad/`).

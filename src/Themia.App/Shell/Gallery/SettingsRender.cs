@@ -262,9 +262,6 @@ internal static class SettingsRender
                 _ => request.App!,
             }, request.Open);
 
-            // [S-2847] --place-chosen / --place-query / --place-reply: the location row's states.
-            PlaceRender.Prepare(host, request.Kind);
-
             settings = new ConfigWindow(host);
             var window = settings.DebugWindow;
 
@@ -306,8 +303,6 @@ internal static class SettingsRender
                 settings.DebugSearch(query);
             }
 
-            PlaceRender.Type();
-
             if (request.Flyout is { } flyoutRow)
             {
                 if (!settings.DebugOpenFlyout(flyoutRow))
@@ -330,7 +325,7 @@ internal static class SettingsRender
             await RenderPng.SaveAsync(root, request.OutPath).ConfigureAwait(true);
             Console.WriteLine($"settings: wrote {request.OutPath}");
 
-            if (request.Search is not null || request.Flyout is not null || PlaceRender.Query is not null)
+            if (request.Search is not null || request.Flyout is not null)
             {
                 // The suggestion list is a popup, outside the window's tree: drawn on its own.
                 foreach (var popup in VisualTreeHelper.GetOpenPopupsForXamlRoot(root.XamlRoot))
@@ -338,7 +333,7 @@ internal static class SettingsRender
                     if (popup.Child is FrameworkElement child)
                     {
                         var path = Path.ChangeExtension(request.OutPath, null)
-                            + (request.Search is not null ? "-search.png" : PlaceRender.Query is not null ? "-place.png" : "-flyout.png");
+                            + (request.Search is not null ? "-search.png" : "-flyout.png");
                         await RenderPng.SaveAsync(child, path).ConfigureAwait(true);
                         Console.WriteLine($"settings: wrote {path}");
                         break;

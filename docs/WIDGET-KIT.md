@@ -1597,7 +1597,7 @@ registration path: when a table becomes a descriptor member, the table is delete
   scenes (by id; the edit bar scene names styles by name). Into the SDK first, each its own commit:
   `FlipCard` with `SystemMotion`; the sky library (`Core/Astronomy`) and `SkyParts`; `RoundButtonPart`
   with `RoundButtonFace`; `ControlKey` (each widget's own key map moved with it: `StopwatchKeys`,
-  `QuoteKeys`, `PomodoroKeys`); `Glyphs` public; `SkyPlaceRows` (the Sun's and Moon's place rows);
+  `QuoteKeys`, `PomodoroKeys`); `Glyphs` public; `SkyPlaceRows` (the Sun's and Moon's place line, on their properties menus since 2026-10-19);
   `ChromeFrame` (the flyout chrome, out of `EditBar`); `ColorPreset` named by `LocalText`;
   `RecycleBinState` with the bin's target and tooltip; the power rules (`PowerButton`,
   `PowerActionRules`, `PowerFace`), `PowerButtonView` and `ButtonInset`; the ringtones

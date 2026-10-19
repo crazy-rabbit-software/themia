@@ -442,7 +442,6 @@
   "shell.place.searching": "جارٍ البحث…",
   "shell.place.typeName": "اكتب اسم مكان",
   "shell.place.searchPlaceholder": "البحث عن مدينة",
-  "shell.place.notChosen": "لم يُختر شيء بعد. ابحث عن مدينة لتعيينها.",
   "shell.place.noMatch": "لا توجد أماكن تطابق «{query}». تحقق من الإملاء أو جرّب بلدة قريبة.",
   "shell.place.offline": "أنت غير متصل. اتصل بالإنترنت للبحث عن أماكن.",
   "shell.place.failed": "البحث عن الأماكن لا يستجيب. أعد المحاولة بعد قليل.",

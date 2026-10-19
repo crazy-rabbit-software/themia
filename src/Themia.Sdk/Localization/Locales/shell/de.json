@@ -406,7 +406,6 @@
   "shell.place.searching": "Wird gesucht…",
   "shell.place.typeName": "Gib einen Ortsnamen ein",
   "shell.place.searchPlaceholder": "Nach einer Stadt suchen",
-  "shell.place.notChosen": "Noch kein Ort gewählt. Suche nach einer Stadt, um ihn festzulegen.",
   "shell.place.noMatch": "Kein Ort passt zu „{query}“. Prüfe die Schreibweise oder versuche einen Ort in der Nähe.",
   "shell.place.offline": "Du bist offline. Verbinde dich mit dem Internet, um Orte zu suchen.",
   "shell.place.failed": "Die Ortssuche antwortet nicht. Versuche es gleich noch einmal.",

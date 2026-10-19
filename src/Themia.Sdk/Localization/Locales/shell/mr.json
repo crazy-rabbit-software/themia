@@ -406,7 +406,6 @@
   "shell.place.searching": "शोधत आहे…",
   "shell.place.typeName": "ठिकाणाचे नाव टाइप करा",
   "shell.place.searchPlaceholder": "शहर शोधा",
-  "shell.place.notChosen": "अद्याप काहीही निवडलेले नाही. सेट करण्यासाठी शहर शोधा.",
   "shell.place.noMatch": "“{query}” शी कोणतेही ठिकाण जुळत नाही. स्पेलिंग तपासा किंवा जवळचे गाव वापरून पहा.",
   "shell.place.offline": "तुम्ही ऑफलाइन आहात. ठिकाणे शोधण्यासाठी इंटरनेटशी कनेक्ट करा.",
   "shell.place.failed": "ठिकाण शोध उत्तर देत नाही. थोड्या वेळाने पुन्हा प्रयत्न करा.",

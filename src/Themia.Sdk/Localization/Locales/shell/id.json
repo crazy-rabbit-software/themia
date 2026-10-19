@@ -397,7 +397,6 @@
   "shell.place.searching": "Mencari…",
   "shell.place.typeName": "Ketik nama tempat",
   "shell.place.searchPlaceholder": "Cari kota",
-  "shell.place.notChosen": "Belum dipilih. Cari kota untuk mengaturnya.",
   "shell.place.noMatch": "Tidak ada tempat yang cocok dengan “{query}”. Periksa ejaan atau coba kota terdekat.",
   "shell.place.offline": "Anda sedang offline. Sambungkan ke internet untuk mencari tempat.",
   "shell.place.failed": "Pencarian tempat tidak menjawab. Coba lagi sebentar lagi.",

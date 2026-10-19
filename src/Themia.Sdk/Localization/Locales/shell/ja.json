@@ -397,7 +397,6 @@
   "shell.place.searching": "検索しています…",
   "shell.place.typeName": "場所の名前を入力してください",
   "shell.place.searchPlaceholder": "都市を検索",
-  "shell.place.notChosen": "まだ選択されていません。都市を検索して設定してください。",
   "shell.place.noMatch": "「{query}」に一致する場所はありません。綴りを確認するか、近くの町で試してください。",
   "shell.place.offline": "オフラインです。場所を検索するにはインターネットに接続してください。",
   "shell.place.failed": "場所の検索が応答していません。しばらくしてからもう一度お試しください。",

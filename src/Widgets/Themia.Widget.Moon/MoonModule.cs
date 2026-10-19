@@ -34,8 +34,9 @@ public sealed class MoonModule : IWidgetModule
         Add = new(AddFolderId.Weather, 1, 1),
     };
 
-    public void SettingsRows(WidgetSettingsRows rows, WidgetConfig config)
-        => MoonSettings.Rows(rows.Rows, (MoonConfig)config, rows.Save);
+    /// <summary>[S-3719] Every option is on the properties menu: the widget has no settings page.</summary>
+    public void MenuLines(WidgetMenuLines menu, WidgetConfig config)
+        => MoonMenu.Lines(menu, (MoonConfig)config);
 
     public FrameworkElement CreateView(IWidgetHost host) => new MoonView();
 }

@@ -406,7 +406,6 @@
   "shell.place.searching": "Zoeken…",
   "shell.place.typeName": "Typ een plaatsnaam",
   "shell.place.searchPlaceholder": "Een plaats zoeken",
-  "shell.place.notChosen": "Nog niets gekozen. Zoek een plaats om hem in te stellen.",
   "shell.place.noMatch": "Geen plaatsen komen overeen met “{query}”. Controleer de spelling of probeer een plaats in de buurt.",
   "shell.place.offline": "Je bent offline. Maak verbinding met internet om plaatsen te zoeken.",
   "shell.place.failed": "Het zoeken naar plaatsen reageert niet. Probeer het zo meteen opnieuw.",

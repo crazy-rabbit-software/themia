@@ -424,7 +424,6 @@
   "shell.place.searching": "Wyszukiwanie…",
   "shell.place.typeName": "Wpisz nazwę miejsca",
   "shell.place.searchPlaceholder": "Wyszukaj miasto",
-  "shell.place.notChosen": "Nic jeszcze nie wybrano. Wyszukaj miasto, aby je ustawić.",
   "shell.place.noMatch": "Brak miejsc pasujących do „{query}”. Sprawdź pisownię lub spróbuj pobliskiej miejscowości.",
   "shell.place.offline": "Brak połączenia. Połącz się z internetem, aby wyszukać miejsca.",
   "shell.place.failed": "Wyszukiwanie miejsc nie odpowiada. Spróbuj ponownie za chwilę.",

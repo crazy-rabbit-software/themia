@@ -424,7 +424,6 @@
   "shell.place.searching": "Поиск…",
   "shell.place.typeName": "Введите название места",
   "shell.place.searchPlaceholder": "Поиск города",
-  "shell.place.notChosen": "Пока не выбрано. Найдите город, чтобы задать его.",
   "shell.place.noMatch": "Нет мест по запросу «{query}». Проверьте написание или попробуйте ближайший город.",
   "shell.place.offline": "Нет подключения. Подключитесь к Интернету, чтобы искать места.",
   "shell.place.failed": "Поиск мест не отвечает. Повторите попытку чуть позже.",

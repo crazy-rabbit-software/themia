@@ -405,7 +405,6 @@
   "shell.place.searching": "Searching…",
   "shell.place.typeName": "Type a place name",
   "shell.place.searchPlaceholder": "Search for a city",
-  "shell.place.notChosen": "None chosen yet. Search for a city to set it.",
   "shell.place.noMatch": "No places match “{query}”. Check the spelling or try a nearby town.",
   "shell.place.offline": "You're offline. Connect to the internet to search for places.",
   "shell.place.failed": "The place search isn't answering. Try again in a moment.",

@@ -406,7 +406,6 @@
   "shell.place.searching": "Pesquisando…",
   "shell.place.typeName": "Digite o nome de um lugar",
   "shell.place.searchPlaceholder": "Pesquisar uma cidade",
-  "shell.place.notChosen": "Nenhum local escolhido. Pesquise uma cidade para defini-lo.",
   "shell.place.noMatch": "Nenhum local corresponde a “{query}”. Verifique a ortografia ou tente uma cidade próxima.",
   "shell.place.offline": "Você está off-line. Conecte-se à internet para pesquisar locais.",
   "shell.place.failed": "A pesquisa de locais não está respondendo. Tente novamente em instantes.",

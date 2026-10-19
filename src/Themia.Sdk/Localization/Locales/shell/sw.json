@@ -406,7 +406,6 @@
   "shell.place.searching": "Inatafuta…",
   "shell.place.typeName": "Andika jina la mahali",
   "shell.place.searchPlaceholder": "Tafuta jiji",
-  "shell.place.notChosen": "Bado hakuna kilichochaguliwa. Tafuta jiji ili kuliweka.",
   "shell.place.noMatch": "Hakuna mahali panapolingana na “{query}”. Kagua tahajia au jaribu mji ulio karibu.",
   "shell.place.offline": "Uko nje ya mtandao. Unganisha kwenye intaneti ili kutafuta mahali.",
   "shell.place.failed": "Utafutaji wa mahali haujibu. Jaribu tena baada ya muda mfupi.",

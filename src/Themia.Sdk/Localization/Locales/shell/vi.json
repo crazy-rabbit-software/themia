@@ -397,7 +397,6 @@
   "shell.place.searching": "Đang tìm…",
   "shell.place.typeName": "Nhập tên địa điểm",
   "shell.place.searchPlaceholder": "Tìm thành phố",
-  "shell.place.notChosen": "Chưa chọn. Hãy tìm một thành phố để đặt.",
   "shell.place.noMatch": "Không có địa điểm nào khớp với “{query}”. Hãy kiểm tra chính tả hoặc thử một thị trấn gần đó.",
   "shell.place.offline": "Bạn đang ngoại tuyến. Hãy kết nối internet để tìm địa điểm.",
   "shell.place.failed": "Tìm kiếm địa điểm không phản hồi. Hãy thử lại sau giây lát.",

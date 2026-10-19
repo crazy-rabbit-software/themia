@@ -6,11 +6,11 @@ pair's shared rules (Sun and moon: the astronomy [S-160]..[S-169], the civil twi
 daylight change [S-1490], the two kinds and their shared place [S-3100], [S-3101], the rise/set
 text [S-3106]; styles [S-6000], the ladder rules [S-660]..[S-666]).
 
-Owning files: everything in this folder: `SunModule.cs` (descriptor, view factory, settings rows,
-JSON context), `SunConfig.cs`, `SunDayBar.cs` (the day bar's marks), `SunView.cs`, `SunSettings.cs`
-(its page: the shared place rows, `SkyPlaceRows`, and the Events switch), `Preview/` (Debug
-renders), `Localization/Locales/` (its own `SunStr`, 30 languages). Tests: `Tests/SunTests.cs` (run
-by `tests/Themia.Modules.Tests`).
+Owning files: everything in this folder: `SunModule.cs` (descriptor, view factory, menu lines,
+JSON context), `SunConfig.cs`, `SunDayBar.cs` (the day bar's marks), `SunView.cs`, `SunMenu.cs`
+(its properties menu: the Events switch and the shared place line, `SkyPlaceRows`), `Preview/` (Debug
+renders), `Localization/Locales/` (its own `SunStr`, 30 languages). Tests: `Tests/SunTests.cs`,
+`Tests/SunMenuTests.cs` (run by `tests/Themia.Modules.Tests`).
 
 - **[S-170]** The two display settings are independent, except that hiding the graphic forces the
   rows on: a widget showing nothing is never the answer. The graphic itself is never dropped — it is
@@ -36,6 +36,13 @@ by `tests/Themia.Modules.Tests`).
   no tick; polar day lights the whole bar, polar night none of it. The bar keeps a 28 DIP floor and
   no share of a large tile: the rows take the rest; it thickens with the height, 8 to 20 DIPs, and
   sits at the foot of its room, right over the number strip.
+- **[S-3107]** Every option is on the properties menu ([S-3719], user request 2026-10-19); there is
+  no settings page. Under Style, after the styles: the **Events** switch, offered by the arc and the
+  day bar, not by Times (which is the events, [S-6074]). On the first level: Appearance ([S-3723]),
+  then **Location**, the sky's shared search ([S-3101]): the place's city (or its coordinates) at the
+  line's end; under the answers Clear location ([S-2848]), Place name, Latitude and Longitude, each
+  asked for as text ([S-3721]; a coordinate refused unless a number in range, [S-171]; the same value
+  stores nothing).
 - **[S-649]** The sun strip's icons and countdowns appear only where a strip column can hold them
   (250px and 280px tiles), not where the tile can.
 

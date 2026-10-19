@@ -34,8 +34,9 @@ public sealed class SunModule : IWidgetModule
         Add = new(AddFolderId.Weather, 1, 0),
     };
 
-    public void SettingsRows(WidgetSettingsRows rows, WidgetConfig config)
-        => SunSettings.Rows(rows.Rows, (SunConfig)config, rows.Save);
+    /// <summary>[S-3719] Every option is on the properties menu: the widget has no settings page.</summary>
+    public void MenuLines(WidgetMenuLines menu, WidgetConfig config)
+        => SunMenu.Lines(menu, (SunConfig)config);
 
     public FrameworkElement CreateView(IWidgetHost host) => new SunView();
 }

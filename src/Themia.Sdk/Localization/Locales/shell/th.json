@@ -397,7 +397,6 @@
   "shell.place.searching": "กำลังค้นหา…",
   "shell.place.typeName": "พิมพ์ชื่อสถานที่",
   "shell.place.searchPlaceholder": "ค้นหาเมือง",
-  "shell.place.notChosen": "ยังไม่ได้เลือก ค้นหาเมืองเพื่อตั้งค่า",
   "shell.place.noMatch": "ไม่มีสถานที่ที่ตรงกับ “{query}” ตรวจสอบการสะกดหรือลองเมืองใกล้เคียง",
   "shell.place.offline": "คุณออฟไลน์อยู่ เชื่อมต่ออินเทอร์เน็ตเพื่อค้นหาสถานที่",
   "shell.place.failed": "การค้นหาสถานที่ไม่ตอบสนอง ลองอีกครั้งในอีกสักครู่",

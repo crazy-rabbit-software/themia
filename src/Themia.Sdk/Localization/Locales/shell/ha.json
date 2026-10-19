@@ -406,7 +406,6 @@
   "shell.place.searching": "Ana bincike…",
   "shell.place.typeName": "Rubuta sunan wuri",
   "shell.place.searchPlaceholder": "Nemi birni",
-  "shell.place.notChosen": "Ba a zaɓi komai ba tukuna. Nemi birni don saita shi.",
   "shell.place.noMatch": "Babu wuraren da suka dace da “{query}”. Duba rubutun ko gwada wani gari na kusa.",
   "shell.place.offline": "Ba ka kan layi. Haɗa da intanet don neman wurare.",
   "shell.place.failed": "Binciken wuri ba ya amsawa. Sake gwadawa nan da ɗan lokaci.",

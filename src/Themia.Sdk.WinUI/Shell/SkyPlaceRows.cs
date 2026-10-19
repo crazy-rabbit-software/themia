@@ -1,116 +1,70 @@
 using System.Globalization;
-using Microsoft.UI.Xaml;
-using Microsoft.UI.Xaml.Controls;
+using Themia.App.Widgets;
 using Themia.Core.Localization;
 using Themia.Core.Model;
+using Themia.Core.Widgets;
+using Themia.Sdk.WinUI;
 
 namespace Themia.App.Shell.Config;
 
 /// <summary>
-/// [S-3101] The rows the Sun and Moon widgets share: where the observer is.
+/// [S-3101] What the Sun and Moon widgets share on their properties menus ([S-3719]): where the
+/// observer is.
 /// <para>
 /// [S-1494] The place is picked by city name, as in the original [S-01], through the same search the
-/// weather widgets use (<see cref="PlaceSearch"/>). It resolves to coordinates once, at the pick; the
-/// astronomy itself stays offline. The exact coordinates stay editable below it, validated, for a
-/// place no geocoder knows (a cabin, a ship, a pole).
+/// weather widgets use (<see cref="PlaceSearch.MenuAnswerAsync"/>). It resolves to coordinates once,
+/// at the pick; the astronomy itself stays offline. Under the answers the place name and the exact
+/// coordinates stay editable, each asked for as text and validated, for a place no geocoder knows
+/// (a cabin, a ship, a pole).
 /// </para>
 /// </summary>
 public static class SkyPlaceRows
 {
-    /// <summary>The place rows, built into <paramref name="rows"/>; the longitude only where the style reads it.</summary>
-    public static void Add(List<FrameworkElement> rows, SkyPlaceConfig config, Action save, bool longitude = true)
+    /// <summary>
+    /// [S-3101] [S-3722] The location as a search: the chosen place (or its coordinates) at the end of
+    /// its line; in its submenu the search box and the places it finds (a pick replaces the place and
+    /// its coordinates), then Clear location ([S-2848]), the place name, the latitude and, where the
+    /// style reads it (<paramref name="longitude"/>, [S-6074]), the longitude.
+    /// </summary>
+    public static ItemMenuEntry LocationLine(WidgetMenuLines menu, SkyPlaceConfig config, bool longitude = true)
     {
-        ArgumentNullException.ThrowIfNull(rows);
+        ArgumentNullException.ThrowIfNull(menu);
         ArgumentNullException.ThrowIfNull(config);
-        ArgumentNullException.ThrowIfNull(save);
 
-        rows.Add(FluentLayout.Header(Str.SunMoon_LocationTab.Text()));
+        List<ItemMenuEntry> under =
+        [
+            menu.Command(Glyphs.Dismiss, Str.Shell_Place_Clear.Text(), config.ClearLocation, disabled: !config.HasLocation),
+            PlaceName(menu, config),
+            Coordinate(menu, Str.SunMoon_Latitude_Label.Text(), config.Latitude, -90, 90, value => config.Latitude = value),
+        ];
 
-        // Built before the search so a pick can show its coordinates in them at once.
-        var place = new TextBox { Text = config.Place, MinWidth = 200, PlaceholderText = Str.SunMoon_Place_Placeholder.Text() };
-        var latitude = new TextBox { MinWidth = 120, HorizontalAlignment = HorizontalAlignment.Right };
-        var longitudeBox = new TextBox { MinWidth = 120, HorizontalAlignment = HorizontalAlignment.Right };
-
-        // A Sun or Moon tile starts at Zurich; a pick replaces the place and fills the exact fields
-        // below. [S-2848] Clearing empties them too, and the tile waits for setup.
-        var shown = PlaceSearch.Add(rows, new PlaceSearchBinding(
-            SkyChosen(config),
-            picked =>
-            {
-                config.Latitude = picked.Latitude;
-                config.Longitude = picked.Longitude;
-                config.Place = picked.Label;
-                place.Text = picked.Label;
-                latitude.Text = FormatCoordinate(picked.Latitude);
-                longitudeBox.Text = FormatCoordinate(picked.Longitude);
-                save();
-            },
-            () =>
-            {
-                config.ClearLocation();
-                place.Text = string.Empty;
-                latitude.Text = string.Empty;
-                longitudeBox.Text = string.Empty;
-                save();
-            }));
-
-        // A place typed into the exact fields is a place chosen too: the row above says so.
-        void Saved()
+        if (longitude)
         {
-            save();
-            shown(SkyChosen(config));
+            under.Add(Coordinate(menu, Str.SunMoon_Longitude_Label.Text(), config.Longitude, -180, 180, value => config.Longitude = value));
         }
 
-        rows.Add(FluentLayout.Header(Str.WidgetsC_SunMoon_Settings_ExactCoordinates.Text()));
-
-        // On lost focus, not per keystroke: the widget behind this window redraws on every write,
-        // and a half-typed place name is not a place name.
-        place.LostFocus += (_, _) =>
-        {
-            var text = place.Text.Trim();
-
-            if (text == config.Place)
+        var search = new MenuSearch(
+            Str.Shell_Place_SearchPlaceholder.Text(),
+            (typed, cancel) => PlaceSearch.MenuAnswerAsync(typed, place =>
             {
-                return;
-            }
+                config.Latitude = place.Latitude;
+                config.Longitude = place.Longitude;
+                config.Place = Cut(place.Label);
+                menu.Save();
+            }, cancel),
+            under,
+            PlaceQuery.Debounce);
 
-            config.Place = text;
-            Saved();
-        };
-
-        rows.Add(FluentLayout.Row(Glyphs.Place, Str.SunMoon_Place_Label.Text(), Str.SunMoon_Place_Desc.Text(), place));
-
-        rows.Add(CoordinateRow(
-            latitude,
-            Str.SunMoon_Latitude_Label.Text(),
-            Str.SunMoon_Latitude_Desc.Text(),
-            () => config.Latitude,
-            -90,
-            90,
-            value => { config.Latitude = value; Saved(); }));
-
-        // [S-6074] Offered where the style reads it ([S-6050]: the month's phases do not).
-        if (!longitude)
-        {
-            return;
-        }
-
-        rows.Add(CoordinateRow(
-            longitudeBox,
-            Str.SunMoon_Longitude_Label.Text(),
-            Str.SunMoon_Longitude_Desc.Text(),
-            () => config.Longitude,
-            -180,
-            180,
-            value => { config.Longitude = value; Saved(); }));
+        return WidgetMenuLines.Search(Glyphs.Place, Str.Shell_Place_Location.Text(), Chosen(config), search);
     }
 
     /// <summary>
-    /// [S-2848] What the location row names: the place, or its coordinates when it has no name; null
-    /// when there is no place.
+    /// [S-2848] What the location's line names: the place's first part, or its coordinates when it has
+    /// no name; null when there is no place.
     /// </summary>
-    private static string? SkyChosen(SkyPlaceConfig config)
+    public static string? Chosen(SkyPlaceConfig config)
     {
+        ArgumentNullException.ThrowIfNull(config);
         if (!config.HasLocation)
         {
             return null;
@@ -118,74 +72,69 @@ public static class SkyPlaceRows
 
         return string.IsNullOrWhiteSpace(config.Place)
             ? $"{FormatCoordinate(config.Latitude!.Value)}, {FormatCoordinate(config.Longitude!.Value)}"
-            : config.Place;
+            : config.Place.Split(',', 2)[0].Trim();
     }
 
     /// <summary>
-    /// A coordinate entry that rejects what it cannot read.
-    /// <para>
-    /// Deliberately not a <c>NumberBox</c> and not <c>double.TryParse</c> with a fallback: coercing
-    /// unreadable input to 0 would quietly move the user to the Gulf of Guinea and then report
-    /// sunrise there as though nothing had happened. Bad input keeps the last good value, says so
-    /// on the same line under the box every other refused field uses, and writes nothing.
-    /// </para>
+    /// [S-171] A typed coordinate's refusal: the reason it cannot be used, or null. Deliberately no
+    /// fallback: coercing unreadable input to 0 would quietly move the user to the Gulf of Guinea and
+    /// report sunrise there as though nothing had happened.
     /// </summary>
-    private static FrameworkElement CoordinateRow(
-        TextBox box,
-        string title,
-        string description,
-        Func<double?> current,
-        double minimum,
-        double maximum,
-        Action<double> onChanged)
-    {
-        // [S-2848] No place: the field is empty, waiting for one.
-        box.Text = current() is { } known ? FormatCoordinate(known) : string.Empty;
+    public static string? RefuseCoordinate(string typed, double minimum, double maximum)
+        => ParseCoordinate(typed, minimum, maximum) is null
+            ? Str.WidgetsC_SunMoon_Settings_CoordinateRange.Format(("min", FormatCoordinate(minimum)), ("max", FormatCoordinate(maximum)))
+            : null;
 
-        var verdict = FluentLayout.Verdict();
+    /// <summary>[S-171] A typed coordinate: invariant digits, finite, inside the range; null for anything else.</summary>
+    public static double? ParseCoordinate(string typed, double minimum, double maximum)
+        => double.TryParse((typed ?? string.Empty).Trim(), NumberStyles.Float, CultureInfo.InvariantCulture, out var value)
+            && double.IsFinite(value)
+            && value >= minimum
+            && value <= maximum
+                ? value
+                : null;
 
-        void Commit()
-        {
-            var text = box.Text.Trim();
-
-            // [S-2848] Leaving an empty field of a cleared place is not an error: there is still none.
-            if (text.Length == 0 && current() is null)
+    /// <summary>[S-3721] The header's name for the place, asked for as text; empty is allowed (the coordinates name it).</summary>
+    private static ItemMenuEntry PlaceName(WidgetMenuLines menu, SkyPlaceConfig config)
+        => new(Glyphs.Rename, Str.SunMoon_Place_Label.Text(), () => menu.Ask(new WidgetTextAsk(
+            Str.SunMoon_Place_Label.Text(),
+            Str.SunMoon_Place_Placeholder.Text(),
+            Str.Common_Save.Text(),
+            _ => null,
+            typed =>
             {
-                FluentLayout.Confirm(verdict, string.Empty);
-                return;
-            }
+                var name = Cut(typed.Trim());
+                if (name != config.Place)
+                {
+                    config.Place = name;
+                    menu.Save();
+                }
+            },
+            Initial: config.Place,
+            AllowEmpty: true)), Value: string.IsNullOrWhiteSpace(config.Place) ? null : config.Place);
 
-            if (double.TryParse(text, NumberStyles.Float, CultureInfo.InvariantCulture, out var value)
-                && double.IsFinite(value)
-                && value >= minimum
-                && value <= maximum)
+    /// <summary>
+    /// [S-171] [S-3721] A coordinate asked for as text, refused (with the range as the reason) unless it
+    /// is a number in range; [S-2848] the field of a cleared place starts empty.
+    /// </summary>
+    private static ItemMenuEntry Coordinate(WidgetMenuLines menu, string title, double? current, double minimum, double maximum, Action<double> set)
+        => new(Glyphs.Grid, title, () => menu.Ask(new WidgetTextAsk(
+            title,
+            FormatCoordinate(0),
+            Str.Common_Save.Text(),
+            typed => RefuseCoordinate(typed, minimum, maximum),
+            typed =>
             {
-                FluentLayout.Confirm(verdict, string.Empty);
-                box.Text = FormatCoordinate(value);
-                onChanged(value);
-                return;
-            }
+                if (ParseCoordinate(typed, minimum, maximum) is { } value && value != current)
+                {
+                    set(value);
+                    menu.Save();
+                }
+            },
+            Initial: current is { } known ? FormatCoordinate(known) : null)), Value: current is { } shown ? FormatCoordinate(shown) : null);
 
-            // Refused: keep the setting where it was, and leave what was typed on screen next to the
-            // reason, so the user can correct it rather than hunt for what changed.
-            FluentLayout.Refuse(
-                verdict,
-                Str.WidgetsC_SunMoon_Settings_CoordinateRange.Format(("min", FormatCoordinate(minimum)), ("max", FormatCoordinate(maximum))));
-        }
-
-        box.LostFocus += (_, _) => Commit();
-
-        box.KeyDown += (_, args) =>
-        {
-            if (args.Key == Windows.System.VirtualKey.Enter)
-            {
-                Commit();
-                args.Handled = true;
-            }
-        };
-
-        return FluentLayout.FieldRow(Glyphs.Grid, title, description, box, verdict);
-    }
+    /// <summary>A place name is a header title, not a document: cut as load repair cuts it ([S-3101]).</summary>
+    private static string Cut(string name) => name.Length > SkyPlaceConfig.MaxPlaceLength ? name[..SkyPlaceConfig.MaxPlaceLength] : name;
 
     private static string FormatCoordinate(double value) => value.ToString("0.####", CultureInfo.InvariantCulture);
 }
