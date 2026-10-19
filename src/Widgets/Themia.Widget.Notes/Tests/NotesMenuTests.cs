@@ -38,7 +38,7 @@ public sealed class NotesMenuTests
         var lines = Build(new NotesConfig { NoteId = "a" }, Two());
 
         Assert.Equal(0, lines.CardAt);
-        Assert.Equal([NoteTitle, NotesStr.Notes_FontSizeLabel.Text(), Clear], lines.Lines.Where(l => !l.IsSeparator).Select(l => l.Text));
+        Assert.Equal([NoteTitle, "|", NotesStr.Notes_FontSizeLabel.Text(), "|", Clear], lines.Lines.Select(l => l.IsSeparator ? "|" : l.Text));
         Assert.True(Line(lines, Clear).Danger);
         Assert.Equal("13 px", Line(lines, NotesStr.Notes_FontSizeLabel.Text()).Value);
     }
@@ -117,6 +117,14 @@ public sealed class NotesMenuTests
         _confirm!.Done();
         Assert.Equal(string.Empty, pool.Bodies["a"]);
         Assert.Equal("Shopping", pool.Titles["a"]);
+    }
+
+    [Fact]
+    public void S130_no_clear_line_while_no_note_is_shown()
+    {
+        Assert.DoesNotContain(Build(new NotesConfig { NoteId = "gone" }, Two()).Lines, l => l.Text == Clear);
+        Assert.DoesNotContain(Build(new NotesConfig { NoteId = "a" }, null).Lines, l => l.Text == Clear);
+        Assert.Contains(Build(new NotesConfig { NoteId = "b" }, Two()).Lines, l => l.Text == Clear);
     }
 
     [Fact]

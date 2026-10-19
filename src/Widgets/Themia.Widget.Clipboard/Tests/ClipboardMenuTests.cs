@@ -19,14 +19,16 @@ public sealed class ClipboardMenuTests
     }
 
     [Fact]
-    public void S1450_appearance_then_timestamps_entries_and_the_privacy_note_last()
+    public void S1450_appearance_then_timestamps_apart_from_entries_and_the_privacy_note_last()
     {
         var lines = Build(new ClipboardConfig());
 
         Assert.Equal(0, lines.CardAt);
         Assert.Equal(ClipboardStr.WidgetsA_Clipboard_Settings_Timestamp_Label.Text(), lines.Lines[0].Text);
-        Assert.Equal(ClipboardStr.WidgetsA_Clipboard_Settings_Entries_Label.Text(), lines.Lines[1].Text);
-        Assert.Equal("50", lines.Lines[1].Value);
+        Assert.True(lines.Lines[1].IsSeparator);
+        Assert.Equal(ClipboardStr.WidgetsA_Clipboard_Settings_Entries_Label.Text(), lines.Lines[2].Text);
+        Assert.Equal("50", lines.Lines[2].Value);
+        Assert.Equal(4, lines.Lines.Count);
         var note = lines.Lines[^1];
         Assert.True(note.Note);
         Assert.Equal(ClipboardStr.WidgetsA_Clipboard_Settings_PrivacyNote.Text(), note.Text);
@@ -41,7 +43,7 @@ public sealed class ClipboardMenuTests
     public void S1450_entries_are_typed_inside_1_to_200()
     {
         var config = new ClipboardConfig();
-        Build(config).Lines[1].Action!();
+        Build(config).Lines.Single(l => l.Text == ClipboardStr.WidgetsA_Clipboard_Settings_Entries_Label.Text()).Action!();
         var ask = Assert.IsType<WidgetTextAsk>(_asked);
 
         Assert.NotNull(ask.Refuse("0"));

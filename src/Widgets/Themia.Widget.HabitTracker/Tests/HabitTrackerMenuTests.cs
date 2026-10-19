@@ -40,16 +40,20 @@ public sealed class HabitTrackerMenuTests
     }
 
     [Fact]
-    public void S1429_appearance_then_list_resets_and_data_folder_and_the_interval_only_when_custom()
+    public void S1429_appearance_then_list_resets_and_data_folder_apart_and_the_interval_only_when_custom()
     {
-        var lines = Build(new HabitTrackerConfig(), Two());
+        var pool = Two();
+        pool.FilePath = @"C:\Data\habits.json";
+        var lines = Build(new HabitTrackerConfig(), pool);
         Assert.Equal(0, lines.CardAt);
         Assert.Equal(
-            [ListTitle, HabitTrackerStr.WidgetsB_Settings_Habits_Resets_Label.Text(), HabitTrackerStr.WidgetsB_Settings_Habits_DataFolder_Label.Text()],
-            lines.Lines.Select(l => l.Text));
+            [ListTitle, "|", HabitTrackerStr.WidgetsB_Settings_Habits_Resets_Label.Text(), "|", HabitTrackerStr.WidgetsB_Settings_Habits_DataFolder_Label.Text()],
+            lines.Lines.Select(l => l.IsSeparator ? "|" : l.Text));
 
-        var custom = Build(new HabitTrackerConfig { Period = HabitPeriod.Custom }, Two());
-        Assert.Contains(custom.Lines, l => l.Text == HabitTrackerStr.HabitTracker_IntervalLabel.Text());
+        var custom = Build(new HabitTrackerConfig { Period = HabitPeriod.Custom }, pool);
+        Assert.Equal(
+            [ListTitle, "|", HabitTrackerStr.WidgetsB_Settings_Habits_Resets_Label.Text(), HabitTrackerStr.HabitTracker_IntervalLabel.Text(), "|", HabitTrackerStr.WidgetsB_Settings_Habits_DataFolder_Label.Text()],
+            custom.Lines.Select(l => l.IsSeparator ? "|" : l.Text));
     }
 
     [Fact]
@@ -150,7 +154,14 @@ public sealed class HabitTrackerMenuTests
 
         folder.Single(l => !l.Note).Action!();
         Assert.Equal(@"C:\Data\habits.json", _opened);
-        Assert.True(Line(Build(new HabitTrackerConfig(), Two()), HabitTrackerStr.WidgetsB_Settings_Habits_DataFolder_Label.Text()).Children!.Single(l => !l.Note).Disabled);
+    }
+
+    [Fact]
+    public void S1430_lists_without_a_file_have_no_data_folder_line()
+    {
+        var folder = HabitTrackerStr.WidgetsB_Settings_Habits_DataFolder_Label.Text();
+        Assert.DoesNotContain(Build(new HabitTrackerConfig(), Two()).Lines, l => l.Text == folder);
+        Assert.DoesNotContain(Build(new HabitTrackerConfig(), null).Lines, l => l.Text == folder);
     }
 
     /// <summary>Lists in memory, changed by the same <see cref="HabitLists"/> functions the host's pool applies.</summary>

@@ -20,14 +20,14 @@ public sealed class ScratchpadMenuTests
     }
 
     [Fact]
-    public void S1501_appearance_then_pen_colour_pen_size_and_show_tools()
+    public void S1501_appearance_then_pen_colour_and_size_then_show_tools_apart()
     {
         var lines = Build(new ScratchpadConfig());
 
         Assert.Equal(0, lines.CardAt);
         Assert.Equal(
-            [ScratchpadStr.Scratchpad_PenColorLabel.Text(), ScratchpadStr.Scratchpad_PenSizeLabel.Text(), ScratchpadStr.WidgetsC_Scratchpad_Settings_ShowTools_Label.Text()],
-            lines.Lines.Select(l => l.Text));
+            [ScratchpadStr.Scratchpad_PenColorLabel.Text(), ScratchpadStr.Scratchpad_PenSizeLabel.Text(), "|", ScratchpadStr.WidgetsC_Scratchpad_Settings_ShowTools_Label.Text()],
+            lines.Lines.Select(l => l.IsSeparator ? "|" : l.Text));
         Assert.DoesNotContain(lines.Lines, l => l.Danger);
     }
 
@@ -72,7 +72,7 @@ public sealed class ScratchpadMenuTests
     public void S1501_show_tools_turns_them_off_and_saves_once()
     {
         var config = new ScratchpadConfig { ShowTools = true };
-        Build(config).Lines[2].Action!();
+        Build(config).Lines.Single(l => l.Text == ScratchpadStr.WidgetsC_Scratchpad_Settings_ShowTools_Label.Text()).Action!();
 
         Assert.False(config.ShowTools);
         Assert.Equal(1, _saves);

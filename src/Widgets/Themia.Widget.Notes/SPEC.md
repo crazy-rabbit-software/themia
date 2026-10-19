@@ -44,8 +44,9 @@ ladder and the header bar), `NotesMenu.cs` (its properties-menu lines), `Preview
   its submenu: a note when the shown note was deleted, the notes on this PC as a choice of one, each
   with when it was last written, "no notes" as a note; then Rename… for the note shown, New note
   (makes one and shows it) and Delete note, always confirmed ("Delete this note?", naming it under the question, [S-3727]); without a pool a
-  note says notes are not available), **Font size** (typed, 8–48 px, [S-3726]) and, under a divider,
-  **Clear note** ([S-130], confirmed, greyed while the note is empty). The menu is built again on
+  note says notes are not available), under a divider **Font size** (typed, 8–48 px, [S-3726]) and,
+  under another, **Clear note** ([S-130], confirmed, greyed while the note is empty; not there while
+  no note is shown, none kept on this PC or the one shown deleted, [S-6070]). The menu is built again on
   every change, so it follows the pool (original S-38). (Tests `NotesMenuTests`.)
 - **[S-1350]** Block syntax, one line each: `#`..`###` (a space after the hashes), `- ` `* ` `+ `
   bullets, `1. ` / `1) `, `> `, `---` `***` `___` rules, and fences (every line between two fence

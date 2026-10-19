@@ -47,8 +47,10 @@ module host's `HabitHostTests` and `SettingRulesTests`.
   Rename… and Delete this list for the list shown, and Add a list, which creates one and shows it;
   deleting is always confirmed, empty or not, original S-24, "Delete this list?" with what goes under it ([S-3727]); all
   greyed while the pool is read-only; without a pool a note says the lists are not available),
-  **Resets** (Every hour / day / week / month, Custom interval) and **Interval** (custom only, typed
-  and read by `HabitCadence.TryParseMinutes`, its reason under the box). Renaming a list retitles
+  under a divider **Resets** (Every hour / day / week / month, Custom interval) and **Interval**
+  (custom only, typed and read by `HabitCadence.TryParseMinutes`, its reason under the box), and
+  under another the data folder ([S-1430]): the list, its period and its file stand apart (user
+  request 2026-10-19). Renaming a list retitles
   every widget showing it. (Tests `HabitTrackerMenuTests`.)
 - **[S-6408]** Habits' styles ([S-6000]), `HabitTrackerConfig.Style` (`HabitTrackerStyle`,
   `"style": "dots"`): **Dots** (the rows of [S-1427]), **Heatmap** and **Checklist**, in that
@@ -69,8 +71,8 @@ module host's `HabitHostTests` and `SettingRulesTests`.
 - **[S-1430]** The menu ends with "Data folder" (issue #154), a submenu of a note (where the lists
   are kept) and **Open in Explorer**, which opens the folder
   holding `habits.json` (`IHabitLists.FilePath`, through `SettingsHost.Launcher.OpenContainingFolder`, so it is
-  classified like every other launch), for a backup or another program. Off when the pool has no
-  file (a debug render keeps it in memory).
+  classified like every other launch), for a backup or another program. Not there when the lists
+  have no file (no pool, or a debug render's kept in memory): there is no folder to open ([S-6070]).
 - **[S-1621]** Habits are **reordered by dragging a row** in the widget (original S-13), beside the
   keyboard's Alt+Shift+Up / Down ([S-3802]). A press arms nothing until the pointer has moved 5 px
   (`HabitDrag.Threshold`), so a click still focuses and a double-click still renames; a press on the

@@ -11,7 +11,8 @@ namespace Themia.App.Shell.Config;
 /// <summary>
 /// [S-1349] The Notes widget's options, all on its properties menu ([S-3719]): Appearance
 /// ([S-3723]), which note it shows (picked from the notes kept on this PC, which can be made, renamed
-/// and deleted there), the text size, and clearing the note. It has no settings page.
+/// and deleted there), apart from it the text size, and apart again clearing the note where one is
+/// shown. It has no settings page.
 /// <para>
 /// The notes are device-wide (the host's pool, read through <see cref="SettingsHost.Notes"/>):
 /// renaming or deleting one does it for every widget showing it. Only the choice of note and the look
@@ -35,14 +36,22 @@ internal static class NotesMenu
         menu.PlaceCard();
         menu.Lines.Add(Notes(menu, config, pool, now));
 
-        // The note's base size; headings are drawn larger than this.
+        // The note's base size, how it reads, apart from which note it is; headings are drawn larger.
+        menu.Lines.Add(ItemMenuEntry.Separator);
         menu.Lines.Add(menu.Number(Glyphs.TextSize, NotesStr.Notes_FontSizeLabel.Text(),
             Math.Round(config.EffectiveFontSizePx), MinFont, MaxFont, 1d,
             value => string.Create(CultureInfo.InvariantCulture, $"{value:0} px"), value => config.FontSizePx = value));
 
         // [S-130] Empties the note's text for good (there is no undo, no bin, no second copy), so it
         // asks first; greyed while there is nothing to clear. The note itself stays, with its title.
-        var hasText = pool is not null && pool.Find(config.NoteId) is not null && pool.Read(config.NoteId).Text.Length > 0;
+        // Not there while the widget shows no note (none kept on this PC, or the one shown was
+        // deleted): there is no note it could ever clear ([S-6070]).
+        if (pool is null || pool.Find(config.NoteId) is null)
+        {
+            return;
+        }
+
+        var hasText = pool.Read(config.NoteId).Text.Length > 0;
         menu.Lines.Add(ItemMenuEntry.Separator);
         menu.Lines.Add(menu.Confirm(Glyphs.Clear, NotesStr.WidgetsC_Notes_Settings_Clear_Label.Text(),
             NotesStr.WidgetsC_Notes_Settings_Clear_ConfirmBody.Text(), Str.Common_Clear.Text(),
@@ -50,7 +59,7 @@ internal static class NotesMenu
             {
                 if (config.NoteId is { } id)
                 {
-                    pool?.Write(id, string.Empty);
+                    pool.Write(id, string.Empty);
                 }
             }, danger: true, disabled: !hasText));
     }

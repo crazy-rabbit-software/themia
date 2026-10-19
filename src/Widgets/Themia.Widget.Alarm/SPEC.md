@@ -29,12 +29,14 @@ rules and the book under its config are the module host's `AlarmTests`.
 - **[S-4630]** Keys: Space or Enter switch the alarm, or dismiss it while it rings or is snoozed; S
   snoozes it while it rings; Escape lets go. The minute tick turns "Today" into "Tomorrow".
 - **[S-4631]** Its options are all on the properties menu ([S-3719], user request 2026-10-19); it
-  has no settings page. Appearance ([S-3723]), then **Time** (typed in either clock, [S-3738];
-  anything else refused with the reason; the line shows it in the language's clock), **Switched on** (a switch), **Name** (typed,
-  at most 40 characters, empty clears it), **Repeats on** (a switch per day in the language's week,
-  the days at the end of the line, a note that none rings once); under a divider **Sound** (a choice of
-  off and the twelve ringtones, previewed once), **Volume** (0–100 % in tens, only while a sound is
-  chosen, previewed once) and **Snooze for** (typed, 1–30 min, [S-3726]); the note of [S-4627] last.
+  has no settings page. Appearance ([S-3723]), then in groups apart (dividers, user request
+  2026-10-19): when it rings: **Time** (typed in either clock, [S-3738]; anything else refused with
+  the reason; the line shows it in the language's clock), **Repeats on** (a switch per day in the
+  language's week, the days at the end of the line, a note that none rings once) and **Switched on**
+  (a switch); what it says: **Name** (typed, at most 40 characters, empty clears it); how it sounds:
+  **Sound** (a choice of off and the twelve ringtones, previewed once), **Volume** (0–100 % in tens,
+  only while a sound is chosen, previewed once: silent, a level changes nothing) and **Snooze for**
+  (typed, 1–30 min, [S-3726]); the note of [S-4627] last.
   (Tests `AlarmMenuTests`.)
 
 Needs a manual pass: the widget on a live desktop ([S-4628]..[S-4631]: the readout and switch at every

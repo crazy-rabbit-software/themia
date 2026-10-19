@@ -35,8 +35,8 @@ the host's history under its config is the module host's `ClipboardHostTests`.
   its menu, Escape drops the cursor.
 - **[S-1450]** Its options are all on the properties menu ([S-3719], user request 2026-10-19); it
   has no settings page. Appearance ([S-3723]), then **Show when it was copied** (a switch),
-  **Entries** (typed, 1–200, [S-3726]; the number at the end of its line) and, under a divider, the
-  privacy sentence as a note ([S-3728]: copied text stays in memory only, files and images are never
+  under a divider (what is kept, apart from how it reads, user request 2026-10-19) **Entries**
+  (typed, 1–200, [S-3726]; the number at the end of its line) and the privacy sentence as a note ([S-3728]: copied text stays in memory only, files and images are never
   read). No switch writes the history to disk, and clearing is the widget's own (its header bin and
   row menu, [S-1444]), so the menu has no Clear line. (Tests `ClipboardMenuTests`.)
 

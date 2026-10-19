@@ -36,7 +36,8 @@ Tests: `Tests/` (run by `tests/Themia.Modules.Tests`).
 - **[S-1501]** Its options are all on the properties menu ([S-3719], user request 2026-10-19); it
   has no settings page. Appearance ([S-3723]), then **Pen color** (the one colour submenu, [S-3724]:
   the six inks first, no Default since a pen always has a colour, Custom colour and the eyedropper),
-  **Pen size** (typed, 1–24 px, [S-3726]) and **Show tools** (a switch: the eraser, undo and clear in
+  **Pen size** (typed, 1–24 px, [S-3726]) and, under a divider (the pad's tools apart from the pen,
+  user request 2026-10-19), **Show tools** (a switch: the eraser, undo and clear in
   the header, [S-651]). Clearing the drawing stays on the pad, behind its confirmation ([S-1500]).
   (Tests `ScratchpadMenuTests`.)
 

@@ -11,9 +11,9 @@ namespace Themia.App.Shell.Config;
 
 /// <summary>
 /// [S-1429] The Habits widget's options, all on its properties menu ([S-3719]): under Style what only
-/// the dots draw (the streak and the history, [S-6408]); then Appearance ([S-3723]), which list it
-/// shows (and the lists themselves), how often its boxes clear, and the data folder. It has no
-/// settings page.
+/// the dots draw (the streak and the history, [S-6408]); then Appearance ([S-3723]), and in groups
+/// apart which list it shows (and the lists themselves), how often its boxes clear, and the data
+/// folder where the lists have a file. It has no settings page.
 /// <para>
 /// The habits themselves are added, renamed, moved and deleted <i>in the widget</i>, where the user
 /// is looking at them ([S-1425]); a second editor here would be a parallel path to the same data.
@@ -57,6 +57,8 @@ internal static class HabitTrackerMenu
         menu.PlaceCard();
         menu.Lines.Add(Lists(menu, config, pool));
 
+        // How often the boxes clear, apart from which list they are.
+        menu.Lines.Add(ItemMenuEntry.Separator);
         menu.Lines.Add(menu.Choice(Glyphs.Calendar, HabitTrackerStr.WidgetsB_Settings_Habits_Resets_Label.Text(), Periods(), config.Cadence.Period, value => config.Period = value));
 
         // [S-6074] The minutes mean something under the custom period only; picking it builds the
@@ -81,13 +83,17 @@ internal static class HabitTrackerMenu
         }
 
         // [S-1430] The way to the file itself, for a backup or another program: the habits are kept
-        // in plain JSON beside the settings file, a folder nobody finds on their own.
-        var file = pool?.FilePath;
-        menu.Lines.Add(WidgetMenuLines.Submenu(Glyphs.Folder, HabitTrackerStr.WidgetsB_Settings_Habits_DataFolder_Label.Text(),
-        [
-            WidgetMenuLines.Note(HabitTrackerStr.WidgetsB_Settings_Habits_DataFolder_Desc.Text()),
-            new(Glyphs.FolderOpen, Str.Folder_OpenInExplorer.Text(), () => openFolder(file), Disabled: file is null),
-        ]));
+        // in plain JSON beside the settings file, a folder nobody finds on their own. Lists without a
+        // file (no pool, or one kept in memory) have no folder to open, so the line is not there.
+        if (pool?.FilePath is { } file)
+        {
+            menu.Lines.Add(ItemMenuEntry.Separator);
+            menu.Lines.Add(WidgetMenuLines.Submenu(Glyphs.Folder, HabitTrackerStr.WidgetsB_Settings_Habits_DataFolder_Label.Text(),
+            [
+                WidgetMenuLines.Note(HabitTrackerStr.WidgetsB_Settings_Habits_DataFolder_Desc.Text()),
+                new(Glyphs.FolderOpen, Str.Folder_OpenInExplorer.Text(), () => openFolder(file)),
+            ]));
+        }
     }
 
     /// <summary>

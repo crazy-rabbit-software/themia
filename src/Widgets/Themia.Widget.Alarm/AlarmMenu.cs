@@ -10,9 +10,9 @@ using Themia.Widget.Alarm;
 namespace Themia.App.Shell.Config;
 
 /// <summary>
-/// [S-4631] The Alarm's options, all on its properties menu ([S-3719]): Appearance ([S-3723]), the one
-/// alarm's time, its switch, its name and the days it repeats on, the note of [S-4627], then the
-/// sound (previewed once), its level and the snooze. Every line writes the live config and saves; the
+/// [S-4631] The Alarm's options, all on its properties menu ([S-3719]), in groups apart: Appearance
+/// ([S-3723]); when it rings (the time, the days it repeats on, its switch); what it says (its name);
+/// how it sounds (the sound, previewed once, its level and the snooze); the note of [S-4627]. Every line writes the live config and saves; the
 /// save is a state change, which the alarm service syncs from at once. It has no settings page.
 /// </summary>
 internal static class AlarmMenu
@@ -28,6 +28,7 @@ internal static class AlarmMenu
         var locale = Strings.Current;
         menu.PlaceCard();
 
+        // When it rings: the time, the days and whether it is set at all.
         // [S-4621] Typed ([S-3738]), in either clock; the line shows it in the language's.
         menu.Lines.Add(new ItemMenuEntry(AlarmModule.Glyph, AlarmStr.Alarm_Settings_Time_Label.Text(), () => menu.Ask(new WidgetTextAsk(
             AlarmStr.Alarm_Settings_Time_Label.Text(),
@@ -44,8 +45,11 @@ internal static class AlarmMenu
             },
             Initial: AlarmTimes.Text(AlarmTimes.Minutes(alarm.Time)))), Value: AlarmWords.Time(locale, alarm.Plan)));
 
+        menu.Lines.Add(Days(menu, alarm, locale));
         menu.Lines.Add(menu.Toggle(Glyphs.Bell, AlarmStr.Alarm_Settings_On_Label.Text(), alarm.On, on => alarm.On = on));
 
+        // What it says.
+        menu.Lines.Add(ItemMenuEntry.Separator);
         menu.Lines.Add(new ItemMenuEntry(Glyphs.Rename, AlarmStr.Alarm_Settings_Name_Label.Text(), () => menu.Ask(new WidgetTextAsk(
             AlarmStr.Alarm_Settings_Name_Label.Text(),
             AlarmStr.Alarm_Settings_NamePlaceholder.Text(),
@@ -63,8 +67,7 @@ internal static class AlarmMenu
             Initial: alarm.Label,
             AllowEmpty: true)), Value: alarm.Label.Length > 0 ? alarm.Label : null));
 
-        menu.Lines.Add(Days(menu, alarm, locale));
-
+        // How it sounds.
         menu.Lines.Add(ItemMenuEntry.Separator);
         menu.Lines.Add(menu.Choice(Glyphs.Sound, AlarmStr.Alarm_Settings_Sound_Label.Text(),
             [.. PomodoroSounds.Order.Select(sound => (sound, PomodoroSounds.Label(sound)))],

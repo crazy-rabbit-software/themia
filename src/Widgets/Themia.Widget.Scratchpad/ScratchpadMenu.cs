@@ -1,4 +1,5 @@
 using System.Globalization;
+using Themia.App.Widgets;
 using Themia.Core.Model;
 using Themia.Core.Settings;
 using Themia.Core.Widgets;
@@ -9,7 +10,7 @@ namespace Themia.App.Shell.Config;
 
 /// <summary>
 /// [S-1501] The scratchpad's options, all on its properties menu ([S-3719]): Appearance ([S-3723]),
-/// the pen's colour and size, and whether the tools ride in the widget's header. It has no settings page.
+/// the pen's colour and size, and apart from the pen whether the tools ride in the widget's header. It has no settings page.
 /// <para>
 /// Clearing the drawing is <b>not</b> here. It lives on the pad itself, behind a confirmation,
 /// because that is where the drawing is and because two ways to destroy the same thing is one too
@@ -41,6 +42,8 @@ internal static class ScratchpadMenu
         menu.Lines.Add(menu.Number(ScratchpadModule.Glyph, ScratchpadStr.Scratchpad_PenSizeLabel.Text(),
             config.EffectivePenWidth, InkGeometry.MinWidth, InkGeometry.MaxWidth, 1d, Pixels, value => config.PenWidth = value));
 
+        // The pad's tools, apart from the pen.
+        menu.Lines.Add(ItemMenuEntry.Separator);
         menu.Lines.Add(menu.Toggle(Glyphs.EraseTool, ScratchpadStr.WidgetsC_Scratchpad_Settings_ShowTools_Label.Text(), config.ShowTools, on => config.ShowTools = on));
     }
 

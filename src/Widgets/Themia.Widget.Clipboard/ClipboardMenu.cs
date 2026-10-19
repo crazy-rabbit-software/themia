@@ -8,7 +8,8 @@ namespace Themia.App.Shell.Config;
 
 /// <summary>
 /// [S-1450] The Clipboard widget's options, all on its properties menu ([S-3719]): Appearance
-/// ([S-3723]), the timestamps switch, how many entries are kept, and the privacy sentence.
+/// ([S-3723]), the timestamps switch (how it reads), then apart from it how many entries are kept
+/// and the privacy sentence (what is kept).
 /// <para>
 /// The most important line is a sentence rather than a control: the history is kept in memory and
 /// never written to disk. There is deliberately no switch to change that. A clipboard history
@@ -27,12 +28,13 @@ internal static class ClipboardMenu
         menu.PlaceCard();
         menu.Lines.Add(menu.Toggle(Glyphs.Clock, ClipboardStr.WidgetsA_Clipboard_Settings_Timestamp_Label.Text(), config.ShowTimestamp, on => config.ShowTimestamp = on));
 
-        // [S-1440] The one setting that changes exposure: fewer entries kept is less in memory.
+        // [S-1440] What is kept, apart from how it reads: the one setting that changes exposure (fewer
+        // entries kept is less in memory), and the privacy sentence with it.
+        menu.Lines.Add(ItemMenuEntry.Separator);
         menu.Lines.Add(menu.Number(Glyphs.Count, ClipboardStr.WidgetsA_Clipboard_Settings_Entries_Label.Text(),
             config.EffectiveCapacity, ClipboardHistory.MinCapacity, ClipboardHistory.MaxCapacity, 1,
             value => value.ToString(System.Globalization.CultureInfo.InvariantCulture), value => config.Capacity = value));
 
-        menu.Lines.Add(ItemMenuEntry.Separator);
         menu.Lines.Add(WidgetMenuLines.Note(ClipboardStr.WidgetsA_Clipboard_Settings_PrivacyNote.Text()));
     }
 }

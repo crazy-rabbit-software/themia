@@ -24,18 +24,19 @@ public sealed class AlarmMenuTests
     private static ItemMenuEntry Line(WidgetMenuLines lines, string text) => lines.Lines.Single(l => l.Text == text);
 
     [Fact]
-    public void S4631_appearance_then_the_alarm_then_its_sound_then_the_note()
+    public void S4631_appearance_then_when_it_rings_what_it_says_how_it_sounds_and_the_note_each_apart()
     {
         var lines = Build(new AlarmConfig());
 
         Assert.Equal(0, lines.CardAt);
         Assert.Equal(
             [
-                AlarmStr.Alarm_Settings_Time_Label.Text(), AlarmStr.Alarm_Settings_On_Label.Text(), AlarmStr.Alarm_Settings_Name_Label.Text(),
-                AlarmStr.Alarm_Settings_Repeat.Text(), AlarmStr.Alarm_Settings_Sound_Label.Text(), AlarmStr.Alarm_Settings_Volume_Label.Text(),
-                AlarmStr.Alarm_Settings_Snooze_Label.Text(), AlarmStr.Alarm_Settings_WhileRunning.Text(),
+                AlarmStr.Alarm_Settings_Time_Label.Text(), AlarmStr.Alarm_Settings_Repeat.Text(), AlarmStr.Alarm_Settings_On_Label.Text(),
+                "|", AlarmStr.Alarm_Settings_Name_Label.Text(),
+                "|", AlarmStr.Alarm_Settings_Sound_Label.Text(), AlarmStr.Alarm_Settings_Volume_Label.Text(), AlarmStr.Alarm_Settings_Snooze_Label.Text(),
+                "|", AlarmStr.Alarm_Settings_WhileRunning.Text(),
             ],
-            lines.Lines.Where(l => !l.IsSeparator).Select(l => l.Text));
+            lines.Lines.Select(l => l.IsSeparator ? "|" : l.Text));
         Assert.True(lines.Lines[^1].Note);
     }
 
