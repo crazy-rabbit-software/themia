@@ -311,11 +311,25 @@ internal static class EditBarRender
             ([new(new WidgetId("screenTimeApps"), 200, 160, 300, 240, HeaderPlacement.Top, true)], "screentimeapps-limits", Str.WidgetsC_ScreenTime_Settings_Limits.Text(), null),
             ([new(new WidgetId("screenTimeChart"), 200, 160, 320, 200, HeaderPlacement.Top, true)], "screentimechart-limits", Str.WidgetsC_ScreenTime_Settings_Limits.Text(), null),
             ([new(new WidgetId("screenTimeDonut"), 200, 160, 240, 240, HeaderPlacement.Top, true)], "screentimedonut-period", Str.Screentime_Cfg_Period.Text(), null),
+
+            // The time and the local stores' widgets: their first levels and a submenu each.
+            ([new(new WidgetId("alarm"), 200, 160, 280, 180, HeaderPlacement.Top, true)], "alarm-repeat", "Repeats on", null),
+            ([new(new WidgetId("alarm"), 200, 160, 280, 180, HeaderPlacement.Top, true)], "alarm-sound", "Sound", null),
+            ([new(new WidgetId("countdown"), 200, 160, 280, 180, HeaderPlacement.Top, true)], "countdown-format", "Format", null),
+            ([new(new WidgetId("pomodoro"), 200, 160, 280, 200, HeaderPlacement.Top, true)], "pomodoro-volume", "Alarm volume", null),
+            ([new(new WidgetId("focusSession"), 200, 160, 240, 200, HeaderPlacement.Top, true)], "focussession", appearance, null),
+            ([new(new WidgetId("clipboard"), 200, 160, 300, 240, HeaderPlacement.Top, true)], "clipboard", appearance, null),
+            ([new(new WidgetId("scratchpad"), 200, 160, 300, 240, HeaderPlacement.Top, true)], "scratchpad-pen", "Pen color", null),
+            ([new(new WidgetId("habitTracker"), 200, 160, 300, 240, HeaderPlacement.Top, true)], "habits-list", "Habit list", null),
+            ([new(new WidgetId("habitTracker"), 200, 160, 300, 240, HeaderPlacement.Top, true)], "habits-style", Str.Styles_Label.Text(), null),
+            ([new(new WidgetId("notes"), 200, 160, 300, 240, HeaderPlacement.Top, true)], "notes-note", "Note", null),
+            ([new(new WidgetId("quote"), 200, 160, 320, 180, HeaderPlacement.Top, true)], "quote-quotes", "Quotes", null),
         ];
 
         // [S-2847] The location searches answer from fixture places; [S-3323] the screen-time lines read the sample history.
         PlaceRender.UseFixture();
         AppServices.ScreenTime ??= new SampleScreenTime();
+        UseSamplePools();
 
         foreach (var (layout, name, path, type) in submenus)
         {
@@ -329,6 +343,44 @@ internal static class EditBarRender
         foreach (var (name, path) in vocabulary)
         {
             await PropsShot(screen, ticker, countdown, System.IO.Path.Combine(outDir, $"props-{theme}-{name}.png"), open: path, lines: Vocabulary).ConfigureAwait(true);
+        }
+    }
+
+    /// <summary>
+    /// [S-1429] [S-1349] The habit lists' and the notes' menus over pools of a render's own, kept in a
+    /// folder under %TEMP% (never the user's), seeded once with two of each.
+    /// </summary>
+    private static void UseSamplePools()
+    {
+        var folder = System.IO.Path.Combine(System.IO.Path.GetTempPath(), "themia-editbar-render");
+        System.IO.Directory.CreateDirectory(folder);
+
+        if (AppServices.Habits is null)
+        {
+            var habits = new Services.Habits.HabitPool(new Themia.Core.Habits.HabitListStore(System.IO.Path.Combine(folder, "habits.json")));
+            foreach (var (name, items) in new[] { ("Morning", new[] { "Stretch", "Water", "Read" }), ("Fitness", new[] { "Run" }) })
+            {
+                if (habits.Lists.Any(l => l.Name == name) || habits.Create(name) is not { } id)
+                {
+                    continue;
+                }
+
+                habits.Update(id, _ => [.. items.Select((item, i) => new Themia.Core.Habits.Habit($"{id}-{i}", item, []))]);
+            }
+
+            AppServices.Habits = habits;
+        }
+
+        if (AppServices.Notes is null)
+        {
+            var notes = new Services.Notes.NotePool(new Themia.Core.Notes.NoteStore(System.IO.Path.Combine(folder, "notes")));
+            if (notes.Notes.Count == 0)
+            {
+                notes.Create("Shopping", "Milk, eggs");
+                notes.Create("Ideas");
+            }
+
+            AppServices.Notes = notes;
         }
     }
 
