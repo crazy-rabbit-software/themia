@@ -1523,6 +1523,11 @@ rules in Core `Model/QuickSet.cs` and `Geometry/StripPlacement.cs` (tests `Quick
 - **[S-3730]** A **folder** (`WidgetMenuLines.PickFolder`) is a line with the folder's name at its
   end (a drive as itself) whose click opens Windows' folder picker (`FolderBrowse.PickAsync`, the one
   picker the settings' path boxes use too); a folder picked sets and saves, a cancel changes nothing.
+- **[S-3738]** A **time of day or a date typed** on the menu ([S-3721]) is read by one rule
+  (`TypedTime`): a time in either clock ("7:30", "07:30", "19.30", a bare hour, an optional am/pm with
+  the hour then 1–12), a date with the year first ("2026-12-24", "2026/12/24") or the day first with
+  dots ("24.12.2026", "24.12.26"). A slash with the day or the month first means two days in two
+  countries and is refused, as is a day the month lacks; a refused text changes nothing.
 - **[S-3712]** Header Hidden leaves no trace on the card ([S-401]): no strip, no icon, no title, no
   reserved row; the content area is the whole card at every size tier.
 - **[S-3714]** Beside the selection the panel is **centred on its height** (`StripPlacement.Place`:
