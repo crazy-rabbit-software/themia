@@ -16,18 +16,14 @@
   "widgetsA.calendar.noEvents": "ਕੋਈ ਇਵੈਂਟ ਨਹੀਂ",
   "widgetsA.calendar.now": "ਹੁਣ",
   "widgetsA.calendar.previous": "ਪਿਛਲਾ",
-  "widgetsA.calendar.settings.agendaCount.desc": "ਏਜੰਡਾ ਵੱਧ ਤੋਂ ਵੱਧ ਕਿੰਨੇ ਦਿਖਾਉਂਦਾ ਹੈ",
   "widgetsA.calendar.settings.agendaRange.custom": "ਕਸਟਮ",
   "widgetsA.calendar.settings.agendaRange.days": {
     "one": "{count} ਦਿਨ",
     "other": "{count} ਦਿਨ"
   },
-  "widgetsA.calendar.settings.agendaRange.desc": "ਏਜੰਡਾ ਕਿੰਨੇ ਦਿਨ ਅੱਗੇ ਵੇਖਦਾ ਹੈ, ਅੱਜ ਸਮੇਤ",
   "widgetsA.calendar.settings.agendaRange.label": "ਤਾਰੀਖ ਸੀਮਾ",
   "widgetsA.calendar.settings.agendaRange.todayTomorrow": "ਅੱਜ ਅਤੇ ਕੱਲ੍ਹ",
   "widgetsA.calendar.settings.days.label": "ਦਿਖਾਏ ਦਿਨ",
-  "widgetsA.calendar.settings.weekDays.desc": "{week} ਮਤਲਬ ਪੂਰਾ ਹਫ਼ਤਾ, {workweek} ਮਤਲਬ ਕੰਮ ਵਾਲਾ ਹਫ਼ਤਾ",
-  "widgetsA.calendar.settings.weekFrom.desc": "ਪਹਿਲਾ ਕਾਲਮ: ਹਫ਼ਤੇ ਦਾ ਪਹਿਲਾ ਦਿਨ, ਜਾਂ ਆਉਣ ਵਾਲੇ ਦਿਨਾਂ ਲਈ ਅੱਜ",
   "widgetsA.calendar.settings.weekFrom.label": "ਸ਼ੁਰੂਆਤ",
   "widgetsA.calendar.settings.weekFrom.weekStart": "ਹਫ਼ਤੇ ਦਾ ਪਹਿਲਾ ਦਿਨ ({day})",
   "widgetsA.calendar.spanWithLength": "{from}–{to} ({length})",

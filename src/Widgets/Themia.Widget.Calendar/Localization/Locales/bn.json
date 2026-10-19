@@ -16,18 +16,14 @@
   "widgetsA.calendar.noEvents": "কোনো ইভেন্ট নেই",
   "widgetsA.calendar.now": "এখন",
   "widgetsA.calendar.previous": "আগের",
-  "widgetsA.calendar.settings.agendaCount.desc": "এজেন্ডা সর্বোচ্চ কতগুলো দেখাবে",
   "widgetsA.calendar.settings.agendaRange.custom": "কাস্টম",
   "widgetsA.calendar.settings.agendaRange.days": {
     "one": "{count} দিন",
     "other": "{count} দিন"
   },
-  "widgetsA.calendar.settings.agendaRange.desc": "এজেন্ডা কত দিন সামনে দেখবে, আজ সহ",
   "widgetsA.calendar.settings.agendaRange.label": "তারিখের পরিসর",
   "widgetsA.calendar.settings.agendaRange.todayTomorrow": "আজ ও আগামীকাল",
   "widgetsA.calendar.settings.days.label": "দেখানো দিন",
-  "widgetsA.calendar.settings.weekDays.desc": "{week} মানে পুরো সপ্তাহ, {workweek} মানে কাজের সপ্তাহ",
-  "widgetsA.calendar.settings.weekFrom.desc": "প্রথম কলাম: সপ্তাহের প্রথম দিন, অথবা সামনের দিনগুলোর জন্য আজ",
   "widgetsA.calendar.settings.weekFrom.label": "শুরু হয়",
   "widgetsA.calendar.settings.weekFrom.weekStart": "সপ্তাহের প্রথম দিন ({day})",
   "widgetsA.calendar.spanWithLength": "{from}–{to} ({length})",

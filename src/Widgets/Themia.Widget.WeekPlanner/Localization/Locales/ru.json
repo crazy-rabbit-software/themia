@@ -3,8 +3,6 @@
   "planner.free": "Ничего не запланировано",
   "planner.label": "Планировщик недели",
   "planner.showTasks": "Показывать задачи на сегодня",
-  "planner.showTasksDesc": "Задачи со сроком сегодня или просроченные, под событиями дня",
   "planner.taskAccount": "Задачи из",
-  "planner.taskAccountFirst": "Первая учётная запись с задачами",
-  "planner.tasksHeader": "Задачи на сегодня"
+  "planner.taskAccountFirst": "Первая учётная запись с задачами"
 }

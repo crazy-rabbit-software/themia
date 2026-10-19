@@ -7,9 +7,9 @@ drawn by, with their root tags: which event ([S-4821], `NextMeetingRules.Pick`),
 
 Owning files: everything in this folder: `NextMeetingModule.cs` (descriptor, view factory, JSON
 context), `NextMeetingConfig.cs`, `NextMeetingView.cs` (the event, Join through its launcher, the
-calendars' data seam over `IWidgetHost.Office`, the hover link), `NextMeetingSettings.cs` (the SDK's
-calendar account rows), `Preview/` (Debug renders: `--state sample|running|none`),
-`Localization/Locales/` (its own `NextMeetingStr`, 30 languages). Tests: `Tests/NextMeetingTests.cs`
+calendars' data seam over `IWidgetHost.Office`, the hover link), `NextMeetingMenu.cs` (its properties-menu
+lines: the SDK's calendar lines), `Preview/` (Debug renders: `--state sample|running|none`),
+`Localization/Locales/` (its own `NextMeetingStr`, 30 languages). Tests: `Tests/NextMeetingTests.cs` and `Tests/NextMeetingMenuTests.cs`
 (run by `tests/Themia.Modules.Tests`); its config beside Recent files' is the module host's
 `DeskInfoHostTests`.
 
@@ -23,8 +23,9 @@ calendar account rows), `Preview/` (Debug renders: `--state sample|running|none`
 - **[S-4825]** On a view ([S-3300]), pointing at the event publishes `HoveredEvent`: the same event
   lights in the calendar widgets there, the others dim ([S-3623]); one another widget points at
   dims this one unless it is the same event.
-- **[S-4826]** Its settings page is the calendar widgets' accounts and calendars, with no display
-  rows. Debug: `--state sample` (a Teams meeting twelve minutes away), `running`, `none`.
+- **[S-4826]** Its options are on the properties menu ([S-3719], user request 2026-10-19; the
+  settings page is gone): Appearance, then the calendar widgets' **Accounts** and **Calendars**
+  (`OfficeMenuLines.CalendarAccounts`, [S-561]), with no display lines (no birthdays). Debug: `--state sample` (a Teams meeting twelve minutes away), `running`, `none`.
 
 Needs a live pass: a signed-in Microsoft and Google account with a Teams, Zoom and Meet meeting
 (Join opening the app), a declined invitation, and the hover link with a calendar on the view.

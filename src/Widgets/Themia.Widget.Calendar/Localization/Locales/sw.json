@@ -16,18 +16,14 @@
   "widgetsA.calendar.noEvents": "Hakuna matukio",
   "widgetsA.calendar.now": "Sasa",
   "widgetsA.calendar.previous": "Iliyotangulia",
-  "widgetsA.calendar.settings.agendaCount.desc": "Idadi ya juu ambayo ajenda huorodhesha",
   "widgetsA.calendar.settings.agendaRange.custom": "Maalum",
   "widgetsA.calendar.settings.agendaRange.days": {
     "one": "Siku {count}",
     "other": "Siku {count}"
   },
-  "widgetsA.calendar.settings.agendaRange.desc": "Ajenda inaangalia mbele kwa umbali gani, pamoja na leo",
   "widgetsA.calendar.settings.agendaRange.label": "Kipindi cha tarehe",
   "widgetsA.calendar.settings.agendaRange.todayTomorrow": "Leo na kesho",
   "widgetsA.calendar.settings.days.label": "Siku zinazoonyeshwa",
-  "widgetsA.calendar.settings.weekDays.desc": "{week} ni wiki nzima, {workweek} ni wiki ya kazi",
-  "widgetsA.calendar.settings.weekFrom.desc": "Safu ya kwanza: siku ya kwanza ya wiki, au leo kwa siku zijazo",
   "widgetsA.calendar.settings.weekFrom.label": "Inaanza",
   "widgetsA.calendar.settings.weekFrom.weekStart": "Siku ya kwanza ya wiki ({day})",
   "widgetsA.calendar.spanWithLength": "{from}–{to} ({length})",

@@ -16,17 +16,13 @@
   "widgetsA.calendar.noEvents": "ไม่มีกิจกรรม",
   "widgetsA.calendar.now": "ตอนนี้",
   "widgetsA.calendar.previous": "ก่อนหน้า",
-  "widgetsA.calendar.settings.agendaCount.desc": "จำนวนสูงสุดที่กำหนดการแสดง",
   "widgetsA.calendar.settings.agendaRange.custom": "กำหนดเอง",
   "widgetsA.calendar.settings.agendaRange.days": {
     "other": "{count} วัน"
   },
-  "widgetsA.calendar.settings.agendaRange.desc": "กำหนดการมองไปข้างหน้ากี่วัน รวมวันนี้",
   "widgetsA.calendar.settings.agendaRange.label": "ช่วงวันที่",
   "widgetsA.calendar.settings.agendaRange.todayTomorrow": "วันนี้และพรุ่งนี้",
   "widgetsA.calendar.settings.days.label": "จำนวนวันที่แสดง",
-  "widgetsA.calendar.settings.weekDays.desc": "{week} คือทั้งสัปดาห์ {workweek} คือสัปดาห์ทำงาน",
-  "widgetsA.calendar.settings.weekFrom.desc": "คอลัมน์แรก: วันแรกของสัปดาห์ หรือวันนี้สำหรับวันที่จะมาถึง",
   "widgetsA.calendar.settings.weekFrom.label": "เริ่มที่",
   "widgetsA.calendar.settings.weekFrom.weekStart": "วันแรกของสัปดาห์ ({day})",
   "widgetsA.calendar.spanWithLength": "{from}–{to} ({length})",

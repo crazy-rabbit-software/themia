@@ -3,8 +3,6 @@
   "planner.free": "لا شيء مخطط له",
   "planner.label": "مخطط الأسبوع",
   "planner.showTasks": "إظهار مهام اليوم",
-  "planner.showTasksDesc": "المهام المستحقة اليوم أو المتأخرة، أسفل أحداث اليوم",
   "planner.taskAccount": "المهام من",
-  "planner.taskAccountFirst": "أول حساب يحتوي على مهام",
-  "planner.tasksHeader": "مهام اليوم"
+  "planner.taskAccountFirst": "أول حساب يحتوي على مهام"
 }

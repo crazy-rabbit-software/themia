@@ -3,8 +3,6 @@
   "planner.free": "কিছুই পরিকল্পিত নেই",
   "planner.label": "সাপ্তাহিক পরিকল্পনাকারী",
   "planner.showTasks": "আজকের কাজ দেখান",
-  "planner.showTasksDesc": "আজকের বা মেয়াদোত্তীর্ণ কাজ, আজকের ইভেন্টের নিচে",
   "planner.taskAccount": "কাজ যেখান থেকে",
-  "planner.taskAccountFirst": "কাজসহ প্রথম অ্যাকাউন্ট",
-  "planner.tasksHeader": "আজকের কাজ"
+  "planner.taskAccountFirst": "কাজসহ প্রথম অ্যাকাউন্ট"
 }

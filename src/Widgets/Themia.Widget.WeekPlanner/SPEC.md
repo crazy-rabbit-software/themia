@@ -7,9 +7,9 @@ their root tags: the rolling week and its columns ([S-5321], `WeekPlannerRules.R
 
 Owning files: everything in this folder: `WeekPlannerModule.cs` (descriptor, view factory, JSON
 context), `WeekPlannerConfig.cs`, `WeekPlannerView.cs` (events through the calendars' seam over
-`IWidgetHost.Office`, today's tasks through `IWidgetHost.Tasks`), `WeekPlannerSettings.cs` (the SDK's
-calendar rows, then Today's tasks), `Preview/` (Debug renders: `--state sample|free`),
-`Localization/Locales/` (its own `WeekPlannerStr`, 30 languages). Tests: `Tests/WeekPlannerTests.cs`
+`IWidgetHost.Office`, today's tasks through `IWidgetHost.Tasks`), `WeekPlannerMenu.cs` (its properties-menu
+lines: the SDK's calendar lines, then Today's tasks), `Preview/` (Debug renders: `--state sample|free`),
+`Localization/Locales/` (its own `WeekPlannerStr`, 30 languages). Tests: `Tests/WeekPlannerTests.cs` and `Tests/WeekPlannerMenuTests.cs`
 (run by `tests/Themia.Modules.Tests`); the rules' are Core's (`WeekPlannerTests`). Issue #160.
 
 - **[S-5320]** `WeekPlanner` (kind 133, `WeekPlannerConfig : CalendarConfig`, discriminator
@@ -19,8 +19,10 @@ calendar rows, then Today's tasks), `Preview/` (Debug renders: `--state sample|f
   calendar widgets' seam (`ICalendarData`, [S-2701]); tasks through the shared `TaskService`
   ([S-591]); the widget fetches nothing itself (a 5-minute poll of the synced store, the accounts'
   change events, a minute tick to redraw).
-- **[S-5324]** Settings: every calendar's rows (accounts, calendars, colours, birthdays, [S-561]),
-  then Today's tasks: Show (on by default) and Tasks from (the first account with tasks, or one
+- **[S-5324]** Its options are on the properties menu ([S-3719], user request 2026-10-19; the
+  settings page is gone): Appearance, every calendar's lines (Accounts, Calendars with their
+  colours, Show contact birthdays, [S-561]), then Show today's tasks (on by default) and, while they
+  show, Tasks from (the first account with tasks, or one
   account; a chosen account that is signed out stays listed by its id, never swapped, [S-590]).
   Lists kept on this PC are not offered: the planner is the synced schedule.
 - **[S-5325]** Setup and sync: it asks to be set up only while neither a calendar account nor (when

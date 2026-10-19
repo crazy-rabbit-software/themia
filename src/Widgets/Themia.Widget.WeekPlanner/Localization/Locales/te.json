@@ -3,8 +3,6 @@
   "planner.free": "ఏమీ ప్లాన్ చేయలేదు",
   "planner.label": "వారపు ప్లానర్",
   "planner.showTasks": "ఈరోజు పనులను చూపించు",
-  "planner.showTasksDesc": "ఈరోజు గడువు ఉన్న లేదా గడువు దాటిన పనులు, ఈరోజు ఈవెంట్‌ల కింద",
   "planner.taskAccount": "పనులు ఇక్కడ నుండి",
-  "planner.taskAccountFirst": "పనులు ఉన్న మొదటి ఖాతా",
-  "planner.tasksHeader": "ఈరోజు పనులు"
+  "planner.taskAccountFirst": "పనులు ఉన్న మొదటి ఖాతా"
 }

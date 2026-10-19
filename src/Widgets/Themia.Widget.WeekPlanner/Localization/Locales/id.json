@@ -3,8 +3,6 @@
   "planner.free": "Tidak ada rencana",
   "planner.label": "Perencana mingguan",
   "planner.showTasks": "Tampilkan tugas hari ini",
-  "planner.showTasksDesc": "Tugas yang jatuh tempo hari ini atau terlambat, di bawah acara hari ini",
   "planner.taskAccount": "Tugas dari",
-  "planner.taskAccountFirst": "Akun pertama yang memiliki tugas",
-  "planner.tasksHeader": "Tugas hari ini"
+  "planner.taskAccountFirst": "Akun pertama yang memiliki tugas"
 }

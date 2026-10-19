@@ -16,17 +16,13 @@
   "widgetsA.calendar.noEvents": "일정 없음",
   "widgetsA.calendar.now": "지금",
   "widgetsA.calendar.previous": "이전",
-  "widgetsA.calendar.settings.agendaCount.desc": "일정 목록에 표시할 최대 개수",
   "widgetsA.calendar.settings.agendaRange.custom": "사용자 지정",
   "widgetsA.calendar.settings.agendaRange.days": {
     "other": "{count}일"
   },
-  "widgetsA.calendar.settings.agendaRange.desc": "일정 목록이 앞으로 볼 기간(오늘 포함)",
   "widgetsA.calendar.settings.agendaRange.label": "날짜 범위",
   "widgetsA.calendar.settings.agendaRange.todayTomorrow": "오늘과 내일",
   "widgetsA.calendar.settings.days.label": "표시할 일수",
-  "widgetsA.calendar.settings.weekDays.desc": "{week}일은 한 주 전체, {workweek}일은 평일",
-  "widgetsA.calendar.settings.weekFrom.desc": "첫 번째 열: 주의 첫날, 또는 앞으로의 날짜를 보려면 오늘",
   "widgetsA.calendar.settings.weekFrom.label": "시작일",
   "widgetsA.calendar.settings.weekFrom.weekStart": "주의 첫날({day})",
   "widgetsA.calendar.spanWithLength": "{from}–{to}({length})",

@@ -16,17 +16,13 @@
   "widgetsA.calendar.noEvents": "没有日程",
   "widgetsA.calendar.now": "现在",
   "widgetsA.calendar.previous": "上一个",
-  "widgetsA.calendar.settings.agendaCount.desc": "日程列表最多显示的数量",
   "widgetsA.calendar.settings.agendaRange.custom": "自定义",
   "widgetsA.calendar.settings.agendaRange.days": {
     "other": "{count}天"
   },
-  "widgetsA.calendar.settings.agendaRange.desc": "日程列表向前查看多远，包括今天",
   "widgetsA.calendar.settings.agendaRange.label": "日期范围",
   "widgetsA.calendar.settings.agendaRange.todayTomorrow": "今天和明天",
   "widgetsA.calendar.settings.days.label": "显示天数",
-  "widgetsA.calendar.settings.weekDays.desc": "{week} 为整周，{workweek} 为工作周",
-  "widgetsA.calendar.settings.weekFrom.desc": "第一列：一周的第一天，或今天（查看接下来几天）",
   "widgetsA.calendar.settings.weekFrom.label": "开始于",
   "widgetsA.calendar.settings.weekFrom.weekStart": "一周的第一天（{day}）",
   "widgetsA.calendar.spanWithLength": "{from}–{to}（{length}）",

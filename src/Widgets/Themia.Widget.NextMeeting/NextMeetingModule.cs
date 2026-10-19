@@ -36,8 +36,9 @@ public sealed class NextMeetingModule : IWidgetModule
         Add = new(AddFolderId.CalendarMail, 0, 1),
     };
 
-    public void SettingsRows(WidgetSettingsRows rows, WidgetConfig config)
-        => NextMeetingSettings.Rows(rows, (NextMeetingConfig)config);
+    /// <summary>[S-3719] [S-4826] Every option is on the properties menu: the widget has no settings page.</summary>
+    public void MenuLines(WidgetMenuLines menu, WidgetConfig config)
+        => NextMeetingMenu.Lines(menu, (NextMeetingConfig)config, SettingsHost.Office);
 
     public FrameworkElement CreateView(IWidgetHost host) => new NextMeetingView(host);
 }

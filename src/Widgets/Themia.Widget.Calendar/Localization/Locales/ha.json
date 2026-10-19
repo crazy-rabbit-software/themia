@@ -16,18 +16,14 @@
   "widgetsA.calendar.noEvents": "Babu taruka",
   "widgetsA.calendar.now": "Yanzu",
   "widgetsA.calendar.previous": "Na baya",
-  "widgetsA.calendar.settings.agendaCount.desc": "Mafi yawan abin da ajanda ke lissafawa",
   "widgetsA.calendar.settings.agendaRange.custom": "Na musamman",
   "widgetsA.calendar.settings.agendaRange.days": {
     "one": "Kwana {count}",
     "other": "Kwanaki {count}"
   },
-  "widgetsA.calendar.settings.agendaRange.desc": "Har ina ajanda ke duba gaba, har da yau",
   "widgetsA.calendar.settings.agendaRange.label": "Kewayon kwanaki",
   "widgetsA.calendar.settings.agendaRange.todayTomorrow": "Yau da gobe",
   "widgetsA.calendar.settings.days.label": "Kwanakin da ake nunawa",
-  "widgetsA.calendar.settings.weekDays.desc": "{week} cikakken mako ne, {workweek} mako na aiki",
-  "widgetsA.calendar.settings.weekFrom.desc": "Shafi na farko: ranar farko ta mako, ko yau don kwanaki masu zuwa",
   "widgetsA.calendar.settings.weekFrom.label": "Yana farawa daga",
   "widgetsA.calendar.settings.weekFrom.weekStart": "Ranar farko ta mako ({day})",
   "widgetsA.calendar.spanWithLength": "{from}–{to} ({length})",

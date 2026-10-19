@@ -16,7 +16,6 @@
   "widgetsA.calendar.noEvents": "لا أحداث",
   "widgetsA.calendar.now": "الآن",
   "widgetsA.calendar.previous": "السابق",
-  "widgetsA.calendar.settings.agendaCount.desc": "أقصى عدد يسرده جدول الأعمال",
   "widgetsA.calendar.settings.agendaRange.custom": "مخصص",
   "widgetsA.calendar.settings.agendaRange.days": {
     "zero": "{count} يوم",
@@ -26,12 +25,9 @@
     "many": "{count} يومًا",
     "other": "{count} يوم"
   },
-  "widgetsA.calendar.settings.agendaRange.desc": "إلى أي مدى ينظر جدول الأعمال إلى الأمام، بما في ذلك اليوم",
   "widgetsA.calendar.settings.agendaRange.label": "النطاق الزمني",
   "widgetsA.calendar.settings.agendaRange.todayTomorrow": "اليوم وغدًا",
   "widgetsA.calendar.settings.days.label": "الأيام المعروضة",
-  "widgetsA.calendar.settings.weekDays.desc": "{week} أسبوع كامل، و{workweek} أسبوع عمل",
-  "widgetsA.calendar.settings.weekFrom.desc": "العمود الأول: أول يوم في الأسبوع، أو اليوم للأيام القادمة",
   "widgetsA.calendar.settings.weekFrom.label": "يبدأ في",
   "widgetsA.calendar.settings.weekFrom.weekStart": "أول يوم في الأسبوع ({day})",
   "widgetsA.calendar.spanWithLength": "{from}–{to} ({length})",

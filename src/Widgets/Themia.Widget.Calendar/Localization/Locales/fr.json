@@ -16,18 +16,14 @@
   "widgetsA.calendar.noEvents": "Aucun événement",
   "widgetsA.calendar.now": "Maintenant",
   "widgetsA.calendar.previous": "Précédent",
-  "widgetsA.calendar.settings.agendaCount.desc": "Combien l’agenda en affiche au plus",
   "widgetsA.calendar.settings.agendaRange.custom": "Personnalisée",
   "widgetsA.calendar.settings.agendaRange.days": {
     "one": "{count} jour",
     "other": "{count} jours"
   },
-  "widgetsA.calendar.settings.agendaRange.desc": "Jusqu’où l’agenda regarde, aujourd’hui compris",
   "widgetsA.calendar.settings.agendaRange.label": "Période",
   "widgetsA.calendar.settings.agendaRange.todayTomorrow": "Aujourd’hui et demain",
   "widgetsA.calendar.settings.days.label": "Jours affichés",
-  "widgetsA.calendar.settings.weekDays.desc": "{week} pour une semaine entière, {workweek} pour une semaine de travail",
-  "widgetsA.calendar.settings.weekFrom.desc": "La première colonne : le premier jour de la semaine, ou aujourd’hui pour les jours à venir",
   "widgetsA.calendar.settings.weekFrom.label": "Commence le",
   "widgetsA.calendar.settings.weekFrom.weekStart": "Premier jour de la semaine ({day})",
   "widgetsA.calendar.spanWithLength": "{from}–{to} ({length})",

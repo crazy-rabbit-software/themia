@@ -3,8 +3,6 @@
   "planner.free": "Walang nakaplano",
   "planner.label": "Planner ng linggo",
   "planner.showTasks": "Ipakita ang mga gawain ngayon",
-  "planner.showTasksDesc": "Mga gawaing due ngayon o overdue, sa ilalim ng mga event ngayon",
   "planner.taskAccount": "Mga gawain mula sa",
-  "planner.taskAccountFirst": "Ang unang account na may mga gawain",
-  "planner.tasksHeader": "Mga gawain ngayon"
+  "planner.taskAccountFirst": "Ang unang account na may mga gawain"
 }

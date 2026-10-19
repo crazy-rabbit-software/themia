@@ -16,7 +16,6 @@
   "widgetsA.calendar.noEvents": "Нет событий",
   "widgetsA.calendar.now": "Сейчас",
   "widgetsA.calendar.previous": "Назад",
-  "widgetsA.calendar.settings.agendaCount.desc": "Наибольшее число событий в повестке",
   "widgetsA.calendar.settings.agendaRange.custom": "Свой вариант",
   "widgetsA.calendar.settings.agendaRange.days": {
     "one": "{count} день",
@@ -24,12 +23,9 @@
     "many": "{count} дней",
     "other": "{count} дня"
   },
-  "widgetsA.calendar.settings.agendaRange.desc": "На сколько дней вперёд смотрит повестка, включая сегодня",
   "widgetsA.calendar.settings.agendaRange.label": "Диапазон дат",
   "widgetsA.calendar.settings.agendaRange.todayTomorrow": "Сегодня и завтра",
   "widgetsA.calendar.settings.days.label": "Число дней",
-  "widgetsA.calendar.settings.weekDays.desc": "{week} — вся неделя, {workweek} — рабочая неделя",
-  "widgetsA.calendar.settings.weekFrom.desc": "Первый столбец: первый день недели или сегодня, чтобы видеть ближайшие дни",
   "widgetsA.calendar.settings.weekFrom.label": "Начало",
   "widgetsA.calendar.settings.weekFrom.weekStart": "Первый день недели ({day})",
   "widgetsA.calendar.spanWithLength": "{from}–{to} ({length})",

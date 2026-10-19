@@ -16,18 +16,14 @@
   "widgetsA.calendar.noEvents": "कोई ईवेंट नहीं",
   "widgetsA.calendar.now": "अभी",
   "widgetsA.calendar.previous": "पिछला",
-  "widgetsA.calendar.settings.agendaCount.desc": "एजेंडा अधिकतम कितने दिखाए",
   "widgetsA.calendar.settings.agendaRange.custom": "कस्टम",
   "widgetsA.calendar.settings.agendaRange.days": {
     "one": "{count} दिन",
     "other": "{count} दिन"
   },
-  "widgetsA.calendar.settings.agendaRange.desc": "एजेंडा कितने दिन आगे देखे, आज सहित",
   "widgetsA.calendar.settings.agendaRange.label": "तारीख सीमा",
   "widgetsA.calendar.settings.agendaRange.todayTomorrow": "आज और कल",
   "widgetsA.calendar.settings.days.label": "दिखाए गए दिन",
-  "widgetsA.calendar.settings.weekDays.desc": "{week} यानी पूरा सप्ताह, {workweek} यानी कार्य सप्ताह",
-  "widgetsA.calendar.settings.weekFrom.desc": "पहला कॉलम: सप्ताह का पहला दिन, या आने वाले दिनों के लिए आज",
   "widgetsA.calendar.settings.weekFrom.label": "शुरुआत",
   "widgetsA.calendar.settings.weekFrom.weekStart": "सप्ताह का पहला दिन ({day})",
   "widgetsA.calendar.spanWithLength": "{from}–{to} ({length})",

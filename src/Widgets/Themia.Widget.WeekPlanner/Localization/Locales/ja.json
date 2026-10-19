@@ -3,8 +3,6 @@
   "planner.free": "予定なし",
   "planner.label": "週間プランナー",
   "planner.showTasks": "今日のタスクを表示",
-  "planner.showTasksDesc": "今日が期限または期限切れのタスクを、今日の予定の下に表示",
   "planner.taskAccount": "タスクの取得元",
-  "planner.taskAccountFirst": "タスクのある最初のアカウント",
-  "planner.tasksHeader": "今日のタスク"
+  "planner.taskAccountFirst": "タスクのある最初のアカウント"
 }

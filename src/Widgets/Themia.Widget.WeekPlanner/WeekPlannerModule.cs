@@ -36,8 +36,9 @@ public sealed class WeekPlannerModule : IWidgetModule
         Add = new(AddFolderId.CalendarMail, 0, 2),
     };
 
-    public void SettingsRows(WidgetSettingsRows rows, WidgetConfig config)
-        => WeekPlannerSettings.Rows(rows, (WeekPlannerConfig)config);
+    /// <summary>[S-3719] [S-5324] Every option is on the properties menu: the widget has no settings page.</summary>
+    public void MenuLines(WidgetMenuLines menu, WidgetConfig config)
+        => WeekPlannerMenu.Lines(menu, (WeekPlannerConfig)config, SettingsHost.Office, SettingsHost.Tasks?.Accounts ?? []);
 
     public FrameworkElement CreateView(IWidgetHost host) => new WeekPlannerView(host);
 }

@@ -3,18 +3,18 @@
 The module `calendar` ([S-6911]): the synced calendars in one of five styles (month, week, day,
 agenda, year). Its tags are this file's alone; the root `SPEC.md` holds what it shares with the host
 and the other calendar widgets, with their root tags: where events come from ([S-560]), the shared
-source and seam ([S-588], [S-2701], [S-3602]), the settings builder ([S-3601], the SDK's
-`OfficeSettingsRows`), and every rule it is drawn by (`CalendarRules`, `CalendarFit`, `AgendaRules`,
+source and seam ([S-588], [S-2701], [S-3602]), the shared menu lines ([S-3601], the SDK's
+`OfficeMenuLines`), and every rule it is drawn by (`CalendarRules`, `CalendarFit`, `AgendaRules`,
 `CalendarText`, `CalendarLinks`, `CalendarShare`, in the SDK, with their tests in Core).
 
 Owning files: everything in this folder: `CalendarModule.cs` (descriptor, view factory, JSON
 context), `CalendarWidgetConfig.cs` (the style, the week's and agenda's own settings),
 `CalendarView*.cs` (one partial per style, the links, over `IWidgetHost.Office`), `AgendaSpec.cs`
 (the agenda on the kit's list),
-`CalendarSettings.cs` (the SDK's calendar rows and the style's own), `Preview/` (Debug renders:
+`CalendarMenu.cs` (its properties-menu lines: the SDK's calendar lines and the style's own), `Preview/` (Debug renders:
 `--state sample|selected|linked|days|stale|empty`), `Localization/Locales/` (its own `CalendarStr`, 30
 languages). Tests: the rules' are Core's; the config's are the module host's (`CalendarHostTests`,
-`OfficeConfigTests`); the agenda's items are `Tests/AgendaSpecTests.cs`.
+`OfficeConfigTests`); the agenda's items are `Tests/AgendaSpecTests.cs`; the menu's `Tests/CalendarMenuTests.cs`.
 
 - **[S-3650]** The agenda is the kit's paged list ([S-7035], [S-7036]): `AgendaSpec` gives its spec
   (the schedule look, two columns at most, the widest time labels "All day", "Now" and a clock) and
@@ -35,6 +35,14 @@ languages). Tests: the rules' are Core's; the config's are the module host's (`C
   Enter, the Menu key; with nothing focused a key lands on the page on screen, and the cursor turns
   the page with it); Left, Right, Page Up and Page Down page, Home goes to today, Escape lets the
   cursor and the selected day go. The other styles keep their click and Enter ([S-2710]).
+- **[S-7513]** Its options are on the properties menu ([S-3719], user request 2026-10-19; the
+  settings page is gone). Under Style only what the style uses ([S-3601]): the week's **Starts on**
+  (the first day of the week, named, or Today) and **Days shown** (1 to 14, dots); the agenda's
+  **Date range** (Today, Today and tomorrow, 3, 7 or 30 days, and Custom…, which asks for 1 to 365
+  days and holds the dot while the range is none of the others; the line shows the range) and
+  **Agenda events** (1 to 100, asked for as text, [S-3726]). Then Appearance, the calendar widgets'
+  **Accounts** and **Calendars** (`OfficeMenuLines.CalendarAccounts`, [S-561]) and **Show contact
+  birthdays**.
 
 - **[S-1265]** Week columns ≥64 px spell the weekday; ≥100 px a timed chip shows start–end and its
   location under the title.

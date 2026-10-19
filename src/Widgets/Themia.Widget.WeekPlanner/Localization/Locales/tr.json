@@ -3,8 +3,6 @@
   "planner.free": "Plan yok",
   "planner.label": "Haftalık planlayıcı",
   "planner.showTasks": "Bugünün görevlerini göster",
-  "planner.showTasksDesc": "Bugün süresi dolan veya gecikmiş görevler, bugünün etkinliklerinin altında",
   "planner.taskAccount": "Görevlerin kaynağı",
-  "planner.taskAccountFirst": "Görevi olan ilk hesap",
-  "planner.tasksHeader": "Bugünün görevleri"
+  "planner.taskAccountFirst": "Görevi olan ilk hesap"
 }

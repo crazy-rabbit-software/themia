@@ -16,7 +16,6 @@
   "widgetsA.calendar.noEvents": "Brak wydarzeń",
   "widgetsA.calendar.now": "Teraz",
   "widgetsA.calendar.previous": "Poprzedni",
-  "widgetsA.calendar.settings.agendaCount.desc": "Ile wydarzeń agenda pokazuje najwyżej",
   "widgetsA.calendar.settings.agendaRange.custom": "Niestandardowy",
   "widgetsA.calendar.settings.agendaRange.days": {
     "one": "{count} dzień",
@@ -24,12 +23,9 @@
     "many": "{count} dni",
     "other": "{count} dnia"
   },
-  "widgetsA.calendar.settings.agendaRange.desc": "Jak daleko naprzód sięga agenda, łącznie z dzisiaj",
   "widgetsA.calendar.settings.agendaRange.label": "Zakres dat",
   "widgetsA.calendar.settings.agendaRange.todayTomorrow": "Dziś i jutro",
   "widgetsA.calendar.settings.days.label": "Wyświetlane dni",
-  "widgetsA.calendar.settings.weekDays.desc": "{week} to cały tydzień, {workweek} to tydzień roboczy",
-  "widgetsA.calendar.settings.weekFrom.desc": "Pierwsza kolumna: pierwszy dzień tygodnia lub dzisiaj, by widzieć najbliższe dni",
   "widgetsA.calendar.settings.weekFrom.label": "Zaczyna się od",
   "widgetsA.calendar.settings.weekFrom.weekStart": "Pierwszy dzień tygodnia ({day})",
   "widgetsA.calendar.spanWithLength": "{from}–{to} ({length})",

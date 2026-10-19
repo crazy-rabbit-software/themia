@@ -3,8 +3,6 @@
   "planner.free": "برنامه‌ای نیست",
   "planner.label": "برنامه‌ریز هفته",
   "planner.showTasks": "نمایش کارهای امروز",
-  "planner.showTasksDesc": "کارهایی که سررسیدشان امروز است یا گذشته، زیر رویدادهای امروز",
   "planner.taskAccount": "کارها از",
-  "planner.taskAccountFirst": "نخستین حساب دارای کار",
-  "planner.tasksHeader": "کارهای امروز"
+  "planner.taskAccountFirst": "نخستین حساب دارای کار"
 }

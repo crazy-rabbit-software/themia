@@ -16,17 +16,13 @@
   "widgetsA.calendar.noEvents": "Tidak ada acara",
   "widgetsA.calendar.now": "Sekarang",
   "widgetsA.calendar.previous": "Sebelumnya",
-  "widgetsA.calendar.settings.agendaCount.desc": "Jumlah terbanyak yang dicantumkan agenda",
   "widgetsA.calendar.settings.agendaRange.custom": "Kustom",
   "widgetsA.calendar.settings.agendaRange.days": {
     "other": "{count} hari"
   },
-  "widgetsA.calendar.settings.agendaRange.desc": "Seberapa jauh agenda melihat ke depan, termasuk hari ini",
   "widgetsA.calendar.settings.agendaRange.label": "Rentang tanggal",
   "widgetsA.calendar.settings.agendaRange.todayTomorrow": "Hari ini dan besok",
   "widgetsA.calendar.settings.days.label": "Hari yang ditampilkan",
-  "widgetsA.calendar.settings.weekDays.desc": "{week} adalah seminggu penuh, {workweek} minggu kerja",
-  "widgetsA.calendar.settings.weekFrom.desc": "Kolom pertama: hari pertama dalam minggu, atau hari ini untuk hari-hari mendatang",
   "widgetsA.calendar.settings.weekFrom.label": "Dimulai pada",
   "widgetsA.calendar.settings.weekFrom.weekStart": "Hari pertama dalam minggu ({day})",
   "widgetsA.calendar.spanWithLength": "{from}–{to} ({length})",

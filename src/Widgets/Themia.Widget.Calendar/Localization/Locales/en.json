@@ -17,18 +17,14 @@
   "widgetsA.calendar.noEvents": "No events",
   "widgetsA.calendar.now": "Now",
   "widgetsA.calendar.previous": "Previous",
-  "widgetsA.calendar.settings.agendaCount.desc": "The most the agenda lists",
   "widgetsA.calendar.settings.agendaRange.custom": "Custom",
   "widgetsA.calendar.settings.agendaRange.days": {
     "one": "{count} day",
     "other": "{count} days"
   },
-  "widgetsA.calendar.settings.agendaRange.desc": "How far ahead the agenda looks, today included",
   "widgetsA.calendar.settings.agendaRange.label": "Date range",
   "widgetsA.calendar.settings.agendaRange.todayTomorrow": "Today and tomorrow",
   "widgetsA.calendar.settings.days.label": "Days shown",
-  "widgetsA.calendar.settings.weekDays.desc": "{week} is a whole week, {workweek} a working week",
-  "widgetsA.calendar.settings.weekFrom.desc": "The first column: the first day of the week, or today for the days ahead",
   "widgetsA.calendar.settings.weekFrom.label": "Starts on",
   "widgetsA.calendar.settings.weekFrom.weekStart": "First day of the week ({day})",
   "widgetsA.calendar.spanWithLength": "{from}–{to} ({length})",

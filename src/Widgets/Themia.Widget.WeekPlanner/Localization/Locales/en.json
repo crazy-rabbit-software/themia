@@ -4,8 +4,6 @@
   "planner.free": "Nothing planned",
   "planner.label": "Week planner",
   "planner.showTasks": "Show today's tasks",
-  "planner.showTasksDesc": "Tasks due today or overdue, under today's events",
   "planner.taskAccount": "Tasks from",
-  "planner.taskAccountFirst": "The first account with tasks",
-  "planner.tasksHeader": "Today's tasks"
+  "planner.taskAccountFirst": "The first account with tasks"
 }

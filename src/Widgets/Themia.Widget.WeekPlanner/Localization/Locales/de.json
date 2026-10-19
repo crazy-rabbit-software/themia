@@ -3,8 +3,6 @@
   "planner.free": "Nichts geplant",
   "planner.label": "Wochenplaner",
   "planner.showTasks": "Heutige Aufgaben anzeigen",
-  "planner.showTasksDesc": "Heute fällige oder überfällige Aufgaben, unter den heutigen Terminen",
   "planner.taskAccount": "Aufgaben aus",
-  "planner.taskAccountFirst": "Das erste Konto mit Aufgaben",
-  "planner.tasksHeader": "Heutige Aufgaben"
+  "planner.taskAccountFirst": "Das erste Konto mit Aufgaben"
 }

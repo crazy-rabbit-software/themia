@@ -16,17 +16,13 @@
   "widgetsA.calendar.noEvents": "Không có sự kiện",
   "widgetsA.calendar.now": "Bây giờ",
   "widgetsA.calendar.previous": "Trước",
-  "widgetsA.calendar.settings.agendaCount.desc": "Số sự kiện tối đa lịch biểu liệt kê",
   "widgetsA.calendar.settings.agendaRange.custom": "Tùy chỉnh",
   "widgetsA.calendar.settings.agendaRange.days": {
     "other": "{count} ngày"
   },
-  "widgetsA.calendar.settings.agendaRange.desc": "Lịch biểu xem trước bao xa, tính cả hôm nay",
   "widgetsA.calendar.settings.agendaRange.label": "Khoảng ngày",
   "widgetsA.calendar.settings.agendaRange.todayTomorrow": "Hôm nay và ngày mai",
   "widgetsA.calendar.settings.days.label": "Số ngày hiển thị",
-  "widgetsA.calendar.settings.weekDays.desc": "{week} là cả tuần, {workweek} là tuần làm việc",
-  "widgetsA.calendar.settings.weekFrom.desc": "Cột đầu tiên: ngày đầu tuần, hoặc hôm nay để xem những ngày sắp tới",
   "widgetsA.calendar.settings.weekFrom.label": "Bắt đầu từ",
   "widgetsA.calendar.settings.weekFrom.weekStart": "Ngày đầu tuần ({day})",
   "widgetsA.calendar.spanWithLength": "{from}–{to} ({length})",

@@ -16,18 +16,14 @@
   "widgetsA.calendar.noEvents": "رویدادی نیست",
   "widgetsA.calendar.now": "اکنون",
   "widgetsA.calendar.previous": "قبلی",
-  "widgetsA.calendar.settings.agendaCount.desc": "بیشترین تعدادی که برنامه فهرست می‌کند",
   "widgetsA.calendar.settings.agendaRange.custom": "سفارشی",
   "widgetsA.calendar.settings.agendaRange.days": {
     "one": "{count} روز",
     "other": "{count} روز"
   },
-  "widgetsA.calendar.settings.agendaRange.desc": "برنامه تا چند روز جلوتر را نشان دهد، با احتساب امروز",
   "widgetsA.calendar.settings.agendaRange.label": "بازهٔ تاریخ",
   "widgetsA.calendar.settings.agendaRange.todayTomorrow": "امروز و فردا",
   "widgetsA.calendar.settings.days.label": "روزهای نمایش‌داده‌شده",
-  "widgetsA.calendar.settings.weekDays.desc": "{week} یعنی یک هفتهٔ کامل، {workweek} یک هفتهٔ کاری",
-  "widgetsA.calendar.settings.weekFrom.desc": "ستون اول: نخستین روز هفته، یا امروز برای روزهای پیش رو",
   "widgetsA.calendar.settings.weekFrom.label": "شروع از",
   "widgetsA.calendar.settings.weekFrom.weekStart": "نخستین روز هفته ({day})",
   "widgetsA.calendar.spanWithLength": "{from}–{to} ({length})",
