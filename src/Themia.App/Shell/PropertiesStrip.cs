@@ -202,6 +202,25 @@ internal sealed partial class PropertiesStrip : Grid
         // [S-3719] The widget's own lines are built again on every change: their closures hold the
         // config as it is now (an undo replaces it), and their ticks say what it holds now.
         _widget = WidgetLines();
+        if (_widget is { } built)
+        {
+            // [S-3746] A line that was still reading (an account's calendars) asks to be built again
+            // when its answer has come; only while these lines are still the ones shown.
+            built.Outdated += () => DispatcherQueue?.TryEnqueue(() =>
+            {
+                try
+                {
+                    if (ReferenceEquals(_widget, built))
+                    {
+                        ShowSelection(_offer);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Log.Error(Scope, "a widget's menu lines could not be built again", ex);
+                }
+            });
+        }
 
         var nodes = Nodes();
         if (!string.Equals(FrameKey(), _frameKey, StringComparison.Ordinal) || _levels.Count == 0

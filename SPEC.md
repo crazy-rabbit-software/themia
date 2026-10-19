@@ -1519,10 +1519,21 @@ rules in Core `Model/QuickSet.cs` and `Geometry/StripPlacement.cs` (tests `Quick
   from the name; saved only when it changed), the list's own lines for it, Move up and Move down (the
   ends greyed; left out for a list whose order means nothing) and Remove; while there are none, its
   empty sentence as a note; then Add… (asked for and checked as it is typed) or the caller's add
-  lines, greyed at the list's limit. Every change is made in the list and saved.
+  lines, greyed at the list's limit; Remove is greyed at its fewest (`Min`: a table's last column).
+  Every change is made in the list and saved.
 - **[S-3730]** A **folder** (`WidgetMenuLines.PickFolder`) is a line with the folder's name at its
   end (a drive as itself) whose click opens Windows' folder picker (`FolderBrowse.PickAsync`, the one
   picker the settings' path boxes use too); a folder picked sets and saves, a cancel changes nothing.
+- **[S-3745]** An account widget's lines open **Settings › Accounts** (`WidgetMenuLines.AccountsLine`:
+  Manage accounts, Add an account) through the host's `ShowAccounts`; the line changes and saves
+  nothing, and is greyed where the host has no settings window (a render). No account is ever signed
+  in from a widget's menu.
+- **[S-3746]** A line may show what is **read asynchronously** (an account's calendars, its task
+  lists: `MenuLoads`): the lines are built from what is held, a read is started (one per key at a
+  time, through the source's own cache), and while nothing has come the line says it is looking;
+  when an answer comes that differs from what was held, every menu built meanwhile is out of date
+  (`WidgetMenuLines.Outdated`) and the host builds it again. An answer that says the same changes
+  nothing, so building again never loops; a read that throws is logged and said once.
 - **[S-3738]** A **time of day or a date typed** on the menu ([S-3721]) is read by one rule
   (`TypedTime`): a time in either clock ("7:30", "07:30", "19.30", a bare hour, an optional am/pm with
   the hour then 1–12), a date with the year first ("2026-12-24", "2026/12/24") or the day first with

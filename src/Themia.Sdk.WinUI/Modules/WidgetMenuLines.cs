@@ -41,6 +41,21 @@ public sealed class WidgetMenuLines
         _confirm = confirm;
     }
 
+    /// <summary>
+    /// [S-3745] Opens Settings › Accounts, where an account comes into being: what an account widget's
+    /// Manage accounts line does. Null where the host has no settings window (a render, a test).
+    /// </summary>
+    public Action? ShowAccounts { get; init; }
+
+    /// <summary>
+    /// [S-3746] Raised when something a line showed while it was still being read has come (an
+    /// account's calendars, its lists): the host builds the lines again, so they say what is there.
+    /// </summary>
+    public event Action? Outdated;
+
+    /// <summary>[S-3746] Say the lines as built are out of date: the host builds them again.</summary>
+    public void Outdate() => Outdated?.Invoke();
+
     /// <summary>The menu's first level, after Style.</summary>
     public List<ItemMenuEntry> Lines { get; } = [];
 
@@ -106,6 +121,13 @@ public sealed class WidgetMenuLines
 
         return Submenu(glyph, text, lines);
     }
+
+    /// <summary>
+    /// [S-3745] The line that opens Settings › Accounts (Manage accounts, Add an account): it changes
+    /// nothing here and saves nothing; greyed where the host has no settings window.
+    /// </summary>
+    public ItemMenuEntry AccountsLine(string? glyph, string text)
+        => new(glyph, text, () => ShowAccounts?.Invoke(), Disabled: ShowAccounts is null);
 
     /// <summary>A command that changes the config and saves: one step.</summary>
     public ItemMenuEntry Command(string? glyph, string text, Action change, bool disabled = false)
@@ -350,7 +372,7 @@ public sealed class WidgetMenuLines
                 {
                     items.RemoveAt(found);
                 }
-            }));
+            }, disabled: items.Count <= list.Min));
 
             lines.Add(Submenu(list.Glyph?.Invoke(item), list.Name(item), actions) with { IconFile = list.IconFile?.Invoke(item) });
         }
@@ -459,6 +481,9 @@ public sealed record MenuList<T>(Func<T, string> Name, string Empty)
 
     /// <summary>The most items the list takes: the add lines are greyed at it.</summary>
     public int? Max { get; init; }
+
+    /// <summary>[S-3729] The fewest items the list keeps (a table's last column): Remove is greyed at it.</summary>
+    public int Min { get; init; }
 
     /// <summary>Whether the order means something (Move up and Move down). On by default.</summary>
     public bool Reorder { get; init; } = true;
