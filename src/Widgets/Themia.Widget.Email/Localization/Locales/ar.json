@@ -23,12 +23,7 @@
   "widgetsB.email.sortOldestTip": "الأقدم أولًا. انقر لعرض الأحدث أولًا",
   "widgetsB.settings.email.columnsNote": "الأداة الضيقة تحذف المعاينة والحساب والتاريخ أولًا.",
   "widgetsB.settings.email.every.label": "كل حسابات البريد",
-  "widgetsB.settings.email.folder.desc": "المجلد الذي يُسرد من كل حساب",
-  "widgetsB.settings.email.messages": "الرسائل",
-  "widgetsB.settings.email.noAccount.desc": "سجّل الدخول في صفحة الحسابات",
   "widgetsB.settings.email.noAccount.label": "لا يوجد حساب بريد بعد",
-  "widgetsB.settings.email.previewLines.desc": "عدد أسطر معاينة كل رسالة",
-  "widgetsB.settings.email.showAccount.desc": "الحساب الذي وصلت إليه الرسالة",
   "widgetsB.settings.email.showAccount.label": "إظهار الحساب",
   "widgetsB.settings.email.showSubject": "إظهار الموضوع",
   "widgetsB.time.dateTime": "{date}، {time}"

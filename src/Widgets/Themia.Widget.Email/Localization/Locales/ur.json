@@ -23,12 +23,7 @@
   "widgetsB.email.sortOldestTip": "پرانے پہلے۔ نئے پہلے دکھانے کے لیے کلک کریں",
   "widgetsB.settings.email.columnsNote": "تنگ ویجیٹ پہلے پیش نظارہ، اکاؤنٹ اور تاریخ ہٹاتا ہے۔",
   "widgetsB.settings.email.every.label": "ہر میل اکاؤنٹ",
-  "widgetsB.settings.email.folder.desc": "ہر اکاؤنٹ کا کون سا فولڈر دکھایا جائے",
-  "widgetsB.settings.email.messages": "پیغامات",
-  "widgetsB.settings.email.noAccount.desc": "اکاؤنٹس کے صفحے پر سائن ان کریں",
   "widgetsB.settings.email.noAccount.label": "ابھی کوئی میل اکاؤنٹ نہیں",
-  "widgetsB.settings.email.previewLines.desc": "ہر پیغام کے پیش نظارہ کی کتنی لائنیں",
-  "widgetsB.settings.email.showAccount.desc": "پیغام کس اکاؤنٹ میں آیا",
   "widgetsB.settings.email.showAccount.label": "اکاؤنٹ دکھائیں",
   "widgetsB.settings.email.showSubject": "موضوع دکھائیں",
   "widgetsB.time.dateTime": "{date}، {time}"

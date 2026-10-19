@@ -23,12 +23,7 @@
   "widgetsB.email.sortOldestTip": "古い順。クリックすると新しい順に表示",
   "widgetsB.settings.email.columnsNote": "幅の狭いウィジェットでは、プレビュー、アカウント、日付から省きます。",
   "widgetsB.settings.email.every.label": "すべてのメール アカウント",
-  "widgetsB.settings.email.folder.desc": "各アカウントで表示するフォルダー",
-  "widgetsB.settings.email.messages": "メッセージ",
-  "widgetsB.settings.email.noAccount.desc": "[アカウント] ページでサインイン",
   "widgetsB.settings.email.noAccount.label": "メール アカウントがまだありません",
-  "widgetsB.settings.email.previewLines.desc": "各メッセージのプレビューの行数",
-  "widgetsB.settings.email.showAccount.desc": "メッセージを受信したアカウント",
   "widgetsB.settings.email.showAccount.label": "アカウントを表示",
   "widgetsB.settings.email.showSubject": "件名を表示",
   "widgetsB.time.dateTime": "{date} {time}"

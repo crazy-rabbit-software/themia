@@ -23,12 +23,7 @@
   "widgetsB.email.sortOldestTip": "오래된 항목 먼저. 클릭하면 최신 항목부터 표시합니다",
   "widgetsB.settings.email.columnsNote": "위젯이 좁으면 미리 보기, 계정, 날짜 순으로 생략됩니다.",
   "widgetsB.settings.email.every.label": "모든 메일 계정",
-  "widgetsB.settings.email.folder.desc": "각 계정에서 표시할 폴더",
-  "widgetsB.settings.email.messages": "메시지",
-  "widgetsB.settings.email.noAccount.desc": "계정 페이지에서 로그인하세요",
   "widgetsB.settings.email.noAccount.label": "아직 메일 계정이 없습니다",
-  "widgetsB.settings.email.previewLines.desc": "각 메시지 미리 보기의 줄 수",
-  "widgetsB.settings.email.showAccount.desc": "메시지를 받은 계정",
   "widgetsB.settings.email.showAccount.label": "계정 표시",
   "widgetsB.settings.email.showSubject": "제목 표시",
   "widgetsB.time.dateTime": "{date}, {time}"

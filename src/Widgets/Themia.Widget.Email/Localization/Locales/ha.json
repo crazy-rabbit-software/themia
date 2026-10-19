@@ -23,12 +23,7 @@
   "widgetsB.email.sortOldestTip": "Mafi tsufa da farko. Danna don nuna mafi sabo da farko",
   "widgetsB.settings.email.columnsNote": "Ƙunƙuntaccen widget yana cire samfoti, asusu da kwanan wata da farko.",
   "widgetsB.settings.email.every.label": "Kowane asusun imel",
-  "widgetsB.settings.email.folder.desc": "Wane babban fayil na kowane asusu za a lissafa",
-  "widgetsB.settings.email.messages": "Saƙonni",
-  "widgetsB.settings.email.noAccount.desc": "Shiga a shafin Asusu",
   "widgetsB.settings.email.noAccount.label": "Babu asusun imel tukuna",
-  "widgetsB.settings.email.previewLines.desc": "Layuka nawa na samfotin kowane saƙo",
-  "widgetsB.settings.email.showAccount.desc": "Asusun da saƙo ya zo masa",
   "widgetsB.settings.email.showAccount.label": "Nuna asusu",
   "widgetsB.settings.email.showSubject": "Nuna batu",
   "widgetsB.time.dateTime": "{date}, {time}"

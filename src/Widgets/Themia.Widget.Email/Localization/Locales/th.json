@@ -23,12 +23,7 @@
   "widgetsB.email.sortOldestTip": "เก่าสุดก่อน คลิกเพื่อแสดงใหม่สุดก่อน",
   "widgetsB.settings.email.columnsNote": "วิดเจ็ตที่แคบจะตัดตัวอย่าง บัญชี และวันที่ออกก่อน",
   "widgetsB.settings.email.every.label": "ทุกบัญชีอีเมล",
-  "widgetsB.settings.email.folder.desc": "โฟลเดอร์ของแต่ละบัญชีที่จะแสดง",
-  "widgetsB.settings.email.messages": "ข้อความ",
-  "widgetsB.settings.email.noAccount.desc": "ลงชื่อเข้าใช้ในหน้าบัญชี",
   "widgetsB.settings.email.noAccount.label": "ยังไม่มีบัญชีอีเมล",
-  "widgetsB.settings.email.previewLines.desc": "จำนวนบรรทัดของตัวอย่างแต่ละข้อความ",
-  "widgetsB.settings.email.showAccount.desc": "บัญชีที่ข้อความส่งมาถึง",
   "widgetsB.settings.email.showAccount.label": "แสดงบัญชี",
   "widgetsB.settings.email.showSubject": "แสดงเรื่อง",
   "widgetsB.time.dateTime": "{date} {time}"

@@ -23,12 +23,7 @@
   "widgetsB.email.sortOldestTip": "Oudste eerst. Klik om nieuwste eerst te tonen",
   "widgetsB.settings.email.columnsNote": "Een smalle widget laat eerst voorbeeld, account en datum weg.",
   "widgetsB.settings.email.every.label": "Elk e-mailaccount",
-  "widgetsB.settings.email.folder.desc": "Welke map van elk account wordt getoond",
-  "widgetsB.settings.email.messages": "Berichten",
-  "widgetsB.settings.email.noAccount.desc": "Meld je aan op de pagina Accounts",
   "widgetsB.settings.email.noAccount.label": "Nog geen e-mailaccount",
-  "widgetsB.settings.email.previewLines.desc": "Hoeveel regels voorbeeld per bericht",
-  "widgetsB.settings.email.showAccount.desc": "Bij welk account een bericht binnenkwam",
   "widgetsB.settings.email.showAccount.label": "Account weergeven",
   "widgetsB.settings.email.showSubject": "Onderwerp weergeven",
   "widgetsB.time.dateTime": "{date}, {time}"

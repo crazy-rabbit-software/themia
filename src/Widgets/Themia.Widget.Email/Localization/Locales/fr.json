@@ -23,12 +23,7 @@
   "widgetsB.email.sortOldestTip": "Plus anciens d’abord. Cliquez pour afficher les plus récents d’abord",
   "widgetsB.settings.email.columnsNote": "Un widget étroit masque d'abord l'aperçu, le compte et la date.",
   "widgetsB.settings.email.every.label": "Tous les comptes de messagerie",
-  "widgetsB.settings.email.folder.desc": "Le dossier de chaque compte à afficher",
-  "widgetsB.settings.email.messages": "Messages",
-  "widgetsB.settings.email.noAccount.desc": "Connectez-vous sur la page Comptes",
   "widgetsB.settings.email.noAccount.label": "Aucun compte de messagerie",
-  "widgetsB.settings.email.previewLines.desc": "Le nombre de lignes d’aperçu de chaque message",
-  "widgetsB.settings.email.showAccount.desc": "Le compte qui a reçu le message",
   "widgetsB.settings.email.showAccount.label": "Afficher le compte",
   "widgetsB.settings.email.showSubject": "Afficher l’objet",
   "widgetsB.time.dateTime": "{date} à {time}"

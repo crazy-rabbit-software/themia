@@ -23,12 +23,7 @@
   "widgetsB.email.sortOldestTip": "Pinakaluma muna. I-click para ipakita ang pinakabago muna",
   "widgetsB.settings.email.columnsNote": "Unang inaalis ng makitid na widget ang preview, account at petsa.",
   "widgetsB.settings.email.every.label": "Bawat mail account",
-  "widgetsB.settings.email.folder.desc": "Aling folder ng bawat account ang ililista",
-  "widgetsB.settings.email.messages": "Mga mensahe",
-  "widgetsB.settings.email.noAccount.desc": "Mag-sign in sa page na Mga Account",
   "widgetsB.settings.email.noAccount.label": "Wala pang mail account",
-  "widgetsB.settings.email.previewLines.desc": "Ilang linya ng preview ng bawat mensahe",
-  "widgetsB.settings.email.showAccount.desc": "Kung saang account dumating ang mensahe",
   "widgetsB.settings.email.showAccount.label": "Ipakita ang account",
   "widgetsB.settings.email.showSubject": "Ipakita ang subject",
   "widgetsB.time.dateTime": "{date}, {time}"

@@ -1,5 +1,5 @@
 {
-  "$englishOnly": [],
+  "$englishOnly": ["widgetsB.email.menu.columns"],
   "ctxMenu.archive": "Archive",
   "ctxMenu.copySubject": "Copy subject",
   "ctxMenu.reply": "Reply",
@@ -24,13 +24,9 @@
   "widgetsB.email.sortOldestTip": "Oldest first. Click to show newest first",
   "widgetsB.settings.email.columnsNote": "A narrow widget drops preview, account and date first.",
   "widgetsB.settings.email.every.label": "Every mail account",
-  "widgetsB.settings.email.folder.desc": "Which folder of each account to list",
-  "widgetsB.settings.email.messages": "Messages",
-  "widgetsB.settings.email.noAccount.desc": "Sign in on the Accounts page",
   "widgetsB.settings.email.noAccount.label": "No mail account yet",
-  "widgetsB.settings.email.previewLines.desc": "How many lines of each message's preview",
-  "widgetsB.settings.email.showAccount.desc": "Which account a message came to",
   "widgetsB.settings.email.showAccount.label": "Show account",
   "widgetsB.settings.email.showSubject": "Show subject",
-  "widgetsB.time.dateTime": "{date}, {time}"
+  "widgetsB.time.dateTime": "{date}, {time}",
+  "widgetsB.email.menu.columns": "Columns"
 }

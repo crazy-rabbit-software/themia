@@ -23,12 +23,7 @@
   "widgetsB.email.sortOldestTip": "పాతవి ముందు. కొత్తవి ముందు చూపించడానికి క్లిక్ చేయండి",
   "widgetsB.settings.email.columnsNote": "ఇరుకైన విడ్జెట్ మొదట ప్రివ్యూ, ఖాతా మరియు తేదీని తొలగిస్తుంది.",
   "widgetsB.settings.email.every.label": "ప్రతి మెయిల్ ఖాతా",
-  "widgetsB.settings.email.folder.desc": "ప్రతి ఖాతాలో ఏ ఫోల్డర్‌ను జాబితా చేయాలి",
-  "widgetsB.settings.email.messages": "సందేశాలు",
-  "widgetsB.settings.email.noAccount.desc": "ఖాతాలు పేజీలో సైన్ ఇన్ చేయండి",
   "widgetsB.settings.email.noAccount.label": "ఇంకా మెయిల్ ఖాతా లేదు",
-  "widgetsB.settings.email.previewLines.desc": "ప్రతి సందేశం ప్రివ్యూలో ఎన్ని పంక్తులు",
-  "widgetsB.settings.email.showAccount.desc": "సందేశం ఏ ఖాతాకు వచ్చింది",
   "widgetsB.settings.email.showAccount.label": "ఖాతాను చూపించు",
   "widgetsB.settings.email.showSubject": "విషయాన్ని చూపించు",
   "widgetsB.time.dateTime": "{date}, {time}"

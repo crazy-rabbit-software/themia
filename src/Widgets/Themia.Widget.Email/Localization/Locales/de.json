@@ -23,12 +23,7 @@
   "widgetsB.email.sortOldestTip": "Älteste zuerst. Klicken für neueste zuerst",
   "widgetsB.settings.email.columnsNote": "Ein schmales Widget lässt zuerst Vorschau, Konto und Datum weg.",
   "widgetsB.settings.email.every.label": "Alle E-Mail-Konten",
-  "widgetsB.settings.email.folder.desc": "Welcher Ordner jedes Kontos angezeigt wird",
-  "widgetsB.settings.email.messages": "Nachrichten",
-  "widgetsB.settings.email.noAccount.desc": "Auf der Seite Konten anmelden",
   "widgetsB.settings.email.noAccount.label": "Noch kein E-Mail-Konto",
-  "widgetsB.settings.email.previewLines.desc": "Wie viele Zeilen der Vorschau jeder Nachricht",
-  "widgetsB.settings.email.showAccount.desc": "An welches Konto eine Nachricht ging",
   "widgetsB.settings.email.showAccount.label": "Konto anzeigen",
   "widgetsB.settings.email.showSubject": "Betreff anzeigen",
   "widgetsB.time.dateTime": "{date}, {time}"

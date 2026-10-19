@@ -23,12 +23,7 @@
   "widgetsB.email.sortOldestTip": "ਪੁਰਾਣੇ ਪਹਿਲਾਂ। ਨਵੇਂ ਪਹਿਲਾਂ ਦਿਖਾਉਣ ਲਈ ਕਲਿੱਕ ਕਰੋ",
   "widgetsB.settings.email.columnsNote": "ਤੰਗ ਵਿਜੇਟ ਪਹਿਲਾਂ ਝਲਕ, ਖਾਤਾ ਅਤੇ ਮਿਤੀ ਹਟਾਉਂਦਾ ਹੈ।",
   "widgetsB.settings.email.every.label": "ਹਰ ਮੇਲ ਖਾਤਾ",
-  "widgetsB.settings.email.folder.desc": "ਹਰ ਖਾਤੇ ਦਾ ਕਿਹੜਾ ਫੋਲਡਰ ਦਿਖਾਉਣਾ ਹੈ",
-  "widgetsB.settings.email.messages": "ਸੁਨੇਹੇ",
-  "widgetsB.settings.email.noAccount.desc": "ਖਾਤੇ ਪੰਨੇ ਉੱਤੇ ਸਾਈਨ ਇਨ ਕਰੋ",
   "widgetsB.settings.email.noAccount.label": "ਹਾਲੇ ਕੋਈ ਮੇਲ ਖਾਤਾ ਨਹੀਂ",
-  "widgetsB.settings.email.previewLines.desc": "ਹਰ ਸੁਨੇਹੇ ਦੀ ਝਲਕ ਦੀਆਂ ਕਿੰਨੀਆਂ ਲਾਈਨਾਂ",
-  "widgetsB.settings.email.showAccount.desc": "ਸੁਨੇਹਾ ਕਿਸ ਖਾਤੇ ਵਿੱਚ ਆਇਆ",
   "widgetsB.settings.email.showAccount.label": "ਖਾਤਾ ਦਿਖਾਓ",
   "widgetsB.settings.email.showSubject": "ਵਿਸ਼ਾ ਦਿਖਾਓ",
   "widgetsB.time.dateTime": "{date}, {time}"

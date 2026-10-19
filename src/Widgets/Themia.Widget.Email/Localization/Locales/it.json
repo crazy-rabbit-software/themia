@@ -23,12 +23,7 @@
   "widgetsB.email.sortOldestTip": "Prima i meno recenti. Fai clic per mostrare prima i più recenti",
   "widgetsB.settings.email.columnsNote": "Un widget stretto toglie prima anteprima, account e data.",
   "widgetsB.settings.email.every.label": "Tutti gli account di posta",
-  "widgetsB.settings.email.folder.desc": "Quale cartella di ogni account mostrare",
-  "widgetsB.settings.email.messages": "Messaggi",
-  "widgetsB.settings.email.noAccount.desc": "Accedi nella pagina Account",
   "widgetsB.settings.email.noAccount.label": "Nessun account di posta",
-  "widgetsB.settings.email.previewLines.desc": "Quante righe di anteprima per ogni messaggio",
-  "widgetsB.settings.email.showAccount.desc": "A quale account è arrivato un messaggio",
   "widgetsB.settings.email.showAccount.label": "Mostra account",
   "widgetsB.settings.email.showSubject": "Mostra oggetto",
   "widgetsB.time.dateTime": "{date}, {time}"

@@ -23,12 +23,7 @@
   "widgetsB.email.sortOldestTip": "Más antiguos primero. Haz clic para ver los más recientes primero",
   "widgetsB.settings.email.columnsNote": "Un widget estrecho quita primero la vista previa, la cuenta y la fecha.",
   "widgetsB.settings.email.every.label": "Todas las cuentas de correo",
-  "widgetsB.settings.email.folder.desc": "Qué carpeta de cada cuenta se muestra",
-  "widgetsB.settings.email.messages": "Mensajes",
-  "widgetsB.settings.email.noAccount.desc": "Inicia sesión en la página Cuentas",
   "widgetsB.settings.email.noAccount.label": "Aún no hay cuenta de correo",
-  "widgetsB.settings.email.previewLines.desc": "Cuántas líneas de vista previa de cada mensaje",
-  "widgetsB.settings.email.showAccount.desc": "A qué cuenta llegó un mensaje",
   "widgetsB.settings.email.showAccount.label": "Mostrar cuenta",
   "widgetsB.settings.email.showSubject": "Mostrar asunto",
   "widgetsB.time.dateTime": "{date}, {time}"

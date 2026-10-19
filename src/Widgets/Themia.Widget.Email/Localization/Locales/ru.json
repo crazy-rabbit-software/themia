@@ -23,12 +23,7 @@
   "widgetsB.email.sortOldestTip": "Сначала старые. Щелкните, чтобы показать сначала новые",
   "widgetsB.settings.email.columnsNote": "Узкий виджет сначала скрывает предпросмотр, учетную запись и дату.",
   "widgetsB.settings.email.every.label": "Все почтовые учетные записи",
-  "widgetsB.settings.email.folder.desc": "Какую папку каждой учетной записи показывать",
-  "widgetsB.settings.email.messages": "Письма",
-  "widgetsB.settings.email.noAccount.desc": "Войдите на странице «Учетные записи»",
   "widgetsB.settings.email.noAccount.label": "Почтовой учетной записи пока нет",
-  "widgetsB.settings.email.previewLines.desc": "Сколько строк предпросмотра у каждого письма",
-  "widgetsB.settings.email.showAccount.desc": "На какую учетную запись пришло письмо",
   "widgetsB.settings.email.showAccount.label": "Показывать учетную запись",
   "widgetsB.settings.email.showSubject": "Показывать тему",
   "widgetsB.time.dateTime": "{date}, {time}"

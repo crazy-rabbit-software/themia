@@ -23,12 +23,7 @@
   "widgetsB.email.sortOldestTip": "Terlama dulu. Klik untuk menampilkan terbaru dulu",
   "widgetsB.settings.email.columnsNote": "Widget sempit menghilangkan pratinjau, akun, dan tanggal lebih dulu.",
   "widgetsB.settings.email.every.label": "Semua akun email",
-  "widgetsB.settings.email.folder.desc": "Folder mana dari setiap akun yang dicantumkan",
-  "widgetsB.settings.email.messages": "Pesan",
-  "widgetsB.settings.email.noAccount.desc": "Masuk di halaman Akun",
   "widgetsB.settings.email.noAccount.label": "Belum ada akun email",
-  "widgetsB.settings.email.previewLines.desc": "Berapa baris pratinjau setiap pesan",
-  "widgetsB.settings.email.showAccount.desc": "Akun mana yang menerima pesan",
   "widgetsB.settings.email.showAccount.label": "Tampilkan akun",
   "widgetsB.settings.email.showSubject": "Tampilkan subjek",
   "widgetsB.time.dateTime": "{date}, {time}"

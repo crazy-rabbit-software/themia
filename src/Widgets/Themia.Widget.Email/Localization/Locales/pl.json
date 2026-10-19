@@ -23,12 +23,7 @@
   "widgetsB.email.sortOldestTip": "Najstarsze najpierw. Kliknij, aby pokazać najnowsze najpierw",
   "widgetsB.settings.email.columnsNote": "Wąski widżet najpierw pomija podgląd, konto i datę.",
   "widgetsB.settings.email.every.label": "Wszystkie konta pocztowe",
-  "widgetsB.settings.email.folder.desc": "Który folder każdego konta wyświetlać",
-  "widgetsB.settings.email.messages": "Wiadomości",
-  "widgetsB.settings.email.noAccount.desc": "Zaloguj się na stronie Konta",
   "widgetsB.settings.email.noAccount.label": "Brak konta pocztowego",
-  "widgetsB.settings.email.previewLines.desc": "Ile wierszy podglądu każdej wiadomości",
-  "widgetsB.settings.email.showAccount.desc": "Na które konto przyszła wiadomość",
   "widgetsB.settings.email.showAccount.label": "Pokaż konto",
   "widgetsB.settings.email.showSubject": "Pokaż temat",
   "widgetsB.time.dateTime": "{date}, {time}"

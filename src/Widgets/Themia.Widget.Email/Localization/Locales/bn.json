@@ -23,12 +23,7 @@
   "widgetsB.email.sortOldestTip": "পুরোনোগুলো আগে। নতুনগুলো আগে দেখাতে ক্লিক করুন",
   "widgetsB.settings.email.columnsNote": "সরু উইজেট প্রথমে প্রিভিউ, অ্যাকাউন্ট ও তারিখ বাদ দেয়।",
   "widgetsB.settings.email.every.label": "প্রতিটি মেইল অ্যাকাউন্ট",
-  "widgetsB.settings.email.folder.desc": "প্রতিটি অ্যাকাউন্টের কোন ফোল্ডার দেখাবে",
-  "widgetsB.settings.email.messages": "বার্তা",
-  "widgetsB.settings.email.noAccount.desc": "অ্যাকাউন্ট পৃষ্ঠায় সাইন ইন করুন",
   "widgetsB.settings.email.noAccount.label": "এখনও কোনো মেইল অ্যাকাউন্ট নেই",
-  "widgetsB.settings.email.previewLines.desc": "প্রতিটি বার্তার প্রিভিউয়ের কত লাইন",
-  "widgetsB.settings.email.showAccount.desc": "বার্তাটি কোন অ্যাকাউন্টে এসেছে",
   "widgetsB.settings.email.showAccount.label": "অ্যাকাউন্ট দেখান",
   "widgetsB.settings.email.showSubject": "বিষয় দেখান",
   "widgetsB.time.dateTime": "{date}, {time}"

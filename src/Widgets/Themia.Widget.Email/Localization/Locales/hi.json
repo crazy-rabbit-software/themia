@@ -23,12 +23,7 @@
   "widgetsB.email.sortOldestTip": "पुराने पहले। नए पहले दिखाने के लिए क्लिक करें",
   "widgetsB.settings.email.columnsNote": "संकरा विजेट पहले पूर्वावलोकन, खाता और दिनांक हटाता है।",
   "widgetsB.settings.email.every.label": "हर मेल खाता",
-  "widgetsB.settings.email.folder.desc": "हर खाते का कौन-सा फ़ोल्डर दिखाना है",
-  "widgetsB.settings.email.messages": "संदेश",
-  "widgetsB.settings.email.noAccount.desc": "खाते पेज पर साइन इन करें",
   "widgetsB.settings.email.noAccount.label": "अभी कोई मेल खाता नहीं",
-  "widgetsB.settings.email.previewLines.desc": "हर संदेश के पूर्वावलोकन की कितनी पंक्तियाँ",
-  "widgetsB.settings.email.showAccount.desc": "संदेश किस खाते में आया",
   "widgetsB.settings.email.showAccount.label": "खाता दिखाएँ",
   "widgetsB.settings.email.showSubject": "विषय दिखाएँ",
   "widgetsB.time.dateTime": "{date}, {time}"

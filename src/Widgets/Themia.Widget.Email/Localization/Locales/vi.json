@@ -23,12 +23,7 @@
   "widgetsB.email.sortOldestTip": "Cũ nhất trước. Nhấp để hiện mới nhất trước",
   "widgetsB.settings.email.columnsNote": "Tiện ích hẹp sẽ bỏ xem trước, tài khoản và ngày trước tiên.",
   "widgetsB.settings.email.every.label": "Mọi tài khoản thư",
-  "widgetsB.settings.email.folder.desc": "Thư mục nào của mỗi tài khoản được liệt kê",
-  "widgetsB.settings.email.messages": "Thư",
-  "widgetsB.settings.email.noAccount.desc": "Đăng nhập trên trang Tài khoản",
   "widgetsB.settings.email.noAccount.label": "Chưa có tài khoản thư",
-  "widgetsB.settings.email.previewLines.desc": "Số dòng xem trước của mỗi thư",
-  "widgetsB.settings.email.showAccount.desc": "Thư được gửi đến tài khoản nào",
   "widgetsB.settings.email.showAccount.label": "Hiện tài khoản",
   "widgetsB.settings.email.showSubject": "Hiện chủ đề",
   "widgetsB.time.dateTime": "{date}, {time}"

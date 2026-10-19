@@ -23,12 +23,7 @@
   "widgetsB.email.sortOldestTip": "Za zamani kwanza. Bofya ili kuonyesha mpya kwanza",
   "widgetsB.settings.email.columnsNote": "Wijeti nyembamba huondoa onyesho la kuchungulia, akaunti na tarehe kwanza.",
   "widgetsB.settings.email.every.label": "Kila akaunti ya barua",
-  "widgetsB.settings.email.folder.desc": "Folda ipi ya kila akaunti iorodheshwe",
-  "widgetsB.settings.email.messages": "Jumbe",
-  "widgetsB.settings.email.noAccount.desc": "Ingia kwenye ukurasa wa Akaunti",
   "widgetsB.settings.email.noAccount.label": "Bado hakuna akaunti ya barua",
-  "widgetsB.settings.email.previewLines.desc": "Mistari mingapi ya onyesho la kuchungulia la kila ujumbe",
-  "widgetsB.settings.email.showAccount.desc": "Ujumbe ulifika kwenye akaunti ipi",
   "widgetsB.settings.email.showAccount.label": "Onyesha akaunti",
   "widgetsB.settings.email.showSubject": "Onyesha mada",
   "widgetsB.time.dateTime": "{date}, {time}"

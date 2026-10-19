@@ -23,12 +23,7 @@
   "widgetsB.email.sortOldestTip": "最早的在前。单击以最新的在前显示",
   "widgetsB.settings.email.columnsNote": "窄小组件会先省略预览、帐户和日期。",
   "widgetsB.settings.email.every.label": "所有邮件帐户",
-  "widgetsB.settings.email.folder.desc": "要列出每个帐户的哪个文件夹",
-  "widgetsB.settings.email.messages": "邮件",
-  "widgetsB.settings.email.noAccount.desc": "在“帐户”页面登录",
   "widgetsB.settings.email.noAccount.label": "还没有邮件帐户",
-  "widgetsB.settings.email.previewLines.desc": "每封邮件预览的行数",
-  "widgetsB.settings.email.showAccount.desc": "邮件发送到哪个帐户",
   "widgetsB.settings.email.showAccount.label": "显示帐户",
   "widgetsB.settings.email.showSubject": "显示主题",
   "widgetsB.time.dateTime": "{date} {time}"

@@ -23,12 +23,7 @@
   "widgetsB.email.sortOldestTip": "பழையது முதலில். புதியதை முதலில் காட்ட கிளிக் செய்யவும்",
   "widgetsB.settings.email.columnsNote": "குறுகிய விட்ஜெட் முதலில் முன்னோட்டம், கணக்கு மற்றும் தேதியை விடும்.",
   "widgetsB.settings.email.every.label": "ஒவ்வொரு அஞ்சல் கணக்கும்",
-  "widgetsB.settings.email.folder.desc": "ஒவ்வொரு கணக்கின் எந்தக் கோப்புறையைப் பட்டியலிட வேண்டும்",
-  "widgetsB.settings.email.messages": "செய்திகள்",
-  "widgetsB.settings.email.noAccount.desc": "கணக்குகள் பக்கத்தில் உள்நுழையவும்",
   "widgetsB.settings.email.noAccount.label": "இன்னும் அஞ்சல் கணக்கு இல்லை",
-  "widgetsB.settings.email.previewLines.desc": "ஒவ்வொரு செய்தியின் முன்னோட்டத்தில் எத்தனை வரிகள்",
-  "widgetsB.settings.email.showAccount.desc": "செய்தி எந்தக் கணக்குக்கு வந்தது",
   "widgetsB.settings.email.showAccount.label": "கணக்கைக் காட்டு",
   "widgetsB.settings.email.showSubject": "பொருளைக் காட்டு",
   "widgetsB.time.dateTime": "{date}, {time}"

@@ -23,12 +23,7 @@
   "widgetsB.email.sortOldestTip": "قدیمی‌ترین اول. برای نمایش جدیدترین اول کلیک کنید",
   "widgetsB.settings.email.columnsNote": "ویجت باریک ابتدا پیش‌نمایش، حساب و تاریخ را کنار می‌گذارد.",
   "widgetsB.settings.email.every.label": "همه حساب‌های ایمیل",
-  "widgetsB.settings.email.folder.desc": "کدام پوشه از هر حساب فهرست شود",
-  "widgetsB.settings.email.messages": "پیام‌ها",
-  "widgetsB.settings.email.noAccount.desc": "در صفحه حساب‌ها وارد شوید",
   "widgetsB.settings.email.noAccount.label": "هنوز حساب ایمیلی نیست",
-  "widgetsB.settings.email.previewLines.desc": "چند خط از پیش‌نمایش هر پیام",
-  "widgetsB.settings.email.showAccount.desc": "پیام به کدام حساب آمده",
   "widgetsB.settings.email.showAccount.label": "نمایش حساب",
   "widgetsB.settings.email.showSubject": "نمایش موضوع",
   "widgetsB.time.dateTime": "{date}، {time}"

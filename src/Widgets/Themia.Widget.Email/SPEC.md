@@ -9,9 +9,9 @@ and the screens ([S-547]..[S-549], the SDK's `MailScreens`), writing ([S-558]) a
 Owning files: everything in this folder: `EmailModule.cs` (descriptor, view factory, JSON context),
 `EmailConfig.cs` (the style, the folder, the fields and columns, `EmailFolders`), `MailSpec.cs` (a
 message as a kit item, its actions, the style's kit spec), `EmailView.cs` (over `IWidgetHost.Mail`,
-its rows the kit's `KitList`), `EmailSettings.cs`, `Preview/` (Debug renders:
+its rows the kit's `KitList`), `EmailMenu.cs` (its properties-menu lines), `Preview/` (Debug renders:
 `--state messages|accounts|empty|hovered|focused|stale|offline`),
-`Localization/Locales/` (its own `EmailStr`, 30 languages). Tests: `Tests/MailSpecTests.cs` (run by
+`Localization/Locales/` (its own `EmailStr`, 30 languages). Tests: `Tests/MailSpecTests.cs` and `Tests/EmailMenuTests.cs` (run by
 `tests/Themia.Modules.Tests`; the ladder's are the kit's, `KitLinedTests`); the config's and the screens' are the module host's (`MailFeedTests`).
 
 - **[S-540]** `EmailConfig` keeps the classic wire names (`folder: inbox|sentitems|drafts|deleteditems|junkemail`,
@@ -22,8 +22,8 @@ its rows the kit's `KitList`), `EmailSettings.cs`, `Preview/` (Debug renders:
   column. No hearth-era field is read ([S-1050]).
 - **[S-541]** `accountIds` empty means every mail account, including ones added later (the classic
   widget showed "select an account" instead); a non-empty list reads those accounts that are still
-  signed in. Settings lists the signed-in mail accounts as switches under "Every mail account" and
-  links to the Accounts page; no account is ever signed in from the widget's page. Folders: Inbox,
+  signed in. Its menu lists the signed-in mail accounts as switches under "Every mail account" and
+  opens the Accounts page ([S-7512]); no account is ever signed in from the widget. Folders: Inbox,
   Sent, Drafts, Deleted, Junk [S-12].
 - **[S-542]** List (sender + time, subject, preview), Compact (sender + time, subject) and Row (one
   line of user-ordered columns under a header row) views [S-14, S-37]; newest or oldest first over
@@ -38,8 +38,8 @@ its rows the kit's `KitList`), `EmailSettings.cs`, `Preview/` (Debug renders:
   **List with preview** (sender + time, subject, `PreviewLines` lines of preview), **Compact list**
   (sender + time, subject) and **Table** (one line of the user's columns under a header row), in
   that order: what were the view setting and the list fields' Preview switch (List without the
-  preview was Compact, so the switch is gone). The rest stay settings, shown only for the style that
-  draws with them (`EmailConfig.ShownSettings`, [S-6070]): Subject / Account for List and Compact, Preview
+  preview was Compact, so the switch is gone). The rest are lines under Style, shown only for the style that
+  draws with them (`EmailConfig.ShownSettings`, [S-6070], [S-7512]): Subject / Account for List and Compact, Preview
   lines for List, the columns for Table. A hand-edited `"preview"` list field is dropped.
 - **[S-544]** Message right-click: Open, Reply, Mark read/unread, Archive, Move to Junk, Copy subject,
   Delete [S-21], built by the kit's one menu builder ([S-7011], [S-7013]: Reply an OpenTo, the marks,
@@ -90,6 +90,15 @@ its rows the kit's `KitList`), `EmailSettings.cs`, `Preview/` (Debug renders:
 - **[S-1289]** Mail's header carries a sort button (from 200px wide) that turns the list round and
   saves `SortOrder`, like the menu's toggle; its tooltip says the current order. The compose button
   joins before it from 240px ([S-558]).
+
+- **[S-7512]** Its options are on the properties menu ([S-3719], user request 2026-10-19; the
+  settings page is gone). Under Style: Show subject and Show account (List and Compact), Preview
+  lines 1 to 5 (List), and for the Table its **Columns**, the menu's list ([S-3729]): the columns
+  that are on in their order, each with Move up, Move down and Remove (greyed on the last: one always
+  stays), the ones that are off to add at the end, and what a narrow table drops first as a note.
+  Then Appearance, **Accounts** (the kit's Accounts submenu over the signed-in mail accounts: Every
+  mail account, a switch each, the last one greyed, Manage accounts) and **Folder** (Inbox, Sent,
+  Drafts, Deleted, Junk).
 
 Needs a live pass: a signed-in Microsoft, Google and IMAP account (the three styles, opening and
 replying, the quick actions, Mark read and Delete landing on the server, Write email), and the
