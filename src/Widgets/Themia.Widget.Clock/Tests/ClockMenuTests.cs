@@ -25,13 +25,13 @@ public sealed class ClockMenuTests
             Build(new ClockConfig { Style = ClockStyle.Digital }).StyleLines.Select(l => l.Text));
 
     [Fact]
-    public void S1478_appearance_then_the_zone_with_the_label_and_offset_under_it()
+    public void S1478_appearance_then_the_zone_with_only_the_offset_under_it()
     {
         var lines = Build(new ClockConfig { Style = ClockStyle.Digital });
 
         Assert.Equal(0, lines.CardAt);
         var zone = Assert.Single(lines.Lines);
-        Assert.Equal([ClockStr.Clock_LabelLabel.Text(), ClockStr.Clock_OffsetLabel.Text()], zone.Search!.Fixed.Select(f => f.Text));
+        Assert.Equal([ClockStr.Clock_OffsetLabel.Text()], zone.Search!.Fixed.Select(f => f.Text));
     }
 
     [Fact]

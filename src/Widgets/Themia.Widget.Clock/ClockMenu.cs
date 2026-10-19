@@ -10,8 +10,7 @@ namespace Themia.App.Shell.Config;
 /// <summary>
 /// [S-1480] The Clock's options, all on its properties menu ([S-3719]): under Style what the look
 /// draws (seconds, the date line, the text size: [S-6074] only the ones the style draws); then
-/// Appearance ([S-3723]) and the time zone, a search ([S-3722]) with the label and the offset line
-/// under it. It has no settings page.
+/// Appearance ([S-3723]) and the time zone, a search ([S-3722]) with the offset line under it. It has no settings page.
 /// </summary>
 internal static class ClockMenu
 {
@@ -50,7 +49,7 @@ internal static class ClockMenu
     /// [S-1481] The zone: a search over every IANA city Windows maps, the machine's own zone always
     /// first as "Current: …" (an unset zone), the chosen one with the dot. Picking writes the IANA id;
     /// it resolves through <see cref="ZoneCatalog"/> because IANA ids do not resolve under
-    /// <c>InvariantGlobalization</c>. [S-3795] Under the answers: the label ([S-1482]) and the offset line.
+    /// <c>InvariantGlobalization</c>. [S-3795] Under the answers: the offset line.
     /// </summary>
     private static ItemMenuEntry Zone(WidgetMenuLines menu, ClockConfig clock)
     {
@@ -75,26 +74,6 @@ internal static class ClockMenu
         }, Checked: clock.TimeZoneId == ianaId, Group: group);
 
         var under = new List<ItemMenuEntry>();
-        if (clock.Offers(ClockSetting.Label))
-        {
-            under.Add(new(Glyphs.Rename, ClockStr.Clock_LabelLabel.Text(), () => menu.Ask(new WidgetTextAsk(
-                ClockStr.Clock_LabelLabel.Text(),
-                LabelPlaceholder(clock),
-                Str.Common_Save.Text(),
-                typed => typed.Length > ClockConfig.MaxLabelLength ? ClockStr.WidgetsA_Clock_Settings_Label_Desc.Text() : null,
-                typed =>
-                {
-                    var value = typed.Length == 0 ? null : typed;
-                    if (value != clock.CustomLabel)
-                    {
-                        clock.CustomLabel = value;
-                        menu.Save();
-                    }
-                },
-                Initial: clock.CustomLabel,
-                AllowEmpty: true))));
-        }
-
         if (clock.Offers(ClockSetting.Offset))
         {
             under.Add(menu.Choice(Glyphs.Hours, ClockStr.Clock_OffsetLabel.Text(),
@@ -118,9 +97,6 @@ internal static class ClockMenu
         var places = local.StartsWith("(UTC", StringComparison.Ordinal) && cut > 0 ? local[(cut + 2)..] : local;
         return ClockStr.Clock_TzCurrent.Format(("city", places));
     }
-
-    private static string LabelPlaceholder(ClockConfig clock)
-        => ZoneCatalog.Find(clock.TimeZoneId) is { } entry ? entry.City : ClockStr.WidgetsA_Clock_Settings_Label_None.Text();
 
     /// <summary>"Tokyo · Asia" for a chosen zone; null for the local one.</summary>
     private static string? ZoneText(string? ianaId)

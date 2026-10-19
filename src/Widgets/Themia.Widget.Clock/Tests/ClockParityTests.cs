@@ -108,13 +108,11 @@ public sealed class ClockParityTests
     // ---------------------------------------------------------------------------------------------
 
     [Fact]
-    public void S1482_the_label_is_the_custom_one_else_the_city_of_a_chosen_zone_else_none()
+    public void S1482_the_label_is_the_city_of_a_chosen_zone_else_none()
     {
         Assert.Null(ClockFormatter.Label(new ClockConfig()));
         Assert.Equal("Tokyo", ClockFormatter.Label(new ClockConfig { TimeZoneId = "Asia/Tokyo" }));
-        Assert.Equal("Office", ClockFormatter.Label(new ClockConfig { TimeZoneId = "Asia/Tokyo", CustomLabel = "  Office " }));
-        Assert.Equal("Home", ClockFormatter.Label(new ClockConfig { CustomLabel = "Home" }));
-        Assert.Null(ClockFormatter.Label(new ClockConfig { CustomLabel = "   " }));
+        Assert.Null(ClockFormatter.Label(new ClockConfig { TimeZoneId = "Atlantis/Capital" }));
     }
 
     [Theory]
@@ -144,20 +142,18 @@ public sealed class ClockParityTests
         {
             OffsetMode = (ClockOffsetMode)9,
             TimeZoneId = "Atlantis/Capital",
-            CustomLabel = new string('x', 80),
         };
 
         var repairs = config.Repair();
 
-        Assert.Equal(3, repairs.Count);
+        Assert.Equal(2, repairs.Count);
         Assert.Equal(ClockOffsetMode.None, config.OffsetMode);
         Assert.Null(config.TimeZoneId);
-        Assert.Equal(ClockConfig.MaxLabelLength, config.CustomLabel!.Length);
     }
 
     [Fact]
     public void S1486_a_sound_clock_needs_no_repair()
-        => Assert.Empty(new ClockConfig { TimeZoneId = "Asia/Tokyo", Style = ClockStyle.Stacked, CustomLabel = "Tokyo" }.Repair());
+        => Assert.Empty(new ClockConfig { TimeZoneId = "Asia/Tokyo", Style = ClockStyle.Stacked }.Repair());
 
     [Fact]
     public void S1483_the_new_options_survive_a_clone()
@@ -166,13 +162,11 @@ public sealed class ClockParityTests
         {
             Style = ClockStyle.Stacked,
             OffsetMode = ClockOffsetMode.Local,
-            CustomLabel = "Home",
             TimeZoneId = "Asia/Tokyo",
         }.Clone();
 
         Assert.Equal(ClockStyle.Stacked, clone.Style);
         Assert.Equal(ClockOffsetMode.Local, clone.OffsetMode);
-        Assert.Equal("Home", clone.CustomLabel);
         Assert.Equal("Asia/Tokyo", clone.TimeZoneId);
     }
 }

@@ -83,21 +83,14 @@ public static class ClockFormatter
     }
 
     /// <summary>
-    /// [S-1482] The label over the time: the custom label when there is one, else the city of a chosen
-    /// zone ("Tokyo"), else nothing: a clock on the machine's own zone stays label-free, the classic
-    /// look. (The original also dropped the label when the chosen zone <i>was</i> the local one; a
+    /// [S-1482] The label over the time: the city of a chosen zone ("Tokyo"), else nothing: a clock on
+    /// the machine's own zone stays label-free, the classic look. There is no label of the user's own
+    /// (retired, user request 2026-10-19). (The original also dropped the label when the chosen zone <i>was</i> the local one; a
     /// Windows zone covers many cities, so here choosing any city labels the clock with it.)
     /// </summary>
     public static string? Label(ClockConfig config)
     {
         ArgumentNullException.ThrowIfNull(config);
-
-        var custom = config.CustomLabel?.Trim();
-
-        if (!string.IsNullOrEmpty(custom))
-        {
-            return custom;
-        }
 
         return config.IsWorldClock && ZoneCatalog.Find(config.TimeZoneId) is { } entry ? entry.City : null;
     }

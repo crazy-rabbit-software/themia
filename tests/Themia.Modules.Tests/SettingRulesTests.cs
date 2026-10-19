@@ -18,11 +18,11 @@ namespace Themia.Core.Tests;
 public class SettingRulesTests
 {
     [Theory]
-    [InlineData(ClockStyle.Digital, new[] { ClockSetting.Seconds, ClockSetting.Date, ClockSetting.TextSize, ClockSetting.Label, ClockSetting.Offset })]
-    [InlineData(ClockStyle.Analog, new[] { ClockSetting.Seconds, ClockSetting.Date, ClockSetting.TextSize, ClockSetting.Label, ClockSetting.Offset })]
-    [InlineData(ClockStyle.Stacked, new[] { ClockSetting.Seconds, ClockSetting.Date, ClockSetting.TextSize, ClockSetting.Label, ClockSetting.Offset })]
-    [InlineData(ClockStyle.Flip, new[] { ClockSetting.Seconds, ClockSetting.Date, ClockSetting.TextSize, ClockSetting.Label, ClockSetting.Offset })]
-    [InlineData(ClockStyle.Word, new[] { ClockSetting.Date, ClockSetting.TextSize, ClockSetting.Label, ClockSetting.Offset })]
+    [InlineData(ClockStyle.Digital, new[] { ClockSetting.Seconds, ClockSetting.Date, ClockSetting.TextSize, ClockSetting.Offset })]
+    [InlineData(ClockStyle.Analog, new[] { ClockSetting.Seconds, ClockSetting.Date, ClockSetting.TextSize, ClockSetting.Offset })]
+    [InlineData(ClockStyle.Stacked, new[] { ClockSetting.Seconds, ClockSetting.Date, ClockSetting.TextSize, ClockSetting.Offset })]
+    [InlineData(ClockStyle.Flip, new[] { ClockSetting.Seconds, ClockSetting.Date, ClockSetting.TextSize, ClockSetting.Offset })]
+    [InlineData(ClockStyle.Word, new[] { ClockSetting.Date, ClockSetting.TextSize, ClockSetting.Offset })]
     [InlineData(ClockStyle.Minimal, new ClockSetting[0])]
     [InlineData(ClockStyle.Date, new ClockSetting[0])]
     public void S6074_the_clock_offers_the_lines_its_style_draws(ClockStyle style, ClockSetting[] rows)

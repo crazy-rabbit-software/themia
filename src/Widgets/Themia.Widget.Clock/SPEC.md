@@ -1,7 +1,7 @@
 # Clock
 
 The module `clock` ([S-6911]): the time in seven styles (Digital, Analog, Stacked, Flip, Words,
-Minimal, Date), in a zone of its own, with a label, the date and the offset where they fit. Its tags
+Minimal, Date), in a zone of its own, with the zone's city, the date and the offset where they fit. Its tags
 are this file's alone; the root `SPEC.md` holds the host's sections (styles [S-6000], the flip card
 the countdown shares [S-6032], `FlipCard` in the SDK; header defaults [S-700]; alignment [S-6580];
 hero readouts [S-641], [S-659]; the regional clock [S-3770]; the ladder rules [S-660]..[S-666]).
@@ -29,7 +29,7 @@ them). Tests: `Tests/` (run by `tests/Themia.Modules.Tests`).
   `"style": "digital"`; what was its face): **Digital**, **Analog**, **Stacked** ([S-1483]),
   **Flip**, **Words**, **Minimal** and **Date** ([S-5300]), in that order. Every style but Date
   keeps the clock's ladder ([S-1487]): the face first, then the label, the date and the offset
-  where they fit, the face taking what they leave; the settings (seconds, date, zone, label,
+  where they fit, the face taking what they leave; the settings (seconds, date, zone, offset,
   alignment, text size) are the same for those six. Date has its own ladder ([S-5301]) and only
   the alignment and the zone ([S-5303]).
 - **[S-6012]** **Flip**: a split-flap card per part of the time (hours, minutes, and seconds when
@@ -91,9 +91,12 @@ them). Tests: `Tests/` (run by `tests/Themia.Modules.Tests`).
 - **[S-1481]** The zone picker is a search over every listed city (one per place: old names such as
   `Asia/Calcutta` and bare `Etc/GMT±N` resolve but are not offered), cities starting with the query
   first, with "Current: <places>" (unset = local) always first. Enter takes the best match.
-- **[S-1482]** Label over the time (original S-07/S-18/S-19): the custom label, else the city of a
-  chosen zone, else none. Deliberate difference: choosing any city labels the clock, even one in the
-  machine's own Windows zone (a Windows zone covers many cities). Labels are capped at 40 characters.
+- **[S-1482]** Label over the time (original S-07/S-18/S-19): the city of a chosen zone, else none
+  (a clock on the machine's own zone has no label). Deliberate difference: choosing any city labels
+  the clock, even one in the machine's own Windows zone (a Windows zone covers many cities).
+  *(Retired, user request 2026-10-19: a label of the user's own over the time, `customLabel`, its
+  menu line and its 40-character cap. A stored `customLabel` is an unknown property and is not
+  read.)*
 - **[S-1483]** Style Digital / Analog / Stacked (original S-10..S-13; three of the seven styles now, [S-6011]). Stacked always stacks hours
   over minutes; seconds and AM/PM ride a step down beside the minutes. A digital face still stacks on
   its own in a tall column when that draws the digits larger. The AM/PM marker counts towards the readout's width by its own
@@ -105,8 +108,8 @@ them). Tests: `Tests/` (run by `tests/Themia.Modules.Tests`).
 - **[S-1485]** Offset line None / From UTC ("UTC+2", "UTC+5:30", "UTC−3") / From local ("+8h local",
   "same as local"), minus as U+2212 (original S-08/S-16/S-23). On a wide digital strip it joins the
   date line.
-- **[S-1486]** `ClockConfig.Repair`: unknown enum values, unknown zone ids and over-long labels are
-  repaired to defaults on load, each logged.
+- **[S-1486]** `ClockConfig.Repair`: unknown enum values and unknown zone ids are repaired to
+  defaults on load, each logged.
 - **[S-1487]** Clock ladder: face → label → date (short when narrow; + offset on a wide strip)
   → offset; the face takes the rest. No week, day-of-year or zone line (retired, [S-665]). Not ported: an XL list of
   extra world-clock rows (each world clock is its own widget, as in the original).
@@ -126,8 +129,7 @@ them). Tests: `Tests/` (run by `tests/Themia.Modules.Tests`).
   Text size (Small / Default / Large); then Appearance ([S-3723]) and **Timezone**, a search
   ([S-3722]): the machine's own zone first as "Current: …", the cities that match after it (40 at
   most, each with its offset now), the chosen one with the dot, a pick stores the IANA id; under the
-  answers Label (asked beside the menu, [S-3721]: what is there now in the box, empty clears it) and
-  Offset (None / From UTC / From local). (Tests `ClockMenuTests`.)
+  answers Offset (None / From UTC / From local). (Tests `ClockMenuTests`.)
 
 - **[S-1489]** *(Retired: the debug widget gallery and its fixtures are gone, [S-1863].)*
 - **[S-5300]** *(Retired: the Date widget, kind 131, is gone; the weekday and the date, no time,
@@ -148,8 +150,8 @@ them). Tests: `Tests/` (run by `tests/Themia.Modules.Tests`).
   tooltip is the full date.
 - **[S-5303]** *(Retired: the Date widget's own settings. Show year is gone: the year is rarely the
   news, and the other clock styles' dates leave it out too.)* The clock's menu offers the Date style
-  only the alignment ([S-1484]) and the zone ([S-1481]); seconds, the date line, the text size, the
-  label and the offset do not apply to it and are not shown.
+  only the alignment ([S-1484]) and the zone ([S-1481]); seconds, the date line, the text size and the
+  offset do not apply to it and are not shown.
 - **[S-5304]** One tick a minute on the shared ticker (`ClockConfig.TickInterval`): the date turns
   over within a minute of midnight.
 

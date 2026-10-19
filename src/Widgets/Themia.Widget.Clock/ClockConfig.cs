@@ -65,19 +65,12 @@ public enum ClockSetting
     /// <summary>The size of the label, date and offset lines.</summary>
     TextSize,
 
-    /// <summary>The place label, under the zone.</summary>
-    Label,
-
     /// <summary>The offset line, under the zone.</summary>
     Offset,
 }
 
 public sealed class ClockConfig : WidgetConfig, IStyled, IShownSettings<ClockSetting>, IContentAligned
 {
-    /// <summary>[S-1482] A label longer than this is a sentence, not a place.</summary>
-    public const int MaxLabelLength = 40;
-
-
     /// <summary>[S-6581] Its one block aligns; where it sits when nothing was chosen.</summary>
     ContentAlign IContentAligned.DefaultAlign => ContentAlign.Center;
 
@@ -113,9 +106,6 @@ public sealed class ClockConfig : WidgetConfig, IStyled, IShownSettings<ClockSet
     /// </summary>
     public string? TimeZoneId { get; set; }
 
-    /// <summary>[S-1482] The label over the time. Empty: the zone's city, or nothing for the local zone.</summary>
-    public string? CustomLabel { get; set; }
-
     public ClockOffsetMode OffsetMode { get; set; } = ClockOffsetMode.None;
 
     /// <summary>[S-1476] The label and date size (user request: both were hard to read).</summary>
@@ -127,7 +117,6 @@ public sealed class ClockConfig : WidgetConfig, IStyled, IShownSettings<ClockSet
         ShowSeconds = ShowSeconds,
         ShowDate = ShowDate,
         TimeZoneId = TimeZoneId,
-        CustomLabel = CustomLabel,
         OffsetMode = OffsetMode,
         TextSize = TextSize,
     };
@@ -143,8 +132,8 @@ public sealed class ClockConfig : WidgetConfig, IStyled, IShownSettings<ClockSet
     public bool IsWorldClock => ZoneCatalog.Resolve(TimeZoneId) is not null;
 
     /// <summary>
-    /// [S-6074] The rows the page offers: seconds where the face ticks them; the date, text size,
-    /// label and offset lines wherever there are lines under the time, so neither on the minimal
+    /// [S-6074] The rows the page offers: seconds where the face ticks them; the date, text size
+    /// and offset lines wherever there are lines under the time, so neither on the minimal
     /// clock ([S-6014]) nor on the date style ([S-5303]). The zone applies to every style; the alignment
     /// is the properties panel's ([S-6580]).
     /// </summary>
@@ -152,8 +141,8 @@ public sealed class ClockConfig : WidgetConfig, IStyled, IShownSettings<ClockSet
     public IReadOnlyList<ClockSetting> ShownSettings => Style switch
     {
         ClockStyle.Date or ClockStyle.Minimal => [],
-        ClockStyle.Word => [ClockSetting.Date, ClockSetting.TextSize, ClockSetting.Label, ClockSetting.Offset],
-        _ => [ClockSetting.Seconds, ClockSetting.Date, ClockSetting.TextSize, ClockSetting.Label, ClockSetting.Offset],
+        ClockStyle.Word => [ClockSetting.Date, ClockSetting.TextSize, ClockSetting.Offset],
+        _ => [ClockSetting.Seconds, ClockSetting.Date, ClockSetting.TextSize, ClockSetting.Offset],
     };
 
     /// <summary>
@@ -175,7 +164,7 @@ public sealed class ClockConfig : WidgetConfig, IStyled, IShownSettings<ClockSet
 
     /// <summary>
     /// [S-1486] Back inside the invariants after a hand edit: an enum value outside its set falls back
-    /// to the default (the style is the registry's, [S-6004]), an id the catalog does not know means "local", and an over-long label is cut.
+    /// to the default (the style is the registry's, [S-6004]) and an id the catalog does not know means "local".
     /// </summary>
     public override IReadOnlyList<string> Repair()
     {
@@ -197,12 +186,6 @@ public sealed class ClockConfig : WidgetConfig, IStyled, IShownSettings<ClockSet
         {
             repairs.Add($"clock time zone '{TimeZoneId}' unknown; local");
             TimeZoneId = null;
-        }
-
-        if (CustomLabel is { Length: > MaxLabelLength })
-        {
-            repairs.Add($"clock label longer than {MaxLabelLength}; cut");
-            CustomLabel = CustomLabel[..MaxLabelLength];
         }
 
         return repairs;

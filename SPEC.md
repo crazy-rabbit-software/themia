@@ -1675,7 +1675,7 @@ widget on the properties panel ([S-6007], its one place, [S-6536]). Owning files
   state leaves out is not found for it.
 - **[S-6074]** The rows each kind offers only in some styles or states: Mail: Subject/Account in List
   and Compact, Preview lines in List, the columns in Table. Folder: [S-4121]. Calendar: [S-3641].
-  Clock: Seconds in Digital, Analog, Stacked and Flip; Date, Label and date size, Label and Offset
+  Clock: Seconds in Digital, Analog, Stacked and Flip; Date, Label and date size, and Offset
   in all but Minimal and Date (there the zone is a plain row, not an expander). Quote: Reshuffle
   with Shuffle on. Gallery: a folder's rows (folder, subfolders, pictures, shuffle, Explorer) for the
   folder source, the slide time for its Slideshow, Picture size for Slideshow and Grid (Scatter and
@@ -6937,7 +6937,7 @@ Strings in `Locales/language-region` and `Locales/widget-prefs`. Tests `WidgetPr
   ([S-470]): it is how a camera is read, not how often a service is asked.
 - [S-3794]: moved with the Bluetooth widget into its module's `SPEC.md` (`src/Widgets/Themia.Widget.Bluetooth/`).
 - **[S-3795]** Long widget pages fold related rows into `FluentLayout.Expander` groups: Stocks' period and
-  colours (timeframe, high and low, colours; whether a chart is drawn is the style, [S-6165]); the clock's zone (label, offset);
+  colours (timeframe, high and low, colours; whether a chart is drawn is the style, [S-6165]); the clock's zone (offset);
   Shortcuts' view (tile and row size, icon only, stretch) and the Windows locations; Folder's sort
   (reverse, folders first) and filter (hidden items, extensions). Descriptions are one short line,
   or none where the title says it. Repeated actions are not repeated: Folder's "Open in File
