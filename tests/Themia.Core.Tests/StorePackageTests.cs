@@ -37,5 +37,13 @@ public sealed class StorePackageTests
 
         Assert.Equal("Windows.Desktop", (string)family.Attribute("Name")!);
         Assert.Equal("10.0.22000.0", (string)family.Attribute("MinVersion")!);
+
+        // The MSIX tooling writes its TargetDeviceFamily item over the manifest's versions, so the
+        // package build's item must carry the same ones.
+        var project = XDocument.Load(RepoFiles.At("src", "Themia.App", "Themia.App.csproj"));
+        var item = Assert.Single(project.Descendants("TargetDeviceFamily"));
+        Assert.Equal("Windows.Desktop", (string)item.Attribute("Include")!);
+        Assert.Equal((string)family.Attribute("MinVersion")!, item.Element("TargetPlatformMinVersion")!.Value);
+        Assert.Equal((string)family.Attribute("MaxVersionTested")!, item.Element("TargetPlatformVersion")!.Value);
     }
 }

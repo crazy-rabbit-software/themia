@@ -166,4 +166,20 @@
     </ItemGroup>
   </Target>
 
+  <!--
+    [S-1073] The Store package's TargetDeviceFamily. The MSIX tooling writes its own default item
+    (TargetPlatformMinVersion / TargetPlatformVersion: 10.0.17763 / 10.0.19041) over the manifest's
+    MinVersion and MaxVersionTested; this one carries the manifest's values instead: Windows 11, tested
+    on 24H2. StorePackageTests keeps the two in step.
+  -->
+  <PropertyGroup Condition="'$(ThemiaPackage)' == 'true'">
+    <AppxAddDefaultTargetDeviceFamilyItem>false</AppxAddDefaultTargetDeviceFamilyItem>
+  </PropertyGroup>
+  <ItemGroup Condition="'$(ThemiaPackage)' == 'true'">
+    <TargetDeviceFamily Include="Windows.Desktop">
+      <TargetPlatformMinVersion>10.0.22000.0</TargetPlatformMinVersion>
+      <TargetPlatformVersion>10.0.26100.0</TargetPlatformVersion>
+    </TargetDeviceFamily>
+  </ItemGroup>
+
 </Project>
