@@ -5443,6 +5443,13 @@ installer). Release steps and the manual sideload test: `docs/STORE.md`.
   (`Autostart.SetAsync(false)`), then packaged: delete data, `RemovePackageAsync` on the own package
   (fallback `ms-settings:appsfeatures-app`); loose: start the `--purge-data` helper (only when
   there are folders), open Installed apps.
+- **[S-1072]** About, under Made by, links what the Store listing gives too: the privacy policy
+  (`lometics.com/de/legal/privacy/` for a German interface, `/en/` otherwise: the two it is written
+  in) and the support mailbox `support@themia.app` (`AboutLinks`).
+- **[S-1073]** The package declares every interface language ([S-1100]) as a manifest `Resource`
+  with the Store's code for it (`zh` is `zh-Hans`, `pt` is `pt-BR`, as the translation is
+  Brazilian), so the listing shows them; English (`en-US`) is first, the default. It targets Windows
+  11 (`MinVersion` 10.0.22000.0), the only Windows it is built and tested on.
 - Not ported: Lemon Squeezy keys, activation counting, masked-key reveal, the newsletter row and the
   `THEMIA-DEV-PRO` bypass (Store only, by decision); per-device limits (the Store ties Pro to the
   Microsoft account). Not verified here: anything needing a published Store listing (purchase

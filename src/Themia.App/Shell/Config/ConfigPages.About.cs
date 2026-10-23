@@ -8,6 +8,7 @@ using Themia.App.Services;
 using Themia.App.Widgets;
 using Themia.Core.Diagnostics;
 using Themia.Core.Localization;
+using Themia.Core.Settings;
 using Themia.Core.Storage;
 using Themia.Core.Widgets;
 using Themia.Sdk.WinUI;
@@ -45,6 +46,22 @@ internal static partial class ConfigPages
 
         rows.Add(FluentLayout.Row(CompanyMark(), "Lometics",
             Str.Shell_About_Studio.Text(), link));
+
+        // [S-1072] What the Store listing points to as well: the studio's privacy policy (German or
+        // English, the two it is written in) and the support address.
+        var privacy = new HyperlinkButton
+        {
+            Content = "lometics.com/legal/privacy",
+            NavigateUri = AboutLinks.Privacy(Strings.Current),
+        };
+        rows.Add(FluentLayout.Row(Glyphs.Lock, Str.Shell_About_Privacy.Text(), Str.Shell_About_PrivacyDesc.Text(), privacy));
+
+        var support = new HyperlinkButton
+        {
+            Content = AboutLinks.SupportAddress,
+            NavigateUri = AboutLinks.Support,
+        };
+        rows.Add(FluentLayout.Row(Glyphs.Mail, Str.Shell_About_Support.Text(), Str.Shell_About_SupportDesc.Text(), support));
 
         rows.Add(FluentLayout.Header("Themia"));
 
