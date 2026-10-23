@@ -21,7 +21,37 @@ licensing* ([S-1060]..[S-1071]).
 4. **Restricted capability `runFullTrust`**: say in the submission notes that Themia is a Win32
    desktop app (desktop windows, input hooks, audio and Wi-Fi APIs). `radios` and `bluetooth` are
    for the Bluetooth widget.
-5. The Store listing, age rating, a privacy policy URL (required, since Themia goes online) and screenshots.
+5. The Store listing, age rating, a privacy policy URL (required, since Themia goes online) and
+   screenshots: every text, URL and answer to paste is in [STORE-LISTING.md](STORE-LISTING.md).
+
+## Ready to submit: checklist
+
+Done in this repository:
+
+- Single-project MSIX, Native AOT, Windows App SDK self-contained, unsigned (`scripts/package.ps1`).
+- Publisher display name `Lometics GmbH`; every logo size in `Assets/Package/`.
+- The 30 interface languages declared ([S-1073]); targets Windows 11 x64 (10.0.22000.0+).
+- Capabilities limited to what is used ([S-1061]), with the certification notes in STORE-LISTING.md.
+- Privacy policy and support address in About ([S-1072]) and in the listing.
+- Store licensing for the Pro add-on with a 7-day offline grace ([S-1063]..[S-1069]).
+
+Still open, in order:
+
+1. Partner Center: reserve "Themia" under Lometics GmbH, then copy **Identity Name** and
+   **Publisher** into `Package.appxmanifest` (the build warns until then).
+2. Create the **Themia Pro** add-on, set its price, and copy its Store ID into `StoreIds.ProAddOn`.
+3. Put `THEMIA_CLIENT_SECRETS` (the Google Desktop client secret) in the shell, then run
+   `scripts/package.ps1`. Without it, Google sign-in does not work in the package.
+4. Google: Gmail read access (`gmail.readonly`) is a *restricted* scope. Until the OAuth app passes
+   Google's verification, including the CASA security assessment, it is limited to 100 test users
+   and shows the "unverified app" warning. Calendar, contacts and tasks are *sensitive* scopes and
+   need the lighter brand verification. Microsoft sign-in needs no review, but the app
+   registration's publisher should be verified (Lometics' Microsoft Partner Network id).
+5. Sideload test of the package (below), then the Windows App Certification Kit on it:
+   `appcert.exe test -appxpackagepath Themia_<v>_x64.msix -reportoutputpath wack.xml`, elevated.
+6. Screenshots of this build on a real desktop (STORE-LISTING.md lists the set).
+7. Upload the `.msixupload`, fill in the listing, and submit. Publish hidden first if you want to
+   test a real Pro purchase.
 
 ## Building a submission
 
@@ -59,7 +89,7 @@ never do it, because it means trusting a certificate on the machine.
    - Settings › General › Start with Windows toggles the `ThemiaStartup` task (also visible in
      Settings › Apps › Startup), and a sign-in starts Themia.
    - Settings › License says **Themia Free** (a sideloaded package has no Store licence), shows the
-     usage of 10 widgets and 2 views, and the 11th widget (place, paste, duplicate)
+     usage of 20 widgets and 2 views, and the 21st widget (place, paste, duplicate)
      or the 3rd view is refused and opens the License page. Nothing already there is removed.
    - The Bluetooth widget lists devices (radios/bluetooth capabilities).
    - Volume/Mixer device picks switch the Windows default output.

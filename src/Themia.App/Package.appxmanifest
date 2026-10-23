@@ -30,7 +30,7 @@
   <Identity
     Name="LometicsGmbH.Themia.RESERVE"
     Publisher="CN=00000000-0000-0000-0000-000000000000"
-    Version="0.1.0.0" />
+    Version="1.0.0.0" />
 
   <Properties>
     <DisplayName>Themia</DisplayName>
@@ -39,11 +39,45 @@
   </Properties>
 
   <Dependencies>
-    <TargetDeviceFamily Name="Windows.Desktop" MinVersion="10.0.17763.0" MaxVersionTested="10.0.26100.0" />
+    <TargetDeviceFamily Name="Windows.Desktop" MinVersion="10.0.22000.0" MaxVersionTested="10.0.26100.0" />
   </Dependencies>
 
+  <!--
+    [S-1073] Every interface language (Themia.Sdk/Localization/Locales, Locale.cs) under the
+    Store's code for it, English first (the default). The strings themselves are the Str layer's
+    JSON, not .resw; these entries are what the Store lists as supported languages.
+  -->
   <Resources>
-    <Resource Language="en-us" />
+    <Resource Language="en-US" />
+    <Resource Language="de" />
+    <Resource Language="es" />
+    <Resource Language="fr" />
+    <Resource Language="it" />
+    <Resource Language="ja" />
+    <Resource Language="pl" />
+    <Resource Language="pt-BR" />
+    <Resource Language="zh-Hans" />
+    <Resource Language="zh-Hant" />
+    <Resource Language="hi" />
+    <Resource Language="ar" />
+    <Resource Language="bn" />
+    <Resource Language="ru" />
+    <Resource Language="id" />
+    <Resource Language="ur" />
+    <Resource Language="mr" />
+    <Resource Language="vi" />
+    <Resource Language="ko" />
+    <Resource Language="nl" />
+    <Resource Language="tr" />
+    <Resource Language="te" />
+    <Resource Language="ha" />
+    <Resource Language="pa" />
+    <Resource Language="sw" />
+    <Resource Language="fil" />
+    <Resource Language="ta" />
+    <Resource Language="fa" />
+    <Resource Language="th" />
+    <Resource Language="gu" />
   </Resources>
 
   <Applications>
