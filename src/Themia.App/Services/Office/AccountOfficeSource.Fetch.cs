@@ -116,9 +116,10 @@ internal sealed partial class AccountOfficeSource
                 }
                 catch (AccountException ex) when (ex.Error == AccountError.Forbidden)
                 {
-                    // A Google sign-in granted only calendar.events.readonly (the classic scope) may
-                    // read events but not list calendars. The primary calendar still works, so the
-                    // picker offers that rather than calling the account broken.
+                    // A Google sign-in that was not granted calendar.calendarlist.readonly (the user
+                    // left it out on the consent screen) may read events but not list calendars. The
+                    // primary calendar still works, so the picker offers that rather than calling the
+                    // account broken.
                     Log.Info(Scope, $"{account.Id}: the calendar list is not readable with this sign-in; offering the primary calendar");
                     return [new CalendarInfo("primary", account.Address, true, null)];
                 }

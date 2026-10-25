@@ -62,8 +62,13 @@ public static class OAuthClients
     {
         public const string ClientId = "187748979097-url067h00d18pjbjgskddssdj0nrq04s.apps.googleusercontent.com";
 
+        /// <summary>
+        /// The scopes the widgets need. The events scope reads events but cannot list an account's
+        /// calendars, so the calendar-list scope sits beside it ([S-567]).
+        /// </summary>
         public const string Scope = "openid email profile "
             + "https://www.googleapis.com/auth/gmail.readonly "
+            + "https://www.googleapis.com/auth/calendar.calendarlist.readonly "
             + "https://www.googleapis.com/auth/calendar.events.readonly "
             + "https://www.googleapis.com/auth/tasks "
             + "https://www.googleapis.com/auth/contacts.readonly";

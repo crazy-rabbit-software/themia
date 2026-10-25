@@ -254,6 +254,15 @@ public class AccountOAuthTests
         Assert.Contains("gmail.readonly", url, StringComparison.Ordinal);
     }
 
+    [Fact]
+    public void S567_google_sign_in_asks_for_the_calendar_list_beside_the_events()
+    {
+        var scopes = OAuthClients.Google.SignIn.Scopes;
+
+        Assert.Contains("https://www.googleapis.com/auth/calendar.calendarlist.readonly", scopes);
+        Assert.Contains("https://www.googleapis.com/auth/calendar.events.readonly", scopes);
+    }
+
     // ---- [S-9910] [S-9916] [S-9918] the browser members of Microsoft and Google: the same requests as before ----
 
     private static string[] Pairs(IReadOnlyList<KeyValuePair<string, string>> fields) => [.. fields.Select(f => $"{f.Key}={f.Value}")];
