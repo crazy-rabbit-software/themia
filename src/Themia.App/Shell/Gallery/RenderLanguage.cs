@@ -7,7 +7,7 @@ namespace Themia.App.Shell.Gallery;
 
 /// <summary>
 /// [S-1109] The debug renders' language switch: <c>--lang &lt;code&gt;</c> (any code of <see cref="LanguageResolver.All"/>, e.g. <c>de</c>, <c>ar</c>) on any
-/// render flag (<c>--settings-png</c>, <c>--picker-png</c>, …) draws it in that language, so a
+/// render flag (<c>--editbar-png</c>, <c>--widget-png</c>, …) draws it in that language, so a
 /// translation can be checked without changing anyone's settings.
 /// </summary>
 internal static class RenderLanguage
