@@ -64,6 +64,8 @@ public sealed partial class SettingsMenuTests
 
         public Locale WindowsLanguage { get; set; } = Locale.De;
 
+        public IAccountsMenuHost? Accounts { get; set; } = new FakeAccounts();
+
         public List<AppLanguage> LanguagesSet { get; } = [];
 
         public void SetLanguage(AppLanguage language)
@@ -105,7 +107,7 @@ public sealed partial class SettingsMenuTests
         var keys = Root(new FakeHost()).Select(l => l is SettingsSeparator ? "-" : l.Key).ToArray();
 
         Assert.Equal(
-            ["startup", "desktopIcons", "gameMode", "-", "appearance", "language", "online", "-", "allSettings", "quit"],
+            ["startup", "desktopIcons", "gameMode", "-", "appearance", "accounts", "language", "online", "-", "allSettings", "quit"],
             keys);
     }
 

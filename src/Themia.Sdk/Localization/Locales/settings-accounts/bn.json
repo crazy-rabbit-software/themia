@@ -1,0 +1,10 @@
+{
+  "settingsAccounts.ownServer": "সার্ভার নিজে সেট করুন",
+  "settingsAccounts.test": "সংযোগ পরীক্ষা করুন",
+  "settingsAccounts.connectedTo": "{host}-এ সংযুক্ত হয়েছে।",
+  "settingsAccounts.noServer": "Themia {domain}-এর সার্ভার জানে না। নিজে সেট করুন।",
+  "settingsAccounts.davAddress": "সার্ভারের ওয়েব ঠিকানা লিখুন, যেমন https://cloud.example.com।",
+  "settingsAccounts.code": "কোড",
+  "settingsAccounts.pasteToken": "আগে টোকেনটি পেস্ট করুন।",
+  "settingsAccounts.enterAddress": "ইমেল ঠিকানা এবং এর পাসওয়ার্ড লিখুন।"
+}

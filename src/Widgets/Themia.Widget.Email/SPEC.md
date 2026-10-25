@@ -23,7 +23,7 @@ its rows the kit's `KitList`), `EmailMenu.cs` (its properties-menu lines), `Prev
 - **[S-541]** `accountIds` empty means every mail account, including ones added later (the classic
   widget showed "select an account" instead); a non-empty list reads those accounts that are still
   signed in. Its menu lists the signed-in mail accounts as switches under "Every mail account" and
-  opens the Accounts page ([S-7512]); no account is ever signed in from the widget. Folders: Inbox,
+  opens ⚙ › Accounts ([S-7512], [S-3558]); no account is ever signed in from the widget. Folders: Inbox,
   Sent, Drafts, Deleted, Junk [S-12].
 - **[S-542]** List (sender + time, subject, preview), Compact (sender + time, subject) and Row (one
   line of user-ordered columns under a header row) views [S-14, S-37]; newest or oldest first over

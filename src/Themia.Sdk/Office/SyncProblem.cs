@@ -7,7 +7,7 @@ namespace Themia.Core.Office;
 /// <summary>
 /// [S-588] Why the calendar or contacts widget has nothing (or nothing new) from an account. Named,
 /// because each needs a different thing from the user: signing in again and granting access are
-/// done on the Accounts page, the network ones fix themselves, and the rest go to the log.
+/// done in ⚙ › Accounts, the network ones fix themselves, and the rest go to the log.
 /// </summary>
 /// <summary>What a <see cref="SyncProblem"/> message is about: the one word in it that differs per widget.</summary>
 public enum SyncSubject
@@ -66,7 +66,7 @@ public static class SyncProblems
         _ => FetchStatus.BadResponse,
     };
 
-    /// <summary>Whether only the user can mend it, on the Accounts page.</summary>
+    /// <summary>Whether only the user can mend it, in ⚙ › Accounts.</summary>
     public static bool NeedsUser(SyncProblem problem)
         => problem is SyncProblem.NoAccount or SyncProblem.SignInRequired or SyncProblem.Forbidden;
 

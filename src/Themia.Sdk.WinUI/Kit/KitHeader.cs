@@ -16,7 +16,7 @@ namespace Themia.Sdk.WinUI.Kit;
 /// from leading to trailing: the problem glyph, the busy ring, the widget's own view buttons (Mail's
 /// compose and sort, each from its width on), the count badge, each at the one icon size. The problem glyph is the one stale rule ([S-7042]): it shows only while a copy is on screen
 /// that the last attempt of some source could not improve on, its tooltip one line per source and
-/// problem ("Work: No network · updated 10:42"); a click on it opens Settings › Accounts when the
+/// problem ("Work: No network · updated 10:42"); a click on it opens ⚙ › Accounts when the
 /// problem is one only the user can mend there. The age is never drawn here: it is on the Refresh
 /// line. The ring shows only while a fetch for one of the widget's own sources is out ([S-2661]).
 /// </summary>
@@ -75,7 +75,7 @@ public sealed partial class KitHeader : StackPanel
 
     /// <summary>
     /// Show the header's state: the problem lines (none hides the glyph), whether a fetch is out,
-    /// whether the problem is mended on the Accounts page, the count (null for no badge) and the
+    /// whether the problem is mended in ⚙ › Accounts, the count (null for no badge) and the
     /// widget's own view buttons.
     /// </summary>
     public void Show(IReadOnlyList<string> problems, bool busy, bool offersAccounts = false, long? count = null, IReadOnlyList<KitHeaderButton>? buttons = null)
@@ -215,7 +215,7 @@ public sealed partial class KitHeader : StackPanel
         args.Handled = true;
         if (!_host.ShowAccounts())
         {
-            Log.Info(Scope, "no settings window here to show the Accounts page in");
+            Log.Info(Scope, "nothing here opens ⚙ › Accounts");
         }
     }
 }

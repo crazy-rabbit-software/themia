@@ -152,7 +152,6 @@
   "connect.field.port": "포트",
   "connect.field.nickname": "별칭",
   "connect.field.name": "이름",
-  "connect.connect": "연결",
   "mixer.mute": "음소거",
   "mixer.unmute": "음소거 해제",
   "mixer.reset": "{percent}로 초기화",

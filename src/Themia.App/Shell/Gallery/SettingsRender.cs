@@ -84,7 +84,7 @@ internal static class SettingsRender
 
         if (at + 2 >= args.Length)
         {
-            Log.Error(Scope, "usage: --settings-png <Accounts|License|About> <out.png> [waitMs] [--theme light|dark] [--search text] [--land text] [--flyout row-title] [--width dips]");
+            Log.Error(Scope, "usage: --settings-png <License|About> <out.png> [waitMs] [--theme light|dark] [--search text] [--land text] [--flyout row-title] [--width dips]");
             app.Exit();
             return true;
         }
@@ -198,7 +198,6 @@ internal static class SettingsRender
 
             host = new AppHost(dispatcher, AppStateStore.Detached(statePath), state);
             ApplyLicenseFixture(host);
-            DemoAccounts(host, Array.IndexOf(Environment.GetCommandLineArgs(), "--demo-accounts") >= 0);
 
             var target = request.Page;
 
@@ -292,34 +291,6 @@ internal static class SettingsRender
             host?.Dispose();
             app.Exit();
         }
-    }
-
-    /// <summary>
-    /// [S-3824] <c>--demo-accounts</c>: two stand-in accounts on the Accounts page, one healthy with
-    /// numbers for every kind, one that needs signing in again with mail only. The numbers go into
-    /// the render host's own ledger; no account is stored and nothing reaches a provider.
-    /// </summary>
-    private static void DemoAccounts(AppHost host, bool on)
-    {
-        AccountsPage.DebugAccounts = null;
-        if (!on)
-        {
-            return;
-        }
-
-        var now = DateTimeOffset.Now;
-        var microsoft = new Services.Accounts.AccountInfo("demo-ms", Themia.Core.Accounts.HostProviders.Microsoft,
-            "alex@contoso.com", "Alex Wilber", null, null, null);
-        var imap = new Services.Accounts.AccountInfo("demo-imap", Themia.Core.Accounts.HostProviders.Imap,
-            "alex@fabrikam.example", "alex@fabrikam.example", "Fabrikam mail", null,
-            "The server refused the password. Sign in again to keep this account syncing.");
-
-        AccountsPage.DebugAccounts = [microsoft, imap];
-
-        host.Sync.Report(microsoft.Id, new(Themia.Core.Sync.SyncKind.Mail, 1240, 3, now.AddMinutes(-4), 2));
-        host.Sync.Report(microsoft.Id, new(Themia.Core.Sync.SyncKind.Calendar, 386, 2, now.AddMinutes(-12), 0));
-        host.Sync.Report(microsoft.Id, new(Themia.Core.Sync.SyncKind.Contacts, 214, 0, now.AddHours(-3), 0));
-        host.Sync.Report(imap.Id, new(Themia.Core.Sync.SyncKind.Mail, 50, 1, now.AddDays(-2), 0));
     }
 
     /// <summary>A believable profile: three views with a few widgets, defaults everywhere else.</summary>

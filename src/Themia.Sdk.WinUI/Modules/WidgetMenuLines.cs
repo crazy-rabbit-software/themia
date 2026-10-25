@@ -42,8 +42,8 @@ public sealed class WidgetMenuLines
     }
 
     /// <summary>
-    /// [S-3745] Opens Settings › Accounts, where an account comes into being: what an account widget's
-    /// Manage accounts line does. Null where the host has no settings window (a render, a test).
+    /// [S-3745] Opens ⚙ › Accounts, where an account comes into being: what an account widget's
+    /// Manage accounts line does. Null where the host has no edit bar (a render, a test).
     /// </summary>
     public Action? ShowAccounts { get; init; }
 
@@ -149,8 +149,8 @@ public sealed class WidgetMenuLines
     }
 
     /// <summary>
-    /// [S-3745] The line that opens Settings › Accounts (Manage accounts, Add an account): it changes
-    /// nothing here and saves nothing; greyed where the host has no settings window.
+    /// [S-3745] The line that opens ⚙ › Accounts (Manage accounts, Add an account): it changes
+    /// nothing here and saves nothing; greyed where the host has no edit bar.
     /// </summary>
     public ItemMenuEntry AccountsLine(string? glyph, string text)
         => new(glyph, text, () => ShowAccounts?.Invoke(), Disabled: ShowAccounts is null);

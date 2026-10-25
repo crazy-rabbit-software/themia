@@ -17,7 +17,7 @@ namespace Themia.Widget.Email;
 /// table's columns); then Appearance ([S-3723]), the accounts it reads ([S-541], the kit's Accounts
 /// submenu) and the folder. It has no settings page.
 /// <para>
-/// Accounts are signed in on the Accounts page, not here: the menu lists what is already signed in
+/// Accounts are signed in from ⚙ › Accounts, not here: the menu lists what is already signed in
 /// and opens that page, so there is exactly one place an account comes into being.
 /// </para>
 /// </summary>

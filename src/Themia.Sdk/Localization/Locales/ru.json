@@ -152,7 +152,6 @@
   "connect.field.port": "Порт",
   "connect.field.nickname": "Псевдоним",
   "connect.field.name": "Имя",
-  "connect.connect": "Подключить",
   "mixer.mute": "Выключить звук",
   "mixer.unmute": "Включить звук",
   "mixer.reset": "Сбросить до {percent}",

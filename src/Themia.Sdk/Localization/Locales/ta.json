@@ -152,7 +152,6 @@
   "connect.field.port": "போர்ட்",
   "connect.field.nickname": "புனைபெயர்",
   "connect.field.name": "பெயர்",
-  "connect.connect": "இணை",
   "mixer.mute": "ஒலியடக்கு",
   "mixer.unmute": "ஒலியடக்கத்தை நீக்கு",
   "mixer.reset": "{percent} க்கு மீட்டமை",

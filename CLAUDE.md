@@ -133,7 +133,7 @@ and the module test host pick it up; nothing in the app, Core or the SDK is edit
 on `Themia.Sdk`, `Themia.Sdk.WinUI` and provider projects only: something it needs from the host is
 an SDK change first, in its own commit (docs/WIDGET-KIT.md 4.1). A view asks the host through the
 `IWidgetHost` its module's `CreateView(host)` is handed ([S-6913]) for the ticker, the launcher,
-Settings › Accounts, the Recycle Bin, the power backend, the quick-setting toggles' sources, the web
+⚙ › Accounts, the Recycle Bin, the power backend, the quick-setting toggles' sources, the web
 answers the sync keeps fresh (`Weather`, `Quotes`, `Rates` over `Fetched<T>`, `Feeds`) and the system widgets'
 sources (`System`: the hub's `Watch`/`WatchSeries` over `Sources`; `Drives`, `Audio`, `Brightness`,
 `Media`, `Loopback`) and the local stores (`ClipboardHistory` with `CopyText`, `Alarms`, `Focus`,

@@ -87,7 +87,7 @@ internal sealed partial class CalendarView : Grid, IWidgetView, IWidgetHeaderCon
     private bool _againForced;
     private bool _detached;
 
-    /// <summary>[S-6913] What the view asks of the host: the launcher, the Accounts page.</summary>
+    /// <summary>[S-6913] What the view asks of the host: the launcher, ⚙ › Accounts.</summary>
     private readonly IWidgetHost _widgetHost;
 
     public CalendarView(IWidgetHost host)

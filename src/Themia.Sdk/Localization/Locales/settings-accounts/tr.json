@@ -1,0 +1,10 @@
+{
+  "settingsAccounts.ownServer": "Sunucuyu kendim ayarla",
+  "settingsAccounts.test": "Bağlantıyı test et",
+  "settingsAccounts.connectedTo": "{host} sunucusuna bağlanıldı.",
+  "settingsAccounts.noServer": "Themia, {domain} için sunucuyu bilmiyor. Kendiniz ayarlayın.",
+  "settingsAccounts.davAddress": "Sunucunun web adresini girin, örneğin https://cloud.example.com.",
+  "settingsAccounts.code": "Kod",
+  "settingsAccounts.pasteToken": "Önce belirteci yapıştırın.",
+  "settingsAccounts.enterAddress": "E-posta adresini ve parolasını girin."
+}

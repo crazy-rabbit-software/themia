@@ -152,7 +152,6 @@
   "connect.field.port": "درگاه",
   "connect.field.nickname": "نام مستعار",
   "connect.field.name": "نام",
-  "connect.connect": "اتصال",
   "mixer.mute": "بی‌صدا",
   "mixer.unmute": "باصدا",
   "mixer.reset": "بازنشانی به {percent}",

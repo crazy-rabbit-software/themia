@@ -1,0 +1,10 @@
+{
+  "settingsAccounts.ownServer": "手动设置服务器",
+  "settingsAccounts.test": "测试连接",
+  "settingsAccounts.connectedTo": "已连接到 {host}。",
+  "settingsAccounts.noServer": "Themia 不知道 {domain} 的服务器。请手动设置。",
+  "settingsAccounts.davAddress": "请输入服务器的网址，例如 https://cloud.example.com。",
+  "settingsAccounts.code": "代码",
+  "settingsAccounts.pasteToken": "请先粘贴令牌。",
+  "settingsAccounts.enterAddress": "请输入电子邮件地址及其密码。"
+}

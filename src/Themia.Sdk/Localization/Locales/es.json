@@ -151,7 +151,6 @@
   "connect.field.port": "Puerto",
   "connect.field.nickname": "Alias",
   "connect.field.name": "Nombre",
-  "connect.connect": "Conectar",
   "mixer.mute": "Silenciar",
   "mixer.unmute": "Activar sonido",
   "mixer.reset": "Restablecer al {percent}",

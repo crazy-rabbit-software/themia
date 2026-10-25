@@ -20,7 +20,7 @@ namespace Themia.App.Shell.Config;
 /// (the calendar, Next meeting, the week planner), each chosen account's calendars, shown or hidden,
 /// with a colour each, and the birthdays switch.
 /// <para>
-/// Accounts are signed in on the Accounts page, not here ([S-537] of the classic widgets): this lists
+/// Accounts are signed in from ⚙ › Accounts, not here ([S-537] of the classic widgets): this lists
 /// the accounts already signed in that can feed the widget, and opens that page, so there is one place
 /// an account comes into being.
 /// </para>

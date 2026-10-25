@@ -5,7 +5,7 @@ using Themia.Sdk;
 namespace Themia.Core.Sync;
 
 /// <summary>
-/// [S-3820] What one shelf holds, in numbers: for the Accounts page, never for a sync decision.
+/// [S-3820] What one shelf holds, in numbers: for ⚙ › Accounts, never for a sync decision.
 /// </summary>
 /// <param name="Items">Messages, events, people or tasks stored on this PC.</param>
 /// <param name="Containers">Folders, calendars or task lists those are in; 0 where the kind has none (contacts).</param>

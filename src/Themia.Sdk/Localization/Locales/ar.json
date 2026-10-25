@@ -152,7 +152,6 @@
   "connect.field.port": "المنفذ",
   "connect.field.nickname": "الاسم المستعار",
   "connect.field.name": "الاسم",
-  "connect.connect": "اتصال",
   "mixer.mute": "كتم الصوت",
   "mixer.unmute": "إلغاء الكتم",
   "mixer.reset": "إعادة التعيين إلى {percent}",

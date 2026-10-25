@@ -4,11 +4,11 @@ namespace Themia.App.Shell.Config;
 internal abstract record ConfigTarget
 {
     /// <summary>
-    /// A page of the navigation; the first one, Accounts, unless another is named. A widget has no
+    /// A page of the navigation; the first one, License, unless another is named. A widget has no
     /// page here: its options are on its properties menu ([S-6536]); a display's and a view's are the
     /// edit bar's Display and View menus ([S-3540]).
     /// </summary>
-    public sealed record App(AppPage Page = AppPage.Accounts) : ConfigTarget;
+    public sealed record App(AppPage Page = AppPage.License) : ConfigTarget;
 }
 
 /// <summary>
@@ -17,7 +17,6 @@ internal abstract record ConfigTarget
 /// </summary>
 internal enum AppPage
 {
-    Accounts,
     About,
 
     /// <summary>Microsoft Store licence state.</summary>

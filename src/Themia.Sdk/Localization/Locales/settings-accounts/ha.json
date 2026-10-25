@@ -1,0 +1,10 @@
+{
+  "settingsAccounts.ownServer": "Saita sabar da kaina",
+  "settingsAccounts.test": "Gwada haɗi",
+  "settingsAccounts.connectedTo": "An haɗa da {host}.",
+  "settingsAccounts.noServer": "Themia bai san sabar {domain} ba. Saita shi da kanka.",
+  "settingsAccounts.davAddress": "Shigar da adireshin yanar gizo na sabar, kamar https://cloud.example.com.",
+  "settingsAccounts.code": "Lamba",
+  "settingsAccounts.pasteToken": "Fara manna alamar.",
+  "settingsAccounts.enterAddress": "Shigar da adireshin imel da kalmar sirrinsa."
+}

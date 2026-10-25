@@ -80,7 +80,33 @@ internal sealed partial class BarMenuView : MenuPanel
     private MenuNode Node(SettingsLine line) => line switch
     {
         SettingsSeparator => MenuNode.Separator(line.Key),
-        SettingsNote note => new MenuNode(note.Key, MenuNodeKind.Note) { Text = note.Text },
+        SettingsNote note => new MenuNode(note.Key, MenuNodeKind.Note) { Text = note.Text, Danger = note.Critical, Busy = note.Busy },
+
+        // [S-3561] A reading: a line with nothing to do.
+        SettingsReading reading => new MenuNode(reading.Key)
+        {
+            Text = reading.Text,
+            Value = reading.Value,
+            IconKey = reading.Glyph ?? string.Empty,
+            Icon = IconOf(reading.Glyph),
+            Disabled = reading.Disabled,
+        },
+
+        // [S-3561] [S-3556] A form's field, a password's masked: its words never in the node.
+        SettingsField field => new MenuNode(field.Key, MenuNodeKind.Field)
+        {
+            Text = field.Text,
+            Value = field.Masked ? null : field.Value,
+            Disabled = field.Disabled,
+            Field = new MenuField(field.Placeholder, field.Set)
+            {
+                Masked = field.Masked,
+                HasValue = field.HasValue,
+                Fill = field.Masked ? field.Fill : null,
+                Wipe = field.Wipe,
+                Numeric = field.Numeric,
+            },
+        },
         SettingsToggle toggle => new MenuNode(toggle.Key)
         {
             Text = toggle.Text,
@@ -149,10 +175,11 @@ internal sealed partial class BarMenuView : MenuPanel
         SettingsAsk ask => new MenuNode(ask.Key)
         {
             Text = ask.Text,
+            Value = ask.Value,
             IconKey = ask.Glyph ?? string.Empty,
             Icon = IconOf(ask.Glyph),
             Disabled = ask.Disabled,
-            Run = () => Ask(new WidgetTextAsk(ask.Title, ask.Placeholder, ask.Accept, ask.Refuse, ask.Done, ask.Initial)),
+            Run = () => Ask(new WidgetTextAsk(ask.Title, ask.Placeholder, ask.Accept, ask.Refuse, ask.Done, ask.Initial, ask.AllowEmpty)),
         },
         SettingsIcon icon => IconNode(icon),
         _ => throw new ArgumentOutOfRangeException(nameof(line), line.GetType().Name, "a settings line the menu cannot draw"),

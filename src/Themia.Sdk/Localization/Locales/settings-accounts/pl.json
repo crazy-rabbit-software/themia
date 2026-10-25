@@ -1,0 +1,10 @@
+{
+  "settingsAccounts.ownServer": "Ustaw serwer samodzielnie",
+  "settingsAccounts.test": "Testuj połączenie",
+  "settingsAccounts.connectedTo": "Połączono z {host}.",
+  "settingsAccounts.noServer": "Themia nie zna serwera dla {domain}. Ustaw go samodzielnie.",
+  "settingsAccounts.davAddress": "Wpisz adres internetowy serwera, np. https://cloud.example.com.",
+  "settingsAccounts.code": "Kod",
+  "settingsAccounts.pasteToken": "Najpierw wklej token.",
+  "settingsAccounts.enterAddress": "Wpisz adres e-mail i jego hasło."
+}

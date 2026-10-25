@@ -11,7 +11,7 @@ namespace Themia.App.Widgets;
 /// <summary>
 /// [S-1862] The body of a widget that cannot show anything until it is set up: the widget's glyph
 /// over one accent "Set up" button that goes where what it waits for is set (its properties menu, or
-/// Settings › Accounts: <c>DesktopWindow.RequestSetup</c>). No sentence — the button is the way
+/// ⚙ › Accounts: <c>DesktopWindow.RequestSetup</c>). No sentence — the button is the way
 /// forward, and a paragraph about where to find an option is what it replaces.
 /// <para>
 /// The card puts it over the view (<c>WidgetCard.Setup</c>) when <see cref="WidgetSetup.Needed"/>

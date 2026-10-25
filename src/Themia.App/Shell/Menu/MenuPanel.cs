@@ -33,6 +33,27 @@ internal enum MenuNodeKind
 
     /// <summary>[S-3731] An inline slider: its words, the slider and its value in one line.</summary>
     Slider,
+
+    /// <summary>[S-3561] A line of text typed in the menu: its words over the box ([S-3556]: a password's masked).</summary>
+    Field,
+}
+
+/// <summary>
+/// [S-3561] [S-3556] A field line's box: its hint, what a change does, and for a password's
+/// (<see cref="Masked"/>) whether it holds one, what a box built again starts with, and what its
+/// submenu closing wipes. A masked field's words are never in its node.
+/// </summary>
+internal sealed record MenuField(string Placeholder, Action<string> Set)
+{
+    public bool Masked { get; init; }
+
+    public bool HasValue { get; init; }
+
+    public Func<string>? Fill { get; init; }
+
+    public Action? Wipe { get; init; }
+
+    public bool Numeric { get; init; }
 }
 
 /// <summary>
@@ -84,6 +105,12 @@ internal sealed record MenuNode(string Key, MenuNodeKind Kind = MenuNodeKind.Lin
 
     /// <summary>[S-3537] Words a filter box finds the line by besides its own.</summary>
     public string? Keywords { get; init; }
+
+    /// <summary>[S-3561] The box of a <see cref="MenuNodeKind.Field"/> line.</summary>
+    public MenuField? Field { get; init; }
+
+    /// <summary>[S-3561] A note about something being done: a ring before its words.</summary>
+    public bool Busy { get; init; }
 
     public static MenuNode Separator(string key) => new(key, MenuNodeKind.Separator);
 
@@ -307,7 +334,18 @@ internal partial class MenuPanel : Grid
 
         // [S-3718] Which submenus were open, by their lines' keys: opened again over the new lines.
         var open = _levels.Skip(1).Select(l => l.Anchor!.Node.Key).ToList();
-        CloseFrom(1);
+
+        // [S-3556] They are opened again at once, so what their fields hold is not wiped on the way.
+        _reopening = true;
+        try
+        {
+            CloseFrom(1);
+        }
+        finally
+        {
+            _reopening = false;
+        }
+
         _levels.Clear();
         _menu.Children.Clear();
         _headKey = headKey;
@@ -484,6 +522,7 @@ internal partial class MenuPanel : Grid
             level.Settle?.Stop();
 
             OnLevelClosing(level.Lines);
+            CloseFields(level);
 
             if (_drag is { } drag && ReferenceEquals(drag.Level, level))
             {

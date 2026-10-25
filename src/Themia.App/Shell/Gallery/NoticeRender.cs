@@ -270,6 +270,8 @@ internal static class NoticeRender
             // ignore: a render has no edit mode to enter and no settings window
         }
 
+        public bool RequestAccounts() => false;
+
         public void RequestDelete(WidgetCard card)
         {
             // ignore: a fixed set of cards

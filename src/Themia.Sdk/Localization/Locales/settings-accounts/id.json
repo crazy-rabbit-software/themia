@@ -1,0 +1,10 @@
+{
+  "settingsAccounts.ownServer": "Atur server sendiri",
+  "settingsAccounts.test": "Uji koneksi",
+  "settingsAccounts.connectedTo": "Terhubung ke {host}.",
+  "settingsAccounts.noServer": "Themia tidak mengenal server untuk {domain}. Atur sendiri.",
+  "settingsAccounts.davAddress": "Masukkan alamat web server, misalnya https://cloud.example.com.",
+  "settingsAccounts.code": "Kode",
+  "settingsAccounts.pasteToken": "Tempel token terlebih dahulu.",
+  "settingsAccounts.enterAddress": "Masukkan alamat email dan kata sandinya."
+}

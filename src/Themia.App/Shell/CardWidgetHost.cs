@@ -10,7 +10,7 @@ namespace Themia.App.Shell;
 
 /// <summary>
 /// [S-6913] The host as a card's view sees it: the card's surface decides the ticker and whether it
-/// is a preview; the launcher and the Accounts page are the app's one of each.
+/// is a preview; the launcher and ⚙ › Accounts are the app's one of each.
 /// </summary>
 internal sealed class CardWidgetHost(IWidgetCardHost card) : IWidgetHost
 {
@@ -97,14 +97,6 @@ internal sealed class CardWidgetHost(IWidgetCardHost card) : IWidgetHost
 
     public IFavicons Favicons => HostFavicons.Instance;
 
-    public bool ShowAccounts()
-    {
-        if (AppServices.ShowAccounts is not { } show)
-        {
-            return false;
-        }
-
-        show();
-        return true;
-    }
+    /// <summary>[S-3558] ⚙ › Accounts on the card's display.</summary>
+    public bool ShowAccounts() => card.RequestAccounts();
 }

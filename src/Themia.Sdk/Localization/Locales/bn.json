@@ -152,7 +152,6 @@
   "connect.field.port": "পোর্ট",
   "connect.field.nickname": "ডাকনাম",
   "connect.field.name": "নাম",
-  "connect.connect": "সংযোগ করুন",
   "mixer.mute": "মিউট",
   "mixer.unmute": "আনমিউট",
   "mixer.reset": "{percent}-এ রিসেট করুন",

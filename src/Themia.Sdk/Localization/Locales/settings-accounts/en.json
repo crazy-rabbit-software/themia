@@ -1,0 +1,12 @@
+{
+  "$comment": "[S-3550]..[S-3561] The edit bar's ⚙ › Accounts: its own words; the rest are the words of the Accounts page it replaces.",
+  "$englishOnly": [],
+  "settingsAccounts.ownServer": "Set the server myself",
+  "settingsAccounts.test": "Test connection",
+  "settingsAccounts.connectedTo": "Connected to {host}.",
+  "settingsAccounts.noServer": "Themia does not know the server for {domain}. Set it yourself.",
+  "settingsAccounts.davAddress": "Enter the server's web address, such as https://cloud.example.com.",
+  "settingsAccounts.code": "Code",
+  "settingsAccounts.pasteToken": "Paste the token first.",
+  "settingsAccounts.enterAddress": "Enter the email address and its password."
+}

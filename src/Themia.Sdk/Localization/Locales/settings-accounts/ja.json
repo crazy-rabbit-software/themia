@@ -1,0 +1,10 @@
+{
+  "settingsAccounts.ownServer": "サーバーを手動で設定する",
+  "settingsAccounts.test": "接続をテスト",
+  "settingsAccounts.connectedTo": "{host} に接続しました。",
+  "settingsAccounts.noServer": "Themia は {domain} のサーバーを知りません。手動で設定してください。",
+  "settingsAccounts.davAddress": "サーバーの Web アドレスを入力してください (例: https://cloud.example.com)。",
+  "settingsAccounts.code": "コード",
+  "settingsAccounts.pasteToken": "先にトークンを貼り付けてください。",
+  "settingsAccounts.enterAddress": "メール アドレスとそのパスワードを入力してください。"
+}

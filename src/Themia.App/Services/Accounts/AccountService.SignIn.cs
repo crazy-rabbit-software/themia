@@ -273,6 +273,13 @@ internal sealed partial class AccountService
     // -----------------------------------------------------------------------------------------
 
     /// <summary>
+    /// [S-3555] Test a mail server without keeping anything: the login proven ([S-528]) and nothing
+    /// saved. Returns the host it signed in to.
+    /// </summary>
+    public async Task<string> TestImapAsync(string host, int port, string username, string password, CancellationToken cancellation = default)
+        => (await ProveImapAsync(host, port, username, password, cancellation).ConfigureAwait(false)).Host;
+
+    /// <summary>
     /// Add a mail server after proving the login ([S-528]). <paramref name="address"/> may be empty:
     /// the user name is used when it is an address, else <c>user@host</c>, as the classic app did.
     /// </summary>
@@ -285,18 +292,40 @@ internal sealed partial class AccountService
         string? nickname,
         CancellationToken cancellation = default)
     {
+        var login = await ProveImapAsync(host, port, username, password, cancellation).ConfigureAwait(false);
+
+        var email = address?.Trim() is { Length: > 0 } typed
+            ? typed
+            : login.Username.Contains('@', StringComparison.Ordinal) ? login.Username : $"{login.Username}@{login.Host}";
+
+        return await UpsertAsync(new Account
+        {
+            Id = AccountIds.Imap(login.Username, login.Host),
+            Provider = HostProviders.Imap,
+            Address = email,
+            DisplayName = email,
+            Nickname = AccountRules.CleanNickname(nickname),
+            Host = login.Host,
+            Port = login.Port,
+            Username = login.Username,
+            SealedPassword = Dpapi.Seal(password),
+            AddedAt = Now,
+        }, cancellation).ConfigureAwait(false);
+    }
+
+    /// <summary>
+    /// [S-528] [S-3555] The one way a typed mail server is checked, for a test and an add alike: the
+    /// form's rule (<see cref="AccountRules.ImapServerProblem"/>), then a TLS connect, the greeting
+    /// and LOGIN. The credentials as they were signed in with.
+    /// </summary>
+    private static async Task<ImapCredentials> ProveImapAsync(string host, int port, string username, string password, CancellationToken cancellation)
+    {
         var cleanHost = host?.Trim() ?? string.Empty;
         var cleanUser = username?.Trim() ?? string.Empty;
 
-        if (cleanHost.Length == 0 || cleanHost.Contains("://", StringComparison.Ordinal) || cleanHost.Any(char.IsWhiteSpace)
-            || Uri.CheckHostName(cleanHost) == UriHostNameType.Unknown)
+        if (AccountRules.ImapServerProblem(cleanHost, port) is { } problem)
         {
-            throw new AccountException(AccountError.Refused, Str.Shell_Accounts_HostName.Text());
-        }
-
-        if (port is < 1 or > 65535)
-        {
-            throw new AccountException(AccountError.Refused, Str.Shell_Accounts_PortRange.Text());
+            throw new AccountException(AccountError.Refused, problem);
         }
 
         if (cleanUser.Length == 0 || string.IsNullOrEmpty(password))
@@ -304,26 +333,17 @@ internal sealed partial class AccountService
             throw new AccountException(AccountError.Refused, Str.Shell_Accounts_EnterCredentials.Text());
         }
 
-        await ImapLogin.VerifyAsync(new ImapCredentials(cleanHost, port, cleanUser, password), cancellation).ConfigureAwait(false);
-
-        var email = address?.Trim() is { Length: > 0 } typed
-            ? typed
-            : cleanUser.Contains('@', StringComparison.Ordinal) ? cleanUser : $"{cleanUser}@{cleanHost}";
-
-        return await UpsertAsync(new Account
-        {
-            Id = AccountIds.Imap(cleanUser, cleanHost),
-            Provider = HostProviders.Imap,
-            Address = email,
-            DisplayName = email,
-            Nickname = AccountRules.CleanNickname(nickname),
-            Host = cleanHost,
-            Port = port,
-            Username = cleanUser,
-            SealedPassword = Dpapi.Seal(password),
-            AddedAt = Now,
-        }, cancellation).ConfigureAwait(false);
+        var login = new ImapCredentials(cleanHost, port, cleanUser, password);
+        await ImapLogin.VerifyAsync(login, cancellation).ConfigureAwait(false);
+        return login;
     }
+
+    /// <summary>
+    /// [S-3555] Test a CalDAV or CardDAV server without keeping anything: the collection found and the
+    /// credentials proven on the way ([S-517]), nothing saved. Returns the host the collection is on.
+    /// </summary>
+    public async Task<string> TestDavAsync(ProviderId provider, string url, string username, string password, CancellationToken cancellation = default)
+        => (await FindDavAsync(provider, url, username, password, cancellation).ConfigureAwait(false)).Host;
 
     /// <summary>
     /// Add a CalDAV or CardDAV account: resolve what was typed to a collection, proving the
@@ -337,13 +357,33 @@ internal sealed partial class AccountService
         string? nickname,
         CancellationToken cancellation = default)
     {
+        var collection = await FindDavAsync(provider, url, username, password, cancellation).ConfigureAwait(false);
+        var user = username.Trim();
+
+        return await UpsertAsync(new Account
+        {
+            Id = AccountIds.Dav(provider, user, collection),
+            Provider = provider,
+            Address = user,
+            DisplayName = user,
+            Nickname = AccountRules.CleanNickname(nickname),
+            Username = user,
+            ServerUrl = collection.AbsoluteUri,
+            SealedPassword = Dpapi.Seal(password),
+            AddedAt = Now,
+        }, cancellation).ConfigureAwait(false);
+    }
+
+    /// <summary>[S-517] [S-3555] The one way a typed DAV server is checked, for a test and an add alike: its collection, found as the account.</summary>
+    private static async Task<Uri> FindDavAsync(ProviderId provider, string url, string username, string password, CancellationToken cancellation)
+    {
         if (!(provider == HostProviders.CalDav || provider == HostProviders.CardDav))
         {
             throw new ArgumentOutOfRangeException(nameof(provider), provider, "not a DAV provider");
         }
 
         var entered = DavUrls.FromTyped(url)
-            ?? throw new AccountException(AccountError.Refused, "Enter the server's web address, such as https://cloud.example.com.");
+            ?? throw new AccountException(AccountError.Refused, Str.SettingsAccounts_DavAddress.Text());
 
         var user = username?.Trim() ?? string.Empty;
         if (user.Length == 0 || string.IsNullOrEmpty(password))
@@ -375,17 +415,6 @@ internal sealed partial class AccountService
             }, found.Message, found.Status);
         }
 
-        return await UpsertAsync(new Account
-        {
-            Id = AccountIds.Dav(provider, user, collection),
-            Provider = provider,
-            Address = user,
-            DisplayName = user,
-            Nickname = AccountRules.CleanNickname(nickname),
-            Username = user,
-            ServerUrl = collection.AbsoluteUri,
-            SealedPassword = Dpapi.Seal(password),
-            AddedAt = Now,
-        }, cancellation).ConfigureAwait(false);
+        return collection;
     }
 }

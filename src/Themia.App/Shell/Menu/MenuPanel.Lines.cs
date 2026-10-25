@@ -94,6 +94,12 @@ internal partial class MenuPanel
         /// <summary>[S-3731] The slider lines, by their place in <see cref="Nodes"/>.</summary>
         public Dictionary<int, SliderView> Sliders { get; } = [];
 
+        /// <summary>[S-3561] The notes, by their place: their words are written in place.</summary>
+        public Dictionary<int, NoteView> Notes { get; } = [];
+
+        /// <summary>[S-3561] The field lines, by their place.</summary>
+        public Dictionary<int, FieldView> Fields { get; } = [];
+
         public List<LineView?> Views { get; } = [];
 
         public List<MenuNode> Nodes { get; set; } = [];
@@ -123,9 +129,13 @@ internal partial class MenuPanel
     }
 
     /// <summary>Which lines there are, as one string: values (ticks, words at the end, icons) are not in it.</summary>
+    /// <remarks>
+    /// [S-3561] Whether a line is greyed is written in place too (a form's Add while its fields are
+    /// typed in), but for a danger line, whose colour is chosen as it is built.
+    /// </remarks>
     private static string Shape(IReadOnlyList<MenuNode> nodes)
-        => string.Join(";", nodes.Select(n => n.Key + "|" + (int)n.Kind + "|" + (n.Disabled ? 'd' : 'e') + "|"
-            + (n.Opens ? 's' : '-') + "|" + (n.Checked is null ? '-' : 'c') + "|" + (n.Icon is null ? '-' : 'i') + "|" + (n.Danger ? '!' : '-')
+        => string.Join(";", nodes.Select(n => n.Key + "|" + (int)n.Kind + "|" + (n.Danger && n.Disabled ? 'd' : 'e') + "|"
+            + (n.Opens ? 's' : '-') + "|" + (n.Checked is null ? '-' : 'c') + "|" + (n.Icon is null ? '-' : 'i') + "|" + (n.Danger && n.Kind != MenuNodeKind.Note ? '!' : '-')
             + "|" + (n.Order is null ? '-' : 'o')));
 
     /// <summary>[S-3732] The layer over a level's lines a dragged line's drop line is drawn on.</summary>
@@ -139,9 +149,14 @@ internal partial class MenuPanel
             EndDrag(drop: false);
         }
 
+        // [S-3561] The field being typed in keeps the keyboard when its level is drawn again.
+        var typing = FocusedField(level);
+
         level.Lines.Children.Clear();
         level.Views.Clear();
         level.Sliders.Clear();
+        level.Notes.Clear();
+        level.Fields.Clear();
         level.Nodes = [.. nodes];
         level.Shape = Shape(nodes);
         level.Trail = nodes.Any(n => n.Kind == MenuNodeKind.Line && (n.Checked is not null || n.Opens));
@@ -157,7 +172,15 @@ internal partial class MenuPanel
                     level.Views.Add(null);
                     break;
                 case MenuNodeKind.Note:
-                    level.Lines.Children.Add(NoteLine(node.Text, level.Icons));
+                    var note = NoteLine(node, level.Icons);
+                    level.Lines.Children.Add(note.Root);
+                    level.Notes[i] = note;
+                    level.Views.Add(null);
+                    break;
+                case MenuNodeKind.Field:
+                    var field = MakeField(node);
+                    level.Lines.Children.Add(field.Root);
+                    level.Fields[i] = field;
                     level.Views.Add(null);
                     break;
                 case MenuNodeKind.Spacer:
@@ -184,6 +207,7 @@ internal partial class MenuPanel
 
         // Leading, trailing and doubled dividers go, as the card menu drops them ([S-1742]).
         HideStrayDividers(level.Lines);
+        Refocus(level, typing);
 
         // [S-3732] A keyboard move drew the list again: the moved line takes the focus back.
         if (_refocus is { } refocus && level.Views.FirstOrDefault(v => v is not null && v.Node.Key == refocus) is { } moved)
@@ -234,6 +258,14 @@ internal partial class MenuPanel
             {
                 ApplySlider(slider, node);
             }
+            else if (level.Notes.TryGetValue(i, out var note))
+            {
+                ApplyNote(note, node);
+            }
+            else if (level.Fields.TryGetValue(i, out var field))
+            {
+                ApplyField(field, node);
+            }
             else if (node.Kind is MenuNodeKind.Custom && i < level.Nodes.Count
                 && !string.Equals(level.Nodes[i].ValueKey, node.ValueKey, StringComparison.Ordinal))
             {
@@ -247,6 +279,7 @@ internal partial class MenuPanel
     private static void Apply(LineView view, MenuNode node)
     {
         view.Node = node;
+        view.Button.IsEnabled = !node.Disabled;
         view.Words.Text = node.Text;
         view.Value.Text = node.Value ?? string.Empty;
         TipWhenTrimmed(view.Words);
@@ -656,26 +689,65 @@ internal partial class MenuPanel
 
     /// <summary>
     /// [S-3728] A note: words only in the disabled colour, where a line's words start, wrapped to a
-    /// few lines within the menu's width and trimmed past them, the whole as its tooltip.
+    /// few lines within the menu's width and trimmed past them, the whole as its tooltip. [S-3561]
+    /// What went wrong is in the critical colour; something being done has a ring before its words;
+    /// a note without words takes no room. Its words are written in place, so a note under a form's
+    /// line changes as the form is typed in without the form being drawn again.
     /// </summary>
-    private static FrameworkElement NoteLine(string text, bool icons)
+    private static NoteView NoteLine(MenuNode node, bool icons)
     {
         var words = Fluent.Text(FluentType.Caption, "TextFillColorTertiaryBrush");
-        words.Text = text;
         words.TextWrapping = TextWrapping.WrapWholeWords;
         words.TextTrimming = TextTrimming.CharacterEllipsis;
         words.MaxLines = NoteLines;
-        words.MaxWidth = MenuWidth - (2 * (Fluent.Space1 + Fluent.Space3)) - (icons ? LeadColumn : 0);
         words.HorizontalAlignment = HorizontalAlignment.Left;
-        ToolTipService.SetToolTip(words, text);
-        AutomationProperties.SetName(words, text);
+        words.VerticalAlignment = VerticalAlignment.Center;
 
-        return new Border
+        var ring = new ProgressRing
         {
-            Child = words,
-            Background = new SolidColorBrush(Colors.Transparent),
-            Padding = new Thickness(Fluent.Space1 + Fluent.Space3 + (icons ? LeadColumn : 0), Fluent.Space2, Fluent.Space1 + Fluent.Space3, Fluent.Space2),
+            Width = Fluent.IconSize,
+            Height = Fluent.IconSize,
+            IsActive = false,
+            Visibility = Visibility.Collapsed,
+            VerticalAlignment = VerticalAlignment.Top,
+            Margin = new Thickness(0, 0, Fluent.Space2, 0),
         };
+
+        var root = new Border
+        {
+            Child = new StackPanel { Orientation = Orientation.Horizontal, Children = { ring, words } },
+            Background = new SolidColorBrush(Colors.Transparent),
+        };
+
+        var view = new NoteView(root, words, ring, icons);
+        ApplyNote(view, node);
+        return view;
+    }
+
+    /// <summary>[S-3561] Write a note's node in: its words, its colour, its ring; no room at all without words.</summary>
+    private static void ApplyNote(NoteView view, MenuNode node)
+    {
+        var text = node.Text;
+        var empty = text.Length == 0;
+        var busy = node.Busy && !empty;
+        var room = MenuWidth - (2 * (Fluent.Space1 + Fluent.Space3)) - (view.Icons ? LeadColumn : 0);
+
+        view.Words.Text = text;
+        view.Words.MaxWidth = busy ? room - Fluent.IconSize - Fluent.Space2 : room;
+        view.Words.Foreground = node.Danger
+            ? ThemeBrush.Of("SystemFillColorCriticalBrush", Colors.IndianRed)
+            : ThemeBrush.Of("TextFillColorTertiaryBrush", Colors.Gray);
+        view.Words.Visibility = empty ? Visibility.Collapsed : Visibility.Visible;
+        view.Ring.IsActive = busy;
+        view.Ring.Visibility = busy ? Visibility.Visible : Visibility.Collapsed;
+        view.Root.Padding = empty
+            ? new Thickness(0)
+            : new Thickness(Fluent.Space1 + Fluent.Space3 + (view.Icons ? LeadColumn : 0), Fluent.Space2, Fluent.Space1 + Fluent.Space3, Fluent.Space2);
+        ToolTipService.SetToolTip(view.Words, empty ? null : text);
+        AutomationProperties.SetName(view.Words, text);
+
+        // What went wrong, or how a try is going, is said to a screen reader as it changes.
+        AutomationProperties.SetLiveSetting(view.Words, node.Danger || node.Busy ? Microsoft.UI.Xaml.Automation.Peers.AutomationLiveSetting.Assertive : Microsoft.UI.Xaml.Automation.Peers.AutomationLiveSetting.Off);
     }
 
     /// <summary>A divider between groups: across the menu under an icon row, inset in the list.</summary>

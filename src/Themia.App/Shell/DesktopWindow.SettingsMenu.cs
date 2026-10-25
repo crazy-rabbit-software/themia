@@ -24,17 +24,43 @@ internal sealed partial class DesktopWindow
         return () => SettingsMenu.Root(host);
     }
 
-    /// <summary>[S-3525] What Windows owns is read now and followed while the menu is open.</summary>
+    /// <summary>
+    /// [S-3525] What Windows owns is read now and followed while the menu is open; [S-3559] so are
+    /// the accounts and their numbers.
+    /// </summary>
     private void SettingsMenuOpened()
     {
         _settingsIcons ??= _host.WatchDesktopIcons();
         _host.ReadStartup();
+        _host.AccountsMenu.Opened();
     }
 
+    /// <summary>[S-3557] Closed: what was followed stops, and with the last menu every form empties.</summary>
     private void SettingsMenuClosed()
     {
         _settingsIcons?.Dispose();
         _settingsIcons = null;
+        _host.AccountsMenu.Closed();
+    }
+
+    /// <summary>
+    /// [S-3558] A widget's way to its accounts: edit mode entered and ⚙ open on this display at
+    /// Accounts, or at Add account while there is no account to manage. Its menu and its card's
+    /// links all come here; nothing opens a settings window for an account any more.
+    /// </summary>
+    public bool RequestAccounts()
+    {
+        if (_closed)
+        {
+            return false;
+        }
+
+        _host.SetEditMode(true);
+        string[] path = (AppServices.Accounts?.Accounts.Count ?? 0) == 0
+            ? [SettingsMenu.Keys.Accounts, SettingsMenu.Keys.AddAccount]
+            : [SettingsMenu.Keys.Accounts];
+        OpenBarMenu(BarMenu.Settings, path);
+        return BarMenuOpen;
     }
 
     private void OnSuspendedForSettings(bool suspended) => SyncBarMenu();
@@ -63,6 +89,8 @@ internal sealed partial class DesktopWindow
         public void SetGameModeSuspend(bool on) => Host.SetGameModeSuspend(on);
 
         public void ReplayIntro(IntroMode mode) => Host.ReplayIntro(mode);
+
+        public IAccountsMenuHost? Accounts => AppServices.Accounts is null ? null : Host.AccountsMenu;
 
         public Core.Localization.Locale WindowsLanguage => Host.WindowsLanguage;
 

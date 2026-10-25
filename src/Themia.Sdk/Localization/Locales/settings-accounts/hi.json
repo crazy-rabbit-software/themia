@@ -1,0 +1,10 @@
+{
+  "settingsAccounts.ownServer": "सर्वर खुद सेट करें",
+  "settingsAccounts.test": "कनेक्शन जांचें",
+  "settingsAccounts.connectedTo": "{host} से कनेक्ट हो गया।",
+  "settingsAccounts.noServer": "Themia को {domain} का सर्वर पता नहीं है। इसे खुद सेट करें।",
+  "settingsAccounts.davAddress": "सर्वर का वेब पता दर्ज करें, जैसे https://cloud.example.com।",
+  "settingsAccounts.code": "कोड",
+  "settingsAccounts.pasteToken": "पहले टोकन पेस्ट करें।",
+  "settingsAccounts.enterAddress": "ईमेल पता और उसका पासवर्ड दर्ज करें।"
+}

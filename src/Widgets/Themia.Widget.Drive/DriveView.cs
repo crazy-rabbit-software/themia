@@ -37,7 +37,7 @@ internal sealed partial class DriveView : Grid, IWidgetView, IWidgetSizeAware, I
     private DriveEntry? _drive;
     private WidgetArea _area;
 
-    /// <summary>[S-6913] What the view asks of the host: the launcher, the Accounts page.</summary>
+    /// <summary>[S-6913] What the view asks of the host: the launcher, ⚙ › Accounts.</summary>
     private readonly IWidgetHost _widgetHost;
 
     public DriveView(IWidgetHost host)

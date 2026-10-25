@@ -37,7 +37,7 @@ internal sealed partial class DesktopWindow
         Cut: _host.CutSelected,
         Copy: _host.CopySelected,
         Delete: _host.DeleteSelected,
-        WidgetLines: _host.WidgetMenuLines,
+        WidgetLines: (id, ask, confirm) => _host.WidgetMenuLines(id, ask, confirm, () => RequestAccounts()),
         Preview: PreviewSelected,
         SetBackgroundImage: _host.SetSelectedBackgroundImage);
 

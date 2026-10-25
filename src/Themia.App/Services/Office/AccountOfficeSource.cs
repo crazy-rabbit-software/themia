@@ -686,7 +686,7 @@ internal sealed partial class AccountOfficeSource : IOfficeSource, IDisposable
                 box.BirthdaysSchedule.Seed(shelf.BirthdaysAt, now);
             }
 
-            // [S-3823] What is stored, for the Accounts page.
+            // [S-3823] What is stored, for ⚙ › Accounts.
             owner._sync.Report(accountId, SyncStats.Of(shelf));
 
             return box;

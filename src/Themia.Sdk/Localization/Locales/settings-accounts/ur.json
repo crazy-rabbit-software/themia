@@ -1,0 +1,10 @@
+{
+  "settingsAccounts.ownServer": "سرور خود سیٹ کریں",
+  "settingsAccounts.test": "کنکشن جانچیں",
+  "settingsAccounts.connectedTo": "{host} سے منسلک ہو گیا۔",
+  "settingsAccounts.noServer": "Themia کو {domain} کا سرور معلوم نہیں۔ اسے خود سیٹ کریں۔",
+  "settingsAccounts.davAddress": "سرور کا ویب پتہ درج کریں، جیسے https://cloud.example.com۔",
+  "settingsAccounts.code": "کوڈ",
+  "settingsAccounts.pasteToken": "پہلے ٹوکن پیسٹ کریں۔",
+  "settingsAccounts.enterAddress": "ای میل پتہ اور اس کا پاس ورڈ درج کریں۔"
+}

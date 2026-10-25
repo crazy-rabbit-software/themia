@@ -1,0 +1,10 @@
+{
+  "settingsAccounts.ownServer": "سرور را خودم تنظیم می‌کنم",
+  "settingsAccounts.test": "آزمایش اتصال",
+  "settingsAccounts.connectedTo": "به {host} وصل شد.",
+  "settingsAccounts.noServer": "Themia سرور {domain} را نمی‌شناسد. خودتان آن را تنظیم کنید.",
+  "settingsAccounts.davAddress": "نشانی وب سرور را وارد کنید، مانند https://cloud.example.com.",
+  "settingsAccounts.code": "کد",
+  "settingsAccounts.pasteToken": "ابتدا توکن را جای‌گذاری کنید.",
+  "settingsAccounts.enterAddress": "نشانی ایمیل و گذرواژهٔ آن را وارد کنید."
+}

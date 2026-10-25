@@ -48,7 +48,7 @@ internal sealed partial class RecentFilesView : Grid, IWidgetView, IWidgetSizeAw
     private bool _detached;
     private double _scale = 1;
 
-    /// <summary>[S-6913] What the view asks of the host: the launcher, the Accounts page.</summary>
+    /// <summary>[S-6913] What the view asks of the host: the launcher, ⚙ › Accounts.</summary>
     private readonly IWidgetHost _widgetHost;
 
     public RecentFilesView(IWidgetHost host)

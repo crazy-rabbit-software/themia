@@ -271,7 +271,7 @@ public interface IProviderModule
     ProviderId Id { get; }
     LocalText Label { get; }
     ServiceDescriptor? Service { get; }        // a kit service (5.7); null for a host provider
-    ProviderSignIn SignIn { get; }             // the auth members the Accounts page offers
+    ProviderSignIn SignIn { get; }             // the auth members ⚙ › Accounts offers
     IReadOnlyList<FeatureId> Features { get; } // what widgets may ask of its accounts
     CadenceRow? Cadence { get; }               // its line in Settings > Widgets > Updates ([S-3780])
     string? BuildSecret { get; }               // the key in THEMIA_CLIENT_SECRETS, when BuildTime
@@ -367,7 +367,7 @@ to today's JSON discriminators (`clock`, `weatherNow`, `rss`), so state files ke
   weather, markets and feeds while those are host sources), and `AppPreferences.Refresh` a map
   keyed by `CadenceId`, repaired to the row's default when an entry is missing. The offline
   store's service shelves are keyed by provider id under the one `service` kind (section 6.5); no
-  shelf kind per provider. The Accounts page lists the registered providers that have sign-in
+  shelf kind per provider. ⚙ › Accounts lists the registered providers that have sign-in
   members (`ServiceSignIn`, generic). Build-time secrets are looked up by the provider's
   `BuildSecret` key in `THEMIA_CLIENT_SECRETS` (section 5.7).
 - **Microsoft and Google** become provider modules (`Themia.Provider.Microsoft`, `.Google`) once
@@ -501,7 +501,7 @@ publish (harmless, to be fixed in its own commit).
 ### 4.12 What "no change to main code" means
 
 Adding a widget or a provider is creating its folder; the build, the registry, the JSON union,
-the catalogue, the add menu, search, settings, the Accounts page, the cadence rows, the strings,
+the catalogue, the add menu, search, settings, ⚙ › Accounts, the cadence rows, the strings,
 the tests and the SPEC index all pick it up. What is left outside the folder, and why:
 
 1. **`Themia.slnx`** does not glob. Build, test and publish do not read it; the scaffolder adds one
@@ -789,7 +789,7 @@ public sealed record ServiceDescriptor(
     TransportKind Transport,                     // RestJson | GraphQL | FormPost
     Uri ApiRoot,                                 // https; the GraphQL endpoint for GraphQL
     ApiRootRule Root,                            // Fixed | PerAccount (an Enterprise server, Q6)
-    ProviderSignIn SignIn,                       // ServiceAuth members in the order the Accounts page offers
+    ProviderSignIn SignIn,                       // ServiceAuth members in the order ⚙ › Accounts offers
                                                  // them, and the default TokenScheme (Bearer | Raw)
     IReadOnlyList<HeaderPin> Pinned,             // Accept, an API version; never a credential
     RateLimitScheme Limits,
@@ -840,7 +840,7 @@ by the service's documented maximum in the query: GitHub search 100, Linear the 
 |---|---|---|---|
 | `OAuthPkceLoopback(AuthorizeUrl, TokenUrl, ClientId, Scopes, ScopeSeparator, Loopback, ClientSecret, Refresh)` | the existing browser flow ([S-1780]..[S-1784]): system browser, loopback listener, `state`, PKCE S256 | `ClientSecret = None` (Microsoft, Linear), or `BuildTime` (Google, a confidential Todoist app): read from `BuildSecrets.ClientSecret(Provider)`, never in source | `OAuthRefresh` (or `Token` when the service issues no refresh token) |
 | `OAuthDeviceCode(DeviceUrl, TokenUrl, ClientId, Scopes, ScopeSeparator, Refresh, GrantPage)` | RFC 8628: show `user_code` and open `verification_uri`; poll at `interval`, +5 s on `slow_down`, stop on `expired_token`/`access_denied` (`DeviceCodeSession` restored from `e09beef^`) | none | `Token`, or `OAuthRefresh` when the answer carries a refresh token |
-| `PastedToken(TokenPage, Shape, Scheme)` | the user creates a token on the service's page (`TokenPage`, opened by the Accounts page) and pastes it; validated by `Shape` (length, alphabet) and then by the identity request | none | `Token`, DPAPI-sealed through `Secrets` like every secret |
+| `PastedToken(TokenPage, Shape, Scheme)` | the user creates a token on the service's page (`TokenPage`, opened from ⚙ › Accounts) and pastes it; validated by `Shape` (length, alphabet) and then by the identity request | none | `Token`, DPAPI-sealed through `Secrets` like every secret |
 | `Anonymous` | no sign-in; only where `AnonymousRule.PublicReads` | none | no account; entries keyed by `anonymous` |
 
 Parameters that differ between services and are data, not code:
@@ -861,14 +861,14 @@ Parameters that differ between services and are data, not code:
   its API keys are not; the descriptor's `TokenHeader` is the default.
 - `GrantPage`: where the user widens what an account may read, when the service grants access per
   resource rather than per scope (a GitHub App is *installed* on chosen organisations and
-  repositories: `https://github.com/apps/<slug>/installations/new`). The Accounts page shows it
+  repositories: `https://github.com/apps/<slug>/installations/new`). ⚙ › Accounts shows it
   under the account, and a `Forbidden` or `NotFound` screen of that provider offers it beside the
   Accounts link (`KitScreen.OffersGrant`). Null for scope-based services.
 - The identity request: every service has one query (`<Service>Queries.Identity`) whose map
   returns the account id and display name. It runs after every sign-in and on a pasted token
   before it is stored (a token that fails it is not saved).
 
-Sign-in is one App class, `ServiceSignIn`, with one method per auth member; the Accounts page lists
+Sign-in is one App class, `ServiceSignIn`, with one method per auth member; ⚙ › Accounts lists
 the providers and, under each, the members of its `SignIn` list (a device-code panel, a paste box
 with the token page link, a browser button). No provider is named in App sign-in code; the
 ternaries of `SignInWithBrowserAsync` go when Microsoft and Google move onto descriptors.
@@ -1189,7 +1189,7 @@ built only from the menu's vocabulary (`WidgetMenuLines`):
 - `KitMenuLines.Accounts(menu, glyph, accounts, words, chosenIds, setIds)`: the Accounts submenu,
   "Every account" plus one switch per signed-in account offering the feature (its provider or
   problem at the end, the last chosen one greyed), then Manage accounts (`menu.AccountsLine`,
-  Settings › Accounts, [S-3745]); with none, the widget's sentence and Add an account. The office
+  ⚙ › Accounts, [S-3745]); with none, the widget's sentence and Add an account. The office
   widgets go through `OfficeMenuLines` (`Accounts`, `CalendarAccounts` with each account's
   calendars and colours, read through `MenuLoads`, [S-3746], `Birthdays`).
 - Free input (a feed, a repository, a label): the menu's list (`menu.List` with `Add` and the
@@ -1232,7 +1232,7 @@ section 13 walks them for Linear and Todoist.
    web address of each item. Write the facts with their source URLs into the provider's `SPEC.md`.
 2. **Provider** (once per service): `scripts/new-module.ps1 -Provider GitHub` creates
    `src/Providers/Themia.Provider.GitHub/` (section 8). Fill in its descriptor by picking a member
-   of each strategy set of section 5.7 (sign-in members in the order the Accounts page should offer
+   of each strategy set of section 5.7 (sign-in members in the order ⚙ › Accounts should offer
    them; device flow or PKCE without a secret before a build-time secret, a pasted token always
    last). If a fact does not fit any member, stop: the SDK grows the member first (section 5.7's
    rule). Write the wire types, rules and queries (with the identity query) and record the
@@ -2791,7 +2791,7 @@ change, so a closure may keep the value it was built with.
 | text | `menu.Ask(new WidgetTextAsk(title, placeholder, accept, refuse, done, Initial:, AllowEmpty:))` from a line's action | a small flyout beside the menu; `refuse` is the trust boundary (validate as typed) |
 | a place, a zone, anything searched | `WidgetMenuLines.Search(glyph, text, value, new MenuSearch(placeholder, find, fixedLines, settle))` | box on top, five answers and Show all, fixed lines under them |
 | a folder | `menu.PickFolder(glyph, text, path, set)` | Windows' folder picker; the folder's name at the end |
-| the accounts a widget reads | `KitMenuLines.Accounts(…)` / `OfficeMenuLines.Accounts`, `.CalendarAccounts` | Every account, a switch each, Manage accounts (`menu.AccountsLine`, Settings › Accounts, [S-3745]) |
+| the accounts a widget reads | `KitMenuLines.Accounts(…)` / `OfficeMenuLines.Accounts`, `.CalendarAccounts` | Every account, a switch each, Manage accounts (`menu.AccountsLine`, ⚙ › Accounts, [S-3745]) |
 | something read asynchronously (an account's calendars, its lists) | a static `MenuLoads<T>` keyed per source, `Read(key, menu, read)` | what is held now ("Looking…" note until it comes); an answer that differs outdates the menu (`WidgetMenuLines.Outdated`) and the host builds it again ([S-3746]) |
 | a list (feeds, symbols, hosts) | `menu.List(glyph, text, items, new MenuList<T>(name, emptySentence) { Rename, Extra, Add, AddLines, Max, Reorder, Glyph, IconFile })` | a submenu of items (Rename…, own lines, Remove greyed at `Min`), Add…; the item lines are dragged up and down to reorder, or Alt+Shift+Up / Down (`ItemMenuEntry.Order`, [S-3732]) |
 | a destructive command | `menu.Confirm(glyph, text, question, confirmWords, action, danger: true, disabled:)` | asks beside the menu first; danger lines in the critical colour |

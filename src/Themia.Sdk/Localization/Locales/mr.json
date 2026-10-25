@@ -152,7 +152,6 @@
   "connect.field.port": "पोर्ट",
   "connect.field.nickname": "टोपणनाव",
   "connect.field.name": "नाव",
-  "connect.connect": "कनेक्ट करा",
   "mixer.mute": "म्यूट करा",
   "mixer.unmute": "अनम्यूट करा",
   "mixer.reset": "{percent} वर रीसेट करा",

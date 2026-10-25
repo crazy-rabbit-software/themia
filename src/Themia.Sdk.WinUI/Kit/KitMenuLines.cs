@@ -28,7 +28,7 @@ public static class KitMenuLines
     /// [S-7063] The Accounts submenu: "Every account" (on by default: accounts added later join too),
     /// then a switch per signed-in account; turning Every off starts from the accounts there are now,
     /// so nothing disappears, and the last chosen account cannot be turned off (it is greyed), because
-    /// an empty list means "every". Then Manage accounts, which opens Settings › Accounts. With no
+    /// an empty list means "every". Then Manage accounts, which opens ⚙ › Accounts. With no
     /// account at all: the widget's sentence and Add an account.
     /// </summary>
     public static ItemMenuEntry Accounts(

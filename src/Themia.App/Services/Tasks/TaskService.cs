@@ -598,7 +598,7 @@ internal sealed class TaskService : ITaskSource, IDisposable
             box.Edits.Landed(box.Base(), box.Edits.FetchStarted());
             box.Schedule.Seed(shelf.Held.Count > 0 ? shelf.Held.Min(l => l.At) : shelf.ListsAt, DateTimeOffset.UtcNow);
 
-            // [S-3823] What is stored, for the Accounts page.
+            // [S-3823] What is stored, for ⚙ › Accounts.
             owner._sync.Report(accountId, SyncStats.Of(shelf));
 
             // [S-2653] Changes that were waiting when the app last closed are shown again and resent.

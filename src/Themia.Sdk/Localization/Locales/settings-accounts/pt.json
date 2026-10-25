@@ -1,0 +1,10 @@
+{
+  "settingsAccounts.ownServer": "Definir o servidor manualmente",
+  "settingsAccounts.test": "Testar conexão",
+  "settingsAccounts.connectedTo": "Conectado a {host}.",
+  "settingsAccounts.noServer": "O Themia não conhece o servidor de {domain}. Defina-o manualmente.",
+  "settingsAccounts.davAddress": "Digite o endereço web do servidor, como https://cloud.example.com.",
+  "settingsAccounts.code": "Código",
+  "settingsAccounts.pasteToken": "Cole o token primeiro.",
+  "settingsAccounts.enterAddress": "Digite o endereço de e-mail e a senha."
+}

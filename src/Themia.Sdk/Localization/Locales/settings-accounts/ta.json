@@ -1,0 +1,10 @@
+{
+  "settingsAccounts.ownServer": "சேவையகத்தை நானே அமைக்கிறேன்",
+  "settingsAccounts.test": "இணைப்பைச் சோதி",
+  "settingsAccounts.connectedTo": "{host} உடன் இணைக்கப்பட்டது.",
+  "settingsAccounts.noServer": "{domain}க்கான சேவையகம் Themiaக்குத் தெரியாது. அதை நீங்களே அமைக்கவும்.",
+  "settingsAccounts.davAddress": "சேவையகத்தின் இணைய முகவரியை உள்ளிடவும், எ.கா. https://cloud.example.com.",
+  "settingsAccounts.code": "குறியீடு",
+  "settingsAccounts.pasteToken": "முதலில் டோக்கனை ஒட்டவும்.",
+  "settingsAccounts.enterAddress": "மின்னஞ்சல் முகவரியையும் அதன் கடவுச்சொல்லையும் உள்ளிடவும்."
+}

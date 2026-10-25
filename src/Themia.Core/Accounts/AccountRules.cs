@@ -1,3 +1,4 @@
+using Themia.Core.Localization;
 using Themia.Sdk;
 using Themia.Sdk.Services;
 namespace Themia.Core.Accounts;
@@ -191,6 +192,23 @@ public static class AccountRules
 
     /// <summary>A nickname as the user typed it: trimmed, and nothing at all for whitespace.</summary>
     public static string? CleanNickname(string? nickname) => Clean(nickname);
+
+    /// <summary>
+    /// [S-528] [S-3555] Why a typed mail server cannot be tried, in the words the form says it in: a
+    /// host name that is no host (empty, a web address, spaces), a port outside 1 to 65535; null when
+    /// it can be. The one check, for the menu's form before it tries and the service before it connects.
+    /// </summary>
+    public static string? ImapServerProblem(string? host, int port)
+    {
+        var clean = host?.Trim() ?? string.Empty;
+        if (clean.Length == 0 || clean.Contains("://", StringComparison.Ordinal) || clean.Any(char.IsWhiteSpace)
+            || Uri.CheckHostName(clean) == UriHostNameType.Unknown)
+        {
+            return Str.Shell_Accounts_HostName.Text();
+        }
+
+        return port is < 1 or > 65535 ? Str.Shell_Accounts_PortRange.Text() : null;
+    }
 
     private static string? Clean(string? value)
     {

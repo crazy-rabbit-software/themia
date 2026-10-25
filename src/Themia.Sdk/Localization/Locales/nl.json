@@ -152,7 +152,6 @@
   "connect.field.port": "Poort",
   "connect.field.nickname": "Bijnaam",
   "connect.field.name": "Naam",
-  "connect.connect": "Verbinden",
   "mixer.mute": "Dempen",
   "mixer.unmute": "Dempen opheffen",
   "mixer.reset": "Terugzetten op {percent}",

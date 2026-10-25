@@ -1,0 +1,10 @@
+{
+  "settingsAccounts.ownServer": "Server zelf instellen",
+  "settingsAccounts.test": "Verbinding testen",
+  "settingsAccounts.connectedTo": "Verbonden met {host}.",
+  "settingsAccounts.noServer": "Themia kent de server voor {domain} niet. Stel hem zelf in.",
+  "settingsAccounts.davAddress": "Voer het webadres van de server in, zoals https://cloud.example.com.",
+  "settingsAccounts.code": "Code",
+  "settingsAccounts.pasteToken": "Plak eerst het token.",
+  "settingsAccounts.enterAddress": "Voer het e-mailadres en het wachtwoord ervan in."
+}

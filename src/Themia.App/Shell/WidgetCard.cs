@@ -39,9 +39,15 @@ internal interface IWidgetCardHost
 
     /// <summary>
     /// [S-1862] The card's Set up button: go where what the widget waits for is set (its properties
-    /// menu in edit mode, or Settings › Accounts when an account is all it lacks).
+    /// menu in edit mode, or ⚙ › Accounts when an account is all it lacks).
     /// </summary>
     void RequestSetup(WidgetCard card);
+
+    /// <summary>
+    /// [S-3558] A widget's way to its accounts (its "Open Accounts settings", a header's sign-in
+    /// problem): ⚙ › Accounts on this display, edit mode entered. False where there is none (a render).
+    /// </summary>
+    bool RequestAccounts();
 
     void RequestDelete(WidgetCard card);
 

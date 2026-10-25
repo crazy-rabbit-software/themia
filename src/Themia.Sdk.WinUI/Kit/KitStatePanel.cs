@@ -11,9 +11,9 @@ namespace Themia.Sdk.WinUI.Kit;
 /// <summary>
 /// [S-7060] [S-588] Every kit widget's empty and problem states (and the calendar's and contacts'):
 /// the widget's glyph over a sentence, and — when the user is the one who can fix it — a link to
-/// Settings › Accounts beneath, centred together.
+/// ⚙ › Accounts beneath, centred together.
 /// <para>
-/// "Account gone", "sign in again" and "access not granted" each need the Accounts page; a blank
+/// "Account gone", "sign in again" and "access not granted" each need ⚙ › Accounts; a blank
 /// tile or a sentence with no way forward is the failure the original filed bugs about. Loading,
 /// offline and "nothing on" need no link and show none. No account at all is the card's Set up
 /// button instead ([S-1862]).
@@ -136,12 +136,12 @@ public sealed partial class KitStatePanel : Grid
         _action.Click -= OnActionClicked;
     }
 
-    /// <summary>Open Settings on the Accounts page, the one place accounts are added and mended.</summary>
+    /// <summary>Open ⚙ › Accounts, the one place accounts are added and mended.</summary>
     public void OpenAccounts()
     {
         if (!_widgetHost.ShowAccounts())
         {
-            Log.Info(Scope, "no settings window here to show the Accounts page in");
+            Log.Info(Scope, "nothing here opens ⚙ › Accounts");
         }
     }
 

@@ -75,7 +75,7 @@ internal sealed partial class NextMeetingView : Grid, IWidgetView, IWidgetSurfac
     /// <summary>The clock the event is picked against: the machine's, which a preview pins.</summary>
     private Func<DateTimeOffset> _clock = static () => DateTimeOffset.Now;
 
-    /// <summary>[S-6913] What the view asks of the host: the launcher, the Accounts page.</summary>
+    /// <summary>[S-6913] What the view asks of the host: the launcher, ⚙ › Accounts.</summary>
     private readonly IWidgetHost _widgetHost;
 
     public NextMeetingView(IWidgetHost host)

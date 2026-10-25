@@ -77,7 +77,7 @@ internal sealed partial class GalleryView : Grid, IWidgetView, IWidgetHeaderCont
     private bool _everApplied;
     private bool _detached;
 
-    /// <summary>[S-6913] What the view asks of the host: the launcher, the Accounts page.</summary>
+    /// <summary>[S-6913] What the view asks of the host: the launcher, ⚙ › Accounts.</summary>
     private readonly IWidgetHost _widgetHost;
 
     public GalleryView(IWidgetHost host)

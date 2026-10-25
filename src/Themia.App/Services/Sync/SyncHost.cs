@@ -49,8 +49,8 @@ internal sealed class SyncHost : IDisposable
     public event Action? StatsChanged;
 
     /// <summary>
-    /// [S-3823] A service loaded or saved <paramref name="owner"/>'s shelf: its numbers, for the
-    /// Accounts page. From any thread; the page hears of it on the UI thread.
+    /// [S-3823] A service loaded or saved <paramref name="owner"/>'s shelf: its numbers, for
+    /// ⚙ › Accounts. From any thread; the menu hears of it on the UI thread.
     /// </summary>
     public void Report(string owner, ShelfStats stats)
     {

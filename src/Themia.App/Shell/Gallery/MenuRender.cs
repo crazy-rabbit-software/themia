@@ -278,6 +278,8 @@ internal static class MenuRender
             // ignore: the menu is drawn, never clicked
         }
 
+        public bool RequestAccounts() => false;
+
         public void RequestDelete(WidgetCard card)
         {
             // ignore: as above

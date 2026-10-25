@@ -46,7 +46,7 @@ internal sealed partial class RemovableDrivesView : Grid, IWidgetView, IWidgetSi
     private int _focus = -1;
     private bool _detached;
 
-    /// <summary>[S-6913] What the view asks of the host: the launcher, the Accounts page.</summary>
+    /// <summary>[S-6913] What the view asks of the host: the launcher, ⚙ › Accounts.</summary>
     private readonly IWidgetHost _widgetHost;
 
     public RemovableDrivesView(IWidgetHost host)

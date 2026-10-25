@@ -25,8 +25,45 @@ public abstract record SettingsLine(string Key)
 /// <summary>A divider between groups; leading, trailing and doubled ones are dropped.</summary>
 public sealed record SettingsSeparator(string Key) : SettingsLine(Key);
 
-/// <summary>[S-3728] Words only, greyed, never clickable.</summary>
-public sealed record SettingsNote(string Key, string Text) : SettingsLine(Key);
+/// <summary>[S-3728] Words only, greyed, never clickable; nothing at all while <see cref="Text"/> is empty.</summary>
+public sealed record SettingsNote(string Key, string Text) : SettingsLine(Key)
+{
+    /// <summary>[S-3561] What went wrong (a try's refusal): in the critical colour.</summary>
+    public bool Critical { get; init; }
+
+    /// <summary>[S-3561] Something is being done (a sign-in waiting): a ring before the words.</summary>
+    public bool Busy { get; init; }
+}
+
+/// <summary>
+/// [S-3561] A reading: words and a value at the line's end in the text colour, never clickable (what
+/// an account holds on this PC: "Mail · 1,240 messages").
+/// </summary>
+public sealed record SettingsReading(string Key, string Text, string? Glyph, string? Value) : SettingsLine(Key);
+
+/// <summary>
+/// [S-3561] A line of text typed in the menu itself (a form's field): its words over the box, the box
+/// holding <see cref="Value"/> and its hint, and what a change does (each letter, as it is typed).
+/// A <see cref="Masked"/> field is a password's ([S-3556]): it never carries what it holds
+/// (<see cref="Value"/> is null; <see cref="HasValue"/> says whether there is one), <see cref="Fill"/>
+/// gives a box built again what was typed, and <see cref="Wipe"/> runs as its submenu closes.
+/// </summary>
+public sealed record SettingsField(string Key, string Text, string? Value, string Placeholder, Action<string> Set) : SettingsLine(Key)
+{
+    public bool Masked { get; init; }
+
+    /// <summary>[S-3556] A masked field holds something (its box keeps it while it is drawn).</summary>
+    public bool HasValue { get; init; }
+
+    /// <summary>[S-3556] What a masked box built again starts with; null for nothing.</summary>
+    public Func<string>? Fill { get; init; }
+
+    /// <summary>[S-3556] [S-3557] Its submenu closed: what it held is wiped.</summary>
+    public Action? Wipe { get; init; }
+
+    /// <summary>A number (a port): the touch keyboard shows digits.</summary>
+    public bool Numeric { get; init; }
+}
 
 /// <summary>A switch: ticked while on; a click turns it the other way. <see cref="Value"/> at its end (a state Windows reports).</summary>
 public sealed record SettingsToggle(string Key, string Text, string? Glyph, bool On, Action<bool> Set) : SettingsLine(Key)
@@ -114,7 +151,14 @@ public sealed record SettingsOrder(int Index, int Count, Action<int, int> Move);
 /// the box's hint, the button's words, what the box starts with, why a typed text cannot be used
 /// (null when it can) and what is done with it.
 /// </summary>
-public sealed record SettingsAsk(string Key, string Text, string? Glyph, string Title, string Placeholder, string Accept, string Initial, Func<string, string?> Refuse, Action<string> Done) : SettingsLine(Key);
+public sealed record SettingsAsk(string Key, string Text, string? Glyph, string Title, string Placeholder, string Accept, string Initial, Func<string, string?> Refuse, Action<string> Done) : SettingsLine(Key)
+{
+    /// <summary>[S-3551] An empty box may be given (a nickname cleared back to the account's own name).</summary>
+    public bool AllowEmpty { get; init; }
+
+    /// <summary>What the line says at its end (a nickname).</summary>
+    public string? Value { get; init; }
+}
 
 /// <summary>
 /// [S-3542] An icon (one glyph, or none for the default): its submenu is the icon picker over every
@@ -178,6 +222,9 @@ public interface ISettingsMenuHost
     /// <summary>[S-1109] [S-1110] Speak <paramref name="language"/>: stored, and the whole app switches at once.</summary>
     void SetLanguage(AppLanguage language);
 
+    /// <summary>[S-3550] The accounts and what is done with them; null where there is no account service (a failed start).</summary>
+    IAccountsMenuHost? Accounts { get; }
+
     /// <summary>[S-3727] Ask beside the menu; only the answer runs it.</summary>
     void Confirm(SettingsConfirm confirm);
 
@@ -196,7 +243,7 @@ public interface ISettingsMenuHost
 /// </summary>
 public static partial class SettingsMenu
 {
-    /// <summary>[S-3524] The first level: General's lines; Appearance, Language &amp; region and Online updates; then the way out.</summary>
+    /// <summary>[S-3524] The first level: General's lines; Appearance, Accounts, Language &amp; region and Online updates; then the way out.</summary>
     public static IReadOnlyList<SettingsLine> Root(ISettingsMenuHost host)
     {
         ArgumentNullException.ThrowIfNull(host);
@@ -204,7 +251,7 @@ public static partial class SettingsMenu
         IReadOnlyList<SettingsLine>[] bands =
         [
             General(host),
-            [Appearance(host), Language(host), OnlineUpdates(host)],
+            [Appearance(host), Accounts(host), Language(host), OnlineUpdates(host)],
             Leave(host),
         ];
 
@@ -271,6 +318,8 @@ public static partial class SettingsMenu
         public const string GameMode = "gameMode";
         public const string Appearance = "appearance";
         public const string Language = "language";
+        public const string Accounts = "accounts";
+        public const string AddAccount = "accounts/add";
         public const string Online = "online";
         public const string AllSettings = "allSettings";
         public const string Quit = "quit";

@@ -815,7 +815,7 @@ Module sections live in `src/Widgets/*/SPEC.md` and `src/Providers/*/SPEC.md` ([
   kind first).
 - **[S-6904]** *(Retired 2026-10-19: `IWidgetModule.SettingsRows` and `WidgetSettingsRows` are gone
   with the widget pages. A widget's options are its module's `MenuLines` over a `WidgetMenuLines`
-  ([S-3719]), Settings › Accounts its one way to the settings window ([S-3745]); there is still no
+  ([S-3719]), ⚙ › Accounts the one place its accounts are added ([S-3745], [S-3558]); there is still no
   dispatch over config types.)*
 - **[S-6905]** What a widget's card offers is stated by its descriptor's `Traits`, in full (the
   member is required, so no widget takes another's by omission): `HasItems` ([S-6570], checked
@@ -849,7 +849,7 @@ Module sections live in `src/Widgets/*/SPEC.md` and `src/Providers/*/SPEC.md` ([
 
 - **[S-6910]** Providers are modules too (`IProviderModule`, `[assembly: ThemiaProvider(id, typeof(M))]`):
   each states its id, its name (`LocalText`), the features its accounts offer, how they sign in
-  (`AccountAuth`), its place in Settings › Accounts › Add account, and its own Updates row or none
+  (`AccountAuth`), its place in ⚙ › Accounts › Add account, and its own Updates row or none
   (its accounts follow the host's Accounts row, [S-3780]). The host installs them into
   `ProviderCatalog` with the widgets, checking each id against its attribute; every question about a
   provider is answered there. A widget's descriptor names the providers whose accounts it reads by id
@@ -883,7 +883,7 @@ Module sections live in `src/Widgets/*/SPEC.md` and `src/Providers/*/SPEC.md` ([
   module's `CreateView` is handed, never through the host's statics: the shared ticker and the UI
   thread's dispatcher, the one launcher (`IShellLauncher`: every target classified on the literal
   string, each link kind on its own allow list, never a command line), whether its card is a
-  preview ([S-1251]), Settings › Accounts (false where there is none, a debug render), and the
+  preview ([S-1251]), ⚙ › Accounts (false where there is none, a debug render), and the
   host's services a widget reads: the Recycle Bin (`IRecycleBin`: the one answer how full it is and
   Windows' own empty, [S-4863]) and what runs a power action (`IPowerBackend`: the machine's calls,
   inert on a preview, [S-1243], [S-1251]) and the quick settings (`IQuickToggles`: one
@@ -1049,7 +1049,7 @@ The shared parts a list widget is built from, and the rules they keep (design an
   as it is typed ([S-3721], [S-3729]). One Accounts submenu: "Every <kind> account" (on by default,
   accounts added later join), then a switch per signed-in account, its provider or problem at the
   end (turning Every off starts from every account there is; the last chosen one is greyed), then
-  Manage accounts, which opens Settings › Accounts ([S-3745]); with no account the widget's sentence
+  Manage accounts, which opens ⚙ › Accounts ([S-3745]); with no account the widget's sentence
   and Add an account. Every widget that chooses among accounts builds it with
   `KitMenuLines.Accounts` (directly, or through the SDK's `OfficeMenuLines`: mail, calendars,
   contacts, next meeting, week planner).
@@ -1059,7 +1059,7 @@ The shared parts a list widget is built from, and the rules they keep (design an
 - **[S-7064]** `KitHeader`: the header extras of every widget that shows a source's data, at the one
   icon size, leading to trailing: the problem glyph (only while a copy is on screen that the last
   attempt of some source could not improve on, its tooltip `KitFreshness`' lines, a click opening
-  Settings › Accounts where only the user can mend it), the busy ring (only while a fetch of its own
+  ⚙ › Accounts where only the user can mend it), the busy ring (only while a fetch of its own
   sources is out), the count badge. The age is never drawn in a header. With none of the three to
   show the header is collapsed: it takes no room and no spacing beside the widget's own trailing
   text (the exchange rates' day stays at the edge, `KitHeaderParts`).
@@ -1147,7 +1147,7 @@ service layer knows strategies, never services: a service is a descriptor that p
   instant, else a day, else the source's order), an item seen through two accounts once (the first
   account's copy), cut to the widget's count.
 - **[S-9910]** How a provider's accounts sign in is a closed set of members (`ServiceAuth`), listed
-  in the order the Accounts page offers them (`IProviderModule.SignIn`): the browser flow with PKCE
+  in the order ⚙ › Accounts offers them (`IProviderModule.SignIn`): the browser flow with PKCE
   and a loopback (`OAuthPkceLoopback`), the device code (`OAuthDeviceCode`), a pasted token
   (`PastedToken`), and none (`AnonymousAuth`, where public reads are allowed). Scopes are joined by
   a space or a comma as the provider wants. A provider the host adds through a password form (IMAP,
@@ -1184,7 +1184,7 @@ service layer knows strategies, never services: a service is a descriptor that p
   under `<provider>:<the id its identity named>`, with the kind of member that signed it in
   (`signIn` in `accounts.json`: `browser`, `deviceCode`, `pastedToken`; absent for a provider's only
   flow, a kind the provider does not offer dropped and logged). A pasted token never renews
-  (`AccountAuth.Token`): a 401 is "sign in again". The Accounts page lists every provider with
+  (`AccountAuth.Token`): a 401 is "sign in again". ⚙ › Accounts lists every provider with
   sign-in members in its Add menu, opens its first member's panel and links to the others under it;
   an account whose provider grants access per resource has a row to its grant page ("Choose what it
   may read"). The panels' words are English first (`sign-in` strings area).
@@ -1389,11 +1389,11 @@ edge too), the hover delay, the keys in the menu, and a pick starting the placem
 
 The app's settings move out of the settings window into the edit bar, as Karpo's did (`karpo-app`,
 `docs/widgets.md` §335–§341; user request 2026-10-25), one part at a time: General, Appearance,
-Language & region and the online update intervals are here; Accounts, Themia Pro, Back up & reset
-and About follow, and then the settings window goes. The Displays and Views pages are the bar's
+Accounts (SETTINGS-ACCOUNTS, [S-3550]), Language & region and the online update intervals are here;
+Themia Pro, Back up & reset and About follow, and then the settings window goes. The Displays and Views pages are the bar's
 Display and View menus (BAR-MENUS, [S-3540]). Owning files: Core `Settings/SettingsMenu.cs` (the lines' vocabulary, the
 first level) and one builder per section (`SettingsMenu.General.cs`, `.Appearance.cs`, `.Motion.cs`,
-`.Language.cs`, `.Online.cs`), `Geometry/DropDownPlacement.cs`; App `Shell/Menu/MenuPanel*.cs` (the one menu engine,
+`.Accounts.cs`, `.Language.cs`, `.Online.cs`), `Geometry/DropDownPlacement.cs`; App `Shell/Menu/MenuPanel*.cs` (the one menu engine,
 the properties menu's too), `Shell/Menu/BarMenuView.cs` (one of the bar's menus over Core's lines),
 `Shell/DesktopWindow.BarMenus.cs` (opening, closing and placing every one of the bar's menus, one
 mechanism), `Shell/DesktopWindow.SettingsMenu.cs`, `Services/AppHost.SettingsMenu.cs`. Tests `SettingsMenuTests`, `DropDownPlacementTests`.
@@ -1424,15 +1424,16 @@ mechanism), `Shell/DesktopWindow.SettingsMenu.cs`, `Services/AppHost.SettingsMen
   selection behind it (Delete, Cut, Copy, the arrows, Ctrl+A) but Undo and Redo, which undo what the
   menu changed, and F6.
 - **[S-3524]** Its first level, in bands with a divider between them: General's lines, inline
-  ([S-3525]); **Appearance ›** ([S-3526]), **Language & region ›** ([S-3536]) and **Online updates ›**
-  ([S-3530]); then **All settings…**
+  ([S-3525]); **Appearance ›** ([S-3526]), **Accounts ›** ([S-3550]), **Language & region ›**
+  ([S-3536]) and **Online updates ›** ([S-3530]); then **All settings…**
   ([S-3533]) and **Quit Themia** ([S-3532]). The sections stand in the agreed order (General,
   Appearance, Accounts, Language & region, Online updates, Themia Pro, Back up & reset, About, Quit
   Themia) as they move here; a section with no lines, and a band with none, is not there: nothing
   stands empty or greyed for what has not moved yet. The lines are Core's (`SettingsMenu.Root` over
   an `ISettingsMenuHost`: `SettingsToggle`, `SettingsChoice` of `SettingsRadio`s, `SettingsSlider`,
   `SettingsColour`, `SettingsFill`, `SettingsFont`, `SettingsSubmenu`, `SettingsCommand`,
-  `SettingsNote`; a choice may carry a box that finds its options, [S-3537]), each keyed by a path that is the same in every language
+  `SettingsNote`; a choice may carry a box that finds its options, [S-3537]; `SettingsReading`,
+  `SettingsField` and what a note says of a try, [S-3561]), each keyed by a path that is the same in every language
   (`appearance/cards/radius`); the app draws each as the engine's line of that kind.
 - **[S-3525]** **General**: **Start with Windows** ([S-933]; its glyph a speedometer, as Task Manager
   marks its Startup apps, never the power button Quit Themia wears; ticked while Windows will start Themia,
@@ -1478,8 +1479,8 @@ mechanism), `Shell/DesktopWindow.SettingsMenu.cs`, `Services/AppHost.SettingsMen
 - **[S-3532]** **Quit Themia** is the menu's last line ([S-67]): it quits on every display, as the
   bar's More › Exit did; the More button is gone.
 - **[S-3533]** *(Temporary: goes with the settings window.)* **All settings…**, right above Quit
-  Themia, opens the settings window on its first page (Accounts), for what has not moved yet
-  (Accounts, License, About).
+  Themia, opens the settings window on its first page (License), for what has not moved yet
+  (License, About).
 - **[S-3534]** The ways in: ⚙, and the surface menu's Settings ([S-1744]), which opens it on that
   display. `DesktopWindow.OpenSettingsMenu(path)` opens it at a level, by the lines' keys, as clicks
   would (`MenuPanel.OpenPath`, the path the Set up button takes too, [S-1862]); every bar menu opens
@@ -1508,7 +1509,7 @@ mechanism), `Shell/DesktopWindow.SettingsMenu.cs`, `Services/AppHost.SettingsMen
   submenus opened by key (`-appearance`, `-style`, `-theme`, `-accent`, `-background`, `-items`,
   `-cards`, `-border`, `-text`, `-font`, `-layout`, `-motion`, `-motion-startup`, `-online`,
   `-online-weather`, `-language`, `-language-display`, `-language-clock`), `-language-find` (the
-  languages' box holding "deu"), `-advice` (start with Windows switched off in Windows, game mode holding the
+  languages' box holding "deu"), ⚙ › Accounts' pictures ([S-3560]), `-advice` (start with Windows switched off in Windows, game mode holding the
   widgets, Windows' animations off) and `-replace` (a preset over a look of one's own: the question
   beside the menu, its `-popup0`), over a stand-in host that reaches neither Windows nor the user's
   state; `--only settings` draws these alone.
@@ -1610,6 +1611,115 @@ the menu; the icon picker's search typed into on the desktop surface; Rename and
 menu; New view past the free limit (the notice); a view chip's View settings; Show Themia on with a
 second display, switching this one off from its own menu and back on from the other's; a display
 plugged in while Display ▾ is open; a long list of views scrolling under the bar.
+
+### The edit bar's Accounts (SETTINGS-ACCOUNTS)
+
+The settings window's Accounts page moves into ⚙ (user request 2026-10-25, step 3 of the move of
+[S-3520]), after Karpo's ⚙ › Accounts (`karpo-app`, `docs/widgets.md` §338). Owning files: Core
+`Settings/SettingsMenu.Accounts.cs` (the lines), `Settings/AccountsMenu.cs` (`IAccountsMenuHost`,
+`AccountsMenuState`, `AccountStatus`), `Settings/AccountForm.cs` (the forms as drafts),
+`Accounts/AccountRules.ImapServerProblem`; App `Services/Accounts/AccountsMenuHost.cs` (the flows over
+the account service), `Shell/Menu/MenuPanel.Fields.cs` (the field lines, the masked one, notes
+written in place), `Shell/DesktopWindow.SettingsMenu.cs` (`RequestAccounts`). Tests
+`SettingsMenuTests` (`S355x_`, `S3561_`), `AccountFormTests`.
+
+- **[S-3550]** **Accounts ›** on ⚙'s first level, after Appearance: what the Accounts page said
+  first (why the accounts file could not be used, in the critical colour; "No accounts yet" while
+  there are none), then every account as a line of its own (its name, its provider's glyph, or the
+  warning glyph and **Sign in again** at its end while it needs a sign-in, [S-3552]), then under a
+  divider **Add account ›** ([S-3553]). The line itself says Sign in again while any account needs
+  it. Without an account service (a failed start) it says accounts are not available. The lines
+  are Core's (`SettingsMenu.Accounts` over an `IAccountsMenuHost`), keyed by the accounts' ids
+  (`accounts/account:<id>`), so a rename or a language switch keeps what is open open.
+- **[S-3551]** An account's submenu ([S-3821]'s group, moved): its address and provider; a
+  **reading** per kind its provider feeds, in the order mail, calendar, contacts, tasks
+  (`SyncStats.Summarize`): its name and count ("Mail · 1,240 messages") and under it "in 3 folders ·
+  synced 5 min. ago · 2 changes waiting to sync", or "Nothing stored on this PC yet"; where a service
+  grants access per resource, **Choose what it may read** ([S-9919]); **Nickname**, its value the
+  nickname, asked for beside the menu ([S-3721]) with the one there and the account's own name as the
+  hint, an empty box clearing it (`AccountService.RenameAsync`); and under a divider **Sign out** in the
+  critical colour, asked first as a destructive question ([S-3727]: "Sign out of Alex Wilber?", what
+  goes and that nothing changes at the provider, Sign out and Cancel). What a rename or a sign-out
+  could not do stands under its line in the critical colour. There are no switches for an account's
+  parts and no colours: the page had none, and nothing behind it turns a part off.
+- **[S-3552]** An account that needs signing in again ([S-3822], moved) says why under its address
+  (in the critical colour), then **Sign in again**: for a provider with a sign-in of its own the
+  sign-in that added it (the browser, a code), which replaces its sign-in in place, how it goes under
+  the line; for a mail, calendar or contacts server **Sign in again ›**, that server's form ([S-3554]).
+- **[S-3553]** **Add account ›**: every provider with a sign-in of its own in its place ([S-9910]:
+  Microsoft, Google), then under a divider the password servers' forms: **Mail server (IMAP) ›**,
+  **Calendar server (CalDAV) ›**, **Contacts server (CardDAV) ›**. A provider's line is its sign-in
+  ([S-1783]'s card, moved): a click starts it, the line greyed while it waits; under it what it is
+  doing with a ring ("Opening the browser…", "Waiting for the browser. Finish signing in there."; a
+  device code's code with **Copy code** and **Open the page**, [S-9919]) and **Cancel**; once back,
+  who it signed in ("Signed in to Microsoft as …") or why it did not, in the critical colour. A
+  provider this build cannot sign in to ([S-536]) is greyed, why under it. A provider that signs in
+  with a pasted token has a form of one masked field ([S-9915]); one with several ways has a submenu of
+  them. The browser opens only from a click; nothing is signed in from a widget.
+- **[S-3554]** The forms, a draft each (`AccountForm`, one per kind, the same wherever it is opened
+  from, kept while menus come and go): the mail server's **Email address**, **Password** (masked,
+  [S-3556]; under it "Some providers want an app password here" where Themia knows no provider for
+  the address), **Set the server myself** and, while it is on, **Server**, **Port** (empty for 993,
+  digits), **User name** ("Usually your address") and the note "IMAP over TLS", then **Nickname**
+  ("Optional"); over them, what Themia found for the address ([S-522]: "Gmail: …" and its advice).
+  Switched on, the server's fields start from what Themia knows for the address. A calendar or
+  contacts server's: **User name** ("Often your email address"), **Password**, **Set the server
+  myself** and **Server** with the page's words under it, **Nickname**. There is no security choice:
+  Themia speaks IMAP over TLS only (the classic app never spoke STARTTLS, see "Not ported"). A field
+  writes the form and never the state; nothing is saved until Add has proven the account.
+- **[S-3555]** **Test connection** and **Add**, under a divider: greyed while the form lacks
+  something, what it lacks over them in the page's words ("Enter the email address and its
+  password.", "Themia does not know the server for example.com. Set it yourself.", a host name, a port
+  from 1 to 65535, the server's web address); the mail server's rule is the service's
+  (`AccountRules.ImapServerProblem`, one check). A try greys every line of the form, "Checking…" with
+  a ring under the line tried; once back, how it went stands under that line: "Connected to
+  imap.example.com." (a test, nothing kept: `AccountService.TestImapAsync`, `TestDavAsync`), the
+  server's refusal in the critical colour, or the page's "Connected anna@example.com." (an add, through
+  the page's `AddImapAsync` / `AddDavAsync`, which prove before they save, [S-528], [S-517]); the menu
+  stays open and the new account is listed above. An add that worked empties the form and wipes its
+  password; an edit takes the last outcome away. The form's lines keep their place while it is typed
+  in and tried, so the box being typed in keeps the keyboard.
+- **[S-3556]** The masked field (`SettingsField.Masked`, drawn as Windows' `PasswordBox`): a bullet
+  for each letter, no copy or cut (paste works), no reveal button, the IME off while it has the
+  keyboard, and to UI Automation an edit named for its line that IsPassword and exposes no value. What
+  it holds is never in a line (`Value` null, `HasValue` only), a tooltip, a render's name or the log
+  ([S-983]); a box drawn again starts from what the form holds (`Fill`). The form keeps the password
+  as characters it wipes (`AccountForm.WipePassword`): as the form's submenu closes (`Wipe`), as an
+  add succeeds, and as the menu closes; .NET's strings cannot be wiped, so the typed words pass through
+  one on their way to the form and to the service, as they did on the page.
+- **[S-3557]** Closing ⚙ (the last one open on any display) gives up every sign-in and try still
+  out, as leaving the page did, and empties every form, its password wiped, every status gone
+  (`AccountsMenuHost.Closed`, `AccountsMenuState.Close`).
+- **[S-3558]** A widget's ways to its accounts open **⚙ › Accounts on its display**, entering edit
+  mode: its menu's Manage accounts and Add an account ([S-3745], [S-7063]), its card's "Open Accounts
+  settings" and its header's sign-in problem (`IWidgetHost.ShowAccounts`), and the Set up button of a
+  widget that lacks only an account ([S-1862]), which opens it at Add account while there is no
+  account (`DesktopWindow.RequestAccounts`). The widget's menu shares no add-account rows of its own:
+  one place adds and mends accounts, and the SDK is unchanged but for its words. Nothing opens the
+  settings window for an account.
+- **[S-3559]** While ⚙ is open it follows the accounts and their numbers (`AccountsChanged`,
+  `SyncHost.StatsChanged`) and every flow's progress, written into its lines in place ([S-3531]).
+- **[S-3560]** Debug renders (`--editbar-png`, with the settings menu's): `settings-<theme>-accounts`,
+  `-account`, `-account-again`, `-signout` (its `-popup0`), `-add`, `-signin`, `-imap`,
+  `-imap-filled`, `-imap-testing`, `-imap-failed`, `-caldav`, over a stand-in host with three made-up
+  accounts and their numbers; no sign-in, server or account file is reached, and the password drawn
+  is made up for the picture. `props-<theme>-email-accounts` is a mail widget's Accounts, whose Add an
+  account leads here (the renders' widget lines offer the way, as the desktop's do).
+- **[S-3561]** The vocabulary of [S-3524] grows what forms need, for every menu: `SettingsReading`
+  (words and a value, nothing to do), `SettingsField` (a line of text typed in the menu, its words
+  over the box, each letter handed on as it is typed, Enter moving on; `Numeric`, `Masked`), a note's
+  `Critical` (the critical colour) and `Busy` (a ring), a note without words taking no room, and a
+  `SettingsAsk` that may be given empty and says its value. The engine writes notes, fields and
+  whether a line is greyed in place (a danger line aside), so a level is not drawn again while it is
+  typed in; one drawn again gives the keyboard back to the field that had it.
+
+Needs a live pass: a real Microsoft and Google sign-in from Add account (the browser, its return,
+the new account listed), Cancel while it waits; Test connection and Add against a real IMAP server
+(an app password) and a CalDAV / CardDAV server; Sign in again for an account whose sign-in
+expired; Sign out; a rename; Narrator on the password field ("password", nothing read out of it), the
+IME off in it, copy and cut doing nothing; typing in every field without the keyboard leaving it; a
+widget's Manage accounts, "Open Accounts settings" and Set up opening ⚙ › Accounts on that display
+from outside edit mode; two displays with ⚙ open.
 
 ### The selected widget's properties strip (QUICKSET)
 
@@ -1861,9 +1971,9 @@ and the SDK's `Settings/ListDrop.cs` (tests `QuickSetTests`, `StripPlacementTest
   title box ([S-3704]) and a divider, then the header's positions (Top, Bottom, Left, Right, Hidden,
   each with its icon, the dot on the one that holds). Several get the positions only. A selection
   holding a kind that never has a header has no Header line ([S-3711]).
-- **[S-3745]** An account widget's lines open **Settings › Accounts** (`WidgetMenuLines.AccountsLine`:
-  Manage accounts, Add an account) through the host's `ShowAccounts`; the line changes and saves
-  nothing, and is greyed where the host has no settings window (a render). No account is ever signed
+- **[S-3745]** An account widget's lines open **⚙ › Accounts** on the widget's display ([S-3558];
+  `WidgetMenuLines.AccountsLine`: Manage accounts, Add an account) through the host's `ShowAccounts`;
+  the line changes and saves nothing, and is greyed where the host has no edit bar (a test). No account is ever signed
   in from a widget's menu.
 - **[S-3746]** A line may show what is **read asynchronously** (an account's calendars, its task
   lists: `MenuLoads`): the lines are built from what is held, a read is started (one per key at a
@@ -2192,7 +2302,7 @@ credentials in the address are refused ([U-03]).
 Themia's own accounts, the source of mail, calendar, contacts and tasks. Ported from the classic app's `widgets/office/email/src/lib.rs`
 (storage, DPAPI, the four OAuth flows, IMAP/DAV verification, retry) and its Email SPEC [S-45],
 [S-47], [S-51], [S-53]; code in `src/Themia.Core/Accounts/` (pure) and
-`src/Themia.App/Services/Accounts/` + `Shell/Config/AccountsPage.cs`.
+`src/Themia.App/Services/Accounts/`; what the user sees of them is ⚙ › Accounts (SETTINGS-ACCOUNTS).
 
 - **[S-500]** A closed set of providers, the provider modules compiled in ([S-6910]): Microsoft,
   Google, IMAP, CalDAV, CardDAV (`HostProviders`, declared in Core). A provider this build does not
@@ -2283,7 +2393,7 @@ Themia's own accounts, the source of mail, calendar, contacts and tasks. Ported 
   value checked by the build); without it, Google sign-in refuses before the browser opens and token
   refresh fails with the same sentence. Any provider whose browser member needs a secret behaves the
   same way.
-- **[S-539]** Settings → Accounts lists each account as a group ([S-3821]: provider icon, name, address
+- **[S-539]** *(Retired by [S-3550]..[S-3555]: the Accounts page is ⚙ › Accounts.)* Settings → Accounts listed each account as a group ([S-3821]: provider icon, name, address
   and provider, or that it needs signing in again), renames in a flyout, signs out after a confirmation, and adds through one flow at a time drawn in place:
   Microsoft and Google waiting on the browser ([S-1783]); forms for IMAP, CalDAV and CardDAV. Errors
   appear on the page; leaving it cancels a flow.
@@ -2291,18 +2401,18 @@ Themia's own accounts, the source of mail, calendar, contacts and tasks. Ported 
   saved (`SyncStats.Of`: mail messages over folders, calendar events over windows (birthdays aside),
   contacts, tasks over lists; the newest successful read; the queued changes), never by opening a
   file for it.
-- **[S-3821]** Each account is a group on the Accounts page: header name, then address and provider
+- **[S-3821]** *(Retired by [S-3551]: an account is a line whose submenu holds the same.)* Each account was a group on the Accounts page: header name, then address and provider
   (or "Needs you to sign in again"); inside, a row per kind its provider feeds, in the order mail,
   calendar, contacts, tasks (`SyncStats.Summarize`), with the count on the right and "in 3 folders ·
   synced 5 min. ago · 2 changes waiting to sync" under it, or "Nothing stored on this PC yet"; then
   Nickname (Rename) and Sign out (danger). Open groups stay open across the list's rebuilds.
-- **[S-3822]** An account that needs signing in starts its group with Sign in again (the problem as
+- **[S-3822]** *(Retired by [S-3552].)* An account that needs signing in started its group with Sign in again (the problem as
   the description): Microsoft and Google run the browser flow, IMAP and DAV open their form.
 - **[S-3823]** `SyncHost.Ledger` holds every shelf's latest numbers this run (`SyncLedger`, per owner
   and kind, thread-safe); `SyncHost.Report` raises `StatsChanged` on the UI thread when they change,
-  and the page rebuilds its list while on screen. A sign-out purges the shelves and forgets the numbers.
+  and ⚙ › Accounts follows them while it is open ([S-3559]). A sign-out purges the shelves and forgets the numbers.
   A kind whose service has not loaded its shelf this run (no widget reads it) shows nothing yet.
-- **[S-3824]** Debug render: `--settings-png Accounts --demo-accounts` draws two stand-in accounts
+- **[S-3824]** *(Retired by [S-3560]: the page and its render are gone.)* Debug render: `--settings-png Accounts --demo-accounts` drew two stand-in accounts
   (one healthy with numbers, one needing a sign-in) from the render host's own ledger, groups open.
 - **[S-1901]** No GitHub or Claude account and no OneDrive access: they went with the widgets that
   used them ([S-1902]), with the GitHub device-code and token sign-ins, Claude's paste-back sign-in
@@ -2325,7 +2435,7 @@ Themia's own accounts, the source of mail, calendar, contacts and tasks. Ported 
   `access_token`; `expires_in` is read as a number or numeric string; anything else fails with the
   provider's `error_description` cut to its first line (Microsoft appends trace ids), else its
   `error`, else the HTTP status. Microsoft and Google exchanges share it.
-- **[S-1783]** Settings → Accounts: Microsoft and Google share one browser card ("Your browser opens
+- **[S-1783]** *(Retired by [S-3553]: the card is the provider's line in Add account and what stands under it.)* Settings → Accounts: Microsoft and Google shared one browser card ("Your browser opens
   *provider*'s sign-in page…", a live status line, Cancel). There is no code to copy for Microsoft any
   more.
 - **[S-1784]** The loopback listens on 127.0.0.1 and, on the same port, on ::1, so a `localhost`
@@ -2740,7 +2850,7 @@ important mark). Tests: `TaskRulesTests`, `LocalTaskListsTests`, `TaskSyncTests`
   signed-in user shows tasks without a trip to settings; a *named* account that has gone is never
   swapped for another — the widget says so. Every non-list state names itself (no account, sign in
   again, account gone, no lists, loading, offline / provider error, no list on this PC) and the ones
-  Settings → Accounts can mend link there; a list on this PC needs no account at all.
+  ⚙ › Accounts can mend link there; a list on this PC needs no account at all.
 - **[S-591]** One `TaskService` per app (`AppServices.Tasks`). Widgets on the same account share its
   stored tasks and one sync ([S-2650]); a widget's own tick asks nothing. A sync never stacks on one
   still out (a forced one is remembered and runs after); failures back off through `Backoff` (a 429
@@ -2864,7 +2974,7 @@ hub. Pure rules in `Themia.Core/Office` (tested), one shared source in `Services
 - **[S-562]** An empty `accountIds` means every calendar account (later ones too — the Mail
   pattern); the menu offers "Every calendar account" or a choice where the last cannot be turned off.
   Chosen accounts that were signed out are skipped; when none are left the widget says so with a
-  link to Settings › Accounts.
+  link to ⚙ › Accounts.
 - **[S-563]** Every value is read leniently: a wrong type or unknown name becomes the default
   instead of refusing the state. *(The hearth-era config fold-in that shared this tag is retired,
   [S-1050].)*
@@ -2959,7 +3069,7 @@ S-584's size rules are refined by [S-1270] and [S-1275]; a month fetches and dra
 holding its days ([S-1264]).)*
 
 Not ported: the per-widget header hide (the card owns the header), the reauth button that signed
-accounts out (the Accounts page is where sign-in is mended), the birthday-permission toast (there
+accounts out (⚙ › Accounts is where sign-in is mended), the birthday-permission toast (there
 is no toast pipeline yet; the header warning stays and opens Accounts), and birthdays from CardDAV
 (the classic app had none either). Keyboard navigation goes through the shell's keyboard lease: see
 [S-1269] / [S-1277] and [S-806] / [S-807].
@@ -3471,8 +3581,8 @@ The settings window is drawn as Windows 11's Settings app (S-1540..S-1559). Owni
 - **[S-1721]** What a page shows (`SettingsPageSync.Signature`): the design and the preferences.
   Never where widgets sit, so a drag on the desktop rebuilds nothing. Changes
   that do not raise `StateChanged` (`Mutate(relayout: false)`) are not followed.
-- **[S-1722]** The app pages: Accounts in the main slot ([S-1830]); Language & region is the
-  settings menu's ([S-3536]);
+- **[S-1722]** The app pages: none in the main slot ([S-1830]): Accounts and Language & region are
+  the settings menu's ([S-3550], [S-3536]);
   License and About in the footer. General, Appearance and Widgets are not pages any more: they are
   the edit bar's settings menu ([S-3524]); Displays and Views are its Display and View menus ([S-3540]). No Layout, Data or Developer page.
 - **[S-1723]** Every font setting picks through one picker, `FontPicker`: the settings menu's Font
@@ -5593,10 +5703,9 @@ Settings does (System, Bluetooth, Personalization, Accounts...). Code: `Shell/Co
 
 - **[S-1600]** The icons are Microsoft's Fluent UI System Icons "Color" set (the family Windows uses),
   bundled unmodified as SVG in `src/Themia.App/Assets/NavIcons/` (content files, no package). One
-  per entry, echoing the Windows Settings equivalent where there is one: Accounts = Accounts' person (`person`),
-  About = `question_circle` (the set has no
+  per entry, echoing the Windows Settings equivalent where there is one: About = `question_circle` (the set has no
   info icon). (Views' `content_view` and Displays' `laptop` went with their pages, [S-3546];
-  Language & region's `globe` with its page, [S-3536].) A new app page names its icon in its `AppPages` line.
+  Language & region's `globe` and Accounts' `person` with their pages, [S-3536], [S-3550].) A new app page names its icon in its `AppPages` line.
 - **[S-1601]** Each icon is drawn by `SvgImageSource` in a 20-DIP icon box (NavigationView's default
   16 is sized for font glyphs; the colour icons carry their own padding and read too small there),
   from the icon's 20-DIP design, rasterised at exactly the pixels the box covers on the window's
@@ -6467,8 +6576,8 @@ every display's and every view's settings are the edit bar's Display and View me
   view's line follows in place.
 - **[S-1708]** *(Retired by [S-3544]: Views on the bar is a submenu of switches.)*
 - **[S-1709]** *(Retired by [S-3543]: Display ▾'s heading names the display and its resolution.)*
-- **[S-1830]** The navigation pane lists pages only: Accounts (Language & region is the settings
-  menu's, [S-3536]), and
+- **[S-1830]** The navigation pane lists pages only: License and About (Accounts and Language &
+  region are the settings menu's, [S-3550], [S-3536]), and
   License and About at the foot (General, Appearance and Widgets are the settings menu's, [S-3524];
   Displays and Views the bar's Display and View menus, [S-3540]). No entry per account or widget, so
   no entry menus and no dragging in the pane.
@@ -7081,7 +7190,7 @@ gallery ([S-1863]).
   no focus, so it works outside edit mode on the `WS_EX_NOACTIVATE` surface. A click goes where what
   the widget waits for is set (`WidgetSetup.Goes`): where an **account** is all it lacks (it would be
   set up with every feature the installed providers offer: Mail, Calendar, Contacts, Next meeting, the
-  week planner, Tasks from an account), **Settings › Accounts**, opening the window if it is closed,
+  week planner, Tasks from an account), **⚙ › Accounts** on that display, edit mode entered ([S-3558]),
   since an account is added there and never from a widget's menu ([S-3745]); otherwise **edit mode**
   is entered, the widget is selected alone and its **properties menu** ([S-3716]) opens at the line
   its module names for it (`WidgetMenuLines.SetsUp`, one per widget), through the submenus on the
@@ -7104,7 +7213,7 @@ gallery ([S-1863]).
 
 Needs a manual pass: the button on the live desktop outside edit mode (an option widget: edit mode
 on, the widget selected, its menu open at the line beside it, a search's box taking typing; an
-account widget: Settings › Accounts from a closed and from an open window), and the button going
+account widget: ⚙ › Accounts on that display, at Add account with no account), and the button going
 away when an account is added.
 
 ## Opening a widget's app (R7-OPEN, retired)

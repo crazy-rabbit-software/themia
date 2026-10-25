@@ -152,7 +152,6 @@
   "connect.field.port": "Port",
   "connect.field.nickname": "Nama panggilan",
   "connect.field.name": "Nama",
-  "connect.connect": "Hubungkan",
   "mixer.mute": "Bisukan",
   "mixer.unmute": "Bunyikan",
   "mixer.reset": "Atur ulang ke {percent}",

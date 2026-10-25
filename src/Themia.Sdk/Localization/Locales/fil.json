@@ -152,7 +152,6 @@
   "connect.field.port": "Port",
   "connect.field.nickname": "Palayaw",
   "connect.field.name": "Pangalan",
-  "connect.connect": "Kumonekta",
   "mixer.mute": "I-mute",
   "mixer.unmute": "I-unmute",
   "mixer.reset": "I-reset sa {percent}",

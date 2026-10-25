@@ -14,7 +14,7 @@ public interface IProviderModule
     /// <summary>Its id ([S-6900]): the name an account of it is written under in <c>accounts.json</c> ([S-501]).</summary>
     ProviderId Id { get; }
 
-    /// <summary>What the Accounts page and an account's subtitle call it.</summary>
+    /// <summary>What ⚙ › Accounts and an account's subtitle call it.</summary>
     LocalText Label { get; }
 
     /// <summary>[S-502] What its accounts can feed a widget.</summary>
@@ -23,7 +23,7 @@ public interface IProviderModule
     /// <summary>How its accounts prove themselves on every request.</summary>
     AccountAuth Auth { get; }
 
-    /// <summary>Its place in Settings › Accounts › Add account (lower first).</summary>
+    /// <summary>Its place in ⚙ › Accounts › Add account (lower first).</summary>
     int AddRank { get; }
 
     /// <summary>
@@ -33,7 +33,7 @@ public interface IProviderModule
     CadenceRow? Cadence { get; }
 
     /// <summary>
-    /// [S-9910] How its accounts sign in, in the order the Accounts page offers them: the members of
+    /// [S-9910] How its accounts sign in, in the order ⚙ › Accounts offers them: the members of
     /// the closed set the host runs (<c>ServiceSignIn</c>). None for a provider whose accounts the host
     /// adds through a password form (IMAP, CalDAV, CardDAV).
     /// </summary>

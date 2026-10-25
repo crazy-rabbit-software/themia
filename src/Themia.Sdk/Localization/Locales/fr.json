@@ -151,7 +151,6 @@
   "connect.field.port": "Port",
   "connect.field.nickname": "Surnom",
   "connect.field.name": "Nom",
-  "connect.connect": "Connecter",
   "mixer.mute": "Couper le son",
   "mixer.unmute": "Rétablir le son",
   "mixer.reset": "Réinitialiser à {percent}",

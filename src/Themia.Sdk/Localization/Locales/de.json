@@ -151,7 +151,6 @@
   "connect.field.port": "Port",
   "connect.field.nickname": "Kurzname",
   "connect.field.name": "Name",
-  "connect.connect": "Verbinden",
   "mixer.mute": "Stummschalten",
   "mixer.unmute": "Stummschaltung aufheben",
   "mixer.reset": "Auf {percent} zurücksetzen",

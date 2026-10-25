@@ -121,7 +121,10 @@ internal sealed partial class AppHost : IDisposable
         // [S-588] [S-2630] One calendar and contacts source for every widget, synced through the store.
         _office = new Office.AccountOfficeSource(Accounts, Sync, Ticker);
         Office.OfficeSources.Current = _office;
-        AppServices.ShowAccounts = () => ShowConfig(new ConfigTarget.App(AppPage.Accounts));
+
+        // [S-3550] ⚙ › Accounts on every display reads one set of forms and flows.
+        AccountsMenu = new Themia.App.Services.Accounts.AccountsMenuHost(dispatcher);
+        AccountsMenu.Changed += () => SettingsOutdated?.Invoke();
         AppServices.EditAppLayout = ShowLayoutEditor;
 
         // [S-591] One task service for every widget. The task lists kept on this PC live beside the
@@ -397,7 +400,7 @@ internal sealed partial class AppHost : IDisposable
         DesktopZOrder.Stop();
         Clipboard.Clear();
         AppServices.Mail = null;
-        AppServices.ShowAccounts = null;
+        AccountsMenu.Dispose();
         AppServices.EditAppLayout = null;
         CloseLayoutEditor();
         _mail.Dispose();

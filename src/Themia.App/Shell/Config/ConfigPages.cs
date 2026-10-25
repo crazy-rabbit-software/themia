@@ -30,14 +30,12 @@ internal static partial class ConfigPages
     /// be opened, once it has a line here: adding one is this line plus its own
     /// <c>ConfigPages.&lt;Page&gt;.cs</c>, so packages building different pages never edit the same
     /// switch. About stays the last footer entry ([S-493]). General, Appearance and the online
-    /// update intervals and Language &amp; region are not pages any more: they are the edit bar's
-    /// settings menu ([S-3524], [S-3536]);
+    /// update intervals, Accounts and Language &amp; region are not pages any more: they are the edit
+    /// bar's settings menu ([S-3524], [S-3550], [S-3536]);
     /// Displays and Views are its Display and View menus ([S-3540]).
     /// </summary>
     public static IReadOnlyList<AppPageEntry> AppPages { get; } =
     [
-        new(AppPage.Accounts, Str.Shell_Settings_Nav_Accounts, Glyphs.Contact, NavIcon.Person, AppPageSlot.Main, _ => AccountsPage.Build()),
-
         new(AppPage.License, Str.Settings_Nav_License, Glyphs.Certificate, NavIcon.Premium, AppPageSlot.Footer, c => BuildLicense(c.Host)),
         new(AppPage.About, Str.Settings_Section_About, Glyphs.Info, NavIcon.QuestionCircle, AppPageSlot.Footer, c => BuildAbout(c.Host)),
     ];

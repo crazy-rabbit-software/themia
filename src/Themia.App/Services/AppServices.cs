@@ -81,12 +81,6 @@ internal static class AppServices
     public static Mail.IMailSource? Mail { get; internal set; }
 
     /// <summary>
-    /// Open Settings on the Accounts page, for a widget whose empty state is "sign in". Null where
-    /// there is no settings window to open (a debug render).
-    /// </summary>
-    public static Action? ShowAccounts { get; internal set; }
-
-    /// <summary>
     /// [S-1411] Open the app-layout editor on the Shortcuts item with this id (item ids are unique
     /// across widgets). Null where there is no host (a debug render).
     /// </summary>

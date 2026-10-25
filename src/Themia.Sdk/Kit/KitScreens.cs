@@ -61,7 +61,7 @@ public sealed record KitOutcome(
     DateTimeOffset? RetryAt = null);
 
 /// <summary>[S-7040] The decision: which screen, its sentence, and the problems a list carries in its header.</summary>
-/// <param name="OffersAccounts">The state carries a way to Settings › Accounts.</param>
+/// <param name="OffersAccounts">The state carries a way to ⚙ › Accounts.</param>
 /// <param name="HeaderProblems">For a list: one line per source that failed ("World News: HTTP 404 Not Found").</param>
 public sealed record KitScreen(KitScreenKind Kind, string Sentence, bool OffersAccounts, IReadOnlyList<string> HeaderProblems)
 {

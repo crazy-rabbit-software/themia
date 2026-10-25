@@ -1,0 +1,10 @@
+{
+  "settingsAccounts.ownServer": "تعيين الخادم بنفسي",
+  "settingsAccounts.test": "اختبار الاتصال",
+  "settingsAccounts.connectedTo": "تم الاتصال بـ {host}.",
+  "settingsAccounts.noServer": "لا يعرف Themia خادم {domain}. عيّنه بنفسك.",
+  "settingsAccounts.davAddress": "أدخل عنوان الويب للخادم، مثل https://cloud.example.com.",
+  "settingsAccounts.code": "الرمز",
+  "settingsAccounts.pasteToken": "الصق الرمز المميز أولاً.",
+  "settingsAccounts.enterAddress": "أدخل عنوان البريد الإلكتروني وكلمة مروره."
+}

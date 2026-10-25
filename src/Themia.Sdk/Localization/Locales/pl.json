@@ -151,7 +151,6 @@
   "connect.field.port": "Port",
   "connect.field.nickname": "Nazwa własna",
   "connect.field.name": "Nazwa",
-  "connect.connect": "Połącz",
   "mixer.mute": "Wycisz",
   "mixer.unmute": "Wyłącz wyciszenie",
   "mixer.reset": "Przywróć {percent}",

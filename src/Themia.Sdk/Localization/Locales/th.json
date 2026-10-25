@@ -152,7 +152,6 @@
   "connect.field.port": "พอร์ต",
   "connect.field.nickname": "ชื่อเล่น",
   "connect.field.name": "ชื่อ",
-  "connect.connect": "เชื่อมต่อ",
   "mixer.mute": "ปิดเสียง",
   "mixer.unmute": "เปิดเสียง",
   "mixer.reset": "รีเซ็ตเป็น {percent}",

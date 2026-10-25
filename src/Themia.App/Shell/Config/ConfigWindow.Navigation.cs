@@ -3,7 +3,7 @@ using Microsoft.UI.Xaml.Controls;
 namespace Themia.App.Shell.Config;
 
 /// <summary>
-/// The navigation pane: the app pages — Accounts — and License and About at the
+/// The navigation pane: the app pages, License and About, at the
 /// foot. [S-1830] One entry per page, never one per account or widget. [S-3834] No heading over the
 /// entries: the title bar already names the app, as Windows Settings' pane names nothing.
 /// </summary>

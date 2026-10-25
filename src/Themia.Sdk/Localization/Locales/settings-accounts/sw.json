@@ -1,0 +1,10 @@
+{
+  "settingsAccounts.ownServer": "Weka seva mwenyewe",
+  "settingsAccounts.test": "Jaribu muunganisho",
+  "settingsAccounts.connectedTo": "Imeunganishwa na {host}.",
+  "settingsAccounts.noServer": "Themia haijui seva ya {domain}. Iweke mwenyewe.",
+  "settingsAccounts.davAddress": "Weka anwani ya wavuti ya seva, kama https://cloud.example.com.",
+  "settingsAccounts.code": "Msimbo",
+  "settingsAccounts.pasteToken": "Bandika tokeni kwanza.",
+  "settingsAccounts.enterAddress": "Weka anwani ya barua pepe na nenosiri lake."
+}

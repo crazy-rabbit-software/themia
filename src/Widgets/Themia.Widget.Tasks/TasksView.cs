@@ -28,7 +28,7 @@ namespace Themia.App.Widgets;
 /// <para>
 /// Every state that is not a list says which it is and what to do about it ([S-181]): no account,
 /// an account that needs signing in again, an account gone, no lists, loading, offline, and a
-/// provider error each have their own sentence, and the ones the Accounts page can mend link to it.
+/// provider error each have their own sentence, and the ones ⚙ › Accounts can mend link to it.
 /// A list on this PC needs no account at all.
 /// </para>
 /// </summary>
@@ -87,7 +87,7 @@ internal sealed partial class TasksView : Grid, IWidgetView, IWidgetHeaderConten
     /// <summary>[S-789] List names by id, for the Today view's rows on a panel. Read from the service's cache.</summary>
     private IReadOnlyDictionary<string, string> _listNames = new Dictionary<string, string>();
 
-    /// <summary>[S-6913] What the view asks of the host: the launcher, the Accounts page.</summary>
+    /// <summary>[S-6913] What the view asks of the host: the launcher, ⚙ › Accounts.</summary>
     private readonly IWidgetHost _widgetHost;
 
     public TasksView(IWidgetHost host)

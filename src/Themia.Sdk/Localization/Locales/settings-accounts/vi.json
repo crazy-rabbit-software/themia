@@ -1,0 +1,10 @@
+{
+  "settingsAccounts.ownServer": "Tự đặt máy chủ",
+  "settingsAccounts.test": "Kiểm tra kết nối",
+  "settingsAccounts.connectedTo": "Đã kết nối với {host}.",
+  "settingsAccounts.noServer": "Themia không biết máy chủ của {domain}. Hãy tự đặt.",
+  "settingsAccounts.davAddress": "Nhập địa chỉ web của máy chủ, ví dụ https://cloud.example.com.",
+  "settingsAccounts.code": "Mã",
+  "settingsAccounts.pasteToken": "Hãy dán mã thông báo trước.",
+  "settingsAccounts.enterAddress": "Nhập địa chỉ email và mật khẩu của nó."
+}

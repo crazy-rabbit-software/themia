@@ -185,7 +185,7 @@ public sealed record TokenShape(int MinLength, int MaxLength, string Alphabet, I
 /// </summary>
 public sealed record IdentityEndpoint(Uri Url, string IdField, IReadOnlyList<string> AddressFields, string NameField, string IdPrefix = "");
 
-/// <summary>[S-9910] The sign-in members a provider offers, in the order the Accounts page shows them.</summary>
+/// <summary>[S-9910] The sign-in members a provider offers, in the order ⚙ › Accounts shows them.</summary>
 public sealed record ProviderSignIn(IReadOnlyList<ServiceAuth> Members)
 {
     /// <summary>A provider the host signs in itself (a password form) or none at all.</summary>

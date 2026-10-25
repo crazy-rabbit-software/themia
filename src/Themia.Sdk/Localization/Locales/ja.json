@@ -151,7 +151,6 @@
   "connect.field.port": "ポート",
   "connect.field.nickname": "呼び名",
   "connect.field.name": "名前",
-  "connect.connect": "接続",
   "mixer.mute": "ミュート",
   "mixer.unmute": "ミュート解除",
   "mixer.reset": "{percent} に戻す",

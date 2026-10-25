@@ -652,7 +652,7 @@ internal sealed class MailService : IMailSource, IDisposable
 
                 box._pending = shelf.Pending;
 
-                // [S-3823] What is stored, for the Accounts page.
+                // [S-3823] What is stored, for ⚙ › Accounts.
                 owner._sync.Report(account.Id, SyncStats.Of(shelf));
             }
 

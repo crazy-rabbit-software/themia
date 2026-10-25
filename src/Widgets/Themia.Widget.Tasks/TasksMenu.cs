@@ -20,7 +20,7 @@ namespace Themia.Widget.Tasks;
 /// deleted here); then, each group after a divider, what each task shows and which tasks the list
 /// keeps ([S-611], [S-7516]). It has no settings page.
 /// <para>
-/// Accounts are signed in on the Accounts page, not here: the menu lists the accounts that can hold
+/// Accounts are signed in from ⚙ › Accounts, not here: the menu lists the accounts that can hold
 /// tasks and opens that page. Lists on this PC, by contrast, are made, renamed and deleted right
 /// here, because the widget is the only place they exist.
 /// </para>
@@ -95,7 +95,7 @@ internal static class TasksMenu
     /// <summary>
     /// [S-7516] Show tasks from: the first account with tasks (now or later), each account (a chosen one
     /// since signed out stays listed by its id, never swapped, [S-590]), or this PC; then the line that
-    /// opens Settings › Accounts ([S-3745]). Another account starts from its default list and order.
+    /// opens ⚙ › Accounts ([S-3745]). Another account starts from its default list and order.
     /// </summary>
     private static ItemMenuEntry Source(WidgetMenuLines menu, TasksConfig config, ITaskSource service)
     {

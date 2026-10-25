@@ -17,6 +17,9 @@ internal sealed partial class AppHost
 
     private int _iconWatchers;
 
+    /// <summary>[S-3550] What ⚙ › Accounts reads and does, the same on every display.</summary>
+    public Themia.App.Services.Accounts.AccountsMenuHost AccountsMenu { get; }
+
     /// <summary>[S-935] What Windows said of start with Windows when it was last read or changed; null until then.</summary>
     public AutostartStatus? StartupStatus { get; private set; }
 

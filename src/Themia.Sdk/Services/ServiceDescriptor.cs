@@ -28,7 +28,7 @@ public sealed record ServiceDescriptor
     /// <summary>Whether an account may name its own root (an Enterprise server).</summary>
     public ApiRootRule Root { get; init; } = ApiRootRule.Fixed;
 
-    /// <summary>The sign-in members, in the order the Accounts page offers them.</summary>
+    /// <summary>The sign-in members, in the order ⚙ › Accounts offers them.</summary>
     public required ProviderSignIn SignIn { get; init; }
 
     /// <summary>[S-9916] Who a token belongs to: run after every sign-in and on a pasted token before it is kept.</summary>

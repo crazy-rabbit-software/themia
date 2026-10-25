@@ -1,0 +1,10 @@
+{
+  "settingsAccounts.ownServer": "서버 직접 설정",
+  "settingsAccounts.test": "연결 테스트",
+  "settingsAccounts.connectedTo": "{host}에 연결되었습니다.",
+  "settingsAccounts.noServer": "Themia가 {domain}의 서버를 알지 못합니다. 직접 설정하세요.",
+  "settingsAccounts.davAddress": "서버의 웹 주소를 입력하세요(예: https://cloud.example.com).",
+  "settingsAccounts.code": "코드",
+  "settingsAccounts.pasteToken": "먼저 토큰을 붙여 넣으세요.",
+  "settingsAccounts.enterAddress": "이메일 주소와 암호를 입력하세요."
+}

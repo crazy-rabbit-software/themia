@@ -152,7 +152,6 @@
   "connect.field.port": "Cổng",
   "connect.field.nickname": "Biệt danh",
   "connect.field.name": "Tên",
-  "connect.connect": "Kết nối",
   "mixer.mute": "Tắt tiếng",
   "mixer.unmute": "Bật tiếng",
   "mixer.reset": "Đặt lại về {percent}",

@@ -151,7 +151,6 @@
   "connect.field.port": "端口",
   "connect.field.nickname": "昵称",
   "connect.field.name": "名称",
-  "connect.connect": "连接",
   "mixer.mute": "静音",
   "mixer.unmute": "取消静音",
   "mixer.reset": "重置为 {percent}",

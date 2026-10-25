@@ -270,8 +270,8 @@ internal sealed partial class DesktopWindow : IWidgetCardHost
     }
 
     /// <summary>
-    /// [S-1862] Set up goes where the missing piece is set: Settings › Accounts when an account is all
-    /// the widget lacks; otherwise edit mode, the widget selected alone and its properties menu opened
+    /// [S-1862] Set up goes where the missing piece is set: ⚙ › Accounts when an account is all
+    /// the widget lacks ([S-3558]); otherwise edit mode, the widget selected alone and its properties menu opened
     /// at the line its module names (<see cref="PropertiesStrip.OpenSetup"/>), or the menu as it
     /// stands where it names none.
     /// </summary>
@@ -282,7 +282,7 @@ internal sealed partial class DesktopWindow : IWidgetCardHost
         var offerable = WidgetSetup.Offered(Themia.Sdk.ProviderCatalog.All.Select(p => p.Id));
         if (WidgetSetup.Goes(card.Model.Config, signedIn, offerable) == SetupGoes.Accounts)
         {
-            _host.ShowConfig(new ConfigTarget.App(AppPage.Accounts));
+            RequestAccounts();
             return;
         }
 

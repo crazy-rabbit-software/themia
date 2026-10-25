@@ -33,7 +33,7 @@ public static class WidgetSetup
     }
 
     /// <summary>
-    /// [S-1862] Where the Set up button goes: Settings › Accounts when an account is all the widget
+    /// [S-1862] Where the Set up button goes: ⚙ › Accounts when an account is all the widget
     /// lacks (it would be set up with every feature <paramref name="offerable"/> signed in, so adding
     /// an account is the step), else the widget's properties menu in edit mode, where its options are
     /// (an account widget that lacks something else too, a feed address say, goes there: its menu has
@@ -71,6 +71,6 @@ public enum SetupGoes
     /// <summary>Edit mode, the widget selected alone, its properties menu open at the line its module names.</summary>
     Menu,
 
-    /// <summary>Settings › Accounts: an account is all the widget lacks.</summary>
+    /// <summary>⚙ › Accounts: an account is all the widget lacks.</summary>
     Accounts,
 }

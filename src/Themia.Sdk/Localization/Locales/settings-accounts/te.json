@@ -1,0 +1,10 @@
+{
+  "settingsAccounts.ownServer": "సర్వర్‌ను నేనే సెట్ చేస్తాను",
+  "settingsAccounts.test": "కనెక్షన్‌ను పరీక్షించండి",
+  "settingsAccounts.connectedTo": "{host}కి కనెక్ట్ అయింది.",
+  "settingsAccounts.noServer": "{domain} సర్వర్ Themiaకి తెలియదు. దాన్ని మీరే సెట్ చేయండి.",
+  "settingsAccounts.davAddress": "సర్వర్ వెబ్ చిరునామాను నమోదు చేయండి, ఉదా. https://cloud.example.com.",
+  "settingsAccounts.code": "కోడ్",
+  "settingsAccounts.pasteToken": "ముందుగా టోకెన్‌ను పేస్ట్ చేయండి.",
+  "settingsAccounts.enterAddress": "ఇమెయిల్ చిరునామా మరియు దాని పాస్‌వర్డ్‌ను నమోదు చేయండి."
+}

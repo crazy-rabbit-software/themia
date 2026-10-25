@@ -152,7 +152,6 @@
   "connect.field.port": "Bağlantı noktası",
   "connect.field.nickname": "Takma ad",
   "connect.field.name": "Ad",
-  "connect.connect": "Bağlan",
   "mixer.mute": "Sesi kapat",
   "mixer.unmute": "Sesi aç",
   "mixer.reset": "{percent}'e sıfırla",

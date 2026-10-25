@@ -1,0 +1,10 @@
+{
+  "settingsAccounts.ownServer": "ตั้งค่าเซิร์ฟเวอร์เอง",
+  "settingsAccounts.test": "ทดสอบการเชื่อมต่อ",
+  "settingsAccounts.connectedTo": "เชื่อมต่อกับ {host} แล้ว",
+  "settingsAccounts.noServer": "Themia ไม่รู้จักเซิร์ฟเวอร์ของ {domain} โปรดตั้งค่าเอง",
+  "settingsAccounts.davAddress": "ป้อนที่อยู่เว็บของเซิร์ฟเวอร์ เช่น https://cloud.example.com",
+  "settingsAccounts.code": "รหัส",
+  "settingsAccounts.pasteToken": "วางโทเค็นก่อน",
+  "settingsAccounts.enterAddress": "ป้อนที่อยู่อีเมลและรหัสผ่าน"
+}

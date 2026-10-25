@@ -78,6 +78,9 @@ internal static partial class EditBarRender
         custom.State.Design.PrimaryColor = "#3A6EA5";
         ConfirmFlyout.RenderInWindow = true;
         await SettingsShot(screen, System.IO.Path.Combine(outDir, $"settings-{theme}-replace.png"), custom, [a, a + "/style", a + "/style/" + DesignPresets.All[1].Id]).ConfigureAwait(true);
+
+        // [S-3560] ⚙ › Accounts over stand-in accounts.
+        await AccountsShots(screen, outDir, theme).ConfigureAwait(true);
     }
 
     private static Task SettingsShot(Grid screen, string path, RenderSettingsHost host, string[] open, Action<BarMenuView>? then = null)
@@ -86,7 +89,25 @@ internal static partial class EditBarRender
     /// <summary>A stand-in for the settings menu's host: a state of its own, Windows' side made up, every change drawn at once.</summary>
     private sealed class RenderSettingsHost : ISettingsMenuHost
     {
+        private readonly IAccountsMenuHost? _accounts;
+
+        public RenderSettingsHost() => Accounts = new RenderAccountsHost();
+
         public BarMenuView? Menu { get; set; }
+
+        /// <summary>[S-3560] Stand-in accounts; what is typed or tried is drawn at once.</summary>
+        public IAccountsMenuHost? Accounts
+        {
+            get => _accounts;
+            init
+            {
+                _accounts = value;
+                if (value is { } accounts)
+                {
+                    accounts.Menu.Changed += () => Menu?.Show();
+                }
+            }
+        }
 
         public AppState State { get; } = AppState.CreateDefault();
 

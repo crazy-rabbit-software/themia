@@ -1,0 +1,10 @@
+{
+  "settingsAccounts.ownServer": "Ako na ang magtatakda ng server",
+  "settingsAccounts.test": "Subukan ang koneksyon",
+  "settingsAccounts.connectedTo": "Nakakonekta sa {host}.",
+  "settingsAccounts.noServer": "Hindi alam ng Themia ang server para sa {domain}. Ikaw na ang magtakda nito.",
+  "settingsAccounts.davAddress": "Ilagay ang web address ng server, gaya ng https://cloud.example.com.",
+  "settingsAccounts.code": "Code",
+  "settingsAccounts.pasteToken": "I-paste muna ang token.",
+  "settingsAccounts.enterAddress": "Ilagay ang email address at ang password nito."
+}
