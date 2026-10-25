@@ -19,7 +19,7 @@ namespace Themia.App.Shell.Gallery;
 /// <summary>
 /// [S-1917] Debug only: draw one widget, in a real <see cref="WidgetCard"/> on a preview host, to a
 /// PNG, off-screen. <c>Themia.exe --widget-png &lt;Kind&gt; &lt;out.png&gt; [w h] [--theme light|dark]
-/// [--state name] [--progress 0..1] [--span s] [--style name] [--scale f] [--header top|bottom|left|right|hidden] [--align left|center|right] [--background fill] [--own-items fill] [--own-item-text #RRGGBB]</c> ([S-6006]: any styled kind, in one of its styles). Without a size the card is drawn at every tier of <see cref="WidgetTiers"/>
+/// [--state name] [--progress 0..1] [--span s] [--style name] [--scale f] [--header top|bottom|left|right|hidden] [--align left|center|right] [--background fill] [--own-items fill] [--own-item-text #RRGGBB] [--transparent]</c> ([S-6006]: any styled kind, in one of its styles). Without a size the card is drawn at every tier of <see cref="WidgetTiers"/>
 /// (XS S M Wide Tall L XL), labelled, on one page; with one, once at that size. The widget has its
 /// kind's default config and header; the host is a preview, so nothing it does reaches the machine.
 /// <c>--reference</c> adds, beside the first card, a stock WinUI card at the same size (a Border with
@@ -180,11 +180,15 @@ internal static class WidgetRender
                 {
                     width += tiers[0].Width + Gap;
                 }
+                // [S-1917] --transparent: the page draws nothing, so the PNG keeps the cards' own alpha
+                // (a transparent card, the corners) for compositing a render onto a picture.
                 var page = new Canvas
                 {
                     Width = width,
                     Height = height,
-                    Background = DesignApplier.Brush("SolidBackgroundFillColorSecondaryBrush", Colors.DimGray),
+                    Background = Array.IndexOf(args, "--transparent") >= 0
+                        ? null
+                        : DesignApplier.Brush("SolidBackgroundFillColorSecondaryBrush", Colors.DimGray),
                 };
 
                 window = new Window { Content = new Grid { Children = { page } }, Title = "Themia widget render" };
