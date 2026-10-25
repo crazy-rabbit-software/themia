@@ -26,7 +26,7 @@ internal static class BluetoothMenu
         lines.Add(menu.Toggle(Glyphs.Bluetooth, BluetoothStr.WidgetsA_Bluetooth_Settings_Icon_Label.Text(), config.ShowIcon, on => config.ShowIcon = on));
         if (config.Offers(BluetoothSetting.Connection))
         {
-            lines.Add(menu.Toggle(Glyphs.Link, BluetoothStr.WidgetsA_Bluetooth_Settings_Connection_Label.Text(), config.ShowConnection, on => config.ShowConnection = on));
+            lines.Add(menu.Toggle(Glyphs.Info, BluetoothStr.WidgetsA_Bluetooth_Settings_Connection_Label.Text(), config.ShowConnection, on => config.ShowConnection = on));
         }
 
         // The battery read opens a connection to each device (the slowest part of a refresh), and

@@ -27,12 +27,21 @@ internal partial class MenuPanel
     /// <summary>The chevron of a line with a submenu: Windows' "ChevronRightMed", at the menu's size.</summary>
     private static readonly string Chevron = char.ConvertFromUtf32(0xE974);
 
+    /// <summary>[S-3734] The widest a line's value is; it gives way to the line's words down to <see cref="ValueMinWidth"/>.</summary>
+    private const double ValueMaxWidth = 160;
+
+    /// <summary>[S-3734] The least a line's value keeps beside long words: a few letters and the ellipsis.</summary>
+    private const double ValueMinWidth = 48;
+
     /// <summary>[S-3728] The most lines a note wraps to; the rest is trimmed, the whole in its tooltip.</summary>
-    private const int NoteLines = 3;
+    private const int NoteLines = 5;
 
     /// <summary>A drawn line: its node now, and the parts a change of value is written into.</summary>
-    private sealed class LineView(MenuNode node, Button button, FrameworkElement root, Border lead, Border trail, Border held, TextBlock words, TextBlock value)
+    private sealed class LineView(MenuNode node, Button button, FrameworkElement root, Border lead, Border trail, Border held, TextBlock words, TextBlock value, double room)
     {
+        /// <summary>[S-3734] What the words and the value share of the line: less its icon, grip, mark and end columns.</summary>
+        public double Room { get; } = room;
+
         public MenuNode Node { get; set; } = node;
 
         public string IconKey { get; set; } = node.IconKey;
@@ -162,6 +171,10 @@ internal partial class MenuPanel
         level.Trail = nodes.Any(n => n.Kind == MenuNodeKind.Line && (n.Checked is not null || n.Opens));
         level.Icons |= nodes.Any(n => n.Kind is MenuNodeKind.Line or MenuNodeKind.Slider && n.Icon is not null);
 
+        // [S-3561] A form's notes stand where its fields do (a field has no icon column), not where a
+        // line's words do: the note under Port or Password is about that field.
+        var noteLead = level.Icons && !nodes.Any(n => n.Kind == MenuNodeKind.Field);
+
         for (var i = 0; i < nodes.Count; i++)
         {
             var node = nodes[i];
@@ -172,7 +185,7 @@ internal partial class MenuPanel
                     level.Views.Add(null);
                     break;
                 case MenuNodeKind.Note:
-                    var note = NoteLine(node, level.Icons);
+                    var note = NoteLine(node, noteLead);
                     level.Lines.Children.Add(note.Root);
                     level.Notes[i] = note;
                     level.Views.Add(null);
@@ -282,6 +295,7 @@ internal partial class MenuPanel
         view.Button.IsEnabled = !node.Disabled;
         view.Words.Text = node.Text;
         view.Value.Text = node.Value ?? string.Empty;
+        FitValue(view);
         TipWhenTrimmed(view.Words);
         TipWhenTrimmed(view.Value);
 
@@ -307,6 +321,30 @@ internal partial class MenuPanel
         {
             AutomationProperties.SetItemStatus(view.Button, on ? "✓" : string.Empty);
         }
+    }
+
+    /// <summary>
+    /// [S-3734] The words keep their room before a long value: the value gives way to them, down to
+    /// its least, and is trimmed; only words longer than the line less that are trimmed themselves
+    /// ("Output d…" beside a device's long name was the words giving way instead).
+    /// Measured on its own, the words come out a few DIPs short of what the line draws: a gap's worth more.
+    /// </summary>
+    private static void FitValue(LineView view)
+    {
+        if (view.Value.Text.Length == 0)
+        {
+            view.Value.MaxWidth = ValueMaxWidth;
+            return;
+        }
+
+        view.Words.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
+        var right = view.Value.Margin.Right;
+        var beside = view.Room - view.Words.DesiredSize.Width - Fluent.Space2 - right;
+
+        // The gap before the value narrows before either is trimmed.
+        var gap = beside - Fluent.Space6 >= ValueMinWidth ? Fluent.Space6 : Fluent.Space3;
+        view.Value.Margin = new Thickness(gap, 0, right, 0);
+        view.Value.MaxWidth = Math.Clamp(beside - gap, ValueMinWidth, ValueMaxWidth);
     }
 
     /// <summary>
@@ -393,7 +431,11 @@ internal partial class MenuPanel
         var button = LineButton(level.Icons ? lead : null, words, value, grip, node.Opens ? held : null, level.Trail ? trail : null);
         button.IsEnabled = !node.Disabled;
 
-        var view = new LineView(node, button, button, lead, trail, held, words, value);
+        // [S-3734] What the words and the value share: the line less its icon, grip, mark and end columns.
+        var room = MenuWidth - (2 * (Fluent.Space1 + Fluent.Space3)) - (2 * Fluent.Hairline) - (level.Icons ? LeadColumn : 0)
+            - (level.Trail ? Fluent.IconSize : 0) - (node.Order is null ? 0 : Fluent.Space2 + 12 + Fluent.Space2)
+            - (node.Opens && node.Checked is not null ? Fluent.Space3 + Fluent.Space2 : 0);
+        var view = new LineView(node, button, button, lead, trail, held, words, value, room);
         Apply(view, node);
 
         button.Click += (_, _) => OnLine(level, view);
@@ -448,7 +490,7 @@ internal partial class MenuPanel
         // The value and the end column never meet: the value keeps a gap before the mark or chevron.
         value.VerticalAlignment = VerticalAlignment.Center;
         value.Margin = new Thickness(Fluent.Space6, 0, trail is null ? 0 : Fluent.Space2, 0);
-        value.MaxWidth = 120;
+        value.MaxWidth = ValueMaxWidth;
         value.TextTrimming = TextTrimming.CharacterEllipsis;
         Add(value, GridLength.Auto);
 

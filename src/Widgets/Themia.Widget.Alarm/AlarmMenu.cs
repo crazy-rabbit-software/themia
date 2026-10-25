@@ -69,7 +69,7 @@ internal static class AlarmMenu
 
         // How it sounds.
         menu.Lines.Add(ItemMenuEntry.Separator);
-        menu.Lines.Add(menu.Choice(Glyphs.Sound, AlarmStr.Alarm_Settings_Sound_Label.Text(),
+        menu.Lines.Add(menu.Choice(Glyphs.Music, AlarmStr.Alarm_Settings_Sound_Label.Text(),
             [.. PomodoroSounds.Order.Select(sound => (sound, PomodoroSounds.Label(sound)))],
             alarm.Sound,
             value =>

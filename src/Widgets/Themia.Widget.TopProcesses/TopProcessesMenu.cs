@@ -22,6 +22,6 @@ internal static class TopProcessesMenu
         var current = counts.Any(c => c.Value == config.MaxRows) ? config.MaxRows : 0;
         menu.Lines.Add(menu.Choice(Glyphs.ListLayout, TopProcessesStr.Details_Settings_Processes_Rows_Label.Text(), counts, current, value => config.MaxRows = value));
 
-        menu.Lines.Add(menu.Toggle(Glyphs.BulletList, TopProcessesStr.Details_Settings_Processes_Group_Label.Text(), config.GroupByName, on => config.GroupByName = on));
+        menu.Lines.Add(menu.Toggle(Glyphs.Group, TopProcessesStr.Details_Settings_Processes_Group_Label.Text(), config.GroupByName, on => config.GroupByName = on));
     }
 }

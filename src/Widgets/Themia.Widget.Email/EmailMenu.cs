@@ -40,7 +40,7 @@ internal static class EmailMenu
 
         if (email.Offers(EmailSetting.PreviewLines))
         {
-            look.Add(menu.Number(Glyphs.Wrap, EmailStr.Email_PreviewLines_Label.Text(), email.EffectivePreviewLines, 1, 5, 1, v => LocaleFormat.Integer(v), value => email.PreviewLines = value));
+            look.Add(menu.Number(Glyphs.AlignLeft, EmailStr.Email_PreviewLines_Label.Text(), email.EffectivePreviewLines, 1, 5, 1, v => LocaleFormat.Integer(v), value => email.PreviewLines = value));
         }
 
         if (email.Offers(EmailSetting.Columns))

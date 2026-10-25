@@ -34,7 +34,7 @@ internal static class PomodoroMenu
         // [S-1460] Off or one of twelve ringtones, gentle to insistent; the volume only while a sound
         // is chosen ([S-6074]). Changing either previews the focus cue, so a choice is made by ear.
         menu.Lines.Add(ItemMenuEntry.Separator);
-        menu.Lines.Add(menu.Choice(Glyphs.Sound, PomodoroStr.Pomodoro_AlarmSound_Label.Text(),
+        menu.Lines.Add(menu.Choice(Glyphs.Music, PomodoroStr.Pomodoro_AlarmSound_Label.Text(),
             [.. PomodoroSounds.Order.Select(sound => (sound, PomodoroSounds.Label(sound)))],
             config.Sound,
             value =>

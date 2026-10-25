@@ -142,7 +142,7 @@ public static partial class SettingsMenu
                 v => host.Mutate(s => s.Design.CornerRadiusPx = v)),
             new SettingsSeparator(key + "/-border"),
             border,
-            new SettingsSlider(key + "/borderWidth", Str.Settings_Style_BorderWidth_Label.Text(), Glyphs.Grid, design.BorderWidthPx, 0, 8, 1, v => Unit(v, "px"),
+            new SettingsSlider(key + "/borderWidth", Str.Settings_Style_BorderWidth_Label.Text(), Glyphs.Fit, design.BorderWidthPx, 0, 8, 1, v => Unit(v, "px"),
                 v => host.Mutate(s => s.Design.BorderWidthPx = v)),
             new SettingsColour(key + "/borderColour", Str.Shell_Appearance_BorderColour.Text(), design.BorderColor,
                 v => host.Mutate(s => s.Design.BorderColor = v), Str.Shell_Appearance_ThemeColour.Text(), ColorPresets.Surfaces),
@@ -189,7 +189,7 @@ public static partial class SettingsMenu
         var design = host.State.Design;
         return new SettingsSubmenu(key, Str.Shell_Appearance_Layout.Text(), Glyphs.GridLayout,
         [
-            new SettingsSlider(key + "/gap", Str.Shell_Layout_Gap.Text(), Glyphs.Grid, design.WidgetGapPx, 0, 48, 2, v => Unit(v, "px"),
+            new SettingsSlider(key + "/gap", Str.Shell_Layout_Gap.Text(), Glyphs.ColumnsLayout, design.WidgetGapPx, 0, 48, 2, v => Unit(v, "px"),
                 v => host.Mutate(s => s.Design.WidgetGapPx = v)),
             new SettingsToggle(key + "/snap", Str.Settings_Style_GridSnap_Label.Text(), Glyphs.Grid, design.GridSnap,
                 v => host.Mutate(s => s.Design.GridSnap = v)),

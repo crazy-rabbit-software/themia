@@ -94,12 +94,10 @@ public static class Glyphs
     public static readonly string Important = From(0xE734);
     public static readonly string Play = From(0xE768);
     public static readonly string Pause = From(0xE769);
-    public static readonly string Sound = From(0xE767);
     public static readonly string Link = From(0xE71B);
 
     /// <summary>[S-6416] Copy as path (Segoe's path box, unnamed in the icon list), Explorer's picture of it ([S-1754]).</summary>
     public static readonly string CopyAsPath = From(0xE62F);
-    public static readonly string Wrap = From(0xE751); // [S-652] E7A3 is not in the font: a return arrow
     public static readonly string Clear = From(0xE894);
     public static readonly string EraseTool = From(0xE75C);
     public static readonly string FullScreen = From(0xE740);

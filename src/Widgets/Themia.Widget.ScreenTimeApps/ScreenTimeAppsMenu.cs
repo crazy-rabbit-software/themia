@@ -37,7 +37,7 @@ internal static class ScreenTimeAppsMenu
             menu.Lines.Add(menu.Toggle(Glyphs.Hours, ScreenTimeAppsStr.Screentime_Metric_Average.Text(), config.ShowAverage, on => config.ShowAverage = on));
         }
 
-        menu.Lines.Add(menu.Toggle(Glyphs.Count, ScreenTimeAppsStr.Screentime_Metric_Percent.Text(), config.ShowPercent, on => config.ShowPercent = on));
+        menu.Lines.Add(menu.Toggle(Glyphs.ScreenTimeDonut, ScreenTimeAppsStr.Screentime_Metric_Percent.Text(), config.ShowPercent, on => config.ShowPercent = on));
 
         ScreenTimeMenuLines.AddShared(menu, config, source);
     }

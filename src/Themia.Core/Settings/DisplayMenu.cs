@@ -192,7 +192,7 @@ public static class DisplayMenu
             });
         }
 
-        return new SettingsChoice(Keys.NewDisplays, Str.Shell_Settings_General_NewDisplays.Text(), Glyphs.Display, options);
+        return new SettingsChoice(Keys.NewDisplays, Str.Shell_Settings_General_NewDisplays.Text(), Glyphs.NewWindow, options);
     }
 
     /// <summary>

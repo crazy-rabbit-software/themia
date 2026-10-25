@@ -1721,7 +1721,9 @@ written in place), `Shell/DesktopWindow.SettingsMenu.cs` (`RequestAccounts`). Te
   `Critical` (the critical colour) and `Busy` (a ring), a note without words taking no room, and a
   `SettingsAsk` that may be given empty and says its value. The engine writes notes, fields and
   whether a line is greyed in place (a danger line aside), so a level is not drawn again while it is
-  typed in; one drawn again gives the keyboard back to the field that had it.
+  typed in; one drawn again gives the keyboard back to the field that had it. A form's notes (a level
+  with fields) start where its fields do, not after the icon column: the note under Password or Port
+  is that field's ("IMAP over TLS" stood indented apart from the fields it explains).
 
 Needs a live pass: a real Microsoft and Google sign-in from Add account (the browser, its return,
 the new account listed), Cancel while it waits; Test connection and Add against a real IMAP server
@@ -1831,6 +1833,13 @@ under a line); App `Services/Licensing/LicenceMenu.cs`, `Services/SettingsBackup
   ([S-1744]), a second start ([S-66]), a widget's accounts ([S-3558]), See plans ([S-3573]).
   `FluentLayout` keeps the rows the app-layout editor, Themia's one window, is built from ([S-1411]);
   a menu's debug render is `--editbar-png` ([S-3535]).
+
+Needs a live pass (step 5): Themia started again from Start, from a shortcut and as `Themia.exe` while
+it runs, with edit mode off and on, with ⚙ or another bar menu open, during a placement, with the
+primary display not the first one Windows lists (⚙ on the main display, the keyboard in it after the
+hand-off); a second start at sign-in (the Run entry, and the packaged build's startup task) opening
+nothing; the surface menu's View, Display and Settings opening the bar's menus on that display with the
+keyboard in them after the context menu has closed; Ctrl+Alt+W still only toggling edit mode.
 
 Needs a live pass: the packaged build from the Store (a sideload has no licence): Upgrade's Store
 dialog over the desktop on each display (in front, owned by the surface), its price, a purchase,
@@ -2026,8 +2035,9 @@ and the SDK's `Settings/ListDrop.cs` (tests `QuickSetTests`, `StripPlacementTest
   Windows drew Themia's light words on a light surface. The debug renders draw a question on the
   solid colour its acrylic stands for (a bitmap leaves acrylic out). Tests `ConfirmLookTests`.
 - **[S-3728]** A **note** (`WidgetMenuLines.Note`) is words only, in the disabled colour, never
-  clickable (a data source's credit): wrapped to three lines within the menu's width, trimmed past
-  them, the whole as its tooltip.
+  clickable (a data source's credit): wrapped to five lines within the menu's width, trimmed past
+  them, the whole as its tooltip (three cut Windows' startup advice and the alarm's note short, in
+  English already).
 - **[S-3729]** An **editable list** (`WidgetMenuLines.List` over a `MenuList<T>`: feeds, symbols,
   hosts, shortcuts) is a submenu of its items, each a submenu of its own: Rename… (asked for, starting
   from the name; saved only when it changed), the list's own lines for it and Remove; the items' lines
@@ -2081,7 +2091,9 @@ and the SDK's `Settings/ListDrop.cs` (tests `QuickSetTests`, `StripPlacementTest
   ([S-3721]) and the "are you sure?" ([S-3727]), stands at that width too (user request 2026-10-19:
   every configuration modal one width), its words wrapped inside it. Words or a value longer than
   their room (a slider's words longer than its whole line, [S-3731]) are trimmed with an ellipsis and shown whole as their tooltip; the words keep the room
-  before a long value. (Renders `props-*-vocabulary-ask` and `-confirm`, each with its `-popup0`.)
+  before a long value: a value is at most 160 DIPs and gives way to its line's words, the gap before it narrowing first, down to 48
+  ("Output device" read "Output d…" beside a device's long name, "Pause during full-…" beside
+  "Paused now"). (Renders `props-*-vocabulary-ask` and `-confirm`, each with its `-popup0`.)
 - **[S-3735]** The menu's **sections** (user request 2026-10-19), a divider between each: the icon
   row; the **Header** line; Style and the options only that look draws; the widget's own lines in the
   sections it marks with separators; Appearance (where the widget places it, a section of its own).

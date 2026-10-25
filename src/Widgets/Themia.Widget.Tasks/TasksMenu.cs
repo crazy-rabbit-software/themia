@@ -68,7 +68,7 @@ internal static class TasksMenu
             menu.Lines.Add(menu.Toggle(Glyphs.Calendar, TasksStr.WidgetsC_Tasks_Settings_ShowDue_Label.Text(), config.ShowDueDate, on => config.ShowDueDate = on));
         }
 
-        menu.Lines.Add(menu.Number(Glyphs.Wrap, TasksStr.Todo_TitleLines_Label.Text(), config.EffectiveTitleLines, TaskRules.TitleLinesMin, TaskRules.TitleLinesMax, 1,
+        menu.Lines.Add(menu.Number(Glyphs.AlignLeft, TasksStr.Todo_TitleLines_Label.Text(), config.EffectiveTitleLines, TaskRules.TitleLinesMin, TaskRules.TitleLinesMax, 1,
             v => LocaleFormat.Integer(v), value => config.TitleLines = value));
 
         // [S-7516] Which tasks the list keeps, and where a new one lands.
