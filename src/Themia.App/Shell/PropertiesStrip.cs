@@ -7,6 +7,7 @@ using Microsoft.UI.Xaml.Controls.Primitives;
 using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Shapes;
+using Themia.App.Shell.Config;
 using Themia.App.Widgets;
 using Themia.Core.Diagnostics;
 using Themia.Core.Geometry;
@@ -36,6 +37,7 @@ namespace Themia.App.Shell;
 /// <param name="Delete">[S-3717] Delete the selection, as the Delete key does.</param>
 /// <param name="WidgetLines">[S-3719] One widget's own lines, by id, built over its live config (asking for text and confirmations beside the menu); null for none.</param>
 /// <param name="Preview">[S-3731] Shows the selected widgets at a slider's value while it is dragged (a scale, a fill's opacity), without storing it; null ends it. A render's stand-in may leave it out.</param>
+/// <param name="SetBackgroundImage">[S-6593] The selected widgets' background image, a picture file's full path or empty to remove it. A render's stand-in may leave it out.</param>
 internal sealed record PropertiesCommands(
     Action<HeaderPlacement> SetHeader,
     Action<FillChoice> SetBackground,
@@ -50,7 +52,8 @@ internal sealed record PropertiesCommands(
     Action? Copy = null,
     Action? Delete = null,
     Func<string, Action<WidgetTextAsk>, Action<WidgetConfirm>, WidgetMenuLines?>? WidgetLines = null,
-    Action<CardPreview?>? Preview = null);
+    Action<CardPreview?>? Preview = null,
+    Action<string>? SetBackgroundImage = null);
 
 /// <summary>[S-3731] What the selected cards show while a slider of the menu is dragged: a scale or a fill not yet stored.</summary>
 internal sealed record CardPreview(double? Scale = null, FillChoice? Background = null, FillChoice? Items = null);
@@ -401,6 +404,31 @@ internal sealed partial class PropertiesStrip : MenuPanel
         }
 
         nodes.AddRange(FromEntries(colours, "card"));
+
+        // [S-6593] The widgets' own background image, under the content; their background tints it
+        // ([S-6592]). Windows' picker chooses one, and Remove image goes back to the fill alone.
+        var image = _offer.BackgroundImage;
+        nodes.Add(new MenuNode("image")
+        {
+            Text = Str.Shell_Fill_Image.Text(),
+            Value = image is null ? Mixed : BackgroundImage.Name(image),
+            IconKey = "image",
+            Icon = () => Glyph(Glyphs.Photo),
+            Children =
+            [
+                new MenuNode("image/choose")
+                {
+                    Text = Str.Shell_Fill_ImageChoose.Text(),
+                    Run = () => _ = FolderBrowse.PickFileAsync(BackgroundImage.Extensions, path => commands.SetBackgroundImage?.Invoke(path)),
+                },
+                new MenuNode("image/remove")
+                {
+                    Text = Str.Shell_Fill_ImageRemove.Text(),
+                    Disabled = image is { Length: 0 },
+                    Run = () => commands.SetBackgroundImage?.Invoke(string.Empty),
+                },
+            ],
+        });
         nodes.Add(MenuNode.Separator("-colours"));
 
         // [S-6531] The widgets' own content scale, a slider on the stored grain, after the look of the card it magnifies.

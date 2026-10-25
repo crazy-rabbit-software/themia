@@ -1,5 +1,6 @@
 using Themia.Core.Geometry;
 using Themia.Core.Model;
+using Themia.Core.Storage;
 using Themia.Sdk;
 using Xunit;
 
@@ -247,5 +248,52 @@ public sealed class QuickSetTests
 
         Assert.Equal(HeaderPlacement.Hidden, toggle.Header);
         Assert.Contains(repairs, r => r.Contains("cannot have a header", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void S6593_the_background_image_is_set_on_every_selected_widget_and_removed_with_empty()
+    {
+        var (a, b) = (Widget(new WidgetId("cpu"), "a"), Widget(new WidgetId("clock"), "b"));
+        var (state, view, other) = State(a, b);
+        const string lake = @"C:\Users\me\Pictures\lake.jpg";
+
+        Assert.Equal(2, QuickSet.SetBackgroundImage(view, ["a", "b", "elsewhere"], lake));
+        Assert.Equal(lake, a.BackgroundImage);
+        Assert.Null(other.Widgets[0].BackgroundImage);
+        Assert.Equal(lake, QuickSet.For(state, Selecting(view, "a", "b"), view.Id).BackgroundImage);
+
+        Assert.Equal(0, QuickSet.SetBackgroundImage(view, ["a"], "notes.txt"));
+        Assert.Equal(lake, a.BackgroundImage);
+
+        Assert.Equal(1, QuickSet.SetBackgroundImage(view, ["a"], ""));
+        Assert.Null(a.BackgroundImage);
+        Assert.Null(QuickSet.For(state, Selecting(view, "a", "b"), view.Id).BackgroundImage);
+        Assert.Equal(string.Empty, QuickSet.For(state, Selecting(view, "a"), view.Id).BackgroundImage);
+    }
+
+    [Fact]
+    public void S6590_a_copy_and_an_undo_keep_the_background_image()
+    {
+        var a = Widget(new WidgetId("cpu"), "a");
+        a.BackgroundImage = @"C:\walls\forest.png";
+
+        Assert.Equal(a.BackgroundImage, a.Clone().BackgroundImage);
+
+        var shape = WidgetShape.Of(a);
+        Assert.Equal(a.BackgroundImage, shape.BackgroundImage);
+        Assert.False(shape.SameLayout(shape with { BackgroundImage = null }));
+    }
+
+    [Fact]
+    public void S6591_a_stored_background_image_that_is_no_picture_path_loads_as_none()
+    {
+        var a = Widget(new WidgetId("cpu"), "a");
+        a.BackgroundImage = "notes.txt";
+        var (state, _, _) = State(a);
+
+        var parsed = AppStateStore.Parse(System.Text.Json.JsonSerializer.Serialize(state, StateJson.AppState));
+
+        Assert.Null(parsed.State!.Views[0].Widgets[0].BackgroundImage);
+        Assert.Contains(parsed.Repairs, r => r.Contains("background image", StringComparison.Ordinal));
     }
 }

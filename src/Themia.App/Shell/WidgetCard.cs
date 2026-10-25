@@ -298,6 +298,10 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface, IItemPaletteOwn
         // fill of its own (_headerBase/_headerTint), so the header opacity can fade it alone. Painted
         // across the whole card, the body fill sat under the header too, and a header that shares the
         // widget's fill could never look any different, whatever its opacity.
+        // [S-6590] The background image under everything, across the whole card, header included.
+        Grid.SetRowSpan(_image, 3);
+        Grid.SetColumnSpan(_image, 3);
+        content.Children.Add(_image);
         content.Children.Add(_fill);
         content.Children.Add(_tint);
         content.Children.Add(_headerBand);
@@ -468,7 +472,10 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface, IItemPaletteOwn
         // unreadably over whatever was behind the window. SolidBackgroundFillColorBase is the
         // opaque surface colour that overlay is meant to sit on, so it is the correct base here.
         // A colour of the user's own replaces both: it is meant to be exactly that colour.
-        var fill = CardFillNow();
+        // [S-6592] Over a background image only a colour of the widget's own is painted, as a tint.
+        ApplyImage(radiusPx);
+        var cardFill = CardFillNow();
+        var fill = PaintedFillNow();
         var opacity = fill.Painted ? fill.Opacity : 0;
         var custom = ColourBrush(fill);
 
@@ -480,7 +487,7 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface, IItemPaletteOwn
         _tint.Opacity = custom is null ? opacity : 0;
 
         // [S-824] The border: style, width, colour and opacity, over the content.
-        var border = DesignLook.Border(fill, design.BorderStyle, design.BorderWidthPx, design.BorderOpacity);
+        var border = DesignLook.Border(cardFill, design.BorderStyle, design.BorderWidthPx, design.BorderOpacity);
         if (border.Visible && (!_hidden || _host.EditMode))
         {
             _stroke.Visibility = Visibility.Visible;
@@ -542,7 +549,7 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface, IItemPaletteOwn
         var hostRadius = HeaderStrip.IsSide(Model.ShownHeader) ? Round(HeaderStrip.StripCorners(HeaderEdge.Top), r) : radius;
 
         var own = DesignApplier.UserBrush(design.HeaderBackgroundColor);
-        var fill = CardFillNow();
+        var fill = PaintedFillNow();
         var surface = fill.Painted ? fill.Opacity : 0;
         var opacity = DesignLook.HeaderFillOpacity(fill, design.HeaderOpacity, own is not null);
         var custom = ColourBrush(fill);
@@ -640,6 +647,7 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface, IItemPaletteOwn
         var editing = _host.EditMode;
         var visibility = !_hidden || editing ? Visibility.Visible : Visibility.Collapsed;
 
+        _image.Visibility = visibility;
         _fill.Visibility = visibility;
         _tint.Visibility = visibility;
         _surface.Visibility = visibility;

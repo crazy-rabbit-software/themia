@@ -38,7 +38,8 @@ internal sealed partial class DesktopWindow
         Copy: _host.CopySelected,
         Delete: _host.DeleteSelected,
         WidgetLines: _host.WidgetMenuLines,
-        Preview: PreviewSelected);
+        Preview: PreviewSelected,
+        SetBackgroundImage: _host.SetSelectedBackgroundImage);
 
     /// <summary>
     /// [S-3731] While a slider of the menu is dragged the selected cards here show its value (their

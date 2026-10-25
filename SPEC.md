@@ -5003,6 +5003,29 @@ card is re-created, no tick restarts. Pure rules live in Core (`DesignLook`, `De
 - **[S-6569]** Debug: `--design background=default|transparent|#RRGGBB[@percent]` and `items=…` set
   the app-wide fills of a render (`opacity=` and `itemOpacity=` their colours' opacity);
   `--widget-png … --background <fill> --own-items <fill>` the cards' own.
+- **[S-6590]** A widget's own **background image** (user request 2026-10-25; `WidgetInstance.BackgroundImage`,
+  a picture file's full path, absent for none): it covers the whole card, header included, under the
+  fills and the content, clipped to the card's corners, centred and cropped to fill it
+  (`UniformToFill`, `WidgetCard.Image.cs`). It is decoded near the card's own size (twice its pixel
+  width, 640 to 2560 pixels), off the design pass, and a load that lands after the path changed again
+  is dropped. A file that is not there, cannot be read or is no picture Windows decodes draws the card
+  without it and is logged; the path stays, so the picture is back with the file. Copied with the
+  widget, undone with its background ([S-6566]). Debug: `--widget-png … --background-image <path>`.
+- **[S-6591]** The path rule (`BackgroundImage.IsImagePath`): full (a drive or a network share, never
+  relative), at most 1024 characters, no character a path cannot hold, of a picture type Windows
+  decodes (.png, .jpg, .jpeg, .jfif, .bmp, .gif, .tif, .tiff, .webp). A stored path that breaks it
+  loads as no image, logged ([S-1900]'s validation, not a migration); whether the file exists is not
+  asked at load.
+- **[S-6592]** Over an image the widget's **Background** is a tint, not a card (`BackgroundImage.Over`):
+  a colour of its own lies over the picture at its opacity (the way to keep text readable on a busy
+  picture); Default and Transparent paint nothing, so the picture is the card. The header strip
+  follows the same rule. The border is the card's as it would be without the image.
+- **[S-6593]** The properties menu's Appearance submenu has a **Background image** line after the
+  colours, its value the file's name (a dash for a mixed selection), with **Choose an image…**
+  (Windows' file picker, starting in Pictures, picture types only; `FolderBrowse.PickFileAsync`) and
+  **Remove image** (greyed while none is set). Both apply to every selected widget in one undo step
+  (`QuickSet.SetBackgroundImage`; a path that breaks [S-6591] changes nothing). The three labels are
+  English only so far.
 - **[S-6570]** Whether a kind **has items** (`ItemKinds.Has`): its view paints rows, tiles, chips or
   tracks through the item layer ([S-6513]). Sixteen kinds paint none (Alarm, Audio visualizer,
   Brightness, Exchange rates, Gallery, Next meeting, Notes, Rain next hour, Recycle bin, the screen

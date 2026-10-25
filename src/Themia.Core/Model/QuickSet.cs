@@ -25,6 +25,7 @@ namespace Themia.Core.Model;
 /// <param name="CanAlign">[S-6584] Whether any selected widget can align its content in its style ([S-6581]); the Alignment line is not shown without.</param>
 /// <param name="Align">[S-6584] Where the widgets that can align draw their content, or null when they differ.</param>
 /// <param name="HasItemText">[S-6574] Whether any selected widget draws items with text on them (not tracks only); the Item text line is not shown without.</param>
+/// <param name="BackgroundImage">[S-6593] Their background image's path (empty: none), or null when they differ.</param>
 public sealed record QuickSetOffer(
     int Count,
     HeaderPlacement? Header,
@@ -41,7 +42,8 @@ public sealed record QuickSetOffer(
     string? ItemText = "",
     bool CanAlign = false,
     ContentAlign? Align = null,
-    bool HasItemText = true)
+    bool HasItemText = true,
+    string? BackgroundImage = "")
 {
     public static readonly QuickSetOffer None = new(0, null, null, null, null, null, false);
 
@@ -90,6 +92,9 @@ public static class QuickSet
         var hasHeader = widgets.TrueForAll(w => WidgetInstance.CanHaveHeader(w.Kind));
         var header = hasHeader ? Common(widgets.Select(w => w.Header)) : null;
         var background = CommonFill(widgets.Select(w => w.Background));
+        var image = widgets.TrueForAll(w => string.Equals(w.BackgroundImage ?? string.Empty, widgets[0].BackgroundImage ?? string.Empty, StringComparison.OrdinalIgnoreCase))
+            ? widgets[0].BackgroundImage ?? string.Empty
+            : null;
 
         // [S-6007] A style choice only where it means one thing: every widget the same kind, and
         // that kind with two styles or more; [S-6075] and the look able to change one of them now.
@@ -120,10 +125,10 @@ public static class QuickSet
         if (widgets.Count == 1)
         {
             var only = widgets[0];
-            return new QuickSetOffer(1, header, background, only.Id, only.Kind, only.Label, hasHeader, styleKind, style, items, hasItems, scale, itemText, canAlign, align, hasItemText);
+            return new QuickSetOffer(1, header, background, only.Id, only.Kind, only.Label, hasHeader, styleKind, style, items, hasItems, scale, itemText, canAlign, align, hasItemText, image);
         }
 
-        return new QuickSetOffer(widgets.Count, header, background, null, null, null, hasHeader, styleKind, style, items, hasItems, scale, itemText, canAlign, align, hasItemText);
+        return new QuickSetOffer(widgets.Count, header, background, null, null, null, hasHeader, styleKind, style, items, hasItems, scale, itemText, canAlign, align, hasItemText, image);
     }
 
     /// <summary>
@@ -221,6 +226,25 @@ public static class QuickSet
     {
         ArgumentNullException.ThrowIfNull(fill);
         return Apply(view, ids, w => !w.Background.SameAs(fill) && Set(() => w.Background = fill.Clone()));
+    }
+
+    /// <summary>
+    /// [S-6593] Set the background image of every selected widget of <paramref name="view"/>: a picture
+    /// file's full path ([S-6591]), or empty to remove it. A path that cannot name a picture changes
+    /// nothing. Returns how many changed.
+    /// </summary>
+    public static int SetBackgroundImage(ViewState view, IEnumerable<string> ids, string? path)
+    {
+        var trimmed = path?.Trim() ?? string.Empty;
+        if (trimmed.Length > 0 && !Widgets.BackgroundImage.IsImagePath(trimmed))
+        {
+            return 0;
+        }
+
+        var image = trimmed.Length == 0 ? null : trimmed;
+
+        return Apply(view, ids, w => !string.Equals(w.BackgroundImage, image, StringComparison.Ordinal)
+            && Set(() => w.BackgroundImage = image));
     }
 
     /// <summary>

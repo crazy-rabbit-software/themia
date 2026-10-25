@@ -15,11 +15,14 @@ public sealed record WidgetShape(
     HeaderPlacement Header,
     WidgetConfig Config)
 {
+    /// <summary>[S-6590] The widget's background image, undone with its background.</summary>
+    public string? BackgroundImage { get; init; }
+
     public static WidgetShape Of(WidgetInstance widget)
     {
         ArgumentNullException.ThrowIfNull(widget);
         return new(widget.Id, widget.Kind, widget.X, widget.Y, widget.W, widget.H, widget.Label,
-            widget.Background.Clone(), widget.Header, widget.Config);
+            widget.Background.Clone(), widget.Header, widget.Config) { BackgroundImage = widget.BackgroundImage };
     }
 
     /// <summary>Everything but the config: see <see cref="LayoutShape"/> for why content is not compared.</summary>
@@ -28,7 +31,8 @@ public sealed record WidgetShape(
         ArgumentNullException.ThrowIfNull(other);
         return Id == other.Id && Kind == other.Kind
             && X.Equals(other.X) && Y.Equals(other.Y) && W.Equals(other.W) && H.Equals(other.H)
-            && Label == other.Label && Background.SameAs(other.Background) && Header == other.Header;
+            && Label == other.Label && Background.SameAs(other.Background) && Header == other.Header
+            && string.Equals(BackgroundImage, other.BackgroundImage, StringComparison.Ordinal);
     }
 }
 
@@ -168,6 +172,7 @@ public sealed class LayoutShape
                     widget.H = w.H;
                     widget.Label = w.Label;
                     widget.Background = w.Background.Clone();
+                    widget.BackgroundImage = w.BackgroundImage;
                     widget.Header = w.Header;
                 }
                 else
@@ -181,6 +186,7 @@ public sealed class LayoutShape
                         H = w.H,
                         Label = w.Label,
                         Background = w.Background.Clone(),
+                        BackgroundImage = w.BackgroundImage,
                         Header = w.Header,
                         Config = w.Config,
                     };

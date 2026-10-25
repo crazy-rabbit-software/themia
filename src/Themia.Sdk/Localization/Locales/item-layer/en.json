@@ -1,9 +1,16 @@
 {
-  "$englishOnly": [],
+  "$englishOnly": [
+    "shell.fill.image",
+    "shell.fill.imageChoose",
+    "shell.fill.imageRemove"
+  ],
   "shell.items.background": "Item background",
   "shell.items.text": "Item text colour",
   "shell.items.textShort": "Item text",
   "shell.fill.transparent": "Transparent",
   "shell.fill.opacity": "Opacity",
-  "shell.fill.withOpacity": "{colour}, {percent}"
+  "shell.fill.withOpacity": "{colour}, {percent}",
+  "shell.fill.image": "Background image",
+  "shell.fill.imageChoose": "Choose an image…",
+  "shell.fill.imageRemove": "Remove image"
 }

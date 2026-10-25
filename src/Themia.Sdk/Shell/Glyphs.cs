@@ -40,6 +40,9 @@ public static class Glyphs
     public static readonly string FontColour = From(0xE8D3);
     public static readonly string TextSize = From(0xE8E9);
     public static readonly string Scale = From(0xE8A9);
+
+    /// <summary>[S-6593] A picture: the card's background image line.</summary>
+    public static readonly string Photo = From(0xE91B);
     public static readonly string Motion = From(0xE9D2);
     public static readonly string Clock = From(0xE823);
     public static readonly string Timer = From(0xE916);

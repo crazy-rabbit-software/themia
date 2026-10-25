@@ -34,6 +34,16 @@ internal sealed partial class AppHost
         }
     }
 
+    /// <summary>[S-6593] Every selected widget's background image (a picture file's full path, or empty for none), in one step.</summary>
+    public void SetSelectedBackgroundImage(string path)
+    {
+        if (SelectionView is { } view)
+        {
+            var ids = Selection.Ids.ToList();
+            Mutate(_ => QuickSet.SetBackgroundImage(view, ids, path));
+        }
+    }
+
     /// <summary>[S-6521] Every selected widget's own item background (the ones that have items, [S-6571]), in one step.</summary>
     public void SetSelectedItemBackground(FillChoice fill)
     {

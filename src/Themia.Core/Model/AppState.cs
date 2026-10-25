@@ -35,6 +35,13 @@ public sealed class WidgetInstance
     /// </summary>
     public FillChoice Background { get; set; } = new();
 
+    /// <summary>
+    /// [S-6590] This widget's own background image: a picture file's full path, or null (the default)
+    /// for none, which is not written. It covers the card's body behind the content; <see cref="Background"/> then tints it
+    /// ([S-6592]). Set on the properties panel ([S-6593]).
+    /// </summary>
+    public string? BackgroundImage { get; set; }
+
     /// <summary>Where the widget's header sits. A per-widget choice, like the background.</summary>
     public HeaderPlacement Header { get; set; } = HeaderPlacement.Top;
 
@@ -119,6 +126,7 @@ public sealed class WidgetInstance
         Id = Guid.NewGuid().ToString("n"),
         Label = Label,
         Background = Background.Clone(),
+        BackgroundImage = BackgroundImage,
         Header = Header,
         ItemBackground = ItemBackground.Clone(),
         ItemTextColor = ItemTextColor,

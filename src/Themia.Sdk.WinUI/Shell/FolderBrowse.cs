@@ -48,4 +48,45 @@ public static class FolderBrowse
             Log.Error(Scope, "the folder picker could not be shown", ex);
         }
     }
+
+    /// <summary>
+    /// [S-6593] Windows' file picker for one file of <paramref name="types"/> (".png", ...):
+    /// <paramref name="chosen"/> gets its full path, and nothing happens on a cancel. Beside the
+    /// folder picker so there is one place that owns and shows Windows' pickers.
+    /// </summary>
+    public static async Task PickFileAsync(IReadOnlyList<string> types, Action<string> chosen)
+    {
+        ArgumentNullException.ThrowIfNull(types);
+        ArgumentNullException.ThrowIfNull(chosen);
+
+        try
+        {
+            var picker = new Windows.Storage.Pickers.FileOpenPicker
+            {
+                SuggestedStartLocation = Windows.Storage.Pickers.PickerLocationId.PicturesLibrary,
+                ViewMode = Windows.Storage.Pickers.PickerViewMode.Thumbnail,
+            };
+
+            foreach (var type in types)
+            {
+                picker.FileTypeFilter.Add(type);
+            }
+
+            SettingsHost.OwnPicker(picker);
+
+            var file = await picker.PickSingleFileAsync();
+
+            if (file is null)
+            {
+                return; // ignore: the user cancelled the dialog.
+            }
+
+            chosen(file.Path);
+        }
+        catch (Exception ex)
+        {
+            // As the folder picker: a convenience over a line that still works.
+            Log.Error(Scope, "the file picker could not be shown", ex);
+        }
+    }
 }

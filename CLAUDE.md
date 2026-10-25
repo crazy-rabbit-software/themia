@@ -37,6 +37,7 @@ Themia.exe --settings-png <Page> <out.png> [waitMs] [--theme light|dark] [--sear
 Themia.exe --widget-png <Kind> <out.png> [w h] [--theme light|dark] [--state name] [--style name] [--sizes WxH,..|tiers] [--keys k1,k2|text:abc]
            [--place-cleared]   # a widget about a place with its place cleared [S-2848]
            [--transparent]     # no page behind the cards: the PNG keeps their alpha, for compositing
+           [--background-image <full path>]   # the cards' own background image [S-6590]
            # the 7 tiers (or w×h); a wrong --state prints the kind's states (Stocks: quote|falling)
            [--design border=dashed,borderWidth=4,borderOpacity=0.5,borderColor=#FF0000,radius=4,preset=Midnight,...]
            # --style: any styled kind in one of its styles [S-6006] (Clock: digital|analog|stacked|flip|word|minimal; --state sample fixes 10:42)

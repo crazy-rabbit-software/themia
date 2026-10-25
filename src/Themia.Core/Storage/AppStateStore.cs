@@ -649,6 +649,15 @@ public sealed class AppStateStore : IAsyncDisposable
                 repairs.Add($"widget '{widget.Id}': {repair}");
             }
 
+            // [S-6591] A widget's background image: a picture file's full path, or none. A file that is
+            // not there now is kept: the card draws no image until it is back ([S-6590]).
+            var (image, imageRepair) = BackgroundImage.Repair(widget.BackgroundImage);
+            widget.BackgroundImage = image.Length == 0 ? null : image;
+            if (imageRepair is not null)
+            {
+                repairs.Add($"widget '{widget.Id}': {imageRepair}");
+            }
+
             // [S-6543] A widget's own item text colour: a colour, or empty to follow the app-wide one.
             var (ownText, ownTextRepair) = ItemLook.RepairTextColour(widget.ItemTextColor);
             widget.ItemTextColor = ownText;

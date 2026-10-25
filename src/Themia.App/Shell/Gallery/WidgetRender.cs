@@ -19,7 +19,7 @@ namespace Themia.App.Shell.Gallery;
 /// <summary>
 /// [S-1917] Debug only: draw one widget, in a real <see cref="WidgetCard"/> on a preview host, to a
 /// PNG, off-screen. <c>Themia.exe --widget-png &lt;Kind&gt; &lt;out.png&gt; [w h] [--theme light|dark]
-/// [--state name] [--progress 0..1] [--span s] [--style name] [--scale f] [--header top|bottom|left|right|hidden] [--align left|center|right] [--background fill] [--own-items fill] [--own-item-text #RRGGBB] [--transparent]</c> ([S-6006]: any styled kind, in one of its styles). Without a size the card is drawn at every tier of <see cref="WidgetTiers"/>
+/// [--state name] [--progress 0..1] [--span s] [--style name] [--scale f] [--header top|bottom|left|right|hidden] [--align left|center|right] [--background fill] [--own-items fill] [--own-item-text #RRGGBB] [--transparent] [--background-image path]</c> ([S-6006]: any styled kind, in one of its styles). Without a size the card is drawn at every tier of <see cref="WidgetTiers"/>
 /// (XS S M Wide Tall L XL), labelled, on one page; with one, once at that size. The widget has its
 /// kind's default config and header; the host is a preview, so nothing it does reaches the machine.
 /// <c>--reference</c> adds, beside the first card, a stock WinUI card at the same size (a Border with
@@ -33,6 +33,9 @@ internal static class WidgetRender
 
     /// <summary>[S-6569] The cards' own background (<c>--background</c>), Default to follow the design.</summary>
     private static FillChoice _background = new();
+
+    /// <summary>[S-6590] The cards' own background image (<c>--background-image</c>), null for none.</summary>
+    private static string? _backgroundImage;
 
     /// <summary>[S-6535] The cards' own content scale (<c>--scale 1.5</c>), as stored.</summary>
     private static double _scale = 1.0;
@@ -133,6 +136,9 @@ internal static class WidgetRender
         // [S-6547] The widget's own item layer, over the app-wide one --design sets: the per-widget override.
         _ownItems = DesignArgs.Fill(Option(args, "--own-items")) ?? new FillChoice();
         _ownItemText = HexColor.Normalise(Option(args, "--own-item-text"));
+
+        // [S-6590] --background-image <path>: the cards' own background image, a picture file's full path.
+        _backgroundImage = Option(args, "--background-image") is { } imagePath && BackgroundImage.IsImagePath(imagePath) ? imagePath : null;
 
         // [S-6006] Any styled kind in one of its styles; a wrong name prints the kind's styles.
         int? style = null;
@@ -368,6 +374,7 @@ internal static class WidgetRender
 
                 var model = WidgetInstance.Create(kind, new FracRect(0, 0, 0.1, 0.1));
                 model.Background = _background.Clone();
+                model.BackgroundImage = _backgroundImage;
                 model.Scale = _scale;
                 if (_header is { } header)
                 {
