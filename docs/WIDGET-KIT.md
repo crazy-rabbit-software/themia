@@ -516,7 +516,7 @@ the tests and the SPEC index all pick it up. What is left outside the folder, an
 
 ### 4.13 What stays host code
 
-The shell (surfaces, cards, edit mode, the properties panel, the settings window, the picker),
+The shell (surfaces, cards, edit mode, the properties panel, the edit bar's menus, the picker),
 the generic service host (`ServiceSync`, `ServiceClient`, `ServiceSignIn`), the account and offline
 stores, the mail, calendar, contacts and tasks sources of the host providers, the registry and
 `ModuleCatalog`. None of it names a module.
@@ -1346,8 +1346,8 @@ Look at every PNG against this rubric; a "no" is a defect:
    style, same Accounts link.
 8. The header shows the title, the problem glyph only with a problem, the ring only while busy.
 9. Hovered and focused rows are visibly different from each other and from rest.
-10. The settings page has only rows that change something in the current style, grouped, with
-    short descriptions; no row the properties panel already has.
+10. The properties menu has only lines that change something in the current style, grouped, with
+    short notes; no line the card's Appearance submenu already has.
 
 ## 11. Migration plan
 
@@ -2770,7 +2770,9 @@ User decision 2026-10-19: a widget's options live on the selection's properties 
 (SPEC "QUICKSET", [S-3716]..[S-3730]). There is no widget settings page: every widget has moved, and
 `IWidgetModule.SettingsRows`, `WidgetSettingsRows`, the widget pages, More settings and the card
 menu's Settings are gone ([S-6536]). Shortcuts (`src/Widgets/Themia.Widget.Shortcuts/ShortcutsMenu.cs`)
-and Clock (`src/Widgets/Themia.Widget.Clock/ClockMenu.cs`) are the references.
+and Clock (`src/Widgets/Themia.Widget.Clock/ClockMenu.cs`) are the references. The menu engine that
+draws it (`MenuPanel`, `src/Themia.App/Shell/Menu/`) also draws the edit bar's menus, which are the
+app's settings (⚙, View ▾, Display ▾; SPEC [S-3520]): there is no settings window ([S-3585]).
 
 ### 15.1 The vocabulary
 

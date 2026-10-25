@@ -93,7 +93,7 @@ lifts both limits. Packaging and the manual test plan are in [docs/STORE.md](doc
 - Build and test before you open the pull request:
   `dotnet build src/Themia.App/Themia.App.csproj -c Debug` (warnings are errors) and
   `dotnet test tests/Themia.Core.Tests/Themia.Core.Tests.csproj`.
-- For UI changes, render the result with the Debug `--settings-png` (and other) render flags described
+- For UI changes, render the result with the Debug `--editbar-png`, `--widget-png` (and other) render flags described
   in CLAUDE.md and attach the PNG. Widgets must hold up at every size tier of the showcase views
   (`--add-showcase-views`), down to 120 by 120; attach a screenshot of the widget's showcase view.
 - Put logic in `Themia.Core` and test it. A bug fix comes with a regression test that fails without the fix.

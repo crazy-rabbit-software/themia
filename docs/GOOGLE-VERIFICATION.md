@@ -61,7 +61,7 @@ Each scene gets a caption in the edit; the words in quotes are those captions.
    contacts.readonly, tasks."
 2. **The app** (10 s): the desktop with Themia's widgets. "Themia shows widgets on the Windows
    desktop. It has no server: Google data goes from Google straight to this PC."
-3. **Start the sign-in** (15 s): Ctrl+Alt+W, the edit bar's settings, Accounts, Add an account,
+3. **Start the sign-in** (15 s): Ctrl+Alt+W, the edit bar's ⚙, Accounts ›, Add account ›,
    Google. "The user connects a Google account from Themia's settings."
 4. **Google sign-in** (15 s): the browser opens; choose the demo account.
 5. **Unverified app screen** (10 s, if shown): Advanced, Go to Themia. "Shown while verification is
@@ -76,7 +76,7 @@ Each scene gets a caption in the edit; the words in quotes are those captions.
    Allow. "The user grants each scope." This is what the April 2026 review sent back: "The demo
    video you submitted does not show the requested scopes in the OAuth consent workflow", with a
    sample of this list.
-8. **Connected** (5 s): back in Themia, the account is listed under Accounts.
+8. **Connected** (5 s): back in Themia, the account is listed under ⚙ › Accounts.
 9. **Gmail, `gmail.readonly`** (30 s): add a Mail widget, pick the account: the inbox appears
    (sender, subject, preview, time, unread). Right-click a message: only Open, Reply and Copy; no
    delete, archive or send. "gmail.readonly: the Mail widget lists recent messages. Read only;
@@ -92,7 +92,7 @@ Each scene gets a caption in the edit; the words in quotes are those captions.
     with "Add a task", delete one. Then open https://tasks.google.com in the browser: the same
     changes are there. "tasks: the Tasks widget completes, adds and deletes tasks. tasks.readonly
     could not write."
-13. **On this PC only** (15 s): Settings › Accounts, sign out of the account: the widgets go empty.
+13. **On this PC only** (15 s): ⚙ › Accounts › the account › Sign out: the widgets go empty.
     "Signing out forgets the account and everything synced from it on this PC."
 14. **End card** (added in the edit): "Themia, by Lometics GmbH. themia.app"
 

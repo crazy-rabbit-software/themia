@@ -192,9 +192,11 @@ Paste into **Notes for certification**:
 > Themia is a full-trust Win32 desktop app (WinUI 3, Windows App SDK, Native AOT). It draws
 > widgets on a transparent, click-through window on the desktop layer behind other windows. It has
 > no main window and no tray icon. To see it after installing: start Themia from the Start menu.
-> The desktop shows a starter layout of widgets. Press Ctrl+Alt+W, double-click a widget, or start
-> Themia again from the Start menu to enter edit mode, where widgets are added, moved and
-> configured. Settings open from the edit toolbar.
+> The desktop shows a starter layout of widgets. Press Ctrl+Alt+W or double-click a widget to enter
+> edit mode, where widgets are added, moved and configured; a toolbar appears at the top of the
+> screen. The app's settings are the gear (⚙) menu on that toolbar; there is no separate settings
+> window. Starting Themia again from the Start menu while it runs enters edit mode with that menu
+> open.
 >
 > Restricted capability runFullTrust: required for the transparent, click-through window kept at
 > the desktop layer (one per display, clipped with SetWindowRgn), the global hotkey and the

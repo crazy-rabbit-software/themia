@@ -32,8 +32,6 @@ powershell -ExecutionPolicy Bypass -File scripts/package.ps1      # unsigned Sto
 Render flags draw off-screen to PNG and exit. Look at the PNGs; they are how UI work is verified.
 
 ```
-Themia.exe --settings-png <Page> <out.png> [waitMs] [--theme light|dark] [--search t] [--land t]   # app pages only
-           [--flyout row] [--width dips]      # Page: Accounts, LanguageRegion, License, About
 Themia.exe --widget-png <Kind> <out.png> [w h] [--theme light|dark] [--state name] [--style name] [--sizes WxH,..|tiers] [--keys k1,k2|text:abc]
            [--place-cleared]   # a widget about a place with its place cleared [S-2848]
            [--transparent]     # no page behind the cards: the PNG keeps their alpha, for compositing
@@ -44,7 +42,8 @@ Themia.exe --widget-png <Kind> <out.png> [w h] [--theme light|dark] [--state nam
 Themia.exe --picker-png <out.png> [--search t]       Themia.exe --iconpicker-png <out.png> [--search t] [--initials]
 Themia.exe --viewbar-png | --notices-png | --menu-png | --motion-png <outDir>
 Themia.exe --editbar-png <outDir> [--theme light|dark] [--only settings|bar]   # edit bar: snap on/off, add menu open, placing, the
-           # properties menu, ⚙ (settings-*), View ▾ and Display ▾ (views-*, display-*); --picker-png takes --theme too
+           # properties menu, ⚙ (settings-*: every section of the app's settings), View ▾ and Display ▾ (views-*, display-*);
+           # --picker-png takes --theme too. There is no settings window and no --settings-png [S-3585]
 Themia.exe --layout-editor-png <out.png> [waitMs] [--empty]
 Themia.exe --add-showcase-views [<statePath>]   # one view per widget kind at the 7 sizes; quit Themia first
 Any render: [--lang en|de|es|fr|it|ja|pl|pt|zh]
@@ -80,13 +79,14 @@ src/Themia.Sdk/    the widget SDK, pure (docs/WIDGET-KIT.md 4.2): no assembly of
   LayoutPlan, IHoldsAppLayouts; VideoStreamRules, HlsVariants, the stream's facts; Files/: FileNames, FileDrops,
   SurfaceDrops and the records the file contracts carry)
   Widgets/ (WidgetArea, Disclosure, tiers, keys, fits, styles, IShownSettings, Formatting, RingArc, DotGrid, item roles,
-  HexColor, PlaceLookup, WebInput) Settings/ (ColorPresets, ScreenPick, SettingsSearch) Shell/ (Glyphs, KeyChord, MenuArt,
+  HexColor, PlaceLookup, WebInput) Settings/ (ColorPresets, ScreenPick, ReorderKeys, ListDrop) Shell/ (Glyphs, KeyChord, MenuArt,
   the item menu's line layout, Notice) Sync/ (UpdateCadence, HostCadences) Files/ (DropEffect) Modules/ (the ids,
   WidgetDescriptor, ModuleCatalog, IProviderModule, ProviderCatalog, FeatureSet, CadenceRow, WidgetTraits, AddPlacement)
 src/Themia.Core/   pure logic, no UI types, no Windows dependency. The host's rules, and the widgets not yet moved.
   Geometry/ Model/ (state, Configs/* with each in-Core widget's descriptor) Storage/ (atomic store, load validation, StateJson)
   Widgets/ (per-widget rules + the responsive API) Accounts/ Mail/ Office/ Tasks/ Notes/ (NoteStore) Habits/ (HabitListStore)
-  Settings/ Shell/ Motion/ Licensing/ Net/ Sync/   Accounts/HostProviders.cs (the five account providers as modules)
+  Settings/ (the edit bar's menus as lines: SettingsMenu*.cs for ⚙ and its sections, ViewsMenu, DisplayMenu, AccountsMenu,
+  AccountForm, UninstallPlan) Shell/ Motion/ Licensing/ Net/ Sync/   Accounts/HostProviders.cs (the five account providers as modules)
   Services/ (the service sync's engine: ServiceClient, ServiceMemory, ServiceEntries, FixtureReplay; Sync/ServiceShelf)
   Model/FirstRunDesktop.cs (the first-run seed as data: ids and config fragments)
 src/Themia.Sdk.WinUI/  the widget SDK, WinUI: IWidgetModule, IWidgetHost (+ IShellLauncher), WidgetMenuLines, view
@@ -97,7 +97,7 @@ src/Themia.Sdk.WinUI/  the widget SDK, WinUI: IWidgetModule, IWidgetHost (+ IShe
                    DetailView, SparkBand, CoreGraphGrid), AudioFeed, the screen-time widgets' shared parts, AddFooterRow,
                    RotatedBox; Modules/: the host's contracts (IWidgetHost's members, among them the file shell's:
                    FileIcons, FileClipboard, Folders, FileOps, ExplorerMenus, RecentFiles, AppLayouts, Streams;
-                   SettingsHost for a module's menu lines); Shell/: FluentLayout (the app's settings rows), ColorChoice, SettingRow, PlaceSearch,
+                   SettingsHost for a module's menu lines); Shell/: FluentLayout (the layout editor's rows), ColorChoice, PlaceSearch,
                    MenuArtIcons, FolderBrowse, ScreenTimeMenuLines, SkyPlaceRows. References Themia.Sdk only, never Core. What
                    needs Win32 (eyedropper, file icons, geocoder, OLE drag, the shell's file operations and menus)
                    is the host's, behind those contracts or installed at start (App()).
@@ -107,8 +107,9 @@ src/Themia.App/    WinUI 3 shell, native code, widget views
   Services/        AppHost*.cs (state, displays, placement, clipboard, keyboard lease, suspend, license),
                    shared samplers and sync services (accounts, mail, tasks, files, web);
                    Kit/ServiceSync.cs (the one service sync, IWidgetHost.Services)
-  Shell/           DesktopWindow*.cs (one surface per display), WidgetCard, picker, view bar,
-                   CardWidgetHost (a card's IWidgetHost), Config/ (settings window), Gallery/ (render flags)
+  Shell/           DesktopWindow*.cs (one surface per display; .BarMenus/.SettingsMenu: the edit bar's menus), WidgetCard,
+                   picker, view bar, CardWidgetHost (a card's IWidgetHost), Gallery/ (render flags),
+                   Menu/ (MenuPanel: the one menu engine, the properties menu's and the edit bar's; BarMenuView)
   Widgets/         WidgetCatalog (views from the registry), SetupPrompt, WidgetDrag, ItemPalette: no widget
                    of its own, the app hosts modules only (THEMIAMOD005 if it declares one)
 src/Widgets/Themia.Widget.<Name>/     a widget module project (every widget, 78): module, config, view, Preview/,
@@ -149,8 +150,8 @@ their menu lines read `SettingsHost.Office`, `Tasks` and `AccountsWith(feature)`
 `KitMenuLines.Accounts` (or the SDK's `OfficeMenuLines`, [S-7063]). The stores' files (`notes/`, `habits.json`,
 `usage_stats.json`) stay host code with their validation; `LocalStoreFixtureTests` pins their shapes. A host test that needs a real widget (the seed, placement, the
 add menu, styles over every kind) lives in `tests/Themia.Modules.Tests`, which has every widget and
-Core's internals; Core's own tests run over a registry of no widget. App settings pages register one
-line in `ConfigPages.AppPages`; a widget has no settings page ([S-6536]).
+Core's internals; Core's own tests run over a registry of no widget. The app's settings are the edit
+bar's menus ([S-3520]); there is no settings window ([S-3585]) and a widget has no settings page ([S-6536]).
 
 ## Engineering principles (non-negotiable)
 
@@ -255,13 +256,18 @@ line in `ConfigPages.AppPages`; a widget has no settings page ([S-6536]).
 - **Colours are never typed.** A colour is a menu's one colour submenu (`menu.Colour`, a Core
   `SettingsColour`; `ColorChoice` behind it: accent presets, custom `ColorPicker`, the eyedropper).
   Stored as `#RRGGBB`.
-- **Settings rows** (the app's pages; a widget has none) come only from `FluentLayout`
-  (`SettingsCard`/`SettingsExpander`), so a restyle reaches every page. Never build a card by hand. Each row's frame carries a `SettingRow` for search.
+- **The app's settings are the edit bar's menus** (⚙, View ▾, Display ▾; [S-3520]..[S-3585]), never a
+  window or a page. A section is Core lines (`SettingsMenu.<Section>.cs`: `SettingsToggle`, `SettingsChoice`,
+  `SettingsSlider`, `SettingsColour`, `SettingsSubmenu`, `SettingsCommand`, `SettingsNote`, `SettingsField`, ...)
+  keyed by paths that are the same in every language, over a host interface, tested in Core
+  (`SettingsMenuTests`); the app draws them with `MenuPanel` and opens them by path
+  (`OpenBarMenu`, `RequestSettings`). Every way into settings lands there ([S-3534]). `FluentLayout`
+  (`SettingsCard` rows) is only the app-layout editor's, Themia's one window.
 - **Item menus** through `ItemMenu`; icons through `Glyphs`; lists keep `RowFocus`/`ScrollFade`.
 - **Item selection** (files, shortcuts: anything selected like desktop icons) through the SDK's one rule set
   `ItemSelection` (+ `SelectionBand`) and one look `SelectionChrome` ([S-6620]..[S-6629]); never a selection of its own.
-- **The properties menu** ([S-3716]..[S-3735]): the selection's panel in edit mode is drawn as a
-  Windows 11 context menu (Cut, Copy … Delete on top, then Header, lines with submenus that stay open
+- **The properties menu** ([S-3716]..[S-3735]): the selection's panel in edit mode, drawn by the
+  menu engine (`MenuPanel`, Shell/Menu/) the edit bar's menus share, as a Windows 11 context menu (Cut, Copy … Delete on top, then Header, lines with submenus that stay open
   on a pick, the tick/dot/chevron at the line's end; one 300-DIP width for every level; submenus
   placed clear of the widgets and the levels above by `SubmenuPlacement`). Every option a widget has
   lives there; there is no widget settings page ([S-6536]): its module's `MenuLines(WidgetMenuLines,
@@ -283,7 +289,7 @@ line in `ConfigPages.AppPages`; a widget has no settings page ([S-6536]).
 
 1. `dotnet build` (Debug) is green with warnings as errors, and the scoped tests pass.
 2. New behaviour has a test; a fixed bug has a regression test.
-3. UI work: rendered through `--settings-png` (and the other render flags) and looked at. Widget layout is
+3. UI work: rendered through `--editbar-png`, `--widget-png` (and the other render flags) and looked at. Widget layout is
    checked on the showcase views (`--add-showcase-views`) on the live desktop: a manual pass, say so.
 4. Touched interop, focus, z-order, displays, autostart, Store or sign-in code that cannot run in CI:
    say exactly what still needs a manual pass (multi-monitor, mixed DPI, a live account, the

@@ -88,6 +88,8 @@ never do it, because it means trusting a certificate on the machine.
    - Start menu tile and taskbar icon use the Themia logo; ⚙ › About Themia shows the manifest version.
    - The edit bar's ⚙ › Start with Windows toggles the `ThemiaStartup` task (also visible in
      Settings › Apps › Startup), and a sign-in starts Themia.
+   - Starting Themia again from the Start menu while it runs enters edit mode with ⚙ open on the
+     main display; the startup task starting it at sign-in while a copy runs opens nothing.
    - The edit bar's ⚙ › Themia Pro says **Themia Free** (a sideloaded package has no Store licence),
      reads out the usage of 20 widgets and 2 views, and the 21st widget (place, paste, duplicate)
      or the 3rd view is refused; the notice's See plans opens ⚙ › Themia Pro on that display, the
