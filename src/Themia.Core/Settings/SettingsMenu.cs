@@ -39,13 +39,31 @@ public sealed record SettingsRadio(string Key, string Text, bool Holds, Action P
 {
     /// <summary>Its glyph (a view's), or none.</summary>
     public string? Glyph { get; init; }
+
+    /// <summary>[S-3537] Words its choice's box finds it by besides its own (a language's English name and code).</summary>
+    public string? Keywords { get; init; }
 }
 
 /// <summary>[S-3718] A choice of one: a line whose submenu is its options, the one that holds at its end.</summary>
 public sealed record SettingsChoice(string Key, string Text, string? Glyph, IReadOnlyList<SettingsRadio> Options) : SettingsLine(Key)
 {
-    /// <summary>What the line says at its end: the option that holds.</summary>
-    public string? Value => Options.FirstOrDefault(o => o.Holds)?.Text;
+    private readonly string? _value;
+
+    /// <summary>
+    /// What the line says at its end: the option that holds, or what it is set to say in its place
+    /// ([S-3536]: what a "Windows setting (…)" option gives, which fits beside the line's words).
+    /// </summary>
+    public string? Value
+    {
+        get => _value ?? Options.FirstOrDefault(o => o.Holds)?.Text;
+        init => _value = value;
+    }
+
+    /// <summary>
+    /// [S-3537] The hint of a box on top of its submenu that keeps the options whose words or
+    /// keywords hold what is typed (<see cref="SettingsMenu.Matches"/>); null for a plain choice.
+    /// </summary>
+    public string? Filter { get; init; }
 }
 
 /// <summary>[S-3731] A number set by feel: an inline slider, stored once on the release.</summary>
@@ -154,6 +172,12 @@ public interface ISettingsMenuHost
     /// <summary>[S-1014] Play a moment's intro on the desktop.</summary>
     void ReplayIntro(IntroMode mode);
 
+    /// <summary>[S-3536] The language Windows gives Themia: what "Windows setting" means for the display language.</summary>
+    Locale WindowsLanguage { get; }
+
+    /// <summary>[S-1109] [S-1110] Speak <paramref name="language"/>: stored, and the whole app switches at once.</summary>
+    void SetLanguage(AppLanguage language);
+
     /// <summary>[S-3727] Ask beside the menu; only the answer runs it.</summary>
     void Confirm(SettingsConfirm confirm);
 
@@ -172,7 +196,7 @@ public interface ISettingsMenuHost
 /// </summary>
 public static partial class SettingsMenu
 {
-    /// <summary>[S-3524] The first level: General's lines; Appearance and Online updates; then the way out.</summary>
+    /// <summary>[S-3524] The first level: General's lines; Appearance, Language &amp; region and Online updates; then the way out.</summary>
     public static IReadOnlyList<SettingsLine> Root(ISettingsMenuHost host)
     {
         ArgumentNullException.ThrowIfNull(host);
@@ -180,7 +204,7 @@ public static partial class SettingsMenu
         IReadOnlyList<SettingsLine>[] bands =
         [
             General(host),
-            [Appearance(host), OnlineUpdates(host)],
+            [Appearance(host), Language(host), OnlineUpdates(host)],
             Leave(host),
         ];
 
@@ -246,6 +270,7 @@ public static partial class SettingsMenu
         public const string DesktopIcons = "desktopIcons";
         public const string GameMode = "gameMode";
         public const string Appearance = "appearance";
+        public const string Language = "language";
         public const string Online = "online";
         public const string AllSettings = "allSettings";
         public const string Quit = "quit";

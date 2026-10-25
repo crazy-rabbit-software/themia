@@ -79,6 +79,12 @@ internal sealed record MenuNode(string Key, MenuNodeKind Kind = MenuNodeKind.Lin
     /// <summary>[S-3732] An ordered list's item: its line is dragged up and down among the list's.</summary>
     public MenuOrder? Order { get; init; }
 
+    /// <summary>[S-3537] The hint of a box on top of its submenu that keeps the lines matching what is typed (a long choice: the languages).</summary>
+    public string? Filter { get; init; }
+
+    /// <summary>[S-3537] Words a filter box finds the line by besides its own.</summary>
+    public string? Keywords { get; init; }
+
     public static MenuNode Separator(string key) => new(key, MenuNodeKind.Separator);
 
     /// <summary>Whether a click on the line opens a level of its own (a submenu or a search).</summary>
@@ -435,6 +441,12 @@ internal partial class MenuPanel : Grid
             body.Children.Add(box);
             level.Box = box;
         }
+        else if (anchor.Node.Filter is { } hint)
+        {
+            var box = FilterBox(level, hint);
+            body.Children.Add(box);
+            level.Box = box;
+        }
 
         FillLevel(level, LevelNodes(level, anchor.Node));
         _subs.Children.Add(host);
@@ -449,6 +461,10 @@ internal partial class MenuPanel : Grid
             {
                 level.Box!.Focus(FocusState.Keyboard);
             }
+        }
+        else if (focus && level.Box is { } filter)
+        {
+            filter.Focus(FocusState.Keyboard);
         }
         else if (focus && FocusManager.FindFirstFocusableElement(lines) is Control first)
         {

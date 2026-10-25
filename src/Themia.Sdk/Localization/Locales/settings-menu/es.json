@@ -1,5 +1,6 @@
 {
   "settingsMenu.onlineUpdates": "Actualizaciones en línea",
   "settingsMenu.allSettings": "Toda la configuración…",
-  "settingsMenu.gameMode": "Pausar en pantalla completa"
+  "settingsMenu.gameMode": "Pausar en pantalla completa",
+  "settingsMenu.findLanguage": "Buscar un idioma"
 }

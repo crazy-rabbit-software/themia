@@ -35,7 +35,7 @@ public enum DateStyle
 public enum HourCycle
 {
     /// <summary>
-    /// [S-3773] The user's clock setting (Settings › Language &amp; region, else Windows'); before
+    /// [S-3773] The user's clock setting (⚙ › Language &amp; region, else Windows'); before
     /// either is known, what the language normally uses (12 h for English, 24 h for the others).
     /// </summary>
     Locale = 0,

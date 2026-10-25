@@ -1,8 +1,5 @@
 {
   "languageRegion.nav": "Lingua e area geografica",
-  "languageRegion.displayLanguage": "Lingua di visualizzazione dell’app",
-  "languageRegion.displayLanguageDesc": "Impostazioni, menu e widget di Themia appaiono in questa lingua",
-  "languageRegion.region.header": "Formato regionale",
   "languageRegion.clock": "Formato ora",
   "languageRegion.clock12": "{hours} ore",
   "languageRegion.clock24": "{hours} ore",

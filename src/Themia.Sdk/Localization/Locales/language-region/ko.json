@@ -1,8 +1,5 @@
 {
   "languageRegion.nav": "언어 및 지역",
-  "languageRegion.displayLanguage": "앱 표시 언어",
-  "languageRegion.displayLanguageDesc": "Themia의 설정, 메뉴, 위젯이 이 언어로 표시됩니다",
-  "languageRegion.region.header": "국가별 형식",
   "languageRegion.clock": "시간 형식",
   "languageRegion.clock12": "{hours}시간",
   "languageRegion.clock24": "{hours}시간",

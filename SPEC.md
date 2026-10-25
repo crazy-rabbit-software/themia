@@ -1388,12 +1388,12 @@ edge too), the hover delay, the keys in the menu, and a pick starting the placem
 ### The edit bar's settings menu (SETTINGS-MENU)
 
 The app's settings move out of the settings window into the edit bar, as Karpo's did (`karpo-app`,
-`docs/widgets.md` §335–§341; user request 2026-10-25), one part at a time: General, Appearance and
-the online update intervals are here; Accounts, Language & region, Themia Pro, Back up & reset and
-About follow, and then the settings window goes. The Displays and Views pages are the bar's
+`docs/widgets.md` §335–§341; user request 2026-10-25), one part at a time: General, Appearance,
+Language & region and the online update intervals are here; Accounts, Themia Pro, Back up & reset
+and About follow, and then the settings window goes. The Displays and Views pages are the bar's
 Display and View menus (BAR-MENUS, [S-3540]). Owning files: Core `Settings/SettingsMenu.cs` (the lines' vocabulary, the
 first level) and one builder per section (`SettingsMenu.General.cs`, `.Appearance.cs`, `.Motion.cs`,
-`.Online.cs`), `Geometry/DropDownPlacement.cs`; App `Shell/Menu/MenuPanel*.cs` (the one menu engine,
+`.Language.cs`, `.Online.cs`), `Geometry/DropDownPlacement.cs`; App `Shell/Menu/MenuPanel*.cs` (the one menu engine,
 the properties menu's too), `Shell/Menu/BarMenuView.cs` (one of the bar's menus over Core's lines),
 `Shell/DesktopWindow.BarMenus.cs` (opening, closing and placing every one of the bar's menus, one
 mechanism), `Shell/DesktopWindow.SettingsMenu.cs`, `Services/AppHost.SettingsMenu.cs`. Tests `SettingsMenuTests`, `DropDownPlacementTests`.
@@ -1424,14 +1424,15 @@ mechanism), `Shell/DesktopWindow.SettingsMenu.cs`, `Services/AppHost.SettingsMen
   selection behind it (Delete, Cut, Copy, the arrows, Ctrl+A) but Undo and Redo, which undo what the
   menu changed, and F6.
 - **[S-3524]** Its first level, in bands with a divider between them: General's lines, inline
-  ([S-3525]); **Appearance ›** ([S-3526]) and **Online updates ›** ([S-3530]); then **All settings…**
+  ([S-3525]); **Appearance ›** ([S-3526]), **Language & region ›** ([S-3536]) and **Online updates ›**
+  ([S-3530]); then **All settings…**
   ([S-3533]) and **Quit Themia** ([S-3532]). The sections stand in the agreed order (General,
   Appearance, Accounts, Language & region, Online updates, Themia Pro, Back up & reset, About, Quit
   Themia) as they move here; a section with no lines, and a band with none, is not there: nothing
   stands empty or greyed for what has not moved yet. The lines are Core's (`SettingsMenu.Root` over
   an `ISettingsMenuHost`: `SettingsToggle`, `SettingsChoice` of `SettingsRadio`s, `SettingsSlider`,
   `SettingsColour`, `SettingsFill`, `SettingsFont`, `SettingsSubmenu`, `SettingsCommand`,
-  `SettingsNote`), each keyed by a path that is the same in every language
+  `SettingsNote`; a choice may carry a box that finds its options, [S-3537]), each keyed by a path that is the same in every language
   (`appearance/cards/radius`); the app draws each as the engine's line of that kind.
 - **[S-3525]** **General**: **Start with Windows** ([S-933]; its glyph a speedometer, as Task Manager
   marks its Startup apps, never the power button Quit Themia wears; ticked while Windows will start Themia,
@@ -1478,18 +1479,36 @@ mechanism), `Shell/DesktopWindow.SettingsMenu.cs`, `Services/AppHost.SettingsMen
   bar's More › Exit did; the More button is gone.
 - **[S-3533]** *(Temporary: goes with the settings window.)* **All settings…**, right above Quit
   Themia, opens the settings window on its first page (Accounts), for what has not moved yet
-  (Accounts, Language & region, License, About).
+  (Accounts, License, About).
 - **[S-3534]** The ways in: ⚙, and the surface menu's Settings ([S-1744]), which opens it on that
   display. `DesktopWindow.OpenSettingsMenu(path)` opens it at a level, by the lines' keys, as clicks
   would (`MenuPanel.OpenPath`, the path the Set up button takes too, [S-1862]); every bar menu opens
   the same way (`OpenBarMenu(menu, path)`, [S-3540]). The settings window's
   General, Appearance and Widgets pages are gone, with their search entries and their navigation
   icons; nothing opens them.
+- **[S-3536]** **Language & region ›**, every localisation choice in one place, as the settings
+  window's Language & region page held them ([S-3797]; the page is gone, with its navigation entry,
+  search entries and globe icon): **Language ›** ([S-1109]), its value the language Themia speaks in
+  its own words; its options **Windows setting (…)** first, naming the language Windows gives Themia
+  ("Windows setting (Deutsch)"), then the thirty, each in its own words in every language; a pick is
+  stored and the whole app speaks it at once ([S-1110]), the menu staying open at the same level in
+  the new language ([S-3531]). Under a divider the regional formats every widget shares ([S-3770]):
+  **Time format ›**, **Start of week ›** and **Temperature unit ›**, each offering what Windows says
+  first ([S-3771]: "Windows setting (12-hour)") and writing its field of `Preferences.Region` with
+  no relayout. Each line's value is what is in force ("12-hour", "Sunday", "°C", "English"), short
+  enough to stand beside its words; its submenu says where it comes from. The line's own value is
+  the language spoken. There is no link to Windows' region settings: the page had none.
+- **[S-3537]** A long choice (the languages) has a box on top of its submenu (`SettingsChoice.Filter`,
+  its hint "Find a language"): each letter typed keeps the options whose words or keywords
+  (`SettingsRadio.Keywords`: a language's English name and code) hold it, whatever the case
+  (`SettingsMenu.Matches`), "No results" when none does; Enter picks the first kept, Down moves to
+  it; nothing goes out to be asked, so nothing waits. Tests `SettingsMenuTests` (`S3536_`, `S3537_`).
 - **[S-3535]** Debug renders: `--editbar-png <outDir> [--theme light|dark] [--lang xx] [--only
   settings]` draws the menu open under ⚙ on the stand-in display (`settings-<theme>.png`) and its
   submenus opened by key (`-appearance`, `-style`, `-theme`, `-accent`, `-background`, `-items`,
   `-cards`, `-border`, `-text`, `-font`, `-layout`, `-motion`, `-motion-startup`, `-online`,
-  `-online-weather`), `-advice` (start with Windows switched off in Windows, game mode holding the
+  `-online-weather`, `-language`, `-language-display`, `-language-clock`), `-language-find` (the
+  languages' box holding "deu"), `-advice` (start with Windows switched off in Windows, game mode holding the
   widgets, Windows' animations off) and `-replace` (a preset over a look of one's own: the question
   beside the menu, its `-popup0`), over a stand-in host that reaches neither Windows nor the user's
   state; `--only settings` draws these alone.
@@ -3452,7 +3471,8 @@ The settings window is drawn as Windows 11's Settings app (S-1540..S-1559). Owni
 - **[S-1721]** What a page shows (`SettingsPageSync.Signature`): the design and the preferences.
   Never where widgets sit, so a drag on the desktop rebuilds nothing. Changes
   that do not raise `StateChanged` (`Mutate(relayout: false)`) are not followed.
-- **[S-1722]** The app pages: Accounts and Language & region ([S-3797]) in the main slot ([S-1830]);
+- **[S-1722]** The app pages: Accounts in the main slot ([S-1830]); Language & region is the
+  settings menu's ([S-3536]);
   License and About in the footer. General, Appearance and Widgets are not pages any more: they are
   the edit bar's settings menu ([S-3524]); Displays and Views are its Display and View menus ([S-3540]). No Layout, Data or Developer page.
 - **[S-1723]** Every font setting picks through one picker, `FontPicker`: the settings menu's Font
@@ -5575,8 +5595,8 @@ Settings does (System, Bluetooth, Personalization, Accounts...). Code: `Shell/Co
   bundled unmodified as SVG in `src/Themia.App/Assets/NavIcons/` (content files, no package). One
   per entry, echoing the Windows Settings equivalent where there is one: Accounts = Accounts' person (`person`),
   About = `question_circle` (the set has no
-  info icon), Language & region = Time & language's globe (`globe`). (Views' `content_view` and
-  Displays' `laptop` went with their pages, [S-3546].) A new app page names its icon in its `AppPages` line.
+  info icon). (Views' `content_view` and Displays' `laptop` went with their pages, [S-3546];
+  Language & region's `globe` with its page, [S-3536].) A new app page names its icon in its `AppPages` line.
 - **[S-1601]** Each icon is drawn by `SvgImageSource` in a 20-DIP icon box (NavigationView's default
   16 is sized for font glyphs; the colour icons carry their own padding and read too small there),
   from the icon's 20-DIP design, rasterised at exactly the pixels the box covers on the window's
@@ -5895,7 +5915,7 @@ displays, the ghost following the pointer across displays, Ctrl+A/Escape order.
   (`prs-AF`) → fa; `fil-PH` and Tagalog (`tl`) → fil; `sw-KE`/`sw-TZ` → sw; `ha-Latn-NG` → ha;
   `pa-IN`/`pa-Guru*` → pa, but Shahmukhi (`pa-Arab*`, Pakistan) is not taken for the Gurmukhi table and
   the walk goes on. Walks the whole list, not only its head.
-- **[S-1109]** Settings › Language & region › App display language ([S-3797]): System + the thirty, each named in its own
+- **[S-1109]** ⚙ › Language & region › Language ([S-3536]): Windows' setting + the thirty, each named in its own
   language. The host resolves the setting before any window is built and again on every state
   change (an import or reset), and `SetLanguage` applies it at once.
 - **[S-1110]** Live switch: `Strings.Changed(Locale)` fires on the UI thread after the language
@@ -6447,7 +6467,8 @@ every display's and every view's settings are the edit bar's Display and View me
   view's line follows in place.
 - **[S-1708]** *(Retired by [S-3544]: Views on the bar is a submenu of switches.)*
 - **[S-1709]** *(Retired by [S-3543]: Display ▾'s heading names the display and its resolution.)*
-- **[S-1830]** The navigation pane lists pages only: Accounts and Language & region ([S-3797]), and
+- **[S-1830]** The navigation pane lists pages only: Accounts (Language & region is the settings
+  menu's, [S-3536]), and
   License and About at the foot (General, Appearance and Widgets are the settings menu's, [S-3524];
   Displays and Views the bar's Display and View menus, [S-3540]). No entry per account or widget, so
   no entry menus and no dragging in the pane.
@@ -7401,7 +7422,7 @@ queue, schedules, merges, interests), `Themia.App/Services/Sync/SyncHost.cs` (ke
 What every widget shares instead of carrying its own copy, and the audit of every widget page that
 moved it there. Core: `RegionFormat` (`Localization/RegionFormat.cs`), `UpdateCadence`
 (`Sync/UpdateCadence.cs`), `RegionPreferences` / `RefreshPreferences` (`Model/AppPreferences.cs`).
-App: `ConfigPages.LanguageRegion.cs` (Settings › Language & region: the formats), Core
+Core `Settings/SettingsMenu.Language.cs` (⚙ › Language & region: the formats, [S-3536]),
 `Settings/SettingsMenu.Online.cs` (the settings menu's Online updates, [S-3530]), `AppHost.Region.cs`,
 `Interop/SystemRegion.cs`.
 Strings in `Locales/language-region` and `Locales/widget-prefs`. Tests `WidgetPreferencesTests` (`S37xx_`).
@@ -7463,12 +7484,10 @@ Strings in `Locales/language-region` and `Locales/widget-prefs`. Tests `WidgetPr
   ping name ([S-3791]); the gallery, meter, detail and Bluetooth refresh rows ([S-3792]–[S-3794]);
   Bluetooth's device count; Notes' word wrap (always wraps); the contacts' starting search
   ([S-584]); the mail page's sort row (the widget's own sort button stays).
-- **[S-3797]** Settings › Language & region (as Windows Settings' Time & language › Language & region;
-  Segoe's TimeLanguage glyph, the colour `globe` in the pane) is every localisation choice in one
-  place, after Accounts where Windows puts it: Language (App display language, [S-1109]), then
-  Regional format (time format, first day of the week, temperature unit, [S-3770]). General and
-  Widgets hold none of them; Widgets keeps only the update cadences ([S-3780]). There are no other
-  units or formats to move: no widget has its own date, number, wind or distance format.
+- **[S-3797]** *(Retired by [S-3536]: the Language & region page is the settings menu's
+  Language & region ›, which holds every localisation choice in one place as the page did: the
+  language, then the regional formats. There are still no other units or formats: no widget has its
+  own date, number, wind or distance format.)*
 
 ## Next meeting (NEXT-MEETING)
 

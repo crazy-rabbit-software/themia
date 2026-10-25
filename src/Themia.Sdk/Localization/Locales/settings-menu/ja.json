@@ -1,5 +1,6 @@
 {
   "settingsMenu.onlineUpdates": "オンライン更新",
   "settingsMenu.allSettings": "すべての設定…",
-  "settingsMenu.gameMode": "全画面表示中は一時停止"
+  "settingsMenu.gameMode": "全画面表示中は一時停止",
+  "settingsMenu.findLanguage": "言語を検索"
 }

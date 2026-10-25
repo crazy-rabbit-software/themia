@@ -1,8 +1,5 @@
 {
   "languageRegion.nav": "భాష & ప్రాంతం",
-  "languageRegion.displayLanguage": "యాప్ ప్రదర్శన భాష",
-  "languageRegion.displayLanguageDesc": "Themia సెట్టింగ్‌లు, మెనూలు మరియు విడ్జెట్‌లు ఈ భాషలో కనిపిస్తాయి",
-  "languageRegion.region.header": "ప్రాంతీయ ఫార్మాట్",
   "languageRegion.clock": "సమయ ఫార్మాట్",
   "languageRegion.clock12": "{hours}-గంటలు",
   "languageRegion.clock24": "{hours}-గంటలు",

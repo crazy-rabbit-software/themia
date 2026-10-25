@@ -1,8 +1,5 @@
 {
   "languageRegion.nav": "மொழி & பிராந்தியம்",
-  "languageRegion.displayLanguage": "பயன்பாட்டின் காட்சி மொழி",
-  "languageRegion.displayLanguageDesc": "Themia-வின் அமைப்புகள், மெனுக்கள் மற்றும் விட்ஜெட்கள் இந்த மொழியில் தோன்றும்",
-  "languageRegion.region.header": "பிராந்திய வடிவம்",
   "languageRegion.clock": "நேர வடிவம்",
   "languageRegion.clock12": "{hours}-மணிநேரம்",
   "languageRegion.clock24": "{hours}-மணிநேரம்",

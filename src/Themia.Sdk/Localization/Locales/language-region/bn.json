@@ -1,8 +1,5 @@
 {
   "languageRegion.nav": "ভাষা ও অঞ্চল",
-  "languageRegion.displayLanguage": "অ্যাপের প্রদর্শন ভাষা",
-  "languageRegion.displayLanguageDesc": "Themia-র সেটিংস, মেনু ও উইজেট এই ভাষায় দেখা যায়",
-  "languageRegion.region.header": "আঞ্চলিক ফরম্যাট",
   "languageRegion.clock": "সময়ের ফরম্যাট",
   "languageRegion.clock12": "{hours}-ঘণ্টা",
   "languageRegion.clock24": "{hours}-ঘণ্টা",

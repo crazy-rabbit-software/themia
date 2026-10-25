@@ -24,7 +24,7 @@ internal partial class MenuPanel
     {
         if (owner.Search is not { } search)
         {
-            return [.. owner.Children ?? []];
+            return owner.Filter is null ? [.. owner.Children ?? []] : Filtered(level, owner);
         }
 
         var answers = level.Results;
@@ -51,6 +51,63 @@ internal partial class MenuPanel
         }
 
         return nodes;
+    }
+
+    /// <summary>
+    /// [S-3537] A filtered level's lines: those whose words or keywords hold what is typed in its box
+    /// (every one while it is empty), or "No results" in their place.
+    /// </summary>
+    private static List<MenuNode> Filtered(Level level, MenuNode owner)
+    {
+        var typed = level.Box?.Text ?? string.Empty;
+        var kept = (owner.Children ?? []).Where(n => n.Kind != MenuNodeKind.Line || SettingsMenu.Matches(n.Text, n.Keywords, typed)).ToList();
+        return kept.Any(n => n.Kind == MenuNodeKind.Line)
+            ? kept
+            : [new MenuNode(owner.Key + "/none", MenuNodeKind.Note) { Text = Str.Common_NoResults.Text() }];
+    }
+
+    /// <summary>
+    /// [S-3537] A filter's box, on top of a long choice's submenu: each letter typed keeps the options
+    /// that match at once (nothing goes out to be asked); Enter picks the first one kept, Down moves to it.
+    /// </summary>
+    private TextBox FilterBox(Level level, string hint)
+    {
+        var box = new TextBox
+        {
+            PlaceholderText = hint,
+            Height = LineHeight,
+            MinHeight = LineHeight,
+            Margin = new Thickness(Fluent.Space2, Fluent.Space2, Fluent.Space2, 0),
+            IsSpellCheckEnabled = false,
+            IsTextPredictionEnabled = false,
+        };
+        AutomationProperties.SetName(box, hint);
+
+        box.TextChanged += (_, _) =>
+        {
+            if (level.Anchor is { } anchor && _levels.IndexOf(level) is var at and > 0)
+            {
+                FillLevel(level, LevelNodes(level, anchor.Node));
+                Place(level, at);
+            }
+        };
+
+        box.KeyDown += (_, e) =>
+        {
+            if (e.Key == Windows.System.VirtualKey.Enter && level.Views.FirstOrDefault(v => v is { Button.IsEnabled: true }) is { } first)
+            {
+                OnLine(level, first);
+                e.Handled = true;
+            }
+            else if (e.Key == Windows.System.VirtualKey.Down && level.Views.FirstOrDefault(v => v is { Button.IsEnabled: true }) is { } next)
+            {
+                next.Button.Focus(FocusState.Keyboard);
+                e.Handled = true;
+            }
+        };
+
+        box.GotFocus += (_, _) => CloseFrom(_levels.IndexOf(level) + 1);
+        return box;
     }
 
     /// <summary>

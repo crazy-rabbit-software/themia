@@ -1,8 +1,5 @@
 {
   "languageRegion.nav": "Ngôn ngữ và vùng",
-  "languageRegion.displayLanguage": "Ngôn ngữ hiển thị của ứng dụng",
-  "languageRegion.displayLanguageDesc": "Cài đặt, menu và tiện ích của Themia hiển thị bằng ngôn ngữ này",
-  "languageRegion.region.header": "Định dạng khu vực",
   "languageRegion.clock": "Định dạng giờ",
   "languageRegion.clock12": "{hours} giờ",
   "languageRegion.clock24": "{hours} giờ",

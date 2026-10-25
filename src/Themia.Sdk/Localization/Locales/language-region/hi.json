@@ -1,8 +1,5 @@
 {
   "languageRegion.nav": "भाषा और क्षेत्र",
-  "languageRegion.displayLanguage": "ऐप की डिस्प्ले भाषा",
-  "languageRegion.displayLanguageDesc": "Themia की सेटिंग्स, मेनू और विजेट इस भाषा में दिखते हैं",
-  "languageRegion.region.header": "क्षेत्रीय फ़ॉर्मैट",
   "languageRegion.clock": "समय फ़ॉर्मैट",
   "languageRegion.clock12": "{hours}-घंटे",
   "languageRegion.clock24": "{hours}-घंटे",

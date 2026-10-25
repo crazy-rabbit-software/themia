@@ -1,8 +1,5 @@
 {
   "languageRegion.nav": "言語と地域",
-  "languageRegion.displayLanguage": "アプリの表示言語",
-  "languageRegion.displayLanguageDesc": "Themia の設定、メニュー、ウィジェットはこの言語で表示されます",
-  "languageRegion.region.header": "地域の形式",
   "languageRegion.clock": "時刻の形式",
   "languageRegion.clock12": "{hours} 時間",
   "languageRegion.clock24": "{hours} 時間",

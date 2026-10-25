@@ -2,5 +2,6 @@
   "$comment": "[S-3520]..[S-3535] The edit bar's settings menu (⚙): its own words. \"All settings…\" is temporary: it goes with the settings window.",
   "settingsMenu.onlineUpdates": "Online updates",
   "settingsMenu.allSettings": "All settings…",
-  "settingsMenu.gameMode": "Pause during full-screen apps"
+  "settingsMenu.gameMode": "Pause during full-screen apps",
+  "settingsMenu.findLanguage": "Find a language"
 }

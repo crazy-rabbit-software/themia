@@ -64,6 +64,10 @@ internal sealed partial class DesktopWindow
 
         public void ReplayIntro(IntroMode mode) => Host.ReplayIntro(mode);
 
+        public Core.Localization.Locale WindowsLanguage => Host.WindowsLanguage;
+
+        public void SetLanguage(AppLanguage language) => Host.SetLanguage(language);
+
         public void Confirm(SettingsConfirm confirm) => surface._barMenus[BarMenu.Settings].Confirm(confirm);
 
         public void ShowAllSettings() => Host.ShowSettings();

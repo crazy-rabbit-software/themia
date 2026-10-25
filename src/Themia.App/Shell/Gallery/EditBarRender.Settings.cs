@@ -18,7 +18,8 @@ namespace Themia.App.Shell.Gallery;
 /// keys (<c>-appearance</c>, <c>-style</c>, <c>-theme</c>, <c>-accent</c> (a colour submenu),
 /// <c>-background</c> (a fill's), <c>-items</c>, <c>-cards</c>, <c>-border</c>, <c>-text</c>,
 /// <c>-font</c> (the font picker), <c>-layout</c>, <c>-motion</c>, <c>-motion-startup</c>,
-/// <c>-online</c>, <c>-online-weather</c>), <c>-advice</c> (Start with Windows turned off in
+/// <c>-online</c>, <c>-online-weather</c>, <c>-language</c>, <c>-language-display</c>, <c>-language-clock</c>),
+/// <c>-language-find</c> (the languages' box holding "deu"), <c>-advice</c> (Start with Windows turned off in
 /// Windows, game mode holding the widgets, Windows' animations off) and <c>-replace</c> (a preset
 /// picked over a look of one's own: the question beside the menu, its <c>-popup0</c>). A stand-in
 /// host: nothing reaches Windows or the user's state.
@@ -46,12 +47,19 @@ internal static partial class EditBarRender
             ("-motion-startup", [a, a + "/motion", a + "/motion/startup"]),
             ("-online", [SettingsMenu.Keys.Online]),
             ("-online-weather", [SettingsMenu.Keys.Online, SettingsMenu.Keys.Online + "/weather"]),
+            ("-language", [SettingsMenu.Keys.Language]),
+            ("-language-display", [SettingsMenu.Keys.Language, SettingsMenu.Keys.Language + "/display"]),
+            ("-language-clock", [SettingsMenu.Keys.Language, SettingsMenu.Keys.Language + "/clock"]),
         ];
 
         foreach (var (name, open) in cases)
         {
             await SettingsShot(screen, System.IO.Path.Combine(outDir, $"settings-{theme}{name}.png"), new RenderSettingsHost(), open).ConfigureAwait(true);
         }
+
+        // [S-3537] The languages' box finds a language as it is typed.
+        await SettingsShot(screen, System.IO.Path.Combine(outDir, $"settings-{theme}-language-find.png"), new RenderSettingsHost(),
+            [SettingsMenu.Keys.Language, SettingsMenu.Keys.Language + "/display"], menu => menu.DebugType("deu")).ConfigureAwait(true);
 
         // [S-3525] [S-3529] What holds against a setting is said: start with Windows turned off in
         // Windows (the advice under it), game mode holding the widgets, Windows' animations off.
@@ -72,8 +80,8 @@ internal static partial class EditBarRender
         await SettingsShot(screen, System.IO.Path.Combine(outDir, $"settings-{theme}-replace.png"), custom, [a, a + "/style", a + "/style/" + DesignPresets.All[1].Id]).ConfigureAwait(true);
     }
 
-    private static Task SettingsShot(Grid screen, string path, RenderSettingsHost host, string[] open)
-        => MenuShot(screen, path, BarMenu.Settings, () => host.Menu = new BarMenuView(nameof(BarMenu.Settings), () => SettingsMenu.Root(host), () => { }), open, null);
+    private static Task SettingsShot(Grid screen, string path, RenderSettingsHost host, string[] open, Action<BarMenuView>? then = null)
+        => MenuShot(screen, path, BarMenu.Settings, () => host.Menu = new BarMenuView(nameof(BarMenu.Settings), () => SettingsMenu.Root(host), () => { }), open, then);
 
     /// <summary>A stand-in for the settings menu's host: a state of its own, Windows' side made up, every change drawn at once.</summary>
     private sealed class RenderSettingsHost : ISettingsMenuHost
@@ -112,6 +120,10 @@ internal static partial class EditBarRender
         {
             // ignore: a render plays no intro.
         }
+
+        public Core.Localization.Locale WindowsLanguage => Core.Localization.Locale.En;
+
+        public void SetLanguage(AppLanguage language) => Mutate(s => s.Preferences.Language = language);
 
         public void Confirm(SettingsConfirm confirm) => Menu?.Confirm(confirm);
 

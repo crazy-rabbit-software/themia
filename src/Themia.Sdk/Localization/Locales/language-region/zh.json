@@ -1,8 +1,5 @@
 {
   "languageRegion.nav": "语言和区域",
-  "languageRegion.displayLanguage": "应用显示语言",
-  "languageRegion.displayLanguageDesc": "Themia 的设置、菜单和小组件以此语言显示",
-  "languageRegion.region.header": "区域格式",
   "languageRegion.clock": "时间格式",
   "languageRegion.clock12": "{hours} 小时制",
   "languageRegion.clock24": "{hours} 小时制",

@@ -1,5 +1,6 @@
 {
   "settingsMenu.onlineUpdates": "การอัปเดตออนไลน์",
   "settingsMenu.allSettings": "การตั้งค่าทั้งหมด…",
-  "settingsMenu.gameMode": "หยุดชั่วคราวขณะเต็มหน้าจอ"
+  "settingsMenu.gameMode": "หยุดชั่วคราวขณะเต็มหน้าจอ",
+  "settingsMenu.findLanguage": "ค้นหาภาษา"
 }

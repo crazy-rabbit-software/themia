@@ -134,7 +134,7 @@ public abstract class CalendarConfig : WidgetConfig, ISetupRule, IInterests
 
     /// <summary>
     /// [S-564] [S-3770] The week start the layout draws by: the shared regional setting
-    /// (Settings › Language &amp; region, else Windows'), never the widget's own.
+    /// (⚙ › Language &amp; region, else Windows'), never the widget's own.
     /// </summary>
     [JsonIgnore]
     public WeekStartDay EffectiveWeekStart => Localization.RegionFormat.Current.WeekStart;

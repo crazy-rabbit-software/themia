@@ -1,8 +1,5 @@
 {
   "languageRegion.nav": "Bahasa & wilayah",
-  "languageRegion.displayLanguage": "Bahasa tampilan aplikasi",
-  "languageRegion.displayLanguageDesc": "Pengaturan, menu, dan widget Themia tampil dalam bahasa ini",
-  "languageRegion.region.header": "Format regional",
   "languageRegion.clock": "Format waktu",
   "languageRegion.clock12": "{hours} jam",
   "languageRegion.clock24": "{hours} jam",

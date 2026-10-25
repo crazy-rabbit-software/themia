@@ -84,7 +84,7 @@ internal static class SettingsRender
 
         if (at + 2 >= args.Length)
         {
-            Log.Error(Scope, "usage: --settings-png <Accounts|LanguageRegion|License|About> <out.png> [waitMs] [--theme light|dark] [--search text] [--land text] [--flyout row-title] [--width dips]");
+            Log.Error(Scope, "usage: --settings-png <Accounts|License|About> <out.png> [waitMs] [--theme light|dark] [--search text] [--land text] [--flyout row-title] [--width dips]");
             app.Exit();
             return true;
         }

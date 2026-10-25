@@ -1,8 +1,5 @@
 {
   "languageRegion.nav": "भाषा आणि प्रदेश",
-  "languageRegion.displayLanguage": "अ‍ॅपची प्रदर्शन भाषा",
-  "languageRegion.displayLanguageDesc": "Themia ची सेटिंग्ज, मेनू आणि विजेट या भाषेत दिसतात",
-  "languageRegion.region.header": "प्रादेशिक फॉरमॅट",
   "languageRegion.clock": "वेळेचे फॉरमॅट",
   "languageRegion.clock12": "{hours}-तास",
   "languageRegion.clock24": "{hours}-तास",

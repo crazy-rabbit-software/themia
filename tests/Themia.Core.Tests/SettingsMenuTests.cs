@@ -16,7 +16,7 @@ namespace Themia.Core.Tests;
 /// nothing else, through one change of the state.
 /// </summary>
 [Collection(GlobalLocaleCollection.Name)]
-public sealed class SettingsMenuTests
+public sealed partial class SettingsMenuTests
 {
     /// <summary>A host over a state of its own: each change is applied to it and counted.</summary>
     private sealed class FakeHost : ISettingsMenuHost
@@ -62,6 +62,16 @@ public sealed class SettingsMenuTests
 
         public void ReplayIntro(IntroMode mode) => Replayed.Add(mode);
 
+        public Locale WindowsLanguage { get; set; } = Locale.De;
+
+        public List<AppLanguage> LanguagesSet { get; } = [];
+
+        public void SetLanguage(AppLanguage language)
+        {
+            LanguagesSet.Add(language);
+            Mutate(s => s.Preferences.Language = language, relayout: false);
+        }
+
         public void Confirm(SettingsConfirm confirm) => Asked.Add(confirm);
 
         public void ShowAllSettings() => AllSettings++;
@@ -95,7 +105,7 @@ public sealed class SettingsMenuTests
         var keys = Root(new FakeHost()).Select(l => l is SettingsSeparator ? "-" : l.Key).ToArray();
 
         Assert.Equal(
-            ["startup", "desktopIcons", "gameMode", "-", "appearance", "online", "-", "allSettings", "quit"],
+            ["startup", "desktopIcons", "gameMode", "-", "appearance", "language", "online", "-", "allSettings", "quit"],
             keys);
     }
 

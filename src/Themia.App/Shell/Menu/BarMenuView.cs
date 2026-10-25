@@ -91,7 +91,7 @@ internal sealed partial class BarMenuView : MenuPanel
             Disabled = toggle.Disabled,
             Run = () => toggle.Set(!toggle.On),
         },
-        SettingsRadio radio => Option(radio.Key, radio.Text, IconKeyOf(radio.Glyph, radio.GlyphColour), IconOf(radio.Glyph, radio.GlyphColour), radio.Holds, radio.Pick) with { Disabled = radio.Disabled },
+        SettingsRadio radio => Option(radio.Key, radio.Text, IconKeyOf(radio.Glyph, radio.GlyphColour), IconOf(radio.Glyph, radio.GlyphColour), radio.Holds, radio.Pick) with { Disabled = radio.Disabled, Keywords = radio.Keywords },
         SettingsChoice choice => new MenuNode(choice.Key)
         {
             Text = choice.Text,
@@ -100,6 +100,7 @@ internal sealed partial class BarMenuView : MenuPanel
             Icon = IconOf(choice.Glyph),
             Disabled = choice.Disabled,
             Children = Nodes(choice.Options),
+            Filter = choice.Filter,
         },
         SettingsSlider slider => new MenuNode(slider.Key, MenuNodeKind.Slider)
         {

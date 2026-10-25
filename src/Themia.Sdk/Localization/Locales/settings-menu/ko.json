@@ -1,5 +1,6 @@
 {
   "settingsMenu.onlineUpdates": "온라인 업데이트",
   "settingsMenu.allSettings": "모든 설정…",
-  "settingsMenu.gameMode": "전체 화면에서 일시 중지"
+  "settingsMenu.gameMode": "전체 화면에서 일시 중지",
+  "settingsMenu.findLanguage": "언어 찾기"
 }

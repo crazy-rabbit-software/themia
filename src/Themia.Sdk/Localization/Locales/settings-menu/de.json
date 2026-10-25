@@ -1,5 +1,6 @@
 {
   "settingsMenu.onlineUpdates": "Online-Aktualisierungen",
   "settingsMenu.allSettings": "Alle Einstellungen…",
-  "settingsMenu.gameMode": "Bei Vollbild pausieren"
+  "settingsMenu.gameMode": "Bei Vollbild pausieren",
+  "settingsMenu.findLanguage": "Sprache suchen"
 }

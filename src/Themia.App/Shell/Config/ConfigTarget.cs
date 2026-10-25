@@ -22,9 +22,6 @@ internal enum AppPage
 
     /// <summary>Microsoft Store licence state.</summary>
     License,
-
-    /// <summary>[S-3797] The display language and the regional formats every widget shares.</summary>
-    LanguageRegion,
 }
 
 /// <summary>Where an app page sits in the settings navigation.</summary>

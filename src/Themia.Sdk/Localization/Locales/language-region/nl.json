@@ -1,8 +1,5 @@
 {
   "languageRegion.nav": "Taal en regio",
-  "languageRegion.displayLanguage": "Weergavetaal van de app",
-  "languageRegion.displayLanguageDesc": "De instellingen, menu’s en widgets van Themia verschijnen in deze taal",
-  "languageRegion.region.header": "Landnotatie",
   "languageRegion.clock": "Tijdnotatie",
   "languageRegion.clock12": "{hours}-uursnotatie",
   "languageRegion.clock24": "{hours}-uursnotatie",
