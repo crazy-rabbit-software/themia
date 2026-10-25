@@ -1,144 +1,122 @@
+<div align="center">
+
 # Themia
 
-**Transparent widgets for your Windows desktop.** Clock, system meters, mail, calendar, tasks, notes,
-weather and more, drawn on the desktop layer behind your windows. By [Lometics GmbH](https://lometics.com).
+**Widgets for your Windows desktop.** The clock, the weather, your calendar, mail, tasks, notes,
+music and how your PC is doing, right on your wallpaper, behind your windows.
 
-This branch is the native rebuild: **WinUI 3, .NET 10, compiled ahead of time (Native AOT)**. There is
-no embedded browser and no JavaScript engine in the app itself, and nothing runs when nothing has
-changed. The original Tauri version is on the `main` branch.
+[Website](https://themia.app) · [Get help](#help-and-support) · [Report a problem](https://github.com/crazy-rabbit-software/themia/issues/new/choose) · [Contribute and get Pro for free](#contribute-and-get-pro-for-free)
 
-![the clock widget in edit mode](docs/edit-mode.png)
+</div>
 
-## What is in it
+![Themia widgets on a Windows desktop: a clock, the weather and forecast, a month calendar, a task list, music controls, CPU and memory meters, a stock price and a habit tracker](docs/readme/desktop.png)
 
-**40 widget types**, in these groups of the Add widget picker:
+## What Themia does
 
-| Group | Widgets |
+Themia puts small, good-looking panels on your desktop that show what you care about. They sit
+behind your windows like your wallpaper, so they never get in the way. Minimise everything (or press
+**Win + D**) and there they are.
+
+- **79 widgets to choose from.** Clocks, weather, calendars, mail, to-do lists, notes, music,
+  photos, shortcuts to your apps and folders, and meters for your CPU, memory, battery and network.
+- **They fit any size.** Make a widget bigger and it shows more; make it smaller and it keeps what
+  matters most.
+- **Make it yours.** Many widgets come in several styles, and you choose the colours, transparency,
+  borders and corners. Light and dark mode follow Windows.
+- **Several layouts.** Keep one desktop for work and one for the evening, and switch with a click.
+  Every screen can have its own.
+- **Your accounts, on your PC.** Mail, calendars and tasks connect directly to Microsoft (Outlook),
+  Google, iCloud or your own mail server. Nothing goes through us.
+- **Private by design.** No ads, no tracking, no analytics, and no Themia account to create.
+- **Light on your PC.** Built for Windows 11, it starts fast and does nothing while nothing changes.
+- **In your language.** Available in 30 languages.
+
+### Pick a style
+
+![The clock as an analogue, flip, stacked and word clock, and a calendar and weather widget in light mode](docs/readme/styles.png)
+
+### Add widgets in seconds
+
+<img src="docs/readme/picker.png" alt="The Add widget picker: search, popular widgets, and categories such as Time, Calendar and mail, Weather and sky, System and Quick settings" width="480" />
+
+| Category | A few of the widgets |
 |---|---|
-| Time | Clock, Countdown, Pomodoro, Sun & Moon |
-| System | CPU, Memory, Disk, GPU, Network, Ping, Battery, Volume, Mixer, Power, Bluetooth, Screen time |
-| Mail & calendar | Mail, Calendar, Tasks, Contacts (Microsoft, Google, IMAP, CalDAV/CardDAV, a local task list) |
-| Information | Weather, Forecast, Stocks, Feed (RSS/Atom) |
-| Media | Now playing, Gallery, Video stream |
-| Launch | Shortcuts, Folder |
-| Desk | Notes, Clipboard, Scratchpad, Quote |
-| Trackers | Habits |
+| Time | Clock, alarm, timer, stopwatch, Pomodoro, focus session |
+| Calendar and mail | Calendar, week planner, next meeting, mail, contacts, tasks |
+| Weather and sky | Weather now, forecast, rain in the next hour, air quality, sun and moon |
+| News and markets | Stocks, exchange rates, news feeds, quote of the day |
+| Music and media | Now playing, volume, mixer, photo gallery, camera stream |
+| Notes and tools | Notes, scratchpad, clipboard history, habit tracker, notifications |
+| Files and apps | App shortcuts, folders, recent files, Recycle Bin, drives |
+| System | CPU, memory, graphics card, disk, network, screen time |
+| Devices and quick settings | Battery, brightness, Wi-Fi, Bluetooth, Do not disturb, night light, shut down and restart |
 
-Every widget fills the space it is given: it shows more as you make it bigger and sheds detail
-gracefully as you make it smaller.
+## Get Themia
 
-Around the widgets: views (named layouts, each display shows one), a desktop **view bar** for switching
-them, per-display scale, a snap grid, copy / cut / paste and drag between displays, undo for deletes,
-a Windows 11 style settings window with search, light / dark / system theme, accent and surface
-colours, corner radius, borders, fonts, nine intro animations, game mode (widgets pause under
-full-screen apps), start with Windows, and export / import of all settings.
+Themia is available from the **Microsoft Store** for Windows 11. The Store installs it and keeps
+it up to date. See [themia.app](https://themia.app) for the link.
 
-## Using it
+- **Free:** every widget, up to 20 widgets and 2 layouts.
+- **Themia Pro:** unlimited widgets and layouts. One purchase, no subscription.
 
-Themia has no main window and no notification-area icon. It is wallpaper with widgets on it.
+If you ever go over the free limit, nothing you made is deleted or hidden.
 
-- **Ctrl+Alt+W** toggles edit mode. Double-clicking a widget does the same, and launching Themia a
-  second time hands the request to the copy that is already running, which is the way back in if
-  another program owns the hotkey.
-- **Add widget** (edit toolbar) opens the picker. Search it by name, synonym or even a typo ("calender").
-  After you pick, the widget follows the mouse; click to drop it, **Escape** or right-click to cancel.
-  Paste and duplicate use the same placement.
-- **Select** one widget by clicking, several with **Ctrl+click**, a rubber band on empty desktop, or
-  **Ctrl+A**. Drag to move the selection as one block, drag a handle to resize (eight handles; **Alt**
-  bypasses snapping), **Ctrl+C / X / V / D** and **Delete** act on all of it.
-- **Right-click** a widget for its menu, or open its settings. Items inside a widget have their own menus.
-- **Views:** the toolbar's View menu and the view bar add, switch, duplicate, reorder and delete views.
-  In edit mode **Ctrl+1..9** shows the n-th view. Dragging a widget onto another display moves it there.
-- **Settings:** the toolbar's Settings button, or a widget's menu. Type in *Find a setting* in the title
-  bar to jump to any row, including a widget's. Colours are always picked, never typed.
-- Keys inside a widget (arrows, Enter, F2, Delete in lists, the calendar, tasks and so on) work after you
-  click it; **Escape** gives the keyboard back to the app you were in.
+### Getting started
 
-Exit is under the toolbar's **...** menu, away from **Done**.
+1. After installing, Themia starts with a few widgets on your desktop.
+2. Press **Ctrl + Alt + W** (or double-click a widget) to start editing.
+3. Click **Add widget**, pick one, and click on your desktop to place it.
+4. Drag widgets to move them, drag their edges to resize, and **right-click** one to change its
+   style, colours and options.
+5. Click **Done** when you are happy with it.
 
-## Settings and data
+## Help and support
 
-State lives in `%APPDATA%\Themia\` (`state.json`, `accounts.json` with every secret sealed by DPAPI for
-your user, notes, local task lists, habits, screen-time history, weather and network caches). Machine-local data lives in `%LOCALAPPDATA%\Themia\` (logs,
-saved copies of fetched data, the licence record). **Settings > About** exports and imports the state
-document and can uninstall Themia, optionally deleting both folders. Packaged installs keep these under
-the package's redirected AppData and remove them with the package.
+- **Something not working?** [Report a problem](https://github.com/crazy-rabbit-software/themia/issues/new?template=bug-report.yml).
+  Tell us which widget, what you did and what happened. A screenshot helps a lot.
+- **An idea or a widget you'd love?** [Suggest an improvement](https://github.com/crazy-rabbit-software/themia/issues/new?template=feature-request.yml)
+  or [request a widget](https://github.com/crazy-rabbit-software/themia/issues/new?template=widget-request.yml).
+- **Want to chat or ask a question?** Join the [Discussions](https://github.com/crazy-rabbit-software/themia/discussions).
+- **Something private** (a purchase, your account, or anything you'd rather not post publicly)?
+  Email [support@themia.app](mailto:support@themia.app).
 
-Warnings and errors are logged to `%LOCALAPPDATA%\Themia\logs\themia.log` (rotated, 14 days) and to the
-Windows Application event log; secrets are redacted before anything is written.
+Before you open a new report, have a quick look at the [open issues](https://github.com/crazy-rabbit-software/themia/issues):
+someone may have reported it already, and a thumbs-up there tells us it matters to you too.
+Issues are public, so never post passwords or other private information.
 
-## Distribution and licence tiers
+## Contribute and get Pro for free
 
-Themia ships through the **Microsoft Store** as an MSIX package. Builds you make yourself (F5,
-`dotnet build`, `scripts/publish.ps1`) are unpackaged **developer builds** and unrestricted. The Store
-build is free for up to 10 widgets and 2 views; the one-time **Pro** add-on lifts both limits. Nothing
-you already have is ever deleted or hidden for being over a limit. Packaging and the manual test plan
-are in [docs/STORE.md](docs/STORE.md).
+Themia gets better because people tell us what's wrong and what's missing. **Anyone who
+contributes to Themia, in any way, gets a free Themia Pro licence.** You don't need to be a
+programmer. For example:
 
-## Building from source
+- **Report a bug** you ran into, with the steps to see it again.
+- **Suggest a feature or a new widget.**
+- **Improve a translation** in your language, or tell us where the wording is wrong.
+- **Test a fix** and tell us whether it works for you.
+- **Help other people** in the issues or the Discussions.
+- **Share your setup** with a screenshot of your desktop in the Discussions.
+- **Write code**: fix a bug or build a widget (see [CONTRIBUTING.md](CONTRIBUTING.md)).
 
-Needs the .NET 10 SDK, Windows 10 1809 or later (Windows 11 recommended), and for the AOT build the
-Visual Studio Build Tools with the C++ workload.
+To get your licence, mention it in your issue or pull request, or email
+[support@themia.app](mailto:support@themia.app) with a link to what you did. Thank you!
 
-```powershell
-dotnet build src/Themia.App/Themia.App.csproj -c Release
-dotnet test tests/Themia.Core.Tests/Themia.Core.Tests.csproj
-powershell -ExecutionPolicy Bypass -File scripts/publish.ps1   # single native binary, unpackaged
-powershell -ExecutionPolicy Bypass -File scripts/package.ps1   # unsigned Store package
-```
+## For developers
 
-Debug builds also carry render flags that write PNGs of the settings window, the picker and other
-shell parts without touching the desktop, and `--add-showcase-views`, which puts every widget on the
-desktop at seven fixed sizes. They are the way UI changes are checked, and are listed in
-[CLAUDE.md](CLAUDE.md). Google sign-in needs a client secret at
-build time (`THEMIA_CLIENT_SECRETS`, `google=<secret>`); a build without it refuses Google sign-in up front.
+Themia's source code is public. You can read it, build it yourself and send improvements.
+[CONTRIBUTING.md](CONTRIBUTING.md) explains how to build Themia, how it works inside and how to
+send a pull request.
 
-```
-src/Themia.Core/      pure logic, no UI and no Windows dependency; all tests run against it
-src/Themia.App/       WinUI 3 shell: Interop (Win32), Services (host, sync, samplers), Shell, Widgets
-src/Themia.Localization.Generator/   build-time string tables (nine languages)
-tests/                xUnit over Themia.Core
-docs/                 Store release notes and screenshots
-```
+The source is available under the [Elastic License 2.0](LICENSE): you may read, build, change and
+share it, but not remove or work around the Pro licence check, remove the notices, or offer Themia
+as a hosted service. That makes it source available, not open source; the LICENSE file is the
+binding text. The Themia name and logo are not covered by the licence, so give a modified build its
+own name and icon. Third-party material is listed in [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md).
 
-The behaviour is pinned in [SPEC.md](SPEC.md), one tagged `[S-NN]` rule at a time; tests carry the same tags.
+---
 
-### Three ideas worth knowing
+<div align="center">
 
-**Geometry is fractional.** A widget stores `x, y, w, h` as fractions of its monitor, never pixels, so a
-layout opens proportionally on any screen. The snap grid is an aid during a drag, never storage.
+Made by [Lometics GmbH](https://lometics.com) · [Privacy policy](https://lometics.com/en/legal/privacy/) · © 2026 Lometics GmbH
 
-**One window per display, not per widget.** Every widget on a screen shares one transparent surface,
-clipped with `SetWindowRgn` to the union of the widget rects, so clicks anywhere else reach the desktop.
-Cost stays flat as you add widgets: one window, one composition target and one render thread per display.
-
-**It is a desktop layer, always.** The surface is never above another application, not even in edit
-mode. The window procedure is subclassed and every z-order change is rewritten back to the desktop
-anchor. The consequence is deliberate: **you can only edit a widget where the desktop is visible.**
-Show Desktop is the one moment the surface is lifted, so the widgets do not vanish when you ask to see them.
-
-## Deliberate limitations
-
-- **Mixed-DPI multi-monitor is untested.** Placement uses each monitor's physical bounds and layout the
-  window's own scale, so it should hold, but every test machine so far ran its displays at one scale.
-- **Interface text is mostly English.** The string layer, the nine translation tables (en, de, es, fr, it,
-  ja, pl, pt, zh) and the language picker are in; replacing the remaining literals is the open step.
-- **Time zones use a mapping table.** The app runs without ICU (`InvariantGlobalization`), so IANA city
-  names are mapped to Windows zones from a frozen table; a zone Windows lacks falls back to local time.
-- **Google sign-in** works only in builds made with Google's client secret (Microsoft needs none).
-- **No browser engine.** The Video stream widget plays MJPEG, snapshots, MP4 and HLS through Windows'
-  own media stack.
-- **Out of scope on purpose:** a tray icon, an always-on-top pin, pop-out widget windows, an in-app
-  updater (the Store updates it), telemetry, and importing data from the Tauri version.
-- **Desktop only.** Widgets exist on the desktop layer; there is no taskbar flyout or lock-screen widget.
-
-## Contributing and licence
-
-See [CONTRIBUTING.md](CONTRIBUTING.md) first. Themia's source is public under the
-[Elastic License 2.0](LICENSE): you may read, build, change and share it, but not remove or bypass the
-licence check or the features it unlocks, remove the notices, or offer Themia as a hosted service. That
-makes it source available, not open source; the LICENSE file is the binding text. The name and logo are
-not covered by the licence, so give a modified build its own name and icon. Third-party material is
-listed in [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md).
-
-Copyright (c) 2026 Lometics GmbH.
+</div>
