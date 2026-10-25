@@ -730,7 +730,8 @@ internal partial class MenuPanel
         var text = node.Text;
         var empty = text.Length == 0;
         var busy = node.Busy && !empty;
-        var room = MenuWidth - (2 * (Fluent.Space1 + Fluent.Space3)) - (view.Icons ? LeadColumn : 0);
+        // Inside the menu's frame, whose border takes a hairline each side (a word at the end was cut).
+        var room = MenuWidth - (2 * (Fluent.Space1 + Fluent.Space3)) - (2 * Fluent.Hairline) - (view.Icons ? LeadColumn : 0);
 
         view.Words.Text = text;
         view.Words.MaxWidth = busy ? room - Fluent.IconSize - Fluent.Space2 : room;
