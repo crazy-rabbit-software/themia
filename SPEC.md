@@ -1389,11 +1389,12 @@ edge too), the hover delay, the keys in the menu, and a pick starting the placem
 
 The app's settings move out of the settings window into the edit bar, as Karpo's did (`karpo-app`,
 `docs/widgets.md` §335–§341; user request 2026-10-25), one part at a time: General, Appearance,
-Accounts (SETTINGS-ACCOUNTS, [S-3550]), Language & region and the online update intervals are here;
-Themia Pro, Back up & reset and About follow, and then the settings window goes. The Displays and Views pages are the bar's
+Accounts (SETTINGS-ACCOUNTS, [S-3550]), Language & region, the online update intervals, and Themia
+Pro, Back up & reset and About (SETTINGS-ABOUT, [S-3570]) are here; the settings window, empty, goes
+next ([S-3584]). The Displays and Views pages are the bar's
 Display and View menus (BAR-MENUS, [S-3540]). Owning files: Core `Settings/SettingsMenu.cs` (the lines' vocabulary, the
 first level) and one builder per section (`SettingsMenu.General.cs`, `.Appearance.cs`, `.Motion.cs`,
-`.Accounts.cs`, `.Language.cs`, `.Online.cs`), `Geometry/DropDownPlacement.cs`; App `Shell/Menu/MenuPanel*.cs` (the one menu engine,
+`.Accounts.cs`, `.Language.cs`, `.Online.cs`, `.Pro.cs`, `.Backup.cs`, `.About.cs`), `Geometry/DropDownPlacement.cs`; App `Shell/Menu/MenuPanel*.cs` (the one menu engine,
 the properties menu's too), `Shell/Menu/BarMenuView.cs` (one of the bar's menus over Core's lines),
 `Shell/DesktopWindow.BarMenus.cs` (opening, closing and placing every one of the bar's menus, one
 mechanism), `Shell/DesktopWindow.SettingsMenu.cs`, `Services/AppHost.SettingsMenu.cs`. Tests `SettingsMenuTests`, `DropDownPlacementTests`.
@@ -1425,10 +1426,10 @@ mechanism), `Shell/DesktopWindow.SettingsMenu.cs`, `Services/AppHost.SettingsMen
   menu changed, and F6.
 - **[S-3524]** Its first level, in bands with a divider between them: General's lines, inline
   ([S-3525]); **Appearance ›** ([S-3526]), **Accounts ›** ([S-3550]), **Language & region ›**
-  ([S-3536]) and **Online updates ›** ([S-3530]); then **All settings…**
-  ([S-3533]) and **Quit Themia** ([S-3532]). The sections stand in the agreed order (General,
-  Appearance, Accounts, Language & region, Online updates, Themia Pro, Back up & reset, About, Quit
-  Themia) as they move here; a section with no lines, and a band with none, is not there: nothing
+  ([S-3536]) and **Online updates ›** ([S-3530]); **Themia Pro ›** ([S-3570]), **Back up & reset ›**
+  ([S-3575]) and **About Themia ›** ([S-3580]); then **Quit Themia** ([S-3532]). The sections stand in
+  the agreed order (General, Appearance, Accounts, Language & region, Online updates, Themia Pro, Back
+  up & reset, About, Quit Themia); a section with no lines, and a band with none, is not there: nothing
   stands empty or greyed for what has not moved yet. The lines are Core's (`SettingsMenu.Root` over
   an `ISettingsMenuHost`: `SettingsToggle`, `SettingsChoice` of `SettingsRadio`s, `SettingsSlider`,
   `SettingsColour`, `SettingsFill`, `SettingsFont`, `SettingsSubmenu`, `SettingsCommand`,
@@ -1478,9 +1479,8 @@ mechanism), `Shell/DesktopWindow.SettingsMenu.cs`, `Services/AppHost.SettingsMen
   what is open open: the lines' keys do not change.
 - **[S-3532]** **Quit Themia** is the menu's last line ([S-67]): it quits on every display, as the
   bar's More › Exit did; the More button is gone.
-- **[S-3533]** *(Temporary: goes with the settings window.)* **All settings…**, right above Quit
-  Themia, opens the settings window on its first page (License), for what has not moved yet
-  (License, About).
+- **[S-3533]** *(Retired by [S-3584]: the settings window has no page left, so there is no All
+  settings… and nothing opens it.)*
 - **[S-3534]** The ways in: ⚙, and the surface menu's Settings ([S-1744]), which opens it on that
   display. `DesktopWindow.OpenSettingsMenu(path)` opens it at a level, by the lines' keys, as clicks
   would (`MenuPanel.OpenPath`, the path the Set up button takes too, [S-1862]); every bar menu opens
@@ -1509,7 +1509,8 @@ mechanism), `Shell/DesktopWindow.SettingsMenu.cs`, `Services/AppHost.SettingsMen
   submenus opened by key (`-appearance`, `-style`, `-theme`, `-accent`, `-background`, `-items`,
   `-cards`, `-border`, `-text`, `-font`, `-layout`, `-motion`, `-motion-startup`, `-online`,
   `-online-weather`, `-language`, `-language-display`, `-language-clock`), `-language-find` (the
-  languages' box holding "deu"), ⚙ › Accounts' pictures ([S-3560]), `-advice` (start with Windows switched off in Windows, game mode holding the
+  languages' box holding "deu"), ⚙ › Accounts' pictures ([S-3560]), Themia Pro's, Back up &
+  reset's and About's ([S-3583]), `-advice` (start with Windows switched off in Windows, game mode holding the
   widgets, Windows' animations off) and `-replace` (a preset over a look of one's own: the question
   beside the menu, its `-popup0`), over a stand-in host that reaches neither Windows nor the user's
   state; `--only settings` draws these alone.
@@ -1720,6 +1721,106 @@ expired; Sign out; a rename; Narrator on the password field ("password", nothing
 IME off in it, copy and cut doing nothing; typing in every field without the keyboard leaving it; a
 widget's Manage accounts, "Open Accounts settings" and Set up opening ⚙ › Accounts on that display
 from outside edit mode; two displays with ⚙ open.
+
+### The edit bar's Themia Pro, Back up & reset and About (SETTINGS-ABOUT)
+
+The settings window's last pages, License and About, move into ⚙ (user request 2026-10-25, step 4
+of the move of [S-3520]), after Karpo's ⚙ › Karpo Pro, Back up and reset and About Karpo
+(`karpo-app`, `docs/widgets.md` §339). Owning files: Core `Settings/SettingsMenu.Pro.cs`
+(`ILicenceMenuHost`, the licence's lines), `Settings/SettingsMenu.Backup.cs` (`IBackupMenuHost`,
+the settings file's lines, `ImportQuestion`), `Settings/SettingsMenu.About.cs` (`IAboutMenuHost`,
+`MenuPicture`, About's lines and Uninstall Themia ›), `Settings/SettingsOutcomes.cs` (what stands
+under a line); App `Services/Licensing/LicenceMenu.cs`, `Services/SettingsBackup.cs`,
+`Services/Uninstaller.cs`, `Services/AppHost.SettingsMenu.cs`, `Shell/DesktopWindow.SettingsMenu.cs`
+(`RequestSettings`, this display's window as the dialogs' owner), `Shell/Menu/MenuPictures.cs`,
+`Shell/Gallery/EditBarRender.About.cs`. Tests `SettingsMenuTests` (`S357x_`, `S358x_`).
+
+- **[S-3570]** **Themia Pro ›** on ⚙'s first level, in the band after Online updates: what this
+  copy is and why, for every basis ([S-1064]: Developer build, Checking, Themia Free, Themia Pro,
+  the offline grace with its date, the Store unreachable), as a reading with its glyph (the
+  certificate on the free tier, Themia's mark otherwise) and a note with the why (`LicenseText`).
+  A developer build has nothing more. Otherwise, on the free tier, the allowance ([S-3571]); then,
+  under a divider, the Store's lines ([S-3572]).
+- **[S-3571]** The free allowance as readings: **Widgets** "12 of 20" (every view, groups and their
+  members included, said under it) and **Views** "2 of 2", in the language's numbers. Pro and a
+  developer build have none.
+- **[S-3572]** Where Pro is not had, **Upgrade** with the Store's price once it has said it
+  ("Upgrade · CHF 19.00"; asked the first time ⚙ opens, again later while it has not answered), the
+  pitch under it; greyed, with "not on sale yet" under it, while the add-on's id is the placeholder
+  ([S-1067]). Then **Restore purchases**, what it does under it. Upgrade opens the Store's purchase
+  dialog owned by the window of the display whose ⚙ it is (`IInitializeWithWindow` on that
+  surface's handle: the settings window that owned it is gone); while the Store is asked both lines
+  are greyed and "Waiting for the Microsoft Store…" (or "Checking your licence…") stands under the
+  line with a ring; then how it ended (`LicenseText.Purchase`, in the critical colour where it
+  failed; Restore: what this copy is now). The menu stays open at that level throughout.
+- **[S-3573]** A refusal that opened the menu (the free-limit notice's **See plans**, [S-1065]):
+  edit mode, ⚙ open at Themia Pro on the display the notice was clicked on, and on top, while the
+  free limits apply, "Free limit reached" with the warning glyph and the refusal under it. It is
+  said until the last settings menu closes, then never again.
+- **[S-3574]** The Themia Pro line's value is the tier: "Free", "Pro" (the grace too) or "Developer
+  build". The line's words are the add-on's name, "Themia Pro", in every language.
+- **[S-3575]** **Back up & reset ›**, the About page's settings file rows: **Export settings…**
+  ([S-494]), **Import settings…** ([S-495]..[S-498]), **Open config file** with the file's path
+  under it ([S-3578]), then under a divider **Reset all settings…** ([S-892]). Each line's outcome
+  stands under it.
+- **[S-3576]** Export and Import open Windows' Save and Open dialogs (`Microsoft.Windows.Storage.Pickers`,
+  a window id) owned by the window of the display whose ⚙ it is. While one is up the file's lines
+  (Export, Import, Reset) are greyed. ⚙ stays open at Back up & reset, and how it went stands under
+  the line: "Saved as <file>", "Settings imported. The ones you had are kept as <backup>", what was
+  refused (in the critical colour); a cancelled dialog says nothing. What stands under the lines of
+  Themia Pro and Back up & reset is one for the app (`SettingsOutcomes`, every display's ⚙ says the
+  same) and goes when the last settings menu closes, but what is still out, which says so again
+  when ⚙ opens.
+- **[S-3577]** An import's file, once read ([S-495]), asks beside the menu before anything changes
+  ([S-3727], the accent Import and Cancel): "Import these settings?", then **What changes** (a line
+  each, "Nothing: the settings are the same" when it holds what is there now) and **Good to know**
+  (the repairs, the displays not here, Start with Windows staying, where the current settings are
+  kept), each cut at twelve lines with "and N more" (`SettingsMenu.ImportQuestion` over
+  `SettingsTransfer.Compare`, the one preview). Only Import takes it ([S-497]); ⚙ is opened again at
+  Back up & reset first where it was closed while the dialog was up.
+- **[S-3578]** **Open config file** opens `state.json` in what edits JSON here (its folder before it
+  has been written), through the one launcher ([S-7062]). **Reset all settings…** asks first as a
+  destructive question ([S-3727]: "Reset all settings?", the page's words of what goes and where it
+  is kept, Reset in the critical colour, the keyboard on Cancel); only Reset resets ([S-892]).
+- **[S-3580]** **About Themia ›**: the name card (**Themia** with its mark; under it "Version x.y.z"
+  and what it runs on, ".NET x · Windows App SDK y"); **Lometics** with its mark, "lometics.com" at
+  its end, opening the site, the studio's line under it ([S-493]); **Privacy policy** and
+  **Support** ("support@themia.app" at its end, a mail) ([S-1072]); **Open-Meteo**
+  ("open-meteo.com"), the source the weather, rain and air-quality widgets credit, with what comes
+  from it (CAMS for the air quality); then, last, **Uninstall Themia ›** ([S-3582]). Every link
+  opens through the one launcher. There is no Quit Themia here: it is ⚙'s last line ([S-3532]).
+- **[S-3581]** A line may show a picture instead of a glyph in its icon column (`SettingsLine.Picture`,
+  `MenuPicture`: Themia's mark `Assets/themia-logo.png`, decoded at the column's size; Lometics' mark
+  `Assets/lometics.svg`, rasterised), named for a screen reader; a command may say a value at its end.
+- **[S-3582]** **Uninstall Themia ›**: what happens (packaged: Themia closes and is removed with
+  the user's widgets, settings and accounts, [S-1070]; loose: Themia closes and Windows' Installed
+  apps opens, [S-1552]); a loose build's **Also delete my data**, unticked; ticked, "Your widgets,
+  settings and accounts are deleted too" and the folders that go named under it ([S-1553]), unticked again when the last
+  settings menu closes; then **Uninstall…** (in the critical colour), asked first as a destructive
+  question ("Uninstall Themia?", what happens and, ticked, that the data goes too). Only its
+  Uninstall does it (`Uninstaller.Run`, the one plan, [S-1071]); nothing is removed or deleted
+  before that answer ([S-1555]).
+- **[S-3583]** Debug renders (`--editbar-png`, with the settings menu's): `settings-<theme>-root-free`
+  (the first level, Themia Pro saying Free), `-pro-free`, `-pro-refused`, `-pro-pro`, `-pro-grace`,
+  `-pro-offline` (the License page's `--license` states, gone with the page), `-pro-developer`,
+  `-pro-onsale` (the price on Upgrade), `-pro-buying` (the Store waited for); `-backup`,
+  `-backup-done` (outcomes under the lines), `-backup-import` (an import's question over a made-up
+  file, its `-popup0`), `-backup-reset` (its `-popup0`); `-about`, `-uninstall-packaged`,
+  `-uninstall-loose`, `-uninstall-loose-data`, `-uninstall-confirm` and
+  `-uninstall-packaged-confirm` (their `-popup0`), over a stand-in host: no Store, file dialog, file
+  or install is reached.
+- **[S-3584]** The settings window has no page left (`ConfigPages.AppPages` is empty, the License and
+  About pages, their navigation icons and the words only they used are gone), and nothing opens it:
+  ⚙'s All settings… is gone, and so is every way to a page (`AppHost.ShowConfig`, the refusal's
+  License page). The window's code goes in the move's last step.
+
+Needs a live pass: the packaged build from the Store (a sideload has no licence): Upgrade's Store
+dialog over the desktop on each display (in front, owned by the surface), its price, a purchase,
+Restore purchases; See plans from a refusal on a second display; Export and Import through Windows'
+dialogs over the surface (in front, the menu still open after them), the import question, Open config
+file, Reset all settings; About's links (the browser, the mail app); Uninstall Themia in a loose
+build (Installed apps, the data purge after exit when ticked) and in the packaged build (the package
+removed, `%LOCALAPPDATA%\Packages\<family>` gone); Narrator on the pictures.
 
 ### The selected widget's properties strip (QUICKSET)
 
@@ -2222,21 +2323,20 @@ animation effects on and off.
 
 ## About and the settings file
 
-The settings window's About page. Owning files: `Shell/Config/ConfigPages.About.cs`,
-`Shell/Gallery/SettingsRender.cs`, `Themia.Core/Storage/SettingsTransfer.cs`.
+The settings file's export, import and their rules, run from ⚙ › Back up & reset ([S-3575]); About
+itself is ⚙ › About Themia ([S-3580]). Owning files: `Themia.Core/Storage/SettingsTransfer.cs`,
+`Services/SettingsBackup.cs`.
 
-- **[S-493]** About is the **last** item of the settings navigation, in its footer under everything
-  else. The page follows karpo's About section for section: the name card (64-DIP mark, "Themia",
-  "Version x.y.z", ".NET x · Windows App SDK y"), **Made by** Lometics (lometics.com) with its mark and a
-  link, **Themia** with Quit Themia (`AppHost.RequestExit`), and **Settings file** with Export,
-  Import and Open config file.
+- **[S-493]** *(Retired by [S-3580]: About is ⚙ › About Themia, its name card, the studio and its
+  links as lines; Quit Themia is ⚙'s last line, [S-3532].)*
 - **[S-494]** Export writes the state document — the same JSON as `state.json` — to a file picked
-  with `Microsoft.Windows.Storage.Pickers` (window id, works unpackaged), atomically (temp + move).
+  with `Microsoft.Windows.Storage.Pickers` (window id, works unpackaged; the window of the display
+  whose ⚙ it is, [S-3576]), atomically (temp + move).
 - **[S-495]** Import reads the picked file through `AppStateStore.Parse`, the startup trust boundary,
   so an import can never accept what a restart would refuse. Empty, non-JSON, newer-schema and
   view-less documents (any other app's JSON would otherwise read as "one blank view") are refused
   with a reason and change nothing.
-- **[S-496]** Before anything changes, a dialog says what will: views matched by id, then by name;
+- **[S-496]** Before anything changes, the question beside ⚙ says what will ([S-3577]): views matched by id, then by name;
   renamed, added and removed views; per view the widgets added, removed and changed; every design
   value before → after. Repairs, displays named in the file that are not connected, and Start with
   Windows staying put are notes, not changes.
@@ -2247,9 +2347,9 @@ The settings window's About page. Owning files: `Shell/Config/ConfigPages.About.
   displays without an assignment a view as at startup. Start with Windows keeps this PC's value: it
   is a fact about the registry here, not a preference.
 - **[S-499]** Debug builds render one settings page to PNG with `--settings-png <AppPage> <out.png>
-  [waitMs]` (an app page only: the `Widget:<Kind>` pages went with the widget pages, [S-6536]; a
-  widget's options are drawn by `--editbar-png`), over a demo state and an `AppStateStore.Detached` store that accepts saves and writes
-  nothing, so the render never touches `%APPDATA%`.
+  [waitMs]`, over a demo state and an `AppStateStore.Detached` store that accepts saves and writes
+  nothing, so the render never touches `%APPDATA%`. No page is left to render ([S-3584]); ⚙'s
+  sections are drawn by `--editbar-png` ([S-3535], [S-3583]).
 
 Not ported, on purpose: Karpo's "isn't running / Start" card — the settings window here runs
 inside the app, so it is never open while the app is not.
@@ -3180,7 +3280,7 @@ rules are these.
   (page, title, glyph, main or footer slot, builder). The navigation and the body both read it, so a
   page is added with one line plus its own `ConfigPages.<Page>.cs`. A reserved `AppPage` value with
   no table entry is not in the menu and, if asked for, logs a
-  warning and shows an empty page. About stays the last footer entry ([S-493]).
+  warning and shows an empty page. No page is left in it ([S-3584]).
 - **[S-702]** Behaviour switches live in `AppState.Preferences` (`AppPreferences`), apart from the
   look (`DesignState`): language (`AppLanguage`, default follow Windows), hide in full-screen apps
   (off), desktop icons (on), the regional formats and the update cadences every widget shares
@@ -3477,7 +3577,7 @@ repaired to defaults and logged, never an upgrade. S-1050..S-1059.
 
 The settings window is drawn as Windows 11's Settings app (S-1540..S-1559). Owning files:
 `Shell/FluentLayout.cs`, `Shell/SettingRow.cs`, `Shell/ColorChoice.cs`, `Interop/ScreenColorPicker.cs`, `Shell/Config/ConfigWindow*.cs`,
-`Shell/Config/SettingsPage.cs`, `Shell/Config/SettingsSearchIndex.cs`, `Shell/Config/ConfigPages.Uninstall.cs`,
+`Shell/Config/SettingsPage.cs`, `Shell/Config/SettingsSearchIndex.cs`, `Services/Uninstaller.cs`,
 `Services/DataPurge.cs`, `Core/Settings/*` (tests: `SettingsWindowTests`).
 
 - **[S-1540]** Every row is the Community Toolkit `SettingsCard` (groups: `SettingsExpander`), built
@@ -3551,14 +3651,13 @@ The settings window is drawn as Windows 11's Settings app (S-1540..S-1559). Owni
   path; the window procedure catches, logs and ends the pick as a failure. Focus returns to the
   window that had it.
 - **[S-1551]** The navigation pane is open at 1008 DIPs and wider; narrower it folds away (no
-  icon-only rail, as in Settings) behind a button in the title bar next to back. About stays the
-  last footer entry ([S-493]).
-- **[S-1552]** About ends with an "Uninstall" heading and a danger card. Packaged (has a package
+  icon-only rail, as in Settings) behind a button in the title bar next to back.
+- **[S-1552]** ⚙ › About Themia ends with Uninstall Themia › ([S-3582]). Packaged (has a package
   identity): Themia removes its own package with `PackageManager.RemovePackageAsync` — no capability
   is needed (full trust, medium integrity, own publisher); if that fails, Settings' page for the app
   (`ms-settings:appsfeatures-app`) opens. Not packaged: Installed apps (`ms-settings:appsfeatures`)
   opens and Themia quits.
-- **[S-1553]** (Loose builds; packaged see [S-1070].) The confirmation offers, unticked, "Also delete my widgets, settings and accounts";
+- **[S-1553]** (Loose builds; packaged see [S-1070].) Uninstall Themia › offers, unticked, "Also delete my data" ([S-3582]; ticked, "Your widgets, settings and accounts are deleted too" under it);
   ticked, it names the folders: `%APPDATA%\Themia` and `%LOCALAPPDATA%\Themia` (`AppStateStore.FolderName`),
   and nothing else — a missing/relative root or a name that is not a plain folder name deletes
   nothing. They go only after Themia has closed and saved: packaged, in-process just before the
@@ -3567,8 +3666,8 @@ The settings window is drawn as Windows 11's Settings app (S-1540..S-1559). Owni
   is a running copy of the same executable.
 - **[S-1554]** The goodbye survey `https://themia.app/goodbye?v=<version>` (escaped; "unknown"
   without one) opens on a confirmed uninstall, as the original installer did on an interactive one.
-- **[S-1555]** Nothing is removed or deleted without the dialog's Uninstall; no dialog, no
-  uninstall; a debug settings render never uninstalls.
+- **[S-1555]** Nothing is removed or deleted without the answer to Uninstall…'s question; no question, no
+  uninstall; a debug render's stand-in host never uninstalls.
 - **[S-1720]** The open page follows changes made elsewhere — snap to grid from the edit toolbar, a
   keyboard shortcut, another window. A page's controls are built from the state and then only
   write, so the window builds the page again when what it shows changed while the window was in the
@@ -3581,9 +3680,8 @@ The settings window is drawn as Windows 11's Settings app (S-1540..S-1559). Owni
 - **[S-1721]** What a page shows (`SettingsPageSync.Signature`): the design and the preferences.
   Never where widgets sit, so a drag on the desktop rebuilds nothing. Changes
   that do not raise `StateChanged` (`Mutate(relayout: false)`) are not followed.
-- **[S-1722]** The app pages: none in the main slot ([S-1830]): Accounts and Language & region are
-  the settings menu's ([S-3550], [S-3536]);
-  License and About in the footer. General, Appearance and Widgets are not pages any more: they are
+- **[S-1722]** The app pages: none ([S-3584]): Accounts, Language & region, the licence and About
+  are the settings menu's ([S-3550], [S-3536], [S-3570], [S-3580]). General, Appearance and Widgets are not pages any more: they are
   the edit bar's settings menu ([S-3524]); Displays and Views are its Display and View menus ([S-3540]). No Layout, Data or Developer page.
 - **[S-1723]** Every font setting picks through one picker, `FontPicker`: the settings menu's Font
   submenu ([S-3528]), a search box over a virtualised list of the presets, then the installed families
@@ -5703,8 +5801,8 @@ Settings does (System, Bluetooth, Personalization, Accounts...). Code: `Shell/Co
 
 - **[S-1600]** The icons are Microsoft's Fluent UI System Icons "Color" set (the family Windows uses),
   bundled unmodified as SVG in `src/Themia.App/Assets/NavIcons/` (content files, no package). One
-  per entry, echoing the Windows Settings equivalent where there is one: About = `question_circle` (the set has no
-  info icon). (Views' `content_view` and Displays' `laptop` went with their pages, [S-3546];
+  per entry, echoing the Windows Settings equivalent where there is one. (About's `question_circle`
+  and License's `premium` went with their pages, [S-3584]; Views' `content_view` and Displays' `laptop` went with their pages, [S-3546];
   Language & region's `globe` and Accounts' `person` with their pages, [S-3536], [S-3550].) A new app page names its icon in its `AppPages` line.
 - **[S-1601]** Each icon is drawn by `SvgImageSource` in a 20-DIP icon box (NavigationView's default
   16 is sized for font glyphs; the colour icons carry their own padding and read too small there),
@@ -5770,8 +5868,8 @@ installer). Release steps and the manual sideload test: `docs/STORE.md`.
 - **[S-1063]** `LicenseService` (one, owned by the host) asks `StoreContext.GetAppLicenseAsync` at
   start for the durable **Pro** add-on (`StoreIds.ProAddOn`, a marked placeholder until Partner
   Center issues the id), single-flight; re-asks on `OfflineLicensesChanged`, after a purchase and on
-  "Restore purchases". Purchases use `RequestPurchaseAsync`, with the settings window handed to the
-  Store through `IInitializeWithWindow`. `Changed` fires on the UI thread. Without package identity
+  "Restore purchases". Purchases use `RequestPurchaseAsync`, with the window of the display whose ⚙
+  asked handed to the Store through `IInitializeWithWindow` ([S-3572]). `Changed` fires on the UI thread. Without package identity
   the Store is never touched.
 - **[S-1064]** Tier: no package identity: **Unrestricted** ("Developer build"); the Store's "owned":
   Pro; "not owned": Free; no answer: Pro only inside the offline grace, else Free. An unknown or
@@ -5779,7 +5877,7 @@ installer). Release steps and the manual sideload test: `docs/STORE.md`.
 - **[S-1065]** Free tier: every widget type, at most **20 widgets** (all views) and **2 views** (the
   original allowed 10 widgets; raised so the first-run seed, [S-893], leaves room to add). Gates at every create: placement start and landing, paste (net of a cut's original;
   a selection pastes whole or not at all), duplicate and new view. A newly seen display creates nothing ([S-1705]), so it needs no gate. A refusal creates nothing and says why in a notice ([S-881]) whose "See plans"
-  opens Settings › License, which repeats it once. Nothing
+  opens ⚙ › Themia Pro on that display, which says it once on top ([S-3573]). Nothing
   is ever deleted or hidden for being over the limit; moving, editing and deleting are never gated.
   Import is a replacement, not a create, and is not gated.
 - **[S-1066]** Offline grace: 7 days from the last Store "owned" on this PC, when the Store cannot be
@@ -5787,22 +5885,20 @@ installer). Release steps and the manual sideload test: `docs/STORE.md`.
   more than 10 minutes in the future gives none.
 - **[S-1067]** Add-on ownership: an active licence whose SKU id is `<productId>/<sku>`. A product id
   that is not 12 upper-case letters/digits (the placeholder) is never owned and is not offered.
-- **[S-1068]** Settings › License (footer, above About): status (title and explanation for every
-  basis), on the free tier the widget and view allowance as "n of limit" bars, "Themia Pro" with
-  Upgrade (the Store's price once known; disabled with "not on sale yet" while the id is the
-  placeholder) and "Restore purchases". A refusal that opened the page shows once as a warning bar.
-  Redraws live on `Changed`. Debug renders: `--settings-png License out.png --license free|refused|pro|grace|offline`.
+- **[S-1068]** *(Retired by [S-3570]..[S-3574]: the License page is ⚙ › Themia Pro; its
+  `--settings-png License --license …` render is `--editbar-png`'s `-pro-*` pictures, [S-3583].)*
 - **[S-1069]** The grace record is `%LOCALAPPDATA%\Themia\license.dat`, `themia-license:v1:<unix
   seconds>` sealed with DPAPI (current user), written atomically on "owned", deleted on "not owned",
   untouched when the Store is unreachable. Absent, unreadable, plain text or malformed: no grace.
 - **[S-1070]** Uninstall, packaged: the data cannot be kept (Windows deletes the package's
-  redirected AppData with it), so the dialog offers no "also delete" box and says the data goes; the
+  redirected AppData with it), so Uninstall Themia › offers no "also delete" line and says the data
+  goes ([S-3582]); the
   folders are deleted in-process before the package is removed. Loose builds keep the choice ([S-1553]).
 - **[S-1071]** Uninstall steps after the app has closed, in order: autostart off
   (`Autostart.SetAsync(false)`), then packaged: delete data, `RemovePackageAsync` on the own package
   (fallback `ms-settings:appsfeatures-app`); loose: start the `--purge-data` helper (only when
   there are folders), open Installed apps.
-- **[S-1072]** About, under Made by, links what the Store listing gives too: the privacy policy
+- **[S-1072]** ⚙ › About Themia, under Lometics, links what the Store listing gives too ([S-3580]): the privacy policy
   (`lometics.com/de/legal/privacy/` for a German interface, `/en/` otherwise: the two it is written
   in) and the support mailbox `support@themia.app` (`AboutLinks`).
 - **[S-1073]** The package declares every interface language ([S-1100]) as a manifest `Resource`
@@ -6576,9 +6672,8 @@ every display's and every view's settings are the edit bar's Display and View me
   view's line follows in place.
 - **[S-1708]** *(Retired by [S-3544]: Views on the bar is a submenu of switches.)*
 - **[S-1709]** *(Retired by [S-3543]: Display ▾'s heading names the display and its resolution.)*
-- **[S-1830]** The navigation pane lists pages only: License and About (Accounts and Language &
-  region are the settings menu's, [S-3550], [S-3536]), and
-  License and About at the foot (General, Appearance and Widgets are the settings menu's, [S-3524];
+- **[S-1830]** The navigation pane lists pages only, and none is left ([S-3584]: General,
+  Appearance, Accounts, Language & region, the licence and About are the settings menu's, [S-3524];
   Displays and Views the bar's Display and View menus, [S-3540]). No entry per account or widget, so
   no entry menus and no dragging in the pane.
 - **[S-1831]** *(Retired by [S-3546]: no page target names a display or a view; View settings opens View ▾.)*
@@ -6675,7 +6770,7 @@ What needs a manual pass is BAR-MENUS' ([S-3548]).
   bumped atomically before the surfaces are built, deleted once every surface has loaded and laid out
   its cards. The 3rd start in a row that never got that far is safe: every card shows "Paused:
   Themia started in safe mode." with Start, and a sticky notice offers "Start widgets" (all of them;
-  the start then counts as good) or a reset in Settings › About. Fails open: an unreadable counter
+  the start then counts as good) or a reset in ⚙ › Back up & reset ([S-3578]). Fails open: an unreadable counter
   is a normal start; a corrupt one starts over (logged).
 - **[S-891]** Widget error boundary (`WidgetCard.Fault`): a view that throws while created, bound,
   attached, given new settings, or on a tick is detached and replaced by an error card. The ticker
@@ -6689,10 +6784,10 @@ What needs a manual pass is BAR-MENUS' ([S-3548]).
   report). Logged with the widget id and kind. Retry builds the view again in place. Below 160 DIP
   high the glyph goes; below 150×110 DIP the Details link goes too and the line shortens to
   "Stopped working." (Retry always stays).
-- **[S-892]** Settings › About › Reset all settings (confirm): the current state is written to
+- **[S-892]** ⚙ › Back up & reset › Reset all settings… (asked first, [S-3578]): the current state is written to
   `state.before-reset-<stamp>.json` beside the state file (if that fails nothing changes and an error
   notice says why), then views, widgets, appearance and preferences become a fresh profile's (Start
-  with Windows is kept, as on import); the undo history is cleared; a Success notice. Accounts,
+  with Windows is kept, as on import); the undo history is cleared; what was kept, and where, under the line ([S-3576]). Accounts,
   notes, tasks and habits are separate files and are kept.
 - **[S-893]** First-run desktop (`AppState.CreateDefault`, also what a reset and a corrupt-state
   recovery show), the maker's own two views (user requirement), so switching views is discoverable:

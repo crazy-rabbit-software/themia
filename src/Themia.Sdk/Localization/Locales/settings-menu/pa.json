@@ -1,6 +1,20 @@
 {
   "settingsMenu.onlineUpdates": "ਔਨਲਾਈਨ ਅੱਪਡੇਟ",
-  "settingsMenu.allSettings": "ਸਾਰੀਆਂ ਸੈਟਿੰਗਾਂ…",
   "settingsMenu.gameMode": "ਪੂਰੀ ਸਕ੍ਰੀਨ ਵਿੱਚ ਰੋਕੋ",
-  "settingsMenu.findLanguage": "ਭਾਸ਼ਾ ਲੱਭੋ"
+  "settingsMenu.findLanguage": "ਭਾਸ਼ਾ ਲੱਭੋ",
+  "settingsMenu.proFree": "ਮੁਫ਼ਤ",
+  "settingsMenu.backup": "ਬੈਕਅੱਪ ਅਤੇ ਰੀਸੈੱਟ",
+  "settingsMenu.about": "Themia ਬਾਰੇ",
+  "settingsMenu.exportSettings": "ਸੈਟਿੰਗਾਂ ਨਿਰਯਾਤ ਕਰੋ…",
+  "settingsMenu.importSettings": "ਸੈਟਿੰਗਾਂ ਆਯਾਤ ਕਰੋ…",
+  "settingsMenu.resetAll": "ਸਾਰੀਆਂ ਸੈਟਿੰਗਾਂ ਰੀਸੈੱਟ ਕਰੋ…",
+  "settingsMenu.reset": "ਰੀਸੈੱਟ ਕਰੋ",
+  "settingsMenu.exported": "{file} ਵਜੋਂ ਸੰਭਾਲਿਆ ਗਿਆ",
+  "settingsMenu.imported": "ਆਯਾਤ ਹੋ ਗਿਆ। ਤੁਹਾਡੀਆਂ ਪਿਛਲੀਆਂ ਸੈਟਿੰਗਾਂ {backup} ਵਜੋਂ ਰੱਖੀਆਂ ਗਈਆਂ ਹਨ।",
+  "settingsMenu.resetDone": "ਰੀਸੈੱਟ ਹੋ ਗਿਆ। ਤੁਹਾਡੀਆਂ ਪਿਛਲੀਆਂ ਸੈਟਿੰਗਾਂ {backup} ਵਜੋਂ ਰੱਖੀਆਂ ਗਈਆਂ ਹਨ।",
+  "settingsMenu.purchasing": "Microsoft Store ਦੀ ਉਡੀਕ ਕੀਤੀ ਜਾ ਰਹੀ ਹੈ…",
+  "settingsMenu.aboutOpenMeteo": "ਮੌਸਮ, ਮੀਂਹ ਅਤੇ ਹਵਾ ਦੀ ਗੁਣਵੱਤਾ। ਹਵਾ ਦੀ ਗੁਣਵੱਤਾ ਕੋਪਰਨਿਕਸ ਐਟਮੌਸਫ਼ੀਅਰ ਮੌਨੀਟਰਿੰਗ ਸਰਵਿਸ (CAMS) ਤੋਂ ਵੀ।",
+  "settingsMenu.uninstallEllipsis": "ਅਣਇੰਸਟਾਲ ਕਰੋ…",
+  "settingsMenu.uninstallDataGoes": "ਤੁਹਾਡੇ ਵਿਜੇਟ, ਸੈਟਿੰਗਾਂ ਅਤੇ ਖਾਤੇ ਵੀ ਮਿਟਾ ਦਿੱਤੇ ਜਾਣਗੇ।",
+  "settingsMenu.uninstallDeleteData": "ਮੇਰਾ ਡਾਟਾ ਵੀ ਮਿਟਾਓ"
 }

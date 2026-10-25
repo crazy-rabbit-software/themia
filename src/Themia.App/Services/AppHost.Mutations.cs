@@ -1,7 +1,6 @@
 ﻿using Microsoft.UI.Dispatching;
 using Themia.App.Interop;
 using Themia.App.Shell;
-using Themia.App.Shell.Config;
 using Themia.Core.Diagnostics;
 using Themia.Core.Localization;
 using Themia.Core.Model;
@@ -105,7 +104,7 @@ internal sealed partial class AppHost
     public void ShowView(string monitorId, string viewId)
         => Mutate(state => state.ShowViewOn(monitorId, viewId));
 
-    /// <summary>Where the state file lives, for the About page to show and open.</summary>
+    /// <summary>Where the state file lives, for ⚙ › Back up &amp; reset to show and open.</summary>
     public string StatePath => _store.Path;
 
     /// <summary>
@@ -118,18 +117,18 @@ internal sealed partial class AppHost
     /// loss the backup exists to prevent.
     /// </para>
     /// </summary>
-    public string? ImportState(AppState incoming) => ReplaceState(incoming, SettingsTransfer.ImportOccasion);
+    public string? ImportState(AppState incoming, out string backup) => ReplaceState(incoming, SettingsTransfer.ImportOccasion, out backup);
 
     /// <summary>
     /// Replace the whole state, keeping the current one beside the state file under
-    /// <paramref name="occasion"/>'s name first: an import ([S-497]) or a reset ([S-892]). The undo
+    /// <paramref name="occasion"/>'s name first (<paramref name="backup"/>): an import ([S-497]) or a reset ([S-892]). The undo
     /// history starts again: there is no step from one whole profile to another.
     /// </summary>
-    private string? ReplaceState(AppState incoming, string occasion)
+    private string? ReplaceState(AppState incoming, string occasion, out string backup)
     {
         ArgumentNullException.ThrowIfNull(incoming);
 
-        var backup = SettingsTransfer.BackupPath(_store.Path, DateTime.Now, occasion);
+        backup = SettingsTransfer.BackupPath(_store.Path, DateTime.Now, occasion);
         if (SettingsTransfer.WriteFile(State, backup) is { } problem)
         {
             Log.Error(Scope, $"{occasion} cancelled: could not keep the current settings at {backup}");
@@ -154,22 +153,6 @@ internal sealed partial class AppHost
 
         Log.Info(Scope, $"replaced the settings ({occasion}); the previous ones are at {backup}");
         return null;
-    }
-
-    /// <summary>
-    /// Open the settings window on a particular page, reusing the one window if it is already up.
-    /// A second settings window would let the same widget be edited in two places at once.
-    /// </summary>
-    public void ShowConfig(ConfigTarget target)
-    {
-        if (_config is null)
-        {
-            _config = new ConfigWindow(this);
-            _config.Closed += () => _config = null;
-            _config.Activate();
-        }
-
-        _config.Navigate(target);
     }
 
     /// <summary>Delete a view and everything in it, repairing anything that pointed at it.</summary>

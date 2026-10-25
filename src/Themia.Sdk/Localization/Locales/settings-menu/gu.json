@@ -1,6 +1,20 @@
 {
   "settingsMenu.onlineUpdates": "ઑનલાઇન અપડેટ",
-  "settingsMenu.allSettings": "બધી સેટિંગ્સ…",
   "settingsMenu.gameMode": "પૂર્ણ સ્ક્રીનમાં થોભાવો",
-  "settingsMenu.findLanguage": "ભાષા શોધો"
+  "settingsMenu.findLanguage": "ભાષા શોધો",
+  "settingsMenu.proFree": "મફત",
+  "settingsMenu.backup": "બૅકઅપ અને રીસેટ",
+  "settingsMenu.about": "Themia વિશે",
+  "settingsMenu.exportSettings": "સેટિંગ્સ નિકાસ કરો…",
+  "settingsMenu.importSettings": "સેટિંગ્સ આયાત કરો…",
+  "settingsMenu.resetAll": "બધી સેટિંગ્સ રીસેટ કરો…",
+  "settingsMenu.reset": "રીસેટ કરો",
+  "settingsMenu.exported": "{file} તરીકે સાચવ્યું",
+  "settingsMenu.imported": "આયાત થયું. તમારી પહેલાંની સેટિંગ્સ {backup} તરીકે રખાય છે.",
+  "settingsMenu.resetDone": "રીસેટ થયું. તમારી પહેલાંની સેટિંગ્સ {backup} તરીકે રખાય છે.",
+  "settingsMenu.purchasing": "Microsoft Store ની રાહ જોઈ રહ્યાં છીએ…",
+  "settingsMenu.aboutOpenMeteo": "હવામાન, વરસાદ અને હવાની ગુણવત્તા. હવાની ગુણવત્તા કોપરનિકસ એટમોસ્ફિયર મોનિટરિંગ સર્વિસ (CAMS) પાસેથી પણ.",
+  "settingsMenu.uninstallEllipsis": "અનઇન્સ્ટૉલ કરો…",
+  "settingsMenu.uninstallDataGoes": "તમારા વિજેટ, સેટિંગ્સ અને એકાઉન્ટ્સ પણ કાઢી નખાશે.",
+  "settingsMenu.uninstallDeleteData": "મારો ડેટા પણ કાઢી નાખો"
 }

@@ -9,8 +9,6 @@ it names.
 - Used for: the icons of the settings window's navigation pane
 - Files: `src/Themia.App/Assets/NavIcons/`
   - `ic_fluent_document_text_20_color.svg`
-  - `ic_fluent_premium_20_color.svg`
-  - `ic_fluent_question_circle_20_color.svg`
 
 ```
 MIT License

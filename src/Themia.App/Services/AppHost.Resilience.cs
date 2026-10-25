@@ -214,20 +214,9 @@ internal sealed partial class AppHost
     /// <summary>
     /// [S-892] Return every setting to a fresh profile's: the first-run desktop ([S-893]), default
     /// appearance and preferences. The current settings are kept beside the state file first, and
-    /// if they cannot be, nothing is reset. Accounts, notes, tasks and habits are their own files
-    /// and are left alone. Returns null on success, otherwise why nothing changed.
+    /// (<paramref name="backup"/>) and if they cannot be, nothing is reset. Accounts, notes, tasks
+    /// and habits are their own files and are left alone. Returns null on success, otherwise why
+    /// nothing changed: ⚙ › Back up &amp; reset says which under its line ([S-3578]).
     /// </summary>
-    public string? ResetAll()
-    {
-        if (ReplaceState(AppState.CreateDefault(), SettingsTransfer.ResetOccasion) is { } problem)
-        {
-            return problem;
-        }
-
-        Notices.Show(new Notice(NoticeKind.Success, Str.Shell_Notice_ResetTitle.Text())
-        {
-            Message = Str.Shell_Notice_ResetBody.Text(),
-        });
-        return null;
-    }
+    public string? ResetAll(out string backup) => ReplaceState(AppState.CreateDefault(), SettingsTransfer.ResetOccasion, out backup);
 }

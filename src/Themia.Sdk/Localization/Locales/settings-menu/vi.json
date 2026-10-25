@@ -1,6 +1,20 @@
 {
   "settingsMenu.onlineUpdates": "Cập nhật trực tuyến",
-  "settingsMenu.allSettings": "Tất cả cài đặt…",
   "settingsMenu.gameMode": "Tạm dừng khi toàn màn hình",
-  "settingsMenu.findLanguage": "Tìm ngôn ngữ"
+  "settingsMenu.findLanguage": "Tìm ngôn ngữ",
+  "settingsMenu.proFree": "Miễn phí",
+  "settingsMenu.backup": "Sao lưu & đặt lại",
+  "settingsMenu.about": "Giới thiệu về Themia",
+  "settingsMenu.exportSettings": "Xuất cài đặt…",
+  "settingsMenu.importSettings": "Nhập cài đặt…",
+  "settingsMenu.resetAll": "Đặt lại mọi cài đặt…",
+  "settingsMenu.reset": "Đặt lại",
+  "settingsMenu.exported": "Đã lưu thành {file}",
+  "settingsMenu.imported": "Đã nhập. Cài đặt trước đây được giữ dưới tên {backup}.",
+  "settingsMenu.resetDone": "Đã đặt lại. Cài đặt trước đây được giữ dưới tên {backup}.",
+  "settingsMenu.purchasing": "Đang chờ Microsoft Store…",
+  "settingsMenu.aboutOpenMeteo": "Thời tiết, mưa và chất lượng không khí. Chất lượng không khí còn từ Dịch vụ giám sát khí quyển Copernicus (CAMS).",
+  "settingsMenu.uninstallEllipsis": "Gỡ cài đặt…",
+  "settingsMenu.uninstallDataGoes": "Tiện ích, cài đặt và tài khoản của bạn cũng bị xóa.",
+  "settingsMenu.uninstallDeleteData": "Xóa cả dữ liệu của tôi"
 }

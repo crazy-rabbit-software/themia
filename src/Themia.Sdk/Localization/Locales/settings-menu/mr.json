@@ -1,6 +1,20 @@
 {
   "settingsMenu.onlineUpdates": "ऑनलाइन अपडेट",
-  "settingsMenu.allSettings": "सर्व सेटिंग्ज…",
   "settingsMenu.gameMode": "पूर्ण स्क्रीनमध्ये थांबवा",
-  "settingsMenu.findLanguage": "भाषा शोधा"
+  "settingsMenu.findLanguage": "भाषा शोधा",
+  "settingsMenu.proFree": "विनामूल्य",
+  "settingsMenu.backup": "बॅकअप आणि रीसेट",
+  "settingsMenu.about": "Themia बद्दल",
+  "settingsMenu.exportSettings": "सेटिंग्ज निर्यात करा…",
+  "settingsMenu.importSettings": "सेटिंग्ज आयात करा…",
+  "settingsMenu.resetAll": "सर्व सेटिंग्ज रीसेट करा…",
+  "settingsMenu.reset": "रीसेट करा",
+  "settingsMenu.exported": "{file} म्हणून जतन केले",
+  "settingsMenu.imported": "आयात झाले. तुमची आधीची सेटिंग्ज {backup} म्हणून ठेवली आहेत.",
+  "settingsMenu.resetDone": "रीसेट झाले. तुमची आधीची सेटिंग्ज {backup} म्हणून ठेवली आहेत.",
+  "settingsMenu.purchasing": "Microsoft Store ची प्रतीक्षा करत आहे…",
+  "settingsMenu.aboutOpenMeteo": "हवामान, पाऊस आणि हवेची गुणवत्ता. हवेची गुणवत्ता कोपर्निकस अ‍ॅटमॉस्फिअर मॉनिटरिंग सर्व्हिस (CAMS) कडूनही.",
+  "settingsMenu.uninstallEllipsis": "अनइंस्टॉल करा…",
+  "settingsMenu.uninstallDataGoes": "तुमची विजेट्स, सेटिंग्ज आणि खातीही हटवली जातील.",
+  "settingsMenu.uninstallDeleteData": "माझा डेटाही हटवा"
 }

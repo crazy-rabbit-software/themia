@@ -76,8 +76,19 @@ internal sealed partial class BarMenuView : MenuPanel
 
     private List<MenuNode> Nodes(IReadOnlyList<SettingsLine> lines) => [.. lines.Select(Node)];
 
-    /// <summary>One of Core's lines as the engine's: the kinds map one to one, a colour and a fill to the one colour submenu ([S-3724]).</summary>
-    private MenuNode Node(SettingsLine line) => line switch
+    /// <summary>
+    /// One of Core's lines as the engine's: the kinds map one to one, a colour and a fill to the one
+    /// colour submenu ([S-3724]); [S-3581] a line with a picture shows it in its icon column.
+    /// </summary>
+    private MenuNode Node(SettingsLine line)
+    {
+        var node = NodeOf(line);
+        return line.Picture is { } picture
+            ? node with { IconKey = "picture:" + picture, Icon = () => MenuPictures.Create(picture) }
+            : node;
+    }
+
+    private MenuNode NodeOf(SettingsLine line) => line switch
     {
         SettingsSeparator => MenuNode.Separator(line.Key),
         SettingsNote note => new MenuNode(note.Key, MenuNodeKind.Note) { Text = note.Text, Danger = note.Critical, Busy = note.Busy },
@@ -164,6 +175,7 @@ internal sealed partial class BarMenuView : MenuPanel
         SettingsCommand command => new MenuNode(command.Key)
         {
             Text = command.Text,
+            Value = command.Value,
             IconKey = IconKeyOf(command.Glyph, command.GlyphColour),
             Icon = IconOf(command.Glyph, command.GlyphColour),
             Disabled = command.Disabled,

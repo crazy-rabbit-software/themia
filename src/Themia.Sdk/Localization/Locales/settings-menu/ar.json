@@ -1,6 +1,20 @@
 {
   "settingsMenu.onlineUpdates": "التحديثات عبر الإنترنت",
-  "settingsMenu.allSettings": "كل الإعدادات…",
   "settingsMenu.gameMode": "إيقاف مؤقت في ملء الشاشة",
-  "settingsMenu.findLanguage": "ابحث عن لغة"
+  "settingsMenu.findLanguage": "ابحث عن لغة",
+  "settingsMenu.proFree": "مجاني",
+  "settingsMenu.backup": "النسخ الاحتياطي وإعادة التعيين",
+  "settingsMenu.about": "حول Themia",
+  "settingsMenu.exportSettings": "تصدير الإعدادات…",
+  "settingsMenu.importSettings": "استيراد الإعدادات…",
+  "settingsMenu.resetAll": "إعادة تعيين كل الإعدادات…",
+  "settingsMenu.reset": "إعادة تعيين",
+  "settingsMenu.exported": "حُفظت باسم {file}",
+  "settingsMenu.imported": "تم الاستيراد. يُحتفظ بإعداداتك السابقة باسم {backup}.",
+  "settingsMenu.resetDone": "تمت إعادة التعيين. يُحتفظ بإعداداتك السابقة باسم {backup}.",
+  "settingsMenu.purchasing": "في انتظار Microsoft Store…",
+  "settingsMenu.aboutOpenMeteo": "الطقس والأمطار وجودة الهواء. بيانات جودة الهواء أيضًا من خدمة كوبرنيكوس لمراقبة الغلاف الجوي (CAMS).",
+  "settingsMenu.uninstallEllipsis": "إلغاء التثبيت…",
+  "settingsMenu.uninstallDataGoes": "ستُحذف أدواتك وإعداداتك وحساباتك أيضًا.",
+  "settingsMenu.uninstallDeleteData": "احذف بياناتي أيضًا"
 }

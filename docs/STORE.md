@@ -32,7 +32,7 @@ Done in this repository:
 - Publisher display name `Lometics GmbH`; every logo size in `Assets/Package/`.
 - The 30 interface languages declared ([S-1073]); targets Windows 11 x64 (10.0.22000.0+).
 - Capabilities limited to what is used ([S-1061]), with the certification notes in STORE-LISTING.md.
-- Privacy policy and support address in About ([S-1072]) and in the listing.
+- Privacy policy and support address in ⚙ › About Themia ([S-1072]) and in the listing.
 - Store licensing for the Pro add-on with a 7-day offline grace ([S-1063]..[S-1069]).
 
 Still open, in order:
@@ -85,17 +85,20 @@ never do it, because it means trusting a certificate on the machine.
 3. Install it by double-clicking it, or with `Add-AppxPackage .\Themia_<v>_x64.msix`. Quit any
    unpackaged Themia first.
 4. Check:
-   - Start menu tile and taskbar icon use the Themia logo; About shows the manifest version.
+   - Start menu tile and taskbar icon use the Themia logo; ⚙ › About Themia shows the manifest version.
    - The edit bar's ⚙ › Start with Windows toggles the `ThemiaStartup` task (also visible in
      Settings › Apps › Startup), and a sign-in starts Themia.
-   - Settings › License says **Themia Free** (a sideloaded package has no Store licence), shows the
-     usage of 20 widgets and 2 views, and the 21st widget (place, paste, duplicate)
-     or the 3rd view is refused and opens the License page. Nothing already there is removed.
+   - The edit bar's ⚙ › Themia Pro says **Themia Free** (a sideloaded package has no Store licence),
+     reads out the usage of 20 widgets and 2 views, and the 21st widget (place, paste, duplicate)
+     or the 3rd view is refused; the notice's See plans opens ⚙ › Themia Pro on that display, the
+     refusal on top. Nothing already there is removed. Upgrade opens the Store's dialog over the
+     desktop once the add-on is on sale.
    - The Bluetooth widget lists devices (radios/bluetooth capabilities).
    - Volume/Mixer device picks switch the Windows default output.
    - Errors still reach Event Viewer › Application (source *Themia*, with the "description cannot
      be found" preamble: the package registers no event message file).
-   - About › Uninstall: the dialog has no "keep data" choice. Themia closes, the package is removed,
+   - ⚙ › About Themia › Uninstall Themia: no "also delete" choice (the data goes with the package);
+     Uninstall… asks first. Themia closes, the package is removed,
      and `%LOCALAPPDATA%\Packages\<family name>` is gone.
 5. Remove the package (`Get-AppxPackage *Themia* | Remove-AppxPackage`) and delete the test
    certificate from *Trusted People*.

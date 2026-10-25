@@ -46,9 +46,6 @@ internal static class SettingsRender
     /// <summary>The window's width: wide enough that the navigation pane stays open, as by default.</summary>
     private const double WindowWidth = 1100;
 
-    /// <summary>Set while a render runs, so nothing destructive (uninstall) can happen in one.</summary>
-    public static bool IsRendering { get; private set; }
-
     /// <summary>
     /// The <c>--theme</c> a render asked for, read before the app's resources load, because the
     /// application theme can only be set then. Null when not rendering or not asked.
@@ -80,11 +77,9 @@ internal static class SettingsRender
             return false;
         }
 
-        IsRendering = true;
-
         if (at + 2 >= args.Length)
         {
-            Log.Error(Scope, "usage: --settings-png <License|About> <out.png> [waitMs] [--theme light|dark] [--search text] [--land text] [--flyout row-title] [--width dips]");
+            Log.Error(Scope, "usage: --settings-png <Page> <out.png> [waitMs] [--theme light|dark] [--search text] [--land text] [--flyout row-title] [--width dips]");
             app.Exit();
             return true;
         }
@@ -108,8 +103,6 @@ internal static class SettingsRender
             app.Exit();
             return true;
         }
-
-        _licenseFixture = Option(args, "--license");
 
         var request = new Request(page, outPath, wait, Option(args, "--search"), Option(args, "--land"),
             RequestedTheme(args) switch
@@ -143,36 +136,9 @@ internal static class SettingsRender
 
     /// <summary>
     /// A page name to its target. The app pages are the <see cref="AppPage"/> members by name, so a
-    /// page added there — Accounts included — renders without a change here.
+    /// page added there renders without a change here. [S-3584] None is left: the licence's states
+    /// are drawn by <c>--editbar-png</c> (⚙ › Themia Pro).
     /// </summary>
-    /// <summary>[S-1068] <c>--license free|refused|pro|grace|offline</c>: the License page as a packaged copy would show it.</summary>
-    private static string? _licenseFixture;
-
-    private static void ApplyLicenseFixture(AppHost host)
-    {
-        var now = DateTimeOffset.UtcNow;
-        Themia.Core.Licensing.LicenseStatus? status = _licenseFixture?.ToLowerInvariant() switch
-        {
-            "free" or "refused" => new(Themia.Core.Licensing.LicenseTier.Free, Themia.Core.Licensing.LicenseBasis.StoreFree),
-            "pro" => new(Themia.Core.Licensing.LicenseTier.Pro, Themia.Core.Licensing.LicenseBasis.StorePro),
-            "grace" => new(Themia.Core.Licensing.LicenseTier.Pro, Themia.Core.Licensing.LicenseBasis.OfflineGrace, now.AddDays(5)),
-            "offline" => new(Themia.Core.Licensing.LicenseTier.Free, Themia.Core.Licensing.LicenseBasis.StoreUnavailable),
-            _ => null,
-        };
-
-        if (status is null)
-        {
-            return;
-        }
-
-        host.License.OverrideForRender(status);
-        if (_licenseFixture!.Equals("refused", StringComparison.OrdinalIgnoreCase))
-        {
-            host.LastRefusal = Themia.Core.Licensing.LicenseText.Refusal(
-                Themia.Core.Licensing.LicenseUsage.Of(host.State), 0, 1);
-        }
-    }
-
     private static ConfigTarget? Resolve(string name)
         => Enum.TryParse<AppPage>(name, ignoreCase: true, out var page) && Enum.IsDefined(page)
             ? new ConfigTarget.App(page)
@@ -197,7 +163,6 @@ internal static class SettingsRender
             }
 
             host = new AppHost(dispatcher, AppStateStore.Detached(statePath), state);
-            ApplyLicenseFixture(host);
 
             var target = request.Page;
 

@@ -1,6 +1,20 @@
 {
   "settingsMenu.onlineUpdates": "การอัปเดตออนไลน์",
-  "settingsMenu.allSettings": "การตั้งค่าทั้งหมด…",
   "settingsMenu.gameMode": "หยุดชั่วคราวขณะเต็มหน้าจอ",
-  "settingsMenu.findLanguage": "ค้นหาภาษา"
+  "settingsMenu.findLanguage": "ค้นหาภาษา",
+  "settingsMenu.proFree": "ฟรี",
+  "settingsMenu.backup": "สำรองและรีเซ็ต",
+  "settingsMenu.about": "เกี่ยวกับ Themia",
+  "settingsMenu.exportSettings": "ส่งออกการตั้งค่า…",
+  "settingsMenu.importSettings": "นำเข้าการตั้งค่า…",
+  "settingsMenu.resetAll": "รีเซ็ตการตั้งค่าทั้งหมด…",
+  "settingsMenu.reset": "รีเซ็ต",
+  "settingsMenu.exported": "บันทึกเป็น {file} แล้ว",
+  "settingsMenu.imported": "นำเข้าแล้ว การตั้งค่าเดิมของคุณถูกเก็บไว้เป็น {backup}",
+  "settingsMenu.resetDone": "รีเซ็ตแล้ว การตั้งค่าเดิมของคุณถูกเก็บไว้เป็น {backup}",
+  "settingsMenu.purchasing": "กำลังรอ Microsoft Store…",
+  "settingsMenu.aboutOpenMeteo": "สภาพอากาศ ฝน และคุณภาพอากาศ ข้อมูลคุณภาพอากาศมาจากบริการตรวจวัดบรรยากาศโคเปอร์นิคัส (CAMS) ด้วย",
+  "settingsMenu.uninstallEllipsis": "ถอนการติดตั้ง…",
+  "settingsMenu.uninstallDataGoes": "วิดเจ็ต การตั้งค่า และบัญชีของคุณจะถูกลบด้วย",
+  "settingsMenu.uninstallDeleteData": "ลบข้อมูลของฉันด้วย"
 }

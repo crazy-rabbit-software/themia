@@ -1,6 +1,20 @@
 {
   "settingsMenu.onlineUpdates": "Pembaruan online",
-  "settingsMenu.allSettings": "Semua pengaturan…",
   "settingsMenu.gameMode": "Jeda saat layar penuh",
-  "settingsMenu.findLanguage": "Cari bahasa"
+  "settingsMenu.findLanguage": "Cari bahasa",
+  "settingsMenu.proFree": "Gratis",
+  "settingsMenu.backup": "Cadangkan & atur ulang",
+  "settingsMenu.about": "Tentang Themia",
+  "settingsMenu.exportSettings": "Ekspor pengaturan…",
+  "settingsMenu.importSettings": "Impor pengaturan…",
+  "settingsMenu.resetAll": "Atur ulang semua pengaturan…",
+  "settingsMenu.reset": "Atur ulang",
+  "settingsMenu.exported": "Disimpan sebagai {file}",
+  "settingsMenu.imported": "Diimpor. Pengaturan Anda sebelumnya disimpan sebagai {backup}.",
+  "settingsMenu.resetDone": "Diatur ulang. Pengaturan Anda sebelumnya disimpan sebagai {backup}.",
+  "settingsMenu.purchasing": "Menunggu Microsoft Store…",
+  "settingsMenu.aboutOpenMeteo": "Cuaca, hujan, dan kualitas udara. Kualitas udara juga dari Copernicus Atmosphere Monitoring Service (CAMS).",
+  "settingsMenu.uninstallEllipsis": "Copot instalan…",
+  "settingsMenu.uninstallDataGoes": "Widget, pengaturan, dan akun Anda juga dihapus.",
+  "settingsMenu.uninstallDeleteData": "Hapus juga data saya"
 }

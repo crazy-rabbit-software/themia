@@ -1,6 +1,20 @@
 {
   "settingsMenu.onlineUpdates": "Aktualizacje online",
-  "settingsMenu.allSettings": "Wszystkie ustawienia…",
   "settingsMenu.gameMode": "Wstrzymuj przy pełnym ekranie",
-  "settingsMenu.findLanguage": "Znajdź język"
+  "settingsMenu.findLanguage": "Znajdź język",
+  "settingsMenu.proFree": "Bezpłatna",
+  "settingsMenu.backup": "Kopia zapasowa i reset",
+  "settingsMenu.about": "O Themia",
+  "settingsMenu.exportSettings": "Eksportuj ustawienia…",
+  "settingsMenu.importSettings": "Importuj ustawienia…",
+  "settingsMenu.resetAll": "Resetuj wszystkie ustawienia…",
+  "settingsMenu.reset": "Resetuj",
+  "settingsMenu.exported": "Zapisano jako {file}",
+  "settingsMenu.imported": "Zaimportowano. Poprzednie ustawienia zachowano jako {backup}.",
+  "settingsMenu.resetDone": "Zresetowano. Poprzednie ustawienia zachowano jako {backup}.",
+  "settingsMenu.purchasing": "Oczekiwanie na Microsoft Store…",
+  "settingsMenu.aboutOpenMeteo": "Pogoda, opady i jakość powietrza. Jakość powietrza również z serwisu monitorowania atmosfery Copernicus (CAMS).",
+  "settingsMenu.uninstallEllipsis": "Odinstaluj…",
+  "settingsMenu.uninstallDataGoes": "Twoje widżety, ustawienia i konta też zostaną usunięte.",
+  "settingsMenu.uninstallDeleteData": "Usuń też moje dane"
 }

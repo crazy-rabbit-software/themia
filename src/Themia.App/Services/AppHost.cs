@@ -1,7 +1,6 @@
 using Microsoft.UI.Dispatching;
 using Themia.App.Interop;
 using Themia.App.Shell;
-using Themia.App.Shell.Config;
 using Themia.Core.Diagnostics;
 using Themia.Core.Model;
 using Themia.Core.Storage;
@@ -28,7 +27,6 @@ internal sealed partial class AppHost : IDisposable
     /// <summary>[S-458] The screen-time tracker, from <see cref="Start"/> to <see cref="Dispose"/>.</summary>
     private ScreenTimeService? _screenTime;
 
-    private ConfigWindow? _config;
     private readonly Mail.MailService _mail;
     private readonly Office.AccountOfficeSource _office;
     private readonly SystemData.SystemHub _system;
@@ -125,6 +123,14 @@ internal sealed partial class AppHost : IDisposable
         // [S-3550] ⚙ › Accounts on every display reads one set of forms and flows.
         AccountsMenu = new Themia.App.Services.Accounts.AccountsMenuHost(dispatcher);
         AccountsMenu.Changed += () => SettingsOutdated?.Invoke();
+
+        // [S-3570] [S-3575] ⚙ › Themia Pro and Back up & reset: one licence menu, one settings file,
+        // and what their lines started said under them, the same on every display.
+        SettingsOutcomes.Changed += () => SettingsOutdated?.Invoke();
+        LicenceMenu = new Licensing.LicenceMenu(License, SettingsOutcomes);
+        LicenceMenu.Changed += () => SettingsOutdated?.Invoke();
+        License.Changed += () => SettingsOutdated?.Invoke();
+        Backup = new SettingsBackup(this, SettingsOutcomes);
         AppServices.EditAppLayout = ShowLayoutEditor;
 
         // [S-591] One task service for every widget. The task lists kept on this PC live beside the
@@ -446,7 +452,6 @@ internal sealed partial class AppHost : IDisposable
         AppServices.Clipboard = null;
         _clipboard.Dispose();
 
-        _config?.Close();
         Ticker.Dispose();
         _command.Dispose();
     }

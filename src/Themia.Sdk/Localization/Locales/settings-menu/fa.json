@@ -1,6 +1,20 @@
 {
   "settingsMenu.onlineUpdates": "به‌روزرسانی‌های آنلاین",
-  "settingsMenu.allSettings": "همه تنظیمات…",
   "settingsMenu.gameMode": "توقف در حالت تمام‌صفحه",
-  "settingsMenu.findLanguage": "جستجوی زبان"
+  "settingsMenu.findLanguage": "جستجوی زبان",
+  "settingsMenu.proFree": "رایگان",
+  "settingsMenu.backup": "پشتیبان‌گیری و بازنشانی",
+  "settingsMenu.about": "درباره Themia",
+  "settingsMenu.exportSettings": "صادر کردن تنظیمات…",
+  "settingsMenu.importSettings": "وارد کردن تنظیمات…",
+  "settingsMenu.resetAll": "بازنشانی همه تنظیمات…",
+  "settingsMenu.reset": "بازنشانی",
+  "settingsMenu.exported": "با نام {file} ذخیره شد",
+  "settingsMenu.imported": "وارد شد. تنظیمات قبلی شما با نام {backup} نگه داشته می‌شود.",
+  "settingsMenu.resetDone": "بازنشانی شد. تنظیمات قبلی شما با نام {backup} نگه داشته می‌شود.",
+  "settingsMenu.purchasing": "در انتظار Microsoft Store…",
+  "settingsMenu.aboutOpenMeteo": "آب‌وهوا، باران و کیفیت هوا. داده‌های کیفیت هوا همچنین از سرویس پایش جو کوپرنیک (CAMS).",
+  "settingsMenu.uninstallEllipsis": "حذف نصب…",
+  "settingsMenu.uninstallDataGoes": "ویجت‌ها، تنظیمات و حساب‌های شما هم حذف می‌شوند.",
+  "settingsMenu.uninstallDeleteData": "داده‌هایم هم حذف شوند"
 }

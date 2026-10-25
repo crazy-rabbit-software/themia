@@ -1,9 +1,11 @@
 using System.Reflection;
+using System.Runtime.InteropServices;
+using Themia.Core.Diagnostics;
 
 namespace Themia.App.Services;
 
 /// <summary>
-/// What the app can say about itself, for the status line and the About page.
+/// What the app can say about itself, for the log and ⚙ › About Themia.
 /// <para>
 /// Read once. None of it changes while the process is alive, and the status bar asks for it every
 /// time anything at all happens.
@@ -21,6 +23,30 @@ internal static class AppInfo
     public static bool IsAot { get; } = !System.Runtime.CompilerServices.RuntimeFeature.IsDynamicCodeSupported;
 
     public static string Runtime => IsAot ? "native" : "managed";
+
+    /// <summary>[S-3580] ".NET 10.0.0 · Windows App SDK 1.8.x": what the build actually runs on, as About says it.</summary>
+    public static string RuntimeLine => RuntimeRead.Value;
+
+    /// <summary>Read the first time About is drawn, not at start: the release info is in the runtime DLL.</summary>
+    private static readonly Lazy<string> RuntimeRead = new(ReadRuntimeLine);
+
+    private static string ReadRuntimeLine()
+    {
+        var runtime = $".NET {Environment.Version.ToString(3)}";
+
+        try
+        {
+            var sdk = Microsoft.Windows.ApplicationModel.WindowsAppRuntime.ReleaseInfo.AsString;
+            return string.IsNullOrWhiteSpace(sdk) ? runtime : $"{runtime} · Windows App SDK {sdk}";
+        }
+        catch (Exception ex) when (ex is COMException or TypeLoadException or DllNotFoundException)
+        {
+            // The release info lives in the runtime DLL; a build that cannot reach it still has a
+            // .NET version worth showing.
+            Log.Warn("about", "could not read the Windows App SDK release", ex);
+            return runtime;
+        }
+    }
 
     private static string ReadVersion()
     {

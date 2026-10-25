@@ -1,6 +1,20 @@
 {
   "settingsMenu.onlineUpdates": "Онлайн-обновления",
-  "settingsMenu.allSettings": "Все параметры…",
   "settingsMenu.gameMode": "Пауза в полноэкранном режиме",
-  "settingsMenu.findLanguage": "Найти язык"
+  "settingsMenu.findLanguage": "Найти язык",
+  "settingsMenu.proFree": "Бесплатно",
+  "settingsMenu.backup": "Резервная копия и сброс",
+  "settingsMenu.about": "О Themia",
+  "settingsMenu.exportSettings": "Экспорт параметров…",
+  "settingsMenu.importSettings": "Импорт параметров…",
+  "settingsMenu.resetAll": "Сбросить все параметры…",
+  "settingsMenu.reset": "Сбросить",
+  "settingsMenu.exported": "Сохранено как {file}",
+  "settingsMenu.imported": "Импортировано. Прежние параметры сохранены как {backup}.",
+  "settingsMenu.resetDone": "Сброшено. Прежние параметры сохранены как {backup}.",
+  "settingsMenu.purchasing": "Ожидание Microsoft Store…",
+  "settingsMenu.aboutOpenMeteo": "Погода, дождь и качество воздуха. Данные о качестве воздуха также от службы мониторинга атмосферы Copernicus (CAMS).",
+  "settingsMenu.uninstallEllipsis": "Удалить…",
+  "settingsMenu.uninstallDataGoes": "Ваши виджеты, параметры и учетные записи тоже будут удалены.",
+  "settingsMenu.uninstallDeleteData": "Также удалить мои данные"
 }

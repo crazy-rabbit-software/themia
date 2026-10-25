@@ -62,15 +62,6 @@ internal sealed class LicenseService : IDisposable
     /// <summary>Raised on the UI thread whenever <see cref="Status"/> may have changed.</summary>
     public event Action? Changed;
 
-#if DEBUG
-    /// <summary>Debug renders only: show the License page in a given state without a Store.</summary>
-    public void OverrideForRender(LicenseStatus status)
-    {
-        Status = status;
-        Raise();
-    }
-#endif
-
     /// <summary>Ask the Store once at start, and listen for licence changes. Does nothing for a developer build.</summary>
     public void Start()
     {
@@ -111,8 +102,8 @@ internal sealed class LicenseService : IDisposable
     }
 
     /// <summary>
-    /// Open the Store's purchase dialog for Pro, owned by <paramref name="owner"/> (the settings
-    /// window): a desktop app must hand the Store a window before it can show any UI
+    /// Open the Store's purchase dialog for Pro, owned by <paramref name="owner"/> (the window of the
+    /// display whose ⚙ it was asked from, [S-3572]): a desktop app must hand the Store a window before it can show any UI
     /// (<c>IInitializeWithWindow</c>).
     /// </summary>
     public async Task<PurchaseOutcome> PurchaseProAsync(nint owner)

@@ -1,7 +1,21 @@
 {
-  "$comment": "[S-3520]..[S-3535] The edit bar's settings menu (⚙): its own words. \"All settings…\" is temporary: it goes with the settings window.",
+  "$comment": "[S-3520]..[S-3584] The edit bar's settings menu (⚙): its own words.",
   "settingsMenu.onlineUpdates": "Online updates",
-  "settingsMenu.allSettings": "All settings…",
   "settingsMenu.gameMode": "Pause during full-screen apps",
-  "settingsMenu.findLanguage": "Find a language"
+  "settingsMenu.findLanguage": "Find a language",
+  "settingsMenu.proFree": "Free",
+  "settingsMenu.backup": "Back up & reset",
+  "settingsMenu.about": "About Themia",
+  "settingsMenu.exportSettings": "Export settings…",
+  "settingsMenu.importSettings": "Import settings…",
+  "settingsMenu.resetAll": "Reset all settings…",
+  "settingsMenu.reset": "Reset",
+  "settingsMenu.exported": "Saved as {file}",
+  "settingsMenu.imported": "Settings imported. The ones you had are kept as {backup}.",
+  "settingsMenu.resetDone": "Settings reset. The ones you had are kept as {backup}.",
+  "settingsMenu.purchasing": "Waiting for the Microsoft Store…",
+  "settingsMenu.aboutOpenMeteo": "Weather, rain and air quality. Air quality also from the Copernicus Atmosphere Monitoring Service (CAMS).",
+  "settingsMenu.uninstallEllipsis": "Uninstall…",
+  "settingsMenu.uninstallDataGoes": "Your widgets, settings and accounts are deleted too.",
+  "settingsMenu.uninstallDeleteData": "Also delete my data"
 }

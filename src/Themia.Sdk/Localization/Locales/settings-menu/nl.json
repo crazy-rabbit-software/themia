@@ -1,6 +1,20 @@
 {
   "settingsMenu.onlineUpdates": "Online-updates",
-  "settingsMenu.allSettings": "Alle instellingen…",
   "settingsMenu.gameMode": "Onderbreken bij volledig scherm",
-  "settingsMenu.findLanguage": "Een taal zoeken"
+  "settingsMenu.findLanguage": "Een taal zoeken",
+  "settingsMenu.proFree": "Gratis",
+  "settingsMenu.backup": "Back-up en opnieuw instellen",
+  "settingsMenu.about": "Over Themia",
+  "settingsMenu.exportSettings": "Instellingen exporteren…",
+  "settingsMenu.importSettings": "Instellingen importeren…",
+  "settingsMenu.resetAll": "Alle instellingen opnieuw instellen…",
+  "settingsMenu.reset": "Opnieuw instellen",
+  "settingsMenu.exported": "Opgeslagen als {file}",
+  "settingsMenu.imported": "Geïmporteerd. Je vorige instellingen worden bewaard als {backup}.",
+  "settingsMenu.resetDone": "Opnieuw ingesteld. Je vorige instellingen worden bewaard als {backup}.",
+  "settingsMenu.purchasing": "Wachten op de Microsoft Store…",
+  "settingsMenu.aboutOpenMeteo": "Weer, regen en luchtkwaliteit. Luchtkwaliteit ook van de Copernicus-dienst voor atmosfeermonitoring (CAMS).",
+  "settingsMenu.uninstallEllipsis": "Verwijderen…",
+  "settingsMenu.uninstallDataGoes": "Je widgets, instellingen en accounts worden ook verwijderd.",
+  "settingsMenu.uninstallDeleteData": "Ook mijn gegevens verwijderen"
 }

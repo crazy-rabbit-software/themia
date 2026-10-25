@@ -1,6 +1,20 @@
 {
   "settingsMenu.onlineUpdates": "অনলাইন আপডেট",
-  "settingsMenu.allSettings": "সব সেটিংস…",
   "settingsMenu.gameMode": "ফুল স্ক্রিনে থামান",
-  "settingsMenu.findLanguage": "ভাষা খুঁজুন"
+  "settingsMenu.findLanguage": "ভাষা খুঁজুন",
+  "settingsMenu.proFree": "ফ্রি",
+  "settingsMenu.backup": "ব্যাকআপ ও রিসেট",
+  "settingsMenu.about": "Themia সম্পর্কে",
+  "settingsMenu.exportSettings": "সেটিংস এক্সপোর্ট করুন…",
+  "settingsMenu.importSettings": "সেটিংস ইমপোর্ট করুন…",
+  "settingsMenu.resetAll": "সব সেটিংস রিসেট করুন…",
+  "settingsMenu.reset": "রিসেট",
+  "settingsMenu.exported": "{file} হিসেবে সংরক্ষিত",
+  "settingsMenu.imported": "ইমপোর্ট হয়েছে। আপনার আগের সেটিংস {backup} হিসেবে রাখা হয়েছে।",
+  "settingsMenu.resetDone": "রিসেট হয়েছে। আপনার আগের সেটিংস {backup} হিসেবে রাখা হয়েছে।",
+  "settingsMenu.purchasing": "Microsoft Store-এর জন্য অপেক্ষা করা হচ্ছে…",
+  "settingsMenu.aboutOpenMeteo": "আবহাওয়া, বৃষ্টি ও বায়ুর মান। বায়ুর মানের তথ্য কোপার্নিকাস অ্যাটমোস্ফিয়ার মনিটরিং সার্ভিস (CAMS) থেকেও।",
+  "settingsMenu.uninstallEllipsis": "আনইনস্টল…",
+  "settingsMenu.uninstallDataGoes": "আপনার উইজেট, সেটিংস ও অ্যাকাউন্টও মুছে ফেলা হবে।",
+  "settingsMenu.uninstallDeleteData": "আমার ডেটাও মুছুন"
 }

@@ -4,6 +4,7 @@ using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media;
 using Themia.App.Widgets;
 using Themia.Core.Geometry;
+using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Motion;
 using Themia.Core.Settings;
@@ -81,17 +82,30 @@ internal static partial class EditBarRender
 
         // [S-3560] ⚙ › Accounts over stand-in accounts.
         await AccountsShots(screen, outDir, theme).ConfigureAwait(true);
+
+        // [S-3583] ⚙ › Themia Pro in each licence state, Back up & reset with its questions, About Themia.
+        await ProShots(screen, outDir, theme).ConfigureAwait(true);
+        await BackupShots(screen, outDir, theme).ConfigureAwait(true);
+        await AboutShots(screen, outDir, theme).ConfigureAwait(true);
     }
 
     private static Task SettingsShot(Grid screen, string path, RenderSettingsHost host, string[] open, Action<BarMenuView>? then = null)
         => MenuShot(screen, path, BarMenu.Settings, () => host.Menu = new BarMenuView(nameof(BarMenu.Settings), () => SettingsMenu.Root(host), () => { }), open, then);
 
-    /// <summary>A stand-in for the settings menu's host: a state of its own, Windows' side made up, every change drawn at once.</summary>
-    private sealed class RenderSettingsHost : ISettingsMenuHost
+    /// <summary>
+    /// A stand-in for the settings menu's host: a state of its own, Windows' side made up, every change
+    /// drawn at once; [S-3583] a licence, a settings file and an install of its own, so no Store, file
+    /// dialog or uninstall is ever reached.
+    /// </summary>
+    private sealed class RenderSettingsHost : ISettingsMenuHost, ILicenceMenuHost, IBackupMenuHost, IAboutMenuHost
     {
         private readonly IAccountsMenuHost? _accounts;
 
-        public RenderSettingsHost() => Accounts = new RenderAccountsHost();
+        public RenderSettingsHost()
+        {
+            Accounts = new RenderAccountsHost();
+            Outcomes.Changed += () => Menu?.Show();
+        }
 
         public BarMenuView? Menu { get; set; }
 
@@ -148,14 +162,85 @@ internal static partial class EditBarRender
 
         public void Confirm(SettingsConfirm confirm) => Menu?.Confirm(confirm);
 
-        public void ShowAllSettings()
-        {
-            // ignore: a render opens no window.
-        }
-
         public void Quit()
         {
             // ignore: a render quits when it has drawn.
+        }
+
+        public ILicenceMenuHost Licence => this;
+
+        public IBackupMenuHost Backup => this;
+
+        public IAboutMenuHost About => this;
+
+        public SettingsOutcomes Outcomes { get; } = new();
+
+        // ---- [S-3583] a made-up licence: a developer build unless a state is given ----------------
+
+        public Core.Licensing.LicenseStatus Status { get; init; } = new(Core.Licensing.LicenseTier.Unrestricted, Core.Licensing.LicenseBasis.DeveloperBuild);
+
+        public bool CanPurchase { get; init; }
+
+        public string? Price { get; init; }
+
+        public string? Refusal { get; init; }
+
+        /// <summary>The Store's dialog never opens in a render: the line says it is waiting, as it would.</summary>
+        public void Purchase() => Outcomes.Say(SettingsMenu.Keys.ProUpgrade, new MenuOutcome(Str.SettingsMenu_Purchasing.Text(), Busy: true));
+
+        public void Restore() => Outcomes.Say(SettingsMenu.Keys.ProRestore, new MenuOutcome(Core.Licensing.LicenseText.Title(Status)));
+
+        // ---- [S-3583] a made-up settings file ------------------------------------------------------
+
+        public string StatePath => @"C:\Users\Alex\AppData\Roaming\Themia\state.json";
+
+        public void Export()
+        {
+            // ignore: a render shows no Save dialog.
+        }
+
+        public void Import()
+        {
+            // ignore: a render shows no Open dialog; its question is drawn from a made-up file (BackupShots).
+        }
+
+        public void OpenFile()
+        {
+            // ignore: a render opens no file.
+        }
+
+        public void Reset()
+        {
+            // ignore: a render resets nothing.
+        }
+
+        // ---- [S-3583] a made-up install --------------------------------------------------------------
+
+        public string Version => Services.AppInfo.Version;
+
+        public string Runtime => Services.AppInfo.RuntimeLine;
+
+        public void Open(Uri page)
+        {
+            // ignore: a render opens no page.
+        }
+
+        /// <summary>A Store install, or a loose one (a folder's copy).</summary>
+        public bool Packaged { get; init; }
+
+        public UninstallPlan Uninstall => UninstallPlan.Create(Packaged, deleteData: true, @"C:\Users\Alex\AppData\Roaming", @"C:\Users\Alex\AppData\Local", "Themia", Version);
+
+        public bool DeleteData { get; set; }
+
+        public void SetDeleteData(bool on)
+        {
+            DeleteData = on;
+            Menu?.Show();
+        }
+
+        public void UninstallNow(bool deleteData)
+        {
+            // ignore: a render never uninstalls ([S-1555]).
         }
     }
 }

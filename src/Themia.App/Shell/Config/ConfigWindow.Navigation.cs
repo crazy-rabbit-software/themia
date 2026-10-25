@@ -3,8 +3,7 @@ using Microsoft.UI.Xaml.Controls;
 namespace Themia.App.Shell.Config;
 
 /// <summary>
-/// The navigation pane: the app pages, License and About, at the
-/// foot. [S-1830] One entry per page, never one per account or widget. [S-3834] No heading over the
+/// The navigation pane: the app pages, of which none is left ([S-3584]). [S-1830] One entry per page, never one per account or widget. [S-3834] No heading over the
 /// entries: the title bar already names the app, as Windows Settings' pane names nothing.
 /// </summary>
 internal sealed partial class ConfigWindow
@@ -14,9 +13,6 @@ internal sealed partial class ConfigWindow
         _nav.MenuItems.Clear();
         AddAppPages(_nav.MenuItems, AppPageSlot.Main);
 
-        // [S-493] About is the very last entry, pinned to the foot of the menu under everything
-        // else, as in karpo and Windows Settings. Anything else that wants the footer goes
-        // ABOVE it in ConfigPages.AppPages, never after it.
         _nav.FooterMenuItems.Clear();
         AddAppPages(_nav.FooterMenuItems, AppPageSlot.Footer);
 

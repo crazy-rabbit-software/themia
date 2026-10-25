@@ -1,6 +1,20 @@
 {
   "settingsMenu.onlineUpdates": "온라인 업데이트",
-  "settingsMenu.allSettings": "모든 설정…",
   "settingsMenu.gameMode": "전체 화면에서 일시 중지",
-  "settingsMenu.findLanguage": "언어 찾기"
+  "settingsMenu.findLanguage": "언어 찾기",
+  "settingsMenu.proFree": "무료",
+  "settingsMenu.backup": "백업 및 초기화",
+  "settingsMenu.about": "Themia 정보",
+  "settingsMenu.exportSettings": "설정 내보내기…",
+  "settingsMenu.importSettings": "설정 가져오기…",
+  "settingsMenu.resetAll": "모든 설정 초기화…",
+  "settingsMenu.reset": "초기화",
+  "settingsMenu.exported": "{file}(으)로 저장됨",
+  "settingsMenu.imported": "가져왔습니다. 이전 설정은 {backup}(으)로 보관됩니다.",
+  "settingsMenu.resetDone": "초기화했습니다. 이전 설정은 {backup}(으)로 보관됩니다.",
+  "settingsMenu.purchasing": "Microsoft Store를 기다리는 중…",
+  "settingsMenu.aboutOpenMeteo": "날씨, 비, 대기질. 대기질은 코페르니쿠스 대기 모니터링 서비스(CAMS)의 데이터도 사용합니다.",
+  "settingsMenu.uninstallEllipsis": "제거…",
+  "settingsMenu.uninstallDataGoes": "위젯, 설정, 계정도 삭제됩니다.",
+  "settingsMenu.uninstallDeleteData": "내 데이터도 삭제"
 }

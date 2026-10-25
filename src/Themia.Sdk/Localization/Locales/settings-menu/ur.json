@@ -1,6 +1,20 @@
 {
   "settingsMenu.onlineUpdates": "آن لائن اپ ڈیٹس",
-  "settingsMenu.allSettings": "تمام ترتیبات…",
   "settingsMenu.gameMode": "فل اسکرین میں موقوف کریں",
-  "settingsMenu.findLanguage": "زبان تلاش کریں"
+  "settingsMenu.findLanguage": "زبان تلاش کریں",
+  "settingsMenu.proFree": "مفت",
+  "settingsMenu.backup": "بیک اپ اور ری سیٹ",
+  "settingsMenu.about": "Themia کے بارے میں",
+  "settingsMenu.exportSettings": "ترتیبات برآمد کریں…",
+  "settingsMenu.importSettings": "ترتیبات درآمد کریں…",
+  "settingsMenu.resetAll": "تمام ترتیبات ری سیٹ کریں…",
+  "settingsMenu.reset": "ری سیٹ کریں",
+  "settingsMenu.exported": "{file} کے طور پر محفوظ ہو گئی",
+  "settingsMenu.imported": "درآمد ہو گئیں۔ آپ کی پچھلی ترتیبات {backup} کے طور پر محفوظ ہیں۔",
+  "settingsMenu.resetDone": "ری سیٹ ہو گیا۔ آپ کی پچھلی ترتیبات {backup} کے طور پر محفوظ ہیں۔",
+  "settingsMenu.purchasing": "Microsoft Store کا انتظار ہے…",
+  "settingsMenu.aboutOpenMeteo": "موسم، بارش اور ہوا کا معیار۔ ہوا کا معیار کوپرنیکس ایٹموسفیئر مانیٹرنگ سروس (CAMS) سے بھی۔",
+  "settingsMenu.uninstallEllipsis": "ان انسٹال کریں…",
+  "settingsMenu.uninstallDataGoes": "آپ کے ویجیٹس، ترتیبات اور اکاؤنٹس بھی حذف ہو جائیں گے۔",
+  "settingsMenu.uninstallDeleteData": "میرا ڈیٹا بھی حذف کریں"
 }

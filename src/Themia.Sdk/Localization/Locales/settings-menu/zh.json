@@ -1,6 +1,20 @@
 {
   "settingsMenu.onlineUpdates": "在线更新",
-  "settingsMenu.allSettings": "所有设置…",
   "settingsMenu.gameMode": "全屏时暂停",
-  "settingsMenu.findLanguage": "查找语言"
+  "settingsMenu.findLanguage": "查找语言",
+  "settingsMenu.proFree": "免费版",
+  "settingsMenu.backup": "备份和重置",
+  "settingsMenu.about": "关于 Themia",
+  "settingsMenu.exportSettings": "导出设置…",
+  "settingsMenu.importSettings": "导入设置…",
+  "settingsMenu.resetAll": "重置所有设置…",
+  "settingsMenu.reset": "重置",
+  "settingsMenu.exported": "已另存为 {file}",
+  "settingsMenu.imported": "已导入。之前的设置已保留为 {backup}。",
+  "settingsMenu.resetDone": "已重置。之前的设置已保留为 {backup}。",
+  "settingsMenu.purchasing": "正在等待 Microsoft Store…",
+  "settingsMenu.aboutOpenMeteo": "天气、降雨和空气质量。空气质量数据也来自哥白尼大气监测服务 (CAMS)。",
+  "settingsMenu.uninstallEllipsis": "卸载…",
+  "settingsMenu.uninstallDataGoes": "你的小组件、设置和帐户也会被删除。",
+  "settingsMenu.uninstallDeleteData": "同时删除我的数据"
 }

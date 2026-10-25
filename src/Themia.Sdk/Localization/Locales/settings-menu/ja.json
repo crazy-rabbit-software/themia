@@ -1,6 +1,20 @@
 {
   "settingsMenu.onlineUpdates": "オンライン更新",
-  "settingsMenu.allSettings": "すべての設定…",
   "settingsMenu.gameMode": "全画面表示中は一時停止",
-  "settingsMenu.findLanguage": "言語を検索"
+  "settingsMenu.findLanguage": "言語を検索",
+  "settingsMenu.proFree": "無料",
+  "settingsMenu.backup": "バックアップとリセット",
+  "settingsMenu.about": "Themia について",
+  "settingsMenu.exportSettings": "設定をエクスポート…",
+  "settingsMenu.importSettings": "設定をインポート…",
+  "settingsMenu.resetAll": "すべての設定をリセット…",
+  "settingsMenu.reset": "リセット",
+  "settingsMenu.exported": "{file} として保存しました",
+  "settingsMenu.imported": "インポートしました。以前の設定は {backup} として保存されています。",
+  "settingsMenu.resetDone": "リセットしました。以前の設定は {backup} として保存されています。",
+  "settingsMenu.purchasing": "Microsoft Store を待っています…",
+  "settingsMenu.aboutOpenMeteo": "天気、雨、大気質。大気質にはコペルニクス大気監視サービス (CAMS) のデータも使用しています。",
+  "settingsMenu.uninstallEllipsis": "アンインストール…",
+  "settingsMenu.uninstallDataGoes": "ウィジェット、設定、アカウントも削除されます。",
+  "settingsMenu.uninstallDeleteData": "データも削除する"
 }

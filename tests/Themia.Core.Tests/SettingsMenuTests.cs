@@ -21,6 +21,13 @@ public sealed partial class SettingsMenuTests
     /// <summary>A host over a state of its own: each change is applied to it and counted.</summary>
     private sealed class FakeHost : ISettingsMenuHost
     {
+        public FakeHost()
+        {
+            Licence = FakeLicence;
+            Backup = FakeBackup;
+            About = FakeAbout;
+        }
+
         public AppState State { get; } = AppState.CreateDefault();
 
         public int Mutations { get; private set; }
@@ -42,8 +49,6 @@ public sealed partial class SettingsMenuTests
         public List<IntroMode> Replayed { get; } = [];
 
         public List<SettingsConfirm> Asked { get; } = [];
-
-        public int AllSettings { get; private set; }
 
         public int Quits { get; private set; }
 
@@ -76,7 +81,19 @@ public sealed partial class SettingsMenuTests
 
         public void Confirm(SettingsConfirm confirm) => Asked.Add(confirm);
 
-        public void ShowAllSettings() => AllSettings++;
+        public FakeLicence FakeLicence { get; } = new();
+
+        public FakeBackup FakeBackup { get; } = new();
+
+        public FakeAbout FakeAbout { get; } = new();
+
+        public ILicenceMenuHost Licence { get; }
+
+        public IBackupMenuHost Backup { get; }
+
+        public IAboutMenuHost About { get; }
+
+        public SettingsOutcomes Outcomes { get; } = new();
 
         public void Quit() => Quits++;
     }
@@ -102,12 +119,12 @@ public sealed partial class SettingsMenuTests
     // ---- [S-3524] the first level ----------------------------------------------------------------
 
     [Fact]
-    public void S3524_the_root_is_general_then_appearance_and_online_updates_then_the_way_out()
+    public void S3524_the_root_is_general_then_the_sections_then_pro_backup_and_about_then_quit()
     {
         var keys = Root(new FakeHost()).Select(l => l is SettingsSeparator ? "-" : l.Key).ToArray();
 
         Assert.Equal(
-            ["startup", "desktopIcons", "gameMode", "-", "appearance", "accounts", "language", "online", "-", "allSettings", "quit"],
+            ["startup", "desktopIcons", "gameMode", "-", "appearance", "accounts", "language", "online", "-", "pro", "backup", "about", "-", "quit"],
             keys);
     }
 
@@ -125,13 +142,17 @@ public sealed partial class SettingsMenuTests
     }
 
     [Fact]
-    public void S3533_all_settings_opens_the_window_and_changes_nothing()
+    public void S3584_nothing_on_the_menu_opens_the_settings_window()
     {
-        var host = new FakeHost();
-        At<SettingsCommand>(host, SettingsMenu.Keys.AllSettings).Run();
+        static IEnumerable<SettingsLine> All(IReadOnlyList<SettingsLine> lines) => lines.SelectMany(l => l switch
+        {
+            SettingsSubmenu s => [l, .. All(s.Lines)],
+            SettingsChoice c => [l, .. c.Options],
+            _ => (IEnumerable<SettingsLine>)[l],
+        });
 
-        Assert.Equal(1, host.AllSettings);
-        Assert.Equal(0, host.Mutations);
+        Assert.DoesNotContain(All(Root(new FakeHost())), l => l.Key == "allSettings");
+        Assert.DoesNotContain(typeof(ISettingsMenuHost).GetMethods(), m => m.Name == "ShowAllSettings");
     }
 
     [Fact]

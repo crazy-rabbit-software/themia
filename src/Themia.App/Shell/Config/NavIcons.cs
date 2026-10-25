@@ -15,12 +15,6 @@ internal enum NavIcon
 {
     /// <summary>A page of text: Logs.</summary>
     DocumentText,
-
-    /// <summary>A question mark in a circle: About.</summary>
-    QuestionCircle,
-
-    /// <summary>A diamond: License ([S-1068]).</summary>
-    Premium,
 }
 
 internal static class NavIcons
@@ -45,8 +39,6 @@ internal static class NavIcons
     public static string FileName(NavIcon icon) => icon switch
     {
         NavIcon.DocumentText => "ic_fluent_document_text_20_color.svg",
-        NavIcon.QuestionCircle => "ic_fluent_question_circle_20_color.svg",
-        NavIcon.Premium => "ic_fluent_premium_20_color.svg",
         _ => throw new ArgumentOutOfRangeException(nameof(icon), icon, null),
     };
 

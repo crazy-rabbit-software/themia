@@ -1,6 +1,20 @@
 {
   "settingsMenu.onlineUpdates": "Sabuntawa ta intanet",
-  "settingsMenu.allSettings": "Duk saituna…",
   "settingsMenu.gameMode": "Dakata a cikakken allo",
-  "settingsMenu.findLanguage": "Nemi harshe"
+  "settingsMenu.findLanguage": "Nemi harshe",
+  "settingsMenu.proFree": "Kyauta",
+  "settingsMenu.backup": "Ajiye kwafi da sake saitawa",
+  "settingsMenu.about": "Game da Themia",
+  "settingsMenu.exportSettings": "Fitar da saituna…",
+  "settingsMenu.importSettings": "Shigo da saituna…",
+  "settingsMenu.resetAll": "Sake saita duk saituna…",
+  "settingsMenu.reset": "Sake saitawa",
+  "settingsMenu.exported": "An ajiye a matsayin {file}",
+  "settingsMenu.imported": "An shigo da su. Ana ajiye saitunan da kake da su a da a matsayin {backup}.",
+  "settingsMenu.resetDone": "An sake saitawa. Ana ajiye saitunan da kake da su a da a matsayin {backup}.",
+  "settingsMenu.purchasing": "Ana jiran Microsoft Store…",
+  "settingsMenu.aboutOpenMeteo": "Yanayi, ruwan sama da ingancin iska. Ingancin iska kuma daga Copernicus Atmosphere Monitoring Service (CAMS).",
+  "settingsMenu.uninstallEllipsis": "Cire…",
+  "settingsMenu.uninstallDataGoes": "Za a goge widget, saituna da asusunka ma.",
+  "settingsMenu.uninstallDeleteData": "Kuma goge bayanaina"
 }

@@ -20,6 +20,9 @@ public abstract record SettingsLine(string Key)
 
     /// <summary>[S-3810] The colour its glyph is drawn in (<c>#RRGGBB</c>: a view's mark); null for the theme's.</summary>
     public string? GlyphColour { get; init; }
+
+    /// <summary>[S-3581] A picture in its icon column instead of a glyph (the app's mark, the studio's).</summary>
+    public MenuPicture? Picture { get; init; }
 }
 
 /// <summary>A divider between groups; leading, trailing and doubled ones are dropped.</summary>
@@ -172,6 +175,9 @@ public sealed record SettingsCommand(string Key, string Text, string? Glyph, Act
 {
     /// <summary>[S-3716] It destroys something (Delete view): drawn in the critical colour.</summary>
     public bool Danger { get; init; }
+
+    /// <summary>[S-3580] What it says at its end (the site a link opens: "lometics.com").</summary>
+    public string? Value { get; init; }
 }
 
 /// <summary>
@@ -225,11 +231,20 @@ public interface ISettingsMenuHost
     /// <summary>[S-3550] The accounts and what is done with them; null where there is no account service (a failed start).</summary>
     IAccountsMenuHost? Accounts { get; }
 
+    /// <summary>[S-3570] The licence and the Store: Themia Pro ›.</summary>
+    ILicenceMenuHost Licence { get; }
+
+    /// <summary>[S-3575] The settings file: Back up &amp; reset ›.</summary>
+    IBackupMenuHost Backup { get; }
+
+    /// <summary>[S-3580] The app itself: About Themia ›.</summary>
+    IAboutMenuHost About { get; }
+
+    /// <summary>[S-3572] [S-3576] How what the lines of Themia Pro and Back up &amp; reset started went, under each.</summary>
+    SettingsOutcomes Outcomes { get; }
+
     /// <summary>[S-3727] Ask beside the menu; only the answer runs it.</summary>
     void Confirm(SettingsConfirm confirm);
-
-    /// <summary>[S-3533] The settings window, on its first page (temporary: the window goes in the last step of the move).</summary>
-    void ShowAllSettings();
 
     /// <summary>[S-3532] Quit Themia on every display.</summary>
     void Quit();
@@ -243,7 +258,10 @@ public interface ISettingsMenuHost
 /// </summary>
 public static partial class SettingsMenu
 {
-    /// <summary>[S-3524] The first level: General's lines; Appearance, Accounts, Language &amp; region and Online updates; then the way out.</summary>
+    /// <summary>
+    /// [S-3524] The first level: General's lines; Appearance, Accounts, Language &amp; region and Online
+    /// updates; Themia Pro, Back up &amp; reset and About Themia; then Quit Themia.
+    /// </summary>
     public static IReadOnlyList<SettingsLine> Root(ISettingsMenuHost host)
     {
         ArgumentNullException.ThrowIfNull(host);
@@ -252,7 +270,8 @@ public static partial class SettingsMenu
         [
             General(host),
             [Appearance(host), Accounts(host), Language(host), OnlineUpdates(host)],
-            Leave(host),
+            [Pro(host), Backup(host), About(host)],
+            [new SettingsCommand(Keys.Quit, Str.Settings_Quit_Label.Text(), Glyphs.Power, host.Quit)],
         ];
 
         var lines = new List<SettingsLine>();
@@ -268,17 +287,6 @@ public static partial class SettingsMenu
 
         return lines;
     }
-
-    /// <summary>
-    /// [S-3532] [S-3533] The last band: All settings… (temporary, until the settings window's last
-    /// pages have moved here too), then Quit Themia, the menu's last line.
-    /// </summary>
-    private static IReadOnlyList<SettingsLine> Leave(ISettingsMenuHost host) =>
-    [
-        // TEMPORARY (removed when the settings window goes): its pages not moved yet.
-        new SettingsCommand(Keys.AllSettings, Str.SettingsMenu_AllSettings.Text(), Glyphs.Settings, host.ShowAllSettings),
-        new SettingsCommand(Keys.Quit, Str.Settings_Quit_Label.Text(), Glyphs.Power, host.Quit),
-    ];
 
     /// <summary>
     /// The lines along <paramref name="path"/> (keys, first level first), as the menu would open
@@ -321,7 +329,16 @@ public static partial class SettingsMenu
         public const string Accounts = "accounts";
         public const string AddAccount = "accounts/add";
         public const string Online = "online";
-        public const string AllSettings = "allSettings";
+        public const string Pro = "pro";
+        public const string ProUpgrade = "pro/upgrade";
+        public const string ProRestore = "pro/restore";
+        public const string Backup = "backup";
+        public const string BackupExport = "backup/export";
+        public const string BackupImport = "backup/import";
+        public const string BackupOpen = "backup/open";
+        public const string BackupReset = "backup/reset";
+        public const string About = "about";
+        public const string Uninstall = "about/uninstall";
         public const string Quit = "quit";
     }
 

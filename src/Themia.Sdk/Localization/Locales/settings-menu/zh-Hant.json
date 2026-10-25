@@ -1,6 +1,20 @@
 {
   "settingsMenu.onlineUpdates": "線上更新",
-  "settingsMenu.allSettings": "所有設定…",
   "settingsMenu.gameMode": "全螢幕時暫停",
-  "settingsMenu.findLanguage": "尋找語言"
+  "settingsMenu.findLanguage": "尋找語言",
+  "settingsMenu.proFree": "免費版",
+  "settingsMenu.backup": "備份與重設",
+  "settingsMenu.about": "關於 Themia",
+  "settingsMenu.exportSettings": "匯出設定…",
+  "settingsMenu.importSettings": "匯入設定…",
+  "settingsMenu.resetAll": "重設所有設定…",
+  "settingsMenu.reset": "重設",
+  "settingsMenu.exported": "已儲存為 {file}",
+  "settingsMenu.imported": "已匯入。先前的設定已保留為 {backup}。",
+  "settingsMenu.resetDone": "已重設。先前的設定已保留為 {backup}。",
+  "settingsMenu.purchasing": "正在等候 Microsoft Store…",
+  "settingsMenu.aboutOpenMeteo": "天氣、降雨與空氣品質。空氣品質資料也來自哥白尼大氣監測服務 (CAMS)。",
+  "settingsMenu.uninstallEllipsis": "解除安裝…",
+  "settingsMenu.uninstallDataGoes": "您的小工具、設定和帳戶也會一併刪除。",
+  "settingsMenu.uninstallDeleteData": "同時刪除我的資料"
 }

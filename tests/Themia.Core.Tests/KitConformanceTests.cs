@@ -37,11 +37,11 @@ public sealed partial class KitConformanceTests
     /// <summary>
     /// [S-7062] The files that start a process themselves, each for a reason: the one launcher
     /// (<c>ShellLauncher</c>), the purge's helper after exit, git for a folder's status, a file the
-    /// shell's own operations open, and the settings window's About and uninstall pages.
+    /// shell's own operations open.
     /// </summary>
     private static readonly string[] StartsAProcessAllowed =
     [
-        "ConfigPages.About.cs", "ConfigPages.Uninstall.cs", "DataPurge.cs", "GitStatus.cs", "ShellFileOps.cs", "ShellLauncher.cs",
+        "DataPurge.cs", "GitStatus.cs", "ShellFileOps.cs", "ShellLauncher.cs",
     ];
 
     private static string Code(string path)

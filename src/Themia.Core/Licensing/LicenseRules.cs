@@ -17,7 +17,7 @@ public enum LicenseTier
     Unrestricted = 2,
 }
 
-/// <summary>Why the tier is what it is — what the License page explains. [S-1064]</summary>
+/// <summary>Why the tier is what it is — what ⚙ › Themia Pro explains. [S-1064]</summary>
 public enum LicenseBasis
 {
     /// <summary>Run without package identity (F5, a loose publish folder). The Store is never asked.</summary>
@@ -225,7 +225,7 @@ public static class LicenseRules
         => productStoreId is { Length: 12 } id && id.All(c => c is (>= '0' and <= '9') or (>= 'A' and <= 'Z'));
 }
 
-/// <summary>How a Store purchase ended, as the License page reports it. [S-1068]</summary>
+/// <summary>How a Store purchase ended, as ⚙ › Themia Pro reports it. [S-3572]</summary>
 public enum PurchaseOutcome
 {
     Purchased,
@@ -284,7 +284,7 @@ public enum LicenseCacheState
 }
 
 /// <summary>
-/// [S-1068] The License page's words, kept here so every state has one and the tests can see it.
+/// [S-3570] ⚙ › Themia Pro's words, kept here so every state has one and the tests can see it.
 /// Each takes the language explicitly; the overloads without one use <see cref="Strings.Current"/>.
 /// </summary>
 public static class LicenseText
@@ -328,7 +328,7 @@ public static class LicenseText
         _ => Str.Shell_License_StoreMissing,
     });
 
-    /// <summary>Why a create was refused, for the page the refusal opens.</summary>
+    /// <summary>Why a create was refused, for the notice and ⚙ › Themia Pro, which it opens ([S-3573]).</summary>
     public static string Refusal(LicenseUsage usage, int addWidgets, int addViews) => Refusal(Strings.Current, usage, addWidgets, addViews);
 
     public static string Refusal(Locale locale, LicenseUsage usage, int addWidgets, int addViews)

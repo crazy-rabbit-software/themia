@@ -28,6 +28,9 @@ public static class Glyphs
     public static readonly string Cut = From(0xE8C6);
     public static readonly string Paste = From(0xE77F);
     public static readonly string Reset = From(0xE777);
+
+    /// <summary>[S-3575] A clock turning back: ⚙'s Back up &amp; reset, the settings kept and gone back to.</summary>
+    public static readonly string History = From(0xE81C);
     public static readonly string Rename = From(0xE8AC);
 
     /// <summary>[S-1740] Distinct from <see cref="Copy"/>: both sit side by side in a menu's icon row.</summary>

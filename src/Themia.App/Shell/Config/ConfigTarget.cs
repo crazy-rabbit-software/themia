@@ -4,23 +4,19 @@ namespace Themia.App.Shell.Config;
 internal abstract record ConfigTarget
 {
     /// <summary>
-    /// A page of the navigation; the first one, License, unless another is named. A widget has no
-    /// page here: its options are on its properties menu ([S-6536]); a display's and a view's are the
-    /// edit bar's Display and View menus ([S-3540]).
+    /// A page of the navigation. A widget has no page here: its options are on its properties menu
+    /// ([S-6536]); a display's and a view's are the edit bar's Display and View menus ([S-3540]).
     /// </summary>
-    public sealed record App(AppPage Page = AppPage.License) : ConfigTarget;
+    public sealed record App(AppPage Page = default) : ConfigTarget;
 }
 
 /// <summary>
 /// The app-wide pages. A value only becomes a page in the window once it has an entry in
-/// <see cref="ConfigPages.AppPages"/>; until then it is reserved for the package building it.
+/// <see cref="ConfigPages.AppPages"/>. [S-3584] None is left: the licence, the settings file and
+/// About are ⚙'s Themia Pro, Back up &amp; reset and About Themia.
 /// </summary>
 internal enum AppPage
 {
-    About,
-
-    /// <summary>Microsoft Store licence state.</summary>
-    License,
 }
 
 /// <summary>Where an app page sits in the settings navigation.</summary>

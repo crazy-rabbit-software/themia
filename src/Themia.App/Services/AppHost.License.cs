@@ -1,5 +1,4 @@
 using Themia.App.Services.Licensing;
-using Themia.App.Shell.Config;
 using Themia.Core.Diagnostics;
 using Themia.Core.Licensing;
 using Themia.Core.Localization;
@@ -11,7 +10,7 @@ namespace Themia.App.Services;
 /// [S-1065] The free-tier gate, at every place a widget or a view is created: placement (when it
 /// starts and when it lands), paste, duplicate, a new view, and the view a
 /// new display would get. A refusal creates nothing, deletes nothing, and says why in a notice
-/// ([S-881]) whose button opens Settings on the License page, which offers the upgrade. A notice
+/// ([S-881]) whose button opens ⚙ › Themia Pro on that display, which offers the upgrade ([S-3573]). A notice
 /// rather than the settings window: a refusal is news, and a whole window thrown up over the
 /// desktop in the middle of arranging it was a heavier answer than the question deserved.
 /// </summary>
@@ -38,18 +37,26 @@ internal sealed partial class AppHost
         {
             Message = refusal,
             Key = "license",
-            Action = new Themia.Core.Shell.NoticeAction(Str.Shell_License_SeePlans.Text(), () =>
-            {
-                // The License page says the refusal once, at the top, when it is opened from here.
-                LastRefusal = refusal;
-                ShowConfig(new ConfigTarget.App(AppPage.License));
-            }),
+            Action = new Themia.Core.Shell.NoticeAction(Str.Shell_License_SeePlans.Text(), () => SeePlans(refusal)),
         });
         return false;
     }
 
-    /// <summary>Why the last create was refused, for the License page to say once; cleared when read.</summary>
-    public string? LastRefusal { get; set; }
+    /// <summary>
+    /// [S-3573] "See plans": edit mode, and ⚙ open at Themia Pro on the display the notice was
+    /// clicked on (the one under the pointer), the refusal said once on top until the menu closes.
+    /// </summary>
+    private void SeePlans(string refusal)
+    {
+        if ((SurfaceUnderCursor() ?? _windows.FirstOrDefault()) is not { } surface)
+        {
+            Log.Warn("license", "no display to open Themia Pro on");
+            return;
+        }
+
+        LicenceMenu.Refusal = refusal;
+        surface.RequestSettings([Themia.Core.Settings.SettingsMenu.Keys.Pro]);
+    }
 
     /// <summary>[S-1065] The paste gate: what the paste adds once a cut's original is gone.</summary>
     public bool AllowPaste(PastePlan plan) => AllowCreate(LicenseUsage.AddedByPaste(State, plan));

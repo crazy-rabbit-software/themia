@@ -1,6 +1,20 @@
 {
   "settingsMenu.onlineUpdates": "ஆன்லைன் புதுப்பிப்புகள்",
-  "settingsMenu.allSettings": "எல்லா அமைப்புகளும்…",
   "settingsMenu.gameMode": "முழுத்திரையில் இடைநிறுத்து",
-  "settingsMenu.findLanguage": "மொழியைத் தேடுக"
+  "settingsMenu.findLanguage": "மொழியைத் தேடுக",
+  "settingsMenu.proFree": "இலவசம்",
+  "settingsMenu.backup": "காப்புப்பிரதி & மீட்டமைப்பு",
+  "settingsMenu.about": "Themia பற்றி",
+  "settingsMenu.exportSettings": "அமைப்புகளை ஏற்றுமதிசெய்…",
+  "settingsMenu.importSettings": "அமைப்புகளை இறக்குமதிசெய்…",
+  "settingsMenu.resetAll": "எல்லா அமைப்புகளையும் மீட்டமை…",
+  "settingsMenu.reset": "மீட்டமை",
+  "settingsMenu.exported": "{file} ஆகச் சேமிக்கப்பட்டது",
+  "settingsMenu.imported": "இறக்குமதி செய்யப்பட்டது. உங்கள் முந்தைய அமைப்புகள் {backup} ஆக வைக்கப்பட்டுள்ளன.",
+  "settingsMenu.resetDone": "மீட்டமைக்கப்பட்டது. உங்கள் முந்தைய அமைப்புகள் {backup} ஆக வைக்கப்பட்டுள்ளன.",
+  "settingsMenu.purchasing": "Microsoft Store-க்காகக் காத்திருக்கிறது…",
+  "settingsMenu.aboutOpenMeteo": "வானிலை, மழை மற்றும் காற்றின் தரம். காற்றின் தரம் கோப்பர்நிக்கஸ் வளிமண்டலக் கண்காணிப்புச் சேவையிடமிருந்தும் (CAMS).",
+  "settingsMenu.uninstallEllipsis": "நிறுவல் நீக்கு…",
+  "settingsMenu.uninstallDataGoes": "உங்கள் விட்ஜெட்கள், அமைப்புகள், கணக்குகளும் நீக்கப்படும்.",
+  "settingsMenu.uninstallDeleteData": "என் தரவையும் நீக்கு"
 }

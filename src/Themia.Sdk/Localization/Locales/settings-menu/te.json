@@ -1,6 +1,20 @@
 {
   "settingsMenu.onlineUpdates": "ఆన్‌లైన్ అప్‌డేట్‌లు",
-  "settingsMenu.allSettings": "అన్ని సెట్టింగ్‌లు…",
   "settingsMenu.gameMode": "పూర్తి స్క్రీన్‌లో పాజ్ చేయి",
-  "settingsMenu.findLanguage": "భాషను వెతకండి"
+  "settingsMenu.findLanguage": "భాషను వెతకండి",
+  "settingsMenu.proFree": "ఉచితం",
+  "settingsMenu.backup": "బ్యాకప్ & రీసెట్",
+  "settingsMenu.about": "Themia గురించి",
+  "settingsMenu.exportSettings": "సెట్టింగ్‌లను ఎగుమతి చేయి…",
+  "settingsMenu.importSettings": "సెట్టింగ్‌లను దిగుమతి చేయి…",
+  "settingsMenu.resetAll": "అన్ని సెట్టింగ్‌లను రీసెట్ చేయి…",
+  "settingsMenu.reset": "రీసెట్ చేయి",
+  "settingsMenu.exported": "{file}గా సేవ్ చేయబడింది",
+  "settingsMenu.imported": "దిగుమతి అయింది. మీ మునుపటి సెట్టింగ్‌లు {backup}గా ఉంచబడ్డాయి.",
+  "settingsMenu.resetDone": "రీసెట్ అయింది. మీ మునుపటి సెట్టింగ్‌లు {backup}గా ఉంచబడ్డాయి.",
+  "settingsMenu.purchasing": "Microsoft Store కోసం వేచి ఉంది…",
+  "settingsMenu.aboutOpenMeteo": "వాతావరణం, వర్షం, గాలి నాణ్యత. గాలి నాణ్యత కోపర్నికస్ అట్మాస్ఫియర్ మానిటరింగ్ సర్వీస్ (CAMS) నుండి కూడా.",
+  "settingsMenu.uninstallEllipsis": "అన్‌ఇన్‌స్టాల్ చేయి…",
+  "settingsMenu.uninstallDataGoes": "మీ విడ్జెట్‌లు, సెట్టింగ్‌లు, ఖాతాలు కూడా తొలగించబడతాయి.",
+  "settingsMenu.uninstallDeleteData": "నా డేటాను కూడా తొలగించు"
 }

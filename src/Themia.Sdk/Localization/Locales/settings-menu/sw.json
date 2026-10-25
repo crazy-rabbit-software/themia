@@ -1,6 +1,20 @@
 {
   "settingsMenu.onlineUpdates": "Masasisho ya mtandaoni",
-  "settingsMenu.allSettings": "Mipangilio yote…",
   "settingsMenu.gameMode": "Sitisha kwenye skrini nzima",
-  "settingsMenu.findLanguage": "Tafuta lugha"
+  "settingsMenu.findLanguage": "Tafuta lugha",
+  "settingsMenu.proFree": "Bila malipo",
+  "settingsMenu.backup": "Hifadhi nakala na weka upya",
+  "settingsMenu.about": "Kuhusu Themia",
+  "settingsMenu.exportSettings": "Hamisha mipangilio…",
+  "settingsMenu.importSettings": "Leta mipangilio…",
+  "settingsMenu.resetAll": "Weka upya mipangilio yote…",
+  "settingsMenu.reset": "Weka upya",
+  "settingsMenu.exported": "Imehifadhiwa kama {file}",
+  "settingsMenu.imported": "Imeletwa. Mipangilio uliyokuwa nayo imehifadhiwa kama {backup}.",
+  "settingsMenu.resetDone": "Imewekwa upya. Mipangilio uliyokuwa nayo imehifadhiwa kama {backup}.",
+  "settingsMenu.purchasing": "Inasubiri Microsoft Store…",
+  "settingsMenu.aboutOpenMeteo": "Hali ya hewa, mvua na ubora wa hewa. Ubora wa hewa pia kutoka Copernicus Atmosphere Monitoring Service (CAMS).",
+  "settingsMenu.uninstallEllipsis": "Ondoa…",
+  "settingsMenu.uninstallDataGoes": "Wijeti, mipangilio na akaunti zako pia zitafutwa.",
+  "settingsMenu.uninstallDeleteData": "Futa pia data yangu"
 }

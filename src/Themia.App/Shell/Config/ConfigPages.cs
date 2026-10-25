@@ -27,18 +27,12 @@ internal static partial class ConfigPages
 
     /// <summary>
     /// [S-701] The app pages, in menu order within their slot. A page is in the navigation, and can
-    /// be opened, once it has a line here: adding one is this line plus its own
-    /// <c>ConfigPages.&lt;Page&gt;.cs</c>, so packages building different pages never edit the same
-    /// switch. About stays the last footer entry ([S-493]). General, Appearance and the online
-    /// update intervals, Accounts and Language &amp; region are not pages any more: they are the edit
-    /// bar's settings menu ([S-3524], [S-3550], [S-3536]);
-    /// Displays and Views are its Display and View menus ([S-3540]).
+    /// be opened, once it has a line here. [S-3584] None is left: every page is the edit bar's
+    /// settings menu now ([S-3524]: General, Appearance, Accounts, Language &amp; region, Online
+    /// updates, Themia Pro, Back up &amp; reset, About Themia), and Displays and Views its Display and
+    /// View menus ([S-3540]). Nothing opens the window any more; it goes with the next step.
     /// </summary>
-    public static IReadOnlyList<AppPageEntry> AppPages { get; } =
-    [
-        new(AppPage.License, Str.Settings_Nav_License, Glyphs.Certificate, NavIcon.Premium, AppPageSlot.Footer, c => BuildLicense(c.Host)),
-        new(AppPage.About, Str.Settings_Section_About, Glyphs.Info, NavIcon.QuestionCircle, AppPageSlot.Footer, c => BuildAbout(c.Host)),
-    ];
+    public static IReadOnlyList<AppPageEntry> AppPages { get; } = [];
 
     public static FrameworkElement Build(PageContext context, ConfigTarget target) => target switch
     {

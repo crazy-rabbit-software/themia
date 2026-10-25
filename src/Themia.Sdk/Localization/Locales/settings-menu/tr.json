@@ -1,6 +1,20 @@
 {
   "settingsMenu.onlineUpdates": "Çevrimiçi güncellemeler",
-  "settingsMenu.allSettings": "Tüm ayarlar…",
   "settingsMenu.gameMode": "Tam ekranda duraklat",
-  "settingsMenu.findLanguage": "Dil ara"
+  "settingsMenu.findLanguage": "Dil ara",
+  "settingsMenu.proFree": "Ücretsiz",
+  "settingsMenu.backup": "Yedekle ve sıfırla",
+  "settingsMenu.about": "Themia hakkında",
+  "settingsMenu.exportSettings": "Ayarları dışarı aktar…",
+  "settingsMenu.importSettings": "Ayarları içeri aktar…",
+  "settingsMenu.resetAll": "Tüm ayarları sıfırla…",
+  "settingsMenu.reset": "Sıfırla",
+  "settingsMenu.exported": "{file} olarak kaydedildi",
+  "settingsMenu.imported": "İçeri aktarıldı. Önceki ayarlarınız {backup} olarak saklanıyor.",
+  "settingsMenu.resetDone": "Sıfırlandı. Önceki ayarlarınız {backup} olarak saklanıyor.",
+  "settingsMenu.purchasing": "Microsoft Store bekleniyor…",
+  "settingsMenu.aboutOpenMeteo": "Hava durumu, yağmur ve hava kalitesi. Hava kalitesi ayrıca Copernicus Atmosfer İzleme Servisi’nden (CAMS).",
+  "settingsMenu.uninstallEllipsis": "Kaldır…",
+  "settingsMenu.uninstallDataGoes": "Pencere öğeleriniz, ayarlarınız ve hesaplarınız da silinir.",
+  "settingsMenu.uninstallDeleteData": "Verilerimi de sil"
 }

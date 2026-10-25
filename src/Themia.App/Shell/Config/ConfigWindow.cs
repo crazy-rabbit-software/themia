@@ -9,8 +9,8 @@ using Themia.Core.Settings;
 namespace Themia.App.Shell.Config;
 
 /// <summary>
-/// The one settings window: accounts, language and region, the licence and About, reached through a
-/// navigation pane — drawn as Windows 11's Settings app. [S-1540] A widget's own options are not
+/// The one settings window, reached through a navigation pane — drawn as Windows 11's Settings app.
+/// [S-1540] [S-3584] Empty: its pages are the edit bar's menus, and nothing opens it any more. A widget's own options are not
 /// here: they are on its properties menu, beside it in edit mode ([S-6536]).
 /// <para>
 /// One window rather than a modal over the desktop surface. Settings are not a transient prompt —

@@ -1,6 +1,20 @@
 {
   "settingsMenu.onlineUpdates": "Mga online na update",
-  "settingsMenu.allSettings": "Lahat ng setting…",
   "settingsMenu.gameMode": "I-pause kapag full screen",
-  "settingsMenu.findLanguage": "Maghanap ng wika"
+  "settingsMenu.findLanguage": "Maghanap ng wika",
+  "settingsMenu.proFree": "Libre",
+  "settingsMenu.backup": "I-back up at i-reset",
+  "settingsMenu.about": "Tungkol sa Themia",
+  "settingsMenu.exportSettings": "I-export ang mga setting…",
+  "settingsMenu.importSettings": "I-import ang mga setting…",
+  "settingsMenu.resetAll": "I-reset lahat ng setting…",
+  "settingsMenu.reset": "I-reset",
+  "settingsMenu.exported": "Na-save bilang {file}",
+  "settingsMenu.imported": "Na-import. Itinatago ang dati mong mga setting bilang {backup}.",
+  "settingsMenu.resetDone": "Na-reset. Itinatago ang dati mong mga setting bilang {backup}.",
+  "settingsMenu.purchasing": "Hinihintay ang Microsoft Store…",
+  "settingsMenu.aboutOpenMeteo": "Panahon, ulan at kalidad ng hangin. Ang kalidad ng hangin ay mula rin sa Copernicus Atmosphere Monitoring Service (CAMS).",
+  "settingsMenu.uninstallEllipsis": "I-uninstall…",
+  "settingsMenu.uninstallDataGoes": "Buburahin din ang iyong mga widget, setting at account.",
+  "settingsMenu.uninstallDeleteData": "Burahin din ang aking data"
 }
