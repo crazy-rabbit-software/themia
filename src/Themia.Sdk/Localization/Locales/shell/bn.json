@@ -373,7 +373,7 @@
   },
   "shell.undo.deletedView": "“{name}” ভিউ মুছে ফেলা হয়েছে",
   "shell.notice.pausedTitle": "উইজেট বিরতিতে আছে",
-  "shell.notice.pausedBody": "গত কয়েকবার Themia পুরোপুরি চালু হয়নি। এখান থেকে উইজেট চালু করুন, বা সেটিংস › সম্পর্কে গিয়ে সেটিংস রিসেট করুন।",
+  "shell.notice.pausedBody": "গত কয়েকবার Themia পুরোপুরি চালু হয়নি। এখান থেকে উইজেট চালু করুন, বা সেটিংস › ব্যাকআপ ও রিসেট গিয়ে সেটিংস রিসেট করুন।",
   "shell.notice.startWidgets": "উইজেট চালু করুন",
   "shell.notice.backupFailed": "আপনার বর্তমান সেটিংস রাখা যায়নি, তাই কিছুই বদলানো হয়নি। {reason}",
   "shell.license.planLimit": "ফ্রি প্ল্যানের সীমা পূর্ণ",

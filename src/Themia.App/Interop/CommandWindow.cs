@@ -70,8 +70,11 @@ internal sealed unsafe class CommandWindow : IDisposable
     private RecycleBinNotifications? _recycleBin;
     private bool _disposed;
 
-    /// <summary>Raised when the user asks for edit mode, by hotkey or by launching the app again.</summary>
+    /// <summary>[S-65] Raised on Ctrl+Alt+W: edit mode on or off.</summary>
     public event Action? EditModeToggleRequested;
+
+    /// <summary>[S-66] Raised when the user starts Themia again: edit mode, with the settings menu open on the main display.</summary>
+    public event Action? SettingsRequested;
 
     /// <summary>[S-1998] Raised on Ctrl+Alt+Shift+W: edit mode, with the add menu open.</summary>
     public event Action? AddWidgetRequested;
@@ -116,8 +119,14 @@ internal sealed unsafe class CommandWindow : IDisposable
     /// layers over one wallpaper, with nothing on screen to say which is which and no tray icon
     /// left to tell them apart by.
     /// </para>
+    /// <para>
+    /// [S-66] The message says how this copy was started (<see cref="SecondStart.Encode"/>), so the
+    /// running copy opens its settings menu for a start by hand and does nothing for one at sign-in.
+    /// A copy the user just started may take the foreground, and hands that to the running copy,
+    /// whose menu then gets the keys typed into it.
+    /// </para>
     /// </summary>
-    public static bool TrySignalRunningInstance()
+    public static bool TrySignalRunningInstance(LaunchSource source)
     {
         var existing = Win32.FindWindow(ClassName, null);
         if (existing == 0)
@@ -134,7 +143,17 @@ internal sealed unsafe class CommandWindow : IDisposable
             return true;
         }
 
-        if (!Win32.PostMessage(existing, message, 0, 0))
+        if (source == LaunchSource.Manual)
+        {
+            Win32.GetWindowThreadProcessId(existing, out var running);
+            if (running == 0 || !Win32.AllowSetForegroundWindow(running))
+            {
+                // Not fatal: the menu still opens, the keys typed next just stay where they were.
+                Log.Info(Scope, $"could not hand the foreground to the running copy (win32 {Marshal.GetLastWin32Error()})");
+            }
+        }
+
+        if (!Win32.PostMessage(existing, message, SecondStart.Encode(source), 0))
         {
             Log.Error(Scope, $"could not signal the running copy (win32 {Marshal.GetLastWin32Error()}); not starting a second");
         }
@@ -272,7 +291,19 @@ internal sealed unsafe class CommandWindow : IDisposable
 
                 if (_activateMessage != 0 && msg == _activateMessage)
                 {
-                    self.EditModeToggleRequested?.Invoke();
+                    switch (SecondStart.Decide(wParam))
+                    {
+                        case SecondStartAction.OpenSettings:
+                            self.SettingsRequested?.Invoke();
+                            break;
+                        case SecondStartAction.Ignore:
+                            Log.Info(Scope, "started again at sign-in while running; nothing to do");
+                            break;
+                        default:
+                            Log.Warn(Scope, $"an activation message carried {wParam}, which no copy of Themia sends; ignored");
+                            break;
+                    }
+
                     return 0;
                 }
 

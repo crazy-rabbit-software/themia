@@ -59,6 +59,42 @@ internal sealed partial class DesktopWindow
     }
 
     /// <summary>
+    /// [S-66] Themia started again by hand: this display's surface takes the foreground (the copy
+    /// that stood down handed it the right) and ⚙ opens at its first level, the keyboard in it; ⚙
+    /// already open closes its submenus. Reached from the command window's message.
+    /// </summary>
+    internal void OpenSettingsOnStart()
+    {
+        try
+        {
+            if (_closed)
+            {
+                return;
+            }
+
+            if (Interop.Win32.GetForegroundWindow() != _hwnd && !Interop.Win32.SetForegroundWindow(_hwnd))
+            {
+                Core.Diagnostics.Log.Info(Scope, "could not take the foreground for the settings menu; typing will not reach it");
+            }
+
+            if (_openBarMenu == BarMenu.Settings)
+            {
+                _barMenus[BarMenu.Settings].CloseSubmenus();
+            }
+
+            if (!RequestSettings([]))
+            {
+                Core.Diagnostics.Log.Warn(Scope, "Themia was started again, but the settings menu did not open");
+            }
+        }
+        catch (Exception ex)
+        {
+            // Reached from a window message: nothing above may see it.
+            Core.Diagnostics.Log.Error(Scope, "could not open the settings menu for a second start", ex);
+        }
+    }
+
+    /// <summary>
     /// [S-3576] ⚙ open at <paramref name="path"/> on this display, for a question asked once Windows'
     /// dialog has gone (an import's): opened again where it was closed meanwhile. Whether it is open.
     /// </summary>

@@ -363,7 +363,7 @@
   },
   "shell.undo.deletedView": "보기 “{name}” 삭제됨",
   "shell.notice.pausedTitle": "위젯이 일시 중지됨",
-  "shell.notice.pausedBody": "최근 몇 번 Themia가 시작을 완료하지 못했습니다. 여기에서 위젯을 시작하거나 설정 › 정보에서 설정을 초기화하세요.",
+  "shell.notice.pausedBody": "최근 몇 번 Themia가 시작을 완료하지 못했습니다. 여기에서 위젯을 시작하거나 설정 › 백업 및 초기화에서 설정을 초기화하세요.",
   "shell.notice.startWidgets": "위젯 시작",
   "shell.notice.backupFailed": "현재 설정을 보관할 수 없어 아무것도 변경하지 않았습니다. {reason}",
   "shell.license.planLimit": "무료 요금제 제한에 도달함",

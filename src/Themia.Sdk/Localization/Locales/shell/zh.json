@@ -363,7 +363,7 @@
   },
   "shell.undo.deletedView": "已删除视图“{name}”",
   "shell.notice.pausedTitle": "小组件已暂停",
-  "shell.notice.pausedBody": "Themia 最近几次未能完成启动。可在此启动小组件，或在“设置 › 关于”中重置设置。",
+  "shell.notice.pausedBody": "Themia 最近几次未能完成启动。可在此启动小组件，或在“设置 › 备份和重置”中重置设置。",
   "shell.notice.startWidgets": "启动小组件",
   "shell.notice.backupFailed": "无法保留当前设置，因此未做任何更改。{reason}",
   "shell.license.planLimit": "已达到免费计划上限",

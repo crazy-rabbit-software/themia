@@ -413,7 +413,7 @@
   },
   "shell.undo.deletedView": "تم حذف المشهد «{name}»",
   "shell.notice.pausedTitle": "الأدوات متوقفة مؤقتًا",
-  "shell.notice.pausedBody": "لم يكمل Themia بدء التشغيل في المرات الأخيرة. ابدأ أدواتك من هنا، أو أعد تعيين إعداداتك في الإعدادات › حول.",
+  "shell.notice.pausedBody": "لم يكمل Themia بدء التشغيل في المرات الأخيرة. ابدأ أدواتك من هنا، أو أعد تعيين إعداداتك في الإعدادات › النسخ الاحتياطي وإعادة التعيين.",
   "shell.notice.startWidgets": "بدء الأدوات",
   "shell.notice.backupFailed": "تعذر الاحتفاظ بإعداداتك الحالية، لذا لم يتغير شيء. {reason}",
   "shell.license.planLimit": "تم بلوغ حد الخطة المجانية",

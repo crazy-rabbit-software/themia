@@ -373,7 +373,7 @@
   },
   "shell.undo.deletedView": "“{name}” görünümü silindi",
   "shell.notice.pausedTitle": "Pencere öğeleri duraklatıldı",
-  "shell.notice.pausedBody": "Themia son birkaç denemede başlatmayı tamamlayamadı. Pencere öğelerinizi buradan başlatın veya ayarlarınızı Ayarlar › Hakkında'dan sıfırlayın.",
+  "shell.notice.pausedBody": "Themia son birkaç denemede başlatmayı tamamlayamadı. Pencere öğelerinizi buradan başlatın veya ayarlarınızı Ayarlar › Yedekle ve sıfırla'dan sıfırlayın.",
   "shell.notice.startWidgets": "Pencere öğelerini başlat",
   "shell.notice.backupFailed": "Şu anki ayarlarınız saklanamadı; bu nedenle hiçbir şey değiştirilmedi. {reason}",
   "shell.license.planLimit": "Ücretsiz plan sınırına ulaşıldı",

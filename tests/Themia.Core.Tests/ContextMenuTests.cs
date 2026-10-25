@@ -199,15 +199,20 @@ public sealed class ContextMenuTests
     }
 
     [Fact]
-    public void S1744_empty_surface_offers_add_paste_select_all_snap_done_and_settings()
+    public void S1744_empty_surface_offers_the_bars_way_in_then_paste_select_all_snap_and_done()
     {
         var items = ShellMenus.ForSurface(new(EditMode: true, Placing: false, CanPaste: false, HasWidgets: false, GridSnap: true));
         var split = ContextMenuLayout.Split([.. items.Select(i => i.Line)]);
 
-        Assert.Equal([ShellCommand.Paste, ShellCommand.Settings], split.Row.Select(i => items[i].Command));
+        // A list alone, as Windows' desktop menu: Paste is the one icon-row command, and one is no row.
+        Assert.Empty(split.Row);
         Assert.Equal(
-            [ShellCommand.AddWidget, ShellCommand.SelectAll, ShellCommand.SnapToGrid, ShellCommand.ToggleEditMode],
+            [
+                ShellCommand.AddWidget, ShellCommand.View, ShellCommand.Display, ShellCommand.Settings,
+                ShellCommand.Paste, ShellCommand.SelectAll, ShellCommand.SnapToGrid, ShellCommand.ToggleEditMode,
+            ],
             split.List.Where(i => i >= 0).Select(i => items[i].Command));
+        Assert.Equal(3, items.Count(i => i.IsSeparator));
 
         Assert.False(items.Single(i => i.Command == ShellCommand.Paste).Enabled);
         Assert.False(items.Single(i => i.Command == ShellCommand.SelectAll).Enabled);

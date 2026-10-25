@@ -372,7 +372,7 @@
   },
   "shell.undo.deletedView": "Deleted view “{name}”",
   "shell.notice.pausedTitle": "Widgets are paused",
-  "shell.notice.pausedBody": "Themia didn't finish starting the last few times. Start your widgets here, or reset your settings in Settings › About.",
+  "shell.notice.pausedBody": "Themia didn't finish starting the last few times. Start your widgets here, or reset your settings in Settings › Back up & reset.",
   "shell.notice.startWidgets": "Start widgets",
   "shell.notice.backupFailed": "The settings you have now couldn't be kept, so nothing was changed. {reason}",
   "shell.license.planLimit": "Free plan limit reached",

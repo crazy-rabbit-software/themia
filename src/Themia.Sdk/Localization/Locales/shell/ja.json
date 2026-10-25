@@ -363,7 +363,7 @@
   },
   "shell.undo.deletedView": "ビュー「{name}」を削除しました",
   "shell.notice.pausedTitle": "ウィジェットは一時停止中です",
-  "shell.notice.pausedBody": "ここ数回、Themia の起動が完了しませんでした。ここでウィジェットを開始するか、[設定] › [バージョン情報] で設定をリセットしてください。",
+  "shell.notice.pausedBody": "ここ数回、Themia の起動が完了しませんでした。ここでウィジェットを開始するか、[設定] › [バックアップとリセット] で設定をリセットしてください。",
   "shell.notice.startWidgets": "ウィジェットを開始",
   "shell.notice.backupFailed": "現在の設定を保存できなかったため、何も変更していません。{reason}",
   "shell.license.planLimit": "無料プランの上限に達しました",

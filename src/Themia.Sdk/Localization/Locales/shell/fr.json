@@ -373,7 +373,7 @@
   },
   "shell.undo.deletedView": "Vue « {name} » supprimée",
   "shell.notice.pausedTitle": "Les widgets sont en pause",
-  "shell.notice.pausedBody": "Themia n’a pas fini de démarrer les dernières fois. Démarrez vos widgets ici ou réinitialisez vos paramètres dans Paramètres › À propos.",
+  "shell.notice.pausedBody": "Themia n’a pas fini de démarrer les dernières fois. Démarrez vos widgets ici ou réinitialisez vos paramètres dans Paramètres › Sauvegarder et réinitialiser.",
   "shell.notice.startWidgets": "Démarrer les widgets",
   "shell.notice.backupFailed": "Vos paramètres actuels n’ont pas pu être conservés ; rien n’a donc été modifié. {reason}",
   "shell.license.planLimit": "Limite du forfait gratuit atteinte",

@@ -373,7 +373,7 @@
   },
   "shell.undo.deletedView": "منظر “{name}” حذف ہوا",
   "shell.notice.pausedTitle": "ویجیٹس موقوف ہیں",
-  "shell.notice.pausedBody": "پچھلی چند بار Themia مکمل طور پر شروع نہیں ہو سکا۔ اپنے ویجیٹس یہاں سے شروع کریں، یا ترتیبات › بارے میں سے اپنی ترتیبات ری سیٹ کریں۔",
+  "shell.notice.pausedBody": "پچھلی چند بار Themia مکمل طور پر شروع نہیں ہو سکا۔ اپنے ویجیٹس یہاں سے شروع کریں، یا ترتیبات › بیک اپ اور ری سیٹ سے اپنی ترتیبات ری سیٹ کریں۔",
   "shell.notice.startWidgets": "ویجیٹس شروع کریں",
   "shell.notice.backupFailed": "آپ کی موجودہ ترتیبات محفوظ نہیں رکھی جا سکیں، اس لیے کچھ نہیں بدلا گیا۔ {reason}",
   "shell.license.planLimit": "مفت پلان کی حد پوری ہو گئی",

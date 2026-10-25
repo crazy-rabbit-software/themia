@@ -373,7 +373,7 @@
   },
   "shell.undo.deletedView": "Imefuta mwonekano “{name}”",
   "shell.notice.pausedTitle": "Wijeti zimesitishwa",
-  "shell.notice.pausedBody": "Themia haikumaliza kuanza mara chache zilizopita. Anzisha wijeti zako hapa, au weka upya mipangilio yako katika Mipangilio › Kuhusu.",
+  "shell.notice.pausedBody": "Themia haikumaliza kuanza mara chache zilizopita. Anzisha wijeti zako hapa, au weka upya mipangilio yako katika Mipangilio › Hifadhi nakala na weka upya.",
   "shell.notice.startWidgets": "Anzisha wijeti",
   "shell.notice.backupFailed": "Mipangilio uliyo nayo sasa haikuweza kuhifadhiwa, kwa hivyo hakuna kilichobadilishwa. {reason}",
   "shell.license.planLimit": "Kikomo cha mpango wa bure kimefikiwa",

@@ -3,6 +3,7 @@ using Microsoft.UI.Xaml;
 using Themia.App.Interop;
 using Themia.App.Services;
 using Themia.Core.Diagnostics;
+using Themia.Core.Shell;
 using Themia.Core.Storage;
 using Themia.Sdk.WinUI;
 
@@ -199,11 +200,16 @@ public partial class App : Application
         }
 #endif
 
+        // [S-934] A sign-in launch (the Run entry's --autostart, or the package's startup task) and
+        // a launch by hand are told apart here, once, for whatever wants to stay quiet at sign-in;
+        // before the hand-off, which tells the running copy which of the two this was ([S-66]).
+        Autostart.DetectLaunch(commandLine);
+
         // Themia has no tray entry and no window in the taskbar, so launching it again is the
         // gesture a user reaches for when they want at it. That has to mean "show me the copy I
-        // already have", not "start a second desktop layer on top of it" — there is nothing on
-        // screen that would tell the two apart.
-        if (CommandWindow.TrySignalRunningInstance())
+        // already have" (edit mode with its settings menu open, [S-66]), not "start a second
+        // desktop layer on top of it" — there is nothing on screen that would tell the two apart.
+        if (CommandWindow.TrySignalRunningInstance(Autostart.LaunchSource))
         {
             Log.Info(Scope, "already running; handed the request to that copy");
             Exit();
@@ -213,10 +219,7 @@ public partial class App : Application
         // After the hand-off, so a second copy that is only passing the request on never writes into
         // the running copy's log file; before the load, so a corrupt state file is on record.
         LogFiles.InstallFiles();
-
-        // [S-934] A sign-in launch (the Run entry's --autostart, or the package's startup task) and
-        // a launch by hand are told apart here, once, for whatever wants to stay quiet at sign-in.
-        Autostart.DetectLaunch(commandLine);
+        Log.Info(Scope, Autostart.LaunchSource == LaunchSource.Autostart ? "started at sign-in" : "started by hand");
 
         var store = new AppStateStore(AppStateStore.DefaultPath());
         var load = store.Load();

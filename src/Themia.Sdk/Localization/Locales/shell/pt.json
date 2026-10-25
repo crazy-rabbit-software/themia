@@ -373,7 +373,7 @@
   },
   "shell.undo.deletedView": "Visualização “{name}” excluída",
   "shell.notice.pausedTitle": "Os widgets estão pausados",
-  "shell.notice.pausedBody": "O Themia não terminou de iniciar nas últimas vezes. Inicie seus widgets aqui ou redefina as configurações em Configurações › Sobre.",
+  "shell.notice.pausedBody": "O Themia não terminou de iniciar nas últimas vezes. Inicie seus widgets aqui ou redefina as configurações em Configurações › Backup e redefinição.",
   "shell.notice.startWidgets": "Iniciar widgets",
   "shell.notice.backupFailed": "Não foi possível salvar as configurações atuais, então nada foi alterado. {reason}",
   "shell.license.planLimit": "Limite do plano gratuito atingido",

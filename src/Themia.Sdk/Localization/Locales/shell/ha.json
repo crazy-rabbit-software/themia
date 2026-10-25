@@ -373,7 +373,7 @@
   },
   "shell.undo.deletedView": "An goge duba “{name}”",
   "shell.notice.pausedTitle": "An dakatar da widget",
-  "shell.notice.pausedBody": "Themia ba ta gama farawa ba a ƴan lokutan ƙarshe. Fara widget ɗinka a nan, ko sake saita saitunanka a Saituna › Game da.",
+  "shell.notice.pausedBody": "Themia ba ta gama farawa ba a ƴan lokutan ƙarshe. Fara widget ɗinka a nan, ko sake saita saitunanka a Saituna › Ajiye kwafi da sake saitawa.",
   "shell.notice.startWidgets": "Fara widget",
   "shell.notice.backupFailed": "Ba a iya ajiye saitunan da kake da su yanzu ba, don haka ba a canza komai ba. {reason}",
   "shell.license.planLimit": "An kai iyakar tsarin kyauta",

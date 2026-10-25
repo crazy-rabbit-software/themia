@@ -373,7 +373,7 @@
   },
   "shell.undo.deletedView": "نمای «{name}» حذف شد",
   "shell.notice.pausedTitle": "ویجت‌ها متوقف هستند",
-  "shell.notice.pausedBody": "Themia چند بار اخیر راه‌اندازی را تمام نکرد. ویجت‌های خود را اینجا شروع کنید، یا تنظیمات را در تنظیمات › درباره بازنشانی کنید.",
+  "shell.notice.pausedBody": "Themia چند بار اخیر راه‌اندازی را تمام نکرد. ویجت‌های خود را اینجا شروع کنید، یا تنظیمات را در تنظیمات › پشتیبان‌گیری و بازنشانی بازنشانی کنید.",
   "shell.notice.startWidgets": "شروع ویجت‌ها",
   "shell.notice.backupFailed": "تنظیمات فعلی شما نگه داشته نشد، بنابراین چیزی تغییر نکرد. {reason}",
   "shell.license.planLimit": "به محدودیت طرح رایگان رسیدید",

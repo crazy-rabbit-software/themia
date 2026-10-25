@@ -363,7 +363,7 @@
   },
   "shell.undo.deletedView": "已刪除檢視「{name}」",
   "shell.notice.pausedTitle": "小工具已暫停",
-  "shell.notice.pausedBody": "Themia 最近幾次未能完成啟動。您可以在這裡啟動小工具，或在「設定 › 關於」中重設設定。",
+  "shell.notice.pausedBody": "Themia 最近幾次未能完成啟動。您可以在這裡啟動小工具，或在「設定 › 備份與重設」中重設設定。",
   "shell.notice.startWidgets": "啟動小工具",
   "shell.notice.backupFailed": "無法保留您目前的設定，因此未做任何變更。{reason}",
   "shell.license.planLimit": "已達免費方案上限",

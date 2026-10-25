@@ -451,7 +451,18 @@ busy desktop ([S-6601]), Debug, private bytes.
 - **[S-66]** Launching Themia while it is running **activates the running copy** instead of starting
   a second. Two processes drawing two widget layers over one wallpaper is indistinguishable from
   one, and with no tray entry there is nothing left to tell them apart by. The running copy is found
-  by its command window's class name, which must therefore stay stable across versions.
+  by its command window's class name, which must therefore stay stable across versions. Started
+  again **by hand** (Start, a shortcut, `Themia.exe` with no argument), the running copy enters edit
+  mode and opens the edit bar's **settings menu** ([S-3520]) at its first level under ⚙ on the main
+  display (the primary monitor's), the keyboard in it: Themia has no window, so that is what
+  starting it again opens, as Karpo's every way to its settings opens the edit bar's menus. Edit mode
+  already on, it stays on and ⚙ opens all the same (already open, its submenus close); another of
+  the bar's menus open there closes, and a placement in progress is dropped. Started again **at
+  sign-in** (the Run entry's flag or the package's startup task, [S-934]) it does nothing: a second
+  autostart entry never throws edit mode up over the desktop. The copy that stands down says which
+  in the activation message (`SecondStart.Encode`); any other value is logged and ignored
+  (`SecondStart.Decide`, a trust boundary); a start by hand hands the foreground on
+  (`AllowSetForegroundWindow`) so the menu gets the keys. Tests `SecondStartTests`.
 - **[S-67]** Quitting is offered in one place, the last line of the edit bar's settings menu (**Quit
   Themia**, [S-3532]), and never as a button beside **Done**: it is the only action there that cannot
   be undone and **Done** is the one the user presses constantly.
@@ -1481,8 +1492,10 @@ mechanism), `Shell/DesktopWindow.SettingsMenu.cs`, `Services/AppHost.SettingsMen
   bar's More › Exit did; the More button is gone.
 - **[S-3533]** *(Retired by [S-3584]: the settings window has no page left, so there is no All
   settings… and nothing opens it.)*
-- **[S-3534]** The ways in: ⚙, and the surface menu's Settings ([S-1744]), which opens it on that
-  display. `DesktopWindow.OpenSettingsMenu(path)` opens it at a level, by the lines' keys, as clicks
+- **[S-3534]** The ways in: ⚙; the surface menu's Settings ([S-1744]), which opens it on that
+  display; starting Themia again by hand ([S-66]), which opens it on the main display; a widget's
+  way to its accounts ([S-3558]) and a refusal's See plans ([S-3573]), which open it at their
+  level. Nothing opens a settings window: there is none. `DesktopWindow.OpenSettingsMenu(path)` opens it at a level, by the lines' keys, as clicks
   would (`MenuPanel.OpenPath`, the path the Set up button takes too, [S-1862]); every bar menu opens
   the same way (`OpenBarMenu(menu, path)`, [S-3540]). The settings window's
   General, Appearance and Widgets pages are gone, with their search entries and their navigation
@@ -7131,9 +7144,12 @@ Tests: `ContextMenuTests`, `MenuShortcutAndArtTests`.
   Explorer commands, [S-6416]) are the widget's own and unchanged; empty surface stays click-through ([S-1744]).
   `ShellMenus.ForCard`; tests `S1758_`.
 - **[S-1744]** In edit mode a right-click on **empty surface** (not a card, the toolbar or the view
-  bar) opens the surface menu: Paste and Settings (the settings menu under ⚙ on that display, [S-3534]) in the row; Add widget (opens the picker at the
-  click, whose choice then follows the pointer to be placed, [S-1587]), Select all ([S-1582], off
-  with no widget), Snap to grid (checked when on, [S-06]) and Done editing in the list. Outside edit
+  bar) opens the surface menu, a list with no icon row (Paste is its one row command, and one is
+  none, [S-1741]), the edit bar's way in first and in the bar's order: **Add widget** (opens the
+  picker at the click, whose choice then follows the pointer to be placed, [S-1587]), **View**,
+  **Display** and **Settings** (the bar's View ▾, Display ▾ and ⚙ menus, each opened under its
+  button on that display, [S-3540], [S-3534]); then Paste and Select all ([S-1582], off with no
+  widget); Snap to grid (checked when on, [S-06]); and Done editing. Outside edit
   mode empty surface is click-through; while placing, the right-click cancels the placement and opens
   nothing.
 - **[S-1745]** In edit mode a press on a card that travels 3 DIPs or more (`CardGestures.Travelled`)

@@ -373,7 +373,7 @@
   },
   "shell.undo.deletedView": "ਵਿਊ “{name}” ਮਿਟਾਇਆ",
   "shell.notice.pausedTitle": "ਵਿਜੇਟ ਰੁਕੇ ਹੋਏ ਹਨ",
-  "shell.notice.pausedBody": "Themia ਪਿਛਲੀਆਂ ਕੁਝ ਵਾਰ ਪੂਰੀ ਤਰ੍ਹਾਂ ਸ਼ੁਰੂ ਨਹੀਂ ਹੋਇਆ। ਆਪਣੇ ਵਿਜੇਟ ਇੱਥੇ ਸ਼ੁਰੂ ਕਰੋ, ਜਾਂ ਸੈਟਿੰਗਾਂ › ਬਾਰੇ ਵਿੱਚ ਸੈਟਿੰਗਾਂ ਰੀਸੈੱਟ ਕਰੋ।",
+  "shell.notice.pausedBody": "Themia ਪਿਛਲੀਆਂ ਕੁਝ ਵਾਰ ਪੂਰੀ ਤਰ੍ਹਾਂ ਸ਼ੁਰੂ ਨਹੀਂ ਹੋਇਆ। ਆਪਣੇ ਵਿਜੇਟ ਇੱਥੇ ਸ਼ੁਰੂ ਕਰੋ, ਜਾਂ ਸੈਟਿੰਗਾਂ › ਬੈਕਅੱਪ ਅਤੇ ਰੀਸੈੱਟ ਵਿੱਚ ਸੈਟਿੰਗਾਂ ਰੀਸੈੱਟ ਕਰੋ।",
   "shell.notice.startWidgets": "ਵਿਜੇਟ ਸ਼ੁਰੂ ਕਰੋ",
   "shell.notice.backupFailed": "ਤੁਹਾਡੀਆਂ ਮੌਜੂਦਾ ਸੈਟਿੰਗਾਂ ਰੱਖੀਆਂ ਨਹੀਂ ਜਾ ਸਕੀਆਂ, ਇਸ ਲਈ ਕੁਝ ਨਹੀਂ ਬਦਲਿਆ। {reason}",
   "shell.license.planLimit": "ਮੁਫ਼ਤ ਪਲਾਨ ਦੀ ਸੀਮਾ ਪੂਰੀ ਹੋਈ",

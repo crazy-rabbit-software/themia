@@ -13,8 +13,9 @@ namespace Themia.App.Shell;
 
 /// <summary>
 /// [S-1744] The menu of empty surface in edit mode: what a right-click on the desktop between
-/// widgets offers while arranging them. Same look as every other menu ([S-1740]); which commands it
-/// has is <see cref="ShellMenus.ForSurface"/>'s.
+/// widgets offers while arranging them, the edit bar's way in first (Add widget, View, Display,
+/// Settings: each the bar's own menu on this display). Same look as every other menu ([S-1740]);
+/// which commands it has is <see cref="ShellMenus.ForSurface"/>'s.
 /// </summary>
 internal sealed partial class DesktopWindow
 {
@@ -66,9 +67,11 @@ internal sealed partial class DesktopWindow
     /// <summary>[S-1744] The entries for this surface. <paramref name="at"/> is where the picker opens.</summary>
     private List<ItemMenuEntry> SurfaceMenu(SurfaceMenuFacts facts, Point at)
         => SurfaceEntries(facts, new SurfaceMenuActions(
-            Paste: _host.Paste,
-            Settings: () => OpenBarMenu(BarMenu.Settings, []),
             AddWidget: () => OpenPickerAt(at),
+            View: () => OpenBarMenu(BarMenu.View, []),
+            Display: () => OpenBarMenu(BarMenu.Display, []),
+            Settings: () => OpenBarMenu(BarMenu.Settings, []),
+            Paste: _host.Paste,
             SelectAll: SelectAll,
             ToggleSnap: ToggleSnap,
             Done: () => _host.SetEditMode(false)));
@@ -83,11 +86,13 @@ internal sealed partial class DesktopWindow
             var disabled = !item.Enabled;
             entries.Add(item.Command switch
             {
-                ShellCommand.Paste => new(Glyphs.Paste, Str.CtxMenu_Paste.Text(), actions.Paste, Disabled: disabled, Quick: item.Quick,
-                    Shortcut: KeyChord.Ctrl(ChordKey.V)),
-                ShellCommand.Settings => new(Glyphs.Settings, Str.Common_Settings.Text(), actions.Settings, Quick: item.Quick),
                 ShellCommand.AddWidget => new(Glyphs.Add, Str.Shell_Toolbar_AddWidget.Text(), actions.AddWidget,
                     Shortcut: KeyChord.Ctrl(ChordKey.N)),
+                ShellCommand.View => new(Glyphs.View, Str.CtxMenu_View.Text(), actions.View),
+                ShellCommand.Display => new(Glyphs.Display, Str.BarMenus_Display.Text(), actions.Display),
+                ShellCommand.Settings => new(Glyphs.Settings, Str.Common_Settings.Text(), actions.Settings),
+                ShellCommand.Paste => new(Glyphs.Paste, Str.CtxMenu_Paste.Text(), actions.Paste, Disabled: disabled, Quick: item.Quick,
+                    Shortcut: KeyChord.Ctrl(ChordKey.V)),
                 ShellCommand.SelectAll => new(Glyphs.SelectAll, Str.Shell_Menu_SelectAll.Text(), actions.SelectAll, Disabled: disabled,
                     Shortcut: KeyChord.Ctrl(ChordKey.A)),
                 ShellCommand.SnapToGrid => new(Glyphs.Grid, Str.Shell_Toolbar_SnapName.Text(), actions.ToggleSnap, Checked: item.Checked == true),
@@ -165,4 +170,5 @@ internal sealed partial class DesktopWindow
 }
 
 /// <summary>[S-1744] What each command of the surface menu does.</summary>
-internal readonly record struct SurfaceMenuActions(Action Paste, Action Settings, Action AddWidget, Action SelectAll, Action ToggleSnap, Action Done);
+internal readonly record struct SurfaceMenuActions(
+    Action AddWidget, Action View, Action Display, Action Settings, Action Paste, Action SelectAll, Action ToggleSnap, Action Done);

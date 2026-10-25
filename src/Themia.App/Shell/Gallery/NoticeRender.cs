@@ -172,7 +172,7 @@ internal static class NoticeRender
         var safe = new NoticeCard(
             new Notice(NoticeKind.Warning, "Widgets are paused")
             {
-                Message = "Themia didn't finish starting the last few times. Start your widgets here, or reset your settings in Settings › About.",
+                Message = "Themia didn't finish starting the last few times. Start your widgets here, or reset your settings in Settings › Back up & reset.",
                 Action = new NoticeAction("Start widgets", () => { }),
                 Sticky = true,
             },

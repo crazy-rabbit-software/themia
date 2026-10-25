@@ -393,7 +393,7 @@
   },
   "shell.undo.deletedView": "Usunięto widok „{name}”",
   "shell.notice.pausedTitle": "Widżety są wstrzymane",
-  "shell.notice.pausedBody": "Themia nie uruchomiła się do końca kilka ostatnich razy. Uruchom widżety tutaj lub zresetuj ustawienia w Ustawienia › Informacje.",
+  "shell.notice.pausedBody": "Themia nie uruchomiła się do końca kilka ostatnich razy. Uruchom widżety tutaj lub zresetuj ustawienia w Ustawienia › Kopia zapasowa i reset.",
   "shell.notice.startWidgets": "Uruchom widżety",
   "shell.notice.backupFailed": "Nie udało się zachować obecnych ustawień, więc nic nie zmieniono. {reason}",
   "shell.license.planLimit": "Osiągnięto limit planu bezpłatnego",

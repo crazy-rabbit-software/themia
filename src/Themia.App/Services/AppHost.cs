@@ -237,6 +237,7 @@ internal sealed partial class AppHost : IDisposable
         License.Start();
 
         _command.EditModeToggleRequested += () => SetEditMode(!_editMode);
+        _command.SettingsRequested += OpenSettingsOnStart;
         _command.AddWidgetRequested += OpenAddMenu;
 
         // [S-848] Listening before the first surface is built, so a taskbar or display change that

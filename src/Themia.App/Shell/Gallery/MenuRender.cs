@@ -115,7 +115,7 @@ internal static class MenuRender
                 var noop = static () => { };
                 var surface = DesktopWindow.SurfaceEntries(
                     new SurfaceMenuFacts(EditMode: true, Placing: false, CanPaste: true, HasWidgets: true, GridSnap: true),
-                    new SurfaceMenuActions(noop, noop, noop, noop, noop, noop));
+                    new SurfaceMenuActions(noop, noop, noop, noop, noop, noop, noop, noop));
                 await RenderAsync(root, surface, System.IO.Path.Combine(outDir, "surface.png")).ConfigureAwait(true);
 
                 // An item menu in File Explorer's shape: the row on top, a submenu and a danger entry below.

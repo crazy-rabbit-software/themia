@@ -373,7 +373,7 @@
   },
   "shell.undo.deletedView": "Binura ang view na “{name}”",
   "shell.notice.pausedTitle": "Naka-pause ang mga widget",
-  "shell.notice.pausedBody": "Hindi natapos ng Themia ang pagsisimula sa nakaraang ilang beses. Simulan dito ang iyong mga widget, o i-reset ang iyong mga setting sa Mga Setting › Tungkol.",
+  "shell.notice.pausedBody": "Hindi natapos ng Themia ang pagsisimula sa nakaraang ilang beses. Simulan dito ang iyong mga widget, o i-reset ang iyong mga setting sa Mga Setting › I-back up at i-reset.",
   "shell.notice.startWidgets": "Simulan ang mga widget",
   "shell.notice.backupFailed": "Hindi maitago ang kasalukuyan mong mga setting, kaya walang binago. {reason}",
   "shell.license.planLimit": "Naabot na ang limit ng libreng plan",

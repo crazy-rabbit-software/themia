@@ -373,7 +373,7 @@
   },
   "shell.undo.deletedView": "Vista “{name}” eliminata",
   "shell.notice.pausedTitle": "I widget sono in pausa",
-  "shell.notice.pausedBody": "Le ultime volte Themia non ha completato l’avvio. Avvia i widget qui o reimposta le impostazioni in Impostazioni › Informazioni.",
+  "shell.notice.pausedBody": "Le ultime volte Themia non ha completato l’avvio. Avvia i widget qui o reimposta le impostazioni in Impostazioni › Backup e ripristino.",
   "shell.notice.startWidgets": "Avvia widget",
   "shell.notice.backupFailed": "Non è stato possibile conservare le impostazioni attuali, quindi non è stato modificato nulla. {reason}",
   "shell.license.planLimit": "Limite del piano gratuito raggiunto",

@@ -373,7 +373,7 @@
   },
   "shell.undo.deletedView": "Weergave “{name}” verwijderd",
   "shell.notice.pausedTitle": "Widgets zijn onderbroken",
-  "shell.notice.pausedBody": "Themia is de laatste paar keer niet volledig gestart. Start je widgets hier, of stel je instellingen opnieuw in via Instellingen › Info.",
+  "shell.notice.pausedBody": "Themia is de laatste paar keer niet volledig gestart. Start je widgets hier, of stel je instellingen opnieuw in via Instellingen › Back-up en opnieuw instellen.",
   "shell.notice.startWidgets": "Widgets starten",
   "shell.notice.backupFailed": "De instellingen die je nu hebt, konden niet worden bewaard, dus er is niets gewijzigd. {reason}",
   "shell.license.planLimit": "Limiet van gratis abonnement bereikt",

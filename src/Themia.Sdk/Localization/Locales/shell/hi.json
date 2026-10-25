@@ -373,7 +373,7 @@
   },
   "shell.undo.deletedView": "व्यू “{name}” हटाया गया",
   "shell.notice.pausedTitle": "विजेट रुके हुए हैं",
-  "shell.notice.pausedBody": "पिछली कुछ बार Themia पूरी तरह शुरू नहीं हुआ। अपने विजेट यहाँ शुरू करें, या सेटिंग्स › परिचय में अपनी सेटिंग्स रीसेट करें।",
+  "shell.notice.pausedBody": "पिछली कुछ बार Themia पूरी तरह शुरू नहीं हुआ। अपने विजेट यहाँ शुरू करें, या सेटिंग्स › बैकअप और रीसेट में अपनी सेटिंग्स रीसेट करें।",
   "shell.notice.startWidgets": "विजेट शुरू करें",
   "shell.notice.backupFailed": "आपकी अभी की सेटिंग्स रखी नहीं जा सकीं, इसलिए कुछ नहीं बदला गया। {reason}",
   "shell.license.planLimit": "निःशुल्क प्लान की सीमा पूरी",

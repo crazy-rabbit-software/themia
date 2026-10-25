@@ -100,6 +100,29 @@ internal sealed partial class AppHost
         surface.OpenAddMenuFromKeys();
     }
 
+    /// <summary>
+    /// [S-66] Themia started again by hand: edit mode on (it stays on when it was), a placement in
+    /// progress dropped, and the settings menu open at its first level on the main display (the
+    /// primary monitor's), the keyboard in it. Never for a start at sign-in (<see cref="Core.Shell.SecondStart"/>).
+    /// </summary>
+    public void OpenSettingsOnStart()
+    {
+        if ((_windows.Find(w => w.Monitor.IsPrimary) ?? _windows.FirstOrDefault()) is not { } surface)
+        {
+            Log.Warn(Scope, "no display to open the settings menu on");
+            return;
+        }
+
+        SetEditMode(true);
+
+        if (Placing is not null)
+        {
+            CancelPlacement();
+        }
+
+        surface.OpenSettingsOnStart();
+    }
+
     /// <summary>[S-19] Show a view on one display. See <see cref="AppState.ShowViewOn"/>.</summary>
     public void ShowView(string monitorId, string viewId)
         => Mutate(state => state.ShowViewOn(monitorId, viewId));

@@ -363,7 +363,7 @@
   },
   "shell.undo.deletedView": "Đã xóa dạng xem “{name}”",
   "shell.notice.pausedTitle": "Tiện ích đang tạm dừng",
-  "shell.notice.pausedBody": "Vài lần gần đây Themia không khởi động xong. Hãy khởi động tiện ích ở đây, hoặc đặt lại cài đặt trong Cài đặt › Giới thiệu.",
+  "shell.notice.pausedBody": "Vài lần gần đây Themia không khởi động xong. Hãy khởi động tiện ích ở đây, hoặc đặt lại cài đặt trong Cài đặt › Sao lưu & đặt lại.",
   "shell.notice.startWidgets": "Khởi động tiện ích",
   "shell.notice.backupFailed": "Không giữ được cài đặt hiện tại, nên không có gì thay đổi. {reason}",
   "shell.license.planLimit": "Đã đạt giới hạn gói miễn phí",

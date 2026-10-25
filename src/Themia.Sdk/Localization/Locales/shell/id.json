@@ -363,7 +363,7 @@
   },
   "shell.undo.deletedView": "Tampilan “{name}” dihapus",
   "shell.notice.pausedTitle": "Widget dijeda",
-  "shell.notice.pausedBody": "Themia tidak selesai dimulai beberapa kali terakhir. Mulai widget Anda di sini, atau atur ulang pengaturan di Pengaturan › Tentang.",
+  "shell.notice.pausedBody": "Themia tidak selesai dimulai beberapa kali terakhir. Mulai widget Anda di sini, atau atur ulang pengaturan di Pengaturan › Cadangkan & atur ulang.",
   "shell.notice.startWidgets": "Mulai widget",
   "shell.notice.backupFailed": "Pengaturan Anda saat ini tidak dapat disimpan, jadi tidak ada yang diubah. {reason}",
   "shell.license.planLimit": "Batas paket gratis tercapai",

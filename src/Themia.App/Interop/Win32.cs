@@ -118,6 +118,14 @@ internal static partial class Win32
     [return: MarshalAs(UnmanagedType.Bool)]
     internal static partial bool SetForegroundWindow(nint hWnd);
 
+    /// <summary>
+    /// [S-66] Let <paramref name="processId"/> take the foreground: a second start, which the user
+    /// just launched and so may, hands that right to the copy that opens its menu.
+    /// </summary>
+    [LibraryImport("user32.dll", SetLastError = true)]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    internal static partial bool AllowSetForegroundWindow(uint processId);
+
     // ---- regions (desktop click-through mask) ---------------------------------------------
 
     internal const int RgnOr = 2;

@@ -373,7 +373,7 @@
   },
   "shell.undo.deletedView": "Ansicht „{name}“ gelöscht",
   "shell.notice.pausedTitle": "Widgets sind pausiert",
-  "shell.notice.pausedBody": "Themia wurde die letzten Male nicht vollständig gestartet. Starte deine Widgets hier oder setze deine Einstellungen unter Einstellungen › Info zurück.",
+  "shell.notice.pausedBody": "Themia wurde die letzten Male nicht vollständig gestartet. Starte deine Widgets hier oder setze deine Einstellungen unter Einstellungen › Sichern & zurücksetzen zurück.",
   "shell.notice.startWidgets": "Widgets starten",
   "shell.notice.backupFailed": "Deine aktuellen Einstellungen konnten nicht gesichert werden, daher wurde nichts geändert. {reason}",
   "shell.license.planLimit": "Grenze des kostenlosen Tarifs erreicht",

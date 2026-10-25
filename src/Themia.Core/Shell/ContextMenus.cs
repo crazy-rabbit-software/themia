@@ -23,13 +23,19 @@ public enum ShellCommand
     /// <summary>[S-1744] The picker, opened where the right-click was.</summary>
     AddWidget,
 
+    /// <summary>[S-1744] The edit bar's View ▾ menu, opened on this display ([S-3540]).</summary>
+    View,
+
+    /// <summary>[S-1744] The edit bar's Display ▾ menu, opened on this display ([S-3540]).</summary>
+    Display,
+
     /// <summary>[S-1582] Every widget on this display.</summary>
     SelectAll,
 
     /// <summary>[S-06] The grid snap aid, as on the toolbar.</summary>
     SnapToGrid,
 
-    /// <summary>The app's settings window.</summary>
+    /// <summary>[S-1744] The edit bar's settings menu (⚙), opened on this display ([S-3520]).</summary>
     Settings,
 }
 
@@ -44,7 +50,6 @@ public readonly record struct ShellMenuItem(ShellCommand Command, bool Enabled =
         ShellCommand.Cut => QuickCommand.Cut,
         ShellCommand.Copy => QuickCommand.Copy,
         ShellCommand.Paste => QuickCommand.Paste,
-        ShellCommand.Settings => QuickCommand.Settings,
         ShellCommand.Delete => QuickCommand.Delete,
         _ => null,
     };
@@ -119,9 +124,11 @@ public static class ShellMenus
         => [new(ShellCommand.WidgetActions), ShellMenuItem.Divider, new(ShellCommand.ToggleEditMode)];
 
     /// <summary>
-    /// [S-1744] The menu of empty surface, in edit mode and not while placing: Paste and Settings in
-    /// the icon row; Add widget, Select all, Snap to grid and Done editing in the list. Outside edit
-    /// mode, or while placing, there is none.
+    /// [S-1744] The menu of empty surface, in edit mode and not while placing: the edit bar's way in,
+    /// in the bar's order (Add widget, View, Display, Settings: the picker at the click, the bar's
+    /// menus under their buttons); then Paste and Select all; Snap to grid; Done editing. A list
+    /// alone, as Windows' own desktop menu is: Paste is the only icon-row command, and one icon is no
+    /// row ([S-1741]). Outside edit mode, or while placing, there is none.
     /// </summary>
     public static IReadOnlyList<ShellMenuItem> ForSurface(SurfaceMenuFacts facts)
     {
@@ -132,9 +139,12 @@ public static class ShellMenus
 
         return
         [
-            new(ShellCommand.Paste, Enabled: facts.CanPaste),
-            new(ShellCommand.Settings),
             new(ShellCommand.AddWidget),
+            new(ShellCommand.View),
+            new(ShellCommand.Display),
+            new(ShellCommand.Settings),
+            ShellMenuItem.Divider,
+            new(ShellCommand.Paste, Enabled: facts.CanPaste),
             new(ShellCommand.SelectAll, Enabled: facts.HasWidgets),
             ShellMenuItem.Divider,
             new(ShellCommand.SnapToGrid, Checked: facts.GridSnap),

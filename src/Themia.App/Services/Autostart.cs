@@ -37,12 +37,12 @@ internal static class Autostart
 
     /// <summary>
     /// [S-934] Read how this process was started: the <c>--autostart</c> argument the registration
-    /// launches with, or a packaged startup-task activation.
+    /// launches with, or a packaged startup-task activation. Before the log files are installed: the
+    /// caller logs it once they are.
     /// </summary>
     public static void DetectLaunch(IReadOnlyList<string> arguments)
     {
         LaunchSource = AutostartRules.SourceOf(arguments, PackageIdentity.IsPackaged && StartupTaskRegistration.WasActivatedByTask());
-        Log.Info(Scope, LaunchSource == LaunchSource.Autostart ? "started at sign-in" : "started by hand");
     }
 
     /// <summary>What Windows will do at the next sign-in.</summary>
