@@ -132,11 +132,15 @@ internal static partial class EditBarRender
                 window.AppWindow.Resize(new SizeInt32((int)((ScreenWidth + 40) * scale), (int)((OpenHeight + 80) * scale)));
                 window.AppWindow.Show(activateWindow: false);
 
-                // [S-3535] --only settings: the settings menu's pictures alone.
-                if (string.Equals(Option(args, "--only"), "settings", StringComparison.Ordinal))
+                // [S-3535] --only settings: the settings menu's pictures alone; [S-3548] --only bar the View and Display menus'.
+                switch (Option(args, "--only"))
                 {
-                    await SettingsShots(screen, outDir, theme).ConfigureAwait(true);
-                    return;
+                    case "settings":
+                        await SettingsShots(screen, outDir, theme).ConfigureAwait(true);
+                        return;
+                    case "bar":
+                        await BarMenuShots(screen, outDir, theme).ConfigureAwait(true);
+                        return;
                 }
 
                 await Shot(screen, Bar(snapOn: true), null, outDir, $"editbar-{theme}.png").ConfigureAwait(true);
@@ -159,6 +163,7 @@ internal static partial class EditBarRender
                 await PropsShots(screen, ticker, outDir, theme).ConfigureAwait(true);
                 await MarkerShots(screen, ticker, outDir, theme).ConfigureAwait(true);
                 await SettingsShots(screen, outDir, theme).ConfigureAwait(true);
+                await BarMenuShots(screen, outDir, theme).ConfigureAwait(true);
             }
             catch (Exception ex)
             {
@@ -177,7 +182,6 @@ internal static partial class EditBarRender
 
     private static EditBar Bar(bool snapOn) => Flowing(new EditBar(new EditBarCommands(
         AddFlyout: () => new Flyout(),
-        FillViews: _ => { },
         SnapOn: snapOn,
         SetSnap: _ => { },
         Menu: _ => { },

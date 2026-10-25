@@ -1,8 +1,6 @@
 {
   "$comment": "Machine-written translations: every string in this file needs native review.",
-  "shell.views.reorderHint": "کسی منظر کو منتقل کرنے کے لیے اسے دوسرے منظر پر گھسیٹیں، یا منظر پر Alt+Shift+Up یا Down دبائیں۔",
   "shell.view.colour": "رنگ",
-  "shell.view.colourDesc": "منظر بار اور اس ونڈو میں آئیکن کا رنگ",
   "shell.view.colourDefault": "متن کا رنگ",
   "shell.appearance.themeColours": "تھیم اور رنگ",
   "shell.appearance.cards": "ویجیٹ کارڈز",

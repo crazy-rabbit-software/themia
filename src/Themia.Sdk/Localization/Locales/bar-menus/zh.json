@@ -1,0 +1,15 @@
+{
+  "barMenus.display": "显示器",
+  "barMenus.display.all": "所有显示器",
+  "barMenus.display.showOn": "在以下显示器上显示 Themia",
+  "barMenus.display.this": "此显示器",
+  "barMenus.viewBar": "视图栏",
+  "barMenus.viewBar.style": "样式",
+  "barMenus.viewBar.position": "位置",
+  "barMenus.viewBar.size": "大小",
+  "barMenus.viewBar.hidden": "已隐藏",
+  "barMenus.viewBar.views": "视图",
+  "barMenus.view.renameTitle": "重命名视图",
+  "barMenus.view.deleteQuestion": "删除“{name}”？",
+  "barMenus.view.deleteDetail": "其中的小组件也会一并删除（{widgets}）。撤销可全部恢复。"
+}

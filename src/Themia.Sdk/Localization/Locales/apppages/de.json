@@ -1,8 +1,6 @@
 {
   "$comment": "Machine-written translations: every string in this file needs native review.",
-  "shell.views.reorderHint": "Ziehe eine Ansicht auf eine andere, um sie zu verschieben, oder drücke Alt+Umschalt+Pfeil nach oben/unten.",
   "shell.view.colour": "Farbe",
-  "shell.view.colourDesc": "Farbe des Symbols in der Ansichtsleiste und hier",
   "shell.view.colourDefault": "Textfarbe",
   "shell.appearance.themeColours": "Design und Farben",
   "shell.appearance.cards": "Widget-Karten",

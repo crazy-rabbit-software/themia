@@ -1,8 +1,6 @@
 {
   "$comment": "Machine-written translations: every string in this file needs native review.",
-  "shell.views.reorderHint": "Taşımak için bir görünümü başka birinin üzerine sürükleyin veya bir görünümde Alt+Shift+Yukarı ya da Aşağı tuşlarına basın.",
   "shell.view.colour": "Renk",
-  "shell.view.colourDesc": "Simgenin görünüm çubuğundaki ve bu penceredeki rengi",
   "shell.view.colourDefault": "Metin rengi",
   "shell.appearance.themeColours": "Tema ve renkler",
   "shell.appearance.cards": "Pencere öğesi kartları",

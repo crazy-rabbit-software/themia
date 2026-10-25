@@ -43,12 +43,6 @@ public sealed class SettingRow(string title, string? description, FrameworkEleme
     /// <summary>The expander this row is folded into, so landing on it can open it first.</summary>
     public SettingsExpander? Parent { get; set; }
 
-    /// <summary>
-    /// [S-1832] On a list page, the display or view whose group this row is (or is in); null for a
-    /// row of the page itself. Search lands on the row in that group, not its namesake in another.
-    /// </summary>
-    public string? Item { get; set; }
-
     /// <summary>The record on a row's frame, or null for anything that is not a settings row.</summary>
     public static SettingRow? Of(FrameworkElement? element) => element is Border { Tag: SettingRow row } ? row : null;
 

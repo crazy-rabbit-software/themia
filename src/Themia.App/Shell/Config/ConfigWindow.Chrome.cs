@@ -297,10 +297,9 @@ internal sealed partial class ConfigWindow
     /// <summary>A page's name as the navigation shows it, for a page that did not name itself.</summary>
     private string NavTitle(ConfigTarget target)
     {
-        var entry = target.NavEntry();
         foreach (var item in Entries())
         {
-            if (item.Tag is ConfigTarget tag && tag == entry && item.Content is string text)
+            if (item.Tag is ConfigTarget tag && tag == target && item.Content is string text)
             {
                 return text;
             }
@@ -399,12 +398,6 @@ internal sealed partial class ConfigWindow
     private FrameworkElement Show(ConfigTarget target, bool record)
     {
         _target = target;
-
-        // [S-1831] A link to one display or view opens its group; the reader's other groups stay as they were.
-        if (target is ConfigTarget.App { Item: { } item } app && ConfigTarget.ListOf(app.Page) is { } list)
-        {
-            _expansion.Set(list, item, true);
-        }
 
         if (record)
         {

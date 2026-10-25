@@ -31,7 +31,7 @@ internal partial class MenuPanel
     private const int NoteLines = 3;
 
     /// <summary>A drawn line: its node now, and the parts a change of value is written into.</summary>
-    private sealed class LineView(MenuNode node, Button button, FrameworkElement root, Border lead, Border trail, TextBlock words, TextBlock value)
+    private sealed class LineView(MenuNode node, Button button, FrameworkElement root, Border lead, Border trail, Border held, TextBlock words, TextBlock value)
     {
         public MenuNode Node { get; set; } = node;
 
@@ -45,6 +45,9 @@ internal partial class MenuPanel
 
         /// <summary>[S-3716] The end column: the tick or the dot, or the chevron of a line that opens a submenu.</summary>
         public Border Trail { get; } = trail;
+
+        /// <summary>[S-3541] Before the chevron: the dot of a line that opens a submenu and stands for the item that holds.</summary>
+        public Border Held { get; } = held;
 
         public TextBlock Words { get; } = words;
 
@@ -255,10 +258,15 @@ internal partial class MenuPanel
             view.Lead.Child = node.Icon?.Invoke();
         }
 
-        // [S-3716] The mark at the end of the line, where a line that opens a submenu has its chevron.
+        // [S-3716] The mark at the end of the line, where a line that opens a submenu has its chevron;
+        // [S-3541] such a line that holds (the view shown here) has the mark before its chevron.
         if (!node.Opens)
         {
             view.Trail.Child = node.Checked == true ? Mark(node.Radio) : null;
+        }
+        else
+        {
+            view.Held.Child = node.Checked == true ? Mark(node.Radio) : null;
         }
 
         AutomationProperties.SetName(view.Button, node.Value is { Length: > 0 } value ? node.Text + ", " + value : node.Text);
@@ -299,7 +307,8 @@ internal partial class MenuPanel
     /// [S-3716] One line: an icon column (where the level has icons), its words, a value (or a
     /// shortcut) in the secondary colour where a menu writes a shortcut, and at the end, right-aligned
     /// in its own column, the tick or the dot of a switch or a choice, or the chevron of a line that
-    /// opens a submenu (a line is never both). A danger line's words and icon are the critical colour.
+    /// opens a submenu; [S-3541] a line that opens a submenu and holds has the mark just before its
+    /// chevron. A danger line's words and icon are the critical colour.
     /// [S-3732] A line of an ordered list carries a grip before its end column and is dragged.
     /// </summary>
     private LineView MakeLine(Level level, MenuNode node)
@@ -346,10 +355,12 @@ internal partial class MenuPanel
             Margin = new Thickness(Fluent.Space2, 0, Fluent.Space2, 0),
         };
 
-        var button = LineButton(level.Icons ? lead : null, words, value, grip, level.Trail ? trail : null);
+        // [S-3541] The mark's place is kept on every line that can hold, so the grips stand in one column.
+        var held = new Border { VerticalAlignment = VerticalAlignment.Center, Width = node.Checked is null ? 0 : Fluent.Space3, Margin = new Thickness(0, 0, node.Checked is null ? 0 : Fluent.Space2, 0) };
+        var button = LineButton(level.Icons ? lead : null, words, value, grip, node.Opens ? held : null, level.Trail ? trail : null);
         button.IsEnabled = !node.Disabled;
 
-        var view = new LineView(node, button, button, lead, trail, words, value);
+        var view = new LineView(node, button, button, lead, trail, held, words, value);
         Apply(view, node);
 
         button.Click += (_, _) => OnLine(level, view);
@@ -382,7 +393,7 @@ internal partial class MenuPanel
     }
 
     /// <summary>The button of a line, its parts in their columns (the ones given), 32 DIPs, inset 4.</summary>
-    private static Button LineButton(UIElement? lead, TextBlock words, TextBlock value, UIElement? grip, UIElement? trail)
+    private static Button LineButton(UIElement? lead, TextBlock words, TextBlock value, UIElement? grip, UIElement? held, UIElement? trail)
     {
         var parts = new Grid();
         var column = 0;
@@ -411,6 +422,11 @@ internal partial class MenuPanel
         if (grip is not null)
         {
             Add(grip, GridLength.Auto);
+        }
+
+        if (held is not null)
+        {
+            Add(held, GridLength.Auto);
         }
 
         if (trail is not null)

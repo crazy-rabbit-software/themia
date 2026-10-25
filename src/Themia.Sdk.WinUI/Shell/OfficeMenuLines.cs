@@ -224,7 +224,6 @@ public static class OfficeMenuLines
         return menu.Colour(text, chosen, value => config.CalendarColors = SetColour(config.CalendarColors, key, value), new ColorChoiceOptions
         {
             Presets = presets,
-            PresetsTitle = Str.WidgetsA_Calendar_Settings_Colors.Text(),
             DefaultLabel = Str.WidgetsA_Calendar_Settings_ColorAuto.Text(),
             DefaultColor = () => HexColor.TryParse(automatic, out var r, out var g, out var b)
                 ? Windows.UI.Color.FromArgb(255, r, g, b)

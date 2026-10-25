@@ -1,0 +1,15 @@
+{
+  "barMenus.display": "Schermo",
+  "barMenus.display.all": "Tutti gli schermi",
+  "barMenus.display.showOn": "Mostra Themia su",
+  "barMenus.display.this": "Questo schermo",
+  "barMenus.viewBar": "Barra delle viste",
+  "barMenus.viewBar.style": "Stile",
+  "barMenus.viewBar.position": "Posizione",
+  "barMenus.viewBar.size": "Dimensione",
+  "barMenus.viewBar.hidden": "Nascosta",
+  "barMenus.viewBar.views": "Viste",
+  "barMenus.view.renameTitle": "Rinomina vista",
+  "barMenus.view.deleteQuestion": "Eliminare «{name}»?",
+  "barMenus.view.deleteDetail": "I suoi widget vengono eliminati con essa ({widgets}). Annulla ripristina tutto."
+}

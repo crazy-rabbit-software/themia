@@ -23,9 +23,6 @@ public sealed class ColorChoiceOptions
     /// <summary>The swatches, in rows of <see cref="ColorPresets.Columns"/>. Windows' accent palette by default.</summary>
     public IReadOnlyList<ColorPreset> Presets { get; init; } = ColorPresets.Windows;
 
-    /// <summary>The heading over the swatches.</summary>
-    public string PresetsTitle { get; init; } = Str.Shell_Color_WindowsColours.Text();
-
     /// <summary>
     /// The label of the "use the default" choice, e.g. "Windows accent colour" — or null when the
     /// setting must hold a colour (a palette entry, the pen's ink). Choosing it stores an empty
@@ -57,18 +54,13 @@ public sealed class FillChoiceOptions
 }
 
 /// <summary>
-/// The one colour control in the settings: a swatch button that opens a Windows 11-style picker —
-/// a "use the default" choice where empty means "follow the theme", the preset swatches as Settings
-/// › Personalization › Colours lays them out, and "Custom colour" for WinUI's full
-/// <see cref="ColorPicker"/>. [S-1549], [S-1550]
+/// [S-3724] What the menus' one colour submenu needs that is not a line: a colour and a fill in words
+/// and on a swatch, "Custom colour…" (WinUI's full <see cref="ColorPicker"/> in a dialog) and the
+/// eyedropper. [S-1549], [S-1550]
 /// <para>
 /// Colours are never typed. A hex box is a field most people cannot fill in and the rest mistype;
 /// a picker can only ever produce a colour. What is stored stays <c>#RRGGBB</c> (or empty for the
 /// default), so nothing that reads a colour setting changes.
-/// </para>
-/// <para>
-/// Use <see cref="FluentLayout.ColorPickerRow"/> for a settings row, or <see cref="Create"/> where
-/// the colour sits inside another control (a palette entry, a calendar row).
 /// </para>
 /// </summary>
 public static class ColorChoice
@@ -90,125 +82,6 @@ public static class ColorChoice
     }
     private const string Scope = "color-choice";
 
-    private const double SwatchSize = 32;
-
-    /// <summary>
-    /// The swatch button. <paramref name="onChanged"/> receives <c>#RRGGBB</c>, or an empty string for
-    /// the default.
-    /// </summary>
-    /// <param name="name">What a screen reader calls the button: the setting's title.</param>
-    public static DropDownButton Create(string? value, Action<string> onChanged, ColorChoiceOptions? options = null, string? name = null)
-    {
-        var button = SwatchButton(name, out var swatch, out var label, out var flyout);
-        Attach(button, swatch, label, flyout, value, onChanged, options);
-        return button;
-    }
-
-    /// <summary>
-    /// The colour choice on its swatch button: <paramref name="flyout"/> is its panel, opened from
-    /// <paramref name="source"/>; <paramref name="swatch"/> and <paramref name="label"/> show the value.
-    /// </summary>
-    private static void Attach(FrameworkElement source, Border swatch, TextBlock label, Flyout flyout, string? value, Action<string> onChanged, ColorChoiceOptions? options)
-    {
-        ArgumentNullException.ThrowIfNull(onChanged);
-        options ??= new ColorChoiceOptions();
-
-        var current = HexColor.Normalise(value);
-
-        // A setting that must hold a colour but holds none (blank, corrupt) shows its first preset
-        // rather than a "default" it does not have.
-        if (current.Length == 0 && options.DefaultLabel is null && options.Presets.Count > 0)
-        {
-            current = HexColor.Normalise(options.Presets[0].Hex);
-        }
-
-        void Show()
-        {
-            PaintSwatch(swatch, current, options);
-            label.Text = Describe(current, options);
-            ToolTipService.SetToolTip(source, label.Text);
-        }
-
-        FrameworkElement Build() => Panel(
-            current,
-            options,
-            Choose,
-            () =>
-            {
-                flyout.Hide();
-                _ = CustomAsync(source, current, options, null, (hex, _) => Choose(hex));
-            },
-            () => PickFromScreen(flyout, Choose));
-
-        void Choose(string hex)
-        {
-            flyout.Hide();
-            if (hex == current)
-            {
-                return;
-            }
-
-            current = hex;
-            Show();
-
-            try
-            {
-                onChanged(hex);
-            }
-            catch (Exception ex)
-            {
-                Log.Error(Scope, "saving the colour failed", ex);
-            }
-        }
-
-        // Built each time it opens, so the ring sits on whatever is chosen now.
-        flyout.Opening += (_, _) => flyout.Content = Build();
-
-        Show();
-
-#if DEBUG
-        // The settings render draws the picker's panel in the page: a flyout on an off-screen,
-        // never-activated window does not render.
-        DebugPanels.AddOrUpdate(source, new Func<FrameworkElement>(() => Panel(current, options, _ => { }, () => { }, () => { })));
-#endif
-    }
-
-    /// <summary>The swatch button: a swatch, the value's words, and a flyout kept inside the window.</summary>
-    private static DropDownButton SwatchButton(string? name, out Border swatch, out TextBlock label, out Flyout flyout)
-    {
-        swatch = new Border { Width = 32, Height = 20, VerticalAlignment = VerticalAlignment.Center };
-        FluentLayout.ApplyStyle(swatch, "SettingsSwatchBorderStyle");
-
-        label = new TextBlock
-        {
-            VerticalAlignment = VerticalAlignment.Center,
-            MaxWidth = 150,
-            TextTrimming = TextTrimming.CharacterEllipsis,
-        };
-
-        var button = new DropDownButton
-        {
-            Content = new StackPanel
-            {
-                Orientation = Orientation.Horizontal,
-                Spacing = Fluent.Space3,
-                Children = { swatch, label },
-            },
-            MinWidth = FluentLayout.ChoiceMinWidth,
-            HorizontalContentAlignment = HorizontalAlignment.Left,
-        };
-
-        if (!string.IsNullOrEmpty(name))
-        {
-            AutomationProperties.SetName(button, name);
-        }
-
-        // Kept inside the settings window, like Settings' own pickers, rather than as a separate
-        // top-level popup window.
-        flyout = new Flyout { Placement = FlyoutPlacementMode.BottomEdgeAlignedRight, ShouldConstrainToRootBounds = true };
-        button.Flyout = flyout;
-        return button;
-    }
 
     /// <summary>[S-6567] A fill in words: Default's label, "Transparent", or the colour's name with its opacity under 100 %.</summary>
     internal static string DescribeFill(FillChoice fill, ColorChoiceOptions options)
@@ -244,14 +117,6 @@ public static class ColorChoice
         PaintSwatch(swatch, string.Empty, options);
     }
 
-#if DEBUG
-    private static readonly System.Runtime.CompilerServices.ConditionalWeakTable<FrameworkElement, Func<FrameworkElement>> DebugPanels = [];
-
-    /// <summary>Debug renders only: the panel this button's flyout would show.</summary>
-    internal static FrameworkElement? DebugPanel(FrameworkElement source)
-        => DebugPanels.TryGetValue(source, out var build) ? build() : null;
-#endif
-
     /// <summary>"Default blue", "Custom", or the default's own label.</summary>
     internal static string Describe(string hex, ColorChoiceOptions options)
     {
@@ -276,183 +141,6 @@ public static class ColorChoice
             : ThemeBrush.Of("SolidBackgroundFillColorTertiaryBrush", Colors.Gray);
     }
 
-    /// <summary>The flyout: the default, the swatches, and the ways to a custom colour (the full picker, the eyedropper).</summary>
-    private static StackPanel Panel(string current, ColorChoiceOptions options, Action<string> choose, Action custom, Action pickFromScreen)
-    {
-        var panel = new StackPanel { Spacing = Fluent.Space3, Width = (SwatchSize * ColorPresets.Columns) + (Fluent.Space1 * (ColorPresets.Columns - 1)) };
-
-        if (options.DefaultLabel is { } defaultLabel)
-        {
-            var preview = new Border { Width = 20, Height = 20, VerticalAlignment = VerticalAlignment.Center };
-            FluentLayout.ApplyStyle(preview, "SettingsSwatchBorderStyle");
-            PaintSwatch(preview, string.Empty, options);
-
-            var check = new FontIcon
-            {
-                Glyph = Glyphs.Done,
-                FontSize = 12,
-                Visibility = current.Length == 0 ? Visibility.Visible : Visibility.Collapsed,
-                VerticalAlignment = VerticalAlignment.Center,
-            };
-
-            var text = new TextBlock { Text = defaultLabel, VerticalAlignment = VerticalAlignment.Center };
-            Grid.SetColumn(text, 1);
-            Grid.SetColumn(check, 2);
-
-            var useDefault = new Button
-            {
-                HorizontalAlignment = HorizontalAlignment.Stretch,
-                HorizontalContentAlignment = HorizontalAlignment.Stretch,
-                Content = new Grid
-                {
-                    ColumnSpacing = Fluent.Space3,
-                    ColumnDefinitions =
-                    {
-                        new ColumnDefinition { Width = GridLength.Auto },
-                        new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) },
-                        new ColumnDefinition { Width = GridLength.Auto },
-                    },
-                    Children = { preview, text, check },
-                },
-            };
-
-            AutomationProperties.SetName(useDefault, defaultLabel);
-            useDefault.Click += (_, _) => choose(string.Empty);
-            panel.Children.Add(useDefault);
-        }
-
-        if (options.Presets.Count > 0)
-        {
-            panel.Children.Add(Caption(options.PresetsTitle));
-            panel.Children.Add(Swatches(current, options.Presets, choose));
-        }
-
-        if (options.AllowCustom)
-        {
-            var row = new Grid
-            {
-                ColumnSpacing = Fluent.Space3,
-                ColumnDefinitions =
-                {
-                    new ColumnDefinition { Width = GridLength.Auto },
-                    new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) },
-                    new ColumnDefinition { Width = GridLength.Auto },
-                    new ColumnDefinition { Width = GridLength.Auto },
-                },
-            };
-
-            // A custom colour in use is shown, ringed, beside the ways to change it.
-            var isCustom = current.Length > 0 && ColorPresets.Find(options.Presets, current) is null;
-            var mine = new Border { Width = 20, Height = 20, VerticalAlignment = VerticalAlignment.Center, Visibility = isCustom ? Visibility.Visible : Visibility.Collapsed };
-            FluentLayout.ApplyStyle(mine, "SettingsSwatchBorderStyle");
-            PaintSwatch(mine, current, options);
-
-            var title = new TextBlock { Text = Str.Shell_Color_Custom.Text(), VerticalAlignment = VerticalAlignment.Center };
-            var view = new Button { Content = Str.Shell_Color_ViewColours.Text() };
-            view.Click += (_, _) => custom();
-
-            // [S-1556] The eyedropper: any pixel on any display becomes the custom colour.
-            var dropper = new Button
-            {
-                Content = new FontIcon { Glyph = Glyphs.Eyedropper, FontSize = Fluent.IconSize },
-                VerticalAlignment = VerticalAlignment.Stretch,
-            };
-
-            AutomationProperties.SetName(dropper, Str.Shell_Color_PickFromScreen.Text());
-            ToolTipService.SetToolTip(dropper, Str.Shell_Color_PickFromScreenTip.Text());
-            dropper.Click += (_, _) => pickFromScreen();
-
-            Grid.SetColumn(title, 1);
-            Grid.SetColumn(dropper, 2);
-            Grid.SetColumn(view, 3);
-            row.Children.Add(mine);
-            row.Children.Add(title);
-            row.Children.Add(dropper);
-            row.Children.Add(view);
-            panel.Children.Add(row);
-        }
-
-        return panel;
-    }
-
-    private static TextBlock Caption(string text)
-    {
-        var caption = new TextBlock { Text = text };
-        FluentLayout.ApplyStyle(caption, "SettingsCaptionTextBlockStyle");
-        return caption;
-    }
-
-    /// <summary>The swatch grid, rows of eight; the chosen one carries a check in a colour that reads on it.</summary>
-    private static Grid Swatches(string current, IReadOnlyList<ColorPreset> presets, Action<string> choose)
-    {
-        var grid = new Grid { RowSpacing = Fluent.Space1, ColumnSpacing = Fluent.Space1 };
-
-        for (var c = 0; c < ColorPresets.Columns; c++)
-        {
-            grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(SwatchSize) });
-        }
-
-        for (var r = 0; r < (presets.Count + ColorPresets.Columns - 1) / ColorPresets.Columns; r++)
-        {
-            grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(SwatchSize) });
-        }
-
-        for (var i = 0; i < presets.Count; i++)
-        {
-            var preset = presets[i];
-            var hex = HexColor.Normalise(preset.Hex);
-            HexColor.TryParse(hex, out var r, out var g, out var b);
-
-            var chosen = hex == current;
-            var fill = new Border
-            {
-                CornerRadius = new CornerRadius(Fluent.ControlRadius),
-                Background = new SolidColorBrush(Windows.UI.Color.FromArgb(255, r, g, b)),
-                Child = chosen
-                    ? new FontIcon
-                    {
-                        Glyph = Glyphs.Done,
-                        FontSize = 14,
-                        FontWeight = FontWeights.Bold,
-
-                        // The check is drawn ON the colour, so its colour is the colour's contrast,
-                        // not a theme brush.
-                        Foreground = new SolidColorBrush(IsLight(r, g, b) ? Colors.Black : Colors.White),
-                    }
-                    : null,
-            };
-
-            var swatch = new Button
-            {
-                Width = SwatchSize,
-                Height = SwatchSize,
-                Padding = new Thickness(0),
-                CornerRadius = new CornerRadius(Fluent.ControlRadius),
-                HorizontalContentAlignment = HorizontalAlignment.Stretch,
-                VerticalContentAlignment = VerticalAlignment.Stretch,
-                Content = fill,
-            };
-
-            if (chosen)
-            {
-                swatch.BorderBrush = ThemeBrush.Of("AccentFillColorDefaultBrush", Colors.DodgerBlue);
-                swatch.BorderThickness = new Thickness(2);
-            }
-
-            ToolTipService.SetToolTip(swatch, preset.Name);
-            AutomationProperties.SetName(swatch, preset.Name);
-            swatch.Click += (_, _) => choose(hex);
-
-            Grid.SetRow(swatch, i / ColorPresets.Columns);
-            Grid.SetColumn(swatch, i % ColorPresets.Columns);
-            grid.Children.Add(swatch);
-        }
-
-        return grid;
-    }
-
-    private static bool IsLight(byte r, byte g, byte b) => ScreenPick.WantsDarkInk(r, g, b);
-
     /// <summary>The eyedropper's loupe, sized from the design tokens: 11 magnified pixels a side.</summary>
     private static LoupeMetrics Loupe => new(
         Cells: 11,
@@ -460,27 +148,6 @@ public static class ColorChoice
         OffsetDips: Fluent.Space5,
         GapDips: Fluent.Space1,
         LabelHeightDips: FluentType.BodyStrong.LineHeight + (2 * Fluent.Space1));
-
-    /// <summary>
-    /// [S-1556] Close the flyout, wait until the screen no longer shows it, then run the eyedropper.
-    /// Event-driven throughout: the flyout's Closed, the next XAML frame, then the compositor's.
-    /// </summary>
-    private static void PickFromScreen(Flyout flyout, Action<string> choose)
-    {
-        if (Eyedropper.IsActive)
-        {
-            return;
-        }
-
-        void OnClosed(object? sender, object e)
-        {
-            flyout.Closed -= OnClosed;
-            AfterNextFrame(() => _ = PickFromScreenAsync(choose));
-        }
-
-        flyout.Closed += OnClosed;
-        flyout.Hide();
-    }
 
     /// <summary>[S-1556] [S-3723] The eyedropper from a line of the properties menu, which stays where it is.</summary>
     internal static void PickFromScreen(Action<string> choose)

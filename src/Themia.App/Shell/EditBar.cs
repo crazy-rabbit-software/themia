@@ -16,15 +16,13 @@ namespace Themia.App.Shell;
 
 /// <summary>What the edit bar's commands do, given by the surface (or a render's stand-in).</summary>
 /// <param name="AddFlyout">[S-3501] The add menu, built anew each time the bar is built.</param>
-/// <param name="FillViews">Refills the View menu each time it opens, with the views as they are then.</param>
 /// <param name="SnapOn">[S-905] Whether grid snap is on now.</param>
 /// <param name="SetSnap">Turns grid snap on or off.</param>
-/// <param name="Menu">[S-3520] One of the bar's drop-down menus' buttons (⚙): opens its menu under it, or closes it again.</param>
-/// <param name="MenuOpening">[S-3521] Another of the bar's menus (Add widget, View) is opening: the bar's open menu closes.</param>
+/// <param name="Menu">[S-3520] One of the bar's drop-down menus' buttons (View, Display, ⚙): opens its menu under it, or closes it again.</param>
+/// <param name="MenuOpening">[S-3521] The add menu is opening: the bar's open menu closes.</param>
 /// <param name="Done">Leaves edit mode.</param>
 internal sealed record EditBarCommands(
     Func<Flyout> AddFlyout,
-    Action<MenuFlyout> FillViews,
     bool SnapOn,
     Action<bool> SetSnap,
     Action<BarMenu> Menu,
@@ -34,6 +32,12 @@ internal sealed record EditBarCommands(
 /// <summary>[S-3520] The edit bar's drop-down menus, each drawn by the menu engine under its button: one open at a time.</summary>
 internal enum BarMenu
 {
+    /// <summary>[S-3541] View ▾: this display's views, and each view's own settings.</summary>
+    View,
+
+    /// <summary>[S-3543] Display ▾: this display's scale and view bar, and what every display shares.</summary>
+    Display,
+
     /// <summary>[S-3520] ⚙: the app's settings.</summary>
     Settings,
 }
@@ -41,7 +45,8 @@ internal enum BarMenu
 /// <summary>
 /// [S-3500] The edit bar: a compact Windows 11 command bar at the top centre of each display's work
 /// area in edit mode, after Karpo's edit bar. Labelled commands for arranging first — Add widget (its
-/// "+" in the accent), View, Snap — a hairline, then the icon-only ones whose words are their
+/// "+" in the accent), View ▾ and Display ▾ (drop-downs: their menus under them, [S-3541], [S-3543]),
+/// Snap — a hairline, then the icon-only ones whose words are their
 /// tooltips: Settings (⚙, a drop-down: the settings menu under it, [S-3520]; Quit Themia is its last
 /// line, [S-67]) and Done. The selected widgets' header, background and
 /// title are not here but on the strip by the selection ([S-3707]). 40 DIPs tall: 32-DIP buttons in a 4-DIP padding
@@ -65,16 +70,11 @@ internal sealed partial class EditBar : Grid
 
     private ToggleButton? _snap;
 
-    /// <summary>[S-3520] The buttons of the bar's drop-down menus (⚙), by the menu each opens.</summary>
+    /// <summary>[S-3520] The buttons of the bar's drop-down menus (View, Display, ⚙), by the menu each opens.</summary>
     private readonly Dictionary<BarMenu, Button> _menuButtons = [];
 
     /// <summary>[S-3520] The menu open under its button: the button stays lit, as a drop-down's does while its menu is open.</summary>
     private BarMenu? _openMenu;
-
-    /// <summary>[S-918] The View menu, and the most it may be tall (the work area below the bar).</summary>
-    private MenuFlyout? _viewMenu;
-
-    private double _viewMenuHeight = double.PositiveInfinity;
 
     public EditBar(EditBarCommands commands)
     {
@@ -89,24 +89,6 @@ internal sealed partial class EditBar : Grid
         Fill(commands);
     }
 
-    /// <summary>
-    /// [S-918] Cap the View menu at <paramref name="maxHeight"/>, so a long list of views scrolls
-    /// inside it. Set ahead of the menu opening (on a refresh of the surface), never while it is open.
-    /// </summary>
-    public void CapViewMenu(double maxHeight)
-    {
-        if (Math.Abs(maxHeight - _viewMenuHeight) < 1 || _viewMenu is { IsOpen: true })
-        {
-            return;
-        }
-
-        _viewMenuHeight = maxHeight;
-        if (_viewMenu is { } menu)
-        {
-            menu.MenuFlyoutPresenterStyle = ViewBar.MenuStyle(maxHeight);
-        }
-    }
-
     /// <summary>Build the buttons, in the current language. Called again on a language switch.</summary>
     public void Fill(EditBarCommands commands)
     {
@@ -118,22 +100,10 @@ internal sealed partial class EditBar : Grid
         Subtle(add);
         AutomationProperties.SetName(add, Str.Shell_Toolbar_AddWidget.Text());
 
-        // Refilled every time it opens. Built once, it kept listing the views that existed when the
-        // surface was created and ticking the one that was active then.
-        var viewMenu = new MenuFlyout();
-        viewMenu.Opening += (_, _) =>
-        {
-            commands.MenuOpening();
-            commands.FillViews(viewMenu);
-        };
-        _viewMenu = viewMenu;
-        if (double.IsFinite(_viewMenuHeight))
-        {
-            viewMenu.MenuFlyoutPresenterStyle = ViewBar.MenuStyle(_viewMenuHeight);
-        }
-        var views = new DropDownButton { Content = Labelled(Glyphs.View, Str.CtxMenu_View.Text(), accent: false), Flyout = viewMenu };
-        Subtle(views);
-        AutomationProperties.SetName(views, Str.CtxMenu_View.Text());
+        // [S-3541] [S-3543] Drop-downs whose menus are the menu engine's, drawn on the surface under
+        // them (not flyouts): the chevron says so, the click opens or closes the menu.
+        var views = MenuButton(BarMenu.View, Glyphs.View, Str.CtxMenu_View.Text(), commands);
+        var display = MenuButton(BarMenu.Display, Glyphs.Display, Str.BarMenus_Display.Text(), commands);
 
         _snap = SnapToggle(commands);
 
@@ -153,8 +123,19 @@ internal sealed partial class EditBar : Grid
         {
             Orientation = Orientation.Horizontal,
             Spacing = Fluent.Space1,
-            Children = { add, views, _snap, Divider(), settings, done },
+            Children = { add, views, display, _snap, Divider(), settings, done },
         };
+    }
+
+    /// <summary>[S-3540] A labelled drop-down that opens one of the bar's menus under it.</summary>
+    private DropDownButton MenuButton(BarMenu menu, string glyph, string words, EditBarCommands commands)
+    {
+        var button = new DropDownButton { Content = Labelled(glyph, words, accent: false) };
+        Subtle(button);
+        AutomationProperties.SetName(button, words);
+        button.Click += (_, _) => commands.Menu(menu);
+        _menuButtons[menu] = button;
+        return button;
     }
 
     /// <summary>The Add widget button's width, for the render to hang the menu under it.</summary>

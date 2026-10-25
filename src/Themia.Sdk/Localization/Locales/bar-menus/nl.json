@@ -1,0 +1,15 @@
+{
+  "barMenus.display": "Beeldscherm",
+  "barMenus.display.all": "Alle beeldschermen",
+  "barMenus.display.showOn": "Themia tonen op",
+  "barMenus.display.this": "Dit beeldscherm",
+  "barMenus.viewBar": "Weergavebalk",
+  "barMenus.viewBar.style": "Stijl",
+  "barMenus.viewBar.position": "Positie",
+  "barMenus.viewBar.size": "Grootte",
+  "barMenus.viewBar.hidden": "Verborgen",
+  "barMenus.viewBar.views": "Weergaven",
+  "barMenus.view.renameTitle": "Naam van weergave wijzigen",
+  "barMenus.view.deleteQuestion": "“{name}” verwijderen?",
+  "barMenus.view.deleteDetail": "De widgets erop gaan mee ({widgets}). Ongedaan maken zet alles terug."
+}

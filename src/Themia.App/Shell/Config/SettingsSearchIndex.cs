@@ -19,11 +19,10 @@ internal sealed record SettingHit(SettingEntry Entry, ConfigTarget Target, strin
 /// Everything "Find a setting" can find, read off the pages themselves. [S-1542]
 /// <para>
 /// The index is the rows the pages build, collected through <see cref="SettingsIndex"/> — never a
-/// list written beside them. It is filled the first time the search box is used (every app page,
-/// Displays and Views included, built off-screen and thrown away), refreshed with the live page each
-/// time a page is shown, and dropped when the navigation changes shape. A widget's own options are
-/// on its properties menu, not in this window ([S-6536]), so search finds none of them. A row in
-/// a group of the Displays or Views page is offered as "Views › Desktop" and opens that group ([S-1832]).
+/// list written beside them. It is filled the first time the search box is used (every app page
+/// built off-screen and thrown away), refreshed with the live page each time a page is shown, and
+/// dropped when the language changes. A widget's own options are on its properties menu, not in this
+/// window ([S-6536]), so search finds none of them.
 /// </para>
 /// </summary>
 internal sealed class SettingsSearchIndex(AppHost host)
@@ -48,9 +47,7 @@ internal sealed class SettingsSearchIndex(AppHost host)
             return; // the full build will read it with the rest
         }
 
-        // A list page opened on one of its groups is still the one page.
-        var key = target.NavEntry();
-        Index(key, page, PathOf(key), Glyph(key));
+        Index(target, page, PathOf(target), Glyph(target));
     }
 
     /// <summary>The best suggestions for what was typed, best first.</summary>
@@ -89,7 +86,7 @@ internal sealed class SettingsSearchIndex(AppHost host)
     {
         try
         {
-            Index(target, ConfigPages.Build(new PageContext(host, _ => { }, new SettingsExpansion()), target), PathOf(target), Glyph(target));
+            Index(target, ConfigPages.Build(new PageContext(host), target), PathOf(target), Glyph(target));
         }
         catch (Exception ex)
         {
@@ -107,34 +104,10 @@ internal sealed class SettingsSearchIndex(AppHost host)
             new(new SettingEntry(key, path, null, LastCrumb(path), null, [], IsPage: true), target, pageGlyph),
         };
 
-        var rows = SettingsIndex.Collect(page);
-
-        // [S-1832] The groups of a list page by item: a row inside one is offered under its name.
-        var groups = new Dictionary<string, string>(StringComparer.Ordinal);
-        foreach (var (row, _) in rows)
+        foreach (var (row, section) in SettingsIndex.Collect(page))
         {
-            if (row.Item is { } item && row.Parent is null)
-            {
-                groups.TryAdd(item, row.Title);
-            }
-        }
-
-        foreach (var (row, section) in rows)
-        {
-            var rowTarget = target;
-            var rowPath = path;
-
-            if (row.Item is { } item && target is ConfigTarget.App app)
-            {
-                rowTarget = app with { Item = item };
-                if (row.Parent is not null && groups.TryGetValue(item, out var group))
-                {
-                    rowPath = $"{path} › {group}";
-                }
-            }
-
-            var entry = new SettingEntry(key, rowPath, section, row.Title, row.Description, row.AllKeywords());
-            hits.Add(new SettingHit(entry, rowTarget, GlyphOf(row) ?? pageGlyph));
+            var entry = new SettingEntry(key, path, section, row.Title, row.Description, row.AllKeywords());
+            hits.Add(new SettingHit(entry, target, GlyphOf(row) ?? pageGlyph));
         }
 
         _pages[key] = hits;
@@ -146,7 +119,7 @@ internal sealed class SettingsSearchIndex(AppHost host)
         return at < 0 ? path : path[(at + 3)..];
     }
 
-    /// <summary>Where a page is, as a suggestion shows it: "Appearance", "Views".</summary>
+    /// <summary>Where a page is, as a suggestion shows it: "Accounts".</summary>
     private static string PathOf(ConfigTarget target) => target switch
     {
         ConfigTarget.App app => ConfigPages.AppPages.FirstOrDefault(p => p.Page == app.Page)?.Title ?? app.Page.ToString(),

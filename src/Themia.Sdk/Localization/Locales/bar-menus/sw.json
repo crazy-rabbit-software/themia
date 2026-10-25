@@ -1,0 +1,15 @@
+{
+  "barMenus.display": "Onyesho",
+  "barMenus.display.all": "Maonyesho yote",
+  "barMenus.display.showOn": "Onyesha Themia kwenye",
+  "barMenus.display.this": "Onyesho hili",
+  "barMenus.viewBar": "Upau wa mionekano",
+  "barMenus.viewBar.style": "Mtindo",
+  "barMenus.viewBar.position": "Nafasi",
+  "barMenus.viewBar.size": "Ukubwa",
+  "barMenus.viewBar.hidden": "Umefichwa",
+  "barMenus.viewBar.views": "Mionekano",
+  "barMenus.view.renameTitle": "Badilisha jina la mwonekano",
+  "barMenus.view.deleteQuestion": "Ufute “{name}”?",
+  "barMenus.view.deleteDetail": "Wijeti zake zinaondoka pamoja nao ({widgets}). Tendua inarudisha yote."
+}

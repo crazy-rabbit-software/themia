@@ -1,8 +1,6 @@
 {
   "$comment": "Machine-written translations: every string in this file needs native review.",
-  "shell.views.reorderHint": "将视图拖到另一个视图上即可移动，或在视图上按 Alt+Shift+向上键或向下键。",
   "shell.view.colour": "颜色",
-  "shell.view.colourDesc": "图标在视图栏和此窗口中的颜色",
   "shell.view.colourDefault": "文本颜色",
   "shell.appearance.themeColours": "主题和颜色",
   "shell.appearance.cards": "小组件卡片",

@@ -1,6 +1,4 @@
 {
-  "shell.viewBar.style": "Styl paska widoków",
-  "shell.viewBar.styleDesc": "Przycisk dla każdego widoku lub jeden, który otwiera listę",
   "shell.viewBar.styleChips": "Przyciski",
   "shell.viewBar.styleDropdown": "Lista rozwijana",
   "shell.viewBar.pickTip": "{name}\nKliknij, aby wybrać widok"

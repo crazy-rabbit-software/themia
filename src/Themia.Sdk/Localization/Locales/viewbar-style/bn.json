@@ -1,6 +1,4 @@
 {
-  "shell.viewBar.style": "ভিউ বারের স্টাইল",
-  "shell.viewBar.styleDesc": "প্রতিটি ভিউয়ের জন্য একটি চিপ, অথবা একটি বোতাম যা তালিকা খোলে",
   "shell.viewBar.styleChips": "চিপ",
   "shell.viewBar.styleDropdown": "ড্রপডাউন",
   "shell.viewBar.pickTip": "{name}\nএকটি ভিউ বেছে নিতে ক্লিক করুন"

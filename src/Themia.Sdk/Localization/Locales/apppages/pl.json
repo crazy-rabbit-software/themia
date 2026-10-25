@@ -1,8 +1,6 @@
 {
   "$comment": "Machine-written translations: every string in this file needs native review.",
-  "shell.views.reorderHint": "Przeciągnij widok na inny, aby go przenieść, lub naciśnij na widoku Alt+Shift+Strzałka w górę lub w dół.",
   "shell.view.colour": "Kolor",
-  "shell.view.colourDesc": "Kolor ikony na pasku widoków i tutaj",
   "shell.view.colourDefault": "Kolor tekstu",
   "shell.appearance.themeColours": "Motyw i kolory",
   "shell.appearance.cards": "Karty widżetów",

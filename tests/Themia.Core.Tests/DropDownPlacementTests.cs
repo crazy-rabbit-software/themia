@@ -65,4 +65,17 @@ public sealed class DropDownPlacementTests
         Assert.True(y + 260 <= short_.Height);
         Assert.True(y >= short_.Y);
     }
+
+    [Fact]
+    public void S3540_a_long_menu_may_be_as_tall_as_the_work_area_under_the_bar_less_a_gap()
+    {
+        Assert.Equal(Area.Height - (Bar.Y + Bar.Height + DropDownPlacement.Gap) - DropDownPlacement.Gap, DropDownPlacement.Room(Bar, Area));
+
+        // A menu of that height hangs under the bar and ends inside the work area.
+        var room = DropDownPlacement.Room(Bar, Area);
+        var (_, y) = DropDownPlacement.Place(Gear, Bar, 300, room, Area, [], rightToLeft: false);
+        Assert.True(y + room <= Area.Y + Area.Height);
+
+        Assert.Equal(0, DropDownPlacement.Room(new PixelRect(0, 790, 100, 40), Area));
+    }
 }

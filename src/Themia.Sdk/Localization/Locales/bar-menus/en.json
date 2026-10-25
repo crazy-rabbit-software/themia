@@ -1,0 +1,16 @@
+{
+  "$comment": "[S-3540]..[S-3548] The edit bar's View and Display menus: their own words; the rest are the words of the pages they replace.",
+  "barMenus.display": "Display",
+  "barMenus.display.all": "All displays",
+  "barMenus.display.showOn": "Show Themia on",
+  "barMenus.display.this": "This display",
+  "barMenus.viewBar": "View bar",
+  "barMenus.viewBar.style": "Style",
+  "barMenus.viewBar.position": "Position",
+  "barMenus.viewBar.size": "Size",
+  "barMenus.viewBar.hidden": "Hidden",
+  "barMenus.viewBar.views": "Views",
+  "barMenus.view.renameTitle": "Rename view",
+  "barMenus.view.deleteQuestion": "Delete “{name}”?",
+  "barMenus.view.deleteDetail": "Its widgets go with it ({widgets}). Undo brings it all back."
+}

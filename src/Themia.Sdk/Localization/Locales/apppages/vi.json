@@ -1,8 +1,6 @@
 {
   "$comment": "Machine-written translations: every string in this file needs native review.",
-  "shell.views.reorderHint": "Kéo một dạng xem lên dạng xem khác để di chuyển, hoặc nhấn Alt+Shift+Lên hay Xuống trên dạng xem.",
   "shell.view.colour": "Màu",
-  "shell.view.colourDesc": "Màu biểu tượng trên thanh dạng xem và trong cửa sổ này",
   "shell.view.colourDefault": "Màu chữ",
   "shell.appearance.themeColours": "Chủ đề và màu sắc",
   "shell.appearance.cards": "Thẻ tiện ích",

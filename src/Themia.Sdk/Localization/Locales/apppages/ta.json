@@ -1,8 +1,6 @@
 {
   "$comment": "Machine-written translations: every string in this file needs native review.",
-  "shell.views.reorderHint": "ஒரு காட்சியை நகர்த்த அதை வேறொன்றின் மீது இழுக்கவும், அல்லது காட்சியில் Alt+Shift+Up அல்லது Down ஐ அழுத்தவும்.",
   "shell.view.colour": "நிறம்",
-  "shell.view.colourDesc": "காட்சிப் பட்டியிலும் இந்தச் சாளரத்திலும் ஐகானின் நிறம்",
   "shell.view.colourDefault": "உரை நிறம்",
   "shell.appearance.themeColours": "தீம் மற்றும் நிறங்கள்",
   "shell.appearance.cards": "விட்ஜெட் அட்டைகள்",

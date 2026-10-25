@@ -9,31 +9,17 @@ namespace Themia.Modules.Tests;
 public sealed class SettingsPageSyncHostTests
 {
     [Fact]
-    public void S1721_the_views_page_follows_every_views_name_but_not_widgets_moving()
-    {
-        var state = AppState.CreateDefault();
-        var view = state.Views[0];
-        var before = SettingsPageSync.Signature(state, SettingsScope.Views);
-
-        view.Widgets[0].Y += 0.1;
-        Assert.Equal(before, SettingsPageSync.Signature(state, SettingsScope.Views));
-
-        view.Name = "Work";
-        Assert.NotEqual(before, SettingsPageSync.Signature(state, SettingsScope.Views));
-    }
-
-    [Fact]
     public void S1721_the_app_pages_follow_the_design_and_preferences_not_where_widgets_sit()
     {
         var state = AppState.CreateDefault();
-        var before = SettingsPageSync.Signature(state, SettingsScope.App);
+        var before = SettingsPageSync.Signature(state);
 
         var widget = state.Views[0].Widgets[0];
         widget.X += 0.1;
         widget.W += 0.05;
-        Assert.Equal(before, SettingsPageSync.Signature(state, SettingsScope.App));
+        Assert.Equal(before, SettingsPageSync.Signature(state));
 
         state.Preferences.GameModeSuspend = !state.Preferences.GameModeSuspend;
-        Assert.NotEqual(before, SettingsPageSync.Signature(state, SettingsScope.App));
+        Assert.NotEqual(before, SettingsPageSync.Signature(state));
     }
 }

@@ -1,8 +1,6 @@
 {
   "$comment": "Machine-written translations: every string in this file needs native review.",
-  "shell.views.reorderHint": "Sleep een weergave op een andere om hem te verplaatsen, of druk op Alt+Shift+Pijl-omhoog of Pijl-omlaag op een weergave.",
   "shell.view.colour": "Kleur",
-  "shell.view.colourDesc": "De kleur van het pictogram in de weergavebalk en in dit venster",
   "shell.view.colourDefault": "Tekstkleur",
   "shell.appearance.themeColours": "Thema en kleuren",
   "shell.appearance.cards": "Widgetkaarten",

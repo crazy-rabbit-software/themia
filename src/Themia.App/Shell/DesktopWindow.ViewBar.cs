@@ -30,8 +30,6 @@ internal sealed partial class DesktopWindow : IViewBarOwner
     /// <summary>Draw the bar for the current state and put it at its anchor.</summary>
     private void RefreshViewBar()
     {
-        CapToolbarViewMenu();
-
         var state = _host.State;
         var settings = ViewBarRules.For(state, _monitor.Id);
         var show = ViewBarRules.Show(EditMode, settings, state.Views);
@@ -68,19 +66,6 @@ internal sealed partial class DesktopWindow : IViewBarOwner
             room);
         _viewBar.Visibility = Visibility.Visible;
         PositionViewBar(anchor);
-    }
-
-    /// <summary>[S-918] The edit bar's View menu scrolls inside the work area below the toolbar rather than running off the display.</summary>
-    private void CapToolbarViewMenu()
-    {
-        var metrics = Metrics;
-        if (!metrics.IsUsable || !EditMode)
-        {
-            return;
-        }
-
-        var area = GridGeometry.AllowedPixels(metrics);
-        _toolbar.CapViewMenu(ViewBarRules.MenuHeight(area, ToolbarRect(area), ViewBarMenuSide.Below));
     }
 
     /// <summary>[S-909] Put the bar at its anchor in the work area, clear of the edit toolbar.</summary>
@@ -150,14 +135,14 @@ internal sealed partial class DesktopWindow : IViewBarOwner
     /// <inheritdoc />
     public void CommitReorder(string draggedId, string targetId) => _host.ReorderView(draggedId, targetId);
 
-    /// <summary>[S-915] Duplicate the view (and show the copy here), or open its settings — the original's chip menu.</summary>
+    /// <summary>[S-915] Duplicate the view (and show the copy here), or open its settings ([S-3546]: View ▾ at its submenu) — the original's chip menu.</summary>
     public void ShowChipMenu(FrameworkElement chip, string viewId, RightTappedRoutedEventArgs args)
     {
         var monitorId = _monitor.Id;
         ItemMenu.Show(chip, args,
         [
             new ItemMenuEntry(Glyphs.Duplicate, Str.App_DuplicateView.Text(), () => _host.DuplicateView(viewId, monitorId), Quick: QuickCommand.Duplicate),
-            new ItemMenuEntry(Glyphs.Settings, Str.App_ViewSettingsBtn.Text(), () => _host.ShowConfig(ConfigTarget.ForView(viewId)), Quick: QuickCommand.Settings),
+            new ItemMenuEntry(Glyphs.Settings, Str.App_ViewSettingsBtn.Text(), () => OpenViewSettings(viewId), Quick: QuickCommand.Settings),
         ]);
     }
 

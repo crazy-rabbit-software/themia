@@ -1,6 +1,4 @@
 {
-  "shell.viewBar.style": "Estilo de la barra de vistas",
-  "shell.viewBar.styleDesc": "Un botón por vista o uno solo que abre una lista",
   "shell.viewBar.styleChips": "Botones",
   "shell.viewBar.styleDropdown": "Desplegable",
   "shell.viewBar.pickTip": "{name}\nHaz clic para elegir una vista"

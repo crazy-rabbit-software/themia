@@ -13,8 +13,10 @@ using Windows.System;
 namespace Themia.App.Shell;
 
 /// <summary>
-/// [S-1803] The icon picker's content: the default cell and a search box over a virtualised grid of
-/// every Segoe Fluent glyph (<see cref="FluentIcons"/>), ranked by <see cref="IconSearch"/>.
+/// [S-1803] The icon picker: the default cell and a search box over a virtualised grid of every
+/// Segoe Fluent glyph (<see cref="FluentIcons"/>), ranked by <see cref="IconSearch"/>. [S-3542] It is
+/// a submenu's content (a view's Icon ›), so it fits the menu's one width: eight 32-DIP cells and
+/// the scroll bar beside them inside 300 DIPs.
 /// <para>
 /// A <see cref="GridView"/> of glyph strings rather than a button per glyph: its wrap panel only
 /// realises the rows in view, so 1,500 glyphs cost what 80 do, and it brings arrow keys, Home/End,
@@ -26,7 +28,7 @@ internal sealed partial class IconPicker : Grid
 {
     private const int Columns = 8;
     private const int VisibleRows = 8;
-    private const double Cell = 40;
+    private const double Cell = 32;
 
     /// <summary>The glyph in a cell: the 20-DIP icon box Settings draws its icons in ([S-903]).</summary>
     private const double GlyphSize = 20;
@@ -111,7 +113,7 @@ internal sealed partial class IconPicker : Grid
         _empty.VerticalAlignment = VerticalAlignment.Top;
         _empty.Visibility = Visibility.Collapsed;
 
-        // The grid's box stays when nothing matches, so the flyout does not jump while typing.
+        // The grid's box stays when nothing matches, so the submenu does not jump while typing.
         var body = new Grid { Width = _grid.Width, Height = _grid.Height, Children = { _grid, _empty } };
         SetRow(body, 1);
         Children.Add(body);
@@ -125,9 +127,6 @@ internal sealed partial class IconPicker : Grid
             }
         };
     }
-
-    /// <summary>Put the caret in the search box. Called once the flyout is open.</summary>
-    public void FocusSearch() => _box.Focus(FocusState.Programmatic);
 
     /// <summary>Type into the search box, for the debug render.</summary>
     internal void SetQuery(string text) => _box.Text = text;
@@ -228,4 +227,12 @@ internal sealed partial class IconPicker : Grid
             },
         };
     }
+}
+
+/// <summary>[S-903] How an icon choice draws a value: the glyph, or for the default the default glyph or text (a view's initials).</summary>
+internal sealed class IconLook(string defaultGlyph, string? defaultText)
+{
+    public UIElement For(string? glyph) => glyph is null && defaultText is not null
+        ? new TextBlock { Text = defaultText, FontSize = 13, FontWeight = Microsoft.UI.Text.FontWeights.SemiBold, VerticalAlignment = VerticalAlignment.Center }
+        : new FontIcon { Glyph = glyph ?? defaultGlyph, FontSize = 16 };
 }

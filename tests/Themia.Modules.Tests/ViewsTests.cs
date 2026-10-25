@@ -94,19 +94,6 @@ public sealed class ViewsTests
         Assert.Equal(["a", "b", "c"], Order(state));
     }
 
-    [Fact]
-    public void S901_move_by_one_stops_at_either_end()
-    {
-        var state = ThreeViews();
-
-        Assert.False(ViewOps.MoveBy(state.Views, "a", -1));
-        Assert.False(ViewOps.MoveBy(state.Views, "c", +1));
-        Assert.True(ViewOps.MoveBy(state.Views, "a", +1));
-        Assert.Equal(["b", "a", "c"], Order(state));
-        Assert.True(ViewOps.MoveBy(state.Views, "c", -1));
-        Assert.Equal(["b", "c", "a"], Order(state));
-    }
-
     // ---- delete -------------------------------------------------------------------------------
 
     [Fact]

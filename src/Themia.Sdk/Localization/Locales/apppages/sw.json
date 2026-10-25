@@ -1,8 +1,6 @@
 {
   "$comment": "Machine-written translations: every string in this file needs native review.",
-  "shell.views.reorderHint": "Buruta mwonekano juu ya mwingine ili kuuhamisha, au bonyeza Alt+Shift+Up au Down kwenye mwonekano.",
   "shell.view.colour": "Rangi",
-  "shell.view.colourDesc": "Rangi ya aikoni kwenye upau wa mionekano na katika dirisha hili",
   "shell.view.colourDefault": "Rangi ya maandishi",
   "shell.appearance.themeColours": "Mandhari na rangi",
   "shell.appearance.cards": "Kadi za wijeti",

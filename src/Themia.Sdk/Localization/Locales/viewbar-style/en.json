@@ -1,6 +1,4 @@
 {
-  "shell.viewBar.style": "View bar style",
-  "shell.viewBar.styleDesc": "A chip for every view, or one button that opens a list",
   "shell.viewBar.styleChips": "Chips",
   "shell.viewBar.styleDropdown": "Drop-down",
   "shell.viewBar.pickTip": "{name}\nClick to choose a view"

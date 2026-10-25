@@ -1,8 +1,6 @@
 {
   "$comment": "Machine-written translations: every string in this file needs native review.",
-  "shell.views.reorderHint": "I-drag ang isang view papunta sa iba para ilipat ito, o pindutin ang Alt+Shift+Up o Down sa isang view.",
   "shell.view.colour": "Kulay",
-  "shell.view.colourDesc": "Ang kulay ng icon sa view bar at sa window na ito",
   "shell.view.colourDefault": "Kulay ng text",
   "shell.appearance.themeColours": "Tema at mga kulay",
   "shell.appearance.cards": "Mga card ng widget",

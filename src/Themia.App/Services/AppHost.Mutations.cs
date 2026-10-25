@@ -220,12 +220,11 @@ internal sealed partial class AppHost
     }
 
     /// <summary>
-    /// A new, empty view at the end of the order, named "View n" — from the edit toolbar's View menu
-    /// (shown on that display) and the Views page's Add view ([S-1832], shown nowhere yet: a new
-    /// empty view would blank the screen behind the settings window). Within the licence ([S-1065]);
-    /// a refusal says why in a notice and returns null.
+    /// [S-3541] A new, empty view at the end of the order, named "View n", shown on the display whose
+    /// View menu asked for it. Within the licence ([S-1065]); a refusal says why in a notice and
+    /// returns null.
     /// </summary>
-    public string? AddView(string? monitorId)
+    public string? AddView(string monitorId)
     {
         if (!AllowCreate(0, 1))
         {
@@ -238,11 +237,7 @@ internal sealed partial class AppHost
             var created = ViewState.Create(Str.App_ViewN.Format(("n", state.Views.Count + 1)));
             state.Views.Add(created);
             id = created.Id;
-
-            if (monitorId is not null)
-            {
-                state.ShowViewOn(monitorId, created.Id);
-            }
+            state.ShowViewOn(monitorId, created.Id);
         }, undo: UndoAction.AddView);
 
         return id;
@@ -251,8 +246,4 @@ internal sealed partial class AppHost
     /// <summary>[S-901] Move a view into another's place in the order.</summary>
     public void ReorderView(string draggedId, string targetId)
         => Mutate(state => ViewOps.Reorder(state.Views, draggedId, targetId), undo: UndoAction.ReorderView);
-
-    /// <summary>[S-901] Move a view one place up (-1) or down (+1).</summary>
-    public void MoveView(string viewId, int delta)
-        => Mutate(state => ViewOps.MoveBy(state.Views, viewId, delta), undo: UndoAction.ReorderView);
 }

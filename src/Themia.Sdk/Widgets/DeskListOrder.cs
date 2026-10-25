@@ -39,8 +39,8 @@ public static class DeskListOrder
 
     /// <summary>
     /// [S-3802] A drop: the item at <paramref name="from"/> takes the place of the item at
-    /// <paramref name="to"/>, and the items between close up (what the Views page does with views,
-    /// [S-1703]). Says whether anything moved; the same index or one out of range is a no-op.
+    /// <paramref name="to"/>, and the items between close up (what a drop in the View menu does with
+    /// views, [S-3541]). Says whether anything moved; the same index or one out of range is a no-op.
     /// </summary>
     public static bool MoveTo<T>(IList<T>? items, int from, int to)
     {

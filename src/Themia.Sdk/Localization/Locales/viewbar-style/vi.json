@@ -1,6 +1,4 @@
 {
-  "shell.viewBar.style": "Kiểu thanh dạng xem",
-  "shell.viewBar.styleDesc": "Một nút cho mỗi dạng xem, hoặc một nút mở danh sách",
   "shell.viewBar.styleChips": "Các nút",
   "shell.viewBar.styleDropdown": "Danh sách thả xuống",
   "shell.viewBar.pickTip": "{name}\nBấm để chọn dạng xem"

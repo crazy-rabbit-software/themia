@@ -30,6 +30,8 @@ internal sealed partial class DesktopWindow
     /// <summary>Build the bar's menus and put them on the properties' layer, hidden.</summary>
     private void BuildBarMenus()
     {
+        Add(BarMenu.View, ViewsMenuLines());
+        Add(BarMenu.Display, DisplayMenuLines());
         Add(BarMenu.Settings, SettingsMenuLines());
 
         void Add(BarMenu which, Func<IReadOnlyList<Core.Settings.SettingsLine>> lines)
@@ -205,6 +207,9 @@ internal sealed partial class DesktopWindow
         }
 
         var button = _toolbar.MenuButtonBox(which, _propertiesLayer) ?? new PixelRect(bar.X + bar.Width - (2 * EditBar.ButtonSize), bar.Y, EditBar.ButtonSize, bar.Height);
+
+        // [S-3540] [S-918] A long list (many views) scrolls inside the work area under the bar.
+        menu.MaxListHeight = DropDownPlacement.Room(bar, area);
         menu.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
         var size = menu.DesiredSize;
 

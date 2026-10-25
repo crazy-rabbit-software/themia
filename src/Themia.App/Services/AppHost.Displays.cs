@@ -21,8 +21,8 @@ internal sealed partial class AppHost
     private bool _displayPassQueued;
 
     /// <summary>
-    /// Every connected display, including the ones Themia is switched off on — Settings lists those
-    /// too, or there would be no way to switch them back on.
+    /// Every connected display, including the ones Themia is switched off on — the Display menu's
+    /// Show Themia on lists those too ([S-3545]), or there would be no way to switch them back on.
     /// </summary>
     public IReadOnlyList<MonitorTarget> Displays => _displays;
 
@@ -46,61 +46,6 @@ internal sealed partial class AppHost
 
     public DesktopWindow? SurfaceUnderCursor()
         => Win32.GetCursorPos(out var cursor) ? SurfaceAt(cursor.X, cursor.Y) : null;
-
-    /// <summary>
-    /// [S-1702] The display a command given in Settings acts on: the one the settings window is on,
-    /// else the one under the pointer, else the first. "This display" from Settings means the screen
-    /// the user is looking at, which is where the window is, not wherever the pointer was left.
-    /// </summary>
-    public DesktopWindow? SettingsSurface()
-    {
-        if (_config?.Centre() is { } centre && SurfaceAt(centre.X, centre.Y) is { } under)
-        {
-            return under;
-        }
-
-        return SurfaceUnderCursor() ?? _windows.FirstOrDefault();
-    }
-
-    /// <summary>
-    /// [S-1701] Edit a view's layout from Settings: show it on the settings display ([S-1702]), then
-    /// enter edit mode, with <paramref name="widgetId"/> selected when given. Edit mode alone would
-    /// leave the user arranging whatever view that display happened to show.
-    /// </summary>
-    public void EditView(string viewId, string? widgetId = null)
-    {
-        ArgumentNullException.ThrowIfNull(viewId);
-
-        if (State.FindView(viewId) is null)
-        {
-            return;
-        }
-
-        if (SettingsSurface() is { } surface)
-        {
-            ShowView(surface.Monitor.Id, viewId);
-        }
-
-        SetEditMode(true);
-
-        if (widgetId is not null && Find(widgetId) is not null)
-        {
-            Select(widgetId);
-        }
-    }
-
-    /// <summary>
-    /// Read the connected displays without touching any surface. The display pass does this as part
-    /// of its work; the settings renderer does it alone, to draw a display page with no surface up.
-    /// </summary>
-    public void RefreshDisplayList()
-    {
-        var monitors = Monitors.All();
-        if (monitors.Count > 0)
-        {
-            _displays = monitors;
-        }
-    }
 
     /// <summary>
     /// [S-848] Something about the displays changed: run one display pass soon.
@@ -241,6 +186,7 @@ internal sealed partial class AppHost
         foreach (var window in _windows)
         {
             window.EnsurePlacement();
+            window.DisplaysPassed();
         }
 
         if (!plan.IsEmpty || assigned > 0 || rekeyed)

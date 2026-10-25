@@ -917,7 +917,7 @@ Module sections live in `src/Widgets/*/SPEC.md` and `src/Providers/*/SPEC.md` ([
   editor (`AppLayouts`); so are a process's
   executable and name (`ProcessPaths`) and a row's shell icon (`AppIconSource`). The host makes one per card, every member shared by all of them. What a widget shares with the settings
   window is in `Themia.Sdk.WinUI` too: the settings rows (`FluentLayout`, `ColorChoice`,
-  `RowReorder`, `SettingRow`), the item menu (`ItemMenu`), `Notices`, a drop target's contract
+  `SettingRow`), the item menu (`ItemMenu`), `Notices`, a drop target's contract
   (`IWidgetDropTarget` over `IWidgetDrag`); the parts that need Win32 (the eyedropper, a file's
   shell icon, the OLE drag) stay host code behind a seam the host installs at start, as do the
   place lookup and the Stocks settings' symbol search (`SymbolLookup`, [S-1307]).
@@ -1297,8 +1297,9 @@ files: `Shell/EditBar.cs`, `Shell/DesktopWindow.Toolbar.cs`, `Shell/WidgetPicker
   work area, 8 DIPs under the work area's top ([S-852]): a compact Windows 11 command bar, 40 DIPs
   tall — 32-DIP buttons in a 4-DIP padding, 4 DIPs between them — on the flyouts' acrylic, stroke,
   8-DIP corners and shadow. Buttons have no fill at rest and the subtle fills under the pointer and
-  pressed. In order: **Add widget** (its "+" in the accent), **View** (the display's views, New view,
-  Duplicate this view, [S-900]), **Snap** (lit with the accent while on, [S-905]), a 20-DIP hairline,
+  pressed. In order: **Add widget** (its "+" in the accent), **View ▾** (this display's views and
+  each view's own settings, [S-3541]), **Display ▾** (this display's scale and view bar, and what
+  every display shares, [S-3543]), **Snap** (lit with the accent while on, [S-905]), a 20-DIP hairline,
   then two icon-only square buttons whose words are their tooltips and names: **Settings** (⚙, a
   drop-down: the settings menu under it, [S-3520]; quitting is its last line, [S-67]) and **Done**.
   There is no More button. Each display has its own bar; the bar is inside the edit-mode hit
@@ -1389,8 +1390,8 @@ edge too), the hover delay, the keys in the menu, and a pick starting the placem
 The app's settings move out of the settings window into the edit bar, as Karpo's did (`karpo-app`,
 `docs/widgets.md` §335–§341; user request 2026-10-25), one part at a time: General, Appearance and
 the online update intervals are here; Accounts, Language & region, Themia Pro, Back up & reset and
-About follow, the Displays and Views pages go to the bar's Display and View menus, and then the
-settings window goes. Owning files: Core `Settings/SettingsMenu.cs` (the lines' vocabulary, the
+About follow, and then the settings window goes. The Displays and Views pages are the bar's
+Display and View menus (BAR-MENUS, [S-3540]). Owning files: Core `Settings/SettingsMenu.cs` (the lines' vocabulary, the
 first level) and one builder per section (`SettingsMenu.General.cs`, `.Appearance.cs`, `.Motion.cs`,
 `.Online.cs`), `Geometry/DropDownPlacement.cs`; App `Shell/Menu/MenuPanel*.cs` (the one menu engine,
 the properties menu's too), `Shell/Menu/BarMenuView.cs` (one of the bar's menus over Core's lines),
@@ -1409,8 +1410,8 @@ mechanism), `Shell/DesktopWindow.SettingsMenu.cs`, `Services/AppHost.SettingsMen
 - **[S-3521]** It stays open while it is used: a pick changes the setting and the menu stays as it
   was. It closes on ⚙ again; on Escape (the deepest submenu first, then the menu, the keyboard back
   on ⚙); on a press anywhere on the surface outside it, which then does what it does (a press on a
-  widget selects it, one on empty surface starts a rubber band); when the Add widget or View menu
-  opens; when a placement starts; and on Done or leaving edit mode any other way. Each display has
+  widget selects it, one on empty surface starts a rubber band); when the Add widget menu or another
+  of the bar's menus (View ▾, Display ▾, [S-3540]) opens; when a placement starts; and on Done or leaving edit mode any other way. Each display has
   its own, opened from that display's bar.
 - **[S-3522]** Where it stands (`DropDownPlacement`): 4 DIPs under the bar, its start edge level with
   ⚙'s (right to left, its end edge level with ⚙'s end), slid along to stay inside the work area,
@@ -1477,10 +1478,11 @@ mechanism), `Shell/DesktopWindow.SettingsMenu.cs`, `Services/AppHost.SettingsMen
   bar's More › Exit did; the More button is gone.
 - **[S-3533]** *(Temporary: goes with the settings window.)* **All settings…**, right above Quit
   Themia, opens the settings window on its first page (Accounts), for what has not moved yet
-  (Accounts, Language & region, Displays, Views, License, About).
+  (Accounts, Language & region, License, About).
 - **[S-3534]** The ways in: ⚙, and the surface menu's Settings ([S-1744]), which opens it on that
   display. `DesktopWindow.OpenSettingsMenu(path)` opens it at a level, by the lines' keys, as clicks
-  would (`MenuPanel.OpenPath`, the path the Set up button takes too, [S-1862]). The settings window's
+  would (`MenuPanel.OpenPath`, the path the Set up button takes too, [S-1862]); every bar menu opens
+  the same way (`OpenBarMenu(menu, path)`, [S-3540]). The settings window's
   General, Appearance and Widgets pages are gone, with their search entries and their navigation
   icons; nothing opens them.
 - **[S-3535]** Debug renders: `--editbar-png <outDir> [--theme light|dark] [--lang xx] [--only
@@ -1500,6 +1502,95 @@ task); Show desktop icons followed while the desktop's own menu flips them; game
 on a second display; the font picker's search and the installed fonts; the colour dialog and the
 eyedropper from a colour submenu; every Appearance line applying live; a language switch with a
 submenu open; Quit Themia.
+
+### The edit bar's View and Display menus (BAR-MENUS)
+
+The Views and Displays pages of the settings window move onto the edit bar (user request
+2026-10-25, step 2 of the move of [S-3520]), after Karpo's Display ▾ and Layouts menu (`karpo-app`,
+`docs/widgets.md` §336, §348). Owning files: Core `Settings/ViewsMenu.cs`, `Settings/DisplayMenu.cs`
+(the lines, over `IViewsMenuHost` / `IDisplayMenuHost`), `Geometry/DropDownPlacement.cs`; App
+`Shell/DesktopWindow.BarMenus.cs` (the one mechanism every bar menu opens, closes and is placed
+by), `Shell/DesktopWindow.ViewsMenu.cs`, `Shell/DesktopWindow.DisplayMenu.cs`,
+`Shell/Menu/BarMenuView.cs`, `Shell/IconPicker.cs`. Tests `ViewsMenuTests`, `DisplayMenuTests`,
+`DropDownPlacementTests`.
+
+- **[S-3540]** **View ▾** and **Display ▾** on the edit bar ([S-3500]) are drop-downs like ⚙: a click
+  opens the menu under its button on that display, the keyboard in it, the button lit while it is
+  open, and a click again closes it. The three are one mechanism (`BarMenu` View, Display, Settings;
+  `DesktopWindow.OpenBarMenu(menu, path)`, `CloseBarMenu`, `PlaceBarMenu`): at most one is open on a
+  display, the others' buttons swap it, and every rule of [S-3520]..[S-3523] holds for each (the
+  engine's look and keys, open while it is used, the ways it closes, where it stands, the selection's
+  properties menu away while one is open). A long first level (many views) scrolls inside the work
+  area under the bar (`DropDownPlacement.Room`: from under the bar to a gap above the work area's
+  bottom; [S-918]'s promise for the View menu, kept); its submenus scroll as every submenu does ([S-3733]).
+- **[S-3541]** **View ▾**: this display's views, one line each in the user's order: the view's icon
+  in its colour ([S-3810]; the shared view glyph where it has none), its name, and the dot before the
+  chevron on the view this display shows (its assignment, else the active view, [S-1706]). A click
+  on a view's line **shows it here** ([S-19]) and opens its submenu ([S-3542]); a click on the shown
+  one only opens it; the arrow towards the submenu opens it without showing the view. The views'
+  lines are one ordered list ([S-3732]): dragged up or down, or Alt+Shift+Up / Down ([S-3802]), a view
+  takes another's place (`AppHost.ReorderView`, one undo step), and the bar, Ctrl+n and the menu
+  follow. Under a divider: **New view** (an empty view at the end, shown here; past the free limit it
+  is refused with a notice saying why, [S-1065]) and **Duplicate this view** ([S-900], the copy shown
+  here). The lines are Core's (`ViewsMenu.Root`), keyed by the views' ids (`view:<id>`), so a
+  rename, a move or a language switch keeps what is open open.
+- **[S-3542]** A view's submenu: how many widgets it holds (a note); **Rename…** (asked beside the
+  menu, the box holding the name, [S-3721]; `ViewOps.Rename`, [S-1707]); **Icon ›**, whose submenu is
+  the icon picker ([S-1803]) at the menu's width, its default cell the view's initials ([S-903]), a
+  pick stored at once and drawn ticked; **Colour ›**, the one colour submenu ([S-3724]: Default, the
+  theme's text colour, then Windows' colours, custom and the eyedropper; `ViewOps.SetColor`, no
+  relayout); under a divider **Duplicate view** ([S-900]) and **Delete view** (in the critical
+  colour; asked first beside the menu, "Delete "Work"?" with what goes with it, Delete and Cancel,
+  [S-3727]; the undo notice still offers it back, [S-881]; greyed on the last view, [S-12]). Edit
+  layout and Show on this display are not here: the menu is open in edit mode on the display, and a
+  click on the view's line shows it.
+- **[S-3543]** **Display ▾**: this display's own settings under its name (a note: "DELL U2723QE —
+  3840 × 2160 (primary)", `MonitorTarget.Describe`, so two identical screens are told apart):
+  **Widget scale**, a slider 50–200 % in fives ([S-850], `AppHost.SetDisplayScale`, stored on the
+  release); **View bar ›** ([S-3544]); then under a divider and the note **All displays**: **New
+  displays show ›** and **Show Themia on ›** ([S-3545]). Which view this display shows is View ▾'s
+  ([S-3541]), not here again. The lines are Core's (`DisplayMenu.Root`); they follow the state and,
+  while the menu is open, every display pass (a display plugged in or switched off).
+- **[S-3544]** **View bar ›**, this display's bar ([S-906]), its value where it sits or **Hidden**:
+  **Show the view bar**, **Style ›** (Chips, Drop-down, [S-5400]), **Position ›** (the eight anchors),
+  **Size ›** (Medium, Large, Extra large), **Show view names**; under a divider **Views ›** (the
+  views on the bar), its value "All views", the one view's name or "2 of 4 views" (`ViewBarRules.Offer`): **All views**
+  (on while the bar offers every view; switched off it keeps only the view this display shows,
+  `ViewBarRules.SetAllVisible`), a divider, then a switch per view with its icon in its colour
+  ([S-908]: the last one stays on; every switch is read back from what was stored). Each writes this
+  display's `ViewBarSettings` in one change; the option that holds changes nothing ([S-3718]).
+- **[S-3545]** What every display shares: **New displays show ›** ([S-847]): The last view shown, or
+  a view (each with its mark), stored with no relayout. **Show Themia on ›** ([S-845]): a switch per
+  connected display, switched off or not, by its name, this one saying **This display**, so a display
+  switched off (which has no surface, so no bar) is switched back on from another's menu; the last
+  display on is greyed, with "Themia has to stay on at least one display" under the list. Switching
+  this display off puts its menu away first and runs once the click has finished: the surface the
+  click came from closes.
+- **[S-3546]** The ways in: View ▾, Display ▾, and a view chip's **View settings** ([S-915]), which
+  opens View ▾ on that display at the chip's view's submenu (`OpenBarMenu(View, ["view:<id>"])`).
+  The settings window has no Displays or Views page any more, no navigation entry, search entry or
+  icon for them; nothing opens them.
+- **[S-3547]** The vocabulary of [S-3524] grows what these menus need, for every bar menu: a line's
+  glyph may carry a colour of its own (`GlyphColour`, a view's mark); a submenu line may stand for an
+  item (`Holds`, the dot before its chevron; `Run`, what a click does as it opens; `Order`, a place in
+  an ordered list, one move shared by the list's lines); `SettingsAsk` (a line asking for a line of
+  text beside the menu); `SettingsIcon` (the icon picker as its submenu); a `SettingsCommand` may be
+  `Danger`, and so may a `SettingsConfirm`.
+- **[S-3548]** Debug renders: `--editbar-png <outDir> [--theme light|dark] [--lang xx] [--only bar]`
+  draws View ▾ open under its button (`views-<theme>.png`: five views, the one shown here with the
+  dot; `-view`, a view's submenu; `-icon`, its icon picker; `-colour`; `-rename` and `-delete`, what
+  they ask beside the menu, with their `-popup0`; `-drag`, a view's line dragged; `-many` and
+  `-many-view`, 40 views: the list scrolls inside the work area) and Display ▾
+  (`display-<theme>.png`, `-viewbar`, `-position`, `-bar-views`, `-new`, `-showon`: three displays,
+  one switched off), over stand-in hosts that reach neither the displays nor the user's state;
+  `--only bar` draws these alone.
+
+Needs a live pass: View ▾ and Display ▾ on every display at mixed DPI and with a top taskbar; a
+click on a view showing it and opening its submenu; dragging a view's line and Alt+Shift+Up / Down in
+the menu; the icon picker's search typed into on the desktop surface; Rename and Delete beside the
+menu; New view past the free limit (the notice); a view chip's View settings; Show Themia on with a
+second display, switching this one off from its own menu and back on from the other's; a display
+plugged in while Display ▾ is open; a long list of views scrolling under the bar.
 
 ### The selected widget's properties strip (QUICKSET)
 
@@ -3267,10 +3358,10 @@ The settings window is drawn as Windows 11's Settings app (S-1540..S-1559). Owni
   Widget", went with the widget pages, [S-6536]). A page is a `SettingsPage` (title + optional
   description + rows); the window draws the title.
 - **[S-1542]** "Find a setting" sits centred in the 48-DIP title bar. Its index is read off the pages
-  themselves (`SettingRow` on every row's frame; section = the heading above it): every app page,
-  the Views and Displays pages included. A widget's options are on its properties menu, so search
-  finds none of them ([S-6536]). Built on first use, refreshed with the live page on every visit,
-  dropped when the list pages' groups change. Pages are results too.
+  themselves (`SettingRow` on every row's frame; section = the heading above it): every app page. A
+  widget's options are on its properties menu and a view's and a display's on the edit bar's menus,
+  so search finds none of them ([S-6536], [S-3546]). Built on first use, refreshed with the live page
+  on every visit, dropped when the language changes. Pages are results too.
 - **[S-1543]** Matching: lower-cased words, British spellings folded to American on both sides
   ("color" finds "Border colour"); every query word must land in the title, keywords (including a
   drop-down's options: "dark" finds Theme), section, page path or description.
@@ -3286,15 +3377,15 @@ The settings window is drawn as Windows 11's Settings app (S-1540..S-1559). Owni
   through the user's navigations (`NavHistory`): pushing from an older entry drops the forward
   tail, repeats coalesce, pages that disappear leave the history.
 - **[S-1548]** The debug render draws the real window: `--settings-png <Page> <out.png>
-  [waitMs] [--theme light|dark] [--search text] [--land text] [--open first|name]` (Page includes
-  Displays and Views, [S-1835]); the window is as tall as the page,
+  [waitMs] [--theme light|dark] [--search text] [--land text]`; the window is as tall as the page,
   Mica is painted as its fallback colour; `--search` also writes the open suggestion list to
   `<out>-search.png`.
-- **[S-1549]** Colours are never typed. One control, `ColorChoice` / `FluentLayout.ColorPickerRow`:
-  a swatch button naming the colour, opening a picker with "use the default" (where empty means
-  follow the theme), the preset swatches in rows of 8 (Windows' 48 accent colours by default; a
-  neutral row first for surfaces; a setting may give its own set), and "Custom colour" opening
-  WinUI's `ColorPicker` in a dialog with no text entry. The chosen preset carries a check.
+- **[S-1549]** Colours are never typed. Every colour is the menus' one colour submenu ([S-3724]):
+  "use the default" (where empty means follow the theme), the preset swatches in rows of 8 (Windows'
+  48 accent colours by default; a neutral row first for surfaces; a setting may give its own set),
+  and "Custom colour" opening WinUI's `ColorPicker` in a dialog with no text entry (`ColorChoice`).
+  The chosen preset carries a check. (The settings window's swatch button, `ColorPickerRow`, went
+  with its last colour row, a view's, [S-3542].)
 - **[S-1550]** Stored format stays `#RRGGBB` (empty = default). Replaced: Appearance's accent,
   widget background and border colour; the calendar colours (Automatic + the six + custom); the
   palette editor's entries (rgb()/hsl() entries open on their colour, are stored as hex once
@@ -3351,15 +3442,12 @@ The settings window is drawn as Windows 11's Settings app (S-1540..S-1559). Owni
   place, keeping the scroll position. A change while the window is active is the user's own, made
   with the page's controls, which already show it: the page is never rebuilt under the pointer or
   out from under a text box being typed in.
-- **[S-1721]** What a page shows (`SettingsPageSync.Signature`): an app page, the design, the
-  preferences, the default view for new displays and the views by name; the Views page, for every
-  view its name, icon, widgets by kind and label and the displays showing it; the Displays page,
-  the connected displays and for each its view, on/off, scale, view bar and the views it can pick from.
+- **[S-1721]** What a page shows (`SettingsPageSync.Signature`): the design and the preferences.
   Never where widgets sit, so a drag on the desktop rebuilds nothing. Changes
   that do not raise `StateChanged` (`Mutate(relayout: false)`) are not followed.
-- **[S-1722]** The app pages: Accounts, Language & region ([S-3797]), Displays and Views in the main
-  slot ([S-1830]); License and About in the footer. General, Appearance and Widgets are not pages any
-  more: they are the edit bar's settings menu ([S-3524]). No Layout, Data or Developer page.
+- **[S-1722]** The app pages: Accounts and Language & region ([S-3797]) in the main slot ([S-1830]);
+  License and About in the footer. General, Appearance and Widgets are not pages any more: they are
+  the edit bar's settings menu ([S-3524]); Displays and Views are its Display and View menus ([S-3540]). No Layout, Data or Developer page.
 - **[S-1723]** Every font setting picks through one picker, `FontPicker`: the settings menu's Font
   submenu ([S-3528]), a search box over a virtualised list of the presets, then the installed families
   ([S-827]), each entry drawn in the font it names (a preset in the family it maps to, [S-826]; the
@@ -4027,7 +4115,7 @@ model that keeps widgets still when the taskbar changes (S-840..S-859).
   unplugged), the primary is shown without changing the setting.
 - **[S-846]** An empty monitor enumeration builds nothing and closes nothing: it is a driver
   mid-change, and the next display message runs the pass again. No phantom fallback surface.
-- **[S-847]** `DefaultViewForNewDisplays` (Displays page, "New displays show", [S-3832]): a display without a
+- **[S-847]** `DefaultViewForNewDisplays` (Display ▾ › New displays show, [S-3545]): a display without a
   view shows that view, shared rather than claimed. Unset ("The last view shown"), it shows the
   active view: the last one the user showed anywhere ([S-19]). Was: unset gave each new display an
   empty view of its own.
@@ -4051,10 +4139,9 @@ model that keeps widgets still when the taskbar changes (S-840..S-859).
   all that keeps the taskbar clickable.
 - **[S-852]** The edit bar ([S-3500]) and the placement hint sit inside the work area (margins from
   `GridGeometry.AllowedPixels`), so a taskbar on the top edge does not cover them.
-- **[S-853]** The Displays page ([S-1832]) lists **every connected display**, switched off or not,
-  and each display's group has: Show Themia on this display, Shows (view) and Widget scale, then
-  its view bar ([S-916]). The group is headed by the monitor's name ("(primary)" on the primary)
-  over its resolution; the id is never shown. No Resolution row ([S-1709]).
+- **[S-853]** Display ▾ ([S-3543]) names its display by the monitor's name ("(primary)" on the
+  primary) and its resolution, the id never shown, and holds its widget scale and its view bar
+  ([S-3544]); its Show Themia on lists **every connected display**, switched off or not ([S-3545]).
 
 Not ported, deliberately: the original's legacy ordinal-key migration ([MI-03]/[MI-04]; no
 compatibility, by decision); its ~1 s work-area self-heal sweep ([DW-04]), which polls, replaced by
@@ -5481,8 +5568,8 @@ Settings does (System, Bluetooth, Personalization, Accounts...). Code: `Shell/Co
   bundled unmodified as SVG in `src/Themia.App/Assets/NavIcons/` (content files, no package). One
   per entry, echoing the Windows Settings equivalent where there is one: Accounts = Accounts' person (`person`),
   About = `question_circle` (the set has no
-  info icon), Views = `content_view`, Displays = System's screen (`laptop`; the set has
-  no desktop monitor), Language & region = Time & language's globe (`globe`). A new app page names its icon in its `AppPages` line.
+  info icon), Language & region = Time & language's globe (`globe`). (Views' `content_view` and
+  Displays' `laptop` went with their pages, [S-3546].) A new app page names its icon in its `AppPages` line.
 - **[S-1601]** Each icon is drawn by `SvgImageSource` in a 20-DIP icon box (NavigationView's default
   16 is sized for font glyphs; the colour icons carry their own padding and read too small there),
   from the icon's 20-DIP design, rasterised at exactly the pixels the box covers on the window's
@@ -6221,22 +6308,21 @@ toolbar's snap switch. Rules in Core `ViewOps` and `ViewBarRules` (tests `ViewsT
 `Shell/ViewBar.cs`, wired by `DesktopWindow.ViewBar.cs`. Every switch goes through
 `AppHost.ShowView` → `AppState.ShowViewOn` ([S-19]).
 
-- **[S-900]** Duplicate a view (its group on the Views page and that group's menu, the toolbar's View menu, a view bar chip's menu in edit
+- **[S-900]** Duplicate a view (View ▾'s Duplicate this view and a view's Duplicate view, [S-3541], [S-3542]; a view bar chip's menu in edit
   mode): the copy goes right after the source, named "<name> (Copy)", with its icon and a deep copy
   of every widget under fresh ids. Data a widget only refers to (a note, an
   account) stays shared, as in the original. The copy is shown on the display asked from; it counts
   against the licence as one view plus its widgets.
-- **[S-901]** Reorder views by dragging a chip on the view bar (edit mode), by dragging a view's row
-  on the Views page ([S-1703]), or Alt+Shift+Up / Down on a focused row there ([S-3802]). No menu has Move up / Move down. By id, never by bar index, so a bar showing a filtered subset moves the right view.
-  The order is the bar's, the Views page's and Ctrl+n's.
+- **[S-901]** Reorder views by dragging a chip on the view bar (edit mode), by dragging a view's line
+  in View ▾ ([S-3541]), or Alt+Shift+Up / Down on a view's line there ([S-3802]). No menu has Move up / Move down. By id, never by bar index, so a bar showing a filtered subset moves the right view.
+  The order is the bar's, View ▾'s and Ctrl+n's.
 - **[S-902]** Deleting a view (never the last) repairs everything naming it in the same change:
   display assignments (the display then gets an existing view again, [S-1705]), the active view, the view for
   new displays (back to null) and every bar whitelist (one left empty means all views again).
-- **[S-903]** A view's icon is picked in its group on the Views page from the shared glyph grid
-  (`IconChoice`), whose default cell shows the view's initials — what a view without an icon shows.
-  The icon is drawn by the view bar, the toolbar's View menu and the row's
-  header on the Views page (a view without one shows the shared view glyph there), in the view's
-  colour ([S-3810]).
+- **[S-903]** A view's icon is picked in View ▾ › the view › Icon › from the shared glyph grid
+  (`IconPicker`, [S-3542]), whose default cell shows the view's initials — what a view without an
+  icon shows. The icon is drawn by the view bar and the edit bar's View and Display menus (a view
+  without one shows the shared view glyph there), in the view's colour ([S-3810]).
 - **[S-904]** In edit mode only, Ctrl+1..Ctrl+9 (and the keypad digits) show the n-th view on the
   display under the pointer (the one a paste lands on, [S-74]), or this one. Outside edit mode
   Themia takes no digits: there is no global hotkey (audit B6).
@@ -6272,11 +6358,11 @@ toolbar's snap switch. Rules in Core `ViewOps` and `ViewBarRules` (tests `ViewsT
   display's anchor. A 4-DIP threshold separates a click from a drag.
 - **[S-914]** In edit mode a chip dragged along the bar slides into the slot whose centre is nearest
   the pointer (also past the ends); release commits the move ([S-901]); a lost capture undoes it.
-- **[S-915]** In edit mode a chip's right-click menu offers Duplicate view and View settings; outside
+- **[S-915]** In edit mode a chip's right-click menu offers Duplicate view and View settings (View ▾ at the chip's view, [S-3546]); outside
   edit mode it has none. A click always shows the chip's view on this display.
-- **[S-916]** A display's group on the Displays page ends with its view bar rows: Show the view bar,
-  View bar style ([S-5400]), View bar position (8 anchors), View bar size, Show view names, and
-  "Views on the bar" (one drop-down button, [S-1708]). Its Shows drop-down assigns through `ShowViewOn`.
+- **[S-916]** A display's view bar is set in its Display ▾ › View bar › ([S-3544]): Show the view bar,
+  Style ([S-5400]), Position (8 anchors), Size, Show view names, and Views on the bar. A view is
+  shown on a display through `ShowViewOn` (View ▾, [S-3541]).
 - **[S-917]** The bar never runs off its display (user bug: with many views it ran past the edge).
   Its room along its axis (`ViewBarRules.Room`) is the work area's width (a row) or height (a
   column) less the 16-DIP margin at both ends; a column in edit mode also gives up the toolbar's
@@ -6293,7 +6379,7 @@ toolbar's snap switch. Rules in Core `ViewOps` and `ViewBarRules` (tests `ViewsT
   default view's name semi-bold); a pick shows that view here, which brings its chip onto the bar.
   The menu opens into the display (below a top bar, above a bottom one, beside a column,
   `ViewBarRules.MenuSide`) and is no taller than the work area on that side (`MenuHeight`), so a
-  long list scrolls inside it; the edit bar's View menu is capped the same way below the toolbar.
+  long list scrolls inside it; the edit bar's View menu scrolls inside the work area below the bar too ([S-3540]).
   The overflow chip is part of the bar's box, so it is in the hit region ([S-912]); it is never
   dragged, and chips are reordered among the chips drawn ([S-914]). Chosen over a scrolling strip
   with chevrons: a strip hides the shown view as easily as any other and needs a scroll position
@@ -6304,8 +6390,7 @@ toolbar's snap switch. Rules in Core `ViewOps` and `ViewBarRules` (tests `ViewsT
   with names and icon-only (the sizes in turn) and two edit-mode shots, and the overflow menu of the
   bottom-left shot; it prints each bar's box and flags one outside the work area.
 - **[S-5400]** Each display's bar has a style (`ViewBarSettings.Style`): Chips (the default, the bar
-  above) or Drop-down. Set by "View bar style" in the display's group on the Displays page, after
-  Show the view bar. At load an unknown style resets to Chips and is logged as a repair.
+  above) or Drop-down. Set by Display ▾ › View bar › Style ([S-3544]), after Show the view bar. At load an unknown style resets to Chips and is logged as a repair.
 - **[S-5401]** A drop-down is one raised button: the shown view's icon (or initials) in its colour,
   its name (left out when names are off, cut to the room the bar has) and a chevron; a display
   showing a view the bar does not offer reads "Views". It is a row at every anchor, so its room is
@@ -6333,114 +6418,60 @@ anchor/size/mode combinations on a stand-in display with a taskbar strip ([S-919
 
 ## The Displays and Views pages (R4-NAV, R5-PAGES)
 
-Every display's and every view's settings, each on one page, and how a display is given a view.
-Owning files: `Shell/Config/ConfigPages.Displays.cs`, `ConfigPages.Views.cs`,
-`ConfigWindow.Navigation.cs`, `ConfigTarget.cs`, `AppHost.Displays.cs` (`SettingsSurface`,
-`EditView`); rules in Core `DisplayPlan.AssignViews`, `ViewOps.Rename`, `SettingsExpansion`,
-`SettingsPageSync.Shape` (tests `DisplayPlanTests`, `ViewPerDisplayTests`, `ViewsTests`,
-`SettingsListPagesTests`).
+How a display is given a view, and the view rules the pages wrote. The pages themselves are gone:
+every display's and every view's settings are the edit bar's Display and View menus (BAR-MENUS,
+[S-3540]..[S-3548]). Rules in Core `DisplayPlan.AssignViews`, `ViewOps.Rename`, `ViewOps.SetColor`
+(tests `DisplayPlanTests`, `ViewPerDisplayTests`, `ViewsTests`, `AppPagesTests`, `ViewsMenuTests`).
 
 - **[S-1700]** Retired by [S-3800]: a view's group listed its widgets and held Add a widget,
   Duplicate and Delete rows.
-- **[S-1701]** Edit layout from Settings (a view's Add a widget row) first shows that view on the
-  settings display ([S-1702]), then enters edit mode. Edit mode alone left the user arranging
-  whatever view that screen happened to show.
-- **[S-1702]** "This display", for a command given in Settings (Show on this display, Edit layout,
-  Duplicate), is the display holding the centre of the settings window; when the window is hidden,
-  minimised or off every display, the one under the pointer; else the first surface.
-- **[S-1703]** A view's group can be dragged (a mouse press on its header travelling 4 DIPs, not on
-  the "…" button or inside its rows) onto another view's group: it takes that view's place in the
-  order through `AppHost.ReorderView` (the view bar's own path, one undo step), so the page, the bar,
-  the switchers and Ctrl+n follow. Only a drag that began on the page is accepted; the move runs
-  after the drop has finished, since it rebuilds the page.
-- **[S-1704]** A view's group has a "…" button on its header (and the same menu on a right-click),
-  through the shared `ItemMenu`: Show on this display (off when it already shows there); Edit layout;
-  Duplicate view (shown on this display, [S-900]), Delete view (danger,
-  off for the last view; the undo notice is the way back). A display's group has no menu; its rows
-  hold all it offers. The navigation pane's entries have no menus.
+- **[S-1701]** *(Retired by [S-3542]: no Edit layout from Settings; View ▾ is open in edit mode on its display, and a click on a view shows it there.)*
+- **[S-1702]** *(Retired by [S-3540]: every command is given on the display whose bar menu it is in; there is no "settings display".)*
+- **[S-1703]** *(Retired by [S-3541]: a view's line is dragged in View ▾.)*
+- **[S-1704]** *(Retired by [S-3542]: a view's submenu in View ▾ holds what its "…" menu did.)*
 - **[S-1705]** A display is never given a new view. The display pass (and import, delete and undo,
   which re-run it) gives every display without a valid assignment an **existing** view: the one
   chosen for new displays ([S-847]), else the active view. It is stored, so switching another display
   later does not drag this one along. A display that has a view keeps it. Views are only ever made by
   the user (Add view, New view, Duplicate). Was: each new display got an empty "Display n" view of its own.
-- **[S-1706]** A display's "Shows" drop-down lists the existing views and nothing else: no "new
-  view", no "follow the active view" (every display holds an assignment, so that choice lasted only
-  until the next display pass). It shows the display's assignment, or the active view before it has one.
-- **[S-1707]** Renaming a view (its Name box, committed when it loses the focus) goes through
+- **[S-1706]** *(Retired by [S-3541]: View ▾ shows a view on its display; there is no Shows drop-down. (`ViewsMenu.ShownOn` is the display's assignment, or the active view before it has one.))*
+- **[S-1707]** Renaming a view (View ▾ › the view › Rename…, [S-3542]) goes through
   `ViewOps.Rename`: the name is trimmed; blank, unchanged or an unknown view changes nothing. The
-  group's header follows in place.
-- **[S-1708]** "Views on the bar" in a display's group stays one row tall however many views there
-  are (`FluentLayout.MultiChoice`; was a column of check boxes on the row, one line per view). Its
-  drop-down button says "All views", the one view's name, or "3 of 25 views"
-  (`ViewBarRules.Offer`); its flyout has an "All views" box (indeterminate for a partial pick; a
-  click on it then picks all, a click on a full one keeps only the view this display shows,
-  `ViewBarRules.SetAllVisible`), a divider, then one check box per view in the user's order with
-  its icon or initials, cut with an ellipsis, scrolling past 360 DIP. Each box follows [S-908]; the
-  boxes and the button are read back from the stored whitelist after every change.
-- **[S-1709]** The Displays page has no Resolution row: the resolution is the display group's
-  subtitle already ([S-853]), and the work area the taskbar leaves is not something the reader acts on.
-- **[S-1830]** The navigation pane lists pages only: General, Appearance, Accounts, Language & region
-  ([S-3797]), then **Displays** and **Views** (in that order, with Windows Settings' screen and
-  content-view colour icons, [S-1600]), then Widgets, and License and About at the foot. No entry per view, display or widget, so no entry
-  menus and no dragging in the pane.
-- **[S-1831]** A page target is a page plus, on Displays or Views, the item whose group to open
-  (`ConfigTarget.App(Page, Item)`; `ConfigTarget.ForView`). Everything that used to open one view's
-  page (a view bar chip's View settings) opens
-  the Views page with that group opened and scrolled to the top; the reader's other groups stay as
-  they were. While a widget's page is open the Views entry stays selected, and the title is the
-  breadcrumb "Views › Desktop › Clock": Views opens the page, the view's crumb opens it on that
-  view's group. Clicking an entry (not a selection change) navigates, so Views opens its page even
-  while it is already selected under a widget's page; clicking the entry of the page on screen
-  leaves it as it is.
-- **[S-1832]** The Displays page has one `FluentLayout.Expander` group per connected display ([S-853];
-  "· Themia is off here" after the resolution of one switched off); the Views page has Add view at
-  the top (a new, empty view at the end of the order, shown nowhere yet; within the licence,
-  [S-1065]; its group opens), then one row per view in the user's order ([S-3800]). Search offers a row inside a group as "Views › Desktop" (or the
-  display's name) and lands in that group, opening it; the same row in several groups is one
-  suggestion per group.
-- **[S-1833]** Which groups are open is kept by the window while it is open (`SettingsExpansion`), so
-  rebuilding a page (to catch up with a change made elsewhere, [S-1720]; after a view was added,
-  moved or deleted; on coming back from a widget's page) opens the same groups. A group nobody
-  opened or closed is closed, unless it is the only one on its page. A gone item is forgotten.
-- **[S-1834]** A list page whose shape changed (`SettingsPageSync.Shape`: the views in order; the
-  connected displays and which are on) is rebuilt at once, keeping the scroll position, even while
-  the window is active: the change came from the page itself (Add view, Duplicate, Delete, a move,
-  switching a display off) and it has to show it. A rename or a new icon keeps the shape, so the box
-  being typed in is never torn down; the group's header follows in place.
-- **[S-1835]** Debug render: `--settings-png Displays|Views <out.png> [--open first|name]` draws the
-  page; `--open` opens one group (the first, or the view or display of that name) as a link does;
-  `--views n` grows the demo profile to n views (long and short names, some with icons);
-  `--flyout "Views on the bar"` draws that row's flyout panel under the group.
+  view's line follows in place.
+- **[S-1708]** *(Retired by [S-3544]: Views on the bar is a submenu of switches.)*
+- **[S-1709]** *(Retired by [S-3543]: Display ▾'s heading names the display and its resolution.)*
+- **[S-1830]** The navigation pane lists pages only: Accounts and Language & region ([S-3797]), and
+  License and About at the foot (General, Appearance and Widgets are the settings menu's, [S-3524];
+  Displays and Views the bar's Display and View menus, [S-3540]). No entry per account or widget, so
+  no entry menus and no dragging in the pane.
+- **[S-1831]** *(Retired by [S-3546]: no page target names a display or a view; View settings opens View ▾.)*
+- **[S-1832]** *(Retired by [S-3540]: there are no Displays and Views pages.)*
+- **[S-1833]** *(Retired with the list pages ([S-3540]): no groups to keep open.)*
+- **[S-1834]** *(Retired with the list pages ([S-3540]): the bar menus follow the state in place ([S-3531]).)*
+- **[S-1835]** *(Retired by [S-3548]: `--editbar-png --only bar` draws View ▾ and Display ▾.)*
 
-- **[S-3800]** The Views page lists each view as one row (a `FluentLayout.Expander`): its icon in its
-  colour ([S-3810]), its name, its widget count, and the "…" button. Opened, it holds the view's own
-  settings only: Name, Icon, Colour. Its widgets are not listed (they are arranged on the desktop);
-  Edit layout, Duplicate and Delete are in its menu. A note under the list says how to reorder.
-- **[S-3801]** No menu reorders by arrows where dragging exists: the view's menu ([S-1704]) and the
-  view bar chip's menu ([S-915]) have no Move up / Move down.
+- **[S-3800]** *(Retired by [S-3541], [S-3542]: a view is a line of View ▾ and its submenu.)*
+- **[S-3801]** No menu reorders by arrows where dragging exists: View ▾ ([S-3541]) and the view bar
+  chip's menu ([S-915]) have no Move up / Move down.
 - **[S-3802]** Keyboard reordering, the Windows way (the Start menu's pins): Alt+Shift+Up / Down on a
-  focused view row moves it one place (`ReorderKeys.Delta`: exactly Alt and Shift; with Ctrl, or an
-  arrow alone, nothing). At either end nothing happens. The move runs after the key, through
-  `AppHost.MoveView` (one undo step), and the moved row has the focus again after the rebuild.
-  The same drag and shortcut (`RowReorder`, one implementation) order every settings list: the list
-  editors (quotes, feeds, shortcuts, screen-time limits) and the mail row view's
-  columns (the ones switched on). A row is dragged onto another (it takes that one's place,
-  `DeskListOrder.MoveTo`); a press in one of its controls never starts a drag. A hint under a list of
-  two or more says so; the properties menu's lists are dragged in place ([S-3732]). No list, settings page or widget menu has arrow buttons or Move up / Move
+  focused view's line in View ▾ moves it one place (`ReorderKeys.Delta`: exactly Alt and Shift; with
+  Ctrl, or an arrow alone, nothing). At either end nothing happens. The move runs after the key,
+  through `AppHost.ReorderView` (one undo step), and the moved line has the focus again after the
+  list is drawn again. The same drag and shortcut order every list of the menus (the engine's ordered
+  lists, [S-3732]: an item takes another's place, `DeskListOrder.MoveTo`; the line's tooltip says
+  how). No list or widget menu has arrow buttons or Move up / Move
   down / Move to start: in the Tasks, Habits and Shortcuts widgets the keyboard lease carries the
   shortcut as `WidgetKey.MoveUp` / `MoveDown` (`WidgetKeys`), moving the focused task, habit or the
   cursor's shortcut.
 - **[S-3810]** A view may have a colour (`ViewState.Color`, `#RRGGBB`, null = the theme's text colour),
-  set on its row with the shared colour picker (`ViewOps.SetColor`: normalised, anything else refused,
-  empty clears). Its icon or initials are drawn in it on the view bar chips (shown or not), the Views
-  page, the Shows and New displays drop-downs, "Views on the bar" and the edit bar's View menu (where
-  a coloured view without an icon shows the view glyph). Duplicate and undo carry it.
+  set in View ▾ › the view › Colour › (the one colour submenu, [S-3542]; `ViewOps.SetColor`:
+  normalised, anything else refused, empty clears). Its icon or initials are drawn in it on the view
+  bar chips (shown or not), View ▾, and Display ▾'s New displays show and Views on the bar (where a
+  view without an icon shows the view glyph). Duplicate and undo carry it.
 - **[S-3811]** On load a colour is normalised (`#abc` → `#AABBCC`); one that is not a colour is
   dropped (the theme's), with a repair line.
-- **[S-3812]** The Views and Displays pages' signatures include each view's icon and colour, so a
-  change made elsewhere catches them up; a colour keeps the Views page's shape (no rebuild under the picker).
-- **[S-3832]** "New displays show" ([S-847]) heads the Displays page: a setting of every display to
-  come, not of one display's group. Each view in it carries its coloured mark.
+- **[S-3812]** *(Retired with the pages ([S-3540]): the bar menus are drawn from the state on every change.)*
+- **[S-3832]** *(Retired by [S-3545]: New displays show is under All displays in Display ▾.)*
 - **[S-3833]** *(Retired by [S-3525]: there is no General page; start with Windows, the desktop icons and
   game mode are the settings menu's first lines. Still no Edit layout switch and no local-network
   switch, [S-3840].)*
@@ -6449,11 +6480,7 @@ Owning files: `Shell/Config/ConfigPages.Displays.cs`, `ConfigPages.Views.cs`,
   Item background, Widget cards, Text and size, Layout, then Motion) are the settings menu's
   Appearance submenus.)*
 - **[S-3831]** App page descriptions are one line where the words allow it.
-Needs a manual pass: dragging a view's group onto another on the Views page; each "…" menu action
-(Show on this display, Edit layout, Duplicate, Delete); Alt+Shift+Up / Down on a row, focus kept and the right-click menu; View settings from
-a view bar chip landing on the opened group; Edit layout from a group; the
-breadcrumb's crumbs and Back from a widget's page; the "Views on the bar" flyout opened live
-(ticking, the "All views" box, scrolling, keyboard).
+What needs a manual pass is BAR-MENUS' ([S-3548]).
 
 ## Notices, resilience and undo (WP4)
 
@@ -6943,7 +6970,7 @@ leaving edit mode, and both menus on a second display with another DPI.
 The icon a view is given, chosen from the whole Segoe Fluent Icons set, and a Debug tool
 that puts every widget on the real desktop at every size tier. Owning files: Core
 `Icons/FluentIcons.cs` (+ the generated `FluentIconData.g.cs`, from `scripts/fluent-icons.py`),
-`Icons/IconSearch.cs`, `Widgets/WidgetTiers.cs`, `Model/ShowcaseViews.cs`; App `Shell/IconChoice.cs`,
+`Icons/IconSearch.cs`, `Widgets/WidgetTiers.cs`, `Model/ShowcaseViews.cs`; App
 `Shell/IconPicker.cs`, `Shell/Gallery/IconPickerRender.cs`, `Shell/Gallery/ShowcaseCommand.cs`. Tests
 `IconSearchTests`, `ShowcaseViewsTests`.
 
@@ -6960,8 +6987,8 @@ that puts every widget on the real desktop at every size tier. Owning files: Cor
   tag, a word of a tag, a tag prefix, then a substring of the name, then of a tag; ties go to a
   suggested icon, the shorter name, the lower code point. An empty query lists every icon. A query of
   punctuation only ("$") is matched whole against the tags.
-- **[S-1803]** The picker (a flyout from the icon button) is built when it opens: the default cell (initials for a view, [S-903]) beside a search
-  box, over a virtualised grid of 8 columns of 40-DIP cells, 8 rows high, scrolling. Typing filters at
+- **[S-1803]** The picker (View ▾ › a view › Icon ›'s submenu, [S-3542]) is built when it opens: the default cell (initials for a view, [S-903]) beside a search
+  box, over a virtualised grid of 8 columns of 32-DIP cells (the menu's one width, [S-3734]), 8 rows high, scrolling. Typing filters at
   once; Enter in the box takes the best match, Down moves into the grid; arrows, Home/End and Page
   keys move in the grid and Enter or Space picks. The current icon is selected and scrolled to. No
   match says so in the grid's place, which keeps its size. Debug render:

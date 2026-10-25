@@ -138,6 +138,11 @@ internal partial class MenuPanel : Grid
     /// <summary>[S-3733] What the submenus keep clear of; null until the surface has placed the menu (the window then).</summary>
     private MenuRoom? _room;
 
+    /// <summary>[S-3540] The first level's list, scrolled within <see cref="MaxListHeight"/>.</summary>
+    private ScrollViewer? _listScroll;
+
+    private double _maxListHeight = double.PositiveInfinity;
+
     protected MenuPanel()
     {
         _frame.Child = _menu;
@@ -187,6 +192,27 @@ internal partial class MenuPanel : Grid
             }
         }
     }
+
+    /// <summary>
+    /// [S-3540] [S-918] The most the first level's list may be tall (the work area under the edit bar,
+    /// for a menu dropped from it): a longer list scrolls inside it. The head above it is not counted.
+    /// </summary>
+    public double MaxListHeight
+    {
+        get => _maxListHeight;
+        set
+        {
+            _maxListHeight = value;
+            if (_listScroll is { } scroll)
+            {
+                scroll.MaxHeight = ListHeight(value);
+            }
+        }
+    }
+
+    /// <summary>What a list may be tall in <paramref name="room"/>: the frame's stroke off it, never fewer than four lines.</summary>
+    private static double ListHeight(double room)
+        => double.IsFinite(room) ? Math.Max(LineHeight * 4, room - (2 * Fluent.Hairline)) : double.PositiveInfinity;
 
     /// <summary>The menu's first level as last shown.</summary>
     protected IReadOnlyList<MenuNode> FirstLevel => _levels.Count > 0 ? _levels[0].Nodes : [];
@@ -292,7 +318,16 @@ internal partial class MenuPanel : Grid
 
         var list = new StackPanel { Padding = new Thickness(0, Fluent.Space1, 0, Fluent.Space1), XYFocusKeyboardNavigation = XYFocusKeyboardNavigationMode.Enabled };
         var overlay = Overlay();
-        _menu.Children.Add(new Grid { Children = { list, overlay } });
+
+        // [S-3540] A long list scrolls inside the room it is given; with no limit it is as tall as its lines.
+        _listScroll = new ScrollViewer
+        {
+            Content = new Grid { Children = { list, overlay } },
+            VerticalScrollBarVisibility = ScrollBarVisibility.Auto,
+            HorizontalScrollBarVisibility = ScrollBarVisibility.Disabled,
+            MaxHeight = ListHeight(_maxListHeight),
+        };
+        _menu.Children.Add(_listScroll);
 
         var main = new Level(list, _frame, overlay) { Icons = true };
         _levels.Add(main);
@@ -328,7 +363,8 @@ internal partial class MenuPanel : Grid
     }
 
     /// <summary>
-    /// [S-3718] A click on a line: a submenu line opens its submenu beside it (or closes it again);
+    /// [S-3718] A click on a line: a submenu line opens its submenu beside it (or closes it again),
+    /// and one that also does something ([S-3541]: a view's line shows the view) does it as it opens;
     /// anything else does what it does, and the menu and the submenu it is in stay open.
     /// </summary>
     private void OnLine(Level level, LineView view)
@@ -353,6 +389,7 @@ internal partial class MenuPanel : Grid
             if (!wasOpen)
             {
                 OpenSubmenu(view, focus: false);
+                Run(view.Node.Run);
             }
 
             return;
@@ -599,6 +636,18 @@ internal partial class MenuPanel : Grid
     internal bool DebugClick(string words)
     {
         if (_levels.Count == 0 || _levels[^1].Views.FirstOrDefault(v => v is not null && v.Node.Text == words) is not { } line)
+        {
+            return false;
+        }
+
+        OnLine(_levels[^1], line);
+        return true;
+    }
+
+    /// <summary>Debug renders only: click the deepest open level's line of <paramref name="key"/> (a line that asks beside the menu). False when it is not there.</summary>
+    internal bool DebugClickKey(string key)
+    {
+        if (_levels.Count == 0 || _levels[^1].Views.FirstOrDefault(v => v is not null && v.Node.Key == key) is not { } line)
         {
             return false;
         }

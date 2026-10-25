@@ -1,0 +1,15 @@
+{
+  "barMenus.display": "ਡਿਸਪਲੇ",
+  "barMenus.display.all": "ਸਾਰੇ ਡਿਸਪਲੇ",
+  "barMenus.display.showOn": "Themia ਇਹਨਾਂ ਉੱਤੇ ਦਿਖਾਓ",
+  "barMenus.display.this": "ਇਹ ਡਿਸਪਲੇ",
+  "barMenus.viewBar": "ਵਿਊ ਬਾਰ",
+  "barMenus.viewBar.style": "ਸ਼ੈਲੀ",
+  "barMenus.viewBar.position": "ਥਾਂ",
+  "barMenus.viewBar.size": "ਆਕਾਰ",
+  "barMenus.viewBar.hidden": "ਲੁਕਿਆ",
+  "barMenus.viewBar.views": "ਵਿਊ",
+  "barMenus.view.renameTitle": "ਵਿਊ ਦਾ ਨਾਮ ਬਦਲੋ",
+  "barMenus.view.deleteQuestion": "“{name}” ਮਿਟਾਉਣਾ ਹੈ?",
+  "barMenus.view.deleteDetail": "ਇਸਦੇ ਵਿਜੇਟ ਵੀ ਨਾਲ ਹੀ ਜਾਣਗੇ ({widgets})। ਅਨਡੂ ਕਰਨ ਨਾਲ ਸਭ ਵਾਪਸ ਆ ਜਾਂਦਾ ਹੈ।"
+}

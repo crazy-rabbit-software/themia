@@ -1,6 +1,4 @@
 {
-  "shell.viewBar.style": "Stil der Ansichtsleiste",
-  "shell.viewBar.styleDesc": "Eine Schaltfläche pro Ansicht oder eine, die eine Liste öffnet",
   "shell.viewBar.styleChips": "Schaltflächen",
   "shell.viewBar.styleDropdown": "Dropdown",
   "shell.viewBar.pickTip": "{name}\nKlicken, um eine Ansicht zu wählen"

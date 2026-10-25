@@ -1,8 +1,6 @@
 {
   "$comment": "[S-3800]..[S-3843] The app settings pages: views as rows with a colour, accounts with what they synced, the grouped Appearance page, and the local network rule.",
-  "shell.views.reorderHint": "Drag a view onto another to move it, or press Alt+Shift+Up or Down on a view.",
   "shell.view.colour": "Colour",
-  "shell.view.colourDesc": "The icon's colour in the view bar and in this window",
   "shell.view.colourDefault": "Text colour",
   "shell.appearance.themeColours": "Theme and colours",
   "shell.appearance.cards": "Widget cards",

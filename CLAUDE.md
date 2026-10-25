@@ -33,7 +33,7 @@ Render flags draw off-screen to PNG and exit. Look at the PNGs; they are how UI 
 
 ```
 Themia.exe --settings-png <Page> <out.png> [waitMs] [--theme light|dark] [--search t] [--land t]   # app pages only
-           [--flyout row] [--width dips] [--open first|name] [--views n]      # Page: General..About, Displays, Views
+           [--flyout row] [--width dips]      # Page: Accounts, LanguageRegion, License, About
 Themia.exe --widget-png <Kind> <out.png> [w h] [--theme light|dark] [--state name] [--style name] [--sizes WxH,..|tiers] [--keys k1,k2|text:abc]
            [--place-cleared]   # a widget about a place with its place cleared [S-2848]
            [--transparent]     # no page behind the cards: the PNG keeps their alpha, for compositing
@@ -43,7 +43,8 @@ Themia.exe --widget-png <Kind> <out.png> [w h] [--theme light|dark] [--state nam
            # --style: any styled kind in one of its styles [S-6006] (Clock: digital|analog|stacked|flip|word|minimal; --state sample fixes 10:42)
 Themia.exe --picker-png <out.png> [--search t]       Themia.exe --iconpicker-png <out.png> [--search t] [--initials]
 Themia.exe --viewbar-png | --notices-png | --menu-png | --motion-png <outDir>
-Themia.exe --editbar-png <outDir> [--theme light|dark]   # edit bar: snap on/off, add menu open, placing; --picker-png takes --theme too
+Themia.exe --editbar-png <outDir> [--theme light|dark] [--only settings|bar]   # edit bar: snap on/off, add menu open, placing, the
+           # properties menu, ⚙ (settings-*), View ▾ and Display ▾ (views-*, display-*); --picker-png takes --theme too
 Themia.exe --layout-editor-png <out.png> [waitMs] [--empty]
 Themia.exe --add-showcase-views [<statePath>]   # one view per widget kind at the 7 sizes; quit Themia first
 Any render: [--lang en|de|es|fr|it|ja|pl|pt|zh]
@@ -96,7 +97,7 @@ src/Themia.Sdk.WinUI/  the widget SDK, WinUI: IWidgetModule, IWidgetHost (+ IShe
                    DetailView, SparkBand, CoreGraphGrid), AudioFeed, the screen-time widgets' shared parts, AddFooterRow,
                    RotatedBox; Modules/: the host's contracts (IWidgetHost's members, among them the file shell's:
                    FileIcons, FileClipboard, Folders, FileOps, ExplorerMenus, RecentFiles, AppLayouts, Streams;
-                   SettingsHost for a module's menu lines); Shell/: FluentLayout (the app's settings rows), ColorChoice, RowReorder, SettingRow, PlaceSearch,
+                   SettingsHost for a module's menu lines); Shell/: FluentLayout (the app's settings rows), ColorChoice, SettingRow, PlaceSearch,
                    MenuArtIcons, FolderBrowse, ScreenTimeMenuLines, SkyPlaceRows. References Themia.Sdk only, never Core. What
                    needs Win32 (eyedropper, file icons, geocoder, OLE drag, the shell's file operations and menus)
                    is the host's, behind those contracts or installed at start (App()).
@@ -251,8 +252,9 @@ line in `ConfigPages.AppPages`; a widget has no settings page ([S-6536]).
   `Style`, default first, copied in `Clone`); its labels go in a `Locales/styles-<kind>/` area. The
   registry, the strip's Style choice, load repair and `--style` find it on their own:
   no shared line to edit. An existing look option becomes the style, never a second setting.
-- **Colours are never typed.** Use `FluentLayout.ColorPickerRow` / `ColorChoice` (swatch button, accent
-  presets, custom `ColorPicker`). Stored as `#RRGGBB`.
+- **Colours are never typed.** A colour is a menu's one colour submenu (`menu.Colour`, a Core
+  `SettingsColour`; `ColorChoice` behind it: accent presets, custom `ColorPicker`, the eyedropper).
+  Stored as `#RRGGBB`.
 - **Settings rows** (the app's pages; a widget has none) come only from `FluentLayout`
   (`SettingsCard`/`SettingsExpander`), so a restyle reaches every page. Never build a card by hand. Each row's frame carries a `SettingRow` for search.
 - **Item menus** through `ItemMenu`; icons through `Glyphs`; lists keep `RowFocus`/`ScrollFade`.

@@ -1,0 +1,15 @@
+{
+  "barMenus.display": "డిస్‌ప్లే",
+  "barMenus.display.all": "అన్ని డిస్‌ప్లేలు",
+  "barMenus.display.showOn": "Themiaను చూపించే డిస్‌ప్లేలు",
+  "barMenus.display.this": "ఈ డిస్‌ప్లే",
+  "barMenus.viewBar": "వీక్షణ బార్",
+  "barMenus.viewBar.style": "శైలి",
+  "barMenus.viewBar.position": "స్థానం",
+  "barMenus.viewBar.size": "పరిమాణం",
+  "barMenus.viewBar.hidden": "దాచబడింది",
+  "barMenus.viewBar.views": "వీక్షణలు",
+  "barMenus.view.renameTitle": "వీక్షణ పేరు మార్చు",
+  "barMenus.view.deleteQuestion": "“{name}”ను తొలగించాలా?",
+  "barMenus.view.deleteDetail": "దాని విడ్జెట్‌లు కూడా దానితో పాటు పోతాయి ({widgets}). అన్‌డూ అన్నింటినీ తిరిగి తెస్తుంది."
+}

@@ -1,8 +1,6 @@
 {
   "$comment": "Machine-written translations: every string in this file needs native review.",
-  "shell.views.reorderHint": "সরাতে একটি ভিউ অন্যটির উপর টেনে আনুন, অথবা ভিউতে Alt+Shift+Up বা Down চাপুন।",
   "shell.view.colour": "রং",
-  "shell.view.colourDesc": "ভিউ বারে ও এই উইন্ডোতে আইকনের রং",
   "shell.view.colourDefault": "লেখার রং",
   "shell.appearance.themeColours": "থিম ও রং",
   "shell.appearance.cards": "উইজেট কার্ড",

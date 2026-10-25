@@ -40,6 +40,14 @@ public static class DropDownPlacement
         return (x, y);
     }
 
+    /// <summary>
+    /// [S-3540] [S-918] The most a menu dropped from <paramref name="bar"/> may be tall: from under the
+    /// bar to a gap above the work area's bottom, so a long list scrolls inside the menu rather than
+    /// running off the display. Never negative.
+    /// </summary>
+    public static double Room(PixelRect bar, PixelRect area)
+        => Math.Max(0, area.Y + area.Height - (bar.Y + bar.Height + Gap) - Gap);
+
     private static bool Overlaps(double x, double y, double width, double height, PixelRect other)
         => x < other.X + other.Width && other.X < x + width && y < other.Y + other.Height && other.Y < y + height;
 }

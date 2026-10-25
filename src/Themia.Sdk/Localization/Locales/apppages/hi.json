@@ -1,8 +1,6 @@
 {
   "$comment": "Machine-written translations: every string in this file needs native review.",
-  "shell.views.reorderHint": "व्यू को ले जाने के लिए उसे दूसरे व्यू पर खींचें, या व्यू पर Alt+Shift+Up या Down दबाएँ।",
   "shell.view.colour": "रंग",
-  "shell.view.colourDesc": "व्यू बार और इस विंडो में आइकन का रंग",
   "shell.view.colourDefault": "टेक्स्ट का रंग",
   "shell.appearance.themeColours": "थीम और रंग",
   "shell.appearance.cards": "विजेट कार्ड",

@@ -1,8 +1,6 @@
 {
   "$comment": "Machine-written translations: every string in this file needs native review.",
-  "shell.views.reorderHint": "వీక్షణను తరలించడానికి దాన్ని మరొకదానిపైకి లాగండి, లేదా వీక్షణపై Alt+Shift+Up లేదా Down నొక్కండి.",
   "shell.view.colour": "రంగు",
-  "shell.view.colourDesc": "వీక్షణ బార్‌లో మరియు ఈ విండోలో చిహ్నం రంగు",
   "shell.view.colourDefault": "వచన రంగు",
   "shell.appearance.themeColours": "థీమ్ మరియు రంగులు",
   "shell.appearance.cards": "విడ్జెట్ కార్డ్‌లు",

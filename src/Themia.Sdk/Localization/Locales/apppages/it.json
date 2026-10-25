@@ -1,8 +1,6 @@
 {
   "$comment": "Machine-written translations: every string in this file needs native review.",
-  "shell.views.reorderHint": "Trascina una vista su un’altra per spostarla, oppure premi Alt+Maiusc+Su o Giù su una vista.",
   "shell.view.colour": "Colore",
-  "shell.view.colourDesc": "Colore dell’icona nella barra delle viste e qui",
   "shell.view.colourDefault": "Colore del testo",
   "shell.appearance.themeColours": "Tema e colori",
   "shell.appearance.cards": "Schede dei widget",

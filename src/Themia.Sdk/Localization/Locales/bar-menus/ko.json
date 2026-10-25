@@ -1,0 +1,15 @@
+{
+  "barMenus.display": "디스플레이",
+  "barMenus.display.all": "모든 디스플레이",
+  "barMenus.display.showOn": "Themia 표시 위치",
+  "barMenus.display.this": "이 디스플레이",
+  "barMenus.viewBar": "보기 표시줄",
+  "barMenus.viewBar.style": "스타일",
+  "barMenus.viewBar.position": "위치",
+  "barMenus.viewBar.size": "크기",
+  "barMenus.viewBar.hidden": "숨김",
+  "barMenus.viewBar.views": "보기",
+  "barMenus.view.renameTitle": "보기 이름 바꾸기",
+  "barMenus.view.deleteQuestion": "“{name}”을(를) 삭제할까요?",
+  "barMenus.view.deleteDetail": "이 보기의 위젯도 함께 삭제됩니다({widgets}). 실행 취소하면 모두 되돌아옵니다."
+}

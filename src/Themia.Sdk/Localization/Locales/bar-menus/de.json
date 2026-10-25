@@ -1,0 +1,15 @@
+{
+  "barMenus.display": "Bildschirm",
+  "barMenus.display.all": "Alle Bildschirme",
+  "barMenus.display.showOn": "Themia anzeigen auf",
+  "barMenus.display.this": "Dieser Bildschirm",
+  "barMenus.viewBar": "Ansichtsleiste",
+  "barMenus.viewBar.style": "Stil",
+  "barMenus.viewBar.position": "Position",
+  "barMenus.viewBar.size": "Größe",
+  "barMenus.viewBar.hidden": "Ausgeblendet",
+  "barMenus.viewBar.views": "Ansichten",
+  "barMenus.view.renameTitle": "Ansicht umbenennen",
+  "barMenus.view.deleteQuestion": "„{name}“ löschen?",
+  "barMenus.view.deleteDetail": "Ihre Widgets werden mitgelöscht ({widgets}). „Rückgängig“ holt alles zurück."
+}

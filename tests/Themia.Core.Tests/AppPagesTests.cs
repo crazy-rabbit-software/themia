@@ -26,17 +26,6 @@ public sealed class AppPagesTests
     public void S3802_alt_shift_up_and_down_move_the_focused_item(ReorderArrow arrow, bool alt, bool shift, bool ctrl, int delta)
         => Assert.Equal(delta, ReorderKeys.Delta(arrow, alt, shift, ctrl));
 
-    [Fact]
-    public void S3802_a_keyboard_move_stops_at_the_ends()
-    {
-        var views = new List<ViewState> { ViewState.Create("A"), ViewState.Create("B"), ViewState.Create("C") };
-
-        Assert.False(ViewOps.MoveBy(views, views[0].Id, ReorderKeys.Delta(ReorderArrow.Up, true, true, false)));
-        Assert.True(ViewOps.MoveBy(views, views[0].Id, ReorderKeys.Delta(ReorderArrow.Down, true, true, false)));
-        Assert.Equal(["B", "A", "C"], views.Select(v => v.Name));
-        Assert.False(ViewOps.MoveBy(views, views[2].Id, +1));
-    }
-
     // ---- [S-3810] / [S-3811] a view's colour -------------------------------------------------------
 
     [Theory]
@@ -113,34 +102,6 @@ public sealed class AppPagesTests
 
         Assert.Equal("#AABBCC", result.State!.Views[0].Color);
         Assert.DoesNotContain(result.Repairs, r => r.Contains("colour", StringComparison.Ordinal));
-    }
-
-    [Fact]
-    public void S3812_the_views_and_displays_pages_follow_a_colour_change()
-    {
-        var state = AppState.CreateDefault();
-        var views = SettingsPageSync.Signature(state, SettingsScope.Views);
-        var displays = SettingsPageSync.Signature(state, SettingsScope.Displays, displays: ["D1"]);
-        var shape = SettingsPageSync.Shape(state, SettingsScope.Views);
-
-        ViewOps.SetColor(state, state.Views[0].Id, "#FF0000");
-
-        Assert.NotEqual(views, SettingsPageSync.Signature(state, SettingsScope.Views));
-        Assert.NotEqual(displays, SettingsPageSync.Signature(state, SettingsScope.Displays, displays: ["D1"]));
-
-        // A colour keeps the shape: the group follows in place, nothing is rebuilt under the picker.
-        Assert.Equal(shape, SettingsPageSync.Shape(state, SettingsScope.Views));
-    }
-
-    [Fact]
-    public void S3832_the_displays_page_follows_the_view_for_new_displays()
-    {
-        var state = AppState.CreateDefault();
-        var before = SettingsPageSync.Signature(state, SettingsScope.Displays, displays: ["D1"]);
-
-        state.DefaultViewForNewDisplays = state.Views[0].Id;
-
-        Assert.NotEqual(before, SettingsPageSync.Signature(state, SettingsScope.Displays, displays: ["D1"]));
     }
 
     // ---- [S-3820]..[S-3823] synced items per account ----------------------------------------------

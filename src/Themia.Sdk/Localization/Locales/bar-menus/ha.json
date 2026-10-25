@@ -1,0 +1,15 @@
+{
+  "barMenus.display": "Fuska",
+  "barMenus.display.all": "Duk fuskoki",
+  "barMenus.display.showOn": "Nuna Themia a kan",
+  "barMenus.display.this": "Wannan fuska",
+  "barMenus.viewBar": "Sandar duba",
+  "barMenus.viewBar.style": "Salo",
+  "barMenus.viewBar.position": "Matsayi",
+  "barMenus.viewBar.size": "Girma",
+  "barMenus.viewBar.hidden": "A ɓoye",
+  "barMenus.viewBar.views": "Duba",
+  "barMenus.view.renameTitle": "Sake sunan duba",
+  "barMenus.view.deleteQuestion": "A goge “{name}”?",
+  "barMenus.view.deleteDetail": "Widget ɗinsa za su tafi tare da shi ({widgets}). Sokewa zai dawo da komai."
+}

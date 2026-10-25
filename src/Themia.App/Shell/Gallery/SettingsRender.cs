@@ -21,7 +21,7 @@ namespace Themia.App.Shell.Gallery;
 /// <summary>
 /// The debug-only settings render:
 /// <c>Themia.exe --settings-png &lt;Page&gt; &lt;out.png&gt; [waitMs] [--theme light|dark] [--search text] [--land text]
-/// [--flyout row-title] [--width dips] [--open first|name]</c>
+/// [--flyout row-title] [--width dips]</c>
 /// draws the real settings window — title bar, navigation, breadcrumb and page — off-screen to a
 /// PNG, then exits. [S-499], [S-1548]
 /// <para>
@@ -36,8 +36,7 @@ namespace Themia.App.Shell.Gallery;
 /// light or dark (the app's own theme is set from it at start-up, see <c>App</c>);
 /// <c>--search</c> types into "Find a setting" and also writes the open suggestion list to
 /// <c>&lt;out&gt;-search.png</c>; <c>--land</c> goes to the best match and rings it, as choosing a
-/// suggestion does. <c>--open</c> opens one group of the Displays or Views page, as a link to one
-/// display or view does: <c>first</c>, or the view's or display's name ([S-1835]).
+/// suggestion does.
 /// </para>
 /// </summary>
 internal static class SettingsRender
@@ -85,7 +84,7 @@ internal static class SettingsRender
 
         if (at + 2 >= args.Length)
         {
-            Log.Error(Scope, "usage: --settings-png <General|Appearance|Accounts|LanguageRegion|Displays|Views|Widgets|License|About> <out.png> [waitMs] [--theme light|dark] [--search text] [--land text] [--flyout row-title] [--width dips] [--open first|name]");
+            Log.Error(Scope, "usage: --settings-png <Accounts|LanguageRegion|License|About> <out.png> [waitMs] [--theme light|dark] [--search text] [--land text] [--flyout row-title] [--width dips]");
             app.Exit();
             return true;
         }
@@ -120,8 +119,7 @@ internal static class SettingsRender
                 _ => AppTheme.System,
             },
             Option(args, "--flyout"),
-            double.TryParse(Option(args, "--width"), System.Globalization.CultureInfo.InvariantCulture, out var width) && width >= 320 ? width : WindowWidth,
-            Option(args, "--open"));
+            double.TryParse(Option(args, "--width"), System.Globalization.CultureInfo.InvariantCulture, out var width) && width >= 320 ? width : WindowWidth);
 
         _ = RenderAsync(app, dispatcher, request);
         return true;
@@ -135,8 +133,7 @@ internal static class SettingsRender
         string? Land,
         AppTheme Theme,
         string? Flyout,
-        double Width,
-        string? Open);
+        double Width);
 
     private static string? Option(string[] args, string name)
     {
@@ -181,35 +178,6 @@ internal static class SettingsRender
             ? new ConfigTarget.App(page)
             : null;
 
-    /// <summary>
-    /// [S-1835] <c>--open first|name</c> on the Displays or Views page: the page as a link to one
-    /// display or view opens it. Any other page, or no match, renders the page as it opens from the
-    /// navigation (logged when a name matched nothing).
-    /// </summary>
-    private static ConfigTarget WithOpenGroup(AppHost host, ConfigTarget target, string? open)
-    {
-        if (open is null || target is not ConfigTarget.App app || ConfigTarget.ListOf(app.Page) is not { } list)
-        {
-            return target;
-        }
-
-        var items = list == Themia.Core.Settings.SettingsList.Views
-            ? host.State.Views.Select(v => (v.Id, v.Name)).ToList()
-            : host.Displays.Select(d => (d.Id, Name: d.ShortName)).ToList();
-
-        var match = open.Equals("first", StringComparison.OrdinalIgnoreCase)
-            ? items.FirstOrDefault()
-            : items.FirstOrDefault(i => i.Name.Equals(open, StringComparison.OrdinalIgnoreCase));
-
-        if (match.Id is null)
-        {
-            Log.Warn(Scope, $"--open '{open}' matched nothing on {app.Page}");
-            return target;
-        }
-
-        return app with { Item = match.Id };
-    }
-
     private static async Task RenderAsync(Application app, DispatcherQueue dispatcher, Request request)
     {
         AppHost? host = null;
@@ -221,7 +189,6 @@ internal static class SettingsRender
             // the state file (accounts, screen time), and those must not be the user's either.
             var statePath = Path.Combine(Path.GetTempPath(), "themia-settings-render", "state.json");
             var state = DemoState();
-            AddManyViews(state, int.TryParse(Option(Environment.GetCommandLineArgs(), "--views"), out var extra) ? extra : 0);
             state.Design.Theme = request.Theme;
             // [S-1109] --lang: the host applies the state's language, so the demo state carries it.
             if (RenderLanguage.Setting(Environment.GetCommandLineArgs()) is { } language)
@@ -233,11 +200,7 @@ internal static class SettingsRender
             ApplyLicenseFixture(host);
             DemoAccounts(host, Array.IndexOf(Environment.GetCommandLineArgs(), "--demo-accounts") >= 0);
 
-            // [S-853] The Displays page lists the connected displays. Reading the list touches no
-            // window; no surface is built, so the page renders exactly as Settings shows it.
-            host.RefreshDisplayList();
-
-            var target = WithOpenGroup(host, request.Page, request.Open);
+            var target = request.Page;
 
             settings = new ConfigWindow(host);
             var window = settings.DebugWindow;
@@ -357,46 +320,6 @@ internal static class SettingsRender
         host.Sync.Report(microsoft.Id, new(Themia.Core.Sync.SyncKind.Calendar, 386, 2, now.AddMinutes(-12), 0));
         host.Sync.Report(microsoft.Id, new(Themia.Core.Sync.SyncKind.Contacts, 214, 0, now.AddHours(-3), 0));
         host.Sync.Report(imap.Id, new(Themia.Core.Sync.SyncKind.Mail, 50, 1, now.AddDays(-2), 0));
-    }
-
-    /// <summary>
-    /// <c>--views n</c>: the demo profile grown to n views, long and short names, every third with
-    /// an icon, so the list pages and the "Views on the bar" choice can be looked at crowded.
-    /// </summary>
-    private static void AddManyViews(AppState state, int total)
-    {
-        string[] names =
-        [
-            "Focus", "Gaming", "Morning routine and news", "Travel", "Home office", "Weekend",
-            "Studio", "Deep work: no distractions at all", "Reading", "Family", "Music", "Finance",
-            "Fitness", "Side project", "Calendar overview", "Night", "Kids", "Photos", "Build status",
-            "Stocks", "Shopping", "Notes", "Inbox zero", "Presentation mode", "Q",
-        ];
-        string[] icons = [Glyphs.Calendar, Glyphs.Mail, Glyphs.Sun, Glyphs.Moon, Glyphs.Play];
-
-        // [S-3810] Some views coloured, so the coloured icons can be looked at on every list.
-        string[] colours = ["#E74856", "#0099BC", "#FFB900", "#8764B8", "#10893E"];
-
-        for (var i = state.Views.Count; i < Math.Min(total, 60); i++)
-        {
-            var view = ViewState.Create(names[i % names.Length]);
-            if (i % 3 == 0)
-            {
-                view.Icon = icons[i / 3 % icons.Length];
-            }
-
-            if (i % 2 == 0)
-            {
-                view.Color = colours[i / 2 % colours.Length];
-            }
-
-            for (var w = 0; w < i % 4; w++)
-            {
-                view.Widgets.Add(WidgetInstance.Create(new WidgetId("clock"), new FracRect(0.05 + 0.2 * w, 0.1, 0.15, 0.1)));
-            }
-
-            state.Views.Add(view);
-        }
     }
 
     /// <summary>A believable profile: three views with a few widgets, defaults everywhere else.</summary>

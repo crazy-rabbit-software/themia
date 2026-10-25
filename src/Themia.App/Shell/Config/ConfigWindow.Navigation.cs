@@ -3,10 +3,9 @@ using Microsoft.UI.Xaml.Controls;
 namespace Themia.App.Shell.Config;
 
 /// <summary>
-/// The navigation pane: the app pages — General, Appearance, Accounts, Displays, Views — and License
-/// and About at the foot. [S-1830] One entry per page, never one per view, display or widget: those
-/// are groups and rows on the Displays and Views pages. [S-3834] No heading over the entries: the
-/// title bar already names the app, as Windows Settings' pane names nothing.
+/// The navigation pane: the app pages — Accounts, Language &amp; region — and License and About at the
+/// foot. [S-1830] One entry per page, never one per account or widget. [S-3834] No heading over the
+/// entries: the title bar already names the app, as Windows Settings' pane names nothing.
 /// </summary>
 internal sealed partial class ConfigWindow
 {
@@ -40,15 +39,14 @@ internal sealed partial class ConfigWindow
     }
 
     /// <summary>
-    /// [S-1831] Select the entry of the page on screen: the page itself, or Views while a widget's
-    /// page is open. Selecting raises nothing that navigates: only <see cref="OnItemInvoked"/> does.
+    /// Select the entry of the page on screen. Selecting raises nothing that navigates: only
+    /// <see cref="OnItemInvoked"/> does.
     /// </summary>
     private void SelectForTarget()
     {
-        var entry = _target.NavEntry();
         foreach (var candidate in Entries())
         {
-            if (candidate.Tag is ConfigTarget tag && tag == entry)
+            if (candidate.Tag is ConfigTarget tag && tag == _target)
             {
                 _nav.SelectedItem = candidate;
                 return;
@@ -60,8 +58,7 @@ internal sealed partial class ConfigWindow
         => _nav.MenuItems.OfType<NavigationViewItem>().Concat(_nav.FooterMenuItems.OfType<NavigationViewItem>());
 
     /// <summary>
-    /// A click (or Enter) on an entry. Invoked, not selection-changed, so Views opens its page even
-    /// while it is already the selected entry under a widget's page. The page already on screen is
+    /// A click (or Enter) on an entry. Invoked, not selection-changed. The page already on screen is
     /// left as it is — its scroll position, its open groups.
     /// </summary>
     private void OnItemInvoked(NavigationView sender, NavigationViewItemInvokedEventArgs args)

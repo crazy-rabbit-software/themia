@@ -1,0 +1,15 @@
+{
+  "barMenus.display": "ડિસ્પ્લે",
+  "barMenus.display.all": "બધા ડિસ્પ્લે",
+  "barMenus.display.showOn": "Themia આના પર બતાવો",
+  "barMenus.display.this": "આ ડિસ્પ્લે",
+  "barMenus.viewBar": "વ્યૂ બાર",
+  "barMenus.viewBar.style": "શૈલી",
+  "barMenus.viewBar.position": "સ્થાન",
+  "barMenus.viewBar.size": "કદ",
+  "barMenus.viewBar.hidden": "છુપાયેલું",
+  "barMenus.viewBar.views": "વ્યૂ",
+  "barMenus.view.renameTitle": "વ્યૂનું નામ બદલો",
+  "barMenus.view.deleteQuestion": "“{name}” કાઢી નાખીએ?",
+  "barMenus.view.deleteDetail": "તેના વિજેટ પણ સાથે જશે ({widgets}). પૂર્વવત્ કરવાથી બધું પાછું આવે છે."
+}

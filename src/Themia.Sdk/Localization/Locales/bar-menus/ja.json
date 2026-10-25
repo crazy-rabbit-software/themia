@@ -1,0 +1,15 @@
+{
+  "barMenus.display": "ディスプレイ",
+  "barMenus.display.all": "すべてのディスプレイ",
+  "barMenus.display.showOn": "Themia を表示するディスプレイ",
+  "barMenus.display.this": "このディスプレイ",
+  "barMenus.viewBar": "ビュー バー",
+  "barMenus.viewBar.style": "スタイル",
+  "barMenus.viewBar.position": "位置",
+  "barMenus.viewBar.size": "サイズ",
+  "barMenus.viewBar.hidden": "非表示",
+  "barMenus.viewBar.views": "ビュー",
+  "barMenus.view.renameTitle": "ビューの名前を変更",
+  "barMenus.view.deleteQuestion": "「{name}」を削除しますか?",
+  "barMenus.view.deleteDetail": "このビューのウィジェットも一緒に削除されます ({widgets})。元に戻すとすべて戻ります。"
+}

@@ -1,8 +1,6 @@
 {
   "$comment": "Machine-written translations: every string in this file needs native review.",
-  "shell.views.reorderHint": "Arrastra una vista sobre otra para moverla, o pulsa Alt+Mayús+Arriba o Abajo sobre una vista.",
   "shell.view.colour": "Color",
-  "shell.view.colourDesc": "Color del icono en la barra de vistas y aquí",
   "shell.view.colourDefault": "Color del texto",
   "shell.appearance.themeColours": "Tema y colores",
   "shell.appearance.cards": "Tarjetas de widget",

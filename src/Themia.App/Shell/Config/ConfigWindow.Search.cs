@@ -148,13 +148,10 @@ internal sealed partial class ConfigWindow
             return;
         }
 
-        // [S-1832] On a list page the same row is in every group: the one in the hit's group.
-        var item = (hit.Target as ConfigTarget.App)?.Item;
-
         SettingRow? row = null;
         foreach (var (candidate, section) in SettingsIndex.Collect(page))
         {
-            if (candidate.Title == hit.Entry.Title && section == hit.Entry.Section && candidate.Item == item)
+            if (candidate.Title == hit.Entry.Title && section == hit.Entry.Section)
             {
                 row = candidate;
                 break;
@@ -304,59 +301,9 @@ internal sealed partial class ConfigWindow
                 return true;
             }
 
-            if (row.Title == title && row.Control is DropDownButton button && ColorChoice.DebugPanel(button) is { } panel
-                && page is Panel host && SettingRow.Of(row.Card?.Parent as FrameworkElement) is not null)
-            {
-                // Drawn as the flyout draws it, in a flyout-like card right under its row.
-                var card = new Border
-                {
-                    Child = panel,
-                    Padding = new Thickness(16),
-                    HorizontalAlignment = HorizontalAlignment.Right,
-                    CornerRadius = new CornerRadius(8),
-                    Background = ThemeBrush.Of("AcrylicInAppFillColorDefaultBrush", Colors.Gray),
-                    BorderBrush = ThemeBrush.Of("SurfaceStrokeColorFlyoutBrush", Colors.Gray),
-                    BorderThickness = new Thickness(1),
-                };
-
-                host.Children.Insert(host.Children.IndexOf((UIElement)row.Card!.Parent) + 1, card);
-                return true;
-            }
-
-            // [S-1708] A several-of-many choice, also inside a group: its flyout's panel in a
-            // flyout-like card under the page's element that holds the row (the group).
-            if (row.Title == title && row.Control is DropDownButton multi && FluentLayout.DebugMultiChoicePanel(multi) is { } choices
-                && page is Panel listPage && TopLevel(listPage, row.Card) is { } holder)
-            {
-                listPage.Children.Insert(listPage.Children.IndexOf(holder) + 1, new Border
-                {
-                    Child = choices,
-                    Padding = new Thickness(16),
-                    HorizontalAlignment = HorizontalAlignment.Right,
-                    CornerRadius = new CornerRadius(8),
-                    Background = ThemeBrush.Of("AcrylicInAppFillColorDefaultBrush", Colors.Gray),
-                    BorderBrush = ThemeBrush.Of("SurfaceStrokeColorFlyoutBrush", Colors.Gray),
-                    BorderThickness = new Thickness(1),
-                });
-                return true;
-            }
         }
 
         return false;
-    }
-
-    /// <summary>The child of <paramref name="page"/> that holds <paramref name="node"/>, or null.</summary>
-    private static UIElement? TopLevel(Panel page, DependencyObject? node)
-    {
-        for (; node is not null; node = Microsoft.UI.Xaml.Media.VisualTreeHelper.GetParent(node))
-        {
-            if (node is UIElement element && page.Children.Contains(element))
-            {
-                return element;
-            }
-        }
-
-        return null;
     }
 
     /// <summary>The window's root element, for the render to capture.</summary>

@@ -1,0 +1,15 @@
+{
+  "barMenus.display": "الشاشة",
+  "barMenus.display.all": "كل الشاشات",
+  "barMenus.display.showOn": "إظهار Themia على",
+  "barMenus.display.this": "هذه الشاشة",
+  "barMenus.viewBar": "شريط المشاهد",
+  "barMenus.viewBar.style": "النمط",
+  "barMenus.viewBar.position": "الموضع",
+  "barMenus.viewBar.size": "الحجم",
+  "barMenus.viewBar.hidden": "مخفي",
+  "barMenus.viewBar.views": "المشاهد",
+  "barMenus.view.renameTitle": "إعادة تسمية المشهد",
+  "barMenus.view.deleteQuestion": "حذف «{name}»؟",
+  "barMenus.view.deleteDetail": "تُحذف أدواته معه ({widgets}). التراجع يعيد كل شيء."
+}

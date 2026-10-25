@@ -1,0 +1,15 @@
+{
+  "barMenus.display": "Display",
+  "barMenus.display.all": "Lahat ng display",
+  "barMenus.display.showOn": "Ipakita ang Themia sa",
+  "barMenus.display.this": "Ang display na ito",
+  "barMenus.viewBar": "View bar",
+  "barMenus.viewBar.style": "Istilo",
+  "barMenus.viewBar.position": "Posisyon",
+  "barMenus.viewBar.size": "Laki",
+  "barMenus.viewBar.hidden": "Nakatago",
+  "barMenus.viewBar.views": "Mga view",
+  "barMenus.view.renameTitle": "Palitan ang pangalan ng view",
+  "barMenus.view.deleteQuestion": "Burahin ang “{name}”?",
+  "barMenus.view.deleteDetail": "Kasama nitong mabubura ang mga widget nito ({widgets}). Ibinabalik lahat ng I-undo."
+}

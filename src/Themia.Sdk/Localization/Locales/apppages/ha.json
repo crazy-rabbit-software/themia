@@ -1,8 +1,6 @@
 {
   "$comment": "Machine-written translations: every string in this file needs native review.",
-  "shell.views.reorderHint": "Ja wani duba kan wani don motsa shi, ko danna Alt+Shift+Up ko Down a kan duba.",
   "shell.view.colour": "Launi",
-  "shell.view.colourDesc": "Launin gunkin a sandar duba da kuma a wannan taga",
   "shell.view.colourDefault": "Launin rubutu",
   "shell.appearance.themeColours": "Jigo da launuka",
   "shell.appearance.cards": "Katunan widget",

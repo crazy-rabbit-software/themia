@@ -30,7 +30,8 @@ internal static partial class ConfigPages
     /// be opened, once it has a line here: adding one is this line plus its own
     /// <c>ConfigPages.&lt;Page&gt;.cs</c>, so packages building different pages never edit the same
     /// switch. About stays the last footer entry ([S-493]). General, Appearance and the online
-    /// update intervals are not pages any more: they are the edit bar's settings menu ([S-3524]).
+    /// update intervals are not pages any more: they are the edit bar's settings menu ([S-3524]);
+    /// Displays and Views are its Display and View menus ([S-3540]).
     /// </summary>
     public static IReadOnlyList<AppPageEntry> AppPages { get; } =
     [
@@ -38,10 +39,6 @@ internal static partial class ConfigPages
 
         // [S-3797] After Accounts, where Windows Settings puts Time & language.
         new(AppPage.LanguageRegion, Str.LanguageRegion_Nav, Glyphs.TimeLanguage, NavIcon.Globe, AppPageSlot.Main, c => BuildLanguageRegion(c.Host)),
-
-        // [S-1830] Displays before Views, after the app pages: one entry each, never one per item.
-        new(AppPage.Displays, Str.App_Displays, Glyphs.Display, NavIcon.Laptop, AppPageSlot.Main, BuildDisplays),
-        new(AppPage.Views, Str.App_Views, Glyphs.View, NavIcon.ContentView, AppPageSlot.Main, BuildViews),
         new(AppPage.License, Str.Settings_Nav_License, Glyphs.Certificate, NavIcon.Premium, AppPageSlot.Footer, c => BuildLicense(c.Host)),
         new(AppPage.About, Str.Settings_Section_About, Glyphs.Info, NavIcon.QuestionCircle, AppPageSlot.Footer, c => BuildAbout(c.Host)),
     ];

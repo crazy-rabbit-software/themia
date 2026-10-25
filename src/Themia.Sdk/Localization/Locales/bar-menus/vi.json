@@ -1,0 +1,15 @@
+{
+  "barMenus.display": "Màn hình",
+  "barMenus.display.all": "Tất cả màn hình",
+  "barMenus.display.showOn": "Hiện Themia trên",
+  "barMenus.display.this": "Màn hình này",
+  "barMenus.viewBar": "Thanh dạng xem",
+  "barMenus.viewBar.style": "Kiểu",
+  "barMenus.viewBar.position": "Vị trí",
+  "barMenus.viewBar.size": "Kích thước",
+  "barMenus.viewBar.hidden": "Ẩn",
+  "barMenus.viewBar.views": "Dạng xem",
+  "barMenus.view.renameTitle": "Đổi tên dạng xem",
+  "barMenus.view.deleteQuestion": "Xóa “{name}”?",
+  "barMenus.view.deleteDetail": "Các tiện ích của nó cũng bị xóa theo ({widgets}). Hoàn tác sẽ khôi phục tất cả."
+}

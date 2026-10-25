@@ -218,12 +218,12 @@ internal partial class MenuPanel
 
 #if DEBUG
     /// <summary>
-    /// Debug renders only: show the deepest open submenu's ordered line <paramref name="from"/> being
+    /// Debug renders only: show the deepest open level's ordered line <paramref name="from"/> being
     /// dragged, its drop line in <paramref name="gap"/> ([S-3732]), as a pointer would hold it.
     /// </summary>
     internal bool DebugDrag(int from, int gap)
     {
-        if (_levels.Count < 2)
+        if (_levels.Count == 0)
         {
             return false;
         }

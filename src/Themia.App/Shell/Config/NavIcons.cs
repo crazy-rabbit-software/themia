@@ -22,12 +22,6 @@ internal enum NavIcon
     /// <summary>A question mark in a circle: About.</summary>
     QuestionCircle,
 
-    /// <summary>A window laid out in panels: Views.</summary>
-    ContentView,
-
-    /// <summary>A screen, as Windows Settings' System: Displays.</summary>
-    Laptop,
-
     /// <summary>A diamond: License ([S-1068]).</summary>
     Premium,
 
@@ -59,8 +53,6 @@ internal static class NavIcons
         NavIcon.Person => "ic_fluent_person_20_color.svg",
         NavIcon.DocumentText => "ic_fluent_document_text_20_color.svg",
         NavIcon.QuestionCircle => "ic_fluent_question_circle_20_color.svg",
-        NavIcon.ContentView => "ic_fluent_content_view_20_color.svg",
-        NavIcon.Laptop => "ic_fluent_laptop_20_color.svg",
         NavIcon.Premium => "ic_fluent_premium_20_color.svg",
         NavIcon.Globe => "ic_fluent_globe_20_color.svg",
         _ => throw new ArgumentOutOfRangeException(nameof(icon), icon, null),

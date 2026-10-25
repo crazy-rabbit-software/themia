@@ -9,7 +9,7 @@ using Themia.Core.Settings;
 namespace Themia.App.Shell.Config;
 
 /// <summary>
-/// The one settings window: app options, accounts, views and displays, reached through a
+/// The one settings window: accounts, language and region, the licence and About, reached through a
 /// navigation pane — drawn as Windows 11's Settings app. [S-1540] A widget's own options are not
 /// here: they are on its properties menu, beside it in edit mode ([S-6536]).
 /// <para>
@@ -40,12 +40,8 @@ internal sealed partial class ConfigWindow
     private readonly NavHistory<ConfigTarget> _history = new();
     private readonly SettingsSearchIndex _index;
 
-    /// <summary>[S-1833] The open groups of the Displays and Views pages, for as long as the window is open.</summary>
-    private readonly SettingsExpansion _expansion = new();
-
     private nint _hwnd;
     private ConfigTarget _target = new ConfigTarget.App();
-    private string _structure = string.Empty;
     private bool _closed;
 
     /// <summary>[S-1720] Whether this window has the focus: while it does, a state change is the user's own.</summary>
@@ -53,9 +49,6 @@ internal sealed partial class ConfigWindow
 
     /// <summary>[S-1720] What the page on screen shows (<see cref="SettingsPageSync.Signature"/>).</summary>
     private string? _shown;
-
-    /// <summary>[S-1834] The groups the list page on screen was built with (<see cref="SettingsPageSync.Shape"/>).</summary>
-    private string _shownShape = string.Empty;
 
     /// <summary>A catch-up is queued; the state changes before it runs fold into it.</summary>
     private bool _syncQueued;
@@ -75,7 +68,6 @@ internal sealed partial class ConfigWindow
         ConfigureWindow();
         UiLanguage.Apply(_window.Content as FrameworkElement);
 
-        _structure = StructureSignature();
         RebuildNavigation();
         _history.Push(_target);
         RenderBody();
@@ -101,20 +93,6 @@ internal sealed partial class ConfigWindow
 
         ApplyTheme();
 
-        // Only when a page came or went. Doing this on every state change meant that dragging a
-        // slider re-indexed many times a second; the navigation itself lists pages, not views or
-        // displays, so it never changes with the state ([S-1830]).
-        var structure = StructureSignature();
-        if (structure != _structure)
-        {
-            _structure = structure;
-
-            // A page that is gone leaves the back history, and search forgets what it had of it.
-            _history.RemoveWhere(t => !Exists(t));
-            _index.Invalidate();
-            UpdateBackButton();
-        }
-
         // The body is not re-rendered for a change the user made with it: it is the thing being
         // edited. It is replaced when whatever it was editing no longer exists, and caught up when
         // what it shows was changed from somewhere else ([S-1720]).
@@ -123,14 +101,6 @@ internal sealed partial class ConfigWindow
             _target = _history.Current ?? new ConfigTarget.App();
             SelectForTarget();
             RenderBody();
-            return;
-        }
-
-        // [S-1834] A list page that gained, lost or reordered a group is built again at once, even
-        // under the user's own hand: the change came from the page itself, and it has to show it.
-        if (Shape(_target) != _shownShape)
-        {
-            RenderBody(keepScroll: true);
             return;
         }
 
@@ -147,7 +117,7 @@ internal sealed partial class ConfigWindow
         _active = args.WindowActivationState != WindowActivationState.Deactivated;
         if (!_active && !_closed)
         {
-            _shown = Signature(_target);
+            _shown = Signature();
         }
     }
 
@@ -170,7 +140,7 @@ internal sealed partial class ConfigWindow
                 return;
             }
 
-            var current = Signature(_target);
+            var current = Signature();
             if (SettingsPageSync.NeedsRebuild(_active, _shown, current))
             {
                 RenderBody(keepScroll: true);
@@ -183,33 +153,8 @@ internal sealed partial class ConfigWindow
         }
     }
 
-    /// <summary>[S-1721] The signature of what a target's page shows.</summary>
-    private string Signature(ConfigTarget target)
-        => SettingsPageSync.Signature(_host.State, ScopeOf(target), DisplayIds());
-
-    /// <summary>[S-1834] The groups of a target's page; empty for a page that is not a list.</summary>
-    private string Shape(ConfigTarget target) => SettingsPageSync.Shape(_host.State, ScopeOf(target), DisplayIds());
-
-    private static SettingsScope ScopeOf(ConfigTarget target) => target switch
-    {
-        ConfigTarget.App { Page: AppPage.Views } => SettingsScope.Views,
-        ConfigTarget.App { Page: AppPage.Displays } => SettingsScope.Displays,
-        _ => SettingsScope.App,
-    };
-
-    private string[] DisplayIds() => [.. _host.Displays.Select(d => d.Id)];
-
-    /// <summary>
-    /// What search shows of the list pages' groups (views and displays by name): a change to any of
-    /// it drops what the search index had of them.
-    /// </summary>
-    private string StructureSignature()
-    {
-        var views = string.Join("|", _host.State.Views.Select(v => $"{v.Id}~{v.Name}~{v.Icon}"));
-
-        var displays = string.Join(",", _host.Displays.Select(d => $"{d.Describe()}~{_host.State.DisabledMonitors.Contains(d.Id)}"));
-        return $"{views}||{displays}";
-    }
+    /// <summary>[S-1721] The signature of what the pages show (the same for every page that is left).</summary>
+    private string Signature() => SettingsPageSync.Signature(_host.State);
 
     private bool Exists(ConfigTarget target) => target switch
     {
@@ -236,7 +181,7 @@ internal sealed partial class ConfigWindow
 
         try
         {
-            page = ConfigPages.Build(new PageContext(_host, Navigate, _expansion), _target);
+            page = ConfigPages.Build(new PageContext(_host), _target);
         }
         catch (Exception ex)
         {
@@ -246,8 +191,7 @@ internal sealed partial class ConfigWindow
         }
 
         _pageColumn.Child = page;
-        _shown = Signature(_target);
-        _shownShape = Shape(_target);
+        _shown = Signature();
         RenderCrumbs(page is SettingsPage settings ? settings.Title : NavTitle(_target));
 
         if (keepScroll)
@@ -258,49 +202,7 @@ internal sealed partial class ConfigWindow
 
         _bodyHost.ChangeView(null, keepScroll ? offset : 0, null, disableAnimation: true);
 
-        // [S-1831] A link to one display or view lands on its group, opened. Not when the page is
-        // only being caught up: the reader stays where they were.
-        if (!keepScroll && _target is ConfigTarget.App { Item: { } item })
-        {
-            Reveal(page, item);
-        }
-
         _index.Update(_target, page);
         return page;
-    }
-
-    /// <summary>Bring the group of <paramref name="item"/> to the top of the page once it is laid out.</summary>
-    private static void Reveal(FrameworkElement page, string item)
-    {
-        Control? group = null;
-        foreach (var (row, _) in SettingsIndex.Collect(page))
-        {
-            if (row.Item == item && row.Parent is null && row.Card is { } card)
-            {
-                group = card;
-                break;
-            }
-        }
-
-        if (group is null)
-        {
-            return; // ignore: the display or view is gone; the page opens at the top
-        }
-
-        void Bring() => group.StartBringIntoView(new BringIntoViewOptions { VerticalAlignmentRatio = 0, AnimationDesired = false });
-
-        if (page.IsLoaded)
-        {
-            Bring();
-            return;
-        }
-
-        void OnLoaded(object sender, RoutedEventArgs args)
-        {
-            page.Loaded -= OnLoaded;
-            Bring();
-        }
-
-        page.Loaded += OnLoaded;
     }
 }

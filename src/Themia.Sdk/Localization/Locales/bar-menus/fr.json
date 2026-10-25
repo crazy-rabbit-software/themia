@@ -1,0 +1,15 @@
+{
+  "barMenus.display": "Écran",
+  "barMenus.display.all": "Tous les écrans",
+  "barMenus.display.showOn": "Afficher Themia sur",
+  "barMenus.display.this": "Cet écran",
+  "barMenus.viewBar": "Barre des vues",
+  "barMenus.viewBar.style": "Style",
+  "barMenus.viewBar.position": "Position",
+  "barMenus.viewBar.size": "Taille",
+  "barMenus.viewBar.hidden": "Masquée",
+  "barMenus.viewBar.views": "Vues",
+  "barMenus.view.renameTitle": "Renommer la vue",
+  "barMenus.view.deleteQuestion": "Supprimer « {name} » ?",
+  "barMenus.view.deleteDetail": "Ses widgets partent avec elle ({widgets}). Annuler rétablit le tout."
+}

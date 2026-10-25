@@ -1,0 +1,15 @@
+{
+  "barMenus.display": "डिस्प्ले",
+  "barMenus.display.all": "सर्व डिस्प्ले",
+  "barMenus.display.showOn": "Themia यांवर दाखवा",
+  "barMenus.display.this": "हा डिस्प्ले",
+  "barMenus.viewBar": "दृश्य बार",
+  "barMenus.viewBar.style": "शैली",
+  "barMenus.viewBar.position": "जागा",
+  "barMenus.viewBar.size": "आकार",
+  "barMenus.viewBar.hidden": "लपवलेले",
+  "barMenus.viewBar.views": "दृश्ये",
+  "barMenus.view.renameTitle": "दृश्याचे नाव बदला",
+  "barMenus.view.deleteQuestion": "“{name}” हटवायचे?",
+  "barMenus.view.deleteDetail": "त्याचे विजेटही सोबत जातील ({widgets}). पूर्ववत केल्यास सर्व परत येते."
+}

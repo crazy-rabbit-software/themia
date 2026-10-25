@@ -1,6 +1,4 @@
 {
-  "shell.viewBar.style": "Estilo da barra de visualizações",
-  "shell.viewBar.styleDesc": "Um botão por visualização, ou um só que abre uma lista",
   "shell.viewBar.styleChips": "Botões",
   "shell.viewBar.styleDropdown": "Lista suspensa",
   "shell.viewBar.pickTip": "{name}\nClique para escolher uma visualização"

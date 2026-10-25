@@ -1,6 +1,4 @@
 {
-  "shell.viewBar.style": "Istilo ng view bar",
-  "shell.viewBar.styleDesc": "Isang chip bawat view, o isang button na nagbubukas ng listahan",
   "shell.viewBar.styleChips": "Mga chip",
   "shell.viewBar.styleDropdown": "Drop-down",
   "shell.viewBar.pickTip": "{name}\nI-click para pumili ng view"

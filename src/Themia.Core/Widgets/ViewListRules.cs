@@ -6,7 +6,7 @@ namespace Themia.Core.Widgets;
 public readonly record struct ViewSummary(string Id, string Name);
 
 /// <summary>
-/// The rules a list of views follows wherever it is shown — the view bar, the Views page: what a
+/// The rules a list of views follows wherever it is shown — the view bar, the View menu: what a
 /// view without an icon is drawn as, and which views a whitelist offers. Pure, so the decisions are
 /// tested without a window.
 /// </summary>

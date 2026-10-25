@@ -1,0 +1,15 @@
+{
+  "barMenus.display": "Дисплей",
+  "barMenus.display.all": "Все дисплеи",
+  "barMenus.display.showOn": "Показывать Themia на",
+  "barMenus.display.this": "Этот дисплей",
+  "barMenus.viewBar": "Панель видов",
+  "barMenus.viewBar.style": "Стиль",
+  "barMenus.viewBar.position": "Положение",
+  "barMenus.viewBar.size": "Размер",
+  "barMenus.viewBar.hidden": "Скрыта",
+  "barMenus.viewBar.views": "Виды",
+  "barMenus.view.renameTitle": "Переименовать вид",
+  "barMenus.view.deleteQuestion": "Удалить «{name}»?",
+  "barMenus.view.deleteDetail": "Его виджеты удаляются вместе с ним ({widgets}). Отмена вернёт всё."
+}

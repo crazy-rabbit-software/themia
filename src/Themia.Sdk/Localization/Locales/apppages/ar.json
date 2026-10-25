@@ -1,8 +1,6 @@
 {
   "$comment": "Machine-written translations: every string in this file needs native review.",
-  "shell.views.reorderHint": "اسحب مشهدًا فوق آخر لنقله، أو اضغط Alt+Shift+سهم لأعلى أو لأسفل على المشهد.",
   "shell.view.colour": "اللون",
-  "shell.view.colourDesc": "لون الأيقونة في شريط المشاهد وفي هذه النافذة",
   "shell.view.colourDefault": "لون النص",
   "shell.appearance.themeColours": "السمة والألوان",
   "shell.appearance.cards": "بطاقات الأدوات",

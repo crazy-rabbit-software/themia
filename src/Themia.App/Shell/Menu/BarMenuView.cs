@@ -67,11 +67,11 @@ internal sealed partial class BarMenuView : MenuPanel
     /// <summary>[S-3727] What was asked beside the menu closed: the keyboard comes back to the menu.</summary>
     protected override void OnAskClosed() => FocusFirst();
 
-    /// <summary>[S-3727] Ask beside the menu (a preset over a look of one's own).</summary>
+    /// <summary>[S-3727] Ask beside the menu (a preset over a look of one's own, deleting a view).</summary>
     public void Confirm(SettingsConfirm confirm)
     {
         ArgumentNullException.ThrowIfNull(confirm);
-        Confirm(new WidgetConfirm(confirm.Question, confirm.Accept, confirm.Done, Danger: false, confirm.Detail));
+        Confirm(new WidgetConfirm(confirm.Question, confirm.Accept, confirm.Done, confirm.Danger, confirm.Detail));
     }
 
     private List<MenuNode> Nodes(IReadOnlyList<SettingsLine> lines) => [.. lines.Select(Node)];
@@ -85,13 +85,13 @@ internal sealed partial class BarMenuView : MenuPanel
         {
             Text = toggle.Text,
             Value = toggle.Value,
-            IconKey = toggle.Glyph ?? string.Empty,
-            Icon = IconOf(toggle.Glyph),
+            IconKey = IconKeyOf(toggle.Glyph, toggle.GlyphColour),
+            Icon = IconOf(toggle.Glyph, toggle.GlyphColour),
             Checked = toggle.On,
             Disabled = toggle.Disabled,
             Run = () => toggle.Set(!toggle.On),
         },
-        SettingsRadio radio => Option(radio.Key, radio.Text, string.Empty, null, radio.Holds, radio.Pick) with { Disabled = radio.Disabled },
+        SettingsRadio radio => Option(radio.Key, radio.Text, IconKeyOf(radio.Glyph, radio.GlyphColour), IconOf(radio.Glyph, radio.GlyphColour), radio.Holds, radio.Pick) with { Disabled = radio.Disabled },
         SettingsChoice choice => new MenuNode(choice.Key)
         {
             Text = choice.Text,
@@ -122,23 +122,79 @@ internal sealed partial class BarMenuView : MenuPanel
         {
             Text = submenu.Text,
             Value = submenu.Value,
-            IconKey = submenu.Glyph ?? string.Empty,
-            Icon = IconOf(submenu.Glyph),
+            IconKey = IconKeyOf(submenu.Glyph, submenu.GlyphColour),
+            Icon = IconOf(submenu.Glyph, submenu.GlyphColour),
             Disabled = submenu.Disabled,
             Children = Nodes(submenu.Lines),
+
+            // [S-3541] An item's line (a view's) keeps its mark's place whether it holds or not, so
+            // the dot moves from line to line in place; a plain submenu has none.
+            Checked = submenu.Holds || submenu.Run is not null ? submenu.Holds : null,
+            Radio = true,
+            Run = submenu.Run,
+            Order = submenu.Order is { } order ? new MenuOrder(order.Index, order.Count, order.Move) : null,
         },
         SettingsCommand command => new MenuNode(command.Key)
         {
             Text = command.Text,
-            IconKey = command.Glyph ?? string.Empty,
-            Icon = IconOf(command.Glyph),
+            IconKey = IconKeyOf(command.Glyph, command.GlyphColour),
+            Icon = IconOf(command.Glyph, command.GlyphColour),
             Disabled = command.Disabled,
+            Danger = command.Danger,
             Run = command.Run,
         },
+
+        // [S-3721] Rename… and the like: the menu's one question beside itself.
+        SettingsAsk ask => new MenuNode(ask.Key)
+        {
+            Text = ask.Text,
+            IconKey = ask.Glyph ?? string.Empty,
+            Icon = IconOf(ask.Glyph),
+            Disabled = ask.Disabled,
+            Run = () => Ask(new WidgetTextAsk(ask.Title, ask.Placeholder, ask.Accept, ask.Refuse, ask.Done, ask.Initial)),
+        },
+        SettingsIcon icon => IconNode(icon),
         _ => throw new ArgumentOutOfRangeException(nameof(line), line.GetType().Name, "a settings line the menu cannot draw"),
     };
 
     private static Func<UIElement?>? IconOf(string? glyph) => glyph is null ? null : () => Glyph(glyph);
+
+    /// <summary>[S-3810] A glyph in a colour of its own (a view's mark), or in the theme's where it has none.</summary>
+    private static Func<UIElement?>? IconOf(string? glyph, string? colour)
+        => glyph is null ? null : colour is null ? IconOf(glyph) : () => ViewMark.Icon(glyph, colour);
+
+    /// <summary>What a line's icon is, its colour included: a new colour draws it again.</summary>
+    private static string IconKeyOf(string? glyph, string? colour) => glyph is null ? string.Empty : glyph + "|" + colour;
+
+    /// <summary>
+    /// [S-3542] An icon line: its submenu is the icon picker (its default cell, a search box over
+    /// every Segoe Fluent glyph, the chosen one selected, [S-1803]), at the menu's width. A pick
+    /// stores it, and the picker is drawn again with that one chosen.
+    /// </summary>
+    private static MenuNode IconNode(SettingsIcon icon) => new(icon.Key)
+    {
+        Text = icon.Text,
+        IconKey = IconKeyOf(icon.Glyph, icon.GlyphColour),
+        Icon = IconOf(icon.Glyph, icon.GlyphColour),
+        Disabled = icon.Disabled,
+        Children =
+        [
+            new MenuNode(icon.Key + "/picker", MenuNodeKind.Custom)
+            {
+                ValueKey = icon.Current ?? string.Empty,
+                Build = () => new IconPicker(icon.Current, new IconLook(Glyphs.View, icon.DefaultText), icon.DefaultName, glyph =>
+                {
+                    if (!string.Equals(glyph, icon.Current, StringComparison.Ordinal))
+                    {
+                        icon.Set(glyph);
+                    }
+                })
+                {
+                    Margin = new Thickness(Fluent.Space2, Fluent.Space2, Fluent.Space2, Fluent.Space2),
+                },
+            },
+        ],
+    };
 
     /// <summary>
     /// [S-3528] The font line: its submenu is the font picker (its search box, every installed family

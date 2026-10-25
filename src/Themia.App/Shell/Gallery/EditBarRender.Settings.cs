@@ -72,56 +72,8 @@ internal static partial class EditBarRender
         await SettingsShot(screen, System.IO.Path.Combine(outDir, $"settings-{theme}-replace.png"), custom, [a, a + "/style", a + "/style/" + DesignPresets.All[1].Id]).ConfigureAwait(true);
     }
 
-    private static async Task SettingsShot(Grid screen, string path, RenderSettingsHost host, string[] open)
-    {
-        screen.Children.Clear();
-        screen.Height = OpenHeight;
-        var flat = screen.Background;
-        screen.Background = Wallpaper();
-
-        var canvas = new Canvas { Clip = new RectangleGeometry { Rect = new Rect(0, 0, ScreenWidth, screen.Height) } };
-        screen.Children.Add(canvas);
-        Blobs(canvas);
-
-        // Laid out before it is measured: the first picture's bar was measured before its words were.
-        var bar = Bar(snapOn: true);
-        canvas.Children.Add(bar);
-        screen.UpdateLayout();
-        bar.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
-        var barRect = new PixelRect(Math.Round((ScreenWidth - bar.DesiredSize.Width) / 2), Fluent.Space2, bar.DesiredSize.Width, bar.DesiredSize.Height);
-        Canvas.SetLeft(bar, barRect.X);
-        Canvas.SetTop(bar, barRect.Y);
-
-        var menu = new BarMenuView(nameof(BarMenu.Settings), () => SettingsMenu.Root(host), () => { });
-        host.Menu = menu;
-        UiLanguage.ApplyFlow(menu);
-        menu.Visibility = Visibility.Visible;
-        canvas.Children.Add(menu);
-        menu.Show();
-        bar.MenuOpen(BarMenu.Settings);
-        screen.UpdateLayout();
-
-        // [S-3522] Under ⚙, as the surface places it.
-        var area = new PixelRect(0, 0, ScreenWidth, screen.Height);
-        var gear = bar.MenuButtonBox(BarMenu.Settings, canvas) ?? barRect;
-        menu.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
-        var (x, y) = DropDownPlacement.Place(gear, barRect, menu.DesiredSize.Width, menu.DesiredSize.Height, area, [barRect], UiLanguage.Flow == FlowDirection.RightToLeft);
-        Canvas.SetLeft(menu, Math.Round(x));
-        Canvas.SetTop(menu, Math.Round(y));
-        menu.Room = new MenuRoom(area, null, [barRect]);
-        screen.UpdateLayout();
-
-        if (open.Length > 0 && !menu.Open(open, focus: false))
-        {
-            Console.WriteLine($"editbar: no settings submenu {string.Join('/', open)} for {path}");
-        }
-
-        await Task.Delay(800).ConfigureAwait(true);
-        await RenderPng.SaveAsync(screen, path).ConfigureAwait(true);
-        Console.WriteLine($"editbar: wrote {path}");
-        screen.Background = flat;
-        await SavePopups(screen, path).ConfigureAwait(true);
-    }
+    private static Task SettingsShot(Grid screen, string path, RenderSettingsHost host, string[] open)
+        => MenuShot(screen, path, BarMenu.Settings, () => host.Menu = new BarMenuView(nameof(BarMenu.Settings), () => SettingsMenu.Root(host), () => { }), open, null);
 
     /// <summary>A stand-in for the settings menu's host: a state of its own, Windows' side made up, every change drawn at once.</summary>
     private sealed class RenderSettingsHost : ISettingsMenuHost

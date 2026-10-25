@@ -104,21 +104,6 @@ public static class ViewOps
     public static string? CleanColor(string? color)
         => Widgets.HexColor.Normalise(color) is { Length: > 0 } hex ? hex : null;
 
-    /// <summary>[S-901] Move a view one place up (-1) or down (+1). False at either end.</summary>
-    public static bool MoveBy(List<ViewState> views, string viewId, int delta)
-    {
-        ArgumentNullException.ThrowIfNull(views);
-
-        var from = views.FindIndex(v => v.Id == viewId);
-        var to = from + delta;
-        if (from < 0 || delta == 0 || to < 0 || to >= views.Count)
-        {
-            return false;
-        }
-
-        return Reorder(views, viewId, views[to].Id);
-    }
-
     /// <summary>
     /// [S-902] Delete a view and everything in it. The last view cannot go: a desktop with no view
     /// has nowhere to put a widget.

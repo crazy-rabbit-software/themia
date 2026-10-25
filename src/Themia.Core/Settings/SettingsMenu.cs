@@ -17,6 +17,9 @@ public abstract record SettingsLine(string Key)
 {
     /// <summary>Shown but not clickable.</summary>
     public bool Disabled { get; init; }
+
+    /// <summary>[S-3810] The colour its glyph is drawn in (<c>#RRGGBB</c>: a view's mark); null for the theme's.</summary>
+    public string? GlyphColour { get; init; }
 }
 
 /// <summary>A divider between groups; leading, trailing and doubled ones are dropped.</summary>
@@ -32,7 +35,11 @@ public sealed record SettingsToggle(string Key, string Text, string? Glyph, bool
 }
 
 /// <summary>[S-3718] One option of a choice of one: the dot while it holds. Picking the one that holds changes nothing.</summary>
-public sealed record SettingsRadio(string Key, string Text, bool Holds, Action Pick) : SettingsLine(Key);
+public sealed record SettingsRadio(string Key, string Text, bool Holds, Action Pick) : SettingsLine(Key)
+{
+    /// <summary>Its glyph (a view's), or none.</summary>
+    public string? Glyph { get; init; }
+}
 
 /// <summary>[S-3718] A choice of one: a line whose submenu is its options, the one that holds at its end.</summary>
 public sealed record SettingsChoice(string Key, string Text, string? Glyph, IReadOnlyList<SettingsRadio> Options) : SettingsLine(Key)
@@ -67,13 +74,49 @@ public sealed record SettingsFont(string Key, string Text, string? Glyph, string
 public sealed record SettingsSubmenu(string Key, string Text, string? Glyph, IReadOnlyList<SettingsLine> Lines) : SettingsLine(Key)
 {
     public string? Value { get; init; }
+
+    /// <summary>[S-3541] The item it stands for is the one that holds (the view this display shows): the dot before its chevron.</summary>
+    public bool Holds { get; init; }
+
+    /// <summary>[S-3541] What a click does besides opening it (show the view here); null for a submenu that only opens.</summary>
+    public Action? Run { get; init; }
+
+    /// <summary>[S-3732] An item of an ordered list: its line is dragged up and down among the list's.</summary>
+    public SettingsOrder? Order { get; init; }
 }
 
-/// <summary>A command: a click does it, and the menu stays.</summary>
-public sealed record SettingsCommand(string Key, string Text, string? Glyph, Action Run) : SettingsLine(Key);
+/// <summary>
+/// [S-3732] A line's place in an ordered list (the views): where it is, how many there are, and what
+/// a drop or Alt+Shift+Up / Down does (move the item at the first index to the second, and save once).
+/// </summary>
+public sealed record SettingsOrder(int Index, int Count, Action<int, int> Move);
 
-/// <summary>[S-3727] An "are you sure?" asked beside the menu: the question, the words of the button that does it, what it does, and what goes with it.</summary>
-public sealed record SettingsConfirm(string Question, string Accept, Action Done, string? Detail = null);
+/// <summary>
+/// [S-3721] A line that asks for a line of text beside the menu (Rename…): the question's heading,
+/// the box's hint, the button's words, what the box starts with, why a typed text cannot be used
+/// (null when it can) and what is done with it.
+/// </summary>
+public sealed record SettingsAsk(string Key, string Text, string? Glyph, string Title, string Placeholder, string Accept, string Initial, Func<string, string?> Refuse, Action<string> Done) : SettingsLine(Key);
+
+/// <summary>
+/// [S-3542] An icon (one glyph, or none for the default): its submenu is the icon picker over every
+/// Segoe Fluent glyph, its default cell <see cref="DefaultText"/> (a view's initials) named
+/// <see cref="DefaultName"/>. <see cref="Glyph"/> is the line's own glyph (the icon that holds).
+/// </summary>
+public sealed record SettingsIcon(string Key, string Text, string? Glyph, string? Current, string DefaultText, string DefaultName, Action<string?> Set) : SettingsLine(Key);
+
+/// <summary>A command: a click does it, and the menu stays.</summary>
+public sealed record SettingsCommand(string Key, string Text, string? Glyph, Action Run) : SettingsLine(Key)
+{
+    /// <summary>[S-3716] It destroys something (Delete view): drawn in the critical colour.</summary>
+    public bool Danger { get; init; }
+}
+
+/// <summary>
+/// [S-3727] An "are you sure?" asked beside the menu: the question, the words of the button that does
+/// it (in the critical colour where <paramref name="Danger"/>), what it does, and what goes with it.
+/// </summary>
+public sealed record SettingsConfirm(string Question, string Accept, Action Done, string? Detail = null, bool Danger = false);
 
 /// <summary>
 /// [S-3524] What the settings menu reads and writes: the state (every write one <see cref="Mutate"/>,
