@@ -209,7 +209,7 @@
   "shell.motion.transition": "Görünüm değişikliği animasyonu",
   "shell.motion.animationsOff": "Windows'ta animasyon efektleri kapalı (Erişilebilirlik › Görsel efektler); bu nedenle bu animasyonlar oynatılmaz.",
   "shell.motion.playNow": "Şimdi oynat",
-  "shell.motion.length": "Animasyon süresi",
+  "shell.motion.length": "Süre",
   "shell.display.show": "Themia'yı bu ekranda göster",
   "shell.display.showDesc": "Kapalıyken tüm ekran masaüstüne geçirgen olur",
   "shell.display.showLast": "Themia en az bir ekranda açık kalmalı",

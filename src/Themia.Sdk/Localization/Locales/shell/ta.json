@@ -209,7 +209,7 @@
   "shell.motion.transition": "காட்சி மாற்ற அனிமேஷன்",
   "shell.motion.animationsOff": "Windows இல் அனிமேஷன் விளைவுகள் முடக்கப்பட்டுள்ளன (அணுகல்தன்மை › காட்சி விளைவுகள்), எனவே இந்த அனிமேஷன்கள் இயங்காது.",
   "shell.motion.playNow": "இப்போது இயக்கு",
-  "shell.motion.length": "அனிமேஷன் நீளம்",
+  "shell.motion.length": "நீளம்",
   "shell.display.show": "இந்தத் திரையில் Themia ஐக் காட்டு",
   "shell.display.showDesc": "முடக்கினால் முழுத் திரையும் டெஸ்க்டாப்புக்கு விடப்படும்",
   "shell.display.showLast": "Themia குறைந்தது ஒரு திரையில் இயக்கத்தில் இருக்க வேண்டும்",

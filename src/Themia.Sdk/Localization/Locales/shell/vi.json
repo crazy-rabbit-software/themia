@@ -202,7 +202,7 @@
   "shell.motion.transition": "Hiệu ứng đổi dạng xem",
   "shell.motion.animationsOff": "Hiệu ứng hoạt ảnh đang tắt trong Windows (Trợ năng › Hiệu ứng hình ảnh), nên các hiệu ứng này không phát.",
   "shell.motion.playNow": "Phát ngay",
-  "shell.motion.length": "Thời lượng hiệu ứng",
+  "shell.motion.length": "Thời lượng",
   "shell.display.show": "Hiện Themia trên màn hình này",
   "shell.display.showDesc": "Tắt để toàn bộ màn hình thông xuống màn hình nền",
   "shell.display.showLast": "Themia phải bật trên ít nhất một màn hình",

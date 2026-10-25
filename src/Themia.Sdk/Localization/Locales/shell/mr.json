@@ -209,7 +209,7 @@
   "shell.motion.transition": "दृश्य बदल अ‍ॅनिमेशन",
   "shell.motion.animationsOff": "Windows मध्ये अ‍ॅनिमेशन इफेक्ट बंद आहेत (प्रवेशयोग्यता › व्हिज्युअल इफेक्ट), म्हणून ही अ‍ॅनिमेशन चालत नाहीत.",
   "shell.motion.playNow": "आता चालवा",
-  "shell.motion.length": "अ‍ॅनिमेशन कालावधी",
+  "shell.motion.length": "कालावधी",
   "shell.display.show": "या डिस्प्लेवर Themia दाखवा",
   "shell.display.showDesc": "बंद केल्यास संपूर्ण स्क्रीन डेस्कटॉपपर्यंत मोकळी राहते",
   "shell.display.showLast": "Themia किमान एका डिस्प्लेवर चालू राहिले पाहिजे",

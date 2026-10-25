@@ -209,7 +209,7 @@
   "shell.motion.transition": "پویانمایی تغییر نما",
   "shell.motion.animationsOff": "جلوه‌های پویانمایی در Windows خاموش است (دسترس‌پذیری › جلوه‌های تصویری)، بنابراین این پویانمایی‌ها پخش نمی‌شوند.",
   "shell.motion.playNow": "پخش اکنون",
-  "shell.motion.length": "مدت پویانمایی",
+  "shell.motion.length": "مدت",
   "shell.display.show": "نمایش Themia در این نمایشگر",
   "shell.display.showDesc": "خاموش، کل صفحه را به دسکتاپ واگذار می‌کند",
   "shell.display.showLast": "Themia باید دست‌کم روی یک نمایشگر روشن بماند",

@@ -1432,7 +1432,8 @@ mechanism), `Shell/DesktopWindow.SettingsMenu.cs`, `Services/AppHost.SettingsMen
   `SettingsColour`, `SettingsFill`, `SettingsFont`, `SettingsSubmenu`, `SettingsCommand`,
   `SettingsNote`), each keyed by a path that is the same in every language
   (`appearance/cards/radius`); the app draws each as the engine's line of that kind.
-- **[S-3525]** **General**: **Start with Windows** ([S-933]; ticked while Windows will start Themia,
+- **[S-3525]** **General**: **Start with Windows** ([S-933]; its glyph a speedometer, as Task Manager
+  marks its Startup apps, never the power button Quit Themia wears; ticked while Windows will start Themia,
   read from Windows each time the menu opens and the stored value until then; a click asks Windows and
   the tick shows what it reached), with under it, as notes, what holds against it ([S-935]: switched
   off in Windows, a policy, a change that did not take, the raw error under that advice only);
@@ -1460,7 +1461,7 @@ mechanism), `Shell/DesktopWindow.SettingsMenu.cs`, `Services/AppHost.SettingsMen
   font's name ([S-6441]). A pick stores it, and the picker is drawn again with that one ticked.
 - **[S-3529]** **Motion ›** ([S-1014]): Startup animation ›, Unlock animation ›, View change
   animation ›, each with its style at its end and as its submenu the ten styles with the dot,
-  **Animation length** (a slider from 0.1 to 5 s in tenths, written in seconds) and **Play it now**;
+  **Length** (the animation's, a slider from 0.1 to 5 s in tenths, written in seconds) and **Play it now**;
   then **Smooth value changes** ([S-6329]); and, while Windows' animation effects are off, a note that
   nothing plays ([S-1010]). A new style or length is stored and played on the desktop at once.
 - **[S-3530]** **Online updates ›** ([S-3780]): one line per cadence row (the host's, then any
@@ -1696,7 +1697,10 @@ and the SDK's `Settings/ListDrop.cs` (tests `QuickSetTests`, `StripPlacementTest
   card's Scale and a fill's Opacity, and a widget's own number set by feel) is one 32-DIP line: the
   icon column, its words, the slider and its value as the line writes it, its end column kept so the
   value stands in the values' column; the words keep their room ([S-3734]), the 100-DIP track giving
-  way to long words down to 64 DIPs. A drag shows the value at the line's end as it goes (and, for
+  way to long words down to 64 DIPs. Words longer than that ("Gap between widgets", most languages'
+  longer words) keep the line to themselves and their value, and the track runs under them, from
+  where the words start to the value's end: one line of two rows, never words cut to "Gap
+  between…" beside a track (user bug 2026-10-25: "Animation length" read "Animation len…"). A drag shows the value at the line's end as it goes (and, for
   the card's Scale and fills, on the selected widgets: `CardPreview`, painted only) and **stores once
   on the release**, one change and one undo step; a key (Left, Right, Home, End, Page Up/Down) steps
   it and stores the step; Up and Down move between the lines as on any line. A value is kept inside
@@ -1730,7 +1734,7 @@ and the SDK's `Settings/ListDrop.cs` (tests `QuickSetTests`, `StripPlacementTest
   placement, [S-3708], measures that width). What the menu asks beside itself, a line of text
   ([S-3721]) and the "are you sure?" ([S-3727]), stands at that width too (user request 2026-10-19:
   every configuration modal one width), its words wrapped inside it. Words or a value longer than
-  their room are trimmed with an ellipsis and shown whole as their tooltip; the words keep the room
+  their room (a slider's words longer than its whole line, [S-3731]) are trimmed with an ellipsis and shown whole as their tooltip; the words keep the room
   before a long value. (Renders `props-*-vocabulary-ask` and `-confirm`, each with its `-popup0`.)
 - **[S-3735]** The menu's **sections** (user request 2026-10-19), a divider between each: the icon
   row; the **Header** line; Style and the options only that look draws; the widget's own lines in the

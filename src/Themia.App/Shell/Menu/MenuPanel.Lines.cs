@@ -52,12 +52,15 @@ internal partial class MenuPanel
     }
 
     /// <summary>[S-3731] A drawn slider line: its node now, and the parts a change of value is written into.</summary>
-    private sealed class SliderView(MenuNode node, Slider slider, TextBlock words, TextBlock value, double room)
+    private sealed class SliderView(MenuNode node, Slider slider, TextBlock words, TextBlock value, double room, int wordsColumn)
     {
         public MenuNode Node { get; set; } = node;
 
         /// <summary>[S-3734] What the words and the track share of the line.</summary>
         public double Room { get; } = room;
+
+        /// <summary>[S-3734] The column the words stand in: a track under them starts there.</summary>
+        public int WordsColumn { get; } = wordsColumn;
 
         public Slider Slider { get; } = slider;
 
@@ -432,19 +435,27 @@ internal partial class MenuPanel
     /// [S-3731] An inline slider's line, 32 DIPs as every line: the icon column (where the level has
     /// icons), its words, the slider and its value, then the end column kept empty where the level has
     /// one, so its value stands in the values' column. [S-3734] The words keep their room: the track
-    /// (100 DIPs) gives way to long words down to 64, and only words longer than that are trimmed. A drag shows the value (and the widgets, where
-    /// the line previews them) and stores once on the release; a key steps it and stores the step; Up
-    /// and Down move between the lines as on any other line.
+    /// (100 DIPs) gives way to long words down to 64; words longer than that ("Gap between widgets")
+    /// keep the line to themselves and their value, and the track runs under them, from where the
+    /// words start to the value's end; only words longer than the whole line are trimmed. A drag shows
+    /// the value (and the widgets, where the line previews them) and stores once on the release; a key
+    /// steps it and stores the step; Up and Down move between the lines as on any other line.
     /// </summary>
     private (FrameworkElement Root, SliderView View) MakeSlider(Level level, MenuNode node)
     {
         var rule = node.Slider!;
         var parts = new Grid
         {
-            Height = LineHeight,
             Margin = new Thickness(Fluent.Space1, 0, Fluent.Space1, 0),
             Padding = new Thickness(Fluent.Space3, 0, Fluent.Space3, 0),
             Background = new SolidColorBrush(Colors.Transparent),
+            RowDefinitions =
+            {
+                new RowDefinition { Height = new GridLength(LineHeight) },
+
+                // [S-3734] The track's row under long words; empty (no height) while it stands inline.
+                new RowDefinition { Height = GridLength.Auto },
+            },
         };
         var column = 0;
 
@@ -466,6 +477,7 @@ internal partial class MenuPanel
             VerticalAlignment = VerticalAlignment.Center,
             TextTrimming = TextTrimming.CharacterEllipsis,
         };
+        var wordsColumn = column;
         Add(words, new GridLength(1, GridUnitType.Star));
 
         var slider = new Slider
@@ -497,7 +509,7 @@ internal partial class MenuPanel
         // [S-3734] What the words and the track share: the line less its icon, value and end columns.
         var room = MenuWidth - (2 * (Fluent.Space1 + Fluent.Space3)) - (2 * Fluent.Hairline) - (level.Icons ? LeadColumn : 0)
             - SliderValueWidth - (level.Trail ? Fluent.IconSize + Fluent.Space2 : 0) - Fluent.Space2;
-        var view = new SliderView(node, slider, words, value, room);
+        var view = new SliderView(node, slider, words, value, room, wordsColumn);
         ApplySlider(view, node);
 
         slider.ValueChanged += (_, e) =>
@@ -563,11 +575,31 @@ internal partial class MenuPanel
         view.Words.Foreground = ThemeBrush.Of(node.Disabled ? "TextFillColorDisabledBrush" : "TextFillColorPrimaryBrush", Colors.White);
         TipWhenTrimmed(view.Words);
 
-        // [S-3734] The words keep their room: the track gives way to long words, down to its least,
-        // and only words longer than that are trimmed.
+        // [S-3734] The words keep their room: the track gives way to long words, down to its least;
+        // words longer than that take the line, and the track goes under them.
         // Measured on its own, the words come out a few DIPs short of what the line draws: a gap's worth more.
         view.Words.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
-        view.Slider.Width = Math.Clamp(view.Room - view.Words.DesiredSize.Width - Fluent.Space2, SliderMinWidth, SliderWidth);
+        var beside = view.Room - view.Words.DesiredSize.Width - Fluent.Space2;
+        if (beside >= SliderMinWidth)
+        {
+            Grid.SetRow(view.Slider, 0);
+            Grid.SetColumn(view.Slider, view.WordsColumn + 1);
+            Grid.SetColumnSpan(view.Slider, 1);
+            view.Slider.Width = Math.Min(beside, SliderWidth);
+            view.Slider.Margin = new Thickness(Fluent.Space2, 0, 0, 0);
+        }
+        else
+        {
+            Grid.SetRow(view.Slider, 1);
+            Grid.SetColumn(view.Slider, view.WordsColumn);
+            Grid.SetColumnSpan(view.Slider, 3);
+            view.Slider.Width = double.NaN;
+            view.Slider.HorizontalAlignment = HorizontalAlignment.Stretch;
+
+            // The track sits close under its words, as one line of two rows, not two lines.
+            view.Slider.Margin = new Thickness(0, -Fluent.Space2, 0, Fluent.Space1);
+        }
+
         view.Slider.IsEnabled = !node.Disabled;
         AutomationProperties.SetName(view.Slider, node.Text);
 

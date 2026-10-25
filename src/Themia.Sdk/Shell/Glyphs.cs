@@ -51,6 +51,13 @@ public static class Glyphs
     public static readonly string Count = From(0xE8FD);
     public static readonly string Preview = From(0xE7C3);
     public static readonly string Startup = From(0xE7E8);
+
+    /// <summary>
+    /// [S-3525] Start with Windows: Segoe's "SpeedHigh2" speedometer, as Task Manager marks its Startup
+    /// apps, not the power button Quit Themia wears.
+    /// </summary>
+    public static readonly string StartWithWindows = From(0xF42F);
+
     public static readonly string Cpu = From(0xE950);
     public static readonly string Memory = From(0xE964);
     public static readonly string Disk = From(0xEDA2);

@@ -223,7 +223,7 @@
   "shell.motion.transition": "Анимация смены вида",
   "shell.motion.animationsOff": "Эффекты анимации отключены в Windows (Специальные возможности › Визуальные эффекты), поэтому эти анимации не воспроизводятся.",
   "shell.motion.playNow": "Воспроизвести сейчас",
-  "shell.motion.length": "Длительность анимации",
+  "shell.motion.length": "Длительность",
   "shell.display.show": "Показывать Themia на этом дисплее",
   "shell.display.showDesc": "Если отключено, весь экран отдается рабочему столу",
   "shell.display.showLast": "Themia должна оставаться включенной хотя бы на одном дисплее",

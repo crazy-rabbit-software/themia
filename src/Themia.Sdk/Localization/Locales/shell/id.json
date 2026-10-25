@@ -202,7 +202,7 @@
   "shell.motion.transition": "Animasi ganti tampilan",
   "shell.motion.animationsOff": "Efek animasi dinonaktifkan di Windows (Aksesibilitas › Efek visual), jadi animasi ini tidak diputar.",
   "shell.motion.playNow": "Putar sekarang",
-  "shell.motion.length": "Durasi animasi",
+  "shell.motion.length": "Durasi",
   "shell.display.show": "Tampilkan Themia di layar ini",
   "shell.display.showDesc": "Nonaktif membiarkan seluruh layar tembus ke desktop",
   "shell.display.showLast": "Themia harus tetap aktif di setidaknya satu layar",

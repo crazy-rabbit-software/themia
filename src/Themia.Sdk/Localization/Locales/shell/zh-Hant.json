@@ -202,7 +202,7 @@
   "shell.motion.transition": "檢視切換動畫",
   "shell.motion.animationsOff": "Windows 中已關閉動畫效果（協助工具 › 視覺效果），因此這些動畫不會播放。",
   "shell.motion.playNow": "立即播放",
-  "shell.motion.length": "動畫長度",
+  "shell.motion.length": "時長",
   "shell.display.show": "在此顯示器上顯示 Themia",
   "shell.display.showDesc": "關閉後整個螢幕都會顯示桌面",
   "shell.display.showLast": "Themia 必須在至少一台顯示器上保持開啟",

@@ -209,7 +209,7 @@
   "shell.motion.transition": "व्यू बदलने का एनिमेशन",
   "shell.motion.animationsOff": "Windows में एनिमेशन प्रभाव बंद हैं (पहुँच-योग्यता › दृश्य प्रभाव), इसलिए ये एनिमेशन नहीं चलते।",
   "shell.motion.playNow": "अभी चलाएँ",
-  "shell.motion.length": "एनिमेशन अवधि",
+  "shell.motion.length": "अवधि",
   "shell.display.show": "इस डिस्प्ले पर Themia दिखाएँ",
   "shell.display.showDesc": "बंद करने पर पूरी स्क्रीन डेस्कटॉप तक पहुँचती है",
   "shell.display.showLast": "Themia को कम से कम एक डिस्प्ले पर चालू रहना होगा",

@@ -209,7 +209,7 @@
   "shell.motion.transition": "Animation sa pagpapalit ng view",
   "shell.motion.animationsOff": "Naka-off ang mga animation effect sa Windows (Accessibility › Mga visual effect), kaya hindi tumatakbo ang mga animation na ito.",
   "shell.motion.playNow": "Patakbuhin ngayon",
-  "shell.motion.length": "Haba ng animation",
+  "shell.motion.length": "Haba",
   "shell.display.show": "Ipakita ang Themia sa display na ito",
   "shell.display.showDesc": "Kapag naka-off, makikita ang buong desktop sa screen",
   "shell.display.showLast": "Kailangang manatili ang Themia sa kahit isang display",

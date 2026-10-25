@@ -209,7 +209,7 @@
   "shell.motion.transition": "ভিউ বদলের অ্যানিমেশন",
   "shell.motion.animationsOff": "Windows-এ অ্যানিমেশন ইফেক্ট বন্ধ (অ্যাক্সেসিবিলিটি › ভিজ্যুয়াল ইফেক্ট), তাই এই অ্যানিমেশনগুলো চলে না।",
   "shell.motion.playNow": "এখন চালান",
-  "shell.motion.length": "অ্যানিমেশনের দৈর্ঘ্য",
+  "shell.motion.length": "দৈর্ঘ্য",
   "shell.display.show": "এই ডিসপ্লেতে Themia দেখান",
   "shell.display.showDesc": "বন্ধ করলে পুরো স্ক্রিনে ডেস্কটপ দেখা যায়",
   "shell.display.showLast": "Themia-কে অন্তত একটি ডিসপ্লেতে চালু থাকতে হবে",

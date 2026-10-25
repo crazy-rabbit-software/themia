@@ -209,7 +209,7 @@
   "shell.motion.transition": "Animación al cambiar de vista",
   "shell.motion.animationsOff": "Los efectos de animación están desactivados en Windows (Accesibilidad › Efectos visuales), por lo que estas animaciones no se reproducen.",
   "shell.motion.playNow": "Reproducir ahora",
-  "shell.motion.length": "Duración de la animación",
+  "shell.motion.length": "Duración",
   "shell.display.show": "Mostrar Themia en esta pantalla",
   "shell.display.showDesc": "Desactivado deja ver todo el escritorio",
   "shell.display.showLast": "Themia debe seguir activo en al menos una pantalla",

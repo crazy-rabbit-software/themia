@@ -223,7 +223,7 @@
   "shell.motion.transition": "Animacja zmiany widoku",
   "shell.motion.animationsOff": "Efekty animacji są wyłączone w systemie Windows (Ułatwienia dostępu › Efekty wizualne), więc te animacje nie są odtwarzane.",
   "shell.motion.playNow": "Odtwórz teraz",
-  "shell.motion.length": "Długość animacji",
+  "shell.motion.length": "Długość",
   "shell.display.show": "Pokaż Themia na tym ekranie",
   "shell.display.showDesc": "Wyłączenie odsłania cały pulpit",
   "shell.display.showLast": "Themia musi pozostać włączona na co najmniej jednym ekranie",

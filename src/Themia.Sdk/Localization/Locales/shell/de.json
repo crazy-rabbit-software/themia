@@ -209,7 +209,7 @@
   "shell.motion.transition": "Animation beim Ansichtswechsel",
   "shell.motion.animationsOff": "Animationseffekte sind in Windows ausgeschaltet (Barrierefreiheit › Visuelle Effekte), daher werden diese Animationen nicht abgespielt.",
   "shell.motion.playNow": "Jetzt abspielen",
-  "shell.motion.length": "Animationsdauer",
+  "shell.motion.length": "Dauer",
   "shell.display.show": "Themia auf diesem Bildschirm anzeigen",
   "shell.display.showDesc": "Aus gibt den ganzen Bildschirm für den Desktop frei",
   "shell.display.showLast": "Themia muss auf mindestens einem Bildschirm aktiv bleiben",

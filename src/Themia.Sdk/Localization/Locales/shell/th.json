@@ -202,7 +202,7 @@
   "shell.motion.transition": "ภาพเคลื่อนไหวเมื่อเปลี่ยนมุมมอง",
   "shell.motion.animationsOff": "เอฟเฟกต์ภาพเคลื่อนไหวปิดอยู่ใน Windows (การช่วยสำหรับการเข้าถึง › เอฟเฟกต์ภาพ) ภาพเคลื่อนไหวเหล่านี้จึงไม่เล่น",
   "shell.motion.playNow": "เล่นตอนนี้",
-  "shell.motion.length": "ความยาวภาพเคลื่อนไหว",
+  "shell.motion.length": "ความยาว",
   "shell.display.show": "แสดง Themia บนจอแสดงผลนี้",
   "shell.display.showDesc": "ปิดเพื่อให้ทั้งหน้าจอผ่านไปยังเดสก์ท็อป",
   "shell.display.showLast": "Themia ต้องเปิดอยู่บนจอแสดงผลอย่างน้อยหนึ่งจอ",

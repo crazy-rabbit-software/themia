@@ -1,4 +1,5 @@
 using System.Reflection;
+using Themia.App.Shell;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Motion;
@@ -399,6 +400,26 @@ public sealed class SettingsMenuTests
         At<SettingsSubmenu>(host, path).Lines.OfType<SettingsCommand>().Single().Run();
         Assert.Equal([mode, mode, mode], host.Replayed);
         Assert.Equal(2, host.Mutations);
+    }
+
+    [Fact]
+    public void S3529_a_moments_length_is_called_length_its_submenu_names_the_moment()
+    {
+        // Regression: "Animation length" read "Animation len…" beside its track at the menu's width.
+        var length = At<SettingsSubmenu>(new FakeHost(), "appearance", "appearance/motion", "appearance/motion/startup").Lines.OfType<SettingsSlider>().Single();
+
+        Assert.Equal("Length", length.Text);
+    }
+
+    [Fact]
+    public void S3525_start_with_windows_does_not_wear_quit_themias_power_button()
+    {
+        var host = new FakeHost();
+        var startup = At<SettingsToggle>(host, SettingsMenu.Keys.Startup);
+        var quit = At<SettingsCommand>(host, SettingsMenu.Keys.Quit);
+
+        Assert.Equal(Glyphs.StartWithWindows, startup.Glyph);
+        Assert.NotEqual(quit.Glyph, startup.Glyph);
     }
 
     [Fact]

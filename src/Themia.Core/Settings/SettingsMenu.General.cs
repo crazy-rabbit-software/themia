@@ -24,7 +24,7 @@ public static partial class SettingsMenu
 
         var lines = new List<SettingsLine>
         {
-            new SettingsToggle(Keys.Startup, Str.Shell_Settings_General_Startup.Text(), Glyphs.Startup, startsWithWindows, host.SetStartup),
+            new SettingsToggle(Keys.Startup, Str.Shell_Settings_General_Startup.Text(), Glyphs.StartWithWindows, startsWithWindows, host.SetStartup),
         };
 
         var (advice, detail) = StartupAdvice(status);

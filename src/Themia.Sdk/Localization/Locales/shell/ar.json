@@ -237,7 +237,7 @@
   "shell.motion.transition": "حركة تغيير المشهد",
   "shell.motion.animationsOff": "تأثيرات الحركة متوقفة في Windows (إمكانية الوصول › التأثيرات المرئية)، لذا لا تُشغَّل هذه الحركات.",
   "shell.motion.playNow": "تشغيلها الآن",
-  "shell.motion.length": "مدة الحركة",
+  "shell.motion.length": "المدة",
   "shell.display.show": "إظهار Themia على هذه الشاشة",
   "shell.display.showDesc": "عند الإيقاف تظهر الشاشة كلها سطح المكتب",
   "shell.display.showLast": "يجب أن يبقى Themia مفعّلًا على شاشة واحدة على الأقل",

@@ -208,7 +208,7 @@
   "shell.motion.transition": "View change animation",
   "shell.motion.animationsOff": "Animation effects are off in Windows (Accessibility › Visual effects), so these animations do not play.",
   "shell.motion.playNow": "Play it now",
-  "shell.motion.length": "Animation length",
+  "shell.motion.length": "Length",
   "shell.display.show": "Show Themia on this display",
   "shell.display.showDesc": "Off lets the whole screen through to the desktop",
   "shell.display.showLast": "Themia has to stay on at least one display",

@@ -209,7 +209,7 @@
   "shell.motion.transition": "Animatie bij weergavewissel",
   "shell.motion.animationsOff": "Animatie-effecten staan uit in Windows (Toegankelijkheid › Visuele effecten), dus deze animaties spelen niet af.",
   "shell.motion.playNow": "Nu afspelen",
-  "shell.motion.length": "Animatieduur",
+  "shell.motion.length": "Duur",
   "shell.display.show": "Themia op dit beeldscherm tonen",
   "shell.display.showDesc": "Uit laat het hele scherm door naar het bureaublad",
   "shell.display.showLast": "Themia moet op minstens één beeldscherm aan blijven",

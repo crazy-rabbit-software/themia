@@ -209,7 +209,7 @@
   "shell.motion.transition": "Animação de troca de visualização",
   "shell.motion.animationsOff": "Os efeitos de animação estão desativados no Windows (Acessibilidade › Efeitos visuais), então essas animações não são reproduzidas.",
   "shell.motion.playNow": "Reproduzir agora",
-  "shell.motion.length": "Duração da animação",
+  "shell.motion.length": "Duração",
   "shell.display.show": "Mostrar o Themia nesta tela",
   "shell.display.showDesc": "Desativado deixa a tela inteira para a área de trabalho",
   "shell.display.showLast": "O Themia precisa continuar ativo em pelo menos uma tela",

@@ -202,7 +202,7 @@
   "shell.motion.transition": "보기 전환 애니메이션",
   "shell.motion.animationsOff": "Windows에서 애니메이션 효과가 꺼져 있으므로(접근성 › 시각 효과) 이 애니메이션은 재생되지 않습니다.",
   "shell.motion.playNow": "지금 재생",
-  "shell.motion.length": "애니메이션 길이",
+  "shell.motion.length": "길이",
   "shell.display.show": "이 디스플레이에 Themia 표시",
   "shell.display.showDesc": "끄면 전체 화면에 바탕 화면이 그대로 표시됩니다",
   "shell.display.showLast": "Themia는 하나 이상의 디스플레이에서 켜져 있어야 합니다",

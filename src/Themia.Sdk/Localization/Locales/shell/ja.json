@@ -202,7 +202,7 @@
   "shell.motion.transition": "ビュー切り替え時のアニメーション",
   "shell.motion.animationsOff": "Windows でアニメーション効果がオフになっているため (アクセシビリティ › 視覚効果)、これらのアニメーションは再生されません。",
   "shell.motion.playNow": "今すぐ再生",
-  "shell.motion.length": "アニメーションの長さ",
+  "shell.motion.length": "長さ",
   "shell.display.show": "このディスプレイに Themia を表示",
   "shell.display.showDesc": "オフにすると画面全体がデスクトップに戻ります",
   "shell.display.showLast": "Themia は少なくとも 1 つのディスプレイでオンにしておく必要があります",
