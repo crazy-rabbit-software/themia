@@ -86,6 +86,39 @@ public sealed class MoonTests
         Assert.True(plan.Disc <= 120);
     }
 
+    /// <summary>"Rise" + "Tue 11:06 AM" in BodyStrong, the gap between them: a row's words in English.</summary>
+    private static readonly double RowWords =
+        FluentType.EstimateWidth(FluentType.BodyStrong, 4) + 8 + FluentType.EstimateWidth(FluentType.BodyStrong, 12);
+
+    [Fact]
+    public void S3105_a_row_is_shown_only_where_its_words_fit_beside_its_glyph()
+    {
+        // At 268 x 134 the disc took two fifths of the strip and "RiseTue 11:06 AM" ran off the card.
+        for (var width = 100.0; width <= 720; width += 4)
+        {
+            for (var height = 40.0; height <= 480; height += 6)
+            {
+                var area = new WidgetArea(width, height);
+                var plan = MoonLayout.Plan(area, 32, 15, RowWords);
+                if (plan.Rows > 0)
+                {
+                    Assert.True(MoonLayout.RowRoom(area, plan) >= RowWords, $"{width} x {height}: {MoonLayout.RowRoom(area, plan)}");
+                }
+            }
+        }
+    }
+
+    [Fact]
+    public void S3105_on_a_strip_the_disc_gives_way_to_the_rows()
+    {
+        var area = new WidgetArea(268, 134);
+        var plan = MoonLayout.Plan(area, 32, 15, RowWords);
+
+        Assert.True(plan.Side);
+        Assert.True(plan.Rows > 0);
+        Assert.True(MoonLayout.RowRoom(area, plan) >= RowWords);
+    }
+
     [Fact]
     public void S3105_the_rows_run_rise_set_then_the_next_full_or_new_moon()
         => Assert.Equal([MoonRow.Rise, MoonRow.Set, MoonRow.NextMajor], MoonLayout.Ladder);

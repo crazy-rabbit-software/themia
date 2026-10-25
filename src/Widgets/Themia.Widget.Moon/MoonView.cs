@@ -209,7 +209,7 @@ internal sealed partial class MoonView : Grid, IWidgetView, IWidgetSurfaceAware,
 
         var compact = _area.WidthClass == SizeClass.Compact || _area.HeightClass <= SizeClass.Regular;
         var rowHeight = compact ? Fluent.RowHeightCompact : Fluent.RowHeight;
-        _plan = MoonLayout.Plan(_area, rowHeight, LongestPhaseName());
+        _plan = MoonLayout.Plan(_area, rowHeight, LongestPhaseName(), WidestRowWords());
 
         _disc.Resize(_plan.Disc);
         _name.Visibility = Show(_plan.Name);
@@ -245,8 +245,7 @@ internal sealed partial class MoonView : Grid, IWidgetView, IWidgetSurfaceAware,
         _rowGrid.Margin = side ? new Thickness(-Fluent.Space4, 0, 0, 0) : new Thickness(0);
 
         // The rows' label, note and value share the row less its padding and glyph.
-        var rowWidth = side ? _area.Width - (2 * Fluent.Space4) - _plan.Disc - MoonLayout.Gap : _area.Width;
-        var rowRoom = rowWidth - (2 * Fluent.Space4) - Fluent.IconSize - Fluent.Space3;
+        var rowRoom = MoonLayout.RowRoom(_area, _plan);
         _rowRoom = rowRoom;
 
         for (var i = 0; i < _rows.Length; i++)
@@ -403,6 +402,35 @@ internal sealed partial class MoonView : Grid, IWidgetView, IWidgetSurfaceAware,
 
         _majorRow.SetPlain(majorDate, null);
         _majorGlyph.Update(major.Name == MoonPhaseName.FullMoon ? 0.5 : 0, southern, up: true);
+    }
+
+    /// <summary>
+    /// [S-3105] The widest a row's words get in the current language, so a row is shown only where
+    /// they fit: a rise or set's short label beside a time on another day ("Tue 11:06 AM"), or a
+    /// full or new moon's name beside its shortest date ("Oct 26").
+    /// </summary>
+    private static double WidestRowWords()
+    {
+        var locale = Strings.Current;
+        var offset = TimeZoneInfo.Local.BaseUtcOffset;
+        var label = Math.Max(MoonStr.WidgetsC_Moon_Short_Rise.Text().Length, MoonStr.WidgetsC_Moon_Short_Set.Text().Length);
+        var time = 0;
+        for (var day = 0; day < 7; day++)
+        {
+            var at = new DateTimeOffset(2026, 10, 19 + day, 12, 59, 0, offset);
+            time = Math.Max(time, SkyText.EventTime(locale, at, at.AddDays(-2)).Length);
+        }
+
+        var phase = Math.Max(MoonPhase.Label(MoonPhaseName.FullMoon).Length, MoonPhase.Label(MoonPhaseName.NewMoon).Length);
+        var date = 0;
+        for (var month = 1; month <= 12; month++)
+        {
+            date = Math.Max(date, LocaleFormat.Date(locale, new DateOnly(2026, month, 28), DateStyle.MonthDayShort).Length);
+        }
+
+        var riseSet = FluentType.EstimateWidth(FluentType.BodyStrong, label) + Fluent.Space2 + FluentType.EstimateWidth(FluentType.BodyStrong, time);
+        var major = FluentType.EstimateWidth(FluentType.Body, phase) + Fluent.Space2 + FluentType.EstimateWidth(FluentType.BodyStrong, date);
+        return Math.Max(riseSet, major);
     }
 
     /// <summary>The longest phase name in the current language, so the name never trims at a phase change.</summary>

@@ -57,7 +57,11 @@ public static class MoonLayout
     /// <param name="area">The content area (the card less its header).</param>
     /// <param name="rowHeight">One list row (Windows' 40, or 32 compact).</param>
     /// <param name="nameChars">The longest phase name in the current language, in characters.</param>
-    public static MoonPlan Plan(WidgetArea area, double rowHeight, int nameChars)
+    /// <param name="rowWords">
+    /// The widest a row's label and value get in the current language (their short forms, the gap
+    /// between them), DIPs. A row is shown only where they fit beside its glyph.
+    /// </param>
+    public static MoonPlan Plan(WidgetArea area, double rowHeight, int nameChars, double rowWords = 0)
     {
         if (!area.IsMeasured)
         {
@@ -71,25 +75,56 @@ public static class MoonLayout
 
         if (side)
         {
-            // The disc as tall as the strip lets it be, up to two fifths of its width; the rest is
-            // the text column, which climbs the same ladder from the full height.
-            var disc = Even(Math.Clamp(Math.Min(height - Gap, width * 0.4), DiscFloor, DiscCeiling));
-            var column = new Disclosure(Math.Max(0, area.Width - Inset - disc - (2 * Gap)), height);
+            // The text column climbs the ladder with the disc at its floor; the disc then takes what
+            // the parts it showed leave: as tall as the strip lets it be, up to two fifths of its
+            // width, never so wide that the name or a row's words no longer fit beside it.
+            var column = new Disclosure(Math.Max(0, ColumnBeside(area, DiscFloor)), height);
             var name = column.Take(NameStep.LineHeight, nameWidth);
             var percent = column.Take(PercentStep.LineHeight);
-            var rows = column.TakeRows(rowHeight, Ladder.Count);
-            return new MoonPlan(disc, true, name, percent, rows);
+            var rows = RowRoom(area, DiscFloor, true) >= rowWords ? column.TakeRows(rowHeight, Ladder.Count) : 0;
+
+            var cap = Math.Min(height - Gap, width * 0.4);
+            if (name)
+            {
+                cap = Math.Min(cap, area.Width - Inset - (2 * Gap) - nameWidth);
+            }
+
+            if (rows > 0)
+            {
+                cap = Math.Min(cap, area.Width - (2 * Inset) - Gap - RowChrome - rowWords);
+            }
+
+            return new MoonPlan(Even(Math.Clamp(cap, DiscFloor, DiscCeiling)), true, name, percent, rows);
         }
 
         var room = new Disclosure(width, height);
         room.Reserve(DiscFloor + Gap);
         var named = room.Take(NameStep.LineHeight, nameWidth);
         var lit = room.Take(PercentStep.LineHeight);
-        var count = room.TakeRows(rowHeight, Ladder.Count);
+        var count = RowRoom(area, 0, false) >= rowWords ? room.TakeRows(rowHeight, Ladder.Count) : 0;
 
         var grown = Even(Math.Clamp(Math.Min(DiscFloor + room.Remaining, width * 0.6), DiscFloor, DiscCeiling));
         return new MoonPlan(grown, false, named, lit, count);
     }
+
+    /// <summary>
+    /// A row's chrome beside its words: its padding at both ends (<see cref="Inset"/>), the 16 DIP
+    /// glyph and the 12 DIP gap after it.
+    /// </summary>
+    public const double RowChrome = (2 * Inset) + 16 + 12;
+
+    /// <summary>What a row of this plan has for its label, note and value, DIPs.</summary>
+    public static double RowRoom(WidgetArea area, MoonPlan plan) => RowRoom(area, plan.Disc, plan.Side);
+
+    /// <summary>
+    /// A row's room: the card's width under the disc; beside it, the width the disc and its margins
+    /// leave, as the rows run to the card's right edge. Less the row's chrome either way.
+    /// </summary>
+    private static double RowRoom(WidgetArea area, double disc, bool side)
+        => (side ? area.Width - (2 * Inset) - disc - Gap : area.Width) - RowChrome;
+
+    /// <summary>The text column beside a disc of this size.</summary>
+    private static double ColumnBeside(WidgetArea area, double disc) => area.Width - Inset - disc - (2 * Gap);
 
     /// <summary>Whole, even DIPs keep the disc's outline on whole pixels at 100%.</summary>
     private static double Even(double value) => Math.Max(DiscFloor, Math.Floor(value / 2) * 2);

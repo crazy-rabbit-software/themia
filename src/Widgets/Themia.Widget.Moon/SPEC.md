@@ -16,7 +16,12 @@ renders), `Localization/Locales/` (its own `MoonStr`, 30 languages). Tests: `Tes
   → the phase's name (measured at the language's longest name) → the lit percentage → whole rows
   moonrise, moonset, the next full or new moon ([S-1491]). The disc takes what the rungs leave, up
   to 192 px, so a larger tile only draws a larger moon. On a wide strip (Wide shape, width ≥
-  Regular) the text and rows stand beside the disc. With one rise/set row it is the next of the two;
+  Regular) the text and rows stand beside the disc, which gives way to them: the column climbs the
+  ladder with the disc at its floor, then the disc grows only as far as the name and a row's words
+  still fit beside it. A row is shown only where its words fit beside its glyph (the language's
+  widest: a short rise or set label and a time on another day, or a full or new moon and its
+  shortest date; `MoonLayout.RowRoom`), never clipped at the card's edge (at 268 × 134 the disc
+  took two fifths of the strip and "Rise Tue 11:06 AM" ran off it). With one rise/set row it is the next of the two;
   the next one carries its countdown in the accent ([S-163]). The next full or new moon drops its
   weekday where the row cannot hold it ("Oct 26").
 - **[S-6050]** The moon's styles ([S-6000]), `MoonConfig.Style` (`MoonStyle`): **Disc** (the
