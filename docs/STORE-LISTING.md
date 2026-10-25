@@ -2,7 +2,7 @@
 
 The text and answers for Themia's first submission, in the order Partner Center asks for them. The
 steps around it (reservation, identity, the Pro add-on, building the package) are in
-[STORE.md](STORE.md). Facts here follow the app as built: 79 widget types, the free tier of
+[STORE.md](STORE.md). Facts here follow the app as built: 78 widget types, the free tier of
 20 widgets and 2 views ([S-1065]), Pro as a one-time add-on, no telemetry.
 
 ## Pricing and availability
@@ -56,7 +56,7 @@ steps around it (reservation, identity, the Pro add-on, building the package) ar
 > away and never in the way. No window, no tray icon: just your desktop, with what you want to see
 > on it.
 >
-> Choose from 79 widget types, from a clock, the weather and your calendar to CPU, memory and network
+> Choose from 78 widget types, from a clock, the weather and your calendar to CPU, memory and network
 > meters, mail, tasks, notes, music controls, shortcuts and folders. Every widget adapts to its size:
 > make it bigger and it shows more, make it smaller and it keeps what matters most. Many come in
 > several styles, so a clock can be digital, analogue, flip or written out in words.
@@ -79,7 +79,7 @@ steps around it (reservation, identity, the Pro add-on, building the package) ar
 
 **Product features** (one per line, up to 20):
 
-1. 79 widget types: clock, weather, calendar, mail, tasks, notes, system meters and more
+1. 78 widget types: clock, weather, calendar, mail, tasks, notes, system meters and more
 2. Lives on the desktop layer, behind your windows
 3. Widgets that show more as they grow and stay clear when small
 4. Several styles per widget, such as digital, analogue, flip and word clocks
@@ -128,7 +128,7 @@ listing look sharp.
 > Themia legt Widgets auf den Desktop selbst, hinter deine Fenster: immer einen Blick entfernt und
 > nie im Weg. Kein Fenster, kein Tray-Symbol, nur dein Desktop mit dem, was du sehen willst.
 >
-> 79 Widget-Arten stehen zur Wahl, von Uhr, Wetter und Kalender bis zu CPU-, Arbeitsspeicher- und
+> 78 Widget-Arten stehen zur Wahl, von Uhr, Wetter und Kalender bis zu CPU-, Arbeitsspeicher- und
 > Netzwerkanzeigen, Mail, Aufgaben, Notizen, Musiksteuerung, Verknüpfungen und Ordnern. Jedes Widget
 > passt sich seiner Grösse an: grösser zeigt es mehr, kleiner behält es das Wichtigste. Viele gibt es
 > in mehreren Stilen, eine Uhr etwa digital, analog, als Klappuhr oder in Worten.
@@ -152,7 +152,7 @@ listing look sharp.
 
 **Produktmerkmale:**
 
-1. 79 Widget-Arten: Uhr, Wetter, Kalender, Mail, Aufgaben, Notizen, Systemanzeigen und mehr
+1. 78 Widget-Arten: Uhr, Wetter, Kalender, Mail, Aufgaben, Notizen, Systemanzeigen und mehr
 2. Lebt auf der Desktop-Ebene, hinter deinen Fenstern
 3. Widgets, die mit der Grösse mehr zeigen und klein übersichtlich bleiben
 4. Mehrere Stile pro Widget, etwa Digital-, Analog-, Klapp- und Wortuhr

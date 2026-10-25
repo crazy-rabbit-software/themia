@@ -8,7 +8,7 @@ namespace Themia.Core.Tests;
 
 /// <summary>
 /// [S-6030]..[S-6061] The styles of the countdown and the pomodoro, and the shared ring and
-/// dot-grid rules they draw with (year progress's, the sun's and the moon's are their modules').
+/// dot-grid rules they draw with (the sun's and the moon's are their modules').
 /// </summary>
 public class TimeStylesTests
 {

@@ -428,7 +428,7 @@ combined options.
 - **XAML in a module** works too: a `UserControl` compiled in a module library landed as
   `Themia.Widget.Bye\ByeBadge.xbf`, the existing `PublishCompiledXaml` glob copied it, and it drew in
   Debug and from the AOT executable. The MSIX package builds with a module library in it (M3:
-  `package.ps1` puts `Themia.Widget.YearProgress.pri` beside `resources.pri`, as it does the
+  `package.ps1` puts a module's `.pri` (then Year progress's, since removed) beside `resources.pri`, as it does the
   toolkit's); installing it and a XAML module in it are a manual pass. Clock can move as it is.
 - **A widget's options** come from `IWidgetModule.MenuLines` over a `WidgetMenuLines` (section 15);
   there is no widget settings page (it went 2026-10-19, [S-6536]).

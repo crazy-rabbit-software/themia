@@ -54,7 +54,7 @@ public sealed class StringTableGenerator : IIncrementalGenerator
     private static readonly DiagnosticDescriptor DuplicateKey = Rule("THEMIALOC008", "Key defined twice", "Key '{0}' is defined in both {1} and {2}; a key lives in exactly one file per language");
     private static readonly DiagnosticDescriptor BadArea = Rule("THEMIALOC009", "Bad area folder name", "'{0}' is not a valid area folder name (lowercase letters and digits, '-' between parts, e.g. widgets-a)");
 
-    private static readonly DiagnosticDescriptor BadEnumName = Rule("THEMIALOC010", "Bad strings enum name", "ThemiaStringsEnum '{0}' must be a C# identifier ending in Str, e.g. YearProgressStr");
+    private static readonly DiagnosticDescriptor BadEnumName = Rule("THEMIALOC010", "Bad strings enum name", "ThemiaStringsEnum '{0}' must be a C# identifier ending in Str, e.g. ClockStr");
 
     private static readonly Regex EnumName = new("^[A-Z][A-Za-z0-9]*Str$", RegexOptions.CultureInvariant);
 
@@ -70,7 +70,7 @@ public sealed class StringTableGenerator : IIncrementalGenerator
             .Select((f, ct) => new SourceFile(f.Path, f.GetText(ct)?.ToString() ?? string.Empty))
             .Collect();
 
-        // [S-6909] A module project names its strings enum (<ThemiaStringsEnum>YearProgressStr</ThemiaStringsEnum>,
+        // [S-6909] A module project names its strings enum (<ThemiaStringsEnum>ClockStr</ThemiaStringsEnum>,
         // set by src/Widgets/Directory.Build.props) and gets its own table in its own namespace; the
         // SDK sets nothing and gets the host's Str.
         var target = context.AnalyzerConfigOptionsProvider.Select((o, _) =>

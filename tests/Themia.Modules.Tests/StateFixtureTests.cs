@@ -44,7 +44,7 @@ public sealed class StateFixtureTests
 
         // One widget of each kind the fixture was made with, every one still installed; a widget
         // added since is not in it ([S-6911]: adding a module touches nothing outside its folder).
-        Assert.Equal(79, widgets.Count);
+        Assert.Equal(78, widgets.Count);
         Assert.Equal(widgets.Count, widgets.Select(w => w.Kind).Distinct().Count());
         Assert.All(widgets, w => Assert.True(ModuleCatalog.TryGet(w.Kind, out _), $"{w.Kind} is not installed"));
     }

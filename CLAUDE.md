@@ -108,7 +108,7 @@ src/Themia.App/    WinUI 3 shell, native code, widget views
                    CardWidgetHost (a card's IWidgetHost), Config/ (settings window), Gallery/ (render flags)
   Widgets/         WidgetCatalog (views from the registry), SetupPrompt, WidgetDrag, ItemPalette: no widget
                    of its own, the app hosts modules only (THEMIAMOD005 if it declares one)
-src/Widgets/Themia.Widget.<Name>/     a widget module project (every widget, 79): module, config, view, Preview/,
+src/Widgets/Themia.Widget.<Name>/     a widget module project (every widget, 78): module, config, view, Preview/,
                    Localization/Locales/ (its own <Name>Str), SPEC.md (its section), Tests/
 src/Providers/Themia.Provider.<Name>/ a provider module project (none yet; plain net10.0 over Themia.Sdk)
 src/Themia.Localization.Generator/   build-time generator: Locales/*.json -> the `Str` enum

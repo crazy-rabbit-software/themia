@@ -2025,31 +2025,6 @@
           }
         },
         {
-          "id": "w71",
-          "kind": "YearProgress",
-          "x": 0.01,
-          "y": 0.07,
-          "w": 0.2,
-          "h": 0.2,
-          "background": {
-            "kind": "Default",
-            "colour": "",
-            "opacity": 1
-          },
-          "header": "Top",
-          "itemBackground": {
-            "kind": "Default",
-            "colour": "",
-            "opacity": 1
-          },
-          "itemTextColor": "",
-          "scale": 1,
-          "config": {
-            "kind": "yearProgress",
-            "style": "bars"
-          }
-        },
-        {
           "id": "w72",
           "kind": "NextMeeting",
           "x": 0.02,

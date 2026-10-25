@@ -134,7 +134,7 @@ public sealed partial class KitConformanceTests
 
         Assert.Contains(files, f => f.StartsWith("Themia.App/Widgets/", StringComparison.Ordinal));
         Assert.Contains(files, f => f.StartsWith("Themia.Sdk.WinUI/Widgets/", StringComparison.Ordinal));
-        Assert.Contains(files, f => f.StartsWith("Widgets/Themia.Widget.YearProgress/", StringComparison.Ordinal));
+        Assert.Contains(files, f => f.StartsWith("Widgets/Themia.Widget.Clock/", StringComparison.Ordinal));
         Assert.DoesNotContain(files, f => f.Contains("/Tests/", StringComparison.Ordinal) || f.Contains("/obj/", StringComparison.Ordinal));
     }
 }

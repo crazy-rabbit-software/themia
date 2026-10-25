@@ -20,7 +20,7 @@ Sections, grouped by area (file order below; search for the heading).
 - **Look and layout.** Rows and the card edge; Looking like Windows; The widget header; Responsive layout (shared foundation); Adding a widget; Layout pass over the ported widgets; Widget polish 1 (POLISH-1); Widget polish 2: leftover parity and layout gaps (POLISH-2); The Set up button (R5-SETUP).
 - **Accounts and sign-in.** Where account data comes from; Accounts and sign-in.
 - **System widgets.** (The seven meters, the seven detail widgets, Drive, Removable drives, Brightness, Mixer, Volume, Music, the Audio visualizer, the three screen-time widgets, Notifications and the Focus session are modules: their sections are their projects' `SPEC.md`; the sections named here keep the hub, the samplers and the rules they share, the SDK's.) System data hub (SYS-HUB); System meters; Meter framework and memory; CPU; Disk and ping; Battery and network; Network and ping; System widgets: GPU, mixer and screen time; Screen time: chart, donut and apps (SCREENTIME-SPLIT); GPU and screen time: the whole tile (SYS-P4); System details (SYS-DETAILS); Mixer and Volume (SYS-P5); Power and Bluetooth; Device and location (DEVICE-AND-LOCATION); Quick-setting toggles (QUICK-TOGGLES); Windows' panels: notifications, focus session, brightness (WINDOWS-PANELS).
-- **Time, desk and launch widgets.** (Clock, Countdown, Stopwatch, Pomodoro, Quote, Sun, Moon, Scratchpad, Recycle Bin, Year progress, Alarm, Notes, Clipboard, the Habit tracker, the Gallery, Recent files, Shortcuts and the Folder are modules: their sections are their projects' `SPEC.md`, `src/Widgets/Themia.Widget.<Name>/`; so are Bluetooth, the seven power buttons and the thirteen quick-setting toggles, under System widgets, whose shared rules stay here.) Clock; Countdown and pomodoro; Stopwatch, alarm and drives (KARPO-2); Sun and moon; Audio visualizer (VISUALIZER); Clock, Sun & moon, Quote and Scratchpad: parity and the whole tile (PJ); Music and Pomodoro: parity and the whole tile (PF); Notes; Notes: note store and markdown editor; Clipboard and Countdown: the whole tile; Year progress (YEAR-PROGRESS, its module's SPEC.md); Recent files (RECENT-FILES, the host's list); Recycle Bin (RECYCLE-BIN); Date (DATE); Habits; Shortcuts B: drop, reorder and app layouts (PD); Folder: the file browser (FOLDER, the host's file services); About and the settings file.
+- **Time, desk and launch widgets.** (Clock, Countdown, Stopwatch, Pomodoro, Quote, Sun, Moon, Scratchpad, Recycle Bin, Alarm, Notes, Clipboard, the Habit tracker, the Gallery, Recent files, Shortcuts and the Folder are modules: their sections are their projects' `SPEC.md`, `src/Widgets/Themia.Widget.<Name>/`; so are Bluetooth, the seven power buttons and the thirteen quick-setting toggles, under System widgets, whose shared rules stay here.) Clock; Countdown and pomodoro; Stopwatch, alarm and drives (KARPO-2); Sun and moon; Audio visualizer (VISUALIZER); Clock, Sun & moon, Quote and Scratchpad: parity and the whole tile (PJ); Music and Pomodoro: parity and the whole tile (PF); Notes; Notes: note store and markdown editor; Clipboard and Countdown: the whole tile; Recent files (RECENT-FILES, the host's list); Recycle Bin (RECYCLE-BIN); Date (DATE); Habits; Shortcuts B: drop, reorder and app layouts (PD); Folder: the file browser (FOLDER, the host's file services); About and the settings file.
 - **Mail, calendar, tasks and online widgets.** (Every widget here is a module: Email, Calendar, Contacts, Next meeting, Week planner, Tasks, RSS, Weather now, Weather forecast, Rain next hour, Air quality, Exchange rates, Stocks and the Video stream; their own behaviour is their projects' `SPEC.md`, and the sections named here keep what they share with the host: the mail, office and task services, the offline sync and the SDK's rules.) Mail; Calendar and contacts; Tasks; Mail: the whole tile; Calendar and contacts: the whole tile; Calendar: five styles and shared dates (CAL-SPLIT); Tasks: using the whole tile, and the rest of the original; Weather: current conditions and forecast; Feed, stocks and the web widgets: parity and the whole tile (OFF-E); Web widgets: video stream; Web widgets: size ladder and overlay; Offline sync (SYNC); Next meeting (NEXT-MEETING); Week planner (WEEK-PLANNER); Air quality, rain and exchange rates (ONLINE-2).
 
 ---
@@ -839,7 +839,7 @@ Module sections live in `src/Widgets/*/SPEC.md` and `src/Providers/*/SPEC.md` ([
   Memory, Graphics, Network, Ping, Battery) takes its first widget's name as its title. No two widgets share a place, and none is at home in
   Popular, Browse or More. A folder no widget of the build is at home in (every one of its modules
   absent from the build) is not in the tree, as a folder left with none is not in the menu ([S-3511]).
-- **[S-6909]** Strings per module: a project that sets `ThemiaStringsEnum` (`YearProgressStr`, a
+- **[S-6909]** Strings per module: a project that sets `ThemiaStringsEnum` (`ClockStr`, a
   name ending in `Str`, else THEMIALOC010) gets its own enum, tables and `Text()`/`Format()`/
   `Plural()`/`Local()` extensions from its own `Localization/Locales`, in its own namespace, under the
   same file rules as the host's ([S-1101], [S-1111]); the SDK sets none and gets `Str`. Every table,
@@ -1324,7 +1324,7 @@ files: `Shell/EditBar.cs`, `Shell/DesktopWindow.Toolbar.cs`, `Shell/WidgetPicker
   opening its own submenu. Never deeper than that. The catalogue has no sections of its own any more.
 - **[S-3511]** What is where. **Popular** (each again from its home): Clock, Weather, Forecast,
   Calendar, Mail, Tasks, Notes, Now playing, CPU, Folder, Shortcuts. **Browse**, in
-  order: **Time** (clock, date, alarm, countdown, stopwatch | pomodoro, focus session | year progress);
+  order: **Time** (clock, date, alarm, countdown, stopwatch | pomodoro, focus session);
   **Calendar & mail** (calendar, next meeting, week planner | mail, tasks,
   contacts | notifications); **Weather & sky** (weather, forecast, rain next hour, air quality | sun,
   moon); **News & markets** (stocks, exchange rates | feed); **Music & media** (now playing,
@@ -1942,8 +1942,7 @@ widget on the properties panel ([S-6007], its one place, [S-6536]). Owning files
   clockwise from twelve, round caps, nothing under 0.05 % and the whole ring from 99.95 % (two half
   arcs: an arc back to its own start draws nothing); the stroke a twentieth of the diameter, 3 to
   12 DIPs. Not the meters' half-circle gauge.
-- **[S-6061]** One reflow rule for every dot grid (`DotGrid.Fit`: year progress's days, the moon's
-  month): every column count is tried and the one whose square cells are largest kept, on a tie
+- **[S-6061]** One reflow rule for every dot grid (`DotGrid.Fit`: the moon's month): every column count is tried and the one whose square cells are largest kept, on a tie
   the one with fewer empty cells in the last row; the gap is a quarter of the pitch, so a larger
   tile spaces the dots in proportion.
 - **[S-6010]** *(Retired by [S-6536]: the style is picked on the properties panel only.)*
@@ -7066,6 +7065,12 @@ retired with them and are not reused.
   config, part, settings rows, catalogue and add-menu entries (the disk meter is now a plain entry of
   System), the hub's disk-space source, `DiskSpaceRules`, its strings in every language and its tests;
   retired [S-2420]..[S-2422].
+- **[S-6276]** Removed (user decision 2026-10-25): Year progress, the share of the year, month,
+  week or day gone by. Gone with it: its module (`src/Widgets/Themia.Widget.YearProgress`: kind,
+  config, styles, view, previews, `TimeProgress` rules, its strings in every language and its tests),
+  its line in the Time folder of the add menu and its widget in the every-kind state fixture. A
+  stored one is a kind this build does not have ([S-1900]). Retired with it: [S-4800]..[S-4805],
+  [S-6040]..[S-6042].
 - **[S-1903]** The model is flat: a widget has no parent, and nothing holds other widgets. There is no
   "Move into", no dropping a widget into another, no picker target but the desktop, and no side
   header (`HeaderPlacement` is Top, Bottom, Left, Right or Hidden). A selection is copied, moved, layered and
@@ -7402,11 +7407,6 @@ Strings in `Locales/language-region` and `Locales/widget-prefs`. Tests `WidgetPr
   Regional format (time format, first day of the week, temperature unit, [S-3770]). General and
   Widgets hold none of them; Widgets keeps only the update cadences ([S-3780]). There are no other
   units or formats to move: no widget has its own date, number, wind or distance format.
-
-## Year progress (YEAR-PROGRESS)
-
-A module of its own ([S-6911]): its section, [S-4800]..[S-4805] and [S-6040]..[S-6042], is
-`src/Widgets/Themia.Widget.YearProgress/SPEC.md`.
 
 ## Next meeting (NEXT-MEETING)
 

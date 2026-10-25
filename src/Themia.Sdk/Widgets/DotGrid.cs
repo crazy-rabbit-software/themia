@@ -19,7 +19,7 @@ public readonly record struct DotGridPlan(int Columns, int Rows, double Pitch, d
 }
 
 /// <summary>
-/// [S-6061] The reflow rule for every dot grid (Year progress's days, the Moon's month): try every
+/// [S-6061] The reflow rule for every dot grid (the Moon's month): try every
 /// column count and keep the one whose square cells are largest; on a tie, the one with fewer empty
 /// cells in the last row. The gap is a share of the pitch, so a larger tile spaces the dots out in
 /// proportion rather than drawing larger dots in the same mesh.

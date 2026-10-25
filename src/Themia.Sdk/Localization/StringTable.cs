@@ -20,7 +20,7 @@ public sealed class StringTable
     private readonly Lock _gate = new();
     private readonly HashSet<int> _missingLogged = [];
 
-    /// <param name="name">The generated enum's name (<c>Str</c>, <c>YearProgressStr</c>): what logs and tests call the table.</param>
+    /// <param name="name">The generated enum's name (<c>Str</c>, <c>ClockStr</c>): what logs and tests call the table.</param>
     /// <param name="keys">The dotted key of each id, in id order.</param>
     /// <param name="englishOnly">Ids its en.json lists under <c>$englishOnly</c>.</param>
     /// <param name="tables">One language's compiled table; built on first use by the generated code.</param>

@@ -186,10 +186,10 @@ public sealed class ModuleRegistryGeneratorTests
     }
 
     [Theory]
-    [InlineData("Themia.Widget.YearProgress", "ThemiaWidget", "yearProgress", true)]
-    [InlineData("Themia.Widget.YearProgress", "ThemiaWidget", "yearprogress", false)]
-    [InlineData("Themia.Widget.YearProgress", "ThemiaWidget", "clock", false)]
-    [InlineData("Themia.Widget.YearProgress", "ThemiaProvider", "yearProgress", false)]
+    [InlineData("Themia.Widget.WeekPlanner", "ThemiaWidget", "weekPlanner", true)]
+    [InlineData("Themia.Widget.WeekPlanner", "ThemiaWidget", "weekplanner", false)]
+    [InlineData("Themia.Widget.WeekPlanner", "ThemiaWidget", "clock", false)]
+    [InlineData("Themia.Widget.WeekPlanner", "ThemiaProvider", "weekPlanner", false)]
     [InlineData("Themia.Provider.Todoist", "ThemiaProvider", "todoist", true)]
     [InlineData("Themia.Provider.Todoist", "ThemiaWidget", "todoist", false)]
     [InlineData("Themia.Core", "ThemiaProvider", "microsoft", true)]

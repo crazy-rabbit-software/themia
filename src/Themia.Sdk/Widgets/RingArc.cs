@@ -3,7 +3,7 @@ namespace Themia.Core.Widgets;
 /// <summary>
 /// [S-6060] The filled part of a progress ring, as numbers a view turns into an arc: clockwise from
 /// twelve o'clock, on the circle through the middle of the stroke. One rule for every ring (the
-/// Pomodoro's, the Countdown's, Year progress's), so they cannot disagree on where 25 % ends.
+/// Pomodoro's, the Countdown's), so they cannot disagree on where 25 % ends.
 /// </summary>
 /// <param name="Centre">The ring's centre on both axes: half its diameter.</param>
 /// <param name="Radius">The radius of the stroke's centre line, never under 1.</param>
