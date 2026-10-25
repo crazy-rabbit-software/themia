@@ -58,14 +58,9 @@ public sealed partial class MeterView : IWidgetPreviewState
 
             for (var core = 0; core < _graphs.Count; core++)
             {
-                var history = new List<SeriesPoint>(_graphs.Holds);
-
-                for (var i = 0; i < _graphs.Holds; i++)
-                {
-                    var level = _part.SampleItems[core].Fraction ?? 0.3;
-                    var wave = (Math.Sin((i + (core * 7)) / 4.0) * 0.18) + (Math.Sin((i * (core + 3)) / 5.3) * 0.07);
-                    history.Add(new SeriesPoint(Math.Clamp(level + wave, 0, 1)));
-                }
+                var level = _part.SampleItems[core].Fraction ?? 0.3;
+                var history = PreviewSeries.Wave($"{_part.Kind.Value}/{core}", _graphs.Holds, level, 0.18)
+                    .Select(value => new SeriesPoint(value)).ToList();
 
                 _graphs.Load(core, history, history.Count);
             }
@@ -73,16 +68,9 @@ public sealed partial class MeterView : IWidgetPreviewState
 
         // A share chart reads 0..1; a peak-scaled one only the shape, so any magnitude will do.
         var magnitude = _band.ValueScale == ChartScale.Share ? 1.0 : 1_000_000;
-        var points = new List<SeriesPoint>(_band.Holds);
-
-        for (var i = 0; i < _band.Holds; i++)
-        {
-            var first = 0.45 + (Math.Sin(i / 5.0) * 0.25) + (Math.Sin(i / 1.7) * 0.08);
-            var second = 0.2 + (Math.Cos(i / 4.0) * 0.1);
-            points.Add(new SeriesPoint(first * magnitude, second * magnitude));
-        }
-
-        _band.Load(points);
+        var first = PreviewSeries.Wave(_part.Kind.Value, _band.Holds, _part.SampleReading.Fraction is { } f and > 0 ? f : 0.45, 0.3);
+        var second = PreviewSeries.Wave(_part.Kind.Value + "/second", _band.Holds, 0.2, 0.12);
+        _band.Load([.. first.Zip(second, (a, b) => new SeriesPoint(a * magnitude, b * magnitude))]);
         return Task.CompletedTask;
     }
 

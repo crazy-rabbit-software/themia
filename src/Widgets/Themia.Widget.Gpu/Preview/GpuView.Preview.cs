@@ -55,14 +55,7 @@ internal sealed partial class GpuView : IWidgetPreviewState
         public void ShowFixtureHistory()
         {
             Unwatch();
-            var points = new List<SeriesPoint>(_spark.Holds);
-
-            for (var i = 0; i < _spark.Holds; i++)
-            {
-                points.Add(new SeriesPoint(0.4 + (Math.Sin(i / 5.0) * 0.25) + (Math.Sin(i / 1.7) * 0.08)));
-            }
-
-            _spark.Load(points);
+            _spark.Load([.. PreviewSeries.Wave("gpu", _spark.Holds, 0.4, 0.3).Select(value => new SeriesPoint(value))]);
         }
 
         /// <summary>A fixed 62 % load and its engines: every style renders the same picture on every machine.</summary>
