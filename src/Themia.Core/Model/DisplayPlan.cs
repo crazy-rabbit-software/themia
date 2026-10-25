@@ -46,6 +46,27 @@ public static class DisplayIdentity
 
         return (string.IsNullOrWhiteSpace(gdiName) ? "display" : gdiName, false);
     }
+
+    /// <summary>
+    /// [S-843] The ids of one enumeration, no two alike: when monitors report the same device path,
+    /// the first keeps it and every later one falls back to its own GDI name, unresolved. Without
+    /// this the display pass keeps one of them and the other screen shows no widgets at all (classic
+    /// #176, two monitors of the same make and model).
+    /// </summary>
+    public static List<(string Id, bool Resolved)> Separate(IReadOnlyList<(string Id, bool Resolved, string GdiName)> monitors)
+    {
+        ArgumentNullException.ThrowIfNull(monitors);
+
+        var seen = new HashSet<string>(StringComparer.Ordinal);
+        var ids = new List<(string, bool)>(monitors.Count);
+
+        foreach (var (id, resolved, gdi) in monitors)
+        {
+            ids.Add(seen.Add(id) || !resolved ? (id, resolved) : Resolve(null, gdi));
+        }
+
+        return ids;
+    }
 }
 
 /// <summary>What one display pass has to do to the surfaces.</summary>

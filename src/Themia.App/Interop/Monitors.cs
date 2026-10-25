@@ -122,6 +122,17 @@ internal static unsafe class Monitors
                     Log.Warn(Scope, $"no device path for {monitor.GdiName}; using its ordinal until it reports one");
                 }
 
+                // [S-843] Monitors that report one device path each still get a display of their own.
+                var ids = DisplayIdentity.Separate([.. found.Select(m => (m.Id, m.IdResolved, m.GdiName))]);
+                for (var i = 0; i < found.Count; i++)
+                {
+                    if (ids[i].Id != found[i].Id)
+                    {
+                        Log.Warn(Scope, $"{found[i].GdiName} reports the device path of another display; using its ordinal");
+                        found[i] = found[i] with { Id = ids[i].Id, IdResolved = ids[i].Resolved };
+                    }
+                }
+
                 return found;
             }
             finally

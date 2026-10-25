@@ -50,6 +50,29 @@ public class DisplayPlanTests
         Assert.False(string.IsNullOrEmpty(DisplayIdentity.Resolve(null, "").Id));
     }
 
+    [Fact]
+    public void S843_two_monitors_reporting_one_path_each_keep_a_display_of_their_own()
+    {
+        // Classic #176: two identical monitors, one id, and the second screen lost its widgets.
+        var ids = DisplayIdentity.Separate(
+        [
+            (PathA, true, @"\\.\DISPLAY1"),
+            (PathA, true, @"\\.\DISPLAY2"),
+            (PathB, true, @"\\.\DISPLAY3"),
+        ]);
+
+        Assert.Equal([(PathA, true), (@"\\.\DISPLAY2", false), (PathB, true)], ids);
+        Assert.Equal(3, DisplayPlan.Distinct([.. ids.Select(i => Display(i.Id, resolved: i.Resolved))]).Count);
+    }
+
+    [Fact]
+    public void S843_distinct_paths_and_ordinals_are_left_as_they_are()
+    {
+        var monitors = new List<(string, bool, string)> { (PathA, true, @"\\.\DISPLAY1"), (@"\\.\DISPLAY2", false, @"\\.\DISPLAY2") };
+
+        Assert.Equal([(PathA, true), (@"\\.\DISPLAY2", false)], DisplayIdentity.Separate(monitors));
+    }
+
     // ---- the pass ------------------------------------------------------------------------------
 
     [Fact]

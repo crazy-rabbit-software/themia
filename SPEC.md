@@ -3892,7 +3892,10 @@ model that keeps widgets still when the taskbar changes (S-840..S-859).
   planning (`DisplayPlan.Rekeys` / `AdoptResolvedIds` / `SurfaceRekeys`): whatever is stored under the
   ordinal (view, on/off, scale, view bar) moves to the path, replacing the path's own entry (it is what
   the screen showed), an ordinal with nothing stored moves nothing, and the surface is re-keyed in
-  place, so the screen keeps its view and its widgets are not restarted.
+  place, so the screen keeps its view and its widgets are not restarted. Monitors that report one
+  device path in one enumeration (`DisplayIdentity.Separate`): the first keeps it, every later one
+  falls back to its own GDI name the same way, logged, so each screen keeps a surface and its widgets
+  (classic #176: two identical monitors, and the second screen showed nothing).
 - **[S-844]** One display pass (`AppHost.ReconcileDisplays`, plan in `DisplayPlan.Reconcile`) builds,
   closes and updates surfaces, matched by stable id, so a surface follows its panel whatever order
   Windows enumerates them in, and a surviving surface keeps its cards (a taskbar change restarts no
