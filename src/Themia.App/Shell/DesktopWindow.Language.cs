@@ -71,7 +71,11 @@ internal sealed partial class DesktopWindow
         UiLanguage.ApplyFlow(_menuAnchor);
         UiLanguage.ApplyFlow(_toolbar);
         UiLanguage.ApplyFlow(_properties);
-        UiLanguage.ApplyFlow(_settingsMenu);
+        foreach (var menu in _barMenus.Values)
+        {
+            UiLanguage.ApplyFlow(menu);
+        }
+
         UiLanguage.ApplyFlow(_viewBar);
         UiLanguage.ApplyFlow(_placementHint);
         UiLanguage.ApplyFlow(_noticeLayer);
@@ -81,17 +85,12 @@ internal sealed partial class DesktopWindow
     private Windows.Foundation.Point OnMenuAnchor(Windows.Foundation.Point at)
         => _root.TransformToVisual(_menuAnchor).TransformPoint(at);
 
-    /// <summary>The edit bar's buttons and its add menu, the properties strip and the settings menu, built again in the current language.</summary>
+    /// <summary>The edit bar's buttons and its add menu, the properties strip and the bar's open menu, built again in the current language.</summary>
     private void RebuildToolbar()
     {
         _toolbar.Fill(ToolbarCommands());
         _properties.Fill(PropertiesCommands());
 
-        // [S-3531] Its words in the new language; the keys stay, so what is open stays open.
-        if (SettingsMenuOpen)
-        {
-            _settingsMenu.Show(rebuild: true);
-            PlaceSettingsMenu();
-        }
+        RebuildBarMenu();
     }
 }

@@ -1393,8 +1393,9 @@ About follow, the Displays and Views pages go to the bar's Display and View menu
 settings window goes. Owning files: Core `Settings/SettingsMenu.cs` (the lines' vocabulary, the
 first level) and one builder per section (`SettingsMenu.General.cs`, `.Appearance.cs`, `.Motion.cs`,
 `.Online.cs`), `Geometry/DropDownPlacement.cs`; App `Shell/Menu/MenuPanel*.cs` (the one menu engine,
-the properties menu's too), `Shell/Menu/SettingsMenuView.cs`, `Shell/DesktopWindow.SettingsMenu.cs`,
-`Services/AppHost.SettingsMenu.cs`. Tests `SettingsMenuTests`, `DropDownPlacementTests`.
+the properties menu's too), `Shell/Menu/BarMenuView.cs` (one of the bar's menus over Core's lines),
+`Shell/DesktopWindow.BarMenus.cs` (opening, closing and placing every one of the bar's menus, one
+mechanism), `Shell/DesktopWindow.SettingsMenu.cs`, `Services/AppHost.SettingsMenu.cs`. Tests `SettingsMenuTests`, `DropDownPlacementTests`.
 
 - **[S-3520]** **⚙** on the edit bar is a drop-down: a click opens the **settings menu** under it on
   that display, the keyboard in it on its first line, and ⚙ stays lit while it is open. The menu is

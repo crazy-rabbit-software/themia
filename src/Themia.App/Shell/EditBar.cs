@@ -19,17 +19,24 @@ namespace Themia.App.Shell;
 /// <param name="FillViews">Refills the View menu each time it opens, with the views as they are then.</param>
 /// <param name="SnapOn">[S-905] Whether grid snap is on now.</param>
 /// <param name="SetSnap">Turns grid snap on or off.</param>
-/// <param name="Settings">[S-3520] ⚙: opens the settings menu under it, or closes it again.</param>
-/// <param name="MenuOpening">[S-3521] Another of the bar's menus (Add widget, View) is opening: the settings menu closes.</param>
+/// <param name="Menu">[S-3520] One of the bar's drop-down menus' buttons (⚙): opens its menu under it, or closes it again.</param>
+/// <param name="MenuOpening">[S-3521] Another of the bar's menus (Add widget, View) is opening: the bar's open menu closes.</param>
 /// <param name="Done">Leaves edit mode.</param>
 internal sealed record EditBarCommands(
     Func<Flyout> AddFlyout,
     Action<MenuFlyout> FillViews,
     bool SnapOn,
     Action<bool> SetSnap,
-    Action Settings,
+    Action<BarMenu> Menu,
     Action MenuOpening,
     Action Done);
+
+/// <summary>[S-3520] The edit bar's drop-down menus, each drawn by the menu engine under its button: one open at a time.</summary>
+internal enum BarMenu
+{
+    /// <summary>[S-3520] ⚙: the app's settings.</summary>
+    Settings,
+}
 
 /// <summary>
 /// [S-3500] The edit bar: a compact Windows 11 command bar at the top centre of each display's work
@@ -58,11 +65,11 @@ internal sealed partial class EditBar : Grid
 
     private ToggleButton? _snap;
 
-    /// <summary>[S-3520] ⚙, the settings menu's button.</summary>
-    private Button? _settings;
+    /// <summary>[S-3520] The buttons of the bar's drop-down menus (⚙), by the menu each opens.</summary>
+    private readonly Dictionary<BarMenu, Button> _menuButtons = [];
 
-    /// <summary>[S-3520] The settings menu is open under ⚙: the button stays lit, as a drop-down's does while its menu is open.</summary>
-    private bool _settingsOpen;
+    /// <summary>[S-3520] The menu open under its button: the button stays lit, as a drop-down's does while its menu is open.</summary>
+    private BarMenu? _openMenu;
 
     /// <summary>[S-918] The View menu, and the most it may be tall (the work area below the bar).</summary>
     private MenuFlyout? _viewMenu;
@@ -134,9 +141,9 @@ internal sealed partial class EditBar : Grid
         // last line is Quit Themia, behind a second click and never the button beside Done.
         var settings = new Button { Content = Fluent.Icon(Glyphs.Settings, "TextFillColorPrimaryBrush") };
         IconOnly(settings, Str.Common_Settings.Text());
-        settings.Click += (_, _) => commands.Settings();
-        _settings = settings;
-        SettingsOpen(_settingsOpen);
+        settings.Click += (_, _) => commands.Menu(BarMenu.Settings);
+        _menuButtons[BarMenu.Settings] = settings;
+        MenuOpen(_openMenu);
 
         var done = new Button { Content = Fluent.Icon(Glyphs.Done, "TextFillColorPrimaryBrush") };
         IconOnly(done, Str.Common_Done.Text());
@@ -201,35 +208,39 @@ internal sealed partial class EditBar : Grid
         toggle.Resources["ToggleButtonForegroundCheckedPressed"] = onAccent;
     }
 
-    /// <summary>[S-3520] ⚙ lit while the settings menu is open under it, as a drop-down's button stays while its menu is.</summary>
-    public void SettingsOpen(bool open)
+    /// <summary>[S-3520] The button of the menu open under it lit, as a drop-down's button stays while its menu is; the others not.</summary>
+    public void MenuOpen(BarMenu? open)
     {
-        _settingsOpen = open;
-        if (_settings is not { } button)
+        _openMenu = open;
+        foreach (var (menu, button) in _menuButtons)
         {
-            return;
-        }
-
-        if (open)
-        {
-            button.Background = ThemeBrush.Of("SubtleFillColorSecondaryBrush", Colors.Gray);
-        }
-        else
-        {
-            button.ClearValue(Control.BackgroundProperty);
+            if (menu == open)
+            {
+                button.Background = ThemeBrush.Of("SubtleFillColorSecondaryBrush", Colors.Gray);
+            }
+            else
+            {
+                button.ClearValue(Control.BackgroundProperty);
+            }
         }
     }
 
-    /// <summary>[S-3521] The keyboard back on ⚙ (the settings menu closed from the keyboard).</summary>
-    public void FocusSettings() => _settings?.Focus(FocusState.Keyboard);
-
-    /// <summary>[S-3521] Whether <paramref name="node"/> is ⚙: a press on it toggles the menu rather than closing it.</summary>
-    public bool IsSettingsButton(DependencyObject node) => _settings is not null && ReferenceEquals(node, _settings);
-
-    /// <summary>[S-3522] Where ⚙ is, in <paramref name="layer"/>'s coordinates; null before it has been laid out.</summary>
-    public Themia.Core.Geometry.PixelRect? SettingsBox(UIElement layer)
+    /// <summary>[S-3521] The keyboard back on a menu's button (its menu closed from the keyboard).</summary>
+    public void FocusMenu(BarMenu menu)
     {
-        if (_settings is not { ActualWidth: > 0 } button)
+        if (_menuButtons.TryGetValue(menu, out var button))
+        {
+            button.Focus(FocusState.Keyboard);
+        }
+    }
+
+    /// <summary>[S-3521] Whether <paramref name="node"/> is one of the menus' buttons: a press on it toggles or swaps the menu rather than closing it.</summary>
+    public bool IsMenuButton(DependencyObject node) => _menuButtons.Values.Any(b => ReferenceEquals(node, b));
+
+    /// <summary>[S-3522] Where a menu's button is, in <paramref name="layer"/>'s coordinates; null before it has been laid out.</summary>
+    public Themia.Core.Geometry.PixelRect? MenuButtonBox(BarMenu menu, UIElement layer)
+    {
+        if (!_menuButtons.TryGetValue(menu, out var found) || found is not { ActualWidth: > 0 } button)
         {
             return null;
         }

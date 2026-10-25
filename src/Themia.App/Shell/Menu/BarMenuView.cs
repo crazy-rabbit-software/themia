@@ -13,28 +13,32 @@ using Themia.Sdk.WinUI;
 namespace Themia.App.Shell;
 
 /// <summary>
-/// [S-3520] The edit bar's settings menu (⚙): the menu engine (<see cref="MenuPanel"/>) over
-/// <see cref="SettingsMenu"/>'s lines, with no frame of its own (no icon row, no header): a Windows 11
-/// context menu that stays open while it is used. The lines are Core's; what is drawn here is only
-/// how each kind of line becomes the engine's (a colour its one colour submenu, a font the font
-/// picker), keyed by the lines' own keys, so a change of words (a language switch) is written into
-/// the lines in place and what is open stays open.
+/// [S-3520] One of the edit bar's drop-down menus (⚙ the settings menu): the menu engine
+/// (<see cref="MenuPanel"/>) over Core's lines (<see cref="SettingsLine"/>s, <see cref="SettingsMenu"/>'s
+/// for ⚙), with no frame of its own (no icon row, no header): a Windows 11 context menu that stays open
+/// while it is used. The lines are Core's; what is drawn here is only how each kind of line becomes
+/// the engine's (a colour its one colour submenu, a font the font picker), keyed by the lines' own
+/// keys, so a change of words (a language switch) is written into the lines in place and what is
+/// open stays open.
 /// </summary>
-internal sealed partial class SettingsMenuView : MenuPanel
+internal sealed partial class BarMenuView : MenuPanel
 {
-    private const string Scope = "settings-menu";
+    private const string Scope = "bar-menu";
 
     /// <summary>[S-6443] The Fonts page of Windows Settings, where fonts are added.</summary>
     private static readonly Uri FontsPage = new("ms-settings:fonts");
 
-    private readonly ISettingsMenuHost _host;
+    private readonly string _name;
+    private readonly Func<IReadOnlyList<SettingsLine>> _lines;
     private readonly Action _close;
 
-    /// <param name="host">What the lines read and write.</param>
+    /// <param name="name">Which menu it is: the key its first level is drawn for, and what the log names.</param>
+    /// <param name="lines">Its lines as the state holds them now, read on every change.</param>
     /// <param name="close">[S-3521] Escape with no submenu open closes the menu.</param>
-    public SettingsMenuView(ISettingsMenuHost host, Action close)
+    public BarMenuView(string name, Func<IReadOnlyList<SettingsLine>> lines, Action close)
     {
-        _host = host ?? throw new ArgumentNullException(nameof(host));
+        _name = name ?? throw new ArgumentNullException(nameof(name));
+        _lines = lines ?? throw new ArgumentNullException(nameof(lines));
         _close = close ?? throw new ArgumentNullException(nameof(close));
     }
 
@@ -46,11 +50,11 @@ internal sealed partial class SettingsMenuView : MenuPanel
     {
         try
         {
-            Present("settings", Nodes(SettingsMenu.Root(_host)), null, rebuild);
+            Present(_name, Nodes(_lines()), null, rebuild);
         }
         catch (Exception ex)
         {
-            Log.Error(Scope, "the settings menu could not be built", ex);
+            Log.Error(Scope, $"the {_name} menu could not be built", ex);
         }
     }
 

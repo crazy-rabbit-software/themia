@@ -180,7 +180,7 @@ internal static partial class EditBarRender
         FillViews: _ => { },
         SnapOn: snapOn,
         SetSnap: _ => { },
-        Settings: () => { },
+        Menu: _ => { },
         MenuOpening: () => { },
         Done: () => { })));
 

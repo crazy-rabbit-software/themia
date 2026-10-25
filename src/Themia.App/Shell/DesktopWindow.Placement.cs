@@ -227,7 +227,7 @@ internal sealed partial class DesktopWindow
         _host.SelectionChanged -= OnSelectionChanged;
         _host.PlacementChanged -= OnPlacementChanged;
         _host.Clipboard.Changed -= OnClipboardChanged;
-        _host.SettingsOutdated -= SyncSettingsMenu;
+        _host.SettingsOutdated -= SyncBarMenu;
         _host.SuspendedChanged -= OnSuspendedForSettings;
         _settingsIcons?.Dispose();
         _settingsIcons = null;

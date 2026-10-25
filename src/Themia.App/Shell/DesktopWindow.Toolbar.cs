@@ -14,20 +14,20 @@ internal sealed partial class DesktopWindow
         FillViews: FillViewFlyout,
         SnapOn: _host.State.Design.GridSnap,
         SetSnap: on => _host.Mutate(state => state.Design.GridSnap = on),
-        Settings: ToggleSettingsMenu,
-        MenuOpening: () => CloseSettingsMenu(focusButton: false),
+        Menu: ToggleBarMenu,
+        MenuOpening: () => CloseBarMenu(focusButton: false),
         Done: () => _host.SetEditMode(false));
 
     /// <summary>
     /// [S-905] The bar's switches follow a change made elsewhere (the settings menu, an import),
     /// [S-3701] the properties strip the selection's widgets as they are now (an undo, another display),
-    /// and [S-3531] the settings menu the state.
+    /// and [S-3531] the bar's open menu the state.
     /// </summary>
     private void SyncToolbar()
     {
         _toolbar.SyncSnap(Design.GridSnap);
         SyncProperties();
-        SyncSettingsMenu();
+        SyncBarMenu();
     }
 
     private void FillViewFlyout(MenuFlyout flyout)

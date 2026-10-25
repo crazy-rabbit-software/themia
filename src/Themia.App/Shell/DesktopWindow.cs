@@ -46,8 +46,6 @@ internal sealed partial class DesktopWindow : IWidgetCardHost
 
     private readonly Canvas _propertiesLayer = new();
 
-    /// <summary>[S-3520] The edit bar's settings menu, on the properties' layer: over the cards, under the edit bar.</summary>
-    private readonly SettingsMenuView _settingsMenu;
     private readonly Border _placementHint;
     private readonly TextBlock _placementHintText;
     private readonly Canvas _ghostLayer;
@@ -83,8 +81,7 @@ internal sealed partial class DesktopWindow : IWidgetCardHost
         _toolbar = BuildToolbar();
         _properties = BuildProperties();
         _propertiesLayer.Children.Add(_properties);
-        _settingsMenu = BuildSettingsMenu();
-        _propertiesLayer.Children.Add(_settingsMenu);
+        BuildBarMenus();
 
         // [S-906] The view bar sits on its own layer, over the widgets and under the toolbar.
         _viewBar = new ViewBar(this) { Visibility = Visibility.Collapsed };
@@ -121,8 +118,8 @@ internal sealed partial class DesktopWindow : IWidgetCardHost
 
         _root.PointerPressed += OnRootPointerPressed;
 
-        // [S-3521] A press anywhere outside the settings menu closes it, the presses the cards take too.
-        _root.AddHandler(UIElement.PointerPressedEvent, new PointerEventHandler(OnPressForSettingsMenu), handledEventsToo: true);
+        // [S-3521] A press anywhere outside the edit bar's open menu closes it, the presses the cards take too.
+        _root.AddHandler(UIElement.PointerPressedEvent, new PointerEventHandler(OnPressForBarMenu), handledEventsToo: true);
         AttachShellCleanup();
         AttachSession();
         _root.PointerMoved += OnRootPointerMoved;
@@ -150,7 +147,7 @@ internal sealed partial class DesktopWindow : IWidgetCardHost
         _host.SelectionChanged += OnSelectionChanged;
         _host.PlacementChanged += OnPlacementChanged;
         _host.Clipboard.Changed += OnClipboardChanged;
-        _host.SettingsOutdated += SyncSettingsMenu;
+        _host.SettingsOutdated += SyncBarMenu;
         _host.SuspendedChanged += OnSuspendedForSettings;
 
         // [S-1110] One central redraw when the language changes; no card follows it on its own.
@@ -290,7 +287,7 @@ internal sealed partial class DesktopWindow : IWidgetCardHost
         }
 
         _host.SetEditMode(true);
-        CloseSettingsMenu(focusButton: false);
+        CloseBarMenu(focusButton: false);
         _host.Select(id);
         SyncProperties();
         if (!_properties.OpenSetup())

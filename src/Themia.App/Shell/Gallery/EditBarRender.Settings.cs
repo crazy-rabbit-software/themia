@@ -92,18 +92,18 @@ internal static partial class EditBarRender
         Canvas.SetLeft(bar, barRect.X);
         Canvas.SetTop(bar, barRect.Y);
 
-        var menu = new SettingsMenuView(host, () => { });
+        var menu = new BarMenuView(nameof(BarMenu.Settings), () => SettingsMenu.Root(host), () => { });
         host.Menu = menu;
         UiLanguage.ApplyFlow(menu);
         menu.Visibility = Visibility.Visible;
         canvas.Children.Add(menu);
         menu.Show();
-        bar.SettingsOpen(true);
+        bar.MenuOpen(BarMenu.Settings);
         screen.UpdateLayout();
 
         // [S-3522] Under ⚙, as the surface places it.
         var area = new PixelRect(0, 0, ScreenWidth, screen.Height);
-        var gear = bar.SettingsBox(canvas) ?? barRect;
+        var gear = bar.MenuButtonBox(BarMenu.Settings, canvas) ?? barRect;
         menu.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
         var (x, y) = DropDownPlacement.Place(gear, barRect, menu.DesiredSize.Width, menu.DesiredSize.Height, area, [barRect], UiLanguage.Flow == FlowDirection.RightToLeft);
         Canvas.SetLeft(menu, Math.Round(x));
@@ -126,7 +126,7 @@ internal static partial class EditBarRender
     /// <summary>A stand-in for the settings menu's host: a state of its own, Windows' side made up, every change drawn at once.</summary>
     private sealed class RenderSettingsHost : ISettingsMenuHost
     {
-        public SettingsMenuView? Menu { get; set; }
+        public BarMenuView? Menu { get; set; }
 
         public AppState State { get; } = AppState.CreateDefault();
 

@@ -41,9 +41,9 @@ internal sealed partial class DesktopWindow
             return false;
         }
 
-        // [S-3523] The keyboard in the settings menu is the menu's: the selection behind it is away,
+        // [S-3523] The keyboard in an edit bar's menu is the menu's: the selection behind it is away,
         // so no key reaches it there but the undo and redo of what the menu changed, and F6.
-        if (FocusIsIn(_settingsMenu) && action.Command is not (EditCommand.Undo or EditCommand.Redo or EditCommand.SwitchPane))
+        if (OpenBarMenuView is { } barMenu && FocusIsIn(barMenu) && action.Command is not (EditCommand.Undo or EditCommand.Redo or EditCommand.SwitchPane))
         {
             return false;
         }
@@ -255,7 +255,7 @@ internal sealed partial class DesktopWindow
     }
 
     /// <summary>
-    /// [S-1975] F6 walks the surface's panes: the widgets, the toolbar, the properties strip ([S-3707], while it shows), the settings menu ([S-3520], while it is open), the view bar (when it shows),
+    /// [S-1975] F6 walks the surface's panes: the widgets, the toolbar, the properties strip ([S-3707], while it shows), the edit bar's open menu ([S-3520]), the view bar (when it shows),
     /// the notices (while there are any), and round again; Shift+F6 the other way. A pane lands on its first control; the widgets
     /// on the selected one, else the surface itself.
     /// </summary>
@@ -267,9 +267,9 @@ internal sealed partial class DesktopWindow
             panes.Add(_properties);
         }
 
-        if (SettingsMenuOpen)
+        if (OpenBarMenuView is { } barMenu)
         {
-            panes.Add(_settingsMenu);
+            panes.Add(barMenu);
         }
 
         if (_viewBar.Visibility == Visibility.Visible)
@@ -323,7 +323,7 @@ internal sealed partial class DesktopWindow
     }
 
     /// <summary>Whether the keyboard is on the surface's chrome (the toolbar, the properties strip, the view bar, a notice) rather than the widgets.</summary>
-    private bool FocusOnChrome() => FocusIsIn(_toolbar) || FocusIsIn(_properties) || FocusIsIn(_settingsMenu) || FocusIsIn(_viewBar) || (_noticeLayer is { } notices && FocusIsIn(notices));
+    private bool FocusOnChrome() => FocusIsIn(_toolbar) || FocusIsIn(_properties) || (OpenBarMenuView is { } menu && FocusIsIn(menu)) || FocusIsIn(_viewBar) || (_noticeLayer is { } notices && FocusIsIn(notices));
 
     /// <summary>Whether the focused element is <paramref name="container"/> or inside it.</summary>
     private bool FocusIsIn(DependencyObject container)
