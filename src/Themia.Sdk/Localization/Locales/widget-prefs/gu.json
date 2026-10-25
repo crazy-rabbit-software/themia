@@ -1,7 +1,5 @@
 {
   "$comment": "Machine-written translations: every string in this file needs native review.",
-  "widgetPrefs.nav": "વિજેટ",
-  "widgetPrefs.updates.header": "અપડેટ",
   "widgetPrefs.updates.note": "વિજેટ ઑનલાઇન સેવાઓને કેટલી વાર પૂછે છે. વિજેટ પર રિફ્રેશ કરવાથી તરત પૂછે છે.",
   "widgetPrefs.updates.weather": "હવામાન",
   "widgetPrefs.updates.markets": "સ્ટૉક્સ",

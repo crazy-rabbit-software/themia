@@ -1,7 +1,5 @@
 {
   "$comment": "Machine-written translations: every string in this file needs native review.",
-  "widgetPrefs.nav": "विजेट",
-  "widgetPrefs.updates.header": "अपडेट",
   "widgetPrefs.updates.note": "विजेट ऑनलाइन सेवाओं से कितनी बार पूछते हैं। किसी विजेट पर रीफ़्रेश तुरंत पूछता है।",
   "widgetPrefs.updates.weather": "मौसम",
   "widgetPrefs.updates.markets": "स्टॉक",

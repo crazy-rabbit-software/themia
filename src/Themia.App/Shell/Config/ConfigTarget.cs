@@ -5,12 +5,12 @@ namespace Themia.App.Shell.Config;
 /// <summary>Which page of the config window to show. [S-1831]</summary>
 internal abstract record ConfigTarget
 {
-    /// <summary>A page of the navigation.</summary>
+    /// <summary>A page of the navigation; the first one, Accounts, unless another is named.</summary>
     /// <param name="Item">
     /// On a list page (Displays, Views), the display or view whose group is opened and scrolled
     /// into view; null for the page as the reader left it. Ignored by every other page.
     /// </param>
-    public sealed record App(AppPage Page = AppPage.General, string? Item = null) : ConfigTarget;
+    public sealed record App(AppPage Page = AppPage.Accounts, string? Item = null) : ConfigTarget;
 
     /// <summary>The Views page with this view's group open: what "View settings" opens.</summary>
     public static App ForView(string viewId) => new(AppPage.Views, viewId);
@@ -40,8 +40,6 @@ internal abstract record ConfigTarget
 /// </summary>
 internal enum AppPage
 {
-    General,
-    Appearance,
     Accounts,
     About,
 
@@ -53,9 +51,6 @@ internal enum AppPage
 
     /// <summary>[S-1830] Every view, one group each, with its widgets.</summary>
     Views,
-
-    /// <summary>[S-3780] The update cadences every widget shares.</summary>
-    Widgets,
 
     /// <summary>[S-3797] The display language and the regional formats every widget shares.</summary>
     LanguageRegion,

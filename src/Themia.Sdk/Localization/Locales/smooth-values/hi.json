@@ -1,4 +1,3 @@
 {
-  "shell.motion.smoothValues": "मानों का सहज बदलाव",
-  "shell.motion.smoothValuesDesc": "संख्याएँ, भराव और रंग हर नई रीडिंग तक सहजता से बदलते हैं और ग्राफ़ स्क्रॉल होते हैं। बंद होने पर वे सीधे बदलते हैं"
+  "shell.motion.smoothValues": "मानों का सहज बदलाव"
 }

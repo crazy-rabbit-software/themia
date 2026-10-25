@@ -1,7 +1,5 @@
 {
   "$comment": "Machine-written translations: every string in this file needs native review.",
-  "widgetPrefs.nav": "ویجت‌ها",
-  "widgetPrefs.updates.header": "به‌روزرسانی‌ها",
   "widgetPrefs.updates.note": "ویجت‌ها هر چند وقت از سرویس‌های آنلاین درخواست کنند. تازه‌سازی روی یک ویجت فوراً درخواست می‌کند.",
   "widgetPrefs.updates.weather": "آب‌وهوا",
   "widgetPrefs.updates.markets": "سهام",

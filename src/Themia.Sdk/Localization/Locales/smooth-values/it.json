@@ -1,4 +1,3 @@
 {
-  "shell.motion.smoothValues": "Variazioni di valore fluide",
-  "shell.motion.smoothValuesDesc": "Numeri, riempimenti e colori scorrono verso ogni nuova lettura e i grafici scorrono. Disattivato, saltano"
+  "shell.motion.smoothValues": "Variazioni di valore fluide"
 }

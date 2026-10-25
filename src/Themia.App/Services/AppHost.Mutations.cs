@@ -172,8 +172,6 @@ internal sealed partial class AppHost
         _config.Navigate(target);
     }
 
-    public void ShowSettings() => ShowConfig(new ConfigTarget.App());
-
     /// <summary>Delete a view and everything in it, repairing anything that pointed at it.</summary>
     public void DeleteView(string viewId)
     {

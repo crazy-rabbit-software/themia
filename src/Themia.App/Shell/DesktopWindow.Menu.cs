@@ -67,7 +67,7 @@ internal sealed partial class DesktopWindow
     private List<ItemMenuEntry> SurfaceMenu(SurfaceMenuFacts facts, Point at)
         => SurfaceEntries(facts, new SurfaceMenuActions(
             Paste: _host.Paste,
-            Settings: _host.ShowSettings,
+            Settings: () => OpenSettingsMenu([]),
             AddWidget: () => OpenPickerAt(at),
             SelectAll: SelectAll,
             ToggleSnap: ToggleSnap,

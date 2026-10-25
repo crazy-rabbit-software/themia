@@ -1,4 +1,3 @@
 {
-  "shell.motion.smoothValues": "Perubahan nilai yang halus",
-  "shell.motion.smoothValuesDesc": "Angka, isian, dan warna bergeser halus ke setiap pembacaan baru dan grafik bergulir. Jika mati, langsung melompat"
+  "shell.motion.smoothValues": "Perubahan nilai yang halus"
 }

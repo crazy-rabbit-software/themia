@@ -1,7 +1,5 @@
 {
   "$comment": "Machine-written translations: every string in this file needs native review.",
-  "widgetPrefs.nav": "Widgets",
-  "widgetPrefs.updates.header": "Updates",
   "widgetPrefs.updates.note": "Hoe vaak widgets onlineservices raadplegen. Vernieuwen op een widget vraagt het meteen op.",
   "widgetPrefs.updates.weather": "Weer",
   "widgetPrefs.updates.markets": "Aandelen",

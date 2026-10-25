@@ -1,7 +1,5 @@
 {
   "$comment": "Machine-written translations: every string in this file needs native review.",
-  "widgetPrefs.nav": "Виджеты",
-  "widgetPrefs.updates.header": "Обновление",
   "widgetPrefs.updates.note": "Как часто виджеты обращаются к онлайн-службам. «Обновить» в виджете запрашивает сразу.",
   "widgetPrefs.updates.weather": "Погода",
   "widgetPrefs.updates.markets": "Акции",

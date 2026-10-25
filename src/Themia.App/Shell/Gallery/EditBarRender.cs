@@ -41,7 +41,7 @@ namespace Themia.App.Shell.Gallery;
 /// <c>-vocabulary*.png</c>, one line of each kind on a stand-in widget) — all over a busy
 /// stand-in wallpaper, so the panel's surface is judged against one ([S-3715]).
 /// </summary>
-internal static class EditBarRender
+internal static partial class EditBarRender
 {
     private const string Scope = "editbar-render";
     private const string Flag = "--editbar-png";
@@ -132,6 +132,13 @@ internal static class EditBarRender
                 window.AppWindow.Resize(new SizeInt32((int)((ScreenWidth + 40) * scale), (int)((OpenHeight + 80) * scale)));
                 window.AppWindow.Show(activateWindow: false);
 
+                // [S-3535] --only settings: the settings menu's pictures alone.
+                if (string.Equals(Option(args, "--only"), "settings", StringComparison.Ordinal))
+                {
+                    await SettingsShots(screen, outDir, theme).ConfigureAwait(true);
+                    return;
+                }
+
                 await Shot(screen, Bar(snapOn: true), null, outDir, $"editbar-{theme}.png").ConfigureAwait(true);
                 await Shot(screen, Bar(snapOn: false), null, outDir, $"editbar-{theme}-snapoff.png").ConfigureAwait(true);
 
@@ -151,6 +158,7 @@ internal static class EditBarRender
                 ticker = new Ticker(dispatcher);
                 await PropsShots(screen, ticker, outDir, theme).ConfigureAwait(true);
                 await MarkerShots(screen, ticker, outDir, theme).ConfigureAwait(true);
+                await SettingsShots(screen, outDir, theme).ConfigureAwait(true);
             }
             catch (Exception ex)
             {
@@ -173,7 +181,7 @@ internal static class EditBarRender
         SnapOn: snapOn,
         SetSnap: _ => { },
         Settings: () => { },
-        Exit: () => { },
+        MenuOpening: () => { },
         Done: () => { })));
 
     /// <summary>[S-1113] The bar flows with the language, as the desktop sets it; the screen around it does not.</summary>
@@ -671,8 +679,20 @@ internal static class EditBarRender
         Console.WriteLine($"editbar: wrote {path}");
         screen.Background = flat;
 
-        // [S-3734] What a line asks beside the menu is a popup, not part of the screen's bitmap: each
-        // open one is written beside it, its width said, and closed before the next case.
+        await SavePopups(screen, path).ConfigureAwait(true);
+
+        foreach (var card in cards)
+        {
+            card.Detach();
+        }
+    }
+
+    /// <summary>
+    /// [S-3734] What a line asks beside the menu is a popup, not part of the screen's bitmap: each
+    /// open one is written beside it, its width said, and closed before the next case.
+    /// </summary>
+    private static async Task SavePopups(Grid screen, string path)
+    {
         var popups = VisualTreeHelper.GetOpenPopupsForXamlRoot(screen.XamlRoot);
         for (var i = 0; i < popups.Count; i++)
         {
@@ -694,11 +714,6 @@ internal static class EditBarRender
             }
 
             popups[i].IsOpen = false;
-        }
-
-        foreach (var card in cards)
-        {
-            card.Detach();
         }
     }
 

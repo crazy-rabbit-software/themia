@@ -208,19 +208,6 @@ public static class FluentLayout
         ColorChoiceOptions? options = null)
         => Row(glyph, title, description, ColorChoice.Create(value, onChanged, options, title), "colour", "color picker");
 
-    /// <summary>
-    /// [S-6567] A fill row: the one fill control (<see cref="ColorChoice.CreateFill"/>) — Default,
-    /// Transparent, or a colour with its opacity — as the row's control.
-    /// </summary>
-    public static Border FillPickerRow(
-        string glyph,
-        string title,
-        string? description,
-        FillChoice value,
-        Action<FillChoice> onChanged,
-        FillChoiceOptions options)
-        => Row(glyph, title, description, ColorChoice.CreateFill(value, onChanged, options, title), "colour", "color picker", "opacity", "transparent");
-
     /// <summary>The card itself. Its own method so every row is built the same way.</summary>
     private static SettingsCard Card(IconElement icon, string title, string? description, FrameworkElement? control)
     {

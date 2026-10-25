@@ -1,6 +1,4 @@
 {
-  "widgetPrefs.nav": "Widgets",
-  "widgetPrefs.updates.header": "Actualizaciones",
   "widgetPrefs.updates.note": "Con qué frecuencia los widgets consultan servicios en línea. «Actualizar» en un widget consulta al momento.",
   "widgetPrefs.updates.weather": "Tiempo",
   "widgetPrefs.updates.markets": "Bolsa",

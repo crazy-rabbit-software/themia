@@ -86,7 +86,7 @@ never do it, because it means trusting a certificate on the machine.
    unpackaged Themia first.
 4. Check:
    - Start menu tile and taskbar icon use the Themia logo; About shows the manifest version.
-   - Settings › General › Start with Windows toggles the `ThemiaStartup` task (also visible in
+   - The edit bar's ⚙ › Start with Windows toggles the `ThemiaStartup` task (also visible in
      Settings › Apps › Startup), and a sign-in starts Themia.
    - Settings › License says **Themia Free** (a sideloaded package has no Store licence), shows the
      usage of 20 widgets and 2 views, and the 21st widget (place, paste, duplicate)

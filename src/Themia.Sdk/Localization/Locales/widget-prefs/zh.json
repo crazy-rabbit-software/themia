@@ -1,6 +1,4 @@
 {
-  "widgetPrefs.nav": "小组件",
-  "widgetPrefs.updates.header": "更新",
   "widgetPrefs.updates.note": "小组件查询在线服务的频率。在小组件上点“刷新”会立即查询。",
   "widgetPrefs.updates.weather": "天气",
   "widgetPrefs.updates.markets": "股票",

@@ -1,4 +1,3 @@
 {
-  "shell.motion.smoothValues": "Maayos na pagbabago ng value",
-  "shell.motion.smoothValuesDesc": "Dumudulas ang mga numero, fill at kulay papunta sa bawat bagong reading at nag-i-scroll ang mga graph. Kapag naka-off, tumatalon agad"
+  "shell.motion.smoothValues": "Maayos na pagbabago ng value"
 }

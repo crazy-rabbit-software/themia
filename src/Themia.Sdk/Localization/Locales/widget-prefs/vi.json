@@ -1,7 +1,5 @@
 {
   "$comment": "Machine-written translations: every string in this file needs native review.",
-  "widgetPrefs.nav": "Tiện ích",
-  "widgetPrefs.updates.header": "Cập nhật",
   "widgetPrefs.updates.note": "Tần suất tiện ích truy vấn dịch vụ trực tuyến. Làm mới trên một tiện ích sẽ truy vấn ngay.",
   "widgetPrefs.updates.weather": "Thời tiết",
   "widgetPrefs.updates.markets": "Chứng khoán",

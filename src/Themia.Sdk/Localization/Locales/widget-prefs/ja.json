@@ -1,6 +1,4 @@
 {
-  "widgetPrefs.nav": "ウィジェット",
-  "widgetPrefs.updates.header": "更新",
   "widgetPrefs.updates.note": "ウィジェットがオンライン サービスに問い合わせる頻度。ウィジェットの [更新] ですぐに問い合わせます。",
   "widgetPrefs.updates.weather": "天気",
   "widgetPrefs.updates.markets": "株価",

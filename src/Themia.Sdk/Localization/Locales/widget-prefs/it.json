@@ -1,6 +1,4 @@
 {
-  "widgetPrefs.nav": "Widget",
-  "widgetPrefs.updates.header": "Aggiornamenti",
   "widgetPrefs.updates.note": "Ogni quanto i widget interrogano i servizi online. «Aggiorna» su un widget interroga subito.",
   "widgetPrefs.updates.weather": "Meteo",
   "widgetPrefs.updates.markets": "Borsa",

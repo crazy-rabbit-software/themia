@@ -22,12 +22,11 @@ namespace Themia.App.Shell;
 /// <para>
 /// Keys: typing goes to the search box (also from the list); Down moves into the list, Up from its
 /// first row back to the box; Enter in the box takes the best match, on a row that row; Escape
-/// closes the flyout, as any flyout.
+/// closes the settings menu's Font submenu it stands in ([S-3528]), as any submenu. As wide as that submenu.
 /// </para>
 /// </summary>
 internal sealed partial class FontPicker : Grid
 {
-    private const double ListWidth = 300;
     private const double ListHeight = 360;
 
     /// <summary>
@@ -74,7 +73,6 @@ internal sealed partial class FontPicker : Grid
         {
             SelectionMode = ListViewSelectionMode.None,
             IsItemClickEnabled = true,
-            Width = ListWidth,
             Height = ListHeight,
             TabNavigation = KeyboardNavigationMode.Once,
             ItemTemplate = EmptyRow.Value,
@@ -96,11 +94,10 @@ internal sealed partial class FontPicker : Grid
         _empty.Margin = new Thickness(Fluent.Space1, 0, Fluent.Space1, 0);
         _empty.Visibility = Visibility.Collapsed;
 
-        // The message above the list, in one box of a fixed height, so the flyout does not jump
+        // The message above the list, in one box of a fixed height, so the submenu does not jump
         // while typing.
         var body = new Grid
         {
-            Width = ListWidth,
             Height = ListHeight,
             RowSpacing = Fluent.Space1,
             RowDefinitions = { new() { Height = GridLength.Auto }, new() { Height = new GridLength(1, GridUnitType.Star) } },
@@ -116,7 +113,7 @@ internal sealed partial class FontPicker : Grid
         _list.Loaded += (_, _) => ScrollToChosen();
     }
 
-    /// <summary>Put the caret in the search box. Called once the flyout is open.</summary>
+    /// <summary>Put the caret in the search box.</summary>
     public void FocusSearch() => _box.Focus(FocusState.Programmatic);
 
     /// <summary>Type into the search box, for the debug render.</summary>

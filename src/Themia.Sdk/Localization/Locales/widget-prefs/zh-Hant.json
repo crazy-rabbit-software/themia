@@ -1,7 +1,5 @@
 {
   "$comment": "Machine-written translations: every string in this file needs native review.",
-  "widgetPrefs.nav": "小工具",
-  "widgetPrefs.updates.header": "更新",
   "widgetPrefs.updates.note": "小工具查詢線上服務的頻率。在小工具上按「重新整理」會立即查詢。",
   "widgetPrefs.updates.weather": "天氣",
   "widgetPrefs.updates.markets": "股票",

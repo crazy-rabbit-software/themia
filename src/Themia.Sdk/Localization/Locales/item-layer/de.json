@@ -1,8 +1,6 @@
 {
   "shell.items.background": "Elementhintergrund",
-  "shell.items.backgroundDesc": "Womit Zeilen, Kacheln und Chips in Widgets gefüllt sind, getrennt vom Hintergrund des Widgets",
   "shell.items.text": "Textfarbe der Elemente",
-  "shell.items.textDesc": "Text und Symbole auf Zeilen, Kacheln und Chips",
   "shell.items.textShort": "Elementtext",
   "shell.fill.transparent": "Transparent",
   "shell.fill.opacity": "Deckkraft",

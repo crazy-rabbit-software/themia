@@ -227,6 +227,10 @@ internal sealed partial class DesktopWindow
         _host.SelectionChanged -= OnSelectionChanged;
         _host.PlacementChanged -= OnPlacementChanged;
         _host.Clipboard.Changed -= OnClipboardChanged;
+        _host.SettingsOutdated -= SyncSettingsMenu;
+        _host.SuspendedChanged -= OnSuspendedForSettings;
+        _settingsIcons?.Dispose();
+        _settingsIcons = null;
         Strings.Changed -= OnLanguageChanged;
 
         foreach (var card in _cards)

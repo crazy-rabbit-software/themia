@@ -9,6 +9,7 @@ using Themia.App.Widgets;
 using Themia.Core.Localization;
 using Themia.Core.Widgets;
 using Themia.Sdk.WinUI;
+using Windows.Foundation;
 
 namespace Themia.App.Shell;
 
@@ -17,6 +18,9 @@ internal partial class MenuPanel
 {
     /// <summary>[S-3731] An inline slider's track, and the column its value stands in at the line's end.</summary>
     private const double SliderWidth = 100;
+
+    /// <summary>[S-3734] The least a slider's track gives way to long words.</summary>
+    private const double SliderMinWidth = 64;
 
     private const double SliderValueWidth = 40;
 
@@ -48,9 +52,12 @@ internal partial class MenuPanel
     }
 
     /// <summary>[S-3731] A drawn slider line: its node now, and the parts a change of value is written into.</summary>
-    private sealed class SliderView(MenuNode node, Slider slider, TextBlock words, TextBlock value)
+    private sealed class SliderView(MenuNode node, Slider slider, TextBlock words, TextBlock value, double room)
     {
         public MenuNode Node { get; set; } = node;
+
+        /// <summary>[S-3734] What the words and the track share of the line.</summary>
+        public double Room { get; } = room;
 
         public Slider Slider { get; } = slider;
 
@@ -424,7 +431,8 @@ internal partial class MenuPanel
     /// <summary>
     /// [S-3731] An inline slider's line, 32 DIPs as every line: the icon column (where the level has
     /// icons), its words, the slider and its value, then the end column kept empty where the level has
-    /// one, so its value stands in the values' column. A drag shows the value (and the widgets, where
+    /// one, so its value stands in the values' column. [S-3734] The words keep their room: the track
+    /// (100 DIPs) gives way to long words down to 64, and only words longer than that are trimmed. A drag shows the value (and the widgets, where
     /// the line previews them) and stores once on the release; a key steps it and stores the step; Up
     /// and Down move between the lines as on any other line.
     /// </summary>
@@ -486,7 +494,10 @@ internal partial class MenuPanel
             Add(new Border { Width = Fluent.IconSize + Fluent.Space2 }, GridLength.Auto);
         }
 
-        var view = new SliderView(node, slider, words, value);
+        // [S-3734] What the words and the track share: the line less its icon, value and end columns.
+        var room = MenuWidth - (2 * (Fluent.Space1 + Fluent.Space3)) - (2 * Fluent.Hairline) - (level.Icons ? LeadColumn : 0)
+            - SliderValueWidth - (level.Trail ? Fluent.IconSize + Fluent.Space2 : 0) - Fluent.Space2;
+        var view = new SliderView(node, slider, words, value, room);
         ApplySlider(view, node);
 
         slider.ValueChanged += (_, e) =>
@@ -551,6 +562,12 @@ internal partial class MenuPanel
         view.Words.Text = node.Text;
         view.Words.Foreground = ThemeBrush.Of(node.Disabled ? "TextFillColorDisabledBrush" : "TextFillColorPrimaryBrush", Colors.White);
         TipWhenTrimmed(view.Words);
+
+        // [S-3734] The words keep their room: the track gives way to long words, down to its least,
+        // and only words longer than that are trimmed.
+        // Measured on its own, the words come out a few DIPs short of what the line draws: a gap's worth more.
+        view.Words.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
+        view.Slider.Width = Math.Clamp(view.Room - view.Words.DesiredSize.Width - Fluent.Space2, SliderMinWidth, SliderWidth);
         view.Slider.IsEnabled = !node.Disabled;
         AutomationProperties.SetName(view.Slider, node.Text);
 

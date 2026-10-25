@@ -29,12 +29,11 @@ internal static partial class ConfigPages
     /// [S-701] The app pages, in menu order within their slot. A page is in the navigation, and can
     /// be opened, once it has a line here: adding one is this line plus its own
     /// <c>ConfigPages.&lt;Page&gt;.cs</c>, so packages building different pages never edit the same
-    /// switch. About stays the last footer entry ([S-493]).
+    /// switch. About stays the last footer entry ([S-493]). General, Appearance and the online
+    /// update intervals are not pages any more: they are the edit bar's settings menu ([S-3524]).
     /// </summary>
     public static IReadOnlyList<AppPageEntry> AppPages { get; } =
     [
-        new(AppPage.General, Str.Settings_Nav_General, Glyphs.Settings, NavIcon.Settings, AppPageSlot.Main, c => BuildGeneral(c.Host)),
-        new(AppPage.Appearance, Str.Settings_Section_Appearance, Glyphs.Palette, NavIcon.PaintBrush, AppPageSlot.Main, c => BuildAppearance(c.Host)),
         new(AppPage.Accounts, Str.Shell_Settings_Nav_Accounts, Glyphs.Contact, NavIcon.Person, AppPageSlot.Main, _ => AccountsPage.Build()),
 
         // [S-3797] After Accounts, where Windows Settings puts Time & language.
@@ -43,7 +42,6 @@ internal static partial class ConfigPages
         // [S-1830] Displays before Views, after the app pages: one entry each, never one per item.
         new(AppPage.Displays, Str.App_Displays, Glyphs.Display, NavIcon.Laptop, AppPageSlot.Main, BuildDisplays),
         new(AppPage.Views, Str.App_Views, Glyphs.View, NavIcon.ContentView, AppPageSlot.Main, BuildViews),
-        new(AppPage.Widgets, Str.WidgetPrefs_Nav, Glyphs.Apps, NavIcon.Apps, AppPageSlot.Main, c => BuildWidgets(c.Host)),
         new(AppPage.License, Str.Settings_Nav_License, Glyphs.Certificate, NavIcon.Premium, AppPageSlot.Footer, c => BuildLicense(c.Host)),
         new(AppPage.About, Str.Settings_Section_About, Glyphs.Info, NavIcon.QuestionCircle, AppPageSlot.Footer, c => BuildAbout(c.Host)),
     ];

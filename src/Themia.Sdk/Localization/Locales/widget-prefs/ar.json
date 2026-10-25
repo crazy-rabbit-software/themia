@@ -1,7 +1,5 @@
 {
   "$comment": "Machine-written translations: every string in this file needs native review.",
-  "widgetPrefs.nav": "الأدوات",
-  "widgetPrefs.updates.header": "التحديثات",
   "widgetPrefs.updates.note": "عدد مرات اتصال الأدوات بالخدمات عبر الإنترنت. يؤدي «تحديث» في أداة إلى الاتصال فورًا.",
   "widgetPrefs.updates.weather": "الطقس",
   "widgetPrefs.updates.markets": "الأسهم",

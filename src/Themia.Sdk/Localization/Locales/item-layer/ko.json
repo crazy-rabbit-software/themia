@@ -1,8 +1,6 @@
 {
   "shell.items.background": "항목 배경",
-  "shell.items.backgroundDesc": "위젯 안의 행, 타일, 칩을 채우는 색으로, 위젯 자체의 배경과 별개입니다",
   "shell.items.text": "항목 텍스트 색",
-  "shell.items.textDesc": "행, 타일, 칩 위의 텍스트와 아이콘",
   "shell.items.textShort": "항목 텍스트",
   "shell.fill.transparent": "투명",
   "shell.fill.opacity": "불투명도",

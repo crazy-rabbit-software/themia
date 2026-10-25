@@ -1,8 +1,6 @@
 {
   "shell.items.background": "Фон элементов",
-  "shell.items.backgroundDesc": "Заливка строк, плиток и меток внутри виджетов, отдельно от фона самого виджета",
   "shell.items.text": "Цвет текста элементов",
-  "shell.items.textDesc": "Текст и значки на строках, плитках и метках",
   "shell.items.textShort": "Текст элементов",
   "shell.fill.transparent": "Прозрачный",
   "shell.fill.opacity": "Непрозрачность",

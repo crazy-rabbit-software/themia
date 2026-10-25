@@ -452,9 +452,9 @@ busy desktop ([S-6601]), Debug, private bytes.
   a second. Two processes drawing two widget layers over one wallpaper is indistinguishable from
   one, and with no tray entry there is nothing left to tell them apart by. The running copy is found
   by its command window's class name, which must therefore stay stable across versions.
-- **[S-67]** Exit is offered in one place, the edit toolbar's overflow, and not beside **Done**: it
-  is the only toolbar action that cannot be undone and **Done** is the one next to it the user
-  presses constantly.
+- **[S-67]** Quitting is offered in one place, the last line of the edit bar's settings menu (**Quit
+  Themia**, [S-3532]), and never as a button beside **Done**: it is the only action there that cannot
+  be undone and **Done** is the one the user presses constantly.
 
 ## Not on this machine (UNAVAILABLE)
 
@@ -1299,8 +1299,9 @@ files: `Shell/EditBar.cs`, `Shell/DesktopWindow.Toolbar.cs`, `Shell/WidgetPicker
   8-DIP corners and shadow. Buttons have no fill at rest and the subtle fills under the pointer and
   pressed. In order: **Add widget** (its "+" in the accent), **View** (the display's views, New view,
   Duplicate this view, [S-900]), **Snap** (lit with the accent while on, [S-905]), a 20-DIP hairline,
-  then three icon-only square buttons whose words are their tooltips and names: **More** (Exit,
-  [S-67]), **Settings**, **Done**. Each display has its own bar; the bar is inside the edit-mode hit
+  then two icon-only square buttons whose words are their tooltips and names: **Settings** (⚙, a
+  drop-down: the settings menu under it, [S-3520]; quitting is its last line, [S-67]) and **Done**.
+  There is no More button. Each display has its own bar; the bar is inside the edit-mode hit
   region (the whole work area). While placing, a line in the bar's frame and height stands in its
   place ([S-421]).
 - **[S-3501]** **Add widget** opens the **add menu** under it ([S-1749]; the surface menu's Add widget
@@ -1382,6 +1383,121 @@ files: `Shell/EditBar.cs`, `Shell/DesktopWindow.Toolbar.cs`, `Shell/WidgetPicker
 Needs a live pass: the bar on every display at mixed DPI and with a top taskbar, the menu opening
 under Add widget and at a right-click (and growing sideways as a submenu opens, near a display's
 edge too), the hover delay, the keys in the menu, and a pick starting the placement.
+
+### The edit bar's settings menu (SETTINGS-MENU)
+
+The app's settings move out of the settings window into the edit bar, as Karpo's did (`karpo-app`,
+`docs/widgets.md` §335–§341; user request 2026-10-25), one part at a time: General, Appearance and
+the online update intervals are here; Accounts, Language & region, Themia Pro, Back up & reset and
+About follow, the Displays and Views pages go to the bar's Display and View menus, and then the
+settings window goes. Owning files: Core `Settings/SettingsMenu.cs` (the lines' vocabulary, the
+first level) and one builder per section (`SettingsMenu.General.cs`, `.Appearance.cs`, `.Motion.cs`,
+`.Online.cs`), `Geometry/DropDownPlacement.cs`; App `Shell/Menu/MenuPanel*.cs` (the one menu engine,
+the properties menu's too), `Shell/Menu/SettingsMenuView.cs`, `Shell/DesktopWindow.SettingsMenu.cs`,
+`Services/AppHost.SettingsMenu.cs`. Tests `SettingsMenuTests`, `DropDownPlacementTests`.
+
+- **[S-3520]** **⚙** on the edit bar is a drop-down: a click opens the **settings menu** under it on
+  that display, the keyboard in it on its first line, and ⚙ stays lit while it is open. The menu is
+  the properties menu's engine (`MenuPanel`, [S-3716]) with no frame of its own (no icon row, no
+  header): the same Windows 11 context-menu look, the one 300-DIP width for every level ([S-3734]),
+  submenus that stay open on a pick ([S-3718]) and stand clear of the levels above them and the bars
+  ([S-3733]), the tick, the dot or the chevron at a line's end, inline sliders ([S-3731]), the one
+  colour submenu ([S-3724]), notes ([S-3728]) and the "are you sure?" beside it ([S-3727]). Its keys
+  are the properties menu's ([S-3707]): Tab goes round its lines, Up and Down move, the arrow towards
+  a submenu opens it and the arrow away closes it; F6 reaches it while it is open ([S-1975]).
+- **[S-3521]** It stays open while it is used: a pick changes the setting and the menu stays as it
+  was. It closes on ⚙ again; on Escape (the deepest submenu first, then the menu, the keyboard back
+  on ⚙); on a press anywhere on the surface outside it, which then does what it does (a press on a
+  widget selects it, one on empty surface starts a rubber band); when the Add widget or View menu
+  opens; when a placement starts; and on Done or leaving edit mode any other way. Each display has
+  its own, opened from that display's bar.
+- **[S-3522]** Where it stands (`DropDownPlacement`): 4 DIPs under the bar, its start edge level with
+  ⚙'s (right to left, its end edge level with ⚙'s end), slid along to stay inside the work area,
+  stepped down below the view bar where it would cover it while the work area leaves room, and never
+  outside the work area. Its submenus keep clear of the edit bar and the view bar (`MenuRoom`, with
+  no selection box).
+- **[S-3523]** One menu at a time: while the settings menu is open the selection's properties menu
+  is away (its submenus closed; the selection stays), and it comes back where it was when the
+  settings menu closes. The keyboard in the settings menu is the menu's: no edit key reaches the
+  selection behind it (Delete, Cut, Copy, the arrows, Ctrl+A) but Undo and Redo, which undo what the
+  menu changed, and F6.
+- **[S-3524]** Its first level, in bands with a divider between them: General's lines, inline
+  ([S-3525]); **Appearance ›** ([S-3526]) and **Online updates ›** ([S-3530]); then **All settings…**
+  ([S-3533]) and **Quit Themia** ([S-3532]). The sections stand in the agreed order (General,
+  Appearance, Accounts, Language & region, Online updates, Themia Pro, Back up & reset, About, Quit
+  Themia) as they move here; a section with no lines, and a band with none, is not there: nothing
+  stands empty or greyed for what has not moved yet. The lines are Core's (`SettingsMenu.Root` over
+  an `ISettingsMenuHost`: `SettingsToggle`, `SettingsChoice` of `SettingsRadio`s, `SettingsSlider`,
+  `SettingsColour`, `SettingsFill`, `SettingsFont`, `SettingsSubmenu`, `SettingsCommand`,
+  `SettingsNote`), each keyed by a path that is the same in every language
+  (`appearance/cards/radius`); the app draws each as the engine's line of that kind.
+- **[S-3525]** **General**: **Start with Windows** ([S-933]; ticked while Windows will start Themia,
+  read from Windows each time the menu opens and the stored value until then; a click asks Windows and
+  the tick shows what it reached), with under it, as notes, what holds against it ([S-935]: switched
+  off in Windows, a policy, a change that did not take, the raw error under that advice only);
+  **Show desktop icons** ([S-930]; as Windows has them, read when the menu opens and followed while it
+  is open, [S-932]); **Pause during full-screen apps** (game mode, [S-920]; "Paused now" at its end
+  while it holds the widgets).
+- **[S-3526]** **Appearance ›**, the Appearance page's groups ([S-3830]), behind dividers: **Style ›**
+  ([S-3527]); **Theme and colours ›** (Theme › Use system setting, Light, Dark; Accent, a colour whose
+  Default is the Windows accent and whose swatches are Windows' palette; Background, the widgets'
+  fill, [S-6568]; Header, the header strip's colour, Same as the widget by default, [S-828]; Header
+  opacity, a slider 0–100 % in fives); **Item background ›** (Background, the items' fill; Item text
+  colour, [S-6545]); **Widget cards ›**, its value the border's style (Corner radius 0–32 px; Border ›
+  None, Solid, Dashed, Dotted; Border width 0–8 px; Border colour; Border opacity 0–100 %); **Text and
+  size ›** (Font ›, [S-3528]; Text size 50–200 % and Widget scale 50–300 %, in fives); **Layout ›**
+  (Gap between widgets 0–48 px in twos; Snap to grid); and **Motion ›** ([S-3529]). Each line writes
+  the field its page row wrote, in one change (one undo step), and the appearance engine applies it
+  live ([S-822]); a slider stores once, on the release ([S-3731]); the option that holds changes nothing.
+- **[S-3527]** **Style ›** lists the presets, the dot on the one the design matches, and Custom
+  (greyed, with the dot) while it matches none ([S-834]). A preset picked over a look of the user's
+  own asks beside the menu first ([S-6483]: the app's one "are you sure?", [S-3727], "Replace your
+  custom look?", what it replaces and what stays under it, Replace and Cancel); only Replace writes it.
+- **[S-3528]** **Text and size › Font ›**: its submenu holds the font picker (`FontPicker`, [S-1723]:
+  its search box over the presets and every installed family, each drawn in its own font, the chosen
+  one ticked, [S-6440]..[S-6442]), then **Add fonts** ([S-6443]). The Font line's value is the chosen
+  font's name ([S-6441]). A pick stores it, and the picker is drawn again with that one ticked.
+- **[S-3529]** **Motion ›** ([S-1014]): Startup animation ›, Unlock animation ›, View change
+  animation ›, each with its style at its end and as its submenu the ten styles with the dot,
+  **Animation length** (a slider from 0.1 to 5 s in tenths, written in seconds) and **Play it now**;
+  then **Smooth value changes** ([S-6329]); and, while Windows' animation effects are off, a note that
+  nothing plays ([S-1010]). A new style or length is stored and played on the desktop at once.
+- **[S-3530]** **Online updates ›** ([S-3780]): one line per cadence row (the host's, then any
+  provider's own, [S-6910]), its value the interval that holds ("Every 30 minutes") and its submenu
+  the row's intervals with the dot, then a note of what the intervals mean. A pick is stored with no
+  relayout.
+- **[S-3531]** The menu follows the state: every change (its own, an undo, an import, another
+  display's) is written into its lines in place, so an open submenu, a slider and the focus stay
+  where they are; what Windows reports (start with Windows, the desktop icons, game mode holding the
+  widgets) updates it the same way. A language switch writes its words in the new language and keeps
+  what is open open: the lines' keys do not change.
+- **[S-3532]** **Quit Themia** is the menu's last line ([S-67]): it quits on every display, as the
+  bar's More › Exit did; the More button is gone.
+- **[S-3533]** *(Temporary: goes with the settings window.)* **All settings…**, right above Quit
+  Themia, opens the settings window on its first page (Accounts), for what has not moved yet
+  (Accounts, Language & region, Displays, Views, License, About).
+- **[S-3534]** The ways in: ⚙, and the surface menu's Settings ([S-1744]), which opens it on that
+  display. `DesktopWindow.OpenSettingsMenu(path)` opens it at a level, by the lines' keys, as clicks
+  would (`MenuPanel.OpenPath`, the path the Set up button takes too, [S-1862]). The settings window's
+  General, Appearance and Widgets pages are gone, with their search entries and their navigation
+  icons; nothing opens them.
+- **[S-3535]** Debug renders: `--editbar-png <outDir> [--theme light|dark] [--lang xx] [--only
+  settings]` draws the menu open under ⚙ on the stand-in display (`settings-<theme>.png`) and its
+  submenus opened by key (`-appearance`, `-style`, `-theme`, `-accent`, `-background`, `-items`,
+  `-cards`, `-border`, `-text`, `-font`, `-layout`, `-motion`, `-motion-startup`, `-online`,
+  `-online-weather`), `-advice` (start with Windows switched off in Windows, game mode holding the
+  widgets, Windows' animations off) and `-replace` (a preset over a look of one's own: the question
+  beside the menu, its `-popup0`), over a stand-in host that reaches neither Windows nor the user's
+  state; `--only settings` draws these alone.
+
+Needs a live pass: ⚙ on every display at mixed DPI and with a top taskbar (the menu under the
+button, its submenus flipping at the screen's edges, the view bar at the top); the keyboard (focus
+in it on open, Escape back to ⚙, F6, Undo inside it); a press on a widget closing it and selecting
+the widget; Start with Windows against Task Manager's switch and in the packaged build (the startup
+task); Show desktop icons followed while the desktop's own menu flips them; game mode's "Paused now"
+on a second display; the font picker's search and the installed fonts; the colour dialog and the
+eyedropper from a colour submenu; every Appearance line applying live; a language switch with a
+submenu open; Quit Themia.
 
 ### The selected widget's properties strip (QUICKSET)
 
@@ -1578,7 +1694,8 @@ and the SDK's `Settings/ListDrop.cs` (tests `QuickSetTests`, `StripPlacementTest
 - **[S-3731]** A **slider** (`WidgetMenuLines.Slider`, `MenuSlider`; user request 2026-10-19: the
   card's Scale and a fill's Opacity, and a widget's own number set by feel) is one 32-DIP line: the
   icon column, its words, the slider and its value as the line writes it, its end column kept so the
-  value stands in the values' column. A drag shows the value at the line's end as it goes (and, for
+  value stands in the values' column; the words keep their room ([S-3734]), the 100-DIP track giving
+  way to long words down to 64 DIPs. A drag shows the value at the line's end as it goes (and, for
   the card's Scale and fills, on the selected widgets: `CardPreview`, painted only) and **stores once
   on the release**, one change and one undo step; a key (Left, Right, Home, End, Page Up/Down) steps
   it and stores the step; Up and Down move between the lines as on any line. A value is kept inside
@@ -3236,15 +3353,14 @@ The settings window is drawn as Windows 11's Settings app (S-1540..S-1559). Owni
   the connected displays and for each its view, on/off, scale, view bar and the views it can pick from.
   Never where widgets sit, so a drag on the desktop rebuilds nothing. Changes
   that do not raise `StateChanged` (`Mutate(relayout: false)`) are not followed.
-- **[S-1722]** The app pages: General, Appearance, Accounts, Language & region ([S-3797]), Displays,
-  Views and Widgets in the main slot ([S-1830]); License and About in the footer. There is no Layout page: its two rows (gap between widgets, snap to grid) are the
-  Layout section at the end of Appearance's look, before the motion rows. General has no Data
-  section (it held only "open the data folder") and no Developer section.
-- **[S-1723]** Every font setting picks through one control, `FontChoice`: a drop-down button whose
-  flyout (`FontPicker`) is a search box over a virtualised list of the presets, then the installed
-  families ([S-827]), each entry drawn in the font it names (a preset in the family it maps to,
-  [S-826]; the system entry in the UI's own), the current one ticked and scrolled into view. The
-  closed button shows the name in the UI font. Beside it, "Add fonts" ([S-6443]).
+- **[S-1722]** The app pages: Accounts, Language & region ([S-3797]), Displays and Views in the main
+  slot ([S-1830]); License and About in the footer. General, Appearance and Widgets are not pages any
+  more: they are the edit bar's settings menu ([S-3524]). No Layout, Data or Developer page.
+- **[S-1723]** Every font setting picks through one picker, `FontPicker`: the settings menu's Font
+  submenu ([S-3528]), a search box over a virtualised list of the presets, then the installed families
+  ([S-827]), each entry drawn in the font it names (a preset in the family it maps to, [S-826]; the
+  system entry in the UI's own), the current one ticked and scrolled into view; under it "Add fonts"
+  ([S-6443]).
 - **[S-6440]** The list (`FontSearch.Options`): the presets, then the installed families in order; a
   set family that is not installed (removed since, or the list not read yet) right after the presets;
   nothing listed twice; an implausible name adds nothing. A symbol or icon family (every GDI report
@@ -3253,10 +3369,10 @@ The settings window is drawn as Windows 11's Settings app (S-1540..S-1559). Owni
 - **[S-6442]** Search (`FontSearch.Filter`): case- and accent-insensitive, the query anywhere in the
   name (also with spaces left out: "segoeui"); names starting with it first, then a word starting
   with it, then the rest, each in list order. The system entry stays on top whatever is typed. Keys:
-  the caret is in the box when the flyout opens; typing on the list goes to the box; Down enters the
+  typing on the list goes to the box; Down enters the
   list, Up from its first row returns; Enter in the box takes the best match (`FontSearch.Best`: the
   system entry only if its own name matched; nothing for a blank query or no match, which says so),
-  Enter on a row takes it; Escape closes.
+  Enter on a row takes it; Escape closes the Font submenu.
 - **[S-6443]** "Add fonts" opens Windows Settings › Personalization › Fonts (`ms-settings:fonts`,
   through `ShellLauncher.OpenWindowsSettings`). `WM_FONTCHANGE` on the command window drops the
   cached family list: an open picker re-reads it and keeps its query, a later one reads the new set.
@@ -3399,7 +3515,7 @@ plots and how it is coloured. Layout is the SDK's `MeterFace` (tests `MeterFaceT
 - **[S-6328]** Debug renders draw a fixed point of every glide: `--widget-png <Kind> --state sample
   --tween 0..1` draws the sample from a reading a third as large (items shifted by five) that far
   towards it.
-- **[S-6329]** **Smooth value changes** (user request 2026-10-16), Settings › Appearance › Motion,
+- **[S-6329]** **Smooth value changes** (user request 2026-10-16), the settings menu's Appearance › Motion ([S-3529]),
   a toggle, **on by default** (`DesignState.SmoothValues`): one switch for every smooth motion of a
   live value, the readouts' glides ([S-6323]..[S-6327]) **and** the history charts' scroll ([S-1826]),
   since the two are one motion (a number reaches a reading as its point reaches the edge) and one
@@ -4808,12 +4924,12 @@ card is re-created, no tick restarts. Pure rules live in Core (`DesignLook`, `De
 - **[S-832]** Applying a preset writes its fields in one mutation and leaves every other field alone.
 - **[S-833]** The picker shows the matching preset, or Custom; only owned fields are compared, colours
   case-insensitively, numbers within 0.001.
-- **[S-6483]** Picking a preset while the design reads as Custom first asks (the settings window's
-  `ContentDialog`, `FluentLayout.ConfirmAsync`): "Replace your custom look?", naming the preset and
-  what it replaces (theme, colours, font, border, corners, spacing) and what stays (text size, widget
-  scale, motion); Replace, or Cancel (the default button, Escape). Cancel writes nothing and the page
-  shows Custom again. A design that is a preset is never asked about: nothing of the user's is lost.
-  The rule is `DesignPresets.ReplacesCustomLook`.
+- **[S-6483]** Picking a preset while the design reads as Custom first asks beside the settings menu
+  (the app's one "are you sure?", [S-3527]): "Replace your custom look?", naming the preset and what it
+  replaces (theme, colours, font, border, corners, spacing) and what stays (text size, widget scale,
+  motion); Replace, or Cancel. Cancel, Escape or a click away write nothing, and Style still says
+  Custom. A design that is a preset is never asked about: nothing of the user's is lost. The rule is
+  `DesignPresets.ReplacesCustomLook`.
 - **[S-6510]** **Two layers.** The card's background ([S-823]) and the **item background** — what the things a widget draws inside its card are
   filled with — are apart: a widget whose card is None still shows its items on the item layer.
   The item background is a fill choice like the card's ([S-6560]), app-wide on the design
@@ -4873,19 +4989,12 @@ card is re-created, no tick restarts. Pure rules live in Core (`DesignLook`, `De
   choice: Default is Default and Default; Midnight #0B0B0F at 96 %, Daylight #FFFFFF at 86 %, Glass
   #1B2030 at 55 % (its items #2A3248 at 60 %), Terminal #050D07 at 97 %, Paper #FAF7F0 at 100 %.
   Applying one writes copies, never the preset's own objects.
-- **[S-6567]** The **fill control** (`ColorChoice.CreateFill`, `FluentLayout.FillPickerRow`), one
-  path for both fills on the Appearance page (the properties menu draws its fills as menu lines,
-  [S-3724]): the colour control's swatch button
-  and flyout ([S-1549]) with **Default**, **Transparent** (an empty swatch), the swatches, Custom
-  colour (WinUI's picker with its **alpha slider** too) and the eyedropper, and an **Opacity**
-  slider (0..100 % in 5 % steps, on once a colour is chosen) under them. The button reads Default's
-  label, "Transparent", or the colour's name with its opacity under 100 % ("Custom, 50%"), its swatch
-  the colour at that opacity. Picking a colour keeps the opacity last set; the slider shows a move at
-  once and stores it when it is let go (or a key steps it, or the flyout closes): one change, not one
-  per step.
-- **[S-6568]** The Appearance page has one **Widget background** row (Theme and colours, Default
-  reads "Theme colour") and one **Background** row in the Item background group, both the fill control;
-  the old Widget opacity and Item colour / Item opacity rows are gone. Settings import names each
+- **[S-6567]** *(Retired by [S-3526]: the settings window's fill control went with the Appearance
+  page; every fill is a menu's fill line, with Default, Transparent, the swatches, Opacity, Custom
+  colour and the eyedropper, [S-3724].)*
+- **[S-6568]** The settings menu's Appearance › Theme and colours has one **Background** line (the
+  widgets' fill, Default reading "Theme colour") and Item background one **Background** line (the
+  items'), both fill lines ([S-3724]); there is no separate opacity line. Settings import names each
   fill's change in words ("Theme colour", "Transparent", "#1B2030, 55%").
 - **[S-6569]** Debug: `--design background=default|transparent|#RRGGBB[@percent]` and `items=…` set
   the app-wide fills of a render (`opacity=` and `itemOpacity=` their colours' opacity);
@@ -4912,9 +5021,9 @@ card is re-created, no tick restarts. Pure rules live in Core (`DesignLook`, `De
   fades the text.
 - **[S-6543]** On load a text colour that is not one is empty (the default), loudly, app-wide and per
   widget (`ItemLook.RepairTextColour`); a missing one is empty, silently.
-- **[S-6545]** The Appearance page's Item background group has **Item text colour** (the colour
-  control, Theme colour as its default, the neutrals first). Presets own it and none sets one (Glass's
-  dark items read with the dark theme's white text). Settings import names the change.
+- **[S-6545]** The settings menu's Appearance › Item background has **Item text colour** (a colour line,
+  Theme colour as its default, the neutrals first). Presets own it and none sets one (Glass's dark
+  items read with the dark theme's white text). Settings import names the change.
 - **[S-6546]** **Where it reaches: what stands on an item.** One path: `ItemFill.Paint` of any role but
   Track makes the element an item, and every text, glyph and shape inside it drawn in a theme text
   colour (the four `TextFillColor*` tiers) is drawn in its card palette's text brush of that tier
@@ -4964,11 +5073,8 @@ card is re-created, no tick restarts. Pure rules live in Core (`DesignLook`, `De
   are the tracks that stand for a progress bar or ring (Pomodoro's ring), the
   forecast's temperature range bar and a habit's empty dot. None uses the disabled fill, which reads
   as a control that is switched off.
-- **[S-834]** Appearance page: Style (presets + Custom), theme, accent, widget background ([S-6568]),
-  header background + opacity, corner radius, border group, font (presets + installed), text size,
-  widget scale, then Layout ([S-1722]: gap between widgets, snap to grid). Picking a preset rebuilds
-  the page's rows in place; no other row of the page rebuilds anything (a change made elsewhere
-  is caught up by the window, [S-1720]).
+- **[S-834]** *(Retired by [S-3526] and [S-3527]: there is no Appearance page; its rows are the settings
+  menu's Appearance lines, in the same groups, each written in place.)*
 
 Not ported, on purpose: the original's preset preview tiles (a drop-down lists them, through the
 shared `FluentLayout` row like every setting); the blur that tracked opacity (there is no blur layer
@@ -5253,12 +5359,12 @@ FullscreenWatch,DesktopIcons,DesktopFolderView,ShellClicks}.cs`; host in `Servic
 `Services/Autostart.cs`; surface in `Shell/DesktopWindow.Integration.cs`; rows in
 `Shell/Config/ConfigPages.General.Desktop.cs`.
 
-- **[S-920]** Game mode (General › "Pause widgets during full-screen apps", off by default, original
+- **[S-920]** Game mode (the settings menu's "Pause during full-screen apps", [S-3525], off by default, original
   `game_mode.rs`/`gameMode.ts`): the widgets are suspended while `SHQueryUserNotificationState`
   reports an exclusive Direct3D app, a full-screen window (`QUNS_BUSY`: borderless games, full-screen
   video) or presentation settings, and resumed when it no longer does. One pure decision
   (`GameMode.Decide(enabled, state, foreground, suspended)`) from a fresh query on every check. The
-  row shows "Paused now" while it holds the widgets.
+  line says "Paused now" at its end while it holds the widgets.
 - **[S-921]** Switching it off resumes at once; off, no hook, window or check exists at all.
 - **[S-922]** Never suspended while a window of this process has the foreground: an edit-mode surface
   spans its monitor and Windows calls that "busy".
@@ -5313,14 +5419,14 @@ FullscreenWatch,DesktopIcons,DesktopFolderView,ShellClicks}.cs`; host in `Servic
   `desktop:StartupTask TaskId="ThemiaStartup" Enabled="false"`). One switch, same states and advice.
 - **[S-934]** The Run value is `"<exe>" --autostart`; a startup-task activation counts the same.
   `Autostart.LaunchSource` tells a sign-in launch from a manual one (read once in `App.OnLaunched`).
-- **[S-935]** A change that did not take says what to do (original AS-04/05): an inline note under
-  the row (Windows switched it off → Settings › Apps › Startup; policy; access denied; other), with the
+- **[S-935]** A change that did not take says what to do (original AS-04/05): a note under the
+  settings menu's Start with Windows line ([S-3525]; Windows switched it off → Settings › Apps › Startup; policy; access denied; other), with the
   raw error in small print under the advice, never alone. The switch stays clickable and shows what
   was reached.
 - **[S-936]** "On" means it will actually run (original AS-07): the Run value must launch this
   executable (a stale path is off) and Windows' own switch (`Explorer\StartupApproved\Run`, low bit
   of the first byte = disabled) must allow it. Turning it on from Themia removes that record, the
-  user's newest choice winning. Read fresh on every visit; `Design.RunAtStartup` is a first-paint cache.
+  user's newest choice winning. Read fresh each time the settings menu opens; `Design.RunAtStartup` is a first-paint cache.
 - **[S-937]** Packaged states map from `StartupTaskState`; "disabled by user" can only be undone in
   Windows (advice says where), policy states are reported as such, unknown values read as unknown.
 - **[S-938]** Click clean-up (original `dismiss_start_menu_if_open`, `dismiss_context_menu_if_open`,
@@ -5346,8 +5452,7 @@ Settings does (System, Bluetooth, Personalization, Accounts...). Code: `Shell/Co
 
 - **[S-1600]** The icons are Microsoft's Fluent UI System Icons "Color" set (the family Windows uses),
   bundled unmodified as SVG in `src/Themia.App/Assets/NavIcons/` (content files, no package). One
-  per entry, echoing the Windows Settings equivalent where there is one: General = gear (`settings`),
-  Appearance = Personalization's brush (`paint_brush`), Accounts = Accounts' person (`person`),
+  per entry, echoing the Windows Settings equivalent where there is one: Accounts = Accounts' person (`person`),
   About = `question_circle` (the set has no
   info icon), Views = `content_view`, Displays = System's screen (`laptop`; the set has
   no desktop monitor), Language & region = Time & language's globe (`globe`). A new app page names its icon in its `AppPages` line.
@@ -6309,15 +6414,13 @@ Owning files: `Shell/Config/ConfigPages.Displays.cs`, `ConfigPages.Views.cs`,
   change made elsewhere catches them up; a colour keeps the Views page's shape (no rebuild under the picker).
 - **[S-3832]** "New displays show" ([S-847]) heads the Displays page: a setting of every display to
   come, not of one display's group. Each view in it carries its coloured mark.
-- **[S-3833]** The General page holds start with Windows, desktop icons and game mode (the language
-  is on Language & region, [S-3797]). No
-  Edit layout switch (edit mode starts on the desktop or from a view's menu) and no local-network
-  switch ([S-3840]).
+- **[S-3833]** *(Retired by [S-3525]: there is no General page; start with Windows, the desktop icons and
+  game mode are the settings menu's first lines. Still no Edit layout switch and no local-network
+  switch, [S-3840].)*
 - **[S-3834]** The navigation pane has no "Themia" heading; the title bar keeps the app's mark and name.
-- **[S-3830]** The Appearance page: Style, then four groups, each a `FluentLayout.Expander` whose
-  headline setting is the header's own control: Theme and colours (theme; accent, widget fill and
-  opacity, header fill and opacity), Widget cards (border style; corner radius, border width, colour
-  and opacity), Text and size (font, text size, widget scale), Layout (gap, snap to grid); then Motion.
+- **[S-3830]** *(Retired by [S-3526]: there is no Appearance page. Its groups (Theme and colours,
+  Item background, Widget cards, Text and size, Layout, then Motion) are the settings menu's
+  Appearance submenus.)*
 - **[S-3831]** App page descriptions are one line where the words allow it.
 Needs a manual pass: dragging a view's group onto another on the Views page; each "…" menu action
 (Show on this display, Edit layout, Duplicate, Delete); Alt+Shift+Up / Down on a row, focus kept and the right-click menu; View settings from
@@ -6587,10 +6690,10 @@ Ported from the original's `src/SPEC.md` [S-15], [S-16], [S-23], [S-24], [S-26],
 - **[S-1013]** Purely cosmetic: intros move the cards' composition visuals, never their layout, so the
   hit region, drag geometry and saved rects never see a half-animated box, and every widget takes clicks
   from the first frame. The show ends on its animations' completion (one scoped batch), not a timer.
-- **[S-1014]** Settings › Appearance › Motion: one expander per moment (Startup, Unlock, View change)
-  with the style, the length of the whole animation (100..5000 ms) and a ▶ replay, then the Smooth
-  value changes toggle ([S-6329]). Any change replays
-  that moment on the desktop. The startup sound ([S-1008], [S-1009]) is removed.
+- **[S-1014]** The settings menu's Appearance › Motion ([S-3529]): one submenu per moment (Startup,
+  Unlock, View change) with the style, the length of the whole animation (100..5000 ms) and Play it
+  now, then the Smooth value changes switch ([S-6329]). Any change replays that moment on the
+  desktop. The startup sound ([S-1008], [S-1009]) is removed.
 - **[S-1015]** Every intro runs on the compositor (`MotionKit`): keyframe and expression animations,
   no per-frame managed timer, no layout pass, no redraw of a widget.
 - **[S-1016]** Debug: `Themia.exe --motion-png <outDir>` freezes the intros mid-flight on a stand-in
@@ -6742,7 +6845,7 @@ Tests: `ContextMenuTests`, `MenuShortcutAndArtTests`.
   Explorer commands, [S-6416]) are the widget's own and unchanged; empty surface stays click-through ([S-1744]).
   `ShellMenus.ForCard`; tests `S1758_`.
 - **[S-1744]** In edit mode a right-click on **empty surface** (not a card, the toolbar or the view
-  bar) opens the surface menu: Paste and Settings in the row; Add widget (opens the picker at the
+  bar) opens the surface menu: Paste and Settings (the settings menu under ⚙ on that display, [S-3534]) in the row; Add widget (opens the picker at the
   click, whose choice then follows the pointer to be placed, [S-1587]), Select all ([S-1582], off
   with no widget), Snap to grid (checked when on, [S-06]) and Done editing in the list. Outside edit
   mode empty surface is click-through; while placing, the right-click cancels the placement and opens
@@ -7231,8 +7334,9 @@ queue, schedules, merges, interests), `Themia.App/Services/Sync/SyncHost.cs` (ke
 What every widget shares instead of carrying its own copy, and the audit of every widget page that
 moved it there. Core: `RegionFormat` (`Localization/RegionFormat.cs`), `UpdateCadence`
 (`Sync/UpdateCadence.cs`), `RegionPreferences` / `RefreshPreferences` (`Model/AppPreferences.cs`).
-App: `ConfigPages.LanguageRegion.cs` (Settings › Language & region: the formats), `ConfigPages.Widgets.cs`
-(Settings › Widgets: the updates), `AppHost.Region.cs`, `Interop/SystemRegion.cs`.
+App: `ConfigPages.LanguageRegion.cs` (Settings › Language & region: the formats), Core
+`Settings/SettingsMenu.Online.cs` (the settings menu's Online updates, [S-3530]), `AppHost.Region.cs`,
+`Interop/SystemRegion.cs`.
 Strings in `Locales/language-region` and `Locales/widget-prefs`. Tests `WidgetPreferencesTests` (`S37xx_`).
 
 - **[S-3770]** The regional formats (12- or 24-hour clock, first day of the week, temperature scale)
@@ -7252,7 +7356,7 @@ Strings in `Locales/language-region` and `Locales/widget-prefs`. Tests `WidgetPr
   so every time a widget prints (clock, agenda, mail, countdown, sun, freshness lines) follows one
   switch. Before that (and in the tests) it is the language's habit.
 - **[S-3780]** How often online sources are asked is `AppPreferences.Refresh`, one cadence per kind of
-  source, set in Settings › Widgets › Updates: Weather (now and forecast, rain, air quality: [S-5101]), Stocks, News feeds, and
+  source, set in the settings menu's Online updates ([S-3530]): Weather (now and forecast, rain, air quality: [S-5101]), Stocks, News feeds, and
   Mail, calendars and tasks. No widget has a refresh setting for an online source. Each row is a
   `CadenceRow` (the host's four are `HostCadences`; a provider module may add its own, [S-6910]) and
   `Refresh` is a map from the row's `CadenceId` to minutes: `"refresh": { "weather": 30, "markets": 5,

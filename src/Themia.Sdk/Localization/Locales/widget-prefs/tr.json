@@ -1,7 +1,5 @@
 {
   "$comment": "Machine-written translations: every string in this file needs native review.",
-  "widgetPrefs.nav": "Pencere öğeleri",
-  "widgetPrefs.updates.header": "Güncellemeler",
   "widgetPrefs.updates.note": "Pencere öğelerinin çevrimiçi hizmetlere ne sıklıkla sorduğu. Bir pencere öğesinde Yenile hemen sorar.",
   "widgetPrefs.updates.weather": "Hava durumu",
   "widgetPrefs.updates.markets": "Hisseler",

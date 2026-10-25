@@ -1,8 +1,6 @@
 {
   "shell.items.background": "项目背景",
-  "shell.items.backgroundDesc": "小组件内行、磁贴和标签的填充，与小组件本身的背景分开",
   "shell.items.text": "项目文字颜色",
-  "shell.items.textDesc": "行、磁贴和标签上的文字与图标",
   "shell.items.textShort": "项目文字",
   "shell.fill.transparent": "透明",
   "shell.fill.opacity": "不透明度",

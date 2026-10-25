@@ -1,8 +1,6 @@
 {
   "shell.items.background": "Fondo de elementos",
-  "shell.items.backgroundDesc": "El relleno de filas, mosaicos y etiquetas dentro de los widgets, aparte del fondo del propio widget",
   "shell.items.text": "Color del texto de los elementos",
-  "shell.items.textDesc": "Texto e iconos en filas, mosaicos y chips",
   "shell.items.textShort": "Texto de elementos",
   "shell.fill.transparent": "Transparente",
   "shell.fill.opacity": "Opacidad",

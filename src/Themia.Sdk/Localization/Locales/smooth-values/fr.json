@@ -1,4 +1,3 @@
 {
-  "shell.motion.smoothValues": "Changements de valeur fluides",
-  "shell.motion.smoothValuesDesc": "Les nombres, remplissages et couleurs glissent vers chaque nouvelle mesure et les graphiques défilent. Désactivé, ils sautent"
+  "shell.motion.smoothValues": "Changements de valeur fluides"
 }

@@ -13,15 +13,6 @@ namespace Themia.App.Shell.Config;
 /// </summary>
 internal enum NavIcon
 {
-    /// <summary>A gear: General.</summary>
-    Settings,
-
-    /// <summary>A paint brush, as Windows Settings' Personalization: Appearance.</summary>
-    PaintBrush,
-
-    /// <summary>Four tiles: Layout.</summary>
-    Apps,
-
     /// <summary>A person, as Windows Settings' Accounts: Accounts.</summary>
     Person,
 
@@ -65,9 +56,6 @@ internal static class NavIcons
     /// <summary>The bundled file for an icon, under <c>Assets/NavIcons</c>.</summary>
     public static string FileName(NavIcon icon) => icon switch
     {
-        NavIcon.Settings => "ic_fluent_settings_20_color.svg",
-        NavIcon.PaintBrush => "ic_fluent_paint_brush_20_color.svg",
-        NavIcon.Apps => "ic_fluent_apps_20_color.svg",
         NavIcon.Person => "ic_fluent_person_20_color.svg",
         NavIcon.DocumentText => "ic_fluent_document_text_20_color.svg",
         NavIcon.QuestionCircle => "ic_fluent_question_circle_20_color.svg",

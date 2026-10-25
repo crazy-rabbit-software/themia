@@ -85,6 +85,12 @@ internal sealed partial class DesktopWindow
     private void OnEditModeChanged(bool editing)
     {
         _toolbar.Visibility = editing ? Visibility.Visible : Visibility.Collapsed;
+        if (!editing)
+        {
+            // [S-3521] Done, or edit mode left any other way, closes the settings menu.
+            CloseSettingsMenu(focusButton: false);
+        }
+
         _gridOverlay.Visibility = editing && Design.GridSnap ? Visibility.Visible : Visibility.Collapsed;
 
         foreach (var card in _cards)
@@ -225,6 +231,7 @@ internal sealed partial class DesktopWindow
         ApplyChromeInsets();
         RefreshViewBar();
         PlaceProperties();
+        PlaceSettingsMenu();
         ApplyHitRegion();
 
         if (EditMode)

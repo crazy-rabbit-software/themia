@@ -1,4 +1,3 @@
 {
-  "shell.motion.smoothValues": "値をなめらかに変化",
-  "shell.motion.smoothValuesDesc": "数値、塗りつぶし、色が新しい測定値へなめらかに移り、グラフがスクロールします。オフにすると即座に切り替わります"
+  "shell.motion.smoothValues": "値をなめらかに変化"
 }

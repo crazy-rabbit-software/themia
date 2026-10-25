@@ -1,4 +1,3 @@
 {
-  "shell.motion.smoothValues": "Akıcı değer değişimleri",
-  "shell.motion.smoothValuesDesc": "Sayılar, dolgular ve renkler her yeni ölçüme kayarak geçer ve grafikler kayar. Kapalıyken anında değişir"
+  "shell.motion.smoothValues": "Akıcı değer değişimleri"
 }

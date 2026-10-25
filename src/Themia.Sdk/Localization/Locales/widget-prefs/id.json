@@ -1,7 +1,5 @@
 {
   "$comment": "Machine-written translations: every string in this file needs native review.",
-  "widgetPrefs.nav": "Widget",
-  "widgetPrefs.updates.header": "Pembaruan",
   "widgetPrefs.updates.note": "Seberapa sering widget menghubungi layanan online. Segarkan pada widget langsung menghubunginya.",
   "widgetPrefs.updates.weather": "Cuaca",
   "widgetPrefs.updates.markets": "Saham",

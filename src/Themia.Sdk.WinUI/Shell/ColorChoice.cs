@@ -43,7 +43,7 @@ public sealed class ColorChoiceOptions
     public bool AllowCustom { get; init; } = true;
 }
 
-/// <summary>[S-6567] What one fill control (<see cref="ColorChoice.CreateFill"/>) offers.</summary>
+/// <summary>[S-3724] What a fill line of a menu offers (<see cref="Themia.Sdk.WinUI.MenuColour.OfFill"/>).</summary>
 public sealed class FillChoiceOptions
 {
     /// <summary>The label of Default: "Default" on a widget (the app-wide fill), "Theme colour" app-wide.</summary>
@@ -55,23 +55,6 @@ public sealed class FillChoiceOptions
     /// <summary>The swatches.</summary>
     public IReadOnlyList<ColorPreset> Presets { get; init; } = ColorPresets.Surfaces;
 }
-
-/// <summary>The fill entries a fill control's panel adds to the colour panel ([S-6567]).</summary>
-/// <param name="DefaultChosen">Default is the current choice (the colour panel would read that off an empty colour).</param>
-/// <param name="TransparentChosen">Transparent is the current choice.</param>
-/// <param name="Transparent">Picks Transparent.</param>
-/// <param name="Opacity">The colour's opacity, 0..1.</param>
-/// <param name="OpacityEnabled">A colour is chosen, so the opacity slider means something.</param>
-/// <param name="OpacityPreview">The slider moved: show it, store nothing yet.</param>
-/// <param name="OpacityCommit">The slider was let go (or stepped with a key): store it, one change.</param>
-public sealed record FillExtras(
-    bool DefaultChosen,
-    bool TransparentChosen,
-    Action Transparent,
-    double Opacity,
-    bool OpacityEnabled,
-    Action<double> OpacityPreview,
-    Action<double> OpacityCommit);
 
 /// <summary>
 /// The one colour control in the settings: a swatch button that opens a Windows 11-style picker —
@@ -190,128 +173,7 @@ public static class ColorChoice
 #endif
     }
 
-    /// <summary>
-    /// [S-6567] The fill control: the same swatch button and panel as <see cref="Create"/>, with
-    /// Default, <b>Transparent</b>, the swatches, the custom colour (its dialog with an alpha slider)
-    /// and an <b>Opacity</b> slider under them, so a colour and how see-through it is are one choice.
-    /// <paramref name="onChanged"/> receives a copy of the new choice. Picking a colour keeps the
-    /// opacity last set (100 % at first); the slider stores once it is let go, not on every step.
-    /// </summary>
-    /// <param name="name">What a screen reader calls the button: the setting's title.</param>
-    public static DropDownButton CreateFill(FillChoice? value, Action<FillChoice> onChanged, FillChoiceOptions options, string? name = null)
-    {
-        var button = SwatchButton(name, out var swatch, out var label, out var flyout);
-        AttachFill(button, swatch, label, flyout, value, onChanged, options);
-        return button;
-    }
-
-    /// <summary>The fill control on its swatch button, as <see cref="Attach"/> is the colour choice's (a null value is Default).</summary>
-    private static void AttachFill(FrameworkElement source, Border swatch, TextBlock label, Flyout flyout, FillChoice? value, Action<FillChoice> onChanged, FillChoiceOptions options)
-    {
-        ArgumentNullException.ThrowIfNull(onChanged);
-        ArgumentNullException.ThrowIfNull(options);
-
-        var current = value?.Clone() ?? new FillChoice();
-
-        // ignore: what Repair reports was logged when the state loaded; here it only keeps the control total.
-        _ = current.Repair("fill choice");
-        var colourOptions = new ColorChoiceOptions { DefaultLabel = options.DefaultLabel, DefaultColor = options.DefaultColor, Presets = options.Presets };
-
-        var pending = current.Opacity;
-
-        void Show(FillChoice shown)
-        {
-            PaintFill(swatch, shown, colourOptions);
-            label.Text = DescribeFill(shown, colourOptions);
-            ToolTipService.SetToolTip(source, label.Text);
-        }
-
-        void Commit(FillChoice next)
-        {
-            pending = next.Opacity;
-            if (next.SameAs(current))
-            {
-                Show(current);
-                return;
-            }
-
-            current = next;
-            Show(current);
-
-            try
-            {
-                onChanged(current.Clone());
-            }
-            catch (Exception ex)
-            {
-                Log.Error(Scope, "saving the fill failed", ex);
-            }
-        }
-
-        FillChoice With(FillKind kind) => new() { Kind = kind, Colour = current.Colour, Opacity = current.Opacity };
-
-        void Choose(string hex)
-        {
-            flyout.Hide();
-            Commit(hex.Length == 0 ? With(FillKind.Default) : FillChoice.Of(hex, current.Opacity));
-        }
-
-        void CommitOpacity()
-        {
-            if (current.Kind == FillKind.Colour && Math.Abs(pending - current.Opacity) >= 0.001)
-            {
-                Commit(FillChoice.Of(current.Colour, pending));
-            }
-        }
-
-        FillExtras Extras() => new(
-            current.Kind == FillKind.Default,
-            current.Kind == FillKind.Transparent,
-            () =>
-            {
-                flyout.Hide();
-                Commit(With(FillKind.Transparent));
-            },
-            current.Opacity,
-            current.Kind == FillKind.Colour,
-            opacity =>
-            {
-                pending = opacity;
-                Show(FillChoice.Of(current.Colour, opacity));
-            },
-            opacity =>
-            {
-                pending = opacity;
-                CommitOpacity();
-            });
-
-        string Hex() => current.Kind == FillKind.Colour ? current.Colour : string.Empty;
-
-        FrameworkElement Build() => Panel(
-            Hex(),
-            colourOptions,
-            Choose,
-            () =>
-            {
-                flyout.Hide();
-                _ = CustomAsync(source, Hex(), colourOptions, current.Opacity, (hex, alpha) => Commit(FillChoice.Of(hex, alpha)));
-            },
-            () => PickFromScreen(flyout, Choose),
-            Extras());
-
-        flyout.Opening += (_, _) => flyout.Content = Build();
-
-        // A drag let go outside the slider still ends with the flyout.
-        flyout.Closed += (_, _) => CommitOpacity();
-
-        Show(current);
-
-#if DEBUG
-        DebugPanels.AddOrUpdate(source, new Func<FrameworkElement>(() => Panel(Hex(), colourOptions, _ => { }, () => { }, () => { }, Extras())));
-#endif
-    }
-
-    /// <summary>The swatch button both controls are: a swatch, the value's words, and a flyout kept inside the window.</summary>
+    /// <summary>The swatch button: a swatch, the value's words, and a flyout kept inside the window.</summary>
     private static DropDownButton SwatchButton(string? name, out Border swatch, out TextBlock label, out Flyout flyout)
     {
         swatch = new Border { Width = 32, Height = 20, VerticalAlignment = VerticalAlignment.Center };
@@ -415,8 +277,7 @@ public static class ColorChoice
     }
 
     /// <summary>The flyout: the default, the swatches, and the ways to a custom colour (the full picker, the eyedropper).</summary>
-    /// <param name="fill">[S-6567] The fill control's entries: Transparent and the opacity slider. Null for a plain colour.</param>
-    private static StackPanel Panel(string current, ColorChoiceOptions options, Action<string> choose, Action custom, Action pickFromScreen, FillExtras? fill = null)
+    private static StackPanel Panel(string current, ColorChoiceOptions options, Action<string> choose, Action custom, Action pickFromScreen)
     {
         var panel = new StackPanel { Spacing = Fluent.Space3, Width = (SwatchSize * ColorPresets.Columns) + (Fluent.Space1 * (ColorPresets.Columns - 1)) };
 
@@ -430,7 +291,7 @@ public static class ColorChoice
             {
                 Glyph = Glyphs.Done,
                 FontSize = 12,
-                Visibility = (fill?.DefaultChosen ?? current.Length == 0) ? Visibility.Visible : Visibility.Collapsed,
+                Visibility = current.Length == 0 ? Visibility.Visible : Visibility.Collapsed,
                 VerticalAlignment = VerticalAlignment.Center,
             };
 
@@ -458,11 +319,6 @@ public static class ColorChoice
             AutomationProperties.SetName(useDefault, defaultLabel);
             useDefault.Click += (_, _) => choose(string.Empty);
             panel.Children.Add(useDefault);
-        }
-
-        if (fill is not null)
-        {
-            panel.Children.Add(TransparentEntry(fill));
         }
 
         if (options.Presets.Count > 0)
@@ -516,103 +372,7 @@ public static class ColorChoice
             panel.Children.Add(row);
         }
 
-        if (fill is not null)
-        {
-            panel.Children.Add(OpacityEntry(fill));
-        }
-
         return panel;
-    }
-
-    /// <summary>[S-6567] "Transparent", laid out as the default entry: an empty swatch, the word, a check when chosen.</summary>
-    private static Button TransparentEntry(FillExtras fill)
-    {
-        var preview = new Border { Width = 20, Height = 20, VerticalAlignment = VerticalAlignment.Center };
-        FluentLayout.ApplyStyle(preview, "SettingsSwatchBorderStyle");
-        preview.Background = null;
-
-        var check = new FontIcon
-        {
-            Glyph = Glyphs.Done,
-            FontSize = 12,
-            Visibility = fill.TransparentChosen ? Visibility.Visible : Visibility.Collapsed,
-            VerticalAlignment = VerticalAlignment.Center,
-        };
-
-        var text = new TextBlock { Text = Str.Shell_Fill_Transparent.Text(), VerticalAlignment = VerticalAlignment.Center };
-        Grid.SetColumn(text, 1);
-        Grid.SetColumn(check, 2);
-
-        var entry = new Button
-        {
-            HorizontalAlignment = HorizontalAlignment.Stretch,
-            HorizontalContentAlignment = HorizontalAlignment.Stretch,
-            Content = new Grid
-            {
-                ColumnSpacing = Fluent.Space3,
-                ColumnDefinitions =
-                {
-                    new ColumnDefinition { Width = GridLength.Auto },
-                    new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) },
-                    new ColumnDefinition { Width = GridLength.Auto },
-                },
-                Children = { preview, text, check },
-            },
-        };
-
-        AutomationProperties.SetName(entry, Str.Shell_Fill_Transparent.Text());
-        entry.Click += (_, _) => fill.Transparent();
-        return entry;
-    }
-
-    /// <summary>
-    /// [S-6567] The colour's opacity, 0..100 % in 5 % steps, under the colours; off until a colour is
-    /// chosen. Moving it shows the opacity at once; it is stored when the pointer lets go or a key
-    /// steps it, so a drag is one change (one undo step on the panel), not forty.
-    /// </summary>
-    private static StackPanel OpacityEntry(FillExtras fill)
-    {
-        static string Readout(double v) => LocaleFormat.Percent(Strings.Current, Math.Round(v));
-
-        var readout = new TextBlock { Text = Readout(fill.Opacity * 100), VerticalAlignment = VerticalAlignment.Center, MinWidth = 44, TextAlignment = TextAlignment.Right };
-        var slider = new Slider
-        {
-            Minimum = 0,
-            Maximum = 100,
-            StepFrequency = 5,
-            Value = Math.Round(fill.Opacity * 100),
-            IsEnabled = fill.OpacityEnabled,
-            VerticalAlignment = VerticalAlignment.Center,
-        };
-        AutomationProperties.SetName(slider, Str.Shell_Fill_Opacity.Text());
-
-        slider.ValueChanged += (_, args) =>
-        {
-            readout.Text = Readout(args.NewValue);
-            fill.OpacityPreview(args.NewValue / 100);
-        };
-        slider.PointerCaptureLost += (_, _) => fill.OpacityCommit(slider.Value / 100);
-        slider.KeyUp += (_, _) => fill.OpacityCommit(slider.Value / 100);
-
-        Grid.SetColumn(readout, 1);
-        return new StackPanel
-        {
-            Spacing = Fluent.Space1,
-            Children =
-            {
-                Caption(Str.Shell_Fill_Opacity.Text()),
-                new Grid
-                {
-                    ColumnSpacing = Fluent.Space2,
-                    ColumnDefinitions =
-                    {
-                        new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) },
-                        new ColumnDefinition { Width = GridLength.Auto },
-                    },
-                    Children = { slider, readout },
-                },
-            },
-        };
     }
 
     private static TextBlock Caption(string text)

@@ -1,8 +1,6 @@
 {
   "shell.items.background": "خلفية العناصر",
-  "shell.items.backgroundDesc": "تعبئة الصفوف والمربعات والشارات داخل الأدوات، بمعزل عن خلفية الأداة نفسها",
   "shell.items.text": "لون نص العناصر",
-  "shell.items.textDesc": "النص والأيقونات على الصفوف والمربعات والشرائح",
   "shell.items.textShort": "نص العناصر",
   "shell.fill.transparent": "شفاف",
   "shell.fill.opacity": "العتامة",

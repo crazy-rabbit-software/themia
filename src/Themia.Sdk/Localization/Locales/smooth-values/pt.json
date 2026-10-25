@@ -1,4 +1,3 @@
 {
-  "shell.motion.smoothValues": "Mudanças de valor suaves",
-  "shell.motion.smoothValuesDesc": "Números, preenchimentos e cores deslizam até cada nova leitura e os gráficos rolam. Desativado, saltam"
+  "shell.motion.smoothValues": "Mudanças de valor suaves"
 }

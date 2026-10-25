@@ -1,8 +1,6 @@
 {
   "shell.items.background": "Background ng mga item",
-  "shell.items.backgroundDesc": "Ang laman ng mga row, tile at chip sa loob ng mga widget, hiwalay sa sariling background ng widget",
   "shell.items.text": "Kulay ng teksto ng item",
-  "shell.items.textDesc": "Teksto at mga icon sa mga row, tile at chip",
   "shell.items.textShort": "Teksto ng item",
   "shell.fill.transparent": "Transparent",
   "shell.fill.opacity": "Opacity",

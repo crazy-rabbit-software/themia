@@ -1198,7 +1198,7 @@ built only from the menu's vocabulary (`WidgetMenuLines`):
 - `KitMenuLines.Shows(...)`: one switch per optional field in `KitShow`, offered only where the
   current style draws it ([S-6070]).
 
-No refresh row ([S-3780]): the service's cadence is a line in Settings › Widgets › Updates, added
+No refresh row ([S-3780]): the service's cadence is a line of the settings menu's Online updates ([S-3530]), added
 by its provider's `CadenceRow`. No title, style, header, background, scale or alignment row: those are the
 properties panel's ([S-6536]).
 
