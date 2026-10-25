@@ -110,7 +110,7 @@ internal sealed partial class DesktopWindow
         Canvas.SetTop(_properties, Math.Round(spot.Y));
 
         // [S-3733] Its submenus keep clear of the selection, the bars and the levels above them.
-        _properties.Room = new PropertiesRoom(area, target, avoid);
+        _properties.Room = new MenuRoom(area, target, avoid);
     }
 
     /// <summary>[S-3709] The painted box around every selected card this display shows, where it is now.</summary>

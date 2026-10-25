@@ -631,7 +631,7 @@ internal static class EditBarRender
             Canvas.SetTop(strip, Math.Round(spot.Y));
 
             // [S-3733] The submenus keep clear of the widget, the bar and the levels above them, inside the stand-in work area.
-            strip.Room = new PropertiesRoom(area, box, [barRect]);
+            strip.Room = new MenuRoom(area, box, [barRect]);
         }
 
         // [S-3718] The submenus along a path open, as clicks would open them; a search is typed into.

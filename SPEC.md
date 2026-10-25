@@ -1390,7 +1390,7 @@ edit mode, not in the settings window, and not on the edit bar: on a small panel
 the selection. After Karpo's properties panel (`karpo-app`, `docs/widgets.md` §145: a click in edit mode
 only selects and a small panel of the selection's own properties stands by it) and its selected
 widget's flyout (§65: closed while the selection is carried, opened again where it lands). Owning
-files: `Shell/PropertiesStrip.cs`, `Shell/DesktopWindow.Properties.cs`, `Services/AppHost.QuickSet.cs`;
+files: `Shell/PropertiesStrip.cs` (the selection's frame and lines over the one menu engine, `Shell/Menu/MenuPanel*.cs`), `Shell/DesktopWindow.Properties.cs`, `Services/AppHost.QuickSet.cs`;
 rules in Core `Model/QuickSet.cs`, `Geometry/StripPlacement.cs` and `Geometry/SubmenuPlacement.cs`
 and the SDK's `Settings/ListDrop.cs` (tests `QuickSetTests`, `StripPlacementTests`,
 `SubmenuPlacementTests`, `ListDropTests`); a widget's own lines in the SDK's
@@ -1468,7 +1468,7 @@ and the SDK's `Settings/ListDrop.cs` (tests `QuickSetTests`, `StripPlacementTest
   and the widget's lines on every change; lines are drawn again only when a list's shape (which lines
   there are) changed, and a change of value (a tick, a dot, the words at the end, an icon) is written
   into the lines in place, so an open submenu, a search's box and the focus stay where they are.
-  (`PropertiesStrip`; renders `--editbar-png` `props-*`.)
+  (`MenuPanel`, the engine `PropertiesStrip` is drawn with; renders `--editbar-png` `props-*`.)
 - **[S-3717]** The **icon row**: Cut and Copy at its start, Delete at its far end (apart from
   them, where a slip on Cut does not reach it), Explorer's two-tone icons, 40-DIP buttons, the words
   with the key as the tooltip ("Cut (Ctrl+X)"; "Cut 3 widgets" for several), the same commands as the
@@ -1604,7 +1604,7 @@ and the SDK's `Settings/ListDrop.cs` (tests `QuickSetTests`, `StripPlacementTest
   between the panel and the screen's edge); the first that covers nothing stands, and only when
   every place covers something the one covering least. Right to left the sides mirror. The surface
   gives the panel the work area, the selection's box and the bars each time it places it
-  (`PropertiesRoom`), and the open submenus are placed again then. A submenu is never taller than
+  (`MenuRoom`), and the open submenus are placed again then. A submenu is never taller than
   the work area: its lines scroll.
 - **[S-3734]** The panel and **every submenu are one width**, 300 DIPs (user request 2026-10-19),
   searches included: room for a city and its country and for "Item background" with its colour's
@@ -2646,8 +2646,9 @@ hub. Pure rules in `Themia.Core/Office` (tested), one shared source in `Services
   calendars (Graph `/me/calendars`, Google `calendarList`, CalDAV home-set listing; one account's
   straight in it, several a submenu each, read as [S-3746] says) with a colour (Automatic or one of
   the six, under Calendar colors when there are several) and, when there is more than one, a switch. No selection means the default calendar;
-  deselecting the last one goes back to it. A Google sign-in whose scope cannot list calendars
-  (403) is offered its primary calendar.
+  deselecting the last one goes back to it. Google signs in with `calendar.calendarlist.readonly`
+  beside `calendar.events.readonly`, which reads events but cannot list calendars (original PR
+  #172); a sign-in not granted the list scope (403) is offered its primary calendar.
 - **[S-568]** Ranges: month = whole weeks around the month; week = its days ([S-2719], a whole week
   by default); day; year = 1 Jan – 31 Dec; agenda = its date range from today ([S-3636], 30 days
   with today by default). Requested from local midnight to local midnight (the classic app used UTC
@@ -6896,7 +6897,7 @@ gallery ([S-1863]).
   since an account is added there and never from a widget's menu ([S-3745]); otherwise **edit mode**
   is entered, the widget is selected alone and its **properties menu** ([S-3716]) opens at the line
   its module names for it (`WidgetMenuLines.SetsUp`, one per widget), through the submenus on the
-  way, as clicks would (`PropertiesStrip.OpenSetup`): a submenu or a search opens, any other line runs
+  way, as clicks would (`MenuPanel.OpenSetup`): a submenu or a search opens, any other line runs
   as its click does. The lines named: the location's search for Weather now, the forecast, Air
   quality and Rain; the feeds for Feed; the symbol's search for Stocks; the day, asked for, for
   Countdown; the address, asked for, for Video stream; the quotes for Quote; Add for Shortcuts; the
