@@ -693,7 +693,9 @@ internal static partial class EditBarRender
 
     /// <summary>
     /// [S-3734] What a line asks beside the menu is a popup, not part of the screen's bitmap: each
-    /// open one is written beside it, its width said, and closed before the next case.
+    /// open one is written beside it, its width said, and closed before the next case; drawn on the
+    /// solid colour of its surface, which a bitmap of its acrylic leaves out (a dark theme's words on
+    /// nothing read as no words at all).
     /// </summary>
     private static async Task SavePopups(Grid screen, string path)
     {
@@ -705,7 +707,15 @@ internal static partial class EditBarRender
                 var popupPath = System.IO.Path.ChangeExtension(path, null) + $"-popup{i}.png";
                 try
                 {
+                    // The presenter's acrylic does not draw into a bitmap: the popup is drawn on the
+                    // solid colour its acrylic stands for in this theme, so its words can be read.
                     var drawn = shown is ContentControl { Content: UIElement presented } ? presented : shown;
+                    if (drawn is Panel panel)
+                    {
+                        panel.Background = DesignApplier.Brush("SolidBackgroundFillColorQuarternaryBrush", Colors.DimGray);
+                        panel.UpdateLayout();
+                    }
+
                     await RenderPng.SaveAsync(drawn, popupPath).ConfigureAwait(true);
                     Console.WriteLine($"editbar: wrote {popupPath} ({shown.ActualWidth:0} DIPs wide)");
                 }

@@ -4,7 +4,9 @@ using Microsoft.UI.Xaml.Controls.Primitives;
 using Themia.App.Shell;
 using Themia.Core.Diagnostics;
 using Themia.Core.Localization;
+using Themia.Core.Shell;
 using Themia.Core.Widgets;
+using Themia.Sdk.WinUI;
 
 namespace Themia.App.Widgets;
 
@@ -34,14 +36,17 @@ public static class ConfirmFlyout
     /// Build the flyout; <paramref name="confirmed"/> runs on the action button only. The caller
     /// attaches it to a button (<c>Button.Flyout</c>) or shows it with <c>ShowAt</c>. Below by default,
     /// over the widget's own content: a header button has the tile under it, and the framework flips
-    /// it above when the work area has no room below.
+    /// it above when the work area has no room below. [S-3727] A <paramref name="danger"/> question
+    /// (its action destroys something) is Windows' destructive confirm (<see cref="ConfirmLook"/>):
+    /// the action in the critical colour, the keyboard on Cancel.
     /// </summary>
     public static Flyout Create(
         string question,
         string action,
         Action confirmed,
         FlyoutPlacementMode placement = FlyoutPlacementMode.Bottom,
-        string? detail = null)
+        string? detail = null,
+        bool danger = false)
     {
         var words = new StackPanel { Spacing = Fluent.Space1 };
         words.Children.Add(Wrapped(question, detail is null ? FluentType.Body : FluentType.BodyStrong, "TextFillColorPrimaryBrush"));
@@ -52,10 +57,15 @@ public static class ConfirmFlyout
             words.Children.Add(Wrapped(detail, FluentType.Body, "TextFillColorSecondaryBrush"));
         }
 
+        var look = ConfirmLook.For(danger);
         var yes = new Button { Content = action };
-        if (Application.Current.Resources.TryGetValue("AccentButtonStyle", out var style) && style is Style accent)
+        if (look.Accent && Application.Current.Resources.TryGetValue("AccentButtonStyle", out var style) && style is Style accent)
         {
             yes.Style = accent;
+        }
+        else if (look.Critical)
+        {
+            Critical(yes);
         }
 
         var no = new Button { Content = Str.Common_Cancel.Text() };
@@ -98,6 +108,9 @@ public static class ConfirmFlyout
 
         no.Click += (_, _) => flyout.Hide();
 
+        // [S-3727] The keyboard starts where a slip of Enter does no harm.
+        flyout.Opened += (_, _) => (look.CancelFirst ? no : yes).Focus(FocusState.Programmatic);
+
 #if DEBUG
         // Debug renders only: a popup of its own window does not draw to a bitmap, so a render opens
         // the question inside its window. On the desktop the flag is never set.
@@ -108,6 +121,46 @@ public static class ConfirmFlyout
 #endif
 
         return flyout;
+    }
+
+    /// <summary>
+    /// [S-3727] The action of a destructive confirm: filled with the critical colour (pointed at and
+    /// pressed a shade lighter and darker, as Windows draws its buttons), its words in the colour that
+    /// reads on it. Theme brushes, so the button follows a change of theme in place.
+    /// </summary>
+    private static void Critical(Button button)
+    {
+        var fill = ThemeBrush.Of("SystemFillColorCriticalBrush", Microsoft.UI.Colors.Firebrick);
+        var words = ThemeBrush.Of("TextOnAccentFillColorPrimaryBrush", Microsoft.UI.Colors.White);
+        button.Background = fill;
+        button.Foreground = words;
+        button.BorderThickness = new Thickness(0);
+        button.Resources["ButtonBackgroundPointerOver"] = fill;
+        button.Resources["ButtonBackgroundPressed"] = fill;
+        button.Resources["ButtonForegroundPointerOver"] = words;
+        button.Resources["ButtonForegroundPressed"] = ThemeBrush.Of("TextOnAccentFillColorSecondaryBrush", Microsoft.UI.Colors.White);
+        button.Resources["ButtonBorderBrushPointerOver"] = fill;
+        button.Resources["ButtonBorderBrushPressed"] = fill;
+    }
+
+    /// <summary>
+    /// [S-3727] The style of a flyout's presenter in the theme of what it stands beside: a flyout is a
+    /// popup of its own, outside the tree whose root carries Themia's theme, so without this it takes
+    /// the application's (Windows') theme, and on a dark Themia under a light Windows it drew its
+    /// light surface under Themia's light words. <paramref name="width"/> fixes its width ([S-3734]).
+    /// </summary>
+    public static Style Presenter(ElementTheme theme, double? width = null)
+    {
+        var style = new Style(typeof(FlyoutPresenter));
+        style.Setters.Add(new Setter(FrameworkElement.RequestedThemeProperty, theme));
+        if (width is { } fixedWidth)
+        {
+            style.Setters.Add(new Setter(FrameworkElement.WidthProperty, fixedWidth));
+            style.Setters.Add(new Setter(FrameworkElement.MinWidthProperty, fixedWidth));
+            style.Setters.Add(new Setter(FrameworkElement.MaxWidthProperty, fixedWidth));
+        }
+
+        return style;
     }
 
     /// <summary>
@@ -135,6 +188,7 @@ public static class ConfirmFlyout
 
         try
         {
+            flyout.FlyoutPresenterStyle = Presenter(anchor.ActualTheme);
             flyout.ShowAt(anchor);
         }
         catch (Exception ex)

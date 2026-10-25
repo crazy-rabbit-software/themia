@@ -95,14 +95,15 @@ internal partial class MenuPanel
 
     /// <summary>
     /// [S-3727] Ask beside the menu before a line destroys something: the app's one "are you sure?"
-    /// (<see cref="ConfirmFlyout"/>: the question, the action and Cancel). Only the action runs it;
-    /// Cancel, Escape or a click away leave everything as it was.
+    /// (<see cref="ConfirmFlyout"/>: the question, the action and Cancel), a dangerous one as Windows'
+    /// destructive confirm (the action in the critical colour, the keyboard on Cancel). Only the
+    /// action runs it; Cancel, Escape or a click away leave everything as it was.
     /// </summary>
     protected void Confirm(WidgetConfirm confirm)
     {
         ArgumentNullException.ThrowIfNull(confirm);
 
-        var flyout = ConfirmFlyout.Create(confirm.Question, confirm.Accept, () => Run(confirm.Done), FlyoutPlacementMode.RightEdgeAlignedTop, confirm.Detail);
+        var flyout = ConfirmFlyout.Create(confirm.Question, confirm.Accept, () => Run(confirm.Done), FlyoutPlacementMode.RightEdgeAlignedTop, confirm.Detail, confirm.Danger);
         flyout.FlyoutPresenterStyle = MenuWide();
         flyout.Closed += (_, _) => OnAskClosed();
         flyout.ShowAt(AskAnchor);
@@ -111,14 +112,8 @@ internal partial class MenuPanel
     /// <summary>
     /// [S-3734] The menu's one width for what it asks beside itself too (a line of text, an "are you
     /// sure?"): the question never grows or shrinks with its words or the reason under the box.
+    /// [S-3727] In the menu's own theme: a flyout is a popup outside the surface's tree, which would
+    /// otherwise take Windows' theme under Themia's words.
     /// </summary>
-    private static Style MenuWide() => new(typeof(FlyoutPresenter))
-    {
-        Setters =
-        {
-            new Setter(FrameworkElement.WidthProperty, MenuWidth),
-            new Setter(FrameworkElement.MinWidthProperty, MenuWidth),
-            new Setter(FrameworkElement.MaxWidthProperty, MenuWidth),
-        },
-    };
+    private Style MenuWide() => ConfirmFlyout.Presenter(ActualTheme, MenuWidth);
 }

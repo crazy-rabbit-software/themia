@@ -1769,7 +1769,14 @@ and the SDK's `Settings/ListDrop.cs` (tests `QuickSetTests`, `StripPlacementTest
   the action and Cancel, and under the question what goes with it where the line says (`detail`: the
   habits and streaks of a habit list, a note's text for every widget showing it, a task list's tasks);
   only the action runs it and saves, Cancel, Escape or a click away change
-  nothing, and with nothing to ask nothing runs. A danger line's words and icon are the critical colour.
+  nothing, and with nothing to ask nothing runs. A danger line's words and icon are the critical colour,
+  and so is its question's action: a dangerous question is Windows' destructive confirm
+  (`ConfirmLook`: the action filled with the critical colour, never the accent, and the keyboard on
+  Cancel, so Enter straight after it keeps everything); any other question offers its action as the
+  accent button. What is asked beside a menu is in the menu's theme (`ConfirmFlyout.Presenter`): a
+  flyout is a popup of its own, which otherwise takes Windows' theme, so a dark Themia under a light
+  Windows drew Themia's light words on a light surface. The debug renders draw a question on the
+  solid colour its acrylic stands for (a bitmap leaves acrylic out). Tests `ConfirmLookTests`.
 - **[S-3728]** A **note** (`WidgetMenuLines.Note`) is words only, in the disabled colour, never
   clickable (a data source's credit): wrapped to three lines within the menu's width, trimmed past
   them, the whole as its tooltip.
