@@ -5,7 +5,7 @@ namespace Themia.App.Widgets;
 /// <summary>
 /// What a widget view is allowed to ask of the surface it is drawn on.
 /// <para>
-/// The settings window is the writer, and the card owns input. A view that needs more — a note,
+/// The properties menu is the writer, and the card owns input. A view that needs more — a note,
 /// whose text <i>is</i> its config, a list that is typed into — gets it through <see cref="IWidgetSurfaceAware"/> rather than through a static hook or a widened
 /// <see cref="IWidgetView.Attach"/>, so nothing that does not need it has to know it exists.
 /// </para>

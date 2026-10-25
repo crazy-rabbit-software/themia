@@ -17,26 +17,13 @@
             <x:Double x:Key="ResizeHandleSize">10</x:Double>
 
             <!--
-                The settings window, drawn as Windows 11's Settings ([S-1540]). Styles rather than
-                brushes set from code, because only a ThemeResource in a style follows the window's
-                own light/dark choice; a brush looked up from code is the app's theme, not the
-                window's. Used by Shell/FluentLayout.cs and Shell/Config/ConfigWindow*.cs.
+                The app-layout editor's window ([S-1411]), drawn as a Windows 11 Settings page through
+                Shell/FluentLayout.cs. Styles rather than brushes set from code, because only a
+                ThemeResource in a style follows the window's own light/dark choice; a brush looked up
+                from code is the app's theme, not the window's.
             -->
-            <x:Double x:Key="SettingsCardSpacing">4</x:Double>
-            <x:Double x:Key="SettingsPageMaxWidth">1000</x:Double>
-
             <Style x:Key="SettingsSectionHeaderTextBlockStyle" BasedOn="{StaticResource BodyStrongTextBlockStyle}" TargetType="TextBlock">
                 <Setter Property="Margin" Value="1,30,0,6" />
-            </Style>
-
-            <Style x:Key="SettingsPageTitleTextBlockStyle" BasedOn="{StaticResource TitleTextBlockStyle}" TargetType="TextBlock">
-                <Setter Property="TextTrimming" Value="CharacterEllipsis" />
-                <Setter Property="TextWrapping" Value="NoWrap" />
-            </Style>
-
-            <Style x:Key="SettingsDescriptionTextBlockStyle" BasedOn="{StaticResource BodyTextBlockStyle}" TargetType="TextBlock">
-                <Setter Property="Foreground" Value="{ThemeResource TextFillColorSecondaryBrush}" />
-                <Setter Property="TextWrapping" Value="Wrap" />
             </Style>
 
             <Style x:Key="SettingsNoteTextBlockStyle" BasedOn="{StaticResource CaptionTextBlockStyle}" TargetType="TextBlock">
@@ -45,12 +32,7 @@
                 <Setter Property="Margin" Value="1,4,0,8" />
             </Style>
 
-            <Style x:Key="SettingsCaptionTextBlockStyle" BasedOn="{StaticResource CaptionTextBlockStyle}" TargetType="TextBlock">
-                <Setter Property="Foreground" Value="{ThemeResource TextFillColorSecondaryBrush}" />
-                <Setter Property="TextWrapping" Value="Wrap" />
-            </Style>
-
-            <!-- A card that is not a SettingsCard: a list item, a sign-in flow. Same fill, stroke and radius. -->
+            <!-- A card that is not a SettingsCard: the layout canvas. Same fill, stroke and radius. -->
             <Style x:Key="SettingsCardBorderStyle" TargetType="Border">
                 <Setter Property="Background" Value="{ThemeResource CardBackgroundFillColorDefaultBrush}" />
                 <Setter Property="BorderBrush" Value="{ThemeResource CardStrokeColorDefaultBrush}" />
@@ -58,25 +40,6 @@
                 <Setter Property="CornerRadius" Value="{ThemeResource ControlCornerRadius}" />
                 <Setter Property="Padding" Value="16,12,16,12" />
                 <Setter Property="MinHeight" Value="68" />
-            </Style>
-
-            <!-- The row a search result lands on, ringed in the accent for a moment as Windows does. -->
-            <Style x:Key="SettingsHighlightBorderStyle" TargetType="Border">
-                <Setter Property="BorderBrush" Value="{ThemeResource AccentFillColorDefaultBrush}" />
-                <Setter Property="BorderThickness" Value="2" />
-                <Setter Property="CornerRadius" Value="{ThemeResource ControlCornerRadius}" />
-                <Setter Property="IsHitTestVisible" Value="False" />
-            </Style>
-
-            <!-- A colour swatch's frame: the stroke Windows draws round its accent swatches. -->
-            <Style x:Key="SettingsSwatchBorderStyle" TargetType="Border">
-                <Setter Property="BorderBrush" Value="{ThemeResource ControlStrokeColorDefaultBrush}" />
-                <Setter Property="BorderThickness" Value="1" />
-                <Setter Property="CornerRadius" Value="{ThemeResource ControlCornerRadius}" />
-            </Style>
-
-            <Style x:Key="SettingsDangerIconStyle" TargetType="FontIcon">
-                <Setter Property="Foreground" Value="{ThemeResource SystemFillColorCriticalBrush}" />
             </Style>
         </ResourceDictionary>
     </Application.Resources>

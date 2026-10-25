@@ -342,7 +342,7 @@ internal static class WeatherService
         }, SyncJsonContext.Default.WebShelf);
     }
 
-    /// <summary>[S-2845] This session's answers, shared by every settings page that searches.</summary>
+    /// <summary>[S-2845] This session's answers, shared by every menu that searches.</summary>
     private static readonly PlaceLookupCache Places = new();
 
     /// <summary>

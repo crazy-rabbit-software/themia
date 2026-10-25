@@ -50,10 +50,10 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.8.260804001" />
     <!--
-      SettingsCard and SettingsExpander: the exact controls Windows 11's Settings is drawn with
-      ([S-1540]). Taken rather than re-drawn because every row of every settings page is one, and a
-      hand-made copy drifts from Windows on hover, press, narrow-width wrapping and the expander's
-      motion. Proven Native-AOT clean: publishes under IlcTreatWarningsAsErrors.
+      SettingsCard: the exact control Windows 11's Settings is drawn with ([S-1540]), the app-layout
+      editor's rows ([S-1411]). Taken rather than re-drawn because a hand-made copy drifts from
+      Windows on hover, press and narrow-width wrapping. Proven Native-AOT clean: publishes under
+      IlcTreatWarningsAsErrors.
     -->
     <PackageReference Include="CommunityToolkit.WinUI.Controls.SettingsControls" Version="8.2.251219" />
   </ItemGroup>

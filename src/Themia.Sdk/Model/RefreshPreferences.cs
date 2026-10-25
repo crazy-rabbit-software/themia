@@ -1,8 +1,7 @@
 namespace Themia.Core.Model;
 
 /// <summary>
-/// [S-3780] The update cadences, in minutes, keyed by the id of their row of Settings › Widgets ›
-/// Updates (<see cref="Sync.HostCadences"/>, and a provider's own, [S-6910]): <c>"refresh": {
+/// [S-3780] The update cadences, in minutes, keyed by the id of their row of ⚙ › Online updates (<see cref="Sync.HostCadences"/>, and a provider's own, [S-6910]): <c>"refresh": {
 /// "weather": 30, "markets": 5, ... }</c>. Each is snapped to its row's offered choices on load and an
 /// entry that is no row's is dropped (<see cref="Sync.UpdateCadence.Repair(RefreshPreferences)"/>), so
 /// a hand edit cannot ask a free service every second; a row without an entry follows its default.

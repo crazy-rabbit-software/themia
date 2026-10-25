@@ -11,8 +11,8 @@ using Windows.ApplicationModel.DataTransfer;
 namespace Themia.App.Services.Accounts;
 
 /// <summary>
-/// [S-3550]..[S-3557] What ⚙ › Accounts does, over the one account service: the settings window's
-/// Accounts page's flows, run from the menu's lines. One for the app (every display's ⚙ reads the
+/// [S-3550]..[S-3557] What ⚙ › Accounts does, over the one account service: adding, proving,
+/// renaming and signing out of accounts, run from the menu's lines. One for the app (every display's ⚙ reads the
 /// same forms and statuses); it follows the accounts and their numbers while a menu is open
 /// ([S-3559]) and, when the last one closes, gives up every sign-in and try still out and empties
 /// every form ([S-3557]), as leaving the page did. Each flow says how it goes under the line it was

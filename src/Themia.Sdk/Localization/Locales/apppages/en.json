@@ -1,5 +1,5 @@
 {
-  "$comment": "[S-3800]..[S-3843] The app settings pages: views as rows with a colour, accounts with what they synced, the grouped Appearance page, and the local network rule.",
+  "$comment": "[S-3800]..[S-3843] Words the settings pages had and the edit bar's menus kept: a view's colour, an account's synced numbers, the Appearance groups and the local network rule.",
   "shell.view.colour": "Colour",
   "shell.view.colourDefault": "Text colour",
   "shell.appearance.themeColours": "Theme and colours",
@@ -41,9 +41,5 @@
   "shell.accounts.stats.synced": "synced {time}",
   "shell.accounts.stats.neverSynced": "not synced yet",
   "shell.accounts.stats.nothing": "Nothing stored on this PC yet",
-  "shell.accounts.nicknameDesc": "The name widgets show for this account",
-  "shell.accounts.reconnect": "Sign in again",
-  "shell.accounts.reconnectButton": "Sign in",
-  "shell.accounts.signOutDesc": "Forgets the account and everything synced from it on this PC",
-  "shell.accounts.needsSignIn": "Needs you to sign in again"
+  "shell.accounts.reconnect": "Sign in again"
 }

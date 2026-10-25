@@ -177,7 +177,7 @@ internal sealed partial class TasksView : Grid, IWidgetView, IWidgetHeaderConten
         Resubscribe();
 
         // [S-183] Only what changes the request re-binds; the rest redraws what is in hand. The
-        // settings page edits this very config object in place, so the comparison is against what
+        // properties menu edits this very config object in place, so the comparison is against what
         // the widget last bound to, never against "the previous config".
         if (BindKey.Of(_config) != _bound)
         {
@@ -651,7 +651,7 @@ internal sealed partial class TasksView : Grid, IWidgetView, IWidgetHeaderConten
                 break;
 
             case Screen.NoAccount:
-                // [S-1862] The card's Set up button covers this; its settings page offers a local list.
+                // [S-1862] The card's Set up button covers this; its properties menu offers a local list.
                 _state.Hide();
                 break;
 

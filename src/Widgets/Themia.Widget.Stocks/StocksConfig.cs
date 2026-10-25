@@ -168,7 +168,7 @@ public sealed class StocksConfig : WidgetConfig, IStyled, IShownSettings<StocksS
         ? WebInput.NormaliseSymbol(Symbol, Market == QuoteMarket.Crypto)
         : string.Empty;
 
-    /// <summary>[S-3780] The shared markets cadence (Settings › Widgets); a minute is its floor.</summary>
+    /// <summary>[S-3780] The shared markets cadence (⚙ › Online updates); a minute is its floor.</summary>
     [JsonIgnore]
     public TimeSpan TickInterval => Sync.UpdateCadence.Interval(Sync.HostCadences.Markets);
 

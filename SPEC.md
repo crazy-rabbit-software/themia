@@ -16,7 +16,7 @@ Owning files: `Themia.Core/Geometry/*`, `Themia.Core/Model/*`, `Themia.Core/Stor
 Sections, grouped by area (file order below; search for the heading).
 
 - **Foundations.** Geometry model; Rendering; Grid snap aid; Constraints; Defaults & placement; Views & displays; Window layering; Transparency; Ticking; Live widgets and resource use (R6-RESOURCES); Memory; Persistence; Failure rules; Not on this machine (UNAVAILABLE); Clipboard & transfer between displays; No backwards compatibility; Widget modules and the registry (MODULES); The widget kit (KIT); The service layer (SERVICES).
-- **Shell, windows and settings.** Displays (WP2); Desktop integration and suspend (WP3); Appearance engine (WP1); Notices, resilience and undo (WP4); Widget picker: search (WP5); Multi-select and the placement session (MULTISELECT-PLACEMENT); Widget styles (STYLES); Context menus (R4-MENUS); Views and the view bar (WP8); The Displays and Views pages (R4-NAV, R5-PAGES); Icon picker and showcase views (R4-ICONS); Keyboard lease (WP11); Widget keys (WIDGET-KEYS); Item selection (ITEM-SELECTION); View links (VIEW-LINKS); Keyboard in the shell (SHELL-KEYS); Motion: intros, hyperspace, hacker (WP9-MOTION); Desktop surface drops (WP10-SURFACE); Opening a widget's app (R7-OPEN, retired); Shell hooks (PA); Removed widgets (R7-REMOVE); Shell skeleton and shared settings; Shared widget settings: region and updates (SETTINGS-AUDIT); Settings window: Windows 11 Settings; Settings navigation icons (NAV-ICONS); Logging (WP7); Network safety (WP6); Localization infrastructure (LOC-INFRA); Microsoft Store package and licensing; Gallery.
+- **Shell, windows and settings.** Displays (WP2); Desktop integration and suspend (WP3); Appearance engine (WP1); Notices, resilience and undo (WP4); Widget picker: search (WP5); Multi-select and the placement session (MULTISELECT-PLACEMENT); Widget styles (STYLES); Context menus (R4-MENUS); Views and the view bar (WP8); The Displays and Views pages (R4-NAV, R5-PAGES); Icon picker and showcase views (R4-ICONS); Keyboard lease (WP11); Widget keys (WIDGET-KEYS); Item selection (ITEM-SELECTION); View links (VIEW-LINKS); Keyboard in the shell (SHELL-KEYS); Motion: intros, hyperspace, hacker (WP9-MOTION); Desktop surface drops (WP10-SURFACE); Opening a widget's app (R7-OPEN, retired); Shell hooks (PA); Removed widgets (R7-REMOVE); Shell skeleton and shared settings; Shared widget settings: region and updates (SETTINGS-AUDIT); Colours, fonts and uninstall (the settings window, retired); Settings navigation icons (NAV-ICONS, retired); Logging (WP7); Network safety (WP6); Localization infrastructure (LOC-INFRA); Microsoft Store package and licensing; Gallery.
 - **Look and layout.** Rows and the card edge; Looking like Windows; The widget header; Responsive layout (shared foundation); Adding a widget; Layout pass over the ported widgets; Widget polish 1 (POLISH-1); Widget polish 2: leftover parity and layout gaps (POLISH-2); The Set up button (R5-SETUP).
 - **Accounts and sign-in.** Where account data comes from; Accounts and sign-in.
 - **System widgets.** (The seven meters, the seven detail widgets, Drive, Removable drives, Brightness, Mixer, Volume, Music, the Audio visualizer, the three screen-time widgets, Notifications and the Focus session are modules: their sections are their projects' `SPEC.md`; the sections named here keep the hub, the samplers and the rules they share, the SDK's.) System data hub (SYS-HUB); System meters; Meter framework and memory; CPU; Disk and ping; Battery and network; Network and ping; System widgets: GPU, mixer and screen time; Screen time: chart, donut and apps (SCREENTIME-SPLIT); GPU and screen time: the whole tile (SYS-P4); System details (SYS-DETAILS); Mixer and Volume (SYS-P5); Power and Bluetooth; Device and location (DEVICE-AND-LOCATION); Quick-setting toggles (QUICK-TOGGLES); Windows' panels: notifications, focus session, brightness (WINDOWS-PANELS).
@@ -921,14 +921,13 @@ Module sections live in `src/Widgets/*/SPEC.md` and `src/Providers/*/SPEC.md` ([
   (`IExplorerMenus`, [S-6416]), Recent Items (`IRecentItems`, [S-4841]), the app-layout editor and
   launch (`IAppLayouts`, [S-1411]; the editor finds an item through `IHoldsAppLayouts` on a config),
   camera connections (`IVideoStreams`, [S-471]), the Start menu's apps (`IInstalledApps`) and a site's
-  icon (`IFavicons`, [S-1304]); a drag's shell items are `IWidgetDrag.ReadShellItems`. A settings page
-  has no card: its host lists are seams installed at start (`DriveList`, `AudioDevices`,
-  `GpuAdapters`), and `SettingsHost` holds the stores a page edits (the notes, the habit lists, the
-  screen-time history), the launcher, the owner window of a page's file picker and the app-layout
+  icon (`IFavicons`, [S-1304]); a drag's shell items are `IWidgetDrag.ReadShellItems`. A module's
+  menu lines have no card: their host lists are seams installed at start (`DriveList`, `AudioDevices`,
+  `GpuAdapters`), and `SettingsHost` holds the stores a menu edits (the notes, the habit lists, the
+  screen-time history), the launcher, the owner window of a menu's file picker and the app-layout
   editor (`AppLayouts`); so are a process's
-  executable and name (`ProcessPaths`) and a row's shell icon (`AppIconSource`). The host makes one per card, every member shared by all of them. What a widget shares with the settings
-  window is in `Themia.Sdk.WinUI` too: the settings rows (`FluentLayout`, `ColorChoice`,
-  `SettingRow`), the item menu (`ItemMenu`), `Notices`, a drop target's contract
+  executable and name (`ProcessPaths`) and a row's shell icon (`AppIconSource`). The host makes one per card, every member shared by all of them. What a widget shares with the host's
+  own UI is in `Themia.Sdk.WinUI` too: `FluentLayout` and `ColorChoice`, the item menu (`ItemMenu`), `Notices`, a drop target's contract
   (`IWidgetDropTarget` over `IWidgetDrag`); the parts that need Win32 (the eyedropper, a file's
   shell icon, the OLE drag) stay host code behind a seam the host installs at start, as do the
   place lookup and the Stocks settings' symbol search (`SymbolLookup`, [S-1307]).
@@ -1283,7 +1282,7 @@ service layer knows strategies, never services: a service is a descriptor that p
 
 - **[S-420]** *(Retired: the picker whose sections were never split across columns (`ColumnLayout`)
   is the edit bar's add menu, [S-3501]; it is a tree of subjects, [S-3510].)* There
-  is still no second way in from the settings window.
+  is no second way in: there is no settings window ([S-3585]).
 - **[S-421]** Picking a widget does **not** add it and does not open its settings. It starts the
   placement session ([S-1587]): a ghost of the widget at its default size follows the pointer across
   every display, the cards stop taking input so a click over one places the new widget rather than
@@ -1398,11 +1397,11 @@ edge too), the hover delay, the keys in the menu, and a pick starting the placem
 
 ### The edit bar's settings menu (SETTINGS-MENU)
 
-The app's settings move out of the settings window into the edit bar, as Karpo's did (`karpo-app`,
+The app's settings moved out of the settings window into the edit bar, as Karpo's did (`karpo-app`,
 `docs/widgets.md` §335–§341; user request 2026-10-25), one part at a time: General, Appearance,
 Accounts (SETTINGS-ACCOUNTS, [S-3550]), Language & region, the online update intervals, and Themia
-Pro, Back up & reset and About (SETTINGS-ABOUT, [S-3570]) are here; the settings window, empty, goes
-next ([S-3584]). The Displays and Views pages are the bar's
+Pro, Back up & reset and About (SETTINGS-ABOUT, [S-3570]) are here; then the window, empty, went
+([S-3585]): every way into settings opens the edit bar's menus ([S-3534]). The Displays and Views pages are the bar's
 Display and View menus (BAR-MENUS, [S-3540]). Owning files: Core `Settings/SettingsMenu.cs` (the lines' vocabulary, the
 first level) and one builder per section (`SettingsMenu.General.cs`, `.Appearance.cs`, `.Motion.cs`,
 `.Accounts.cs`, `.Language.cs`, `.Online.cs`, `.Pro.cs`, `.Backup.cs`, `.About.cs`), `Geometry/DropDownPlacement.cs`; App `Shell/Menu/MenuPanel*.cs` (the one menu engine,
@@ -1495,11 +1494,9 @@ mechanism), `Shell/DesktopWindow.SettingsMenu.cs`, `Services/AppHost.SettingsMen
 - **[S-3534]** The ways in: ⚙; the surface menu's Settings ([S-1744]), which opens it on that
   display; starting Themia again by hand ([S-66]), which opens it on the main display; a widget's
   way to its accounts ([S-3558]) and a refusal's See plans ([S-3573]), which open it at their
-  level. Nothing opens a settings window: there is none. `DesktopWindow.OpenSettingsMenu(path)` opens it at a level, by the lines' keys, as clicks
+  level. Nothing opens a settings window: there is none ([S-3585]). `DesktopWindow.RequestSettings(path)` opens it at a level, by the lines' keys, as clicks
   would (`MenuPanel.OpenPath`, the path the Set up button takes too, [S-1862]); every bar menu opens
-  the same way (`OpenBarMenu(menu, path)`, [S-3540]). The settings window's
-  General, Appearance and Widgets pages are gone, with their search entries and their navigation
-  icons; nothing opens them.
+  the same way (`OpenBarMenu(menu, path)`, [S-3540]).
 - **[S-3536]** **Language & region ›**, every localisation choice in one place, as the settings
   window's Language & region page held them ([S-3797]; the page is gone, with its navigation entry,
   search entries and globe icon): **Language ›** ([S-1109]), its value the language Themia speaks in
@@ -1539,7 +1536,7 @@ submenu open; Quit Themia.
 
 ### The edit bar's View and Display menus (BAR-MENUS)
 
-The Views and Displays pages of the settings window move onto the edit bar (user request
+The Views and Displays pages of the settings window moved onto the edit bar (user request
 2026-10-25, step 2 of the move of [S-3520]), after Karpo's Display ▾ and Layouts menu (`karpo-app`,
 `docs/widgets.md` §336, §348). Owning files: Core `Settings/ViewsMenu.cs`, `Settings/DisplayMenu.cs`
 (the lines, over `IViewsMenuHost` / `IDisplayMenuHost`), `Geometry/DropDownPlacement.cs`; App
@@ -1602,8 +1599,7 @@ by), `Shell/DesktopWindow.ViewsMenu.cs`, `Shell/DesktopWindow.DisplayMenu.cs`,
   click came from closes.
 - **[S-3546]** The ways in: View ▾, Display ▾, and a view chip's **View settings** ([S-915]), which
   opens View ▾ on that display at the chip's view's submenu (`OpenBarMenu(View, ["view:<id>"])`).
-  The settings window has no Displays or Views page any more, no navigation entry, search entry or
-  icon for them; nothing opens them.
+  There is no Displays or Views page: there is no settings window ([S-3585]).
 - **[S-3547]** The vocabulary of [S-3524] grows what these menus need, for every bar menu: a line's
   glyph may carry a colour of its own (`GlyphColour`, a view's mark); a submenu line may stand for an
   item (`Holds`, the dot before its chevron; `Run`, what a click does as it opens; `Order`, a place in
@@ -1628,7 +1624,7 @@ plugged in while Display ▾ is open; a long list of views scrolling under the b
 
 ### The edit bar's Accounts (SETTINGS-ACCOUNTS)
 
-The settings window's Accounts page moves into ⚙ (user request 2026-10-25, step 3 of the move of
+The settings window's Accounts page moved into ⚙ (user request 2026-10-25, step 3 of the move of
 [S-3520]), after Karpo's ⚙ › Accounts (`karpo-app`, `docs/widgets.md` §338). Owning files: Core
 `Settings/SettingsMenu.Accounts.cs` (the lines), `Settings/AccountsMenu.cs` (`IAccountsMenuHost`,
 `AccountsMenuState`, `AccountStatus`), `Settings/AccountForm.cs` (the forms as drafts),
@@ -1709,8 +1705,8 @@ written in place), `Shell/DesktopWindow.SettingsMenu.cs` (`RequestAccounts`). Te
   settings" and its header's sign-in problem (`IWidgetHost.ShowAccounts`), and the Set up button of a
   widget that lacks only an account ([S-1862]), which opens it at Add account while there is no
   account (`DesktopWindow.RequestAccounts`). The widget's menu shares no add-account rows of its own:
-  one place adds and mends accounts, and the SDK is unchanged but for its words. Nothing opens the
-  settings window for an account.
+  one place adds and mends accounts, and the SDK is unchanged but for its words. Nothing opens a
+  window for an account.
 - **[S-3559]** While ⚙ is open it follows the accounts and their numbers (`AccountsChanged`,
   `SyncHost.StatsChanged`) and every flow's progress, written into its lines in place ([S-3531]).
 - **[S-3560]** Debug renders (`--editbar-png`, with the settings menu's): `settings-<theme>-accounts`,
@@ -1737,7 +1733,7 @@ from outside edit mode; two displays with ⚙ open.
 
 ### The edit bar's Themia Pro, Back up & reset and About (SETTINGS-ABOUT)
 
-The settings window's last pages, License and About, move into ⚙ (user request 2026-10-25, step 4
+The settings window's last pages, License and About, moved into ⚙ (user request 2026-10-25, step 4
 of the move of [S-3520]), after Karpo's ⚙ › Karpo Pro, Back up and reset and About Karpo
 (`karpo-app`, `docs/widgets.md` §339). Owning files: Core `Settings/SettingsMenu.Pro.cs`
 (`ILicenceMenuHost`, the licence's lines), `Settings/SettingsMenu.Backup.cs` (`IBackupMenuHost`,
@@ -1822,10 +1818,19 @@ under a line); App `Services/Licensing/LicenceMenu.cs`, `Services/SettingsBackup
   `-uninstall-loose`, `-uninstall-loose-data`, `-uninstall-confirm` and
   `-uninstall-packaged-confirm` (their `-popup0`), over a stand-in host: no Store, file dialog, file
   or install is reached.
-- **[S-3584]** The settings window has no page left (`ConfigPages.AppPages` is empty, the License and
-  About pages, their navigation icons and the words only they used are gone), and nothing opens it:
-  ⚙'s All settings… is gone, and so is every way to a page (`AppHost.ShowConfig`, the refusal's
-  License page). The window's code goes in the move's last step.
+- **[S-3584]** *(Retired by [S-3585]: the window that had no page left is gone with it.)*
+- **[S-3585]** There is **no settings window** (user request 2026-10-25, the last step of the move
+  of [S-3520], after Karpo's `docs/widgets.md` §340–§341: every way to the settings opens the edit
+  bar's menus, and the settings app is deleted). Its code (`Shell/Config`: the window, its pages'
+  table, targets, navigation, "Find a setting", history, keys and title bar), the `--settings-png`
+  render, its navigation icons (`Assets/NavIcons`) and their notice, its styles in `App.xaml`,
+  `SettingsPageSync`, `NavHistory`, `SettingsKeys`, `SettingsSearch`, `SettingRow` (a row's record
+  for search) and `FluentLayout`'s rows that only pages built (`ClickRow`, `Expander`,
+  `DangerButton`, `ConfirmRow`, a picture row), and the words only they used are gone. Every way into
+  settings is the edit bar's menus ([S-3534]): ⚙, View ▾ and Display ▾, the surface menu's ways in
+  ([S-1744]), a second start ([S-66]), a widget's accounts ([S-3558]), See plans ([S-3573]).
+  `FluentLayout` keeps the rows the app-layout editor, Themia's one window, is built from ([S-1411]);
+  a menu's debug render is `--editbar-png` ([S-3535]).
 
 Needs a live pass: the packaged build from the Store (a sideload has no licence): Upgrade's Store
 dialog over the desktop on each display (in front, owned by the surface), its price, a purchase,
@@ -1838,7 +1843,7 @@ removed, `%LOCALAPPDATA%\Packages\<family>` gone); Narrator on the pictures.
 ### The selected widget's properties strip (QUICKSET)
 
 How a widget's card looks — its header, its background, its title — is set where the widget is, in
-edit mode, not in the settings window, and not on the edit bar: on a small panel that stands beside
+edit mode, not in a window, and not on the edit bar: on a small panel that stands beside
 the selection. After Karpo's properties panel (`karpo-app`, `docs/widgets.md` §145: a click in edit mode
 only selects and a small panel of the selection's own properties stands by it) and its selected
 widget's flyout (§65: closed while the selection is carried, opened again where it lands). Owning
@@ -2176,8 +2181,7 @@ and the SDK's `Settings/ListDrop.cs` (tests `QuickSetTests`, `StripPlacementTest
 - **[S-6536]** The properties panel is the **one place** for a widget's options (user request
   2026-10-16, and for the widget's own options 2026-10-19): its title, style, header, background,
   item background, item text, scale and alignment, and every option of its own ([S-3719]). There is
-  **no widget settings page**: the settings window holds the app's pages only (no `ConfigTarget`
-  for a widget, no widget rows in its search, [S-1542]), and nothing opens a page for a widget: no
+  **no widget settings page** and no settings window ([S-3585]), and nothing opens a page for a widget: no
   card menu Settings ([S-1743], [S-1758]), no More settings ([S-6009]), no Enter ([S-1974]), no click
   following the window ([S-1745]); Set up goes to the menu ([S-1862]). The app-wide Widget scale
   (Appearance, Displays) is not the widget's own and stays. Settings export and import carry all of
@@ -2243,7 +2247,7 @@ and the SDK's `Settings/ListDrop.cs` (tests `QuickSetTests`, `StripPlacementTest
 A different look of the same widget with the same data and the same settings, chosen next to the
 widget on the properties panel ([S-6007], its one place, [S-6536]). Owning files:
 `Themia.Core/Widgets/WidgetStyles.cs` (the registry), each styled kind's config (its style enum),
-`Themia.App/Shell/PropertiesStrip.cs`, `Themia.App/Shell/Config/ConfigPages.Widget.cs`. Tests:
+`Themia.App/Shell/PropertiesStrip.cs`. Tests:
 `WidgetStylesTests`; the weather, forecast, stock, exchange-rate and air styles in `WeatherStylesTests`.
 
 - **[S-6000]** A kind's styles are one setting: where a kind already had a look option (the clock's
@@ -2359,13 +2363,12 @@ itself is ⚙ › About Themia ([S-3580]). Owning files: `Themia.Core/Storage/Se
 - **[S-498]** The import replaces the state **in place** in one mutation, then gives connected
   displays without an assignment a view as at startup. Start with Windows keeps this PC's value: it
   is a fact about the registry here, not a preference.
-- **[S-499]** Debug builds render one settings page to PNG with `--settings-png <AppPage> <out.png>
-  [waitMs]`, over a demo state and an `AppStateStore.Detached` store that accepts saves and writes
-  nothing, so the render never touches `%APPDATA%`. No page is left to render ([S-3584]); ⚙'s
-  sections are drawn by `--editbar-png` ([S-3535], [S-3583]).
+- **[S-499]** *(Retired by [S-3585]: there is no settings window and no `--settings-png`; ⚙'s
+  sections are drawn by `--editbar-png`, [S-3535], [S-3583], over the same detached store that writes
+  nothing.)*
 
-Not ported, on purpose: Karpo's "isn't running / Start" card — the settings window here runs
-inside the app, so it is never open while the app is not.
+Not ported, on purpose: Karpo's "isn't running / Start" card — the settings here are the running
+app's own menus, so they are never open while the app is not.
 
 ## Web widgets: video stream
 
@@ -3289,11 +3292,7 @@ rules are these.
   The disk meter starts with its header like the other meters (user requirement), so its reading
   sits where theirs does ([S-1161]). Only creation reads the default; a loaded widget
   keeps the placement it was saved with.
-- **[S-701]** The app pages of the settings window come from one table, `ConfigPages.AppPages`
-  (page, title, glyph, main or footer slot, builder). The navigation and the body both read it, so a
-  page is added with one line plus its own `ConfigPages.<Page>.cs`. A reserved `AppPage` value with
-  no table entry is not in the menu and, if asked for, logs a
-  warning and shows an empty page. No page is left in it ([S-3584]).
+- **[S-701]** *(Retired by [S-3585]: there is no settings window, so no table of its pages.)*
 - **[S-702]** Behaviour switches live in `AppState.Preferences` (`AppPreferences`), apart from the
   look (`DesignState`): language (`AppLanguage`, default follow Windows), hide in full-screen apps
   (off), desktop icons (on), the regional formats and the update cadences every widget shares
@@ -3586,49 +3585,26 @@ repaired to defaults and logged, never an upgrade. S-1050..S-1059.
   "imported account" wording in [S-501], [S-505], [S-506], [S-509], [S-525]: removed. An untagged
   secret in `accounts.json` is still refused ([S-506]); that is validation, not a format to accept.
 
-## Settings window: Windows 11 Settings
+## Colours, fonts and uninstall (the settings window, retired)
 
-The settings window is drawn as Windows 11's Settings app (S-1540..S-1559). Owning files:
-`Shell/FluentLayout.cs`, `Shell/SettingRow.cs`, `Shell/ColorChoice.cs`, `Interop/ScreenColorPicker.cs`, `Shell/Config/ConfigWindow*.cs`,
-`Shell/Config/SettingsPage.cs`, `Shell/Config/SettingsSearchIndex.cs`, `Services/Uninstaller.cs`,
-`Services/DataPurge.cs`, `Core/Settings/*` (tests: `SettingsWindowTests`).
+What the settings window (S-1540..S-1559, drawn as Windows 11's Settings app) held that lives on in
+the menus: the colour submenu and the eyedropper, the font picker, the uninstall. The window itself
+is gone ([S-3585]). Owning files: `Shell/ColorChoice.cs`, `Interop/ScreenColorPicker.cs`,
+`Shell/FontPicker.cs`, `Services/Uninstaller.cs`, `Services/DataPurge.cs`, `Core/Settings/UninstallPlan.cs`
+(tests: `ColorPresetTests`, `UninstallPlanTests`).
 
-- **[S-1540]** Every row is the Community Toolkit `SettingsCard` (groups: `SettingsExpander`), built
-  only through `FluentLayout` so every page — and every page added later — gets the look at once:
-  header icon, title, secondary-text description, control on the right, card fill and stroke from
-  the theme, 4 DIPs between cards, BodyStrong section headings 30 above / 6 below, switches with
-  "On"/"Off" to their left, drop-downs at least 200 wide. A card that leaves the window
-  (`ClickRow`) carries the open-elsewhere mark.
-  Mica behind the whole window; the page sits on the same surface as the pane. There is **no status
-  bar** (the old "Themia 1.0.0 · N widgets" line is gone). Brushes on settings surfaces come from
-  App.xaml styles with ThemeResource, so they follow the window's own light/dark choice.
-- **[S-1541]** The page title is in the Title style above the scrolling cards, still while they
-  scroll; every page is a top-level page, so there are no parent crumbs (a widget's page, "View ›
-  Widget", went with the widget pages, [S-6536]). A page is a `SettingsPage` (title + optional
-  description + rows); the window draws the title.
-- **[S-1542]** "Find a setting" sits centred in the 48-DIP title bar. Its index is read off the pages
-  themselves (`SettingRow` on every row's frame; section = the heading above it): every app page. A
-  widget's options are on its properties menu and a view's and a display's on the edit bar's menus,
-  so search finds none of them ([S-6536], [S-3546]). Built on first use, refreshed with the live page
-  on every visit, dropped when the language changes. Pages are results too.
-- **[S-1543]** Matching: lower-cased words, British spellings folded to American on both sides
-  ("color" finds "Border colour"); every query word must land in the title, keywords (including a
-  drop-down's options: "dark" finds Theme), section, page path or description.
-- **[S-1544]** Ranking: field weight × match quality (exact, word, prefix, word prefix, substring,
-  small typo — none for ≤3 letters, 1 up to 6, 2 beyond; a short word with a wrong first letter is
-  no typo, typos only in title and keywords), plus a bonus when the whole query starts or equals the
-  title; a page beats its own rows on its name.
-- **[S-1545]** At most 8 suggestions; the same row reached twice is one suggestion.
-- **[S-1546]** Choosing a suggestion (or Enter, which takes the best) opens its page; a row is
-  brought a third of the way down the page (its expander opened first) and ringed in the accent for
-  a moment. "No results" when nothing matches.
-- **[S-1547]** Back in the title bar, Alt+Left/Alt+Right and the mouse's back/forward buttons step
-  through the user's navigations (`NavHistory`): pushing from an older entry drops the forward
-  tail, repeats coalesce, pages that disappear leave the history.
-- **[S-1548]** The debug render draws the real window: `--settings-png <Page> <out.png>
-  [waitMs] [--theme light|dark] [--search text] [--land text]`; the window is as tall as the page,
-  Mica is painted as its fallback colour; `--search` also writes the open suggestion list to
-  `<out>-search.png`.
+- **[S-1540]** *(Retired by [S-3585]: there are no settings pages. Still true of the app-layout
+  editor's window ([S-1411]): its rows are the Community Toolkit `SettingsCard`, built only through
+  `FluentLayout`, with BodyStrong section headings 30 above / 6 below, Mica behind it, and brushes from
+  App.xaml styles with ThemeResource, so they follow the window's own light/dark choice.)*
+- **[S-1541]** *(Retired by [S-3585]: there is no settings window, so no a page's title.)*
+- **[S-1542]** *(Retired by [S-3585]: there is no settings window, so no "Find a setting".)*
+- **[S-1543]** *(Retired by [S-3585]: there is no settings window, so no the search's matching.)*
+- **[S-1544]** *(Retired by [S-3585]: there is no settings window, so no the search's ranking.)*
+- **[S-1545]** *(Retired by [S-3585]: there is no settings window, so no the search's suggestions.)*
+- **[S-1546]** *(Retired by [S-3585]: there is no settings window, so no landing on a search result.)*
+- **[S-1547]** *(Retired by [S-3585]: there is no settings window, so no back and forward through pages (`NavHistory`).)*
+- **[S-1548]** *(Retired by [S-3585]: there is no settings window, so no the `--settings-png` render.)*
 - **[S-1549]** Colours are never typed. Every colour is the menus' one colour submenu ([S-3724]):
   "use the default" (where empty means follow the theme), the preset swatches in rows of 8 (Windows'
   48 accent colours by default; a neutral row first for surfaces; a setting may give its own set),
@@ -3663,8 +3639,7 @@ The settings window is drawn as Windows 11's Settings app (S-1540..S-1559). Owni
   colour. One pick at a time. Every DC, bitmap, brush and font is a `SafeHandle`, released on every
   path; the window procedure catches, logs and ends the pick as a failure. Focus returns to the
   window that had it.
-- **[S-1551]** The navigation pane is open at 1008 DIPs and wider; narrower it folds away (no
-  icon-only rail, as in Settings) behind a button in the title bar next to back.
+- **[S-1551]** *(Retired by [S-3585]: there is no settings window, so no the navigation pane.)*
 - **[S-1552]** ⚙ › About Themia ends with Uninstall Themia › ([S-3582]). Packaged (has a package
   identity): Themia removes its own package with `PackageManager.RemovePackageAsync` — no capability
   is needed (full trust, medium integrity, own publisher); if that fails, Settings' page for the app
@@ -3681,21 +3656,9 @@ The settings window is drawn as Windows 11's Settings app (S-1540..S-1559). Owni
   without one) opens on a confirmed uninstall, as the original installer did on an interactive one.
 - **[S-1555]** Nothing is removed or deleted without the answer to Uninstall…'s question; no question, no
   uninstall; a debug render's stand-in host never uninstalls.
-- **[S-1720]** The open page follows changes made elsewhere — snap to grid from the edit toolbar, a
-  keyboard shortcut, another window. A page's controls are built from the state and then only
-  write, so the window builds the page again when what it shows changed while the window was in the
-  background (`SettingsPageSync.NeedsRebuild`): on every state change while the window is not the
-  active one, queued and coalesced, the current page's signature is compared with the one it was
-  built from (or caught up to when the window last lost the focus) and a difference rebuilds it in
-  place, keeping the scroll position. A change while the window is active is the user's own, made
-  with the page's controls, which already show it: the page is never rebuilt under the pointer or
-  out from under a text box being typed in.
-- **[S-1721]** What a page shows (`SettingsPageSync.Signature`): the design and the preferences.
-  Never where widgets sit, so a drag on the desktop rebuilds nothing. Changes
-  that do not raise `StateChanged` (`Mutate(relayout: false)`) are not followed.
-- **[S-1722]** The app pages: none ([S-3584]): Accounts, Language & region, the licence and About
-  are the settings menu's ([S-3550], [S-3536], [S-3570], [S-3580]). General, Appearance and Widgets are not pages any more: they are
-  the edit bar's settings menu ([S-3524]); Displays and Views are its Display and View menus ([S-3540]). No Layout, Data or Developer page.
+- **[S-1720]** *(Retired by [S-3585]: there is no settings window, so no an open page catching up with changes (`SettingsPageSync`); the menus follow the state in place, [S-3531].)*
+- **[S-1721]** *(Retired by [S-3585]: there is no settings window, so no a page's signature (`SettingsPageSync`).)*
+- **[S-1722]** *(Retired by [S-3585]: there is no settings window, so no the app pages.)*
 - **[S-1723]** Every font setting picks through one picker, `FontPicker`: the settings menu's Font
   submenu ([S-3528]), a search box over a virtualised list of the presets, then the installed families
   ([S-827]), each entry drawn in the font it names (a preset in the family it maps to, [S-826]; the
@@ -3720,7 +3683,7 @@ The settings window is drawn as Windows 11's Settings app (S-1540..S-1559). Owni
   preference, no Logs page, no developer banner, no `--dev` render switch, and no Web element
   widget (the original's pre-release widget behind developer mode: its view, picker window,
   off-screen WebView2 renderer, saved renders, settings, keys and fixture are gone). The debug-only
-  render flags (`--settings-png`, `--picker-png`, ...) are build tooling and stay.
+  render flags (`--editbar-png`, `--picker-png`, ...) are build tooling and stay.
 - Not ported / different: karpo's status bar (removed by user request). The SDK's `TitleBar` and
   `BreadcrumbBar` controls are not used (the first crashed an earlier build; the second needs a WinRT
   collection) — equivalents are built from a grid and text blocks.
@@ -4516,7 +4479,7 @@ the keyboard through one lease. Rules in Core `KeyboardLease<T>` / `WidgetKeys` 
   order; a late blur from a previous holder changes nothing.
 - **[S-802]** The lease ends on Escape (which also hands the keyboard back to the window that was
   foreground when the lease began, if the surface is still foreground), on a press on any other card,
-  on the surface losing activation (Alt+Tab, the settings window), on a press outside every surface
+  on the surface losing activation (Alt+Tab, another window), on a press outside every surface
   ([S-815]), when the holder's card leaves its surface, on entering edit mode and when the surface
   closes. Only Escape gives the keyboard back: after a click elsewhere the click already put it where
   the user wants, and a launched app must not be raced. Every end moves XAML focus out of the old
@@ -4741,10 +4704,10 @@ Topics:
 
 ## Keyboard in the shell (SHELL-KEYS)
 
-Keys everywhere outside a widget's own view: edit mode on the desktop surface, the view bar, the
-settings window. Rules in Core `EditKeys`, `KeyboardNudge`, `SelectionRules.Cycle`, `SettingsKeys`
-and the widgets' `TypeAhead` ([S-1980], one implementation for lists and the navigation; tests `ShellKeyboardTests`); carried out by `DesktopWindow.Keys.cs`,
-`ViewBar.cs` and `ConfigWindow.Keys.cs`. Widget views' keys are the lease's ([S-800]..[S-812]).
+Keys everywhere outside a widget's own view: edit mode on the desktop surface, the view bar and the
+edit bar's menus. Rules in Core `EditKeys`, `KeyboardNudge`, `SelectionRules.Cycle` and the widgets'
+`TypeAhead` ([S-1980], one implementation for every list; tests `ShellKeyboardTests`); carried out by
+`DesktopWindow.Keys.cs` and `ViewBar.cs`. Widget views' keys are the lease's ([S-800]..[S-812]).
 The surface keeps `WS_EX_NOACTIVATE` outside edit mode ([S-20]), so none of the surface keys exist
 there: Themia never takes a key from the app the user is typing in.
 
@@ -4768,8 +4731,6 @@ there: Themia never takes a key from the app the user is typing in.
 | Edit mode | Ctrl+1..9 | Show the n-th view ([S-904]) |
 | Edit mode | Escape | Placing, then the selection, then edit mode ([S-1583]) |
 | View bar (edit mode) | Arrows, Home / End; Enter / Space | Move between chips; show the view ([S-1979]) |
-| Settings | Ctrl+F / Ctrl+E | Focus "Find a setting" ([S-1977]) |
-| Settings | Escape in the search box | Close the list, then empty the box ([S-1977]) |
 | Settings | F6 / Shift+F6 | Title bar → navigation → page ([S-1977]) |
 | Settings | Alt+Left / Alt+Right, mouse back / forward | Page history (existing) |
 | Settings | Ctrl+W | Close the window ([S-1977]) |
@@ -4821,12 +4782,7 @@ there: Themia never takes a key from the app the user is typing in.
   plain letters and F10 alone are not edit keys. Ctrl+D is not one either: widgets have no
   Duplicate, Copy then Paste does that (one way to do it). While a text box has the focus (the picker's
   search) no key is an edit key: Delete or Ctrl+V there edits the text, not the desktop.
-- **[S-1977]** Settings window: **Ctrl+F** (and Ctrl+E, as in Explorer) focuses "Find a setting";
-  **Escape** there closes the suggestion list (the box's own), then empties the text; **F6 /
-  Shift+F6** cycles the title bar (search), the navigation (the entry of the page on screen) and the
-  page (its first control), skipping the navigation while it is folded away; **Ctrl+W** closes the
-  window. Escape does **not** close the settings window: it is a window, not a dialog (as in main
-  and in Windows Settings).
+- **[S-1977]** *(Retired by [S-3585]: there is no settings window, so no Ctrl+F to its search, F6 round its panes or Ctrl+W.)*
 - **[S-1978]** Navigation type-ahead (main's `createTypeAhead` / `findByPrefix`): letters typed on
   a focused entry within a second of each other build a prefix, case-insensitive, and the focus
   moves to the first entry starting with it, searching from the focused one (a longer prefix keeps
@@ -4913,9 +4869,8 @@ history are the same in every style. Tests `IoStylesTests` (`S626x_`, `S627x_`).
 ## GPU and screen time: the whole tile (SYS-P4)
 
 Code: the GPU module (`src/Widgets/Themia.Widget.Gpu`: `GpuView.cs` + `GpuView.Panel.cs`, its
-settings page), `Services/GpuSampler.cs`, the SDK's `GpuRules` and `MeterFace`;
-`Widgets/ScreenTimeView*.cs` (+ `.Footer.cs`), Core `ScreenTimeRules`; settings
-`WidgetSettings.SystemWidgets.cs`. Tests `GpuRulesTests`, `ScreenTimeRulesTests` (`S12xx_`).
+menu), `Services/GpuSampler.cs`, the SDK's `GpuRules` and `MeterFace`;
+`Widgets/ScreenTimeView*.cs` (+ `.Footer.cs`), Core `ScreenTimeRules`. Tests `GpuRulesTests`, `ScreenTimeRulesTests` (`S12xx_`).
 
 - [S-1200], [S-1201]: moved with the GPU widget into its module's `SPEC.md` (`src/Widgets/Themia.Widget.Gpu/`).
 - **[S-1207]** *(Retired: one adapter per widget, [S-433]; nothing shares the tile.)*
@@ -4967,8 +4922,7 @@ Tests `SystemDataHubTests` (`S25xx_`).
 - **[S-2504]** A charted series (a feed plus an instance: a drive root or `*`, an adapter's position)
   keeps its history in the hub, in a ring of `SeriesHistory.Capacity(source)` points: the longest
   span offered (1 h) at the source's spacing, 3600 points, 720 for a ping (at least the widest
-  statistics window). A view built again — a view switch, edit mode, a display change, a reopened
-  settings window — loads the history and the newest reading at once; a longer span shows the longer
+  statistics window). A view built again — a view switch, edit mode, a display change — loads the history and the newest reading at once; a longer span shows the longer
   history at once; a different drive or host is a different series with its own history. The point is
   the chart's terms (`MeterSample.Of`): a fraction, or the value on a window-scaled chart; an
   unanswered probe plots on the baseline but is no answer for statistics.
@@ -5015,7 +4969,7 @@ stay label, reading and history ([S-1762]). Seven kinds, each in its meter's fam
 add menu ([S-3511]): CPU details, Memory details, Top processes, Network details, Battery
 details, Ping statistics, GPU details. One view, the SDK's `DetailView` (+ `.List.cs`), one `DetailPart` per
 kind in its module project (`src/Widgets/Themia.Widget.<Kind>Details`, `.TopProcesses`, with its config,
-settings page and `SPEC.md`); rules in the SDK (`DetailFace`, `DetailSheet`, `CpuDetailRules`,
+menu and `SPEC.md`); rules in the SDK (`DetailFace`, `DetailSheet`, `CpuDetailRules`,
 `MemoryDetailRules`, `ProcessTable`, `NetworkDetailRules`, `BatteryDetailRules`, `GpuDetailRules`; the
 ping window's `PingWindow` is the ping details module's). Tests `SystemDetailsTests` (`S24xx_`). Shared
 strings in `Locales/widgets-details`.
@@ -5200,7 +5154,7 @@ card is re-created, no tick restarts. Pure rules live in Core (`DesignLook`, `De
   before anything is recoloured (every `AccentFill…`/`AccentTextFill…`/`SystemControl…Accent…`
   brush is one of the seven shades at some alpha) and recoloured in place, alpha kept; the
   `SystemAccentColor*` resources are set for later lookups. So template `{ThemeResource}` uses
-  follow, in widgets and in the settings window. `SystemFillColorAttentionBrush` is an accent alias with no colour
+  follow, in widgets and in the menus. `SystemFillColorAttentionBrush` is an accent alias with no colour
   resource of its own (Light2 in dark theme, the accent itself in light) and is mapped like the others.
 - **[S-821]** Text size (`FontScale`, 0.5..2) scales the whole `FluentType` ramp (size and line
   height together), so `Fit`/`Hero` still pick real steps and a layout sheds rather than
@@ -5230,7 +5184,7 @@ card is re-created, no tick restarts. Pure rules live in Core (`DesignLook`, `De
 - **[S-6480]** `--widget-png … --design key=value,...` draws the cards with appearance values (`border`,
   `borderWidth`, `borderOpacity`, `borderColor`, `radius`, `background` and `items` (a fill, [S-6569]),
   `opacity` and `itemOpacity` (their colours' opacity), `header`, `headerOpacity`, `accent`, `font`,
-  `preset`), so a look is checked without the settings window.
+  `preset`), so a look is checked without ⚙ › Appearance.
 - **[S-825]** Corner radius 0..32 on the fill, tint, border and content clip. The edit markers stay square ([S-31b]).
 - **[S-6482]** The default corner radius is 4px (`DesignState.DefaultCornerRadiusPx`; a radius that is
   not a number loads as 4), by the user's decision: Fluent gives an overlay card 8px. The Default
@@ -5718,8 +5672,8 @@ Game mode, Windows' desktop icons, the click clean-up a non-activating surface n
 Windows for both installs. Rules in `Themia.Core/Shell/{GameMode,DesktopIconRules,AutostartRules,
 ShellClickRules}.cs` (tests `DesktopIntegrationTests`); Win32 in `Interop/{UserNotificationState,
 FullscreenWatch,DesktopIcons,DesktopFolderView,ShellClicks}.cs`; host in `Services/AppHost.Suspend.cs`,
-`Services/Autostart.cs`; surface in `Shell/DesktopWindow.Integration.cs`; rows in
-`Shell/Config/ConfigPages.General.Desktop.cs`.
+`Services/Autostart.cs`; surface in `Shell/DesktopWindow.Integration.cs`; lines in Core
+`Settings/SettingsMenu.General.cs`.
 
 - **[S-920]** Game mode (the settings menu's "Pause during full-screen apps", [S-3525], off by default, original
   `game_mode.rs`/`gameMode.ts`): the widgets are suspended while `SHQueryUserNotificationState`
@@ -5806,29 +5760,17 @@ General row shows "Paused now"); the Scheduled-Task autostart and its probe (AS-
 the unpackaged build keeps the Run entry, the packaged build uses its startup task); the pre-0.15
 desktop-icon repair (DI-06, no backwards compatibility); suspending on session lock (not game mode).
 
-## Settings navigation icons (NAV-ICONS)
+## Settings navigation icons (NAV-ICONS, retired)
 
-The settings window's navigation pane draws its entries with full-colour icons, the way Windows 11
-Settings does (System, Bluetooth, Personalization, Accounts...). Code: `Shell/Config/NavIcons.cs`,
-`ConfigWindow.Navigation.cs`, the `Icon` column of `ConfigPages.AppPages`; tests `NavIconAssetTests`.
+The settings window's navigation pane drew its entries with full-colour icons, the way Windows 11
+Settings does. The window is gone ([S-3585]), and so are the icons (`Assets/NavIcons`), their
+notice and their tests.
 
-- **[S-1600]** The icons are Microsoft's Fluent UI System Icons "Color" set (the family Windows uses),
-  bundled unmodified as SVG in `src/Themia.App/Assets/NavIcons/` (content files, no package). One
-  per entry, echoing the Windows Settings equivalent where there is one. (About's `question_circle`
-  and License's `premium` went with their pages, [S-3584]; Views' `content_view` and Displays' `laptop` went with their pages, [S-3546];
-  Language & region's `globe` and Accounts' `person` with their pages, [S-3536], [S-3550].) A new app page names its icon in its `AppPages` line.
-- **[S-1601]** Each icon is drawn by `SvgImageSource` in a 20-DIP icon box (NavigationView's default
-  16 is sized for font glyphs; the colour icons carry their own padding and read too small there),
-  from the icon's 20-DIP design, rasterised at exactly the pixels the box covers on the window's
-  display (20 px at 100 %, 40 px at 200 %) and re-rasterised when the window moves to a display
-  with another scale. Colours are the icon's own in light and dark, as in Windows Settings.
-- **[S-1602]** Only the pane's entries change (it lists pages only, [S-1830]); settings-card row icons,
-  group headers and "Find a setting" suggestions stay monochrome glyphs, as in Windows Settings.
-- **[S-1603]** The MIT notice for the icons is in `THIRD-PARTY-NOTICES.md` at the repository root,
-  listing every bundled file, and ships beside `Themia.exe` in every build.
-- **[S-1604]** A bundled icon uses only shapes, groups and gradients (what Direct2D's SVG renderer
-  draws) and the 20-DIP view box; a test rejects one with filters, masks or other features that
-  would silently drop out.
+- **[S-1600]** *(Retired by [S-3585]: there is no navigation pane to draw an icon in.)*
+- **[S-1601]** *(Retired by [S-3585]: there is no navigation pane to draw an icon in.)*
+- **[S-1602]** *(Retired by [S-3585]: there is no navigation pane to draw an icon in.)*
+- **[S-1603]** *(Retired by [S-3585]: there is no navigation pane to draw an icon in.)*
+- **[S-1604]** *(Retired by [S-3585]: there is no navigation pane to draw an icon in.)*
 
 ## Shell hooks (PA)
 
@@ -6137,8 +6079,8 @@ displays, the ghost following the pointer across displays, Ctrl+A/Escape order.
   language. The host resolves the setting before any window is built and again on every state
   change (an import or reset), and `SetLanguage` applies it at once.
 - **[S-1110]** Live switch: `Strings.Changed(Locale)` fires on the UI thread after the language
-  changed (not when it is set to the same one). The settings window redraws its navigation, search
-  index and open page on it (queued behind the event that caused it). Cards, widgets and the
+  changed (not when it is set to the same one). The edit bar's open menus write their words in the
+  new language on it, keeping what is open ([S-3531]). Cards, widgets and the
   surfaces subscribe in the extraction round; every subscriber unsubscribes on Detach/close.
 - **[S-1111]** Area fragments: a language may also be split into `Locales/<area>/<code>.json`
   (`<area>` lowercase, `-` between parts, e.g. `shell`, `widgets-a`; one folder level only), so
@@ -6186,7 +6128,7 @@ displays, the ghost following the pointer across displays, Ctrl+A/Escape order.
   module test host runs the same rule over every module's own table, with the modules' share of the
   allow-list (by widget and key) beside it.
 - **[S-1113]** Right to left: Arabic, Urdu and Persian (`TextDirection.IsRightToLeft`). The direction is set
-  on the roots whose whole content is text-like UI — the settings window, each card, the edit bar,
+  on the roots whose whole content is text-like UI — the app-layout editor, each card, the edit bar,
   the view bar, the notices, the placement hint, the anchor menus on the bare surface open from —
   and never on a desktop surface itself: its canvases, the hit region (`SetWindowRgn`), the rubber
   band and every stored geometry stay physical, so no widget moves when the language changes and
@@ -6197,7 +6139,7 @@ displays, the ghost following the pointer across displays, Ctrl+A/Escape order.
   the analog clock face. Numbers stay left-to-right runs by the bidi algorithm. Directional icons
   mirror (`TextDirection.MirrorsGlyph`: back, forward, chevrons, send, reply, undo/redo, return,
   open outside, sign out, bulleted and checked lists, via `FontIcon.MirroredWhenRightToLeft`);
-  play/previous/next never do. The settings window's caption buttons stay where Windows draws them
+  play/previous/next never do. The layout editor's caption buttons stay where Windows draws them
   (right); a right-to-left title bar keeps their width clear at its start.
 - **[S-1114]** Fonts per language follow Karpo's rule: no font is named per language, the layout tag
   (`TextDirection.LayoutTag`, the language with its main region) makes DirectWrite's fallback pick
@@ -6219,7 +6161,7 @@ displays, the ghost following the pointer across displays, Ctrl+A/Escape order.
   widget picker's translated + English search names. Polish plural keys have only
   one/other until translated (few/many fall back to other). The CLDR tables want a native-speaker
   review in the translation wave. Not verified live: the language switch in the running app (no app
-  run here); the General row was checked with `--settings-png General`.
+  run here); the General row was checked with the settings window's render, since gone ([S-3585]).
 
 ## Clock, Sun & moon, Quote and Scratchpad: parity and the whole tile (PJ)
 
@@ -6251,8 +6193,7 @@ the quote and the scratchpad are modules of their own, each with its SPEC.md and
   widget's one way to ask (`ConfirmFlyout.AskAsync`, optionally with a detail line under the
   question): the clipboard's clear and the notes' delete
   ([S-1364]) too, which were `ContentDialog`s centred on the monitor-sized surface and drawn inside
-  its region. No widget view and no part of the surface opens a `ContentDialog` (the settings window
-  may), and every flyout or menu a widget opens (a rename box, a note, `ItemMenu`) is its own popup
+  its region. No widget view and no part of the surface opens a `ContentDialog`, and every flyout or menu a widget opens (a rename box, a note, `ItemMenu`) is its own popup
   likewise. The clear is in the header from three tools' width ([S-651]); in full screen it is
   always there. Tests read the source (`ConfirmFlyoutTests`); renders (`--state confirm` for
   Scratchpad, Clipboard, Notes) draw the question inside the render's
@@ -6685,10 +6626,7 @@ every display's and every view's settings are the edit bar's Display and View me
   view's line follows in place.
 - **[S-1708]** *(Retired by [S-3544]: Views on the bar is a submenu of switches.)*
 - **[S-1709]** *(Retired by [S-3543]: Display ▾'s heading names the display and its resolution.)*
-- **[S-1830]** The navigation pane lists pages only, and none is left ([S-3584]: General,
-  Appearance, Accounts, Language & region, the licence and About are the settings menu's, [S-3524];
-  Displays and Views the bar's Display and View menus, [S-3540]). No entry per account or widget, so
-  no entry menus and no dragging in the pane.
+- **[S-1830]** *(Retired by [S-3585]: there is no navigation pane.)*
 - **[S-1831]** *(Retired by [S-3546]: no page target names a display or a view; View settings opens View ▾.)*
 - **[S-1832]** *(Retired by [S-3540]: there are no Displays and Views pages.)*
 - **[S-1833]** *(Retired with the list pages ([S-3540]): no groups to keep open.)*
@@ -6720,11 +6658,11 @@ every display's and every view's settings are the edit bar's Display and View me
 - **[S-3833]** *(Retired by [S-3525]: there is no General page; start with Windows, the desktop icons and
   game mode are the settings menu's first lines. Still no Edit layout switch and no local-network
   switch, [S-3840].)*
-- **[S-3834]** The navigation pane has no "Themia" heading; the title bar keeps the app's mark and name.
+- **[S-3834]** *(Retired by [S-3585]: there is no navigation pane and no title bar of a settings window.)*
 - **[S-3830]** *(Retired by [S-3526]: there is no Appearance page. Its groups (Theme and colours,
   Item background, Widget cards, Text and size, Layout, then Motion) are the settings menu's
   Appearance submenus.)*
-- **[S-3831]** App page descriptions are one line where the words allow it.
+- **[S-3831]** *(Retired by [S-3585]: there are no app pages to describe.)*
 What needs a manual pass is BAR-MENUS' ([S-3548]).
 
 ## Notices, resilience and undo (WP4)
@@ -7108,7 +7046,7 @@ mixed DPI, the editor's divider drag, pickers and app search.
 ## Context menus (R4-MENUS)
 
 Every right-click menu in the app — a widget's card, an item inside a widget, empty surface in edit
-mode, a view chip, the settings window — and how a click on a card in edit mode is told from a drag.
+mode, a view chip — and how a click on a card in edit mode is told from a drag.
 Owning files: `Themia.Core/Shell/ContextMenus.cs` (`ContextMenuLayout`, `ShellMenus`, `CardGestures`);
 `Widgets/ItemMenu.cs` (the one builder), `WidgetCard.cs` (card menu, click), `DesktopWindow.Menu.cs`
 (surface menu), `Gallery/MenuRender.cs`; `Shell/KeyChord.cs`, `Shell/MenuArt.cs` (Core) and `Shell/MenuArtIcons.cs`.
@@ -7318,7 +7256,7 @@ gallery ([S-1863]).
 - **[S-1863]** There is no widget gallery: no `--gallery` window, no `--gallery-png` render, no
   toolbar entry, and no `#if DEBUG` sample data inside widget views or services. A widget's layout at
   the seven size tiers (`WidgetTiers`) is checked on the showcase views ([S-1810]) on the live
-  desktop, or off-screen with `--widget-png` (one card at every tier, default config, [S-1917]); the other debug render flags (`--settings-png`, `--picker-png`, `--viewbar-png`,
+  desktop, or off-screen with `--widget-png` (one card at every tier, default config, [S-1917]); the other debug render flags (`--editbar-png`, `--picker-png`, `--viewbar-png`,
   `--notices-png`, `--menu-png`, `--iconpicker-png`, `--motion-png`, `--layout-editor-png`) stay and
   draw widgets with their default config. The tags that described the gallery's fixtures are retired.
 

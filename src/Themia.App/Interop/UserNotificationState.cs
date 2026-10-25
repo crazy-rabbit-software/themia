@@ -38,7 +38,7 @@ internal static class UserNotification
             return ForegroundKind.None;
         }
 
-        // Any window of this process: the edit-mode surface, the settings window. Asked by process,
+        // Any window of this process: the edit-mode surface, the layout editor. Asked by process,
         // not by the surface list, because a suspended surface is no longer on that list.
         Win32.GetWindowThreadProcessId(foreground, out var pid);
         if (pid == (uint)Environment.ProcessId)

@@ -5,7 +5,7 @@ using Themia.Sdk.WinUI;
 namespace Themia.App.Services.Notes;
 
 /// <summary>
-/// [S-1348] The notes kept on this PC, as every Notes widget and the settings window see them: one
+/// [S-1348] The notes kept on this PC, as every Notes widget and its properties menu see them: one
 /// pool, so two widgets can show one note, typing in one shows up in the other, and deleting a widget
 /// never takes its note.
 /// <para>

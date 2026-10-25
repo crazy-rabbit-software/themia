@@ -41,7 +41,7 @@ public enum ForegroundKind
     /// <summary>An ordinary application, which may or may not be full-screen.</summary>
     Application = 1,
 
-    /// <summary>A window of this process: a widget surface in edit mode, or the settings window.</summary>
+    /// <summary>A window of this process: a widget surface in edit mode, or the layout editor.</summary>
     OwnWindow = 2,
 
     /// <summary>The desktop itself (<c>Progman</c>, <c>WorkerW</c>, the icon view).</summary>

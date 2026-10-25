@@ -22,7 +22,7 @@ public enum FolderColumn
 /// </summary>
 public static class FolderColumns
 {
-    /// <summary>Every column, in the order the settings page offers them.</summary>
+    /// <summary>Every column, in the order the properties menu offers them.</summary>
     public static IReadOnlyList<FolderColumn> All { get; } =
         [FolderColumn.Size, FolderColumn.Modified, FolderColumn.Type, FolderColumn.Cloud, FolderColumn.Git, FolderColumn.ItemCount];
 

@@ -41,9 +41,5 @@
   "shell.accounts.stats.synced": "सिंक किया गया {time}",
   "shell.accounts.stats.neverSynced": "अभी सिंक नहीं हुआ",
   "shell.accounts.stats.nothing": "इस PC पर अभी कुछ संग्रहीत नहीं",
-  "shell.accounts.nicknameDesc": "वह नाम जो विजेट इस खाते के लिए दिखाते हैं",
-  "shell.accounts.reconnect": "फिर से साइन इन करें",
-  "shell.accounts.reconnectButton": "साइन इन करें",
-  "shell.accounts.signOutDesc": "इस PC पर खाता और उससे सिंक हुई हर चीज़ भूल जाता है",
-  "shell.accounts.needsSignIn": "फिर से साइन इन करना ज़रूरी है"
+  "shell.accounts.reconnect": "फिर से साइन इन करें"
 }

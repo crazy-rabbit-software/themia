@@ -6,7 +6,7 @@ using Themia.Sdk;
 namespace Themia.Core.Sync;
 
 /// <summary>
-/// [S-3780] The host's own rows of Settings › Widgets › Updates: the kinds of online source it asks
+/// [S-3780] The host's own rows of ⚙ › Online updates: the kinds of online source it asks
 /// itself. A provider module with a kit service adds its own row ([S-6910]).
 /// </summary>
 public static class HostCadences
@@ -44,7 +44,7 @@ public static class HostCadences
 
 /// <summary>
 /// [S-3780] How often each kind of online source is asked, for every widget at once. Set in
-/// Settings › Widgets, never per widget: two weather widgets on one desktop asking at different
+/// ⚙ › Online updates, never per widget: two weather widgets on one desktop asking at different
 /// rates is a setting nobody can reason about, and the services behind them are shared and free.
 /// <para>
 /// Each row offers a short closed list; anything else (a hand edit) snaps to the nearest choice,

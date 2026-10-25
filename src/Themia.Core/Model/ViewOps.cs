@@ -53,7 +53,7 @@ public static class ViewOps
     }
 
     /// <summary>
-    /// [S-1707] Rename a view, from its page or the settings pane's menu. The name is trimmed; a
+    /// [S-1707] Rename a view, from the View menu. The name is trimmed; a
     /// blank one is refused and the old name kept, since a view with no name cannot be told apart
     /// in the pane, the bar or a switcher. False when nothing changed.
     /// </summary>

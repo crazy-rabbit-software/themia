@@ -65,7 +65,7 @@ internal sealed partial class StocksView : Grid, IWidgetView, IWidgetHeaderConte
 
     /// <summary>
     /// [S-13a] A copy of the settings this view last acted on, which is what a change is measured
-    /// against. Not <c>_config</c>: the settings page edits the live config object in place.
+    /// against. Not <c>_config</c>: the properties menu edits the live config object in place.
     /// </summary>
     private StocksConfig _applied = new();
 

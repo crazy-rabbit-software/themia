@@ -30,8 +30,8 @@ public static class Strings
 
     /// <summary>
     /// [S-1110] Raised after <see cref="Current"/> changed, on the thread that changed it (the UI
-    /// thread, in the app). Settings pages rebuild and cards re-title on it. A static event: every
-    /// subscriber must unsubscribe when it goes away (a page's Unloaded, a view's Detach).
+    /// thread, in the app). Menus re-word and cards re-title on it. A static event: every
+    /// subscriber must unsubscribe when it goes away (a menu's close, a view's Detach).
     /// </summary>
     public static event Action<Locale>? Changed;
 

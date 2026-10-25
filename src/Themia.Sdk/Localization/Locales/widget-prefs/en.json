@@ -1,5 +1,5 @@
 {
-  "$comment": "[S-3770] [S-3780] Settings › Widgets: the regional formats and update cadences every widget shares.",
+  "$comment": "[S-3770] [S-3780] ⚙ › Language & region and Online updates: the regional formats and update cadences every widget shares.",
   "$englishOnly": [],
   "widgetPrefs.updates.note": "How often widgets ask online services. Refresh on a widget asks at once.",
   "widgetPrefs.updates.weather": "Weather",

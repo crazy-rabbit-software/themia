@@ -28,9 +28,9 @@ namespace Themia.App.Shell;
 internal sealed partial class DesktopWindow
 {
     /// <summary>
-    /// [S-3501] The add menu: a flyout under the edit bar's Add widget rather than a page in the
-    /// settings window, because choosing a widget is a moment's decision made while looking at the
-    /// desktop, and the settings window covers the desktop.
+    /// [S-3501] The add menu: a flyout under the edit bar's Add widget rather than a window,
+    /// because choosing a widget is a moment's decision made while looking at the desktop, and a
+    /// window covers the desktop.
     /// <para>
     /// Its content is rebuilt every time it opens, so the names follow a language switch ([S-1109]),
     /// new kinds in the catalogue appear, and the cascade fits this display's work area ([S-3512]).

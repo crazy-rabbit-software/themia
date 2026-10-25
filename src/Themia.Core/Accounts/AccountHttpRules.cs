@@ -164,7 +164,7 @@ public static class ErrorBody
     /// The message in the shapes these providers use: <c>{"error":{"message":…}}</c> (Graph, Google,
     /// Anthropic), <c>{"error":"…","error_description":"…"}</c> (OAuth token endpoints) and
     /// <c>{"message":…}</c> (GitHub). Null when the body is not one of them. Cut to one line and a
-    /// readable length, since it ends up in a settings page.
+    /// readable length, since it ends up in ⚙ › Accounts.
     /// </summary>
     public static string? Message(string? body)
     {

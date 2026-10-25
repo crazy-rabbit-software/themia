@@ -103,7 +103,7 @@ public sealed partial class KitConformanceTests
 
         var offending = kitModules
             .SelectMany(RepoFiles.CSharp)
-            .Where(f => Path.GetFileName(f).Contains("View", StringComparison.Ordinal) && !RepoFiles.IsSettingsPage(f))
+            .Where(f => Path.GetFileName(f).Contains("View", StringComparison.Ordinal))
             .SelectMany(f => ListPlumbing().Matches(Code(f)).Select(m => $"{Path.GetFileName(f)}: {m.Value}"))
             .ToList();
 

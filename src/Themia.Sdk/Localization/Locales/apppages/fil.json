@@ -41,9 +41,5 @@
   "shell.accounts.stats.synced": "na-sync {time}",
   "shell.accounts.stats.neverSynced": "hindi pa na-sync",
   "shell.accounts.stats.nothing": "Wala pang naka-store sa PC na ito",
-  "shell.accounts.nicknameDesc": "Ang pangalang ipinapakita ng mga widget para sa account na ito",
-  "shell.accounts.reconnect": "Mag-sign in ulit",
-  "shell.accounts.reconnectButton": "Mag-sign in",
-  "shell.accounts.signOutDesc": "Kinakalimutan ang account at lahat ng na-sync mula rito sa PC na ito",
-  "shell.accounts.needsSignIn": "Kailangan mong mag-sign in ulit"
+  "shell.accounts.reconnect": "Mag-sign in ulit"
 }

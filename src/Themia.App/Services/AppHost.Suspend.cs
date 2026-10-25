@@ -29,7 +29,7 @@ internal sealed partial class AppHost
     /// <summary>A check is already queued, so the next event need not queue another.</summary>
     private bool _gameModeCheckQueued;
 
-    /// <summary>Whether game mode has the widgets suspended right now — the settings page's "paused now".</summary>
+    /// <summary>Whether game mode has the widgets suspended right now — the settings menu's "Paused now".</summary>
     public bool Suspended => _suspended;
 
     /// <summary>Raised on the UI thread when the widgets are suspended or resumed.</summary>

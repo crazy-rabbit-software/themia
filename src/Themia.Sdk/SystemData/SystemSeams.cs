@@ -3,7 +3,7 @@ using Themia.App.Services;
 namespace Themia.Sdk;
 
 /// <summary>
-/// [S-2431] The graphics adapters a settings page lists (the GPU widgets' adapter choice): the host's
+/// [S-2431] The graphics adapters a properties menu lists (the GPU widgets' adapter choice): the host's
 /// DXGI enumeration, installed by the host once at start, as the place lookup is.
 /// </summary>
 public static class GpuAdapters
@@ -12,7 +12,7 @@ public static class GpuAdapters
 
     /// <summary>Every adapter, in DXGI's order (a position is the persisted choice).</summary>
     public static IReadOnlyList<GpuAdapter> List()
-        => (Volatile.Read(ref _list) ?? throw new InvalidOperationException("no adapter list installed: the host installs it before any settings page is shown"))();
+        => (Volatile.Read(ref _list) ?? throw new InvalidOperationException("no adapter list installed: the host installs it before any menu is shown"))();
 
     /// <summary>The host's enumeration. Once per process.</summary>
     internal static void Install(Func<IReadOnlyList<GpuAdapter>> list)

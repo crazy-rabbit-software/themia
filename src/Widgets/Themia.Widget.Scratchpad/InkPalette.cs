@@ -6,7 +6,7 @@ namespace Themia.Core.Widgets;
 public readonly record struct Ink(string Hex, ScratchpadStr Name);
 
 /// <summary>
-/// [S-1497] The scratchpad's presets, shared by its settings page and the toolbar on the pad: the
+/// [S-1497] The scratchpad's presets, shared by its properties menu and the toolbar on the pad: the
 /// original's palette-and-three-sizes toolbar ([S-02] of the original). Six inks that read on the
 /// pad in either theme, and the original's three nibs.
 /// </summary>

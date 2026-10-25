@@ -6,7 +6,7 @@ namespace Themia.Core.Tests;
 
 /// <summary>
 /// [S-13a] Views measure a settings change against a clone of the config they last acted on, because
-/// the settings page edits the live object in place. That only works if a clone really is a separate
+/// the properties menu edits the live object in place. That only works if a clone really is a separate
 /// object: a clone that shared the live instance would make every change look like no change again.
 /// </summary>
 public sealed class ConfigSnapshotTests

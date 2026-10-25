@@ -8,8 +8,8 @@ using Xunit;
 namespace Themia.Core.Tests;
 
 /// <summary>
-/// [S-3800]..[S-3823] The app settings pages' rules: reordering views by keyboard, a view's colour,
-/// and the synced-item numbers on the Accounts page.
+/// [S-3800]..[S-3823] Rules the settings pages had and the edit bar's menus kept: reordering by
+/// keyboard, a view's colour, and the synced-item numbers ⚙ › Accounts shows.
 /// </summary>
 public sealed class AppPagesTests
 {

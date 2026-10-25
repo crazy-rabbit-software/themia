@@ -34,9 +34,5 @@
   "shell.accounts.stats.synced": "ซิงค์เมื่อ {time}",
   "shell.accounts.stats.neverSynced": "ยังไม่ได้ซิงค์",
   "shell.accounts.stats.nothing": "ยังไม่มีข้อมูลจัดเก็บบนพีซีเครื่องนี้",
-  "shell.accounts.nicknameDesc": "ชื่อที่วิดเจ็ตแสดงสำหรับบัญชีนี้",
-  "shell.accounts.reconnect": "ลงชื่อเข้าใช้อีกครั้ง",
-  "shell.accounts.reconnectButton": "ลงชื่อเข้าใช้",
-  "shell.accounts.signOutDesc": "ลืมบัญชีนี้และทุกอย่างที่ซิงค์จากบัญชีนี้บนพีซีเครื่องนี้",
-  "shell.accounts.needsSignIn": "ต้องลงชื่อเข้าใช้อีกครั้ง"
+  "shell.accounts.reconnect": "ลงชื่อเข้าใช้อีกครั้ง"
 }

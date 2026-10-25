@@ -41,9 +41,5 @@
   "shell.accounts.stats.synced": "{time} ਸਿੰਕ ਕੀਤਾ",
   "shell.accounts.stats.neverSynced": "ਹਾਲੇ ਸਿੰਕ ਨਹੀਂ ਕੀਤਾ",
   "shell.accounts.stats.nothing": "ਇਸ PC ਉੱਤੇ ਹਾਲੇ ਕੁਝ ਵੀ ਸਟੋਰ ਨਹੀਂ ਹੈ",
-  "shell.accounts.nicknameDesc": "ਉਹ ਨਾਮ ਜੋ ਵਿਜੇਟ ਇਸ ਖਾਤੇ ਲਈ ਦਿਖਾਉਂਦੇ ਹਨ",
-  "shell.accounts.reconnect": "ਦੁਬਾਰਾ ਸਾਈਨ ਇਨ ਕਰੋ",
-  "shell.accounts.reconnectButton": "ਸਾਈਨ ਇਨ ਕਰੋ",
-  "shell.accounts.signOutDesc": "ਇਸ PC ਉੱਤੋਂ ਖਾਤੇ ਅਤੇ ਉਸ ਤੋਂ ਸਿੰਕ ਕੀਤੀ ਹਰ ਚੀਜ਼ ਨੂੰ ਭੁਲਾ ਦਿੰਦਾ ਹੈ",
-  "shell.accounts.needsSignIn": "ਤੁਹਾਨੂੰ ਦੁਬਾਰਾ ਸਾਈਨ ਇਨ ਕਰਨ ਦੀ ਲੋੜ ਹੈ"
+  "shell.accounts.reconnect": "ਦੁਬਾਰਾ ਸਾਈਨ ਇਨ ਕਰੋ"
 }

@@ -23,7 +23,7 @@ public static class CalendarRules
     /// </summary>
     public static IReadOnlyList<string> Palette { get; } = ["#60cdff", "#ff9660", "#a8e6a3", "#ffcc70", "#c8b3f7", "#ff8bab"];
 
-    /// <summary>What the settings page calls each palette colour, in palette order.</summary>
+    /// <summary>What the colour submenu calls each palette colour, in palette order.</summary>
     public static IReadOnlyList<Str> PaletteNames { get; } =
     [
         Str.WidgetsA_Calendar_Color_Blue,

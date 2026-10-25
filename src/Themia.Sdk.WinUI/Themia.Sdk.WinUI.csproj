@@ -14,7 +14,7 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.8.260804001" />
-    <!-- SettingsCard and SettingsExpander, the rows FluentLayout builds every settings page from ([S-1540]). -->
+    <!-- SettingsCard, the rows FluentLayout builds the app-layout editor from ([S-1540], [S-1411]). -->
     <PackageReference Include="CommunityToolkit.WinUI.Controls.SettingsControls" Version="8.2.251219" />
   </ItemGroup>
 

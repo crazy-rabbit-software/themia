@@ -5,9 +5,8 @@ namespace Themia.Core.Tests;
 
 /// <summary>
 /// [S-987] / [S-988] How the process may end. The rules live in the App's startup code, which no
-/// test can run (it needs a XAML application), so these read the source the way
-/// <see cref="NavIconAssetTests"/> reads the asset list: the lines are one-liners, and losing one is
-/// silent until a user reports that Themia "just disappeared" (original issue #87).
+/// test can run (it needs a XAML application), so these read the source: the lines are one-liners,
+/// and losing one is silent until a user reports that Themia "just disappeared" (original issue #87).
 /// </summary>
 public sealed class ProcessLifetimeTests
 {

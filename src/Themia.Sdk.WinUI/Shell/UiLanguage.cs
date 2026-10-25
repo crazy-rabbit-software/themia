@@ -12,7 +12,7 @@ namespace Themia.App.Shell;
 /// Japanese would be drawn with Chinese glyph shapes on an English Windows.
 /// </para>
 /// <para>
-/// The direction is set on the roots whose whole content is text-like UI — the settings window,
+/// The direction is set on the roots whose whole content is text-like UI — the layout editor,
 /// every card, the edit bar, the view bar, the notices, the placement hint, a menu's anchor — and
 /// never on a desktop surface itself: its canvases are physical screen geometry (where a widget
 /// sits, the hit region, the rubber band), the same in every language. Flyouts, menus and tooltips

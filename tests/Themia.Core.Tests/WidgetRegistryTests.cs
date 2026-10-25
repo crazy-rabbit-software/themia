@@ -28,7 +28,6 @@ public sealed partial class WidgetRegistryTests
             .Where(f => ThemiaWidget().IsMatch(File.ReadAllText(f)))
             .ToList();
         Assert.Empty(declared);
-        Assert.Empty(Directory.GetFiles(Path.Combine(app, "Shell", "Config"), "WidgetSettings*.cs"));
     }
 
     /// <summary>[S-6903] Regression: with no widget installed the state options refused to build ("should specify at least one derived type").</summary>

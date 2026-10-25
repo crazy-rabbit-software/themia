@@ -55,9 +55,9 @@ public sealed class ConfirmFlyoutTests
 
     /// <summary>
     /// The countdown's remove, the clipboard's clear and the notes' delete asked through a
-    /// <c>ContentDialog</c> (<c>FluentLayout.ConfirmAsync</c> is one): centred on the monitor-sized
-    /// surface, far from the widget, and drawn inside the region that is cut to the cards. Neither a
-    /// widget view nor the desktop surface may open one; the settings window may.
+    /// <c>ContentDialog</c>: centred on the monitor-sized surface, far from the widget, and drawn
+    /// inside the region that is cut to the cards. Neither a widget view nor the desktop surface may
+    /// open one.
     /// </summary>
     [Fact]
     public void S1500_no_widget_view_or_surface_opens_a_content_dialog()
@@ -66,17 +66,10 @@ public sealed class ConfirmFlyoutTests
         var surface = Directory.GetFiles(shell, "DesktopWindow*.cs")
             .Concat(Directory.GetFiles(shell, "WidgetCard*.cs"));
 
-        // A module's settings page is the settings window's, which may ask in a dialog ([S-1500]).
         var offenders = RepoFiles.ViewSources()
-            .Where(path => !RepoFiles.IsSettingsPage(path))
             .Concat(surface)
-            .Where(path =>
-            {
-                var source = File.ReadAllText(path);
-                return (source.Contains("ContentDialog", StringComparison.Ordinal)
-                    && Path.GetFileName(path) != "ConfirmFlyout.cs")
-                    || source.Contains("FluentLayout.ConfirmAsync", StringComparison.Ordinal);
-            })
+            .Where(path => File.ReadAllText(path).Contains("ContentDialog", StringComparison.Ordinal)
+                && Path.GetFileName(path) != "ConfirmFlyout.cs")
             .Select(Path.GetFileName)
             .ToArray();
 

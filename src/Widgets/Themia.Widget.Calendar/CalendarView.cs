@@ -226,7 +226,7 @@ internal sealed partial class CalendarView : Grid, IWidgetView, IWidgetHeaderCon
         }
     }
 
-    /// <summary>[S-561] Refresh. [S-3640] The layout is the widget's style, chosen on the strip or the settings page.</summary>
+    /// <summary>[S-561] Refresh. [S-3640] The layout is the widget's style, chosen on the strip or the properties menu.</summary>
     public IReadOnlyList<WidgetAction> ContextActions => [new(Glyphs.Refresh, Themia.Sdk.Kit.KitFreshness.RefreshLabel(Strings.Current, _outcomes, DateTimeOffset.Now), () => _ = RefreshAsync(force: true))];
 
     public void Detach()

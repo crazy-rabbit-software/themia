@@ -200,7 +200,7 @@ internal sealed partial class ShortcutsView : Grid, IWidgetView, IWidgetSurfaceA
     }
 
     /// <summary>
-    /// [S-1392] Add items (the settings page and a drop, [S-1400]). The one way an item enters the
+    /// [S-1392] Add items (the properties menu and a drop, [S-1400]). The one way an item enters the
     /// widget from its own surface.
     /// </summary>
     public void AddItems(IEnumerable<ShortcutItem> items)

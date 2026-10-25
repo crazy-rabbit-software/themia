@@ -87,7 +87,7 @@ public readonly record struct ItemMenuEntry(
 
 /// <summary>
 /// Every context menu in Themia: a widget card's, an item's inside a widget (a row, a file, a day),
-/// the empty desktop's in edit mode, and the settings window's.
+/// the empty desktop's in edit mode, and a view chip's.
 /// <para>
 /// [S-1740] Drawn the way Windows 11's File Explorer draws its menu: a <see cref="CommandBarFlyout"/>,
 /// always expanded, with the common commands as a row of icons on top and the labelled list below

@@ -34,9 +34,5 @@
   "shell.accounts.stats.synced": "disinkronkan {time}",
   "shell.accounts.stats.neverSynced": "belum disinkronkan",
   "shell.accounts.stats.nothing": "Belum ada yang disimpan di PC ini",
-  "shell.accounts.nicknameDesc": "Nama yang ditampilkan widget untuk akun ini",
-  "shell.accounts.reconnect": "Masuk lagi",
-  "shell.accounts.reconnectButton": "Masuk",
-  "shell.accounts.signOutDesc": "Melupakan akun dan semua yang disinkronkan darinya di PC ini",
-  "shell.accounts.needsSignIn": "Anda perlu masuk lagi"
+  "shell.accounts.reconnect": "Masuk lagi"
 }

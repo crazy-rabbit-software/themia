@@ -41,9 +41,5 @@
   "shell.accounts.stats.synced": "সিঙ্ক হয়েছে {time}",
   "shell.accounts.stats.neverSynced": "এখনও সিঙ্ক হয়নি",
   "shell.accounts.stats.nothing": "এই PC-তে এখনও কিছু সংরক্ষিত নেই",
-  "shell.accounts.nicknameDesc": "এই অ্যাকাউন্টের জন্য উইজেটে দেখানো নাম",
-  "shell.accounts.reconnect": "আবার সাইন ইন করুন",
-  "shell.accounts.reconnectButton": "সাইন ইন",
-  "shell.accounts.signOutDesc": "এই PC থেকে অ্যাকাউন্ট ও তা থেকে সিঙ্ক হওয়া সবকিছু মুছে দেয়",
-  "shell.accounts.needsSignIn": "আবার সাইন ইন করা প্রয়োজন"
+  "shell.accounts.reconnect": "আবার সাইন ইন করুন"
 }

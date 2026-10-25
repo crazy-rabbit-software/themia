@@ -75,7 +75,7 @@ internal static unsafe partial class CoreAudio
         => _worker?.PostMute(WriteKey(deviceId, key), muted);
 
     /// <summary>
-    /// [S-1222] The active output devices, for a settings page: enumerated on a pool thread in its own
+    /// [S-1222] The active output devices, for a properties menu: enumerated on a pool thread in its own
     /// apartment, so it neither blocks the UI nor needs the worker to be running. Empty when Core
     /// Audio would not answer (logged).
     /// </summary>

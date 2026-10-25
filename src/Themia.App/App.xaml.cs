@@ -45,10 +45,9 @@ public partial class App : Application
         Services.SoundCue.Install(new Services.HostCuePlayer());
 
 #if DEBUG
-        // The settings render's --theme: the application theme can only be chosen before the
-        // resources load, and the pages' brushes come from it.
-        if ((Shell.Gallery.SettingsRender.RequestedTheme(Environment.GetCommandLineArgs())
-            ?? Shell.Gallery.IconPickerRender.RequestedTheme(Environment.GetCommandLineArgs())
+        // A render's --theme: the application theme can only be chosen before the resources load,
+        // and the brushes come from it.
+        if ((Shell.Gallery.IconPickerRender.RequestedTheme(Environment.GetCommandLineArgs())
             ?? Shell.Gallery.EditBarRender.RequestedTheme(Environment.GetCommandLineArgs())
             ?? Shell.Gallery.WidgetRender.RequestedTheme(Environment.GetCommandLineArgs())) is { } theme)
         {
@@ -114,14 +113,8 @@ public partial class App : Application
         Shell.Gallery.RenderLanguage.Apply(Environment.GetCommandLineArgs());
 
         // Each render runs instead of the app, never alongside it: no state file, no single-instance
-        // hand-off, so it can draw while the user's own copy keeps running. One settings page is
-        // built over a demo state that is never saved.
-        if (Shell.Gallery.SettingsRender.TryRunFromCommandLine(this, Environment.GetCommandLineArgs()))
-        {
-            return;
-        }
-
-        // And for the edit bar's open add menu ([S-3506]).
+        // hand-off, so it can draw while the user's own copy keeps running, over a demo state that
+        // is never saved. The edit bar's open add menu ([S-3506]).
         if (Shell.Gallery.PickerRender.TryRunFromCommandLine(this, Environment.GetCommandLineArgs()))
         {
             return;

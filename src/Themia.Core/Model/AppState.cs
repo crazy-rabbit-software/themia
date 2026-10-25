@@ -149,7 +149,7 @@ public sealed class ViewState
 
     /// <summary>
     /// [S-703] A Segoe Fluent glyph shown for the view in switchers and the view bar, or null for
-    /// the name's initials. [S-903] Chosen on the view's settings page; the settings pane shows it too.
+    /// the name's initials. [S-903] Chosen in the View menu.
     /// </summary>
     public string? Icon { get; set; }
 

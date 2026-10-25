@@ -98,7 +98,7 @@ public abstract class WeatherConfig : WidgetConfig, IPlaced
     [JsonIgnore]
     public virtual int? ForecastDays => null;
 
-    /// <summary>[S-3780] The shared weather cadence (Settings › Widgets), never faster than open-meteo's own cycle.</summary>
+    /// <summary>[S-3780] The shared weather cadence (⚙ › Online updates), never faster than open-meteo's own cycle.</summary>
     [JsonIgnore]
     public TimeSpan TickInterval => Sync.UpdateCadence.Interval(Sync.HostCadences.Weather);
 

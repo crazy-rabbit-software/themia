@@ -16,7 +16,7 @@ public static class DeskListOrder
     /// anything moved.
     /// <para>
     /// An out-of-range index or an edge is a no-op rather than an exception: Alt+Shift+Up on the
-    /// first row is pressable, and should simply do nothing rather than crash a settings page.
+    /// first row is pressable, and should simply do nothing rather than crash a menu.
     /// </para>
     /// </summary>
     public static bool Move<T>(IList<T>? items, int index, int delta)

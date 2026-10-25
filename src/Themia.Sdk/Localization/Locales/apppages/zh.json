@@ -34,9 +34,5 @@
   "shell.accounts.stats.synced": "{time}同步",
   "shell.accounts.stats.neverSynced": "尚未同步",
   "shell.accounts.stats.nothing": "此电脑上尚未存储任何内容",
-  "shell.accounts.nicknameDesc": "小组件为此帐户显示的名称",
-  "shell.accounts.reconnect": "重新登录",
-  "shell.accounts.reconnectButton": "登录",
-  "shell.accounts.signOutDesc": "移除此帐户以及从其同步到此电脑的所有内容",
-  "shell.accounts.needsSignIn": "需要重新登录"
+  "shell.accounts.reconnect": "重新登录"
 }

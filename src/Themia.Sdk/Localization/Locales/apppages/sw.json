@@ -41,9 +41,5 @@
   "shell.accounts.stats.synced": "imesawazishwa {time}",
   "shell.accounts.stats.neverSynced": "bado haijasawazishwa",
   "shell.accounts.stats.nothing": "Bado hakuna kilichohifadhiwa kwenye Kompyuta hii",
-  "shell.accounts.nicknameDesc": "Jina ambalo wijeti huonyesha kwa akaunti hii",
-  "shell.accounts.reconnect": "Ingia tena",
-  "shell.accounts.reconnectButton": "Ingia",
-  "shell.accounts.signOutDesc": "Husahau akaunti na kila kitu kilichosawazishwa kutoka kwayo kwenye Kompyuta hii",
-  "shell.accounts.needsSignIn": "Unahitaji kuingia tena"
+  "shell.accounts.reconnect": "Ingia tena"
 }

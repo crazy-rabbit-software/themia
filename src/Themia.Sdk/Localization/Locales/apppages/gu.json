@@ -41,9 +41,5 @@
   "shell.accounts.stats.synced": "{time} સમન્વયિત",
   "shell.accounts.stats.neverSynced": "હજી સમન્વયિત નથી",
   "shell.accounts.stats.nothing": "આ PC પર હજી કંઈ સંગ્રહિત નથી",
-  "shell.accounts.nicknameDesc": "વિજેટ આ એકાઉન્ટ માટે જે નામ બતાવે છે",
-  "shell.accounts.reconnect": "ફરીથી સાઇન ઇન કરો",
-  "shell.accounts.reconnectButton": "સાઇન ઇન કરો",
-  "shell.accounts.signOutDesc": "આ PC પરથી એકાઉન્ટ અને તેમાંથી સમન્વયિત બધું ભૂલી જાય છે",
-  "shell.accounts.needsSignIn": "તમારે ફરીથી સાઇન ઇન કરવાની જરૂર છે"
+  "shell.accounts.reconnect": "ફરીથી સાઇન ઇન કરો"
 }

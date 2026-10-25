@@ -17,7 +17,7 @@ public sealed record ServiceDescriptor
     /// <summary>What widgets ask for ([S-502]): a kit service's feature is its provider's id.</summary>
     public required FeatureId Feature { get; init; }
 
-    /// <summary>Its row in Settings › Widgets › Updates ([S-3780]).</summary>
+    /// <summary>Its row in ⚙ › Online updates ([S-3780]).</summary>
     public required CadenceRow Cadence { get; init; }
 
     public required TransportKind Transport { get; init; }

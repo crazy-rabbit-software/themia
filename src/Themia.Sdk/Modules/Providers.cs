@@ -27,7 +27,7 @@ public interface IProviderModule
     int AddRank { get; }
 
     /// <summary>
-    /// [S-3780] Its own row in Settings › Widgets › Updates, or null when its accounts follow the
+    /// [S-3780] Its own row in ⚙ › Online updates, or null when its accounts follow the
     /// host's Accounts row (every account provider of today).
     /// </summary>
     CadenceRow? Cadence { get; }
@@ -115,7 +115,7 @@ public sealed class FeatureSet : IEquatable<FeatureSet>
 }
 
 /// <summary>
-/// [S-3780] A row of Settings › Widgets › Updates: one shared refresh cadence for every widget of a
+/// [S-3780] A row of ⚙ › Online updates: one shared refresh cadence for every widget of a
 /// kind of source, its offered minutes (a closed list; a stored value snaps to the nearest) and its
 /// default.
 /// </summary>

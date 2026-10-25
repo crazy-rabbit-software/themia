@@ -331,33 +331,4 @@ public sealed class ShellKeyboardTests
         Assert.Equal(string.Empty, typeAhead.Prefix);
         Assert.Equal(1, typeAhead.Type('Ä', 30, ["General", "Änderungen"], 0));
     }
-
-    // ---- [S-1977] the settings window's keys -----------------------------------------------------
-
-    [Fact]
-    public void S1977_settings_keys()
-    {
-        Assert.Equal(SettingsKey.FocusSearch, SettingsKeys.Decide(0x46, false, true, false));
-        Assert.Equal(SettingsKey.FocusSearch, SettingsKeys.Decide(0x45, false, true, false));
-        Assert.Equal(SettingsKey.Close, SettingsKeys.Decide(0x57, false, true, false));
-        Assert.Equal(SettingsKey.NextPane, SettingsKeys.Decide(0x75, false, false, false));
-        Assert.Equal(SettingsKey.PreviousPane, SettingsKeys.Decide(0x75, true, false, false));
-        Assert.Equal(SettingsKey.None, SettingsKeys.Decide(0x46, false, false, false));
-        Assert.Equal(SettingsKey.None, SettingsKeys.Decide(0x46, false, true, true));
-        Assert.Equal(SettingsKey.None, SettingsKeys.Decide(0x46, true, true, false));
-    }
-
-    [Fact]
-    public void S1977_f6_cycles_the_panes_and_skips_one_that_is_away()
-    {
-        static bool All(SettingsPane _) => true;
-
-        Assert.Equal(SettingsPane.Navigation, SettingsKeys.Next(SettingsPane.Search, false, All));
-        Assert.Equal(SettingsPane.Page, SettingsKeys.Next(SettingsPane.Navigation, false, All));
-        Assert.Equal(SettingsPane.Search, SettingsKeys.Next(SettingsPane.Page, false, All));
-        Assert.Equal(SettingsPane.Page, SettingsKeys.Next(SettingsPane.Search, true, All));
-
-        Assert.Equal(SettingsPane.Page, SettingsKeys.Next(SettingsPane.Search, false, p => p != SettingsPane.Navigation));
-        Assert.Equal(SettingsPane.Search, SettingsKeys.Next(SettingsPane.Search, false, _ => false));
-    }
 }

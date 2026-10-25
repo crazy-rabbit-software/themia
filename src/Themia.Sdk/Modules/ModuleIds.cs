@@ -90,7 +90,7 @@ public readonly record struct FeatureId
     public override string ToString() => Value ?? string.Empty;
 }
 
-/// <summary>A row of Settings › Widgets › Updates ([S-3780]): one shared refresh cadence.</summary>
+/// <summary>A row of ⚙ › Online updates ([S-3780]): one shared refresh cadence.</summary>
 [JsonConverter(typeof(CadenceIdJsonConverter))]
 public readonly record struct CadenceId
 {

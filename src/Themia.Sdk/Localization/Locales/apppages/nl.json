@@ -41,9 +41,5 @@
   "shell.accounts.stats.synced": "gesynchroniseerd {time}",
   "shell.accounts.stats.neverSynced": "nog niet gesynchroniseerd",
   "shell.accounts.stats.nothing": "Nog niets opgeslagen op deze pc",
-  "shell.accounts.nicknameDesc": "De naam die widgets voor dit account tonen",
-  "shell.accounts.reconnect": "Opnieuw aanmelden",
-  "shell.accounts.reconnectButton": "Aanmelden",
-  "shell.accounts.signOutDesc": "Vergeet het account en alles wat ervan is gesynchroniseerd op deze pc",
-  "shell.accounts.needsSignIn": "Je moet je opnieuw aanmelden"
+  "shell.accounts.reconnect": "Opnieuw aanmelden"
 }

@@ -34,9 +34,5 @@
   "shell.accounts.stats.synced": "{time}に同期",
   "shell.accounts.stats.neverSynced": "未同期",
   "shell.accounts.stats.nothing": "この PC にはまだ何も保存されていません",
-  "shell.accounts.nicknameDesc": "ウィジェットに表示されるこのアカウントの名前",
-  "shell.accounts.reconnect": "再度サインイン",
-  "shell.accounts.reconnectButton": "サインイン",
-  "shell.accounts.signOutDesc": "アカウントと、この PC に同期されたすべてのデータを削除します",
-  "shell.accounts.needsSignIn": "再度サインインが必要です"
+  "shell.accounts.reconnect": "再度サインイン"
 }

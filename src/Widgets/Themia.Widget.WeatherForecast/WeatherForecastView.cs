@@ -59,7 +59,7 @@ internal sealed partial class WeatherForecastView : Grid, IWidgetView, IWidgetHe
 
     /// <summary>
     /// [S-13a] A copy of the settings this view last acted on, which is what a change is measured
-    /// against. Not <c>_config</c>: the settings page edits the live config object in place.
+    /// against. Not <c>_config</c>: the properties menu edits the live config object in place.
     /// </summary>
     private WeatherForecastConfig _applied = new();
 
@@ -107,7 +107,7 @@ internal sealed partial class WeatherForecastView : Grid, IWidgetView, IWidgetHe
     public FrameworkElement? HeaderTrailing => _header;
 
     /// <summary>
-    /// [S-730] Refresh. The style is chosen on the properties strip and the settings page ([S-6007]).
+    /// [S-730] Refresh. The style is chosen on the properties strip and its menu ([S-6007]).
     /// </summary>
     public IReadOnlyList<WidgetAction> ContextActions =>
         _config.HasLocation ? [new WidgetAction(Glyphs.Refresh, OnlineParts.RefreshLabel(_forecast), () => Reload(force: true))] : [];

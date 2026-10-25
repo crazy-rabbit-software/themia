@@ -55,9 +55,5 @@
   "shell.accounts.stats.synced": "синхронизировано {time}",
   "shell.accounts.stats.neverSynced": "еще не синхронизировано",
   "shell.accounts.stats.nothing": "На этом ПК пока ничего не сохранено",
-  "shell.accounts.nicknameDesc": "Имя этой учетной записи в виджетах",
-  "shell.accounts.reconnect": "Войти снова",
-  "shell.accounts.reconnectButton": "Войти",
-  "shell.accounts.signOutDesc": "Удаляет учетную запись и все синхронизированные из нее данные с этого ПК",
-  "shell.accounts.needsSignIn": "Нужно войти снова"
+  "shell.accounts.reconnect": "Войти снова"
 }

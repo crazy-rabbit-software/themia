@@ -6,7 +6,7 @@ namespace Themia.App.Shell.Gallery;
 
 /// <summary>
 /// Debug renders only: <c>--design key=value,...</c> sets appearance values on the design a render
-/// draws its cards with, so a border, radius or fill can be looked at without the settings window.
+/// draws its cards with, so a border, radius or fill can be looked at without ⚙ › Appearance.
 /// Keys: <c>border</c> (none|solid|dashed|dotted), <c>borderWidth</c>, <c>borderOpacity</c> (0..1 or
 /// a percentage such as 25%), <c>borderColor</c> (#RRGGBB), <c>radius</c>, <c>background</c>
 /// (default|transparent|#RRGGBB[@percent], [S-6569]), <c>opacity</c> (the background colour's),

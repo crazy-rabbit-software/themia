@@ -41,9 +41,5 @@
   "shell.accounts.stats.synced": "eşitlendi: {time}",
   "shell.accounts.stats.neverSynced": "henüz eşitlenmedi",
   "shell.accounts.stats.nothing": "Bu bilgisayarda henüz hiçbir şey depolanmadı",
-  "shell.accounts.nicknameDesc": "Pencere öğelerinin bu hesap için gösterdiği ad",
-  "shell.accounts.reconnect": "Yeniden oturum açın",
-  "shell.accounts.reconnectButton": "Oturum aç",
-  "shell.accounts.signOutDesc": "Hesabı ve bu bilgisayarda ondan eşitlenen her şeyi unutur",
-  "shell.accounts.needsSignIn": "Yeniden oturum açmanız gerekiyor"
+  "shell.accounts.reconnect": "Yeniden oturum açın"
 }

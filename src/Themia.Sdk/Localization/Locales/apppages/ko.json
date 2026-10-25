@@ -34,9 +34,5 @@
   "shell.accounts.stats.synced": "{time}에 동기화됨",
   "shell.accounts.stats.neverSynced": "아직 동기화되지 않음",
   "shell.accounts.stats.nothing": "아직 이 PC에 저장된 항목이 없습니다",
-  "shell.accounts.nicknameDesc": "위젯에 표시되는 이 계정의 이름",
-  "shell.accounts.reconnect": "다시 로그인",
-  "shell.accounts.reconnectButton": "로그인",
-  "shell.accounts.signOutDesc": "계정과 이 PC에 동기화된 모든 항목을 삭제합니다",
-  "shell.accounts.needsSignIn": "다시 로그인해야 합니다"
+  "shell.accounts.reconnect": "다시 로그인"
 }

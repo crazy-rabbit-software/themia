@@ -11,8 +11,8 @@ namespace Themia.App.Services;
 /// starts and when it lands), paste, duplicate, a new view, and the view a
 /// new display would get. A refusal creates nothing, deletes nothing, and says why in a notice
 /// ([S-881]) whose button opens ⚙ › Themia Pro on that display, which offers the upgrade ([S-3573]). A notice
-/// rather than the settings window: a refusal is news, and a whole window thrown up over the
-/// desktop in the middle of arranging it was a heavier answer than the question deserved.
+/// rather than a menu thrown open: a refusal is news, and opening something over the desktop in
+/// the middle of arranging it is a heavier answer than the question deserves.
 /// </summary>
 internal sealed partial class AppHost
 {

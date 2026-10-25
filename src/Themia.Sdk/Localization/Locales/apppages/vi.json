@@ -34,9 +34,5 @@
   "shell.accounts.stats.synced": "đã đồng bộ {time}",
   "shell.accounts.stats.neverSynced": "chưa đồng bộ",
   "shell.accounts.stats.nothing": "Chưa có gì được lưu trên PC này",
-  "shell.accounts.nicknameDesc": "Tên mà tiện ích hiển thị cho tài khoản này",
-  "shell.accounts.reconnect": "Đăng nhập lại",
-  "shell.accounts.reconnectButton": "Đăng nhập",
-  "shell.accounts.signOutDesc": "Xóa tài khoản và mọi dữ liệu đã đồng bộ từ tài khoản đó trên PC này",
-  "shell.accounts.needsSignIn": "Cần đăng nhập lại"
+  "shell.accounts.reconnect": "Đăng nhập lại"
 }

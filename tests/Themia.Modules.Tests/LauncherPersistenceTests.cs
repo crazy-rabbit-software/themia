@@ -98,7 +98,7 @@ public sealed class LauncherPersistenceTests : IDisposable
     [Fact]
     public async Task A_shortcut_whose_target_would_be_refused_is_still_persisted()
     {
-        // The widget refuses to open it and the settings page says why. Dropping it on load would
+        // The widget refuses to open it and its menu says why. Dropping it on load would
         // silently lose a row the user typed — and hide that something rewrote their config.
         var config = new ShortcutsConfig();
         config.Items.Add(ShortcutItem.Create("javascript:alert(1)", "Bad"));

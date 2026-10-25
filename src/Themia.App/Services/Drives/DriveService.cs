@@ -45,7 +45,7 @@ internal sealed class DriveService : IDrives
     public bool HasValue { get; private set; }
 
     /// <summary>
-    /// The drives for a settings page: the last walk while something watches, else one walk now
+    /// The drives for a properties menu: the last walk while something watches, else one walk now
     /// (local drives at once, a share pending) — a page opened with no drive widget anywhere.
     /// </summary>
     public IReadOnlyList<DriveEntry> Now() => HasValue ? Drives : DriveCatalog.Walk(network: true);

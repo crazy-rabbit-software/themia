@@ -55,9 +55,5 @@
   "shell.accounts.stats.synced": "zsynchronizowano {time}",
   "shell.accounts.stats.neverSynced": "jeszcze nie zsynchronizowano",
   "shell.accounts.stats.nothing": "Na tym komputerze nie ma jeszcze danych",
-  "shell.accounts.nicknameDesc": "Nazwa tego konta widoczna w widżetach",
-  "shell.accounts.reconnect": "Zaloguj się ponownie",
-  "shell.accounts.reconnectButton": "Zaloguj",
-  "shell.accounts.signOutDesc": "Usuwa konto i wszystkie zsynchronizowane z niego dane z tego komputera",
-  "shell.accounts.needsSignIn": "Wymaga ponownego zalogowania"
+  "shell.accounts.reconnect": "Zaloguj się ponownie"
 }

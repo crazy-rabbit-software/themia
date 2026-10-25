@@ -71,7 +71,7 @@ internal sealed partial class BluetoothView : Grid, IWidgetView, IWidgetHeaderCo
 
     /// <summary>
     /// [S-13a] A copy of the settings this view last acted on, which is what a change is measured
-    /// against. Not <c>_config</c>: the settings page edits the live config object in place, so by
+    /// against. Not <c>_config</c>: the properties menu edits the live config object in place, so by
     /// the time a change arrives the "previous" config already holds the new values.
     /// </summary>
     private BluetoothConfig _applied = new();

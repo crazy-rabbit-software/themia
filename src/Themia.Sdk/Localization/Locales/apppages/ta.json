@@ -41,9 +41,5 @@
   "shell.accounts.stats.synced": "{time} ஒத்திசைக்கப்பட்டது",
   "shell.accounts.stats.neverSynced": "இன்னும் ஒத்திசைக்கப்படவில்லை",
   "shell.accounts.stats.nothing": "இந்த PC இல் இன்னும் எதுவும் சேமிக்கப்படவில்லை",
-  "shell.accounts.nicknameDesc": "இந்தக் கணக்குக்கு விட்ஜெட்கள் காட்டும் பெயர்",
-  "shell.accounts.reconnect": "மீண்டும் உள்நுழை",
-  "shell.accounts.reconnectButton": "உள்நுழை",
-  "shell.accounts.signOutDesc": "இந்த PC இல் கணக்கையும் அதிலிருந்து ஒத்திசைத்த அனைத்தையும் மறக்கும்",
-  "shell.accounts.needsSignIn": "நீங்கள் மீண்டும் உள்நுழைய வேண்டும்"
+  "shell.accounts.reconnect": "மீண்டும் உள்நுழை"
 }

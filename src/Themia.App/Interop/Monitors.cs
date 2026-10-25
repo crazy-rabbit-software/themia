@@ -47,7 +47,7 @@ internal readonly record struct MonitorTarget(
         }
     }
 
-    /// <summary>The long form for a settings page heading.</summary>
+    /// <summary>The long form: a display's name with its size, for the Display menu.</summary>
     public string Describe()
     {
         var name = string.IsNullOrWhiteSpace(FriendlyName) ? Nickname() : FriendlyName;

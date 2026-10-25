@@ -12,7 +12,7 @@ namespace Themia.Core.Tests;
 
 /// <summary>
 /// [S-3524]..[S-3531] The edit bar's settings menu as data: which lines each section offers, their
-/// choices and words, and what each writes. Every line writes the field its settings page wrote, and
+/// choices and words, and what each writes. Every line writes the field the settings page wrote, and
 /// nothing else, through one change of the state.
 /// </summary>
 [Collection(GlobalLocaleCollection.Name)]

@@ -267,7 +267,7 @@ internal static class NoticeRender
 
         public void RequestSetup(WidgetCard card)
         {
-            // ignore: a render has no edit mode to enter and no settings window
+            // ignore: a render has no edit mode to enter and no menu to open
         }
 
         public bool RequestAccounts() => false;

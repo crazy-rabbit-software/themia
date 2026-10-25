@@ -69,9 +69,5 @@
   "shell.accounts.stats.synced": "تمت المزامنة {time}",
   "shell.accounts.stats.neverSynced": "لم تتم المزامنة بعد",
   "shell.accounts.stats.nothing": "لا شيء مخزّن على هذا الكمبيوتر بعد",
-  "shell.accounts.nicknameDesc": "الاسم الذي تعرضه الأدوات لهذا الحساب",
-  "shell.accounts.reconnect": "تسجيل الدخول مرة أخرى",
-  "shell.accounts.reconnectButton": "تسجيل الدخول",
-  "shell.accounts.signOutDesc": "ينسى الحساب وكل ما تمت مزامنته منه على هذا الكمبيوتر",
-  "shell.accounts.needsSignIn": "يجب تسجيل الدخول مرة أخرى"
+  "shell.accounts.reconnect": "تسجيل الدخول مرة أخرى"
 }

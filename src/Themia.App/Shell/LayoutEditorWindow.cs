@@ -20,8 +20,9 @@ namespace Themia.App.Shell;
 
 /// <summary>
 /// [S-1411]..[S-1414] The app-layout editor (original <c>LayoutEditor.tsx</c>): one window for the
-/// whole app, opened on demand from a layout's item menu or its settings row, styled like the
-/// Windows 11 Settings window — Mica, the tall title bar, a page title, rows on cards.
+/// whole app, opened on demand from a layout's item menu or its properties-menu line, styled like
+/// a Windows 11 Settings page — Mica, the tall title bar, a page title, rows on cards. Themia's one
+/// window: its own settings are the edit bar's menus ([S-3520]).
 /// <para>
 /// The page is a name row and a picture of the display: panes that split side by side or one
 /// above the other, dividers that drag (5–95 %), and in each pane what it opens — an app from the

@@ -41,9 +41,5 @@
   "shell.accounts.stats.synced": "an daidaita {time}",
   "shell.accounts.stats.neverSynced": "ba a daidaita ba tukuna",
   "shell.accounts.stats.nothing": "Babu abin da aka adana a wannan kwamfuta tukuna",
-  "shell.accounts.nicknameDesc": "Sunan da widget ke nunawa don wannan asusu",
-  "shell.accounts.reconnect": "Sake shiga",
-  "shell.accounts.reconnectButton": "Shiga",
-  "shell.accounts.signOutDesc": "Yana manta asusun da duk abin da aka daidaita daga gare shi a wannan kwamfuta",
-  "shell.accounts.needsSignIn": "Yana buƙatar ka sake shiga"
+  "shell.accounts.reconnect": "Sake shiga"
 }

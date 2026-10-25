@@ -31,7 +31,7 @@ public enum CalendarStyle
     Year = 4,
 }
 
-/// <summary>[S-3601] A style's own row on the calendar's settings page, beside the accounts and birthdays every style shows.</summary>
+/// <summary>[S-3601] A style's own line on the calendar's properties menu, beside the accounts and birthdays every style shows.</summary>
 public enum CalendarSetting
 {
     /// <summary>[S-3637] Week: where the first column is.</summary>

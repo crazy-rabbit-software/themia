@@ -111,7 +111,7 @@ internal sealed class ServiceSync : IServiceSources, IDisposable
         Raise();
     }
 
-    /// <summary>[S-3780] The provider's row in Settings › Widgets › Updates.</summary>
+    /// <summary>[S-3780] The provider's row in ⚙ › Online updates.</summary>
     private static TimeSpan Cadence(ProviderId provider)
         => ProviderCatalog.All.FirstOrDefault(p => p.Id == provider)?.Service is { } descriptor
             ? UpdateCadence.Interval(UpdateCadence.Current, descriptor.Cadence)

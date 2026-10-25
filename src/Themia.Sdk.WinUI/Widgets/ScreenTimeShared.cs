@@ -260,7 +260,7 @@ public static class ScreenTimeLook
 
     /// <summary>
     /// [S-455] [S-3322] Hide an app from every screen-time widget. Its time is still recorded; the
-    /// settings page lists it with a way back. "Other" is never an app.
+    /// properties menu lists it with a way back. "Other" is never an app.
     /// </summary>
     public static void Hide(IScreenTimeSource? source, string app)
     {

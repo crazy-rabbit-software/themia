@@ -700,7 +700,7 @@ internal static unsafe partial class CoreAudio
     // Devices
     // ---------------------------------------------------------------------------------------------
 
-    /// <summary>The settings page's device list: its own apartment, its own enumerator, all released.</summary>
+    /// <summary>The properties menu's device list: its own apartment, its own enumerator, all released.</summary>
     private static IReadOnlyList<AudioDevice> ListOutputDevices()
     {
         var initialised = CoInitializeEx(0, CoInitMultithreaded);

@@ -271,8 +271,8 @@ internal static unsafe partial class ScreenColorPicker
 
             _ = Win32.ShowWindow(Hwnd, SwShow);
 
-            // Our own window, shown from a click in our own settings window: Windows lets the
-            // foreground pass. Without it the keys (Escape, arrows) go nowhere; the mouse still works.
+            // Our own window, shown from a click in one of our own menus (a colour submenu's
+            // eyedropper): Windows lets the foreground pass. Without it the keys (Escape, arrows) go nowhere; the mouse still works.
             if (!Win32.SetForegroundWindow(Hwnd))
             {
                 Log.Warn(Scope, "the eyedropper could not take the keyboard; Escape will not cancel, a right click still does");
@@ -539,7 +539,7 @@ internal static unsafe partial class ScreenColorPicker
 
             if (_previousForeground != 0 && Win32.IsWindow(_previousForeground))
             {
-                // ignore: best effort; failing leaves the settings window behind, nothing else.
+                // ignore: best effort; failing leaves the surface the pick started from behind, nothing else.
                 _ = Win32.SetForegroundWindow(_previousForeground);
             }
 
@@ -1022,7 +1022,7 @@ internal static unsafe partial class ScreenColorPicker
 
     /// <summary>
     /// Wait for the desktop compositor's next frame: called once the colour flyout has closed and
-    /// the settings window has drawn without it, so the capture shows the screen and not the menu.
+    /// the surface has drawn without it, so the capture shows the screen and not the menu.
     /// Event-driven (the compositor's own vblank), not a timer.
     /// </summary>
     public static void WaitForComposedFrame()

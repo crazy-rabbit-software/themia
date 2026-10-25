@@ -12,7 +12,7 @@ public static class SymbolLookup
 
     /// <summary>The instruments a query names, best first; empty for a query too short to ask.</summary>
     public static Task<IReadOnlyList<SymbolHit>> FindAsync(string query, CancellationToken token)
-        => (Volatile.Read(ref _search) ?? throw new InvalidOperationException("no symbol search installed: the host installs it before any settings page is shown"))(query, token);
+        => (Volatile.Read(ref _search) ?? throw new InvalidOperationException("no symbol search installed: the host installs it before any menu is shown"))(query, token);
 
     /// <summary>The host's market search. Once per process.</summary>
     internal static void Install(Func<string, CancellationToken, Task<IReadOnlyList<SymbolHit>>> search)

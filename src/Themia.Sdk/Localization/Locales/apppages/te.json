@@ -41,9 +41,5 @@
   "shell.accounts.stats.synced": "{time} సమకాలీకరించబడింది",
   "shell.accounts.stats.neverSynced": "ఇంకా సమకాలీకరించబడలేదు",
   "shell.accounts.stats.nothing": "ఈ PCలో ఇంకా ఏమీ నిల్వ చేయబడలేదు",
-  "shell.accounts.nicknameDesc": "ఈ ఖాతా కోసం విడ్జెట్‌లు చూపించే పేరు",
-  "shell.accounts.reconnect": "మళ్లీ సైన్ ఇన్ చేయి",
-  "shell.accounts.reconnectButton": "సైన్ ఇన్",
-  "shell.accounts.signOutDesc": "ఈ PCలో ఖాతాను మరియు దాని నుండి సమకాలీకరించిన ప్రతిదాన్ని మరచిపోతుంది",
-  "shell.accounts.needsSignIn": "మీరు మళ్లీ సైన్ ఇన్ చేయాలి"
+  "shell.accounts.reconnect": "మళ్లీ సైన్ ఇన్ చేయి"
 }

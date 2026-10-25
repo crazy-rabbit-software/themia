@@ -121,7 +121,7 @@ public sealed class RssConfig : WidgetConfig, IKitConfig, IInterests
     [JsonIgnore]
     public IReadOnlyList<string> FeedUrls => [.. ResolvedFeeds.Where(r => r.IsValid).Select(r => r.Url)];
 
-    /// <summary>[S-3780] The shared feeds cadence (Settings › Widgets).</summary>
+    /// <summary>[S-3780] The shared feeds cadence (⚙ › Online updates).</summary>
     [JsonIgnore]
     public TimeSpan TickInterval => Sync.UpdateCadence.Interval(Sync.HostCadences.Feeds);
 

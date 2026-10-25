@@ -41,9 +41,5 @@
   "shell.accounts.stats.synced": "همگام‌سازی‌شده {time}",
   "shell.accounts.stats.neverSynced": "هنوز همگام‌سازی نشده",
   "shell.accounts.stats.nothing": "هنوز چیزی در این رایانه ذخیره نشده",
-  "shell.accounts.nicknameDesc": "نامی که ویجت‌ها برای این حساب نشان می‌دهند",
-  "shell.accounts.reconnect": "ورود دوباره",
-  "shell.accounts.reconnectButton": "ورود",
-  "shell.accounts.signOutDesc": "حساب و همه داده‌های همگام‌سازی‌شده آن را از این رایانه پاک می‌کند",
-  "shell.accounts.needsSignIn": "باید دوباره وارد شوید"
+  "shell.accounts.reconnect": "ورود دوباره"
 }

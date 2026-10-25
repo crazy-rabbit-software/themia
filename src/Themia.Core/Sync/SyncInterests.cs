@@ -26,7 +26,7 @@ public sealed record SyncInterests(
 
     /// <summary>
     /// [S-3782] How often the signed-in accounts' mail, calendars and task lists are asked: one
-    /// cadence for all of them, from Settings › Widgets.
+    /// cadence for all of them, from ⚙ › Online updates.
     /// </summary>
     public TimeSpan AccountInterval { get; init; } = UpdateCadence.Interval(new RefreshPreferences(), HostCadences.Accounts);
 

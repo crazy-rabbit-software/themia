@@ -10,7 +10,7 @@ namespace Themia.App.Services;
 
 /// <summary>
 /// Mutations — the single write path — and the commands built on it: edit mode, views, import,
-/// and opening the settings window.
+/// and opening the settings menu for a second start ([S-66]).
 /// </summary>
 internal sealed partial class AppHost
 {

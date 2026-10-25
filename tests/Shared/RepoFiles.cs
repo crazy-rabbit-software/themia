@@ -22,9 +22,6 @@ internal static class RepoFiles
     /// <summary>The app's widget views and their parts (<c>src/Themia.App/Widgets</c>).</summary>
     public static string AppWidgets => At("src", "Themia.App", "Widgets");
 
-    /// <summary>The settings window's pages (<c>src/Themia.App/Shell/Config</c>).</summary>
-    public static string AppConfig => At("src", "Themia.App", "Shell", "Config");
-
     /// <summary>The SDK's UI parts (<c>src/Themia.Sdk.WinUI</c>).</summary>
     public static string SdkWinUI => At("src", "Themia.Sdk.WinUI");
 
@@ -44,9 +41,9 @@ internal static class RepoFiles
 
     /// <summary>
     /// Every source a widget view may be built from: the app's widgets, the SDK's widget parts
-    /// (<c>src/Themia.Sdk.WinUI/Widgets</c>; its settings rows are the settings window's), the kit's
+    /// (<c>src/Themia.Sdk.WinUI/Widgets</c>), the kit's
     /// UI parts (<c>src/Themia.Sdk.WinUI/Kit</c>) and every widget module (views, their parts and
-    /// their settings rows; previews included).
+    /// their menu lines; previews included).
     /// </summary>
     public static IEnumerable<string> ViewSources()
         => CSharp(AppWidgets)
@@ -56,20 +53,6 @@ internal static class RepoFiles
 
     /// <summary>The kit's UI parts (<c>src/Themia.Sdk.WinUI/Kit</c>).</summary>
     public static string SdkKit => Path.Combine(SdkWinUI, "Kit");
-
-    /// <summary>
-    /// A module's settings page (<c>src/Widgets/Themia.Widget.&lt;Name&gt;/&lt;Name&gt;Settings.cs</c>): the settings
-    /// window's, not the widget's, though it lives in the widget's folder.
-    /// </summary>
-    public static bool IsSettingsPage(string path)
-    {
-        var folder = Path.GetDirectoryName(path);
-        var module = Path.GetFileName(folder);
-        return module is not null
-            && module.StartsWith("Themia.Widget.", StringComparison.Ordinal)
-            && string.Equals(Path.GetFileName(Path.GetDirectoryName(folder)), "Widgets", StringComparison.Ordinal)
-            && string.Equals(Path.GetFileName(path), module["Themia.Widget.".Length..] + "Settings.cs", StringComparison.Ordinal);
-    }
 
     /// <summary>The one source file named <paramref name="fileName"/> under <c>src/</c>, wherever it lives now.</summary>
     public static string Source(string fileName)

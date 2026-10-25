@@ -143,7 +143,7 @@ public sealed class TasksConfig : WidgetConfig, IStyled, IShownSettings<TasksSet
     /// </summary>
     public static bool HasImportance(ProviderId? provider) => provider is not { } known || known == HostProviders.Microsoft;
 
-    /// <summary>[S-591] [S-3780] How often an account list is asked: the shared accounts cadence (Settings › Widgets).</summary>
+    /// <summary>[S-591] [S-3780] How often an account list is asked: the shared accounts cadence (⚙ › Online updates).</summary>
     [JsonIgnore]
     public TimeSpan RefreshInterval => Sync.UpdateCadence.Interval(Sync.HostCadences.Accounts);
 

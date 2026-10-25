@@ -101,7 +101,7 @@
       <Extensions>
         <!--
           [S-1062] "Start with Windows" for the packaged build ([S-937], Services/Autostart.cs). Off
-          until the user turns it on in Settings > General; the id is AutostartRules.StartupTaskId.
+          until the user turns it on in the edit bar's settings menu; the id is AutostartRules.StartupTaskId.
         -->
         <desktop:Extension Category="windows.startupTask">
           <desktop:StartupTask TaskId="ThemiaStartup" Enabled="false" DisplayName="Themia" />

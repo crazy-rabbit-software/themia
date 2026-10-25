@@ -41,9 +41,5 @@
   "shell.accounts.stats.synced": "{time} ہم وقت کیا گیا",
   "shell.accounts.stats.neverSynced": "ابھی ہم وقت نہیں کیا گیا",
   "shell.accounts.stats.nothing": "اس PC پر ابھی کچھ محفوظ نہیں",
-  "shell.accounts.nicknameDesc": "وہ نام جو ویجیٹس اس اکاؤنٹ کے لیے دکھاتے ہیں",
-  "shell.accounts.reconnect": "دوبارہ سائن ان کریں",
-  "shell.accounts.reconnectButton": "سائن ان کریں",
-  "shell.accounts.signOutDesc": "اس PC سے اکاؤنٹ اور اس سے ہم وقت کیا گیا سب کچھ بھلا دیتا ہے",
-  "shell.accounts.needsSignIn": "دوبارہ سائن ان کرنا ضروری ہے"
+  "shell.accounts.reconnect": "دوبارہ سائن ان کریں"
 }

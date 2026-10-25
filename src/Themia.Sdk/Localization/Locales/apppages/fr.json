@@ -41,9 +41,5 @@
   "shell.accounts.stats.synced": "synchronisé {time}",
   "shell.accounts.stats.neverSynced": "pas encore synchronisé",
   "shell.accounts.stats.nothing": "Rien n’est encore stocké sur ce PC",
-  "shell.accounts.nicknameDesc": "Le nom que les widgets affichent pour ce compte",
-  "shell.accounts.reconnect": "Se reconnecter",
-  "shell.accounts.reconnectButton": "Se connecter",
-  "shell.accounts.signOutDesc": "Oublie le compte et tout ce qui en a été synchronisé sur ce PC",
-  "shell.accounts.needsSignIn": "Reconnexion nécessaire"
+  "shell.accounts.reconnect": "Se reconnecter"
 }

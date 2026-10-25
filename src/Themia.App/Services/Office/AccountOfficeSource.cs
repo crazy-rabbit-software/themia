@@ -113,7 +113,7 @@ internal sealed partial class AccountOfficeSource : IOfficeSource, IDisposable
             return new Synced<IReadOnlyList<CalendarInfo>>(null, SyncProblem.NoAccount, null, null);
         }
 
-        // The settings page's picker: asked when the list is old, never on a timer.
+        // The properties menu's picker: asked when the list is old, never on a timer.
         if (force || box.CalendarsSchedule.IsDue(DateTimeOffset.UtcNow))
         {
             await RunAsync(box.CalendarsSchedule, () => box.CalendarsProblem, p => box.CalendarsProblem = p, async () =>
