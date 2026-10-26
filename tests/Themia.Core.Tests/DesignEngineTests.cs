@@ -382,7 +382,7 @@ public sealed class DesignEngineTests
     [Fact]
     public void S832_applying_a_preset_sets_its_fields_and_nothing_else()
     {
-        var design = new DesignState { UiScale = 1.5, FontScale = 1.25, IntroAnimation = IntroAnimation.Fade, GridSnap = false };
+        var design = new DesignState { FontScale = 1.25, IntroAnimation = IntroAnimation.Fade, GridSnap = false };
 
         DesignPresets.Apply(design, DesignPresetId.Terminal);
 
@@ -392,7 +392,6 @@ public sealed class DesignEngineTests
         Assert.Equal(0, design.CornerRadiusPx);
 
         // The user's own accessibility and motion choices survive.
-        Assert.Equal(1.5, design.UiScale);
         Assert.Equal(1.25, design.FontScale);
         Assert.Equal(IntroAnimation.Fade, design.IntroAnimation);
         Assert.False(design.GridSnap);
@@ -468,8 +467,8 @@ public sealed class DesignEngineTests
     [Fact]
     public void S6483_unowned_fields_are_not_a_custom_look()
     {
-        // Text size, widget scale and motion are the user's own and no preset touches them.
-        var design = new DesignState { FontScale = 1.5, UiScale = 2, IntroAnimation = IntroAnimation.Fade, GridSnap = false };
+        // Text size and motion are the user's own and no preset touches them.
+        var design = new DesignState { FontScale = 1.5, IntroAnimation = IntroAnimation.Fade, GridSnap = false };
         Assert.False(DesignPresets.ReplacesCustomLook(design, DesignPresetId.Terminal));
     }
 

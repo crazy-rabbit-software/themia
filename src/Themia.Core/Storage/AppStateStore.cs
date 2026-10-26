@@ -320,7 +320,6 @@ public sealed class AppStateStore : IAsyncDisposable
         var design = state.Design;
         design.WidgetGapPx = Math.Clamp(Sanitise(design.WidgetGapPx, 8), 0, 64);
         design.CornerRadiusPx = Math.Clamp(Sanitise(design.CornerRadiusPx, DesignState.DefaultCornerRadiusPx), 0, 32);
-        design.UiScale = Math.Clamp(Sanitise(design.UiScale, 1), 0.5, 3.0);
         design.FontScale = Math.Clamp(Sanitise(design.FontScale, 1), 0.5, 2.0);
         design.BorderWidthPx = Math.Clamp(Sanitise(design.BorderWidthPx, 1), 0, 8);
         design.BorderOpacity = Math.Clamp(Sanitise(design.BorderOpacity, 1), 0, 1);

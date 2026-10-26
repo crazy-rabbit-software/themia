@@ -1,7 +1,7 @@
 {
   "editBar.link.updateInterval": "ਅੱਪਡੇਟ ਅੰਤਰਾਲ",
   "editBar.widget": "ਵਿਜੇਟ",
-  "editBar.display.view": "ਇਸ ਡਿਸਪਲੇ 'ਤੇ ਦ੍ਰਿਸ਼",
-  "editBar.view.manage": "ਦ੍ਰਿਸ਼ ਪ੍ਰਬੰਧਿਤ ਕਰੋ",
+  "editBar.display.view": "ਇਸ ਡਿਸਪਲੇ 'ਤੇ ਵਿਊ",
+  "editBar.view.manage": "ਵਿਊ ਪ੍ਰਬੰਧਿਤ ਕਰੋ",
   "editBar.crumbName": "{kind}: {name}"
 }

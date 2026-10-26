@@ -143,12 +143,28 @@ internal static partial class EditBarRender
                         return;
                 }
 
-                await Shot(screen, Bar(snapOn: true), null, outDir, $"editbar-{theme}.png").ConfigureAwait(true);
-                await Shot(screen, Bar(snapOn: false), null, outDir, $"editbar-{theme}-snapoff.png").ConfigureAwait(true);
+                // [S-3507] [S-3509] The bar: nothing selected (no widget crumb), a step to undo and none
+                // to redo; snap off; one widget selected (its crumb, lit while its menu stands beside
+                // it); several; both steps live and none; long names on a narrow display, every crumb
+                // giving up the same.
+                await Shot(screen, Bar(), null, outDir, $"editbar-{theme}.png").ConfigureAwait(true);
+                await Shot(screen, Bar(Plain(snapOn: false)), null, outDir, $"editbar-{theme}-snapoff.png").ConfigureAwait(true);
+                var clockName = ModuleCatalog.Of(new WidgetId("clock"));
+                await Shot(screen, Bar(Plain(widget: new BarCrumb("Zürich", clockName.Glyph))), null, outDir, $"editbar-{theme}-widget.png").ConfigureAwait(true);
+                await Shot(screen, Bar(Plain(widget: new BarCrumb(Str.Shell_Views_WidgetCount.Plural(3), Glyphs.Apps))), null, outDir, $"editbar-{theme}-many.png").ConfigureAwait(true);
+                await Shot(screen, Bar(Plain(canUndo: true, canRedo: true)), null, outDir, $"editbar-{theme}-history.png").ConfigureAwait(true);
+                await Shot(screen, Bar(Plain(canUndo: false, canRedo: false)), null, outDir, $"editbar-{theme}-nohistory.png").ConfigureAwait(true);
+                var longNames = new EditBarState(
+                    new BarCrumb("Samsung Odyssey Neo G9 Ultrawide", Glyphs.Display),
+                    new BarCrumb("Evening and weekend at home", Glyphs.Moon),
+                    new BarCrumb("Weather in San Francisco", ModuleCatalog.Of(new WidgetId("weatherNow")).Glyph),
+                    WidgetOpen: true, CanUndo: true, CanRedo: false, SnapOn: true);
+                await Shot(screen, Bar(longNames), null, outDir, $"editbar-{theme}-long.png").ConfigureAwait(true);
+                await Shot(screen, Bar(longNames), null, outDir, $"editbar-{theme}-narrow.png", room: 900).ConfigureAwait(true);
 
                 var menu = PickerRender.Presenter(new WidgetPicker(_ => { }, () => { }, new PixelRect(0, 0, PickerRender.WorkWidth, PickerRender.WorkHeight)));
                 UiLanguage.ApplyFlow(menu);
-                await Shot(screen, Bar(snapOn: true), menu, outDir, $"editbar-{theme}-add.png").ConfigureAwait(true);
+                await Shot(screen, Bar(), menu, outDir, $"editbar-{theme}-add.png").ConfigureAwait(true);
 
                 var hint = new TextBlock
                 {
@@ -180,13 +196,32 @@ internal static partial class EditBarRender
         return true;
     }
 
-    private static EditBar Bar(bool snapOn) => Flowing(new EditBar(new EditBarCommands(
-        AddFlyout: () => new Flyout(),
-        SnapOn: snapOn,
-        SetSnap: _ => { },
-        Menu: _ => { },
-        MenuOpening: () => { },
-        Done: () => { })));
+    /// <summary>[S-3507] The stand-in display and view the bar's trail names: a real monitor's name, a view with its mark.</summary>
+    private static readonly BarCrumb RenderDisplay = new("DELL U2723QE", Glyphs.Display, Detail: "DELL U2723QE — 3840 × 2160 (primary)");
+
+    private static readonly BarCrumb RenderView = new("Work", Glyphs.Mail, "#0099BC");
+
+    /// <summary>[S-3500] The bar as a render shows it: nothing selected, a step to undo and none to redo, snap on.</summary>
+    private static EditBarState Plain(bool snapOn = true, BarCrumb? widget = null, bool canUndo = true, bool canRedo = false)
+        => new(RenderDisplay, RenderView, widget, WidgetOpen: widget is not null, canUndo, canRedo, snapOn);
+
+    /// <summary>[S-3500] The real bar, built and showing <paramref name="state"/>, its commands doing nothing.</summary>
+    private static EditBar Bar(EditBarState? state = null)
+    {
+        var commands = new EditBarCommands(
+            AddFlyout: () => new Flyout(),
+            Menu: _ => { },
+            Widget: () => { },
+            MenuOpening: () => { },
+            Undo: () => { },
+            Redo: () => { },
+            SetSnap: _ => { },
+            Done: () => { });
+        var bar = new EditBar(commands);
+        bar.Fill(commands);
+        bar.Show(state ?? Plain());
+        return Flowing(bar);
+    }
 
     /// <summary>[S-1113] The bar flows with the language, as the desktop sets it; the screen around it does not.</summary>
     private static EditBar Flowing(EditBar bar)
@@ -196,19 +231,28 @@ internal static partial class EditBarRender
     }
 
     /// <summary>One picture: the bar centred 8 DIPs under the display's top, and the menu hanging under its Add button.</summary>
-    private static async Task Shot(Grid screen, FrameworkElement bar, FrameworkElement? menu, string outDir, string name)
+    private static async Task Shot(Grid screen, FrameworkElement bar, FrameworkElement? menu, string outDir, string name, double? room = null)
     {
         screen.Children.Clear();
         screen.Height = menu is null ? ScreenHeight : OpenHeight;
+        screen.Width = room ?? ScreenWidth;
 
         var canvas = new Canvas();
         screen.Children.Add(canvas);
-        canvas.Children.Add(bar);
 
-        bar.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
-        var barX = Math.Round((ScreenWidth - bar.DesiredSize.Width) / 2);
-        Canvas.SetLeft(bar, barX);
-        Canvas.SetTop(bar, Fluent.Space2);
+        // [S-3507] On a narrow display the bar has the display's width (less 8 DIPs either side, its
+        // own margin), centred in it as the surface centres it in the work area.
+        FrameworkElement placed = bar;
+        if (room is { } narrow)
+        {
+            placed = new Grid { Width = narrow, Children = { bar } };
+        }
+
+        canvas.Children.Add(placed);
+        placed.Measure(new Size(room ?? double.PositiveInfinity, double.PositiveInfinity));
+        var barX = room is null ? Math.Round((ScreenWidth - bar.DesiredSize.Width) / 2) : 0;
+        Canvas.SetLeft(placed, barX);
+        Canvas.SetTop(placed, Fluent.Space2);
 
         if (menu is not null)
         {
@@ -216,8 +260,9 @@ internal static partial class EditBarRender
             menu.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
 
             // A flyout opened from Add widget: centred under the button (the bar's first, 4 DIPs in), a gap below the bar.
+            screen.UpdateLayout();
             var addWidth = bar is EditBar edit ? edit.AddWidth : 0;
-            var addCentre = barX + Fluent.Hairline + Fluent.Space1 + (addWidth / 2);
+            var addCentre = barX + (bar is EditBar hung ? hung.AddOffset : 0) + (addWidth / 2);
             Canvas.SetLeft(menu, Math.Clamp(addCentre - (menu.DesiredSize.Width / 2), Fluent.Space2, ScreenWidth - menu.DesiredSize.Width - Fluent.Space2));
             Canvas.SetTop(menu, Fluent.Space2 + bar.DesiredSize.Height + Fluent.Space1);
         }
@@ -227,6 +272,7 @@ internal static partial class EditBarRender
         var path = System.IO.Path.Combine(outDir, name);
         await RenderPng.SaveAsync(screen, path).ConfigureAwait(true);
         Console.WriteLine($"editbar: wrote {path}");
+        screen.Width = ScreenWidth;
     }
 
     /// <summary>One widget of a properties shot: its kind, where its card is, its header, its title, and whether it is selected.</summary>
@@ -383,14 +429,23 @@ internal static partial class EditBarRender
             ([new(new WidgetId("tasks"), 200, 160, 300, 260, HeaderPlacement.Top, true)], "tasks-lines", null, null),
             ([new(new WidgetId("tasks"), 200, 160, 300, 260, HeaderPlacement.Top, true)], "tasks-filter", "Filter", null),
 
-            // [S-6075] A gallery of one picture: no Style line, its Picture size on top. [S-2849] A weather
-            // widget under a typed title: no Location name switch. [S-6573] [S-6574] A meter's graph: no
-            // item lines; its cores: Item background without Item text. The chart's styles ([S-3336]).
+            // [S-6075] A gallery of one picture: no Style line, its Picture size on top. [S-728] A weather
+            // widget under a typed title. [S-6573] [S-6574] A meter's graph: no item lines; its cores:
+            // Item background without Item text. The chart's styles ([S-3336]).
             ([new(new WidgetId("gallery"), 200, 160, 320, 240, HeaderPlacement.Top, true, Config: """{"source":"Bing"}""")], "gallery-one", null, null),
             ([new(new WidgetId("weatherNow"), 200, 160, 300, 200, HeaderPlacement.Top, true, "Home")], "weather-titled", Str.Shell_Place_Location.Text(), null),
             ([new(new WidgetId("cpu"), 200, 160, 280, 180, HeaderPlacement.Top, true)], "cpu-appearance", appearance, null),
             ([new(new WidgetId("cpu"), 200, 160, 280, 180, HeaderPlacement.Top, true, Style: "cores")], "cores-appearance", appearance, null),
             ([new(new WidgetId("screenTimeChart"), 200, 160, 320, 200, HeaderPlacement.Top, true)], "screentimechart-style", Str.Styles_Label.Text(), null),
+
+            // [S-3749] [S-3590] Link rows to what a widget follows and does not set: the weather's unit and
+            // interval, the clock's time format, a month's start of the week, the feeds' interval, the
+            // mail's accounts (none signed in to a render: Add account).
+            (weather, "links-weather", null, null),
+            (clock, "links-clock", null, null),
+            ([new(new WidgetId("calendar"), 200, 160, 340, 260, HeaderPlacement.Top, true, Style: "month")], "links-calendar", null, null),
+            ([new(new WidgetId("rss"), 200, 160, 340, 260, HeaderPlacement.Top, true)], "links-rss", null, null),
+            ([new(new WidgetId("email"), 200, 160, 340, 260, HeaderPlacement.Top, true)], "links-email", Str.WidgetUi_AccountsLabel.Text(), null),
         ];
 
         // [S-2847] The location searches answer from fixture places; [S-3323] the screen-time lines read the sample history.
@@ -581,7 +636,13 @@ internal static partial class EditBarRender
         screen.Children.Add(canvas);
         Blobs(canvas);
 
-        var bar = Bar(snapOn: true);
+        var chosen = layout.Where(s => s.Selected).ToList();
+        var bar = Bar(Plain(widget: chosen.Count switch
+        {
+            0 => null,
+            1 => new BarCrumb(chosen[0].Label ?? ModuleCatalog.Of(chosen[0].Kind).Name, ModuleCatalog.Of(chosen[0].Kind).Glyph),
+            _ => new BarCrumb(Str.Shell_Views_WidgetCount.Plural(chosen.Count), Glyphs.Apps),
+        }));
         canvas.Children.Add(bar);
         bar.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
         var barRect = new PixelRect(Math.Round((ScreenWidth - bar.DesiredSize.Width) / 2), Fluent.Space2, bar.DesiredSize.Width, bar.DesiredSize.Height);
@@ -624,7 +685,7 @@ internal static partial class EditBarRender
             card.ApplyGap(0);
             card.ApplyEditMode(true);
             card.ApplySelection();
-            card.ApplyContentScale(WidgetScale.Effective(1, 1, model.Scale));
+            card.ApplyContentScale(WidgetScale.Effective(1, model.Scale));
             Canvas.SetLeft(card, spec.X);
             Canvas.SetTop(card, spec.Y);
             canvas.Children.Add(card);

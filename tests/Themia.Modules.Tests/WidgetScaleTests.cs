@@ -154,18 +154,18 @@ public sealed class WidgetScaleTests
     }
 
     [Fact]
-    public void S6532_the_effective_scale_is_display_times_app_times_widget()
+    public void S6532_the_effective_scale_is_display_times_widget()
     {
-        Assert.Equal(1.5 * 1.25 * 0.75, WidgetScale.Effective(1.5, 1.25, 0.75), 6);
-        Assert.Equal(1.0, WidgetScale.Effective(1, 1, 1));
-        Assert.Equal(2.0, WidgetScale.Effective(1, 1, 2));
+        Assert.Equal(1.5 * 0.75, WidgetScale.Effective(1.5, 0.75), 6);
+        Assert.Equal(1.0, WidgetScale.Effective(1, 1));
+        Assert.Equal(2.0, WidgetScale.Effective(1, 2));
     }
 
     [Fact]
     public void S6532_a_factor_that_is_not_a_positive_number_counts_as_one()
     {
-        Assert.Equal(1.25, WidgetScale.Effective(double.NaN, 0, 1.25));
-        Assert.Equal(1.5, WidgetScale.Effective(-2, double.PositiveInfinity, 1.5));
-        Assert.Equal(1.0, WidgetScale.Effective(1, 1, double.NaN));
+        Assert.Equal(1.25, WidgetScale.Effective(double.NaN, 1.25));
+        Assert.Equal(1.5, WidgetScale.Effective(-2, 1.5));
+        Assert.Equal(1.0, WidgetScale.Effective(1, double.NaN));
     }
 }

@@ -263,7 +263,7 @@ public sealed partial class SettingsMenuTests
         var appearance = At<SettingsSubmenu>(new FakeHost(), "appearance");
 
         Assert.Equal(
-            ["appearance/style", "-", "appearance/theme", "appearance/items", "appearance/cards", "appearance/text", "appearance/layout", "-", "appearance/motion"],
+            ["appearance/style", "-", "appearance/theme", "appearance/items", "appearance/cards", "appearance/text", "-", "appearance/motion"],
             appearance.Lines.Select(l => l is SettingsSeparator ? "-" : l.Key));
     }
 
@@ -283,9 +283,7 @@ public sealed partial class SettingsMenuTests
     [InlineData("appearance/cards/borderOpacity", "BorderOpacity")]
     [InlineData("appearance/text/font", "FontFamily")]
     [InlineData("appearance/text/size", "FontScale")]
-    [InlineData("appearance/text/scale", "UiScale")]
-    [InlineData("appearance/layout/gap", "WidgetGapPx")]
-    [InlineData("appearance/layout/snap", "GridSnap")]
+    [InlineData("appearance/cards/gap", "WidgetGapPx")]
     [InlineData("appearance/motion/smooth", "SmoothValues")]
     public void S3526_each_line_writes_its_pages_field_and_nothing_else(string path, string field)
     {
@@ -357,8 +355,7 @@ public sealed partial class SettingsMenuTests
         Assert.Equal((0, 32, 1), (Slider("cards", "radius").Min, Slider("cards", "radius").Max, Slider("cards", "radius").Step));
         Assert.Equal((0, 8, 1), (Slider("cards", "borderWidth").Min, Slider("cards", "borderWidth").Max, Slider("cards", "borderWidth").Step));
         Assert.Equal((Widgets.FluentType.MinTextScale, Widgets.FluentType.MaxTextScale), (Slider("text", "size").Min, Slider("text", "size").Max));
-        Assert.Equal((0.5, 3), (Slider("text", "scale").Min, Slider("text", "scale").Max));
-        Assert.Equal((0, 48, 2), (Slider("layout", "gap").Min, Slider("layout", "gap").Max, Slider("layout", "gap").Step));
+        Assert.Equal((0, 48, 2), (Slider("cards", "gap").Min, Slider("cards", "gap").Max, Slider("cards", "gap").Step));
 
         Assert.Equal("12px", Slider("cards", "radius").Format(12));
         Assert.Equal(LocaleFormat.Percent(Strings.Current, 50), Slider("theme", "headerOpacity").Format(0.5));

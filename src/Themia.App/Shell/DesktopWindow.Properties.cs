@@ -78,7 +78,7 @@ internal sealed partial class DesktopWindow
     /// [S-3708]/[S-3710] Show the panel beside the selection's box (its end side, else its start side,
     /// else below or above it), inside the work area and clear of the edit bar and the view bar; or
     /// hide it: outside edit mode, while placing, while held, while an edit bar's menu is open
-    /// ([S-3523]), with nothing selected here.
+    /// ([S-3523]), while the widget crumb put it away ([S-3508]), with nothing selected here.
     /// </summary>
     private void PlaceProperties()
     {
@@ -88,10 +88,11 @@ internal sealed partial class DesktopWindow
         }
 
         var metrics = Metrics;
-        if (!EditMode || _host.Placing is not null || _propertiesHeld || BarMenuOpen || !_properties.Offer.Shows
+        if (!EditMode || _host.Placing is not null || _propertiesHeld || BarMenuOpen || _propertiesDismissed || !_properties.Offer.Shows
             || !metrics.IsUsable || SelectionBox(metrics) is not { } target)
         {
             _properties.Visibility = Visibility.Collapsed;
+            ShowToolbar();
             return;
         }
 
@@ -113,6 +114,7 @@ internal sealed partial class DesktopWindow
         var spot = StripPlacement.Place(target, size.Width, size.Height, area, avoid, UiLanguage.Flow == FlowDirection.RightToLeft);
         Canvas.SetLeft(_properties, Math.Round(spot.X));
         Canvas.SetTop(_properties, Math.Round(spot.Y));
+        ShowToolbar();
     }
 
     /// <summary>[S-3709] The painted box around every selected card this display shows, where it is now.</summary>

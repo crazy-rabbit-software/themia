@@ -3,7 +3,7 @@ namespace Themia.Core.Model;
 /// <summary>
 /// [S-6530]..[S-6533] One widget's own content scale (<see cref="WidgetInstance.Scale"/>): what it
 /// may hold, what the properties panel offers, how a hand-edited value is repaired, and how it
-/// combines with the display's and the app-wide widget scale ([S-850]). Pure.
+/// combines with the display's ([S-850]). Pure.
 /// </summary>
 public static class WidgetScale
 {
@@ -55,12 +55,13 @@ public static class WidgetScale
     }
 
     /// <summary>
-    /// [S-6532] How much a card's content is magnified: the display's scale times the app-wide widget
-    /// scale times the widget's own. A factor that is not a positive number counts as 1, and the
-    /// widget's own is read as stored (<see cref="Normalise"/>).
+    /// [S-6532] How much a card's content is magnified: the display's scale times the widget's own.
+    /// A display scale that is not a positive number counts as 1, and the widget's own is read as
+    /// stored (<see cref="Normalise"/>). [S-3590] There is no third, app-wide factor: it was the
+    /// display's scale for every display at once, under the same name.
     /// </summary>
-    public static double Effective(double display, double app, double widget)
-        => Sane(display) * Sane(app) * Normalise(widget);
+    public static double Effective(double display, double widget)
+        => Sane(display) * Normalise(widget);
 
     /// <summary>The whole number of percent a scale reads as, for its label.</summary>
     public static double Percent(double scale) => Math.Round(Normalise(scale) * 100);

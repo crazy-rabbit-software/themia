@@ -32,9 +32,6 @@ public enum ShellCommand
     /// <summary>[S-1582] Every widget on this display.</summary>
     SelectAll,
 
-    /// <summary>[S-06] The grid snap aid, as on the toolbar.</summary>
-    SnapToGrid,
-
     /// <summary>[S-1744] The edit bar's settings menu (⚙), opened on this display ([S-3520]).</summary>
     Settings,
 }
@@ -77,8 +74,7 @@ public readonly record struct CardMenuFacts(
 /// <param name="Placing">A placement is under way: then a right-click cancels it ([S-1587]) and opens nothing.</param>
 /// <param name="CanPaste">Themia's widget clipboard holds something.</param>
 /// <param name="HasWidgets">The display shows at least one widget.</param>
-/// <param name="GridSnap">The grid snap aid is on.</param>
-public readonly record struct SurfaceMenuFacts(bool EditMode, bool Placing, bool CanPaste, bool HasWidgets, bool GridSnap);
+public readonly record struct SurfaceMenuFacts(bool EditMode, bool Placing, bool CanPaste, bool HasWidgets);
 
 /// <summary>[S-1743]..[S-1745] Which commands the shell's menus offer, and in what order.</summary>
 public static class ShellMenus
@@ -124,11 +120,12 @@ public static class ShellMenus
         => [new(ShellCommand.WidgetActions), ShellMenuItem.Divider, new(ShellCommand.ToggleEditMode)];
 
     /// <summary>
-    /// [S-1744] The menu of empty surface, in edit mode and not while placing: the edit bar's way in,
-    /// in the bar's order (Add widget, View, Display, Settings: the picker at the click, the bar's
-    /// menus under their buttons); then Paste and Select all; Snap to grid; Done editing. A list
-    /// alone, as Windows' own desktop menu is: Paste is the only icon-row command, and one icon is no
-    /// row ([S-1741]). Outside edit mode, or while placing, there is none.
+    /// [S-1744] The menu of empty surface, in edit mode and not while placing: what is done there —
+    /// Add widget (the picker at the click), Paste and Select all — then the ways into the bar's menus
+    /// in the bar's order (Display, View, Settings: each under its button), then Done editing. An
+    /// action menu: it holds no setting ([S-3590]; Snap is the bar's alone, [S-3516]). A list alone,
+    /// as Windows' own desktop menu is: Paste is the only icon-row command, and one icon is no row
+    /// ([S-1741]). Outside edit mode, or while placing, there is none.
     /// </summary>
     public static IReadOnlyList<ShellMenuItem> ForSurface(SurfaceMenuFacts facts)
     {
@@ -140,14 +137,12 @@ public static class ShellMenus
         return
         [
             new(ShellCommand.AddWidget),
-            new(ShellCommand.View),
-            new(ShellCommand.Display),
-            new(ShellCommand.Settings),
-            ShellMenuItem.Divider,
             new(ShellCommand.Paste, Enabled: facts.CanPaste),
             new(ShellCommand.SelectAll, Enabled: facts.HasWidgets),
             ShellMenuItem.Divider,
-            new(ShellCommand.SnapToGrid, Checked: facts.GridSnap),
+            new(ShellCommand.Display),
+            new(ShellCommand.View),
+            new(ShellCommand.Settings),
             ShellMenuItem.Divider,
             new(ShellCommand.ToggleEditMode),
         ];

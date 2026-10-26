@@ -29,18 +29,20 @@ internal static partial class EditBarRender
 {
     private static async Task BarMenuShots(Grid screen, string outDir, string theme)
     {
-        var work = "view:work";
+        const string manage = ViewsMenu.Keys.Manage;
+        var work = ViewsMenu.Keys.View("work");
         (string Name, int Views, string[] Open, string? Click)[] views =
         [
             (string.Empty, 5, [], null),
-            ("-view", 5, [work], null),
-            ("-icon", 5, [work, work + "/icon"], null),
-            ("-colour", 5, [work, work + "/colour"], null),
-            ("-rename", 5, [work], work + "/rename"),
-            ("-delete", 5, [work], work + "/delete"),
-            ("-many", 40, [], null),
-            ("-many-view", 40, ["view:v37"], null),
-            ("-many-end", 40, [], "<end>"),
+            ("-icon", 5, [ViewsMenu.Keys.Icon], null),
+            ("-colour", 5, [ViewsMenu.Keys.Colour], null),
+            ("-rename", 5, [], ViewsMenu.Keys.Name),
+            ("-delete", 5, [], ViewsMenu.Keys.Delete),
+            ("-manage", 5, [manage], null),
+            ("-manage-rename", 5, [manage], "<tool>" + work + "|0"),
+            ("-manage-delete", 5, [manage], "<tool>" + work + "|1"),
+            ("-many", 40, [manage], null),
+            ("-many-end", 40, [manage], "<end>"),
         ];
 
         foreach (var (name, count, open, click) in views)
@@ -53,6 +55,15 @@ internal static partial class EditBarRender
                     // [S-3734] The 40 views scrolled to their end inside the one rectangle.
                     menu.DebugScrollToEnd();
                 }
+                else if (click is not null && click.StartsWith("<tool>", StringComparison.Ordinal))
+                {
+                    // [S-3549] A view's Rename or Delete at the end of its row in Manage views.
+                    var (row, tool) = (click[6..].Split('|')[0], int.Parse(click.Split('|')[1], System.Globalization.CultureInfo.InvariantCulture));
+                    if (!menu.DebugTool(row, tool))
+                    {
+                        Console.WriteLine($"editbar: no tool {tool} on {row}");
+                    }
+                }
                 else if (click is not null && !menu.DebugClickKey(click))
                 {
                     Console.WriteLine($"editbar: no line {click} to click");
@@ -61,7 +72,7 @@ internal static partial class EditBarRender
         }
 
         // [S-3732] A view's row held by the pointer, its drop line two places down.
-        await MenuShot(screen, System.IO.Path.Combine(outDir, $"views-{theme}-drag.png"), BarMenu.View, new RenderViewsHost(5).Menu, [], menu =>
+        await MenuShot(screen, System.IO.Path.Combine(outDir, $"views-{theme}-drag.png"), BarMenu.View, new RenderViewsHost(5).Menu, [manage], menu =>
         {
             if (!menu.DebugDrag(0, 3))
             {
@@ -103,7 +114,7 @@ internal static partial class EditBarRender
         Blobs(canvas);
 
         // Laid out before it is measured: the first picture's bar was measured before its words were.
-        var editBar = Bar(snapOn: true);
+        var editBar = Bar();
         canvas.Children.Add(editBar);
         screen.UpdateLayout();
         editBar.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
@@ -192,8 +203,6 @@ internal static partial class EditBarRender
             _menu?.Show();
         }
 
-        public void Show(string viewId) => Mutate(s => s.ShowViewOn(DisplayId, viewId));
-
         public void Add()
         {
             // ignore: a render adds no view.
@@ -222,9 +231,20 @@ internal static partial class EditBarRender
         public RenderDisplayHost()
         {
             State = AppState.CreateDefault();
+
+            // [S-3543] The view this display shows is the bar's View crumb's: Work, in its colour.
+            var work = State.Views.FirstOrDefault(v => v.Name == "Work");
+            if (work is null)
+            {
+                work = ViewState.Create("Work");
+                State.Views.Add(work);
+            }
+
+            work.Icon = Glyphs.Mail;
+            work.Color = "#0099BC";
+            State.ShowViewOn(DisplayId, work.Id);
             var second = ViewState.Create("Office");
-            second.Icon = Glyphs.Mail;
-            second.Color = "#0099BC";
+            second.Icon = Glyphs.Calendar;
             State.Views.Add(second);
             State.Views.Add(ViewState.Create("Evening"));
             State.MonitorScales[DisplayId] = 1.25;
@@ -263,6 +283,8 @@ internal static partial class EditBarRender
         }
 
         public void SetScale(double scale) => Mutate(s => s.MonitorScales[DisplayId] = scale);
+
+        public void Show(string viewId) => Mutate(s => s.ShowViewOn(DisplayId, viewId));
 
         private static MenuDisplay Display(string id, string name, string description, int x, int width, int height, bool primary)
             => new(id, name, description, new DisplayInfo(id, true, new PixelRect(x, 0, width, height), new PixelRect(x, 0, width, height - 48), primary));

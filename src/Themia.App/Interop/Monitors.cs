@@ -47,6 +47,9 @@ internal readonly record struct MonitorTarget(
         }
     }
 
+    /// <summary>[S-3507] What the edit bar's Display crumb says: the product name where known, else where the screen is.</summary>
+    public string Name => string.IsNullOrWhiteSpace(FriendlyName) ? Nickname() : FriendlyName;
+
     /// <summary>The long form: a display's name with its size, for the Display menu.</summary>
     public string Describe()
     {

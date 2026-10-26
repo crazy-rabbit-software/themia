@@ -184,6 +184,43 @@ public sealed record SettingsCommand(string Key, string Text, string? Glyph, Act
 }
 
 /// <summary>
+/// [S-3549] One thing of a list one manages (a view of Manage views): its icon and words, tools at its
+/// end (Rename, Delete) whose keys work on it as it has the keyboard (F2, Delete), and its place in
+/// the list's order (dragged, or Ctrl+Up / Down). A click on it does nothing of its own.
+/// </summary>
+public sealed record SettingsItem(string Key, string Text, string? Glyph, IReadOnlyList<SettingsTool> Tools) : SettingsLine(Key)
+{
+    /// <summary>[S-3732] Its place in the list, one move shared by the list's items.</summary>
+    public SettingsOrder? Order { get; init; }
+}
+
+/// <summary>[S-3549] The key a tool of an item answers while the item has the keyboard.</summary>
+public enum SettingsToolKey
+{
+    None,
+
+    /// <summary>F2, as Explorer renames.</summary>
+    Rename,
+
+    /// <summary>Delete.</summary>
+    Delete,
+}
+
+/// <summary>
+/// [S-3549] A tool at an item's end: its glyph and its name (the tooltip), its key, and what it does:
+/// a line of text asked on a level of its own (<see cref="Ask"/>: Rename) or a command (<see cref="Run"/>,
+/// which may ask "are you sure?" through its host: Delete).
+/// </summary>
+public sealed record SettingsTool(string Key, string Glyph, string Name, SettingsToolKey Shortcut)
+{
+    public SettingsAsk? Ask { get; init; }
+
+    public Action? Run { get; init; }
+
+    public bool Disabled { get; init; }
+}
+
+/// <summary>
 /// [S-3749] A link row (Karpo's): a setting another menu owns, never a copy of it. The owner's glyph
 /// and words, the owner's name (<paramref name="Owner"/>: the tooltip's "Opens Accounts"), and what a
 /// pick does: close this menu and open the owner's at the level that sets it. Drawn with Windows'

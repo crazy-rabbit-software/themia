@@ -93,6 +93,9 @@ internal sealed partial class DesktopWindow
         _monitor = next;
         _window.Title = $"Themia ({next.GdiName})";
 
+        // [S-3507] The Display crumb names the display as the pass found it.
+        ShowToolbar();
+
         if (moved && _appWindow is not null)
         {
             Log.Info(Scope, $"{next.GdiName} moved or changed size; re-placing its surface");
@@ -225,6 +228,7 @@ internal sealed partial class DesktopWindow
         _host.StateChanged -= OnStateChanged;
         _host.EditModeChanged -= OnEditModeChanged;
         _host.SelectionChanged -= OnSelectionChanged;
+        _host.HistoryChanged -= OnHistoryChanged;
         _host.PlacementChanged -= OnPlacementChanged;
         _host.Clipboard.Changed -= OnClipboardChanged;
         _host.SettingsOutdated -= SyncBarMenu;

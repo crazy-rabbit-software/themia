@@ -1,7 +1,7 @@
 {
-  "editBar.link.updateInterval": "Tần suất cập nhật",
+  "editBar.link.updateInterval": "Cập nhật",
   "editBar.widget": "Tiện ích",
-  "editBar.display.view": "Chế độ xem trên màn hình này",
-  "editBar.view.manage": "Quản lý chế độ xem",
+  "editBar.display.view": "Dạng xem trên màn hình này",
+  "editBar.view.manage": "Quản lý dạng xem",
   "editBar.crumbName": "{kind}: {name}"
 }

@@ -69,6 +69,9 @@ internal sealed record MenuEdit(string Title, string Placeholder, string Initial
 /// <summary>[S-3737] An "are you sure?" asked on a level of the menu's own: the question, what goes with it, the words of the row that does it.</summary>
 internal sealed record MenuQuestion(string Question, string Accept, Action Done, bool Danger, string? Detail);
 
+/// <summary>[S-3549] A tool at a row's end: its glyph, its name (the tooltip), the key it answers (F2, Delete) and what it does.</summary>
+internal sealed record MenuTool(string Key, string Glyph, string Name, Windows.System.VirtualKey? Shortcut, Action Run, bool Disabled = false);
+
 /// <summary>
 /// One row of a menu or of one of its levels: its words, the value at its end (words, or a swatch:
 /// <see cref="ValueIcon"/>), its icon (and what the icon is, to tell a change), a switch, a tick, a
@@ -142,6 +145,12 @@ internal sealed record MenuNode(string Key, MenuNodeKind Kind = MenuNodeKind.Lin
 
     /// <summary>[S-3737] A note in the text colour and size: a question's own words.</summary>
     public bool Strong { get; init; }
+
+    /// <summary>
+    /// [S-3549] Tools at the row's end (a thing's Rename and Delete), each run with the row in hand (what
+    /// it asks opens as the row's level), its key answered while the row has the keyboard.
+    /// </summary>
+    public IReadOnlyList<MenuTool>? Tools { get; init; }
 
     public static MenuNode Separator(string key) => new(key, MenuNodeKind.Separator);
 
@@ -832,6 +841,14 @@ internal partial class MenuPanel : Grid
                 e.Handled = Enter(open.Node, keys: true);
             }
         }
+        else if (FocusedView() is { Node.Tools: { } tools } owner
+            && tools.FirstOrDefault(t => t.Shortcut == e.Key && !t.Disabled) is { } tool)
+        {
+            // [S-3549] F2 renames the thing that has the keyboard, Delete deletes it (asked first).
+            e.Handled = true;
+            _askKeys = true;
+            Ask(owner.Node, tool.Run);
+        }
         else if (e.Key is Windows.System.VirtualKey.Home or Windows.System.VirtualKey.End)
         {
             var rows = _shown.Views.Where(v => v is { Button.IsEnabled: true }).ToList();
@@ -1023,6 +1040,18 @@ internal partial class MenuPanel : Grid
     /// <summary>Debug renders only: click the shown level's row of <paramref name="key"/>. False when it is not there.</summary>
     internal bool DebugClickKey(string key)
         => Picks().FirstOrDefault(n => n.Key == key) is { } node && Enter(node, keys: false);
+
+    /// <summary>[S-3549] Debug renders only: run the tool at <paramref name="index"/> of the shown level's row of <paramref name="key"/>, as its click would.</summary>
+    internal bool DebugTool(string key, int index)
+    {
+        if (Picks().FirstOrDefault(n => n.Key == key) is not { Tools: { } tools } node || index >= tools.Count)
+        {
+            return false;
+        }
+
+        Ask(node, tools[index].Run);
+        return true;
+    }
 
     /// <summary>Debug renders only: type into the shown level's field (its search, its filter or its text).</summary>
     internal bool DebugType(string text)

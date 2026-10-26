@@ -80,7 +80,7 @@ internal sealed partial class DesktopWindow
 
             if (_openBarMenu == BarMenu.Settings)
             {
-                _barMenus[BarMenu.Settings].ShowRoot();
+                BarMenuOf(BarMenu.Settings).ShowRoot();
             }
 
             if (!RequestSettings([]))
@@ -183,7 +183,7 @@ internal sealed partial class DesktopWindow
 
         public void SetLanguage(AppLanguage language) => Host.SetLanguage(language);
 
-        public void Confirm(SettingsConfirm confirm) => surface._barMenus[BarMenu.Settings].Confirm(confirm);
+        public void Confirm(SettingsConfirm confirm) => surface.BarMenuOf(BarMenu.Settings).Confirm(confirm);
 
         public void Quit() => Host.RequestExit();
 

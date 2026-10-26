@@ -15,7 +15,7 @@ namespace Themia.App.Shell;
 /// </summary>
 internal sealed partial class DesktopWindow
 {
-    /// <summary>[S-3520] The bar's menus, built once, on the properties' layer: over the cards, under the edit bar.</summary>
+    /// <summary>[S-3520] The bar's menus, each built as it first opens, on the properties' layer: over the cards, under the edit bar.</summary>
     private readonly Dictionary<BarMenu, BarMenuView> _barMenus = [];
 
     /// <summary>[S-3521] The bar's menu open on this display, if any: one at a time.</summary>
@@ -27,22 +27,28 @@ internal sealed partial class DesktopWindow
     /// <summary>The open menu, if any.</summary>
     private BarMenuView? OpenBarMenuView => _openBarMenu is { } open ? _barMenus[open] : null;
 
-    /// <summary>Build the bar's menus and put them on the properties' layer, hidden.</summary>
-    private void BuildBarMenus()
+    /// <summary>[S-3520] One of the bar's menus: built and put on the properties' layer, hidden, as it is first asked for.</summary>
+    private BarMenuView BarMenuOf(BarMenu which)
     {
-        Add(BarMenu.View, ViewsMenuLines());
-        Add(BarMenu.Display, DisplayMenuLines());
-        Add(BarMenu.Settings, SettingsMenuLines());
-
-        void Add(BarMenu which, Func<IReadOnlyList<Core.Settings.SettingsLine>> lines)
+        if (_barMenus.TryGetValue(which, out var built))
         {
-            var menu = new BarMenuView(which.ToString(), lines, () => CloseBarMenu(focusButton: true));
-
-            // Its real height arrives with layout (a submenu's words in the current language): place it again.
-            menu.SizeChanged += (_, _) => PlaceBarMenu();
-            _barMenus[which] = menu;
-            _propertiesLayer.Children.Add(menu);
+            return built;
         }
+
+        var lines = which switch
+        {
+            BarMenu.View => ViewsMenuLines(),
+            BarMenu.Display => DisplayMenuLines(),
+            _ => SettingsMenuLines(),
+        };
+        var menu = new BarMenuView(which.ToString(), lines, () => CloseBarMenu(focusButton: true));
+        UiLanguage.ApplyFlow(menu);
+
+        // Its real height arrives with layout (a submenu's words in the current language): place it again.
+        menu.SizeChanged += (_, _) => PlaceBarMenu();
+        _barMenus[which] = menu;
+        _propertiesLayer.Children.Add(menu);
+        return menu;
     }
 
     /// <summary>[S-3521] A menu's button opens it, or closes it again; another menu open closes first.</summary>
@@ -76,7 +82,7 @@ internal sealed partial class DesktopWindow
             CloseBarMenu(focusButton: false);
         }
 
-        var menu = _barMenus[which];
+        var menu = BarMenuOf(which);
         if (_openBarMenu is null)
         {
             // [S-3523] One menu at a time: the selection's goes away (the selection stays) and comes back on close.
@@ -198,7 +204,7 @@ internal sealed partial class DesktopWindow
             return;
         }
 
-        var menu = _barMenus[which];
+        var menu = BarMenuOf(which);
         var area = GridGeometry.AllowedPixels(metrics);
         var bar = ToolbarRect(area);
         var bars = new List<PixelRect> { bar };

@@ -9,6 +9,7 @@ using Microsoft.UI.Xaml.Shapes;
 using Themia.App.Widgets;
 using Themia.Core.Localization;
 using Themia.Core.Settings;
+using Themia.Core.Shell;
 using Themia.Core.Widgets;
 using Themia.Sdk.WinUI;
 using Windows.Foundation;
@@ -164,7 +165,7 @@ internal partial class MenuPanel
     private static string Shape(IReadOnlyList<MenuNode> nodes)
         => string.Join(";", nodes.Select(n => n.Key + "|" + (int)n.Kind + "|" + (n.Danger && n.Disabled ? 'd' : 'e') + "|"
             + (n.Opens ? 's' : '-') + (n.Switch ? 'w' : '-') + (n.Checked is null ? '-' : 'c') + (n.Icon is null ? '-' : 'i') + (n.ValueIcon is null ? '-' : 'v')
-            + (n.Danger && n.Kind != MenuNodeKind.Note ? '!' : '-') + (n.Order is null ? '-' : 'o') + (n.Link is null ? '-' : 'l')));
+            + (n.Danger && n.Kind != MenuNodeKind.Note ? '!' : '-') + (n.Order is null ? '-' : 'o') + (n.Link is null ? '-' : 'l') + (n.Tools is null ? "-" : string.Join(",", n.Tools.Select(t => t.Key + (t.Disabled ? "~" : string.Empty))))));
 
     /// <summary>[S-3742] Whether a level of <paramref name="rows"/> is a long list a filter field heads: more than ten rows to pick and no field of its own.</summary>
     internal static bool Searchable(IReadOnlyList<MenuNode> rows)
@@ -505,6 +506,10 @@ internal partial class MenuPanel
             Margin = new Thickness(Fluent.Space2, 0, 0, 0),
         };
 
+        // [S-3549] A thing's tools, before its grip: 24-DIP subtle squares, their names the tooltips.
+        LineView? made = null;
+        var tools = node.Tools is { Count: > 0 } own ? ToolsOf(() => made?.Node ?? node, own) : null;
+
         // [S-3541] The tick's place is kept on every row with a level of its own that can hold, so the grips stand in one column.
         var held = new Border
         {
@@ -534,13 +539,15 @@ internal partial class MenuPanel
             endWidth = NoSlotEnd;
         }
 
-        var button = LineButton(level.Icons ? lead : null, words, value, valueIcon, grip, held, end);
+        var button = LineButton(level.Icons ? lead : null, words, value, valueIcon, tools, grip, held, end);
         button.IsEnabled = !node.Disabled;
 
         // [S-3734] What the words and the value share: the fill less its padding, icon, grip, mark and end.
         var room = OneWidth - (2 * (RowInset + Fluent.Hairline)) - PadStart - PadEnd - (level.Icons ? LeadColumn : 0) - endWidth
-            - (grip is null ? 0 : Fluent.Space2 + SmallGlyph) - (held.Width > 0 ? Fluent.IconSize + SlotGap : 0);
+            - (grip is null ? 0 : Fluent.Space2 + SmallGlyph) - (held.Width > 0 ? Fluent.IconSize + SlotGap : 0)
+            - (tools is null ? 0 : Fluent.Space2 + (node.Tools!.Count * (ToolSize + ToolGap)));
         var view = new LineView(node, button, lead, end, held, words, value, valueIcon, room);
+        made = view;
         button.Tag = view;
         Apply(view, node);
 
@@ -561,8 +568,56 @@ internal partial class MenuPanel
         return view;
     }
 
+    /// <summary>[S-3549] A tool's square inside a row's 28-DIP fill, and the room between two.</summary>
+    private const double ToolSize = 24;
+
+    private const double ToolGap = 2;
+
+    /// <summary>
+    /// [S-3549] A thing's tools: subtle 24-DIP squares, each its glyph at 12 with its name (and key) as
+    /// its tooltip and what Narrator reads; a click runs it with the row in hand, so what it asks opens
+    /// as the row's level, as the row holds it now (a rename written in place). Not tab stops: the
+    /// row's keys (F2, Delete) reach them.
+    /// </summary>
+    private StackPanel ToolsOf(Func<MenuNode> current, IReadOnlyList<MenuTool> tools)
+    {
+        var panel = new StackPanel { Orientation = Orientation.Horizontal, Spacing = ToolGap, Margin = new Thickness(Fluent.Space2, 0, 0, 0), VerticalAlignment = VerticalAlignment.Center };
+        for (var i = 0; i < tools.Count; i++)
+        {
+            var tool = tools[i];
+            var at = i;
+            var button = new Button
+            {
+                Content = UiLanguage.Mirrored(new FontIcon { Glyph = tool.Glyph, FontSize = SmallGlyph }),
+                IsEnabled = !tool.Disabled,
+                IsTabStop = false,
+            };
+            EditBar.Subtle(button);
+            button.Width = ToolSize;
+            button.Height = ToolSize;
+            button.MinHeight = ToolSize;
+            button.Padding = new Thickness(0);
+            button.HorizontalContentAlignment = HorizontalAlignment.Center;
+            var tip = tool.Shortcut is { } key ? Str.Shell_Menu_LabelWithShortcut.Format(("label", tool.Name), ("shortcut", key == Windows.System.VirtualKey.F2 ? "F2" : KeyChordText.Format(KeyChord.Plain(ChordKey.Delete)))) : tool.Name;
+            ToolTipService.SetToolTip(button, tip);
+            AutomationProperties.SetName(button, tool.Name);
+            button.Click += (_, _) =>
+            {
+                var row = current();
+                if (row.Tools is { } now && at < now.Count && !now[at].Disabled)
+                {
+                    _askKeys = false;
+                    Ask(row, now[at].Run);
+                }
+            };
+            panel.Children.Add(button);
+        }
+
+        return panel;
+    }
+
     /// <summary>[S-3734] The button of a row: a 28-DIP fill 2 DIPs inside its 32, inset 5 from the menu's sides, its parts in their columns.</summary>
-    private static Button LineButton(UIElement? lead, TextBlock words, TextBlock value, UIElement valueIcon, UIElement? grip, UIElement held, UIElement end)
+    private static Button LineButton(UIElement? lead, TextBlock words, TextBlock value, UIElement valueIcon, UIElement? tools, UIElement? grip, UIElement held, UIElement end)
     {
         var parts = new Grid();
         var column = 0;
@@ -582,6 +637,11 @@ internal partial class MenuPanel
         Add(words, new GridLength(1, GridUnitType.Star));
         Add(value, GridLength.Auto);
         Add(valueIcon, GridLength.Auto);
+        if (tools is not null)
+        {
+            Add(tools, GridLength.Auto);
+        }
+
         if (grip is not null)
         {
             Add(grip, GridLength.Auto);
@@ -628,7 +688,7 @@ internal partial class MenuPanel
             VerticalAlignment = VerticalAlignment.Center,
             Child = new FontIcon { Glyph = Glyphs.Back, FontSize = Fluent.IconSize, MirroredWhenRightToLeft = true },
         };
-        var button = LineButton(lead, words, new TextBlock(), new Border(), null, new Border(), new Border { Margin = new Thickness(0, 0, NoSlotEnd, 0) });
+        var button = LineButton(lead, words, new TextBlock(), new Border(), null, null, new Border(), new Border { Margin = new Thickness(0, 0, NoSlotEnd, 0) });
         var view = new LineView(HeadNode, button, lead, new Border(), new Border(), words, new TextBlock(), new Border(), 0);
         button.Tag = view;
         var back = Str.Common_Back.Text();

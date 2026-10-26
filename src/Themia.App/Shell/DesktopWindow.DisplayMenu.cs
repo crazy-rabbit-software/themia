@@ -42,6 +42,8 @@ internal sealed partial class DesktopWindow
 
         public void SetScale(double scale) => Host.SetDisplayScale(DisplayId, scale);
 
+        public void Show(string viewId) => Host.ShowView(DisplayId, viewId);
+
         /// <summary>
         /// [S-3545] Another display's switch is thrown at once (the display pass builds or closes its
         /// surface). This display's own "off" closes the surface the click came from, so it is run once

@@ -7,8 +7,9 @@ namespace Themia.Core.Settings;
 
 /// <summary>
 /// [S-3526] Appearance ›: the look of every widget, in the groups the Appearance page had ([S-3830]):
-/// Style (the presets, [S-834]), Theme and colours, Item background, Cards, Text and size, Layout,
-/// then Motion ([S-3529]). Every line writes the very field the page wrote, through one
+/// Style (the presets, [S-834]), Theme and colours, Item background, Cards (the gap between them
+/// with them), Text and size, then Motion ([S-3529]). Snap is the edit bar's ([S-3516]) and a scale
+/// a display's or a widget's ([S-3590]): neither is here. Every line writes the very field the page wrote, through one
 /// <see cref="ISettingsMenuHost.Mutate"/>, and the appearance engine applies it live.
 /// </summary>
 public static partial class SettingsMenu
@@ -27,7 +28,6 @@ public static partial class SettingsMenu
             Items(host, at + "/items"),
             Cards(host, at + "/cards"),
             TextAndSize(host, at + "/text"),
-            Layout(host, at + "/layout"),
             new SettingsSeparator(at + "/-motion"),
             Motion(host, at + "/motion"),
         ]);
@@ -123,7 +123,7 @@ public static partial class SettingsMenu
         ]);
     }
 
-    /// <summary>[S-3830] Cards: the border's style (the line's value), the corners, the border's width, colour and opacity.</summary>
+    /// <summary>[S-3830] [S-1722] Cards: the border's style (the line's value), the corners, the gap between the cards, the border's width, colour and opacity.</summary>
     private static SettingsSubmenu Cards(ISettingsMenuHost host, string key)
     {
         var design = host.State.Design;
@@ -140,6 +140,8 @@ public static partial class SettingsMenu
         [
             new SettingsSlider(key + "/radius", Str.Settings_Style_CornerRadius_Label.Text(), Glyphs.Surface, design.CornerRadiusPx, 0, 32, 1, v => Unit(v, "px"),
                 v => host.Mutate(s => s.Design.CornerRadiusPx = v)),
+            new SettingsSlider(key + "/gap", Str.Shell_Layout_Gap.Text(), Glyphs.ColumnsLayout, design.WidgetGapPx, 0, 48, 2, v => Unit(v, "px"),
+                v => host.Mutate(s => s.Design.WidgetGapPx = v)),
             new SettingsSeparator(key + "/-border"),
             border,
             new SettingsSlider(key + "/borderWidth", Str.Settings_Style_BorderWidth_Label.Text(), Glyphs.Fit, design.BorderWidthPx, 0, 8, 1, v => Unit(v, "px"),
@@ -151,7 +153,7 @@ public static partial class SettingsMenu
         ]) { Value = border.Value };
     }
 
-    /// <summary>[S-3830] Text and size: the font ([S-3528]), the text size and the widget scale, the user's accessibility choices.</summary>
+    /// <summary>[S-3830] Text and size: the font ([S-3528]) and the text size, the user's accessibility choice.</summary>
     private static SettingsSubmenu TextAndSize(ISettingsMenuHost host, string key)
     {
         var design = host.State.Design;
@@ -161,8 +163,6 @@ public static partial class SettingsMenu
                 v => host.Mutate(s => s.Design.FontFamily = v)),
             new SettingsSlider(key + "/size", Str.Shell_Appearance_TextSize.Text(), Glyphs.TextSize, design.FontScale, FluentType.MinTextScale, FluentType.MaxTextScale, 0.05, Percent,
                 v => host.Mutate(s => s.Design.FontScale = v)),
-            new SettingsSlider(key + "/scale", Str.Display_WidgetScale_Label.Text(), Glyphs.Scale, design.UiScale, 0.5, 3, 0.05, Percent,
-                v => host.Mutate(s => s.Design.UiScale = v)),
         ]);
     }
 
@@ -181,19 +181,6 @@ public static partial class SettingsMenu
         var options = FontSearch.Options(FontPresets(), InstalledFonts.None, current);
         var chosen = FontSearch.Chosen(options, current);
         return options.First(o => o.Value == chosen).Label;
-    }
-
-    /// <summary>[S-1722] Layout: the gap between the widgets and snapping to the grid.</summary>
-    private static SettingsSubmenu Layout(ISettingsMenuHost host, string key)
-    {
-        var design = host.State.Design;
-        return new SettingsSubmenu(key, Str.Shell_Appearance_Layout.Text(), Glyphs.GridLayout,
-        [
-            new SettingsSlider(key + "/gap", Str.Shell_Layout_Gap.Text(), Glyphs.ColumnsLayout, design.WidgetGapPx, 0, 48, 2, v => Unit(v, "px"),
-                v => host.Mutate(s => s.Design.WidgetGapPx = v)),
-            new SettingsToggle(key + "/snap", Str.Settings_Style_GridSnap_Label.Text(), Glyphs.Grid, design.GridSnap,
-                v => host.Mutate(s => s.Design.GridSnap = v)),
-        ]);
     }
 
     /// <summary>

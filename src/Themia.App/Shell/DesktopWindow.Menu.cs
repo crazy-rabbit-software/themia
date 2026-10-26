@@ -58,8 +58,7 @@ internal sealed partial class DesktopWindow
             EditMode: EditMode,
             Placing: _host.Placing is not null,
             CanPaste: _host.Clipboard.HasContent,
-            HasWidgets: SelectionRules.All(view, HiddenIds()).Count > 0,
-            GridSnap: Design.GridSnap);
+            HasWidgets: SelectionRules.All(view, HiddenIds()).Count > 0);
 
         return ItemMenu.ShowAt(_menuAnchor, OnMenuAnchor(at), SurfaceMenu(facts, at));
     }
@@ -73,7 +72,6 @@ internal sealed partial class DesktopWindow
             Settings: () => OpenBarMenu(BarMenu.Settings, []),
             Paste: _host.Paste,
             SelectAll: SelectAll,
-            ToggleSnap: ToggleSnap,
             Done: () => _host.SetEditMode(false)));
 
     /// <summary>[S-1744] The surface menu's entries, worded; what each does is the caller's (the menu render draws it too).</summary>
@@ -95,7 +93,6 @@ internal sealed partial class DesktopWindow
                     Shortcut: KeyChord.Ctrl(ChordKey.V)),
                 ShellCommand.SelectAll => new(Glyphs.SelectAll, Str.Shell_Menu_SelectAll.Text(), actions.SelectAll, Disabled: disabled,
                     Shortcut: KeyChord.Ctrl(ChordKey.A)),
-                ShellCommand.SnapToGrid => new(Glyphs.Grid, Str.Shell_Toolbar_SnapName.Text(), actions.ToggleSnap, Checked: item.Checked == true),
                 ShellCommand.ToggleEditMode => new(Glyphs.Done, Str.Shell_Card_DoneEditing.Text(), actions.Done),
                 _ => ItemMenuEntry.Separator,
             });
@@ -161,14 +158,8 @@ internal sealed partial class DesktopWindow
         }
     }
 
-    /// <summary>[S-06] The grid snap aid, flipped as the toolbar's switch does; <see cref="SyncToolbar"/> follows.</summary>
-    private void ToggleSnap()
-    {
-        var on = !Design.GridSnap;
-        _host.Mutate(state => state.Design.GridSnap = on);
-    }
 }
 
 /// <summary>[S-1744] What each command of the surface menu does.</summary>
 internal readonly record struct SurfaceMenuActions(
-    Action AddWidget, Action View, Action Display, Action Settings, Action Paste, Action SelectAll, Action ToggleSnap, Action Done);
+    Action AddWidget, Action View, Action Display, Action Settings, Action Paste, Action SelectAll, Action Done);

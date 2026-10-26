@@ -43,7 +43,6 @@ internal static partial class EditBarRender
             ("-border", [a, a + "/cards", a + "/cards/border"]),
             ("-text", [a, a + "/text"]),
             ("-font", [a, a + "/text", a + "/text/font"]),
-            ("-layout", [a, a + "/layout"]),
             ("-motion", [a, a + "/motion"]),
             ("-motion-startup", [a, a + "/motion", a + "/motion/startup"]),
             ("-online", [SettingsMenu.Keys.Online]),
@@ -51,6 +50,9 @@ internal static partial class EditBarRender
             ("-language", [SettingsMenu.Keys.Language]),
             ("-language-display", [SettingsMenu.Keys.Language, SettingsMenu.Keys.Language + "/display"]),
             ("-language-clock", [SettingsMenu.Keys.Language, SettingsMenu.Keys.Language + "/clock"]),
+
+            // [S-3749] Where a widget's link lands: the temperature unit's level, as RequestSetting opens it.
+            ("-link-temperature", [SettingsMenu.Keys.Language, SettingsMenu.Keys.Format(Themia.Sdk.OwnedSetting.TemperatureUnit)]),
         ];
 
         foreach (var (name, open) in cases)

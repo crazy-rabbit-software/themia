@@ -154,7 +154,6 @@ public sealed class ContextMenuTests
     [
         ShellCommand.Cut, ShellCommand.Copy, ShellCommand.Paste, ShellCommand.Delete,
         ShellCommand.BringToFront, ShellCommand.SendToBack, ShellCommand.AddWidget, ShellCommand.SelectAll,
-        ShellCommand.SnapToGrid,
     ];
 
     [Fact]
@@ -193,40 +192,40 @@ public sealed class ContextMenuTests
     [Fact]
     public void S1744_empty_surface_has_a_menu_only_in_edit_mode_and_not_while_placing()
     {
-        Assert.Empty(ShellMenus.ForSurface(new(EditMode: false, Placing: false, CanPaste: true, HasWidgets: true, GridSnap: true)));
-        Assert.Empty(ShellMenus.ForSurface(new(EditMode: true, Placing: true, CanPaste: true, HasWidgets: true, GridSnap: true)));
-        Assert.NotEmpty(ShellMenus.ForSurface(new(EditMode: true, Placing: false, CanPaste: false, HasWidgets: false, GridSnap: false)));
+        Assert.Empty(ShellMenus.ForSurface(new(EditMode: false, Placing: false, CanPaste: true, HasWidgets: true)));
+        Assert.Empty(ShellMenus.ForSurface(new(EditMode: true, Placing: true, CanPaste: true, HasWidgets: true)));
+        Assert.NotEmpty(ShellMenus.ForSurface(new(EditMode: true, Placing: false, CanPaste: false, HasWidgets: false)));
     }
 
     [Fact]
-    public void S1744_empty_surface_offers_the_bars_way_in_then_paste_select_all_snap_and_done()
+    public void S1744_empty_surface_offers_add_paste_select_all_then_the_bars_menus_and_done()
     {
-        var items = ShellMenus.ForSurface(new(EditMode: true, Placing: false, CanPaste: false, HasWidgets: false, GridSnap: true));
+        var items = ShellMenus.ForSurface(new(EditMode: true, Placing: false, CanPaste: false, HasWidgets: false));
         var split = ContextMenuLayout.Split([.. items.Select(i => i.Line)]);
 
         // A list alone, as Windows' desktop menu: Paste is the one icon-row command, and one is no row.
         Assert.Empty(split.Row);
         Assert.Equal(
             [
-                ShellCommand.AddWidget, ShellCommand.View, ShellCommand.Display, ShellCommand.Settings,
-                ShellCommand.Paste, ShellCommand.SelectAll, ShellCommand.SnapToGrid, ShellCommand.ToggleEditMode,
+                ShellCommand.AddWidget, ShellCommand.Paste, ShellCommand.SelectAll,
+                ShellCommand.Display, ShellCommand.View, ShellCommand.Settings, ShellCommand.ToggleEditMode,
             ],
             split.List.Where(i => i >= 0).Select(i => items[i].Command));
-        Assert.Equal(3, items.Count(i => i.IsSeparator));
+        Assert.Equal(2, items.Count(i => i.IsSeparator));
 
         Assert.False(items.Single(i => i.Command == ShellCommand.Paste).Enabled);
         Assert.False(items.Single(i => i.Command == ShellCommand.SelectAll).Enabled);
-        Assert.True(items.Single(i => i.Command == ShellCommand.SnapToGrid).Checked);
     }
 
     [Fact]
-    public void S1744_snap_to_grid_shows_its_state()
+    public void S3590_the_surface_menu_is_an_action_menu_it_holds_no_setting()
     {
-        var off = ShellMenus.ForSurface(new(EditMode: true, Placing: false, CanPaste: true, HasWidgets: true, GridSnap: false));
+        var on = ShellMenus.ForSurface(new(EditMode: true, Placing: false, CanPaste: true, HasWidgets: true));
 
-        Assert.False(off.Single(i => i.Command == ShellCommand.SnapToGrid).Checked);
-        Assert.True(off.Single(i => i.Command == ShellCommand.Paste).Enabled);
-        Assert.True(off.Single(i => i.Command == ShellCommand.SelectAll).Enabled);
+        // A setting is a switch or a tick: the surface menu has neither (Snap is the bar's alone, [S-3516]).
+        Assert.All(on, i => Assert.Null(i.Checked));
+        Assert.True(on.Single(i => i.Command == ShellCommand.Paste).Enabled);
+        Assert.True(on.Single(i => i.Command == ShellCommand.SelectAll).Enabled);
     }
 
     // ---- [S-1745] click versus drag versus select ---------------------------------------------------

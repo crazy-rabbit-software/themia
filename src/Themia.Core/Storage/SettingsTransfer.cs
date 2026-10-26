@@ -445,7 +445,6 @@ public static class SettingsTransfer
         Line(Str.Settings_Style_BorderOpacity_Label, old.BorderOpacity, @new.BorderOpacity, Percent);
         Line(Str.Settings_Font_FamilyLabel, old.FontFamily, @new.FontFamily, Font);
         Line(Str.Shell_Appearance_TextSize, old.FontScale, @new.FontScale, Percent);
-        Line(Str.Display_WidgetScale_Label, old.UiScale, @new.UiScale, Percent);
         Line(Str.Shell_Motion_Startup, old.IntroAnimation, @new.IntroAnimation, Intro);
         Line(Str.Shell_Transfer_StartupLength, old.IntroAnimationMs, @new.IntroAnimationMs, Ms);
         Line(Str.Shell_Layout_Gap, old.WidgetGapPx, @new.WidgetGapPx, Px);

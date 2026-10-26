@@ -59,6 +59,10 @@ public sealed class DisplayMenuTests
 
         public void SetScale(double scale) => Scales.Add(scale);
 
+        public List<string> Shown { get; } = [];
+
+        public void Show(string viewId) => Shown.Add(viewId);
+
         public static MenuDisplay Display(string id, int x, bool primary)
             => new(id, "Screen " + id, "Screen " + id + " — 1920 × 1080", new DisplayInfo(id, true, new PixelRect(x, 0, 1920, 1080), new PixelRect(x, 0, 1920, 1040), primary));
     }
@@ -70,16 +74,49 @@ public sealed class DisplayMenuTests
     private const string Bar = DisplayMenu.Keys.ViewBar;
 
     [Fact]
-    public void S3543_this_displays_name_its_scale_and_view_bar_then_every_displays_lines()
+    public void S3543_this_displays_name_the_views_it_may_show_its_scale_and_view_bar_then_every_displays_lines()
     {
         var host = new FakeHost();
         var keys = DisplayMenu.Root(host).Select(l => l is SettingsSeparator ? "-" : l.Key).ToArray();
 
         Assert.Equal(
-            [DisplayMenu.Keys.Heading, DisplayMenu.Keys.Scale, Bar, "-", DisplayMenu.Keys.All, DisplayMenu.Keys.NewDisplays, DisplayMenu.Keys.ShowOn],
+            [
+                DisplayMenu.Keys.Heading, DisplayMenu.Keys.Views, DisplayMenu.Keys.Show("home"), DisplayMenu.Keys.Show("work"), "-",
+                DisplayMenu.Keys.Scale, Bar, "-", DisplayMenu.Keys.All, DisplayMenu.Keys.NewDisplays, DisplayMenu.Keys.ShowOn,
+            ],
             keys);
         Assert.Equal("Screen a — 1920 × 1080", At<SettingsNote>(host, DisplayMenu.Keys.Heading).Text);
         Assert.Equal(Str.BarMenus_Display_All.Text(), At<SettingsHeading>(host, DisplayMenu.Keys.All).Text);
+    }
+
+    [Fact]
+    public void S3543_the_view_this_display_shows_is_ticked_and_a_pick_of_another_shows_it_here()
+    {
+        var host = new FakeHost();
+        var home = At<SettingsRadio>(host, DisplayMenu.Keys.Show("home"));
+        var work = At<SettingsRadio>(host, DisplayMenu.Keys.Show("work"));
+
+        Assert.Equal((true, false), (home.Holds, work.Holds));
+        Assert.Equal("Work", work.Text);
+        home.Pick();
+        Assert.Empty(host.Shown);
+        work.Pick();
+        Assert.Equal(["work"], host.Shown);
+        Assert.Equal(0, host.Mutations);
+    }
+
+    [Fact]
+    public void S3543_a_display_with_no_view_of_its_own_ticks_the_active_one_with_its_mark()
+    {
+        var host = new FakeHost();
+        host.State.MonitorViews.Remove("a");
+        host.State.Views[0].Icon = Themia.App.Shell.Glyphs.Mail;
+        host.State.Views[0].Color = "#0099BC";
+
+        var home = At<SettingsRadio>(host, DisplayMenu.Keys.Show("home"));
+        Assert.True(home.Holds);
+        Assert.Equal((Themia.App.Shell.Glyphs.Mail, "#0099BC"), (home.Glyph, home.GlyphColour));
+        Assert.Equal(Themia.App.Shell.Glyphs.View, At<SettingsRadio>(host, DisplayMenu.Keys.Show("work")).Glyph);
     }
 
     [Fact]

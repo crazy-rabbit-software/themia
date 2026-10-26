@@ -88,7 +88,11 @@ internal sealed partial class DesktopWindow
     /// <summary>The edit bar's buttons and its add menu, the properties strip and the bar's open menu, built again in the current language.</summary>
     private void RebuildToolbar()
     {
-        _toolbar.Fill(ToolbarCommands());
+        if (_toolbar.Built)
+        {
+            _toolbar.Fill(ToolbarCommands());
+        }
+
         _properties.Fill(PropertiesCommands());
 
         RebuildBarMenu();

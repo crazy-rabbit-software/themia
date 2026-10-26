@@ -36,6 +36,7 @@ internal sealed partial class AppHost
 
         _history?.Commit(State, undo);
         _store.SaveSoon(State);
+        HistoryChanged?.Invoke();
 
         // [S-1583] A deleted or moved widget leaves the selection with the change that removed it.
         ChangeSelection(Selection.Prune(State));
@@ -173,6 +174,7 @@ internal sealed partial class AppHost
         // The imported file carries its own per-display switches ([S-845]).
         ReconcileDisplays();
         _history?.Clear(State);
+        HistoryChanged?.Invoke();
 
         Log.Info(Scope, $"replaced the settings ({occasion}); the previous ones are at {backup}");
         return null;

@@ -26,6 +26,15 @@ internal sealed partial class AppHost
     private LayoutHistory? _history;
     private BootGuard? _bootGuard;
 
+    /// <summary>[S-3509] What Undo and Redo can step may have changed (a change, a drag, a step, an import): the edit bars follow.</summary>
+    public event Action? HistoryChanged;
+
+    /// <summary>[S-3509] There is a step to undo: the edit bar's Undo is live.</summary>
+    public bool CanUndo => _history?.CanUndo ?? false;
+
+    /// <summary>[S-3509] There is a step to redo: the edit bar's Redo is live.</summary>
+    public bool CanRedo => _history?.CanRedo ?? false;
+
     /// <summary>[S-890] This start is a safe one: widgets are paused until the user starts them.</summary>
     public bool SafeMode { get; private set; }
 
@@ -124,6 +133,7 @@ internal sealed partial class AppHost
     {
         _history?.Commit(State, action);
         _store.SaveSoon(State);
+        HistoryChanged?.Invoke();
     }
 
     /// <summary>[S-887] The system changed the layout (a view made for a new display): adopt it, do not offer it as an undo.</summary>
@@ -160,6 +170,7 @@ internal sealed partial class AppHost
         // at startup ([S-1705]), without making that an undo step of its own.
         DisplayPlan.AssignViews(State, DisplayViewKeys());
         _history.Rebase(State);
+        HistoryChanged?.Invoke();
 
         _store.SaveSoon(State);
         ChangeSelection(Selection.Prune(State));

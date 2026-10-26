@@ -83,7 +83,7 @@ internal sealed partial class DesktopWindow
         var hint = new Border
         {
             Child = text,
-            MinHeight = EditBar.ButtonSize + (2 * Fluent.Space1),
+            MinHeight = EditBar.BarHeight,
             Padding = new Thickness(Fluent.Space4, 0, Fluent.Space4, 0),
             HorizontalAlignment = HorizontalAlignment.Center,
             VerticalAlignment = VerticalAlignment.Top,

@@ -206,10 +206,37 @@ internal sealed partial class BarMenuView : MenuPanel
             Run = link.Open,
         },
         SettingsIcon icon => IconNode(icon),
+
+        // [S-3549] A thing of a list one manages: its tools at its end, its place in the list's order.
+        SettingsItem item => new MenuNode(item.Key)
+        {
+            Text = item.Text,
+            IconKey = IconKeyOf(item.Glyph, item.GlyphColour),
+            Icon = IconOf(item.Glyph, item.GlyphColour),
+            Disabled = item.Disabled,
+            Order = item.Order is { } order ? new MenuOrder(order.Index, order.Count, order.Move) : null,
+            Tools = [.. item.Tools.Select(ToolOf)],
+        },
         _ => throw new ArgumentOutOfRangeException(nameof(line), line.GetType().Name, "a settings line the menu cannot draw"),
     };
 
     private static Func<UIElement?>? IconOf(string? glyph) => glyph is null ? null : () => Glyph(glyph);
+
+    /// <summary>[S-3549] A tool of Core's as the engine's: a line of text asked on the row's level (Rename), or a command (Delete, asked first by its host).</summary>
+    private MenuTool ToolOf(SettingsTool tool) => new(
+        tool.Key,
+        tool.Glyph,
+        tool.Name,
+        tool.Shortcut switch
+        {
+            SettingsToolKey.Rename => Windows.System.VirtualKey.F2,
+            SettingsToolKey.Delete => Windows.System.VirtualKey.Delete,
+            _ => null,
+        },
+        tool.Ask is { } ask
+            ? () => AskText(new MenuEdit(ask.Title, ask.Placeholder, ask.Initial, ask.Done) { Refuse = ask.Refuse, AllowEmpty = ask.AllowEmpty, Accept = ask.Accept })
+            : tool.Run ?? (() => { }),
+        tool.Disabled);
 
     /// <summary>[S-3810] A glyph in a colour of its own (a view's mark), or in the theme's where it has none.</summary>
     private static Func<UIElement?>? IconOf(string? glyph, string? colour)

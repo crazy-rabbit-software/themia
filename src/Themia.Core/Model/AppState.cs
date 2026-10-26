@@ -181,9 +181,6 @@ public sealed class DesignState
 {
     public AppTheme Theme { get; set; } = AppTheme.System;
 
-    /// <summary>Scales every widget's content. The user's accessibility choice, not a look.</summary>
-    public double UiScale { get; set; } = 1.0;
-
     /// <summary>A font-family preset, or the name of any installed family.</summary>
     public string FontFamily { get; set; } = "system";
 
@@ -270,7 +267,6 @@ public sealed class DesignState
     public DesignState Clone() => new()
     {
         Theme = Theme,
-        UiScale = UiScale,
         FontFamily = FontFamily,
         FontScale = FontScale,
         WidgetGapPx = WidgetGapPx,

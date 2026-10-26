@@ -81,7 +81,6 @@ internal sealed partial class DesktopWindow : IWidgetCardHost
         _toolbar = BuildToolbar();
         _properties = BuildProperties();
         _propertiesLayer.Children.Add(_properties);
-        BuildBarMenus();
 
         // [S-906] The view bar sits on its own layer, over the widgets and under the toolbar.
         _viewBar = new ViewBar(this) { Visibility = Visibility.Collapsed };
@@ -145,6 +144,7 @@ internal sealed partial class DesktopWindow : IWidgetCardHost
         _host.StateChanged += OnStateChanged;
         _host.EditModeChanged += OnEditModeChanged;
         _host.SelectionChanged += OnSelectionChanged;
+        _host.HistoryChanged += OnHistoryChanged;
         _host.PlacementChanged += OnPlacementChanged;
         _host.Clipboard.Changed += OnClipboardChanged;
         _host.SettingsOutdated += SyncBarMenu;
@@ -218,13 +218,13 @@ internal sealed partial class DesktopWindow : IWidgetCardHost
 
     /// <summary>
     /// [S-850]/[S-6532] How much a widget's content is magnified on this display: the display's own
-    /// scale times the app-wide widget scale times the widget's own. Content only — a widget's cell
+    /// scale times the widget's own. Content only — a widget's cell
     /// stays where it is and the same size.
     /// </summary>
     private double ContentScale(WidgetInstance widget, double? previewed = null)
     {
         var display = _host.State.MonitorScales.TryGetValue(_monitor.Id, out var own) ? own : 1.0;
-        return WidgetScale.Effective(display, Design.UiScale, previewed ?? widget.Scale);
+        return WidgetScale.Effective(display, previewed ?? widget.Scale);
     }
 
     /// <summary>The id of the view this surface is currently showing.</summary>

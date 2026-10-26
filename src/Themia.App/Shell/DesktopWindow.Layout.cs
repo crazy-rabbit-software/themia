@@ -69,7 +69,10 @@ internal sealed partial class DesktopWindow
             card.ApplySelection();
         }
 
+        // [S-3508] A new selection brings its properties menu back beside it.
+        _propertiesDismissed = false;
         SyncProperties();
+        ShowToolbar();
     }
 
     private void OnStateChanged()
@@ -84,12 +87,19 @@ internal sealed partial class DesktopWindow
 
     private void OnEditModeChanged(bool editing)
     {
-        _toolbar.Visibility = editing ? Visibility.Visible : Visibility.Collapsed;
-        if (!editing)
+        if (editing)
+        {
+            _propertiesDismissed = false;
+            SyncProperties();
+            ShowToolbar();
+        }
+        else
         {
             // [S-3521] Done, or edit mode left any other way, closes the edit bar's open menu.
             CloseBarMenu(focusButton: false);
         }
+
+        _toolbar.Visibility = editing ? Visibility.Visible : Visibility.Collapsed;
 
         _gridOverlay.Visibility = editing && Design.GridSnap ? Visibility.Visible : Visibility.Collapsed;
 

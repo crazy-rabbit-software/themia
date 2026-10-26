@@ -35,18 +35,21 @@ public interface IDisplayMenuHost
 
     /// <summary>[S-850] This display's widget scale (1 = 100 %).</summary>
     void SetScale(double scale);
+
+    /// <summary>[S-19] Show a view on this display.</summary>
+    void Show(string viewId);
 }
 
 /// <summary>
 /// [S-3543]..[S-3545] The edit bar's Display menu (Display ▾) as data, after Karpo's (karpo-app,
-/// docs/widgets.md §348): this display's own settings under its name — its widget scale and its view
-/// bar — then, under "All displays", what every display shares: the view a display Themia has not
-/// seen before shows, and which displays Themia is on. Which view this display shows is the View
-/// menu's ([S-3541]), not here again.
+/// docs/widgets.md §348, §352): this display under its name — the view it shows, as ticked rows
+/// (switching views is here alone), its widget scale and its view bar — then, under "All displays",
+/// what every display shares: the view a display Themia has not seen before shows, and which
+/// displays Themia is on. What a view is (its name, icon, colour, order) is View ▾'s ([S-3541]).
 /// </summary>
 public static class DisplayMenu
 {
-    /// <summary>[S-3543] The first level: this display's name, its lines, a divider, then every display's.</summary>
+    /// <summary>[S-3543] The first level: this display's name, the views it may show, its lines, a divider, then every display's.</summary>
     public static IReadOnlyList<SettingsLine> Root(IDisplayMenuHost host)
     {
         ArgumentNullException.ThrowIfNull(host);
@@ -60,6 +63,21 @@ public static class DisplayMenu
         {
             lines.Add(new SettingsNote(Keys.Heading, here.Description));
         }
+
+        // [S-3543] [S-19] The view this display shows, Karpo's inline choice: one ticked row per view, a click shows it here.
+        lines.Add(new SettingsHeading(Keys.Views, Str.EditBar_Display_View.Text()));
+        var shown = ViewsMenu.ShownOn(state, id);
+        foreach (var view in state.Views)
+        {
+            var viewId = view.Id;
+            lines.Add(Radio(Keys.Show(viewId), view.Name, viewId == shown, () => host.Show(viewId)) with
+            {
+                Glyph = ViewsMenu.Mark(view),
+                GlyphColour = view.Color,
+            });
+        }
+
+        lines.Add(new SettingsSeparator("-" + Keys.Scale));
 
         // [S-850] This display's magnification of the widgets' content, 50–200 % in fives.
         var scale = state.MonitorScales.TryGetValue(id, out var stored) ? stored : 1.0;
@@ -247,10 +265,14 @@ public static class DisplayMenu
     public static class Keys
     {
         public const string Heading = "display";
+        public const string Views = "views";
         public const string Scale = "scale";
         public const string ViewBar = "viewBar";
         public const string All = "all";
         public const string NewDisplays = "newDisplays";
         public const string ShowOn = "showOn";
+
+        /// <summary>[S-3543] A view's row, by its id: the same in every language and through a rename.</summary>
+        public static string Show(string viewId) => "show:" + viewId;
     }
 }

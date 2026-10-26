@@ -331,7 +331,6 @@
   "monitorViews": {},
   "design": {
     "theme": "System",
-    "uiScale": 1,
     "fontFamily": "system",
     "fontScale": 1,
     "widgetGapPx": 8,

@@ -404,7 +404,7 @@ internal static class WidgetRender
 
                 // The size is the painted card: there is no neighbour for the gap to separate.
                 card.ApplyGap(0);
-                card.ApplyContentScale(WidgetScale.Effective(1, 1, model.Scale));
+                card.ApplyContentScale(WidgetScale.Effective(1, model.Scale));
                 Canvas.SetLeft(card, x[row]);
                 Canvas.SetTop(card, top[row] + LabelHeight);
                 page.Children.Add(card);

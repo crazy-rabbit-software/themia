@@ -1,7 +1,7 @@
 {
   "editBar.link.updateInterval": "فاصل التحديث",
   "editBar.widget": "الأداة",
-  "editBar.display.view": "طريقة العرض على هذه الشاشة",
-  "editBar.view.manage": "إدارة طرق العرض",
+  "editBar.display.view": "المشهد على هذه الشاشة",
+  "editBar.view.manage": "إدارة المشاهد",
   "editBar.crumbName": "{kind}: {name}"
 }

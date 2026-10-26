@@ -1322,17 +1322,49 @@ files: `Shell/EditBar.cs`, `Shell/DesktopWindow.Toolbar.cs`, `Shell/WidgetPicker
 `Shell/DesktopWindow.Picker.cs`; rules in Core `Widgets/AddMenu.cs` (tests `AddMenuTests`).
 
 - **[S-3500]** In edit mode each display's surface shows the **edit bar** at the top centre of its
-  work area, 8 DIPs under the work area's top ([S-852]): a compact Windows 11 command bar, 40 DIPs
-  tall — 32-DIP buttons in a 4-DIP padding, 4 DIPs between them — on the flyouts' acrylic, stroke,
-  8-DIP corners and shadow. Buttons have no fill at rest and the subtle fills under the pointer and
-  pressed. In order: **Add widget** (its "+" in the accent), **View ▾** (this display's views and
-  each view's own settings, [S-3541]), **Display ▾** (this display's scale and view bar, and what
-  every display shares, [S-3543]), **Snap** (lit with the accent while on, [S-905]), a 20-DIP hairline,
-  then two icon-only square buttons whose words are their tooltips and names: **Settings** (⚙, a
-  drop-down: the settings menu under it, [S-3520]; quitting is its last line, [S-67]) and **Done**.
-  There is no More button. Each display has its own bar; the bar is inside the edit-mode hit
-  region (the whole work area). While placing, a line in the bar's frame and height stands in its
-  place ([S-421]).
+  work area, 8 DIPs under the work area's top ([S-852]) and at least 8 off its sides, after Karpo's
+  (`karpo-app`, `docs/widgets.md` §352; user request 2026-10-26: the bar was "all over the place").
+  It reads **where → add → tools → global → finish**: the **trail** of where one is ([S-3507]:
+  **Display ▾** › **View ▾** › **Widget ▾**), then **Add widget** (Windows' standard button, its "+"
+  in the accent, [S-3501]), a hairline, **Undo** and **Redo** ([S-3509]) and **Snap** ([S-3516]), a
+  hairline, **⚙** (icon-only, a drop-down: Themia's settings as a whole, [S-3520]; quitting is its
+  last line, [S-67]) and **Done** (the accent button with its word, at least 80 DIPs, ending edit
+  mode). Metrics (Karpo's): 48 DIPs tall, 36-DIP buttons with radius 4 in a 6-DIP padding, 6 DIPs
+  between two, 12 either side of a 20-DIP hairline, 24 between the trail and Add widget; inside a
+  button 12 DIPs in, a 16-DIP glyph, 8, then its words in 14. Subtle buttons have no fill at rest and
+  the subtle fills under the pointer and pressed; an icon-only button's words (and keys) are its
+  tooltip and its name. One button, one menu, toggled: a click on the button of the open menu closes
+  it, another's swaps it ([S-3540]). On the flyouts' acrylic, stroke, 8-DIP corners and shadow. There
+  is no More button. Each display has its own bar; the bar is inside the edit-mode hit region (the
+  whole work area). While placing, a line in the bar's frame and height stands in its place ([S-421]).
+- **[S-3507]** The **trail**: three crumbs, subtle drop-downs each its icon, its name and a 12-DIP
+  chevron down, a 12-DIP › centred in the 20 DIPs between two (mirrored right to left). **Display**
+  (this display's name, `MonitorTarget.Name`, "DELL U2723QE"; opens Display ▾, [S-3543]), **View**
+  (the view this display shows, its icon in its colour, [S-3810]; opens View ▾, [S-3541]) and
+  **Widget** (only while something is selected on this display: the widget's title, else its kind's
+  name, with the kind's icon; "3 widgets" for several; [S-3508]). Each crumb's tooltip and name say
+  what it is and its whole name ("Display: DELL U2723QE — 3840 × 2160 (primary)", "View: Work").
+  **One width always**: the trail reserves room for all three at their widest (170, 160 and 160 DIPs
+  and the two gaps, 530: Karpo's four crumbs' room shared by three), so nothing after it moves as the widget crumb comes and goes; a crumb is as
+  wide as its words need up to that, trimmed with an ellipsis. On a display too narrow for the bar
+  every crumb gives up the same amount, none under 96 DIPs (`EditBarTrail.Widths`, tests
+  `EditBarTrailTests`).
+- **[S-3508]** **Widget ▾ is the properties menu's button**, never a second menu: the selection's
+  properties menu ([S-3716]) is one instance that stands beside the selection ([S-3708]) and opens as
+  a widget is selected. The crumb is lit while it stands there; a click on it puts it away (the
+  selection stays) and a click again brings it back beside the selection, the keyboard in it; with
+  one of the bar's menus open the click closes that menu and the properties menu comes back
+  ([S-3523]). A new selection brings it back. A press on the crumb never closes a bar menu first (it
+  is one of the bar's menu buttons, [S-3521]).
+- **[S-3509]** **Undo** and **Redo** (E7A7, E7A6), icon-only, their tooltips "Undo (Ctrl+Z)" and
+  "Redo (Ctrl+Y)": the history's step back and forward ([S-885], the same `AppHost.Undo`/`Redo` and
+  notices as the keys, which are unchanged); greyed while there is nothing to step
+  (`AppHost.CanUndo`/`CanRedo`), followed after every change, drag, step and import
+  (`AppHost.HistoryChanged`).
+- **[S-3516]** **Snap** (the grid glyph), an icon-only toggle lit with the accent while on, its
+  tooltip what it does: grid snap while moving and resizing ([S-06], `EditBarSnap.Set`). It is the
+  bar's one setting of its own, and set nowhere else ([S-3590]): not in ⚙ › Appearance, not in the
+  surface menu.
 - **[S-3501]** **Add widget** opens the **add menu** under it ([S-1749]; the surface menu's Add widget
   opens the same menu at the click, [S-1744]): a search box over every widget kind in the catalogue
   (the module registry, `ModuleCatalog.Widgets` [S-6902], so a new widget is listed with no other change), then the tree of [S-3510],
@@ -1402,15 +1434,20 @@ files: `Shell/EditBar.cs`, `Shell/DesktopWindow.Toolbar.cs`, `Shell/WidgetPicker
   first goes back; Enter adds the highlighted one, else the best match (drawn highlighted); Escape
   empties the box, back to the tree with nothing open, and an empty box's Escape is the tree's.
 - **[S-3506]** Debug renders: `--editbar-png <outDir> [--theme light|dark]` draws the real bar on a
-  stand-in display (snap on and off, the add menu open under Add widget, the placement line, and the
-  properties strip, [S-3713]), and
+  stand-in display (`editbar-<theme>.png`: nothing selected, a step to undo and none to redo;
+  `-snapoff`; `-widget`, one widget selected; `-many`, three; `-history` and `-nohistory`, both steps
+  live and none; `-long`, long names trimmed; `-narrow`, the same on a 900-DIP display, every crumb
+  giving up the same; `-add`, the add menu open under Add widget; `-placing`, the placement line),
+  the properties menu ([S-3713]; `props-<theme>-links-*`, a widget's link rows, [S-3749]), and
   `--picker-png <out.png> [--search text] [--open Subject[/Family]] [--theme light|dark]` the open
   menu, `--open` opening the cascade by `AddFolderId` names
   (`CalendarMail`, `System/Processor`, `QuickSettings`); the render draws the
   submenus on a layer over a 1280 × 800-DIP stand-in work area, where the popups would stand.
 
-Needs a live pass: the bar on every display at mixed DPI and with a top taskbar, the menu opening
-under Add widget and at a right-click (and growing sideways as a submenu opens, near a display's
+Needs a live pass: the bar on every display at mixed DPI and with a top taskbar (the trail's one
+width, a narrow display's crumbs shrinking, the bar 8 DIPs off its sides), the widget crumb coming
+and going with a selection and putting the properties menu away and back, Undo and Redo greying and
+lighting as changes, drags and steps happen, Snap in step with the grid; the menu opening under Add widget and at a right-click (and growing sideways as a submenu opens, near a display's
 edge too), the hover delay, the keys in the menu, and a pick starting the placement.
 
 ### The edit bar's settings menu (SETTINGS-MENU)
@@ -1427,8 +1464,9 @@ the properties menu's too), `Shell/Menu/BarMenuView.cs` (one of the bar's menus 
 `Shell/DesktopWindow.BarMenus.cs` (opening, closing and placing every one of the bar's menus, one
 mechanism), `Shell/DesktopWindow.SettingsMenu.cs`, `Services/AppHost.SettingsMenu.cs`. Tests `SettingsMenuTests`, `DropDownPlacementTests`.
 
-- **[S-3520]** **⚙** on the edit bar is a drop-down: a click opens the **settings menu** under it on
-  that display, the keyboard in it on its first row, and ⚙ stays lit while it is open. The menu is
+- **[S-3520]** **⚙** on the edit bar (icon-only, [S-3500]) is a drop-down: a click opens the
+  **settings menu** under it on that display — Themia's settings as a whole, every one at this level
+  alone ([S-3590]) — the keyboard in it on its first row, and ⚙ stays lit while it is open. The menu is
   the properties menu's engine (`MenuPanel`, [S-3716]) with no top row or foot of its own: the one
   fixed rectangle of every configuration menu (320 × 440 DIPs, [S-3734]) whose levels open in place
   ([S-3718]), every row one row high: the switch, the tick or the chevron at a row's end ([S-3741]),
@@ -1439,7 +1477,7 @@ mechanism), `Shell/DesktopWindow.SettingsMenu.cs`, `Services/AppHost.SettingsMen
   was. It closes on ⚙ again; on Escape on its own rows (Escape on a level goes back first, [S-3743];
   the keyboard back on ⚙); on a press anywhere on the surface outside it, which then does what it does (a press on a
   widget selects it, one on empty surface starts a rubber band); when the Add widget menu or another
-  of the bar's menus (View ▾, Display ▾, [S-3540]) opens; when a placement starts; and on Done or leaving edit mode any other way. Each display has
+  of the bar's menus (Display ▾, View ▾, [S-3540]) opens, or the widget crumb is clicked ([S-3508]); when a placement starts; and on Done or leaving edit mode any other way. Each display has
   its own, opened from that display's bar. Closed, its levels close as going back closes them: it
   opens again on its own rows.
 - **[S-3522]** Where it stands (`DropDownPlacement`): 4 DIPs under the bar, its start edge level with
@@ -1474,15 +1512,18 @@ mechanism), `Shell/DesktopWindow.SettingsMenu.cs`, `Services/AppHost.SettingsMen
   **Show desktop icons** ([S-930]; as Windows has them, read when the menu opens and followed while it
   is open, [S-932]); **Pause during full-screen apps** (game mode, [S-920]; "Paused now" at its end
   while it holds the widgets).
-- **[S-3526]** **Appearance ›**, the Appearance page's groups ([S-3830]), behind dividers: **Style ›**
+- **[S-3526]** **Appearance ›**, the look every widget shares ([S-3830]), behind dividers: **Style ›**
   ([S-3527]); **Theme and colours ›** (Theme › Use system setting, Light, Dark; Accent, a colour whose
   Default is the Windows accent and whose swatches are Windows' palette; Background, the widgets'
   fill, [S-6568]; Header, the header strip's colour, Same as the widget by default, [S-828]; Header
   opacity, a slider 0–100 % in fives); **Item background ›** (Background, the items' fill; Item text
-  colour, [S-6545]); **Widget cards ›**, its value the border's style (Corner radius 0–32 px; Border ›
-  None, Solid, Dashed, Dotted; Border width 0–8 px; Border colour; Border opacity 0–100 %); **Text and
-  size ›** (Font ›, [S-3528]; Text size 50–200 % and Widget scale 50–300 %, in fives); **Layout ›**
-  (Gap between widgets 0–48 px in twos; Snap to grid); and **Motion ›** ([S-3529]). Each line writes
+  colour, [S-6545]); **Widget cards ›**, its value the border's style (Corner radius 0–32 px; Gap
+  between widgets 0–48 px in twos; Border › None, Solid, Dashed, Dotted; Border width 0–8 px; Border
+  colour; Border opacity 0–100 %); **Text and size ›** (Font ›, [S-3528]; Text size 50–200 % in
+  fives); and **Motion ›** ([S-3529]). There is no Layout › and no Widget scale ([S-3590]): snapping
+  is the edit bar's ([S-3516]) and a scale a display's ([S-850]) or a widget's ([S-6531]); the gap
+  is with the cards it parts. A card's own look (its Appearance foot, [S-3739]) overrides these per
+  widget; its Default is this. Each line writes
   the field its page row wrote, in one change (one undo step), and the appearance engine applies it
   live ([S-822]); a slider stores once, on the release ([S-3731]); the option that holds changes nothing.
 - **[S-3527]** **Style ›** lists the presets, the tick on the one the design matches, and Custom
@@ -1538,8 +1579,9 @@ mechanism), `Shell/DesktopWindow.SettingsMenu.cs`, `Services/AppHost.SettingsMen
 - **[S-3535]** Debug renders: `--editbar-png <outDir> [--theme light|dark] [--lang xx] [--only
   settings]` draws the menu open under ⚙ on the stand-in display (`settings-<theme>.png`) and its
   levels opened by key (`-appearance`, `-style`, `-theme`, `-accent`, `-background`, `-items`,
-  `-cards`, `-border`, `-text`, `-font`, `-layout`, `-motion`, `-motion-startup`, `-online`,
-  `-online-weather`, `-language`, `-language-display`, `-language-clock`), `-language-find` (the
+  `-cards`, `-border`, `-text`, `-font`, `-motion`, `-motion-startup`, `-online`,
+  `-online-weather`, `-language`, `-language-display`, `-language-clock`, `-link-temperature`: where a
+  widget's Temperature unit link lands, [S-3749]), `-language-find` (the
   languages' filter holding "deu"), `-language-end` (the languages scrolled to their end under their
   pinned head and filter), ⚙ › Accounts' pictures ([S-3560]), Themia Pro's, Back up &
   reset's and About's ([S-3583]), `-advice` (start with Windows switched off in Windows, game mode holding the
@@ -1569,43 +1611,50 @@ by), `Shell/DesktopWindow.ViewsMenu.cs`, `Shell/DesktopWindow.DisplayMenu.cs`,
 `Shell/Menu/BarMenuView.cs`, `Shell/IconPicker.cs`. Tests `ViewsMenuTests`, `DisplayMenuTests`,
 `DropDownPlacementTests`.
 
-- **[S-3540]** **View ▾** and **Display ▾** on the edit bar ([S-3500]) are drop-downs like ⚙: a click
-  opens the menu under its button on that display, the keyboard in it, the button lit while it is
-  open, and a click again closes it. The three are one mechanism (`BarMenu` View, Display, Settings;
+- **[S-3540]** **Display ▾** and **View ▾**, the trail's first two crumbs ([S-3507]), are drop-downs
+  like ⚙: a click opens the menu under its crumb on that display, the keyboard in it, the crumb lit
+  while it is open, and a click again closes it. The three are one mechanism (`BarMenu` Display, View, Settings;
   `DesktopWindow.OpenBarMenu(menu, path)`, `CloseBarMenu`, `PlaceBarMenu`): at most one is open on a
   display, the others' buttons swap it, and every rule of [S-3520]..[S-3523] holds for each (the
   engine's look and keys, open while it is used, the ways it closes, where it stands, the selection's
   properties menu away while one is open). Each is the one fixed rectangle ([S-3734]), no taller than
   the work area under the bar (`DropDownPlacement.Room`: from under the bar to a gap above the work
   area's bottom; [S-918]'s promise for the View menu, kept); a long level (many views) scrolls inside it.
-- **[S-3541]** **View ▾**: this display's views, one line each in the user's order: the view's icon
-  in its colour ([S-3810]; the shared view glyph where it has none), its name, and the tick before the
-  chevron on the view this display shows (its assignment, else the active view, [S-1706]). A click
-  on a view's row **shows it here** ([S-19]) and opens its level ([S-3542]); a click on the shown
-  one only opens it; the arrow towards the level opens it without showing the view. The views'
-  rows are one ordered list ([S-3732]): dragged up or down ([S-3747]), or Ctrl+Up / Down ([S-3748]), a view
-  takes another's place (`AppHost.ReorderView`, one undo step), and the bar, Ctrl+n and the menu
-  follow. Under a divider: **New view** (an empty view at the end, shown here; past the free limit it
-  is refused with a notice saying why, [S-1065]) and **Duplicate this view** ([S-900], the copy shown
-  here). The lines are Core's (`ViewsMenu.Root`), keyed by the views' ids (`view:<id>`), so a
-  rename, a move or a language switch keeps what is open open.
-- **[S-3542]** A view's level: how many widgets it holds (a note); **Rename…** (a line of text on a
-  level of its own, the field holding the name, [S-3736]; `ViewOps.Rename`, [S-1707]); **Icon ›**, whose level is
+- **[S-3541]** **View ▾** is the view this display shows (its assignment, else the active view,
+  [S-1706]) and, behind Manage views ›, every view (Karpo's Layout ▾). Which view a display shows is
+  set in Display ▾ alone ([S-3543], [S-3590]): no line here shows a view. The lines are Core's
+  (`ViewsMenu.Root`), keyed by what they are (`name`, `icon`, `manage/view:<id>`), so a rename, a move
+  or a language switch keeps what is open open.
+- **[S-3542]** Its first level: how many widgets the view holds (a note); **Name** (its value the
+  name; its level the field holding it, [S-3736]; `ViewOps.Rename`, [S-1707]); **Icon ›**, whose level is
   the icon picker ([S-1803]) at the menu's width, its default cell the view's initials ([S-903]), a
   pick stored at once and drawn ticked; **Colour ›**, the one colour level ([S-3724]: Default, the
   theme's text colour, then Windows' colours, custom and the eyedropper; `ViewOps.SetColor`, no
-  relayout); under a divider **Duplicate view** ([S-900]) and **Delete view** (in the critical
-  colour; asked first on a level of its own, "Delete "Work"?" with what goes with it, Delete and
-  Cancel, [S-3737]; the undo notice still offers it back, [S-881]; greyed on the last view, [S-12]). Edit
-  layout and Show on this display are not here: the menu is open in edit mode on the display, and a
-  click on the view's line shows it.
-- **[S-3543]** **Display ▾**: this display's own settings under its name (a note: "DELL U2723QE —
-  3840 × 2160 (primary)", `MonitorTarget.Describe`, so two identical screens are told apart):
-  **Widget scale**, a slider 50–200 % in fives ([S-850], `AppHost.SetDisplayScale`, stored on the
-  release); **View bar ›** ([S-3544]); then under a divider and the heading **All displays** ([S-3740]): **New
-  displays show ›** and **Show Themia on ›** ([S-3545]). Which view this display shows is View ▾'s
-  ([S-3541]), not here again. The lines are Core's (`DisplayMenu.Root`); they follow the state and,
-  while the menu is open, every display pass (a display plugged in or switched off).
+  relayout); under a divider **Duplicate view** ([S-900], the copy shown here) and **Delete view** (in
+  the critical colour; asked first on a level of its own, "Delete "Work"?" with what goes with it,
+  Delete and Cancel, [S-3737]; the undo notice still offers it back, [S-881]; greyed on the last view,
+  [S-12]); under another **Manage views ›** ([S-3549]), its value how many there are.
+- **[S-3549]** **Manage views ›**, Karpo's level of things: **New view** on top (an empty view at the
+  end, shown here; past the free limit refused with a notice saying why, [S-1065]), a rule, then
+  every view in the user's order, its icon in its colour and its name, with at its end **Rename**
+  (the pencil, F2: its field on the row's level, [S-3736]) and **Delete** (Del: its "are you sure?" on the row's
+  level, [S-3737]; greyed on the last view), 24-DIP subtle squares whose names (and keys) are their
+  tooltips, and the row's grip: dragged ([S-3747]) or Ctrl+Up / Down ([S-3748]) a view takes another's
+  place (`AppHost.ReorderView`, one undo step), and the view bar, Ctrl+n and the menu follow. A click
+  on a view's row does nothing of its own. The vocabulary grows `SettingsItem` (a thing with tools
+  and an order) and `SettingsTool` (a glyph, a name, a key, and a line of text it asks or a command);
+  the engine draws them (`MenuNode.Tools`, run with the row in hand). A view's name is reached here
+  and on the first level's Name: one field of one level, View ▾'s ([S-3592]).
+- **[S-3543]** **Display ▾**: this display under its name (a note: "DELL U2723QE — 3840 × 2160
+  (primary)", `MonitorTarget.Describe`, so two identical screens are told apart): under the heading
+  **View on this display** ([S-3740]) every view as a row of its own (Karpo's inline choice: its icon in
+  its colour, its name, the tick on the one this display shows), a click showing it here ([S-19],
+  `AppHost.ShowView`; switching views is here alone, [S-3590]); under a divider **Widget scale**, a
+  slider 50–200 % in fives ([S-850], `AppHost.SetDisplayScale`, stored on the release; the only scale
+  besides a widget's own, [S-6532]), and **View bar ›** ([S-3544]); then under a divider and the
+  heading **All displays**: **New displays show ›** and **Show Themia on ›** ([S-3545]). The lines are
+  Core's (`DisplayMenu.Root`, the views keyed `show:<id>`); they follow the state and, while the menu
+  is open, every display pass (a display plugged in or switched off).
 - **[S-3544]** **View bar ›**, this display's bar ([S-906]), its value where it sits or **Hidden**:
   **Show the view bar**, **Style ›** (Chips, Drop-down, [S-5400]), **Position ›** (the eight anchors),
   **Size ›** (Medium, Large, Extra large), **Show view names**; under a divider **Views ›** (the
@@ -1621,8 +1670,9 @@ by), `Shell/DesktopWindow.ViewsMenu.cs`, `Shell/DesktopWindow.DisplayMenu.cs`,
   display on is greyed, with "Themia has to stay on at least one display" under the list. Switching
   this display off puts its menu away first and runs once the click has finished: the surface the
   click came from closes.
-- **[S-3546]** The ways in: View ▾, Display ▾, and a view chip's **View settings** ([S-915]), which
-  opens View ▾ on that display at the chip's view's level (`OpenBarMenu(View, ["view:<id>"])`).
+- **[S-3546]** The ways in: the crumbs, the surface menu ([S-1744]), and a view chip's **View
+  settings** ([S-915]), which shows the chip's view on that display (View ▾ is the shown view's) and
+  opens View ▾ there.
   There is no Displays or Views page: there is no settings window ([S-3585]).
 - **[S-3547]** The vocabulary of [S-3524] grows what these menus need, for every bar menu: a row's
   glyph may carry a colour of its own (`GlyphColour`, a view's mark); a submenu row may stand for an
@@ -1631,13 +1681,13 @@ by), `Shell/DesktopWindow.ViewsMenu.cs`, `Shell/DesktopWindow.DisplayMenu.cs`,
   text, [S-3736]); `SettingsIcon` (the icon picker as its level); a `SettingsCommand` may be
   `Danger`, and so may a `SettingsConfirm` ([S-3737]).
 - **[S-3548]** Debug renders: `--editbar-png <outDir> [--theme light|dark] [--lang xx] [--only bar]`
-  draws View ▾ open under its button (`views-<theme>.png`: five views, the one shown here ticked;
-  `-view`, a view's level; `-icon`, its icon picker; `-colour`; `-rename`, its name's field level, and
-  `-delete`, its "are you sure?" level; `-drag`, a view's row dragged, its drop line; `-many`,
-  `-many-end` and `-many-view`, 40 views: the rows scroll inside the one rectangle) and Display ▾
-  (`display-<theme>.png`, `-viewbar`, `-position`, `-bar-views`, `-new`, `-showon`: three displays,
-  one switched off), over stand-in hosts that reach neither the displays nor the user's state;
-  `--only bar` draws these alone.
+  draws View ▾ open under its crumb (`views-<theme>.png`: the shown view's lines; `-icon`, its icon
+  picker; `-colour`; `-rename`, its name's field level; `-delete`, its "are you sure?" level;
+  `-manage`, Manage views; `-manage-rename` and `-manage-delete`, a view's tools; `-drag`, a view's
+  row dragged in Manage views, its drop line; `-many` and `-many-end`, 40 views: the rows scroll
+  inside the one rectangle) and Display ▾ (`display-<theme>.png` with the views to show, `-viewbar`,
+  `-position`, `-bar-views`, `-new`, `-showon`: three displays, one switched off), over stand-in
+  hosts that reach neither the displays nor the user's state; `--only bar` draws these alone.
 
 Needs a live pass: View ▾ and Display ▾ on every display at mixed DPI and with a top taskbar; a
 click on a view showing it and opening its level; dragging a view's row ([S-3747]: the list holds the
@@ -1651,8 +1701,9 @@ plugged in while Display ▾ is open; a long list of views scrolling under the b
 After Karpo's rule (`karpo-app`, `docs/widgets.md` §351, `OptionLinks.cs`; user request 2026-10-26:
 "global settings are linked to and not repeated in the widget menus, so that it is clear when i am
 editing a global setting vs local widget setting; settings should generally not be repeated").
-Owning files: SDK `Modules/SettingLink.cs`, `WidgetMenuLines.Link`; tests `WidgetMenuLinesTests`
-(`S3749_`).
+Owning files: SDK `Modules/SettingLink.cs`, `WidgetMenuLines.Link`; Core `Shell/EditBarSnap.cs`;
+tests `WidgetMenuLinesTests` (`S3749_`), Core `SettingsMenuTests.Ownership.cs` and Modules
+`SettingOwnershipTests` (`S3592_`).
 
 - **[S-3590]** Every setting is at **one level** — a widget's (its properties menu, [S-3716]), a
   view's (View ▾), a display's (Display ▾) or Themia's as a whole (⚙) — and that level's menu alone
@@ -1663,6 +1714,34 @@ Owning files: SDK `Modules/SettingLink.cs`, `WidgetMenuLines.Link`; tests `Widge
   Place name line, [S-3101], set it a second time and are gone). A card's own look (the Appearance
   foot, [S-3739]) is a level of its own over the look every widget shares (⚙ › Appearance): its
   Default is that look, so it is an override, not a copy.
+- **[S-3591]** Who sets what, after the audit of every bar menu and every widget's menu (2026-10-26):
+  ⚙ (Themia as a whole): start with Windows, the desktop icons, pausing in full screen, the look every
+  widget shares, the accounts, the language and the regional formats (time format, start of week,
+  temperature unit), how often each kind of online source is asked, the licence, the settings file.
+  Display ▾ (one display): the view it shows, its widget scale, its view bar; and what every display
+  shares (new displays, where Themia is on). View ▾ (one view): its name, icon, colour, order.
+  The edit bar: snap. A widget's menu: what is its own (its place, its zone, its feeds, its look's
+  options, its card's own look). What went: Snap in ⚙ › Appearance › Layout and in the surface menu
+  ([S-3516]); the app-wide widget scale (`Design.UiScale`, the display's scale for every display
+  under the same words, [S-6532]); switching views in View ▾ (Display ▾'s, [S-3543]); "Duplicate
+  this view" beside a view's own Duplicate view; the weather's Location name switch and the sky's
+  Place name, second ways to the header's title ([S-2849], [S-3101]). Links added ([S-3749]): Time
+  format (Clock), Start of week (Calendar's month, week and year; Week planner), Temperature unit
+  (Weather now, Forecast), Update interval (Weather now, Forecast, Rain, Stocks, Feed). Followed now
+  that was not: the alarm's days start on the start of the week ([S-4631]), a note's own font size
+  composes with the text size ([S-1349]). Left as they are, each the one place it is set: the
+  screen-time limits and hidden apps (one store, set from any screen-time widget's menu, each saying
+  it is shared, [S-3322]); a clipboard widget's Entries kept (its own, the history keeping the most
+  any widget asks); a quote's change cadence and a video stream's refresh (their own, no ⚙ row).
+- **[S-3592]** The guard (Karpo's `NoSettingIsSetAtTwoLevels`): Core runs every setting line of ⚙,
+  Display ▾ and View ▾ and the bar's Snap one at a time on a state of its own and reads what each
+  wrote off the state file's shape: no field is written from two levels (a view's name, on its Name
+  row and its row of Manage views, is View ▾'s twice by design), every field of the look and the
+  behaviour has its level, no two menus call a setting by the same words, and snap is the bar's
+  alone. Modules builds every widget's menu: no line sets something under the words of a setting the
+  bar's menus or the card's own rows set unless it is a link (a focus session's Length is its own),
+  and no widget's config has a field of a type only a higher level holds (a temperature scale, a
+  clock, a week start, a cadence, a theme, a language).
 
 ### The edit bar's Accounts (SETTINGS-ACCOUNTS)
 
@@ -2293,8 +2372,9 @@ rules in Core `Model/QuickSet.cs` and `Geometry/StripPlacement.cs` and the SDK's
   it goes and the release sets every selected widget (`QuickSet.SetScale`) in one `Mutate`, one
   undo step; a key steps it by 5 %.
 - **[S-6532]** The scale a card's content is drawn at (`WidgetScale.Effective`) is the display's
-  scale ([S-850]) × the app-wide widget scale (`Design.UiScale`) × the widget's own, each factor
-  that is not a positive number read as 1. It is the one input to the card's content transform:
+  scale ([S-850]) × the widget's own, a display factor that is not a positive number read as 1
+  ([S-3590]: the app-wide widget scale, `Design.UiScale`, was the display's scale for every display
+  at once under the same name, and is gone). It is the one input to the card's content transform:
   the content is laid out at cell ÷ effective scale, so the size ladder ([S-660]) classifies and
   discloses on the scaled box — a widget at 150 % shows what a smaller card would ([S-663]).
 - **[S-6533]** Load validation repairs a stored scale outside 50–200 % or off the 5 % grain to the
@@ -4479,8 +4559,8 @@ model that keeps widgets still when the taskbar changes (S-840..S-859).
 - **[S-850]** Per-display **widget scale** (`MonitorScales`, 50–200 %, 100 % stored as no entry)
   magnifies widget content only: the card's cell stays where it is and the same size, the content is
   laid out at cell ÷ scale and render-scaled back up, so a view discloses less at a bigger scale
-  ([S-663]). The app-wide widget scale (`Design.UiScale`) and each widget's own ([S-6532])
-  multiply in through the same path.
+  ([S-663]). Each widget's own ([S-6532]) multiplies in through the same path; there is no
+  app-wide one ([S-3590]).
 - **[S-851]** The hit region never covers the taskbar: it is cut to the work area in normal mode,
   and is the work area itself (not the whole window) in edit mode. A widget the taskbar has grown
   over is clipped there (`SetWindowRgn` clips painting as well as input) rather than moved. This
@@ -6651,7 +6731,7 @@ toolbar's snap switch. Rules in Core `ViewOps` and `ViewBarRules` (tests `ViewsT
 - **[S-904]** In edit mode only, Ctrl+1..Ctrl+9 (and the keypad digits) show the n-th view on the
   display under the pointer (the one a paste lands on, [S-74]), or this one. Outside edit mode
   Themia takes no digits: there is no global hotkey (audit B6).
-- **[S-905]** The edit toolbar has a Snap toggle for `Design.GridSnap`, kept in step with Settings.
+- **[S-905]** The edit bar's Snap toggle sets `Design.GridSnap`, and nothing else does ([S-3516]).
 - **[S-906]** Each display has its own view bar settings (`AppState.ViewBars`, keyed like
   `MonitorViews`): anchor (default bottom left), size M/L/XL, names or icons only, hidden, and a
   whitelist of views. A display without an entry uses the defaults and nothing is stored until it
@@ -6683,11 +6763,11 @@ toolbar's snap switch. Rules in Core `ViewOps` and `ViewBarRules` (tests `ViewsT
   display's anchor. A 4-DIP threshold separates a click from a drag.
 - **[S-914]** In edit mode a chip dragged along the bar slides into the slot whose centre is nearest
   the pointer (also past the ends); release commits the move ([S-901]); a lost capture undoes it.
-- **[S-915]** In edit mode a chip's right-click menu offers Duplicate view and View settings (View ▾ at the chip's view, [S-3546]); outside
+- **[S-915]** In edit mode a chip's right-click menu offers Duplicate view and View settings (the chip's view shown here, then View ▾, [S-3546]); outside
   edit mode it has none. A click always shows the chip's view on this display.
 - **[S-916]** A display's view bar is set in its Display ▾ › View bar › ([S-3544]): Show the view bar,
   Style ([S-5400]), Position (8 anchors), Size, Show view names, and Views on the bar. A view is
-  shown on a display through `ShowViewOn` (View ▾, [S-3541]).
+  shown on a display through `ShowViewOn` (Display ▾, [S-3543]).
 - **[S-917]** The bar never runs off its display (user bug: with many views it ran past the edge).
   Its room along its axis (`ViewBarRules.Room`) is the work area's width (a row) or height (a
   column) less the 16-DIP margin at both ends; a column in edit mode also gives up the toolbar's
@@ -7222,11 +7302,11 @@ Tests: `ContextMenuTests`, `MenuShortcutAndArtTests`.
   `ShellMenus.ForCard`; tests `S1758_`.
 - **[S-1744]** In edit mode a right-click on **empty surface** (not a card, the toolbar or the view
   bar) opens the surface menu, a list with no icon row (Paste is its one row command, and one is
-  none, [S-1741]), the edit bar's way in first and in the bar's order: **Add widget** (opens the
-  picker at the click, whose choice then follows the pointer to be placed, [S-1587]), **View**,
-  **Display** and **Settings** (the bar's View ▾, Display ▾ and ⚙ menus, each opened under its
-  button on that display, [S-3540], [S-3534]); then Paste and Select all ([S-1582], off with no
-  widget); Snap to grid (checked when on, [S-06]); and Done editing. Outside edit
+  none, [S-1741]), an action menu that holds no setting ([S-3590]): **Add widget** (opens the picker
+  at the click, whose choice then follows the pointer to be placed, [S-1587]), **Paste** and **Select
+  all** ([S-1582], off with no widget); then the ways into the bar's menus in the bar's order,
+  **Display**, **View** and **Settings** (each opened under its button on that display, [S-3540],
+  [S-3534]); and Done editing. Snap is not here: it is the bar's alone ([S-3516]). Outside edit
   mode empty surface is click-through; while placing, the right-click cancels the placement and opens
   nothing.
 - **[S-1745]** In edit mode a press on a card that travels 3 DIPs or more (`CardGestures.Travelled`)
