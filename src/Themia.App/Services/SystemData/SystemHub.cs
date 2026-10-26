@@ -144,6 +144,12 @@ internal sealed partial class SystemHub : ISystemFeeds, IDisposable
     {
         var feed = _feeds.Join(key, out var created);
 
+        // [S-437] The first watch: a widget on screen reads it now (before its first read below).
+        if (_feeds.Holders(key) == 1)
+        {
+            feed.Held(true);
+        }
+
         if (created)
         {
             // A new feed is read now, through the due path, so nothing reads twice. A feed made from
@@ -195,6 +201,11 @@ internal sealed partial class SystemHub : ISystemFeeds, IDisposable
         {
             Close(gone);
             UpdateTicker();
+        }
+        else if (_feeds.Holders(feed.Key) == 0)
+        {
+            // [S-437] The last watch let go of a feed a hidden view still wants.
+            feed.Held(false);
         }
     }
 

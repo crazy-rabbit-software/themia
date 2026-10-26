@@ -218,6 +218,9 @@ internal static class SwitchCheck
                     Say(Measure($"round {round}", host));
                 }
 
+                // What lets go a sample later (the NVIDIA library, [S-437]) has let go by now.
+                await Task.Delay(3000).ConfigureAwait(true);
+                Say(Measure("empty view after 3 s more", host));
                 return;
             }
 
@@ -326,7 +329,24 @@ internal static class SwitchCheck
             $"views attached {LiveCensus.Attached,4} (live {live})  ticks {host.Ticker.SubscriptionCount,3}  " +
             $"system feeds {system?.FeedCount ?? 0,3} (wanted {system?.WantedCount ?? 0}, series {system?.SeriesCount ?? 0})  " +
             $"gallery sources {AppServices.Gallery?.SourceCount ?? 0,2} (lingering {AppServices.Gallery?.LingeringCount ?? 0}, pictures {AppServices.Gallery?.Pictures.Count ?? 0}, {(AppServices.Gallery?.Pictures.Bytes ?? 0) / mb:0.0} MB)  " +
-            $"icons {AppIcons.Count,3}  {NativeHeaps.Describe()}  threads {process.Threads.Count,3}  handles {process.HandleCount,5}{verdict}";
+            $"icons {AppIcons.Count,3}  {NativeHeaps.Describe()}  threads {process.Threads.Count,3}  handles {process.HandleCount,5}  " +
+            $"nvml {LoadedCount(process, "nvml.dll")}{verdict}";
+    }
+
+    /// <summary>[S-437] How many modules of that file name the process has loaded (the NVIDIA driver library: 0 when no GPU widget is shown).</summary>
+    private static int LoadedCount(Process process, string fileName)
+    {
+        var count = 0;
+
+        foreach (ProcessModule module in process.Modules)
+        {
+            using (module)
+            {
+                count += string.Equals(module.ModuleName, fileName, StringComparison.OrdinalIgnoreCase) ? 1 : 0;
+            }
+        }
+
+        return count;
     }
 
     /// <summary>[S-6611] The GC's gen0 budget ceiling, which the embedded gen0 size lowers (the GC does not list that setting itself).</summary>

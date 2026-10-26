@@ -31,6 +31,9 @@ internal sealed partial class SystemHub
         /// <summary>[S-2513] Hand the source what the views want (<see cref="HubSource.Want"/>).</summary>
         public abstract void Want(SystemInterests interests);
 
+        /// <summary>[S-437] Tell the source whether a watch holds it (<see cref="HubSource.Held"/>).</summary>
+        public abstract void Held(bool held);
+
         /// <summary>
         /// The series for an instance, made on first ask (a watch, or the state wanting it). A new
         /// series gets the newest snapshot's reading at once, without a point.
@@ -246,6 +249,23 @@ internal sealed partial class SystemHub
             catch (Exception ex)
             {
                 Log.Error(Scope, $"{Key} could not take the views' interests", ex);
+            }
+        }
+
+        public override void Held(bool held)
+        {
+            if (Closed)
+            {
+                return;
+            }
+
+            try
+            {
+                reader.Held(held);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(Scope, $"{Key} could not take whether a widget shows it", ex);
             }
         }
 

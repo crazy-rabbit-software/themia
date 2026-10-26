@@ -44,6 +44,17 @@ internal abstract class HubSource
     {
     }
 
+    /// <summary>
+    /// [S-437] Whether any watch holds the feed now: a widget on a view a display shows ([S-1880]) or a
+    /// render, as against one only in a hidden view, which the state's want keeps read ([S-2513]).
+    /// Called when the first watch joins and when the last one lets go of a feed that lives on; for a
+    /// source that holds something only a figure on screen needs (the NVIDIA library). Close lets go of
+    /// both.
+    /// </summary>
+    public virtual void Held(bool held)
+    {
+    }
+
     /// <summary>Give it back; nothing reads after this. Called once.</summary>
     public virtual void Close()
     {

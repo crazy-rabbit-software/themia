@@ -2622,8 +2622,24 @@ Ported from `widgets/system/{gpu,mixer,screentime}` on `main`. Owning files:
 - **[S-435]** On NVIDIA cards the driver's management library (`nvml.dll`, loaded with
   `NativeLibrary`, called through function pointers) is asked for the load too, and it wins over the
   counters (a borderless full-screen game collapses the 3D counter). Matched to the DXGI adapter by
-  name (the n-th of identical cards), never guessed among several. Loaded once per sampler session;
-  any failure leaves the counters' figure.
+  name (the n-th of identical cards), never guessed among several. Held only while a GPU widget is
+  shown ([S-437]); any failure leaves the counters' figure.
+- **[S-437]** The NVIDIA library is opened only while a GPU widget is **on screen**: a watch holds the
+  hub's GPU feed (a widget on a view a display shows, or a render; `HubSource.Held`), not merely the
+  state's want ([S-2513] still samples a GPU widget in a hidden view, with the counters' figure). The
+  sampler's next sample opens it (`GpuDriverDemand`, on the sample's single flight, so it is never
+  opened or freed under a call): a widget coming on screen reads the driver's figure from that sample,
+  a second at most after it appears, the counters' until then. The sample after the last one leaves
+  the screen shuts it down and unloads it; so does the sampler closing. A library that would not
+  open is tried again only on a later showing, not every second. It is loaded from the driver's own
+  folder, which the graphics kernel names for the adapter (`D3DKMTQueryAdapterInfo`,
+  `D3DDDI_QUERYREGISTRY_DRIVERSTOREPATH`, `GpuDriverLibrary`): System32's `nvml.dll` is, with a DCH
+  driver, a loader that loads that copy and never lets go of it or itself, so freeing it after
+  `nvmlShutdown` left about 16 of the 18 MB initialising costs. System32's loader and the old NVSMI
+  folder remain the fallbacks (the loader then stays loaded, logged). Switch check over a state whose
+  GPU widgets are only in hidden views ([S-1883], Debug AOT): 125 MB private at start, now 106 MB,
+  and no `nvml.dll` loaded; with the GPU details view shown and emptied again, 147 MB, now 127 MB,
+  and the module gone.
 
 - **[S-6322]** **Engines**: a row per engine type ([S-6304]) in the order 3D, Copy, Video encode,
   Video decode, for the types the adapter's counters list (an engine at 0 % is still listed; other
@@ -4988,7 +5004,8 @@ Tests `SystemDataHubTests` (`S25xx_`).
   its charts with their history and its details already read; nothing starts when a widget is first
   looked at. A widget's view watches through the same rule (`SystemInterests.For`). The public address
   is wanted only by a details widget with it switched on ([S-2417]). The cost is bounded by what the
-  views hold, and the hub's ticker stops with the desktop.
+  views hold, and the hub's ticker stops with the desktop. One thing waits for a widget on screen:
+  the NVIDIA library a GPU widget's load comes from ([S-437]).
 
 ## System details (SYS-DETAILS)
 

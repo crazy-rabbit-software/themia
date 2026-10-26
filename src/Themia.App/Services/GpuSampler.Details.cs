@@ -1,5 +1,7 @@
+using System.Buffers.Binary;
 using System.Runtime.InteropServices;
 using Themia.Core.Diagnostics;
+using Themia.Core.SystemData;
 using Themia.Core.Widgets;
 
 namespace Themia.App.Services;
@@ -24,6 +26,22 @@ internal static partial class GpuSampler
         private const int NodePerfData = 61;
         private const int AdapterPerfData = 62;
         private const int AdapterPerfDataCaps = 63;
+
+        /// <summary>KMTQAITYPE_QUERYREGISTRY and its D3DDDI_QUERYREGISTRY_DRIVERSTOREPATH query.</summary>
+        private const int QueryRegistry = 48;
+        private const int DriverStorePathQuery = 2;
+
+        /// <summary>
+        /// D3DDDI_QUERYREGISTRY_INFO: QueryType, QueryFlags, ValueName[260], ValueType,
+        /// PhysicalAdapterIndex, OutputValueSize, Status, then the output (8-aligned): 552 bytes in all.
+        /// </summary>
+        private const int RegistryInfoSize = 552;
+        private const int RegistryOutputSizeOffset = 536;
+        private const int RegistryStatusOffset = 540;
+        private const int RegistryOutputOffset = 544;
+        private const int RegistrySuccess = 0;
+        private const int RegistryOverflow = 1;
+        private const int MaxRegistryOutput = 64 * 1024;
 
         private readonly Dictionary<string, uint> _handles = new(StringComparer.OrdinalIgnoreCase);
         private readonly Dictionary<string, byte[]> _caps = new(StringComparer.OrdinalIgnoreCase);
@@ -74,6 +92,68 @@ internal static partial class GpuSampler
             }
 
             return GpuDetailRules.ParseSensors(haveAdapter ? adapter : [], haveNode ? node : [], _caps.GetValueOrDefault(luid) ?? []);
+        }
+
+        /// <summary>
+        /// [S-437] Each opened adapter's driver store folder, as the graphics kernel names it
+        /// (<see cref="GpuDriverLibrary.Win32Path"/> turns it into a path); an adapter whose driver will
+        /// not say is left out.
+        /// </summary>
+        public List<string> DriverStores()
+        {
+            var stores = new List<string>();
+
+            foreach (var handle in _handles.Values)
+            {
+                if (!_disposed && DriverStore(handle) is { } store)
+                {
+                    stores.Add(store);
+                }
+            }
+
+            return stores;
+        }
+
+        /// <summary>
+        /// KMTQAITYPE_QUERYREGISTRY with D3DDDI_QUERYREGISTRY_DRIVERSTOREPATH: a
+        /// D3DDDI_QUERYREGISTRY_INFO whose output string follows its fixed part. Asked with room for a
+        /// long path first; a driver that says the buffer overflowed is asked once more with the size it
+        /// named.
+        /// </summary>
+        private static string? DriverStore(uint adapter)
+        {
+            var size = RegistryInfoSize + 1024;
+
+            for (var attempt = 0; attempt < 2; attempt++)
+            {
+                var info = new byte[size];
+                BinaryPrimitives.WriteInt32LittleEndian(info, DriverStorePathQuery);
+
+                if (!Query(adapter, QueryRegistry, info))
+                {
+                    return null;
+                }
+
+                var status = BinaryPrimitives.ReadInt32LittleEndian(info.AsSpan(RegistryStatusOffset));
+                var length = BinaryPrimitives.ReadUInt32LittleEndian(info.AsSpan(RegistryOutputSizeOffset));
+
+                if (status == RegistryOverflow && length is > 0 and <= MaxRegistryOutput)
+                {
+                    size = RegistryInfoSize + (int)length;
+                    continue;
+                }
+
+                if (status != RegistrySuccess || length > size - RegistryOutputOffset)
+                {
+                    return null;
+                }
+
+                var text = MemoryMarshal.Cast<byte, char>(info.AsSpan(RegistryOutputOffset, (int)length & ~1));
+                var end = text.IndexOf('\0');
+                return new string(end >= 0 ? text[..end] : text);
+            }
+
+            return null;
         }
 
         private static bool Query(uint adapter, int type, byte[] data)

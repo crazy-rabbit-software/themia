@@ -2,6 +2,7 @@ using System.Diagnostics;
 using System.Runtime.InteropServices;
 using Themia.Core.Diagnostics;
 using Themia.Core.Localization;
+using Themia.Core.SystemData;
 using Themia.Core.Widgets;
 
 namespace Themia.App.Services;
@@ -24,9 +25,9 @@ namespace Themia.App.Services;
 /// <para>
 /// <b>NVIDIA.</b> When the driver's management library is present it is asked too ([S-435]): its
 /// load figure is the true one for a borderless full-screen game, where the 3D counter reads near
-/// zero. It is
-/// loaded with <see cref="NativeLibrary"/> and called through function pointers, so a machine
-/// without it costs one failed <c>LoadLibrary</c> and nothing else.
+/// zero. It is loaded with <see cref="NativeLibrary"/> from the driver's own folder and called through
+/// function pointers, and held only while a GPU widget is shown ([S-437], <see cref="Show"/>): a
+/// machine without it costs one failed look per showing and nothing else.
 /// </para>
 /// <para>
 /// <b>Shared and lazy.</b> One query, opened when the system hub's GPU source opens and closed when
@@ -42,6 +43,7 @@ internal static partial class GpuSampler
     private static readonly Lock Gate = new();
 
     private static int _users;
+    private static int _shown;
     private static Session? _session;
     private static Task<GpuSnapshot>? _inFlight;
 
@@ -103,6 +105,27 @@ internal static partial class GpuSampler
     }
 
     /// <summary>
+    /// [S-437] A GPU widget came on screen (a watch holds the hub's GPU feed). The next sample opens
+    /// the NVIDIA library if it is not open. Pair every call with <see cref="Hide"/>.
+    /// </summary>
+    public static void Show()
+    {
+        lock (Gate)
+        {
+            _shown++;
+        }
+    }
+
+    /// <summary>[S-437] It left the screen. Once none is shown, the next sample closes the library and unloads it.</summary>
+    public static void Hide()
+    {
+        lock (Gate)
+        {
+            _shown = Math.Max(0, _shown - 1);
+        }
+    }
+
+    /// <summary>
     /// A sample of every adapter: the one being taken when there is one, otherwise a new one. Never
     /// faults: a failure is logged and reads as no adapters.
     /// </summary>
@@ -126,10 +149,16 @@ internal static partial class GpuSampler
     private static GpuSnapshot Take(Session session)
     {
         GpuSnapshot snapshot;
+        bool shown;
+
+        lock (Gate)
+        {
+            shown = _shown > 0;
+        }
 
         try
         {
-            snapshot = session.Sample();
+            snapshot = session.Sample(shown);
         }
         catch (Exception ex)
         {
@@ -152,27 +181,59 @@ internal static partial class GpuSampler
     public static IReadOnlyList<GpuAdapter> Adapters() => Dxgi.Enumerate();
 
     /// <summary>
-    /// The open counters and driver library. Used by one sample at a time — <see cref="SampleAsync"/>
-    /// never runs two — and disposed only once no sample can still be using it.
+    /// The open counters and, while a GPU widget is shown, the driver library. Used by one sample at a
+    /// time — <see cref="SampleAsync"/> never runs two — and disposed only once no sample can still be
+    /// using it, so the library is opened, read and closed on that one flight and never freed under a
+    /// call ([S-437]).
     /// </summary>
     private sealed class Session : IDisposable
     {
         private readonly IReadOnlyList<GpuAdapter> _adapters;
         private readonly GpuCounters? _counters;
-        private readonly Nvml? _nvml;
         private readonly GpuKernel _kernel;
+        private readonly GpuDriverDemand _demand = new();
+        private Nvml? _nvml;
         private bool _baselined;
 
         public Session()
         {
             _adapters = Dxgi.Enumerate();
             _counters = GpuCounters.Open();
-            _nvml = Nvml.TryOpen();
             _kernel = new GpuKernel(_adapters);
         }
 
-        public GpuSnapshot Sample()
+        /// <summary>[S-437] Open or close the driver library as the screen asks, before this sample reads.</summary>
+        private void Reconcile(bool shown)
         {
+            switch (_demand.Before(shown))
+            {
+                case DriverStep.Open:
+                    var windows = Environment.GetFolderPath(Environment.SpecialFolder.Windows);
+                    _nvml = Nvml.TryOpen(GpuDriverLibrary.Candidates(
+                        _kernel.DriverStores().Select(store => GpuDriverLibrary.Win32Path(store, windows)).OfType<string>(),
+                        Environment.SystemDirectory,
+                        Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles)));
+                    _demand.Opened(_nvml is not null);
+                    break;
+
+                case DriverStep.Close:
+                    CloseDriver("no GPU widget is shown");
+                    break;
+            }
+        }
+
+        private void CloseDriver(string why)
+        {
+            _nvml?.Dispose();
+            _nvml = null;
+            _demand.Closed();
+            Log.Debug(Scope, $"closed the NVIDIA driver library: {why}");
+        }
+
+        public GpuSnapshot Sample(bool shown)
+        {
+            Reconcile(shown);
+
             var engines = _counters?.Engines() ?? [];
             var dedicated = _counters?.Dedicated() ?? [];
             var shared = _counters?.Shared() ?? [];
@@ -223,7 +284,12 @@ internal static partial class GpuSampler
         public void Dispose()
         {
             _counters?.Dispose();
-            _nvml?.Dispose();
+
+            if (_demand.End() == DriverStep.Close)
+            {
+                CloseDriver("the GPU widgets are gone");
+            }
+
             _kernel.Dispose();
         }
     }
@@ -416,8 +482,9 @@ internal static partial class GpuSampler
 
     /// <summary>
     /// [S-435] The NVIDIA management library, if this machine has it: the true load of a card in a
-    /// borderless full-screen game. Initialised once per session and shut down with it; a failure at
-    /// any point leaves the counters' figure.
+    /// borderless full-screen game. [S-437] Initialised when a GPU widget comes on screen and shut down
+    /// and unloaded when the last one leaves it (or the session ends); a failure at any point leaves the
+    /// counters' figure.
     /// </summary>
     private sealed unsafe class Nvml : IDisposable
     {
@@ -441,20 +508,35 @@ internal static partial class GpuSampler
             _utilization = (delegate* unmanaged<nint, uint*, int>)NativeLibrary.GetExport(library, "nvmlDeviceGetUtilizationRates");
         }
 
-        /// <summary>The library, initialised, or null on any machine without a working NVIDIA driver.</summary>
-        public static Nvml? TryOpen()
+        /// <summary>
+        /// The library, initialised, from the first of <paramref name="candidates"/> that exists and
+        /// loads (<see cref="GpuDriverLibrary.Candidates"/>: the driver's own folder first, so freeing
+        /// it unloads it), or null on any machine without a working NVIDIA driver. Only the first
+        /// library that loads is started: the others are the same driver's.
+        /// </summary>
+        public static Nvml? TryOpen(IReadOnlyList<string> candidates)
         {
-            // System32 is where every current driver installs it; the NVSMI folder is the old home.
-            var system = Path.Combine(Environment.SystemDirectory, "nvml.dll");
-            var legacy = Path.Combine(
-                Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles),
-                "NVIDIA Corporation", "NVSMI", "nvml.dll");
-
-            if (!NativeLibrary.TryLoad(system, out var library) && !NativeLibrary.TryLoad(legacy, out library))
+            foreach (var candidate in candidates)
             {
-                return null;
+                if (!File.Exists(candidate) || !NativeLibrary.TryLoad(candidate, out var library))
+                {
+                    continue;
+                }
+
+                if (GpuDriverLibrary.IsLoader(candidate, Environment.SystemDirectory))
+                {
+                    // The graphics kernel named no driver folder that has it: the loader works, but stays loaded.
+                    Log.Info(Scope, "the NVIDIA driver library is loaded through System32's loader, which stays loaded after it is closed");
+                }
+
+                return Start(library, candidate);
             }
 
+            return null;
+        }
+
+        private static Nvml? Start(nint library, string path)
+        {
             try
             {
                 var init = (delegate* unmanaged<int>)NativeLibrary.GetExport(library, "nvmlInit_v2");
@@ -467,7 +549,9 @@ internal static partial class GpuSampler
                     return null;
                 }
 
-                return new Nvml(library);
+                var nvml = new Nvml(library);
+                Log.Debug(Scope, $"opened the NVIDIA driver library: {path}");
+                return nvml;
             }
             catch (EntryPointNotFoundException ex)
             {
@@ -547,7 +631,15 @@ internal static partial class GpuSampler
             }
 
             _disposed = true;
-            _shutdown();
+            var status = _shutdown();
+
+            if (status != Success)
+            {
+                // Unloading a library that did not stop could pull its code from under a thread of its own.
+                Log.Warn(Scope, $"the NVIDIA driver library would not shut down (status {status}); leaving it loaded");
+                return;
+            }
+
             NativeLibrary.Free(_library);
         }
     }

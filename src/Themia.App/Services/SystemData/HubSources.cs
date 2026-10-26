@@ -246,10 +246,15 @@ internal sealed partial class SystemHub
         public override BatteryPack? Read() => SystemMetrics.Battery() is { HasBattery: true } ? BatteryDevice.Read() : null;
     }
 
-    /// <summary>[S-431] Every adapter, on the pool, one sample at a time; the instance is an adapter's DXGI position.</summary>
+    /// <summary>
+    /// [S-431] Every adapter, on the pool, one sample at a time; the instance is an adapter's DXGI
+    /// position. [S-437] While a watch holds it, a GPU widget is on screen and the sampler opens the
+    /// NVIDIA library for it.
+    /// </summary>
     private sealed class GpuSource : HubSource<GpuSnapshot>
     {
         private bool _held;
+        private bool _shown;
 
         public override bool IsAsync => true;
 
@@ -257,6 +262,25 @@ internal sealed partial class SystemHub
         {
             GpuSampler.Acquire();
             _held = true;
+        }
+
+        public override void Held(bool held)
+        {
+            if (!_held || held == _shown)
+            {
+                return;
+            }
+
+            _shown = held;
+
+            if (held)
+            {
+                GpuSampler.Show();
+            }
+            else
+            {
+                GpuSampler.Hide();
+            }
         }
 
         public override Task<GpuSnapshot> ReadAsync(CancellationToken token) => GpuSampler.SampleAsync();
@@ -284,6 +308,8 @@ internal sealed partial class SystemHub
 
         public override void Close()
         {
+            Held(false);
+
             if (_held)
             {
                 _held = false;
