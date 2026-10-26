@@ -32,6 +32,19 @@ public sealed class NotesMenuTests
 
     private static ItemMenuEntry Line(WidgetMenuLines lines, string text) => lines.Lines.Single(l => l.Text == text);
 
+    [Theory]
+    [InlineData(13, 1.0, 13)]
+    [InlineData(13, 1.5, 19.5)]
+    [InlineData(20, 0.8, 16)]
+    [InlineData(13, double.NaN, 13)]
+    [InlineData(13, 0, 13)]
+    public void S1349_the_note_is_drawn_at_its_own_size_times_the_text_size_every_widget_follows(double own, double textScale, double drawn)
+    {
+        // Regression: the note's editor took its own size alone, so ⚙'s text size reached it only
+        // while it changed and was lost on the next start.
+        Assert.Equal(drawn, new NotesConfig { FontSizePx = own }.DrawnFontSizePx(textScale), 6);
+    }
+
     [Fact]
     public void S1349_appearance_then_note_font_size_and_clear_last()
     {

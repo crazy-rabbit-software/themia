@@ -5,6 +5,8 @@ using Themia.Core.Model;
 using Themia.Core.Widgets;
 using Themia.Sdk.WinUI;
 using Themia.Sdk.WinUI.Kit;
+using Themia.Core.Sync;
+using Themia.Sdk;
 
 namespace Themia.Widget.Rss;
 
@@ -38,6 +40,10 @@ internal static class RssMenu
             new(RssStr.WidgetsC_Rss_Settings_Date_Label.Text(), () => config.ShowDate, on => config.ShowDate = on),
         ]));
         menu.Lines.Add(KitMenuLines.Count(menu, Glyphs.Count, RssStr.WidgetsC_Rss_Settings_Articles.Text(), config.EffectiveMaxItems, 5, 50, 5, value => config.MaxItems = value));
+
+        // [S-3749] How often the feeds are asked: ⚙'s, for every feed widget at once.
+        menu.Lines.Add(ItemMenuEntry.Separator);
+        menu.Lines.Add(menu.Link(new SettingLink(OwnedSetting.OnlineUpdates, HostCadences.Feeds)));
     }
 
     /// <summary>

@@ -44,7 +44,9 @@ languages). Tests: the rules' are Core's; the config's are the module host's (`C
   **Accounts** and **Calendars** (`OfficeMenuLines.CalendarAccounts`, [S-561]) and, after a divider,
   **Show contact birthdays**, offered only while a chosen account has contacts to read them from
   (`OfficeMenuLines.OffersBirthdays`, [S-575], [S-6070]: a CalDAV calendar has no address book, and
-  with no account there is nothing to read).
+  with no account there is nothing to read). A style laid out in weeks (month, week, year) ends its
+  Style lines with a link to **Start of week**, which ⚙ › Language & region alone sets ([S-3749],
+  [S-3590]); the day and the agenda have none.
 
 - **[S-1265]** Week columns ≥64 px spell the weekday; ≥100 px a timed chip shows start–end and its
   location under the title.

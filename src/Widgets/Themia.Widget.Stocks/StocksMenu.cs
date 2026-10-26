@@ -6,6 +6,7 @@ using Themia.Core.Widgets;
 using Themia.Sdk;
 using Themia.Sdk.WinUI;
 using Themia.Widget.Stocks;
+using Themia.Core.Sync;
 
 namespace Themia.App.Shell.Config;
 
@@ -77,6 +78,10 @@ internal static class StocksMenu
             new ColorChoiceOptions { DefaultLabel = StocksStr.WidgetsC_Stocks_Settings_WindowsGreen.Text(), DefaultColor = () => ThemeColor("SystemFillColorSuccessBrush") }));
         lines.Add(menu.Colour(StocksStr.Stocks_DownColor.Text(), config.DownColor, value => config.DownColor = value,
             new ColorChoiceOptions { DefaultLabel = StocksStr.WidgetsC_Stocks_Settings_WindowsRed.Text(), DefaultColor = () => ThemeColor("SystemFillColorCriticalBrush") }));
+
+        // [S-3749] How often the markets are asked: ⚙'s, for every market widget at once.
+        lines.Add(ItemMenuEntry.Separator);
+        lines.Add(menu.Link(new SettingLink(OwnedSetting.OnlineUpdates, HostCadences.Markets)));
     }
 
     /// <summary>

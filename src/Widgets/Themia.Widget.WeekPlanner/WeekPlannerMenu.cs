@@ -6,6 +6,7 @@ using Themia.App.Widgets;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
 using Themia.Sdk.WinUI;
+using Themia.Sdk;
 
 namespace Themia.Widget.WeekPlanner;
 
@@ -14,7 +15,8 @@ namespace Themia.Widget.WeekPlanner;
 /// ([S-3723]), every calendar's lines (accounts, calendars and colours, birthdays: [S-561], the SDK's
 /// <see cref="OfficeMenuLines"/>; birthdays while a chosen account has contacts), then today's
 /// tasks: whether they show, and from which account while they do and there is more than one to
-/// choose ([S-6074]). It has no settings page.
+/// choose ([S-6074]); then a link to the start of the week its columns follow ([S-3749]). It has no
+/// settings page.
 /// </summary>
 internal static class WeekPlannerMenu
 {
@@ -43,6 +45,9 @@ internal static class WeekPlannerMenu
             menu.Lines.Add(menu.Choice(Glyphs.Contact, WeekPlannerStr.Planner_TaskAccount.Text(), TaskAccountOptions(planner, taskAccounts), planner.TaskAccountId,
                 id => planner.TaskAccountId = id));
         }
+
+        menu.Lines.Add(ItemMenuEntry.Separator);
+        menu.Lines.Add(menu.Link(new SettingLink(OwnedSetting.WeekStart)));
     }
 
     /// <summary>

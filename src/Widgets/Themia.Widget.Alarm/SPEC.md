@@ -31,8 +31,9 @@ rules and the book under its config are the module host's `AlarmTests`.
 - **[S-4631]** Its options are all on the properties menu ([S-3719], user request 2026-10-19); it
   has no settings page. Appearance ([S-3723]), then in groups apart (dividers, user request
   2026-10-19): when it rings: **Time** (typed in either clock, [S-3738]; anything else refused with
-  the reason; the line shows it in the language's clock), **Repeats on** (a switch per day in the
-  language's week, the days at the end of the line, a note that none rings once) and **Switched on**
+  the reason; the line shows it in the language's clock), **Repeats on** (a switch per day of the
+  week from the start of the week ⚙ › Language & region sets, [S-3770], [S-3590]; the days at the end
+  of the line, a note that none rings once) and **Switched on**
   (a switch); what it says: **Name** (typed, at most 40 characters, empty clears it); how it sounds:
   **Sound** (a choice of off and the twelve ringtones, previewed once), **Volume** (0–100 % in tens,
   only while a sound is chosen, previewed once: silent, a level changes nothing) and **Snooze for**

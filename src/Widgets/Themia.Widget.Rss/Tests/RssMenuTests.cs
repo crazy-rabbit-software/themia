@@ -36,8 +36,12 @@ public sealed class RssMenuTests
                 RssStr.WidgetsC_Rss_Settings_Preview_Label.Text(),
                 RssStr.WidgetsC_Rss_Settings_Date_Label.Text(),
                 RssStr.WidgetsC_Rss_Settings_Articles.Text(),
+                Str.EditBar_Link_UpdateInterval.Text(),
             ],
             lines.Lines.Where(l => !l.IsSeparator).Select(l => l.Text));
+
+        // [S-3749] How often the feeds are asked is ⚙'s: a link, never a setting of the widget's.
+        Assert.Equal(Str.SettingsMenu_OnlineUpdates.Text(), lines.Lines[^1].LinkTo);
         Assert.Empty(lines.StyleLines);
     }
 

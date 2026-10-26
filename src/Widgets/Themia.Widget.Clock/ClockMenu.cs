@@ -4,6 +4,7 @@ using Themia.Core.Model;
 using Themia.Core.Widgets;
 using Themia.Sdk.WinUI;
 using Themia.Widget.Clock;
+using Themia.Sdk;
 
 namespace Themia.App.Shell.Config;
 
@@ -11,7 +12,9 @@ namespace Themia.App.Shell.Config;
 /// [S-1480] The Clock's options, all on its properties menu ([S-3719]): under Style what the look
 /// draws (seconds, the date line, the text size: [S-6074] only the ones the style draws); then
 /// Appearance ([S-3723]) and the time zone, a search ([S-3722]), with the offset line after it on the
-/// same level (what is shown is chosen on the first level, not inside a search). It has no settings page.
+/// same level (what is shown is chosen on the first level, not inside a search); then a link to the
+/// 12- or 24-hour clock every widget tells time on ([S-3749], [S-3590]: ⚙'s, never the clock's own).
+/// It has no settings page.
 /// </summary>
 internal static class ClockMenu
 {
@@ -55,6 +58,9 @@ internal static class ClockMenu
                 ],
                 clock.OffsetMode, value => clock.OffsetMode = value));
         }
+
+        menu.Lines.Add(ItemMenuEntry.Separator);
+        menu.Lines.Add(menu.Link(new SettingLink(OwnedSetting.TimeFormat)));
     }
 
     /// <summary>

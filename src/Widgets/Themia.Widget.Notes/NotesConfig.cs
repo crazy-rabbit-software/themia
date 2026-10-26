@@ -27,6 +27,14 @@ public sealed class NotesConfig : WidgetConfig
     public double EffectiveFontSizePx => double.IsFinite(FontSizePx) ? Math.Clamp(FontSizePx, 8, 48) : 13;
 
     /// <summary>
+    /// [S-1349] The size the note is drawn at: its own size times the text size every widget follows
+    /// (⚙ › Appearance › Text size, <paramref name="textScale"/>), so the two compose and neither is
+    /// lost on a restart; a text size that is not a positive number counts as 100 %.
+    /// </summary>
+    public double DrawnFontSizePx(double textScale)
+        => EffectiveFontSizePx * (double.IsFinite(textScale) && textScale > 0 ? textScale : 1);
+
+    /// <summary>
     /// A copy shows the same note: copy and paste duplicates the window onto the note, not the note
     /// (original S-12 — two views of one document).
     /// </summary>

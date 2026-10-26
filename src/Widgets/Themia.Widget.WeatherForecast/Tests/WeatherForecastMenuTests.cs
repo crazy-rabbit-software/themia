@@ -24,7 +24,7 @@ public sealed class WeatherForecastMenuTests
         var lines = Build(new WeatherForecastConfig());
 
         Assert.Equal(
-            ["-", Str.Shell_Place_UseDevice.Text(), Str.Shell_Place_Location.Text(), "-", WeatherForecastStr.Forecast_DaysLabel.Text(), WeatherForecastStr.WidgetsC_Weather_Settings_ShowPrecipitation_Label.Text()],
+            ["-", Str.Shell_Place_UseDevice.Text(), Str.Shell_Place_Location.Text(), "-", WeatherForecastStr.Forecast_DaysLabel.Text(), WeatherForecastStr.WidgetsC_Weather_Settings_ShowPrecipitation_Label.Text(), "-", Str.Weather_UnitLabel.Text(), Str.EditBar_Link_UpdateInterval.Text()],
             lines.Lines.Select(l => l.IsSeparator ? "-" : l.Text));
     }
 

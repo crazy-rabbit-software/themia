@@ -133,7 +133,9 @@ them). Tests: `Tests/` (run by `tests/Themia.Modules.Tests`).
   ([S-3722]): the machine's own zone first as "Current: …", the cities that match after it (40 at
   most, each with its offset now), the chosen one with the dot, a pick stores the IANA id; after it
   on the same level Offset (None / From UTC / From local; user request 2026-10-19: what is shown is
-  chosen on the first level, never inside a search). (Tests `ClockMenuTests`.)
+  chosen on the first level, never inside a search); after a divider a link to **Time format**, the
+  12- or 24-hour clock every widget tells time on, which ⚙ › Language & region alone sets ([S-3749],
+  [S-3590]; its value what is in force). (Tests `ClockMenuTests`.)
 
 - **[S-1489]** *(Retired: the debug widget gallery and its fixtures are gone, [S-1863].)*
 - **[S-5300]** *(Retired: the Date widget, kind 131, is gone; the weekday and the date, no time,

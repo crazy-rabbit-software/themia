@@ -4,6 +4,7 @@ using Themia.App.Widgets;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
+using Themia.Sdk;
 using Themia.Sdk.WinUI;
 using Themia.Widget.Alarm;
 
@@ -20,7 +21,10 @@ internal static class AlarmMenu
     /// <summary>The steps the volume offers as dots: 0 to 100 in tens.</summary>
     private const int VolumeStep = 10;
 
-    public static void Lines(WidgetMenuLines menu, AlarmConfig alarm)
+    public static void Lines(WidgetMenuLines menu, AlarmConfig alarm) => Lines(menu, alarm, RegionFormat.Current.WeekStart);
+
+    /// <summary>The lines, the week starting on <paramref name="weekStart"/> (⚙ › Language &amp; region's, [S-3590]; a test's own).</summary>
+    internal static void Lines(WidgetMenuLines menu, AlarmConfig alarm, WeekStartDay weekStart)
     {
         ArgumentNullException.ThrowIfNull(menu);
         ArgumentNullException.ThrowIfNull(alarm);
@@ -44,7 +48,7 @@ internal static class AlarmMenu
             },
             Initial: AlarmTimes.Text(AlarmTimes.Minutes(alarm.Time)))), Value: AlarmWords.Time(locale, alarm.Plan), Asks: true));
 
-        menu.Lines.Add(Days(menu, alarm, locale));
+        menu.Lines.Add(Days(menu, alarm, locale, weekStart));
         menu.Lines.Add(menu.Toggle(Glyphs.Bell, AlarmStr.Alarm_Settings_On_Label.Text(), alarm.On, on => alarm.On = on));
 
         // What it says.
@@ -99,14 +103,15 @@ internal static class AlarmMenu
     }
 
     /// <summary>
-    /// [S-4621] Repeats on: a switch per day in the language's week (from its first day), the days at
-    /// the end of the line; none chosen rings once, which the note under the days says.
+    /// [S-4631] Repeats on: a switch per day of the week from the start of the week every widget
+    /// follows ([S-3770]: ⚙ › Language &amp; region's, never the language's own guess), the days at the
+    /// end of the line; none chosen rings once, which the note under the days says.
     /// </summary>
-    private static ItemMenuEntry Days(WidgetMenuLines menu, AlarmConfig alarm, Locale locale)
+    private static ItemMenuEntry Days(WidgetMenuLines menu, AlarmConfig alarm, Locale locale, WeekStartDay weekStart)
     {
         var mask = AlarmDays.Mask(alarm.Days);
         var lines = new List<ItemMenuEntry>(9);
-        foreach (var day in AlarmDays.From(LocaleFormat.FirstDayOfWeek(locale)))
+        foreach (var day in AlarmDays.From(CalendarDays.FirstDay(weekStart)))
         {
             var bit = AlarmDays.Bit(day);
             lines.Add(menu.Toggle(null, LocaleFormat.WeekdayName(locale, day, NameWidth.Wide), AlarmDays.Has(mask, day),

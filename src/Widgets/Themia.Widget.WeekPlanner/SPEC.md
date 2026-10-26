@@ -26,7 +26,8 @@ lines: the SDK's calendar lines, then Today's tasks), `Preview/` (Debug renders:
   from (the first account with tasks, or one account; a chosen account that is signed out stays
   listed by its id, never swapped, [S-590]). With one account with tasks, "the first" is that
   account, so the line is not offered (`WeekPlannerMenu.OffersTaskAccount`, [S-6070]) unless the
-  chosen one has been signed out.
+  chosen one has been signed out. After a divider a link to **Start of week** ([S-3749], [S-3590]:
+  ⚙ › Language & region's, never the planner's own).
   Lists kept on this PC are not offered: the planner is the synced schedule.
 - **[S-5325]** Setup and sync: it asks to be set up only while neither a calendar account nor (when
   it shows tasks) a task account is signed in; with tasks alone it is a week of tasks.

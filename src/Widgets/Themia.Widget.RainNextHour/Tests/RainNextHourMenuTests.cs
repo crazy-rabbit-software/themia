@@ -30,6 +30,7 @@ public sealed class RainNextHourMenuTests
             use => Assert.Equal(Str.Shell_Place_UseDevice.Text(), use.Text),
             location => Assert.Equal(Str.Shell_Place_Location.Text(), location.Text),
             divider => Assert.True(divider.IsSeparator),
+            updates => Assert.Equal((Str.EditBar_Link_UpdateInterval.Text(), Str.SettingsMenu_OnlineUpdates.Text()), (updates.Text, updates.LinkTo)),
             source =>
             {
                 Assert.True(source.Note);

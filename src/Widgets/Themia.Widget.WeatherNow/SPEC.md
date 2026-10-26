@@ -49,7 +49,10 @@ is the example of are in the module test host (`OnlineHostTests`, `SyncHousekeep
   then Appearance ([S-3723]) and behind a divider **Location**, the weather family's search ([S-3722],
   `WeatherPlaceRows.LocationLine`): the chosen place's city at the end of its line (nothing without one), the geocoder asked once typing pauses ([S-2841]), its places as lines (a click picks one,
   resolved once, [S-2840]) or what it said in their place ([S-2843]); under them Clear location
-  (greyed without a place, [S-2848]) and the location-name switch ([S-728]). (Tests `WeatherNowMenuTests`.)
+  (greyed without a place, [S-2848]); the place's city is the header's title ([S-728]). Then behind a
+  divider the links to what it follows and does not set ([S-3749], [S-3590]): **Temperature unit**
+  (⚙ › Language & region) and **Update interval** (⚙ › Online updates › Weather), each with what is in
+  force. (Tests `WeatherNowMenuTests`.)
 
 Needs a live pass: the widget against the real service, offline with a restored shelf, the first-run
 desktop's bare large-icon reading.

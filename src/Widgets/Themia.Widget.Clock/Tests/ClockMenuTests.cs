@@ -26,14 +26,21 @@ public sealed class ClockMenuTests
             Build(new ClockConfig { Style = ClockStyle.Digital }).StyleLines.Select(l => l.Text));
 
     [Fact]
-    public void S1478_appearance_then_the_zone_and_the_offset_after_it_on_the_first_level()
+    public void S1478_appearance_then_the_zone_and_the_offset_after_it_then_the_link_to_the_time_format()
     {
         var lines = Build(new ClockConfig { Style = ClockStyle.Digital });
 
         Assert.Collection(lines.Lines,
             divider => Assert.True(divider.IsSeparator),
             zone => Assert.Empty(zone.Search!.Fixed),
-            offset => Assert.Equal(ClockStr.Clock_OffsetLabel.Text(), offset.Text));
+            offset => Assert.Equal(ClockStr.Clock_OffsetLabel.Text(), offset.Text),
+            divider => Assert.True(divider.IsSeparator),
+            format =>
+            {
+                // [S-3749] The 12- or 24-hour clock is ⚙'s: the clock links to it and never sets its own.
+                Assert.Equal((Str.LanguageRegion_Clock.Text(), Str.LanguageRegion_Nav.Text()), (format.Text, format.LinkTo));
+                Assert.Null(format.Children);
+            });
     }
 
     [Fact]

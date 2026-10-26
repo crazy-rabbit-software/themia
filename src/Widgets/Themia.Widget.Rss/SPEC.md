@@ -55,7 +55,8 @@ sample|single|stale|failed|empty|loading`, sample feeds on the reserved `.exampl
   Remove; Add… asks for an address; both are checked by `WebInput` as they are typed (the trust
   boundary: refused with the reason, never repaired, trimmed when given), and Add… is greyed at 12.
   Then the kit's switches (`KitMenuLines.Shows`): Show source, Show preview, Show date; and
-  **Articles**, 5 to 50 in steps of 5 (`KitMenuLines.Count`, a choice of dots, [S-3726]).
+  **Articles**, 5 to 50 in steps of 5 (`KitMenuLines.Count`, a choice of dots, [S-3726]); after a
+  divider a link to **Update interval** (⚙ › Online updates › Feeds, [S-3749], [S-3590]).
 
 Needs a manual pass: real feeds (RSS and Atom, one on the local network, one failing beside two that
 answer), Refresh with the spinner while it is out, a headline opening in the browser by double-click

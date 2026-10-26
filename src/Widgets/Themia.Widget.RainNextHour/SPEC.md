@@ -25,7 +25,7 @@ lines, JSON context), `RainNextHourConfig.cs`, `RainNextHourView.cs` (it reads t
   where 32 DIP of them and their time line fit, taking the rest of the height.
 - **[S-5127]** Every option is on the properties menu ([S-3719], user request 2026-10-19); there is
   no settings page: Appearance ([S-3723]), then behind a divider each **Location** (the weather family's search, [S-2840],
-  [S-3722]; the place's city is the header's title, [S-728]) and the source's credit, a note
-  ("Source: Open-Meteo").
+  [S-3722]; the place's city is the header's title, [S-728]), a link to **Update interval** (⚙ ›
+  Online updates › Weather, [S-3749]) and the source's credit, a note ("Source: Open-Meteo").
 
 Needs a live pass: the widget against the real service (a rainy hour, a dry one), offline with a restored shelf.

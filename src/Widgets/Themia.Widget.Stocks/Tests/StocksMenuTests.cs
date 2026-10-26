@@ -46,8 +46,11 @@ public sealed class StocksMenuTests
                 string.Empty,
                 StocksStr.Stocks_UpColor.Text(),
                 StocksStr.Stocks_DownColor.Text(),
+                string.Empty,
+                Str.EditBar_Link_UpdateInterval.Text(),
             ],
             lines.Lines.Select(l => l.IsSeparator ? string.Empty : l.Text));
+        Assert.Equal(Str.SettingsMenu_OnlineUpdates.Text(), lines.Lines[^1].LinkTo);
         Assert.Equal("MSFT", lines.Lines[0].Search!.Value);
     }
 

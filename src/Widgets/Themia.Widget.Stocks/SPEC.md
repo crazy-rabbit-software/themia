@@ -70,7 +70,8 @@ own `StocksStr`, 30 languages, its style names included). Tests: `Tests/` (run b
   **Timeframe** (1 day … 10 years), **Dim when closed** (not for a coin, which never closes) and
   **Extended hours** (only a listed symbol over one or five days, [S-1308]: elsewhere there are no
   such bars to ask for, [S-6070]); after another **Rising** and **Falling colour** (Windows green /
-  red by default, [S-1310]). (Tests `StocksMenuTests`.)
+  red by default, [S-1310]); after another a link to **Update interval** (⚙ › Online updates ›
+  Markets, [S-3749], [S-3590]: never a cadence of the widget's own). (Tests `StocksMenuTests`.)
 - **[S-6165]** The stock widget's styles ([S-6000]), `StocksConfig.Style` (`StocksStyle`): **Chart**
   ([S-1311], the default) and **Number**; what was its "Show chart" switch. The period and
   the colours are every style's, the markers the chart's ([S-2778]).

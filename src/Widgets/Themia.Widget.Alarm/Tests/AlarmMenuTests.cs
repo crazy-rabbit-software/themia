@@ -98,6 +98,21 @@ public sealed class AlarmMenuTests
         Assert.Equal(1, _saves);
     }
 
+    [Theory]
+    [InlineData(WeekStartDay.Monday, DayOfWeek.Monday)]
+    [InlineData(WeekStartDay.Sunday, DayOfWeek.Sunday)]
+    [InlineData(WeekStartDay.Saturday, DayOfWeek.Saturday)]
+    public void S4631_the_days_start_on_the_start_of_the_week_language_and_region_sets(WeekStartDay start, DayOfWeek first)
+    {
+        // Regression: the days started on the language's first day, whatever ⚙ › Language & region said.
+        var lines = new WidgetMenuLines(() => _saves++, ask => _asked = ask);
+        AlarmMenu.Lines(lines, new AlarmConfig(), start);
+
+        var days = Line(lines, AlarmStr.Alarm_Settings_Repeat.Text()).Children!.Where(l => !l.IsSeparator && !l.Note).Select(l => l.Text).ToList();
+        Assert.Equal(7, days.Count);
+        Assert.Equal(LocaleFormat.WeekdayName(Strings.Current, first, NameWidth.Wide), days[0]);
+    }
+
     [Fact]
     public void S4631_the_last_day_off_rings_once_again()
     {

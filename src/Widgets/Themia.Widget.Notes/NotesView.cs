@@ -257,7 +257,7 @@ internal sealed partial class NotesView : Grid, IWidgetView, IWidgetSurfaceAware
     {
         _config = config as NotesConfig ?? new NotesConfig();
 
-        _editor.FontSize = _config.EffectiveFontSizePx;
+        _editor.FontSize = _config.DrawnFontSizePx(FluentType.TextScale);
         _editor.Wrap = true;
 
         Resolve();

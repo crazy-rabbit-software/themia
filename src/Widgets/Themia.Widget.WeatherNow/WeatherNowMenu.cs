@@ -4,13 +4,16 @@ using Themia.Core.Model;
 using Themia.Core.Widgets;
 using Themia.Sdk.WinUI;
 using Themia.Widget.WeatherNow;
+using Themia.Core.Sync;
+using Themia.Sdk;
 
 namespace Themia.App.Shell.Config;
 
 /// <summary>
 /// [S-2830] The current-conditions widget's options, all on its properties menu ([S-3719]): under
 /// Style the readings line (the standard style only, [S-6074]); then Appearance ([S-3723]) and the
-/// location's search ([S-3722]) with the location-name switch after it. It has no settings page.
+/// location's search ([S-3722]); then links to the temperature unit and how often the weather is
+/// asked ([S-3749]: ⚙'s, never the widget's own). It has no settings page.
 /// </summary>
 internal static class WeatherNowMenu
 {
@@ -27,5 +30,8 @@ internal static class WeatherNowMenu
         // The look (Style, Appearance), a divider, then the place.
         menu.Lines.Add(ItemMenuEntry.Separator);
         menu.Lines.AddRange(WeatherPlaceRows.Lines(menu, config));
+        menu.Lines.Add(ItemMenuEntry.Separator);
+        menu.Lines.Add(menu.Link(new SettingLink(OwnedSetting.TemperatureUnit)));
+        menu.Lines.Add(menu.Link(new SettingLink(OwnedSetting.OnlineUpdates, HostCadences.Weather)));
     }
 }
