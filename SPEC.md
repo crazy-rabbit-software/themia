@@ -375,6 +375,13 @@ busy desktop ([S-6601]), Debug, private bytes.
   200 pictures of 2 to 24 MP), before and after [S-6602]..[S-6605]: 642 MB private after the soak, now
   395 MB; 769 MB after the showcase rounds, now 443 MB; 539 MB with both displays empty, now 329 MB.
   Working set at the end of the rounds 873 MB, now 560 MB.
+- **[S-6611]** The GC's gen0 budget is 4 MB (`GCgen0size`, compiled into the Native AOT binary as a
+  runtime option, `Themia.App.csproj`), so its ceiling is 6 MB instead of about 15 MB: the managed heap
+  holds a few MB of live objects, and the default budget kept 15 to 25 MB committed for garbage not yet
+  collected. The switch check's first line prints the ceiling in force. Ordinary view
+  ([S-1885]), Debug AOT, with the view emptied again: GC committed 18.7 MB, now 9.4 MB; private
+  141.6 MB, now 132.8 MB. The price is more gen0 collections, each over a heap of a few MB. A JIT
+  build (`dotnet build`) keeps the default.
 
 ## Persistence
 

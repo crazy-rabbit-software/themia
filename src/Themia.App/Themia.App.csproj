@@ -72,6 +72,21 @@
     <IlcArg Include="--preinitstatics" />
   </ItemGroup>
 
+  <!--
+    [S-6611] A small gen0 budget: 4 MB (0x400000: a runtime option is read as hexadecimal, like a
+    DOTNET_GC* variable), so the GC's ceiling is 6 MB instead of about 15 MB. The managed heap holds a few MB of live
+    objects; a widget surface allocates in small bursts, and with the default budget the GC simply
+    kept 15 to 25 MB committed for garbage it had not yet needed to collect. Measured on the switch
+    check: GC committed 26 to 12 MB, private working set 12.7 MB less, no visible cost (a gen0
+    collection of a heap this small is well under a millisecond). Compiled into the binary as a
+    runtime option: GCgen0size has no public runtimeconfig name, so a RuntimeHostConfigurationOption
+    (an AppContext knob) would be ignored; the switch check prints the ceiling it gives. Native AOT
+    only: a JIT build (dotnet build, F5) runs with the default budget.
+  -->
+  <ItemGroup>
+    <IlcArg Include="--runtimeopt:GCgen0size=400000" />
+  </ItemGroup>
+
   <ItemGroup>
     <ProjectReference Include="..\Themia.Core\Themia.Core.csproj" />
     <ProjectReference Include="..\Themia.Sdk.WinUI\Themia.Sdk.WinUI.csproj" />

@@ -171,7 +171,7 @@ internal static class SwitchCheck
 
             await Task.Delay(1000).ConfigureAwait(true);
 
-            Say($"switch-check: {state.Views.Count} views, {state.Views.Sum(v => v.Widgets.Count)} widgets, dwell {dwell} ms");
+            Say($"switch-check: {state.Views.Count} views, {state.Views.Sum(v => v.Widgets.Count)} widgets, dwell {dwell} ms, gen0 budget at most {Gen0Budget()}");
             Say(Measure("start (empty view)", host));
 
             if (busy)
@@ -328,6 +328,12 @@ internal static class SwitchCheck
             $"gallery sources {AppServices.Gallery?.SourceCount ?? 0,2} (lingering {AppServices.Gallery?.LingeringCount ?? 0}, pictures {AppServices.Gallery?.Pictures.Count ?? 0}, {(AppServices.Gallery?.Pictures.Bytes ?? 0) / mb:0.0} MB)  " +
             $"icons {AppIcons.Count,3}  {NativeHeaps.Describe()}  threads {process.Threads.Count,3}  handles {process.HandleCount,5}{verdict}";
     }
+
+    /// <summary>[S-6611] The GC's gen0 budget ceiling, which the embedded gen0 size lowers (the GC does not list that setting itself).</summary>
+    private static string Gen0Budget()
+        => GC.GetConfigurationVariables().TryGetValue("GCGen0MaxBudget", out var budget) && budget is IConvertible value
+            ? $"{value.ToInt64(System.Globalization.CultureInfo.InvariantCulture) / (1024.0 * 1024.0):0.0} MB"
+            : "unknown";
 
     private static IEnumerable<DependencyObject> Descendants(DependencyObject root)
     {
