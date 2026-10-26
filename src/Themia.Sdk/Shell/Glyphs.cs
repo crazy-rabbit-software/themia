@@ -118,6 +118,9 @@ public static class Glyphs
     public static readonly string Signal = From(0xE870);
     public static readonly string Warning = From(0xE7BA);
     public static readonly string Undo = From(0xE7A7);
+
+    /// <summary>[S-3509] The edit bar's Redo, beside Undo.</summary>
+    public static readonly string Redo = From(0xE7A6);
     /// <summary>[S-575] A birthday, in the calendar's time column and chips.</summary>
     public static readonly string Gift = From(0xF133);
     public static readonly string Shuffle = From(0xE8B1);
