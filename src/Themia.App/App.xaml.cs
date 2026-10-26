@@ -214,6 +214,9 @@ public partial class App : Application
         LogFiles.InstallFiles();
         Log.Info(Scope, Autostart.LaunchSource == LaunchSource.Autostart ? "started at sign-in" : "started by hand");
 
+        // [S-6612] Under memory pressure, Themia's pages go before the user's apps'.
+        MemoryPriority.Lower();
+
         var store = new AppStateStore(AppStateStore.DefaultPath());
         var load = store.Load();
 

@@ -171,7 +171,10 @@ internal static class SwitchCheck
 
             await Task.Delay(1000).ConfigureAwait(true);
 
-            Say($"switch-check: {state.Views.Count} views, {state.Views.Sum(v => v.Widgets.Count)} widgets, dwell {dwell} ms, gen0 budget at most {Gen0Budget()}");
+            // [S-6612] As the app does at start, so the process measured is the app's.
+            MemoryPriority.Lower();
+
+            Say($"switch-check: {state.Views.Count} views, {state.Views.Sum(v => v.Widgets.Count)} widgets, dwell {dwell} ms, gen0 budget at most {Gen0Budget()}, memory priority {MemoryPriority.Current()?.ToString(System.Globalization.CultureInfo.InvariantCulture) ?? "unknown"}");
             Say(Measure("start (empty view)", host));
 
             if (busy)

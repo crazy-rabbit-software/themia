@@ -382,6 +382,16 @@ busy desktop ([S-6601]), Debug, private bytes.
   ([S-1885]), Debug AOT, with the view emptied again: GC committed 18.7 MB, now 9.4 MB; private
   141.6 MB, now 132.8 MB. The price is more gen0 collections, each over a heap of a few MB. A JIT
   build (`dotnet build`) keeps the default.
+- **[S-6612]** At start (after the single-instance hand-off) the process lowers its memory priority to
+  below normal (`SetProcessInformation`, `ProcessMemoryPriority`, `MemoryPriority.Lower`), so under
+  memory pressure Windows repurposes Themia's trimmed pages before those of the apps the user works
+  in. Not low: the surface is on screen and redraws every second (the clock, the meters), and pages
+  taken from it before a background indexer's would fault back in on the next tick. A refusal is
+  logged, never fatal. It changes nothing while memory is plentiful; the switch check applies it as
+  the app does and prints the priority in force. Not done, on purpose: EcoQoS
+  (`ProcessPowerThrottling`). It is the whole process or nothing, and the same process plays a
+  video stream, the audio visualizer, the intros and every drag of edit mode; on the efficiency
+  cores at a lower clock those frames come late, and an idle Themia already sleeps between ticks.
 
 ## Persistence
 
