@@ -17,10 +17,13 @@ them). Tests: `Tests/` (run by `tests/Themia.Modules.Tests`).
 - **[S-50]** 24-hour time is zero-padded; 12-hour time is not, and carries AM/PM. Midnight and noon
   read as **12**, not 0.
 - **[S-51]** Hands sweep rather than step: the hour hand advances with the minutes, the minute hand
-  with the seconds.
-- **[S-52]** A clock without seconds (and with a digital face) asks for a **1-minute** cadence. An
-  analog face always needs seconds, because its second hand sweeps. The word and minimal styles
-  never draw seconds, so they never wake for them ([S-6015]).
+  with the seconds while the second hand is shown. A face without its second hand stands its minute
+  hand on the whole minute, so the face drawn on the minute is right until the next one.
+- **[S-52]** A clock asks for a **1-second** cadence only while it draws seconds ([S-6015]): the
+  digits' or the analog face's second hand. Every other clock, an analog face with seconds off
+  included (it woke every second for a hand it did not draw, CPU audit 2026-10-26), asks for a
+  **1-minute** cadence, aligned to the minute by the shared ticker. The word and minimal styles
+  never draw seconds, so they never wake for them.
 - **[S-53]** An unknown or malformed time-zone id degrades to the local zone rather than throwing —
   this runs on every tick.
 - **[S-54]** Formatting is done explicitly, not with culture patterns: the app builds with

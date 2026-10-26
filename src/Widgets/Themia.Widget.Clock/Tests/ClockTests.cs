@@ -109,8 +109,35 @@ public class ClockFormatterTests
         Assert.Equal(TimeSpan.FromMinutes(1), new ClockConfig { ShowSeconds = false, Style = ClockStyle.Digital }.TickInterval);
         Assert.Equal(TimeSpan.FromSeconds(1), new ClockConfig { ShowSeconds = true }.TickInterval);
 
-        // An analog face sweeps its second hand, so it needs seconds regardless of the digital toggle.
-        Assert.Equal(TimeSpan.FromSeconds(1), new ClockConfig { ShowSeconds = false, Style = ClockStyle.Analog }.TickInterval);
+        Assert.Equal(TimeSpan.FromSeconds(1), new ClockConfig { ShowSeconds = true, Style = ClockStyle.Analog }.TickInterval);
+    }
+
+    [Theory]
+    [InlineData(ClockStyle.Digital)]
+    [InlineData(ClockStyle.Analog)]
+    [InlineData(ClockStyle.Stacked)]
+    [InlineData(ClockStyle.Flip)]
+    [InlineData(ClockStyle.Word)]
+    [InlineData(ClockStyle.Minimal)]
+    [InlineData(ClockStyle.Date)]
+    public void S52_every_style_without_seconds_wakes_once_a_minute(ClockStyle style)
+    {
+        // Was every second for the analog face whatever the seconds switch said: no second hand
+        // drawn, and the whole face redrawn sixty times a minute for a minute hand's tenth of a degree.
+        Assert.Equal(TimeSpan.FromMinutes(1), new ClockConfig { ShowSeconds = false, Style = style }.TickInterval);
+    }
+
+    [Fact]
+    public void S51_a_face_without_its_second_hand_stands_its_minute_hand_on_the_whole_minute()
+    {
+        var withSeconds = ClockFormatter.Read(At(3, 30, 30), Utc(c => { c.Style = ClockStyle.Analog; c.ShowSeconds = true; }), Locale.En, use24Hour: true);
+        var without = ClockFormatter.Read(At(3, 30, 30), Utc(c => { c.Style = ClockStyle.Analog; c.ShowSeconds = false; }), Locale.En, use24Hour: true);
+        var onTheMinute = ClockFormatter.Read(At(3, 30, 0), Utc(c => { c.Style = ClockStyle.Analog; c.ShowSeconds = false; }), Locale.En, use24Hour: true);
+
+        Assert.Equal(183, withSeconds.MinuteAngle, 3);
+        Assert.Equal(180, without.MinuteAngle, 3);
+        Assert.Equal(onTheMinute.MinuteAngle, without.MinuteAngle, 3);
+        Assert.Equal(105, without.HourAngle, 3); // the hour hand still advances with the minutes
     }
 
     [Theory]

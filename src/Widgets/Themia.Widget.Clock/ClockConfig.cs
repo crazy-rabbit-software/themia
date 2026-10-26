@@ -176,14 +176,13 @@ public sealed class ClockConfig : WidgetConfig, IStyled, IShownSettings<ClockSet
     public bool DrawsSeconds => ShowSeconds && Style is not (ClockStyle.Word or ClockStyle.Minimal or ClockStyle.Date);
 
     /// <summary>
-    /// The tick cadence this config actually needs. A clock without seconds wakes once a minute (the
-    /// date style too: it turns over within a minute of midnight, [S-5304]); an analog face sweeps
-    /// its hands every second.
+    /// [S-52] The tick cadence this config actually needs: every second only while seconds are drawn
+    /// (the digits' or the analog face's second hand). Every other clock wakes once a minute, on the
+    /// minute — an analog face without its second hand too, whose minute hand then stands on the
+    /// whole minute ([S-51]), and the date style, which turns over within a minute of midnight ([S-5304]).
     /// </summary>
     [JsonIgnore]
-    public TimeSpan TickInterval => DrawsSeconds || Style == ClockStyle.Analog
-        ? TimeSpan.FromSeconds(1)
-        : TimeSpan.FromMinutes(1);
+    public TimeSpan TickInterval => DrawsSeconds ? TimeSpan.FromSeconds(1) : TimeSpan.FromMinutes(1);
 
     /// <summary>
     /// [S-1486] Back inside the invariants after a hand edit: an enum value outside its set falls back

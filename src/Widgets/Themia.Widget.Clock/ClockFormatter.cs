@@ -42,9 +42,11 @@ public static class ClockFormatter
         var meridiem = use24Hour ? null : (hour24 < 12 ? LocaleFormat.Am(locale) : LocaleFormat.Pm(locale));
         var date = config.ShowDate ? FormatDate(local, locale) : null;
 
-        // Hands sweep rather than step, so an analog face reads correctly between ticks.
+        // [S-51] Hands sweep rather than step, so an analog face reads correctly between ticks. A
+        // face without its second hand is drawn once a minute ([S-52]): its minute hand stands on the
+        // whole minute, so the face it is drawn with is right for the whole of that minute.
         var secondAngle = local.Second * 6.0;
-        var minuteAngle = (local.Minute * 6.0) + (local.Second * 0.1);
+        var minuteAngle = (local.Minute * 6.0) + (config.DrawsSeconds ? local.Second * 0.1 : 0);
         var hourAngle = ((hour24 % 12) * 30.0) + (local.Minute * 0.5);
 
         return new ClockReading(time, meridiem, date, hourAngle, minuteAngle, secondAngle);
