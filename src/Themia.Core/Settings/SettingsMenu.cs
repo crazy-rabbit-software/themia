@@ -352,6 +352,15 @@ public static partial class SettingsMenu
         public const string About = "about";
         public const string Uninstall = "about/uninstall";
         public const string Quit = "quit";
+
+        /// <summary>[S-3749] The line of Language &amp; region that sets a regional format a widget links to.</summary>
+        public static string Format(Sdk.OwnedSetting setting) => Language + "/" + setting switch
+        {
+            Sdk.OwnedSetting.TimeFormat => "clock",
+            Sdk.OwnedSetting.WeekStart => "weekStart",
+            Sdk.OwnedSetting.TemperatureUnit => "temperature",
+            _ => throw new ArgumentOutOfRangeException(nameof(setting), setting, "not a regional format"),
+        };
     }
 
     /// <summary>A whole number and its unit as the settings sliders wrote it ("12px", "500 ms"), or a percentage of a fraction.</summary>

@@ -25,15 +25,6 @@ public sealed class OnlineHostTests
         => Assert.Null(new WeatherForecastConfig().Title);
 
     [Fact]
-    public void S728_hiding_the_location_leaves_the_header_to_the_widget_s_label()
-    {
-        var config = new WeatherNowConfig { LocationName = "Zürich, Zurich, Switzerland", HideLocation = true };
-
-        Assert.Null(config.Title);
-        Assert.True(((WeatherNowConfig)config.Clone()).HideLocation);
-    }
-
-    [Fact]
     public void S659_the_minimal_temperature_fills_the_largest_tile()
     {
         var xl = new WidgetArea(800, 516);

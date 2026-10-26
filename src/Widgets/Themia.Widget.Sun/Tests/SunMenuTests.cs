@@ -57,7 +57,7 @@ public sealed class SunMenuTests
         Assert.Equal(Str.Shell_Place_Location.Text(), location.Text);
         Assert.NotNull(location.Search);
         Assert.Equal(
-            [Str.Shell_Place_Clear.Text(), Str.SunMoon_Place_Label.Text(), Str.SunMoon_Latitude_Label.Text(), Str.SunMoon_Longitude_Label.Text()],
+            [Str.Shell_Place_Clear.Text(), Str.SunMoon_Latitude_Label.Text(), Str.SunMoon_Longitude_Label.Text()],
             location.Search!.Fixed.Select(f => f.Text));
     }
 
@@ -119,23 +119,6 @@ public sealed class SunMenuTests
         ask.Done(" -179.5 ");
         Assert.Equal(-179.5, config.Longitude);
         Assert.Equal(1, _saves);
-    }
-
-    [Fact]
-    public void S3107_the_place_name_may_be_emptied_and_is_cut_to_its_length()
-    {
-        var config = new SunConfig();
-        Fixed(Location(config), Str.SunMoon_Place_Label.Text()).Action!();
-        var ask = Assert.IsType<WidgetTextAsk>(_asked);
-
-        Assert.True(ask.AllowEmpty);
-        ask.Done(new string('x', 200));
-        Assert.Equal(SkyPlaceConfig.MaxPlaceLength, config.Place.Length);
-
-        ask.Done("   ");
-        Assert.Equal(string.Empty, config.Place);
-        Assert.True(config.HasLocation);
-        Assert.Equal(2, _saves);
     }
 
     [Theory]

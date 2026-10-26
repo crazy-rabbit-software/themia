@@ -521,7 +521,7 @@ internal static partial class EditBarRender
             Add = new MenuListAdd<string>("Add a feed", "https://…", _ => null, f => f),
         }));
         menu.Lines.Add(ItemMenuEntry.Separator);
-        menu.Lines.Add(new WidgetMenuLines(() => { }, _ => { }) { ShowAccounts = () => { } }.AccountsLine(Glyphs.Contact, "Manage accounts"));
+        menu.Lines.Add(new WidgetMenuLines(() => { }, _ => { }) { OpenSetting = _ => { } }.AccountsLine(Glyphs.Contact, "Manage accounts"));
         menu.Lines.Add(menu.Confirm(Glyphs.Delete, "Clear history", "Clear the whole history?", "Clear", () => { }, detail: "Every entry goes, and it cannot be undone."));
         menu.Lines.Add(WidgetMenuLines.Note("Weather data by Open-Meteo.com, under CC BY 4.0, with a long credit that wraps onto a second line"));
     }
@@ -637,7 +637,7 @@ internal static partial class EditBarRender
 
         var strip = new PropertiesStrip(new PropertiesCommands(_ => { }, _ => { }, (_, _) => { }, () => { }, _ => { }, _ => { }, _ => { }, _ => { },
             Cut: () => { }, Copy: () => { }, Delete: () => { },
-            WidgetLines: (id, ask, confirm) => lines is not null ? Stand(lines, ask, confirm) : view.Find(id) is { } found ? Services.ModuleHost.MenuLines(found, () => { }, ask, confirm, showAccounts: () => { }) : null));
+            WidgetLines: (id, ask, confirm) => lines is not null ? Stand(lines, ask, confirm) : view.Find(id) is { } found ? Services.ModuleHost.MenuLines(found, () => { }, ask, confirm, openSetting: _ => { }) : null));
         UiLanguage.ApplyFlow(strip);
         strip.RoomHeight = screen.Height - (2 * StripPlacement.Gap);
         strip.ShowSelection(QuickSet.For(state, selection, view.Id));

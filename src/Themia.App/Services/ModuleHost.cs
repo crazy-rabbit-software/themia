@@ -27,18 +27,17 @@ internal static class ModuleHost
     /// [S-3719] A widget's own lines on its properties menu, built by its module over
     /// <paramref name="widget"/>'s config (the live one: the lines change it in place and
     /// <paramref name="save"/> stores it), asking for text and confirmations beside the menu. A
-    /// module that throws is logged and has none. [S-3745] <paramref name="showAccounts"/> opens
-    /// ⚙ › Accounts from an account widget's lines ([S-3558]). [S-2849] They know the card's header and title.
+    /// module that throws is logged and has none. [S-3749] <paramref name="openSetting"/> opens the
+    /// level a link row leads to (⚙ › Accounts, [S-3558]; a format; an update interval).
     /// </summary>
-    public static WidgetMenuLines? MenuLines(WidgetInstance widget, Action save, Action<WidgetTextAsk> ask, Action<WidgetConfirm> confirm, Action? showAccounts = null)
+    public static WidgetMenuLines? MenuLines(WidgetInstance widget, Action save, Action<WidgetTextAsk> ask, Action<WidgetConfirm> confirm, Action<SettingLink>? openSetting = null)
     {
         ArgumentNullException.ThrowIfNull(widget);
 
         // [S-2851] Where Windows' location stands, and its settings page where there is a host to open it.
         var lines = new WidgetMenuLines(save, ask, confirm)
         {
-            ShowAccounts = showAccounts,
-            Card = QuickSet.Card(widget),
+            OpenSetting = openSetting,
             Device = AppServices.DeviceLocationNow,
             OpenLocationSettings = AppServices.DeviceLocation is null ? null : DeviceLocationService.OpenSettings,
         };

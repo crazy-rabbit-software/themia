@@ -3,7 +3,9 @@ using Themia.App.Widgets;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Settings;
+using Themia.Core.Sync;
 using Themia.Core.Widgets;
+using Themia.Sdk;
 using Themia.Sdk.WinUI;
 using Xunit;
 
@@ -100,7 +102,7 @@ public sealed class WidgetMenuLinesTests
     public void S3749_the_accounts_line_is_a_link_to_accounts_and_greyed_without_an_edit_bar()
     {
         var opened = 0;
-        var menu = new WidgetMenuLines(() => _saves++, ask => _asked = ask) { ShowAccounts = () => opened++ };
+        var menu = new WidgetMenuLines(() => _saves++, ask => _asked = ask) { OpenSetting = link => { Assert.Equal(OwnedSetting.Accounts, link.Setting); opened++; } };
         var line = menu.AccountsLine(null, "Manage accounts");
 
         Assert.Equal(Str.Shell_Settings_Nav_Accounts.Text(), line.LinkTo);
@@ -110,6 +112,28 @@ public sealed class WidgetMenuLinesTests
         Assert.Equal(0, _saves);
 
         Assert.True(Lines().AccountsLine(null, "Manage accounts").Disabled);
+    }
+
+    [Theory]
+    [InlineData(OwnedSetting.TimeFormat)]
+    [InlineData(OwnedSetting.WeekStart)]
+    [InlineData(OwnedSetting.TemperatureUnit)]
+    [InlineData(OwnedSetting.OnlineUpdates)]
+    public void S3749_a_link_names_its_owner_says_what_is_in_force_and_changes_nothing_here(OwnedSetting setting)
+    {
+        SettingLink? opened = null;
+        var link = new SettingLink(setting, setting == OwnedSetting.OnlineUpdates ? HostCadences.Weather : null);
+        var line = new WidgetMenuLines(() => _saves++, _ => { }) { OpenSetting = l => opened = l }.Link(link);
+
+        Assert.Equal(link.Owner, line.LinkTo);
+        Assert.False(string.IsNullOrEmpty(line.Value), "a link says what is in force");
+        Assert.Null(line.Children);
+        Assert.False(line.Asks);
+        line.Action!();
+        Assert.Equal(link, opened);
+        Assert.Equal(0, _saves);
+
+        Assert.True(Lines().Link(link).Disabled);
     }
 
     // ---- colours ------------------------------------------------------------------------------

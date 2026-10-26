@@ -1,0 +1,8 @@
+{
+  "$comment": "[S-3500] [S-3590] The edit bar's trail and its menus' own words; the rest are the words the bar's buttons had.",
+  "editBar.link.updateInterval": "Update interval",
+  "editBar.widget": "Widget",
+  "editBar.display.view": "View on this display",
+  "editBar.view.manage": "Manage views",
+  "editBar.crumbName": "{kind}: {name}"
+}

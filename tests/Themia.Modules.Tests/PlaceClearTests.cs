@@ -108,16 +108,13 @@ public class PlaceClearTests
     }
 
     [Fact]
-    public void S2848_clearing_forgets_the_name_and_keeps_the_header_preference()
+    public void S2848_clearing_forgets_the_name()
     {
         var weather = (WeatherNowConfig)WithPlace(new WidgetId("weatherNow"));
-        weather.HideLocation = true;
 
         weather.ClearLocation();
 
-        Assert.Equal((null, null, string.Empty, true), (weather.Latitude, weather.Longitude, weather.LocationName, weather.HideLocation));
-
-        weather.HideLocation = false;
+        Assert.Equal((null, null, string.Empty), (weather.Latitude, weather.Longitude, weather.LocationName));
         Assert.Null(weather.Title);
     }
 

@@ -25,12 +25,6 @@ public abstract class WeatherConfig : WidgetConfig, IPlaced
     /// <summary>The chosen place's label ([S-2842]), e.g. "Zürich, Zurich, Switzerland".</summary>
     public string LocationName { get; set; } = string.Empty;
 
-    /// <summary>
-    /// [S-728] Keep the place's name out of the card header, which then reads as the widget's own
-    /// label ("Weather"). A title the user typed still wins either way.
-    /// </summary>
-    public bool HideLocation { get; set; }
-
     /// <summary>[S-2850] The place is the device's, from Windows' location; the chosen one is kept for when this goes off.</summary>
     public bool UseDeviceLocation { get; set; }
 
@@ -44,11 +38,6 @@ public abstract class WeatherConfig : WidgetConfig, IPlaced
     {
         get
         {
-            if (HideLocation)
-            {
-                return null;
-            }
-
             var name = LocationName.Split(',', 2)[0].Trim();
 
             return name.Length > 0 ? name : null;
@@ -107,7 +96,6 @@ public abstract class WeatherConfig : WidgetConfig, IPlaced
         other.Latitude = Latitude;
         other.Longitude = Longitude;
         other.LocationName = LocationName;
-        other.HideLocation = HideLocation;
         other.UseDeviceLocation = UseDeviceLocation;
     }
 }

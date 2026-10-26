@@ -1,0 +1,7 @@
+{
+  "editBar.link.updateInterval": "Интервал обновления",
+  "editBar.widget": "Виджет",
+  "editBar.display.view": "Вид на этом экране",
+  "editBar.view.manage": "Управление видами",
+  "editBar.crumbName": "{kind}: {name}"
+}

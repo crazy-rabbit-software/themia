@@ -40,7 +40,7 @@ renders), `Localization/Locales/` (its own `SunStr`, 30 languages). Tests: `Test
   no settings page. Under Style, after the styles: the **Events** switch, offered by the arc and the
   day bar, not by Times (which is the events, [S-6074]). On the first level: Appearance ([S-3723]),
   then behind a divider **Location**, the sky's shared search ([S-3101]): the place's city (or its coordinates) at the
-  line's end; under the answers Clear location ([S-2848]), Place name, Latitude and Longitude, each
+  line's end; under the answers Clear location ([S-2848]), Latitude and Longitude, each
   asked for as text ([S-3721]; a coordinate refused unless a number in range, [S-171]; the same value
   stores nothing).
 - **[S-649]** The sun strip's icons and countdowns appear only where a strip column can hold them

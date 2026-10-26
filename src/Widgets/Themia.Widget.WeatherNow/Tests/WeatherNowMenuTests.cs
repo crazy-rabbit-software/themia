@@ -27,7 +27,7 @@ public sealed class WeatherNowMenuTests
     }
 
     [Fact]
-    public void S6174_the_first_level_is_appearance_then_use_my_location_the_location_search_and_the_name_switch()
+    public void S6174_the_first_level_is_appearance_then_use_my_location_and_the_location_search()
     {
         var lines = Build(new WeatherNowConfig());
 
@@ -38,8 +38,7 @@ public sealed class WeatherNowMenuTests
             {
                 Assert.NotNull(location.Search);
                 Assert.Equal(Str.Shell_Place_Location.Text(), location.Text);
-            },
-            name => Assert.Equal(Str.Weather_LocationNameLabel.Text(), name.Text));
+            });
     }
 
     [Fact]
@@ -52,20 +51,15 @@ public sealed class WeatherNowMenuTests
     }
 
     [Fact]
-    public void S6174_clear_forgets_the_place_and_the_name_switch_turns_the_city_off()
+    public void S6174_clear_forgets_the_place()
     {
         var config = new WeatherNowConfig { Latitude = 47.37, Longitude = 8.54, LocationName = "Zürich, Switzerland" };
-        var lines = Build(config).Lines;
-        var search = lines.First(l => l.Search is not null).Search!;
+        var search = Build(config).Lines.First(l => l.Search is not null).Search!;
 
         Assert.Equal("Zürich", search.Value);
-        Assert.DoesNotContain(search.Fixed, f => f.Text == Str.Weather_LocationNameLabel.Text());
-        Assert.Single(lines, l => l.Text == Str.Weather_LocationNameLabel.Text()).Action!();
-        Assert.True(config.HideLocation);
-
         Assert.Single(search.Fixed, f => f.Text == Str.Shell_Place_Clear.Text()).Action!();
         Assert.False(config.HasLocation);
-        Assert.Equal(2, _saves);
+        Assert.Equal(1, _saves);
     }
 
     [Theory]

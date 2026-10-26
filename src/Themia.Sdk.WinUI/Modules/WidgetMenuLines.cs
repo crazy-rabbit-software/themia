@@ -42,16 +42,12 @@ public sealed class WidgetMenuLines
     }
 
     /// <summary>
-    /// [S-3745] Opens ⚙ › Accounts, where an account comes into being: what an account widget's
-    /// Manage accounts line does. Null where the host has no edit bar (a render, a test).
+    /// [S-3749] Opens the level of the edit bar's menus that owns <see cref="SettingLink"/>'s setting
+    /// (⚙ › Accounts, ⚙ › Language &amp; region at its line, ⚙ › Online updates at its row), closing the
+    /// properties menu: what a link row does. Null where the host has no edit bar (a render, a test):
+    /// the link is greyed.
     /// </summary>
-    public Action? ShowAccounts { get; init; }
-
-    /// <summary>
-    /// [S-2849] The card the lines are built for: whether its header shows and holds a typed title.
-    /// <see cref="MenuCard.Plain"/> where no card is known (a test).
-    /// </summary>
-    public MenuCard Card { get; init; } = MenuCard.Plain;
+    public Action<SettingLink>? OpenSetting { get; init; }
 
     /// <summary>
     /// [S-2851] Where Windows' location stands, for a place widget's Use my location line:
@@ -149,7 +145,21 @@ public sealed class WidgetMenuLines
     /// where the host has no edit bar.
     /// </summary>
     public ItemMenuEntry AccountsLine(string? glyph, string text)
-        => new(glyph, text, () => ShowAccounts?.Invoke(), Disabled: ShowAccounts is null, LinkTo: Str.Shell_Settings_Nav_Accounts.Text());
+        => new(glyph, text, () => OpenSetting?.Invoke(new SettingLink(OwnedSetting.Accounts)), Disabled: OpenSetting is null,
+            LinkTo: new SettingLink(OwnedSetting.Accounts).Owner);
+
+    /// <summary>
+    /// [S-3749] [S-3590] A link row to a setting the widget follows and a higher level owns (the time
+    /// format, the start of the week, the temperature unit, how often its source is asked): the
+    /// setting's icon and words, what is in force at its end, and Windows' "open in new window" mark;
+    /// a pick closes the menu and opens the owner's level there. It changes nothing here and saves
+    /// nothing: a widget never carries a copy of such a setting. Greyed where the host has no edit bar.
+    /// </summary>
+    public ItemMenuEntry Link(SettingLink link)
+    {
+        ArgumentNullException.ThrowIfNull(link);
+        return new(link.Glyph, link.Text, () => OpenSetting?.Invoke(link), Disabled: OpenSetting is null, Value: link.Value, LinkTo: link.Owner);
+    }
 
     /// <summary>A command that changes the config and saves: one step.</summary>
     public ItemMenuEntry Command(string? glyph, string text, Action change, bool disabled = false)

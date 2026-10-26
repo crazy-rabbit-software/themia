@@ -1,0 +1,7 @@
+{
+  "editBar.link.updateInterval": "업데이트 간격",
+  "editBar.widget": "위젯",
+  "editBar.display.view": "이 디스플레이의 보기",
+  "editBar.view.manage": "보기 관리",
+  "editBar.crumbName": "{kind}: {name}"
+}

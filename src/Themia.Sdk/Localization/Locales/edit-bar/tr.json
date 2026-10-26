@@ -1,0 +1,7 @@
+{
+  "editBar.link.updateInterval": "Güncelleme aralığı",
+  "editBar.widget": "Pencere öğesi",
+  "editBar.display.view": "Bu ekrandaki görünüm",
+  "editBar.view.manage": "Görünümleri yönet",
+  "editBar.crumbName": "{kind}: {name}"
+}

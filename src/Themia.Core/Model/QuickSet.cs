@@ -297,17 +297,6 @@ public static class QuickSet
     public static int SetAlign(ViewState view, IEnumerable<string> ids, ContentAlign align)
         => Apply(view, ids, w => ContentAlignment.Applies(w) && w.Align != align && Set(() => w.Align = align));
 
-    /// <summary>
-    /// [S-2849] What the widget's own menu lines know of its card: the header as drawn
-    /// (<see cref="WidgetInstance.ShownHeader"/>: a kind that never has one shows none) and whether a
-    /// typed title holds (<see cref="Title"/> stores none for a blank one).
-    /// </summary>
-    public static MenuCard Card(WidgetInstance widget)
-    {
-        ArgumentNullException.ThrowIfNull(widget);
-        return new MenuCard(widget.ShownHeader != HeaderPlacement.Hidden, !string.IsNullOrWhiteSpace(widget.Label));
-    }
-
     /// <summary>[S-3704] Set one widget's title from what was typed. False when nothing changed or the widget is gone.</summary>
     public static bool SetTitle(ViewState view, string widgetId, string? typed, string defaultTitle)
     {

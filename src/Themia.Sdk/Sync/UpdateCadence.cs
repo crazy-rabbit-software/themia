@@ -125,6 +125,15 @@ public static class UpdateCadence
         return repairs;
     }
 
+    /// <summary>[S-3530] "Every minute", "Every 5 minutes", "Every hour", "Every 2 hours": a cadence's words, in ⚙ › Online updates and on a widget's link to it ([S-3749]).</summary>
+    public static string Every(int minutes) => minutes switch
+    {
+        1 => Str.Shell_Refresh_EveryMinute.Text(),
+        60 => Str.Shell_Refresh_EveryHour.Text(),
+        _ when minutes % 60 == 0 => Str.WidgetPrefs_Updates_EveryHours.Plural(minutes / 60),
+        _ => Str.Shell_Refresh_EveryMinutes.Plural(minutes),
+    };
+
     /// <summary>The nearest offered choice; a tie goes to the slower one (kinder to the service).</summary>
     public static int Snap(int minutes, IReadOnlyList<int> choices)
     {

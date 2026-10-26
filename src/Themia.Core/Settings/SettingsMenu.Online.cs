@@ -26,7 +26,7 @@ public static partial class SettingsMenu
             foreach (var minutes in row.Choices)
             {
                 var holds = minutes == current;
-                options.Add(new SettingsRadio(key + "/" + minutes, Every(minutes), holds, () =>
+                options.Add(new SettingsRadio(key + "/" + minutes, UpdateCadence.Every(minutes), holds, () =>
                 {
                     if (!holds)
                     {
@@ -43,13 +43,4 @@ public static partial class SettingsMenu
 
         return new SettingsSubmenu(Keys.Online, Str.SettingsMenu_OnlineUpdates.Text(), Glyphs.Refresh, lines);
     }
-
-    /// <summary>[S-3530] "Every minute", "Every 5 minutes", "Every hour", "Every 2 hours".</summary>
-    public static string Every(int minutes) => minutes switch
-    {
-        1 => Str.Shell_Refresh_EveryMinute.Text(),
-        60 => Str.Shell_Refresh_EveryHour.Text(),
-        _ when minutes % 60 == 0 => Str.WidgetPrefs_Updates_EveryHours.Plural(minutes / 60),
-        _ => Str.Shell_Refresh_EveryMinutes.Plural(minutes),
-    };
 }

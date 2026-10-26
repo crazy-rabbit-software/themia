@@ -1,0 +1,7 @@
+{
+  "editBar.link.updateInterval": "Bijwerkinterval",
+  "editBar.widget": "Widget",
+  "editBar.display.view": "Weergave op dit beeldscherm",
+  "editBar.view.manage": "Weergaven beheren",
+  "editBar.crumbName": "{kind}: {name}"
+}

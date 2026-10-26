@@ -17,10 +17,8 @@ public static class WeatherPlaceRows
     /// location ([S-2850], with what Windows says while it gives no position), then, while it is off,
     /// the location as a search, the chosen place at the end of its line, in its submenu the search box,
     /// the places it finds (a click picks one: replaced at once, resolved once) and Clear location
-    /// ([S-2848]: the widget waits for setup again); then, on the same level, the location-name switch
-    /// ([S-728]; user request 2026-10-19: what is shown is chosen on the first level, not inside a
-    /// search), only while the card's header shows with no typed title ([S-2849]): the place's name is
-    /// only ever the header's title.
+    /// ([S-2848]: the widget waits for setup again). The place's name is the header's title unless one
+    /// is typed: the Header row's Title is the one way to change it ([S-728], [S-3590]).
     /// </summary>
     public static IReadOnlyList<ItemMenuEntry> Lines(WidgetMenuLines menu, WeatherConfig config)
     {
@@ -33,11 +31,6 @@ public static class WeatherPlaceRows
         if (!config.UseDeviceLocation)
         {
             lines.Add(LocationLine(menu, config));
-        }
-
-        if (menu.Card.ReadsWidgetTitle)
-        {
-            lines.Add(menu.Toggle(null, Str.Weather_LocationNameLabel.Text(), !config.HideLocation, on => config.HideLocation = !on));
         }
 
         return lines;

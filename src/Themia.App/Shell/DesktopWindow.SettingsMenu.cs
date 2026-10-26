@@ -4,6 +4,7 @@ using Themia.Core.Model;
 using Themia.Core.Motion;
 using Themia.Core.Settings;
 using Themia.Core.Shell;
+using Themia.Sdk;
 
 namespace Themia.App.Shell;
 
@@ -127,6 +128,22 @@ internal sealed partial class DesktopWindow
             ? [SettingsMenu.Keys.Accounts, SettingsMenu.Keys.AddAccount]
             : [SettingsMenu.Keys.Accounts];
         return RequestSettings(path);
+    }
+
+    /// <summary>
+    /// [S-3749] A widget's link row: ⚙ open on this display at the level that owns the setting (the
+    /// accounts, a regional format's level, a cadence's), the properties menu away while it is open.
+    /// Whether it opened.
+    /// </summary>
+    public bool RequestSetting(SettingLink link)
+    {
+        ArgumentNullException.ThrowIfNull(link);
+        return link.Setting switch
+        {
+            OwnedSetting.Accounts => RequestAccounts(),
+            OwnedSetting.OnlineUpdates => RequestSettings(link.Cadence is { } row ? [SettingsMenu.Keys.Online, SettingsMenu.Keys.Online + "/" + row.Id.Value] : [SettingsMenu.Keys.Online]),
+            _ => RequestSettings([SettingsMenu.Keys.Language, SettingsMenu.Keys.Format(link.Setting)]),
+        };
     }
 
     private void OnSuspendedForSettings(bool suspended) => SyncBarMenu();

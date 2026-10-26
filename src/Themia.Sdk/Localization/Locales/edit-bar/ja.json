@@ -1,0 +1,7 @@
+{
+  "editBar.link.updateInterval": "更新間隔",
+  "editBar.widget": "ウィジェット",
+  "editBar.display.view": "このディスプレイのビュー",
+  "editBar.view.manage": "ビューの管理",
+  "editBar.crumbName": "{kind}: {name}"
+}

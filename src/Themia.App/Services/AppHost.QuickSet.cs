@@ -115,8 +115,8 @@ internal sealed partial class AppHost
     /// <summary>
     /// [S-3719] One widget's own lines on its properties menu, over its live config; a change they
     /// make in place is stored through the host's one state write. Null for a widget that is gone.
-    /// [S-3558] <paramref name="showAccounts"/> opens ⚙ › Accounts on the display the menu is on.
+    /// [S-3749] <paramref name="openSetting"/> opens a link row's level on the display the menu is on.
     /// </summary>
-    public WidgetMenuLines? WidgetMenuLines(string widgetId, Action<WidgetTextAsk> ask, Action<WidgetConfirm> confirm, Action? showAccounts)
-        => Find(widgetId) is var (_, widget) && widget is not null ? ModuleHost.MenuLines(widget, () => Mutate(_ => { }), ask, confirm, showAccounts) : null;
+    public WidgetMenuLines? WidgetMenuLines(string widgetId, Action<WidgetTextAsk> ask, Action<WidgetConfirm> confirm, Action<SettingLink>? openSetting)
+        => Find(widgetId) is var (_, widget) && widget is not null ? ModuleHost.MenuLines(widget, () => Mutate(_ => { }), ask, confirm, openSetting) : null;
 }

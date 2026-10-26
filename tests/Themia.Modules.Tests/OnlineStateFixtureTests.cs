@@ -39,7 +39,7 @@ public sealed class OnlineStateFixtureTests
         var configs = Assert.Single(state.Views).Widgets.Select(w => w.Config).ToList();
 
         var now = Assert.IsType<WeatherNowConfig>(configs[0]);
-        Assert.Equal((47.3667, 8.55, "Zürich, Zurich, Switzerland", true), (now.Latitude, now.Longitude, now.LocationName, now.HideLocation));
+        Assert.Equal((47.3667, 8.55, "Zürich, Zurich, Switzerland"), (now.Latitude, now.Longitude, now.LocationName));
         Assert.Equal((WeatherNowStyle.LargeIcon, false), (now.Style, now.ShowDetails));
 
         var forecast = Assert.IsType<WeatherForecastConfig>(configs[1]);
@@ -49,7 +49,7 @@ public sealed class OnlineStateFixtureTests
         Assert.Equal((40.7128, -74.006, AirQualityScale.Us, AirQualityStyle.Gauge), (air.Latitude, air.Longitude, air.Scale, air.Style));
 
         var rain = Assert.IsType<RainNextHourConfig>(configs[3]);
-        Assert.Equal((52.52, 13.405, "Berlin, Land Berlin, Germany", true), (rain.Latitude, rain.Longitude, rain.LocationName, rain.HideLocation));
+        Assert.Equal((52.52, 13.405, "Berlin, Land Berlin, Germany"), (rain.Latitude, rain.Longitude, rain.LocationName));
 
         var rates = Assert.IsType<ExchangeRatesConfig>(configs[4]);
         Assert.Equal(("CHF", "JPY", ExchangeRatesStyle.Number), (rates.BaseCurrency, rates.QuoteCurrency, rates.Style));

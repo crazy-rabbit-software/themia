@@ -1,0 +1,7 @@
+{
+  "editBar.link.updateInterval": "Interval pembaruan",
+  "editBar.widget": "Widget",
+  "editBar.display.view": "Tampilan di layar ini",
+  "editBar.view.manage": "Kelola tampilan",
+  "editBar.crumbName": "{kind}: {name}"
+}

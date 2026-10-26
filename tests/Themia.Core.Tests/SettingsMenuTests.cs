@@ -479,8 +479,8 @@ public sealed partial class SettingsMenuTests
         foreach (var (row, line) in UpdateCadence.Rows.Zip(rows))
         {
             Assert.Equal(row.Label.Text(), line.Text);
-            Assert.Equal(row.Choices.Select(SettingsMenu.Every), line.Options.Select(o => o.Text));
-            Assert.Equal(SettingsMenu.Every(UpdateCadence.Minutes(host.State.Preferences.Refresh, row)), line.Value);
+            Assert.Equal(row.Choices.Select(UpdateCadence.Every), line.Options.Select(o => o.Text));
+            Assert.Equal(UpdateCadence.Every(UpdateCadence.Minutes(host.State.Preferences.Refresh, row)), line.Value);
         }
 
         Assert.Equal(Str.WidgetPrefs_Updates_Note.Text(), Assert.Single(online.Lines.OfType<SettingsNote>()).Text);
@@ -506,5 +506,5 @@ public sealed partial class SettingsMenuTests
     [InlineData(60, "Every hour")]
     [InlineData(120, "Every 2 hours")]
     public void S3530_an_interval_reads_as_windows_writes_one(int minutes, string text)
-        => Assert.Equal(text, SettingsMenu.Every(minutes));
+        => Assert.Equal(text, UpdateCadence.Every(minutes));
 }

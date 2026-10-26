@@ -13,9 +13,8 @@ namespace Themia.App.Shell.Config;
 /// <para>
 /// [S-1494] The place is picked by city name, as in the original [S-01], through the same search the
 /// weather widgets use (<see cref="PlaceSearch.MenuAnswerAsync"/>). It resolves to coordinates once,
-/// at the pick; the astronomy itself stays offline. Under the answers the place name and the exact
-/// coordinates stay editable, each asked for as text and validated, for a place no geocoder knows
-/// (a cabin, a ship, a pole).
+/// at the pick; the astronomy itself stays offline. Under the answers the exact coordinates stay
+/// editable, each asked for as text and validated, for a place no geocoder knows (a cabin, a ship, a pole).
 /// </para>
 /// </summary>
 public static class SkyPlaceRows
@@ -41,15 +40,15 @@ public static class SkyPlaceRows
     /// <summary>
     /// [S-3101] [S-3722] The location as a search: the chosen place (or its coordinates) at the end of
     /// its line; in its submenu the search box and the places it finds (a pick replaces the place and
-    /// its coordinates), then Clear location ([S-2848]), the place name, the latitude and, where the
-    /// style reads it (<paramref name="longitude"/>, [S-6074]), the longitude.
+    /// its coordinates), then Clear location ([S-2848]), the latitude and, where the style reads it
+    /// (<paramref name="longitude"/>, [S-6074]), the longitude. The place's name is what the search
+    /// found; the header's title is the Header row's to change ([S-3590]), never a second line here.
     /// </summary>
     private static ItemMenuEntry LocationLine(WidgetMenuLines menu, SkyPlaceConfig config, bool longitude)
     {
         List<ItemMenuEntry> under =
         [
             menu.Command(Glyphs.Dismiss, Str.Shell_Place_Clear.Text(), config.ClearLocation, disabled: !config.HasLocation),
-            PlaceName(menu, config),
             Coordinate(menu, Str.SunMoon_Latitude_Label.Text(), config.Latitude, -90, 90, value => config.Latitude = value),
         ];
 
@@ -108,25 +107,6 @@ public static class SkyPlaceRows
             && value <= maximum
                 ? value
                 : null;
-
-    /// <summary>[S-3721] The header's name for the place, asked for as text; empty is allowed (the coordinates name it).</summary>
-    private static ItemMenuEntry PlaceName(WidgetMenuLines menu, SkyPlaceConfig config)
-        => new(Glyphs.Rename, Str.SunMoon_Place_Label.Text(), () => menu.Ask(new WidgetTextAsk(
-            Str.SunMoon_Place_Label.Text(),
-            Str.SunMoon_Place_Placeholder.Text(),
-            Str.Common_Save.Text(),
-            _ => null,
-            typed =>
-            {
-                var name = Cut(typed.Trim());
-                if (name != config.Place)
-                {
-                    config.Place = name;
-                    menu.Save();
-                }
-            },
-            Initial: config.Place,
-            AllowEmpty: true)), Value: string.IsNullOrWhiteSpace(config.Place) ? null : config.Place, Asks: true);
 
     /// <summary>
     /// [S-171] [S-3721] A coordinate asked for as text, refused (with the range as the reason) unless it

@@ -1,0 +1,7 @@
+{
+  "editBar.link.updateInterval": "更新間隔",
+  "editBar.widget": "小工具",
+  "editBar.display.view": "此顯示器上的檢視",
+  "editBar.view.manage": "管理檢視",
+  "editBar.crumbName": "{kind}：{name}"
+}

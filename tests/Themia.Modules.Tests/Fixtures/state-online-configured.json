@@ -31,7 +31,6 @@
             "latitude": 47.3667,
             "longitude": 8.55,
             "locationName": "Z\u00FCrich, Zurich, Switzerland",
-            "hideLocation": true,
             "useDeviceLocation": false
           }
         },
@@ -62,7 +61,6 @@
             "latitude": -33.8688,
             "longitude": 151.2093,
             "locationName": "Sydney, New South Wales, Australia",
-            "hideLocation": false,
             "useDeviceLocation": false
           }
         },
@@ -92,7 +90,6 @@
             "latitude": 40.7128,
             "longitude": -74.006,
             "locationName": "New York, New York, United States",
-            "hideLocation": false,
             "useDeviceLocation": false
           }
         },
@@ -120,7 +117,6 @@
             "latitude": 52.52,
             "longitude": 13.405,
             "locationName": "Berlin, Land Berlin, Germany",
-            "hideLocation": true,
             "useDeviceLocation": false
           }
         },

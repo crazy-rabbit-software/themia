@@ -32,7 +32,7 @@ public sealed class DevicePlaceTests
 
     private static List<ItemMenuEntry> Lines(WidgetInstance widget, DeviceLocation device, Action? settings = null)
     {
-        var menu = new WidgetMenuLines(() => { }, _ => { }) { Card = QuickSet.Card(widget), Device = device, OpenLocationSettings = settings };
+        var menu = new WidgetMenuLines(() => { }, _ => { }) { Device = device, OpenLocationSettings = settings };
         ModuleRegistry.Widgets.Single(m => m.Descriptor.Id == widget.Kind).MenuLines(menu, widget.Config);
         return menu.Lines;
     }

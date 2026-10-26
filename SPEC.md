@@ -680,9 +680,10 @@ shared row and moon drawing) and `SkyPlaceRows` (the shared place line on their 
 - **[S-3101]** Both carry the observer's place (`SkyPlaceConfig`: latitude, longitude, place name)
   and share one line on their properties menus ([S-3719], user request 2026-10-19; no settings
   page): **Use my location** ([S-2850]) and, while it is off, **Location** (`SkyPlaceRows.Lines`), the city search ([S-1494], [S-2840], [S-3722])
-  with, under its answers, Clear location ([S-2848]), Place name (the header's title, may be
-  emptied, cut at 80), Latitude and Longitude, each asked for as text ([S-3721]) and validated
-  ([S-171]). Sun adds the Events switch under Style ([S-3107]); Moon has nothing else ([S-3108]; how
+  with, under its answers, Clear location ([S-2848]), Latitude and Longitude, each asked for as
+  text ([S-3721]) and validated ([S-171]). The place's name is what the search found (cut at 80): it
+  is the header's title unless one is typed, and the Header row's Title is the one way to change it
+  ([S-3590]; the Place name line that set it a second time is gone). Sun adds the Events switch under Style ([S-3107]); Moon has nothing else ([S-3108]; how
   each draws itself is its style, [S-6045], [S-6050]). `Repair` at load: a latitude or longitude that is not a number
   in range sends both, and the name, back to Zurich (a `null` one is a cleared place, [S-2848], and
   is left alone); a place name over 80 characters is cut; each
@@ -1645,6 +1646,24 @@ on the desktop surface; Rename's field and Delete's question on their levels; Ne
 second display, switching this one off from its own menu and back on from the other's; a display
 plugged in while Display ▾ is open; a long list of views scrolling under the bar.
 
+### One setting, one level (OWNERSHIP)
+
+After Karpo's rule (`karpo-app`, `docs/widgets.md` §351, `OptionLinks.cs`; user request 2026-10-26:
+"global settings are linked to and not repeated in the widget menus, so that it is clear when i am
+editing a global setting vs local widget setting; settings should generally not be repeated").
+Owning files: SDK `Modules/SettingLink.cs`, `WidgetMenuLines.Link`; tests `WidgetMenuLinesTests`
+(`S3749_`).
+
+- **[S-3590]** Every setting is at **one level** — a widget's (its properties menu, [S-3716]), a
+  view's (View ▾), a display's (Display ▾) or Themia's as a whole (⚙) — and that level's menu alone
+  sets it. A lower level that follows something a higher one owns gets a **link row** to it
+  ([S-3749]), never a copy: no widget carries its own clock format, start of week, temperature unit,
+  update interval or accounts. Nor is one thing set twice at one level: the header's title is the
+  Header row's Title alone ([S-3704]; the weather's Location name switch, [S-2849], and the sky's
+  Place name line, [S-3101], set it a second time and are gone). A card's own look (the Appearance
+  foot, [S-3739]) is a level of its own over the look every widget shares (⚙ › Appearance): its
+  Default is that look, so it is an override, not a copy.
+
 ### The edit bar's Accounts (SETTINGS-ACCOUNTS)
 
 The settings window's Accounts page moved into ⚙ (user request 2026-10-25, step 3 of the move of
@@ -2018,7 +2037,7 @@ rules in Core `Model/QuickSet.cs` and `Geometry/StripPlacement.cs` and the SDK's
   under it (one row each, scrolled where there are more than the rectangle holds) and the search's
   fixed rows after a rule (clear the choice, edit what was chosen; user request
   2026-10-19: a switch or a choice of what the widget shows stands on the first level after the
-  search's line, never among them: the weather's Location name, the Clock's Offset). The empty text is asked
+  search's line, never among them: the Clock's Offset). The empty text is asked
   as it opens; what is typed is asked once typing settles for `Settle` (at once for an answer in hand,
   the geocoder's pause, [S-2841], for a network one, "Searching…" while it is out), each answer
   replacing the one before and a newer question dropping an older one's answer; an answer may be a
@@ -2187,9 +2206,16 @@ rules in Core `Model/QuickSet.cs` and `Geometry/StripPlacement.cs` and the SDK's
   (`ItemMenuEntry.LinkTo`, `SettingsLink`): the owner's icon and words, Windows' "open in new window"
   mark (E8A7) at its end and no chevron, its tooltip "Opens Accounts"; a pick closes the menu and
   opens the owner's menu at the level that sets it. A widget's Manage accounts and Add an account are
-  links to ⚙ › Accounts ([S-3745]).
+  links to ⚙ › Accounts ([S-3745]). A module links to a setting it follows with
+  `WidgetMenuLines.Link(SettingLink)` (the SDK's closed set `OwnedSetting`: Accounts, Time format,
+  Start of week, Temperature unit, Online updates with its cadence row): the setting's own icon and
+  words as its level names them, and at its end, before the mark, what is in force ("24-hour",
+  "Monday", "°C", "Every 30 minutes": `SettingLink.Value`, so the widget's menu says what applies
+  without setting it). The host opens it through `WidgetMenuLines.OpenSetting` (`DesktopWindow.RequestSetting`):
+  ⚙ › Accounts ([S-3558]), ⚙ › Language & region at the format's own level (`SettingsMenu.Keys.Format`),
+  ⚙ › Online updates at the cadence's level; greyed where there is no edit bar (a render, a test).
 - **[S-3745]** An account widget's lines open **⚙ › Accounts** on the widget's display ([S-3558];
-  `WidgetMenuLines.AccountsLine`: Manage accounts, Add an account, link rows, [S-3749]) through the host's `ShowAccounts`;
+  `WidgetMenuLines.AccountsLine`: Manage accounts, Add an account, link rows, [S-3749]) through the host's `OpenSetting`;
   the line changes and saves nothing, and is greyed where the host has no edit bar (a test). No account is ever signed
   in from a widget's menu.
 - **[S-3746]** A line may show what is **read asynchronously** (an account's calendars, its task
@@ -3526,9 +3552,10 @@ their `SPEC.md`); this section keeps what they share. Shared rules in `Themia.Sd
   runs globalization-invariant).
 - [S-722], [S-723], [S-6160], [S-6161], [S-6162]: moved with the Weather now widget into its module's `SPEC.md` (`src/Widgets/Themia.Widget.WeatherNow/`).
 - [S-724], [S-725], [S-726], [S-727], [S-6163], [S-6164], [S-6171], [S-6172]: moved with the Weather forecast widget into its module's `SPEC.md` (`src/Widgets/Themia.Widget.WeatherForecast/`).
-- **[S-728]** `HideLocation` ("Location name" switch, both widgets): off leaves the header to the
-  catalogue label; on, the title is the chosen place's city (first part of `LocationName`); before a
-  pick there is none (the typed query is not kept, [S-2846]). A user label still wins.
+- **[S-728]** The header's title is the chosen place's city (first part of `LocationName`); before a
+  pick there is none and the header reads the catalogue label (the typed query is not kept,
+  [S-2846]). A title the user typed wins; it is the one way to change what the header says
+  ([S-3590]: the Location name switch, `HideLocation`, that hid the city is gone).
 - **[S-729]** The last good answers persist in the sealed `web` shelf of the offline store
   ([S-2660]; `schemaVersion` 1 inside, one writer, saved after each fetch that brought a new answer).
   At launch they are restored marked `Restored`: drawn at once, fresh only for their real age
@@ -3586,13 +3613,9 @@ their `SPEC.md`); this section keeps what they share. Shared rules in `Themia.Sd
   written, so they never read back as Zurich), their coordinate lines show nothing (their asks start
   empty), and a place typed into the coordinate lines counts as chosen (named by its coordinates
   when it has no name).
-- **[S-2849]** The location-name switch ([S-728]) only changes the header's title, so it stands on the
-  menu's first level right after the Location line (user request 2026-10-19: what is shown is chosen
-  on the first level, not inside the search) only while the card's header shows and no typed title wins over the place's
-  (`MenuCard.ReadsWidgetTitle`; [S-6070]). What a widget's lines know of its card is handed to them by
-  the host (`WidgetMenuLines.Card`, `QuickSet.Card`: the header as drawn, `ShownHeader`, and a typed
-  title); a header shown or a title cleared builds the menu again with it. Its value is kept while
-  hidden. Clear location stays either way.
+- **[S-2849]** *(Retired by [S-3590]: the Location name switch set the header's title a second time,
+  beside the Header row's Title; it is gone with `HideLocation`, and with it what a widget's lines knew
+  of their card, `MenuCard`.)*
 - **[S-2850]** **Use my location** (user request 2026-10-19), a switch every widget about a place
   has (`IPlaced.UseDeviceLocation`: current conditions, forecast, air quality, rain, Sun, Moon), on
   the first level right before the Location line (`DevicePlaceRows`, Windows' location glyph): on,
@@ -3620,8 +3643,7 @@ their `SPEC.md`); this section keeps what they share. Shared rules in `Themia.Sd
   logged at any precision: the log says states only. Nothing is written to disk but the weather the
   sync keeps for the rounded place, as for any place.
 - **[S-2853]** The widget reads a copy of its config at the device's position (`DevicePlaces.Resolve`,
-  `IPlaced.AtDevice`): its view, its header's title ("My location"; the weather's Location name
-  switch still applies) and its sync wants (`SyncInterests.From(state, device)`) alike, so no view
+  `IPlaced.AtDevice`): its view, its header's title ("My location") and its sync wants (`SyncInterests.From(state, device)`) alike, so no view
   knows where its coordinates came from; the stored config is never written by it. The name is "My
   location": the geocoder answers names, not places, so there is no reverse lookup.
 - **[S-2854]** While the switch is on and Windows gives no position, the card's body is the widget's

@@ -528,7 +528,6 @@
             "style": "standard",
             "showDetails": true,
             "locationName": "",
-            "hideLocation": false,
             "useDeviceLocation": false
           }
         },
@@ -558,7 +557,6 @@
             "showPrecipitation": true,
             "style": "rows",
             "locationName": "",
-            "hideLocation": false,
             "useDeviceLocation": false
           }
         },
@@ -2125,7 +2123,6 @@
             "style": "number",
             "scale": "Auto",
             "locationName": "",
-            "hideLocation": false,
             "useDeviceLocation": false
           }
         },
@@ -2152,7 +2149,6 @@
           "config": {
             "kind": "rainNextHour",
             "locationName": "",
-            "hideLocation": false,
             "useDeviceLocation": false
           }
         },

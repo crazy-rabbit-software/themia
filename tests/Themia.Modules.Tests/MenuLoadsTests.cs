@@ -15,7 +15,7 @@ public sealed class MenuLoadsTests
     private int _shown;
 
     private WidgetMenuLines Lines(bool host = true)
-        => new(() => _saves++, _ => { }) { ShowAccounts = host ? () => _shown++ : null };
+        => new(() => _saves++, _ => { }) { OpenSetting = host ? _ => _shown++ : null };
 
     private static ItemMenuEntry Line(IEnumerable<ItemMenuEntry> lines, string text) => Assert.Single(lines, l => l.Text == text);
 
