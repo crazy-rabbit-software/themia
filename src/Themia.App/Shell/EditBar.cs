@@ -65,8 +65,9 @@ internal enum BarMenu
 /// in 14. One button, one menu, toggled. On the flyouts' acrylic with their stroke, overlay corners
 /// and shadow.
 /// <para>
-/// Its own control so the debug render draws the real bar, and so a language switch rebuilds its
-/// contents in place (<see cref="Fill"/>) without moving it in the surface's tree.
+/// Its own control so the debug render draws the real bar; its buttons are built as edit mode starts
+/// (<see cref="Fill"/>, again on a language switch) and dropped as it ends (<see cref="Release"/>,
+/// [S-3593]), the add menu with them.
 /// </para>
 /// </summary>
 internal sealed partial class EditBar : Grid
@@ -119,15 +120,14 @@ internal sealed partial class EditBar : Grid
         _frame.PointerPressed += (_, e) => e.Handled = true;
         HorizontalAlignment = HorizontalAlignment.Center;
         VerticalAlignment = VerticalAlignment.Top;
-        Fill(commands);
     }
 
-    /// <summary>Whether its buttons are built.</summary>
+    /// <summary>Whether its buttons are built (edit mode, or a render).</summary>
     public bool Built => _frame.Child is not null;
 
     /// <summary>
-    /// Build the buttons in the current language, as the state was last shown. Called again on a
-    /// language switch.
+    /// Build the buttons in the current language, as the state was last shown. Called as edit mode
+    /// starts and again on a language switch.
     /// </summary>
     public void Fill(EditBarCommands commands)
     {
@@ -188,6 +188,20 @@ internal sealed partial class EditBar : Grid
         }
 
         MenuOpen(_openMenu);
+    }
+
+    /// <summary>
+    /// [S-3593] Edit mode ended: the buttons, the add menu and what they hold go; <see cref="Fill"/>
+    /// builds them again as it starts.
+    /// </summary>
+    public void Release()
+    {
+        _frame.Child = null;
+        _menuButtons.Clear();
+        _display = _view = _widget = null;
+        _undo = _redo = null;
+        _snap = null;
+        _openMenu = null;
     }
 
     /// <summary>

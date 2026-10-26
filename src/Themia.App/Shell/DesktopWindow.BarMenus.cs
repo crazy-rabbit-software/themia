@@ -15,7 +15,10 @@ namespace Themia.App.Shell;
 /// </summary>
 internal sealed partial class DesktopWindow
 {
-    /// <summary>[S-3520] The bar's menus, each built as it first opens, on the properties' layer: over the cards, under the edit bar.</summary>
+    /// <summary>
+    /// [S-3520] The bar's menus, each built as it first opens, on the properties' layer (over the
+    /// cards, under the edit bar); [S-3593] dropped as edit mode ends.
+    /// </summary>
     private readonly Dictionary<BarMenu, BarMenuView> _barMenus = [];
 
     /// <summary>[S-3521] The bar's menu open on this display, if any: one at a time.</summary>
@@ -49,6 +52,24 @@ internal sealed partial class DesktopWindow
         _barMenus[which] = menu;
         _propertiesLayer.Children.Add(menu);
         return menu;
+    }
+
+    /// <summary>
+    /// [S-3593] Edit mode ended: the bar's menus, the properties menu's rows and the bar's buttons
+    /// (with the add menu) are dropped, what they drew with them; each is built again as it is next
+    /// needed. Only what is cheap stays: the surface's layers and the bar's frame.
+    /// </summary>
+    private void ReleaseEditMenus()
+    {
+        CloseBarMenu(focusButton: false);
+        foreach (var menu in _barMenus.Values)
+        {
+            _propertiesLayer.Children.Remove(menu);
+        }
+
+        _barMenus.Clear();
+        _properties.Release();
+        _toolbar.Release();
     }
 
     /// <summary>[S-3521] A menu's button opens it, or closes it again; another menu open closes first.</summary>

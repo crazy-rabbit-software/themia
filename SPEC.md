@@ -1447,7 +1447,8 @@ files: `Shell/EditBar.cs`, `Shell/DesktopWindow.Toolbar.cs`, `Shell/WidgetPicker
 Needs a live pass: the bar on every display at mixed DPI and with a top taskbar (the trail's one
 width, a narrow display's crumbs shrinking, the bar 8 DIPs off its sides), the widget crumb coming
 and going with a selection and putting the properties menu away and back, Undo and Redo greying and
-lighting as changes, drags and steps happen, Snap in step with the grid; the menu opening under Add widget and at a right-click (and growing sideways as a submenu opens, near a display's
+lighting as changes, drags and steps happen, Snap in step with the grid, the menus built again after
+Done and opened at once; the menu opening under Add widget and at a right-click (and growing sideways as a submenu opens, near a display's
 edge too), the hover delay, the keys in the menu, and a pick starting the placement.
 
 ### The edit bar's settings menu (SETTINGS-MENU)
@@ -1742,6 +1743,16 @@ tests `WidgetMenuLinesTests` (`S3749_`), Core `SettingsMenuTests.Ownership.cs` a
   bar's menus or the card's own rows set unless it is a link (a focus session's Length is its own),
   and no widget's config has a field of a type only a higher level holds (a temperature scale, a
   clock, a week start, a cadence, a theme, a language).
+- **[S-3593]** Edit mode's menus live only while edit mode does (user request 2026-10-26: "release
+  the edit-mode menus when edit mode ends"). The bar's buttons and its add menu are built as edit
+  mode starts (`EditBar.Fill`), each bar menu as it first opens (`BarMenuOf`), the properties menu's
+  rows as something is selected; when edit mode ends the bar menus are taken off the surface and
+  dropped, the properties menu's rows, head and foot and the widget's lines go
+  (`PropertiesStrip.Release`), and the bar's buttons and add menu with them (`EditBar.Release`);
+  only the surface's layers and the bar's empty frame stay. Each is built again as it is next
+  needed. Measured (`--switch-check 1 <out.txt> --edit-menus`, Debug, the ordinary view): every bar
+  menu opened 150.9 MB private, after Done 136.9 MB (14 MB given back; the native heaps 59 → 45 MB);
+  a first open of Display ▾ 31 ms, View ▾ 14 ms, ⚙ 59 ms, and ⚙ again after Done 19 ms.
 
 ### The edit bar's Accounts (SETTINGS-ACCOUNTS)
 

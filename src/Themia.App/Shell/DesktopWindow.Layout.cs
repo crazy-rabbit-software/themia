@@ -89,14 +89,21 @@ internal sealed partial class DesktopWindow
     {
         if (editing)
         {
+            // [S-3593] The bar's buttons and its add menu are built as edit mode starts.
+            if (!_toolbar.Built)
+            {
+                _toolbar.Fill(ToolbarCommands());
+            }
+
             _propertiesDismissed = false;
             SyncProperties();
             ShowToolbar();
         }
         else
         {
-            // [S-3521] Done, or edit mode left any other way, closes the edit bar's open menu.
-            CloseBarMenu(focusButton: false);
+            // [S-3521] Done, or edit mode left any other way, closes the edit bar's open menu;
+            // [S-3593] and what the edit-mode menus drew goes with them.
+            ReleaseEditMenus();
         }
 
         _toolbar.Visibility = editing ? Visibility.Visible : Visibility.Collapsed;

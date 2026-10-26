@@ -140,6 +140,17 @@ internal sealed partial class PropertiesStrip : MenuPanel
         Present(FrameKey(), _offer.Shows ? Nodes() : null, Head, Foot());
     }
 
+    /// <summary>
+    /// [S-3593] Edit mode ended: the rows, the head and the foot go, and the widget's lines with them;
+    /// the next selection builds them again.
+    /// </summary>
+    public void Release()
+    {
+        _widget = null;
+        _offer = QuickSetOffer.None;
+        Present(string.Empty, null, null);
+    }
+
     /// <summary>What the head shows: the selection's count or the one widget, whether there is a menu at all.</summary>
     private string FrameKey()
         => _offer.Shows + "|" + _offer.TitleWidgetId + "|" + (_offer.HasTitle ? 0 : _offer.Count);

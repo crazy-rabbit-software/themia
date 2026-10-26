@@ -22,6 +22,9 @@ namespace Themia.App.Shell.Gallery;
 /// [S-1883] Debug only: <c>Themia.exe --switch-check &lt;rounds&gt; [&lt;out.txt&gt;] [--ordinary | --show &lt;view&gt;] [--per-view] [--dwell ms]</c>
 /// measures what switching views costs and whether it leaks.
 /// <c>[--state &lt;state.json&gt;]</c> takes the views from a copy of a state file (read, never written).
+/// <c>--edit-menus</c> ([S-3593]) measures what edit mode's menus hold: the ordinary view shown, edit
+/// mode entered, a widget selected, every bar menu opened (how long each first open takes), then Done,
+/// and once more opened after it (how long a rebuild takes).
 /// <c>--busy &lt;pictures&gt; [--stream &lt;url&gt;] [--soak s]</c> ([S-6601]) is the long-running desktop
 /// instead: two 2560x1440 stand-in displays, one with seven galleries over a picture folder, one with
 /// a video stream, the visualizer and the system widgets, measured every 30 s for <c>--soak</c>
@@ -76,7 +79,8 @@ internal static class SwitchCheck
         var outPath = at + 2 < args.Length && !args[at + 2].StartsWith("--", StringComparison.Ordinal)
             ? Path.GetFullPath(args[at + 2])
             : null;
-        var ordinary = args.Contains("--ordinary");
+        var editMenus = args.Contains("--edit-menus");
+        var ordinary = args.Contains("--ordinary") || editMenus;
         var dwellAt = Array.IndexOf(args, "--dwell");
         var dwell = dwellAt >= 0 && dwellAt + 1 < args.Length && int.TryParse(args[dwellAt + 1], out var d) && d >= 0 ? d : 250;
 
@@ -89,7 +93,9 @@ internal static class SwitchCheck
             ArgAfter(args, "--stream"),
             int.TryParse(ArgAfter(args, "--soak"), out var soak) && soak >= 0 ? soak : 0);
 
-        _ = RunAsync(app, dispatcher, rounds, outPath, ordinary, dwell, args.Contains("--per-view"), show, options);
+        _ = editMenus
+            ? EditMenusAsync(app, dispatcher, outPath)
+            : RunAsync(app, dispatcher, rounds, outPath, ordinary, dwell, args.Contains("--per-view"), show, options);
         return true;
     }
 
@@ -277,6 +283,93 @@ internal static class SwitchCheck
         finally
         {
             second?.CloseSurface();
+            surface?.CloseSurface();
+            host?.Dispose();
+
+            if (outPath is not null)
+            {
+                Directory.CreateDirectory(Path.GetDirectoryName(outPath)!);
+                await File.WriteAllLinesAsync(outPath, lines).ConfigureAwait(true);
+            }
+
+            app.Exit();
+        }
+    }
+
+    /// <summary>
+    /// [S-3593] What edit mode's menus hold and give back: the ordinary view shown, edit mode entered
+    /// (the bar built), a widget selected (its properties menu), each of the bar's menus opened once
+    /// and ⚙ down to Appearance (each first open timed), Done (the menus released), then edit mode
+    /// and ⚙ again (a rebuild timed).
+    /// </summary>
+    private static async Task EditMenusAsync(Application app, DispatcherQueue dispatcher, string? outPath)
+    {
+        var lines = new List<string>();
+        AppHost? host = null;
+        DesktopWindow? surface = null;
+
+        void Say(string line)
+        {
+            Console.WriteLine(line);
+            lines.Add(line);
+        }
+
+        string Timed(string label, Action open)
+        {
+            var clock = Stopwatch.StartNew();
+            open();
+            surface!.DebugRoot.UpdateLayout();
+            return $"{label}: {clock.Elapsed.TotalMilliseconds:0} ms";
+        }
+
+        try
+        {
+            var statePath = Path.Combine(Path.GetTempPath(), "themia-switch-check", "state.json");
+            var monitor = StandIn(DisplayId, Left, Width, Height);
+            var view = OrdinaryView();
+            var state = new AppState { Views = [view], ActiveViewId = view.Id };
+            state.ShowViewOn(DisplayId, view.Id);
+
+            host = new AppHost(dispatcher, AppStateStore.Detached(statePath), state);
+            surface = new DesktopWindow(host, monitor);
+            surface.ShowSurface();
+            await Task.Delay(2000).ConfigureAwait(true);
+            MemoryPriority.Lower();
+
+            Say(Measure("view shown, not editing", host, view));
+            host.SetEditMode(true);
+            await Task.Delay(1000).ConfigureAwait(true);
+            Say(Measure("edit mode (the bar built)", host, view));
+
+            host.Select(view.Widgets[0].Id);
+            await Task.Delay(1000).ConfigureAwait(true);
+            Say(Measure("a widget selected (its menu)", host, view));
+
+            Say(Timed("first open: Display", () => surface.OpenBarMenu(BarMenu.Display, [])));
+            Say(Timed("first open: View", () => surface.OpenBarMenu(BarMenu.View, [])));
+            Say(Timed("first open: Settings", () => surface.OpenBarMenu(BarMenu.Settings, [])));
+            Say(Timed("first open: Settings › Appearance", () => surface.OpenBarMenu(BarMenu.Settings, [Core.Settings.SettingsMenu.Keys.Appearance])));
+            await Task.Delay(1000).ConfigureAwait(true);
+            Say(Measure("every bar menu opened", host, view));
+
+            host.SetEditMode(false);
+            await Task.Delay(1500).ConfigureAwait(true);
+            Say(Measure("after Done (menus released)", host, view));
+
+            host.SetEditMode(true);
+            await Task.Delay(500).ConfigureAwait(true);
+            Say(Timed("open again after Done: Settings", () => surface.OpenBarMenu(BarMenu.Settings, [])));
+            host.SetEditMode(false);
+            await Task.Delay(1500).ConfigureAwait(true);
+            Say(Measure("after Done again", host, view));
+        }
+        catch (Exception ex)
+        {
+            Log.Error(Scope, "the edit-menus check failed", ex);
+            Say($"switch-check: failed: {ex.Message}");
+        }
+        finally
+        {
             surface?.CloseSurface();
             host?.Dispose();
 
