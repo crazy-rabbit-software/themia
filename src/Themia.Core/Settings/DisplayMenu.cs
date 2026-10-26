@@ -93,9 +93,9 @@ public static class DisplayMenu
     }
 
     /// <summary>
-    /// [S-3544] This display's view bar ([S-906], [S-916]): shown or not, its style ([S-5400]), where
-    /// it sits (the eight anchors), its size, its names, and the views it offers; its value where it
-    /// sits, or Hidden.
+    /// [S-3544] This display's view bar ([S-906], [S-916]): shown or not, its type ([S-5400]) and
+    /// labels ([S-5405]), where it sits (the eight anchors), its size, and the views it offers; its
+    /// value where it sits, or Hidden.
     /// </summary>
     private static SettingsSubmenu ViewBar(IDisplayMenuHost host)
     {
@@ -115,10 +115,16 @@ public static class DisplayMenu
             (ViewBarAnchor.BottomCenter, Str.Shell_ViewBar_BottomCentre.Text()),
             (ViewBarAnchor.BottomRight, Str.Shell_ViewBar_BottomRight.Text()),
         ];
-        (ViewBarStyle Value, string Text)[] styles =
+        (ViewBarType Value, string Text)[] types =
         [
-            (ViewBarStyle.Chips, Str.Shell_ViewBar_StyleChips.Text()),
-            (ViewBarStyle.Dropdown, Str.Shell_ViewBar_StyleDropdown.Text()),
+            (ViewBarType.Inline, Str.Shell_ViewBar_TypeInline.Text()),
+            (ViewBarType.Select, Str.Shell_ViewBar_TypeSelect.Text()),
+        ];
+        (ViewBarLabels Value, string Text)[] labels =
+        [
+            (ViewBarLabels.IconAndText, Str.Shell_ViewBar_LabelsIconAndText.Text()),
+            (ViewBarLabels.IconOnly, Str.Shell_ViewBar_LabelsIconOnly.Text()),
+            (ViewBarLabels.TextOnly, Str.Shell_ViewBar_LabelsTextOnly.Text()),
         ];
         (ViewBarSize Value, string Text)[] sizes =
         [
@@ -131,10 +137,10 @@ public static class DisplayMenu
         List<SettingsLine> lines =
         [
             new SettingsToggle(key + "/show", Str.Shell_ViewBar_Show.Text(), Glyphs.View, !bar.Hidden, on => Change(b => b.Hidden = !on)),
-            Choice(key + "/style", Str.BarMenus_ViewBar_Style.Text(), Glyphs.ListLayout, styles, bar.Style, v => Change(b => b.Style = v)),
+            Choice(key + "/type", Str.BarMenus_ViewBar_Type.Text(), Glyphs.ListLayout, types, bar.Type, v => Change(b => b.Type = v)),
+            Choice(key + "/labels", Str.BarMenus_ViewBar_Labels.Text(), Glyphs.Tag, labels, bar.Labels, v => Change(b => b.Labels = v)),
             Choice(key + "/position", Str.BarMenus_ViewBar_Position.Text(), Glyphs.Display, anchors, bar.Anchor, v => Change(b => b.Anchor = v)),
             Choice(key + "/size", Str.BarMenus_ViewBar_Size.Text(), Glyphs.Scale, sizes, bar.Size, v => Change(b => b.Size = v)),
-            new SettingsToggle(key + "/names", Str.Shell_ViewBar_ShowNames.Text(), Glyphs.Rename, !bar.IconOnly, on => Change(b => b.IconOnly = !on)),
             new SettingsSeparator(key + "/-views"),
             ViewsOnTheBar(host, bar),
         ];

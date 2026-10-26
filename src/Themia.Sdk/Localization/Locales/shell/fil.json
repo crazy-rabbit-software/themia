@@ -218,7 +218,6 @@
   "shell.size.medium": "Katamtaman",
   "shell.size.large": "Malaki",
   "shell.size.extraLarge": "Napakalaki",
-  "shell.viewBar.showNames": "Ipakita ang mga pangalan ng view",
   "shell.viewBar.allViews": "Lahat ng view",
   "shell.viewBar.someViews": "{count} sa {total} view",
   "shell.view.initials": "Mga inisyal",

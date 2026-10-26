@@ -1,5 +1,10 @@
 {
-  "shell.viewBar.styleChips": "Botões",
-  "shell.viewBar.styleDropdown": "Lista suspensa",
+  "barMenus.viewBar.type": "Tipo",
+  "barMenus.viewBar.labels": "Rótulos",
+  "shell.viewBar.typeInline": "Em linha",
+  "shell.viewBar.typeSelect": "Seletor",
+  "shell.viewBar.labelsIconAndText": "Ícone e texto",
+  "shell.viewBar.labelsIconOnly": "Só ícone",
+  "shell.viewBar.labelsTextOnly": "Só texto",
   "shell.viewBar.pickTip": "{name}\nClique para escolher uma visualização"
 }

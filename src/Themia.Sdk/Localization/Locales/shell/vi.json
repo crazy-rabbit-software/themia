@@ -211,7 +211,6 @@
   "shell.size.medium": "Vừa",
   "shell.size.large": "Lớn",
   "shell.size.extraLarge": "Rất lớn",
-  "shell.viewBar.showNames": "Hiện tên dạng xem",
   "shell.viewBar.allViews": "Mọi dạng xem",
   "shell.viewBar.someViews": "{count}/{total} dạng xem",
   "shell.view.initials": "Chữ viết tắt",

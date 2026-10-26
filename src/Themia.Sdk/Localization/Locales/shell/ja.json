@@ -211,7 +211,6 @@
   "shell.size.medium": "中",
   "shell.size.large": "大",
   "shell.size.extraLarge": "特大",
-  "shell.viewBar.showNames": "ビュー名を表示",
   "shell.viewBar.allViews": "すべてのビュー",
   "shell.viewBar.someViews": "{total} 個中 {count} 個のビュー",
   "shell.view.initials": "頭文字",

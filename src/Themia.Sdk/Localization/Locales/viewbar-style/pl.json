@@ -1,5 +1,10 @@
 {
-  "shell.viewBar.styleChips": "Przyciski",
-  "shell.viewBar.styleDropdown": "Lista rozwijana",
+  "barMenus.viewBar.type": "Typ",
+  "barMenus.viewBar.labels": "Etykiety",
+  "shell.viewBar.typeInline": "Obok siebie",
+  "shell.viewBar.typeSelect": "Lista wyboru",
+  "shell.viewBar.labelsIconAndText": "Ikona i tekst",
+  "shell.viewBar.labelsIconOnly": "Tylko ikona",
+  "shell.viewBar.labelsTextOnly": "Tylko tekst",
   "shell.viewBar.pickTip": "{name}\nKliknij, aby wybrać widok"
 }

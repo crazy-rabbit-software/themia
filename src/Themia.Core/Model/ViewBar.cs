@@ -24,14 +24,22 @@ public enum ViewBarSize
     ExtraLarge,
 }
 
-/// <summary>[S-5400] How the view bar offers its views: a chip each, or one drop-down button.</summary>
-public enum ViewBarStyle
+/// <summary>[S-5400] How the view bar offers its views: every one inline, or only the shown one to pick from.</summary>
+public enum ViewBarType
 {
-    /// <summary>A row (or column) of chips, one per view ([S-906]).</summary>
-    Chips,
+    /// <summary>A row (or column) of chips, one per view on the bar, side by side ([S-906]).</summary>
+    Inline,
 
-    /// <summary>One button with the shown view's icon and name, opening a list of the bar's views.</summary>
-    Dropdown,
+    /// <summary>One button with the shown view alone; a click opens the list of the bar's views to pick another ([S-5401]).</summary>
+    Select,
+}
+
+/// <summary>[S-5405] What names a view on the bar: its icon (or initials) and its name, the icon alone, or the name alone.</summary>
+public enum ViewBarLabels
+{
+    IconAndText,
+    IconOnly,
+    TextOnly,
 }
 
 /// <summary>[S-907] Whether the view bar is drawn, and how.</summary>
@@ -59,11 +67,11 @@ public sealed class ViewBarSettings
 
     public ViewBarSize Size { get; set; } = ViewBarSize.Medium;
 
-    /// <summary>[S-5400] Chips by default, as the bar always was.</summary>
-    public ViewBarStyle Style { get; set; } = ViewBarStyle.Chips;
+    /// <summary>[S-5400] Inline by default, as the bar always was.</summary>
+    public ViewBarType Type { get; set; } = ViewBarType.Inline;
 
-    /// <summary>Icons (or initials) alone, without the names.</summary>
-    public bool IconOnly { get; set; }
+    /// <summary>[S-5405] Icon and text by default.</summary>
+    public ViewBarLabels Labels { get; set; } = ViewBarLabels.IconAndText;
 
     /// <summary>The user turned the bar off on this display. Edit mode still shows a faded preview.</summary>
     public bool Hidden { get; set; }
@@ -78,8 +86,8 @@ public sealed class ViewBarSettings
     {
         Anchor = Anchor,
         Size = Size,
-        Style = Style,
-        IconOnly = IconOnly,
+        Type = Type,
+        Labels = Labels,
         Hidden = Hidden,
         VisibleViews = [.. VisibleViews],
     };
@@ -121,10 +129,35 @@ public static class ViewBarRules
 
     /// <summary>
     /// [S-910] The two middle-of-a-side anchors stack the chips; every other anchor lays them in a
-    /// row. [S-5401] A drop-down is one button, so it is a row at every anchor.
+    /// row. [S-5401] A select bar is one button, so it is a row at every anchor.
     /// </summary>
-    public static bool IsVertical(ViewBarAnchor anchor, ViewBarStyle style = ViewBarStyle.Chips)
-        => style == ViewBarStyle.Chips && anchor is ViewBarAnchor.LeftCenter or ViewBarAnchor.RightCenter;
+    public static bool IsVertical(ViewBarAnchor anchor, ViewBarType type = ViewBarType.Inline)
+        => type == ViewBarType.Inline && anchor is ViewBarAnchor.LeftCenter or ViewBarAnchor.RightCenter;
+
+    /// <summary>[S-5405] Whether a chip, the select button and the menu's rows draw the view's icon (or initials).</summary>
+    public static bool ShowsMark(ViewBarLabels labels) => labels != ViewBarLabels.TextOnly;
+
+    /// <summary>[S-5405] Whether a chip and the select button draw the view's name. The menu's rows always do: a list of marks alone cannot be read.</summary>
+    public static bool ShowsName(ViewBarLabels labels) => labels != ViewBarLabels.IconOnly;
+
+    /// <summary>
+    /// [S-5406] Text only: whether a name carries a dot in its view's colour, the cue the icon carried.
+    /// A view without a colour has none; on a column every chip keeps the dot's room when one view
+    /// on the bar has one, so the names start on one line.
+    /// </summary>
+    /// <returns>Draw a dot, keep its room empty, or neither.</returns>
+    public static ViewBarDot Dot(ViewBarLabels labels, bool vertical, bool hasColour, bool anyHasColour)
+        => labels != ViewBarLabels.TextOnly ? ViewBarDot.None
+            : hasColour ? ViewBarDot.Drawn
+            : vertical && anyHasColour ? ViewBarDot.Room
+            : ViewBarDot.None;
+
+    /// <summary>
+    /// [S-5405] A chip's tooltip outside edit mode: the name where the chip does not say it (icon
+    /// only), the default view's note where there is one; none where the name is on the chip already.
+    /// </summary>
+    public static string? ChipTip(ViewBarLabels labels, string name, string? defaultNote)
+        => defaultNote ?? (ShowsName(labels) ? null : name);
 
     /// <summary>
     /// [S-908] The views the bar offers, in the user's view order. The whitelist filters; an empty
@@ -224,10 +257,10 @@ public static class ViewBarRules
     /// gives up the strip the edit toolbar takes at the top, so a column pushed below the toolbar
     /// ([S-909]) still ends a margin above the bottom.
     /// </summary>
-    public static double Room(PixelRect area, ViewBarAnchor anchor, PixelRect? avoid = null, ViewBarStyle style = ViewBarStyle.Chips)
+    public static double Room(PixelRect area, ViewBarAnchor anchor, PixelRect? avoid = null, ViewBarType type = ViewBarType.Inline)
     {
         var m = EdgeMargin;
-        if (!IsVertical(anchor, style))
+        if (!IsVertical(anchor, type))
         {
             return Math.Max(0, area.Width - (2 * m));
         }
@@ -297,15 +330,15 @@ public static class ViewBarRules
     }
 
     /// <summary>
-    /// [S-5402] The views the bar's menu lists, as indexes in bar order: a drop-down lists every
-    /// view on the bar; the chip bar's overflow chip ([S-918]) lists the ones <paramref name="fit"/>
+    /// [S-5402] The views the bar's menu lists, as indexes in bar order: a select bar lists every
+    /// view on the bar; the inline bar's overflow chip ([S-918]) lists the ones <paramref name="fit"/>
     /// left out. One menu, two callers.
     /// </summary>
-    public static IReadOnlyList<int> MenuViews(ViewBarStyle style, int count, ViewBarFit fit)
+    public static IReadOnlyList<int> MenuViews(ViewBarType type, int count, ViewBarFit fit)
     {
         ArgumentNullException.ThrowIfNull(fit);
 
-        if (style == ViewBarStyle.Dropdown)
+        if (type == ViewBarType.Select)
         {
             return [.. Enumerable.Range(0, Math.Max(0, count))];
         }
@@ -477,6 +510,14 @@ public static class ViewBarRules
 
 /// <summary>[S-917] The chips a view bar draws: their indexes in bar order, and whether the rest go behind an overflow chip.</summary>
 public sealed record ViewBarFit(IReadOnlyList<int> Shown, bool Overflow);
+
+/// <summary>[S-5406] A text-only name's colour dot: drawn, its room kept empty (a column's names start on one line), or none.</summary>
+public enum ViewBarDot
+{
+    None,
+    Drawn,
+    Room,
+}
 
 /// <summary>[S-918] The side of the bar a menu opens on.</summary>
 public enum ViewBarMenuSide

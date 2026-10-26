@@ -1,5 +1,10 @@
 {
-  "shell.viewBar.styleChips": "Pulsanti",
-  "shell.viewBar.styleDropdown": "Menu a discesa",
+  "barMenus.viewBar.type": "Tipo",
+  "barMenus.viewBar.labels": "Etichette",
+  "shell.viewBar.typeInline": "In linea",
+  "shell.viewBar.typeSelect": "Selettore",
+  "shell.viewBar.labelsIconAndText": "Icona e testo",
+  "shell.viewBar.labelsIconOnly": "Solo icona",
+  "shell.viewBar.labelsTextOnly": "Solo testo",
   "shell.viewBar.pickTip": "{name}\nFai clic per scegliere una vista"
 }

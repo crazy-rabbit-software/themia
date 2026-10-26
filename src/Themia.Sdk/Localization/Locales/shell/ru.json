@@ -232,7 +232,6 @@
   "shell.size.medium": "Средний",
   "shell.size.large": "Большой",
   "shell.size.extraLarge": "Очень большой",
-  "shell.viewBar.showNames": "Показывать имена видов",
   "shell.viewBar.allViews": "Все виды",
   "shell.viewBar.someViews": "{count} из {total} видов",
   "shell.view.initials": "Инициалы",

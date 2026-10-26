@@ -211,7 +211,6 @@
   "shell.size.medium": "中",
   "shell.size.large": "大",
   "shell.size.extraLarge": "特大",
-  "shell.viewBar.showNames": "显示视图名称",
   "shell.viewBar.allViews": "所有视图",
   "shell.viewBar.someViews": "{total} 个视图中的 {count} 个",
   "shell.view.initials": "首字母",

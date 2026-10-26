@@ -22,7 +22,7 @@ namespace Themia.App.Shell.Gallery;
 /// <c>-rename</c> (its name's field level) and <c>-delete</c> (its "are you sure?" level),
 /// <c>-drag</c> (a view's row dragged, its drop line), <c>-many</c> (40 views: the rows scroll inside
 /// the one rectangle), <c>-many-end</c> (scrolled to their end) and <c>-many-view</c>; <c>display-&lt;theme&gt;.png</c>, <c>-viewbar</c>,
-/// <c>-position</c>, <c>-bar-views</c>, <c>-new</c> and <c>-showon</c> (three displays, one switched
+/// <c>-type</c>, <c>-labels</c>, <c>-position</c>, <c>-bar-views</c>, <c>-new</c> and <c>-showon</c> (three displays, one switched
 /// off). Stand-in hosts: nothing reaches Windows, the displays or the user's state.
 /// </summary>
 internal static partial class EditBarRender
@@ -85,6 +85,8 @@ internal static partial class EditBarRender
         [
             (string.Empty, []),
             ("-viewbar", [bar]),
+            ("-type", [bar, bar + "/type"]),
+            ("-labels", [bar, bar + "/labels"]),
             ("-position", [bar, bar + "/position"]),
             ("-bar-views", [bar, bar + "/views"]),
             ("-new", [DisplayMenu.Keys.NewDisplays]),

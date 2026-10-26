@@ -1,5 +1,10 @@
 {
-  "shell.viewBar.styleChips": "Кнопки",
-  "shell.viewBar.styleDropdown": "Раскрывающийся список",
+  "barMenus.viewBar.type": "Тип",
+  "barMenus.viewBar.labels": "Подписи",
+  "shell.viewBar.typeInline": "В ряд",
+  "shell.viewBar.typeSelect": "Список выбора",
+  "shell.viewBar.labelsIconAndText": "Значок и текст",
+  "shell.viewBar.labelsIconOnly": "Только значок",
+  "shell.viewBar.labelsTextOnly": "Только текст",
   "shell.viewBar.pickTip": "{name}\nНажмите, чтобы выбрать вид"
 }

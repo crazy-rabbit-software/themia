@@ -218,7 +218,6 @@
   "shell.size.medium": "متوسط",
   "shell.size.large": "بزرگ",
   "shell.size.extraLarge": "خیلی بزرگ",
-  "shell.viewBar.showNames": "نمایش نام نماها",
   "shell.viewBar.allViews": "همه نماها",
   "shell.viewBar.someViews": "{count} از {total} نما",
   "shell.view.initials": "حروف اول",

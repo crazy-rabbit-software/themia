@@ -1,5 +1,10 @@
 {
-  "shell.viewBar.styleChips": "চিপ",
-  "shell.viewBar.styleDropdown": "ড্রপডাউন",
+  "barMenus.viewBar.type": "ধরন",
+  "barMenus.viewBar.labels": "লেবেল",
+  "shell.viewBar.typeInline": "পাশাপাশি",
+  "shell.viewBar.typeSelect": "বাছাই তালিকা",
+  "shell.viewBar.labelsIconAndText": "আইকন ও লেখা",
+  "shell.viewBar.labelsIconOnly": "শুধু আইকন",
+  "shell.viewBar.labelsTextOnly": "শুধু লেখা",
   "shell.viewBar.pickTip": "{name}\nএকটি ভিউ বেছে নিতে ক্লিক করুন"
 }

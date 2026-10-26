@@ -1,5 +1,10 @@
 {
-  "shell.viewBar.styleChips": "Các nút",
-  "shell.viewBar.styleDropdown": "Danh sách thả xuống",
+  "barMenus.viewBar.type": "Loại",
+  "barMenus.viewBar.labels": "Nhãn",
+  "shell.viewBar.typeInline": "Xếp hàng",
+  "shell.viewBar.typeSelect": "Danh sách chọn",
+  "shell.viewBar.labelsIconAndText": "Biểu tượng và chữ",
+  "shell.viewBar.labelsIconOnly": "Chỉ biểu tượng",
+  "shell.viewBar.labelsTextOnly": "Chỉ chữ",
   "shell.viewBar.pickTip": "{name}\nBấm để chọn dạng xem"
 }

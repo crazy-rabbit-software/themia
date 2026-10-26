@@ -1,5 +1,10 @@
 {
-  "shell.viewBar.styleChips": "ボタン",
-  "shell.viewBar.styleDropdown": "ドロップダウン",
+  "barMenus.viewBar.type": "種類",
+  "barMenus.viewBar.labels": "ラベル",
+  "shell.viewBar.typeInline": "並べて表示",
+  "shell.viewBar.typeSelect": "選択リスト",
+  "shell.viewBar.labelsIconAndText": "アイコンとテキスト",
+  "shell.viewBar.labelsIconOnly": "アイコンのみ",
+  "shell.viewBar.labelsTextOnly": "テキストのみ",
   "shell.viewBar.pickTip": "{name}\nクリックしてビューを選択"
 }

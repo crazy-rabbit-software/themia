@@ -1657,8 +1657,9 @@ by), `Shell/DesktopWindow.ViewsMenu.cs`, `Shell/DesktopWindow.DisplayMenu.cs`,
   Core's (`DisplayMenu.Root`, the views keyed `show:<id>`); they follow the state and, while the menu
   is open, every display pass (a display plugged in or switched off).
 - **[S-3544]** **View bar ›**, this display's bar ([S-906]), its value where it sits or **Hidden**:
-  **Show the view bar**, **Style ›** (Chips, Drop-down, [S-5400]), **Position ›** (the eight anchors),
-  **Size ›** (Medium, Large, Extra large), **Show view names**; under a divider **Views ›** (the
+  **Show the view bar**, **Type ›** (Inline, Select, [S-5400]), **Labels ›** (Icon and text, Icon
+  only, Text only, [S-5405]), **Position ›** (the eight anchors), **Size ›** (Medium, Large, Extra
+  large), each choice with what holds at its end; under a divider **Views ›** (the
   views on the bar), its value "All views", the one view's name or "2 of 4 views" (`ViewBarRules.Offer`): **All views**
   (on while the bar offers every view; switched off it keeps only the view this display shows,
   `ViewBarRules.SetAllVisible`), a divider, then a switch per view with its icon in its colour
@@ -6744,9 +6745,9 @@ toolbar's snap switch. Rules in Core `ViewOps` and `ViewBarRules` (tests `ViewsT
   Themia takes no digits: there is no global hotkey (audit B6).
 - **[S-905]** The edit bar's Snap toggle sets `Design.GridSnap`, and nothing else does ([S-3516]).
 - **[S-906]** Each display has its own view bar settings (`AppState.ViewBars`, keyed like
-  `MonitorViews`): anchor (default bottom left), size M/L/XL, names or icons only, hidden, and a
-  whitelist of views. A display without an entry uses the defaults and nothing is stored until it
-  is changed. At load, blank keys and null entries are dropped, unknown anchors/sizes reset, and
+  `MonitorViews`): anchor (default bottom left), size M/L/XL, type ([S-5400]), labels ([S-5405]),
+  hidden, and a whitelist of views. A display without an entry uses the defaults and nothing is stored until it
+  is changed. At load, blank keys and null entries are dropped, unknown anchors/sizes/types/labels reset, and
   each whitelist keeps only existing views, once each. Import carries them over.
 - **[S-907]** Outside edit mode the bar is drawn unless hidden, and only when it offers more than one
   view or the user picked the views on purpose (a deliberate single-view whitelist still shows). In
@@ -6763,7 +6764,7 @@ toolbar's snap switch. Rules in Core `ViewOps` and `ViewBarRules` (tests `ViewsT
   28/34/40 icon-only squares). A chip shows the view's icon or initials (the first letters of the
   first two words, or the first two letters of one word, upper-cased, counted in text elements; "?"
   for a blank name) and its name (bold for the
-  view new displays start on); the shown view is a raised control, the rest subtle until hovered.
+  view new displays start on), or one of them ([S-5405]); the shown view is a raised control, the rest subtle until hovered.
   The bar's fill and stroke are the widget card's (colour, opacity, border colour).
 - **[S-912]** Outside edit mode the bar's box is added to the surface's hit region, cut to the work
   area; everything around it stays the desktop. It is an element on the surface, not a window, so it
@@ -6776,8 +6777,9 @@ toolbar's snap switch. Rules in Core `ViewOps` and `ViewBarRules` (tests `ViewsT
   the pointer (also past the ends); release commits the move ([S-901]); a lost capture undoes it.
 - **[S-915]** In edit mode a chip's right-click menu offers Duplicate view and View settings (the chip's view shown here, then View ▾, [S-3546]); outside
   edit mode it has none. A click always shows the chip's view on this display.
-- **[S-916]** A display's view bar is set in its Display ▾ › View bar › ([S-3544]): Show the view bar,
-  Style ([S-5400]), Position (8 anchors), Size, Show view names, and Views on the bar. A view is
+- **[S-916]** A display's view bar is set in its Display ▾ › View bar › ([S-3544]) and nowhere else
+  (a chip's right-click menu offers no look, [S-915]): Show the view bar, Type ([S-5400]), Labels
+  ([S-5405]), Position (8 anchors), Size, and Views on the bar. A view is
   shown on a display through `ShowViewOn` (Display ▾, [S-3543]).
 - **[S-917]** The bar never runs off its display (user bug: with many views it ran past the edge).
   Its room along its axis (`ViewBarRules.Room`) is the work area's width (a row) or height (a
@@ -6803,29 +6805,54 @@ toolbar's snap switch. Rules in Core `ViewOps` and `ViewBarRules` (tests `ViewsT
   command bar.
 - **[S-919]** Debug render: `Themia.exe --viewbar-png <outDir> [--views n] [--theme light|dark]`.
   With `--views n` (1..60) it draws n views, the shown one two thirds along, at all eight anchors
-  with names and icon-only (the sizes in turn) and two edit-mode shots, and the overflow menu of the
-  bottom-left shot; it prints each bar's box and flags one outside the work area.
-- **[S-5400]** Each display's bar has a style (`ViewBarSettings.Style`): Chips (the default, the bar
-  above) or Drop-down. Set by Display ▾ › View bar › Style ([S-3544]), after Show the view bar. At load an unknown style resets to Chips and is logged as a repair.
-- **[S-5401]** A drop-down is one raised button: the shown view's icon (or initials) in its colour,
-  its name (left out when names are off, cut to the room the bar has) and a chevron; a display
-  showing a view the bar does not offer reads "Views". It is a row at every anchor, so its room is
-  the work area's width (`ViewBarRules.IsVertical` / `Room` with the style). Anchors, sizes, the
-  edit-mode grip and drag ([S-913]), placement inside the work area ([S-909]), the hidden preview
-  ([S-907]) and the hit region ([S-912]) are the chip bar's. In edit mode the button takes the
-  keyboard like a chip (F6, Enter / Space opens it).
+  with each of the three labels ([S-5405], the sizes in turn) and two edit-mode shots, and the
+  overflow menu of the bottom-left icon-and-text and text-only shots; it prints each bar's box and
+  flags one outside the work area.
+- **[S-5400]** Each display's bar has a type (`ViewBarSettings.Type`, `ViewBarType`): **Inline** (the
+  default, the bar above: every view the bar offers as a chip, side by side or stacked) or **Select**
+  (only the shown view, [S-5401]; a click opens the list of the bar's views to pick another,
+  [S-5402]). Set by Display ▾ › View bar › Type ([S-3544]), after Show the view bar. At load an
+  unknown type resets to Inline and is logged as a repair.
+- **[S-5401]** A select bar is one raised button: the shown view, labelled as the bar is ([S-5405]),
+  the name cut to the room the bar has, and a chevron; a display showing a view the bar does not
+  offer reads "Views". Its tooltip says to click to choose a view. It is a row at every anchor, so
+  its room is the work area's width (`ViewBarRules.IsVertical` / `Room` with the type). Anchors,
+  sizes, the edit-mode grip and drag ([S-913]), placement inside the work area ([S-909]), the hidden
+  preview ([S-907]) and the hit region ([S-912]) are the inline bar's. In edit mode the button takes
+  the keyboard like a chip (F6, Enter / Space opens it).
 - **[S-5402]** A click opens the bar's one menu (`ViewBar.ViewMenu`, the overflow chip's menu of
-  [S-918]): `ViewBarRules.MenuViews` lists every view on the bar for a drop-down, the views left
-  off for the overflow chip. Every view with its icon in its colour, in bar order, the shown one
-  ticked and focused; it opens into the display and scrolls within the work area there
-  (`MenuSide`, `MenuHeight`). It is a standard flyout, opened and closed (a click outside, Escape,
-  a pick) as the overflow menu is, with or without edit mode; arrows and Enter are the menu's own.
+  [S-918]): `ViewBarRules.MenuViews` lists every view on the bar for a select bar (the views the
+  bar offers, [S-908], in the user's view order), the views left off for the overflow chip. Every
+  row has the view's name, with its icon in its colour, or with text only its colour dot
+  ([S-5406]); in bar order, the shown one ticked and focused; a pick shows that view on this
+  display ([S-19]). It opens into the display and scrolls within the work area there (`MenuSide`,
+  `MenuHeight`). It is a standard flyout, opened and closed (a click outside, Escape, a pick) as the
+  overflow menu is, with or without edit mode; arrows and Enter are the menu's own.
 - **[S-5403]** Type-ahead in the menu: a letter moves to the next view after the focused one whose
   name starts with it, wrapping, so the same letter steps through them (`ViewBarRules.TypeAhead`;
   case-insensitive, no timer).
-- **[S-5404]** `--viewbar-png` ends both sets with drop-down shots (bottom left M, top right L icons
-  only, left middle XL, top centre M in edit mode), each closed and with its menu open
-  (`…-dropdown-…-menu.png`); `--theme` and `--lang` apply.
+- **[S-5404]** `--viewbar-png` draws the three labels inline (rows at M, L and XL; columns, icon-only and
+  text-only; edit mode) and ends both sets with select shots (bottom left M, top right L icon only,
+  bottom centre XL text only, left middle XL, right middle M text only, top centre M in edit mode),
+  each closed and with its menu open (`…-select-…-menu.png`); `--theme` and `--lang` apply.
+  `--editbar-png --only bar` draws Display ▾ › View bar and its Type and Labels levels.
+- **[S-5405]** Each display's bar has labels (`ViewBarSettings.Labels`, `ViewBarLabels`): **Icon and
+  text** (the default: the view's icon or initials and its name), **Icon only** (the mark alone in
+  one square, [S-911]) or **Text only** (the name alone, padded like a named chip). They apply to
+  both types: the chips, the select button and the menu's rows, except that a menu row always has
+  the name (a list of marks cannot be read). Set by Display ▾ › View bar › Labels ([S-3544]); at
+  load an unknown value resets to Icon and text and is logged. Outside edit mode a chip has the
+  view's name as its tooltip only where it does not say it (icon only); the view new displays start
+  on keeps its note "(shown on new displays)" with every label, and edit mode keeps its tip of what
+  a click, a drag and a right-click do (`ViewBarRules.ChipTip`). Chip widths are measured as drawn,
+  so fitting and overflow ([S-917], [S-918]) hold for every label.
+- **[S-5406]** Text only keeps a view's colour ([S-3810]) as a dot before its name (half the step's
+  icon size), not as the name's colour: the name stays in the theme's text, so it reads on any
+  card fill and in both themes, as the icon did beside it. A view without a colour has no dot; on a
+  column (left and right middle anchors) every chip keeps the dot's room once one view on the bar
+  has a colour, so the names start on one line (`ViewBarRules.Dot`). The menu's rows put the dot
+  where the icon was (`ViewMark.Dot`). The flow follows the language, so in a right-to-left
+  language the dot sits right of the name.
 
 Not ported: the original's chip "drag-over" highlight (the chip itself moves instead); the free-tier view-limit
 tooltip on the bar (licensing refuses through `AllowCreate`). Debug render:

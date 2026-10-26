@@ -1,5 +1,10 @@
 {
-  "shell.viewBar.styleChips": "شرائح",
-  "shell.viewBar.styleDropdown": "قائمة منسدلة",
+  "barMenus.viewBar.type": "النوع",
+  "barMenus.viewBar.labels": "التسميات",
+  "shell.viewBar.typeInline": "مضمّن",
+  "shell.viewBar.typeSelect": "قائمة اختيار",
+  "shell.viewBar.labelsIconAndText": "الأيقونة والنص",
+  "shell.viewBar.labelsIconOnly": "الأيقونة فقط",
+  "shell.viewBar.labelsTextOnly": "النص فقط",
   "shell.viewBar.pickTip": "{name}\nانقر لاختيار مشهد"
 }

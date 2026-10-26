@@ -211,7 +211,6 @@
   "shell.size.medium": "보통",
   "shell.size.large": "크게",
   "shell.size.extraLarge": "아주 크게",
-  "shell.viewBar.showNames": "보기 이름 표시",
   "shell.viewBar.allViews": "모든 보기",
   "shell.viewBar.someViews": "보기 {total}개 중 {count}개",
   "shell.view.initials": "머리글자",

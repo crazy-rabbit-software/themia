@@ -211,7 +211,6 @@
   "shell.size.medium": "中",
   "shell.size.large": "大",
   "shell.size.extraLarge": "特大",
-  "shell.viewBar.showNames": "顯示檢視名稱",
   "shell.viewBar.allViews": "所有檢視",
   "shell.viewBar.someViews": "{total} 個檢視中的 {count} 個",
   "shell.view.initials": "縮寫",

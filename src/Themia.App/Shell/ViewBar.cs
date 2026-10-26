@@ -21,8 +21,12 @@ namespace Themia.App.Shell;
 /// <param name="Color">[S-3812] The view's own colour for its icon or initials (<c>#RRGGBB</c>), or null for the theme's.</param>
 internal sealed record ViewBarItem(string Id, string Name, string? Icon, bool Shown, bool IsDefault, string? Color = null);
 
-/// <summary>How the view bar is drawn: its size, labels, direction, edit-mode state and [S-5400] style.</summary>
-internal sealed record ViewBarLook(ViewBarSize Size, bool IconOnly, bool Vertical, bool Editing, bool Preview, ViewBarStyle Style = ViewBarStyle.Chips);
+/// <summary>How the view bar is drawn: its size, [S-5405] labels, direction, edit-mode state and [S-5400] type.</summary>
+internal sealed record ViewBarLook(ViewBarSize Size, ViewBarLabels Labels, bool Vertical, bool Editing, bool Preview, ViewBarType Type = ViewBarType.Inline)
+{
+    /// <summary>[S-5405] Icon only: a chip is one square, its name in its tooltip.</summary>
+    public bool IconOnly => Labels == ViewBarLabels.IconOnly;
+}
 
 /// <summary>What the view bar asks of the surface it sits on. Points are in the window's content coordinates.</summary>
 internal interface IViewBarOwner
@@ -43,10 +47,11 @@ internal interface IViewBarOwner
     void BarDragEnded(Point at, bool moved);
 
     /// <summary>
-    /// [S-918] / [S-5402] The overflow chip or the drop-down button was clicked: list
-    /// <paramref name="views"/> (the ones that did not fit, or every view on a drop-down).
+    /// [S-918] / [S-5402] The overflow chip or the select button was clicked: list
+    /// <paramref name="views"/> (the ones that did not fit, or every view on a select bar), labelled
+    /// as the bar is ([S-5405]).
     /// </summary>
-    void ShowViewMenu(FrameworkElement button, IReadOnlyList<ViewBarItem> views);
+    void ShowViewMenu(FrameworkElement button, IReadOnlyList<ViewBarItem> views, ViewBarLabels labels);
 }
 
 /// <summary>
@@ -77,16 +82,16 @@ internal sealed partial class ViewBar : Grid
 
     /// <summary>
     /// [S-5402] The views the bar's menu lists, in bar order: those whose chips did not fit
-    /// ([S-918]), or every view on a drop-down.
+    /// ([S-918]), or every view on a select bar.
     /// </summary>
     private IReadOnlyList<ViewBarItem> _menuViews = [];
 
-    /// <summary>The overflow chip while the chip bar has one, or the drop-down button.</summary>
+    /// <summary>The overflow chip while the inline bar has one, or the select button.</summary>
     private Border? _menuButton;
 
     private bool _menuPressed;
 
-    /// <summary>[S-918] / [S-5401] The overflow chip or the drop-down button; null when every chip fits.</summary>
+    /// <summary>[S-918] / [S-5401] The overflow chip or the select button; null when every chip fits.</summary>
     internal FrameworkElement? MenuButton => _menuButton;
 
     /// <summary>[S-5402] The views the menu lists, in bar order.</summary>
@@ -215,17 +220,18 @@ internal sealed partial class ViewBar : Grid
             fixedLength += Length(grip, look.Vertical) + _panel.Spacing;
         }
 
-        if (look.Style == ViewBarStyle.Dropdown)
+        if (look.Type == ViewBarType.Select)
         {
             // [S-5401] One button for the whole bar; its menu lists every view on it ([S-5402]).
-            _menuViews = [.. ViewBarRules.MenuViews(look.Style, _items.Count, new ViewBarFit([], Overflow: false)).Select(i => _items[i])];
-            _menuButton = BuildDropdown(look, metrics, _room - fixedLength);
+            _menuViews = [.. ViewBarRules.MenuViews(look.Type, _items.Count, new ViewBarFit([], Overflow: false)).Select(i => _items[i])];
+            _menuButton = BuildSelect(look, metrics, _room - fixedLength);
             _panel.Children.Add(_menuButton);
             FinishRebuild(look);
             return;
         }
 
-        var chips = _items.Select(item => BuildChip(item, look, metrics)).ToList();
+        var anyColour = _items.Any(i => DesignApplier.UserBrush(i.Color) is not null);
+        var chips = _items.Select(item => BuildChip(item, look, metrics, anyColour)).ToList();
         var overflow = BuildOverflowChip(look, metrics);
         var fit = ViewBarRules.Fit(
             [.. chips.Select(c => Length(c, look.Vertical))],
@@ -240,7 +246,7 @@ internal sealed partial class ViewBar : Grid
             _panel.Children.Add(chips[index]);
         }
 
-        _menuViews = [.. ViewBarRules.MenuViews(look.Style, _items.Count, fit).Select(i => _items[i])];
+        _menuViews = [.. ViewBarRules.MenuViews(look.Type, _items.Count, fit).Select(i => _items[i])];
         _menuButton = null;
         if (fit.Overflow)
         {
@@ -322,25 +328,70 @@ internal sealed partial class ViewBar : Grid
         return initials;
     }
 
-    private Border BuildChip(ViewBarItem item, ViewBarLook look, Metrics metrics)
+    /// <summary>
+    /// [S-5406] Text only: the dot in the view's colour before its name, the cue its icon carried,
+    /// or the dot's room kept empty on a column so the names start on one line; null for neither.
+    /// </summary>
+    private static FrameworkElement? BuildDot(ViewBarItem item, Metrics metrics, ViewBarLabels labels, bool vertical, bool anyColour)
+    {
+        var tint = DesignApplier.UserBrush(item.Color);
+        var dot = ViewBarRules.Dot(labels, vertical, tint is not null, anyColour);
+        if (dot == ViewBarDot.None)
+        {
+            return null;
+        }
+
+        var size = Math.Round(metrics.Icon / 2);
+        return new Ellipse
+        {
+            Width = size,
+            Height = size,
+            Fill = dot == ViewBarDot.Drawn ? tint : null,
+            VerticalAlignment = VerticalAlignment.Center,
+        };
+    }
+
+    /// <summary>
+    /// [S-911] [S-5405] A view's name on the bar, bold for the default view. Text only, its colour is
+    /// the dot's ([S-5406]); the name stays in the theme's text, so it reads on any card.
+    /// </summary>
+    private static TextBlock BuildName(ViewBarItem item, Metrics metrics, string brush)
+    {
+        var name = Fluent.Text(item.IsDefault ? FluentType.Strong(metrics.Type) : metrics.Type, brush);
+        name.Text = item.Name;
+        name.VerticalAlignment = VerticalAlignment.Center;
+        name.MaxWidth = 220;
+        return name;
+    }
+
+    private Border BuildChip(ViewBarItem item, ViewBarLook look, Metrics metrics, bool anyColour)
     {
         var brush = item.Shown ? "TextFillColorPrimaryBrush" : "TextFillColorSecondaryBrush";
-        var mark = BuildMark(item, metrics, brush);
-
-        FrameworkElement content = mark;
-        if (!look.IconOnly)
+        var parts = new List<FrameworkElement>();
+        if (ViewBarRules.ShowsMark(look.Labels))
         {
-            var name = Fluent.Text(item.IsDefault ? FluentType.Strong(metrics.Type) : metrics.Type, brush);
-            name.Text = item.Name;
-            name.VerticalAlignment = VerticalAlignment.Center;
-            name.MaxWidth = 220;
+            parts.Add(BuildMark(item, metrics, brush));
+        }
+        else if (BuildDot(item, metrics, look.Labels, look.Vertical, anyColour) is { } dot)
+        {
+            parts.Add(dot);
+        }
 
-            content = new StackPanel
+        if (ViewBarRules.ShowsName(look.Labels))
+        {
+            parts.Add(BuildName(item, metrics, brush));
+        }
+
+        FrameworkElement content = parts[0];
+        if (parts.Count > 1)
+        {
+            var row = new StackPanel { Orientation = Orientation.Horizontal, Spacing = Fluent.Space2 * 0.75 };
+            foreach (var part in parts)
             {
-                Orientation = Orientation.Horizontal,
-                Spacing = Fluent.Space2 * 0.75,
-                Children = { mark, name },
-            };
+                row.Children.Add(part);
+            }
+
+            content = row;
         }
 
         content.HorizontalAlignment = look.Vertical && !look.IconOnly ? HorizontalAlignment.Left : HorizontalAlignment.Center;
@@ -363,8 +414,13 @@ internal sealed partial class ViewBar : Grid
             chip.Height = metrics.Square;
         }
 
-        var tip = item.IsDefault ? Str.Shell_ViewBar_DefaultTip.Format(("name", item.Name)) : item.Name;
-        ToolTipService.SetToolTip(chip, look.Editing ? Str.Shell_ViewBar_EditTip.Format(("name", tip)) : tip);
+        // [S-5405] The name as a tooltip only where the chip does not say it; the default view's note
+        // and, in edit mode, what a click, a drag and a right-click do, always.
+        var note = item.IsDefault ? Str.Shell_ViewBar_DefaultTip.Format(("name", item.Name)) : null;
+        var tip = look.Editing
+            ? Str.Shell_ViewBar_EditTip.Format(("name", note ?? item.Name))
+            : ViewBarRules.ChipTip(look.Labels, item.Name, note);
+        ToolTipService.SetToolTip(chip, tip);
         AutomationProperties.SetName(chip, item.Name);
         AutomationProperties.SetItemStatus(chip, item.Shown ? Str.Shell_ViewBar_Showing.Text() : string.Empty);
 
@@ -422,12 +478,13 @@ internal sealed partial class ViewBar : Grid
     }
 
     /// <summary>
-    /// [S-5401] The drop-down: one raised button with the shown view's icon in its colour, its name
-    /// (unless names are off) and a chevron, opening the menu of every view on the bar ([S-5402]).
-    /// A display showing a view the bar does not offer reads "Views" with the shared view glyph.
+    /// [S-5401] The select bar: one raised button with the shown view alone, labelled as the bar is
+    /// ([S-5405]: its icon in its colour, its name, or both; text only with the colour dot), and a
+    /// chevron, opening the menu of every view on the bar ([S-5402]). A display showing a view the
+    /// bar does not offer reads "Views" with the shared view glyph.
     /// </summary>
     /// <param name="room">The length left for the button along the bar, so a long name is cut rather than running off the display.</param>
-    private Border BuildDropdown(ViewBarLook look, Metrics metrics, double room)
+    private Border BuildSelect(ViewBarLook look, Metrics metrics, double room)
     {
         var shown = _items.FirstOrDefault(i => i.Shown)
             ?? new ViewBarItem(string.Empty, Str.Shell_ViewBar_Name.Text(), Glyphs.View, Shown: true, IsDefault: false);
@@ -437,13 +494,19 @@ internal sealed partial class ViewBar : Grid
             Spacing = Fluent.Space2 * 0.75,
             VerticalAlignment = VerticalAlignment.Center,
         };
-        row.Children.Add(BuildMark(shown, metrics, "TextFillColorPrimaryBrush"));
 
-        if (!look.IconOnly)
+        if (ViewBarRules.ShowsMark(look.Labels))
         {
-            var name = Fluent.Text(shown.IsDefault ? FluentType.Strong(metrics.Type) : metrics.Type, "TextFillColorPrimaryBrush");
-            name.Text = shown.Name;
-            name.VerticalAlignment = VerticalAlignment.Center;
+            row.Children.Add(BuildMark(shown, metrics, "TextFillColorPrimaryBrush"));
+        }
+        else if (BuildDot(shown, metrics, look.Labels, vertical: false, anyColour: false) is { } dot)
+        {
+            row.Children.Add(dot);
+        }
+
+        if (ViewBarRules.ShowsName(look.Labels))
+        {
+            var name = BuildName(shown, metrics, "TextFillColorPrimaryBrush");
             var spare = room - (2 * metrics.PadX) - (2 * metrics.Icon) - (2 * row.Spacing);
             name.MaxWidth = double.IsFinite(spare) ? Math.Clamp(spare, metrics.Icon, 220) : 220;
             row.Children.Add(name);
@@ -474,7 +537,7 @@ internal sealed partial class ViewBar : Grid
     }
 
     /// <summary>
-    /// [S-918] / [S-5401] The overflow chip's and the drop-down's press: its own press and release,
+    /// [S-918] / [S-5401] The overflow chip's and the select button's press: its own press and release,
     /// not the bar's capture — it is never dragged, and the surface underneath must not start a
     /// rubber band from it. In edit mode it takes the keyboard like a chip; Enter or Space opens it.
     /// </summary>
@@ -511,18 +574,19 @@ internal sealed partial class ViewBar : Grid
     {
         if (_menuViews.Count > 0)
         {
-            _owner.ShowViewMenu(button, _menuViews);
+            _owner.ShowViewMenu(button, _menuViews, _look?.Labels ?? ViewBarLabels.IconAndText);
         }
     }
 
     /// <summary>
     /// [S-918] / [S-5402] The bar's menu: each view listed, its icon in its colour, in bar order (the
     /// default view's name semi-bold); a click shows it here. The overflow chip lists the views left
-    /// off the bar, which a pick brings onto it ([S-917]); the drop-down lists every view, the shown
-    /// one ticked. Capped at <paramref name="maxHeight"/> so a long list scrolls inside it; a typed
-    /// letter moves to the next view starting with it ([S-5403]).
+    /// off the bar, which a pick brings onto it ([S-917]); the select bar lists every view, the shown
+    /// one ticked. Every row has the view's name; text only ([S-5405]) puts the colour dot where the
+    /// icon was ([S-5406]). Capped at <paramref name="maxHeight"/> so a long list scrolls inside it; a
+    /// typed letter moves to the next view starting with it ([S-5403]).
     /// </summary>
-    internal static MenuFlyout ViewMenu(IReadOnlyList<ViewBarItem> views, Action<string> show, double maxHeight)
+    internal static MenuFlyout ViewMenu(IReadOnlyList<ViewBarItem> views, ViewBarLabels labels, Action<string> show, double maxHeight)
     {
         ArgumentNullException.ThrowIfNull(views);
         ArgumentNullException.ThrowIfNull(show);
@@ -536,7 +600,15 @@ internal sealed partial class ViewBar : Grid
                 ? new ToggleMenuFlyoutItem { IsChecked = view.Shown }
                 : new MenuFlyoutItem();
             item.Text = view.Name;
-            item.Icon = ViewMark.Icon(view.Icon, view.Color);
+            if (ViewBarRules.ShowsMark(labels))
+            {
+                item.Icon = ViewMark.Icon(view.Icon, view.Color);
+            }
+            else if (DesignApplier.UserBrush(view.Color) is { } tint
+                && ViewBarRules.Dot(labels, vertical: false, hasColour: true, anyHasColour: false) == ViewBarDot.Drawn)
+            {
+                item.Icon = ViewMark.Dot(tint, Math.Round(Fluent.IconSize / 2));
+            }
             if (view.IsDefault)
             {
                 item.FontWeight = Microsoft.UI.Text.FontWeights.SemiBold;
@@ -555,7 +627,7 @@ internal sealed partial class ViewBar : Grid
             menu.Items.Add(item);
         }
 
-        // [S-5402] A drop-down opens on the shown view, as a combo box does.
+        // [S-5402] A select bar's menu opens on the shown view, as a combo box does.
         if (ticks)
         {
             menu.Opened += (_, _) =>
@@ -819,8 +891,8 @@ internal sealed partial class ViewBar : Grid
     /// <summary>[S-1979] Put the keyboard on the shown view's chip (the surface's F6); false when the bar has none to focus.</summary>
     internal bool FocusFirstChip()
     {
-        // [S-5401] A drop-down's one stop is its button.
-        if (_look?.Style == ViewBarStyle.Dropdown)
+        // [S-5401] A select bar's one stop is its button.
+        if (_look?.Type == ViewBarType.Select)
         {
             return _menuButton?.Focus(FocusState.Keyboard) == true;
         }

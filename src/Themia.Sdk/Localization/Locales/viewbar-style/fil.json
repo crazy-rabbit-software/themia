@@ -1,5 +1,10 @@
 {
-  "shell.viewBar.styleChips": "Mga chip",
-  "shell.viewBar.styleDropdown": "Drop-down",
+  "barMenus.viewBar.type": "Uri",
+  "barMenus.viewBar.labels": "Mga label",
+  "shell.viewBar.typeInline": "Magkakatabi",
+  "shell.viewBar.typeSelect": "Pagpipilian",
+  "shell.viewBar.labelsIconAndText": "Icon at teksto",
+  "shell.viewBar.labelsIconOnly": "Icon lang",
+  "shell.viewBar.labelsTextOnly": "Teksto lang",
   "shell.viewBar.pickTip": "{name}\nI-click para pumili ng view"
 }

@@ -1,5 +1,10 @@
 {
-  "shell.viewBar.styleChips": "चिप",
-  "shell.viewBar.styleDropdown": "ड्रॉपडाउन",
+  "barMenus.viewBar.type": "प्रकार",
+  "barMenus.viewBar.labels": "लेबल",
+  "shell.viewBar.typeInline": "एक पंक्ति में",
+  "shell.viewBar.typeSelect": "चयन सूची",
+  "shell.viewBar.labelsIconAndText": "आइकन और टेक्स्ट",
+  "shell.viewBar.labelsIconOnly": "केवल आइकन",
+  "shell.viewBar.labelsTextOnly": "केवल टेक्स्ट",
   "shell.viewBar.pickTip": "{name}\nव्यू चुनने के लिए क्लिक करें"
 }

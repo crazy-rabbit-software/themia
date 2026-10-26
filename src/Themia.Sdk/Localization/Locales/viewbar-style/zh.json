@@ -1,5 +1,10 @@
 {
-  "shell.viewBar.styleChips": "按钮",
-  "shell.viewBar.styleDropdown": "下拉列表",
+  "barMenus.viewBar.type": "类型",
+  "barMenus.viewBar.labels": "标签",
+  "shell.viewBar.typeInline": "并排",
+  "shell.viewBar.typeSelect": "选择列表",
+  "shell.viewBar.labelsIconAndText": "图标和文字",
+  "shell.viewBar.labelsIconOnly": "仅图标",
+  "shell.viewBar.labelsTextOnly": "仅文字",
   "shell.viewBar.pickTip": "{name}\n单击以选择视图"
 }

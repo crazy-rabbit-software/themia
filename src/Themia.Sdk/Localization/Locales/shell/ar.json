@@ -246,7 +246,6 @@
   "shell.size.medium": "متوسط",
   "shell.size.large": "كبير",
   "shell.size.extraLarge": "كبير جدًا",
-  "shell.viewBar.showNames": "إظهار أسماء المشاهد",
   "shell.viewBar.allViews": "كل المشاهد",
   "shell.viewBar.someViews": "{count} من {total} مشاهد",
   "shell.view.initials": "الأحرف الأولى",

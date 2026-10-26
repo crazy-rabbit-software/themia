@@ -211,7 +211,6 @@
   "shell.size.medium": "ปานกลาง",
   "shell.size.large": "ใหญ่",
   "shell.size.extraLarge": "ใหญ่พิเศษ",
-  "shell.viewBar.showNames": "แสดงชื่อมุมมอง",
   "shell.viewBar.allViews": "มุมมองทั้งหมด",
   "shell.viewBar.someViews": "{count} จาก {total} มุมมอง",
   "shell.view.initials": "อักษรย่อ",

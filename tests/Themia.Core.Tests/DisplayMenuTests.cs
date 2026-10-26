@@ -143,17 +143,17 @@ public sealed class DisplayMenuTests
 
         Assert.Equal(Str.Shell_ViewBar_BottomLeft.Text(), bar.Value);
         Assert.Equal(
-            [Bar + "/show", Bar + "/style", Bar + "/position", Bar + "/size", Bar + "/names", "-", Bar + "/views"],
+            [Bar + "/show", Bar + "/type", Bar + "/labels", Bar + "/position", Bar + "/size", "-", Bar + "/views"],
             bar.Lines.Select(l => l is SettingsSeparator ? "-" : l.Key));
 
         At<SettingsChoice>(host, Bar, Bar + "/position").Options.Single(o => o.Key.EndsWith("/" + ViewBarAnchor.TopRight, StringComparison.Ordinal)).Pick();
-        At<SettingsChoice>(host, Bar, Bar + "/style").Options.Single(o => o.Key.EndsWith("/" + ViewBarStyle.Dropdown, StringComparison.Ordinal)).Pick();
+        At<SettingsChoice>(host, Bar, Bar + "/type").Options.Single(o => o.Key.EndsWith("/" + ViewBarType.Select, StringComparison.Ordinal)).Pick();
         At<SettingsChoice>(host, Bar, Bar + "/size").Options.Single(o => o.Key.EndsWith("/" + ViewBarSize.Large, StringComparison.Ordinal)).Pick();
-        At<SettingsToggle>(host, Bar, Bar + "/names").Set(false);
+        At<SettingsChoice>(host, Bar, Bar + "/labels").Options.Single(o => o.Key.EndsWith("/" + ViewBarLabels.TextOnly, StringComparison.Ordinal)).Pick();
         At<SettingsToggle>(host, Bar, Bar + "/show").Set(false);
 
         var stored = ViewBarRules.For(host.State, "a");
-        Assert.Equal((ViewBarAnchor.TopRight, ViewBarStyle.Dropdown, ViewBarSize.Large, true, true), (stored.Anchor, stored.Style, stored.Size, stored.IconOnly, stored.Hidden));
+        Assert.Equal((ViewBarAnchor.TopRight, ViewBarType.Select, ViewBarSize.Large, ViewBarLabels.TextOnly, true), (stored.Anchor, stored.Type, stored.Size, stored.Labels, stored.Hidden));
         Assert.False(host.State.ViewBars.ContainsKey("b"));
         Assert.Equal(Str.BarMenus_ViewBar_Hidden.Text(), At<SettingsSubmenu>(host, Bar).Value);
     }

@@ -211,7 +211,6 @@
   "shell.size.medium": "Sedang",
   "shell.size.large": "Besar",
   "shell.size.extraLarge": "Sangat besar",
-  "shell.viewBar.showNames": "Tampilkan nama tampilan",
   "shell.viewBar.allViews": "Semua tampilan",
   "shell.viewBar.someViews": "{count} dari {total} tampilan",
   "shell.view.initials": "Inisial",

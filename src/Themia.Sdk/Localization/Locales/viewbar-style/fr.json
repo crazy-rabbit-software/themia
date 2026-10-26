@@ -1,5 +1,10 @@
 {
-  "shell.viewBar.styleChips": "Puces",
-  "shell.viewBar.styleDropdown": "Liste déroulante",
+  "barMenus.viewBar.type": "Type",
+  "barMenus.viewBar.labels": "Libellés",
+  "shell.viewBar.typeInline": "En ligne",
+  "shell.viewBar.typeSelect": "Sélecteur",
+  "shell.viewBar.labelsIconAndText": "Icône et texte",
+  "shell.viewBar.labelsIconOnly": "Icône seule",
+  "shell.viewBar.labelsTextOnly": "Texte seul",
   "shell.viewBar.pickTip": "{name}\nCliquez pour choisir une vue"
 }

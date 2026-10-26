@@ -57,11 +57,11 @@ internal sealed partial class DesktopWindow : IViewBarOwner
         // behind the overflow chip. Refit on every refresh: a resize, a DPI or work-area change, a
         // drag to another anchor, the toolbar coming and going, a view added.
         var area = GridGeometry.AllowedPixels(metrics);
-        var room = ViewBarRules.Room(area, anchor, EditMode ? ToolbarRect(area) : null, settings.Style);
+        var room = ViewBarRules.Room(area, anchor, EditMode ? ToolbarRect(area) : null, settings.Type);
 
         _viewBar.Update(
             items,
-            new ViewBarLook(settings.Size, settings.IconOnly, ViewBarRules.IsVertical(anchor, settings.Style), EditMode, show == ViewBarShow.HiddenPreview, settings.Style),
+            new ViewBarLook(settings.Size, settings.Labels, ViewBarRules.IsVertical(anchor, settings.Type), EditMode, show == ViewBarShow.HiddenPreview, settings.Type),
             Design,
             room);
         _viewBar.Visibility = Visibility.Visible;
@@ -147,12 +147,12 @@ internal sealed partial class DesktopWindow : IViewBarOwner
     }
 
     /// <summary>
-    /// [S-918] / [S-5402] The views that did not fit (or, from a drop-down, every view on the bar), in
+    /// [S-918] / [S-5402] The views that did not fit (or, from a select bar, every view on the bar), in
     /// a menu opening into the display and no taller than the work area there. A standard flyout on
     /// the surface: it opens without the surface taking the keyboard outside edit mode, and a click
     /// outside it closes it.
     /// </summary>
-    public void ShowViewMenu(FrameworkElement button, IReadOnlyList<ViewBarItem> views)
+    public void ShowViewMenu(FrameworkElement button, IReadOnlyList<ViewBarItem> views, ViewBarLabels labels)
     {
         var metrics = Metrics;
         if (!metrics.IsUsable || ViewBarBox() is not { } bar)
@@ -161,7 +161,7 @@ internal sealed partial class DesktopWindow : IViewBarOwner
         }
 
         var side = ViewBarRules.MenuSide(_barDragAnchor ?? ViewBarRules.For(_host.State, _monitor.Id).Anchor);
-        var menu = ViewBar.ViewMenu(views, SwitchTo, ViewBarRules.MenuHeight(GridGeometry.AllowedPixels(metrics), bar, side));
+        var menu = ViewBar.ViewMenu(views, labels, SwitchTo, ViewBarRules.MenuHeight(GridGeometry.AllowedPixels(metrics), bar, side));
         menu.ShowAt(button, new FlyoutShowOptions { ShowMode = FlyoutShowMode.Standard, Placement = ViewBar.MenuPlacement(side) });
     }
 

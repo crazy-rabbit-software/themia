@@ -218,7 +218,6 @@
   "shell.size.medium": "মাঝারি",
   "shell.size.large": "বড়",
   "shell.size.extraLarge": "অতি বড়",
-  "shell.viewBar.showNames": "ভিউয়ের নাম দেখান",
   "shell.viewBar.allViews": "সব ভিউ",
   "shell.viewBar.someViews": "{total}টির মধ্যে {count}টি ভিউ",
   "shell.view.initials": "আদ্যক্ষর",

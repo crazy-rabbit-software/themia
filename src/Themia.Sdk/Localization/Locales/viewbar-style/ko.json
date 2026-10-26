@@ -1,5 +1,10 @@
 {
-  "shell.viewBar.styleChips": "칩",
-  "shell.viewBar.styleDropdown": "드롭다운",
+  "barMenus.viewBar.type": "유형",
+  "barMenus.viewBar.labels": "레이블",
+  "shell.viewBar.typeInline": "나란히",
+  "shell.viewBar.typeSelect": "선택 목록",
+  "shell.viewBar.labelsIconAndText": "아이콘과 텍스트",
+  "shell.viewBar.labelsIconOnly": "아이콘만",
+  "shell.viewBar.labelsTextOnly": "텍스트만",
   "shell.viewBar.pickTip": "{name}\n보기를 선택하려면 클릭하세요"
 }

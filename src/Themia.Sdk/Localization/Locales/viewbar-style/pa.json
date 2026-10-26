@@ -1,5 +1,10 @@
 {
-  "shell.viewBar.styleChips": "ਚਿੱਪਾਂ",
-  "shell.viewBar.styleDropdown": "ਡ੍ਰੌਪਡਾਊਨ",
+  "barMenus.viewBar.type": "ਕਿਸਮ",
+  "barMenus.viewBar.labels": "ਲੇਬਲ",
+  "shell.viewBar.typeInline": "ਨਾਲ-ਨਾਲ",
+  "shell.viewBar.typeSelect": "ਚੋਣ ਸੂਚੀ",
+  "shell.viewBar.labelsIconAndText": "ਆਈਕਨ ਅਤੇ ਲਿਖਤ",
+  "shell.viewBar.labelsIconOnly": "ਸਿਰਫ਼ ਆਈਕਨ",
+  "shell.viewBar.labelsTextOnly": "ਸਿਰਫ਼ ਲਿਖਤ",
   "shell.viewBar.pickTip": "{name}\nਵਿਊ ਚੁਣਨ ਲਈ ਕਲਿੱਕ ਕਰੋ"
 }

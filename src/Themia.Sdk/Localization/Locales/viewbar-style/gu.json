@@ -1,5 +1,10 @@
 {
-  "shell.viewBar.styleChips": "ચિપ્સ",
-  "shell.viewBar.styleDropdown": "ડ્રોપડાઉન",
+  "barMenus.viewBar.type": "પ્રકાર",
+  "barMenus.viewBar.labels": "લેબલ",
+  "shell.viewBar.typeInline": "હરોળમાં",
+  "shell.viewBar.typeSelect": "પસંદગી સૂચિ",
+  "shell.viewBar.labelsIconAndText": "આઇકન અને લખાણ",
+  "shell.viewBar.labelsIconOnly": "ફક્ત આઇકન",
+  "shell.viewBar.labelsTextOnly": "ફક્ત લખાણ",
   "shell.viewBar.pickTip": "{name}\nવ્યૂ પસંદ કરવા ક્લિક કરો"
 }

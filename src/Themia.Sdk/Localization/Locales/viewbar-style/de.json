@@ -1,5 +1,10 @@
 {
-  "shell.viewBar.styleChips": "Schaltflächen",
-  "shell.viewBar.styleDropdown": "Dropdown",
+  "barMenus.viewBar.type": "Typ",
+  "barMenus.viewBar.labels": "Beschriftung",
+  "shell.viewBar.typeInline": "Nebeneinander",
+  "shell.viewBar.typeSelect": "Auswahl",
+  "shell.viewBar.labelsIconAndText": "Symbol und Text",
+  "shell.viewBar.labelsIconOnly": "Nur Symbol",
+  "shell.viewBar.labelsTextOnly": "Nur Text",
   "shell.viewBar.pickTip": "{name}\nKlicken, um eine Ansicht zu wählen"
 }

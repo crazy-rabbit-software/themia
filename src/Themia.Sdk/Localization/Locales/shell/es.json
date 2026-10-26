@@ -218,7 +218,6 @@
   "shell.size.medium": "Mediano",
   "shell.size.large": "Grande",
   "shell.size.extraLarge": "Extragrande",
-  "shell.viewBar.showNames": "Mostrar nombres de vistas",
   "shell.viewBar.allViews": "Todas las vistas",
   "shell.viewBar.someViews": "{count} de {total} vistas",
   "shell.view.initials": "Iniciales",

@@ -329,6 +329,9 @@ public sealed partial class SettingsMenuTests
             .. typeof(DesignState).GetProperties().Where(p => p.CanWrite && p.Name != nameof(DesignState.RunAtStartup)).Select(p => "design." + JsonNamingPolicy.CamelCase.ConvertName(p.Name)),
             .. typeof(AppPreferences).GetProperties().Where(p => p.CanWrite && p.Name is not nameof(AppPreferences.DesktopIconsVisible)).Select(p => "preferences." + JsonNamingPolicy.CamelCase.ConvertName(p.Name)),
             "windows.startup", "windows.desktopIcons", "monitorScales", "monitorViews", "disabledMonitors", "defaultViewForNewDisplays",
+
+            // [S-3544] This display's view bar: every field of it from Display ▾ alone (its type and labels too, [S-5400], [S-5405]).
+            .. typeof(ViewBarSettings).GetProperties().Where(p => p.CanWrite).Select(p => "viewBars.a." + JsonNamingPolicy.CamelCase.ConvertName(p.Name)),
         ];
 
         var unowned = fields.Where(f => !written.Any(w => w == f || w.StartsWith(f + ".", StringComparison.Ordinal) || w.StartsWith(f + "[", StringComparison.Ordinal))).ToList();

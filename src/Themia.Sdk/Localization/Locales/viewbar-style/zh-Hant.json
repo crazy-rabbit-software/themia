@@ -1,5 +1,10 @@
 {
-  "shell.viewBar.styleChips": "按鈕",
-  "shell.viewBar.styleDropdown": "下拉式清單",
+  "barMenus.viewBar.type": "類型",
+  "barMenus.viewBar.labels": "標籤",
+  "shell.viewBar.typeInline": "並排",
+  "shell.viewBar.typeSelect": "選擇清單",
+  "shell.viewBar.labelsIconAndText": "圖示和文字",
+  "shell.viewBar.labelsIconOnly": "僅圖示",
+  "shell.viewBar.labelsTextOnly": "僅文字",
   "shell.viewBar.pickTip": "{name}\n按一下以選擇檢視"
 }

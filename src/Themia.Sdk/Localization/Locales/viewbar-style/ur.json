@@ -1,5 +1,10 @@
 {
-  "shell.viewBar.styleChips": "چپس",
-  "shell.viewBar.styleDropdown": "ڈراپ ڈاؤن",
+  "barMenus.viewBar.type": "قسم",
+  "barMenus.viewBar.labels": "لیبل",
+  "shell.viewBar.typeInline": "ساتھ ساتھ",
+  "shell.viewBar.typeSelect": "انتخابی فہرست",
+  "shell.viewBar.labelsIconAndText": "آئیکن اور متن",
+  "shell.viewBar.labelsIconOnly": "صرف آئیکن",
+  "shell.viewBar.labelsTextOnly": "صرف متن",
   "shell.viewBar.pickTip": "{name}\nمنظر منتخب کرنے کے لیے کلک کریں"
 }

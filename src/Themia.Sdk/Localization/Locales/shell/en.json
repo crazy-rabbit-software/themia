@@ -217,7 +217,6 @@
   "shell.size.medium": "Medium",
   "shell.size.large": "Large",
   "shell.size.extraLarge": "Extra large",
-  "shell.viewBar.showNames": "Show view names",
   "shell.viewBar.allViews": "All views",
   "shell.viewBar.someViews": "{count} of {total} views",
   "shell.view.initials": "Initials",

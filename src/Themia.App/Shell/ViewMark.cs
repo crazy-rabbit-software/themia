@@ -1,4 +1,6 @@
 using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Media;
+using Windows.Foundation;
 using Themia.App.Widgets;
 using Themia.Core.Widgets;
 
@@ -21,5 +23,28 @@ internal static class ViewMark
         }
 
         return icon;
+    }
+
+    /// <summary>
+    /// [S-5406] A text-only view's colour as a menu row's icon: a dot of <paramref name="diameter"/>
+    /// in the middle of the row's icon box. A menu draws its icon scaled to fill that box, so the dot
+    /// sits in a frame the box's size (a point at its far corner), never blown up to the whole box.
+    /// </summary>
+    public static PathIcon Dot(Brush colour, double diameter)
+    {
+        var box = Fluent.IconSize;
+        var r = Math.Min(diameter, box) / 2;
+        return new PathIcon
+        {
+            Foreground = colour,
+            Data = new GeometryGroup
+            {
+                Children =
+                {
+                    new EllipseGeometry { Center = new Point(box / 2, box / 2), RadiusX = r, RadiusY = r },
+                    new LineGeometry { StartPoint = new Point(0, 0), EndPoint = new Point(box, box) },
+                },
+            },
+        };
     }
 }

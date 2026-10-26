@@ -1,5 +1,10 @@
 {
-  "shell.viewBar.styleChips": "Botones",
-  "shell.viewBar.styleDropdown": "Desplegable",
+  "barMenus.viewBar.type": "Tipo",
+  "barMenus.viewBar.labels": "Etiquetas",
+  "shell.viewBar.typeInline": "En línea",
+  "shell.viewBar.typeSelect": "Selector",
+  "shell.viewBar.labelsIconAndText": "Icono y texto",
+  "shell.viewBar.labelsIconOnly": "Solo icono",
+  "shell.viewBar.labelsTextOnly": "Solo texto",
   "shell.viewBar.pickTip": "{name}\nHaz clic para elegir una vista"
 }

@@ -1,5 +1,10 @@
 {
-  "shell.viewBar.styleChips": "Vibandiko",
-  "shell.viewBar.styleDropdown": "Orodha kunjuzi",
+  "barMenus.viewBar.type": "Aina",
+  "barMenus.viewBar.labels": "Lebo",
+  "shell.viewBar.typeInline": "Kando kwa kando",
+  "shell.viewBar.typeSelect": "Orodha ya kuchagua",
+  "shell.viewBar.labelsIconAndText": "Aikoni na maandishi",
+  "shell.viewBar.labelsIconOnly": "Aikoni tu",
+  "shell.viewBar.labelsTextOnly": "Maandishi pekee",
   "shell.viewBar.pickTip": "{name}\nBofya ili kuchagua mwonekano"
 }

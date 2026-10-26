@@ -218,7 +218,6 @@
   "shell.size.medium": "Middel",
   "shell.size.large": "Groot",
   "shell.size.extraLarge": "Extra groot",
-  "shell.viewBar.showNames": "Weergavenamen tonen",
   "shell.viewBar.allViews": "Alle weergaven",
   "shell.viewBar.someViews": "{count} van {total} weergaven",
   "shell.view.initials": "Initialen",

@@ -1,5 +1,10 @@
 {
-  "shell.viewBar.styleChips": "Etiketler",
-  "shell.viewBar.styleDropdown": "Açılır liste",
+  "barMenus.viewBar.type": "Tür",
+  "barMenus.viewBar.labels": "Etiketler",
+  "shell.viewBar.typeInline": "Yan yana",
+  "shell.viewBar.typeSelect": "Seçim listesi",
+  "shell.viewBar.labelsIconAndText": "Simge ve metin",
+  "shell.viewBar.labelsIconOnly": "Yalnızca simge",
+  "shell.viewBar.labelsTextOnly": "Yalnızca metin",
   "shell.viewBar.pickTip": "{name}\nBir görünüm seçmek için tıklayın"
 }

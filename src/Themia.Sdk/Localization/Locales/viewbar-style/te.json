@@ -1,5 +1,10 @@
 {
-  "shell.viewBar.styleChips": "చిప్‌లు",
-  "shell.viewBar.styleDropdown": "డ్రాప్‌డౌన్",
+  "barMenus.viewBar.type": "రకం",
+  "barMenus.viewBar.labels": "లేబుల్‌లు",
+  "shell.viewBar.typeInline": "వరుసగా",
+  "shell.viewBar.typeSelect": "ఎంపిక జాబితా",
+  "shell.viewBar.labelsIconAndText": "చిహ్నం మరియు వచనం",
+  "shell.viewBar.labelsIconOnly": "చిహ్నం మాత్రమే",
+  "shell.viewBar.labelsTextOnly": "వచనం మాత్రమే",
   "shell.viewBar.pickTip": "{name}\nవీక్షణను ఎంచుకోవడానికి క్లిక్ చేయండి"
 }

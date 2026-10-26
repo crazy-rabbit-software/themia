@@ -218,7 +218,6 @@
   "shell.size.medium": "Orta",
   "shell.size.large": "Büyük",
   "shell.size.extraLarge": "Çok büyük",
-  "shell.viewBar.showNames": "Görünüm adlarını göster",
   "shell.viewBar.allViews": "Tüm görünümler",
   "shell.viewBar.someViews": "{total} görünümden {count} tanesi",
   "shell.view.initials": "Baş harfler",

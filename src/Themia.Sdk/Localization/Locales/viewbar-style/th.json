@@ -1,5 +1,10 @@
 {
-  "shell.viewBar.styleChips": "ชิป",
-  "shell.viewBar.styleDropdown": "ดรอปดาวน์",
+  "barMenus.viewBar.type": "ประเภท",
+  "barMenus.viewBar.labels": "ป้ายชื่อ",
+  "shell.viewBar.typeInline": "เรียงกัน",
+  "shell.viewBar.typeSelect": "รายการให้เลือก",
+  "shell.viewBar.labelsIconAndText": "ไอคอนและข้อความ",
+  "shell.viewBar.labelsIconOnly": "ไอคอนเท่านั้น",
+  "shell.viewBar.labelsTextOnly": "ข้อความเท่านั้น",
   "shell.viewBar.pickTip": "{name}\nคลิกเพื่อเลือกมุมมอง"
 }

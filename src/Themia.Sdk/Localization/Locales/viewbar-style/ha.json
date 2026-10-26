@@ -1,5 +1,10 @@
 {
-  "shell.viewBar.styleChips": "Alamomi",
-  "shell.viewBar.styleDropdown": "Jerin zaɓi",
+  "barMenus.viewBar.type": "Iri",
+  "barMenus.viewBar.labels": "Lakabi",
+  "shell.viewBar.typeInline": "A jere",
+  "shell.viewBar.typeSelect": "Jerin zaɓi",
+  "shell.viewBar.labelsIconAndText": "Gunki da rubutu",
+  "shell.viewBar.labelsIconOnly": "Gunki kawai",
+  "shell.viewBar.labelsTextOnly": "Rubutu kawai",
   "shell.viewBar.pickTip": "{name}\nDanna don zaɓar duba"
 }

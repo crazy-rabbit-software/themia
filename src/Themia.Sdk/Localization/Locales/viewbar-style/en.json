@@ -1,5 +1,11 @@
 {
-  "shell.viewBar.styleChips": "Chips",
-  "shell.viewBar.styleDropdown": "Drop-down",
+  "$comment": "[S-5400] [S-5405] The view bar's type (Inline, Select) and labels, and the select button's tooltip.",
+  "barMenus.viewBar.type": "Type",
+  "barMenus.viewBar.labels": "Labels",
+  "shell.viewBar.typeInline": "Inline",
+  "shell.viewBar.typeSelect": "Select",
+  "shell.viewBar.labelsIconAndText": "Icon and text",
+  "shell.viewBar.labelsIconOnly": "Icon only",
+  "shell.viewBar.labelsTextOnly": "Text only",
   "shell.viewBar.pickTip": "{name}\nClick to choose a view"
 }

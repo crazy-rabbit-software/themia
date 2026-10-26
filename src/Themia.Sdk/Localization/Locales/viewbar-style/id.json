@@ -1,5 +1,10 @@
 {
-  "shell.viewBar.styleChips": "Chip",
-  "shell.viewBar.styleDropdown": "Tarik-turun",
+  "barMenus.viewBar.type": "Jenis",
+  "barMenus.viewBar.labels": "Label",
+  "shell.viewBar.typeInline": "Berjajar",
+  "shell.viewBar.typeSelect": "Daftar pilihan",
+  "shell.viewBar.labelsIconAndText": "Ikon dan teks",
+  "shell.viewBar.labelsIconOnly": "Hanya ikon",
+  "shell.viewBar.labelsTextOnly": "Hanya teks",
   "shell.viewBar.pickTip": "{name}\nKlik untuk memilih tampilan"
 }

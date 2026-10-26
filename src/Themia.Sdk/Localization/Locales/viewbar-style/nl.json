@@ -1,5 +1,10 @@
 {
-  "shell.viewBar.styleChips": "Knoppen",
-  "shell.viewBar.styleDropdown": "Vervolgkeuzelijst",
+  "barMenus.viewBar.type": "Type",
+  "barMenus.viewBar.labels": "Labels",
+  "shell.viewBar.typeInline": "Naast elkaar",
+  "shell.viewBar.typeSelect": "Keuzelijst",
+  "shell.viewBar.labelsIconAndText": "Pictogram en tekst",
+  "shell.viewBar.labelsIconOnly": "Alleen pictogram",
+  "shell.viewBar.labelsTextOnly": "Alleen tekst",
   "shell.viewBar.pickTip": "{name}\nKlik om een weergave te kiezen"
 }

@@ -153,7 +153,8 @@ public sealed class ViewsTests
 
         Assert.Equal(ViewBarAnchor.BottomLeft, bar.Anchor);
         Assert.Equal(ViewBarSize.Medium, bar.Size);
-        Assert.False(bar.IconOnly);
+        Assert.Equal(ViewBarLabels.IconAndText, bar.Labels);
+        Assert.Equal(ViewBarType.Inline, bar.Type);
         Assert.False(bar.Hidden);
         Assert.Empty(bar.VisibleViews);
         Assert.Empty(state.ViewBars);
@@ -199,7 +200,8 @@ public sealed class ViewsTests
         {
             bar.Anchor = ViewBarAnchor.RightCenter;
             bar.Size = ViewBarSize.ExtraLarge;
-            bar.IconOnly = true;
+            bar.Labels = ViewBarLabels.IconOnly;
+            bar.Type = ViewBarType.Select;
             bar.Hidden = true;
             bar.VisibleViews = ["b"];
         });
@@ -211,7 +213,8 @@ public sealed class ViewsTests
         var bar = parsed.State!.ViewBars["m1"];
         Assert.Equal(ViewBarAnchor.RightCenter, bar.Anchor);
         Assert.Equal(ViewBarSize.ExtraLarge, bar.Size);
-        Assert.True(bar.IconOnly);
+        Assert.Equal(ViewBarLabels.IconOnly, bar.Labels);
+        Assert.Equal(ViewBarType.Select, bar.Type);
         Assert.True(bar.Hidden);
         Assert.Equal(["b"], bar.VisibleViews);
     }

@@ -1,5 +1,10 @@
 {
-  "shell.viewBar.styleChips": "சிப்கள்",
-  "shell.viewBar.styleDropdown": "கீழிறங்கு பட்டியல்",
+  "barMenus.viewBar.type": "வகை",
+  "barMenus.viewBar.labels": "லேபிள்கள்",
+  "shell.viewBar.typeInline": "வரிசையில்",
+  "shell.viewBar.typeSelect": "தேர்வுப் பட்டியல்",
+  "shell.viewBar.labelsIconAndText": "ஐகானும் உரையும்",
+  "shell.viewBar.labelsIconOnly": "ஐகான் மட்டும்",
+  "shell.viewBar.labelsTextOnly": "உரை மட்டும்",
   "shell.viewBar.pickTip": "{name}\nகாட்சியைத் தேர்வுசெய்ய கிளிக் செய்யவும்"
 }
