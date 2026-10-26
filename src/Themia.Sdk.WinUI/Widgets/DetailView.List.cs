@@ -336,6 +336,8 @@ public sealed partial class DetailView : IWidgetKeys
         public Border Root { get; }
 
         private bool? _roomy;
+        private DetailRow? _shown;
+        private bool _wide;
 
         /// <summary>Standard, or grown into <paramref name="roomy"/>'s share.</summary>
         public void Size((double Height, TypeStep Value, double Bar)? roomy, double standard)
@@ -366,6 +368,14 @@ public sealed partial class DetailView : IWidgetKeys
 
         public void Show(DetailRow row, bool wide, DetailView owner)
         {
+            // [S-6332] Rows are reused by position: one showing this row already is not touched.
+            if (_shown == row && _wide == wide)
+            {
+                return;
+            }
+
+            _shown = row;
+            _wide = wide;
             _name.Text = row.Name;
             _value.Text = row.Value;
             _value.Foreground = row.Value == "--" ? owner._disabledBrush : owner._primaryBrush;

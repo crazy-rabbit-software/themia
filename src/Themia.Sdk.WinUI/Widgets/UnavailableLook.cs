@@ -32,8 +32,18 @@ public static class UnavailableLook
     public static void Say(FrameworkElement element, string? reason)
     {
         ArgumentNullException.ThrowIfNull(element);
-        ToolTipService.SetToolTip(element, string.IsNullOrEmpty(reason) ? null : reason);
-        AutomationProperties.SetHelpText(element, reason ?? string.Empty);
+
+        // [S-6332] Said on every reading: touched only when it says something else.
+        var tip = string.IsNullOrEmpty(reason) ? null : reason;
+        if (!Equals(ToolTipService.GetToolTip(element), tip))
+        {
+            ToolTipService.SetToolTip(element, tip);
+        }
+
+        if (AutomationProperties.GetHelpText(element) != (reason ?? string.Empty))
+        {
+            AutomationProperties.SetHelpText(element, reason ?? string.Empty);
+        }
     }
 
     /// <summary>

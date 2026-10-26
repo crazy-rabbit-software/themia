@@ -142,7 +142,8 @@ public sealed partial class DetailView : Grid, IWidgetView, IWidgetSizeAware, IW
 
     public void Present(DetailSheet sheet)
     {
-        if (_detached)
+        // [S-6332] A read that says what the tile shows already touches nothing.
+        if (_detached || (_plan is not null && sheet.SameAs(_sheet)))
         {
             return;
         }

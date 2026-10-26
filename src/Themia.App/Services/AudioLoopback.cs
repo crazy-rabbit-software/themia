@@ -385,7 +385,7 @@ internal static unsafe partial class AudioLoopback
                         var bytes = new ReadOnlySpan<byte>(data, data is null ? 0 : count * blockAlign);
                         var written = Spectrum.MixDown(bytes, encoding, channels, count, (flags & BufferFlagsSilent) != 0, scratch);
                         Append(window, ref filled, scratch.AsSpan(0, written));
-                        arrived |= written > 0;
+                        arrived |= Spectrum.Heard(written, (flags & BufferFlagsSilent) != 0);
                     }
                     finally
                     {

@@ -300,7 +300,12 @@ public sealed partial class MeterView : Grid, IWidgetView, IWidgetSizeAware, IWi
         // which stays legible whatever the load. Why it is unavailable is said on hover.
         _reading.ValueLine.Foreground = reading.Available ? _readingBrush : _unavailableBrush;
         // [S-1161] Available, it names what it is about (the disk's drive), for a card whose header is off.
-        ToolTipService.SetToolTip(_reading, reading.Available ? _part.ReadingTip : reading.Absent ? null : reading.Reason);
+        // [S-6332] Touched only when it says something else.
+        var tip = reading.Available ? _part.ReadingTip : reading.Absent ? null : reading.Reason;
+        if (!Equals(ToolTipService.GetToolTip(_reading), tip))
+        {
+            ToolTipService.SetToolTip(_reading, tip);
+        }
 
         // [S-1940] [S-82a] Not on this machine (no battery): the same face in the disabled look, its
         // level at the middle ([S-1941]), the reason on the whole tile — never an empty state.

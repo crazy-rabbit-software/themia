@@ -131,6 +131,13 @@ public sealed class Spectrum
     public static int FrameWait(bool arrived, bool lit) => arrived || lit ? FrameMs : IdleFrameMs;
 
     /// <summary>
+    /// [S-3202] [S-6332] Whether a drained packet is sound that arrived: one the capture flags silent
+    /// (an app holding its stream open while paused sends them for ever) is not, so a silent desktop
+    /// waits the idle wait and runs no analysis instead of a frame's every 33 ms.
+    /// </summary>
+    public static bool Heard(int written, bool silent) => written > 0 && !silent;
+
+    /// <summary>
     /// Mix interleaved frames down to mono and append them to <paramref name="destination"/>.
     /// Returns how many samples were written. A silent packet (the capture flags it) and an
     /// unsupported encoding both write zeros, so time keeps moving and the bars fall.

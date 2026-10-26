@@ -47,6 +47,7 @@ internal sealed partial class GpuView
 
         // [S-1940] No adapter at this index: drawn absent until a snapshot names one again.
         private bool _absent;
+        private string? _absentReason;
 
         public Panel(int index)
         {
@@ -123,31 +124,46 @@ internal sealed partial class GpuView
             _watch = null;
         }
 
-        /// <summary>[S-430] The adapter's whole name, as the driver reports it, on the tile's tooltip (the header has the short one).</summary>
-        public void Name(GpuReading reading)
+        /// <summary>
+        /// [S-430] The adapter's whole name, as the driver reports it, on the tile's tooltip (the header
+        /// has the short one). True when the adapter came back: the tile is laid out again ([S-6332]).
+        /// </summary>
+        public bool Name(GpuReading reading)
         {
+            var back = _absent;
+
             if (_absent)
             {
                 // The stand-in line goes with the adapter's return; its own series fills the chart again.
                 _absent = false;
+                _absentReason = null;
                 _spark.Clear();
             }
 
             UnavailableLook.Say(_root, reading.Name);
+            return back;
         }
 
         /// <summary>
         /// [S-433] [S-1940] No adapter at all, or not the chosen one: the same tile in the disabled look —
         /// "--", the history a flat line at the middle, the gauge at the middle ([S-1941]) — the reason on hover.
         /// </summary>
-        public void Absent(string reason)
+        public bool Absent(string reason)
         {
+            // [S-6332] Absent already for this reason: every snapshot says so again, nothing changes.
+            if (_absent && reason == _absentReason)
+            {
+                return false;
+            }
+
             // The adapter's series reads nothing while it is not there; its readings do not undo this.
             _absent = true;
+            _absentReason = reason;
             _spark.Load(Unavailable.History(_spark.Holds));
             ShowLoad(MeterReading.Missing(reason));
             ShowAbsentEngines();
             UnavailableLook.Say(_root, reason);
+            return true;
         }
 
         private void OnUpdate(SeriesUpdate update)

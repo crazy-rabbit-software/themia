@@ -149,18 +149,29 @@ internal sealed partial class GpuView : Grid, IWidgetView, IWidgetSurfaceAware, 
         if (none || gone)
         {
             _surface?.SetHeaderTitle(null);
-            panel.Absent(none ? GpuStr.WidgetsB_Gpu_NoAdapter.Text() : GpuStr.WidgetsB_Gpu_AdapterMissing.Text());
-            Arrange();
+
+            // [S-6332] Laid out again only when the tile turns absent, not on every snapshot.
+            if (panel.Absent(none ? GpuStr.WidgetsB_Gpu_NoAdapter.Text() : GpuStr.WidgetsB_Gpu_AdapterMissing.Text()))
+            {
+                Arrange();
+            }
+
             return;
         }
 
         var reading = snapshot.Readings[panel.Index];
-        panel.Name(reading);
+        var back = panel.Name(reading);
         panel.ShowEngines(reading.Engines);
 
         // [S-430] The adapter names the card.
         _surface?.SetHeaderTitle(GpuRules.ShortName(reading.Name));
-        Arrange();
+
+        // [S-6332] A snapshot changes the tile's layout only when the adapter comes back; a new engine
+        // count lays the engines out itself (ShowEngines).
+        if (back)
+        {
+            Arrange();
+        }
     }
 
     private void Arrange()

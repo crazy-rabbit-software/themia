@@ -69,4 +69,18 @@ public sealed record DetailSheet(
 {
     /// <summary>Nothing read yet: a dimmed hero and no facts.</summary>
     public static DetailSheet Waiting { get; } = new("--", null, [], [], HeroAvailable: false);
+
+    /// <summary>
+    /// [S-6332] Whether <paramref name="other"/> says exactly what this sheet says, its facts and rows
+    /// compared by value (a record compares its lists by reference, and every read builds new ones).
+    /// </summary>
+    public bool SameAs(DetailSheet? other)
+        => other is not null
+            && Hero == other.Hero
+            && Caption == other.Caption
+            && Absent == other.Absent
+            && Note == other.Note
+            && HeroAvailable == other.HeroAvailable
+            && Facts.SequenceEqual(other.Facts)
+            && Rows.SequenceEqual(other.Rows);
 }

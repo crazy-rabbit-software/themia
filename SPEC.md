@@ -4027,6 +4027,16 @@ plots and how it is coloured. Layout is the SDK's `MeterFace` (tests `MeterFaceT
   the same way. The band holds `SparkSlots.Lead` points beyond its span (the slot still filling and
   the oldest slot's members the span cuts off), so a whole window of finished slots is always on
   screen.
+- **[S-6332]** **A read that says what a tile shows touches nothing** (user request 2026-10-26, CPU):
+  the hub reads every second whether or not a figure moved, so a view compares before it writes. A
+  detail tile whose new sheet says what it shows already (`DetailSheet.SameAs`: its facts and rows by
+  value) skips the whole fill; a list row reused by position that shows the same row is not touched;
+  a reading's tooltip and an absent tile's reason are set only when they say something else
+  (`UnavailableLook.Say`); a GPU tile is laid out again only when its adapter goes or comes back (a
+  new engine count lays the engines out itself), not on every snapshot; a meter's number, gauge,
+  bars and tiles write only what changed ([S-6330]). The audio visualizer's capture counts a packet
+  flagged silent as no sound ([S-3202], `Spectrum.Heard`), so an app holding its stream open while
+  paused leaves the worker on the idle wait instead of an analysis every frame.
 - **[S-6300]** **Meter styles** ([S-6000]): a meter's style says what stands beside its reading
   (`MeterLook`: the history, a gauge, the kind's items as columns, rows or tiles); the reading is the
   same hero readout in every style. One shared set of parts draws them for every meter
@@ -6190,7 +6200,7 @@ displays, the ghost following the pointer across displays, Ctrl+A/Escape order.
 - **[S-3202]** Bars rise at once and fall 0.06 per frame (was [S-1471]). The worker drains every
   33 ms while sound arrives or a bar is up, and every 150 ms once all are down and nothing came
   (inside the 200 ms capture buffer); in silence it sends frames only until the bars are down,
-  then nothing. Display cadence, not a correctness path: event-driven loopback capture is
+  then nothing. A packet the capture flags silent is silence, not sound ([S-6332]). Display cadence, not a correctness path: event-driven loopback capture is
   unreliable across drivers.
 - **[S-3203]** One shared capture worker (`AudioLoopback`, `CaptureLease`; was [S-1472]): the first
   subscriber starts it, the last stops it (signalled, never joined on the UI thread); a remount that

@@ -184,6 +184,18 @@ public class SpectrumTests
     public void S3202_the_capture_drains_slower_only_once_the_bars_are_down_and_nothing_arrives(bool arrived, bool lit, int wait)
         => Assert.Equal(wait, Spectrum.FrameWait(arrived, lit));
 
+    [Theory]
+    [InlineData(480, false, true)]
+    [InlineData(480, true, false)]
+    [InlineData(0, false, false)]
+    public void S6332_a_packet_flagged_silent_is_not_sound_so_the_capture_idles(int written, bool silent, bool heard)
+    {
+        Assert.Equal(heard, Spectrum.Heard(written, silent));
+
+        // A stream held open in silence: once the bars are down, the idle wait.
+        Assert.Equal(heard ? Spectrum.FrameMs : Spectrum.IdleFrameMs, Spectrum.FrameWait(Spectrum.Heard(written, silent), lit: false));
+    }
+
     [Fact]
     public void S3202_the_idle_wait_stays_inside_the_capture_buffer()
         => Assert.True(Spectrum.IdleFrameMs < 200);
