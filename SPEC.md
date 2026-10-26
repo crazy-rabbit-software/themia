@@ -4176,7 +4176,11 @@ tag each, [S-7400]..[S-8000]), and so is Bluetooth (`src/Widgets/Themia.Widget.B
   carries it at XS). The second click within 5 s runs it; a second click within 400 ms of arming is
   ignored (a double-click is one intent); the arm ends after 5 s, on pointer exit, on a config change
   or when the widget goes away. Sleep, lock and display-off run on one click. The window is checked by
-  `PowerButton` against the press time; the ring's 50 ms repaint is cosmetic.
+  `PowerButton` against the press time. The ring (`ArmRing`: an arc from twelve, clockwise, round caps,
+  no track, a stroke a tenth of its size, as the WinUI progress ring drew it) drains on the compositor, one linear animation of its end over
+  the time left (`PowerButton.ArmLeft`), and one timer set to that time draws the widget disarmed:
+  nothing runs on the UI thread while it drains (CPU audit 2026-10-26: it was a whole repaint every
+  50 ms). Both are cosmetic; a click after the window arms again whatever the drawing shows.
 - **[S-1914]** Hibernate is offered only where the machine can (`IsPwrHibernateAllowed`): elsewhere
   the widget is drawn in the disabled text colour, takes no hover or press, and its tooltip says
   "Hibernation is turned off on this PC". The probe runs when the widget attaches and when the

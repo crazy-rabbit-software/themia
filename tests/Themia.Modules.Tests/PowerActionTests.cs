@@ -224,6 +224,25 @@ public class PowerActionTests
     }
 
     [Fact]
+    public async Task S1913_the_time_left_is_what_the_ring_drains_over_and_when_it_repaints()
+    {
+        // The view no longer repaints every 50 ms: the compositor drains the ring over this, and one
+        // timer set to it draws the widget disarmed.
+        var button = new PowerButton(PowerAction.Shutdown, new FakeBackend());
+
+        Assert.Equal(TimeSpan.Zero, button.ArmLeft(T0));
+        await button.PressAsync(T0);
+
+        Assert.Equal(PowerButton.ArmWindow, button.ArmLeft(T0));
+        Assert.Equal(TimeSpan.FromSeconds(3), button.ArmLeft(T0 + TimeSpan.FromSeconds(2)));
+        Assert.Equal(TimeSpan.Zero, button.ArmLeft(T0 + PowerButton.ArmWindow));
+        Assert.Equal(TimeSpan.Zero, button.ArmLeft(T0 - TimeSpan.FromSeconds(1)));
+
+        button.Disarm();
+        Assert.Equal(TimeSpan.Zero, button.ArmLeft(T0 + TimeSpan.FromSeconds(1)));
+    }
+
+    [Fact]
     public async Task S1913_a_clock_that_went_backwards_is_not_a_second_click()
     {
         var backend = new FakeBackend();

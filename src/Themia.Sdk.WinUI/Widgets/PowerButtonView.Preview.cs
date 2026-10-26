@@ -26,10 +26,11 @@ public sealed partial class PowerButtonView : IWidgetPreviewState
 
             case "armed":
                 // The inert backend: arming runs nothing, and an action that never arms does not show it.
+                // Armed two seconds ago, so the render shows the ring part drained (three fifths left).
                 if (_button is { } button && PowerActionRules.NeedsArming(_action))
                 {
-                    await button.PressAsync(now).ConfigureAwait(true);
-                    _ringTimer?.Start();
+                    await button.PressAsync(now - TimeSpan.FromSeconds(2)).ConfigureAwait(true);
+                    ScheduleExpiry(button);
                 }
 
                 break;

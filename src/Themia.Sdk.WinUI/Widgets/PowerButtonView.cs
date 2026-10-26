@@ -41,19 +41,21 @@ public sealed partial class PowerButtonView : Grid, IWidgetView, IWidgetSizeAwar
 {
     private const string Scope = "power";
 
-    /// <summary>How often the arm ring is redrawn while it drains. Cosmetic: safety reads timestamps.</summary>
-    private static readonly TimeSpan RingFrame = TimeSpan.FromMilliseconds(50);
-
     private readonly PowerAction _action;
     private readonly Grid _face = new() { HorizontalAlignment = HorizontalAlignment.Center, VerticalAlignment = VerticalAlignment.Center };
     private readonly Grid _iconBox = new() { HorizontalAlignment = HorizontalAlignment.Center };
     private readonly FontIcon _icon;
-    private readonly ProgressRing _ring = ArmRing();
-    private readonly ProgressRing _roundRing = ArmRing();
+    private readonly ArmRing _ring = new();
+    private readonly ArmRing _roundRing = new();
     private readonly RoundButtonPart _round;
 
     private readonly TextBlock _label = Fluent.Text(FluentType.Body);
-    private readonly DispatcherQueueTimer? _ringTimer;
+
+    /// <summary>
+    /// [S-1913] Fires once, when the arm window runs out, to draw the widget disarmed. Cosmetic like
+    /// the ring: whether a click runs the action is the press time's (<see cref="PowerButton"/>).
+    /// </summary>
+    private readonly DispatcherQueueTimer? _expiry;
 
     private readonly Brush _rest = new SolidColorBrush(Colors.Transparent);
     private readonly Brush _armedFill = ThemeBrush.Of("SystemFillColorCriticalBackgroundBrush", Colors.MistyRose);
@@ -94,7 +96,7 @@ public sealed partial class PowerButtonView : Grid, IWidgetView, IWidgetSizeAwar
 
         _icon = Fluent.Icon(Glyph(_action), "TextFillColorPrimaryBrush", 32);
         _icon.HorizontalAlignment = HorizontalAlignment.Center;
-        _iconBox.Children.Add(_ring);
+        _iconBox.Children.Add(_ring.Root);
         _iconBox.Children.Add(_icon);
 
         _label.HorizontalAlignment = HorizontalAlignment.Center;
@@ -109,16 +111,15 @@ public sealed partial class PowerButtonView : Grid, IWidgetView, IWidgetSizeAwar
         Children.Add(_face);
 
         _round = new RoundButtonPart(Glyph(_action));
-        _round.Overlay(_roundRing);
+        _round.Overlay(_roundRing.Root);
 
         // The whole slot is hit-testable, edge to edge: the tile is the button.
         Background = _rest;
 
-        _ringTimer = DispatcherQueue.GetForCurrentThread()?.CreateTimer();
-        if (_ringTimer is not null)
+        _expiry = DispatcherQueue.GetForCurrentThread()?.CreateTimer();
+        if (_expiry is not null)
         {
-            _ringTimer.IsRepeating = true;
-            _ringTimer.Interval = RingFrame;
+            _expiry.IsRepeating = false;
         }
         else
         {
@@ -160,9 +161,9 @@ public sealed partial class PowerButtonView : Grid, IWidgetView, IWidgetSizeAwar
         PointerCanceled += OnPointerLost;
         Strings.Changed += OnLanguage;
 
-        if (_ringTimer is not null)
+        if (_expiry is not null)
         {
-            _ringTimer.Tick += OnRingTick;
+            _expiry.Tick += OnExpiry;
         }
 
         AutomationProperties.SetName(this, PowerActionRules.Label(_action));
@@ -184,21 +185,10 @@ public sealed partial class PowerButtonView : Grid, IWidgetView, IWidgetSizeAwar
             Children.Add(face);
         }
 
-        _ringTimer?.Stop();
+        _expiry?.Stop();
         _button?.Disarm();
         Lay();
     }
-
-    /// <summary>The draining ring of an armed widget, one per face.</summary>
-    private static ProgressRing ArmRing() => new()
-    {
-        IsIndeterminate = false,
-        Minimum = 0,
-        Maximum = 100,
-        IsActive = true,
-        Visibility = Visibility.Collapsed,
-        IsHitTestVisible = false,
-    };
 
     /// <inheritdoc />
     public void ApplySize(WidgetArea area)
@@ -223,13 +213,15 @@ public sealed partial class PowerButtonView : Grid, IWidgetView, IWidgetSizeAwar
         PointerCanceled -= OnPointerLost;
         Strings.Changed -= OnLanguage;
 
-        if (_ringTimer is not null)
+        if (_expiry is not null)
         {
-            _ringTimer.Stop();
-            _ringTimer.Tick -= OnRingTick;
+            _expiry.Stop();
+            _expiry.Tick -= OnExpiry;
         }
 
         _button?.Disarm();
+        _ring.Stop();
+        _roundRing.Stop();
     }
 
     // ---- layout ------------------------------------------------------------------------------
@@ -262,8 +254,8 @@ public sealed partial class PowerButtonView : Grid, IWidgetView, IWidgetSizeAwar
 
         _iconBox.Width = _plan.IconBox;
         _iconBox.Height = _plan.IconBox;
-        _ring.Width = _plan.IconBox;
-        _ring.Height = _plan.IconBox;
+        _ring.Root.Width = _plan.IconBox;
+        _ring.Root.Height = _plan.IconBox;
         _icon.FontSize = _plan.IconSize;
 
         if (_plan.Label is null)
@@ -335,10 +327,19 @@ public sealed partial class PowerButtonView : Grid, IWidgetView, IWidgetSizeAwar
             labelBrush = _pressed ? _secondary : _primary;
         }
 
+        // [S-1913] The ring starts draining when the widget arms and drains on its own (the
+        // compositor's): a repaint while armed (a hover) leaves it be.
         var ring = _style == PowerButtonStyle.Round ? _roundRing : _ring;
-        ring.Visibility = armed ? Visibility.Visible : Visibility.Collapsed;
-        ring.Foreground = _critical;
-        ring.Value = button.ArmRemaining(now) * 100;
+        (_style == PowerButtonStyle.Round ? _ring : _roundRing).Stop();
+
+        if (!armed)
+        {
+            ring.Stop();
+        }
+        else if (!ring.Shown)
+        {
+            ring.Drain(button.ArmRemaining(now), button.ArmLeft(now), _critical);
+        }
 
         if (_style == PowerButtonStyle.Round)
         {
@@ -501,15 +502,7 @@ public sealed partial class PowerButtonView : Grid, IWidgetView, IWidgetSizeAwar
             var pending = button.PressAsync(DateTimeOffset.UtcNow);
 
             // Decided synchronously: armed, or running. Paint that before waiting on the machine.
-            if (button.IsArmed(DateTimeOffset.UtcNow))
-            {
-                _ringTimer?.Start();
-            }
-            else
-            {
-                _ringTimer?.Stop();
-            }
-
+            ScheduleExpiry(button);
             Paint();
             result = await pending.ConfigureAwait(true);
         }
@@ -532,21 +525,45 @@ public sealed partial class PowerButtonView : Grid, IWidgetView, IWidgetSizeAwar
         Paint();
     }
 
-    private void OnRingTick(DispatcherQueueTimer sender, object args)
+    /// <summary>[S-1913] Armed: repaint once, when the window runs out. Not armed: nothing to wait for.</summary>
+    private void ScheduleExpiry(PowerButton button)
     {
-        if (_button is not { } button || !button.IsArmed(DateTimeOffset.UtcNow))
+        if (_expiry is null)
         {
-            // The window is over whether or not the clock agrees to the millisecond.
-            sender.Stop();
-            _button?.Disarm();
+            return;
         }
 
+        _expiry.Stop();
+        var left = button.ArmLeft(DateTimeOffset.UtcNow);
+
+        if (left > TimeSpan.Zero)
+        {
+            _expiry.Interval = left;
+            _expiry.Start();
+        }
+    }
+
+    private void OnExpiry(DispatcherQueueTimer sender, object args)
+    {
+        if (_detached || _button is not { } button)
+        {
+            return;
+        }
+
+        // A timer may fire a hair early: still armed, it waits out the rest.
+        if (button.IsArmed(DateTimeOffset.UtcNow))
+        {
+            ScheduleExpiry(button);
+            return;
+        }
+
+        button.Disarm();
         Paint();
     }
 
     private void Disarm()
     {
-        _ringTimer?.Stop();
+        _expiry?.Stop();
         _button?.Disarm();
         Paint();
     }

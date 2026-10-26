@@ -112,6 +112,13 @@ public sealed class PowerButton
     }
 
     /// <summary>
+    /// [S-1913] How long the arm window still has at <paramref name="now"/>: what the ring drains over
+    /// and when the view repaints the widget disarmed. Zero when it is not armed.
+    /// </summary>
+    public TimeSpan ArmLeft(DateTimeOffset now)
+        => _armedAt is { } at && Live(at, now) ? ArmWindow - (now - at) : TimeSpan.Zero;
+
+    /// <summary>
     /// One press at <paramref name="now"/>. Decides synchronously — the state (armed, running) is
     /// already updated when this returns its task — and, when the action runs, completes after the
     /// backend has answered.
