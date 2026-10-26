@@ -53,6 +53,7 @@ public sealed class ScreenTimeTracker
     private LocalStamp _anchor;
     private ScreenTimePreferences _preferences = new();
     private bool _preferencesSet;
+    private ScreenTimePause _paused;
 
     /// <summary>date → app → seconds.</summary>
     public SortedDictionary<string, SortedDictionary<string, long>> Days { get; } = new(StringComparer.Ordinal);
@@ -66,7 +67,18 @@ public sealed class ScreenTimeTracker
     /// <summary>date → how many times the foreground app changed.</summary>
     public SortedDictionary<string, long> Switches { get; } = new(StringComparer.Ordinal);
 
-    public ScreenTimePause Paused { get; private set; }
+    public ScreenTimePause Paused
+    {
+        get => _paused;
+        private set
+        {
+            if (_paused != value)
+            {
+                _paused = value;
+                Revision++;
+            }
+        }
+    }
 
     /// <summary>
     /// [S-3322] What every widget hides and judges against. Replaced whole, never edited in place,
@@ -80,12 +92,19 @@ public sealed class ScreenTimeTracker
             ArgumentNullException.ThrowIfNull(value);
             _preferences = value.Copy();
             _preferencesSet = true;
-            Dirty = true;
+            Touch();
         }
     }
 
     /// <summary>True when something changed that the file does not have yet.</summary>
     public bool Dirty { get; set; }
+
+    /// <summary>
+    /// [S-3324] Moves on with every change a read can see: seconds credited, a switch, a name, a path,
+    /// the preferences, a merge, accrual pausing or resuming. Unlike <see cref="Dirty"/> a flush does
+    /// not reset it, so the service tells the widgets only when a tick actually changed something.
+    /// </summary>
+    public long Revision { get; private set; }
 
     /// <summary>The app accruing right now, or null.</summary>
     public string? OpenApp => _openApp;
@@ -131,7 +150,7 @@ public sealed class ScreenTimeTracker
         if (!string.IsNullOrEmpty(name) && (!Names.TryGetValue(app, out var known) || known != name))
         {
             Names[app] = name;
-            Dirty = true;
+            Touch();
         }
 
         if (Paused == ScreenTimePause.None)
@@ -143,7 +162,7 @@ public sealed class ScreenTimeTracker
             if (_openApp is not null && _openApp != app)
             {
                 Switches[stamp.Date] = Switches.GetValueOrDefault(stamp.Date) + 1;
-                Dirty = true;
+                Touch();
             }
         }
 
@@ -242,7 +261,7 @@ public sealed class ScreenTimeTracker
         }
 
         Paths[app] = path;
-        Dirty = true;
+        Touch();
     }
 
     /// <summary>[S-458] Record a resolved display name, unless one already landed.</summary>
@@ -254,7 +273,7 @@ public sealed class ScreenTimeTracker
         }
 
         Names[app] = name;
-        Dirty = true;
+        Touch();
     }
 
     /// <summary>
@@ -342,6 +361,7 @@ public sealed class ScreenTimeTracker
         while (Days.Count > RetentionDays)
         {
             Days.Remove(Days.Keys.First());
+            Revision++;
         }
 
         foreach (var date in Switches.Keys.ToList())
@@ -389,6 +409,8 @@ public sealed class ScreenTimeTracker
         {
             _preferences = loaded._preferences.Copy();
         }
+
+        Revision++;
     }
 
     /// <summary>[S-3322] Load-time only: the preferences as read, without marking the history dirty.</summary>
@@ -409,6 +431,21 @@ public sealed class ScreenTimeTracker
         }
 
         per[app] = per.GetValueOrDefault(app) + seconds;
+        Revision++;
+    }
+
+    /// <summary>
+    /// [S-3324] Whether a sampling tick tells the widgets: when the revision moved since they last
+    /// heard (<paramref name="toldRevision"/>), or the day did.
+    /// </summary>
+    public static bool Tells(long toldRevision, string? toldDay, long revision, string day)
+        => revision != toldRevision || !string.Equals(toldDay, day, StringComparison.Ordinal);
+
+    /// <summary>Something a read can see changed, and the file does not have it yet.</summary>
+    private void Touch()
+    {
+        Dirty = true;
+        Revision++;
     }
 
     private void Credit(LocalStamp upto)
@@ -438,7 +475,7 @@ public sealed class ScreenTimeTracker
 
         if (credited > 0)
         {
-            Dirty = true;
+            Touch();
         }
 
         _anchor = upto;

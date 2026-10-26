@@ -12,7 +12,8 @@ namespace Themia.App.Services;
 /// <para>
 /// Every input is an event except one. The foreground hook says when the app changes, the session
 /// notification says when the machine locks, and a 30-second sampling tick turns the open interval
-/// into seconds and asks how long the user has been idle. The tick is a sampling cadence, not an
+/// into seconds and asks how long the user has been idle. The widgets hear about a tick only when it
+/// changed something ([S-3324]): idle, locked or in Themia, the history stands still and so do they. The tick is a sampling cadence, not an
 /// ordering crutch: accrual is bounded by it ([S-458]), and it is the only way to learn about idle
 /// without a low-level input hook on every keystroke. It is the service's own timer rather than the
 /// shared widget ticker, because the widget ticker is allowed to stop while the widgets cannot be
@@ -56,6 +57,10 @@ internal sealed unsafe partial class ScreenTimeService : IScreenTimeSource, IDis
 
     private nint _hook;
     private nint _window;
+
+    /// <summary>[S-3324] The tracker's revision and the day the widgets last heard about.</summary>
+    private long _toldRevision = -1;
+    private string? _toldDay;
     private long _lastFlush = Stopwatch.GetTimestamp();
     private Task _writes = Task.CompletedTask;
     private bool _disposed;
@@ -290,7 +295,13 @@ internal sealed unsafe partial class ScreenTimeService : IScreenTimeSource, IDis
             Flush();
         }
 
-        Raise();
+        // [S-3324] Only a tick that changed what a widget reads redraws them: seconds credited, a
+        // pause entered or left, or a new day (a day period's "today" turns over at midnight even
+        // while nothing accrues).
+        if (ScreenTimeTracker.Tells(_toldRevision, _toldDay, _tracker.Revision, stamp.Date))
+        {
+            Raise();
+        }
     }
 
     private void OnSession(int change)
@@ -322,6 +333,9 @@ internal sealed unsafe partial class ScreenTimeService : IScreenTimeSource, IDis
 
     private void Raise()
     {
+        _toldRevision = _tracker.Revision;
+        _toldDay = LocalStamp.From(DateTimeOffset.Now).Date;
+
         try
         {
             Changed?.Invoke();

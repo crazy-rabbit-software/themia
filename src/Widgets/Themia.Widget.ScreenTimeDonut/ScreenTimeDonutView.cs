@@ -4,7 +4,6 @@ using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Documents;
 using Microsoft.UI.Xaml.Media;
-using Microsoft.UI.Xaml.Shapes;
 using Themia.App.Services;
 using Themia.App.Shell;
 using Themia.Core.Localization;
@@ -23,7 +22,8 @@ namespace Themia.App.Widgets;
 /// lifts it, dims the rest and names it in the hole ([S-3343]).
 /// <para>
 /// The history is the app's one tracker ([S-458]), read through <see cref="IWidgetHost.ScreenTime"/>;
-/// the widget has no timer and redraws when the tracker says something changed.
+/// the widget has no timer and redraws when the tracker says something changed. [S-3325] A wedge is
+/// kept per app across reads: a read moves its arc and its tip, and only a new app gets a new one.
 /// </para>
 /// </summary>
 internal sealed partial class ScreenTimeDonutView : Grid, IWidgetView, IWidgetSurfaceAware, IWidgetHeaderContent, IWidgetSizeAware, IWidgetKeys
@@ -40,7 +40,10 @@ internal sealed partial class ScreenTimeDonutView : Grid, IWidgetView, IWidgetSu
     private readonly Grid _ring = new() { HorizontalAlignment = HorizontalAlignment.Center, VerticalAlignment = VerticalAlignment.Center };
     private readonly StackPanel _empty;
     private readonly TextBlock _emptyText = new();
-    private readonly List<(ScreenTimeSegment Segment, Shape Arc)> _arcs = [];
+    private readonly List<(ScreenTimeSegment Segment, Wedge Arc)> _arcs = [];
+
+    /// <summary>[S-3325] One wedge per app (and Other), kept across reads.</summary>
+    private readonly KeyedParts<Wedge> _wedges = new();
 
     private IWidgetSurface? _surface;
     private IScreenTimeSource? _source;
@@ -135,8 +138,7 @@ internal sealed partial class ScreenTimeDonutView : Grid, IWidgetView, IWidgetSu
         Strings.Changed -= OnLanguage;
         UseSource(null);
         _links.Leave();
-        _arcs.Clear();
-        _canvas.Children.Clear();
+        DropWedges();
     }
 
     private void UseSource(IScreenTimeSource? source)
@@ -201,8 +203,7 @@ internal sealed partial class ScreenTimeDonutView : Grid, IWidgetView, IWidgetSu
     {
         _data = null;
         _segments = [];
-        _arcs.Clear();
-        _canvas.Children.Clear();
+        DropWedges();
         _emptyText.Text = message;
         _empty.Visibility = Visibility.Visible;
         _ring.Visibility = Visibility.Collapsed;
@@ -226,47 +227,22 @@ internal sealed partial class ScreenTimeDonutView : Grid, IWidgetView, IWidgetSu
         var radius = (size - (_plan.Thickness * LiftFactor)) / 2;
         var centre = size / 2;
 
-        _arcs.Clear();
-        _canvas.Children.Clear();
         _canvas.Width = size;
         _canvas.Height = size;
         _ring.Width = size;
         _ring.Height = size;
 
-        foreach (var segment in _segments)
+        // [S-3325] The wedges of the apps still on the ring are moved, not built again.
+        var (wedges, _) = _wedges.Sync([.. _segments.Select(s => s.Key)], NewWedge, DropWedge);
+        _arcs.Clear();
+
+        for (var i = 0; i < _segments.Count; i++)
         {
-            Shape arc;
-
-            if (segment.Fraction >= 0.9999)
-            {
-                arc = new Ellipse { Width = radius * 2, Height = radius * 2 };
-                Canvas.SetLeft(arc, centre - radius);
-                Canvas.SetTop(arc, centre - radius);
-            }
-            else
-            {
-                arc = Arc(centre, radius, segment.Start, segment.Start + segment.Fraction);
-            }
-
-            arc.Stroke = ScreenTimeLook.For(segment.Key);
-            arc.StrokeThickness = _plan.Thickness;
-            ToolTipService.SetToolTip(arc, ScreenTimeLook.Tip(segment, data.Total));
-
-            var key = segment.Key;
-            arc.PointerEntered += (_, _) => Hover(key);
-            arc.PointerExited += (_, _) => Hover(null);
-            arc.PointerCanceled += (_, _) => Hover(null);
-            arc.PointerCaptureLost += (_, _) => Hover(null);
-            arc.Tapped += (_, e) =>
-            {
-                e.Handled = true;
-                _links.Toggle(key);
-                ApplyFocus();
-            };
-            ScreenTimeLook.AttachHideMenu(arc, key, () => _source);
-
-            _arcs.Add((segment, arc));
-            _canvas.Children.Add(arc);
+            var segment = _segments[i];
+            var wedge = wedges[i];
+            wedge.Place(centre, radius, segment.Start, segment.Fraction);
+            wedge.Tip(ScreenTimeLook.Tip(segment, data.Total));
+            _arcs.Add((segment, wedge));
         }
 
         var hole = size - (_plan.Thickness * 2);
@@ -294,11 +270,11 @@ internal sealed partial class ScreenTimeDonutView : Grid, IWidgetView, IWidgetSu
 
         var part = ScreenTimeRules.FocusPart(_links.Focus, _segments, data.Apps);
 
-        foreach (var (segment, arc) in _arcs)
+        foreach (var (segment, wedge) in _arcs)
         {
             var emphasis = ScreenTimeRules.Emphasis(segment.Key, part);
-            arc.Opacity = ScreenTimeLook.Opacity(emphasis);
-            arc.StrokeThickness = emphasis == ScreenTimeEmphasis.Lit ? _plan.Thickness * LiftFactor : _plan.Thickness;
+            wedge.Path.Opacity = ScreenTimeLook.Opacity(emphasis);
+            wedge.Path.StrokeThickness = emphasis == ScreenTimeEmphasis.Lit ? _plan.Thickness * LiftFactor : _plan.Thickness;
         }
 
         var focused = part is null ? null : _segments.FirstOrDefault(s => s.Key == part);
@@ -330,27 +306,105 @@ internal sealed partial class ScreenTimeDonutView : Grid, IWidgetView, IWidgetSu
         return (data.Total, Str.Screentime_PerDay.Format(("value", ScreenTimeRules.FormatDuration(average))), over);
     }
 
-    /// <summary>An arc of the ring between two shares of the circle, starting at twelve o'clock.</summary>
-    private static Microsoft.UI.Xaml.Shapes.Path Arc(double centre, double radius, double from, double to)
+    /// <summary>[S-3325] A new app on the ring: its wedge, its colour, its hover, tap and hide menu, once.</summary>
+    private Wedge NewWedge(string key)
     {
-        static Point At(double centre, double radius, double share)
+        var wedge = new Wedge(key);
+        var arc = wedge.Path;
+        arc.Stroke = ScreenTimeLook.For(key);
+        arc.StrokeThickness = _plan.Thickness;
+        arc.PointerEntered += (_, _) => Hover(key);
+        arc.PointerExited += (_, _) => Hover(null);
+        arc.PointerCanceled += (_, _) => Hover(null);
+        arc.PointerCaptureLost += (_, _) => Hover(null);
+        arc.Tapped += (_, e) =>
         {
-            var angle = (share * 2 * Math.PI) - (Math.PI / 2);
-            return new Point(centre + (radius * Math.Cos(angle)), centre + (radius * Math.Sin(angle)));
+            e.Handled = true;
+            _links.Toggle(key);
+            ApplyFocus();
+        };
+        ScreenTimeLook.AttachHideMenu(arc, key, () => _source);
+        _canvas.Children.Add(arc);
+        return wedge;
+    }
+
+    private void DropWedge(Wedge wedge) => _canvas.Children.Remove(wedge.Path);
+
+    private void DropWedges()
+    {
+        _wedges.Clear(DropWedge);
+        _arcs.Clear();
+        _canvas.Children.Clear();
+    }
+
+    /// <summary>
+    /// [S-3341] [S-3325] One app's wedge: an arc of the ring between two shares of the circle, from
+    /// twelve o'clock, as a path (two half arcs when it is the whole ring: an arc back to its own start
+    /// draws nothing). Its geometry and its tip are written only when they say something else.
+    /// </summary>
+    private sealed class Wedge(string key)
+    {
+        private (double Centre, double Radius, double From, double Share)? _placed;
+        private string? _tip;
+
+        public string Key { get; } = key;
+
+        public Microsoft.UI.Xaml.Shapes.Path Path { get; } = new();
+
+        public void Place(double centre, double radius, double from, double share)
+        {
+            var placed = (centre, radius, from, share);
+            if (_placed == placed)
+            {
+                return;
+            }
+
+            _placed = placed;
+            Path.Data = Geometry(centre, radius, from, share);
         }
 
-        var figure = new PathFigure { StartPoint = At(centre, radius, from), IsClosed = false, IsFilled = false };
-        figure.Segments.Add(new ArcSegment
+        public void Tip(string tip)
         {
-            Point = At(centre, radius, to),
-            Size = new Size(radius, radius),
-            IsLargeArc = to - from > 0.5,
-            SweepDirection = SweepDirection.Clockwise,
-        });
+            if (tip == _tip)
+            {
+                return;
+            }
 
-        var geometry = new PathGeometry();
-        geometry.Figures.Add(figure);
-        return new Microsoft.UI.Xaml.Shapes.Path { Data = geometry };
+            _tip = tip;
+            ToolTipService.SetToolTip(Path, tip);
+        }
+
+        private static PathGeometry Geometry(double centre, double radius, double from, double share)
+        {
+            static Point At(double centre, double radius, double share)
+            {
+                var angle = (share * 2 * Math.PI) - (Math.PI / 2);
+                return new Point(centre + (radius * Math.Cos(angle)), centre + (radius * Math.Sin(angle)));
+            }
+
+            var size = new Size(radius, radius);
+            var figure = new PathFigure { StartPoint = At(centre, radius, from), IsClosed = false, IsFilled = false };
+
+            if (share >= 0.9999)
+            {
+                figure.Segments.Add(new ArcSegment { Point = At(centre, radius, from + 0.5), Size = size, SweepDirection = SweepDirection.Clockwise });
+                figure.Segments.Add(new ArcSegment { Point = At(centre, radius, from), Size = size, SweepDirection = SweepDirection.Clockwise });
+            }
+            else
+            {
+                figure.Segments.Add(new ArcSegment
+                {
+                    Point = At(centre, radius, from + share),
+                    Size = size,
+                    IsLargeArc = share > 0.5,
+                    SweepDirection = SweepDirection.Clockwise,
+                });
+            }
+
+            var geometry = new PathGeometry();
+            geometry.Figures.Add(figure);
+            return geometry;
+        }
     }
 
     // ---- keys ([S-3307], [S-1989]) -------------------------------------------------------------
@@ -375,7 +429,7 @@ internal sealed partial class ScreenTimeDonutView : Grid, IWidgetView, IWidgetSu
             return ScreenTimeRules.ClampPeriod(_config.Period) == ScreenTimePeriod.Day && _nav.StepKey(key == WidgetKey.Right);
         }
 
-        var used = _links.HandleKey(key, [.. _segments.Select(s => s.Key)], app => _arcs.Find(a => a.Segment.Key == app).Arc, _source);
+        var used = _links.HandleKey(key, [.. _segments.Select(s => s.Key)], app => _wedges.Of(app)?.Path, _source);
         if (used)
         {
             ApplyFocus();

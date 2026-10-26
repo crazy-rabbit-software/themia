@@ -3032,6 +3032,21 @@ Tests `ScreenTimeRulesTests`, `ScreenTimeStoreTests`, `LocalStoreFixtureTests`, 
   Show again ("No hidden apps…" while none); both end with the note that they apply to every
   screen-time widget. Last, under another divider, the privacy note. Without a tracker the lines are the not-recording and
   privacy notes alone. Every change replaces the whole set through the tracker.
+- **[S-3324]** The tracker tells its widgets only what changed (CPU audit 2026-10-26: it said "changed"
+  every 30 s for as long as Themia ran). `ScreenTimeTracker.Revision` moves on with every change a
+  read can see (seconds credited, a switch, a name, a path, the preferences, a merge or a prune,
+  accrual pausing or resuming); a flush does not reset it. The sampling tick raises `Changed` only
+  when the revision moved since the widgets last heard, or the day did (`ScreenTimeTracker.Tells`: a
+  day period's today turns over at midnight while nothing accrues). Idle, locked or with Themia in
+  front, the history stands still and nothing redraws. A lock, an unlock, the preferences, the
+  history loaded and the icons filled in still tell them at once.
+- **[S-3325]** A screen-time drawing moves in place (`KeyedParts`): the donut keeps one wedge per app
+  and Other across reads (a read writes an arc's geometry and its tooltip only when they say
+  something else; a new app gets a new wedge, one that left is let go); the chart builds its drawing
+  only for a new style, number of days, plan, size, today, first day or language, and otherwise
+  sets each bar's parts (kept per app in their bar, the stack laid again only when its apps or
+  their order changed) and each tooltip that changed, and shades the calendar in place. The app
+  list reuses its rows by position ([S-3351]).
 
 ### Chart
 
