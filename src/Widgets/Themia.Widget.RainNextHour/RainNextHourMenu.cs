@@ -18,7 +18,6 @@ internal static class RainNextHourMenu
         ArgumentNullException.ThrowIfNull(config);
 
         // Appearance, then behind a divider each: the place; the data's credit.
-        menu.PlaceCard();
         menu.Lines.Add(ItemMenuEntry.Separator);
         menu.Lines.AddRange(WeatherPlaceRows.Lines(menu, config));
         menu.Lines.Add(ItemMenuEntry.Separator);

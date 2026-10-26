@@ -36,7 +36,6 @@ public sealed class GpuMenuTests
     {
         var menu = Build(new GpuConfig(), Two);
 
-        Assert.Equal(0, menu.CardAt);
         var adapter = Assert.Single(menu.Lines);
         Assert.Equal(Str.Details_Settings_Gpu_Adapter_Label.Text(), adapter.Text);
         Assert.Equal(Two.Select(a => a.Name), adapter.Children!.Select(c => c.Text));

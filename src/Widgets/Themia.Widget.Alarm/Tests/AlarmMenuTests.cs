@@ -28,7 +28,6 @@ public sealed class AlarmMenuTests
     {
         var lines = Build(new AlarmConfig());
 
-        Assert.Equal(0, lines.CardAt);
         Assert.Equal(
             [
                 AlarmStr.Alarm_Settings_Time_Label.Text(), AlarmStr.Alarm_Settings_Repeat.Text(), AlarmStr.Alarm_Settings_On_Label.Text(),

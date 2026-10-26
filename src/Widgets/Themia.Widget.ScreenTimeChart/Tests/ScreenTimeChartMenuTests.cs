@@ -27,7 +27,6 @@ public sealed class ScreenTimeChartMenuTests
     {
         var lines = Build(new ScreenTimeChartConfig());
 
-        Assert.Equal(0, lines.CardAt);
         Assert.Equal(Str.Screentime_Cfg_Period.Text(), lines.Lines[0].Text);
         Assert.True(Line(lines.Lines, Str.WidgetsC_ScreenTime_NotRecording.Text()).Note);
         Assert.Empty(lines.StyleLines);

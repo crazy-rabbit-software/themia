@@ -51,7 +51,6 @@ public sealed class SunMenuTests
     {
         var lines = Build(new SunConfig());
 
-        Assert.Equal(0, lines.CardAt);
         Assert.True(lines.Lines[0].IsSeparator);
         Assert.Equal(Str.Shell_Place_UseDevice.Text(), lines.Lines[1].Text);
         var location = Assert.Single(lines.Lines, l => l.Search is not null);

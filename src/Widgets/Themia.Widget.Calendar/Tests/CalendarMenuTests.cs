@@ -79,7 +79,6 @@ public sealed class CalendarMenuTests
     {
         var lines = Build(new CalendarWidgetConfig());
 
-        Assert.Equal(0, lines.CardAt);
         Assert.Equal(
             [Str.WidgetUi_AccountsLabel.Text(), Str.WidgetsA_Calendar_Settings_Calendars.Text(), string.Empty, Str.Calendar_ShowBirthdays_Label.Text()],
             lines.Lines.Select(l => l.IsSeparator ? string.Empty : l.Text));

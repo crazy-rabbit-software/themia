@@ -13,7 +13,6 @@ internal static class NetworkDetailsMenu
         ArgumentNullException.ThrowIfNull(menu);
         ArgumentNullException.ThrowIfNull(config);
 
-        menu.PlaceCard();
         menu.Lines.Add(menu.Toggle(Glyphs.Globe, NetworkDetailsStr.Details_Settings_Network_Public_Label.Text(), config.ShowPublicAddress, on => config.ShowPublicAddress = on));
 
         // Off by default because it asks a third party: whom, and how often, is said before it is turned on.

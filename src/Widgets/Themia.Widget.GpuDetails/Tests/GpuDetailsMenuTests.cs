@@ -28,7 +28,6 @@ public sealed class GpuDetailsMenuTests
 
         var config = new GpuDetailsConfig();
         var menu = Build(config, two);
-        Assert.Equal(0, menu.CardAt);
         Assert.Empty(menu.StyleLines);
 
         Assert.Single(menu.Lines).Children![1].Action!();

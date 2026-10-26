@@ -13,7 +13,6 @@ internal static class GpuMenu
         ArgumentNullException.ThrowIfNull(menu);
         ArgumentNullException.ThrowIfNull(config);
 
-        menu.PlaceCard();
         if (GpuAdapterLine.Line(menu, config.Adapter, value => config.Adapter = value, adapters) is { } adapter)
         {
             menu.Lines.Add(adapter);

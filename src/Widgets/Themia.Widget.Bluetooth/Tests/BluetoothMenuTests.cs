@@ -22,7 +22,6 @@ public sealed class BluetoothMenuTests
     {
         var lines = Build(new BluetoothConfig());
 
-        Assert.Equal(0, lines.CardAt);
         Assert.Equal(
             [
                 BluetoothStr.WidgetsA_Bluetooth_Settings_ConnectedOnly_Label.Text(),

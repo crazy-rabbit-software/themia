@@ -29,7 +29,6 @@ internal static class RssMenu
         ArgumentNullException.ThrowIfNull(menu);
         ArgumentNullException.ThrowIfNull(config);
 
-        menu.PlaceCard();
         menu.Lines.Add(WidgetMenuLines.SetsUp(Feeds(menu, config)));
         menu.Lines.Add(ItemMenuEntry.Separator);
         menu.Lines.AddRange(KitMenuLines.Shows(menu,
@@ -58,7 +57,7 @@ internal static class RssMenu
                         Str.Common_Save.Text(),
                         Refusal,
                         typed => Readdress(feed, typed, menu),
-                        Initial: feed.Url))),
+                        Initial: feed.Url)), Asks: true),
                 ],
                 Add = new MenuListAdd<RssFeed>(RssStr.WidgetsC_Rss_Settings_Add_Title.Text(), Example, Refusal, typed => new RssFeed { Url = typed.Trim() }),
                 Max = RssConfig.MaxFeeds,

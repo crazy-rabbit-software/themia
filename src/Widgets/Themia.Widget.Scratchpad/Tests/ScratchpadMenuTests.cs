@@ -24,7 +24,6 @@ public sealed class ScratchpadMenuTests
     {
         var lines = Build(new ScratchpadConfig());
 
-        Assert.Equal(0, lines.CardAt);
         Assert.Equal(
             [ScratchpadStr.Scratchpad_PenColorLabel.Text(), ScratchpadStr.Scratchpad_PenSizeLabel.Text(), "|", ScratchpadStr.WidgetsC_Scratchpad_Settings_ShowTools_Label.Text()],
             lines.Lines.Select(l => l.IsSeparator ? "|" : l.Text));

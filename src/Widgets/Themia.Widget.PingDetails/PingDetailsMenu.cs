@@ -16,7 +16,6 @@ internal static class PingDetailsMenu
         ArgumentNullException.ThrowIfNull(menu);
         ArgumentNullException.ThrowIfNull(config);
 
-        menu.PlaceCard();
         menu.Lines.Add(PingHostLine.Line(menu, config.Host, value => config.Host = value));
 
         var current = Windows.Contains(config.EffectiveWindow) ? config.EffectiveWindow : 60;

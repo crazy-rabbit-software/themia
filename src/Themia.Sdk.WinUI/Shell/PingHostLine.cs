@@ -41,7 +41,7 @@ public static class PingHostLine
                 }
             },
             Initial: host,
-            AllowEmpty: true)), Value: host.Length == 0 ? HostAddress.DefaultPingHost : host);
+            AllowEmpty: true)), Value: host.Length == 0 ? HostAddress.DefaultPingHost : host, Asks: true);
     }
 
     /// <summary>[S-109] Why a typed host cannot be measured, or null: empty (the default) or a plausible name or address.</summary>

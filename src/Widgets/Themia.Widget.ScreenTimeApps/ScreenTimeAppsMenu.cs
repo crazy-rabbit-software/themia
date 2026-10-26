@@ -20,7 +20,6 @@ internal static class ScreenTimeAppsMenu
         ArgumentNullException.ThrowIfNull(menu);
         ArgumentNullException.ThrowIfNull(config);
 
-        menu.PlaceCard();
         menu.Lines.Add(ScreenTimeMenuLines.Period(menu, config.Period, value => config.Period = value));
 
         // The list's own: how many apps and the figures beside each, apart from the period.

@@ -24,7 +24,6 @@ public sealed class PomodoroMenuTests
     {
         var lines = Build(new PomodoroConfig());
 
-        Assert.Equal(0, lines.CardAt);
         Assert.Empty(lines.StyleLines);
         Assert.Equal(
             [

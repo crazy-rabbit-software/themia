@@ -25,7 +25,6 @@ internal static class DiskMenu
         ArgumentNullException.ThrowIfNull(disk);
         ArgumentNullException.ThrowIfNull(drives);
 
-        menu.PlaceCard();
         menu.Lines.Add(DriveLine(menu, disk, drives));
         MeterMenuLines.Lines(menu, disk);
     }

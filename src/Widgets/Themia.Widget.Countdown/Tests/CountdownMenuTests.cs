@@ -33,7 +33,6 @@ public sealed class CountdownMenuTests
     {
         var lines = Build(new CountdownConfig());
 
-        Assert.Equal(0, lines.CardAt);
         Assert.Equal(
             ["-", CountdownStr.WidgetsA_Countdown_Settings_Name_Label.Text(), Date, Time, "-", CountdownStr.WidgetsA_Countdown_Settings_Format_Label.Text()],
             lines.Lines.Select(l => l.IsSeparator ? "-" : l.Text));

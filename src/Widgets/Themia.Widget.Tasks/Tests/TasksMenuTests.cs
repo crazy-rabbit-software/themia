@@ -72,7 +72,6 @@ public sealed class TasksMenuTests
     {
         var lines = Build(new TasksConfig(), Accounts());
 
-        Assert.Equal(0, lines.CardAt);
         Assert.Equal(
             [
                 From, ListLabel, string.Empty,

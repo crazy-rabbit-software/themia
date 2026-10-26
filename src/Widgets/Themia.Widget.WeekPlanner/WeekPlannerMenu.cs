@@ -26,7 +26,6 @@ internal static class WeekPlannerMenu
         ArgumentNullException.ThrowIfNull(planner);
         ArgumentNullException.ThrowIfNull(taskAccounts);
 
-        menu.PlaceCard();
         menu.Lines.AddRange(OfficeMenuLines.CalendarAccounts(menu, planner, office));
 
         // [S-575] Only while a chosen calendar account has the contacts the birthdays come from.

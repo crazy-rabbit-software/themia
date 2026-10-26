@@ -20,7 +20,6 @@ internal static class MixerMenu
         ArgumentNullException.ThrowIfNull(menu);
         ArgumentNullException.ThrowIfNull(config);
 
-        menu.PlaceCard();
         var lines = menu.Lines;
 
         // [S-1222] Which device's apps; the default follows Windows.

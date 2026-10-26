@@ -26,7 +26,6 @@ internal static class AlarmMenu
         ArgumentNullException.ThrowIfNull(alarm);
 
         var locale = Strings.Current;
-        menu.PlaceCard();
 
         // When it rings: the time, the days and whether it is set at all.
         // [S-4621] Typed ([S-3738]), in either clock; the line shows it in the language's.
@@ -43,7 +42,7 @@ internal static class AlarmMenu
                     menu.Save();
                 }
             },
-            Initial: AlarmTimes.Text(AlarmTimes.Minutes(alarm.Time)))), Value: AlarmWords.Time(locale, alarm.Plan)));
+            Initial: AlarmTimes.Text(AlarmTimes.Minutes(alarm.Time)))), Value: AlarmWords.Time(locale, alarm.Plan), Asks: true));
 
         menu.Lines.Add(Days(menu, alarm, locale));
         menu.Lines.Add(menu.Toggle(Glyphs.Bell, AlarmStr.Alarm_Settings_On_Label.Text(), alarm.On, on => alarm.On = on));
@@ -65,7 +64,7 @@ internal static class AlarmMenu
                 }
             },
             Initial: alarm.Label,
-            AllowEmpty: true)), Value: alarm.Label.Length > 0 ? alarm.Label : null));
+            AllowEmpty: true)), Value: alarm.Label.Length > 0 ? alarm.Label : null, Asks: true));
 
         // How it sounds.
         menu.Lines.Add(ItemMenuEntry.Separator);

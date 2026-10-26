@@ -62,7 +62,6 @@ public sealed class ScreenTimeAppsMenuTests
     {
         var lines = Build(new ScreenTimeAppsConfig { Period = ScreenTimePeriod.Week }, new Tracker(new ScreenTimePreferences()));
 
-        Assert.Equal(0, lines.CardAt);
         Assert.Equal(
             [
                 Str.Screentime_Cfg_Period.Text(),

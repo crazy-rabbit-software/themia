@@ -499,7 +499,6 @@ internal static partial class EditBarRender
     private static void Vocabulary(WidgetMenuLines menu)
     {
         List<string> feeds = ["https://blog.example/feed", "https://news.example/rss"];
-        menu.PlaceCard();
         menu.Lines.Add(menu.Colour("Accent", "#3A6EA5", _ => { }));
         menu.Lines.Add(menu.Fill("Accent fill", FillChoice.Of("#3A6EA5", 0.6), _ => { }));
         menu.Lines.Add(menu.Number(Glyphs.Count, "Rows", 4, 1, 10, 1, n => LocaleFormat.Integer(n), _ => { }));

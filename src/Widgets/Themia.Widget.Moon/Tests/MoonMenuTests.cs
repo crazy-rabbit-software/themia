@@ -22,7 +22,6 @@ public sealed class MoonMenuTests
     {
         var lines = Build(new MoonConfig());
 
-        Assert.Equal(0, lines.CardAt);
         Assert.Empty(lines.StyleLines);
         Assert.Equal(["-", Str.Shell_Place_UseDevice.Text(), Str.Shell_Place_Location.Text()], lines.Lines.Select(l => l.IsSeparator ? "-" : l.Text));
     }

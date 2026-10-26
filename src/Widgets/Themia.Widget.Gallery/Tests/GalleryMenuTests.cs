@@ -36,7 +36,6 @@ public sealed class GalleryMenuTests
     {
         var lines = Build(new GalleryConfig { Source = GallerySource.Folder });
 
-        Assert.Equal(0, lines.CardAt);
         Assert.Equal(
             [
                 GalleryStr.Gallery_SourceLabel.Text(),

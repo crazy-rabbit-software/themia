@@ -23,7 +23,6 @@ public sealed class ClipboardMenuTests
     {
         var lines = Build(new ClipboardConfig());
 
-        Assert.Equal(0, lines.CardAt);
         Assert.Equal(ClipboardStr.WidgetsA_Clipboard_Settings_Timestamp_Label.Text(), lines.Lines[0].Text);
         Assert.True(lines.Lines[1].IsSeparator);
         Assert.Equal(ClipboardStr.WidgetsA_Clipboard_Settings_Entries_Label.Text(), lines.Lines[2].Text);

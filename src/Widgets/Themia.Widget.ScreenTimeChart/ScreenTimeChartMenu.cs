@@ -21,7 +21,6 @@ internal static class ScreenTimeChartMenu
         ArgumentNullException.ThrowIfNull(menu);
         ArgumentNullException.ThrowIfNull(config);
 
-        menu.PlaceCard();
         menu.Lines.Add(menu.Choice(Glyphs.Calendar, Str.Screentime_Cfg_Period.Text(),
             [(ScreenTimePeriod.Week, ScreenTimeRules.PeriodLabel(ScreenTimePeriod.Week)), (ScreenTimePeriod.Month, ScreenTimeRules.PeriodLabel(ScreenTimePeriod.Month))],
             ScreenTimeRules.ChartPeriod(config.Period), value => config.Period = value));

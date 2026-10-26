@@ -24,7 +24,6 @@ internal static class FolderPropertiesMenu
 
         // [S-1337] After the look, each group behind a divider: the folder and what of it is
         // listed; then how its items and its folders open.
-        menu.PlaceCard();
         var lines = menu.Lines;
         lines.Add(ItemMenuEntry.Separator);
         lines.Add(FolderLine(menu, config));
@@ -125,7 +124,7 @@ internal static class FolderPropertiesMenu
                     }
                 },
                 Initial: current,
-                AllowEmpty: true))),
+                AllowEmpty: true)), Asks: true),
         };
 
         var shown = WidgetMenuLines.FolderName(current) ?? WidgetMenuLines.FolderName(ProfileFolder());

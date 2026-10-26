@@ -35,7 +35,6 @@ public sealed class DiskMenuTests
     {
         var menu = Build(new DiskConfig());
 
-        Assert.Equal(0, menu.CardAt);
         Assert.Equal(DiskStr.Shell_Meters_Drive_Label.Text(), Assert.Single(menu.Lines).Text);
         Assert.Equal(Str.WidgetsB_Settings_Meters_ChartSpan_Label.Text(), Assert.Single(menu.StyleLines).Text);
     }

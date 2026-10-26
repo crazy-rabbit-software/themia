@@ -24,7 +24,6 @@ public sealed class RainNextHourMenuTests
     {
         var lines = Build(new RainNextHourConfig());
 
-        Assert.Equal(0, lines.CardAt);
         Assert.Empty(lines.StyleLines);
         Assert.Collection(lines.Lines,
             divider => Assert.True(divider.IsSeparator),

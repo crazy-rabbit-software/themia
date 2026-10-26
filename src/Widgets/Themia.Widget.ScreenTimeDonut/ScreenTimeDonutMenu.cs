@@ -17,7 +17,6 @@ internal static class ScreenTimeDonutMenu
         ArgumentNullException.ThrowIfNull(menu);
         ArgumentNullException.ThrowIfNull(config);
 
-        menu.PlaceCard();
         menu.Lines.Add(ScreenTimeMenuLines.Period(menu, config.Period, value => config.Period = value));
         ScreenTimeMenuLines.AddShared(menu, config, source);
     }

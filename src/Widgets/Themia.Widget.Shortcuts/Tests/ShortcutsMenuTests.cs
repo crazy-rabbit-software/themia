@@ -88,7 +88,6 @@ public sealed class ShortcutsMenuTests
     {
         var lines = Build(new ShortcutsConfig()).Lines;
 
-        Assert.Equal(0, lines.CardAt);
         Assert.Equal(
             ["-", ShortcutsStr.WidgetsC_Shortcuts_Settings_OpenWith_Label.Text(), "-", Str.Common_Add.Text(), ShortcutsStr.WidgetsA_Catalog_Shortcuts_Label.Text()],
             lines.Lines.Select(l => l.IsSeparator ? "-" : l.Text));

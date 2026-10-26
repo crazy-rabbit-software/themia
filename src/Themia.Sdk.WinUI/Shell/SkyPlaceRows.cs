@@ -126,7 +126,7 @@ public static class SkyPlaceRows
                 }
             },
             Initial: config.Place,
-            AllowEmpty: true)), Value: string.IsNullOrWhiteSpace(config.Place) ? null : config.Place);
+            AllowEmpty: true)), Value: string.IsNullOrWhiteSpace(config.Place) ? null : config.Place, Asks: true);
 
     /// <summary>
     /// [S-171] [S-3721] A coordinate asked for as text, refused (with the range as the reason) unless it
@@ -146,7 +146,7 @@ public static class SkyPlaceRows
                     menu.Save();
                 }
             },
-            Initial: current is { } known ? FormatCoordinate(known) : null)), Value: current is { } shown ? FormatCoordinate(shown) : null);
+            Initial: current is { } known ? FormatCoordinate(known) : null)), Value: current is { } shown ? FormatCoordinate(shown) : null, Asks: true);
 
     /// <summary>A place name is a header title, not a document: cut as load repair cuts it ([S-3101]).</summary>
     private static string Cut(string name) => name.Length > SkyPlaceConfig.MaxPlaceLength ? name[..SkyPlaceConfig.MaxPlaceLength] : name;

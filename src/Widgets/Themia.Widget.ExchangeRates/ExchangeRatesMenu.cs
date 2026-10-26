@@ -19,7 +19,6 @@ internal static class ExchangeRatesMenu
         ArgumentNullException.ThrowIfNull(menu);
         ArgumentNullException.ThrowIfNull(config);
 
-        menu.PlaceCard();
         var region = ExchangeRatesStr.Online_Rates_Settings_Base_Region.Format(("code", RegionCurrency.Current));
         menu.Lines.Add(Currency(menu, ExchangeRatesStr.Online_Rates_Settings_Base_Label.Text(), region, config.BaseCurrency, code => config.BaseCurrency = code));
 

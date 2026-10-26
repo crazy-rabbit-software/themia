@@ -56,6 +56,16 @@ namespace Themia.App.Widgets;
 /// </param>
 /// <param name="Slider">[S-3731] The properties menu's inline slider (words, slider, value in one line); item menus have none.</param>
 /// <param name="Order">[S-3732] The properties menu's ordered list item: its line is dragged up and down among the list's; item menus have none.</param>
+/// <param name="Asks">
+/// [S-3736] Its <paramref name="Action"/> asks (a line of text, <see cref="Themia.Sdk.WinUI.WidgetMenuLines.Ask"/>, or an
+/// "are you sure?", <see cref="Themia.Sdk.WinUI.WidgetMenuLines.Confirm"/>): on the properties menu its click opens
+/// that question as a level of its own, so the line has a chevron; item menus ignore it.
+/// </param>
+/// <param name="LinkTo">
+/// [S-3749] A link row: its <paramref name="Action"/> closes the menu and opens another menu at the level that owns
+/// the setting (⚙ › Accounts), whose name this is (the tooltip says "Opens Accounts"); drawn with Windows' "open in
+/// new window" mark at its end, no chevron. Null for any other line; item menus ignore it.
+/// </param>
 public readonly record struct ItemMenuEntry(
     string? Glyph,
     string Text,
@@ -74,7 +84,9 @@ public readonly record struct ItemMenuEntry(
     bool Note = false,
     bool SetsUp = false,
     Themia.Sdk.WinUI.MenuSlider? Slider = null,
-    Themia.Sdk.WinUI.MenuOrder? Order = null)
+    Themia.Sdk.WinUI.MenuOrder? Order = null,
+    bool Asks = false,
+    string? LinkTo = null)
 {
     /// <summary>A divider between groups. Leading, trailing and doubled separators are dropped.</summary>
     public static ItemMenuEntry Separator => new(null, string.Empty, null);

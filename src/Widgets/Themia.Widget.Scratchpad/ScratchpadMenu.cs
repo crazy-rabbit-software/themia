@@ -31,7 +31,6 @@ internal static class ScratchpadMenu
         ArgumentNullException.ThrowIfNull(menu);
         ArgumentNullException.ThrowIfNull(config);
 
-        menu.PlaceCard();
 
         // A pen always has a colour: no Default line.
         menu.Lines.Add(menu.Colour(ScratchpadStr.Scratchpad_PenColorLabel.Text(), config.EffectivePenColor, value => config.PenColor = value,

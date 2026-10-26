@@ -63,14 +63,53 @@ public sealed class WidgetMenuLinesTests
     }
 
     [Fact]
-    public void S3719_a_module_without_lines_adds_none_and_its_card_goes_first()
+    public void S3719_a_module_without_lines_adds_none()
     {
         var lines = Lines();
         ((IWidgetModule)new NoLines()).MenuLines(lines, new ShortcutsConfig());
 
         Assert.Empty(lines.Lines);
         Assert.Empty(lines.StyleLines);
-        Assert.Null(lines.CardAt);
+    }
+
+    [Fact]
+    public void S3736_every_line_the_sdk_builds_that_asks_says_so()
+    {
+        var menu = Lines();
+        var feeds = new List<string> { "a" };
+        var list = menu.List(null, "Feeds", feeds, new MenuList<string>(f => f, "None")
+        {
+            Rename = new MenuListRename<string>((_, _) => true),
+            Add = new MenuListAdd<string>("Add a feed", "https://", _ => null, f => f),
+        });
+
+        // A number asked for as text, an item's Rename… and the list's Add… open a field's level;
+        // a confirmed line its question's.
+        Assert.True(menu.Number<int>(null, "Every", 30, 5, 600, 5, n => n.ToString(System.Globalization.CultureInfo.InvariantCulture), _ => { }).Asks);
+        Assert.True(list.Children![0].Children![0].Asks);
+        Assert.True(list.Children!.Last().Asks);
+        Assert.True(menu.Confirm(null, "Clear", "Clear it?", "Clear", () => { }).Asks);
+
+        // What does not ask has no level of its own to open.
+        Assert.False(menu.Toggle(null, "On", true, _ => { }).Asks);
+        Assert.False(menu.Command(null, "Do", () => { }).Asks);
+        Assert.False(menu.Number<int>(null, "Rows", 4, 1, 10, 1, n => n.ToString(System.Globalization.CultureInfo.InvariantCulture), _ => { }).Asks);
+    }
+
+    [Fact]
+    public void S3749_the_accounts_line_is_a_link_to_accounts_and_greyed_without_an_edit_bar()
+    {
+        var opened = 0;
+        var menu = new WidgetMenuLines(() => _saves++, ask => _asked = ask) { ShowAccounts = () => opened++ };
+        var line = menu.AccountsLine(null, "Manage accounts");
+
+        Assert.Equal(Str.Shell_Settings_Nav_Accounts.Text(), line.LinkTo);
+        Assert.Null(line.Children);
+        line.Action!();
+        Assert.Equal(1, opened);
+        Assert.Equal(0, _saves);
+
+        Assert.True(Lines().AccountsLine(null, "Manage accounts").Disabled);
     }
 
     // ---- colours ------------------------------------------------------------------------------

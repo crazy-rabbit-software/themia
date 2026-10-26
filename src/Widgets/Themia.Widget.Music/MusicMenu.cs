@@ -18,7 +18,6 @@ internal static class MusicMenu
         ArgumentNullException.ThrowIfNull(menu);
         ArgumentNullException.ThrowIfNull(config);
 
-        menu.PlaceCard();
         menu.Lines.Add(menu.Toggle(Glyphs.Play, MusicStr.WidgetsB_Settings_Music_Transport_Label.Text(), config.ShowTransport, on => config.ShowTransport = on));
         menu.Lines.Add(menu.Toggle(Glyphs.Motion, MusicStr.WidgetsB_Settings_Music_Progress_Label.Text(), config.ShowProgress, on => config.ShowProgress = on));
 

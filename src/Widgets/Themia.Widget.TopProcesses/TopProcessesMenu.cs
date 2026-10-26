@@ -12,7 +12,6 @@ internal static class TopProcessesMenu
         ArgumentNullException.ThrowIfNull(menu);
         ArgumentNullException.ThrowIfNull(config);
 
-        menu.PlaceCard();
 
         menu.Lines.Add(menu.Choice(Glyphs.Sort, TopProcessesStr.Details_Settings_Processes_Sort_Label.Text(),
             [(ProcessSort.Cpu, TopProcessesStr.Details_Settings_Processes_Sort_Cpu.Text()), (ProcessSort.Memory, TopProcessesStr.Details_Settings_Processes_Sort_Memory.Text())],

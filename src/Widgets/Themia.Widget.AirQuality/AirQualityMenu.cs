@@ -20,7 +20,6 @@ internal static class AirQualityMenu
         ArgumentNullException.ThrowIfNull(config);
 
         // The look (Style, Appearance), then behind a divider each: the place; the index it is read on.
-        menu.PlaceCard();
         menu.Lines.Add(ItemMenuEntry.Separator);
         menu.Lines.AddRange(WeatherPlaceRows.Lines(menu, config));
         menu.Lines.Add(ItemMenuEntry.Separator);

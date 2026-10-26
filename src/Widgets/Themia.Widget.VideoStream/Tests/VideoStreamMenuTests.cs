@@ -26,7 +26,6 @@ public sealed class VideoStreamMenuTests
     {
         var lines = Build(new VideoStreamConfig());
 
-        Assert.Equal(0, lines.CardAt);
         Assert.Equal(
             [
                 VideoStreamStr.WidgetsC_VideoStream_Settings_Address_Label.Text(),

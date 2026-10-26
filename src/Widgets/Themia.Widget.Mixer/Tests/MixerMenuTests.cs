@@ -26,7 +26,6 @@ public sealed class MixerMenuTests
     {
         var lines = Build(new MixerConfig());
 
-        Assert.Equal(0, lines.CardAt);
         string?[] shape =
         [
             Str.WidgetsC_Volume_Settings_Device_Label.Text(),

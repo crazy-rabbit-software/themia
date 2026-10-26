@@ -77,7 +77,6 @@ internal static class ShortcutsMenu
 
         // [S-3723] The card's own lines first, as one Appearance submenu after Style. [S-1388] Then,
         // each group behind a divider: how a shortcut opens; the shortcuts and adding one.
-        menu.PlaceCard();
         menu.Lines.Add(ItemMenuEntry.Separator);
         menu.Lines.Add(menu.Choice(Glyphs.Open, ShortcutsStr.WidgetsC_Shortcuts_Settings_OpenWith_Label.Text(), Clicks(), config.ClickMode, value => config.ClickMode = value));
         menu.Lines.Add(ItemMenuEntry.Separator);
@@ -112,7 +111,7 @@ internal static class ShortcutsMenu
                         Str.Common_Save.Text(),
                         Refusal,
                         typed => Retarget(item, typed, menu),
-                        Initial: item.Target)))],
+                        Initial: item.Target)), Asks: true)],
             });
 
     /// <summary>[S-1381] The name an item shows: its label, else the one its target gives it.</summary>
@@ -178,7 +177,7 @@ internal static class ShortcutsMenu
                 @"https://example.com  ·  C:\Users\…  ·  shell:Downloads",
                 Str.Common_Add.Text(),
                 Refusal,
-                typed => Append(ShortcutItem.Create(typed, string.Empty))))),
+                typed => Append(ShortcutItem.Create(typed, string.Empty)))), Asks: true),
 
             // [S-1411] An app layout: added, then straight into its editor (original S-55).
             new(Glyphs.AppLayout, ShortcutsStr.WidgetsC_Shortcuts_Menu_AddLayout.Text(), () =>

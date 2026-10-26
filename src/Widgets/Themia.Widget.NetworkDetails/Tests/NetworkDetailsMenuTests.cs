@@ -22,7 +22,6 @@ public sealed class NetworkDetailsMenuTests
     {
         var menu = Build(new NetworkDetailsConfig());
 
-        Assert.Equal(0, menu.CardAt);
         Assert.Equal(2, menu.Lines.Count);
         Assert.Equal(false, menu.Lines[0].Checked);
         Assert.True(menu.Lines[1].Note);

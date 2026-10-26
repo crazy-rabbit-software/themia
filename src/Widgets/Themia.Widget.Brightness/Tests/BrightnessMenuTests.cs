@@ -28,7 +28,6 @@ public sealed class BrightnessMenuTests
     {
         var lines = Build(new BrightnessConfig());
 
-        Assert.Equal(0, lines.CardAt);
         var screens = Assert.Single(lines.Lines);
         Assert.Equal(BrightnessStr.Panels_Brightness_ScreensLabel.Text(), screens.Text);
         Assert.Equal([true, false], screens.Children!.Select(c => c.Checked == true));
@@ -53,7 +52,6 @@ public sealed class BrightnessMenuTests
     {
         var lines = Build(new BrightnessConfig(), One);
 
-        Assert.Equal(0, lines.CardAt);
         Assert.Empty(lines.Lines);
     }
 

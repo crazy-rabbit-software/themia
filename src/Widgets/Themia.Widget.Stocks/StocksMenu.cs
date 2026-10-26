@@ -36,7 +36,6 @@ internal static class StocksMenu
             menu.StyleLines.Add(menu.Toggle(null, StocksStr.Stocks_ShowMinMax.Text(), config.ShowMinMax, on => config.ShowMinMax = on));
         }
 
-        menu.PlaceCard();
         var lines = menu.Lines;
 
         // [S-3790] The symbol is the whole choice: its service and its name come with the pick.
@@ -162,7 +161,7 @@ internal static class StocksMenu
                 }
             },
             Initial: owned ?? string.Empty,
-            AllowEmpty: true)), Value: owned);
+            AllowEmpty: true)), Value: owned, Asks: true);
     }
 
     /// <summary>[S-2776] Why a typed holding cannot be used, or null when it can.</summary>

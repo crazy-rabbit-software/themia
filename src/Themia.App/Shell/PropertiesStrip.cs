@@ -282,7 +282,7 @@ internal sealed partial class PropertiesStrip : MenuPanel
         // submenu among them where the widget places it, else first, right after Style: for every
         // widget and for several. [S-3735] A section of its own either way.
         var lines = _widget is { } own ? FromEntries(own.Lines, "w") : [];
-        lines.InsertRange(Math.Clamp(_widget?.CardAt ?? 0, 0, lines.Count),
+        lines.InsertRange(0,
         [
             MenuNode.Separator("-appearance"),
             new MenuNode("appearance")

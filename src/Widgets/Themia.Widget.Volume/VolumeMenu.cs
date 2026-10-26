@@ -21,7 +21,6 @@ internal static class VolumeMenu
         ArgumentNullException.ThrowIfNull(menu);
         ArgumentNullException.ThrowIfNull(config);
 
-        menu.PlaceCard();
         var lines = menu.Lines;
         if (AudioDeviceLine.Line(menu, outputs, config.DeviceId, config.DeviceName, (id, name) =>
         {

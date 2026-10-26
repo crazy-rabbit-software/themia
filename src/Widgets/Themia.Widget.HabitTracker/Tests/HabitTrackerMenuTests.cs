@@ -45,7 +45,6 @@ public sealed class HabitTrackerMenuTests
         var pool = Two();
         pool.FilePath = @"C:\Data\habits.json";
         var lines = Build(new HabitTrackerConfig(), pool);
-        Assert.Equal(0, lines.CardAt);
         Assert.Equal(
             [ListTitle, "|", HabitTrackerStr.WidgetsB_Settings_Habits_Resets_Label.Text(), "|", HabitTrackerStr.WidgetsB_Settings_Habits_DataFolder_Label.Text()],
             lines.Lines.Select(l => l.IsSeparator ? "|" : l.Text));

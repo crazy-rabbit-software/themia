@@ -23,7 +23,6 @@ public sealed class ExchangeRatesMenuTests
     {
         var lines = Build(new ExchangeRatesConfig());
 
-        Assert.Equal(0, lines.CardAt);
         Assert.Equal(
             [ExchangeRatesStr.Online_Rates_Settings_Base_Label.Text(), ExchangeRatesStr.Online_Rates_Settings_Quote_Label.Text()],
             lines.Lines.Where(l => l.Search is not null).Select(l => l.Text));

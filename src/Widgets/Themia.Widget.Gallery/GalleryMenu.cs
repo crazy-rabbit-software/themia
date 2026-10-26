@@ -44,7 +44,6 @@ internal static class GalleryMenu
                 config.Fit, value => config.Fit = value));
         }
 
-        menu.PlaceCard();
         var lines = menu.Lines;
 
         // [S-778] After the look, each group behind a divider: where the pictures come from (the
@@ -171,7 +170,7 @@ internal static class GalleryMenu
             typed => PathRefusal(typed, picture),
             typed => Store(typed.Trim().Length == 0 ? string.Empty : FolderPath.Validate(typed).Path),
             Initial: current,
-            AllowEmpty: true)));
+            AllowEmpty: true)), Asks: true);
 
         var shown = current.Trim().Length == 0 ? none : FolderPath.DisplayName(current);
         return WidgetMenuLines.Submenu(picture ? Glyphs.File : Glyphs.Folder, title, [browse, typePath]) with { Value = shown };

@@ -12,7 +12,6 @@ internal static class PingMenu
         ArgumentNullException.ThrowIfNull(menu);
         ArgumentNullException.ThrowIfNull(config);
 
-        menu.PlaceCard();
         menu.Lines.Add(PingHostLine.Line(menu, config.Host, value => config.Host = value));
         MeterMenuLines.Lines(menu, config);
     }

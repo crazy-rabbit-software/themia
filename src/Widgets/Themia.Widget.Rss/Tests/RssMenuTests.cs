@@ -29,7 +29,6 @@ public sealed class RssMenuTests
     {
         var lines = Build(new RssConfig());
 
-        Assert.Equal(0, lines.CardAt);
         Assert.Equal(
             [
                 RssStr.WidgetsC_Rss_Settings_Feeds.Text(),

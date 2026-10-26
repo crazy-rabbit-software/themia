@@ -18,7 +18,6 @@ internal static class BrightnessMenu
         ArgumentNullException.ThrowIfNull(menu);
         ArgumentNullException.ThrowIfNull(config);
 
-        menu.PlaceCard();
 
         // [S-4447] Only where the choice changes what is dimmed: one display with a brightness is dimmed either way.
         if (!BrightnessRules.OffersScreens(displays, config.Screens))

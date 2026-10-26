@@ -35,7 +35,6 @@ public sealed class StocksMenuTests
     {
         var lines = Build(new StocksConfig { Symbol = "MSFT", Market = QuoteMarket.Listed, Range = QuoteRange.Day });
 
-        Assert.Equal(0, lines.CardAt);
         Assert.Equal(
             [
                 StocksStr.Stocks_Tab_Symbols.Text(),

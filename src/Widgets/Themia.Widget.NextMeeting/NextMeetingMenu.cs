@@ -19,7 +19,6 @@ internal static class NextMeetingMenu
         ArgumentNullException.ThrowIfNull(menu);
         ArgumentNullException.ThrowIfNull(config);
 
-        menu.PlaceCard();
         // [S-4826] It draws no calendar colours, so the calendars are switches only.
         menu.Lines.AddRange(OfficeMenuLines.CalendarAccounts(menu, config, office, colours: false));
     }

@@ -31,7 +31,6 @@ public sealed class WeatherNowMenuTests
     {
         var lines = Build(new WeatherNowConfig());
 
-        Assert.Equal(0, lines.CardAt);
         Assert.Collection(lines.Lines,
             divider => Assert.True(divider.IsSeparator),
             use => Assert.Equal(Str.Shell_Place_UseDevice.Text(), use.Text),

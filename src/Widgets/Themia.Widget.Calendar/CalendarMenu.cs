@@ -33,7 +33,6 @@ internal static class CalendarMenu
             menu.StyleLines.Add(StyleLine(menu, calendar, setting));
         }
 
-        menu.PlaceCard();
         menu.Lines.AddRange(OfficeMenuLines.CalendarAccounts(menu, calendar, office));
 
         // [S-575] What the view shows besides the events, apart from where they come from; only
@@ -109,7 +108,7 @@ internal static class CalendarMenu
                     menu.Save();
                 }
             },
-            Initial: LocaleFormat.Integer(days))), Checked: !preset, Group: text, Value: preset ? null : DaysText(days)));
+            Initial: LocaleFormat.Integer(days))), Checked: !preset, Group: text, Value: preset ? null : DaysText(days), Asks: true));
 
         return WidgetMenuLines.Submenu(Glyphs.Calendar, text, lines) with { Value = DaysText(days) };
     }

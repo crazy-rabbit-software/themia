@@ -19,7 +19,6 @@ internal static class BluetoothMenu
         ArgumentNullException.ThrowIfNull(menu);
         ArgumentNullException.ThrowIfNull(config);
 
-        menu.PlaceCard();
         var lines = menu.Lines;
         lines.Add(menu.Toggle(Glyphs.Link, BluetoothStr.WidgetsA_Bluetooth_Settings_ConnectedOnly_Label.Text(), config.ConnectedOnly, on => config.ConnectedOnly = on));
         lines.Add(ItemMenuEntry.Separator);

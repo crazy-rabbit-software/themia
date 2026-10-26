@@ -43,7 +43,6 @@ internal static class ClockMenu
         }
 
         // [S-1478] The look (Style, Appearance), a divider, then what time it tells.
-        menu.PlaceCard();
         menu.Lines.Add(ItemMenuEntry.Separator);
         menu.Lines.Add(Zone(menu, clock));
         if (clock.Offers(ClockSetting.Offset))

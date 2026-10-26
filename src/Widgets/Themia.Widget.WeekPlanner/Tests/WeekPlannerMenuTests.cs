@@ -53,7 +53,6 @@ public sealed class WeekPlannerMenuTests
     {
         var lines = Build(new WeekPlannerConfig());
 
-        Assert.Equal(0, lines.CardAt);
         Assert.Equal(
             [
                 Str.WidgetUi_AccountsLabel.Text(), Str.WidgetsA_Calendar_Settings_Calendars.Text(), Str.Calendar_ShowBirthdays_Label.Text(), string.Empty,

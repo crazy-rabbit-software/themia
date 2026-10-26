@@ -30,7 +30,6 @@ public sealed class VolumeMenuTests
     {
         var lines = Build(new VolumeConfig());
 
-        Assert.Equal(0, lines.CardAt);
         Assert.Equal(
             [Str.WidgetsC_Volume_Settings_Device_Label.Text(), VolumeStr.WidgetsC_Volume_Settings_Allow_Label.Text(), VolumeStr.WidgetsC_Volume_Settings_KeysNote.Text()],
             Texts(lines));

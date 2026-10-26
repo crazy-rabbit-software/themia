@@ -21,7 +21,6 @@ public sealed class AirQualityMenuTests
     {
         var lines = Build(new AirQualityConfig());
 
-        Assert.Equal(0, lines.CardAt);
         Assert.Equal(["-", Str.Shell_Place_UseDevice.Text(), Str.Shell_Place_Location.Text(), Str.Weather_LocationNameLabel.Text(), "-", AirQualityStr.Online_Air_Settings_Index_Label.Text()], lines.Lines.Select(l => l.IsSeparator ? "-" : l.Text));
     }
 

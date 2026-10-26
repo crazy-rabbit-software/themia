@@ -32,7 +32,6 @@ public sealed class ContactsMenuTests
     {
         var lines = Build(new ContactsConfig());
 
-        Assert.Equal(0, lines.CardAt);
         Assert.Equal(
             [Str.WidgetUi_AccountsLabel.Text(), string.Empty, ContactsStr.WidgetsA_Contacts_Settings_Layout_Label.Text(), ContactsStr.WidgetsA_Contacts_Settings_Count_Label.Text()],
             lines.Lines.Select(l => l.IsSeparator ? string.Empty : l.Text));

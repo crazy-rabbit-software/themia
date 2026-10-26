@@ -37,7 +37,6 @@ public sealed class NotesMenuTests
     {
         var lines = Build(new NotesConfig { NoteId = "a" }, Two());
 
-        Assert.Equal(0, lines.CardAt);
         Assert.Equal([NoteTitle, "|", NotesStr.Notes_FontSizeLabel.Text(), "|", Clear], lines.Lines.Select(l => l.IsSeparator ? "|" : l.Text));
         Assert.True(Line(lines, Clear).Danger);
         Assert.Equal("13 px", Line(lines, NotesStr.Notes_FontSizeLabel.Text()).Value);

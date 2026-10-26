@@ -23,7 +23,6 @@ internal static class PomodoroMenu
         ArgumentNullException.ThrowIfNull(menu);
         ArgumentNullException.ThrowIfNull(config);
 
-        menu.PlaceCard();
 
         // [S-8101] Seeded from the clamped accessors, so a value out of range on disk shows as the one in use.
         menu.Lines.Add(menu.Number(PomodoroModule.Glyph, PomodoroStr.Pomodoro_FocusLength_Label.Text(),

@@ -22,7 +22,6 @@ public sealed class TopProcessesMenuTests
     {
         var menu = Build(new TopProcessesConfig());
 
-        Assert.Equal(0, menu.CardAt);
         Assert.Equal(
             [
                 TopProcessesStr.Details_Settings_Processes_Sort_Label.Text(),

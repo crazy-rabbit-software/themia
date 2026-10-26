@@ -36,7 +36,6 @@ internal static class CountdownMenu
 
         // [S-6037] After the look, each group behind a divider: what is counted to (its name, its
         // day and time); how the time left reads.
-        menu.PlaceCard();
         menu.Lines.Add(ItemMenuEntry.Separator);
 
         menu.Lines.Add(new ItemMenuEntry(Glyphs.Rename, CountdownStr.WidgetsA_Countdown_Settings_Name_Label.Text(), () => menu.Ask(new WidgetTextAsk(
@@ -54,7 +53,7 @@ internal static class CountdownMenu
                 }
             },
             Initial: config.Label,
-            AllowEmpty: true)), Value: config.Label.Length > 0 ? config.Label : null));
+            AllowEmpty: true)), Value: config.Label.Length > 0 ? config.Label : null, Asks: true));
 
         // Not set yet ([S-1860]): no day, and midnight, so a typed day counts to its start.
         DateOnly? day = config.Target is { } target ? DateOnly.FromDateTime(CountdownFormatter.LocalDate(target, zone).DateTime) : null;
@@ -88,7 +87,7 @@ internal static class CountdownMenu
                 }
             },
             Initial: day is { } shown ? TypedTime.DateText(shown) : null)),
-            Value: day is { } d ? LocaleFormat.Date(locale, d, DateStyle.Medium) : null)));
+            Value: day is { } d ? LocaleFormat.Date(locale, d, DateStyle.Medium) : null, Asks: true)));
 
         // The time needs a day to fall on: greyed until there is one.
         menu.Lines.Add(new ItemMenuEntry(Glyphs.Clock, CountdownStr.WidgetsA_Countdown_Menu_Time.Text(), () => menu.Ask(new WidgetTextAsk(
@@ -105,7 +104,7 @@ internal static class CountdownMenu
             },
             Initial: AlarmTimes.Text((int)time.TotalMinutes))),
             Disabled: day is null,
-            Value: day is null ? null : LocaleFormat.Time(locale, TimeOnly.FromTimeSpan(time))));
+            Value: day is null ? null : LocaleFormat.Time(locale, TimeOnly.FromTimeSpan(time)), Asks: true));
 
         menu.Lines.Add(ItemMenuEntry.Separator);
         menu.Lines.Add(menu.Choice(Glyphs.Countdown, CountdownStr.WidgetsA_Countdown_Settings_Format_Label.Text(), Formats(), config.Format, value => config.Format = value));

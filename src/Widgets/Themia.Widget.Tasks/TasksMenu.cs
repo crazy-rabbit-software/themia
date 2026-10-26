@@ -45,7 +45,6 @@ internal static class TasksMenu
         ArgumentNullException.ThrowIfNull(menu);
         ArgumentNullException.ThrowIfNull(config);
 
-        menu.PlaceCard();
         if (service is null)
         {
             menu.Lines.Add(WidgetMenuLines.Note(TasksStr.WidgetsC_Tasks_Settings_NotStarted.Text()));
@@ -284,7 +283,7 @@ internal static class TasksMenu
                     menu.Outdate();
                 },
                 Initial: shown.Name,
-                AllowEmpty: true)), Disabled: !pool.Writable));
+                AllowEmpty: true)), Disabled: !pool.Writable, Asks: true));
 
             // [S-604] Always asked, empty or not: it takes every task in it.
             var detail = shown.Tasks.Count == 0
@@ -347,7 +346,7 @@ internal static class TasksMenu
                 }
             },
             Initial: config.TextFilter,
-            AllowEmpty: true)), Value: config.TextFilter.Length > 0 ? config.TextFilter : null));
+            AllowEmpty: true)), Value: config.TextFilter.Length > 0 ? config.TextFilter : null, Asks: true));
         return lines;
     }
 

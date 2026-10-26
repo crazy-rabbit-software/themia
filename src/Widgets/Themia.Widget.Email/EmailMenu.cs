@@ -48,7 +48,6 @@ internal static class EmailMenu
             look.Add(Columns(menu, email));
         }
 
-        menu.PlaceCard();
         menu.Lines.Add(OfficeMenuLines.Accounts(menu, accounts, Glyphs.Mail,
             new KitAccountWords(EmailStr.WidgetsB_Settings_Email_NoAccount_Label.Text(), EmailStr.WidgetsB_Settings_Email_Every_Label.Text()),
             email.EffectiveAccountIds, ids => email.AccountIds = ids));

@@ -19,7 +19,6 @@ internal static class DriveMenu
         ArgumentNullException.ThrowIfNull(drives);
 
         // [S-4674] The look (Style, Appearance), a divider, then which drive.
-        menu.PlaceCard();
         menu.Lines.Add(ItemMenuEntry.Separator);
         menu.Lines.Add(DriveLine(menu, config, drives));
     }

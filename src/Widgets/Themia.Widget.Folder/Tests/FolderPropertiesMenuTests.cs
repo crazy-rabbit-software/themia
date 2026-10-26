@@ -46,7 +46,6 @@ public sealed class FolderPropertiesMenuTests
     {
         var lines = Build(new FolderConfig());
 
-        Assert.Equal(0, lines.CardAt);
         Assert.Equal(
             [
                 "-",

@@ -53,7 +53,6 @@ public sealed class ScreenTimeDonutMenuTests
     {
         var lines = Build(new ScreenTimeDonutConfig(), new Tracker(new ScreenTimePreferences()));
 
-        Assert.Equal(0, lines.CardAt);
         Assert.Equal(
             [Str.Screentime_Cfg_Period.Text(), "|", Str.WidgetsC_ScreenTime_Settings_Limits.Text(), Str.Screentime_Cfg_Hidden.Text(), "|", Str.WidgetsC_ScreenTime_Settings_Privacy.Text()],
             lines.Lines.Select(l => l.IsSeparator ? "|" : l.Text));

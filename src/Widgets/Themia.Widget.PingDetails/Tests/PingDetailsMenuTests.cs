@@ -25,7 +25,6 @@ public sealed class PingDetailsMenuTests
     {
         var menu = Build(new PingDetailsConfig());
 
-        Assert.Equal(0, menu.CardAt);
         Assert.Equal(
             [Str.WidgetsB_Settings_Ping_Host_Label.Text(), PingDetailsStr.Details_Settings_Ping_Window_Label.Text()],
             menu.Lines.Select(l => l.Text));

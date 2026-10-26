@@ -30,7 +30,6 @@ public sealed class QuoteMenuTests
     {
         var lines = Build(Two());
 
-        Assert.Equal(0, lines.CardAt);
         Assert.Equal(
             [QuoteStr.WidgetsC_Quote_Settings_Quotes.Text(), QuoteStr.WidgetsC_Quote_Settings_ShowAuthor_Label.Text(), QuoteStr.Quote_Shuffle.Text(), Str.Common_Refresh.Text()],
             lines.Lines.Where(l => !l.IsSeparator).Select(l => l.Text));

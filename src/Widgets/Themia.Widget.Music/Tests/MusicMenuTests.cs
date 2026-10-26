@@ -22,7 +22,6 @@ public sealed class MusicMenuTests
     {
         var lines = Build(new MusicConfig());
 
-        Assert.Equal(0, lines.CardAt);
         Assert.Empty(lines.StyleLines);
         string?[] shape = [MusicStr.WidgetsB_Settings_Music_Transport_Label.Text(), MusicStr.WidgetsB_Settings_Music_Progress_Label.Text(), null, MusicStr.Music_HideWhenIdle_Label.Text()];
         Assert.Equal(shape, lines.Lines.Select(l => l.IsSeparator ? null : l.Text));

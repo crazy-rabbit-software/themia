@@ -33,7 +33,6 @@ internal static class NotesMenu
         ArgumentNullException.ThrowIfNull(menu);
         ArgumentNullException.ThrowIfNull(config);
 
-        menu.PlaceCard();
         menu.Lines.Add(Notes(menu, config, pool, now));
 
         // The note's base size, how it reads, apart from which note it is; headings are drawn larger.
@@ -120,7 +119,7 @@ internal static class NotesMenu
                         menu.Save();
                     }
                 },
-                Initial: current.Title))));
+                Initial: current.Title)), Asks: true));
         }
 
         lines.Add(menu.Command(Glyphs.Add, NotesStr.Notes_NewNote.Text(), () => config.NoteId = pool.Create(NotesStr.Notes_NewName.Text())));

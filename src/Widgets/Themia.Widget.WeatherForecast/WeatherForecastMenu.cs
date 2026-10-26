@@ -19,7 +19,6 @@ internal static class WeatherForecastMenu
         ArgumentNullException.ThrowIfNull(config);
 
         // The look (Style, Appearance), then behind a divider each: the place; what each day shows.
-        menu.PlaceCard();
         menu.Lines.Add(ItemMenuEntry.Separator);
         menu.Lines.AddRange(WeatherPlaceRows.Lines(menu, config));
         menu.Lines.Add(ItemMenuEntry.Separator);

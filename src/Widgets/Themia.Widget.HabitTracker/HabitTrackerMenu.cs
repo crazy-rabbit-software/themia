@@ -54,7 +54,6 @@ internal static class HabitTrackerMenu
                 value => value.ToString(CultureInfo.InvariantCulture), value => config.HistoryDots = value));
         }
 
-        menu.PlaceCard();
         menu.Lines.Add(Lists(menu, config, pool));
 
         // How often the boxes clear, apart from which list they are.
@@ -79,7 +78,7 @@ internal static class HabitTrackerMenu
                     }
                 },
                 Initial: config.Cadence.Minutes.ToString(CultureInfo.InvariantCulture))),
-                Value: $"{config.Cadence.Minutes}{Str.WidgetsC_Pomodoro_MinutesUnit.Text()}"));
+                Value: $"{config.Cadence.Minutes}{Str.WidgetsC_Pomodoro_MinutesUnit.Text()}", Asks: true));
         }
 
         // [S-1430] The way to the file itself, for a backup or another program: the habits are kept
@@ -152,7 +151,7 @@ internal static class HabitTrackerMenu
                         menu.Save();
                     }
                 },
-                Initial: current.Name)), Disabled: !pool.Writable));
+                Initial: current.Name)), Disabled: !pool.Writable, Asks: true));
         }
 
         lines.Add(menu.Command(Glyphs.Add, HabitTrackerStr.WidgetsB_Settings_Habits_AddList.Text(), () =>

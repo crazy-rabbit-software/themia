@@ -17,7 +17,6 @@ internal static class FocusSessionMenu
         ArgumentNullException.ThrowIfNull(menu);
         ArgumentNullException.ThrowIfNull(config);
 
-        menu.PlaceCard();
 
         // [S-4421] Five-minute steps, as Windows' Clock; more steps than dots, so it is typed.
         menu.Lines.Add(menu.Number(FocusSessionModule.Glyph, FocusSessionStr.Panels_Focus_LengthLabel.Text(),

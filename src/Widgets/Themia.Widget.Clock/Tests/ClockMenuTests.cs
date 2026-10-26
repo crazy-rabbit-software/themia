@@ -30,7 +30,6 @@ public sealed class ClockMenuTests
     {
         var lines = Build(new ClockConfig { Style = ClockStyle.Digital });
 
-        Assert.Equal(0, lines.CardAt);
         Assert.Collection(lines.Lines,
             divider => Assert.True(divider.IsSeparator),
             zone => Assert.Empty(zone.Search!.Fixed),

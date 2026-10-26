@@ -25,7 +25,6 @@ internal static class WeatherNowMenu
         }
 
         // The look (Style, Appearance), a divider, then the place.
-        menu.PlaceCard();
         menu.Lines.Add(ItemMenuEntry.Separator);
         menu.Lines.AddRange(WeatherPlaceRows.Lines(menu, config));
     }

@@ -23,7 +23,6 @@ internal static class VideoStreamMenu
         ArgumentNullException.ThrowIfNull(menu);
         ArgumentNullException.ThrowIfNull(config);
 
-        menu.PlaceCard();
         var lines = menu.Lines;
         lines.Add(WidgetMenuLines.SetsUp(AddressLine(menu, config)));
 
@@ -77,7 +76,7 @@ internal static class VideoStreamMenu
                 }
             },
             Initial: current,
-            AllowEmpty: true)), Value: host);
+            AllowEmpty: true)), Value: host, Asks: true);
     }
 
     /// <summary>[S-467] Why a typed address cannot be used, or null when it can (empty: none).</summary>

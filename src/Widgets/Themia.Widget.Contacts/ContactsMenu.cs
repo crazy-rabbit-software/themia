@@ -29,7 +29,6 @@ internal static class ContactsMenu
         ArgumentNullException.ThrowIfNull(config);
         ArgumentNullException.ThrowIfNull(accounts);
 
-        menu.PlaceCard();
         menu.Lines.Add(OfficeMenuLines.Accounts(menu, accounts, Glyphs.Contact,
             new KitAccountWords(ContactsStr.WidgetsA_Contacts_NoAccount.Text(), ContactsStr.WidgetsA_Contacts_Settings_Every.Text()),
             config.AccountIds, ids => config.AccountIds = ids));

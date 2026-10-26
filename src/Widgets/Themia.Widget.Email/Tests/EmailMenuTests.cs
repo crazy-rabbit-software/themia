@@ -51,7 +51,6 @@ public sealed class EmailMenuTests
     {
         var lines = Build(new EmailConfig());
 
-        Assert.Equal(0, lines.CardAt);
         Assert.Equal([Str.WidgetUi_AccountsLabel.Text(), EmailStr.Email_Folder_Label.Text()], lines.Lines.Select(l => l.Text));
         Assert.Equal(EmailFolders.Listable.Select(f => f.Label()), lines.Lines[1].Children!.Select(c => c.Text));
     }
