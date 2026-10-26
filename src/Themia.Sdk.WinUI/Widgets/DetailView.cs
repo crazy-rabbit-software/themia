@@ -148,16 +148,12 @@ public sealed partial class DetailView : Grid, IWidgetView, IWidgetSizeAware, IW
             return;
         }
 
-        var reshaped = _sheet.Facts.Count != sheet.Facts.Count
-            || _sheet.Rows.Count != sheet.Rows.Count
-            || (_sheet.Caption is null) != (sheet.Caption is null)
-            || _sheet.Absent != sheet.Absent
-            || (_sheet.Hero is null) != (sheet.Hero is null)
-            || LongestValue(sheet) > _valueChars;
+        // [S-6333] A new number of rows lays the tile out only when the plan for it differs.
+        var reshaped = _plan is not { } plan || DetailFace.Relays(_sheet, sheet, _valueChars, plan, PlanFor);
 
         _sheet = sheet;
 
-        if (reshaped || _plan is null)
+        if (reshaped)
         {
             Lay();
         }
@@ -207,8 +203,6 @@ public sealed partial class DetailView : Grid, IWidgetView, IWidgetSizeAware, IW
         Lay();
     }
 
-    private static int LongestValue(DetailSheet sheet) => sheet.Facts.Count == 0 ? 0 : sheet.Facts.Max(f => f.Value.Length);
-
     /// <summary>
     /// A sheet with nothing but a note (the processes cannot be read) is the empty state; a thing not on
     /// this machine is not: its sheet is its own facts, dimmed ([S-1942]).
@@ -232,12 +226,8 @@ public sealed partial class DetailView : Grid, IWidgetView, IWidgetSizeAware, IW
         _empty.Visibility = Visibility.Collapsed;
 
         var hasHero = _part.HasHero && _sheet.Hero is not null;
-        var rows = _part.MaxRows > 0 ? Math.Min(_part.MaxRows, _sheet.Rows.Count) : _sheet.Rows.Count;
-        _valueChars = LongestValue(_sheet);
-        var labels = _sheet.Facts.Count == 0 ? 0 : _sheet.Facts.Max(f => f.Label.Length);
-        var shape = new DetailShape(hasHero, _part.HeroCharacters, _sheet.Caption is not null, _sheet.Facts.Count, Math.Max(rows, _part.HasHero ? 0 : 1), _part.ListRowHeight, _valueChars, labels,
-            WidgetLayout.ListInset.Top + WidgetLayout.ListInset.Bottom, _part.RowsGrow);
-        var plan = DetailFace.Plan(_area, shape, WidgetLayout.ContentInset);
+        _valueChars = DetailFace.LongestValue(_sheet);
+        var plan = PlanFor(_sheet);
         _plan = plan;
 
         var side = plan.Arrangement == DetailArrangement.Side;
@@ -270,6 +260,17 @@ public sealed partial class DetailView : Grid, IWidgetView, IWidgetSizeAware, IW
         LayFacts(plan);
         ShowList(plan.List ? plan.ListHeight : 0);
         Fill();
+    }
+
+    /// <summary>[S-2402] The face <paramref name="sheet"/> gets in this tile: the shape of what it holds, planned for the area.</summary>
+    private DetailFacePlan PlanFor(DetailSheet sheet)
+    {
+        var hasHero = _part.HasHero && sheet.Hero is not null;
+        var rows = _part.MaxRows > 0 ? Math.Min(_part.MaxRows, sheet.Rows.Count) : sheet.Rows.Count;
+        var labels = sheet.Facts.Count == 0 ? 0 : sheet.Facts.Max(f => f.Label.Length);
+        var shape = new DetailShape(hasHero, _part.HeroCharacters, sheet.Caption is not null, sheet.Facts.Count, Math.Max(rows, _part.HasHero ? 0 : 1), _part.ListRowHeight,
+            DetailFace.LongestValue(sheet), labels, WidgetLayout.ListInset.Top + WidgetLayout.ListInset.Bottom, _part.RowsGrow);
+        return DetailFace.Plan(_area, shape, WidgetLayout.ContentInset);
     }
 
     /// <summary>The facts grid for a plan: its columns, its rows and each cell's style.</summary>

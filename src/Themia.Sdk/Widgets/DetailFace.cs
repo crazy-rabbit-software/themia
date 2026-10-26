@@ -249,6 +249,45 @@ public static class DetailFace
         return new DetailFacePlan(DetailArrangement.Stacked, step, showCaption, style, Math.Max(1, columns), shown, area.Width, listHeight, top);
     }
 
+    /// <summary>
+    /// [S-6333] Whether <paramref name="next"/>, read in place of <paramref name="shown"/>, lays the
+    /// tile out again rather than filling the face it has. A change of what the plan is made of does
+    /// (how many facts, a caption or hero coming or going, the tile turning absent, a value longer than
+    /// the columns were measured for, the list emptying or filling); a different number of list rows
+    /// does only when the plan for <paramref name="next"/> (<paramref name="planFor"/>) differs from
+    /// <paramref name="plan"/>. A list that scrolls is the room's height whatever it holds, so a
+    /// process starting or exiting under a Top processes tile is a fill, not a layout.
+    /// </summary>
+    public static bool Relays(DetailSheet shown, DetailSheet next, double valueChars, DetailFacePlan plan, Func<DetailSheet, DetailFacePlan> planFor)
+    {
+        ArgumentNullException.ThrowIfNull(shown);
+        ArgumentNullException.ThrowIfNull(next);
+        ArgumentNullException.ThrowIfNull(planFor);
+
+        if (shown.Facts.Count != next.Facts.Count
+            || (shown.Caption is null) != (next.Caption is null)
+            || shown.Absent != next.Absent
+            || (shown.Hero is null) != (next.Hero is null)
+            || LongestValue(next) > valueChars)
+        {
+            return true;
+        }
+
+        if (shown.Rows.Count == next.Rows.Count)
+        {
+            return false;
+        }
+
+        return (shown.Rows.Count == 0) != (next.Rows.Count == 0) || planFor(next) != plan;
+    }
+
+    /// <summary>[S-2402] The longest fact value of <paramref name="sheet"/>, in characters: what its columns are measured for.</summary>
+    public static int LongestValue(DetailSheet sheet)
+    {
+        ArgumentNullException.ThrowIfNull(sheet);
+        return sheet.Facts.Count == 0 ? 0 : sheet.Facts.Max(f => f.Value.Length);
+    }
+
     /// <summary>The hero's step: the shared readout's fit from Subtitle up to <paramref name="ceiling"/>.</summary>
     private static TypeStep Fit(double width, double height, double characters, TypeStep ceiling)
         => HeroLayout.Fit(width, height, characters, 0, FluentType.Subtitle, ceiling);

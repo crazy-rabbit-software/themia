@@ -4081,6 +4081,14 @@ plots and how it is coloured. Layout is the SDK's `MeterFace` (tests `MeterFaceT
   bars and tiles write only what changed ([S-6330]). The audio visualizer's capture counts a packet
   flagged silent as no sound ([S-3202], `Spectrum.Heard`), so an app holding its stream open while
   paused leaves the worker on the idle wait instead of an analysis every frame.
+- **[S-6333]** **A detail tile is laid out again only when its face changes** (CPU audit 2026-10-26,
+  `DetailFace.Relays`): a read with another number of facts, a caption or hero coming or going, the
+  thing turning absent, a value longer than the columns were measured for, or a list emptying or
+  filling plans the tile anew; a read with only another number of list rows does so only when the
+  plan for it differs (a list as tall as its rows). A list that scrolls is the room's height whatever
+  it holds, so Top processes at Fit (every process a row) fills its rows in place when a process
+  starts or exits instead of laying the whole tile out, and the rows reused by position that show
+  the same process are not touched ([S-6332]).
 - **[S-6300]** **Meter styles** ([S-6000]): a meter's style says what stands beside its reading
   (`MeterLook`: the history, a gauge, the kind's items as columns, rows or tiles); the reading is the
   same hero readout in every style. One shared set of parts draws them for every meter
