@@ -68,7 +68,7 @@ public static class DisplayMenu
         lines.Add(ViewBar(host));
 
         lines.Add(new SettingsSeparator("-" + Keys.All));
-        lines.Add(new SettingsNote(Keys.All, Str.BarMenus_Display_All.Text()));
+        lines.Add(new SettingsHeading(Keys.All, Str.BarMenus_Display_All.Text()));
         lines.Add(NewDisplays(host));
         lines.Add(ShowOn(host));
         return lines;

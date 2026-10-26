@@ -79,7 +79,7 @@ internal sealed partial class DesktopWindow
 
             if (_openBarMenu == BarMenu.Settings)
             {
-                _barMenus[BarMenu.Settings].CloseSubmenus();
+                _barMenus[BarMenu.Settings].ShowRoot();
             }
 
             if (!RequestSettings([]))

@@ -1,3 +1,8 @@
 {
-  "menu.rename": "Ganti nama…"
+  "menu.rename": "Ganti nama…",
+  "menu.add": "Tambahkan…",
+  "menu.numberRange": "Masukkan angka dari {min} hingga {max}",
+  "menu.reorderHint": "Seret untuk mengurutkan ulang, atau tekan Ctrl+Up atau Ctrl+Down",
+  "menu.filter": "Cari",
+  "menu.opensIn": "Membuka {name}"
 }

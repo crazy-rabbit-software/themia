@@ -1,16 +1,12 @@
 using Microsoft.UI;
-using Microsoft.UI.Input;
+using Microsoft.UI.Text;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Automation;
 using Microsoft.UI.Xaml.Controls;
-using Microsoft.UI.Xaml.Controls.Primitives;
-using Microsoft.UI.Xaml.Input;
-using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Shapes;
 using Themia.App.Shell.Config;
 using Themia.App.Widgets;
 using Themia.Core.Diagnostics;
-using Themia.Core.Geometry;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Settings;
@@ -18,7 +14,6 @@ using Themia.Core.Shell;
 using Themia.Core.Widgets;
 using Themia.Sdk.WinUI;
 using Themia.Sdk;
-using Windows.Foundation;
 
 namespace Themia.App.Shell;
 
@@ -26,7 +21,7 @@ namespace Themia.App.Shell;
 /// <param name="SetHeader">[S-3703] The selected widgets' header placement.</param>
 /// <param name="SetBackground">[S-3703] [S-6566] The selected widgets' background.</param>
 /// <param name="SetTitle">[S-3704] One widget's title, by id, as typed.</param>
-/// <param name="ReleaseFocus">[S-3704] Hands the keyboard back to the surface after the title box, so the edit keys work again.</param>
+/// <param name="ReleaseFocus">[S-3707] Hands the keyboard back to the surface (Escape on the menu's own rows), so the edit keys work again.</param>
 /// <param name="SetStyle">[S-6008] The selected widgets' style, by the style enum's value.</param>
 /// <param name="SetItemBackground">[S-6521] The selected widgets' own item background (those with items, [S-6571]).</param>
 /// <param name="SetItemTextColor">[S-6544] The selected widgets' own item text colour, or empty for the app-wide one.</param>
@@ -35,7 +30,7 @@ namespace Themia.App.Shell;
 /// <param name="Cut">[S-3717] Cut the selection, as Ctrl+X does.</param>
 /// <param name="Copy">[S-3717] Copy the selection, as Ctrl+C does.</param>
 /// <param name="Delete">[S-3717] Delete the selection, as the Delete key does.</param>
-/// <param name="WidgetLines">[S-3719] One widget's own lines, by id, built over its live config (asking for text and confirmations beside the menu); null for none.</param>
+/// <param name="WidgetLines">[S-3719] One widget's own lines, by id, built over its live config (asking for text and confirmations on levels of the menu's own); null for none.</param>
 /// <param name="Preview">[S-3731] Shows the selected widgets at a slider's value while it is dragged (a scale, a fill's opacity), without storing it; null ends it. A render's stand-in may leave it out.</param>
 /// <param name="SetBackgroundImage">[S-6593] The selected widgets' background image, a picture file's full path or empty to remove it. A render's stand-in may leave it out.</param>
 internal sealed record PropertiesCommands(
@@ -58,27 +53,34 @@ internal sealed record PropertiesCommands(
 /// <summary>[S-3731] What the selected cards show while a slider of the menu is dragged: a scale or a fill not yet stored.</summary>
 internal sealed record CardPreview(double? Scale = null, FillChoice? Background = null, FillChoice? Items = null);
 
-
 /// <summary>
 /// [S-3716] The selected widgets' properties, as a menu that stands beside the selection: the menu
-/// engine (<see cref="MenuPanel"/>) with the selection's frame. The icon row is Cut and Copy, Delete
-/// at its far end ([S-3717]); then the title (one widget) or "N selected", Style, the widget's own
-/// lines ([S-3719]), and the card's own (Header, Alignment, Background, Item background, Item text,
-/// Scale) as one Appearance submenu: where the widget places it, else right after Style ([S-3723]).
-/// It is where a widget's options are: there is no settings page for a widget ([S-6536]). After
-/// Karpo's properties panel (docs/widgets.md §145).
+/// engine (<see cref="MenuPanel"/>) with the selection's head and foot. Its top row is the menu's
+/// type (the widget kind's name, "3 widgets" for several) and Cut, Copy and Delete as icon buttons at
+/// its far end ([S-3717]); then Style ([S-6007]) with the options only that look draws, the Header
+/// row ([S-3735]) and the widget's own rows ([S-3719]); and pinned at the foot, under one rule, the
+/// card's own look as one Appearance row ([S-3739]). It is where a widget's options are: there is no
+/// settings page for a widget ([S-6536]). After Karpo's widget menus (docs/widgets.md §311, §323, §350).
 /// <para>
 /// The menu is built again from the offer and the widget's lines on every change; the engine writes
-/// a change of value into the lines in place, so an open submenu, its search box and the focus stay
-/// where they are.
+/// a change of value into the rows in place, so the open level, a field being typed in and the focus
+/// stay where they are.
 /// </para>
 /// </summary>
 internal sealed partial class PropertiesStrip : MenuPanel
 {
     private const string Scope = "properties";
 
-    /// <summary>The icon row's buttons: the size of Explorer's.</summary>
-    private const double RowButton = 40;
+    /// <summary>[S-3717] The top row and its buttons: 40-DIP squares, the plate under the pointer 4 DIPs in from each side (Karpo's, Explorer's).</summary>
+    private const double TopRow = 40;
+
+    private const double ButtonPlate = 4;
+
+    /// <summary>[S-3717] The hairline between two of the top row's buttons.</summary>
+    private const double ButtonRule = 20;
+
+    /// <summary>[S-3717] The least room between the type's words and the first button.</summary>
+    private const double TypeGap = Fluent.Space3;
 
     private PropertiesCommands _commands;
 
@@ -86,13 +88,6 @@ internal sealed partial class PropertiesStrip : MenuPanel
 
     /// <summary>[S-3719] The one selected widget's own lines as last built.</summary>
     private WidgetMenuLines? _widget;
-
-    /// <summary>The title box while one widget is selected, the widget it names and what it last committed.</summary>
-    private TextBox? _title;
-
-    private string? _titleId;
-
-    private string _titleCommitted = string.Empty;
 
     public PropertiesStrip(PropertiesCommands commands)
     {
@@ -107,13 +102,12 @@ internal sealed partial class PropertiesStrip : MenuPanel
     {
         ArgumentNullException.ThrowIfNull(commands);
         _commands = commands;
-        Present(FrameKey(), _offer.Shows ? Nodes() : null, Head, rebuild: true);
+        Present(FrameKey(), _offer.Shows ? Nodes() : null, Head, Foot(), rebuild: true);
     }
 
     /// <summary>
     /// [S-3701]..[S-3702] Show the choices for what is selected on this display. A change of value
-    /// is written into the lines in place, so a submenu left open stays open on the pick ([S-3718]);
-    /// the title box is left alone while it is typed in for the same widget.
+    /// is written into the rows in place, so the open level stays open on the pick ([S-3718]).
     /// </summary>
     public void ShowSelection(QuickSetOffer offer)
     {
@@ -143,17 +137,10 @@ internal sealed partial class PropertiesStrip : MenuPanel
             });
         }
 
-        Present(FrameKey(), _offer.Shows ? Nodes() : null, Head);
-
-        // The same widget: its title may have changed (an undo, the box's own commit).
-        if (_title is { } title && title.FocusState == FocusState.Unfocused)
-        {
-            _titleCommitted = offer.Label ?? string.Empty;
-            title.Text = _titleCommitted;
-        }
+        Present(FrameKey(), _offer.Shows ? Nodes() : null, Head, Foot());
     }
 
-    /// <summary>What the frame shows: the selection's count or the one widget, whether there is a menu at all.</summary>
+    /// <summary>What the head shows: the selection's count or the one widget, whether there is a menu at all.</summary>
     private string FrameKey()
         => _offer.Shows + "|" + _offer.TitleWidgetId + "|" + (_offer.HasTitle ? 0 : _offer.Count);
 
@@ -175,52 +162,28 @@ internal sealed partial class PropertiesStrip : MenuPanel
         }
     }
 
-    /// <summary>[S-3717] [S-3702] Over the lines: the icon row, a hairline, and for several the words "N selected".</summary>
+    /// <summary>[S-3721] [S-3736] A widget's line of text, asked on a level of the menu's own.</summary>
+    private void Ask(WidgetTextAsk ask)
+        => AskText(new MenuEdit(ask.Title, ask.Placeholder, ask.Initial ?? string.Empty, ask.Done) { Refuse = ask.Refuse, AllowEmpty = ask.AllowEmpty, Accept = ask.Accept });
+
+    /// <summary>[S-3727] [S-3737] A widget's "are you sure?", asked on a level of the menu's own.</summary>
+    private void Confirm(WidgetConfirm confirm)
+        => AskQuestion(new MenuQuestion(confirm.Question, confirm.Accept, confirm.Done, confirm.Danger, confirm.Detail));
+
+    /// <summary>[S-3717] Over the rows of the menu's own level: the top row and the rule the menu's full width under it.</summary>
     private IEnumerable<UIElement> Head()
     {
-        yield return QuickRow(_commands);
+        yield return TopRowOf(_commands);
         yield return Divider(full: true);
-
-        if (!_offer.HasTitle)
-        {
-            // [S-3702] Several: how many the choices reach, over the lines.
-            var count = Fluent.Text(FluentType.BodyStrong);
-            count.Text = Str.Shell_EditBar_Selected.Plural(_offer.Count);
-            count.Margin = new Thickness(Fluent.Space4, Fluent.Space2, Fluent.Space4, 0);
-            yield return count;
-        }
     }
 
-    /// <inheritdoc />
-    protected override void OnRebuilding()
-    {
-        CommitTitleLater();
-        _title = null;
-        _titleId = null;
-    }
-
-    /// <summary>[S-3704] The title box goes with the Header submenu: what it held still lands.</summary>
-    protected override void OnLevelClosing(Panel lines)
-    {
-        if (_title is { } title && lines.Children.Contains(title))
-        {
-            CommitTitleLater();
-            _title = null;
-        }
-    }
-
-    /// <summary>[S-3707] Escape with no submenu open hands the keyboard back to the surface.</summary>
+    /// <summary>[S-3707] Escape on the menu's own rows hands the keyboard back to the surface.</summary>
     protected override void OnEscape() => _commands.ReleaseFocus();
 
-    /// <summary>[S-3721] Closing what was asked beside the menu hands the keyboard back to the surface.</summary>
-    protected override void OnAskClosed() => _commands.ReleaseFocus();
-
-
     /// <summary>
-    /// [S-3702] [S-3735] The menu's first level, from the offer, the widget's lines and the commands,
-    /// in sections with a divider between them: the Header line; Style and the options only that look
-    /// draws with ([S-3719]); the widget's own lines in the sections it marks, with the card's
-    /// Appearance as a section of its own where the widget places it, else right after Style ([S-3723]).
+    /// [S-3702] [S-3735] The menu's own rows, from the offer, the widget's lines and the commands, in
+    /// sections with a rule between them: Style and the options only that look draws with ([S-3719]);
+    /// the Header row; the widget's own rows in the sections it marks. The card's look is the foot.
     /// </summary>
     private List<MenuNode> Nodes()
     {
@@ -231,12 +194,6 @@ internal sealed partial class PropertiesStrip : MenuPanel
         }
 
         var commands = _commands;
-
-        if (HeaderNode(commands) is { } header)
-        {
-            nodes.Add(header);
-            nodes.Add(MenuNode.Separator("-header"));
-        }
 
         // [S-6007] The look first: it changes the widget most. Only for one kind with styles; the
         // options only that look draws with stand right under it, on this level ([S-3719]).
@@ -272,38 +229,59 @@ internal sealed partial class PropertiesStrip : MenuPanel
         }
         else if (_widget is { StyleLines.Count: > 0 } unstyled)
         {
-            // [S-6075] No Style line while every look draws the same, but what the look draws with
+            // [S-6075] No Style row while every look draws the same, but what the look draws with
             // and still applies (a single picture's size) keeps its place and its section.
             nodes.AddRange(FromEntries(unstyled.StyleLines, "style/w"));
             nodes.Add(MenuNode.Separator("-style"));
         }
 
-        // [S-3719] The widget's own lines, in its order; [S-3723] the card's as one Appearance
-        // submenu among them where the widget places it, else first, right after Style: for every
-        // widget and for several. [S-3735] A section of its own either way.
-        var lines = _widget is { } own ? FromEntries(own.Lines, "w") : [];
-        lines.InsertRange(0,
+        if (HeaderNode(commands) is { } header)
+        {
+            nodes.Add(header);
+            nodes.Add(MenuNode.Separator("-header"));
+        }
+
+        // [S-3719] The widget's own rows, in its order.
+        if (_widget is { } own)
+        {
+            nodes.AddRange(FromEntries(own.Lines, "w"));
+        }
+
+        return nodes;
+    }
+
+    /// <summary>
+    /// [S-3739] The foot pinned under the rows: the card's own look as one Appearance row, its value
+    /// the card's own background swatch where it has one (Karpo's). For one widget and for several.
+    /// </summary>
+    private List<MenuNode>? Foot()
+    {
+        if (!_offer.Shows)
+        {
+            return null;
+        }
+
+        var background = _offer.Background;
+        var own = background is { Kind: not FillKind.Default };
+        return
         [
-            MenuNode.Separator("-appearance"),
             new MenuNode("appearance")
             {
                 Text = Str.Settings_Section_Appearance.Text(),
                 IconKey = "appearance",
                 Icon = () => Glyph(Glyphs.Palette),
-                Children = CardNodes(commands),
+                ValueIconKey = own ? background!.Kind + "|" + background.Colour + "|" + background.Opacity : string.Empty,
+                ValueIcon = own ? () => Swatch(b => ColorChoice.PaintFill(b, background!, new ColorChoiceOptions { DefaultLabel = Str.Common_Default.Text() })) : null,
+                Children = CardNodes(_commands),
             },
-            MenuNode.Separator("-appearance/"),
-        ]);
-        nodes.AddRange(lines);
-        return nodes;
+        ];
     }
 
     /// <summary>
-    /// [S-3735] The Header line, first under the icon row: its value the title as it reads (one
-    /// widget) or where the header stands (several), its submenu the title box ([S-3704]: one widget
-    /// only, a title names one widget) and the header's positions with the dot. None for a selection
-    /// holding a kind that never has a header ([S-3711]): it would have no positions, and such a
-    /// widget's title is shown nowhere.
+    /// [S-3735] The Header row, under Style: its value the title as it reads (one widget) or where the
+    /// header stands (several); its level the Title row ([S-3704]: one widget only, a title names one
+    /// widget) and the header's positions, the tick on the one that holds. None for a selection
+    /// holding a kind that never has a header ([S-3711]).
     /// </summary>
     private MenuNode? HeaderNode(PropertiesCommands commands)
     {
@@ -323,10 +301,17 @@ internal sealed partial class PropertiesStrip : MenuPanel
             var name = ModuleCatalog.Of(kind).Name;
             var label = _offer.Label;
             value = string.IsNullOrWhiteSpace(label) ? name : label;
-            children.Add(new MenuNode("header/title", MenuNodeKind.Custom)
+            var titleWords = Str.Group_Title_Label.Text();
+
+            // [S-3704] [S-3736] The title, a line of text on a level of its own: the kind's name as its hint.
+            children.Add(new MenuNode("header/title")
             {
-                ValueKey = id,
-                Build = () => TitleBox(commands, id, name, _offer.Label),
+                Text = titleWords,
+                Value = value,
+                IconKey = "title",
+                Icon = () => Glyph(Glyphs.Rename),
+                Asks = true,
+                Run = () => AskText(new MenuEdit(titleWords, name, label ?? string.Empty, typed => commands.SetTitle(id, typed))),
             });
             children.Add(MenuNode.Separator("header/-"));
         }
@@ -349,12 +334,12 @@ internal sealed partial class PropertiesStrip : MenuPanel
     }
 
     /// <summary>
-    /// [S-3723] The card's own lines, submenus throughout but Scale: Alignment; then the colours
-    /// (Background, Item background, Item text) as a section of their own ([S-3735]); then Scale, an
-    /// inline slider ([S-3731]). A line that cannot apply is not there ([S-3718]): Alignment where
-    /// nothing selected aligns ([S-6584]), the item lines where nothing selected has items ([S-6571]).
-    /// The colours are the menu's one colour vocabulary ([S-3724]), the same lines a widget's own
-    /// colour gets; a drag of a fill's Opacity or of Scale shows on the widgets as it goes.
+    /// [S-3723] The card's own rows, the Appearance level: Alignment; then, behind a rule, the colours
+    /// (Background, Item background, Item text) and the background image ([S-3735]); then Scale, a
+    /// one-row slider ([S-3731]). A row that cannot apply is not there ([S-3718]): Alignment where
+    /// nothing selected aligns ([S-6584]), the item rows where nothing selected has items ([S-6571]).
+    /// The colours are the menu's one colour vocabulary ([S-3724]), the same rows a widget's own colour
+    /// gets; a drag of a fill's Opacity or of Scale shows on the widgets as it goes.
     /// </summary>
     private List<MenuNode> CardNodes(PropertiesCommands commands)
     {
@@ -380,7 +365,7 @@ internal sealed partial class PropertiesStrip : MenuPanel
 
         // [S-6566] The widgets' own background and item background: one fill each, Default for the
         // app-wide one; [S-6544] the colour of the text on their items, Default for the app-wide one.
-        // A mixed selection's value is null: the line reads as a dash and nothing holds.
+        // A mixed selection's value is null: the row reads as a dash and nothing holds.
         void Preview(CardPreview? preview) => commands.Preview?.Invoke(preview);
         var colours = new List<ItemMenuEntry>
         {
@@ -447,58 +432,78 @@ internal sealed partial class PropertiesStrip : MenuPanel
     }
 
     /// <summary>
-    /// [S-3717] The icon row: Cut and Copy at its start, Delete at its far end, as icons with their
-    /// words and keys as the tooltip (Explorer's row; Delete kept apart, where a slip does not reach
-    /// it). No Paste: a paste lands on the desktop where it is clicked, never on the selection.
+    /// [S-3717] The top row (Karpo's, §323 and §350): the menu's type at its start in the 14-DIP
+    /// semibold, 16 DIPs in and trimmed short of the buttons (the widget kind's name; "3 widgets" for
+    /// several), and Cut, Copy and Delete packed against its far end as 40-DIP icon buttons, a 20-DIP
+    /// hairline between each two, their words and keys the tooltip ("Cut (Ctrl+X)"). No Paste: a paste
+    /// lands on the desktop where it is clicked, never on the selection.
     /// </summary>
-    private Grid QuickRow(PropertiesCommands commands)
+    private Grid TopRowOf(PropertiesCommands commands)
     {
+        var type = new TextBlock
+        {
+            Text = _offer is { HasTitle: true, TitleKind: { } kind } ? ModuleCatalog.Of(kind).Name : Str.Shell_Views_WidgetCount.Plural(_offer.Count),
+            FontSize = FluentType.Body.FontSize,
+            FontWeight = FontWeights.SemiBold,
+            TextTrimming = TextTrimming.CharacterEllipsis,
+            TextWrapping = TextWrapping.NoWrap,
+            VerticalAlignment = VerticalAlignment.Center,
+            Margin = new Thickness(Fluent.Space4 - Fluent.Hairline, 0, TypeGap, 0),
+        };
+        AutomationProperties.SetHeadingLevel(type, Microsoft.UI.Xaml.Automation.Peers.AutomationHeadingLevel.Level1);
+
+        var buttons = new StackPanel { Orientation = Orientation.Horizontal, HorizontalAlignment = HorizontalAlignment.Right };
         var row = new Grid
         {
-            Padding = new Thickness(Fluent.Space1),
-            ColumnSpacing = Fluent.Space1,
+            Height = TopRow,
             ColumnDefinitions =
             {
-                new ColumnDefinition { Width = GridLength.Auto },
-                new ColumnDefinition { Width = GridLength.Auto },
                 new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) },
                 new ColumnDefinition { Width = GridLength.Auto },
             },
+            Children = { type, buttons },
         };
+        Grid.SetColumn(buttons, 1);
 
         string Verb(Str one, Str many) => _offer.Count > 1 ? many.Plural(_offer.Count) : one.Text();
 
-        Add(0, Glyphs.Cut, Verb(Str.CtxMenu_Cut, Str.Shell_Card_CutMany), KeyChord.Ctrl(ChordKey.X), commands.Cut);
-        Add(1, Glyphs.Copy, Verb(Str.CtxMenu_Copy, Str.Shell_Card_CopyMany), KeyChord.Ctrl(ChordKey.C), commands.Copy);
-        Add(3, Glyphs.Delete, Verb(Str.Common_Delete, Str.Shell_Card_DeleteMany), KeyChord.Plain(ChordKey.Delete), commands.Delete);
+        Add(Glyphs.Cut, Verb(Str.CtxMenu_Cut, Str.Shell_Card_CutMany), KeyChord.Ctrl(ChordKey.X), commands.Cut);
+        Add(Glyphs.Copy, Verb(Str.CtxMenu_Copy, Str.Shell_Card_CopyMany), KeyChord.Ctrl(ChordKey.C), commands.Copy);
+        Add(Glyphs.Delete, Verb(Str.Common_Delete, Str.Shell_Card_DeleteMany), KeyChord.Plain(ChordKey.Delete), commands.Delete);
         return row;
 
-        void Add(int column, string glyph, string words, KeyChord chord, Action? run)
+        void Add(string glyph, string words, KeyChord chord, Action? run)
         {
+            if (buttons.Children.Count > 0)
+            {
+                buttons.Children.Add(new Rectangle
+                {
+                    Width = Fluent.Hairline,
+                    Height = ButtonRule,
+                    Fill = ThemeBrush.Of("DividerStrokeColorDefaultBrush", Colors.Gray),
+                    VerticalAlignment = VerticalAlignment.Center,
+                    IsHitTestVisible = false,
+                });
+            }
+
             var on = run is not null;
             var button = new Button
             {
                 Content = on ? MenuArtIcons.IconOrGlyph(glyph) : UiLanguage.Mirrored(new FontIcon { Glyph = glyph, FontSize = Fluent.IconSize }),
-                Width = RowButton,
-                Height = RowButton,
                 IsEnabled = on,
             };
             EditBar.Subtle(button);
-            button.Height = RowButton;
+            button.Width = TopRow - (2 * ButtonPlate);
+            button.Height = TopRow - (2 * ButtonPlate);
+            button.Margin = new Thickness(ButtonPlate);
             button.Padding = new Thickness(0);
 
             var keys = KeyChordText.Format(chord);
             ToolTipService.SetToolTip(button, Str.Shell_Menu_LabelWithShortcut.Format(("label", words), ("shortcut", keys)));
             AutomationProperties.SetName(button, words);
             AutomationProperties.SetAcceleratorKey(button, keys);
-            button.Click += (_, _) =>
-            {
-                CloseSubmenus();
-                Run(run);
-            };
-
-            Grid.SetColumn(button, column);
-            row.Children.Add(button);
+            button.Click += (_, _) => Run(run);
+            buttons.Children.Add(button);
         }
     }
 
@@ -508,7 +513,6 @@ internal sealed partial class PropertiesStrip : MenuPanel
         (ContentAlign.Center, Glyphs.AlignCenter, Str.Widget_Align_Center),
         (ContentAlign.Right, Glyphs.AlignRight, Str.Widget_Align_Right),
     ];
-
 
     private static (HeaderPlacement Value, (string Glyph, bool Turned)? Icon, string Text)[] HeaderOptions() =>
     [
@@ -537,81 +541,4 @@ internal sealed partial class PropertiesStrip : MenuPanel
             : null;
 
     private static string ScaleText(double scale) => LocaleFormat.Percent(Strings.Current, WidgetScale.Percent(scale));
-
-    /// <summary>
-    /// [S-3704] [S-3735] The title, edited in place at the top of the Header submenu, one line of the
-    /// menu (32 DIPs, as every line): the kind's name as the placeholder, Enter (or leaving the box)
-    /// commits, Escape puts back what was there. While it has the focus the edit keys do not fire
-    /// ([S-804]); Enter and Escape hand the keyboard back to the surface.
-    /// </summary>
-    private TextBox TitleBox(PropertiesCommands commands, string widgetId, string defaultTitle, string? label)
-    {
-        _titleId = widgetId;
-        _titleCommitted = label ?? string.Empty;
-
-        var box = new TextBox
-        {
-            Text = _titleCommitted,
-            PlaceholderText = defaultTitle,
-            MinHeight = LineHeight,
-            Height = LineHeight,
-            HorizontalAlignment = HorizontalAlignment.Stretch,
-            VerticalAlignment = VerticalAlignment.Center,
-            Margin = new Thickness(Fluent.Space1, 0, Fluent.Space1, 0),
-            IsSpellCheckEnabled = false,
-            IsTextPredictionEnabled = false,
-        };
-        AutomationProperties.SetName(box, Str.Group_Title_Label.Text());
-
-        box.KeyDown += (_, e) =>
-        {
-            if (e.Key == Windows.System.VirtualKey.Enter)
-            {
-                CommitTitle(box, widgetId, commands);
-                commands.ReleaseFocus();
-                e.Handled = true;
-            }
-            else if (e.Key == Windows.System.VirtualKey.Escape)
-            {
-                box.Text = _titleCommitted;
-                commands.ReleaseFocus();
-                e.Handled = true;
-            }
-        };
-
-        box.LostFocus += (_, _) => CommitTitle(box, widgetId, commands);
-
-        _title = box;
-        return box;
-    }
-
-    private void CommitTitle(TextBox box, string widgetId, PropertiesCommands commands)
-    {
-        // A box already replaced handed its text over in CommitTitleLater.
-        if (!ReferenceEquals(box, _title) || string.Equals(box.Text, _titleCommitted, StringComparison.Ordinal))
-        {
-            return;
-        }
-
-        _titleCommitted = box.Text;
-        commands.SetTitle(widgetId, box.Text);
-    }
-
-    /// <summary>
-    /// The menu is rebuilt (another widget picked) while the title box holds typing: keep it,
-    /// after this pass — committing now would run a mutation inside the selection change.
-    /// </summary>
-    private void CommitTitleLater()
-    {
-        if (_title is not { } box || _titleId is not { } id
-            || string.Equals(box.Text, _titleCommitted, StringComparison.Ordinal))
-        {
-            return;
-        }
-
-        var text = box.Text;
-        var commands = _commands;
-        _titleCommitted = text;
-        _ = DispatcherQueue.TryEnqueue(() => commands.SetTitle(id, text));
-    }
 }

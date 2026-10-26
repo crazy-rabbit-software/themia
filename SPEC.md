@@ -463,7 +463,7 @@ busy desktop ([S-6601]), Debug, private bytes.
   mode and opens the edit bar's **settings menu** ([S-3520]) at its first level under ⚙ on the main
   display (the primary monitor's), the keyboard in it: Themia has no window, so that is what
   starting it again opens, as Karpo's every way to its settings opens the edit bar's menus. Edit mode
-  already on, it stays on and ⚙ opens all the same (already open, its submenus close); another of
+  already on, it stays on and ⚙ opens all the same (already open, it goes back to its own rows); another of
   the bar's menus open there closes, and a placement in progress is dropped. Started again **at
   sign-in** (the Run entry's flag or the package's startup task, [S-934]) it does nothing: a second
   autostart entry never throws edit mode up over the desktop. The copy that stands down says which
@@ -1417,27 +1417,28 @@ the properties menu's too), `Shell/Menu/BarMenuView.cs` (one of the bar's menus 
 mechanism), `Shell/DesktopWindow.SettingsMenu.cs`, `Services/AppHost.SettingsMenu.cs`. Tests `SettingsMenuTests`, `DropDownPlacementTests`.
 
 - **[S-3520]** **⚙** on the edit bar is a drop-down: a click opens the **settings menu** under it on
-  that display, the keyboard in it on its first line, and ⚙ stays lit while it is open. The menu is
-  the properties menu's engine (`MenuPanel`, [S-3716]) with no frame of its own (no icon row, no
-  header): the same Windows 11 context-menu look, the one 300-DIP width for every level ([S-3734]),
-  submenus that stay open on a pick ([S-3718]) and stand clear of the levels above them and the bars
-  ([S-3733]), the tick, the dot or the chevron at a line's end, inline sliders ([S-3731]), the one
-  colour submenu ([S-3724]), notes ([S-3728]) and the "are you sure?" beside it ([S-3727]). Its keys
-  are the properties menu's ([S-3707]): Tab goes round its lines, Up and Down move, the arrow towards
-  a submenu opens it and the arrow away closes it; F6 reaches it while it is open ([S-1975]).
+  that display, the keyboard in it on its first row, and ⚙ stays lit while it is open. The menu is
+  the properties menu's engine (`MenuPanel`, [S-3716]) with no top row or foot of its own: the one
+  fixed rectangle of every configuration menu (320 × 440 DIPs, [S-3734]) whose levels open in place
+  ([S-3718]), every row one row high: the switch, the tick or the chevron at a row's end ([S-3741]),
+  one-row sliders ([S-3731]), the one colour level ([S-3724]), notes ([S-3728]), headings
+  ([S-3740]), rows whose level is a line of text ([S-3736]) and its "are you sure?" on a level of its
+  own ([S-3737]). Its keys are the engine's ([S-3743]); F6 reaches it while it is open ([S-1975]).
 - **[S-3521]** It stays open while it is used: a pick changes the setting and the menu stays as it
-  was. It closes on ⚙ again; on Escape (the deepest submenu first, then the menu, the keyboard back
-  on ⚙); on a press anywhere on the surface outside it, which then does what it does (a press on a
+  was. It closes on ⚙ again; on Escape on its own rows (Escape on a level goes back first, [S-3743];
+  the keyboard back on ⚙); on a press anywhere on the surface outside it, which then does what it does (a press on a
   widget selects it, one on empty surface starts a rubber band); when the Add widget menu or another
   of the bar's menus (View ▾, Display ▾, [S-3540]) opens; when a placement starts; and on Done or leaving edit mode any other way. Each display has
-  its own, opened from that display's bar.
+  its own, opened from that display's bar. Closed, its levels close as going back closes them: it
+  opens again on its own rows.
 - **[S-3522]** Where it stands (`DropDownPlacement`): 4 DIPs under the bar, its start edge level with
   ⚙'s (right to left, its end edge level with ⚙'s end), slid along to stay inside the work area,
   stepped down below the view bar where it would cover it while the work area leaves room, and never
-  outside the work area. Its submenus keep clear of the edit bar and the view bar (`MenuRoom`, with
-  no selection box).
+  outside the work area: its one rectangle is no taller than the work area under the bar
+  (`DropDownPlacement.Room`, [S-3734]). It stays where it stands while it is used: a level opening or
+  closing moves nothing.
 - **[S-3523]** One menu at a time: while the settings menu is open the selection's properties menu
-  is away (its submenus closed; the selection stays), and it comes back where it was when the
+  is away (back on its own rows; the selection stays), and it comes back where it was when the
   settings menu closes. The keyboard in the settings menu is the menu's: no edit key reaches the
   selection behind it (Delete, Cut, Copy, the arrows, Ctrl+A) but Undo and Redo, which undo what the
   menu changed, and F6.
@@ -1450,9 +1451,10 @@ mechanism), `Shell/DesktopWindow.SettingsMenu.cs`, `Services/AppHost.SettingsMen
   stands empty or greyed for what has not moved yet. The lines are Core's (`SettingsMenu.Root` over
   an `ISettingsMenuHost`: `SettingsToggle`, `SettingsChoice` of `SettingsRadio`s, `SettingsSlider`,
   `SettingsColour`, `SettingsFill`, `SettingsFont`, `SettingsSubmenu`, `SettingsCommand`,
-  `SettingsNote`; a choice may carry a box that finds its options, [S-3537]; `SettingsReading`,
-  `SettingsField` and what a note says of a try, [S-3561]), each keyed by a path that is the same in every language
-  (`appearance/cards/radius`); the app draws each as the engine's line of that kind.
+  `SettingsNote`, `SettingsHeading` ([S-3740]), `SettingsLink` ([S-3749]); a long choice has a filter
+  under its head, [S-3742]; `SettingsReading`, `SettingsField` and what a note says of a try,
+  [S-3561]), each keyed by a path that is the same in every language
+  (`appearance/cards/radius`); the app draws each as the engine's row of that kind.
 - **[S-3525]** **General**: **Start with Windows** ([S-933]; its glyph a speedometer, as Task Manager
   marks its Startup apps, never the power button Quit Themia wears; ticked while Windows will start Themia,
   read from Windows each time the menu opens and the stored value until then; a click asks Windows and
@@ -1472,25 +1474,25 @@ mechanism), `Shell/DesktopWindow.SettingsMenu.cs`, `Services/AppHost.SettingsMen
   (Gap between widgets 0–48 px in twos; Snap to grid); and **Motion ›** ([S-3529]). Each line writes
   the field its page row wrote, in one change (one undo step), and the appearance engine applies it
   live ([S-822]); a slider stores once, on the release ([S-3731]); the option that holds changes nothing.
-- **[S-3527]** **Style ›** lists the presets, the dot on the one the design matches, and Custom
-  (greyed, with the dot) while it matches none ([S-834]). A preset picked over a look of the user's
-  own asks beside the menu first ([S-6483]: the app's one "are you sure?", [S-3727], "Replace your
-  custom look?", what it replaces and what stays under it, Replace and Cancel); only Replace writes it.
-- **[S-3528]** **Text and size › Font ›**: its submenu holds the font picker (`FontPicker`, [S-1723]:
+- **[S-3527]** **Style ›** lists the presets, the tick on the one the design matches, and Custom
+  (greyed, with the tick) while it matches none ([S-834]). A preset picked over a look of the user's
+  own asks first, on a level of its own ([S-6483]: the app's one "are you sure?", [S-3737], "Replace
+  your custom look?", what it replaces and what stays under it, Replace and Cancel); only Replace writes it.
+- **[S-3528]** **Text and size › Font ›**: its level holds the font picker (`FontPicker`, [S-1723]:
   its search box over the presets and every installed family, each drawn in its own font, the chosen
   one ticked, [S-6440]..[S-6442]), then **Add fonts** ([S-6443]). The Font line's value is the chosen
   font's name ([S-6441]). A pick stores it, and the picker is drawn again with that one ticked.
 - **[S-3529]** **Motion ›** ([S-1014]): Startup animation ›, Unlock animation ›, View change
-  animation ›, each with its style at its end and as its submenu the ten styles with the dot,
+  animation ›, each with its style at its end and as its level the ten styles, the tick on the one that holds,
   **Length** (the animation's, a slider from 0.1 to 5 s in tenths, written in seconds) and **Play it now**;
   then **Smooth value changes** ([S-6329]); and, while Windows' animation effects are off, a note that
   nothing plays ([S-1010]). A new style or length is stored and played on the desktop at once.
 - **[S-3530]** **Online updates ›** ([S-3780]): one line per cadence row (the host's, then any
-  provider's own, [S-6910]), its value the interval that holds ("Every 30 minutes") and its submenu
-  the row's intervals with the dot, then a note of what the intervals mean. A pick is stored with no
+  provider's own, [S-6910]), its value the interval that holds ("Every 30 minutes") and its level
+  the row's intervals with the tick, then a note of what the intervals mean. A pick is stored with no
   relayout.
 - **[S-3531]** The menu follows the state: every change (its own, an undo, an import, another
-  display's) is written into its lines in place, so an open submenu, a slider and the focus stay
+  display's) is written into its rows in place, so the open level, a slider and the focus stay
   where they are; what Windows reports (start with Windows, the desktop icons, game mode holding the
   widgets) updates it the same way. A language switch writes its words in the new language and keeps
   what is open open: the lines' keys do not change.
@@ -1514,32 +1516,36 @@ mechanism), `Shell/DesktopWindow.SettingsMenu.cs`, `Services/AppHost.SettingsMen
   **Time format ›**, **Start of week ›** and **Temperature unit ›**, each offering what Windows says
   first ([S-3771]: "Windows setting (12-hour)") and writing its field of `Preferences.Region` with
   no relayout. Each line's value is what is in force ("12-hour", "Sunday", "°C", "English"), short
-  enough to stand beside its words; its submenu says where it comes from. The line's own value is
+  enough to stand beside its words; its level says where it comes from. The line's own value is
   the language spoken. There is no link to Windows' region settings: the page had none.
-- **[S-3537]** A long choice (the languages) has a box on top of its submenu (`SettingsChoice.Filter`,
-  its hint "Find a language"): each letter typed keeps the options whose words or keywords
-  (`SettingsRadio.Keywords`: a language's English name and code) hold it, whatever the case
-  (`SettingsMenu.Matches`), "No results" when none does; Enter picks the first kept, Down moves to
-  it; nothing goes out to be asked, so nothing waits. Tests `SettingsMenuTests` (`S3536_`, `S3537_`).
+- **[S-3537]** The languages are a long choice: their level has the engine's filter under its head
+  ([S-3742]), its hint "Find a language" (`SettingsChoice.Filter`): each letter typed keeps the
+  options whose words or keywords (`SettingsRadio.Keywords`: a language's English name and code) hold
+  it, whatever the case (`SettingsMenu.Matches`), "No results" when none does; Enter picks the first
+  kept, Down moves to it; nothing goes out to be asked, so nothing waits. Tests `SettingsMenuTests`
+  (`S3536_`, `S3537_`).
 - **[S-3535]** Debug renders: `--editbar-png <outDir> [--theme light|dark] [--lang xx] [--only
   settings]` draws the menu open under ⚙ on the stand-in display (`settings-<theme>.png`) and its
-  submenus opened by key (`-appearance`, `-style`, `-theme`, `-accent`, `-background`, `-items`,
+  levels opened by key (`-appearance`, `-style`, `-theme`, `-accent`, `-background`, `-items`,
   `-cards`, `-border`, `-text`, `-font`, `-layout`, `-motion`, `-motion-startup`, `-online`,
   `-online-weather`, `-language`, `-language-display`, `-language-clock`), `-language-find` (the
-  languages' box holding "deu"), ⚙ › Accounts' pictures ([S-3560]), Themia Pro's, Back up &
+  languages' filter holding "deu"), `-language-end` (the languages scrolled to their end under their
+  pinned head and filter), ⚙ › Accounts' pictures ([S-3560]), Themia Pro's, Back up &
   reset's and About's ([S-3583]), `-advice` (start with Windows switched off in Windows, game mode holding the
-  widgets, Windows' animations off) and `-replace` (a preset over a look of one's own: the question
-  beside the menu, its `-popup0`), over a stand-in host that reaches neither Windows nor the user's
+  widgets, Windows' animations off) and `-replace` (a preset over a look of one's own: its "are you
+  sure?" level), over a stand-in host that reaches neither Windows nor the user's
   state; `--only settings` draws these alone.
 
 Needs a live pass: ⚙ on every display at mixed DPI and with a top taskbar (the menu under the
-button, its submenus flipping at the screen's edges, the view bar at the top); the keyboard (focus
-in it on open, Escape back to ⚙, F6, Undo inside it); a press on a widget closing it and selecting
+button, its one rectangle inside the work area, the view bar at the top); Windows' text size above
+100 % (the rectangle growing with it); the keyboard (focus in it on open, a level in and out by the
+arrows, Escape back one level then to ⚙, the mouse's back button, F6, Undo inside it); the slide
+going in and back and with Windows' animations off; a press on a widget closing it and selecting
 the widget; Start with Windows against Task Manager's switch and in the packaged build (the startup
 task); Show desktop icons followed while the desktop's own menu flips them; game mode's "Paused now"
 on a second display; the font picker's search and the installed fonts; the colour dialog and the
-eyedropper from a colour submenu; every Appearance line applying live; a language switch with a
-submenu open; Quit Themia.
+eyedropper from a colour level; every Appearance line applying live; a language switch with a
+level open; Quit Themia.
 
 ### The edit bar's View and Display menus (BAR-MENUS)
 
@@ -1558,34 +1564,34 @@ by), `Shell/DesktopWindow.ViewsMenu.cs`, `Shell/DesktopWindow.DisplayMenu.cs`,
   `DesktopWindow.OpenBarMenu(menu, path)`, `CloseBarMenu`, `PlaceBarMenu`): at most one is open on a
   display, the others' buttons swap it, and every rule of [S-3520]..[S-3523] holds for each (the
   engine's look and keys, open while it is used, the ways it closes, where it stands, the selection's
-  properties menu away while one is open). A long first level (many views) scrolls inside the work
-  area under the bar (`DropDownPlacement.Room`: from under the bar to a gap above the work area's
-  bottom; [S-918]'s promise for the View menu, kept); its submenus scroll as every submenu does ([S-3733]).
+  properties menu away while one is open). Each is the one fixed rectangle ([S-3734]), no taller than
+  the work area under the bar (`DropDownPlacement.Room`: from under the bar to a gap above the work
+  area's bottom; [S-918]'s promise for the View menu, kept); a long level (many views) scrolls inside it.
 - **[S-3541]** **View ▾**: this display's views, one line each in the user's order: the view's icon
-  in its colour ([S-3810]; the shared view glyph where it has none), its name, and the dot before the
+  in its colour ([S-3810]; the shared view glyph where it has none), its name, and the tick before the
   chevron on the view this display shows (its assignment, else the active view, [S-1706]). A click
-  on a view's line **shows it here** ([S-19]) and opens its submenu ([S-3542]); a click on the shown
-  one only opens it; the arrow towards the submenu opens it without showing the view. The views'
-  lines are one ordered list ([S-3732]): dragged up or down, or Alt+Shift+Up / Down ([S-3802]), a view
+  on a view's row **shows it here** ([S-19]) and opens its level ([S-3542]); a click on the shown
+  one only opens it; the arrow towards the level opens it without showing the view. The views'
+  rows are one ordered list ([S-3732]): dragged up or down ([S-3747]), or Ctrl+Up / Down ([S-3748]), a view
   takes another's place (`AppHost.ReorderView`, one undo step), and the bar, Ctrl+n and the menu
   follow. Under a divider: **New view** (an empty view at the end, shown here; past the free limit it
   is refused with a notice saying why, [S-1065]) and **Duplicate this view** ([S-900], the copy shown
   here). The lines are Core's (`ViewsMenu.Root`), keyed by the views' ids (`view:<id>`), so a
   rename, a move or a language switch keeps what is open open.
-- **[S-3542]** A view's submenu: how many widgets it holds (a note); **Rename…** (asked beside the
-  menu, the box holding the name, [S-3721]; `ViewOps.Rename`, [S-1707]); **Icon ›**, whose submenu is
+- **[S-3542]** A view's level: how many widgets it holds (a note); **Rename…** (a line of text on a
+  level of its own, the field holding the name, [S-3736]; `ViewOps.Rename`, [S-1707]); **Icon ›**, whose level is
   the icon picker ([S-1803]) at the menu's width, its default cell the view's initials ([S-903]), a
-  pick stored at once and drawn ticked; **Colour ›**, the one colour submenu ([S-3724]: Default, the
+  pick stored at once and drawn ticked; **Colour ›**, the one colour level ([S-3724]: Default, the
   theme's text colour, then Windows' colours, custom and the eyedropper; `ViewOps.SetColor`, no
   relayout); under a divider **Duplicate view** ([S-900]) and **Delete view** (in the critical
-  colour; asked first beside the menu, "Delete "Work"?" with what goes with it, Delete and Cancel,
-  [S-3727]; the undo notice still offers it back, [S-881]; greyed on the last view, [S-12]). Edit
+  colour; asked first on a level of its own, "Delete "Work"?" with what goes with it, Delete and
+  Cancel, [S-3737]; the undo notice still offers it back, [S-881]; greyed on the last view, [S-12]). Edit
   layout and Show on this display are not here: the menu is open in edit mode on the display, and a
   click on the view's line shows it.
 - **[S-3543]** **Display ▾**: this display's own settings under its name (a note: "DELL U2723QE —
   3840 × 2160 (primary)", `MonitorTarget.Describe`, so two identical screens are told apart):
   **Widget scale**, a slider 50–200 % in fives ([S-850], `AppHost.SetDisplayScale`, stored on the
-  release); **View bar ›** ([S-3544]); then under a divider and the note **All displays**: **New
+  release); **View bar ›** ([S-3544]); then under a divider and the heading **All displays** ([S-3740]): **New
   displays show ›** and **Show Themia on ›** ([S-3545]). Which view this display shows is View ▾'s
   ([S-3541]), not here again. The lines are Core's (`DisplayMenu.Root`); they follow the state and,
   while the menu is open, every display pass (a display plugged in or switched off).
@@ -1605,27 +1611,27 @@ by), `Shell/DesktopWindow.ViewsMenu.cs`, `Shell/DesktopWindow.DisplayMenu.cs`,
   this display off puts its menu away first and runs once the click has finished: the surface the
   click came from closes.
 - **[S-3546]** The ways in: View ▾, Display ▾, and a view chip's **View settings** ([S-915]), which
-  opens View ▾ on that display at the chip's view's submenu (`OpenBarMenu(View, ["view:<id>"])`).
+  opens View ▾ on that display at the chip's view's level (`OpenBarMenu(View, ["view:<id>"])`).
   There is no Displays or Views page: there is no settings window ([S-3585]).
-- **[S-3547]** The vocabulary of [S-3524] grows what these menus need, for every bar menu: a line's
-  glyph may carry a colour of its own (`GlyphColour`, a view's mark); a submenu line may stand for an
-  item (`Holds`, the dot before its chevron; `Run`, what a click does as it opens; `Order`, a place in
-  an ordered list, one move shared by the list's lines); `SettingsAsk` (a line asking for a line of
-  text beside the menu); `SettingsIcon` (the icon picker as its submenu); a `SettingsCommand` may be
-  `Danger`, and so may a `SettingsConfirm`.
+- **[S-3547]** The vocabulary of [S-3524] grows what these menus need, for every bar menu: a row's
+  glyph may carry a colour of its own (`GlyphColour`, a view's mark); a submenu row may stand for an
+  item (`Holds`, the tick before its chevron; `Run`, what a click does as it opens; `Order`, a place in
+  an ordered list, one move shared by the list's rows); `SettingsAsk` (a row whose level is a line of
+  text, [S-3736]); `SettingsIcon` (the icon picker as its level); a `SettingsCommand` may be
+  `Danger`, and so may a `SettingsConfirm` ([S-3737]).
 - **[S-3548]** Debug renders: `--editbar-png <outDir> [--theme light|dark] [--lang xx] [--only bar]`
-  draws View ▾ open under its button (`views-<theme>.png`: five views, the one shown here with the
-  dot; `-view`, a view's submenu; `-icon`, its icon picker; `-colour`; `-rename` and `-delete`, what
-  they ask beside the menu, with their `-popup0`; `-drag`, a view's line dragged; `-many` and
-  `-many-view`, 40 views: the list scrolls inside the work area) and Display ▾
+  draws View ▾ open under its button (`views-<theme>.png`: five views, the one shown here ticked;
+  `-view`, a view's level; `-icon`, its icon picker; `-colour`; `-rename`, its name's field level, and
+  `-delete`, its "are you sure?" level; `-drag`, a view's row dragged, its drop line; `-many`,
+  `-many-end` and `-many-view`, 40 views: the rows scroll inside the one rectangle) and Display ▾
   (`display-<theme>.png`, `-viewbar`, `-position`, `-bar-views`, `-new`, `-showon`: three displays,
   one switched off), over stand-in hosts that reach neither the displays nor the user's state;
   `--only bar` draws these alone.
 
 Needs a live pass: View ▾ and Display ▾ on every display at mixed DPI and with a top taskbar; a
-click on a view showing it and opening its submenu; dragging a view's line and Alt+Shift+Up / Down in
-the menu; the icon picker's search typed into on the desktop surface; Rename and Delete beside the
-menu; New view past the free limit (the notice); a view chip's View settings; Show Themia on with a
+click on a view showing it and opening its level; dragging a view's row ([S-3747]: the list holds the
+pointer, the release drops it) and Ctrl+Up / Down in the menu; the icon picker's search typed into
+on the desktop surface; Rename's field and Delete's question on their levels; New view past the free limit (the notice); a view chip's View settings; Show Themia on with a
 second display, switching this one off from its own menu and back on from the other's; a display
 plugged in while Display ▾ is open; a long list of views scrolling under the bar.
 
@@ -1636,26 +1642,26 @@ The settings window's Accounts page moved into ⚙ (user request 2026-10-25, ste
 `Settings/SettingsMenu.Accounts.cs` (the lines), `Settings/AccountsMenu.cs` (`IAccountsMenuHost`,
 `AccountsMenuState`, `AccountStatus`), `Settings/AccountForm.cs` (the forms as drafts),
 `Accounts/AccountRules.ImapServerProblem`; App `Services/Accounts/AccountsMenuHost.cs` (the flows over
-the account service), `Shell/Menu/MenuPanel.Fields.cs` (the field lines, the masked one, notes
+the account service), `Shell/Menu/MenuPanel.Fields.cs` (the field levels, the masked one, notes
 written in place), `Shell/DesktopWindow.SettingsMenu.cs` (`RequestAccounts`). Tests
 `SettingsMenuTests` (`S355x_`, `S3561_`), `AccountFormTests`.
 
 - **[S-3550]** **Accounts ›** on ⚙'s first level, after Appearance: what the Accounts page said
   first (why the accounts file could not be used, in the critical colour; "No accounts yet" while
-  there are none), then every account as a line of its own (its name, its provider's glyph, or the
+  there are none), then every account as a row of its own (its name, its provider's glyph, or the
   warning glyph and **Sign in again** at its end while it needs a sign-in, [S-3552]), then under a
   divider **Add account ›** ([S-3553]). The line itself says Sign in again while any account needs
   it. Without an account service (a failed start) it says accounts are not available. The lines
   are Core's (`SettingsMenu.Accounts` over an `IAccountsMenuHost`), keyed by the accounts' ids
   (`accounts/account:<id>`), so a rename or a language switch keeps what is open open.
-- **[S-3551]** An account's submenu ([S-3821]'s group, moved): its address and provider; a
+- **[S-3551]** An account's level ([S-3821]'s group, moved): its address and provider; a
   **reading** per kind its provider feeds, in the order mail, calendar, contacts, tasks
   (`SyncStats.Summarize`): its name and count ("Mail · 1,240 messages") and under it "in 3 folders ·
   synced 5 min. ago · 2 changes waiting to sync", or "Nothing stored on this PC yet"; where a service
   grants access per resource, **Choose what it may read** ([S-9919]); **Nickname**, its value the
-  nickname, asked for beside the menu ([S-3721]) with the one there and the account's own name as the
-  hint, an empty box clearing it (`AccountService.RenameAsync`); and under a divider **Sign out** in the
-  critical colour, asked first as a destructive question ([S-3727]: "Sign out of Alex Wilber?", what
+  nickname, a line of text on a level of its own ([S-3736]) with the one there and the account's own
+  name as the hint, an empty field clearing it (`AccountService.RenameAsync`); and under a divider **Sign out** in the
+  critical colour, asked first as a destructive question on a level of its own ([S-3737]: "Sign out of Alex Wilber?", what
   goes and that nothing changes at the provider, Sign out and Cancel). What a rename or a sign-out
   could not do stands under its line in the critical colour. There are no switches for an account's
   parts and no colours: the page had none, and nothing behind it turns a part off.
@@ -1672,9 +1678,11 @@ written in place), `Shell/DesktopWindow.SettingsMenu.cs` (`RequestAccounts`). Te
   who it signed in ("Signed in to Microsoft as …") or why it did not, in the critical colour. A
   provider this build cannot sign in to ([S-536]) is greyed, why under it. A provider that signs in
   with a pasted token has a form of one masked field ([S-9915]); one with several ways has a submenu of
-  them. The browser opens only from a click; nothing is signed in from a widget.
+  them, a level of their own. The browser opens only from a click; nothing is signed in from a widget.
 - **[S-3554]** The forms, a draft each (`AccountForm`, one per kind, the same wherever it is opened
-  from, kept while menus come and go): the mail server's **Email address**, **Password** (masked,
+  from, kept while menus come and go), each a level of one-row rows as Karpo's (§338): every field a
+  row with what it holds as its value whose level is the field alone ([S-3736]), every letter written
+  into the form as it is typed: the mail server's **Email address**, **Password** (masked,
   [S-3556]; under it "Some providers want an app password here" where Themia knows no provider for
   the address), **Set the server myself** and, while it is on, **Server**, **Port** (empty for 993,
   digits), **User name** ("Usually your address") and the note "IMAP over TLS", then **Nickname**
@@ -1694,16 +1702,18 @@ written in place), `Shell/DesktopWindow.SettingsMenu.cs` (`RequestAccounts`). Te
   server's refusal in the critical colour, or the page's "Connected anna@example.com." (an add, through
   the page's `AddImapAsync` / `AddDavAsync`, which prove before they save, [S-528], [S-517]); the menu
   stays open and the new account is listed above. An add that worked empties the form and wipes its
-  password; an edit takes the last outcome away. The form's lines keep their place while it is typed
-  in and tried, so the box being typed in keeps the keyboard.
-- **[S-3556]** The masked field (`SettingsField.Masked`, drawn as Windows' `PasswordBox`): a bullet
-  for each letter, no copy or cut (paste works), no reveal button, the IME off while it has the
-  keyboard, and to UI Automation an edit named for its line that IsPassword and exposes no value. What
-  it holds is never in a line (`Value` null, `HasValue` only), a tooltip, a render's name or the log
-  ([S-983]); a box drawn again starts from what the form holds (`Fill`). The form keeps the password
-  as characters it wipes (`AccountForm.WipePassword`): as the form's submenu closes (`Wipe`), as an
-  add succeeds, and as the menu closes; .NET's strings cannot be wiped, so the typed words pass through
-  one on their way to the form and to the service, as they did on the page.
+  password; an edit takes the last outcome away. The form's rows keep their place while it is typed
+  in and tried, so the field being typed in keeps the keyboard.
+- **[S-3556]** The masked field (`SettingsField.Masked`): its row's value is ●●●●●●●● while the form
+  holds a password, nothing otherwise; its level's field is Windows' `PasswordBox`: a bullet for each
+  letter, no copy or cut (paste works), no reveal button, the IME off while it has the keyboard, and
+  to UI Automation an edit named for its row that IsPassword and exposes no value. What it holds is
+  never in a row (`Value` null, `HasValue` only), a tooltip, a render's name or the log ([S-983]); a
+  field drawn again starts from what the form holds (`Fill`), and Escape gives the form back what it
+  held as the field's level opened. The form keeps the password as characters it wipes
+  (`AccountForm.WipePassword`): as the form's level closes (`Wipe`, going back from it or the menu
+  closing), as an add succeeds, and as the menu closes; .NET's strings cannot be wiped, so the typed
+  words pass through one on their way to the form and to the service, as they did on the page.
 - **[S-3557]** Closing ⚙ (the last one open on any display) gives up every sign-in and try still
   out, as leaving the page did, and empties every form, its password wiped, every status gone
   (`AccountsMenuHost.Closed`, `AccountsMenuState.Close`).
@@ -1717,26 +1727,26 @@ written in place), `Shell/DesktopWindow.SettingsMenu.cs` (`RequestAccounts`). Te
 - **[S-3559]** While ⚙ is open it follows the accounts and their numbers (`AccountsChanged`,
   `SyncHost.StatsChanged`) and every flow's progress, written into its lines in place ([S-3531]).
 - **[S-3560]** Debug renders (`--editbar-png`, with the settings menu's): `settings-<theme>-accounts`,
-  `-account`, `-account-again`, `-signout` (its `-popup0`), `-add`, `-signin`, `-imap`,
-  `-imap-filled`, `-imap-testing`, `-imap-failed`, `-caldav`, over a stand-in host with three made-up
+  `-account`, `-account-again`, `-signout` (its "are you sure?" level), `-add`, `-signin`, `-imap`,
+  `-imap-filled`, `-imap-address` (a field's level), `-imap-password` (the password's level),
+  `-imap-testing`, `-imap-failed`, `-caldav`, over a stand-in host with three made-up
   accounts and their numbers; no sign-in, server or account file is reached, and the password drawn
   is made up for the picture. `props-<theme>-email-accounts` is a mail widget's Accounts, whose Add an
   account leads here (the renders' widget lines offer the way, as the desktop's do).
 - **[S-3561]** The vocabulary of [S-3524] grows what forms need, for every menu: `SettingsReading`
-  (words and a value, nothing to do), `SettingsField` (a line of text typed in the menu, its words
-  over the box, each letter handed on as it is typed, Enter moving on; `Numeric`, `Masked`), a note's
-  `Critical` (the critical colour) and `Busy` (a ring), a note without words taking no room, and a
-  `SettingsAsk` that may be given empty and says its value. The engine writes notes, fields and
-  whether a line is greyed in place (a danger line aside), so a level is not drawn again while it is
-  typed in; one drawn again gives the keyboard back to the field that had it. A form's notes (a level
-  with fields) start where its fields do, not after the icon column: the note under Password or Port
-  is that field's ("IMAP over TLS" stood indented apart from the fields it explains).
+  (words and a value, nothing to do), `SettingsField` (a row whose level is a line of text typed in
+  the menu, [S-3736], each letter handed on as it is typed, Enter going back; `Numeric`, `Masked`), a
+  note's `Critical` (the critical colour) and `Busy` (a ring), a note without words taking no room,
+  and a `SettingsAsk` that may be given empty and says its value. The engine writes notes, the
+  reason under a field and whether a row is greyed in place (a danger row aside), so a level is not
+  drawn again while it is typed in; one drawn again gives the keyboard back to the field that had it.
 
 Needs a live pass: a real Microsoft and Google sign-in from Add account (the browser, its return,
 the new account listed), Cancel while it waits; Test connection and Add against a real IMAP server
 (an app password) and a CalDAV / CardDAV server; Sign in again for an account whose sign-in
 expired; Sign out; a rename; Narrator on the password field ("password", nothing read out of it), the
-IME off in it, copy and cut doing nothing; typing in every field without the keyboard leaving it; a
+IME off in it, copy and cut doing nothing, the password wiped as the form's level is left; typing in
+every field without the keyboard leaving it; a
 widget's Manage accounts, "Open Accounts settings" and Set up opening ⚙ › Accounts on that display
 from outside edit mode; two displays with ⚙ open.
 
@@ -1789,8 +1799,8 @@ under a line); App `Services/Licensing/LicenceMenu.cs`, `Services/SettingsBackup
   Themia Pro and Back up & reset is one for the app (`SettingsOutcomes`, every display's ⚙ says the
   same) and goes when the last settings menu closes, but what is still out, which says so again
   when ⚙ opens.
-- **[S-3577]** An import's file, once read ([S-495]), asks beside the menu before anything changes
-  ([S-3727], the accent Import and Cancel): "Import these settings?", then **What changes** (a line
+- **[S-3577]** An import's file, once read ([S-495]), asks on a level of the menu's own before anything changes
+  ([S-3737], Import and Cancel): "Import these settings?", then **What changes** (a line
   each, "Nothing: the settings are the same" when it holds what is there now) and **Good to know**
   (the repairs, the displays not here, Start with Windows staying, where the current settings are
   kept), each cut at twelve lines with "and N more" (`SettingsMenu.ImportQuestion` over
@@ -1823,9 +1833,9 @@ under a line); App `Services/Licensing/LicenceMenu.cs`, `Services/SettingsBackup
   `-pro-offline` (the License page's `--license` states, gone with the page), `-pro-developer`,
   `-pro-onsale` (the price on Upgrade), `-pro-buying` (the Store waited for); `-backup`,
   `-backup-done` (outcomes under the lines), `-backup-import` (an import's question over a made-up
-  file, its `-popup0`), `-backup-reset` (its `-popup0`); `-about`, `-uninstall-packaged`,
+  file, its level), `-backup-reset` (its "are you sure?" level); `-about`, `-uninstall-packaged`,
   `-uninstall-loose`, `-uninstall-loose-data`, `-uninstall-confirm` and
-  `-uninstall-packaged-confirm` (their `-popup0`), over a stand-in host: no Store, file dialog, file
+  `-uninstall-packaged-confirm` (their "are you sure?" levels), over a stand-in host: no Store, file dialog, file
   or install is reached.
 - **[S-3584]** *(Retired by [S-3585]: the window that had no page left is gone with it.)*
 - **[S-3585]** There is **no settings window** (user request 2026-10-25, the last step of the move
@@ -1863,10 +1873,10 @@ edit mode, not in a window, and not on the edit bar: on a small panel that stand
 the selection. After Karpo's properties panel (`karpo-app`, `docs/widgets.md` §145: a click in edit mode
 only selects and a small panel of the selection's own properties stands by it) and its selected
 widget's flyout (§65: closed while the selection is carried, opened again where it lands). Owning
-files: `Shell/PropertiesStrip.cs` (the selection's frame and lines over the one menu engine, `Shell/Menu/MenuPanel*.cs`), `Shell/DesktopWindow.Properties.cs`, `Services/AppHost.QuickSet.cs`;
-rules in Core `Model/QuickSet.cs`, `Geometry/StripPlacement.cs` and `Geometry/SubmenuPlacement.cs`
-and the SDK's `Settings/ListDrop.cs` (tests `QuickSetTests`, `StripPlacementTests`,
-`SubmenuPlacementTests`, `ListDropTests`); a widget's own lines in the SDK's
+files: `Shell/PropertiesStrip.cs` (the selection's top row, rows and foot over the one menu engine, `Shell/Menu/MenuPanel*.cs`), `Shell/DesktopWindow.Properties.cs`, `Services/AppHost.QuickSet.cs`;
+rules in Core `Model/QuickSet.cs` and `Geometry/StripPlacement.cs` and the SDK's
+`Settings/ListDrop.cs`, `Settings/ListDrag.cs` and `Settings/MenuShare.cs` (tests `QuickSetTests`,
+`StripPlacementTests`, `ListDropTests`, `ListDragTests`, `MenuShareTests`); a widget's own lines in the SDK's
 `Modules/WidgetMenuLines.cs` and `Modules/MenuSlider.cs` (tests `WidgetMenuLinesTests` in the module host).
 
 - **[S-3700]** *(Retired by [S-3707]: the controls are no longer a group on the edit bar. A user
@@ -1875,25 +1885,24 @@ and the SDK's `Settings/ListDrop.cs` (tests `QuickSetTests`, `StripPlacementTest
 - **[S-3701]** The strip shows on a display only while the selection ([S-1580]) has widgets in the
   view that display shows (`QuickSet.For`); ids no longer in it are not counted. It follows every
   selection change and every state change (an undo, a change from another display).
-- **[S-3702]** One widget: the icon row ([S-3717]), the Header line ([S-3735]), then Style ([S-6007])
-  with the options only that look draws right under it, and the widget's own lines ([S-3719]) with
-  the card's among them as one Appearance submenu ([S-3723]): where the widget places it, else right
-  after Style; each a section behind a divider ([S-3735]). Several: the icon row, the words "N
-  selected", then Header (its positions only), Style (one kind only) and Appearance, and **no
-  title** and no widget lines: a title names one widget, so one typed for many would make them
-  indistinguishable.
+- **[S-3702]** One widget: the top row (its kind's name and the icon buttons, [S-3717]), Style
+  ([S-6007]) with the options only that look draws right under it, the Header row ([S-3735]) and the
+  widget's own rows ([S-3719]), each a section behind a rule; the card's own look is the pinned
+  Appearance foot ([S-3739]). Several: the top row saying how many ("3 widgets"), then Header (its
+  positions only), Style (one kind only) and the Appearance foot, and **no title** and no widget
+  rows: a title names one widget, so one typed for many would make them indistinguishable.
 - **[S-3703]** With several, a value the widgets share is ticked and a mixed one ticks nothing
   (`QuickSet.Common`); a pick sets it on every selected widget of the view (`SetHeader`,
   `SetBackground`) in one `Mutate`, so one undo step ([S-884]) however many it reached.
-- **[S-3704]** The title is typed in a box at the top of the Header submenu ([S-3735]), one line of
-  the menu (32 DIPs, as every line), the kind's name as its placeholder. It commits on Enter or when
-  the box loses the focus or its submenu closes, and Escape puts back what
-  it held; Enter and Escape hand the keyboard back to the surface. While the box has the focus the
-  edit keys do not fire ([S-804]): Delete, arrows and Ctrl+Z are the box's. What is stored
-  (`QuickSet.Title`): trimmed, and nothing (the kind's name, in the current language) for a blank
-  title or the kind's name itself. A commit that changes nothing records no step; one cut off by a
-  click on another widget still lands, on the widget it was typed for. A change made elsewhere
-  never replaces text half typed in the box.
+- **[S-3704]** The title is a row of the Header level ([S-3735]), its value the title as it reads;
+  its level is the field alone ([S-3736]), the kind's name as its hint. It commits on Enter or when
+  its level is left any other way (going back, a click on another widget, the menu put away), and
+  Escape puts back what it held; Enter and Escape go back to the Header level. While the field has
+  the keyboard the edit keys do not fire ([S-804]): Delete, arrows and Ctrl+Z are the field's. What
+  is stored (`QuickSet.Title`): trimmed, and nothing (the kind's name, in the current language) for a
+  blank title or the kind's name itself. A commit that changes nothing records no step; one cut off
+  by a click on another widget still lands, on the widget it was typed for. A change made elsewhere
+  never replaces text half typed in the field.
 - **[S-3705]** *(Retired 2026-10-19: a widget has no settings page any more; its options are its properties menu's, [S-3719].) Delete stays on the icon row, the card menu, the Delete key and the undo
   notice ([S-1743]); a widget's own destructive line (clearing a history) is a confirmed line, [S-3727].)*
 - **[S-3706]** *(Retired by [S-3713]: the edit bar no longer draws a selection group.)*
@@ -1904,8 +1913,8 @@ and the SDK's `Settings/ListDrop.cs` (tests `QuickSetTests`, `StripPlacementTest
   on its padding or words stays on it, so it never starts a rubber band or clears the selection. It
   is inside the work area ([S-3708]), and in edit mode the hit region is the whole work area
   ([S-851]), so it always takes its clicks. F6 reaches it after the edit bar while it shows
-  ([S-1975]), and the keyboard on it counts as the chrome's, not the widgets': Tab goes round its
-  lines and stays in it, Up and Down move between them, and Escape hands the keyboard back to the surface.
+  ([S-1975]), and the keyboard on it counts as the chrome's, not the widgets': its keys are the
+  engine's ([S-3743]), and Escape on its own rows hands the keyboard back to the surface.
 - **[S-3708]** Where it stands (`StripPlacement.Place`): **beside** the selection's box, 8 DIPs off
   its edge — to its **right**, or to its **left** where the right has no room (right to left the
   sides mirror: left first) — centred on the box's height ([S-3714]) and slid to stay inside the display's
@@ -1928,150 +1937,155 @@ and the SDK's `Settings/ListDrop.cs` (tests `QuickSetTests`, `StripPlacementTest
   shows only what every selected widget can take; `SetHeader`
   never reaches one; it is created headerless; load validation takes a header off it and says so;
   and the card draws it headerless whatever the file holds (`WidgetInstance.ShownHeader`).
-- **[S-3716]** The panel looks like **Windows 11's context menu** (user request 2026-10-19): the
-  icon row on top, a hairline under it, then 32-DIP lines inset 4 DIPs with a 4-DIP hover, each an
-  icon column (where the list has icons), its words (starting at the line's start where it has none),
-  its value (or a shortcut) in the secondary colour, and at the **end** a column of its own,
-  right-aligned inside the line's padding (user request 2026-10-19): the tick of a switch that is on,
-  the dot of the choice that holds, or the chevron of a line that opens a submenu. A line with a mark
-  never has a chevron, and every line of a list keeps the end column when any has one, so the values
-  stand in one column and never meet a mark. Dividers between groups (none leading, trailing or
-  doubled). It is not a light-dismiss menu: it stays standing beside the selection while it is used,
-  and so do its submenus. It is one width with all its submenus ([S-3734]). The menu is built again from the offer
-  and the widget's lines on every change; lines are drawn again only when a list's shape (which lines
-  there are) changed, and a change of value (a tick, a dot, the words at the end, an icon) is written
-  into the lines in place, so an open submenu, a search's box and the focus stay where they are.
-  (`MenuPanel`, the engine `PropertiesStrip` is drawn with; renders `--editbar-png` `props-*`.)
-- **[S-3717]** The **icon row**: Cut and Copy at its start, Delete at its far end (apart from
-  them, where a slip on Cut does not reach it), Explorer's two-tone icons, 40-DIP buttons, the words
-  with the key as the tooltip ("Cut (Ctrl+X)"; "Cut 3 widgets" for several), the same commands as the
-  keys and the card menu (`CutSelected`, `CopySelected`, `DeleteSelected`). No Paste (user request
-  2026-10-19): a paste lands where the desktop is clicked ([S-74]), never on the selection, so on the
-  panel it could only ever stand greyed; Ctrl+V and the desktop's menu paste. A cut shows at once: in
-  edit mode the widgets cut and not yet pasted are faded (0.35, as a move's originals while it is
-  aimed, [S-78]), as Explorer dims a cut file, until the paste lands or another cut or copy replaces it.
-- **[S-3718]** A **submenu** opens beside its line (where [S-3733] says: clear of the widgets and
-  the levels above it, scrolled when taller than the work area) on a click, Enter or the arrow
-  towards it, and the line stays lit while it is open; a click on the line again, Escape or the
-  arrow away closes it, and opening another line's closes it. It is drawn by the panel itself, in
-  the same window (never a light-dismiss popup), so **a click in it does what it does and leaves it
-  open** (user request 2026-10-19): a pick moves the dot there, a switch ticks, a command runs.
-  Choices of one are Windows' dots (`ItemMenuEntry.Group`), switches its ticks; the line of a choice
-  shows the option that holds. Header, Alignment and Style are submenus of their options; Scale and
-  a fill's Opacity are inline sliders ([S-3731]). A
-  card line that cannot apply is **not there** (user request 2026-10-19), never greyed: Header for a
-  kind that never has one ([S-3711]), Alignment where nothing selected aligns ([S-6584]), Item
-  background and Item text where nothing selected has items in its look ([S-6571], [S-6573]), Item
-  text where they are tracks only ([S-6574]), Style where every look draws the same ([S-6075]).
+- **[S-3716]** The panel is drawn as **Karpo's configuration menus** are (user request 2026-10-26:
+  "the size of the menus should be the same as in karpo … the menu behaviour should be the same as
+  it is in karpo"), which are Windows 11's context menu's rows (Explorer's): one fixed rectangle
+  ([S-3734]) on a flyout's surface, its rows 32 DIPs apart, each a 28-DIP fill 5 DIPs in from the
+  menu's sides with 4-DIP corners and the hover plate (`SubtleFillColorSecondary`), the 16-DIP icon
+  16 DIPs in, the words (14-DIP Segoe UI Variable Text) 44 DIPs in where the level has icons (16
+  without), the value right-aligned in the secondary colour 8 DIPs before the end slot, and in the
+  16-DIP end slot 8 DIPs in from the fill's end the thin chevron (E76C, mirrored right to left) of a
+  row with a level of its own, the tick (E73E) of the option that holds, or a link's mark
+  ([S-3749]); a switch's toggle ends where the slot does ([S-3741]). Every row of a level keeps the
+  end slot when any has one, so the values stand in one column. Rules between groups (9 DIPs: 4,
+  the hairline, 4; none leading, trailing or doubled). It is not a light-dismiss menu: it stays
+  standing beside the selection while it is used. The rows are handed in again on every change; a
+  level is drawn again only when its shape (which rows there are) changed, and a change of value (a
+  switch, a tick, the words at the end, an icon) is written into the rows in place, so the open
+  level, a field being typed in, the focus and the scroll stay where they are. (`MenuPanel`, the
+  engine `PropertiesStrip` and the edit bar's menus are drawn with; renders `--editbar-png` `props-*`.)
+- **[S-3717]** The **top row** (Karpo's, §323 and §350), on the menu's own rows only (a level has
+  its head there): the menu's type at its start in the 14-DIP semibold, 16 DIPs in and trimmed short
+  of the buttons (the widget kind's name, "Clock"; "3 widgets" for several), and **Cut**, **Copy**
+  and **Delete** packed against its far end as 40-DIP icon buttons (Explorer's two-tone icons, the
+  plate 4 DIPs in from each side), a 20-DIP hairline between each two, a rule the menu's full width
+  under the row; the words with the key as the tooltip ("Cut (Ctrl+X)"; "Cut 3 widgets" for several),
+  the same commands as the keys and the card menu (`CutSelected`, `CopySelected`, `DeleteSelected`).
+  No Paste (user request 2026-10-19): a paste lands where the desktop is clicked ([S-74]), never on
+  the selection, so on the panel it could only ever stand greyed; Ctrl+V and the desktop's menu
+  paste. A cut shows at once: in edit mode the widgets cut and not yet pasted are faded (0.35, as a
+  move's originals while it is aimed, [S-78]), as Explorer dims a cut file, until the paste lands or
+  another cut or copy replaces it.
+- **[S-3718]** A row with a level of its own opens it **in place** (Karpo's inline levels, user
+  request 2026-10-26: "in karpo the menus change inline and have a fixed size"), on a click, Enter,
+  Space or the arrow towards it, never on hover: the same rectangle shows the level's rows under a
+  pinned **head**, an ordinary row of the back arrow (E72B, mirrored right to left) and the level's
+  name in the semibold, "Back" its tooltip and what Narrator calls it, a rule under it; the top row
+  is not shown on a level. The rest of the level scrolls under the head. **Back** (the head, Escape,
+  Backspace, the arrow away, the mouse's back button) shows the level under it again, the row it
+  came from highlighted and scrolled where it was; Escape on the menu's own rows is the menu's
+  ([S-3707]). A click in a level does what it does and leaves it open: a pick moves the tick, a
+  switch flips, a command runs. Choices of one are ticks (`ItemMenuEntry.Group`), switches Windows'
+  toggles ([S-3741]); the row of a choice shows the option that holds. After every change the whole
+  tree is handed in again and the open levels are found again by their rows' keys, the deepest shown
+  with its highlight and scroll kept; a level whose row is gone closes with those under it. A card
+  row that cannot apply is **not there** (user request 2026-10-19), never greyed: Header for a kind
+  that never has one ([S-3711]), Alignment where nothing selected aligns ([S-6584]), Item background
+  and Item text where nothing selected has items in its look ([S-6571], [S-6573]), Item text where
+  they are tracks only ([S-6574]), Style where every look draws the same ([S-6075]).
 - **[S-3719]** A widget's **own lines** come from its module (`IWidgetModule.MenuLines`, over a
   `WidgetMenuLines`): `StyleLines` on the first level right under the Style line, in its section
   (what only the current look draws with, [S-6070]; user request 2026-10-19: not inside the Style
-  submenu, which holds the styles only), `Lines` after that section, and `PlaceCard` puts the
-  card's Appearance among them ([S-3723]). They are the one menu vocabulary, `ItemMenuEntry`:
-  `Toggle`, `Choice` (a submenu of dots, any value type), `Submenu`, `Search` ([S-3722]), `Command`
-  (a change and its save), `Ask` ([S-3721]), `Colour` and `Fill` ([S-3724]), `Number` ([S-3726]), `Slider` ([S-3731]),
-  `Confirm` ([S-3727]), `Note` ([S-3728]), `List` ([S-3729]), `PickFolder` ([S-3730]) or a plain
-  command. The lines are built again on every selection and state change over the live config (a
+  submenu, which holds the styles only), `Lines` after the Header row; the card's look is never among
+  them: it is the pinned Appearance foot ([S-3739]). They are the one menu vocabulary, `ItemMenuEntry`:
+  `Toggle` (a switch, [S-3741]), `Choice` (a level of ticks, any value type), `Submenu`, `Search`
+  ([S-3722]), `Command` (a change and its save), `Ask` ([S-3721], its line `Asks`), `Colour` and
+  `Fill` ([S-3724]), `Number` ([S-3726]), `Slider` ([S-3731]), `Confirm` ([S-3727]), `Note`
+  ([S-3728]), `List` ([S-3729]), `PickFolder` ([S-3730]), `AccountsLine` (a link, [S-3749]) or a plain
+  command, every one a row one row high. The lines are built again on every selection and state change over the live config (a
   change edits it in place and saves), so they always say what the widget holds. They are **every**
   option a widget has (user request 2026-10-19): there is no widget settings page ([S-6536]). A
   module without lines (the default) is a widget with no options of its own: its menu is the
   card's lines. [S-1862] The one line Set up opens is marked `WidgetMenuLines.SetsUp`.
-- **[S-3721]** A line may **ask for one line of text** (`WidgetMenuLines.Ask`, `WidgetTextAsk`): a
-  small flyout beside the menu with a heading, the box (holding `Initial`, selected, for a name
-  being changed), the reason under it while the widget's check refuses what is typed (nothing while
-  it is empty, and an empty box is refused unless `AllowEmpty`), and the button that gives it, which
-  is off while refused; Enter gives it too, Escape or a click away drops it, and closing hands the
-  keyboard back to the surface.
-- **[S-3722]** A line may be a **search** (`WidgetMenuLines.Search`, `MenuSearch`): what is chosen at
-  the end of its line; its submenu has the search box on top, the answers as lines under it and the
-  search's fixed lines after a divider (clear the choice, edit what was chosen; user request
+- **[S-3721]** A row may **ask for one line of text** (`WidgetMenuLines.Ask`, `WidgetTextAsk`; its
+  line marked `ItemMenuEntry.Asks`, so it has its chevron): its click opens the text level of
+  [S-3736], the field holding `Initial` (selected), its hint `Placeholder`, the reason under it while
+  the widget's check refuses what is typed (nothing while it is empty, and an empty field is refused
+  unless `AllowEmpty`), and under a rule the row that gives it (`Accept`'s words), greyed while
+  refused; Enter gives it too, and both go back. Escape or going back any other way drops it.
+- **[S-3722]** A row may be a **search** (`WidgetMenuLines.Search`, `MenuSearch`): what is chosen at
+  the end of its row; its level has the search's field pinned under its head, every answer as a row
+  under it (one row each, scrolled where there are more than the rectangle holds) and the search's
+  fixed rows after a rule (clear the choice, edit what was chosen; user request
   2026-10-19: a switch or a choice of what the widget shows stands on the first level after the
   search's line, never among them: the weather's Location name, the Clock's Offset). The empty text is asked
   as it opens; what is typed is asked once typing settles for `Settle` (at once for an answer in hand,
   the geocoder's pause, [S-2841], for a network one, "Searching…" while it is out), each answer
   replacing the one before and a newer question dropping an older one's answer; an answer may be a
-  word in place of lines (no match, offline). Enter picks the first answer, Down moves to it, and the
-  submenu stays open on a pick. The Clock's zone ([S-1478]) and the weather family's location
+  word in place of rows (no match, offline). Enter picks the first answer, Down moves to it, and the
+  level stays open on a pick. The Clock's zone ([S-1478]) and the weather family's location
   (`WeatherPlaceRows.LocationLine`, [S-6174]) are searches.
-- **[S-3725]** A search shows its **first five answers** and under them a last line **Show all (N)**
-  (user request 2026-10-19), which shows every answer until the next question (a new text typed, the
-  submenu opened again); Enter still picks the first answer. The answers' room is **always six
-  lines** (`SearchRoom`; user bug 2026-10-19: the submenu grew by Show all's line once there were
-  more than five): five answers and Show all's slot, kept empty under a word in place of answers
-  (searching, no match), fewer than five or exactly five, so the submenu keeps one height while it is
-  typed into; only Show all makes it grow, by the answers past the fifth. (Renders
-  `props-*-search-empty`, `-searching`, `-two`, `-five`, `-six`, `-six-all`, `-zone-all`.)
-- **[S-3723]** The card's own lines are one **Appearance** submenu (user request 2026-10-19: not a
-  group of their own), for every widget and for several selected: where the widget places it
-  (`PlaceCard`), else first, right after Style; a section of its own ([S-3735]). In it: Alignment;
-  then, behind a divider, the colours (Background, Item background, Item text, submenus); then,
-  behind another, Scale, a slider ([S-3731], [S-6531]); each where it applies ([S-3718]). Header is
-  not in it (user request 2026-10-19): it is the first line of the menu ([S-3735]). Its colours are the menu's
-  one colour vocabulary ([S-3724]): Background and Item background fills, Item text a colour, built
-  by the host as `ItemMenuEntry` colour lines and drawn by the same path as a widget's own; a mixed
-  selection reads as a dash and holds no dot.
+- **[S-3725]** *(Retired by [S-3734]: the menu is one fixed rectangle, so a search's level never
+  grows; every answer is a row, the rows past the rectangle's a scroll away, and there is no Show
+  all (N) and no room kept under few answers.)*
+- **[S-3723]** The card's own rows are the **Appearance** level, for every widget and for several
+  selected, reached from the pinned foot ([S-3739]): Alignment; then, behind a rule, the colours
+  (Background, Item background, Item text) and the background image; then, behind another, Scale, a
+  slider ([S-3731], [S-6531]); each where it applies ([S-3718]). Header is not in it (user request
+  2026-10-19): it is a row of the menu's own ([S-3735]). Its colours are the menu's one colour
+  vocabulary ([S-3724]): Background and Item background fills, Item text a colour, built by the
+  host as `ItemMenuEntry` colour lines and drawn by the same path as a widget's own; a mixed
+  selection reads as a dash and holds no tick.
 - **[S-3724]** A **colour** setting (`WidgetMenuLines.Colour`: `#RRGGBB`, or empty to follow the
-  default) and a **fill** setting (`WidgetMenuLines.Fill`: a `FillChoice`) are lines whose submenu is
-  the one colour submenu (`MenuColour` holds the value and what a pick does): Default (the options'
-  label; none when a colour is required, which then shows its first swatch) and a fill's Transparent
-  with the dot; the swatches (the options' presets, `ColorPresets.Surfaces` unless given, eight to a
-  row, 24 DIPs, the chosen one ticked and ringed in the accent, each one's name as its tooltip); a
-  fill's Opacity, an inline slider from 10 % to 100 % in fives (`MenuColour.OpacitySlider`, [S-3731];
+  default) and a **fill** setting (`WidgetMenuLines.Fill`: a `FillChoice`) are rows whose level is the
+  one colour level (`MenuColour` holds the value and what a pick does; Karpo's colour level):
+  Default (the options' label; none when a colour is required, which then shows its first swatch)
+  and a fill's Transparent, ticked while they hold; under a rule the swatches (the options' presets,
+  `ColorPresets.Surfaces` unless given), 24 DIPs in 32-DIP cells, eight to a line, the first under
+  the rows' icons, the chosen one ticked and ringed in the accent, each one's name as its tooltip; a
+  fill's Opacity, a one-row slider from 10 % to 100 % in fives (`MenuColour.OpacitySlider`, [S-3731];
   greyed at 100 % while the fill holds no colour; a drag of the card's own shows on the widgets as it
-  goes); Custom colour (the picker's dialog) and Pick
-  a colour from the screen (the eyedropper, [S-1556]), both only where custom colours are allowed. A
-  swatch keeps a fill's opacity. The line shows the colour's swatch in its icon column and its words
-  at the end. A pick sets and saves; the value that holds changes nothing.
+  goes); under a rule Custom colour (the picker's dialog) and Pick a colour from the screen (the
+  eyedropper, [S-1556]), both only where custom colours are allowed. A swatch keeps a fill's
+  opacity. The row shows the colour's swatch in its icon column and its words at the end. A pick
+  sets and saves; the value that holds changes nothing. There is no row of recent colours: Themia
+  keeps none.
 - **[S-3726]** A **number** (`WidgetMenuLines.Number`: a value, its range, its step and how it is
-  written) shows its value at the end of its line. Up to twenty steps it is a choice of one, one dot
-  per step; more is a line that asks for it as text ([S-3721]): the box's placeholder says the range
+  written) shows its value at the end of its row. Up to twenty steps it is a choice of one, one tick
+  per step; more is a row that asks for it as text ([S-3721], [S-3736]): the field's placeholder says the range
   in the number's own words, its unit included ("Enter a number from 15 min to 720 min", the line's
   format; the calendar's custom range in days), refused outside the range with the same words as the
   reason, a decimal comma read as a point, and rounded to the nearest step.
-- **[S-3727]** A **confirmed** line (`WidgetMenuLines.Confirm`) asks beside the menu before it does
-  what cannot be undone (a history cleared): the app's one question (`ConfirmFlyout`: the question,
-  the action and Cancel, and under the question what goes with it where the line says (`detail`: the
-  habits and streaks of a habit list, a note's text for every widget showing it, a task list's tasks);
-  only the action runs it and saves, Cancel, Escape or a click away change
-  nothing, and with nothing to ask nothing runs. A danger line's words and icon are the critical colour,
-  and so is its question's action: a dangerous question is Windows' destructive confirm
-  (`ConfirmLook`: the action filled with the critical colour, never the accent, and the keyboard on
-  Cancel, so Enter straight after it keeps everything); any other question offers its action as the
-  accent button. What is asked beside a menu is in the menu's theme (`ConfirmFlyout.Presenter`): a
-  flyout is a popup of its own, which otherwise takes Windows' theme, so a dark Themia under a light
-  Windows drew Themia's light words on a light surface. The debug renders draw a question on the
-  solid colour its acrylic stands for (a bitmap leaves acrylic out). Tests `ConfirmLookTests`.
-- **[S-3728]** A **note** (`WidgetMenuLines.Note`) is words only, in the disabled colour, never
-  clickable (a data source's credit): wrapped to five lines within the menu's width, trimmed past
-  them, the whole as its tooltip (three cut Windows' startup advice and the alarm's note short, in
-  English already).
+- **[S-3727]** A **confirmed** row (`WidgetMenuLines.Confirm`, its line `Asks`) asks first, on the
+  "are you sure?" level of [S-3737]: the question, and under it what goes with it where the row says
+  (`detail`: the habits and streaks of a habit list, a note's text for every widget showing it, a
+  task list's tasks), then the action and Cancel; only the action runs it and saves (and goes back),
+  Cancel, Escape or going back change nothing, and with nothing to ask nothing runs. A danger row's
+  words and icon are the critical colour, and so is its question's action, the keyboard on Cancel
+  so Enter straight after it keeps everything; any other question's keyboard is on its action.
+  (Karpo asks in Windows' task dialog and closes its menu; Themia's menu stands on a no-activate
+  desktop surface where a dialog cannot be owned reliably, so the question stays in the one
+  rectangle, as everything else the menu asks does.) Tests `ConfirmLookTests` (the widgets' own
+  questions, which still stand beside what they ask about).
+- **[S-3728]** A **note** (`WidgetMenuLines.Note`) is words only, in the tertiary colour and the 12-DIP
+  size, where a row's words start, wrapped in full within the menu's width (a data source's credit);
+  never lit, never picked, skipped by the keys.
 - **[S-3729]** An **editable list** (`WidgetMenuLines.List` over a `MenuList<T>`: feeds, symbols,
-  hosts, shortcuts) is a submenu of its items, each a submenu of its own: Rename… (asked for, starting
-  from the name; saved only when it changed), the list's own lines for it and Remove; the items' lines
+  hosts, shortcuts) is a level of its items, each a level of its own: Rename… (a text level, starting
+  from the name; saved only when it changed), the list's own rows for it and Remove; the items' rows
   are dragged up and down to reorder ([S-3732]; not for a list whose order means nothing), so there
   is no Move up or Move down (user request 2026-10-19); while there are none, its
-  empty sentence as a note; then Add… (asked for and checked as it is typed) or the caller's add
-  lines, greyed at the list's limit; Remove is greyed at its fewest (`Min`: a table's last column).
+  empty sentence as a note; then Add… (a text level, checked as it is typed) or the caller's add
+  rows, greyed at the list's limit; Remove is greyed at its fewest (`Min`: a table's last column).
   Every change is made in the list and saved.
 - **[S-3730]** A **folder** (`WidgetMenuLines.PickFolder`) is a line with the folder's name at its
   end (a drive as itself) whose click opens Windows' folder picker (`FolderBrowse.PickAsync`, the one
   picker the settings' path boxes use too); a folder picked sets and saves, a cancel changes nothing.
 - **[S-3731]** A **slider** (`WidgetMenuLines.Slider`, `MenuSlider`; user request 2026-10-19: the
-  card's Scale and a fill's Opacity, and a widget's own number set by feel) is one 32-DIP line: the
-  icon column, its words, the slider and its value as the line writes it, its end column kept so the
-  value stands in the values' column; the words keep their room ([S-3734]), the 100-DIP track giving
-  way to long words down to 64 DIPs. Words longer than that ("Gap between widgets", most languages'
-  longer words) keep the line to themselves and their value, and the track runs under them, from
-  where the words start to the value's end: one line of two rows, never words cut to "Gap
-  between…" beside a track (user bug 2026-10-25: "Animation length" read "Animation len…"). A drag shows the value at the line's end as it goes (and, for
-  the card's Scale and fills, on the selected widgets: `CardPreview`, painted only) and **stores once
-  on the release**, one change and one undo step; a key (Left, Right, Home, End, Page Up/Down) steps
-  it and stores the step; Up and Down move between the lines as on any line. A value is kept inside
-  the range on the step's grain (`MenuSlider.Snap`); the value that holds stores nothing. A mixed
-  selection's slider reads as a dash. Closing its submenu mid-drag stores nothing.
-- **[S-3732]** An **ordered list**'s item lines ([S-3729], `ItemMenuEntry.Order`, `MenuOrder`) are
-  **dragged up and down** inside their submenu (user request 2026-10-19): a mouse press that travels 4
-  DIPs ([S-913]) starts it (the line fades, the open item submenu closes), an accent drop line shows
+  card's Scale and a fill's Opacity, and a widget's own number set by feel) is **one row** as every
+  row (user request 2026-10-26: "the configuration items should only be 1 entry high"; Karpo has
+  steppers there, but sliders were asked for): the icon column, its words, a compact 96-DIP track
+  and its value right-aligned in the values' column; the track gives way to long words down to 64
+  DIPs, and words longer still are trimmed, the whole their tooltip: the row never grows a second
+  line (the two-row slider of 2026-10-25 is gone). A drag shows the value at the row's end as it goes
+  (and, for the card's Scale and fills, on the selected widgets: `CardPreview`, painted only) and
+  **stores once on the release**, one change and one undo step; a key (Left, Right, Home, End, Page
+  Up/Down) steps it and stores the step; Up and Down move between the rows as on any row. A value is
+  kept inside the range on the step's grain (`MenuSlider.Snap`); the value that holds stores
+  nothing. A mixed selection's slider reads as a dash. Leaving its level mid-drag stores nothing.
+- **[S-3732]** An **ordered list**'s item rows ([S-3729], `ItemMenuEntry.Order`, `MenuOrder`) are
+  **dragged up and down** inside their level (user request 2026-10-19): a mouse press that travels 4
+  DIPs ([S-913]) starts it (the row fades), an accent drop line shows
   the gap it lands in (`ListDrop.Gap`: before the first line whose middle is below the pointer), and
   the release moves the item there (`ListDrop.Target`; the gaps either side of it leave it where it
   is) and saves once. It is drawn in the panel's own window with the pointer captured, never an OLE
@@ -2088,38 +2102,84 @@ and the SDK's `Settings/ListDrop.cs` (tests `QuickSetTests`, `StripPlacementTest
   ever moved anything). A drag ends once. Tests `ListDragTests`.
 - **[S-3748]** **Ctrl+Up / Down** on a menu list's highlighted row moves it a place, as Karpo's menus
   do (`ReorderKeys.MenuDelta`); the Windows lists' Alt+Shift+Up / Down ([S-3802]) does the same there.
-- **[S-3733]** Where a **submenu** stands (`SubmenuPlacement.Place`; user request 2026-10-19):
-  beside its parent level, its first line level with the line that opened it, inside the work area,
-  covering neither the selected widgets' box ([S-3709]), the edit bar and the view bar, nor its
-  parent and the levels above it (a submenu laps 4 DIPs over its parent's padding, never over a line,
-  and that is not counted). In order: the parent's end side at the line, its start side, then both
-  slid up or down to just clear of each thing in the way (the nearest first, the end side first on a
-  tie), then the same beside the levels further up (beyond the panel, where the parent is hemmed in
-  between the panel and the screen's edge); the first that covers nothing stands, and only when
-  every place covers something the one covering least. Right to left the sides mirror. The surface
-  gives the panel the work area, the selection's box and the bars each time it places it
-  (`MenuRoom`), and the open submenus are placed again then. A submenu is never taller than
-  the work area: its lines scroll.
-- **[S-3734]** The panel and **every submenu are one width**, 300 DIPs (user request 2026-10-19),
-  searches included: room for a city and its country and for "Item background" with its colour's
-  name, so the levels line up and the panel never changes size as it is used (and the panel's
-  placement, [S-3708], measures that width). What the menu asks beside itself, a line of text
-  ([S-3721]) and the "are you sure?" ([S-3727]), stands at that width too (user request 2026-10-19:
-  every configuration modal one width), its words wrapped inside it. Words or a value longer than
-  their room (a slider's words longer than its whole line, [S-3731]) are trimmed with an ellipsis and shown whole as their tooltip; the words keep the room
-  before a long value: a value is at most 160 DIPs and gives way to its line's words, the gap before it narrowing first, down to 48
-  ("Output device" read "Output d…" beside a device's long name, "Pause during full-…" beside
-  "Paused now"). (Renders `props-*-vocabulary-ask` and `-confirm`, each with its `-popup0`.)
-- **[S-3735]** The menu's **sections** (user request 2026-10-19), a divider between each: the icon
-  row; the **Header** line; Style and the options only that look draws; the widget's own lines in the
-  sections it marks with separators; Appearance (where the widget places it, a section of its own).
-  The Header line's value is the title as it reads (the kind's name for none) for one widget, where
-  the header stands for several (a dash when they differ); its submenu holds, for one widget, the
-  title box ([S-3704]) and a divider, then the header's positions (Top, Bottom, Left, Right, Hidden,
-  each with its icon, the dot on the one that holds). Several get the positions only. A selection
-  holding a kind that never has a header has no Header line ([S-3711]).
+- **[S-3733]** *(Retired by [S-3718]: a level opens in place in the one rectangle, so no submenu
+  stands beside another and nothing places one; `SubmenuPlacement` and `MenuRoom` are gone.)*
+- **[S-3734]** The panel is **one fixed rectangle**, 320 × 440 DIPs (Karpo's `SettingsWidthDip` and
+  `SettingsHeightDip`; user request 2026-10-26: "the size of the menus should be the same as in
+  karpo … right now they are a little bigger"), times Windows' text size where that is above 100 %,
+  its height no more than the room where it stands (the work area beside the selection, under the
+  edit bar): the same on every level, a field's and a question's too, and the same for every widget
+  and every bar menu. A shorter level's rows stand at its top, a longer one scrolls inside (a notch of
+  the wheel 48 DIPs, the scroll bar between the pinned bands). Going in and back, a refresh, typing:
+  it never moves or changes size. Karpo's padding: 3 DIPs (its rim counted) over the first row and
+  under the last, 1 over the top row and 3 under its rule. Words or a value longer than their room
+  share the row as Karpo's do (`MenuShare`): both whole where both fit; else the shorter keeps all it
+  needs where that is within its share (the value two fifths, the words the rest) and the other has
+  what is left; else each its share, both trimmed with an ellipsis and shown whole as their tooltip.
+  (Renders `props-*`, `settings-*`, `views-*`, `display-*`; measured 320 × 440 with rows 32 apart,
+  the icon at 16 and the words at 44.)
+- **[S-3735]** The menu's **sections** (user request 2026-10-19), a rule between each: the top row;
+  Style and the options only that look draws; the **Header** row; the widget's own rows in the
+  sections it marks with separators; and the pinned Appearance foot ([S-3739]). The Header row's
+  value is the title as it reads (the kind's name for none) for one widget, where the header stands
+  for several (a dash when they differ); its level holds, for one widget, the Title row ([S-3704]) and
+  a rule, then the header's positions (Top, Bottom, Left, Right, Hidden, each with its icon, the tick
+  on the one that holds). Several get the positions only. A selection holding a kind that never has a
+  header has no Header row ([S-3711]).
+- **[S-3736]** **A line of text is a level of its own** (Karpo's, §246; user request 2026-10-26: "if
+  possible bring everything into the context menu form"): its row is its words, what it holds as its
+  value and the chevron (a password's ●●●●●●●●, [S-3556]); a click opens a level holding the field
+  alone, filling a row's 28-DIP fill (Windows 11's text box: its faint fill, the accent line while it
+  has the keyboard, its clear button), the hint saying what to type, the keyboard in it with its words
+  selected; under it the reason it cannot be given while it cannot (the critical colour), and where
+  the question has words for it the row that gives it (Add, Save), greyed while refused. Enter gives
+  it and goes back; Escape puts back what it held and goes back; going back any other way keeps what
+  was typed for a value being edited (a title, a form's field) and drops it for a question with a
+  giving row. A form's field hands each letter to the form as it is typed. Every free text of the
+  menus takes this one path: a widget's `Ask` ([S-3721]), a list's Rename… and Add… ([S-3729]), a
+  number typed ([S-3726]), the title ([S-3704]), a view's or an account's name ([S-3542], [S-3551]),
+  and every field of the account forms ([S-3554]); nothing is asked beside the menu any more.
+- **[S-3737]** **An "are you sure?" is a level of its own**: its head the row that asked (or, asked
+  with none in hand, the question's action: an import's, once Windows' dialog has gone), the question
+  in the text's colour and size and what goes with it under it as a note, a rule, then the action
+  (the critical colour where it destroys something) and Cancel, each one row. The action goes back
+  and does it; Cancel, Escape and going back do nothing. A dangerous question has the keyboard on
+  Cancel. Every confirmation of the menus takes this one path ([S-3727], [S-3527], [S-3542],
+  [S-3551], [S-3576], [S-3578]).
+- **[S-3738]** A level's rows (and its head) **slide in** 16 DIPs over 167 ms, decelerating
+  (cubic-bezier (0, 0)–(0, 1)): entering from the end, going back from the start, right to left
+  mirrored; only their offset moves, never their opacity, and not at all while Windows' animations
+  are off ([S-1010]).
+- **[S-3739]** The card's look is the **pinned foot** of the widget menu (Karpo's, §276, §311, §314;
+  user request 2026-10-26: "appearance settings are pinned on the bottom"): one rule, then the
+  **Appearance ›** row (the palette glyph, its value the card's own background swatch while it has
+  one), standing still at the bottom of the rectangle while the rows scroll under it, on the menu's
+  own rows only (a level has none). Its level is [S-3723]'s. The bar's menus have no foot.
+- **[S-3740]** A **heading** (`SettingsHeading`) is a 32-DIP row of 12-DIP semibold words in the
+  secondary colour, 16 DIPs in, over a group (Display ▾'s All displays); never picked.
+- **[S-3741]** A **switch** (a toggle: `WidgetMenuLines.Toggle`, `SettingsToggle`) is Windows' toggle
+  at the row's end (40 × 20 DIPs, the 12-DIP knob, the accent while on), never a tick; the whole row
+  is the switch: a click anywhere on it flips it and the menu stays. Narrator hears On or Off.
+- **[S-3742]** A level with **more than ten rows to pick** and no field of its own (a long choice: the
+  languages, the time zones' answers aside) has a **filter** pinned under its head (Karpo's,
+  `MenuPanel.Searchable`), taking the keyboard as the level opens: each letter typed keeps the rows
+  whose words or keywords hold it ("No results" when none does), Enter picks the first kept, Down
+  moves to it, Escape empties it first. Ten or fewer stay a plain list. Its hint is the choice's own
+  ("Find a language") or "Search".
+- **[S-3743]** The menus' **keys** (Karpo's): Up and Down move to the nearest row, no wrap; Tab and
+  Shift+Tab go round and stay in the menu; Home and End reach the first and the last row; Right (Left
+  right to left), Enter and Space open a row's level; Left (Right right to left), Escape, Backspace
+  and the mouse's back button go back; Escape on the menu's own rows is the menu's ([S-3521],
+  [S-3707]); Ctrl+Up / Down reorders ([S-3748]). A field keeps its own Backspace and arrows. A level
+  opened from the keyboard puts the keyboard on its field or its first row; one left puts it back on
+  the row it came from.
+- **[S-3749]** A **link row** (Karpo's, §351): a setting another menu owns, never a copy of it
+  (`ItemMenuEntry.LinkTo`, `SettingsLink`): the owner's icon and words, Windows' "open in new window"
+  mark (E8A7) at its end and no chevron, its tooltip "Opens Accounts"; a pick closes the menu and
+  opens the owner's menu at the level that sets it. A widget's Manage accounts and Add an account are
+  links to ⚙ › Accounts ([S-3745]).
 - **[S-3745]** An account widget's lines open **⚙ › Accounts** on the widget's display ([S-3558];
-  `WidgetMenuLines.AccountsLine`: Manage accounts, Add an account) through the host's `ShowAccounts`;
+  `WidgetMenuLines.AccountsLine`: Manage accounts, Add an account, link rows, [S-3749]) through the host's `ShowAccounts`;
   the line changes and saves nothing, and is greyed where the host has no edit bar (a test). No account is ever signed
   in from a widget's menu.
 - **[S-3746]** A line may show what is **read asynchronously** (an account's calendars, its task
@@ -2238,8 +2298,8 @@ and the SDK's `Settings/ListDrop.cs` (tests `QuickSetTests`, `StripPlacementTest
   it), the readings under it keep their grid; the large-icon and minimal reading and the gauge; the
   rate and the price; the countdown's lines, ring and cards; the quote's mark, lines and author; the
   moon's disc and name over its rows (beside the disc on a strip the text still reads from it).
-- **[S-6584]** The properties panel's **Alignment** line, after Header: a submenu of Left, Centre
-  and Right (Segoe AlignLeft, AlignCenter, AlignRight), the current one with the dot, none for a
+- **[S-6584]** The properties panel's **Alignment** row, first in Appearance: a level of Left, Centre
+  and Right (Segoe AlignLeft, AlignCenter, AlignRight), the current one ticked, none for a
   mixed selection. A pick sets every selected widget that aligns in its style (`QuickSet.SetAlign`;
   the others keep theirs) in one `Mutate`, one undo step. Where none does (a kind with nothing to
   align, or one that aligns only in another style), the line is not there ([S-3718]).
@@ -2255,17 +2315,19 @@ and the SDK's `Settings/ListDrop.cs` (tests `QuickSetTests`, `StripPlacementTest
   right edge of the display), `-below.png` (a widget spanning the width), `-many.png` (three of mixed
   headers and scales, "3 selected"), `-toggle.png` (a Wi-Fi toggle), `-hidden.png` (header hidden,
   beside the same kind with a header), [S-6569] `-fills.png` (flip clocks with the background
-  Default, Transparent and a colour at 50 %, and item backgrounds to match), and submenus opened
+  Default, Transparent and a colour at 50 %, and item backgrounds to match), and levels opened
   along a path as clicks open them: `-picker.png` (Appearance › Background: Default, Transparent, the
   swatches, Opacity), `-noitems.png` (a stopwatch's Appearance: no item lines), `-countdown-appearance.png`
   (a countdown's Appearance), `-many-appearance.png` (two selected, Appearance › Item text), the
-  Shortcuts, Clock and weather submenus, `-clock-zone*.png` (a search with a few answers, many with
-  Show all, and none), [S-1862] `-setup-*.png` (the menu as the Set up button opens it: the weather's
+  Shortcuts, Clock and weather levels, `-clock-zone*.png` (a search with a few answers, many, and
+  none), `-search-zone-end.png` (the zone's 41 answers scrolled to their end under the pinned head
+  and field), [S-1862] `-setup-*.png` (the menu as the Set up button opens it: the weather's
   location search, the feeds, the stock's symbol search, the pictures' folder), [S-3724]..[S-3731] `-vocabulary*.png` (a stand-in widget with one line of
-  each kind, a slider among them, its list and its colour open), [S-3735] `-header.png` and
-  `-many-header.png` (the Header submenu for one and for several), [S-3733] `-flip-right.png` (a
-  widget at the right edge: the panel on its left and Appearance › Background further left),
-  `-flip-bottom.png` (one at the bottom: the submenus slid up), `-flip-wide.png` (a wide widget), and
+  each kind, switches and sliders among them, a link, its list, an item's level, its colour, a
+  number's field level, refused, and its "are you sure?" level), [S-3735] `-header.png` and
+  `-many-header.png` (the Header level for one and for several), [S-3736] `-header-title.png` (the
+  title's field level), [S-3734] `-flip-right.png` (a widget at the right edge: the menu on its left),
+  `-flip-bottom.png` (one at the bottom: the menu slid up inside the area), `-flip-wide.png` (a wide widget), and
   [S-3732] `-shortcuts-drag.png` (the shortcuts' list with a line held mid-drag over its drop line),
   all over a busy stand-in wallpaper so the panel's surface
   is judged against one ([S-3715]). The render cannot show the drop shadow (a composition visual is
@@ -3649,7 +3711,7 @@ is gone ([S-3585]). Owning files: `Shell/ColorChoice.cs`, `Interop/ScreenColorPi
 - **[S-1546]** *(Retired by [S-3585]: there is no settings window, so no landing on a search result.)*
 - **[S-1547]** *(Retired by [S-3585]: there is no settings window, so no back and forward through pages (`NavHistory`).)*
 - **[S-1548]** *(Retired by [S-3585]: there is no settings window, so no the `--settings-png` render.)*
-- **[S-1549]** Colours are never typed. Every colour is the menus' one colour submenu ([S-3724]):
+- **[S-1549]** Colours are never typed. Every colour is the menus' one colour level ([S-3724]):
   "use the default" (where empty means follow the theme), the preset swatches in rows of 8 (Windows'
   48 accent colours by default; a neutral row first for surfaces; a setting may give its own set),
   and "Custom colour" opening WinUI's `ColorPicker` in a dialog with no text entry (`ColorChoice`).
@@ -7287,9 +7349,9 @@ gallery ([S-1863]).
   week planner, Tasks from an account), **⚙ › Accounts** on that display, edit mode entered ([S-3558]),
   since an account is added there and never from a widget's menu ([S-3745]); otherwise **edit mode**
   is entered, the widget is selected alone and its **properties menu** ([S-3716]) opens at the line
-  its module names for it (`WidgetMenuLines.SetsUp`, one per widget), through the submenus on the
-  way, as clicks would (`MenuPanel.OpenSetup`): a submenu or a search opens, any other line runs
-  as its click does. The lines named: the location's search for Weather now, the forecast, Air
+  its module names for it (`WidgetMenuLines.SetsUp`, one per widget), through the levels on the
+  way, as clicks would (`MenuPanel.OpenSetup`): a level or a search opens in place, a line of text
+  its field's level, any other line runs as its click does. The lines named: the location's search for Weather now, the forecast, Air
   quality and Rain; the feeds for Feed; the symbol's search for Stocks; the day, asked for, for
   Countdown; the address, asked for, for Video stream; the quotes for Quote; Add for Shortcuts; the
   folder or the picture for Pictures. A module that names none leaves the menu as it stands. The card

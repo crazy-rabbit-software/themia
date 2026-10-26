@@ -1,3 +1,8 @@
 {
-  "menu.rename": "नाम बदलें…"
+  "menu.rename": "नाम बदलें…",
+  "menu.add": "जोड़ें…",
+  "menu.numberRange": "{min} से {max} तक कोई संख्या डालें",
+  "menu.reorderHint": "क्रम बदलने के लिए खींचें, या Ctrl+Up या Ctrl+Down दबाएँ",
+  "menu.filter": "खोजें",
+  "menu.opensIn": "{name} खोलता है"
 }

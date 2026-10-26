@@ -79,7 +79,7 @@ public sealed class DisplayMenuTests
             [DisplayMenu.Keys.Heading, DisplayMenu.Keys.Scale, Bar, "-", DisplayMenu.Keys.All, DisplayMenu.Keys.NewDisplays, DisplayMenu.Keys.ShowOn],
             keys);
         Assert.Equal("Screen a — 1920 × 1080", At<SettingsNote>(host, DisplayMenu.Keys.Heading).Text);
-        Assert.Equal(Str.BarMenus_Display_All.Text(), At<SettingsNote>(host, DisplayMenu.Keys.All).Text);
+        Assert.Equal(Str.BarMenus_Display_All.Text(), At<SettingsHeading>(host, DisplayMenu.Keys.All).Text);
     }
 
     [Fact]

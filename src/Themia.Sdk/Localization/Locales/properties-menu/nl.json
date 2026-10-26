@@ -1,3 +1,8 @@
 {
-  "menu.rename": "Naam wijzigen…"
+  "menu.rename": "Naam wijzigen…",
+  "menu.add": "Toevoegen…",
+  "menu.numberRange": "Voer een getal in van {min} tot {max}",
+  "menu.reorderHint": "Sleep om de volgorde te wijzigen, of druk op Ctrl+Pijl-omhoog of Ctrl+Pijl-omlaag",
+  "menu.filter": "Zoeken",
+  "menu.opensIn": "Opent {name}"
 }

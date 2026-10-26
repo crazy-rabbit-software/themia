@@ -147,19 +147,12 @@ public static class ConfirmFlyout
     /// [S-3727] The style of a flyout's presenter in the theme of what it stands beside: a flyout is a
     /// popup of its own, outside the tree whose root carries Themia's theme, so without this it takes
     /// the application's (Windows') theme, and on a dark Themia under a light Windows it drew its
-    /// light surface under Themia's light words. <paramref name="width"/> fixes its width ([S-3734]).
+    /// light surface under Themia's light words.
     /// </summary>
-    public static Style Presenter(ElementTheme theme, double? width = null)
+    private static Style Presenter(ElementTheme theme)
     {
         var style = new Style(typeof(FlyoutPresenter));
         style.Setters.Add(new Setter(FrameworkElement.RequestedThemeProperty, theme));
-        if (width is { } fixedWidth)
-        {
-            style.Setters.Add(new Setter(FrameworkElement.WidthProperty, fixedWidth));
-            style.Setters.Add(new Setter(FrameworkElement.MinWidthProperty, fixedWidth));
-            style.Setters.Add(new Setter(FrameworkElement.MaxWidthProperty, fixedWidth));
-        }
-
         return style;
     }
 

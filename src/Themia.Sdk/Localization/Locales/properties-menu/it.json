@@ -1,3 +1,8 @@
 {
-  "menu.rename": "Rinomina…"
+  "menu.rename": "Rinomina…",
+  "menu.add": "Aggiungi…",
+  "menu.numberRange": "Inserisci un numero da {min} a {max}",
+  "menu.reorderHint": "Trascina per riordinare, oppure premi Ctrl+Su o Ctrl+Giù",
+  "menu.filter": "Cerca",
+  "menu.opensIn": "Apre {name}"
 }

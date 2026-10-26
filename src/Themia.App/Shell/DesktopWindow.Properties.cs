@@ -95,11 +95,14 @@ internal sealed partial class DesktopWindow
             return;
         }
 
+        var area = GridGeometry.AllowedPixels(metrics);
+
+        // [S-3734] Its one rectangle, no taller than the work area with a gap at either end.
+        _properties.RoomHeight = area.Height - (2 * StripPlacement.Gap);
         _properties.Visibility = Visibility.Visible;
         _properties.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
         var size = _properties.DesiredSize;
 
-        var area = GridGeometry.AllowedPixels(metrics);
         var avoid = new List<PixelRect> { ToolbarRect(area) };
         if (ViewBarBox() is { } bar)
         {
@@ -110,9 +113,6 @@ internal sealed partial class DesktopWindow
         var spot = StripPlacement.Place(target, size.Width, size.Height, area, avoid, UiLanguage.Flow == FlowDirection.RightToLeft);
         Canvas.SetLeft(_properties, Math.Round(spot.X));
         Canvas.SetTop(_properties, Math.Round(spot.Y));
-
-        // [S-3733] Its submenus keep clear of the selection, the bars and the levels above them.
-        _properties.Room = new MenuRoom(area, target, avoid);
     }
 
     /// <summary>[S-3709] The painted box around every selected card this display shows, where it is now.</summary>

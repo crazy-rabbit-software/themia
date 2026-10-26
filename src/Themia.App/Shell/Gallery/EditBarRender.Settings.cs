@@ -22,7 +22,7 @@ namespace Themia.App.Shell.Gallery;
 /// <c>-online</c>, <c>-online-weather</c>, <c>-language</c>, <c>-language-display</c>, <c>-language-clock</c>),
 /// <c>-language-find</c> (the languages' box holding "deu"), <c>-advice</c> (Start with Windows turned off in
 /// Windows, game mode holding the widgets, Windows' animations off) and <c>-replace</c> (a preset
-/// picked over a look of one's own: the question beside the menu, its <c>-popup0</c>). A stand-in
+/// picked over a look of one's own: its "are you sure?" level), <c>-language-end</c> (the languages scrolled to their end). A stand-in
 /// host: nothing reaches Windows or the user's state.
 /// </summary>
 internal static partial class EditBarRender
@@ -58,9 +58,12 @@ internal static partial class EditBarRender
             await SettingsShot(screen, System.IO.Path.Combine(outDir, $"settings-{theme}{name}.png"), new RenderSettingsHost(), open).ConfigureAwait(true);
         }
 
-        // [S-3537] The languages' box finds a language as it is typed.
+        // [S-3742] The languages' filter finds a language as it is typed; [S-3734] the list scrolled to
+        // its end under its pinned head and filter.
         await SettingsShot(screen, System.IO.Path.Combine(outDir, $"settings-{theme}-language-find.png"), new RenderSettingsHost(),
             [SettingsMenu.Keys.Language, SettingsMenu.Keys.Language + "/display"], menu => menu.DebugType("deu")).ConfigureAwait(true);
+        await SettingsShot(screen, System.IO.Path.Combine(outDir, $"settings-{theme}-language-end.png"), new RenderSettingsHost(),
+            [SettingsMenu.Keys.Language, SettingsMenu.Keys.Language + "/display"], menu => menu.DebugScrollToEnd()).ConfigureAwait(true);
 
         // [S-3525] [S-3529] What holds against a setting is said: start with Windows turned off in
         // Windows (the advice under it), game mode holding the widgets, Windows' animations off.
@@ -73,11 +76,10 @@ internal static partial class EditBarRender
         advice.State.Preferences.GameModeSuspend = true;
         await SettingsShot(screen, System.IO.Path.Combine(outDir, $"settings-{theme}-advice.png"), advice, [a, a + "/motion"]).ConfigureAwait(true);
 
-        // [S-3527] A preset picked over a look of one's own asks beside the menu first.
+        // [S-3527] A preset picked over a look of one's own asks first, on a level of its own.
         var custom = new RenderSettingsHost();
         custom.State.Design.CornerRadiusPx = 17;
         custom.State.Design.PrimaryColor = "#3A6EA5";
-        ConfirmFlyout.RenderInWindow = true;
         await SettingsShot(screen, System.IO.Path.Combine(outDir, $"settings-{theme}-replace.png"), custom, [a, a + "/style", a + "/style/" + DesignPresets.All[1].Id]).ConfigureAwait(true);
 
         // [S-3560] ⚙ › Accounts over stand-in accounts.

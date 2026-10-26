@@ -1,3 +1,8 @@
 {
-  "menu.rename": "Yeniden adlandır…"
+  "menu.rename": "Yeniden adlandır…",
+  "menu.add": "Ekle…",
+  "menu.numberRange": "{min} ile {max} arasında bir sayı girin",
+  "menu.reorderHint": "Yeniden sıralamak için sürükleyin veya Ctrl+Yukarı ya da Ctrl+Aşağı tuşlarına basın",
+  "menu.filter": "Ara",
+  "menu.opensIn": "{name} öğesini açar"
 }

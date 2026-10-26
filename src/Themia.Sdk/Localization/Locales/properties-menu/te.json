@@ -1,3 +1,8 @@
 {
-  "menu.rename": "పేరు మార్చు…"
+  "menu.rename": "పేరు మార్చు…",
+  "menu.add": "జోడించు…",
+  "menu.numberRange": "{min} నుండి {max} వరకు ఒక సంఖ్యను నమోదు చేయండి",
+  "menu.reorderHint": "క్రమం మార్చడానికి లాగండి, లేదా Ctrl+Up లేదా Ctrl+Down నొక్కండి",
+  "menu.filter": "శోధించు",
+  "menu.opensIn": "{name}ను తెరుస్తుంది"
 }

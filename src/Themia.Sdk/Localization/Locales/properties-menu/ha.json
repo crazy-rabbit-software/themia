@@ -1,3 +1,8 @@
 {
-  "menu.rename": "Sake suna…"
+  "menu.rename": "Sake suna…",
+  "menu.add": "Ƙara…",
+  "menu.numberRange": "Shigar da lamba daga {min} zuwa {max}",
+  "menu.reorderHint": "Ja don sake tsarawa, ko danna Ctrl+Up ko Ctrl+Down",
+  "menu.filter": "Bincika",
+  "menu.opensIn": "Yana buɗe {name}"
 }

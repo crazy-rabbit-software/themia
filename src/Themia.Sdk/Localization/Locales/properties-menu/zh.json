@@ -1,3 +1,8 @@
 {
-  "menu.rename": "重命名…"
+  "menu.rename": "重命名…",
+  "menu.add": "添加…",
+  "menu.numberRange": "输入 {min} 到 {max} 之间的数字",
+  "menu.reorderHint": "拖动以重新排序，或按 Ctrl+向上键或 Ctrl+向下键",
+  "menu.filter": "搜索",
+  "menu.opensIn": "打开{name}"
 }

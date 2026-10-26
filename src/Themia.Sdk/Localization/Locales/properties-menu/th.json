@@ -1,3 +1,8 @@
 {
-  "menu.rename": "เปลี่ยนชื่อ…"
+  "menu.rename": "เปลี่ยนชื่อ…",
+  "menu.add": "เพิ่ม…",
+  "menu.numberRange": "ป้อนตัวเลขตั้งแต่ {min} ถึง {max}",
+  "menu.reorderHint": "ลากเพื่อจัดลำดับใหม่ หรือกด Ctrl+ลูกศรขึ้น หรือ Ctrl+ลูกศรลง",
+  "menu.filter": "ค้นหา",
+  "menu.opensIn": "เปิด {name}"
 }

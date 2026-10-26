@@ -1,3 +1,8 @@
 {
-  "menu.rename": "নাম পরিবর্তন করুন…"
+  "menu.rename": "নাম পরিবর্তন করুন…",
+  "menu.add": "যোগ করুন…",
+  "menu.numberRange": "{min} থেকে {max} পর্যন্ত একটি সংখ্যা লিখুন",
+  "menu.reorderHint": "ক্রম বদলাতে টেনে আনুন, অথবা Ctrl+Up বা Ctrl+Down চাপুন",
+  "menu.filter": "খুঁজুন",
+  "menu.opensIn": "{name} খোলে"
 }

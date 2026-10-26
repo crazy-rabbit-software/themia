@@ -1,3 +1,8 @@
 {
-  "menu.rename": "Переименовать…"
+  "menu.rename": "Переименовать…",
+  "menu.add": "Добавить…",
+  "menu.numberRange": "Введите число от {min} до {max}",
+  "menu.reorderHint": "Перетащите, чтобы изменить порядок, или нажмите Ctrl+Стрелка вверх или Ctrl+Стрелка вниз",
+  "menu.filter": "Поиск",
+  "menu.opensIn": "Открывает «{name}»"
 }

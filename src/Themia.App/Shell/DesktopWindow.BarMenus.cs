@@ -80,7 +80,7 @@ internal sealed partial class DesktopWindow
         if (_openBarMenu is null)
         {
             // [S-3523] One menu at a time: the selection's goes away (the selection stays) and comes back on close.
-            _properties.CloseSubmenus();
+            _properties.ShowRoot();
             _openBarMenu = which;
             menu.Visibility = Visibility.Visible;
             _toolbar.MenuOpen(which);
@@ -182,7 +182,8 @@ internal sealed partial class DesktopWindow
 
     /// <summary>
     /// [S-3522] Under its button: its start edge level with the button's, 4 DIPs under the bar, inside
-    /// the work area, clear of the view bar (<see cref="DropDownPlacement"/>); its submenus clear of the bars.
+    /// the work area, clear of the view bar (<see cref="DropDownPlacement"/>); [S-3734] its one
+    /// rectangle no taller than the work area under the bar.
     /// </summary>
     private void PlaceBarMenu()
     {
@@ -208,16 +209,13 @@ internal sealed partial class DesktopWindow
 
         var button = _toolbar.MenuButtonBox(which, _propertiesLayer) ?? new PixelRect(bar.X + bar.Width - (2 * EditBar.ButtonSize), bar.Y, EditBar.ButtonSize, bar.Height);
 
-        // [S-3540] [S-918] A long list (many views) scrolls inside the work area under the bar.
-        menu.MaxListHeight = DropDownPlacement.Room(bar, area);
+        // [S-3540] [S-918] [S-3734] The menu's one height, no taller than the work area under the bar: a long level scrolls inside.
+        menu.RoomHeight = DropDownPlacement.Room(bar, area);
         menu.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
         var size = menu.DesiredSize;
 
         var (x, y) = DropDownPlacement.Place(button, bar, size.Width, size.Height, area, bars, UiLanguage.Flow == FlowDirection.RightToLeft);
         Canvas.SetLeft(menu, Math.Round(x));
         Canvas.SetTop(menu, Math.Round(y));
-
-        // [S-3733] Its submenus keep clear of the bars and the levels above them.
-        menu.Room = new MenuRoom(area, null, bars);
     }
 }

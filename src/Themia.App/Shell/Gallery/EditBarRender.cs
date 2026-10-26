@@ -304,13 +304,14 @@ internal static partial class EditBarRender
             (shortcuts, "shortcuts-items", "Shortcuts", null),
             (clock, "clock-style", Str.Styles_Label.Text(), null),
 
-            // [S-3735] The Header submenu: the title box and the positions for one, the positions for several.
+            // [S-3735] The Header level: the Title row and the positions for one, the positions for several;
+            // [S-3736] the Title's own level, the field alone.
             (clock, "header", header, null),
+            (clock, "header-title", header + "/" + Str.Group_Title_Label.Text(), null),
             (many, "many-header", header, null),
 
-            // [S-3733] Where a submenu goes when the end side would cover something: a widget at the
-            // work area's right edge (the panel on its left, the submenus further left), one at its
-            // bottom (slid up inside the area), and a second level clear of the first.
+            // [S-3734] The one rectangle wherever it stands: beside a widget at the work area's right
+            // edge (on its left), one at its bottom (slid up inside the area), and a wide one.
             ([new(new WidgetId("clock"), 940, 160, 320, 220, HeaderPlacement.Top, true, Style: "flip")], "flip-right", appearance + "/" + Str.Settings_Style_BgLabel.Text(), null),
             ([new(new WidgetId("clock"), 200, 700, 300, 180, HeaderPlacement.Top, true, Style: "flip")], "flip-bottom", appearance + "/" + Str.Settings_Style_BgLabel.Text(), null),
             ([new(new WidgetId("clock"), 400, 120, 400, 300, HeaderPlacement.Top, true, Style: "flip")], "flip-wide", appearance + "/" + Str.Settings_Style_BgLabel.Text(), null),
@@ -402,22 +403,20 @@ internal static partial class EditBarRender
             await PropsShot(screen, ticker, layout, System.IO.Path.Combine(outDir, $"props-{theme}-{name}.png"), open: path, type: type).ConfigureAwait(true);
         }
 
-        // [S-3725] A search keeps one height while it is typed into: nothing typed, a question out,
-        // two answers, five, six (five and Show all) and every one shown; the zone's 41 the same.
-        string ShowAll(int count) => Str.Menu_ShowAll.Format(("count", LocaleFormat.Integer(count)));
-        (PropsCard[] Layout, string Name, string Open, string? Type, string? Click)[] heights =
+        // [S-3722] [S-3734] A search in the one rectangle: nothing typed, a question out, two answers,
+        // five, six; the zone's 41 answers scrolled to their end under the pinned head and field.
+        (PropsCard[] Layout, string Name, string Open, string? Type, bool End)[] heights =
         [
-            (weather, "search-empty", Str.Shell_Place_Location.Text(), null, null),
-            (weather, "search-searching", Str.Shell_Place_Location.Text(), PlaceRender.Unanswered, null),
-            (weather, "search-two", Str.Shell_Place_Location.Text(), "zur", null),
-            (weather, "search-five", Str.Shell_Place_Location.Text(), "spring", null),
-            (weather, "search-six", Str.Shell_Place_Location.Text(), "san", null),
-            (weather, "search-six-all", Str.Shell_Place_Location.Text(), "san", ShowAll(6)),
-            (clock, "search-zone-all", "Timezone", "a", ShowAll(41)),
+            (weather, "search-empty", Str.Shell_Place_Location.Text(), null, false),
+            (weather, "search-searching", Str.Shell_Place_Location.Text(), PlaceRender.Unanswered, false),
+            (weather, "search-two", Str.Shell_Place_Location.Text(), "zur", false),
+            (weather, "search-five", Str.Shell_Place_Location.Text(), "spring", false),
+            (weather, "search-six", Str.Shell_Place_Location.Text(), "san", false),
+            (clock, "search-zone-end", "Timezone", "a", true),
         ];
-        foreach (var (layout, name, path, type, click) in heights)
+        foreach (var (layout, name, path, type, end) in heights)
         {
-            await PropsShot(screen, ticker, layout, System.IO.Path.Combine(outDir, $"props-{theme}-{name}.png"), open: path, type: type, click: click).ConfigureAwait(true);
+            await PropsShot(screen, ticker, layout, System.IO.Path.Combine(outDir, $"props-{theme}-{name}.png"), open: path, type: type, scrollToEnd: end).ConfigureAwait(true);
         }
 
         // [S-2855] Use my location on the first level: off (the search under it), on and located (no
@@ -445,15 +444,23 @@ internal static partial class EditBarRender
         // [S-3732] The shortcuts' list with its first line held over the gap after the last.
         await PropsShot(screen, ticker, shortcuts, System.IO.Path.Combine(outDir, $"props-{theme}-shortcuts-drag.png"), open: "Shortcuts", drag: "drag:0:2").ConfigureAwait(true);
 
-        // [S-3724]..[S-3730] Every line of the menu vocabulary on a stand-in widget's menu: the first
-        // level (a note, a colour, a fill, numbers, a folder, a confirmed danger line), the list open,
-        // and the colour open.
-        // [S-3734] What is asked beside the menu stands at the menu's width: a number asked for as text and the "are you sure?".
-        (string Name, string? Open)[] vocabulary = [("vocabulary", null), ("vocabulary-list", "Feeds"), ("vocabulary-colour", "Accent"), ("vocabulary-ask", "Refresh every"), ("vocabulary-confirm", "Clear history")];
-        ConfirmFlyout.RenderInWindow = true;
-        foreach (var (name, path) in vocabulary)
+        // [S-3724]..[S-3730] Every row of the menu vocabulary on a stand-in widget's menu: the first
+        // level (a note, a colour, a fill, numbers, a switch, a slider, a folder, a link, a confirmed
+        // danger row), the list open, an item's own level, the colour open; [S-3736] a number asked
+        // for as text (its field's level, refused while it is out of range); [S-3737] the "are you sure?".
+        (string Name, string? Open, string? Type)[] vocabulary =
+        [
+            ("vocabulary", null, null),
+            ("vocabulary-list", "Feeds", null),
+            ("vocabulary-item", "Feeds/Blog feed", null),
+            ("vocabulary-colour", "Accent", null),
+            ("vocabulary-ask", "Refresh every", null),
+            ("vocabulary-ask-refused", "Refresh every", "9999"),
+            ("vocabulary-confirm", "Clear history", null),
+        ];
+        foreach (var (name, path, type) in vocabulary)
         {
-            await PropsShot(screen, ticker, countdown, System.IO.Path.Combine(outDir, $"props-{theme}-{name}.png"), open: path, lines: Vocabulary).ConfigureAwait(true);
+            await PropsShot(screen, ticker, countdown, System.IO.Path.Combine(outDir, $"props-{theme}-{name}.png"), open: path, lines: Vocabulary, type: type).ConfigureAwait(true);
         }
     }
 
@@ -498,12 +505,15 @@ internal static partial class EditBarRender
     /// <summary>[S-3724]..[S-3730] A stand-in widget's lines: one of each kind the SDK builds, as a ported widget would add them.</summary>
     private static void Vocabulary(WidgetMenuLines menu)
     {
-        List<string> feeds = ["https://blog.example/feed", "https://news.example/rss"];
+        List<string> feeds = ["Blog feed", "News feed"];
         menu.Lines.Add(menu.Colour("Accent", "#3A6EA5", _ => { }));
         menu.Lines.Add(menu.Fill("Accent fill", FillChoice.Of("#3A6EA5", 0.6), _ => { }));
         menu.Lines.Add(menu.Number(Glyphs.Count, "Rows", 4, 1, 10, 1, n => LocaleFormat.Integer(n), _ => { }));
         menu.Lines.Add(menu.Number(Glyphs.Timer, "Refresh every", 30, 5, 600, 5, n => LocaleFormat.Integer(n) + " min", _ => { }));
         menu.Lines.Add(menu.Slider(Glyphs.Volume, "Volume", 40, 0, 100, 5, n => LocaleFormat.Percent(Strings.Current, n), _ => { }));
+        menu.Lines.Add(menu.Slider(Glyphs.Scale, "Gap between widgets", 12, 0, 48, 2, n => LocaleFormat.Integer(n) + " px", _ => { }));
+        menu.Lines.Add(menu.Toggle(Glyphs.Bell, "Sound on finish", true, _ => { }));
+        menu.Lines.Add(menu.Toggle(null, "Hide when idle", false, _ => { }));
         menu.Lines.Add(menu.PickFolder(Glyphs.Folder, "Folder", @"C:\Users\Me\Pictures\Wallpapers", _ => { }));
         menu.Lines.Add(menu.List(Glyphs.Rss, "Feeds", feeds, new MenuList<string>(f => f, "No feeds yet")
         {
@@ -511,7 +521,8 @@ internal static partial class EditBarRender
             Add = new MenuListAdd<string>("Add a feed", "https://…", _ => null, f => f),
         }));
         menu.Lines.Add(ItemMenuEntry.Separator);
-        menu.Lines.Add(menu.Confirm(Glyphs.Delete, "Clear history", "Clear the whole history?", "Clear", () => { }));
+        menu.Lines.Add(new WidgetMenuLines(() => { }, _ => { }) { ShowAccounts = () => { } }.AccountsLine(Glyphs.Contact, "Manage accounts"));
+        menu.Lines.Add(menu.Confirm(Glyphs.Delete, "Clear history", "Clear the whole history?", "Clear", () => { }, detail: "Every entry goes, and it cannot be undone."));
         menu.Lines.Add(WidgetMenuLines.Note("Weather data by Open-Meteo.com, under CC BY 4.0, with a long credit that wraps onto a second line"));
     }
 
@@ -557,7 +568,7 @@ internal static partial class EditBarRender
     /// <summary>[S-1862] The path that opens the menu as the card's Set up button does.</summary>
     private const string SetupOpen = "<setup>";
 
-    private static async Task PropsShot(Grid screen, Ticker ticker, PropsCard[] layout, string path, string? open = null, string? type = null, Action<WidgetMenuLines>? lines = null, string? drag = null, string? click = null)
+    private static async Task PropsShot(Grid screen, Ticker ticker, PropsCard[] layout, string path, string? open = null, string? type = null, Action<WidgetMenuLines>? lines = null, string? drag = null, string? click = null, bool scrollToEnd = false)
     {
         screen.Children.Clear();
 
@@ -628,6 +639,7 @@ internal static partial class EditBarRender
             Cut: () => { }, Copy: () => { }, Delete: () => { },
             WidgetLines: (id, ask, confirm) => lines is not null ? Stand(lines, ask, confirm) : view.Find(id) is { } found ? Services.ModuleHost.MenuLines(found, () => { }, ask, confirm, showAccounts: () => { }) : null));
         UiLanguage.ApplyFlow(strip);
+        strip.RoomHeight = screen.Height - (2 * StripPlacement.Gap);
         strip.ShowSelection(QuickSet.For(state, selection, view.Id));
         strip.Visibility = Visibility.Visible;
         canvas.Children.Add(strip);
@@ -640,12 +652,9 @@ internal static partial class EditBarRender
             var spot = StripPlacement.Place(box, strip.DesiredSize.Width, strip.DesiredSize.Height, area, [barRect], UiLanguage.Flow == FlowDirection.RightToLeft);
             Canvas.SetLeft(strip, Math.Round(spot.X));
             Canvas.SetTop(strip, Math.Round(spot.Y));
-
-            // [S-3733] The submenus keep clear of the widget, the bar and the levels above them, inside the stand-in work area.
-            strip.Room = new MenuRoom(area, box, [barRect]);
         }
 
-        // [S-3718] The submenus along a path open, as clicks would open them; a search is typed into.
+        // [S-3718] The levels along a path open, as clicks would open them; a field is typed into.
         if (open is not null)
         {
             strip.UpdateLayout();
@@ -660,7 +669,7 @@ internal static partial class EditBarRender
                 strip.DebugType(type);
             }
 
-            // A line of the answers clicked once they have come (Show all).
+            // A row of the level clicked once its answers have come.
             if (click is not null)
             {
                 await Task.Delay(700).ConfigureAwait(true);
@@ -668,6 +677,13 @@ internal static partial class EditBarRender
                 {
                     Console.WriteLine($"editbar: no line {click} for {path}");
                 }
+            }
+
+            // [S-3734] A long level scrolled to its end under its pinned head and field.
+            if (scrollToEnd)
+            {
+                await Task.Delay(700).ConfigureAwait(true);
+                strip.DebugScrollToEnd();
             }
 
             // [S-3732] A list's line held mid-drag: "drag:<from>:<gap>".
@@ -682,51 +698,9 @@ internal static partial class EditBarRender
         Console.WriteLine($"editbar: wrote {path}");
         screen.Background = flat;
 
-        await SavePopups(screen, path).ConfigureAwait(true);
-
         foreach (var card in cards)
         {
             card.Detach();
-        }
-    }
-
-    /// <summary>
-    /// [S-3734] What a line asks beside the menu is a popup, not part of the screen's bitmap: each
-    /// open one is written beside it, its width said, and closed before the next case; drawn on the
-    /// solid colour of its surface, which a bitmap of its acrylic leaves out (a dark theme's words on
-    /// nothing read as no words at all).
-    /// </summary>
-    private static async Task SavePopups(Grid screen, string path)
-    {
-        var popups = VisualTreeHelper.GetOpenPopupsForXamlRoot(screen.XamlRoot);
-        for (var i = 0; i < popups.Count; i++)
-        {
-            if (popups[i].Child is FrameworkElement shown)
-            {
-                var popupPath = System.IO.Path.ChangeExtension(path, null) + $"-popup{i}.png";
-                try
-                {
-                    // The presenter's acrylic does not draw into a bitmap: the popup is drawn on the
-                    // solid colour its acrylic stands for in this theme, so its words can be read.
-                    var drawn = shown is ContentControl { Content: UIElement presented } ? presented : shown;
-                    if (drawn is Panel panel)
-                    {
-                        panel.Background = DesignApplier.Brush("SolidBackgroundFillColorQuarternaryBrush", Colors.DimGray);
-                        panel.UpdateLayout();
-                    }
-
-                    await RenderPng.SaveAsync(drawn, popupPath).ConfigureAwait(true);
-                    Console.WriteLine($"editbar: wrote {popupPath} ({shown.ActualWidth:0} DIPs wide)");
-                }
-                catch (Exception ex)
-                {
-                    // A popup with nothing laid out (a closing tooltip) cannot be drawn; the screen already was.
-                    Log.Warn("editbar", $"popup {i} could not be drawn", ex);
-                    Console.WriteLine($"editbar: popup {i} could not be drawn: {ex.Message}");
-                }
-            }
-
-            popups[i].IsOpen = false;
         }
     }
 

@@ -14,15 +14,18 @@ using Themia.Sdk.WinUI;
 
 namespace Themia.App.Shell;
 
-/// <summary>[S-3719] [S-3724] The menu vocabulary's lines as the engine's: entries, and the one colour submenu.</summary>
+/// <summary>[S-3719] [S-3724] The menu vocabulary's lines as the engine's rows: entries, and the one colour level.</summary>
 internal partial class MenuPanel
 {
-    /// <summary>[S-3723] A swatch of a colour submenu's grid, eight to a row as Windows lays its palette out.</summary>
+    /// <summary>[S-3723] A swatch of a colour level's grid, in its 32-DIP cell, eight to a line (Karpo's).</summary>
     private const double SwatchSize = 24;
 
+    private const double SwatchCell = 32;
+
     /// <summary>
-    /// [S-3719] A widget's own lines (and the card's colours) as the menu's: its submenus,
-    /// searches, switches, choices, commands, colours ([S-3724]) and notes ([S-3728]).
+    /// [S-3719] A widget's own lines (and the card's colours) as the menu's rows: its levels,
+    /// searches, switches, choices, commands, the lines that ask ([S-3736], [S-3737]), links
+    /// ([S-3749]), colours ([S-3724]) and notes ([S-3728]).
     /// </summary>
     protected List<MenuNode> FromEntries(IReadOnlyList<ItemMenuEntry> entries, string prefix)
     {
@@ -92,6 +95,8 @@ internal partial class MenuPanel
                 Search = entry.Search,
                 SetsUp = entry.SetsUp,
                 Order = entry.Order,
+                Asks = entry.Asks && entry.Children is null && entry.Search is null,
+                Link = entry.LinkTo,
             });
         }
 
@@ -99,12 +104,13 @@ internal partial class MenuPanel
     }
 
     /// <summary>
-    /// [S-3724] A colour line and its submenu, the one path every colour of the menu takes (the
-    /// card's, a widget's own and the app's): Default (where the setting has one) and a fill's
-    /// Transparent with the dot, the swatches, a fill's Opacity slider ([S-3731], a colour only), Custom
-    /// colour… (the picker's dialog) and Pick a colour from the screen (the eyedropper), those two where
-    /// custom colours are allowed. The line shows the colour's swatch and its words; a mixed selection
-    /// reads as a dash.
+    /// [S-3724] A colour row and its level, the one path every colour of the menu takes (the card's, a
+    /// widget's own and the app's): Default (where the setting has one) and a fill's Transparent, ticked
+    /// while they hold; under a rule the swatches, 24 DIPs in 32-DIP cells, eight to a line, the one that
+    /// holds ringed in the accent and ticked; a fill's Opacity, a one-row slider ([S-3731], a colour only);
+    /// under a rule Custom colour… (the picker's dialog) and Pick a colour from the screen (the
+    /// eyedropper), those two where custom colours are allowed. The row shows the colour's swatch and
+    /// its words; a mixed selection reads as a dash.
     /// </summary>
     protected MenuNode ColourNode(string key, string text, MenuColour colour, bool disabled)
     {
@@ -159,9 +165,8 @@ internal partial class MenuPanel
             ValueKey = held,
             Build = () => Swatches(options.Presets, chosen, colour.Choose),
         });
-        children.Add(MenuNode.Separator(key + "/-more"));
 
-        // [S-3731] A fill's opacity: an inline slider, greyed while no colour holds.
+        // [S-3731] A fill's opacity: a one-row slider, greyed while no colour holds.
         if (colour.OpacitySlider(Percent) is { } opacity)
         {
             children.Add(new MenuNode(key + "/opacity", MenuNodeKind.Slider)
@@ -175,6 +180,7 @@ internal partial class MenuPanel
 
         if (options.AllowCustom)
         {
+            children.Add(MenuNode.Separator(key + "/-more"));
             children.Add(new MenuNode(key + "/custom")
             {
                 Text = Str.Shell_Color_Custom.Text(),
@@ -205,7 +211,7 @@ internal partial class MenuPanel
     /// <summary>What a mixed selection's choice reads: a dash, as Explorer's properties show differing values.</summary>
     protected const string Mixed = "—";
 
-    /// <summary>[S-3723] The custom colour dialog, from the line that asked for it.</summary>
+    /// <summary>[S-3723] The custom colour dialog, from the row that asked for it.</summary>
     private void Custom(string key, string current, ColorChoiceOptions options, double? opacity, Action<string, double> choose)
     {
         _ = ColorChoice.CustomAsync(AskAnchor, current, options, opacity, choose);
@@ -213,28 +219,26 @@ internal partial class MenuPanel
     }
 
     /// <summary>
-    /// [S-3723] A colour submenu's swatches, eight to a row: the chosen one with a tick in a colour
-    /// that reads on it and the accent ring, each one's name as its tooltip. A click picks it, and the
-    /// submenu stays open on the pick.
+    /// [S-3723] A colour level's swatches, 24 DIPs in 32-DIP cells, eight to a line, the first under a
+    /// row's icon: the chosen one with a tick in a colour that reads on it and the accent ring, each
+    /// one's name as its tooltip. A click picks it, and the level stays open on the pick.
     /// </summary>
     private static FrameworkElement Swatches(IReadOnlyList<ColorPreset> presets, string current, Action<string> pick)
     {
         var grid = new Grid
         {
-            RowSpacing = Fluent.Space1,
-            ColumnSpacing = Fluent.Space1,
-            Margin = new Thickness(Fluent.Space3, Fluent.Space1, Fluent.Space3, Fluent.Space1),
+            Margin = new Thickness(RowInset + PadStart - ((SwatchCell - SwatchSize) / 2), Fluent.Space1, 0, Fluent.Space1),
             HorizontalAlignment = HorizontalAlignment.Left,
         };
 
         for (var c = 0; c < ColorPresets.Columns; c++)
         {
-            grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(SwatchSize) });
+            grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(SwatchCell) });
         }
 
         for (var r = 0; r < (presets.Count + ColorPresets.Columns - 1) / ColorPresets.Columns; r++)
         {
-            grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(SwatchSize) });
+            grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(SwatchCell) });
         }
 
         for (var i = 0; i < presets.Count; i++)
@@ -251,6 +255,8 @@ internal partial class MenuPanel
                 Padding = new Thickness(0),
                 MinWidth = 0,
                 MinHeight = 0,
+                HorizontalAlignment = HorizontalAlignment.Center,
+                VerticalAlignment = VerticalAlignment.Center,
                 CornerRadius = new CornerRadius(Fluent.ControlRadius),
                 Background = new SolidColorBrush(Windows.UI.Color.FromArgb(255, r, g, b)),
                 BorderThickness = new Thickness(chosen ? 2 : Fluent.Hairline),
@@ -259,7 +265,7 @@ internal partial class MenuPanel
                     ? new FontIcon
                     {
                         Glyph = Glyphs.Done,
-                        FontSize = 12,
+                        FontSize = SmallGlyph,
 
                         // The tick is drawn ON the colour, so its colour is the colour's contrast, not a theme brush.
                         Foreground = new SolidColorBrush(ScreenPick.WantsDarkInk(r, g, b) ? Colors.Black : Colors.White),
@@ -285,7 +291,7 @@ internal partial class MenuPanel
     }
 
     /// <summary>A colour's swatch the size of a menu icon, framed as Settings frames its swatches.</summary>
-    private static Border Swatch(Action<Border> paint)
+    protected static Border Swatch(Action<Border> paint)
     {
         var swatch = new Border
         {

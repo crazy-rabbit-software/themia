@@ -1,3 +1,8 @@
 {
-  "menu.rename": "Badilisha jina…"
+  "menu.rename": "Badilisha jina…",
+  "menu.add": "Ongeza…",
+  "menu.numberRange": "Weka nambari kutoka {min} hadi {max}",
+  "menu.reorderHint": "Buruta ili kupanga upya, au bonyeza Ctrl+Up au Ctrl+Down",
+  "menu.filter": "Tafuta",
+  "menu.opensIn": "Hufungua {name}"
 }

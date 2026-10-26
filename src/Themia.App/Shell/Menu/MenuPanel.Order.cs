@@ -38,10 +38,10 @@ internal partial class MenuPanel
     }
 
     /// <summary>
-    /// [S-3732] A line of an ordered list (<see cref="MenuOrder"/>): a mouse press that travels up or
-    /// down past the threshold drags it among the list's lines, a drop line showing where it lands,
+    /// [S-3732] A row of an ordered list (<see cref="MenuOrder"/>): a mouse press that travels up or
+    /// down past the threshold drags it among the list's rows, a drop line showing where it lands,
     /// and the release moves the item there (one change, saved once); [S-3748] Ctrl+Up / Down (and
-    /// Alt+Shift+Up / Down, [S-3802]) moves it a place, the focus staying on it. Its tooltip and
+    /// Alt+Shift+Up / Down, [S-3802]) moves the highlighted row a place, the keyboard staying on it. Its tooltip and
     /// automation help say both. Drawn in the menu's own window with the pointer captured by the
     /// list (<see cref="DragMoved"/>), never an OLE drag: the surface takes no drops and a drag image
     /// would hide the list it is dropped into.
@@ -123,7 +123,6 @@ internal partial class MenuPanel
 
         _swallowClick = true;
         view.Root.Opacity = 0.5;
-        CloseFrom(_levels.IndexOf(level) + 1);
 
         level.Lines.PointerMoved -= OnListMoved;
         level.Lines.PointerMoved += OnListMoved;
@@ -257,17 +256,12 @@ internal partial class MenuPanel
 
 #if DEBUG
     /// <summary>
-    /// Debug renders only: show the deepest open level's ordered line <paramref name="from"/> being
+    /// Debug renders only: show the shown level's ordered row <paramref name="from"/> being
     /// dragged, its drop line in <paramref name="gap"/> ([S-3732]), as a pointer would hold it.
     /// </summary>
     internal bool DebugDrag(int from, int gap)
     {
-        if (_levels.Count == 0)
-        {
-            return false;
-        }
-
-        var level = _levels[^1];
+        var level = _shown;
         var lines = level.Views.OfType<LineView>().Where(v => v.Node.Order is not null).ToList();
         if (from < 0 || from >= lines.Count || gap < 0 || gap > lines.Count)
         {

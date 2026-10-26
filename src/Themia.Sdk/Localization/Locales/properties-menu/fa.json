@@ -1,3 +1,8 @@
 {
-  "menu.rename": "تغییر نام…"
+  "menu.rename": "تغییر نام…",
+  "menu.add": "افزودن…",
+  "menu.numberRange": "عددی از {min} تا {max} وارد کنید",
+  "menu.reorderHint": "برای تغییر ترتیب بکشید، یا Ctrl+Up یا Ctrl+Down را فشار دهید",
+  "menu.filter": "جستجو",
+  "menu.opensIn": "{name} را باز می‌کند"
 }

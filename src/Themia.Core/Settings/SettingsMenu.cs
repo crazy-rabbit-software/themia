@@ -28,6 +28,9 @@ public abstract record SettingsLine(string Key)
 /// <summary>A divider between groups; leading, trailing and doubled ones are dropped.</summary>
 public sealed record SettingsSeparator(string Key) : SettingsLine(Key);
 
+/// <summary>[S-3740] A heading over a group (Karpo's): its words in the 12-DIP semibold, never picked.</summary>
+public sealed record SettingsHeading(string Key, string Text) : SettingsLine(Key);
+
 /// <summary>[S-3728] Words only, greyed, never clickable; nothing at all while <see cref="Text"/> is empty.</summary>
 public sealed record SettingsNote(string Key, string Text) : SettingsLine(Key)
 {
@@ -45,8 +48,8 @@ public sealed record SettingsNote(string Key, string Text) : SettingsLine(Key)
 public sealed record SettingsReading(string Key, string Text, string? Glyph, string? Value) : SettingsLine(Key);
 
 /// <summary>
-/// [S-3561] A line of text typed in the menu itself (a form's field): its words over the box, the box
-/// holding <see cref="Value"/> and its hint, and what a change does (each letter, as it is typed).
+/// [S-3561] [S-3736] A line of text typed in the menu itself (a form's field): a row of its words and
+/// <see cref="Value"/>, whose level is the field with its hint, and what a change does (each letter, as it is typed).
 /// A <see cref="Masked"/> field is a password's ([S-3556]): it never carries what it holds
 /// (<see cref="Value"/> is null; <see cref="HasValue"/> says whether there is one), <see cref="Fill"/>
 /// gives a box built again what was typed, and <see cref="Wipe"/> runs as its submenu closes.
@@ -61,7 +64,7 @@ public sealed record SettingsField(string Key, string Text, string? Value, strin
     /// <summary>[S-3556] What a masked box built again starts with; null for nothing.</summary>
     public Func<string>? Fill { get; init; }
 
-    /// <summary>[S-3556] [S-3557] Its submenu closed: what it held is wiped.</summary>
+    /// <summary>[S-3556] [S-3557] Its form's level closed: what it held is wiped.</summary>
     public Action? Wipe { get; init; }
 
     /// <summary>A number (a port): the touch keyboard shows digits.</summary>
@@ -150,9 +153,9 @@ public sealed record SettingsSubmenu(string Key, string Text, string? Glyph, IRe
 public sealed record SettingsOrder(int Index, int Count, Action<int, int> Move);
 
 /// <summary>
-/// [S-3721] A line that asks for a line of text beside the menu (Rename…): the question's heading,
-/// the box's hint, the button's words, what the box starts with, why a typed text cannot be used
-/// (null when it can) and what is done with it.
+/// [S-3721] [S-3736] A line that asks for a line of text on a level of its own (Rename…): the level's
+/// name, the field's hint, the words of the row that gives it, what the field starts with, why a typed
+/// text cannot be used (null when it can) and what is done with it.
 /// </summary>
 public sealed record SettingsAsk(string Key, string Text, string? Glyph, string Title, string Placeholder, string Accept, string Initial, Func<string, string?> Refuse, Action<string> Done) : SettingsLine(Key)
 {
@@ -181,8 +184,17 @@ public sealed record SettingsCommand(string Key, string Text, string? Glyph, Act
 }
 
 /// <summary>
-/// [S-3727] An "are you sure?" asked beside the menu: the question, the words of the button that does
-/// it (in the critical colour where <paramref name="Danger"/>), what it does, and what goes with it.
+/// [S-3749] A link row (Karpo's): a setting another menu owns, never a copy of it. The owner's glyph
+/// and words, the owner's name (<paramref name="Owner"/>: the tooltip's "Opens Accounts"), and what a
+/// pick does: close this menu and open the owner's at the level that sets it. Drawn with Windows'
+/// "open in new window" mark at its end, no chevron.
+/// </summary>
+public sealed record SettingsLink(string Key, string Text, string? Glyph, string Owner, Action Open) : SettingsLine(Key);
+
+/// <summary>
+/// [S-3727] [S-3737] An "are you sure?" asked on a level of the menu's own: the question, the words of
+/// the row that does it (in the critical colour where <paramref name="Danger"/>), what it does, and
+/// what goes with it.
 /// </summary>
 public sealed record SettingsConfirm(string Question, string Accept, Action Done, string? Detail = null, bool Danger = false);
 

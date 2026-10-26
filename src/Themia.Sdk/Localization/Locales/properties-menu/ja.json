@@ -1,3 +1,8 @@
 {
-  "menu.rename": "名前の変更…"
+  "menu.rename": "名前の変更…",
+  "menu.add": "追加…",
+  "menu.numberRange": "{min} から {max} までの数値を入力してください",
+  "menu.reorderHint": "ドラッグして並べ替えるか、Ctrl+↑ または Ctrl+↓ を押します",
+  "menu.filter": "検索",
+  "menu.opensIn": "{name} を開きます"
 }

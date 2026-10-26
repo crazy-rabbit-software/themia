@@ -1,3 +1,8 @@
 {
-  "menu.rename": "Cambiar nombre…"
+  "menu.rename": "Cambiar nombre…",
+  "menu.add": "Agregar…",
+  "menu.numberRange": "Escribe un número de {min} a {max}",
+  "menu.reorderHint": "Arrastra para reordenar o pulsa Ctrl+Arriba o Ctrl+Abajo",
+  "menu.filter": "Buscar",
+  "menu.opensIn": "Abre {name}"
 }

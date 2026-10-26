@@ -1,6 +1,8 @@
 {
   "menu.rename": "Umbenennen…",
   "menu.add": "Hinzufügen…",
-  "menu.showAll": "Alle anzeigen ({count})",
-  "menu.numberRange": "Gib eine Zahl von {min} bis {max} ein"
+  "menu.numberRange": "Gib eine Zahl von {min} bis {max} ein",
+  "menu.reorderHint": "Zum Neuordnen ziehen oder Strg+Pfeil nach oben bzw. Strg+Pfeil nach unten drücken",
+  "menu.filter": "Suchen",
+  "menu.opensIn": "Öffnet {name}"
 }

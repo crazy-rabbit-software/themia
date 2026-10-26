@@ -1,3 +1,8 @@
 {
-  "menu.rename": "பெயர் மாற்று…"
+  "menu.rename": "பெயர் மாற்று…",
+  "menu.add": "சேர்…",
+  "menu.numberRange": "{min} முதல் {max} வரை ஒரு எண்ணை உள்ளிடவும்",
+  "menu.reorderHint": "வரிசையை மாற்ற இழுக்கவும், அல்லது Ctrl+Up அல்லது Ctrl+Down ஐ அழுத்தவும்",
+  "menu.filter": "தேடு",
+  "menu.opensIn": "{name} ஐத் திறக்கும்"
 }

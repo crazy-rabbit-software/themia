@@ -15,10 +15,11 @@ namespace Themia.App.Shell.Gallery;
 /// [S-3560] ⚙ › Accounts open on the stand-in display over three stand-in accounts (a Microsoft one
 /// with numbers, a mail server that needs signing in again, a calendar server): <c>-accounts</c>,
 /// <c>-account</c> (one account's submenu), <c>-account-again</c> (the one needing a sign-in),
-/// <c>-signout</c> (its "are you sure?", with its <c>-popup0</c>), <c>-add</c> (Add account ›),
+/// <c>-signout</c> (its "are you sure?" level), <c>-add</c> (Add account ›),
 /// <c>-signin</c> (Microsoft's browser sign-in waiting, Cancel under it), <c>-imap</c> (the mail
 /// server's form, empty: Test and Add greyed with what is missing), <c>-imap-filled</c> (the address,
-/// the password as bullets, the server set by hand), <c>-imap-testing</c> (a test out: every field
+/// the password as bullets, the server set by hand), <c>-imap-address</c> (the address's field level),
+/// <c>-imap-password</c> (the password's field level: bullets in a password box), <c>-imap-testing</c> (a test out: every field
 /// greyed, "Checking…" under Test), <c>-imap-failed</c> (an add refused, the server's words under
 /// Add), <c>-caldav</c> (the calendar server's form, filled). A stand-in host: no account is real, no
 /// sign-in or server is reached, and the password is made up for the picture and never written out.
@@ -42,6 +43,8 @@ internal static partial class EditBarRender
             ("-signin", [a, add], add + "/microsoft", null),
             ("-imap", [a, add, add + "/imap"], null, null),
             ("-imap-filled", [a, add, add + "/imap"], null, FillImap),
+            ("-imap-address", [a, add, add + "/imap", add + "/imap/address"], null, null),
+            ("-imap-password", [a, add, add + "/imap", add + "/imap/password"], null, FillImap),
             ("-imap-testing", [a, add, add + "/imap"], null, h =>
             {
                 FillImap(h);
@@ -63,7 +66,6 @@ internal static partial class EditBarRender
             }),
         ];
 
-        ConfirmFlyout.RenderInWindow = true;
         foreach (var (name, open, click, fill) in cases)
         {
             var accounts = new RenderAccountsHost();

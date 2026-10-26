@@ -53,7 +53,6 @@ internal static partial class EditBarRender
     private static async Task BackupShots(Grid screen, string outDir, string theme)
     {
         const string b = SettingsMenu.Keys.Backup;
-        ConfirmFlyout.RenderInWindow = true;
 
         await SettingsShot(screen, System.IO.Path.Combine(outDir, $"settings-{theme}-backup.png"), new RenderSettingsHost(), [b]).ConfigureAwait(true);
 
@@ -83,7 +82,6 @@ internal static partial class EditBarRender
     {
         const string a = SettingsMenu.Keys.About;
         const string u = SettingsMenu.Keys.Uninstall;
-        ConfirmFlyout.RenderInWindow = true;
 
         (string Name, RenderSettingsHost Host, string[] Open, string? Click)[] cases =
         [

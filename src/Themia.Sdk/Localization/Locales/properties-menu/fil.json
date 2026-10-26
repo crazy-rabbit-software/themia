@@ -1,3 +1,8 @@
 {
-  "menu.rename": "Palitan ang pangalan…"
+  "menu.rename": "Palitan ang pangalan…",
+  "menu.add": "Magdagdag…",
+  "menu.numberRange": "Maglagay ng numero mula {min} hanggang {max}",
+  "menu.reorderHint": "I-drag para isaayos muli, o pindutin ang Ctrl+Up o Ctrl+Down",
+  "menu.filter": "Maghanap",
+  "menu.opensIn": "Binubuksan ang {name}"
 }

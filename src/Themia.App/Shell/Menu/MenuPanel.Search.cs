@@ -5,79 +5,57 @@ using Themia.App.Widgets;
 using Themia.Core.Diagnostics;
 using Themia.Core.Localization;
 using Themia.Core.Settings;
-using Themia.Core.Widgets;
 using Themia.Sdk.WinUI;
 
 namespace Themia.App.Shell;
 
-/// <summary>[S-3722] [S-3725] A search's level: its box on top, its answers under it.</summary>
+/// <summary>[S-3722] [S-3742] A search's level and a long level's filter: the field pinned under the head, the rows under it.</summary>
 internal partial class MenuPanel
 {
     /// <summary>
-    /// The lines of the level a node opens: its submenu, or a search's answers and its fixed lines.
-    /// [S-3725] A search shows its first five answers and Show all (N) under them until that is
-    /// clicked, and the answers' room is always six lines (<see cref="SearchRoom"/>: five answers and
-    /// Show all's slot, kept free under a word or fewer answers), so the submenu keeps its height
-    /// while it is typed into.
+    /// [S-3722] A search's rows: every answer (one row each, the chosen one ticked; a word in their
+    /// place while it is looking, finds nothing or is offline), then the search's fixed rows behind a rule.
     /// </summary>
-    private List<MenuNode> LevelNodes(Level level, MenuNode owner)
+    private List<MenuNode> SearchNodes(Step step)
     {
-        if (owner.Search is not { } search)
+        var nodes = new List<MenuNode>(step.Results);
+        if (step.Search is { Fixed.Count: > 0 } search)
         {
-            return owner.Filter is null ? [.. owner.Children ?? []] : Filtered(level, owner);
-        }
-
-        var answers = level.Results;
-        var fill = SearchRoom.Fill(answers.Count, level.ShowAll);
-        var nodes = new List<MenuNode>(answers.Take(fill.Shown));
-        if (fill.ShowAll)
-        {
-            nodes.Add(new MenuNode(owner.Key + "/all")
-            {
-                Text = Str.Menu_ShowAll.Format(("count", LocaleFormat.Integer(answers.Count))),
-                Run = () => ShowAllAnswers(level),
-            });
-        }
-
-        if (fill.Free > 0)
-        {
-            nodes.Add(new MenuNode(owner.Key + "/pad" + fill.Free, MenuNodeKind.Spacer) { Height = fill.Free * LineHeight });
-        }
-
-        if (search.Fixed.Count > 0)
-        {
-            nodes.Add(MenuNode.Separator(owner.Key + "/-fixed"));
-            nodes.AddRange(FromEntries(search.Fixed, owner.Key + "/fixed"));
+            nodes.Add(MenuNode.Separator(step.Key + "/-fixed"));
+            nodes.AddRange(FromEntries(search.Fixed, step.Key + "/fixed"));
         }
 
         return nodes;
     }
 
     /// <summary>
-    /// [S-3537] A filtered level's lines: those whose words or keywords hold what is typed in its box
-    /// (every one while it is empty), or "No results" in their place.
+    /// [S-3742] A long level's rows: those whose words or keywords hold what is typed in its filter
+    /// (every one while it is empty), the level's notes and rules with them, or "No results" in their place.
     /// </summary>
-    private static List<MenuNode> Filtered(Level level, MenuNode owner)
+    private static List<MenuNode> Filtered(Step step, IReadOnlyList<MenuNode> rows)
     {
-        var typed = level.Box?.Text ?? string.Empty;
-        var kept = (owner.Children ?? []).Where(n => n.Kind != MenuNodeKind.Line || SettingsMenu.Matches(n.Text, n.Keywords, typed)).ToList();
-        return kept.Any(n => n.Kind == MenuNodeKind.Line)
-            ? kept
-            : [new MenuNode(owner.Key + "/none", MenuNodeKind.Note) { Text = Str.Common_NoResults.Text() }];
+        var typed = step.Text;
+        if (typed.Trim().Length == 0)
+        {
+            return [.. rows];
+        }
+
+        var kept = rows.Where(n => Listed(n) && SettingsMenu.Matches(n.Text, n.Keywords, typed)).ToList();
+        return kept.Count > 0 ? kept : [new MenuNode(step.Key + "/none", MenuNodeKind.Note) { Text = Str.Common_NoResults.Text() }];
     }
 
     /// <summary>
-    /// [S-3537] A filter's box, on top of a long choice's submenu: each letter typed keeps the options
-    /// that match at once (nothing goes out to be asked); Enter picks the first one kept, Down moves to it.
+    /// [S-3742] The filter of a level with more than ten rows to pick (Karpo's): it has the keyboard as
+    /// the level opens, and each letter typed keeps the rows that match at once; Enter picks the first
+    /// one kept, Down moves to it, Escape empties it first and then goes back.
     /// </summary>
-    private TextBox FilterBox(Level level, string hint)
+    private TextBox FilterBox(Step step)
     {
+        var hint = step.Holder?.Filter ?? Str.Menu_Filter.Text();
         var box = new TextBox
         {
+            Text = step.Text,
             PlaceholderText = hint,
-            Height = LineHeight,
-            MinHeight = LineHeight,
-            Margin = new Thickness(Fluent.Space2, Fluent.Space2, Fluent.Space2, 0),
             IsSpellCheckEnabled = false,
             IsTextPredictionEnabled = false,
         };
@@ -85,123 +63,125 @@ internal partial class MenuPanel
 
         box.TextChanged += (_, _) =>
         {
-            if (level.Anchor is { } anchor && _levels.IndexOf(level) is var at and > 0)
+            if (_path.Count == 0 || !ReferenceEquals(_path[^1], step))
             {
-                FillLevel(level, LevelNodes(level, anchor.Node));
-                Place(level, at);
+                return;
             }
+
+            step.Text = box.Text;
+            FillLevel(_shown, Current());
         };
 
         box.KeyDown += (_, e) =>
         {
-            if (e.Key == Windows.System.VirtualKey.Enter && level.Views.FirstOrDefault(v => v is { Button.IsEnabled: true }) is { } first)
+            if (e.Key == Windows.System.VirtualKey.Enter && _shown.Views.FirstOrDefault(v => v is { Button.IsEnabled: true }) is { } first)
             {
-                OnLine(level, first);
+                Enter(first.Node, keys: true);
                 e.Handled = true;
             }
-            else if (e.Key == Windows.System.VirtualKey.Down && level.Views.FirstOrDefault(v => v is { Button.IsEnabled: true }) is { } next)
+            else if (e.Key == Windows.System.VirtualKey.Down && _shown.Views.FirstOrDefault(v => v is { Button.IsEnabled: true }) is { } next)
             {
                 next.Button.Focus(FocusState.Keyboard);
                 e.Handled = true;
             }
+            else if (e.Key == Windows.System.VirtualKey.Escape && box.Text.Length > 0)
+            {
+                box.Text = string.Empty;
+                e.Handled = true;
+            }
         };
 
-        box.GotFocus += (_, _) => CloseFrom(_levels.IndexOf(level) + 1);
         return box;
     }
 
     /// <summary>
-    /// [S-3722] A search's box, on top of its submenu: what is typed is asked once typing settles (at
-    /// once for an answer in hand), each answer replacing the one before; Enter picks the first line,
+    /// [S-3722] A search's field, pinned under its head: what is typed is asked once typing settles (at
+    /// once for an answer in hand), each answer replacing the one before; Enter picks the first answer,
     /// Down moves to it.
     /// </summary>
-    private TextBox SearchBox(Level level, MenuSearch search)
+    private TextBox SearchBox(Step step, MenuSearch search)
     {
         var box = new TextBox
         {
+            Text = step.Text,
             PlaceholderText = search.Placeholder,
-            Height = LineHeight,
-            MinHeight = LineHeight,
-            Margin = new Thickness(Fluent.Space2, Fluent.Space2, Fluent.Space2, 0),
             IsSpellCheckEnabled = false,
             IsTextPredictionEnabled = false,
         };
         AutomationProperties.SetName(box, search.Placeholder);
 
+        void OnSettled(Microsoft.UI.Dispatching.DispatcherQueueTimer timer, object _) => Find(step, box.Text);
+
         box.TextChanged += (_, _) =>
         {
-            var settle = level.Search?.Settle ?? TimeSpan.Zero;
+            step.Text = box.Text;
+            var settle = step.Search?.Settle ?? TimeSpan.Zero;
             if (settle <= TimeSpan.Zero)
             {
-                Ask(level, box.Text);
+                Find(step, box.Text);
                 return;
             }
 
             // A pause in typing, not a guess at readiness: the geocoder is asked for what was meant, once.
-            level.Settle ??= DispatcherQueue.CreateTimer();
-            level.Settle.Stop();
-            level.Settle.Interval = settle;
-            level.Settle.IsRepeating = false;
-            level.Settle.Tick -= OnSettled;
-            level.Settle.Tick += OnSettled;
-            level.Settle.Start();
+            step.Settle ??= DispatcherQueue.CreateTimer();
+            step.Settle.Stop();
+            step.Settle.Interval = settle;
+            step.Settle.IsRepeating = false;
+            step.Settle.Tick -= OnSettled;
+            step.Settle.Tick += OnSettled;
+            step.Settle.Start();
         };
-
-        void OnSettled(Microsoft.UI.Dispatching.DispatcherQueueTimer timer, object _) => Ask(level, box.Text);
 
         box.KeyDown += (_, e) =>
         {
             if (e.Key == Windows.System.VirtualKey.Enter
-                && level.Views.FirstOrDefault(v => v is { Button.IsEnabled: true } && v.Node.Key.Contains("/q/", StringComparison.Ordinal)) is { } first)
+                && _shown.Views.FirstOrDefault(v => v is { Button.IsEnabled: true } && v.Node.Key.Contains("/q/", StringComparison.Ordinal)) is { } first)
             {
-                OnLine(level, first);
+                Enter(first.Node, keys: true);
                 e.Handled = true;
             }
-            else if (e.Key == Windows.System.VirtualKey.Down && level.Views.FirstOrDefault(v => v is { Button.IsEnabled: true }) is { } next)
+            else if (e.Key == Windows.System.VirtualKey.Down && _shown.Views.FirstOrDefault(v => v is { Button.IsEnabled: true }) is { } next)
             {
                 next.Button.Focus(FocusState.Keyboard);
                 e.Handled = true;
             }
         };
 
-        box.GotFocus += (_, _) => CloseFrom(_levels.IndexOf(level) + 1);
         return box;
     }
 
     /// <summary>[S-3722] Ask the search for <paramref name="typed"/>; a newer question drops an older one's answer.</summary>
-    private async void Ask(Level level, string typed)
+    private async void Find(Step step, string typed)
     {
         try
         {
-            if (level.Search is not { } search || level.Anchor is not { } anchor)
+            if (step.Search is not { } search)
             {
                 return;
             }
 
-            level.Pending?.Cancel();
+            step.Pending?.Cancel();
             using var cts = new CancellationTokenSource();
-            level.Pending = cts;
+            step.Pending = cts;
 
             // A question that goes out to the network says so while it is out.
-            level.ShowAll = false;
             if (search.Settle > TimeSpan.Zero && typed.Trim().Length > 0)
             {
-                level.Results = [new MenuNode(anchor.Node.Key + "/q/note") { Text = Str.Shell_Place_Searching.Text(), Disabled = true }];
-                FillLevel(level, LevelNodes(level, anchor.Node));
+                step.Results = [new MenuNode(step.Key + "/q/note", MenuNodeKind.Note) { Text = Str.Shell_Place_Searching.Text() }];
+                Shown(step);
             }
 
             var answer = await search.Find(typed.Trim(), cts.Token).ConfigureAwait(true);
-            if (!ReferenceEquals(level.Pending, cts) || !_levels.Contains(level))
+            if (!ReferenceEquals(step.Pending, cts) || !_path.Contains(step))
             {
                 return;
             }
 
-            level.Pending = null;
-            level.Results = answer.Note is { } note
-                ? [new MenuNode(anchor.Node.Key + "/q/note") { Text = note, Disabled = true }]
-                : FromEntries(answer.Lines, anchor.Node.Key + "/q");
-            FillLevel(level, LevelNodes(level, anchor.Node));
-            Place(level, _levels.IndexOf(level));
+            step.Pending = null;
+            step.Results = answer.Note is { } note
+                ? [new MenuNode(step.Key + "/q/note", MenuNodeKind.Note) { Text = note }]
+                : FromEntries(answer.Lines, step.Key + "/q");
+            Shown(step);
         }
         catch (OperationCanceledException)
         {
@@ -214,23 +194,12 @@ internal partial class MenuPanel
         }
     }
 
-    /// <summary>[S-3725] Show all: every answer of the search, until the next question; the keyboard goes on to the sixth.</summary>
-    private void ShowAllAnswers(Level level)
+    /// <summary>[S-3722] A search's answers came: drawn where its level is the one shown, its field keeping the keyboard.</summary>
+    private void Shown(Step step)
     {
-        var at = _levels.IndexOf(level);
-        if (level.Anchor is not { } anchor || at < 0)
+        if (_path.Count > 0 && ReferenceEquals(_path[^1], step))
         {
-            return;
-        }
-
-        var focused = level.Views.Any(v => v is not null && v.Node.Key.EndsWith("/all", StringComparison.Ordinal) && v.Button.FocusState == FocusState.Keyboard);
-        level.ShowAll = true;
-        FillLevel(level, LevelNodes(level, anchor.Node));
-        Place(level, at);
-
-        if (focused && level.Views.Where(v => v is { Button.IsEnabled: true }).Skip(SearchRoom.Answers).FirstOrDefault() is { } next)
-        {
-            next.Button.Focus(FocusState.Keyboard);
+            FillLevel(_shown, Current());
         }
     }
 }

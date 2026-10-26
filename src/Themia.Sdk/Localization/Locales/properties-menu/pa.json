@@ -1,3 +1,8 @@
 {
-  "menu.rename": "ਨਾਮ ਬਦਲੋ…"
+  "menu.rename": "ਨਾਮ ਬਦਲੋ…",
+  "menu.add": "ਸ਼ਾਮਲ ਕਰੋ…",
+  "menu.numberRange": "{min} ਤੋਂ {max} ਤੱਕ ਕੋਈ ਨੰਬਰ ਦਰਜ ਕਰੋ",
+  "menu.reorderHint": "ਕ੍ਰਮ ਬਦਲਣ ਲਈ ਘਸੀਟੋ, ਜਾਂ Ctrl+Up ਜਾਂ Ctrl+Down ਦਬਾਓ",
+  "menu.filter": "ਖੋਜੋ",
+  "menu.opensIn": "{name} ਖੋਲ੍ਹਦਾ ਹੈ"
 }

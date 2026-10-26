@@ -1,3 +1,8 @@
 {
-  "menu.rename": "إعادة تسمية…"
+  "menu.rename": "إعادة تسمية…",
+  "menu.add": "إضافة…",
+  "menu.numberRange": "أدخل رقمًا من {min} إلى {max}",
+  "menu.reorderHint": "اسحب لإعادة الترتيب، أو اضغط Ctrl+Up أو Ctrl+Down",
+  "menu.filter": "بحث",
+  "menu.opensIn": "يفتح {name}"
 }

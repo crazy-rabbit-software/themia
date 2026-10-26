@@ -1,3 +1,8 @@
 {
-  "menu.rename": "Đổi tên…"
+  "menu.rename": "Đổi tên…",
+  "menu.add": "Thêm…",
+  "menu.numberRange": "Nhập một số từ {min} đến {max}",
+  "menu.reorderHint": "Kéo để sắp xếp lại, hoặc nhấn Ctrl+Lên hoặc Ctrl+Xuống",
+  "menu.filter": "Tìm kiếm",
+  "menu.opensIn": "Mở {name}"
 }

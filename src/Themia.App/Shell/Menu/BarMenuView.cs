@@ -13,13 +13,13 @@ using Themia.Sdk.WinUI;
 namespace Themia.App.Shell;
 
 /// <summary>
-/// [S-3520] One of the edit bar's drop-down menus (⚙ the settings menu): the menu engine
+/// [S-3520] One of the edit bar's drop-down menus (View ▾, Display ▾, ⚙): the menu engine
 /// (<see cref="MenuPanel"/>) over Core's lines (<see cref="SettingsLine"/>s, <see cref="SettingsMenu"/>'s
-/// for ⚙), with no frame of its own (no icon row, no header): a Windows 11 context menu that stays open
-/// while it is used. The lines are Core's; what is drawn here is only how each kind of line becomes
-/// the engine's (a colour its one colour submenu, a font the font picker), keyed by the lines' own
-/// keys, so a change of words (a language switch) is written into the lines in place and what is
-/// open stays open.
+/// for ⚙), with no head or foot of its own: the fixed rectangle whose levels open in place
+/// ([S-3718], [S-3734]). The lines are Core's; what is drawn here is only how each kind of line becomes
+/// the engine's row (a colour its one colour level, a font the font picker, a field or a question a
+/// level of its own), keyed by the lines' own keys, so a change of words (a language switch) is
+/// written into the rows in place and the level open stays open.
 /// </summary>
 internal sealed partial class BarMenuView : MenuPanel
 {
@@ -34,7 +34,7 @@ internal sealed partial class BarMenuView : MenuPanel
 
     /// <param name="name">Which menu it is: the key its first level is drawn for, and what the log names.</param>
     /// <param name="lines">Its lines as the state holds them now, read on every change.</param>
-    /// <param name="close">[S-3521] Escape with no submenu open closes the menu.</param>
+    /// <param name="close">[S-3521] Escape on the menu's own rows closes the menu.</param>
     public BarMenuView(string name, Func<IReadOnlyList<SettingsLine>> lines, Action close)
     {
         _name = name ?? throw new ArgumentNullException(nameof(name));
@@ -43,14 +43,14 @@ internal sealed partial class BarMenuView : MenuPanel
     }
 
     /// <summary>
-    /// [S-3531] Show the lines as the state holds them now: values written in place, so a submenu
-    /// left open stays open on the pick; <paramref name="rebuild"/> draws everything again (a language switch).
+    /// [S-3531] Show the lines as the state holds them now: values written in place, so the level
+    /// open stays open on the pick; <paramref name="rebuild"/> draws everything again (a language switch).
     /// </summary>
     public void Show(bool rebuild = false)
     {
         try
         {
-            Present(_name, Nodes(_lines()), null, rebuild);
+            Present(_name, Nodes(_lines()), null, null, rebuild);
         }
         catch (Exception ex)
         {
@@ -58,20 +58,17 @@ internal sealed partial class BarMenuView : MenuPanel
         }
     }
 
-    /// <summary>[S-3534] Open the submenus along <paramref name="path"/> (the lines' keys), as clicks would.</summary>
+    /// <summary>[S-3534] Open the levels along <paramref name="path"/> (the lines' keys), as clicks would.</summary>
     public bool Open(IReadOnlyList<string> path, bool focus) => path.Count == 0 || OpenPath(path, focus);
 
     /// <inheritdoc />
     protected override void OnEscape() => _close();
 
-    /// <summary>[S-3727] What was asked beside the menu closed: the keyboard comes back to the menu.</summary>
-    protected override void OnAskClosed() => FocusFirst();
-
-    /// <summary>[S-3727] Ask beside the menu (a preset over a look of one's own, deleting a view).</summary>
+    /// <summary>[S-3727] [S-3737] Ask on a level of the menu's own (a preset over a look of one's own, deleting a view, an import).</summary>
     public void Confirm(SettingsConfirm confirm)
     {
         ArgumentNullException.ThrowIfNull(confirm);
-        Confirm(new WidgetConfirm(confirm.Question, confirm.Accept, confirm.Done, confirm.Danger, confirm.Detail));
+        AskQuestion(new MenuQuestion(confirm.Question, confirm.Accept, confirm.Done, confirm.Danger, confirm.Detail));
     }
 
     private List<MenuNode> Nodes(IReadOnlyList<SettingsLine> lines) => [.. lines.Select(Node)];
@@ -91,6 +88,7 @@ internal sealed partial class BarMenuView : MenuPanel
     private MenuNode NodeOf(SettingsLine line) => line switch
     {
         SettingsSeparator => MenuNode.Separator(line.Key),
+        SettingsHeading heading => new MenuNode(heading.Key, MenuNodeKind.Heading) { Text = heading.Text },
         SettingsNote note => new MenuNode(note.Key, MenuNodeKind.Note) { Text = note.Text, Danger = note.Critical, Busy = note.Busy },
 
         // [S-3561] A reading: a line with nothing to do.
@@ -103,20 +101,22 @@ internal sealed partial class BarMenuView : MenuPanel
             Disabled = reading.Disabled,
         },
 
-        // [S-3561] [S-3556] A form's field, a password's masked: its words never in the node.
-        SettingsField field => new MenuNode(field.Key, MenuNodeKind.Field)
+        // [S-3736] [S-3556] A form's field: a row whose level is the field, every letter handed to the
+        // form as it is typed; a password's masked, its words never in the node, bullets for its value.
+        SettingsField field => new MenuNode(field.Key)
         {
             Text = field.Text,
-            Value = field.Masked ? null : field.Value,
+            Value = field.Masked ? (field.HasValue ? MaskedValue : null) : field.Value,
             Disabled = field.Disabled,
-            Field = new MenuField(field.Placeholder, field.Set)
+            Asks = true,
+            Wipe = field.Masked ? field.Wipe : null,
+            Run = () => AskText(new MenuEdit(field.Text, field.Placeholder, field.Masked ? string.Empty : field.Value ?? string.Empty, _ => { })
             {
+                Live = field.Set,
                 Masked = field.Masked,
-                HasValue = field.HasValue,
                 Fill = field.Masked ? field.Fill : null,
-                Wipe = field.Wipe,
                 Numeric = field.Numeric,
-            },
+            }),
         },
         SettingsToggle toggle => new MenuNode(toggle.Key)
         {
@@ -165,8 +165,8 @@ internal sealed partial class BarMenuView : MenuPanel
             Disabled = submenu.Disabled,
             Children = Nodes(submenu.Lines),
 
-            // [S-3541] An item's line (a view's) keeps its mark's place whether it holds or not, so
-            // the dot moves from line to line in place; a plain submenu has none.
+            // [S-3541] An item's row (a view's) keeps its tick's place whether it holds or not, so
+            // the tick moves from row to row in place; a plain level has none.
             Checked = submenu.Holds || submenu.Run is not null ? submenu.Holds : null,
             Radio = true,
             Run = submenu.Run,
@@ -183,7 +183,7 @@ internal sealed partial class BarMenuView : MenuPanel
             Run = command.Run,
         },
 
-        // [S-3721] Rename… and the like: the menu's one question beside itself.
+        // [S-3721] [S-3736] Rename… and the like: a line of text on a level of its own.
         SettingsAsk ask => new MenuNode(ask.Key)
         {
             Text = ask.Text,
@@ -191,7 +191,19 @@ internal sealed partial class BarMenuView : MenuPanel
             IconKey = ask.Glyph ?? string.Empty,
             Icon = IconOf(ask.Glyph),
             Disabled = ask.Disabled,
-            Run = () => Ask(new WidgetTextAsk(ask.Title, ask.Placeholder, ask.Accept, ask.Refuse, ask.Done, ask.Initial, ask.AllowEmpty)),
+            Asks = true,
+            Run = () => AskText(new MenuEdit(ask.Title, ask.Placeholder, ask.Initial, ask.Done) { Refuse = ask.Refuse, AllowEmpty = ask.AllowEmpty, Accept = ask.Accept }),
+        },
+
+        // [S-3749] A link: the owner's icon and name; a pick closes this menu and opens the owner's at its level.
+        SettingsLink link => new MenuNode(link.Key)
+        {
+            Text = link.Text,
+            IconKey = link.Glyph ?? string.Empty,
+            Icon = IconOf(link.Glyph),
+            Disabled = link.Disabled,
+            Link = link.Owner,
+            Run = link.Open,
         },
         SettingsIcon icon => IconNode(icon),
         _ => throw new ArgumentOutOfRangeException(nameof(line), line.GetType().Name, "a settings line the menu cannot draw"),
@@ -207,9 +219,9 @@ internal sealed partial class BarMenuView : MenuPanel
     private static string IconKeyOf(string? glyph, string? colour) => glyph is null ? string.Empty : glyph + "|" + colour;
 
     /// <summary>
-    /// [S-3542] An icon line: its submenu is the icon picker (its default cell, a search box over
-    /// every Segoe Fluent glyph, the chosen one selected, [S-1803]), at the menu's width. A pick
-    /// stores it, and the picker is drawn again with that one chosen.
+    /// [S-3542] An icon row: its level is the icon picker (its default cell, a filter over every
+    /// Segoe Fluent glyph, the chosen one selected, [S-1803]), at the menu's width. A pick stores it,
+    /// and the picker is drawn again with that one chosen.
     /// </summary>
     private static MenuNode IconNode(SettingsIcon icon) => new(icon.Key)
     {
@@ -237,7 +249,7 @@ internal sealed partial class BarMenuView : MenuPanel
     };
 
     /// <summary>
-    /// [S-3528] The font line: its submenu is the font picker (its search box, every installed family
+    /// [S-3528] The font row: its level is the font picker (its search box, every installed family
     /// drawn in the font it names, the chosen one ticked, [S-6440]..[S-6442]), then Add fonts
     /// ([S-6443]). A pick stores it and the picker is drawn again with the new one ticked.
     /// </summary>

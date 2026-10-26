@@ -18,10 +18,10 @@ namespace Themia.App.Shell.Gallery;
 /// [S-3548] The edit bar's View and Display menus open under their buttons on the stand-in display,
 /// over the busy wallpaper, as the surface places them (<see cref="DropDownPlacement"/>, the list
 /// capped at the work area under the bar): <c>views-&lt;theme&gt;.png</c> (five views, the one shown
-/// here with the dot), <c>-view</c> (a view's own submenu), <c>-icon</c> (its icon picker),
-/// <c>-colour</c>, <c>-rename</c> and <c>-delete</c> (what each asks beside the menu, with its
-/// <c>-popup0</c>), <c>-drag</c> (a view's line dragged, its drop line), <c>-many</c> (40 views: the
-/// list scrolls inside the work area) and <c>-many-view</c>; <c>display-&lt;theme&gt;.png</c>, <c>-viewbar</c>,
+/// here ticked), <c>-view</c> (a view's own level), <c>-icon</c> (its icon picker), <c>-colour</c>,
+/// <c>-rename</c> (its name's field level) and <c>-delete</c> (its "are you sure?" level),
+/// <c>-drag</c> (a view's row dragged, its drop line), <c>-many</c> (40 views: the rows scroll inside
+/// the one rectangle), <c>-many-end</c> (scrolled to their end) and <c>-many-view</c>; <c>display-&lt;theme&gt;.png</c>, <c>-viewbar</c>,
 /// <c>-position</c>, <c>-bar-views</c>, <c>-new</c> and <c>-showon</c> (three displays, one switched
 /// off). Stand-in hosts: nothing reaches Windows, the displays or the user's state.
 /// </summary>
@@ -40,22 +40,27 @@ internal static partial class EditBarRender
             ("-delete", 5, [work], work + "/delete"),
             ("-many", 40, [], null),
             ("-many-view", 40, ["view:v37"], null),
+            ("-many-end", 40, [], "<end>"),
         ];
 
-        ConfirmFlyout.RenderInWindow = true;
         foreach (var (name, count, open, click) in views)
         {
             var host = new RenderViewsHost(count);
             await MenuShot(screen, System.IO.Path.Combine(outDir, $"views-{theme}{name}.png"), BarMenu.View, host.Menu, open, menu =>
             {
-                if (click is not null && !menu.DebugClickKey(click))
+                if (click == "<end>")
+                {
+                    // [S-3734] The 40 views scrolled to their end inside the one rectangle.
+                    menu.DebugScrollToEnd();
+                }
+                else if (click is not null && !menu.DebugClickKey(click))
                 {
                     Console.WriteLine($"editbar: no line {click} to click");
                 }
             }).ConfigureAwait(true);
         }
 
-        // [S-3732] A view's line held by the pointer, its drop line two places down.
+        // [S-3732] A view's row held by the pointer, its drop line two places down.
         await MenuShot(screen, System.IO.Path.Combine(outDir, $"views-{theme}-drag.png"), BarMenu.View, new RenderViewsHost(5).Menu, [], menu =>
         {
             if (!menu.DebugDrag(0, 3))
@@ -117,12 +122,11 @@ internal static partial class EditBarRender
         // [S-3522] Under its button, as the surface places it; [S-3540] the list capped under the bar.
         var area = new PixelRect(0, 0, ScreenWidth, screen.Height);
         var button = editBar.MenuButtonBox(which, canvas) ?? barRect;
-        menu.MaxListHeight = DropDownPlacement.Room(barRect, area);
+        menu.RoomHeight = DropDownPlacement.Room(barRect, area);
         menu.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
         var (x, y) = DropDownPlacement.Place(button, barRect, menu.DesiredSize.Width, menu.DesiredSize.Height, area, [barRect], UiLanguage.Flow == FlowDirection.RightToLeft);
         Canvas.SetLeft(menu, Math.Round(x));
         Canvas.SetTop(menu, Math.Round(y));
-        menu.Room = new MenuRoom(area, null, [barRect]);
         screen.UpdateLayout();
 
         if (open.Length > 0 && !menu.Open(open, focus: false))
@@ -136,7 +140,6 @@ internal static partial class EditBarRender
         await RenderPng.SaveAsync(screen, path).ConfigureAwait(true);
         Console.WriteLine($"editbar: wrote {path}");
         screen.Background = flat;
-        await SavePopups(screen, path).ConfigureAwait(true);
     }
 
     /// <summary>A stand-in for the View menu's host: views of its own (Work shown here), every change drawn at once.</summary>
