@@ -2767,12 +2767,19 @@ the service's SPEC section.
 ## 15. A widget's options: the properties menu
 
 User decision 2026-10-19: a widget's options live on the selection's properties menu in edit mode
-(SPEC "QUICKSET", [S-3716]..[S-3730]). There is no widget settings page: every widget has moved, and
+(SPEC "QUICKSET", [S-3716]..[S-3749]). There is no widget settings page: every widget has moved, and
 `IWidgetModule.SettingsRows`, `WidgetSettingsRows`, the widget pages, More settings and the card
 menu's Settings are gone ([S-6536]). Shortcuts (`src/Widgets/Themia.Widget.Shortcuts/ShortcutsMenu.cs`)
 and Clock (`src/Widgets/Themia.Widget.Clock/ClockMenu.cs`) are the references. The menu engine that
 draws it (`MenuPanel`, `src/Themia.App/Shell/Menu/`) also draws the edit bar's menus, which are the
 app's settings (⚙, View ▾, Display ▾; SPEC [S-3520]): there is no settings window ([S-3585]).
+
+The menu is drawn as Karpo's configuration menus are (user request 2026-10-26): one fixed 320 × 440
+DIP rectangle beside the selection ([S-3734]), its rows Explorer's (32 apart, the icon at 16, the
+words at 44), the menu's type and Cut, Copy and Delete on its top row ([S-3717]), and every row
+**one row high**. A row with a level of its own opens it **in place**, under a head with the back
+arrow and the level's name ([S-3718]); the card's look is the **Appearance** foot pinned at the
+menu's bottom ([S-3739]), never among a widget's lines. A widget writes rows, never a layout.
 
 ### 15.1 The vocabulary
 
@@ -2784,31 +2791,31 @@ change, so a closure may keep the value it was built with.
 
 | Setting | Helper | On the menu |
 |---|---|---|
-| bool | `menu.Toggle(glyph, text, on, set)` | the tick at the line's end; best without a glyph under a submenu |
-| enum, any closed set | `menu.Choice(glyph, text, [(value, words)…], current, set)` | a submenu of dots; the line shows the option that holds |
-| number | `menu.Number(glyph, text, value, min, max, step, format, set)` (any `INumber<T>`) | dots up to `MaxNumberSteps` (20) steps, else asked for as text, range-checked and rounded to a step; the value at the end |
-| number set by feel (a volume, a size) | `menu.Slider(glyph, text, value, min, max, step, format, set)` (any `INumber<T>`) | an inline slider in its line (words, slider, value); a drag shows the value and stores once on the release, a key steps and stores ([S-3731]) |
-| colour `#RRGGBB` or empty | `menu.Colour(text, current, set, options?)` (`ColorChoiceOptions`: `DefaultLabel` null when a colour is required, `Presets` `ColorPresets.Surfaces` by default or `ColorPresets.Windows`, `AllowCustom`) | the same colour submenu as Appearance › Item text; the swatch is the line's icon |
-| `FillChoice` | `menu.Fill(text, current, set, options?)` (`FillChoiceOptions`) | the same submenu as Appearance › Background |
-| text | `menu.Ask(new WidgetTextAsk(title, placeholder, accept, refuse, done, Initial:, AllowEmpty:))` from a line's action | a small flyout beside the menu; `refuse` is the trust boundary (validate as typed) |
-| a place, a zone, anything searched | `WidgetMenuLines.Search(glyph, text, value, new MenuSearch(placeholder, find, fixedLines, settle))` | box on top, five answers and Show all, fixed lines under them |
+| bool | `menu.Toggle(glyph, text, on, set)` | Windows' toggle switch at the row's end; a click anywhere on the row flips it ([S-3741]) |
+| enum, any closed set | `menu.Choice(glyph, text, [(value, words)…], current, set)` | a level of the options, the tick on the one that holds; the row shows it as its value |
+| number | `menu.Number(glyph, text, value, min, max, step, format, set)` (any `INumber<T>`) | ticks up to `MaxNumberSteps` (20) steps, else a text level, range-checked and rounded to a step; the value at the end |
+| number set by feel (a volume, a size) | `menu.Slider(glyph, text, value, min, max, step, format, set)` (any `INumber<T>`) | a one-row slider (words, a compact track, the value); a drag shows the value and stores once on the release, a key steps and stores ([S-3731]) |
+| colour `#RRGGBB` or empty | `menu.Colour(text, current, set, options?)` (`ColorChoiceOptions`: `DefaultLabel` null when a colour is required, `Presets` `ColorPresets.Surfaces` by default or `ColorPresets.Windows`, `AllowCustom`) | the one colour level, as Appearance › Item text's; the swatch is the row's icon |
+| `FillChoice` | `menu.Fill(text, current, set, options?)` (`FillChoiceOptions`) | the same level as Appearance › Background |
+| text | `new ItemMenuEntry(glyph, text, () => menu.Ask(new WidgetTextAsk(title, placeholder, accept, refuse, done, Initial:, AllowEmpty:)), Value: …, Asks: true)` | a level holding the field alone, the reason under it, `accept`'s row ([S-3736]); `Asks` gives the row its chevron; `refuse` is the trust boundary (validate as typed) |
+| a place, a zone, anything searched | `WidgetMenuLines.Search(glyph, text, value, new MenuSearch(placeholder, find, fixedLines, settle))` | the field pinned under the level's head, every answer a row, fixed rows under them |
 | a folder | `menu.PickFolder(glyph, text, path, set)` | Windows' folder picker; the folder's name at the end |
-| the accounts a widget reads | `KitMenuLines.Accounts(…)` / `OfficeMenuLines.Accounts`, `.CalendarAccounts` | Every account, a switch each, Manage accounts (`menu.AccountsLine`, ⚙ › Accounts, [S-3745]) |
+| the accounts a widget reads | `KitMenuLines.Accounts(…)` / `OfficeMenuLines.Accounts`, `.CalendarAccounts` | Every account, a switch each, Manage accounts (`menu.AccountsLine`: a link row to ⚙ › Accounts, [S-3745], [S-3749]) |
 | something read asynchronously (an account's calendars, its lists) | a static `MenuLoads<T>` keyed per source, `Read(key, menu, read)` | what is held now ("Looking…" note until it comes); an answer that differs outdates the menu (`WidgetMenuLines.Outdated`) and the host builds it again ([S-3746]) |
-| a list (feeds, symbols, hosts) | `menu.List(glyph, text, items, new MenuList<T>(name, emptySentence) { Rename, Extra, Add, AddLines, Max, Reorder, Glyph, IconFile })` | a submenu of items (Rename…, own lines, Remove greyed at `Min`), Add…; the item lines are dragged up and down to reorder, or Alt+Shift+Up / Down (`ItemMenuEntry.Order`, [S-3732]) |
-| a destructive command | `menu.Confirm(glyph, text, question, confirmWords, action, danger: true, disabled:)` | asks beside the menu first; danger lines in the critical colour |
+| a list (feeds, symbols, hosts) | `menu.List(glyph, text, items, new MenuList<T>(name, emptySentence) { Rename, Extra, Add, AddLines, Max, Reorder, Glyph, IconFile })` | a level of items (each a level: Rename…, own lines, Remove greyed at `Min`), Add…; the item rows are dragged up and down to reorder, or Ctrl+Up / Down (`ItemMenuEntry.Order`, [S-3732], [S-3748]) |
+| a destructive command | `menu.Confirm(glyph, text, question, confirmWords, action, danger: true, disabled:)` | its "are you sure?" level first ([S-3737]); danger rows in the critical colour |
 | a change, a command | `menu.Command(glyph, text, change, disabled:)` or a plain `new ItemMenuEntry(glyph, text, action)` | runs on a click (a plain command does not save) |
 | words only | `WidgetMenuLines.Note(text)` | greyed, never clickable (a data source's credit) |
 | where setup happens | `WidgetMenuLines.SetsUp(line)` around the line that sets what the widget waits for (`ISetupRule`) | the card's Set up button opens the menu at it, as a click would ([S-1862]); one per widget |
-| a group | `WidgetMenuLines.Submenu(glyph, text, lines)`, `ItemMenuEntry.Separator` | |
+| a group | `WidgetMenuLines.Submenu(glyph, text, lines)`, `ItemMenuEntry.Separator` | a level of its own, opened in place |
+| a setting another menu owns | `ItemMenuEntry(… LinkTo: ownerName)` (`menu.AccountsLine` is one) | a link row: the owner's icon and words, "open in new window" at its end; a pick closes the menu and opens the owner's ([S-3749]) |
 
-Where lines go: `menu.StyleLines` (on the first level right under the Style line, in its section;
-the Style submenu holds the styles only) for what only the current look draws, `menu.Lines` for the
-rest, in groups the widget marks with `ItemMenuEntry.Separator` (the host draws the dividers and
-drops stray ones), and `menu.PlaceCard()` once, where the card's Appearance submenu stands, a
-section of its own (call it first unless something matters more than the look; without it
-Appearance stands first anyway). The host draws the Header line (title and positions) first, above
-Style, for every widget that can have a header ([S-3735]). Something the vocabulary lacks is an SDK change first, in its own commit, with tests
+Where lines go: `menu.StyleLines` (on the first level right under the Style row, in its section;
+the Style level holds the styles only) for what only the current look draws, `menu.Lines` for the
+rest, in groups the widget marks with `ItemMenuEntry.Separator` (the host draws the rules and
+drops stray ones). The host draws the Header row (title and positions) after Style for every widget
+that can have a header ([S-3735]), and the card's Appearance as the pinned foot ([S-3739]): a
+widget never places it. Something the vocabulary lacks is an SDK change first, in its own commit, with tests
 in `tests/Themia.Modules.Tests/WidgetMenuLinesTests.cs`, rendered in `--editbar-png`
 (`props-*-vocabulary*.png`).
 
@@ -2817,9 +2824,10 @@ in `tests/Themia.Modules.Tests/WidgetMenuLinesTests.cs`, rendered in `--editbar-
 - **StyleLines for what the look draws.** An option only some styles draw goes under Style, guarded
   by the config's `Offers(setting)` ([S-6070], `IShownSettings<T>`), so a style that does not draw it
   never shows it (Clock: seconds and the date; Shortcuts: tile size, icons only, stretch).
-- **PlaceCard early.** Appearance is the card's look; the widget's own data lines follow it.
-- **Every option is a line.** There is nowhere else for one to go; a long explanation becomes a
-  `Note` or goes.
+- **Every option is one row.** There is nowhere else for one to go, and no row is ever more than one
+  row high: a value typed is a text level, a choice a level of ticks, a long explanation a `Note`
+  or nothing. A line whose action asks is marked `Asks: true`.
+- **A setting another menu owns is a link**, never a copy of it ([S-3749]): the accounts are ⚙'s.
 - **Set up opens a line.** A widget with a setup rule (`ISetupRule`, [S-1860]) that waits for an
   option (not only an account) marks that option's line with `WidgetMenuLines.SetsUp` ([S-1862]).
 - **Dead strings go.** A locale key nothing reads any more is removed from all 30 locale files of
@@ -2830,5 +2838,5 @@ in `tests/Themia.Modules.Tests/WidgetMenuLinesTests.cs`, rendered in `--editbar-
   the `refuse` checks of every typed value.
 - **The module's `SPEC.md`** says its options are on the properties menu ([S-3719], with the date of
   the user's request) and lists them; retire the page's lines there.
-- **Render it**: `--editbar-png` with the widget selected and its submenus open (add a case to
+- **Render it**: `--editbar-png` with the widget selected and its levels open (add a case to
   `EditBarRender.PropsShots`), and look at the PNGs.

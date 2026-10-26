@@ -266,16 +266,19 @@ bar's menus ([S-3520]); there is no settings window ([S-3585]) and a widget has 
 - **Item menus** through `ItemMenu`; icons through `Glyphs`; lists keep `RowFocus`/`ScrollFade`.
 - **Item selection** (files, shortcuts: anything selected like desktop icons) through the SDK's one rule set
   `ItemSelection` (+ `SelectionBand`) and one look `SelectionChrome` ([S-6620]..[S-6629]); never a selection of its own.
-- **The properties menu** ([S-3716]..[S-3735]): the selection's panel in edit mode, drawn by the
-  menu engine (`MenuPanel`, Shell/Menu/) the edit bar's menus share, as a Windows 11 context menu (Cut, Copy … Delete on top, then Header, lines with submenus that stay open
-  on a pick, the tick/dot/chevron at the line's end; one 300-DIP width for every level; submenus
-  placed clear of the widgets and the levels above by `SubmenuPlacement`). Every option a widget has
+- **The properties menu** ([S-3716]..[S-3749]): the selection's panel in edit mode, drawn by the
+  menu engine (`MenuPanel`, Shell/Menu/) the edit bar's menus share, as Karpo's configuration menus:
+  one fixed 320 × 440 DIP rectangle on every level (never moving or resizing while used), the menu's
+  type and Cut, Copy, Delete on its top row, every row one row high (a switch, a tick or a chevron at
+  its end), levels opening in place under a pinned head (back arrow and name), a filter on a level of
+  more than ten rows, a line of text or an "are you sure?" a level of its own, the card's Appearance
+  pinned at the foot. Every option a widget has
   lives there; there is no widget settings page ([S-6536]): its module's `MenuLines(WidgetMenuLines,
-  config)` adds `Lines` (first level) and `StyleLines` (right under the Style line, what
+  config)` adds `Lines` (first level) and `StyleLines` (right under the Style row, what
   `config.Offers` says the look draws) as `ItemMenuEntry`s (`Toggle`, `Choice`, `Number`, `Slider`,
-  `Colour`, `Fill`, `Submenu`, `Search`, `Command`, `Ask`, `Confirm`, `Note`, `List` (its items
-  dragged to reorder), `PickFolder`), separators between its groups, calls `PlaceCard()` where the card's Appearance
-  submenu goes (it is first otherwise) and marks the line the Set up button opens with
+  `Colour`, `Fill`, `Submenu`, `Search`, `Command`, `Ask` (its line `Asks: true`), `Confirm`, `Note`,
+  `List` (its items dragged or Ctrl+Up/Down to reorder), `PickFolder`, a link row `LinkTo`),
+  separators between its groups, and marks the line the Set up button opens with
   `WidgetMenuLines.SetsUp` ([S-1862]). Shortcuts and Clock are the references; docs/WIDGET-KIT.md 15
   is the guide.
 - **Text** goes through the `Str` layer (`Str.X.Text()`); a new key goes into `en.json` and its
