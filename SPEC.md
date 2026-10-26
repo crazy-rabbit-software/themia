@@ -5179,8 +5179,9 @@ Tests `SystemDataHubTests` (`S25xx_`).
   `FeedKey`); there is no cadence in it. Every widget asking for one key shares one feed and one history.
 - **[S-2503]** **One cadence for every system figure, not a setting** (`SystemCadence`): the hub holds one
   ticker subscription, every second, while any feed is open, and a source is read when its own period
-  index moves on. CPU, memory, disk activity and space, network, addresses, processes, battery and GPU
-  are read every second, so every tile on the desktop moves on the same second. A new feed is read at once.
+  index moves on. CPU, memory, disk activity and space, network, addresses, processes, the battery's
+  charge and GPU are read every second, so every tile on the desktop moves on the same second (a ping
+  and the battery pack every fifth, on the same boundaries: [S-2512], [S-2514]). A new feed is read at once.
 - **[S-2504]** A charted series (a feed plus an instance: a drive root or `*`, an adapter's position)
   keeps its history in the hub, in a ring of `SeriesHistory.Capacity(source)` points: the longest
   span offered (1 h) at the source's spacing, 3600 points, 720 for a ping (at least the widest
@@ -5224,6 +5225,15 @@ Tests `SystemDataHubTests` (`S25xx_`).
   is wanted only by a details widget with it switched on ([S-2417]). The cost is bounded by what the
   views hold, and the hub's ticker stops with the desktop. One thing waits for a widget on screen:
   the NVIDIA library a GPU widget's load comes from ([S-437]).
+- **[S-2514]** The battery pack (what the battery class driver reports: capacities, rate, voltage,
+  temperature, cycles, chemistry, maker; read only by Battery details, [S-2423]) is asked every fifth
+  tick (`SystemCadence.BatteryPackSeconds`, 5 s) and at once on each of Windows' power events
+  ([S-2509]: the charge moved a step, the supply or the status changed), not every second (CPU audit
+  2026-10-26: a round of IOCTLs to the firmware sixty times a minute). An ask reads the battery's tag,
+  its temperature and its status; its information and maker (`BatteryFactCache`) only for a tag not
+  read before (a battery put in, another one in the bay), after a power event and after the device
+  list's own refresh (once a minute), so a full-charge capacity or a cycle count is never older than
+  that. Windows has no event for the rate, so the rate a tile shows is at most five seconds old.
 
 ## System details (SYS-DETAILS)
 
@@ -5304,8 +5314,8 @@ strings in `Locales/widgets-details`.
 - **[S-2420]**..**[S-2422]** *(Retired with Disk space, [S-6275]: Drive is one drive's card in a bar or a ring.)*
 - **[S-2423]** Battery details: the charge and status from `GetSystemPowerStatus` (the meter's source);
   the rest from the battery class driver (`SetupDi` + `IOCTL_BATTERY_QUERY_TAG/_INFORMATION/_STATUS`),
-  every battery summed, devices re-listed once a minute, one hub read per due tick; asked only when Windows
-  says there is a battery.
+  every battery summed, devices re-listed once a minute, one hub read per due tick (every five seconds
+  and on a power event, [S-2514]); asked only when Windows says there is a battery.
 - **[S-2424]** `BATTERY_INFORMATION` and `BATTERY_STATUS` are parsed in Core: all-ones and zero are
   unknown, the chemistry code becomes a word, the temperature level is tenths of a Kelvin (−40–120 °C).
 - **[S-2425]** Status: Charging, Fully charged, Plugged in, not charging, On battery. Then time left

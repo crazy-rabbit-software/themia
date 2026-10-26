@@ -25,6 +25,41 @@ public readonly record struct BatteryPack(
     int Count);
 
 /// <summary>
+/// [S-2514] What a battery says about itself that does not move from one read to the next (its
+/// <c>BATTERY_INFORMATION</c> and maker), kept per device path for the battery tag it was read under.
+/// The tag is the driver's own word for "the same battery": a battery taken out and put back, or
+/// another one in the bay, has a new tag, and its facts are read again. The full-charge capacity and
+/// the cycle count do change, slowly, so <see cref="Forget"/> drops everything on each of Windows'
+/// power events and on the device list's own refresh. UI thread only, like the hub that reads it.
+/// </summary>
+public sealed class BatteryFactCache<T>
+{
+    private readonly Dictionary<string, (uint Tag, T Facts)> _known = new(StringComparer.OrdinalIgnoreCase);
+
+    /// <summary>How many batteries have facts kept.</summary>
+    public int Count => _known.Count;
+
+    /// <summary>The facts of the battery tagged <paramref name="tag"/> at <paramref name="path"/>: the kept ones, else <paramref name="read"/>'s.</summary>
+    public T Get(string path, uint tag, Func<T> read)
+    {
+        ArgumentNullException.ThrowIfNull(path);
+        ArgumentNullException.ThrowIfNull(read);
+
+        if (_known.TryGetValue(path, out var known) && known.Tag == tag)
+        {
+            return known.Facts;
+        }
+
+        var facts = read();
+        _known[path] = (tag, facts);
+        return facts;
+    }
+
+    /// <summary>Read every battery's facts again on its next ask.</summary>
+    public void Forget() => _known.Clear();
+}
+
+/// <summary>
 /// [S-2423]..[S-2425] The battery details widget's rules: the battery class driver's structures and
 /// what follows from them. Pure; the IOCTLs are the App's <c>BatteryDevice</c>.
 /// </summary>

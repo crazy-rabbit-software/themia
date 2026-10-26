@@ -72,7 +72,7 @@ public sealed class SystemDataHubTests
     [Fact]
     public void S2503_every_machine_source_is_read_every_second()
     {
-        foreach (var source in Enum.GetValues<SystemSource>().Where(s => s != SystemSource.Ping))
+        foreach (var source in Enum.GetValues<SystemSource>().Where(s => s is not (SystemSource.Ping or SystemSource.BatteryPack)))
         {
             Assert.Equal(SystemCadence.TickSeconds, SystemCadence.PeriodSeconds(source));
         }
@@ -113,6 +113,29 @@ public sealed class SystemDataHubTests
 
         // Every probe lands on a tick the other sources are read on.
         Assert.All(pingReads, s => Assert.Contains(s, cpuReads));
+    }
+
+    [Fact]
+    public void S2514_the_battery_pack_is_asked_every_fifth_tick_on_the_same_boundaries()
+    {
+        // Was every second: a round of IOCTLs to the battery's firmware sixty times a minute.
+        Assert.Equal(5, SystemCadence.PeriodSeconds(SystemSource.BatteryPack));
+        Assert.Equal(1, SystemCadence.PeriodSeconds(SystemSource.Battery));
+
+        var start = new DateTimeOffset(2026, 10, 12, 12, 0, 0, TimeSpan.Zero);
+        long pack = long.MinValue;
+        var reads = new List<int>();
+
+        for (var s = 0; s < 11; s++)
+        {
+            if (SystemCadence.IsDue(pack, start.AddSeconds(s).AddMilliseconds(15), SystemSource.BatteryPack, out var p))
+            {
+                pack = p;
+                reads.Add(s);
+            }
+        }
+
+        Assert.Equal([0, 5, 10], reads);
     }
 
     [Fact]

@@ -19,11 +19,24 @@ public static class SystemCadence
     /// </summary>
     public const int PingSeconds = 5;
 
+    /// <summary>
+    /// [S-2514] The battery pack (the driver's rate, voltage, temperature and capacity) is asked every
+    /// fifth tick too: each ask is a round of IOCTLs the firmware answers from its embedded
+    /// controller, and what moves between Windows' own power events (each of which re-reads it at
+    /// once, [S-2509]) is the rate, which a details tile reads, not charts.
+    /// </summary>
+    public const int BatteryPackSeconds = 5;
+
     /// <summary>The hub's wake, as a span.</summary>
     public static TimeSpan Tick { get; } = TimeSpan.FromSeconds(TickSeconds);
 
-    /// <summary>[S-2503] [S-2512] How many seconds apart a source is read (and its history points lie).</summary>
-    public static int PeriodSeconds(SystemSource source) => source == SystemSource.Ping ? PingSeconds : TickSeconds;
+    /// <summary>[S-2503] [S-2512] [S-2514] How many seconds apart a source is read (and its history points lie).</summary>
+    public static int PeriodSeconds(SystemSource source) => source switch
+    {
+        SystemSource.Ping => PingSeconds,
+        SystemSource.BatteryPack => BatteryPackSeconds,
+        _ => TickSeconds,
+    };
 
     /// <summary>
     /// Whether a source last read in period <paramref name="lastPeriod"/> is due at

@@ -18,8 +18,11 @@ namespace Themia.App.Services;
 /// read runs on the tick.
 /// </para>
 /// <para>
-/// Read by the system hub alone, once per due tick for every battery tile ([S-2501]); the device list
-/// is re-enumerated once a minute (or when a battery stops answering) rather than every sample.
+/// Read by the system hub alone, once per due tick for every battery tile ([S-2501]): every fifth
+/// second and on each of Windows' power events ([S-2514]). The device list is re-enumerated once a
+/// minute (or when a battery stops answering) rather than every sample, and what a battery says about
+/// itself (its information and maker) is asked once per battery tag and again after a power event or
+/// that re-listing, so an ordinary read is the tag, the temperature and the status.
 /// </para>
 /// </summary>
 internal static unsafe partial class BatteryDevice
@@ -58,6 +61,12 @@ internal static unsafe partial class BatteryDevice
     private static long? _pathsAt;
     private static string? _lastFailure;
 
+    /// <summary>[S-2514] Each battery's information and maker, for the tag they were read under.</summary>
+    private static readonly BatteryFactCache<(BatteryInformation? Information, string? Manufacturer)> Facts = new();
+
+    /// <summary>[S-2514] A power event: the next read asks every battery's information and maker again.</summary>
+    public static void ForgetFacts() => Facts.Forget();
+
     /// <summary>
     /// The batteries, summed (<see cref="BatteryDetailRules.Combine"/>), or null when no battery device
     /// answered — a desktop, or firmware that exposes the charge to Windows but not the details.
@@ -70,6 +79,9 @@ internal static unsafe partial class BatteryDevice
         {
             _paths = Enumerate();
             _pathsAt = now;
+
+            // The full-charge capacity and the cycle count drift: kept at most until the next listing.
+            Facts.Forget();
         }
 
         var batteries = new List<(BatteryInformation?, BatteryState?, double?, string?)>(_paths.Count);
@@ -176,19 +188,14 @@ internal static unsafe partial class BatteryDevice
 
         Note(null);
 
-        var info = stackalloc byte[BatteryDetailRules.InformationSize];
-        var information = Query(device, tag, LevelInformation, info, BatteryDetailRules.InformationSize, out var infoBytes)
-            ? BatteryDetailRules.ParseInformation(new ReadOnlySpan<byte>(info, (int)infoBytes))
-            : null;
+        // [S-2514] What the battery says about itself, once per tag (and again after a power event).
+        // (A copy: the tag's own address went to the IOCTL, and a lambda may not capture it.)
+        var battery = tag;
+        var (information, manufacturer) = Facts.Get(path, battery, () => ReadFacts(device, battery));
 
         uint kelvin = 0;
         var temperature = Query(device, tag, LevelTemperature, (byte*)&kelvin, sizeof(uint), out var tempBytes) && tempBytes == sizeof(uint)
             ? BatteryDetailRules.Celsius(kelvin)
-            : null;
-
-        var name = stackalloc char[64];
-        var manufacturer = Query(device, tag, LevelManufacturer, (byte*)name, 64 * sizeof(char), out var nameBytes)
-            ? new string(name, 0, (int)Math.Min(64, nameBytes / sizeof(char)))
             : null;
 
         var waitStatus = stackalloc uint[5];
@@ -203,6 +210,22 @@ internal static unsafe partial class BatteryDevice
             : null;
 
         return (information, state, temperature, manufacturer);
+    }
+
+    /// <summary>[S-2424] A battery's <c>BATTERY_INFORMATION</c> and maker: what does not move from one read to the next.</summary>
+    private static (BatteryInformation? Information, string? Manufacturer) ReadFacts(SafeFileHandle device, uint tag)
+    {
+        var info = stackalloc byte[BatteryDetailRules.InformationSize];
+        var information = Query(device, tag, LevelInformation, info, BatteryDetailRules.InformationSize, out var infoBytes)
+            ? BatteryDetailRules.ParseInformation(new ReadOnlySpan<byte>(info, (int)infoBytes))
+            : null;
+
+        var name = stackalloc char[64];
+        var manufacturer = Query(device, tag, LevelManufacturer, (byte*)name, 64 * sizeof(char), out var nameBytes)
+            ? new string(name, 0, (int)Math.Min(64, nameBytes / sizeof(char)))
+            : null;
+
+        return (information, manufacturer);
     }
 
     /// <summary>

@@ -108,6 +108,8 @@ internal sealed partial class SystemHub
 
     private void OnPowerChangedOnUi()
     {
+        // [S-2514] A charge step, a plug or a status change is when the battery's own facts move too.
+        BatteryDevice.ForgetFacts();
         RefreshSource(SystemSource.Battery);
         RefreshSource(SystemSource.BatteryPack);
     }
