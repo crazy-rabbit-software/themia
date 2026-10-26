@@ -2,7 +2,7 @@
 
 The module `disk` ([S-6911]): a drive's activity, reads and writes per second. Its tags are this
 file's alone; the root `SPEC.md` holds the host's sections and what the meters share (the meter
-framework [S-1120]..[S-1126], [S-1762], [S-1167], the glides [S-6323], the system hub [S-2500]..[S-2513],
+framework [S-1120]..[S-1126], [S-1762], [S-1167], the readouts' rule [S-6330], the system hub [S-2500]..[S-2513],
 the header the meters start with [S-700]); the disk's rules are the SDK's `DiskRules` with their root
 tags ([S-1160] the drive's root, [S-1161] the header's title and no drive in the body, [S-1162] the
 counters, [S-1163] all drives, [S-1820] throughput never space, [S-1821] the doubling top, [S-1822] the

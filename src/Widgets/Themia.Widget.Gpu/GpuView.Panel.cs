@@ -45,10 +45,6 @@ internal sealed partial class GpuView
         private TypeStep? _heroStep;
         private string _shown = string.Empty;
 
-        // [S-6325] The load glides in whole percents to the reading's own text.
-        private NumberGlide? _number;
-        private string _primary = string.Empty;
-
         // [S-1940] No adapter at this index: drawn absent until a snapshot names one again.
         private bool _absent;
 
@@ -125,7 +121,6 @@ internal sealed partial class GpuView
         {
             _watch?.Dispose();
             _watch = null;
-            _number?.Stop();
         }
 
         /// <summary>[S-430] The adapter's whole name, as the driver reports it, on the tile's tooltip (the header has the short one).</summary>
@@ -172,18 +167,8 @@ internal sealed partial class GpuView
 
         private void ShowLoad(MeterReading reading)
         {
-            _primary = reading.Primary;
-            _number ??= new NumberGlide(load => ShowText(_number!.Target == load ? _primary : Formatting.Percent(load)), 0.01);
-
-            if (reading.Available && reading.Fraction is { } fraction)
-            {
-                _number.Set(fraction, GlideMotion.Tick);
-            }
-            else
-            {
-                _number.Set(null, GlideMotion.Tick);
-                ShowText(reading.Primary);
-            }
+            // [S-6330] The reading's own text, at once.
+            ShowText(reading.Primary);
 
             _hero.ValueLine.Foreground = reading.Available ? ReadingBrush : UnavailableBrush;
 

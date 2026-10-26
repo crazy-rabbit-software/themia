@@ -2,7 +2,7 @@
 
 The module `ping` ([S-6911]): one host's latency. Its tags are this file's alone; the root `SPEC.md`
 holds the host's sections and what the meters share (the meter framework [S-1120]..[S-1126], [S-1762],
-[S-1167], the glides [S-6323], the system hub [S-2500]..[S-2513] with its one prober per host [S-2508]);
+[S-1167], the readouts' rule [S-6330], the system hub [S-2500]..[S-2513] with its one prober per host [S-2508]);
 the probe's rules are the SDK's with their root tags ([S-109] the host checked at both boundaries,
 `HostAddress` and the shared host line, `PingHostLine`; [S-1170] the status, [S-1172] the chart, `PingStats`; [S-6263]
 the signal bars, `PingSignal`).

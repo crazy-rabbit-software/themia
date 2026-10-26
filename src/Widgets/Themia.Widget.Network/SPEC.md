@@ -2,7 +2,7 @@
 
 The module `network` ([S-6911]): the machine's network throughput. Its tags are this file's alone;
 the root `SPEC.md` holds the host's sections and what the meters share (the meter framework
-[S-1120]..[S-1126], [S-1762], the glides [S-6323], the system hub [S-2500]..[S-2513]); the throughput's
+[S-1120]..[S-1126], [S-1762], the readouts' rule [S-6330], the system hub [S-2500]..[S-2513]); the throughput's
 rules are the SDK's `NetworkRules` with their root tags ([S-1190] per adapter, [S-1192] the counted
 adapters), the numbers face the SDK's (`MeterNumbers`, [S-6264]).
 

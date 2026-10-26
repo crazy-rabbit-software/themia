@@ -193,18 +193,6 @@ public abstract class MeterPart
     /// <summary>[S-6304] The widest row line a Rows look writes (label and value, in characters), for the rows' type step.</summary>
     public virtual double ItemLineCharacters => 0;
 
-    /// <summary>
-    /// [S-6325] The reading as the number its readout glides through, or null for one that is not a
-    /// number (unavailable, waiting): a share for a percentage meter, the value for the others.
-    /// </summary>
-    public virtual double? Number(MeterReading reading) => reading.Available && reading.Value is null ? reading.Fraction : null;
-
-    /// <summary>[S-6325] A number on the way to a reading, written as the reading is.</summary>
-    public virtual string Format(double number) => Formatting.Percent(number);
-
-    /// <summary>[S-6325] The number's own step: a whole percent of a share.</summary>
-    public virtual double Resolution => 0.01;
-
     /// <summary>[S-1917] Debug renders: fixed items for the bar and tile looks (<c>--state sample</c>).</summary>
     public virtual IReadOnlyList<MeterItem> SampleItems => [];
 

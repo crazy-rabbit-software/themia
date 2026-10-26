@@ -38,7 +38,6 @@ public sealed partial class MeterView
             _dial = null;
             _bars = null;
             _tiles = null;
-            _graphs?.Stop();
             _graphs = null;
             _face = null;
             _body = look switch
@@ -50,8 +49,6 @@ public sealed partial class MeterView
                 MeterLook.Graphs => _graphs = new CoreGraphGrid { Capacity = _band.Capacity },
                 _ => _face = MeterStyleFace.For(look),
             };
-
-            ApplyPeriod();
 
             if (_body is not null)
             {
@@ -93,7 +90,7 @@ public sealed partial class MeterView
         if (_items?.Current is { } current)
         {
             // [S-2506] What is read so far, and (the core graphs) every item's history with it.
-            ShowItems(current, point: false, settle: true);
+            ShowItems(current, point: false);
             LoadGraphs();
         }
     }
@@ -121,10 +118,10 @@ public sealed partial class MeterView
     }
 
     /// <summary>
-    /// Put the items on the bars or tiles, gliding to them ([S-6328]); a different count is a
-    /// different layout. <paramref name="point"/>: a new read, which the core graphs add to their lines.
+    /// [S-6330] Put the items on the bars or tiles, at once; a different count is a different
+    /// layout. <paramref name="point"/>: a new read, which the core graphs add to their lines.
     /// </summary>
-    private void ShowItems(IReadOnlyList<MeterItem> items, bool point, bool settle = false)
+    private void ShowItems(IReadOnlyList<MeterItem> items, bool point)
     {
         var recount = items.Count != _itemList.Count;
         _itemList = items;
@@ -135,7 +132,7 @@ public sealed partial class MeterView
 
             for (var i = 0; i < items.Count; i++)
             {
-                _bars.SetItem(i, items[i].Fraction, items[i].Fraction is null ? null : MeterBrushes.Pressure(items[i].Pressure), items[i].Label, items[i].Value, settle);
+                _bars.SetItem(i, items[i].Fraction, items[i].Fraction is null ? null : MeterBrushes.Pressure(items[i].Pressure), items[i].Label, items[i].Value);
             }
         }
         else if (_tiles is not null)
@@ -144,7 +141,7 @@ public sealed partial class MeterView
 
             for (var i = 0; i < items.Count; i++)
             {
-                _tiles.SetItem(i, LoadTint.Of(items[i].Fraction), settle);
+                _tiles.SetItem(i, LoadTint.Of(items[i].Fraction));
             }
         }
         else if (_graphs is not null)
@@ -160,7 +157,7 @@ public sealed partial class MeterView
 
             for (var i = 0; i < items.Count; i++)
             {
-                _graphs.Show(i, items[i].Fraction, point, settle);
+                _graphs.Show(i, items[i].Fraction, point);
             }
         }
 

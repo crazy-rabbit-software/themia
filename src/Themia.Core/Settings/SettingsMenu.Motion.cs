@@ -8,8 +8,9 @@ namespace Themia.Core.Settings;
 /// <summary>
 /// [S-3529] Appearance › Motion: the startup, unlock and view-change intros ([S-1014]), each a
 /// submenu of the same three things (its style, its length, Play now), and any change replays that
-/// moment on the desktop, so the user sees what they picked; then Smooth value changes ([S-6329]).
-/// Deliberately not part of a style preset: motion is the user's accessibility choice.
+/// moment on the desktop, so the user sees what they picked. Live values never move ([S-6330]), so
+/// there is nothing of theirs here. Deliberately not part of a style preset: motion is the user's
+/// accessibility choice.
 /// </summary>
 public static partial class SettingsMenu
 {
@@ -28,7 +29,7 @@ public static partial class SettingsMenu
         (IntroAnimation.Hacker, Str.Settings_Style_StartupAnim_Hacker.Text()),
     ];
 
-    /// <summary>[S-3529] The Motion line: the three moments, Smooth value changes, and why nothing plays while Windows' animations are off ([S-1010]).</summary>
+    /// <summary>[S-3529] The Motion line: the three moments, and why nothing plays while Windows' animations are off ([S-1010]).</summary>
     private static SettingsSubmenu Motion(ISettingsMenuHost host, string key)
     {
         var lines = new List<SettingsLine>
@@ -36,11 +37,6 @@ public static partial class SettingsMenu
             Moment(host, key + "/startup", IntroMode.Startup, Glyphs.Startup, Str.Shell_Motion_Startup.Text()),
             Moment(host, key + "/unlock", IntroMode.Unlock, Glyphs.Lock, Str.Shell_Motion_Unlock.Text()),
             Moment(host, key + "/transition", IntroMode.Transition, Glyphs.View, Str.Shell_Motion_Transition.Text()),
-            new SettingsSeparator(key + "/-smooth"),
-
-            // [S-6329] Live values: readouts glide and history charts scroll, or both jump.
-            new SettingsToggle(key + "/smooth", Str.Shell_Motion_SmoothValues.Text(), Glyphs.Gauge, host.State.Design.SmoothValues,
-                v => host.Mutate(s => s.Design.SmoothValues = v)),
         };
 
         // [S-1010] Said, not hidden: with Windows' animation effects off nothing here plays.

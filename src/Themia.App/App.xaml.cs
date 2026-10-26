@@ -41,7 +41,6 @@ public partial class App : Application
             picker => WinRT.Interop.InitializeWithWindow.Initialize(picker, Interop.Win32.GetForegroundWindow()), Services.HostAppLayouts.Instance,
             () => Services.Office.OfficeSources.Current, () => Services.AppServices.Tasks,
             feature => Services.AppServices.Accounts?.WithFeature(feature) ?? []);
-        Widgets.GlideMotion.InstallSmooth(windows => Themia.Core.Motion.GlideSwitch.Smooth(Shell.DesignApplier.Current, windows));
         Services.SoundCue.Install(new Services.HostCuePlayer());
 
 #if DEBUG

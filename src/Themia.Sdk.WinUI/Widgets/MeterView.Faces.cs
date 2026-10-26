@@ -35,7 +35,7 @@ public sealed partial class MeterView
         if (!_face.HasReading)
         {
             var reading = _watch?.Latest ?? _part.Waiting;
-            _face.Present(reading, LevelBrush(reading), settle: true);
+            _face.Present(reading, LevelBrush(reading));
         }
 
         if (_area.IsMeasured)

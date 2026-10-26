@@ -2,7 +2,7 @@
 
 The module `memory` ([S-6911]): physical memory in use. Its tags are this file's alone; the root
 `SPEC.md` holds the host's sections and what the meters share (the meter framework [S-1120]..[S-1123],
-[S-1762], the styles' looks [S-6300]..[S-6305] and the gauge [S-6314], the glides [S-6323], the system
+[S-1762], the styles' looks [S-6300]..[S-6305] and the gauge [S-6314], the readouts' rule [S-6330], the system
 hub [S-2500]..[S-2513]; the memory figures, `MemoryFigures` in the SDK, which the host's source reads).
 
 Owning files: everything in this folder: `MemoryModule.cs` (descriptor, view factory, menu lines,

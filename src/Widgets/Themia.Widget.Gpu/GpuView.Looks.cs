@@ -79,7 +79,7 @@ internal sealed partial class GpuView
 
             for (var i = 0; i < StandInEngines.Length && _engines is not null; i++)
             {
-                _engines.SetItem(i, null, UnavailableLook.Fill, Label(StandInEngines[i].Kind), "--", settle: true);
+                _engines.SetItem(i, null, UnavailableLook.Fill, Label(StandInEngines[i].Kind), "--");
             }
         }
 

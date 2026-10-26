@@ -12,9 +12,9 @@ namespace Themia.App.Widgets;
 /// <summary>
 /// [S-6317] [S-6319] The CPU meter's Core graphs: a tile per logical processor in the Core grid's
 /// arrangement (<see cref="BarLayout.Tiles"/>), each that core's history drawn by the one sparkline
-/// every meter draws (<see cref="SparkBand"/>: edge to edge in the tile, sliding as the main graph
-/// does, [S-1826]) in its load's pressure colour, its load over the top left
-/// (<see cref="CoreGraphLayout.Tile"/>) gliding as the reading does ([S-6325]). Tiles are kept and
+/// every meter draws (<see cref="SparkBand"/>: edge to edge in the tile, stepping as the main graph
+/// does, [S-6331]) in its load's pressure colour, its load over the top left
+/// (<see cref="CoreGraphLayout.Tile"/>) shown as it is read ([S-6330]). Tiles are kept and
 /// rewritten in place; the history comes from the hub ([S-6318]), so a grid built again draws it at once.
 /// </summary>
 public sealed partial class CoreGraphGrid : Grid
@@ -50,8 +50,8 @@ public sealed partial class CoreGraphGrid : Grid
         }
     }
 
-    /// <summary>[S-1826] How many of a core's newest points a tile keeps (its span and the slide's lead).</summary>
-    public int Holds => _tiles.Count > 0 ? _tiles[0].Band.Holds : _capacity + SparkScroll.Lead(1);
+    /// <summary>[S-6331] How many of a core's newest points a tile keeps (its span and the folding's lead).</summary>
+    public int Holds => _tiles.Count > 0 ? _tiles[0].Band.Holds : _capacity + SparkSlots.Lead(1);
 
     /// <summary>Keep exactly <paramref name="count"/> tiles, the existing ones kept.</summary>
     public void SetCount(int count)
@@ -60,9 +60,7 @@ public sealed partial class CoreGraphGrid : Grid
 
         while (_tiles.Count > count)
         {
-            var last = _tiles[^1];
-            last.Figure.Stop();
-            Children.Remove(last.Root);
+            Children.Remove(_tiles[^1].Root);
             _tiles.RemoveAt(_tiles.Count - 1);
         }
 
@@ -86,7 +84,7 @@ public sealed partial class CoreGraphGrid : Grid
     }
 
     /// <summary>One read of a core: a point on its history when <paramref name="point"/>, and its figure and colour.</summary>
-    public void Show(int index, double? load, bool point, bool settle = false)
+    public void Show(int index, double? load, bool point)
     {
         if ((uint)index >= (uint)_tiles.Count)
         {
@@ -102,21 +100,9 @@ public sealed partial class CoreGraphGrid : Grid
         }
 
         tile.Band.SetBrush(MeterBrushes.Pressure(MeterPressures.For(PressureScale.Usage, known ? load : null)));
-        tile.Figure.Set(known ? Math.Clamp(load!.Value, 0, 1) : null, GlideMotion.Tick, settle);
 
-        if (!known)
-        {
-            tile.ShowText("--");
-        }
-    }
-
-    /// <summary>Stand every figure where it is (the view let go).</summary>
-    public void Stop()
-    {
-        foreach (var tile in _tiles)
-        {
-            tile.Figure.Stop();
-        }
+        // [S-6330] A whole percent, at once, as the reading.
+        tile.ShowText(known ? Formatting.Percent(Math.Clamp(load!.Value, 0, 1)) : "--");
     }
 
     public void Lay(TileGridPlan plan)
@@ -176,16 +162,11 @@ public sealed partial class CoreGraphGrid : Grid
                 VerticalAlignment = VerticalAlignment.Top,
                 Child = new Grid { Children = { wash, Band, _text } },
             };
-
-            // [S-6325] A whole percent at a time, as the reading.
-            Figure = new NumberGlide(load => ShowText(Formatting.Percent(load)), 0.01);
         }
 
         public Border Root { get; }
 
         public SparkBand Band { get; }
-
-        public NumberGlide Figure { get; }
 
         public void ShowText(string text)
         {

@@ -20,34 +20,18 @@ public sealed partial class GaugeDial : Grid
 {
     private readonly Microsoft.UI.Xaml.Shapes.Path _track = new() { StrokeStartLineCap = PenLineCap.Round, StrokeEndLineCap = PenLineCap.Round };
     private readonly Microsoft.UI.Xaml.Shapes.Path _value = new() { StrokeStartLineCap = PenLineCap.Round, StrokeEndLineCap = PenLineCap.Round };
-    private readonly NumberGlide _sweep;
-    private readonly ColorGlide _colour = new();
     private GaugeGeometry _geometry;
     private double? _fraction;
-
-    /// <summary>[S-6328] A five-hundredth of the sweep: finer is not a pixel on any gauge.</summary>
-    private const double SweepResolution = 0.002;
 
     public GaugeDial()
     {
         FlowDirection = FlowDirection.LeftToRight;
         IsHitTestVisible = false;
         ItemFill.PaintStroke(_track, ItemRole.Track);
-        _colour.Set(MeterBrushes.Pressure(MeterPressure.Normal), TimeSpan.Zero, settle: true);
-        _value.Stroke = _colour.Brush;
-        _sweep = new NumberGlide(
-            shown =>
-            {
-                _fraction = shown;
-                Redraw();
-            },
-            SweepResolution);
+        _value.Stroke = MeterBrushes.Pressure(MeterPressure.Normal);
         Children.Add(_track);
         Children.Add(_value);
     }
-
-    /// <summary>[S-6328] How long the arc and its colour take to reach a new reading: the series' period.</summary>
-    public TimeSpan GlidePeriod { get; set; } = GlideMotion.Tick;
 
     /// <summary>The geometry to draw at; the dial takes its box's size.</summary>
     public void Lay(GaugeGeometry geometry)
@@ -66,21 +50,26 @@ public sealed partial class GaugeDial : Grid
         Redraw();
     }
 
-    /// <summary>The share shown, 0..1, glided to; null (no reading) draws the track alone at once.</summary>
-    public void SetFraction(double? fraction, bool settle = false)
+    /// <summary>[S-6330] The share shown, 0..1, at once; null (no reading) draws the track alone.</summary>
+    public void SetFraction(double? fraction)
     {
         var value = fraction is { } f && double.IsFinite(f) ? Math.Clamp(f, 0, 1) : (double?)null;
-        _sweep.Set(value, GlidePeriod, settle);
 
-        if (value is null && _fraction is not null)
+        if (value != _fraction)
         {
-            _fraction = null;
+            _fraction = value;
             Redraw();
         }
     }
 
-    /// <summary>The arc's colour (a theme brush, read now), glided to through OKLab.</summary>
-    public void SetBrush(Brush brush, bool settle = false) => _colour.Set(brush, GlidePeriod, settle);
+    /// <summary>The arc's colour (a theme brush).</summary>
+    public void SetBrush(Brush brush)
+    {
+        if (!ReferenceEquals(_value.Stroke, brush))
+        {
+            _value.Stroke = brush;
+        }
+    }
 
     private void Redraw()
     {

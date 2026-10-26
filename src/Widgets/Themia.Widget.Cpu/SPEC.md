@@ -2,7 +2,7 @@
 
 The module `cpu` ([S-6911]): processor load across all cores. Its tags are this file's alone; the
 root `SPEC.md` holds the host's sections and what the meters share (the meter framework [S-1120]..
-[S-1123], [S-1762], the styles' looks [S-6300]..[S-6305] and the gauge [S-6314], the glides [S-6323],
+[S-1123], [S-1762], the styles' looks [S-6300]..[S-6305] and the gauge [S-6314], the readouts' rule [S-6330],
 the system hub [S-2500]..[S-2513]; the per-core reads [S-6310], the cores' history [S-6318] and the
 core graphs' tile figure [S-6319], which the SDK's `CoreHistory`, `CoreGraphLayout` and the host's
 `CpuCores` source keep).
@@ -24,8 +24,8 @@ the module host's `MeterHostTests` (`S6310_`, `S6318_`).
 - **[S-6313]** **Core grid**: a tile per logical processor ([S-6305]), shaded by its load ([S-6301]).
 - **[S-6317]** **Core graphs** (`CpuStyle.CoreGraphs`, user request 2026-10-16): the reading over a
   tile per logical processor in the Core grid's arrangement ([S-6305], `BarLayout.Tiles`), each
-  that core's history drawn by the shared `SparkBand` edge to edge in its tile (sliding as the main
-  graph does, [S-1826]) in its load's pressure colour over the columns' faint track, its load above
+  that core's history drawn by the shared `SparkBand` edge to edge in its tile (stepping as the main
+  graph does, [S-6331]) in its load's pressure colour over the columns' faint track, its load above
   the line at the top left (`CoreGraphGrid`). The Chart span applies (the span line is offered in this
   style as in Graph, `GaugeConfig.StyleChartsHistory`). Debug: `--style coregraphs --state history`
   draws sixteen fixture cores.

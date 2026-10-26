@@ -2,7 +2,7 @@
 
 The module `gpu` ([S-6911]): one graphics adapter's load. Its tags are this file's alone; the root
 `SPEC.md` holds the host's sections and what the meters share (the meter framework [S-1120]..[S-1126],
-[S-1762], [S-1824], the styles' looks [S-6300]..[S-6305] and the gauge [S-6314], the glides [S-6323],
+[S-1762], [S-1824], the styles' looks [S-6300]..[S-6305] and the gauge [S-6314], the readouts' rule [S-6330],
 the system hub [S-2500]..[S-2513]); the sampler and the load's rules are the host's and the SDK's with
 their root tags ([S-430] the tile and the adapter's short name, [S-431] DXGI and the counters, [S-434]
 the busiest engine, [S-435] NVML, [S-6322] the engines, `GpuRules`), the adapter line the shared one

@@ -284,7 +284,6 @@ public sealed partial class SettingsMenuTests
     [InlineData("appearance/text/font", "FontFamily")]
     [InlineData("appearance/text/size", "FontScale")]
     [InlineData("appearance/cards/gap", "WidgetGapPx")]
-    [InlineData("appearance/motion/smooth", "SmoothValues")]
     public void S3526_each_line_writes_its_pages_field_and_nothing_else(string path, string field)
     {
         var host = new FakeHost();

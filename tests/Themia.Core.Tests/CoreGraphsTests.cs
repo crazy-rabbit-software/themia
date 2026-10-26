@@ -24,12 +24,12 @@ public sealed class CoreGraphsTests
     };
 
     [Fact]
-    public void S6318_a_cores_history_is_what_the_span_and_its_slide_need_not_an_hour()
+    public void S6318_a_cores_history_is_what_the_span_and_its_folding_need_not_an_hour()
     {
         Assert.Equal(0, CoreHistory.CapacityFor(0));
 
-        // A minute at a point a second, plus the slide's lead on the narrowest tile (12 slots: folds of 5).
-        Assert.Equal(60 + SparkScroll.Lead(5), CoreHistory.CapacityFor(60));
+        // A minute at a point a second, plus the folding's lead on the narrowest tile (12 slots: folds of 5).
+        Assert.Equal(60 + SparkSlots.Lead(5), CoreHistory.CapacityFor(60));
         Assert.True(CoreHistory.CapacityFor(3600) > 3600);
         Assert.True(CoreHistory.CapacityFor(60) < 100);
     }

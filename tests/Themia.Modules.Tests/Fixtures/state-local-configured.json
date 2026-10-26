@@ -379,7 +379,6 @@
     "transitionAnimationMs": 500,
     "unlockAnimation": "Scale",
     "unlockAnimationMs": 500,
-    "smoothValues": true,
     "runAtStartup": false
   },
   "preferences": {

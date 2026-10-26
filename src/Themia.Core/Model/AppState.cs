@@ -255,12 +255,6 @@ public sealed class DesignState
 
     public double UnlockAnimationMs { get; set; } = 500;
 
-    /// <summary>
-    /// [S-6329] Live values move smoothly: readouts and their colours glide to each reading ([S-6323])
-    /// and history charts scroll ([S-1826]). Off, both jump as with Windows' animation effects off.
-    /// </summary>
-    public bool SmoothValues { get; set; } = true;
-
     /// <summary>Launch with Windows, via the per-user Run key.</summary>
     public bool RunAtStartup { get; set; }
 
@@ -288,7 +282,6 @@ public sealed class DesignState
         TransitionAnimationMs = TransitionAnimationMs,
         UnlockAnimation = UnlockAnimation,
         UnlockAnimationMs = UnlockAnimationMs,
-        SmoothValues = SmoothValues,
         RunAtStartup = RunAtStartup,
     };
 }

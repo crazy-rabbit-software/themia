@@ -18,14 +18,6 @@ internal sealed class NetworkMeter : MeterPart
     /// <summary>"1023 KB/s": the widest a rate is written.</summary>
     public override HeroBound Reading => HeroBound.Of(Formatting.Rate(1023 * 1024));
 
-    /// <summary>[S-6325] The rate glides in bytes a second, each step written as the reading is (its unit with it).</summary>
-    public override double? Number(MeterReading reading) => reading.Available ? reading.Value : null;
-
-    public override string Format(double number) => Formatting.Rate(number);
-
-    /// <summary>A rate has no step of its own: only the glide's step limit.</summary>
-    public override double Resolution => 0;
-
     /// <summary>[S-1124] Against the visible window's peak, never the session's; floor 1 KB/s.</summary>
     public override ChartScale Scale => ChartScale.Peak(Sources.NetworkChartFloor);
 

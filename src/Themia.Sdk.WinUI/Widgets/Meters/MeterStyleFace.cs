@@ -44,18 +44,15 @@ internal abstract partial class MeterStyleFace : Grid
     /// <summary>Whether a reading has been drawn yet: a face built after the last sample shows that one at once.</summary>
     public bool HasReading { get; private set; }
 
-    /// <summary>[S-6328] How long the face's figures, fills and colours take to reach a new reading: the series' period.</summary>
-    public TimeSpan GlidePeriod { get; set; } = GlideMotion.Tick;
-
-    /// <summary>One reading reached the screen, with the pressure colour the history would have had; <paramref name="settle"/> shows it at once.</summary>
-    public void Present(MeterReading reading, Brush pressure, bool settle = false)
+    /// <summary>[S-6330] One reading reached the screen, with the pressure colour the history would have had: drawn at once.</summary>
+    public void Present(MeterReading reading, Brush pressure)
     {
         HasReading = true;
-        Draw(reading, pressure, settle);
+        Draw(reading, pressure);
     }
 
-    /// <summary>Draw one reading, gliding to it unless <paramref name="settle"/>.</summary>
-    protected abstract void Draw(MeterReading reading, Brush pressure, bool settle);
+    /// <summary>Draw one reading.</summary>
+    protected abstract void Draw(MeterReading reading, Brush pressure);
 
     /// <summary>Lay the face out for the card's area.</summary>
     public abstract void Lay(WidgetArea area);
@@ -65,42 +62,21 @@ internal abstract partial class MeterStyleFace : Grid
         => new(Math.Max(0, area.Width - (2 * HeroLayout.SideInset)), Math.Max(0, area.Height - HeroLayout.TopInset - Bottom));
 
     /// <summary>
-    /// [S-6325] A figure on a readout: gliding through its numbers to the reading's own text, split as
-    /// every meter's reading is ([S-3860]), dimmed when unavailable ([S-82]); a figure that is not a
-    /// number ("--") is shown at once.
+    /// [S-6330] A figure on a readout: the reading's own text, split as every meter's reading is
+    /// ([S-3860]), dimmed when unavailable ([S-82]); split again only when the text changed.
     /// </summary>
-    protected sealed class Figure
+    protected sealed class Figure(HeroReadout readout)
     {
-        private readonly HeroReadout _readout;
-        private readonly Func<double, string> _format;
-        private readonly NumberGlide _glide;
-        private string _primary = string.Empty;
         private string _shown = string.Empty;
 
-        public Figure(HeroReadout readout, Func<double, string> format, double resolution)
+        public void Show(string text, bool available)
         {
-            _readout = readout;
-            _format = format;
-            _glide = new NumberGlide(number => Write(_glide!.Target == number ? _primary : _format(number)), resolution);
-        }
-
-        public void Show(double? number, string text, bool available, TimeSpan period, bool settle)
-        {
-            _primary = text;
-            _readout.ValueLine.Foreground = available ? PrimaryBrush : DisabledBrush;
-
-            if (available && number is { } n)
+            var brush = available ? PrimaryBrush : DisabledBrush;
+            if (!ReferenceEquals(readout.ValueLine.Foreground, brush))
             {
-                _glide.Set(n, period, settle);
-                return;
+                readout.ValueLine.Foreground = brush;
             }
 
-            _glide.Set(null, period);
-            Write(text);
-        }
-
-        private void Write(string text)
-        {
             if (text == _shown)
             {
                 return;
@@ -108,7 +84,7 @@ internal abstract partial class MeterStyleFace : Grid
 
             _shown = text;
             var split = HeroLayout.Split(text);
-            _readout.SetValue(split.Value, split.Unit, split.Spaced);
+            readout.SetValue(split.Value, split.Unit, split.Spaced);
         }
     }
 
@@ -137,8 +113,8 @@ internal sealed partial class NumbersFace : MeterStyleFace
 
     public NumbersFace()
     {
-        _downFigure = new Figure(_down, Formatting.Rate, 0);
-        _upFigure = new Figure(_up, Formatting.Rate, 0);
+        _downFigure = new Figure(_down);
+        _upFigure = new Figure(_up);
         _down.Icon.Glyph = Glyphs.Download;
         _up.Icon.Glyph = Glyphs.Upload;
         RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
@@ -149,11 +125,11 @@ internal sealed partial class NumbersFace : MeterStyleFace
         Children.Add(_up);
     }
 
-    protected override void Draw(MeterReading reading, Brush pressure, bool settle)
+    protected override void Draw(MeterReading reading, Brush pressure)
     {
-        _downFigure.Show(reading.Value, reading.Primary, reading.Available, GlidePeriod, settle);
+        _downFigure.Show(reading.Primary, reading.Available);
         var up = reading.Available && reading.Second is { } second && double.IsFinite(second) ? second : (double?)null;
-        _upFigure.Show(up, up is { } u ? Formatting.Rate(u) : "--", reading.Available, GlidePeriod, settle);
+        _upFigure.Show(up is { } u ? Formatting.Rate(u) : "--", reading.Available);
         _down.Icon.Foreground = pressure;
         _up.Icon.Foreground = pressure;
     }
@@ -197,11 +173,12 @@ internal abstract partial class PictureFaceBase : MeterStyleFace
     private readonly HeroReadout _figure = Readout();
     private readonly Canvas _picture = new() { HorizontalAlignment = HorizontalAlignment.Center, VerticalAlignment = VerticalAlignment.Center };
     private readonly StackPanel _stack = new() { HorizontalAlignment = HorizontalAlignment.Center, VerticalAlignment = VerticalAlignment.Center };
-    private Figure? _glide;
+    private readonly Figure _shown;
     private TypeStep? _step;
 
     protected PictureFaceBase()
     {
+        _shown = new Figure(_figure);
         _stack.Children.Add(_picture);
         _stack.Children.Add(_figure);
         Children.Add(_stack);
@@ -215,21 +192,11 @@ internal abstract partial class PictureFaceBase : MeterStyleFace
 
     protected Canvas Picture => _picture;
 
-    /// <summary>[S-6325] The figure written from a number on its way ("64%", "23 ms").</summary>
-    protected abstract string FormatFigure(double number);
-
-    /// <summary>[S-6325] The figure's own step.</summary>
-    protected abstract double FigureResolution { get; }
-
     /// <summary>Draw the picture into <see cref="Picture"/> at its size.</summary>
     protected abstract void DrawPicture(double width, double height);
 
-    /// <summary>The figure: gliding from <paramref name="number"/> to <paramref name="text"/>, or the text at once.</summary>
-    protected void ShowFigure(double? number, string text, bool available, bool settle)
-    {
-        _glide ??= new Figure(_figure, FormatFigure, FigureResolution);
-        _glide.Show(number, text, available, GlidePeriod, settle);
-    }
+    /// <summary>The figure: the reading's own text.</summary>
+    protected void ShowFigure(string text, bool available) => _shown.Show(text, available);
 
     public override void Lay(WidgetArea area)
     {
@@ -267,22 +234,11 @@ internal sealed partial class BatteryFace : PictureFaceBase
     private readonly Rectangle _cap = new() { Fill = OutlineBrush };
     private readonly Rectangle _fill = new();
     private readonly FontIcon _bolt = new() { Glyph = Glyphs.ChargingBolt, Foreground = PrimaryBrush, Visibility = Visibility.Collapsed };
-    private readonly NumberGlide _level;
-    private readonly ColorGlide _colour = new();
     private BatteryShapePlan _plan;
     private double _fraction;
 
     public BatteryFace()
     {
-        // [S-6328] The fill glides to the charge, a five-hundredth at a time, in a colour that glides too.
-        _level = new NumberGlide(
-            fraction =>
-            {
-                _fraction = fraction;
-                Fill();
-            },
-            0.002);
-        _fill.Fill = _colour.Brush;
         Picture.Children.Add(_body);
         Picture.Children.Add(_cap);
         Picture.Children.Add(_fill);
@@ -293,23 +249,28 @@ internal sealed partial class BatteryFace : PictureFaceBase
 
     protected override HeroBound FigureBound => HeroBound.Of(Formatting.Percent(1));
 
-    protected override string FormatFigure(double number) => Formatting.Percent(number);
-
-    protected override double FigureResolution => 0.01;
-
-    protected override void Draw(MeterReading reading, Brush pressure, bool settle)
+    protected override void Draw(MeterReading reading, Brush pressure)
     {
-        ShowFigure(reading.Available ? reading.Fraction : null, reading.Primary, reading.Available, settle);
-        _colour.Set(pressure, GlidePeriod, settle);
+        ShowFigure(reading.Primary, reading.Available);
+
+        if (!ReferenceEquals(_fill.Fill, pressure))
+        {
+            _fill.Fill = pressure;
+        }
 
         // [S-1940] No battery on this machine: the same battery, its outline and fill disabled.
         _body.Stroke = reading.Absent ? UnavailableLook.Stroke : OutlineBrush;
         _cap.Fill = reading.Absent ? UnavailableLook.Stroke : OutlineBrush;
 
-        // No reading is an empty battery at once, not one draining away; no battery at all stands at
-        // the middle ([S-1941]).
+        // [S-6330] The charge at once; no reading is an empty battery, no battery at all stands at the
+        // middle ([S-1941]).
         var level = Unavailable.Fraction(reading) ?? 0;
-        _level.Set(level, GlidePeriod, settle || !reading.Available);
+        if (level != _fraction)
+        {
+            _fraction = level;
+            Fill();
+        }
+
         _bolt.Visibility = reading.Available && reading.Charging ? Visibility.Visible : Visibility.Collapsed;
     }
 
@@ -378,14 +339,10 @@ internal sealed partial class SignalFace : PictureFaceBase
 
     protected override HeroBound FigureBound => HeroBound.Of(Formatting.Latency(999));
 
-    protected override string FormatFigure(double number) => Formatting.Latency(number);
-
-    protected override double FigureResolution => 1;
-
-    /// <summary>The figure glides; the bars are a level, a state, and step ([S-6324]).</summary>
-    protected override void Draw(MeterReading reading, Brush pressure, bool settle)
+    /// <summary>The figure and the bars, a level, at once.</summary>
+    protected override void Draw(MeterReading reading, Brush pressure)
     {
-        ShowFigure(reading.Available ? reading.Value : null, reading.Primary, reading.Available, settle);
+        ShowFigure(reading.Primary, reading.Available);
         _level = PingSignal.Level(reading.Available ? reading.Value : null);
         _lit = pressure;
         Paint();
@@ -433,35 +390,32 @@ internal sealed partial class RingMeterFace : MeterStyleFace
 {
     private readonly RingPart _ring = new();
     private readonly HeroReadout _figure = Readout();
-    private readonly Figure _glide;
-    private readonly NumberGlide _sweep;
-    private readonly ColorGlide _colour = new();
+    private readonly Figure _shown;
+    private Brush? _brush;
     private TypeStep? _step;
 
     public RingMeterFace()
     {
-        // [S-6328] The figure, the ring's sweep and its colour each glide to the reading.
-        _glide = new Figure(_figure, Formatting.Percent, 0.01);
-        _sweep = new NumberGlide(fraction => _ring.SetFraction(fraction), 0.002);
-        _ring.SetBrush(_colour.Brush);
+        _shown = new Figure(_figure);
         _ring.Root.HorizontalAlignment = HorizontalAlignment.Center;
         _ring.Root.VerticalAlignment = VerticalAlignment.Center;
         _ring.Add(_figure);
         Children.Add(_ring.Root);
     }
 
-    protected override void Draw(MeterReading reading, Brush pressure, bool settle)
+    protected override void Draw(MeterReading reading, Brush pressure)
     {
-        // [S-1941] The figure is the reading's own; the sweep stands at the middle for a thing not on this machine.
-        var fraction = Unavailable.Fraction(reading);
-        _glide.Show(reading.Available ? reading.Fraction : null, reading.Primary, reading.Available, GlidePeriod, settle);
-        _colour.Set(pressure, GlidePeriod, settle);
-        _sweep.Set(fraction, GlidePeriod, settle || !reading.Available);
+        // [S-6330] The figure, the sweep and its colour at once. [S-1941] The figure is the reading's
+        // own; the sweep stands at the middle for a thing not on this machine.
+        _shown.Show(reading.Primary, reading.Available);
 
-        if (fraction is null)
+        if (!ReferenceEquals(_brush, pressure))
         {
-            _ring.SetFraction(null);
+            _brush = pressure;
+            _ring.SetBrush(pressure);
         }
+
+        _ring.SetFraction(Unavailable.Fraction(reading));
     }
 
     public override void Lay(WidgetArea area)

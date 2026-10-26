@@ -16,7 +16,7 @@ namespace Themia.Core.SystemData;
 /// </summary>
 public sealed class CoreHistory
 {
-    /// <summary>The narrowest core tile a history is sized for, in DIPs: its folding sets the lead the slide needs ([S-1826]).</summary>
+    /// <summary>The narrowest core tile a history is sized for, in DIPs: its folding sets the lead it needs ([S-6331]).</summary>
     public const double NarrowestTile = 24;
 
     private float[] _loads = [];
@@ -37,9 +37,9 @@ public sealed class CoreHistory
 
     /// <summary>
     /// [S-6318] The samples a <paramref name="spanSeconds"/> span needs at the hub's one-second
-    /// cadence: the span's points and the lead its band slides with on the narrowest tile (the slot
-    /// sliding out at the left, the newest beyond the right, [S-1826]). 0 for no span: nothing shows
-    /// the style.
+    /// cadence: the span's points and the lead its band folds with on the narrowest tile (the slot
+    /// still filling, the oldest slot's members the span cuts off, [S-6331]). 0 for no span: nothing
+    /// shows the style.
     /// </summary>
     public static int CapacityFor(int spanSeconds)
     {
@@ -49,7 +49,7 @@ public sealed class CoreHistory
         }
 
         var points = MeterTiming.Points(spanSeconds, SystemCadence.TickSeconds);
-        return points + SparkScroll.Lead(MeterTiming.BucketSize(points, NarrowestTile));
+        return points + SparkSlots.Lead(MeterTiming.BucketSize(points, NarrowestTile));
     }
 
     /// <summary>

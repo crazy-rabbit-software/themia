@@ -10,8 +10,7 @@ namespace Themia.App.Widgets;
 /// Debug renders only ([S-1917]): <c>history</c> fills the chart with a fixture series, so the
 /// history's edges ([S-1824]) can be looked at without waiting a minute for real samples;
 /// <c>sample</c> ([S-6300]) shows a fixed reading and the kind's fixed items, so every style
-/// renders the same picture on every machine. With <c>--tween p</c> the sample is drawn that far
-/// from a lower reading and shifted items ([S-6328]): every glide between two values, still.
+/// renders the same picture on every machine.
 /// <c>unavailable</c> ([S-1940]) is the kind's reading for a thing not on this machine (no battery),
 /// for a kind that can be missing.
 /// </summary>
@@ -34,7 +33,7 @@ public sealed partial class MeterView : IWidgetPreviewState
             _watch?.Dispose();
             _watch = null;
             _standIn = false;
-            Present(absent, settle: true);
+            Present(absent);
             Lay();
             return Task.CompletedTask;
         }
@@ -54,7 +53,7 @@ public sealed partial class MeterView : IWidgetPreviewState
             _frozen = true;
             _items?.Dispose();
             _items = null;
-            ShowItems(_part.SampleItems, point: false, settle: true);
+            ShowItems(_part.SampleItems, point: false);
 
             for (var core = 0; core < _graphs.Count; core++)
             {
@@ -82,30 +81,9 @@ public sealed partial class MeterView : IWidgetPreviewState
         _items = null;
         _ = ShowPreviewStateAsync("history");
 
-        if (GlideMotion.PreviewProgress is not null)
-        {
-            // [S-6328] Where the glide starts: a lower reading and the items shifted by five.
-            Present(Lower(_part.SampleReading), settle: true);
-            var items = _part.SampleItems;
-            ShowItems([.. items.Select((_, i) => items[(i + 5) % items.Count])], point: false, settle: true);
-        }
-
         Present(_part.SampleReading);
         ShowItems(_part.SampleItems, point: false);
         Lay();
-    }
-
-    /// <summary>A reading at a third of <paramref name="reading"/>, written as the kind writes it.</summary>
-    private MeterReading Lower(MeterReading reading)
-    {
-        var number = _part.Number(reading) is { } n ? n / 3 : 0;
-        return reading with
-        {
-            Fraction = reading.Fraction / 3,
-            Value = reading.Value / 3,
-            Second = reading.Second / 3,
-            Primary = _part.Format(number),
-        };
     }
 }
 #endif

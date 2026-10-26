@@ -1538,8 +1538,9 @@ mechanism), `Shell/DesktopWindow.SettingsMenu.cs`, `Services/AppHost.SettingsMen
 - **[S-3529]** **Motion ›** ([S-1014]): Startup animation ›, Unlock animation ›, View change
   animation ›, each with its style at its end and as its level the ten styles, the tick on the one that holds,
   **Length** (the animation's, a slider from 0.1 to 5 s in tenths, written in seconds) and **Play it now**;
-  then **Smooth value changes** ([S-6329]); and, while Windows' animation effects are off, a note that
-  nothing plays ([S-1010]). A new style or length is stored and played on the desktop at once.
+  and, while Windows' animation effects are off, a note that nothing plays ([S-1010]). Live values
+  have no line here: they never move ([S-6330]; the Smooth value changes switch is gone).
+  A new style or length is stored and played on the desktop at once.
 - **[S-3530]** **Online updates ›** ([S-3780]): one line per cadence row (the host's, then any
   provider's own, [S-6910]), its value the interval that holds ("Every 30 minutes") and its level
   the row's intervals with the tick, then a note of what the intervals mean. A pick is stored with no
@@ -3986,77 +3987,46 @@ plots and how it is coloured. Layout is the SDK's `MeterFace` (tests `MeterFaceT
   shared ticker keeps whole-second cadences under a minute (`TickSchedule.Normalise`; it used to
   collapse them all to one second), so a meter set to 5 s samples every 5 s and its chart spans
   its configured span.
-- **[S-1826]** **The history scrolls, it does not step** (user request 2026-10-16). Every `SparkBand`
-  (the meters, Battery and Ping included, and every GPU panel) draws its line **one sample behind**:
-  a new point is placed one sample step beyond the right edge and the traces are slid left by
-  exactly that step over the series' period (1 s; a ping's 5 s, [S-2512]) by a linear composition
-  animation on their container's `Translation`, so between points nothing is redrawn on the UI
-  thread. The next point rebuilds the geometry once and resets the translation in the same frame;
-  a point's x depends only on its distance from the newest (`SparkScroll.PlotX`), so the rebuilt
-  line lies where the slid one ended. The band holds `SparkScroll.Lead` points beyond its span (the
-  slot sliding out at the left, the newest beyond the right) and clips to its own bounds, so the
-  edge-to-edge look and the half-stroke right inset ([S-1824]) are what shows once a slide ends.
-  The reading is never delayed: only the line is a sample behind it. Not for charts of a fixed
-  range (Stocks, Exchange rates, the forecast curve, Screen time) or the audio visualizer.
-- **[S-1827]** Only a new point slides. A history loaded (a view switch, edit mode, a longer span),
-  a clear, a span or scale change and a resize draw **settled** — the newest point on the right
-  edge, still — which is where a finished slide stands, so nothing jumps when a meter is built
-  again and the next point slides on from there. A paused series (a parked view, a slow probe)
-  simply ends its slide settled and waits; a point that arrives before a slide ends replaces it.
-- **[S-1828]** With Windows' **Animation effects** off ([S-1010]), the user's **Smooth value
-  changes** off ([S-6329]) or the band not shown, a point draws settled: no lag, today's one step per
-  point. Read at each point, so flipping either setting applies to the next one.
+- **[S-1826]** *(Retired by [S-6330]: the history no longer scrolls between points; it steps once per finished slot, [S-6331].)*
+- **[S-1827]** *(Retired by [S-6330]: every drawing is settled, so there is no slide for a point to start.)*
+- **[S-1828]** *(Retired by [S-6330]: nothing slides, whatever Windows' animation effects say; there is no Smooth value changes switch.)*
 - **[S-1829]** A folded slot ([S-1121]) stands at the time of its last member and is **drawn only once
   that member has arrived**: a slot still taking points changes value with each one, and the segment
-  into it would show that at the right edge. A folded chart therefore stands a further slot less one
-  sample behind, so a slot that just finished starts a whole slot beyond the right edge and slides in
-  over its points' periods, one sample step per point; nothing on screen changes value as points
-  arrive. The traces sit in a `Canvas`, not a `Grid`: a Grid arranges its shapes at the band's size
-  and clips them there in their own coordinates, so the point beyond the right edge was cut off,
-  slid in as a gap, and the next point appeared at the edge. The band's own clip is the only edge. A rate chart's top is the drawn
-  slots' peak, the newest beyond the edge included, so the scale is in place before that point
-  slides into view. Debug renders draw a fixed point of the slide: `--widget-png <Kind> --state
-  history --progress 0..1 [--span s]` (0 just after a point, 1 slid one step; the geometry of a
-  point's arrival under the translation the slide has reached, so the still shows what is clipped).
-- **[S-6323]** **Readouts glide, they do not jump** (user request 2026-10-16). Every live readout
-  that moves with the hub's reads — a meter's number (every style, the faces' figures, the
-  network's two numbers, a core's figure), the gauge's and the ring's sweep, a bar's fill (cores,
-  memory, disk, GPU engines), the battery's fill, a core tile's shade and every one of their
-  pressure colours — moves from what it shows to the new reading **linearly over one period of its
-  series** (1 s; a ping's 5 s), the history's own motion ([S-1826]), so the number reaches a reading
-  as its point reaches the chart's edge (the reading is thus up to one period behind, as the line
-  is). Linear, not ease-out: readings come every period and an ease-out would rush and stall once a
-  second. A reading arriving mid-glide glides on from where the readout stands (`Core/Motion/Glide`,
-  App `Widgets/Glides.cs`: one helper for every readout).
-- **[S-6324]** Only numbers glide: a reading appearing, vanishing or becoming unavailable, a label, a
-  state (charging, the ping's signal bars, the absent battery) and the row texts ("Read 42 MB/s") are
-  shown at once (`Glide.Plan`).
-- **[S-6325]** A number counts in its own resolution (a whole percent; a whole millisecond; a rate in
-  its formatted unit) and at most 20 steps a second however far it goes (`Glide.Quantum`), each step
-  the value the line has reached rounded towards the target (`Glide.Shown`), written by the kind's own
-  formatter and landing on the reading's own text. It is redrawn only when its next step is due
-  (`Glide.NextChange`): one shared one-shot timer (`GlideClock`) armed for the earliest due step,
-  idle once every readout shows its target; no frame callback, no repeating timer.
-- **[S-6326]** With Windows' **Animation effects** off ([S-1010]) or **Smooth value changes** off
-  ([S-6329]) every readout jumps as before. Read per glide (Windows asked at most once a second, the
-  user's switch every time), so flipping either applies to the next reading.
-- **[S-6327]** Colours glide through OKLab (`OkLab.Mix`): accent to caution passes even-lightness
-  colours, not sRGB's muddy middle; the compositor plays four straight key-framed segments along that
-  path (`ColorGlide`, a brush of the readout's own). Fills, shades and transforms (a bar's scale, a
-  tile's opacity) are independent compositor animations (`DoubleGlide`); only numbers and arcs are
-  stepped on the UI thread.
-- **[S-6328]** Debug renders draw a fixed point of every glide: `--widget-png <Kind> --state sample
-  --tween 0..1` draws the sample from a reading a third as large (items shifted by five) that far
-  towards it.
-- **[S-6329]** **Smooth value changes** (user request 2026-10-16), the settings menu's Appearance › Motion ([S-3529]),
-  a toggle, **on by default** (`DesignState.SmoothValues`): one switch for every smooth motion of a
-  live value, the readouts' glides ([S-6323]..[S-6327]) **and** the history charts' scroll ([S-1826]),
-  since the two are one motion (a number reaches a reading as its point reaches the edge) and one
-  without the other would put them a period apart. Off, values, colours and charts jump to each
-  reading, as with Windows' animation effects off. Both ask one rule (`Glide.Smooth`: Windows'
-  animation effects and the switch). Not the clock's flip or the intros: those are a style's or a
-  moment's motion, not a value's. Like the intros, not part of a design preset ([S-1014]). Debug
-  stills (`--tween`, `--progress`) draw regardless.
+  into it would show that at the right edge. So nothing on screen changes value as points arrive, and
+  a folded chart steps one slot each time a slot finishes ([S-6331]). The traces sit in a `Canvas`,
+  not a `Grid`, so the shapes keep their own coordinates and the band's own clip is the only edge. A
+  rate chart's top is the drawn slots' peak ([S-1124]). Debug: `--widget-png <Kind> --state history
+  [--span s]` draws a fixture history at a span (an hour folds on any tile). *(Its slide, its lag of
+  a slot less one sample and `--progress` are retired by [S-6330].)*
+- **[S-6323]** *(Retired by [S-6330]: readouts no longer glide between readings.)*
+- **[S-6324]** *(Retired by [S-6330].)*
+- **[S-6325]** *(Retired by [S-6330]: no number counts towards a reading; `Glide`, `GlideClock` are gone.)*
+- **[S-6326]** *(Retired by [S-6330]: every readout jumps, whatever Windows' animation effects say.)*
+- **[S-6327]** *(Retired by [S-6330]: no colour glides; `OkLab`, `ColorGlide`, `DoubleGlide` are gone.)*
+- **[S-6328]** *(Retired by [S-6330]: there is nothing between two readings to draw; `--tween` is gone.)*
+- **[S-6329]** *(Retired by [S-6330]: there is no Smooth value changes switch; `DesignState.SmoothValues`
+  is gone, and a stored one is ignored as any unknown field is.)*
+- **[S-6330]** **Live values step once per sample, they never animate** (user request 2026-10-26:
+  the smooth motion cost too much CPU; it reverses [S-1826] and [S-6323]). Every history chart (the
+  meters', every GPU panel's, the CPU's core graphs) and every readout that moves with the hub's
+  reads — a meter's number in every style, the faces' figures, the network's two numbers, a core's
+  figure, the gauge's and the ring's sweep, a bar's fill (cores, memory, disk, GPU engines), the
+  battery's fill, a core tile's shade and every pressure colour — shows each reading **at once, when
+  it arrives**, and stands still until the next: on the hub's one cadence ([S-2503]: every second; a
+  ping every five, [S-2512]), which is not a setting ([S-1120]). Nothing runs between two readings:
+  no frame callback, no timer, no storyboard or compositor animation, no setting to turn any of it
+  on. The reading and its point are never delayed. Not the clock's flip, the intros or the menus'
+  motion: those are a style's or a moment's, not a value's.
+- **[S-6331]** A history chart is drawn **settled** (`SparkSlots`): the newest finished slot on the
+  right edge, half a stroke inside it ([S-1824]), each older one a whole slot to its left, the oldest
+  half a stroke from the left edge once the window is full (a young one grows in from the right,
+  [S-1825]). A point that finishes a slot redraws the chart once (a slot is one point unfolded, so
+  every sample; folded, every `size` samples, [S-1121]: the only interval the chart's span sets); a
+  point that finishes none draws nothing (`SparkSlots.Moves`), and a band not shown draws nothing
+  until it is shown again. A history loaded, a clear, a span or scale change and a resize draw it
+  the same way. The band holds `SparkSlots.Lead` points beyond its span (the slot still filling and
+  the oldest slot's members the span cuts off), so a whole window of finished slots is always on
+  screen.
 - **[S-6300]** **Meter styles** ([S-6000]): a meter's style says what stands beside its reading
   (`MeterLook`: the history, a gauge, the kind's items as columns, rows or tiles); the reading is the
   same hero readout in every style. One shared set of parts draws them for every meter
@@ -7186,7 +7156,7 @@ Ported from the original's `src/SPEC.md` [S-15], [S-16], [S-23], [S-24], [S-26],
   from the first frame. The show ends on its animations' completion (one scoped batch), not a timer.
 - **[S-1014]** The settings menu's Appearance › Motion ([S-3529]): one submenu per moment (Startup,
   Unlock, View change) with the style, the length of the whole animation (100..5000 ms) and Play it
-  now, then the Smooth value changes switch ([S-6329]). Any change replays that moment on the
+  now ([S-6330]: live values never move, so there is no switch for them). Any change replays that moment on the
   desktop. The startup sound ([S-1008], [S-1009]) is removed.
 - **[S-1015]** Every intro runs on the compositor (`MotionKit`): keyframe and expression animations,
   no per-frame managed timer, no layout pass, no redraw of a widget.
