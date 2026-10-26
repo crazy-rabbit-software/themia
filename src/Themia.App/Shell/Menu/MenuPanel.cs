@@ -360,7 +360,7 @@ internal partial class MenuPanel : Grid
             _menu.Children.Add(part);
         }
 
-        var list = new StackPanel { Padding = new Thickness(0, Fluent.Space1, 0, Fluent.Space1), XYFocusKeyboardNavigation = XYFocusKeyboardNavigationMode.Enabled };
+        var list = new StackPanel { Background = new Microsoft.UI.Xaml.Media.SolidColorBrush(Microsoft.UI.Colors.Transparent), Padding = new Thickness(0, Fluent.Space1, 0, Fluent.Space1), XYFocusKeyboardNavigation = XYFocusKeyboardNavigationMode.Enabled };
         var overlay = Overlay();
 
         // [S-3540] A long list scrolls inside the room it is given; with no limit it is as tall as its lines.
@@ -451,7 +451,7 @@ internal partial class MenuPanel : Grid
             return false;
         }
 
-        var lines = new StackPanel { Padding = new Thickness(0, Fluent.Space1, 0, Fluent.Space1), XYFocusKeyboardNavigation = XYFocusKeyboardNavigationMode.Enabled };
+        var lines = new StackPanel { Background = new Microsoft.UI.Xaml.Media.SolidColorBrush(Microsoft.UI.Colors.Transparent), Padding = new Thickness(0, Fluent.Space1, 0, Fluent.Space1), XYFocusKeyboardNavigation = XYFocusKeyboardNavigationMode.Enabled };
         var overlay = Overlay();
         var scroll = new ScrollViewer
         {

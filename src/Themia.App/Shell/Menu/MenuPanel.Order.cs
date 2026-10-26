@@ -6,6 +6,7 @@ using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Shapes;
 using Themia.App.Widgets;
+using Themia.Core.Diagnostics;
 using Themia.Core.Localization;
 using Themia.Core.Settings;
 using Themia.Core.Widgets;
@@ -17,9 +18,6 @@ namespace Themia.App.Shell;
 /// <summary>[S-3732] An ordered list's lines, dragged up and down inside their level.</summary>
 internal partial class MenuPanel
 {
-    /// <summary>[S-3732] The pointer's travel, in DIPs, that turns a press on a list's line into a drag ([S-913]'s threshold).</summary>
-    private const double DragThreshold = 4;
-
     /// <summary>[S-3732] A list's line being dragged (or pressed, before it travels far enough).</summary>
     private LineDrag? _drag;
 
@@ -29,27 +27,24 @@ internal partial class MenuPanel
     /// <summary>[S-3732] The line a keyboard move moved: it takes the focus back once its list is drawn again.</summary>
     private string? _refocus;
 
-    /// <summary>[S-3732] A press on a list's line, and the drag it became once it travelled far enough.</summary>
+    /// <summary>[S-3732] A press on a list's line, and the drag it became once it travelled far enough (<see cref="ListDrag"/>).</summary>
     private sealed class LineDrag(Level level, LineView view, double startY)
     {
         public Level Level { get; } = level;
 
         public LineView View { get; } = view;
 
-        public double StartY { get; } = startY;
-
-        public bool Active { get; set; }
-
-        public int Gap { get; set; } = -1;
+        public ListDrag Gesture { get; } = new(startY);
     }
 
     /// <summary>
     /// [S-3732] A line of an ordered list (<see cref="MenuOrder"/>): a mouse press that travels up or
     /// down past the threshold drags it among the list's lines, a drop line showing where it lands,
-    /// and the release moves the item there (one change, saved once); Alt+Shift+Up / Down moves it a
-    /// place ([S-3802]), the focus staying on it. Its tooltip and automation help say both. Drawn in
-    /// the menu's own window with the pointer captured, never an OLE drag: the surface takes no
-    /// drops and a drag image would hide the list it is dropped into.
+    /// and the release moves the item there (one change, saved once); [S-3748] Ctrl+Up / Down (and
+    /// Alt+Shift+Up / Down, [S-3802]) moves it a place, the focus staying on it. Its tooltip and
+    /// automation help say both. Drawn in the menu's own window with the pointer captured by the
+    /// list (<see cref="DragMoved"/>), never an OLE drag: the surface takes no drops and a drag image
+    /// would hide the list it is dropped into.
     /// </summary>
     private void Orderable(Level level, LineView view)
     {
@@ -66,52 +61,8 @@ internal partial class MenuPanel
                 : null;
         }), handledEventsToo: true);
 
-        button.AddHandler(PointerMovedEvent, new PointerEventHandler((_, e) =>
-        {
-            if (_drag is not { } drag || !ReferenceEquals(drag.View, view))
-            {
-                return;
-            }
-
-            var point = e.GetCurrentPoint(level.Lines);
-            if (!point.Properties.IsLeftButtonPressed)
-            {
-                EndDrag(drop: false);
-                return;
-            }
-
-            if (!drag.Active)
-            {
-                if (Math.Abs(point.Position.Y - drag.StartY) < DragThreshold)
-                {
-                    return;
-                }
-
-                drag.Active = true;
-                _swallowClick = true;
-                view.Root.Opacity = 0.5;
-                CloseFrom(_levels.IndexOf(level) + 1);
-                button.CapturePointer(e.Pointer);
-            }
-
-            ShowDrop(drag, point.Position.Y);
-        }), handledEventsToo: true);
-
-        button.AddHandler(PointerReleasedEvent, new PointerEventHandler((_, _) =>
-        {
-            if (_drag is { } drag && ReferenceEquals(drag.View, view))
-            {
-                EndDrag(drop: drag.Active);
-            }
-        }), handledEventsToo: true);
-
-        button.AddHandler(PointerCaptureLostEvent, new PointerEventHandler((_, _) =>
-        {
-            if (_drag is { Active: true } drag && ReferenceEquals(drag.View, view))
-            {
-                EndDrag(drop: false);
-            }
-        }), handledEventsToo: true);
+        button.AddHandler(PointerMovedEvent, new PointerEventHandler((_, e) => DragMoved(level, view, e)), handledEventsToo: true);
+        button.AddHandler(PointerReleasedEvent, new PointerEventHandler((_, _) => DragReleased(view)), handledEventsToo: true);
 
         // Tunnelling, so the line's own arrow keys (a submenu's) never see the shortcut.
         button.PreviewKeyDown += (_, e) =>
@@ -128,7 +79,7 @@ internal partial class MenuPanel
                 return;
             }
 
-            var delta = ReorderKeys.Delta(pressed, IsKeyDown(Windows.System.VirtualKey.Menu), IsKeyDown(Windows.System.VirtualKey.Shift), IsKeyDown(Windows.System.VirtualKey.Control));
+            var delta = ReorderKeys.MenuDelta(pressed, IsKeyDown(Windows.System.VirtualKey.Menu), IsKeyDown(Windows.System.VirtualKey.Shift), IsKeyDown(Windows.System.VirtualKey.Control));
             if (delta == 0)
             {
                 return;
@@ -144,6 +95,83 @@ internal partial class MenuPanel
             _refocus = view.Node.Key;
             Later(() => order.Move(order.Index, to));
         };
+    }
+
+    /// <summary>
+    /// [S-3732] [S-3747] The pointer moved over a pressed line: past the threshold the drag starts and
+    /// the list itself takes the pointer, so the line's button lets go of it (its release raises no
+    /// click) and the moves and the release come to the list (<see cref="OnListMoved"/>,
+    /// <see cref="OnListReleased"/>, <see cref="OnListCaptureLost"/>).
+    /// </summary>
+    private void DragMoved(Level level, LineView view, PointerRoutedEventArgs e)
+    {
+        if (_drag is not { } drag || !ReferenceEquals(drag.View, view) || drag.Gesture.Active)
+        {
+            return;
+        }
+
+        var point = e.GetCurrentPoint(level.Lines);
+        if (!drag.Gesture.Move(point.Position.Y, point.Properties.IsLeftButtonPressed))
+        {
+            if (!point.Properties.IsLeftButtonPressed)
+            {
+                _drag = null;
+            }
+
+            return;
+        }
+
+        _swallowClick = true;
+        view.Root.Opacity = 0.5;
+        CloseFrom(_levels.IndexOf(level) + 1);
+
+        level.Lines.PointerMoved -= OnListMoved;
+        level.Lines.PointerMoved += OnListMoved;
+        level.Lines.PointerReleased -= OnListReleased;
+        level.Lines.PointerReleased += OnListReleased;
+        level.Lines.PointerCaptureLost -= OnListCaptureLost;
+        level.Lines.PointerCaptureLost += OnListCaptureLost;
+        if (!level.Lines.CapturePointer(e.Pointer))
+        {
+            Log.Debug(Scope, "a list's drag could not take the pointer; the line's own release ends it");
+        }
+
+        ShowDrop(drag, point.Position.Y);
+    }
+
+    /// <summary>[S-3732] The list holds the pointer while one of its lines is dragged over it.</summary>
+    private void OnListMoved(object sender, PointerRoutedEventArgs e)
+    {
+        if (_drag is { Gesture.Active: true } drag && ReferenceEquals(sender, drag.Level.Lines))
+        {
+            ShowDrop(drag, e.GetCurrentPoint(drag.Level.Lines).Position.Y);
+        }
+    }
+
+    private void OnListReleased(object sender, PointerRoutedEventArgs e)
+    {
+        if (_drag is { } drag && ReferenceEquals(sender, drag.Level.Lines))
+        {
+            Finish(drag.Gesture.Release());
+        }
+    }
+
+    /// <summary>[S-3747] A capture lost with the button up is the release being handled: it drops; with it down it cancels.</summary>
+    private void OnListCaptureLost(object sender, PointerRoutedEventArgs e)
+    {
+        if (_drag is { } drag && ReferenceEquals(sender, drag.Level.Lines))
+        {
+            Finish(drag.Gesture.CaptureLost(e.GetCurrentPoint(drag.Level.Lines).Properties.IsLeftButtonPressed));
+        }
+    }
+
+    /// <summary>[S-3732] The line's own release: a click before the drag started, or a drag the list could not take the pointer for.</summary>
+    private void DragReleased(LineView view)
+    {
+        if (_drag is { } drag && ReferenceEquals(drag.View, view))
+        {
+            Finish(drag.Gesture.Release());
+        }
     }
 
     private static bool IsKeyDown(Windows.System.VirtualKey key)
@@ -164,12 +192,11 @@ internal partial class MenuPanel
 
         var boxes = lines.Select(v => v.Root.TransformToVisual(drag.Level.Lines).TransformBounds(new Rect(0, 0, v.Root.ActualWidth, v.Root.ActualHeight))).ToList();
         var gap = ListDrop.Gap([.. boxes.Select(b => b.Y + (b.Height / 2))], y);
-        if (gap == drag.Gap)
+        if (!drag.Gesture.Aim(gap))
         {
             return;
         }
 
-        drag.Gap = gap;
         var at = gap < boxes.Count ? boxes[gap].Y : boxes[^1].Y + boxes[^1].Height;
         var overlay = drag.Level.Overlay;
         overlay.Children.Clear();
@@ -186,8 +213,17 @@ internal partial class MenuPanel
         overlay.Children.Add(mark);
     }
 
-    /// <summary>[S-3732] The drag is over: the drop line goes, and where it was dropped the item moves there.</summary>
+    /// <summary>[S-3732] The drag is abandoned (its list drawn again or closed): nothing moves.</summary>
     private void EndDrag(bool drop)
+    {
+        if (_drag is { } drag)
+        {
+            Finish(drop ? drag.Gesture.Release() : drag.Gesture.Cancel());
+        }
+    }
+
+    /// <summary>[S-3732] The drag is over: the drop line goes, and where it was dropped the item moves there, once.</summary>
+    private void Finish(ListDragEnd end)
     {
         if (_drag is not { } drag)
         {
@@ -197,18 +233,21 @@ internal partial class MenuPanel
         _drag = null;
         drag.View.Root.Opacity = 1;
         drag.Level.Overlay.Children.Clear();
-        drag.View.Button.ReleasePointerCaptures();
-        if (!drag.Active)
+        drag.Level.Lines.PointerMoved -= OnListMoved;
+        drag.Level.Lines.PointerReleased -= OnListReleased;
+        drag.Level.Lines.PointerCaptureLost -= OnListCaptureLost;
+        drag.Level.Lines.ReleasePointerCaptures();
+        if (end == ListDragEnd.None)
         {
             return;
         }
 
-        // The click the release raises runs before this is queued back: it is swallowed, then the next counts.
+        // The click a release may still raise runs before this is queued back: it is swallowed, then the next counts.
         Later(() => _swallowClick = false);
 
-        if (drop && drag.Gap >= 0 && drag.View.Node.Order is { } order)
+        if (end == ListDragEnd.Drop && drag.View.Node.Order is { } order)
         {
-            var to = ListDrop.Target(order.Index, drag.Gap);
+            var to = ListDrop.Target(order.Index, drag.Gesture.Gap);
             if (to != order.Index)
             {
                 Later(() => order.Move(order.Index, to));
@@ -236,7 +275,8 @@ internal partial class MenuPanel
         }
 
         UpdateLayout();
-        var drag = new LineDrag(level, lines[from], 0) { Active = true };
+        var drag = new LineDrag(level, lines[from], 0);
+        drag.Gesture.Move(ListDrag.Threshold, buttonDown: true);
         _drag = drag;
         lines[from].Root.Opacity = 0.5;
         var middles = lines.Select(v => v.Root.TransformToVisual(level.Lines).TransformPoint(new Point(0, v.Root.ActualHeight / 2)).Y).ToList();

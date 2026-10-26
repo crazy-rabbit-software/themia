@@ -26,6 +26,17 @@ public sealed class AppPagesTests
     public void S3802_alt_shift_up_and_down_move_the_focused_item(ReorderArrow arrow, bool alt, bool shift, bool ctrl, int delta)
         => Assert.Equal(delta, ReorderKeys.Delta(arrow, alt, shift, ctrl));
 
+    [Theory]
+    [InlineData(ReorderArrow.Up, false, false, true, -1)]
+    [InlineData(ReorderArrow.Down, false, false, true, 1)]
+    [InlineData(ReorderArrow.Up, true, true, false, -1)]   // the Windows lists' shortcut too
+    [InlineData(ReorderArrow.Down, false, true, true, 0)]  // Ctrl+Shift is somebody else's
+    [InlineData(ReorderArrow.Down, true, false, true, 0)]
+    [InlineData(ReorderArrow.Up, false, false, false, 0)]  // an arrow alone moves the highlight
+    [InlineData(ReorderArrow.Left, false, false, true, 0)]
+    public void S3748_ctrl_up_and_down_move_a_menu_list_row(ReorderArrow arrow, bool alt, bool shift, bool ctrl, int delta)
+        => Assert.Equal(delta, ReorderKeys.MenuDelta(arrow, alt, shift, ctrl));
+
     // ---- [S-3810] / [S-3811] a view's colour -------------------------------------------------------
 
     [Theory]

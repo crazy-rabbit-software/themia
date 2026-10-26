@@ -8,7 +8,7 @@
   ],
   "menu.rename": "Rename…",
   "menu.add": "Add…",
-  "menu.reorderHint": "Drag to reorder, or press Alt+Shift+Up or Alt+Shift+Down",
+  "menu.reorderHint": "Drag to reorder, or press Ctrl+Up or Ctrl+Down",
   "menu.showAll": "Show all ({count})",
   "menu.numberRange": "Enter a number from {min} to {max}"
 }

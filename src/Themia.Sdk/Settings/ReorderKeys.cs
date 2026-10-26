@@ -35,4 +35,20 @@ public static class ReorderKeys
             _ => 0,
         };
     }
+
+    /// <summary>
+    /// [S-3748] How far a menu's highlighted list row moves: Karpo's Ctrl+Up and Ctrl+Down, and the
+    /// Windows lists' Alt+Shift+Up and Alt+Shift+Down ([S-3802]) the same; 0 for anything else.
+    /// </summary>
+    public static int MenuDelta(ReorderArrow arrow, bool alt, bool shift, bool ctrl)
+    {
+        var step = arrow switch
+        {
+            ReorderArrow.Up => -1,
+            ReorderArrow.Down => +1,
+            _ => 0,
+        };
+
+        return ctrl && !alt && !shift ? step : Delta(arrow, alt, shift, ctrl);
+    }
 }

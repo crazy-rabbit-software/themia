@@ -2068,10 +2068,19 @@ and the SDK's `Settings/ListDrop.cs` (tests `QuickSetTests`, `StripPlacementTest
   the gap it lands in (`ListDrop.Gap`: before the first line whose middle is below the pointer), and
   the release moves the item there (`ListDrop.Target`; the gaps either side of it leave it where it
   is) and saves once. It is drawn in the panel's own window with the pointer captured, never an OLE
-  drag. Alt+Shift+Up / Down on a focused item line moves it a place ([S-3802]), the focus staying
+  drag. Ctrl+Up / Down on a focused item line moves it a place ([S-3748]), the focus staying
   on it. Each item line carries a grip before its chevron and says both ways in its tooltip and its
-  automation help ("Drag to reorder, or press Alt+Shift+Up or Alt+Shift+Down"). A release on the
+  automation help ("Drag to reorder, or press Ctrl+Up or Ctrl+Down"). A release on the
   line it started on is not a click.
+- **[S-3747]** Once a press has travelled far enough to drag, the **list** takes the pointer (the
+  line's button lets go of it, so its release raises no click on the line) and the release comes to
+  the list, which drops; a capture lost while the button is up is that release being handled and
+  drops too, and only one taken away with the button still down cancels (`ListDrag`; user bug
+  2026-10-26: "reordering views does not work": the line's button gave up its capture as it handled
+  the release, before the release reached the menu, and the menu took that for a cancel, so no drag
+  ever moved anything). A drag ends once. Tests `ListDragTests`.
+- **[S-3748]** **Ctrl+Up / Down** on a menu list's highlighted row moves it a place, as Karpo's menus
+  do (`ReorderKeys.MenuDelta`); the Windows lists' Alt+Shift+Up / Down ([S-3802]) does the same there.
 - **[S-3733]** Where a **submenu** stands (`SubmenuPlacement.Place`; user request 2026-10-19):
   beside its parent level, its first line level with the line that opened it, inside the work area,
   covering neither the selected widgets' box ([S-3709]), the edit bar and the view bar, nor its
