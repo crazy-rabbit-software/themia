@@ -26,6 +26,12 @@ internal static unsafe class ShellSignals
         ["Progman", "WorkerW", "SHELLDLL_DefView", "SysListView32"];
 
     /// <summary>
+    /// The desktop layer's own top-level windows, the ones Show Desktop raises ([S-33]); the icon
+    /// view classes above are only ever their children.
+    /// </summary>
+    private static readonly string[] DesktopLayerClasses = ["Progman", "WorkerW"];
+
+    /// <summary>
     /// Surfaces the shell puts in front transiently: the taskbar, and the XAML islands that Start,
     /// Search and Task View are built from. None of them is an application the widgets should hide
     /// behind, and none of them means Show Desktop has ended.
@@ -83,6 +89,9 @@ internal static unsafe class ShellSignals
 
     /// <summary>Whether a real application window is still on screen — see <see cref="OnWindow"/> for what counts.</summary>
     public static bool AnyOrdinaryAppVisible() => Sweep();
+
+    /// <summary>[S-34b] Whether a top-level window is one of the desktop layer's own (<c>Progman</c>, a <c>WorkerW</c>).</summary>
+    public static bool IsDesktopLayerWindow(nint hwnd) => IsClass(hwnd, DesktopLayerClasses);
 
     /// <summary>Whether a window is currently cloaked by DWM: visible to Windows, but not composited.</summary>
     public static bool IsCloaked(nint hwnd)

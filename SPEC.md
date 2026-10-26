@@ -225,15 +225,59 @@ Sections, grouped by area (file order below; search for the heading).
   asking DWM to cloak them — a path that goes through neither `SC_MINIMIZE` nor `WM_SHOWWINDOW`, so
   no window procedure sees it. A cloaked window is still `IsWindowVisible`, still not iconic, still
   at whatever z-order it was put at, and simply never composited: no amount of z-order work recovers
-  it. `DWMWA_CLOAK` is cleared on every reconcile. Note this is **not** what fixes Show Desktop on
-  this build of Windows, which minimises instead ([S-33a]); it is the guard for the fullscreen case.
-- **[S-34a]** The cloak hook has a backstop behind it. An out-of-context `WinEvent` is silently
-  dropped when the callback cannot be delivered inside the hook timeout — a fullscreen game is
-  exactly that load — and a dropped cloak event would leave the surface invisible forever. A 1 s
-  timer re-asserts the invariant: one attribute read per surface, a write only when it is broken.
-- **[S-34b]** After any shell event the reconcile runs at 100 ms for a second before settling back to
-  1 s. A secondary monitor's `WorkerW` can elevate into the topmost band *after* the surfaces are
-  lifted, so the lift has to be re-asserted a few times to stick.
+  it. `DWMWA_CLOAKED` is read on every check and `DWMWA_CLOAK` cleared when it is set (logged with
+  the cloak's reason). Note this is **not** what fixes Show Desktop on this build of Windows, which
+  minimises instead ([S-33a]); it is the guard for the fullscreen case.
+- **[S-34a]** The controller is **event-driven, with no timer** (it had a 1 s backstop and a 100 ms
+  burst cadence). Every input of the decision changes only through a window-manager operation that
+  announces itself once it is done, and each announcement only queues one coalesced check on the UI
+  thread (`DesktopZOrder`); the check reads everything fresh ([S-33a]), so a burst costs one check
+  and an event that lands mid-transition is followed by the one that ends it. Which events count is
+  pure (`ZOrderEvents.Classify`):
+  - `EVENT_SYSTEM_FOREGROUND` (other processes): Show Desktop starting or ending, a game quitting,
+    Start opening. The one WinEvent that refills the repairs ([S-34d]).
+  - `EVENT_SYSTEM_MINIMIZESTART`/`END` (other processes, top-level windows): the user's windows
+    leaving or coming back, which decides the lift ([S-33a]) and its end ([S-33e]).
+  - `EVENT_OBJECT_REORDER` on the desktop window (other processes): any change to the top-level
+    z-order — the desktop raised by Show Desktop, a late `WorkerW` raise ([S-34b]), an application
+    sent to the bottom ([S-34c]). The same event from a list view or toolbar is ignored.
+  - `EVENT_OBJECT_CLOAKED`/`UNCLOAKED` (every process, our own included, top-level windows): our
+    surface cloaked ([S-34]), or the windows hidden or brought back by cloaking on builds that cloak.
+  - `EVENT_OBJECT_SHOW` (other processes, top-level windows), **only while lifted**: an application
+    shown without taking the foreground is back on screen ([S-33e]). It also fires for carets and
+    cursors, so it is not heard the rest of the time.
+  - From the command window, not WinEvents: `WM_DISPLAYCHANGE`, the work area, `WM_DPICHANGED`,
+    `TaskbarCreated` (an Explorer restart), the session unlock and resume from sleep
+    (`DesktopZOrder.Refresh`, which also refills). The host's own changes (a surface shown, edit mode
+    switching its activation) check at once.
+  - Out-of-context WinEvents are documented as queued to the hooking thread and delivered in order;
+    the old claim that one is silently dropped under load (a fullscreen game) was never measured (the
+    original's own test calls that path impossible to simulate); the timeout Windows documents is the
+    low-level input hooks'. Should one be lost anyway, nothing is decided from it alone: the next
+    event of any kind repeats the whole check, uncloak included.
+- **[S-34b]** A secondary monitor's `WorkerW` can rise into the topmost band *after* the surfaces are
+  lifted. That raise is a top-level z-order change, heard as a reorder ([S-34a]); while lifted, a
+  check re-raises a surface only when a desktop-layer window (`Progman`, a `WorkerW`) on screen is
+  above it or its topmost bit is gone (`ZOrderPolicy.PinHolds`). Start, the taskbar or another
+  program's topmost window above it is not a reason ([S-33c]).
+- **[S-34c]** At rest a surface is re-anchored only when its place is broken: it is topmost, or a
+  window on screen that is not one of ours or the desktop layer sits between it and the desktop window
+  (`ZOrderPolicy.AnchorHolds`). A write that always happened would be heard back as a reorder and
+  checked again, so the controller would never go quiet; our own writes are also skipped at the hook
+  (`WINEVENT_SKIPOWNPROCESS`). A surface's own moves never need a check: [S-20a] rewrites each one.
+- **[S-34d]** Repairs (a re-anchor, a re-raise, an uncloak) are bounded: 16 between two user actions
+  (`ZOrderRepairs`), refilled by a foreground change, a display change, an Explorer restart, an
+  unlock or a resume. Another program that insists on the same place (a second desktop-widget app, the
+  shell re-raising its layer) answers every write with its own, and with no clock nothing else ends
+  that exchange. The first refusal is logged as a warning; the lift and its drop are transitions, not
+  repairs, and are never refused.
+- **[S-34e]** What no event covers, and needs a live pass: a cloak or a window under a surface that
+  arrives with no window-manager event at all after it (not seen; the next foreground change repairs
+  it); a display powering on without a mode change (`GUID_CONSOLE_DISPLAY_STATE`) is not heard, only a
+  mode or monitor change is ([S-848]). Verified only by reasoning and the pure tests: Win+D and back,
+  Win+M, the taskbar's Show Desktop button, a fullscreen exclusive game, an Explorer restart,
+  sleep/resume, lock/unlock, a display unplugged and replugged, two displays, clicking widgets in edit
+  mode during Show Desktop.
 - **[S-28]** While the surface is pinned for Show Desktop, a **widget surface taking the foreground
   holds the pin**, exactly as Start or the taskbar does. Clicking a widget makes the surface the
   foreground, so the desktop no longer owns it and Show Desktop stops reading as active — but
@@ -5909,9 +5953,10 @@ FullscreenWatch,DesktopIcons,DesktopFolderView,ShellClicks}.cs`; host in `Servic
   a running game never flashes the widgets.
 - **[S-928]** Suspending = leave edit mode, then every surface detaches all its widgets (each widget
   already stops its timers, samplers, feeds and watchers on detach, and the shared services go idle
-  with their last subscriber), leaves the z-order controller and hides; the controller's backstop
-  timer stops and the shared ticker pauses. A surface the display pass builds while suspended starts
-  suspended. Screen time keeps recording on purpose ([S-459]: the game is what it counts).
+  with their last subscriber), leaves the z-order controller and hides; the controller's hooks come
+  out (it catches up on resume, [S-34a]) and the shared ticker pauses. A surface the display pass
+  builds while suspended starts suspended. Screen time keeps recording on purpose ([S-459]: the game
+  is what it counts).
 - **[S-929]** Resuming re-tracks and shows each surface, rebuilds its widgets from the state (each
   fires at once, so nothing shows pre-game data), unpauses the ticker and requests a display pass for
   any mode or monitor change the game made.

@@ -259,6 +259,12 @@ internal sealed partial class AppHost : IDisposable
         // one moment the user asked to see their desktop.
         DesktopZOrder.Start(_dispatcher);
 
+        // [S-34a] What the controller hears from no WinEvent: a display change, an Explorer restart
+        // (both DisplaysChanged), the session unlocked, the PC resumed. Each queues one fresh check.
+        _command.DisplaysChanged += DesktopZOrder.Refresh;
+        _command.SessionUnlocked += DesktopZOrder.Refresh;
+        _command.Resumed += DesktopZOrder.Refresh;
+
         // [S-927] Before the first surface is built, so an autostart under a running game holds the
         // surfaces hidden instead of flashing every widget up and straight back down.
         StartGameMode();
@@ -404,6 +410,9 @@ internal sealed partial class AppHost : IDisposable
         StopPlacementKeys();
         Notices.Disconnect();
         StopGameMode();
+        _command.DisplaysChanged -= DesktopZOrder.Refresh;
+        _command.SessionUnlocked -= DesktopZOrder.Refresh;
+        _command.Resumed -= DesktopZOrder.Refresh;
         DesktopZOrder.Stop();
         Clipboard.Clear();
         AppServices.Mail = null;

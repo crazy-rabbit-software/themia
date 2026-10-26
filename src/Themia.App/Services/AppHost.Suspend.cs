@@ -171,8 +171,8 @@ internal sealed partial class AppHost
             window.Suspend();
         }
 
-        // The z-order controller's backstop wakes every second to look after visible surfaces;
-        // with none visible it has nothing to do.
+        // The z-order controller's hooks wake it on every z-order change on the desktop, a game's
+        // included; with no surface visible it has nothing to look after. Start catches up on resume.
         DesktopZOrder.Stop();
         Ticker.SetPaused(true);
 

@@ -74,4 +74,41 @@ public sealed class ZOrderPolicyTests
     [Fact]
     public void S33e_an_application_on_screen_without_a_pin_is_ordinary()
         => Assert.Equal(ZAction.SelfHeal, ZOrderPolicy.Decide(false, pinnedTopmost: false, shellSurfaceForeground: true, ownSurfaceForeground: false, applicationOnScreen: true));
+
+    /// <summary>[S-34c] Its own siblings, hidden windows and the desktop layer below a surface are its resting place.</summary>
+    [Fact]
+    public void S34c_the_anchor_holds_over_own_surfaces_hidden_windows_and_the_desktop_layer()
+        => Assert.True(ZOrderPolicy.AnchorHolds(false, [StackWindow.Own, StackWindow.Hidden, StackWindow.DesktopLayer, StackWindow.Hidden]));
+
+    [Fact]
+    public void S34c_nothing_below_holds()
+        => Assert.True(ZOrderPolicy.AnchorHolds(false, []));
+
+    /// <summary>[S-34c] An application sent to the bottom lands under the widgets: they would cover it.</summary>
+    [Fact]
+    public void S34c_a_window_on_screen_below_the_surface_breaks_the_anchor()
+        => Assert.False(ZOrderPolicy.AnchorHolds(false, [StackWindow.Own, StackWindow.Other]));
+
+    /// <summary>[S-20] A topmost surface is above every application, wherever it sits in its band.</summary>
+    [Fact]
+    public void S34c_a_topmost_surface_is_not_at_rest()
+        => Assert.False(ZOrderPolicy.AnchorHolds(true, []));
+
+    /// <summary>
+    /// [S-34b] The regression the busy cadence existed for: a secondary display's <c>WorkerW</c>
+    /// rises into the topmost band after the surfaces were lifted, and the widgets on it vanish.
+    /// </summary>
+    [Fact]
+    public void S34b_the_desktop_rising_above_a_lifted_surface_breaks_the_pin()
+        => Assert.False(ZOrderPolicy.PinHolds(true, [StackWindow.Other, StackWindow.DesktopLayer]));
+
+    /// <summary>[S-33c] Start, the taskbar or a hidden desktop helper above the lifted surface is not a reason to re-raise.</summary>
+    [Fact]
+    public void S34b_start_the_taskbar_and_hidden_windows_above_keep_the_pin()
+        => Assert.True(ZOrderPolicy.PinHolds(true, [StackWindow.Other, StackWindow.Hidden, StackWindow.Own, StackWindow.Other]));
+
+    /// <summary>[S-33d] <c>SetWindowPos(HWND_TOPMOST)</c> that did not take leaves the surface under the raised desktop.</summary>
+    [Fact]
+    public void S34b_a_surface_without_the_topmost_bit_is_not_lifted()
+        => Assert.False(ZOrderPolicy.PinHolds(false, []));
 }

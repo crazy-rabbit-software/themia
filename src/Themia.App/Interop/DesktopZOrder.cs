@@ -16,8 +16,7 @@ namespace Themia.App.Interop;
 /// <b>Z-order.</b> A surface has to sit at the bottom, and it does not stay there by itself: edit
 /// mode drops <c>WS_EX_NOACTIVATE</c> so the surface can take keyboard focus for the shortcuts, and
 /// an activatable window is raised the moment it is clicked. So every window procedure is subclassed
-/// and each <c>WM_WINDOWPOSCHANGING</c> is rewritten back to the anchor. Re-asserting on a timer
-/// instead would be both a race and a wakeup this app does not otherwise need.
+/// and each <c>WM_WINDOWPOSCHANGING</c> is rewritten back to the anchor.
 /// </para>
 /// <para>
 /// <b>Show Desktop.</b> Win+D raises the desktop window <i>past</i> normal z-order, above everything
@@ -27,15 +26,21 @@ namespace Themia.App.Interop;
 /// way to honour it and still be visible. <see cref="ZOrderPolicy"/> owns that decision.
 /// </para>
 /// <para>
-/// <b>Cloaking.</b> The part that actually defeated the first attempt at this. Show Desktop and a
-/// fullscreen exclusive application both hide windows by asking DWM to <i>cloak</i> them, which goes
-/// through neither <c>SC_MINIMIZE</c> nor <c>WM_SHOWWINDOW</c>, so a window procedure never sees it.
-/// A cloaked window is still visible to <c>IsWindowVisible</c>, still not iconic, still at whatever
-/// z-order you last put it at — and simply never composited. No amount of z-order work recovers it,
-/// because z-order was never the problem. It is undone by clearing <c>DWMWA_CLOAK</c>, driven by an
-/// <c>EVENT_OBJECT_CLOAKED</c> hook with a slow backstop behind it, because an out-of-context WinEvent
-/// is silently dropped when the callback cannot be delivered in time — and a fullscreen game is
-/// exactly the load that makes that happen, leaving the surface cloaked forever.
+/// <b>Cloaking.</b> Show Desktop on some builds and a fullscreen exclusive application hide windows by
+/// asking DWM to <i>cloak</i> them, which goes through neither <c>SC_MINIMIZE</c> nor
+/// <c>WM_SHOWWINDOW</c>, so a window procedure never sees it. A cloaked window is still visible to
+/// <c>IsWindowVisible</c>, still not iconic, still at whatever z-order you last put it at — and simply
+/// never composited. It is undone by clearing <c>DWMWA_CLOAK</c> on every check.
+/// </para>
+/// <para>
+/// <b>Event-driven, no timer</b> ([S-34a]). Everything a check decides from changes only through a
+/// window-manager operation that announces itself when it is done: the foreground, a window minimised
+/// or restored, shown or cloaked, and any change to the top-level z-order (the desktop window's
+/// <c>EVENT_OBJECT_REORDER</c>, which is also how a desktop raised past the lifted widgets is heard).
+/// Out-of-context WinEvents are queued to this thread and arrive in order; each one only queues one
+/// coalesced check, and the check reads everything fresh, so a burst costs one check and an event that
+/// lands mid-transition is followed by the one that ends it. The host adds what is not a WinEvent:
+/// a display change, an Explorer restart, an unlock and a resume (<see cref="Refresh"/>).
 /// </para>
 /// </summary>
 internal static unsafe class DesktopZOrder
@@ -43,18 +48,11 @@ internal static unsafe class DesktopZOrder
     private const string Scope = "z-order";
     private const uint WmWindowPosChanging = 0x0046;
 
-    /// <summary>Steady cadence for the backstop. Nothing here is on a correctness path; it is a net.</summary>
-    private static readonly TimeSpan IdleCadence = TimeSpan.FromSeconds(1);
-
     /// <summary>
-    /// Cadence for the moment after a shell event. A secondary monitor's <c>WorkerW</c> can elevate
-    /// into the topmost band <i>after</i> the surfaces are pinned, so the pin has to be re-asserted a
-    /// few times before settling back to the idle rate.
+    /// How far a z-order walk goes before giving up. The z-order can change under a walk, and a walk
+    /// that follows a window being moved can revisit the same windows; a real stack is a few hundred.
     /// </summary>
-    private static readonly TimeSpan BusyCadence = TimeSpan.FromMilliseconds(100);
-
-    /// <summary>How long to stay at the busy cadence after a shell event.</summary>
-    private static readonly TimeSpan BusyWindow = TimeSpan.FromSeconds(1);
+    private const int WalkLimit = 4096;
 
     [StructLayout(LayoutKind.Sequential)]
     private struct WindowPos
@@ -71,23 +69,34 @@ internal static unsafe class DesktopZOrder
     private static readonly Lock Gate = new();
     private static readonly Dictionary<nint, nint> OriginalProcs = [];
 
-    private static DispatcherQueueTimer? _backstop;
-    private static nint _foregroundHook;
-    private static nint _cloakHook;
-    private static bool _pinnedTopmost;
-    private static DateTimeOffset _busyUntil;
+    /// <summary>[S-34d] The bound on repairs between two user actions. UI thread only.</summary>
+    private static readonly ZOrderRepairs Repairs = new();
 
-    /// <summary>Whether the surfaces are currently held above the elevated desktop layer.</summary>
-    public static bool PinnedTopmost
-    {
-        get
-        {
-            lock (Gate)
-            {
-                return _pinnedTopmost;
-            }
-        }
-    }
+    /// <summary>Reused by the z-order walks, which only ever run on the UI thread.</summary>
+    private static readonly List<StackWindow> Walk = [];
+
+    private static DispatcherQueue? _dispatcher;
+    private static nint _foregroundHook;
+    private static nint _minimizeHook;
+    private static nint _reorderHook;
+    private static nint _cloakHook;
+
+    /// <summary>
+    /// [S-34a] Installed only while the widgets are lifted: a window shown without taking the
+    /// foreground is the one way an application comes back on screen that no other hook hears, and
+    /// outside the lift nothing depends on it. <c>EVENT_OBJECT_SHOW</c> fires for carets and cursors
+    /// too, so it is not worth hearing the rest of the time.
+    /// </summary>
+    private static nint _showHook;
+
+    /// <summary>Between <see cref="Start"/> and <see cref="Stop"/>: game mode stops the controller with the surfaces it hides ([S-928]).</summary>
+    private static bool _started;
+
+    /// <summary>Whether the surfaces are held above the elevated desktop layer. UI thread only, like every caller.</summary>
+    private static bool _pinnedTopmost;
+
+    /// <summary>A check is already queued, so the next event need not queue another.</summary>
+    private static bool _checkQueued;
 
     /// <summary>
     /// Start watching the shell. Idempotent. The hooks are installed out-of-context so their
@@ -96,63 +105,36 @@ internal static unsafe class DesktopZOrder
     public static void Start(DispatcherQueue dispatcher)
     {
         ArgumentNullException.ThrowIfNull(dispatcher);
+        _dispatcher = dispatcher;
+        _started = true;
 
-        if (_foregroundHook == 0)
+        // Own windows are skipped where our own writes would only echo back: our SetWindowPos calls
+        // reorder the stack, and the surfaces never minimise, show or take the foreground from Windows.
+        Hook(ref _foregroundHook, Win32.EventSystemForeground, Win32.EventSystemForeground, skipOwnProcess: true, "foreground changes");
+        Hook(ref _minimizeHook, Win32.EventSystemMinimizeStart, Win32.EventSystemMinimizeEnd, skipOwnProcess: true, "windows being minimised");
+        Hook(ref _reorderHook, Win32.EventObjectReorder, Win32.EventObjectReorder, skipOwnProcess: true, "z-order changes");
+
+        // Not skipping our own process: a cloak of our own surface is exactly the event that matters,
+        // and which process Windows charges it to is not documented.
+        Hook(ref _cloakHook, Win32.EventObjectCloaked, Win32.EventObjectUncloaked, skipOwnProcess: false, "cloaking");
+
+        if (_pinnedTopmost)
         {
-            var callback = (nint)(delegate* unmanaged<nint, uint, nint, int, int, uint, uint, void>)&OnWinEvent;
-
-            _foregroundHook = Win32.SetWinEventHook(
-                Win32.EventSystemForeground,
-                Win32.EventSystemForeground,
-                0,
-                callback,
-                0,
-                0,
-                Win32.WinEventOutOfContext | Win32.WinEventSkipOwnProcess);
-
-            // Both cloak events, not just the cloak: an uncloak is how the shell says Show Desktop
-            // ended, and reconciling there is what drops the pin promptly rather than a second later.
-            _cloakHook = Win32.SetWinEventHook(
-                Win32.EventObjectCloaked,
-                Win32.EventObjectUncloaked,
-                0,
-                callback,
-                0,
-                0,
-                Win32.WinEventOutOfContext);
-
-            if (_foregroundHook == 0 || _cloakHook == 0)
-            {
-                Log.Warn(Scope, "could not watch the shell; the widgets may hide when the desktop is shown");
-            }
+            Hook(ref _showHook, Win32.EventObjectShow, Win32.EventObjectShow, skipOwnProcess: true, "windows being shown");
         }
 
-        if (_backstop is null)
-        {
-            _backstop = dispatcher.CreateTimer();
-            _backstop.IsRepeating = true;
-            _backstop.Interval = IdleCadence;
-            _backstop.Tick += (_, _) => OnBackstop();
-            _backstop.Start();
-        }
+        // Whatever changed while the hooks were out is caught up on here.
+        Refresh();
     }
 
     public static void Stop()
     {
-        if (_foregroundHook != 0)
-        {
-            Win32.UnhookWinEvent(_foregroundHook);
-            _foregroundHook = 0;
-        }
-
-        if (_cloakHook != 0)
-        {
-            Win32.UnhookWinEvent(_cloakHook);
-            _cloakHook = 0;
-        }
-
-        _backstop?.Stop();
-        _backstop = null;
+        _started = false;
+        Unhook(ref _foregroundHook);
+        Unhook(ref _minimizeHook);
+        Unhook(ref _reorderHook);
+        Unhook(ref _cloakHook);
+        Unhook(ref _showHook);
     }
 
     /// <summary>Start managing a surface. Idempotent.</summary>
@@ -206,10 +188,54 @@ internal static unsafe class DesktopZOrder
     }
 
     /// <summary>
-    /// Decide what the surfaces' z-order should be from the shell's current state, and make it so.
-    /// Safe to call as often as you like; every path in and out of the pinned state goes through here.
+    /// [S-34a] Something outside the WinEvents may have moved the ground: a display change, an
+    /// Explorer restart (<c>TaskbarCreated</c>), the session unlocked, the PC resumed. Queues one
+    /// check with a fresh repair allowance.
+    /// </summary>
+    public static void Refresh()
+    {
+        Repairs.Refill();
+        QueueCheck();
+    }
+
+    /// <summary>
+    /// Decide what the surfaces' z-order should be from the shell's current state, and make it so,
+    /// now. For the host's own changes (a surface shown, its activation style changed); safe to call
+    /// as often as you like, every path in and out of the pinned state goes through here.
     /// </summary>
     public static void Reconcile()
+    {
+        Repairs.Refill();
+        Check();
+    }
+
+    private static void QueueCheck()
+    {
+        if (!_started || _checkQueued || _dispatcher is not { } dispatcher)
+        {
+            return;
+        }
+
+        _checkQueued = true;
+        if (!dispatcher.TryEnqueue(DispatcherQueuePriority.Normal, RunQueuedCheck))
+        {
+            _checkQueued = false;
+            Log.Error(Scope, "could not queue a z-order check; the widgets keep their place until the next change");
+        }
+    }
+
+    private static void RunQueuedCheck()
+    {
+        _checkQueued = false;
+
+        // Queued before a Stop: a suspended desktop has nothing to look after ([S-928]).
+        if (_started)
+        {
+            Check();
+        }
+    }
+
+    private static void Check()
     {
         try
         {
@@ -217,11 +243,7 @@ internal static unsafe class DesktopZOrder
             // z-order, and nothing else in this app would ever notice.
             Uncloak();
 
-            bool pinned;
-            lock (Gate)
-            {
-                pinned = _pinnedTopmost;
-            }
+            var pinned = _pinnedTopmost;
 
             // Cheap probe before the expensive one. A shell surface owning the foreground settles the
             // decision on its own and implies the desktop does not own it, so short-circuiting here
@@ -248,8 +270,17 @@ internal static unsafe class DesktopZOrder
         switch (action)
         {
             case ZAction.PinTopmost:
-                SetPinned(true);
-                ForEachSurface(PinToTopOfTopmost);
+                if (SetPinned(true))
+                {
+                    // The lift itself: every surface to the top of the topmost band.
+                    ForEachSurface(PinToTopOfTopmost);
+                }
+                else
+                {
+                    // [S-34b] Already lifted: only a surface the desktop layer has risen past again.
+                    ForEachSurface(KeepPinned);
+                }
+
                 break;
 
             case ZAction.DropToAnchor:
@@ -258,7 +289,7 @@ internal static unsafe class DesktopZOrder
                 break;
 
             case ZAction.SelfHeal:
-                ForEachSurface(Anchor);
+                ForEachSurface(KeepAnchored);
                 break;
 
             case ZAction.HoldTopmost:
@@ -272,20 +303,132 @@ internal static unsafe class DesktopZOrder
         }
     }
 
-    private static void SetPinned(bool pinned)
+    /// <summary>Set the lift; true when it changed. The show hook lives exactly as long as the lift.</summary>
+    private static bool SetPinned(bool pinned)
     {
-        lock (Gate)
+        if (_pinnedTopmost == pinned)
         {
-            if (_pinnedTopmost == pinned)
-            {
-                return;
-            }
+            return false;
+        }
 
-            _pinnedTopmost = pinned;
+        _pinnedTopmost = pinned;
+
+        if (pinned)
+        {
+            if (_started)
+            {
+                // A stopped controller installs it on Start instead.
+                Hook(ref _showHook, Win32.EventObjectShow, Win32.EventObjectShow, skipOwnProcess: true, "windows being shown");
+            }
+        }
+        else
+        {
+            Unhook(ref _showHook);
         }
 
         Log.Debug(Scope, pinned ? "desktop shown: lifting the widgets" : "desktop dismissed: returning the widgets to the desktop layer");
+        return true;
     }
+
+    /// <summary>[S-34c] Re-anchor a surface only when something on screen has ended up below it.</summary>
+    private static void KeepAnchored(nint hwnd)
+    {
+        if (!Win32.IsWindow(hwnd) || ZOrderPolicy.AnchorHolds(IsTopmost(hwnd), Stack(hwnd, Win32.GwHwndNext, StackWindow.Other)))
+        {
+            return;
+        }
+
+        if (MayRepair())
+        {
+            Log.Debug(Scope, "a window ended up below a widget surface; putting the surface back on the desktop layer");
+            Anchor(hwnd);
+        }
+    }
+
+    /// <summary>[S-34b] Re-raise a lifted surface only when the desktop layer is above it again.</summary>
+    private static void KeepPinned(nint hwnd)
+    {
+        if (!Win32.IsWindow(hwnd) || ZOrderPolicy.PinHolds(IsTopmost(hwnd), Stack(hwnd, Win32.GwHwndPrev, StackWindow.DesktopLayer)))
+        {
+            return;
+        }
+
+        if (MayRepair())
+        {
+            Log.Debug(Scope, "the desktop rose above a lifted widget surface; lifting it again");
+            PinToTopOfTopmost(hwnd);
+        }
+    }
+
+    /// <summary>[S-34d] One repair from the allowance; the first refusal is logged.</summary>
+    private static bool MayRepair()
+    {
+        switch (Repairs.TrySpend())
+        {
+            case RepairGrant.Granted:
+                return true;
+
+            case RepairGrant.Refused:
+                Log.Warn(Scope, $"{ZOrderRepairs.Allowance} z-order repairs since the last user action were all undone; " +
+                    "another program may be fighting for the same place, so standing down until the next foreground change");
+                return false;
+
+            default:
+                return false;
+        }
+    }
+
+    /// <summary>
+    /// The windows on one side of a surface, nearest first, as the stack rules see them: below it down
+    /// to the desktop window (or the bottom), or above it up to the top. Stops at the first window of
+    /// <paramref name="decisive"/>, which settles the answer on its own.
+    /// </summary>
+    private static ReadOnlySpan<StackWindow> Stack(nint hwnd, uint direction, StackWindow decisive)
+    {
+        Walk.Clear();
+        var desktop = ShellSignals.DesktopWindow();
+        var next = Win32.GetWindow(hwnd, direction);
+
+        for (var hops = 0; next != 0 && hops < WalkLimit; hops++)
+        {
+            if (direction == Win32.GwHwndNext && next == desktop)
+            {
+                break;
+            }
+
+            var window = Describe(next);
+            Walk.Add(window);
+            if (window == decisive)
+            {
+                break;
+            }
+
+            next = Win32.GetWindow(next, direction);
+        }
+
+        return CollectionsMarshal.AsSpan(Walk);
+    }
+
+    private static StackWindow Describe(nint hwnd)
+    {
+        lock (Gate)
+        {
+            if (OriginalProcs.ContainsKey(hwnd))
+            {
+                return StackWindow.Own;
+            }
+        }
+
+        if (!Win32.IsWindowVisible(hwnd) || Win32.IsIconic(hwnd) || ShellSignals.IsCloaked(hwnd))
+        {
+            return StackWindow.Hidden;
+        }
+
+        return ShellSignals.IsDesktopLayerWindow(hwnd) ? StackWindow.DesktopLayer : StackWindow.Other;
+    }
+
+    private static bool IsTopmost(nint hwnd)
+        => ((uint)Win32.GetWindowLongPtr(hwnd, Win32.GwlExStyle) & Win32.WsExTopmost) != 0;
 
     /// <summary>
     /// Park a surface at its resting place: just above the desktop window, below every application.
@@ -304,8 +447,7 @@ internal static unsafe class DesktopZOrder
 
         // Clear the topmost bit first; SetWindowPos alone will not demote a window out of the
         // topmost band once it is in it.
-        var ex = (uint)Win32.GetWindowLongPtr(hwnd, Win32.GwlExStyle);
-        if ((ex & Win32.WsExTopmost) != 0)
+        if (IsTopmost(hwnd))
         {
             Win32.SetWindowPos(
                 hwnd,
@@ -355,10 +497,17 @@ internal static unsafe class DesktopZOrder
     /// <summary>Undo any cloak applied to our own surfaces. One read per surface; a write only when broken.</summary>
     private static void Uncloak() => ForEachSurface(static hwnd =>
     {
-        if (!Win32.IsWindow(hwnd) || !ShellSignals.IsCloaked(hwnd))
+        if (!Win32.IsWindow(hwnd)
+            || Win32.DwmGetWindowAttribute(hwnd, Win32.DwmwaCloaked, out var cloaked, sizeof(uint)) < 0
+            || cloaked == 0
+            || !MayRepair())
         {
             return;
         }
+
+        // The reason says who did it (1 the app, 2 the shell, 4 an owner), which is what a live pass
+        // needs to know when a surface keeps disappearing.
+        Log.Debug(Scope, $"a widget surface was cloaked (DWM_CLOAKED 0x{cloaked:X}); uncloaking it");
 
         uint clear = 0;
         var hr = Win32.DwmSetWindowAttribute(hwnd, Win32.DwmwaCloak, in clear, sizeof(uint));
@@ -395,49 +544,91 @@ internal static unsafe class DesktopZOrder
         }
     }
 
-    private static void OnBackstop()
+    private static void Hook(ref nint handle, uint eventMin, uint eventMax, bool skipOwnProcess, string what)
     {
-        if (DateTimeOffset.UtcNow >= _busyUntil && _backstop is { } timer && timer.Interval != IdleCadence)
+        if (handle != 0)
         {
-            timer.Interval = IdleCadence;
+            return;
         }
 
-        Reconcile();
+        var callback = (nint)(delegate* unmanaged<nint, uint, nint, int, int, uint, uint, void>)&OnWinEvent;
+        var flags = Win32.WinEventOutOfContext | (skipOwnProcess ? Win32.WinEventSkipOwnProcess : 0);
+
+        handle = Win32.SetWinEventHook(eventMin, eventMax, 0, callback, 0, 0, flags);
+        if (handle == 0)
+        {
+            Log.Warn(Scope, $"could not watch {what}; the widgets may be out of place until the next foreground change");
+        }
     }
 
-    /// <summary>Something shell-shaped happened: reconcile now, and keep checking closely for a moment.</summary>
-    private static void NoteShellActivity()
+    private static void Unhook(ref nint handle)
     {
-        _busyUntil = DateTimeOffset.UtcNow + BusyWindow;
-
-        if (_backstop is { } timer && timer.Interval != BusyCadence)
+        if (handle == 0)
         {
-            timer.Interval = BusyCadence;
+            return;
         }
 
-        Reconcile();
+        if (!Win32.UnhookWinEvent(handle))
+        {
+            Log.Debug(Scope, "UnhookWinEvent failed; the hook is gone with this thread anyway");
+        }
+
+        handle = 0;
+    }
+
+    private static ShellEvent? KindOf(uint eventId) => eventId switch
+    {
+        Win32.EventSystemForeground => ShellEvent.Foreground,
+        Win32.EventSystemMinimizeStart or Win32.EventSystemMinimizeEnd => ShellEvent.Minimize,
+        Win32.EventObjectReorder => ShellEvent.Reorder,
+        Win32.EventObjectShow => ShellEvent.Show,
+        Win32.EventObjectCloaked or Win32.EventObjectUncloaked => ShellEvent.Cloak,
+        _ => null,
+    };
+
+    private static EventSource SourceOf(nint hwnd)
+    {
+        if (hwnd == 0)
+        {
+            return EventSource.Other;
+        }
+
+        var desktop = Win32.GetDesktopWindow();
+        if (hwnd == desktop)
+        {
+            return EventSource.DesktopWindow;
+        }
+
+        return Win32.GetAncestor(hwnd, Win32.GaParent) == desktop ? EventSource.TopLevelWindow : EventSource.Other;
     }
 
     [UnmanagedCallersOnly]
     private static void OnWinEvent(nint hook, uint eventId, nint hwnd, int objectId, int childId, uint thread, uint time)
     {
         // A system hook callback runs on Windows' own call stack: letting a managed exception unwind
-        // out of here is undefined behaviour, and a hook whose callback misbehaves is silently
-        // removed for the rest of the session.
+        // out of here is undefined behaviour.
         try
         {
-            if (hwnd == 0)
+            if (KindOf(eventId) is not { } kind)
             {
                 return;
             }
 
-            // Cloak events fire for child objects too, which say nothing about a window being hidden.
-            if (eventId != Win32.EventSystemForeground && (objectId != Win32.ObjIdWindow || childId != Win32.ChildIdSelf))
+            var wholeWindow = objectId == Win32.ObjIdWindow && childId == Win32.ChildIdSelf;
+            switch (ZOrderEvents.Classify(kind, wholeWindow, SourceOf(hwnd)))
             {
-                return;
-            }
+                case ZTrigger.CheckAfresh:
+                    Repairs.Refill();
+                    QueueCheck();
+                    break;
 
-            NoteShellActivity();
+                case ZTrigger.Check:
+                    QueueCheck();
+                    break;
+
+                default:
+                    break;
+            }
         }
         catch (Exception ex)
         {
@@ -454,23 +645,19 @@ internal static unsafe class DesktopZOrder
         // here is undefined behaviour, so every path is guarded and falls through to the original.
         try
         {
-            bool pinned;
-
             lock (Gate)
             {
                 if (!OriginalProcs.TryGetValue(hwnd, out original))
                 {
                     return Win32.DefWindowProc(hwnd, msg, wParam, lParam);
                 }
-
-                pinned = _pinnedTopmost;
             }
 
             // While pinned the surface is deliberately above everything, so rewriting the z-order
             // here would undo the pin on the next message. The rest of the time every requested
             // z-order becomes the anchor, which is what stops a click on an activatable surface from
             // raising it over the user's windows.
-            if (!pinned && msg == WmWindowPosChanging && lParam != 0)
+            if (!_pinnedTopmost && msg == WmWindowPosChanging && lParam != 0)
             {
                 var position = (WindowPos*)lParam;
                 var desktop = ShellSignals.DesktopWindow();

@@ -12,6 +12,17 @@ internal static unsafe partial class Win32
 
     internal const uint EventSystemForeground = 0x0003;
 
+    /// <summary>A window was minimised (<c>START</c>) or restored (<c>END</c>).</summary>
+    internal const uint EventSystemMinimizeStart = 0x0016;
+
+    internal const uint EventSystemMinimizeEnd = 0x0017;
+
+    /// <summary>
+    /// A container reordered its children. For top-level windows the container is the desktop
+    /// window, so this is how any change to the top-level z-order is announced.
+    /// </summary>
+    internal const uint EventObjectReorder = 0x8004;
+
     /// <summary>
     /// Show Desktop hides applications by DWM-cloaking them, a path that goes through neither
     /// <c>SC_MINIMIZE</c> nor <c>WM_SHOWWINDOW</c>, so a window procedure never sees it.
@@ -39,8 +50,21 @@ internal static unsafe partial class Win32
 
     // ---- window enumeration and inspection -----------------------------------------------------
 
+    /// <summary>The window immediately below a given one in the z-order.</summary>
+    internal const uint GwHwndNext = 2;
+
     /// <summary>The window immediately above a given one in the z-order.</summary>
     internal const uint GwHwndPrev = 3;
+
+    /// <summary><c>GA_PARENT</c>: the parent window, which for a top-level window is the desktop window.</summary>
+    internal const uint GaParent = 1;
+
+    /// <summary>The desktop window: the root every top-level window is a child of (not <c>Progman</c>).</summary>
+    [LibraryImport("user32.dll")]
+    internal static partial nint GetDesktopWindow();
+
+    [LibraryImport("user32.dll")]
+    internal static partial nint GetAncestor(nint hWnd, uint gaFlags);
 
     [LibraryImport("user32.dll", SetLastError = true)]
     [return: MarshalAs(UnmanagedType.Bool)]

@@ -29,9 +29,9 @@ public enum ZAction
 /// The z-order decision, as a pure function of the shell signals.
 /// <para>
 /// Separated from the Win32 that gathers the signals and applies the result because this is the part
-/// that is easy to get wrong and impossible to test through the window manager. Every caller — the
-/// event hooks and the backstop alike — routes through <see cref="Decide"/>, so the surface can never
-/// be driven into two different states by two different code paths.
+/// that is easy to get wrong and impossible to test through the window manager. Every check — whichever
+/// event queued it ([S-34a]) — routes through <see cref="Decide"/>, so the surface can never be driven
+/// into two different states by two different code paths.
 /// </para>
 /// </summary>
 public static class ZOrderPolicy
@@ -94,4 +94,78 @@ public static class ZOrderPolicy
 
         return shellSurfaceForeground || ownSurfaceForeground ? ZAction.HoldTopmost : ZAction.DropToAnchor;
     }
+
+    /// <summary>
+    /// [S-34c] Whether a surface is still at its resting place: not topmost, and nothing on screen
+    /// below it but other surfaces and the desktop layer.
+    /// <para>
+    /// Asked before every re-anchor, so a write happens only when the place is actually broken: a
+    /// write that always happened would be heard back as a z-order change and asked again, and the
+    /// controller would never go quiet.
+    /// </para>
+    /// </summary>
+    /// <param name="topmost">Whether the surface carries <c>WS_EX_TOPMOST</c>.</param>
+    /// <param name="below">
+    /// Every window between the surface and the desktop window (or the bottom of the z-order when
+    /// there is none), nearest first.
+    /// </param>
+    public static bool AnchorHolds(bool topmost, ReadOnlySpan<StackWindow> below)
+    {
+        if (topmost)
+        {
+            return false;
+        }
+
+        foreach (var window in below)
+        {
+            // Anything else on screen below the surface is a window the widgets now cover.
+            if (window == StackWindow.Other)
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /// <summary>
+    /// [S-34b] Whether a lifted surface is still above the desktop layer: topmost, and no desktop
+    /// window on screen above it. Start, the taskbar or another program's topmost window above it is
+    /// fine ([S-33c]): only the desktop rising past it hides the widgets.
+    /// </summary>
+    /// <param name="topmost">Whether the surface carries <c>WS_EX_TOPMOST</c>.</param>
+    /// <param name="above">Every window above the surface, nearest first.</param>
+    public static bool PinHolds(bool topmost, ReadOnlySpan<StackWindow> above)
+    {
+        if (!topmost)
+        {
+            return false;
+        }
+
+        foreach (var window in above)
+        {
+            if (window == StackWindow.DesktopLayer)
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+}
+
+/// <summary>What one window in the z-order is, as far as a surface's place is concerned.</summary>
+public enum StackWindow
+{
+    /// <summary>One of this app's own surfaces.</summary>
+    Own = 0,
+
+    /// <summary>Not on screen: hidden, minimised or cloaked. Where it sits changes nothing.</summary>
+    Hidden = 1,
+
+    /// <summary>The desktop layer (<c>Progman</c>, a <c>WorkerW</c>), on screen.</summary>
+    DesktopLayer = 2,
+
+    /// <summary>Any other window on screen.</summary>
+    Other = 3,
 }
