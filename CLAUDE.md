@@ -41,8 +41,9 @@ Themia.exe --widget-png <Kind> <out.png> [w h] [--theme light|dark] [--state nam
            # --style: any styled kind in one of its styles [S-6006] (Clock: digital|analog|stacked|flip|word|minimal; --state sample fixes 10:42)
 Themia.exe --picker-png <out.png> [--search t]       Themia.exe --iconpicker-png <out.png> [--search t] [--initials]
 Themia.exe --viewbar-png | --notices-png | --menu-png | --motion-png <outDir>
-Themia.exe --editbar-png <outDir> [--theme light|dark] [--only settings|bar]   # edit bar: snap on/off, add menu open, placing, the
-           # properties menu, ⚙ (settings-*: every section of the app's settings), View ▾ and Display ▾ (views-*, display-*);
+Themia.exe --editbar-png <outDir> [--theme light|dark] [--only settings|bar]   # edit bar (the trail, undo/redo, snap, long and
+           # narrow), add menu open, placing, the properties menu (props-*-links-*: link rows), ⚙ (settings-*), View ▾ and
+           # Display ▾ (views-*, display-*);
            # --picker-png takes --theme too. There is no settings window and no --settings-png [S-3585]
 Themia.exe --layout-editor-png <out.png> [waitMs] [--empty]
 Themia.exe --add-showcase-views [<statePath>]   # one view per widget kind at the 7 sizes; quit Themia first
@@ -256,7 +257,14 @@ bar's menus ([S-3520]); there is no settings window ([S-3585]) and a widget has 
 - **Colours are never typed.** A colour is a menu's one colour submenu (`menu.Colour`, a Core
   `SettingsColour`; `ColorChoice` behind it: accent presets, custom `ColorPicker`, the eyedropper).
   Stored as `#RRGGBB`.
-- **The app's settings are the edit bar's menus** (⚙, View ▾, Display ▾; [S-3520]..[S-3585]), never a
+- **The edit bar** ([S-3500]..[S-3516]) reads where → add → tools → global → finish: the trail
+  Display ▾ › View ▾ › Widget ▾ (the widget crumb is the properties menu's button, never a second
+  menu), Add widget, Undo, Redo, Snap, ⚙, Done. **One setting, one level** ([S-3590]..[S-3592]): a
+  setting is a widget's, a view's (View ▾), a display's (Display ▾) or Themia's (⚙), and that menu
+  alone sets it; a lower level that follows it gets a link row (`WidgetMenuLines.Link(SettingLink)`,
+  `SettingsLink`), never a copy, and no widget config holds a format, cadence, theme or language of
+  its own. The guard tests (`S3592_`) fail on a setting set twice.
+- **The app's settings are the edit bar's menus** (⚙, Display ▾, View ▾; [S-3520]..[S-3585]), never a
   window or a page. A section is Core lines (`SettingsMenu.<Section>.cs`: `SettingsToggle`, `SettingsChoice`,
   `SettingsSlider`, `SettingsColour`, `SettingsSubmenu`, `SettingsCommand`, `SettingsNote`, `SettingsField`, ...)
   keyed by paths that are the same in every language, over a host interface, tested in Core

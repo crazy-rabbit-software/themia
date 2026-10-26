@@ -2772,7 +2772,9 @@ User decision 2026-10-19: a widget's options live on the selection's properties 
 menu's Settings are gone ([S-6536]). Shortcuts (`src/Widgets/Themia.Widget.Shortcuts/ShortcutsMenu.cs`)
 and Clock (`src/Widgets/Themia.Widget.Clock/ClockMenu.cs`) are the references. The menu engine that
 draws it (`MenuPanel`, `src/Themia.App/Shell/Menu/`) also draws the edit bar's menus, which are the
-app's settings (⚙, View ▾, Display ▾; SPEC [S-3520]): there is no settings window ([S-3585]).
+app's settings (⚙, Display ▾, View ▾; SPEC [S-3520]): there is no settings window ([S-3585]). On
+the edit bar the selection's menu is the trail's last crumb, **Widget ▾** ([S-3508]): one menu, which
+stands beside the selection.
 
 The menu is drawn as Karpo's configuration menus are (user request 2026-10-26): one fixed 320 × 440
 DIP rectangle beside the selection ([S-3734]), its rows Explorer's (32 apart, the icon at 16, the
@@ -2808,7 +2810,7 @@ change, so a closure may keep the value it was built with.
 | words only | `WidgetMenuLines.Note(text)` | greyed, never clickable (a data source's credit) |
 | where setup happens | `WidgetMenuLines.SetsUp(line)` around the line that sets what the widget waits for (`ISetupRule`) | the card's Set up button opens the menu at it, as a click would ([S-1862]); one per widget |
 | a group | `WidgetMenuLines.Submenu(glyph, text, lines)`, `ItemMenuEntry.Separator` | a level of its own, opened in place |
-| a setting another menu owns | `ItemMenuEntry(… LinkTo: ownerName)` (`menu.AccountsLine` is one) | a link row: the owner's icon and words, "open in new window" at its end; a pick closes the menu and opens the owner's ([S-3749]) |
+| a setting a higher level owns (the time format, the start of the week, the temperature unit, how often its source is asked, the accounts) | `menu.Link(new SettingLink(OwnedSetting.TimeFormat))`, `OwnedSetting.WeekStart`, `.TemperatureUnit`, `new SettingLink(OwnedSetting.OnlineUpdates, HostCadences.Weather)` (its cadence row), `menu.AccountsLine(glyph, text)` | a link row: the setting's icon and words, what is in force at its end, "open in new window" after it, no chevron; a pick closes the menu and opens ⚙ at the level that sets it ([S-3749]); it changes and saves nothing |
 
 Where lines go: `menu.StyleLines` (on the first level right under the Style row, in its section;
 the Style level holds the styles only) for what only the current look draws, `menu.Lines` for the
@@ -2827,7 +2829,18 @@ in `tests/Themia.Modules.Tests/WidgetMenuLinesTests.cs`, rendered in `--editbar-
 - **Every option is one row.** There is nowhere else for one to go, and no row is ever more than one
   row high: a value typed is a text level, a choice a level of ticks, a long explanation a `Note`
   or nothing. A line whose action asks is marked `Asks: true`.
-- **A setting another menu owns is a link**, never a copy of it ([S-3749]): the accounts are ⚙'s.
+- **One setting, one level** ([S-3590]). A setting is a widget's, a view's (View ▾), a display's
+  (Display ▾) or Themia's as a whole (⚙), and that level's menu alone sets it, so the user always
+  knows whether they are changing this widget or every widget. A widget that follows a higher
+  level's setting links to it with `menu.Link(SettingLink)` and never carries its own copy: no
+  config property of `TemperatureUnit`, `ClockHours`, `FirstWeekday`, `WeekStartDay`,
+  `RefreshPreferences`, `AppTheme` or `AppLanguage`, no line under the words of a ⚙, Display ▾ or
+  View ▾ setting, and no second way to what the card's own rows set (the header's title is the
+  Header row's; the card's look, scale and alignment are the Appearance foot's). The guard tests
+  fail on either (`SettingOwnershipTests`, Core `SettingsMenuTests` `S3592_`). What only this
+  widget means (its place, its zone, its feeds, its own text size) stays its own. Read a format
+  through `RegionFormat.Current` and a cadence through `UpdateCadence.Interval`, never a default of
+  your own.
 - **Set up opens a line.** A widget with a setup rule (`ISetupRule`, [S-1860]) that waits for an
   option (not only an account) marks that option's line with `WidgetMenuLines.SetsUp` ([S-1862]).
 - **Dead strings go.** A locale key nothing reads any more is removed from all 30 locale files of
