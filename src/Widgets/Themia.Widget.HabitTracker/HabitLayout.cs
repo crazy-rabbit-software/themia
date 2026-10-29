@@ -1,4 +1,5 @@
 using Themia.Core.Widgets;
+using Themia.Sdk.Kit;
 
 namespace Themia.Core.Habits;
 
@@ -14,26 +15,21 @@ public readonly record struct HabitLayoutInput(int Count, bool Writable, bool Sh
 /// [S-1427] One layout pass's decisions for the Habits widget, made together so the rows and the
 /// add row never disagree.
 /// </summary>
-/// <param name="CompactRows">32px rows rather than 40.</param>
-/// <param name="Inset">The rows' side padding: halved on a Compact-wide tile, so a name has room.</param>
+/// <param name="Lines">[S-6712] The lines each row shows (1 to 3): the name; the rate; the best run.</param>
+/// <param name="RowHeight">The rows' pitch, by their lines (32, 48 or 64).</param>
 /// <param name="Rows">Rows the viewport shows whole; the rest scroll.</param>
 /// <param name="AddRow">The "Add a habit" footer pinned under the list ([S-3850]).</param>
-/// <param name="Streak">The current run beside each name.</param>
+/// <param name="Streak">The current run as each row's value.</param>
 /// <param name="StreakWords">The run with its unit ("12 days") rather than a bare number.</param>
 /// <param name="Dots">History dots per row (0 for none): the configured count, or fewer when narrow.</param>
-/// <param name="Rate">A per-row completion rate over the last <see cref="HabitRules.RateWindow"/> periods.</param>
-/// <param name="Best">A per-row best run.</param>
 public sealed record HabitLayoutPlan(
-    bool CompactRows,
+    int Lines,
     double RowHeight,
-    double Inset,
     int Rows,
     bool AddRow,
     bool Streak,
     bool StreakWords,
-    int Dots,
-    bool Rate,
-    bool Best);
+    int Dots);
 
 /// <summary>[S-1428] What a key on a focused row does.</summary>
 public enum HabitKeyCommand
@@ -66,77 +62,73 @@ public readonly record struct HabitKeyResult(HabitKeyCommand Command, int Index)
 /// [S-1427]/[S-1428] The Habits widget's size ladder and keys. Pure, so each tier and each edge is
 /// pinned by a test rather than by looking at a render.
 /// <para>
-/// The ladder, from what XS must show to what only XL has room for: the habits (box + name) →
-/// the run beside each (from Regular width; spelled out from Expanded) → the history dots (from
-/// Regular width, the configured count or as many as fit, oldest dropped first — the dots yield
-/// width, never the name) → the add footer ([S-3850]: from Regular height; always when the list is empty) →
-/// a per-row rate (Expanded width) → a per-row best run (Huge width). Nothing else: no summary
-/// strip, and height the rows do not use stays empty rather than filled with a chart (user
-/// decision: a large tile shows more of the widget's own rows, not new parts).
+/// A habit is the family's Row ([S-6711]): its check as the lead, the name, the history dots as the
+/// row's inline meter and the current run as its value; the rate and the best run are its second
+/// and third lines, as many as the tier gives a row ([S-6712]). The width rungs, from what XS must
+/// show to what only a wide tile has room for: the habits (check + name) → the run (from Regular
+/// width; spelled out from Expanded) → the history dots (from Regular width, the configured count or
+/// as many as fit, at least <see cref="MinDots"/>, oldest dropped first — the dots yield width, never
+/// the name) → the add footer ([S-3850]: from Regular height; always when the list is empty). Nothing
+/// else: no summary strip, and height the rows do not use stays empty rather than filled with a chart
+/// (user decision: a large tile shows more of the widget's own rows, not new parts).
 /// </para>
 /// </summary>
 public static class HabitLayout
 {
-    /// <summary>The checkbox and the gap after it.</summary>
-    public const double BoxWidth = 32;
+    /// <summary>The check and the gap after it: the row's 16 lead and its 8.</summary>
+    public const double BoxWidth = FamilyShape.Icon + FamilySpace.GlyphGap;
 
     /// <summary>The narrowest a name may get before anything optional is dropped for it.</summary>
     public const double NameMinWidth = 80;
 
-    /// <summary>Space before each trailing column.</summary>
-    public const double ColumnGap = 12;
+    /// <summary>Space before each trailing part: the row's name-to-meter and meter-to-value gap.</summary>
+    public const double ColumnGap = FamilySpace.ColumnGap;
 
     public const double StreakNumberWidth = 28;
 
     public const double StreakWordsWidth = 72;
 
-    public const double RateWidth = 40;
+    /// <summary>One history dot (8, round) and the gap after it (4).</summary>
+    public const double DotPitch = DotSize + DotGap;
 
-    public const double BestWidth = 60;
+    public const double DotSize = FamilySpace.S2;
 
-    /// <summary>One history dot and the gap after it.</summary>
-    public const double DotPitch = 12;
+    public const double DotGap = FamilySpace.S1;
 
-    public const double DotSize = 8;
+    /// <summary>Fewer dots than this are not a history: none are shown instead.</summary>
+    public const int MinDots = 3;
 
-    /// <summary>The list's own padding under its last row.</summary>
-    public const double ListBottomPadding = 8;
-
-    public static HabitLayoutPlan Plan(WidgetArea area, HabitLayoutInput input, double rowHeight, double compactRowHeight)
+    public static HabitLayoutPlan Plan(WidgetArea area, HabitLayoutInput input)
     {
-        var compact = area.HeightClass == SizeClass.Compact || area.WidthClass == SizeClass.Compact;
-        var row = compact ? compactRowHeight : rowHeight;
-        var inset = area.WidthClass == SizeClass.Compact ? 8 : 16;
         var count = Math.Max(0, input.Count);
 
         // ---- width: the parts beside each name, in priority order ---------------------------------
-        // [S-6410] A checklist is the box and the name: no run, dots, rate or best run at any size.
-        var spare = input.Checklist ? -1 : area.Width - (2 * inset) - BoxWidth - NameMinWidth;
+        // [S-6410] A checklist is the check and the name: no run, dots, rate or best run at any size.
+        var spare = input.Checklist ? -1 : area.Width - (2 * FamilySpace.Inset) - BoxWidth - NameMinWidth;
 
-        var streak = input.ShowStreak && area.WidthClass >= SizeClass.Regular && Spend(ref spare, StreakNumberWidth);
+        var streak = !input.Checklist && input.ShowStreak && area.WidthClass >= SizeClass.Regular && Spend(ref spare, StreakNumberWidth);
         var words = streak && area.WidthClass >= SizeClass.Expanded && Spend(ref spare, StreakWordsWidth - StreakNumberWidth - ColumnGap);
 
         var dots = 0;
-        if (input.HistoryDots > 0 && area.WidthClass >= SizeClass.Regular)
+        if (!input.Checklist && input.HistoryDots > 0 && area.WidthClass >= SizeClass.Regular)
         {
-            dots = Math.Clamp((int)Math.Floor((spare - ColumnGap + (DotPitch - DotSize)) / DotPitch), 0, Math.Min(input.HistoryDots, HabitRules.MaxHistory));
-            if (dots > 0)
-            {
-                spare -= ColumnGap + (dots * DotPitch) - (DotPitch - DotSize);
-            }
+            dots = Math.Clamp((int)Math.Floor((spare - ColumnGap + DotGap) / DotPitch), 0, Math.Min(input.HistoryDots, HabitRules.MaxHistory));
+            dots = dots >= Math.Min(MinDots, input.HistoryDots) ? dots : 0;
         }
 
-        var rate = area.WidthClass >= SizeClass.Expanded && Spend(ref spare, RateWidth);
-        var best = area.WidthClass >= SizeClass.Huge && Spend(ref spare, BestWidth);
+        // ---- lines: the rate, then the best run (a streak, so only with Show streaks) --------------
+        var wanted = input.Checklist ? 1 : input.ShowStreak ? 3 : 2;
+        var lines = RowRules.Lines(area, wanted);
+        var row = FamilyShape.RowHeight(lines);
 
-        // ---- height ------------------------------------------------------------------------------
-        var room = new Disclosure(area.Width, area.Height - ListBottomPadding);
+        // ---- height: whole rows above the card's bottom inset ---------------------------------------
+        var room = new Disclosure(area.Width, area.Height - FamilySpace.Inset);
         room.Reserve(row);
 
-        var addRow = AddFooter.Show(room, area, input.Writable, count == 0, row);
+        var addRow = AddFooter.Show(room, area, input.Writable, count == 0, FamilyShape.Row1);
         var rows = count == 0 ? 0 : 1 + room.TakeRows(row, count - 1);
 
-        return new HabitLayoutPlan(compact, row, inset, rows, addRow, streak, words, dots, rate, best);
+        return new HabitLayoutPlan(lines, row, rows, addRow, streak, words, dots);
     }
 
     /// <summary>

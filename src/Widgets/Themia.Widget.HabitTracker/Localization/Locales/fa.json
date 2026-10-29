@@ -16,7 +16,6 @@
   "widgetsB.habits.dotDone": "{period}: انجام‌شده",
   "widgetsB.habits.dotNotDone": "{period}: انجام‌نشده",
   "widgetsB.habits.empty": "هنوز عادتی نیست.",
-  "widgetsB.habits.emptyAdd": "هنوز عادتی نیست.\nدر پایین یکی اضافه کنید.",
   "widgetsB.habits.inARow": "{units} پیاپی",
   "widgetsB.habits.listDeleted": "این فهرست عادت حذف شد.\nدر حالت ویرایش، از منوی این ویجت فهرستی انتخاب کنید.",
   "widgetsB.habits.markDone": "علامت‌گذاری به‌عنوان انجام‌شده {when}",

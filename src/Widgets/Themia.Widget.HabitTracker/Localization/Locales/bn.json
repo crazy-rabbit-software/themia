@@ -16,7 +16,6 @@
   "widgetsB.habits.dotDone": "{period}: সম্পন্ন",
   "widgetsB.habits.dotNotDone": "{period}: সম্পন্ন হয়নি",
   "widgetsB.habits.empty": "এখনও কোনো অভ্যাস নেই।",
-  "widgetsB.habits.emptyAdd": "এখনও কোনো অভ্যাস নেই।\nনিচে একটি যোগ করুন।",
   "widgetsB.habits.inARow": "টানা {units}",
   "widgetsB.habits.listDeleted": "এই অভ্যাসের তালিকাটি মুছে ফেলা হয়েছে।\nসম্পাদনা মোডে এই উইজেটের মেনু থেকে একটি তালিকা বেছে নিন।",
   "widgetsB.habits.markDone": "{when} সম্পন্ন হিসেবে চিহ্নিত করুন",

@@ -16,7 +16,6 @@
   "widgetsB.habits.dotDone": "{period}：已完成",
   "widgetsB.habits.dotNotDone": "{period}：未完成",
   "widgetsB.habits.empty": "尚無習慣。",
-  "widgetsB.habits.emptyAdd": "尚無習慣。\n請在下方新增。",
   "widgetsB.habits.inARow": "連續 {units}",
   "widgetsB.habits.listDeleted": "此習慣清單已被刪除。\n請在編輯模式中，從此小工具的選單選擇清單。",
   "widgetsB.habits.markDone": "標示為{when}已完成",

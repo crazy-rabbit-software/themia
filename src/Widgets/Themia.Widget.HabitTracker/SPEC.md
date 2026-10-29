@@ -27,11 +27,21 @@ module host's `HabitHostTests` and `SettingRulesTests`.
   no dialog). A habit is moved by dragging ([S-1621]) or with Alt+Shift+Up / Down on the focused row
   ([S-3802]); no menu has Move up / Move down.
   The properties menu holds no habit editor (original S-23).
-- **[S-1427]** Ladder (`HabitLayout.Plan`): XS box + name, two rows → S + run (number) → M + dots
-  and the add footer ([S-3850], pinned at the bottom; always under an empty list) → Wide + run in words and a 7-period rate per row → L all of that → XL + best run
-  per row. Rows are 40px (32 on a Compact side); the viewport holds whole rows and the rest scroll.
-  The height a short list leaves stays empty: no summary strip or line ("3 of 5 done today · 71%",
-  bar) and no completion chart fills it (user decision, concise widgets [S-666]; both retired).
+- **[S-1427]** A habit is the family's Row block ([S-6711], G6 2026-10-29): its check the lead
+  ([S-1421]), the name primary, the history dots its inline meter ([S-1426]), the current run its
+  value (Body, secondary), the rate ("Done 5 of the last 7 days", Caption secondary) its second line
+  and the best run ("Best run: 16 days", Caption tertiary, with Show streaks only) its third, as many
+  lines as the tier gives a row ([S-6712]: one on XS, S and Wide, two on M and Tall, three on L and
+  XL; rows 32, 48, 64). Ladder (`HabitLayout.Plan`): XS check + name, one row → S + the run (a
+  number) → M + the dots and the add footer ([S-3850], on the card's bottom inset; always under an
+  empty list) → Wide/L/XL the run in words. The viewport holds whole rows above the card's bottom
+  inset and the rest scroll. The rate and the best run are lines, never columns (the Wide rate
+  column and XL's "best 16" went). The height a short list leaves stays empty: no summary strip or
+  line ("3 of 5 done today · 71%", bar) and no completion chart fills it (user decision, concise
+  widgets [S-666]; both retired). The header's count ("3/5") is the neutral pill ([S-6706]); with no
+  habit to draw the Status row at the top says why ([S-6714]): "Habits are not available." (no
+  pool) and "No habits yet." (over the add footer) plainly, a deleted list or lists that could not
+  be read as a problem. A focused row wears the Row block's ring ([S-1288]).
 - **[S-1428]** Keyboard (original S-17): a click in the widget takes the shell's keyboard lease
   ([S-809]) and a clicked row takes the focus:
   Up/Down clamp, Home/End, Tab/Shift+Tab wrap, Enter ticks, F2 renames, Delete deletes, Escape gives
@@ -57,17 +67,21 @@ module host's `HabitHostTests` and `SettingRulesTests`.
   order, over the same list, log and cadence. Show streaks and History are the Dots style's own
   (`HabitTrackerConfig.ShownSettings`, [S-6070]); the menu offers them for it alone and keeps their values.
 - **[S-6409]** Heatmap (`HabitHeatmap`): GitHub's calendar over the log, columns of seven periods,
-  the newest on the right. Under a daily cadence the rows are the weekdays from the language's first
-  day, so a column is a calendar week and the days still to come this week are blank; any other
-  cadence fills its last column to the current period. Decided by size: when every habit's name
-  (Body) and its own seven-row grid of at least 4 weeks of 6-DIP cells fit, each habit gets one (a
-  done period in the accent, the current period's cell ticking it as its box does); otherwise the
-  list shares one grid, each cell shaded in four steps by the share of habits done (rounded up) and
-  its tooltip naming the period and "3 of 5". Room goes to bigger cells (2-DIP gaps, at most 20), then
-  more weeks (at most 53). No add footer beside it (except under an empty list) and no row keys.
-- **[S-6410]** Checklist: the current period only, each habit's box and name (`HabitLayoutInput.Checklist`):
-  no run, dots, rate or best run at any size; the rows, the add footer and the keys are the Dots
-  style's ([S-1427], [S-1428]).
+  the newest on the right, from the view's top inside the card's inset. Under a daily cadence the
+  rows are the weekdays from the language's first day, so a column is a calendar week and the days
+  still to come this week are blank; any other cadence fills its last column to the current period.
+  Decided by size: when every habit's name (Body, primary, 4 over its grid; grids 12 apart) and its
+  own seven-row grid of at least 4 weeks of 6-DIP cells fit, each habit gets one (a done period the
+  accent, an open one the track, the current period's cell ticking it as its check does); otherwise
+  the list shares one grid, each cell a column of the Chart block ([S-6717]): the track filled from
+  its foot in the accent to the share of habits done (`HabitHeatmap.Fill`), its tooltip naming the
+  period and "3 of 5"; never an opacity per share (the four shades went, G6). A cell's corners are
+  the family's 4, round below 8 (`HabitHeatmap.Radius`). Room goes to bigger cells (2-DIP gaps, at
+  most 20), then more weeks (at most 53). No add footer beside it (except under an empty list) and
+  no row keys.
+- **[S-6410]** Checklist: the current period only, each habit's check and name (`HabitLayoutInput.Checklist`):
+  rows of one line at every size, no run, dots, rate or best run; the add footer and the keys are the
+  Dots style's ([S-1427], [S-1428]).
 - **[S-1430]** The menu ends with "Data folder" (issue #154), a submenu of a note (where the lists
   are kept) and **Open in Explorer**, which opens the folder
   holding `habits.json` (`IHabitLists.FilePath`, through `SettingsHost.Launcher.OpenContainingFolder`, so it is

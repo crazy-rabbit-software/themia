@@ -57,7 +57,7 @@ public sealed class HabitTrackerStylesTests
         => Assert.Equal(HabitHeatmap.MaxWeeks, HabitHeatmap.Plan(new WidgetArea(4000, 100), 1, 20).Weeks);
 
     [Fact]
-    public void S6409_a_long_list_shares_one_grid_shaded_by_how_many_were_done()
+    public void S6409_a_long_list_shares_one_grid()
     {
         var plan = HabitHeatmap.Plan(new WidgetArea(528, 360), habits: 10, nameLine: 20);
 
@@ -68,15 +68,20 @@ public sealed class HabitTrackerStylesTests
 
     [Theory]
     [InlineData(0, 5, 0)]
-    [InlineData(1, 5, 1)]
-    [InlineData(2, 5, 2)]
-    [InlineData(3, 5, 3)]
-    [InlineData(4, 5, 4)]
-    [InlineData(5, 5, 4)]
-    [InlineData(1, 1, 4)]
+    [InlineData(1, 5, 0.2)]
+    [InlineData(4, 5, 0.8)]
+    [InlineData(5, 5, 1)]
+    [InlineData(7, 5, 1)]
     [InlineData(3, 0, 0)]
-    public void S6409_a_shared_cell_is_shaded_by_the_share_done_rounded_up(int done, int count, int level)
-        => Assert.Equal(level, HabitHeatmap.Level(done, count));
+    public void S6409_a_shared_cell_fills_from_its_foot_by_the_share_done(int done, int count, double fill)
+        => Assert.Equal(fill, HabitHeatmap.Fill(done, count), 6);
+
+    [Theory]
+    [InlineData(6, 3)]
+    [InlineData(8, 4)]
+    [InlineData(20, 4)]
+    public void S6409_a_cell_has_the_family_radius_or_is_round(double cell, double radius)
+        => Assert.Equal(radius, HabitHeatmap.Radius(cell));
 
     [Fact]
     public void S6409_any_other_cadence_fills_to_the_last_cell_one_period_a_step()
@@ -129,14 +134,14 @@ public sealed class HabitTrackerStylesTests
     [InlineData(800, 516)]
     public void S6410_a_checklist_is_the_box_and_the_name_at_every_size(double width, double height)
     {
-        var dots = HabitLayout.Plan(new WidgetArea(width, height), new HabitLayoutInput(5, true, true, 7), 40, 32);
-        var plan = HabitLayout.Plan(new WidgetArea(width, height), new HabitLayoutInput(5, true, true, 7, Checklist: true), 40, 32);
+        var dots = HabitLayout.Plan(new WidgetArea(width, height), new HabitLayoutInput(5, true, true, 7));
+        var plan = HabitLayout.Plan(new WidgetArea(width, height), new HabitLayoutInput(5, true, true, 7, Checklist: true));
 
+        // One line per habit: no rate or best run under the name, so at least as many rows.
         Assert.False(plan.Streak);
         Assert.Equal(0, plan.Dots);
-        Assert.False(plan.Rate);
-        Assert.False(plan.Best);
-        Assert.Equal(dots.Rows, plan.Rows);
+        Assert.Equal(1, plan.Lines);
+        Assert.True(plan.Rows >= dots.Rows);
         Assert.Equal(dots.AddRow, plan.AddRow);
     }
 }

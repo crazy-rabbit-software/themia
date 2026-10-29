@@ -11,54 +11,55 @@ namespace Themia.Widget.HabitTracker.Tests;
 public class HabitLayoutTests
 {
     private static HabitLayoutPlan Plan(double width, double height, int count = 3, bool writable = true, bool streak = true, int dots = 7)
-        => HabitLayout.Plan(new WidgetArea(width, height), new HabitLayoutInput(count, writable, streak, dots), 40, 32);
+        => HabitLayout.Plan(new WidgetArea(width, height), new HabitLayoutInput(count, writable, streak, dots));
 
     [Fact]
-    public void S1427_xs_shows_two_habits_as_box_and_name_only()
+    public void S1427_xs_shows_one_habit_as_check_and_name_only()
     {
+        // The view's area less the card's bottom inset holds one row of 32 ([S-6703], [S-6712]).
         var plan = Plan(120, 76);
 
-        Assert.True(plan.CompactRows);
-        Assert.Equal(2, plan.Rows);
-        Assert.Equal(8, plan.Inset);
+        Assert.Equal(1, plan.Lines);
+        Assert.Equal(32, plan.RowHeight);
+        Assert.Equal(1, plan.Rows);
         Assert.False(plan.Streak);
         Assert.Equal(0, plan.Dots);
         Assert.False(plan.AddRow);
     }
 
     [Fact]
-    public void S1427_s_adds_the_run_as_a_number()
+    public void S1427_s_adds_the_run_as_a_number_and_no_lonely_dot()
     {
         var plan = Plan(200, 106);
 
-        Assert.Equal(3, plan.Rows);
+        Assert.Equal(2, plan.Rows);
         Assert.True(plan.Streak);
         Assert.False(plan.StreakWords);
+
+        // One dot would fit beside the run: fewer than three is no history.
         Assert.Equal(0, plan.Dots);
     }
 
     [Fact]
-    public void S1427_m_adds_the_dots_and_the_add_row()
+    public void S1427_m_adds_the_dots_the_rate_line_and_the_add_row()
     {
         var plan = Plan(320, 196);
 
-        Assert.False(plan.CompactRows);
+        Assert.Equal(2, plan.Lines);
+        Assert.Equal(48, plan.RowHeight);
         Assert.Equal(7, plan.Dots);
         Assert.True(plan.AddRow);
         Assert.Equal(3, plan.Rows);
-        Assert.False(plan.Rate);
     }
 
     [Fact]
-    public void S1427_a_wide_strip_spells_the_run_out_and_adds_the_rate_beside()
+    public void S1427_a_wide_strip_spells_the_run_out_on_rows_of_one_line()
     {
         var plan = Plan(480, 116);
 
-        Assert.True(plan.CompactRows);
+        Assert.Equal(1, plan.Lines);
         Assert.True(plan.StreakWords);
         Assert.Equal(7, plan.Dots);
-        Assert.True(plan.Rate);
-        Assert.False(plan.Best);
         Assert.Equal(3, plan.Rows);
         Assert.False(plan.AddRow);
     }
@@ -68,29 +69,29 @@ public class HabitLayoutTests
     {
         var plan = Plan(200, 356);
 
+        Assert.Equal(2, plan.Lines);
         Assert.True(plan.AddRow);
         Assert.Equal(3, plan.Rows);
         Assert.Equal(0, plan.Dots);
     }
 
-    [Fact]
-    public void S1427_l_has_every_rung_but_the_best_run()
+    [Theory]
+    [InlineData(560, 376)]
+    [InlineData(800, 516)]
+    public void S1427_l_and_xl_give_each_row_its_rate_and_best_run(double width, double height)
     {
-        var plan = Plan(560, 376);
+        var plan = Plan(width, height);
 
+        Assert.Equal(3, plan.Lines);
+        Assert.Equal(64, plan.RowHeight);
         Assert.True(plan.StreakWords);
         Assert.Equal(7, plan.Dots);
-        Assert.True(plan.Rate);
-        Assert.False(plan.Best);
     }
 
     [Fact]
-    public void S1427_xl_adds_the_best_run()
+    public void S1427_without_streaks_a_row_has_no_best_run_line()
     {
-        var plan = Plan(800, 516);
-
-        Assert.True(plan.Best);
-        Assert.True(plan.Rate);
+        Assert.Equal(2, Plan(560, 376, streak: false).Lines);
     }
 
     [Fact]
@@ -99,10 +100,16 @@ public class HabitLayoutTests
         // 31 dots asked for on a medium tile: as many as fit beside a readable name, never more.
         var plan = Plan(320, 196, dots: 31);
 
-        Assert.InRange(plan.Dots, 1, 30);
-        var used = (2 * plan.Inset) + HabitLayout.BoxWidth + HabitLayout.ColumnGap + HabitLayout.StreakNumberWidth
-            + HabitLayout.ColumnGap + (plan.Dots * HabitLayout.DotPitch) - (HabitLayout.DotPitch - HabitLayout.DotSize);
+        Assert.InRange(plan.Dots, HabitLayout.MinDots, 30);
+        var used = (2 * 16) + HabitLayout.BoxWidth + HabitLayout.ColumnGap + HabitLayout.StreakNumberWidth
+            + HabitLayout.ColumnGap + (plan.Dots * HabitLayout.DotPitch) - HabitLayout.DotGap;
         Assert.True(320 - used >= HabitLayout.NameMinWidth);
+    }
+
+    [Fact]
+    public void S1427_fewer_dots_asked_than_the_floor_still_show()
+    {
+        Assert.Equal(2, Plan(320, 196, dots: 2).Dots);
     }
 
     [Fact]
@@ -114,7 +121,7 @@ public class HabitLayoutTests
         // No summary strip takes height from the rows (retired, concise widgets): a tall tile
         // shows every whole row under its add row.
         var tall = Plan(200, 356, count: 12);
-        Assert.Equal(7, tall.Rows);
+        Assert.Equal(6, tall.Rows);
     }
 
     [Fact]

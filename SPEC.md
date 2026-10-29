@@ -4445,10 +4445,11 @@ Ports the original `widgets/others/habit-tracker/SPEC.md`.
   holds only `ListId` plus its own settings; with none chosen it takes the first list, creating
   one only when there is none; a deleted list is not replaced ("pick a list"). Two widgets on one
   list see each other's ticks at once (`HabitPool.Changed`). The header title is the list's name.
-- **[S-1421]** Only the box ticks a habit (original S-02); name and run never do. The box is drawn
-  (not a stock `CheckBox`, whose template clipped its glyph to a dash in both states): empty when
-  not done, accent-filled tick when done. A tap reads the clock once and toggles that period;
-  un-ticking removes every copy of the key.
+- **[S-1421]** Only the check ticks a habit (original S-02); name and run never do. The check is
+  the habit's Row block lead ([S-6711]), drawn as the kit's check look draws its own (not a stock
+  `CheckBox`, whose template clipped its glyph to a dash in both states): a 16 ring of stroke 2 in
+  the secondary role when not done, the accent's filled circle with the 16 tick when done. A tap
+  reads the clock once and toggles that period; un-ticking removes every copy of the key.
 - **[S-1422]** Reset period per widget (original S-07/S-08): hourly, daily, weekly (ISO), monthly,
   custom 1–1440 min in epoch-anchored windows. Keys: `YYYY-MM-DD`, `YYYY-MM-DD-Hhh`, `YYYY-Www`,
   `YYYY-MM`, `C{n}m-{window}`. Steps back are calendar steps for day/week/month; an hour steps from
@@ -4463,8 +4464,10 @@ Ports the original `widgets/others/habit-tracker/SPEC.md`.
 - [S-1425], [S-1427], [S-1428], [S-1982], [S-1429], [S-6408], [S-6409], [S-6410], [S-1430]: moved with the Habit tracker widget into its module's `SPEC.md` (`src/Widgets/Themia.Widget.HabitTracker/`).
 - **[S-1426]** History dots (0–31, default 7): oldest left, the current period right, from the same
   step as the streak; each dot's tooltip names its period in the cadence's units ("Week of Monday
-  28 Sep 2026", "14:00, …", "September 2026"). A narrow tile shows fewer, dropping the oldest; the
-  name never yields to them.
+  28 Sep 2026", "14:00, …", "September 2026"). A dot is 8 and round, 4 from the next, done in the
+  accent and open in the track role (the Chart block's two, [S-6717]); they are the habit row's
+  inline meter ([S-6711]). A narrow tile shows fewer, dropping the oldest, and fewer than three none;
+  the name never yields to them.
 - Not ported: original S-10 compact header default (no compact header mode here), S-12 equal-slice
   rows (Fluent fixed rows, S-213), S-13 drag reorder (above), S-21 legacy migration (no backwards
   compatibility).
@@ -5885,8 +5888,9 @@ card is re-created, no tick restarts. Pure rules live in Core (`DesignLook`, `De
   the first tier and prints the colours it should composite to, for a pixel comparison.
 - **[S-837]** Tracks follow the control they stand for: a seek bar is a slider
   (`SliderTrackFill` = `ControlStrongFillColorDefault`, value `AccentFillColorDefault`, 4px), and so
-  are the tracks that stand for a progress bar or ring (Pomodoro's ring) and a habit's empty dot. None uses the disabled fill, which reads
-  as a control that is switched off.
+  are the tracks that stand for a progress bar or ring (Pomodoro's ring). None uses the disabled fill, which reads
+  as a control that is switched off. A habit's open dot and an empty heat cell are the family's
+  track role ([S-6717], since G6).
 - **[S-834]** *(Retired by [S-3526] and [S-3527]: there is no Appearance page; its rows are the settings
   menu's Appearance lines, in the same groups, each written in place.)*
 

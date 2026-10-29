@@ -16,7 +16,6 @@
   "widgetsB.habits.dotDone": "{period}: imefanyika",
   "widgetsB.habits.dotNotDone": "{period}: haijafanyika",
   "widgetsB.habits.empty": "Bado hakuna mazoea.",
-  "widgetsB.habits.emptyAdd": "Bado hakuna mazoea.\nOngeza moja hapa chini.",
   "widgetsB.habits.inARow": "{units} mfululizo",
   "widgetsB.habits.listDeleted": "Orodha hii ya mazoea ilifutwa.\nChagua orodha kwenye menyu ya wijeti hii katika hali ya kuhariri.",
   "widgetsB.habits.markDone": "Weka alama kuwa imefanyika {when}",

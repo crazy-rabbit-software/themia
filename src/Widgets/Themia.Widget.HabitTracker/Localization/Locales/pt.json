@@ -16,7 +16,6 @@
   "widgetsB.habits.dotDone": "{period}: feito",
   "widgetsB.habits.dotNotDone": "{period}: não feito",
   "widgetsB.habits.empty": "Nenhum hábito ainda.",
-  "widgetsB.habits.emptyAdd": "Nenhum hábito ainda.\nAdicione um abaixo.",
   "widgetsB.habits.inARow": "{units} seguidos",
   "widgetsB.habits.listDeleted": "Esta lista de hábitos foi excluída.\nEscolha uma lista no menu deste widget, no modo de edição.",
   "widgetsB.habits.markDone": "Marcar como feito {when}",

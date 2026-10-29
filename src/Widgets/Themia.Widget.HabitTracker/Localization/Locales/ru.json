@@ -16,7 +16,6 @@
   "widgetsB.habits.dotDone": "{period}: выполнено",
   "widgetsB.habits.dotNotDone": "{period}: не выполнено",
   "widgetsB.habits.empty": "Привычек пока нет.",
-  "widgetsB.habits.emptyAdd": "Привычек пока нет.\nДобавьте ниже.",
   "widgetsB.habits.inARow": "{units} подряд",
   "widgetsB.habits.listDeleted": "Этот список привычек удален.\nВыберите список в меню виджета в режиме правки.",
   "widgetsB.habits.markDone": "Отметить как выполненное {when}",

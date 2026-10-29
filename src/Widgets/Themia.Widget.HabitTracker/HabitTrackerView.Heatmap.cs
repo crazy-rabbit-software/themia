@@ -1,4 +1,3 @@
-using Microsoft.UI;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Automation;
 using Microsoft.UI.Xaml.Controls;
@@ -9,7 +8,9 @@ using Themia.Core.Habits;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
+using Themia.Sdk.Kit;
 using Themia.Sdk.WinUI;
+using Themia.Sdk.WinUI.Kit;
 using Themia.Widget.HabitTracker;
 
 namespace Themia.App.Widgets;
@@ -25,7 +26,6 @@ internal sealed partial class HabitTrackerView
     private readonly Canvas _heat = new() { Visibility = Visibility.Collapsed };
     private readonly List<Border> _heatCells = [];
     private readonly List<TextBlock> _heatNames = [];
-    private readonly Brush _heatFill = ThemeBrush.Of("AccentFillColorDefaultBrush", Colors.DodgerBlue);
     private (bool PerHabit, int Weeks, double Cell, int Habits) _heatShape;
 
     private bool IsHeatmap => _config.Style == HabitTrackerStyle.Heatmap;
@@ -53,9 +53,10 @@ internal sealed partial class HabitTrackerView
             return;
         }
 
-        var inset = _area.WidthClass == SizeClass.Compact ? Fluent.Space2 : Fluent.Space4;
-        var box = new WidgetArea(Math.Max(0, _area.Width - (2 * inset)), Math.Max(0, _area.Height - (2 * Fluent.Space2)));
-        var nameStep = FluentType.Body;
+        // The grids stand in the card's inset, from the view's top to the card's bottom inset.
+        var inset = FamilySpace.Inset;
+        var box = new WidgetArea(Math.Max(0, _area.Width - (2 * inset)), Math.Max(0, _area.Height - FamilySpace.Inset));
+        var nameStep = FamilyType.Body;
         var plan = HabitHeatmap.Plan(box, count, nameStep.LineHeight);
         var habits = Habits;
         var cadence = _config.Cadence;
@@ -73,7 +74,7 @@ internal sealed partial class HabitTrackerView
 
         // The grids sit at the top left, as the rows do; a grid narrower than the tile leaves the rest empty.
         var gridWidth = (plan.Weeks * plan.Pitch) - HabitHeatmap.Gap;
-        var y = Fluent.Space2;
+        var y = 0d;
 
         for (var g = 0; g < grids; g++)
         {
@@ -106,7 +107,7 @@ internal sealed partial class HabitTrackerView
                 if (plan.PerHabit)
                 {
                     var done = HabitRules.IsDone(logs[g], period);
-                    Shade(cell, done ? HabitHeatmap.Levels : 0);
+                    Shade(cell, done ? 1 : 0);
                     var label = (done ? HabitTrackerStr.WidgetsB_Habits_DotDone : HabitTrackerStr.WidgetsB_Habits_DotNotDone).Format(("period", when));
                     ToolTipService.SetToolTip(cell, label);
                     AutomationProperties.SetName(cell, label);
@@ -117,7 +118,7 @@ internal sealed partial class HabitTrackerView
                 else
                 {
                     var done = logs.Count(log => HabitRules.IsDone(log, period));
-                    Shade(cell, HabitHeatmap.Level(done, count));
+                    Shade(cell, HabitHeatmap.Fill(done, count));
                     var label = HabitTrackerStr.Styles_Habits_Cell.Format(("period", when), ("done", done), ("count", count));
                     ToolTipService.SetToolTip(cell, label);
                     AutomationProperties.SetName(cell, label);
@@ -129,20 +130,24 @@ internal sealed partial class HabitTrackerView
         }
     }
 
-    /// <summary>Accent at the level's share of full strength; none done is the empty slot the dots use.</summary>
-    private void Shade(Border cell, int level)
+    /// <summary>
+    /// [S-6409] A cell is a column of the Chart block ([S-6717]): the track, filled from its foot in
+    /// the accent to <paramref name="fill"/> (a habit's own cell is empty or full; a shared one is the
+    /// share of the list done), never an opacity per share.
+    /// </summary>
+    private static void Shade(Border cell, double fill)
     {
-        // [S-6513] An empty slot is the item layer's track.
-        if (level == 0)
+        if (cell.Child is not Border level)
         {
-            ItemFill.Paint(cell, ItemRole.Track);
-        }
-        else
-        {
-            cell.Background = _heatFill;
+            return;
         }
 
-        cell.Opacity = level == 0 ? 1 : (double)level / HabitHeatmap.Levels;
+        // A full cell is the accent's whole: its top corners round as the cell's are. A low level is
+        // round at its own height, never more ([S-6704]: 4 or round).
+        level.Height = cell.Height * fill;
+        var radius = Math.Min(cell.CornerRadius.BottomLeft, level.Height / 2);
+        level.CornerRadius = fill >= 1 ? new CornerRadius(radius) : new CornerRadius(0, 0, radius, radius);
+        level.Visibility = fill > 0 ? Visibility.Visible : Visibility.Collapsed;
     }
 
     private void BuildHeatCells(HabitHeatmapPlan plan, int grids, TypeStep nameStep)
@@ -153,7 +158,7 @@ internal sealed partial class HabitTrackerView
         {
             if (plan.PerHabit)
             {
-                var name = Fluent.Text(nameStep);
+                var name = Family.Text(nameStep, ColourRole.TextPrimary);
                 name.TextTrimming = TextTrimming.CharacterEllipsis;
                 name.TextWrapping = TextWrapping.NoWrap;
                 _heatNames.Add(name);
@@ -162,11 +167,21 @@ internal sealed partial class HabitTrackerView
 
             for (var i = 0; i < plan.Weeks * HabitHeatmap.Rows; i++)
             {
+                var radius = HabitHeatmap.Radius(plan.Cell);
                 var cell = new Border
                 {
                     Width = plan.Cell,
                     Height = plan.Cell,
-                    CornerRadius = new CornerRadius(Math.Min(Fluent.ControlRadius, plan.Cell / 4)),
+                    CornerRadius = new CornerRadius(radius),
+                    Background = Family.Brush(ColourRole.Track),
+
+                    // The level fills from the foot, its lower corners the cell's.
+                    Child = new Border
+                    {
+                        VerticalAlignment = VerticalAlignment.Bottom,
+                        Background = Family.Brush(ColourRole.Accent),
+                        CornerRadius = new CornerRadius(0, 0, radius, radius),
+                    },
                 };
 
                 cell.Tapped += OnHeatCellTapped;

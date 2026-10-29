@@ -1,4 +1,5 @@
 using Themia.Core.Widgets;
+using Themia.Sdk.Kit;
 
 namespace Themia.Core.Habits;
 
@@ -25,7 +26,7 @@ public sealed record HabitHeatmapPlan(bool PerHabit, int Weeks, double Cell)
 /// <para>
 /// Decided by size: when every habit's name and its own seven-row grid (at least
 /// <see cref="MinWeeks"/> weeks of <see cref="MinCell"/> cells) fit the tile, each habit gets one;
-/// otherwise the list shares one grid whose cells are shaded by how many of its habits were done.
+/// otherwise the list shares one grid whose cells fill from the foot by the share of its habits done.
 /// A larger tile spends its room on bigger cells (up to <see cref="MaxCell"/>) and then on more
 /// weeks (up to <see cref="MaxWeeks"/>), nothing else ([S-666]).
 /// </para>
@@ -49,9 +50,6 @@ public static class HabitHeatmap
 
     /// <summary>A year of weeks, as GitHub draws it.</summary>
     public const int MaxWeeks = 53;
-
-    /// <summary>The shades above "none".</summary>
-    public const int Levels = 4;
 
     /// <summary>Space between one habit's grid and the next habit's name.</summary>
     public const double BlockGap = 12;
@@ -124,14 +122,16 @@ public static class HabitHeatmap
         return cells;
     }
 
-    /// <summary>[S-6409] How dark a cell is: 0 for none done, then 1..<see cref="Levels"/> by the share done, rounded up.</summary>
-    public static int Level(int done, int count)
-    {
-        if (count <= 0 || done <= 0)
-        {
-            return 0;
-        }
+    /// <summary>
+    /// [S-6409] How full a shared cell is: the share of the list's habits done in its period, 0 to 1.
+    /// The cell is a column of the Chart block, its track filled from the foot in the accent to that
+    /// share ([S-6717]), never an opacity per share; the tooltip says how many.
+    /// </summary>
+    public static double Fill(int done, int count)
+        => count <= 0 || done <= 0 ? 0 : Math.Clamp(done / (double)count, 0, 1);
 
-        return Math.Clamp((int)Math.Ceiling(done * (double)Levels / count), 1, Levels);
-    }
+    /// <summary>
+    /// [S-6409] A cell's corner: the family's radius, round on a cell too small for it (half its side).
+    /// </summary>
+    public static double Radius(double cell) => Math.Min(FamilyShape.Radius, cell / 2);
 }

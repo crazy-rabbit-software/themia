@@ -16,7 +16,6 @@
   "widgetsB.habits.dotDone": "{period}: منجزة",
   "widgetsB.habits.dotNotDone": "{period}: غير منجزة",
   "widgetsB.habits.empty": "لا عادات بعد.",
-  "widgetsB.habits.emptyAdd": "لا عادات بعد.\nأضف عادة أدناه.",
   "widgetsB.habits.inARow": "{units} متتالية",
   "widgetsB.habits.listDeleted": "حُذفت قائمة العادات هذه.\nاختر قائمة من قائمة هذه الأداة في وضع التحرير.",
   "widgetsB.habits.markDone": "وضع علامة كمنجزة {when}",

@@ -16,7 +16,6 @@
   "widgetsB.habits.dotDone": "{period}: gedaan",
   "widgetsB.habits.dotNotDone": "{period}: niet gedaan",
   "widgetsB.habits.empty": "Nog geen gewoonten.",
-  "widgetsB.habits.emptyAdd": "Nog geen gewoonten.\nVoeg er hieronder een toe.",
   "widgetsB.habits.inARow": "{units} op rij",
   "widgetsB.habits.listDeleted": "Deze gewoontelijst is verwijderd.\nKies een lijst in het menu van deze widget, in de bewerkmodus.",
   "widgetsB.habits.markDone": "Markeren als gedaan {when}",

@@ -1,5 +1,4 @@
 using System.Globalization;
-using Microsoft.UI;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Automation;
 using Microsoft.UI.Xaml.Controls;
@@ -10,7 +9,9 @@ using Themia.Core.Habits;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
+using Themia.Sdk.Kit;
 using Themia.Sdk.WinUI;
+using Themia.Sdk.WinUI.Kit;
 using Themia.Widget.HabitTracker;
 
 namespace Themia.App.Widgets;
@@ -35,11 +36,12 @@ internal sealed partial class HabitTrackerView : Grid, IWidgetView, IWidgetSurfa
 {
     private const string Scope = "habits";
 
-    private readonly TextBlock _done = Fluent.Text(FluentType.Caption, "TextFillColorTertiaryBrush");
+    private readonly TextBlock _doneText = new();
+    private readonly HeaderParts _header = new();
+    private readonly Border _done;
     private readonly StackPanel _list = new() { Spacing = 0 };
     private readonly ScrollViewer _scroll;
-    private readonly Border _emptyHost;
-    private readonly TextBlock _emptyText;
+    private readonly StatusBlock _status = new();
 
     private IWidgetSurface? _surface;
     private Ticker? _ticker;
@@ -62,11 +64,15 @@ internal sealed partial class HabitTrackerView : Grid, IWidgetView, IWidgetSurfa
     public HabitTrackerView(IWidgetHost host)
     {
         _host = host;
-        // [S-3850] The rows take the tile and the add footer is pinned under them, at the bottom.
-        RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });       // rows / empty hint
+        // [S-3850] The rows take the tile and the add footer is pinned under them, on the card's
+        // bottom inset ([S-6703]).
+        RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });       // rows / status
         RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });                            // add footer
+        Padding = new Thickness(0, 0, 0, FamilySpace.Inset);
 
-        Microsoft.UI.Xaml.Documents.Typography.SetNumeralAlignment(_done, FontNumeralAlignment.Tabular);
+        // [S-6706] The "3/5" count is the header's neutral pill.
+        _done = _header.Add(HeaderPartKind.Count, HeaderBlock.Count(_doneText));
+        _header.Want(_done, false);
 
         _scroll = new ScrollViewer
         {
@@ -77,28 +83,23 @@ internal sealed partial class HabitTrackerView : Grid, IWidgetView, IWidgetSurfa
             VerticalAlignment = VerticalAlignment.Top,
         };
 
-        _emptyText = Fluent.Text(FluentType.Body);
-        _emptyHost = new Border
-        {
-            Child = Fluent.EmptyState(HabitTrackerModule.Glyph, _emptyText, out _),
-            VerticalAlignment = VerticalAlignment.Center,
-            Visibility = Visibility.Collapsed,
-        };
+        // [S-6714] No list, no pool or no habits: one Status row where the first habit would be.
+        _status.Hide();
 
         _addRow = BuildAddRow();
 
         SetRow(_scroll, 0);
-        SetRow(_emptyHost, 0);
+        SetRow(_status, 0);
         SetRow(_addRow.Element, 1);
 
         Children.Add(_scroll);
-        Children.Add(_emptyHost);
+        Children.Add(_status);
         Children.Add(_addRow.Element);
         BuildHeatmap();
     }
 
     /// <summary>The "3/5" count, in the card's header.</summary>
-    public FrameworkElement? HeaderTrailing => _done;
+    public FrameworkElement? HeaderTrailing => _header;
 
     /// <inheritdoc />
     public void Bind(IWidgetSurface surface) => _surface = surface;
@@ -255,30 +256,36 @@ internal sealed partial class HabitTrackerView : Grid, IWidgetView, IWidgetSurfa
             _rows[i].Update(habits[i], log, _current, cadence, checklist ? 0 : _config.EffectiveHistoryDots, !checklist && _config.ShowStreak);
         }
 
-        _done.Text = habits.Count == 0 ? string.Empty : string.Create(CultureInfo.InvariantCulture, $"{doneNow}/{habits.Count}");
+        _doneText.Text = habits.Count == 0 ? string.Empty : string.Create(CultureInfo.InvariantCulture, $"{doneNow}/{habits.Count}");
+        _header.Want(_done, habits.Count > 0);
         AutomationProperties.SetName(_done, habits.Count == 0
             ? string.Empty
             : HabitTrackerStr.WidgetsB_Habits_DoneOf.Format(("done", doneNow), ("total", habits.Count), ("when", HabitPeriods.CurrentNoun(cadence.Period))));
 
-        _emptyText.Text = EmptyMessage();
+        var (kind, sentence) = EmptyState();
+        _status.Show(kind, HabitTrackerModule.Glyph, sentence);
         Lay();
     }
 
-    private string EmptyMessage()
+    /// <summary>
+    /// [S-6714] What the Status row says with no habit to draw: no pool and an empty list are plain
+    /// states; a list that was deleted or lists that could not be read are a problem.
+    /// </summary>
+    private (StatusKind Kind, string Sentence) EmptyState()
     {
         if (_pool is null)
         {
-            return HabitTrackerStr.WidgetsB_Habits_Unavailable.Text();
+            return (StatusKind.Empty, HabitTrackerStr.WidgetsB_Habits_Unavailable.Text());
         }
 
         if (_habitList is null)
         {
-            return string.IsNullOrEmpty(_config.ListId) || !_pool.Writable
+            return (StatusKind.Problem, string.IsNullOrEmpty(_config.ListId) || !_pool.Writable
                 ? HabitTrackerStr.WidgetsB_Habits_Unreadable.Text()
-                : HabitTrackerStr.WidgetsB_Habits_ListDeleted.Text();
+                : HabitTrackerStr.WidgetsB_Habits_ListDeleted.Text().Replace('\n', ' '));
         }
 
-        return Writable ? HabitTrackerStr.WidgetsB_Habits_EmptyAdd.Text() : HabitTrackerStr.WidgetsB_Habits_Empty.Text();
+        return (StatusKind.Empty, HabitTrackerStr.WidgetsB_Habits_Empty.Text());
     }
 
     /// <summary>[S-1427] Apply the ladder to what is drawn. Cheap: nothing is rebuilt here.</summary>
@@ -297,22 +304,18 @@ internal sealed partial class HabitTrackerView : Grid, IWidgetView, IWidgetSurfa
         var plan = HabitLayout.Plan(
             _area,
             new HabitLayoutInput(count, Writable && (!heat || count == 0), _config.ShowStreak, _config.EffectiveHistoryDots,
-                Checklist: _config.Style == HabitTrackerStyle.Checklist),
-            Fluent.RowHeight,
-            Fluent.RowHeightCompact);
+                Checklist: _config.Style == HabitTrackerStyle.Checklist));
 
         _plan = plan;
 
-        _emptyHost.Visibility = count == 0 ? Visibility.Visible : Visibility.Collapsed;
+        _status.Visibility = count == 0 ? Visibility.Visible : Visibility.Collapsed;
         _scroll.Visibility = count == 0 || heat ? Visibility.Collapsed : Visibility.Visible;
         LayHeatmap(count);
 
         // The rows sit at the top of the tile and the add footer at its bottom ([S-3850]); under a
-        // list that all fits, the room between stays empty: nothing but the habits fills it. An
-        // empty list's hint takes that room, so it can shed its glyph on a small tile.
+        // list that all fits, the room between stays empty: nothing but the habits fills it.
         // Whole rows in the viewport: the rest scroll, and the last visible row is never cut in half.
         _scroll.Height = plan.Rows < count ? plan.Rows * plan.RowHeight : double.NaN;
-        _scroll.Padding = plan.AddRow ? new Thickness(0) : Fluent.ListPadding;
 
         foreach (var row in _rows)
         {

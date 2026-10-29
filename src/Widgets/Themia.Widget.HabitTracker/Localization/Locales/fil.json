@@ -16,7 +16,6 @@
   "widgetsB.habits.dotDone": "{period}: tapos",
   "widgetsB.habits.dotNotDone": "{period}: hindi tapos",
   "widgetsB.habits.empty": "Wala pang gawi.",
-  "widgetsB.habits.emptyAdd": "Wala pang gawi.\nMagdagdag sa ibaba.",
   "widgetsB.habits.inARow": "{units} nang sunod-sunod",
   "widgetsB.habits.listDeleted": "Binura ang listahan ng gawi na ito.\nPumili ng listahan sa menu ng widget na ito sa edit mode.",
   "widgetsB.habits.markDone": "Markahan bilang tapos {when}",

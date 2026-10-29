@@ -16,7 +16,6 @@
   "widgetsB.habits.dotDone": "{period}: ทำแล้ว",
   "widgetsB.habits.dotNotDone": "{period}: ยังไม่ได้ทำ",
   "widgetsB.habits.empty": "ยังไม่มีนิสัย",
-  "widgetsB.habits.emptyAdd": "ยังไม่มีนิสัย\nเพิ่มนิสัยด้านล่าง",
   "widgetsB.habits.inARow": "ติดต่อกัน {units}",
   "widgetsB.habits.listDeleted": "รายการนิสัยนี้ถูกลบแล้ว\nเลือกรายการในเมนูของวิดเจ็ตนี้ในโหมดแก้ไข",
   "widgetsB.habits.markDone": "ทำเครื่องหมายว่าทำแล้ว{when}",

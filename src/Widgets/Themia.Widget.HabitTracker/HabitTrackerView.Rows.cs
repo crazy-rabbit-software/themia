@@ -1,5 +1,4 @@
 using System.Globalization;
-using Microsoft.UI;
 using Microsoft.UI.Input;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Automation;
@@ -10,7 +9,9 @@ using Themia.App.Shell;
 using Themia.Core.Habits;
 using Themia.Core.Localization;
 using Themia.Core.Widgets;
+using Themia.Sdk.Kit;
 using Themia.Sdk.WinUI;
+using Themia.Sdk.WinUI.Kit;
 using Windows.System;
 using Windows.UI.Core;
 using Themia.Core.Shell;
@@ -196,7 +197,16 @@ internal sealed partial class HabitTrackerView
         _focusId = row.Id;
         _focusIndex = Math.Max(0, _rows.IndexOf(row));
         row.Host.Focus(FocusState.Keyboard);
-        row.Host.StartBringIntoView();
+        PaintFocus();
+    }
+
+    /// <summary>[S-1288] The Row block's ring on the focused habit, on no other row.</summary>
+    private void PaintFocus()
+    {
+        foreach (var each in _rows)
+        {
+            each.Focused = _rowFocused && each.Id == _focusId;
+        }
     }
 
     /// <summary>After a rebuild, the focus (or the editor) goes back to its habit, or to the row now in its place.</summary>
@@ -226,6 +236,7 @@ internal sealed partial class HabitTrackerView
     {
         _rowFocused = false;
         _focusId = null;
+        PaintFocus();
     }
 
     /// <summary>
@@ -491,8 +502,13 @@ internal sealed partial class HabitTrackerView
         editor.Box.LostFocus -= OnEditorLostFocus;
         editor.Box.GotFocus -= OnEditorGotFocus;
 
-        if (editor.Box.Parent is Panel parent)
+        if (editor.HabitId is { } owner && RowFor(owner) is { } holder && holder.Holds(editor.Box))
         {
+            holder.Release();
+        }
+        else if (editor.Box.Parent is Panel parent)
+        {
+            // The add footer's: what it hid comes back.
             parent.Children.Remove(editor.Box);
 
             foreach (var child in parent.Children)
@@ -518,172 +534,115 @@ internal sealed partial class HabitTrackerView
     private void DetachAddRow() => _addRow.Detach();
 
     /// <summary>
-    /// One habit's row: a box, the name, the run, the history dots, and on a wide tile its rate and
-    /// best run.
+    /// One habit's row, the family's Row block ([S-6711]): its check as the lead, the name, the history
+    /// dots as the inline meter, the current run as the value, and the tier's lines under the name
+    /// (the rate, then the best run, [S-6712]).
     /// <para>
-    /// The box is the <b>only</b> pointer target that completes a habit ([S-1421]): a click on the
+    /// The check is the <b>only</b> pointer target that completes a habit ([S-1421]): a click on the
     /// name or the run never ticks anything, because a widget sits under the pointer's path across
-    /// the whole desktop and has no undo. The box is drawn rather than a stock <c>CheckBox</c>, as
-    /// Tasks draws its marker: the stock control's template, stripped of its 120px minimum to fit a
-    /// row, clipped its own glyph to a dash in both states.
+    /// the whole desktop and has no undo. It is drawn as the kit's check look draws its own ([S-6711]):
+    /// a 16 ring of stroke 2 in the secondary role, the accent's filled circle with the tick when done.
     /// </para>
     /// </summary>
     private sealed class HabitRow
     {
-        private const double BoxSize = 20;
-
         private readonly HabitTrackerView _owner;
-        private readonly Grid _grid;
         private readonly Border _box;
-        private readonly FontIcon _tick;
-        private readonly TextBlock _name = Fluent.Text(FluentType.Body);
-        private readonly TextBlock _streak = Fluent.Text(FluentType.Caption, "TextFillColorSecondaryBrush");
-        private readonly StackPanel _history = new() { Orientation = Orientation.Horizontal, Spacing = HabitLayout.DotPitch - HabitLayout.DotSize };
-        private readonly TextBlock _rate = Fluent.Text(FluentType.Caption, "TextFillColorTertiaryBrush");
-        private readonly TextBlock _best = Fluent.Text(FluentType.Caption, "TextFillColorTertiaryBrush");
+        private readonly StackPanel _history = new() { Orientation = Orientation.Horizontal, Spacing = HabitLayout.DotGap };
         private readonly List<Border> _dots = [];
-        private readonly IDisposable _hover;
         private readonly IDisposable _menu;
-
-        private readonly Brush _filled = ThemeBrush.Of("AccentFillColorDefaultBrush", Colors.DodgerBlue);
-        // [S-837] The empty dot must read as a slot on both themes (the alt fill is all but invisible on
-        // dark): a control's strong rest fill (the item layer's track, [S-6513]), not the disabled
-        // one, which read as a switched-off habit.
-        private readonly Brush _stroke = ThemeBrush.Of("ControlStrongStrokeColorDefaultBrush", Colors.Gray);
 
         private IReadOnlyList<HabitDot> _recent = [];
         private HabitPeriod _period = HabitPeriod.Daily;
         private int _streakCount;
         private bool _showStreak = true;
-        private bool _done;
+        private bool _editing;
+        private string _name = string.Empty;
+        private string _rate = string.Empty;
+        private string _best = string.Empty;
+        private string? _value;
 
         public HabitRow(HabitTrackerView owner, string id)
         {
             _owner = owner;
             Id = id;
 
-            _tick = new FontIcon
-            {
-                Glyph = Glyphs.Done,
-                FontSize = 12,
-                Foreground = ThemeBrush.Of("TextOnAccentFillColorPrimaryBrush", Colors.White),
-                HorizontalAlignment = HorizontalAlignment.Center,
-                VerticalAlignment = VerticalAlignment.Center,
-            };
-
             _box = new Border
             {
-                Width = BoxSize,
-                Height = BoxSize,
-                CornerRadius = new CornerRadius(Fluent.ControlRadius),
+                Width = FamilyShape.Icon,
+                Height = FamilyShape.Icon,
+                CornerRadius = Family.Round(FamilyShape.Icon, FamilyShape.Icon),
                 VerticalAlignment = VerticalAlignment.Center,
-                Margin = new Thickness(0, 0, Fluent.Space3, 0),
-                Child = _tick,
             };
 
             _box.Tapped += OnBoxTapped;
             _box.DoubleTapped += OnBoxDoubleTapped;
 
-            _name.VerticalAlignment = VerticalAlignment.Center;
-            _name.TextTrimming = TextTrimming.CharacterEllipsis;
-            _name.TextWrapping = TextWrapping.NoWrap;
-            _name.DoubleTapped += OnNameDoubleTapped;
+            Host = new RowBlock(RowKind.List);
+            Host.Lead(_box);
+            Host.NameText.DoubleTapped += OnNameDoubleTapped;
+            Host.Interactive = true;
 
-            foreach (var text in new[] { _streak, _rate, _best })
-            {
-                text.VerticalAlignment = VerticalAlignment.Center;
-                text.Margin = new Thickness(HabitLayout.ColumnGap, 0, 0, 0);
-                text.TextAlignment = TextAlignment.Right;
-                Microsoft.UI.Xaml.Documents.Typography.SetNumeralAlignment(text, FontNumeralAlignment.Tabular);
-            }
-
-            _rate.MinWidth = HabitLayout.RateWidth;
-            _best.MinWidth = HabitLayout.BestWidth;
-
-            _history.VerticalAlignment = VerticalAlignment.Center;
-            _history.Margin = new Thickness(HabitLayout.ColumnGap, 0, 0, 0);
-
-            _grid = new Grid
-            {
-                ColumnDefinitions =
-                {
-                    new ColumnDefinition { Width = GridLength.Auto },
-                    new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) },
-                    new ColumnDefinition { Width = GridLength.Auto },
-                    new ColumnDefinition { Width = GridLength.Auto },
-                    new ColumnDefinition { Width = GridLength.Auto },
-                    new ColumnDefinition { Width = GridLength.Auto },
-                },
-            };
-
-            var column = 0;
-            foreach (var part in new FrameworkElement[] { _box, _name, _streak, _history, _rate, _best })
-            {
-                SetColumn(part, column++);
-                _grid.Children.Add(part);
-            }
-
-            Host = Fluent.Row(_grid);
-
-            // [S-1428] Focusable, so a clicked row can take the keys; the system focus rect shows which.
+            // [S-1428] Focusable, so a clicked row can take the keys; its ring is the Row block's ([S-6711]).
             Host.IsTabStop = true;
-            Host.UseSystemFocusVisuals = true;
+            Host.UseSystemFocusVisuals = false;
             Host.Tapped += OnRowTapped;
             WidgetItems.Mark(Host); // [S-814]
             Host.LostFocus += OnLostFocus;
 
-            _hover = Fluent.Hover(Host);
             _menu = ItemMenu.Attach(Host, () => _owner.MenuFor(Id));
 
-            // [S-1621] A press anywhere but the box can become a drag.
+            // [S-1621] A press anywhere but the check can become a drag.
             _owner.HookDrag(Host);
         }
 
         public string Id { get; }
 
-        public Border Host { get; }
+        public RowBlock Host { get; }
 
         public void Update(Habit habit, IReadOnlySet<string> log, HabitBucket current, HabitCadence cadence, int historyDots, bool showStreak)
         {
             var zone = TimeZoneInfo.Local;
 
-            _name.Text = string.IsNullOrWhiteSpace(habit.Name) ? HabitTrackerStr.WidgetsB_Habits_Untitled.Text() : habit.Name;
-            ToolTipService.SetToolTip(_name, _name.Text);
+            _name = string.IsNullOrWhiteSpace(habit.Name) ? HabitTrackerStr.WidgetsB_Habits_Untitled.Text() : habit.Name;
+            ToolTipService.SetToolTip(Host.NameText, _name);
 
-            _done = HabitRules.IsDone(log, current);
-            _box.Background = _done ? _filled : Fluent.Clear();
-            _box.BorderBrush = _stroke;
-            _box.BorderThickness = new Thickness(_done ? 0 : 1);
-            _tick.Visibility = _done ? Visibility.Visible : Visibility.Collapsed;
+            var done = HabitRules.IsDone(log, current);
+            _box.BorderBrush = Family.Brush(ColourRole.TextSecondary);
+            _box.BorderThickness = new Thickness(done ? 0 : FamilyShape.Stroke);
+            _box.Background = Family.Brush(done ? ColourRole.Accent : ColourRole.Clear);
+            _box.Child = done ? Family.Glyph(Glyphs.Done, FamilyShape.Icon, ColourRole.TextOnAccent) : null;
 
             var noun = HabitPeriods.CurrentNoun(cadence.Period);
-            var state = (_done ? HabitTrackerStr.WidgetsB_Habits_StateDone : HabitTrackerStr.WidgetsB_Habits_StateNotDone).Format(("name", _name.Text), ("when", noun));
+            var state = (done ? HabitTrackerStr.WidgetsB_Habits_StateDone : HabitTrackerStr.WidgetsB_Habits_StateNotDone).Format(("name", _name), ("when", noun));
             AutomationProperties.SetName(_box, state);
             AutomationProperties.SetName(Host, state);
-            ToolTipService.SetToolTip(_box, (_done ? HabitTrackerStr.WidgetsB_Habits_MarkNotDone : HabitTrackerStr.WidgetsB_Habits_MarkDone).Format(("when", noun)));
+            ToolTipService.SetToolTip(_box, (done ? HabitTrackerStr.WidgetsB_Habits_MarkNotDone : HabitTrackerStr.WidgetsB_Habits_MarkDone).Format(("when", noun)));
 
             _period = cadence.Period;
             _showStreak = showStreak;
             _streakCount = HabitRules.Streak(log, current, cadence, zone);
 
             var runWords = _streakCount == 0 ? HabitTrackerStr.WidgetsB_Habits_NoRun.Text() : HabitTrackerStr.WidgetsB_Habits_InARow.Format(("units", HabitPeriods.Units(_period, _streakCount)));
-            AutomationProperties.SetName(_streak, runWords);
-            ToolTipService.SetToolTip(_streak, runWords);
+            AutomationProperties.SetName(Host.ValueText, runWords);
+            ToolTipService.SetToolTip(Host.ValueText, runWords);
 
             _recent = HabitRules.Recent(log, current, cadence, zone, historyDots);
             DrawDots(cadence);
 
+            // [S-6712] The rate and the best run are the row's second and third lines.
             var doneIn = HabitRules.DoneIn(log, current, cadence, zone, HabitRules.RateWindow);
-            _rate.Text = LocaleFormat.Percent(Strings.Current, Math.Round(100.0 * doneIn / HabitRules.RateWindow));
-            var rateWords = HabitTrackerStr.WidgetsB_Habits_DoneOfLast.Format(("done", doneIn), ("units", HabitPeriods.Units(_period, HabitRules.RateWindow)));
-            ToolTipService.SetToolTip(_rate, rateWords);
-            AutomationProperties.SetName(_rate, rateWords);
+            _rate = HabitTrackerStr.WidgetsB_Habits_DoneOfLast.Format(("done", doneIn), ("units", HabitPeriods.Units(_period, HabitRules.RateWindow)));
 
             var best = HabitRules.BestStreak(log, current, cadence, zone);
-            _best.Text = HabitTrackerStr.WidgetsB_Habits_BestShort.Format(("count", best));
-            var bestWords = best == 0 ? HabitTrackerStr.WidgetsB_Habits_NoBest.Text() : HabitTrackerStr.WidgetsB_Habits_BestRun.Format(("units", HabitPeriods.Units(_period, best)));
-            ToolTipService.SetToolTip(_best, bestWords);
-            AutomationProperties.SetName(_best, bestWords);
+            _best = !showStreak ? string.Empty
+                : best == 0 ? HabitTrackerStr.WidgetsB_Habits_NoBest.Text()
+                : HabitTrackerStr.WidgetsB_Habits_BestRun.Format(("units", HabitPeriods.Units(_period, best)));
+
+            if (!_editing)
+            {
+                Host.Show(_name, _value, _rate, _best);
+            }
         }
 
         /// <summary>
@@ -704,7 +663,7 @@ internal sealed partial class HabitTrackerView
                     {
                         Width = HabitLayout.DotSize,
                         Height = HabitLayout.DotSize,
-                        CornerRadius = new CornerRadius(HabitLayout.DotSize / 2),
+                        CornerRadius = Family.Round(HabitLayout.DotSize, HabitLayout.DotSize),
                         VerticalAlignment = VerticalAlignment.Center,
                     };
 
@@ -716,15 +675,9 @@ internal sealed partial class HabitTrackerView
             for (var i = 0; i < _recent.Count; i++)
             {
                 var dot = _recent[i];
-                if (dot.Done)
-                {
-                    _dots[i].Background = _filled;
-                }
-                else
-                {
-                    ItemFill.Paint(_dots[i], ItemRole.Track);
-                }
 
+                // [S-6717] Done is the accent, an open period the track: the Chart block's two.
+                _dots[i].Background = Family.Brush(dot.Done ? ColourRole.Accent : ColourRole.Track);
 
                 var label = (dot.Done ? HabitTrackerStr.WidgetsB_Habits_DotDone : HabitTrackerStr.WidgetsB_Habits_DotNotDone).Format(("period", HabitPeriods.Describe(dot.Bucket, cadence)));
                 ToolTipService.SetToolTip(_dots[i], label);
@@ -735,18 +688,18 @@ internal sealed partial class HabitTrackerView
         /// <summary>[S-1427] The parts this tile has room for. The oldest dots go first; the name never yields to them.</summary>
         public void SetLayout(HabitLayoutPlan plan)
         {
-            Fluent.SetDensity(Host, plan.CompactRows);
-            Host.Padding = new Thickness(plan.Inset, 0, plan.Inset, 0);
+            Host.Lines = plan.Lines;
 
-            if (_grid.Children.OfType<TextBox>().Any())
+            if (_editing)
             {
-                // Renaming: the box spans the trailing columns until it closes.
+                // Renaming: the box takes the name's and the dots' place until it closes.
                 return;
             }
 
-            var count = LocaleFormat.Integer(_streakCount);
-            _streak.Text = _streakCount == 0 ? string.Empty : plan.StreakWords ? HabitPeriods.Units(_period, _streakCount) : count;
-            _streak.Visibility = _showStreak && plan.Streak && _streakCount > 0 ? Visibility.Visible : Visibility.Collapsed;
+            _value = _showStreak && plan.Streak && _streakCount > 0
+                ? plan.StreakWords ? HabitPeriods.Units(_period, _streakCount) : LocaleFormat.Integer(_streakCount)
+                : null;
+            Host.Show(_name, _value, _rate, _best);
 
             var shown = Math.Min(plan.Dots, _dots.Count);
             for (var i = 0; i < _dots.Count; i++)
@@ -754,39 +707,46 @@ internal sealed partial class HabitTrackerView
                 _dots[i].Visibility = i >= _dots.Count - shown ? Visibility.Visible : Visibility.Collapsed;
             }
 
-            _history.Visibility = shown > 0 ? Visibility.Visible : Visibility.Collapsed;
-            _rate.Visibility = plan.Rate ? Visibility.Visible : Visibility.Collapsed;
-            _best.Visibility = plan.Best ? Visibility.Visible : Visibility.Collapsed;
+            Host.Meter(shown > 0 ? _history : null, shown > 0 ? (shown * HabitLayout.DotPitch) - HabitLayout.DotGap : 0);
         }
 
-        /// <summary>Put an editor where the name is; the trailing parts make room for it until it closes.</summary>
+        /// <summary>Put an editor where the name is; the dots and the run make room for it until it closes.</summary>
         public void Adopt(TextBox box)
         {
-            if (box.Parent is Panel old && !ReferenceEquals(old, _grid))
+            if (box.Parent is Panel old && !ReferenceEquals(old, Host))
             {
                 old.Children.Remove(box);
             }
 
-            SetColumn(box, 1);
-            SetColumnSpan(box, 5);
-
-            foreach (var child in _grid.Children)
+            _editing = true;
+            Host.Meter(null, 0);
+            Host.ValueText.Visibility = Visibility.Collapsed;
+            if (!ReferenceEquals(box.Parent, Host))
             {
-                if (GetColumn((FrameworkElement)child) >= 1)
-                {
-                    child.Visibility = Visibility.Collapsed;
-                }
-            }
-
-            if (!_grid.Children.Contains(box))
-            {
-                _grid.Children.Add(box);
+                Host.Cells(box);
             }
 
             box.Visibility = Visibility.Visible;
         }
 
-        /// <summary>Whether a press landed on the tick box, which ticks and never starts a drag.</summary>
+        /// <summary>Take the editor down; the row's parts come back as <see cref="SetLayout"/> lays them.</summary>
+        public void Release()
+        {
+            _editing = false;
+            Host.Cells(null);
+        }
+
+        /// <summary>Whether this row holds <paramref name="box"/>.</summary>
+        public bool Holds(TextBox box) => _editing && ReferenceEquals(box.Parent, Host);
+
+        /// <summary>[S-1288] The keyboard's ring on the row.</summary>
+        public bool Focused
+        {
+            get => Host.Focused;
+            set => Host.Focused = value;
+        }
+
+        /// <summary>Whether a press landed on the check, which ticks and never starts a drag.</summary>
         public bool IsInBox(DependencyObject? source)
         {
             for (var node = source; node is not null && !ReferenceEquals(node, Host); node = VisualTreeHelper.GetParent(node))
@@ -815,7 +775,7 @@ internal sealed partial class HabitTrackerView
             _owner.BeginRename(Id);
         }
 
-        /// <summary>[S-1428] A click on the row (not its box) gives the list the keyboard, focused here.</summary>
+        /// <summary>[S-1428] A click on the row (not its check) gives the list the keyboard, focused here.</summary>
         private void OnRowTapped(object sender, TappedRoutedEventArgs args)
         {
             if (_owner._editor is null)
@@ -829,11 +789,11 @@ internal sealed partial class HabitTrackerView
         /// <summary>Safe to call twice: every handle is idempotent.</summary>
         public void Detach()
         {
-            _hover.Dispose();
+            Host.Detach();
             _menu.Dispose();
             _box.Tapped -= OnBoxTapped;
             _box.DoubleTapped -= OnBoxDoubleTapped;
-            _name.DoubleTapped -= OnNameDoubleTapped;
+            Host.NameText.DoubleTapped -= OnNameDoubleTapped;
             Host.Tapped -= OnRowTapped;
             Host.LostFocus -= OnLostFocus;
             _owner.UnhookDrag(Host);

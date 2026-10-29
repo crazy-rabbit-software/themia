@@ -16,7 +16,6 @@
   "widgetsB.habits.dotDone": "{period}: selesai",
   "widgetsB.habits.dotNotDone": "{period}: belum selesai",
   "widgetsB.habits.empty": "Belum ada kebiasaan.",
-  "widgetsB.habits.emptyAdd": "Belum ada kebiasaan.\nTambahkan di bawah.",
   "widgetsB.habits.inARow": "{units} berturut-turut",
   "widgetsB.habits.listDeleted": "Daftar kebiasaan ini telah dihapus.\nPilih daftar di menu widget ini dalam mode edit.",
   "widgetsB.habits.markDone": "Tandai selesai {when}",

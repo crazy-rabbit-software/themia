@@ -35,7 +35,7 @@ internal sealed partial class HabitTrackerView
     private int _dragTo;
     private double _dragPitch;
 
-    private void HookDrag(Border host)
+    private void HookDrag(FrameworkElement host)
     {
         host.PointerPressed += OnRowPointerPressed;
         host.PointerMoved += OnRowPointerMoved;
@@ -43,7 +43,7 @@ internal sealed partial class HabitTrackerView
         host.PointerCaptureLost += OnRowPointerCaptureLost;
     }
 
-    private void UnhookDrag(Border host)
+    private void UnhookDrag(FrameworkElement host)
     {
         host.PointerPressed -= OnRowPointerPressed;
         host.PointerMoved -= OnRowPointerMoved;
