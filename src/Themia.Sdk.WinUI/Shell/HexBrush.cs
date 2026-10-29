@@ -37,14 +37,17 @@ public static class HexBrush
     /// </summary>
     public static Windows.UI.Color OnCard(ColourRole role)
     {
-        var fill = Colour(ColourRoles.CardFill);
-        var card = HexColor.Over(fill.A, fill.R, fill.G, fill.B, Hex(Colour(ColourRoles.CardBase)));
-        var text = Colour(ColourRoles.Key(role));
-        HexColor.TryParse(HexColor.Over(text.A, text.R, text.G, text.B, card), out var r, out var g, out var b);
+        var (fill, fillAlpha) = Colour(ColourRoles.CardFill);
+        var (cardBase, _) = Colour(ColourRoles.CardBase);
+        var card = HexColor.Over(fillAlpha, fill.R, fill.G, fill.B, HexColor.From(cardBase.R, cardBase.G, cardBase.B));
+        var (text, textAlpha) = Colour(ColourRoles.Key(role));
+        HexColor.TryParse(HexColor.Over(textAlpha, text.R, text.G, text.B, card), out var r, out var g, out var b);
         return Windows.UI.Color.FromArgb(255, r, g, b);
     }
 
-    private static Windows.UI.Color Colour(string key) => (ThemeBrush.Of(key, default) as SolidColorBrush)?.Color ?? default;
-
-    private static string Hex(Windows.UI.Color colour) => HexColor.From(colour.R, colour.G, colour.B);
+    /// <summary>A theme brush's colour and how much of it shows: its colour's alpha times its opacity (the design engine keeps either).</summary>
+    private static (Windows.UI.Color Colour, byte Alpha) Colour(string key)
+        => ThemeBrush.Of(key, default) is SolidColorBrush brush
+            ? (brush.Color, (byte)Math.Round(brush.Color.A * Math.Clamp(brush.Opacity, 0, 1)))
+            : (default, 0);
 }
