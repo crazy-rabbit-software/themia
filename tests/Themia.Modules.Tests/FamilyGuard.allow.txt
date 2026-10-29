@@ -129,25 +129,6 @@
 1	src/Themia.Sdk.WinUI/Widgets/FlipPart.cs	radius	new CornerRadius(Math.Min(Fluent.OverlayRadius, height / 8)
 1	src/Themia.Sdk.WinUI/Widgets/ItemMenu.cs	size	Height = 16
 1	src/Themia.Sdk.WinUI/Widgets/ItemMenu.cs	size	Width = 16
-1	src/Themia.Sdk.WinUI/Widgets/PowerButtonView.cs	brush	AccentFillColorDisabledBrush
-1	src/Themia.Sdk.WinUI/Widgets/PowerButtonView.cs	brush	AccentFillColorSecondaryBrush
-1	src/Themia.Sdk.WinUI/Widgets/PowerButtonView.cs	brush	AccentFillColorTertiaryBrush
-1	src/Themia.Sdk.WinUI/Widgets/PowerButtonView.cs	brush	SystemFillColorCriticalBackgroundBrush
-1	src/Themia.Sdk.WinUI/Widgets/PowerButtonView.cs	brush	TextOnAccentFillColorDisabledBrush
-1	src/Themia.Sdk.WinUI/Widgets/PowerButtonView.cs	colour	Colors.Transparent
-1	src/Themia.Sdk.WinUI/Widgets/QuickToggleView.Switch.cs	brush	ControlAltFillColorDisabledBrush
-1	src/Themia.Sdk.WinUI/Widgets/QuickToggleView.Switch.cs	brush	ControlAltFillColorQuarternaryBrush
-1	src/Themia.Sdk.WinUI/Widgets/QuickToggleView.Switch.cs	brush	ControlAltFillColorSecondaryBrush
-1	src/Themia.Sdk.WinUI/Widgets/QuickToggleView.Switch.cs	brush	ControlAltFillColorTertiaryBrush
-1	src/Themia.Sdk.WinUI/Widgets/QuickToggleView.Switch.cs	brush	ControlStrongStrokeColorDefaultBrush
-1	src/Themia.Sdk.WinUI/Widgets/QuickToggleView.Switch.cs	brush	ControlStrongStrokeColorDisabledBrush
-1	src/Themia.Sdk.WinUI/Widgets/QuickToggleView.Switch.cs	radius	new CornerRadius(plan.TrackHeight / 2)
-1	src/Themia.Sdk.WinUI/Widgets/QuickToggleView.Switch.cs	type	FontSize = Math.Max(16
-1	src/Themia.Sdk.WinUI/Widgets/QuickToggleView.cs	brush	AccentFillColorSecondaryBrush
-1	src/Themia.Sdk.WinUI/Widgets/QuickToggleView.cs	brush	AccentFillColorTertiaryBrush
-1	src/Themia.Sdk.WinUI/Widgets/QuickToggleView.cs	colour	Colors.Transparent
-1	src/Themia.Sdk.WinUI/Widgets/QuickToggleView.cs	space	Spacing = plan.Row ? 2 : ToggleFace.Gap
-1	src/Themia.Sdk.WinUI/Widgets/RoundButtonPart.cs	radius	new CornerRadius(plan.Diameter / 2)
 1	src/Themia.Sdk.WinUI/Widgets/ScreenTimeShared.cs	brush	AccentTextFillColorPrimaryBrush
 1	src/Themia.Sdk.WinUI/Widgets/ScreenTimeShared.cs	brush	ControlFillColorSecondaryBrush
 1	src/Themia.Sdk.WinUI/Widgets/ScreenTimeShared.cs	colour	Color.FromArgb(

@@ -1,15 +1,9 @@
 # [S-6731] Today's render-walk findings: kind <TAB> element and rule (values stripped). Only shrinks:
 # scripts/family-check.ps1 fails on a finding not listed here and on a line no longer found. Empty is done.
-airplaneModeToggle	Ellipse space margin
-airplaneModeToggle	FontIcon glyph-size
-airplaneModeToggle	TextBlock text-size
 alarm	TextBlock colour fg
 alarm	TextBlock text-size
 audioVisualizer	Rectangle radius
 bluetooth	TextBlock text-size
-bluetoothToggle	Ellipse space margin
-bluetoothToggle	FontIcon glyph-size
-bluetoothToggle	TextBlock text-size
 brightness	Slider radius
 brightness	TextBlock text-size
 clock	Border radius
@@ -17,24 +11,15 @@ clock	StackPanel space margin
 clock	TextBlock colour fg
 clock	TextBlock text-size
 clock	TextBlock text-weight
-colorFiltersToggle	Ellipse space margin
-colorFiltersToggle	FontIcon glyph-size
-colorFiltersToggle	TextBlock text-size
 countdown	Border radius
 countdown	Ellipse stroke
 countdown	Path stroke
 countdown	TextBlock text-size
-doNotDisturbToggle	Ellipse space margin
-doNotDisturbToggle	FontIcon glyph-size
-doNotDisturbToggle	TextBlock text-size
 drive	Ellipse stroke
 drive	FontIcon glyph-size
 drive	Path stroke
 drive	ProgressBar radius
 drive	TextBlock text-size
-energySaverToggle	Ellipse space margin
-energySaverToggle	FontIcon glyph-size
-energySaverToggle	TextBlock text-size
 focusSession	Ellipse stroke
 focusSession	Path stroke
 focusSession	TextBlock text-size
@@ -43,33 +28,16 @@ folder	Border space padding
 folder	FontIcon glyph-size
 folder	TextBlock text-size
 gallery	TextBlock text-size
-gameModeToggle	Ellipse space margin
-gameModeToggle	FontIcon glyph-size
-gameModeToggle	TextBlock text-size
 habitTracker	Border radius
 habitTracker	FontIcon glyph-size
 habitTracker	FontIcon space margin
 habitTracker	TextBlock text-size
-hibernate	FontIcon glyph-size
-hibernate	Grid colour bg
-hibernate	TextBlock text-size
-lock	FontIcon glyph-size
-lock	TextBlock text-size
-microphoneToggle	Ellipse space margin
-microphoneToggle	FontIcon glyph-size
-microphoneToggle	TextBlock text-size
 mixer	Button space padding
 mixer	FontIcon glyph-size
 mixer	Slider radius
 mixer	TextBlock text-size
-monoAudioToggle	Ellipse space margin
-monoAudioToggle	FontIcon glyph-size
-monoAudioToggle	TextBlock text-size
 music	FontIcon glyph-size
 music	TextBlock text-size
-nightLightToggle	Ellipse space margin
-nightLightToggle	FontIcon glyph-size
-nightLightToggle	TextBlock text-size
 pomodoro	Ellipse stroke
 pomodoro	FontIcon colour fg
 pomodoro	Path stroke
@@ -81,18 +49,10 @@ recycleBin	TextBlock text-size
 removableDrives	Border stroke
 removableDrives	FontIcon glyph-size
 removableDrives	TextBlock text-size
-restart	FontIcon glyph-size
-restart	Grid colour bg
-restart	TextBlock text-size
-rotationLockToggle	Ellipse space margin
-rotationLockToggle	FontIcon glyph-size
-rotationLockToggle	TextBlock text-size
 scratchpad	Ellipse colour fill
 scratchpad	Ellipse stroke
 scratchpad	FontIcon glyph-size
 scratchpad	TextBlock text-size
-screenOff	FontIcon glyph-size
-screenOff	TextBlock text-size
 screenTimeApps	Border colour bg
 screenTimeApps	Border stroke
 screenTimeApps	Button space padding
@@ -112,24 +72,7 @@ shortcuts	Border space margin
 shortcuts	Button space padding
 shortcuts	FontIcon glyph-size
 shortcuts	TextBlock text-size
-shutdown	FontIcon glyph-size
-shutdown	Grid colour bg
-shutdown	TextBlock text-size
-signOut	FontIcon glyph-size
-signOut	Grid colour bg
-signOut	TextBlock text-size
-sleep	FontIcon glyph-size
-sleep	TextBlock text-size
-soundToggle	Ellipse space margin
-soundToggle	FontIcon glyph-size
-soundToggle	TextBlock text-size
-spatialSoundToggle	Ellipse space margin
-spatialSoundToggle	FontIcon glyph-size
-spatialSoundToggle	TextBlock text-size
 stopwatch	TextBlock text-size
 videoStream	TextBlock text-size
 volume	Slider radius
 volume	TextBlock text-size
-wifiToggle	Ellipse space margin
-wifiToggle	FontIcon glyph-size
-wifiToggle	TextBlock text-size
