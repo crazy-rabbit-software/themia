@@ -25,6 +25,9 @@ public enum AddFolderId
     /// <summary>[S-3511] What the tree leaves out stands here meanwhile, at Browse's end: never missing.</summary>
     More,
 
+    /// <summary>[S-5523] "On the desktop": this view's unplaced desktop items, where the item kind's own row would be.</summary>
+    DesktopItems,
+
     // The families: one widget in several layouts or several parts.
     Processor,
     Graphics,
