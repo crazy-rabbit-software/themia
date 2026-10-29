@@ -227,7 +227,7 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface, IItemPaletteOwn
         // the only way a "put it at the bottom" setting can exist without asking every widget to
         // honour it. The view contributes its trailing element and nothing else.
         _headerTitle = new TextBlock();
-        _header = Fluent.Header(
+        _header = new Themia.Sdk.WinUI.Kit.HeaderBlock(
             ModuleCatalog.Of(model.Kind).Glyph,
             _headerTitle,
             (_view as IWidgetHeaderContent)?.HeaderTrailing);
@@ -420,6 +420,7 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface, IItemPaletteOwn
 
         _headerBand.Visibility = hidden ? Visibility.Collapsed : Visibility.Visible;
         ApplyBodyFill();
+        _setup?.HeaderAbove(HeaderAbove);
 
         if (hidden)
         {
@@ -443,6 +444,9 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface, IItemPaletteOwn
 
         ApplyHeaderFill();
     }
+
+    /// <summary>[S-1862] Whether a header stands above the body: the Set up row then sits right under it.</summary>
+    private bool HeaderAbove => _headerBand.Visibility == Visibility.Visible && Model.ShownHeader == HeaderPlacement.Top;
 
     /// <summary>[S-872] Whether the card draws anything the window's hit region must take clicks for.</summary>
     public bool IsShown(bool editMode) => !_hidden || editMode;

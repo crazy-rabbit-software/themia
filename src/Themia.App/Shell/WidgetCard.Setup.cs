@@ -1,3 +1,4 @@
+using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Themia.App.Services;
 using Themia.App.Widgets;
@@ -114,7 +115,8 @@ internal sealed partial class WidgetCard
 
         if (needed && _setup is null)
         {
-            _setup = new SetupPrompt(ModuleCatalog.Of(Model.Kind).Glyph, () => _host.RequestSetup(this));
+            _setup = new SetupPrompt(ModuleCatalog.Of(Model.Kind).Glyph, SetupSentence(signedIn), () => _host.RequestSetup(this));
+            _setup.HeaderAbove(HeaderAbove);
             Grid.SetRow(_setup, 1);
             Grid.SetColumn(_setup, 1);
             _content.Children.Add(_setup);
@@ -136,6 +138,23 @@ internal sealed partial class WidgetCard
         var covered = _setup is not null || _waiting is not null;
         _view.Opacity = covered ? 0 : 1;
         _view.IsHitTestVisible = !covered;
+    }
+
+    /// <summary>
+    /// [S-1862] What the Set up row says: the widget's own sentence, else that an account would bring
+    /// what it lacks (where Set up goes to ⚙ › Accounts), else what it needs set.
+    /// </summary>
+    private string SetupSentence(FeatureSet signedIn)
+    {
+        if (Model.Config is ISetupRule { SetupSentence: { Length: > 0 } own })
+        {
+            return own;
+        }
+
+        var offerable = WidgetSetup.Offered(Themia.Sdk.ProviderCatalog.Offered.Select(p => p.Id));
+        return WidgetSetup.Goes(Model.Config, signedIn, offerable) == SetupGoes.Accounts
+            ? Str.Shell_Setup_Account.Text()
+            : Str.Shell_Setup_Hint.Text();
     }
 
     /// <summary>
@@ -166,6 +185,24 @@ internal sealed partial class WidgetCard
     }
 
 #if DEBUG
+    /// <summary>[S-6731] Debug renders only: what the card draws for the widget, for the family's render walk: its header, its Set up row, its view.</summary>
+    internal IEnumerable<FrameworkElement> FamilyRoots()
+    {
+        if (_headerBand.Visibility == Visibility.Visible)
+        {
+            yield return _headerHost;
+        }
+
+        if (_setup is not null)
+        {
+            yield return _setup;
+        }
+        else
+        {
+            yield return _view;
+        }
+    }
+
     /// <summary>
     /// Debug renders only ([S-2711]): run the view though the widget would need setting up, so a
     /// preview state can draw it over fixture data. A render has no accounts, so without this every
