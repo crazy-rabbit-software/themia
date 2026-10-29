@@ -25,18 +25,30 @@ languages). Tests: `Tests/ScreenTimeChartTests.cs`, `Tests/ScreenTimeChartMenuTe
   `ScreenTimeChartConfig.Style` over `IStyled`, stored as `"style": "bars" | "calendar"`
   (`StyleJsonConverter`; an unknown name is repaired to Bars at load, [S-6004]), copied in `Clone`,
   its labels `styles.screenTimeChart.*`. `--widget-png ScreenTimeChart … --style calendar` draws it.
-- **[S-3331]** Bars: one bar per day, oldest left, stacked by app in the ring's order (the busiest
-  seven, `ScreenTimeRules.DrawingApps`, then Other), scaled to the busiest day, today's weekday in the
-  accent. Calendar: [S-456]'s calendar.
+- **[S-3331]** Bars: one bar per day, oldest left, 8 apart for a week and 4 for a month, stacked by
+  app in the ring's order (the busiest seven, `ScreenTimeRules.DrawingApps`, then Other in the
+  disabled role) in the apps' data colours ([S-6705]), scaled to the busiest day, the stack one
+  rectangle of the family's radius (its top part's top corners, its foot part's foot, [S-6704]); under
+  them only the two ends are labelled ([S-6717]: Caption, tertiary): the first day and today, a week's
+  by weekday ("Fri", "Thu"), a month's by date ("Sep 30", "Oct 29"); today's accent label and the
+  weekday row under every bar went. Calendar ([S-456]): seven columns 4 apart, a cell a ring of its
+  day's share of the busiest day (the Chart block's `ChartRing`, the accent over the track) from 16, a
+  dot under it (the accent for any use, the track for none), at most 40; the weekday letters over them
+  (Caption, tertiary, today's column primary) while the cells stay rings; every week while a cell keeps
+  8, else the latest weeks that fit (`ScreenTimeChartLayout.Calendar`).
 - **[S-3332]** Ladder (`ScreenTimeChartLayout.Chart`): the drawing (never dropped, at least 32), then the
-  figure over it (Subtitle from Expanded height at Regular width, else BodyStrong), the weekday row
-  under a week's bars (when each column has 16 DIPs), the detail line; the drawing takes the rest.
-  The figure is the window's total and the line its per-day average and the "of 4h/day" limit
-  ([S-457]); a hovered day (pointer, or Left / Right) shows that day.
-- **[S-3333]** Linked focus ([S-3310]): the focused app's part of every bar is lit and every other
-  part dimmed; the calendar shades by that app's seconds per day; the figure is that app's time over
-  the window (or on the hovered day) with its share. Hovering a part hovers its app; clicking it
-  selects (again: lets go); clicking empty space clears the selection.
+  figure over it, the family's Readout ([S-6702]: 28, 40 or 68 by the area, sized on "888h 59m" so it
+  does not jump, 8 over the drawing), the bars' end labels (a 4 gap and a Caption line, inside the
+  drawing), the line under the figure; the drawing takes the rest of the view's area less the card's
+  bottom inset. The figure is the window's total (Critical while its per-day average is over the daily
+  limit) and the line its per-day average and the "of 4h/day" limit ([S-457]); a hovered day
+  (pointer, or Left / Right) shows that day, every other day at its wash ([S-3333]). Nothing to draw
+  is the Status block's one row at the top ([S-6714]). The header's label names the window ([S-454]).
+- **[S-3333]** Linked focus ([S-3310]): the focused app's part of every bar is drawn whole and every
+  other part at its wash (the family's 16 %, [S-6704]; it was 35 %); the calendar's rings show that
+  app's seconds per day against its busiest; the figure is that app's time over the window (or on the
+  hovered day) with its share. Hovering a part hovers its app; clicking it selects (again: lets go);
+  clicking empty space clears the selection.
 - **[S-3334]** Keys: Up/Down, PgUp/PgDn, Home/End step through the apps in the ring's order (the
   linked cursor, [S-3307]); Enter/Space select; Left / Right step the day the figure speaks of; Menu
   hides; Escape lets the cursor and the day go.

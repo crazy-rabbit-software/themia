@@ -3214,8 +3214,10 @@ are cited from there, the ones it replaced are marked.
   Right-click "Hide from list" adds an app key to `HiddenApps`; hidden apps leave every
   view and the totals re-base. The properties menu lists them with a way back ([S-3323]).
 - **[S-456]** A window of Bars: one bar per day, stacked by app in the legend's order, scaled to the
-  busiest day, weekday labels for a week. Calendar: seven columns, padded so the window ends on the
-  last cell, shaded in quartiles of the busiest day (any use is at least level 1), today outlined.
+  busiest day, its two ends labelled ([S-3331]). Calendar: seven columns, padded so the window ends on the
+  last cell, each day a ring of its share of the busiest day (the Chart block's ring, [S-6717]; a dot
+  under 16), today's weekday letter primary (the quartile shades and today's outline went: an opacity per
+  level is not a token).
 - **[S-457]** *(Stored in the shared preferences since [S-3322].)* Limits are daily, in seconds:
   `GoalSeconds` for the whole and `AppLimits` per app; zero
   or less is no limit. Shown as "of 4h" beside the figure (a window judges its daily average, "of
