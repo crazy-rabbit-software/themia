@@ -119,8 +119,6 @@
 1	src/Themia.Sdk.WinUI/Widgets/ConfirmFlyout.cs	colour	Colors.Firebrick
 2	src/Themia.Sdk.WinUI/Widgets/ConfirmFlyout.cs	colour	Colors.White
 1	src/Themia.Sdk.WinUI/Widgets/ConfirmFlyout.cs	size	MaxWidth = 260
-1	src/Themia.Sdk.WinUI/Widgets/FlipPart.cs	brush	CardStrokeColorDefaultBrush
-1	src/Themia.Sdk.WinUI/Widgets/FlipPart.cs	radius	new CornerRadius(Math.Min(Fluent.OverlayRadius, height / 8)
 1	src/Widgets/Themia.Widget.Alarm/AlarmView.cs	brush	AccentTextFillColorPrimaryBrush
 1	src/Widgets/Themia.Widget.Alarm/AlarmView.cs	ramp	FluentType.Hero
 1	src/Widgets/Themia.Widget.Alarm/AlarmView.cs	ramp	FluentType.Title
@@ -135,7 +133,6 @@
 4	src/Widgets/Themia.Widget.Clock/ClockView.xaml.cs	ramp	FluentType.Subtitle
 1	src/Widgets/Themia.Widget.Clock/ClockView.xaml.cs	ramp	FluentType.Title
 2	src/Widgets/Themia.Widget.Clock/ClockView.xaml.cs	ramp	HeroFit.BaselineDrop
-1	src/Widgets/Themia.Widget.Clock/ClockView.xaml.cs	ramp	HeroFit.Figures
 1	src/Widgets/Themia.Widget.Clock/ClockView.xaml.cs	ramp	HeroFit.Row
 1	src/Widgets/Themia.Widget.Clock/ClockView.xaml.cs	ramp	HeroFit.Stacked
 1	src/Widgets/Themia.Widget.Clock/ClockView.xaml.cs	ramp	HeroFit.StackedTailScale
@@ -146,7 +143,7 @@
 1	src/Widgets/Themia.Widget.Clock/DateLayout.cs	ramp	FluentType.Title
 1	src/Widgets/Themia.Widget.Clock/WordClock.cs	ramp	FluentType.Scaled
 2	src/Widgets/Themia.Widget.Clock/WordClock.cs	ramp	FluentType.TitleLarge
-3	src/Widgets/Themia.Widget.Countdown/CountdownView.cs	ramp	FluentType.Hero
+2	src/Widgets/Themia.Widget.Countdown/CountdownView.cs	ramp	FluentType.Hero
 2	src/Widgets/Themia.Widget.Countdown/CountdownView.cs	ramp	FluentType.Subtitle
 1	src/Widgets/Themia.Widget.Countdown/CountdownView.cs	ramp	FluentType.Title
 1	src/Widgets/Themia.Widget.FocusSession/FocusSessionView.cs	ramp	FluentType.Display

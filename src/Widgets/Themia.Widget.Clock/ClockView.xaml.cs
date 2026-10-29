@@ -396,22 +396,11 @@ public sealed partial class ClockView : UserControl, IWidgetView, IWidgetSizeAwa
         var vertical = _area.Shape == AreaShape.Tall;
         var gap = Fluent.Space2;
 
-        double cardWidth;
-        double cardHeight;
-        if (vertical)
-        {
-            cardHeight = (height - (gap * (count - 1))) / count;
-            cardWidth = Math.Min(width, cardHeight * FlipCard.Aspect * 1.4);
-        }
-        else
-        {
-            cardWidth = (width - (gap * (count - 1))) / count;
-            cardHeight = Math.Min(height, cardWidth * FlipCard.Aspect);
-            cardWidth = Math.Min(cardWidth, cardHeight / FlipCard.Aspect * 1.2);
-        }
-
-        cardWidth = Math.Floor(Math.Max(1, cardWidth));
-        cardHeight = Math.Floor(Math.Max(1, cardHeight));
+        var plan = vertical
+            ? FlipRules.Plan(_area, width, (height - (gap * (count - 1))) / count, 1, "88", oneReadout: true)
+            : FlipRules.Plan(_area, width, height, count, "88", oneReadout: true);
+        var cardWidth = plan.CardWidth;
+        var cardHeight = plan.CardHeight;
 
         FlipRow.Orientation = vertical ? Orientation.Vertical : Orientation.Horizontal;
         FlipRow.Spacing = gap;
@@ -421,10 +410,9 @@ public sealed partial class ClockView : UserControl, IWidgetView, IWidgetSizeAwa
         // on a card too small to hold it beside the digits it is left out (the digits are the point).
         var meridiem = !RegionFormat.Current.Use24Hour && cardHeight >= FlipMeridiemFloor;
         _flipMeridiem.Visibility = Visible(meridiem);
-        var digits = HeroFit.Figures(cardWidth * 0.86, cardHeight * (meridiem ? FlipCard.DigitShare - 0.12 : FlipCard.DigitShare), HeroFit.Ems("88"));
         foreach (var card in _flipCards)
         {
-            card.Lay(cardWidth, cardHeight, digits);
+            card.Lay(plan);
         }
 
         var tag = FluentType.Fit(cardWidth * 0.4, cardHeight * 0.18, 2, FluentType.Caption, FluentType.BodyLarge);

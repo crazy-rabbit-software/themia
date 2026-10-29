@@ -91,4 +91,15 @@ public static class ChartRules
 
     /// <summary>A ring's sweep in degrees for <paramref name="fraction"/> (clamped; not finite is none), from twelve, clockwise.</summary>
     public static double Sweep(double fraction) => double.IsFinite(fraction) ? Math.Clamp(fraction, 0, 1) * 360 : 0;
+
+    /// <summary>
+    /// [S-6717] The box a ring's figure stands in, centred in its hole: three quarters of the hole wide
+    /// and half of it tall (the hole is the ring less its stroke either side), so a readout set in it
+    /// clears the arc on every side.
+    /// </summary>
+    public static (double Width, double Height) Hole(double ring)
+    {
+        var hole = Math.Max(0, ring - (2 * FamilyShape.Stroke));
+        return (hole * 0.75, hole / 2);
+    }
 }

@@ -1,4 +1,3 @@
-using Microsoft.UI;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media;
@@ -7,26 +6,23 @@ using Microsoft.UI.Xaml.Shapes;
 using Themia.App.Shell;
 using Themia.App.Shell.Motion;
 using Themia.Core.Widgets;
+using Themia.Sdk.Kit;
 using Themia.Sdk.WinUI;
+using Themia.Sdk.WinUI.Kit;
 
 namespace Themia.App.Widgets;
 
 /// <summary>
-/// [S-6012] One split-flap card, the clock's Flip style and the Countdown's ([S-6032]): a rounded
-/// face in the subtle fill, the figures centred, and the hairline split across its middle that
-/// makes it a flap rather than a box. New figures on a tick turn the card over (it folds away,
-/// 110 ms, and the new figures fold in, 170 ms); a redraw shows them at once, and nothing turns
-/// while Windows' animation effects are off ([S-1010]).
+/// [S-6012] [S-6740] One split-flap card, the clock's Flip style and the Countdown's ([S-6032]): an item
+/// of the card's item layer ([S-6513]) in the family's radius, the figures centred on a family step in
+/// their role, and the hairline split across its middle in the Track role that makes it a flap rather
+/// than a box. Its size is <see cref="FlipRules"/>' (the figures' widest case and 12 either side, the
+/// step's line tall). New figures on a tick turn the card over (it folds away, 110 ms, and the new
+/// figures fold in, 170 ms); a redraw shows them at once, and nothing turns while Windows' animation
+/// effects are off ([S-1010]).
 /// </summary>
 public sealed class FlipCard
 {
-    /// <summary>A card's height against its width, and the figures' share of the card.</summary>
-    public const double Aspect = 1.1;
-
-    public const double DigitShare = 0.82;
-
-    private const double Hairline = 1;
-
     private static readonly TimeSpan Fold = TimeSpan.FromMilliseconds(110);
     private static readonly TimeSpan Open = TimeSpan.FromMilliseconds(170);
 
@@ -34,58 +30,61 @@ public sealed class FlipCard
     private readonly TextBlock _digits;
     private readonly PlaneProjection _projection = new();
     private Storyboard? _running;
+    private ColourRole _role = ColourRole.TextPrimary;
 
     /// <summary>What the card says, or null when it is to be drawn at once (new, or redrawn).</summary>
     private string? _shown;
 
     public FlipCard()
     {
-        _face = new Border
-        {
-            BorderBrush = ThemeBrush.Of("ControlStrokeColorDefaultBrush", Colors.Gray),
-            BorderThickness = new Thickness(Hairline),
-        };
+        _face = new Border { CornerRadius = Family.Radius };
         ItemFill.Paint(_face, ItemRole.Chip);
 
         _digits = new TextBlock
         {
-            Foreground = ThemeBrush.Of("TextFillColorPrimaryBrush", Colors.White),
+            Foreground = Family.Brush(_role),
             HorizontalAlignment = HorizontalAlignment.Center,
             VerticalAlignment = VerticalAlignment.Center,
             TextAlignment = TextAlignment.Center,
-            LineStackingStrategy = LineStackingStrategy.BlockLineHeight,
+            TextWrapping = TextWrapping.NoWrap,
         };
 
         var split = new Rectangle
         {
-            Height = Hairline,
+            Height = FamilyShape.Hairline,
             VerticalAlignment = VerticalAlignment.Center,
-            Fill = ThemeBrush.Of("CardStrokeColorDefaultBrush", Colors.Gray),
+            Fill = Family.Brush(ColourRole.Track),
         };
 
         Root = new Grid { Projection = _projection, Children = { _face, _digits, split } };
 
-        // [S-6546] The figures (and a caption a caller adds) are laid over the face, not inside it.
+        // [S-6546] The figures are laid over the face, not inside it.
         ItemFill.OnItem(Root);
     }
 
-    /// <summary>The card; a caller may add a corner caption to it (the clock's AM/PM).</summary>
+    /// <summary>The card.</summary>
     public Grid Root { get; }
 
-    /// <summary>The figures' colour: the countdown's critical one once its target has gone by.</summary>
-    public Brush Foreground
+    /// <summary>The figures' role: the countdown's Critical once its target has gone by, disabled for an alarm that is off.</summary>
+    public ColourRole Role
     {
-        get => _digits.Foreground;
-        set => _digits.Foreground = value;
+        get => _role;
+        set
+        {
+            if (_role != value)
+            {
+                _role = value;
+                _digits.Foreground = Family.Brush(value);
+            }
+        }
     }
 
-    /// <summary>Size the card and its figures.</summary>
-    public void Lay(double width, double height, TypeStep digits)
+    /// <summary>[S-6740] Size the card for <paramref name="plan"/>: its width, the step's line tall, the figures on the step.</summary>
+    public void Lay(FlipPlan plan)
     {
-        Root.Width = width;
-        Root.Height = height;
-        _face.CornerRadius = new CornerRadius(Math.Min(Fluent.OverlayRadius, height / 8));
-        _digits.Apply(digits);
+        Root.Width = plan.CardWidth;
+        Root.Height = plan.CardHeight;
+        Family.Step(_digits, plan.Step);
     }
 
     /// <summary>The next <see cref="Show"/> draws at once rather than turning: a config, language or size change.</summary>

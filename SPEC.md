@@ -993,6 +993,19 @@ module author's guide is docs/WIDGET-KIT.md 16.
   (`ChartSeries`) runs edge to edge at the card's bottom ([S-215]), its points spread evenly or laid out
   by its owner on fixed slots (a meter's history, `ChartRules.Y`). A part's role, fraction and points
   are set again only when they change ([S-6330]).
+- **[S-6739]** **A timer's face** (Alarm, Countdown, Stopwatch, Pomodoro, Focus session; `TimerFace`):
+  a one-readout widget ([S-6737]), so its Readout climbs the Hero steps as far as they fit, on fixed
+  steps, with its line under. Its Controls row stands at the bottom inset, 8 under the readout's box,
+  and only where the floor step's line, that gap and the row fit; a tile too short for both keeps the
+  readout, which is the widget. A ring face draws the Chart block's ring as large as the box's short
+  side and sets the readout in its hole, three quarters of the hole wide and half of it tall
+  (`ChartRules.Hole`); a ring under 48 is not drawn and the readout stands alone.
+- **[S-6740]** **Split-flap cards** (the clock's Flip style, the Countdown's; `FlipCard`, `FlipRules`):
+  one card per part of the time, 8 apart, each its figures' widest case on a family step with 12
+  either side and the step's line tall, an item of the card's item layer in the one radius with a
+  hairline split in the Track role across its middle. The step is chosen as a Readout's: the largest
+  the widget may take on which the cards, their gaps and what stands beside the row fit the width and
+  the line and its line under fit the height, never below 28.
 - **[S-6720]** The blocks replace the SDK's older parts as each widget group moves onto them, in
   place, never beside them (the order is the family's phase plan): the card's header is the Header
   block now and `Fluent.Header` is gone; the Set up row is the Status block now. `KitHeader`,

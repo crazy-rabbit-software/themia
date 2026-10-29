@@ -7,6 +7,7 @@ using Themia.App.Shell;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
+using Themia.Sdk.Kit;
 using Themia.Sdk.WinUI;
 using Themia.Widget.Countdown;
 
@@ -268,23 +269,19 @@ internal sealed partial class CountdownView : Grid, IWidgetView, IWidgetSizeAwar
     private bool LayFlip(DateTimeOffset target, double width, double height)
     {
         var cards = CountdownLayout.Cards(target, DateTimeOffset.Now, _config.Format == CountdownFormat.DaysHoursMinutesSeconds);
-        var gap = Fluent.Space2;
-        var cardWidth = (width - (gap * (cards.Count - 1))) / cards.Count;
-        var cardHeight = Math.Floor(Math.Min(height - FluentType.Caption.LineHeight - (2 * Fluent.Space1), cardWidth * FlipCard.Aspect));
-        cardWidth = Math.Floor(Math.Min(cardWidth, cardHeight / FlipCard.Aspect * 1.2));
-
-        if (cardHeight < FlipFloor)
+        var widest = new string('8', Math.Max(2, cards.Max(c => c.Digits.Length)));
+        var plan = FlipRules.Plan(_area, width, height, cards.Count, widest, oneReadout: true, under: true);
+        if (plan.CardHeight < FlipFloor)
         {
             return false;
         }
 
         EnsureFlips(cards.Count);
-        var widest = cards.Max(c => c.Digits.Length);
-        var digits = FluentType.Hero(cardWidth * 0.86, cardHeight * FlipCard.DigitShare, Math.Max(2, widest));
+        var cardWidth = plan.CardWidth;
 
         for (var i = 0; i < _flips.Count; i++)
         {
-            _flips[i].Card.Lay(cardWidth, cardHeight, digits);
+            _flips[i].Card.Lay(plan);
             _flips[i].Card.Redraw();
             _flips[i].Unit.Text = UnitText(cards[i].Unit);
             _flips[i].Unit.Width = cardWidth;
@@ -367,7 +364,7 @@ internal sealed partial class CountdownView : Grid, IWidgetView, IWidgetSizeAwar
 
             for (var i = 0; i < _flips.Count && i < cards.Count; i++)
             {
-                _flips[i].Card.Foreground = _heroValue.Foreground;
+                _flips[i].Card.Role = reading.Elapsed ? ColourRole.Critical : ColourRole.TextPrimary;
                 _flips[i].Card.Show(cards[i].Digits, IsLoaded);
             }
         }
