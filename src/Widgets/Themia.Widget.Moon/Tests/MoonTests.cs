@@ -2,121 +2,71 @@ using Themia.Core.Astronomy;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
 using Themia.Sdk;
+using Themia.Sdk.Kit;
 using Xunit;
 
 namespace Themia.Widget.Moon.Tests;
 
 /// <summary>
-/// [S-3105] [S-6051] The Moon widget: its ladder and the month of phases. Moved with the widget
-/// from Core's SkyWidgetsTests and TimeStylesTests, unchanged in what they assert.
+/// [S-3105] [S-6051] The Moon widget: its ladder on the family's blocks and the month of phases.
 /// </summary>
 public sealed class MoonTests
 {
     private static readonly TimeZoneInfo Zurich = TimeZoneInfo.FindSystemTimeZoneById("W. Europe Standard Time");
 
-    private static MoonPlan Plan(double width, double height)
-    {
-        var area = new WidgetArea(width, height);
-        var compact = area.WidthClass == SizeClass.Compact || area.HeightClass <= SizeClass.Regular;
-        return MoonLayout.Plan(area, compact ? 32 : 40, 15);
-    }
+    /// <summary>The view's area at a tier: the card less the header.</summary>
+    private static MoonPlan Plan(double width, double height) => MoonLayout.Plan(new WidgetArea(width, height - FamilySpace.ContentTop));
 
     [Fact]
-    public void S3105_the_disc_is_never_dropped_and_stays_inside_its_floor_and_ceiling()
+    public void S3105_the_lit_share_is_a_readout_on_the_areas_step_and_never_a_bigger_moon()
     {
+        Assert.Equal(28, Plan(200, 150).Face.Hero.FontSize);
+        Assert.Equal(40, Plan(320, 240).Face.Hero.FontSize);
+        Assert.Equal(68, Plan(800, 560).Face.Hero.FontSize);
+
+        // The moon leads the readout at its step: never larger than the family's 68.
         foreach (var tier in WidgetTiers.All)
         {
-            var plan = Plan(tier.Width, tier.Height - 40);
-            Assert.InRange(plan.Disc, MoonLayout.DiscFloor, MoonLayout.DiscCeiling);
-            Assert.Equal(0, plan.Disc % 2);
-        }
-
-        Assert.Equal(MoonLayout.DiscFloor, Plan(10, 10).Disc);
-    }
-
-    [Fact]
-    public void S3105_a_tiny_tile_is_the_disc_and_a_tall_one_has_every_row()
-    {
-        var tiny = Plan(120, 60);
-        Assert.Equal(0, tiny.Rows);
-        Assert.False(tiny.Side);
-
-        var tall = Plan(200, 360);
-        Assert.True(tall.Name && tall.Percent);
-        Assert.Equal(MoonLayout.Ladder.Count, tall.Rows);
-    }
-
-    [Fact]
-    public void S3105_the_name_comes_before_the_percentage_and_both_before_the_rows()
-    {
-        // Just room for the disc and one line: the name, not the percentage (a Compact column, so
-        // the short tile is not read as a strip).
-        var plan = Plan(170, MoonLayout.DiscFloor + MoonLayout.Gap * 2 + MoonLayout.NameStep.LineHeight);
-
-        Assert.True(plan.Name);
-        Assert.False(plan.Percent);
-        Assert.Equal(0, plan.Rows);
-    }
-
-    [Fact]
-    public void S3105_growing_the_tile_only_ever_adds_parts()
-    {
-        // Within one arrangement: a column from the height a 320 px tile stops being a strip.
-        var before = Plan(320, 161);
-
-        for (var height = 162.0; height <= 600; height += 1)
-        {
-            var plan = Plan(320, height);
-            Assert.False(plan.Side);
-            Assert.True(plan.Rows >= before.Rows || plan.Rows == MoonLayout.Ladder.Count, $"rows at {height}");
-            Assert.True(!before.Name || plan.Name, $"name at {height}");
-            Assert.True(!before.Percent || plan.Percent, $"percent at {height}");
-            Assert.True(plan.Disc >= MoonLayout.DiscFloor);
-            before = plan;
+            Assert.InRange(Plan(tier.Width, tier.Height).Face.Hero.FontSize, 28, 68);
         }
     }
 
     [Fact]
-    public void S3105_a_wide_strip_puts_the_text_beside_the_disc()
+    public void S3105_the_moon_gives_way_before_the_figure_where_the_readout_is_too_narrow_for_both()
     {
-        var plan = Plan(480, 120);
+        // 120 wide: "100%" at 28 and the moon beside it want 97, the content has 88.
+        var tiny = Plan(120, 120);
+        Assert.False(tiny.Disc);
+        Assert.Equal(28, tiny.Face.Hero.FontSize);
+        Assert.Equal(0, tiny.Face.ListRows);
 
-        Assert.True(plan.Side);
-        Assert.True(plan.Name);
-        Assert.True(plan.Disc <= 120);
-    }
-
-    /// <summary>"Rise" + "Tue 11:06 AM" in BodyStrong, the gap between them: a row's words in English.</summary>
-    private static readonly double RowWords =
-        FluentType.EstimateWidth(FluentType.BodyStrong, 4) + 8 + FluentType.EstimateWidth(FluentType.BodyStrong, 12);
-
-    [Fact]
-    public void S3105_a_row_is_shown_only_where_its_words_fit_beside_its_glyph()
-    {
-        // At 268 x 134 the disc took two fifths of the strip and "RiseTue 11:06 AM" ran off the card.
-        for (var width = 100.0; width <= 720; width += 4)
-        {
-            for (var height = 40.0; height <= 480; height += 6)
-            {
-                var area = new WidgetArea(width, height);
-                var plan = MoonLayout.Plan(area, 32, 15, RowWords);
-                if (plan.Rows > 0)
-                {
-                    Assert.True(MoonLayout.RowRoom(area, plan) >= RowWords, $"{width} x {height}: {MoonLayout.RowRoom(area, plan)}");
-                }
-            }
-        }
+        Assert.True(Plan(200, 150).Disc);
+        Assert.True(Plan(320, 240).Disc);
     }
 
     [Fact]
-    public void S3105_on_a_strip_the_disc_gives_way_to_the_rows()
+    public void S3105_rows_follow_the_readout_in_whole_rows_of_the_tiers_lines()
     {
-        var area = new WidgetArea(268, 134);
-        var plan = MoonLayout.Plan(area, 32, 15, RowWords);
+        var medium = Plan(320, 240);
+        Assert.False(medium.Face.Side);
+        Assert.Equal(2, medium.Face.ListLines);
+        Assert.Equal(2, medium.Face.ListRows);
 
-        Assert.True(plan.Side);
-        Assert.True(plan.Rows > 0);
-        Assert.True(MoonLayout.RowRoom(area, plan) >= RowWords);
+        var tall = Plan(200, 400);
+        Assert.Equal(MoonLayout.Ladder.Count, tall.Face.ListRows);
+
+        // A strip: compact height, one line a row.
+        Assert.Equal(1, Plan(480, 160).Face.ListLines);
+    }
+
+    [Fact]
+    public void S3105_an_expanded_width_puts_the_rows_beside_the_readout()
+    {
+        var wide = Plan(480, 160);
+        Assert.True(wide.Face.Side);
+        Assert.Equal(Math.Floor(480 * DetailFace.HeroShare), wide.Face.HeroColumn);
+        Assert.Equal(0, wide.Face.RowsTop);
+        Assert.Equal(MoonLayout.Ladder.Count, wide.Face.ListRows);
     }
 
     [Fact]

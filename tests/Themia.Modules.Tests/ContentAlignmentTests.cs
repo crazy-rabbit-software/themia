@@ -95,7 +95,7 @@ public sealed partial class ContentAlignmentTests
     public void S6582_without_a_choice_each_widget_sits_where_it_always_did()
     {
         Assert.Equal(ContentAlign.Center, ContentAlignment.Shown(Widget(new WidgetId("clock"))));
-        Assert.Equal(ContentAlign.Center, ContentAlignment.Shown(Widget(new WidgetId("moon"))));
+        Assert.Equal(ContentAlign.Left, ContentAlignment.Shown(Widget(new WidgetId("moon"))));
         Assert.Equal(ContentAlign.Left, ContentAlignment.Shown(Widget(new WidgetId("weatherNow"), (int)WeatherNowStyle.Standard)));
         Assert.Equal(ContentAlign.Center, ContentAlignment.Shown(Widget(new WidgetId("weatherNow"), (int)WeatherNowStyle.LargeIcon)));
         Assert.Equal(ContentAlign.Center, ContentAlignment.Shown(Widget(new WidgetId("weatherNow"), (int)WeatherNowStyle.Minimal)));
@@ -118,10 +118,10 @@ public sealed partial class ContentAlignmentTests
 
         // The moon's month keeps the choice, and draws its own default, until the disc is back.
         var moon = Widget(new WidgetId("moon"), (int)MoonStyle.PhaseMonth);
-        moon.Align = ContentAlign.Left;
-        Assert.Equal(ContentAlign.Center, ContentAlignment.Shown(moon));
-        Assert.True(WidgetStyles.Set(moon.Config, (int)MoonStyle.Disc));
+        moon.Align = ContentAlign.Right;
         Assert.Equal(ContentAlign.Left, ContentAlignment.Shown(moon));
+        Assert.True(WidgetStyles.Set(moon.Config, (int)MoonStyle.Disc));
+        Assert.Equal(ContentAlign.Right, ContentAlignment.Shown(moon));
 
         // A value outside the set never reaches a view.
         var clock = Widget(new WidgetId("clock"));

@@ -29,9 +29,8 @@ public sealed class MoonConfig : SkyPlaceConfig, IStyled, IShownSettings<MoonSet
         StyleOption.Of(MoonStyle.PhaseMonth, MoonStr.Styles_Moon_PhaseMonth.Local(), 0xE787),
     ];
 
-    /// <summary>[S-6581] Its one block aligns; where it sits when nothing was chosen.</summary>
+    /// <summary>[S-6581] Its readout aligns (at the start when nothing was chosen, as every data widget's); the month's grid does not.</summary>
     bool IContentAligned.AlignApplies => Style == MoonStyle.Disc;
-    ContentAlign IContentAligned.DefaultAlign => ContentAlign.Center;
 
     /// <summary>[S-6050] Tonight's disc, or the month's phases.</summary>
     public MoonStyle Style { get; set; } = MoonStyle.Disc;

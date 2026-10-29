@@ -12,25 +12,25 @@ JSON context), `MoonConfig.cs`, `MoonLayout.cs` (the ladder), `MoonMonth.cs` (th
 renders), `Localization/Locales/` (its own `MoonStr`, 30 languages). Tests: `Tests/MoonTests.cs`,
 `Tests/MoonMenuTests.cs` (run by `tests/Themia.Modules.Tests`).
 
-- **[S-3105]** Moon ladder (`MoonLayout`, on one `Disclosure`): the disc (never dropped, 24 px floor)
-  → the phase's name (measured at the language's longest name) → the lit percentage → whole rows
-  moonrise, moonset, the next full or new moon ([S-1491]). The disc takes what the rungs leave, up
-  to 192 px, so a larger tile only draws a larger moon. On a wide strip (Wide shape, width ≥
-  Regular) the text and rows stand beside the disc, which gives way to them: the column climbs the
-  ladder with the disc at its floor, then the disc grows only as far as the name and a row's words
-  still fit beside it. A row is shown only where its words fit beside its glyph (the language's
-  widest: a short rise or set label and a time on another day, or a full or new moon and its
-  shortest date; `MoonLayout.RowRoom`), never clipped at the card's edge (at 268 × 134 the disc
-  took two fifths of the strip and "Rise Tue 11:06 AM" ran off it). With one rise/set row it is the next of the two;
-  the next one carries its countdown in the accent ([S-163]). The next full or new moon drops its
-  weekday where the row cannot hold it ("Oct 26").
+- **[S-3105]** Moon ladder on the family's blocks (`MoonLayout`, G3 2026-10-29): the Header (the moon's
+  glyph, the place's name), then a Readout of how much of the moon is lit ("23%", [S-6702]) with the
+  moon drawn at its phase as its lead at the step's size (`SkyMoonDisc`, [S-169]) and the phase's
+  name the line under it, then whole fact rows moonrise, moonset, the next full or new moon ([S-1491],
+  [S-6735]: their leads the moon at 16, the next rise or set BodyStrong with its countdown the second
+  line where the tier gives two lines). The step is the area's (28, 40, 68) for the language's "100%";
+  room left goes to the rows, never a bigger moon ([S-666]). Where the readout is too narrow for the
+  moon beside even the floor step (XS), the moon gives way, never the figure. On an expanded width the
+  readout stands in a column of two fifths of the card and the rows beside it from the top, as the
+  detail widgets' figure ([S-2402], `DetailFace`). With one rise/set row it is the next of the two.
+  The next full or new moon drops its weekday where the row cannot hold it ("Oct 26"). The readout
+  sits at the start by default ([S-6582]).
 - **[S-6050]** The moon's styles ([S-6000]), `MoonConfig.Style` (`MoonStyle`): **Disc** (the
   default, [S-3105]) and **Phase month**: one small disc a day of the month holding now, each that
   day's phase at its local noon (`MoonMonth`, [S-6051]; the [S-169] drawing, mirrored for a southern
-  observer), reflowed to the tile by the dot grid ([S-6061]), today ringed in the accent, the month's
-  name over them while the discs stay 14 DIPs or larger under it. Each disc's tooltip names its day
-  and phase. Concise: no rise, set or percentage rows in this style. Debug: `--state sample` pins
-  12 October 2026, 21:00.
+  observer), reflowed to the content by the dot grid ([S-6061]) from the inset's start, today ringed
+  in the accent at the Chart's stroke, the month's name (Caption, secondary) 8 over them while the
+  discs stay 16 or larger under it. Each disc's tooltip names its day and phase. Concise: no rise,
+  set or percentage rows in this style. Debug: `--state sample` pins 12 October 2026, 21:00.
 - **[S-3108]** Every option is on the properties menu ([S-3719], user request 2026-10-19); there is
   no settings page: Appearance ([S-3723]), then behind a divider **Location**, the sky's shared search ([S-3101], as
   the Sun's [S-3107]). The month of phases offers no Longitude line ([S-6074]: one disc a day reads no

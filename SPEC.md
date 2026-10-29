@@ -2669,10 +2669,10 @@ rules in Core `Model/QuickSet.cs` and `Geometry/StripPlacement.cs` and the SDK's
   meters (a reading over its graph), mixers, timers with their controls, button and toggle tiles:
   they fill the card or are the card. A style that fills the card (a rate's or a stock's chart, the
   moon's month) does not align either.
-- **[S-6582]** Without a choice each widget sits where it always drew: centred — the Clock, the
-  Moon's disc, Weather now's Large icon and Minimal styles, Air quality's Gauge; from the start —
+- **[S-6582]** Without a choice each widget sits where it always drew: centred — the Clock,
+  Weather now's Large icon and Minimal styles, Air quality's Gauge; from the start —
   everything else (Weather now Standard, Air quality Number, the rate, the price, the Countdown, the
-  Quote). The Countdown no longer centres itself on a Compact tile: one rule at every size.
+  Quote, the Moon's readout, since G3 as every data widget's, [S-6702]). The Countdown no longer centres itself on a Compact tile: one rule at every size.
 - **[S-6583]** The card hands its view the alignment it draws (`ContentAlignment.Shown`: the own
   choice, else the kind's default for its style, and the default for a value outside the set or a
   style that does not align) before the view attaches and before every config it hears. In the
@@ -2680,7 +2680,7 @@ rules in Core `Model/QuickSet.cs` and `Geometry/StripPlacement.cs` and the SDK's
   [S-667]: its value row and the lines under it together; lines beside the value still read from
   it), the readings under it keep their grid; the large-icon and minimal reading and the gauge; the
   rate and the price; the countdown's lines, ring and cards; the quote's mark, lines and author; the
-  moon's disc and name over its rows (beside the disc on a strip the text still reads from it).
+  moon's readout (the moon, its lit share and the phase's name under them) over or beside its rows.
 - **[S-6584]** The properties panel's **Alignment** row, first in Appearance: a level of Left, Centre
   and Right (Segoe AlignLeft, AlignCenter, AlignRight), the current one ticked, none for a
   mixed selection. A pick sets every selected widget that aligns in its style (`QuickSet.SetAlign`;

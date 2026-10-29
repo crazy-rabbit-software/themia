@@ -1,27 +1,26 @@
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Shapes;
 using Themia.App.Services;
-using Themia.App.Shell;
 using Themia.Core.Astronomy;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
+using Themia.Sdk.Kit;
 using Themia.Sdk.WinUI;
+using Themia.Sdk.WinUI.Kit;
 using Themia.Widget.Moon;
 
 namespace Themia.App.Widgets;
 
 /// <summary>
-/// [S-3100] The moon where the observer is: its phase as a drawn disc, the phase's name and how much
-/// of it is lit, then moonrise, moonset and the next full or new moon as list rows, computed offline.
+/// [S-3100] The moon where the observer is, computed offline, on the family's blocks: a Readout of how
+/// much of it is lit, the moon drawn at its phase as the readout's lead and the phase's name under it,
+/// then moonrise, moonset and the next full or new moon as fact rows.
 /// <para>
-/// [S-3105] The ladder is <see cref="MoonLayout"/>; this view only builds it. The disc is the hero:
-/// it is never dropped and takes what the rungs leave, so a larger tile draws a larger moon rather
-/// than anything new. On a wide strip the text stands beside the disc.
-/// </para>
-/// <para>
-/// The drawing is <see cref="SkyMoonDisc"/>, the same lit-limb outline the row glyphs use, mirrored
-/// for a southern observer and dimmed while the moon is below the horizon ([S-169]).
+/// [S-3105] The ladder is <see cref="MoonLayout"/>; this view only builds it. The drawing is
+/// <see cref="SkyMoonDisc"/>, the same lit-limb outline the rows' leads use, mirrored for a southern
+/// observer and a role lower while the moon is below the horizon ([S-169]).
 /// </para>
 /// <para>
 /// [S-6050] The Phase month style draws the month instead: one small disc a day, each that day's
@@ -31,18 +30,18 @@ namespace Themia.App.Widgets;
 /// </summary>
 internal sealed partial class MoonView : Grid, IWidgetView, IWidgetSurfaceAware, IWidgetSizeAware, IWidgetAligned
 {
+    /// <summary>[S-6050] Under this disc size the month's name gives its line to the discs.</summary>
+    private const double MonthNameDisc = FamilyShape.Icon;
+
+    // The readout: the moon at the step's size, the lit share, the phase's name under both (as a
+    // Readout's lead glyph and its line under stand).
     private readonly SkyMoonDisc _disc = new();
-    private readonly TextBlock _name = Fluent.Text(MoonLayout.NameStep);
-    private readonly TextBlock _percent = Fluent.Text(MoonLayout.PercentStep, "TextFillColorTertiaryBrush");
-    private readonly StackPanel _text;
+    private readonly ReadoutBlock _value = new() { VerticalAlignment = VerticalAlignment.Center };
+    private readonly TextBlock _name = Family.Text(FamilyType.Caption, ColourRole.TextSecondary);
+    private readonly StackPanel _valueLine = new() { Orientation = Orientation.Horizontal };
+    private readonly StackPanel _readout = new() { VerticalAlignment = VerticalAlignment.Top };
 
-    /// <summary>The text and the rows, one column: under the disc, or beside it on a strip.</summary>
-    private readonly StackPanel _stack;
-
-    /// <summary>Everything, centred in the tile as one group.</summary>
-    private readonly Grid _content = new() { VerticalAlignment = VerticalAlignment.Center };
-
-    private readonly Grid _rowGrid = new();
+    private readonly StackPanel _rowStack = new() { VerticalAlignment = VerticalAlignment.Top };
     private readonly SkyMoonDisc _riseGlyph = new();
     private readonly SkyMoonDisc _setGlyph = new();
     private readonly SkyMoonDisc _majorGlyph = new();
@@ -61,15 +60,18 @@ internal sealed partial class MoonView : Grid, IWidgetView, IWidgetSurfaceAware,
     private WidgetArea _area;
     private MoonPlan _plan;
 
-    /// <summary>What a row has for its label and value, from the last <see cref="Lay"/>.</summary>
+    /// <summary>[S-6583] Where the readout sits: the widget's alignment, at the start by default (the family's data widgets are start-aligned).</summary>
+    private ContentAlign _align = ContentAlign.Left;
+
+    /// <summary>What a row has for its name and value, from the last <see cref="Lay"/>.</summary>
     private double _rowRoom = double.PositiveInfinity;
 
     /// <summary>[S-6050] The Phase month style: the month's name over a disc a day.</summary>
-    private readonly StackPanel _month = new() { VerticalAlignment = VerticalAlignment.Center, Visibility = Visibility.Collapsed };
-    private readonly TextBlock _monthName = Fluent.Text(FluentType.Caption, "TextFillColorSecondaryBrush");
-    private readonly Canvas _monthGrid = new() { HorizontalAlignment = HorizontalAlignment.Center, FlowDirection = FlowDirection.LeftToRight };
+    private readonly StackPanel _month = new() { VerticalAlignment = VerticalAlignment.Top, Visibility = Visibility.Collapsed };
+    private readonly TextBlock _monthName = Family.Text(FamilyType.Caption, ColourRole.TextSecondary);
+    private readonly Canvas _monthGrid = new() { HorizontalAlignment = HorizontalAlignment.Left, FlowDirection = FlowDirection.LeftToRight };
     private readonly List<SkyMoonDisc> _monthDiscs = [];
-    private readonly Microsoft.UI.Xaml.Shapes.Ellipse _todayRing = new();
+    private readonly Ellipse _todayRing = new() { StrokeThickness = FamilyShape.Stroke };
 
     /// <summary>The day the month was last drawn for: a new day redraws it, a tick on the same day does not.</summary>
     private DateOnly _monthDrawn;
@@ -77,48 +79,42 @@ internal sealed partial class MoonView : Grid, IWidgetView, IWidgetSurfaceAware,
 
     public MoonView()
     {
-        _name.HorizontalAlignment = HorizontalAlignment.Center;
-        _name.TextTrimming = TextTrimming.CharacterEllipsis;
-        _percent.HorizontalAlignment = HorizontalAlignment.Center;
-
-        _text = new StackPanel
-        {
-            VerticalAlignment = VerticalAlignment.Center,
-            Children = { _name, _percent },
-        };
+        _disc.Root.Margin = new Thickness(0, 0, FamilySpace.GlyphGap, 0);
+        _disc.Root.VerticalAlignment = VerticalAlignment.Center;
+        _valueLine.Children.Add(_disc.Root);
+        _valueLine.Children.Add(_value);
+        _readout.Children.Add(_valueLine);
+        _readout.Children.Add(_name);
 
         _riseRow = new SkyEventRow(_riseGlyph.Root);
         _setRow = new SkyEventRow(_setGlyph.Root);
         _majorRow = new SkyEventRow(_majorGlyph.Root);
         _rows = [_riseRow, _setRow, _majorRow];
-
-        for (var i = 0; i < _rows.Length; i++)
+        foreach (var row in _rows)
         {
-            _rowGrid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
-            SetRow(_rows[i].Root, i);
-            _rowGrid.Children.Add(_rows[i].Root);
+            _rowStack.Children.Add(row.Root);
         }
 
-        _stack = new StackPanel { Children = { _text, _rowGrid } };
-
-        _monthName.HorizontalAlignment = HorizontalAlignment.Center;
-        _monthName.TextTrimming = TextTrimming.CharacterEllipsis;
-        _todayRing.Stroke = ThemeBrush.Of("AccentFillColorDefaultBrush", Microsoft.UI.Colors.DodgerBlue);
-        _todayRing.StrokeThickness = Fluent.ChartStroke;
-        _month.Spacing = MoonLayout.Gap;
-        _month.Margin = WidgetLayout.SideInset;
+        _todayRing.Stroke = Family.Brush(ColourRole.Accent);
+        _month.Spacing = FamilySpace.S2;
+        _month.Margin = Family.SideInset;
         _month.Children.Add(_monthName);
         _month.Children.Add(_monthGrid);
+
+        RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
+        RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
+        ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+        ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(0) });
+
+        Children.Add(_readout);
+        Children.Add(_rowStack);
+        SetColumnSpan(_month, 2);
+        SetRowSpan(_month, 2);
         Children.Add(_month);
 
-        _content.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
-        _content.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
-        _content.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
-        _content.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
-        _content.Children.Add(_disc.Root);
-        _content.Children.Add(_stack);
-
-        Children.Add(_content);
+        // Nothing shows until the first lay: a view waiting for setup is never attached, and the card's Set up row stands alone.
+        _readout.Visibility = Visibility.Collapsed;
+        _rowStack.Visibility = Visibility.Collapsed;
     }
 
     public void Attach(Ticker ticker, WidgetConfig config)
@@ -152,10 +148,7 @@ internal sealed partial class MoonView : Grid, IWidgetView, IWidgetSurfaceAware,
         Lay();
     }
 
-    /// <summary>[S-6583] Where the disc and its name over the rows sit: the widget's alignment, centred by default ([S-6582]).</summary>
-    private ContentAlign _align = ContentAlign.Center;
-
-    /// <summary>[S-6583] The widget's alignment, from the properties panel.</summary>
+    /// <summary>[S-6583] The widget's alignment, from the properties panel: where the readout sits; the rows keep the width.</summary>
     public void ApplyAlign(ContentAlign align)
     {
         if (align == _align)
@@ -190,9 +183,10 @@ internal sealed partial class MoonView : Grid, IWidgetView, IWidgetSurfaceAware,
     /// <summary>[S-3105] Place the parts for this size, then fill them in.</summary>
     private void Lay()
     {
-        // [S-6005] One style's parts at a time: the disc and its rows, or the month.
+        // [S-6005] One style's parts at a time: the readout and its rows, or the month.
         var month = _config.Style == MoonStyle.PhaseMonth;
-        _content.Visibility = Show(!month);
+        _readout.Visibility = Show(!month && _area.IsMeasured);
+        _rowStack.Visibility = Show(!month && _area.IsMeasured);
         _month.Visibility = Show(month);
 
         if (month)
@@ -207,76 +201,67 @@ internal sealed partial class MoonView : Grid, IWidgetView, IWidgetSurfaceAware,
             _monthGrid.Children.Clear();
         }
 
-        var compact = _area.WidthClass == SizeClass.Compact || _area.HeightClass <= SizeClass.Regular;
-        var rowHeight = compact ? Fluent.RowHeightCompact : Fluent.RowHeight;
-        _plan = MoonLayout.Plan(_area, rowHeight, LongestPhaseName(), WidestRowWords());
+        if (!_area.IsMeasured)
+        {
+            return;
+        }
 
-        _disc.Resize(_plan.Disc);
-        _name.Visibility = Show(_plan.Name);
-        _percent.Visibility = Show(_plan.Percent);
-        _text.Visibility = Show(_plan.Name || _plan.Percent);
-        _rowGrid.Visibility = Show(_plan.Rows > 0);
+        _plan = MoonLayout.Plan(_area, LocaleFormat.Percent(Strings.Current, 100));
+        var face = _plan.Face;
+        var side = face.Side;
 
-        var side = _plan.Side;
-        var discRoot = _disc.Root;
-        discRoot.VerticalAlignment = VerticalAlignment.Center;
-        _stack.VerticalAlignment = VerticalAlignment.Center;
+        // The readout at the view's top in the inset (beside the rows, its column holds the inset on its left only).
+        ColumnDefinitions[0].Width = side ? new GridLength(face.HeroColumn) : new GridLength(1, GridUnitType.Star);
+        ColumnDefinitions[1].Width = side ? new GridLength(1, GridUnitType.Star) : new GridLength(0);
+        SetColumnSpan(_readout, side ? 1 : 2);
+        _readout.Margin = side ? new Thickness(FamilySpace.Inset, 0, 0, 0) : Family.SideInset;
+        _readout.HorizontalAlignment = Aligned.Horizontal(_align);
+        _valueLine.HorizontalAlignment = Aligned.Horizontal(_align);
+        _name.TextAlignment = Aligned.Text(_align);
+        _name.HorizontalAlignment = Aligned.Horizontal(_align);
 
-        // Disc left and the text beside it on a strip; else the disc over the text, both where the
-        // widget's alignment puts them ([S-6583], centred by default). The rows keep the width.
-        Grid.SetRow(discRoot, 0);
-        Grid.SetRowSpan(discRoot, side ? 2 : 1);
-        Grid.SetColumn(discRoot, 0);
-        Grid.SetColumnSpan(discRoot, side ? 1 : 2);
-        discRoot.HorizontalAlignment = side ? HorizontalAlignment.Left : Aligned.Horizontal(_align);
-        discRoot.Margin = side
-            ? new Thickness(Fluent.Space4, 0, MoonLayout.Gap, 0)
-            : new Thickness(Fluent.Space4, 0, Fluent.Space4, _text.Visibility == Visibility.Visible || _plan.Rows > 0 ? MoonLayout.Gap : 0);
+        _value.Use(face.Hero);
+        _disc.Resize(face.Hero.FontSize);
+        _disc.Root.Visibility = Show(_plan.Disc);
+        Family.Step(_name, FamilyType.Under(face.Hero));
+        _name.Visibility = Show(face.Under);
 
-        Grid.SetRow(_stack, side ? 0 : 1);
-        Grid.SetRowSpan(_stack, side ? 2 : 1);
-        Grid.SetColumn(_stack, side ? 1 : 0);
-        Grid.SetColumnSpan(_stack, side ? 1 : 2);
+        // The rows: 8 under the readout, or beside it from the top. They carry their own side inset.
+        SetRow(_rowStack, side ? 0 : 1);
+        SetRowSpan(_rowStack, side ? 2 : 1);
+        SetColumn(_rowStack, side ? 1 : 0);
+        SetColumnSpan(_rowStack, side ? 1 : 2);
+        _rowStack.Margin = new Thickness(0, side ? 0 : FamilySpace.S2, 0, 0);
+        _rowStack.Visibility = Show(face.ListRows > 0);
 
-        // On a strip the rows run to the card's right edge; the text keeps the inset where it sits.
-        _text.Margin = side ? new Thickness(0, 0, Fluent.Space4, 0) : new Thickness(Fluent.Space4, 0, Fluent.Space4, 0);
-        _name.HorizontalAlignment = side ? HorizontalAlignment.Left : Aligned.Horizontal(_align);
-        _percent.HorizontalAlignment = _name.HorizontalAlignment;
-        _rowGrid.Margin = side ? new Thickness(-Fluent.Space4, 0, 0, 0) : new Thickness(0);
-
-        // The rows' label, note and value share the row less its padding and glyph.
-        var rowRoom = MoonLayout.RowRoom(_area, _plan);
-        _rowRoom = rowRoom;
-
+        _rowRoom = SkyRows.Room(side ? _area.Width - face.HeroColumn : _area.Width);
         for (var i = 0; i < _rows.Length; i++)
         {
             var row = _rows[i];
-            row.Root.Visibility = Show(i < _plan.Rows);
-            row.Lines = compact ? 1 : 2;
-            row.Room = rowRoom;
+            row.Root.Visibility = Show(i < face.ListRows);
+            row.Lines = face.ListLines;
+            row.Room = _rowRoom;
         }
 
         Refresh();
     }
 
     /// <summary>
-    /// [S-6050] [S-6061] The month's grid for this size: a disc a day reflowed to the tile, the
-    /// month's name over it only while the discs keep a readable size under it.
+    /// [S-6050] [S-6061] The month's grid for this size: a disc a day reflowed to the content, the
+    /// month's name over it only while the discs keep the family's icon size under it.
     /// </summary>
     private void LayMonth()
     {
-        var box = _area.Deflate(Fluent.Space4, Fluent.Space2);
+        var width = Math.Max(0, _area.Width - (2 * FamilySpace.Inset));
+        var height = Math.Max(0, _area.Height - FamilySpace.Inset);
         var days = DateTime.DaysInMonth(_now.LocalDateTime.Year, _now.LocalDateTime.Month);
-        var under = DotGrid.Fit(days, box.Width, box.Height - FluentType.Caption.LineHeight - MoonLayout.Gap);
+        var under = DotGrid.Fit(days, width, height - FamilyType.Caption.LineHeight - FamilySpace.S2);
         var named = under.Diameter >= MonthNameDisc;
-        _monthPlan = named ? under : DotGrid.Fit(days, box.Width, box.Height);
+        _monthPlan = named ? under : DotGrid.Fit(days, width, height);
         _monthName.Visibility = Show(named);
         _monthDrawn = default;
         RefreshMonth();
     }
-
-    /// <summary>[S-6050] Under this disc size the month's name gives its line to the discs.</summary>
-    private const double MonthNameDisc = 14;
 
     /// <summary>[S-6051] The discs for the month holding now, rebuilt when the day changes.</summary>
     private void RefreshMonth()
@@ -312,12 +297,13 @@ internal sealed partial class MoonView : Grid, IWidgetView, IWidgetSurfaceAware,
         _monthGrid.Height = plan.Height;
         _monthName.Text = LocaleFormat.MonthName(locale, today.Month);
 
-        var inset = (plan.Pitch - plan.Diameter) / 2;
+        var size = Math.Max(1, Math.Floor(plan.Diameter));
+        var inset = (plan.Pitch - size) / 2;
         for (var i = 0; i < days.Count; i++)
         {
             var disc = _monthDiscs[i];
             var (column, row) = plan.Cell(i);
-            disc.Resize(Math.Max(1, Math.Floor(plan.Diameter)));
+            disc.Resize(size);
             disc.Update(days[i].Phase, southern, up: true);
             Canvas.SetLeft(disc.Root, (column * plan.Pitch) + inset);
             Canvas.SetTop(disc.Root, (row * plan.Pitch) + inset);
@@ -326,12 +312,12 @@ internal sealed partial class MoonView : Grid, IWidgetView, IWidgetSurfaceAware,
 
             if (days[i].Today)
             {
-                // [S-6050] Today ringed: the ring sits in the gap round today's disc.
-                var ring = plan.Pitch - 1;
+                // [S-6050] Today ringed in the accent at the Chart's stroke, in the gap round its disc.
+                var ring = Math.Floor(plan.Pitch);
                 _todayRing.Width = ring;
                 _todayRing.Height = ring;
-                Canvas.SetLeft(_todayRing, (column * plan.Pitch) + 0.5);
-                Canvas.SetTop(_todayRing, (row * plan.Pitch) + 0.5);
+                Canvas.SetLeft(_todayRing, (column * plan.Pitch) + ((plan.Pitch - ring) / 2));
+                Canvas.SetTop(_todayRing, (row * plan.Pitch) + ((plan.Pitch - ring) / 2));
                 _monthGrid.Children.Add(_todayRing);
             }
         }
@@ -357,8 +343,9 @@ internal sealed partial class MoonView : Grid, IWidgetView, IWidgetSurfaceAware,
         _disc.Update(moon.Phase, southern, up);
         _riseGlyph.Update(moon.Phase, southern, up);
         _setGlyph.Update(moon.Phase, southern, up);
+        var lit = ReadoutRules.Split(LocaleFormat.Percent(locale, Math.Round(moon.Illumination * 100)));
+        _value.Show(lit.Value, lit.Unit);
         _name.Text = MoonPhase.Label(moon.Name);
-        _percent.Text = LocaleFormat.Percent(locale, Math.Round(moon.Illumination * 100));
 
         var times = MoonPhase.NextRiseSet(_now, latitude, longitude);
         var next = times.Next;
@@ -372,7 +359,7 @@ internal sealed partial class MoonView : Grid, IWidgetView, IWidgetSurfaceAware,
 
         // [S-3105] With one row, it is the next of the two; with both, rise then set, the next one
         // carrying its countdown.
-        if (_plan.Rows == 1 && next is { IsRise: false })
+        if (_plan.Face.ListRows == 1 && next is { IsRise: false })
         {
             _riseRow.SetLabel(setLabel.Item1, setLabel.Item2);
             _riseRow.Set(setValue, countdown);
@@ -386,62 +373,19 @@ internal sealed partial class MoonView : Grid, IWidgetView, IWidgetSurfaceAware,
         _setRow.SetLabel(setLabel.Item1, setLabel.Item2);
         _setRow.Set(setValue, next is { IsRise: false } ? countdown : null);
 
-        // [S-1491] The next full or new moon, in the machine's zone like every other time here.
+        // [S-1491] The next full or new moon, in the machine's zone like every other time here; its
+        // weekday goes first where the row cannot hold it beside the phase's name ("Oct 26", [S-6735]).
         var major = MoonPhase.NextMajor(_now);
-        _majorRow.SetLabel(MoonPhase.Label(major.Name));
-        // The weekday goes first where the row cannot hold it beside the phase's name ("Oct 26").
         var majorLabel = MoonPhase.Label(major.Name);
         var majorDate = SkyText.ShortDate(locale, major.At.ToLocalTime());
-        if (FluentType.EstimateWidth(FluentType.Body, majorLabel.Length)
-            + FluentType.EstimateWidth(FluentType.BodyStrong, majorDate.Length) + Fluent.Space2 > _rowRoom)
+        if (!SkyRows.Fits(_rowRoom, majorLabel, majorDate))
         {
             majorDate = LocaleFormat.Date(locale, DateOnly.FromDateTime(major.At.ToLocalTime().DateTime), DateStyle.MonthDayShort);
         }
 
+        _majorRow.SetLabel(majorLabel);
         _majorRow.SetPlain(majorDate, null);
         _majorGlyph.Update(major.Name == MoonPhaseName.FullMoon ? 0.5 : 0, southern, up: true);
-    }
-
-    /// <summary>
-    /// [S-3105] The widest a row's words get in the current language, so a row is shown only where
-    /// they fit: a rise or set's short label beside a time on another day ("Tue 11:06 AM"), or a
-    /// full or new moon's name beside its shortest date ("Oct 26").
-    /// </summary>
-    private static double WidestRowWords()
-    {
-        var locale = Strings.Current;
-        var offset = TimeZoneInfo.Local.BaseUtcOffset;
-        var label = Math.Max(MoonStr.WidgetsC_Moon_Short_Rise.Text().Length, MoonStr.WidgetsC_Moon_Short_Set.Text().Length);
-        var time = 0;
-        for (var day = 0; day < 7; day++)
-        {
-            var at = new DateTimeOffset(2026, 10, 19 + day, 12, 59, 0, offset);
-            time = Math.Max(time, SkyText.EventTime(locale, at, at.AddDays(-2)).Length);
-        }
-
-        var phase = Math.Max(MoonPhase.Label(MoonPhaseName.FullMoon).Length, MoonPhase.Label(MoonPhaseName.NewMoon).Length);
-        var date = 0;
-        for (var month = 1; month <= 12; month++)
-        {
-            date = Math.Max(date, LocaleFormat.Date(locale, new DateOnly(2026, month, 28), DateStyle.MonthDayShort).Length);
-        }
-
-        var riseSet = FluentType.EstimateWidth(FluentType.BodyStrong, label) + Fluent.Space2 + FluentType.EstimateWidth(FluentType.BodyStrong, time);
-        var major = FluentType.EstimateWidth(FluentType.Body, phase) + Fluent.Space2 + FluentType.EstimateWidth(FluentType.BodyStrong, date);
-        return Math.Max(riseSet, major);
-    }
-
-    /// <summary>The longest phase name in the current language, so the name never trims at a phase change.</summary>
-    private static int LongestPhaseName()
-    {
-        var longest = 0;
-
-        foreach (var name in Enum.GetValues<MoonPhaseName>())
-        {
-            longest = Math.Max(longest, MoonPhase.Label(name).Length);
-        }
-
-        return longest;
     }
 
     /// <summary>The place names which moon this is: rise and set are that place's.</summary>
