@@ -7132,8 +7132,12 @@ toolbar's snap switch. Rules in Core `ViewOps` and `ViewBarRules` (tests `ViewsT
   below it; one beside it stays. A bar larger than the area is pinned to its top-left.
 - **[S-910]** The left and right middle anchors stack the chips vertically; the other six lay them
   in a row.
-- **[S-911]** Sizes M, L and XL are the original's (Caption/Body/Body Large type, 14/16/20 icons,
-  28/34/40 icon-only squares). A chip shows the view's icon or initials (the first letters of the
+- **[S-911]** Sizes M, L and XL are on the family's tokens (shell sweep, 2026-10-30; they were the
+  original's Caption/Body/Body Large, 14/16/20 icons, 28/34/40): the words Caption, Body and Title at
+  400, the marks the family's 16 icon (Windows Settings' 20 icon box at XL), a chip at least 28, 32 and 40 tall (its square
+  when it shows the mark alone, `ShellMetrics.ViewBar`), padded 8, 12 and 16 either side and 4 over
+  and under, the bar's own padding 4, 4 and 8; the mark 8 from the name; a select bar's chevron the
+  menus' 12. A dragged chip is faded as a dragged item is (`SelectionLook.Faded`). A chip shows the view's icon or initials (the first letters of the
   first two words, or the first two letters of one word, upper-cased, counted in text elements; "?"
   for a blank name) and its name (bold for the
   view new displays start on), or one of them ([S-5405]); the shown view is a raised control, the rest subtle until hovered.

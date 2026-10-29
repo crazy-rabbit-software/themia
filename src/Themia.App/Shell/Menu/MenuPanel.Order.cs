@@ -10,6 +10,7 @@ using Themia.Core.Diagnostics;
 using Themia.Core.Localization;
 using Themia.Core.Settings;
 using Themia.Core.Widgets;
+using Themia.Sdk.Kit;
 using Themia.Sdk.WinUI;
 using Windows.Foundation;
 
@@ -122,7 +123,7 @@ internal partial class MenuPanel
         }
 
         _swallowClick = true;
-        view.Root.Opacity = 0.5;
+        view.Root.Opacity = SelectionLook.Faded;
 
         level.Lines.PointerMoved -= OnListMoved;
         level.Lines.PointerMoved += OnListMoved;
@@ -199,12 +200,14 @@ internal partial class MenuPanel
         var at = gap < boxes.Count ? boxes[gap].Y : boxes[^1].Y + boxes[^1].Height;
         var overlay = drag.Level.Overlay;
         overlay.Children.Clear();
+        var width = Math.Max(0, boxes[0].Width - (Fluent.Space2 * 2));
+        var round = FamilyShape.Round(width, FamilyShape.Stroke);
         var mark = new Rectangle
         {
-            Height = 2,
-            Width = Math.Max(0, boxes[0].Width - (Fluent.Space2 * 2)),
-            RadiusX = 1,
-            RadiusY = 1,
+            Height = FamilyShape.Stroke,
+            Width = width,
+            RadiusX = round,
+            RadiusY = round,
             Fill = ThemeBrush.Of("AccentFillColorDefaultBrush", Colors.DodgerBlue),
         };
         Canvas.SetLeft(mark, boxes[0].X + Fluent.Space2);
@@ -272,7 +275,7 @@ internal partial class MenuPanel
         var drag = new LineDrag(level, lines[from], 0);
         drag.Gesture.Move(ListDrag.Threshold, buttonDown: true);
         _drag = drag;
-        lines[from].Root.Opacity = 0.5;
+        lines[from].Root.Opacity = SelectionLook.Faded;
         var middles = lines.Select(v => v.Root.TransformToVisual(level.Lines).TransformPoint(new Point(0, v.Root.ActualHeight / 2)).Y).ToList();
         ShowDrop(drag, gap == 0 ? double.NegativeInfinity : middles[gap - 1] + 1);
         return true;

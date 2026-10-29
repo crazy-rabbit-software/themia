@@ -11,7 +11,9 @@ using Themia.App.Widgets;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
+using Themia.Sdk.Kit;
 using Themia.Sdk.WinUI;
+using Themia.Sdk.WinUI.Kit;
 using Windows.Foundation;
 
 namespace Themia.App.Shell;
@@ -112,7 +114,7 @@ internal sealed partial class ViewBar : Grid
         _owner = owner;
 
         // Transparent, not null: the gaps between chips are still the bar, not the desktop.
-        Background = new SolidColorBrush(Colors.Transparent);
+        Background = Family.Brush(ColourRole.Clear);
         HorizontalAlignment = HorizontalAlignment.Left;
         VerticalAlignment = VerticalAlignment.Top;
         Children.Add(_fill);
@@ -141,7 +143,7 @@ internal sealed partial class ViewBar : Grid
 
         // The language is part of what was built: a switch redraws the tooltips and names ([S-1110]).
         // [S-917] So is the room: a resize, a DPI change or the toolbar appearing refits the chips.
-        var signature = $"{look}|{string.Join("|", items)}|{FluentType.Body.FontSize}|{Strings.Current}|{Math.Floor(room)}";
+        var signature = $"{look}|{string.Join("|", items)}|{FamilyType.Body.FontSize}|{Strings.Current}|{Math.Floor(room)}";
         if ((_dragging && _pressedId is not null) || signature == _built)
         {
             return;
@@ -156,15 +158,22 @@ internal sealed partial class ViewBar : Grid
 
     // ---- look ------------------------------------------------------------------------------
 
-    /// <summary>[S-911] The sizes of one step: the original's M, L and XL, on the Fluent ramp.</summary>
+    /// <summary>
+    /// [S-911] The sizes of one step, M, L and XL, on the family's tokens: Caption, Body and Title
+    /// (regular) words, the 16 icon (Windows Settings' 20 icon box beside XL's 20 words), paddings on
+    /// the scale, a chip at least its square tall.
+    /// </summary>
     private readonly record struct Metrics(TypeStep Type, double Icon, double PadX, double PadY, double BarPad, double Square);
 
     private static Metrics MetricsFor(ViewBarSize size) => size switch
     {
-        ViewBarSize.Large => new(FluentType.Body, 16, Fluent.Space3, 6, 6, 34),
-        ViewBarSize.ExtraLarge => new(FluentType.BodyLarge, 20, Fluent.Space4, Fluent.Space2, Fluent.Space2, 40),
-        _ => new(FluentType.Caption, 14, Fluent.Space2, Fluent.Space1, Fluent.Space1, 28),
+        ViewBarSize.Large => new(FamilyType.Body, FamilyShape.Icon, FamilySpace.S3, FamilySpace.S1, FamilySpace.S1, ShellMetrics.ViewBar.SquareL),
+        ViewBarSize.ExtraLarge => new(FamilyType.Regular(FamilyType.Title), ShellMetrics.IconBox, FamilySpace.S4, FamilySpace.S1, FamilySpace.S2, ShellMetrics.ViewBar.SquareXl),
+        _ => new(FamilyType.Caption, FamilyShape.Icon, FamilySpace.S2, FamilySpace.S1, FamilySpace.S1, ShellMetrics.ViewBar.SquareM),
     };
+
+    /// <summary>A step's words, semibold (the initials, the default view's name).</summary>
+    private static TypeStep Strong(TypeStep step) => step with { SemiBold = true };
 
     /// <summary>
     /// The bar reads as a widget: the card's own fill, colour and opacity, and its stroke. In edit
@@ -180,12 +189,12 @@ internal sealed partial class ViewBar : Grid
         // under 20 %, so the bar can always be found (a transparent design draws it at the floor).
         var fill = DesignLook.Card(design.Background ?? new FillChoice());
         _fill.Background = (fill.Colour is { } c ? DesignApplier.UserBrush(HexColor.From(c.R, c.G, c.B)) : null)
-            ?? ThemeBrush.Of("SolidBackgroundFillColorBaseBrush", Colors.Black);
+            ?? ShellBrush.Of(ShellRole.CardBase);
         _fill.Opacity = Math.Clamp(fill.Opacity, 0.2, 1);
 
         _stroke.RadiusX = _stroke.RadiusY = Math.Max(0, radius - (Fluent.Hairline / 2));
         _stroke.Stroke = DesignApplier.UserBrush(design.BorderColor)
-            ?? ThemeBrush.Of(look.Preview ? "TextFillColorTertiaryBrush" : "CardStrokeColorDefaultBrush", Colors.Gray);
+            ?? (look.Preview ? Family.Brush(ColourRole.TextTertiary) : ShellBrush.Of(ShellRole.CardStroke));
         var dashes = new DoubleCollection();
         if (look.Preview)
         {
@@ -283,7 +292,7 @@ internal sealed partial class ViewBar : Grid
         var grip = new Border
         {
             Child = icon,
-            Background = new SolidColorBrush(Colors.Transparent),
+            Background = Family.Brush(ColourRole.Clear),
             Padding = new Thickness(look.Vertical ? 0 : Fluent.Space1, look.Vertical ? Fluent.Space1 : 0, look.Vertical ? 0 : Fluent.Space1, look.Vertical ? Fluent.Space1 : 0),
             CornerRadius = new CornerRadius(Fluent.ControlRadius),
             HorizontalAlignment = look.Vertical ? HorizontalAlignment.Stretch : HorizontalAlignment.Left,
@@ -304,7 +313,7 @@ internal sealed partial class ViewBar : Grid
     private static FrameworkElement BuildMark(ViewBarItem item, Metrics metrics, string brush)
     {
         var tint = DesignApplier.UserBrush(item.Color);
-        var fill = item.Shown ? "AccentTextFillColorPrimaryBrush" : brush;
+        var fill = item.Shown ? ShellRoles.Key(ShellRole.AccentText) : brush;
         if (item.Icon is { } glyph)
         {
             var icon = Fluent.Icon(glyph, fill, metrics.Icon);
@@ -316,7 +325,7 @@ internal sealed partial class ViewBar : Grid
             return icon;
         }
 
-        var initials = Fluent.Text(FluentType.Strong(metrics.Type), fill);
+        var initials = Fluent.Text(Strong(metrics.Type), fill);
         initials.Text = ViewListRules.Initials(item.Name);
         initials.TextTrimming = TextTrimming.None;
         initials.VerticalAlignment = VerticalAlignment.Center;
@@ -357,10 +366,10 @@ internal sealed partial class ViewBar : Grid
     /// </summary>
     private static TextBlock BuildName(ViewBarItem item, Metrics metrics, string brush)
     {
-        var name = Fluent.Text(item.IsDefault ? FluentType.Strong(metrics.Type) : metrics.Type, brush);
+        var name = Fluent.Text(item.IsDefault ? Strong(metrics.Type) : metrics.Type, brush);
         name.Text = item.Name;
         name.VerticalAlignment = VerticalAlignment.Center;
-        name.MaxWidth = 220;
+        name.MaxWidth = ShellMetrics.ViewBar.NameMaxWidth;
         return name;
     }
 
@@ -385,7 +394,7 @@ internal sealed partial class ViewBar : Grid
         FrameworkElement content = parts[0];
         if (parts.Count > 1)
         {
-            var row = new StackPanel { Orientation = Orientation.Horizontal, Spacing = Fluent.Space2 * 0.75 };
+            var row = new StackPanel { Orientation = Orientation.Horizontal, Spacing = FamilySpace.GlyphGap };
             foreach (var part in parts)
             {
                 row.Children.Add(part);
@@ -491,7 +500,7 @@ internal sealed partial class ViewBar : Grid
         var row = new StackPanel
         {
             Orientation = Orientation.Horizontal,
-            Spacing = Fluent.Space2 * 0.75,
+            Spacing = FamilySpace.GlyphGap,
             VerticalAlignment = VerticalAlignment.Center,
         };
 
@@ -508,18 +517,18 @@ internal sealed partial class ViewBar : Grid
         {
             var name = BuildName(shown, metrics, "TextFillColorPrimaryBrush");
             var spare = room - (2 * metrics.PadX) - (2 * metrics.Icon) - (2 * row.Spacing);
-            name.MaxWidth = double.IsFinite(spare) ? Math.Clamp(spare, metrics.Icon, 220) : 220;
+            name.MaxWidth = double.IsFinite(spare) ? Math.Clamp(spare, metrics.Icon, ShellMetrics.ViewBar.NameMaxWidth) : ShellMetrics.ViewBar.NameMaxWidth;
             row.Children.Add(name);
         }
 
-        var chevron = Fluent.Icon(Glyphs.ChevronDown, "TextFillColorSecondaryBrush", metrics.Icon * 0.7);
+        var chevron = Fluent.Icon(Glyphs.ChevronDown, "TextFillColorSecondaryBrush", ShellMetrics.Chevron);
         chevron.VerticalAlignment = VerticalAlignment.Center;
         row.Children.Add(chevron);
 
         var button = new Border
         {
             Child = row,
-            Padding = new Thickness(look.IconOnly ? metrics.PadX * 0.75 : metrics.PadX, metrics.PadY, metrics.PadX * 0.75, metrics.PadY),
+            Padding = new Thickness(look.IconOnly ? metrics.PadX - FamilySpace.S1 : metrics.PadX, metrics.PadY, metrics.PadX - FamilySpace.S1, metrics.PadY),
             CornerRadius = new CornerRadius(Fluent.ControlRadius),
             BorderThickness = new Thickness(Fluent.Hairline),
             MinHeight = metrics.Square,
@@ -675,8 +684,8 @@ internal sealed partial class ViewBar : Grid
         element.Background = Rest();
         element.BorderBrush = shown
             ? ThemeBrush.Of("ControlStrokeColorDefaultBrush", Colors.Transparent)
-            : new SolidColorBrush(Colors.Transparent);
-        element.PointerEntered += (_, _) => element.Background = ThemeBrush.Of(shown ? "ControlFillColorSecondaryBrush" : "SubtleFillColorSecondaryBrush", Colors.Transparent);
+            : Family.Brush(ColourRole.Clear);
+        element.PointerEntered += (_, _) => element.Background = shown ? ShellBrush.Of(ShellRole.ControlHover) : Family.Brush(ColourRole.Subtle);
         element.PointerExited += (_, _) => element.Background = Rest();
     }
 
@@ -724,7 +733,7 @@ internal sealed partial class ViewBar : Grid
             _dragging = true;
             if (_pressedId is not null && Chip(_pressedId) is { } lifted)
             {
-                lifted.Opacity = 0.6;
+                lifted.Opacity = SelectionLook.Faded;
             }
         }
 

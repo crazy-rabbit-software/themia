@@ -36,10 +36,6 @@
 1	src/Themia.App/Shell/LayoutEditorWindow.cs	space	new Thickness(36, 8, 36, 36)
 1	src/Themia.App/Shell/LayoutEditorWindow.cs	space	new Thickness(4)
 1	src/Themia.App/Shell/LayoutEditorWindow.cs	type	FontSize = 10
-2	src/Themia.App/Shell/Menu/MenuPanel.Order.cs	opacity	Opacity = 0.5
-1	src/Themia.App/Shell/Menu/MenuPanel.Order.cs	radius	RadiusX = 1
-1	src/Themia.App/Shell/Menu/MenuPanel.Order.cs	radius	RadiusY = 1
-1	src/Themia.App/Shell/Menu/MenuPanel.Order.cs	size	Height = 2
 3	src/Themia.App/Shell/Motion/HackerTile.cs	colour	Color.FromArgb(
 1	src/Themia.App/Shell/Motion/HackerTile.cs	space	new Thickness(4, 0, 4, 0)
 1	src/Themia.App/Shell/Motion/HackerTile.cs	stroke	StrokeThickness = 1.5
@@ -57,16 +53,6 @@
 1	src/Themia.App/Shell/NoticeCard.cs	space	new Thickness(0, 2, Fluent.Space3, 0)
 1	src/Themia.App/Shell/NoticeCard.cs	space	new Thickness(Fluent.Space2, -4, -6, 0)
 1	src/Themia.App/Shell/NoticeCard.cs	space	new Thickness(Fluent.Space3, -4, 0, 0) : new Thickness(0, Fluent.Space2, 0, 0)
-1	src/Themia.App/Shell/ViewBar.cs	brush	AccentTextFillColorPrimaryBrush
-1	src/Themia.App/Shell/ViewBar.cs	brush	CardStrokeColorDefaultBrush
-1	src/Themia.App/Shell/ViewBar.cs	brush	ControlFillColorSecondaryBrush
-1	src/Themia.App/Shell/ViewBar.cs	brush	SolidBackgroundFillColorBaseBrush
-3	src/Themia.App/Shell/ViewBar.cs	colour	Colors.Transparent
-1	src/Themia.App/Shell/ViewBar.cs	opacity	Opacity = 0.6
-1	src/Themia.App/Shell/ViewBar.cs	ramp	FluentType.BodyLarge
-1	src/Themia.App/Shell/ViewBar.cs	size	MaxWidth = 220
-2	src/Themia.App/Shell/ViewBar.cs	space	Spacing = Fluent.Space2 * 0.75
-1	src/Themia.App/Shell/ViewBar.cs	space	new Thickness(look.IconOnly ? metrics.PadX * 0.75 : metrics.PadX, metrics.PadY, metrics.PadX * 0.75, metrics.PadY)
 1	src/Themia.App/Shell/WidgetCard.Fault.cs	size	MaxHeight = 240
 1	src/Themia.App/Shell/WidgetCard.Fault.cs	size	MaxWidth = 320
 2	src/Themia.App/Shell/WidgetCard.cs	brush	CardBackgroundFillColorDefaultBrush
