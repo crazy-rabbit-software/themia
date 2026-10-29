@@ -6,6 +6,5 @@
   "drives.fact.free": "Свободно",
   "drives.fact.used": "Занято",
   "drives.settings.drive.label": "Диск",
-  "drives.used": "Занято {percent}",
   "styles.io.bar": "Полоса"
 }

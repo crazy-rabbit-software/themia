@@ -30,7 +30,7 @@ public sealed class DriveModule : IWidgetModule
         Glyph = Glyphs.Disk,
         DefaultWidth = 280,
         DefaultHeight = 160,
-        Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader | WidgetTraits.StartsHeaderless,
+        Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader,
         Add = new(AddFolderId.Devices, 2, 0),
     };
 

@@ -6,6 +6,5 @@
   "drives.fact.free": "ว่าง",
   "drives.fact.used": "ใช้ไป",
   "drives.settings.drive.label": "ไดรฟ์",
-  "drives.used": "ใช้ไป {percent}",
   "styles.io.bar": "แถบ"
 }

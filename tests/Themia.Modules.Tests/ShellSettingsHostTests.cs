@@ -43,14 +43,6 @@ public sealed class ShellSettingsHostTests
         => Assert.Equal(HeaderPlacement.Hidden, WidgetInstance.Create(new WidgetId("clock"), new FracRect(0, 0, 0.1, 0.1)).Header);
 
     [Theory]
-    [InlineData("drive")]
-    public void S700_the_drive_card_starts_without_a_header(string kindId)
-    {
-        var kind = new WidgetId(kindId);
-        Assert.Equal(HeaderPlacement.Hidden, WidgetInstance.Create(kind, new FracRect(0, 0, 0.1, 0.1)).Header);
-    }
-
-    [Theory]
     [InlineData("cpu")]
     [InlineData("disk")]
     [InlineData("notes")]
@@ -58,6 +50,7 @@ public sealed class ShellSettingsHostTests
     [InlineData("pomodoro")]
     [InlineData("sun")]
     [InlineData("moon")]
+    [InlineData("drive")]
     public void S700_other_widgets_still_start_with_a_top_header(string kindId)
     {
         var kind = new WidgetId(kindId);

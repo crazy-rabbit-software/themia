@@ -1,4 +1,3 @@
-using Microsoft.UI.Text;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Themia.App.Services;
@@ -6,30 +5,31 @@ using Themia.App.Shell;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
-using Themia.Sdk.WinUI;
 using Themia.Sdk;
+using Themia.Sdk.Kit;
+using Themia.Sdk.WinUI;
+using Themia.Sdk.WinUI.Kit;
 using Themia.Widget.Drive;
 
 namespace Themia.App.Widgets;
 
 /// <summary>
-/// [S-4670]..[S-4673] One drive's information (Karpo §99, §122): its name in the header as This PC
-/// names it, its picture and kind with the file system, the capacity bar and "419 GB free of 931 GB";
-/// on a large tile the figures each on their own. A mapped network drive Windows cannot reach is drawn
-/// as Explorer draws it (§75): the red cross on its picture, "Disconnected network drive", no bar.
-/// The drives come from the host's one walk (<see cref="IDrives"/>), never read here.
+/// [S-4670]..[S-4672] One drive's information (Karpo §99, §122) on the family's blocks: the header
+/// names it as This PC does; the used share is a Readout with "419 GB free of 931 GB" under it and the
+/// Chart block's bar 8 under that; the facts (Used, Free, Capacity, File system) are fact rows beside
+/// the figure on an expanded width or under the bar (<see cref="DriveFace.Bar"/>). A drive without
+/// figures (a mapped share Windows cannot reach, one still answering, an empty reader, a drive that is
+/// gone) is one Status row at the top. The drives come from the host's one walk
+/// (<see cref="IDrives"/>), never read here.
 /// </summary>
 internal sealed partial class DriveView : Grid, IWidgetView, IWidgetSizeAware, IWidgetSurfaceAware, IWidgetContextActions
 {
-    private readonly StackPanel _stack = new() { Spacing = Fluent.Space2, VerticalAlignment = VerticalAlignment.Center };
-    private readonly Grid _top = new() { ColumnSpacing = Fluent.Space3 };
-    private readonly DriveIcon _icon = new();
-    private readonly TextBlock _kind = Fluent.Text(FluentType.Body, "TextFillColorSecondaryBrush");
-    private readonly TextBlock _used = Fluent.Text(FluentType.BodyStrong);
-    private readonly Themia.Sdk.WinUI.Kit.ChartBar _bar = DriveBar.Create();
-    private readonly TextBlock _space = Fluent.Text(FluentType.Caption, "TextFillColorSecondaryBrush");
-    private readonly Grid _facts = new() { ColumnSpacing = Fluent.Space4, RowSpacing = Fluent.Space2 };
-    private readonly List<(TextBlock Label, TextBlock Value)> _factCells = [];
+    private readonly StackPanel _figure = new();
+    private readonly ReadoutBlock _readout = new();
+    private readonly ChartBar _bar = DriveBar.Create();
+    private readonly StackPanel _facts = new() { VerticalAlignment = VerticalAlignment.Top };
+    private readonly RowBlock[] _factRows = new RowBlock[DriveFace.FactCount];
+    private readonly StatusBlock _status = new();
 
     private IWidgetSurface? _surface;
     private IDisposable? _watch;
@@ -37,55 +37,34 @@ internal sealed partial class DriveView : Grid, IWidgetView, IWidgetSizeAware, I
     private DriveEntry? _drive;
     private WidgetArea _area;
 
-    /// <summary>[S-6913] What the view asks of the host: the launcher, ⚙ › Accounts.</summary>
+    /// <summary>[S-6913] What the view asks of the host: the launcher, the drives.</summary>
     private readonly IWidgetHost _widgetHost;
 
     public DriveView(IWidgetHost host)
     {
         _widgetHost = host;
-        Microsoft.UI.Xaml.Documents.Typography.SetNumeralAlignment(_used, FontNumeralAlignment.Tabular);
-        _kind.TextTrimming = TextTrimming.CharacterEllipsis;
-        _space.TextTrimming = TextTrimming.CharacterEllipsis;
-        _used.VerticalAlignment = VerticalAlignment.Center;
-        _kind.VerticalAlignment = VerticalAlignment.Center;
+        ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+        ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(0) });
+        RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
+        RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
 
-        _top.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
-        _top.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
-        _top.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
-        SetColumn(_kind, 1);
-        SetColumn(_used, 2);
-        _top.Children.Add(_icon);
-        _top.Children.Add(_kind);
-        _top.Children.Add(_used);
+        _bar.Margin = new Thickness(0, FamilySpace.S2, 0, 0);
+        _figure.Children.Add(_readout);
+        _figure.Children.Add(_bar);
+        _figure.VerticalAlignment = VerticalAlignment.Top;
 
-        for (var i = 0; i < 4; i++)
+        for (var i = 0; i < _factRows.Length; i++)
         {
-            _facts.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+            _factRows[i] = new RowBlock(RowKind.Fact, lead: 0);
+            _facts.Children.Add(_factRows[i]);
         }
 
-        _facts.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
-        _facts.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
-
-        for (var i = 0; i < 4; i++)
-        {
-            var label = Fluent.Text(FluentType.Caption, "TextFillColorSecondaryBrush");
-            var value = Fluent.Text(FluentType.BodyStrong);
-            label.TextTrimming = TextTrimming.CharacterEllipsis;
-            value.TextTrimming = TextTrimming.CharacterEllipsis;
-            SetColumn(label, i);
-            SetColumn(value, i);
-            SetRow(value, 1);
-            _facts.Children.Add(label);
-            _facts.Children.Add(value);
-            _factCells.Add((label, value));
-        }
-
-        _stack.Children.Add(_top);
-        _stack.Children.Add(_bar);
-        _stack.Children.Add(_space);
-        _stack.Children.Add(_facts);
-        _stack.Margin = WidgetLayout.SideInset;
-        Children.Add(_stack);
+        // The Status row spans the card whichever column the figure had.
+        SetColumnSpan(_status, 2);
+        _status.Hide();
+        Children.Add(_figure);
+        Children.Add(_facts);
+        Children.Add(_status);
     }
 
     public void Bind(IWidgetSurface surface) => _surface = surface;
@@ -132,10 +111,7 @@ internal sealed partial class DriveView : Grid, IWidgetView, IWidgetSizeAware, I
         Lay();
     }
 
-    /// <summary>
-    /// [S-4672] The ladder: the space line and the bar always; the picture and the kind where a row
-    /// fits; the four figures under them on a tile tall and wide enough. Costs are line heights.
-    /// </summary>
+    /// <summary>[S-4671] [S-4672] The figure, the bar and the facts that fit, or the Status row.</summary>
     private void Lay()
     {
         if (_drive is not { } drive)
@@ -152,74 +128,64 @@ internal sealed partial class DriveView : Grid, IWidgetView, IWidgetSizeAware, I
         var locale = Strings.Current;
         ToolTipService.SetToolTip(this, $"{DriveRules.Title(locale, drive)} · {DriveRules.Description(locale, drive)} · {DriveRules.SpaceLine(locale, drive)}");
 
-        // [S-6274] The ring style lays its own parts; the bar's below.
+        if (DriveFace.Status(locale, drive) is { } status)
+        {
+            _status.Show(status.Kind, DriveRules.Glyph(drive), status.Sentence);
+            _figure.Visibility = Visibility.Collapsed;
+            _facts.Visibility = Visibility.Collapsed;
+            if (_ringParts is not null)
+            {
+                _ringParts.Root.Visibility = Visibility.Collapsed;
+            }
+
+            return;
+        }
+
+        _status.Hide();
         if (_ringParts is not null)
         {
             LayRing(drive, area);
             return;
         }
 
-        var large = area.Least >= SizeClass.Expanded;
-        var narrow = area.WidthClass == SizeClass.Compact;
-        var box = area.Deflate(Fluent.Space4, Fluent.Space2);
-        var bar = large ? 8.0 : 4.0;
-        var spaceStep = large ? FluentType.Body : FluentType.Caption;
-        var iconSize = large ? 48.0 : area.HeightClass >= SizeClass.Regular ? 32.0 : 16.0;
-        var gap = _stack.Spacing;
-
-        var room = new Disclosure(box, gap);
-        var known = drive.UsedFraction is not null;
-        if (known)
-        {
-            room.Reserve(bar);
-        }
-
-        room.Reserve(spaceStep.LineHeight);
-        var top = room.Take(iconSize);
-        var facts = known && area.HeightClass >= SizeClass.Regular && area.WidthClass >= SizeClass.Regular
-            && room.Take(FluentType.Caption.LineHeight + FluentType.BodyStrong.LineHeight + _facts.RowSpacing, 280);
-
-        _icon.Show(drive, iconSize);
-        _top.Visibility = top ? Visibility.Visible : Visibility.Collapsed;
-        _kind.Apply(large ? FluentType.BodyLarge : FluentType.Body);
-        // [S-4671] The card starts headerless ([S-4675]), so the body names the drive; a drive Windows
-        // cannot reach says why instead ("Disconnected network drive"), its name is in the tooltip.
-        _kind.Text = drive.State == DriveState.Disconnected ? DriveRules.Description(locale, drive) : DriveRules.Title(locale, drive);
-        _kind.Visibility = narrow ? Visibility.Collapsed : Visibility.Visible;
-        _used.Apply(large ? FluentType.Subtitle : FluentType.BodyStrong);
-        _used.Text = drive.UsedFraction is { } used ? Formatting.Percent(locale, used) : string.Empty;
-        _used.Visibility = known ? Visibility.Visible : Visibility.Collapsed;
-
+        var plan = DriveFace.Bar(area);
+        Columns(plan.Side, plan.Column);
+        _figure.Visibility = Visibility.Visible;
+        _figure.Margin = plan.Side ? new Thickness(FamilySpace.Inset, 0, 0, 0) : Family.SideInset;
+        _readout.Size(area, plan.Width, Math.Max(0, area.Height - FamilySpace.Inset - DriveFace.BarRoom), DriveFace.Worst);
+        var used = ReadoutRules.Split(Formatting.Percent(locale, drive.UsedFraction!.Value));
+        _readout.Show(used.Value, used.Unit, plan.Under ? DriveRules.SpaceLine(locale, drive) : null);
         DriveBar.Show(_bar, drive);
-
-        _space.Apply(spaceStep);
-
-        // [S-4673] Narrow, the whole line does not fit: what is used says it in a word.
-        _space.Text = narrow && known
-            ? DriveStr.Drives_Used.Format(("percent", Formatting.Percent(locale, drive.UsedFraction!.Value)))
-            : DriveRules.SpaceLine(locale, drive);
-        if (narrow && known)
-        {
-            _used.Visibility = Visibility.Collapsed;
-        }
-
-        // Disconnected, the kind already says it ("Disconnected network drive"): the line would repeat it.
-        _space.Visibility = drive.State == DriveState.Disconnected && top && !narrow ? Visibility.Collapsed : Visibility.Visible;
-
-        _facts.Visibility = facts ? Visibility.Visible : Visibility.Collapsed;
-        if (facts)
-        {
-            Fact(0, DriveStr.Drives_Fact_Used, Formatting.Bytes(locale, drive.Used));
-            Fact(1, DriveStr.Drives_Fact_Free, Formatting.Bytes(locale, drive.Free));
-            Fact(2, DriveStr.Drives_Fact_Capacity, Formatting.Bytes(locale, drive.Total));
-            Fact(3, DriveStr.Drives_Fact_FileSystem, drive.FileSystem.Length > 0 ? drive.FileSystem : "--");
-        }
+        Facts(drive, locale, plan.Side, plan.RowsTop > 0, plan.Facts);
     }
 
-    private void Fact(int index, DriveStr label, string value)
+    /// <summary>The figure's column and the facts' place: beside it (an expanded width) or under it.</summary>
+    private void Columns(bool side, double column)
     {
-        _factCells[index].Label.Text = label.Text();
-        _factCells[index].Value.Text = value;
+        ColumnDefinitions[0].Width = side ? new GridLength(column) : new GridLength(1, GridUnitType.Star);
+        ColumnDefinitions[1].Width = side ? new GridLength(1, GridUnitType.Star) : new GridLength(0);
+    }
+
+    /// <summary>[S-4672] The first <paramref name="count"/> facts as fact rows, beside the figure or 8 under it.</summary>
+    private void Facts(DriveEntry drive, Locale locale, bool side, bool under, int count)
+    {
+        SetColumn(_facts, side ? 1 : 0);
+        SetRow(_facts, side ? 0 : 1);
+        SetRowSpan(_facts, side ? 2 : 1);
+        _facts.Margin = new Thickness(0, under ? FamilySpace.S2 : 0, 0, 0);
+        _facts.Visibility = count > 0 ? Visibility.Visible : Visibility.Collapsed;
+        Fact(0, DriveStr.Drives_Fact_Used, Formatting.Bytes(locale, drive.Used), count);
+        Fact(1, DriveStr.Drives_Fact_Free, Formatting.Bytes(locale, drive.Free), count);
+        Fact(2, DriveStr.Drives_Fact_Capacity, Formatting.Bytes(locale, drive.Total), count);
+        Fact(3, DriveStr.Drives_Fact_FileSystem, drive.FileSystem.Length > 0 ? drive.FileSystem : "--", count);
+    }
+
+    private void Fact(int index, DriveStr label, string value, int count)
+    {
+        var row = _factRows[index];
+        row.Visibility = index < count ? Visibility.Visible : Visibility.Collapsed;
+        row.Show(label.Text(), value);
+        row.Available = value != "--";
     }
 
     public IReadOnlyList<WidgetAction> ContextActions

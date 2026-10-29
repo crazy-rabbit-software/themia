@@ -6,6 +6,5 @@
   "drives.fact.free": "Libre",
   "drives.fact.used": "Utilisé",
   "drives.settings.drive.label": "Lecteur",
-  "drives.used": "{percent} utilisé",
   "styles.io.bar": "Barre"
 }

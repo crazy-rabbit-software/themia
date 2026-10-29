@@ -6,6 +6,5 @@
   "drives.fact.free": "Boş",
   "drives.fact.used": "Kullanılan",
   "drives.settings.drive.label": "Sürücü",
-  "drives.used": "{percent} kullanılıyor",
   "styles.io.bar": "Çubuk"
 }

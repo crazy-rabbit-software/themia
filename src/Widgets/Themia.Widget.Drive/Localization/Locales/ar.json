@@ -6,6 +6,5 @@
   "drives.fact.free": "متاح",
   "drives.fact.used": "مستخدم",
   "drives.settings.drive.label": "محرك أقراص",
-  "drives.used": "{percent} مستخدم",
   "styles.io.bar": "شريط"
 }

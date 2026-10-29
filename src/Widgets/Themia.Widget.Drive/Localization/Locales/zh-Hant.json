@@ -6,6 +6,5 @@
   "drives.fact.free": "可用",
   "drives.fact.used": "已使用",
   "drives.settings.drive.label": "磁碟機",
-  "drives.used": "已使用 {percent}",
   "styles.io.bar": "長條"
 }

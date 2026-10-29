@@ -6,6 +6,5 @@
   "drives.fact.free": "Vrij",
   "drives.fact.used": "Gebruikt",
   "drives.settings.drive.label": "Station",
-  "drives.used": "{percent} gebruikt",
   "styles.io.bar": "Balk"
 }

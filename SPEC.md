@@ -3783,8 +3783,8 @@ rules are these.
 
 - **[S-700]** The clock starts with its header **hidden**, as in the original
   (`WidgetInstance.DefaultHeader`); so do the power buttons ([S-1911]), the audio visualizer
-  ([S-3200]), and (user requirement) the drive card ([S-4675]). The sun and the moon start with
-  theirs since G3 (user decision 2026-10-29: every data widget has the Header, [S-3100]).
+  ([S-3200]). The sun and the moon start with theirs since G3 and the drive card since G6 (user
+  decision 2026-10-29: every data widget has the Header, [S-3100]; [S-4675] retired).
   The disk meter starts with its header like the other meters (user requirement), so its reading
   sits where theirs does ([S-1161]). Only creation reads the default; a loaded widget
   keeps the placement it was saved with.

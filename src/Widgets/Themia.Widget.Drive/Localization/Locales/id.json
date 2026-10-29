@@ -6,6 +6,5 @@
   "drives.fact.free": "Kosong",
   "drives.fact.used": "Terpakai",
   "drives.settings.drive.label": "Drive",
-  "drives.used": "{percent} terpakai",
   "styles.io.bar": "Batang"
 }

@@ -6,6 +6,5 @@
   "drives.fact.free": "Frei",
   "drives.fact.used": "Belegt",
   "drives.settings.drive.label": "Laufwerk",
-  "drives.used": "{percent} belegt",
   "styles.io.bar": "Balken"
 }
