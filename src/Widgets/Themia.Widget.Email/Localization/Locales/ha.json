@@ -3,7 +3,6 @@
   "ctxMenu.copySubject": "Kwafi batu",
   "ctxMenu.reply": "Amsa",
   "email.folder.label": "Babban fayil",
-  "email.previewLines.label": "Layukan samfoti",
   "styles.email.compact": "Jeri a taƙaice",
   "styles.email.list": "Jeri tare da samfoti",
   "styles.email.table": "Tebur",
@@ -26,5 +25,6 @@
   "widgetsB.settings.email.noAccount.label": "Babu asusun imel tukuna",
   "widgetsB.settings.email.showAccount.label": "Nuna asusu",
   "widgetsB.settings.email.showSubject": "Nuna batu",
-  "widgetsB.time.dateTime": "{date}, {time}"
+  "widgetsB.time.dateTime": "{date}, {time}",
+  "email.setup.sentence": "Ƙara asusu don nuna saƙonninka"
 }

@@ -32,7 +32,6 @@
             ],
             "folder": "sentitems",
             "style": "table",
-            "previewLines": 3,
             "listFields": [
               "account"
             ],
@@ -69,7 +68,6 @@
             "accountIds": [],
             "folder": "inbox",
             "style": "compact",
-            "previewLines": 1,
             "listFields": [],
             "sortOrder": "desc"
           }
@@ -98,7 +96,6 @@
             "accountIds": [],
             "folder": "inbox",
             "style": "list",
-            "previewLines": 2,
             "sortOrder": "desc"
           }
         },

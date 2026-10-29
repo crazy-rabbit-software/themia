@@ -3,7 +3,6 @@
   "ctxMenu.copySubject": "Копировать тему",
   "ctxMenu.reply": "Ответить",
   "email.folder.label": "Папка",
-  "email.previewLines.label": "Строк предпросмотра",
   "styles.email.compact": "Компактный список",
   "styles.email.list": "Список с предпросмотром",
   "styles.email.table": "Таблица",
@@ -26,5 +25,6 @@
   "widgetsB.settings.email.noAccount.label": "Почтовой учетной записи пока нет",
   "widgetsB.settings.email.showAccount.label": "Показывать учетную запись",
   "widgetsB.settings.email.showSubject": "Показывать тему",
-  "widgetsB.time.dateTime": "{date}, {time}"
+  "widgetsB.time.dateTime": "{date}, {time}",
+  "email.setup.sentence": "Добавьте учётную запись, чтобы видеть почту"
 }

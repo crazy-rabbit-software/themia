@@ -3,7 +3,6 @@
   "ctxMenu.copySubject": "複製主旨",
   "ctxMenu.reply": "回覆",
   "email.folder.label": "資料夾",
-  "email.previewLines.label": "預覽行數",
   "styles.email.compact": "精簡清單",
   "styles.email.list": "含預覽的清單",
   "styles.email.table": "表格",
@@ -26,5 +25,6 @@
   "widgetsB.settings.email.noAccount.label": "尚無郵件帳戶",
   "widgetsB.settings.email.showAccount.label": "顯示帳戶",
   "widgetsB.settings.email.showSubject": "顯示主旨",
-  "widgetsB.time.dateTime": "{date} {time}"
+  "widgetsB.time.dateTime": "{date} {time}",
+  "email.setup.sentence": "新增帳戶以顯示你的郵件"
 }

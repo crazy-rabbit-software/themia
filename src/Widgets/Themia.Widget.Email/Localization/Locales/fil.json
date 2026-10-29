@@ -3,7 +3,6 @@
   "ctxMenu.copySubject": "Kopyahin ang subject",
   "ctxMenu.reply": "Sumagot",
   "email.folder.label": "Folder",
-  "email.previewLines.label": "Mga linya ng preview",
   "styles.email.compact": "Siksik na listahan",
   "styles.email.list": "Listahan na may preview",
   "styles.email.table": "Talahanayan",
@@ -26,5 +25,6 @@
   "widgetsB.settings.email.noAccount.label": "Wala pang mail account",
   "widgetsB.settings.email.showAccount.label": "Ipakita ang account",
   "widgetsB.settings.email.showSubject": "Ipakita ang subject",
-  "widgetsB.time.dateTime": "{date}, {time}"
+  "widgetsB.time.dateTime": "{date}, {time}",
+  "email.setup.sentence": "Magdagdag ng account para ipakita ang iyong mail"
 }

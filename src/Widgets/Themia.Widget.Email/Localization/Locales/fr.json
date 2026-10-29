@@ -3,7 +3,6 @@
   "ctxMenu.copySubject": "Copier l’objet",
   "ctxMenu.reply": "Répondre",
   "email.folder.label": "Dossier",
-  "email.previewLines.label": "Lignes d’aperçu",
   "styles.email.compact": "Liste compacte",
   "styles.email.list": "Liste avec aperçu",
   "styles.email.table": "Tableau",
@@ -26,5 +25,6 @@
   "widgetsB.settings.email.noAccount.label": "Aucun compte de messagerie",
   "widgetsB.settings.email.showAccount.label": "Afficher le compte",
   "widgetsB.settings.email.showSubject": "Afficher l’objet",
-  "widgetsB.time.dateTime": "{date} à {time}"
+  "widgetsB.time.dateTime": "{date} à {time}",
+  "email.setup.sentence": "Ajoutez un compte pour afficher vos e-mails"
 }

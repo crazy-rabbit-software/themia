@@ -3,7 +3,6 @@
   "ctxMenu.copySubject": "کپی موضوع",
   "ctxMenu.reply": "پاسخ",
   "email.folder.label": "پوشه",
-  "email.previewLines.label": "خطوط پیش‌نمایش",
   "styles.email.compact": "فهرست فشرده",
   "styles.email.list": "فهرست با پیش‌نمایش",
   "styles.email.table": "جدول",
@@ -26,5 +25,6 @@
   "widgetsB.settings.email.noAccount.label": "هنوز حساب ایمیلی نیست",
   "widgetsB.settings.email.showAccount.label": "نمایش حساب",
   "widgetsB.settings.email.showSubject": "نمایش موضوع",
-  "widgetsB.time.dateTime": "{date}، {time}"
+  "widgetsB.time.dateTime": "{date}، {time}",
+  "email.setup.sentence": "برای نمایش ایمیل‌هایتان یک حساب اضافه کنید"
 }

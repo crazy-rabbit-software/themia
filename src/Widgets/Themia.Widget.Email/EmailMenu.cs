@@ -38,11 +38,6 @@ internal static class EmailMenu
             look.Add(Field(menu, email, MailListField.Account, EmailStr.WidgetsB_Settings_Email_ShowAccount_Label.Text()));
         }
 
-        if (email.Offers(EmailSetting.PreviewLines))
-        {
-            look.Add(menu.Number(Glyphs.AlignLeft, EmailStr.Email_PreviewLines_Label.Text(), email.EffectivePreviewLines, 1, 5, 1, v => LocaleFormat.Integer(v), value => email.PreviewLines = value));
-        }
-
         if (email.Offers(EmailSetting.Columns))
         {
             look.Add(Columns(menu, email));

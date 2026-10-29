@@ -3,7 +3,6 @@
   "ctxMenu.copySubject": "Konuyu kopyala",
   "ctxMenu.reply": "Yanıtla",
   "email.folder.label": "Klasör",
-  "email.previewLines.label": "Önizleme satırları",
   "styles.email.compact": "Sıkışık liste",
   "styles.email.list": "Önizlemeli liste",
   "styles.email.table": "Tablo",
@@ -26,5 +25,6 @@
   "widgetsB.settings.email.noAccount.label": "Henüz posta hesabı yok",
   "widgetsB.settings.email.showAccount.label": "Hesabı göster",
   "widgetsB.settings.email.showSubject": "Konuyu göster",
-  "widgetsB.time.dateTime": "{date}, {time}"
+  "widgetsB.time.dateTime": "{date}, {time}",
+  "email.setup.sentence": "Postanızı görmek için bir hesap ekleyin"
 }

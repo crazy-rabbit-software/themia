@@ -34,7 +34,7 @@ public sealed class EmailMenuTests
     [Fact]
     public void S7512_the_list_style_offers_subject_account_and_preview_lines_under_style()
         => Assert.Equal(
-            [EmailStr.WidgetsB_Settings_Email_ShowSubject.Text(), EmailStr.WidgetsB_Settings_Email_ShowAccount_Label.Text(), EmailStr.Email_PreviewLines_Label.Text()],
+            [EmailStr.WidgetsB_Settings_Email_ShowSubject.Text(), EmailStr.WidgetsB_Settings_Email_ShowAccount_Label.Text()],
             Build(new EmailConfig { Style = EmailStyle.List }).StyleLines.Select(l => l.Text));
 
     [Fact]

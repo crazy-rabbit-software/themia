@@ -365,7 +365,7 @@ public class MailFeedTests
     }
 
     [Theory]
-    [InlineData(EmailStyle.List, new[] { EmailSetting.ListFields, EmailSetting.PreviewLines })]
+    [InlineData(EmailStyle.List, new[] { EmailSetting.ListFields })]
     [InlineData(EmailStyle.Compact, new[] { EmailSetting.ListFields })]
     [InlineData(EmailStyle.Table, new[] { EmailSetting.Columns })]
     public void S6403_the_page_offers_only_what_the_style_draws_with(EmailStyle style, EmailSetting[] expected)
@@ -435,7 +435,7 @@ public class MailFeedTests
     {
         var document = StateWithMail("""
             {"kind":"email","accountIds":"not-a-list","folder":"nonsense","style":7,"sortOrder":"sideways",
-             "listFields":["subject","bogus"],"rowColumns":[],"previewLines":0}
+             "listFields":["subject","bogus"],"rowColumns":[]}
             """);
 
         var parsed = AppStateStore.Parse(document.ToJsonString());
@@ -449,7 +449,6 @@ public class MailFeedTests
         Assert.Equal([MailListField.Subject], config.ListFields);
         Assert.Null(config.RowColumns);
         Assert.Empty(config.AccountIds!);
-        Assert.Equal(1, config.PreviewLines);
         Assert.Contains(parsed.Repairs, r => r.Contains("mail", StringComparison.Ordinal));
     }
 }

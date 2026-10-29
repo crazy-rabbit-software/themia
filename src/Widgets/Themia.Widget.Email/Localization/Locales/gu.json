@@ -3,7 +3,6 @@
   "ctxMenu.copySubject": "વિષય કૉપિ કરો",
   "ctxMenu.reply": "જવાબ આપો",
   "email.folder.label": "ફોલ્ડર",
-  "email.previewLines.label": "પૂર્વાવલોકન પંક્તિઓ",
   "styles.email.compact": "સંક્ષિપ્ત યાદી",
   "styles.email.list": "પૂર્વાવલોકન સાથેની યાદી",
   "styles.email.table": "કોષ્ટક",
@@ -26,5 +25,6 @@
   "widgetsB.settings.email.noAccount.label": "હજી કોઈ મેઇલ એકાઉન્ટ નથી",
   "widgetsB.settings.email.showAccount.label": "એકાઉન્ટ બતાવો",
   "widgetsB.settings.email.showSubject": "વિષય બતાવો",
-  "widgetsB.time.dateTime": "{date}, {time}"
+  "widgetsB.time.dateTime": "{date}, {time}",
+  "email.setup.sentence": "તમારો મેઇલ બતાવવા માટે એકાઉન્ટ ઉમેરો"
 }

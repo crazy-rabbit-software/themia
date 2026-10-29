@@ -3,7 +3,6 @@
   "ctxMenu.copySubject": "Nakili mada",
   "ctxMenu.reply": "Jibu",
   "email.folder.label": "Folda",
-  "email.previewLines.label": "Mistari ya onyesho la kuchungulia",
   "styles.email.compact": "Orodha fupi",
   "styles.email.list": "Orodha yenye onyesho la kukagua",
   "styles.email.table": "Jedwali",
@@ -26,5 +25,6 @@
   "widgetsB.settings.email.noAccount.label": "Bado hakuna akaunti ya barua",
   "widgetsB.settings.email.showAccount.label": "Onyesha akaunti",
   "widgetsB.settings.email.showSubject": "Onyesha mada",
-  "widgetsB.time.dateTime": "{date}, {time}"
+  "widgetsB.time.dateTime": "{date}, {time}",
+  "email.setup.sentence": "Ongeza akaunti ili kuonyesha barua pepe zako"
 }

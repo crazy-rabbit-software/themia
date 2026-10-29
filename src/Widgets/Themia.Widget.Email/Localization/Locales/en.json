@@ -1,10 +1,11 @@
 {
-  "$englishOnly": ["widgetsB.email.menu.columns"],
+  "$englishOnly": [
+    "widgetsB.email.menu.columns"
+  ],
   "ctxMenu.archive": "Archive",
   "ctxMenu.copySubject": "Copy subject",
   "ctxMenu.reply": "Reply",
   "email.folder.label": "Folder",
-  "email.previewLines.label": "Preview lines",
   "styles.email.compact": "Compact list",
   "styles.email.list": "List with preview",
   "styles.email.table": "Table",
@@ -28,5 +29,6 @@
   "widgetsB.settings.email.showAccount.label": "Show account",
   "widgetsB.settings.email.showSubject": "Show subject",
   "widgetsB.time.dateTime": "{date}, {time}",
-  "widgetsB.email.menu.columns": "Columns"
+  "widgetsB.email.menu.columns": "Columns",
+  "email.setup.sentence": "Add an account to show your mail"
 }

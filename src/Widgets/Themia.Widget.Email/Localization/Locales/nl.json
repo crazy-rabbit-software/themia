@@ -3,7 +3,6 @@
   "ctxMenu.copySubject": "Onderwerp kopiëren",
   "ctxMenu.reply": "Beantwoorden",
   "email.folder.label": "Map",
-  "email.previewLines.label": "Voorbeeldregels",
   "styles.email.compact": "Compacte lijst",
   "styles.email.list": "Lijst met voorbeeld",
   "styles.email.table": "Tabel",
@@ -26,5 +25,6 @@
   "widgetsB.settings.email.noAccount.label": "Nog geen e-mailaccount",
   "widgetsB.settings.email.showAccount.label": "Account weergeven",
   "widgetsB.settings.email.showSubject": "Onderwerp weergeven",
-  "widgetsB.time.dateTime": "{date}, {time}"
+  "widgetsB.time.dateTime": "{date}, {time}",
+  "email.setup.sentence": "Voeg een account toe om je e-mail te zien"
 }

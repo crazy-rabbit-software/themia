@@ -3,7 +3,6 @@
   "ctxMenu.copySubject": "件名をコピー",
   "ctxMenu.reply": "返信",
   "email.folder.label": "フォルダー",
-  "email.previewLines.label": "プレビュー行数",
   "styles.email.compact": "コンパクトなリスト",
   "styles.email.list": "プレビュー付きリスト",
   "styles.email.table": "表",
@@ -26,5 +25,6 @@
   "widgetsB.settings.email.noAccount.label": "メール アカウントがまだありません",
   "widgetsB.settings.email.showAccount.label": "アカウントを表示",
   "widgetsB.settings.email.showSubject": "件名を表示",
-  "widgetsB.time.dateTime": "{date} {time}"
+  "widgetsB.time.dateTime": "{date} {time}",
+  "email.setup.sentence": "メールを表示するにはアカウントを追加してください"
 }

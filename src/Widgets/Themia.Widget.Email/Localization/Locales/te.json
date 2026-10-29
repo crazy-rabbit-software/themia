@@ -3,7 +3,6 @@
   "ctxMenu.copySubject": "విషయాన్ని కాపీ చేయి",
   "ctxMenu.reply": "ప్రత్యుత్తరం",
   "email.folder.label": "ఫోల్డర్",
-  "email.previewLines.label": "ప్రివ్యూ పంక్తులు",
   "styles.email.compact": "కుదించిన జాబితా",
   "styles.email.list": "ప్రివ్యూతో జాబితా",
   "styles.email.table": "పట్టిక",
@@ -26,5 +25,6 @@
   "widgetsB.settings.email.noAccount.label": "ఇంకా మెయిల్ ఖాతా లేదు",
   "widgetsB.settings.email.showAccount.label": "ఖాతాను చూపించు",
   "widgetsB.settings.email.showSubject": "విషయాన్ని చూపించు",
-  "widgetsB.time.dateTime": "{date}, {time}"
+  "widgetsB.time.dateTime": "{date}, {time}",
+  "email.setup.sentence": "మీ మెయిల్‌ను చూపడానికి ఖాతాను జోడించండి"
 }

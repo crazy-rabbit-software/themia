@@ -3,7 +3,6 @@
   "ctxMenu.copySubject": "复制主题",
   "ctxMenu.reply": "回复",
   "email.folder.label": "文件夹",
-  "email.previewLines.label": "预览行数",
   "styles.email.compact": "紧凑列表",
   "styles.email.list": "带预览的列表",
   "styles.email.table": "表格",
@@ -26,5 +25,6 @@
   "widgetsB.settings.email.noAccount.label": "还没有邮件帐户",
   "widgetsB.settings.email.showAccount.label": "显示帐户",
   "widgetsB.settings.email.showSubject": "显示主题",
-  "widgetsB.time.dateTime": "{date} {time}"
+  "widgetsB.time.dateTime": "{date} {time}",
+  "email.setup.sentence": "添加帐户以显示你的邮件"
 }

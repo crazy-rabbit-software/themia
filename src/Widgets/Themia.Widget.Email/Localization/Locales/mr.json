@@ -3,7 +3,6 @@
   "ctxMenu.copySubject": "विषय कॉपी करा",
   "ctxMenu.reply": "उत्तर द्या",
   "email.folder.label": "फोल्डर",
-  "email.previewLines.label": "पूर्वावलोकन ओळी",
   "styles.email.compact": "संक्षिप्त यादी",
   "styles.email.list": "पूर्वावलोकनासह यादी",
   "styles.email.table": "तक्ता",
@@ -26,5 +25,6 @@
   "widgetsB.settings.email.noAccount.label": "अद्याप मेल खाते नाही",
   "widgetsB.settings.email.showAccount.label": "खाते दाखवा",
   "widgetsB.settings.email.showSubject": "विषय दाखवा",
-  "widgetsB.time.dateTime": "{date}, {time}"
+  "widgetsB.time.dateTime": "{date}, {time}",
+  "email.setup.sentence": "तुमचा मेल दाखवण्यासाठी खाते जोडा"
 }

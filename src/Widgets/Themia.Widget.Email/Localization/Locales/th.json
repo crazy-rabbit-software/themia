@@ -3,7 +3,6 @@
   "ctxMenu.copySubject": "คัดลอกเรื่อง",
   "ctxMenu.reply": "ตอบกลับ",
   "email.folder.label": "โฟลเดอร์",
-  "email.previewLines.label": "บรรทัดตัวอย่าง",
   "styles.email.compact": "รายการแบบกะทัดรัด",
   "styles.email.list": "รายการพร้อมตัวอย่าง",
   "styles.email.table": "ตาราง",
@@ -26,5 +25,6 @@
   "widgetsB.settings.email.noAccount.label": "ยังไม่มีบัญชีอีเมล",
   "widgetsB.settings.email.showAccount.label": "แสดงบัญชี",
   "widgetsB.settings.email.showSubject": "แสดงเรื่อง",
-  "widgetsB.time.dateTime": "{date} {time}"
+  "widgetsB.time.dateTime": "{date} {time}",
+  "email.setup.sentence": "เพิ่มบัญชีเพื่อแสดงอีเมลของคุณ"
 }

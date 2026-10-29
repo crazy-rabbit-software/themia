@@ -3,7 +3,6 @@
   "ctxMenu.copySubject": "Copia oggetto",
   "ctxMenu.reply": "Rispondi",
   "email.folder.label": "Cartella",
-  "email.previewLines.label": "Righe di anteprima",
   "styles.email.compact": "Elenco compatto",
   "styles.email.list": "Elenco con anteprima",
   "styles.email.table": "Tabella",
@@ -26,5 +25,6 @@
   "widgetsB.settings.email.noAccount.label": "Nessun account di posta",
   "widgetsB.settings.email.showAccount.label": "Mostra account",
   "widgetsB.settings.email.showSubject": "Mostra oggetto",
-  "widgetsB.time.dateTime": "{date}, {time}"
+  "widgetsB.time.dateTime": "{date}, {time}",
+  "email.setup.sentence": "Aggiungi un account per vedere la tua posta"
 }

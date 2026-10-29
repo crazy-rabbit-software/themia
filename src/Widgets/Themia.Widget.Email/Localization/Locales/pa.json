@@ -3,7 +3,6 @@
   "ctxMenu.copySubject": "ਵਿਸ਼ਾ ਕਾਪੀ ਕਰੋ",
   "ctxMenu.reply": "ਜਵਾਬ ਦਿਓ",
   "email.folder.label": "ਫੋਲਡਰ",
-  "email.previewLines.label": "ਝਲਕ ਲਾਈਨਾਂ",
   "styles.email.compact": "ਸੰਖੇਪ ਸੂਚੀ",
   "styles.email.list": "ਝਲਕ ਵਾਲੀ ਸੂਚੀ",
   "styles.email.table": "ਸਾਰਣੀ",
@@ -26,5 +25,6 @@
   "widgetsB.settings.email.noAccount.label": "ਹਾਲੇ ਕੋਈ ਮੇਲ ਖਾਤਾ ਨਹੀਂ",
   "widgetsB.settings.email.showAccount.label": "ਖਾਤਾ ਦਿਖਾਓ",
   "widgetsB.settings.email.showSubject": "ਵਿਸ਼ਾ ਦਿਖਾਓ",
-  "widgetsB.time.dateTime": "{date}, {time}"
+  "widgetsB.time.dateTime": "{date}, {time}",
+  "email.setup.sentence": "ਆਪਣੀ ਮੇਲ ਦਿਖਾਉਣ ਲਈ ਖਾਤਾ ਜੋੜੋ"
 }

@@ -3,7 +3,6 @@
   "ctxMenu.copySubject": "نسخ الموضوع",
   "ctxMenu.reply": "رد",
   "email.folder.label": "المجلد",
-  "email.previewLines.label": "أسطر المعاينة",
   "styles.email.compact": "قائمة مضغوطة",
   "styles.email.list": "قائمة مع معاينة",
   "styles.email.table": "جدول",
@@ -26,5 +25,6 @@
   "widgetsB.settings.email.noAccount.label": "لا يوجد حساب بريد بعد",
   "widgetsB.settings.email.showAccount.label": "إظهار الحساب",
   "widgetsB.settings.email.showSubject": "إظهار الموضوع",
-  "widgetsB.time.dateTime": "{date}، {time}"
+  "widgetsB.time.dateTime": "{date}، {time}",
+  "email.setup.sentence": "أضف حسابًا لعرض بريدك"
 }

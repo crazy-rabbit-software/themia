@@ -13,8 +13,8 @@ namespace Themia.Core.Model;
 
 /// <summary>
 /// [S-542] [S-6403] How the list draws a message: the Mail widget's styles, what were its view
-/// mode and its "Show preview" line. List: sender and time, subject, then the preview
-/// (<see cref="EmailConfig.PreviewLines"/> lines). Compact: sender and time, subject. Table: one
+/// mode and its "Show preview" line. List: sender and time, subject, then the preview, as many
+/// lines as the tile gives a row ([S-7032]). Compact: sender and time, subject. Table: one
 /// line of the user's columns (<see cref="EmailConfig.RowColumns"/>).
 /// </summary>
 [JsonConverter(typeof(StyleJsonConverter<EmailStyle>))]
@@ -36,6 +36,9 @@ public enum EmailStyle
 /// </summary>
 public sealed class EmailConfig : WidgetConfig, IStyled, IShownSettings<EmailSetting>, IKitConfig, IInterests
 {
+    /// <summary>[S-1862] What its Set up row says it waits for.</summary>
+    string? ISetupRule.SetupSentence => EmailStr.Email_Setup_Sentence.Text();
+
     /// <summary>[S-2608] What the background sync keeps fresh for it.</summary>
     public void AddInterests(InterestsBuilder interests) => interests.Of<MailInterest>().Add(new MailInterest([.. EffectiveAccountIds], Folder, FetchCount));
 
@@ -85,9 +88,6 @@ public sealed class EmailConfig : WidgetConfig, IStyled, IShownSettings<EmailSet
         set => Style = (EmailStyle)value;
     }
 
-    /// <summary>Lines of preview per message in the List style, 1 to 5.</summary>
-    public int PreviewLines { get; set; } = 2;
-
     /// <summary>The optional lines of the list and compact views; null is <see cref="DefaultListFields"/>.</summary>
     [JsonConverter(typeof(MailListFieldsConverter))]
     public List<MailListField>? ListFields { get; set; }
@@ -104,9 +104,6 @@ public sealed class EmailConfig : WidgetConfig, IStyled, IShownSettings<EmailSet
     /// the tile's size never changes what is fetched and no count needs choosing.
     /// </summary>
     public const int FetchCount = MailLimits.PerFolder;
-
-    [JsonIgnore]
-    public int EffectivePreviewLines => Math.Clamp(PreviewLines, 1, 5);
 
     [JsonIgnore]
     public IReadOnlyList<string> EffectiveAccountIds => AccountIds ?? [];
@@ -131,8 +128,7 @@ public sealed class EmailConfig : WidgetConfig, IStyled, IShownSettings<EmailSet
     [JsonIgnore]
     public IReadOnlyList<EmailSetting> ShownSettings => Style switch
     {
-        EmailStyle.List => [EmailSetting.ListFields, EmailSetting.PreviewLines],
-        EmailStyle.Compact => [EmailSetting.ListFields],
+        EmailStyle.List or EmailStyle.Compact => [EmailSetting.ListFields],
         _ => [EmailSetting.Columns],
     };
 
@@ -148,12 +144,6 @@ public sealed class EmailConfig : WidgetConfig, IStyled, IShownSettings<EmailSet
         }
 
         AccountIds = ids;
-
-        if (PreviewLines != EffectivePreviewLines)
-        {
-            repairs.Add($"mail widget preview lines {PreviewLines} were out of range");
-            PreviewLines = EffectivePreviewLines;
-        }
 
         if (!Enum.IsDefined(Folder) || Folder == MailFolder.Archive)
         {
@@ -196,7 +186,6 @@ public sealed class EmailConfig : WidgetConfig, IStyled, IShownSettings<EmailSet
         AccountIds = AccountIds is null ? null : [.. AccountIds],
         Folder = Folder,
         Style = Style,
-        PreviewLines = PreviewLines,
         ListFields = ListFields is null ? null : [.. ListFields],
         RowColumns = RowColumns is null ? null : [.. RowColumns],
         SortOrder = SortOrder,
@@ -208,9 +197,6 @@ public enum EmailSetting
 {
     /// <summary>The subject and account lines (List, Compact).</summary>
     ListFields,
-
-    /// <summary>How many preview lines (List).</summary>
-    PreviewLines,
 
     /// <summary>The table's columns (Table).</summary>
     Columns,

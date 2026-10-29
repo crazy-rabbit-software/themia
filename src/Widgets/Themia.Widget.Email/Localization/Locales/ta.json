@@ -3,7 +3,6 @@
   "ctxMenu.copySubject": "பொருளை நகலெடு",
   "ctxMenu.reply": "பதிலளி",
   "email.folder.label": "கோப்புறை",
-  "email.previewLines.label": "முன்னோட்ட வரிகள்",
   "styles.email.compact": "சுருக்கமான பட்டியல்",
   "styles.email.list": "முன்னோட்டத்துடன் பட்டியல்",
   "styles.email.table": "அட்டவணை",
@@ -26,5 +25,6 @@
   "widgetsB.settings.email.noAccount.label": "இன்னும் அஞ்சல் கணக்கு இல்லை",
   "widgetsB.settings.email.showAccount.label": "கணக்கைக் காட்டு",
   "widgetsB.settings.email.showSubject": "பொருளைக் காட்டு",
-  "widgetsB.time.dateTime": "{date}, {time}"
+  "widgetsB.time.dateTime": "{date}, {time}",
+  "email.setup.sentence": "உங்கள் அஞ்சலைக் காட்ட ஒரு கணக்கைச் சேர்க்கவும்"
 }

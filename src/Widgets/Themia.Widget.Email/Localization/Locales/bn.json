@@ -3,7 +3,6 @@
   "ctxMenu.copySubject": "বিষয় কপি করুন",
   "ctxMenu.reply": "উত্তর দিন",
   "email.folder.label": "ফোল্ডার",
-  "email.previewLines.label": "প্রিভিউ লাইন",
   "styles.email.compact": "সংক্ষিপ্ত তালিকা",
   "styles.email.list": "প্রিভিউসহ তালিকা",
   "styles.email.table": "সারণি",
@@ -26,5 +25,6 @@
   "widgetsB.settings.email.noAccount.label": "এখনও কোনো মেইল অ্যাকাউন্ট নেই",
   "widgetsB.settings.email.showAccount.label": "অ্যাকাউন্ট দেখান",
   "widgetsB.settings.email.showSubject": "বিষয় দেখান",
-  "widgetsB.time.dateTime": "{date}, {time}"
+  "widgetsB.time.dateTime": "{date}, {time}",
+  "email.setup.sentence": "আপনার মেল দেখাতে একটি অ্যাকাউন্ট যোগ করুন"
 }

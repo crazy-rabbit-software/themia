@@ -169,7 +169,6 @@
             "accountIds": [],
             "folder": "inbox",
             "style": "list",
-            "previewLines": 2,
             "sortOrder": "desc"
           }
         },

@@ -3,7 +3,6 @@
   "ctxMenu.copySubject": "موضوع کاپی کریں",
   "ctxMenu.reply": "جواب دیں",
   "email.folder.label": "فولڈر",
-  "email.previewLines.label": "پیش نظارہ لائنیں",
   "styles.email.compact": "مختصر فہرست",
   "styles.email.list": "پیش منظر کے ساتھ فہرست",
   "styles.email.table": "جدول",
@@ -26,5 +25,6 @@
   "widgetsB.settings.email.noAccount.label": "ابھی کوئی میل اکاؤنٹ نہیں",
   "widgetsB.settings.email.showAccount.label": "اکاؤنٹ دکھائیں",
   "widgetsB.settings.email.showSubject": "موضوع دکھائیں",
-  "widgetsB.time.dateTime": "{date}، {time}"
+  "widgetsB.time.dateTime": "{date}، {time}",
+  "email.setup.sentence": "اپنی میل دکھانے کے لیے اکاؤنٹ شامل کریں"
 }

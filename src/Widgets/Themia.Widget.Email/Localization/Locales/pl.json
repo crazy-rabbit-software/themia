@@ -3,7 +3,6 @@
   "ctxMenu.copySubject": "Kopiuj temat",
   "ctxMenu.reply": "Odpowiedz",
   "email.folder.label": "Folder",
-  "email.previewLines.label": "Linie podglądu",
   "styles.email.compact": "Lista kompaktowa",
   "styles.email.list": "Lista z podglądem",
   "styles.email.table": "Tabela",
@@ -26,5 +25,6 @@
   "widgetsB.settings.email.noAccount.label": "Brak konta pocztowego",
   "widgetsB.settings.email.showAccount.label": "Pokaż konto",
   "widgetsB.settings.email.showSubject": "Pokaż temat",
-  "widgetsB.time.dateTime": "{date}, {time}"
+  "widgetsB.time.dateTime": "{date}, {time}",
+  "email.setup.sentence": "Dodaj konto, aby zobaczyć swoją pocztę"
 }
