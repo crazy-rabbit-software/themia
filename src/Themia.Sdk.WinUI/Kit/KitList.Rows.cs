@@ -140,6 +140,7 @@ public sealed partial class KitList
     {
         var columns = _plan.Table ?? [];
         var block = new RowBlock(RowKind.List, _plan.Lead ? FamilyShape.Icon : 0) { Lines = 1 };
+        block.Show(string.Empty);
 
         var grid = ColumnGrid(columns);
         for (var i = 0; i < columns.Count; i++)
