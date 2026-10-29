@@ -1,14 +1,13 @@
-using System.Globalization;
-using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
+using Themia.Sdk.Kit;
 using Xunit;
 
 namespace Themia.Widget.WeatherForecast.Tests;
 
 /// <summary>
-/// [S-724]..[S-726] The forecast's disclosure ladders, at the seven size tiers (each card less its
-/// ~44px header).
+/// [S-724]..[S-726] The forecast's rows and columns on the family's blocks, at the seven size tiers
+/// (each card less its 44 header).
 /// </summary>
 public class WeatherLayoutTests
 {
@@ -20,110 +19,124 @@ public class WeatherLayoutTests
     private static readonly WidgetArea L = new(560, 376);
     private static readonly WidgetArea Xl = new(800, 516);
 
-    // ---- forecast [S-724]..[S-726] -------------------------------------------------------
-
     private static readonly WidgetArea[] Tiers = [Xs, S, M, Wide, Tall, L, Xl];
 
+    // ---- rows [S-725] -------------------------------------------------------------------------
+
     [Fact]
-    public void S725_no_row_is_thinner_than_the_floor_at_any_tier_or_day_count()
+    public void S725_rows_are_whole_rows_of_the_tiers_lines_never_stretched_and_never_more_than_the_forecast()
     {
-        // The bug: under a 200px list the rows went to 32 and scrolled, two and a half slivers on a
-        // small tile. A row is never under the floor; fewer days are shown instead.
         foreach (var tier in Tiers)
         {
             for (var days = 1; days <= 14; days++)
             {
-                Assert.True(WeatherForecastLayout.Rows(tier, days).RowHeight >= WeatherForecastLayout.RowMin - 1e-9, $"{tier} {days} days");
+                var plan = WeatherForecastLayout.Rows(tier, days);
+                Assert.InRange(plan.Days, 0, days);
+                Assert.Equal(RowRules.Lines(tier, 2), plan.Lines);
+                Assert.True(plan.Days * FamilyShape.RowHeight(plan.Lines) <= WeatherForecastLayout.ContentHeight(tier) + 0.01, $"{tier} {days}");
             }
         }
+
+        Assert.Equal(7, WeatherForecastLayout.Rows(Tall, 7).Days);
+        Assert.Equal(3, WeatherForecastLayout.Rows(M, 7).Days);
+        Assert.Equal(3, WeatherForecastLayout.Rows(Wide, 7).Days);
+        Assert.Equal(1, WeatherForecastLayout.Rows(Xs, 7).Days);
     }
 
     [Fact]
-    public void S725_rows_stretch_to_fill_when_the_days_fit()
+    public void S725_a_row_has_two_lines_from_a_regular_area_both_ways()
     {
-        var plan = WeatherForecastLayout.Rows(Tall, 7);
-
-        Assert.Equal(7, plan.Days);
-        Assert.True(plan.RowHeight > WeatherForecastLayout.RowMin);
-        Assert.True(plan.TwoLine, "a tall narrow row carries the sky on a second line");
+        Assert.Equal(1, WeatherForecastLayout.Rows(Xs, 7).Lines);
+        Assert.Equal(1, WeatherForecastLayout.Rows(Wide, 7).Lines);
+        Assert.Equal(2, WeatherForecastLayout.Rows(M, 7).Lines);
+        Assert.Equal(2, WeatherForecastLayout.Rows(Xl, 7).Lines);
     }
 
     [Fact]
-    public void S725_more_days_than_fit_show_the_first_ones_at_the_floor_or_more()
+    public void S725_the_range_bar_comes_with_the_width_and_stops_growing()
     {
-        // M's list is 182 tall: four rows of 45, not fourteen rows of 32 in a scroller.
-        var plan = WeatherForecastLayout.Rows(M, 14);
-
-        Assert.Equal(4, plan.Days);
-        Assert.Equal((M.Height - WeatherForecastLayout.ListPadding) / 4, plan.RowHeight, 6);
+        Assert.Equal(0, WeatherForecastLayout.Rows(S, 7).Meter);
+        Assert.Equal(Math.Floor(288 * WeatherForecastLayout.MeterShare), WeatherForecastLayout.Rows(M, 7).Meter);
+        Assert.Equal(WeatherForecastLayout.MeterMax, WeatherForecastLayout.Rows(Xl, 7).Meter);
     }
 
     [Fact]
-    public void S725_a_wide_list_gains_the_sky_the_precipitation_and_its_chance()
+    public void S725_the_smallest_tile_is_the_day_and_its_high_alone()
     {
-        var plan = WeatherForecastLayout.Rows(L, 7);
-
-        Assert.True(plan.Description);
-        Assert.True(plan.Bar);
-        Assert.True(plan.Precipitation);
-        Assert.True(plan.Chance);
-        Assert.False(plan.TwoLine);
+        Assert.True(WeatherForecastLayout.Rows(Xs, 7).Compact);
+        Assert.All(Tiers.Skip(1), t => Assert.False(WeatherForecastLayout.Rows(t, 7).Compact));
     }
 
-    [Fact]
-    public void S725_a_narrow_list_keeps_the_day_and_its_high()
-    {
-        var plan = WeatherForecastLayout.Rows(new WidgetArea(120, 300), 7);
-
-        Assert.False(plan.IconAndLow);
-        Assert.False(plan.Bar);
-        Assert.False(plan.Description);
-    }
+    // ---- columns [S-726] ----------------------------------------------------------------------
 
     [Fact]
-    public void S725_the_largest_tile_gives_the_rows_the_whole_width_and_no_today_panel()
+    public void S726_columns_share_the_width_never_under_their_floor_and_never_more_than_the_forecast()
     {
-        // The rows are the forecast; a Today panel beside them repeated the first row (retired).
-        var xl = WeatherForecastLayout.Rows(Xl, 7);
-        Assert.True(xl.Description);
-        Assert.True(xl.Chance);
-        Assert.True(xl.Wind);
-        Assert.True(WeatherForecastLayout.Rows(L, 7).Wind);
+        foreach (var tier in Tiers)
+        {
+            var plan = WeatherForecastLayout.Columns(tier, 7);
+            Assert.InRange(plan.Days, 1, 7);
+            Assert.Equal(WeatherForecastLayout.ContentWidth(tier), plan.Days * plan.ColumnWidth, 6);
+            Assert.True(plan.ColumnWidth >= WeatherForecastLayout.ColumnMin - 1e-9 || plan.Days == 1);
+        }
+
+        Assert.Equal(1, WeatherForecastLayout.Columns(Xs, 7).Days);
+        Assert.Equal(5, WeatherForecastLayout.Columns(M, 7).Days);
+        Assert.Equal(7, WeatherForecastLayout.Columns(Xl, 7).Days);
+        Assert.Equal(3, WeatherForecastLayout.Columns(Xl, 3).Days);
     }
 
     [Fact]
     public void S726_a_column_never_draws_more_than_its_height_holds()
     {
-        // The smallest tile: day and high only. A glyph here clipped the low off the card.
-        var xs = WeatherForecastLayout.Columns(Xs, 7);
-        Assert.False(xs.Icon);
-        Assert.False(xs.Low);
+        foreach (var tier in Tiers)
+        {
+            foreach (var rain in new[] { true, false })
+            {
+                var plan = WeatherForecastLayout.Columns(tier, 7, rain);
+                var parts = new List<double> { 20, 20 };
+                if (plan.Icon > 0)
+                {
+                    parts.Add(plan.Icon);
+                }
 
-        var wide = WeatherForecastLayout.Columns(Wide, 7);
-        Assert.True(wide.Icon);
-        Assert.True(wide.Low);
-        Assert.Equal(7, wide.Days);
+                if (plan.Low)
+                {
+                    parts.Add(20);
+                }
+
+                if (plan.Bar)
+                {
+                    parts.Add(WeatherForecastLayout.ColumnBarMin);
+                }
+
+                if (plan.Precipitation)
+                {
+                    parts.Add(16);
+                }
+
+                var used = parts.Sum() + ((parts.Count - 1) * WeatherForecastLayout.ColumnGap);
+                Assert.True(used <= WeatherForecastLayout.ContentHeight(tier) + 0.01, $"{tier}");
+                Assert.False(plan.Precipitation && !rain);
+            }
+        }
     }
 
     [Fact]
-    public void S726_columns_show_fewer_days_rather_than_squeeze_below_their_minimum()
+    public void S726_the_glyph_the_low_the_bar_and_the_rain_come_with_the_height()
     {
-        // S is 184 inside its padding: three whole columns, not three and a sliver of a fourth.
-        var plan = WeatherForecastLayout.Columns(S, 14);
+        var tiny = WeatherForecastLayout.Columns(Xs, 7);
+        Assert.Equal(0, tiny.Icon);
+        Assert.False(tiny.Low || tiny.Bar || tiny.Precipitation);
 
-        Assert.Equal(3, plan.Days);
-        Assert.True(plan.ColumnWidth >= WeatherForecastLayout.ColumnMin);
-    }
+        var strip = WeatherForecastLayout.Columns(Wide, 7);
+        Assert.Equal(FamilyShape.Icon, strip.Icon);
+        Assert.True(strip.Low);
+        Assert.False(strip.Bar);
 
-    [Fact]
-    public void S726_a_tall_column_gains_the_sky_chance_and_wind()
-    {
-        var plan = WeatherForecastLayout.Columns(Xl, 7);
-
-        Assert.True(plan.Bar);
-        Assert.True(plan.Description);
-        Assert.True(plan.Chance);
-        Assert.True(plan.Wind);
+        var large = WeatherForecastLayout.Columns(Xl, 7);
+        Assert.Equal(FamilyShape.IconLarge, large.Icon);
+        Assert.True(large.Low && large.Bar && large.Precipitation);
     }
 
     [Fact]

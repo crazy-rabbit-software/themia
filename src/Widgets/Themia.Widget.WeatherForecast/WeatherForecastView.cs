@@ -1,7 +1,5 @@
-using Microsoft.UI;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
-using Microsoft.UI.Xaml.Media;
 using Themia.App.Services;
 using Themia.App.Services.Web;
 using Themia.App.Shell;
@@ -16,14 +14,14 @@ using Themia.Widget.WeatherForecast;
 namespace Themia.App.Widgets;
 
 /// <summary>
-/// The next few days, from open-meteo's daily block, in one of four styles ([S-6163]): a Windows 11
-/// list of rows, the days side by side as columns, the highs and lows as a temperature curve, or the
-/// days as cells in a grid shaped to the tile ([S-6171]).
+/// The next few days, from open-meteo's daily block, in one of four styles ([S-6163]), drawn from the
+/// family's blocks: the days as rows (the Row block with its range bar), side by side as columns, the
+/// highs and lows as a temperature curve (the Chart block), or as cells in a grid shaped to the tile
+/// ([S-6171]).
 /// <para>
-/// Each style has its own ladder (<see cref="WeatherForecastLayout"/>, <see cref="ForecastCurve"/>):
-/// rows fill the tile with as many whole days as have their floor, and gain the sky, a range bar,
-/// the precipitation and its chance as the width allows; the room left grows the day's parts. The
-/// user's day count is the cap: days are never invented to fill space, and none is a sliver.
+/// Each style has its own ladder (<see cref="WeatherForecastLayout"/>, <see cref="ForecastCurve"/>,
+/// <see cref="ForecastGrid"/>): only whole days are shown, the first ones that fit, never more than the
+/// user's day count; room left stays empty ([S-666]).
 /// </para>
 /// <para>
 /// The bar on each day is scaled against the whole forecast rather than that day's own range: a
@@ -38,20 +36,9 @@ internal sealed partial class WeatherForecastView : Grid, IWidgetView, IWidgetHe
     /// <summary>[S-7064] The header's problem glyph ([S-7042]): the one stale rule, no age.</summary>
     private readonly KitHeader _header;
     private readonly Grid _body = new();
-    private readonly StackPanel _emptyState;
-    private readonly TextBlock _emptyMessage = new();
 
-    private readonly List<IDisposable> _hovers = [];
-
-    // [S-837] The range bar's track is a slider's (SliderTrackFill), not the disabled fill: the item
-    // layer's track ([S-6513]). Today's column or row is a selected chip of it.
-    private readonly Brush _barBrush = ThemeBrush.Of("AccentFillColorDefaultBrush", Colors.DodgerBlue);
-
-    /// <summary>[S-6172] The now dot's fill: the colour text takes on the accent, so it stands on the bar's fill.</summary>
-    private readonly Brush _nowFill = ThemeBrush.Of("TextOnAccentFillColorPrimaryBrush", Colors.White);
-
-    /// <summary>The now dot's accent ring.</summary>
-    private const double NowRing = 2;
+    /// <summary>[S-6734] Why there is no forecast to draw: the Status block's row at the top.</summary>
+    private readonly StatusBlock _state = new();
 
 
     private Ticker? _ticker;
@@ -77,27 +64,20 @@ internal sealed partial class WeatherForecastView : Grid, IWidgetView, IWidgetHe
     private FetchStatus _status = FetchStatus.Loading;
 
     private Fetched<Forecast>? _forecast;
-
-    /// <summary>
-    /// [S-6172] The temperature now, from the current-conditions reading already held for the same
-    /// place and unit (asked for by a current-conditions widget, or restored); never asked for here.
-    /// </summary>
-    private double? _nowTemperature;
     private WidgetArea _area;
 
     /// <summary>What is on screen: the style, its plan and the day the labels were computed for.</summary>
-    private (ForecastStyle Style, object Plan, DateOnly Today, bool Precipitation, double? Now)? _built;
+    private (ForecastStyle Style, object Plan, DateOnly Today, bool Precipitation)? _built;
     private bool _detached;
 
     public WeatherForecastView(IWidgetHost host)
     {
         _host = host;
         _header = new KitHeader(host);
-        _emptyState = Fluent.EmptyState(WeatherForecastModule.Glyph, _emptyMessage, out _);
-        _emptyState.Visibility = Visibility.Collapsed;
+        _state.Visibility = Visibility.Collapsed;
 
         Children.Add(_body);
-        Children.Add(_emptyState);
+        Children.Add(_state);
     }
 
     /// <summary>
@@ -249,10 +229,6 @@ internal sealed partial class WeatherForecastView : Grid, IWidgetView, IWidgetHe
         var answer = _web?.Forecast(want);
         _forecast = answer?.Value is not null ? answer : null;
         _status = answer?.Status ?? FetchStatus.Loading;
-
-        // [S-6172] Read, never asked: Reading() only returns what the sync or the shelf holds.
-        var reading = _web?.Reading(want with { ForecastDays = null });
-        _nowTemperature = reading is { Value: { } current } ? ForecastNow.Temperature(current.Temperature, reading.At, DateTimeOffset.Now) : null;
         Render();
     }
 
@@ -263,27 +239,20 @@ internal sealed partial class WeatherForecastView : Grid, IWidgetView, IWidgetHe
             return;
         }
 
-        var now = DateTimeOffset.Now;
         var held = _forecast;
         var days = held?.Value?.Days;
 
         if (days is null || days.Count == 0)
         {
-            var status = _status;
-
-            // No place yet: the card's Set up button covers this ([S-1862]).
-            _emptyMessage.Text = status == FetchStatus.NotConfigured
-                ? string.Empty
-                : FetchState.Message(status);
-
-            _emptyState.Visibility = Visibility.Visible;
+            // [S-6734] Not set up is the card's Set up row ([S-1862]); every other state is one row here.
+            OnlineParts.ShowState(_state, _status, WeatherForecastModule.Glyph, () => Reload(force: true));
             _body.Visibility = Visibility.Collapsed;
             _header.Clear();
             ClearBody();
             return;
         }
 
-        _emptyState.Visibility = Visibility.Collapsed;
+        _state.Hide();
         _body.Visibility = Visibility.Visible;
         _header.Show(OnlineParts.Problems(held), busy: false);
 
@@ -306,16 +275,16 @@ internal sealed partial class WeatherForecastView : Grid, IWidgetView, IWidgetHe
             ForecastStyle.Columns => WeatherForecastLayout.Columns(_area, days.Count, _config.ShowPrecipitation),
             ForecastStyle.Curve => ForecastCurve.Plan(_area, days.Count, _config.ShowPrecipitation),
             ForecastStyle.Grid => ForecastGrid.Plan(_area, days.Count),
-            _ => WeatherForecastLayout.Rows(_area, days.Count, _config.ShowPrecipitation),
+            _ => WeatherForecastLayout.Rows(_area, days.Count),
         };
 
         // One clock reading for the whole build, so a forecast drawn across midnight cannot label
         // two different days "Today".
         var today = DateOnly.FromDateTime(DateTime.Now);
-        var key = (style, plan, today, _config.ShowPrecipitation, _nowTemperature);
+        var key = (style, plan, today, _config.ShowPrecipitation);
 
         if (_built is { } built && built.Style == key.style && Equals(built.Plan, key.plan)
-            && built.Today == key.today && built.Precipitation == key.ShowPrecipitation && built.Now == key._nowTemperature)
+            && built.Today == key.today && built.Precipitation == key.ShowPrecipitation)
         {
             return;
         }
@@ -370,18 +339,9 @@ internal sealed partial class WeatherForecastView : Grid, IWidgetView, IWidgetHe
     /// <summary>The same glyph the current-conditions widget draws for a condition. [S-652]</summary>
     private static string LookGlyph(WeatherLook look) => WeatherGlyph.Of(look);
 
-    /// <summary>
-    /// Drop the layout and, with it, its hover handlers: a handler left hooked keeps the row it
-    /// lights alive and re-lights it after the list has been redrawn.
-    /// </summary>
+    /// <summary>Drop the layout: the next one is built from the plan.</summary>
     private void ClearBody()
     {
-        foreach (var hover in _hovers)
-        {
-            hover.Dispose();
-        }
-
-        _hovers.Clear();
         _body.Children.Clear();
         _built = null;
     }

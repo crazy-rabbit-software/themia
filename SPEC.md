@@ -3344,7 +3344,8 @@ removed, [S-1863]). Sizing rules live in Core with tests in
 - **[S-657]** The stock price is fitted to its own text (at least seven characters), not the widest
   price any symbol could have, and the change, currency and session badge go under it when they do
   not fit beside it. The badge is a grid so its label ends in an ellipsis.
-- **[S-658]** A forecast row narrower than 160px is the day and its high; the icon and the low go.
+- **[S-658]** A forecast row on a content narrower than 120 (the smallest tile) is the day and its high, and no
+  row leads (they all lead or none do, [S-6711]); the sky's glyph and the low come back from 120 ([S-725]).
 - **[S-659]** **A readout that is the whole tile fills it** (`HeroFit`; user request 2026-10-17: the
   clock and the weather left a wide band between their content and the card's edge). The clock's
   time (Digital, Stacked, Minimal, and the Flip cards' digits) and the current weather's
@@ -3748,12 +3749,8 @@ is no toast pipeline yet; the header warning stays and opens Accounts), and birt
   at the end) or as a 36px cell (12px glyph and Caption label over a Body Strong value, no box). The
   weather readings use only these two, beside or under the reading (they were three shapes with
   three glyph sizes).
-- **[S-669]** **Day row** parts: the weekday column 44 wide (with the glyph), the sky's glyph 20 with 8 either side, the low and high
-  in a right-aligned tabular figure column of at least 32 (`WidgetParts.Figure`): the high Body
-  Strong primary, the low Body secondary, as Windows sets a range. The forecast grows them with the
-  room a day has (`DayScale`, levels 0..3, one ramp step each: high Body Strong / BodyLarge /
-  Subtitle / Title, glyph 20 / 24 / 32 / 40, range bar 6 / 6 / 8 / 8 thick; it was 4 and read as a
-  scratch), the same ladder in rows, columns and the grid.
+- **[S-669]** *(Retired 2026-10-29, group G3: the forecast's days are the family's Row block and tokens at
+  every size ([S-725], [S-726], [S-6171], [S-6711]); the day-row parts, `DayScale` and its ramp steps are gone.)*
 - **[S-3860]** **One hero ladder for chart and reading widgets.** While a hero shares its tile with
   the content it heads (a chart, readings) it grows to the tier's step, by the tile's smaller size
   class (`HeroLayout.TierStep`): Title up to Regular, TitleLarge at Expanded, Display at Huge,
@@ -5745,7 +5742,7 @@ card is re-created, no tick restarts. Pure rules live in Core (`DesignLook`, `De
   fills are template resources, `ItemFill.For` for many alike): an item says its role — **Row** (list
   rows, grid cells, crumbs, row buttons, a toggle's or power button's tile, the quote and scratchpad
   commands), **Tile** (a round button's circle), **Chip** (calendar events and selected days, an
-  empty year day, a flip clock's card, the forecast's today), **Track** (meter bars, gauges, rings,
+  empty year day, a flip clock's card), **Track** (meter bars, gauges, rings,
   the seek bar, signal bars, habit dots and heat cells, the sun's night bar, the year's days ahead)
   — and its state (Rest, Hover, Pressed, Selected, SelectedHover, Disabled), and the fill comes
   from its card's palette (`ItemLook.Ink`). With a colour every role rests on it at the layer's
@@ -5853,11 +5850,10 @@ card is re-created, no tick restarts. Pure rules live in Core (`DesignLook`, `De
   (`ItemPalette.Text`). A colour the view sets later is inked as it is set (a property-changed watch),
   new content when the item is painted again or loads; runs follow their text block. `ItemFill.Button`
   sets the button's foreground resources too. What is laid over an item without being inside it says
-  so (`ItemFill.OnItem`: the round button's icon, a flip card's figures, the forecast's today column
-  and its curve figures); an item that stops being one says so (`ItemFill.Release`: a toggle or power
+  so (`ItemFill.OnItem`: the round button's icon, a flip card's figures); an item that stops being one says so (`ItemFill.Release`: a toggle or power
   tile turned accent or critical, the round looks' tile). **Not reached:** the card's own text outside
   items (the header, hero readouts such as a clock face, a meter's figure, a day number on a clear
-  calendar cell, an unselected forecast column), tracks, and any colour that is not a theme text
+  calendar cell), tracks, and any colour that is not a theme text
   colour (accent, text on accent, status, event colours, the user's own).
 - **[S-6547]** Debug: `--design itemText=#RRGGBB` sets the app-wide item text colour of a render;
   `--widget-png … --own-items <fill> --own-item-text #RRGGBB` give the cards a layer and a text
@@ -5893,8 +5889,7 @@ card is re-created, no tick restarts. Pure rules live in Core (`DesignLook`, `De
   the first tier and prints the colours it should composite to, for a pixel comparison.
 - **[S-837]** Tracks follow the control they stand for: a seek bar is a slider
   (`SliderTrackFill` = `ControlStrongFillColorDefault`, value `AccentFillColorDefault`, 4px), and so
-  are the tracks that stand for a progress bar or ring (Pomodoro's ring), the
-  forecast's temperature range bar and a habit's empty dot. None uses the disabled fill, which reads
+  are the tracks that stand for a progress bar or ring (Pomodoro's ring) and a habit's empty dot. None uses the disabled fill, which reads
   as a control that is switched off.
 - **[S-834]** *(Retired by [S-3526] and [S-3527]: there is no Appearance page; its rows are the settings
   menu's Appearance lines, in the same groups, each written in place.)*

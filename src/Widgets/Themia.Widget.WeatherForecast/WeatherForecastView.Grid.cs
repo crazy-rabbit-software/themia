@@ -1,7 +1,8 @@
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
-using Themia.App.Shell;
 using Themia.Core.Widgets;
+using Themia.Sdk.Kit;
+using Themia.Sdk.WinUI.Kit;
 
 namespace Themia.App.Widgets;
 
@@ -10,15 +11,15 @@ internal sealed partial class WeatherForecastView
 {
     /// <summary>
     /// The days that have a cell's floor, as cells in the plan's columns × rows (filled left to
-    /// right, then down; time runs left to right in every language, [S-1113]). Each cell is the
-    /// weekday, the sky's glyph and the high beside the low, centred, at the plan's scale.
+    /// right, then down; time runs left to right in every language, [S-1113]), 12 apart. Each cell is
+    /// the day, the sky's glyph (32, 48 on an expanded width) and the high beside the low, centred in it.
     /// </summary>
     private Grid BuildGrid(IReadOnlyList<ForecastDay> days, DateOnly today, ForecastGridPlan plan)
     {
         var count = Math.Min(plan.Days, days.Count);
         var grid = new Grid
         {
-            Padding = new Thickness(ForecastGrid.Padding),
+            Margin = ContentInset,
             RowSpacing = ForecastGrid.Gap,
             ColumnSpacing = ForecastGrid.Gap,
             FlowDirection = FlowDirection.LeftToRight,
@@ -37,54 +38,48 @@ internal sealed partial class WeatherForecastView
         for (var i = 0; i < count; i++)
         {
             var cell = BuildCell(days[i], today, plan);
-            SetColumn(cell, i % plan.Columns);
-            SetRow(cell, i / plan.Columns);
+            Grid.SetColumn(cell, i % plan.Columns);
+            Grid.SetRow(cell, i / plan.Columns);
             grid.Children.Add(cell);
         }
 
         return grid;
     }
 
-    private Border BuildCell(ForecastDay day, DateOnly today, ForecastGridPlan plan)
+    private static Grid BuildCell(ForecastDay day, DateOnly today, ForecastGridPlan plan)
     {
-        var scale = plan.Scale;
-        var label = DayText(day, today, ForecastGrid.LabelStep(scale));
+        var label = DayText(day, today);
         label.HorizontalAlignment = HorizontalAlignment.Center;
 
-        var icon = Fluent.Icon(LookGlyph(WeatherReport.Look(day.Code)), "TextFillColorSecondaryBrush", scale.Icon);
+        var icon = Family.Glyph(LookGlyph(WeatherReport.Look(day.Code)), Math.Max(plan.Icon, FamilyShape.Icon));
         icon.HorizontalAlignment = HorizontalAlignment.Center;
-        icon.Visibility = plan.Icon ? Visibility.Visible : Visibility.Collapsed;
-
-        var high = WidgetParts.Figure(WeatherReport.Degrees(day.High), scale.High);
-        high.MinWidth = 0;
-        var low = WidgetParts.Figure(WeatherReport.Degrees(day.Low), scale.Low, "TextFillColorSecondaryBrush");
-        low.MinWidth = 0;
+        icon.Visibility = plan.Icon > 0 ? Visibility.Visible : Visibility.Collapsed;
 
         var figures = new StackPanel
         {
             Orientation = Orientation.Horizontal,
-            Spacing = ForecastGrid.Gap,
+            Spacing = ForecastGrid.FigureGap,
             HorizontalAlignment = HorizontalAlignment.Center,
-            Children = { high, low },
-        };
-
-        var host = new Border
-        {
-            CornerRadius = new CornerRadius(Fluent.ControlRadius),
-            Padding = new Thickness(ForecastGrid.CellSidePadding, ForecastGrid.CellPadding, ForecastGrid.CellSidePadding, ForecastGrid.CellPadding),
-            Child = new StackPanel
+            Children =
             {
-                Spacing = ForecastGrid.PartGap,
-                VerticalAlignment = VerticalAlignment.Center,
-                Children = { label, icon, figures },
+                Family.Text(FamilyType.Body, ColourRole.TextPrimary, WeatherReport.Degrees(day.High)),
+                Family.Text(FamilyType.Body, ColourRole.TextSecondary, WeatherReport.Degrees(day.Low)),
             },
         };
 
-        // [S-727] Today is a selected chip, as its row or column is in the other styles.
-        if (day.Day == today)
+        var host = new Grid
         {
-            ItemFill.Paint(host, ItemRole.Chip, ItemState.Selected);
-        }
+            Background = Family.Brush(ColourRole.Clear),
+            Children =
+            {
+                new StackPanel
+                {
+                    Spacing = ForecastGrid.PartGap,
+                    VerticalAlignment = VerticalAlignment.Center,
+                    Children = { label, icon, figures },
+                },
+            },
+        };
 
         ToolTipService.SetToolTip(host, Describe(day));
         return host;

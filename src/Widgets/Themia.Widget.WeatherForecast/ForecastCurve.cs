@@ -1,3 +1,5 @@
+using Themia.Sdk.Kit;
+
 namespace Themia.Core.Widgets;
 
 /// <summary>A point of the forecast curve, in DIPs from the chart's top-left corner.</summary>
@@ -19,61 +21,101 @@ public sealed record CurveRun(int FirstDay, CurvePoint Start, IReadOnlyList<Curv
 /// <param name="Days">How many days are shown: the first ones, as many as have a column's width.</param>
 /// <param name="ColumnWidth">Each day's column; a day's point sits on its middle.</param>
 /// <param name="Icon">The sky's glyph under each day's label.</param>
-/// <param name="Low">The lows as a second curve, under the highs.</param>
+/// <param name="Low">The lows as a second line, under the highs.</param>
 /// <param name="Precipitation">The precipitation under each column.</param>
-/// <param name="ChartHeight">The chart's band: the curves and the figures on them.</param>
-public sealed record ForecastCurvePlan(int Days, double ColumnWidth, bool Icon, bool Low, bool Precipitation, double ChartHeight);
+/// <param name="ChartHeight">The chart's band: the lines and the figures over and under them.</param>
+public sealed record ForecastCurvePlan(int Days, double ColumnWidth, bool Icon, bool Low, bool Precipitation, double ChartHeight)
+{
+    /// <summary>Where the warmest point sits in the band: under its figure's Caption line, the stroke kept inside.</summary>
+    public double Top => FamilyType.Caption.LineHeight + (FamilyShape.Stroke / 2);
+
+    /// <summary>Where the coldest point sits: over the lows' figures when they are drawn, the stroke kept inside.</summary>
+    public double Bottom => ChartHeight - (Low ? FamilyType.Caption.LineHeight : 0) - (FamilyShape.Stroke / 2);
+}
 
 /// <summary>
 /// [S-6164] The forecast's temperature curve: each day's high (and, with the height, its low) as a
-/// point on its column's middle, against the range of the days shown, joined by a smooth curve that
-/// never swings past a day's own value. Pure geometry, tested; the view only draws it.
+/// point on its column's middle, against the range of the days shown, joined by a smooth line that
+/// never swings past a day's own value, drawn by the Chart block ([S-6717]). Pure geometry, tested;
+/// the view only draws it.
 /// </summary>
 public static class ForecastCurve
 {
-    /// <summary>The style's own inset on every side.</summary>
-    public const double Padding = 8;
-
-    /// <summary>The narrowest column that holds "Today" and "-18°" in Caption.</summary>
+    /// <summary>The narrowest column that holds "Today" and "-18°".</summary>
     public const double ColumnMin = 48;
 
-    /// <summary>The curve's own band at its smallest, without the figures over and under it.</summary>
+    /// <summary>The line's own band at its smallest, without the figures over and under it.</summary>
     public const double CurveMin = 24;
 
-    /// <summary>What the low curve adds: its figures' line and a band between the two curves.</summary>
-    public static double LowCost => FluentType.Caption.LineHeight + 16;
+    /// <summary>What the low line adds: its figures' line and the family's gap between the two lines.</summary>
+    public static double LowCost => FamilyType.Caption.LineHeight + FamilySpace.S2;
 
     /// <summary>Between two parts of a column.</summary>
-    public const double Gap = 4;
+    public const double Gap = FamilySpace.S1;
 
-    /// <summary>The sky's glyph.</summary>
-    public const double IconSize = 20;
+    /// <summary>Each smooth piece is drawn as this many straight steps (the Chart block draws polylines).</summary>
+    public const int StepsPerDay = 12;
 
     /// <summary>
-    /// The ladder: the day labels and the high curve with its figures always; then the glyph, the
-    /// low curve, the precipitation; the chart takes what they leave. As many days as have
+    /// The ladder: the day labels and the high line with its figures always; then the glyph, the low
+    /// line, the precipitation; the chart takes what they leave. As many days as have
     /// <see cref="ColumnMin"/> each, never more than the forecast has: no scrolling, no squeezing.
     /// </summary>
-    public static ForecastCurvePlan Plan(WidgetArea slot, int days, bool precipitation)
+    public static ForecastCurvePlan Plan(WidgetArea area, int days, bool precipitation)
     {
         days = Math.Max(1, days);
-        var width = Math.Max(0, slot.Width - (2 * Padding));
-        var shown = Math.Clamp((int)Math.Floor(width / ColumnMin), 1, days);
+        var width = WeatherForecastLayout.ContentWidth(area);
+        var height = WeatherForecastLayout.ContentHeight(area);
+        var shown = Math.Clamp((int)Math.Floor((width + Disclosure.Tolerance) / ColumnMin), 1, days);
         var column = width / shown;
-        var label = FluentType.Caption.LineHeight;
+        var label = FamilyType.Body.LineHeight;
+        var caption = FamilyType.Caption.LineHeight;
+        var room = height - label - Gap - (caption + CurveMin);
 
-        var room = new Disclosure(column, Math.Max(0, slot.Height - (2 * Padding)), Gap);
-        room.Reserve(label);
-        room.Reserve(label + CurveMin);
-        var icon = room.Take(IconSize);
-        var low = room.Take(LowCost);
-        var rain = precipitation && room.Take(label);
+        bool Take(double cost)
+        {
+            if (room + Disclosure.Tolerance < cost)
+            {
+                return false;
+            }
 
-        // The chart is the column less the rows over and under it (one gap between two rows); the
-        // curves' own band is inside it, so the ladder's parts for it are not rows of their own.
-        var chart = Math.Max(label + CurveMin, slot.Height - (2 * Padding) - label - Gap
-            - (icon ? IconSize + Gap : 0) - (rain ? label + Gap : 0));
+            room -= cost;
+            return true;
+        }
+
+        var icon = Take(FamilyShape.Icon + Gap);
+        var low = Take(LowCost);
+        var rain = precipitation && Take(caption + Gap);
+        var chart = Math.Max(caption + CurveMin, height - label - Gap - (icon ? FamilyShape.Icon + Gap : 0) - (rain ? caption + Gap : 0));
         return new ForecastCurvePlan(shown, column, icon, low, rain, chart);
+    }
+
+    /// <summary>
+    /// The smooth line of a run as straight steps for the Chart block: its start, then
+    /// <paramref name="perSegment"/> points along each piece, ending on every day's own point.
+    /// </summary>
+    public static IReadOnlyList<CurvePoint> Sample(CurveRun run, int perSegment = StepsPerDay)
+    {
+        ArgumentNullException.ThrowIfNull(run);
+        perSegment = Math.Max(1, perSegment);
+        var points = new List<CurvePoint>((run.Segments.Count * perSegment) + 1) { run.Start };
+        var from = run.Start;
+
+        foreach (var segment in run.Segments)
+        {
+            for (var k = 1; k <= perSegment; k++)
+            {
+                var t = (double)k / perSegment;
+                var u = 1 - t;
+                var x = (u * u * u * from.X) + (3 * u * u * t * segment.Control1.X) + (3 * u * t * t * segment.Control2.X) + (t * t * t * segment.End.X);
+                var y = (u * u * u * from.Y) + (3 * u * u * t * segment.Control1.Y) + (3 * u * t * t * segment.Control2.Y) + (t * t * t * segment.End.Y);
+                points.Add(k == perSegment ? segment.End : new CurvePoint(x, y));
+            }
+
+            from = segment.End;
+        }
+
+        return points;
     }
 
     /// <summary>

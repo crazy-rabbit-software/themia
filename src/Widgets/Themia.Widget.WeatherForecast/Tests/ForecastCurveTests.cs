@@ -75,10 +75,10 @@ public sealed class ForecastCurveTests
     [Fact]
     public void S6164_the_curve_shows_the_days_that_have_a_column_and_never_invents_one()
     {
-        Assert.Equal(2, ForecastCurve.Plan(Xs, 7, true).Days);
+        Assert.Equal(1, ForecastCurve.Plan(Xs, 7, true).Days);
         Assert.Equal(7, ForecastCurve.Plan(Xl, 7, true).Days);
         Assert.Equal(3, ForecastCurve.Plan(Xl, 3, true).Days);
-        Assert.Equal(8, ForecastCurve.Plan(new WidgetArea(400, 300), 14, true).Days);
+        Assert.Equal(7, ForecastCurve.Plan(new WidgetArea(400, 300), 14, true).Days);
         Assert.All(Tiers, t => Assert.True(ForecastCurve.Plan(t, 7, true).ColumnWidth >= ForecastCurve.ColumnMin - 1e-9));
     }
 
@@ -89,14 +89,35 @@ public sealed class ForecastCurveTests
         var large = ForecastCurve.Plan(L, 7, true);
         var dry = ForecastCurve.Plan(L, 7, false);
 
-        Assert.False(small.Low);
-        Assert.False(small.Precipitation);
+        Assert.False(small.Icon || small.Low || small.Precipitation);
         Assert.True(large.Icon && large.Low && large.Precipitation);
         Assert.False(dry.Precipitation);
 
-        // The chart takes what the rungs leave: the parts add up to the column's height.
-        var column = L.Height - (2 * ForecastCurve.Padding);
-        var used = FluentType.Caption.LineHeight + ForecastCurve.IconSize + large.ChartHeight + FluentType.Caption.LineHeight + (3 * ForecastCurve.Gap);
-        Assert.Equal(column, used, 1);
+        // The chart takes what the rungs leave: the day's line, the glyph, the chart and the rain, 4 apart, fill the content.
+        var content = L.Height - 16;
+        var used = 20 + 4 + 16 + 4 + large.ChartHeight + 4 + 16;
+        Assert.Equal(content, used, 6);
+
+        // The points stand under the highs' figures and over the lows', the stroke inside the band.
+        Assert.Equal(17, large.Top);
+        Assert.Equal(large.ChartHeight - 16 - 1, large.Bottom);
+    }
+
+    [Fact]
+    public void S6164_the_smooth_line_is_drawn_as_straight_steps_through_every_day()
+    {
+        var points = ForecastCurve.Points([8, 16, 12], 8, 16, 50, 0, 100);
+        var run = Assert.Single(ForecastCurve.Smooth(points));
+        var line = ForecastCurve.Sample(run, 4);
+
+        Assert.Equal(1 + (2 * 4), line.Count);
+        Assert.Equal(points[0], line[0]);
+        Assert.Equal(points[1], line[4]);
+        Assert.Equal(points[2], line[8]);
+        for (var k = 1; k < line.Count; k++)
+        {
+            Assert.True(line[k].X > line[k - 1].X);
+            Assert.InRange(line[k].Y, -1e-9, 100 + 1e-9);
+        }
     }
 }

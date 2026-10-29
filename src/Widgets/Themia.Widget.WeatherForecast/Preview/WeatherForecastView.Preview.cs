@@ -32,8 +32,6 @@ internal sealed partial class WeatherForecastView : IWidgetPreviewState
 
         _applied = (WeatherForecastConfig)_config.Clone();
         _want = null;
-        // [S-6172] The current conditions' sample reading is the temperature now.
-        _nowTemperature = WeatherSample.Reading().Temperature;
         _forecast = new Fetched<Forecast>(FetchStatus.Ok, new Forecast(WeatherSample.Days(_config.EffectiveDays)), null, DateTimeOffset.Now.AddMinutes(-4));
         if (state == "stale")
         {
