@@ -124,6 +124,13 @@ public static class CalendarFit
     public const double ChipsFromWidth = 40;
 
     /// <summary>
+    /// [S-2702] Whether a day column of <paramref name="columnWidth"/> holds a two-digit day number in
+    /// Caption. Narrower (a month or a week on the smallest tile) the grid would run its numbers into
+    /// each other: the calendar shows the day it is on as a Readout instead.
+    /// </summary>
+    public static bool HoldsDays(double columnWidth) => columnWidth >= FluentType.EstimateWidth(FluentType.Caption, 2);
+
+    /// <summary>
     /// [S-1264] How many week rows a month needs: the weeks holding one of its days (four to six).
     /// </summary>
     public static int MonthRows(DateOnly anchor, WeekStartDay start)

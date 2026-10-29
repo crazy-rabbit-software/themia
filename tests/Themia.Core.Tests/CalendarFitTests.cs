@@ -55,6 +55,14 @@ public sealed class CalendarFitTests
     }
 
     [Fact]
+    public void S2702_a_column_too_narrow_for_two_digits_holds_no_day_grid()
+    {
+        Assert.False(CalendarFit.HoldsDays(88 / 7.0));    // XS: the day as a Readout
+        Assert.True(CalendarFit.HoldsDays(168 / 7.0));    // S
+        Assert.True(CalendarFit.HoldsDays(168 / 4.0));    // a four-day week on S
+    }
+
+    [Fact]
     public void S2702_ChipTimesFromWideCellsAndWeekdayLettersByColumn()
     {
         Assert.True(CalendarFit.Month(768, 456, 5).Times);
