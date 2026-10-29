@@ -1,11 +1,12 @@
-using Microsoft.UI;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Controls.Primitives;
 using Themia.App.Shell;
 using Themia.Core.Localization;
 using Themia.Core.Widgets;
+using Themia.Sdk.Kit;
 using Themia.Sdk.WinUI;
+using Themia.Sdk.WinUI.Kit;
 using Windows.Foundation;
 using Themia.Widget.Scratchpad;
 
@@ -29,15 +30,16 @@ internal sealed partial class ScratchpadView
     private Grid? _fullLayer;
     private Border? _sheet;
     private StackPanel? _fullTools;
+    private Border? _fullUndo;
+    private Border? _fullClear;
     private Size _sheetShape;
-    private (Panel Parent, int Index)? _toolsHome;
 
     private bool IsFullScreen => _full is not null;
 
     private string FullScreenTip()
         => IsFullScreen ? ScratchpadStr.WidgetsC_Scratchpad_ExitFullScreen.Text() : ScratchpadStr.WidgetsC_Scratchpad_FullScreen.Text();
 
-    private void OnFullScreenClicked(object sender, RoutedEventArgs args)
+    private void ToggleFullScreen()
     {
         if (IsFullScreen)
         {
@@ -62,38 +64,45 @@ internal sealed partial class ScratchpadView
 
         _sheetShape = _pad.ActualWidth > 0 && _pad.ActualHeight > 0 ? new Size(_pad.ActualWidth, _pad.ActualHeight) : new Size(4, 3);
 
-        if (_tools.Parent is Panel home)
-        {
-            _toolsHome = (home, home.Children.IndexOf(_tools));
-            home.Children.Remove(_tools);
-        }
-
         _barRow.Children.Remove(_bar);
         Children.Remove(_pad);
+
+        // The bar's inks, nibs and eraser, then the header's undo, clear and the way back, always all
+        // shown whatever Show tools says: they hold the way back.
+        _fullUndo = GlyphTool(Glyphs.Reset, ScratchpadStr.WidgetsC_Scratchpad_Undo.Text(), Undo);
+        _fullClear = GlyphTool(Glyphs.Delete, ScratchpadStr.WidgetsC_Scratchpad_ClearDrawing.Text(), () => _ = AskToClearAsync(_fullClear!));
+        var exit = GlyphTool(Glyphs.BackToWindow, ScratchpadStr.WidgetsC_Scratchpad_ExitFullScreen.Text(), ExitFullScreen);
 
         _fullTools = new StackPanel
         {
             Orientation = Orientation.Horizontal,
-            Spacing = Fluent.Space3,
-            Children = { _bar, Divider(), _tools },
+            Spacing = FamilySpace.S3,
+            Children =
+            {
+                _bar,
+                Divider(),
+                new StackPanel { Orientation = Orientation.Horizontal, Spacing = 0, Children = { _fullUndo, _fullClear, exit } },
+            },
         };
 
         var toolbar = new Border
         {
             Child = _fullTools,
-            Padding = new Thickness(Fluent.Space2, Fluent.Space1, Fluent.Space2, Fluent.Space1),
+            Padding = new Thickness(FamilySpace.S2, FamilySpace.S1, FamilySpace.S2, FamilySpace.S1),
             HorizontalAlignment = HorizontalAlignment.Center,
             VerticalAlignment = VerticalAlignment.Top,
         };
         ChromeFrame.Apply(toolbar);
 
+        // The pad at the tile's shape: a hairline in the track's role round it, the family's radius
+        // (the card's own brushes are the card's, not a widget's to name).
         _sheet = new Border
         {
             Child = _pad,
-            CornerRadius = new CornerRadius(Fluent.OverlayRadius),
-            BorderThickness = new Thickness(Fluent.Hairline),
-            BorderBrush = ThemeBrush.Of("CardStrokeColorDefaultBrush", Colors.Gray),
-            Background = ThemeBrush.Of("CardBackgroundFillColorDefaultBrush", Colors.Transparent),
+            CornerRadius = Family.Radius,
+            BorderThickness = new Thickness(FamilyShape.Hairline),
+            BorderBrush = Family.Brush(ColourRole.Track),
+            Background = Family.Brush(ColourRole.Clear),
             HorizontalAlignment = HorizontalAlignment.Center,
             VerticalAlignment = VerticalAlignment.Center,
         };
@@ -106,9 +115,11 @@ internal sealed partial class ScratchpadView
         {
             Width = root.Size.Width,
             Height = root.Size.Height,
-            Padding = new Thickness(Fluent.Space6),
-            RowSpacing = Fluent.Space4,
-            Background = ThemeBrush.Of("SolidBackgroundFillColorBaseBrush", Colors.Black),
+            Padding = new Thickness(FamilySpace.S6),
+            RowSpacing = FamilySpace.S4,
+
+            // An opaque layer over the whole display: the solid role.
+            Background = Family.Brush(ColourRole.Solid),
             RequestedTheme = ActualTheme,
             FlowDirection = FlowDirection,
             RowDefinitions =
@@ -131,6 +142,7 @@ internal sealed partial class ScratchpadView
         _full.IsOpen = true;
 
         ApplyFullScreenButton();
+        UpdateCommands();
     }
 
     private void ExitFullScreen()
@@ -154,6 +166,8 @@ internal sealed partial class ScratchpadView
 
         _fullTools?.Children.Clear();
         _fullTools = null;
+        _fullUndo = null;
+        _fullClear = null;
 
         if (_sheet is not null)
         {
@@ -163,22 +177,28 @@ internal sealed partial class ScratchpadView
 
         _fullLayer = null;
 
-        // Back where each came from: the pad under the hint, the bar in its row, the tools in the header.
+        // Back where each came from: the pad under the hint, the bar in its row.
         Children.Insert(0, _pad);
         _pad.Width = double.NaN;
         _pad.Height = double.NaN;
         _barRow.Children.Add(_bar);
 
-        if (_toolsHome is { } home)
+        ApplyFullScreenButton();
+        LayBar();
+    }
+
+    /// <summary>Full screen's undo and clear, greyed when there is nothing to undo or clear.</summary>
+    private void UpdateFullScreenTools()
+    {
+        if (_fullUndo is not null)
         {
-            home.Parent.Children.Insert(Math.Clamp(home.Index, 0, home.Parent.Children.Count), _tools);
-            _toolsHome = null;
+            Enable(_fullUndo, _undo.Count > 0);
         }
 
-        ApplyFullScreenButton();
-        _tools.Visibility = _config.ShowTools ? Visibility.Visible : Visibility.Collapsed;
-        ShedTools(_area.Width);
-        LayBar();
+        if (_fullClear is not null)
+        {
+            Enable(_fullClear, _config.Strokes.Count > 0);
+        }
     }
 
     /// <summary>The pad at the tile's shape, as large as the room under the toolbar holds.</summary>
@@ -206,24 +226,22 @@ internal sealed partial class ScratchpadView
 
     private void ApplyFullScreenButton()
     {
-        _fullButton.Content = Fluent.Icon(IsFullScreen ? Glyphs.BackToWindow : Glyphs.FullScreen);
-        ToolTipService.SetToolTip(_fullButton, FullScreenTip());
-        Microsoft.UI.Xaml.Automation.AutomationProperties.SetName(_fullButton, FullScreenTip());
+        if (_fullButton.Child is FontIcon glyph)
+        {
+            glyph.Glyph = IsFullScreen ? Glyphs.BackToWindow : Glyphs.FullScreen;
+        }
 
-        // Every tool shows on the toolbar; the eraser is the bar's there.
-        _fullButton.Visibility = Visibility.Visible;
-        _clearButton.Visibility = Visibility.Visible;
+        Tip(_fullButton, FullScreenTip());
         if (IsFullScreen)
         {
-            _tools.Visibility = Visibility.Visible;
             LayBar();
         }
     }
 
     private static Border Divider() => new()
     {
-        Width = Fluent.Hairline,
-        Margin = new Thickness(0, Fluent.Space1, 0, Fluent.Space1),
-        Background = ThemeBrush.Of("DividerStrokeColorDefaultBrush", Colors.Gray),
+        Width = FamilyShape.Hairline,
+        Margin = new Thickness(0, FamilySpace.S1, 0, FamilySpace.S1),
+        Background = Family.Brush(ColourRole.Track),
     };
 }

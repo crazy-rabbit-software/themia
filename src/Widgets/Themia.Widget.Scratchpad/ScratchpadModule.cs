@@ -33,7 +33,7 @@ public sealed class ScratchpadModule : IWidgetModule
         Glyph = Glyph,
         DefaultWidth = 300,
         DefaultHeight = 260,
-        Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader,
+        Traits = WidgetTraits.CanHaveHeader,
         Add = new(AddFolderId.Notes, 0, 1),
     };
 

@@ -21,10 +21,10 @@ public readonly record struct InkPoint(double X, double Y);
 public static class InkGeometry
 {
     /// <summary>The thinnest pen. Below this a stroke reads as an artefact rather than a line.</summary>
-    public const double MinWidth = 1;
+    public const double ThinnestPen = 1;
 
     /// <summary>The fattest pen. Past this a stroke is a fill, and the pad is a colour swatch.</summary>
-    public const double MaxWidth = 24;
+    public const double WidestPen = 24;
 
     /// <summary>The pen a new pad starts with.</summary>
     public const double DefaultWidth = 3;
@@ -51,7 +51,7 @@ public static class InkGeometry
 
     /// <summary>Clamp a stored or typed pen width into the range the pad can actually draw.</summary>
     public static double ClampWidth(double width)
-        => double.IsFinite(width) ? Math.Clamp(width, MinWidth, MaxWidth) : DefaultWidth;
+        => double.IsFinite(width) ? Math.Clamp(width, ThinnestPen, WidestPen) : DefaultWidth;
 
     /// <summary>
     /// Flatten points for storage: x, y, x, y. A flat list of numbers rather than a list of objects

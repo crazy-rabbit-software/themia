@@ -10,12 +10,6 @@
   "widgetsC.scratchpad.eraseStrokes": "획 지우기",
   "widgetsC.scratchpad.exitFullScreen": "전체 화면 종료",
   "widgetsC.scratchpad.fullScreen": "전체 화면",
-  "widgetsC.scratchpad.ink.amber": "호박색",
-  "widgetsC.scratchpad.ink.blue": "파란색",
-  "widgetsC.scratchpad.ink.chalk": "분필색",
-  "widgetsC.scratchpad.ink.emerald": "에메랄드색",
-  "widgetsC.scratchpad.ink.rose": "장미색",
-  "widgetsC.scratchpad.ink.violet": "보라색",
   "widgetsC.scratchpad.penSizeTip": "펜 크기 {size}px",
   "widgetsC.scratchpad.settings.showTools.label": "도구 표시",
   "widgetsC.scratchpad.undo": "실행 취소"

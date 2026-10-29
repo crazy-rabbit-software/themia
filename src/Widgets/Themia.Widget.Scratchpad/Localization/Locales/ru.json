@@ -10,12 +10,6 @@
   "widgetsC.scratchpad.eraseStrokes": "Стереть штрихи",
   "widgetsC.scratchpad.exitFullScreen": "Выйти из полноэкранного режима",
   "widgetsC.scratchpad.fullScreen": "Во весь экран",
-  "widgetsC.scratchpad.ink.amber": "Янтарный",
-  "widgetsC.scratchpad.ink.blue": "Синий",
-  "widgetsC.scratchpad.ink.chalk": "Мел",
-  "widgetsC.scratchpad.ink.emerald": "Изумрудный",
-  "widgetsC.scratchpad.ink.rose": "Розовый",
-  "widgetsC.scratchpad.ink.violet": "Фиолетовый",
   "widgetsC.scratchpad.penSizeTip": "Толщина пера {size} пкс",
   "widgetsC.scratchpad.settings.showTools.label": "Показывать инструменты",
   "widgetsC.scratchpad.undo": "Отменить"

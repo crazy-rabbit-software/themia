@@ -10,12 +10,6 @@
   "widgetsC.scratchpad.eraseStrokes": "ลบเส้น",
   "widgetsC.scratchpad.exitFullScreen": "ออกจากโหมดเต็มหน้าจอ",
   "widgetsC.scratchpad.fullScreen": "เต็มหน้าจอ",
-  "widgetsC.scratchpad.ink.amber": "อำพัน",
-  "widgetsC.scratchpad.ink.blue": "น้ำเงิน",
-  "widgetsC.scratchpad.ink.chalk": "ชอล์ก",
-  "widgetsC.scratchpad.ink.emerald": "มรกต",
-  "widgetsC.scratchpad.ink.rose": "ชมพูกุหลาบ",
-  "widgetsC.scratchpad.ink.violet": "ม่วง",
   "widgetsC.scratchpad.penSizeTip": "ขนาดปากกา {size} px",
   "widgetsC.scratchpad.settings.showTools.label": "แสดงเครื่องมือ",
   "widgetsC.scratchpad.undo": "เลิกทำ"

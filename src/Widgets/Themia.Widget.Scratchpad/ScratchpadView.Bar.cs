@@ -1,13 +1,15 @@
-using Microsoft.UI;
 using Microsoft.UI.Xaml;
+using Microsoft.UI.Xaml.Automation;
 using Microsoft.UI.Xaml.Controls;
-using Microsoft.UI.Xaml.Controls.Primitives;
 using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Shapes;
 using Themia.App.Shell;
 using Themia.Core.Localization;
+using Themia.Core.Settings;
 using Themia.Core.Widgets;
+using Themia.Sdk.Kit;
 using Themia.Sdk.WinUI;
+using Themia.Sdk.WinUI.Kit;
 using Themia.Widget.Scratchpad;
 
 namespace Themia.App.Widgets;
@@ -15,87 +17,64 @@ namespace Themia.App.Widgets;
 /// <summary>
 /// [S-1497] The ink bar along the foot of the pad: the original's toolbar of preset inks and three
 /// nibs ([S-02] of the original), shown once the pad has room for it, and [S-1498] the eraser as a
-/// tool beside them. The header keeps undo, clear and full screen ([S-651]), and the eraser while
-/// the bar is not shown; the bar is the rung a larger tile adds, so choosing an ink no longer means
-/// opening settings. Picking an ink or a nib also leaves the eraser, as the original did.
+/// tool beside them. The header keeps undo and full screen ([S-651]); the bar is the rung a larger
+/// tile adds, so choosing an ink no longer means opening settings. Picking an ink or a nib also
+/// leaves the eraser, as the original did. Its ladder is <see cref="ScratchpadLayout.Bar"/>.
 /// <para>
-/// Its ladder: nothing on a tile Compact either way (the pad is the widget); the six inks and the
-/// eraser from a Regular × Regular tile; the three nibs between them when the width holds all.
-/// Nothing more on a larger tile (no stroke count): the rest is pad.
+/// The bar is a row of 32 tools on the card's bottom inset ([S-6716]), each a subtle button (the
+/// subtle fills on hover and press, no border): an ink is a 16 dot in its own colour (a data colour,
+/// [S-6705]), a nib a dot of its width in the secondary role, the chosen one ringed by a 24 ring of
+/// stroke 2 in the accent (selected); the eraser on is the accent's fill with its glyph on it.
 /// </para>
 /// </summary>
 internal sealed partial class ScratchpadView
 {
-    /// <summary>One bar button: a 28px target, the Fluent compact control height.</summary>
-    private const double BarButton = 28;
+    /// <summary>The ring round the chosen ink or nib.</summary>
+    private const double ChoiceRing = FamilySpace.S6;
 
-    /// <summary>The pad never gives up more than this to the bar: a bar over a sliver is a toolbar, not a pad.</summary>
-    private const double PadFloor = 64;
-
-    private readonly StackPanel _bar = new() { Orientation = Orientation.Horizontal, Spacing = Fluent.Space1 };
+    private readonly StackPanel _bar = new() { Orientation = Orientation.Horizontal, Spacing = ScratchpadLayout.GroupGap };
     private readonly StackPanel _inks = new() { Orientation = Orientation.Horizontal, Spacing = 0 };
     private readonly StackPanel _nibs = new() { Orientation = Orientation.Horizontal, Spacing = 0 };
-    private readonly Border _nibGap = new() { Width = Fluent.Space2 };
-    private readonly ToggleButton _barEraser = ToggleCommand(Glyphs.EraseTool, ScratchpadStr.WidgetsC_Scratchpad_EraseStrokes.Text());
+    private readonly Border _barEraser;
     private readonly Grid _barRow = new();
-    private readonly List<(Ink Ink, Ellipse Ring)> _inkRings = [];
+    private readonly List<(ColorPreset Ink, Ellipse Ring)> _inkRings = [];
     private readonly List<(double Width, Ellipse Ring)> _nibRings = [];
-    private readonly List<(Button Button, RoutedEventHandler Handler)> _barHandlers = [];
-    private readonly List<(ToggleButton Button, RoutedEventHandler Handler)> _barToggles = [];
-    private readonly List<(Button Button, Func<string> Tip)> _barTips = [];
+    private readonly List<(Border Button, Func<string> Tip)> _barTips = [];
 
     private WidgetArea _area;
 
-    /// <summary>[S-651] The header has room for the eraser too (it shows there while the bar does not).</summary>
-    private bool _eraserFits;
-
-    /// <summary>[S-663] The card's word on how much room there is: header tools and the bar.</summary>
+    /// <summary>[S-663] The card's word on how much room there is: the bar's ladder.</summary>
     public void ApplySize(WidgetArea area)
     {
         _area = area;
-        ShedTools(area.Width);
         LayBar();
     }
 
     private void BuildBar()
     {
-        var ring = ThemeBrush.Of("TextFillColorPrimaryBrush", Colors.White);
-        var nib = ThemeBrush.Of("TextFillColorSecondaryBrush", Colors.Gray);
-
         foreach (var ink in InkPalette.Inks)
         {
-            var (button, mark) = BarChoice(InkBrush(ink.Hex), 14, ring, ink.Name.Text());
-            _barTips.Add((button, () => ink.Name.Text()));
+            var (button, mark) = Choice(InkBrush(ink.Hex), FamilyShape.Icon, ink.Name, () => PickInk(ink));
+            _barTips.Add((button, () => ink.Name));
             _inkRings.Add((ink, mark));
             _inks.Children.Add(button);
-            OnBarClick(button, () => PickInk(ink));
         }
 
         foreach (var width in InkPalette.Widths)
         {
-            var (button, mark) = BarChoice(nib, width + 2, ring, NibTip(width));
+            // A nib is drawn a little over its width, so the finest still reads as a dot.
+            var (button, mark) = Choice(Family.Brush(ColourRole.TextSecondary), width + FamilyShape.Stroke, NibTip(width), () => PickNib(width));
             _barTips.Add((button, () => NibTip(width)));
             _nibRings.Add((width, mark));
             _nibs.Children.Add(button);
-            OnBarClick(button, () => PickNib(width));
         }
 
-        // [S-1498] The eraser is a tool beside the nibs; it and the header's are one (OnEraserToggled).
-        _barEraser.Width = BarButton;
-        _barEraser.Height = BarButton;
-        _barEraser.Padding = new Thickness(0);
-        RoutedEventHandler onBarEraser = (_, _) => _eraser.IsChecked = _barEraser.IsChecked;
-        _barEraser.Checked += onBarEraser;
-        _barEraser.Unchecked += onBarEraser;
-        _barToggles.Add((_barEraser, onBarEraser));
-
         _bar.Children.Add(_inks);
-        _bar.Children.Add(_nibGap);
         _bar.Children.Add(_nibs);
-        _bar.Children.Add(new Border { Width = Fluent.Space2 });
         _bar.Children.Add(_barEraser);
 
-        _barRow.Margin = new Thickness(Fluent.Space2, 0, Fluent.Space3, Fluent.Space2);
+        // [S-6716] On the card's bottom inset, from its start.
+        _barRow.Margin = new Thickness(FamilySpace.Inset, 0, FamilySpace.Inset, FamilySpace.Inset);
         _barRow.Visibility = Visibility.Collapsed;
         _barRow.Children.Add(_bar);
 
@@ -112,64 +91,111 @@ internal sealed partial class ScratchpadView
     {
         foreach (var (button, tip) in _barTips)
         {
-            ToolTipService.SetToolTip(button, tip());
+            Tip(button, tip());
         }
     }
 
-    /// <summary>A round swatch or nib with a hairline ring that marks the current choice.</summary>
-    private static (Button Button, Ellipse Ring) BarChoice(Brush fill, double diameter, Brush ringBrush, string tooltip)
+    /// <summary>A round swatch or nib, with the accent's ring that marks the current choice.</summary>
+    private static (Border Button, Ellipse Ring) Choice(Brush fill, double diameter, string tooltip, Action run)
     {
         var ring = new Ellipse
         {
-            Width = 20,
-            Height = 20,
-            Stroke = ringBrush,
-            StrokeThickness = 1.5,
+            Width = ChoiceRing,
+            Height = ChoiceRing,
+            Stroke = Family.Brush(ColourRole.Accent),
+            StrokeThickness = FamilyShape.Stroke,
             Visibility = Visibility.Collapsed,
         };
 
         var dot = new Ellipse { Width = diameter, Height = diameter, Fill = fill };
-
-        var button = CommandButton(ScratchpadModule.Glyph, tooltip);
-        button.Width = BarButton;
-        button.Height = BarButton;
-        button.Padding = new Thickness(0);
-        button.Content = new Grid { Width = 20, Height = 20, Children = { ring, dot } };
-
-        return (button, ring);
+        var mark = new Grid { Width = ChoiceRing, Height = ChoiceRing, Children = { ring, dot } };
+        return (Tool(mark, tooltip, run), ring);
     }
 
-    private void OnBarClick(Button button, Action action)
+    /// <summary>
+    /// One of the pad's tools: a 32 subtle button ([S-6704]), the subtle fills on hover and press
+    /// (a control's, as the header's buttons, never the item layer's), no border. A tap runs it.
+    /// </summary>
+    private static Border Tool(FrameworkElement content, string tooltip, Action run)
     {
-        RoutedEventHandler handler = (_, _) => action();
-        button.Click += handler;
-        _barHandlers.Add((button, handler));
+        content.HorizontalAlignment = HorizontalAlignment.Center;
+        content.VerticalAlignment = VerticalAlignment.Center;
+
+        var button = new Border
+        {
+            Child = content,
+            Width = ScratchpadLayout.Tool,
+            Height = ScratchpadLayout.Tool,
+            CornerRadius = Family.Radius,
+            Background = Family.Brush(ColourRole.Clear),
+        };
+
+        Tip(button, tooltip);
+        button.PointerEntered += (_, _) => Rest(button, ColourRole.Subtle);
+        button.PointerExited += (_, _) => Rest(button, ColourRole.Clear);
+        button.PointerCanceled += (_, _) => Rest(button, ColourRole.Clear);
+        button.PointerPressed += (_, _) => Rest(button, ColourRole.SubtlePressed);
+        button.Tapped += (_, args) =>
+        {
+            args.Handled = true;
+            if (button.Tag is not false)
+            {
+                run();
+            }
+        };
+
+        // Two quick taps on a tool are two taps, not the card's double-click into edit mode.
+        button.DoubleTapped += (_, args) => args.Handled = true;
+        return button;
     }
 
-    private void DetachBar()
+    /// <summary>A glyph tool (the eraser, undo, clear, the way back from full screen).</summary>
+    private static Border GlyphTool(string glyph, string tooltip, Action run)
+        => Tool(Family.Glyph(glyph, FamilyShape.Icon, ColourRole.TextPrimary), tooltip, run);
+
+    /// <summary>A tool's fill at rest or under the pointer; a tool that is on keeps the accent.</summary>
+    private static void Rest(Border button, ColourRole role)
     {
-        foreach (var (button, handler) in _barHandlers)
+        if (!IsOn(button))
         {
-            button.Click -= handler;
+            button.Background = Family.Brush(role);
         }
-
-        _barHandlers.Clear();
-
-        foreach (var (button, handler) in _barToggles)
-        {
-            button.Checked -= handler;
-            button.Unchecked -= handler;
-        }
-
-        _barToggles.Clear();
     }
 
-    private void PickInk(Ink ink)
+    private static bool IsOn(Border button) => ReferenceEquals(button.Background, Family.Brush(ColourRole.Accent));
+
+    /// <summary>A toggled tool: on is the accent's fill with the glyph on it ([S-6706]).</summary>
+    private static void On(Border button, bool on)
+    {
+        button.Background = Family.Brush(on ? ColourRole.Accent : ColourRole.Clear);
+        if (button.Child is FontIcon glyph)
+        {
+            glyph.Foreground = Family.Brush(on ? ColourRole.TextOnAccent : ColourRole.TextPrimary);
+        }
+    }
+
+    /// <summary>A tool with nothing to do now: its glyph in the disabled role (else <paramref name="rest"/>), a tap ignored.</summary>
+    private static void Enable(Border button, bool enabled, ColourRole rest = ColourRole.TextPrimary)
+    {
+        button.Tag = enabled;
+        if (button.Child is FontIcon glyph)
+        {
+            glyph.Foreground = Family.Brush(enabled ? rest : ColourRole.TextDisabled);
+        }
+    }
+
+    private static void Tip(FrameworkElement element, string tip)
+    {
+        ToolTipService.SetToolTip(element, tip);
+        AutomationProperties.SetName(element, tip);
+    }
+
+    private void PickInk(ColorPreset ink)
     {
         _config.PenColor = ink.Hex;
 
         // Choosing an ink is choosing to draw.
-        _eraser.IsChecked = false;
+        SetEraser(false);
         UpdateBar();
         _surface?.RequestSave();
     }
@@ -179,7 +205,7 @@ internal sealed partial class ScratchpadView
         _config.PenWidth = width;
 
         // Choosing a nib is choosing to draw, as an ink is.
-        _eraser.IsChecked = false;
+        SetEraser(false);
         UpdateBar();
         _surface?.RequestSave();
     }
@@ -191,38 +217,18 @@ internal sealed partial class ScratchpadView
         {
             // [S-1499] Full screen shows the whole bar on its own toolbar.
             _nibs.Visibility = Visibility.Visible;
-            _nibGap.Visibility = Visibility.Visible;
-            _eraser.Visibility = Visibility.Collapsed;
             UpdateBar();
             return;
         }
 
-        // The bar's own run: the inks, a gap and the eraser (the stack's spacing between the three);
-        // the nibs add a gap and themselves, two more spacings.
-        var inksWidth = (InkPalette.Inks.Count * BarButton) + Fluent.Space2 + BarButton + (2 * Fluent.Space1);
-        var nibsWidth = (InkPalette.Widths.Count * BarButton) + Fluent.Space2 + (2 * Fluent.Space1);
-        var width = _area.Width - Fluent.Space2 - Fluent.Space3; // the row's margins
-
-        var room = new Disclosure(_area.Deflate(Fluent.Space2, 0), Fluent.Space2);
-        room.Reserve(PadFloor);
-
-        var show = _config.ShowTools
-            && _area.AtLeast(SizeClass.Regular, SizeClass.Regular)
-            && width >= inksWidth
-            && room.Take(BarButton, inksWidth);
-
-        _nibs.Visibility = Shown(width >= inksWidth + nibsWidth);
-        _nibGap.Visibility = _nibs.Visibility;
-        _barRow.Visibility = Shown(show);
-
-        // [S-1498] One eraser on screen: in the bar where it shows, else in the header where it fits.
-        var headerEraser = !show && _eraserFits;
-        _eraser.Visibility = Shown(headerEraser);
+        var plan = ScratchpadLayout.Bar(_area, _config.ShowTools, InkPalette.Inks.Count, InkPalette.Widths.Count);
+        _nibs.Visibility = Shown(plan.Nibs);
+        _barRow.Visibility = Shown(plan.Bar);
 
         // A hidden eraser must not leave the pad in erase mode with no way out of it.
-        if (!show && !headerEraser && _eraser.IsChecked == true)
+        if (!plan.Bar)
         {
-            _eraser.IsChecked = false;
+            SetEraser(false);
         }
 
         UpdateBar();
@@ -241,6 +247,8 @@ internal sealed partial class ScratchpadView
         {
             ring.Visibility = Shown(width == nearest);
         }
+
+        On(_barEraser, _eraserOn);
     }
 
     private static Visibility Shown(bool shown)

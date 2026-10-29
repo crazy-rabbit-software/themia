@@ -109,9 +109,9 @@ public class InkGeometryTests
     // -----------------------------------------------------------------------------------------
 
     [Theory]
-    [InlineData(0, InkGeometry.MinWidth)]
-    [InlineData(-3, InkGeometry.MinWidth)]
-    [InlineData(1000, InkGeometry.MaxWidth)]
+    [InlineData(0, InkGeometry.ThinnestPen)]
+    [InlineData(-3, InkGeometry.ThinnestPen)]
+    [InlineData(1000, InkGeometry.WidestPen)]
     [InlineData(4, 4)]
     public void A_stored_pen_width_is_clamped_to_something_drawable(double stored, double expected)
         => Assert.Equal(expected, InkGeometry.ClampWidth(stored));

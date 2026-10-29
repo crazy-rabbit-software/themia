@@ -42,7 +42,7 @@ public sealed class ConfirmFlyoutTests
     }
 
     [Theory]
-    [InlineData("ScratchpadView.cs", "ConfirmFlyout.Create(")]
+    [InlineData("ScratchpadView.cs", "ConfirmFlyout.AskAsync(")]
     [InlineData("FolderView.Commands.cs", "ConfirmFlyout.AskAsync(")]
     [InlineData("ClipboardView.cs", "ConfirmFlyout.AskAsync(")]
     [InlineData("NotesView.Picker.cs", "ConfirmFlyout.AskAsync(")]

@@ -24,7 +24,7 @@ internal static class ScratchpadMenu
     /// as the ink bar's. Any other colour is one "Custom colour" away.
     /// </summary>
     private static ColorPreset[] PenColors() =>
-        [.. InkPalette.Inks.Select(ink => new ColorPreset(ink.Hex, ink.Name.Local()))];
+        [.. InkPalette.Inks];
 
     public static void Lines(WidgetMenuLines menu, ScratchpadConfig config)
     {
@@ -39,7 +39,7 @@ internal static class ScratchpadMenu
         // The width is in pixels and stays in pixels however the widget is resized: a pen has a nib,
         // so a bigger pad shows more drawing rather than a fatter line.
         menu.Lines.Add(menu.Number(ScratchpadModule.Glyph, ScratchpadStr.Scratchpad_PenSizeLabel.Text(),
-            config.EffectivePenWidth, InkGeometry.MinWidth, InkGeometry.MaxWidth, 1d, Pixels, value => config.PenWidth = value));
+            config.EffectivePenWidth, InkGeometry.ThinnestPen, InkGeometry.WidestPen, 1d, Pixels, value => config.PenWidth = value));
 
         // The pad's tools, apart from the pen.
         menu.Lines.Add(ItemMenuEntry.Separator);

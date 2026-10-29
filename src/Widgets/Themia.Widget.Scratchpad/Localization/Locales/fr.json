@@ -10,12 +10,6 @@
   "widgetsC.scratchpad.eraseStrokes": "Effacer des traits",
   "widgetsC.scratchpad.exitFullScreen": "Quitter le plein écran",
   "widgetsC.scratchpad.fullScreen": "Plein écran",
-  "widgetsC.scratchpad.ink.amber": "Ambre",
-  "widgetsC.scratchpad.ink.blue": "Bleu",
-  "widgetsC.scratchpad.ink.chalk": "Craie",
-  "widgetsC.scratchpad.ink.emerald": "Émeraude",
-  "widgetsC.scratchpad.ink.rose": "Rose",
-  "widgetsC.scratchpad.ink.violet": "Violet",
   "widgetsC.scratchpad.penSizeTip": "Taille du stylet {size} px",
   "widgetsC.scratchpad.settings.showTools.label": "Afficher les outils",
   "widgetsC.scratchpad.undo": "Annuler"

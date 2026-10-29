@@ -10,12 +10,6 @@
   "widgetsC.scratchpad.eraseStrokes": "擦除笔画",
   "widgetsC.scratchpad.exitFullScreen": "退出全屏",
   "widgetsC.scratchpad.fullScreen": "全屏",
-  "widgetsC.scratchpad.ink.amber": "琥珀色",
-  "widgetsC.scratchpad.ink.blue": "蓝色",
-  "widgetsC.scratchpad.ink.chalk": "粉笔白",
-  "widgetsC.scratchpad.ink.emerald": "翡翠绿",
-  "widgetsC.scratchpad.ink.rose": "玫红",
-  "widgetsC.scratchpad.ink.violet": "紫罗兰",
   "widgetsC.scratchpad.penSizeTip": "笔触大小 {size} px",
   "widgetsC.scratchpad.settings.showTools.label": "显示工具",
   "widgetsC.scratchpad.undo": "撤销"

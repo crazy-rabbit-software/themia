@@ -4106,7 +4106,7 @@ is gone ([S-3585]). Owning files: `Shell/ColorChoice.cs`, `Interop/ScreenColorPi
 - **[S-1550]** Stored format stays `#RRGGBB` (empty = default). Replaced: Appearance's accent,
   widget background and border colour; the calendar colours (Automatic + the six + custom); the
   palette editor's entries (rgb()/hsl() entries open on their colour, are stored as hex once
-  changed); the scratchpad ink (the six inks + custom).
+  changed); the scratchpad ink (its six inks, swatches of the palette above, [S-1497], + custom).
 - **[S-1556]** The eyedropper (`Interop/ScreenColorPicker.cs`, pure rules `Core/Settings/ScreenPick.cs`):
   wherever "Custom colour" is offered, an eyedropper button beside "View colours" closes the
   flyout, waits until the screen no longer shows it (the flyout's Closed, the next XAML frame, then
@@ -5738,10 +5738,10 @@ card is re-created, no tick restarts. Pure rules live in Core (`DesignLook`, `De
   widget's layer reaches its items and no other widget's, and nothing is rebuilt.
 - **[S-6513]** One path for every item fill (`ItemFill.Paint`, `ItemFill.Button` for a button whose
   fills are template resources, `ItemFill.For` for many alike): an item says its role — **Row** (list
-  rows, grid cells, crumbs, row buttons, a toggle's or power button's tile, the quote and scratchpad
+  rows, grid cells, crumbs, row buttons, a toggle's or power button's tile, the quote's
   commands), **Tile** (a round button's circle), **Chip** (calendar events and selected days, an
   empty year day, a flip clock's card), **Track** (meter bars, gauges, rings,
-  the seek bar, signal bars, habit dots and heat cells, the sun's night bar, the year's days ahead)
+  the seek bar, signal bars, the sun's night bar, the year's days ahead)
   — and its state (Rest, Hover, Pressed, Selected, SelectedHover, Disabled), and the fill comes
   from its card's palette (`ItemLook.Ink`). With a colour every role rests on it at the layer's
   opacity; a state moves it toward the theme's contrast (white in dark, black in light): hover 8 %,
@@ -6699,8 +6699,8 @@ the quote and the scratchpad are modules of their own, each with its SPEC.md and
   question): the clipboard's clear and the notes' delete
   ([S-1364]) too, which were `ContentDialog`s centred on the monitor-sized surface and drawn inside
   its region. No widget view and no part of the surface opens a `ContentDialog`, and every flyout or menu a widget opens (a rename box, a note, `ItemMenu`) is its own popup
-  likewise. The clear is in the header from three tools' width ([S-651]); in full screen it is
-  always there. Tests read the source (`ConfirmFlyoutTests`); renders (`--state confirm` for
+  likewise. The scratchpad's clear is its card menu's command, asked beside the widget ([S-1501]);
+  in full screen it is on the toolbar, asked beside its button. Tests read the source (`ConfirmFlyoutTests`); renders (`--state confirm` for
   Scratchpad, Clipboard, Notes) draw the question inside the render's
   window, as a windowed popup cannot be drawn to a bitmap; a live pass checks it on a small tile at
   a display edge.

@@ -1,25 +1,28 @@
-using Themia.Widget.Scratchpad;
+using Themia.Core.Localization;
+using Themia.Core.Settings;
 
 namespace Themia.Core.Widgets;
-
-/// <summary>One preset ink: what is stored (<c>#RRGGBB</c>, content rather than chrome) and its name, in the current language.</summary>
-public readonly record struct Ink(string Hex, ScratchpadStr Name);
 
 /// <summary>
 /// [S-1497] The scratchpad's presets, shared by its properties menu and the toolbar on the pad: the
 /// original's palette-and-three-sizes toolbar ([S-02] of the original). Six inks that read on the
 /// pad in either theme, and the original's three nibs.
+/// <para>
+/// The inks are swatches of the host's one palette ([S-1549], <see cref="ColorPresets"/>), named by
+/// it: a pen's colour is data the user picks, so its presets are the picker's own rather than
+/// colours this module types ([S-6705]).
+/// </para>
 /// </summary>
 public static class InkPalette
 {
-    public static IReadOnlyList<Ink> Inks { get; } =
+    public static IReadOnlyList<ColorPreset> Inks { get; } =
     [
-        new("#0078D4", ScratchpadStr.WidgetsC_Scratchpad_Ink_Blue),
-        new("#F43F5E", ScratchpadStr.WidgetsC_Scratchpad_Ink_Rose),
-        new("#F59E0B", ScratchpadStr.WidgetsC_Scratchpad_Ink_Amber),
-        new("#10B981", ScratchpadStr.WidgetsC_Scratchpad_Ink_Emerald),
-        new("#7C3AED", ScratchpadStr.WidgetsC_Scratchpad_Ink_Violet),
-        new("#E7E5E4", ScratchpadStr.WidgetsC_Scratchpad_Ink_Chalk),
+        Swatch(Str.Shell_Color_DefaultBlue),
+        Swatch(Str.Shell_Color_PaleRed),
+        Swatch(Str.Shell_Color_Gold),
+        Swatch(Str.Shell_Color_MintLight),
+        Swatch(Str.Shell_Color_IrisSpring),
+        Swatch(Str.Shell_Color_LightGray),
     ];
 
     /// <summary>The original's <c>SIZES</c>: fine, the default-ish middle, and bold.</summary>
@@ -42,6 +45,13 @@ public static class InkPalette
     }
 
     /// <summary>Whether <paramref name="hex"/> is this preset, ignoring case and a missing <c>#</c>.</summary>
-    public static bool Matches(Ink ink, string? hex)
-        => HexColor.Normalise(hex ?? string.Empty).Equals(ink.Hex, StringComparison.OrdinalIgnoreCase);
+    public static bool Matches(ColorPreset ink, string? hex)
+        => HexColor.Normalise(hex ?? string.Empty).Equals(HexColor.Normalise(ink.Hex), StringComparison.OrdinalIgnoreCase);
+
+    /// <summary>The host palette's swatch of that name; a palette without it is a build error caught by the tests.</summary>
+    private static ColorPreset Swatch(Str name)
+    {
+        var label = name.Local();
+        return ColorPresets.Surfaces.First(preset => preset.Label.Equals(label));
+    }
 }

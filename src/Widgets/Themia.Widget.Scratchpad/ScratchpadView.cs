@@ -1,4 +1,3 @@
-using Microsoft.UI;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Controls.Primitives;
@@ -11,7 +10,9 @@ using Themia.Core.Diagnostics;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
+using Themia.Sdk.Kit;
 using Themia.Sdk.WinUI;
+using Themia.Sdk.WinUI.Kit;
 using Themia.Sdk;
 using Windows.Foundation;
 using Themia.Widget.Scratchpad;
@@ -45,22 +46,22 @@ namespace Themia.App.Widgets;
 /// actually saw: a press it never sees the end of was a widget being dragged, and is discarded.
 /// </para>
 /// </summary>
-internal sealed partial class ScratchpadView : Grid, IWidgetView, IWidgetSurfaceAware, IWidgetHeaderContent, IWidgetSizeAware
+internal sealed partial class ScratchpadView : Grid, IWidgetView, IWidgetSurfaceAware, IWidgetHeaderContent, IWidgetSizeAware, IWidgetContextActions
 {
     private const string Scope = "scratchpad";
 
     /// <summary>How many steps back the pad remembers. Enough to undo a bad minute, not a session.</summary>
     private const int UndoDepth = 32;
 
-    private readonly StackPanel _tools;
-    private readonly ToggleButton _eraser;
-    private readonly Button _undoButton;
-    private readonly Button _clearButton;
-    private readonly Button _fullButton;
+    /// <summary>[S-651] The header's two tools, Undo and Full screen (the fold drops Full screen first).</summary>
+    private readonly HeaderParts _header = new();
+    private readonly Border _undoButton;
+    private readonly Border _fullButton;
 
     private readonly Canvas _pad = new();
-    private readonly StackPanel _hint;
-    private readonly TextBlock _hintText = new();
+
+    /// <summary>[S-6714] "Draw here": the Status row at the top of an empty pad.</summary>
+    private readonly StatusBlock _hint = new();
 
     /// <summary>One visual per committed stroke, in the same order, so an erase can remove both together.</summary>
     private readonly List<UIElement> _visuals = [];
@@ -83,41 +84,21 @@ internal sealed partial class ScratchpadView : Grid, IWidgetView, IWidgetSurface
     /// <summary>The gesture is a pen's eraser end: it erases whatever tool is chosen.</summary>
     private bool _penEraser;
 
+    /// <summary>[S-1498] The eraser is the chosen tool (the ink bar's, or full screen's).</summary>
+    private bool _eraserOn;
+
     public ScratchpadView()
     {
         RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
 
-        _eraser = ToggleCommand(Glyphs.EraseTool, ScratchpadStr.WidgetsC_Scratchpad_EraseStrokes.Text());
-        _eraser.Checked += OnEraserToggled;
-        _eraser.Unchecked += OnEraserToggled;
+        _undoButton = _header.Add(HeaderPartKind.Button, HeaderBlock.Button(Glyphs.Reset, ScratchpadStr.WidgetsC_Scratchpad_Undo.Text(), Undo));
+        _fullButton = _header.Add(HeaderPartKind.Button, HeaderBlock.Button(Glyphs.FullScreen, ScratchpadStr.WidgetsC_Scratchpad_FullScreen.Text(), ToggleFullScreen));
 
-        _undoButton = CommandButton(Glyphs.Reset, ScratchpadStr.WidgetsC_Scratchpad_Undo.Text());
-        _undoButton.Click += OnUndoClicked;
+        // The clear role rather than no brush: a panel with a null background is not hit-testable at
+        // all, and the pad would never see a pointer. The card does the same thing for its own drag area.
+        _pad.Background = Family.Brush(ColourRole.Clear);
 
-        _clearButton = CommandButton(Glyphs.Delete, ScratchpadStr.WidgetsC_Scratchpad_ClearDrawing.Text());
-        _clearButton.Flyout = BuildClearConfirmation();
-
-        _fullButton = CommandButton(Glyphs.FullScreen, ScratchpadStr.WidgetsC_Scratchpad_FullScreen.Text());
-        _fullButton.Click += OnFullScreenClicked;
-
-        _tools = new StackPanel
-        {
-            Orientation = Orientation.Horizontal,
-            Spacing = Fluent.Space1,
-            VerticalAlignment = VerticalAlignment.Center,
-            Children = { _eraser, _undoButton, _clearButton, _fullButton },
-        };
-
-        // A transparent brush rather than no brush: a panel with a null background is not
-        // hit-testable at all, and the pad would never see a pointer. The card does the same thing
-        // for its own drag area.
-        _pad.Background = ThemeBrush.Of("SubtleFillColorTransparentBrush", Colors.Transparent);
-
-        _hintText.Text = ScratchpadStr.Scratchpad_DrawHere.Text();
-        _hint = Fluent.EmptyState(
-            ScratchpadModule.Glyph,
-            _hintText,
-            out _);
+        _hint.Show(StatusKind.Empty, ScratchpadModule.Glyph, ScratchpadStr.Scratchpad_DrawHere.Text());
 
         // [S-07] The hint never intercepts the pointer: the first stroke has to land on the pad
         // even when it starts on top of the words.
@@ -133,6 +114,9 @@ internal sealed partial class ScratchpadView : Grid, IWidgetView, IWidgetSurface
         _pad.PointerCanceled += OnPointerCaptureLost;
 
         _pad.SizeChanged += OnPadSizeChanged;
+
+        // [S-1498] The eraser is the bar's tool (and full screen's, which shows the bar).
+        _barEraser = GlyphTool(Glyphs.EraseTool, ScratchpadStr.WidgetsC_Scratchpad_EraseStrokes.Text(), () => SetEraser(!_eraserOn));
         BuildBar();
     }
 
@@ -141,90 +125,42 @@ internal sealed partial class ScratchpadView : Grid, IWidgetView, IWidgetSurface
     // -----------------------------------------------------------------------------------------
 
     /// <summary>
-    /// A header command: a glyph with the stock subtle fill behind it and nothing at rest.
-    /// <para>
-    /// The brushes go in through the template's own resource keys rather than onto
-    /// <c>Background</c>, because the stock button's visual states assign the pointer-over and
-    /// pressed fills straight onto the border element and would outrank a local value — the same
-    /// reason the note editor does it, see <c>NotesView.BuildEditor</c>.
-    /// </para>
+    /// Clearing throws away work that has no other copy, so it asks first, through the widgets' one
+    /// confirmation ([S-1500]), beside <paramref name="anchor"/>: a popup of its own, so the surface's
+    /// region does not clip it to the tile. The undo stack survives a clear, but only until the app
+    /// closes, so this is still the last word on a drawing.
     /// </summary>
-    private static Button CommandButton(string glyph, string tooltip)
+    private async Task AskToClearAsync(FrameworkElement anchor)
     {
-        var button = new Button
+        if (_config.Strokes.Count == 0)
         {
-            Content = Fluent.Icon(glyph),
-            Padding = new Thickness(Fluent.Space1),
-            BorderThickness = new Thickness(0),
-            CornerRadius = new CornerRadius(Fluent.ControlRadius),
-            MinWidth = 0,
-            VerticalAlignment = VerticalAlignment.Center,
-        };
+            return;
+        }
 
-        var clear = ThemeBrush.Of("SubtleFillColorTransparentBrush", Colors.Transparent);
-
-        // [S-6513] The fills are the item layer's row, in each state.
-        ItemFill.Button(button, "Button");
-        button.Resources["ButtonBorderBrush"] = clear;
-        button.Resources["ButtonBorderBrushPointerOver"] = clear;
-        button.Resources["ButtonBorderBrushPressed"] = clear;
-        button.Resources["ButtonBorderBrushDisabled"] = clear;
-
-        ToolTipService.SetToolTip(button, tooltip);
-        return button;
-    }
-
-    /// <summary>The same command, as a toggle: Windows lights a chosen tool with the accent fill.</summary>
-    private static ToggleButton ToggleCommand(string glyph, string tooltip)
-    {
-        var button = new ToggleButton
+        if (await ConfirmFlyout.AskAsync(anchor, ScratchpadStr.WidgetsC_Scratchpad_ClearConfirm.Text(), Str.Common_Clear.Text()).ConfigureAwait(true) && !_detached)
         {
-            Content = Fluent.Icon(glyph),
-            Padding = new Thickness(Fluent.Space1),
-            BorderThickness = new Thickness(0),
-            CornerRadius = new CornerRadius(Fluent.ControlRadius),
-            MinWidth = 0,
-            VerticalAlignment = VerticalAlignment.Center,
-        };
-
-        var clear = ThemeBrush.Of("SubtleFillColorTransparentBrush", Colors.Transparent);
-        var accent = ThemeBrush.Of("AccentFillColorDefaultBrush", Colors.DodgerBlue);
-        var accentHover = ThemeBrush.Of("AccentFillColorSecondaryBrush", Colors.DodgerBlue);
-
-        // [S-6513] Unchecked, the fills are the item layer's row; checked, the accent's.
-        ItemFill.Button(button, "ToggleButton");
-        button.Resources["ToggleButtonBackgroundChecked"] = accent;
-        button.Resources["ToggleButtonBackgroundCheckedPointerOver"] = accentHover;
-        button.Resources["ToggleButtonBackgroundCheckedPressed"] = accentHover;
-        button.Resources["ToggleButtonBorderBrush"] = clear;
-        button.Resources["ToggleButtonBorderBrushPointerOver"] = clear;
-        button.Resources["ToggleButtonBorderBrushPressed"] = clear;
-        button.Resources["ToggleButtonBorderBrushChecked"] = accent;
-        button.Resources["ToggleButtonBorderBrushCheckedPointerOver"] = accentHover;
-        button.Resources["ToggleButtonBorderBrushCheckedPressed"] = accentHover;
-
-        ToolTipService.SetToolTip(button, tooltip);
-        return button;
+            ClearAll();
+        }
     }
 
     /// <summary>
-    /// Clearing throws away work that has no other copy, so it asks first, through the widgets' one
-    /// confirmation ([S-1500]): a popup of its own, so the surface's region does not clip it to the
-    /// tile. The undo stack survives a clear, but only until the app closes, so this is still the
-    /// last word on a drawing.
+    /// [S-1501] Clearing the drawing is the pad's own command, on its card menu while there is a
+    /// drawing (and on full screen's toolbar): not a header tool, which holds two at most ([S-6710]).
     /// </summary>
-    private Flyout BuildClearConfirmation()
-        => ConfirmFlyout.Create(ScratchpadStr.WidgetsC_Scratchpad_ClearConfirm.Text(), Str.Common_Clear.Text(), ClearAll);
+    public IReadOnlyList<WidgetAction> ContextActions
+        => _config.Strokes.Count > 0
+            ? [new(Glyphs.Delete, ScratchpadStr.WidgetsC_Scratchpad_ClearDrawing.Text(), () => _ = AskToClearAsync(this))]
+            : [];
 
     // -----------------------------------------------------------------------------------------
     // Lifecycle
     // -----------------------------------------------------------------------------------------
 
     /// <summary>
-    /// The pad's own commands — erase, undo, clear, full screen — in the card's header. Built in the
-    /// constructor because the card reads this once, when it builds that header.
+    /// [S-651] The pad's two header tools, Undo and Full screen. Built in the constructor because the
+    /// card reads this once, when it builds that header.
     /// </summary>
-    public FrameworkElement? HeaderTrailing => _tools;
+    public FrameworkElement? HeaderTrailing => _header;
 
     /// <inheritdoc />
     public void Bind(IWidgetSurface surface) => _surface = surface;
@@ -239,11 +175,9 @@ internal sealed partial class ScratchpadView : Grid, IWidgetView, IWidgetSurface
     /// <summary>[S-1110] Re-read the texts set once at construction; the drawing is untouched.</summary>
     private void OnLanguage(Locale locale)
     {
-        ToolTipService.SetToolTip(_undoButton, ScratchpadStr.WidgetsC_Scratchpad_Undo.Text());
-        ToolTipService.SetToolTip(_clearButton, ScratchpadStr.WidgetsC_Scratchpad_ClearDrawing.Text());
-        ToolTipService.SetToolTip(_fullButton, FullScreenTip());
-        _clearButton.Flyout = BuildClearConfirmation();
-        _hintText.Text = ScratchpadStr.Scratchpad_DrawHere.Text();
+        Tip(_undoButton, ScratchpadStr.WidgetsC_Scratchpad_Undo.Text());
+        Tip(_fullButton, FullScreenTip());
+        _hint.Show(StatusKind.Empty, ScratchpadModule.Glyph, ScratchpadStr.Scratchpad_DrawHere.Text());
         ApplyBarTips();
         UpdateCommands();
     }
@@ -262,8 +196,9 @@ internal sealed partial class ScratchpadView : Grid, IWidgetView, IWidgetSurface
             _config = incoming;
         }
 
-        // [S-1499] Full screen always keeps its tools: they hold the way back.
-        _tools.Visibility = _config.ShowTools || IsFullScreen ? Visibility.Visible : Visibility.Collapsed;
+        // [S-1501] Show tools: the header's two and the ink bar. Full screen keeps its own toolbar.
+        _header.Want(_undoButton, _config.ShowTools);
+        _header.Want(_fullButton, _config.ShowTools);
 
         RenderAll();
         UpdateCommands();
@@ -287,11 +222,6 @@ internal sealed partial class ScratchpadView : Grid, IWidgetView, IWidgetSurface
 
         ReleaseCapture();
 
-        _eraser.Checked -= OnEraserToggled;
-        _eraser.Unchecked -= OnEraserToggled;
-        _undoButton.Click -= OnUndoClicked;
-        _fullButton.Click -= OnFullScreenClicked;
-
         _pad.PointerPressed -= OnPointerPressed;
         _pad.PointerMoved -= OnPointerMoved;
         _pad.PointerReleased -= OnPointerReleased;
@@ -299,7 +229,6 @@ internal sealed partial class ScratchpadView : Grid, IWidgetView, IWidgetSurface
         _pad.PointerCanceled -= OnPointerCaptureLost;
 
         _pad.SizeChanged -= OnPadSizeChanged;
-        DetachBar();
     }
 
     // -----------------------------------------------------------------------------------------
@@ -408,7 +337,7 @@ internal sealed partial class ScratchpadView : Grid, IWidgetView, IWidgetSurface
     }
 
     /// <summary>[S-1498] This gesture erases: the eraser is chosen, or it is a pen's eraser end.</summary>
-    private bool Erasing => _eraser.IsChecked == true || _penEraser;
+    private bool Erasing => _eraserOn || _penEraser;
 
     /// <summary>Where the pointer is, in the pad's unit square, clamped to it.</summary>
     private InkPoint PadPoint(PointerRoutedEventArgs args)
@@ -618,8 +547,6 @@ internal sealed partial class ScratchpadView : Grid, IWidgetView, IWidgetSurface
         }
     }
 
-    private void OnUndoClicked(object sender, RoutedEventArgs args) => Undo();
-
     private void Undo()
     {
         if (_undo.Count == 0)
@@ -670,23 +597,26 @@ internal sealed partial class ScratchpadView : Grid, IWidgetView, IWidgetSurface
         _surface?.RequestSave();
     }
 
-    private void OnEraserToggled(object sender, RoutedEventArgs args)
+    /// <summary>[S-1498] Choose the eraser, or the pen again.</summary>
+    private void SetEraser(bool on)
     {
+        if (on == _eraserOn)
+        {
+            return;
+        }
+
         // Switching tool mid-gesture would otherwise finish a pen stroke as an erase.
         AbandonStroke();
-
-        // [S-1498] The bar's eraser and the header's are one tool.
-        _barEraser.IsChecked = _eraser.IsChecked;
+        _eraserOn = on;
         UpdateCommands();
     }
 
     private void UpdateCommands()
     {
-        _undoButton.IsEnabled = _undo.Count > 0;
-        _clearButton.IsEnabled = _config.Strokes.Count > 0;
-        var eraserTip = _eraser.IsChecked == true ? ScratchpadStr.WidgetsC_Scratchpad_Draw.Text() : ScratchpadStr.WidgetsC_Scratchpad_EraseStrokes.Text();
-        ToolTipService.SetToolTip(_eraser, eraserTip);
-        ToolTipService.SetToolTip(_barEraser, eraserTip);
+        // A tool with nothing to do now is drawn in the disabled role and ignores a tap.
+        Enable(_undoButton, _undo.Count > 0, ColourRole.TextSecondary);
+        UpdateFullScreenTools();
+        Tip(_barEraser, _eraserOn ? ScratchpadStr.WidgetsC_Scratchpad_Draw.Text() : ScratchpadStr.WidgetsC_Scratchpad_EraseStrokes.Text());
         UpdateBar();
     }
 
@@ -700,33 +630,6 @@ internal sealed partial class ScratchpadView : Grid, IWidgetView, IWidgetSurface
     /// widget's own layout (header tools, the ink bar) comes from <see cref="ApplySize"/>.
     /// </summary>
     private void OnPadSizeChanged(object sender, SizeChangedEventArgs args) => RenderAll();
-
-    /// <summary>
-    /// [S-651] The tools ride on the card's header, beside its icon and title, so a narrow tile can
-    /// only hold as many as leave the title a few letters. Three 36px buttons on a 120px tile ran
-    /// past the card edge and pushed the title out entirely. They go in reverse order of use:
-    /// the eraser first, then clear, then full screen; undo stays, because it is the one that
-    /// rescues a slip. [S-1498] Where the ink bar shows, the eraser stands in it instead
-    /// (<see cref="LayBar"/>).
-    /// </summary>
-    private void ShedTools(double width)
-    {
-        if (!(width > 0) || IsFullScreen)
-        {
-            return;
-        }
-
-        // The header's insets and icon, and enough title to say what the widget is.
-        const double Taken = (Fluent.Space4 * 2) + Fluent.IconSize + Fluent.Space2 + Fluent.Space6 * 2;
-        const double PerTool = Fluent.Space6 + Fluent.Space3 + Fluent.Space1;
-
-        var room = (int)Math.Floor((width - Taken) / PerTool);
-        var fit = Math.Clamp(room, 1, 4);
-
-        _fullButton.Visibility = fit >= 2 ? Visibility.Visible : Visibility.Collapsed;
-        _clearButton.Visibility = fit >= 3 ? Visibility.Visible : Visibility.Collapsed;
-        _eraserFits = fit >= 4;
-    }
 
     /// <summary>
     /// Redraw every stroke at the pad's current size. Called on a resize and after anything that
@@ -806,20 +709,13 @@ internal sealed partial class ScratchpadView : Grid, IWidgetView, IWidgetSurface
     };
 
     /// <summary>
-    /// The ink, as a brush. This is the one literal colour the widget draws with, and the right
-    /// one: it is what was drawn. A colour that no longer parses falls back to the default pen
-    /// rather than reaching a brush as nothing.
+    /// The ink, as a brush: a data colour ([S-6705], <see cref="Family.Data"/>), what was drawn. A
+    /// colour that no longer parses falls back to the default pen rather than reaching a brush as nothing.
     /// </summary>
-    private static SolidColorBrush InkBrush(string? hex)
+    private static Brush InkBrush(string? hex)
     {
         var normalised = HexColor.Normalise(hex);
-
-        if (normalised.Length == 0 || !HexColor.TryParse(normalised, out var r, out var g, out var b))
-        {
-            HexColor.TryParse(ScratchpadConfig.DefaultPenColor, out r, out g, out b);
-        }
-
-        return new SolidColorBrush(Windows.UI.Color.FromArgb(255, r, g, b));
+        return Family.Data(normalised.Length > 0 && HexColor.TryParse(normalised, out _, out _, out _) ? normalised : ScratchpadConfig.DefaultPenColor);
     }
 
     private Point ToPixels(InkPoint point) => new(point.X * _pad.ActualWidth, point.Y * _pad.ActualHeight);

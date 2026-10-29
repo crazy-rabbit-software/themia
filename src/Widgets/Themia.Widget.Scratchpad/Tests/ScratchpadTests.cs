@@ -39,6 +39,34 @@ public sealed class ScratchpadTests
     }
 
     [Fact]
+    public void S1497_the_inks_are_swatches_of_the_host_palette()
+    {
+        // [S-1549] One palette: every ink is one of the picker's own presets, under its name there.
+        foreach (var ink in InkPalette.Inks)
+        {
+            Assert.Contains(ink, Themia.Core.Settings.ColorPresets.Surfaces);
+        }
+
+        Assert.Equal(6, InkPalette.Inks.Count);
+        Assert.Equal(InkPalette.Inks[0].Hex, ScratchpadConfig.DefaultPenColor);
+    }
+
+    [Theory]
+    [InlineData(120, 76, false, false)]   // XS: the pad is the widget
+    [InlineData(200, 106, false, false)]  // S: compact height
+    [InlineData(480, 116, false, false)]  // Wide: compact height
+    [InlineData(200, 356, false, false)]  // Tall: 168 inside the inset holds no 232 of inks and eraser
+    [InlineData(320, 196, true, false)]   // M: the inks and the eraser; the nibs need 336
+    [InlineData(560, 376, true, true)]    // L: everything
+    [InlineData(800, 516, true, true)]    // XL
+    public void S1497_the_ink_bar_by_tier(double width, double height, bool bar, bool nibs)
+        => Assert.Equal(new InkBarPlan(bar, nibs), ScratchpadLayout.Bar(new WidgetArea(width, height), showTools: true, inks: 6, nibs: 3));
+
+    [Fact]
+    public void S1497_show_tools_off_has_no_bar()
+        => Assert.False(ScratchpadLayout.Bar(new WidgetArea(800, 516), showTools: false, inks: 6, nibs: 3).Bar);
+
+    [Fact]
     public async Task A_drawing_survives_the_state_file()
     {
         var config = new ScratchpadConfig

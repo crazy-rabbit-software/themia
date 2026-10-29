@@ -52,8 +52,8 @@ public sealed class InkStroke
 /// </summary>
 public sealed class ScratchpadConfig : WidgetConfig
 {
-    /// <summary>The pen a new pad starts with: the Fluent accent, which is also the app's own blue.</summary>
-    public const string DefaultPenColor = "#0078D4";
+    /// <summary>The pen a new pad starts with: the first ink, the palette's default blue (also the app's own).</summary>
+    public static readonly string DefaultPenColor = InkPalette.Inks[0].Hex;
 
 
     /// <summary>The drawing, oldest stroke first. Drawing order is paint order.</summary>

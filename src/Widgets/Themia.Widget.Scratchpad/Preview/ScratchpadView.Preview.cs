@@ -5,7 +5,7 @@ using Themia.Core.Model;
 namespace Themia.App.Widgets;
 
 /// <summary>
-/// Debug renders only: <c>confirm</c> draws a sample stroke and opens the clear confirmation
+/// Debug renders only: <c>confirm</c> draws a sample stroke and opens the clear confirmation beside the widget
 /// ([S-1500]), drawn inside the render's window (<see cref="ConfirmFlyout.RenderInWindow"/>).
 /// </summary>
 internal sealed partial class ScratchpadView : IWidgetPreviewState
@@ -27,19 +27,11 @@ internal sealed partial class ScratchpadView : IWidgetPreviewState
         RenderAll();
         UpdateCommands();
 
-        if (_clearButton.Visibility == Microsoft.UI.Xaml.Visibility.Visible && _clearButton.Flyout is { } flyout)
-        {
-            flyout.ShowAt(_clearButton);
+        // [S-1501] Clear is the card menu's command: its question opens beside the widget.
+        _ = AskToClearAsync(this);
 
-            // The flyout opens with an animation; the render draws it once it has settled.
-            return Task.Delay(900);
-        }
-        else
-        {
-            Console.WriteLine("widget: Scratchpad's clear is not in the header at this size");
-        }
-
-        return Task.CompletedTask;
+        // The flyout opens with an animation; the render draws it once it has settled.
+        return Task.Delay(900);
     }
 }
 #endif

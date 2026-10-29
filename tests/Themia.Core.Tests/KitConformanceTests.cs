@@ -27,7 +27,7 @@ public sealed partial class KitConformanceTests
     /// </summary>
     private static readonly string[] LiteralColourToday =
     [
-        "ItemPalette.cs", "MusicView.Layout.cs", "ScratchpadView.cs", "ScreenTimeShared.cs", "SelectionChrome.cs",
+        "ItemPalette.cs", "MusicView.Layout.cs", "ScreenTimeShared.cs", "SelectionChrome.cs",
     ];
 
     [GeneratedRegex(@"\bProcess\.Start\b|\bUseShellExecute\b")]
