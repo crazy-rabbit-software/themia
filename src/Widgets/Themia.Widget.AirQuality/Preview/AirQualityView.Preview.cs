@@ -9,16 +9,15 @@ namespace Themia.App.Widgets;
 /// <summary>
 /// Debug renders only ([S-1917]): fixture readings (<c>sample</c>, <c>poor</c>), so the ladder can be
 /// looked at without a place, the network or the sync. Built through the SDK's parser, so a fixture
-/// is exactly what a reply would have become. Nothing is fetched or saved. <c>stale</c> is the sample
-/// kept through a failed refresh, <c>failed</c> no answer at all.
+/// is exactly what a reply would have become. Nothing is fetched or saved.
 /// </summary>
 internal sealed partial class AirQualityView : IWidgetPreviewState
 {
-    public IReadOnlyList<string> PreviewStates { get; } = ["sample", "poor", "stale", "failed"];
+    public IReadOnlyList<string> PreviewStates { get; } = ["sample", "poor", "stale"];
 
     public Task ShowPreviewStateAsync(string state)
     {
-        if (state is not ("sample" or "poor" or "stale" or "failed"))
+        if (state is not ("sample" or "poor"))
         {
             return Task.CompletedTask;
         }
@@ -36,17 +35,12 @@ internal sealed partial class AirQualityView : IWidgetPreviewState
         _config = new AirQualityConfig { Latitude = 47.37, Longitude = 8.54, LocationName = "Zürich, Zurich, Switzerland", Style = _config.Style };
         _applied = (AirQualityConfig)_config.Clone();
         _want = null;
-        var reading = new Fetched<AirReading>(FetchStatus.Ok, AirQualityWire.Parse(json).Value, null, DateTimeOffset.Now.AddMinutes(-12));
-
-        // [S-7042] The answer on screen, and the last refresh failed: the header's problem glyph.
-        // [S-6734] failed: no answer, and the service out of reach: the Status row.
-        _reading = state switch
+        _reading = new Fetched<AirReading>(FetchStatus.Ok, AirQualityWire.Parse(json).Value, null, DateTimeOffset.Now.AddMinutes(-12));
+        if (state == "stale")
         {
-            "stale" => reading.Stale(FetchStatus.Offline, null),
-            "failed" => null,
-            _ => reading,
-        };
-        _status = state == "failed" ? FetchStatus.Unreachable : FetchStatus.Ok;
+            // [S-7042] The answer on screen, and the last refresh failed: the header's problem glyph.
+            _reading = _reading.Stale(FetchStatus.Offline, null);
+        }
         PublishTitle();
         Render();
         return Task.CompletedTask;

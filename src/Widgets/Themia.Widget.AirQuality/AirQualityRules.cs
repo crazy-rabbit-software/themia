@@ -1,5 +1,4 @@
 using Themia.Core.Model;
-using Themia.Sdk.Kit;
 
 namespace Themia.Core.Widgets;
 
@@ -110,22 +109,6 @@ public static class AirQualityRules
         var inside = Math.Clamp((value - lower) / (upper - lower), 0, 1);
         return (band + inside) / 6.0;
     }
-
-    /// <summary>[S-5104] The index's role: primary while the air is good, Caution, then Critical (no success green, [S-6706]).</summary>
-    public static ColourRole ValueRole(AirTone tone) => tone switch
-    {
-        AirTone.Good => ColourRole.TextPrimary,
-        AirTone.Caution => ColourRole.Caution,
-        _ => ColourRole.Critical,
-    };
-
-    /// <summary>[S-6170] The gauge's arc: the accent while the air is good (a chart's role, [S-6706]), Caution, then Critical.</summary>
-    public static ColourRole ArcRole(AirTone tone) => tone switch
-    {
-        AirTone.Good => ColourRole.Accent,
-        AirTone.Caution => ColourRole.Caution,
-        _ => ColourRole.Critical,
-    };
 
     /// <summary>[S-5104] The first two bands are good, the next two caution, the last two critical.</summary>
     public static AirTone Tone(AirBand band) => band switch

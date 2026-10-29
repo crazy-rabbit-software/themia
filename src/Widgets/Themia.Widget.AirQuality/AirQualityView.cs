@@ -1,5 +1,7 @@
+using Microsoft.UI;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Media;
 using Themia.App.Services;
 using Themia.App.Services.Web;
 using Themia.App.Shell;
@@ -7,7 +9,6 @@ using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Sync;
 using Themia.Core.Widgets;
-using Themia.Sdk.Kit;
 using Themia.Sdk.WinUI;
 using Themia.Sdk.WinUI.Kit;
 using Themia.Widget.AirQuality;
@@ -15,23 +16,29 @@ using Themia.Widget.AirQuality;
 namespace Themia.App.Widgets;
 
 /// <summary>
-/// [S-5100] Air quality at a place, on the family's blocks: the index as the Readout with its band as
-/// the line under it, then UV, PM2.5, pollen, PM10, ozone, the other index and each pollen in the air
-/// as fact rows ([S-5107], <see cref="AirLayout.Number"/>). The band is written out, and the index is in
-/// Caution or Critical for the worse bands ([S-5104]: never green, the colour never the only carrier).
-/// The gauge style ([S-6170]) puts the index on the Chart's half ring instead.
+/// [S-5100] Air quality at a place: the index and its band as the hero (XS), then UV, PM2.5, pollen,
+/// PM10, ozone, the other index and each pollen in the air as stat cells, lines or a side column as the tile grows ([S-5107]). The band is
+/// written in a Fluent status colour and in words, so the colour is never the only carrier. The
+/// gauge style ([S-6170]) puts the index on a half-circle gauge instead of the number.
 /// </summary>
 internal sealed partial class AirQualityView : Grid, IWidgetView, IWidgetHeaderContent, IWidgetSurfaceAware,
     IWidgetSizeAware, IWidgetContextActions, IWidgetAligned
 {
+    /// <summary>The widest index this widget prints ("500") and its unit ("US AQI").</summary>
+    private const double ValueCharacters = 3;
+
+    private const double UnitCharacters = 6;
+
     /// <summary>[S-7064] The header's problem glyph ([S-7042]): the one stale rule, no age.</summary>
     private readonly KitHeader _header;
-    private readonly ReadoutBlock _hero = new() { HorizontalAlignment = HorizontalAlignment.Left, VerticalAlignment = VerticalAlignment.Top };
-    private readonly StackPanel _facts = new() { VerticalAlignment = VerticalAlignment.Top };
-    private readonly List<RowBlock> _factRows = [];
-
-    /// <summary>[S-6734] Without a reading: why, in one row at the top. Collapsed until then (a view waiting for setup is never attached).</summary>
-    private readonly StatusBlock _empty = new() { Visibility = Visibility.Collapsed };
+    private readonly HeroReadout _hero = new();
+    private readonly TextBlock _band;
+    private readonly Grid _facts = new() { ColumnSpacing = OnlineLayouts.Gap, RowSpacing = 0 };
+    private readonly StackPanel _below = new() { VerticalAlignment = VerticalAlignment.Top };
+    private readonly Grid _strip = new() { Margin = new Thickness(0, OnlineLayouts.Gap, 0, 0) };
+    private readonly Grid _side = new() { ColumnSpacing = Fluent.Space4, VerticalAlignment = VerticalAlignment.Center };
+    private readonly StackPanel _emptyState;
+    private readonly TextBlock _emptyMessage = new();
 
     private Ticker? _ticker;
     private AirQualityConfig _config = new();
@@ -55,18 +62,34 @@ internal sealed partial class AirQualityView : Grid, IWidgetView, IWidgetHeaderC
         _host = host;
         _header = new KitHeader(host);
         RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
-        RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
         RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
         ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
-        ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(0) });
+        ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+
+        _hero.Icon.Glyph = AirQualityModule.Glyph;
+        _band = _hero.AddLine(FluentType.Body);
+        _hero.Margin = new Thickness(OnlineLayouts.Inset, OnlineLayouts.VerticalInset, OnlineLayouts.Inset, 0);
+        _hero.VerticalAlignment = VerticalAlignment.Center;
+
+        _below.Margin = new Thickness(OnlineLayouts.Inset, OnlineLayouts.Gap, OnlineLayouts.Inset, OnlineLayouts.VerticalInset);
+        _below.Children.Add(_facts);
+        _below.Children.Add(_strip);
+        _strip.FlowDirection = FlowDirection.LeftToRight;
+        SetRow(_below, 1);
+        SetColumnSpan(_below, 2);
+
+        _side.Margin = new Thickness(0, OnlineLayouts.VerticalInset, OnlineLayouts.Inset, OnlineLayouts.VerticalInset);
+        SetColumn(_side, 1);
+        SetRowSpan(_side, 2);
+
+        _emptyState = Fluent.EmptyState(AirQualityModule.Glyph, _emptyMessage, out _);
+        SetRowSpan(_emptyState, 2);
+        SetColumnSpan(_emptyState, 2);
 
         Children.Add(_hero);
-        Children.Add(_facts);
-        SetColumnSpan(_empty, 2);
-        SetRowSpan(_empty, 3);
-        Children.Add(_empty);
-        _hero.Visibility = Visibility.Collapsed;
-        _facts.Visibility = Visibility.Collapsed;
+        Children.Add(_below);
+        Children.Add(_side);
+        Children.Add(_emptyState);
     }
 
     public FrameworkElement? HeaderTrailing => _header;
@@ -112,7 +135,7 @@ internal sealed partial class AirQualityView : Grid, IWidgetView, IWidgetHeaderC
         Reload(force: false);
     }
 
-    /// <summary>[S-6583] The index (or the gauge) at the start, the middle or the end of its column; the rows keep theirs.</summary>
+    /// <summary>[S-6583] The index (or the gauge) at the start, the middle or the end; the readings keep their grid.</summary>
     public void ApplyAlign(ContentAlign align)
     {
         if (align == _align)
@@ -121,6 +144,7 @@ internal sealed partial class AirQualityView : Grid, IWidgetView, IWidgetHeaderC
         }
 
         _align = align;
+        _hero.Align(align);
         Render();
     }
 
@@ -136,7 +160,7 @@ internal sealed partial class AirQualityView : Grid, IWidgetView, IWidgetHeaderC
         Reload(force: false);
     }
 
-    /// <summary>The header's stale line counts up on the widget's own cadence; nothing is fetched from here ([S-2663]).</summary>
+    /// <summary>The age line counts up on the widget's own cadence; nothing is fetched from here ([S-2663]).</summary>
     private void Resubscribe()
     {
         var interval = OnlineCadence.Air(UpdateCadence.Current);
@@ -199,7 +223,7 @@ internal sealed partial class AirQualityView : Grid, IWidgetView, IWidgetHeaderC
 
     private AirQualityScale InForce => AirQualityRules.Resolve(_config.Scale, _config.Latitude, _config.Longitude);
 
-    /// <summary>[S-5107] The readings in priority order: UV, PM2.5, pollen (where it is forecast), PM10, ozone, the other index, the other pollens.</summary>
+    /// <summary>[S-5107] The readings in priority order: UV, PM2.5, pollen (where it is forecast), PM10, ozone.</summary>
     private static List<(string Glyph, string Label, string Value)> Facts(AirReading air, AirQualityScale scale)
     {
         var facts = new List<(string, string, string)>(5);
@@ -233,7 +257,8 @@ internal sealed partial class AirQualityView : Grid, IWidgetView, IWidgetHeaderC
         var other = scale == AirQualityScale.Us ? AirQualityScale.European : AirQualityScale.Us;
         if (AirQualityRules.Index(air, other) is { } otherIndex)
         {
-            facts.Add((AirQualityModule.Glyph, AirText.ScaleUnit(other), AirText.Index(otherIndex)));
+            facts.Add((AirQualityModule.Glyph, AirText.ScaleUnit(other),
+                AirText.Index(otherIndex)));
         }
 
         foreach (var (type, level) in AirQualityRules.Pollen(air).Skip(1))
@@ -254,84 +279,218 @@ internal sealed partial class AirQualityView : Grid, IWidgetView, IWidgetHeaderC
         var scale = InForce;
         if (_reading is not { Value: { } air } held || AirQualityRules.Index(air, scale) is not { } index)
         {
-            // [S-6734] Not set up is the card's Set up row; an answer without this index is one with nothing in it.
-            OnlineParts.ShowState(_empty, _reading is not null ? FetchStatus.Empty : _status, AirQualityModule.Glyph, () => Reload(force: true));
-            _hero.Visibility = _facts.Visibility = Visibility.Collapsed;
-            HideGauge();
+            _emptyMessage.Text = _status == FetchStatus.NotConfigured ? string.Empty
+                : _reading is not null ? FetchState.Message(FetchStatus.Empty)
+                : FetchState.Message(_status);
+            _emptyState.Visibility = Visibility.Visible;
+            _hero.Visibility = _below.Visibility = _side.Visibility = _gauge.Visibility = Visibility.Collapsed;
             _header.Clear();
             return;
         }
 
-        _empty.Hide();
+        _emptyState.Visibility = Visibility.Collapsed;
+        _hero.Visibility = Visibility.Visible;
+
+        var band = AirQualityRules.Band(scale, index);
+        var tone = Tone(AirQualityRules.Tone(band));
+        _hero.SetValue(AirText.Index(index), AirText.ScaleUnit(scale), spaced: true);
+        _hero.Icon.Foreground = tone;
+        _band.Text = AirText.Band(scale, band);
+        _band.Foreground = tone;
+
         _header.Show(OnlineParts.Problems(held), busy: false);
+        Lay(Facts(air, scale), scale, index);
+    }
+
+    private void Lay(List<(string Glyph, string Label, string Value)> facts, AirQualityScale scale, double index)
+    {
         if (!_area.IsMeasured)
         {
             return;
         }
 
-        var band = AirQualityRules.Band(scale, index);
-        var tone = AirQualityRules.Tone(band);
-        var reading = new AirShown(AirText.Index(index), " " + AirText.ScaleUnit(scale), AirText.Band(scale, band), AirQualityRules.ValueRole(tone), AirQualityRules.ScalePosition(scale, index), AirQualityRules.ArcRole(tone));
-        var facts = Facts(air, scale);
-
-        // [S-6169] The gauge style draws the same reading on the Chart's half ring.
+        // [S-6169] The gauge style draws the same reading on the meters' gauge.
         if (_config.Style == AirQualityStyle.Gauge)
         {
-            _hero.Visibility = Visibility.Collapsed;
-            LayGauge(reading, facts);
+            LayGauge(facts, scale, index, Tone(AirQualityRules.Tone(AirQualityRules.Band(scale, index))));
             return;
         }
 
         HideGauge();
-        var plan = AirLayout.Number(_area, facts.Count);
-        Columns(plan.Side, plan.HeroColumn);
         _hero.Visibility = Visibility.Visible;
-        SetRowSpan(_hero, plan.Side ? 3 : 1);
-        _hero.Margin = plan.Side ? new Thickness(FamilySpace.Inset, 0, 0, 0) : Family.SideInset;
-        _hero.HorizontalAlignment = Aligned.Horizontal(_align);
-        var (width, height) = MeterPlan.Content(_area);
-        _hero.Size(_area, plan.Side ? plan.HeroColumn - FamilySpace.Inset : width, height, AirLayout.Worst);
-        _hero.Show(reading.Value, reading.Unit, reading.Band, valueRole: reading.Role);
-        LayFacts(facts, plan.Facts, plan.Side);
-    }
+        var width = Math.Max(0, _area.Width - (2 * OnlineLayouts.Inset));
+        var bandBeside = BandFitsBeside(width, FluentType.Subtitle);
+        var floor = FluentType.Subtitle.LineHeight + (bandBeside ? 0 : FluentType.Body.LineHeight);
+        var plan = AirLayout.Air(_area, floor, facts.Count);
 
-    /// <summary>The index, its unit, its band and its roles, as the two styles draw them.</summary>
-    private readonly record struct AirShown(string Value, string Unit, string Band, ColourRole Role, double Position, ColourRole Arc);
+        _facts.Children.Clear();
+        _facts.ColumnDefinitions.Clear();
+        _facts.RowDefinitions.Clear();
+        _side.Children.Clear();
+        _side.ColumnDefinitions.Clear();
+        _side.RowDefinitions.Clear();
+        _facts.Visibility = _side.Visibility = Visibility.Collapsed;
+        _facts.RowSpacing = plan.Facts == AirFacts.Cells ? OnlineLayouts.Gap : 0;
 
-    /// <summary>The figure column and the rows' column: two fifths and the rest on the side, one column otherwise.</summary>
-    private void Columns(bool side, double column)
-    {
-        ColumnDefinitions[0].Width = side ? new GridLength(column) : new GridLength(1, GridUnitType.Star);
-        ColumnDefinitions[1].Width = side ? new GridLength(1, GridUnitType.Star) : new GridLength(0);
-    }
+        var shown = facts.Take(plan.Count).ToList();
+        _below.Visibility = plan.Facts is AirFacts.Cells or AirFacts.Lines || plan.Strip ? Visibility.Visible : Visibility.Collapsed;
+        BuildStrip(plan.Strip, scale, index);
+        var heroWidth = width;
 
-    /// <summary>The readings as fact rows: 8 under the figure's own row, or beside it from the top. They carry their own side inset.</summary>
-    private void LayFacts(List<(string Glyph, string Label, string Value)> facts, int count, bool side)
-    {
-        _facts.Visibility = count > 0 ? Visibility.Visible : Visibility.Collapsed;
-        SetRow(_facts, side ? 0 : 1);
-        SetColumn(_facts, side ? 1 : 0);
-        SetRowSpan(_facts, side ? 3 : 1);
-        _facts.Margin = new Thickness(0, side ? 0 : FamilySpace.S2, 0, 0);
-
-        while (_factRows.Count < count)
+        switch (plan.Facts)
         {
-            var row = new RowBlock(RowKind.Fact);
-            _factRows.Add(row);
-            _facts.Children.Add(row);
+            case AirFacts.Cells:
+                Place(_facts, shown, plan.Columns, cells: true, columnWidth: null);
+                _facts.Visibility = Visibility.Visible;
+                break;
+
+            case AirFacts.Lines:
+                Place(_facts, shown, 1, cells: false, columnWidth: null);
+                _facts.Visibility = Visibility.Visible;
+                break;
+
+            case AirFacts.Side:
+                Place(_side, shown, plan.Columns, cells: false, columnWidth: (plan.SideWidth - ((plan.Columns - 1) * Fluent.Space4)) / plan.Columns);
+                _side.Visibility = Visibility.Visible;
+                heroWidth = width - plan.SideWidth - Fluent.Space4;
+                break;
         }
 
-        for (var i = 0; i < _factRows.Count; i++)
+        SetRowSpan(_hero, plan.Facts == AirFacts.Side ? 2 : 1);
+        var alone = plan.Facts is AirFacts.None or AirFacts.Side;
+        _hero.VerticalAlignment = alone ? VerticalAlignment.Center : VerticalAlignment.Top;
+        RowDefinitions[0].Height = alone ? new GridLength(1, GridUnitType.Star) : GridLength.Auto;
+        RowDefinitions[1].Height = alone ? GridLength.Auto : new GridLength(1, GridUnitType.Star);
+        var used = FitHero(heroWidth, plan.HeroRoom);
+
+        // With readings under it, what the hero could not use is split above it and below the
+        // readings, so the block sits centred instead of leaving a blank lower half.
+        var spare = alone ? 0 : Math.Max(0, plan.HeroRoom - used) / 2;
+        _hero.Margin = new Thickness(OnlineLayouts.Inset, OnlineLayouts.VerticalInset + spare, OnlineLayouts.Inset, 0);
+    }
+
+    /// <summary>
+    /// [S-5109] The six bands as a strip in their status colours, a marker over the index, and the
+    /// breakpoints under it, so the number reads against its whole scale.
+    /// </summary>
+    private void BuildStrip(bool show, AirQualityScale scale, double index)
+    {
+        _strip.Children.Clear();
+        _strip.ColumnDefinitions.Clear();
+        _strip.RowDefinitions.Clear();
+        _strip.Visibility = show ? Visibility.Visible : Visibility.Collapsed;
+        if (!show)
         {
-            var shown = i < count && i < facts.Count;
-            _factRows[i].Visibility = shown ? Visibility.Visible : Visibility.Collapsed;
-            if (shown)
+            return;
+        }
+
+        const double Bar = 6;
+        const double Marker = 8;
+        _strip.RowDefinitions.Add(new RowDefinition { Height = new GridLength(Marker + 2) });
+        _strip.RowDefinitions.Add(new RowDefinition { Height = new GridLength(Bar) });
+        _strip.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
+
+        var edges = AirQualityRules.Breakpoints(scale);
+        for (var band = 0; band < 6; band++)
+        {
+            _strip.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+            var segment = new Microsoft.UI.Xaml.Shapes.Rectangle
             {
-                var (glyph, label, value) = facts[i];
-                _factRows[i].LeadGlyph(glyph);
-                _factRows[i].Show(label, value);
-            }
+                Fill = Tone(AirQualityRules.Tone((AirBand)band)),
+                RadiusX = Bar / 2,
+                RadiusY = Bar / 2,
+                Margin = new Thickness(band == 0 ? 0 : 1, 0, band == 5 ? 0 : 1, 0),
+            };
+
+            SetRow(segment, 1);
+            SetColumn(segment, band);
+            _strip.Children.Add(segment);
+
+            var edge = Fluent.Text(FluentType.Caption, "TextFillColorTertiaryBrush");
+            edge.Text = band == 0 ? "0" : LocaleFormat.Integer((long)edges[band - 1]);
+            edge.Margin = new Thickness(0, Fluent.Space1, 0, 0);
+            SetRow(edge, 2);
+            SetColumn(edge, band);
+            _strip.Children.Add(edge);
         }
+
+        var marker = new Microsoft.UI.Xaml.Shapes.Ellipse
+        {
+            Width = Marker,
+            Height = Marker,
+            Fill = ThemeBrush.Of("TextFillColorPrimaryBrush", Microsoft.UI.Colors.White),
+            HorizontalAlignment = HorizontalAlignment.Left,
+        };
+
+        SetColumnSpan(marker, 6);
+        _strip.Children.Add(marker);
+        // The strip spans the card's inset width, known from the area: no size handler to keep.
+        var width = Math.Max(0, _area.Width - (2 * OnlineLayouts.Inset));
+        marker.Margin = new Thickness(Math.Clamp((AirQualityRules.ScalePosition(scale, index) * width) - (Marker / 2), 0, Math.Max(0, width - Marker)), 0, 0, 0);
+    }
+
+    /// <summary>Readings as cells (label over value) or stat lines, row-major, in a fixed number of columns.</summary>
+    private static void Place(Grid grid, List<(string Glyph, string Label, string Value)> facts, int columns, bool cells, double? columnWidth)
+    {
+        columns = Math.Max(1, columns);
+        var perColumn = cells ? 0 : (facts.Count + columns - 1) / columns;
+
+        for (var c = 0; c < columns; c++)
+        {
+            grid.ColumnDefinitions.Add(new ColumnDefinition { Width = columnWidth is { } w ? new GridLength(w) : new GridLength(1, GridUnitType.Star) });
+        }
+
+        var rows = cells ? (facts.Count + columns - 1) / columns : perColumn;
+        for (var r = 0; r < rows; r++)
+        {
+            grid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
+        }
+
+        for (var i = 0; i < facts.Count; i++)
+        {
+            var (glyph, label, value) = facts[i];
+            FrameworkElement part = cells ? WidgetParts.StatCell(glyph, label, value) : WidgetParts.StatLine(glyph, label, value);
+            SetColumn(part, cells ? i % columns : i / perColumn);
+            SetRow(part, cells ? i / columns : i % perColumn);
+            grid.Children.Add(part);
+        }
+    }
+
+    private bool BandFitsBeside(double room, TypeStep step)
+    {
+        var showIcon = room >= HeroLayout.IconSize(step) + HeroLayout.IconGap + HeroLayout.ValueWidth(step, ValueCharacters, UnitCharacters);
+        var left = showIcon ? room - HeroLayout.IconSize(step) - HeroLayout.IconGap : room;
+        var needed = HeroLayout.ValueWidth(step, ValueCharacters, UnitCharacters) + HeroLayout.BesideGap + FluentType.EstimateWidth(FluentType.Body, _band.Text.Length);
+        return needed <= left;
+    }
+
+    /// <summary>The index at the largest step the room allows, the band beside it where it fits, under it where not.</summary>
+    /// <returns>The height the hero takes: its value line and, when it stands under, the band.</returns>
+    private double FitHero(double width, double height)
+    {
+        if (!(width > 0) || !(height > 0))
+        {
+            return 0;
+        }
+
+        var showIcon = width >= HeroLayout.IconSize(FluentType.Subtitle) + HeroLayout.IconGap + HeroLayout.ValueWidth(FluentType.Subtitle, ValueCharacters, UnitCharacters);
+
+        TypeStep Pick(double h)
+        {
+            var first = HeroLayout.Fit(width, h, ValueCharacters, UnitCharacters, FluentType.Subtitle, FluentType.Display);
+            var room = showIcon ? width - HeroLayout.IconSize(first) - HeroLayout.IconGap : width;
+            return HeroLayout.Fit(room, h, ValueCharacters, UnitCharacters, FluentType.Subtitle, FluentType.Display);
+        }
+
+        var step = Pick(height);
+        var beside = BandFitsBeside(width, step);
+        if (!beside)
+        {
+            step = Pick(height - FluentType.Body.LineHeight);
+        }
+
+        _hero.Lay(step, showIcon, trailingBeside: true, linesBeside: beside);
+        return Math.Max(step.LineHeight, HeroLayout.IconSize(step)) + (beside ? 0 : FluentType.Body.LineHeight);
     }
 
     public void Detach()
@@ -353,4 +512,12 @@ internal sealed partial class AirQualityView : Grid, IWidgetView, IWidgetHeaderC
 
     /// <summary>[S-728] The city as the header title, or the widget's label when hidden.</summary>
     private void PublishTitle() => _surface?.SetHeaderTitle(_config.Title);
+
+    /// <summary>[S-5104] Good, caution and critical, from the Fluent status fills.</summary>
+    private static Brush Tone(AirTone tone) => tone switch
+    {
+        AirTone.Good => ThemeBrush.Of("SystemFillColorSuccessBrush", Colors.SeaGreen),
+        AirTone.Caution => ThemeBrush.Of("SystemFillColorCautionBrush", Colors.Goldenrod),
+        _ => ThemeBrush.Of("SystemFillColorCriticalBrush", Colors.Red),
+    };
 }

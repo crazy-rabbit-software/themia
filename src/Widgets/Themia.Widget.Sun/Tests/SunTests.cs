@@ -2,13 +2,13 @@ using Themia.Core.Astronomy;
 using Themia.Core.Model;
 using Themia.Core.Tests;
 using Themia.Core.Widgets;
+using Themia.Sdk.Kit;
 using Xunit;
 
 namespace Themia.Widget.Sun.Tests;
 
 /// <summary>
-/// [S-6045] [S-6046] The Sun widget: its styles' repair and the day bar. Moved with the widget from
-/// Core's SkyWidgetsTests and TimeStylesTests, unchanged in what they assert.
+/// [S-3102] [S-6045] [S-6046] The Sun widget: its ladder on the family's blocks, its styles' repair and the day bar.
 /// </summary>
 public sealed class SunTests
 {
@@ -55,4 +55,61 @@ public sealed class SunTests
         // A sunrise that is not on this day has no tick.
         Assert.Null(SunDayBar.Share(noon.AddDays(-2), noon.AddHours(-12), noon.AddHours(11)));
     }
+
+    /// <summary>The view's area at a tier: the card less the header.</summary>
+    private static SunPlan Plan(double width, double height, SunStyle style = SunStyle.Arc, bool events = true)
+        => SunLayout.Plan(new WidgetArea(width, height - FamilySpace.ContentTop), style, events);
+
+    [Fact]
+    public void S3102_the_arc_is_never_dropped_and_takes_what_the_rows_leave_up_to_half_its_width()
+    {
+        foreach (var tier in WidgetTiers.All)
+        {
+            var plan = Plan(tier.Width, tier.Height);
+            Assert.True(plan.GraphicHeight >= SunLayout.ArcFloor, tier.Name);
+            Assert.True(plan.GraphicHeight <= Math.Max(SunLayout.ArcFloor, Math.Floor(plan.GraphicWidth / 2)), tier.Name);
+        }
+
+        // 320 x 240: two rows of two lines under an arc of what is left (180 - 2 x 48 - 8).
+        var medium = Plan(320, 240);
+        Assert.Equal(288, medium.GraphicWidth);
+        Assert.Equal(76, medium.GraphicHeight);
+        Assert.Equal((2, 2, 84.0), (medium.Rows, medium.Lines, medium.RowsTop));
+    }
+
+    [Fact]
+    public void S3102_a_compact_width_is_the_graphic_alone_and_the_times_style_the_rows_alone()
+    {
+        Assert.Equal(0, Plan(120, 120).Rows);
+        Assert.Equal(1, Plan(200, 150).Rows);
+
+        var times = Plan(320, 240, SunStyle.Times);
+        Assert.Equal(0, times.GraphicWidth);
+        Assert.Equal(0, times.RowsTop);
+        Assert.Equal(3, times.Rows);
+
+        // [S-170] With the graphic gone the rows are on whatever the switch says, and on a compact tile too.
+        Assert.True(Plan(120, 120, SunStyle.Times, events: false).Rows > 0);
+        Assert.Equal(0, Plan(320, 240, SunStyle.Arc, events: false).Rows);
+    }
+
+    [Fact]
+    public void S3102_an_expanded_width_puts_the_rows_beside_the_arc_but_the_bar_stays_over_them()
+    {
+        var wide = Plan(480, 160);
+        Assert.True(wide.Side);
+        Assert.Equal(Math.Floor(480 * SunLayout.ColumnShare), wide.RowsLeft);
+        Assert.Equal(0, wide.RowsTop);
+        Assert.Equal(3, wide.Rows);
+
+        var bar = Plan(480, 160, SunStyle.DayBar);
+        Assert.False(bar.Side);
+        Assert.Equal(SunLayout.Dot, bar.GraphicHeight);
+        Assert.Equal(SunLayout.Dot + FamilySpace.S2, bar.RowsTop);
+        Assert.Equal(2, bar.Rows);
+    }
+
+    [Fact]
+    public void S3102_the_rows_run_sunrise_sunset_daylight_noon_dawn_dusk()
+        => Assert.Equal([SunRow.Sunrise, SunRow.Sunset, SunRow.Daylight, SunRow.Noon, SunRow.Dawn, SunRow.Dusk], SunLayout.Ladder);
 }

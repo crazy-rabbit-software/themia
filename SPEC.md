@@ -730,7 +730,7 @@ shared row and moon drawing) and `SkyPlaceRows` (the shared place line on their 
   number strip and the rows sunrise, sunset, daylight (+ change), solar noon, dawn, dusk ([S-3102]).
   **Moon** (`moon`, 240×220, moon glyph) is the moon: the disc, its phase's name, the lit
   percentage, moonrise, moonset and the next full or new moon ([S-3105]). Both sit in the add menu's
-  Weather & sky subject ([S-3511]), start headerless ([S-700]; a header given them is titled with the place), start at Zurich, so they
+  Weather & sky subject ([S-3511]), carry the Header like every data widget (G3, 2026-10-29: titled with the place, the widget's name while it is cleared), start at Zurich, so they
   need setting up only once their place is cleared ([S-2848]), and have no keys ([S-1996]). There is no combined kind: `SunMoon` (16) is gone and
   a state file holding it drops that widget at load like any unknown kind ([S-1900], [S-1050]).
 - **[S-3101]** Both carry the observer's place (`SkyPlaceConfig`: latitude, longitude, place name)
@@ -3791,7 +3791,8 @@ rules are these.
 
 - **[S-700]** The clock starts with its header **hidden**, as in the original
   (`WidgetInstance.DefaultHeader`); so do the power buttons ([S-1911]), the audio visualizer
-  ([S-3200]), and (user requirement) the sun and the moon ([S-3100]) and the drive card ([S-4675]).
+  ([S-3200]), and (user requirement) the drive card ([S-4675]). The sun and the moon start with
+  theirs since G3 (user decision 2026-10-29: every data widget has the Header, [S-3100]).
   The disk meter starts with its header like the other meters (user requirement), so its reading
   sits where theirs does ([S-1161]). Only creation reads the default; a loaded widget
   keeps the placement it was saved with.
