@@ -112,10 +112,15 @@ Sections, grouped by area (file order below; search for the heading).
   edge too, and clamping the whole rect pushed the widget about instead of stopping the moved edge.
 - **[S-31b]** Edit mode draws no outline round a widget. The eight handles are its markers
   (`EditMarkers`): a **square-cornered L-bracket** at each corner (arms 14 DIPs, never rounded, whatever
-  the card's radius) and a **16-DIP bar** at the centre of each edge, 3 DIPs thick, flush inside the
-  cell bounds, each over a 1-DIP contrast halo (`SolidBackgroundFillColorBase`) so it reads on any
-  wallpaper. A side too short for two arms, a bar and 4-DIP gaps shrinks the arms and bar alike (never
-  below the thickness). Every edge lands on a device pixel at the window's scale. A handle's grip is
+  the card's radius) and a **16-DIP bar** at the centre of each edge, about 3 DIPs thick and
+  **centred on the cell's edge** (half outside, half inside, in whole device pixels), each over a
+  1-DIP contrast halo (`SolidBackgroundFillColorBase`) so it reads on any wallpaper. Two widgets that
+  meet on an edge or a corner draw their marks there on the same pixels: one line, a T or a cross,
+  never two marks with a seam. So the surface draws every card's ink on one layer above all cards
+  (`EditMarkerLayer`: every halo, then every bar; the grips stay on the cards), a selected widget's
+  bars over an unselected neighbour's, and the neutral bars in the strong stroke as it shows over the
+  halo, made opaque (`EditMarkers.Over`), so overlapping bars do not brighten. A side too short for two arms, a bar and
+  4-DIP gaps shrinks the arms and bar alike (never below half the thickness). Every edge lands on a device pixel at the window's scale. A handle's grip is
   its ink plus the old 10-DIP square on its corner or edge midpoint; grips never overlap. Cursors and
   the keyboard resize are unchanged. (Tests `S31b_`.)
 - **[S-31c]** Every widget in edit mode shows its markers: a selected one in the accent

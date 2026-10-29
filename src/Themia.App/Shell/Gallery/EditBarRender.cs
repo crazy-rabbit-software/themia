@@ -679,6 +679,7 @@ internal static partial class EditBarRender
         var host = new NoticeRender.RenderCardHost(ticker) { EditMode = true, Selected = new HashSet<string>(selected, StringComparer.Ordinal) };
 
         var cards = new List<WidgetCard>();
+        var markers = new EditMarkerLayer();
         foreach (var (model, spec) in widgets)
         {
             var card = new WidgetCard(host, model) { Width = spec.W, Height = spec.H };
@@ -689,8 +690,12 @@ internal static partial class EditBarRender
             Canvas.SetLeft(card, spec.X);
             Canvas.SetTop(card, spec.Y);
             canvas.Children.Add(card);
+            markers.Add(card);
             cards.Add(card);
         }
+
+        canvas.Children.Add(markers.Halos);
+        canvas.Children.Add(markers.Inks);
 
         var state = new AppState { Views = [view] };
         var selection = new WidgetSelection();
@@ -774,8 +779,9 @@ internal static partial class EditBarRender
 
     /// <summary>
     /// [S-31b]/[S-31c] The edit markers on real cards: <c>marks-&lt;theme&gt;-r4.png</c> and <c>-r16.png</c>
-    /// (a selected card, an unselected one and an XS tile at that corner radius) and <c>-multi.png</c>
-    /// (three selected beside one that is not).
+    /// (a selected card, an unselected one and an XS tile at that corner radius), <c>-multi.png</c>
+    /// (three selected beside one that is not) and <c>-neighbours.png</c> (cells meeting on their edges,
+    /// at the usual 8 DIP gap: their marks are one line where they meet).
     /// </summary>
     private static async Task MarkerShots(Grid screen, Ticker ticker, string outDir, string theme)
     {
@@ -797,9 +803,19 @@ internal static partial class EditBarRender
         await MarkerShot(screen, ticker, mixed, 4, System.IO.Path.Combine(outDir, $"marks-{theme}-r4.png")).ConfigureAwait(true);
         await MarkerShot(screen, ticker, mixed, 16, System.IO.Path.Combine(outDir, $"marks-{theme}-r16.png")).ConfigureAwait(true);
         await MarkerShot(screen, ticker, multi, 8, System.IO.Path.Combine(outDir, $"marks-{theme}-multi.png")).ConfigureAwait(true);
+
+        PropsCard[] neighbours =
+        [
+            new(new WidgetId("clock"), 120, 100, 240, 150, HeaderPlacement.Top, true),
+            new(new WidgetId("countdown"), 360, 100, 240, 150, HeaderPlacement.Top, false),
+            new(new WidgetId("countdown"), 120, 250, 240, 150, HeaderPlacement.Top, false),
+            new(new WidgetId("clock"), 360, 250, 240, 150, HeaderPlacement.Hidden, true),
+            new(new WidgetId("wifiToggle"), 600, 100, 120, 120, HeaderPlacement.Hidden, false),
+        ];
+        await MarkerShot(screen, ticker, neighbours, 8, System.IO.Path.Combine(outDir, $"marks-{theme}-neighbours.png"), gap: 8).ConfigureAwait(true);
     }
 
-    private static async Task MarkerShot(Grid screen, Ticker ticker, PropsCard[] layout, double radius, string path)
+    private static async Task MarkerShot(Grid screen, Ticker ticker, PropsCard[] layout, double radius, string path, double gap = 0)
     {
         screen.Children.Clear();
         screen.Height = 420;
@@ -821,16 +837,21 @@ internal static partial class EditBarRender
         };
 
         var cards = new List<WidgetCard>();
+        var markers = new EditMarkerLayer();
         foreach (var (model, spec) in models)
         {
             var card = new WidgetCard(host, model) { Width = spec.W, Height = spec.H };
-            card.ApplyGap(0);
+            card.ApplyGap(gap);
             card.ApplyEditMode(true);
             Canvas.SetLeft(card, spec.X);
             Canvas.SetTop(card, spec.Y);
             canvas.Children.Add(card);
+            markers.Add(card);
             cards.Add(card);
         }
+
+        canvas.Children.Add(markers.Halos);
+        canvas.Children.Add(markers.Inks);
 
         await Task.Delay(800).ConfigureAwait(true);
         await RenderPng.SaveAsync(screen, path).ConfigureAwait(true);

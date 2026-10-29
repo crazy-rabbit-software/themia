@@ -26,15 +26,16 @@ public class EditMarkersTests
     }
 
     [Fact]
-    public void S31b_a_corner_is_a_square_cornered_bracket_flush_inside_the_cell()
+    public void S31b_a_corner_is_a_square_cornered_bracket_centred_on_the_cells_edges()
     {
         var markers = EditMarkers.For(280, 180, 1);
         var bottomRight = markers.Single(m => m.Handle == ResizeHandle.BottomRight);
         var bars = bottomRight.Bars.Select(b => Absolute(bottomRight, b)).ToList();
+        var half = EditMarkers.Half(1);
 
         Assert.Equal(2, bars.Count);
-        Assert.Contains(bars, b => b == PixelRect.FromEdges(280 - EditMarkers.Arm, 180 - EditMarkers.Thickness, 280, 180));
-        Assert.Contains(bars, b => b == PixelRect.FromEdges(280 - EditMarkers.Thickness, 180 - EditMarkers.Arm, 280, 180));
+        Assert.Contains(bars, b => b == PixelRect.FromEdges(280 - EditMarkers.Arm, 180 - half, 280 + half, 180 + half));
+        Assert.Contains(bars, b => b == PixelRect.FromEdges(280 - half, 180 - EditMarkers.Arm, 280 + half, 180 + half));
     }
 
     [Fact]
@@ -43,20 +44,55 @@ public class EditMarkersTests
         var markers = EditMarkers.For(280, 180, 1);
         var top = markers.Single(m => m.Handle == ResizeHandle.Top);
         var left = markers.Single(m => m.Handle == ResizeHandle.Left);
+        var half = EditMarkers.Half(1);
 
-        Assert.Equal(PixelRect.FromEdges(132, 0, 148, 3), Absolute(top, Assert.Single(top.Bars)));
-        Assert.Equal(PixelRect.FromEdges(0, 82, 3, 98), Absolute(left, Assert.Single(left.Bars)));
+        Assert.Equal(PixelRect.FromEdges(132, -half, 148, half), Absolute(top, Assert.Single(top.Bars)));
+        Assert.Equal(PixelRect.FromEdges(-half, 82, half, 98), Absolute(left, Assert.Single(left.Bars)));
     }
 
-    [Fact]
-    public void S31b_no_marker_runs_outside_the_cell_bounds()
+    [Theory]
+    [InlineData(1.0)]
+    [InlineData(1.25)]
+    [InlineData(1.5)]
+    [InlineData(2.0)]
+    public void S31b_a_mark_straddles_its_edge_half_its_thickness_either_side(double scale)
     {
-        foreach (var marker in EditMarkers.For(200, 120, 1.5))
+        var half = EditMarkers.Half(scale);
+        Assert.True(Math.Abs((half * scale) - Math.Round(half * scale)) < 1e-9, "whole device pixels");
+        Assert.InRange(2 * half, EditMarkers.Thickness - 1, EditMarkers.Thickness + 1);
+
+        foreach (var marker in EditMarkers.For(200, 120, scale))
         {
             foreach (var bar in marker.Bars)
             {
-                Assert.True(Contains(new PixelRect(0, 0, 200, 120), Absolute(marker, bar)), $"{marker.Handle}");
+                Assert.True(Contains(PixelRect.FromEdges(-half, -half, 200 + half, 120 + half), Absolute(marker, bar)), $"{marker.Handle}");
             }
+        }
+    }
+
+    [Theory]
+    [InlineData(1.0)]
+    [InlineData(1.5)]
+    public void S31b_neighbours_on_one_edge_draw_their_marks_on_the_same_pixels(double scale)
+    {
+        // Two cells of one height side by side: the left one's right-hand marks and the right one's
+        // left-hand marks are one line on the shared edge, not two lines with a seam between them.
+        const double w = 280, h = 180;
+        var left = EditMarkers.For(w, h, scale);
+        var right = EditMarkers.For(w, h, scale);
+
+        PixelRect Vertical(IReadOnlyList<EditMarker> set, ResizeHandle handle, double dx)
+        {
+            var m = set.Single(x => x.Handle == handle);
+            return m.Bars.Select(b => Absolute(m, b)).Select(b => new PixelRect(b.X + dx, b.Y, b.Width, b.Height)).OrderBy(b => b.Width).First();
+        }
+
+        foreach (var (a, b) in new[] { (ResizeHandle.TopRight, ResizeHandle.TopLeft), (ResizeHandle.Right, ResizeHandle.Left), (ResizeHandle.BottomRight, ResizeHandle.BottomLeft) })
+        {
+            var mine = Vertical(left, a, 0);
+            var theirs = Vertical(right, b, w);
+            Assert.Equal(mine.X, theirs.X, 6);
+            Assert.Equal(mine.Width, theirs.Width, 6);
         }
     }
 
@@ -110,7 +146,7 @@ public class EditMarkersTests
         var bar = Absolute(edge, Assert.Single(edge.Bars));
 
         Assert.True(arm < EditMarkers.Arm);
-        Assert.True(arm >= EditMarkers.Thickness);
+        Assert.True(arm >= EditMarkers.Half(1));
         Assert.True(bar.X - arm >= EditMarkers.MinGap - 1e-9, $"gap {bar.X - arm}");
     }
 
@@ -133,6 +169,17 @@ public class EditMarkersTests
                 }
             }
         }
+    }
+
+    [Fact]
+    public void S31b_a_translucent_bar_is_drawn_as_it_shows_over_its_halo()
+    {
+        // The dark theme's strong stroke (white at 0x8B) over its base (0x20): one opaque grey.
+        Assert.Equal(((byte)154, (byte)154, (byte)154), EditMarkers.Over((0x8B, 255, 255, 255), (0x20, 0x20, 0x20)));
+
+        // Opaque stays itself; clear is the halo.
+        Assert.Equal(((byte)10, (byte)20, (byte)30), EditMarkers.Over((255, 10, 20, 30), (200, 200, 200)));
+        Assert.Equal(((byte)200, (byte)201, (byte)202), EditMarkers.Over((0, 10, 20, 30), (200, 201, 202)));
     }
 
     [Fact]

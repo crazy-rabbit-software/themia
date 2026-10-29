@@ -228,6 +228,7 @@ internal sealed partial class DesktopWindow
 
             var card = new WidgetCard(this, model);
             _widgetLayer.Children.Add(card);
+            _markerLayer.Add(card);
             kept.Add(card);
         }
 

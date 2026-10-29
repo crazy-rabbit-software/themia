@@ -69,12 +69,18 @@ internal sealed partial class DesktopWindow : IWidgetCardHost
     private OverlappedPresenter? _presenter;
     private bool _closed;
 
+    /// <summary>[S-31b] The cards' edit markers, drawn above all of them so neighbours' marks meet as one line.</summary>
+    private readonly EditMarkerLayer _markerLayer;
+
     public DesktopWindow(AppHost host, MonitorTarget monitor)
     {
         _host = host;
         _monitor = monitor;
 
         _widgetLayer = new Canvas();
+
+        // [S-31b] Every card's edit markers over every card: halos, then bars.
+        _markerLayer = new EditMarkerLayer();
 
         _gridOverlay = new SnapGridOverlay { Visibility = Visibility.Collapsed };
 
@@ -99,7 +105,7 @@ internal sealed partial class DesktopWindow : IWidgetCardHost
             // Transparent, not null: the root still has to receive the pointer input that edit mode
             // needs, while the window itself shows the wallpaper straight through.
             Background = new SolidColorBrush(Colors.Transparent),
-            Children = { _menuAnchor, _gridOverlay, _widgetLayer, _barLayer, _ghostLayer, _propertiesLayer, _toolbar, _placementHint },
+            Children = { _menuAnchor, _gridOverlay, _widgetLayer, _markerLayer.Halos, _markerLayer.Inks, _barLayer, _ghostLayer, _propertiesLayer, _toolbar, _placementHint },
 
             // Focusable so edit-mode keyboard commands (copy / cut / paste / delete) and the keys of
             // a widget holding the keyboard lease ([S-800]) land here.

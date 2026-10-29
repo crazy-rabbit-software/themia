@@ -12,12 +12,20 @@ namespace Themia.App.Shell;
 /// <summary>
 /// [S-31b]/[S-31c] The edit-mode markers: no outline round the card, only a square-cornered bracket
 /// at each corner and a short bar at the centre of each edge. They are the eight resize handles too;
-/// <see cref="EditMarkers"/> places them, this paints them.
+/// <see cref="EditMarkers"/> places them, this paints them. The grips (which take the presses) are the
+/// card's own; the ink is on two plates the surface's <see cref="EditMarkerLayer"/> draws above every
+/// card, every halo under every bar, so where two widgets meet their marks are one line.
 /// </summary>
 internal sealed partial class WidgetCard
 {
-    /// <summary>The eight markers, one <see cref="ResizeHandleDot"/> each, over everything the card paints.</summary>
+    /// <summary>The eight grips, one <see cref="ResizeHandleDot"/> each, over everything the card paints.</summary>
     private readonly Canvas _markers;
+
+    /// <summary>The halos of the eight markers, in the card's own coordinates, placed where the card stands.</summary>
+    internal Canvas MarkerHalos { get; } = new() { IsHitTestVisible = false };
+
+    /// <summary>The bars of the eight markers, in the card's own coordinates, placed where the card stands.</summary>
+    internal Canvas MarkerInks { get; } = new() { IsHitTestVisible = false };
 
     private readonly List<Marker> _markerParts = [];
 
@@ -26,13 +34,51 @@ internal sealed partial class WidgetCard
 
     private XamlRoot? _markerRoot;
 
-    /// <summary>One handle: its grip, the contrast stroke under each bar, and the bars.</summary>
+    /// <summary>The contrast stroke under every bar, opaque.</summary>
+    private static readonly Brush MarkerHalo = ThemeBrush.Of("SolidBackgroundFillColorBaseBrush", Colors.White);
+
+    /// <summary>The theme's neutral strong stroke, translucent: never drawn itself (see <see cref="NeutralInk"/>).</summary>
+    private static readonly Brush MarkerNeutral = ThemeBrush.Of("ControlStrongFillColorDefaultBrush", Colors.Gray);
+
+    private static SolidColorBrush? _neutralInk;
+
+    /// <summary>
+    /// [S-31b] The neutral bars' one brush: the theme's strong stroke as it looks over the halo every
+    /// bar stands on, made opaque, so where two neighbours' bars overlap they read as one bar instead
+    /// of a brighter square. Follows both theme brushes as they are recoloured in place.
+    /// </summary>
+    private static SolidColorBrush NeutralInk()
+    {
+        if (_neutralInk is null)
+        {
+            _neutralInk = new SolidColorBrush();
+            Blend();
+            MarkerNeutral.RegisterPropertyChangedCallback(SolidColorBrush.ColorProperty, (_, _) => Blend());
+            MarkerHalo.RegisterPropertyChangedCallback(SolidColorBrush.ColorProperty, (_, _) => Blend());
+        }
+
+        return _neutralInk;
+
+        static void Blend()
+        {
+            if (_neutralInk is not null && MarkerNeutral is SolidColorBrush ink && MarkerHalo is SolidColorBrush under)
+            {
+                // The halo's own colour (opaque), recoloured to the bar over it: derived from the two theme brushes.
+                var bar = ink.Color;
+                var shown = under.Color;
+                (shown.R, shown.G, shown.B) = EditMarkers.Over((bar.A, bar.R, bar.G, bar.B), (shown.R, shown.G, shown.B));
+                _neutralInk.Color = shown;
+            }
+        }
+    }
+
+    /// <summary>One handle: its grip, the contrast stroke under each bar (on the halo plate), and the bars (on the ink plate).</summary>
     private sealed record Marker(ResizeHandle Handle, ResizeHandleDot Grip, Rectangle[] Halos, Rectangle[] Inks);
 
     private Canvas BuildMarkers()
     {
         var canvas = new Canvas { Visibility = Visibility.Collapsed };
-        var halo = ThemeBrush.Of("SolidBackgroundFillColorBaseBrush", Colors.White);
+        var halo = MarkerHalo;
 
         foreach (var handle in Enum.GetValues<ResizeHandle>())
         {
@@ -42,13 +88,19 @@ internal sealed partial class WidgetCard
             var grip = new ResizeHandleDot { Background = new SolidColorBrush(Colors.Transparent), Tag = handle };
             grip.SetCursorShape(CursorFor(handle));
 
-            // Every halo first, then every bar, so an L's two strokes merge instead of crossing its joint.
-            // Neither takes input: the press must land on the grip, whose Tag names the handle.
+            // Every halo under every bar (two plates), so an L's two strokes merge instead of crossing its
+            // joint, and a neighbour's halo never cuts this card's bar. Neither takes input: the press must
+            // land on the grip, whose Tag names the handle.
             var halos = Enumerable.Range(0, bars).Select(_ => new Rectangle { Fill = halo, IsHitTestVisible = false }).ToArray();
             var inks = Enumerable.Range(0, bars).Select(_ => new Rectangle { IsHitTestVisible = false }).ToArray();
-            foreach (var part in halos.Concat(inks))
+            foreach (var part in halos)
             {
-                grip.Children.Add(part);
+                MarkerHalos.Children.Add(part);
+            }
+
+            foreach (var part in inks)
+            {
+                MarkerInks.Children.Add(part);
             }
 
             canvas.Children.Add(grip);
@@ -58,7 +110,40 @@ internal sealed partial class WidgetCard
         SizeChanged += (_, _) => LayoutMarkers();
         Loaded += (_, _) => WatchScale(XamlRoot);
         Unloaded += (_, _) => WatchScale(null);
+
+        // The plates stand where the card stands and show when its grips do.
+        RegisterPropertyChangedCallback(Canvas.LeftProperty, (_, _) => FollowPlates());
+        RegisterPropertyChangedCallback(Canvas.TopProperty, (_, _) => FollowPlates());
+        RegisterPropertyChangedCallback(VisibilityProperty, (_, _) => FollowPlates());
+        RegisterPropertyChangedCallback(OpacityProperty, (_, _) => FollowPlates());
+        canvas.RegisterPropertyChangedCallback(VisibilityProperty, (_, _) => FollowPlates());
+        FollowPlates();
         return canvas;
+    }
+
+    /// <summary>Place both plates on the card and show them exactly while its grips show.</summary>
+    private void FollowPlates()
+    {
+        var shown = Visibility == Visibility.Visible && _markersShown ? Visibility.Visible : Visibility.Collapsed;
+        foreach (var plate in new[] { MarkerHalos, MarkerInks })
+        {
+            Canvas.SetLeft(plate, Canvas.GetLeft(this));
+            Canvas.SetTop(plate, Canvas.GetTop(this));
+            plate.Opacity = Opacity;
+            plate.Visibility = shown;
+        }
+    }
+
+    /// <summary>Whether the grips show (edit mode); the field is read before the grip canvas exists.</summary>
+    private bool _markersShown;
+
+    /// <summary>Take the plates off the surface's marker layer, as the card leaves it.</summary>
+    private void DropPlates()
+    {
+        foreach (var plate in new[] { MarkerHalos, MarkerInks })
+        {
+            (plate.Parent as Panel)?.Children.Remove(plate);
+        }
     }
 
     /// <summary>A DPI change re-lays the markers on the new device pixels; the card's size in DIPs may not change.</summary>
@@ -100,18 +185,20 @@ internal sealed partial class WidgetCard
             part.Grip.Width = marker.Hit.Width;
             part.Grip.Height = marker.Hit.Height;
 
+            // The plates are in the card's coordinates, so each bar is offset by its grip's corner.
             for (var i = 0; i < part.Inks.Length; i++)
             {
-                Place(part.Inks[i], marker.Bars[i]);
-                Place(part.Halos[i], EditMarkers.Haloed(marker.Bars[i], scale));
+                var bar = marker.Bars[i];
+                var onCard = new PixelRect(marker.Hit.X + bar.X, marker.Hit.Y + bar.Y, bar.Width, bar.Height);
+                Place(part.Inks[i], onCard);
+                Place(part.Halos[i], EditMarkers.Haloed(onCard, scale));
             }
         }
 
         static void Place(Rectangle shape, PixelRect box)
         {
-            shape.HorizontalAlignment = HorizontalAlignment.Left;
-            shape.VerticalAlignment = VerticalAlignment.Top;
-            shape.Margin = new Thickness(box.X, box.Y, 0, 0);
+            Canvas.SetLeft(shape, box.X);
+            Canvas.SetTop(shape, box.Y);
             shape.Width = box.Width;
             shape.Height = box.Height;
         }
@@ -119,13 +206,15 @@ internal sealed partial class WidgetCard
 
     /// <summary>
     /// [S-31c] Selected, the bars take the accent; otherwise a neutral strong stroke, so every widget in
-    /// edit mode shows where it is and which ones the commands act on.
+    /// edit mode shows where it is and which ones the commands act on. Where a selected widget meets
+    /// one that is not, the selected one's bars are on top.
     /// </summary>
     private void PaintMarkers(bool selected)
     {
+        Canvas.SetZIndex(MarkerInks, selected ? 1 : 0);
         var ink = selected
             ? ThemeBrush.Of("AccentFillColorDefaultBrush", Colors.DodgerBlue)
-            : ThemeBrush.Of("ControlStrongFillColorDefaultBrush", Colors.Gray);
+            : NeutralInk();
         foreach (var part in _markerParts)
         {
             foreach (var bar in part.Inks)

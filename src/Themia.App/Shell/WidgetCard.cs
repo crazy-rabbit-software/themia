@@ -724,6 +724,7 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface, IItemPaletteOwn
 
     public void ApplyEditMode(bool editing)
     {
+        _markersShown = editing;
         _markers.Visibility = editing ? Visibility.Visible : Visibility.Collapsed;
         ApplySelection();
         ApplyHidden();
@@ -765,6 +766,7 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface, IItemPaletteOwn
     {
         DetachSetup();
         StopView();
+        DropPlates();
     }
 
     public void SetLiveRect(FracRect rect) => LiveRect = rect;

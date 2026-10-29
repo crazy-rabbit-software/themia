@@ -9,13 +9,15 @@ public sealed record EditMarker(ResizeHandle Handle, PixelRect Hit, IReadOnlyLis
 
 /// <summary>
 /// [S-31b] Where edit mode draws a widget's eight markers instead of an outline: a square-cornered
-/// L-bracket at each corner and a short bar at the centre of each edge, flush inside the cell
-/// bounds. The corners are never rounded, whatever the card's radius. Every edge lands on a device
-/// pixel at the given rasterization scale, so the bars are crisp at any DPI.
+/// L-bracket at each corner and a short bar at the centre of each edge, each centred on the cell's
+/// edge (half its thickness outside, half inside), so two widgets that meet on an edge draw their
+/// marks there on the same pixels: one line, never two with a seam between them. The corners are
+/// never rounded, whatever the card's radius. Every edge lands on a device pixel at the given
+/// rasterization scale, so the bars are crisp at any DPI.
 /// </summary>
 public static class EditMarkers
 {
-    /// <summary>The bar thickness, DIPs.</summary>
+    /// <summary>The bar thickness, DIPs: drawn as <see cref="Half"/> either side of the edge.</summary>
     public const double Thickness = 3;
 
     /// <summary>How far a corner bracket's arms run along each edge, DIPs.</summary>
@@ -39,7 +41,7 @@ public static class EditMarkers
         var s = double.IsFinite(scale) && scale > 0 ? scale : 1;
         var w = Snap(Math.Max(0, double.IsFinite(width) ? width : 0), s);
         var h = Snap(Math.Max(0, double.IsFinite(height) ? height : 0), s);
-        var t = Device(Thickness, s);
+        var t = Half(s);
 
         var (armX, edgeX) = Fit(w, t, s);
         var (armY, edgeY) = Fit(h, t, s);
@@ -51,21 +53,20 @@ public static class EditMarkers
         return
         [
             Corner(ResizeHandle.TopLeft, 0, 0, left: true, top: true),
-            Edge(ResizeHandle.Top, PixelRect.FromEdges(midX, 0, midX + edgeX, t), w / 2, 0),
+            Edge(ResizeHandle.Top, PixelRect.FromEdges(midX, -t, midX + edgeX, t), w / 2, 0),
             Corner(ResizeHandle.TopRight, w, 0, left: false, top: true),
-            Edge(ResizeHandle.Left, PixelRect.FromEdges(0, midY, t, midY + edgeY), 0, h / 2),
-            Edge(ResizeHandle.Right, PixelRect.FromEdges(w - t, midY, w, midY + edgeY), w, h / 2),
+            Edge(ResizeHandle.Left, PixelRect.FromEdges(-t, midY, t, midY + edgeY), 0, h / 2),
+            Edge(ResizeHandle.Right, PixelRect.FromEdges(w - t, midY, w + t, midY + edgeY), w, h / 2),
             Corner(ResizeHandle.BottomLeft, 0, h, left: true, top: false),
-            Edge(ResizeHandle.Bottom, PixelRect.FromEdges(midX, h - t, midX + edgeX, h), w / 2, h),
+            Edge(ResizeHandle.Bottom, PixelRect.FromEdges(midX, h - t, midX + edgeX, h + t), w / 2, h),
             Corner(ResizeHandle.BottomRight, w, h, left: false, top: false),
         ];
 
         EditMarker Corner(ResizeHandle handle, double x, double y, bool left, bool top)
         {
-            var x0 = left ? x : x - armX;
-            var y0 = top ? y : y - armY;
-            var across = PixelRect.FromEdges(x0, top ? y : y - t, x0 + armX, top ? y + t : y);
-            var down = PixelRect.FromEdges(left ? x : x - t, y0, left ? x + t : x, y0 + armY);
+            // The arms run Arm in from the corner along each edge; the outer corner stands t beyond it.
+            var across = PixelRect.FromEdges(left ? x - t : x - armX, y - t, left ? x + armX : x + t, y + t);
+            var down = PixelRect.FromEdges(x - t, top ? y - t : y - armY, x + t, top ? y + armY : y + t);
             var ink = Union(across, down);
             return Make(handle, Union(ink, PixelRect.FromEdges(x - grip, y - grip, x + grip, y + grip)), across, down);
         }
@@ -81,6 +82,27 @@ public static class EditMarkers
             var box = PixelRect.FromEdges(Snap(hit.X, s), Snap(hit.Y, s), Snap(hit.X + hit.Width, s), Snap(hit.Y + hit.Height, s));
             return new EditMarker(handle, box, [.. bars.Select(b => new PixelRect(b.X - box.X, b.Y - box.Y, b.Width, b.Height))]);
         }
+    }
+
+    /// <summary>
+    /// Half a bar's thickness, the part either side of the edge, in whole device pixels (at least one)
+    /// so both halves land on the same pixels for the two neighbours sharing that edge.
+    /// </summary>
+    public static double Half(double scale)
+    {
+        var s = double.IsFinite(scale) && scale > 0 ? scale : 1;
+        return Math.Max(1, Math.Round(Thickness * s / 2, MidpointRounding.AwayFromZero)) / s;
+    }
+
+    /// <summary>
+    /// [S-31b] A translucent bar colour as it shows over the opaque halo under it: the neutral bars are
+    /// drawn in this, so two neighbours' bars overlapping read as one bar, not a brighter square.
+    /// </summary>
+    public static (byte R, byte G, byte B) Over((byte A, byte R, byte G, byte B) bar, (byte R, byte G, byte B) halo)
+    {
+        var a = bar.A / 255.0;
+        byte Mix(byte over, byte under) => (byte)Math.Round((over * a) + (under * (1 - a)), MidpointRounding.AwayFromZero);
+        return (Mix(bar.R, halo.R), Mix(bar.G, halo.G), Mix(bar.B, halo.B));
     }
 
     /// <summary>A bar grown by the contrast stroke on every side, still on device pixels.</summary>
