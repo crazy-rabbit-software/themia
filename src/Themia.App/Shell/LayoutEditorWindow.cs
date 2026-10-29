@@ -13,7 +13,9 @@ using Themia.Core.Diagnostics;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
+using Themia.Sdk.Kit;
 using Themia.Sdk.WinUI;
+using Themia.Sdk.WinUI.Kit;
 using Windows.Graphics;
 
 namespace Themia.App.Shell;
@@ -40,10 +42,13 @@ internal sealed class LayoutEditorWindow
     private const string Scope = "layout-editor";
 
     /// <summary>The gap between panes, which is also the divider's grab area.</summary>
-    private const double DividerSize = 8;
+    private const double DividerSize = ShellMetrics.LayoutEditor.Divider;
 
     /// <summary>The tallest the pane picture gets.</summary>
-    private const double MaxCanvasHeight = 440;
+    private const double MaxCanvasHeight = ShellMetrics.LayoutEditor.MaxCanvasHeight;
+
+    /// <summary>A pane's band over its middle that its tool buttons stand in: a button with the 4 round it.</summary>
+    private const double ToolBand = FamilyShape.IconButton + (2 * FamilySpace.S1);
 
     /// <summary>What a pane can open, labelled in the current language (built per pane, not cached).</summary>
     private static (LayoutSource Value, string Label)[] Sources() =>
@@ -57,12 +62,12 @@ internal sealed class LayoutEditorWindow
     private readonly AppHost _host;
     private readonly Window _window = new();
     private readonly Grid _root = new();
-    private readonly Grid _titleBar = new() { Height = 48 };
-    private readonly TextBlock _caption = new() { VerticalAlignment = VerticalAlignment.Center, Margin = new Thickness(16, 0, 0, 0) };
+    private readonly Grid _titleBar = new() { Height = ShellMetrics.Window.TitleBar };
+    private readonly TextBlock _caption = new() { VerticalAlignment = VerticalAlignment.Center, Margin = new Thickness(FamilySpace.S4, 0, 0, 0) };
     private readonly TextBlock _summary = new();
     private readonly Border _canvas = new();
     private readonly Border _canvasCard;
-    private readonly StackPanel _page = new() { Spacing = 4, MaxWidth = 1000 };
+    private readonly StackPanel _page = new() { Spacing = FamilySpace.S1, MaxWidth = ShellMetrics.Window.PageMaxWidth };
     private readonly InfoBar _gone = new()
     {
         Severity = InfoBarSeverity.Warning,
@@ -142,14 +147,14 @@ internal sealed class LayoutEditorWindow
 
         var icon = new Image
         {
-            Width = 16,
-            Height = 16,
-            Margin = new Thickness(16, 0, 0, 0),
+            Width = FamilyShape.Icon,
+            Height = FamilyShape.Icon,
+            Margin = new Thickness(FamilySpace.S4, 0, 0, 0),
             VerticalAlignment = VerticalAlignment.Center,
             Source = new BitmapImage
             {
                 DecodePixelType = DecodePixelType.Logical,
-                DecodePixelWidth = 16,
+                DecodePixelWidth = (int)FamilyShape.Icon,
                 UriSource = new Uri(Path.Combine(AppContext.BaseDirectory, "Assets", "themia-logo.png")),
             },
         };
@@ -158,7 +163,7 @@ internal sealed class LayoutEditorWindow
 
         _titleBar.Children.Add(new StackPanel { Orientation = Orientation.Horizontal, Children = { icon, _caption } });
 
-        _summary.Margin = new Thickness(0, 30, 0, 6);
+        _summary.Margin = new Thickness(0, ShellMetrics.Window.SectionTop, 0, ShellMetrics.Window.SectionBottom);
         FluentLayout.ApplyStyle(_summary, "SettingsSectionHeaderTextBlockStyle");
 
         _canvas.SizeChanged += (_, e) => FitCanvas(e.NewSize.Width);
@@ -169,7 +174,7 @@ internal sealed class LayoutEditorWindow
 
         var scroll = new ScrollViewer
         {
-            Content = new Border { Child = _page, Padding = new Thickness(36, 8, 36, 36) },
+            Content = new Border { Child = _page, Padding = new Thickness(ShellMetrics.Window.PageInset, FamilySpace.S2, ShellMetrics.Window.PageInset, ShellMetrics.Window.PageInset) },
             VerticalScrollBarVisibility = ScrollBarVisibility.Auto,
         };
 
@@ -205,10 +210,10 @@ internal sealed class LayoutEditorWindow
         _gone.Title = Str.WidgetsC_Shortcuts_LayoutEditor_Gone_Title.Text();
         _gone.Message = Str.WidgetsC_Shortcuts_LayoutEditor_Gone_Message.Text();
 
-        var title = new TextBlock { Text = Str.WidgetsC_Shortcuts_LayoutEditor_Title.Text(), Margin = new Thickness(0, 4, 0, 4) };
+        var title = new TextBlock { Text = Str.WidgetsC_Shortcuts_LayoutEditor_Title.Text(), Margin = new Thickness(0, FamilySpace.S1, 0, FamilySpace.S1) };
         FluentLayout.ApplyStyle(title, "TitleTextBlockStyle");
 
-        _name = new TextBox { Width = 280, PlaceholderText = Str.Shortcut_ChipLayout.Text() };
+        _name = new TextBox { Width = ShellMetrics.Window.FieldWidth, PlaceholderText = Str.Shortcut_ChipLayout.Text() };
         var name = _name;
         name.KeyDown += (_, e) =>
         {
@@ -220,7 +225,7 @@ internal sealed class LayoutEditorWindow
         };
         name.LostFocus += (_, _) => CommitName();
 
-        var done = new Button { Content = Str.Common_Done.Text(), HorizontalAlignment = HorizontalAlignment.Right, Margin = new Thickness(0, 16, 0, 0) };
+        var done = new Button { Content = Str.Common_Done.Text(), HorizontalAlignment = HorizontalAlignment.Right, Margin = new Thickness(0, FamilySpace.S4, 0, 0) };
         FluentLayout.ApplyStyle(done, "AccentButtonStyle");
         done.Click += (_, _) => Close();
 
@@ -369,10 +374,10 @@ internal sealed class LayoutEditorWindow
         _summary.Text = Str.WidgetsC_Shortcuts_LayoutEditor_Panes.Format(("apps", LayoutPlan.Summary(layout)));
 
         var single = layout.Kind == LayoutNodeKind.Pane;
-        var host = new Grid { Height = 360 };
+        var host = new Grid { Height = ShellMetrics.LayoutEditor.CanvasHeight };
         host.Children.Add(Build(layout, single));
         _canvas.Child = host;
-        _canvas.Padding = new Thickness(12);
+        _canvas.Padding = new Thickness(FamilySpace.S3);
         FitCanvas(_canvas.ActualWidth);
     }
 
@@ -487,14 +492,14 @@ internal sealed class LayoutEditorWindow
         var grip = new FontIcon
         {
             Glyph = vertical ? Glyphs.GripperVertical : Glyphs.GripperHorizontal,
-            FontSize = 10,
-            Foreground = ThemeBrush.Of("TextFillColorTertiaryBrush", Colors.Gray),
+            FontSize = ShellMetrics.LayoutEditor.Grip,
+            Foreground = Family.Brush(ColourRole.TextTertiary),
         };
 
         var divider = new Border
         {
             Background = ThemeBrush.Of("SubtleFillColorTransparentBrush", Colors.Transparent),
-            CornerRadius = new CornerRadius(DividerSize / 2),
+            CornerRadius = Family.Radius,
             Child = grip,
         };
 
@@ -586,8 +591,8 @@ internal sealed class LayoutEditorWindow
             Orientation = Orientation.Horizontal,
             HorizontalAlignment = HorizontalAlignment.Right,
             VerticalAlignment = VerticalAlignment.Top,
-            Margin = new Thickness(4),
-            Spacing = 2,
+            Margin = new Thickness(FamilySpace.S1),
+            Spacing = FamilySpace.S1,
         };
 
         tools.Children.Add(Tool(Glyphs.SplitSideBySide, Str.LayoutEditor_SplitVertical.Text(), () => Edit(root => Split(root, pane.Id, SplitDirection.Vertical))));
@@ -600,8 +605,8 @@ internal sealed class LayoutEditorWindow
 
         var middle = new StackPanel
         {
-            Spacing = 8,
-            Width = 260,
+            Spacing = FamilySpace.S2,
+            Width = ShellMetrics.LayoutEditor.PaneColumn,
             HorizontalAlignment = HorizontalAlignment.Center,
             VerticalAlignment = VerticalAlignment.Center,
         };
@@ -612,7 +617,7 @@ internal sealed class LayoutEditorWindow
         }
         else
         {
-            var hint = Fluent.Text(FluentType.Body, "TextFillColorSecondaryBrush");
+            var hint = Fluent.Text(FamilyType.Body, "TextFillColorSecondaryBrush");
             hint.Text = Str.WidgetsC_Shortcuts_LayoutEditor_EmptyPane.Text();
             hint.HorizontalAlignment = HorizontalAlignment.Center;
             middle.Children.Add(hint);
@@ -673,19 +678,17 @@ internal sealed class LayoutEditorWindow
         {
             Child = middle,
             StretchDirection = StretchDirection.DownOnly,
-            Margin = new Thickness(12, 36, 12, 12),
+            Margin = new Thickness(FamilySpace.S3, ToolBand, FamilySpace.S3, FamilySpace.S3),
         });
         body.Children.Add(tools);
 
         return new Border
         {
             Child = body,
-            CornerRadius = new CornerRadius(Fluent.ControlRadius * 2),
-            BorderThickness = new Thickness(1),
-            BorderBrush = ThemeBrush.Of("CardStrokeColorDefaultBrush", Colors.Gray),
-            Background = assignment is null
-                ? ThemeBrush.Of("SubtleFillColorSecondaryBrush", Colors.Gray)
-                : ThemeBrush.Of("LayerFillColorDefaultBrush", Colors.Gray),
+            CornerRadius = new CornerRadius(ShellMetrics.OverlayRadius),
+            BorderThickness = new Thickness(FamilyShape.Hairline),
+            BorderBrush = ShellBrush.Of(ShellRole.CardStroke),
+            Background = assignment is null ? Family.Brush(ColourRole.Subtle) : ShellBrush.Of(ShellRole.Layer),
         };
     }
 
@@ -704,9 +707,7 @@ internal sealed class LayoutEditorWindow
     private static Button Tool(string glyph, string tooltip, Action action)
     {
         var button = FluentLayout.IconCommand(glyph, tooltip);
-        button.Width = 28;
-        button.Height = 28;
-        button.Background = ThemeBrush.Of("SubtleFillColorTransparentBrush", Colors.Transparent);
+        button.Background = Family.Brush(ColourRole.Clear);
         button.BorderThickness = new Thickness(0);
         Microsoft.UI.Xaml.Automation.AutomationProperties.SetName(button, tooltip);
         button.Click += (_, _) => action();
@@ -724,12 +725,12 @@ internal sealed class LayoutEditorWindow
             _ => Glyphs.Apps,
         }, "TextFillColorSecondaryBrush", 24);
 
-        var image = new Image { Width = 32, Height = 32, Visibility = Visibility.Collapsed };
-        var icon = new Grid { Width = 32, Height = 32, HorizontalAlignment = HorizontalAlignment.Center };
+        var image = new Image { Width = FamilyShape.IconLarge, Height = FamilyShape.IconLarge, Visibility = Visibility.Collapsed };
+        var icon = new Grid { Width = FamilyShape.IconLarge, Height = FamilyShape.IconLarge, HorizontalAlignment = HorizontalAlignment.Center };
         icon.Children.Add(glyph);
         icon.Children.Add(image);
 
-        var name = Fluent.Text(FluentType.BodyStrong);
+        var name = Fluent.Text(FamilyType.BodyStrong);
         name.Text = Label(assignment);
         name.TextAlignment = TextAlignment.Center;
         name.TextTrimming = TextTrimming.CharacterEllipsis;
@@ -741,7 +742,7 @@ internal sealed class LayoutEditorWindow
             _ = LoadIconAsync(local.Value, image, glyph);
         }
 
-        var stack = new StackPanel { Spacing = 4 };
+        var stack = new StackPanel { Spacing = FamilySpace.S1 };
         stack.Children.Add(icon);
         stack.Children.Add(name);
         return stack;
@@ -883,7 +884,7 @@ internal sealed class LayoutEditorWindow
             }
         };
 
-        var stack = new StackPanel { Spacing = 4 };
+        var stack = new StackPanel { Spacing = FamilySpace.S1 };
 
         if (source == LayoutSource.Url)
         {

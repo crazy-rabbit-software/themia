@@ -9,33 +9,6 @@
 1	src/Themia.App/Shell/DesktopWindow.Selection.cs	colour	Colors.DodgerBlue
 1	src/Themia.App/Shell/IconPicker.cs	type	FontSize = 13
 1	src/Themia.App/Shell/IconPicker.cs	type	FontSize = 16
-1	src/Themia.App/Shell/LayoutEditorWindow.cs	brush	CardStrokeColorDefaultBrush
-1	src/Themia.App/Shell/LayoutEditorWindow.cs	brush	LayerFillColorDefaultBrush
-1	src/Themia.App/Shell/LayoutEditorWindow.cs	radius	new CornerRadius(DividerSize / 2)
-1	src/Themia.App/Shell/LayoutEditorWindow.cs	radius	new CornerRadius(Fluent.ControlRadius * 2)
-1	src/Themia.App/Shell/LayoutEditorWindow.cs	size	Height = 16
-1	src/Themia.App/Shell/LayoutEditorWindow.cs	size	Height = 28
-2	src/Themia.App/Shell/LayoutEditorWindow.cs	size	Height = 32
-1	src/Themia.App/Shell/LayoutEditorWindow.cs	size	Height = 360
-1	src/Themia.App/Shell/LayoutEditorWindow.cs	size	Height = 48
-1	src/Themia.App/Shell/LayoutEditorWindow.cs	size	MaxWidth = 1000
-1	src/Themia.App/Shell/LayoutEditorWindow.cs	size	Width = 16
-1	src/Themia.App/Shell/LayoutEditorWindow.cs	size	Width = 260
-1	src/Themia.App/Shell/LayoutEditorWindow.cs	size	Width = 28
-1	src/Themia.App/Shell/LayoutEditorWindow.cs	size	Width = 280
-2	src/Themia.App/Shell/LayoutEditorWindow.cs	size	Width = 32
-1	src/Themia.App/Shell/LayoutEditorWindow.cs	space	Spacing = 2
-3	src/Themia.App/Shell/LayoutEditorWindow.cs	space	Spacing = 4
-1	src/Themia.App/Shell/LayoutEditorWindow.cs	space	Spacing = 8
-1	src/Themia.App/Shell/LayoutEditorWindow.cs	space	new Thickness(0, 16, 0, 0)
-1	src/Themia.App/Shell/LayoutEditorWindow.cs	space	new Thickness(0, 30, 0, 6)
-1	src/Themia.App/Shell/LayoutEditorWindow.cs	space	new Thickness(0, 4, 0, 4)
-1	src/Themia.App/Shell/LayoutEditorWindow.cs	space	new Thickness(12)
-1	src/Themia.App/Shell/LayoutEditorWindow.cs	space	new Thickness(12, 36, 12, 12)
-2	src/Themia.App/Shell/LayoutEditorWindow.cs	space	new Thickness(16, 0, 0, 0)
-1	src/Themia.App/Shell/LayoutEditorWindow.cs	space	new Thickness(36, 8, 36, 36)
-1	src/Themia.App/Shell/LayoutEditorWindow.cs	space	new Thickness(4)
-1	src/Themia.App/Shell/LayoutEditorWindow.cs	type	FontSize = 10
 3	src/Themia.App/Shell/Motion/HackerTile.cs	colour	Color.FromArgb(
 1	src/Themia.App/Shell/Motion/HackerTile.cs	space	new Thickness(4, 0, 4, 0)
 1	src/Themia.App/Shell/Motion/HackerTile.cs	stroke	StrokeThickness = 1.5
@@ -45,7 +18,3 @@
 1	src/Themia.Sdk.WinUI/Shell/ColorChoice.cs	brush	SolidBackgroundFillColorTertiaryBrush
 4	src/Themia.Sdk.WinUI/Shell/ColorChoice.cs	colour	Color.FromArgb(
 1	src/Themia.Sdk.WinUI/Shell/ColorChoice.cs	ramp	Fluent.Space5
-1	src/Themia.Sdk.WinUI/Shell/FluentLayout.cs	size	Height = 32
-1	src/Themia.Sdk.WinUI/Shell/FluentLayout.cs	size	MaxWidth = 300
-1	src/Themia.Sdk.WinUI/Shell/FluentLayout.cs	size	Width = 32
-1	src/Themia.Sdk.WinUI/Shell/FluentLayout.cs	type	FontSize = 12

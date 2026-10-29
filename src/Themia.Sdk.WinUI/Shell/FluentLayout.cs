@@ -11,7 +11,9 @@ using Themia.Core.Diagnostics;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
+using Themia.Sdk.Kit;
 using Themia.Sdk.WinUI;
+using Themia.Sdk.WinUI.Kit;
 
 namespace Themia.App.Shell;
 
@@ -35,7 +37,7 @@ public static class FluentLayout
     /// The narrowest a drop-down on a card is, so a column of them lines up on the card edge instead
     /// of each being as wide as whatever it happens to show.
     /// </summary>
-    public const double ChoiceMinWidth = 200;
+    public const double ChoiceMinWidth = ShellMetrics.Window.ChoiceMinWidth;
 
     /// <summary>A row: icon, title, optional description, and a control on the right.</summary>
     public static Border Row(string glyph, string title, string? description, FrameworkElement control)
@@ -153,12 +155,12 @@ public static class FluentLayout
     /// <summary>The line under a field, before anything has been said on it.</summary>
     public static TextBlock Verdict() => new()
     {
-        FontSize = 12,
+        FontSize = FamilyType.Caption.FontSize,
         TextWrapping = TextWrapping.Wrap,
         Visibility = Visibility.Collapsed,
         HorizontalAlignment = HorizontalAlignment.Right,
         TextAlignment = TextAlignment.Right,
-        MaxWidth = 300,
+        MaxWidth = ShellMetrics.Window.VerdictMaxWidth,
     };
 
     /// <summary>Say why the value was refused. The field keeps what was typed.</summary>
@@ -178,10 +180,10 @@ public static class FluentLayout
         var button = new Button
         {
             Content = UiLanguage.Mirrored(new FontIcon { Glyph = glyph, FontSize = Fluent.IconSize }),
-            Width = 32,
-            Height = 32,
+            Width = FamilyShape.IconButton,
+            Height = FamilyShape.IconButton,
             Padding = new Thickness(0),
-            CornerRadius = new CornerRadius(Fluent.ControlRadius),
+            CornerRadius = Family.Radius,
             VerticalAlignment = VerticalAlignment.Center,
         };
 
