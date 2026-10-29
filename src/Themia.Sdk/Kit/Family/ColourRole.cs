@@ -57,6 +57,15 @@ public enum ColourRole
     Control,
 
     ControlStroke,
+
+    /// <summary>
+    /// [S-6733] A name on no card, straight over the wallpaper (a desktop item's): light in either theme,
+    /// as Windows' desktop draws its icons' names, legible through <see cref="OnWallpaperShadow"/>.
+    /// </summary>
+    OnWallpaper,
+
+    /// <summary>[S-6733] The shadow under <see cref="OnWallpaper"/>, so the name reads on a light or busy wallpaper too.</summary>
+    OnWallpaperShadow,
 }
 
 /// <summary>[S-6705] The theme resource each role is drawn with: the one table, for the parts and the guards.</summary>
@@ -80,6 +89,8 @@ public static class ColourRoles
         [ColourRole.Clear] = "SubtleFillColorTransparentBrush",
         [ColourRole.Control] = "ControlFillColorDefaultBrush",
         [ColourRole.ControlStroke] = "ControlStrokeColorDefaultBrush",
+        [ColourRole.OnWallpaper] = "ThemiaOnWallpaperBrush",
+        [ColourRole.OnWallpaperShadow] = "ThemiaOnWallpaperShadowBrush",
     };
 
     /// <summary>

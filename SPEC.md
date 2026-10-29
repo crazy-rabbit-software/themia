@@ -989,6 +989,12 @@ module author's guide is docs/WIDGET-KIT.md 16.
   writes the same for a widget). The family's mockups draw the same variants over the same data, and
   their texts and glyphs are paired with the render's and held to ±1 DIP in position and size with the
   same colour role (DECISIONS 11).
+- **[S-6733]** **A name over the wallpaper** (a widget with no card, the desktop item's, [S-5606]) is
+  drawn in the family's two wallpaper roles, not the card's text roles: `OnWallpaper`, light in either
+  theme as Windows' desktop draws its icons' names, over `OnWallpaperShadow`, the same text cast
+  `FamilyShape.TextShadowOffset` (1 DIP) down and to the right, so it reads on a light or a busy
+  wallpaper too (`WallpaperLabel`, Themia.Sdk.WinUI.Kit). Two texts, not a composition shadow, so the
+  renders show what the desktop shows. Only a widget that draws on no card uses them.
 
 Needs a manual pass: the showcase views on the live desktop (the blocks change no widget yet, but
 the card's header and the Set up row are theirs now).

@@ -126,6 +126,9 @@ public static class FamilyShape
     /// <summary>A chart's line and a ring.</summary>
     public const double Stroke = 2;
 
+    /// <summary>[S-6733] How far a name's shadow over the wallpaper falls, down and to the right.</summary>
+    public const double TextShadowOffset = 1;
+
     /// <summary>A meter's bar, a range bar, a slider's rail.</summary>
     public const double Track = 4;
 

@@ -17,6 +17,13 @@
             <x:Double x:Key="ResizeHandleSize">10</x:Double>
 
             <!--
+                [S-6733] The family's two wallpaper roles: a name over the wallpaper is light in either
+                theme, with a dark shadow, as Windows' desktop draws its icons' names.
+            -->
+            <SolidColorBrush x:Key="ThemiaOnWallpaperBrush" Color="#FFFFFFFF" />
+            <SolidColorBrush x:Key="ThemiaOnWallpaperShadowBrush" Color="#E6000000" />
+
+            <!--
                 The app-layout editor's window ([S-1411]), drawn as a Windows 11 Settings page through
                 Shell/FluentLayout.cs. Styles rather than brushes set from code, because only a
                 ThemeResource in a style follows the window's own light/dark choice; a brush looked up
