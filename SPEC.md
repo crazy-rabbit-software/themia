@@ -1007,6 +1007,13 @@ module author's guide is docs/WIDGET-KIT.md 16.
   `FamilyShape.TextShadowOffset` (1 DIP) down and to the right, so it reads on a light or a busy
   wallpaper too (`WallpaperLabel`, Themia.Sdk.WinUI.Kit). Two texts, not a composition shadow, so the
   renders show what the desktop shows. Only a widget that draws on no card uses them.
+- **[S-6734]** An **online widget with no answer** to draw (weather now, the forecast, rain, air quality,
+  stocks, the rates) says why in the Status block's one row at the top of its content ([S-6714]), never
+  a centred panel: still waiting, offline or an answer with nothing in it is a plain state (the widget's
+  glyph, tertiary, no action); every other failure is a problem (the caution warning), with Retry as a
+  standard button where asking again can help, never after a 429 nor for a refusal only an edit mends
+  (`FetchState.Look`, `OnlineParts.ShowState`). An answer kept through a failure stays on screen and the
+  header's problem glyph says so ([S-7042]); not set up is the card's Set up row ([S-1862]).
 
 Needs a manual pass: the showcase views on the live desktop (the blocks change no widget yet, but
 the card's header and the Set up row are theirs now).

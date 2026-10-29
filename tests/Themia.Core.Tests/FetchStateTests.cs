@@ -1,5 +1,6 @@
 using Themia.Core.Localization;
 using Themia.Core.Widgets;
+using Themia.Sdk.Kit;
 using Xunit;
 
 namespace Themia.Core.Tests;
@@ -224,4 +225,31 @@ public class FetchStateTests
             previous = delay;
         }
     }
+
+    [Theory]
+    [InlineData(FetchStatus.Loading)]
+    [InlineData(FetchStatus.Offline)]
+    [InlineData(FetchStatus.Empty)]
+    public void S6734_waiting_offline_and_nothing_in_it_are_a_plain_state_without_an_action(FetchStatus status)
+        => Assert.Equal(new FetchLook(StatusKind.Empty, OffersRetry: false), FetchState.Look(status));
+
+    [Theory]
+    [InlineData(FetchStatus.Unreachable)]
+    [InlineData(FetchStatus.TimedOut)]
+    [InlineData(FetchStatus.BadResponse)]
+    public void S6734_a_failure_asking_again_can_mend_is_a_problem_with_retry(FetchStatus status)
+        => Assert.Equal(new FetchLook(StatusKind.Problem, OffersRetry: true), FetchState.Look(status));
+
+    [Theory]
+    [InlineData(FetchStatus.RateLimited)]
+    [InlineData(FetchStatus.Refused)]
+    [InlineData(FetchStatus.SignInRequired)]
+    [InlineData(FetchStatus.Forbidden)]
+    [InlineData(FetchStatus.NotFound)]
+    public void S6734_a_throttle_or_a_refusal_is_a_problem_without_retry(FetchStatus status)
+        => Assert.Equal(new FetchLook(StatusKind.Problem, OffersRetry: false), FetchState.Look(status));
+
+    [Fact]
+    public void S6734_not_set_up_is_the_cards_set_up_row()
+        => Assert.Equal(StatusKind.Setup, FetchState.Look(FetchStatus.NotConfigured).Kind);
 }

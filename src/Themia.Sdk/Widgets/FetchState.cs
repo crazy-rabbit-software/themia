@@ -1,5 +1,6 @@
 using Themia.Core.Diagnostics;
 using Themia.Core.Localization;
+using Themia.Sdk.Kit;
 
 namespace Themia.Core.Widgets;
 
@@ -103,6 +104,21 @@ public static class FetchState
         FetchStatus.Refused => false,
         FetchStatus.SignInRequired or FetchStatus.Forbidden or FetchStatus.NotFound => false,
         _ => true,
+    };
+
+    /// <summary>
+    /// [S-6734] How an online widget with no answer to draw says why, in the Status block's one row at
+    /// the top of its content ([S-6714]): still waiting, offline or an answer with nothing in it is a
+    /// plain state (the widget's glyph, no action: nothing for the user to do); every other failure is
+    /// a problem (the warning), with Retry where asking again can help (never after a 429, whose wait
+    /// is the service's, nor for a refusal only an edit mends). Not set up is the card's Set up row.
+    /// </summary>
+    public static FetchLook Look(FetchStatus status) => status switch
+    {
+        FetchStatus.NotConfigured => new FetchLook(StatusKind.Setup, OffersRetry: false),
+        FetchStatus.Ok or FetchStatus.Loading or FetchStatus.Offline or FetchStatus.Empty => new FetchLook(StatusKind.Empty, OffersRetry: false),
+        FetchStatus.RateLimited => new FetchLook(StatusKind.Problem, OffersRetry: false),
+        _ => new FetchLook(StatusKind.Problem, IsRetryable(status)),
     };
 
     /// <summary>
@@ -232,3 +248,6 @@ public static class Backoff
         return delay;
     }
 }
+
+/// <summary>[S-6734] An online widget's state row without an answer: its kind and whether it offers Retry.</summary>
+public readonly record struct FetchLook(StatusKind Kind, bool OffersRetry);
