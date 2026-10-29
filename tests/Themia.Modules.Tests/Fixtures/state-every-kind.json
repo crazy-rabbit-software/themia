@@ -2250,7 +2250,7 @@
   "preferences": {
     "language": "System",
     "gameModeSuspend": false,
-    "desktopIconsVisible": true,
+    "desktop": 0,
     "region": {
       "clock": "System",
       "weekStart": "System",
@@ -2265,5 +2265,8 @@
   },
   "disabledMonitors": [],
   "monitorScales": {},
-  "viewBars": {}
+  "viewBars": {},
+  "desktop": {
+    "known": []
+  }
 }
