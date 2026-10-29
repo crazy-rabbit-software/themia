@@ -163,7 +163,10 @@ public sealed partial class ReadoutBlock : StackPanel
             _ => TextAlignment.Left,
         };
         _row.HorizontalAlignment = align;
-        _line.TextAlignment = text;
+
+        // A readout of several lines aligns them only when its owner aligned it (a stacked clock); a
+        // one-line readout keeps the start, so its glyphs stand where they always did.
+        _line.TextAlignment = _align is null ? TextAlignment.Left : text;
         _under.HorizontalAlignment = align;
         _under.TextAlignment = text;
         Paint();
