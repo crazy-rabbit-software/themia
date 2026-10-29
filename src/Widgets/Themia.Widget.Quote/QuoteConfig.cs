@@ -55,6 +55,9 @@ public sealed class QuoteConfig : WidgetConfig, IStyled, IShownSettings<QuoteSet
     /// <summary>[S-6906] It waits for setup while this holds.</summary>
     public bool NeedsSetup(FeatureSet signedIn) => EffectiveQuotes.Count == 0;
 
+    /// <summary>[S-1862] The Set up row's sentence while the list is empty: "Add a quote".</summary>
+    string? ISetupRule.SetupSentence => QuoteStr.WidgetsC_Quote_Settings_Add_Title.Text();
+
     public QuoteConfig()
     {
         foreach (var quote in QuoteRotation.Bundled)

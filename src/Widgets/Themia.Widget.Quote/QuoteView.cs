@@ -1,5 +1,5 @@
-using Microsoft.UI;
 using Microsoft.UI.Xaml;
+using Microsoft.UI.Xaml.Automation;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Input;
 using Themia.App.Services;
@@ -7,7 +7,9 @@ using Themia.App.Shell;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
+using Themia.Sdk.Kit;
 using Themia.Sdk.WinUI;
+using Themia.Sdk.WinUI.Kit;
 using Themia.Widget.Quote;
 
 namespace Themia.App.Widgets;
@@ -28,25 +30,21 @@ namespace Themia.App.Widgets;
 /// </summary>
 internal sealed partial class QuoteView : Grid, IWidgetView, IWidgetHeaderContent, IWidgetSizeAware, IWidgetKeys, IWidgetAligned
 {
-    private readonly Button _next;
+    /// <summary>[S-1495] The header's one button, "Show another quote", wanted only with somewhere to go.</summary>
+    private readonly HeaderParts _header = new();
+    private readonly Border _next;
 
-    private readonly TextBlock _text = Fluent.Text(FluentType.Body);
+    /// <summary>[S-1496] The quote: the information, primary, wrapping, on its step.</summary>
+    private readonly TextBlock _text = Family.Text(FamilyType.Body);
 
-    /// <summary>[S-6405] The large-marks style's opening mark, in the accent, over the quote.</summary>
-    private readonly FontIcon _mark = new()
-    {
-        Glyph = Glyphs.Quote,
-        Foreground = ThemeBrush.Of("AccentTextFillColorPrimaryBrush", Colors.SteelBlue),
-        HorizontalAlignment = HorizontalAlignment.Left,
-        MirroredWhenRightToLeft = true,
-        Visibility = Visibility.Collapsed,
-    };
+    /// <summary>[S-6405] The large-marks style's opening mark over the quote, in the secondary role.</summary>
+    private readonly FontIcon _mark = Family.Glyph(Glyphs.Quote);
 
-    private readonly TextBlock _author = Fluent.Text(FluentType.Caption, "TextFillColorSecondaryBrush");
-    private readonly Grid _body;
+    /// <summary>[S-1496] The attribution, on the quote's line under, secondary.</summary>
+    private readonly TextBlock _author = Family.Text(FamilyType.Caption, ColourRole.TextSecondary);
+    private readonly StackPanel _body;
 
     private WidgetArea _area;
-
 
     private QuoteConfig _config = new();
     private Ticker? _ticker;
@@ -59,16 +57,32 @@ internal sealed partial class QuoteView : Grid, IWidgetView, IWidgetHeaderConten
     /// </summary>
     private long _step;
 
+    /// <summary>A debug render's fixed quote (by index), so a render compares; never set outside one.</summary>
+#if DEBUG
+    private int? _pinned;
+#else
+    // Release has no renders: the field's Debug-only writer (the .Preview.cs part) is not compiled.
+    private int? _pinned => null;
+#endif
+
     private bool _detached;
 
     public QuoteView()
     {
-        RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
+        _next = _header.Add(HeaderPartKind.Button, HeaderBlock.Button(Glyphs.Reset, QuoteStr.WidgetsC_Quote_ShowAnother.Text(), OnNext));
 
-        _next = CommandButton(Glyphs.Reset, QuoteStr.WidgetsC_Quote_ShowAnother.Text());
-        _next.Click += OnNextClicked;
+        _text.TextWrapping = TextWrapping.Wrap;
+        _mark.HorizontalAlignment = HorizontalAlignment.Left;
+        _mark.Margin = new Thickness(0, 0, 0, FamilySpace.S2);
+        _mark.Visibility = Visibility.Collapsed;
 
-        _body = BuildBody();
+        // [S-6703] At the view's top (the content top under the header), in the card's side inset.
+        _body = new StackPanel
+        {
+            VerticalAlignment = VerticalAlignment.Top,
+            Margin = Family.SideInset,
+            Children = { _mark, _text, _author },
+        };
 
         Children.Add(_body);
 
@@ -81,76 +95,11 @@ internal sealed partial class QuoteView : Grid, IWidgetView, IWidgetHeaderConten
         Tapped += OnTapped;
     }
 
-    private Grid BuildBody()
-    {
-        _text.TextWrapping = TextWrapping.Wrap;
-        _text.TextTrimming = TextTrimming.CharacterEllipsis;
-
-        _author.TextWrapping = TextWrapping.NoWrap;
-        _author.TextTrimming = TextTrimming.CharacterEllipsis;
-        _author.Margin = new Thickness(0, Fluent.Space2, 0, 0);
-
-        var grid = new Grid
-        {
-            VerticalAlignment = VerticalAlignment.Center,
-            Margin = new Thickness(WidgetLayout.ContentInset, 0, WidgetLayout.ContentInset, WidgetLayout.ContentInset),
-            RowDefinitions =
-            {
-                new RowDefinition { Height = GridLength.Auto },
-                new RowDefinition { Height = GridLength.Auto },
-                new RowDefinition { Height = GridLength.Auto },
-            },
-        };
-
-        SetRow(_mark, 0);
-        SetRow(_text, 1);
-        SetRow(_author, 2);
-        grid.Children.Add(_mark);
-        grid.Children.Add(_text);
-        grid.Children.Add(_author);
-
-        return grid;
-    }
-
     /// <summary>
-    /// A header command: a glyph with the stock subtle fill behind it and nothing at rest.
-    /// <para>
-    /// The brushes go in through the template's own resource keys rather than onto
-    /// <c>Background</c>, because the stock button's visual states assign the pointer-over and
-    /// pressed fills straight onto the border element and would outrank a local value. Same reason
-    /// as the note editor: see <c>NotesView.BuildEditor</c>.
-    /// </para>
+    /// The "show another quote" button, in the card's header (the Header block's one button). Built in
+    /// the constructor because the card reads this once, when it builds that header.
     /// </summary>
-    private static Button CommandButton(string glyph, string tooltip)
-    {
-        var clear = ThemeBrush.Of("SubtleFillColorTransparentBrush", Colors.Transparent);
-
-        var button = new Button
-        {
-            Content = Fluent.Icon(glyph),
-            Padding = new Thickness(Fluent.Space1),
-            BorderThickness = new Thickness(0),
-            CornerRadius = new CornerRadius(Fluent.ControlRadius),
-            MinWidth = 0,
-            VerticalAlignment = VerticalAlignment.Center,
-        };
-
-        // [S-6513] The fills are the item layer's row, in each state.
-        ItemFill.Button(button, "Button");
-        button.Resources["ButtonBorderBrush"] = clear;
-        button.Resources["ButtonBorderBrushPointerOver"] = clear;
-        button.Resources["ButtonBorderBrushPressed"] = clear;
-        button.Resources["ButtonBorderBrushDisabled"] = clear;
-
-        ToolTipService.SetToolTip(button, tooltip);
-        return button;
-    }
-
-    /// <summary>
-    /// The "show another quote" command, in the card's header. Built in the constructor because the
-    /// card reads this once, when it builds that header.
-    /// </summary>
-    public FrameworkElement? HeaderTrailing => _next;
+    public FrameworkElement? HeaderTrailing => _header;
 
     public void Attach(Ticker ticker, WidgetConfig config)
     {
@@ -163,14 +112,13 @@ internal sealed partial class QuoteView : Grid, IWidgetView, IWidgetHeaderConten
     private void OnLanguage(Locale locale)
     {
         ToolTipService.SetToolTip(_next, QuoteStr.WidgetsC_Quote_ShowAnother.Text());
+        AutomationProperties.SetName(_next, QuoteStr.WidgetsC_Quote_ShowAnother.Text());
         Render();
     }
 
     public void ApplyConfig(WidgetConfig config)
     {
         _config = config as QuoteConfig ?? new QuoteConfig();
-
-        _author.Visibility = _config.ShowAuthor ? Visibility.Visible : Visibility.Collapsed;
 
         Subscribe();
         Render();
@@ -203,8 +151,13 @@ internal sealed partial class QuoteView : Grid, IWidgetView, IWidgetHeaderConten
     /// [S-1495] The header button shows a <i>random</i> other quote, as the original's shuffle did;
     /// a tap on the quote itself steps to the next one. Both are ephemeral (S-02).
     /// </summary>
-    private void OnNextClicked(object sender, RoutedEventArgs args)
+    private void OnNext()
     {
+        if (_detached)
+        {
+            return;
+        }
+
         var count = _config.EffectiveQuotes.Count;
         var period = QuoteRotation.Period(DateTimeOffset.Now, _config.Cadence) + _step;
         _step += QuoteRotation.RandomStep(count, period, _config.Seed, _config.Shuffle, Random.Shared.Next());
@@ -264,14 +217,14 @@ internal sealed partial class QuoteView : Grid, IWidgetView, IWidgetHeaderConten
 
         var quotes = _config.EffectiveQuotes;
         var period = QuoteRotation.Period(DateTimeOffset.Now, _config.Cadence) + _step;
-        var index = QuoteRotation.Select(quotes.Count, period, _config.Seed, _config.Shuffle);
+        var index = _pinned is { } pinned && pinned < quotes.Count ? pinned : QuoteRotation.Select(quotes.Count, period, _config.Seed, _config.Shuffle);
 
         if (index < 0)
         {
             // An empty list is a real state — the user cleared it — not a failure to load. The card
             // shows its Set up button over this ([S-1862]).
             _body.Visibility = Visibility.Collapsed;
-            _next.IsEnabled = false;
+            _header.Want(_next, false);
             return;
         }
 
@@ -279,15 +232,11 @@ internal sealed partial class QuoteView : Grid, IWidgetView, IWidgetHeaderConten
 
         _body.Visibility = Visibility.Visible;
 
-        // One quote has nowhere to go, and a button that visibly does nothing is worse than one
-        // that says so.
-        _next.IsEnabled = quotes.Count > 1;
+        // One quote has nowhere to go, and a button that does nothing is worse than none.
+        _header.Want(_next, quotes.Count > 1);
 
         _text.Text = QuoteLayout.Set(Strings.Current, quote.Text, _config.Style);
         _author.Text = QuoteLayout.Attribution(quote.Author);
-        _author.Visibility = _config.ShowAuthor && _author.Text.Length > 0
-            ? Visibility.Visible
-            : Visibility.Collapsed;
 
         Lay();
     }
@@ -315,17 +264,14 @@ internal sealed partial class QuoteView : Grid, IWidgetView, IWidgetHeaderConten
     }
 
     /// <summary>
-    /// [S-210]/[S-653]/[S-1496] The ladder. The quote is the widget, so the attribution is planned
-    /// around it and given up for it; nothing else is drawn (no rotation caption). What is left sets the quote at the largest ramp step a paragraph of it fits
-    /// at — up to TitleLarge, and Display on a tile Huge both ways — and a quote too long even at the
-    /// floor ends in an ellipsis on the last line that fits.
+    /// [S-1496] The quote on the largest family step its wrapped lines fit (the Big ramp, up to the
+    /// area's ceiling; Title or Body where not even 28 does), the attribution on the step's line under
+    /// and given up for the quote, the large mark on the step over it ([S-6405]); nothing else at any
+    /// size. Room left on a large tile stays empty (concise first, [S-666]).
     /// </summary>
     private void Lay()
     {
-        var box = _area.Deflate(WidgetLayout.ContentInset, WidgetLayout.ContentInset / 2);
-        var characters = _text.Text.Length;
-
-        if (!_area.IsMeasured || characters == 0)
+        if (!_area.IsMeasured || _text.Text.Length == 0)
         {
             return;
         }
@@ -334,56 +280,25 @@ internal sealed partial class QuoteView : Grid, IWidgetView, IWidgetHeaderConten
         _mark.HorizontalAlignment = Aligned.Horizontal(_align);
         _text.TextAlignment = Aligned.Text(_align);
         _author.TextAlignment = Aligned.Text(_align);
+        _author.HorizontalAlignment = Aligned.Horizontal(_align);
 
-        // [S-6405] The large mark takes its row off the top before the quote is fitted to the rest.
         var marks = _config.Style == QuoteStyle.Marks;
-        _mark.Visibility = Show(marks);
-        if (marks)
+        var plan = QuoteLayout.Plan(_area, _text.Text, _config.ShowAuthor && _author.Text.Length > 0, marks);
+
+        _mark.Visibility = Show(plan.Mark > 0);
+        if (plan.Mark > 0)
         {
-            var mark = QuoteLayout.MarkSize(_area);
-            _mark.FontSize = mark;
-            _mark.Height = mark;
-            _mark.Margin = new Thickness(0, 0, 0, Fluent.Space1);
-            box = new WidgetArea(box.Width, Math.Max(0, box.Height - mark - Fluent.Space1));
+            _mark.FontSize = plan.Mark;
+            _mark.Width = plan.Mark;
+            _mark.Height = plan.Mark;
         }
 
-        var wantAuthor = _config.ShowAuthor && _author.Text.Length > 0;
-        var ceiling = _area.AtLeast(SizeClass.Huge, SizeClass.Huge) ? FluentType.Display : FluentType.TitleLarge;
+        Family.Step(_text, plan.Step);
+        _text.MaxLines = plan.MaxLines;
 
-        var plan = Plan(box, characters, wantAuthor, ceiling);
-
-        if (!plan.Fits && wantAuthor)
-        {
-            plan = Plan(box, characters, author: false, ceiling);
-        }
-
+        Family.Step(_author, FamilyType.Under(plan.Step));
         _author.Visibility = Show(plan.Author);
-
-        _text.Apply(plan.Step);
-        _text.MaxLines = Math.Max(1, (int)Math.Floor((plan.TextHeight + Disclosure.Tolerance) / plan.Step.LineHeight));
-
-        // The attribution sits one step down, never above Body: it is a name, not the quote.
-        _author.Apply(AuthorStep(plan.Step));
     }
-
-    private readonly record struct QuotePlan(TypeStep Step, double TextHeight, bool Author, bool Fits);
-
-    private static QuotePlan Plan(WidgetArea box, int characters, bool author, TypeStep ceiling)
-    {
-        var room = new Disclosure(box, Fluent.Space2);
-        room.Reserve(FluentType.Caption.LineHeight);
-
-        var showAuthor = author && room.Take(FluentType.Body.LineHeight);
-
-        var height = room.Remaining + FluentType.Caption.LineHeight;
-        var step = QuoteLayout.Fit(box.Width, height, characters, FluentType.Caption, ceiling);
-        var fits = QuoteLayout.Capacity(step, box.Width, height) >= characters;
-
-        return new QuotePlan(step, height, showAuthor, fits);
-    }
-
-    private static TypeStep AuthorStep(TypeStep quote)
-        => quote.FontSize > FluentType.Body.FontSize ? FluentType.Body : FluentType.Caption;
 
     private static Visibility Show(bool visible) => visible ? Visibility.Visible : Visibility.Collapsed;
 
@@ -400,7 +315,6 @@ internal sealed partial class QuoteView : Grid, IWidgetView, IWidgetHeaderConten
         _subscription = null;
         _ticker = null;
 
-        _next.Click -= OnNextClicked;
         Tapped -= OnTapped;
     }
 }

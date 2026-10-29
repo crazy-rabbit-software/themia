@@ -64,14 +64,6 @@ public sealed class QuoteTests
     }
 
     [Theory]
-    [InlineData(120, 76, 28)]
-    [InlineData(320, 196, 28)]
-    [InlineData(560, 376, 40)]
-    [InlineData(800, 516, 68)]
-    public void S6405_the_large_mark_is_a_ramp_step_chosen_by_the_smaller_side(double width, double height, double size)
-        => Assert.Equal(size, QuoteLayout.MarkSize(new WidgetArea(width, height)));
-
-    [Theory]
     [InlineData(WidgetKey.Right, 3, ControlKey.Next)]
     [InlineData(WidgetKey.Space, 3, ControlKey.Next)]
     [InlineData(WidgetKey.Enter, 3, ControlKey.Next)]

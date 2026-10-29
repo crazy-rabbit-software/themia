@@ -1,76 +1,124 @@
 using Themia.Core.Localization;
+using Themia.Sdk.Kit;
 using Themia.Widget.Quote;
 namespace Themia.Core.Widgets;
 
+/// <summary>[S-1496] How a quote is set at one size.</summary>
+/// <param name="Step">The quote's step: Body, Title, or a Readout step up to the area's ceiling.</param>
+/// <param name="Author">Whether the attribution stands under it, on the step's line under.</param>
+/// <param name="Mark">The large mark's size over it (a glyph on the step, 16 under Big 28), 0 for none.</param>
+/// <param name="MaxLines">The whole lines the quote may take, at least one; a longer quote ends in an ellipsis.</param>
+public readonly record struct QuotePlan(TypeStep Step, bool Author, double Mark, int MaxLines);
+
 /// <summary>
-/// How a quote is set: which ramp step a paragraph of it fits at, and how it is punctuated.
+/// How a quote is set: on which family step a paragraph of it fits, and how it is punctuated.
 /// <para>
-/// <see cref="FluentType.Fit"/> sizes a <i>line</i> — it asks whether the characters fit across the
-/// box once. A quote is a paragraph: it wraps, so the question is whether the characters fit in the
-/// box <b>at all</b>, across as many lines as the box has room for. Sizing a wrapping quote with the
-/// single-line rule pins every quote at the floor, because no interesting quote fits on one line of
-/// a 180px widget.
+/// [S-1496] A quote is the widget, so it is set on the Big ramp (28, 40, 68, capped as every data
+/// widget's number is by the area, <see cref="ReadoutRules.Ceiling"/>) where its wrapped lines fit,
+/// and on Title, then Body, where even 28 does not. A quote is a paragraph: the question is how many
+/// lines it wraps to on a step (<see cref="Lines"/>, word by word on Segoe UI Variable's advances,
+/// <see cref="HeroFit.Ems"/>), not whether it fits across the box once.
 /// </para>
 /// </summary>
 public static class QuoteLayout
 {
     /// <summary>
-    /// The average character advance as a fraction of the font size, matching the one
-    /// <see cref="FluentType"/> uses for the same reason: this only has to be close, because being
-    /// slightly out changes nothing until it crosses a whole ramp step.
+    /// [S-1496] The plan for <paramref name="text"/> in a view of <paramref name="area"/> (the card less
+    /// its header): the largest step on which the mark (with <paramref name="marks"/>), the wrapped quote
+    /// and the attribution (with <paramref name="author"/>) fit the content box; the attribution gives
+    /// way when not even Body holds the quote with it; a quote too long even for Body alone ends in an
+    /// ellipsis on the last line that fits.
     /// </summary>
-    private const double AverageAdvance = 0.58;
-
-    /// <summary>
-    /// The largest ramp step at which <paramref name="characters"/> of wrapped text still fit the
-    /// box, never below <paramref name="floor"/> and never above <paramref name="ceiling"/>.
-    /// <para>
-    /// A step is still a step: the quote on a large tile moves from Body to Subtitle to Title, so
-    /// every size on screen is one Windows itself uses. [S-210]
-    /// </para>
-    /// </summary>
-    public static TypeStep Fit(double width, double height, int characters, TypeStep floor, TypeStep ceiling)
+    public static QuotePlan Plan(WidgetArea area, string? text, bool author, bool marks)
     {
-        if (!IsUsable(width) || !IsUsable(height))
-        {
-            return floor;
-        }
+        var width = Math.Max(0, area.Width - (2 * FamilySpace.Inset));
+        var height = Math.Max(0, area.Height - FamilySpace.Inset);
+        var quote = text ?? string.Empty;
 
-        var wanted = Math.Max(1, characters);
-        var chosen = floor;
-
-        foreach (var step in FluentType.Ramp)
+        foreach (var withAuthor in author ? new[] { true, false } : [false])
         {
-            if (step.FontSize < floor.FontSize || step.FontSize > ceiling.FontSize)
+            QuotePlan? best = null;
+            foreach (var step in Steps(area))
             {
-                continue;
+                var mark = marks ? MarkSize(step) : 0;
+                var room = height - (mark > 0 ? mark + FamilySpace.S2 : 0) - (withAuthor ? FamilyType.Under(step).LineHeight : 0);
+                var lines = Lines(quote, step, width);
+                if (lines * step.LineHeight <= room + 0.01)
+                {
+                    best = new QuotePlan(step, withAuthor, mark, Whole(room, step));
+                }
             }
 
-            if (Capacity(step, width, height) >= wanted)
+            if (best is { } plan)
             {
-                chosen = step;
+                return plan;
             }
         }
 
-        return chosen;
+        // Too long even for Body alone: Body, cut at the last whole line; the mark only where a line still fits under it.
+        var body = FamilyType.Body;
+        var marked = marks && height - MarkSize(body) - FamilySpace.S2 >= body.LineHeight;
+        var left = height - (marked ? MarkSize(body) + FamilySpace.S2 : 0);
+        return new QuotePlan(body, false, marked ? MarkSize(body) : 0, Whole(left, body));
+    }
+
+    /// <summary>[S-1496] The steps a quote may take in <paramref name="area"/>, smallest first: Body, Title, then Big up to the area's ceiling.</summary>
+    public static IReadOnlyList<TypeStep> Steps(WidgetArea area)
+    {
+        var ceiling = ReadoutRules.Ceiling(area);
+        return [FamilyType.Body, FamilyType.Title, .. FamilyType.Big.Where(s => FamilyType.BaseOf(s) <= ceiling)];
     }
 
     /// <summary>
-    /// Roughly how many characters the box holds at a step: whole lines down, whole characters
-    /// across. Fewer than one line of either means it holds nothing.
+    /// [S-6405] The large mark's size: a glyph on the quote's own step (as a lead glyph beside a 40 is
+    /// 40), 16 for a quote set on Title or Body.
     /// </summary>
-    public static double Capacity(TypeStep step, double width, double height)
+    public static double MarkSize(TypeStep step) => FamilyType.BaseOf(step) >= 28 ? step.FontSize : FamilyShape.Icon;
+
+    /// <summary>
+    /// [S-1496] How many lines <paramref name="text"/> wraps to on <paramref name="step"/> across
+    /// <paramref name="width"/>: word by word, a word too long for a line broken across as many as it
+    /// needs. An empty text is one line; a box with no width holds none.
+    /// </summary>
+    public static int Lines(string? text, TypeStep step, double width)
     {
-        if (!IsUsable(width) || !IsUsable(height) || step.FontSize <= 0)
+        if (!(width > 0) || !double.IsFinite(width))
         {
-            return 0;
+            return int.MaxValue;
         }
 
-        var lines = Math.Floor(height / step.LineHeight);
-        var perLine = Math.Floor(width / (step.FontSize * AverageAdvance));
+        var space = HeroFit.Ems(" ") * step.FontSize;
+        var lines = 1;
+        var run = 0.0;
+        foreach (var word in (text ?? string.Empty).Split(' ', StringSplitOptions.RemoveEmptyEntries))
+        {
+            var w = HeroFit.Ems(word) * step.FontSize;
+            if (w > width)
+            {
+                // A word wider than the line breaks across lines of its own, the last one partly filled.
+                var spans = (int)Math.Ceiling(w / width);
+                lines += (run > 0 ? 1 : 0) + spans - 1;
+                run = w - ((spans - 1) * width);
+            }
+            else if (run == 0)
+            {
+                run = w;
+            }
+            else if (run + space + w <= width)
+            {
+                run += space + w;
+            }
+            else
+            {
+                lines++;
+                run = w;
+            }
+        }
 
-        return lines <= 0 || perLine <= 0 ? 0 : lines * perLine;
+        return lines;
     }
+
+    private static int Whole(double height, TypeStep step) => Math.Max(1, (int)Math.Floor((height + 0.01) / step.LineHeight));
 
     /// <summary>
     /// The quote with the typographic quotation marks around it.
@@ -93,18 +141,6 @@ public static class QuoteLayout
     }
 
     /// <summary>
-    /// [S-6405] The size of the large-marks style's opening mark, a step of the type ramp chosen by
-    /// the card's smaller side: Title up to Regular, TitleLarge at Expanded, Display at Huge. The
-    /// mark is an ornament over the quote, so it grows with the card rather than with the text.
-    /// </summary>
-    public static double MarkSize(WidgetArea area) => area.Least switch
-    {
-        SizeClass.Huge => FluentType.Display.FontSize,
-        SizeClass.Expanded => FluentType.TitleLarge.FontSize,
-        _ => FluentType.Title.FontSize,
-    };
-
-    /// <summary>
     /// [S-6404] The quote as the style sets it: in the language's own marks for Plain, bare under
     /// the large mark for Marks (a mark at each end as well would say it twice).
     /// </summary>
@@ -121,6 +157,4 @@ public static class QuoteLayout
 
         return trimmed.Length == 0 ? string.Empty : $"— {trimmed}";
     }
-
-    private static bool IsUsable(double value) => double.IsFinite(value) && value > 0;
 }
