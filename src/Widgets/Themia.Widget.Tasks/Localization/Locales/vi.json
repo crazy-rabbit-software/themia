@@ -4,7 +4,6 @@
   "todo.localLists.defaultName": "Tác vụ của tôi",
   "todo.localLists.namePlaceholder": "Tên danh sách",
   "todo.showCompleted.label": "Hiện tác vụ đã xong",
-  "todo.titleLines.label": "Số dòng tiêu đề",
   "todo.todayList": "Hôm nay",
   "widgetsA.catalog.tasks.description": "Microsoft To Do hoặc một danh sách trên PC này",
   "widgetsA.catalog.tasks.label": "Tác vụ",
@@ -73,5 +72,6 @@
   "widgetsC.tasks.stateOpen": "Chưa xong",
   "widgetsC.tasks.taskName": "Tên tác vụ",
   "widgetsC.tasks.thisAccountNeedsSignIn": "Tài khoản này cần bạn đăng nhập lại.",
-  "widgetsC.tasks.untitledList": "Danh sách không tên"
+  "widgetsC.tasks.untitledList": "Danh sách không tên",
+  "tasks.setup.sentence": "Thêm tài khoản để hiển thị việc cần làm của bạn"
 }

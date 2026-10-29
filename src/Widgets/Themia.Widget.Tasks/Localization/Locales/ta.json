@@ -4,7 +4,6 @@
   "todo.localLists.defaultName": "எனது பணிகள்",
   "todo.localLists.namePlaceholder": "பட்டியல் பெயர்",
   "todo.showCompleted.label": "முடிந்தவற்றைக் காட்டு",
-  "todo.titleLines.label": "தலைப்பு வரிகள்",
   "todo.todayList": "இன்று",
   "widgetsA.catalog.tasks.description": "Microsoft To Do அல்லது இந்த PC இல் ஒரு பட்டியல்",
   "widgetsA.catalog.tasks.label": "பணிகள்",
@@ -75,5 +74,6 @@
   "widgetsC.tasks.stateOpen": "திறந்துள்ளது",
   "widgetsC.tasks.taskName": "பணியின் பெயர்",
   "widgetsC.tasks.thisAccountNeedsSignIn": "இந்தக் கணக்குக்கு நீங்கள் மீண்டும் உள்நுழைய வேண்டும்.",
-  "widgetsC.tasks.untitledList": "தலைப்பில்லாத பட்டியல்"
+  "widgetsC.tasks.untitledList": "தலைப்பில்லாத பட்டியல்",
+  "tasks.setup.sentence": "உங்கள் பணிகளைக் காட்ட ஒரு கணக்கைச் சேர்க்கவும்"
 }

@@ -35,6 +35,9 @@ public enum TasksSetting
 /// </summary>
 public sealed class TasksConfig : WidgetConfig, IStyled, IShownSettings<TasksSetting>, ISetupRule, IInterests
 {
+    /// <summary>[S-1862] What its Set up row says it waits for.</summary>
+    string? ISetupRule.SetupSentence => TasksStr.Tasks_Setup_Sentence.Text();
+
     /// <summary>[S-2608] What the background sync keeps fresh for it.</summary>
     public void AddInterests(InterestsBuilder interests)
     {
@@ -86,9 +89,6 @@ public sealed class TasksConfig : WidgetConfig, IStyled, IShownSettings<TasksSet
         set => Style = (TasksStyle)value;
     }
 
-    /// <summary>[S-601] Lines a title wraps to before it is cut. Clamped on read.</summary>
-    public int TitleLines { get; set; } = TaskRules.TitleLinesDefault;
-
     /// <summary>[S-610] A task added here, or one this widget has not seen before, goes to the top rather than the bottom.</summary>
     public bool NewOnTop { get; set; }
 
@@ -112,9 +112,6 @@ public sealed class TasksConfig : WidgetConfig, IStyled, IShownSettings<TasksSet
         // A hand-edited "taskOrder": null must not leave the widget holding a null list.
         set => _taskOrder = value ?? [];
     }
-
-    [JsonIgnore]
-    public int EffectiveTitleLines => TaskRules.ClampTitleLines(TitleLines);
 
     /// <summary>[S-6074] The due date and importance rows: an account's tasks only (<see cref="Filter"/>).</summary>
     [JsonIgnore]
@@ -200,7 +197,6 @@ public sealed class TasksConfig : WidgetConfig, IStyled, IShownSettings<TasksSet
         ShowCompleted = ShowCompleted,
         ShowDueDate = ShowDueDate,
         Style = Style,
-        TitleLines = TitleLines,
         NewOnTop = NewOnTop,
         DueFilter = DueFilter,
         ImportantOnly = ImportantOnly,

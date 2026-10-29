@@ -4,7 +4,6 @@
   "todo.localLists.defaultName": "Mijn taken",
   "todo.localLists.namePlaceholder": "Lijstnaam",
   "todo.showCompleted.label": "Voltooide weergeven",
-  "todo.titleLines.label": "Titelregels",
   "todo.todayList": "Vandaag",
   "widgetsA.catalog.tasks.description": "Microsoft To Do of een lijst op deze pc",
   "widgetsA.catalog.tasks.label": "Taken",
@@ -75,5 +74,6 @@
   "widgetsC.tasks.stateOpen": "Open",
   "widgetsC.tasks.taskName": "Taaknaam",
   "widgetsC.tasks.thisAccountNeedsSignIn": "Je moet je opnieuw aanmelden bij dit account.",
-  "widgetsC.tasks.untitledList": "Naamloze lijst"
+  "widgetsC.tasks.untitledList": "Naamloze lijst",
+  "tasks.setup.sentence": "Voeg een account toe om je taken te zien"
 }

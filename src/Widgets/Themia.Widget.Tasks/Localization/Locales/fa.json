@@ -4,7 +4,6 @@
   "todo.localLists.defaultName": "کارهای من",
   "todo.localLists.namePlaceholder": "نام فهرست",
   "todo.showCompleted.label": "نمایش کارهای انجام‌شده",
-  "todo.titleLines.label": "خطوط عنوان",
   "todo.todayList": "امروز",
   "widgetsA.catalog.tasks.description": "Microsoft To Do یا فهرستی روی این رایانه",
   "widgetsA.catalog.tasks.label": "کارها",
@@ -75,5 +74,6 @@
   "widgetsC.tasks.stateOpen": "باز",
   "widgetsC.tasks.taskName": "نام کار",
   "widgetsC.tasks.thisAccountNeedsSignIn": "باید دوباره به این حساب وارد شوید.",
-  "widgetsC.tasks.untitledList": "فهرست بدون عنوان"
+  "widgetsC.tasks.untitledList": "فهرست بدون عنوان",
+  "tasks.setup.sentence": "برای نمایش کارهایتان یک حساب اضافه کنید"
 }

@@ -4,7 +4,6 @@
   "todo.localLists.defaultName": "Moje zadania",
   "todo.localLists.namePlaceholder": "Nazwa listy",
   "todo.showCompleted.label": "Pokaż wykonane",
-  "todo.titleLines.label": "Wiersze tytułu",
   "todo.todayList": "Dzisiaj",
   "widgetsA.catalog.tasks.description": "Microsoft To Do lub lista na tym komputerze",
   "widgetsA.catalog.tasks.label": "Zadania",
@@ -79,5 +78,6 @@
   "widgetsC.tasks.stateOpen": "Otwarte",
   "widgetsC.tasks.taskName": "Nazwa zadania",
   "widgetsC.tasks.thisAccountNeedsSignIn": "To konto wymaga ponownego zalogowania.",
-  "widgetsC.tasks.untitledList": "Lista bez tytułu"
+  "widgetsC.tasks.untitledList": "Lista bez tytułu",
+  "tasks.setup.sentence": "Dodaj konto, aby zobaczyć swoje zadania"
 }

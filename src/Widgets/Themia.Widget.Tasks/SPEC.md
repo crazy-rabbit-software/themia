@@ -20,22 +20,24 @@ look); the spec's are `Tests/TaskSpecTests.cs` and `Tests/TaskFreshnessTests.cs`
 - **[S-592]** The list picker offers the account's default list, Today, then its lists. The lists are
   stored per account ([S-2650]) and read again with every sync (single-flight; a failure with nothing
   stored is said).
-- **[S-602]** Style ([S-6400]): List puts the due date under the title, Compact beside it (under it anyway in a
-  column under 240px wide). Rows are Fluent's fixed heights at minimum and grow only for a wrapped
-  title; an important task's title is semibold. The size ladder is [S-780].
+- **[S-602]** Style ([S-6400]): List gives a row its second line (the list's name under Today) where
+  the tile has room for it; Compact keeps every row one line. Rows are the family's fixed heights
+  ([S-6712]); an important task's title is BodyStrong. The size ladder is [S-780].
 - **[S-6400]** Tasks' styles ([S-6000]), `TasksConfig.Style` (`TasksStyle`, `"style": "list"`):
   **List** and **Compact** ([S-602]), what was its Layout setting; no other look option exists.
 - **[S-605]** Retired (the app is unreleased: no hearth-era config is read). Nulls a hand edit leaves in
   a Tasks config's strings, an unknown source, layout or due filter, a text filter over 100
   characters, and a broken row order are repaired on load.
-- **[S-785]** An open important task leads its title with a "!" in the critical colour (classic
-  S-11) where its column is at least 160px wide; the weight and the tooltip say it everywhere.
+- **[S-785]** Retired (G2, 2026-10-29): the "!" before an important task's title. Its BodyStrong
+  title and the tooltip say it everywhere; the critical colour is a state's (an overdue due), never
+  a mark of importance.
 - **[S-615]** Tasks' one stale rule ([S-7042]): the header is the kit's (`KitHeader`: the problem
-  glyph, the ring, the open count, before the list picker); a list on this PC that could not be
-  saved and a change the provider refused are its notes; an account list whose last refresh failed
-  with tasks on screen is one line in the kit's words, stamped with when they are from ("Work: No
-  network · updated 10:42", `TaskFreshness`); the card menu's Refresh line says the age. The old
-  "Last refresh failed: … Showing items from …" warning is gone.
+  glyph, the ring, the list picker as its button, the neutral open count); a list on this PC that
+  could not be saved and a change the provider refused are its notes; an account list whose last
+  refresh failed with tasks on screen is one line in the kit's words, stamped with when they are
+  from ("Work: No network · updated 10:42", `TaskFreshness`); the card menu's Refresh line says the
+  age. A state the user must know went wrong (an account gone or to sign in again, a failed fetch)
+  is the kit's state row with the warning and its way out (Accounts, Try again, Start a list).
 - **[S-616]** A task's menu and keys are the kit's ([S-7011], [S-7020]; `TaskSpec`): the menu is
   Mark as done (Mark as not done, with the undo glyph), then Rename, then Delete, Rename and Delete in
   its icon row with F2 and Delete shown; a task opens for editing, so a double-click and Enter rename

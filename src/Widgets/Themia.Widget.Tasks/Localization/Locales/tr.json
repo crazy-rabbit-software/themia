@@ -4,7 +4,6 @@
   "todo.localLists.defaultName": "Görevlerim",
   "todo.localLists.namePlaceholder": "Liste adı",
   "todo.showCompleted.label": "Tamamlananları göster",
-  "todo.titleLines.label": "Başlık satırları",
   "todo.todayList": "Bugün",
   "widgetsA.catalog.tasks.description": "Microsoft To Do veya bu bilgisayardaki bir liste",
   "widgetsA.catalog.tasks.label": "Görevler",
@@ -75,5 +74,6 @@
   "widgetsC.tasks.stateOpen": "Açık",
   "widgetsC.tasks.taskName": "Görev adı",
   "widgetsC.tasks.thisAccountNeedsSignIn": "Bu hesapta yeniden oturum açmanız gerekiyor.",
-  "widgetsC.tasks.untitledList": "Adsız liste"
+  "widgetsC.tasks.untitledList": "Adsız liste",
+  "tasks.setup.sentence": "Görevlerinizi görmek için bir hesap ekleyin"
 }

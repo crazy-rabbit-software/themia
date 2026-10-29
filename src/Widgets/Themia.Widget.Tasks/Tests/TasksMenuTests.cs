@@ -75,7 +75,7 @@ public sealed class TasksMenuTests
         Assert.Equal(
             [
                 From, ListLabel, string.Empty,
-                TasksStr.WidgetsC_Tasks_Settings_ShowDue_Label.Text(), TasksStr.Todo_TitleLines_Label.Text(), string.Empty,
+                TasksStr.WidgetsC_Tasks_Settings_ShowDue_Label.Text(), string.Empty,
                 TasksStr.Todo_ShowCompleted_Label.Text(), TasksStr.WidgetsC_Tasks_Settings_Filter.Text(), TasksStr.WidgetsC_Tasks_Settings_NewOnTop_Label.Text(),
             ],
             lines.Lines.Select(l => l.IsSeparator ? string.Empty : l.Text));
@@ -250,14 +250,4 @@ public sealed class TasksMenuTests
         Assert.Equal(1, _saves);
     }
 
-    [Fact]
-    public void S7516_the_title_lines_are_one_to_six_dots()
-    {
-        var config = new TasksConfig();
-        var titles = Line(Build(config, Accounts()).Lines, TasksStr.Todo_TitleLines_Label.Text());
-
-        Assert.Equal(TaskRules.TitleLinesMax - TaskRules.TitleLinesMin + 1, titles.Children!.Count);
-        Line(titles.Children!, LocaleFormat.Integer(4)).Action!();
-        Assert.Equal(4, config.TitleLines);
-    }
 }

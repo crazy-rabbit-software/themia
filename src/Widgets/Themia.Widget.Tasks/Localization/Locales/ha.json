@@ -4,7 +4,6 @@
   "todo.localLists.defaultName": "Ayyukana",
   "todo.localLists.namePlaceholder": "Sunan jeri",
   "todo.showCompleted.label": "Nuna waɗanda aka kammala",
-  "todo.titleLines.label": "Layukan take",
   "todo.todayList": "Yau",
   "widgetsA.catalog.tasks.description": "Microsoft To Do ko jeri a wannan kwamfuta",
   "widgetsA.catalog.tasks.label": "Ayyuka",
@@ -75,5 +74,6 @@
   "widgetsC.tasks.stateOpen": "A buɗe",
   "widgetsC.tasks.taskName": "Sunan aiki",
   "widgetsC.tasks.thisAccountNeedsSignIn": "Wannan asusu yana buƙatar ka sake shiga.",
-  "widgetsC.tasks.untitledList": "Jeri mara suna"
+  "widgetsC.tasks.untitledList": "Jeri mara suna",
+  "tasks.setup.sentence": "Ƙara asusu don nuna ayyukanka"
 }

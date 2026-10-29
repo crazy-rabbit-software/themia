@@ -4,7 +4,6 @@
   "todo.localLists.defaultName": "ਮੇਰੇ ਕਾਰਜ",
   "todo.localLists.namePlaceholder": "ਸੂਚੀ ਦਾ ਨਾਮ",
   "todo.showCompleted.label": "ਪੂਰੇ ਹੋਏ ਦਿਖਾਓ",
-  "todo.titleLines.label": "ਸਿਰਲੇਖ ਲਾਈਨਾਂ",
   "todo.todayList": "ਅੱਜ",
   "widgetsA.catalog.tasks.description": "Microsoft To Do ਜਾਂ ਇਸ PC ਉੱਤੇ ਇੱਕ ਸੂਚੀ",
   "widgetsA.catalog.tasks.label": "ਕਾਰਜ",
@@ -75,5 +74,6 @@
   "widgetsC.tasks.stateOpen": "ਖੁੱਲ੍ਹਾ",
   "widgetsC.tasks.taskName": "ਕਾਰਜ ਦਾ ਨਾਮ",
   "widgetsC.tasks.thisAccountNeedsSignIn": "ਇਸ ਖਾਤੇ ਲਈ ਤੁਹਾਨੂੰ ਦੁਬਾਰਾ ਸਾਈਨ ਇਨ ਕਰਨ ਦੀ ਲੋੜ ਹੈ।",
-  "widgetsC.tasks.untitledList": "ਬਿਨਾਂ ਸਿਰਲੇਖ ਸੂਚੀ"
+  "widgetsC.tasks.untitledList": "ਬਿਨਾਂ ਸਿਰਲੇਖ ਸੂਚੀ",
+  "tasks.setup.sentence": "ਆਪਣੇ ਕੰਮ ਦਿਖਾਉਣ ਲਈ ਖਾਤਾ ਜੋੜੋ"
 }

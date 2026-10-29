@@ -4,7 +4,6 @@
   "todo.localLists.defaultName": "Kazi zangu",
   "todo.localLists.namePlaceholder": "Jina la orodha",
   "todo.showCompleted.label": "Onyesha zilizokamilika",
-  "todo.titleLines.label": "Mistari ya kichwa",
   "todo.todayList": "Leo",
   "widgetsA.catalog.tasks.description": "Microsoft To Do au orodha kwenye Kompyuta hii",
   "widgetsA.catalog.tasks.label": "Kazi",
@@ -75,5 +74,6 @@
   "widgetsC.tasks.stateOpen": "Wazi",
   "widgetsC.tasks.taskName": "Jina la kazi",
   "widgetsC.tasks.thisAccountNeedsSignIn": "Akaunti hii inahitaji uingie tena.",
-  "widgetsC.tasks.untitledList": "Orodha isiyo na jina"
+  "widgetsC.tasks.untitledList": "Orodha isiyo na jina",
+  "tasks.setup.sentence": "Ongeza akaunti ili kuonyesha kazi zako"
 }

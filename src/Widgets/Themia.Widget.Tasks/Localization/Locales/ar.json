@@ -4,7 +4,6 @@
   "todo.localLists.defaultName": "مهامي",
   "todo.localLists.namePlaceholder": "اسم القائمة",
   "todo.showCompleted.label": "إظهار المكتملة",
-  "todo.titleLines.label": "أسطر العنوان",
   "todo.todayList": "اليوم",
   "widgetsA.catalog.tasks.description": "Microsoft To Do أو قائمة على هذا الكمبيوتر",
   "widgetsA.catalog.tasks.label": "المهام",
@@ -83,5 +82,6 @@
   "widgetsC.tasks.stateOpen": "مفتوحة",
   "widgetsC.tasks.taskName": "اسم المهمة",
   "widgetsC.tasks.thisAccountNeedsSignIn": "يجب تسجيل الدخول إلى هذا الحساب مرة أخرى.",
-  "widgetsC.tasks.untitledList": "قائمة بلا عنوان"
+  "widgetsC.tasks.untitledList": "قائمة بلا عنوان",
+  "tasks.setup.sentence": "أضف حسابًا لعرض مهامك"
 }

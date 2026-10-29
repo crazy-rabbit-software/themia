@@ -4,7 +4,6 @@
   "todo.localLists.defaultName": "Мои задачи",
   "todo.localLists.namePlaceholder": "Название списка",
   "todo.showCompleted.label": "Показывать выполненные",
-  "todo.titleLines.label": "Строк названия",
   "todo.todayList": "Сегодня",
   "widgetsA.catalog.tasks.description": "Microsoft To Do или список на этом ПК",
   "widgetsA.catalog.tasks.label": "Задачи",
@@ -79,5 +78,6 @@
   "widgetsC.tasks.stateOpen": "Открыта",
   "widgetsC.tasks.taskName": "Название задачи",
   "widgetsC.tasks.thisAccountNeedsSignIn": "В эту учетную запись нужно войти снова.",
-  "widgetsC.tasks.untitledList": "Список без названия"
+  "widgetsC.tasks.untitledList": "Список без названия",
+  "tasks.setup.sentence": "Добавьте учётную запись, чтобы видеть задачи"
 }

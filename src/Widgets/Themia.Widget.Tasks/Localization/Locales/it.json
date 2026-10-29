@@ -4,7 +4,6 @@
   "todo.localLists.defaultName": "Le mie attività",
   "todo.localLists.namePlaceholder": "Nome della lista",
   "todo.showCompleted.label": "Mostra completate",
-  "todo.titleLines.label": "Righe del titolo",
   "todo.todayList": "Oggi",
   "widgetsA.catalog.tasks.description": "Microsoft To Do o un elenco su questo PC",
   "widgetsA.catalog.tasks.label": "Attività",
@@ -75,5 +74,6 @@
   "widgetsC.tasks.stateOpen": "In sospeso",
   "widgetsC.tasks.taskName": "Nome dell'attività",
   "widgetsC.tasks.thisAccountNeedsSignIn": "Questo account richiede un nuovo accesso.",
-  "widgetsC.tasks.untitledList": "Elenco senza titolo"
+  "widgetsC.tasks.untitledList": "Elenco senza titolo",
+  "tasks.setup.sentence": "Aggiungi un account per vedere le tue attività"
 }

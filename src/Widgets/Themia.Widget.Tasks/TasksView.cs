@@ -39,7 +39,6 @@ internal sealed partial class TasksView : Grid, IWidgetView, IWidgetHeaderConten
 
     /// <summary>[S-615] The kit's header: the problem glyph, the ring and the open count, before the list picker.</summary>
     private readonly KitHeader _header;
-    private readonly StackPanel _trailing;
 
     /// <summary>The open tasks the badge counts, or null for none shown.</summary>
     private long? _openCount;
@@ -97,15 +96,6 @@ internal sealed partial class TasksView : Grid, IWidgetView, IWidgetHeaderConten
         // the list stays, and the kit's problem glyph says it may be out of date and why.
         _header = new KitHeader(host);
 
-        BuildPicker();
-
-        _trailing = new StackPanel
-        {
-            Orientation = Orientation.Horizontal,
-            Spacing = Fluent.Space2,
-            VerticalAlignment = VerticalAlignment.Center,
-            Children = { _header, _picker },
-        };
 
         // [S-617] Every state that is not a list is the kit's state panel, over the list's own slot
         // (above the add row): the sentence, the Accounts link where only the user can mend it, and
@@ -132,7 +122,7 @@ internal sealed partial class TasksView : Grid, IWidgetView, IWidgetHeaderConten
     }
 
     /// <inheritdoc />
-    public FrameworkElement? HeaderTrailing => _trailing;
+    public FrameworkElement? HeaderTrailing => _header;
 
     private bool IsLocal => _config.Source == TaskSource.Local;
 
@@ -166,7 +156,7 @@ internal sealed partial class TasksView : Grid, IWidgetView, IWidgetHeaderConten
     private void OnLanguage(Locale locale)
     {
         _list.Relabel();
-        ApplyPickerTexts();
+        UpdateHeader();
         PublishTitle();
         Render();
     }
@@ -329,7 +319,7 @@ internal sealed partial class TasksView : Grid, IWidgetView, IWidgetHeaderConten
                 PublishTitle();
             }
 
-            UpdatePicker();
+            UpdateHeader();
         }
         catch (AccountException ex)
         {
@@ -576,7 +566,6 @@ internal sealed partial class TasksView : Grid, IWidgetView, IWidgetHeaderConten
     public void ApplySize(WidgetArea area)
     {
         _area = area;
-        UpdatePicker();
 
         if (_screen == Screen.Ready)
         {
@@ -602,8 +591,7 @@ internal sealed partial class TasksView : Grid, IWidgetView, IWidgetHeaderConten
         string[] notes = note is null ? [] : [note];
         var lines = _screen == Screen.Ready ? [.. notes, .. KitFreshness.Lines(Strings.Current, Outcomes(), DateTimeOffset.Now)] : notes;
 
-        _header.Show(lines, busy, offersAccounts: false, count: _screen == Screen.Ready ? _openCount : null);
-        UpdatePicker();
+        _header.Show(lines, busy, offersAccounts: false, count: _screen == Screen.Ready ? _openCount : null, buttons: PickerButtons());
     }
 
     /// <summary>[S-7516] Whether the account shown has importance, so "Important only" applies ([S-611]).</summary>
@@ -655,11 +643,11 @@ internal sealed partial class TasksView : Grid, IWidgetView, IWidgetHeaderConten
                 break;
 
             case Screen.AccountGone:
-                ShowEmpty(TasksStr.WidgetsC_OneDrive_AccountGone.Text(), EmptyAction.Accounts);
+                ShowEmpty(TasksStr.WidgetsC_OneDrive_AccountGone.Text(), EmptyAction.Accounts, problem: true);
                 break;
 
             case Screen.NeedsSignIn:
-                ShowEmpty(who is null ? TasksStr.WidgetsC_Tasks_ThisAccountNeedsSignIn.Text() : TasksStr.WidgetsC_OneDrive_AccountNeedsSignIn.Format(("account", who)), EmptyAction.Accounts);
+                ShowEmpty(who is null ? TasksStr.WidgetsC_Tasks_ThisAccountNeedsSignIn.Text() : TasksStr.WidgetsC_OneDrive_AccountNeedsSignIn.Format(("account", who)), EmptyAction.Accounts, problem: true);
                 break;
 
             case Screen.NoLists:
@@ -667,7 +655,7 @@ internal sealed partial class TasksView : Grid, IWidgetView, IWidgetHeaderConten
                 break;
 
             case Screen.ListsFailed:
-                ShowEmpty(Explain(_listsFailure), EmptyAction.Retry);
+                ShowEmpty(Explain(_listsFailure), EmptyAction.Retry, problem: true);
                 break;
 
             case Screen.NoLocalList:
@@ -681,7 +669,7 @@ internal sealed partial class TasksView : Grid, IWidgetView, IWidgetHeaderConten
             case Screen.Failed:
                 ShowEmpty(Explain(_feed?.Failure), _feed?.Failure?.Error is AccountError.SignInRequired or AccountError.UnknownAccount
                     ? EmptyAction.Accounts
-                    : EmptyAction.Retry);
+                    : EmptyAction.Retry, problem: true);
                 break;
         }
     }
@@ -705,13 +693,14 @@ internal sealed partial class TasksView : Grid, IWidgetView, IWidgetHeaderConten
     }
 
     /// <summary>[S-617] A state's sentence on the kit's panel, with its way out.</summary>
-    private void ShowEmpty(string text, EmptyAction? action)
+    /// <param name="problem">A state the user must know went wrong (an account gone or to sign in again, a failed fetch): the warning leads it.</param>
+    private void ShowEmpty(string text, EmptyAction? action, bool problem = false)
         => _state.Show(text, action == EmptyAction.Accounts, action: action switch
         {
             EmptyAction.Retry => (TasksStr.Connect_TryAgain.Text(), Refresh),
             EmptyAction.StartLocalList => (TasksStr.WidgetsC_Tasks_StartList.Text(), StartLocalList),
             _ => null,
-        });
+        }, problem: problem);
 
     /// <summary>[S-604] Start a list on this PC: the one it had if that still exists, else the first, else a new one.</summary>
     private void StartLocalList()
@@ -736,7 +725,6 @@ internal sealed partial class TasksView : Grid, IWidgetView, IWidgetHeaderConten
         }
 
         _list.Detach();
-        DetachPicker();
         _detached = true;
         _bindGeneration++;
         Strings.Changed -= OnLanguage;

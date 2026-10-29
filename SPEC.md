@@ -3482,8 +3482,9 @@ important mark). Tests: `TaskRulesTests`, `LocalTaskListsTests`, `TaskSyncTests`
 - **[S-600]** Double-click a task (or Rename in its menu) to rename it in place. Enter or leaving the
   box commits, Escape cancels, a blank or unchanged title writes nothing. The request is a PATCH of
   the title alone, its body written with a JSON writer so a quote cannot break out.
-- **[S-601]** A title wraps to "Title lines" (1–6, default 2; two at most on a compact row) and is
-  then cut with an ellipsis; the tooltip carries the whole title, its state, due date and priority.
+- **[S-601]** A title is one line, cut with an ellipsis; the tooltip carries the whole title, its
+  state, due date and priority. The "Title lines" setting is retired (G2, 2026-10-29): a row's
+  height is the tier's, never its title's.
 - **[S-603]** Lists on this PC are one pool in `tasks.json` beside the state (`schemaVersion` 1),
   shared by every widget: renaming a list retitles each widget showing it, and deleting a widget keeps
   its tasks. Load validates every entry (a list needs a non-empty id and a name, a task an id and a
@@ -3993,16 +3994,16 @@ Not ported: wind in mph for °F (the original had none either); a gradient fill 
 
 ## Tasks: using the whole tile, and the rest of the original
 
-- **[S-780]** Tasks ladder (the kit's check look, `KitChecks.Plan`, [S-7037], from the card's `WidgetArea`): one task always; the add
-  footer ([S-3850]) from Regular height, and at any size under an empty list (never while a filter
-  narrows the list, [S-611]); the list takes the rest (no summary strip, [S-783]). The header's list
-  picker ([S-614]) from Regular width.
-  Compact rows below Expanded height; one-line titles at Compact height, at most two below Expanded.
-  Due text by width: none on an XS tile (both axes Compact), only Overdue/Today in a Compact-wide
-  column, the short label otherwise, label plus date ("Overdue · 2 Oct", "Thu 8 Oct") on a panel;
-  beside the title on a strip or panel (Expanded width) or in Compact layout, never in a column under
-  240px. An open overdue task's marker rings in the critical colour at every size. On a Compact-wide
-  tile the rows' side inset halves.
+- **[S-780]** Tasks ladder (the kit's check look, `KitChecks.Plan`, [S-7037], from the card's `WidgetArea`) on the family's
+  rows ([S-6711]): one task always; rows of 32, or of 48 with the list's name under Today from a
+  regular tile ([S-789]), never taller for a long title (one line, the tooltip has it whole); the
+  add footer ([S-3850], one row of 32) from Regular height, and at any size under an empty list
+  (never while a filter narrows the list, [S-611]); the list takes the rest (no summary strip,
+  [S-783]). The header's list picker ([S-614]) is the kit header's button, folded by the header.
+  The due is the row's value: none on an XS tile (both axes Compact), only Overdue/Today in a
+  Compact-wide column, the short label otherwise, label plus date ("Overdue · 2 Oct", "Thu 8 Oct")
+  from Expanded × Expanded. An open overdue task's check rings in the critical colour, its due too.
+  With no task account the Set up row says "Add an account to show your tasks" ([S-1862]).
 - **[S-781]** The list shows whole lines only (the viewport ends on the last line that fits, never on
   a section heading) and the lines near its bottom fade while more is below: row opacity, not a
   painted gradient, because the card may be transparent. Without an add row the list's foot padding

@@ -4,7 +4,6 @@
   "todo.localLists.defaultName": "Meine Aufgaben",
   "todo.localLists.namePlaceholder": "Listenname",
   "todo.showCompleted.label": "Erledigte anzeigen",
-  "todo.titleLines.label": "Titelzeilen",
   "todo.todayList": "Heute",
   "widgetsA.catalog.tasks.description": "Microsoft To Do oder eine Liste auf diesem PC",
   "widgetsA.catalog.tasks.label": "Aufgaben",
@@ -75,5 +74,6 @@
   "widgetsC.tasks.stateOpen": "Offen",
   "widgetsC.tasks.taskName": "Aufgabenname",
   "widgetsC.tasks.thisAccountNeedsSignIn": "Dieses Konto erfordert eine erneute Anmeldung.",
-  "widgetsC.tasks.untitledList": "Liste ohne Titel"
+  "widgetsC.tasks.untitledList": "Liste ohne Titel",
+  "tasks.setup.sentence": "Füge ein Konto hinzu, um deine Aufgaben zu sehen"
 }

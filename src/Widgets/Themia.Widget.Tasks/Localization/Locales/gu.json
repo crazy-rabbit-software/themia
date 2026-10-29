@@ -4,7 +4,6 @@
   "todo.localLists.defaultName": "મારાં કાર્યો",
   "todo.localLists.namePlaceholder": "સૂચિનું નામ",
   "todo.showCompleted.label": "પૂર્ણ થયેલાં બતાવો",
-  "todo.titleLines.label": "શીર્ષક પંક્તિઓ",
   "todo.todayList": "આજે",
   "widgetsA.catalog.tasks.description": "Microsoft To Do અથવા આ PC પરની સૂચિ",
   "widgetsA.catalog.tasks.label": "કાર્યો",
@@ -75,5 +74,6 @@
   "widgetsC.tasks.stateOpen": "ખુલ્લું",
   "widgetsC.tasks.taskName": "કાર્યનું નામ",
   "widgetsC.tasks.thisAccountNeedsSignIn": "આ એકાઉન્ટ માટે તમારે ફરીથી સાઇન ઇન કરવાની જરૂર છે.",
-  "widgetsC.tasks.untitledList": "શીર્ષક વિનાની સૂચિ"
+  "widgetsC.tasks.untitledList": "શીર્ષક વિનાની સૂચિ",
+  "tasks.setup.sentence": "તમારાં કાર્યો બતાવવા માટે એકાઉન્ટ ઉમેરો"
 }

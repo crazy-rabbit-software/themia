@@ -4,7 +4,6 @@
   "todo.localLists.defaultName": "내 작업",
   "todo.localLists.namePlaceholder": "목록 이름",
   "todo.showCompleted.label": "완료된 항목 표시",
-  "todo.titleLines.label": "제목 줄 수",
   "todo.todayList": "오늘",
   "widgetsA.catalog.tasks.description": "Microsoft To Do 또는 이 PC의 목록",
   "widgetsA.catalog.tasks.label": "작업",
@@ -73,5 +72,6 @@
   "widgetsC.tasks.stateOpen": "진행 중",
   "widgetsC.tasks.taskName": "작업 이름",
   "widgetsC.tasks.thisAccountNeedsSignIn": "이 계정에 다시 로그인해야 합니다.",
-  "widgetsC.tasks.untitledList": "제목 없는 목록"
+  "widgetsC.tasks.untitledList": "제목 없는 목록",
+  "tasks.setup.sentence": "할 일을 보려면 계정을 추가하세요"
 }

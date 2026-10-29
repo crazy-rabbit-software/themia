@@ -4,7 +4,6 @@
   "todo.localLists.defaultName": "Mga gawain ko",
   "todo.localLists.namePlaceholder": "Pangalan ng listahan",
   "todo.showCompleted.label": "Ipakita ang mga natapos",
-  "todo.titleLines.label": "Mga linya ng pamagat",
   "todo.todayList": "Ngayong araw",
   "widgetsA.catalog.tasks.description": "Microsoft To Do o isang listahan sa PC na ito",
   "widgetsA.catalog.tasks.label": "Mga gawain",
@@ -75,5 +74,6 @@
   "widgetsC.tasks.stateOpen": "Bukas",
   "widgetsC.tasks.taskName": "Pangalan ng gawain",
   "widgetsC.tasks.thisAccountNeedsSignIn": "Kailangan mong mag-sign in ulit sa account na ito.",
-  "widgetsC.tasks.untitledList": "Listahang walang pamagat"
+  "widgetsC.tasks.untitledList": "Listahang walang pamagat",
+  "tasks.setup.sentence": "Magdagdag ng account para ipakita ang iyong mga gawain"
 }

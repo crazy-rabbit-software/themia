@@ -4,7 +4,6 @@
   "todo.localLists.defaultName": "我的任务",
   "todo.localLists.namePlaceholder": "列表名称",
   "todo.showCompleted.label": "显示已完成",
-  "todo.titleLines.label": "标题行数",
   "todo.todayList": "今天",
   "widgetsA.catalog.tasks.description": "Microsoft To Do 或此电脑上的列表",
   "widgetsA.catalog.tasks.label": "任务",
@@ -73,5 +72,6 @@
   "widgetsC.tasks.stateOpen": "未完成",
   "widgetsC.tasks.taskName": "任务名称",
   "widgetsC.tasks.thisAccountNeedsSignIn": "此帐户需要你重新登录。",
-  "widgetsC.tasks.untitledList": "无标题列表"
+  "widgetsC.tasks.untitledList": "无标题列表",
+  "tasks.setup.sentence": "添加帐户以显示你的任务"
 }

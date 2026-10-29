@@ -4,7 +4,6 @@
   "todo.localLists.defaultName": "আমার কাজ",
   "todo.localLists.namePlaceholder": "তালিকার নাম",
   "todo.showCompleted.label": "সম্পন্নগুলো দেখান",
-  "todo.titleLines.label": "শিরোনামের লাইন",
   "todo.todayList": "আজ",
   "widgetsA.catalog.tasks.description": "Microsoft To Do বা এই PC-র একটি তালিকা",
   "widgetsA.catalog.tasks.label": "কাজ",
@@ -75,5 +74,6 @@
   "widgetsC.tasks.stateOpen": "খোলা",
   "widgetsC.tasks.taskName": "কাজের নাম",
   "widgetsC.tasks.thisAccountNeedsSignIn": "এই অ্যাকাউন্টে আবার সাইন ইন করা প্রয়োজন।",
-  "widgetsC.tasks.untitledList": "শিরোনামহীন তালিকা"
+  "widgetsC.tasks.untitledList": "শিরোনামহীন তালিকা",
+  "tasks.setup.sentence": "আপনার কাজ দেখাতে একটি অ্যাকাউন্ট যোগ করুন"
 }

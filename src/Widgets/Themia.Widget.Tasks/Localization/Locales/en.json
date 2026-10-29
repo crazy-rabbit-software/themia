@@ -1,11 +1,12 @@
 {
-  "$englishOnly": ["widgetsC.tasks.menu.textFilterLong"],
+  "$englishOnly": [
+    "widgetsC.tasks.menu.textFilterLong"
+  ],
   "connect.tryAgain": "Try again",
   "todo.loadingLists": "Loading lists…",
   "todo.localLists.defaultName": "My tasks",
   "todo.localLists.namePlaceholder": "List name",
   "todo.showCompleted.label": "Show completed",
-  "todo.titleLines.label": "Title lines",
   "todo.todayList": "Today",
   "widgetsA.catalog.tasks.description": "Microsoft To Do or a list on this PC",
   "widgetsA.catalog.tasks.label": "Tasks",
@@ -77,5 +78,6 @@
   "widgetsC.tasks.taskName": "Task name",
   "widgetsC.tasks.thisAccountNeedsSignIn": "This account needs you to sign in again.",
   "widgetsC.tasks.untitledList": "Untitled list",
-  "widgetsC.tasks.menu.textFilterLong": "At most {max} characters"
+  "widgetsC.tasks.menu.textFilterLong": "At most {max} characters",
+  "tasks.setup.sentence": "Add an account to show your tasks"
 }

@@ -4,7 +4,6 @@
   "todo.localLists.defaultName": "میرے کام",
   "todo.localLists.namePlaceholder": "فہرست کا نام",
   "todo.showCompleted.label": "مکمل شدہ دکھائیں",
-  "todo.titleLines.label": "عنوان کی لائنیں",
   "todo.todayList": "آج",
   "widgetsA.catalog.tasks.description": "Microsoft To Do یا اس PC پر کوئی فہرست",
   "widgetsA.catalog.tasks.label": "کام",
@@ -75,5 +74,6 @@
   "widgetsC.tasks.stateOpen": "کھلا",
   "widgetsC.tasks.taskName": "کام کا نام",
   "widgetsC.tasks.thisAccountNeedsSignIn": "اس اکاؤنٹ کے لیے دوبارہ سائن ان کرنا ضروری ہے۔",
-  "widgetsC.tasks.untitledList": "بلا عنوان فہرست"
+  "widgetsC.tasks.untitledList": "بلا عنوان فہرست",
+  "tasks.setup.sentence": "اپنے کام دکھانے کے لیے اکاؤنٹ شامل کریں"
 }

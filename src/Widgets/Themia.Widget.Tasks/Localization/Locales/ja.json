@@ -4,7 +4,6 @@
   "todo.localLists.defaultName": "マイタスク",
   "todo.localLists.namePlaceholder": "リスト名",
   "todo.showCompleted.label": "完了を表示",
-  "todo.titleLines.label": "タイトルの行数",
   "todo.todayList": "今日",
   "widgetsA.catalog.tasks.description": "Microsoft To Do またはこの PC 上のリスト",
   "widgetsA.catalog.tasks.label": "タスク",
@@ -73,5 +72,6 @@
   "widgetsC.tasks.stateOpen": "未完了",
   "widgetsC.tasks.taskName": "タスク名",
   "widgetsC.tasks.thisAccountNeedsSignIn": "このアカウントに再度サインインする必要があります。",
-  "widgetsC.tasks.untitledList": "無題のリスト"
+  "widgetsC.tasks.untitledList": "無題のリスト",
+  "tasks.setup.sentence": "タスクを表示するにはアカウントを追加してください"
 }

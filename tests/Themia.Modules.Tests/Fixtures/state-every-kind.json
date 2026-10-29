@@ -291,7 +291,6 @@
             "showCompleted": false,
             "showDueDate": true,
             "style": "list",
-            "titleLines": 2,
             "newOnTop": false,
             "dueFilter": "Any",
             "importantOnly": false,

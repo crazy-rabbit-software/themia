@@ -4,7 +4,6 @@
   "todo.localLists.defaultName": "Tugas saya",
   "todo.localLists.namePlaceholder": "Nama daftar",
   "todo.showCompleted.label": "Tampilkan yang selesai",
-  "todo.titleLines.label": "Baris judul",
   "todo.todayList": "Hari ini",
   "widgetsA.catalog.tasks.description": "Microsoft To Do atau daftar di PC ini",
   "widgetsA.catalog.tasks.label": "Tugas",
@@ -73,5 +72,6 @@
   "widgetsC.tasks.stateOpen": "Terbuka",
   "widgetsC.tasks.taskName": "Nama tugas",
   "widgetsC.tasks.thisAccountNeedsSignIn": "Akun ini perlu Anda masuk lagi.",
-  "widgetsC.tasks.untitledList": "Daftar tanpa judul"
+  "widgetsC.tasks.untitledList": "Daftar tanpa judul",
+  "tasks.setup.sentence": "Tambahkan akun untuk menampilkan tugas Anda"
 }

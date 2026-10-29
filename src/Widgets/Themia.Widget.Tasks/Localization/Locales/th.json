@@ -4,7 +4,6 @@
   "todo.localLists.defaultName": "งานของฉัน",
   "todo.localLists.namePlaceholder": "ชื่อรายการ",
   "todo.showCompleted.label": "แสดงรายการที่เสร็จแล้ว",
-  "todo.titleLines.label": "บรรทัดชื่อเรื่อง",
   "todo.todayList": "วันนี้",
   "widgetsA.catalog.tasks.description": "Microsoft To Do หรือรายการบนพีซีเครื่องนี้",
   "widgetsA.catalog.tasks.label": "งาน",
@@ -73,5 +72,6 @@
   "widgetsC.tasks.stateOpen": "ยังไม่เสร็จ",
   "widgetsC.tasks.taskName": "ชื่องาน",
   "widgetsC.tasks.thisAccountNeedsSignIn": "บัญชีนี้ต้องให้คุณลงชื่อเข้าใช้อีกครั้ง",
-  "widgetsC.tasks.untitledList": "รายการที่ไม่มีชื่อ"
+  "widgetsC.tasks.untitledList": "รายการที่ไม่มีชื่อ",
+  "tasks.setup.sentence": "เพิ่มบัญชีเพื่อแสดงงานของคุณ"
 }

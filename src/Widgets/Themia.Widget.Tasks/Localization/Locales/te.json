@@ -4,7 +4,6 @@
   "todo.localLists.defaultName": "నా పనులు",
   "todo.localLists.namePlaceholder": "జాబితా పేరు",
   "todo.showCompleted.label": "పూర్తయినవి చూపించు",
-  "todo.titleLines.label": "శీర్షిక పంక్తులు",
   "todo.todayList": "ఈ రోజు",
   "widgetsA.catalog.tasks.description": "Microsoft To Do లేదా ఈ PCలో ఒక జాబితా",
   "widgetsA.catalog.tasks.label": "పనులు",
@@ -75,5 +74,6 @@
   "widgetsC.tasks.stateOpen": "తెరిచి ఉంది",
   "widgetsC.tasks.taskName": "పని పేరు",
   "widgetsC.tasks.thisAccountNeedsSignIn": "ఈ ఖాతాకు మీరు మళ్లీ సైన్ ఇన్ చేయాలి.",
-  "widgetsC.tasks.untitledList": "పేరులేని జాబితా"
+  "widgetsC.tasks.untitledList": "పేరులేని జాబితా",
+  "tasks.setup.sentence": "మీ టాస్క్‌లను చూపడానికి ఖాతాను జోడించండి"
 }

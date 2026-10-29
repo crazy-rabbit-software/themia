@@ -1,4 +1,3 @@
-using Microsoft.UI;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Controls.Primitives;
@@ -6,7 +5,9 @@ using Themia.App.Shell;
 using Themia.Core.Localization;
 using Themia.Core.Tasks;
 using Themia.Core.Widgets;
+using Themia.Sdk.Kit;
 using Themia.Sdk.WinUI;
+using Themia.Sdk.WinUI.Kit;
 using Windows.System;
 using Themia.Widget.Tasks;
 
@@ -19,57 +20,31 @@ namespace Themia.App.Widgets;
 /// </summary>
 internal sealed partial class TasksView
 {
-    private Button _picker = null!;
-
-    /// <summary>The open list-rename box (the header's flyout), or null.</summary>
     private TextBox? _renamingList;
 
-    private void BuildPicker()
-    {
-        _picker = new Button
-        {
-            Content = Fluent.Icon(Glyphs.ChevronDown, "TextFillColorSecondaryBrush", 12),
-            Padding = new Thickness(Fluent.Space1),
-            MinWidth = 0,
-            MinHeight = 0,
-            BorderThickness = new Thickness(0),
-            Background = ThemeBrush.Of("SubtleFillColorTransparentBrush", Colors.Transparent),
-            VerticalAlignment = VerticalAlignment.Center,
-            Visibility = Visibility.Collapsed,
-        };
-
-        ApplyPickerTexts();
-        _picker.Click += OnPickerClick;
-    }
-
-    private void ApplyPickerTexts()
-    {
-        ToolTipService.SetToolTip(_picker, TasksStr.WidgetsC_Tasks_ChooseList.Text());
-        Microsoft.UI.Xaml.Automation.AutomationProperties.SetName(_picker, TasksStr.WidgetsC_Tasks_ChooseList.Text());
-    }
-
     /// <summary>
-    /// The picker shows wherever there are lists to pick from — never on the narrowest tile, where it
-    /// would push the list's name out of the header.
+    /// [S-612] The list picker: one of the kit header's buttons (the 16 chevron), shown while there are
+    /// lists to pick from; the header's fold gives it way on a narrow tile, the menu still has the lists.
     /// </summary>
-    private void UpdatePicker()
+    private IReadOnlyList<KitHeaderButton> PickerButtons()
     {
         var lists = IsLocal ? _local?.Lists.Count > 0 : _feed?.Lists is { Count: > 0 };
-        _picker.Visibility = lists && _area.WidthClass > SizeClass.Compact ? Visibility.Visible : Visibility.Collapsed;
+        return lists
+            ? [new KitHeaderButton(Glyphs.ChevronDown, TasksStr.WidgetsC_Tasks_ChooseList.Text()) { Menu = PickerEntries }]
+            : [];
     }
 
-    /// <summary>The account list this widget shows (the default list for an unchosen one), or null for Today and a list on this PC.</summary>
     private TaskListInfo? ShownList()
         => _feed is { IsToday: false } feed ? feed.Lists?.FirstOrDefault(l => l.Id == feed.ListId) : null;
 
-    private void OnPickerClick(object sender, RoutedEventArgs args)
+    private IEnumerable<ItemMenuEntry> PickerEntries()
     {
+        var entries = new List<ItemMenuEntry>();
         if (_detached || _service is null)
         {
-            return;
+            return entries;
         }
 
-        var entries = new List<ItemMenuEntry>();
 
         if (IsLocal)
         {
@@ -102,7 +77,7 @@ internal sealed partial class TasksView
             }
         }
 
-        ItemMenu.Open(_picker, entries);
+        return entries;
     }
 
     private static string Display(string name) => string.IsNullOrWhiteSpace(name) ? TasksStr.WidgetsC_Tasks_UntitledList.Text() : name;
@@ -137,7 +112,7 @@ internal sealed partial class TasksView
     /// <summary>Rename the shown list in a small box under the picker: Enter or leaving it commits, Escape does not.</summary>
     private void RenameInFlyout(string current)
     {
-        var box = new TextBox { Text = current, MinWidth = 200, PlaceholderText = TasksStr.Todo_LocalLists_NamePlaceholder.Text() };
+        var box = new TextBox { Text = current, MinWidth = KitLadder.MinColumn, PlaceholderText = TasksStr.Todo_LocalLists_NamePlaceholder.Text() };
         // [S-1500] Its own popup: inside the surface's window the region clips it to the card.
         var flyout = new Flyout { Content = box, Placement = FlyoutPlacementMode.Bottom, ShouldConstrainToRootBounds = false };
         var cancelled = false;
@@ -171,7 +146,7 @@ internal sealed partial class TasksView
             }
         };
 
-        flyout.ShowAt(_picker);
+        flyout.ShowAt(_header.ButtonAt(0) ?? (FrameworkElement)this);
     }
 
     /// <summary>[S-614] A blank or unchanged name writes nothing; To Do's own lists and Today are never offered.</summary>
@@ -204,6 +179,4 @@ internal sealed partial class TasksView
             _ = _service.RenameListAsync(feed.AccountId, list, clean);
         }
     }
-
-    private void DetachPicker() => _picker.Click -= OnPickerClick;
 }

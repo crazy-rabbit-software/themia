@@ -4,7 +4,6 @@
   "todo.localLists.defaultName": "我的工作",
   "todo.localLists.namePlaceholder": "清單名稱",
   "todo.showCompleted.label": "顯示已完成",
-  "todo.titleLines.label": "標題行數",
   "todo.todayList": "今天",
   "widgetsA.catalog.tasks.description": "Microsoft To Do 或此電腦上的清單",
   "widgetsA.catalog.tasks.label": "工作",
@@ -73,5 +72,6 @@
   "widgetsC.tasks.stateOpen": "未完成",
   "widgetsC.tasks.taskName": "工作名稱",
   "widgetsC.tasks.thisAccountNeedsSignIn": "此帳戶需要您重新登入。",
-  "widgetsC.tasks.untitledList": "無標題清單"
+  "widgetsC.tasks.untitledList": "無標題清單",
+  "tasks.setup.sentence": "新增帳戶以顯示你的工作"
 }
