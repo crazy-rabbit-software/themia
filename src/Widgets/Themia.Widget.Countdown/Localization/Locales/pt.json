@@ -1,4 +1,5 @@
 {
+  "countdown.setup": "Escolha uma data para a contagem regressiva",
   "styles.countdown.ring": "Anel",
   "styles.countdown.text": "Texto",
   "styles.countdown.unitDays": "dias",

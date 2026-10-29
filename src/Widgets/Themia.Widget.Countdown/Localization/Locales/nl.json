@@ -1,4 +1,5 @@
 {
+  "countdown.setup": "Kies een datum om naar af te tellen",
   "styles.countdown.ring": "Ring",
   "styles.countdown.text": "Tekst",
   "styles.countdown.unitDays": "dagen",

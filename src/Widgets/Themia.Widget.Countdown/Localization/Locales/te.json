@@ -1,4 +1,5 @@
 {
+  "countdown.setup": "లెక్కించడానికి ఒక తేదీని ఎంచుకోండి",
   "styles.countdown.ring": "వలయం",
   "styles.countdown.text": "వచనం",
   "styles.countdown.unitDays": "రోజులు",

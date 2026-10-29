@@ -1,4 +1,5 @@
 {
+  "countdown.setup": "Chọn ngày để đếm ngược",
   "styles.countdown.ring": "Vòng",
   "styles.countdown.text": "Chữ",
   "styles.countdown.unitDays": "ngày",

@@ -1,4 +1,5 @@
 {
+  "countdown.setup": "เลือกวันที่ที่จะนับถอยหลัง",
   "styles.countdown.ring": "วงแหวน",
   "styles.countdown.text": "ข้อความ",
   "styles.countdown.unitDays": "วัน",

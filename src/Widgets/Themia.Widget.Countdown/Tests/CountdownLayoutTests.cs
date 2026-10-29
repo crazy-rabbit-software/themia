@@ -1,6 +1,7 @@
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
+using Themia.Sdk.Kit;
 using Xunit;
 
 namespace Themia.Widget.Countdown.Tests;
@@ -92,10 +93,59 @@ public sealed class CountdownLayoutTests
     }
 
     [Fact]
-    public void S1447_hero_width_is_the_formats_widest()
+    public void S1447_the_readout_is_sized_on_the_readings_shape_so_a_tick_does_not_move_it()
     {
-        Assert.True(CountdownLayout.HeroCharacters(CountdownFormat.DaysHoursMinutesSeconds, false)
-            > CountdownLayout.HeroCharacters(CountdownFormat.Days, false));
-        Assert.Equal(CountdownLayout.HeroCharacters(CountdownFormat.Auto, false) + 4, CountdownLayout.HeroCharacters(CountdownFormat.Auto, true));
+        Assert.Equal("8d 8h", CountdownLayout.Shape("3d 5h"));
+        Assert.Equal(CountdownLayout.Shape("3d 5h"), CountdownLayout.Shape("2d 9h"));
+        Assert.NotEqual(CountdownLayout.Shape("3d 5h"), CountdownLayout.Shape("23h 59m"));
+    }
+
+    [Fact]
+    public void S1447_the_text_climbs_the_hero_steps_and_the_bar_stands_under_it_on_l_and_xl_only()
+    {
+        var m = CountdownLayout.Plan(CountdownStyle.Text, M, "3d 5h", [], progress: true);
+        Assert.Equal(CountdownLook.Text, m.Look);
+        Assert.Equal(FamilyType.Hero96, m.Step);
+        Assert.True(m.Under);
+        Assert.False(m.Bar);
+
+        var l = CountdownLayout.Plan(CountdownStyle.Text, L, "3d 5h", [], progress: true);
+        Assert.True(l.Bar);
+        Assert.False(CountdownLayout.Plan(CountdownStyle.Text, L, "3d 5h", [], progress: false).Bar);
+
+        var xs = CountdownLayout.Plan(CountdownStyle.Text, XS, "3d 5h", [], progress: true);
+        Assert.Equal(FamilyType.Big28, xs.Step);
+    }
+
+    [Fact]
+    public void S6031_the_ring_holds_the_text_where_its_hole_can_and_never_has_a_bar()
+    {
+        var m = CountdownLayout.Plan(CountdownStyle.Ring, M, "3d 5h", [], progress: true);
+        Assert.Equal(CountdownLook.Ring, m.Look);
+        Assert.Equal(180, m.Ring);
+        Assert.Equal(FamilyType.Big40, m.Step);
+
+        var xl = CountdownLayout.Plan(CountdownStyle.Ring, XL, "3d 5h", [], progress: true);
+        Assert.False(xl.Bar);
+
+        // XS: a 60 ring's hole cannot hold "8d 8h" on 28; the text instead, still without a bar.
+        var xs = CountdownLayout.Plan(CountdownStyle.Ring, XS, "3d 5h", [], progress: true);
+        Assert.Equal(CountdownLook.Text, xs.Look);
+        Assert.False(xs.Bar);
+    }
+
+    [Fact]
+    public void S6032_the_cards_take_the_largest_step_their_row_fits_else_the_text()
+    {
+        CountdownCard[] cards = [new("3", CountdownUnit.Days), new("05", CountdownUnit.Hours), new("19", CountdownUnit.Minutes)];
+
+        var xl = CountdownLayout.Plan(CountdownStyle.Flip, XL, "3d 5h", cards, progress: true);
+        Assert.Equal(CountdownLook.Flip, xl.Look);
+        Assert.Equal(FamilyType.Hero192, xl.Step);
+        Assert.True(xl.Under);
+        Assert.False(xl.Bar);
+
+        // XS: three cards on 28 are 3 × (33 + 24) + 16 = 187 wide in an 88 box: the text.
+        Assert.Equal(CountdownLook.Text, CountdownLayout.Plan(CountdownStyle.Flip, XS, "3d 5h", cards, progress: true).Look);
     }
 }

@@ -1,4 +1,5 @@
 {
+  "countdown.setup": "उलटी गिनती के लिए एक तारीख चुनें",
   "styles.countdown.ring": "वलय",
   "styles.countdown.text": "पाठ",
   "styles.countdown.unitDays": "दिन",

@@ -1,4 +1,5 @@
 {
+  "countdown.setup": "カウントダウンする日付を選択",
   "styles.countdown.ring": "リング",
   "styles.countdown.text": "テキスト",
   "styles.countdown.unitDays": "日",

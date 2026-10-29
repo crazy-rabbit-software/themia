@@ -1,4 +1,5 @@
 {
+  "countdown.setup": "Выберите дату для обратного отсчёта",
   "styles.countdown.ring": "Кольцо",
   "styles.countdown.text": "Текст",
   "styles.countdown.unitDays": "дн.",

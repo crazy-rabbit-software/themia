@@ -1,4 +1,5 @@
 using Themia.Core.Model;
+using Themia.Sdk.Kit;
 
 namespace Themia.Core.Widgets;
 
@@ -14,6 +15,21 @@ public enum CountdownUnit
 /// <summary>[S-6032] One split-flap card of the Flip style: its figures and what they count.</summary>
 public readonly record struct CountdownCard(string Digits, CountdownUnit Unit);
 
+/// <summary>[S-6030] What a countdown tile draws: the text, the ring with the text in it, or the flip cards.</summary>
+public enum CountdownLook
+{
+    Text,
+    Ring,
+    Flip,
+}
+
+/// <summary>
+/// [S-1447] [S-6030] The countdown's face as planned: its look, the readout's step (the cards' on the
+/// Flip look), whether the line under shows (the date; the cards' units), the ring's diameter (0 off
+/// the ring), whether the progress bar shows and the cards' plan.
+/// </summary>
+public readonly record struct CountdownPlan(CountdownLook Look, TypeStep Step, bool Under, double Ring, bool Bar, FlipPlan Flip);
+
 /// <summary>
 /// The Countdown widget's ladder and the rules behind its readout: how far along it is, the widest
 /// its duration gets, its ring and its flip cards. Pure; the view only measures.
@@ -25,6 +41,57 @@ public static class CountdownLayout
     /// target) is a rung of the large tiles alone: Expanded both ways.
     /// </summary>
     public static bool ShowsProgress(WidgetArea area) => area.AtLeast(SizeClass.Expanded, SizeClass.Expanded);
+
+    /// <summary>What the progress bar takes from the readout's box: the gap and the track.</summary>
+    public const double BarCost = FamilySpace.S2 + FamilyShape.Track;
+
+    /// <summary>
+    /// [S-1447] A reading's shape: its figures as 8s ("3d 5h" is "8d 8h"), so the readout is sized on
+    /// the widest its figures get and does not move as they tick; a new shape (a unit going at the last
+    /// day) lays the face out again.
+    /// </summary>
+    public static string Shape(string reading) => new([.. (reading ?? string.Empty).Select(c => char.IsDigit(c) ? '8' : c)]);
+
+    /// <summary>
+    /// [S-1447] [S-6030] [S-6739] The face for <paramref name="style"/> in a view of <paramref name="area"/>
+    /// (the card less its header): the duration as the Readout on the Hero steps with the target's date
+    /// under it, sized on the reading's shape; Ring puts it in the Chart ring of the time left wherever
+    /// a ring holds it, Flip draws the cards (<see cref="FlipRules"/>) with their units under them where
+    /// the row fits, and either falls back to the text. The progress bar (<paramref name="progress"/>:
+    /// there is a share to draw) stands 8 under the text on L and XL, never under a Ring style's face.
+    /// No Controls row: a countdown has nothing to start or stop.
+    /// </summary>
+    public static CountdownPlan Plan(CountdownStyle style, WidgetArea area, string reading, IReadOnlyList<CountdownCard> cards, bool progress)
+    {
+        ArgumentNullException.ThrowIfNull(cards);
+        var width = Math.Max(0, area.Width - (2 * FamilySpace.Inset));
+        var height = Math.Max(0, area.Height - FamilySpace.Inset);
+        var worst = new ReadoutText(Shape(reading), LineUnder: true, OneReadout: true);
+
+        if (style == CountdownStyle.Ring)
+        {
+            var ring = TimerFace.Ring(area, width, height, worst, controls: false);
+            if (ring.Ring > 0)
+            {
+                return new CountdownPlan(CountdownLook.Ring, ring.Step, ring.Under, ring.Ring, false, default);
+            }
+        }
+
+        if (style == CountdownStyle.Flip && cards.Count > 0)
+        {
+            var widest = new string('8', Math.Max(2, cards.Max(c => c.Digits.Length)));
+            var flip = FlipRules.Plan(area, width, height, cards.Count, widest, oneReadout: true, under: true);
+            if (FlipRules.RowWidth(flip.Step, cards.Count, widest) <= width && flip.CardHeight <= height)
+            {
+                return new CountdownPlan(CountdownLook.Flip, flip.Step, flip.Under, 0, false, flip);
+            }
+        }
+
+        var bar = progress && style != CountdownStyle.Ring && ShowsProgress(area)
+            && ReadoutRules.Height(FamilyType.Big28, worst with { LineUnder = false }) + BarCost <= height;
+        var text = TimerFace.Plan(area, width, height - (bar ? BarCost : 0), worst, controls: false);
+        return new CountdownPlan(CountdownLook.Text, text.Step, text.Under, 0, bar, default);
+    }
 
     /// <summary>
     /// [S-1448] How far along the countdown is, 0 to 1, from when its target was set to the target;
@@ -43,23 +110,6 @@ public static class CountdownLayout
         var gone = (now - config.Created).TotalSeconds;
 
         return Math.Clamp(gone / whole, 0, 1);
-    }
-
-    /// <summary>
-    /// [S-1447] The widest a duration in <paramref name="format"/> gets, in characters, so the hero's
-    /// type is sized once for the format rather than hopping as the digits tick ("10h" → "9h").
-    /// </summary>
-    public static int HeroCharacters(CountdownFormat format, bool elapsed)
-    {
-        var widest = format switch
-        {
-            CountdownFormat.Days => 9,
-            CountdownFormat.DaysHoursMinutes => 11,
-            CountdownFormat.DaysHoursMinutesSeconds => 15,
-            _ => 9,
-        };
-
-        return elapsed ? widest + 4 : widest;
     }
 
     /// <summary>

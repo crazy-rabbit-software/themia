@@ -1,4 +1,5 @@
 {
+  "countdown.setup": "اختر تاريخًا للعد التنازلي",
   "styles.countdown.ring": "حلقة",
   "styles.countdown.text": "نص",
   "styles.countdown.unitDays": "أيام",

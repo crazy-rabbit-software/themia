@@ -1,4 +1,5 @@
 {
+  "countdown.setup": "카운트다운할 날짜 선택",
   "styles.countdown.ring": "링",
   "styles.countdown.text": "텍스트",
   "styles.countdown.unitDays": "일",

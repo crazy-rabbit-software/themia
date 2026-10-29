@@ -1,4 +1,5 @@
 {
+  "countdown.setup": "Pilih tanggal untuk hitung mundur",
   "styles.countdown.ring": "Cincin",
   "styles.countdown.text": "Teks",
   "styles.countdown.unitDays": "hari",

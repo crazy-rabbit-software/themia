@@ -49,6 +49,12 @@ public sealed class CountdownConfig : WidgetConfig, IStyled, IContentAligned, IS
     /// <summary>[S-6906] It waits for setup while this holds.</summary>
     public bool NeedsSetup(FeatureSet signedIn) => Target is null;
 
+    /// <summary>[S-6582] [S-6739] A timer centres its readout: the countdown sits in the middle until its alignment is chosen.</summary>
+    ContentAlign IContentAligned.DefaultAlign => ContentAlign.Center;
+
+    /// <summary>[S-1862] Its Set up row says what it waits for.</summary>
+    string? ISetupRule.SetupSentence => CountdownStr.Countdown_Setup.Text();
+
     /// <summary>The most a name says, in characters.</summary>
     public const int MostLabel = 60;
 

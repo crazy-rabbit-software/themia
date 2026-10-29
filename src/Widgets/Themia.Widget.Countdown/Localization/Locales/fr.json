@@ -1,4 +1,5 @@
 {
+  "countdown.setup": "Choisissez une date à décompter",
   "styles.countdown.ring": "Anneau",
   "styles.countdown.text": "Texte",
   "styles.countdown.unitDays": "jours",

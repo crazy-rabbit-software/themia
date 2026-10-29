@@ -1,4 +1,5 @@
 {
+  "countdown.setup": "Geri sayım için bir tarih seçin",
   "styles.countdown.ring": "Halka",
   "styles.countdown.text": "Metin",
   "styles.countdown.unitDays": "gün",

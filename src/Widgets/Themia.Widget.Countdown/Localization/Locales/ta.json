@@ -1,4 +1,5 @@
 {
+  "countdown.setup": "எண்ணுவதற்கு ஒரு தேதியைத் தேர்ந்தெடுக்கவும்",
   "styles.countdown.ring": "வளையம்",
   "styles.countdown.text": "உரை",
   "styles.countdown.unitDays": "நாள்",

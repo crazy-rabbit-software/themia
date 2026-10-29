@@ -1,4 +1,5 @@
 {
+  "countdown.setup": "选择倒计时的日期",
   "styles.countdown.ring": "圆环",
   "styles.countdown.text": "文字",
   "styles.countdown.unitDays": "天",

@@ -23,6 +23,9 @@ internal sealed partial class CountdownView : IWidgetPreviewState
         _config = new CountdownConfig { Style = _config.Style, Label = "Launch" };
         _config.Retarget(now.AddDays(3).AddHours(5).AddMinutes(20), now.AddDays(-2));
 
+        // [S-6037] The name is the card's header.
+        ShowName();
+
         Rebuild();
         return Task.CompletedTask;
     }

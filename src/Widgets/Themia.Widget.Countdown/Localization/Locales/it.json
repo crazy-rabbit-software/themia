@@ -1,4 +1,5 @@
 {
+  "countdown.setup": "Scegli una data per il conto alla rovescia",
   "styles.countdown.ring": "Anello",
   "styles.countdown.text": "Testo",
   "styles.countdown.unitDays": "giorni",

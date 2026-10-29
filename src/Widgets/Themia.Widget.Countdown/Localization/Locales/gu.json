@@ -1,4 +1,5 @@
 {
+  "countdown.setup": "ગણતરી માટે તારીખ પસંદ કરો",
   "styles.countdown.ring": "વલય",
   "styles.countdown.text": "લખાણ",
   "styles.countdown.unitDays": "દિવસ",

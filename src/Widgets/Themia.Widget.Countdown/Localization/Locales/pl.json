@@ -1,4 +1,5 @@
 {
+  "countdown.setup": "Wybierz datę do odliczania",
   "styles.countdown.ring": "Pierścień",
   "styles.countdown.text": "Tekst",
   "styles.countdown.unitDays": "dni",

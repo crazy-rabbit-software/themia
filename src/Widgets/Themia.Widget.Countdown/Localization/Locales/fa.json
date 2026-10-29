@@ -1,4 +1,5 @@
 {
+  "countdown.setup": "تاریخی برای شمارش معکوس انتخاب کنید",
   "styles.countdown.ring": "حلقه",
   "styles.countdown.text": "متن",
   "styles.countdown.unitDays": "روز",

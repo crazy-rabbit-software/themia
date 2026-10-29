@@ -1,4 +1,5 @@
 {
+  "countdown.setup": "গণনার জন্য একটি তারিখ বেছে নিন",
   "styles.countdown.ring": "বলয়",
   "styles.countdown.text": "লেখা",
   "styles.countdown.unitDays": "দিন",

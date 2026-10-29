@@ -102,7 +102,8 @@ public sealed partial class ContentAlignmentTests
         Assert.Equal(ContentAlign.Left, ContentAlignment.Shown(Widget(new WidgetId("airQuality"), (int)AirQualityStyle.Number)));
         Assert.Equal(ContentAlign.Center, ContentAlignment.Shown(Widget(new WidgetId("airQuality"), (int)AirQualityStyle.Gauge)));
         Assert.Equal(ContentAlign.Left, ContentAlignment.Shown(Widget(new WidgetId("quote"))));
-        Assert.Equal(ContentAlign.Left, ContentAlignment.Shown(Widget(new WidgetId("countdown"))));
+        // [S-6739] A timer centres its readout.
+        Assert.Equal(ContentAlign.Center, ContentAlignment.Shown(Widget(new WidgetId("countdown"))));
         Assert.Equal(ContentAlign.Left, ContentAlignment.Shown(Widget(new WidgetId("exchangeRates"), (int)ExchangeRatesStyle.Number)));
 
         // A new widget stores no choice: its default follows its style.

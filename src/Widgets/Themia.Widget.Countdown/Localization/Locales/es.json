@@ -1,4 +1,5 @@
 {
+  "countdown.setup": "Elige una fecha para la cuenta atrás",
   "styles.countdown.ring": "Anillo",
   "styles.countdown.text": "Texto",
   "styles.countdown.unitDays": "días",

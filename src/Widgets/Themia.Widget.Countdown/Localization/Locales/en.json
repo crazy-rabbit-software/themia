@@ -6,6 +6,7 @@
     "widgetsA.countdown.menu.time",
     "widgetsA.countdown.menu.timeRefused"
   ],
+  "countdown.setup": "Choose a date to count to",
   "styles.countdown.ring": "Ring",
   "styles.countdown.text": "Text",
   "styles.countdown.unitDays": "days",
