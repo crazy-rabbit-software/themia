@@ -110,6 +110,12 @@ public abstract class CalendarConfig : WidgetConfig, ISetupRule, IInterests
     /// <summary>[S-6906] It waits for setup while this holds.</summary>
     public virtual bool NeedsSetup(FeatureSet signedIn) => !signedIn.Has(HostFeatures.Calendar);
 
+    /// <summary>[S-1862] The widget's own Set up sentence ("Add an account to show your calendar"); null for the card's.</summary>
+    [JsonIgnore]
+    public virtual string? SetupSentence => null;
+
+    string? ISetupRule.SetupSentence => SetupSentence;
+
     /// <summary>[S-3640] The shape the widget draws: the calendar's style, a fixed one for the others. Never stored here.</summary>
     [JsonIgnore]
     public abstract CalendarStyle Layout { get; }
