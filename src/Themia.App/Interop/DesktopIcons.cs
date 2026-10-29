@@ -301,7 +301,7 @@ internal static unsafe class DesktopIcons
 
     /// <summary>
     /// [S-5503] Hide Explorer's icon list for the session and keep it hidden: its own show event, and
-    /// <see cref="ShellRestarted"/> for a new Explorer, hide it again (at most
+    /// the host applying the choice again on <c>TaskbarCreated</c> for a new Explorer, hide it again (at most
     /// <see cref="DesktopIconRules.MaxRehides"/> times). Never Explorer's persisted setting. UI thread.
     /// </summary>
     public static void Hold()
@@ -334,19 +334,6 @@ internal static unsafe class DesktopIcons
         _holdWatch?.Dispose();
         _holdWatch = null;
         Restore();
-    }
-
-    /// <summary>[S-5503] Explorer restarted (<c>TaskbarCreated</c>): its new list is hooked and hidden while the hold lasts. UI thread.</summary>
-    public static void ShellRestarted()
-    {
-        if (!_holding)
-        {
-            return;
-        }
-
-        _rehides = 0;
-        _keptShown = false;
-        HookAndHide();
     }
 
     private static void HookAndHide()
