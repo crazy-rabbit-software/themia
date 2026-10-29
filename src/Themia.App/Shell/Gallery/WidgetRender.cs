@@ -89,7 +89,7 @@ internal static class WidgetRender
             || !ModuleCatalog.TryFind(args[at + 1], out var picked)
             || DispatcherQueue.GetForCurrentThread() is not { } dispatcher)
         {
-            Log.Error(Scope, $"usage: {Flag} <Kind> <out.png> [w h] [--theme light|dark] [--state name] [--span s] [--style name] [--scale f] [--header top|bottom|left|right|hidden] [--align left|center|right] [--background fill] [--own-items fill] [--own-item-text #RRGGBB] [--sizes WxH,..|tiers] [--keys k1,k2|text:abc] [--design k=v,...]");
+            Log.Error(Scope, $"usage: {Flag} <Kind> <out.png> [w h] [--theme light|dark] [--state name] [--span s] [--style name] [--scale f] [--header top|bottom|left|right|hidden] [--align left|center|right] [--background fill] [--own-items fill] [--own-item-text #RRGGBB] [--sizes WxH,..|tiers] [--keys k1,k2|text:abc] [--design k=v,...] [--tree]");
             Console.WriteLine($"usage: {Flag} <Kind> <out.png> [w h] [--theme light|dark] [--state name] [--span s] [--style name] [--scale f] [--header top|bottom|left|right|hidden] [--align left|center|right] [--background fill] [--own-items fill] [--own-item-text #RRGGBB] [--sizes WxH,..|tiers] [--keys k1,k2|text:abc] [--design k=v,...]");
             app.Exit();
             return true;
@@ -263,6 +263,13 @@ internal static class WidgetRender
                 await RenderPng.SaveAsync(page, outPath).ConfigureAwait(true);
                 Console.WriteLine($"widget: wrote {outPath}");
 
+                // [S-6732] --tree: each card's visual tree beside the PNG, for the match against a mockup.
+                if (Array.IndexOf(args, "--tree") >= 0)
+                {
+                    TreeDump.Write(cards, tiers, outPath + ".tree.json");
+                    Console.WriteLine($"widget: wrote {outPath}.tree.json");
+                }
+
                 // A state that opens a popup (a confirmation) is not part of the page's bitmap: each
                 // open one is written beside it as <name>-popup<n>.png.
                 var popups = VisualTreeHelper.GetOpenPopupsForXamlRoot(page.XamlRoot);
@@ -338,7 +345,7 @@ internal static class WidgetRender
     }
 
     /// <summary>One labelled card per tier, laid out in <see cref="RowOf"/>'s rows (one row for a single size).</summary>
-    private static void Place(Canvas page, IWidgetCardHost host, WidgetId kind, int? style, List<WidgetTier> tiers, List<WidgetCard> cards)
+    internal static void Place(Canvas page, IWidgetCardHost host, WidgetId kind, int? style, List<WidgetTier> tiers, List<WidgetCard> cards)
     {
         var rows = Rows(tiers);
         var x = new double[rows.Count];
@@ -473,7 +480,7 @@ internal static class WidgetRender
         return rows;
     }
 
-    private static (double Width, double Height) PageSize(List<WidgetTier> tiers)
+    internal static (double Width, double Height) PageSize(List<WidgetTier> tiers)
     {
         var rows = Rows(tiers);
         var width = rows.Max(r => r.Sum(t => t.Width + Gap)) + Gap;

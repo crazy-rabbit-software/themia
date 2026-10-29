@@ -1,0 +1,300 @@
+# [S-6731] Today's render-walk findings: kind <TAB> element and rule (values stripped). Only shrinks:
+# scripts/family-check.ps1 fails on a finding not listed here and on a line no longer found. Empty is done.
+airplaneModeToggle	Ellipse space margin
+airplaneModeToggle	FontIcon glyph-size
+airplaneModeToggle	TextBlock text-size
+airQuality	Ellipse space margin
+airQuality	FontIcon colour fg
+airQuality	FontIcon glyph-size
+airQuality	Grid space margin
+airQuality	Path colour stroke
+airQuality	Path stroke
+airQuality	Rectangle colour fill
+airQuality	Rectangle space margin
+airQuality	Run text-size
+airQuality	TextBlock colour fg
+airQuality	TextBlock text-line
+airQuality	TextBlock text-size
+alarm	TextBlock colour fg
+alarm	TextBlock text-size
+audioVisualizer	Rectangle radius
+battery	Ellipse stroke
+battery	FontIcon accent-glyph
+battery	FontIcon glyph-size
+battery	Path stroke
+battery	Rectangle radius
+battery	Rectangle stroke
+battery	Run text-size
+battery	TextBlock accent-text
+battery	TextBlock text-line
+battery	TextBlock text-size
+batteryDetails	Grid space margin
+batteryDetails	Run text-size
+batteryDetails	TextBlock text-line
+batteryDetails	TextBlock text-size
+bluetooth	TextBlock text-size
+bluetoothToggle	Ellipse space margin
+bluetoothToggle	FontIcon glyph-size
+bluetoothToggle	TextBlock text-size
+brightness	Slider radius
+brightness	TextBlock text-size
+calendar	Border colour bg
+calendar	Border colour border
+calendar	Border radius
+calendar	Border space margin
+calendar	Border space padding
+calendar	Border stroke
+calendar	Button space padding
+calendar	Ellipse colour fill
+calendar	FontIcon glyph-size
+calendar	StackPanel space margin
+calendar	StackPanel space spacing
+calendar	TextBlock colour fg
+calendar	TextBlock text-line
+calendar	TextBlock text-size
+clipboard	FontIcon glyph-size
+clipboard	TextBlock text-size
+clock	Border radius
+clock	StackPanel space margin
+clock	TextBlock colour fg
+clock	TextBlock text-size
+clock	TextBlock text-weight
+colorFiltersToggle	Ellipse space margin
+colorFiltersToggle	FontIcon glyph-size
+colorFiltersToggle	TextBlock text-size
+contacts	TextBlock text-size
+countdown	Border radius
+countdown	Ellipse stroke
+countdown	Path stroke
+countdown	TextBlock text-size
+cpu	Border radius
+cpu	Border space margin
+cpu	Grid radius
+cpu	Grid space margin
+cpu	Path stroke
+cpu	Run text-size
+cpu	TextBlock text-line
+cpu	TextBlock text-size
+cpuDetails	Grid space margin
+cpuDetails	Run text-size
+cpuDetails	TextBlock text-line
+cpuDetails	TextBlock text-size
+disk	Grid space margin
+disk	Run text-size
+disk	TextBlock text-line
+disk	TextBlock text-size
+doNotDisturbToggle	Ellipse space margin
+doNotDisturbToggle	FontIcon glyph-size
+doNotDisturbToggle	TextBlock text-size
+drive	Ellipse stroke
+drive	FontIcon glyph-size
+drive	Path stroke
+drive	ProgressBar radius
+drive	TextBlock text-size
+email	Border stroke
+email	FontIcon colour fg
+email	FontIcon glyph-size
+email	FontIcon space margin
+email	Grid space margin
+email	Grid space padding
+email	TextBlock colour fg
+email	TextBlock text-size
+energySaverToggle	Ellipse space margin
+energySaverToggle	FontIcon glyph-size
+energySaverToggle	TextBlock text-size
+exchangeRates	FontIcon glyph-size
+exchangeRates	Run colour fg
+exchangeRates	Run text-size
+exchangeRates	TextBlock text-line
+exchangeRates	TextBlock text-size
+focusSession	Ellipse stroke
+focusSession	Path stroke
+focusSession	TextBlock text-size
+folder	Border space margin
+folder	Border space padding
+folder	FontIcon glyph-size
+folder	TextBlock text-size
+gallery	TextBlock text-size
+gameModeToggle	Ellipse space margin
+gameModeToggle	FontIcon glyph-size
+gameModeToggle	TextBlock text-size
+gpu	Grid space margin
+gpu	Path stroke
+gpu	Run text-size
+gpu	TextBlock text-line
+gpu	TextBlock text-size
+gpuDetails	Grid space margin
+gpuDetails	Run text-size
+gpuDetails	TextBlock text-line
+gpuDetails	TextBlock text-size
+habitTracker	Border radius
+habitTracker	FontIcon glyph-size
+habitTracker	FontIcon space margin
+habitTracker	TextBlock text-size
+hibernate	FontIcon glyph-size
+hibernate	Grid colour bg
+hibernate	TextBlock text-size
+lock	FontIcon glyph-size
+lock	TextBlock text-size
+memory	Grid space margin
+memory	Path stroke
+memory	Run text-size
+memory	TextBlock text-line
+memory	TextBlock text-size
+memoryDetails	Grid space margin
+memoryDetails	Run text-size
+memoryDetails	TextBlock text-line
+memoryDetails	TextBlock text-size
+microphoneToggle	Ellipse space margin
+microphoneToggle	FontIcon glyph-size
+microphoneToggle	TextBlock text-size
+mixer	Button space padding
+mixer	FontIcon glyph-size
+mixer	Slider radius
+mixer	TextBlock text-size
+monoAudioToggle	Ellipse space margin
+monoAudioToggle	FontIcon glyph-size
+monoAudioToggle	TextBlock text-size
+moon	TextBlock colour fg
+music	FontIcon glyph-size
+music	TextBlock text-size
+network	FontIcon accent-glyph
+network	FontIcon glyph-size
+network	Grid space margin
+network	Run text-size
+network	TextBlock accent-text
+network	TextBlock text-line
+network	TextBlock text-size
+networkDetails	Border stroke
+networkDetails	Grid space margin
+networkDetails	Run text-size
+networkDetails	TextBlock text-line
+networkDetails	TextBlock text-size
+nextMeeting	Button space padding
+nextMeeting	FontIcon glyph-size
+nextMeeting	TextBlock colour fg
+nextMeeting	TextBlock text-size
+nightLightToggle	Ellipse space margin
+nightLightToggle	FontIcon glyph-size
+nightLightToggle	TextBlock text-size
+notes	FontIcon glyph-size
+notes	TextBlock text-size
+notifications	Border stroke
+notifications	Button space padding
+notifications	FontIcon glyph-size
+notifications	TextBlock text-size
+ping	Ellipse colour fill
+ping	Rectangle colour fill
+ping	Rectangle radius
+ping	Run text-size
+ping	TextBlock text-line
+ping	TextBlock text-size
+pingDetails	Grid space margin
+pingDetails	Run text-size
+pingDetails	TextBlock text-line
+pingDetails	TextBlock text-size
+pomodoro	Ellipse stroke
+pomodoro	FontIcon colour fg
+pomodoro	Path stroke
+pomodoro	TextBlock colour fg
+pomodoro	TextBlock text-size
+quote	FontIcon colour fg
+quote	TextBlock colour fg
+quote	TextBlock text-size
+rainNextHour	FontIcon colour fg
+rainNextHour	FontIcon glyph-size
+rainNextHour	Rectangle radius
+rainNextHour	TextBlock colour fg
+rainNextHour	TextBlock text-size
+recentFiles	FontIcon glyph-size
+recentFiles	TextBlock text-size
+recycleBin	Button space padding
+recycleBin	FontIcon glyph-size
+recycleBin	TextBlock text-size
+removableDrives	Border stroke
+removableDrives	FontIcon glyph-size
+removableDrives	TextBlock text-size
+restart	FontIcon glyph-size
+restart	Grid colour bg
+restart	TextBlock text-size
+rotationLockToggle	Ellipse space margin
+rotationLockToggle	FontIcon glyph-size
+rotationLockToggle	TextBlock text-size
+rss	Border stroke
+rss	FontIcon glyph-size
+rss	TextBlock text-size
+scratchpad	Ellipse colour fill
+scratchpad	Ellipse stroke
+scratchpad	FontIcon glyph-size
+scratchpad	TextBlock text-size
+screenOff	FontIcon glyph-size
+screenOff	TextBlock text-size
+screenTimeApps	Border colour bg
+screenTimeApps	Border stroke
+screenTimeApps	Button space padding
+screenTimeApps	FontIcon glyph-size
+screenTimeApps	TextBlock text-size
+screenTimeChart	Border colour bg
+screenTimeChart	Border radius
+screenTimeChart	FontIcon glyph-size
+screenTimeChart	Grid space spacing
+screenTimeChart	TextBlock colour fg
+screenTimeChart	TextBlock text-size
+screenTimeDonut	Button space padding
+screenTimeDonut	FontIcon glyph-size
+screenTimeDonut	TextBlock text-size
+shortcuts	Border radius
+shortcuts	Border space margin
+shortcuts	Button space padding
+shortcuts	FontIcon glyph-size
+shortcuts	TextBlock text-size
+shutdown	FontIcon glyph-size
+shutdown	Grid colour bg
+shutdown	TextBlock text-size
+signOut	FontIcon glyph-size
+signOut	Grid colour bg
+signOut	TextBlock text-size
+sleep	FontIcon glyph-size
+sleep	TextBlock text-size
+soundToggle	Ellipse space margin
+soundToggle	FontIcon glyph-size
+soundToggle	TextBlock text-size
+spatialSoundToggle	Ellipse space margin
+spatialSoundToggle	FontIcon glyph-size
+spatialSoundToggle	TextBlock text-size
+stocks	Ellipse colour fill
+stocks	FontIcon glyph-size
+stocks	Run colour fg
+stocks	Run text-size
+stocks	TextBlock text-line
+stocks	TextBlock text-size
+stopwatch	TextBlock text-size
+sun	Rectangle colour fill
+sun	TextBlock colour fg
+sun	TextBlock text-size
+tasks	Border stroke
+tasks	FontIcon glyph-size
+tasks	FontIcon space margin
+tasks	TextBlock text-size
+topProcesses	Border stroke
+topProcesses	TextBlock text-size
+videoStream	TextBlock text-size
+volume	Slider radius
+volume	TextBlock text-size
+weatherForecast	Border space padding
+weatherForecast	FontIcon colour fg
+weatherForecast	FontIcon glyph-size
+weatherForecast	Grid space padding
+weatherForecast	TextBlock colour fg
+weatherForecast	TextBlock text-size
+weatherNow	FontIcon glyph-size
+weatherNow	Run text-size
+weatherNow	Run text-weight
+weatherNow	TextBlock text-line
+weatherNow	TextBlock text-size
+weekPlanner	Border colour bg
+weekPlanner	TextBlock colour fg
+weekPlanner	TextBlock text-size
+wifiToggle	Ellipse space margin
+wifiToggle	FontIcon glyph-size
+wifiToggle	TextBlock text-size
