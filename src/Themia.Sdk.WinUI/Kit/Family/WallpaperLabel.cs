@@ -1,5 +1,6 @@
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Media;
 using Themia.Core.Widgets;
 using Themia.Sdk.Kit;
 
@@ -20,11 +21,12 @@ public sealed partial class WallpaperLabel : Grid
 
     public WallpaperLabel(TypeStep step)
     {
+        // The shadow is the text moved, not spaced: a translation, so the label's box is the text's own
+        // and no margin outside the family's spacing steps appears in a render walk ([S-6731]).
         _shadow = Make(step, ColourRole.OnWallpaperShadow);
-        _shadow.Margin = new Thickness(FamilyShape.TextShadowOffset, FamilyShape.TextShadowOffset, 0, 0);
+        _shadow.RenderTransform = new TranslateTransform { X = FamilyShape.TextShadowOffset, Y = FamilyShape.TextShadowOffset };
         _shadow.IsHitTestVisible = false;
         _text = Make(step, ColourRole.OnWallpaper);
-        _text.Margin = new Thickness(0, 0, FamilyShape.TextShadowOffset, FamilyShape.TextShadowOffset);
         Children.Add(_shadow);
         Children.Add(_text);
     }
