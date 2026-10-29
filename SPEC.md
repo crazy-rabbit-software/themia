@@ -984,7 +984,8 @@ module author's guide is docs/WIDGET-KIT.md 16.
   Track, its value the accent) taking the room left and an on/off switch (Windows' toggle switch, 40
   wide, its name its tooltip: an alarm that is set; `Switch`, set back without running its handler by
   `Set`). On a narrow card the icon buttons give way from the last, then the buttons, then the slider;
-  the main action and the switch stay (`ControlsRules`). No control takes focus ([S-800]).
+  the main action and the switch stay (`ControlsRules`). A button that does nothing now (a stopwatch's
+  Lap before it runs) is drawn in the disabled role, its glyph with it. No control takes focus ([S-800]).
 - **[S-6717]** **Chart**: one series in the accent at 2 with a 16 % wash, a second in tertiary,
   Caution or Critical only while the reading is over its threshold (`ChartRules.Role`); a meter's bar
   is a 4 round track with its fill (`ChartBar`; a column is the same track standing up, filled from

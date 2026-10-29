@@ -258,15 +258,16 @@ public sealed partial class ControlsBlock : Grid
 
     /// <summary>
     /// [S-6716] An icon button: 32 × 32, a 16 glyph, the one radius, its tooltip its name; the
-    /// <paramref name="main"/> action's in the accent with the glyph on it. Takes no focus.
+    /// <paramref name="main"/> action's in the accent with the glyph on it. The glyph names no brush: it
+    /// takes the button's foreground, the primary text (on the accent, its text), and the disabled role
+    /// while the button does nothing (a stopwatch's Lap before it runs). Takes no focus.
     /// </summary>
     public static Button IconButton(string glyph, string tooltip, Action run, bool main = false)
     {
         ArgumentNullException.ThrowIfNull(run);
         var button = new Button
         {
-            // The main action's glyph names no brush: it takes the accent style's on-accent foreground.
-            Content = main ? UiLanguage.Mirrored(new FontIcon { Glyph = glyph, FontSize = FamilyShape.Icon, Width = FamilyShape.Icon, Height = FamilyShape.Icon, VerticalAlignment = VerticalAlignment.Center }) : Family.Glyph(glyph, FamilyShape.Icon, ColourRole.TextPrimary),
+            Content = UiLanguage.Mirrored(new FontIcon { Glyph = glyph, FontSize = FamilyShape.Icon, Width = FamilyShape.Icon, Height = FamilyShape.Icon, VerticalAlignment = VerticalAlignment.Center }),
             Width = FamilyShape.IconButton,
             Height = FamilyShape.IconButton,
             Padding = new Thickness(0),
