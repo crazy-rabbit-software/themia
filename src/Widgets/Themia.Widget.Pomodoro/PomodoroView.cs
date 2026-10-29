@@ -1,15 +1,13 @@
-using Microsoft.UI;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
-using Microsoft.UI.Xaml.Media;
-using Microsoft.UI.Xaml.Shapes;
 using Themia.App.Services;
 using Themia.App.Shell;
-using Themia.Core.Diagnostics;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
+using Themia.Sdk.Kit;
 using Themia.Sdk.WinUI;
+using Themia.Sdk.WinUI.Kit;
 using Themia.Widget.Pomodoro;
 
 namespace Themia.App.Widgets;
@@ -23,57 +21,31 @@ namespace Themia.App.Widgets;
 /// is actually running can sound the cue, so a two-monitor desktop cannot echo it.
 /// </para>
 /// <para>
-/// [S-1466] The parts are placed by hand on a canvas from one ladder pass (<see cref="Lay"/>), so
-/// each size class gets its own arrangement — digits and a button at XS, a strip with the controls
-/// beside, a stack, a ring on tall and large tiles — rather than one stack scaled up and down.
-/// </para>
-/// <para>
-/// [S-6035] The style decides how the phase's progress is drawn on that ladder: Ring as above
-/// (the shared <see cref="RingPart"/>), Bar the bar at every size (a large tile stacks the digits
-/// over it), Digits neither, the digits taking the room.
+/// [S-1466] [S-6035] The face is the timers' ([S-6739], <see cref="PomodoroFace"/>): the time left as
+/// the Readout on the Hero steps with the phase under it, centred in its box, in the Chart ring of the
+/// phase's progress (Ring), over the bar (Bar) or alone (Digits); Start/Pause, Reset and Skip in the
+/// Controls row at the bottom inset, centred under it, where the tile has room for them.
 /// </para>
 /// </summary>
 internal sealed partial class PomodoroView : Grid, IWidgetView, IWidgetSizeAware, IWidgetSurfaceAware, IWidgetKeys
 {
-    private const string Scope = "pomodoro";
-
-    /// <summary>The Fluent icon size, everywhere one appears in this widget.</summary>
-    private const double IconSize = 16;
-
-    /// <summary>The bar's thickness: the stock progress bar's own.</summary>
-    private const double BarHeight = 4;
-
-    /// <summary>A ring smaller than this is a donut, not a dial; the stack draws the bar instead.</summary>
-    private const double RingMinimum = 120;
-
-    /// <summary>The room a column beside the ring needs for "Next: Focus 25:00" and three buttons.</summary>
-    private const double SideColumnMinimum = 180;
-
-    private readonly Canvas _canvas = new();
-
-    private readonly TextBlock _phase = Fluent.Text(FluentType.BodyStrong);
-    private readonly FontIcon _phaseIcon = new();
-    private readonly StackPanel _phaseRow;
-    private readonly TextBlock _clock = Fluent.Text(FluentType.Display);
-    private readonly ProgressBar _progress = new();
-    private readonly RingPart _ring = new();
-    private readonly TextBlock _next = Fluent.Text(FluentType.Caption, "TextFillColorSecondaryBrush");
-
-    private readonly Button _runButton = new();
-    private readonly FontIcon _runIcon = new();
-    private readonly Button _resetButton = new();
-    private readonly Button _skipButton = new();
-    private readonly StackPanel _controls;
+    private readonly ReadoutBlock _readout = new() { HorizontalAlignment = HorizontalAlignment.Center, VerticalAlignment = VerticalAlignment.Center };
+    private readonly ChartRing _ring = new();
+    private readonly Grid _face = new() { HorizontalAlignment = HorizontalAlignment.Center };
+    private readonly ChartBar _bar = new() { Margin = new Thickness(0, FamilySpace.S2, 0, 0) };
+    private readonly StackPanel _column = new() { VerticalAlignment = VerticalAlignment.Center };
+    private readonly ControlsBlock _controls = new() { HorizontalAlignment = HorizontalAlignment.Center, Margin = new Thickness(0, FamilySpace.S2, 0, 0) };
+    private readonly Button _runButton;
+    private readonly Button _resetButton;
+    private readonly Button _skipButton;
 
     private Ticker? _ticker;
     private PomodoroConfig _config = new();
     private PomodoroState _state;
     private IDisposable? _subscription;
     private WidgetArea _area;
+    private PomodoroPlan _plan;
     private bool _preview;
-
-    /// <summary>Whether the ring (rather than the bar) is drawn, from the last ladder pass.</summary>
-    private bool _ringShown;
 
     /// <summary>
     /// Swallows the callback <see cref="Ticker.Subscribe"/> makes straight away ([S-155]): this
@@ -88,66 +60,24 @@ internal sealed partial class PomodoroView : Grid, IWidgetView, IWidgetSizeAware
     {
         _state = PomodoroCycle.Fresh(_config);
 
-        _phaseIcon.FontSize = IconSize;
-        _phaseIcon.Margin = new Thickness(0, 0, Fluent.Space1, 0);
-        _phaseIcon.VerticalAlignment = VerticalAlignment.Center;
-        _phase.VerticalAlignment = VerticalAlignment.Center;
-        _phaseRow = new StackPanel { Orientation = Orientation.Horizontal, Children = { _phaseIcon, _phase } };
+        _runButton = _controls.Main(PomodoroStr.WidgetsC_Pomodoro_Start.Text(), () => SetRunning(!_running));
+        _resetButton = _controls.Icon(Glyphs.Reset, PomodoroStr.Pomodoro_Reset.Text(), Reset);
+        _skipButton = _controls.Icon(Glyphs.Next, PomodoroStr.WidgetsC_Pomodoro_Skip.Text(), Skip);
 
-        // Tabular figures, so the seconds do not shuffle the whole readout sideways once a second.
-        Microsoft.UI.Xaml.Documents.Typography.SetNumeralAlignment(_clock, FontNumeralAlignment.Tabular);
-        _clock.TextAlignment = TextAlignment.Center;
-        _clock.TextTrimming = TextTrimming.None;
+        _face.Children.Add(_ring);
+        _face.Children.Add(_readout);
+        _column.Children.Add(_face);
+        _column.Children.Add(_bar);
 
-        _next.TextAlignment = TextAlignment.Center;
-
-        _progress.Minimum = 0;
-        _progress.Maximum = 100;
-
-
-        Button(_runButton, _runIcon, Glyphs.Play, PomodoroStr.WidgetsC_Pomodoro_Start.Text());
-        Button(_resetButton, new FontIcon(), Glyphs.Reset, PomodoroStr.Pomodoro_Reset.Text());
-        Button(_skipButton, new FontIcon(), Glyphs.Next, PomodoroStr.WidgetsC_Pomodoro_Skip.Text());
-
-        _runButton.Click += (_, _) => SetRunning(!_running);
-        _resetButton.Click += (_, _) => Reset();
-        _skipButton.Click += (_, _) => Skip();
-
-        // The primary action takes the accent style, the way the confirming button of a Windows dialog does.
-        if (Application.Current.Resources.TryGetValue("AccentButtonStyle", out var accentStyle) && accentStyle is Style style)
-        {
-            _runButton.Style = style;
-        }
-        else
-        {
-            Log.Warn(Scope, "AccentButtonStyle is missing; the start button falls back to the standard button style");
-        }
-
-        _controls = new StackPanel
-        {
-            Orientation = Orientation.Horizontal,
-            Spacing = Fluent.Space2,
-            Children = { _runButton, _resetButton, _skipButton },
-        };
-
-        _canvas.Children.Add(_ring.Root);
-        _canvas.Children.Add(_phaseRow);
-        _canvas.Children.Add(_clock);
-        _canvas.Children.Add(_progress);
-        _canvas.Children.Add(_next);
-        _canvas.Children.Add(_controls);
-        Children.Add(_canvas);
+        // The content in the card's inset: the readout's box over the Controls row.
+        Padding = new Thickness(FamilySpace.Inset, 0, FamilySpace.Inset, FamilySpace.Inset);
+        RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
+        RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
+        SetRow(_controls, 1);
+        Children.Add(_column);
+        Children.Add(_controls);
 
         Render();
-
-        static void Button(Button button, FontIcon icon, string glyph, string tooltip)
-        {
-            icon.FontSize = IconSize;
-            icon.Glyph = glyph;
-            button.Content = icon;
-            button.Padding = new Thickness(0);
-            ToolTipService.SetToolTip(button, tooltip);
-        }
     }
 
     public void Bind(IWidgetSurface surface)
@@ -186,6 +116,7 @@ internal sealed partial class PomodoroView : Grid, IWidgetView, IWidgetSizeAware
             _state = new PomodoroState(_state.Phase, PomodoroCycle.PhaseSeconds(_state.Phase, _config));
         }
 
+        Lay();
         Render();
     }
 
@@ -193,6 +124,7 @@ internal sealed partial class PomodoroView : Grid, IWidgetView, IWidgetSizeAware
     {
         _area = area;
         Lay();
+        Render();
     }
 
     /// <summary>
@@ -294,354 +226,45 @@ internal sealed partial class PomodoroView : Grid, IWidgetView, IWidgetSizeAware
         Render();
     }
 
+    /// <summary>[S-6330] The time, the phase and the progress as they are now: a tick sets what changed and nothing else.</summary>
     private void Render()
     {
-        var work = _state.Phase == PomodoroPhase.Work;
         var total = PomodoroCycle.PhaseSeconds(_state.Phase, _config);
         var fraction = PomodoroCycle.Progress(_state, total);
-        var characters = _clock.Text.Length;
 
-        _clock.Text = PomodoroCycle.Clock(_state.RemainingSeconds);
-        _phase.Text = PomodoroCycle.PhaseLabel(_state.Phase);
-        _phaseIcon.Glyph = work ? PomodoroModule.Glyph : Glyphs.Timer;
-        _progress.Value = fraction * 100;
-        _next.Text = PomodoroCycle.NextLine(_state.Phase, _config);
+        // [S-6706] The phase is said by its word; neither it nor the break is coloured (no accent text, no success green).
+        _readout.Show(PomodoroCycle.Clock(_state.RemainingSeconds), under: _plan.Under ? PomodoroCycle.PhaseLabel(_state.Phase) : null);
+        ToolTipService.SetToolTip(_readout, PomodoroCycle.NextLine(_state.Phase, _config));
 
-        // Which phase you are in is the first thing to read off this widget, so it is carried by
-        // colour as well as by the word: accent text for focus, the success colour for a break.
-        var badge = work
-            ? ThemeBrush.Of("AccentTextFillColorPrimaryBrush", Colors.DodgerBlue)
-            : ThemeBrush.Of("SystemFillColorSuccessBrush", Colors.MediumSeaGreen);
-        var fill = work
-            ? ThemeBrush.Of("AccentFillColorDefaultBrush", Colors.DodgerBlue)
-            : ThemeBrush.Of("SystemFillColorSuccessBrush", Colors.MediumSeaGreen);
-
-        _phase.Foreground = badge;
-        _phaseIcon.Foreground = badge;
-        _progress.Foreground = fill;
-        _ring.SetBrush(fill);
-
-        _runIcon.Glyph = _running ? Glyphs.Pause : Glyphs.Play;
-        ToolTipService.SetToolTip(_runButton, (_running ? PomodoroStr.WidgetsC_Pomodoro_Pause : PomodoroStr.WidgetsC_Pomodoro_Start).Text());
-
-        if (_ringShown)
+        if (_plan.Look == PomodoroLook.Ring)
         {
-            _ring.SetFraction(fraction);
+            _ring.Show(fraction);
+        }
+        else if (_plan.Look == PomodoroLook.Bar)
+        {
+            _bar.Show(fraction);
         }
 
-        // A longer phase is a longer readout ("120:00"), so the ladder re-runs when the digits
-        // change width; otherwise a tick touches nothing but text.
-        if (_clock.Text.Length != characters)
-        {
-            Lay();
-        }
+        ControlsBlock.Relabel(_runButton, (_running ? PomodoroStr.WidgetsC_Pomodoro_Pause : PomodoroStr.WidgetsC_Pomodoro_Start).Text());
     }
 
-    // ---- the ladder ------------------------------------------------------------------------------
-
-    /// <summary>
-    /// [S-1466] Decide what a tile this size shows and where. The countdown is the one thing that
-    /// never drops; it takes whatever height the other rungs leave, as a hero step.
-    /// <list type="bullet">
-    /// <item>XS: the digits over a start/pause button.</item>
-    /// <item>A short strip (S, Wide): phase and digits on the left, the controls on the right, the bar
-    /// along the bottom; a wide strip adds skip and the next phase under the controls.</item>
-    /// <item>M: phase, digits, bar, controls (with skip), the next phase.</item>
-    /// <item>Tall, L, XL: a ring that fills with the phase, the digits inside it; beside it on a wide
-    /// tile, the phase, the next phase, and the controls.</item>
-    /// </list>
-    /// </summary>
+    /// <summary>[S-1466] [S-6739] The face for the tile and the style: the look, the readout's step and line under, the ring, the bar, the controls.</summary>
     private void Lay()
     {
-        var area = _area.IsMeasured ? _area : new WidgetArea(ActualWidth, ActualHeight);
-
-        if (!area.IsMeasured)
+        if (!_area.IsMeasured)
         {
             return;
         }
 
-        var shortTile = area.HeightClass == SizeClass.Compact;
+        _plan = PomodoroFace.Plan(_config, _area);
+        _readout.Use(_plan.Step, centred: true);
 
-        // XS gives the digits every pixel it can: the header already leaves a gap above.
-        var padY = !shortTile ? Fluent.Space4 : area.WidthClass == SizeClass.Compact ? Fluent.Space1 : Fluent.Space2;
-        var box = area.Deflate(Fluent.Space4, padY);
-        var side = area.Least >= SizeClass.Expanded ? Fluent.RowHeight : Fluent.RowHeightCompact;
-        var characters = Math.Max(5, _clock.Text.Length);
-
-        // Reset everything the arrangements below may not place.
-        _ringShown = false;
-        Hide(_ring.Root, _phaseRow, _progress, _next);
-
-        var skip = area.WidthClass >= SizeClass.Expanded || area.AtLeast(SizeClass.Regular, SizeClass.Regular);
-        var reset = area.WidthClass >= SizeClass.Regular || area.HeightClass >= SizeClass.Regular;
-        var buttons = SetButtons(side, reset, skip);
-
-        // [S-6035] Only the Ring style has a ring; the others stack or strip at every size.
-        if (_config.DrawsRing && area.HeightClass >= SizeClass.Expanded && area.WidthClass >= SizeClass.Regular && LayRing(area, box, side, buttons, characters))
-        {
-            return;
-        }
-
-        if (shortTile && area.WidthClass >= SizeClass.Regular)
-        {
-            LayStrip(area, box, padY, side, buttons, characters);
-        }
-        else
-        {
-            LayStack(area, box, padY, side, buttons, characters);
-        }
-    }
-
-    /// <summary>Phase, digits, bar, controls, next — stacked and centred. Also XS (digits over one button).</summary>
-    private void LayStack(WidgetArea area, WidgetArea box, double padY, double side, double buttons, int characters)
-    {
-        var gap = Fluent.Space2;
-        var room = new Disclosure(box, gap);
-
-        room.Reserve(side);
-        room.Reserve(FluentType.Body.LineHeight);
-        var phase = area.WidthClass >= SizeClass.Regular && room.Take(FluentType.BodyStrong.LineHeight);
-        var bar = _config.DrawsBar && area.WidthClass >= SizeClass.Regular && room.Take(BarHeight);
-        var next = area.HeightClass >= SizeClass.Regular && room.Take(FluentType.Caption.LineHeight, FluentType.EstimateWidth(FluentType.Caption, 18));
-
-        var digits = FluentType.Hero(box.Width, room.Remaining + FluentType.Body.LineHeight, characters);
-        _clock.Apply(digits);
-        _clock.TextAlignment = TextAlignment.Center;
-        _phase.Apply(FluentType.BodyStrong);
-        _next.Apply(FluentType.Caption);
-        _next.TextAlignment = TextAlignment.Center;
-
-        var height = digits.LineHeight + side + gap
-            + (phase ? FluentType.BodyStrong.LineHeight + gap : 0)
-            + (bar ? BarHeight + gap : 0)
-            + (next ? FluentType.Caption.LineHeight + gap : 0);
-
-        var x = Fluent.Space4;
-        var y = padY + Math.Max(0, (box.Height - height) / 2);
-
-        if (phase)
-        {
-            PlaceCentred(_phaseRow, x, y, box.Width, FluentType.BodyStrong.LineHeight);
-            y += FluentType.BodyStrong.LineHeight + gap;
-        }
-
-        Place(_clock, x, y, box.Width, digits.LineHeight);
-        y += digits.LineHeight + gap;
-
-        if (bar)
-        {
-            Place(_progress, x, y, box.Width, BarHeight);
-            y += BarHeight + gap;
-        }
-
-        Place(_controls, x + ((box.Width - buttons) / 2), y, buttons, side);
-        y += side + gap;
-
-        if (next)
-        {
-            Place(_next, x, y, box.Width, FluentType.Caption.LineHeight);
-        }
-    }
-
-    /// <summary>A short, wider tile: phase and digits left, controls right, the bar along the bottom.</summary>
-    private void LayStrip(WidgetArea area, WidgetArea box, double padY, double side, double buttons, int characters)
-    {
-        var gap = Fluent.Space2;
-        var left = Math.Max(0, box.Width - buttons - Fluent.Space3);
-        var room = new Disclosure(left, box.Height, gap);
-
-        room.Reserve(FluentType.Body.LineHeight);
-        var bar = _config.DrawsBar && room.Take(BarHeight);
-        var phase = room.Take(FluentType.BodyStrong.LineHeight);
-
-        var digits = FluentType.Hero(left, room.Remaining + FluentType.Body.LineHeight, characters);
-        _clock.Apply(digits);
-        _clock.TextAlignment = TextAlignment.Left;
-        _phase.Apply(FluentType.BodyStrong);
-        _next.Apply(FluentType.Caption);
-
-        var column = digits.LineHeight + (phase ? FluentType.BodyStrong.LineHeight + Fluent.Space1 : 0);
-        var top = padY + Math.Max(0, (box.Height - (bar ? BarHeight + gap : 0) - column) / 2);
-        var x = Fluent.Space4;
-
-        if (phase)
-        {
-            Place(_phaseRow, x, top, left, FluentType.BodyStrong.LineHeight);
-            top += FluentType.BodyStrong.LineHeight + Fluent.Space1;
-        }
-
-        Place(_clock, x, top, left, digits.LineHeight);
-
-        // The controls, and on a strip with the height for it the next phase under them.
-        var rightX = x + box.Width - buttons;
-        var next = area.WidthClass >= SizeClass.Expanded
-            && box.Height - (bar ? BarHeight + gap : 0) >= side + Fluent.Space1 + FluentType.Caption.LineHeight;
-        var block = side + (next ? Fluent.Space1 + FluentType.Caption.LineHeight : 0);
-        var controlsTop = padY + Math.Max(0, (box.Height - (bar ? BarHeight + gap : 0) - block) / 2);
-
-        Place(_controls, rightX, controlsTop, buttons, side);
-
-        if (next)
-        {
-            var width = Math.Max(buttons, FluentType.EstimateWidth(FluentType.Caption, 18));
-            _next.TextAlignment = TextAlignment.Right;
-            Place(_next, x + box.Width - width, controlsTop + side + Fluent.Space1, width, FluentType.Caption.LineHeight);
-        }
-
-        if (bar)
-        {
-            Place(_progress, x, padY + box.Height - BarHeight, box.Width, BarHeight);
-        }
-    }
-
-    /// <summary>
-    /// A tall or large tile: the ring with the digits inside. Beside it on a tile wide enough for a
-    /// second column, else stacked. False when the ring would be too small to read as one.
-    /// </summary>
-    private bool LayRing(WidgetArea area, WidgetArea box, double side, double buttons, int characters)
-    {
-        var gap = Fluent.Space3;
-        var beside = box.Width - box.Height >= SideColumnMinimum;
-        var label = area.Least >= SizeClass.Expanded ? FluentType.Strong(FluentType.Subtitle) : FluentType.BodyStrong;
-        var nextStep = area.Least >= SizeClass.Expanded ? FluentType.Body : FluentType.Caption;
-        double diameter;
-
-        if (beside)
-        {
-            diameter = Math.Min(box.Height, box.Width - SideColumnMinimum - gap);
-        }
-        else
-        {
-            var room = new Disclosure(box, gap);
-            room.Reserve(side);
-            room.Reserve(RingMinimum);
-            room.Take(label.LineHeight);
-            room.Take(nextStep.LineHeight);
-            diameter = Math.Min(box.Width, room.Remaining + RingMinimum);
-        }
-
-        if (diameter < RingMinimum)
-        {
-            return false;
-        }
-
-        _phase.Apply(label);
-        _next.Apply(nextStep);
-        _clock.Apply(FluentType.Hero(diameter * 0.66, diameter * 0.34, characters));
-
-        _ringShown = true;
-        _ring.Resize(diameter);
-
-        var x0 = Fluent.Space4;
-        var y0 = Fluent.Space4;
-
-        if (beside)
-        {
-            var ringX = x0;
-            var ringY = y0 + ((box.Height - diameter) / 2);
-            PlaceRing(ringX, ringY, diameter);
-
-            // The second column: everything but the digits, centred on the ring.
-            var colX = ringX + diameter + gap + Fluent.Space4;
-            var colW = Math.Max(0, (x0 + box.Width) - colX);
-            var height = label.LineHeight + gap + nextStep.LineHeight + gap + side;
-            var y = y0 + Math.Max(0, (box.Height - height) / 2);
-
-            Place(_phaseRow, colX, y, colW, label.LineHeight);
-            y += label.LineHeight + gap;
-            _next.TextAlignment = TextAlignment.Left;
-            Place(_next, colX, y, colW, nextStep.LineHeight);
-            y += nextStep.LineHeight + gap;
-            Place(_controls, colX, y, buttons, side);
-        }
-        else
-        {
-            var room = new Disclosure(box, gap);
-            room.Reserve(side);
-            room.Reserve(diameter);
-            var phase = room.Take(label.LineHeight);
-            var next = room.Take(nextStep.LineHeight);
-
-            var height = diameter + gap + side
-                + (phase ? label.LineHeight + gap : 0)
-                + (next ? nextStep.LineHeight + gap : 0);
-            var y = y0 + Math.Max(0, (box.Height - height) / 2);
-
-            if (phase)
-            {
-                PlaceCentred(_phaseRow, x0, y, box.Width, label.LineHeight);
-                y += label.LineHeight + gap;
-            }
-
-            PlaceRing(x0 + ((box.Width - diameter) / 2), y, diameter);
-            y += diameter + gap;
-
-            if (next)
-            {
-                _next.TextAlignment = TextAlignment.Center;
-                Place(_next, x0, y, box.Width, nextStep.LineHeight);
-                y += nextStep.LineHeight + gap;
-            }
-
-            Place(_controls, x0 + ((box.Width - buttons) / 2), y, buttons, side);
-        }
-
-        _ring.SetFraction(PomodoroCycle.Progress(_state, PomodoroCycle.PhaseSeconds(_state.Phase, _config)));
-        return true;
-    }
-
-    private void PlaceRing(double x, double y, double diameter)
-    {
-        Place(_ring.Root, x, y, diameter, diameter);
-
-        var digits = _clock.LineHeight;
-        _clock.TextAlignment = TextAlignment.Center;
-        Place(_clock, x, y + ((diameter - digits) / 2), diameter, digits);
-    }
-
-    /// <summary>Size the buttons and show the ones this rung has; returns the row's width.</summary>
-    private double SetButtons(double side, bool reset, bool skip)
-    {
-        foreach (var button in new[] { _runButton, _resetButton, _skipButton })
-        {
-            button.Width = side;
-            button.Height = side;
-        }
-
-        _resetButton.Visibility = reset ? Visibility.Visible : Visibility.Collapsed;
-        _skipButton.Visibility = skip ? Visibility.Visible : Visibility.Collapsed;
-
-        var count = 1 + (reset ? 1 : 0) + (skip ? 1 : 0);
-        return (count * side) + ((count - 1) * Fluent.Space2);
-    }
-
-
-    private static void Place(FrameworkElement element, double x, double y, double width, double height)
-    {
-        Canvas.SetLeft(element, x);
-        Canvas.SetTop(element, y);
-        element.Width = Math.Max(0, width);
-        element.Height = Math.Max(0, height);
-        element.Visibility = Visibility.Visible;
-    }
-
-    /// <summary>Place a horizontal panel centred in a box, at its own measured width.</summary>
-    private static void PlaceCentred(StackPanel panel, double x, double y, double width, double height)
-    {
-        // Visible before measuring: a collapsed panel measures to nothing.
-        panel.Width = double.NaN;
-        panel.Visibility = Visibility.Visible;
-        panel.Measure(new Windows.Foundation.Size(width, height));
-        var own = Math.Min(width, panel.DesiredSize.Width);
-        Place(panel, x + ((width - own) / 2), y, own, height);
-    }
-
-    private static void Hide(params UIElement[] elements)
-    {
-        foreach (var element in elements)
-        {
-            element.Visibility = Visibility.Collapsed;
-        }
+        var ringed = _plan.Look == PomodoroLook.Ring;
+        _ring.Visibility = ringed ? Visibility.Visible : Visibility.Collapsed;
+        _face.Width = ringed ? _plan.Ring : double.NaN;
+        _face.Height = ringed ? _plan.Ring : double.NaN;
+        _bar.Visibility = _plan.Look == PomodoroLook.Bar ? Visibility.Visible : Visibility.Collapsed;
+        _controls.Visibility = _plan.Controls ? Visibility.Visible : Visibility.Collapsed;
     }
 
     public void Detach()

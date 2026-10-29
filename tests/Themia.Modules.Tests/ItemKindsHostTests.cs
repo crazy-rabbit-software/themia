@@ -96,7 +96,7 @@ public sealed class ItemKindsHostTests
     [InlineData("battery", "graph", false)]
     [InlineData("battery", "battery", false)]
     [InlineData("battery", "ring", true)]
-    [InlineData("pomodoro", "ring", true)]
+    [InlineData("pomodoro", "ring", false)]
     [InlineData("pomodoro", "bar", false)]
     [InlineData("pomodoro", "digits", false)]
     [InlineData("hibernate", "tile", true)]

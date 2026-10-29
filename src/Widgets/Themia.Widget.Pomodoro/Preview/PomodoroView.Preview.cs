@@ -17,8 +17,8 @@ internal sealed partial class PomodoroView : IWidgetPreviewState
         if (state == "sample")
         {
             _state = new PomodoroState(PomodoroPhase.Work, (9 * 60) + 24);
-            Render();
             Lay();
+            Render();
         }
 
         return Task.CompletedTask;

@@ -20,14 +20,8 @@ public enum PomodoroStyle
 }
 
 /// <summary>A focus/break timer. [S-01] Run state is deliberately not persisted.</summary>
-public sealed class PomodoroConfig : WidgetConfig, IStyled, IShownSettings<SoundSetting>, IDrawsItems
+public sealed class PomodoroConfig : WidgetConfig, IStyled, IShownSettings<SoundSetting>
 {
-    /// <summary>[S-6573] The ring's track is the one item: the bar is a progress bar of its own and the digits are the card's text.</summary>
-    bool IDrawsItems.DrawsItems => Style == PomodoroStyle.Ring;
-
-    /// <summary>[S-6574] A track: the item text never reaches it.</summary>
-    bool IDrawsItems.DrawsItemText => false;
-
     /// <summary>[S-1460] The original's default level.</summary>
     public const int DefaultVolume = 70;
 
