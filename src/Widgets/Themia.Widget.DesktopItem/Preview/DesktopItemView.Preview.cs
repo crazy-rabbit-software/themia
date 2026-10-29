@@ -15,9 +15,9 @@ internal sealed partial class DesktopItemView : IWidgetPreviewState
 
     public Task ShowPreviewStateAsync(string state)
     {
-        _preview = true;
-        _previewSelected = state == "selected";
-        _shown = state switch
+        _fixture.On = true;
+        _fixture.Selected = state == "selected";
+        _fixture.Item = state switch
         {
             "folder" => new(@"C:\Users\Public\Desktop\Holiday photos", "Holiday photos", DesktopItemKind.Folder),
             "shortcut" => new(@"C:\Users\Public\Desktop\Notes.lnk", "Notes", DesktopItemKind.Shortcut),

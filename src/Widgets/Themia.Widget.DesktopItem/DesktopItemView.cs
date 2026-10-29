@@ -33,13 +33,8 @@ internal sealed partial class DesktopItemView : Grid, IWidgetView, IWidgetSizeAw
     private IWidgetSurface? _surface;
     private DesktopItemConfig? _config;
 
-    /// <summary>[S-5605] A preview's own item, standing in for the host's listing (a debug render).</summary>
-    private Themia.Sdk.DesktopItem? _shown;
-
-    /// <summary>[S-5605] A preview draws as given and acts on nothing; its "selected" state draws the selection.</summary>
-    private bool _preview;
-
-    private bool _previewSelected;
+    /// <summary>[S-5605] What a debug render's preview state sets (never set on the desktop).</summary>
+    private readonly PreviewFixture _fixture = new();
     private bool _hovered;
     private ItemFit _fit = DesktopItemLayout.For(DesktopItemModule.CellWidth, DesktopItemModule.CellHeight);
     private int _iconRequest;
@@ -68,9 +63,9 @@ internal sealed partial class DesktopItemView : Grid, IWidgetView, IWidgetSizeAw
     {
         get
         {
-            if (_shown is not null)
+            if (_fixture.Item is not null)
             {
-                return _shown;
+                return _fixture.Item;
             }
 
             if (_config is not { Item.Length: > 0 } config)
@@ -160,7 +155,7 @@ internal sealed partial class DesktopItemView : Grid, IWidgetView, IWidgetSizeAw
             return;
         }
 
-        if (_preview)
+        if (_fixture.On)
         {
             return;
         }
@@ -182,7 +177,7 @@ internal sealed partial class DesktopItemView : Grid, IWidgetView, IWidgetSizeAw
 
     private void Open()
     {
-        if (_preview || _host.IsPreview || Item is not { } item)
+        if (_fixture.On || _host.IsPreview || Item is not { } item)
         {
             return;
         }
@@ -196,7 +191,7 @@ internal sealed partial class DesktopItemView : Grid, IWidgetView, IWidgetSizeAw
 
     private bool Selected => Item is { } item && string.Equals(_host.DesktopItems.Selected, item.Key, StringComparison.OrdinalIgnoreCase);
 
-    private void Paint() => SelectionChrome.Paint(_chrome, new SelectionCue(Selected || (_preview && _previewSelected), _hovered));
+    private void Paint() => SelectionChrome.Paint(_chrome, new SelectionCue(Selected || (_fixture.On && _fixture.Selected), _hovered));
 
     private void Render()
     {
@@ -241,5 +236,18 @@ internal sealed partial class DesktopItemView : Grid, IWidgetView, IWidgetSizeAw
             // An async void: nothing may escape.
             Log.Error(Scope, "loading a desktop item's icon threw", ex);
         }
+    }
+
+    /// <summary>
+    /// [S-5605] A preview's own item, standing in for the host's listing; a preview draws as given and
+    /// acts on nothing, and its "selected" state draws the selection.
+    /// </summary>
+    private sealed class PreviewFixture
+    {
+        public bool On { get; set; }
+
+        public bool Selected { get; set; }
+
+        public Themia.Sdk.DesktopItem? Item { get; set; }
     }
 }
