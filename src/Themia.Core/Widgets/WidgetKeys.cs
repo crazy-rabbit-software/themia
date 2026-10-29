@@ -28,6 +28,7 @@ public static class WidgetKeys
     private const int VkC = 0x43;
     private const int VkV = 0x56;
     private const int VkX = 0x58;
+    private const int VkF5 = 0x74;
     private const int VkBack = 0x08;
     private const int VkAdd = 0x6B;
     private const int VkSubtract = 0x6D;
@@ -119,8 +120,9 @@ public static class WidgetKeys
             VkReturn => WidgetKey.Enter,
             VkEscape => WidgetKey.Escape,
             VkSpace when !shift => WidgetKey.Space,
-            VkDelete when !shift => WidgetKey.Delete,
+            VkDelete => shift ? WidgetKey.PermanentDelete : WidgetKey.Delete,
             VkF2 when !shift => WidgetKey.Rename,
+            VkF5 when !shift => WidgetKey.Refresh,
             VkApps => WidgetKey.Menu,
             VkF10 when shift => WidgetKey.Menu,
 

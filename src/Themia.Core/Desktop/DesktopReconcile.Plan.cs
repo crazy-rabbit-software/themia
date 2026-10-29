@@ -91,6 +91,12 @@ public static partial class DesktopReconcile
     /// <paramref name="screen"/>; the known set set. Returns the arrivals left unplaced because the view
     /// had no free cell (known now, reachable from Add widget). With no target view (no display yet) the
     /// arrivals are left unknown, so the next reconcile places them.
+    /// <para>
+    /// [S-5591] An arrival with a landing spot (<paramref name="spots"/>, by the arrival's position:
+    /// a drop, a paste, New ›) goes to that spot's view instead, at the cell under its point or the next
+    /// free one after it (<see cref="DesktopCells.FreeFrom"/>) on that view's display
+    /// (<paramref name="screenOf"/>); a spot whose view or display is gone falls back to the rule above.
+    /// </para>
     /// </summary>
     public static IReadOnlyList<DesktopItem> Apply(
         AppState state,
@@ -98,7 +104,9 @@ public static partial class DesktopReconcile
         string? targetViewId,
         ScreenMetrics screen,
         (double Width, double Height) cellDip,
-        Func<DesktopItem, FracRect, WidgetInstance> create)
+        Func<DesktopItem, FracRect, WidgetInstance> create,
+        IReadOnlyList<DesktopLandingSpot?>? spots = null,
+        Func<string, ScreenMetrics?>? screenOf = null)
     {
         ArgumentNullException.ThrowIfNull(state);
         ArgumentNullException.ThrowIfNull(plan);
@@ -126,26 +134,46 @@ public static partial class DesktopReconcile
         var unplaced = new List<DesktopItem>();
         var unknown = new HashSet<string>(DesktopItemKeys.Comparer);
         var target = state.FindView(targetViewId);
-        if (plan.Arrivals.Count > 0 && (target is null || !screen.IsUsable))
+        for (var i = 0; i < plan.Arrivals.Count; i++)
         {
-            foreach (var item in plan.Arrivals)
+            var item = plan.Arrivals[i];
+
+            // [S-5591] Its own spot first: the view of the display it was dropped on, at the drop point.
+            if (spots is not null && i < spots.Count && spots[i] is { } spot
+                && state.FindView(spot.ViewId) is { } spotView
+                && screenOf?.Invoke(spot.ViewId) is { IsUsable: true } spotScreen)
             {
-                unknown.Add(item.Key);
-            }
-        }
-        else if (target is not null)
-        {
-            var cell = new FracRect(0, 0, cellDip.Width / screen.Width, cellDip.Height / screen.Height);
-            foreach (var item in plan.Arrivals)
-            {
-                if (DesktopGrid.NextFree([.. target.Widgets.Select(w => w.Rect)], cell, screen.Allowed) is { } free)
+                var spotCell = new FracRect(0, 0, cellDip.Width / spotScreen.Width, cellDip.Height / spotScreen.Height);
+                FracRect[] taken = [.. spotView.Widgets.Select(w => w.Rect)];
+                var landed = spot.X is { } x && spot.Y is { } y
+                    ? DesktopCells.FreeFrom(taken, x, y, spotCell, spotScreen.Allowed)
+                    : DesktopGrid.NextFree(taken, spotCell, spotScreen.Allowed);
+                if (landed is { } at)
                 {
-                    target.Widgets.Add(create(item, free));
+                    spotView.Widgets.Add(create(item, at));
                 }
                 else
                 {
                     unplaced.Add(item);
                 }
+
+                continue;
+            }
+
+            if (target is null || !screen.IsUsable)
+            {
+                unknown.Add(item.Key);
+                continue;
+            }
+
+            var cell = new FracRect(0, 0, cellDip.Width / screen.Width, cellDip.Height / screen.Height);
+            if (DesktopGrid.NextFree([.. target.Widgets.Select(w => w.Rect)], cell, screen.Allowed) is { } free)
+            {
+                target.Widgets.Add(create(item, free));
+            }
+            else
+            {
+                unplaced.Add(item);
             }
         }
 

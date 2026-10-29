@@ -25,7 +25,8 @@ public enum DesktopItemKind
 /// </param>
 /// <param name="Name">Its name as Explorer's desktop shows it (no <c>.lnk</c>; extensions as Explorer's setting says).</param>
 /// <param name="Kind">File, folder, shortcut or shell item.</param>
-public sealed record DesktopItem(string Key, string Name, DesktopItemKind Kind);
+/// <param name="Hidden">[S-5547] A hidden item, listed because Explorer's "Hidden items" is on: drawn faded, as Explorer draws it.</param>
+public sealed record DesktopItem(string Key, string Name, DesktopItemKind Kind, bool Hidden = false);
 
 /// <summary>[S-5510] [S-5530] Desktop item keys: what one is, how two compare, and what opening one launches.</summary>
 public static class DesktopItemKeys

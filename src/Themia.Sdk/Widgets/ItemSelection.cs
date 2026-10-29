@@ -269,6 +269,25 @@ public sealed class ItemSelection
             to = Math.Clamp(to, 0, _order.Count - 1);
         }
 
+        return MoveTo(to, extend, focusOnly);
+    }
+
+    /// <summary>
+    /// [S-6623] [S-5541] The focus goes to item <paramref name="to"/>, found by the caller (the desktop
+    /// finds it by the items' places, not their positions in a list): <paramref name="extend"/> (Shift)
+    /// selects the range from the anchor, <paramref name="focusOnly"/> (Ctrl) moves the focus and leaves
+    /// the selection, otherwise the item alone is selected. Shows the focus cue. False when
+    /// <paramref name="to"/> is no item.
+    /// </summary>
+    public bool MoveTo(int to, bool extend = false, bool focusOnly = false)
+    {
+        if (!InRange(to))
+        {
+            return false;
+        }
+
+        Cues = true;
+        var from = FocusIndex;
         var id = _order[to];
 
         if (focusOnly)

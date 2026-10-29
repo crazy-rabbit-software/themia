@@ -99,6 +99,12 @@ public enum WidgetKey
     /// <summary>[S-6623] Ctrl+Space: the focused item in or out of the selection.</summary>
     ToggleSelection,
 
+    /// <summary>[S-5545] Shift+Delete: delete for good, as the shell does it (its own prompt), where a view offers that at all.</summary>
+    PermanentDelete,
+
+    /// <summary>[S-5545] F5: read again what is shown.</summary>
+    Refresh,
+
     /// <summary>
     /// [S-6626] Not a key: the session left the widget (a press on another widget, another app taking
     /// the foreground) while Escape was not pressed. Sent instead of <see cref="Escape"/> only to a
