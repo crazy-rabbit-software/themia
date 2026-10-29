@@ -113,10 +113,11 @@ public sealed class ItemKindsHostTests
     }
 
     [Fact]
-    public void S6573_music_draws_its_seek_bar_only_while_it_shows_the_progress()
+    public void S6570_music_draws_no_items_its_seek_bar_is_a_rail()
     {
+        // [S-1475] The seek bar is the Controls slider's rail (the Track role), not an item of the item layer.
         var (state, view, selection) = Selected(new WidgetId("music"));
-        Assert.True(QuickSet.For(state, selection, view.Id).HasItems);
+        Assert.False(QuickSet.For(state, selection, view.Id).HasItems);
 
         ((MusicConfig)view.Widgets[0].Config).ShowProgress = false;
         Assert.False(QuickSet.For(state, selection, view.Id).HasItems);
@@ -124,7 +125,6 @@ public sealed class ItemKindsHostTests
 
     [Theory]
     [InlineData("focusSession")]
-    [InlineData("music")]
     [InlineData("cpu")]
     public void S6574_items_that_are_only_tracks_take_a_background_but_no_text_colour(string kind)
     {

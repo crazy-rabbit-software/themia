@@ -1,4 +1,3 @@
-using Microsoft.UI;
 using Microsoft.UI.Input;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
@@ -7,7 +6,9 @@ using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Shapes;
 using Themia.App.Shell;
 using Themia.Core.Widgets;
+using Themia.Sdk.Kit;
 using Themia.Sdk.WinUI;
+using Themia.Sdk.WinUI.Kit;
 
 namespace Themia.App.Widgets;
 
@@ -25,7 +26,7 @@ namespace Themia.App.Widgets;
 internal sealed partial class MusicSeekBar : Grid
 {
     /// <summary>The visible line.</summary>
-    private const double TrackHeight = 4;
+    private const double TrackHeight = FamilyShape.Track;
 
     /// <summary>The thumb shown while hovering or scrubbing a seekable track.</summary>
     private const double ThumbSize = 12;
@@ -50,19 +51,19 @@ internal sealed partial class MusicSeekBar : Grid
 
         // [S-1113] A media timeline: left to right in every language, as Windows' own players keep it.
         FlowDirection = Microsoft.UI.Xaml.FlowDirection.LeftToRight;
-        Background = new SolidColorBrush(Colors.Transparent); // hit-testable across its whole height
+        Background = Family.Brush(ColourRole.Clear); // hit-testable across its whole height
 
         _track.Height = TrackHeight;
-        _track.CornerRadius = new CornerRadius(TrackHeight / 2);
+        _track.CornerRadius = Family.Round(TrackHeight, TrackHeight);
         _track.VerticalAlignment = VerticalAlignment.Center;
-        // [S-837] A seek bar is a slider: WinUI's SliderTrackFill is ControlStrongFillColorDefault (the
-        // disabled fill read as a slider that could not be dragged).
-        ItemFill.Paint(_track, ItemRole.Track);
+
+        // [S-6716] A seek bar is a slider: its rail the Track role, its value the accent, as the Controls block's.
+        _track.Background = Family.Brush(ColourRole.Track);
 
         _fill.Height = TrackHeight;
-        _fill.CornerRadius = new CornerRadius(TrackHeight / 2);
+        _fill.CornerRadius = Family.Round(TrackHeight, TrackHeight);
         _fill.VerticalAlignment = VerticalAlignment.Center;
-        _fill.Background = ThemeBrush.Of("AccentFillColorDefaultBrush", Colors.DodgerBlue);
+        _fill.Background = Family.Brush(ColourRole.Accent);
         _fill.RenderTransform = _fillScale;
         _fill.RenderTransformOrigin = new Windows.Foundation.Point(0, 0.5);
 
@@ -70,9 +71,9 @@ internal sealed partial class MusicSeekBar : Grid
         _thumb.Height = ThumbSize;
         _thumb.HorizontalAlignment = HorizontalAlignment.Left;
         _thumb.VerticalAlignment = VerticalAlignment.Center;
-        _thumb.Fill = ThemeBrush.Of("AccentFillColorDefaultBrush", Colors.DodgerBlue);
-        _thumb.Stroke = ThemeBrush.Of("ControlSolidFillColorDefaultBrush", Colors.White);
-        _thumb.StrokeThickness = 2;
+        _thumb.Fill = Family.Brush(ColourRole.Accent);
+        _thumb.Stroke = Family.Brush(ColourRole.Solid);
+        _thumb.StrokeThickness = FamilyShape.Stroke;
         _thumb.RenderTransform = _thumbShift;
         _thumb.Visibility = Visibility.Collapsed;
 

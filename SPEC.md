@@ -2686,15 +2686,14 @@ rules in Core `Model/QuickSet.cs` and `Geometry/StripPlacement.cs` and the SDK's
   not reach it. The clock in every style but Flip (its cards are the only items); the meters' graph
   style, the network meter in both its styles and the battery meter in its graph and battery
   styles (the shared meter view paints items only in its bars, rows, tiles, gauge, ring, core graphs
-  and signal bars); Pomodoro in Bar (a progress bar of its own) and Digits; Music with Show progress
-  off (its seek bar is its one item); a power button's Round style (its circle is an item only for
+  and signal bars); Pomodoro in Bar (a progress bar of its own) and Digits; a power button's Round style (its circle is an item only for
   the moment a press failed, [S-1915], which is no reason to offer it). Size is not a state: a part a
   small tile sheds still counts. A config without the contract draws what its kind's trait says;
   only a kind with items may carry it (conformance).
 - **[S-6574]** Item text never reaches a track ([S-6546]), so where every item a widget draws is a
   track (`IDrawsItems.DrawsItemText` false, `ItemKinds.DrawsText`) the menu has **Item background**
   but no **Item text** (`QuickSetOffer.HasItemText`), and `SetItemTextColor` skips it: Focus session
-  (its ring), Pomodoro's ring, Music's seek bar and every meter (bars, tiles' washes, dials, rings
+  (its ring), Pomodoro's ring and every meter (bars, tiles' washes, dials, rings
   and signal bars are tracks). A multi-selection offers the line when any selected widget's items
   carry text, and reads and sets those widgets only.
 - **[S-6544]** **Item text** follows (after Item background, before Scale): the colour control with
@@ -5896,9 +5895,10 @@ card is re-created, no tick restarts. Pure rules live in Core (`DesignLook`, `De
   (`QuickSet.SetBackgroundImage`; a path that breaks [S-6591] changes nothing). The three labels are
   English only so far.
 - **[S-6570]** Whether a kind **has items** (`ItemKinds.Has`): its view paints rows, tiles, chips or
-  tracks through the item layer ([S-6513]). Fifteen kinds paint none (Alarm, Audio visualizer,
-  Brightness, Exchange rates, Gallery, Next meeting, Notes, Quote, Rain next hour, Recycle bin, the
-  screen time chart and donut, Stopwatch, Video stream, Volume); Stocks' holding and Weather now's
+  tracks through the item layer ([S-6513]). Sixteen kinds paint none (Alarm, Audio visualizer,
+  Brightness, Exchange rates, Gallery, Music (its seek bar is the Controls slider's rail, G5), Next
+  meeting, Notes, Quote, Rain next hour, Recycle bin, the screen time chart and donut, Stopwatch,
+  Video stream, Volume); Stocks' holding and Weather now's
   readings are Rows, and the quote's commands left its body for the header (G3). Each widget's descriptor states
   it (`Traits.HasItems`, [S-6905]) and it cannot drift: `ItemKindsTests` reads every view's source (and the shared parts
   it builds — the flip card, rings, meter bars — to the fixed point) and fails when a descriptor and

@@ -14,24 +14,30 @@ through its host, the transport, the keys) with `MusicView.Layout.cs` (the ladde
 `Tests/MusicTests.cs` (run by `tests/Themia.Modules.Tests`); its config under the root's rules is the
 module host's `MusicHostTests`.
 
-- **[S-650]** Now playing stacks on a tall, narrow tile (art, lines, transport) and moves the
-  transport under the lines when beside them it would leave the title under 120px.
-- **[S-1475]** Music ladder: XS title (+ artist) over play/pause; S/Wide lines with the transport
-  beside (or under, or play only) and art on a strip, seek bar along the bottom (times beside it
-  on a wide one); M art + lines + transport, seek bar with the times under it; Tall stacked like
-  the media flyout (art, lines, seek, times, transport); L/XL art up to half the width beside
-  title/artist/album/40px transport, seek row with times along the bottom. No spectrum ([S-3200]).
+- **[S-650]** *(Retired by [S-1475], G5 2026-10-29: the transport is always the Controls row at the
+  foot, so it never stands beside the lines.)*
+- **[S-1475]** Now playing on the family's blocks (`MusicFace`): the lines at the content's top, the
+  track on the Title step (BodyStrong on a compact width) and the artist and album in one Body line,
+  secondary, each cut with an ellipsis; the transport the Controls row at the bottom inset
+  (Previous, Play/Pause as the one main action in the accent, Next; on a narrow card Next and then
+  Previous give way, [S-6716]); the progress row 8 over it: the elapsed time and the total in
+  Caption, tertiary, at its two ends in columns as wide as their widest case (every figure an 8, so
+  the bar does not move as the seconds go by), the seek bar between them 8 from each (its rail the
+  Track role, its fill and thumb the accent). Height goes to the title, then the transport, then the
+  artist, then the progress ([S-666]). The art is data: a 48 lead beside the two lines from a regular
+  width; once the view area is expanded in height a square over the lines, as large as the room left
+  allows (at least 96). No album line of its own, no larger title or 40 transport on L/XL (concise
+  first). A disabled transport button keeps its place, its glyph disabled. Nothing playing is the
+  Status row at the top (the music glyph and why, [S-6714]). No spectrum ([S-3200]).
 - **[S-6406]** Now playing's styles ([S-6000]), `MusicConfig.Style` (`MusicStyle`,
   `"style": "artwork"`): **Artwork and text** (the ladder above), **Full artwork** ([S-6407]) and
   **Text only** (the same ladder with no art, none fetched), in that order: what was "Show album
   art", which is gone. Transport, progress and hide-when-idle stay options for every style ([S-1479]).
-- **[S-6407]** Full artwork: the art fills the card edge to edge (cropped to fill; the music glyph
-  on the control fill without one), and the title (BodyStrong, Subtitle at L/XL) with the artist
-  where it fits, the transport beside them (play/pause alone on a Compact-wide card or when the
-  lines would get under 120 DIPs) and the seek bar under them (its times beside it from Expanded
-  width) sit at its foot over a scrim: the theme's own base fill fading in, eased, over a band as tall as the foot, to 80 %,
-  so the text keeps its theme colours on any art. The foot never takes more than 60 % of the card;
-  the artist and then the bar give way first.
+- **[S-6407]** Full artwork: the art is a band the card's width (cropped to fill; the music glyph on
+  the control fill without one) from the view's top to 8 over the lines, which stand with the
+  progress row and the transport at the content's foot as [S-1475] has them; the band takes what
+  they leave, and under 48 it is not drawn (a strip shows the lines alone). Nothing is laid over the
+  art, so no scrim (a colour made from numbers) is needed: the text keeps the card's roles.
 - **[S-1479]** Its options are all on the properties menu ([S-3719], user request 2026-10-19); it
   has no settings page. Appearance ([S-3723]), then **Show the transport** and **Show progress**
   (switches, for every style), a divider, and **Hide when idle** (Never / When no player is open /

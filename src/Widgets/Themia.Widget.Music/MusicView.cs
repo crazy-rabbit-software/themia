@@ -1,4 +1,3 @@
-using Microsoft.UI;
 using Microsoft.UI.Dispatching;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
@@ -10,7 +9,9 @@ using Themia.Core.Diagnostics;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
+using Themia.Sdk.Kit;
 using Themia.Sdk.WinUI;
+using Themia.Sdk.WinUI.Kit;
 using Themia.Sdk;
 using Windows.Storage.Streams;
 using Themia.Widget.Music;
@@ -32,39 +33,39 @@ namespace Themia.App.Widgets;
 /// spectrum is a widget of its own now, the audio visualizer ([S-3200]).
 /// </para>
 /// <para>
-/// Parts: this file holds the session, the transport, seeking, keys and hiding; the ladder that
-/// places the parts is in <c>MusicView.Layout.cs</c>.
+/// Parts: this file holds the session, the transport, seeking, keys and hiding; the plan that
+/// places the parts is <see cref="MusicFace"/>, applied in <c>MusicView.Layout.cs</c>.
 /// </para>
 /// </summary>
 internal sealed partial class MusicView : Grid, IWidgetView, IWidgetSizeAware, IWidgetSurfaceAware, IWidgetKeys
 {
     private const string Scope = "music";
 
-    private readonly Canvas _canvas = new();
+    /// <summary>The content in the card's inset: the lines at its top, the progress row and the transport at its foot.</summary>
+    private readonly Grid _content = new();
 
-    private readonly Border _artHost;
+    /// <summary>The art beside the lines (a 48 lead), over them (a square) and the Cover style's band: one shown at a time.</summary>
+    private readonly Border _leadArt;
+    private readonly Border _overArt;
+    private readonly Border _coverArt;
+    private readonly Image[] _pictures;
+    private readonly FontIcon[] _placeholders;
+    private readonly string _glyph;
 
-    /// <summary>[S-6407] The Cover style's gradient under the lines and the transport, so they read over any art.</summary>
-    private readonly Border _scrim = new() { IsHitTestVisible = false };
-    private readonly Image _art = new();
-    private readonly FontIcon _artPlaceholder;
-
-    private readonly TextBlock _track = Fluent.Text(FluentType.BodyStrong);
-    private readonly TextBlock _subtitle = Fluent.Text(FluentType.Body, "TextFillColorSecondaryBrush");
-    private readonly TextBlock _album = Fluent.Text(FluentType.Body, "TextFillColorSecondaryBrush");
-    private readonly TextBlock _elapsed = Fluent.Text(FluentType.Caption, "TextFillColorSecondaryBrush");
-    private readonly TextBlock _total = Fluent.Text(FluentType.Caption, "TextFillColorSecondaryBrush");
+    private readonly StackPanel _top = new();
+    private readonly TextBlock _track = Family.Text(FamilyType.Title, ColourRole.TextPrimary);
+    private readonly TextBlock _subtitle = Family.Text(FamilyType.Body, ColourRole.TextSecondary);
+    private readonly TextBlock _elapsed = Family.Text(FamilyType.Caption, ColourRole.TextTertiary);
+    private readonly TextBlock _total = Family.Text(FamilyType.Caption, ColourRole.TextTertiary);
     private readonly MusicSeekBar _seek = new();
+    private readonly Grid _times = new();
 
-    private readonly Button _previous = new();
-    private readonly Button _playPause = new();
-    private readonly Button _next = new();
-    private readonly FontIcon _playPauseIcon;
-    private readonly FontIcon[] _transportIcons;
-    private readonly StackPanel _transport;
+    private readonly ControlsBlock _controls = new();
+    private readonly Button _previous;
+    private readonly Button _playPause;
+    private readonly Button _next;
 
-    private readonly StackPanel _empty;
-    private readonly TextBlock _emptyMessage = new();
+    private readonly StatusBlock _status = new();
 
     private Ticker? _ticker;
     private MusicConfig _config = new();
@@ -101,74 +102,80 @@ internal sealed partial class MusicView : Grid, IWidgetView, IWidgetSizeAware, I
     {
         _media = host.Media;
         var definition = ModuleCatalog.Of(new WidgetId("music"));
+        _glyph = definition.Glyph;
 
-        _artPlaceholder = Fluent.Icon(definition.Glyph, "TextFillColorTertiaryBrush", Fluent.Space6);
-        _artPlaceholder.HorizontalAlignment = HorizontalAlignment.Center;
-        _artPlaceholder.VerticalAlignment = VerticalAlignment.Center;
+        // [S-1475] The art is data: the same picture in whichever frame the plan shows.
+        var (lead, leadPicture, leadPlaceholder) = ArtFrame(_glyph, FamilyShape.Icon, square: true);
+        var (over, overPicture, overPlaceholder) = ArtFrame(_glyph, FamilyShape.IconHuge, square: true);
+        var (cover, coverPicture, coverPlaceholder) = ArtFrame(_glyph, FamilyShape.IconHuge, square: false);
+        lead.Width = MusicFace.LeadArt;
+        lead.Height = MusicFace.LeadArt;
+        lead.Margin = new Thickness(0, 0, FamilySpace.GlyphGap, 0);
+        over.Margin = new Thickness(0, 0, 0, FamilySpace.S2);
+        _leadArt = lead;
+        _overArt = over;
+        _coverArt = cover;
+        _pictures = [leadPicture, overPicture, coverPicture];
+        _placeholders = [leadPlaceholder, overPlaceholder, coverPlaceholder];
 
-        _art.Stretch = Stretch.UniformToFill;
-        _art.Visibility = Visibility.Collapsed;
+        _track.TextTrimming = TextTrimming.CharacterEllipsis;
+        _subtitle.TextTrimming = TextTrimming.CharacterEllipsis;
+        var lines = new StackPanel { VerticalAlignment = VerticalAlignment.Center, Children = { _track, _subtitle } };
+        var row = new Grid();
+        row.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+        row.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+        Grid.SetColumn(lines, 1);
+        row.Children.Add(_leadArt);
+        row.Children.Add(lines);
+        _top.Children.Add(_overArt);
+        _top.Children.Add(row);
 
-        // The picture over the placeholder rather than instead of it: swapping the Border's child per
-        // track would rebuild the visual on every skip. A Border clips to its radius, so a cover that
-        // is not square cannot paint over the rounded corners.
-        _artHost = new Border
-        {
-            Child = new Grid { Children = { _artPlaceholder, _art } },
-            Background = ThemeBrush.Of("ControlFillColorSecondaryBrush", Colors.DimGray),
-            CornerRadius = new CornerRadius(Fluent.ControlRadius),
-        };
+        // [S-1475] The progress row: the elapsed time and the total at its two ends (Caption, tertiary,
+        // in columns as wide as their widest case), the seek bar between them, 8 from each.
+        _total.HorizontalAlignment = HorizontalAlignment.Right;
+        _times.ColumnSpacing = FamilySpace.S2;
+        _times.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+        _times.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+        _times.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+        _seek.VerticalAlignment = VerticalAlignment.Center;
+        Grid.SetColumn(_seek, 1);
+        Grid.SetColumn(_total, 2);
+        _times.Children.Add(_elapsed);
+        _times.Children.Add(_seek);
+        _times.Children.Add(_total);
+        _times.Height = MusicFace.ProgressRow;
 
-        _playPauseIcon = Fluent.Icon(Glyphs.Play, "TextFillColorPrimaryBrush");
-        var previousIcon = Fluent.Icon(Glyphs.Previous, "TextFillColorPrimaryBrush");
-        var nextIcon = Fluent.Icon(Glyphs.Next, "TextFillColorPrimaryBrush");
-        _transportIcons = [previousIcon, _playPauseIcon, nextIcon];
-
-        StyleButton(_previous, previousIcon, MusicStr.WidgetsB_Music_Previous.Text());
-        StyleButton(_playPause, _playPauseIcon, MusicStr.WidgetsB_Music_PlayPause.Text());
-        StyleButton(_next, nextIcon, MusicStr.WidgetsB_Music_Next.Text());
-
-        _previous.Click += OnPrevious;
-        _playPause.Click += OnPlayPause;
-        _next.Click += OnNext;
-
-        _transport = new StackPanel
-        {
-            Orientation = Orientation.Horizontal,
-            Spacing = Fluent.Space1,
-            Children = { _previous, _playPause, _next },
-
-            // [S-1113] Media transport keeps its order and direction in every language.
-            FlowDirection = FlowDirection.LeftToRight,
-        };
-
-        _total.TextAlignment = TextAlignment.Right;
-        Microsoft.UI.Xaml.Documents.Typography.SetNumeralAlignment(_elapsed, FontNumeralAlignment.Tabular);
-        Microsoft.UI.Xaml.Documents.Typography.SetNumeralAlignment(_total, FontNumeralAlignment.Tabular);
+        // [S-1113] Media transport and its timeline keep their order and direction in every language.
+        _times.FlowDirection = FlowDirection.LeftToRight;
+        _controls.FlowDirection = FlowDirection.LeftToRight;
+        _controls.VerticalAlignment = VerticalAlignment.Bottom;
+        _previous = _controls.Icon(Glyphs.Previous, MusicStr.WidgetsB_Music_Previous.Text(), () => Press(MediaTransport.Previous));
+        _playPause = _controls.MainIcon(Glyphs.Play, MusicStr.WidgetsB_Music_Play.Text(), () => Press(MediaTransport.PlayPause));
+        _next = _controls.Icon(Glyphs.Next, MusicStr.WidgetsB_Music_Next.Text(), () => Press(MediaTransport.Next));
 
         _seek.Scrubbing += OnScrubbing;
         _seek.Committed += OnSeekCommitted;
 
-        _emptyMessage.Text = MusicRules.StatusMessage(MusicState.Loading);
-        _empty = Fluent.EmptyState(definition.Glyph, _emptyMessage, out _);
-        _empty.Visibility = Visibility.Collapsed;
+        _content.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
+        _content.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
+        _content.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
+        _content.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
+        Grid.SetRow(_times, 2);
+        Grid.SetRow(_controls, 3);
+        _content.Children.Add(_top);
+        _content.Children.Add(_times);
+        _content.Children.Add(_controls);
 
-        foreach (var part in new FrameworkElement[] { _artHost, _scrim, _track, _subtitle, _album, _transport, _seek, _elapsed, _total })
-        {
-            part.Visibility = Visibility.Collapsed;
-            _canvas.Children.Add(part);
-        }
+        RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
+        RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
+        Grid.SetRow(_content, 1);
+        Children.Add(_coverArt);
+        Children.Add(_content);
 
-        Children.Add(_canvas);
-        Children.Add(_empty);
-
-        static void StyleButton(Button button, FontIcon icon, string tooltip)
-        {
-            button.Content = icon;
-            button.Padding = new Thickness(0);
-            button.CornerRadius = new CornerRadius(Fluent.ControlRadius);
-            ToolTipService.SetToolTip(button, tooltip);
-        }
+        _status.Hide();
+        Grid.SetRowSpan(_status, 2);
+        Children.Add(_status);
+        _content.Visibility = Visibility.Collapsed;
     }
 
     public void Bind(IWidgetSurface surface)
@@ -183,9 +190,6 @@ internal sealed partial class MusicView : Grid, IWidgetView, IWidgetSizeAware, I
         _ticker = ticker;
         _detached = false;
         _queue = DispatcherQueue;
-
-        // [S-6407] The scrim is built from the theme's own base fill, so it is redrawn with the theme.
-        ActualThemeChanged += OnThemeChanged;
 
         _session ??= _media.Open(OnSessionChanged);
 
@@ -425,9 +429,17 @@ internal sealed partial class MusicView : Grid, IWidgetView, IWidgetSizeAware, I
                 return;
             }
 
-            _art.Source = image;
-            _art.Visibility = Visibility.Visible;
-            _artPlaceholder.Visibility = Visibility.Collapsed;
+            foreach (var picture in _pictures)
+            {
+                picture.Source = image;
+                picture.Visibility = Visibility.Visible;
+            }
+
+            foreach (var placeholder in _placeholders)
+            {
+                placeholder.Visibility = Visibility.Collapsed;
+            }
+
             _artKey = key;
         }
         catch (OperationCanceledException)
@@ -453,9 +465,17 @@ internal sealed partial class MusicView : Grid, IWidgetView, IWidgetSizeAware, I
 
     private void ClearArtwork()
     {
-        _art.Source = null;
-        _art.Visibility = Visibility.Collapsed;
-        _artPlaceholder.Visibility = Visibility.Visible;
+        foreach (var picture in _pictures)
+        {
+            picture.Source = null;
+            picture.Visibility = Visibility.Collapsed;
+        }
+
+        foreach (var placeholder in _placeholders)
+        {
+            placeholder.Visibility = Visibility.Visible;
+        }
+
         _artKey = string.Empty;
     }
 
@@ -472,29 +492,27 @@ internal sealed partial class MusicView : Grid, IWidgetView, IWidgetSizeAware, I
 
         var track = _now.HasTrack;
 
-        _canvas.Visibility = track ? Visibility.Visible : Visibility.Collapsed;
-        _empty.Visibility = track ? Visibility.Collapsed : Visibility.Visible;
-
+        _content.Visibility = track ? Visibility.Visible : Visibility.Collapsed;
         if (!track)
         {
-            _emptyMessage.Text = MusicRules.StatusMessage(_now.State);
+            // [S-6714] Nothing to play is the Status row at the top: the music glyph and why.
+            _coverArt.Visibility = Visibility.Collapsed;
+            _status.Show(StatusKind.Empty, _glyph, MusicRules.StatusMessage(_now.State));
         }
         else
         {
+            _status.Hide();
             _track.Text = _now.Title;
             _subtitle.Text = _now.Subtitle;
-            _album.Text = _now.Album;
 
             var playing = _now.State == MusicState.Playing;
-
-            _playPauseIcon.Glyph = playing ? Glyphs.Pause : Glyphs.Play;
-            ToolTipService.SetToolTip(_playPause, playing ? MusicStr.WidgetsB_Music_Pause.Text() : MusicStr.WidgetsB_Music_Play.Text());
+            ControlsBlock.Reglyph(_playPause, playing ? Glyphs.Pause : Glyphs.Play, playing ? MusicStr.WidgetsB_Music_Pause.Text() : MusicStr.WidgetsB_Music_Play.Text());
 
             // Disabled rather than hidden: a transport whose buttons come and go moves the two that
             // remain, and the one under the pointer is then a different button than it was.
-            _previous.IsEnabled = _now.CanPrevious;
+            Enable(_previous, _now.CanPrevious);
             _playPause.IsEnabled = _now.CanPlayPause;
-            _next.IsEnabled = _now.CanNext;
+            Enable(_next, _now.CanNext);
             _seek.CanSeek = _now.CanSeek && !_preview;
 
             UpdatePosition();
@@ -502,6 +520,16 @@ internal sealed partial class MusicView : Grid, IWidgetView, IWidgetSizeAware, I
 
         Lay();
         Resubscribe();
+    }
+
+    /// <summary>An icon button enabled or not, its glyph in the role that says so (its glyph names its own brush).</summary>
+    private static void Enable(Button button, bool enabled)
+    {
+        button.IsEnabled = enabled;
+        if (button.Content is FontIcon icon)
+        {
+            icon.Foreground = Family.Brush(enabled ? ColourRole.TextPrimary : ColourRole.TextDisabled);
+        }
     }
 
     /// <summary>Advance the bar and the labels from the anchor. Display only: the next snapshot overwrites it.</summary>
@@ -523,12 +551,6 @@ internal sealed partial class MusicView : Grid, IWidgetView, IWidgetSizeAware, I
     private TimeSpan Position() => MusicRules.Interpolate(_now.Timeline, _now.AnchoredAt, DateTimeOffset.UtcNow, _now.State == MusicState.Playing);
 
     // ---- transport, seeking and keys --------------------------------------------------------------
-
-    private void OnPlayPause(object sender, RoutedEventArgs args) => Press(MediaTransport.PlayPause);
-
-    private void OnNext(object sender, RoutedEventArgs args) => Press(MediaTransport.Next);
-
-    private void OnPrevious(object sender, RoutedEventArgs args) => Press(MediaTransport.Previous);
 
     /// <summary>
     /// Ask the session to do something, and let its own change notification draw the result.
@@ -644,12 +666,9 @@ internal sealed partial class MusicView : Grid, IWidgetView, IWidgetSizeAware, I
         }
     }
 
-    private void OnThemeChanged(FrameworkElement sender, object args) => Lay();
-
     public void Detach()
     {
         _detached = true;
-        ActualThemeChanged -= OnThemeChanged;
 
         _subscription?.Dispose();
         _subscription = null;
@@ -664,7 +683,11 @@ internal sealed partial class MusicView : Grid, IWidgetView, IWidgetSizeAware, I
         _session?.Dispose();
         _session = null;
 
-        _art.Source = null;
+        foreach (var picture in _pictures)
+        {
+            picture.Source = null;
+        }
+
         _ticker = null;
     }
 }

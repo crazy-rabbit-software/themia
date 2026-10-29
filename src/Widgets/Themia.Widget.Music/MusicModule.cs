@@ -30,7 +30,7 @@ public sealed class MusicModule : IWidgetModule
         Glyph = Glyphs.Music,
         DefaultWidth = 340,
         DefaultHeight = 160,
-        Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader,
+        Traits = WidgetTraits.CanHaveHeader,
         Add = new(AddFolderId.Media, 0, 0, Popular: 7),
     };
 
