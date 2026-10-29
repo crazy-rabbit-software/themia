@@ -1064,26 +1064,30 @@ A `sealed partial class KitList : Grid` that a kit view puts in its slot and fee
   menu is read fresh on each right-tap; the Menu key goes through `ItemMenu.Open`.
 - Keys: implements the body of `IWidgetKeys.HandleKey`/`HandleText` through `KitKeys`; the view
   forwards to it (one line each).
-- Hover actions: an action flagged by the spec as inline (Mail's quick actions, [S-1284]) shows on
-  hover and on the focused row, only at the width the plan allows.
+- Rows (G2, 2026-10-29): every look is the family's Row block (16.2), one row of 32, 48 or 64 for
+  one, two or three lines by the tier (`RowRules.Lines`), whole rows only (`KitLadder.Fit`); a row
+  has no controls of its own (the hover actions are retired, [S-7033]: the menu and keys carry them).
 - Detach: every hook disposed, every handler unsubscribed, safe twice.
 
 ### 6.2 `KitHeader`
 
 The `IWidgetHeaderContent.HeaderTrailing` of a kit view, built in the view's constructor
-([S-400a]): from leading to trailing, the problem glyph (`Glyphs.Warning`, caution brush,
-`Fluent.IconSize`, tooltip from `KitFreshness`, a click opens Accounts when the screen offers it),
-the busy ring (`Fluent.IconSize`, only while a fetch for one of the widget's own keys is out,
-[S-2661]), optional view buttons from the spec (Mail's compose), and the count badge. Sheds in that
-order's reverse on narrow tiles by `KitLadder`, not by numbers in the view. A side header drops it
-([S-408]).
+([S-400a]), and the Header block's trailing parts (it is a `HeaderParts`, 16.2): from leading to
+trailing, the problem glyph (`HeaderBlock.Problem`, tooltip from `KitFreshness`, a click opens
+Accounts when the screen offers it), the busy ring (only while a fetch for one of the widget's own
+keys is out, [S-2661]), an informing label the widget keeps (`new KitHeader(host, label)`), at most
+two of the widget's own buttons (`KitHeaderButton`: an action, choices, or a `Menu` of its own lines;
+`ButtonAt` for a popup to stand under) and the neutral count pill. Which have something to say is
+`HeaderRules.Wants`; the header folds the rest (the label, then the buttons from the last, then the
+count), so no view measures a width for them. A side header drops it ([S-408]).
 
 ### 6.3 `KitStatePanel`
 
-`OfficeStatePanel` and Mail's empty host merged: the widget's glyph over `KitScreen.Sentence`, and
-the Accounts link (`AppServices.ShowAccounts`) when `OffersAccounts`, shed to fit the height
-through `EmptyStatePanel` ([S-642]). Loading shows the glyph alone (no sentence flicker). The Set up
-state is not here: the card owns it ([S-1862]).
+The Status block's one row at the top of the content (16.2, [S-6714]): the widget's glyph (the
+warning for a problem: `Show(..., problem: true)`, or a `KitScreen` of a problem kind), one sentence
+(several sources' failures in one, `KitScreen.Details` in its tooltip) and one standard button:
+Accounts when `OffersAccounts`, else the grant page, else the widget's own action. The Set up state
+is not here: the card owns it, with the config's `ISetupRule.SetupSentence` ([S-1862]).
 
 ### 6.4 `KitBinding` and the view
 
@@ -2900,6 +2904,18 @@ detail widgets (`DetailView`, `DetailFace`) are the reference for a widget of a 
 it, or a Readout and rows beside or under it. The render flag `--family-blocks-png <dir>`
 draws every variant at every tier; `TestResults/family/mockups/blocksheet.py` draws the same as
 mockups and `TestResults/family/match.py blocks` compares them box by box.
+
+### 16.2a The kit on the blocks (G2, 2026-10-29)
+
+A list widget gets the family for free through the kit: `KitHeader` is the Header block's parts,
+`KitStatePanel` the Status row, `KitList` the Row block for every look, `AddFooterRow` a Row block
+of 32. What a list widget still decides is its data (the `KitItem`s: title, subtitle, preview, time,
+lead, tone, emphasis) and its Set up sentence. A widget with a list of its own (notifications, recent
+files, the clipboard, contacts, the week planner) builds `RowBlock`s the same way: lines from
+`RowRules.Lines`, whole rows from `RowRules.Fit` in the view's area less the card's bottom inset
+(`KitLadder.ListHeight`), a scroll under `ScrollFade`, the ring from `RowBlock.Focused`. A table's
+columns go in the name's place (`RowBlock.Cells`). A data colour (a calendar's) is a 2 px bar or a dot
+through `Family.Data`, never the accent; a count is the neutral pill; no text is in the accent.
 
 ### 16.3 The guard
 

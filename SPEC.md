@@ -969,7 +969,14 @@ module author's guide is docs/WIDGET-KIT.md 16.
   `ChartSeries`, the GPU meter is a `MeterView` like the others, and `MeterFace`, `MeterStyleFace`,
   `MeterLookParts` (`BarList`, `TileGrid`), `MeterBrushes`, `CoreGraphGrid`, `PictureFace`,
   `BatteryShape`, `MeterNumbers`, `LoadTint`, `BarLayout`, `CoreGraphLayout`, `HeroLayout.Split` and
-  the GPU's own view are gone.
+  the GPU's own view are gone. The lists and the calendar are on the blocks (G2, 2026-10-29): the
+  kit's `KitHeader` is the Header block's parts (`HeaderParts`, at most two 24 buttons, the neutral
+  count), `KitStatePanel` the Status block's row at the top, every `KitList` look (rich, message,
+  table, schedule, check) the Row block of 32, 48 or 64 by the tier, `AddFooterRow` a Row block of
+  32; `HeaderTrail`, `Fluent.Badge`, `KitHeaderParts` (folded into `HeaderRules.Wants`),
+  `KitList.Lined` and the old ladders' measures are gone. `Fluent.Row`, `SetDensity`, `RowHeight`,
+  `CompactBelow` and `EmptyStatePanel`, `EmptyStateFit`, `Fluent.EmptyState` stay for the groups
+  whose widgets still call them (G3, G5, G6, the card's fault state).
 - **[S-6730]** The **source guard** (`FamilyGuardTests.S6730_no_literal_outside_the_family_tokens`)
   reads every module, the SDK's UI parts and the app's Shell and Widgets (not `Tests/`, `Fixtures/`,
   `Gallery/`) and fails on a type size or line, a weight other than 400/600, a spacing, thickness,
@@ -7953,9 +7960,11 @@ gallery ([S-1863]).
 - **[S-1862]** Such a widget's body is the Status block's set-up row ([S-6714]) and nothing else, where
   its first content row would be (under the header; at the top inset when the header is not above):
   the widget's glyph, one sentence saying what it waits for, and one accent button ("Set up"; its
-  tooltip the sentence). The sentence is the config's own (`ISetupRule.SetupSentence`: "Choose a
-  place" for every widget about a place), else "Add an account to show this" where an account is all
-  it lacks, else "Set up what this widget needs". On a row too narrow for both (XS, S) the sentence
+  tooltip the sentence). The sentence is the config's own (`ISetupRule.SetupSentence`, in the
+  module's words: "Choose a place" for every widget about a place; "Add a feed", "Add an account to
+  show your mail", "… your tasks", "… your calendar", "… your contacts", "Add an account to plan
+  your week", "… your next meeting" for the lists, G2), else "Add an account to show this" where an
+  account is all it lacks, else "Set up what this widget needs". On a row too narrow for both (XS, S) the sentence
   goes and the glyph and the button stay, at every size. The button takes
   no focus, so it works outside edit mode on the `WS_EX_NOACTIVATE` surface. A click goes where what
   the widget waits for is set (`WidgetSetup.Goes`): where an **account** is all it lacks (it would be
