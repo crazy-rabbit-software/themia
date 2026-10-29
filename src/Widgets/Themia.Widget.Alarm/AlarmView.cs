@@ -1,39 +1,33 @@
-using Microsoft.UI;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
-using Microsoft.UI.Xaml.Media;
 using Themia.App.Services;
 using Themia.App.Shell;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
+using Themia.Sdk.Kit;
 using Themia.Sdk.WinUI;
+using Themia.Sdk.WinUI.Kit;
 using Themia.Widget.Alarm;
 
 namespace Themia.App.Widgets;
 
 /// <summary>
-/// [S-4628]..[S-4630] One alarm (Karpo §106): its time as the readout, its name and what it is doing
-/// ("Tomorrow", "Weekdays", "Ringing") under it, and its switch — Snooze and Dismiss in the switch's
-/// place while it rings. What the alarm is <i>doing</i> is the app's alarm service's ([S-4623]), which
-/// rings it whether or not this view exists. Several alarms are several widgets.
+/// [S-4628]..[S-4630] One alarm (Karpo §106) on the timers' face ([S-6739]): its time as the Readout on
+/// the Hero steps, centred, its name and what it is doing ("Tomorrow", "Weekdays", "Ringing") the line
+/// under, and its switch in the Controls row — Dismiss and Snooze in the switch's place while it rings.
+/// What the alarm is <i>doing</i> is the app's alarm service's ([S-4623]), which rings it whether or not
+/// this view exists. Several alarms are several widgets.
 /// </summary>
 internal sealed partial class AlarmView : Grid, IWidgetView, IWidgetSizeAware, IWidgetSurfaceAware, IWidgetKeys, IWidgetContextActions
 {
-    /// <summary>A strip under this width keeps its switch under the time rather than beside it.</summary>
-    private const double BesideWidth = 260;
+    private readonly ReadoutBlock _time = new() { HorizontalAlignment = HorizontalAlignment.Center, VerticalAlignment = VerticalAlignment.Center };
 
-    /// <summary>The buttons are worded from this width, glyphs under it.</summary>
-    private const double WordedWidth = 300;
-
-    private readonly StackPanel _text = new() { VerticalAlignment = VerticalAlignment.Center };
-    private readonly TextBlock _time = Fluent.Text(FluentType.Title);
-    private readonly TextBlock _words = Fluent.Text(FluentType.Caption, "TextFillColorSecondaryBrush");
-    private readonly ToggleSwitch _switch = new() { OnContent = string.Empty, OffContent = string.Empty, MinWidth = 0 };
-    private readonly Button _snooze = new();
-    private readonly Button _dismiss = new();
-    private readonly StackPanel _ringButtons;
-    private readonly Grid _controls = new() { VerticalAlignment = VerticalAlignment.Center };
+    // Three rows of controls, one shown: a row folds its own parts, so a part is never hidden by hand.
+    private readonly ControlsBlock _switchRow = new();
+    private readonly ControlsBlock _ringRow = new();
+    private readonly ControlsBlock _snoozedRow = new();
+    private readonly ToggleSwitch _switch;
 
     private Ticker? _ticker;
     private IDisposable? _minute;
@@ -41,9 +35,7 @@ internal sealed partial class AlarmView : Grid, IWidgetView, IWidgetSizeAware, I
     private IWidgetSurface? _surface;
     private AlarmConfig _config = new();
     private WidgetArea _area;
-    private bool _beside;
-    private bool _controlsShown = true;
-    private bool _showing;
+    private TimerPlan _plan;
     private bool _detached;
 
     /// <summary>Debug renders: what the alarm is doing, in place of the service's answer.</summary>
@@ -57,39 +49,22 @@ internal sealed partial class AlarmView : Grid, IWidgetView, IWidgetSizeAware, I
     public AlarmView(IWidgetHost host)
     {
         _host = host;
-        ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
-        ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+        Padding = new Thickness(FamilySpace.Inset, 0, FamilySpace.Inset, FamilySpace.Inset);
         RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
         RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
 
-        Microsoft.UI.Xaml.Documents.Typography.SetNumeralAlignment(_time, FontNumeralAlignment.Tabular);
-        _time.MaxLines = 1;
-        _time.TextTrimming = TextTrimming.Clip;
-        _words.MaxLines = 1;
-        _words.TextTrimming = TextTrimming.CharacterEllipsis;
-        _text.Children.Add(_time);
-        _text.Children.Add(_words);
+        _switch = _switchRow.Switch(false, string.Empty, Switch);
+        _ringRow.Main(Str.Alarm_Dismiss.Text(), Dismiss);
+        _ringRow.Button(Str.Alarm_Snooze.Text(), Snooze);
+        _snoozedRow.Main(Str.Alarm_Dismiss.Text(), Dismiss);
 
-        _switch.Toggled += (_, _) =>
+        Children.Add(_time);
+        foreach (var row in new[] { _switchRow, _ringRow, _snoozedRow })
         {
-            if (!_showing)
-            {
-                Switch(_switch.IsOn);
-            }
-        };
-
-        _snooze.Click += (_, _) => Snooze();
-        _dismiss.Click += (_, _) => Dismiss();
-
-        // The switch sits at its own right edge: ToggleSwitch keeps room for its words otherwise.
-        _switch.HorizontalAlignment = HorizontalAlignment.Center;
-        _ringButtons = new StackPanel { Orientation = Orientation.Horizontal, Spacing = Fluent.Space2, Children = { _snooze, _dismiss } };
-        _ringButtons.HorizontalAlignment = HorizontalAlignment.Center;
-        _controls.Children.Add(_switch);
-        _controls.Children.Add(_ringButtons);
-
-        Children.Add(_text);
-        Children.Add(_controls);
+            row.HorizontalAlignment = HorizontalAlignment.Center;
+            SetRow(row, 1);
+            Children.Add(row);
+        }
     }
 
     public void Bind(IWidgetSurface surface) => _surface = surface;
@@ -164,10 +139,13 @@ internal sealed partial class AlarmView : Grid, IWidgetView, IWidgetSizeAware, I
 
     private void Dismiss() => _host.Alarms?.Dismiss(WidgetId);
 
-    /// <summary>[S-4628] The card menu answers a ring too.</summary>
-    public IReadOnlyList<WidgetAction> ContextActions => Status().Phase == AlarmPhase.Ringing
-        ? [new WidgetAction(AlarmModule.Glyph, Str.Alarm_Snooze.Text(), Snooze), new WidgetAction(Glyphs.Dismiss, Str.Alarm_Dismiss.Text(), Dismiss)]
-        : [];
+    /// <summary>[S-4628] The card menu answers a ring too, and a snooze (a tile too small for the Controls row).</summary>
+    public IReadOnlyList<WidgetAction> ContextActions => Status().Phase switch
+    {
+        AlarmPhase.Ringing => [new WidgetAction(AlarmModule.Glyph, Str.Alarm_Snooze.Text(), Snooze), new WidgetAction(Glyphs.Dismiss, Str.Alarm_Dismiss.Text(), Dismiss)],
+        AlarmPhase.Snoozed => [new WidgetAction(Glyphs.Dismiss, Str.Alarm_Dismiss.Text(), Dismiss)],
+        _ => [],
+    };
 
     // ---- keys ([S-4630]) ----------------------------------------------------------------------
 
@@ -203,12 +181,9 @@ internal sealed partial class AlarmView : Grid, IWidgetView, IWidgetSizeAware, I
         return true;
     }
 
-    // ---- the ladder ([S-4629]) ------------------------------------------------------------------
+    // ---- the face ([S-4629]) ------------------------------------------------------------------
 
-    /// <summary>
-    /// A strip puts the switch beside the time and its words; anything else stacks them, centred.
-    /// The time is reserved, then the switch row and the words as they fit; the time takes the rest.
-    /// </summary>
+    /// <summary>[S-4629] The face for this size: the time's step, its line under and the controls as they fit.</summary>
     private void Lay()
     {
         if (_detached)
@@ -223,42 +198,11 @@ internal sealed partial class AlarmView : Grid, IWidgetView, IWidgetSizeAware, I
             return;
         }
 
-        var box = area.Deflate(WidgetLayout.ContentInset, Fluent.Space2);
-        _beside = area.Shape == AreaShape.Wide && area.Width >= BesideWidth;
-
-        SetRow(_text, 0);
-        SetRowSpan(_text, _beside ? 2 : 1);
-        SetColumn(_text, 0);
-        SetColumnSpan(_text, _beside ? 1 : 2);
-        SetRow(_controls, _beside ? 0 : 1);
-        SetRowSpan(_controls, _beside ? 2 : 1);
-        SetColumn(_controls, _beside ? 1 : 0);
-        SetColumnSpan(_controls, _beside ? 1 : 2);
-
-        var centred = !_beside;
-        _text.HorizontalAlignment = centred ? HorizontalAlignment.Center : HorizontalAlignment.Left;
-        _time.TextAlignment = _words.TextAlignment = centred ? TextAlignment.Center : TextAlignment.Left;
-        _text.Margin = new Thickness(WidgetLayout.ContentInset, 0, _beside ? Fluent.Space3 : WidgetLayout.ContentInset, 0);
-        _controls.Margin = _beside
-            ? new Thickness(0, 0, WidgetLayout.ContentInset, 0)
-            : new Thickness(WidgetLayout.ContentInset, 0, WidgetLayout.ContentInset, Fluent.Space2);
-
-        var controlWidth = _beside ? WordedWidth / 2 : 0;
-        var room = new Disclosure(box.Width - controlWidth, box.Height, gap: 0);
-        room.Reserve(FluentType.Body.LineHeight);
-
-        // On a strip the switch is beside the time and costs no height.
-        _controlsShown = _beside || room.Take(Fluent.RowHeightCompact + Fluent.Space1);
-        var wordsStep = area.HeightClass >= SizeClass.Regular ? FluentType.Body : FluentType.Caption;
-        var wordsShown = room.Take(wordsStep.LineHeight);
-
-        _controls.Visibility = _controlsShown ? Visibility.Visible : Visibility.Collapsed;
-        _words.Visibility = wordsShown ? Visibility.Visible : Visibility.Collapsed;
-        _words.Apply(wordsStep);
-
-        var text = AlarmWords.Time(Strings.Current, _config.Plan);
-        _time.Apply(FluentType.Hero(box.Width - controlWidth, room.Remaining + FluentType.Body.LineHeight, text.Length));
-
+        var (_, unit) = AlarmFace.Split(AlarmWords.Time(Strings.Current, _config.Plan));
+        var worst = AlarmFace.Worst(unit);
+        _plan = AlarmFace.Plan(area, unit);
+        _time.Size(area, area.Width - (2 * FamilySpace.Inset), _plan.Box, worst);
+        RowSpacing = _plan.Controls ? FamilySpace.S2 : 0;
         Render();
     }
 
@@ -273,43 +217,28 @@ internal sealed partial class AlarmView : Grid, IWidgetView, IWidgetSizeAware, I
         var now = DateTime.UtcNow;
         var zone = _host.Alarms?.Zone ?? TimeZoneInfo.Local;
         var status = Status();
-        var off = status.Phase == AlarmPhase.Off;
         var ringing = status.Phase == AlarmPhase.Ringing;
         var snoozed = status.Phase == AlarmPhase.Snoozed;
         var name = AlarmWords.Name(locale, _config);
+        var time = AlarmWords.Time(locale, _config.Plan);
+        var (value, unit) = AlarmFace.Split(time);
 
-        _time.Text = AlarmWords.Time(locale, _config.Plan);
-        _time.Foreground = Ink(off ? "TextFillColorTertiaryBrush" : "TextFillColorPrimaryBrush");
-        _words.Text = $"{name} · {AlarmWords.Hint(locale, status, _config.Plan, now, zone)}";
-        _words.Foreground = Ink(ringing ? "AccentTextFillColorPrimaryBrush" : "TextFillColorSecondaryBrush");
+        // [S-4628] Off, the time and its words are secondary: the alarm is there, not set.
+        var role = status.Phase == AlarmPhase.Off ? ColourRole.TextSecondary : ColourRole.TextPrimary;
+        _time.Show(value, unit, _plan.Under ? $"{name} · {AlarmWords.Hint(locale, status, _config.Plan, now, zone)}" : null, valueRole: role);
 
         // [S-4628] While it rings (or waits out a snooze), the buttons that answer it stand where the switch was.
-        _ringButtons.Visibility = ringing || snoozed ? Visibility.Visible : Visibility.Collapsed;
-        _switch.Visibility = ringing || snoozed ? Visibility.Collapsed : Visibility.Visible;
-        _snooze.Visibility = ringing ? Visibility.Visible : Visibility.Collapsed;
+        Show(_switchRow, _plan.Controls && !ringing && !snoozed);
+        Show(_ringRow, _plan.Controls && ringing);
+        Show(_snoozedRow, _plan.Controls && snoozed);
 
-        var wide = (_area.IsMeasured ? _area.Width : ActualWidth) >= WordedWidth;
-        _snooze.Content = wide ? Str.Alarm_Snooze.Text() : new FontIcon { Glyph = AlarmModule.Glyph, FontSize = Fluent.IconSize };
-        _dismiss.Content = wide ? Str.Alarm_Dismiss.Text() : new FontIcon { Glyph = Glyphs.Dismiss, FontSize = Fluent.IconSize };
-        foreach (var button in new[] { _snooze, _dismiss })
-        {
-            // Narrow, square glyph buttons, so the time keeps its room.
-            button.Padding = wide ? new Thickness(Fluent.Space3, Fluent.Space1, Fluent.Space3, Fluent.Space1) : new Thickness(0);
-            button.Width = wide ? double.NaN : Fluent.RowHeightCompact;
-            button.Height = wide ? double.NaN : Fluent.RowHeightCompact;
-        }
-
-        ToolTipService.SetToolTip(_snooze, Str.Alarm_Snooze.Text());
-        ToolTipService.SetToolTip(_dismiss, Str.Alarm_Dismiss.Text());
-
-        _showing = true;
-        _switch.IsOn = _config.On;
-        _showing = false;
-        ToolTipService.SetToolTip(_switch, (_config.On ? AlarmStr.Alarm_SwitchOff : AlarmStr.Alarm_SwitchOn).Format(("name", name)));
-        Microsoft.UI.Xaml.Automation.AutomationProperties.SetName(_switch, $"{name} {_time.Text}");
+        _switchRow.Set(_switch, _config.On);
+        var label = (_config.On ? AlarmStr.Alarm_SwitchOff : AlarmStr.Alarm_SwitchOn).Format(("name", name));
+        ToolTipService.SetToolTip(_switch, label);
+        Microsoft.UI.Xaml.Automation.AutomationProperties.SetName(_switch, $"{name} {time}");
     }
 
-    private static Brush Ink(string key) => ThemeBrush.Of(key, Colors.Gray);
+    private static void Show(UIElement element, bool shown) => element.Visibility = shown ? Visibility.Visible : Visibility.Collapsed;
 
     public void Detach()
     {
