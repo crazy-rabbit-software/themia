@@ -17,10 +17,14 @@ JSON context), `NotificationsConfig.cs` (empty: nothing to set, no settings page
 
 - **[S-4400]** Kind `Notifications` (121), add menu Calendar & mail ([S-3511]), 320×320, glyph the bell. No
   settings (`NotificationsConfig` is empty, so no page, [S-1750]); never needs setting up.
-- **[S-4404]** The ladder (`NotificationsLayout.Plan`): Compact width or under 64 DIP of height, the bell
-  and the count (the bell alone and dimmed with none; a click on it opens the privacy page where access
-  is missing); otherwise rows, flat with each row's app icon up to Regular height, grouped from
-  Expanded; the body takes no line at Compact height, 1 at Regular, 2 at Expanded, 3 at Huge; "No new notifications" when empty.
+- **[S-4404]** The ladder (`NotificationsLayout.Plan`) on the family's rows ([S-6711], [S-6712]): the list
+  at every size (the header's neutral count says how many, so the small tile has no bell face of its
+  own; G2, 2026-10-29); a notification's title the name, when it came the value, its body on one line
+  under it (its own breaks read as spaces) from a regular tile; each row's app icon and the time from a
+  column of 180; grouped under app headings from an expanded height ([S-4402]); as many whole lines
+  as fit, never ending on a heading, the rest a scroll away under the fade. "No new notifications",
+  a missing access ([S-4403]) and an unsupported Windows are the state row's sentence at the top, with
+  the one button that fixes it (Open settings for Denied, a problem; Allow for Unspecified).
 - **[S-4409]** Keys while the widget holds the lease: Up/Down, Page Up/Down, Home/End move the row
   cursor (`ListKeys`), Enter opens the app, Delete dismisses, the Menu key opens the row's menu (Open,
   Dismiss, Clear all from the app), Escape lets go. In edit mode nothing is opened or cleared.

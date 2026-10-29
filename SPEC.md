@@ -6855,12 +6855,15 @@ strings in `Locales/panels/`; tests `WindowsPanelsTests`, the module host's `Win
   came; newest first, at most 100. Karpo reads Windows' database (`wpndatabase.db`) for the whole toast
   and dismisses through the listener; Themia, a Store app, reads only through the listener, so a toast's
   buttons and reply box are not offered — a double-click opens its app instead ([S-4406]).
-- **[S-4402]** Grouped by app as Windows 11's center: a heading per app (its icon, its name, a × that
-  clears the app's), the apps in the order of their newest, each app's newest first (two of one moment:
-  the higher id first). A group of more than three shows its newest three and "See more (n)"; "See
-  fewer" folds it again; what is opened is the showing's. **Clear all** is the header's trailing button
-  and clears Windows' own list (`ClearNotifications`); a heading's × and a row's × go through
-  `RemoveNotification`.
+- **[S-4402]** Grouped by app as Windows 11's center, from an expanded height ([S-4404]): a heading per
+  app (one row of 32: its icon and its name, BodyStrong secondary), the apps in the order of their
+  newest, each app's newest first (two of one moment: the higher id first), its rows leading with an
+  empty slot so every title stands at one edge. A group of more than three shows its newest three and a
+  "See more (n)" row (secondary, a row of the list's own, never a link); "See fewer" folds it again;
+  what is opened is the showing's. **Clear all** is the header's button (24, its 16 glyph) beside the
+  neutral count and clears Windows' own list (`ClearNotifications`); an app's notifications are cleared
+  and one is dismissed from the row's menu or with Delete, through `RemoveNotification` (the heading's
+  and the row's × are gone: a row has no controls of its own, G2, 2026-10-29, as the kit's [S-7033]).
 - **[S-4403]** Access: a packaged Themia declares `userNotificationListener` (Package.appxmanifest).
   Windows' answer is Allowed (the list), Denied ("Notification access is off for Themia" and **Open
   settings** → `ms-settings:privacy-notifications`), Unspecified (never decided: **Allow** calls

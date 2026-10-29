@@ -1,4 +1,3 @@
-using Microsoft.UI;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Automation;
 using Microsoft.UI.Xaml.Controls;
@@ -11,106 +10,85 @@ using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Shell;
 using Themia.Core.Widgets;
+using Themia.Sdk.Kit;
 using Themia.Sdk.WinUI;
+using Themia.Sdk.WinUI.Kit;
 using Themia.Widget.Notifications;
 
 namespace Themia.App.Widgets;
 
 /// <summary>
-/// [S-4400] Windows' notification list, as Windows 11's notification center draws it (Karpo §19, §100):
-/// grouped by app under a heading with the app's icon, its name and a × that clears it; each app's newest
-/// three and "See more (n)"; a notification's title, its body and when it came, the × in the time's place
-/// under the pointer. A click opens the app; Clear all in the header clears Windows' own list.
+/// [S-4400] Windows' notification list on the family's rows ([S-6711]), as Windows 11's notification
+/// center groups it (Karpo §19, §100): a notification's title primary, when it came as the value, its
+/// body on the second line; grouped by app under a heading (its icon, its name) from an expanded height,
+/// each app's newest three and a "See more (n)" row. A click focuses a row, a double-click opens the
+/// app; Clear all is the header's button beside the neutral count.
 /// <para>
-/// [S-4404] The ladder: the bell and how many on the smallest tile; then the newest flat, each with its
-/// app's icon; grouped from an expanded height; the body one, two, three lines as the tile grows. The list
-/// is the host's one feed's (<see cref="IWidgetHost.Notifications"/>), which follows Windows' changes; access Windows has not given is
-/// a sentence and the one button that fixes it ([S-4403]).
+/// [S-4404] The ladder (<see cref="NotificationsLayout"/>): the list at every size, the body from a
+/// regular tile, the headings from an expanded height. The list is the host's one feed's
+/// (<see cref="IWidgetHost.Notifications"/>), which follows Windows' changes; access Windows has not
+/// given is the state row's sentence and the one button that fixes it ([S-4403]).
 /// </para>
 /// </summary>
 internal sealed partial class NotificationsView : Grid, IWidgetView, IWidgetHeaderContent, IWidgetSizeAware, IWidgetSurfaceAware, IWidgetKeys
 {
     private const string Scope = "notifications";
 
-    /// <summary>The app icon's size in a heading and a flat row, in DIPs; asked at twice for 200 %.</summary>
-    private const double AppIconSize = 16;
-
     /// <summary>Where Windows keeps notification access: Settings › Privacy › Notifications.</summary>
     private static readonly Uri AccessPage = new("ms-settings:privacy-notifications");
 
-    private readonly Button _clearAll;
-    private readonly TextBlock _clearAllText = Fluent.Text(FluentType.Caption, "TextFillColorSecondaryBrush");
-    private readonly StackPanel _list = new() { Spacing = 0 };
+    /// <summary>[S-6710] The header's extras: the neutral count and Clear all.</summary>
+    private readonly KitHeader _header;
+    private readonly StackPanel _list = new();
     private readonly ScrollViewer _scroll;
     private ScrollFade? _fade;
-    private readonly StackPanel _empty;
-    private readonly TextBlock _emptyText = new();
+    private readonly KitStatePanel _state;
 
-    /// <summary>The sentence over the one button that fixes it; the empty-state panel itself holds an icon and a line only.</summary>
-    private readonly StackPanel _emptyHost = new() { VerticalAlignment = VerticalAlignment.Center };
-    private readonly Button _action = new() { HorizontalAlignment = HorizontalAlignment.Center, Margin = new Thickness(0, Fluent.Space3, 0, 0) };
-    private readonly StackPanel _face = new() { Orientation = Orientation.Horizontal, Spacing = Fluent.Space2, HorizontalAlignment = HorizontalAlignment.Center, VerticalAlignment = VerticalAlignment.Center };
-    private readonly FontIcon _faceBell;
-    private readonly TextBlock _faceCount = Fluent.Text(FluentType.Subtitle);
-
+    /// <summary>One per row, so its handlers come off with it.</summary>
     private readonly List<IDisposable> _rowHandles = [];
 
     /// <summary>The rows a key can land on, in order, with the notification each stands for.</summary>
-    private readonly List<(Border Row, NotificationItem Item)> _rows = [];
+    private readonly List<(RowBlock Row, NotificationItem Item)> _rows = [];
 
-    /// <summary>The apps opened past "See more" in this showing; forgotten when the widget goes, as Windows forgets it.</summary>
+    /// <summary>The bottom of each line of the list and whether it is a heading, for the whole-line cap ([S-6712]).</summary>
+    private readonly List<(double Bottom, bool Heading)> _lines = [];
+
+    /// <summary>The apps whose group shows every notification ("See more" opened); the showing's, never saved.</summary>
     private readonly HashSet<string> _open = new(StringComparer.OrdinalIgnoreCase);
 
     private IWidgetSurface? _surface;
     private IDisposable? _lease;
     private Ticker? _ticker;
     private IDisposable? _minutes;
-    private NotificationPlan _plan;
+    private NotificationPlan _plan = NotificationsLayout.Plan(default);
     private WidgetArea _area;
     private NotificationSnapshot _preview = NotificationSnapshot.Pending;
     private int? _cursor;
     private bool _detached = true;
 
-    /// <summary>[S-6913] What the view asks of the host: the launcher, ⚙ › Accounts.</summary>
+    /// <summary>[S-6913] What the view asks of the host: the notification feed and the launcher.</summary>
     private readonly IWidgetHost _widgetHost;
 
     public NotificationsView(IWidgetHost host)
     {
         _widgetHost = host;
-        _clearAll = new Button
-        {
-            // Windows' own words, not a ×: the × is a heading's and a row's.
-            Content = _clearAllText,
-            Padding = new Thickness(Fluent.Space2, Fluent.Space1, Fluent.Space2, Fluent.Space1),
-            MinWidth = 0,
-            Background = ThemeBrush.Of("SubtleFillColorTransparentBrush", Colors.Transparent),
-            BorderThickness = new Thickness(0),
-        };
-
+        _header = new KitHeader(host);
         _scroll = new ScrollViewer
         {
             Content = _list,
-            Padding = WidgetLayout.ListInset,
             HorizontalScrollMode = ScrollMode.Disabled,
             HorizontalScrollBarVisibility = ScrollBarVisibility.Disabled,
             VerticalScrollBarVisibility = ScrollBarVisibility.Hidden,
+            VerticalAlignment = VerticalAlignment.Top,
         };
-        _empty = Fluent.EmptyState(NotificationsModule.Glyph, _emptyText, out _);
-        _emptyHost.Children.Add(_empty);
-        _emptyHost.Children.Add(_action);
-
-        _faceBell = Fluent.Icon(NotificationsModule.Glyph, "TextFillColorPrimaryBrush", 24);
-        Microsoft.UI.Xaml.Documents.Typography.SetNumeralAlignment(_faceCount, FontNumeralAlignment.Tabular);
-        _face.Children.Add(_faceBell);
-        _face.Children.Add(_faceCount);
+        _state = new KitStatePanel(NotificationsModule.Glyph, host) { Visibility = Visibility.Collapsed };
 
         Children.Add(_scroll);
-        Children.Add(_emptyHost);
-        Children.Add(_face);
+        Children.Add(_state);
     }
 
-    /// <summary>[S-4402] Clear all, in the card's header, as on Windows' own list.</summary>
-    public FrameworkElement? HeaderTrailing => _clearAll;
+    /// <inheritdoc />
+    public FrameworkElement? HeaderTrailing => _header;
 
     public void Bind(IWidgetSurface surface) => _surface = surface;
 
@@ -132,9 +110,6 @@ internal sealed partial class NotificationsView : Grid, IWidgetView, IWidgetHead
 #endif
 
         _fade ??= new ScrollFade(_scroll, _list);
-        _clearAll.Click += OnClearAll;
-        _action.Click += OnAction;
-        Tapped += OnFaceTapped;
         PointerEntered += OnPointerEntered;
         Strings.Changed += OnLanguage;
 
@@ -145,12 +120,13 @@ internal sealed partial class NotificationsView : Grid, IWidgetView, IWidgetHead
 
     public void ApplyConfig(WidgetConfig config) => Render();
 
+    /// <summary>[S-4404] [S-663] A new size: the ladder again, and the whole lines that fit.</summary>
     public void ApplySize(WidgetArea area)
     {
-        var sameHeight = area.HeightClass == _area.HeightClass;
-        _area = area;
         var plan = NotificationsLayout.Plan(area);
-        if (plan == _plan && sameHeight)
+        var moved = plan != _plan || area.Height != _area.Height;
+        _area = area;
+        if (!moved)
         {
             return;
         }
@@ -167,9 +143,6 @@ internal sealed partial class NotificationsView : Grid, IWidgetView, IWidgetHead
         }
 
         _detached = true;
-        _clearAll.Click -= OnClearAll;
-        _action.Click -= OnAction;
-        Tapped -= OnFaceTapped;
         PointerEntered -= OnPointerEntered;
         Strings.Changed -= OnLanguage;
         _minutes?.Dispose();
@@ -179,6 +152,8 @@ internal sealed partial class NotificationsView : Grid, IWidgetView, IWidgetHead
         _fade?.Dispose();
         _fade = null;
         ClearRows();
+        _header.Detach();
+        _state.Detach();
         _open.Clear();
         _ticker = null;
     }
@@ -197,14 +172,17 @@ internal sealed partial class NotificationsView : Grid, IWidgetView, IWidgetHead
         ClearRows();
         var snapshot = Snapshot;
         var items = snapshot.Items;
-        _clearAll.IsEnabled = items.Count > 0 && !Inert;
-        _clearAllText.Text = NotificationsStr.Panels_Notifications_ClearAll.Text();
-        _clearAll.Visibility = _plan.Face || snapshot.Access != NotificationAccess.Allowed ? Visibility.Collapsed : Visibility.Visible;
-        AutomationProperties.SetName(_clearAll, NotificationsStr.Panels_Notifications_ClearAll.Text());
+        var allowed = snapshot.Access == NotificationAccess.Allowed;
+
+        // [S-4402] Clear all is the header's button, beside how many there are.
+        _header.Show(
+            [],
+            busy: false,
+            count: allowed ? items.Count : null,
+            buttons: allowed && items.Count > 0 ? [new KitHeaderButton(Glyphs.Clear, NotificationsStr.Panels_Notifications_ClearAll.Text(), ClearAll)] : []);
 
         _scroll.Visibility = Visibility.Collapsed;
-        _emptyHost.Visibility = Visibility.Collapsed;
-        _face.Visibility = Visibility.Collapsed;
+        _state.Hide();
 
         if (snapshot.Access == NotificationAccess.Pending)
         {
@@ -212,32 +190,15 @@ internal sealed partial class NotificationsView : Grid, IWidgetView, IWidgetHead
             return;
         }
 
-        if (snapshot.Access != NotificationAccess.Allowed)
+        if (!allowed)
         {
             ShowAccess(snapshot.Access);
-            if (_plan.Face)
-            {
-                // Too small for the sentence: the dimmed bell, the sentence its tooltip, a click the fix.
-                _emptyHost.Visibility = Visibility.Collapsed;
-                ShowFace(0);
-                ToolTipService.SetToolTip(_face, _emptyText.Text);
-                AutomationProperties.SetName(this, _emptyText.Text);
-            }
-
-            return;
-        }
-
-        if (_plan.Face)
-        {
-            ShowFace(items.Count);
             return;
         }
 
         if (items.Count == 0)
         {
-            _emptyText.Text = NotificationsStr.Panels_Notifications_None.Text();
-            _action.Visibility = Visibility.Collapsed;
-            _emptyHost.Visibility = Visibility.Visible;
+            _state.Show(NotificationsStr.Panels_Notifications_None.Text(), offerAccounts: false);
             _cursor = null;
             return;
         }
@@ -249,7 +210,7 @@ internal sealed partial class NotificationsView : Grid, IWidgetView, IWidgetHead
         {
             foreach (var group in NotificationRules.Groups(items))
             {
-                _list.Children.Add(Heading(group));
+                AddLine(Heading(group), FamilyShape.Row1, heading: true);
                 var (rows, more) = NotificationRules.Fold(group, _open.Contains(group.AppId), _plan.Folded);
                 foreach (var item in rows)
                 {
@@ -258,7 +219,7 @@ internal sealed partial class NotificationsView : Grid, IWidgetView, IWidgetHead
 
                 if (more > 0 || (_open.Contains(group.AppId) && group.Items.Count > _plan.Folded))
                 {
-                    _list.Children.Add(Fold(group, more));
+                    AddLine(Fold(group, more), FamilyShape.Row1, heading: false);
                 }
             }
         }
@@ -270,95 +231,77 @@ internal sealed partial class NotificationsView : Grid, IWidgetView, IWidgetHead
             }
         }
 
+        // [S-6712] As tall as the whole lines that fit, never ending on a heading.
+        var room = KitLadder.ListHeight(_area);
+        var bottoms = _lines.Select(l => l.Bottom).ToList();
+        var content = bottoms.Count > 0 ? bottoms[^1] : 0;
+        _scroll.Height = !_area.IsMeasured ? double.NaN
+            : content <= room + Disclosure.Tolerance ? content
+            : KitChecks.WholeLineCap(bottoms, room, [.. _lines.Select(l => l.Heading)]);
+
         _cursor = _cursor is { } cursor && cursor < _rows.Count ? cursor : null;
         ShowCursor();
         _fade?.Refresh();
     }
 
-    /// <summary>[S-4404] The smallest tile: the bell and how many, or the bell alone with none.</summary>
-    private void ShowFace(int count)
+    private void AddLine(FrameworkElement line, double height, bool heading)
     {
-        _face.Visibility = Visibility.Visible;
-        _faceCount.Text = count > 0 ? LocaleFormat.Integer(count) : string.Empty;
-        _faceCount.Visibility = count > 0 ? Visibility.Visible : Visibility.Collapsed;
-        _faceBell.Foreground = ThemeBrush.Of(count > 0 ? "TextFillColorPrimaryBrush" : "TextFillColorTertiaryBrush", Colors.Gray);
-        var words = count > 0 ? $"{NotificationsStr.Panels_Notifications_Label.Text()}: {LocaleFormat.Integer(count)}" : NotificationsStr.Panels_Notifications_None.Text();
-        ToolTipService.SetToolTip(_face, words);
-        AutomationProperties.SetName(this, words);
+        _list.Children.Add(line);
+        _lines.Add(((_lines.Count > 0 ? _lines[^1].Bottom : 0) + height, heading));
     }
 
-    /// <summary>[S-4403] Access Windows has not given: what is wrong, and the one button that fixes it.</summary>
+    /// <summary>[S-4403] Access Windows has not given: the state row's sentence and the one button that fixes it.</summary>
     private void ShowAccess(NotificationAccess access)
     {
-        _emptyHost.Visibility = Visibility.Visible;
-        (_emptyText.Text, var button) = access switch
+        switch (access)
         {
-            NotificationAccess.Denied => (NotificationsStr.Panels_Notifications_Denied.Text(), NotificationsStr.Panels_Notifications_OpenSettings.Text()),
-            NotificationAccess.Unspecified => (NotificationsStr.Panels_Notifications_Unspecified.Text(), NotificationsStr.Panels_Notifications_Allow.Text()),
-            _ => (NotificationsStr.Panels_Notifications_Unsupported.Text(), (string?)null),
-        };
+            case NotificationAccess.Denied:
+                _state.Show(NotificationsStr.Panels_Notifications_Denied.Text(), offerAccounts: false, action: (NotificationsStr.Panels_Notifications_OpenSettings.Text(), OpenAccessPage), problem: true);
+                break;
 
-        // The tile is too small for a sentence and a button: the sentence, and a click on it does the same.
-        _action.Content = button;
-        _action.Tag = access;
-        _action.Visibility = button is not null && _area.HeightClass >= SizeClass.Regular ? Visibility.Visible : Visibility.Collapsed;
+            case NotificationAccess.Unspecified:
+                _state.Show(NotificationsStr.Panels_Notifications_Unspecified.Text(), offerAccounts: false, action: (NotificationsStr.Panels_Notifications_Allow.Text(), () => _ = AskAsync()));
+                break;
+
+            default:
+                _state.Show(NotificationsStr.Panels_Notifications_Unsupported.Text(), offerAccounts: false);
+                break;
+        }
     }
 
-    /// <summary>[S-4402] An app's heading: its icon, its name, and the × that clears it.</summary>
+    /// <summary>[S-4402] An app's heading: one row of 32, its icon and its name in BodyStrong, secondary.</summary>
     private Grid Heading(NotificationGroup group)
     {
-        var grid = new Grid
+        var icon = AppIcon(group.AppId);
+        icon.Margin = new Thickness(0, 0, FamilySpace.GlyphGap, 0);
+        var name = Family.Text(FamilyType.BodyStrong, ColourRole.TextSecondary, group.AppName);
+        name.VerticalAlignment = VerticalAlignment.Center;
+        SetColumn(name, 1);
+
+        return new Grid
         {
+            Height = FamilyShape.Row1,
+            Padding = Family.SideInset,
             ColumnDefinitions =
             {
                 new ColumnDefinition { Width = GridLength.Auto },
                 new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) },
-                new ColumnDefinition { Width = GridLength.Auto },
             },
-            Padding = new Thickness(Fluent.Space4, Fluent.Space2, Fluent.Space2, 0),
-            ColumnSpacing = Fluent.Space2,
+            Children = { icon, name },
         };
-
-        var icon = AppIcon(group.AppId);
-        var name = Fluent.Text(FluentType.Caption, "TextFillColorSecondaryBrush");
-        name.Text = group.AppName;
-        name.TextTrimming = TextTrimming.CharacterEllipsis;
-        name.MaxLines = 1;
-        name.VerticalAlignment = VerticalAlignment.Center;
-
-        var clear = FluentLayout.IconCommand(Glyphs.Dismiss, NotificationsStr.Panels_Notifications_ClearApp.Format(("app", group.AppName)));
-        clear.Width = 24;
-        clear.Height = 24;
-        clear.Background = ThemeBrush.Of("SubtleFillColorTransparentBrush", Colors.Transparent);
-        clear.BorderThickness = new Thickness(0);
-        clear.IsEnabled = !Inert;
-        var appId = group.AppId;
-        RoutedEventHandler onClear = (_, _) => ClearApp(appId);
-        clear.Click += onClear;
-        _rowHandles.Add(new Unhook(() => clear.Click -= onClear));
-
-        SetColumn(icon, 0);
-        SetColumn(name, 1);
-        SetColumn(clear, 2);
-        grid.Children.Add(icon);
-        grid.Children.Add(name);
-        grid.Children.Add(clear);
-        return grid;
     }
 
-    /// <summary>[S-4402] "See more (n)" under a folded group, "See fewer" under an opened one.</summary>
-    private HyperlinkButton Fold(NotificationGroup group, int more)
+    /// <summary>[S-4402] "See more (n)" / "See fewer": a row of the list's own, its name secondary at the rows' text edge.</summary>
+    private RowBlock Fold(NotificationGroup group, int more)
     {
-        var link = new HyperlinkButton
-        {
-            Content = more > 0 ? NotificationsStr.Panels_Notifications_SeeMore.Format(("count", LocaleFormat.Integer(more))) : NotificationsStr.Panels_Notifications_SeeFewer.Text(),
-            Margin = new Thickness(Fluent.Space2, 0, 0, Fluent.Space1),
-            Padding = new Thickness(Fluent.Space2, Fluent.Space1, Fluent.Space2, Fluent.Space1),
-        };
+        var row = new RowBlock(RowKind.List, _plan.Lead ? FamilyShape.Icon : 0) { Interactive = true };
+        row.Show(more > 0 ? NotificationsStr.Panels_Notifications_SeeMore.Format(("count", LocaleFormat.Integer(more))) : NotificationsStr.Panels_Notifications_SeeFewer.Text());
+        row.NameText.Foreground = Family.Brush(ColourRole.TextSecondary);
 
         var appId = group.AppId;
-        RoutedEventHandler onClick = (_, _) =>
+        TappedEventHandler onTap = (_, args) =>
         {
+            args.Handled = true;
             if (!_open.Remove(appId))
             {
                 _open.Add(appId);
@@ -366,100 +309,32 @@ internal sealed partial class NotificationsView : Grid, IWidgetView, IWidgetHead
 
             Render();
         };
-        link.Click += onClick;
-        _rowHandles.Add(new Unhook(() => link.Click -= onClick));
-        return link;
+        row.Tapped += onTap;
+        _rowHandles.Add(new Unhook(() =>
+        {
+            row.Tapped -= onTap;
+            row.Detach();
+        }));
+        return row;
     }
 
-    /// <summary>One notification: (icon) title · time, then its body over the plan's lines.</summary>
+    /// <summary>
+    /// One notification as a Row block: the title, when it came, the body (on one line, its own breaks
+    /// read as spaces) on the second line where the plan gives two; flat, its app's icon as the lead.
+    /// </summary>
     private void AddRow(NotificationItem item, DateTimeOffset now, bool withIcon)
     {
-        var title = Fluent.Text(FluentType.BodyStrong);
-        title.Text = item.Title.Length > 0 ? item.Title : NotificationRules.FallbackName(item.AppId);
-        title.TextTrimming = TextTrimming.CharacterEllipsis;
-        title.MaxLines = 1;
-
-        var when = Fluent.Text(FluentType.Caption, "TextFillColorSecondaryBrush");
-        when.Text = Formatting.Ago(item.Arrived, now);
-        when.VerticalAlignment = VerticalAlignment.Center;
-        Microsoft.UI.Xaml.Documents.Typography.SetNumeralAlignment(when, FontNumeralAlignment.Tabular);
-
-        var dismiss = FluentLayout.IconCommand(Glyphs.Dismiss, NotificationsStr.Panels_Notifications_Dismiss.Text());
-        dismiss.Width = 24;
-        dismiss.Height = 24;
-        dismiss.Background = ThemeBrush.Of("SubtleFillColorTransparentBrush", Colors.Transparent);
-        dismiss.BorderThickness = new Thickness(0);
-        dismiss.Visibility = Visibility.Collapsed;
-
-        var top = new Grid
+        var row = new RowBlock(RowKind.List, _plan.Lead ? FamilyShape.Icon : 0) { Lines = _plan.Lines, Interactive = true };
+        var title = item.Title.Length > 0 ? item.Title : NotificationRules.FallbackName(item.AppId);
+        row.Show(title, _plan.Time ? Formatting.Ago(item.Arrived, now) : null, item.Body.Length > 0 ? ClipboardFormatting.Preview(item.Body, NotificationRules.MostBody) : null);
+        if (withIcon && _plan.Lead)
         {
-            ColumnDefinitions =
-            {
-                new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) },
-                new ColumnDefinition { Width = GridLength.Auto },
-            },
-            ColumnSpacing = Fluent.Space2,
-        };
-        SetColumn(when, 1);
-        SetColumn(dismiss, 1);
-        top.Children.Add(title);
-        top.Children.Add(when);
-        top.Children.Add(dismiss);
-
-        var words = new StackPanel { Spacing = 0 };
-        words.Children.Add(top);
-        if (_plan.BodyLines > 0 && item.Body.Length > 0)
-        {
-            var body = Fluent.Text(FluentType.Caption, "TextFillColorSecondaryBrush");
-            body.Text = item.Body;
-            body.TextWrapping = TextWrapping.Wrap;
-            body.TextTrimming = TextTrimming.CharacterEllipsis;
-            body.MaxLines = _plan.BodyLines;
-            words.Children.Add(body);
+            row.Lead(AppIcon(item.AppId));
         }
 
-        FrameworkElement content = words;
-        if (withIcon)
-        {
-            var line = new Grid
-            {
-                ColumnDefinitions =
-                {
-                    new ColumnDefinition { Width = GridLength.Auto },
-                    new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) },
-                },
-                ColumnSpacing = Fluent.Space3,
-            };
-            var icon = AppIcon(item.AppId);
-            icon.VerticalAlignment = VerticalAlignment.Top;
-            icon.Margin = new Thickness(0, 2, 0, 0);
-            SetColumn(words, 1);
-            line.Children.Add(icon);
-            line.Children.Add(words);
-            content = line;
-        }
-
-        var row = Fluent.Row(content, compact: _plan.BodyLines == 0);
-        row.Padding = new Thickness(Fluent.Space4, Fluent.Space1, Fluent.Space2, Fluent.Space1);
-        RowFocus.Prepare(row);
-        _rowHandles.Add(Fluent.Hover(row));
         _rowHandles.Add(ItemMenu.Attach(row, () => RowMenu(item)));
+        WidgetItems.Mark(row); // [S-814]
 
-        // [S-4407] The × in the time's place under the pointer, as Windows' own list.
-        PointerEventHandler entered = (_, _) =>
-        {
-            if (!Inert)
-            {
-                when.Visibility = Visibility.Collapsed;
-                dismiss.Visibility = Visibility.Visible;
-            }
-        };
-        PointerEventHandler left = (_, _) =>
-        {
-            when.Visibility = Visibility.Visible;
-            dismiss.Visibility = Visibility.Collapsed;
-        };
-        RoutedEventHandler onDismiss = (_, _) => Dismiss(item);
         // [S-7065] A click focuses the row; a double-click opens the sender, as Enter does.
         TappedEventHandler onTap = (_, args) =>
         {
@@ -472,36 +347,28 @@ internal sealed partial class NotificationsView : Grid, IWidgetView, IWidgetHead
             Open(item);
         };
 
-        row.PointerEntered += entered;
-        row.PointerExited += left;
-        row.PointerCanceled += left;
-        dismiss.Click += onDismiss;
         row.Tapped += onTap;
         row.DoubleTapped += onDoubleTap;
         _rowHandles.Add(new Unhook(() =>
         {
-            row.PointerEntered -= entered;
-            row.PointerExited -= left;
-            row.PointerCanceled -= left;
-            dismiss.Click -= onDismiss;
             row.Tapped -= onTap;
             row.DoubleTapped -= onDoubleTap;
+            row.Detach();
         }));
 
         var app = item.AppName.Length > 0 ? item.AppName : NotificationRules.FallbackName(item.AppId);
-        AutomationProperties.SetName(row, $"{app}: {title.Text}");
+        AutomationProperties.SetName(row, $"{app}: {title}");
         ToolTipService.SetToolTip(row, NotificationsStr.Panels_Notifications_Open.Format(("app", app)));
 
         _rows.Add((row, item));
-        _list.Children.Add(row);
+        AddLine(row, _plan.RowHeight, heading: false);
     }
 
-    /// <summary>[S-4405] The sender's icon through the shared app-icon service (packaged apps included); the bell until it comes.</summary>
-    private FrameworkElement AppIcon(string appId)
+    /// <summary>[S-4405] The sender's icon, 16: the bell until one comes, and where none does.</summary>
+    private Grid AppIcon(string appId)
     {
-        var host = new Grid { Width = AppIconSize, Height = AppIconSize, VerticalAlignment = VerticalAlignment.Center };
-        var fallback = Fluent.Icon(NotificationsModule.Glyph, "TextFillColorSecondaryBrush", 14);
-        fallback.HorizontalAlignment = HorizontalAlignment.Center;
+        var host = new Grid { Width = FamilyShape.Icon, Height = FamilyShape.Icon, VerticalAlignment = VerticalAlignment.Center };
+        var fallback = Family.Glyph(NotificationsModule.Glyph);
         host.Children.Add(fallback);
 
         if (_lease is not null && NotificationRules.AppTarget(appId) is { } target)
@@ -516,14 +383,14 @@ internal sealed partial class NotificationsView : Grid, IWidgetView, IWidgetHead
     {
         try
         {
-            var image = await AppIconSource.GetAsync(target, (int)Math.Ceiling(AppIconSize * 2), AppIconSource.ThemeOf(this)).ConfigureAwait(true);
+            var image = await AppIconSource.GetAsync(target, (int)Math.Ceiling(FamilyShape.Icon * 2), AppIconSource.ThemeOf(this)).ConfigureAwait(true);
             if (image is null || _detached)
             {
                 return;
             }
 
             host.Children.Remove(fallback);
-            host.Children.Add(new Image { Source = image, Width = AppIconSize, Height = AppIconSize, Stretch = Stretch.Uniform });
+            host.Children.Add(new Image { Source = image, Width = FamilyShape.Icon, Height = FamilyShape.Icon, Stretch = Stretch.Uniform });
         }
         catch (Exception ex)
         {
@@ -541,12 +408,13 @@ internal sealed partial class NotificationsView : Grid, IWidgetView, IWidgetHead
 
         _rowHandles.Clear();
         _rows.Clear();
+        _lines.Clear();
         _list.Children.Clear();
     }
 
     // ---- acting ------------------------------------------------------------------------------
 
-    /// <summary>In edit mode the card owns the press: nothing is opened or cleared.</summary>
+    /// <summary>In edit mode nothing is opened or cleared ([S-4409]).</summary>
     private bool Inert => _detached || _surface?.EditMode == true;
 
     private IEnumerable<ItemMenuEntry> RowMenu(NotificationItem item)
@@ -566,7 +434,6 @@ internal sealed partial class NotificationsView : Grid, IWidgetView, IWidgetHead
         ];
     }
 
-    /// <summary>[S-4406] [S-7065] A double-click (or Enter) opens the sender, as Windows' list brings its app forward.</summary>
     private void Open(NotificationItem item)
     {
         if (Inert || _lease is null)
@@ -614,7 +481,7 @@ internal sealed partial class NotificationsView : Grid, IWidgetView, IWidgetHead
         _widgetHost.Notifications.DismissApp(appId);
     }
 
-    private void OnClearAll(object sender, RoutedEventArgs args)
+    private void ClearAll()
     {
         if (Inert)
         {
@@ -631,25 +498,21 @@ internal sealed partial class NotificationsView : Grid, IWidgetView, IWidgetHead
         _widgetHost.Notifications.ClearAll();
     }
 
-    /// <summary>[S-4403] The access state's button: Windows' prompt, or its privacy page.</summary>
-    private void OnAction(object sender, RoutedEventArgs args)
+    private void OpenAccessPage()
     {
-        if (Inert || _lease is null || _action.Tag is not NotificationAccess access)
+        if (!Inert && _lease is not null)
         {
-            return;
+            _ = _widgetHost.Launcher.OpenWindowsSettings(AccessPage);
         }
-
-        if (access == NotificationAccess.Unspecified)
-        {
-            _ = AskAsync();
-            return;
-        }
-
-        _ = _widgetHost.Launcher.OpenWindowsSettings(AccessPage);
     }
 
     private async Task AskAsync()
     {
+        if (Inert || _lease is null)
+        {
+            return;
+        }
+
         try
         {
             var answer = await _widgetHost.Notifications.RequestAccessAsync().ConfigureAwait(true);
@@ -665,27 +528,7 @@ internal sealed partial class NotificationsView : Grid, IWidgetView, IWidgetHead
         }
     }
 
-    /// <summary>Where the tile has no room for the access button, a click on it does what the button would.</summary>
-    private void OnFaceTapped(object sender, TappedRoutedEventArgs args)
-    {
-        var access = Snapshot.Access;
-        if (_action.Visibility == Visibility.Visible || Inert || _lease is null
-            || access is NotificationAccess.Allowed or NotificationAccess.Pending or NotificationAccess.Unsupported)
-        {
-            return;
-        }
-
-        args.Handled = true;
-        if (access == NotificationAccess.Unspecified)
-        {
-            _ = AskAsync();
-            return;
-        }
-
-        _ = _widgetHost.Launcher.OpenWindowsSettings(AccessPage);
-    }
-
-    /// <summary>Access, which Windows announces nowhere, is looked at again when the pointer comes by.</summary>
+    /// <summary>[S-4403] Access has no change event: it is looked at again when the pointer comes onto the widget.</summary>
     private void OnPointerEntered(object sender, PointerRoutedEventArgs args)
     {
         if (_lease is not null)
@@ -696,10 +539,6 @@ internal sealed partial class NotificationsView : Grid, IWidgetView, IWidgetHead
 
     // ---- keys ([S-4409]) ---------------------------------------------------------------------
 
-    /// <summary>
-    /// [S-4409] Up/Down, Page Up/Down, Home/End move through the notifications (<see cref="ListKeys"/>);
-    /// Enter opens the app, Delete dismisses, the Menu key opens its menu, Escape lets go.
-    /// </summary>
     public bool HandleKey(WidgetKey key)
     {
         if (_detached)
@@ -739,11 +578,10 @@ internal sealed partial class NotificationsView : Grid, IWidgetView, IWidgetHead
         }
     }
 
-    /// <summary>Only a list with rows takes the keyboard.</summary>
+    /// <summary>[S-1564] Rows to move through, and not in edit mode.</summary>
     public bool WantsKeys => !Inert && _rows.Count > 0;
 
-    /// <summary>[S-7065] Put the cursor on the row a click landed on.</summary>
-    private void Focus(Border row)
+    private void Focus(RowBlock row)
     {
         var index = _rows.FindIndex(r => ReferenceEquals(r.Row, row));
         if (index < 0 || Inert)
@@ -755,21 +593,17 @@ internal sealed partial class NotificationsView : Grid, IWidgetView, IWidgetHead
         ShowCursor();
     }
 
+    /// <summary>[S-1288] The keyboard's ring: the Row block's own.</summary>
     private void ShowCursor()
     {
         for (var i = 0; i < _rows.Count; i++)
         {
-            RowFocus.Mark(_rows[i].Row, _cursor == i);
-            if (_cursor == i)
-            {
-                _rows[i].Row.StartBringIntoView();
-            }
+            _rows[i].Row.Focused = _cursor == i;
         }
     }
 
     private void OnLanguage(Locale locale) => Render();
 
-    /// <summary>One handler's removal, kept with the row it serves.</summary>
     private sealed class Unhook(Action undo) : IDisposable
     {
         private Action? _undo = undo;

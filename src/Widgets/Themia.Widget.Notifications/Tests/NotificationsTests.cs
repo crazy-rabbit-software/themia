@@ -5,37 +5,29 @@ using Themia.Core.Storage;
 using Themia.Core.Tests;
 using Themia.Core.Widgets;
 using Themia.Sdk;
+using Themia.Sdk.Kit;
 using Xunit;
 
 namespace Themia.Widget.Notifications.Tests;
 
-/// <summary>[S-4404] The notification widget's ladder. Moved with the widget from Core's WindowsPanelsTests, unchanged in what it asserts (the ladder is NotificationsLayout's now).</summary>
+/// <summary>[S-4404] The notification widget's ladder. Moved with the widget from Core's WindowsPanelsTests, the ladder on the family's rows.</summary>
 public sealed class NotificationsTests
 {
-    [Fact]
-    public void S4404_the_ladder_face_then_flat_then_grouped_with_more_body()
+    [Theory]
+    [InlineData(120, 76, 1, false, false)]   // XS: the titles alone
+    [InlineData(200, 106, 1, true, false)]   // S: icon, title, when
+    [InlineData(480, 116, 1, true, false)]   // Wide
+    [InlineData(320, 196, 2, true, false)]   // M: the body under the title
+    [InlineData(200, 356, 2, true, true)]    // Tall: under app headings
+    [InlineData(560, 376, 2, true, true)]    // L
+    public void S4404_the_ladder_rows_then_the_body_then_app_headings(double width, double height, int lines, bool wide, bool grouped)
     {
-        var face = NotificationsLayout.Plan(new WidgetArea(150, 150));
-        Assert.True(face.Face);
+        var plan = NotificationsLayout.Plan(new WidgetArea(width, height));
 
-        var low = NotificationsLayout.Plan(new WidgetArea(320, 50));
-        Assert.True(low.Face);
-
-        var strip = NotificationsLayout.Plan(new WidgetArea(440, 110));
-        Assert.False(strip.Face);
-        Assert.Equal(0, strip.BodyLines);
-
-        var small = NotificationsLayout.Plan(new WidgetArea(320, 200));
-        Assert.False(small.Face);
-        Assert.False(small.Grouped);
-        Assert.Equal(1, small.BodyLines);
-
-        var medium = NotificationsLayout.Plan(new WidgetArea(320, 320));
-        Assert.True(medium.Grouped);
-        Assert.Equal(2, medium.BodyLines);
-
-        var large = NotificationsLayout.Plan(new WidgetArea(480, 560));
-        Assert.True(large.Grouped);
-        Assert.Equal(3, large.BodyLines);
+        Assert.Equal(lines, plan.Lines);
+        Assert.Equal(wide, plan.Lead);
+        Assert.Equal(wide, plan.Time);
+        Assert.Equal(grouped, plan.Grouped);
+        Assert.Equal(FamilyShape.RowHeight(lines), plan.RowHeight);
     }
 }
