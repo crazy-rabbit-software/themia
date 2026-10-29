@@ -135,6 +135,18 @@ public sealed partial class ControlsBlock : Grid
     public Slider Slider(double minimum, double maximum, double value, Action<double> changed)
     {
         ArgumentNullException.ThrowIfNull(changed);
+        var slider = RailSlider(minimum, maximum, value);
+        slider.ValueChanged += (_, args) => changed(args.NewValue);
+        return Add(ControlKind.Slider, slider);
+    }
+
+    /// <summary>
+    /// [S-6716] The Controls slider alone, for a control that stands in a row's meter place (a
+    /// mixer's app): its rail the Track role, its value the accent, no thumb tooltip, no focus. Its
+    /// owner hooks <c>ValueChanged</c>.
+    /// </summary>
+    public static Slider RailSlider(double minimum, double maximum, double value)
+    {
         var slider = new Slider
         {
             Minimum = minimum,
@@ -152,8 +164,7 @@ public sealed partial class ControlsBlock : Grid
             slider.Resources["SliderTrackValueFill" + state] = Family.Brush(ColourRole.Accent);
         }
 
-        slider.ValueChanged += (_, args) => changed(args.NewValue);
-        return Add(ControlKind.Slider, slider);
+        return slider;
     }
 
     private T Add<T>(ControlKind kind, T element)
