@@ -106,9 +106,6 @@
 2	src/Themia.App/Shell/WidgetCard.cs	brush	CardBackgroundFillColorDefaultBrush
 2	src/Themia.App/Shell/WidgetCard.cs	brush	SolidBackgroundFillColorBaseBrush
 1	src/Themia.App/Shell/WidgetCard.cs	colour	Colors.Transparent
-2	src/Themia.App/Widgets/ItemPalette.cs	colour	Color.FromArgb(
-1	src/Themia.App/Widgets/ItemPalette.cs	colour	Colors.Gray
-1	src/Themia.App/Widgets/ItemPalette.cs	colour	Colors.Transparent
 1	src/Themia.Sdk.WinUI/Shell/ChromeFrame.cs	brush	AcrylicBackgroundFillColorDefaultBrush
 1	src/Themia.Sdk.WinUI/Shell/ChromeFrame.cs	brush	SurfaceStrokeColorFlyoutBrush
 1	src/Themia.Sdk.WinUI/Shell/ColorChoice.cs	brush	SolidBackgroundFillColorTertiaryBrush
@@ -122,22 +119,8 @@
 1	src/Themia.Sdk.WinUI/Widgets/ConfirmFlyout.cs	colour	Colors.Firebrick
 2	src/Themia.Sdk.WinUI/Widgets/ConfirmFlyout.cs	colour	Colors.White
 1	src/Themia.Sdk.WinUI/Widgets/ConfirmFlyout.cs	size	MaxWidth = 260
-1	src/Themia.Sdk.WinUI/Widgets/DriveParts.cs	brush	SolidBackgroundFillColorBaseBrush
-1	src/Themia.Sdk.WinUI/Widgets/DriveParts.cs	type	FontSize = Math.Max(6
-1	src/Themia.Sdk.WinUI/Widgets/DriveParts.cs	type	FontSize = Math.Round(size * 0.8)
 1	src/Themia.Sdk.WinUI/Widgets/FlipPart.cs	brush	CardStrokeColorDefaultBrush
 1	src/Themia.Sdk.WinUI/Widgets/FlipPart.cs	radius	new CornerRadius(Math.Min(Fluent.OverlayRadius, height / 8)
-1	src/Themia.Sdk.WinUI/Widgets/ItemMenu.cs	size	Height = 16
-1	src/Themia.Sdk.WinUI/Widgets/ItemMenu.cs	size	Width = 16
-1	src/Themia.Sdk.WinUI/Widgets/ScreenTimeShared.cs	brush	AccentTextFillColorPrimaryBrush
-1	src/Themia.Sdk.WinUI/Widgets/ScreenTimeShared.cs	brush	ControlFillColorSecondaryBrush
-1	src/Themia.Sdk.WinUI/Widgets/ScreenTimeShared.cs	colour	Color.FromArgb(
-1	src/Themia.Sdk.WinUI/Widgets/ScreenTimeShared.cs	space	new Thickness(Fluent.Space1 + 2, Fluent.Space1, Fluent.Space1 + 2, Fluent.Space1)
-1	src/Themia.Sdk.WinUI/Widgets/SelectionChrome.cs	brush	CardBackgroundFillColorDefaultBrush
-1	src/Themia.Sdk.WinUI/Widgets/SelectionChrome.cs	brush	SolidBackgroundFillColorBaseBrush
-1	src/Themia.Sdk.WinUI/Widgets/SelectionChrome.cs	colour	Color.FromArgb(
-1	src/Themia.Sdk.WinUI/Widgets/UnavailableLook.cs	brush	AccentFillColorDisabledBrush
-1	src/Themia.Sdk.WinUI/Widgets/UnavailableLook.cs	brush	ControlStrongStrokeColorDisabledBrush
 1	src/Widgets/Themia.Widget.Alarm/AlarmView.cs	brush	AccentTextFillColorPrimaryBrush
 1	src/Widgets/Themia.Widget.Alarm/AlarmView.cs	ramp	FluentType.Hero
 1	src/Widgets/Themia.Widget.Alarm/AlarmView.cs	ramp	FluentType.Title
@@ -166,37 +149,8 @@
 3	src/Widgets/Themia.Widget.Countdown/CountdownView.cs	ramp	FluentType.Hero
 2	src/Widgets/Themia.Widget.Countdown/CountdownView.cs	ramp	FluentType.Subtitle
 1	src/Widgets/Themia.Widget.Countdown/CountdownView.cs	ramp	FluentType.Title
-2	src/Widgets/Themia.Widget.Drive/DriveView.Ring.cs	ramp	FluentType.Subtitle
-1	src/Widgets/Themia.Widget.Drive/DriveView.cs	ramp	FluentType.BodyLarge
-1	src/Widgets/Themia.Widget.Drive/DriveView.cs	ramp	FluentType.Subtitle
 1	src/Widgets/Themia.Widget.FocusSession/FocusSessionView.cs	ramp	FluentType.Display
 2	src/Widgets/Themia.Widget.FocusSession/FocusSessionView.cs	ramp	FluentType.Hero
-1	src/Widgets/Themia.Widget.Folder/FolderView.Commands.cs	size	MaxWidth = 240
-1	src/Widgets/Themia.Widget.Folder/FolderView.Commands.cs	space	new Thickness(4, 0, 4, 0)
-1	src/Widgets/Themia.Widget.Folder/FolderView.Render.cs	brush	AccentTextFillColorPrimaryBrush
-1	src/Widgets/Themia.Widget.Folder/FolderView.Render.cs	brush	SystemFillColorSuccessBrush
-1	src/Widgets/Themia.Widget.Folder/FolderView.Render.cs	size	Height = 14
-1	src/Widgets/Themia.Widget.Folder/FolderView.Render.cs	size	Width = 14
-2	src/Widgets/Themia.Widget.Folder/FolderView.Render.cs	space	Spacing = 2
-1	src/Widgets/Themia.Widget.Folder/FolderView.Render.cs	space	new Thickness(0, 0, -2, -2)
-1	src/Widgets/Themia.Widget.Folder/FolderView.Render.cs	space	new Thickness(4, 2, 4, Fluent.Space2)
-1	src/Widgets/Themia.Widget.Folder/FolderView.Render.cs	space	new Thickness(7)
-1	src/Widgets/Themia.Widget.Folder/FolderView.Render.cs	space	new Thickness(Fluent.Space1, 2, Fluent.Space1, 2)
-1	src/Widgets/Themia.Widget.Gallery/GalleryView.Commands.cs	brush	AcrylicInAppFillColorDefaultBrush
-1	src/Widgets/Themia.Widget.Gallery/GalleryView.Commands.cs	brush	SurfaceStrokeColorFlyoutBrush
-1	src/Widgets/Themia.Widget.Gallery/GalleryView.Commands.cs	colour	Colors.Black
-1	src/Widgets/Themia.Widget.Gallery/GalleryView.Commands.cs	colour	Colors.Gray
-1	src/Widgets/Themia.Widget.Gallery/GalleryView.Commands.cs	colour	Colors.Transparent
-1	src/Widgets/Themia.Widget.Gallery/GalleryView.Commands.cs	space	Spacing = 2
-1	src/Widgets/Themia.Widget.Gallery/GalleryView.Commands.cs	space	new Thickness(2)
-1	src/Widgets/Themia.Widget.Gallery/GalleryView.Layout.cs	brush	CardStrokeColorDefaultBrush
-1	src/Widgets/Themia.Widget.Gallery/GalleryView.Layout.cs	brush	ControlAltFillColorSecondaryBrush
-2	src/Widgets/Themia.Widget.Gallery/GalleryView.Layout.cs	colour	Colors.Gray
-1	src/Widgets/Themia.Widget.Gallery/Preview/GalleryView.Preview.cs	colour	"#FFFFFF"
-1	src/Widgets/Themia.Widget.HabitTracker/HabitTrackerView.Heatmap.cs	radius	new CornerRadius(Math.Min(Fluent.ControlRadius, plan.Cell / 4)
-1	src/Widgets/Themia.Widget.HabitTracker/HabitTrackerView.Rows.cs	brush	ControlStrongStrokeColorDefaultBrush
-1	src/Widgets/Themia.Widget.HabitTracker/HabitTrackerView.Rows.cs	radius	new CornerRadius(HabitLayout.DotSize / 2)
-1	src/Widgets/Themia.Widget.HabitTracker/HabitTrackerView.Rows.cs	type	FontSize = 12
 1	src/Widgets/Themia.Widget.Mixer/MixerView.Row.cs	brush	ControlFillColorSecondaryBrush
 4	src/Widgets/Themia.Widget.Mixer/MixerView.Row.cs	ramp	Fluent.Space5
 1	src/Widgets/Themia.Widget.Mixer/MixerView.Row.cs	space	new Thickness(Fluent.Space1 + 2)
@@ -220,46 +174,5 @@
 1	src/Widgets/Themia.Widget.Pomodoro/PomodoroView.cs	ramp	FluentType.Display
 3	src/Widgets/Themia.Widget.Pomodoro/PomodoroView.cs	ramp	FluentType.Hero
 1	src/Widgets/Themia.Widget.Pomodoro/PomodoroView.cs	ramp	FluentType.Subtitle
-1	src/Widgets/Themia.Widget.RecycleBin/RecycleBinRules.cs	ramp	FluentType.Subtitle
-1	src/Widgets/Themia.Widget.RecycleBin/RecycleBinRules.cs	ramp	FluentType.TitleLarge
-1	src/Widgets/Themia.Widget.RecycleBin/RecycleBinView.cs	colour	Colors.Transparent
-1	src/Widgets/Themia.Widget.RemovableDrives/RemovableDrivesView.cs	space	new Thickness(0, 2, 0, 0)
-1	src/Widgets/Themia.Widget.RemovableDrives/RemovableDrivesView.cs	space	new Thickness(0, 2, 0, 0) : new Thickness(0)
-1	src/Widgets/Themia.Widget.Scratchpad/InkGeometry.cs	size	MaxWidth = 24
-1	src/Widgets/Themia.Widget.Scratchpad/InkPalette.cs	colour	"#0078D4"
-1	src/Widgets/Themia.Widget.Scratchpad/InkPalette.cs	colour	"#10B981"
-1	src/Widgets/Themia.Widget.Scratchpad/InkPalette.cs	colour	"#7C3AED"
-1	src/Widgets/Themia.Widget.Scratchpad/InkPalette.cs	colour	"#E7E5E4"
-1	src/Widgets/Themia.Widget.Scratchpad/InkPalette.cs	colour	"#F43F5E"
-1	src/Widgets/Themia.Widget.Scratchpad/InkPalette.cs	colour	"#F59E0B"
-1	src/Widgets/Themia.Widget.Scratchpad/ScratchpadConfig.cs	colour	"#0078D4"
-2	src/Widgets/Themia.Widget.Scratchpad/ScratchpadView.Bar.cs	size	Height = 20
-2	src/Widgets/Themia.Widget.Scratchpad/ScratchpadView.Bar.cs	size	Width = 20
-1	src/Widgets/Themia.Widget.Scratchpad/ScratchpadView.Bar.cs	stroke	StrokeThickness = 1.5
-1	src/Widgets/Themia.Widget.Scratchpad/ScratchpadView.FullScreen.cs	brush	CardBackgroundFillColorDefaultBrush
-1	src/Widgets/Themia.Widget.Scratchpad/ScratchpadView.FullScreen.cs	brush	CardStrokeColorDefaultBrush
-1	src/Widgets/Themia.Widget.Scratchpad/ScratchpadView.FullScreen.cs	brush	SolidBackgroundFillColorBaseBrush
-1	src/Widgets/Themia.Widget.Scratchpad/ScratchpadView.cs	brush	AccentFillColorSecondaryBrush
-1	src/Widgets/Themia.Widget.Scratchpad/ScratchpadView.cs	brush	ButtonBorderBrush
-1	src/Widgets/Themia.Widget.Scratchpad/ScratchpadView.cs	brush	ToggleButtonBorderBrush
-1	src/Widgets/Themia.Widget.Scratchpad/ScratchpadView.cs	colour	Color.FromArgb(
-1	src/Widgets/Themia.Widget.ScreenTimeApps/ScreenTimeAppsView.Row.cs	radius	new CornerRadius(1.5)
-1	src/Widgets/Themia.Widget.ScreenTimeApps/ScreenTimeAppsView.Row.cs	size	Width = 3
-1	src/Widgets/Themia.Widget.ScreenTimeApps/ScreenTimeAppsView.cs	colour	Colors.Transparent
-1	src/Widgets/Themia.Widget.ScreenTimeChart/ScreenTimeChartLayout.cs	ramp	FluentType.Subtitle
-3	src/Widgets/Themia.Widget.ScreenTimeChart/ScreenTimeChartView.cs	colour	Colors.Transparent
-1	src/Widgets/Themia.Widget.ScreenTimeChart/ScreenTimeChartView.cs	radius	new CornerRadius(2, 2, 0, 0) : new CornerRadius(0)
-1	src/Widgets/Themia.Widget.ScreenTimeChart/ScreenTimeChartView.cs	radius	new CornerRadius(Math.Min(4, cell / 4)
-1	src/Widgets/Themia.Widget.ScreenTimeChart/ScreenTimeChartView.cs	space	new Thickness(0, 2, 0, 0)
-1	src/Widgets/Themia.Widget.ScreenTimeDonut/ScreenTimeDonutView.cs	colour	Colors.Transparent
-1	src/Widgets/Themia.Widget.Shortcuts/ShortcutsView.Cells.cs	radius	new CornerRadius(badgeHeight / 2)
-1	src/Widgets/Themia.Widget.Shortcuts/ShortcutsView.Cells.cs	space	new Thickness(0, -badgeHeight / 3, -badgeHeight / 2, 0)
-1	src/Widgets/Themia.Widget.Shortcuts/ShortcutsView.Cells.cs	type	FontSize = Math.Max(9
-1	src/Widgets/Themia.Widget.Shortcuts/ShortcutsView.Drop.cs	space	new Thickness(on ? Fluent.Hairline * 2 : 0)
-1	src/Widgets/Themia.Widget.Shortcuts/ShortcutsView.Input.cs	space	new Thickness(Fluent.Space1, 2, Fluent.Space1, 2)
-1	src/Widgets/Themia.Widget.Shortcuts/ShortcutsView.cs	space	new Thickness(Fluent.Space1 + 2, Fluent.Space1, Fluent.Space1 + 2, Fluent.Space1)
 1	src/Widgets/Themia.Widget.Stopwatch/StopwatchView.cs	ramp	FluentType.Display
 3	src/Widgets/Themia.Widget.Stopwatch/StopwatchView.cs	ramp	FluentType.Hero
-2	src/Widgets/Themia.Widget.VideoStream/VideoStreamView.Overlay.cs	brush	AcrylicInAppFillColorDefaultBrush
-1	src/Widgets/Themia.Widget.VideoStream/VideoStreamView.Overlay.cs	space	new Thickness(Fluent.Space2, Fluent.Space1 / 2, Fluent.Space2, Fluent.Space1 / 2)
-1	src/Widgets/Themia.Widget.VideoStream/VideoStreamView.cs	colour	Colors.Transparent

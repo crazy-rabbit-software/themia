@@ -2,7 +2,6 @@
 # scripts/family-check.ps1 fails on a finding not listed here and on a line no longer found. Empty is done.
 alarm	TextBlock colour fg
 alarm	TextBlock text-size
-audioVisualizer	Rectangle radius
 bluetooth	TextBlock text-size
 brightness	Slider radius
 brightness	TextBlock text-size
@@ -15,23 +14,9 @@ countdown	Border radius
 countdown	Ellipse stroke
 countdown	Path stroke
 countdown	TextBlock text-size
-drive	Ellipse stroke
-drive	FontIcon glyph-size
-drive	Path stroke
-drive	ProgressBar radius
-drive	TextBlock text-size
 focusSession	Ellipse stroke
 focusSession	Path stroke
 focusSession	TextBlock text-size
-folder	Border space margin
-folder	Border space padding
-folder	FontIcon glyph-size
-folder	TextBlock text-size
-gallery	TextBlock text-size
-habitTracker	Border radius
-habitTracker	FontIcon glyph-size
-habitTracker	FontIcon space margin
-habitTracker	TextBlock text-size
 mixer	Button space padding
 mixer	FontIcon glyph-size
 mixer	Slider radius
@@ -43,36 +28,6 @@ pomodoro	FontIcon colour fg
 pomodoro	Path stroke
 pomodoro	TextBlock colour fg
 pomodoro	TextBlock text-size
-recycleBin	Button space padding
-recycleBin	FontIcon glyph-size
-recycleBin	TextBlock text-size
-removableDrives	Border stroke
-removableDrives	FontIcon glyph-size
-removableDrives	TextBlock text-size
-scratchpad	Ellipse colour fill
-scratchpad	Ellipse stroke
-scratchpad	FontIcon glyph-size
-scratchpad	TextBlock text-size
-screenTimeApps	Border colour bg
-screenTimeApps	Border stroke
-screenTimeApps	Button space padding
-screenTimeApps	FontIcon glyph-size
-screenTimeApps	TextBlock text-size
-screenTimeChart	Border colour bg
-screenTimeChart	Border radius
-screenTimeChart	FontIcon glyph-size
-screenTimeChart	Grid space spacing
-screenTimeChart	TextBlock colour fg
-screenTimeChart	TextBlock text-size
-screenTimeDonut	Button space padding
-screenTimeDonut	FontIcon glyph-size
-screenTimeDonut	TextBlock text-size
-shortcuts	Border radius
-shortcuts	Border space margin
-shortcuts	Button space padding
-shortcuts	FontIcon glyph-size
-shortcuts	TextBlock text-size
 stopwatch	TextBlock text-size
-videoStream	TextBlock text-size
 volume	Slider radius
 volume	TextBlock text-size
