@@ -1,34 +1,45 @@
-using System.Text.Json;
-using Themia.Core.Model;
-using Themia.Core.Shell;
-using Themia.Core.Storage;
-using Themia.Core.Tests;
 using Themia.Core.Widgets;
-using Themia.Sdk;
+using Themia.Sdk.Kit;
 using Xunit;
 
 namespace Themia.Widget.FocusSession.Tests;
 
-/// <summary>[S-4426] The focus widget's ladder. Moved with the widget from Core's WindowsPanelsTests, unchanged in what it asserts (the ladder is FocusSessionLayout's now).</summary>
+/// <summary>[S-4426] The focus widget's ladder on the timers' face.</summary>
 public sealed class FocusSessionTests
 {
     [Fact]
-    public void S4426_the_ladder_time_then_button_then_words_steppers_status_ring()
+    public void S4426_the_time_alone_on_a_tile_too_short_for_the_controls()
     {
-        var tiny = FocusSessionLayout.Plan(new WidgetArea(140, 100));
-        Assert.False(tiny.Button);
+        var xs = FocusSessionLayout.Plan(new WidgetArea(120, 76), "00:00");
+        Assert.False(xs.Controls);
+        Assert.Equal(0, xs.Ring);
+        Assert.Equal(FamilyType.Big28, xs.Step);
+    }
 
-        var small = FocusSessionLayout.Plan(new WidgetArea(240, 110));
-        Assert.True(small.Button);
-        Assert.True(small.Words);
-        Assert.False(small.Status);
+    [Fact]
+    public void S4426_the_controls_and_the_line_as_they_fit_the_ring_from_expanded_both_ways()
+    {
+        var s = FocusSessionLayout.Plan(new WidgetArea(200, 106), "00:00");
+        Assert.True(s.Controls);
+        Assert.False(s.Status);
 
-        var square = FocusSessionLayout.Plan(new WidgetArea(240, 200));
-        Assert.True(square.Steppers);
-        Assert.True(square.Status);
-        Assert.False(square.Ring);
+        var m = FocusSessionLayout.Plan(new WidgetArea(320, 196), "00:00");
+        Assert.True(m.Controls);
+        Assert.True(m.Status);
+        Assert.Equal(0, m.Ring);
 
-        var big = FocusSessionLayout.Plan(new WidgetArea(420, 320));
-        Assert.True(big.Ring);
+        // L: a ring the box's short side over the row, the time and its line in its hole.
+        var l = FocusSessionLayout.Plan(new WidgetArea(560, 376), "00:00");
+        Assert.Equal(376 - 16 - 40, l.Ring);
+        Assert.True(l.Status);
+        Assert.Equal(FamilyType.Big68, l.Step);
+    }
+
+    [Fact]
+    public void S4426_a_session_of_an_hour_or_more_is_sized_for_its_hours()
+    {
+        var minutes = FocusSessionLayout.Plan(new WidgetArea(320, 196), FocusSessionRules.WidestClock(30));
+        var hours = FocusSessionLayout.Plan(new WidgetArea(320, 196), FocusSessionRules.WidestClock(90));
+        Assert.True(FamilyType.BaseOf(hours.Step) <= FamilyType.BaseOf(minutes.Step));
     }
 }

@@ -113,6 +113,19 @@ public sealed class ItemKindsHostTests
     }
 
     [Fact]
+    public void S6570_the_focus_session_draws_no_items_its_ring_is_the_charts()
+    {
+        // [S-4426] The ring is the Chart block's (its track the Track role), not an item of the item layer.
+        Assert.False(ItemKinds.Has(new WidgetId("focusSession")));
+        var (state, view, selection) = Selected(new WidgetId("focusSession"));
+        Assert.False(QuickSet.For(state, selection, view.Id).HasItems);
+    }
+
+    [Fact]
+    public void S6570_the_stopwatchs_laps_are_items()
+        => Assert.True(ItemKinds.Has(new WidgetId("stopwatch")));
+
+    [Fact]
     public void S6570_music_draws_no_items_its_seek_bar_is_a_rail()
     {
         // [S-1475] The seek bar is the Controls slider's rail (the Track role), not an item of the item layer.
@@ -123,16 +136,11 @@ public sealed class ItemKindsHostTests
         Assert.False(QuickSet.For(state, selection, view.Id).HasItems);
     }
 
-    [Theory]
-    [InlineData("focusSession")]
-    [InlineData("cpu")]
-    public void S6574_items_that_are_only_tracks_take_a_background_but_no_text_colour(string kind)
+    [Fact]
+    public void S6574_items_that_are_only_tracks_take_a_background_but_no_text_colour()
     {
-        var (state, view, selection) = Selected(new WidgetId(kind));
-        if (kind == "cpu")
-        {
-            WidgetStyles.Set(view.Widgets[0].Config, WidgetStyles.Find(new WidgetId(kind), "cores")!.Value.Value);
-        }
+        var (state, view, selection) = Selected(new WidgetId("cpu"));
+        WidgetStyles.Set(view.Widgets[0].Config, WidgetStyles.Find(new WidgetId("cpu"), "cores")!.Value.Value);
 
         var offer = QuickSet.For(state, selection, view.Id);
         Assert.True(offer.HasItems);
@@ -144,7 +152,8 @@ public sealed class ItemKindsHostTests
     [Fact]
     public void S6574_a_mixed_selection_offers_the_text_colour_for_the_widgets_whose_items_carry_text()
     {
-        var (state, view, selection) = Selected(new WidgetId("focusSession"), new WidgetId("tasks"));
+        var (state, view, selection) = Selected(new WidgetId("cpu"), new WidgetId("tasks"));
+        WidgetStyles.Set(view.Widgets[0].Config, WidgetStyles.Find(new WidgetId("cpu"), "cores")!.Value.Value);
         view.Widgets[1].ItemTextColor = "#123456";
 
         var offer = QuickSet.For(state, selection, view.Id);

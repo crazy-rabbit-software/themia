@@ -33,7 +33,7 @@ public sealed class FocusSessionModule : IWidgetModule
         Glyph = Glyph,
         DefaultWidth = 240,
         DefaultHeight = 200,
-        Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader | WidgetTraits.OneReadout,
+        Traits = WidgetTraits.CanHaveHeader | WidgetTraits.OneReadout,
         Add = new(AddFolderId.Time, 1, 1),
     };
 

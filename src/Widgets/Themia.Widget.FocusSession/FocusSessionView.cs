@@ -1,16 +1,15 @@
-using Microsoft.UI;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Automation;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Input;
-using Microsoft.UI.Xaml.Media;
-using Microsoft.UI.Xaml.Shapes;
 using Themia.App.Services;
 using Themia.App.Shell;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
+using Themia.Sdk.Kit;
 using Themia.Sdk.WinUI;
+using Themia.Sdk.WinUI.Kit;
 using Themia.Widget.FocusSession;
 
 namespace Themia.App.Widgets;
@@ -21,28 +20,26 @@ namespace Themia.App.Widgets;
 /// as such ([S-4424]). The session is the app's one (<see cref="IWidgetHost.Focus"/>): every focus
 /// widget shows it.
 /// <para>
-/// [S-4426] The ladder: the time alone on the smallest tile (a click on it starts or ends); the button
-/// under it from a regular size, with its word where it is wide; the −/+ beside it while idle; the line
-/// that says what do not disturb is doing; a ring of the time gone from an expanded tile. The second tick
-/// runs only while a session does ([S-4422]).
+/// [S-4426] On the timers' face ([S-6739]): the time as the Readout, centred, the line that says what do
+/// not disturb is doing under it; the Controls row (Start with −/+ while idle, End session while it
+/// runs) where it fits, the time alone otherwise (a click on it starts or ends); the Chart ring of the
+/// time gone around the time from expanded both ways. The second tick runs only while a session does
+/// ([S-4422]).
 /// </para>
 /// </summary>
 internal sealed partial class FocusSessionView : Grid, IWidgetView, IWidgetSizeAware, IWidgetSurfaceAware, IWidgetKeys
 {
-    private const double ButtonHeight = 32;
+    private readonly Grid _dial = new() { HorizontalAlignment = HorizontalAlignment.Center, VerticalAlignment = VerticalAlignment.Center };
+    private readonly ChartRing _ring = new();
+    private readonly ReadoutBlock _clock = new() { HorizontalAlignment = HorizontalAlignment.Center, VerticalAlignment = VerticalAlignment.Center };
 
-    private readonly StackPanel _stack = new() { Spacing = Fluent.Space2, VerticalAlignment = VerticalAlignment.Center, HorizontalAlignment = HorizontalAlignment.Center };
-    private readonly Grid _dial = new() { HorizontalAlignment = HorizontalAlignment.Center };
-    private readonly Ellipse _track = new();
-    private readonly Microsoft.UI.Xaml.Shapes.Path _arc = new();
-    private readonly TextBlock _clock = Fluent.Text(FluentType.Display);
-    private readonly TextBlock _status = Fluent.Text(FluentType.Caption, "TextFillColorSecondaryBrush");
-    private readonly StackPanel _controls = new() { Orientation = Orientation.Horizontal, Spacing = Fluent.Space2, HorizontalAlignment = HorizontalAlignment.Center };
-    private readonly Button _shorter = new();
-    private readonly Button _longer = new();
-    private readonly Button _run = new();
-    private readonly FontIcon _runIcon = Fluent.Icon(Glyphs.Play, "TextOnAccentFillColorPrimaryBrush");
-    private readonly TextBlock _runText = Fluent.Text(FluentType.Body, "TextOnAccentFillColorPrimaryBrush");
+    // Idle and running have rows of their own: a row folds its own parts, so a part is never hidden by hand.
+    private readonly ControlsBlock _idleRow = new() { HorizontalAlignment = HorizontalAlignment.Center };
+    private readonly ControlsBlock _runningRow = new() { HorizontalAlignment = HorizontalAlignment.Center };
+    private readonly Button _start;
+    private readonly Button _shorter;
+    private readonly Button _longer;
+    private readonly Button _end;
 
     private FocusSessionConfig _config = new();
     private readonly IWidgetHost _host;
@@ -52,7 +49,6 @@ internal sealed partial class FocusSessionView : Grid, IWidgetView, IWidgetSizeA
     private IDisposable? _seconds;
     private WidgetArea _area;
     private FocusPlan _plan;
-    private double _ringDiameter;
     private FocusSnapshot _preview = new(FocusSessionState.Idle, ToggleReading.Pending, false, false);
     private bool _ticking;
     private bool _detached = true;
@@ -60,62 +56,28 @@ internal sealed partial class FocusSessionView : Grid, IWidgetView, IWidgetSizeA
     public FocusSessionView(IWidgetHost host)
     {
         _host = host;
-        Microsoft.UI.Xaml.Documents.Typography.SetNumeralAlignment(_clock, FontNumeralAlignment.Tabular);
-        _clock.TextAlignment = TextAlignment.Center;
-        _clock.HorizontalAlignment = HorizontalAlignment.Center;
-        _clock.VerticalAlignment = VerticalAlignment.Center;
-        _status.TextAlignment = TextAlignment.Center;
-        _status.HorizontalAlignment = HorizontalAlignment.Center;
-        _status.TextTrimming = TextTrimming.CharacterEllipsis;
-        _status.MaxLines = 1;
+        Padding = new Thickness(FamilySpace.Inset, 0, FamilySpace.Inset, FamilySpace.Inset);
+        RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
+        RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
 
-        // [S-837] The ring stands for a progress ring: the strong rest fill, the accent for what has gone.
-        ItemFill.PaintStroke(_track, ItemRole.Track);
-        _arc.Stroke = ThemeBrush.Of("AccentFillColorDefaultBrush", Colors.DodgerBlue);
-        _arc.StrokeStartLineCap = PenLineCap.Round;
-        _arc.StrokeEndLineCap = PenLineCap.Round;
-        _dial.Children.Add(_track);
-        _dial.Children.Add(_arc);
+        _dial.Children.Add(_ring);
         _dial.Children.Add(_clock);
 
-        Stepper(_shorter, Glyphs.Minus);
-        Stepper(_longer, Glyphs.Add);
+        // Start first, so the steppers give way before it (+, then -).
+        _start = _idleRow.Main(FocusSessionStr.Panels_Focus_Start.Text(), Toggle);
+        _shorter = _idleRow.Icon(Glyphs.Minus, FocusSessionStr.Panels_Focus_Shorter.Text(), () => StepLength(-1));
+        _longer = _idleRow.Icon(Glyphs.Add, FocusSessionStr.Panels_Focus_Longer.Text(), () => StepLength(+1));
+        _end = _runningRow.Button(FocusSessionStr.Panels_Focus_End.Text(), Toggle);
 
-        var face = new StackPanel { Orientation = Orientation.Horizontal, Spacing = Fluent.Space2 };
-        face.Children.Add(_runIcon);
-        face.Children.Add(_runText);
-        _run.Content = face;
-        _run.Height = ButtonHeight;
-        _run.MinWidth = ButtonHeight;
-        _run.Padding = new Thickness(Fluent.Space3, 0, Fluent.Space3, 0);
-        _run.CornerRadius = new CornerRadius(Fluent.ControlRadius);
-        _run.IsTabStop = false;
-        if (Application.Current?.Resources.TryGetValue("AccentButtonStyle", out var accent) == true && accent is Style style)
+        Children.Add(_dial);
+        foreach (var row in new[] { _idleRow, _runningRow })
         {
-            _run.Style = style;
+            SetRow(row, 1);
+            Children.Add(row);
         }
 
-        _controls.Children.Add(_shorter);
-        _controls.Children.Add(_run);
-        _controls.Children.Add(_longer);
-
-        _stack.Children.Add(_dial);
-        _stack.Children.Add(_status);
-        _stack.Children.Add(_controls);
-        Children.Add(_stack);
-
         // The whole tile is hit-testable: on the smallest tile a click on it starts or ends.
-        Background = ThemeBrush.Of("SubtleFillColorTransparentBrush", Colors.Transparent);
-    }
-
-    private static void Stepper(Button button, string glyph)
-    {
-        button.Content = Fluent.Icon(glyph, "TextFillColorPrimaryBrush");
-        button.Width = ButtonHeight;
-        button.Height = ButtonHeight;
-        button.Padding = new Thickness(0);
-        button.CornerRadius = new CornerRadius(Fluent.ControlRadius);
-        button.IsTabStop = false;
+        Background = Family.Brush(ColourRole.Clear);
     }
 
     public void Bind(IWidgetSurface surface) => _surface = surface;
@@ -129,9 +91,6 @@ internal sealed partial class FocusSessionView : Grid, IWidgetView, IWidgetSizeA
             _lease = _host.Focus.Acquire(OnChanged);
         }
 
-        _run.Click += OnRun;
-        _shorter.Click += OnShorter;
-        _longer.Click += OnLonger;
         Tapped += OnTapped;
         PointerEntered += OnPointerEntered;
         Strings.Changed += OnLanguage;
@@ -158,9 +117,6 @@ internal sealed partial class FocusSessionView : Grid, IWidgetView, IWidgetSizeA
         }
 
         _detached = true;
-        _run.Click -= OnRun;
-        _shorter.Click -= OnShorter;
-        _longer.Click -= OnLonger;
         Tapped -= OnTapped;
         PointerEntered -= OnPointerEntered;
         Strings.Changed -= OnLanguage;
@@ -176,7 +132,7 @@ internal sealed partial class FocusSessionView : Grid, IWidgetView, IWidgetSizeA
 
     // ---- layout ------------------------------------------------------------------------------
 
-    /// <summary>[S-4426] The ladder, spent from the deflated box through one <see cref="Disclosure"/>.</summary>
+    /// <summary>[S-4426] The ladder (<see cref="FocusSessionLayout.Plan"/>): the time's step, the ring, the line and the controls.</summary>
     private void Lay()
     {
         if (_detached || !_area.IsMeasured)
@@ -184,56 +140,33 @@ internal sealed partial class FocusSessionView : Grid, IWidgetView, IWidgetSizeA
             return;
         }
 
-        _plan = FocusSessionLayout.Plan(_area);
-        var compact = _area.Least == SizeClass.Compact;
-        var inset = compact ? Fluent.Space2 : Fluent.Space4;
-        var box = _area.Deflate(inset * 2, inset * 2);
-        var room = new Disclosure(box, Fluent.Space2);
-
         var snapshot = Snapshot;
         var running = snapshot.Session.Running;
-        var characters = FocusSessionRules.WidestClock(running ? (int)Math.Ceiling(snapshot.Session.Remaining(DateTimeOffset.Now).TotalMinutes) : _config.Minutes).Length;
+        var widest = FocusSessionRules.WidestClock(running ? (int)Math.Ceiling(snapshot.Session.Remaining(DateTimeOffset.Now).TotalMinutes) : _config.Minutes);
+        _plan = FocusSessionLayout.Plan(_area, widest);
 
-        // The button is the must-show part where the plan has it; the status line is the one optional rung.
-        var showButton = _plan.Button && room.Reserve(ButtonHeight);
-        var showStatus = _plan.Status && room.Take(FluentType.Caption.LineHeight);
-        var clockHeight = Math.Max(FluentType.Caption.LineHeight, room.Remaining);
-
-        if (_plan.Ring && Math.Min(box.Width, clockHeight) >= 120)
+        var worst = new ReadoutText(widest, LineUnder: true, OneReadout: true);
+        if (_plan.Ring > 0)
         {
-            _ringDiameter = Math.Min(box.Width, clockHeight);
-            var stroke = Math.Clamp(_ringDiameter * 0.05, 4, 12);
-            _track.Width = _track.Height = _ringDiameter;
-            _track.StrokeThickness = stroke;
-            _arc.StrokeThickness = stroke;
-            _arc.Width = _arc.Height = _ringDiameter;
-            _dial.Width = _dial.Height = _ringDiameter;
-            _track.Visibility = Visibility.Visible;
-            _arc.Visibility = Visibility.Visible;
-            _clock.Apply(FluentType.Hero(_ringDiameter * 0.66, _ringDiameter * 0.34, characters));
+            var (holeWidth, holeHeight) = ChartRules.Hole(_plan.Ring);
+            _dial.Width = _plan.Ring;
+            _dial.Height = _plan.Ring;
+            _ring.Visibility = Visibility.Visible;
+            _clock.Size(_area, holeWidth, holeHeight, worst);
         }
         else
         {
-            _ringDiameter = 0;
             _dial.Width = double.NaN;
             _dial.Height = double.NaN;
-            _track.Visibility = Visibility.Collapsed;
-            _arc.Visibility = Visibility.Collapsed;
-            _clock.Apply(FluentType.Hero(box.Width, clockHeight, characters));
+            _ring.Visibility = Visibility.Collapsed;
+            _clock.Size(_area, _area.Width - (2 * FamilySpace.Inset), _plan.Box, worst);
         }
 
-        _status.Visibility = showStatus ? Visibility.Visible : Visibility.Collapsed;
-        _status.MaxWidth = Math.Max(0, box.Width);
-        _controls.Visibility = showButton ? Visibility.Visible : Visibility.Collapsed;
-        _runText.Visibility = _plan.Words ? Visibility.Visible : Visibility.Collapsed;
-        var steppers = showButton && _plan.Steppers && !running;
-        _shorter.Visibility = steppers ? Visibility.Visible : Visibility.Collapsed;
-        _longer.Visibility = steppers ? Visibility.Visible : Visibility.Collapsed;
-
+        RowSpacing = _plan.Controls ? FamilySpace.S2 : 0;
         Paint();
     }
 
-    /// <summary>The time, the ring, the words and the button, from the snapshot.</summary>
+    /// <summary>The time, the ring, the line and the controls, from the snapshot.</summary>
     private void Paint()
     {
         if (_detached)
@@ -245,27 +178,31 @@ internal sealed partial class FocusSessionView : Grid, IWidgetView, IWidgetSizeA
         var now = DateTimeOffset.Now;
         var running = snapshot.Session.Running;
 
-        _clock.Text = running
+        var clock = running
             ? FocusSessionRules.Clock(snapshot.Session.Remaining(now))
             : FocusSessionRules.Clock(TimeSpan.FromMinutes(FocusSessionRules.ClampMinutes(_config.Minutes)));
+        var status = Status(snapshot);
+        _clock.Show(clock, under: _plan.Status ? status : null);
 
-        if (_ringDiameter > 0)
+        if (_plan.Ring > 0)
         {
-            _arc.Data = Arc(_ringDiameter, _arc.StrokeThickness, running ? snapshot.Session.Progress(now) : 0);
+            _ring.Show(running ? snapshot.Session.Progress(now) : 0);
         }
 
-        _status.Text = Status(snapshot);
-        _runIcon.Glyph = running ? Glyphs.Stop : Glyphs.Play;
-        _runText.Text = (running ? FocusSessionStr.Panels_Focus_End : FocusSessionStr.Panels_Focus_Start).Text();
-        ToolTipService.SetToolTip(_run, _runText.Text);
+        _idleRow.Visibility = _plan.Controls && !running ? Visibility.Visible : Visibility.Collapsed;
+        _runningRow.Visibility = _plan.Controls && running ? Visibility.Visible : Visibility.Collapsed;
+        ControlsBlock.Relabel(_start, FocusSessionStr.Panels_Focus_Start.Text());
+        ControlsBlock.Relabel(_end, FocusSessionStr.Panels_Focus_End.Text());
+        ControlsBlock.Reglyph(_shorter, Glyphs.Minus, FocusSessionStr.Panels_Focus_Shorter.Text());
+        ControlsBlock.Reglyph(_longer, Glyphs.Add, FocusSessionStr.Panels_Focus_Longer.Text());
         ToolTipService.SetToolTip(_shorter, FocusSessionStr.Panels_Focus_Shorter.Text());
         ToolTipService.SetToolTip(_longer, FocusSessionStr.Panels_Focus_Longer.Text());
         _shorter.IsEnabled = _config.Minutes > FocusSessionRules.MinMinutes;
         _longer.IsEnabled = _config.Minutes < FocusSessionRules.MaxMinutes;
 
-        var left = FocusSessionStr.Panels_Focus_Left.Format(("time", _clock.Text));
+        var left = FocusSessionStr.Panels_Focus_Left.Format(("time", clock));
         AutomationProperties.SetName(this, running ? left : FocusSessionRules.Length(_config.Minutes));
-        AutomationProperties.SetHelpText(this, _status.Text);
+        AutomationProperties.SetHelpText(this, status);
 
         // [S-4422] The second tick only while it runs.
         // The flag first: Subscribe calls back at once, into this method.
@@ -306,40 +243,6 @@ internal sealed partial class FocusSessionView : Grid, IWidgetView, IWidgetSizeA
         }
 
         return _config.DoNotDisturb ? FocusSessionStr.Panels_Focus_WillQuiet.Text() : FocusSessionRules.Length(_config.Minutes);
-    }
-
-    /// <summary>The filled part of the ring, clockwise from twelve o'clock (Pomodoro's arc).</summary>
-    private static Geometry Arc(double diameter, double stroke, double fraction)
-    {
-        var r = Math.Max(1, (diameter - stroke) / 2);
-        var c = diameter / 2;
-        fraction = Math.Clamp(fraction, 0, 1);
-        if (fraction <= 0.0005)
-        {
-            return new PathGeometry();
-        }
-
-        var figure = new PathFigure { StartPoint = new Windows.Foundation.Point(c, c - r), IsClosed = false };
-        if (fraction >= 0.9995)
-        {
-            figure.Segments.Add(new ArcSegment { Point = new Windows.Foundation.Point(c, c + r), Size = new Windows.Foundation.Size(r, r), SweepDirection = SweepDirection.Clockwise });
-            figure.Segments.Add(new ArcSegment { Point = new Windows.Foundation.Point(c, c - r), Size = new Windows.Foundation.Size(r, r), SweepDirection = SweepDirection.Clockwise });
-        }
-        else
-        {
-            var angle = fraction * 2 * Math.PI;
-            figure.Segments.Add(new ArcSegment
-            {
-                Point = new Windows.Foundation.Point(c + (r * Math.Sin(angle)), c - (r * Math.Cos(angle))),
-                Size = new Windows.Foundation.Size(r, r),
-                SweepDirection = SweepDirection.Clockwise,
-                IsLargeArc = fraction > 0.5,
-            });
-        }
-
-        var geometry = new PathGeometry();
-        geometry.Figures.Add(figure);
-        return geometry;
     }
 
     // ---- input -------------------------------------------------------------------------------
@@ -390,16 +293,10 @@ internal sealed partial class FocusSessionView : Grid, IWidgetView, IWidgetSizeA
         Lay();
     }
 
-    private void OnRun(object sender, RoutedEventArgs args) => Toggle();
-
-    private void OnShorter(object sender, RoutedEventArgs args) => StepLength(-1);
-
-    private void OnLonger(object sender, RoutedEventArgs args) => StepLength(+1);
-
     /// <summary>On the smallest tile the time is the button.</summary>
     private void OnTapped(object sender, TappedRoutedEventArgs args)
     {
-        if (!_plan.Button && !Inert)
+        if (!_plan.Controls && !Inert)
         {
             args.Handled = true;
             Toggle();
