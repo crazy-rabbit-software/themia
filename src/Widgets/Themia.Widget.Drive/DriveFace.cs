@@ -78,8 +78,8 @@ public static class DriveFace
         }
 
         var bare = Worst with { LineUnder = false };
-        var hole = ring - (2 * FamilyShape.Stroke);
-        var step = ring > 0 ? ReadoutRules.Step(area, hole * 0.75, hole / 2, bare) : ReadoutRules.Step(area, room, height, bare);
+        var (holeWidth, holeHeight) = ChartRules.Hole(ring);
+        var step = ring > 0 ? ReadoutRules.Step(area, holeWidth, holeHeight, bare) : ReadoutRules.Step(area, room, height, bare);
         var facts = side ? Math.Min(FactCount, RowRules.Fit(height, 1)) : 0;
         return new DriveRingPlan(side, side ? column : 0, room, ring, line, step, facts);
     }
