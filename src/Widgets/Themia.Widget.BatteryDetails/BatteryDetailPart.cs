@@ -22,7 +22,7 @@ internal sealed class BatteryDetailPart : DetailPart
 
     public override WidgetId Kind => new WidgetId("batteryDetails");
 
-    public override double HeroCharacters => BatteryDetailRules.HeroCharacters;
+    public override string HeroWorst => BatteryDetailRules.HeroWorst;
 
     public override void Watch(ISystemFeeds hub, WidgetConfig config, IDetailHost host)
     {

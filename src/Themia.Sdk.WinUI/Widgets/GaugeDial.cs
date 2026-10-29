@@ -6,7 +6,9 @@ using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Shapes;
 using Themia.App.Shell;
 using Themia.Core.Widgets;
+using Themia.Sdk.Kit;
 using Themia.Sdk.WinUI;
+using Themia.Sdk.WinUI.Kit;
 using Windows.Foundation;
 
 namespace Themia.App.Widgets;
@@ -28,7 +30,7 @@ public sealed partial class GaugeDial : Grid
         FlowDirection = FlowDirection.LeftToRight;
         IsHitTestVisible = false;
         ItemFill.PaintStroke(_track, ItemRole.Track);
-        _value.Stroke = MeterBrushes.Pressure(MeterPressure.Normal);
+        _value.Stroke = Family.Brush(ColourRole.Accent);
         Children.Add(_track);
         Children.Add(_value);
     }

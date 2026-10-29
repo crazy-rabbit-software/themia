@@ -1,7 +1,5 @@
-using Microsoft.UI;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
-using Microsoft.UI.Xaml.Media;
 using Themia.App.Services;
 using Themia.App.Services.SystemData;
 using Themia.App.Shell;
@@ -11,61 +9,41 @@ using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.SystemData;
 using Themia.Core.Widgets;
-using Themia.Sdk.WinUI;
 using Themia.Sdk;
+using Themia.Sdk.Kit;
+using Themia.Sdk.WinUI;
+using Themia.Sdk.WinUI.Kit;
 
 namespace Themia.App.Widgets;
 
 /// <summary>
-/// The face every system meter shares: the reading and its history, nothing else — the card's
-/// header is the label. Which series it shows is the kind's <see cref="MeterPart"/>
-/// (<c>Meters/&lt;Kind&gt;Meter.cs</c>); the readings and the history are the system hub's
-/// ([S-2500], [S-2504]), so a meter built again shows the history its series already has. This file
-/// is the layout, so the meters grow and shrink the same way.
+/// The face every system meter shares, built from the family's blocks ([S-6702], [S-6717]): the
+/// reading (a Readout) and the part its style draws under it, nothing else: the card's header is
+/// the label. Which series it shows is the kind's <see cref="MeterPart"/>; the readings and the
+/// history are the system hub's ([S-2500], [S-2504]), so a meter built again shows the history its
+/// series already has. Where the parts go at each size is <see cref="MeterPlan"/>'s.
 /// <para>
-/// [S-664] [S-1762] The ladder (<see cref="MeterFace"/>): a tiny tile is the reading alone; from
-/// there the history appears under the reading and grows to fill the tile, the reading growing by
-/// ramp step up to Display; a wide strip puts the reading in a column on the left and the history
-/// the full height beside it. With the history switched off the reading fills the tile.
-/// </para>
-/// <para>
-/// [S-1824] The history is the card's bottom band, edge to edge with no inset at its sides or under
-/// it; the card's rounded corners clip it. Only the reading carries the content inset.
+/// [S-1762] The reading stands at the top, start-aligned, on the step its widest case takes (28, 40,
+/// 68 and no larger); the history runs under it to the card's foot, edge to edge ([S-1824]), and grows
+/// with the tile, so a large tile is a longer chart, never a bigger number.
 /// </para>
 /// </summary>
 public sealed partial class MeterView : Grid, IWidgetView, IWidgetSizeAware, IWidgetSurfaceAware, IMeterHost
 {
     private const string Scope = "meter";
 
-    /// <summary>The graph never shrinks below this: under it a trace is a smudge, not a chart.</summary>
-    private const double GraphFloor = Fluent.Space6;
-
     private readonly MeterPart _part;
     private readonly IWidgetHost _host;
     private readonly WidgetId _kind;
 
-    // [S-3860] The shared hero readout: the number with its smaller unit, the battery's glyph as its icon.
-    private readonly HeroReadout _reading = new();
+    // [S-6702] The reading: the number with its smaller unit, the battery's glyph as its lead.
+    private readonly ReadoutBlock _reading = new() { HorizontalAlignment = HorizontalAlignment.Left, VerticalAlignment = VerticalAlignment.Top };
     private readonly SparkBand _band;
-
-    // Looked up once. The reading swaps between them on every sample, and a resource lookup per
-    // sample per widget is a dictionary hit and a possible log line for nothing.
-    private readonly Brush _readingBrush = ThemeBrush.Of("TextFillColorPrimaryBrush", Colors.White);
-    private readonly Brush _unavailableBrush = ThemeBrush.Of("TextFillColorDisabledBrush", Colors.Gray);
-    private readonly Brush _accentBrush = ThemeBrush.Of("AccentFillColorDefaultBrush", Colors.DodgerBlue);
-    private readonly Brush _cautionBrush = ThemeBrush.Of("SystemFillColorCautionBrush", Colors.Orange);
-    private readonly Brush _criticalBrush = ThemeBrush.Of("SystemFillColorCriticalBrush", Colors.Red);
-    private readonly Brush _successBrush = ThemeBrush.Of("SystemFillColorSuccessBrush", Colors.Green);
 
     private WidgetConfig _config;
     private ISeriesWatch? _watch;
     private SeriesInterest? _series;
-
-    // The ramp step currently applied. Kept so a sample that lands on the same step does not touch
-    // the text block at all: re-applying a font size is a layout invalidation the tile does not need.
-    private TypeStep? _heroStep;
-    private bool _badged;
-    private string _shown = string.Empty;
+    private MeterReading? _last;
 
     private WidgetArea _area;
     private bool _graph;
@@ -73,15 +51,8 @@ public sealed partial class MeterView : Grid, IWidgetView, IWidgetSizeAware, IWi
     // [S-1941] The history shows the stand-in line of a thing not on this machine.
     private bool _standIn;
 
-    // [S-6300] The style's look and what it builds: made when the look is chosen, let go when another is.
-    private MeterLook _look;
-    private FrameworkElement? _body;
-    private GaugeDial? _dial;
-    private BarList? _bars;
-    private TileGrid? _tiles;
-    private CoreGraphGrid? _graphs;
-    private MeterItemsWatch? _items;
-    private IReadOnlyList<MeterItem> _itemList = [];
+    // [S-433] [S-1940] The part said the thing measured is gone (an adapter unplugged): its reason, the series ignored.
+    private string? _absent;
 
     // [S-1881] Until Attach: a parked view watches nothing, whatever config it is handed.
     private bool _detached = true;
@@ -96,28 +67,22 @@ public sealed partial class MeterView : Grid, IWidgetView, IWidgetSizeAware, IWi
     public MeterView(IWidgetHost host, MeterPart part)
     {
         _host = host;
-        // No padding on the view: the reading carries the content inset and the history none
-        // ([S-1824]), so the gap under the reading is the ladder's to size.
         ArgumentNullException.ThrowIfNull(part);
         _kind = part.Kind;
         _part = part;
         _config = WidgetConfig.CreateDefault(_kind);
         _band = new SparkBand(60, _part.Scale);
 
-        _reading.SetValue("--", string.Empty, false);
+        _reading.Show("--", valueRole: ColourRole.TextDisabled);
+        _reading.Margin = Family.SideInset;
 
-        // [S-1187] The kind's badge (the battery icon) leads the reading as the readout's glyph; the
-        // ladder measures its width ([S-3860]).
-        _reading.Icon.VerticalAlignment = VerticalAlignment.Center;
-        _reading.Margin = new Thickness(HeroLayout.SideInset, HeroLayout.TopInset, HeroLayout.SideInset, 0);
-
-        // Two rows (the reading, the history) and two columns (the reading's, the history's on a
-        // strip): each arrangement only moves the two parts between these cells.
+        // Two rows: the reading, and the part its look draws under it, 8 down (the part's own margin).
         RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
         RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
-        ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
-        ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(0) });
         Children.Add(_reading);
+
+        SetRow(_band, 1);
+        _band.Margin = new Thickness(0, FamilySpace.S2, 0, 0);
         Children.Add(_band);
     }
 
@@ -128,62 +93,18 @@ public sealed partial class MeterView : Grid, IWidgetView, IWidgetSizeAware, IWi
         Lay();
     }
 
-    /// <summary>[S-1762] Place the reading and the history for the current area and size the reading.</summary>
-    private void Lay()
-    {
-        // A face hides the readout; every other look shows it.
-        _reading.Visibility = Visibility.Visible;
+    /// <summary>The widest reading the step is chosen for, with the lead glyph where the look draws one.</summary>
+    private ReadoutText Worst => _part.Reading with { Lead = _look == MeterLook.Numbers || (_part.HasBadge && !DrawsCharge) };
 
-        // [S-6300] A style other than the history lays its own part on the same ladder.
-        if (_look != MeterLook.Graph)
-        {
-            _band.Visibility = Visibility.Collapsed;
+    /// <summary>[S-6262] [S-6266] A look that draws the charge itself (the battery, the ring) needs no badge before the figure.</summary>
+    private bool DrawsCharge => _look is MeterLook.Battery or MeterLook.Ring;
 
-            if (_look == MeterLook.Gauge)
-            {
-                LayGauge();
-            }
-            else if (_face is not null)
-            {
-                LayFace();
-            }
-            else
-            {
-                LayItems();
-            }
-
-            return;
-        }
-
-        SetColumnSpan(_reading, 1);
-        _reading.HorizontalAlignment = HorizontalAlignment.Stretch;
-
-        var plan = MeterFace.Plan(_area, _graph, _part.Reading, _part.HasBadge, Fluent.Space2, GraphFloor);
-        var side = plan.Arrangement == MeterFaceArrangement.Side;
-        var alone = plan.Arrangement == MeterFaceArrangement.ReadingOnly;
-
-        ColumnDefinitions[0].Width = side ? new GridLength(plan.ReadingColumn) : new GridLength(1, GridUnitType.Star);
-        ColumnDefinitions[1].Width = side ? new GridLength(1, GridUnitType.Star) : new GridLength(0);
-
-        // Alone, or beside the history on a strip, the reading is centred in the whole height; over
-        // the history it sits at the top and the history takes everything under it.
-        SetRow(_reading, 0);
-        SetRowSpan(_reading, alone || side ? 2 : 1);
-        _reading.VerticalAlignment = alone || side ? VerticalAlignment.Center : VerticalAlignment.Top;
-        _reading.Margin = alone || side
-            ? new Thickness(HeroLayout.SideInset, 0, HeroLayout.SideInset, 0)
-            : new Thickness(HeroLayout.SideInset, HeroLayout.TopInset, HeroLayout.SideInset, 0);
-
-        _band.Visibility = plan.Graph ? Visibility.Visible : Visibility.Collapsed;
-        SetRow(_band, side ? 0 : 1);
-        SetRowSpan(_band, side ? 2 : 1);
-        SetColumn(_band, side ? 1 : 0);
-        // Stacked, the history is the star row: exactly what the reading leaves (plan.GraphHeight).
-        // [S-1824] Edge to edge either way; beside the reading its column's own inset separates the two.
-        _band.Margin = side ? new Thickness(0) : new Thickness(0, Fluent.Space2, 0, 0);
-
-        ApplyHero(plan.Reading);
-    }
+    /// <summary>
+    /// [S-1187] The glyph before the reading: the Numbers look's download arrow (as its upload), else
+    /// the kind's badge (the battery's level) where the look does not draw the charge already.
+    /// </summary>
+    private string? Lead(MeterReading reading)
+        => _look == MeterLook.Numbers ? Glyphs.Download : DrawsCharge ? null : _part.Badge(reading);
 
     public void Attach(Ticker ticker, WidgetConfig config)
     {
@@ -208,10 +129,13 @@ public sealed partial class MeterView : Grid, IWidgetView, IWidgetSizeAware, IWi
         _band.Capacity = capacity;
 
         // [S-6317] The core graphs span what the graph spans.
-        if (_graphs is not null && _graphs.Capacity != capacity)
+        if (_cells.Count > 0 && _cells[0].Band.Capacity != capacity)
         {
-            var grewCores = capacity > _graphs.Capacity;
-            _graphs.Capacity = capacity;
+            var grewCores = capacity > _cells[0].Band.Capacity;
+            foreach (var cell in _cells)
+            {
+                cell.Band.Capacity = capacity;
+            }
 
             if (grewCores)
             {
@@ -259,6 +183,7 @@ public sealed partial class MeterView : Grid, IWidgetView, IWidgetSizeAware, IWi
         }
 
         _watch = hub.WatchSeries(series, OnUpdate);
+        _part.Watch(hub, this);
 
         // [S-2506] The watch never calls back from inside Watch: the history so far and the newest
         // reading are read here, so a meter built again (a view switch, edit mode) shows them at once.
@@ -270,7 +195,7 @@ public sealed partial class MeterView : Grid, IWidgetView, IWidgetSizeAware, IWi
     /// <summary>One read of the series: the reading, and the point it added to the history.</summary>
     private void OnUpdate(SeriesUpdate update)
     {
-        if (_detached)
+        if (_detached || _absent is not null)
         {
             return;
         }
@@ -280,6 +205,31 @@ public sealed partial class MeterView : Grid, IWidgetView, IWidgetSizeAware, IWi
         if (update.Point is { } point)
         {
             _band.Push(point.First, double.IsNaN(point.Second) ? null : point.Second);
+        }
+    }
+
+    /// <summary>
+    /// [S-433] [S-1940] The part says the thing measured is gone (no adapter at its place) or back:
+    /// gone, the meter is drawn absent with the reason on hover and the series ignored until it is back.
+    /// </summary>
+    public void SetAbsent(string? reason)
+    {
+        if (reason == _absent)
+        {
+            return;
+        }
+
+        var back = _absent is not null && reason is null;
+        _absent = reason;
+
+        if (reason is not null)
+        {
+            Present(MeterReading.Missing(reason));
+        }
+        else if (back)
+        {
+            _band.Clear();
+            Present(_watch?.Latest ?? _part.Waiting);
         }
     }
 
@@ -294,11 +244,13 @@ public sealed partial class MeterView : Grid, IWidgetView, IWidgetSizeAware, IWi
             return;
         }
 
-        ShowText(reading.Primary);
+        _last = reading;
+        var role = MeterPlan.Role(_part.PressureOf(reading), reading.Absent);
 
-        // Unavailable is a colour, not an opacity. Pressure colours the chart, never the number,
-        // which stays legible whatever the load. Why it is unavailable is said on hover.
-        _reading.ValueLine.Foreground = reading.Available ? _readingBrush : _unavailableBrush;
+        // Unavailable is a role, not an opacity. Pressure colours the chart, never the number, which
+        // stays legible whatever the load; a lead glyph (the battery's) takes Caution or Critical.
+        ShowReading(_reading, reading.Primary, reading.Available, Lead(reading), role);
+
         // [S-1161] Available, it names what it is about (the disk's drive), for a card whose header is off.
         // [S-6332] Touched only when it says something else.
         var tip = reading.Available ? _part.ReadingTip : reading.Absent ? null : reading.Reason;
@@ -307,7 +259,7 @@ public sealed partial class MeterView : Grid, IWidgetView, IWidgetSizeAware, IWi
             ToolTipService.SetToolTip(_reading, tip);
         }
 
-        // [S-1940] [S-82a] Not on this machine (no battery): the same face in the disabled look, its
+        // [S-1940] [S-82a] Not on this machine (no battery): the same face in the disabled role, its
         // level at the middle ([S-1941]), the reason on the whole tile — never an empty state.
         UnavailableLook.Say(this, reading.Absent ? reading.Reason : null);
 
@@ -319,6 +271,7 @@ public sealed partial class MeterView : Grid, IWidgetView, IWidgetSizeAware, IWi
             if (_standIn)
             {
                 _band.Load(Unavailable.History(_band.Holds));
+                ShowItems(_part.AbsentItems, point: false);
             }
             else
             {
@@ -326,56 +279,24 @@ public sealed partial class MeterView : Grid, IWidgetView, IWidgetSizeAware, IWi
             }
         }
 
-        var pressure = LevelBrush(reading);
-        _band.SetBrush(pressure);
-
-        // [S-6302] The gauge is the reading's own share, in the colour the history would have.
-        _dial?.SetFraction(Unavailable.Fraction(reading));
-        _dial?.SetBrush(pressure);
-
-        // [S-6261]..[S-6266] A face that draws the reading itself (numbers, a battery, a ring, signal bars).
-        _face?.Present(reading, pressure);
-
-        var badge = _part.Badge(reading);
-        var badged = badge is not null;
-        _reading.Icon.Glyph = badge ?? string.Empty;
-        _reading.Icon.Foreground = reading.Absent ? UnavailableLook.Text : pressure;
-
+        _band.Role(role);
+        PresentLook(reading, role);
         _part.Observe(reading, this);
-
-        // Only a glyph coming or going changes the face; every other reading keeps the layout it has.
-        if (badged != _badged)
-        {
-            _badged = badged;
-            _heroStep = null;
-            Lay();
-        }
     }
 
-    /// <summary>[S-3860] The number and its smaller unit, split again only when the text changed.</summary>
-    private void ShowText(string primary)
+    /// <summary>
+    /// [S-3860] A reading on a Readout, its figure and unit split as the Readout draws them; the block
+    /// touches only what changed ([S-6330]).
+    /// </summary>
+    private static void ShowReading(ReadoutBlock block, string primary, bool available, string? lead, ColourRole role)
     {
-        if (primary != _shown)
-        {
-            _shown = primary;
-            var text = HeroLayout.Split(primary);
-            _reading.SetValue(text.Value, text.Unit, text.Spaced);
-        }
+        var split = ReadoutRules.Split(primary);
+        block.Show(split.Value, split.Unit, lead: lead, valueRole: available ? ColourRole.TextPrimary : ColourRole.TextDisabled,
+            leadRole: role is ColourRole.Caution or ColourRole.Critical ? role : ColourRole.TextSecondary);
     }
 
     /// <summary>[S-1167] Keep the surface for a kind's header title (MeterView.Part.cs).</summary>
     public void Bind(IWidgetSurface surface) => BindTitle(surface);
-
-    /// <summary>[S-1940] A reading's level colour: its pressure's, or the disabled fill for a thing not on this machine.</summary>
-    private Brush LevelBrush(MeterReading reading) => reading.Absent ? UnavailableLook.Fill : Pressure(_part.PressureOf(reading));
-
-    private Brush Pressure(MeterPressure pressure) => pressure switch
-    {
-        MeterPressure.Critical => _criticalBrush,
-        MeterPressure.Elevated => _cautionBrush,
-        MeterPressure.Healthy => _successBrush,
-        _ => _accentBrush,
-    };
 
     public void Detach()
     {
@@ -388,5 +309,6 @@ public sealed partial class MeterView : Grid, IWidgetView, IWidgetSizeAware, IWi
         _series = null;
         _items?.Dispose();
         _items = null;
+        _part.Unwatch();
     }
 }

@@ -21,7 +21,7 @@ public interface IDetailHost
 /// <summary>
 /// [S-2400] One detail kind's half of a detail widget: which hub feeds its figures come from and what
 /// they mean. <see cref="DetailView"/> owns the other half — where the hero, the facts and the list go
-/// at each size ([S-2402]) — so a kind never lays anything out, and each kind lives in its own file
+/// at each size ([S-2402], <see cref="DetailFace"/>) — so a kind never lays anything out, and each kind lives in its own file
 /// (<c>Details/&lt;Kind&gt;Detail.cs</c>).
 /// <para>
 /// [S-2500] A part reads nothing itself: it watches the system hub's feeds in <see cref="Watch"/> and
@@ -37,17 +37,11 @@ public abstract class DetailPart
     /// <summary>Whether the kind has a main figure at all (a list may not).</summary>
     public virtual bool HasHero => true;
 
-    /// <summary>The widest the hero can be, in characters: the kind's worst case, never the live text.</summary>
-    public virtual double HeroCharacters => 8;
-
-    /// <summary>One list row's height; rows with a second line or a bar are taller.</summary>
-    public virtual double ListRowHeight => Fluent.RowHeightCompact;
+    /// <summary>[S-6702] The hero's widest case, formatted ("10.00 GHz"): the kind's worst, never the live text, so the figure does not change step between reads.</summary>
+    public virtual string HeroWorst => "100%";
 
     /// <summary>[S-2412] At most this many rows (0: as many as there are).</summary>
     public virtual int MaxRows => 0;
-
-    /// <summary>[S-2420] Whether a few rows grow into a tall tile (drives) rather than leave it empty.</summary>
-    public virtual bool RowsGrow => false;
 
     /// <summary>[S-2404] Whether Enter on a row does something (opens a drive).</summary>
     public virtual bool RowsOpen => false;

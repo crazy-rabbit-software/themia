@@ -4,6 +4,7 @@ using Themia.Core.Model;
 using Themia.Core.SystemData;
 using Themia.Core.Widgets;
 using Themia.Sdk;
+using Themia.Sdk.Kit;
 
 namespace Themia.App.Widgets.Meters;
 
@@ -15,6 +16,12 @@ public interface IMeterHost
 
     /// <summary>[S-1167] [S-2510] Read now rather than at the next tick (a Refresh command).</summary>
     void SampleNow();
+
+    /// <summary>
+    /// [S-433] [S-1940] The thing measured is not there (no adapter at the chosen place), with why, or is
+    /// back (null): the meter is drawn absent, the reason on hover, and its series ignored meanwhile.
+    /// </summary>
+    void SetAbsent(string? reason);
 }
 
 /// <summary>
@@ -120,11 +127,11 @@ public abstract class MeterPart
     public abstract WidgetId Kind { get; }
 
     /// <summary>
-    /// [S-3860] The widest reading this kind can produce ("100%", German "100 %"), its number and
-    /// unit counted apart at the sizes they are drawn. The kind's worst case, never the live
-    /// text, so the number does not change size between two samples.
+    /// [S-6702] The widest reading this kind can produce ("100%", German "100 %"), split as the Readout
+    /// draws it. The kind's worst case, never the live text, so the number does not change step between
+    /// two samples.
     /// </summary>
-    public virtual HeroBound Reading => HeroBound.Of(Formatting.Percent(1));
+    public virtual ReadoutText Reading => ReadoutRules.Split(Formatting.Percent(1));
 
     /// <summary>[S-1124] What the top of the chart stands for.</summary>
     public virtual ChartScale Scale => ChartScale.Share;
@@ -169,7 +176,21 @@ public abstract class MeterPart
     {
     }
 
-    /// <summary>One reading reached the screen: for what a kind derives from it (a title, a status dot).</summary>
+    /// <summary>
+    /// [S-2504] Watch what the kind needs besides its series (the GPU's adapters, for its name and
+    /// whether it is there), with the meter's series; never calls back from inside this call. Let go in
+    /// <see cref="Unwatch"/>.
+    /// </summary>
+    public virtual void Watch(ISystemFeeds hub, IMeterHost host)
+    {
+    }
+
+    /// <summary>Let go of what <see cref="Watch"/> held. Safe twice.</summary>
+    public virtual void Unwatch()
+    {
+    }
+
+    /// <summary>One reading reached the screen: for what a kind derives from it (a title, a problem glyph).</summary>
     public virtual void Observe(MeterReading reading, IMeterHost host)
     {
     }
@@ -190,8 +211,8 @@ public abstract class MeterPart
     /// </summary>
     public virtual MeterItemsWatch? WatchItems(ISystemFeeds hub, Action<IReadOnlyList<MeterItem>> onItems) => null;
 
-    /// <summary>[S-6304] The widest row line a Rows look writes (label and value, in characters), for the rows' type step.</summary>
-    public virtual double ItemLineCharacters => 0;
+    /// <summary>[S-1940] The items a look draws for a thing not on this PC (the GPU's engines, each "--"); none by default.</summary>
+    public virtual IReadOnlyList<MeterItem> AbsentItems => [];
 
     /// <summary>[S-1917] Debug renders: fixed items for the bar and tile looks (<c>--state sample</c>).</summary>
     public virtual IReadOnlyList<MeterItem> SampleItems => [];

@@ -110,7 +110,7 @@ public sealed class PingWindow
 public static class PingDetailRules
 {
     /// <summary>"999 ms".</summary>
-    public const double HeroCharacters = 6;
+    public const string HeroWorst = "999 ms";
 
     /// <summary>
     /// [S-2429] The sheet: the latest latency as the hero (dimmed "--" while checking or after a lost

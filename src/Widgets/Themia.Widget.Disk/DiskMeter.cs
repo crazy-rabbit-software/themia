@@ -5,6 +5,7 @@ using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
 using Themia.Sdk;
+using Themia.Sdk.Kit;
 using Themia.Sdk.WinUI;
 using Themia.Widget.Disk;
 
@@ -36,7 +37,7 @@ internal sealed class DiskMeter(IWidgetHost widgetHost) : MeterPart
     /// "1023 KB/s", as the network meter's. [S-3860] Each run is counted at the size it is drawn,
     /// so the rate is the step every meter's reading is at this tier, where Memory's percentage is.
     /// </summary>
-    public override HeroBound Reading => HeroBound.Of(Formatting.Rate(1023 * 1024));
+    public override ReadoutText Reading => ReadoutRules.Split(Formatting.Rate(1023 * 1024));
 
     /// <summary>[S-1161] The header's title on the reading too: the drive with the header switched off.</summary>
     public override string? ReadingTip => Title();

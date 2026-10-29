@@ -1,8 +1,5 @@
-using Microsoft.UI;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
-using Microsoft.UI.Xaml.Media;
-using Microsoft.UI.Xaml.Shapes;
 using Themia.App.Services;
 using Themia.App.Services.SystemData;
 using Themia.App.Shell;
@@ -11,12 +8,14 @@ using Themia.Core.Model;
 using Themia.Core.Widgets;
 using Themia.Sdk.WinUI;
 using Themia.Sdk;
+using Themia.Sdk.Kit;
+using Themia.Sdk.WinUI.Kit;
 
 namespace Themia.App.Widgets.Meters;
 
 /// <summary>
-/// [S-1170]..[S-1174] Round-trip time to a host, with the original's status as a dot in the header
-/// (Online / Offline / Checking… on hover), a chart scaled to the window's slowest answer with
+/// [S-1170]..[S-1174] Round-trip time to a host, the header's problem glyph while it does not answer
+/// (Offline on hover), a chart scaled to the window's slowest answer with
 /// unanswered probes on its baseline, and a Refresh command.
 /// <para>
 /// [S-2508] The probes are the hub's prober for this host, shared with every other ping
@@ -26,22 +25,21 @@ namespace Themia.App.Widgets.Meters;
 /// </summary>
 internal sealed class PingMeter : MeterPart
 {
-    private static readonly Brush OnlineBrush = ThemeBrush.Of("SystemFillColorSuccessBrush", Colors.Green);
-    private static readonly Brush OfflineBrush = ThemeBrush.Of("SystemFillColorCriticalBrush", Colors.Red);
-    private static readonly Brush CheckingBrush = ThemeBrush.Of("TextFillColorTertiaryBrush", Colors.Gray);
+    // [S-1170] [S-6710] The header's problem glyph: the caution warning while the host does not answer,
+    // nothing while it does or while the first probe is out (no success green, [S-6706]).
+    private readonly FontIcon _problem = HeaderBlock.Problem(string.Empty);
+    private readonly HeaderParts _trailing = new();
 
-    private readonly Ellipse _dot = new()
+    public PingMeter()
     {
-        Width = Fluent.Space2,
-        Height = Fluent.Space2,
-        VerticalAlignment = VerticalAlignment.Center,
-        Fill = CheckingBrush,
-    };
+        _trailing.Add(HeaderPartKind.Problem, _problem);
+        _trailing.Want(_problem, false);
+    }
 
     public override WidgetId Kind => new WidgetId("ping");
 
     /// <summary>"999 ms".</summary>
-    public override HeroBound Reading => HeroBound.Of(Formatting.Latency(999));
+    public override ReadoutText Reading => ReadoutRules.Split(Formatting.Latency(999));
 
     /// <summary>[S-1172] Against the slowest answer on screen, as the original scaled it (floor 1 ms).</summary>
     public override ChartScale Scale => ChartScale.Peak(1);
@@ -51,7 +49,7 @@ internal sealed class PingMeter : MeterPart
 
     public override MeterPressure PressureOf(MeterReading reading) => PingStats.Pressure(StatusOf(reading));
 
-    public override FrameworkElement? HeaderTrailing => _dot;
+    public override FrameworkElement? HeaderTrailing => _trailing;
 
     /// <summary>[S-6273] Signal bars by the latency.</summary>
     public override MeterLook Look(WidgetConfig config)
@@ -67,18 +65,12 @@ internal sealed class PingMeter : MeterPart
         host.SetTitle(ping.EffectiveHost);
     }
 
-    /// <summary>[S-1170] The header dot: success, critical, or quiet while checking.</summary>
+    /// <summary>[S-1170] The problem glyph while the host does not answer, its status on hover; nothing otherwise.</summary>
     public override void Observe(MeterReading reading, IMeterHost host)
     {
         var status = StatusOf(reading);
-        _dot.Fill = status switch
-        {
-            PingStatus.Online => OnlineBrush,
-            PingStatus.Offline => OfflineBrush,
-            _ => CheckingBrush,
-        };
-
-        ToolTipService.SetToolTip(_dot, PingStats.StatusText(status));
+        _trailing.Want(_problem, status == PingStatus.Offline);
+        ToolTipService.SetToolTip(_problem, status == PingStatus.Offline ? PingStats.StatusText(status) : null);
     }
 
     /// <summary>[S-1174] Refresh: probe now — unless one is already out, which is the answer coming.</summary>

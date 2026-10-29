@@ -31,112 +31,11 @@ public sealed class IoStylesTests
     public void S6263_the_bars_a_probe_earns_follow_the_latency(double? ms, int bars)
         => Assert.Equal(bars, PingSignal.Level(ms));
 
-    [Fact]
-    public void S6263_the_bars_rise_left_to_right_on_one_baseline_inside_their_box()
-    {
-        var bars = PingSignal.Bars(100, 100);
-
-        Assert.Equal(PingSignal.BarCount, bars.Count);
-        var height = bars[^1].Height;
-        Assert.True(height <= 100 && bars[^1].Right() <= 100.5);
-
-        for (var i = 0; i < bars.Count; i++)
-        {
-            Assert.Equal(height, bars[i].Y + bars[i].Height, 3);
-            if (i > 0)
-            {
-                Assert.True(bars[i].Height > bars[i - 1].Height);
-                Assert.True(bars[i].X > bars[i - 1].Right(), "a gap between bars");
-            }
-        }
-
-        Assert.Empty(PingSignal.Bars(0, 50));
-    }
-
     // ---- [S-6262] the battery shape ------------------------------------------------------------
-
-    [Fact]
-    public void S6262_the_battery_fits_its_box_with_the_cap_centred_and_the_fill_inside()
-    {
-        var shape = BatteryShape.Fit(300, 100);
-
-        Assert.Equal(shape.Body.Height * BatteryShape.BodyAspect, shape.Body.Width, 0);
-        Assert.True(shape.Cap.X + shape.Cap.Width <= 300 && shape.Body.Y >= 0 && shape.Body.Y + shape.Body.Height <= 100);
-        Assert.Equal(shape.Body.Y + (shape.Body.Height / 2), shape.Cap.Y + (shape.Cap.Height / 2), 0);
-        Assert.Equal(shape.Body.X + shape.Body.Width, shape.Cap.X);
-
-        // Centred across the wider box.
-        Assert.Equal(300 - (shape.Cap.X + shape.Cap.Width), shape.Body.X, 0);
-
-        Assert.True(shape.Inner.X > shape.Body.X + shape.Stroke && shape.Inner.Y > shape.Body.Y + shape.Stroke);
-        Assert.True(shape.Inner.X + shape.Inner.Width < shape.Body.X + shape.Body.Width - shape.Stroke);
-        Assert.Equal(default, BatteryShape.Fit(0, 100));
-    }
-
-    [Fact]
-    public void S6262_the_fill_is_the_charge_and_any_charge_shows()
-    {
-        var shape = BatteryShape.Fit(210, 100);
-
-        Assert.Equal(0, BatteryShape.FillWidth(shape, 0));
-        Assert.Equal(0, BatteryShape.FillWidth(shape, double.NaN));
-        Assert.True(BatteryShape.FillWidth(shape, 0.001) >= shape.Stroke);
-        Assert.Equal(shape.Inner.Width / 2, BatteryShape.FillWidth(shape, 0.5), 3);
-        Assert.Equal(shape.Inner.Width, BatteryShape.FillWidth(shape, 1));
-        Assert.Equal(shape.Inner.Width, BatteryShape.FillWidth(shape, 7));
-    }
 
     // ---- [S-6261] a picture and its figure ----------------------------------------------------
 
-    [Fact]
-    public void S6261_a_wide_strip_puts_the_picture_beside_the_figure_and_a_tile_under_it()
-    {
-        var figure = HeroBound.Of(Formatting.Percent(1));
-
-        var strip = PictureFace.Plan(new WidgetArea(448, 144), BatteryShape.Aspect, figure, wide: true, FluentType.Title);
-        Assert.Equal(PictureArrangement.Beside, strip.Arrangement);
-        Assert.True(strip.PictureWidth + PictureFace.Gap + HeroLayout.ValueWidth(strip.Figure, figure.Value, figure.Unit) <= 448);
-
-        var tile = PictureFace.Plan(new WidgetArea(288, 224), BatteryShape.Aspect, figure, wide: false, FluentType.Title);
-        Assert.Equal(PictureArrangement.Under, tile.Arrangement);
-        Assert.True(tile.PictureHeight + PictureFace.Gap + tile.Figure.LineHeight <= 224);
-        Assert.Equal(BatteryShape.Aspect, tile.PictureWidth / tile.PictureHeight, 1);
-
-        // No room for a picture worth drawing: the figure alone, never a smudge.
-        var sliver = PictureFace.Plan(new WidgetArea(200, 40), BatteryShape.Aspect, figure, wide: false, FluentType.Title);
-        Assert.Equal(PictureArrangement.FigureOnly, sliver.Arrangement);
-    }
-
-    [Fact]
-    public void S6261_the_picture_grows_with_the_tile()
-    {
-        var figure = HeroBound.Of(Formatting.Latency(999));
-        var small = PictureFace.Plan(new WidgetArea(168, 134), PingSignal.Aspect, figure, false, FluentType.Title);
-        var large = PictureFace.Plan(new WidgetArea(528, 404), PingSignal.Aspect, figure, false, FluentType.TitleLarge);
-
-        Assert.True(large.PictureHeight > small.PictureHeight);
-        Assert.True(large.Figure.FontSize >= small.Figure.FontSize);
-    }
-
     // ---- [S-6264] the network's numbers -------------------------------------------------------
-
-    [Fact]
-    public void S6264_two_numbers_stack_on_a_tile_and_stand_side_by_side_on_a_strip()
-    {
-        var bound = HeroBound.Of(Formatting.Rate(1023 * 1024));
-
-        var tile = MeterNumbers.Plan(new WidgetArea(288, 224), bound, icon: true, gap: 12);
-        Assert.False(tile.Side);
-
-        var strip = MeterNumbers.Plan(new WidgetArea(768, 120), bound, icon: true, gap: 12);
-        Assert.True(strip.Side);
-
-        // Both lines fit the tile.
-        Assert.True((2 * tile.Step.LineHeight) + 12 <= 224);
-
-        var xl = MeterNumbers.Plan(new WidgetArea(768, 544), bound, icon: true, gap: 12);
-        Assert.True(xl.Step.FontSize > tile.Step.FontSize);
-    }
 
     // ---- [S-6266] a ring and its lines --------------------------------------------------------
 

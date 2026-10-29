@@ -9,7 +9,7 @@ the signal bars, `PingSignal`).
 
 Owning files: everything in this folder: `PingModule.cs` (descriptor, view factory, menu lines,
 JSON context), `PingConfig.cs` (with its styles, its host and what it asks the hub, `IReadsSystem`),
-`PingMeter.cs` (its half of the shared `MeterView`: the latency scale, the status dot, the title, the
+`PingMeter.cs` (its half of the shared `MeterView`: the latency scale, the header's problem glyph, the title, the
 Refresh command, the look per style), `PingMenu.cs` (its properties menu: the host, then the span every
 meter has), `Localization/Locales/` (its own `PingStr`, 30 languages, its style names included). Tests:
 its config under the root's rules is the module host's `PingHostTests`; its styles beside the other
@@ -22,7 +22,7 @@ I/O meters' are `IoStylesHostTests`.
   a click asks for another beside the menu, refused as typed when it is not a host, [S-109]); under
   Style in the Graph style the Chart span ([S-1122]).
 - **[S-6273]** Ping: `PingConfig.Style`, **Graph** ([S-1172]) and **Signal bars** ([S-6263]); the
-  header's status dot and Refresh are the same in both.
+  header's problem glyph ([S-1170]) and Refresh are the same in both.
 
 Needs a manual pass: the meter on a live desktop (a host answering, one that does not, the network
 going away, Refresh, both styles).

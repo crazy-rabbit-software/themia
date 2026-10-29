@@ -3,6 +3,7 @@ using Themia.App.Services;
 using Themia.App.Shell.Gallery;
 using Themia.Core.SystemData;
 using Themia.Core.Widgets;
+using Themia.App.Widgets.Meters;
 
 namespace Themia.App.Widgets;
 
@@ -28,10 +29,13 @@ public sealed partial class MeterView : IWidgetPreviewState
 
         if (state == "unavailable" && _part.AbsentReading is { } absent)
         {
-            // The live series would put this machine's reading back.
+            // The live series, items and the part's own watch (the GPU's adapters) would put this machine's back.
             _frozen = true;
             _watch?.Dispose();
             _watch = null;
+            _items?.Dispose();
+            _items = null;
+            _part.Unwatch();
             _standIn = false;
             Present(absent);
             Lay();
@@ -48,20 +52,20 @@ public sealed partial class MeterView : IWidgetPreviewState
         _watch = null;
 
         // [S-6317] The core graphs draw the kind's sample cores, each a fixture history of its own.
-        if (_graphs is not null)
+        if (_look == MeterLook.Graphs)
         {
             _frozen = true;
             _items?.Dispose();
             _items = null;
             ShowItems(_part.SampleItems, point: false);
 
-            for (var core = 0; core < _graphs.Count; core++)
+            for (var core = 0; core < _cells.Count; core++)
             {
                 var level = _part.SampleItems[core].Fraction ?? 0.3;
-                var history = PreviewSeries.Wave($"{_part.Kind.Value}/{core}", _graphs.Holds, level, 0.18)
+                var history = PreviewSeries.Wave($"{_part.Kind.Value}/{core}", _cells[core].Band.Holds, level, 0.18)
                     .Select(value => new SeriesPoint(value)).ToList();
 
-                _graphs.Load(core, history, history.Count);
+                _cells[core].Band.Load(history, history.Count);
             }
         }
 
@@ -73,15 +77,19 @@ public sealed partial class MeterView : IWidgetPreviewState
         return Task.CompletedTask;
     }
 
-    /// <summary>Stop the live reads, then a fixed 62 % reading, the kind's sample items and the history fixture.</summary>
+    /// <summary>Stop the live reads, then the kind's fixed reading, its sample items and the history fixture.</summary>
     private void ShowSample()
     {
         _frozen = true;
         _items?.Dispose();
         _items = null;
-        _ = ShowPreviewStateAsync("history");
+        _watch?.Dispose();
+        _watch = null;
 
+        // The reading first: a kind that is absent here (no battery) would clear the fixture history
+        // when its sample reading takes the stand-in line away.
         Present(_part.SampleReading);
+        _ = ShowPreviewStateAsync("history");
         ShowItems(_part.SampleItems, point: false);
         Lay();
     }

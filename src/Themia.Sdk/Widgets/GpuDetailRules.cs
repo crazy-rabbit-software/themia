@@ -35,7 +35,7 @@ public sealed record GpuDetail(
 public static class GpuDetailRules
 {
     /// <summary>"1023.9 MB".</summary>
-    public const double HeroCharacters = 9;
+    public const string HeroWorst = "1023.9 MB";
 
     /// <summary>Bytes of <c>D3DKMT_ADAPTER_PERFDATA</c>.</summary>
     public const int AdapterPerfSize = 64;

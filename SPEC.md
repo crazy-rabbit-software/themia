@@ -901,13 +901,19 @@ module author's guide is docs/WIDGET-KIT.md 16.
   problem glyph (caution), the busy ring, an informing label (Caption, secondary), at most two header
   buttons, the count pill (`HeaderParts`). On a narrow card they give way before the name is cut:
   the label, then the buttons from the last, then the count; the problem glyph and the ring stay
-  (`HeaderRules`). Parts stand 4 apart, buttons side by side, a last button's glyph on the inset.
+  (`HeaderRules`). Parts stand 4 apart, buttons side by side, a last button's glyph on the inset. A
+  part with nothing to say now (a problem glyph while there is none) is not wanted and takes no room
+  (`HeaderParts.Want`); the fold decides among the wanted ones.
 - **[S-6711]** **Row**: [lead] 8 [name, Body] 12 [inline meter] 12 [value, Body, end-aligned]; a
   second line Caption secondary, a third Caption tertiary; it carries the side inset itself, so it
   and its hover reach both edges; no divider (`RowBlock`). **What is read is primary**: a fact's
   value (Humidity 71 %) is primary and its name secondary; a list item's name (a task, a mail, a
   file) is primary and its value (a time, a size) secondary (`RowRules.Roles`). A widget's rows all
-  lead or none do. The one emphasised row of a list (today, unread) is BodyStrong.
+  lead or none do. The one emphasised row of a list (today, unread) is BodyStrong. A meter's own rows
+  (an engine's load, reads and writes) let their meter take all the room between the name and the
+  value (`RowBlock.Meter` with no width). A row of a part missing on this PC is all disabled
+  (`RowBlock.Available`). The keyboard's ring on a row is a stroke-2 outline over its whole width in
+  the accent, clear otherwise, so focusing it moves nothing (`RowBlock.Focused`, [S-1288]).
 - **[S-6712]** A row's **lines come from the tier**, its pitch from its lines: one while the view
   area is compact either way (XS, S, Wide), two from regular both ways (M, Tall), three from expanded
   both ways (L, XL); only whole rows are shown (`RowRules.Lines`, `Fit`).
@@ -932,16 +938,25 @@ module author's guide is docs/WIDGET-KIT.md 16.
   (`ControlsRules`). No control takes focus ([S-800]).
 - **[S-6717]** **Chart**: one series in the accent at 2 with a 16 % wash, a second in tertiary,
   Caution or Critical only while the reading is over its threshold (`ChartRules.Role`); a meter's bar
-  is a 4 round track with its fill (`ChartBar`), a ring a stroke-2 arc over its track from twelve,
-  clockwise (`ChartRing`); a band (`ChartSeries`) runs edge to edge at the card's bottom ([S-215]).
+  is a 4 round track with its fill (`ChartBar`; a column is the same track standing up, filled from
+  its foot), a ring a stroke-2 arc over its track from twelve, clockwise (`ChartRing`), a gauge the
+  ring's upper half from nine o'clock (`ChartRing` half, `ChartRules.GaugeSweep`, `GaugeHeight`); a band
+  (`ChartSeries`) runs edge to edge at the card's bottom ([S-215]), its points spread evenly or laid out
+  by its owner on fixed slots (a meter's history, `ChartRules.Y`). A part's role, fraction and points
+  are set again only when they change ([S-6330]).
 - **[S-6720]** The blocks replace the SDK's older parts as each widget group moves onto them, in
   place, never beside them (the order is the family's phase plan): the card's header is the Header
   block now and `Fluent.Header` is gone; the Set up row is the Status block now. `KitHeader`,
   `KitStatePanel`, `EmptyStatePanel`/`Fluent.EmptyState`, `Fluent.Row`/`Fluent.Badge`,
   `AddFooterRow`, `HeroReadout`/`HeroLayout`/`HeroFit.Figures`, `FluentType.Hero`/`Fit`/`FitWidth`/
-  `Scaled` and the off-family ramp steps, `MeterView`'s and `DetailView`'s faces, `SparkBand`,
-  `RingPart`, `ArmRing`, `GaugeDial`, `CoreGraphGrid` and the toggles' and power buttons' faces stay
-  until the group that migrates their callers rebuilds them on the blocks; each then goes.
+  `Scaled` and the off-family ramp steps, `RingPart`, `ArmRing`, `GaugeDial` (the air quality's) and
+  the toggles' and power buttons' faces stay until the group that migrates their callers rebuilds them
+  on the blocks; each then goes. The meters and the details are on the blocks (G1, 2026-10-29):
+  `MeterView` and `DetailView` are built from the Readout, Row and Chart blocks, `SparkBand` draws on
+  `ChartSeries`, the GPU meter is a `MeterView` like the others, and `MeterFace`, `MeterStyleFace`,
+  `MeterLookParts` (`BarList`, `TileGrid`), `MeterBrushes`, `CoreGraphGrid`, `PictureFace`,
+  `BatteryShape`, `MeterNumbers`, `LoadTint`, `BarLayout`, `CoreGraphLayout`, `HeroLayout.Split` and
+  the GPU's own view are gone.
 - **[S-6730]** The **source guard** (`FamilyGuardTests.S6730_no_literal_outside_the_family_tokens`)
   reads every module, the SDK's UI parts and the app's Shell and Widgets (not `Tests/`, `Fixtures/`,
   `Gallery/`) and fails on a type size or line, a weight other than 400/600, a spacing, thickness,
@@ -954,14 +969,15 @@ module author's guide is docs/WIDGET-KIT.md 16.
 - **[S-6731]** The **render walk** (`Themia.exe --family-check <out.json> [--theme] [--kinds]`, Debug):
   every kind at the seven tiers in its default, its preview states and its styles, each card's header,
   view and Set up row walked element by element (a control's template skipped, its content walked)
-  and judged by `FamilyCheck`: a text's size, line and weight, a glyph's size, every padding, margin
+  and judged by `FamilyCheck` (a glyph is judged as a glyph: the text inside its `FontIcon` is not
+  walked): a text's size, line and weight, a glyph's size, every padding, margin
   and spacing on the scale, radii 0, 4 or round, strokes 0, 1, 2 or 4, every solid colour a role (or
   the card's, the item layer's, a data colour, or clear), no text or glyph in the accent.
   `scripts/family-check.ps1` runs it for both themes and holds the findings (kind, element, rule; the
   values stripped, `FamilyCheck.Rule`) to `scripts/family-check.allow.txt`, shrink-only as the guard.
   It needs the Debug app, so it is a definition-of-done step, not a test. Baseline 2026-10-29: 298 lines over all 78 kinds (about 47 700 elements in the two themes); two runs gave the same lines.
 - **[S-6732]** `Themia.exe --family-blocks-png <outDir> [--theme] [--only]` draws each block in every
-  variant at the seven tiers with its visual tree beside it (`TreeDump`; `--widget-png … --tree`
+  variant (29 since G1) at the seven tiers with its visual tree beside it (`TreeDump`; `--widget-png … --tree`
   writes the same for a widget). The family's mockups draw the same variants over the same data, and
   their texts and glyphs are paired with the render's and held to ±1 DIP in position and size with the
   same colour role (DECISIONS 11).
@@ -3671,33 +3687,23 @@ is no toast pipeline yet; the header warning stays and opens Accounts), and birt
   Subtitle / Title, glyph 20 / 24 / 32 / 40, range bar 6 / 6 / 8 / 8 thick; it was 4 and read as a
   scratch), the same ladder in rows, columns and the grid.
 - **[S-3860]** **One hero ladder for chart and reading widgets.** While a hero shares its tile with
-  the content it heads (a chart, readings, a list) it grows to the tier's step, by the tile's
-  smaller size class (`HeroLayout.TierStep`): Title up to Regular, TitleLarge at Expanded, Display
-  at Huge, fitted down where the width is short. Stocks ([S-1311]), the meters and the GPU
-  ([S-1762]) and the detail widgets ([S-2402]) use it, so at the seven tiers a CPU meter and a
-  stock draw their number at 28 / 28 / 28 / 28 / 28 / 40 / 68. A hero alone on its tile (a meter
-  with the history off, a detail widget whose every fact is shown and has no list, the weather)
-  fills it: Display, then grown past it up to 1.5×. The readout stands 16 from the card's sides
-  and 4 under the header (`HeroLayout.SideInset` / `TopInset`), centred instead where it is alone
-  or beside a chart. A formatted reading is split for the readout by `HeroLayout.Split`: the
-  leading figure (digits of any script, `.` `,` and the Arabic separators) and the unit after it
-  ("42" + "%", "1.2" + " MB/s"); a text that does not start with a figure and a unit ("--", "%42",
-  a direction mark, "1 234 ms") is drawn whole, never reordered. The fit measures a worst-case
-  reading per run as it is drawn (`HeroBound`: the number at the step, the unit at the unit's
-  step), never all of it at the number's size: counted that way the disk's "1.2 MB/s" fell to
-  Subtitle where every other meter stood at Title.
-- **[S-3861]** **Detail widgets never end in an empty band** (user decision 2026-10-12, one rule
-  for all seven): what the ladder's rungs leave goes first to the hero (to the tier's step; past
-  it to Display and 1.5× only when every fact is shown and there is no list), a list is as tall as
-  its rows, and
-  what is still spare is split above and below the block, so a short adapter list in an L tile
-  stands with its hero and facts in the middle rather than under them at the top. A list that
-  overflows fills the room and scrolls (no spare). A widget without a hero is its list from the top.
-- **[S-3862]** A detail widget's facts are drawn only as the shared stat parts ([S-668], one
-  implementation, `StatPart`, restyled in place each read): stat cells (Caption label over Body
-  Strong value) when every fact fits in two or more columns of cells, else stat lines (28 each,
-  no glyph), as many whole rows as fit. The Title-valued "large tile" and the Body Large tile are
-  retired with the 2.4× hero.
+  the content it heads (a chart, readings) it grows to the tier's step, by the tile's smaller size
+  class (`HeroLayout.TierStep`): Title up to Regular, TitleLarge at Expanded, Display at Huge,
+  fitted down where the width is short. Stocks ([S-1311]) uses it. The meters, the GPU and the
+  detail widgets are on the family's Readout instead ([S-6702]: 28 at XS and S, 40 at M, Wide and
+  Tall, 68 at L and XL, and no larger; [S-1762], [S-2402]). A formatted reading is split for a
+  readout by `ReadoutRules.Split`: the leading figure (digits of any script, `.` `,` and the Arabic
+  separators) and the unit after it with the space that stood between ("42" + "%", "1.2" + " MB/s");
+  a text that does not start with a figure and a unit ("--", "%42", a direction mark, "1 234 ms")
+  is drawn whole, never reordered. The fit measures a worst-case reading as it is drawn (the number
+  at the step, the unit at the unit's step), never all of it at the number's size.
+- **[S-3861]** *(Retired with G1 of the family, 2026-10-29: a detail widget is concise first, [S-666];
+  room its rows cannot use at L and XL stays empty rather than growing the figure or centring the
+  block, [S-2402].)*
+- **[S-3862]** A detail widget's facts are fact rows (the Row block, [S-6711]): one line of 32 each,
+  the value primary and end-aligned, the name secondary, no glyph, as many whole rows as fit
+  ([S-6712]). A fact that is "--" or of a thing not on this PC is drawn in the disabled role. The stat
+  cells and lines (`StatPart`) are no longer theirs.
 - **[S-3850]** **The add footer** (every widget that adds an item in place: Habits [S-1427], Tasks
   [S-780]). One full-width list row, built only by `AddFooterRow`: a plus glyph and the secondary
   Body line ("Add a habit", "Add a task"), the list's own row height (compact with the rows) and
@@ -4139,49 +4145,41 @@ plots and how it is coloured. Layout is the SDK's `MeterFace` (tests `MeterFaceT
   on the first level. The kind's own lines (a drive, a host, adapters) stand on the first level,
   after Appearance; CPU, memory, battery and network have none.
 - **[S-1123]** Pressure colours, as the original: usage accent < 70 %, caution 70–89 %, critical
-  ≥ 90 % (CPU, memory); a battery success > 50 %, caution 21–50 %, critical ≤ 20 %,
-  accent while charging. Compared in whole percent. They colour the chart (and the battery glyph) —
-  never the reading, which stays primary text.
+  ≥ 90 % (CPU, memory); a battery accent > 50 %, caution 21–50 %, critical ≤ 20 %, accent while
+  charging (no success green, [S-6706]; `MeterPlan.Role`). Compared in whole percent. They colour the
+  chart (and the battery glyph before the reading: Caution or Critical, else secondary) — never the
+  reading, which stays primary text.
 - **[S-1124]** A share is charted against 100 %. A rate (network) is charted against the peak of
   the samples on screen, floor 1 KB/s — not the session's all-time peak, which let one burst
   flatten the trace for the rest of the session. Disk throughput rounds that top up ([S-1821]).
 - **[S-1125]** Performance counters go through one AOT-safe `PdhQuery` (English counter paths,
   `SafeHandle`-owned query, every counter closed with it). The GPU sampler uses it too.
-- **[S-1126]** The chart (`SparkBand`) draws one or two series: the first filled, the second a
-  thinner line (upload, writes). The battery draws its history when Show history is on (the first
-  port ignored the setting).
+- **[S-1126]** The chart (`SparkBand`, on the Chart block's `ChartSeries`, [S-6717]) draws one or two
+  series: the first a line at 2 in its role over a 16 % wash, the second a line at 2 in the tertiary
+  role (upload, writes, kernel time). The battery draws its history when Show history is on.
 - [S-1130], [S-6315], [S-6316]: moved with the Memory widget into its module's `SPEC.md` (`src/Widgets/Themia.Widget.Memory/`).
 - **[S-1762]** **A system meter shows its label, its reading and its history — nothing else** (user
-  requirement): the card's header is the label (a drive's or a host's name where the kind knows
-  one), the reading is the number (the battery's glyph before it, [S-1187]), the history is the
+  requirement): the card's header is the label (a drive's, a host's or an adapter's name where the kind
+  knows one), the reading is the number (the battery's glyph before it, [S-1187]), the history is the
   chart. No caption, detail lines, stat tiles, scale line, usage / composition bar, per-core strip
-  or breakdown list; the settings that only switched those are gone with them, and so is the code
-  that read their data (sensor polls, the process walk, page-file and cache counters, IOPS, the
-  battery device, Wi-Fi name and public address). Why a reading is unavailable is its tooltip.
-  The ladder (`MeterFace.Plan`, shared by `MeterView` and each GPU panel): a tile Compact both ways
-  is the reading alone, filling it; a Wide strip at least Expanded wide puts the reading in a column
-  on the left (35–50 % of the width) and the history the full height on the right; everything else
-  stacks the reading over the history, which is promised half the height (never under 24 px), the
-  reading the shared hero readout ([S-667]: the number, its unit smaller; the battery's glyph as
-  its icon) at the tier's step ([S-3860]) in what is left, and the history taking every pixel
-  the reading does not — no empty space at L or XL. With Show history off the reading fills the
-  tile, grown past Display as the weather's is. This is the **Graph** style; the other styles of a
-  meter ([S-6300]) draw the same reading with another part beside it (a gauge, the cores, a
-  used/free bar, the engines), chosen by the user, never added to the Graph style.
+  or breakdown list. Why a reading is unavailable is its tooltip. The face is built from the family's
+  blocks (`MeterView`, rules `MeterPlan`, tests `MeterPlanTests`): the reading is a Readout at the
+  view's top, start-aligned in the 16 inset, on the step its widest case takes in the area (28 at XS
+  and S, 40 at M, Wide and Tall, 68 at L and XL, [S-6702]); the history runs from 8 under it to the
+  card's foot ([S-1824]), shown when it is at least 24 tall. A larger tile is a longer chart, never a
+  bigger number ([S-666]); with Show history off the reading stands alone at its step. This is the
+  **Graph** style; the other styles of a meter ([S-6300]) draw the same reading with another part
+  under it, chosen by the user, never added to the Graph style.
 - **[S-1823]** *(Retired: the debug widget gallery and its fixtures are gone, [S-1863].)*
 - **[S-1824]** The history is the card's bottom band, edge to edge (user decision 2026-10-11): no
-  inset at its left, right or under it; beside the reading on a strip it fills the rest of the
-  width and the whole height, the reading column's own inset separating the two. `MeterFace.Plan`
-  spends no inset on the history; only the reading keeps the content inset (16). The card's
-  rounded corners clip the band. The trace is still kept half a stroke inside the chart's width
-  (`Sparkline.PlotX`), so the newest sample's stroke is not cut in half at the right edge. Every
-  meter and every GPU panel draws it this way.
+  inset at its left, right or under it, from 8 under the reading to the card's foot
+  (`MeterPlan.Band`). Only the reading keeps the content inset (16). The card's rounded corners clip
+  the band. The trace is kept half a stroke inside the band's width and height (`ChartRules.Y`), so
+  the newest sample's stroke is not cut in half at an edge.
 - **[S-1825]** A window still filling stays right-aligned, as Task Manager draws it: the trace grows
-  in from the right, one slot per sample, over a hairline baseline that spans the whole chart from
-  the first frame, so a young meter reads as a chart with little history, not an empty hole. The
-  shared ticker keeps whole-second cadences under a minute (`TickSchedule.Normalise`; it used to
-  collapse them all to one second), so a meter set to 5 s samples every 5 s and its chart spans
-  its configured span.
+  in from the right, one slot per sample. The shared ticker keeps whole-second cadences under a
+  minute (`TickSchedule.Normalise`; it used to collapse them all to one second), so a meter set to
+  5 s samples every 5 s and its chart spans its configured span.
 - **[S-1826]** *(Retired by [S-6330]: the history no longer scrolls between points; it steps once per finished slot, [S-6331].)*
 - **[S-1827]** *(Retired by [S-6330]: every drawing is settled, so there is no slide for a point to start.)*
 - **[S-1828]** *(Retired by [S-6330]: nothing slides, whatever Windows' animation effects say; there is no Smooth value changes switch.)*
@@ -4240,39 +4238,36 @@ plots and how it is coloured. Layout is the SDK's `MeterFace` (tests `MeterFaceT
   it holds, so Top processes at Fit (every process a row) fills its rows in place when a process
   starts or exits instead of laying the whole tile out, and the rows reused by position that show
   the same process are not touched ([S-6332]).
-- **[S-6300]** **Meter styles** ([S-6000]): a meter's style says what stands beside its reading
-  (`MeterLook`: the history, a gauge, the kind's items as columns, rows or tiles); the reading is the
-  same hero readout in every style. One shared set of parts draws them for every meter
-  (`Widgets/MeterLookParts.cs`: `GaugeDial`, `BarList`, `TileGrid`, `MeterBrushes`; rules in Core
-  `MeterLooks.cs`, tests `MeterStylesTests`), so a CPU gauge and a memory gauge of one size are one
-  gauge. A kind's items come from the hub like its reading (`MeterPart.WatchItems`, [S-2500]): one
-  read per tick for every widget, watched only while a style draws them and let go when another
-  style is chosen ([S-6005]). Show history and Chart span stay the Graph style's settings. Debug:
-  `--state sample` draws a fixed 62 % reading and the kind's fixed items in every style.
-- **[S-6301]** An item's shade (`LoadTint`): the usage pressure colour ([S-1123]) at an opacity
-  rising from 0.22 at idle to 1 at full load, so tiles read as a heat map in the theme's accent,
-  caution and critical colours; an item with no reading is the disabled fill, never "idle".
-- **[S-6302]** **Gauge**: a half-circle over the top, left end 0 %, right end 100 %, its track the
-  progress track ([S-837]) and its arc the reading's share in the pressure colour, round-capped
-  (`GaugeLayout.Fit`: the largest half-circle in the content box, stroke 12 % of the radius, 4–16;
-  under a radius of 28 the tile is the reading alone). The reading sits in the bowl, its line on the
-  gauge's bottom edge, at the largest step (Body to Display, then grown up to 1.5 × Display) whose
-  widest reading fits the bowl's chord at the top of its glyphs. Room at L/XL is a larger gauge and a larger number, nothing else.
-- **[S-6303]** **Columns** (`BarList` Columns): one vertical bar per item filling from the bottom,
-  across the content width under the reading (beside it on a wide strip, the history's place,
-  [S-1762]) and inside the content inset (bars are not a trace: [S-1824] is the history's), the
-  track the progress track at the history wash's faintness so the loads lead. Gaps
-  4, then 2, 1, 0 as the items crowd, a bar never narrower than twice its gap (`BarLayout.Columns`).
-- **[S-6304]** **Rows** (`BarList` Rows): per item its label and value on a line, the bar under it
-  filling from the left; every row at the largest label step (Caption, Body, BodyLarge) and the
-  thickest bar (4 to 12, at most half the label's line) that let all rows fit, a step taken only
-  when the widest line (label and value) fits the width; when even the smallest rows do not fit,
-  rows are shed from the end (`BarLayout.Rows`). The rows stand right under the reading (centred
-  beside it on a strip); what they leave below is air, not a gap between a number and its bar.
-- **[S-6305]** **Tiles** (`TileGrid`): one tile per item filling the history's room in the grid whose
-  tiles are the largest and squarest, unless one with tiles at least 80 % that size leaves fewer
-  holes (16 cores as 4 × 4, not 6 + 6 + 4; `BarLayout.Tiles`), gaps 4, 2, 1, each shaded by its
-  load ([S-6301]).
+- **[S-6300]** **Meter styles** ([S-6000]): a meter's style says what stands under its reading
+  (`MeterLook`: the history, a gauge, the kind's items as columns, rows, rings or graphs, the battery,
+  a ring, the signal bars, two readings); the reading is the same Readout in every style. The parts are
+  the family's Chart and Row blocks ([S-6711], [S-6717]), laid out by `MeterPlan` (tests
+  `MeterPlanTests`), so a CPU gauge and a memory gauge of one size are one gauge; each stands 8 under
+  the reading, inside the content inset. A kind's items come from the hub like its reading
+  (`MeterPart.WatchItems`, [S-2500]): one read per tick for every widget, watched only while a style
+  draws them and let go when another style is chosen ([S-6005]). Show history and Chart span stay
+  the Graph style's settings. Debug: `--state sample` draws the kind's fixed reading and items in
+  every style.
+- **[S-6301]** An item's role: the usage pressure's ([S-1123]: the accent, Caution from 70 %, Critical
+  from 90 %); an item with no reading is the disabled role, never "idle". The heat-map shades
+  (`LoadTint`) are gone with the tiles ([S-6305]).
+- **[S-6302]** **Gauge**: the Chart block's ring, its upper half (`ChartRing` half: from nine o'clock
+  over the top to three, stroke 2, the track in the Track role, the arc the reading's share in its role,
+  round caps), as wide as the content while its half and a stroke fit the height, start-aligned
+  (`MeterPlan.Gauge`; under 48 the reading stands alone). The reading stands centred on the gauge's foot
+  on the Readout step its widest case takes in the bowl (its width less 24 a side, its height less 8),
+  capped by the area as every reading ([S-6702]).
+- **[S-6303]** **Columns**: one column per item, the Chart block's 4 track standing up (`ChartBar`
+  vertical, round, the track in the Track role, the fill from its foot in the item's role), each centred
+  in an equal share of the content width, from 8 under the reading to the foot's inset; not drawn when
+  the room is under 16 or a share under 8 (`MeterPlan.Columns`).
+- **[S-6304]** **Rows**: per item a fact row ([S-6711]: the label secondary, the value primary and
+  end-aligned) whose inline meter (`ChartBar`) takes all the room between them, the label at most half
+  the content; whole 32 rows from 8 under the reading, the rest shed from the end (`MeterPlan.Rows`).
+- **[S-6305]** **Rings** (the Grid style): one Chart ring per item (stroke 2, its share in the item's
+  role), in the grid of square cells 8 apart whose ring is largest in the room under the reading and
+  holds every item (16 cores as 4 × 4 or 8 × 2 by the room); not drawn when a ring would be under 16
+  (`MeterPlan.Rings`).
 - Not ported / different: the original's `visibleMetrics` multi-select and everything it switched
   (removed by [S-1762]). The audit's `MeterLadder` was not built: `MeterFace` and `Disclosure` are
   the ladders.
@@ -4688,9 +4683,10 @@ Countdown C-61 keep-open (above).
   [S-2513]) plus the slide's lead on a 24-DIP tile (`CoreHistory.CapacityFor`), and nothing while no
   widget shows the style. Cost: a minute on 16 cores is about 4 KB, an hour on 32 cores about 470 KB.
   A read with another number of processors starts it again; a shorter span keeps the newest.
-- **[S-6319]** A tile's figure takes the largest step (Caption, Body, BodyLarge, Subtitle) whose line
-  is at most 40 % of the tile's height and whose widest figure ("100%") fits inside a 4-DIP inset;
-  a smaller tile is its history alone (`CoreGraphLayout.Tile`). Room at L/XL is a larger figure.
+- **[S-6319]** A core's graph: its history (the main graph's band, stepping as it does, [S-6331]) in its
+  load's role, under its load in Caption (primary) 4 above it where the cell is at least 36 tall; the
+  cells 8 apart in the grid whose cells come closest to half again as wide as tall, at least 32 wide and
+  16 tall, else none (`MeterPlan.Graphs`). Room at L and XL is larger cells, never a larger figure.
 - The original's per-core grid is the Core grid style ([S-6313]).
 
 ## Displays (WP2)
@@ -4865,11 +4861,12 @@ they show the label, the reading and the history only ([S-1762]).
   not available (a missed ping); every other unavailable reading carries none.
 - **[S-1169]** *(Retired: the debug widget gallery and its fixtures are gone, [S-1863].)*
 - **[S-1170]** Ping status: Checking… until the first probe returns, then Online / Offline from the
-  last probe. A dot at the right of the header carries it in the success / critical / tertiary
-  colour; its tooltip says it in words, and so does a dimmed reading's.
+  last probe. Offline is the header's problem glyph (the caution warning, [S-6710]) at its right, its
+  tooltip saying it in words; Online and Checking show nothing there (no success green, [S-6706]); a
+  dimmed reading's tooltip says it too.
 - **[S-1172]** The ping chart is latency against the window's slowest answer (floor 1 ms); an
-  unanswered probe is a dimmed "--" that plots on the baseline. Online colours the chart success,
-  offline critical.
+  unanswered probe is a dimmed "--" that plots on the baseline. Online draws the chart in the accent,
+  offline in the critical role ([S-1123]).
 - **[S-1173]** *(Retired by [S-3791]: no `HostLabel`. The header title is the host; a name for it is
   the card's own title.)*
 - [S-1174], [S-1175]: moved with the Ping widget into its module's `SPEC.md` (`src/Widgets/Themia.Widget.Ping/`).
@@ -5228,7 +5225,9 @@ Package SYS-P3. Both meters are modules (`src/Widgets/Themia.Widget.Battery`, `.
   usable percentage; 255 is "unknown", not "none"); a machine with no battery shows an empty state.
 - **[S-1186]** *(Retired: the debug widget gallery and its fixtures are gone, [S-1863].)*
 - **[S-1187]** The battery reading leads with the Segoe Fluent battery glyph filled to the nearest
-  tenth, with a bolt while charging, in the pressure colour (`MeterPart.Badge`).
+  tenth, with a bolt while charging (`MeterPart.Badge`), at the reading's step in the secondary role,
+  Caution or Critical while the charge is ([S-1123]); the Battery and Ring styles draw the charge
+  themselves and have no badge.
 - **[S-1190]** Network throughput is per adapter (`ThroughputTracker`): a counter that falls is that
   adapter's reset (reads 0 once, re-baselines) and no longer zeroes every other adapter's traffic;
   a new adapter starts from a baseline. Read by the hub once per tick for every tile ([S-2501]).
@@ -5244,35 +5243,33 @@ Package SYS-P3. Both meters are modules (`src/Widgets/Themia.Widget.Battery`, `.
 
 ### The network, disk, battery and ping styles
 
-Styles ([S-6000]) of the I/O meters, on the shared `MeterView` (`MeterLook`, [S-6300]): a look that
-draws the reading itself is a `MeterStyleFace` (the SDK's `Widgets/Meters/MeterStyleFace.cs`,
-`MeterView.Faces.cs`); its rules are the SDK's `MeterStyleFaces.cs`. The hub, the series and their
-history are the same in every style. Tests `IoStylesTests` (`S626x_`, `S627x_`).
+Styles ([S-6000]) of the I/O meters, on the shared `MeterView` (`MeterLook`, [S-6300]), each the
+Readout and a part of the family's Chart block under it, laid out by `MeterPlan`. The hub, the series
+and their history are the same in every style. Tests `MeterPlanTests`, `IoStylesTests` (`S626x_`, `S627x_`).
 
-- **[S-6261]** A picture style (the battery, the signal bars) is the picture and the figure: the figure
-  at the tier's step ([S-3860]) on the line under the picture, beside it on a wide strip (at most 45 %
-  of the width), the picture as large as the rest allows at its own aspect (`PictureFace`); a picture
-  under 20 DIPs is not drawn and the figure stands alone.
-- **[S-6262]** **Battery** (battery): a battery drawn as Windows' battery glyph is: a rounded body
-  twice as wide as tall, a cap at its right (a tenth of its height wide, two fifths tall, centred), a
-  secondary-colour outline and, inside it clear of the outline, a fill from the left to the charge in
-  the charge's pressure colour ([S-1187]); any charge above 0 is at least a stroke wide. While
-  charging the lightning bolt stands in the middle of the fill box (`BatteryShape`).
-- **[S-6263]** **Signal bars** (ping): four bars rising left to right on one baseline, as Windows'
-  Wi-Fi signal, as many lit in the status colour ([S-1170]) as the last answer earns: up to 50 ms 4
-  bars, up to 100 ms 3, up to 200 ms 2, slower 1, an unanswered probe or none yet 0
-  (`PingSignal.Thresholds`); the rest are the track. The latency is the figure.
-- **[S-6264]** **Numbers** (network): download and upload, each behind its arrow in the meter's
-  colour, both at one step, as large as the tile allows (to Display and grown past it as a lone
-  reading, [S-1762]), stacked or side by side, whichever draws them larger, a tie stacked
-  (`MeterNumbers`). No history.
+- **[S-6261]** A picture style (the battery, the signal bars) is the reading at the top on its step and
+  the picture 8 under it, start-aligned, as large as the rest of the content allows at its own aspect;
+  a picture under 16 is not drawn and the reading stands alone (`MeterPlan.Battery`, `MeterPlan.Signal`).
+- **[S-6262]** **Battery** (battery): a battery drawn as Windows' battery glyph is: a body twice as wide
+  as tall with an outline of 2 in the secondary role and the one radius, a 4-wide round cap at its right
+  (two fifths of its height, centred), and, 4 inside the outline, a fill from the left to the charge in
+  its role ([S-1123]). While charging the bolt (16, 32 or 48: the largest within three quarters of the
+  fill's room) stands in the middle of the body. Not on this PC: outline and fill disabled, at the middle.
+- **[S-6263]** **Signal bars** (ping): four bars 4 apart rising left to right on one line, as Windows'
+  Wi-Fi signal (a box a quarter wider than tall, as tall as the room under the reading; the one radius,
+  round when a bar is narrower than 8), as many in the reading's role (the accent, Caution, Critical) as
+  the last answer earns: up to 50 ms 4 bars, up to 100 ms 3, up to 200 ms 2, slower 1, an unanswered
+  probe or none yet 0 (`PingSignal.Thresholds`); the rest the Track role. The latency is the reading.
+- **[S-6264]** **Numbers** (network): download and upload, two Readouts each behind its arrow (the lead
+  glyph, secondary), on the one step the widest takes in its half: side by side in two columns 12 apart
+  on an expanded width, else one over the other 8 apart (`MeterPlan.Numbers`). No history.
 - **[S-6265]** **Bars** (disk): the total rate as the reading, and under it a labelled row for reads
   and one for writes ("Read  42 MB/s"), each with a bar (the shared bar rows, [S-6304]).
-- **[S-6266]** **Ring** (battery): a ring of the charge in its colour (the shared `RingPart`,
-  [S-6060]), as large as the tile allows, the figure in its hole at the largest step a chord through
-  it takes (`RingFace.Figure`). A ring face with lines (the drive's, [S-6274]) puts them beside the
-  ring on a wide strip when 120 DIPs are left for them, else under it, each only where it fits whole;
-  the ring keeps at least 48 DIPs.
+- **[S-6266]** **Ring** (battery): the Chart block's ring of the charge in its role, as large as the
+  content's short side, start-aligned, the reading centred in it on the step its widest case takes in
+  three quarters of the hole's width and half its height (`MeterPlan.Ring`, `RingReading`); under 48
+  the reading stands alone. A ring face with lines (the drive's, [S-6274]) keeps `RingFace` until the
+  drives move onto the blocks (G6).
 - **[S-6267]** Only the graph style draws the history (`GaugeConfig.DrawsHistory`); a styled meter's
   menu offers no Show history switch ([S-1122]), the chart span stays (under Style).
 - [S-6270]: moved with the Network widget into its module's `SPEC.md` (`src/Widgets/Themia.Widget.Network/`).
@@ -5409,18 +5406,23 @@ strings in `Locales/widgets-details`.
   `Detach` ([S-1881]); a parked widget holds none.
 - **[S-2401]** A detail widget reads on the hub's one cadence ([S-2503]); `DetailConfig` has no cadence
   of its own and a stored `intervalSeconds` is not read.
-- **[S-2402]** The ladder (`DetailFace.Plan`): Compact both ways is the hero alone at the tier's step
-  (a list kind: its rows). A Wide strip at least Expanded wide without a list puts the hero in a left
-  column (40 %) and the facts in stat lines beside it. Otherwise one height budget: the hero (the shared
-  readout, [S-667], its caption a Body line under it) is reserved at Subtitle; the facts take whole rows
-  most wanted first, as stat cells or stat lines ([S-3862]); a list takes one whole row at least, or is
-  not shown. The rest is [S-3861]. Costs are line heights of the live ramp.
+- **[S-2402]** The ladder (`DetailFace.Plan`, tests `DetailFaceTests`), on the family's blocks: the
+  figure is a Readout at the view's top, start-aligned, its line under it (Caption under 28, Body under
+  40 and 68) where it fits, on the step its widest case takes (`DetailPart.HeroWorst`): 28, 40, 68 and
+  no larger ([S-6702]). On an expanded width (Wide, L, XL) the figure stands in a column of two fifths
+  of the card and the rows beside it from the top; otherwise the rows start 8 under it. The rows are
+  the facts first (fact rows, [S-3862]), then the list, only whole rows ([S-6712]); a tiny tile is the
+  figure alone, a widget without a figure (Top processes) its list from the top. A larger tile shows
+  more rows, never a larger figure; what they cannot use stays empty ([S-666]).
 - **[S-2403]** A fact Windows does not report on this machine is left out, never "--"; a fact that can be
   read but is not available right now (a lost probe) is a dimmed "--". A thing that is not on the machine
   (no battery, no adapter) is its facts, each "--", dimmed ([S-1942]). Why the hero is dimmed is its tooltip.
-- **[S-2404]** A list is Windows 11 rows in a scroller with the foot fade ([S-1281]) and a focus ring
-  walked by the keyboard lease ([S-800], `ListKeys`): Up/Down, Page, Home/End, Escape; Enter opens where a
-  row opens (a drive). The ring stays on its row's key across reads. Only a list on screen wants keys.
+- **[S-2404]** A list is the family's list rows ([S-6711]: a 16 lead, the name primary, its figure
+  secondary at the end; a second figure on the second line and a detail on the third, as the tier's
+  lines allow, [S-6712]) in a scroller of whole rows with the foot fade ([S-1281]) and the row's focus
+  ring (stroke 2, the accent) walked by the keyboard lease ([S-800], `ListKeys`): Up/Down, Page,
+  Home/End, Escape; Enter opens where a row opens. The ring stays on its row's key across reads. Only
+  a list on screen wants keys.
 - **[S-2405]** CPU details: the effective clock as the hero, "23% utilization" (the CPU meter's own shared
   read) under it; base speed, cores (`GetLogicalProcessorInformationEx`), logical processors, processes,
   threads, handles (`GetPerformanceInfo`), up time, the thermal zone. The header names the processor from

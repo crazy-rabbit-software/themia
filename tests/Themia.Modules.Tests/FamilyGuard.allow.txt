@@ -139,18 +139,6 @@
 1	src/Themia.Sdk.WinUI/Widgets/ConfirmFlyout.cs	colour	Colors.Firebrick
 2	src/Themia.Sdk.WinUI/Widgets/ConfirmFlyout.cs	colour	Colors.White
 1	src/Themia.Sdk.WinUI/Widgets/ConfirmFlyout.cs	size	MaxWidth = 260
-1	src/Themia.Sdk.WinUI/Widgets/CoreGraphGrid.cs	space	new Thickness(0, step.LineHeight + (plan.Inset / 2)
-1	src/Themia.Sdk.WinUI/Widgets/CoreGraphGrid.cs	space	new Thickness(plan.Inset, plan.Inset / 2, plan.Inset, 0)
-1	src/Themia.Sdk.WinUI/Widgets/DetailView.List.cs	brush	SystemFillColorSuccessBrush
-1	src/Themia.Sdk.WinUI/Widgets/DetailView.List.cs	ramp	FluentType.Display
-1	src/Themia.Sdk.WinUI/Widgets/DetailView.List.cs	ramp	FluentType.Hero
-2	src/Themia.Sdk.WinUI/Widgets/DetailView.List.cs	ramp	FluentType.Subtitle
-1	src/Themia.Sdk.WinUI/Widgets/DetailView.List.cs	size	Height = 3
-2	src/Themia.Sdk.WinUI/Widgets/DetailView.List.cs	size	MinHeight = 3
-1	src/Themia.Sdk.WinUI/Widgets/DetailView.List.cs	space	new Thickness(0, 2, 0, 0)
-6	src/Themia.Sdk.WinUI/Widgets/DetailView.cs	ramp	HeroLayout.SideInset
-1	src/Themia.Sdk.WinUI/Widgets/DetailView.cs	ramp	HeroLayout.Split
-3	src/Themia.Sdk.WinUI/Widgets/DetailView.cs	ramp	HeroLayout.TopInset
 1	src/Themia.Sdk.WinUI/Widgets/DriveParts.cs	brush	SolidBackgroundFillColorBaseBrush
 1	src/Themia.Sdk.WinUI/Widgets/DriveParts.cs	type	FontSize = Math.Max(6
 1	src/Themia.Sdk.WinUI/Widgets/DriveParts.cs	type	FontSize = Math.Round(size * 0.8)
@@ -158,25 +146,6 @@
 1	src/Themia.Sdk.WinUI/Widgets/FlipPart.cs	radius	new CornerRadius(Math.Min(Fluent.OverlayRadius, height / 8)
 1	src/Themia.Sdk.WinUI/Widgets/ItemMenu.cs	size	Height = 16
 1	src/Themia.Sdk.WinUI/Widgets/ItemMenu.cs	size	Width = 16
-1	src/Themia.Sdk.WinUI/Widgets/MeterBrushes.cs	brush	SystemFillColorSuccessBrush
-1	src/Themia.Sdk.WinUI/Widgets/MeterLookParts.cs	radius	new CornerRadius(2)
-1	src/Themia.Sdk.WinUI/Widgets/MeterLookParts.cs	radius	new CornerRadius(Math.Min(Fluent.ControlRadius, plan.Thickness / 2)
-1	src/Themia.Sdk.WinUI/Widgets/MeterLookParts.cs	radius	new CornerRadius(shape == BarListShape.Columns ? 2 : Fluent.ControlRadius)
-2	src/Themia.Sdk.WinUI/Widgets/MeterView.Looks.cs	ramp	FluentType.Display
-1	src/Themia.Sdk.WinUI/Widgets/MeterView.Looks.cs	ramp	HeroLayout.Grow
-16	src/Themia.Sdk.WinUI/Widgets/MeterView.Looks.cs	ramp	HeroLayout.SideInset
-5	src/Themia.Sdk.WinUI/Widgets/MeterView.Looks.cs	ramp	HeroLayout.TopInset
-1	src/Themia.Sdk.WinUI/Widgets/MeterView.cs	brush	SystemFillColorSuccessBrush
-6	src/Themia.Sdk.WinUI/Widgets/MeterView.cs	ramp	HeroLayout.SideInset
-1	src/Themia.Sdk.WinUI/Widgets/MeterView.cs	ramp	HeroLayout.Split
-2	src/Themia.Sdk.WinUI/Widgets/MeterView.cs	ramp	HeroLayout.TopInset
-3	src/Themia.Sdk.WinUI/Widgets/Meters/MeterStyleFace.cs	ramp	HeroLayout.SideInset
-1	src/Themia.Sdk.WinUI/Widgets/Meters/MeterStyleFace.cs	ramp	HeroLayout.Split
-1	src/Themia.Sdk.WinUI/Widgets/Meters/MeterStyleFace.cs	ramp	HeroLayout.TierStep
-2	src/Themia.Sdk.WinUI/Widgets/Meters/MeterStyleFace.cs	ramp	HeroLayout.TopInset
-1	src/Themia.Sdk.WinUI/Widgets/Meters/MeterStyleFace.cs	space	new Thickness(0) : new Thickness(0, 0, 0, Fluent.Space3 / 2)
-1	src/Themia.Sdk.WinUI/Widgets/Meters/MeterStyleFace.cs	space	new Thickness(Fluent.Space3, 0, 0, 0) : new Thickness(0, Fluent.Space3 / 2, 0, 0)
-1	src/Themia.Sdk.WinUI/Widgets/Meters/MeterStyleFace.cs	type	FontSize = Math.Max(8
 1	src/Themia.Sdk.WinUI/Widgets/PowerButtonView.cs	brush	AccentFillColorDisabledBrush
 1	src/Themia.Sdk.WinUI/Widgets/PowerButtonView.cs	brush	AccentFillColorSecondaryBrush
 1	src/Themia.Sdk.WinUI/Widgets/PowerButtonView.cs	brush	AccentFillColorTertiaryBrush
@@ -204,8 +173,6 @@
 1	src/Themia.Sdk.WinUI/Widgets/SelectionChrome.cs	brush	SolidBackgroundFillColorBaseBrush
 1	src/Themia.Sdk.WinUI/Widgets/SelectionChrome.cs	colour	Color.FromArgb(
 1	src/Themia.Sdk.WinUI/Widgets/SkyParts.cs	brush	AccentTextFillColorPrimaryBrush
-1	src/Themia.Sdk.WinUI/Widgets/SparkBand.cs	brush	AccentTextFillColorTertiaryBrush
-1	src/Themia.Sdk.WinUI/Widgets/SparkBand.cs	stroke	StrokeThickness = Fluent.ChartStroke / 2
 1	src/Themia.Sdk.WinUI/Widgets/UnavailableLook.cs	brush	AccentFillColorDisabledBrush
 1	src/Themia.Sdk.WinUI/Widgets/UnavailableLook.cs	brush	ControlStrongStrokeColorDisabledBrush
 1	src/Themia.Sdk.WinUI/Widgets/WidgetParts.cs	ramp	FluentType.Subtitle
@@ -349,13 +316,6 @@
 1	src/Widgets/Themia.Widget.Gallery/GalleryView.Layout.cs	brush	ControlAltFillColorSecondaryBrush
 2	src/Widgets/Themia.Widget.Gallery/GalleryView.Layout.cs	colour	Colors.Gray
 1	src/Widgets/Themia.Widget.Gallery/Preview/GalleryView.Preview.cs	colour	"#FFFFFF"
-1	src/Widgets/Themia.Widget.Gpu/GpuView.Looks.cs	ramp	FluentType.Display
-16	src/Widgets/Themia.Widget.Gpu/GpuView.Looks.cs	ramp	HeroLayout.SideInset
-2	src/Widgets/Themia.Widget.Gpu/GpuView.Looks.cs	ramp	HeroLayout.TopInset
-1	src/Widgets/Themia.Widget.Gpu/GpuView.Looks.cs	space	new Thickness(HeroLayout.SideInset, 0, HeroLayout.SideInset, BodyBottom + ((boxHeight - g.Height) / 2)
-6	src/Widgets/Themia.Widget.Gpu/GpuView.Panel.cs	ramp	HeroLayout.SideInset
-1	src/Widgets/Themia.Widget.Gpu/GpuView.Panel.cs	ramp	HeroLayout.Split
-2	src/Widgets/Themia.Widget.Gpu/GpuView.Panel.cs	ramp	HeroLayout.TopInset
 1	src/Widgets/Themia.Widget.HabitTracker/HabitTrackerView.Heatmap.cs	radius	new CornerRadius(Math.Min(Fluent.ControlRadius, plan.Cell / 4)
 1	src/Widgets/Themia.Widget.HabitTracker/HabitTrackerView.Rows.cs	brush	ControlStrongStrokeColorDefaultBrush
 1	src/Widgets/Themia.Widget.HabitTracker/HabitTrackerView.Rows.cs	radius	new CornerRadius(HabitLayout.DotSize / 2)
@@ -393,7 +353,6 @@
 2	src/Widgets/Themia.Widget.Notifications/NotificationsView.cs	size	Height = 24
 2	src/Widgets/Themia.Widget.Notifications/NotificationsView.cs	size	Width = 24
 1	src/Widgets/Themia.Widget.Notifications/NotificationsView.cs	space	new Thickness(0, 2, 0, 0)
-1	src/Widgets/Themia.Widget.Ping/PingMeter.cs	brush	SystemFillColorSuccessBrush
 1	src/Widgets/Themia.Widget.Pomodoro/PomodoroView.cs	brush	AccentTextFillColorPrimaryBrush
 2	src/Widgets/Themia.Widget.Pomodoro/PomodoroView.cs	brush	SystemFillColorSuccessBrush
 1	src/Widgets/Themia.Widget.Pomodoro/PomodoroView.cs	ramp	FluentType.Display

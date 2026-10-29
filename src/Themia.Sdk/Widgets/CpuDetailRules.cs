@@ -35,7 +35,7 @@ public sealed record CpuFigures(
 public static class CpuDetailRules
 {
     /// <summary>The widest hero: "10.00 GHz".</summary>
-    public const double HeroCharacters = 9;
+    public const string HeroWorst = "10.00 GHz";
 
     /// <summary>A thermal zone colder than this, or hotter than <see cref="MaxCelsius"/>, is a bogus sensor.</summary>
     public const double MinCelsius = 1;

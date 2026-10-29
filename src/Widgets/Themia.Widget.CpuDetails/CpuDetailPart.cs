@@ -22,7 +22,7 @@ internal sealed class CpuDetailPart : DetailPart
 
     public override WidgetId Kind => new WidgetId("cpuDetails");
 
-    public override double HeroCharacters => CpuDetailRules.HeroCharacters;
+    public override string HeroWorst => CpuDetailRules.HeroWorst;
 
     public override void Watch(ISystemFeeds hub, WidgetConfig config, IDetailHost host)
     {

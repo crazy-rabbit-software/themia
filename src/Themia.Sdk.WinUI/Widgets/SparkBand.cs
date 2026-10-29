@@ -1,31 +1,22 @@
-using Microsoft.UI;
 using Microsoft.UI.Xaml.Controls;
-using Microsoft.UI.Xaml.Media;
-using Microsoft.UI.Xaml.Shapes;
-using Themia.App.Shell;
 using Themia.Core.SystemData;
 using Themia.Core.Widgets;
-using Themia.Sdk.WinUI;
-using Windows.Foundation;
+using Themia.Sdk.Kit;
+using Themia.Sdk.WinUI.Kit;
 
 namespace Themia.App.Widgets;
 
 /// <summary>
-/// The one sparkline every meter draws: a translucent area under a 2px line, newest sample at the
-/// right edge, on a fixed-slot x-axis so the trace grows in from the right instead of rescaling
-/// while the buffer fills (Task Manager's convention, [S-1825]). A hairline baseline spans the whole
-/// width from the first frame, so a window still filling reads as a chart with little history yet,
-/// not as an empty hole under the reading.
+/// The one history every meter draws, on the Chart block ([S-6717]): a <see cref="ChartSeries"/>,
+/// the reading's line at 2 in its role over a 16 % wash, a second series in the tertiary role, the
+/// newest sample at the right edge, on a fixed-slot x-axis so the trace grows in from the right
+/// instead of rescaling while the buffer fills (Task Manager's convention, [S-1825]).
 /// <para>
-/// [S-1126] Up to two series — download and upload, reads and writes — the first filled, the second
-/// a line over it. It holds <see cref="Capacity"/> samples (the span setting at the source's spacing)
-/// and, when its width has fewer slots than that, folds neighbouring samples into one slot
-/// (<see cref="MeterTiming.Fold"/>: the mean of a share, the peak of a rate), so the whole span is
-/// always on screen, against a <see cref="ChartScale"/>: 100% for a share, the visible peak for a rate.
-/// </para>
-/// <para>
-/// One element for every chart in the app (the meters and the GPU tile) so they read as one family
-/// and there is one drawing path to get right.
+/// [S-1126] Up to two series (download and upload, reads and writes). It holds <see cref="Capacity"/>
+/// samples (the span setting at the source's spacing) and, when its width has fewer slots than that,
+/// folds neighbouring samples into one slot (<see cref="MeterTiming.Fold"/>: the mean of a share, the
+/// peak of a rate), so the whole span is always on screen, against a <see cref="ChartScale"/>: 100 %
+/// for a share, the visible peak for a rate.
 /// </para>
 /// <para>
 /// [S-6330] [S-6331] It steps, it does not move: a new point draws the chart once, settled, the
@@ -36,16 +27,9 @@ namespace Themia.App.Widgets;
 /// </summary>
 public sealed partial class SparkBand : Grid
 {
-    private readonly Polygon _fill = new();
-    private readonly Polyline _line = new();
-    private readonly Polyline _secondLine = new();
-    private readonly Rectangle _baseline = new() { Height = 1, VerticalAlignment = Microsoft.UI.Xaml.VerticalAlignment.Bottom };
+    private readonly ChartSeries _series = new();
     private readonly Queue<double> _first;
     private readonly Queue<double> _second;
-    // The traces, over the baseline. A Canvas, not a Grid: the shapes keep their own coordinates
-    // and the band's clip is the one edge.
-    private readonly Canvas _plot = new();
-    private readonly RectangleGeometry _clip = new();
     private int _capacity;
     private long _added;
     private ChartScale _scale;
@@ -62,40 +46,9 @@ public sealed partial class SparkBand : Grid
 
         // [S-1113] Time runs left to right in every language: newest at the right edge.
         FlowDirection = Microsoft.UI.Xaml.FlowDirection.LeftToRight;
-
-        var accent = ThemeBrush.Of("AccentFillColorDefaultBrush", Colors.DodgerBlue);
-
-        // The wash is the stroke's colour at low alpha, applied to the shape and never to the shared
-        // brush, which every other accent surface in the app also paints with.
-        _fill.Fill = accent;
-        _fill.Opacity = Fluent.ChartWash;
-        _fill.Stretch = Stretch.None;
-
-        _line.Stroke = accent;
-        _line.StrokeThickness = Fluent.ChartStroke;
-        _line.StrokeLineJoin = PenLineJoin.Round;
-        _line.Stretch = Stretch.None;
-
-        // The second series is a line only: two washes over each other turn into one muddy area.
-        _secondLine.Stroke = ThemeBrush.Of("AccentTextFillColorTertiaryBrush", Colors.SkyBlue);
-        _secondLine.StrokeThickness = Fluent.ChartStroke / 2;
-        _secondLine.StrokeLineJoin = PenLineJoin.Round;
-        _secondLine.Stretch = Stretch.None;
-
-        _baseline.Fill = ThemeBrush.Of("DividerStrokeColorDefaultBrush", Colors.Gray);
-
         IsHitTestVisible = false;
-        Clip = _clip;
-        _plot.Children.Add(_fill);
-        _plot.Children.Add(_line);
-        _plot.Children.Add(_secondLine);
-        Children.Add(_baseline);
-        Children.Add(_plot);
-        SizeChanged += (_, e) =>
-        {
-            _clip.Rect = new Rect(0, 0, e.NewSize.Width, e.NewSize.Height);
-            Redraw();
-        };
+        Children.Add(_series);
+        SizeChanged += (_, _) => Redraw();
         RegisterPropertyChangedCallback(VisibilityProperty, (_, _) =>
         {
             if (_stale && Shown)
@@ -149,20 +102,8 @@ public sealed partial class SparkBand : Grid
         }
     }
 
-    /// <summary>Paint the first series in another colour — a pressure colour, for instance.</summary>
-    public void SetBrush(Brush brush)
-    {
-        if (ReferenceEquals(_line.Stroke, brush))
-        {
-            return;
-        }
-
-        _line.Stroke = brush;
-        _fill.Fill = brush;
-    }
-
-    /// <summary>Paint the second series in another colour.</summary>
-    public void SetSecondBrush(Brush brush) => _secondLine.Stroke = brush;
+    /// <summary>[S-6717] The first series' role: the accent, or Caution/Critical over its threshold, disabled for a thing not on this PC.</summary>
+    public void Role(ColourRole role) => _series.Role(role);
 
     /// <summary>
     /// Add a sample: the first series in the chart's terms (0..1 on a share chart, a value on a
@@ -249,7 +190,7 @@ public sealed partial class SparkBand : Grid
 
         if (width <= 0 || height <= 0 || _first.Count < 2)
         {
-            ClearTraces();
+            _series.Show(Array.Empty<ChartPoint>(), null);
             return;
         }
 
@@ -260,76 +201,39 @@ public sealed partial class SparkBand : Grid
         var first = MeterTiming.Fold(_first.ToArray(), _added, size, _scale.FollowsWindow).AsSpan();
         var second = MeterTiming.Fold(_second.ToArray(), _added, size, _scale.FollowsWindow).AsSpan();
 
-        // [S-1824] Inset by the stroke on every side, so 0%, 100% and the newest sample are never
-        // clipped in half at the chart's edge.
-        var inset = _line.StrokeThickness;
-        var usable = Math.Max(1, height - inset);
-
         // [S-6331] Each finished slot's x, the newest on the right edge; older than the window is left out.
-        var (skip, xs) = SparkSlots.Layout(first.Length, _added, size, window, width, inset);
+        // [S-1824] Inset by the stroke at the sides, so the newest sample is never cut in half at the edge.
+        var (skip, xs) = SparkSlots.Layout(first.Length, _added, size, window, width, FamilyShape.Stroke);
+
         // [S-1829] A slot still filling is not among them.
-        if (skip + xs.Length > first.Length || skip + xs.Length > second.Length)
+        if (skip + xs.Length > first.Length || skip + xs.Length > second.Length || xs.Length < 2)
         {
-            ClearTraces();
+            _series.Show(Array.Empty<ChartPoint>(), null);
             return;
         }
 
         first = first.Slice(skip, xs.Length);
         second = second.Slice(skip, xs.Length);
 
-        if (first.Length < 2)
-        {
-            ClearTraces();
-            return;
-        }
-
         // [S-1124] The scale is the drawn slots'.
         var ceiling = _scale.Ceiling(first, second);
-
-        var line = Trace(first, xs, ceiling, inset, usable);
-        if (line.Count == 0)
-        {
-            ClearTraces();
-            return;
-        }
-
-        var fill = new PointCollection { new(line[0].X, height) };
-        foreach (var point in line)
-        {
-            fill.Add(point);
-        }
-
-        fill.Add(new Point(line[^1].X, height));
-
-        _line.Points = line;
-        _fill.Points = fill;
-        _secondLine.Points = Trace(second, xs, ceiling, inset, usable);
+        _series.Show(Trace(first, xs, ceiling, height), Trace(second, xs, ceiling, height));
     }
 
-    private void ClearTraces()
+    /// <summary>A series as the Chart block's points, at the slots' x; gaps are skipped.</summary>
+    private static ChartPoint[] Trace(ReadOnlySpan<double> samples, double[] xs, double ceiling, double height)
     {
-        _line.Points.Clear();
-        _fill.Points.Clear();
-        _secondLine.Points.Clear();
-    }
-
-    /// <summary>A series as points, at the slots' x from <see cref="SparkSlots.Layout"/>; gaps are skipped.</summary>
-    private static PointCollection Trace(ReadOnlySpan<double> samples, double[] xs, double ceiling, double inset, double usable)
-    {
-        var points = new PointCollection();
+        var points = new List<ChartPoint>(samples.Length);
 
         for (var i = 0; i < samples.Length && i < xs.Length; i++)
         {
             var fraction = ChartScale.Fraction(samples[i], ceiling);
-            if (double.IsNaN(fraction))
+            if (!double.IsNaN(fraction))
             {
-                continue;
+                points.Add(new ChartPoint(xs[i], ChartRules.Y(fraction, height)));
             }
-
-            var y = (inset / 2) + (Sparkline.SampleY(fraction) * usable);
-            points.Add(new Point(xs[i], y));
         }
 
-        return points;
+        return [.. points];
     }
 }

@@ -27,10 +27,6 @@ internal sealed class MemoryMeter : MeterPart
     public override MeterItemsWatch? WatchItems(ISystemFeeds hub, Action<IReadOnlyList<MeterItem>> onItems)
         => MeterItemsWatch.Of(hub, Sources.Memory, snapshot => snapshot is { } s ? Items(s) : [], onItems);
 
-    /// <summary>[S-6304] The widest line: both sizes at their longest ("1023.9 GB").</summary>
-    public override double ItemLineCharacters
-        => MemoryStr.Styles_Memory_Used.Format(("size", "1023.9 GB")).Length + MemoryStr.Styles_Memory_Free.Format(("size", "1023.9 GB")).Length;
-
     /// <summary>Ten of sixteen gigabytes in use.</summary>
     public override IReadOnlyList<MeterItem> SampleItems => Items(new MemorySnapshot(16UL << 30, 6UL << 30));
 

@@ -10,14 +10,15 @@ the busiest engine, [S-435] NVML, [S-6322] the engines, `GpuRules`), the adapter
 
 Owning files: everything in this folder: `GpuModule.cs` (descriptor, view factory, menu lines,
 JSON context), `GpuConfig.cs` (with its styles, its adapter and what it asks the hub, `IReadsSystem`),
-`GpuView.cs` with `GpuView.Panel.cs` (the adapter's tile: its series through `IWidgetHost.System`, the
-meter face) and `GpuView.Looks.cs` (the engines' rows and the gauge), `GpuMenu.cs` (its properties menu: the
-adapter, then the span every meter has), `Preview/` (Debug renders: `--state history|sample`),
+`GpuMeter.cs` (its half of the shared `MeterView`, as every meter: the adapter's series, its name and
+whether it is there from the GPU feed's snapshots, the engines as items, the look per style, the debug
+sample and the absent stand-in), `GpuMenu.cs` (its properties menu: the adapter, then the span every
+meter has),
 `Localization/Locales/` (its own `GpuStr`, 30 languages, its style names included). Tests:
 `Tests/GpuTests.cs` (run by `tests/Themia.Modules.Tests`).
 
-- **[S-432]** Pressure colours the trace, never the number: high from 70% load, critical from 90%
-  (theme caution and critical brushes).
+- **[S-432]** Pressure colours the trace, never the number: Caution from 70% load, Critical from 90%,
+  the accent below ([S-1123]).
 - **[S-433]** One adapter per widget (user decision; a laptop's two GPUs are two widgets):
   `GpuConfig.Adapter`, a DXGI position (software adapters left out). DXGI lists the adapter driving
   the primary display first, so the default 0 is that one, else the first; a negative position is
@@ -30,14 +31,15 @@ adapter, then the span every meter has), `Preview/` (Debug renders: `--state his
   watches that adapter's own series, so its history is its own.
 - **[S-6320]** GPU styles, `GpuConfig.Style` (`GpuStyle`): **Graph** ([S-430]), **Engines**
   ([S-6322]), **Gauge** ([S-6321]).
-- **[S-6321]** The tile lays its style on the meters' ladder with the meters' parts ([S-6300]).
-  Gauge: the load in the bowl ([S-6302]).
-- **[S-1200]** The GPU chart is the meters' `SparkBand` holding `GraphSpanSeconds` one-second points
+- **[S-6321]** The GPU is a meter as the CPU and memory are (`MeterView` with `GpuMeter`, user decision
+  of the family's G1, 2026-10-29): its styles are the meters' looks ([S-6300]): Graph, Engines (the rows,
+  [S-6304]) and Gauge (the load in the bowl, [S-6302]).
+- **[S-1200]** The GPU chart is the meters' history (`SparkBand`) holding `GraphSpanSeconds` one-second points
   (`MeterTiming.Points`, default 1 min), folded to its width ([S-1121]); its options are on the
   properties menu ([S-3719], user request 2026-10-19), no settings page: Appearance, the Adapter
   choice ([S-433]) and under Style in the Graph style the Chart span ([S-1122]). Supersedes the fixed 60-sample band of [S-430].
-- **[S-1201]** The tile is a meter face ([S-1762], `MeterFace.Plan`): the load alone on a tiny tile,
-  else the history under it (beside it on a strip) filling the tile.
+- **[S-1201]** The tile is a meter's face ([S-1762], `MeterPlan`): the load at the top on its Readout
+  step, the history 8 under it to the card's foot.
 
 Needs a manual pass: the meter on a live desktop (a game or a video moving the load, each style, two
 adapters and the choice between them, an eGPU unplugged).

@@ -26,7 +26,7 @@ public readonly record struct PagefileUsage(ulong Total, ulong Used);
 public static class MemoryDetailRules
 {
     /// <summary>"31.7 GB" is 7; "1023.9 MB" the widest a byte figure gets.</summary>
-    public const double HeroCharacters = 9;
+    public const string HeroWorst = "1023.9 MB";
 
     /// <summary>The fixed part of one <c>SYSTEM_PAGEFILE_INFORMATION</c> entry on 64-bit Windows.</summary>
     public const int PagefileEntrySize = 32;

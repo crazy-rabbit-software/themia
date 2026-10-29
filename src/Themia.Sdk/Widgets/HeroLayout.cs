@@ -184,55 +184,7 @@ public static class HeroLayout
         var step = Fit(width, height, valueCharacters, unitCharacters, floor, ceiling);
         return icon ? Fit(width - IconSize(step) - IconGap, height, valueCharacters, unitCharacters, floor, ceiling) : step;
     }
-
-    /// <summary>
-    /// [S-3860] A formatted reading split for the readout: the leading number ("42", "1.2", "4,48")
-    /// and the unit after it ("%", "MB/s", "GHz"), and whether a space stood between them. A text
-    /// that does not start with a figure ("--", a unit written first as Turkish writes "%42", a
-    /// direction mark) is all value and no unit, so nothing is ever reordered or lost.
-    /// </summary>
-    public static HeroText Split(string? text)
-    {
-        if (string.IsNullOrEmpty(text) || !char.IsDigit(text[0]))
-        {
-            return new HeroText(text ?? string.Empty, string.Empty, false);
-        }
-
-        var end = 0;
-
-        // The figure: digits of any script and the separators a number is written with (a decimal
-        // point or comma, the Arabic decimal and thousands marks).
-        while (end < text.Length && (char.IsDigit(text[end]) || IsSeparator(text[end])))
-        {
-            end++;
-        }
-
-        var unitAt = end;
-
-        while (unitAt < text.Length && IsSpace(text[unitAt]))
-        {
-            unitAt++;
-        }
-
-        var unit = text[unitAt..];
-
-        // A second figure after the first ("1 234 ms" grouped with spaces, "3/4") is one number, not a unit.
-        // A figure ending on a separator ("12." then a unit) is not a number this can read.
-        if (unit.Length == 0 || unit.Any(char.IsDigit) || IsSeparator(text[end - 1]))
-        {
-            return new HeroText(text, string.Empty, false);
-        }
-
-        return new HeroText(text[..end], unit, unitAt > end);
-    }
-
-    private static bool IsSeparator(char c) => c is '.' or ',' or '٫' or '٬';
-
-    private static bool IsSpace(char c) => c is ' ' or ' ' or ' ' or ' ';
 }
-
-/// <summary>[S-3860] A reading as the hero readout draws it: the number, the unit after it, and whether a space stood between.</summary>
-public readonly record struct HeroText(string Value, string Unit, bool Spaced);
 
 /// <summary>
 /// [S-3860] The widest reading a hero is laid out for, in characters of each run as the readout
@@ -244,8 +196,7 @@ public readonly record struct HeroBound(double Value, double Unit)
     /// <summary>The bound of a worst-case formatted reading ("100%", "1023 KB/s"), split as the readout splits it.</summary>
     public static HeroBound Of(string worstCase)
     {
-        var text = HeroLayout.Split(worstCase);
-        var unit = text.Unit.Length == 0 ? 0 : text.Unit.Length + (text.Spaced ? 1 : 0);
-        return new HeroBound(text.Value.Length, unit);
+        var text = Themia.Sdk.Kit.ReadoutRules.Split(worstCase);
+        return new HeroBound(text.Value.Length, text.Unit.Length);
     }
 }

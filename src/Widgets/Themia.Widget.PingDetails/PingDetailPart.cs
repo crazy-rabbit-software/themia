@@ -25,7 +25,7 @@ internal sealed class PingDetailPart : DetailPart
 
     public override WidgetId Kind => new WidgetId("pingDetails");
 
-    public override double HeroCharacters => PingDetailRules.HeroCharacters;
+    public override string HeroWorst => PingDetailRules.HeroWorst;
 
     public override void Watch(ISystemFeeds hub, WidgetConfig config, IDetailHost host)
     {

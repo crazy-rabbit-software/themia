@@ -104,20 +104,4 @@ public sealed class CoreGraphsTests
         Assert.Equal(1, history.Count);
     }
 
-    [Fact]
-    public void S6319_a_tile_shows_its_figure_only_where_it_fits_and_a_larger_one_on_a_large_tile()
-    {
-        const double chars = 4; // "100%"
-
-        Assert.Null(CoreGraphLayout.Tile(20, 12, chars).Figure);
-        Assert.Null(CoreGraphLayout.Tile(14, 80, chars).Figure);
-
-        var small = CoreGraphLayout.Tile(60, 45, chars).Figure;
-        Assert.Equal(FluentType.Caption, small);
-
-        var large = CoreGraphLayout.Tile(200, 160, chars).Figure;
-        Assert.NotNull(large);
-        Assert.True(large!.Value.FontSize > FluentType.Caption.FontSize);
-        Assert.True(large.Value.LineHeight <= 160 * CoreGraphLayout.FigureShare);
-    }
 }

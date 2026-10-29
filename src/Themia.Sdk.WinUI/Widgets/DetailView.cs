@@ -1,31 +1,24 @@
-using Microsoft.UI;
-using Microsoft.UI.Text;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
-using Microsoft.UI.Xaml.Media;
 using Themia.App.Services;
-using Themia.App.Shell;
 using Themia.App.Widgets.Details;
 using Themia.Core.Diagnostics;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
-using Themia.Sdk.WinUI;
 using Themia.Sdk;
+using Themia.Sdk.Kit;
+using Themia.Sdk.WinUI;
+using Themia.Sdk.WinUI.Kit;
 
 namespace Themia.App.Widgets;
 
 /// <summary>
-/// [S-2400] The face every system detail widget shares: a hero (the main figure), a caption, the
-/// facts and, for some kinds, a list. Where the figures come from is the kind's
-/// <see cref="DetailPart"/> (<c>Details/&lt;Kind&gt;DetailPart.cs</c>); this file is the layout, so
-/// the detail widgets grow and shrink the same way.
-/// <para>
-/// [S-2402] The ladder is <see cref="DetailFace"/>: a tiny tile is the hero alone; a strip puts the
-/// hero on the left and the facts beside it; otherwise hero, caption and facts stack, the facts
-/// growing from lines into tiles and large tiles when they all fit, and a list takes the rest.
-/// Elements are kept and re-styled between reads, never rebuilt per tick.
-/// </para>
+/// [S-2400] The face every system detail widget shares, built from the family's blocks: a Readout
+/// (the main figure and the line under it), fact rows (the value primary, the name secondary,
+/// [S-6711]) and, for some kinds, a list of rows (processes, adapters). Where the figures come from
+/// is the kind's <see cref="DetailPart"/>; where each goes at each size is <see cref="DetailFace"/>'s.
+/// Elements are kept and re-filled between reads, never rebuilt per tick ([S-6332]).
 /// <para>
 /// [S-2500] The figures are the system hub's: the part watches its feeds from Attach and lets go in
 /// Detach, and the view only lays out the sheets it is handed.
@@ -39,17 +32,10 @@ public sealed partial class DetailView : Grid, IWidgetView, IWidgetSizeAware, IW
     private readonly IWidgetHost _host;
     private readonly WidgetId _kind;
 
-    // [S-3860] The shared hero readout: the main figure with its smaller unit, the caption its line under it.
-    private readonly HeroReadout _heroBlock = new();
-    private readonly TextBlock _caption;
-    private readonly Grid _facts = new();
-    private readonly List<StatPart> _cells = [];
-    private readonly StackPanel _empty;
-    private readonly TextBlock _emptyText = new();
-
-    private readonly Brush _primaryBrush = ThemeBrush.Of("TextFillColorPrimaryBrush", Colors.White);
-    private readonly Brush _disabledBrush = ThemeBrush.Of("TextFillColorDisabledBrush", Colors.Gray);
-    private readonly Brush _labelBrush = ThemeBrush.Of("TextFillColorSecondaryBrush", Colors.Gray);
+    private readonly ReadoutBlock _hero = new() { HorizontalAlignment = HorizontalAlignment.Left, VerticalAlignment = VerticalAlignment.Top };
+    private readonly StackPanel _facts = new() { VerticalAlignment = VerticalAlignment.Top };
+    private readonly List<RowBlock> _factRows = [];
+    private readonly StatusBlock _empty = new() { VerticalAlignment = VerticalAlignment.Top };
 
     private WidgetConfig _config;
     private IWidgetSurface? _surface;
@@ -61,12 +47,6 @@ public sealed partial class DetailView : Grid, IWidgetView, IWidgetSizeAware, IW
     // [S-1881] Until Attach: a parked view watches nothing, whatever config it is handed.
     private bool _detached = true;
 
-    // The longest fact value the plan was made for: a longer one re-plans, so no value is ever cut.
-    private int _valueChars;
-
-    // The hero text last split, so a tick that did not change it does not touch the readout.
-    private string? _heroText;
-
     public DetailView(IWidgetHost host, DetailPart part)
     {
         _host = host;
@@ -75,11 +55,7 @@ public sealed partial class DetailView : Grid, IWidgetView, IWidgetSizeAware, IW
         _part = part;
         _config = WidgetConfig.CreateDefault(_kind);
 
-        _heroBlock.SetValue("--", string.Empty, false);
-        _caption = _heroBlock.AddLine(FluentType.Body);
-        _caption.Visibility = Visibility.Collapsed;
-        _heroBlock.Margin = new Thickness(HeroLayout.SideInset, HeroLayout.TopInset, HeroLayout.SideInset, 0);
-        _facts.Margin = WidgetLayout.SideInset;
+        _hero.Show("--", valueRole: ColourRole.TextDisabled);
 
         RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
         RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
@@ -87,15 +63,14 @@ public sealed partial class DetailView : Grid, IWidgetView, IWidgetSizeAware, IW
         ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
         ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(0) });
 
-        Children.Add(_heroBlock);
+        Children.Add(_hero);
         Children.Add(_facts);
 
         BuildList();
 
-        _empty = Fluent.EmptyState(ModuleCatalog.Of(_kind).Glyph, _emptyText, out _);
         _empty.Visibility = Visibility.Collapsed;
-        SetRowSpan(_empty, 3);
         SetColumnSpan(_empty, 2);
+        SetRowSpan(_empty, 3);
         Children.Add(_empty);
     }
 
@@ -149,7 +124,7 @@ public sealed partial class DetailView : Grid, IWidgetView, IWidgetSizeAware, IW
         }
 
         // [S-6333] A new number of rows lays the tile out only when the plan for it differs.
-        var reshaped = _plan is not { } plan || DetailFace.Relays(_sheet, sheet, _valueChars, plan, PlanFor);
+        var reshaped = _plan is not { } plan || DetailFace.Relays(_sheet, sheet, plan, PlanFor);
 
         _sheet = sheet;
 
@@ -204,127 +179,84 @@ public sealed partial class DetailView : Grid, IWidgetView, IWidgetSizeAware, IW
     }
 
     /// <summary>
-    /// A sheet with nothing but a note (the processes cannot be read) is the empty state; a thing not on
-    /// this machine is not: its sheet is its own facts, dimmed ([S-1942]).
+    /// [S-6714] A sheet with nothing but a note (the processes cannot be read) is the empty state, one
+    /// Status row at the top; a thing not on this machine is not: its sheet is its own facts, disabled ([S-1942]).
     /// </summary>
     private bool ShowsEmpty => _sheet.Hero is null && _sheet.Facts.Count == 0 && _sheet.Rows.Count == 0 && _sheet.Note is not null;
+
+    /// <summary>The figure's widest case, with the line under it when the sheet has one.</summary>
+    private ReadoutText? HeroOf(DetailSheet sheet)
+        => _part.HasHero && sheet.Hero is not null ? ReadoutRules.Split(_part.HeroWorst) with { LineUnder = sheet.Caption is not null } : null;
+
+    /// <summary>[S-2402] The face <paramref name="sheet"/> gets in this tile.</summary>
+    private DetailFacePlan PlanFor(DetailSheet sheet)
+    {
+        var rows = _part.MaxRows > 0 ? Math.Min(_part.MaxRows, sheet.Rows.Count) : sheet.Rows.Count;
+        return DetailFace.Plan(_area, new DetailShape(HeroOf(sheet), sheet.Facts.Count, rows, DetailFace.ListLines(sheet.Rows)));
+    }
 
     /// <summary>[S-2402] Plan the face for the area and the sheet's shape, then fill it.</summary>
     private void Lay()
     {
+        if (!_area.IsMeasured)
+        {
+            return;
+        }
+
         if (ShowsEmpty)
         {
-            _emptyText.Text = _sheet.Note ?? string.Empty;
+            _empty.Show(StatusKind.Empty, ModuleCatalog.Of(_kind).Glyph, _sheet.Note ?? string.Empty);
             _empty.Visibility = Visibility.Visible;
-            _heroBlock.Visibility = Visibility.Collapsed;
+            _hero.Visibility = Visibility.Collapsed;
             _facts.Visibility = Visibility.Collapsed;
-            ShowList(0);
+            ShowList(null);
             _plan = null;
             return;
         }
 
         _empty.Visibility = Visibility.Collapsed;
 
-        var hasHero = _part.HasHero && _sheet.Hero is not null;
-        _valueChars = DetailFace.LongestValue(_sheet);
         var plan = PlanFor(_sheet);
         _plan = plan;
+        var hero = HeroOf(_sheet);
 
-        var side = plan.Arrangement == DetailArrangement.Side;
-        var alone = plan.Arrangement == DetailArrangement.HeroOnly;
+        ColumnDefinitions[0].Width = plan.Side ? new GridLength(plan.HeroColumn) : new GridLength(1, GridUnitType.Star);
+        ColumnDefinitions[1].Width = plan.Side ? new GridLength(1, GridUnitType.Star) : new GridLength(0);
 
-        ColumnDefinitions[0].Width = side ? new GridLength(plan.HeroColumn) : new GridLength(1, GridUnitType.Star);
-        ColumnDefinitions[1].Width = side ? new GridLength(1, GridUnitType.Star) : new GridLength(0);
+        // The figure at the view's top, in the inset (on the side its column holds the inset on its left only).
+        _hero.Visibility = hero is null ? Visibility.Collapsed : Visibility.Visible;
+        SetRowSpan(_hero, plan.Side ? 3 : 1);
+        _hero.Margin = plan.Side ? new Thickness(FamilySpace.Inset, 0, 0, 0) : Family.SideInset;
+        if (hero is { } worst)
+        {
+            var (width, height) = MeterPlan.Content(_area);
+            _hero.Size(_area, plan.Side ? plan.HeroColumn - FamilySpace.Inset : width, height, worst);
+        }
 
-        _heroBlock.Visibility = hasHero ? Visibility.Visible : Visibility.Collapsed;
-        SetRow(_heroBlock, 0);
-        SetRowSpan(_heroBlock, alone || side ? 3 : 1);
-        _heroBlock.VerticalAlignment = alone || side ? VerticalAlignment.Center : VerticalAlignment.Top;
-
-        // [S-3861] Stacked, the block stands where the plan balanced it: half the spare room above.
-        _heroBlock.Margin = alone || side
-            ? new Thickness(HeroLayout.SideInset, 0, HeroLayout.SideInset, 0)
-            : new Thickness(HeroLayout.SideInset, HeroLayout.TopInset + plan.Top, HeroLayout.SideInset, 0);
-        _caption.Visibility = plan.Caption ? Visibility.Visible : Visibility.Collapsed;
-        _heroBlock.Lay(plan.Hero, icon: false, trailingBeside: true, linesBeside: false);
-
+        // The rows: under the figure, 8 down, or beside it from the top. They carry their own side inset.
         _facts.Visibility = plan.Facts > 0 ? Visibility.Visible : Visibility.Collapsed;
-        SetRow(_facts, side ? 0 : 1);
-        SetRowSpan(_facts, side ? 3 : 1);
-        SetColumn(_facts, side ? 1 : 0);
-        _facts.VerticalAlignment = side ? VerticalAlignment.Center : VerticalAlignment.Top;
-        _facts.Margin = side
-            ? new Thickness(0, 0, WidgetLayout.ContentInset, WidgetLayout.ContentInset)
-            : new Thickness(WidgetLayout.ContentInset, hasHero ? DetailFace.SectionGap : HeroLayout.TopInset + plan.Top, WidgetLayout.ContentInset, 0);
+        SetRow(_facts, plan.Side ? 0 : 1);
+        SetColumn(_facts, plan.Side ? 1 : 0);
+        _facts.Margin = new Thickness(0, !plan.Side && hero is not null ? FamilySpace.S2 : 0, 0, 0);
+        LayFacts(plan.Facts);
 
-        LayFacts(plan);
-        ShowList(plan.List ? plan.ListHeight : 0);
+        ShowList(plan);
         Fill();
     }
 
-    /// <summary>[S-2402] The face <paramref name="sheet"/> gets in this tile: the shape of what it holds, planned for the area.</summary>
-    private DetailFacePlan PlanFor(DetailSheet sheet)
+    /// <summary>Keep a fact row for each fact the plan shows; the rest collapsed.</summary>
+    private void LayFacts(int count)
     {
-        var hasHero = _part.HasHero && sheet.Hero is not null;
-        var rows = _part.MaxRows > 0 ? Math.Min(_part.MaxRows, sheet.Rows.Count) : sheet.Rows.Count;
-        var labels = sheet.Facts.Count == 0 ? 0 : sheet.Facts.Max(f => f.Label.Length);
-        var shape = new DetailShape(hasHero, _part.HeroCharacters, sheet.Caption is not null, sheet.Facts.Count, Math.Max(rows, _part.HasHero ? 0 : 1), _part.ListRowHeight,
-            DetailFace.LongestValue(sheet), labels, WidgetLayout.ListInset.Top + WidgetLayout.ListInset.Bottom, _part.RowsGrow);
-        return DetailFace.Plan(_area, shape, WidgetLayout.ContentInset);
-    }
-
-    /// <summary>The facts grid for a plan: its columns, its rows and each cell's style.</summary>
-    private void LayFacts(DetailFacePlan plan)
-    {
-        var columns = Math.Max(1, plan.Columns);
-        var rows = (plan.Facts + columns - 1) / columns;
-
-        while (_facts.ColumnDefinitions.Count < columns)
+        while (_factRows.Count < count)
         {
-            _facts.ColumnDefinitions.Add(new ColumnDefinition());
+            var row = new RowBlock(RowKind.Fact, lead: 0);
+            _factRows.Add(row);
+            _facts.Children.Add(row);
         }
 
-        while (_facts.ColumnDefinitions.Count > columns)
+        for (var i = 0; i < _factRows.Count; i++)
         {
-            _facts.ColumnDefinitions.RemoveAt(_facts.ColumnDefinitions.Count - 1);
-        }
-
-        while (_facts.RowDefinitions.Count < rows)
-        {
-            _facts.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
-        }
-
-        while (_facts.RowDefinitions.Count > rows)
-        {
-            _facts.RowDefinitions.RemoveAt(_facts.RowDefinitions.Count - 1);
-        }
-
-        foreach (var column in _facts.ColumnDefinitions)
-        {
-            column.Width = new GridLength(1, GridUnitType.Star);
-        }
-
-        _facts.ColumnSpacing = DetailFace.ColGap(plan.Style);
-        _facts.RowSpacing = DetailFace.RowGap(plan.Style);
-
-        while (_cells.Count < plan.Facts)
-        {
-            var cell = new StatPart(plan.Style);
-            _cells.Add(cell);
-            _facts.Children.Add(cell.Root);
-        }
-
-        for (var i = 0; i < _cells.Count; i++)
-        {
-            var shown = i < plan.Facts;
-            _cells[i].Root.Visibility = shown ? Visibility.Visible : Visibility.Collapsed;
-
-            if (shown)
-            {
-                SetRow(_cells[i].Root, i / columns);
-                SetColumn(_cells[i].Root, i % columns);
-                _cells[i].Restyle(plan.Style);
-            }
+            _factRows[i].Visibility = i < count ? Visibility.Visible : Visibility.Collapsed;
         }
     }
 
@@ -336,26 +268,22 @@ public sealed partial class DetailView : Grid, IWidgetView, IWidgetSizeAware, IW
             return;
         }
 
-        if (_sheet.Hero != _heroText)
+        var hero = ReadoutRules.Split(_sheet.Hero);
+        _hero.Show(hero.Value, hero.Unit, _sheet.Caption, valueRole: _sheet.HeroAvailable && !_sheet.Absent ? ColourRole.TextPrimary : ColourRole.TextDisabled);
+        var tip = _sheet.HeroAvailable || _sheet.Absent ? null : _sheet.Note;
+        if (!Equals(ToolTipService.GetToolTip(_hero), tip))
         {
-            _heroText = _sheet.Hero;
-            var hero = HeroLayout.Split(_sheet.Hero);
-            _heroBlock.SetValue(hero.Value, hero.Unit, hero.Spaced);
+            ToolTipService.SetToolTip(_hero, tip);
         }
 
-        _heroBlock.ValueLine.Foreground = _sheet.HeroAvailable ? _primaryBrush : _disabledBrush;
-        ToolTipService.SetToolTip(_heroBlock, _sheet.HeroAvailable || _sheet.Absent ? null : _sheet.Note);
-        _caption.Text = _sheet.Caption ?? string.Empty;
-
-        // [S-1940] Not on this machine: the whole tile says why, every part of it dimmed.
+        // [S-1940] Not on this machine: the whole tile says why, every part of it disabled.
         UnavailableLook.Say(this, _sheet.Absent ? _sheet.Note : null);
 
-        for (var i = 0; i < plan.Facts && i < _sheet.Facts.Count && i < _cells.Count; i++)
+        for (var i = 0; i < plan.Facts && i < _sheet.Facts.Count && i < _factRows.Count; i++)
         {
             var fact = _sheet.Facts[i];
-            _cells[i].Show(fact.Label, fact.Value);
-            _cells[i].Figure.Foreground = fact.Available ? _primaryBrush : _disabledBrush;
-            _cells[i].Label.Foreground = _sheet.Absent ? UnavailableLook.Text : _labelBrush;
+            _factRows[i].Show(fact.Label, fact.Value);
+            _factRows[i].Available = fact.Available && !_sheet.Absent;
         }
 
         FillList();

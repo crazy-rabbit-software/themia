@@ -3,6 +3,7 @@ using Microsoft.UI.Xaml;
 using Themia.App.Shell;
 using Themia.App.Shell.Config;
 using Themia.App.Widgets;
+using Themia.App.Widgets.Meters;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
@@ -38,7 +39,7 @@ public sealed class GpuModule : IWidgetModule
     public void MenuLines(WidgetMenuLines menu, WidgetConfig config)
         => GpuMenu.Lines(menu, (GpuConfig)config, GpuAdapters.List());
 
-    public FrameworkElement CreateView(IWidgetHost host) => new GpuView(host);
+    public FrameworkElement CreateView(IWidgetHost host) => new MeterView(host, new GpuMeter());
 }
 
 /// <summary>[S-6903] The module's own JSON metadata, with the host's options (camelCase, indented, nulls left out).</summary>

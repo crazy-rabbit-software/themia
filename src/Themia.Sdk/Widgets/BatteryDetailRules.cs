@@ -72,7 +72,7 @@ public static class BatteryDetailRules
     public const int StatusSize = 16;
 
     /// <summary>"100%".</summary>
-    public const double HeroCharacters = 5;
+    public const string HeroWorst = "100%";
 
     private const uint CapacityRelative = 0x40000000;
     private const uint UnknownValue = 0xFFFFFFFF;

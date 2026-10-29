@@ -15,7 +15,7 @@ internal sealed class MemoryDetailPart : DetailPart
 
     public override WidgetId Kind => new WidgetId("memoryDetails");
 
-    public override double HeroCharacters => MemoryDetailRules.HeroCharacters;
+    public override string HeroWorst => MemoryDetailRules.HeroWorst;
 
     public override void Watch(ISystemFeeds hub, WidgetConfig config, IDetailHost host)
     {

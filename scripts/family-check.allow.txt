@@ -18,20 +18,6 @@ airQuality	TextBlock text-size
 alarm	TextBlock colour fg
 alarm	TextBlock text-size
 audioVisualizer	Rectangle radius
-battery	Ellipse stroke
-battery	FontIcon accent-glyph
-battery	FontIcon glyph-size
-battery	Path stroke
-battery	Rectangle radius
-battery	Rectangle stroke
-battery	Run text-size
-battery	TextBlock accent-text
-battery	TextBlock text-line
-battery	TextBlock text-size
-batteryDetails	Grid space margin
-batteryDetails	Run text-size
-batteryDetails	TextBlock text-line
-batteryDetails	TextBlock text-size
 bluetooth	TextBlock text-size
 bluetoothToggle	Ellipse space margin
 bluetoothToggle	FontIcon glyph-size
@@ -67,22 +53,6 @@ countdown	Border radius
 countdown	Ellipse stroke
 countdown	Path stroke
 countdown	TextBlock text-size
-cpu	Border radius
-cpu	Border space margin
-cpu	Grid radius
-cpu	Grid space margin
-cpu	Path stroke
-cpu	Run text-size
-cpu	TextBlock text-line
-cpu	TextBlock text-size
-cpuDetails	Grid space margin
-cpuDetails	Run text-size
-cpuDetails	TextBlock text-line
-cpuDetails	TextBlock text-size
-disk	Grid space margin
-disk	Run text-size
-disk	TextBlock text-line
-disk	TextBlock text-size
 doNotDisturbToggle	Ellipse space margin
 doNotDisturbToggle	FontIcon glyph-size
 doNotDisturbToggle	TextBlock text-size
@@ -118,15 +88,6 @@ gallery	TextBlock text-size
 gameModeToggle	Ellipse space margin
 gameModeToggle	FontIcon glyph-size
 gameModeToggle	TextBlock text-size
-gpu	Grid space margin
-gpu	Path stroke
-gpu	Run text-size
-gpu	TextBlock text-line
-gpu	TextBlock text-size
-gpuDetails	Grid space margin
-gpuDetails	Run text-size
-gpuDetails	TextBlock text-line
-gpuDetails	TextBlock text-size
 habitTracker	Border radius
 habitTracker	FontIcon glyph-size
 habitTracker	FontIcon space margin
@@ -136,15 +97,6 @@ hibernate	Grid colour bg
 hibernate	TextBlock text-size
 lock	FontIcon glyph-size
 lock	TextBlock text-size
-memory	Grid space margin
-memory	Path stroke
-memory	Run text-size
-memory	TextBlock text-line
-memory	TextBlock text-size
-memoryDetails	Grid space margin
-memoryDetails	Run text-size
-memoryDetails	TextBlock text-line
-memoryDetails	TextBlock text-size
 microphoneToggle	Ellipse space margin
 microphoneToggle	FontIcon glyph-size
 microphoneToggle	TextBlock text-size
@@ -158,18 +110,6 @@ monoAudioToggle	TextBlock text-size
 moon	TextBlock colour fg
 music	FontIcon glyph-size
 music	TextBlock text-size
-network	FontIcon accent-glyph
-network	FontIcon glyph-size
-network	Grid space margin
-network	Run text-size
-network	TextBlock accent-text
-network	TextBlock text-line
-network	TextBlock text-size
-networkDetails	Border stroke
-networkDetails	Grid space margin
-networkDetails	Run text-size
-networkDetails	TextBlock text-line
-networkDetails	TextBlock text-size
 nextMeeting	Button space padding
 nextMeeting	FontIcon glyph-size
 nextMeeting	TextBlock colour fg
@@ -183,16 +123,6 @@ notifications	Border stroke
 notifications	Button space padding
 notifications	FontIcon glyph-size
 notifications	TextBlock text-size
-ping	Ellipse colour fill
-ping	Rectangle colour fill
-ping	Rectangle radius
-ping	Run text-size
-ping	TextBlock text-line
-ping	TextBlock text-size
-pingDetails	Grid space margin
-pingDetails	Run text-size
-pingDetails	TextBlock text-line
-pingDetails	TextBlock text-size
 pomodoro	Ellipse stroke
 pomodoro	FontIcon colour fg
 pomodoro	Path stroke
@@ -276,8 +206,6 @@ tasks	Border stroke
 tasks	FontIcon glyph-size
 tasks	FontIcon space margin
 tasks	TextBlock text-size
-topProcesses	Border stroke
-topProcesses	TextBlock text-size
 videoStream	TextBlock text-size
 volume	Slider radius
 volume	TextBlock text-size

@@ -12,7 +12,7 @@ JSON context), `NetworkConfig.cs` (with its styles and what it asks the hub, `IR
 the look per style), `Localization/Locales/` (its own `NetworkStr`, 30 languages, its style names included). Tests: its
 styles side by side with the other I/O meters' are the module host's `IoStylesHostTests`.
 
-- **[S-1191]** Download is the reading; the chart's two series (download filled, upload the thin
+- **[S-1191]** Download is the reading; the chart's two series (download filled in its role, upload a tertiary
   line) share one top: the window's peak of both, floor 1 KB/s (`RateWindow`), never the session's
   all-time peak.
 - **[S-6270]** Network: `NetworkConfig.Style`, **Graph** ([S-1191]) and **Numbers** ([S-6264]).

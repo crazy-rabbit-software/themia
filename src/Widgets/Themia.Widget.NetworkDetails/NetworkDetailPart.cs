@@ -21,10 +21,7 @@ internal sealed class NetworkDetailPart : DetailPart
 
     public override WidgetId Kind => new WidgetId("networkDetails");
 
-    public override double HeroCharacters => NetworkDetailRules.HeroCharacters;
-
-    /// <summary>The name and the rates on one line, the address under them.</summary>
-    public override double ListRowHeight => Fluent.RowHeight + Fluent.Space1;
+    public override string HeroWorst => NetworkDetailRules.HeroWorst;
 
     public override void Watch(ISystemFeeds hub, WidgetConfig config, IDetailHost host)
     {

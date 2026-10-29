@@ -21,7 +21,7 @@ internal sealed class GpuDetailPart : DetailPart
 
     public override WidgetId Kind => new WidgetId("gpuDetails");
 
-    public override double HeroCharacters => GpuDetailRules.HeroCharacters;
+    public override string HeroWorst => GpuDetailRules.HeroWorst;
 
     public override void Watch(ISystemFeeds hub, WidgetConfig config, IDetailHost host)
     {

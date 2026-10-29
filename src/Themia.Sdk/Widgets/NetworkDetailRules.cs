@@ -27,7 +27,7 @@ public readonly record struct PublicAddressReading(PublicAddressState State, str
 public static class NetworkDetailRules
 {
     /// <summary>"1023.9 MB/s".</summary>
-    public const double HeroCharacters = 11;
+    public const string HeroWorst = "1023.9 MB/s";
 
     /// <summary>[S-2418] How long a public address is trusted before it is asked for again.</summary>
     public static readonly TimeSpan PublicAddressLifetime = TimeSpan.FromMinutes(10);

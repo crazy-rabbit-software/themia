@@ -50,25 +50,6 @@ public sealed class MeterStylesTests
 
     // ---- [S-6301] shades -------------------------------------------------------------------------
 
-    [Fact]
-    public void S6301_a_load_shade_rises_with_the_load_in_the_usage_colours()
-    {
-        Assert.Equal(new LoadShade(MeterPressure.Normal, LoadTint.Faintest, true), LoadTint.Of(0));
-        Assert.Equal(1, LoadTint.Of(1).Strength, 6);
-        Assert.True(LoadTint.Of(0.5).Strength > LoadTint.Of(0.2).Strength);
-        Assert.Equal(MeterPressure.Elevated, LoadTint.Of(0.7).Pressure);
-        Assert.Equal(MeterPressure.Critical, LoadTint.Of(0.895).Pressure);
-        Assert.Equal(1, LoadTint.Of(3).Strength, 6);
-    }
-
-    [Fact]
-    public void S6301_an_unknown_load_is_drawn_unknown_never_as_idle()
-    {
-        Assert.False(LoadTint.Of(null).Known);
-        Assert.False(LoadTint.Of(double.NaN).Known);
-        Assert.True(LoadTint.Of(0).Known);
-    }
-
     // ---- [S-6302] the gauge ----------------------------------------------------------------------
 
     [Theory]
@@ -135,100 +116,6 @@ public sealed class MeterStylesTests
     }
 
     // ---- [S-6303] [S-6304] [S-6305] bars and tiles -----------------------------------------------
-
-    [Theory]
-    [InlineData(288, 8)]
-    [InlineData(288, 16)]
-    [InlineData(88, 16)]
-    [InlineData(88, 64)]
-    [InlineData(528, 128)]
-    public void S6303_columns_fill_the_width_and_never_overflow_it(double width, int count)
-    {
-        var plan = BarLayout.Columns(width, count);
-        var used = (plan.Bar * count) + (plan.Gap * (count - 1));
-
-        Assert.True(used <= width + 1e-6, $"{used} > {width}");
-        Assert.True(width - used < count * 0.01 + 1e-6 || plan.Gap == 0, "the width is not used");
-        Assert.True(plan.Bar >= 1);
-    }
-
-    [Fact]
-    public void S6303_the_gap_shrinks_before_the_bars_get_thin()
-    {
-        Assert.Equal(4, BarLayout.Columns(288, 8).Gap);
-        Assert.Equal(2, BarLayout.Columns(120, 16).Gap);
-        Assert.Equal(1, BarLayout.Columns(88, 16).Gap);
-        Assert.True(BarLayout.Columns(88, 32).Gap <= 1);
-        Assert.Equal(0, BarLayout.Columns(88, 0).Bar);
-    }
-
-    [Fact]
-    public void S6304_rows_grow_their_type_and_bar_with_the_room_and_all_fit()
-    {
-        var tight = BarLayout.Rows(60, 2, 12);
-        var roomy = BarLayout.Rows(400, 4, 12);
-
-        Assert.Equal(2, tight.Shown);
-        Assert.Equal(4, roomy.Shown);
-        Assert.True(roomy.Label.FontSize > tight.Label.FontSize);
-        Assert.True(roomy.Thickness > tight.Thickness);
-        Assert.True(BarLayout.Total(roomy, 4) <= 400);
-        Assert.True(BarLayout.Total(tight, 2) <= 60);
-    }
-
-    [Fact]
-    public void S6304_rows_that_do_not_all_fit_are_shed_from_the_end_at_the_smallest_size()
-    {
-        var plan = BarLayout.Rows(60, 4, 12);
-
-        Assert.Equal(FluentType.Caption, plan.Label);
-        Assert.Equal(BarLayout.Thicknesses[0], plan.Thickness);
-        Assert.Equal(2, plan.Shown);
-        Assert.Equal(0, BarLayout.Rows(10, 4, 12).Shown);
-    }
-
-    [Fact]
-    public void S6304_a_bar_is_never_more_than_half_its_label_line()
-    {
-        var plan = BarLayout.Rows(1000, 1, 12);
-        Assert.True(plan.Thickness <= plan.Label.LineHeight / 2);
-        Assert.Equal(FluentType.BodyLarge, plan.Label);
-    }
-
-    [Fact]
-    public void S6304_a_narrow_row_writes_smaller_rather_than_cutting_its_label()
-    {
-        Assert.Equal(FluentType.Caption, BarLayout.Rows(400, 1, 12, width: 168, lineCharacters: 26).Label);
-        Assert.Equal(FluentType.BodyLarge, BarLayout.Rows(400, 1, 12, width: 528, lineCharacters: 26).Label);
-    }
-
-    [Theory]
-    [InlineData(288, 100, 8)]
-    [InlineData(288, 100, 16)]
-    [InlineData(88, 30, 16)]
-    [InlineData(528, 300, 12)]
-    [InlineData(168, 300, 24)]
-    [InlineData(88, 40, 128)]
-    public void S6305_tiles_hold_every_item_inside_the_box(double width, double height, int count)
-    {
-        var plan = BarLayout.Tiles(width, height, count);
-
-        Assert.True(plan.Columns * plan.Rows >= count);
-        Assert.True((plan.Rows - 1) * plan.Columns < count, "a whole empty row");
-        Assert.True((plan.Columns * plan.TileWidth) + ((plan.Columns - 1) * plan.Gap) <= width + 1e-6);
-        Assert.True((plan.Rows * plan.TileHeight) + ((plan.Rows - 1) * plan.Gap) <= height + 1e-6);
-        Assert.True(plan.TileWidth > 0 && plan.TileHeight > 0);
-    }
-
-    [Fact]
-    public void S6305_tiles_take_the_grid_with_the_largest_squarest_tile()
-    {
-        // Eight cores in a strip: one row of eight; in a square box: a grid, not a strip.
-        Assert.Equal((8, 1), (BarLayout.Tiles(400, 40, 8).Columns, BarLayout.Tiles(400, 40, 8).Rows));
-        var square = BarLayout.Tiles(200, 200, 16);
-        Assert.Equal((4, 4), (square.Columns, square.Rows));
-        Assert.Equal(4, square.Gap);
-    }
 
     // ---- [S-6322] GPU engines ------------------------------------------------------------------
 
