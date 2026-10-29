@@ -8612,8 +8612,9 @@ Moved with the widget into its module: `src/Widgets/Themia.Widget.Stopwatch/SPEC
   "share (\\server) (Z:)".
 - **[S-4652]** Its kind as Explorer's Type column says it, with the file system: "Local Disk · NTFS",
   "Removable Disk · exFAT", "Network Drive", "Disconnected network drive".
-- **[S-4653]** The capacity bar is the used share in the load's colours (accent, caution from 70 %,
-  critical from 90 %; the [S-837] track); under it "419 GB free of 931 GB", or why there are no figures:
+- **[S-4653]** The capacity bar is the used share as the Chart block's bar ([S-6717]: the 4 track, its
+  fill in the load's role: the accent, Caution from 70 %, Critical from 90 %, `DriveRules.Role`; the
+  figure itself keeps the primary role); with it "419 GB free of 931 GB", or why there are no figures:
   "No media", "Connecting…", "Disconnected", "Not connected".
 - **[S-4654]** A network drive is never waited for. `WNetGetConnectionW` (the redirector's own record,
   no question to the network) speaks first: a connection Windows remembers but has not made
@@ -8632,9 +8633,10 @@ Moved with the widget into its module: `src/Widgets/Themia.Widget.Stopwatch/SPEC
 - **[S-4656]** A walk that changes nothing shown tells nobody: two walks are the same when every drive
   is, free space compared to the megabyte.
 - **[S-4657]** A drive's picture is the shell's icon for a local drive that is there (cached per drive
-  and medium); the kind's glyph until it is in, and always for a share (never asked for a picture: that
-  is a question to the server). A disconnected share wears a disc with a cross at its foot, in the
-  theme's critical colour.
+  and medium) on the family's icon sizes (16, 32, 48, [S-6704]); the kind's glyph (`DriveRules.Glyph`,
+  secondary) until it is in, always for a share (never asked for a picture: that is a question to the
+  server), and in a render, whose drives are not this PC's (`DriveIcon`). A disconnected share says so
+  in words ([S-4671]); its picture wears no badge.
 - **[S-4660]** Removable drives (add menu: Devices & power, [S-3511]): a row per USB stick or card (removable), disc
   (optical) and external disk (hot-plug fixed), by letter; an empty reader is left out, as Explorer
   hides empty drives. Nothing plugged in says so, centred, under the stick glyph. No options of its own.

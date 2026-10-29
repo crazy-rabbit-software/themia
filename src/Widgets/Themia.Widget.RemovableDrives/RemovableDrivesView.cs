@@ -229,7 +229,7 @@ internal sealed partial class RemovableDrivesView : Grid, IWidgetView, IWidgetSi
         private readonly DriveIcon _icon = new();
         private readonly TextBlock _name = Fluent.Text(FluentType.Body);
         private readonly TextBlock _space = Fluent.Text(FluentType.Caption, "TextFillColorSecondaryBrush");
-        private readonly ProgressBar _bar = DriveBar.Create();
+        private readonly Themia.Sdk.WinUI.Kit.ChartBar _bar = DriveBar.Create();
         private readonly Button _eject = new();
         private readonly Grid _grid;
         private DriveEntry? _device;
@@ -305,11 +305,11 @@ internal sealed partial class RemovableDrivesView : Grid, IWidgetView, IWidgetSi
             var name = DriveRules.Title(locale, device);
             _name.Text = name;
             _space.Text = DriveRules.SpaceLine(locale, device);
-            _icon.Show(device, tall ? 32 : Fluent.IconSize + 4);
+            _icon.Show(device, tall ? 32 : Fluent.IconSize);
 
             // [S-4662] One line: the name alone (what it holds is the tooltip); two: the space and the bar under it.
             _space.Visibility = tall ? Visibility.Visible : Visibility.Collapsed;
-            DriveBar.Show(_bar, device, 3);
+            DriveBar.Show(_bar, device);
             if (!tall)
             {
                 _bar.Visibility = Visibility.Collapsed;

@@ -26,7 +26,7 @@ internal sealed partial class DriveView : Grid, IWidgetView, IWidgetSizeAware, I
     private readonly DriveIcon _icon = new();
     private readonly TextBlock _kind = Fluent.Text(FluentType.Body, "TextFillColorSecondaryBrush");
     private readonly TextBlock _used = Fluent.Text(FluentType.BodyStrong);
-    private readonly ProgressBar _bar = DriveBar.Create();
+    private readonly Themia.Sdk.WinUI.Kit.ChartBar _bar = DriveBar.Create();
     private readonly TextBlock _space = Fluent.Text(FluentType.Caption, "TextFillColorSecondaryBrush");
     private readonly Grid _facts = new() { ColumnSpacing = Fluent.Space4, RowSpacing = Fluent.Space2 };
     private readonly List<(TextBlock Label, TextBlock Value)> _factCells = [];
@@ -164,7 +164,7 @@ internal sealed partial class DriveView : Grid, IWidgetView, IWidgetSizeAware, I
         var box = area.Deflate(Fluent.Space4, Fluent.Space2);
         var bar = large ? 8.0 : 4.0;
         var spaceStep = large ? FluentType.Body : FluentType.Caption;
-        var iconSize = large ? 48.0 : area.HeightClass >= SizeClass.Regular ? 32.0 : 24.0;
+        var iconSize = large ? 48.0 : area.HeightClass >= SizeClass.Regular ? 32.0 : 16.0;
         var gap = _stack.Spacing;
 
         var room = new Disclosure(box, gap);
@@ -190,7 +190,7 @@ internal sealed partial class DriveView : Grid, IWidgetView, IWidgetSizeAware, I
         _used.Text = drive.UsedFraction is { } used ? Formatting.Percent(locale, used) : string.Empty;
         _used.Visibility = known ? Visibility.Visible : Visibility.Collapsed;
 
-        DriveBar.Show(_bar, drive, bar);
+        DriveBar.Show(_bar, drive);
 
         _space.Apply(spaceStep);
 

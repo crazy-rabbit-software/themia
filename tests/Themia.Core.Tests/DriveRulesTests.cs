@@ -1,6 +1,8 @@
+using Themia.App.Shell;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
+using Themia.Sdk.Kit;
 using Xunit;
 
 namespace Themia.Core.Tests;
@@ -96,6 +98,21 @@ public sealed class DriveRulesTests
         Assert.Equal(DriveState.Missing, gone.State);
         Assert.Equal("Q:\\", gone.Root);
         Assert.Equal("Not connected", DriveRules.SpaceLine(Locale.En, gone));
+    }
+
+    [Fact]
+    public void S4653_the_bar_is_in_the_loads_role_and_a_drive_wears_its_kinds_glyph()
+    {
+        Assert.Equal(ColourRole.Accent, DriveRules.Role(Local("C:\\", total: 100 * Gb, free: 50 * Gb)));
+        Assert.Equal(ColourRole.Caution, DriveRules.Role(Local("C:\\", total: 100 * Gb, free: 25 * Gb)));
+        Assert.Equal(ColourRole.Critical, DriveRules.Role(Local("C:\\", total: 100 * Gb, free: 5 * Gb)));
+        Assert.Equal(ColourRole.Accent, DriveRules.Role(new DriveEntry("Z:\\", VolumeKind.Network, DriveState.Disconnected)));
+
+        Assert.Equal(Glyphs.Disk, DriveRules.Glyph(Local("C:\\")));
+        Assert.Equal(Glyphs.Usb, DriveRules.Glyph(new DriveEntry("E:\\", VolumeKind.Removable, DriveState.Ready)));
+        Assert.Equal(Glyphs.Disc, DriveRules.Glyph(new DriveEntry("F:\\", VolumeKind.Optical, DriveState.Ready)));
+        Assert.Equal(Glyphs.NetworkDrive, DriveRules.Glyph(new DriveEntry("Z:\\", VolumeKind.Network, DriveState.Pending)));
+        Assert.Equal(Glyphs.Disk, DriveRules.Glyph(new DriveEntry("Q:\\", VolumeKind.Unknown, DriveState.Missing)));
     }
 
     [Fact]

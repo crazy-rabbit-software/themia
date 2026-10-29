@@ -1,4 +1,6 @@
+using Themia.App.Shell;
 using Themia.Core.Localization;
+using Themia.Sdk.Kit;
 
 namespace Themia.Core.Widgets;
 
@@ -159,6 +161,21 @@ public static class DriveRules
     /// <summary>[S-4653] The bar's colour: a load (caution from 70 %, critical from 90 %), as Explorer turns a nearly full drive red.</summary>
     public static MeterPressure Pressure(DriveEntry drive) =>
         drive?.UsedFraction is { } used ? MeterPressures.For(PressureScale.Usage, used) : MeterPressure.Normal;
+
+    /// <summary>
+    /// [S-4653] The bar's or ring's role ([S-6717]): the accent, Caution from 70 %, Critical from 90 %;
+    /// only the chart takes it, never the figure.
+    /// </summary>
+    public static ColourRole Role(DriveEntry drive) => MeterPlan.Role(Pressure(drive), absent: false);
+
+    /// <summary>[S-4657] The kind's glyph: what a drive wears until the shell's picture is in, and always for a share.</summary>
+    public static string Glyph(DriveEntry drive) => drive?.Kind switch
+    {
+        VolumeKind.Network => Glyphs.NetworkDrive,
+        VolumeKind.Removable => Glyphs.Usb,
+        VolumeKind.Optical => Glyphs.Disc,
+        _ => Glyphs.Disk,
+    };
 
     /// <summary>
     /// [S-4654] A network drive's state from what <c>WNetGetConnectionW</c> said of it and whether its

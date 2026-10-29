@@ -1,75 +1,49 @@
-using Microsoft.UI;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media;
-using Microsoft.UI.Xaml.Shapes;
-using Themia.App.Services;
-using Themia.App.Shell;
 using Themia.Core.Widgets;
+using Themia.Sdk.Kit;
 using Themia.Sdk.WinUI;
+using Themia.Sdk.WinUI.Kit;
 
 namespace Themia.App.Widgets;
 
 /// <summary>
-/// [S-4657] A drive's picture, as This PC draws it: the shell's own icon for a local drive (a disk, a
-/// stick, a disc), asked only of a drive that is there and cached per drive and medium; the kind's
-/// glyph until it is in and for a network drive, whose share is never asked for a picture (that is a
-/// question to the server). A mapped drive Windows cannot reach wears Explorer's red cross at its foot.
+/// [S-4657] A drive's picture, as This PC draws it, on the family's icon sizes ([S-6704]: 16, 32, 48):
+/// the shell's own icon for a local drive that is there (a disk, a stick, a disc), asked only of a
+/// drive that is there and cached per drive and medium; the kind's glyph (<see cref="DriveRules.Glyph"/>,
+/// secondary) until it is in, for a network drive, whose share is never asked for a picture (that is a
+/// question to the server), and where the caller wants no picture (a render's fixed drives, which are
+/// not this PC's).
 /// </summary>
 public sealed partial class DriveIcon : Grid
 {
-    private readonly FontIcon _glyph = new();
+    private readonly FontIcon _glyph = Family.Glyph(string.Empty, FamilyShape.IconLarge, ColourRole.TextSecondary);
     private readonly Image _image = new() { Stretch = Stretch.Uniform };
-    private readonly Grid _badge = new();
     private string? _key;
 
     public DriveIcon()
     {
-        _glyph.Foreground = ThemeBrush.Of("TextFillColorSecondaryBrush", Colors.Gray);
         _glyph.HorizontalAlignment = HorizontalAlignment.Center;
         _glyph.VerticalAlignment = VerticalAlignment.Center;
-
-        // Explorer's disconnected drive: a red disc with a cross, in the theme's critical colour and
-        // the surface's own base under the cross, so it reads in either theme.
-        _badge.HorizontalAlignment = HorizontalAlignment.Right;
-        _badge.VerticalAlignment = VerticalAlignment.Bottom;
-        _badge.Children.Add(new Ellipse { Fill = ThemeBrush.Of("SystemFillColorCriticalBrush", Colors.Red) });
-        _badge.Children.Add(new FontIcon
-        {
-            Glyph = Glyphs.Dismiss,
-            Foreground = ThemeBrush.Of("SolidBackgroundFillColorBaseBrush", Colors.White),
-            HorizontalAlignment = HorizontalAlignment.Center,
-            VerticalAlignment = VerticalAlignment.Center,
-        });
-        _badge.Visibility = Visibility.Collapsed;
-
         Children.Add(_glyph);
         Children.Add(_image);
-        Children.Add(_badge);
     }
 
-    /// <summary>Show <paramref name="drive"/> at <paramref name="size"/> DIPs.</summary>
-    public void Show(DriveEntry drive, double size)
+    /// <summary>
+    /// Show <paramref name="drive"/> at <paramref name="size"/> (a family icon size); without
+    /// <paramref name="picture"/> the kind's glyph alone.
+    /// </summary>
+    public void Show(DriveEntry drive, double size, bool picture = true)
     {
+        ArgumentNullException.ThrowIfNull(drive);
         Width = size;
         Height = size;
-        _glyph.FontSize = Math.Round(size * 0.8);
-        _glyph.Glyph = drive.Kind switch
-        {
-            VolumeKind.Network => Glyphs.NetworkDrive,
-            VolumeKind.Removable => Glyphs.Usb,
-            VolumeKind.Optical => Glyphs.Disc,
-            _ => Glyphs.Disk,
-        };
-
-        var badge = Math.Max(8, Math.Round(size * 0.45));
-        _badge.Width = badge;
-        _badge.Height = badge;
-        ((FontIcon)_badge.Children[1]).FontSize = Math.Max(6, Math.Round(badge * 0.55));
-        _badge.Visibility = drive.State == DriveState.Disconnected ? Visibility.Visible : Visibility.Collapsed;
+        _glyph.FontSize = size;
+        _glyph.Glyph = DriveRules.Glyph(drive);
 
         // The shell's picture for a local drive that is there; the key changes with the medium.
-        var key = drive.Kind != VolumeKind.Network && drive.State == DriveState.Ready
+        var key = picture && drive.Kind != VolumeKind.Network && drive.State == DriveState.Ready
             ? $"{drive.Root}|{drive.Label}|{drive.Total}|{Math.Round(size)}"
             : null;
 
@@ -104,22 +78,20 @@ public sealed partial class DriveIcon : Grid
     }
 }
 
-/// <summary>[S-4653] A drive's capacity bar: a slider-style track ([S-837]) filled in the load's colour.</summary>
+/// <summary>
+/// [S-4653] A drive's capacity bar: the Chart block's bar ([S-6717], a 4 track) filled to the used
+/// share in its role (<see cref="DriveRules.Role"/>); a drive without figures has none.
+/// </summary>
 public static class DriveBar
 {
-    public static ProgressBar Create() => new() { Minimum = 0, Maximum = 1 };
+    public static ChartBar Create() => new();
 
-    public static void Show(ProgressBar bar, DriveEntry drive, double thickness)
+    public static void Show(ChartBar bar, DriveEntry drive)
     {
-        bar.Height = thickness;
-        bar.MinHeight = thickness;
-        bar.Value = drive.UsedFraction ?? 0;
-        bar.Foreground = ThemeBrush.Of(DriveRules.Pressure(drive) switch
-        {
-            MeterPressure.Critical => "SystemFillColorCriticalBrush",
-            MeterPressure.Elevated => "SystemFillColorCautionBrush",
-            _ => "AccentFillColorDefaultBrush",
-        }, Colors.DodgerBlue);
+        ArgumentNullException.ThrowIfNull(bar);
+        ArgumentNullException.ThrowIfNull(drive);
+        bar.Show(drive.UsedFraction ?? 0);
+        bar.Role(DriveRules.Role(drive));
         bar.Visibility = drive.UsedFraction is null ? Visibility.Collapsed : Visibility.Visible;
     }
 }
