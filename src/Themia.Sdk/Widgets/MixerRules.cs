@@ -31,19 +31,6 @@ public sealed record MixerRow(
     bool IsSystem,
     int Sessions);
 
-/// <summary>[S-1227] How a mixer row is laid out, by the width it has.</summary>
-public enum MixerRowStyle
-{
-    /// <summary>No slider: icon and mute.</summary>
-    Compact,
-
-    /// <summary>Name and mute on top, the slider under them.</summary>
-    TwoLine,
-
-    /// <summary>Name, slider and mute on one line.</summary>
-    OneLine,
-}
-
 /// <summary>Which rows the mixer admits, straight from its config.</summary>
 public readonly record struct MixerRowOptions(bool ShowSystemSounds, bool OnlyActive);
 
@@ -75,18 +62,6 @@ public static class MixerRules
     /// every output device has, at the middle. Never written: the view refuses every write while it shows.
     /// </summary>
     public static MixerRow StandIn { get; } = new(SystemSoundsKey, string.Empty, null, Unavailable.Share, false, false, true, 1);
-
-    /// <summary>[S-1227] From this row width a row is one line.</summary>
-    public const double OneLineWidth = 360;
-
-    /// <summary>[S-1227] Below this row width there is no room for a slider.</summary>
-    public const double SliderWidth = 170;
-
-    /// <summary>[S-1227] The row layout a width affords (the [S-449] thresholds).</summary>
-    public static MixerRowStyle RowStyle(double width)
-        => width >= OneLineWidth ? MixerRowStyle.OneLine
-        : width >= SliderWidth ? MixerRowStyle.TwoLine
-        : MixerRowStyle.Compact;
 
     /// <summary>
     /// [S-442] Sessions into rows. Grouped, every session of one executable is one row: the loudest

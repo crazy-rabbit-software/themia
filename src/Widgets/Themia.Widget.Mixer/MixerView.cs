@@ -5,7 +5,9 @@ using Themia.App.Shell;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
+using Themia.Sdk.Kit;
 using Themia.Sdk.WinUI;
+using Themia.Sdk.WinUI.Kit;
 using Themia.Widget.Mixer;
 using Glyphs = Themia.App.Shell.Glyphs;
 
@@ -16,11 +18,11 @@ namespace Themia.App.Widgets;
 /// icon, its name, a slider and a mute button. No master row and no device name
 /// ([S-3251]): the device's own level is the volume tile's.
 /// <para>
-/// [S-1227]..[S-1229] A ladder, not one layout scaled: rows are compact (icon, mute), two
-/// lines or one line by width, and the list takes the whole rows that fit — the rest scroll, never
-/// half a row. Room left over goes to the quiet apps only-active left out, then to the rows
-/// themselves ([S-1624]). The mixer is the apps' levels and nothing else: no device line or picker,
-/// no microphone, no side panel at any size (choosing the output is Windows' job).
+/// [S-449] The rows are the family's Row block ([S-6711]): 32 or 48 tall by the tier, as many whole
+/// rows as the area holds, the rest a scroll away, never half a row (<see cref="MixerLayout"/>). A short
+/// list on a large card stays a short list ([S-666]): the mixer is the apps' levels and nothing else.
+/// Nothing playing is the Status row at the top; no device is the stand-in row in the disabled role
+/// ([S-448], [S-1940]).
 /// </para>
 /// <para>
 /// The rows are reused by position, never rebuilt. Each snapshot produces fresh row data, and
@@ -30,18 +32,14 @@ namespace Themia.App.Widgets;
 /// </summary>
 internal sealed partial class MixerView : Grid, IWidgetView, IWidgetSizeAware, IWidgetSurfaceAware, IWidgetKeys, IWidgetContextActions
 {
-    /// <summary>[S-1227] Row heights per style: fixed, so the whole-row arithmetic is exact.</summary>
-    private const double CompactRowHeight = Fluent.RowHeightCompact;
-
-    private const double TwoLineRowHeight = 48;
-    private const double OneLineRowHeight = Fluent.RowHeight;
-
     private readonly AudioFeed _feed;
     private readonly StackPanel _list = new();
     private readonly ScrollViewer _scroller;
-    private readonly StackPanel _empty;
-    private readonly TextBlock _emptyText = new();
+    private readonly StatusBlock _status = new() { VerticalAlignment = VerticalAlignment.Top };
     private readonly List<RowVisual> _rows = [];
+
+    /// <summary>Whether the rows were built with their icon's lead: a change of App icons builds them again.</summary>
+    private bool _rowsLead = true;
 
     private MixerConfig _config = new();
     private IWidgetSurface? _surface;
@@ -79,11 +77,9 @@ internal sealed partial class MixerView : Grid, IWidgetView, IWidgetSizeAware, I
             VerticalAlignment = VerticalAlignment.Top,
         };
 
-        _empty = Fluent.EmptyState(Glyphs.Mixer, _emptyText, out _);
-        _empty.Visibility = Visibility.Collapsed;
-
+        _status.Visibility = Visibility.Collapsed;
         Children.Add(_scroller);
-        Children.Add(_empty);
+        Children.Add(_status);
     }
 
     public void Bind(IWidgetSurface surface)
@@ -127,8 +123,8 @@ internal sealed partial class MixerView : Grid, IWidgetView, IWidgetSizeAware, I
     }
 
     /// <summary>
-    /// [S-1227]..[S-1229] The ladder: the rows the mixer shows, decided for the area it has and the
-    /// rows the snapshot holds. Runs on a new area, a new config and a new snapshot.
+    /// [S-449] The ladder: the rows the mixer shows, decided for the area it has and the rows the
+    /// snapshot holds. Runs on a new area, a new config and a new snapshot.
     /// </summary>
     private void Lay()
     {
@@ -136,8 +132,6 @@ internal sealed partial class MixerView : Grid, IWidgetView, IWidgetSizeAware, I
         {
             return;
         }
-
-        var style = MixerRules.RowStyle(_area.Width);
 
         if (!_frozen)
         {
@@ -188,56 +182,44 @@ internal sealed partial class MixerView : Grid, IWidgetView, IWidgetSizeAware, I
 
         if (main.Count == 0)
         {
-            ShowEmpty(MixerStr.Mixer_Empty.Text());
+            // [S-448] Nothing playing on a device that is there: the Status row where the first row would be.
+            _status.Show(StatusKind.Empty, Glyphs.Mixer, MixerStr.Mixer_Empty.Text());
+            _scroller.Visibility = Visibility.Collapsed;
+            _shown = [];
             return;
         }
 
-        _empty.Visibility = Visibility.Collapsed;
+        _status.Hide();
         _scroller.Visibility = Visibility.Visible;
 
-        // ---- the height ladder ----------------------------------------------------------------
-        var rowHeight = style switch
-        {
-            MixerRowStyle.Compact => CompactRowHeight,
-            MixerRowStyle.TwoLine => TwoLineRowHeight,
-            _ => OneLineRowHeight,
-        };
+        // [S-449] Whole rows: the playing apps, then (all of them fitting) the quiet ones under them.
+        var plan = MixerLayout.Plan(_area, _config.ShowIcons, main.Count, quiet.Count);
+        _shown = [.. main, .. quiet.Take(plan.Quiet)];
 
-        var room = new Disclosure(_area.Width, _area.Height - Fluent.Space1);
-        var rows = Math.Max(1, room.TakeRows(rowHeight, main.Count));
-
-        // [S-1228] The quiet apps only when the playing ones all fit: they never push one off.
-        var quietRows = rows == main.Count ? room.TakeRows(rowHeight, quiet.Count) : 0;
-
-        _shown = [.. main, .. quiet.Take(quietRows)];
-
-        // [S-1624] On a tall card a one-line list that all fits shares the height rather than stopping
-        // short; rows tall enough say what each app is doing under its name. The rest stays empty:
-        // the mixer does not fill a large card with things that are not its rows.
-        if (_area.HeightClass >= SizeClass.Expanded && style == MixerRowStyle.OneLine && rows == main.Count && quietRows == quiet.Count)
-        {
-            rowHeight = MixerFill.RowHeight(_area.Height - Fluent.Space1, _shown.Count, rowHeight);
-        }
-
-        ShowRows(style, rowHeight, main.Count);
-        _scroller.Height = Math.Min(rows, main.Count) * rowHeight + (quietRows * rowHeight);
+        ShowRows(plan, main.Count);
+        _scroller.Height = (plan.Rows + plan.Quiet) * FamilyShape.RowHeight(plan.Lines);
 
         RestoreFocus();
     }
 
-    private void ShowEmpty(string message)
+    private void ShowRows(MixerPlan plan, int mainCount)
     {
-        _emptyText.Text = message;
-        _empty.Visibility = Visibility.Visible;
-        _scroller.Visibility = Visibility.Collapsed;
-        _shown = [];
-    }
+        // [S-446] The lead's size is fixed when a row is made: App icons on or off makes them again.
+        if (_rowsLead != _config.ShowIcons)
+        {
+            foreach (var row in _rows)
+            {
+                row.Detach();
+            }
 
-    private void ShowRows(MixerRowStyle style, double rowHeight, int mainCount)
-    {
+            _rows.Clear();
+            _list.Children.Clear();
+            _rowsLead = _config.ShowIcons;
+        }
+
         while (_rows.Count < _shown.Count)
         {
-            var visual = new RowVisual(this);
+            var visual = new RowVisual(this, _config.ShowIcons);
             _rows.Add(visual);
             _list.Children.Add(visual.Host);
         }
@@ -249,11 +231,10 @@ internal sealed partial class MixerView : Grid, IWidgetView, IWidgetSizeAware, I
                 var row = _shown[i];
                 var visual = _rows[i];
                 visual.Host.Visibility = Visibility.Visible;
-                visual.Arrange(style, rowHeight, _config.ShowIcons, detail: rowHeight >= MixerFill.DetailRowHeight);
+                visual.Arrange(plan);
 
-                // [S-1228] An app holding a session but silent reads as such, and the quiet rows
-                // under the list always do.
-                visual.Show(row, _config.ShowIcons, dimmed: i >= mainCount || (!row.Active && !row.IsSystem), available: _unavailable is null);
+                // [S-1228] An app holding a session but silent says so, and the quiet rows under the list always do.
+                visual.Show(row, dimmed: i >= mainCount || (!row.Active && !row.IsSystem), available: _unavailable is null);
             }
             else
             {
@@ -366,6 +347,7 @@ internal sealed partial class MixerView : Grid, IWidgetView, IWidgetSizeAware, I
             case AudioKeyKind.Clear:
                 var had = _focused is not null;
                 _focused = null;
+                Ring(-1);
                 return had;
 
             case AudioKeyKind.Move:
@@ -376,7 +358,7 @@ internal sealed partial class MixerView : Grid, IWidgetView, IWidgetSizeAware, I
                 var row = _shown[action.Index];
                 var level = AudioRules.Step(row.Muted ? 0 : row.Level, action.Delta);
                 OnLevel(row, level);
-                _rows[action.Index].Show(row with { Level = level, Muted = row.Muted && level <= 0 }, _config.ShowIcons, _rows[action.Index].Dimmed, available: true);
+                _rows[action.Index].Show(row with { Level = level, Muted = row.Muted && level <= 0 }, _rows[action.Index].Dimmed, available: true);
                 return true;
 
             case AudioKeyKind.ToggleMute:
@@ -400,9 +382,16 @@ internal sealed partial class MixerView : Grid, IWidgetView, IWidgetSizeAware, I
         }
 
         _focused = _shown[index].Key;
-        var host = _rows[index].Host;
-        host.Focus(FocusState.Keyboard);
-        host.StartBringIntoView();
+        Ring(index);
+    }
+
+    /// <summary>[S-1225] The keyboard cursor is the Row block's ring on its row ([S-1288]); the others' ring is clear.</summary>
+    private void Ring(int index)
+    {
+        for (var i = 0; i < _rows.Count; i++)
+        {
+            _rows[i].Host.Focused = i == index;
+        }
     }
 
     /// <summary>After a relayout the cursor goes back to its row; a row that left lets it go.</summary>
@@ -410,6 +399,7 @@ internal sealed partial class MixerView : Grid, IWidgetView, IWidgetSizeAware, I
     {
         if (_focused is not { } id)
         {
+            Ring(-1);
             return;
         }
 
@@ -417,13 +407,9 @@ internal sealed partial class MixerView : Grid, IWidgetView, IWidgetSizeAware, I
         if (index < 0)
         {
             _focused = null;
-            return;
         }
 
-        if (index < _rows.Count && _rows[index].Host.FocusState == FocusState.Unfocused)
-        {
-            _rows[index].Host.Focus(FocusState.Keyboard);
-        }
+        Ring(index);
     }
 
     public void Detach()

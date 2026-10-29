@@ -3186,8 +3186,8 @@ driver's sensors and the processes ([S-1762]).
   disk once per path; icons are extracted once per path off the UI thread (`AppIcons`), with a glyph
   fallback (bell for system sounds, a window for an app).
 - **[S-442]** `GroupByApp` (default on) makes every session of one executable one row: the loudest
-  level, muted only when all are, active when any is, and a session-count pill. Off: one row per
-  session, keyed by its instance identifier.
+  level, muted only when all are, active when any is (no session count is drawn, [S-2771]). Off: one
+  row per session, keyed by its instance identifier.
 - **[S-443]** Rows are ordered by name, case-insensitively, system sounds last; never by activity, so
   a row never slides out from under a dragged slider.
 - **[S-444]** *(Retired: the mixer has no master row and no `ShowMaster` setting, [S-3251]. The
@@ -6080,9 +6080,9 @@ log into `Log`). Not done here: the original's pre-release gate on the Google si
   gains `Plus` (VK_ADD, VK_OEM_PLUS), `Minus` (VK_SUBTRACT, VK_OEM_MINUS), `Mute` (M without Shift).
 - **[S-1226]** Volume keys: arrows and +/− step 2 points, Page Up/Down 10, Home/End to 0/100
   ([S-2733]), M or Space mute. Ignored when `AllowControl` is off.
-- **[S-1227]** Mixer rows: compact (< 170 px: icon, mute; 32 px), two lines (48 px), one line
-  (≥ 360 px; 40 px) — fixed heights so the list takes whole rows (`Disclosure.TakeRows`); the rest
-  scroll, never half a row. Supersedes [S-449]'s thresholds' wiring (values unchanged).
+- **[S-1227]** *(Retired by [S-449] on the family's rows, G5 2026-10-29: the compact, two-line and
+  one-line row styles by width (`MixerRules.RowStyle`) and their 32/48/40 heights are gone; a row is
+  a Row block of 32 or 48 by the tier, whole rows only.)*
 - **[S-1228]** Mixer rows by room: apps holding a session but silent are drawn dimmed; with
   `OnlyActive`, the silent apps it hid follow the list dimmed when all playing rows fit. The mixer is
   its rows and nothing else at any size: no device line (was: name, "N playing", chevron).
@@ -7377,12 +7377,10 @@ the original had is ported, what it never had is recorded here and not built.
 - **[S-1622]** `Disclosure.Fits` / `Disclosure.TakeFirst`: a rung offered in several sizes takes the
   richest that fits, and only a total miss closes the ladder.
 - **[S-1623]** *(Retired: the power tile and its side panel are gone, [S-1910].)*
-- **[S-1624]** Mixer on an Expanded-height card: when every one-line app row fits, the rows share
-  the height (`MixerFill.RowHeight`, at most 64 px) instead of stopping short, and a row of 56 px or
-  more has a caption under the name (`MixerFill.Detail`: "Playing · 3 sessions", "Silent", "Muted",
-  "Windows sounds"; the session count stays the pill). A list that does not all fit keeps the base
-  height and scrolls. What a short list still leaves stays empty: no hint or link to Windows' mixer
-  fills it (user decision: a widget shows its own content, not filler).
+- **[S-1624]** A mixer row's second line, where the tier gives its rows two ([S-449], [S-6712]), says
+  what the app is doing (`MixerFill.Detail`: "Playing", "Silent", "Muted", "Windows sounds"). The rows
+  no longer share an expanded card's height (G5): what a short list leaves stays empty, and no hint
+  or link to Windows' mixer fills it (user decision: a widget shows its own content, not filler).
 - **[S-1625]** Checked against the original and **not built, because the original never had it**:
   Sun & moon 7-day table (original: sunrise/sunset + phase only; moonrise/moonset came later with
   the Moon widget, [S-3104]); Scratchpad

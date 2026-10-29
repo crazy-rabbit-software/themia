@@ -1,4 +1,3 @@
-using Microsoft.UI;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Controls.Primitives;
@@ -8,7 +7,9 @@ using Themia.App.Services;
 using Themia.App.Shell;
 using Themia.Core.Localization;
 using Themia.Core.Widgets;
+using Themia.Sdk.Kit;
 using Themia.Sdk.WinUI;
+using Themia.Sdk.WinUI.Kit;
 using Themia.Widget.Mixer;
 using Glyphs = Themia.App.Shell.Glyphs;
 
@@ -16,117 +17,72 @@ namespace Themia.App.Widgets;
 
 internal sealed partial class MixerView
 {
-    /// <summary>One row's visuals, rewritten in place for whichever row sits at its position.</summary>
+    /// <summary>
+    /// [S-449] One row's visuals, rewritten in place for whichever row sits at its position: a Row block
+    /// ([S-6711]) led by the app's icon (16), its name, and in the meter's place the Controls slider
+    /// (rail Track, value the accent) and the mute, a 32 icon button whose glyph is the level's band.
+    /// </summary>
     private sealed class RowVisual
     {
-        private static readonly Brush PrimaryBrush = ThemeBrush.Of("TextFillColorPrimaryBrush", Colors.White);
-        private static readonly Brush QuietBrush = ThemeBrush.Of("TextFillColorTertiaryBrush", Colors.Gray);
-        private static readonly Brush MutedBrush = ThemeBrush.Of("TextFillColorDisabledBrush", Colors.Gray);
-        private static readonly Brush GlyphBrush = ThemeBrush.Of("TextFillColorSecondaryBrush", Colors.Gray);
-        private static readonly Brush DetailBrush = ThemeBrush.Of("TextFillColorTertiaryBrush", Colors.Gray);
-
         private readonly MixerView _owner;
-        private readonly Grid _grid = new();
-        private readonly Grid _iconSlot = new() { Width = Fluent.Space5, Height = Fluent.Space5 };
-        private readonly Image _image = new() { Width = Fluent.Space5, Height = Fluent.Space5, Stretch = Stretch.Uniform };
-        private readonly FontIcon _glyph = Fluent.Icon(Glyphs.Apps, "TextFillColorSecondaryBrush");
-        private readonly TextBlock _name = Fluent.Text(FluentType.Body);
-        private readonly TextBlock _detail = Fluent.Text(FluentType.Caption, "TextFillColorTertiaryBrush");
-        private readonly Border _count;
-        private readonly TextBlock _countText = Fluent.Text(FluentType.Caption, "TextFillColorSecondaryBrush");
-        private readonly Slider _slider = new() { Minimum = 0, Maximum = 100, StepFrequency = 1 };
-        private readonly Button _mute = new();
-        private readonly FontIcon _muteIcon = Fluent.Icon(Glyphs.Volume3, "TextFillColorPrimaryBrush");
-        private readonly IDisposable _hover;
+        private readonly bool _leads;
+        private readonly Grid _lead = new() { Width = FamilyShape.Icon, Height = FamilyShape.Icon };
+        private readonly Image _image = new() { Width = FamilyShape.Icon, Height = FamilyShape.Icon, Stretch = Stretch.Uniform };
+        private readonly FontIcon _glyph = Family.Glyph(Glyphs.Apps, FamilyShape.Icon, ColourRole.TextSecondary);
+        private readonly Grid _controls = new();
+        private readonly Slider _slider = ControlsBlock.RailSlider(0, 100, 0);
+        private readonly Button _mute;
+        private readonly FontIcon _muteIcon;
         private readonly PointerEventHandler _grab;
         private readonly PointerEventHandler _release;
-        private readonly HugRow _nameLine;
 
         private MixerRow? _row;
         private string? _iconPath;
         private LogoTheme _iconTheme;
-        private MixerRowStyle? _style;
-        private bool _icons = true;
-        private bool _detailOn;
+        private MixerPlan? _plan;
         private bool _echoing;
         private bool _grabbed;
 
-        public RowVisual(MixerView owner)
+        public RowVisual(MixerView owner, bool leads)
         {
             _owner = owner;
+            _leads = leads;
+            Host = new RowBlock(RowKind.List, leads ? FamilyShape.Icon : 0) { Interactive = true };
 
-            _iconSlot.Children.Add(_glyph);
-            _iconSlot.Children.Add(_image);
-            _iconSlot.VerticalAlignment = VerticalAlignment.Center;
-
-            _name.VerticalAlignment = VerticalAlignment.Center;
-            _detail.TextTrimming = TextTrimming.CharacterEllipsis;
-            _detail.Visibility = Visibility.Collapsed;
-
-            // [S-442] How many sessions the one slider drives — a quiet pill, not an unread badge.
-            _countText.VerticalAlignment = VerticalAlignment.Center;
-            _count = new Border
+            _lead.Children.Add(_glyph);
+            _lead.Children.Add(_image);
+            if (leads)
             {
-                Child = _countText,
-                Background = ThemeBrush.Of("ControlFillColorSecondaryBrush", Colors.Gray),
-                CornerRadius = new CornerRadius(Fluent.OverlayRadius),
-                Padding = new Thickness(Fluent.Space1 + 2, 0, Fluent.Space1 + 2, 0),
-                VerticalAlignment = VerticalAlignment.Center,
-                Visibility = Visibility.Collapsed,
-            };
+                Host.Lead(_lead);
+            }
 
-            // The count hugs the name, and the name ellipsises rather than running under the slider.
-            _nameLine = new HugRow(_name, _count, Fluent.Space2) { VerticalAlignment = VerticalAlignment.Center };
-
-            _mute.Content = _muteIcon;
-            _mute.Padding = new Thickness(Fluent.Space1 + 2);
-            _mute.MinWidth = 0;
-            _mute.MinHeight = 0;
-            _mute.Background = ThemeBrush.Of("SubtleFillColorTransparentBrush", Colors.Transparent);
-            _mute.BorderThickness = new Thickness(0);
-            _mute.CornerRadius = new CornerRadius(Fluent.ControlRadius);
-            _mute.VerticalAlignment = VerticalAlignment.Center;
+            _mute = ControlsBlock.IconButton(Glyphs.Volume3, Str.Mixer_Mute.Text(), OnMute);
+            _muteIcon = (FontIcon)_mute.Content;
             _mute.IsTabStop = false;
-            _mute.Click += OnMuteClicked;
 
-            _slider.VerticalAlignment = VerticalAlignment.Center;
             _slider.IsTabStop = false;
             _slider.ValueChanged += OnSliderChanged;
 
             // Handled events too: the slider marks its own pointer events handled. Four of them, for
-            // the same reason a row's hover needs four — the pointer can leave without a release.
+            // the same reason a row's hover needs four: the pointer can leave without a release.
             _grab = (_, _) => _grabbed = true;
             _release = (_, _) => _grabbed = false;
-            _slider.AddHandler(PointerPressedEvent, _grab, true);
-            _slider.AddHandler(PointerReleasedEvent, _release, true);
-            _slider.AddHandler(PointerCaptureLostEvent, _release, true);
-            _slider.AddHandler(PointerCanceledEvent, _release, true);
+            _slider.AddHandler(UIElement.PointerPressedEvent, _grab, true);
+            _slider.AddHandler(UIElement.PointerReleasedEvent, _release, true);
+            _slider.AddHandler(UIElement.PointerCaptureLostEvent, _release, true);
+            _slider.AddHandler(UIElement.PointerCanceledEvent, _release, true);
 
-            _grid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
-            _grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(2, GridUnitType.Star) });
-            _grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(3, GridUnitType.Star) });
-            _grid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
-            _grid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
-            _grid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
-            _grid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
+            _controls.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+            _controls.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+            Grid.SetColumn(_mute, 1);
+            _controls.Children.Add(_slider);
+            _controls.Children.Add(_mute);
 
-            _grid.Children.Add(_iconSlot);
-            _grid.Children.Add(_nameLine);
-            _grid.Children.Add(_detail);
-            _grid.Children.Add(_slider);
-            _grid.Children.Add(_mute);
-
-            Host = Fluent.Row(_grid);
             Host.RightTapped += OnRightTapped;
             Host.ActualThemeChanged += OnThemeChanged;
-
-            // [S-1225] The keyboard cursor sits on the row, with the system focus rect: no layout cost.
-            Host.IsTabStop = true;
-            Host.UseSystemFocusVisuals = true;
-            _hover = Fluent.Hover(Host);
         }
 
-        public Border Host { get; }
+        public RowBlock Host { get; }
 
         /// <summary>Whether the row is drawn as quiet (an app holding a session but silent).</summary>
         public bool Dimmed { get; private set; }
@@ -134,114 +90,47 @@ internal sealed partial class MixerView
         /// <summary>[S-1940] False while the row stands in for a device that is not there.</summary>
         public bool Available { get; private set; } = true;
 
-        /// <summary>
-        /// [S-1227] Put the parts where this width wants them, at the height the ladder counted on.
-        /// Gaps are margins on the parts rather than grid spacing, because spacing is paid between
-        /// empty columns too, and a narrow row cannot afford thirty pixels of gaps around nothing.
-        /// </summary>
-        /// <param name="detail">
-        /// [S-1624] A one-line row tall enough for it has a caption under the name; the slider and
-        /// the mute then span both lines, centred on the row.
-        /// </param>
-        public void Arrange(MixerRowStyle style, double height, bool icons, bool detail)
+        /// <summary>[S-449] The row's lines and its slider for this size (the meter's place: the slider, 8, the mute).</summary>
+        public void Arrange(MixerPlan plan)
         {
-            Host.Height = height;
-            Host.MinHeight = height;
-
-            detail &= style == MixerRowStyle.OneLine;
-
-            if (_style == style && _icons == icons && _detailOn == detail)
+            if (_plan == plan)
             {
                 return;
             }
 
-            _style = style;
-            _icons = icons;
-            _detailOn = detail;
-            _detail.Visibility = detail ? Visibility.Visible : Visibility.Collapsed;
-            var lines = detail ? 2 : 1;
-            Place(_iconSlot, 0, 0, 1, lines);
-
-            switch (style)
+            _plan = plan;
+            Host.Lines = plan.Lines;
+            var slider = plan.Slider is 0 ? Visibility.Collapsed : Visibility.Visible;
+            _slider.Visibility = slider;
+            _mute.Margin = new Thickness(slider == Visibility.Visible ? FamilySpace.S2 : 0, 0, 0, 0);
+            var mute = FamilyShape.IconButton;
+            Host.Meter(_controls, plan.Slider switch
             {
-                case MixerRowStyle.OneLine:
-                    Place(_nameLine, 0, 1, 1);
-                    Place(_detail, 1, 1, 1);
-                    Place(_slider, 0, 2, 1, lines);
-                    Place(_mute, 0, 4, 1, lines);
-                    _nameLine.VerticalAlignment = detail ? VerticalAlignment.Bottom : VerticalAlignment.Center;
-                    _detail.VerticalAlignment = VerticalAlignment.Top;
-                    _slider.Margin = new Thickness(Fluent.Space3, 0, 0, 0);
-                    break;
-
-                case MixerRowStyle.TwoLine:
-                    _nameLine.VerticalAlignment = VerticalAlignment.Center;
-                    Place(_nameLine, 0, 1, 2);
-                    Place(_mute, 0, 4, 1);
-                    Place(_slider, 1, 1, 4);
-
-                    // Tucked up under the name line: the slider's own box is taller than its track.
-                    _slider.Margin = new Thickness(icons ? Fluent.Space2 : 0, -Fluent.Space2, Fluent.Space2, -Fluent.Space2);
-                    break;
-
-                default:
-                    _nameLine.VerticalAlignment = VerticalAlignment.Center;
-                    Place(_nameLine, 0, 1, 2);
-                    Place(_mute, 0, 4, 1);
-                    break;
-            }
-
-            _slider.Visibility = style == MixerRowStyle.Compact ? Visibility.Collapsed : Visibility.Visible;
-
-            // A compact row is the app and its mute (the glyph shows the level band, [S-2771]): the
-            // icon names the app, and the name only comes back when there is no icon to do it.
-            _nameLine.Visibility = style == MixerRowStyle.Compact && icons ? Visibility.Collapsed : Visibility.Visible;
-            _nameLine.Margin = new Thickness(icons ? Fluent.Space2 : 0, 0, 0, 0);
-            _detail.Margin = _nameLine.Margin;
-            _mute.Margin = new Thickness(Fluent.Space1, 0, 0, 0);
-
-            // A two-line row is the name line (28: the mute button) and the tucked slider (16) in
-            // 48: two pixels above and two to spare below.
-            Host.Padding = style switch
-            {
-                MixerRowStyle.Compact => new Thickness(Fluent.Space3, 0, Fluent.Space1, 0),
-                MixerRowStyle.TwoLine => new Thickness(Fluent.Space4, 2, Fluent.Space2, 0),
-                _ => new Thickness(Fluent.Space4, Fluent.Space1, Fluent.Space2, Fluent.Space1),
-            };
-        }
-
-        private static void Place(FrameworkElement element, int row, int column, int span, int rows = 1)
-        {
-            SetRow(element, row);
-            SetRowSpan(element, rows);
-            SetColumn(element, column);
-            SetColumnSpan(element, span);
+                0 => mute,
+                double.NaN => double.NaN,
+                var width => width + FamilySpace.S2 + mute,
+            });
         }
 
         /// <param name="available">[S-1940] False for the stand-in row of a mixer with no device: every part disabled, the view says why.</param>
-        public void Show(MixerRow row, bool showIcons, bool dimmed, bool available)
+        public void Show(MixerRow row, bool dimmed, bool available)
         {
             _row = row;
             Dimmed = dimmed;
             Available = available;
 
             var name = RowName(row);
-            _name.Text = name;
-            _name.Foreground = !available ? UnavailableLook.Text : row.Muted ? MutedBrush : dimmed ? QuietBrush : PrimaryBrush;
-            _detail.Text = MixerFill.Detail(row);
-            _detail.Foreground = available ? DetailBrush : UnavailableLook.Text;
+            var names = _plan?.Names ?? true;
+            Host.Available = available;
+            Host.Show(names ? name : string.Empty, second: MixerFill.Detail(row));
             ToolTipService.SetToolTip(Host, !available ? null : dimmed ? MixerStr.WidgetsB_Mixer_NotPlaying.Format(("name", name)) : name);
             UnavailableLook.Enable(available, _slider, _mute);
-            _muteIcon.Foreground = available ? PrimaryBrush : UnavailableLook.Text;
-            _glyph.Foreground = available ? GlyphBrush : UnavailableLook.Text;
-
-            _count.Visibility = row.Sessions > 1 ? Visibility.Visible : Visibility.Collapsed;
-            _countText.Text = LocaleFormat.Integer(row.Sessions);
+            _muteIcon.Foreground = Family.Brush(available ? ColourRole.TextPrimary : ColourRole.TextDisabled);
+            _glyph.Foreground = Family.Brush(available ? ColourRole.TextSecondary : ColourRole.TextDisabled);
 
             // [S-2771] The level is the slider's position (and the mute glyph's band), never a number.
             var percent = MixerRules.DisplayPercent(row);
-
-            _muteIcon.Glyph = AudioLook.OutputGlyph(row.Level, row.Muted);
+            ControlsBlock.Reglyph(_mute, AudioLook.OutputGlyph(row.Level, row.Muted), row.Muted ? Str.Mixer_Unmute.Text() : Str.Mixer_Mute.Text());
             ToolTipService.SetToolTip(_mute, !available ? null : row.Muted ? Str.Mixer_Unmute.Text() : Str.Mixer_Mute.Text());
 
             // A snapshot is the machine's truth, but not under a held thumb: writing it there would
@@ -253,15 +142,13 @@ internal sealed partial class MixerView
                 _echoing = false;
             }
 
-            ShowIcon(row, showIcons);
+            ShowIcon(row);
         }
 
         /// <summary>[S-441] The app's own icon when there is one, else a glyph for what the row is.</summary>
-        private void ShowIcon(MixerRow row, bool showIcons)
+        private void ShowIcon(MixerRow row)
         {
-            _iconSlot.Visibility = showIcons ? Visibility.Visible : Visibility.Collapsed;
-
-            if (!showIcons)
+            if (!_leads)
             {
                 return;
             }
@@ -322,7 +209,7 @@ internal sealed partial class MixerView
             _owner.OnLevel(row, MixerRules.ClampLevel(args.NewValue / 100));
         }
 
-        private void OnMuteClicked(object sender, RoutedEventArgs args)
+        private void OnMute()
         {
             if (_row is { } row)
             {
@@ -353,15 +240,14 @@ internal sealed partial class MixerView
 
         public void Detach()
         {
-            _hover.Dispose();
+            Host.Detach();
             Host.RightTapped -= OnRightTapped;
             Host.ActualThemeChanged -= OnThemeChanged;
-            _mute.Click -= OnMuteClicked;
             _slider.ValueChanged -= OnSliderChanged;
-            _slider.RemoveHandler(PointerPressedEvent, _grab);
-            _slider.RemoveHandler(PointerReleasedEvent, _release);
-            _slider.RemoveHandler(PointerCaptureLostEvent, _release);
-            _slider.RemoveHandler(PointerCanceledEvent, _release);
+            _slider.RemoveHandler(UIElement.PointerPressedEvent, _grab);
+            _slider.RemoveHandler(UIElement.PointerReleasedEvent, _release);
+            _slider.RemoveHandler(UIElement.PointerCaptureLostEvent, _release);
+            _slider.RemoveHandler(UIElement.PointerCanceledEvent, _release);
         }
     }
 }

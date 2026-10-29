@@ -48,18 +48,8 @@ public class Polish2LayoutTests
     }
 
     // -----------------------------------------------------------------------------------------
-    // [S-1624] the extra-large mixer's list fills its column
+    // [S-1624] what a mixer row's second line says
     // -----------------------------------------------------------------------------------------
-
-    [Theory]
-    [InlineData(512, 7, 40, 64)]     // seven apps on XL: capped at the tallest row
-    [InlineData(512, 9, 40, 56)]     // nine share the height
-    [InlineData(512, 12, 40, 42)]
-    [InlineData(512, 13, 40, 40)]    // thirteen do not all fit: base height, they scroll
-    [InlineData(512, 0, 40, 40)]
-    [InlineData(0, 3, 40, 40)]       // unmeasured
-    public void S1624_rows_that_all_fit_share_the_height_up_to_a_cap(double height, int count, double baseHeight, double expected)
-        => Assert.Equal(expected, MixerFill.RowHeight(height, count, baseHeight));
 
     [Theory]
     [InlineData(false, false, true, 1, "Playing")]

@@ -149,16 +149,6 @@ public class AudioRulesTests
 
     // ---- [S-1227] [S-1228] [S-1231] the mixer's rows ---------------------------------------------
 
-    [Theory]
-    [InlineData(120, MixerRowStyle.Compact)]
-    [InlineData(169.9, MixerRowStyle.Compact)]
-    [InlineData(170, MixerRowStyle.TwoLine)]
-    [InlineData(320, MixerRowStyle.TwoLine)]
-    [InlineData(360, MixerRowStyle.OneLine)]
-    [InlineData(800, MixerRowStyle.OneLine)]
-    public void S1227_row_style_by_width(double width, MixerRowStyle expected)
-        => Assert.Equal(expected, MixerRules.RowStyle(width));
-
     private static MixerRow Row(string key, string name, bool active, bool system = false)
         => new(key, name, null, 0.5, false, active, system, 1);
 
