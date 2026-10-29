@@ -262,16 +262,6 @@ public sealed class TaskRulesTests
 
     // ---- [S-601] title lines, [S-595] visibility ---------------------------------------------------
 
-    [Theory]
-    [InlineData(1, 1)]
-    [InlineData(3, 3)]
-    [InlineData(6, 6)]
-    [InlineData(0, 1)]
-    [InlineData(-5, 1)]
-    [InlineData(99, 6)]
-    public void S601_title_lines_are_clamped_rather_than_rejected(int raw, int expected)
-        => Assert.Equal(expected, TaskRules.ClampTitleLines(raw));
-
     [Fact]
     public void S595_hides_completed_tasks_unless_asked_keeping_order()
     {

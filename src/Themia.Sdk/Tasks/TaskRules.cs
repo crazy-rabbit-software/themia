@@ -21,13 +21,6 @@ public static class TaskRules
     /// <summary>[S-596] Bound on the Today fan-out: one request per list, so an absurd number of lists cannot turn one refresh into hundreds.</summary>
     public const int TodayMaxLists = 50;
 
-    /// <summary>[S-601] Title lines: two by default, one to six.</summary>
-    public const int TitleLinesMin = 1;
-
-    public const int TitleLinesMax = 6;
-
-    public const int TitleLinesDefault = 2;
-
     public static bool IsToday(string? listId) => listId == TodayListId;
 
     /// <summary>
@@ -201,12 +194,6 @@ public static class TaskRules
 
         return result;
     }
-
-    /// <summary>
-    /// [S-601] How many lines a title wraps to before it is cut with an ellipsis. Out-of-range values
-    /// are clamped rather than rejected, so no config can produce a zero-height or unbounded row.
-    /// </summary>
-    public static int ClampTitleLines(int lines) => Math.Clamp(lines, TitleLinesMin, TitleLinesMax);
 
     /// <summary>
     /// [S-595] [S-611] [S-612] What the list shows, in the order it was given: finished tasks only
