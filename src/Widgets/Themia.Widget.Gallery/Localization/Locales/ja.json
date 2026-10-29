@@ -33,5 +33,7 @@
   "widgetsB.settings.gallery.slide.label": "表示時間",
   "widgetsB.settings.gallery.sourceBing": "Bing の今日の写真",
   "widgetsB.settings.gallery.sourceFile": "1 枚の画像",
-  "widgetsB.settings.gallery.sourceFolder": "フォルダー"
+  "widgetsB.settings.gallery.sourceFolder": "フォルダー",
+  "gallery.setup.folder": "画像のフォルダーを選択",
+  "gallery.setup.picture": "画像を選択"
 }

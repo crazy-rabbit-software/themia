@@ -33,5 +33,7 @@
   "widgetsB.settings.gallery.slide.label": "Czas slajdu",
   "widgetsB.settings.gallery.sourceBing": "Zdjęcie dnia Bing",
   "widgetsB.settings.gallery.sourceFile": "Jeden obraz",
-  "widgetsB.settings.gallery.sourceFolder": "Folder"
+  "widgetsB.settings.gallery.sourceFolder": "Folder",
+  "gallery.setup.folder": "Wybierz folder z obrazami",
+  "gallery.setup.picture": "Wybierz obraz"
 }

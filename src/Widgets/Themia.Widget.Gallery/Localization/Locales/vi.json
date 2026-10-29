@@ -33,5 +33,7 @@
   "widgetsB.settings.gallery.slide.label": "Thời gian mỗi ảnh",
   "widgetsB.settings.gallery.sourceBing": "Ảnh trong ngày của Bing",
   "widgetsB.settings.gallery.sourceFile": "Một ảnh",
-  "widgetsB.settings.gallery.sourceFolder": "Một thư mục"
+  "widgetsB.settings.gallery.sourceFolder": "Một thư mục",
+  "gallery.setup.folder": "Chọn một thư mục ảnh",
+  "gallery.setup.picture": "Chọn một ảnh"
 }

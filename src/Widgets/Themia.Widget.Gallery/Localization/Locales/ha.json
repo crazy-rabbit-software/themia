@@ -33,5 +33,7 @@
   "widgetsB.settings.gallery.slide.label": "Lokacin hoto",
   "widgetsB.settings.gallery.sourceBing": "Hoton yini na Bing",
   "widgetsB.settings.gallery.sourceFile": "Hoto ɗaya",
-  "widgetsB.settings.gallery.sourceFolder": "Babban fayil"
+  "widgetsB.settings.gallery.sourceFolder": "Babban fayil",
+  "gallery.setup.folder": "Zaɓi babban fayil na hotuna",
+  "gallery.setup.picture": "Zaɓi hoto"
 }

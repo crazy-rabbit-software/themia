@@ -18,7 +18,7 @@ sticker) and `.Commands.cs` (the hover bar, the menu, the keys, opening through 
 `GalleryArrangement.cs` (scatter, mosaic and grid), `GalleryPlan.cs` (the ladder), `StickerOutline.cs`
 (the outline from a second decode), `GalleryMenu.cs` (its properties-menu lines: the folder through the SDK's
 `PickFolder`, the picture file through `SettingsHost.OwnPicker`), `Preview/` (Debug renders:
-`--state sample|slideshow|grid|scatter|mosaic|file|sticker`, Windows' own wallpapers),
+`--state sample|slideshow|grid|scatter|mosaic|file|sticker|controls|empty|missing|failed`, Windows' own wallpapers),
 `Localization/Locales/` (its own `GalleryStr`, 30 languages, its style names included). Tests:
 `Tests/GalleryLayoutTests.cs` (run by `tests/Themia.Modules.Tests`); its config under the root's rules is
 the module host's `GalleryHostTests` and `GalleryPersistenceTests`.
@@ -42,14 +42,18 @@ the module host's `GalleryHostTests` and `GalleryPersistenceTests`.
 - **[S-766]** Grid: about one 120-DIP tile per slot (max 24), shaped so tiles are closest to square
   with a small penalty per empty cell.
 - **[S-767]** The ladder (`GalleryPlan`): any layout with room for only one picture is that picture
-  full-bleed with nothing on it (XS). Slideshow: counter in the header and the hover bar from
-  Regular width; the picture is the whole slot at every size (no "up next" thumbnails beside or
+  full-bleed with nothing on it (XS). Slideshow: the counter ("1/20") as the header's informing label
+  (Caption, secondary, the first part to give way, [S-6710]) and the hover bar from Regular width; the picture is the whole slot at every size (no "up next" thumbnails beside or
   under it, retired [S-666]; the L file-name line and the XL "N of M · folder" line are retired, [S-2760]). Grid / scatter / mosaic take more pictures as the card grows. Scatter and
   mosaic are dealt from the widget's own seed ([S-3412]), so a resize moves pictures rather than reshuffling them.
 - **[S-768]** *(Retired: no "up next" thumbnails to tap, [S-767]. Home / End and the arrows still
   jump, [S-1992].)*
 - **[S-769]** The hover bar (previous / pause-resume / next) shows only while the pointer is over
-  the widget, in the slideshow with more than one picture. Pause is not persisted.
+  the widget, in the slideshow with more than one picture. Pause is not persisted. It is drawn from
+  the family's tokens over the picture (G6, 2026-10-29): three icon buttons (32, a 16 glyph in the
+  primary role, clear, side by side) on the solid role with a hairline edge in the control stroke, the
+  one radius, 4 inside, centred 8 above the picture's foot (`--state controls` draws it). The acrylic
+  fill and the flyout stroke are gone.
 - **[S-770]** The slideshow's own timer runs only while it is a folder slideshow with more than one
   picture and not paused.
 - **[S-771]** Double-click a picture opens it; right-click a picture: Open, Show in Explorer,
@@ -85,6 +89,17 @@ the module host's `GalleryHostTests` and `GalleryPersistenceTests`.
   colour submenu, [S-3724]) and **Outline width** (1..24 px). A typed path is checked by `FolderPath`
   as it is typed and refused with the reason, never repaired; empty means nothing chosen.
   (Tests `GalleryMenuTests`.)
+- **[S-779]** A gallery with nothing to draw says why in the Status block's one row at the top of its
+  content ([S-6714], G6 2026-10-29), never a centred panel: still reading, a folder with no picture in
+  it and no network for the photo of the day are plain (the gallery's glyph, tertiary); a path that
+  cannot be, a folder or picture that is gone, refused or unreadable, a file that is not a picture and
+  Bing not answering are problems (the caution warning), with Retry (reading again) only for a read
+  that failed and Bing not answering (`GalleryFormatting.Look`, `Retries`). The reason and its advice
+  are one sentence, cut with an ellipsis, all of it in the tooltip. Nothing chosen yet is the card's Set
+  up row, whose sentence is the source's: "Choose a folder of pictures", or "Choose a picture" for one
+  picture file (`GalleryConfig`'s `SetupSentence`, [S-1862]). A tile still decoding has the subtle
+  role as its placeholder; a scattered print's edge is a hairline in the control stroke. Debug:
+  `--state empty|missing|failed`. (Tests `GalleryStatusTests`.)
 - **[S-811]** Pictures (Gallery widget) slideshow: Left / Right step, Space pauses (the original's S-29). Other
   layouts take no keys.
 - **[S-1620]** Pictures (Gallery widget): a slide can be held for as little as **1 s** (`GalleryConfig.MinSlideSeconds`;

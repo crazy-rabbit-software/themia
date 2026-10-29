@@ -77,6 +77,11 @@ public sealed class GalleryConfig : WidgetConfig, IStyled, IShownSettings<Galler
         _ => false,
     };
 
+    /// <summary>[S-1862] The Set up row's sentence: what the chosen source still lacks.</summary>
+    string? ISetupRule.SetupSentence => Source == GallerySource.File
+        ? GalleryStr.Gallery_Setup_Picture.Text()
+        : GalleryStr.Gallery_Setup_Folder.Text();
+
     /// <summary>
     /// [S-1620] The fewest seconds a slide can be held: one, as in the original (its S-09/S-18).
     /// Below a second it is a flicker, not a slideshow.

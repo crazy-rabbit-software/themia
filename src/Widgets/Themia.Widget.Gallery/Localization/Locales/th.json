@@ -33,5 +33,7 @@
   "widgetsB.settings.gallery.slide.label": "เวลาสไลด์",
   "widgetsB.settings.gallery.sourceBing": "ภาพถ่ายประจำวันของ Bing",
   "widgetsB.settings.gallery.sourceFile": "รูปภาพเดียว",
-  "widgetsB.settings.gallery.sourceFolder": "โฟลเดอร์"
+  "widgetsB.settings.gallery.sourceFolder": "โฟลเดอร์",
+  "gallery.setup.folder": "เลือกโฟลเดอร์รูปภาพ",
+  "gallery.setup.picture": "เลือกรูปภาพ"
 }

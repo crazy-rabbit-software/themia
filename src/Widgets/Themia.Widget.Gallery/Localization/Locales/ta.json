@@ -33,5 +33,7 @@
   "widgetsB.settings.gallery.slide.label": "ஸ்லைடு நேரம்",
   "widgetsB.settings.gallery.sourceBing": "Bing இன்றைய புகைப்படம்",
   "widgetsB.settings.gallery.sourceFile": "ஒரு படம்",
-  "widgetsB.settings.gallery.sourceFolder": "ஒரு கோப்புறை"
+  "widgetsB.settings.gallery.sourceFolder": "ஒரு கோப்புறை",
+  "gallery.setup.folder": "படங்களின் கோப்புறையைத் தேர்வுசெய்க",
+  "gallery.setup.picture": "ஒரு படத்தைத் தேர்வுசெய்க"
 }

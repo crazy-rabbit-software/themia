@@ -33,5 +33,7 @@
   "widgetsB.settings.gallery.slide.label": "Diatijd",
   "widgetsB.settings.gallery.sourceBing": "Bing-foto van de dag",
   "widgetsB.settings.gallery.sourceFile": "Eén afbeelding",
-  "widgetsB.settings.gallery.sourceFolder": "Een map"
+  "widgetsB.settings.gallery.sourceFolder": "Een map",
+  "gallery.setup.folder": "Kies een map met afbeeldingen",
+  "gallery.setup.picture": "Kies een afbeelding"
 }

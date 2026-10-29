@@ -33,5 +33,7 @@
   "widgetsB.settings.gallery.slide.label": "مدة الشريحة",
   "widgetsB.settings.gallery.sourceBing": "صورة Bing اليومية",
   "widgetsB.settings.gallery.sourceFile": "صورة واحدة",
-  "widgetsB.settings.gallery.sourceFolder": "مجلد"
+  "widgetsB.settings.gallery.sourceFolder": "مجلد",
+  "gallery.setup.folder": "اختر مجلد صور",
+  "gallery.setup.picture": "اختر صورة"
 }

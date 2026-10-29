@@ -33,5 +33,7 @@
   "widgetsB.settings.gallery.slide.label": "每张时长",
   "widgetsB.settings.gallery.sourceBing": "Bing 每日图片",
   "widgetsB.settings.gallery.sourceFile": "单张图片",
-  "widgetsB.settings.gallery.sourceFolder": "文件夹"
+  "widgetsB.settings.gallery.sourceFolder": "文件夹",
+  "gallery.setup.folder": "选择图片文件夹",
+  "gallery.setup.picture": "选择图片"
 }

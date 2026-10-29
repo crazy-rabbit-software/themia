@@ -33,5 +33,7 @@
   "widgetsB.settings.gallery.slide.label": "Slayt süresi",
   "widgetsB.settings.gallery.sourceBing": "Bing günün fotoğrafı",
   "widgetsB.settings.gallery.sourceFile": "Tek bir resim",
-  "widgetsB.settings.gallery.sourceFolder": "Bir klasör"
+  "widgetsB.settings.gallery.sourceFolder": "Bir klasör",
+  "gallery.setup.folder": "Bir resim klasörü seçin",
+  "gallery.setup.picture": "Bir resim seçin"
 }

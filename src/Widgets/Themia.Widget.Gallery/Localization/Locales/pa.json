@@ -33,5 +33,7 @@
   "widgetsB.settings.gallery.slide.label": "ਸਲਾਈਡ ਸਮਾਂ",
   "widgetsB.settings.gallery.sourceBing": "Bing ਦੀ ਅੱਜ ਦੀ ਫ਼ੋਟੋ",
   "widgetsB.settings.gallery.sourceFile": "ਇੱਕ ਤਸਵੀਰ",
-  "widgetsB.settings.gallery.sourceFolder": "ਇੱਕ ਫੋਲਡਰ"
+  "widgetsB.settings.gallery.sourceFolder": "ਇੱਕ ਫੋਲਡਰ",
+  "gallery.setup.folder": "ਤਸਵੀਰਾਂ ਦਾ ਫੋਲਡਰ ਚੁਣੋ",
+  "gallery.setup.picture": "ਇੱਕ ਤਸਵੀਰ ਚੁਣੋ"
 }

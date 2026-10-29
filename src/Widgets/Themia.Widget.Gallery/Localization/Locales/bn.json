@@ -33,5 +33,7 @@
   "widgetsB.settings.gallery.slide.label": "স্লাইডের সময়",
   "widgetsB.settings.gallery.sourceBing": "Bing-এর আজকের ছবি",
   "widgetsB.settings.gallery.sourceFile": "একটি ছবি",
-  "widgetsB.settings.gallery.sourceFolder": "একটি ফোল্ডার"
+  "widgetsB.settings.gallery.sourceFolder": "একটি ফোল্ডার",
+  "gallery.setup.folder": "ছবির একটি ফোল্ডার বেছে নিন",
+  "gallery.setup.picture": "একটি ছবি বেছে নিন"
 }

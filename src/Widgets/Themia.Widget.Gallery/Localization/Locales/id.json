@@ -33,5 +33,7 @@
   "widgetsB.settings.gallery.slide.label": "Waktu slide",
   "widgetsB.settings.gallery.sourceBing": "Foto Bing hari ini",
   "widgetsB.settings.gallery.sourceFile": "Satu gambar",
-  "widgetsB.settings.gallery.sourceFolder": "Sebuah folder"
+  "widgetsB.settings.gallery.sourceFolder": "Sebuah folder",
+  "gallery.setup.folder": "Pilih folder gambar",
+  "gallery.setup.picture": "Pilih gambar"
 }

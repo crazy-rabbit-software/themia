@@ -33,5 +33,7 @@
   "widgetsB.settings.gallery.slide.label": "زمان اسلاید",
   "widgetsB.settings.gallery.sourceBing": "عکس روز Bing",
   "widgetsB.settings.gallery.sourceFile": "یک تصویر",
-  "widgetsB.settings.gallery.sourceFolder": "یک پوشه"
+  "widgetsB.settings.gallery.sourceFolder": "یک پوشه",
+  "gallery.setup.folder": "پوشه‌ای از تصاویر انتخاب کنید",
+  "gallery.setup.picture": "تصویری انتخاب کنید"
 }

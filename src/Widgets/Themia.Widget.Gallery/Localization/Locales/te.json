@@ -33,5 +33,7 @@
   "widgetsB.settings.gallery.slide.label": "స్లైడ్ సమయం",
   "widgetsB.settings.gallery.sourceBing": "Bing ఈ రోజు ఫోటో",
   "widgetsB.settings.gallery.sourceFile": "ఒక చిత్రం",
-  "widgetsB.settings.gallery.sourceFolder": "ఒక ఫోల్డర్"
+  "widgetsB.settings.gallery.sourceFolder": "ఒక ఫోల్డర్",
+  "gallery.setup.folder": "చిత్రాల ఫోల్డర్‌ను ఎంచుకోండి",
+  "gallery.setup.picture": "ఒక చిత్రాన్ని ఎంచుకోండి"
 }

@@ -33,5 +33,7 @@
   "widgetsB.settings.gallery.slide.label": "Время показа",
   "widgetsB.settings.gallery.sourceBing": "Фото дня Bing",
   "widgetsB.settings.gallery.sourceFile": "Одно изображение",
-  "widgetsB.settings.gallery.sourceFolder": "Папка"
+  "widgetsB.settings.gallery.sourceFolder": "Папка",
+  "gallery.setup.folder": "Выберите папку с изображениями",
+  "gallery.setup.picture": "Выберите изображение"
 }

@@ -33,5 +33,7 @@
   "widgetsB.settings.gallery.slide.label": "每張時間",
   "widgetsB.settings.gallery.sourceBing": "Bing 每日圖片",
   "widgetsB.settings.gallery.sourceFile": "單張圖片",
-  "widgetsB.settings.gallery.sourceFolder": "資料夾"
+  "widgetsB.settings.gallery.sourceFolder": "資料夾",
+  "gallery.setup.folder": "選擇圖片資料夾",
+  "gallery.setup.picture": "選擇圖片"
 }

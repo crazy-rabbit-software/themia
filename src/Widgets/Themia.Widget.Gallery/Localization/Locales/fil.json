@@ -33,5 +33,7 @@
   "widgetsB.settings.gallery.slide.label": "Tagal ng slide",
   "widgetsB.settings.gallery.sourceBing": "Larawan ng araw ng Bing",
   "widgetsB.settings.gallery.sourceFile": "Isang larawan",
-  "widgetsB.settings.gallery.sourceFolder": "Isang folder"
+  "widgetsB.settings.gallery.sourceFolder": "Isang folder",
+  "gallery.setup.folder": "Pumili ng folder ng mga larawan",
+  "gallery.setup.picture": "Pumili ng larawan"
 }

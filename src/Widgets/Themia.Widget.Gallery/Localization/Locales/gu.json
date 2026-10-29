@@ -33,5 +33,7 @@
   "widgetsB.settings.gallery.slide.label": "સ્લાઇડ સમય",
   "widgetsB.settings.gallery.sourceBing": "Bing નો આજનો ફોટો",
   "widgetsB.settings.gallery.sourceFile": "એક ચિત્ર",
-  "widgetsB.settings.gallery.sourceFolder": "ફોલ્ડર"
+  "widgetsB.settings.gallery.sourceFolder": "ફોલ્ડર",
+  "gallery.setup.folder": "ચિત્રોનું ફોલ્ડર પસંદ કરો",
+  "gallery.setup.picture": "એક ચિત્ર પસંદ કરો"
 }

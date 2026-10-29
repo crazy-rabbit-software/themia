@@ -33,5 +33,7 @@
   "widgetsB.settings.gallery.slide.label": "슬라이드 시간",
   "widgetsB.settings.gallery.sourceBing": "Bing 오늘의 사진",
   "widgetsB.settings.gallery.sourceFile": "사진 한 장",
-  "widgetsB.settings.gallery.sourceFolder": "폴더"
+  "widgetsB.settings.gallery.sourceFolder": "폴더",
+  "gallery.setup.folder": "사진 폴더 선택",
+  "gallery.setup.picture": "사진 선택"
 }

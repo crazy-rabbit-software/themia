@@ -33,5 +33,7 @@
   "widgetsB.settings.gallery.slide.label": "Anzeigedauer",
   "widgetsB.settings.gallery.sourceBing": "Bing-Foto des Tages",
   "widgetsB.settings.gallery.sourceFile": "Ein Bild",
-  "widgetsB.settings.gallery.sourceFolder": "Ein Ordner"
+  "widgetsB.settings.gallery.sourceFolder": "Ein Ordner",
+  "gallery.setup.folder": "Bilderordner auswählen",
+  "gallery.setup.picture": "Bild auswählen"
 }

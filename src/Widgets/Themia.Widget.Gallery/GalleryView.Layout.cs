@@ -10,7 +10,9 @@ using Themia.Core.Diagnostics;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
+using Themia.Sdk.Kit;
 using Themia.Sdk.WinUI;
+using Themia.Sdk.WinUI.Kit;
 using Themia.Widget.Gallery;
 
 namespace Themia.App.Widgets;
@@ -28,42 +30,34 @@ namespace Themia.App.Widgets;
 internal sealed partial class GalleryView
 {
     /// <summary>The gap between tiles.</summary>
-    private const double Gap = Fluent.Space1;
+    private const double Gap = FamilySpace.S1;
 
-    private readonly TextBlock _counter = Fluent.Text(FluentType.Caption, "TextFillColorTertiaryBrush");
+    /// <summary>[S-767] The slideshow's "1/20": the header's informing label, the first part to give way ([S-6710]).</summary>
+    private readonly TextBlock _counter = HeaderBlock.Label(string.Empty);
+    private readonly HeaderParts _header = new();
     private readonly Canvas _canvas = new();
     private readonly RectangleGeometry _clip = new();
     private readonly List<GalleryFrame> _frames = [];
-    private Border _messageHost = null!;
-    private TextBlock _message = null!;
-    private FontIcon _messageIcon = null!;
+
+    /// <summary>[S-6714] A scan with nothing to draw: the Status row at the top, never a centred panel.</summary>
+    private readonly StatusBlock _status = new() { Visibility = Visibility.Collapsed };
 
     private WidgetArea _area;
     private GalleryPlan? _plan;
 
     private void BuildParts()
     {
-        _counter.Margin = new Thickness(Fluent.Space2, 0, 0, 0);
-        Microsoft.UI.Xaml.Documents.Typography.SetNumeralAlignment(_counter, FontNumeralAlignment.Tabular);
+        _header.Add(HeaderPartKind.Label, _counter);
+        _header.Want(_counter, false);
 
         // Scatter prints are dealt near the edges and tilted; the clip keeps their corners on the card.
         _canvas.Clip = _clip;
 
         // [S-301] Every outcome with no picture in it names itself. A photo frame showing a blank
-        // card is indistinguishable from a broken one, and "no folder chosen", "that folder is
-        // gone" and "Windows will not let me read it" each need a different thing from the reader.
-        _message = Fluent.Text(FluentType.Body);
-        var empty = Fluent.EmptyState(GalleryModule.Glyph, _message, out _messageIcon);
-
-        _messageHost = new Border
-        {
-            Child = empty,
-            VerticalAlignment = VerticalAlignment.Center,
-            Visibility = Visibility.Collapsed,
-        };
-
+        // card is indistinguishable from a broken one, and "that folder is gone" and "Windows will
+        // not let me read it" each need a different thing from the reader ([S-6714]: one row at the top).
         Children.Add(_canvas);
-        Children.Add(_messageHost);
+        Children.Add(_status);
 
         BuildCommands();
     }
@@ -89,11 +83,11 @@ internal sealed partial class GalleryView
 
         if (_scan.Status != GalleryStatus.Ok || _pictures.Count == 0)
         {
-            ShowMessage(GalleryFormatting.StatusMessage(_scan.Status, _resolved.Problem, _config.Source));
+            ShowMessage(_scan.Status, GalleryFormatting.StatusMessage(_scan.Status, _resolved.Problem, _config.Source));
             return;
         }
 
-        _messageHost.Visibility = Visibility.Collapsed;
+        _status.Hide();
         _canvas.Visibility = Visibility.Visible;
 
         if (!_area.IsMeasured)
@@ -127,9 +121,9 @@ internal sealed partial class GalleryView
 
         PlaceControls(plan);
 
-        _counter.Text = plan.Counter && plan.Mode == GalleryMode.Slideshow
+        ShowCounter(plan.Counter && plan.Mode == GalleryMode.Slideshow
             ? GalleryStr.WidgetsB_Gallery_Counter.Format(("index", _index + 1), ("count", _pictures.Count))
-            : string.Empty;
+            : string.Empty);
     }
 
     private Stretch PictureStretch => _config.Fit == GalleryFit.Fill ? Stretch.UniformToFill : Stretch.Uniform;
@@ -241,7 +235,7 @@ internal sealed partial class GalleryView
         {
             var x = (i % columns) * (width + Gap);
             var y = (i / columns) * (height + Gap);
-            Place(frames[i], new GalleryRect(x, y, width, height), Fluent.ControlRadius, PictureStretch, backed: true);
+            Place(frames[i], new GalleryRect(x, y, width, height), FamilyShape.Radius, PictureStretch, backed: true);
             Point(frames[i], _pictures[i]);
         }
     }
@@ -259,7 +253,7 @@ internal sealed partial class GalleryView
             var rect = new GalleryRect(print.CenterX - (print.Side / 2), print.CenterY - (print.Side / 2), print.Side, print.Side);
             Place(frame, rect, radius: 0, Stretch.UniformToFill, backed: true);
 
-            frame.Host.BorderThickness = new Thickness(1);
+            frame.Host.BorderThickness = new Thickness(FamilyShape.Hairline);
             frame.Host.RenderTransformOrigin = new Windows.Foundation.Point(0.5, 0.5);
             frame.Host.RenderTransform = new RotateTransform { Angle = print.Rotation };
             Canvas.SetZIndex(frame.Host, i);
@@ -280,7 +274,14 @@ internal sealed partial class GalleryView
         }
     }
 
-    private void ShowMessage(string text)
+    /// <summary>The header's label: wanted only while it says something.</summary>
+    private void ShowCounter(string text)
+    {
+        _counter.Text = text;
+        _header.Want(_counter, text.Length > 0);
+    }
+
+    private void ShowMessage(GalleryStatus status, string text)
     {
         _plan = null;
 
@@ -292,20 +293,27 @@ internal sealed partial class GalleryView
 
         _frames.Clear();
 
-        // [S-767] On a compact card the sentence keeps only its first line ("No folder chosen."):
-        // the advice after it would be cut off mid-word anyway.
-        var newline = text.IndexOf('\n', StringComparison.Ordinal);
-        _message.Text = _area.WidthClass == SizeClass.Compact && newline > 0 ? text[..newline] : text;
-        _counter.Text = string.Empty;
-        _messageHost.Visibility = Visibility.Visible;
+        ShowCounter(string.Empty);
         _canvas.Visibility = Visibility.Collapsed;
         HideControls();
 
-        // The glyph is dropped on a card too short to carry it: a tile showing only an icon says
-        // less than one showing only the sentence.
-        _messageIcon.Visibility = _area.HeightClass >= SizeClass.Regular
-            ? Visibility.Visible
-            : Visibility.Collapsed;
+        // Nothing chosen yet says nothing: the card's Set up row is there ([S-1862]).
+        if (text.Length == 0)
+        {
+            _status.Hide();
+            return;
+        }
+
+        // [S-6714] One line: the reason and its advice in one sentence, cut with an ellipsis, all of it in the tooltip.
+        var sentence = text.Replace('\n', ' ');
+        if (GalleryFormatting.Retries(status))
+        {
+            _status.Show(GalleryFormatting.Look(status), GalleryModule.Glyph, sentence, Str.Common_Retry.Text(), RefreshNow);
+        }
+        else
+        {
+            _status.Show(GalleryFormatting.Look(status), GalleryModule.Glyph, sentence);
+        }
     }
 
     /// <summary>
@@ -459,12 +467,12 @@ internal sealed partial class GalleryView
         public GalleryFrame()
         {
             Image = new Image { HorizontalAlignment = HorizontalAlignment.Stretch, VerticalAlignment = VerticalAlignment.Stretch };
-            Backing = ThemeBrush.Of("ControlAltFillColorSecondaryBrush", Microsoft.UI.Colors.Gray);
+            Backing = Family.Brush(ColourRole.Subtle);
             Host = new Border
             {
                 Child = Image,
                 Tag = this,
-                BorderBrush = ThemeBrush.Of("CardStrokeColorDefaultBrush", Microsoft.UI.Colors.Gray),
+                BorderBrush = Family.Brush(ColourRole.ControlStroke),
                 Background = Backing,
             };
 

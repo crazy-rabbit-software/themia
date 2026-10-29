@@ -7,7 +7,9 @@ using Themia.App.Shell;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
+using Themia.Sdk.Kit;
 using Themia.Sdk.WinUI;
+using Themia.Sdk.WinUI.Kit;
 using Themia.Widget.Gallery;
 
 namespace Themia.App.Widgets;
@@ -23,35 +25,39 @@ namespace Themia.App.Widgets;
 /// </summary>
 internal sealed partial class GalleryView
 {
-    private const double ControlSize = 32;
+    /// <summary>[S-769] The hover bar's buttons: the family's icon buttons (32, a 16 glyph).</summary>
+    private const double ControlSize = FamilyShape.IconButton;
+
+    /// <summary>The bar's inset around its buttons and its edge: the scale's first step and a hairline.</summary>
+    private const double BarPadding = FamilySpace.S1;
 
     private readonly Border _controls = new();
-    private readonly FontIcon _pauseIcon = new() { Glyph = Glyphs.Pause, FontSize = Fluent.IconSize };
+    private readonly FontIcon _pauseIcon = Family.Glyph(Glyphs.Pause, FamilyShape.Icon, ColourRole.TextPrimary);
     private Button _pauseButton = null!;
     private bool _hovering;
 
     private void BuildCommands()
     {
-        var previous = ControlButton(new FontIcon { Glyph = Glyphs.Previous, FontSize = Fluent.IconSize }, GalleryStr.WidgetsB_Gallery_Previous.Text(), Previous);
+        var previous = ControlButton(Family.Glyph(Glyphs.Previous, FamilyShape.Icon, ColourRole.TextPrimary), GalleryStr.WidgetsB_Gallery_Previous.Text(), Previous);
         _pauseButton = ControlButton(_pauseIcon, GalleryStr.WidgetsB_Gallery_Pause.Text(), TogglePause);
-        var next = ControlButton(new FontIcon { Glyph = Glyphs.Next, FontSize = Fluent.IconSize }, GalleryStr.WidgetsB_Gallery_Next.Text(), Next);
+        var next = ControlButton(Family.Glyph(Glyphs.Next, FamilyShape.Icon, ColourRole.TextPrimary), GalleryStr.WidgetsB_Gallery_Next.Text(), Next);
 
-        // [S-769] A pill over the bottom of the picture, shown only while the pointer is over the
+        // [S-769] A bar over the bottom of the picture, shown only while the pointer is over the
         // widget: a photo frame is for looking at, and permanent buttons would sit on every photo.
+        // Over an image it is the solid role with a hairline edge, as a count pill over a cell is ([S-6706]).
         _controls.Child = new StackPanel
         {
             Orientation = Orientation.Horizontal,
-            Spacing = 2,
             Children = { previous, _pauseButton, next },
 
             // [S-1113] Slideshow transport, like media: left to right in every language.
             FlowDirection = FlowDirection.LeftToRight,
         };
-        _controls.Padding = new Thickness(2);
-        _controls.CornerRadius = new CornerRadius(Fluent.ControlRadius);
-        _controls.Background = ThemeBrush.Of("AcrylicInAppFillColorDefaultBrush", Microsoft.UI.Colors.Black);
-        _controls.BorderBrush = ThemeBrush.Of("SurfaceStrokeColorFlyoutBrush", Microsoft.UI.Colors.Gray);
-        _controls.BorderThickness = new Thickness(1);
+        _controls.Padding = new Thickness(BarPadding);
+        _controls.CornerRadius = Family.Radius;
+        _controls.Background = Family.Brush(ColourRole.Solid);
+        _controls.BorderBrush = Family.Brush(ColourRole.ControlStroke);
+        _controls.BorderThickness = new Thickness(FamilyShape.Hairline);
         _controls.Visibility = Visibility.Collapsed;
         _canvas.Children.Add(_controls);
         Canvas.SetZIndex(_controls, 2000);
@@ -70,9 +76,10 @@ internal sealed partial class GalleryView
             Width = ControlSize,
             Height = ControlSize,
             Padding = new Thickness(0),
-            CornerRadius = new CornerRadius(Fluent.ControlRadius),
-            Background = ThemeBrush.Of("SubtleFillColorTransparentBrush", Microsoft.UI.Colors.Transparent),
+            CornerRadius = Family.Radius,
+            Background = Family.Brush(ColourRole.Clear),
             BorderThickness = new Thickness(0),
+            AllowFocusOnInteraction = false,
         };
 
         ToolTipService.SetToolTip(button, tooltip);
@@ -118,10 +125,11 @@ internal sealed partial class GalleryView
     /// <summary>Put the hover bar at the bottom centre of the main picture.</summary>
     private void PlaceControls(GalleryPlan plan)
     {
-        var width = (3 * ControlSize) + (2 * 2) + 6;
-        var height = ControlSize + 6;
+        var edge = 2 * (BarPadding + FamilyShape.Hairline);
+        var width = (3 * ControlSize) + edge;
+        var height = ControlSize + edge;
         Canvas.SetLeft(_controls, Math.Max(0, (plan.MainWidth - width) / 2));
-        Canvas.SetTop(_controls, Math.Max(0, plan.MainHeight - height - Fluent.Space2));
+        Canvas.SetTop(_controls, Math.Max(0, plan.MainHeight - height - FamilySpace.S2));
         UpdateControls();
     }
 

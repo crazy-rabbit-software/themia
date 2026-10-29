@@ -13,17 +13,33 @@ internal sealed partial class GalleryView : IWidgetPreviewState
 {
     private const string PreviewFolder = @"C:\Windows\Web\Wallpaper";
 
-    public IReadOnlyList<string> PreviewStates { get; } = ["sample", "slideshow", "grid", "scatter", "mosaic", "file", "sticker"];
+    public IReadOnlyList<string> PreviewStates { get; } = ["sample", "slideshow", "grid", "scatter", "mosaic", "file", "sticker", "controls", "empty", "missing", "failed"];
 
     public async Task ShowPreviewStateAsync(string state)
     {
+        // [S-6714] A scan with nothing to draw, as the Status row says it: plain, a problem, a problem with Retry.
+        if (state is "empty" or "missing" or "failed")
+        {
+            _watch?.Dispose();
+            _watch = null;
+            _config = new GalleryConfig { Source = GallerySource.Folder, Path = PreviewFolder };
+            PublishTitle();
+            _scan = GalleryScan.Of(state switch { "empty" => GalleryStatus.NoImages, "missing" => GalleryStatus.NotFound, _ => GalleryStatus.Failed });
+            _pictures = [];
+            Lay();
+            return;
+        }
+
+        // [S-769] The hover bar, as the pointer over a slideshow shows it.
+        _hovering = state == "controls";
+
         if (state == "sticker")
         {
             // [S-774] [S-775] A cut-out PNG (the app's own logo), turned and outlined.
             var logo = System.IO.Path.Combine(AppContext.BaseDirectory, "Assets", "themia-logo.png");
             _watch?.Dispose();
             _watch = null;
-            _config = new GalleryConfig { Source = GallerySource.File, FilePath = logo, Rotation = -15, Outline = true, OutlineColor = "#FFFFFF", OutlineWidth = 6 };
+            _config = new GalleryConfig { Source = GallerySource.File, FilePath = logo, Rotation = -15, Outline = true, OutlineColor = StickerRules.DefaultOutlineColor, OutlineWidth = 6 };
             PublishTitle();
             _scan = new GalleryScan(GalleryStatus.Ok, [logo]);
             Select(keepPath: null, index: 0);
@@ -37,7 +53,7 @@ internal sealed partial class GalleryView : IWidgetPreviewState
         var (source, layout) = state switch
         {
             "sample" => (GallerySource.Folder, _config.Style),
-            "slideshow" => (GallerySource.Folder, GalleryStyle.Slideshow),
+            "slideshow" or "controls" => (GallerySource.Folder, GalleryStyle.Slideshow),
             "grid" => (GallerySource.Folder, GalleryStyle.Grid),
             "scatter" => (GallerySource.Folder, GalleryStyle.Scatter),
             "mosaic" => (GallerySource.Folder, GalleryStyle.Mosaic),

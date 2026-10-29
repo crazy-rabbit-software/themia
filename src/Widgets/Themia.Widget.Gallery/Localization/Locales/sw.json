@@ -33,5 +33,7 @@
   "widgetsB.settings.gallery.slide.label": "Muda wa slaidi",
   "widgetsB.settings.gallery.sourceBing": "Picha ya siku ya Bing",
   "widgetsB.settings.gallery.sourceFile": "Picha moja",
-  "widgetsB.settings.gallery.sourceFolder": "Folda"
+  "widgetsB.settings.gallery.sourceFolder": "Folda",
+  "gallery.setup.folder": "Chagua folda ya picha",
+  "gallery.setup.picture": "Chagua picha"
 }

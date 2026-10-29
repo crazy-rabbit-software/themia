@@ -33,5 +33,7 @@
   "widgetsB.settings.gallery.slide.label": "Durée par image",
   "widgetsB.settings.gallery.sourceBing": "Photo du jour Bing",
   "widgetsB.settings.gallery.sourceFile": "Une image",
-  "widgetsB.settings.gallery.sourceFolder": "Un dossier"
+  "widgetsB.settings.gallery.sourceFolder": "Un dossier",
+  "gallery.setup.folder": "Choisissez un dossier d’images",
+  "gallery.setup.picture": "Choisissez une image"
 }

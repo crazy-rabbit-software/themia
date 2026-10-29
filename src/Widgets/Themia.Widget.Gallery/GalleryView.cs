@@ -105,7 +105,7 @@ internal sealed partial class GalleryView : Grid, IWidgetView, IWidgetHeaderCont
     /// The "3/12" counter, in the card's header. Built in the constructor because the card reads
     /// this once, when it builds that header.
     /// </summary>
-    public FrameworkElement? HeaderTrailing => _counter;
+    public FrameworkElement? HeaderTrailing => _header;
 
     private IGalleries? Service => _widgetHost.Gallery;
 
