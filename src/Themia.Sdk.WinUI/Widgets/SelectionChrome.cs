@@ -4,7 +4,9 @@ using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media;
 using Themia.Core.Diagnostics;
 using Themia.Core.Widgets;
+using Themia.Sdk.Kit;
 using Themia.Sdk.WinUI;
+using Themia.Sdk.WinUI.Kit;
 using Windows.Foundation;
 using Windows.UI.ViewManagement;
 using Color = Windows.UI.Color;
@@ -39,8 +41,8 @@ public static class SelectionChrome
         var chrome = new Border
         {
             Child = content,
-            BorderThickness = new Thickness(Fluent.Hairline),
-            CornerRadius = new CornerRadius(Fluent.ControlRadius),
+            BorderThickness = new Thickness(FamilyShape.Hairline),
+            CornerRadius = Family.Radius,
         };
 
         Paint(chrome, new SelectionCue(Selected: false, Hovered: false));
@@ -54,8 +56,8 @@ public static class SelectionChrome
         var ink = SelectionLook.Ink(cue);
 
         // Clear, not null: the empty part of an item still takes its presses.
-        chrome.Background = ink.Fill > 0 ? Brush(ink.Tone, ink.Fill) : Fluent.Clear();
-        chrome.BorderBrush = ink.Stroke > 0 ? Brush(ink.Tone, ink.Stroke) : Fluent.Clear();
+        chrome.Background = ink.Fill > 0 ? Brush(ink.Tone, ink.Fill) : Family.Brush(ColourRole.Clear);
+        chrome.BorderBrush = ink.Stroke > 0 ? Brush(ink.Tone, ink.Stroke) : Family.Brush(ColourRole.Clear);
     }
 
     /// <summary>
@@ -109,7 +111,7 @@ public static class SelectionChrome
     {
         ArgumentNullException.ThrowIfNull(band);
         var ink = SelectionLook.Band;
-        band.BorderThickness = new Thickness(Fluent.Hairline);
+        band.BorderThickness = new Thickness(FamilyShape.Hairline);
         band.Background = Brush(ink.Tone, ink.Fill);
         band.BorderBrush = Brush(ink.Tone, ink.Stroke);
     }
@@ -128,11 +130,9 @@ public static class SelectionChrome
         return brush;
     }
 
+    // Windows' highlight is a colour from data (the user's system colour), not a token: through the data entry.
     private static Color ColourOf(SelectionTone tone, double alpha)
-    {
-        var c = SelectionLook.Colour(tone, _highlight ?? SelectionLook.DefaultHighlight);
-        return Color.FromArgb((byte)Math.Round(Math.Clamp(alpha, 0, 1) * 255), c.R, c.G, c.B);
-    }
+        => HexBrush.Colour(SelectionLook.Colour(tone, _highlight ?? SelectionLook.DefaultHighlight), alpha);
 
     /// <summary>Read Windows' highlight again when it may have changed, and recolour every brush handed out.</summary>
     private static void Refresh()
@@ -198,22 +198,22 @@ public sealed class SelectionLabel
         _chrome = new Border
         {
             Child = _text,
-            BorderThickness = new Thickness(Fluent.Hairline, 0, Fluent.Hairline, Fluent.Hairline),
-            CornerRadius = new CornerRadius(0, 0, Fluent.ControlRadius, Fluent.ControlRadius),
+            BorderThickness = new Thickness(FamilyShape.Hairline, 0, FamilyShape.Hairline, FamilyShape.Hairline),
+            CornerRadius = new CornerRadius(0, 0, FamilyShape.Radius, FamilyShape.Radius),
         };
         // The default card's own colour (its fill over the solid base, [S-835]), so the label reads as
         // part of the tile and not as a patch.
         var card = new Border
         {
             Child = _chrome,
-            Background = ThemeBrush.Of("CardBackgroundFillColorDefaultBrush", Colors.Transparent),
-            CornerRadius = new CornerRadius(0, 0, Fluent.ControlRadius, Fluent.ControlRadius),
+            Background = ThemeBrush.Of(ColourRoles.CardFill, Colors.Transparent),
+            CornerRadius = new CornerRadius(0, 0, FamilyShape.Radius, FamilyShape.Radius),
         };
         _base = new Border
         {
             Child = card,
-            Background = ThemeBrush.Of("SolidBackgroundFillColorBaseBrush", Colors.Black),
-            CornerRadius = new CornerRadius(0, 0, Fluent.ControlRadius, Fluent.ControlRadius),
+            Background = ThemeBrush.Of(ColourRoles.CardBase, Colors.Black),
+            CornerRadius = new CornerRadius(0, 0, FamilyShape.Radius, FamilyShape.Radius),
             IsHitTestVisible = false,
             Visibility = Visibility.Collapsed,
         };
@@ -311,7 +311,7 @@ public sealed class SelectionLabel
         var inset = Math.Max(0, at.X - box.X);
 
         _text.Width = name.ActualWidth;
-        _text.Margin = new Thickness(inset, 0, Math.Max(0, box.Width - inset - name.ActualWidth), Fluent.Space1);
+        _text.Margin = new Thickness(inset, 0, Math.Max(0, box.Width - inset - name.ActualWidth), FamilySpace.S1);
 
         var left = box.X;
         var top = at.Y;

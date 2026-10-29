@@ -30,6 +30,15 @@ public static class HexBrush
     }
 
     /// <summary>
+    /// [S-6705] A colour that comes from data rather than a token, as a colour value: the user's own
+    /// (an item colour, [S-6513]) or Windows' (the selection's highlight, [S-6627]), at
+    /// <paramref name="alpha"/> (0 to 1). For a part that recolours its brushes in place; the one place,
+    /// beside <see cref="Of"/>, a colour is made from numbers.
+    /// </summary>
+    public static Windows.UI.Color Colour(RgbColor colour, double alpha = 1)
+        => Windows.UI.Color.FromArgb((byte)Math.Round(Math.Clamp(alpha, 0, 1) * 255), colour.R, colour.G, colour.B);
+
+    /// <summary>
     /// [S-6738] A text role as the opaque colour it shows on the card (the role over the card's fill
     /// over its base, as the theme and the user's design have them now): for a control that draws a
     /// text colour without its alpha, the note editor's RichEdit, where the secondary and tertiary

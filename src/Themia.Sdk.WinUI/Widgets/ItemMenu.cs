@@ -9,6 +9,7 @@ using Themia.App.Shell;
 using Themia.Core.Diagnostics;
 using Themia.Core.Localization;
 using Themia.Core.Shell;
+using Themia.Sdk.Kit;
 using Themia.Sdk.WinUI;
 using Windows.Foundation;
 
@@ -480,7 +481,7 @@ public static class ItemMenu
     {
         if (entry.IconFile is { } file)
         {
-            var image = new ImageIcon { Width = 16, Height = 16 };
+            var image = new ImageIcon { Width = FamilyShape.Icon, Height = FamilyShape.Icon };
             _ = LoadIconAsync(image, file);
             return image;
         }
