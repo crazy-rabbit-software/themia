@@ -79,10 +79,10 @@ public class BluetoothBatteryTests
     public void S3253_a_small_row_carries_the_battery_percentage()
     {
         var small = new WidgetArea(200, 116);
-        var plan = BluetoothLayout.Plan(small, small.Height - 14, 4);
+        var plan = BluetoothLayout.Plan(small, 4);
 
-        Assert.True(plan.BatteryColumn);
-        Assert.False(plan.StatusWord);
+        Assert.True(plan.BatteryValue);
+        Assert.Equal(1, plan.Lines);
     }
 
     [Theory]

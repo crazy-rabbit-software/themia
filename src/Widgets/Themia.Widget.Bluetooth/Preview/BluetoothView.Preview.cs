@@ -7,14 +7,26 @@ namespace Themia.App.Widgets;
 
 /// <summary>
 /// Debug renders only: a fixed set of paired devices with and without a battery reading, so the
-/// battery column ([S-3252]..[S-3254]) can be looked at on a machine whose devices report none.
+/// battery column ([S-3252]..[S-3254]) can be looked at on a machine whose devices report none; <c>off</c> is the
+/// radio switched off (the Status row, [S-244]), never this PC's radio.
 /// </summary>
 internal sealed partial class BluetoothView : IWidgetPreviewState
 {
-    public IReadOnlyList<string> PreviewStates { get; } = ["devices"];
+    public IReadOnlyList<string> PreviewStates { get; } = ["devices", "off"];
 
     public Task ShowPreviewStateAsync(string state)
     {
+        if (state == "off")
+        {
+            _inFlight?.Cancel();
+            _inFlight = null;
+            _generation++;
+            SetBusy(false);
+            _snapshot = BluetoothSnapshot.Of(BluetoothStatus.RadioOff);
+            Render();
+            return Task.CompletedTask;
+        }
+
         if (state != "devices")
         {
             return Task.CompletedTask;

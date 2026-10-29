@@ -17,61 +17,44 @@ public class BluetoothLadderTests
     private static readonly WidgetArea L = new(560, 376);
     private static readonly WidgetArea Xl = new(800, 516);
 
-    private static BluetoothRowPlan Plan(WidgetArea area, int count) => BluetoothLayout.Plan(area, area.Height - 14, count);
+    private static BluetoothRowPlan Plan(WidgetArea area, int count) => BluetoothLayout.Plan(area, count);
 
     [Fact]
-    public void S1254_XS_is_one_line_rows_without_the_word()
+    public void S1254_XS_is_one_line_rows_without_the_battery()
     {
         var plan = Plan(Xs, 10);
 
-        Assert.False(plan.TwoLine);
-        Assert.False(plan.StatusWord);
-        Assert.False(plan.BatteryColumn);
-        Assert.False(plan.SignalColumn);
-        Assert.Equal(BluetoothLayout.CompactRowHeight, plan.RowHeight);
+        Assert.Equal(1, plan.Lines);
+        Assert.False(plan.BatteryValue);
         Assert.Equal(1, plan.VisibleRows);
     }
 
     [Fact]
-    public void S1254_M_carries_the_status_word_and_Wide_the_signal()
+    public void S3253_the_battery_is_the_rows_value_from_a_180_column()
     {
-        Assert.True(Plan(M, 10).StatusWord);
-        Assert.True(Plan(M, 10).BatteryColumn);
-        Assert.False(Plan(M, 10).SignalColumn);
-        Assert.True(Plan(Wide, 10).SignalColumn);
-        Assert.False(Plan(Wide, 10).TwoLine);
+        Assert.True(Plan(M, 10).BatteryValue);
+        Assert.True(Plan(Tall, 10).BatteryValue);
+        Assert.True(Plan(Wide, 10).BatteryValue);
+        Assert.False(Plan(new WidgetArea(179, 300), 10).BatteryValue);
     }
 
     [Fact]
-    public void S3961_a_wide_two_line_row_keeps_the_battery_percentage_in_its_own_column()
+    public void S1255_rows_have_two_lines_from_a_regular_tile_both_ways()
     {
-        // [S-3961] No bar: the percentage alone. A two-line row wide enough for the signal keeps
-        // battery and signal in columns; a narrower one puts them in its second line.
-        Assert.True(Plan(L, 10).TwoLine);
-        Assert.True(Plan(L, 10).FactColumns);
-        Assert.True(Plan(Tall, 10).TwoLine);
-        Assert.False(Plan(Tall, 10).FactColumns);
-        Assert.False(Plan(M, 10).FactColumns);
+        // [S-6712] One line while the area is compact either way, two from regular both ways.
+        Assert.Equal(1, Plan(Wide, 10).Lines);
+        Assert.Equal(2, Plan(M, 10).Lines);
+        Assert.Equal(2, Plan(Tall, 10).Lines);
+        Assert.Equal(2, Plan(L, 10).Lines);
     }
 
     [Fact]
-    public void S1254_The_list_takes_every_whole_row_rather_than_a_fixed_six()
+    public void S1254_The_list_takes_every_whole_row_of_the_area_less_the_bottom_inset()
     {
-        // L was capped at six rows; it holds more than six two-line rows' worth of one-line rows.
-        var plan = Plan(L, 20);
-
-        Assert.True(plan.TwoLine);
-        Assert.Equal(Disclosure.WholeRows(L.Height - 14, BluetoothLayout.TwoLineRowHeight), plan.VisibleRows);
-        Assert.True(plan.Summary);
-    }
-
-    [Fact]
-    public void S1255_Tall_rows_grow_a_second_line()
-    {
-        var plan = Plan(Tall, 10);
-
-        Assert.True(plan.TwoLine);
-        Assert.False(plan.StatusWord);
+        Assert.Equal(3, Plan(Wide, 20).VisibleRows);
+        Assert.Equal(3, Plan(M, 20).VisibleRows);
+        Assert.Equal(7, Plan(L, 20).VisibleRows);
+        Assert.Equal(10, Plan(Xl, 20).VisibleRows);
     }
 
     [Fact]
@@ -79,16 +62,16 @@ public class BluetoothLadderTests
     {
         Assert.Equal(2, Plan(Xl, 14).Columns);
         Assert.Equal(1, Plan(Xl, 3).Columns);
+        Assert.Equal(1, Plan(L, 14).Columns);
     }
 
     [Fact]
     public void S1254_An_unmeasured_area_starts_minimal()
     {
-        var plan = BluetoothLayout.Plan(default, 0, 5);
+        var plan = BluetoothLayout.Plan(default, 5);
 
-        Assert.False(plan.TwoLine);
-        Assert.False(plan.StatusWord);
-        Assert.False(plan.Summary);
+        Assert.Equal(1, plan.Lines);
+        Assert.False(plan.BatteryValue);
         Assert.Equal(1, plan.Columns);
     }
 

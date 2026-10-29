@@ -27,15 +27,23 @@ them, `BluetoothRulesTests`, which carried these tags with no SPEC line):
   folded into each other. Connected devices come first, the rest alphabetical, the same order on two
   identical polls; Connected only drops the rest; the row count is a ceiling.
 - **[S-244]** Every empty list says which it is: no radio, the radio off, no paired devices,
-  reading, no access to the radios, or a failed read.
+  reading, no access to the radios, or a failed read, as the Status row at the top ([S-6714]): the
+  Bluetooth glyph and the sentence; no access and a failed read are problems (the warning), a failed
+  read with Retry. Debug renders: `--state off` is the radio switched off.
 
-- **[S-1254]** Bluetooth ladder (`BluetoothLayout`): the list takes every whole row the tile has
-  (snapped, the rest scrolls); `BluetoothConfig.MaxDevices` (30) is a ceiling, not a target and not a setting ([S-3794]). Battery %
-  from a 180 px column ([S-3253]); status word from a 260 px column; signal from a 400 px column,
-  where a two-line row also keeps battery and signal in columns (`FactColumns`); "2 connected" in the
-  header from Expanded width; two columns at Huge width when one cannot hold the list.
-- **[S-1255]** Regular×Expanded and up: two-line rows — name, then kind · connection · battery ·
-  signal (each only when enabled and reported; a wide row keeps battery and signal in columns).
+- **[S-1254]** Bluetooth ladder (`BluetoothLayout`) on the family's rows ([S-6711], [S-6712]): a device
+  is a Row block, [kind glyph 16] 8 [name, primary] 12 [battery %, the value], 32 tall, 48 with its
+  second line; the list takes every whole row of the view's area less the card's bottom inset
+  (the rest scrolls); `BluetoothConfig.MaxDevices` (30) is a ceiling, not a target and not a setting
+  ([S-3794]). Battery % the value from a 180 column ([S-3253]); "2 connected" is the header's
+  informing label wherever the header has room for it (the first part to give way, [S-6710]), and
+  its busy ring turns while a pass is out; two columns at the Huge width when one cannot hold the
+  list. Retired with the move (G5, 2026-10-29): the 40 and 56 rows and the compact rows under a 200
+  list, the status word's column (260) and the signal's (400) with the wide two-line row's fact
+  columns: a row has one value, the battery; the connection and the signal are its second line.
+- **[S-1255]** Where the tier gives rows two lines ([S-6712]: from regular both ways): name, then
+  kind · connection · signal (each only when enabled and reported), and the battery too where the
+  column is too narrow for it as the value.
 - **[S-1256]** `ShowSignal` (default off): RSSI from the association endpoint's
   `System.Devices.Aep.SignalStrength`, plus a passive 3 s LE advertisement scan per refresh matched by
   device address. Shown as "-67 dBm"; no reading or an implausible one (≥ 0, < -127) is no column
@@ -49,7 +57,7 @@ them, `BluetoothRulesTests`, which carried these tags with no SPEC line):
   Connected only, [S-3256]), **Battery** ([S-3252]: slower, it connects to each device) and
   **Signal strength** ([S-1256]: a short scan), all switches. (Tests `BluetoothMenuTests`.)
 - **[S-3256]** With **Connected only** on, every row is a connected device, so the connection word
-  and the second line's state would say "Connected" on every row: they are not drawn
+  of the second line would say "Connected" on every row: it is not drawn
   (`BluetoothConfig.DrawsConnection`; the icon's colour still says it, [S-3961]) and the
   **Connection** switch is not offered (`ShownSettings`, [S-6070]). Its value is kept: with every
   paired device listed again the switch is back as it was (user request 2026-10-19: no option that
@@ -65,16 +73,15 @@ them, `BluetoothRulesTests`, which carried these tags with no SPEC line):
   property left without one. A disconnected device shows none (the property keeps a stale value);
   255, out-of-range or a non-integer value is no reading. No reading is no column and nothing in the
   second line, never "–" or 0%. A failed property query is logged and the list still shows.
-- **[S-3253]** The battery % rides on every one-line row from a 180 px column (was 260): the name
-  ellipsises first. Narrower (XS) only the tooltip carries it.
-- **[S-3254]** 20% and below is low: the battery number takes the theme's critical fill
-  (`SystemFillColorCriticalBrush`), as the tray does (`BluetoothRules.IsLowBattery`).
+- **[S-3253]** The battery % is every row's value from a 180 px column (was 260): the name
+  ellipsises first. Narrower (XS) the second line (where there is one) or the tooltip carries it.
+- **[S-3254]** 20% and below is low: the battery number is in the Critical role, as the tray draws
+  it (`BluetoothRules.IsLowBattery`).
   Debug renders: `--widget-png Bluetooth <out> --state devices` draws a fixed set of devices.
 - **[S-3961]** No battery bar and no connection dot: the battery is its percentage as text, and the
-  state is the device icon's colour (primary connected, secondary paired), the status word where the
-  row has room and the second line. `ShowConnection` governs the word and the second line's state.
-  No count badge in the header either: the connected count is the "2 connected" words where
-  [S-1254] gives the header room, and nothing on smaller tiles.
+  state is the device icon's colour (primary connected, secondary paired), the second line and the
+  tooltip. `ShowConnection` governs the second line's state. No count badge in the header either:
+  the connected count is the "2 connected" words, the header's informing label ([S-1254]).
 - **[S-1569]** *(Retired: no Bluetooth detail panel. A short list on a large tile stays the list;
   the rows' second line and tooltip carry each device's facts.)*
 - **[S-1988]** *(Retired with the detail panel: the Bluetooth list takes no lease keys.)*
