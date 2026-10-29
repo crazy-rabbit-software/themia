@@ -997,7 +997,7 @@ module author's guide is docs/WIDGET-KIT.md 16.
   block now and `Fluent.Header` is gone; the Set up row is the Status block now. `KitHeader`,
   `KitStatePanel`, `EmptyStatePanel`/`Fluent.EmptyState`, `Fluent.Row`/`Fluent.Badge`,
   `AddFooterRow`, `HeroLayout` (its fit, for `RingFace`)/`HeroFit.Figures`, `FluentType.Hero`/`Fit`/
-  `FitWidth`/`Scaled` and the off-family ramp steps, `RingPart`, `ArmRing` and the toggles' and power buttons' faces stay until the group that migrates their callers rebuilds them
+  `FitWidth`/`Scaled` and the off-family ramp steps, `RingPart` stay until the group that migrates their callers rebuilds them
   on the blocks; each then goes. The meters and the details are on the blocks (G1, 2026-10-29):
   `MeterView` and `DetailView` are built from the Readout, Row and Chart blocks, `SparkBand` draws on
   `ChartSeries`, the GPU meter is a `MeterView` like the others, and `MeterFace`, `MeterStyleFace`,
@@ -1022,7 +1022,13 @@ module author's guide is docs/WIDGET-KIT.md 16.
   `FactStyle`, `PartMetrics`, `OnlineLayouts`, `GaugeDial`, `GaugeLayout` and `HeroLayout`'s glyph,
   token, growth, fill and tier steps are gone; the forecast's now mark, the air quality's band strip,
   the sun's number strip, Stocks' own rising and falling colours and the note's own font size went
-  with them.
+  with them. The quick toggles and the power buttons are on the blocks (G4, 2026-10-29): both views
+  are the Tile block in its three looks ([S-6715], [S-6736]), the power buttons' ringed with the arm
+  ring as the Tile's `ChartRing`, drained on the compositor; `RoundButtonPart`, `ArmRing`,
+  `ToggleFace`, `SwitchFace`, `RoundButtonFace`, `PowerFace` and `ButtonInset` (the 8 inset under a
+  short side of 128) are gone, and with them the toggles' wide-strip row, the switch's own drawn track
+  and its levels, the round button's 0.85 circle and Subtitle name, the power buttons' critical tile
+  fill, the armed sentence's two Caption lines and the always-accent round power button.
 - **[S-6730]** The **source guard** (`FamilyGuardTests.S6730_no_literal_outside_the_family_tokens`)
   reads every module, the SDK's UI parts and the app's Shell and Widgets (not `Tests/`, `Fixtures/`,
   `Gallery/`) and fails on a type size or line, a weight other than 400/600, a spacing, thickness,

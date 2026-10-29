@@ -2894,7 +2894,7 @@ is `TextDisabled` (`UnavailableLook`).
 | Readout | `ReadoutBlock` | `Show(value, unit, under, delta, deltaRole, lead, valueRole)`, `Size(area, width, height, worst)` or `Use(step)` | `ReadoutRules.Step` (28/40/68 by the area, Hero for `OneReadout`), `Width`, `Height` |
 | Chart | `ChartSeries`, `ChartBar` (`vertical`: a column), `ChartRing` (`half`: a gauge) | `Show(values, second)` or `Show(points, second)` / `Show(to, from)` / `Show(fraction)`, `Role(role)` | `ChartRules.Role(reading, caution, critical)`, `Line`, `Y`, `Bar`, `Sweep`, `GaugeSweep`, `GaugeHeight` |
 | Status | `StatusBlock` | `Show(kind, glyph, sentence, action, run)`, `Hide` | `StatusRules.Look(kind)`, `ShowsSentence(width, actionWidth)` |
-| Tile | `TileBlock(look)` | `Show(glyph, label, state, on, available)`, `Size(width, height)`, `Look`, `Ring` | `TileRules.GlyphStep`, `RoundGlyph`, `Roles(look, on, available)` |
+| Tile | `TileBlock(look, ringed)` | `Show(glyph, label, state, tone)` (`TileState`: off, on, unknown, unavailable, critical), `Size(width, height, label, state)`, `Face(itemState)`, `Look`, `Ring` (`Drain(remaining, left)`, `Stop`) | `TileRules.GlyphStep`, `RoundGlyph`, `RingGlyph`, `Switch`, `Roles(look, tone)` |
 | Controls | `ControlsBlock` | `Main(label, run)`, `Button(label, run)`, `Icon(glyph, tooltip, run)`, `Slider(min, max, value, changed)`; `ControlsBlock.TextButton`/`IconButton` alone | `ControlsRules.Check` (one main action), `Shown` |
 
 Layout around them is the family's too: the header in the card's header inset; content from 44 (16
@@ -2929,6 +2929,21 @@ Critical when falling ([S-6707]); a history is a `ChartSeries` band to the card'
 role. With no answer the view calls `OnlineParts.ShowState(row, status, glyph, retry)`: the Status row
 at the top, a problem with Retry where asking again helps ([S-6734]); an answer kept through a
 failure stays on screen and the header's problem glyph (`OnlineParts.Problems`) says so.
+
+### 16.2c The Tile, for a one-readout widget (G4, 2026-10-29)
+
+A widget that is one glyph and its name (the quick toggles, the power buttons) is a `TileBlock` filling
+the view in the card's inset (`Padding = Family.Inset`): the view keeps the whole slot as its hit target
+(its background `Family.Brush(ColourRole.Clear)`), sizes the block on the area less the inset
+(`Size(w, h, label, state)`, both lines planned at every size so a change of state moves nothing), and on
+every change calls `Show(glyph, name, state, tone)` and `Face(pointer)`. The tone says it all: on is the
+accent tile (or circle), off the item layer's, not known secondary, unavailable disabled, critical (a
+power button armed or failed) the glyph, the text and the ring in Critical; no Status row, the tile shows
+its state (DECISIONS 4). A button with an arm ring is `ringed`: its glyph stands inside the ring
+(`TileRules.RingGlyph`), and `Ring.Drain(remaining, left)` drains the ring on the compositor with no UI
+timer ([S-1913]). Its module declares `WidgetTraits.OneReadout` ([S-6737]): the only widgets whose
+glyph or readout may climb the Hero steps (`ReadoutRules.OneReadout`); the render walk reads the same
+trait.
 
 ### 16.3 The guard
 
