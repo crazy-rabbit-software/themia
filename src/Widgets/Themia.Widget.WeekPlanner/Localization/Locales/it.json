@@ -4,5 +4,6 @@
   "planner.label": "Agenda settimanale",
   "planner.showTasks": "Mostra le attività di oggi",
   "planner.taskAccount": "Attività da",
-  "planner.taskAccountFirst": "Il primo account con attività"
+  "planner.taskAccountFirst": "Il primo account con attività",
+  "weekPlanner.setup.sentence": "Aggiungi un account per pianificare la settimana"
 }

@@ -8508,18 +8508,22 @@ config, its page, setup and sync); the SDK's rules it is drawn by stay here. Tes
 `tests/Themia.Core.Tests/WeekPlannerTests.cs`. Issue #160.
 
 - **[S-5321]** A rolling week: today and the six days after (`WeekPlannerRules.Range`), fetched whole
-  whatever the size shows. Days stand side by side as the width allows (140 DIP a column, 8 apart, up
-  to seven). One column: today alone on a Compact-height tile (no heading), else the days stacked
-  as an agenda's. A column under 120 DIP drops the events' start times.
-- **[S-5322]** A day's rows (`WeekPlannerRules.Build`): its events as a calendar day lists them
-  ([S-570]: birthdays, all-day, then timed by start), today without the timed events already over;
-  an event row is its calendar's colour mark ([S-566]), its start in the region's clock (accent
-  while it runs; none for a whole day) and its title; a click opens it as a calendar's does
-  ([S-1268]). Under today only: the open tasks due today or overdue, oldest first ([S-596]), with
-  the Tasks widget's ring (critical when overdue); the ring ticks the task off through the service
-  ([S-597]), inert in a preview and in edit mode.
-- **[S-5323]** Whole rows only (`Columns`, `Stack`): a day shows its heading ("Today" in the accent,
-  "Tomorrow", then the short date) and as many rows as fit; when it has more, the last row says
-  "+N". An empty today says "Nothing planned"; stacked, later days with nothing are skipped and the
-  list ends at the first day cut short or whose heading and a row no longer fit.
+  whatever the size shows. Days stand side by side as the width allows (`WeekPlannerRules.Plan`, on
+  the view's area: a column at least 240 wide, its rows carrying the card's side inset so the
+  columns meet, up to seven). One column: today alone on a Compact-height tile (no heading), else
+  the days stacked as an agenda's. A column under 180 drops the events' start times.
+- **[S-5322]** A day's rows (`WeekPlannerRules.Build`), each a Row block of 32 ([S-6711]): its
+  events as a calendar day lists them ([S-570]: birthdays, all-day, then timed by start), today
+  without the timed events already over; an event row is its calendar's colour as a 2 px bar in the
+  lead ([S-566], a data colour, [S-6705]; the secondary role with one calendar), its title as the
+  name and its start in the region's clock as the value (secondary, also while it runs; none for a
+  whole day); a click opens it as a calendar's does ([S-1268]). Under today only: the open tasks due
+  today or overdue, oldest first ([S-596]), led by a 16 ring of stroke 2 (critical when overdue);
+  the ring ticks the task off through the service ([S-597]), inert in a preview and in edit mode.
+- **[S-5323]** Whole rows only (`Columns`, `Stack`): a day shows its heading (one row of 32,
+  BodyStrong: "Today" primary, "Tomorrow", then the short date secondary; never the accent) and as
+  many rows as fit; when it has more, the last row says "+N" (secondary), except in a single row,
+  which shows the day's first item. An empty today says "Nothing planned"; stacked, later days with
+  nothing are skipped and the list ends at the first day cut short or whose heading and a row no
+  longer fit. Loading and a problem are the state row at the content top ([S-7039]).
 

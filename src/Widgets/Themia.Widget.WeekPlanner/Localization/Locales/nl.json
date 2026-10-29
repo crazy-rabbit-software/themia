@@ -4,5 +4,6 @@
   "planner.label": "Weekplanner",
   "planner.showTasks": "Taken van vandaag weergeven",
   "planner.taskAccount": "Taken uit",
-  "planner.taskAccountFirst": "Het eerste account met taken"
+  "planner.taskAccountFirst": "Het eerste account met taken",
+  "weekPlanner.setup.sentence": "Voeg een account toe om je week te plannen"
 }

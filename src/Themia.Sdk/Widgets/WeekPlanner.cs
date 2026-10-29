@@ -33,14 +33,14 @@ public static class WeekPlannerRules
     /// <summary>[S-5321] The planner's week: today and the six days after it. A rolling week, so nothing behind today is drawn.</summary>
     public const int Days = 7;
 
-    /// <summary>[S-5321] A day column narrower than this cannot hold "09:30" and a word of a title.</summary>
-    public const double MinColumn = 140;
+    /// <summary>
+    /// [S-5321] A day's column at its narrowest, full width (its rows carry the card's side inset): a
+    /// title and its time on one row of 32 ([S-6711]).
+    /// </summary>
+    public const double MinColumn = 240;
 
-    /// <summary>[S-5321] Under this a column drops the events' start times: the title is what is left to read.</summary>
-    public const double MinTimedColumn = 120;
-
-    /// <summary>Between two day columns.</summary>
-    public const double ColumnGap = 8;
+    /// <summary>[S-5321] From this column width a timed event's row ends in its start (a compact column keeps the title).</summary>
+    public const double TimesFrom = 180;
 
     /// <summary>[S-5321] The days the planner fetches, whatever it shows, so a resize never asks again.</summary>
     public static (DateOnly First, DateOnly Last) Range(DateOnly today) => (today, today.AddDays(Days - 1));
@@ -85,25 +85,24 @@ public static class WeekPlannerRules
     }
 
     /// <summary>
-    /// [S-5321] Days side by side as the width allows (<see cref="MinColumn"/> each, up to the
-    /// week). One column stacks the days that have something under today when the tile is at least
-    /// Regular tall; a smaller one is today alone, without its heading at Compact height.
+    /// [S-5321] The planner's shape in the view's area (the card less its header; rows carry the side
+    /// inset, so columns meet): as many day columns as each keeps 240, at most the week; a single
+    /// column stacks the days one under another from a regular height, else it is today alone with no
+    /// heading. A timed event shows its start from a column of 180.
     /// </summary>
-    public static PlannerPlan Plan(WidgetArea box)
+    public static PlannerPlan Plan(WidgetArea area)
     {
-        if (!box.IsMeasured)
+        if (!area.IsMeasured)
         {
             return new PlannerPlan(1, false, false, false);
         }
 
-        var columns = Math.Clamp((int)Math.Floor((box.Width + ColumnGap) / (MinColumn + ColumnGap)), 1, Days);
-        var times = (box.Width - (ColumnGap * (columns - 1))) / columns >= MinTimedColumn;
+        var columns = Math.Clamp((int)Math.Floor(area.Width / MinColumn), 1, Days);
+        var times = area.Width / columns >= TimesFrom;
 
-        // A strip too short for more than a couple of rows still shows its days side by side, but a
-        // column on a Compact tile is today alone.
         if (columns == 1)
         {
-            var stacked = box.HeightClass >= SizeClass.Regular;
+            var stacked = area.HeightClass >= SizeClass.Regular;
             return new PlannerPlan(1, stacked, stacked, times);
         }
 
@@ -171,7 +170,7 @@ public static class WeekPlannerRules
         return slots;
     }
 
-    /// <summary>A day's rows in <paramref name="fit"/> whole rows: all of them, or all but one and a "+N" row.</summary>
+    /// <summary>A day's rows in <paramref name="fit"/> whole rows: all of them, or all but one and a "+N" row; in one row its first item.</summary>
     private static (int Shown, int Hidden) Cut(int count, int fit)
     {
         // No whole row: nothing, not even the "+N" (it would need a row of its own).
@@ -180,12 +179,13 @@ public static class WeekPlannerRules
             return (0, 0);
         }
 
-        if (count <= fit)
+        // One row is the first item, never a lone "+N" that names nothing ([S-666]: the widget's own item first).
+        if (count <= fit || fit == 1)
         {
-            return (count, 0);
+            return (Math.Min(count, fit), 0);
         }
 
-        var shown = Math.Max(0, fit - 1);
+        var shown = fit - 1;
         return (shown, count - shown);
     }
 }

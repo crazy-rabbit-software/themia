@@ -18,6 +18,7 @@ using Themia.Core.Tasks;
 using Themia.Core.Widgets;
 using Themia.Sdk.WinUI;
 using Themia.Sdk;
+using Themia.Sdk.Kit;
 using Themia.Sdk.WinUI.Kit;
 using Themia.Widget.WeekPlanner;
 
@@ -45,13 +46,11 @@ internal sealed partial class WeekPlannerView : Grid, IWidgetView, IWidgetSurfac
     private static readonly TimeSpan Minute = TimeSpan.FromMinutes(1);
 
     /// <summary>The coloured mark before an event: thin, as a calendar chip's edge.</summary>
-    private const double StripeWidth = 3;
 
     /// <summary>The ring before a task, as the Tasks widget draws one ([S-597]), at a planner row's size.</summary>
-    private const double RingSize = 14;
 
     private readonly KitStatePanel _state;
-    private readonly Grid _content = new() { ColumnSpacing = WeekPlannerRules.ColumnGap };
+    private readonly Grid _content = new() { VerticalAlignment = VerticalAlignment.Top };
     private readonly Dictionary<string, Brush> _colorBrushes = new(StringComparer.Ordinal);
     private readonly List<IDisposable> _hovers = [];
 
@@ -91,7 +90,7 @@ internal sealed partial class WeekPlannerView : Grid, IWidgetView, IWidgetSurfac
     public WeekPlannerView(IWidgetHost host)
     {
         _widgetHost = host;
-        _state = new(Glyphs.WeekPlanner, host);
+        _state = new(Glyphs.WeekPlanner, host) { Visibility = Visibility.Collapsed };
         // [S-1113] Days run in reading order; the columns follow the language's direction like the week calendar's.
         Children.Add(_content);
         Children.Add(_state);
@@ -386,19 +385,17 @@ internal sealed partial class WeekPlannerView : Grid, IWidgetView, IWidgetSurfac
         var today = DateOnly.FromDateTime(now.LocalDateTime);
         var days = WeekPlannerRules.Build(_events, _birthdays, Tasks, today, zone, now);
 
-        var vertical = _area.HeightClass == SizeClass.Compact ? Fluent.Space2 : Fluent.Space3;
-        _content.Margin = new Thickness(Fluent.Space3, vertical, Fluent.Space3, vertical);
-        var box = _area.Deflate(Fluent.Space3, vertical);
-        var plan = WeekPlannerRules.Plan(box);
-        var heading = HeadingHeight;
-        var row = RowHeight;
+        // [S-5321] Rows carry the card's side inset, so the columns meet; the card's bottom inset stays free.
+        var plan = WeekPlannerRules.Plan(_area);
+        var room = Math.Max(0, _area.Height - FamilySpace.Inset);
+        var heading = FamilyShape.Row1;
+        var row = FamilyShape.Row1;
 
         // An empty today still takes a row, to say nothing is planned ([S-5323]).
         var counts = days.Select((d, i) => i == 0 ? Math.Max(1, d.Count) : d.Count).ToList();
         var slots = plan.Stacked
-            ? WeekPlannerRules.Stack(counts, box.Height, heading, row)
-            : WeekPlannerRules.Columns(counts, plan.Columns, box.Height, heading, row, plan.Headings);
-
+            ? WeekPlannerRules.Stack(counts, room, heading, row)
+            : WeekPlannerRules.Columns(counts, plan.Columns, room, heading, row, plan.Headings);
         var showColors = CalendarRules.ShowColors(_targets, _config.CalendarColors);
         var columns = plan.Stacked ? 1 : slots.Count;
 
@@ -422,33 +419,30 @@ internal sealed partial class WeekPlannerView : Grid, IWidgetView, IWidgetSurfac
                 _content.Children.Add(stack);
             }
 
-            DrawDay(stack, days[slot.Day], slot, today, now, zone, showColors, plan.Times, heading, row);
+            DrawDay(stack, days[slot.Day], slot, today, zone, showColors, plan.Times);
         }
 
         _content.Visibility = Visibility.Visible;
     }
 
-    private static double HeadingHeight => FluentType.BodyStrong.LineHeight + Fluent.Space1;
-
-    private static double RowHeight => FluentType.Body.LineHeight + Fluent.Space1;
-
-    /// <summary>A day: its heading, then its events, then (today) its tasks, as many as the slot shows, and "+N" for the rest.</summary>
-    private void DrawDay(StackPanel stack, PlannerDay day, PlannerSlot slot, DateOnly today, DateTimeOffset now, TimeZoneInfo zone, bool showColors, bool times, double heading, double row)
+    /// <summary>
+    /// [S-5323] A day: its heading (one row of 32, BodyStrong; primary for today, secondary for the rest,
+    /// never the accent), its events, then its tasks, then "+3" when the day has more than fit.
+    /// </summary>
+    private void DrawDay(StackPanel stack, PlannerDay day, PlannerSlot slot, DateOnly today, TimeZoneInfo zone, bool showColors, bool times)
     {
         if (slot.Heading)
         {
-            var title = Fluent.Text(FluentType.BodyStrong, day.Day == today ? "AccentTextFillColorPrimaryBrush" : "TextFillColorSecondaryBrush");
-            title.Text = Formatting.DayHeading(day.Day, today);
-            title.TextTrimming = TextTrimming.CharacterEllipsis;
-            title.Height = heading;
-            stack.Children.Add(title);
+            var title = Family.Text(FamilyType.BodyStrong, day.Day == today ? ColourRole.TextPrimary : ColourRole.TextSecondary, Formatting.DayHeading(day.Day, today));
+            title.VerticalAlignment = VerticalAlignment.Center;
+            stack.Children.Add(new Grid { Children = { title }, Height = FamilyShape.Row1, Padding = Family.SideInset });
         }
 
         if (day.Count == 0)
         {
             if (day.Day == today && slot.Shown > 0)
             {
-                stack.Children.Add(Note(WeekPlannerStr.Planner_Free.Text(), row));
+                stack.Children.Add(Note(WeekPlannerStr.Planner_Free.Text()));
             }
 
             return;
@@ -462,7 +456,7 @@ internal sealed partial class WeekPlannerView : Grid, IWidgetView, IWidgetSurfac
                 break;
             }
 
-            stack.Children.Add(EventRow(item, day.Day, now, zone, showColors, times, row));
+            stack.Children.Add(EventRow(item, day.Day, zone, showColors, times));
         }
 
         foreach (var task in day.Tasks)
@@ -472,73 +466,53 @@ internal sealed partial class WeekPlannerView : Grid, IWidgetView, IWidgetSurfac
                 break;
             }
 
-            stack.Children.Add(TaskRow(task, today, zone, row));
+            stack.Children.Add(TaskRow(task, today, zone));
         }
 
         if (slot.Hidden > 0)
         {
-            stack.Children.Add(Note($"+{LocaleFormat.Integer(Strings.Current, slot.Hidden)}", row));
+            stack.Children.Add(Note($"+{LocaleFormat.Integer(Strings.Current, slot.Hidden)}"));
         }
     }
 
-    /// <summary>[S-5322] An event: its calendar's mark, its start (none for a whole day; in the accent while it runs) and its title.</summary>
-    private Border EventRow(DayItem item, DateOnly day, DateTimeOffset now, TimeZoneInfo zone, bool showColors, bool times, double height)
+    /// <summary>
+    /// [S-5322] An event, a Row block of 32: its calendar's colour as a 2 px bar in the lead (a data
+    /// colour, [S-6705]; the secondary role when the planner shows one calendar), the title as the name,
+    /// the start as the value where the column has room. A tap opens it where it lives.
+    /// </summary>
+    private Border EventRow(DayItem item, DateOnly day, TimeZoneInfo zone, bool showColors, bool times)
     {
-        var line = new Grid { ColumnSpacing = Fluent.Space2 };
-        line.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
-        line.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
-        line.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
-
-        var stripe = new Border
+        var block = new RowBlock(RowKind.List);
+        block.Lead(new Border
         {
-            Width = StripeWidth,
-            Height = FluentType.Body.FontSize,
-            CornerRadius = new CornerRadius(StripeWidth / 2),
-            VerticalAlignment = VerticalAlignment.Center,
-            Background = item.Birthday is not null ? Caution() : showColors && item.Event is { } colored ? ColorOf(colored) : Accent(),
-        };
-        line.Children.Add(stripe);
+            Width = FamilyShape.Stroke,
+            Height = FamilyShape.Icon,
+            CornerRadius = Family.Round(FamilyShape.Stroke, FamilyShape.Icon),
+            HorizontalAlignment = HorizontalAlignment.Left,
+            Background = showColors && item.Event is { } colored ? ColorOf(colored) : Family.Brush(ColourRole.TextSecondary),
+        });
 
-        var title = Fluent.Text(FluentType.Body);
-        title.TextTrimming = TextTrimming.CharacterEllipsis;
-        title.VerticalAlignment = VerticalAlignment.Center;
-        SetColumn(title, 1);
-        SetColumnSpan(title, 2);
-        line.Children.Add(title);
-
+        string title;
+        string? value = null;
         string tip;
         if (item.Birthday is { } birthday)
         {
-            title.Text = BirthdayRules.Label(birthday, day);
-            tip = Str.WidgetsA_Calendar_BirthdayOf.Format(("name", title.Text));
+            title = BirthdayRules.Label(birthday, day);
+            tip = Str.WidgetsA_Calendar_BirthdayOf.Format(("name", title));
         }
         else
         {
             var e = item.Event!;
-            title.Text = string.IsNullOrWhiteSpace(e.Subject) ? Str.Calendar_NoTitle.Text() : e.Subject;
+            title = string.IsNullOrWhiteSpace(e.Subject) ? Str.Calendar_NoTitle.Text() : e.Subject;
             var part = CalendarRules.AgendaSpan(e, day, zone);
-            tip = title.Text;
-
-            if (!part.WholeDay && times)
+            if (part.WholeDay)
             {
-                SetColumn(title, 2);
-                SetColumnSpan(title, 1);
-                var running = AgendaRules.IsInProgress(false, part.Start, part.End, now);
-                var time = Fluent.Text(FluentType.Caption, running ? "AccentTextFillColorPrimaryBrush" : "TextFillColorSecondaryBrush");
-                time.Text = Time(part.Start);
-                time.VerticalAlignment = VerticalAlignment.Center;
-                Microsoft.UI.Xaml.Documents.Typography.SetNumeralAlignment(time, FontNumeralAlignment.Tabular);
-                SetColumn(time, 1);
-                line.Children.Add(time);
-                tip = part.End > part.Start ? $"{Time(part.Start)}–{Time(part.End)}  {title.Text}" : $"{time.Text}  {title.Text}";
-            }
-            else if (part.WholeDay)
-            {
-                tip = $"{Str.Calendar_AllDay.Text()}  {title.Text}";
+                tip = $"{Str.Calendar_AllDay.Text()}  {title}";
             }
             else
             {
-                tip = part.End > part.Start ? $"{Time(part.Start)}–{Time(part.End)}  {title.Text}" : $"{Time(part.Start)}  {title.Text}";
+                value = times ? Time(part.Start) : null;
+                tip = part.End > part.Start ? $"{Time(part.Start)}–{Time(part.End)}  {title}" : $"{Time(part.Start)}  {title}";
             }
 
             if (!string.IsNullOrWhiteSpace(e.Location))
@@ -547,9 +521,9 @@ internal sealed partial class WeekPlannerView : Grid, IWidgetView, IWidgetSurfac
             }
         }
 
-        var row = Row(line, height);
+        block.Show(title, value);
+        var row = Item(block);
         ToolTipService.SetToolTip(row, tip);
-
         if (item.Event is { } openable)
         {
             row.Tapped += (_, _) => Open(openable);
@@ -558,42 +532,32 @@ internal sealed partial class WeekPlannerView : Grid, IWidgetView, IWidgetSurfac
         return row;
     }
 
-    /// <summary>[S-5322] A task due today (or overdue: its ring in the critical colour); the ring ticks it off ([S-597]).</summary>
-    private Border TaskRow(TaskItem task, DateOnly today, TimeZoneInfo zone, double height)
+    /// <summary>[S-5322] A task due today or overdue: a Row block led by its check (a 16 ring, critical when overdue); a tap on the ring completes it.</summary>
+    private Border TaskRow(TaskItem task, DateOnly today, TimeZoneInfo zone)
     {
         var overdue = TaskDue.IsPast(task.DueRaw, today, zone);
-        var line = new Grid { ColumnSpacing = Fluent.Space2 };
-        line.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
-        line.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
-
         var ring = new Border
         {
-            Width = RingSize,
-            Height = RingSize,
-            CornerRadius = new CornerRadius(RingSize / 2),
+            Width = FamilyShape.Icon,
+            Height = FamilyShape.Icon,
+            CornerRadius = Family.Round(FamilyShape.Icon, FamilyShape.Icon),
+            BorderThickness = new Thickness(FamilyShape.Stroke),
+            BorderBrush = Family.Brush(overdue ? ColourRole.Critical : ColourRole.TextSecondary),
+            Background = Family.Brush(ColourRole.Clear),
             VerticalAlignment = VerticalAlignment.Center,
-            BorderThickness = new Thickness(Fluent.Hairline),
-            BorderBrush = overdue
-                ? ThemeBrush.Of("SystemFillColorCriticalBrush", Colors.IndianRed)
-                : ThemeBrush.Of("ControlStrongStrokeColorDefaultBrush", Colors.Gray),
-            Background = Fluent.Clear(),
         };
+
         ToolTipService.SetToolTip(ring, Str.WidgetsC_Tasks_MarkDone.Text());
         ring.Tapped += (_, args) =>
         {
             args.Handled = true;
             _ = CompleteAsync(task);
         };
-        line.Children.Add(ring);
 
-        var title = Fluent.Text(FluentType.Body);
-        title.Text = task.DisplayTitle;
-        title.TextTrimming = TextTrimming.CharacterEllipsis;
-        title.VerticalAlignment = VerticalAlignment.Center;
-        SetColumn(title, 1);
-        line.Children.Add(title);
-
-        var row = Row(line, height);
+        var block = new RowBlock(RowKind.List);
+        block.Lead(ring);
+        block.Show(task.DisplayTitle);
+        var row = Item(block);
         ToolTipService.SetToolTip(row, task.DisplayTitle);
         return row;
     }
@@ -617,24 +581,19 @@ internal sealed partial class WeekPlannerView : Grid, IWidgetView, IWidgetSurfac
         }
     }
 
-    private static TextBlock Note(string text, double height)
+    /// <summary>A line that is not an item ("Nothing planned", "+3"): a Row block's name in the secondary role, at the rows' text edge.</summary>
+    private static RowBlock Note(string text)
     {
-        var note = Fluent.Text(FluentType.Caption, "TextFillColorTertiaryBrush");
-        note.Text = text;
-        note.Height = height;
-        note.Padding = new Thickness(0, Fluent.Space1, 0, 0);
-        note.TextTrimming = TextTrimming.CharacterEllipsis;
-        return note;
+        var block = new RowBlock(RowKind.List);
+        block.Show(text);
+        block.NameText.Foreground = Family.Brush(ColourRole.TextSecondary);
+        return block;
     }
 
-    private Border Row(Grid line, double height)
+    /// <summary>A full-width item around a row: the item layer's fill and hover ([S-6513]).</summary>
+    private Border Item(RowBlock block)
     {
-        var row = new Border
-        {
-            Child = line,
-            Height = height,
-            CornerRadius = new CornerRadius(Fluent.ControlRadius),
-        };
+        var row = new Border { Child = block };
         ItemFill.Paint(row, ItemRole.Row);
         _hovers.Add(Fluent.Hover(row));
         return row;
@@ -656,25 +615,18 @@ internal sealed partial class WeekPlannerView : Grid, IWidgetView, IWidgetSurfac
     private static string Time(DateTimeOffset moment)
         => LocaleFormat.Time(Strings.Current, TimeOnly.FromDateTime(moment.ToLocalTime().DateTime));
 
-    /// <summary>[S-566] An event's calendar colour, resolved at draw time so a settings change repaints at once.</summary>
+    /// <summary>[S-566] The event's calendar colour, the user's or the palette's, as a data colour.</summary>
     private Brush ColorOf(CalendarEvent item)
     {
         var hex = CalendarRules.ResolveColor(CalendarRules.ColorKey(item.AccountId, item.CalendarId), item.SourceIndex, _config.CalendarColors);
-
         if (!_colorBrushes.TryGetValue(hex, out var brush))
         {
-            brush = HexColor.TryParse(hex, out var r, out var g, out var b)
-                ? new SolidColorBrush(Windows.UI.Color.FromArgb(255, r, g, b))
-                : Accent();
+            brush = Family.Data(hex);
             _colorBrushes[hex] = brush;
         }
 
         return brush;
     }
-
-    private static Brush Accent() => ThemeBrush.Of("AccentFillColorDefaultBrush", Colors.DodgerBlue);
-
-    private static Brush Caution() => ThemeBrush.Of("SystemFillColorCautionBrush", Colors.Goldenrod);
 
     /// <summary>[S-1268] A click on an event opens it in its calendar, as a calendar widget's does; never in a preview or edit mode.</summary>
     private void Open(CalendarEvent item)

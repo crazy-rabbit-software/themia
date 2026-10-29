@@ -4,5 +4,6 @@
   "planner.label": "வாராந்திரத் திட்டமிடுபவர்",
   "planner.showTasks": "இன்றைய பணிகளைக் காட்டு",
   "planner.taskAccount": "பணிகள் இங்கிருந்து",
-  "planner.taskAccountFirst": "பணிகள் உள்ள முதல் கணக்கு"
+  "planner.taskAccountFirst": "பணிகள் உள்ள முதல் கணக்கு",
+  "weekPlanner.setup.sentence": "உங்கள் வாரத்தைத் திட்டமிட ஒரு கணக்கைச் சேர்க்கவும்"
 }

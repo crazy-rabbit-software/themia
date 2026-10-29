@@ -4,5 +4,6 @@
   "planner.label": "برنامه‌ریز هفته",
   "planner.showTasks": "نمایش کارهای امروز",
   "planner.taskAccount": "کارها از",
-  "planner.taskAccountFirst": "نخستین حساب دارای کار"
+  "planner.taskAccountFirst": "نخستین حساب دارای کار",
+  "weekPlanner.setup.sentence": "برای برنامه‌ریزی هفته‌تان یک حساب اضافه کنید"
 }

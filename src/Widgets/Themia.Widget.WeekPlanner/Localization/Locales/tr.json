@@ -4,5 +4,6 @@
   "planner.label": "Haftalık planlayıcı",
   "planner.showTasks": "Bugünün görevlerini göster",
   "planner.taskAccount": "Görevlerin kaynağı",
-  "planner.taskAccountFirst": "Görevi olan ilk hesap"
+  "planner.taskAccountFirst": "Görevi olan ilk hesap",
+  "weekPlanner.setup.sentence": "Haftanızı planlamak için bir hesap ekleyin"
 }

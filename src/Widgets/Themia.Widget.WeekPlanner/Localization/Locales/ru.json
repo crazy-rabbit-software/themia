@@ -4,5 +4,6 @@
   "planner.label": "Планировщик недели",
   "planner.showTasks": "Показывать задачи на сегодня",
   "planner.taskAccount": "Задачи из",
-  "planner.taskAccountFirst": "Первая учётная запись с задачами"
+  "planner.taskAccountFirst": "Первая учётная запись с задачами",
+  "weekPlanner.setup.sentence": "Добавьте учётную запись, чтобы планировать неделю"
 }

@@ -4,5 +4,6 @@
   "planner.label": "Mpangaji wa wiki",
   "planner.showTasks": "Onyesha kazi za leo",
   "planner.taskAccount": "Kazi kutoka",
-  "planner.taskAccountFirst": "Akaunti ya kwanza yenye kazi"
+  "planner.taskAccountFirst": "Akaunti ya kwanza yenye kazi",
+  "weekPlanner.setup.sentence": "Ongeza akaunti ili kupanga wiki yako"
 }

@@ -4,5 +4,6 @@
   "planner.label": "সাপ্তাহিক পরিকল্পনাকারী",
   "planner.showTasks": "আজকের কাজ দেখান",
   "planner.taskAccount": "কাজ যেখান থেকে",
-  "planner.taskAccountFirst": "কাজসহ প্রথম অ্যাকাউন্ট"
+  "planner.taskAccountFirst": "কাজসহ প্রথম অ্যাকাউন্ট",
+  "weekPlanner.setup.sentence": "আপনার সপ্তাহের পরিকল্পনা করতে একটি অ্যাকাউন্ট যোগ করুন"
 }

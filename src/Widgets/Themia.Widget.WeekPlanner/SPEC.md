@@ -30,7 +30,8 @@ lines: the SDK's calendar lines, then Today's tasks), `Preview/` (Debug renders:
   ⚙ › Language & region's, never the planner's own).
   Lists kept on this PC are not offered: the planner is the synced schedule.
 - **[S-5325]** Setup and sync: it asks to be set up only while neither a calendar account nor (when
-  it shows tasks) a task account is signed in; with tasks alone it is a week of tasks.
+  it shows tasks) a task account is signed in, its Set up row saying "Add an account to plan your
+  week" ([S-1862]); with tasks alone it is a week of tasks.
   `SyncInterests` takes its calendars as a calendar interest and its task account's Today view as a
   task interest, so both sync with everything else.
 

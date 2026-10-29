@@ -4,5 +4,6 @@
   "planner.label": "साप्ताहिक नियोजक",
   "planner.showTasks": "आजची कार्ये दाखवा",
   "planner.taskAccount": "कार्ये येथून",
-  "planner.taskAccountFirst": "कार्ये असलेले पहिले खाते"
+  "planner.taskAccountFirst": "कार्ये असलेले पहिले खाते",
+  "weekPlanner.setup.sentence": "तुमच्या आठवड्याचे नियोजन करण्यासाठी खाते जोडा"
 }

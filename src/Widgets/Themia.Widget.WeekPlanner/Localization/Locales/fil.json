@@ -4,5 +4,6 @@
   "planner.label": "Planner ng linggo",
   "planner.showTasks": "Ipakita ang mga gawain ngayon",
   "planner.taskAccount": "Mga gawain mula sa",
-  "planner.taskAccountFirst": "Ang unang account na may mga gawain"
+  "planner.taskAccountFirst": "Ang unang account na may mga gawain",
+  "weekPlanner.setup.sentence": "Magdagdag ng account para planuhin ang iyong linggo"
 }

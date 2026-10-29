@@ -4,5 +4,6 @@
   "planner.label": "週間プランナー",
   "planner.showTasks": "今日のタスクを表示",
   "planner.taskAccount": "タスクの取得元",
-  "planner.taskAccountFirst": "タスクのある最初のアカウント"
+  "planner.taskAccountFirst": "タスクのある最初のアカウント",
+  "weekPlanner.setup.sentence": "週の予定を表示するにはアカウントを追加してください"
 }

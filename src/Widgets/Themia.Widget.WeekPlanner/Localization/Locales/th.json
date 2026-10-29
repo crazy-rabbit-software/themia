@@ -4,5 +4,6 @@
   "planner.label": "ตัววางแผนรายสัปดาห์",
   "planner.showTasks": "แสดงงานวันนี้",
   "planner.taskAccount": "งานจาก",
-  "planner.taskAccountFirst": "บัญชีแรกที่มีงาน"
+  "planner.taskAccountFirst": "บัญชีแรกที่มีงาน",
+  "weekPlanner.setup.sentence": "เพิ่มบัญชีเพื่อวางแผนสัปดาห์ของคุณ"
 }

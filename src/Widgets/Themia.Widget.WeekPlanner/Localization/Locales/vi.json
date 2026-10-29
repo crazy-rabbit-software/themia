@@ -4,5 +4,6 @@
   "planner.label": "Kế hoạch tuần",
   "planner.showTasks": "Hiện tác vụ hôm nay",
   "planner.taskAccount": "Tác vụ từ",
-  "planner.taskAccountFirst": "Tài khoản đầu tiên có tác vụ"
+  "planner.taskAccountFirst": "Tài khoản đầu tiên có tác vụ",
+  "weekPlanner.setup.sentence": "Thêm tài khoản để lên kế hoạch cho tuần của bạn"
 }

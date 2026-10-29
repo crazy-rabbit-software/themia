@@ -29,10 +29,11 @@ public class WeekPlannerTests
     private static TaskItem Due(string id, DateOnly? due, bool completed = false)
         => new(id, "list", id, completed, DueRaw: due is { } day ? TaskDue.Wire(day) : null);
 
+    /// <summary>The view's area at a tier: the card's width, its height less the header.</summary>
     private static WidgetArea Box(string tier)
     {
         var t = WidgetTiers.All.Single(x => x.Name == tier);
-        return new WidgetArea(t.Width - 24, t.Height - 44 - 24);
+        return new WidgetArea(t.Width, t.Height - 44);
     }
 
     [Fact]
@@ -50,18 +51,20 @@ public class WeekPlannerTests
         Assert.False(xs.Headings);
         Assert.False(xs.Times);
 
-        var tall = WeekPlannerRules.Plan(Box("Tall"));
-        Assert.Equal(1, tall.Columns);
-        Assert.True(tall.Stacked);
-        Assert.True(tall.Times);
+        // A medium tile and a tall column stack the days, each event ending in its start.
+        foreach (var tier in new[] { "M", "Tall" })
+        {
+            var plan = WeekPlannerRules.Plan(Box(tier));
+            Assert.Equal(1, plan.Columns);
+            Assert.True(plan.Stacked);
+            Assert.True(plan.Times);
+        }
 
-        var wide = WeekPlannerRules.Plan(Box("Wide"));
-        var l = WeekPlannerRules.Plan(Box("L"));
-        var xl = WeekPlannerRules.Plan(Box("XL"));
-        Assert.True(wide.Columns >= 2);
-        Assert.True(xl.Columns > l.Columns && l.Columns > 1);
-        Assert.True(xl.Columns <= WeekPlannerRules.Days);
-        Assert.True(xl.Times && wide.Times);
+        // Columns while each keeps 240 (its rows carry the card's inset).
+        Assert.Equal(2, WeekPlannerRules.Plan(Box("Wide")).Columns);
+        Assert.Equal(2, WeekPlannerRules.Plan(Box("L")).Columns);
+        Assert.Equal(3, WeekPlannerRules.Plan(Box("XL")).Columns);
+        Assert.True(WeekPlannerRules.Plan(Box("XL")).Times);
         Assert.Equal(WeekPlannerRules.Days, WeekPlannerRules.Plan(new WidgetArea(2000, 400)).Columns);
     }
 
@@ -113,6 +116,9 @@ public class WeekPlannerTests
         Assert.Equal(new PlannerSlot(0, 2, 3, true), slots[0]);
         Assert.Equal(new PlannerSlot(1, 2, 0, true), slots[1]);
         Assert.Equal(new PlannerSlot(2, 0, 0, true), slots[2]);
+
+        // One whole row: the day's first item, not a lone "+3" that names nothing.
+        Assert.Equal(new PlannerSlot(0, 1, 0, false), WeekPlannerRules.Columns([3], 1, 24, 24, 24, false)[0]);
 
         // No whole row: nothing, not a "+N" squeezed in.
         Assert.Equal(new PlannerSlot(0, 0, 0, true), WeekPlannerRules.Columns([3], 1, 30, 24, 24, true)[0]);

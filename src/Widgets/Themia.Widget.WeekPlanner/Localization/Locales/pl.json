@@ -4,5 +4,6 @@
   "planner.label": "Planer tygodnia",
   "planner.showTasks": "Pokaż dzisiejsze zadania",
   "planner.taskAccount": "Zadania z",
-  "planner.taskAccountFirst": "Pierwsze konto z zadaniami"
+  "planner.taskAccountFirst": "Pierwsze konto z zadaniami",
+  "weekPlanner.setup.sentence": "Dodaj konto, aby zaplanować tydzień"
 }

@@ -4,5 +4,6 @@
   "planner.label": "Wochenplaner",
   "planner.showTasks": "Heutige Aufgaben anzeigen",
   "planner.taskAccount": "Aufgaben aus",
-  "planner.taskAccountFirst": "Das erste Konto mit Aufgaben"
+  "planner.taskAccountFirst": "Das erste Konto mit Aufgaben",
+  "weekPlanner.setup.sentence": "Füge ein Konto hinzu, um deine Woche zu planen"
 }

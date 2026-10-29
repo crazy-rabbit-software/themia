@@ -4,5 +4,6 @@
   "planner.label": "週計畫",
   "planner.showTasks": "顯示今天的工作",
   "planner.taskAccount": "工作來源",
-  "planner.taskAccountFirst": "第一個有工作的帳戶"
+  "planner.taskAccountFirst": "第一個有工作的帳戶",
+  "weekPlanner.setup.sentence": "新增帳戶以規劃你的一週"
 }

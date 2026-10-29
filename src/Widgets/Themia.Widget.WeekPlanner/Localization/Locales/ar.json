@@ -4,5 +4,6 @@
   "planner.label": "مخطط الأسبوع",
   "planner.showTasks": "إظهار مهام اليوم",
   "planner.taskAccount": "المهام من",
-  "planner.taskAccountFirst": "أول حساب يحتوي على مهام"
+  "planner.taskAccountFirst": "أول حساب يحتوي على مهام",
+  "weekPlanner.setup.sentence": "أضف حسابًا لتخطيط أسبوعك"
 }

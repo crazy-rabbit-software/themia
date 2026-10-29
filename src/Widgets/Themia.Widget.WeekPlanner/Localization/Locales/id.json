@@ -4,5 +4,6 @@
   "planner.label": "Perencana mingguan",
   "planner.showTasks": "Tampilkan tugas hari ini",
   "planner.taskAccount": "Tugas dari",
-  "planner.taskAccountFirst": "Akun pertama yang memiliki tugas"
+  "planner.taskAccountFirst": "Akun pertama yang memiliki tugas",
+  "weekPlanner.setup.sentence": "Tambahkan akun untuk merencanakan minggu Anda"
 }
