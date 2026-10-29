@@ -155,6 +155,10 @@ public sealed partial class ControlsBlock : Grid
             VerticalAlignment = VerticalAlignment.Center,
             IsThumbToolTipEnabled = false,
             AllowFocusOnInteraction = false,
+
+            // The one radius: the template gives it to the 4 rail, which draws it round (half its short
+            // side), where the template's own 2 is no radius of the family's.
+            CornerRadius = Family.Radius,
         };
 
         // The rail and the value are roles, not the template's literals.
