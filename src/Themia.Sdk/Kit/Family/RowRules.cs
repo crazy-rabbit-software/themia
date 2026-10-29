@@ -77,4 +77,53 @@ public static class RowRules
     /// <summary>[S-6713] A cell's height: its icon, 4, the name's Caption line.</summary>
     public static double CellHeight(double icon, bool named)
         => icon + (named ? FamilySpace.S1 + FamilyType.Caption.LineHeight : 0);
+
+    /// <summary>
+    /// [S-6713] The least width of a cell's lead and name: a named cell its icon and 16 either side (room
+    /// for a short name in Caption), an unnamed one its icon alone.
+    /// </summary>
+    public static double CellLeast(double icon, bool named) => icon + (named ? 2 * FamilySpace.S4 : 0);
+
+    /// <summary>
+    /// [S-6713] A grid of cells in a content box <paramref name="width"/> × <paramref name="height"/>
+    /// (the card less its inset): as many columns of at least <see cref="CellLeast"/> as fit 12 apart,
+    /// sharing the width out, and the whole rows that fit 12 apart. Each cell's mark (its hover and
+    /// selection) stands <see cref="FamilySpace.S1"/> around its lead and name, so neighbouring marks
+    /// are 4 apart and the first cell's lead and name stand at the inset.
+    /// </summary>
+    public static CellGrid Cells(double width, double height, double icon, bool named)
+    {
+        var least = CellLeast(icon, named);
+        var gap = FamilySpace.S3;
+        var columns = Math.Max(1, (int)Math.Floor((Math.Max(0, width) + gap + 0.01) / (least + gap)));
+        var cell = Math.Max(least, (Math.Max(0, width) - (gap * (columns - 1))) / columns);
+        var tall = CellHeight(icon, named);
+        var rows = Math.Max(0, (int)Math.Floor((Math.Max(0, height) + gap + 0.01) / (tall + gap)));
+        return new CellGrid(columns, rows, cell, tall, icon, named);
+    }
+}
+
+/// <summary>[S-6713] A grid of cells: its columns and whole rows, one cell's content box and its lead.</summary>
+/// <param name="Columns">Cells side by side, at least one.</param>
+/// <param name="Rows">Whole rows of cells that fit the box (more scroll).</param>
+/// <param name="Width">A cell's lead and name: the width shared out between the columns.</param>
+/// <param name="Height">A cell's lead and name: <see cref="RowRules.CellHeight"/>.</param>
+/// <param name="Icon">The lead's size.</param>
+/// <param name="Named">Whether the cells show their names.</param>
+public readonly record struct CellGrid(int Columns, int Rows, double Width, double Height, double Icon, bool Named)
+{
+    /// <summary>A cell's mark: its lead and name with <see cref="FamilySpace.S1"/> around them.</summary>
+    public double MarkWidth => Width + (2 * FamilySpace.S1);
+
+    /// <summary>A cell's mark's height.</summary>
+    public double MarkHeight => Height + (2 * FamilySpace.S1);
+
+    /// <summary>From one cell's mark to the next one's, either way: the marks stand 4 apart.</summary>
+    public double PitchX => MarkWidth + FamilySpace.S1;
+
+    /// <summary>From one row's marks to the next one's.</summary>
+    public double PitchY => MarkHeight + FamilySpace.S1;
+
+    /// <summary>The cells that show without scrolling.</summary>
+    public int Visible => Columns * Rows;
 }
