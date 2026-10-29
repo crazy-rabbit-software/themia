@@ -60,7 +60,9 @@ Show Desktop is the one moment the surface is lifted, so the widgets do not vani
   window's own scale, so it should hold, but every test machine so far ran its displays at one scale.
 - **Time zones use a mapping table.** The app runs without ICU (`InvariantGlobalization`), so IANA city
   names are mapped to Windows zones from a frozen table; a zone Windows lacks falls back to local time.
-- **Google sign-in** works only in builds made with Google's client secret (Microsoft needs none).
+- **Google accounts are not offered** for now: Google has not verified the OAuth app yet, so Add
+  account leaves Google out (SPEC [S-3562]; an account already signed in keeps working). Its
+  sign-in works only in builds made with Google's client secret (Microsoft needs none).
 - **No browser engine.** The Video stream widget plays MJPEG, snapshots, MP4 and HLS through Windows'
   own media stack.
 - **Out of scope on purpose:** a tray icon, an always-on-top pin, pop-out widget windows, an in-app

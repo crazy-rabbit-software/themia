@@ -40,13 +40,16 @@ Still open, in order:
 1. Partner Center: reserve "Themia" under Lometics GmbH, then copy **Identity Name** and
    **Publisher** into `Package.appxmanifest` (the build warns until then).
 2. Create the **Themia Pro** add-on, set its price, and copy its Store ID into `StoreIds.ProAddOn`.
-3. Put `THEMIA_CLIENT_SECRETS` (the Google Desktop client secret) in the shell, then run
-   `scripts/package.ps1`. Without it, Google sign-in does not work in the package.
-4. Google: Gmail read access (`gmail.readonly`) is a *restricted* scope. Until the OAuth app passes
-   Google's verification, including the CASA security assessment, it is limited to 100 test users
-   and shows the "unverified app" warning. Calendar, contacts and tasks are *sensitive* scopes and
-   need the lighter brand verification. Microsoft sign-in needs no review, but the app
-   registration's publisher should be verified (Lometics' Microsoft Partner Network id).
+3. Run `scripts/package.ps1`. Microsoft sign-in needs no review, but the app registration's
+   publisher should be verified (Lometics' Microsoft Partner Network id).
+4. *Deferred:* Google. Themia does not offer Google accounts for now (SPEC [S-3562]): Gmail read
+   access (`gmail.readonly`) is a *restricted* scope, and until the OAuth app passes Google's
+   verification, including the CASA security assessment, it is limited to 100 test users and shows
+   the "unverified app" warning (calendar, contacts and tasks are *sensitive* scopes and need the
+   lighter brand verification; docs/GOOGLE-VERIFICATION.md). The first submission needs neither
+   the verification nor `THEMIA_CLIENT_SECRETS`. When Google is offered again, put the Google
+   Desktop client secret in `THEMIA_CLIENT_SECRETS` before packaging (without it Google sign-in
+   does not work in the package) and Google back into STORE-LISTING.md.
 5. Sideload test of the package (below), then the Windows App Certification Kit on it:
    `appcert.exe test -appxpackagepath Themia_<v>_x64.msix -reportoutputpath wack.xml`, elevated.
 6. Screenshots of this build on a real desktop (STORE-LISTING.md lists the set).
@@ -58,7 +61,8 @@ Still open, in order:
 ```powershell
 # 1. Set the version: Package.appxmanifest Identity/@Version, Major.Minor.Build.0
 # 2. The client secrets the build compiles in ([S-9917]): one variable, an entry per provider whose
-#    sign-in needs one (today Google's Desktop client). Never committed; keep it in .env.
+#    sign-in needs one (today Google's Desktop client, deferred while Google is held back, [S-3562]).
+#    Never committed; keep it in .env.
 $env:THEMIA_CLIENT_SECRETS = "google=<Google Desktop client secret>"
 # 3. Build (Native AOT, unsigned):
 .\scripts\package.ps1

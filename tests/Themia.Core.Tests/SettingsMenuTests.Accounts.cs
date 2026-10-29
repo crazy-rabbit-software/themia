@@ -247,7 +247,8 @@ public sealed partial class SettingsMenuTests
         var add = At<SettingsSubmenu>(host, "accounts", "accounts/add");
         var kinds = add.Lines.Where(l => l is SettingsCommand or SettingsSubmenu).Select(l => l.Key).ToArray();
 
-        Assert.Equal(["accounts/add/microsoft", "accounts/add/google", "accounts/add/imap", "accounts/add/caldav", "accounts/add/carddav"], kinds);
+        // [S-3562] Google is held back: no line of its own.
+        Assert.Equal(["accounts/add/microsoft", "accounts/add/imap", "accounts/add/caldav", "accounts/add/carddav"], kinds);
         Assert.All(add.Lines.OfType<SettingsSubmenu>(), s => Assert.Contains(s.Lines, l => l is SettingsField { Masked: true }));
     }
 
@@ -274,24 +275,72 @@ public sealed partial class SettingsMenuTests
     public void S3553_a_device_code_stands_under_its_line_with_copy_and_its_page()
     {
         var (host, fake) = WithAccounts();
-        fake.Menu.Say("accounts/add/google", new AccountStatus("Enter this code", Busy: true) { Code = "WDJB-MJHT", Page = new Uri("https://example.com/device") });
+        fake.Menu.Say("accounts/add/microsoft", new AccountStatus("Enter this code", Busy: true) { Code = "WDJB-MJHT", Page = new Uri("https://example.com/device") });
         var add = At<SettingsSubmenu>(host, "accounts", "accounts/add");
 
-        Assert.Equal("WDJB-MJHT", Assert.IsType<SettingsReading>(add.Lines.Single(l => l.Key == "accounts/add/google/code")).Value);
-        Assert.Contains(add.Lines, l => l.Key == "accounts/add/google/copy");
-        Assert.Contains(add.Lines, l => l.Key == "accounts/add/google/page");
+        Assert.Equal("WDJB-MJHT", Assert.IsType<SettingsReading>(add.Lines.Single(l => l.Key == "accounts/add/microsoft/code")).Value);
+        Assert.Contains(add.Lines, l => l.Key == "accounts/add/microsoft/copy");
+        Assert.Contains(add.Lines, l => l.Key == "accounts/add/microsoft/page");
     }
 
     [Fact]
     public void S3553_a_sign_in_this_build_cannot_start_is_greyed_with_why()
     {
         var (host, fake) = WithAccounts();
-        fake.Refusing[HostProviders.Google] = "Google sign-in is not set up in this build of Themia.";
+        fake.Refusing[HostProviders.Microsoft] = "Microsoft sign-in is not set up in this build of Themia.";
         var add = At<SettingsSubmenu>(host, "accounts", "accounts/add");
 
-        Assert.True(Assert.IsType<SettingsCommand>(add.Lines.Single(l => l.Key == "accounts/add/google")).Disabled);
-        Assert.Equal(fake.Refusing[HostProviders.Google], Assert.IsType<SettingsNote>(add.Lines.Single(l => l.Key == "accounts/add/google/why")).Text);
-        Assert.False(Assert.IsType<SettingsCommand>(add.Lines.Single(l => l.Key == "accounts/add/microsoft")).Disabled);
+        Assert.True(Assert.IsType<SettingsCommand>(add.Lines.Single(l => l.Key == "accounts/add/microsoft")).Disabled);
+        Assert.Equal(fake.Refusing[HostProviders.Microsoft], Assert.IsType<SettingsNote>(add.Lines.Single(l => l.Key == "accounts/add/microsoft/why")).Text);
+        Assert.Empty(fake.SignIns);
+    }
+
+    // ---- [S-3562] a provider held back ---------------------------------------------------------------
+
+    private static readonly AccountInfo Google = new("google:1234", HostProviders.Google, "sam@gmail.com", "Sam Lee", null, null, null);
+
+    [Fact]
+    public void S3562_google_is_held_back_and_every_other_provider_is_offered_in_its_place()
+    {
+        Assert.False(ProviderCatalog.Of(HostProviders.Google).Offered);
+        Assert.Equal(["microsoft", "imap", "caldav", "carddav"], ProviderCatalog.Offered.Select(p => p.Id.Value));
+
+        // Held back, not gone: an account file naming it is still read against it.
+        Assert.Contains(ProviderCatalog.All, p => p.Id == HostProviders.Google);
+        Assert.True(ProviderCatalog.TryParse("google", out var id));
+        Assert.Equal(HostProviders.Google, id);
+    }
+
+    [Fact]
+    public void S3562_add_account_offers_no_google_line_anywhere_below_it()
+    {
+        var (host, _) = WithAccounts();
+        var add = At<SettingsSubmenu>(host, "accounts", "accounts/add");
+
+        Assert.DoesNotContain(Flat(add.Lines), l => l.Key.StartsWith("accounts/add/google", StringComparison.Ordinal));
+        Assert.DoesNotContain(Flat(add.Lines), l => Words(l).Any(w => w.Contains("Google", StringComparison.Ordinal)));
+    }
+
+    [Fact]
+    public void S3562_a_google_account_already_signed_in_stays_with_its_kinds_sign_in_again_and_sign_out()
+    {
+        var (host, fake) = WithAccounts(Google with { Problem = "Google wants you to sign in again." });
+        var key = SettingsMenu.AccountKey(Google.Id);
+
+        var accounts = At<SettingsSubmenu>(host, SettingsMenu.Keys.Accounts);
+        Assert.Contains(accounts.Lines, l => l.Key == key);
+
+        var account = At<SettingsSubmenu>(host, "accounts", key);
+        Assert.Equal(
+            [key + "/kind/Mail", key + "/kind/Calendar", key + "/kind/Contacts", key + "/kind/Tasks"],
+            account.Lines.OfType<SettingsReading>().Select(r => r.Key));
+        Assert.Contains(account.Lines, l => l.Key == key + "/signout");
+
+        // Its way back in is the browser's sign-in that added it, replacing it in place.
+        At<SettingsCommand>(host, "accounts", key, key + "/again").Run();
+        var (provider, member, row) = Assert.Single(fake.SignIns);
+        Assert.Equal((HostProviders.Google, key + "/again"), (provider, row));
+        Assert.IsType<OAuthPkceLoopback>(member);
     }
 
     // ---- [S-3554] [S-3555] the forms ---------------------------------------------------------------

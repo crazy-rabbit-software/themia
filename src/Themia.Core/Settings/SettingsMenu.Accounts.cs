@@ -156,13 +156,13 @@ public static partial class SettingsMenu
     }
 
     /// <summary>
-    /// [S-3553] Add account ›: every provider with a sign-in of its own, in its place ([S-9910]); then
-    /// the host's password servers, each a form in its own submenu ([S-3554]).
+    /// [S-3553] Add account ›: every offered provider ([S-3562]) with a sign-in of its own, in its place
+    /// ([S-9910]); then the host's password servers, each a form in its own submenu ([S-3554]).
     /// </summary>
     private static SettingsSubmenu AddAccount(IAccountsMenuHost host)
     {
         var lines = new List<SettingsLine>();
-        foreach (var provider in ProviderCatalog.All.Where(p => p.SignIn.Members.Any(m => m is not AnonymousAuth)).OrderBy(p => p.AddRank))
+        foreach (var provider in ProviderCatalog.Offered.Where(p => p.SignIn.Members.Any(m => m is not AnonymousAuth)))
         {
             lines.AddRange(ProviderLines(host, provider));
         }
@@ -175,6 +175,11 @@ public static partial class SettingsMenu
             (host.Menu.CardDav, Str.Shell_Accounts_MenuCardDav, Glyphs.Contact),
         })
         {
+            if (!ProviderCatalog.Of(form.Provider).Offered)
+            {
+                continue;
+            }
+
             var row = Keys.AddAccount + "/" + form.Provider.Value;
             lines.Add(new SettingsSubmenu(row, text.Text(), glyph, FormLines(host, form, row)));
         }

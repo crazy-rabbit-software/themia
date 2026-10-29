@@ -922,7 +922,8 @@ Module sections live in `src/Widgets/*/SPEC.md` and `src/Providers/*/SPEC.md` ([
 
 - **[S-6910]** Providers are modules too (`IProviderModule`, `[assembly: ThemiaProvider(id, typeof(M))]`):
   each states its id, its name (`LocalText`), the features its accounts offer, how they sign in
-  (`AccountAuth`), its place in ⚙ › Accounts › Add account, and its own Updates row or none
+  (`AccountAuth`), its place in ⚙ › Accounts › Add account and whether it is offered there
+  ([S-3562]), and its own Updates row or none
   (its accounts follow the host's Accounts row, [S-3780]). The host installs them into
   `ProviderCatalog` with the widgets, checking each id against its attribute; every question about a
   provider is answered there. A widget's descriptor names the providers whose accounts it reads by id
@@ -1834,9 +1835,9 @@ written in place), `Shell/DesktopWindow.SettingsMenu.cs` (`RequestAccounts`). Te
   (in the critical colour), then **Sign in again**: for a provider with a sign-in of its own the
   sign-in that added it (the browser, a code), which replaces its sign-in in place, how it goes under
   the line; for a mail, calendar or contacts server **Sign in again ›**, that server's form ([S-3554]).
-- **[S-3553]** **Add account ›**: every provider with a sign-in of its own in its place ([S-9910]:
-  Microsoft, Google), then under a divider the password servers' forms: **Mail server (IMAP) ›**,
-  **Calendar server (CalDAV) ›**, **Contacts server (CardDAV) ›**. A provider's line is its sign-in
+- **[S-3553]** **Add account ›**: every offered provider ([S-3562]) with a sign-in of its own in its
+  place ([S-9910]: Microsoft), then under a divider the password servers' forms: **Mail server
+  (IMAP) ›**, **Calendar server (CalDAV) ›**, **Contacts server (CardDAV) ›**. A provider's line is its sign-in
   ([S-1783]'s card, moved): a click starts it, the line greyed while it waits; under it what it is
   doing with a ring ("Opening the browser…", "Waiting for the browser. Finish signing in there."; a
   device code's code with **Copy code** and **Open the page**, [S-9919]) and **Cancel**; once back,
@@ -1844,6 +1845,15 @@ written in place), `Shell/DesktopWindow.SettingsMenu.cs` (`RequestAccounts`). Te
   provider this build cannot sign in to ([S-536]) is greyed, why under it. A provider that signs in
   with a pasted token has a form of one masked field ([S-9915]); one with several ways has a submenu of
   them, a level of their own. The browser opens only from a click; nothing is signed in from a widget.
+- **[S-3562]** A provider may be **held back** (`IProviderModule.Offered` false; `ProviderCatalog.Offered`
+  is the rest): Add account has no line of it and a widget's Set up does not count what it feeds as
+  something an account could bring ([S-1862]); nothing else knows. Its accounts already in
+  `accounts.json` are untouched: they load, sync, are listed under ⚙ › Accounts with their numbers,
+  sign in again the way they were added ([S-3552]) and sign out, so no data is dropped and a widget
+  reading one keeps showing it. **Google is held back** while Google has not verified the OAuth app
+  for its restricted Gmail scope (docs/GOOGLE-VERIFICATION.md); its sign-in, sync and tests stay, and
+  offering it again is deleting `GoogleProvider.Offered` (`src/Themia.Core/Accounts/HostProviders.cs`).
+  Gmail itself can still be added as a mail server with an app password ([S-522]).
 - **[S-3554]** The forms, a draft each (`AccountForm`, one per kind, the same wherever it is opened
   from, kept while menus come and go), each a level of one-row rows as Karpo's (§338): every field a
   row with what it holds as its value whose level is the field alone ([S-3736]), every letter written
@@ -2685,7 +2695,8 @@ Themia's own accounts, the source of mail, calendar, contacts and tasks. Ported 
 
 - **[S-500]** A closed set of providers, the provider modules compiled in ([S-6910]): Microsoft,
   Google, IMAP, CalDAV, CardDAV (`HostProviders`, declared in Core). A provider this build does not
-  know is dropped on load and reported, never carried as a string ([S-1901]).
+  know is dropped on load and reported, never carried as a string ([S-1901]). A held-back provider
+  (Google today, [S-3562]) is still one of them: its accounts load as any other's.
 - **[S-501]** Providers are written under lower-case names (as the original wrote them), so the
   file stays readable and a hand edit is easy to validate. The name is the provider's module id
   (`microsoft`, `google`, `imap`, `caldav`, `carddav`); it is read forgiving case and surrounding

@@ -66,8 +66,8 @@ steps around it (reservation, identity, the Pro add-on, building the package) ar
 > transparency and fonts follow your theme or your own choice.
 >
 > Your data stays on your PC. Themia sends no analytics and has no account of its own. Mail,
-> calendars and tasks connect straight from your computer to Microsoft, Google, iCloud or your own
-> IMAP and CalDAV server. Nothing passes through us.
+> calendars and tasks connect straight from your computer to Microsoft, iCloud or your own IMAP and
+> CalDAV server. Nothing passes through us.
 >
 > Built natively for Windows 11 with WinUI 3 and compiled ahead of time, Themia starts fast, uses
 > little memory and does no work when nothing has changed.
@@ -85,7 +85,7 @@ steps around it (reservation, identity, the Pro add-on, building the package) ar
 4. Several styles per widget, such as digital, analogue, flip and word clocks
 5. Free placement with snapping, per display and per scale
 6. Views: several desktop layouts, switched with a click
-7. Mail, calendar and tasks from Microsoft, Google, iCloud, IMAP and CalDAV
+7. Mail, calendar and tasks from Microsoft, iCloud, IMAP and CalDAV
 8. Weather, forecast, air quality and rain from Open-Meteo, no account needed
 9. CPU, GPU, memory, disk, network, battery and audio at a glance
 10. Your data stays on your PC; no analytics, no telemetry
@@ -113,6 +113,10 @@ Suggested set:
 5. System meters (CPU, GPU, memory, network).
 6. Light theme.
 
+Google is not named anywhere in this listing while Themia does not offer Google accounts
+(SPEC [S-3562]: Google has not verified the OAuth app yet). Put it back in the description, the
+seventh feature and the certification notes, in both languages, when it is offered again.
+
 **Store logos:** optional. The package's own logos are used. A 1:1 box art of 1080×1080 helps the
 listing look sharp.
 
@@ -139,8 +143,8 @@ listing look sharp.
 > deiner eigenen Wahl.
 >
 > Deine Daten bleiben auf deinem PC. Themia sendet keine Analysedaten und braucht kein eigenes Konto.
-> Mail, Kalender und Aufgaben verbinden sich direkt von deinem Rechner mit Microsoft, Google, iCloud
-> oder deinem eigenen IMAP- und CalDAV-Server. Nichts läuft über uns.
+> Mail, Kalender und Aufgaben verbinden sich direkt von deinem Rechner mit Microsoft, iCloud oder
+> deinem eigenen IMAP- und CalDAV-Server. Nichts läuft über uns.
 >
 > Nativ für Windows 11 gebaut, mit WinUI 3 und vorab kompiliert: Themia startet schnell, braucht wenig
 > Arbeitsspeicher und arbeitet nicht, wenn sich nichts ändert.
@@ -158,7 +162,7 @@ listing look sharp.
 4. Mehrere Stile pro Widget, etwa Digital-, Analog-, Klapp- und Wortuhr
 5. Freie Anordnung mit Einrasten, pro Bildschirm und Skalierung
 6. Ansichten: mehrere Desktop-Layouts, per Klick gewechselt
-7. Mail, Kalender und Aufgaben von Microsoft, Google, iCloud, IMAP und CalDAV
+7. Mail, Kalender und Aufgaben von Microsoft, iCloud, IMAP und CalDAV
 8. Wetter, Vorhersage, Luftqualität und Regen von Open-Meteo, ohne Konto
 9. CPU, GPU, Arbeitsspeicher, Laufwerke, Netzwerk, Akku und Audio auf einen Blick
 10. Deine Daten bleiben auf deinem PC; keine Analyse, keine Telemetrie
@@ -209,7 +213,7 @@ Paste into **Notes for certification**:
 > after the user allows it.
 >
 > No account is needed to test. Account widgets (mail, calendar, tasks) are optional and sign in
-> with the tester's own Microsoft or Google account. The free tier allows 20 widgets and 2 views;
+> with the tester's own Microsoft account. The free tier allows 20 widgets and 2 views;
 > the Pro add-on lifts the limits.
 
 These notes follow SPEC [S-65] (Ctrl+Alt+W) and [S-66] (a second start opens edit mode). Check

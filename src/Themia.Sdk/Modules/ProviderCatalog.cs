@@ -10,14 +10,20 @@ namespace Themia.Sdk;
 /// </summary>
 public static class ProviderCatalog
 {
-    private sealed record Installed(IReadOnlyList<IProviderModule> All, Dictionary<ProviderId, IProviderModule> ById);
+    private sealed record Installed(IReadOnlyList<IProviderModule> All, IReadOnlyList<IProviderModule> Offered, Dictionary<ProviderId, IProviderModule> ById);
 
     private static Installed? _installed;
 
     public static bool IsInstalled => Volatile.Read(ref _installed) is not null;
 
-    /// <summary>Every provider, in the Add account menu's order (<see cref="IProviderModule.AddRank"/>, then id).</summary>
+    /// <summary>
+    /// Every provider, in the Add account menu's order (<see cref="IProviderModule.AddRank"/>, then id):
+    /// what an account file is read against, held-back providers included ([S-3562]).
+    /// </summary>
     public static IReadOnlyList<IProviderModule> All => Current.All;
+
+    /// <summary>[S-3562] The providers a new account may be added of (<see cref="IProviderModule.Offered"/>), in the same order.</summary>
+    public static IReadOnlyList<IProviderModule> Offered => Current.Offered;
 
     /// <summary>Install the registry's providers. Once per process; a duplicate or empty id is refused loudly.</summary>
     public static void Install(IEnumerable<IProviderModule> providers)
@@ -45,7 +51,7 @@ public static class ProviderCatalog
         }
 
         var ordered = list.OrderBy(p => p.AddRank).ThenBy(p => p.Id.Value, StringComparer.Ordinal).ToList();
-        var installed = new Installed(ordered.AsReadOnly(), ordered.ToDictionary(p => p.Id));
+        var installed = new Installed(ordered.AsReadOnly(), ordered.Where(p => p.Offered).ToList().AsReadOnly(), ordered.ToDictionary(p => p.Id));
         if (Interlocked.CompareExchange(ref _installed, installed, null) is not null)
         {
             throw new InvalidOperationException("the provider registry is installed once per process");

@@ -279,7 +279,7 @@ internal sealed partial class DesktopWindow : IWidgetCardHost
     {
         var id = card.Model.Id;
         var signedIn = WidgetSetup.Offered(AppServices.Accounts?.Accounts.Select(a => a.Provider) ?? []);
-        var offerable = WidgetSetup.Offered(Themia.Sdk.ProviderCatalog.All.Select(p => p.Id));
+        var offerable = WidgetSetup.Offered(Themia.Sdk.ProviderCatalog.Offered.Select(p => p.Id));
         if (WidgetSetup.Goes(card.Model.Config, signedIn, offerable) == SetupGoes.Accounts)
         {
             RequestAccounts();

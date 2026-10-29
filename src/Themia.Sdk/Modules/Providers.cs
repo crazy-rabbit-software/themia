@@ -27,6 +27,14 @@ public interface IProviderModule
     int AddRank { get; }
 
     /// <summary>
+    /// [S-3562] Whether a new account of it may be added: ⚙ › Accounts › Add account lists it and a
+    /// widget's Set up counts what it feeds. False holds a provider back (one whose sign-in may not be
+    /// offered yet) without a branch anywhere else: its accounts already signed in still load, sync,
+    /// sign in again and sign out.
+    /// </summary>
+    bool Offered => true;
+
+    /// <summary>
     /// [S-3780] Its own row in ⚙ › Online updates, or null when its accounts follow the
     /// host's Accounts row (every account provider of today).
     /// </summary>

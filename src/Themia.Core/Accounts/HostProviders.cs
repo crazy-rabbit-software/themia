@@ -42,6 +42,13 @@ public sealed class GoogleProvider : IProviderModule
 
     public int AddRank => 1;
 
+    /// <summary>
+    /// [S-3562] Held back: Google has not verified the OAuth app for its restricted Gmail scope
+    /// (docs/GOOGLE-VERIFICATION.md), so no new Google account is offered; one already signed in keeps
+    /// working. Delete this line once it is verified.
+    /// </summary>
+    public bool Offered => false;
+
     public CadenceRow? Cadence => null;
 
     /// <summary>[S-527] [S-9910] The browser flow with the Desktop client's build-time secret ([S-536]) and a <c>127.0.0.1</c> redirect on any port.</summary>
