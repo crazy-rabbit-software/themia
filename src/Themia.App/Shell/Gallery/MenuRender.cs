@@ -119,9 +119,9 @@ internal static class MenuRender
                 await RenderAsync(root, surface, System.IO.Path.Combine(outDir, "surface.png")).ConfigureAwait(true);
 
                 // [S-5524] A desktop item's card in edit mode: its Delete takes the widget off this view only.
-                var item = WidgetInstance.Create(new WidgetId("desktopItem"), new FracRect(0.6, 0.6, 0.1, 0.12));
-                view.Widgets.Add(item);
-                var itemCard = new WidgetCard(host, item) { Width = 90, Height = 110 };
+                var deskItem = WidgetInstance.Create(new WidgetId("desktopItem"), new FracRect(0.6, 0.6, 0.1, 0.12));
+                view.Widgets.Add(deskItem);
+                var itemCard = new WidgetCard(host, deskItem) { Width = 90, Height = 110 };
                 root.Children.Add(new Canvas { Children = { itemCard } });
                 await Task.Delay(300).ConfigureAwait(true);
                 host.Set(editMode: true, selection: 1, canPaste: true);
