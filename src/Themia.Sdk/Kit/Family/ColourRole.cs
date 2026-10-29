@@ -93,13 +93,19 @@ public static class ColourRoles
         [ColourRole.OnWallpaperShadow] = "ThemiaOnWallpaperShadowBrush",
     };
 
+    /// <summary>[S-6738] The card's own surface under its fill: the opaque base the card is laid on.</summary>
+    public const string CardBase = "SolidBackgroundFillColorBaseBrush";
+
+    /// <summary>[S-6738] The card's fill, translucent over <see cref="CardBase"/>.</summary>
+    public const string CardFill = "CardBackgroundFillColorDefaultBrush";
+
     /// <summary>
     /// The theme brushes the card itself and the item layer are drawn with: not a widget's to name,
     /// but a render walk meets them on every card ([S-6731]).
     /// </summary>
     public static IReadOnlyList<string> CardKeys { get; } =
     [
-        "CardBackgroundFillColorDefaultBrush", "CardStrokeColorDefaultBrush", "SolidBackgroundFillColorBaseBrush",
+        CardFill, "CardStrokeColorDefaultBrush", CardBase,
         "SolidBackgroundFillColorSecondaryBrush", "AccentFillColorDisabledBrush", "TextOnAccentFillColorDisabledBrush",
     ];
 

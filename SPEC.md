@@ -4774,7 +4774,8 @@ model that keeps widgets still when the taskbar changes (S-840..S-859).
   does not fit shrinks to it, one pushed out of reach slides back to the visible minimum keeping its
   size, and one dragged just past the taskbar's edge lands flush with it ([S-6609]). A widget the
   taskbar later grows over **stays where it is**: load validation keeps it in reach of the whole
-  screen only, and nothing re-settles on a display change. An unusable work area
+  screen only, and nothing re-settles on a display change (a desktop item's widget is the one
+  exception: it follows the work area as Explorer's icons do, [S-5562]). An unusable work area
   (non-finite, empty, off the monitor) allows the whole screen. An auto-hidden taskbar reserves
   nothing, so the whole screen is allowed.
 - **[S-842]** A display's id is its monitor **device interface path** (from

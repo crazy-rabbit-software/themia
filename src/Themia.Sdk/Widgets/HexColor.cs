@@ -72,6 +72,25 @@ public static class HexColor
 
     public static string From(byte r, byte g, byte b) => $"#{r:X2}{g:X2}{b:X2}";
 
+    /// <summary>
+    /// [S-6738] A translucent colour laid over an opaque one (<paramref name="under"/>, <c>#RRGGBB</c>),
+    /// as the opaque <c>#RRGGBB</c> it shows as: what a control that draws a colour without its alpha
+    /// (the note editor's RichEdit) is given in its place. An <paramref name="under"/> that is not a
+    /// colour leaves the colour as it is, opaque.
+    /// </summary>
+    public static string Over(byte alpha, byte r, byte g, byte b, string? under)
+    {
+        if (!TryParse(under, out var ur, out var ug, out var ub))
+        {
+            return From(r, g, b);
+        }
+
+        var a = alpha / 255.0;
+        return From(Mix(r, ur, a), Mix(g, ug, a), Mix(b, ub, a));
+    }
+
+    private static byte Mix(byte over, byte under, double alpha) => (byte)Math.Round((over * alpha) + (under * (1 - alpha)));
+
     private static bool IsHex(char c)
         => (c >= '0' && c <= '9') || (c >= 'a' && c <= 'f') || (c >= 'A' && c <= 'F');
 
