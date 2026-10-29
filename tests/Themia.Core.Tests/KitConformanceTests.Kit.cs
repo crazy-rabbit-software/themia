@@ -38,16 +38,16 @@ public sealed partial class KitConformanceTests
 
     /// <summary>
     /// [S-7067] [S-210] Type comes from the Fluent ramp (<c>FluentType</c>, <c>Fluent.Apply</c>), never a
-    /// literal size or a font of a view's own. Today's views that still set one: the folder's tile
-    /// glyphs ([S-822]'s kind of list: it may only shrink; the clipboard page's colour preview went
-    /// with the page, the habit tracker's rows with group G6's Row blocks).
+    /// literal size or a font of a view's own. No view sets one any more (the list it held only shrank:
+    /// the clipboard page's colour preview went with the page, the habit tracker's rows and the
+    /// folder's tile glyphs with group G6's Row blocks and cells).
     /// </summary>
     [Fact]
     public void S7067_no_view_sets_a_literal_font_size_or_family_beyond_todays_list()
     {
         var offending = RepoFiles.ViewSources().Where(f => LiteralType().IsMatch(Code(f))).Select(Path.GetFileName).Order(StringComparer.Ordinal).ToList();
 
-        Assert.Equal(["FolderView.Render.cs"], offending);
+        Assert.Empty(offending);
     }
 
     [GeneratedRegex(@"\b(Text|Content|PlaceholderText|Header|Label)\s*=\s*""(?<text>[^""]*[A-Za-z][^""]*)""")]
