@@ -1,15 +1,15 @@
 using Glyphs = Themia.App.Shell.Glyphs;
-using Microsoft.UI;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
-using Microsoft.UI.Xaml.Controls.Primitives;
 using Microsoft.UI.Xaml.Input;
 using Themia.App.Services;
 using Themia.App.Shell;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
+using Themia.Sdk.Kit;
 using Themia.Sdk.WinUI;
+using Themia.Sdk.WinUI.Kit;
 using Themia.Sdk;
 using Themia.Widget.Volume;
 
@@ -25,19 +25,18 @@ namespace Themia.App.Widgets;
 /// on screen until Windows confirms it.
 /// </para>
 /// <para>
-/// [S-2730] The tile is the slider with its speaker (mute) button at the start, at every size: no
-/// number, no meter, no device name. A larger tile gives the slider more length, nothing else
-/// ([S-666]); a column stands it up ([S-2731]).
+/// [S-2730] [S-2731] The tile is the slider with its speaker (mute) button at the start, at every size:
+/// no number, no meter, no device name. Both are the Controls block's row at the card's bottom inset
+/// ([S-6716]): the speaker a 32 icon button, the slider's rail the Track role and its value the
+/// accent. A larger tile gives the slider more length, nothing else ([S-666]).
 /// </para>
 /// </summary>
 internal sealed partial class VolumeView : Grid, IWidgetView, IWidgetSizeAware, IWidgetSurfaceAware, IWidgetKeys, IWidgetContextActions
 {
     private readonly AudioFeed _feed;
-    private readonly Slider _slider = new();
-    private readonly Button _mute = new();
-    private readonly FontIcon _muteIcon;
-    private readonly Grid _band = new();
-    private readonly Microsoft.UI.Xaml.Media.Brush _iconBrush = ThemeBrush.Of("TextFillColorPrimaryBrush", Colors.White);
+    private readonly ControlsBlock _controls = new();
+    private readonly Slider _slider;
+    private readonly Button _mute;
 
     /// <summary>
     /// The exact delegate instances the slider and the tile were hooked with. <c>RemoveHandler</c>
@@ -54,7 +53,6 @@ internal sealed partial class VolumeView : Grid, IWidgetView, IWidgetSizeAware, 
     private WidgetArea _area;
     private AudioSnapshot? _snapshot;
     private Dictionary<string, double> _overrides = new(StringComparer.Ordinal);
-    private VolumeAxis? _axis;
 
     /// <summary>[S-2732] The part of a wheel notch not spent yet (a touchpad reports a notch in pieces).</summary>
     private int _wheelCarry;
@@ -85,21 +83,15 @@ internal sealed partial class VolumeView : Grid, IWidgetView, IWidgetSizeAware, 
     {
         _feed = new AudioFeed(host.Audio, OnSnapshot);
 
-        _muteIcon = Fluent.Icon(Glyphs.Volume3, "TextFillColorPrimaryBrush");
-        _mute.Content = _muteIcon;
-        _mute.Padding = new Thickness(Fluent.Space2, Fluent.Space1, Fluent.Space2, Fluent.Space1);
-        _mute.CornerRadius = new CornerRadius(Fluent.ControlRadius);
-        _mute.HorizontalAlignment = HorizontalAlignment.Center;
-        _mute.VerticalAlignment = VerticalAlignment.Center;
+        // [S-2730] [S-6716] The speaker and the slider are the Controls block's row at the bottom inset.
+        _controls.VerticalAlignment = VerticalAlignment.Bottom;
+        _controls.Margin = new Thickness(FamilySpace.Inset, 0, FamilySpace.Inset, FamilySpace.Inset);
+        _controls.FlowDirection = FlowDirection.LeftToRight;
+        _mute = _controls.Icon(Glyphs.Volume3, Str.Mixer_Mute.Text(), () => ToggleMute());
         _mute.IsTabStop = false;
-        _mute.Click += OnMuteClicked;
-        ToolTipService.SetToolTip(_mute, Str.Mixer_Mute.Text());
-
-        _slider.Minimum = 0;
-        _slider.Maximum = 100;
+        _slider = _controls.Slider(0, 100, 0, OnSliderChanged);
         _slider.StepFrequency = 1;
         _slider.IsTabStop = false;
-        _slider.ValueChanged += OnSliderChanged;
 
         // Handled events too: Slider marks its own pointer events handled, so a plain subscription
         // never sees the press. Four events rather than one, for the same reason a row's hover
@@ -112,19 +104,14 @@ internal sealed partial class VolumeView : Grid, IWidgetView, IWidgetSizeAware, 
         _slider.AddHandler(PointerCaptureLostEvent, _release, true);
         _slider.AddHandler(PointerCanceledEvent, _release, true);
 
-        // [S-2732] The wheel anywhere on the tile, not only over the slider's track. A transparent
-        // background makes the tile's empty room hit-testable, so the wheel lands there too.
+        // [S-2732] The wheel anywhere on the tile, not only over the slider's track. A clear background
+        // makes the tile's empty room hit-testable, so the wheel lands there too.
         _wheel = OnWheel;
         AddHandler(PointerWheelChangedEvent, _wheel, true);
-        Background = ThemeBrush.Of("SubtleFillColorTransparentBrush", Colors.Transparent);
+        Background = Family.Brush(ColourRole.Clear);
 
-        _band.Children.Add(_mute);
-        _band.Children.Add(_slider);
-        _band.Visibility = Visibility.Collapsed;
-
-        Children.Add(_band);
-
-        Orient(VolumeAxis.Horizontal);
+        _controls.Visibility = Visibility.Collapsed;
+        Children.Add(_controls);
     }
 
     public void Bind(IWidgetSurface surface)
@@ -186,58 +173,6 @@ internal sealed partial class VolumeView : Grid, IWidgetView, IWidgetSizeAware, 
             : (output.Level, output.Muted);
     }
 
-    /// <summary>
-    /// [S-2731] Lays the band along the tile: the speaker button left of a horizontal slider, or
-    /// under a vertical one (a vertical slider starts at the bottom, so the button stays at its start).
-    /// </summary>
-    private void Orient(VolumeAxis axis)
-    {
-        if (_axis == axis)
-        {
-            return;
-        }
-
-        _axis = axis;
-        _band.RowDefinitions.Clear();
-        _band.ColumnDefinitions.Clear();
-
-        if (axis == VolumeAxis.Vertical)
-        {
-            _band.RowSpacing = Fluent.Space2;
-            _band.ColumnSpacing = 0;
-            _band.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
-            _band.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
-            _band.Margin = WidgetLayout.Inset;
-            _band.VerticalAlignment = VerticalAlignment.Stretch;
-
-            _slider.Orientation = Orientation.Vertical;
-            _slider.HorizontalAlignment = HorizontalAlignment.Center;
-            _slider.VerticalAlignment = VerticalAlignment.Stretch;
-            SetColumn(_slider, 0);
-            SetRow(_slider, 0);
-            SetColumn(_mute, 0);
-            SetRow(_mute, 1);
-            return;
-        }
-
-        _band.ColumnSpacing = Fluent.Space2;
-        _band.RowSpacing = 0;
-        _band.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
-        _band.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
-        _band.Margin = WidgetLayout.SideInset;
-
-        // The only thing on the tile, so it sits in the middle of it rather than at the foot.
-        _band.VerticalAlignment = VerticalAlignment.Center;
-
-        _slider.Orientation = Orientation.Horizontal;
-        _slider.HorizontalAlignment = HorizontalAlignment.Stretch;
-        _slider.VerticalAlignment = VerticalAlignment.Center;
-        SetRow(_slider, 0);
-        SetColumn(_slider, 1);
-        SetRow(_mute, 0);
-        SetColumn(_mute, 0);
-    }
-
     /// <summary>[S-2730] Runs on a new area, a new config and a new snapshot.</summary>
     private void Lay()
     {
@@ -256,14 +191,12 @@ internal sealed partial class VolumeView : Grid, IWidgetView, IWidgetSizeAware, 
             return;
         }
 
-        Orient(VolumeRules.Axis(_area));
-
         if (_snapshot is not { } snapshot)
         {
             return;
         }
 
-        _band.Visibility = Visibility.Visible;
+        _controls.Visibility = Visibility.Visible;
 
         if (snapshot.Status != AudioStatus.Ready || snapshot.Output is null)
         {
@@ -276,7 +209,7 @@ internal sealed partial class VolumeView : Grid, IWidgetView, IWidgetSizeAware, 
                 _ => VolumeStr.WidgetsC_Volume_Unavailable.Text(),
             });
             UnavailableLook.Enable(false, _slider, _mute);
-            _muteIcon.Foreground = UnavailableLook.Text;
+            Glyph(ColourRole.TextDisabled);
             ShowLevel(Unavailable.Share, muted: false);
             ToolTipService.SetToolTip(_mute, null);
             return;
@@ -292,21 +225,29 @@ internal sealed partial class VolumeView : Grid, IWidgetView, IWidgetSizeAware, 
         }
 
         UnavailableLook.Say(this, null);
-        _muteIcon.Foreground = _iconBrush;
 
         // Read-only is a state of the controls, not a reason to hide them: a greyed slider still
         // shows the level, and a tile that drops its slider when control is switched off looks
         // like a different widget.
         UnavailableLook.Enable(_config.AllowControl, _slider, _mute);
+        Glyph(_config.AllowControl ? ColourRole.TextPrimary : ColourRole.TextDisabled);
 
         ShowLevel(level.Level, level.Muted);
+    }
+
+    /// <summary>The speaker's glyph role: primary, or disabled with the button (its glyph names its own brush).</summary>
+    private void Glyph(ColourRole role)
+    {
+        if (_mute.Content is FontIcon icon)
+        {
+            icon.Foreground = Family.Brush(role);
+        }
     }
 
     private void ShowLevel(double level, bool muted)
     {
         // With no number on the tile, the speaker glyph and its tooltip carry the muted state.
-        _muteIcon.Glyph = AudioLook.OutputGlyph(level, muted);
-        ToolTipService.SetToolTip(_mute, (muted ? Str.Mixer_Unmute : Str.Mixer_Mute).Text());
+        ControlsBlock.Reglyph(_mute, AudioLook.OutputGlyph(level, muted), (muted ? Str.Mixer_Unmute : Str.Mixer_Mute).Text());
 
         // Echoing: this is a snapshot writing back what it just read, and the ValueChanged it raises
         // must not be mistaken for somebody moving the control.
@@ -373,17 +314,15 @@ internal sealed partial class VolumeView : Grid, IWidgetView, IWidgetSizeAware, 
         Lay();
     }
 
-    private void OnSliderChanged(object sender, RangeBaseValueChangedEventArgs args)
+    private void OnSliderChanged(double value)
     {
-        if (_echoing || Math.Abs(args.NewValue - args.OldValue) < 0.5)
+        if (_echoing)
         {
             return;
         }
 
-        SetLevel(VolumeRules.Scalar(args.NewValue));
+        SetLevel(VolumeRules.Scalar(value));
     }
-
-    private void OnMuteClicked(object sender, RoutedEventArgs args) => ToggleMute();
 
     /// <summary>[S-2732] One arrow step per notch, carrying a touchpad's part-notches to the next event.</summary>
     private void OnWheel(object sender, PointerRoutedEventArgs args)
@@ -462,13 +401,11 @@ internal sealed partial class VolumeView : Grid, IWidgetView, IWidgetSizeAware, 
         _detached = true;
         Strings.Changed -= OnLanguage;
 
-        _slider.ValueChanged -= OnSliderChanged;
         _slider.RemoveHandler(PointerPressedEvent, _grab);
         _slider.RemoveHandler(PointerReleasedEvent, _release);
         _slider.RemoveHandler(PointerCaptureLostEvent, _release);
         _slider.RemoveHandler(PointerCanceledEvent, _release);
         RemoveHandler(PointerWheelChangedEvent, _wheel);
-        _mute.Click -= OnMuteClicked;
         _feed.Dispose();
     }
 }

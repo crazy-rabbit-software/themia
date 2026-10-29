@@ -79,22 +79,4 @@ public class VolumeRulesTests
     [InlineData(1.0, VolumeLevel.High)]
     public void S222_The_speaker_glyph_steps_at_a_third_and_two_thirds(double scalar, VolumeLevel expected)
         => Assert.Equal(expected, VolumeRules.Level(scalar, muted: false));
-
-    [Theory]
-    [InlineData(120, 76)]   // XS
-    [InlineData(200, 106)]  // S
-    [InlineData(320, 196)]  // M
-    [InlineData(480, 116)]  // Wide
-    [InlineData(560, 376)]  // L
-    [InlineData(800, 516)]  // XL
-    public void S2731_the_slider_lies_along_every_tile_that_is_not_a_column(double width, double height)
-        => Assert.Equal(VolumeAxis.Horizontal, VolumeRules.Axis(new WidgetArea(width, height)));
-
-    [Fact]
-    public void S2731_a_tall_column_stands_the_slider_up()
-        => Assert.Equal(VolumeAxis.Vertical, VolumeRules.Axis(new WidgetArea(200, 356)));
-
-    [Fact]
-    public void S2731_an_unmeasured_tile_starts_horizontal()
-        => Assert.Equal(VolumeAxis.Horizontal, VolumeRules.Axis(default));
 }

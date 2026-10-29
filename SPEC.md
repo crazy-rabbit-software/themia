@@ -6097,9 +6097,11 @@ log into `Log`). Not done here: the original's pre-release gate on the Google si
   the machine.
 - **[S-1234]** Stepping lands on the whole-percent grid and clamps (`AudioRules.Step`).
 - [S-2730]: moved with the Volume widget into its module's `SPEC.md` (`src/Widgets/Themia.Widget.Volume/`).
-- **[S-2731]** The slider lies along the tile (`VolumeRules.Axis`): horizontal, centred vertically
-  between side insets, on every shape but a column; a Tall area ([S-660]) stands it up, full
-  height, with the speaker button under it. Growing a tile only lengthens the slider ([S-666]).
+- **[S-2731]** The slider lies along the tile's foot: it is the Controls block's row at the bottom
+  inset on every shape ([S-6716]: the speaker a 32 icon button at its start, the rail the Track
+  role, the value the accent), on the volume tile and the brightness tile alike. Growing a tile only
+  lengthens the slider ([S-666]); a column no longer stands it up (G5, 2026-10-29: the family has
+  one Controls row, and `VolumeRules.Axis` is gone).
 - **[S-2732]** The mouse wheel anywhere on the tile steps the level one arrow step (2 points) per
   notch (120); a touchpad's part-notches carry to the next event, turning back drops the carry
   (`AudioRules.Wheel`). Ignored when `AllowControl` is off; no keyboard lease needed.

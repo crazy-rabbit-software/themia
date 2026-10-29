@@ -1,8 +1,6 @@
-using Microsoft.UI;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Automation;
 using Microsoft.UI.Xaml.Controls;
-using Microsoft.UI.Xaml.Controls.Primitives;
 using Microsoft.UI.Xaml.Input;
 using Themia.App.Services;
 using Themia.App.Services.Brightness;
@@ -10,16 +8,18 @@ using Themia.App.Shell;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
+using Themia.Sdk.Kit;
 using Themia.Sdk.WinUI;
+using Themia.Sdk.WinUI.Kit;
 using Themia.Widget.Brightness;
-using Glyphs = Themia.App.Shell.Glyphs;
 
 namespace Themia.App.Widgets;
 
 /// <summary>
 /// [S-4440] The display brightness as one slider and nothing else, as Windows 11's quick settings row and
-/// Karpo's widget (§35, §103): the sun at its start, no number, no display names. A larger tile gives the
-/// slider more length; a column stands it up, as the volume tile ([S-2731]).
+/// Karpo's widget (§35, §103): no number, no display names; the sun is the header's glyph. The slider is the
+/// Controls block's at the card's bottom inset ([S-6716]): its rail the Track role, its value the accent. A
+/// larger tile gives the slider more length, nothing else ([S-666]).
 /// <para>
 /// [S-4442] It sets every display whose brightness can be set, together, or with "Only the screen it's
 /// on" the display its surface is on — one window per display, so the display is the window's. It shows
@@ -30,10 +30,8 @@ namespace Themia.App.Widgets;
 /// </summary>
 internal sealed partial class BrightnessView : Grid, IWidgetView, IWidgetSizeAware, IWidgetSurfaceAware, IWidgetKeys
 {
-    private readonly Slider _slider = new();
-    private readonly FontIcon _sun;
-    private readonly Grid _band = new();
-    private readonly Microsoft.UI.Xaml.Media.Brush _sunBrush = ThemeBrush.Of("TextFillColorPrimaryBrush", Colors.White);
+    private readonly ControlsBlock _controls = new();
+    private readonly Slider _slider;
 
     private readonly PointerEventHandler _grab;
     private readonly PointerEventHandler _release;
@@ -44,7 +42,6 @@ internal sealed partial class BrightnessView : Grid, IWidgetView, IWidgetSizeAwa
     private readonly IBrightness _brightness;
     private IDisposable? _lease;
     private WidgetArea _area;
-    private VolumeAxis? _axis;
     private string? _own;
     private BrightnessSnapshot _preview = BrightnessSnapshot.Pending;
     private int _wheelCarry;
@@ -55,13 +52,11 @@ internal sealed partial class BrightnessView : Grid, IWidgetView, IWidgetSizeAwa
     public BrightnessView(IWidgetHost host)
     {
         _brightness = host.Brightness;
-        _sun = Fluent.Icon(Glyphs.Brightness, "TextFillColorPrimaryBrush");
-        _sun.HorizontalAlignment = HorizontalAlignment.Center;
-        _sun.VerticalAlignment = VerticalAlignment.Center;
-        _sun.Margin = new Thickness(Fluent.Space2, 0, 0, 0);
 
-        _slider.Minimum = 0;
-        _slider.Maximum = 100;
+        // [S-4440] [S-6716] The slider is the Controls block's row at the bottom inset.
+        _controls.VerticalAlignment = VerticalAlignment.Bottom;
+        _controls.Margin = new Thickness(FamilySpace.Inset, 0, FamilySpace.Inset, FamilySpace.Inset);
+        _slider = _controls.Slider(0, 100, 0, OnSliderChanged);
         _slider.StepFrequency = 1;
         _slider.IsTabStop = false;
 
@@ -69,15 +64,11 @@ internal sealed partial class BrightnessView : Grid, IWidgetView, IWidgetSizeAwa
         _release = OnRelease;
         _wheel = OnWheel;
 
-        _band.Children.Add(_sun);
-        _band.Children.Add(_slider);
-        _band.Visibility = Visibility.Collapsed;
-
-        Children.Add(_band);
+        _controls.Visibility = Visibility.Collapsed;
+        Children.Add(_controls);
 
         // The wheel anywhere on the tile, as on the volume tile.
-        Background = ThemeBrush.Of("SubtleFillColorTransparentBrush", Colors.Transparent);
-        Orient(VolumeAxis.Horizontal);
+        Background = Family.Brush(ColourRole.Clear);
     }
 
     public void Bind(IWidgetSurface surface) => _surface = surface;
@@ -97,7 +88,6 @@ internal sealed partial class BrightnessView : Grid, IWidgetView, IWidgetSizeAwa
             _preview = new BrightnessSnapshot(true, [new BrightnessDisplay(@"\\.\SAMPLE1", BrightnessPath.BuiltIn, 70)]);
         }
 
-        _slider.ValueChanged += OnSliderChanged;
         _slider.AddHandler(PointerPressedEvent, _grab, true);
         _slider.AddHandler(PointerReleasedEvent, _release, true);
         _slider.AddHandler(PointerCaptureLostEvent, _release, true);
@@ -128,7 +118,6 @@ internal sealed partial class BrightnessView : Grid, IWidgetView, IWidgetSizeAwa
         }
 
         _detached = true;
-        _slider.ValueChanged -= OnSliderChanged;
         _slider.RemoveHandler(PointerPressedEvent, _grab);
         _slider.RemoveHandler(PointerReleasedEvent, _release);
         _slider.RemoveHandler(PointerCaptureLostEvent, _release);
@@ -169,52 +158,6 @@ internal sealed partial class BrightnessView : Grid, IWidgetView, IWidgetSizeAwa
         return (_lease is null ? null : _brightness.Asked(shown.Device)) ?? shown.Level;
     }
 
-    private void Orient(VolumeAxis axis)
-    {
-        if (_axis == axis)
-        {
-            return;
-        }
-
-        _axis = axis;
-        _band.RowDefinitions.Clear();
-        _band.ColumnDefinitions.Clear();
-
-        if (axis == VolumeAxis.Vertical)
-        {
-            _band.RowSpacing = Fluent.Space2;
-            _band.ColumnSpacing = 0;
-            _band.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
-            _band.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
-            _band.Margin = WidgetLayout.Inset;
-            _band.VerticalAlignment = VerticalAlignment.Stretch;
-            _slider.Orientation = Orientation.Vertical;
-            _slider.HorizontalAlignment = HorizontalAlignment.Center;
-            _slider.VerticalAlignment = VerticalAlignment.Stretch;
-            _sun.Margin = new Thickness(0, 0, 0, Fluent.Space1);
-            SetColumn(_slider, 0);
-            SetRow(_slider, 0);
-            SetColumn(_sun, 0);
-            SetRow(_sun, 1);
-            return;
-        }
-
-        _band.ColumnSpacing = Fluent.Space3;
-        _band.RowSpacing = 0;
-        _band.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
-        _band.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
-        _band.Margin = WidgetLayout.SideInset;
-        _band.VerticalAlignment = VerticalAlignment.Center;
-        _slider.Orientation = Orientation.Horizontal;
-        _slider.HorizontalAlignment = HorizontalAlignment.Stretch;
-        _slider.VerticalAlignment = VerticalAlignment.Center;
-        _sun.Margin = new Thickness(Fluent.Space2, 0, 0, 0);
-        SetRow(_slider, 0);
-        SetColumn(_slider, 1);
-        SetRow(_sun, 0);
-        SetColumn(_sun, 0);
-    }
-
     /// <summary>[S-4440] On a new area, config or reading.</summary>
     private void Lay()
     {
@@ -223,16 +166,15 @@ internal sealed partial class BrightnessView : Grid, IWidgetView, IWidgetSizeAwa
             return;
         }
 
-        Orient(VolumeRules.Axis(_area));
         var snapshot = Snapshot;
         if (!snapshot.Ready)
         {
             // Not looked at yet: the frame, never a wrong level (§11).
-            _band.Visibility = Visibility.Collapsed;
+            _controls.Visibility = Visibility.Collapsed;
             return;
         }
 
-        _band.Visibility = Visibility.Visible;
+        _controls.Visibility = Visibility.Visible;
         var level = Level();
 
         // [S-4445] [S-1940] Nothing to set (no display has a brightness, or not the one this is on):
@@ -240,7 +182,6 @@ internal sealed partial class BrightnessView : Grid, IWidgetView, IWidgetSizeAwa
         var reason = level is not null ? null
             : snapshot.Displays.Count == 0 ? BrightnessStr.Panels_Brightness_None.Text() : BrightnessStr.Panels_Brightness_OwnNone.Text();
         UnavailableLook.Enable(level is not null, _slider);
-        _sun.Foreground = level is null ? UnavailableLook.Text : _sunBrush;
         UnavailableLook.Say(this, reason);
 
         if (!_grabbed)
@@ -252,7 +193,7 @@ internal sealed partial class BrightnessView : Grid, IWidgetView, IWidgetSizeAwa
 
         var words = level is { } shown ? BrightnessStr.Panels_Brightness_Level.Format(("level", Formatting.Percent(shown / 100.0))) : reason;
         AutomationProperties.SetName(_slider, words);
-        ToolTipService.SetToolTip(_sun, level is null ? null : words);
+        ToolTipService.SetToolTip(_slider, level is null ? null : words);
     }
 
     private void SetLevel(int level)
@@ -273,14 +214,14 @@ internal sealed partial class BrightnessView : Grid, IWidgetView, IWidgetSizeAwa
         _ = _brightness.Set(Own(), _config.Screens, level);
     }
 
-    private void OnSliderChanged(object sender, RangeBaseValueChangedEventArgs args)
+    private void OnSliderChanged(double value)
     {
-        if (_echoing || Math.Abs(args.NewValue - args.OldValue) < 0.5)
+        if (_echoing)
         {
             return;
         }
 
-        SetLevel((int)Math.Round(args.NewValue));
+        SetLevel((int)Math.Round(value));
     }
 
     private void OnGrab(object sender, PointerRoutedEventArgs args) => _grabbed = true;

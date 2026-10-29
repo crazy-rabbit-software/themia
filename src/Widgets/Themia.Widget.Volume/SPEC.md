@@ -15,8 +15,11 @@ slider and the speaker through the shared `AudioFeed`), `VolumeMenu.cs` (its pro
 
 - **[S-2730]** The volume tile is the slider and nothing else, at every size (user decision): a
   speaker button at the slider's start (glyph by level, crossed out when muted; click mutes, tooltip
-  Mute/Unmute) and the 0..100 slider. No percentage, no level meter, no device name. The card header
-  follows the shared header rules. Options ([S-2734]): output device and "Allow changes"; read-only greys the
+  Mute/Unmute) and the 0..100 slider, both the Controls block's row at the card's bottom inset
+  ([S-6716], [S-2731]: a 32 icon button, the rail Track, the value the accent; on a card too narrow
+  for both, the speaker gives way and the keys still mute). No percentage, no level meter, no device
+  name (so no Readout: the family's level Readout is not drawn here). The card header follows the
+  shared header rules. Options ([S-2734]): output device and "Allow changes"; read-only greys the
   controls rather than hiding them. No device (none, the chosen one not connected, Core Audio not
   answering) draws the speaker button and the slider disabled, the slider at the middle ([S-1940],
   [S-1941]), the reason as the tile's tooltip; no key, wheel or click does anything. Renders `--state level|unavailable`.

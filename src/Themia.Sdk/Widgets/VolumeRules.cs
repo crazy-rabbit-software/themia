@@ -77,20 +77,4 @@ public static class VolumeRules
             _ => VolumeLevel.High,
         };
     }
-
-    /// <summary>
-    /// [S-2731] Which way the slider lies. Along the tile, so it is as long as the tile allows: a
-    /// column ([S-660] <see cref="AreaShape.Tall"/>) stands it up, every other shape lays it down.
-    /// </summary>
-    public static VolumeAxis Axis(WidgetArea area) => area.Shape == AreaShape.Tall ? VolumeAxis.Vertical : VolumeAxis.Horizontal;
-}
-
-/// <summary>[S-2731] The volume slider's direction.</summary>
-public enum VolumeAxis
-{
-    /// <summary>Left to right, the speaker button at its left.</summary>
-    Horizontal = 0,
-
-    /// <summary>Bottom to top, the speaker button under it.</summary>
-    Vertical = 1,
 }
