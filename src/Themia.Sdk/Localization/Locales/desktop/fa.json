@@ -2,5 +2,7 @@
   "desktop.choice.label": "روی دسکتاپ",
   "desktop.choice.themia": "موارد Themia",
   "desktop.choice.windows": "نمادهای Windows",
-  "desktop.choice.nothing": "هیچ"
+  "desktop.choice.nothing": "هیچ",
+  "desktop.add.folder": "روی دسکتاپ",
+  "desktop.rename.clash": "در اینجا موردی با این نام از قبل وجود دارد."
 }

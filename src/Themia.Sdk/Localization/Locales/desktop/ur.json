@@ -2,5 +2,7 @@
   "desktop.choice.label": "ڈیسک ٹاپ پر",
   "desktop.choice.themia": "Themia کے آئٹمز",
   "desktop.choice.windows": "Windows کے آئیکنز",
-  "desktop.choice.nothing": "کچھ نہیں"
+  "desktop.choice.nothing": "کچھ نہیں",
+  "desktop.add.folder": "ڈیسک ٹاپ پر",
+  "desktop.rename.clash": "یہاں اس نام کا آئٹم پہلے سے موجود ہے۔"
 }

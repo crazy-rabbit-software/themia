@@ -2,5 +2,7 @@
   "desktop.choice.label": "바탕 화면 표시",
   "desktop.choice.themia": "Themia 항목",
   "desktop.choice.windows": "Windows 아이콘",
-  "desktop.choice.nothing": "없음"
+  "desktop.choice.nothing": "없음",
+  "desktop.add.folder": "바탕 화면",
+  "desktop.rename.clash": "여기에 이 이름의 항목이 이미 있습니다."
 }

@@ -39,7 +39,8 @@ internal sealed partial class DesktopWindow
                 return;
             }
 
-            if (OpenSurfaceMenu(e.GetPosition(_root)))
+            // [S-5548] Outside edit mode under Themia's items, empty desktop's menu is the desktop's own.
+            if (OpenDesktopBackgroundMenu(e.GetPosition(_root)) || OpenSurfaceMenu(e.GetPosition(_root)))
             {
                 e.Handled = true;
             }

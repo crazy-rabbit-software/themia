@@ -2,5 +2,7 @@
   "desktop.choice.label": "Kwenye eneo-kazi",
   "desktop.choice.themia": "Vipengee vya Themia",
   "desktop.choice.windows": "Aikoni za Windows",
-  "desktop.choice.nothing": "Hakuna kitu"
+  "desktop.choice.nothing": "Hakuna kitu",
+  "desktop.add.folder": "Kwenye eneo-kazi",
+  "desktop.rename.clash": "Tayari kuna kipengee chenye jina hili hapa."
 }

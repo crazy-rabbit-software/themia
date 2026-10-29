@@ -2,5 +2,7 @@
   "desktop.choice.label": "На рабочем столе",
   "desktop.choice.themia": "Элементы Themia",
   "desktop.choice.windows": "Значки Windows",
-  "desktop.choice.nothing": "Ничего"
+  "desktop.choice.nothing": "Ничего",
+  "desktop.add.folder": "На рабочем столе",
+  "desktop.rename.clash": "Здесь уже есть элемент с таким именем."
 }

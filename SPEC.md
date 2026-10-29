@@ -4940,7 +4940,7 @@ the keyboard through one lease. Rules in Core `KeyboardLease<T>` / `WidgetKeys` 
   holder's card so no caret is left blinking; its view hears `WidgetKey.Escape` through the session
   ([S-813]), or directly when the session does not know the holder (a box focused without a press).
 - **[S-803]** Keys: arrows, Page Up/Down, Home/End, Tab / Shift+Tab, Enter, Space, Delete, F2
-  (Rename), the Menu key / Shift+F10 (Menu), Escape. Ctrl and Alt chords are never widget keys
+  (Rename), F5 (Refresh), the Menu key / Shift+F10 (Menu), Escape. Ctrl and Alt chords are never widget keys
   (but the clipboard's, [S-1327], [S-6417], and the selection's Ctrl+arrows and Ctrl+Space, [S-6623]);
   Shift+Space and Shift+F2 are not either. Shift+Delete is its own key (`PermanentDelete`), never
   Delete: only the desktop's items answer it, with the shell's own prompt ([S-5545]). A view returns
@@ -7498,15 +7498,18 @@ a right-button drag's menu; Escape mid-drag; multi-monitor and mixed DPI hit-tes
 Themia can take over what the desktop shows: Explorer's icons hidden for the session, and each of
 the desktop's files, folders, shortcuts and shell items a widget on the grid, placed, moved and
 removed like any widget and different in every view (the user's decisions of 2026-10-29). Phase
-D1 builds the choice, the full-display surface, the session-only hide with its restore, the items
-as widgets and their placement, and click, double-click and Enter; the rest of Explorer's desktop
-is D2 and the display and accessibility edge cases D3 ([S-5590]). The item widget's own look is
+D1 built the choice, the full-display surface, the session-only hide with its restore, the items
+as widgets and their placement, and click, double-click and Enter; D2 the rest of Explorer's
+desktop outside edit mode ([S-5540]..[S-5550], [S-5591]); the display and accessibility edge cases
+are D3 ([S-5590]). The item widget's own look is
 its module's `SPEC.md` (`src/Widgets/Themia.Widget.DesktopItem`, [S-5600]..[S-5699]).
 
 Owning files: `Themia.Core/Desktop/*`, `Themia.Core/Shell/DesktopIconRules.cs`,
 `Themia.App/Interop/DesktopIcons.cs`, `Themia.App/Interop/DesktopNamespace.cs`,
-`Themia.App/Services/AppHost.Desktop.cs`, `Themia.Sdk/Files/DesktopItem.cs`,
-`Themia.Sdk.WinUI/Modules/IDesktopItems.cs`. Tests: `DesktopLayerTests` (Core), the module's own.
+`Themia.App/Services/AppHost.Desktop.cs`, `Themia.App/Services/AppHost.DesktopDesk.cs`,
+`Themia.App/Shell/DesktopWindow.Desktop.cs`, `Themia.Sdk/Files/DesktopItem.cs`,
+`Themia.Sdk/Files/DesktopRename.cs`, `Themia.Sdk.WinUI/Modules/IDesktopItems.cs`. Tests:
+`DesktopLayerTests`, `DesktopParityTests` (Core), the module's own.
 
 - **[S-5500]** **The choice.** ⚙'s one line **On the desktop** chooses what the desktop shows while
   Themia runs: **Themia's items**, **Windows' icons** or **Nothing** (`Preferences.Desktop`, a
@@ -7521,8 +7524,9 @@ Owning files: `Themia.Core/Desktop/*`, `Themia.Core/Shell/DesktopIconRules.cs`,
   region stops at the work area), and so does the wallpaper, drawn under the transparent surface.
   With Windows' icons or Nothing the region traces the widgets as before ([S-851]).
 - **[S-5502]** A press on empty desktop under Themia's items, outside edit mode, clears the item
-  selection ([S-5530]) and ends a keyboard lease held on that surface ([S-802]). Nothing else in D1:
-  the right button opens nothing, the lasso and the shell's background menu are D2.
+  selection (Ctrl or Shift keep it, for the band, [S-5544]), ends a card's keyboard lease and gives
+  the keys to the desktop's items ([S-5550]); a left press may become the band, the right button's
+  release opens the desktop's background menu ([S-5548]).
 - **[S-5503]** **Explorer's icons are hidden for the session only** while the choice is Themia's
   items or Nothing: Themia hides the desktop's icon list window (the `SysListView32` of the shell's
   `SHELLDLL_DefView`, found as in [S-930]) with `ShowWindowAsync(SW_HIDE)`, never with the shell's
@@ -7556,8 +7560,8 @@ Owning files: `Themia.Core/Desktop/*`, `Themia.Core/Shell/DesktopIconRules.cs`,
   Explorer's desktop lists, nothing Themia decides. Each is a `DesktopItem`: its **key**, the
   shell's parsing name relative to the desktop (a full path for a file, `::{CLSID}` for a shell
   item, `DesktopItemKeys`), its name as Explorer shows it (`SHGDN_NORMAL`: no `.lnk`, extensions as
-  Explorer's setting says) and its kind (file, folder, shortcut, shell item). Hidden items are not
-  listed in D1. Read off the UI thread (a COM worker); a failed read keeps the last listing, is
+  Explorer's setting says) and its kind (file, folder, shortcut, shell item). Hidden items are listed
+  as Explorer's own settings say ([S-5547]). Read off the UI thread (a COM worker); a failed read keeps the last listing, is
   logged, and is never taken as "every item gone".
 - **[S-5511]** **Kept current by the shell's change notifications**, never a poll:
   `SHChangeNotifyRegister` (shell and interrupt level, new delivery) on the desktop root and on both
@@ -7600,23 +7604,105 @@ Owning files: `Themia.Core/Desktop/*`, `Themia.Core/Shell/DesktopIconRules.cs`,
   always stands for one item.
 - **[S-5524]** **Two deletes, apart.** In edit mode Delete (the properties menu's, the card menu's,
   the key) removes the item's widget from this view only: the file stays on the desktop, its
-  widgets in other views stay, and it is listed under [S-5523]. Outside edit mode Delete is to send
-  the file to the Recycle Bin through the shell's own operation (D2); nothing in D1 deletes a file.
-- **[S-5530]** **D1's interaction** outside edit mode: a press on an item selects it alone, clearing
-  every other item's selection on every display (one selection, the host's:
-  `IDesktopItems.Select`); a press on empty desktop clears it ([S-5502]); a double-click, or Enter
-  with the keyboard lease the press gives ([S-800]), opens it through the launcher
-  (`IWidgetHost.Launcher`; a path as it is, a shell item as `shell:::{CLSID}`,
-  `DesktopItemKeys.LaunchTarget`), and a double-click on an item never toggles edit mode.
-- **[S-5590]** *Planned, D2*: Explorer parity outside edit mode, DECISIONS 8 in full: several
-  selected across item widgets (Ctrl/Shift and the lasso on empty desktop, through `ItemSelection`,
-  `SelectionBand`, `SelectionChrome`), F2 rename in place, Ctrl+C/X/V/A, arrows and type-to-find,
-  Delete to the Recycle Bin, the shell's item menu and its desktop background menu, dragging in,
-  out, between displays and onto a folder, app or the Recycle Bin, keyboard focus after Win+D;
-  the Folder widget's host parts reused. *D3*: moves between displays, unplugged displays, mixed
-  DPI, UI Automation and Narrator, living beside Fences and Wallpaper Engine.
-- **[S-5591]** *Planned, D2*: a file dropped on the desktop gets its widget in the view showing on
-  the display it was dropped on, at the drop point ([S-11]).
+  widgets in other views stay, and it is listed under [S-5523]. Outside edit mode Delete is the
+  shell's own delete of the file, with the shell's prompt ([S-5545]).
+- **[S-5530]** **Opening** outside edit mode: a double-click on an item, or Enter with the keys
+  ([S-5550]), opens the selection (the double-clicked item alone when it is not selected), at most 15
+  items at once (the rest logged), through the launcher (a path as it is, a shell item as
+  `shell:::{CLSID}`, `DesktopItemKeys.LaunchTarget`); a double-click on an item never toggles edit
+  mode, and a right-click on one never opens the card's menu.
+- **[S-5540]** **One selection** of the desktop's items, across every item widget on every display,
+  as Explorer's desktop keeps its icons' (`DesktopSelection`, Core, over the SDK's `ItemSelection`,
+  [S-6620]..[S-6626]; the host's `AppHost.DesktopDesk`, read by the widgets through
+  `IDesktopItems.IsSelected`, `ShowsFocus`, `Active`): a press selects the item alone, Ctrl toggles
+  it, Shift selects the range from the anchor, a press on a selected item narrows only on release
+  (so the selection drags whole), a right press keeps a selection it lands in. The order a range and
+  Home/End run in is the desktop's (`DesktopNav.Order`): display by display from the left, down each
+  column, then the next; an item shown on two displays (two views) holds one place. An item no
+  longer shown leaves the selection; the look is the SDK's one ([S-6627]), inactive while another
+  window has the keyboard ([S-6626]).
+- **[S-5541]** **Arrows by place** (`DesktopNav.Step`): the nearest item that way in the same column
+  (Up, Down; Page Up and Down the same) or row (Left, Right), the boxes overlapping across the
+  arrow; with none there the nearest within 45 degrees (the next display, a column that does not
+  line up); with none the focus stays, as at the end of Explorer's column. Shift extends from the
+  anchor, Ctrl moves the focus only (its cue drawn, [S-6628]), Ctrl+Space and Space toggle, Home and
+  End go to the first and last in the order, Ctrl+A selects every item shown on every display.
+- **[S-5542]** **Type to find**: letters typed with the keys select the next item whose name starts
+  with them ([S-1980]'s `TypeAhead`, the desktop's order, a pause starting over).
+- **[S-5543]** **F2 renames in place** (`DesktopRename`, SDK): the focused item's name becomes a box on
+  its widget (the one the keys came from, else the one on the display with the keyboard), holding
+  the name as shown with the part before a shown extension selected (a folder's and an
+  extension-hidden name whole); Enter or a click elsewhere commits, Escape reverts. The full name
+  puts back a hidden extension and a shortcut's `.lnk`; a name Windows refuses (`FileNames`) or one
+  another item in the same folder has (case aside) keeps the box open with a tip saying why; an
+  unchanged one closes it. The rename is the shell's own (`IShellFileOps.RenameAsync`: its prompts,
+  Explorer's undo); the notification then rewrites the key ([S-5520]) and the item stays selected
+  under it. The shell menu's Rename opens the same box. Shell items (This PC, the Recycle Bin) are not
+  renamed in place.
+- **[S-5544]** **The band** on empty desktop: a left press there past the 5-DIP dead zone
+  ([S-6624]) draws the SDK's band (`SelectionChrome.PaintBand`) on the surface's ghost layer and
+  selects, live, the item widgets of that display it touches: alone, added to the earlier selection
+  with Shift, toggled with Ctrl ([S-6625]). What it selected stays when the button comes up.
+- **[S-5545]** **Commands** with the keys: Delete is the shell's own "delete" verb on the selected
+  files (`IContextMenu`, as Explorer invokes it), with the shell's own prompt as the user set it up
+  (to the Recycle Bin); Shift+Delete the same verb with Shift down, so the shell deletes for good
+  after its own prompt (shell items are never deleted). Ctrl+C and Ctrl+X put the selected files on
+  the clipboard as Explorer does ([S-1329]; a cut item is faded while the cut is pending); Ctrl+V
+  pastes the clipboard's files (or virtual files) into the user's desktop folder through the shell's
+  copy or move, landing per [S-5591]. Alt+Enter opens the shell's Properties, F5 reads the desktop
+  again, the Menu key and Shift+F10 open the shell's menu for the selection at the focused item
+  (else the background menu). **Ctrl+Z is not offered**: Explorer's undo lives in Explorer's own
+  process and no API reaches it from outside, so Themia's desktop has no undo of file operations
+  (its own arrangement keeps the edit bar's undo, [S-5546]).
+- **[S-5546]** **Moving items on the desktop**: the desktop's own drag ([S-5549]) let go over empty
+  desktop of any display moves the dragged item widgets of the display it started on, never a file:
+  the held one to the cell under the pointer, the others keeping their offsets in whole cells
+  (`DesktopCells.Move`), one that would leave the work area or cover a staying widget at the next
+  free cell from there; onto another display's view the widgets go there (one widget per item in a
+  view: one already there gives way). One undo step of the arrangement.
+- **[S-5547]** **Explorer's view settings followed**: "Hidden items" and "Hide protected operating
+  system files" (`SHGetSetSettings`) choose the namespace's enumeration flags
+  (`DesktopViewSettings.EnumFlags`), a hidden item drawn faded; "File name extensions" through the
+  shell's display names. A settings change (`WM_SETTINGCHANGE`, Explorer's folder options among them)
+  reads the desktop again.
+- **[S-5548]** **Menus**: a right-click on an item opens the shell's own full menu for the selection
+  (`IContextMenu` of the items, `ShellContextMenu.ShowForItems`, every extension's lines, Send to and
+  Open with filling themselves through `IContextMenu2/3`'s messages); its Rename is the desktop's box
+  ([S-5543]). A right-click on empty desktop opens the desktop's own background menu: the desktop
+  root's `IShellFolder::CreateViewObject` menu (`ShowForDesktop`), so New ›, Paste, Paste shortcut,
+  Display settings, Personalize and third-party lines appear as Explorer's desktop shows them, with
+  New ›'s owner-drawn lines forwarded. **View, Sort by, Group by and Refresh are left out**: they are
+  Explorer's own view's (they would arrange Explorer's hidden icon list); Themia's arrangement is the
+  grid and edit mode, one meaning only. What a background command brings (a new folder, a paste)
+  lands where the click was ([S-5591]).
+- **[S-5549]** **Drags**: an item pressed and moved past the dead zone drags the selection (the item
+  alone when it is not selected) out as the shell's own data object with the shell's drag image
+  (`SHDoDragDrop`, the Folder widget's `DragDropInterop.DragOut`): onto Explorer, an app or the
+  Recycle Bin the target does what it does. Dragged over an item widget, a folder, an app, a shortcut
+  or the Recycle Bin takes it through its own shell drop target (`IShellItem` bound to
+  `IDropTarget`, the drag's `ForwardOver`/`ForwardDrop`), the item drawn as the drop target while it
+  answers; an item without a drop target refuses (asked once per hover), and an item in the drag
+  refuses itself. Dropped on empty desktop, from outside, the drop goes to the user's desktop folder
+  through the shell's own drop target (copy, move, link, the right-drag menu, virtual files from
+  Outlook or a browser), landing per [S-5591]; the desktop's own drag there moves widgets ([S-5546]).
+- **[S-5550]** **Who has the keys**: a press on an item gives its card the keyboard lease ([S-800]),
+  a press on empty desktop gives it to the desktop's items on that surface (the surface takes the
+  foreground and drops `WS_EX_NOACTIVATE` while it holds them, [S-800]'s rule); either way the keys
+  above go to the one selection. Escape ends the hold and hands the keyboard back; a click on
+  another app or a card ends it. The selection stays (drawn inactive) when the keys go elsewhere.
+- **[S-5590]** *Planned, D3*: the keyboard after Win+D (Explorer's desktop takes the foreground and
+  its hidden list the focus), unplugged and re-plugged displays, mixed DPI, UI Automation and
+  Narrator, living beside Fences and Wallpaper Engine, Themia's own lines (edit mode, Add widget)
+  in the background menu, New ›'s rename of the new item.
+- **[S-5591]** **Where an arrival lands** (`DesktopLandings`, `DesktopCells`): a drop on empty
+  desktop names the files it brings (the drag's file names and virtual file names) and the point;
+  when they arrive, their widgets go to the view of the display it was dropped on, at the cell under
+  the point or the next free one after it down its column (then the next columns), other views
+  getting none ([S-5520]'s step 3 with its own view and point). A paste names its files and lands at
+  the last press on that display's empty desktop, else at its next free cell; a background-menu
+  command (New ›, Paste) expects whatever arrives next at the click. A hint that names nothing is
+  dropped by the next press on the desktop, a newer hint replaces an older one, and an arrival no
+  hint names lands as [S-5520] says.
 
 ## Shortcuts B: drop, reorder and app layouts (PD)
 

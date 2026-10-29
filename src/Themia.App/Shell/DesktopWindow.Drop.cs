@@ -153,6 +153,9 @@ internal sealed partial class DesktopWindow : DragDropInterop.IOleDropHandler
         var effect = route switch
         {
             DropRoute.Widget when view is not null => SurfaceDrops.Single(view.DragOver(drag, local)),
+
+            // [S-5546] The desktop's own items over empty desktop: a move of their widgets, no file operation.
+            DropRoute.Desktop when _host.DeskDragRunning && _host.ShowsDesktopItems => DropEffect.Move,
             DropRoute.Desktop when DesktopFolder() is { } desktop => HoverDesktop(drag, desktop),
             _ => DropEffect.None,
         };
@@ -177,12 +180,39 @@ internal sealed partial class DesktopWindow : DragDropInterop.IOleDropHandler
         var effect = route switch
         {
             DropRoute.Widget when view is not null => view.Drop(drag, local),
-            DropRoute.Desktop when DesktopFolder() is { } desktop => drag.ForwardDrop(desktop, DropEffect.None),
+            DropRoute.Desktop when _host.DeskDragRunning && _host.ShowsDesktopItems => MoveDeskItems(local),
+            DropRoute.Desktop when DesktopFolder() is { } desktop => DropOnDesktop(drag, desktop, local),
             _ => DropEffect.None,
         };
 
         Log.Debug(Scope, $"drop on {_monitor.GdiName}: {route} -> {effect}");
         return effect;
+    }
+
+    /// <summary>[S-5546] The desktop's own drag let go over empty desktop here: its item widgets move under the pointer.</summary>
+    private DropEffect MoveDeskItems(Point at)
+    {
+        _host.MoveDeskDrag(this, at);
+        return DropEffect.Move;
+    }
+
+    /// <summary>
+    /// [S-5591] A drop on bare surface goes into the desktop folder through the shell's own target; under
+    /// Themia's items what it brings lands here, in this display's view, at the drop point.
+    /// </summary>
+    private DropEffect DropOnDesktop(WidgetDrag drag, string desktop, Point at)
+    {
+        if (_host.ShowsDesktopItems)
+        {
+            var names = drag.Paths.Select(Path.GetFileName)
+                .Concat(drag.VirtualFileNames.Select(n => Path.GetFileName(n.Replace('/', Path.DirectorySeparatorChar))))
+                .OfType<string>()
+                .Where(n => n.Length > 0)
+                .ToList();
+            _host.ExpectDeskDrop(this, at, names);
+        }
+
+        return drag.ForwardDrop(desktop, DropEffect.None);
     }
 
     /// <summary>Who takes the drag at its current point, and that point in the taker's own DIPs.</summary>

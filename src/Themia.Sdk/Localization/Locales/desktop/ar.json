@@ -2,5 +2,7 @@
   "desktop.choice.label": "على سطح المكتب",
   "desktop.choice.themia": "عناصر Themia",
   "desktop.choice.windows": "أيقونات Windows",
-  "desktop.choice.nothing": "لا شيء"
+  "desktop.choice.nothing": "لا شيء",
+  "desktop.add.folder": "على سطح المكتب",
+  "desktop.rename.clash": "يوجد بالفعل عنصر بهذا الاسم هنا."
 }

@@ -2,5 +2,7 @@
   "desktop.choice.label": "Masaüstünde",
   "desktop.choice.themia": "Themia öğeleri",
   "desktop.choice.windows": "Windows simgeleri",
-  "desktop.choice.nothing": "Hiçbir şey"
+  "desktop.choice.nothing": "Hiçbir şey",
+  "desktop.add.folder": "Masaüstünde",
+  "desktop.rename.clash": "Burada bu adda bir öğe zaten var."
 }

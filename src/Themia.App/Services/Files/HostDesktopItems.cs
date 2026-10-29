@@ -9,9 +9,51 @@ using Themia.Sdk.WinUI;
 namespace Themia.App.Services.Files;
 
 /// <summary>
+/// [S-5540]..[S-5549] What the desktop's gestures need of the host beyond the listing: the one
+/// selection over every display's item widgets, the shell's menus and operations, the drags and the
+/// rename box. The app host is it (<c>AppHost.DesktopDesk.cs</c>); a debug render has none, so its
+/// previews act on nothing.
+/// </summary>
+internal interface IDesktopDesk
+{
+    bool IsSelected(string key);
+
+    bool ShowsFocus(string key);
+
+    bool Active { get; }
+
+    string? RenamingWidget { get; }
+
+    string? DropTargetWidget { get; }
+
+    void Press(string key, bool ctrl, bool shift);
+
+    void Release(string key);
+
+    void Context(string key, int screenX, int screenY, nint owner);
+
+    bool Key(WidgetKey key, bool shift, string? widgetId);
+
+    bool Type(char character);
+
+    void Open(string key);
+
+    void DragOut(string key, nint window);
+
+    bool Dragging(string key);
+
+    void SetDropTarget(string? widgetId);
+
+    string? CommitRename(string key, string text);
+
+    void CancelRename();
+}
+
+/// <summary>
 /// [S-5510]..[S-5512] [S-5530] <see cref="IWidgetHost.DesktopItems"/>: the host's one listing of the
 /// desktop's namespace, read off the UI thread and read again when the shell says the desktop changed
-/// (never on a clock), the items' overlaid icons, and the one item selection.
+/// (never on a clock), the items' overlaid icons, and the desktop's gestures handed to the host's
+/// <see cref="IDesktopDesk"/> (the one selection, [S-5540]).
 /// <para>
 /// Running only while the desktop shows Themia's items (<see cref="Start"/>, <see cref="Stop"/>); a
 /// debug render never starts it, so its previews draw the items they are given and never read the
@@ -55,22 +97,73 @@ internal sealed class HostDesktopItems : IDesktopItems
     /// <summary>Whether a listing is held (a read succeeded since <see cref="Start"/>).</summary>
     public bool HasListing { get; private set; }
 
-    /// <inheritdoc />
-    public string? Selected { get; private set; }
+    /// <summary>The host's side of the gestures, installed at start; null in a debug render.</summary>
+    public IDesktopDesk? Desk { get; set; }
 
     /// <inheritdoc />
     public DesktopItem? Find(string? key) => key is not null && _byKey.TryGetValue(key, out var item) ? item : null;
 
     /// <inheritdoc />
-    public void Select(string? key)
-    {
-        if (string.Equals(Selected, key, StringComparison.OrdinalIgnoreCase))
-        {
-            return;
-        }
+    public bool IsSelected(string key) => Desk?.IsSelected(key) == true;
 
-        Selected = key;
-        Raise();
+    /// <inheritdoc />
+    public bool ShowsFocus(string key) => Desk?.ShowsFocus(key) == true;
+
+    /// <inheritdoc />
+    public bool Active => Desk?.Active == true;
+
+    /// <inheritdoc />
+    public bool IsCut(string key) => HostFileClipboard.Instance.IsCut(key);
+
+    /// <inheritdoc />
+    public string? RenamingWidget => Desk?.RenamingWidget;
+
+    /// <inheritdoc />
+    public string? DropTargetWidget => Desk?.DropTargetWidget;
+
+    /// <inheritdoc />
+    public void Press(string key, bool ctrl, bool shift) => Desk?.Press(key, ctrl, shift);
+
+    /// <inheritdoc />
+    public void Release(string key) => Desk?.Release(key);
+
+    /// <inheritdoc />
+    public void Context(string key, int screenX, int screenY, nint owner) => Desk?.Context(key, screenX, screenY, owner);
+
+    /// <inheritdoc />
+    public bool Key(WidgetKey key, bool shift, string? widgetId) => Desk?.Key(key, shift, widgetId) == true;
+
+    /// <inheritdoc />
+    public bool Type(char character) => Desk?.Type(character) == true;
+
+    /// <inheritdoc />
+    public void Open(string key) => Desk?.Open(key);
+
+    /// <inheritdoc />
+    public void DragOut(string key, nint window) => Desk?.DragOut(key, window);
+
+    /// <inheritdoc />
+    public bool Dragging(string key) => Desk?.Dragging(key) == true;
+
+    /// <inheritdoc />
+    public void SetDropTarget(string? widgetId) => Desk?.SetDropTarget(widgetId);
+
+    /// <inheritdoc />
+    public string? CommitRename(string key, string text) => Desk?.CommitRename(key, text);
+
+    /// <inheritdoc />
+    public void CancelRename() => Desk?.CancelRename();
+
+    /// <summary>The selection, a rename box or a drag's target changed: every item widget redraws. UI thread.</summary>
+    public void Repaint() => Raise();
+
+    /// <summary>[S-5545] [S-5547] F5, or Explorer's view settings changed: the desktop is read again (coalesced as any read).</summary>
+    public void Refresh()
+    {
+        if (_notifications is not null)
+        {
+            Read();
+        }
     }
 
     /// <inheritdoc />
@@ -114,7 +207,6 @@ internal sealed class HostDesktopItems : IDesktopItems
         _again = false;
         _renames.Clear();
         HasListing = false;
-        Selected = null;
         Adopt([]);
     }
 
@@ -208,11 +300,6 @@ internal sealed class HostDesktopItems : IDesktopItems
         foreach (var item in items)
         {
             _byKey.TryAdd(item.Key, item);
-        }
-
-        if (Selected is not null && !_byKey.ContainsKey(Selected))
-        {
-            Selected = null;
         }
 
         Raise();

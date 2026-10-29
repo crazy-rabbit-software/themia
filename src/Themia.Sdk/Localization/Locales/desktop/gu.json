@@ -2,5 +2,7 @@
   "desktop.choice.label": "ડેસ્કટોપ પર",
   "desktop.choice.themia": "Themia ની આઇટમ્સ",
   "desktop.choice.windows": "Windows ના આઇકન",
-  "desktop.choice.nothing": "કંઈ નહીં"
+  "desktop.choice.nothing": "કંઈ નહીં",
+  "desktop.add.folder": "ડેસ્કટોપ પર",
+  "desktop.rename.clash": "અહીં આ નામની આઇટમ પહેલેથી જ છે."
 }

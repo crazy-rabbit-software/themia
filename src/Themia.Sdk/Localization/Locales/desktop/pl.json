@@ -2,5 +2,7 @@
   "desktop.choice.label": "Na pulpicie",
   "desktop.choice.themia": "Elementy Themii",
   "desktop.choice.windows": "Ikony systemu Windows",
-  "desktop.choice.nothing": "Nic"
+  "desktop.choice.nothing": "Nic",
+  "desktop.add.folder": "Na pulpicie",
+  "desktop.rename.clash": "Element o tej nazwie już tu istnieje."
 }

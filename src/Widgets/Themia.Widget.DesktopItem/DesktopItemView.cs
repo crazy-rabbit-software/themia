@@ -1,32 +1,38 @@
+using Microsoft.UI.Input;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Media;
 using Themia.App.Services;
 using Themia.App.Widgets;
+using Themia.Core.Desktop;
 using Themia.Core.Diagnostics;
+using Themia.Core.Files;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
 using Themia.Sdk;
 using Themia.Sdk.Kit;
 using Themia.Sdk.WinUI;
 using Themia.Sdk.WinUI.Kit;
+using Windows.Foundation;
 
 namespace Themia.Widget.DesktopItem;
 
 /// <summary>
-/// [S-5600]..[S-5605] One desktop item as Explorer's desktop draws an icon: the shell's icon with its
-/// overlay over its name, in the one selection look ([S-6627]). A press selects it alone across
-/// every display ([S-5530]); a double-click or Enter opens it through the launcher, and the
-/// double-click never reaches the card, which would toggle edit mode.
+/// [S-5600]..[S-5607] One desktop item as Explorer's desktop draws an icon: the shell's icon with its
+/// overlay over its name (legible over any wallpaper, [S-6733]), in the one selection look ([S-6627]).
+/// Its gestures are the desktop's ([S-5540]..[S-5549]): a press, a key, a typed letter, the right
+/// button, a drag and a drop are handed to the host's one desktop selection
+/// (<see cref="IWidgetHost.DesktopItems"/>), which paints back what it decided; F2's box is drawn here.
+/// A double-click and a right-click never reach the card, which would toggle edit mode or open its menu.
 /// </summary>
-internal sealed partial class DesktopItemView : Grid, IWidgetView, IWidgetSizeAware, IWidgetKeys, IWidgetSurfaceAware
+internal sealed partial class DesktopItemView : Grid, IWidgetView, IWidgetSizeAware, IWidgetKeys, IWidgetSurfaceAware, IWidgetDropTarget
 {
     private const string Scope = "desktop-item";
 
     private readonly IWidgetHost _host;
     private readonly Image _icon = new() { Stretch = Stretch.Uniform };
-    private readonly TextBlock _name = Family.Text(FamilyType.Caption, ColourRole.TextPrimary);
+    private readonly WallpaperLabel _name = new(FamilyType.Caption);
     private readonly StackPanel _stack = new() { Spacing = DesktopItemLayout.Gap, HorizontalAlignment = HorizontalAlignment.Center, VerticalAlignment = VerticalAlignment.Top };
     private readonly Border _chrome;
     private IDisposable? _hover;
@@ -39,12 +45,17 @@ internal sealed partial class DesktopItemView : Grid, IWidgetView, IWidgetSizeAw
     private ItemFit _fit = DesktopItemLayout.For(DesktopItemModule.CellWidth, DesktopItemModule.CellHeight);
     private int _iconRequest;
 
+    /// <summary>[S-5549] A left press waiting to become a drag (or a release), and where it was.</summary>
+    private bool _pressed;
+    private Point _pressAt;
+
+    /// <summary>[S-5543] The rename box while it shows, and whether it is being taken down (its LostFocus then commits nothing).</summary>
+    private TextBox? _box;
+    private bool _closingBox;
+
     public DesktopItemView(IWidgetHost host)
     {
         _host = host;
-        _name.TextAlignment = TextAlignment.Center;
-        _name.TextWrapping = TextWrapping.WrapWholeWords;
-        _name.TextTrimming = TextTrimming.CharacterEllipsis;
         _name.HorizontalAlignment = HorizontalAlignment.Center;
         _stack.Children.Add(_icon);
         _stack.Children.Add(_name);
@@ -78,17 +89,23 @@ internal sealed partial class DesktopItemView : Grid, IWidgetView, IWidgetSizeAw
         }
     }
 
+    /// <summary>Whether gestures act: on the desktop, outside edit mode, never in a preview.</summary>
+    private bool Acts => _surface?.EditMode != true && !_fixture.On && !_host.IsPreview;
+
+    private string? WidgetId => _surface?.WidgetId;
+
     public void Attach(Ticker ticker, WidgetConfig config)
     {
-        _host.DesktopItems.Changed -= OnItemsChanged;
+        Detach();
         _host.DesktopItems.Changed += OnItemsChanged;
-        PointerPressed -= OnPressed;
         PointerPressed += OnPressed;
-        DoubleTapped -= OnDoubleTapped;
+        PointerMoved += OnMoved;
+        PointerReleased += OnReleased;
+        PointerCaptureLost += OnPressLost;
+        PointerCanceled += OnPressLost;
         DoubleTapped += OnDoubleTapped;
-        SizeChanged -= OnSizeChanged;
+        RightTapped += OnRightTapped;
         SizeChanged += OnSizeChanged;
-        _hover?.Dispose();
         _hover = SelectionChrome.Hover(this, hovered =>
         {
             _hovered = hovered;
@@ -124,46 +141,91 @@ internal sealed partial class DesktopItemView : Grid, IWidgetView, IWidgetSizeAw
     {
         _host.DesktopItems.Changed -= OnItemsChanged;
         PointerPressed -= OnPressed;
+        PointerMoved -= OnMoved;
+        PointerReleased -= OnReleased;
+        PointerCaptureLost -= OnPressLost;
+        PointerCanceled -= OnPressLost;
         DoubleTapped -= OnDoubleTapped;
+        RightTapped -= OnRightTapped;
         SizeChanged -= OnSizeChanged;
         _hover?.Dispose();
         _hover = null;
+        _pressed = false;
+        CloseBox();
     }
 
-    /// <summary>[S-5530] Enter opens; Escape (the lease ending, [S-813]) keeps the selection, as the desktop does.</summary>
+    /// <summary>
+    /// [S-5541] [S-5545] The keys with the lease are the desktop's (the arrows by place, Enter, F2, Delete,
+    /// the clipboard, the Menu key); Escape is the lease's own end ([S-813]), which keeps the selection.
+    /// </summary>
     public bool HandleKey(WidgetKey key)
-    {
-        if (key == WidgetKey.Enter)
-        {
-            Open();
-            return true;
-        }
+        => key != WidgetKey.Escape && Acts && _host.DesktopItems.Key(key, SelectionInput.ShiftHeld(), WidgetId);
 
-        return false;
-    }
+    /// <summary>[S-5542] A letter typed with the lease finds the next item whose name starts so.</summary>
+    public bool HandleText(char character) => Acts && _host.DesktopItems.Type(character);
 
-    /// <summary>[S-6626] Going elsewhere keeps the item selected, as the desktop keeps its icons selected.</summary>
+    /// <summary>[S-6626] Going elsewhere keeps the items selected, as the desktop keeps its icons selected.</summary>
     public bool KeepsSelectionWhenLeft => true;
 
     private void OnItemsChanged() => Render();
 
-    /// <summary>[S-5530] A left press outside edit mode selects this item alone; the card still gets the press (the lease, [S-800]).</summary>
+    /// <summary>[S-5540] A left press outside edit mode is the desktop's selection's; the card still gets the press (the lease, [S-800]).</summary>
     private void OnPressed(object sender, PointerRoutedEventArgs e)
     {
-        if (_surface?.EditMode == true || Item is not { } item || !e.GetCurrentPoint(this).Properties.IsLeftButtonPressed)
+        var point = e.GetCurrentPoint(this);
+        if (!Acts || Item is not { } item || !point.Properties.IsLeftButtonPressed || _box is not null)
         {
             return;
         }
 
-        if (_fixture.On)
-        {
-            return;
-        }
-
-        _host.DesktopItems.Select(item.Key);
+        var keys = e.KeyModifiers;
+        _host.DesktopItems.Press(item.Key, keys.HasFlag(Windows.System.VirtualKeyModifiers.Control), keys.HasFlag(Windows.System.VirtualKeyModifiers.Shift));
+        _pressed = true;
+        _pressAt = point.Position;
     }
 
-    /// <summary>[S-5530] A double-click opens the item, and is the item's: the card does not toggle edit mode.</summary>
+    /// <summary>[S-5549] Past the dead zone with the button held, the press is a drag of the selection: posted, so OLE's loop never nests in XAML's input.</summary>
+    private void OnMoved(object sender, PointerRoutedEventArgs e)
+    {
+        if (!_pressed || Item is not { } item)
+        {
+            return;
+        }
+
+        var point = e.GetCurrentPoint(this);
+        if (!point.Properties.IsLeftButtonPressed)
+        {
+            _pressed = false;
+            return;
+        }
+
+        if (!SelectionBand.PastThreshold(point.Position.X - _pressAt.X, point.Position.Y - _pressAt.Y))
+        {
+            return;
+        }
+
+        _pressed = false;
+        var key = item.Key;
+        var window = Window();
+        if (DispatcherQueue is not { } queue || !queue.TryEnqueue(() => _host.DesktopItems.DragOut(key, window)))
+        {
+            Log.Warn(Scope, "a desktop item's drag could not be started");
+        }
+    }
+
+    private void OnReleased(object sender, PointerRoutedEventArgs e)
+    {
+        if (_pressed && Item is { } item)
+        {
+            _host.DesktopItems.Release(item.Key);
+        }
+
+        _pressed = false;
+    }
+
+    private void OnPressLost(object sender, PointerRoutedEventArgs e) => _pressed = false;
+
+    /// <summary>[S-5530] A double-click opens the selection, and is the item's: the card does not toggle edit mode.</summary>
     private void OnDoubleTapped(object sender, DoubleTappedRoutedEventArgs e)
     {
         if (_surface?.EditMode == true)
@@ -172,38 +234,218 @@ internal sealed partial class DesktopItemView : Grid, IWidgetView, IWidgetSizeAw
         }
 
         e.Handled = true;
-        Open();
+        if (Acts && Item is { } item)
+        {
+            _host.DesktopItems.Open(item.Key);
+        }
     }
 
-    private void Open()
+    /// <summary>[S-5548] A right-click is the shell's menu for the selection, never the card's menu.</summary>
+    private void OnRightTapped(object sender, RightTappedRoutedEventArgs e)
     {
-        if (_fixture.On || _host.IsPreview || Item is not { } item)
+        if (_surface?.EditMode == true)
         {
             return;
         }
 
-        var outcome = _host.Launcher.Open(DesktopItemKeys.LaunchTarget(item.Key));
-        if (outcome != LaunchOutcome.Opened)
+        e.Handled = true;
+        if (!Acts || Item is not { } item || XamlRoot is not { } root)
         {
-            Log.Warn(Scope, $"a desktop item did not open ({outcome})");
+            return;
+        }
+
+        var scale = root.RasterizationScale > 0 ? root.RasterizationScale : 1.0;
+        var at = e.GetPosition(null);
+        var window = Window();
+        var (x, y) = _host.ExplorerMenus.ToScreen(window, (int)Math.Round(at.X * scale), (int)Math.Round(at.Y * scale));
+        _host.DesktopItems.Context(item.Key, x, y, window);
+    }
+
+    /// <summary>The window this view is drawn in, for the shell's menus and OLE.</summary>
+    private nint Window()
+        => XamlRoot?.ContentIslandEnvironment is { } environment
+            ? Microsoft.UI.Win32Interop.GetWindowFromWindowId(environment.AppWindowId)
+            : 0;
+
+    // ---- drops onto the item ([S-5549]) -------------------------------------------------------------
+
+    DropEffect IWidgetDropTarget.DragOver(IWidgetDrag drag, Point local)
+    {
+        if (!Acts || Item is not { } item || WidgetId is not { } id || _host.DesktopItems.Dragging(item.Key))
+        {
+            ClearDropTarget();
+            return DropEffect.None;
+        }
+
+        drag.Place = item.Name;
+        var effect = drag.ForwardOver(item.Key, DropEffect.None);
+        _host.DesktopItems.SetDropTarget(effect == DropEffect.None ? null : id);
+        return effect;
+    }
+
+    void IWidgetDropTarget.DragLeave() => ClearDropTarget();
+
+    DropEffect IWidgetDropTarget.Drop(IWidgetDrag drag, Point local)
+    {
+        ClearDropTarget();
+        return Acts && Item is { } item && !_host.DesktopItems.Dragging(item.Key)
+            ? drag.ForwardDrop(item.Key, DropEffect.None)
+            : DropEffect.None;
+    }
+
+    private void ClearDropTarget()
+    {
+        if (WidgetId is { } id && string.Equals(_host.DesktopItems.DropTargetWidget, id, StringComparison.Ordinal))
+        {
+            _host.DesktopItems.SetDropTarget(null);
         }
     }
 
-    private bool Selected => Item is { } item && string.Equals(_host.DesktopItems.Selected, item.Key, StringComparison.OrdinalIgnoreCase);
+    // ---- drawing -----------------------------------------------------------------------------------
 
-    private void Paint() => SelectionChrome.Paint(_chrome, new SelectionCue(Selected || (_fixture.On && _fixture.Selected), _hovered));
+    private bool Selected => _fixture.On ? _fixture.Selected : Item is { } item && _host.DesktopItems.IsSelected(item.Key);
+
+    private void Paint()
+    {
+        var key = Item?.Key;
+        var focus = _fixture.On ? _fixture.Focused : key is not null && _host.DesktopItems.ShowsFocus(key);
+        var active = _fixture.On || _host.DesktopItems.Active;
+        var dropTarget = _fixture.On ? _fixture.DropTarget : WidgetId is { } id && string.Equals(_host.DesktopItems.DropTargetWidget, id, StringComparison.Ordinal);
+        SelectionChrome.Paint(_chrome, new SelectionCue(Selected, _hovered, focus, focus, active, dropTarget));
+
+        // [S-5545] [S-5547] A cut item and a hidden one are faded, as Explorer draws them.
+        var faded = _fixture.On ? _fixture.Faded : key is not null && (_host.DesktopItems.IsCut(key) || Item?.Hidden == true);
+        _icon.Opacity = faded ? SelectionLook.Faded : 1;
+    }
 
     private void Render()
     {
         var item = Item;
         _name.Text = item?.Name ?? string.Empty;
         _name.MaxLines = Math.Max(_fit.Lines, 1);
-        _name.Visibility = _fit.Lines > 0 ? Visibility.Visible : Visibility.Collapsed;
-        _name.MaxWidth = Math.Max(DesktopItemLayout.MinNameWidth, ActualWidth > 0 ? ActualWidth - (2 * DesktopItemLayout.Inset) : DesktopItemModule.CellWidth - (2 * DesktopItemLayout.Inset));
+        _name.TextMaxWidth = NameWidth;
         _icon.Width = _fit.Icon;
         _icon.Height = _fit.Icon;
         Paint();
+        SyncBox(item);
+        _name.Visibility = _fit.Lines > 0 && _box is null ? Visibility.Visible : Visibility.Collapsed;
         LoadIcon(item);
+    }
+
+    private double NameWidth => Math.Max(DesktopItemLayout.MinNameWidth, ActualWidth > 0 ? ActualWidth - (2 * DesktopItemLayout.Inset) : DesktopItemModule.CellWidth - (2 * DesktopItemLayout.Inset));
+
+    // ---- F2: the rename box ([S-5543]) ----------------------------------------------------------------
+
+    /// <summary>The box shows while the host says this widget renames (or a preview's "renaming" state), and goes when it no longer does.</summary>
+    private void SyncBox(Themia.Sdk.DesktopItem? item)
+    {
+        var wanted = item is not null && (_fixture.On
+            ? _fixture.Renaming
+            : WidgetId is { } id && string.Equals(_host.DesktopItems.RenamingWidget, id, StringComparison.Ordinal));
+        if (!wanted)
+        {
+            CloseBox();
+            return;
+        }
+
+        if (_box is not null || item is null)
+        {
+            return;
+        }
+
+        var (text, select) = DesktopRename.Edit(item);
+        var box = new TextBox
+        {
+            Text = text,
+            TextAlignment = TextAlignment.Center,
+            TextWrapping = TextWrapping.Wrap,
+            AcceptsReturn = false,
+            MinHeight = 0,
+            MinWidth = 0,
+            Padding = new Thickness(FamilySpace.S1, 0, FamilySpace.S1, 0),
+            // Out into the cell's inset: Explorer's box is wider than the name it edits.
+            Margin = new Thickness(-DesktopItemLayout.Inset, 0, -DesktopItemLayout.Inset, 0),
+            HorizontalAlignment = HorizontalAlignment.Center,
+            FontSize = FamilyType.Caption.FontSize,
+        };
+        _box = box;
+        _stack.Children.Add(box);
+
+        if (_fixture.On)
+        {
+            box.Loaded += (_, _) => box.Select(0, select);
+            return;
+        }
+
+        box.GotFocus += (_, _) => _surface?.RequestTextInput(true);
+        box.LostFocus += (_, _) =>
+        {
+            _surface?.RequestTextInput(false);
+            if (!_closingBox)
+            {
+                Commit(box);
+            }
+        };
+        box.KeyDown += (_, args) =>
+        {
+            if (args.Key == Windows.System.VirtualKey.Enter)
+            {
+                args.Handled = true;
+                Commit(box);
+            }
+            else if (args.Key == Windows.System.VirtualKey.Escape)
+            {
+                // Escape reverts, and is the box's: the lease does not end with it.
+                args.Handled = true;
+                _host.DesktopItems.CancelRename();
+            }
+        };
+        box.Loaded += (_, _) =>
+        {
+            box.Focus(FocusState.Programmatic);
+            box.Select(0, select);
+        };
+    }
+
+    /// <summary>Enter or a click elsewhere: committed through the host; a name it refuses keeps the box and says why.</summary>
+    private void Commit(TextBox box)
+    {
+        if (Item is not { } item || !ReferenceEquals(box, _box))
+        {
+            return;
+        }
+
+        if (_host.DesktopItems.CommitRename(item.Key, box.Text) is { } why)
+        {
+            var tip = new ToolTip { Content = why };
+            ToolTipService.SetToolTip(box, tip);
+            tip.IsOpen = true;
+            box.Focus(FocusState.Programmatic);
+        }
+    }
+
+    private void CloseBox()
+    {
+        if (_box is not { } box)
+        {
+            return;
+        }
+
+        _closingBox = true;
+        try
+        {
+            _box = null;
+            if (ToolTipService.GetToolTip(box) is ToolTip tip)
+            {
+                tip.IsOpen = false;
+            }
+
+            _stack.Children.Remove(box);
+        }
+        finally
+        {
+            _closingBox = false;
+        }
     }
 
     private async void LoadIcon(Themia.Sdk.DesktopItem? item)
@@ -240,13 +482,21 @@ internal sealed partial class DesktopItemView : Grid, IWidgetView, IWidgetSizeAw
 
     /// <summary>
     /// [S-5605] A preview's own item, standing in for the host's listing; a preview draws as given and
-    /// acts on nothing, and its "selected" state draws the selection.
+    /// acts on nothing, and its states draw the selection, the focus, a drop target, a cut item and the box.
     /// </summary>
     private sealed class PreviewFixture
     {
         public bool On { get; set; }
 
         public bool Selected { get; set; }
+
+        public bool Focused { get; set; }
+
+        public bool DropTarget { get; set; }
+
+        public bool Faded { get; set; }
+
+        public bool Renaming { get; set; }
 
         public Themia.Sdk.DesktopItem? Item { get; set; }
     }

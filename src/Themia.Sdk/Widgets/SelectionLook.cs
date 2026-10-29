@@ -38,6 +38,9 @@ public readonly record struct SelectionCue(
 /// </summary>
 public static class SelectionLook
 {
+    /// <summary>[S-5545] [S-5547] A cut item, or a hidden one shown because Explorer shows hidden items: its icon faded, as Explorer draws it.</summary>
+    public const double Faded = 0.45;
+
     public const double HoverFill = 0.12;
     public const double HoverStroke = 0.35;
     public const double SelectedFill = 0.32;

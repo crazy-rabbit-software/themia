@@ -2,5 +2,7 @@
   "desktop.choice.label": "Sul desktop",
   "desktop.choice.themia": "Elementi di Themia",
   "desktop.choice.windows": "Icone di Windows",
-  "desktop.choice.nothing": "Niente"
+  "desktop.choice.nothing": "Niente",
+  "desktop.add.folder": "Sul desktop",
+  "desktop.rename.clash": "Esiste già un elemento con questo nome qui."
 }

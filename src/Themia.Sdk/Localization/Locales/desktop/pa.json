@@ -2,5 +2,7 @@
   "desktop.choice.label": "ਡੈਸਕਟਾਪ ਉੱਤੇ",
   "desktop.choice.themia": "Themia ਦੀਆਂ ਆਈਟਮਾਂ",
   "desktop.choice.windows": "Windows ਦੇ ਆਈਕਨ",
-  "desktop.choice.nothing": "ਕੁਝ ਨਹੀਂ"
+  "desktop.choice.nothing": "ਕੁਝ ਨਹੀਂ",
+  "desktop.add.folder": "ਡੈਸਕਟਾਪ ਉੱਤੇ",
+  "desktop.rename.clash": "ਇੱਥੇ ਇਸ ਨਾਮ ਦੀ ਆਈਟਮ ਪਹਿਲਾਂ ਹੀ ਮੌਜੂਦ ਹੈ।"
 }

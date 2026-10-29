@@ -28,6 +28,7 @@ internal static class RenderFlags
         "--family-check",
         "--family-blocks-png",
         "--clock-style-check",
+        DesktopRender.Flag,
     ];
 }
 #endif

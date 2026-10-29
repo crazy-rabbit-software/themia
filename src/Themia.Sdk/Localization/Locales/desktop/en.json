@@ -1,10 +1,9 @@
 {
-  "$englishOnly": [
-    "desktop.add.folder"
-  ],
+  "$englishOnly": [],
   "desktop.choice.label": "On the desktop",
   "desktop.choice.themia": "Themia's items",
   "desktop.choice.windows": "Windows' icons",
   "desktop.choice.nothing": "Nothing",
-  "desktop.add.folder": "On the desktop"
+  "desktop.add.folder": "On the desktop",
+  "desktop.rename.clash": "There's already an item with this name here."
 }

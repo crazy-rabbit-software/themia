@@ -2,5 +2,7 @@
   "desktop.choice.label": "บนเดสก์ท็อป",
   "desktop.choice.themia": "รายการของ Themia",
   "desktop.choice.windows": "ไอคอนของ Windows",
-  "desktop.choice.nothing": "ไม่มี"
+  "desktop.choice.nothing": "ไม่มี",
+  "desktop.add.folder": "บนเดสก์ท็อป",
+  "desktop.rename.clash": "มีรายการชื่อนี้อยู่ที่นี่แล้ว"
 }

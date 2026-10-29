@@ -244,6 +244,12 @@ internal sealed partial class DesktopWindow
 
     private void OnRootPointerReleased(object sender, PointerRoutedEventArgs e)
     {
+        if (EndDesktopBand(e))
+        {
+            e.Handled = true;
+            return;
+        }
+
         if (_lassoing)
         {
             _root.ReleasePointerCapture(e.Pointer);
@@ -252,7 +258,11 @@ internal sealed partial class DesktopWindow
         }
     }
 
-    private void OnRootPointerCaptureLost(object sender, PointerRoutedEventArgs e) => EndLasso();
+    private void OnRootPointerCaptureLost(object sender, PointerRoutedEventArgs e)
+    {
+        EndDesktopBand(null);
+        EndLasso();
+    }
 
     /// <summary>Take the band down. What it selected stays selected.</summary>
     private void EndLasso()

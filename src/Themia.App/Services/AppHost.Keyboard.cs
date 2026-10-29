@@ -43,7 +43,66 @@ internal sealed partial class AppHost
             return;
         }
 
+        // [S-5550] A press on any card ends the empty desktop's hold on the keys; the card's lease follows.
+        DesktopKeysEnd(giveBack: false, keepActive: true);
         ApplyLease(surface, _keyboard.Press(card, card.TakesKeys));
+    }
+
+    /// <summary>[S-5550] The surface whose empty desktop holds the keys for the desktop's items, or null.</summary>
+    public DesktopWindow? DesktopKeysSurface { get; private set; }
+
+    /// <summary>
+    /// [S-5550] A press on empty desktop under Themia's items: the keys go to the desktop's items (the
+    /// arrows, Ctrl+A, Ctrl+V, F5, the Menu key, typing), as Explorer's desktop takes them on a click.
+    /// The card lease ends; the surface takes the foreground, which the click allows.
+    /// </summary>
+    public void DesktopTakeKeys(DesktopWindow surface)
+    {
+        if (_editMode)
+        {
+            return;
+        }
+
+        ApplyLease(null, _keyboard.Clear());
+        if (ReferenceEquals(DesktopKeysSurface, surface))
+        {
+            return;
+        }
+
+        var foreground = Win32.GetForegroundWindow();
+        _keyboardReturn = _windows.Exists(w => w.Hwnd == foreground) ? _keyboardReturn : foreground;
+        var before = DesktopKeysSurface;
+        DesktopKeysSurface = surface;
+        before?.DesktopKeysChanged();
+        if (!surface.DesktopKeysChanged())
+        {
+            Log.Warn(Scope, "the surface could not take the foreground; the desktop's keys stay with the window that has it");
+            DesktopKeysSurface = null;
+            surface.DesktopKeysChanged();
+        }
+    }
+
+    /// <summary>[S-5550] The empty desktop's hold on the keys ends (Escape gives the keyboard back to the window before it).</summary>
+    public void DesktopKeysEnd(bool giveBack, bool keepActive = false)
+    {
+        if (DesktopKeysSurface is not { } surface)
+        {
+            return;
+        }
+
+        DesktopKeysSurface = null;
+        surface.DesktopKeysChanged();
+        if (!keepActive)
+        {
+            Key(WidgetKey.Deactivate, shift: false, widgetId: null);
+        }
+
+        if (giveBack)
+        {
+            GiveKeyboardBack(surface);
+        }
+
+        _keyboardReturn = 0;
     }
 
     /// <summary>[S-801] A text box in a card gained or lost focus.</summary>
@@ -74,6 +133,11 @@ internal sealed partial class AppHost
         if (ReferenceEquals(_keyboardSurface, surface))
         {
             ApplyLease(null, _keyboard.Clear());
+        }
+
+        if (ReferenceEquals(DesktopKeysSurface, surface))
+        {
+            DesktopKeysEnd(giveBack: false);
         }
 
         LeaveSessionOn(surface);

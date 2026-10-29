@@ -354,6 +354,7 @@ internal sealed partial class DesktopWindow
         }
 
         UpdateLasso(position);
+        UpdateDesktopBand(position);
     }
 
     /// <summary>The pointer went to another display: the ghost goes with it, so it leaves here.</summary>

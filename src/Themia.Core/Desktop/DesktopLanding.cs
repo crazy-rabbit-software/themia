@@ -5,12 +5,13 @@ namespace Themia.Core.Desktop;
 
 /// <summary>
 /// [S-5591] Where an item that is about to arrive should land: the view shown on the display it was
-/// dropped (or pasted, or made with New ›) on, and the point there, as fractions of that display.
+/// dropped (or pasted, or made with New ›) on, and the point there, as fractions of that display
+/// (none: the next free cell of that view, a paste with no press point).
 /// <paramref name="Names"/> are the file names the arrival is expected under (a drop's files); empty
 /// means "whatever arrives next" (a paste or New › from the background menu, whose names the shell
 /// chooses).
 /// </summary>
-public sealed record DesktopLandingHint(string ViewId, double X, double Y, IReadOnlyList<string> Names);
+public sealed record DesktopLandingHint(string ViewId, double? X, double? Y, IReadOnlyList<string> Names);
 
 /// <summary>[S-5591] Where one arrival lands: the view, and the point its cell is looked for from (null: the next free cell).</summary>
 public readonly record struct DesktopLandingSpot(string ViewId, double? X, double? Y);
@@ -35,6 +36,19 @@ public sealed class DesktopLandings
         ArgumentNullException.ThrowIfNull(hint);
         _hint = hint;
         _waiting = new HashSet<string>(hint.Names.Where(n => !string.IsNullOrWhiteSpace(n)), StringComparer.OrdinalIgnoreCase);
+    }
+
+    /// <summary>
+    /// [S-5591] A new gesture began (a press on the desktop): a hint that names nothing (a paste's, New ›'s)
+    /// is dropped, so a command that brought nothing (Display settings) does not land a later download
+    /// at its point; a drop's named hint stays until its files arrive.
+    /// </summary>
+    public void ClearOpen()
+    {
+        if (_hint is { Names.Count: 0 })
+        {
+            Clear();
+        }
     }
 
     /// <summary>Forget the hint (the choice changed, the view went).</summary>

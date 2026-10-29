@@ -271,6 +271,19 @@ public sealed class DesktopParityTests
     }
 
     [Fact]
+    public void S5591_a_press_drops_a_hint_that_names_nothing_but_keeps_a_drops()
+    {
+        var landings = new DesktopLandings();
+        landings.Expect(new DesktopLandingHint("v1", 0.1, 0.1, []));
+        landings.ClearOpen();
+        Assert.Null(landings.Pending);
+
+        landings.Expect(new DesktopLandingHint("v1", 0.1, 0.1, ["big.iso"]));
+        landings.ClearOpen();
+        Assert.NotNull(landings.Pending);
+    }
+
+    [Fact]
     public void S5546_a_dragged_group_keeps_its_shape_and_the_held_item_lands_under_the_pointer()
     {
         FracRect[] moving = [new(0, 0, 0.1, 0.25), new(0, 0.25, 0.1, 0.25)];

@@ -29,6 +29,7 @@ internal sealed partial class AppHost
         _command.ShellRestarted += DesktopIcons.ShellRestarted;
         _command.DesktopChanged += Files.HostDesktopItems.Instance.OnNotification;
         HostDesktopItems.Instance.Listed += OnDesktopListed;
+        StartDesk();
         ApplyDesktop(picked: false);
     }
 
@@ -38,6 +39,7 @@ internal sealed partial class AppHost
         _command.ShellRestarted -= DesktopIcons.ShellRestarted;
         _command.DesktopChanged -= Files.HostDesktopItems.Instance.OnNotification;
         HostDesktopItems.Instance.Listed -= OnDesktopListed;
+        StopDesk();
         Files.HostDesktopItems.Instance.Stop();
         DesktopIcons.RestoreIfHidden();
     }
@@ -58,7 +60,13 @@ internal sealed partial class AppHost
         }
         else
         {
+            // [S-5506] No item widget shows: nothing is selected, renamed or expected to land.
             Files.HostDesktopItems.Instance.Stop();
+            _desk.Clear();
+            _landings.Clear();
+            _renamingWidget = null;
+            _renamingKey = null;
+            DesktopKeysEnd(giveBack: false);
         }
 
         if (DesktopIconRules.Hides(shows))
@@ -125,7 +133,10 @@ internal sealed partial class AppHost
         var target = primary is null ? null : state.ViewForMonitor(primary.Monitor.Id).Id;
         var screen = primary?.Metrics ?? default;
 
-        var unplaced = DesktopReconcile.Apply(state, plan, target, screen, (kind.DefaultWidth, kind.DefaultHeight), (item, rect) => NewItemWidget(kind.Id, item, rect));
+        // [S-5591] A drop's, a paste's or New ›'s arrivals land where they were expected.
+        var unplaced = DesktopReconcile.Apply(
+            state, plan, target, screen, (kind.DefaultWidth, kind.DefaultHeight), (item, rect) => NewItemWidget(kind.Id, item, rect),
+            LandingSpots(plan.Arrivals), ScreenOfView);
         if (unplaced.Count > 0)
         {
             Log.Info(Scope, $"{unplaced.Count} new desktop item(s) found no free cell; Add widget lists them");

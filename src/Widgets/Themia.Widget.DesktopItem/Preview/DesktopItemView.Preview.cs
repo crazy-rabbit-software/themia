@@ -11,14 +11,20 @@ namespace Themia.Widget.DesktopItem;
 /// </summary>
 internal sealed partial class DesktopItemView : IWidgetPreviewState
 {
-    public IReadOnlyList<string> PreviewStates { get; } = ["document", "folder", "shortcut", "thisPc", "recycleBin", "longName", "selected"];
+    public IReadOnlyList<string> PreviewStates { get; } = ["document", "folder", "shortcut", "thisPc", "recycleBin", "longName", "selected", "focused", "renaming", "dropTarget", "cut", "hidden"];
 
     public Task ShowPreviewStateAsync(string state)
     {
         _fixture.On = true;
-        _fixture.Selected = state == "selected";
+        _fixture.Selected = state is "selected" or "focused" or "renaming";
+        _fixture.Focused = state == "focused";
+        _fixture.Renaming = state == "renaming";
+        _fixture.DropTarget = state == "dropTarget";
+        _fixture.Faded = state is "cut" or "hidden";
         _fixture.Item = state switch
         {
+            "dropTarget" => new(@"C:\Users\Public\Desktop\Holiday photos", "Holiday photos", DesktopItemKind.Folder),
+            "hidden" => new(@"C:\Users\Public\Desktop\desktop notes.txt", "desktop notes.txt", DesktopItemKind.File, Hidden: true),
             "folder" => new(@"C:\Users\Public\Desktop\Holiday photos", "Holiday photos", DesktopItemKind.Folder),
             "shortcut" => new(@"C:\Users\Public\Desktop\Notes.lnk", "Notes", DesktopItemKind.Shortcut),
             "thisPc" => new("::{20D04FE0-3AEA-1069-A2D8-08002B30309D}", "This PC", DesktopItemKind.ShellItem),

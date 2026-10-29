@@ -2,5 +2,7 @@
   "desktop.choice.label": "டெஸ்க்டாப்பில்",
   "desktop.choice.themia": "Themia உருப்படிகள்",
   "desktop.choice.windows": "Windows ஐகான்கள்",
-  "desktop.choice.nothing": "எதுவுமில்லை"
+  "desktop.choice.nothing": "எதுவுமில்லை",
+  "desktop.add.folder": "டெஸ்க்டாப்பில்",
+  "desktop.rename.clash": "இந்தப் பெயரில் ஓர் உருப்படி ஏற்கனவே இங்கே உள்ளது."
 }

@@ -5,7 +5,7 @@ using Xunit;
 
 namespace Themia.Widget.DesktopItem.Tests;
 
-/// <summary>[S-5600]..[S-5605] The desktop item widget's rules.</summary>
+/// <summary>[S-5600]..[S-5607] The desktop item widget's rules.</summary>
 public sealed class DesktopItemTests
 {
     [Fact]
@@ -49,4 +49,11 @@ public sealed class DesktopItemTests
     [InlineData(400, 300, 48, 2)]
     public void S5601_smaller_cells_step_down_the_ladder_larger_ones_keep_the_icon(double width, double height, double icon, int lines)
         => Assert.Equal(new ItemFit(icon, lines), DesktopItemLayout.For(width, height));
+
+    [Theory]
+    [InlineData(@"C:\Users\a\Desktop\Notes.lnk", "Notes", DesktopItemKind.Shortcut, "Notes", 5)]
+    [InlineData(@"C:\Users\a\Desktop\Report.docx", "Report.docx", DesktopItemKind.File, "Report.docx", 6)]
+    [InlineData(@"C:\Users\a\Desktop\v2.0 drafts", "v2.0 drafts", DesktopItemKind.Folder, "v2.0 drafts", 11)]
+    public void S5607_the_box_holds_the_name_as_shown_with_the_part_before_its_extension_selected(string key, string shown, DesktopItemKind kind, string text, int selected)
+        => Assert.Equal((text, selected), Themia.Core.Desktop.DesktopRename.Edit(new Themia.Sdk.DesktopItem(key, shown, kind)));
 }

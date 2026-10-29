@@ -2,5 +2,7 @@
   "desktop.choice.label": "デスクトップの表示",
   "desktop.choice.themia": "Themia の項目",
   "desktop.choice.windows": "Windows のアイコン",
-  "desktop.choice.nothing": "なし"
+  "desktop.choice.nothing": "なし",
+  "desktop.add.folder": "デスクトップ上",
+  "desktop.rename.clash": "この名前の項目は既にここにあります。"
 }

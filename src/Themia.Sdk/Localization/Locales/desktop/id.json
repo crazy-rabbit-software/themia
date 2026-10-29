@@ -2,5 +2,7 @@
   "desktop.choice.label": "Di desktop",
   "desktop.choice.themia": "Item Themia",
   "desktop.choice.windows": "Ikon Windows",
-  "desktop.choice.nothing": "Tidak ada"
+  "desktop.choice.nothing": "Tidak ada",
+  "desktop.add.folder": "Di desktop",
+  "desktop.rename.clash": "Sudah ada item dengan nama ini di sini."
 }

@@ -100,6 +100,12 @@ internal sealed unsafe class CommandWindow : IDisposable
     /// </summary>
     public event Action<nint, nint>? DesktopChanged;
 
+    /// <summary>
+    /// [S-5547] A setting changed that is not the work area (<c>WM_SETTINGCHANGE</c>): Explorer's folder
+    /// options ("ShellState") and the desktop-icon settings among them. Not handled: every window sees it.
+    /// </summary>
+    public event Action? SettingsChanged;
+
     /// <summary>The window the shell's notifications are posted to; 0 before <see cref="Create"/>.</summary>
     public nint Handle => _hwnd;
 
@@ -358,6 +364,11 @@ internal sealed unsafe class CommandWindow : IDisposable
                 if (_taskbarCreatedMessage != 0 && msg == _taskbarCreatedMessage)
                 {
                     self.ShellRestarted?.Invoke();
+                }
+
+                if (msg == WmSettingChange && wParam != SpiSetWorkArea)
+                {
+                    self.SettingsChanged?.Invoke();
                 }
 
                 if (msg == WmDisplayChange

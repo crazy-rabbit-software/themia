@@ -2,5 +2,7 @@
   "desktop.choice.label": "Sa desktop",
   "desktop.choice.themia": "Mga item ng Themia",
   "desktop.choice.windows": "Mga icon ng Windows",
-  "desktop.choice.nothing": "Wala"
+  "desktop.choice.nothing": "Wala",
+  "desktop.add.folder": "Sa desktop",
+  "desktop.rename.clash": "May item na may ganitong pangalan na rito."
 }

@@ -135,16 +135,19 @@ internal sealed class WidgetDrag : IWidgetDrag, IDisposable
             EndForward();
             _forward = DragDropInterop.FolderDropTarget(folder);
 
+            // [S-5549] Remembered even when the shell has no target there (a text file on the desktop):
+            // the next hover over the same item answers None at once instead of asking (and logging) again.
+            _forwardFolder = folder;
+
             if (_forward.IsNull)
             {
                 return DropEffect.None;
             }
 
-            _forwardFolder = folder;
             return DragDropInterop.TargetEnter(_forward.Pointer, _data.Pointer, keys, ScreenX, ScreenY, allowed);
         }
 
-        return DragDropInterop.TargetOver(_forward.Pointer, keys, ScreenX, ScreenY, allowed);
+        return _forward.IsNull ? DropEffect.None : DragDropInterop.TargetOver(_forward.Pointer, keys, ScreenX, ScreenY, allowed);
     }
 
     /// <summary>

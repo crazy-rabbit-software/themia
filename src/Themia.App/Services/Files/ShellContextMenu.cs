@@ -31,6 +31,8 @@ internal static unsafe partial class ShellContextMenu
     private const int FirstCommand = 1;
     private const int LastCommand = 0x7FFF;
     private const nuint SubclassId = 0x7E5F;
+    private const uint GcsVerbW = 0x4;
+    private const uint CmicMaskShiftDown = 0x10000000;
 
     private static readonly Guid BhidSfUiObject = new("3981e225-f559-11d3-8e3a-00c04f6837d5");
     private static readonly Guid BhidSfObject = new("3981e224-f559-11d3-8e3a-00c04f6837d5");
@@ -43,15 +45,54 @@ internal static unsafe partial class ShellContextMenu
     private static nint _menu2;
     private static nint _menu3;
 
-    /// <summary>The shell's menu for <paramref name="paths"/> at a screen point; the chosen command runs.</summary>
-    public static void ShowForItems(IReadOnlyList<string> paths, int screenX, int screenY, nint owner)
+    /// <summary>
+    /// The shell's menu for <paramref name="paths"/> at a screen point; the chosen command runs.
+    /// [S-5548] <paramref name="intercept"/>, when given, sees the chosen command's canonical verb first
+    /// and takes it instead of the shell when it answers true (the desktop's Rename is its own box).
+    /// </summary>
+    public static void ShowForItems(IReadOnlyList<string> paths, int screenX, int screenY, nint owner, Func<string, bool>? intercept = null)
     {
         using var owned = ItemsMenu(paths);
 
         if (!owned.IsNull)
         {
-            Track(owned.Pointer, CmfNormal | CmfExplore | CmfCanRename, screenX, screenY, owner);
+            Track(owned.Pointer, CmfNormal | CmfExplore | CmfCanRename, screenX, screenY, owner, intercept);
         }
+    }
+
+    /// <summary>
+    /// [S-5548] The desktop's own background menu: the desktop root's (<c>SHGetDesktopFolder</c>,
+    /// <c>IShellFolder::CreateViewObject</c>), so New, Paste, Display settings, Personalize and every
+    /// third-party line are there as Explorer's desktop shows them. View, Sort by, Group by and Refresh
+    /// are the shell view's own (they act on Explorer's icon list, which Themia hides) and do not come
+    /// with it. Returns whether a command ran.
+    /// </summary>
+    public static bool ShowForDesktop(int screenX, int screenY, nint owner)
+    {
+        nint root;
+
+        if (SHGetDesktopFolder(&root) < 0 || root == 0)
+        {
+            Log.Warn(Scope, "no desktop folder; the desktop's background menu is not shown");
+            return false;
+        }
+
+        using var ownedRoot = new DragDropInterop.ComRef(root);
+        nint menu;
+        var iid = IidContextMenu;
+
+        // IShellFolder::CreateViewObject is slot 8.
+        var create = (delegate* unmanaged[Stdcall]<nint, nint, Guid*, nint*, int>)(*(nint**)root)[8];
+        var hr = create(root, owner, &iid, &menu);
+
+        if (hr < 0 || menu == 0)
+        {
+            Log.Warn(Scope, $"no background menu for the desktop (0x{hr:X8})");
+            return false;
+        }
+
+        using var owned = new DragDropInterop.ComRef(menu);
+        return Track(menu, CmfNormal, screenX, screenY, owner);
     }
 
     /// <summary>
@@ -59,7 +100,14 @@ internal static unsafe partial class ShellContextMenu
     /// ("pintohome", "pintostartscreen", "Windows.ModernShare"), as its line in the full menu would.
     /// False (logged) when the shell has no such command for these items.
     /// </summary>
-    public static bool InvokeVerb(IReadOnlyList<string> paths, string verb, nint owner)
+    public static bool InvokeVerb(IReadOnlyList<string> paths, string verb, nint owner) => InvokeVerb(paths, verb, owner, shift: false);
+
+    /// <summary>
+    /// [S-5545] <see cref="InvokeVerb(IReadOnlyList{string}, string, nint)"/> as with Shift held, as
+    /// Explorer invokes a command the user chose with Shift down: the shell's "delete" then deletes
+    /// for good, after the shell's own prompt.
+    /// </summary>
+    public static bool InvokeVerb(IReadOnlyList<string> paths, string verb, nint owner, bool shift)
     {
         using var owned = ItemsMenu(paths);
 
@@ -92,6 +140,7 @@ internal static unsafe partial class ShellContextMenu
             var info = new InvokeInfo
             {
                 Size = (uint)sizeof(InvokeInfo),
+                Mask = shift ? CmicMaskShiftDown : 0,
                 Window = owner,
                 Verb = ansi,
                 Show = 1, // SW_SHOWNORMAL
@@ -184,13 +233,13 @@ internal static unsafe partial class ShellContextMenu
         Track(menu, CmfNormal, screenX, screenY, owner);
     }
 
-    private static void Track(nint menu, uint flags, int x, int y, nint owner)
+    private static bool Track(nint menu, uint flags, int x, int y, nint owner, Func<string, bool>? intercept = null)
     {
         var popup = CreatePopupMenu();
 
         if (popup == 0)
         {
-            return;
+            return false;
         }
 
         var subclassed = false;
@@ -206,7 +255,7 @@ internal static unsafe partial class ShellContextMenu
             if (hr < 0)
             {
                 Log.Warn(Scope, $"QueryContextMenu failed (0x{hr:X8})");
-                return;
+                return false;
             }
 
             menu3 = QueryInterface(menu, IidContextMenu3);
@@ -232,10 +281,18 @@ internal static unsafe partial class ShellContextMenu
                 PostMessageW(owner, WmNull, 0, 0);
             }
 
-            if (command >= FirstCommand)
+            if (command < FirstCommand)
             {
-                Invoke(menu, command - FirstCommand, owner);
+                return false;
             }
+
+            if (intercept is not null && Verb(menu, command - FirstCommand) is { } verb && intercept(verb))
+            {
+                return true;
+            }
+
+            Invoke(menu, command - FirstCommand, owner);
+            return true;
         }
         finally
         {
@@ -279,6 +336,20 @@ internal static unsafe partial class ShellContextMenu
         {
             Log.Warn(Scope, $"the shell command failed (0x{hr:X8})");
         }
+    }
+
+    /// <summary>The canonical verb of the command at <paramref name="offset"/> (<c>GCS_VERBW</c>), or null when it has none.</summary>
+    private static string? Verb(nint menu, int offset)
+    {
+        const int Capacity = 256;
+        var buffer = stackalloc char[Capacity];
+        buffer[0] = (char)0;
+
+        // IContextMenu::GetCommandString is slot 5.
+        var get = (delegate* unmanaged[Stdcall]<nint, nuint, uint, uint*, byte*, uint, int>)(*(nint**)menu)[5];
+        return get(menu, (nuint)offset, GcsVerbW, null, (byte*)buffer, Capacity) >= 0 && buffer[0] != (char)0
+            ? new string(buffer)
+            : null;
     }
 
     private static nint QueryInterface(nint unknown, Guid iid)
@@ -365,6 +436,9 @@ internal static unsafe partial class ShellContextMenu
     [LibraryImport("user32.dll")]
     [return: MarshalAs(UnmanagedType.Bool)]
     private static partial bool ClientToScreen(nint window, Point32* point);
+
+    [LibraryImport("shell32.dll")]
+    private static partial int SHGetDesktopFolder(nint* folder);
 
     [LibraryImport("user32.dll")]
     private static partial nint CreatePopupMenu();

@@ -2,5 +2,7 @@
   "desktop.choice.label": "Op het bureaublad",
   "desktop.choice.themia": "Items van Themia",
   "desktop.choice.windows": "Pictogrammen van Windows",
-  "desktop.choice.nothing": "Niets"
+  "desktop.choice.nothing": "Niets",
+  "desktop.add.folder": "Op het bureaublad",
+  "desktop.rename.clash": "Er is hier al een item met deze naam."
 }

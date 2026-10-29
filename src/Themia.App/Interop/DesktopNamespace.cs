@@ -26,11 +26,16 @@ internal static unsafe partial class DesktopNamespace
     private const int SlotGetDisplayNameOf = 11;
     private const int SlotNext = 3; // IEnumIDList: IUnknown (3)
 
-    private const uint ShcontfFolders = 0x20;
-    private const uint ShcontfNonFolders = 0x40;
     private const uint ShgdnNormal = 0x0;
     private const uint ShgdnForParsing = 0x8000;
     private const uint SfgaoLink = 0x00010000;
+    private const uint SfgaoHidden = 0x00080000;
+    private const uint SsfShowAllObjects = 0x00000001;
+    private const uint SsfShowSuperHidden = 0x00040000;
+
+    /// <summary>SHELLSTATE's first bit field: fShowAllObjects is bit 0, fShowSuperHidden bit 15.</summary>
+    private const uint ShowAllObjectsBit = 1u << 0;
+    private const uint ShowSuperHiddenBit = 1u << 15;
     private const uint SfgaoStream = 0x00400000;
     private const uint SfgaoFolder = 0x20000000;
     private const uint SfgaoFileSystem = 0x40000000;
@@ -62,8 +67,10 @@ internal static unsafe partial class DesktopNamespace
                 return null;
             }
 
+            // [S-5547] Explorer's Hidden items and protected system files, read now.
+            var (showHidden, showSuperHidden) = ExplorerHiddenSettings();
             var enumerate = (delegate* unmanaged[Stdcall]<nint, nint, uint, nint*, int>)(*(nint**)folder)[SlotEnumObjects];
-            hr = enumerate(folder, 0, ShcontfFolders | ShcontfNonFolders, &items);
+            hr = enumerate(folder, 0, DesktopViewSettings.EnumFlags(showHidden, showSuperHidden), &items);
             if (hr < 0)
             {
                 Log.Warn(Scope, $"the desktop's items could not be enumerated (0x{hr:X8})");
@@ -132,6 +139,19 @@ internal static unsafe partial class DesktopNamespace
         }
     }
 
+    /// <summary>
+    /// [S-5547] Explorer's "Hidden items" and "Hide protected operating system files", as the shell keeps
+    /// them (<c>SHGetSetSettings</c>, read only): what its own desktop lists. The names follow "File name
+    /// extensions" by themselves, through the shell's display names.
+    /// </summary>
+    private static (bool ShowHidden, bool ShowSuperHidden) ExplorerHiddenSettings()
+    {
+        // SHELLSTATE is 32 bytes today; a larger buffer leaves room for any the shell may write.
+        var state = stackalloc uint[16];
+        SHGetSetSettings(state, SsfShowAllObjects | SsfShowSuperHidden, 0);
+        return ((state[0] & ShowAllObjectsBit) != 0, (state[0] & ShowSuperHiddenBit) != 0);
+    }
+
     private const string IconSettingsKey = @"Software\Microsoft\Windows\CurrentVersion\Explorer\HideDesktopIcons\NewStartPanel";
 
     /// <summary>[S-5510] What Explorer's desktop shows, as read now: the two desktop folders, the profile, the desktop-icon settings.</summary>
@@ -176,7 +196,7 @@ internal static unsafe partial class DesktopNamespace
             return null;
         }
 
-        var attributes = SfgaoLink | SfgaoStream | SfgaoFolder | SfgaoFileSystem;
+        var attributes = SfgaoLink | SfgaoStream | SfgaoFolder | SfgaoFileSystem | SfgaoHidden;
         var getAttributes = (delegate* unmanaged[Stdcall]<nint, uint, nint*, uint*, int>)(*(nint**)folder)[SlotGetAttributesOf];
         if (getAttributes(folder, 1, &child, &attributes) < 0)
         {
@@ -188,7 +208,7 @@ internal static unsafe partial class DesktopNamespace
             : (attributes & SfgaoFolder) != 0 && (attributes & SfgaoStream) == 0 ? DesktopItemKind.Folder
             : DesktopItemKind.File;
 
-        return new DesktopItem(key, string.IsNullOrWhiteSpace(name) ? DesktopItemKeys.FallbackName(key) : name, kind);
+        return new DesktopItem(key, string.IsNullOrWhiteSpace(name) ? DesktopItemKeys.FallbackName(key) : name, kind, (attributes & SfgaoHidden) != 0);
     }
 
     private static string? DisplayName(nint folder, nint child, uint flags)
@@ -264,6 +284,9 @@ internal static unsafe partial class DesktopNamespace
 
     [LibraryImport("shell32.dll")]
     private static partial int SHGetDesktopFolder(nint* folder);
+
+    [LibraryImport("shell32.dll")]
+    private static partial void SHGetSetSettings(uint* state, uint mask, int set);
 
     [LibraryImport("shell32.dll")]
     private static partial int SHGetNameFromIDList(nint pidl, uint form, char** name);

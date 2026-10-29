@@ -82,6 +82,12 @@ internal sealed partial class DesktopWindow
     /// </summary>
     private void RouteLeaseKey(KeyRoutedEventArgs args, KeyPhase phase)
     {
+        if (ReferenceEquals(_host.DesktopKeysSurface, this))
+        {
+            RouteDesktopKey(args, phase);
+            return;
+        }
+
         if (!ReferenceEquals(_host.KeyboardSurface, this) || _host.KeyboardHolder is not { } holder)
         {
             return;
@@ -113,6 +119,14 @@ internal sealed partial class DesktopWindow
     /// </summary>
     private void OnCharacterReceived(UIElement sender, CharacterReceivedRoutedEventArgs args)
     {
+        // [S-5542] Typing on empty desktop that holds the keys finds an item, as on Explorer's desktop.
+        if (!EditMode && !args.Handled && ReferenceEquals(_host.DesktopKeysSurface, this) && !TextHasFocus()
+            && IsDown(Windows.System.VirtualKey.Control) == IsDown(Windows.System.VirtualKey.Menu))
+        {
+            args.Handled = _host.Type(args.Character);
+            return;
+        }
+
         if (EditMode || args.Handled || !ReferenceEquals(_host.KeyboardSurface, this) || _host.KeyboardHolder is not { } holder
             || TextHasFocus() || IsDown(Windows.System.VirtualKey.Control) != IsDown(Windows.System.VirtualKey.Menu))
         {
@@ -225,7 +239,52 @@ internal sealed partial class DesktopWindow
     /// </summary>
     private void ApplyInteractivity()
     {
-        DesktopLayer.Apply(_hwnd, interactive: _host.EditMode || ReferenceEquals(_host.KeyboardSurface, this));
+        DesktopLayer.Apply(_hwnd, interactive: _host.EditMode || ReferenceEquals(_host.KeyboardSurface, this) || ReferenceEquals(_host.DesktopKeysSurface, this));
         ApplyChromeless();
+    }
+
+    /// <summary>
+    /// [S-5550] The empty desktop's hold on the keys came here or went: activatable and the foreground
+    /// window while it holds them, focus on the root so its keys reach <see cref="RouteDesktopKey"/>.
+    /// Returns false when Windows refused the foreground.
+    /// </summary>
+    internal bool DesktopKeysChanged()
+    {
+        if (_closed)
+        {
+            return false;
+        }
+
+        ApplyInteractivity();
+        if (!ReferenceEquals(_host.DesktopKeysSurface, this))
+        {
+            return true;
+        }
+
+        if (Win32.GetForegroundWindow() != _hwnd && !Win32.SetForegroundWindow(_hwnd))
+        {
+            return false;
+        }
+
+        _root.Focus(FocusState.Programmatic);
+        return true;
+    }
+
+    /// <summary>[S-5550] A key while the empty desktop holds them: the desktop's items take it; Escape ends the hold.</summary>
+    private void RouteDesktopKey(KeyRoutedEventArgs args, KeyPhase phase)
+    {
+        var shift = IsDown(Windows.System.VirtualKey.Shift);
+        var key = WidgetKeys.FromVirtualKey((int)args.Key, shift, IsDown(Windows.System.VirtualKey.Control), IsDown(Windows.System.VirtualKey.Menu));
+        switch (LeaseKeyRouting.Decide(phase, key, TextHasFocus()))
+        {
+            case LeaseKeyRoute.EndLease:
+                _host.DesktopKeysEnd(giveBack: true);
+                args.Handled = true;
+                break;
+
+            case LeaseKeyRoute.ToHolder when key is { } widgetKey:
+                args.Handled = _host.Key(widgetKey, shift, widgetId: null);
+                break;
+        }
     }
 }

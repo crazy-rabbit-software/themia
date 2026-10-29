@@ -185,6 +185,12 @@ public partial class App : Application
             return;
         }
 
+        // And a stand-in desktop of item widgets with the band ([S-5544]).
+        if (Shell.Gallery.DesktopRender.TryRunFromCommandLine(this, Environment.GetCommandLineArgs()))
+        {
+            return;
+        }
+
         // And the edit-mode snap grid ([S-06c]).
         if (Shell.Gallery.GridRender.TryRunFromCommandLine(this, Environment.GetCommandLineArgs()))
         {
