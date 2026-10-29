@@ -16,6 +16,7 @@ using Themia.Core.Sync;
 using Themia.Core.Widgets;
 using Themia.Sdk.WinUI;
 using Themia.Sdk;
+using Themia.Sdk.Kit;
 using Themia.Sdk.WinUI.Kit;
 using Themia.Widget.Calendar;
 
@@ -50,12 +51,8 @@ internal sealed partial class CalendarView : Grid, IWidgetView, IWidgetHeaderCon
     private readonly Grid _content = new();
     private readonly KitStatePanel _state;
     private readonly KitHeader _header;
-    private readonly Button _back;
-    private readonly Button _forward;
-    private readonly Button _todayButton;
-    private readonly StackPanel _trailing;
     private readonly List<IDisposable> _hovers = [];
-    private readonly Dictionary<string, Brush> _colorBrushes = new(StringComparer.Ordinal);
+    private bool _navigable;
 
     private IWidgetSurface? _surface;
     private ICalendarData? _data;
@@ -93,22 +90,9 @@ internal sealed partial class CalendarView : Grid, IWidgetView, IWidgetHeaderCon
     public CalendarView(IWidgetHost host)
     {
         _widgetHost = host;
-        _state = new(Glyphs.Calendar, host);
-        // [S-7064] The problem glyph and the ring are the kit's header, before the calendar's own buttons.
-        _header = new KitHeader(host) { Margin = new Thickness(0, 0, Fluent.Space1, 0) };
-
-        // [S-569] Back, forward and today ride on the card's header, as the classic widget's did.
-        _back = NavButton(ChevronLeft, CalendarStr.WidgetsA_Calendar_Previous.Text(), () => Navigate(-1));
-        _forward = NavButton(ChevronRight, CalendarStr.Common_Next.Text(), () => Navigate(1));
-        _todayButton = NavButton(Glyphs.Calendar, CalendarStr.Calendar_Today.Text(), GoToday);
-
-        _trailing = new StackPanel
-        {
-            Orientation = Orientation.Horizontal,
-            Spacing = 0,
-            VerticalAlignment = VerticalAlignment.Center,
-            Children = { _header, _back, _forward, _todayButton },
-        };
+        _state = new(Glyphs.Calendar, host) { Visibility = Visibility.Collapsed };
+        // [S-7064] [S-569] The problem glyph, the ring and back and forward are the kit's header extras.
+        _header = new KitHeader(host);
 
         _agenda = NewAgenda(host);
         Children.Add(_content);
@@ -131,7 +115,7 @@ internal sealed partial class CalendarView : Grid, IWidgetView, IWidgetHeaderCon
     private CalendarStyle Layout => _config.Style;
 
     /// <inheritdoc />
-    public FrameworkElement? HeaderTrailing => _trailing;
+    public FrameworkElement? HeaderTrailing => _header;
 
     public void Bind(IWidgetSurface surface)
     {
@@ -172,13 +156,7 @@ internal sealed partial class CalendarView : Grid, IWidgetView, IWidgetHeaderCon
     }
 
     /// <summary>[S-1109] Names, dates and states are worded again from what is in hand; nothing is refetched.</summary>
-    private void OnLanguage(Locale locale)
-    {
-        ToolTipService.SetToolTip(_back, CalendarStr.WidgetsA_Calendar_Previous.Text());
-        ToolTipService.SetToolTip(_forward, CalendarStr.Common_Next.Text());
-        ToolTipService.SetToolTip(_todayButton, CalendarStr.Calendar_Today.Text());
-        Render();
-    }
+    private void OnLanguage(Locale locale) => Render();
 
     public void ApplyConfig(WidgetConfig config)
     {
@@ -227,7 +205,16 @@ internal sealed partial class CalendarView : Grid, IWidgetView, IWidgetHeaderCon
     }
 
     /// <summary>[S-561] Refresh. [S-3640] The layout is the widget's style, chosen on the strip or the properties menu.</summary>
-    public IReadOnlyList<WidgetAction> ContextActions => [new(Glyphs.Refresh, Themia.Sdk.Kit.KitFreshness.RefreshLabel(Strings.Current, _outcomes, DateTimeOffset.Now), () => _ = RefreshAsync(force: true))];
+    /// <summary>
+    /// [S-569] The card menu: Today while the view is away from it (the header has room for back and
+    /// forward only; the key is T), and Refresh with the age of what is on screen.
+    /// </summary>
+    public IReadOnlyList<WidgetAction> ContextActions
+        => _screen == Screen.Ready && AwayFromToday
+            ? [new(Glyphs.Calendar, CalendarStr.Calendar_Today.Text(), GoToday), Refresh()]
+            : [Refresh()];
+
+    private WidgetAction Refresh() => new(Glyphs.Refresh, Themia.Sdk.Kit.KitFreshness.RefreshLabel(Strings.Current, _outcomes, DateTimeOffset.Now), () => _ = RefreshAsync(force: true));
 
     public void Detach()
     {
@@ -385,7 +372,30 @@ internal sealed partial class CalendarView : Grid, IWidgetView, IWidgetHeaderCon
     private void UpdateHeader()
     {
         var lines = _screen == Screen.Ready ? Themia.Sdk.Kit.KitFreshness.Lines(Strings.Current, _outcomes, DateTimeOffset.Now) : [];
-        _header.Show(lines, _refreshing, _outcomesNeedUser);
+        _header.Show(lines, _refreshing, _outcomesNeedUser, buttons: NavigationButtons());
+    }
+
+    /// <summary>[S-569] Back and forward, on a tile wider than compact; in the agenda only where there is a page that way.</summary>
+    private IReadOnlyList<Themia.Sdk.WinUI.Kit.KitHeaderButton> NavigationButtons()
+    {
+        if (!_navigable || (_area.IsMeasured && _area.WidthClass <= SizeClass.Compact))
+        {
+            return [];
+        }
+
+        var agenda = Layout == CalendarStyle.Agenda;
+        var buttons = new List<Themia.Sdk.WinUI.Kit.KitHeaderButton>(2);
+        if (!agenda || _agendaPage > 0)
+        {
+            buttons.Add(new(ChevronLeft, CalendarStr.WidgetsA_Calendar_Previous.Text(), () => Navigate(-1)));
+        }
+
+        if (!agenda || _agendaPage < _agendaPages - 1)
+        {
+            buttons.Add(new(ChevronRight, CalendarStr.Common_Next.Text(), () => Navigate(1)));
+        }
+
+        return buttons;
     }
 
     // -----------------------------------------------------------------------------------------
@@ -549,12 +559,12 @@ internal sealed partial class CalendarView : Grid, IWidgetView, IWidgetHeaderCon
                 return;
 
             case Screen.AccountsGone:
-                _state.Show(SyncProblems.Message(SyncProblem.NoAccount, SyncSubject.Calendar, Strings.Current), offerAccounts: true);
+                _state.Show(SyncProblems.Message(SyncProblem.NoAccount, SyncSubject.Calendar, Strings.Current), offerAccounts: true, problem: true);
                 ShowNavigation(false);
                 return;
 
             case Screen.Problem:
-                _state.Show(_problemText(), _problemOffersAccounts);
+                _state.Show(_problemText(), _problemOffersAccounts, problem: true);
                 ShowNavigation(false);
                 return;
         }
@@ -598,12 +608,8 @@ internal sealed partial class CalendarView : Grid, IWidgetView, IWidgetHeaderCon
     /// </summary>
     private void ShowNavigation(bool ready)
     {
-        var room = ready && (!_area.IsMeasured || _area.WidthClass > SizeClass.Compact);
-        var agenda = Layout == CalendarStyle.Agenda;
-
-        _back.Visibility = room && (!agenda || _agendaPage > 0) ? Visibility.Visible : Visibility.Collapsed;
-        _forward.Visibility = room && (!agenda || _agendaPage < _agendaPages - 1) ? Visibility.Visible : Visibility.Collapsed;
-        _todayButton.Visibility = room && AwayFromToday ? Visibility.Visible : Visibility.Collapsed;
+        _navigable = ready;
+        UpdateHeader();
     }
 
     private void ClearDrawing()
@@ -628,33 +634,23 @@ internal sealed partial class CalendarView : Grid, IWidgetView, IWidgetHeaderCon
     private bool ShowColors => CalendarRules.ShowColors(_targets, _config.CalendarColors);
 
     /// <summary>[S-566] An event's calendar colour, resolved at draw time so a settings change repaints at once.</summary>
+    /// <summary>[S-566] An event's calendar colour: a data colour ([S-6705]), never a typed one.</summary>
+    private static Brush ColorOf(string hex) => Family.Data(hex);
+
     private Brush ColorOf(CalendarEvent item)
-    {
-        var hex = CalendarRules.ResolveColor(CalendarRules.ColorKey(item.AccountId, item.CalendarId), item.SourceIndex, _config.CalendarColors);
+        => ColorOf(CalendarRules.ResolveColor(CalendarRules.ColorKey(item.AccountId, item.CalendarId), item.SourceIndex, _config.CalendarColors));
 
-        if (!_colorBrushes.TryGetValue(hex, out var brush))
-        {
-            brush = HexColor.TryParse(hex, out var r, out var g, out var b)
-                ? new SolidColorBrush(Windows.UI.Color.FromArgb(255, r, g, b))
-                : ThemeBrush.Of("AccentFillColorDefaultBrush", Colors.DodgerBlue);
-            _colorBrushes[hex] = brush;
-        }
-
-        return brush;
-    }
-
-    /// <summary>[S-566] An item's mark: its calendar's colour when colours show, the accent else, a birthday's caution hue.</summary>
+    /// <summary>
+    /// An item's mark: its calendar's colour where colours are shown, the accent otherwise (a chart's
+    /// role: the mark is a bar or a dot, never a text); a birthday's is the tertiary role (not a state).
+    /// </summary>
     private Brush MarkOf(DayItem item, bool showColors)
         => item.Birthday is not null ? BirthdayBrush() : showColors ? ColorOf(item.Event!) : Accent();
 
-    private static Brush Accent() => ThemeBrush.Of("AccentFillColorDefaultBrush", Colors.DodgerBlue);
+    private static Brush Accent() => Family.Brush(ColourRole.Accent);
 
-    private static Brush BirthdayBrush() => ThemeBrush.Of("SystemFillColorCautionBrush", Colors.Goldenrod);
+    private static Brush BirthdayBrush() => Family.Brush(ColourRole.TextTertiary);
 
-    /// <summary>
-    /// [S-1268] Open an event: a Microsoft one in Outlook for Windows when it is installed, else the
-    /// provider's own page. CalDAV has none, so it only has its tooltip.
-    /// </summary>
     private void Open(CalendarEvent item)
     {
         ProviderId? provider = _providers.TryGetValue(item.AccountId, out var known) ? known : null;
@@ -781,23 +777,4 @@ internal sealed partial class CalendarView : Grid, IWidgetView, IWidgetHeaderCon
     }
 
     private static string Clock(DateTimeOffset moment) => Formatting.Clock24(moment);
-
-    private static Button NavButton(string glyph, string tooltip, Action click)
-    {
-        var button = new Button
-        {
-            Content = UiLanguage.Mirrored(new FontIcon { Glyph = glyph, FontSize = FluentType.Caption.FontSize }),
-            Padding = new Thickness(Fluent.Space1 + 2, Fluent.Space1, Fluent.Space1 + 2, Fluent.Space1),
-            MinWidth = 0,
-            MinHeight = 0,
-            Background = ThemeBrush.Of("SubtleFillColorTransparentBrush", Colors.Transparent),
-            BorderThickness = new Thickness(0),
-            CornerRadius = new CornerRadius(Fluent.ControlRadius),
-            VerticalAlignment = VerticalAlignment.Center,
-        };
-
-        ToolTipService.SetToolTip(button, tooltip);
-        button.Click += (_, _) => click();
-        return button;
-    }
 }

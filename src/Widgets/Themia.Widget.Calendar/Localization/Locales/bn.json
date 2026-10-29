@@ -27,5 +27,6 @@
   "widgetsA.calendar.settings.weekFrom.label": "শুরু হয়",
   "widgetsA.calendar.settings.weekFrom.weekStart": "সপ্তাহের প্রথম দিন ({day})",
   "widgetsA.calendar.spanWithLength": "{from}–{to} ({length})",
-  "widgetsA.clock.date": "{weekday}, {date}"
+  "widgetsA.clock.date": "{weekday}, {date}",
+  "calendar.setup.sentence": "আপনার ক্যালেন্ডার দেখাতে একটি অ্যাকাউন্ট যোগ করুন"
 }

@@ -31,5 +31,6 @@
   "widgetsA.calendar.settings.weekFrom.label": "يبدأ في",
   "widgetsA.calendar.settings.weekFrom.weekStart": "أول يوم في الأسبوع ({day})",
   "widgetsA.calendar.spanWithLength": "{from}–{to} ({length})",
-  "widgetsA.clock.date": "{weekday}، {date}"
+  "widgetsA.clock.date": "{weekday}، {date}",
+  "calendar.setup.sentence": "أضف حسابًا لعرض تقويمك"
 }

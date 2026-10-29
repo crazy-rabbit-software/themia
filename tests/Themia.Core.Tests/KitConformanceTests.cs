@@ -27,7 +27,7 @@ public sealed partial class KitConformanceTests
     /// </summary>
     private static readonly string[] LiteralColourToday =
     [
-        "CalendarView.cs", "ContactsView.cs", "ItemPalette.cs", "MarkdownEditor.cs",
+        "ContactsView.cs", "ItemPalette.cs", "MarkdownEditor.cs",
         "MusicView.Layout.cs", "ScratchpadView.cs", "ScreenTimeShared.cs", "SelectionChrome.cs", "StocksView.cs", "WeekPlannerView.cs",
     ];
 

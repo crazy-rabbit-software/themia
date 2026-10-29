@@ -26,5 +26,6 @@
   "widgetsA.calendar.settings.weekFrom.label": "Dimulai pada",
   "widgetsA.calendar.settings.weekFrom.weekStart": "Hari pertama dalam minggu ({day})",
   "widgetsA.calendar.spanWithLength": "{from}–{to} ({length})",
-  "widgetsA.clock.date": "{weekday}, {date}"
+  "widgetsA.clock.date": "{weekday}, {date}",
+  "calendar.setup.sentence": "Tambahkan akun untuk menampilkan kalender Anda"
 }

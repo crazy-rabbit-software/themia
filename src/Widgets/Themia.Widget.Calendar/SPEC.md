@@ -17,17 +17,17 @@ languages). Tests: the rules' are Core's; the config's are the module host's (`C
 `OfficeConfigTests`); the agenda's items are `Tests/AgendaSpecTests.cs`; the menu's `Tests/CalendarMenuTests.cs`.
 
 - **[S-3650]** The agenda is the kit's paged list ([S-7035], [S-7036]): `AgendaSpec` gives its spec
-  (the schedule look, two columns at most, the widest time labels "All day", "Now" and a clock) and
-  an agenda row as a kit item: its day group (the selected day's in the accent, [S-3622]), an
+  (the schedule look on the family's rows, two columns at most) and an agenda row as a kit item: its
+  day group (the selected day's heading primary, [S-3622]), an
   event's part on the day ("All day" between a long event's first and last day, "Now" in the strong
   step while it is under way, start over end, the span for a narrow row), where and who, the
-  calendar's colour when colours show; a birthday its gift in the caution hue, its name and
-  "Birthday". The view pages it with its header arrows and keys and hooks each event's row for its
+  calendar's colour (a 2 px bar) when colours show; a birthday its gift (neutral: not a state), its
+  name and "Birthday". The view pages it with its header arrows and keys and hooks each event's row for its
   tooltip, its links across widgets and the click that opens it.
 - **[S-3651]** The calendar's one stale rule ([S-7042]): each account whose last sync could not improve
   on the events held is a kit outcome (`CalendarFreshness`: its label, its problem in the kit's
   failure vocabulary, `SyncProblems.ToFetchStatus`, when its events are from); the header's problem
-  glyph and ring are `KitHeader` before the calendar's own back, forward and today buttons, in every
+  glyph and ring are `KitHeader`'s, its two header buttons back and forward ([S-569]), in every
   style; the card menu's Refresh line says the age of the oldest copy.
 - **[S-3652]** The agenda's one open gesture ([S-7065]): a click focuses a row (the ring), a
   double-click or Enter opens its event where it lives ([S-1268]); a row's menu offers Open; a birthday
@@ -35,6 +35,12 @@ languages). Tests: the rules' are Core's; the config's are the module host's (`C
   Enter, the Menu key; with nothing focused a key lands on the page on screen, and the cursor turns
   the page with it); Left, Right, Page Up and Page Down page, Home goes to today, Escape lets the
   cursor and the selected day go. The other styles keep their click and Enter ([S-2710]).
+- **[S-3653]** The calendar is drawn from the family's tokens only (G2, 2026-10-29): every grid inside
+  the card's 16 inset, Caption and Body texts at their own lines, today's accent pill or disc, the
+  marks as 2 px bars, 4 dots or fills in the calendar's data colour (`Family.Data`), the accent never
+  on a text, the one radius, spacings and paddings on the 4 scale; the states are the kit's state row
+  (a problem's warning, the Accounts button); with no account the Set up row says "Add an account to
+  show your calendar" ([S-1862]).
 - **[S-7513]** Its options are on the properties menu ([S-3719], user request 2026-10-19; the
   settings page is gone). Under Style only what the style uses ([S-3601]): the week's **Starts on**
   (the first day of the week, named, or Today) and **Days shown** (1 to 14, dots); the agenda's

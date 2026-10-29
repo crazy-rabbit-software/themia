@@ -27,5 +27,6 @@
   "widgetsA.calendar.settings.weekFrom.label": "Başlangıç",
   "widgetsA.calendar.settings.weekFrom.weekStart": "Haftanın ilk günü ({day})",
   "widgetsA.calendar.spanWithLength": "{from}–{to} ({length})",
-  "widgetsA.clock.date": "{weekday}, {date}"
+  "widgetsA.clock.date": "{weekday}, {date}",
+  "calendar.setup.sentence": "Takviminizi görmek için bir hesap ekleyin"
 }

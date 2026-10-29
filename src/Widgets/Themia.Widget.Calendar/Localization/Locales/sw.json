@@ -27,5 +27,6 @@
   "widgetsA.calendar.settings.weekFrom.label": "Inaanza",
   "widgetsA.calendar.settings.weekFrom.weekStart": "Siku ya kwanza ya wiki ({day})",
   "widgetsA.calendar.spanWithLength": "{from}–{to} ({length})",
-  "widgetsA.clock.date": "{weekday}, {date}"
+  "widgetsA.clock.date": "{weekday}, {date}",
+  "calendar.setup.sentence": "Ongeza akaunti ili kuonyesha kalenda yako"
 }

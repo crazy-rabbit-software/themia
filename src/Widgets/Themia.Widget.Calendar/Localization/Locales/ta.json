@@ -27,5 +27,6 @@
   "widgetsA.calendar.settings.weekFrom.label": "தொடக்கம்",
   "widgetsA.calendar.settings.weekFrom.weekStart": "வாரத்தின் முதல் நாள் ({day})",
   "widgetsA.calendar.spanWithLength": "{from}–{to} ({length})",
-  "widgetsA.clock.date": "{weekday}, {date}"
+  "widgetsA.clock.date": "{weekday}, {date}",
+  "calendar.setup.sentence": "உங்கள் நாட்காட்டியைக் காட்ட ஒரு கணக்கைச் சேர்க்கவும்"
 }

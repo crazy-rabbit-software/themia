@@ -29,5 +29,6 @@
   "widgetsA.calendar.settings.weekFrom.label": "Начало",
   "widgetsA.calendar.settings.weekFrom.weekStart": "Первый день недели ({day})",
   "widgetsA.calendar.spanWithLength": "{from}–{to} ({length})",
-  "widgetsA.clock.date": "{weekday}, {date}"
+  "widgetsA.clock.date": "{weekday}, {date}",
+  "calendar.setup.sentence": "Добавьте учётную запись, чтобы видеть календарь"
 }

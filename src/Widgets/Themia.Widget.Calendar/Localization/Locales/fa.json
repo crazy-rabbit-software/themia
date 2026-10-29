@@ -27,5 +27,6 @@
   "widgetsA.calendar.settings.weekFrom.label": "شروع از",
   "widgetsA.calendar.settings.weekFrom.weekStart": "نخستین روز هفته ({day})",
   "widgetsA.calendar.spanWithLength": "{from}–{to} ({length})",
-  "widgetsA.clock.date": "{weekday}، {date}"
+  "widgetsA.clock.date": "{weekday}، {date}",
+  "calendar.setup.sentence": "برای نمایش تقویمتان یک حساب اضافه کنید"
 }

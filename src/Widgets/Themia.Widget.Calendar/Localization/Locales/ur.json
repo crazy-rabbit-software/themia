@@ -27,5 +27,6 @@
   "widgetsA.calendar.settings.weekFrom.label": "آغاز",
   "widgetsA.calendar.settings.weekFrom.weekStart": "ہفتے کا پہلا دن ({day})",
   "widgetsA.calendar.spanWithLength": "{from}–{to} ({length})",
-  "widgetsA.clock.date": "{weekday}، {date}"
+  "widgetsA.clock.date": "{weekday}، {date}",
+  "calendar.setup.sentence": "اپنا کیلنڈر دکھانے کے لیے اکاؤنٹ شامل کریں"
 }

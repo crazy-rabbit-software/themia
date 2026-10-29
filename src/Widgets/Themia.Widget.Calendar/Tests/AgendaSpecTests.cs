@@ -51,7 +51,9 @@ public sealed class AgendaSpecTests
         Assert.Null(item.Schedule!.Start);
         Assert.NotNull(item.Schedule.Note);
         Assert.Equal(nameof(KitIcon.Gift), item.Lead.Value);
-        Assert.Equal(KitTone.Caution, item.Tone);
+        // A birthday is not a state: neither its gift nor its row takes the caution colour (DECISIONS 6).
+        Assert.Equal(KitTone.Neutral, item.Tone);
+        Assert.Equal(KitTone.Neutral, item.Lead.Tone);
     }
 
     /// <summary>[S-3652] [S-7065] An event's row opens on a double-click or Enter, through the view (Outlook or the provider's page); a birthday opens nothing.</summary>

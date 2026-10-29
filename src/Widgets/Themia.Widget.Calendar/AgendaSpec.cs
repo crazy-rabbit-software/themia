@@ -30,8 +30,7 @@ public static class AgendaSpec
             return new KitItem(
                 $"{group.Key}|birthday|{b.Name}",
                 BirthdayRules.Label(b, day),
-                Lead: new KitLead(KitLeadKind.Icon, nameof(KitIcon.Gift), KitTone.Caution),
-                Tone: KitTone.Caution,
+                Lead: new KitLead(KitLeadKind.Icon, nameof(KitIcon.Gift)),
                 Group: group,
                 Schedule: new KitSchedule(null, Note: CalendarStr.WidgetsA_Calendar_Birthday.Text()));
         }

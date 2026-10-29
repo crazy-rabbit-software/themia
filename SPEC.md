@@ -3588,20 +3588,24 @@ hub. Pure rules in `Themia.Core/Office` (tested), one shared source in `Services
   "28 Sep – 4 Oct", "Sun 4 Oct", "2026"; a one-day week reads like a day); the agenda's is the
   widget's name.
 - **[S-569]** Back / forward step a month (day clamped), the week's period ([S-2719]), day or year (29 Feb clamped); the
-  agenda pages its rows ([S-2709]). A today button shows when today is off screen (the agenda: past
-  its first page). The widget follows today across midnight until the user pages away.
+  agenda pages its rows ([S-2709]). They are the header's two buttons ([S-7064], 24 with 16 glyphs;
+  a narrow header folds them from the last). Today is the card menu's line while today is off
+  screen (the agenda: past its first page) and the T key, no third header button (the header holds
+  two). The widget follows today across midnight until the user pages away.
 - **[S-570]** A day lists birthdays, then all-day events, then timed ones by start; an all-day
   event covers [first, end); a timed one shows on every local day it overlaps.
 - **[S-571]** Agenda: grouped by day ("Today", "Tomorrow", "Mon 5 Oct"; [S-2716]), at most `agendaCount`
   entries within its date range ([S-3636]); an event spanning several days is listed under each day it covers (classic #155), one
   still running from before from today on; timed events already over are left out. A timed event's
-  row shows that day's part of it (18:00–00:00, "All day" for a day it covers whole, 00:00–10:00). Rows: time column (start over end, "All day", "Now"), title, location · organizer; on a
-  tile under 260 px the time folds under the title. The time column is as wide as its widest label
-  in the current language (at least 52 px, at most 35% of the row; a longer word label trims), so
-  "Toute la journée" or "طوال اليوم" is not cut.
-- **[S-572]** Month cells: chips (title, coloured edge) as many as fit, the overflow as "+N" beside
-  the day number; on smaller cells up to three dots (two in narrow cells) plus a muted one; on the
-  smallest the number alone, strong when the day has something. Today is an accent disc.
+  row shows that day's part of it (18:00–00:00, "All day" for a day it covers whole, 00:00–10:00).
+  Rows are the kit's schedule look ([S-7036]): the title, the start as the value ("All day", "Now"
+  strong while under way), the span, place and organizer on the second line where the tile gives two.
+- **[S-572]** Month cells (the family's tokens, [S-6703]): chips (Caption on the item layer's chip fill,
+  the item's mark as a 2 px bar at the start, the one radius, lanes 4 apart) as many as fit, the
+  overflow as "+N" beside the day number; on smaller cells up to three dots (4, 4 apart; two in narrow
+  cells) plus a muted one; on the smallest the number alone, strong when the day has something.
+  Today is the accent's round pill under its number. A birthday's mark is the tertiary role, never
+  the caution colour (it is not a state).
 - **[S-573]** Day: an all-day band (all-day and multi-day events, birthdays, as span bars, [S-2718])
   and a timeline of the hours that fit ([S-2705]), overlapping events in side-by-side lanes. Not scrolled.
 - **[S-574]** *(Retired: a layout never falls back to another, [S-2700].)*
@@ -4445,13 +4449,13 @@ partial per layout), `CalendarData.cs` (the data seam), `ContactsView.cs`.
 - **[S-1262]** *(Retired: the strip of days on a wide tile, [S-2700].)*
 - **[S-1263]** *(Retired: the month with the agenda below or beside it, [S-2700].)*
 - **[S-1264]** Month: weekday names ("Mon") from 64 px columns; chips lead with their start time from
-  100 px cells (classic S-44); chips get a 20 px line in cells ≥90 tall; only the weeks holding a day
-  of the month are drawn (4–6 rows) at every size.
+  100 px cells (classic S-44); a chip line is a Caption line and 4 under it at every size; only the
+  weeks holding a day of the month are drawn (4–6 rows), all of them where every week's number line
+  fits, else the weeks that fit around today ([S-2702]).
 - **[S-1266]** *(Retired: 32/40 px hours on a scrolled timeline, [S-2705].)* A timeline block of three
   caption lines adds a "location · organizer" line; one of a single line keeps the title only.
 - **[S-1267]** Agenda: under 128 tall the first page's "Today" heading is dropped (any other day keeps
-  its heading); at ≥480 px a row puts location and organizer in columns beside the title; at ≥720 px
-  each page fills two columns, one after the other.
+  its heading); at ≥720 px each page fills two columns, one after the other.
 - **[S-1268]** Opening an event: a Microsoft account's event opens `ms-outlook://events/{id}` when
   Outlook's protocol is registered (one cached check shared with Mail, `ShellLauncher.OutlookInstalled`),
   else the provider's https page; the provider comes from the event's account, never the link's
@@ -4461,10 +4465,14 @@ partial per layout), `CalendarData.cs` (the data seam), `ContactsView.cs`.
 - **[S-2701]** The view reads its data through one seam, `ICalendarData.LoadAsync(config, first,
   last)`, for exactly the range its layout covers ([S-568]): the live one wraps the shared office
   source; the render's fixture is another ([S-2711]).
-- **[S-2702]** Month (`CalendarFit.Month`): weekday header as names (≥64 px columns), two-letter
-  initials (≥22), one letter (≥10), and dropped when the cells would be shorter than a number's line
-  under it; then cells of chips (≥40 × 34), dots (≥24 tall) or the number alone, with its dots beside it from 48 px columns (Wide). XS: numbers only, their line box shrunk to the row;
-  S: initials over numbers; M: one chip line; Tall: dots; L: three chip lines; XL: four, with times.
+- **[S-2702]** Month (`CalendarFit.Month`), inside the card's 16 inset: weekday header as names (≥64 px
+  columns), two-letter initials (≥22), one letter (≥10), dropped where it and every week's number line
+  (a Caption line, never squeezed) do not fit; a box too short for every week shows the weeks that fit,
+  today's among them (`FirstRow`); then cells of chips (40 wide, holding the 4 padding, the number and a
+  chip line), dots (the number and a dot) or the number alone, with its dots beside it from 48 px
+  columns (Wide). A column too narrow for a two-digit number (`CalendarFit.HoldsDays`: XS) shows no
+  grid: the day the view is on as a Readout, its weekday under it (a week does the same). XS: the day;
+  S: every week's numbers; M: dots under initials; Tall: dots; L: two chip lines; XL: three, with times.
 - **[S-2703]** Bars (`CalendarFit.Bars`): in a month row every item is a one-line chip, and in the
   week's band every all-day or multi-day event and birthday; an event over several days is one bar
   across them, squared off where it runs past the row. Lines are packed from the first column, the
@@ -4484,9 +4492,10 @@ partial per layout), `CalendarData.cs` (the data seam), `ContactsView.cs`.
 - **[S-2707]** Year (`CalendarFit.Year`): twelve small months in the arrangement of 4×3, 3×4, 6×2,
   2×6, 12×1 or 1×12 with the largest day cell, preferring cells that hold numbers (a caption line)
   and then a weekday row; under 4 px it falls back to 6, 4, 3, 2 or 1 months around the current one
-  (`FirstMonth`, inside the year). Number cells: today the accent disc, a day with something a strong
-  number over a stripe of its first item's colour. Square cells: filled with that colour, today
-  ringed. Every day's items on hover. XS shows three months, S six, the rest twelve.
+  (`FirstMonth`, inside the year). The current month's name is primary, the others secondary (never
+  the accent). Number cells: today the accent disc, a day with something a strong number over a
+  2 px stripe of its first item's colour, the selected day ringed (a hairline). Square cells: filled
+  with that colour, today ringed. Every day's items on hover. XS shows two months, the rest twelve.
 - **[S-2709]** Agenda pages (`CalendarFit.AgendaPages`): whole rows of one height per render (a
   wrapped title's second line aside, [S-2717]), a day's heading before its first row and again atop a
   column that starts mid-day; pages fill the columns in turn and always advance. Back / forward show
@@ -4501,13 +4510,13 @@ partial per layout), `CalendarData.cs` (the data seam), `ContactsView.cs`.
   dated heading the language writes (every weekday and month, `AgendaHeadingDated`), the two named
   days carry their date too ("Today · Sun, Oct 4"); else the word alone (concise first), so the
   date never comes and goes with the day of the week.
-- **[S-2717]** Long titles wrap: an agenda row's title, a week column's chip and a timeline block
-  take a second line where a title runs past its one (word wrap, an ellipsis after the second). A
-  list is fitted at one title line a row first, so a wrap never costs an event its place; what is
-  left under the column (less the "+N" line) goes to the wrapping titles in order, one line each
-  (`CalendarFit.SecondLines`). A timeline block spends its whole caption lines on the title, its
-  time, the title's second line, then where and who (`CalendarFit.BlockParts`). Month and band
-  chips stay one line.
+- **[S-2717]** Long titles wrap: a week column's chip and a timeline block take a second line where a
+  title runs past its one (word wrap, an ellipsis after the second). A list is fitted at one title
+  line a row first, so a wrap never costs an event its place; what is left under the column (less
+  the "+N" line) goes to the wrapping titles in order, one line each (`Disclosure.SecondLines`). A
+  timeline block spends its whole caption lines on the title, its time, the title's second line,
+  then where and who (`CalendarFit.BlockParts`). Month and band chips and the agenda's rows stay one
+  line ([S-7036]).
 - **[S-2718]** The day's all-day band (`CalendarFit.DayBand`): each all-day or multi-day item and
   birthday is a full-width span bar a body line tall (with room around it), up to three, as long as
   the timeline keeps three hours. Its colour runs along the leading edge; an item that began before

@@ -10,7 +10,9 @@ using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Office;
 using Themia.Core.Widgets;
+using Themia.Sdk.Kit;
 using Themia.Sdk.WinUI;
+using Themia.Sdk.WinUI.Kit;
 
 namespace Themia.App.Widgets;
 
@@ -24,9 +26,9 @@ internal sealed partial class CalendarView
 {
     private void DrawYear(double width, double height)
     {
-        var gap = Fluent.Space2;
-        var inner = new WidgetArea(width, height).Deflate(Fluent.Space2, 0);
-        var fit = CalendarFit.Year(inner.Width, Math.Max(0, inner.Height - Fluent.Space1), gap);
+        var gap = FamilySpace.S2;
+        var inner = new WidgetArea(width, height).Deflate(FamilySpace.Inset, 0);
+        var fit = CalendarFit.Year(inner.Width, Math.Max(0, inner.Height - FamilySpace.Inset), gap);
         var start = _config.EffectiveWeekStart;
         var today = Today;
         var firstMonth = CalendarFit.FirstMonth(_anchor, fit.Months);
@@ -37,7 +39,7 @@ internal sealed partial class CalendarView
 
         var grid = new Grid
         {
-            Padding = new Thickness(Fluent.Space2, 0, Fluent.Space2, Fluent.Space1),
+            Padding = new Thickness(FamilySpace.Inset, 0, FamilySpace.Inset, FamilySpace.Inset),
             ColumnSpacing = gap,
             RowSpacing = gap,
         };
@@ -81,11 +83,11 @@ internal sealed partial class CalendarView
         bool showColors)
     {
         var current = today.Year == year && today.Month == month;
-        var stack = new StackPanel { Spacing = 0, HorizontalAlignment = HorizontalAlignment.Center, VerticalAlignment = VerticalAlignment.Top };
+        var stack = new StackPanel { HorizontalAlignment = HorizontalAlignment.Center, VerticalAlignment = VerticalAlignment.Top };
 
-        var name = Fluent.Text(FluentType.Strong(FluentType.Caption), current ? "AccentTextFillColorPrimaryBrush" : "TextFillColorSecondaryBrush");
-        name.Text = LocaleFormat.MonthName(Strings.Current, month, nameWidth);
-        name.Margin = new Thickness(fit.Numbers ? 2 : 0, 0, 0, 0);
+        // The month on view's name is primary (the accent never colours a text), the others secondary.
+        var name = Family.Text(FamilyType.Caption, current ? ColourRole.TextPrimary : ColourRole.TextSecondary, LocaleFormat.MonthName(Strings.Current, month, nameWidth));
+        name.FontWeight = FontWeights.SemiBold;
         stack.Children.Add(name);
 
         var cell = Math.Floor(fit.DayCell);
@@ -102,7 +104,7 @@ internal sealed partial class CalendarView
             var order = CalendarRules.WeekdayOrder(start);
             for (var c = 0; c < 7; c++)
             {
-                var letter = Fluent.Text(FluentType.Caption, "TextFillColorTertiaryBrush");
+                var letter = Family.Text(FamilyType.Caption, ColourRole.TextTertiary);
                 letter.Text = WeekdayText(order[c], WeekdayLabel.Narrow);
                 letter.TextTrimming = TextTrimming.None;
                 letter.HorizontalAlignment = HorizontalAlignment.Center;
@@ -153,73 +155,42 @@ internal sealed partial class CalendarView
     /// <summary>A day with its number: today the accent disc, a day with something a strong number over a stripe of its first item's colour.</summary>
     private Border YearNumber(DateOnly day, bool isToday, bool isSelected, IReadOnlyList<DayItem> items, double cell, bool showColors)
     {
-        var number = Fluent.Text(FluentType.Caption, isToday ? "TextOnAccentFillColorPrimaryBrush" : "TextFillColorPrimaryBrush");
-        number.Text = day.Day.ToString(CultureInfo.InvariantCulture);
+        var number = Family.Text(FamilyType.Caption, isToday ? ColourRole.TextOnAccent : ColourRole.TextPrimary, day.Day.ToString(CultureInfo.InvariantCulture));
         number.TextTrimming = TextTrimming.None;
         number.HorizontalAlignment = HorizontalAlignment.Center;
         number.VerticalAlignment = VerticalAlignment.Center;
-        Typography.SetNumeralAlignment(number, FontNumeralAlignment.Tabular);
 
         if (items.Count > 0)
         {
             number.FontWeight = FontWeights.SemiBold;
         }
 
-        // [S-3620] The selected day is ringed: in the accent, or the text colour round today's disc.
-        // A day with something keeps its stripe, shortened to sit inside the ring under the number.
-        if (isSelected)
-        {
-            var face = new Grid { Children = { number } };
-            if (items.Count > 0 && !isToday)
-            {
-                face.Children.Add(new Border
-                {
-                    Height = 2,
-                    Width = Math.Max(4, Math.Floor((cell - 1) / 2)),
-                    HorizontalAlignment = HorizontalAlignment.Center,
-                    VerticalAlignment = VerticalAlignment.Bottom,
-                    Margin = new Thickness(0, 0, 0, Math.Max(1, Math.Floor(cell / 8))),
-                    Background = MarkOf(items[0], showColors),
-                });
-            }
-
-            return new Border
-            {
-                Child = face,
-                Width = cell - 1,
-                Height = cell - 1,
-                CornerRadius = new CornerRadius((cell - 1) / 2),
-                Background = isToday ? Accent() : ThemeBrush.Of("SubtleFillColorTransparentBrush", Colors.Transparent),
-                BorderThickness = new Thickness(1),
-                BorderBrush = isToday ? ThemeBrush.Of("TextFillColorPrimaryBrush", Colors.White) : Accent(),
-            };
-        }
-
+        // [S-3620] The selected day is ringed (a hairline): in the accent, or the text colour round today's disc.
+        var marked = items.Count > 0 && !isToday && !isSelected;
         return new Border
         {
             Child = number,
-            Width = cell - 1,
-            Height = cell - 1,
-            CornerRadius = new CornerRadius(isToday ? (cell - 1) / 2 : 0),
-            Background = isToday ? Accent() : ThemeBrush.Of("SubtleFillColorTransparentBrush", Colors.Transparent),
-            BorderThickness = new Thickness(0, 0, 0, items.Count > 0 && !isToday ? 2 : 0),
-            BorderBrush = items.Count > 0 ? MarkOf(items[0], showColors) : null,
+            Width = cell,
+            Height = cell,
+            CornerRadius = isToday || isSelected ? Family.Round(cell, cell) : new CornerRadius(0),
+            Background = isToday ? Accent() : Family.Brush(ColourRole.Clear),
+            BorderThickness = isSelected ? new Thickness(FamilyShape.Hairline) : new Thickness(0, 0, 0, marked ? FamilyShape.Stroke : 0),
+            BorderBrush = isSelected ? (isToday ? Family.Brush(ColourRole.TextPrimary) : Accent()) : marked ? MarkOf(items[0], showColors) : null,
         };
     }
 
     /// <summary>A day too small for its number: a square, filled with its first item's colour when it has something, today ringed.</summary>
     private Border YearSquare(bool isToday, bool isSelected, IReadOnlyList<DayItem> items, double cell, bool showColors)
     {
-        var side = Math.Max(2, cell - 1);
+        var side = Math.Max(FamilyShape.Stroke, cell - FamilyShape.Hairline);
         var ring = isToday || isSelected;
         var square = new Border
         {
             Width = side,
             Height = side,
-            CornerRadius = new CornerRadius(Math.Min(2, side / 4)),
             Background = items.Count > 0 ? MarkOf(items[0], showColors) : null,
-            BorderThickness = new Thickness(ring ? Math.Max(1, Math.Floor(side / 5)) : 0),
-            BorderBrush = isSelected ? Accent() : isToday ? ThemeBrush.Of("TextFillColorPrimaryBrush", Colors.White) : null,
+            BorderThickness = new Thickness(ring ? (side >= 10 ? FamilyShape.Stroke : FamilyShape.Hairline) : 0),
+            BorderBrush = isSelected ? Accent() : isToday ? Family.Brush(ColourRole.TextPrimary) : null,
         };
 
         // [S-6513] An empty day is a chip of the item layer; a day with something is its colour.

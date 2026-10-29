@@ -26,5 +26,6 @@
   "widgetsA.calendar.settings.weekFrom.label": "开始于",
   "widgetsA.calendar.settings.weekFrom.weekStart": "一周的第一天（{day}）",
   "widgetsA.calendar.spanWithLength": "{from}–{to}（{length}）",
-  "widgetsA.clock.date": "{date} {weekday}"
+  "widgetsA.clock.date": "{date} {weekday}",
+  "calendar.setup.sentence": "添加帐户以显示你的日历"
 }

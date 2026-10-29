@@ -9,7 +9,9 @@ using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Office;
 using Themia.Core.Widgets;
+using Themia.Sdk.Kit;
 using Themia.Sdk.WinUI;
+using Themia.Sdk.WinUI.Kit;
 using Themia.Widget.Calendar;
 
 namespace Themia.App.Widgets;
@@ -34,17 +36,17 @@ internal sealed partial class CalendarView
         var timed = items.Where(i => i.Event is { AllDay: false } e && !CalendarFit.IsMultiDay(e, zone)).Select(i => i.Event!).ToList();
 
         // [S-2718] The band's bars first, as many as leave the timeline its hours; the hours take the rest.
-        var room = new Disclosure(width, Math.Max(0, height - Fluent.Space1));
+        var room = new Disclosure(width, Math.Max(0, height - FamilySpace.Inset));
         var band = CalendarFit.DayBand(room.Remaining, allDay.Count);
         if (band.Lines > 0)
         {
-            room.Reserve((band.Lines * band.LineHeight) + Fluent.Space1);
+            room.Reserve((band.Lines * band.LineHeight) + FamilySpace.S1);
         }
 
         var gutter = width >= HourLabelsLongFrom ? HourLabelWidth : HourLabelNarrowWidth;
-        var timelineWidth = Math.Max(0, width - gutter - Fluent.Space2);
+        var timelineWidth = Math.Max(0, width - gutter - (2 * FamilySpace.Inset));
 
-        var root = new Grid { Padding = new Thickness(0, 0, Fluent.Space2, Fluent.Space1) };
+        var root = new Grid { Padding = new Thickness(FamilySpace.Inset, 0, FamilySpace.Inset, FamilySpace.Inset) };
         root.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
         root.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
         root.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(gutter) });
@@ -74,7 +76,7 @@ internal sealed partial class CalendarView
 
         if (items.Count == 0)
         {
-            var none = Fluent.Text(FluentType.Body, "TextFillColorSecondaryBrush");
+            var none = Family.Text(FamilyType.Body, ColourRole.TextSecondary);
             none.Text = (day == Today ? CalendarStr.Calendar_NoEventsToday : CalendarStr.WidgetsA_Calendar_NoEvents).Text();
             none.HorizontalAlignment = HorizontalAlignment.Center;
             none.VerticalAlignment = VerticalAlignment.Center;
@@ -92,7 +94,7 @@ internal sealed partial class CalendarView
     /// </summary>
     private StackPanel DayBand(IReadOnlyList<DayItem> allDay, DateOnly day, double width, DayBandFit band, bool showColors)
     {
-        var stack = new StackPanel { Spacing = 0, Margin = new Thickness(0, 0, 0, Fluent.Space1) };
+        var stack = new StackPanel { Margin = new Thickness(0, 0, 0, FamilySpace.S1) };
         SetColumn(stack, 1);
 
         var own = band.SharedLast ? band.Lines - 1 : band.Lines;
@@ -119,15 +121,15 @@ internal sealed partial class CalendarView
         var zone = TimeZoneInfo.Local;
         var before = item.Event is { } ev && CalendarRules.StartDay(ev, zone) < day;
         var after = item.Event is { } ev2 && CalendarFit.LastDay(ev2, zone) > day;
-        var radius = Fluent.ControlRadius;
+        var radius = FamilyShape.Radius;
 
-        var body = new Grid { ColumnSpacing = Fluent.Space1, VerticalAlignment = VerticalAlignment.Center };
+        var body = new Grid { ColumnSpacing = FamilySpace.S1, VerticalAlignment = VerticalAlignment.Center };
         body.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
         body.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
         body.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
         body.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
 
-        var title = Fluent.Text(FluentType.Body);
+        var title = Family.Text(FamilyType.Body);
         title.VerticalAlignment = VerticalAlignment.Center;
         SetColumn(title, 1);
         body.Children.Add(title);
@@ -145,11 +147,11 @@ internal sealed partial class CalendarView
         var bar = new Border
         {
             Child = body,
-            Height = lineHeight - 2,
-            Margin = new Thickness(0, 0, 0, 2),
-            Padding = new Thickness(Fluent.Space2, 0, Fluent.Space2, 0),
+            Height = lineHeight - FamilySpace.S1,
+            Margin = new Thickness(0, 0, 0, FamilySpace.S1),
+            Padding = new Thickness(FamilySpace.S2, 0, FamilySpace.S2, 0),
             CornerRadius = new CornerRadius(before ? 0 : radius, after ? 0 : radius, after ? 0 : radius, before ? 0 : radius),
-            BorderThickness = new Thickness(before ? 0 : 3, 0, 0, 0),
+            BorderThickness = new Thickness(before ? 0 : FamilyShape.Stroke, 0, 0, 0),
             BorderBrush = MarkOf(item, showColors),
         };
         ItemFill.Paint(bar, ItemRole.Chip);
@@ -167,7 +169,7 @@ internal sealed partial class CalendarView
         // The days of a span, where the bar has room for them beside the title.
         if (width >= SpanDatesFrom && CalendarFit.IsMultiDay(e, zone))
         {
-            var dates = Fluent.Text(FluentType.Caption, "TextFillColorTertiaryBrush");
+            var dates = Family.Text(FamilyType.Caption, ColourRole.TextTertiary);
             dates.Text = CalendarRules.Range(CalendarRules.StartDay(e, zone), CalendarFit.LastDay(e, zone), Strings.Current);
             dates.TextTrimming = TextTrimming.None;
             dates.VerticalAlignment = VerticalAlignment.Center;
@@ -186,8 +188,8 @@ internal sealed partial class CalendarView
         var icon = UiLanguage.Mirrored(new FontIcon
         {
             Glyph = glyph,
-            FontSize = FluentType.Caption.FontSize,
-            Foreground = ThemeBrush.Of("TextFillColorTertiaryBrush", Colors.Gray),
+            FontSize = FamilyShape.Icon,
+            Foreground = Family.Brush(ColourRole.TextTertiary),
             VerticalAlignment = VerticalAlignment.Center,
         });
         SetColumn(icon, column);
@@ -201,10 +203,10 @@ internal sealed partial class CalendarView
     private Grid SharedBandLine(IReadOnlyList<DayItem> allDay, DateOnly day, double width, double lineHeight, bool showColors)
     {
         const double MinChip = 56;
-        var fits = Math.Max(1, (int)Math.Floor((width + Fluent.Space1) / (MinChip + Fluent.Space1)));
+        var fits = Math.Max(1, (int)Math.Floor((width + FamilySpace.S1) / (MinChip + FamilySpace.S1)));
         var shown = allDay.Count <= fits ? allDay.Count : Math.Max(1, fits - 1);
 
-        var bar = new Grid { ColumnSpacing = Fluent.Space1, Height = lineHeight };
+        var bar = new Grid { ColumnSpacing = FamilySpace.S1, Height = lineHeight };
 
         for (var i = 0; i < shown; i++)
         {
@@ -217,7 +219,7 @@ internal sealed partial class CalendarView
         if (shown < allDay.Count)
         {
             bar.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
-            var more = Fluent.Text(FluentType.Caption, "TextFillColorTertiaryBrush");
+            var more = Family.Text(FamilyType.Caption, ColourRole.TextTertiary);
             more.Text = LocaleFormat.Digits(Strings.Current, $"+{(allDay.Count - shown).ToString(System.Globalization.CultureInfo.InvariantCulture)}");
             more.VerticalAlignment = VerticalAlignment.Center;
             ToolTipService.SetToolTip(more, DayTooltip(day, allDay));
@@ -231,16 +233,16 @@ internal sealed partial class CalendarView
     private Border AllDayChip(DayItem item, DateOnly day, double lineHeight, bool showColors)
     {
         // A chip on a span bar's line reads at the bar's size; on the short fallback line, a caption.
-        var text = Fluent.Text(lineHeight > CalendarFit.ChipLine ? FluentType.Body : FluentType.Caption);
+        var text = Family.Text(lineHeight > CalendarFit.ChipLine ? FamilyType.Body : FamilyType.Caption);
         text.VerticalAlignment = VerticalAlignment.Center;
         var chip = new Border
         {
             Child = text,
-            Height = lineHeight - (lineHeight > CalendarFit.ChipLine ? 2 : 1),
+            Height = lineHeight - FamilySpace.S1,
             VerticalAlignment = VerticalAlignment.Top,
-            Padding = new Thickness(Fluent.Space1, 0, Fluent.Space1, 0),
-            CornerRadius = new CornerRadius(lineHeight > CalendarFit.ChipLine ? Fluent.ControlRadius : 2),
-            BorderThickness = new Thickness(2, 0, 0, 0),
+            Padding = new Thickness(FamilySpace.S1, 0, FamilySpace.S1, 0),
+            CornerRadius = Family.Radius,
+            BorderThickness = new Thickness(FamilyShape.Stroke, 0, 0, 0),
             BorderBrush = MarkOf(item, showColors),
         };
         ItemFill.Paint(chip, ItemRole.Chip);
@@ -265,10 +267,10 @@ internal sealed partial class CalendarView
     /// </summary>
     private Border TimedBlock(CalendarEvent e, bool showColors, double height, double width)
     {
-        var line = FluentType.Caption.LineHeight;
-        var stack = new StackPanel { Spacing = 0 };
+        var line = FamilyType.Caption.LineHeight;
+        var stack = new StackPanel();
 
-        var title = Fluent.Text(FluentType.Caption);
+        var title = Family.Text(FamilyType.Caption);
         title.Text = Title(e);
         title.FontWeight = FontWeights.SemiBold;
         stack.Children.Add(title);
@@ -277,7 +279,7 @@ internal sealed partial class CalendarView
 
         // The block's padding and coloured edge come off the title's line.
         var lines = Disclosure.WholeRows(height, line);
-        var parts = CalendarFit.BlockParts(lines, Overflows(title, width - (2 * Fluent.Space1) - 2), meta.Length > 0);
+        var parts = CalendarFit.BlockParts(lines, Overflows(title, width - (2 * FamilySpace.S1) - FamilyShape.Stroke), meta.Length > 0);
 
         if (parts.TitleLines > 1)
         {
@@ -286,7 +288,7 @@ internal sealed partial class CalendarView
 
         if (parts.Time)
         {
-            var time = Fluent.Text(FluentType.Caption, "TextFillColorSecondaryBrush");
+            var time = Family.Text(FamilyType.Caption, ColourRole.TextSecondary);
             time.Text = e.End > e.Start ? $"{Clock(e.Start)}–{Clock(e.End)}" : Clock(e.Start);
             Typography.SetNumeralAlignment(time, FontNumeralAlignment.Tabular);
             stack.Children.Add(time);
@@ -294,7 +296,7 @@ internal sealed partial class CalendarView
 
         if (parts.Meta)
         {
-            var where = Fluent.Text(FluentType.Caption, "TextFillColorTertiaryBrush");
+            var where = Family.Text(FamilyType.Caption, ColourRole.TextTertiary);
             where.Text = meta;
             stack.Children.Add(where);
         }
@@ -302,9 +304,9 @@ internal sealed partial class CalendarView
         var block = new Border
         {
             Child = stack,
-            Padding = new Thickness(Fluent.Space1, 0, Fluent.Space1, 0),
-            CornerRadius = new CornerRadius(Fluent.ControlRadius),
-            BorderThickness = new Thickness(2, 0, 0, 0),
+            Padding = new Thickness(FamilySpace.S1, 0, FamilySpace.S1, 0),
+            CornerRadius = Family.Radius,
+            BorderThickness = new Thickness(FamilyShape.Stroke, 0, 0, 0),
             BorderBrush = showColors ? ColorOf(e) : Accent(),
         };
         ItemFill.Paint(block, ItemRole.Chip);

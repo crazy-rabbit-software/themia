@@ -27,5 +27,6 @@
   "widgetsA.calendar.settings.weekFrom.label": "Nagsisimula sa",
   "widgetsA.calendar.settings.weekFrom.weekStart": "Unang araw ng linggo ({day})",
   "widgetsA.calendar.spanWithLength": "{from}–{to} ({length})",
-  "widgetsA.clock.date": "{weekday}, {date}"
+  "widgetsA.clock.date": "{weekday}, {date}",
+  "calendar.setup.sentence": "Magdagdag ng account para ipakita ang iyong kalendaryo"
 }

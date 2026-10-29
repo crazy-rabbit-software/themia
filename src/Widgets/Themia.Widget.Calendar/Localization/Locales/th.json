@@ -26,5 +26,6 @@
   "widgetsA.calendar.settings.weekFrom.label": "เริ่มที่",
   "widgetsA.calendar.settings.weekFrom.weekStart": "วันแรกของสัปดาห์ ({day})",
   "widgetsA.calendar.spanWithLength": "{from}–{to} ({length})",
-  "widgetsA.clock.date": "{weekday} {date}"
+  "widgetsA.clock.date": "{weekday} {date}",
+  "calendar.setup.sentence": "เพิ่มบัญชีเพื่อแสดงปฏิทินของคุณ"
 }

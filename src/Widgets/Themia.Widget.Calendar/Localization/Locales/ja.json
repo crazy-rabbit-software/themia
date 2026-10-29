@@ -26,5 +26,6 @@
   "widgetsA.calendar.settings.weekFrom.label": "開始日",
   "widgetsA.calendar.settings.weekFrom.weekStart": "週の最初の日 ({day})",
   "widgetsA.calendar.spanWithLength": "{from}～{to} ({length})",
-  "widgetsA.clock.date": "{date} {weekday}"
+  "widgetsA.clock.date": "{date} {weekday}",
+  "calendar.setup.sentence": "カレンダーを表示するにはアカウントを追加してください"
 }

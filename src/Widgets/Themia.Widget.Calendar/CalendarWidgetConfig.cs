@@ -19,6 +19,9 @@ namespace Themia.Core.Model;
 /// </summary>
 public sealed class CalendarWidgetConfig : CalendarConfig, IStyled, IShownSettings<CalendarSetting>
 {
+    /// <summary>[S-1862] What its Set up row says it waits for.</summary>
+    public override string? SetupSentence => CalendarStr.Calendar_Setup_Sentence.Text();
+
     private static readonly StyleOption[] CalendarStyles =
     [
         StyleOption.Of(CalendarStyle.Month, CalendarStr.Styles_Calendar_Month.Local(), 0xE787),

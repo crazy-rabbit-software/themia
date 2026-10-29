@@ -27,5 +27,6 @@
   "widgetsA.calendar.settings.weekFrom.label": "सुरुवात",
   "widgetsA.calendar.settings.weekFrom.weekStart": "आठवड्याचा पहिला दिवस ({day})",
   "widgetsA.calendar.spanWithLength": "{from}–{to} ({length})",
-  "widgetsA.clock.date": "{weekday}, {date}"
+  "widgetsA.clock.date": "{weekday}, {date}",
+  "calendar.setup.sentence": "तुमचे कॅलेंडर दाखवण्यासाठी खाते जोडा"
 }

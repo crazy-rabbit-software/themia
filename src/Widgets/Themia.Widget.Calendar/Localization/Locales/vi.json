@@ -26,5 +26,6 @@
   "widgetsA.calendar.settings.weekFrom.label": "Bắt đầu từ",
   "widgetsA.calendar.settings.weekFrom.weekStart": "Ngày đầu tuần ({day})",
   "widgetsA.calendar.spanWithLength": "{from}–{to} ({length})",
-  "widgetsA.clock.date": "{weekday}, {date}"
+  "widgetsA.clock.date": "{weekday}, {date}",
+  "calendar.setup.sentence": "Thêm tài khoản để hiển thị lịch của bạn"
 }

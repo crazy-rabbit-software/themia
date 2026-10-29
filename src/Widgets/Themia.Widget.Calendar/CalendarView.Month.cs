@@ -1,5 +1,4 @@
 using System.Globalization;
-using Microsoft.UI;
 using Microsoft.UI.Text;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
@@ -10,22 +9,23 @@ using Themia.App.Shell;
 using Themia.Core.Localization;
 using Themia.Core.Office;
 using Themia.Core.Widgets;
+using Themia.Sdk.Kit;
 using Themia.Sdk.WinUI;
+using Themia.Sdk.WinUI.Kit;
 
 namespace Themia.App.Widgets;
 
 /// <summary>
-/// [S-572] / [S-2702] The month: the weeks holding its days, each day with as much of what is on it
-/// as its cell holds — chips (a multi-day event one bar across its days, [S-2703]), dots, or the
-/// number alone — under weekday names, initials or letters, or none on the smallest tile.
+/// [S-2702] [S-572] The month: a grid of the family's tokens inside the card's inset ([S-6703]). The
+/// weekday header in Caption tertiary, the days' numbers in Caption (primary, tertiary outside the
+/// month, BodyStrong's weight where something is on), today's on the accent's round pill, the week
+/// rows sharing the height (the weeks around today when not every week's line fits,
+/// <see cref="CalendarFit.Month"/>). A cell shows its items as chips (Caption on the item layer's
+/// chip fill, the calendar's colour as a 2 px bar at its start, the one radius, lanes 4 apart), as
+/// dots (4, 4 apart) or by its number's weight alone.
 /// </summary>
 internal sealed partial class CalendarView
 {
-    /// <summary>Outer margin and inner padding of a month cell; together <see cref="CalendarFit.MonthCellChrome"/> with the gap under the number.</summary>
-    private const double CellMargin = 1;
-
-    private const double CellPadding = 2;
-
     private void DrawMonth(double width, double height)
     {
         var start = _config.EffectiveWeekStart;
@@ -33,49 +33,67 @@ internal sealed partial class CalendarView
         var zone = TimeZoneInfo.Local;
         var showColors = ShowColors;
 
-        var inner = new WidgetArea(width, height).Deflate(Fluent.Space1, 0);
-        var fit = CalendarFit.Month(inner.Width, Math.Max(0, inner.Height - Fluent.Space1), CalendarFit.MonthRows(_anchor, start));
         var cells = CalendarRules.MonthCells(_anchor, start);
-        var columnWidth = inner.Width / 7;
+        var rows = CalendarFit.MonthRows(_anchor, start);
+        var focus = FocusRow(cells, rows, SelectedInView ? _selected!.Value : InView(today) ? today : _anchor);
+        var innerWidth = Math.Max(0, width - (2 * FamilySpace.Inset));
+        if (!CalendarFit.HoldsDays(innerWidth / 7))
+        {
+            DrawDayReadout(width, height);
+            return;
+        }
 
-        var grid = new Grid { Padding = new Thickness(Fluent.Space1, 0, Fluent.Space1, Fluent.Space1) };
+        var fit = CalendarFit.Month(innerWidth, Math.Max(0, height - FamilySpace.Inset), rows, focus);
+        var columnWidth = innerWidth / 7;
+
+        var grid = new Grid { Padding = new Thickness(FamilySpace.Inset, 0, FamilySpace.Inset, FamilySpace.Inset) };
         grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(fit.HeaderHeight) });
         for (var r = 0; r < fit.Rows; r++)
         {
             grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
         }
 
-        for (var c = 0; c < 7; c++)
-        {
-            grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
-        }
-
         // [S-564] The header follows the week start: Mo..Su or Su..Sa, as much as a column holds.
         if (fit.Weekdays != WeekdayLabel.None)
         {
             var order = CalendarRules.WeekdayOrder(start);
-            var names = fit.Weekdays == WeekdayLabel.Short && fit.Density == MonthDensity.Chips;
+            var chips = fit.Density == MonthDensity.Chips;
+            var header = Columns7();
             for (var c = 0; c < 7; c++)
             {
-                var label = Fluent.Text(FluentType.Caption, "TextFillColorTertiaryBrush");
-                label.Text = WeekdayText(order[c], fit.Weekdays);
+                var label = Family.Text(FamilyType.Caption, ColourRole.TextTertiary, WeekdayText(order[c], fit.Weekdays));
                 label.TextTrimming = TextTrimming.None;
-                label.HorizontalAlignment = names ? HorizontalAlignment.Left : HorizontalAlignment.Center;
-                label.Margin = names ? new Thickness(CellMargin + CellPadding + 1, 0, 0, 0) : new Thickness(0);
-                SetColumn(label, c);
-                grid.Children.Add(label);
+                label.HorizontalAlignment = chips ? HorizontalAlignment.Left : HorizontalAlignment.Center;
+                var holder = new Border { Child = label, Padding = new Thickness(chips ? FamilySpace.S1 : 0, 0, 0, 0) };
+                SetColumn(holder, c);
+                header.Children.Add(holder);
             }
+
+            grid.Children.Add(header);
         }
 
-        // Four dots and their gaps are 26px; a narrower cell takes two and the muted one.
+        // Three dots and the muted one are 28: a narrower cell takes two and the muted one.
         var dotLimit = columnWidth >= 32 ? 3 : 2;
 
         for (var r = 0; r < fit.Rows; r++)
         {
-            var weekStart = cells[r * 7];
+            var weekStart = cells[(fit.FirstRow + r) * 7];
+            var week = Columns7();
             var bars = fit.Density == MonthDensity.Chips
                 ? CalendarFit.Bars(_events, _birthdays, weekStart, 7, zone, singleTimed: true)
                 : [];
+
+            if (fit.Density == MonthDensity.Chips)
+            {
+                // The number's line under the cell's padding, then one row per chip line, the rest empty.
+                week.RowDefinitions.Add(new RowDefinition { Height = new GridLength(CalendarFit.MonthCellChrome + FamilyType.Caption.LineHeight) });
+                for (var lane = 0; lane < fit.ChipLines; lane++)
+                {
+                    week.RowDefinitions.Add(new RowDefinition { Height = new GridLength(fit.ChipLine) });
+                }
+
+                week.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
+            }
 
             for (var c = 0; c < 7; c++)
             {
@@ -90,38 +108,71 @@ internal sealed partial class CalendarView
                 cell.Tapped += (_, _) => ToggleDay(day);
                 WidgetItems.Mark(cell); // [S-814] a press on a day is the day's toggle
 
-
                 if (count > 0)
                 {
                     ToolTipService.SetToolTip(cell, DayTooltip(day, CalendarRules.DayItems(_events, _birthdays, day, zone)));
                 }
 
-                SetRow(cell, 1 + r);
                 SetColumn(cell, c);
-                grid.Children.Add(cell);
+                SetRowSpan(cell, Math.Max(1, week.RowDefinitions.Count));
+                week.Children.Add(cell);
             }
 
             // [S-2703] The row's chips over its cells: one bar per item, across the days it covers.
             foreach (var bar in bars.Where(b => b.Lane < fit.ChipLines))
             {
-                var chip = MonthChip(bar, showColors, fit.ChipLine, fit.Times);
-                chip.VerticalAlignment = VerticalAlignment.Top;
-                chip.Margin = new Thickness(
-                    bar.ContinuesBefore ? CellMargin : CellMargin + CellPadding,
-                    CellMargin + CellPadding + FluentType.Caption.LineHeight + 1 + (bar.Lane * fit.ChipLine),
-                    bar.ContinuesAfter ? CellMargin : CellMargin + CellPadding,
-                    0);
-                SetRow(chip, 1 + r);
+                var chip = MonthChip(bar, showColors, fit.Times);
+                SetRow(chip, 1 + bar.Lane);
                 SetColumn(chip, bar.First);
                 SetColumnSpan(chip, bar.Last - bar.First + 1);
-                grid.Children.Add(chip);
+                week.Children.Add(chip);
             }
+
+            SetRow(week, 1 + r);
+            grid.Children.Add(week);
         }
 
         _content.Children.Add(grid);
     }
 
-    /// <summary>A day's cell: its number (today in the accent disc), the "+N" its chips left out, or its dots.</summary>
+    /// <summary>
+    /// [S-2702] A tile too narrow for a day grid: the day the view is on (the selected one, else
+    /// today) as a Readout, its weekday under it, at the content's top inside the inset.
+    /// </summary>
+    private void DrawDayReadout(double width, double height)
+    {
+        var day = SelectedInView ? _selected!.Value : InView(Today) ? Today : _anchor;
+        var readout = new ReadoutBlock { VerticalAlignment = VerticalAlignment.Top };
+        readout.Size(_area, Math.Max(0, width - (2 * FamilySpace.Inset)), Math.Max(0, height - FamilySpace.Inset), new ReadoutText(LocaleFormat.Digits(Strings.Current, "00"), LineUnder: true));
+        readout.Show(LocaleFormat.Digits(Strings.Current, day.Day.ToString(CultureInfo.InvariantCulture)), under: CalendarText.WeekdayName(day.DayOfWeek));
+        _content.Children.Add(new Grid { Padding = new Thickness(FamilySpace.Inset, 0, FamilySpace.Inset, FamilySpace.Inset), Children = { readout } });
+    }
+
+    /// <summary>The week row holding <paramref name="day"/> among the month's <paramref name="rows"/>; 0 when it is not in the grid.</summary>
+    private static int FocusRow(IReadOnlyList<DateOnly> cells, int rows, DateOnly day)
+    {
+        for (var r = 0; r < rows && (r * 7) + 6 < cells.Count; r++)
+        {
+            if (cells[r * 7] <= day && day <= cells[(r * 7) + 6])
+            {
+                return r;
+            }
+        }
+
+        return 0;
+    }
+
+    private static Grid Columns7()
+    {
+        var grid = new Grid();
+        for (var c = 0; c < 7; c++)
+        {
+            grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+        }
+
+        return grid;
+    }
+
     private Border DayCell(
         DateOnly day,
         IReadOnlyList<DayItem> items,
@@ -135,34 +186,11 @@ internal sealed partial class CalendarView
         int dotLimit)
     {
         var density = fit.Density;
+        var chipped = density == MonthDensity.Chips;
 
-        // [S-2702] On the smallest tile a row is shorter than a caption line: the number's line box
-        // shrinks to the row (the glyphs still fit), rather than the text being clipped.
-        var line = Math.Min(FluentType.Caption.LineHeight, Math.Max(1, Math.Floor(fit.CellHeight)));
-        var stack = new StackPanel { Spacing = 1 };
-
-        // The number row carries the overflow count on the right, so "+N" never costs a chip line.
-        var numberRow = new Grid
-        {
-            ColumnDefinitions =
-            {
-                // Chips: the number left, "+N" right. Otherwise the number is the cell, centred in it.
-                new ColumnDefinition { Width = density == MonthDensity.Chips ? GridLength.Auto : new GridLength(1, GridUnitType.Star) },
-                new ColumnDefinition { Width = density == MonthDensity.Chips ? new GridLength(1, GridUnitType.Star) : GridLength.Auto },
-            },
-        };
-
-        var number = Fluent.Text(
-            FluentType.Caption,
-            isToday ? "TextOnAccentFillColorPrimaryBrush" : inMonth ? "TextFillColorPrimaryBrush" : "TextFillColorDisabledBrush");
-        number.Text = LocaleFormat.Digits(Strings.Current, day.Day.ToString(CultureInfo.InvariantCulture));
-        Typography.SetNumeralAlignment(number, FontNumeralAlignment.Tabular);
+        var number = Family.Text(FamilyType.Caption, isToday ? ColourRole.TextOnAccent : inMonth ? ColourRole.TextPrimary : ColourRole.TextTertiary,
+            LocaleFormat.Digits(Strings.Current, day.Day.ToString(CultureInfo.InvariantCulture)));
         number.TextTrimming = TextTrimming.None;
-        if (line < FluentType.Caption.LineHeight)
-        {
-            number.LineHeight = line;
-            number.LineStackingStrategy = LineStackingStrategy.BlockLineHeight;
-        }
 
         // A day with something on it has its number in the strong weight: in the barest density
         // that is the one sign left, and it is not colour alone.
@@ -174,45 +202,9 @@ internal sealed partial class CalendarView
         FrameworkElement numberHost = number;
         if (isToday)
         {
-            // [S-572] Today is the accent disc Windows' own calendar flyout uses.
-            numberHost = new Border
-            {
-                Child = number,
-                Background = Accent(),
-                CornerRadius = new CornerRadius(line / 2),
-                MinWidth = line,
-                Height = line,
-                Padding = new Thickness(3, 0, 3, 0),
-            };
+            // [S-572] Today is the accent's round pill, as Windows' own calendar flyout marks it.
             number.HorizontalAlignment = HorizontalAlignment.Center;
-        }
-
-        // [S-3620] With chips the selected day's number is ringed and its cell filled, rather than the
-        // cell outlined: a chip spanning the day would be crossed by the outline (the chips are
-        // translucent, so even an outline under them showed through). Today's disc keeps its accent
-        // and takes the ring in the text colour.
-        var chipped = density == MonthDensity.Chips;
-        if (chipped && isSelected)
-        {
-            if (numberHost is Border disc)
-            {
-                disc.BorderThickness = new Thickness(1);
-                disc.BorderBrush = ThemeBrush.Of("TextFillColorPrimaryBrush", Colors.White);
-            }
-            else
-            {
-                number.HorizontalAlignment = HorizontalAlignment.Center;
-                numberHost = new Border
-                {
-                    Child = number,
-                    CornerRadius = new CornerRadius(line / 2),
-                    MinWidth = line,
-                    Height = line,
-                    Padding = new Thickness(3, 0, 3, 0),
-                    BorderThickness = new Thickness(1),
-                    BorderBrush = Accent(),
-                };
-            }
+            numberHost = TodayPill(number, FamilyType.Caption.LineHeight);
         }
 
         if (fit.InlineDots && items.Count > 0)
@@ -220,49 +212,81 @@ internal sealed partial class CalendarView
             // A wide, short cell: the dots beside the number, where there is room for them.
             var dots = Dots(items, showColors, dotLimit);
             dots.VerticalAlignment = VerticalAlignment.Center;
-            dots.Margin = new Thickness(3, 0, 0, 0);
-            numberHost = new StackPanel { Orientation = Orientation.Horizontal, Children = { numberHost, dots } };
+            numberHost = new StackPanel { Orientation = Orientation.Horizontal, Spacing = FamilySpace.S1, Children = { numberHost, dots } };
         }
 
-        numberHost.HorizontalAlignment = density == MonthDensity.Chips ? HorizontalAlignment.Left : HorizontalAlignment.Center;
-        numberRow.Children.Add(numberHost);
+        numberHost.HorizontalAlignment = chipped ? HorizontalAlignment.Left : HorizontalAlignment.Center;
+        numberHost.VerticalAlignment = VerticalAlignment.Top;
 
-        if (hidden > 0)
+        FrameworkElement face = numberHost;
+        if (chipped)
         {
-            var more = Fluent.Text(FluentType.Caption, "TextFillColorTertiaryBrush");
-            more.Text = LocaleFormat.Digits(Strings.Current, $"+{hidden.ToString(CultureInfo.InvariantCulture)}");
-            more.HorizontalAlignment = HorizontalAlignment.Right;
-            more.TextTrimming = TextTrimming.None;
-            SetColumn(more, 1);
-            numberRow.Children.Add(more);
+            // The number row carries the overflow count at its end, so "+N" never costs a chip line.
+            var numberRow = new Grid
+            {
+                ColumnDefinitions =
+                {
+                    new ColumnDefinition { Width = GridLength.Auto },
+                    new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) },
+                },
+                Children = { numberHost },
+            };
+
+            if (hidden > 0)
+            {
+                var more = Family.Text(FamilyType.Caption, ColourRole.TextTertiary, LocaleFormat.Digits(Strings.Current, $"+{hidden.ToString(CultureInfo.InvariantCulture)}"));
+                more.HorizontalAlignment = HorizontalAlignment.Right;
+                more.TextTrimming = TextTrimming.None;
+                SetColumn(more, 1);
+                numberRow.Children.Add(more);
+            }
+
+            numberRow.VerticalAlignment = VerticalAlignment.Top;
+            face = numberRow;
         }
-
-        stack.Children.Add(numberRow);
-
-        if (density == MonthDensity.Dots && items.Count > 0)
+        else if (density == MonthDensity.Dots)
         {
-            stack.Children.Add(Dots(items, showColors, dotLimit));
+            var stack = new StackPanel { Spacing = FamilySpace.S1, VerticalAlignment = VerticalAlignment.Top, Children = { numberHost } };
+            if (items.Count > 0)
+            {
+                stack.Children.Add(Dots(items, showColors, dotLimit));
+            }
+
+            face = stack;
+        }
+        else
+        {
+            // A bare number takes the whole cell, centred in its row.
+            numberHost.VerticalAlignment = VerticalAlignment.Center;
         }
 
         var cell = new Border
         {
-            Child = stack,
-
-            // A bare number takes the whole cell: on a short tile the row is the number's own line,
-            // and any padding or margin would clip it or today's disc.
-            Padding = density == MonthDensity.Number ? new Thickness(0) : new Thickness(CellPadding, CellPadding, CellPadding, 0),
-            Margin = density == MonthDensity.Number ? new Thickness(0) : new Thickness(CellMargin),
-            CornerRadius = new CornerRadius(Fluent.ControlRadius),
-            VerticalAlignment = density == MonthDensity.Number ? VerticalAlignment.Center : VerticalAlignment.Stretch,
-            Background = Fluent.Clear(),
-
-            // Without chips nothing spans a cell, so the selected one is outlined whole.
-            BorderThickness = new Thickness(!chipped && isSelected ? 1 : 0),
-            BorderBrush = !chipped && isSelected ? Accent() : null,
+            Child = face,
+            Padding = density == MonthDensity.Number ? new Thickness(0) : new Thickness(FamilySpace.S1, FamilySpace.S1, FamilySpace.S1, 0),
+            CornerRadius = Family.Radius,
+            Background = Family.Brush(ColourRole.Clear),
         };
 
-        // [S-6513] A selected day holding chips is lit as a selected chip; the rest stay clear, so
-        // the chips on them read against the card, or against the item colour where it is set.
+        // [S-3620] Without chips nothing spans a cell, so the selected one is outlined whole: a ring
+        // laid over the cell, so the number does not move.
+        if (!chipped && isSelected)
+        {
+            cell.Child = null;
+            var ring = new Border
+            {
+                BorderThickness = new Thickness(FamilyShape.Hairline),
+                BorderBrush = Accent(),
+                CornerRadius = Family.Radius,
+                IsHitTestVisible = false,
+            };
+            var holder = new Grid { Children = { face, ring } };
+            ring.Margin = new Thickness(-cell.Padding.Left, -cell.Padding.Top, -cell.Padding.Right, -cell.Padding.Bottom);
+            cell.Child = holder;
+        }
+
+        // [S-6513] [S-3620] A selected day holding chips is lit as a selected chip (an outline would
+        // cross the chips spanning it); the rest stay clear, so the chips on them read against the card.
         if (chipped && isSelected)
         {
             ItemFill.Paint(cell, ItemRole.Chip, ItemState.Selected);
@@ -271,63 +295,65 @@ internal sealed partial class CalendarView
         return cell;
     }
 
+    /// <summary>[S-572] Today's number on the accent: a pill one line tall, round, 4 either side of the number.</summary>
+    private static Border TodayPill(TextBlock number, double line) => new()
+    {
+        Child = number,
+        Background = Accent(),
+        Height = line,
+        MinWidth = line,
+        Padding = new Thickness(FamilySpace.S1, 0, FamilySpace.S1, 0),
+        CornerRadius = Family.Round(line, line),
+    };
+
     /// <summary>
-    /// [S-2703] One item as a one-line chip, titled and coloured by its calendar when colours show; a
-    /// bar that runs on past the row's edge is squared off there. In a wide cell a timed event leads
-    /// with its start time ([S-1264], the classic S-44).
+    /// [S-2703] A chip: Caption on the item layer's chip fill, one line tall, the item's mark as a 2 px
+    /// bar at its start (none where it continues from the week before), the one radius at the ends it
+    /// has, 4 in from the day's edge at both.
     /// </summary>
-    private Border MonthChip(LaneItem bar, bool showColors, double chipLine, bool times)
+    private Border MonthChip(LaneItem bar, bool showColors, bool times)
     {
         var item = bar.Item;
-        var text = Fluent.Text(FluentType.Caption);
+        var text = Family.Text(FamilyType.Caption, ColourRole.TextPrimary);
         text.VerticalAlignment = VerticalAlignment.Center;
-        var radius = 2.0;
+        var r = FamilyShape.Radius;
         var chip = new Border
         {
             Child = text,
-            Height = chipLine - 1,
-            Padding = new Thickness(3, 0, 2, 0),
-            CornerRadius = new CornerRadius(bar.ContinuesBefore ? 0 : radius, bar.ContinuesAfter ? 0 : radius, bar.ContinuesAfter ? 0 : radius, bar.ContinuesBefore ? 0 : radius),
+            Height = FamilyType.Caption.LineHeight,
+            VerticalAlignment = VerticalAlignment.Top,
+            Padding = new Thickness(FamilySpace.S1, 0, FamilySpace.S1, 0),
+            Margin = new Thickness(bar.ContinuesBefore ? 0 : FamilySpace.S1, 0, bar.ContinuesAfter ? 0 : FamilySpace.S1, 0),
+            CornerRadius = new CornerRadius(bar.ContinuesBefore ? 0 : r, bar.ContinuesAfter ? 0 : r, bar.ContinuesAfter ? 0 : r, bar.ContinuesBefore ? 0 : r),
+            BorderThickness = new Thickness(bar.ContinuesBefore ? 0 : FamilyShape.Stroke, 0, 0, 0),
+            BorderBrush = MarkOf(item, showColors),
         };
         ItemFill.Paint(chip, ItemRole.Chip);
 
         if (item.Birthday is { } b)
         {
             text.Text = BirthdayRules.FirstName(b.Name);
-            chip.BorderThickness = new Thickness(2, 0, 0, 0);
-            chip.BorderBrush = BirthdayBrush();
             return chip;
         }
 
         var e = item.Event!;
         if (times && !e.AllDay && !bar.ContinuesBefore)
         {
-            text.Inlines.Add(new Run { Text = Clock(e.Start) + " ", Foreground = ThemeBrush.Of("TextFillColorSecondaryBrush", Colors.Gray) });
+            text.Inlines.Add(Family.Run(FamilyType.Caption, ColourRole.TextSecondary, Clock(e.Start) + " "));
             text.Inlines.Add(new Run { Text = Title(e) });
-            Typography.SetNumeralAlignment(text, FontNumeralAlignment.Tabular);
         }
         else
         {
             text.Text = Title(e);
         }
 
-        if (showColors || bar.Last > bar.First)
-        {
-            chip.BorderThickness = new Thickness(bar.ContinuesBefore ? 0 : 2, 0, 0, 0);
-            chip.BorderBrush = showColors ? ColorOf(e) : Accent();
-        }
-
         MakeOpenable(chip, e);
         return chip;
     }
 
-    /// <summary>
-    /// [S-572] Up to three dots, then a muted one for more — two and the muted one in a cell too
-    /// narrow for four, so the row never runs past the cell.
-    /// </summary>
     private StackPanel Dots(IReadOnlyList<DayItem> items, bool showColors, int limit)
     {
-        var dots = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 2, HorizontalAlignment = HorizontalAlignment.Center };
+        var dots = new StackPanel { Orientation = Orientation.Horizontal, Spacing = FamilySpace.S1, HorizontalAlignment = HorizontalAlignment.Center };
 
         foreach (var item in items.Take(limit))
         {
@@ -336,11 +362,12 @@ internal sealed partial class CalendarView
 
         if (items.Count > limit)
         {
-            dots.Children.Add(Dot(ThemeBrush.Of("TextFillColorDisabledBrush", Colors.Gray)));
+            dots.Children.Add(Dot(Family.Brush(ColourRole.TextTertiary)));
         }
 
         return dots;
     }
 
-    private static Ellipse Dot(Brush fill) => new() { Width = 5, Height = 5, Fill = fill };
+    /// <summary>[S-572] A day's dot: the track's 4, round.</summary>
+    private static Ellipse Dot(Brush fill) => new() { Width = CalendarFit.Dot, Height = CalendarFit.Dot, Fill = fill };
 }

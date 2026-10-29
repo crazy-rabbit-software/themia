@@ -27,5 +27,6 @@
   "widgetsA.calendar.settings.weekFrom.label": "Empieza el",
   "widgetsA.calendar.settings.weekFrom.weekStart": "Primer día de la semana ({day})",
   "widgetsA.calendar.spanWithLength": "{from}–{to} ({length})",
-  "widgetsA.clock.date": "{weekday}, {date}"
+  "widgetsA.clock.date": "{weekday}, {date}",
+  "calendar.setup.sentence": "Añade una cuenta para ver tu calendario"
 }

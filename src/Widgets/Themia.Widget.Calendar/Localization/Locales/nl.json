@@ -27,5 +27,6 @@
   "widgetsA.calendar.settings.weekFrom.label": "Begint op",
   "widgetsA.calendar.settings.weekFrom.weekStart": "Eerste dag van de week ({day})",
   "widgetsA.calendar.spanWithLength": "{from}–{to} ({length})",
-  "widgetsA.clock.date": "{weekday} {date}"
+  "widgetsA.clock.date": "{weekday} {date}",
+  "calendar.setup.sentence": "Voeg een account toe om je agenda te zien"
 }

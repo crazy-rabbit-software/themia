@@ -10,7 +10,9 @@ using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Office;
 using Themia.Core.Widgets;
+using Themia.Sdk.Kit;
 using Themia.Sdk.WinUI;
+using Themia.Sdk.WinUI.Kit;
 
 namespace Themia.App.Widgets;
 
@@ -31,7 +33,7 @@ internal sealed partial class CalendarView
     private const double HourLabelsLongFrom = 160;
 
     /// <summary>A bar in a column too narrow for words: a coloured line.</summary>
-    private const double ThinBar = 6;
+    private const double ThinBar = FamilyShape.Track;
 
     private void DrawWeek(double width, double height)
     {
@@ -41,23 +43,29 @@ internal sealed partial class CalendarView
         var zone = TimeZoneInfo.Local;
         var showColors = ShowColors;
 
-        var inner = new WidgetArea(width, height).Deflate(Fluent.Space1, 0);
+        var inner = new WidgetArea(width, height).Deflate(FamilySpace.Inset, 0);
         var fit = CalendarFit.Week(inner.Width, inner.Height, days);
+        if (!CalendarFit.HoldsDays(inner.Width / Math.Max(1, days)))
+        {
+            DrawDayReadout(width, height);
+            return;
+        }
+
         var gutter = fit.Timeline ? HourLabelWidth : 0;
         var columnWidth = Math.Max(0, (inner.Width - gutter) / days);
 
         // The height ladder: the day numbers always, then the weekday line, then the bars, then the body.
-        var room = new Disclosure(inner.Width, Math.Max(0, inner.Height - Fluent.Space1));
-        room.Reserve(FluentType.BodyStrong.LineHeight + Fluent.Space1);
-        var weekdays = room.Fits(FluentType.Caption.LineHeight + (2 * FluentType.Caption.LineHeight)) && room.Take(FluentType.Caption.LineHeight);
+        var room = new Disclosure(inner.Width, Math.Max(0, inner.Height - FamilySpace.Inset));
+        room.Reserve(FamilyType.BodyStrong.LineHeight + FamilySpace.S1);
+        var weekdays = room.Fits(FamilyType.Caption.LineHeight + (2 * FamilyType.Caption.LineHeight)) && room.Take(FamilyType.Caption.LineHeight);
 
         var bars = CalendarFit.Bars(_events, _birthdays, start, days, zone, singleTimed: false);
-        var barLine = fit.Dots ? ThinBar + 2 : CalendarFit.ChipLine;
+        var barLine = fit.Dots ? ThinBar + FamilySpace.S1 : CalendarFit.ChipLine;
         var wantedLines = Math.Min(CalendarFit.LaneCount(bars), fit.Timeline ? 3 : 2);
 
         // Keep a line of the body for the timed events: the band never takes the whole column.
         var bandLines = 0;
-        while (bandLines < wantedLines && room.Fits(((bandLines + 1) * barLine) + FluentType.Caption.LineHeight))
+        while (bandLines < wantedLines && room.Fits(((bandLines + 1) * barLine) + FamilyType.Caption.LineHeight))
         {
             bandLines++;
         }
@@ -65,10 +73,16 @@ internal sealed partial class CalendarView
         room.Reserve(bandLines * barLine);
         var bodyHeight = room.Remaining;
 
-        var grid = new Grid { Padding = new Thickness(Fluent.Space1, 0, Fluent.Space1, Fluent.Space1) };
+        // The heads, one row per band line (a bar sits in its lane's row: no margin of its own), the body.
+        var grid = new Grid { Padding = new Thickness(FamilySpace.Inset, 0, FamilySpace.Inset, FamilySpace.Inset) };
         grid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
-        grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(bandLines * barLine) });
+        for (var lane = 0; lane < bandLines; lane++)
+        {
+            grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(barLine) });
+        }
+
         grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
+        var body = 1 + bandLines;
 
         if (fit.Timeline)
         {
@@ -116,10 +130,9 @@ internal sealed partial class CalendarView
         // [S-2703] The band: one bar per all-day or multi-day event and birthday, across its days.
         foreach (var bar in bars.Where(b => b.Lane < bandLines))
         {
-            var chip = fit.Dots ? ThinBarOf(bar, showColors) : MonthChip(bar, showColors, CalendarFit.ChipLine, times: false);
+            var chip = fit.Dots ? ThinBarOf(bar, showColors) : MonthChip(bar, showColors, times: false);
             chip.VerticalAlignment = VerticalAlignment.Top;
-            chip.Margin = new Thickness(1, bar.Lane * barLine, 1, 0);
-            SetRow(chip, 1);
+            SetRow(chip, 1 + bar.Lane);
             SetColumn(chip, first + bar.First);
             SetColumnSpan(chip, bar.Last - bar.First + 1);
             grid.Children.Add(chip);
@@ -127,7 +140,7 @@ internal sealed partial class CalendarView
 
         if (fit.Timeline)
         {
-            DrawWeekTimeline(grid, start, timedByDay, bars, bandLines, bodyHeight, columnWidth, showColors);
+            DrawWeekTimeline(grid, body, start, timedByDay, bars, bandLines, bodyHeight, columnWidth, showColors);
         }
         else
         {
@@ -137,7 +150,7 @@ internal sealed partial class CalendarView
                 var column = fit.Dots
                     ? WeekDots(timedByDay[c], hiddenBars, bodyHeight, showColors)
                     : WeekList(timedByDay[c], hiddenBars, bodyHeight, columnWidth, showColors, fit.Detail);
-                SetRow(column, 2);
+                SetRow(column, body);
                 SetColumn(column, c);
                 grid.Children.Add(column);
             }
@@ -149,28 +162,28 @@ internal sealed partial class CalendarView
     /// <summary>A column's head: the weekday (as much as fits) over the day number, today in the accent disc.</summary>
     private static Border WeekHeader(DateOnly day, bool isToday, WeekdayLabel label)
     {
-        var header = new StackPanel { Spacing = 0, HorizontalAlignment = HorizontalAlignment.Center };
+        var header = new StackPanel { HorizontalAlignment = HorizontalAlignment.Center };
 
         if (label != WeekdayLabel.None)
         {
-            var weekday = Fluent.Text(FluentType.Caption, "TextFillColorTertiaryBrush");
-            weekday.Text = WeekdayText(day.DayOfWeek, label);
+            var weekday = Family.Text(FamilyType.Caption, ColourRole.TextTertiary, WeekdayText(day.DayOfWeek, label));
             weekday.TextTrimming = TextTrimming.None;
             weekday.HorizontalAlignment = HorizontalAlignment.Center;
             header.Children.Add(weekday);
         }
 
-        var number = Fluent.Text(FluentType.BodyStrong, isToday ? "TextOnAccentFillColorPrimaryBrush" : "TextFillColorPrimaryBrush");
-        number.Text = LocaleFormat.Digits(Strings.Current, day.Day.ToString(CultureInfo.InvariantCulture));
+        var number = Family.Text(FamilyType.BodyStrong, isToday ? ColourRole.TextOnAccent : ColourRole.TextPrimary, LocaleFormat.Digits(Strings.Current, day.Day.ToString(CultureInfo.InvariantCulture)));
         number.HorizontalAlignment = HorizontalAlignment.Center;
         number.TextTrimming = TextTrimming.None;
-        Typography.SetNumeralAlignment(number, FontNumeralAlignment.Tabular);
-        var line = FluentType.BodyStrong.LineHeight;
-        header.Children.Add(isToday
-            ? new Border { Child = number, Background = Accent(), CornerRadius = new CornerRadius(line / 2), MinWidth = line, Height = line, Padding = new Thickness(4, 0, 4, 0) }
-            : number);
+        FrameworkElement face = number;
+        if (isToday)
+        {
+            face = TodayPill(number, FamilyType.BodyStrong.LineHeight);
+            face.HorizontalAlignment = HorizontalAlignment.Center;
+        }
 
-        return new Border { Child = header, Padding = new Thickness(0, 0, 0, Fluent.Space1), Background = ThemeBrush.Of("SubtleFillColorTransparentBrush", Colors.Transparent) };
+        header.Children.Add(face);
+        return new Border { Child = header, Padding = new Thickness(0, 0, 0, FamilySpace.S1), Background = Family.Brush(ColourRole.Clear) };
     }
 
     /// <summary>A bar with no room for words: its calendar's colour as a rounded line, the title on hover.</summary>
@@ -179,7 +192,8 @@ internal sealed partial class CalendarView
         var line = new Border
         {
             Height = ThinBar,
-            CornerRadius = new CornerRadius(ThinBar / 2),
+            CornerRadius = Family.Round(ThinBar, ThinBar),
+            Margin = new Thickness(bar.ContinuesBefore ? 0 : FamilySpace.S1, 0, bar.ContinuesAfter ? 0 : FamilySpace.S1, 0),
             Background = MarkOf(bar.Item, showColors),
         };
 
@@ -201,8 +215,8 @@ internal sealed partial class CalendarView
     /// </summary>
     private StackPanel WeekDots(IReadOnlyList<CalendarEvent> timed, int hiddenBars, double height, bool showColors)
     {
-        var stack = new StackPanel { Spacing = 3, HorizontalAlignment = HorizontalAlignment.Center, Margin = new Thickness(0, 2, 0, 0) };
-        var fits = Disclosure.WholeRows(height - 2, 5, 3);
+        var stack = new StackPanel { Spacing = FamilySpace.S1, HorizontalAlignment = HorizontalAlignment.Center, Margin = new Thickness(0, FamilySpace.S1, 0, 0) };
+        var fits = Disclosure.WholeRows(height - FamilySpace.S1, CalendarFit.Dot, FamilySpace.S1);
         var more = timed.Count + hiddenBars > fits;
         var shown = Math.Max(0, more ? fits - 1 : fits);
 
@@ -215,7 +229,7 @@ internal sealed partial class CalendarView
 
         if (more && fits > 0)
         {
-            stack.Children.Add(Dot(ThemeBrush.Of("TextFillColorDisabledBrush", Colors.Gray)));
+            stack.Children.Add(Dot(Family.Brush(ColourRole.TextTertiary)));
         }
 
         return stack;
@@ -228,10 +242,10 @@ internal sealed partial class CalendarView
     /// </summary>
     private StackPanel WeekList(IReadOnlyList<CalendarEvent> timed, int hiddenBars, double height, double columnWidth, bool showColors, bool detail)
     {
-        var column = new StackPanel { Spacing = 2, Margin = new Thickness(1, 0, 1, 0) };
+        var column = new StackPanel { Spacing = FamilySpace.S1 };
         var stacked = columnWidth >= CalendarFit.WeekdayNamesFrom;
-        var line = FluentType.Caption.LineHeight;
-        var room = new Disclosure(columnWidth, height, gap: 2);
+        var line = FamilyType.Caption.LineHeight;
+        var room = new Disclosure(columnWidth, height, gap: FamilySpace.S1);
         var shown = 0;
         var titles = new List<TextBlock>();
 
@@ -239,11 +253,11 @@ internal sealed partial class CalendarView
         {
             var e = timed[i];
             var lines = stacked ? 2 + (detail && e.Location is not null ? 1 : 0) : 1;
-            var cost = (lines * line) + 2;
+            var cost = (lines * line) + FamilySpace.S1;
 
             // Keep a line for "+N" when something will not fit.
             var after = timed.Count - i - 1 + hiddenBars;
-            if (!room.Fits(cost + (after > 0 ? line + 2 : 0)) || !room.Take(cost))
+            if (!room.Fits(cost + (after > 0 ? line + FamilySpace.S1 : 0)) || !room.Take(cost))
             {
                 break;
             }
@@ -257,8 +271,8 @@ internal sealed partial class CalendarView
         var rest = timed.Count - shown + hiddenBars;
 
         // The chip's edge and padding and the column's margins come off the title's line.
-        var titleWidth = columnWidth - 9;
-        var leftover = room.Remaining - (rest > 0 ? line + 2 : 0);
+        var titleWidth = columnWidth - FamilyShape.Stroke - (2 * FamilySpace.S1);
+        var leftover = room.Remaining - (rest > 0 ? line + FamilySpace.S1 : 0);
         var second = Disclosure.SecondLines([.. titles.Select(t => Overflows(t, titleWidth))], leftover, line);
         for (var k = 0; k < titles.Count; k++)
         {
@@ -269,8 +283,7 @@ internal sealed partial class CalendarView
         }
         if (rest > 0)
         {
-            var more = Fluent.Text(FluentType.Caption, "TextFillColorTertiaryBrush");
-            more.Text = LocaleFormat.Digits(Strings.Current, $"+{rest.ToString(CultureInfo.InvariantCulture)}");
+            var more = Family.Text(FamilyType.Caption, ColourRole.TextTertiary, LocaleFormat.Digits(Strings.Current, $"+{rest.ToString(CultureInfo.InvariantCulture)}"));
             more.HorizontalAlignment = HorizontalAlignment.Center;
             column.Children.Add(more);
         }
@@ -284,34 +297,29 @@ internal sealed partial class CalendarView
     /// </summary>
     private (Border Chip, TextBlock Title) WeekChip(CalendarEvent e, bool showColors, bool stacked, bool detail)
     {
-        var stack = new StackPanel { Spacing = 0 };
+        var stack = new StackPanel();
         var chip = new Border
         {
             Child = stack,
-            Padding = new Thickness(3, 1, 2, 1),
-            CornerRadius = new CornerRadius(2),
-            BorderThickness = new Thickness(2, 0, 0, 0),
+            Padding = new Thickness(FamilySpace.S1, 0, FamilySpace.S1, 0),
+            CornerRadius = Family.Radius,
+            BorderThickness = new Thickness(FamilyShape.Stroke, 0, 0, 0),
             BorderBrush = showColors ? ColorOf(e) : Accent(),
         };
         ItemFill.Paint(chip, ItemRole.Chip);
 
         if (stacked)
         {
-            var time = Fluent.Text(FluentType.Caption, "TextFillColorSecondaryBrush");
-            time.Text = detail && e.End > e.Start ? $"{Clock(e.Start)}–{Clock(e.End)}" : Clock(e.Start);
-            Typography.SetNumeralAlignment(time, FontNumeralAlignment.Tabular);
+            var time = Family.Text(FamilyType.Caption, ColourRole.TextSecondary, detail && e.End > e.Start ? $"{Clock(e.Start)}–{Clock(e.End)}" : Clock(e.Start));
             stack.Children.Add(time);
         }
 
-        var title = Fluent.Text(FluentType.Caption);
-        title.Text = Title(e);
+        var title = Family.Text(FamilyType.Caption, ColourRole.TextPrimary, Title(e));
         stack.Children.Add(title);
 
         if (detail && e.Location is { } place)
         {
-            var where = Fluent.Text(FluentType.Caption, "TextFillColorTertiaryBrush");
-            where.Text = place;
-            stack.Children.Add(where);
+            stack.Children.Add(Family.Text(FamilyType.Caption, ColourRole.TextTertiary, place));
         }
 
         MakeOpenable(chip, e);
@@ -322,7 +330,7 @@ internal sealed partial class CalendarView
     /// [S-2704] / [S-2705] The large week: an hour grid of the hours that fit, the week's timed events
     /// placed on it in side-by-side lanes where they overlap ([S-573]).
     /// </summary>
-    private void DrawWeekTimeline(Grid grid, DateOnly start, List<CalendarEvent>[] timedByDay, IReadOnlyList<LaneItem> bars, int bandLines, double height, double columnWidth, bool showColors)
+    private void DrawWeekTimeline(Grid grid, int body, DateOnly start, List<CalendarEvent>[] timedByDay, IReadOnlyList<LaneItem> bars, int bandLines, double height, double columnWidth, bool showColors)
     {
         var zone = TimeZoneInfo.Local;
         var today = Today;
@@ -342,12 +350,12 @@ internal sealed partial class CalendarView
         var window = CalendarFit.Hours(height, earliest, latest, focus);
 
         var labels = HourLabels(window, long_: true);
-        SetRow(labels, 2);
+        SetRow(labels, body);
         SetColumn(labels, 0);
         grid.Children.Add(labels);
 
         var rules = HourRules(window);
-        SetRow(rules, 2);
+        SetRow(rules, body);
         SetColumn(rules, 1);
         SetColumnSpan(rules, days);
         grid.Children.Add(rules);
@@ -362,7 +370,7 @@ internal sealed partial class CalendarView
                 ToolTipService.SetToolTip(canvas, DayTooltip(day, CalendarRules.DayItems(_events, _birthdays, day, zone)));
             }
 
-            SetRow(canvas, 2);
+            SetRow(canvas, body);
             SetColumn(canvas, 1 + c);
             grid.Children.Add(canvas);
         }
@@ -374,11 +382,9 @@ internal sealed partial class CalendarView
         var canvas = new Canvas { IsHitTestVisible = false };
         for (var h = window.First; h < window.End; h++)
         {
-            var label = Fluent.Text(FluentType.Caption, "TextFillColorTertiaryBrush");
-            label.Text = LocaleFormat.Digits(Strings.Current, h.ToString("00", CultureInfo.InvariantCulture) + (long_ ? ":00" : string.Empty));
+            var label = Family.Text(FamilyType.Caption, ColourRole.TextTertiary, LocaleFormat.Digits(Strings.Current, h.ToString("00", CultureInfo.InvariantCulture) + (long_ ? ":00" : string.Empty)));
             label.TextTrimming = TextTrimming.None;
-            Canvas.SetLeft(label, Fluent.Space1);
-            Canvas.SetTop(label, ((h - window.First) * window.HourHeight) + 1);
+            Canvas.SetTop(label, (h - window.First) * window.HourHeight);
             canvas.Children.Add(label);
         }
 
@@ -386,18 +392,22 @@ internal sealed partial class CalendarView
     }
 
     /// <summary>A hairline at the top of every hour, across the timeline.</summary>
-    private static Grid HourRules(HourWindow window)
+    private static Canvas HourRules(HourWindow window)
     {
-        var rules = new Grid { IsHitTestVisible = false };
+        var rules = new Canvas { IsHitTestVisible = false };
+        rules.SizeChanged += (_, args) =>
+        {
+            foreach (var rule in rules.Children.OfType<Border>())
+            {
+                rule.Width = args.NewSize.Width;
+            }
+        };
+
         for (var h = 0; h < window.Count; h++)
         {
-            rules.Children.Add(new Border
-            {
-                Height = Fluent.Hairline,
-                Background = ThemeBrush.Of("DividerStrokeColorDefaultBrush", Colors.Gray),
-                VerticalAlignment = VerticalAlignment.Top,
-                Margin = new Thickness(0, h * window.HourHeight, 0, 0),
-            });
+            var rule = new Border { Height = FamilyShape.Hairline, Background = Family.Brush(ColourRole.Track) };
+            Canvas.SetTop(rule, h * window.HourHeight);
+            rules.Children.Add(rule);
         }
 
         return rules;
@@ -412,7 +422,7 @@ internal sealed partial class CalendarView
     private Canvas TimelineCanvas(IReadOnlyList<CalendarEvent> timed, DateOnly day, HourWindow window, double expectedWidth, bool showColors)
     {
         var zone = TimeZoneInfo.Local;
-        var canvas = new Canvas { Background = ThemeBrush.Of("SubtleFillColorTransparentBrush", Colors.Transparent) };
+        var canvas = new Canvas { Background = Family.Brush(ColourRole.Clear) };
         var timelineHeight = window.Count * window.HourHeight;
         var placed = timed
             .Select(e => (Event: e, Place: CalendarFit.Place(e.Start, e.End, day, zone, window)))
@@ -425,8 +435,8 @@ internal sealed partial class CalendarView
         {
             var (e, place) = placed[i];
             var (top, span) = place!.Value;
-            var blockHeight = Math.Max(FluentType.Caption.LineHeight, (span * timelineHeight) - 1);
-            var block = TimedBlock(e, showColors, blockHeight, Math.Max(0, (expectedWidth / Math.Max(1, lanes[i].Columns)) - 2));
+            var blockHeight = Math.Max(FamilyType.Caption.LineHeight, (span * timelineHeight) - FamilyShape.Hairline);
+            var block = TimedBlock(e, showColors, blockHeight, Math.Max(0, (expectedWidth / Math.Max(1, lanes[i].Columns)) - FamilyShape.Stroke));
             block.Height = blockHeight;
             Canvas.SetTop(block, top * timelineHeight);
             canvas.Children.Add(block);
@@ -439,8 +449,8 @@ internal sealed partial class CalendarView
             var now = DateTimeOffset.Now;
             if (CalendarFit.Place(now, now, day, zone, window) is { } at)
             {
-                var rule = new Border { Height = 2, Background = Accent(), IsHitTestVisible = false };
-                Canvas.SetTop(rule, (at.Top * timelineHeight) - 1);
+                var rule = new Border { Height = FamilyShape.Stroke, Background = Accent(), IsHitTestVisible = false };
+                Canvas.SetTop(rule, (at.Top * timelineHeight) - (FamilyShape.Stroke / 2));
                 canvas.Children.Add(rule);
                 blocks.Add((rule, 0, 0));
             }
@@ -457,7 +467,7 @@ internal sealed partial class CalendarView
                     continue;
                 }
 
-                block.Width = Math.Max(0, (width / columns) - 2);
+                block.Width = Math.Max(0, (width / columns) - FamilyShape.Stroke);
                 Canvas.SetLeft(block, column * (width / columns));
             }
         };
