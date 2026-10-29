@@ -908,6 +908,11 @@ module author's guide is docs/WIDGET-KIT.md 16.
   for text on the card. There is **no success green**: a healthy reading is the accent, a rising
   price secondary. A **count badge is neutral**: Caption in the primary role on the subtle fill.
   `UnavailableLook` stays: a part missing on this PC is drawn in the disabled role ([S-1940]).
+- **[S-6707]** A Readout's **delta** (a price's or a rate's change, Body, in its role) stands on the
+  value's line where the value, the unit and it fit; else the unit gives way and the delta stays
+  beside the value; else the delta is the line under the value, in its own role (the unit back where
+  the value and it fit), and the widget's own line under gives way. Measured on the delta's widest case,
+  so the fold does not change as the reading moves (`ReadoutRules.Fold`).
 - **[S-6710]** **Header**: [glyph 16] 8 [name, BodyStrong, secondary, ellipsis] … [trailing], one 20
   line at the inset (`HeaderBlock`, the card's header). Its trailing parts, from the start: the
   problem glyph (caution), the busy ring, an informing label (Caption, secondary), at most two header

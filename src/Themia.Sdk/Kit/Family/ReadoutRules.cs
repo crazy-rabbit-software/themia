@@ -10,6 +10,9 @@ namespace Themia.Sdk.Kit;
 /// </summary>
 public readonly record struct ReadoutText(string Value, string Unit = "", bool Lead = false, bool LineUnder = false, bool OneReadout = false);
 
+/// <summary>[S-6707] How a Readout with a delta folds: whether its unit is drawn, and whether the delta stands beside the value or on the line under it.</summary>
+public readonly record struct ReadoutFold(bool Unit, bool DeltaBeside);
+
 /// <summary>
 /// [S-6702] The Readout's step: the largest step whose line (and the line under it) fits the box and
 /// whose value, unit and lead fit its width, never below Big 28.
@@ -82,6 +85,37 @@ public static class ReadoutRules
     /// <summary>How tall the readout is on <paramref name="step"/>: its line, and the line under it when it has one.</summary>
     public static double Height(TypeStep step, ReadoutText text)
         => step.LineHeight + (text.LineUnder ? FamilyType.Under(step).LineHeight : 0);
+
+    /// <summary>
+    /// [S-6707] Where a Readout's delta (a price's or a rate's change, Body) and its unit stand on
+    /// <paramref name="step"/> in <paramref name="width"/>: the value, the unit and the delta on one line
+    /// where they fit; else the unit gives way and the delta stays beside the value; else the delta takes
+    /// the line under the value (the unit back where the value and it fit). The delta is measured on its
+    /// widest case, so the fold does not change as the reading moves.
+    /// </summary>
+    public static ReadoutFold Fold(TypeStep step, ReadoutText text, string delta, double width)
+    {
+        var deltaWidth = DeltaWidth(delta);
+        var withUnit = Width(step, text);
+        var bare = Width(step, text with { Unit = string.Empty });
+        var hasUnit = !string.IsNullOrEmpty(text.Unit);
+
+        if (withUnit + deltaWidth <= width)
+        {
+            return new ReadoutFold(Unit: hasUnit, DeltaBeside: true);
+        }
+
+        if (hasUnit && bare + deltaWidth <= width)
+        {
+            return new ReadoutFold(Unit: false, DeltaBeside: true);
+        }
+
+        return new ReadoutFold(Unit: hasUnit && withUnit <= width, DeltaBeside: false);
+    }
+
+    /// <summary>A delta's width beside the value: the en space before it (half an em) and its text, Body.</summary>
+    public static double DeltaWidth(string? delta)
+        => string.IsNullOrEmpty(delta) ? 0 : (0.5 + HeroFit.Ems(delta)) * FamilyType.Body.FontSize;
 
     /// <summary>
     /// [S-3860] A formatted reading as the Readout draws it: the figure, and the unit after it with the

@@ -260,4 +260,32 @@ public sealed class FamilyBlockRulesTests
         Assert.Equal(0, ChartRules.GaugeSweep(double.NaN));
         Assert.Equal(51, ChartRules.GaugeHeight(100));
     }
+
+    [Fact]
+    public void S6707_a_delta_stands_beside_the_value_and_its_unit_where_they_fit()
+    {
+        var text = new ReadoutText("420.27", " USD");
+        Assert.Equal(new ReadoutFold(Unit: true, DeltaBeside: true), ReadoutRules.Fold(FamilyType.Big28, text, "+88.88%", 288));
+    }
+
+    [Fact]
+    public void S6707_the_unit_gives_way_before_the_delta_leaves_the_line()
+    {
+        var text = new ReadoutText("420.27", " USD");
+        var bare = ReadoutRules.Width(FamilyType.Big28, text with { Unit = "" }) + ReadoutRules.DeltaWidth("+88.88%");
+        Assert.Equal(new ReadoutFold(Unit: false, DeltaBeside: true), ReadoutRules.Fold(FamilyType.Big28, text, "+88.88%", bare));
+    }
+
+    [Fact]
+    public void S6707_a_delta_with_no_room_beside_takes_the_line_under_and_the_unit_comes_back()
+    {
+        var text = new ReadoutText("420.27", " USD");
+        var withUnit = ReadoutRules.Width(FamilyType.Big28, text);
+        Assert.Equal(new ReadoutFold(Unit: true, DeltaBeside: false), ReadoutRules.Fold(FamilyType.Big28, text, "+88.88%", withUnit));
+        Assert.Equal(new ReadoutFold(Unit: false, DeltaBeside: false), ReadoutRules.Fold(FamilyType.Big28, text, "+88.88%", withUnit - 1));
+    }
+
+    [Fact]
+    public void S6707_no_delta_always_stands_beside()
+        => Assert.True(ReadoutRules.Fold(FamilyType.Big40, new ReadoutText("1.0675", " EUR"), "", 200).DeltaBeside);
 }

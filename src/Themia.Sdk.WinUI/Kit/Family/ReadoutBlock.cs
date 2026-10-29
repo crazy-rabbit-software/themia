@@ -26,6 +26,7 @@ public sealed partial class ReadoutBlock : StackPanel
     private ColourRole _valueRole = ColourRole.TextPrimary;
     private ColourRole _deltaRole = ColourRole.TextSecondary;
     private ColourRole _leadRole = ColourRole.TextSecondary;
+    private ColourRole _underRole = ColourRole.TextSecondary;
     private bool _painted;
     private bool _centred;
     private bool _underFits = true;
@@ -60,9 +61,11 @@ public sealed partial class ReadoutBlock : StackPanel
     /// [S-6330] Show a reading: the value, its unit (a leading space where one is drawn), the line under
     /// it, a delta and its role, a lead glyph and its role, and the value's role (the disabled role for
     /// a part missing on this PC, [S-1940]; the unit and the line under follow it). What is the same as
-    /// before is not touched, so a live reading costs its changed text alone.
+    /// before is not touched, so a live reading costs its changed text alone. [S-6707] A delta that
+    /// folds under the value (<see cref="ReadoutRules.Fold"/>) is the line under, in the delta's role
+    /// (<paramref name="underRole"/>).
     /// </summary>
-    public void Show(string value, string unit = "", string? under = null, string? delta = null, ColourRole deltaRole = ColourRole.TextSecondary, string? lead = null, ColourRole valueRole = ColourRole.TextPrimary, ColourRole leadRole = ColourRole.TextSecondary)
+    public void Show(string value, string unit = "", string? under = null, string? delta = null, ColourRole deltaRole = ColourRole.TextSecondary, string? lead = null, ColourRole valueRole = ColourRole.TextPrimary, ColourRole leadRole = ColourRole.TextSecondary, ColourRole underRole = ColourRole.TextSecondary)
     {
         Set(_value, value);
         Set(_unit, unit);
@@ -81,9 +84,10 @@ public sealed partial class ReadoutBlock : StackPanel
             _lead.Visibility = string.IsNullOrEmpty(lead) ? Visibility.Collapsed : Visibility.Visible;
         }
 
-        if (deltaRole != _deltaRole || valueRole != _valueRole || leadRole != _leadRole || !_painted)
+        if (deltaRole != _deltaRole || valueRole != _valueRole || leadRole != _leadRole || underRole != _underRole || !_painted)
         {
             _deltaRole = deltaRole;
+            _underRole = underRole;
             _valueRole = valueRole;
             _leadRole = leadRole;
             Paint();
@@ -152,7 +156,7 @@ public sealed partial class ReadoutBlock : StackPanel
         _line.Foreground = Family.Brush(_valueRole);
         _unit.Foreground = Family.Brush(off ? ColourRole.TextDisabled : ColourRole.TextSecondary);
         _delta.Foreground = Family.Brush(off ? ColourRole.TextDisabled : _deltaRole);
-        _under.Foreground = Family.Brush(off ? ColourRole.TextDisabled : ColourRole.TextSecondary);
+        _under.Foreground = Family.Brush(off ? ColourRole.TextDisabled : _underRole);
         _lead.Foreground = Family.Brush(off ? ColourRole.TextDisabled : _leadRole);
     }
 }
