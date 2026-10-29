@@ -7,7 +7,8 @@ using Themia.Core.Widgets;
 namespace Themia.App.Widgets;
 
 /// <summary>
-/// Debug renders only ([S-1917]): fixture nowcasts (<c>sample</c>, <c>dry</c>), so the ladder can be
+/// Debug renders only ([S-1917]): fixture nowcasts (<c>sample</c>, <c>dry</c>, and <c>stale</c>: the sample
+/// kept through a failed refresh), so the ladder can be
 /// looked at without a place, the network or the sync. Built through the SDK's parser, so a fixture
 /// is exactly what a reply would have become. Nothing is fetched or saved.
 /// </summary>
@@ -17,7 +18,7 @@ internal sealed partial class RainNextHourView : IWidgetPreviewState
 
     public Task ShowPreviewStateAsync(string state)
     {
-        if (state is not ("sample" or "dry"))
+        if (state is not ("sample" or "dry" or "stale"))
         {
             return Task.CompletedTask;
         }

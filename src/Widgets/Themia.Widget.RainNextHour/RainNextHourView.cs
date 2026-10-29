@@ -1,8 +1,5 @@
-using Microsoft.UI;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
-using Microsoft.UI.Xaml.Media;
-using Microsoft.UI.Xaml.Shapes;
 using Themia.App.Services;
 using Themia.App.Services.Web;
 using Themia.App.Shell;
@@ -10,6 +7,7 @@ using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Sync;
 using Themia.Core.Widgets;
+using Themia.Sdk.Kit;
 using Themia.Sdk.WinUI;
 using Themia.Sdk.WinUI.Kit;
 using Themia.Widget.RainNextHour;
@@ -17,28 +15,29 @@ using Themia.Widget.RainNextHour;
 namespace Themia.App.Widgets;
 
 /// <summary>
-/// [S-5120] Rain in the next two hours at a place: one sentence ("Rain in 15 min", "No rain in the
-/// next 2 hours") at every size, then the intensity and chance, then a bar per quarter hour on a fixed
-/// scale with the times under it ([S-5126]). The sentence is re-read from the held nowcast every
-/// minute, so "in 30 min" counts down between fetches.
+/// [S-5120] Rain in the next two hours at a place, on the family's tokens: one sentence ("Rain in
+/// 15 min") at the content's top, the intensity, total and chance under it, then a column per quarter
+/// hour on a fixed scale (the Chart block's columns) with the window's two ends under them ([S-5126]).
+/// A dry window, or one too short to speak for the hour, is the Status row's one plain sentence
+/// ([S-6714]). The sentence is re-read from the held nowcast every minute, so "in 30 min" counts down
+/// between fetches.
 /// </summary>
 internal sealed partial class RainNextHourView : Grid, IWidgetView, IWidgetHeaderContent, IWidgetSurfaceAware,
     IWidgetSizeAware, IWidgetContextActions
 {
     /// <summary>[S-7064] The header's problem glyph ([S-7042]): the one stale rule, no age.</summary>
     private readonly KitHeader _header;
-    private readonly FontIcon _icon = Fluent.Icon(Glyphs.Rain, "TextFillColorSecondaryBrush", Fluent.Space6);
-    private readonly TextBlock _headline = Fluent.Text(FluentType.Subtitle);
-    private readonly TextBlock _caption = Fluent.Text(FluentType.Caption, "TextFillColorSecondaryBrush");
-    private readonly Grid _top = new();
-    private readonly Grid _chart = new();
-    private readonly Canvas _bars = new() { IsHitTestVisible = false };
-    private readonly Grid _times = new();
-    private readonly TextBlock _timeStart = Fluent.Text(FluentType.Caption, "TextFillColorSecondaryBrush");
-    private readonly TextBlock _timeMid = Fluent.Text(FluentType.Caption, "TextFillColorSecondaryBrush");
-    private readonly TextBlock _timeEnd = Fluent.Text(FluentType.Caption, "TextFillColorSecondaryBrush");
-    private readonly StackPanel _emptyState;
-    private readonly TextBlock _emptyMessage = new();
+    private readonly TextBlock _headline = Family.Text(FamilyType.Title);
+    private readonly TextBlock _caption = Family.Text(FamilyType.Body, ColourRole.TextSecondary);
+    private readonly StackPanel _top = new();
+    private readonly Grid _chart = new() { RowSpacing = RainLayout.LabelGap };
+    private readonly Grid _bars = new() { IsHitTestVisible = false };
+    private readonly List<ChartBar> _columns = [];
+    private readonly TextBlock _timeStart = Family.Text(FamilyType.Caption, ColourRole.TextTertiary);
+    private readonly TextBlock _timeEnd = Family.Text(FamilyType.Caption, ColourRole.TextTertiary);
+
+    /// <summary>[S-6734] No nowcast, a dry window or one too short: the Status block's row at the top.</summary>
+    private readonly StatusBlock _state = new();
 
     private Ticker? _ticker;
     private RainNextHourConfig _config = new();
@@ -66,47 +65,41 @@ internal sealed partial class RainNextHourView : Grid, IWidgetView, IWidgetHeade
     {
         _host = host;
         _header = new KitHeader(host);
-        RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
-        RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
 
-        _top.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
-        _top.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
-        _top.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
-        _top.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
-        _top.Margin = new Thickness(OnlineLayouts.Inset, OnlineLayouts.VerticalInset, OnlineLayouts.Inset, 0);
-        _top.VerticalAlignment = VerticalAlignment.Center;
-        _icon.Margin = new Thickness(0, 0, Fluent.Space3, 0);
-        _icon.VerticalAlignment = VerticalAlignment.Center;
-        _headline.VerticalAlignment = VerticalAlignment.Center;
-        SetColumn(_headline, 1);
-        SetColumn(_caption, 1);
-        SetRow(_caption, 1);
-        _top.Children.Add(_icon);
+        _top.Margin = Family.SideInset;
+        _top.VerticalAlignment = VerticalAlignment.Top;
+        _headline.TextWrapping = TextWrapping.WrapWholeWords;
         _top.Children.Add(_headline);
         _top.Children.Add(_caption);
 
         // [S-1113] Time runs left to right in every language, as on the stock chart.
         _chart.FlowDirection = FlowDirection.LeftToRight;
+        _chart.Margin = new Thickness(FamilySpace.Inset, 0, FamilySpace.Inset, FamilySpace.Inset);
+        _chart.VerticalAlignment = VerticalAlignment.Bottom;
         _chart.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
         _chart.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
-        _chart.Margin = new Thickness(OnlineLayouts.Inset, OnlineLayouts.Gap, OnlineLayouts.Inset, OnlineLayouts.VerticalInset);
-        _timeMid.HorizontalAlignment = HorizontalAlignment.Center;
+        for (var i = 0; i < RainRules.WindowSteps; i++)
+        {
+            _bars.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+            var column = new ChartBar(vertical: true);
+            SetColumn(column, i);
+            _columns.Add(column);
+            _bars.Children.Add(column);
+        }
+
         _timeEnd.HorizontalAlignment = HorizontalAlignment.Right;
-        _times.Children.Add(_timeStart);
-        _times.Children.Add(_timeMid);
-        _times.Children.Add(_timeEnd);
-        SetRow(_times, 1);
+        SetRow(_timeStart, 1);
+        SetRow(_timeEnd, 1);
         _chart.Children.Add(_bars);
-        _chart.Children.Add(_times);
-        _chart.SizeChanged += OnChartSize;
-        SetRow(_chart, 1);
+        _chart.Children.Add(_timeStart);
+        _chart.Children.Add(_timeEnd);
 
-        _emptyState = Fluent.EmptyState(Glyphs.Rain, _emptyMessage, out _);
-        SetRowSpan(_emptyState, 2);
-
+        _state.Visibility = Visibility.Collapsed;
+        _top.Visibility = Visibility.Collapsed;
+        _chart.Visibility = Visibility.Collapsed;
         Children.Add(_top);
         Children.Add(_chart);
-        Children.Add(_emptyState);
+        Children.Add(_state);
     }
 
     public FrameworkElement? HeaderTrailing => _header;
@@ -218,8 +211,8 @@ internal sealed partial class RainNextHourView : Grid, IWidgetView, IWidgetHeade
 
         if (_nowcast is not { Value: { } cast } held)
         {
-            _emptyMessage.Text = _status == FetchStatus.NotConfigured ? string.Empty : FetchState.Message(_status);
-            _emptyState.Visibility = Visibility.Visible;
+            // [S-6734] Not set up is the card's Set up row ([S-1862]); every other state is one row here.
+            OnlineParts.ShowState(_state, _status, Glyphs.Rain, () => Reload(force: true));
             _top.Visibility = _chart.Visibility = Visibility.Collapsed;
             _header.Clear();
             _outlook = null;
@@ -229,110 +222,50 @@ internal sealed partial class RainNextHourView : Grid, IWidgetView, IWidgetHeade
         var now = _pinnedNow ?? DateTimeOffset.Now;
         var outlook = RainRules.Outlook(cast, now);
         _outlook = outlook;
+        _header.Show(OnlineParts.Problems(held), busy: false);
 
-        _emptyState.Visibility = Visibility.Collapsed;
+        // [S-5126] Nothing to warn of (a dry window) or nothing to go on (too few steps): one plain sentence.
+        if (!RainLayout.Warns(outlook.Headline))
+        {
+            _state.Show(StatusKind.Empty, Glyphs.Rain, RainText.Headline(outlook));
+            _top.Visibility = _chart.Visibility = Visibility.Collapsed;
+            return;
+        }
+
+        _state.Hide();
         _top.Visibility = Visibility.Visible;
         _headline.Text = RainText.Headline(outlook);
         _caption.Text = RainText.Caption(outlook);
-
-        var wet = outlook.Headline is RainHeadline.StopsIn or RainHeadline.Continues or RainHeadline.StartsIn;
-        _icon.Glyph = outlook.Headline == RainHeadline.Dry ? Glyphs.Cloudy : Glyphs.Rain;
-        _icon.Foreground = ThemeBrush.Of(wet ? "AccentTextFillColorPrimaryBrush" : "TextFillColorSecondaryBrush", Colors.Gray);
 
         if (outlook.Steps.Count > 0)
         {
             var start = outlook.Steps[0].Start.ToLocalTime();
             _timeStart.Text = RainNextHourStr.Online_Rain_Now.Text();
-            _timeMid.Text = LocaleFormat.Time(TimeOnly.FromDateTime(start.AddHours(1).DateTime));
             _timeEnd.Text = LocaleFormat.Time(TimeOnly.FromDateTime(start.AddHours(2).DateTime));
         }
 
-        _header.Show(OnlineParts.Problems(held), busy: false);
+        // [S-5125] A column per quarter hour on a fixed scale; a dry one is its empty track.
+        for (var i = 0; i < _columns.Count; i++)
+        {
+            _columns[i].Show(i < outlook.Steps.Count ? RainRules.BarShare(outlook.Steps[i].Millimetres) : 0);
+        }
+
         Lay();
     }
 
     private void Lay()
     {
-        if (_detached || _outlook is not { } outlook || !_area.IsMeasured)
+        if (_detached || _outlook is not { } outlook || !RainLayout.Warns(outlook.Headline) || !_area.IsMeasured)
         {
             return;
         }
 
-        var width = Math.Max(0, _area.Width - (2 * OnlineLayouts.Inset));
-        var hasCaption = _caption.Text.Length > 0;
-
-        // The sentence's step by its width first (it is the widget); two lines where even the
-        // smallest step cannot hold it on one. The ladder then spends the height under it.
-        var iconRoom = width >= 200 ? Fluent.Space6 + Fluent.Space3 : 0;
-        var characters = Math.Max(8, _headline.Text.Length);
-        var wanted = FluentType.Fit(width - iconRoom, FluentType.Title.LineHeight, characters, FluentType.BodyStrong, FluentType.Title);
-        var wraps = FluentType.EstimateWidth(FluentType.BodyStrong, characters) > width - iconRoom;
-        _headline.TextWrapping = wraps ? TextWrapping.WrapWholeWords : TextWrapping.NoWrap;
-        _headline.MaxLines = wraps ? 2 : 1;
-        var floor = wanted.LineHeight * (wraps ? 2 : 1);
-        var plan = RainLayout.Rain(_area, floor, hasCaption);
-
+        var plan = RainLayout.Rain(_area, _headline.Text, _caption.Text.Length > 0);
+        Family.Step(_headline, plan.Headline);
+        _headline.MaxLines = plan.Wraps ? 2 : 1;
         _caption.Visibility = plan.Caption ? Visibility.Visible : Visibility.Collapsed;
-        var showChart = plan.ChartHeight > 0 && outlook.Headline != RainHeadline.Outdated;
-        _chart.Visibility = showChart ? Visibility.Visible : Visibility.Collapsed;
-        _chart.Height = showChart ? plan.ChartHeight : double.NaN;
-        RowDefinitions[0].Height = showChart ? GridLength.Auto : new GridLength(1, GridUnitType.Star);
-        RowDefinitions[1].Height = showChart ? new GridLength(1, GridUnitType.Star) : GridLength.Auto;
-        _chart.VerticalAlignment = VerticalAlignment.Bottom;
-
-        // The sentence at the largest step its room allows, measured on its own length.
-        _icon.Visibility = iconRoom > 0 ? Visibility.Visible : Visibility.Collapsed;
-        var room = plan.HeadlineRoom / (wraps ? 2 : 1);
-        var step = wraps ? FluentType.BodyStrong : FluentType.Fit(width - iconRoom, room, characters, FluentType.BodyStrong, FluentType.Title);
-        _headline.Apply(step);
-        _icon.FontSize = Math.Clamp(step.LineHeight, Fluent.IconSize, 40);
-        SetRowSpan(_icon, plan.Caption ? 2 : 1);
-
-        DrawBars();
-    }
-
-    private void OnChartSize(object sender, SizeChangedEventArgs args) => DrawBars();
-
-    /// <summary>[S-5125] One bar per quarter hour on a fixed scale; a dry quarter is a hairline on the baseline.</summary>
-    private void DrawBars()
-    {
-        _bars.Children.Clear();
-
-        if (_chart.Visibility != Visibility.Visible || _outlook is not { Steps.Count: > 0 } outlook)
-        {
-            return;
-        }
-
-        var width = _chart.ActualWidth;
-        var height = _chart.ActualHeight - FluentType.Caption.LineHeight - Fluent.Space1;
-        if (width <= 0 || height <= 0)
-        {
-            return;
-        }
-
-        var slots = RainRules.WindowSteps;
-        var gap = Math.Min(Fluent.Space1, width / (slots * 4));
-        var barWidth = (width - ((slots - 1) * gap)) / slots;
-        var accent = ThemeBrush.Of("AccentFillColorDefaultBrush", Colors.DodgerBlue);
-        var rule = ThemeBrush.Of("TextFillColorTertiaryBrush", Colors.Gray);
-
-        for (var i = 0; i < outlook.Steps.Count && i < slots; i++)
-        {
-            var share = RainRules.BarShare(outlook.Steps[i].Millimetres);
-            var barHeight = share > 0 ? Math.Max(Fluent.Space1, share * height) : Fluent.Hairline;
-            var bar = new Rectangle
-            {
-                Width = barWidth,
-                Height = barHeight,
-                RadiusX = share > 0 ? Fluent.ControlRadius / 2 : 0,
-                RadiusY = share > 0 ? Fluent.ControlRadius / 2 : 0,
-                Fill = share > 0 ? accent : rule,
-            };
-
-            Canvas.SetLeft(bar, i * (barWidth + gap));
-            Canvas.SetTop(bar, height - barHeight);
-            _bars.Children.Add(bar);
-        }
+        _chart.Visibility = plan.ChartHeight > 0 ? Visibility.Visible : Visibility.Collapsed;
+        _chart.Height = plan.ChartHeight > 0 ? plan.ChartHeight : double.NaN;
     }
 
     public void Detach()
@@ -348,7 +281,6 @@ internal sealed partial class RainNextHourView : Grid, IWidgetView, IWidgetHeade
             _web = null;
         }
 
-        _bars.Children.Clear();
         _ticker = null;
     }
 

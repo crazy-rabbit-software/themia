@@ -17,12 +17,17 @@ lines, JSON context), `RainNextHourConfig.cs`, `RainNextHourView.cs` (it reads t
   setting beyond the place and the location name.
 - **[S-5121]** `RainInterest`; the weather cadence ([S-3780]). The sentence is re-read from the held
   nowcast every minute, so "in 30 min" counts down between fetches.
-- **[S-5125]** The bars are on a fixed scale (heavy rain fills the chart), a wet quarter never thinner
-  than 8%, a dry one a hairline on the baseline; "Now", +1 h and +2 h under them, left to right in
-  every language.
-- **[S-5126]** Ladder (`RainLayout.Rain`): the sentence always, at the step its width allows
-  (BodyStrong to Title; two lines on a tile too narrow for one), then the caption, then the bars
-  where 32 DIP of them and their time line fit, taking the rest of the height.
+- **[S-5125]** The bars are the Chart block's columns ([S-6717]), one per quarter hour in equal cells
+  across the content, filled from the foot on a fixed scale (heavy rain fills the chart), a wet quarter
+  never under 8 %, a dry one its empty track; the window's two ends under them in Caption tertiary
+  ("Now" and the time two hours on), left to right in every language.
+- **[S-5126]** Ladder (`RainLayout.Rain`), at the top of the content: the sentence in Title where its
+  line holds it, else BodyStrong, on two lines where even that cannot hold it on one (it never grows
+  past Title: room left goes to the bars, [S-666]); then the caption (Body, secondary: the heaviest
+  rain, the total, the chance); then the bars 8 under the text, taking the rest to the content's foot
+  where 32 of bars and their time line fit. A dry window, or one too short to speak for the hour, is
+  the Status row's one plain sentence ([S-6714]: the widget's glyph, "No rain in the next 2 hours"),
+  nothing else; no answer at all is [S-6734]'s row.
 - **[S-5127]** Every option is on the properties menu ([S-3719], user request 2026-10-19); there is
   no settings page: Appearance ([S-3723]), then behind a divider each **Location** (the weather family's search, [S-2840],
   [S-3722]; the place's city is the header's title, [S-728]), a link to **Update interval** (⚙ ›
