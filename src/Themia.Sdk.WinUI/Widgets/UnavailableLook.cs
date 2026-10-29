@@ -1,29 +1,26 @@
-using Microsoft.UI;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Automation;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media;
-using Themia.Sdk.WinUI;
+using Themia.Sdk.Kit;
+using Themia.Sdk.WinUI.Kit;
 
 namespace Themia.App.Widgets;
 
 /// <summary>
 /// [S-1940] The one look a widget draws its content in while its subject is not on this machine (no
 /// battery, no display brightness, no output device, no adapter): its own parts at their own places,
-/// in Fluent's disabled brushes, its controls disabled, the reason on hover and for a screen reader.
+/// in the family's disabled role ([S-6706]), its controls disabled, the reason on hover and for a screen reader.
 /// No widget builds an empty state for that, and none picks its own grey. The figures the parts stand
 /// at are the SDK's <see cref="Themia.Core.Widgets.Unavailable"/>.
 /// </summary>
 public static class UnavailableLook
 {
-    /// <summary>Text and glyphs: Fluent's disabled text.</summary>
-    public static Brush Text { get; } = ThemeBrush.Of("TextFillColorDisabledBrush", Colors.Gray);
+    /// <summary>Text and glyphs: the disabled role.</summary>
+    public static Brush Text { get; } = Family.Brush(ColourRole.TextDisabled);
 
-    /// <summary>A level's fill (a battery, a ring, a chart): the disabled accent, as a disabled slider's value.</summary>
-    public static Brush Fill { get; } = ThemeBrush.Of("AccentFillColorDisabledBrush", Colors.Gray);
-
-    /// <summary>An outline (a battery's body): the disabled strong stroke, as a disabled control's edge.</summary>
-    public static Brush Stroke { get; } = ThemeBrush.Of("ControlStrongStrokeColorDisabledBrush", Colors.Gray);
+    /// <summary>A level's fill (a chart's bars, a baseline): the disabled role too, so a part missing on this PC is one grey.</summary>
+    public static Brush Fill { get; } = Family.Brush(ColourRole.TextDisabled);
 
     /// <summary>
     /// Say why on <paramref name="element"/> (the widget's root): the tooltip and the help text are the

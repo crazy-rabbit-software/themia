@@ -549,9 +549,8 @@ greyed out … do the same for the battery widget". Owning files: `Themia.Sdk/Wi
 - **[S-1940]** A widget whose subject is not on this machine (no battery, no display brightness, no
   output device, no graphics adapter, an output the capture cannot reach, a quick setting Windows does
   not offer here) draws its own content, the same ladder and parts as when the subject is there, in
-  Fluent's disabled look (`UnavailableLook`: `TextFillColorDisabledBrush` for text and glyphs,
-  `AccentFillColorDisabledBrush` for a level's fill, `ControlStrongStrokeColorDisabledBrush` for an
-  outline; its controls `IsEnabled = false`). Nothing on it takes a click, the wheel, a key or a menu;
+  the family's disabled role (`UnavailableLook`: `ColourRole.TextDisabled` for text, glyphs and a
+  level's fill, [S-6706]; its controls `IsEnabled = false`). Nothing on it takes a click, the wheel, a key or a menu;
   the reason is the tile's tooltip and help text. No empty state replaces it. Not this rule: a widget
   waiting for setup ([S-1862]), an online widget's states (the kit's), a list whose items are data that
   is simply not there (Bluetooth devices, notifications, removable drives, a drive not connected:
