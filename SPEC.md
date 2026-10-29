@@ -7313,10 +7313,13 @@ What needs a manual pass is BAR-MENUS' ([S-3548]).
   outside edit mode too.
 - **[S-881]** A notice (`Core/Shell/Notice`) has a kind (Info, Success, Warning, Error), a title, an
   optional message, an optional single action, a key and a sticky flag. Drawn by `Shell/NoticeCard`
-  as Windows 11 draws a notification: severity glyph in the system severity colour, bold title,
-  secondary message (4 lines max), the action as a button (on the title's line when there is no
-  message, so "Deleted 3 widgets · Undo" stays one row; under the message otherwise), a close button; 364 DIP wide (never
-  wider than the work area), opaque flyout fill and stroke. Its buttons never take focus.
+  as Windows 11 draws a notification, on the family's tokens: the severity glyph (16, centred on the
+  title's line) in its role, the accent for Info and Success (no success green, [S-6706]), Caution
+  and Critical for a warning and an error; the title BodyStrong, the message Body secondary right
+  under it (4 lines max), the action as a button (on the title's line when there is no message, so
+  "Deleted 3 widgets · Undo" stays one row; under the message otherwise), a close button of the
+  header's 24 with its 16 glyph; 364 DIP wide (never wider than the work area), padded 16, 12, 12, 16,
+  the raised sheet's opaque fill and the flyout's stroke (`ShellRole`). Its buttons never take focus.
 - **[S-882]** `NoticeStack`: at most 3 at once, newest at the bottom; a fourth pushes out the oldest
   non-sticky one; a notice with the key of one showing replaces it and becomes the newest ("undo"
   notices replace each other, "license" refusals too).

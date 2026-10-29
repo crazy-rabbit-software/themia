@@ -42,17 +42,6 @@
 1	src/Themia.App/Shell/Motion/HackerTile.cs	stroke	StrokeThickness = 2
 1	src/Themia.App/Shell/Motion/HyperspaceOverlay.cs	colour	Color.FromArgb(
 1	src/Themia.App/Shell/Motion/HyperspaceOverlay.cs	colour	Colors.Black
-1	src/Themia.App/Shell/NoticeCard.cs	brush	SolidBackgroundFillColorTertiaryBrush
-1	src/Themia.App/Shell/NoticeCard.cs	brush	SurfaceStrokeColorFlyoutBrush
-1	src/Themia.App/Shell/NoticeCard.cs	brush	SystemFillColorAttentionBrush
-1	src/Themia.App/Shell/NoticeCard.cs	brush	SystemFillColorSuccessBrush
-1	src/Themia.App/Shell/NoticeCard.cs	colour	Colors.Transparent
-1	src/Themia.App/Shell/NoticeCard.cs	size	Height = 28
-1	src/Themia.App/Shell/NoticeCard.cs	size	Width = 28
-1	src/Themia.App/Shell/NoticeCard.cs	space	Spacing = 2
-1	src/Themia.App/Shell/NoticeCard.cs	space	new Thickness(0, 2, Fluent.Space3, 0)
-1	src/Themia.App/Shell/NoticeCard.cs	space	new Thickness(Fluent.Space2, -4, -6, 0)
-1	src/Themia.App/Shell/NoticeCard.cs	space	new Thickness(Fluent.Space3, -4, 0, 0) : new Thickness(0, Fluent.Space2, 0, 0)
 1	src/Themia.App/Shell/WidgetCard.Fault.cs	size	MaxHeight = 240
 1	src/Themia.App/Shell/WidgetCard.Fault.cs	size	MaxWidth = 320
 2	src/Themia.App/Shell/WidgetCard.cs	brush	CardBackgroundFillColorDefaultBrush

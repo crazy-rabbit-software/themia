@@ -1,4 +1,3 @@
-using Microsoft.UI;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Themia.App.Widgets;
@@ -6,7 +5,9 @@ using Themia.Core.Diagnostics;
 using Themia.Core.Localization;
 using Themia.Core.Shell;
 using Themia.Core.Widgets;
+using Themia.Sdk.Kit;
 using Themia.Sdk.WinUI;
+using Themia.Sdk.WinUI.Kit;
 
 namespace Themia.App.Shell;
 
@@ -25,7 +26,10 @@ internal sealed partial class NoticeCard : Grid
     private const string Scope = "notice";
 
     /// <summary>Windows' own toast width.</summary>
-    public const double CardWidth = 364;
+    public const double CardWidth = ShellMetrics.Notice.Width;
+
+    /// <summary>How far the severity glyph stands down to centre on the title's line.</summary>
+    private const double GlyphDrop = (FamilyType.BodyLine - FamilyShape.Icon) / 2;
 
     public NoticeCard(Notice notice, Action<NoticeCard> dismiss)
     {
@@ -34,32 +38,29 @@ internal sealed partial class NoticeCard : Grid
 
         Notice = notice;
 
-        var (glyph, brushKey, fallback) = notice.Kind switch
+        // [S-6706] No success green: a notice that went well is the accent's, as Info is; a warning and
+        // an error are the caution and critical roles.
+        var (glyph, role) = notice.Kind switch
         {
-            NoticeKind.Success => (Glyphs.Success, "SystemFillColorSuccessBrush", Colors.SeaGreen),
-            NoticeKind.Warning => (Glyphs.Warning, "SystemFillColorCautionBrush", Colors.DarkGoldenrod),
-            NoticeKind.Error => (Glyphs.ErrorBadge, "SystemFillColorCriticalBrush", Colors.Firebrick),
-            _ => (Glyphs.Info, "SystemFillColorAttentionBrush", Colors.SteelBlue),
+            NoticeKind.Success => (Glyphs.Success, ColourRole.Accent),
+            NoticeKind.Warning => (Glyphs.Warning, ColourRole.Caution),
+            NoticeKind.Error => (Glyphs.ErrorBadge, ColourRole.Critical),
+            _ => (Glyphs.Info, ColourRole.Accent),
         };
 
-        var icon = new FontIcon
-        {
-            Glyph = glyph,
-            FontSize = Fluent.IconSize,
-            Foreground = ThemeBrush.Of(brushKey, fallback),
-            VerticalAlignment = VerticalAlignment.Top,
-            Margin = new Thickness(0, 2, Fluent.Space3, 0),
-        };
+        // The 16 glyph on the title's 20 line: as far down as centres it there.
+        var icon = Family.Glyph(glyph, FamilyShape.Icon, role);
+        icon.VerticalAlignment = VerticalAlignment.Top;
+        icon.Margin = new Thickness(0, GlyphDrop, FamilySpace.S3, 0);
 
-        var title = Fluent.Text(FluentType.BodyStrong, "TextFillColorPrimaryBrush");
-        title.Text = notice.Title;
+        var title = Family.Text(FamilyType.BodyStrong, ColourRole.TextPrimary, notice.Title);
         title.TextWrapping = TextWrapping.Wrap;
 
-        var text = new StackPanel { Spacing = 2, Children = { title } };
+        var text = new StackPanel { Children = { title } };
 
         if (!string.IsNullOrWhiteSpace(notice.Message))
         {
-            var message = Fluent.Text(FluentType.Body, "TextFillColorSecondaryBrush");
+            var message = Family.Text(FamilyType.Body, ColourRole.TextSecondary);
             message.Text = notice.Message;
             message.TextWrapping = TextWrapping.Wrap;
             message.MaxLines = 4;
@@ -77,10 +78,10 @@ internal sealed partial class NoticeCard : Grid
             var button = new Button
             {
                 Content = action.Label,
-                Margin = inline ? new Thickness(Fluent.Space3, -4, 0, 0) : new Thickness(0, Fluent.Space2, 0, 0),
+                Margin = inline ? new Thickness(FamilySpace.S3, -FamilySpace.S1, 0, 0) : new Thickness(0, FamilySpace.S2, 0, 0),
                 VerticalAlignment = VerticalAlignment.Top,
                 AllowFocusOnInteraction = false,
-                MinWidth = inline ? 0 : 96,
+                MinWidth = inline ? 0 : ShellMetrics.Notice.ActionMinWidth,
             };
             button.Click += (_, _) =>
             {
@@ -107,13 +108,13 @@ internal sealed partial class NoticeCard : Grid
 
         var close = new Button
         {
-            Content = new FontIcon { Glyph = Glyphs.Dismiss, FontSize = FluentType.Caption.FontSize },
-            Width = 28,
-            Height = 28,
+            Content = Family.Glyph(Glyphs.Dismiss, FamilyShape.Icon, ColourRole.TextSecondary),
+            Width = FamilyShape.HeaderButton,
+            Height = FamilyShape.HeaderButton,
             Padding = new Thickness(0),
-            Margin = new Thickness(Fluent.Space2, -4, -6, 0),
+            Margin = new Thickness(FamilySpace.S2, -FamilySpace.ButtonOverflow, -FamilySpace.S1, 0),
             VerticalAlignment = VerticalAlignment.Top,
-            Background = new Microsoft.UI.Xaml.Media.SolidColorBrush(Colors.Transparent),
+            Background = Family.Brush(ColourRole.Clear),
             BorderThickness = new Thickness(0),
             AllowFocusOnInteraction = false,
         };
@@ -145,11 +146,11 @@ internal sealed partial class NoticeCard : Grid
 
         Children.Add(row);
         Width = CardWidth;
-        Padding = new Thickness(Fluent.Space4, Fluent.Space3, Fluent.Space3, Fluent.Space4);
-        CornerRadius = new CornerRadius(Fluent.OverlayRadius);
-        BorderThickness = new Thickness(1);
-        BorderBrush = ThemeBrush.Of("SurfaceStrokeColorFlyoutBrush", Colors.Gray);
-        Background = ThemeBrush.Of("SolidBackgroundFillColorTertiaryBrush", Colors.DimGray);
+        Padding = new Thickness(FamilySpace.S4, FamilySpace.S3, FamilySpace.S3, FamilySpace.S4);
+        CornerRadius = new CornerRadius(ShellMetrics.OverlayRadius);
+        BorderThickness = new Thickness(FamilyShape.Hairline);
+        BorderBrush = ShellBrush.Of(ShellRole.FlyoutStroke);
+        Background = ShellBrush.Of(ShellRole.Raised);
         BackgroundSizing = BackgroundSizing.OuterBorderEdge;
         Microsoft.UI.Xaml.Automation.AutomationProperties.SetName(this, notice.Message is null ? notice.Title : $"{notice.Title}. {notice.Message}");
         Microsoft.UI.Xaml.Automation.AutomationProperties.SetLiveSetting(this, Microsoft.UI.Xaml.Automation.Peers.AutomationLiveSetting.Polite);
