@@ -5821,8 +5821,9 @@ card is re-created, no tick restarts. Pure rules live in Core (`DesignLook`, `De
   English only so far.
 - **[S-6570]** Whether a kind **has items** (`ItemKinds.Has`): its view paints rows, tiles, chips or
   tracks through the item layer ([S-6513]). Fifteen kinds paint none (Alarm, Audio visualizer,
-  Brightness, Exchange rates, Gallery, Next meeting, Notes, Rain next hour, Recycle bin, the screen
-  time chart and donut, Stopwatch, Video stream, Volume, Weather now); Stocks' holding is a Row. Each widget's descriptor states
+  Brightness, Exchange rates, Gallery, Next meeting, Notes, Quote, Rain next hour, Recycle bin, the
+  screen time chart and donut, Stopwatch, Video stream, Volume); Stocks' holding and Weather now's
+  readings are Rows, and the quote's commands left its body for the header (G3). Each widget's descriptor states
   it (`Traits.HasItems`, [S-6905]) and it cannot drift: `ItemKindsTests` reads every view's source (and the shared parts
   it builds — the flip card, rings, meter bars — to the fixed point) and fails when a descriptor and
   what its view paints disagree either way.

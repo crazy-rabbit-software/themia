@@ -30,7 +30,7 @@ public sealed class WeatherNowModule : IWidgetModule
         Glyph = Glyphs.Weather,
         DefaultWidth = 260,
         DefaultHeight = 200,
-        Traits = WidgetTraits.CanHaveHeader,
+        Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader,
         Add = new(AddFolderId.Weather, 0, 0, Popular: 1),
     };
 

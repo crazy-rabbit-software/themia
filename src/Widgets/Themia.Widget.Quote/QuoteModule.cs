@@ -29,7 +29,7 @@ public sealed class QuoteModule : IWidgetModule
         Glyph = Glyphs.Quote,
         DefaultWidth = 320,
         DefaultHeight = 180,
-        Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader,
+        Traits = WidgetTraits.CanHaveHeader,
         Add = new(AddFolderId.Notes, 1, 1),
     };
 
