@@ -43,6 +43,8 @@ internal static class FamilyBlockSamples
     ];
 
     private static readonly double[] Cpu = [0.42, 0.46, 0.44, 0.47, 0.40, 0.33, 0.34, 0.32, 0.36, 0.58, 0.66, 0.50, 0.36, 0.30, 0.28, 0.42, 0.60, 0.55, 0.40];
+    private static readonly (string Name, string Value, double Load)[] Engines = [("3D", "62%", 0.62), ("Copy", "8%", 0.08), ("Video encode", "0%", 0), ("Video decode", "23%", 0.23)];
+
     private static readonly double[] Kernel = [0.12, 0.16, 0.11, 0.15, 0.10, 0.14, 0.11, 0.09, 0.13, 0.15, 0.12, 0.10, 0.14, 0.11, 0.12, 0.10, 0.13, 0.15, 0.16];
 
     /// <summary>Every variant, by name, in the order the mockups draw them.</summary>
@@ -55,6 +57,7 @@ internal static class FamilyBlockSamples
         ("row-fact", FactRows),
         ("row-meter", MeterRows),
         ("row-cell", CellGrid),
+        ("row-bars", BarRows),
         ("readout", (w, h) => ReadoutCard(w, h, 0xE950, "CPU", new ReadoutText("62", "%", LineUnder: true), r => r.Show("62", "%", "Utilisation"))),
         ("readout-lead", (w, h) => ReadoutCard(w, h, 0xE753, "Zürich", new ReadoutText("14", "°C", Lead: true, LineUnder: true), r => r.Show("14", "°C", "Partly cloudy", lead: G(0xE9CA)))),
         ("readout-delta", (w, h) => ReadoutCard(w, h, 0xE9D2, "Apple", new ReadoutText("188.42", " USD", LineUnder: true), r => r.Show("188.42", " USD", "Apple Inc.", "−1.2 %", ColourRole.Critical))),
@@ -63,6 +66,8 @@ internal static class FamilyBlockSamples
         ("chart-caution", (w, h) => BandCard(w, h, "91", ColourRole.Caution)),
         ("chart-bar", BarCard),
         ("chart-ring", RingCard),
+        ("chart-gauge", GaugeCard),
+        ("chart-columns", ColumnsCard),
         ("status-empty", (w, h) => StatusCard(w, h, 0xE8F1, "Feed", StatusKind.Empty, "This feed has no articles", null)),
         ("status-problem", (w, h) => StatusCard(w, h, 0xE9D5, "Errands", StatusKind.Problem, "No network", "Try again")),
         ("status-setup", (w, h) => StatusCard(w, h, 0xE9D5, "Tasks", StatusKind.Setup, "Choose a list to show", "Set up")),
@@ -258,6 +263,70 @@ internal static class FamilyBlockSamples
         var ring = new ChartRing { Width = size, Height = size, HorizontalAlignment = HorizontalAlignment.Left, VerticalAlignment = VerticalAlignment.Top };
         ring.Show(0.72);
         return Card(w, h, Header(0xEDA2, "Disk"), ring);
+    }
+
+    /// <summary>[S-6304] Fact rows whose meter takes the room between the name and the value (a meter's items).</summary>
+    private static FrameworkElement BarRows(double w, double h)
+    {
+        var stack = new StackPanel();
+        var n = RowRules.Fit(ContentHeight(h), 1);
+        for (var i = 0; i < Math.Min(n, Engines.Length); i++)
+        {
+            var row = new RowBlock(RowKind.Fact, lead: 0);
+            var bar = new ChartBar();
+            bar.Show(Engines[i].Load);
+            row.Meter(bar, double.NaN);
+            row.NameText.MaxWidth = (w - (2 * FamilySpace.Inset)) / 2;
+            row.Show(Engines[i].Name, Engines[i].Value);
+            stack.Children.Add(row);
+        }
+
+        return Card(w, h, Header(0xF211, "RTX 4060 Ti"), stack, inset: false);
+    }
+
+    /// <summary>[S-6302] A gauge: the ring's upper half, its reading standing on its foot, centred.</summary>
+    private static FrameworkElement GaugeCard(double w, double h)
+    {
+        var diameter = Math.Floor(Math.Min(w - (2 * FamilySpace.Inset), 2 * (ContentHeight(h) - (FamilyShape.Stroke / 2))));
+        var gauge = new ChartRing(half: true);
+        gauge.Show(0.72);
+        var readout = new ReadoutBlock { HorizontalAlignment = HorizontalAlignment.Center, VerticalAlignment = VerticalAlignment.Bottom };
+        readout.Show("72", "%");
+        readout.Use(ReadoutRules.Step(Area(w, h), diameter - (2 * FamilySpace.S6), (diameter / 2) - FamilySpace.S2, new ReadoutText("100", "%")), centred: true);
+        var box = new Grid
+        {
+            Width = diameter,
+            Height = ChartRules.GaugeHeight(diameter),
+            HorizontalAlignment = HorizontalAlignment.Left,
+            VerticalAlignment = VerticalAlignment.Top,
+            Children = { gauge, readout },
+        };
+        return Card(w, h, Header(0xE950, "CPU"), box);
+    }
+
+    /// <summary>[S-6303] Columns: one 4 track per item, standing up, filled from its foot, under the reading.</summary>
+    private static FrameworkElement ColumnsCard(double w, double h)
+    {
+        var readout = new ReadoutBlock { VerticalAlignment = VerticalAlignment.Top, HorizontalAlignment = HorizontalAlignment.Left };
+        readout.Show("62", "%");
+        readout.Size(Area(w, h), w - (2 * FamilySpace.Inset), ContentHeight(h), new ReadoutText("100", "%"));
+        var columns = new Grid { Margin = new Thickness(0, FamilySpace.S2, 0, 0) };
+        for (var i = 0; i < Cpu.Length; i++)
+        {
+            columns.ColumnDefinitions.Add(new ColumnDefinition());
+            var bar = new ChartBar(vertical: true);
+            bar.Show(Cpu[i]);
+            Grid.SetColumn(bar, i);
+            columns.Children.Add(bar);
+        }
+
+        Grid.SetRow(columns, 1);
+        var content = new Grid
+        {
+            RowDefinitions = { new RowDefinition { Height = GridLength.Auto }, new RowDefinition { Height = new GridLength(1, GridUnitType.Star) } },
+            Children = { readout, columns },
+        };
+        return Card(w, h, Header(0xE950, "CPU"), content);
     }
 
     private static FrameworkElement StatusCard(double w, double h, int glyph, string name, StatusKind kind, string sentence, string? action)

@@ -208,14 +208,30 @@ public sealed partial class HeaderParts : StackPanel
         return element;
     }
 
+    /// <summary>
+    /// Whether <paramref name="element"/> (one of the parts) has anything to say now: a problem glyph only
+    /// while there is a problem. A part that is not wanted is collapsed and takes no room; the fold
+    /// decides among the wanted ones.
+    /// </summary>
+    public void Want(FrameworkElement element, bool wanted)
+    {
+        if (wanted ? _unwanted.Remove(element) : _unwanted.Add(element))
+        {
+            InvalidateMeasure();
+            (Parent as UIElement)?.InvalidateMeasure();
+        }
+    }
+
+    private readonly HashSet<FrameworkElement> _unwanted = [];
+
     /// <summary>Show the parts that fit a header <paramref name="width"/> wide whose name needs <paramref name="nameWidth"/>.</summary>
     public void Fold(double width, double nameWidth)
     {
-        var parts = _parts.Select(p => new HeaderPart(p.Kind, Measured(p.Element))).ToList();
+        var parts = _parts.Select(p => new HeaderPart(p.Kind, _unwanted.Contains(p.Element) ? 0 : Measured(p.Element))).ToList();
         var shown = HeaderRules.Shown(width, nameWidth, parts);
         for (var i = 0; i < _parts.Count; i++)
         {
-            var visibility = shown[i] ? Visibility.Visible : Visibility.Collapsed;
+            var visibility = shown[i] && !_unwanted.Contains(_parts[i].Element) ? Visibility.Visible : Visibility.Collapsed;
             if (_parts[i].Element.Visibility != visibility)
             {
                 _parts[i].Element.Visibility = visibility;

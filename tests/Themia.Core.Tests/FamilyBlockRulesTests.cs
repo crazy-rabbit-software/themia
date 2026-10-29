@@ -231,4 +231,20 @@ public sealed class FamilyBlockRulesTests
         Assert.Equal(90, ChartRules.Sweep(0.25));
         Assert.Equal(0, ChartRules.Sweep(double.NaN));
     }
+
+    [Fact]
+    public void S6717_a_value_stands_inside_its_band_and_a_gauge_is_the_rings_upper_half()
+    {
+        // A 0 half a stroke over the foot, a 1 half a stroke under the top, a bad value at 0.
+        Assert.Equal(49, ChartRules.Y(0, 50));
+        Assert.Equal(1, ChartRules.Y(1, 50));
+        Assert.Equal(49, ChartRules.Y(double.NaN, 50));
+        Assert.Equal(1, ChartRules.Y(3, 50));
+
+        // The gauge sweeps half a turn at full, from nine o'clock; its box is half the ring and half a stroke.
+        Assert.Equal(90, ChartRules.GaugeSweep(0.5));
+        Assert.Equal(180, ChartRules.GaugeSweep(2));
+        Assert.Equal(0, ChartRules.GaugeSweep(double.NaN));
+        Assert.Equal(51, ChartRules.GaugeHeight(100));
+    }
 }

@@ -19,10 +19,12 @@ public sealed partial class RowBlock : Grid
 {
     private readonly Border _lead;
     private readonly ContentPresenter _meter;
+    private Border? _ring;
     private bool _interactive;
     private RowKind _kind;
     private int _lines = 1;
     private bool _strong;
+    private bool _available = true;
 
     public RowBlock(RowKind kind = RowKind.List, double lead = FamilyShape.Icon)
     {
@@ -127,18 +129,83 @@ public sealed partial class RowBlock : Grid
 
     /// <summary>Lead the row with a 16 glyph in the lead's role.</summary>
     public void LeadGlyph(string glyph)
-        => _lead.Child = Family.Glyph(glyph, _lead.Width, RowRules.Roles(_kind).Lead);
+    {
+        if (_lead.Child is FontIcon icon)
+        {
+            icon.Glyph = glyph;
+            return;
+        }
+
+        _lead.Child = Family.Glyph(glyph, _lead.Width, RowRules.Roles(_kind, _available).Lead);
+    }
+
+    /// <summary>[S-1940] A row of a part missing on this PC: every text and its lead in the disabled role.</summary>
+    public bool Available
+    {
+        get => _available;
+        set
+        {
+            if (value != _available)
+            {
+                _available = value;
+                Apply();
+            }
+        }
+    }
 
     /// <summary>Lead the row with an element of the lead's size (an avatar, an app or file icon, a check).</summary>
     public void Lead(FrameworkElement element) => _lead.Child = element;
 
-    /// <summary>An inline meter between the name and the value (a <see cref="ChartBar"/>, 12 either side).</summary>
+    /// <summary>
+    /// An inline meter between the name and the value (a <see cref="ChartBar"/>, 12 either side), of
+    /// <paramref name="width"/>; <see cref="double.NaN"/> lets it take all the room the name and the
+    /// value leave (a meter's own rows: the bar is what they show), the name then as wide as its text.
+    /// </summary>
     public void Meter(FrameworkElement? meter, double width)
     {
         _meter.Content = meter;
-        _meter.Width = width;
+        var fills = double.IsNaN(width) && meter is not null;
+        _meter.Width = fills ? double.NaN : width;
+        _meter.HorizontalAlignment = HorizontalAlignment.Stretch;
         _meter.Margin = new Thickness(FamilySpace.ColumnGap, 0, 0, 0);
         _meter.Visibility = meter is null ? Visibility.Collapsed : Visibility.Visible;
+        ColumnDefinitions[1].Width = fills ? GridLength.Auto : new GridLength(1, GridUnitType.Star);
+        ColumnDefinitions[2].Width = fills ? new GridLength(1, GridUnitType.Star) : GridLength.Auto;
+    }
+
+    /// <summary>
+    /// [S-1288] The keyboard's ring on the row: a stroke-2 outline over the row's whole width (its side
+    /// inset included), in the accent while focused, clear otherwise, so focusing a row moves nothing.
+    /// </summary>
+    public bool Focused
+    {
+        get => _ring is { } ring && ReferenceEquals(ring.BorderBrush, Family.Brush(ColourRole.Accent));
+        set
+        {
+            if (_ring is null)
+            {
+                if (!value)
+                {
+                    return;
+                }
+
+                _ring = new Border
+                {
+                    BorderThickness = new Thickness(FamilyShape.Stroke),
+                    CornerRadius = Family.Radius,
+                    Margin = new Thickness(-Padding.Left, 0, -Padding.Right, 0),
+                    IsHitTestVisible = false,
+                };
+                SetColumnSpan(_ring, 4);
+                Children.Add(_ring);
+            }
+
+            _ring.BorderBrush = Family.Brush(value ? ColourRole.Accent : ColourRole.Clear);
+            if (value)
+            {
+                StartBringIntoView();
+            }
+        }
     }
 
     /// <summary>A row the pointer lights and the user selects: the item layer's row fill, hover included.</summary>
@@ -182,7 +249,12 @@ public sealed partial class RowBlock : Grid
 
     private void Apply()
     {
-        var roles = RowRules.Roles(_kind);
+        var roles = RowRules.Roles(_kind, _available);
+        if (_lead.Child is FontIcon lead)
+        {
+            lead.Foreground = Family.Brush(roles.Lead);
+        }
+
         Family.Step(NameText, _strong ? FamilyType.BodyStrong : FamilyType.Body);
         NameText.Foreground = Family.Brush(roles.Name);
         ValueText.Foreground = Family.Brush(roles.Value);

@@ -6,7 +6,8 @@ public readonly record struct ChartPoint(double X, double Y);
 /// <summary>
 /// [S-6717] The Chart block: one series in the accent at 2 with a 16 % wash under it, a second series
 /// tertiary; Caution or Critical stand in for the accent only while the reading is over its threshold.
-/// A meter is a 4 track (round) with an accent fill, or a ring of stroke 2 over its track. Axis
+/// A meter is a 4 track (round) with an accent fill (along its length or up a column), a ring of stroke 2
+/// over its track, or a gauge: the ring's upper half. Axis
 /// labels are Caption tertiary, at the two ends at most. A history band runs edge to edge at the
 /// card's bottom and takes what the Readout leaves; rings and bars grow with the box but keep their
 /// stroke and track.
@@ -43,15 +44,33 @@ public static class ChartRules
         }
 
         var points = new ChartPoint[values.Count];
-        var rise = Math.Max(0, height - FamilyShape.Stroke);
         for (var i = 0; i < values.Count; i++)
         {
-            var v = double.IsFinite(values[i]) ? Math.Clamp(values[i], 0, 1) : 0;
-            points[i] = new ChartPoint(i * width / (values.Count - 1), height - (v * rise) - (FamilyShape.Stroke / 2));
+            points[i] = new ChartPoint(i * width / (values.Count - 1), Y(values[i], height));
         }
 
         return points;
     }
+
+    /// <summary>
+    /// The height in a band <paramref name="height"/> tall at which a value (0..1, clamped; not finite
+    /// is 0) is drawn: the stroke kept inside the band, so 0, 1 and the newest point are never cut in
+    /// half at its edge.
+    /// </summary>
+    public static double Y(double fraction, double height)
+    {
+        var v = double.IsFinite(fraction) ? Math.Clamp(fraction, 0, 1) : 0;
+        return height - (v * Math.Max(0, height - FamilyShape.Stroke)) - (FamilyShape.Stroke / 2);
+    }
+
+    /// <summary>
+    /// A gauge's sweep in degrees for <paramref name="fraction"/> (clamped; not finite is none): the
+    /// half ring from nine o'clock over the top to three, clockwise.
+    /// </summary>
+    public static double GaugeSweep(double fraction) => double.IsFinite(fraction) ? Math.Clamp(fraction, 0, 1) * 180 : 0;
+
+    /// <summary>A gauge <paramref name="diameter"/> wide stands this tall: half of it and half a stroke, its round caps inside.</summary>
+    public static double GaugeHeight(double diameter) => Math.Max(0, diameter / 2) + (FamilyShape.Stroke / 2);
 
     /// <summary>
     /// A bar's fill on a track <paramref name="width"/> wide, from <paramref name="from"/> to

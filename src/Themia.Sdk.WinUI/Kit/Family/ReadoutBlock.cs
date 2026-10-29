@@ -25,6 +25,8 @@ public sealed partial class ReadoutBlock : StackPanel
     private TypeStep _step = FamilyType.Big28;
     private ColourRole _valueRole = ColourRole.TextPrimary;
     private ColourRole _deltaRole = ColourRole.TextSecondary;
+    private ColourRole _leadRole = ColourRole.TextSecondary;
+    private bool _painted;
     private bool _centred;
     private bool _underFits = true;
 
@@ -55,22 +57,45 @@ public sealed partial class ReadoutBlock : StackPanel
     public TextBlock UnderText => _under;
 
     /// <summary>
-    /// Show a reading: the value, its unit (a leading space where one is drawn), the line under it, a
-    /// delta and its role, a lead glyph and the value's role (Caution or Critical while it is bad).
+    /// [S-6330] Show a reading: the value, its unit (a leading space where one is drawn), the line under
+    /// it, a delta and its role, a lead glyph and its role, and the value's role (the disabled role for
+    /// a part missing on this PC, [S-1940]; the unit and the line under follow it). What is the same as
+    /// before is not touched, so a live reading costs its changed text alone.
     /// </summary>
-    public void Show(string value, string unit = "", string? under = null, string? delta = null, ColourRole deltaRole = ColourRole.TextSecondary, string? lead = null, ColourRole valueRole = ColourRole.TextPrimary)
+    public void Show(string value, string unit = "", string? under = null, string? delta = null, ColourRole deltaRole = ColourRole.TextSecondary, string? lead = null, ColourRole valueRole = ColourRole.TextPrimary, ColourRole leadRole = ColourRole.TextSecondary)
     {
-        _value.Text = value;
-        _unit.Text = unit;
+        Set(_value, value);
+        Set(_unit, unit);
 
         // An en space before the delta: a run has no margin of its own.
-        _delta.Text = string.IsNullOrEmpty(delta) ? string.Empty : " " + delta;
-        _deltaRole = deltaRole;
-        _valueRole = valueRole;
-        _under.Text = under ?? string.Empty;
-        _lead.Glyph = lead ?? string.Empty;
-        _lead.Visibility = string.IsNullOrEmpty(lead) ? Visibility.Collapsed : Visibility.Visible;
-        Apply();
+        Set(_delta, string.IsNullOrEmpty(delta) ? string.Empty : " " + delta);
+        if (_under.Text != (under ?? string.Empty))
+        {
+            _under.Text = under ?? string.Empty;
+            ShowUnder();
+        }
+
+        if (_lead.Glyph != (lead ?? string.Empty))
+        {
+            _lead.Glyph = lead ?? string.Empty;
+            _lead.Visibility = string.IsNullOrEmpty(lead) ? Visibility.Collapsed : Visibility.Visible;
+        }
+
+        if (deltaRole != _deltaRole || valueRole != _valueRole || leadRole != _leadRole || !_painted)
+        {
+            _deltaRole = deltaRole;
+            _valueRole = valueRole;
+            _leadRole = leadRole;
+            Paint();
+        }
+    }
+
+    private static void Set(Run run, string text)
+    {
+        if (run.Text != text)
+        {
+            run.Text = text;
+        }
     }
 
     /// <summary>
@@ -99,23 +124,35 @@ public sealed partial class ReadoutBlock : StackPanel
     private void Apply()
     {
         Family.Step(_line, _step);
-        _line.Foreground = Family.Brush(_valueRole);
         var unit = FamilyType.Unit(_step);
         _unit.FontSize = unit.FontSize;
         _unit.FontWeight = Microsoft.UI.Text.FontWeights.Normal;
-        _unit.Foreground = Family.Brush(ColourRole.TextSecondary);
         _delta.FontSize = FamilyType.Body.FontSize;
         _delta.FontWeight = Microsoft.UI.Text.FontWeights.Normal;
-        _delta.Foreground = Family.Brush(_deltaRole);
         _lead.FontSize = _step.FontSize;
         _lead.Width = _step.FontSize;
         _lead.Height = _step.FontSize;
         Family.Step(_under, FamilyType.Under(_step));
-        _under.Visibility = _underFits && _under.Text.Length > 0 ? Visibility.Visible : Visibility.Collapsed;
+        ShowUnder();
 
         var align = _centred ? HorizontalAlignment.Center : HorizontalAlignment.Left;
         _row.HorizontalAlignment = align;
         _under.HorizontalAlignment = align;
         _under.TextAlignment = _centred ? TextAlignment.Center : TextAlignment.Left;
+        Paint();
+    }
+
+    private void ShowUnder() => _under.Visibility = _underFits && _under.Text.Length > 0 ? Visibility.Visible : Visibility.Collapsed;
+
+    /// <summary>The roles' brushes: a missing part's unit and line under are disabled with its value.</summary>
+    private void Paint()
+    {
+        _painted = true;
+        var off = _valueRole == ColourRole.TextDisabled;
+        _line.Foreground = Family.Brush(_valueRole);
+        _unit.Foreground = Family.Brush(off ? ColourRole.TextDisabled : ColourRole.TextSecondary);
+        _delta.Foreground = Family.Brush(off ? ColourRole.TextDisabled : _deltaRole);
+        _under.Foreground = Family.Brush(off ? ColourRole.TextDisabled : ColourRole.TextSecondary);
+        _lead.Foreground = Family.Brush(off ? ColourRole.TextDisabled : _leadRole);
     }
 }

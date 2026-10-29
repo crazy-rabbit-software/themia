@@ -2885,17 +2885,19 @@ is `TextDisabled` (`UnavailableLook`).
 
 | block | part | what a view calls | its rules |
 |---|---|---|---|
-| Header | `HeaderBlock` (the card's), `HeaderParts` | its `HeaderTrailing` returns a `HeaderParts` with `Add(kind, HeaderBlock.Problem(lines) / Busy() / Label(text) / Button(glyph, tooltip, run) / Count(text))` | `HeaderRules.Shown`: label, then buttons from the last, then the count give way; two buttons at most |
-| Row | `RowBlock(kind, lead)`, `RowCell(icon)` | `Show(name, value, second, third)`, `Lines`, `Strong`, `LeadGlyph`/`Lead`, `Meter(bar, width)`, `Interactive`, `Detach` | `RowRules.Roles(kind)`, `Lines(area, wanted)`, `Fit(height, lines)`, `CellIcon`, `CellHeight` |
+| Header | `HeaderBlock` (the card's), `HeaderParts` | its `HeaderTrailing` returns a `HeaderParts` with `Add(kind, HeaderBlock.Problem(lines) / Busy() / Label(text) / Button(glyph, tooltip, run) / Count(text))`, `Want(part, bool)` for a part with nothing to say now | `HeaderRules.Shown`: label, then buttons from the last, then the count give way; two buttons at most |
+| Row | `RowBlock(kind, lead)`, `RowCell(icon)` | `Show(name, value, second, third)`, `Lines`, `Strong`, `LeadGlyph`/`Lead`, `Meter(bar, width)` (`double.NaN`: the meter takes the room between name and value), `Available`, `Focused`, `Interactive`, `Detach` | `RowRules.Roles(kind)`, `Lines(area, wanted)`, `Fit(height, lines)`, `CellIcon`, `CellHeight` |
 | Readout | `ReadoutBlock` | `Show(value, unit, under, delta, deltaRole, lead, valueRole)`, `Size(area, width, height, worst)` or `Use(step)` | `ReadoutRules.Step` (28/40/68 by the area, Hero for `OneReadout`), `Width`, `Height` |
-| Chart | `ChartSeries`, `ChartBar`, `ChartRing` | `Show(values, second)` / `Show(to, from)` / `Show(fraction)`, `Role(role)` | `ChartRules.Role(reading, caution, critical)`, `Line`, `Bar`, `Sweep` |
+| Chart | `ChartSeries`, `ChartBar` (`vertical`: a column), `ChartRing` (`half`: a gauge) | `Show(values, second)` or `Show(points, second)` / `Show(to, from)` / `Show(fraction)`, `Role(role)` | `ChartRules.Role(reading, caution, critical)`, `Line`, `Y`, `Bar`, `Sweep`, `GaugeSweep`, `GaugeHeight` |
 | Status | `StatusBlock` | `Show(kind, glyph, sentence, action, run)`, `Hide` | `StatusRules.Look(kind)`, `ShowsSentence(width, actionWidth)` |
 | Tile | `TileBlock(look)` | `Show(glyph, label, state, on, available)`, `Size(width, height)`, `Look`, `Ring` | `TileRules.GlyphStep`, `RoundGlyph`, `Roles(look, on, available)` |
 | Controls | `ControlsBlock` | `Main(label, run)`, `Button(label, run)`, `Icon(glyph, tooltip, run)`, `Slider(min, max, value, changed)`; `ControlsBlock.TextButton`/`IconButton` alone | `ControlsRules.Check` (one main action), `Shown` |
 
 Layout around them is the family's too: the header in the card's header inset; content from 44 (16
 without a header); rows, the status and a band full width (they carry their own inset); everything
-else inside the 16 inset; Controls at the bottom inset. The render flag `--family-blocks-png <dir>`
+else inside the 16 inset; Controls at the bottom inset. The meters (`MeterView`, `MeterPlan`) and the
+detail widgets (`DetailView`, `DetailFace`) are the reference for a widget of a Readout and a part under
+it, or a Readout and rows beside or under it. The render flag `--family-blocks-png <dir>`
 draws every variant at every tier; `TestResults/family/mockups/blocksheet.py` draws the same as
 mockups and `TestResults/family/match.py blocks` compares them box by box.
 

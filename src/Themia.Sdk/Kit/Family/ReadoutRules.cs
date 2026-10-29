@@ -83,5 +83,45 @@ public static class ReadoutRules
     public static double Height(TypeStep step, ReadoutText text)
         => step.LineHeight + (text.LineUnder ? FamilyType.Under(step).LineHeight : 0);
 
+    /// <summary>
+    /// [S-3860] A formatted reading as the Readout draws it: the figure, and the unit after it with the
+    /// space that stood between them ("62%" is "62" and "%"; "2.4 MB/s" is "2.4" and " MB/s"). A text
+    /// that does not start with a figure ("--", Turkish "%42", a direction mark) or that holds a second
+    /// figure ("1 234 ms", "3/4") is all value and no unit, so nothing is reordered or lost.
+    /// </summary>
+    public static ReadoutText Split(string? text)
+    {
+        if (string.IsNullOrEmpty(text) || !char.IsDigit(text[0]))
+        {
+            return new ReadoutText(text ?? string.Empty);
+        }
+
+        var end = 0;
+
+        // The figure: digits of any script and the separators a number is written with.
+        while (end < text.Length && (char.IsDigit(text[end]) || IsSeparator(text[end])))
+        {
+            end++;
+        }
+
+        var unitAt = end;
+        while (unitAt < text.Length && IsSpace(text[unitAt]))
+        {
+            unitAt++;
+        }
+
+        var unit = text[unitAt..];
+        if (unit.Length == 0 || unit.Any(char.IsDigit) || IsSeparator(text[end - 1]))
+        {
+            return new ReadoutText(text);
+        }
+
+        return new ReadoutText(text[..end], text[end..]);
+    }
+
+    private static bool IsSeparator(char c) => c is '.' or ',' or '٫' or '٬';
+
+    private static bool IsSpace(char c) => c is ' ' or ' ' or ' ' or ' ';
+
     private static bool Usable(double value) => double.IsFinite(value) && value > 0;
 }
