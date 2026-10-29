@@ -999,7 +999,8 @@ module author's guide is docs/WIDGET-KIT.md 16.
   and only where the floor step's line, that gap and the row fit; a tile too short for both keeps the
   readout, which is the widget. A ring face draws the Chart block's ring as large as the box's short
   side and sets the readout in its hole, three quarters of the hole wide and half of it tall
-  (`ChartRules.Hole`); a ring under 48 is not drawn and the readout stands alone.
+  (`ChartRules.Hole`); a ring under 48, or whose hole cannot hold the floor step's value and line,
+  is not drawn and the readout stands alone.
 - **[S-6740]** **Split-flap cards** (the clock's Flip style, the Countdown's; `FlipCard`, `FlipRules`):
   one card per part of the time, 8 apart, each its figures' widest case on a family step with 12
   either side and the step's line tall, an item of the card's item layer in the one radius with a

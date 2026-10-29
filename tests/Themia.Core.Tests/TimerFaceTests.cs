@@ -71,12 +71,24 @@ public sealed class TimerFaceTests
     [Fact]
     public void S6739_a_ring_under_48_is_not_drawn()
     {
-        var ring = TimerFace.Ring(new WidgetArea(120, 76), 88, 60, Timer, controls: false);
+        var ring = TimerFace.Ring(new WidgetArea(200, 196), 120, 120, new ReadoutText("8:88"), controls: false);
 
-        Assert.Equal(60, ring.Ring);
+        Assert.Equal(120, ring.Ring);
 
         var tiny = TimerFace.Ring(new WidgetArea(80, 60), 48, 40, Timer, controls: false);
         Assert.Equal(0, tiny.Ring);
+    }
+
+    [Fact]
+    public void S6739_a_ring_whose_hole_cannot_hold_the_floor_step_is_not_drawn()
+    {
+        // XS: a 60 ring's hole is 42 × 28, too small for "88:88" on 28 (36 tall): the readout alone.
+        var xs = TimerFace.Ring(new WidgetArea(120, 76), 88, 60, Timer, controls: true);
+        Assert.Equal(0, xs.Ring);
+        Assert.False(TimerFace.HoleHolds(60, Timer));
+
+        // A 104 ring's hole (75 × 50) holds "8:88" on 28 (56 wide, 36 tall).
+        Assert.True(TimerFace.HoleHolds(104, new ReadoutText("8:88")));
     }
 
     [Fact]

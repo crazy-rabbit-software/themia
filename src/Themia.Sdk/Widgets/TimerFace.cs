@@ -14,7 +14,8 @@ public readonly record struct TimerRingPlan(double Ring, TypeStep Step, bool Und
 /// steps, with its line under. The Controls row stands at the bottom inset, 8 under the readout's box,
 /// and only where the floor step's line, that gap and the row fit: a tile too short for both keeps the
 /// readout, which is the widget. A ring face draws the Chart block's ring as large as the box's short
-/// side and sets the readout in its hole (<see cref="ChartRules.Hole"/>); a ring under 48 is not drawn.
+/// side and sets the readout in its hole (<see cref="ChartRules.Hole"/>); a ring under 48, or whose hole cannot
+/// hold the floor step's value, is not drawn.
 /// </summary>
 public static class TimerFace
 {
@@ -49,7 +50,7 @@ public static class TimerFace
         var shown = controls && ControlsFit(height, worst);
         var box = Math.Max(0, height - (shown ? ControlsCost : 0));
         var ring = Math.Floor(Math.Min(width, box));
-        if (!double.IsFinite(ring) || ring < RingFloor)
+        if (!double.IsFinite(ring) || ring < RingFloor || !HoleHolds(ring, worst))
         {
             var plain = Plan(area, width, height, worst, controls);
             return new TimerRingPlan(0, plain.Step, plain.Under, plain.Controls, plain.Box);
@@ -59,5 +60,13 @@ public static class TimerFace
         var step = ReadoutRules.Step(area, holeWidth, holeHeight, worst);
         var under = worst.LineUnder && ReadoutRules.Height(step, worst) <= holeHeight;
         return new TimerRingPlan(ring, step, under, shown, box);
+    }
+
+    /// <summary>[S-6739] Whether a ring's hole holds the readout's floor step (its value and its line, without the line under): else no ring is drawn.</summary>
+    public static bool HoleHolds(double ring, ReadoutText worst)
+    {
+        var (holeWidth, holeHeight) = ChartRules.Hole(ring);
+        var bare = worst with { LineUnder = false };
+        return ReadoutRules.Width(FamilyType.Big28, bare) <= holeWidth && ReadoutRules.Height(FamilyType.Big28, bare) <= holeHeight;
     }
 }
