@@ -42,9 +42,7 @@
   "widgetsC.shortcuts.settings.openWith.single": "シングルクリック",
   "widgetsC.shortcuts.settings.pick.file": "ファイル…",
   "widgetsC.shortcuts.settings.pick.folder": "フォルダー…",
-  "widgetsC.shortcuts.settings.rowSize.label": "行のサイズ",
-  "widgetsC.shortcuts.settings.stretch.label": "タイルを引き伸ばす",
-  "widgetsC.shortcuts.settings.tileSize.label": "タイルのサイズ",
   "widgetsC.shortcuts.settings.view.tiles": "タイル",
-  "widgetsC.shortcuts.tooltip.missing": "{name}（リンク先が見つかりません）\n{target}"
+  "widgetsC.shortcuts.tooltip.missing": "{name}（リンク先が見つかりません）\n{target}",
+  "widgetsC.shortcuts.setup": "ショートカットを追加"
 }

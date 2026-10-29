@@ -42,9 +42,7 @@
   "widgetsC.shortcuts.settings.openWith.single": "按一下",
   "widgetsC.shortcuts.settings.pick.file": "檔案…",
   "widgetsC.shortcuts.settings.pick.folder": "資料夾…",
-  "widgetsC.shortcuts.settings.rowSize.label": "列大小",
-  "widgetsC.shortcuts.settings.stretch.label": "延展磚以填滿",
-  "widgetsC.shortcuts.settings.tileSize.label": "磚大小",
   "widgetsC.shortcuts.settings.view.tiles": "磚",
-  "widgetsC.shortcuts.tooltip.missing": "{name}（找不到目標）\n{target}"
+  "widgetsC.shortcuts.tooltip.missing": "{name}（找不到目標）\n{target}",
+  "widgetsC.shortcuts.setup": "新增捷徑"
 }

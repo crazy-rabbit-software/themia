@@ -51,9 +51,7 @@
   "widgetsC.shortcuts.settings.openWith.single": "Одним щелчком",
   "widgetsC.shortcuts.settings.pick.file": "Файл…",
   "widgetsC.shortcuts.settings.pick.folder": "Папка…",
-  "widgetsC.shortcuts.settings.rowSize.label": "Размер строк",
-  "widgetsC.shortcuts.settings.stretch.label": "Растягивать плитки",
-  "widgetsC.shortcuts.settings.tileSize.label": "Размер плиток",
   "widgetsC.shortcuts.settings.view.tiles": "Плитки",
-  "widgetsC.shortcuts.tooltip.missing": "{name} (объект не найден)\n{target}"
+  "widgetsC.shortcuts.tooltip.missing": "{name} (объект не найден)\n{target}",
+  "widgetsC.shortcuts.setup": "Добавьте ярлык"
 }

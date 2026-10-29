@@ -51,9 +51,7 @@
   "widgetsC.shortcuts.settings.openWith.single": "Pojedyncze kliknięcie",
   "widgetsC.shortcuts.settings.pick.file": "Plik…",
   "widgetsC.shortcuts.settings.pick.folder": "Folder…",
-  "widgetsC.shortcuts.settings.rowSize.label": "Rozmiar wierszy",
-  "widgetsC.shortcuts.settings.stretch.label": "Rozciągnij kafelki",
-  "widgetsC.shortcuts.settings.tileSize.label": "Rozmiar kafelków",
   "widgetsC.shortcuts.settings.view.tiles": "Kafelki",
-  "widgetsC.shortcuts.tooltip.missing": "{name} (brak celu)\n{target}"
+  "widgetsC.shortcuts.tooltip.missing": "{name} (brak celu)\n{target}",
+  "widgetsC.shortcuts.setup": "Dodaj skrót"
 }

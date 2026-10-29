@@ -45,9 +45,7 @@
   "widgetsC.shortcuts.settings.openWith.single": "सिंगल क्लिक",
   "widgetsC.shortcuts.settings.pick.file": "फ़ाइल…",
   "widgetsC.shortcuts.settings.pick.folder": "फ़ोल्डर…",
-  "widgetsC.shortcuts.settings.rowSize.label": "पंक्ति का आकार",
-  "widgetsC.shortcuts.settings.stretch.label": "टाइलें फैलाकर भरें",
-  "widgetsC.shortcuts.settings.tileSize.label": "टाइल का आकार",
   "widgetsC.shortcuts.settings.view.tiles": "टाइलें",
-  "widgetsC.shortcuts.tooltip.missing": "{name} (लक्ष्य गायब)\n{target}"
+  "widgetsC.shortcuts.tooltip.missing": "{name} (लक्ष्य गायब)\n{target}",
+  "widgetsC.shortcuts.setup": "शॉर्टकट जोड़ें"
 }

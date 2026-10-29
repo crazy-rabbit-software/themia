@@ -57,9 +57,7 @@
   "widgetsC.shortcuts.settings.openWith.single": "نقرة واحدة",
   "widgetsC.shortcuts.settings.pick.file": "ملف…",
   "widgetsC.shortcuts.settings.pick.folder": "مجلد…",
-  "widgetsC.shortcuts.settings.rowSize.label": "حجم الصف",
-  "widgetsC.shortcuts.settings.stretch.label": "تمديد المربعات للملء",
-  "widgetsC.shortcuts.settings.tileSize.label": "حجم المربع",
   "widgetsC.shortcuts.settings.view.tiles": "مربعات",
-  "widgetsC.shortcuts.tooltip.missing": "{name} (الهدف مفقود)\n{target}"
+  "widgetsC.shortcuts.tooltip.missing": "{name} (الهدف مفقود)\n{target}",
+  "widgetsC.shortcuts.setup": "أضف اختصارًا"
 }

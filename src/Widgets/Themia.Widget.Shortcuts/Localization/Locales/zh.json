@@ -42,9 +42,7 @@
   "widgetsC.shortcuts.settings.openWith.single": "单击",
   "widgetsC.shortcuts.settings.pick.file": "文件…",
   "widgetsC.shortcuts.settings.pick.folder": "文件夹…",
-  "widgetsC.shortcuts.settings.rowSize.label": "行大小",
-  "widgetsC.shortcuts.settings.stretch.label": "拉伸磁贴以填充",
-  "widgetsC.shortcuts.settings.tileSize.label": "磁贴大小",
   "widgetsC.shortcuts.settings.view.tiles": "磁贴",
-  "widgetsC.shortcuts.tooltip.missing": "{name}（目标缺失）\n{target}"
+  "widgetsC.shortcuts.tooltip.missing": "{name}（目标缺失）\n{target}",
+  "widgetsC.shortcuts.setup": "添加快捷方式"
 }

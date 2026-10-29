@@ -9,7 +9,9 @@ using Themia.Core.Files;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
+using Themia.Sdk.Kit;
 using Themia.Sdk.WinUI;
+using Themia.Sdk.WinUI.Kit;
 using Themia.Widget.Shortcuts;
 using Windows.Foundation;
 
@@ -258,7 +260,7 @@ internal sealed partial class ShortcutsView
         {
             if (_dragIds.Contains(cell.Item.Id))
             {
-                cell.Root.Opacity = dim ? 0.5 : 1;
+                cell.Root.Opacity = dim ? SelectionLook.Faded : 1;
             }
         }
     }
@@ -582,10 +584,8 @@ internal sealed partial class ShortcutsView
         }
 
         _dropHighlight = on;
-        _scroll.BorderThickness = new Thickness(on ? Fluent.Hairline * 2 : 0);
-        _scroll.BorderBrush = on
-            ? ThemeBrush.Of("AccentFillColorDefaultBrush", Colors.DodgerBlue)
-            : null;
-        _scroll.CornerRadius = new CornerRadius(Fluent.ControlRadius);
+        _scroll.BorderThickness = new Thickness(on ? FamilyShape.Stroke : 0);
+        _scroll.BorderBrush = on ? Family.Brush(ColourRole.Accent) : null;
+        _scroll.CornerRadius = Family.Radius;
     }
 }

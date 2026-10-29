@@ -45,9 +45,7 @@
   "widgetsC.shortcuts.settings.openWith.single": "Clique simples",
   "widgetsC.shortcuts.settings.pick.file": "Arquivo…",
   "widgetsC.shortcuts.settings.pick.folder": "Pasta…",
-  "widgetsC.shortcuts.settings.rowSize.label": "Tamanho das linhas",
-  "widgetsC.shortcuts.settings.stretch.label": "Esticar mosaicos para preencher",
-  "widgetsC.shortcuts.settings.tileSize.label": "Tamanho dos mosaicos",
   "widgetsC.shortcuts.settings.view.tiles": "Mosaicos",
-  "widgetsC.shortcuts.tooltip.missing": "{name} (destino em falta)\n{target}"
+  "widgetsC.shortcuts.tooltip.missing": "{name} (destino em falta)\n{target}",
+  "widgetsC.shortcuts.setup": "Adicione um atalho"
 }

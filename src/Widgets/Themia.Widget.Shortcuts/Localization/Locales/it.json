@@ -45,9 +45,7 @@
   "widgetsC.shortcuts.settings.openWith.single": "Clic singolo",
   "widgetsC.shortcuts.settings.pick.file": "File…",
   "widgetsC.shortcuts.settings.pick.folder": "Cartella…",
-  "widgetsC.shortcuts.settings.rowSize.label": "Dimensione righe",
-  "widgetsC.shortcuts.settings.stretch.label": "Estendi i riquadri",
-  "widgetsC.shortcuts.settings.tileSize.label": "Dimensione riquadri",
   "widgetsC.shortcuts.settings.view.tiles": "Riquadri",
-  "widgetsC.shortcuts.tooltip.missing": "{name} (destinazione mancante)\n{target}"
+  "widgetsC.shortcuts.tooltip.missing": "{name} (destinazione mancante)\n{target}",
+  "widgetsC.shortcuts.setup": "Aggiungi un collegamento"
 }

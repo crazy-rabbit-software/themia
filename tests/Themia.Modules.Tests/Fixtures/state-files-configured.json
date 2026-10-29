@@ -213,9 +213,6 @@
               }
             ],
             "style": "list",
-            "gridSize": "Small",
-            "listSize": "Large",
-            "gridStretchHeight": true,
             "gridIconOnly": true,
             "showFileExtension": true,
             "clickMode": "Single"
@@ -250,9 +247,6 @@
               }
             ],
             "style": "details",
-            "gridSize": "Medium",
-            "listSize": "Medium",
-            "gridStretchHeight": false,
             "gridIconOnly": false,
             "showFileExtension": false,
             "clickMode": "Double"

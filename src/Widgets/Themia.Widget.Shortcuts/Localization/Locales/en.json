@@ -46,9 +46,7 @@
   "widgetsC.shortcuts.settings.openWith.single": "Single click",
   "widgetsC.shortcuts.settings.pick.file": "File…",
   "widgetsC.shortcuts.settings.pick.folder": "Folder…",
-  "widgetsC.shortcuts.settings.rowSize.label": "Row size",
-  "widgetsC.shortcuts.settings.stretch.label": "Stretch tiles to fill",
-  "widgetsC.shortcuts.settings.tileSize.label": "Tile size",
   "widgetsC.shortcuts.settings.view.tiles": "Tiles",
-  "widgetsC.shortcuts.tooltip.missing": "{name} (target missing)\n{target}"
+  "widgetsC.shortcuts.tooltip.missing": "{name} (target missing)\n{target}",
+  "widgetsC.shortcuts.setup": "Add a shortcut"
 }

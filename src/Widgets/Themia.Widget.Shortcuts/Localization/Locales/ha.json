@@ -45,9 +45,7 @@
   "widgetsC.shortcuts.settings.openWith.single": "Danna sau ɗaya",
   "widgetsC.shortcuts.settings.pick.file": "Fayil…",
   "widgetsC.shortcuts.settings.pick.folder": "Babban fayil…",
-  "widgetsC.shortcuts.settings.rowSize.label": "Girman layi",
-  "widgetsC.shortcuts.settings.stretch.label": "Miƙa tayil don cikawa",
-  "widgetsC.shortcuts.settings.tileSize.label": "Girman tayil",
   "widgetsC.shortcuts.settings.view.tiles": "Tayil",
-  "widgetsC.shortcuts.tooltip.missing": "{name} (babu manufa)\n{target}"
+  "widgetsC.shortcuts.tooltip.missing": "{name} (babu manufa)\n{target}",
+  "widgetsC.shortcuts.setup": "Ƙara gajeriyar hanya"
 }

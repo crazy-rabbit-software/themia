@@ -34,8 +34,8 @@ public sealed class ListStylesHostTests
     [Fact]
     public void S6401_only_the_grid_draws_with_the_tile_settings()
     {
-        Assert.Contains(ShortcutsSetting.TileSize, new ShortcutsConfig { Style = ShortcutsStyle.Grid }.ShownSettings);
-        Assert.DoesNotContain(ShortcutsSetting.TileSize, new ShortcutsConfig { Style = ShortcutsStyle.List }.ShownSettings);
-        Assert.DoesNotContain(ShortcutsSetting.TileSize, new ShortcutsConfig { Style = ShortcutsStyle.Details }.ShownSettings);
+        Assert.Contains(ShortcutsSetting.IconOnly, new ShortcutsConfig { Style = ShortcutsStyle.Grid }.ShownSettings);
+        Assert.DoesNotContain(ShortcutsSetting.IconOnly, new ShortcutsConfig { Style = ShortcutsStyle.List }.ShownSettings);
+        Assert.DoesNotContain(ShortcutsSetting.IconOnly, new ShortcutsConfig { Style = ShortcutsStyle.Details }.ShownSettings);
     }
 }

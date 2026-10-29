@@ -65,10 +65,7 @@ public sealed class LauncherPersistenceTests : IDisposable
         {
             ClickMode = ItemClickMode.Single,
             Style = ShortcutsStyle.Details,
-            GridSize = ShortcutItemSize.Large,
-            ListSize = ShortcutItemSize.Small,
             GridIconOnly = true,
-            GridStretchHeight = true,
             ShowFileExtension = true,
         };
 
@@ -80,10 +77,7 @@ public sealed class LauncherPersistenceTests : IDisposable
 
         Assert.Equal(ItemClickMode.Single, reloaded.ClickMode);
         Assert.Equal(ShortcutsStyle.Details, reloaded.Style);
-        Assert.Equal(ShortcutItemSize.Large, reloaded.GridSize);
-        Assert.Equal(ShortcutItemSize.Small, reloaded.ListSize);
         Assert.True(reloaded.GridIconOnly);
-        Assert.True(reloaded.GridStretchHeight);
         Assert.True(reloaded.ShowFileExtension);
         Assert.Equal(3, reloaded.Items.Count);
         Assert.Equal("https://example.com/", reloaded.Items[0].Target);

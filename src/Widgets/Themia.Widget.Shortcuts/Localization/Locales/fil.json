@@ -45,9 +45,7 @@
   "widgetsC.shortcuts.settings.openWith.single": "Isang click",
   "widgetsC.shortcuts.settings.pick.file": "File…",
   "widgetsC.shortcuts.settings.pick.folder": "Folder…",
-  "widgetsC.shortcuts.settings.rowSize.label": "Laki ng row",
-  "widgetsC.shortcuts.settings.stretch.label": "I-stretch ang mga tile para mapuno",
-  "widgetsC.shortcuts.settings.tileSize.label": "Laki ng tile",
   "widgetsC.shortcuts.settings.view.tiles": "Mga tile",
-  "widgetsC.shortcuts.tooltip.missing": "{name} (nawawala ang target)\n{target}"
+  "widgetsC.shortcuts.tooltip.missing": "{name} (nawawala ang target)\n{target}",
+  "widgetsC.shortcuts.setup": "Magdagdag ng shortcut"
 }

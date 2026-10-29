@@ -9,7 +9,9 @@ using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Shell;
 using Themia.Core.Widgets;
+using Themia.Sdk.Kit;
 using Themia.Sdk.WinUI;
+using Themia.Sdk.WinUI.Kit;
 using Themia.Widget.Shortcuts;
 using Windows.Foundation;
 using Windows.System;
@@ -412,7 +414,7 @@ internal sealed partial class ShortcutsView
     /// <summary>How many rows a Page Up / Down steps: what the scroller shows.</summary>
     private int PageRows()
     {
-        var row = _config.Style == ShortcutsStyle.Grid ? _shape.Tiles.TileHeight + ShortcutLayout.Gap : _shape.Rows.RowHeight;
+        var row = _config.Style == ShortcutsStyle.Grid ? _shape.Tiles.PitchY : _shape.Rows.RowHeight;
         return Math.Max(1, (int)(_scroll.ViewportHeight / Math.Max(1, row)));
     }
 
@@ -620,7 +622,7 @@ internal sealed partial class ShortcutsView
             Text = cell.Item.Label.Length > 0 ? cell.Item.Label : NameOf(cell.Item),
             PlaceholderText = LaunchTargets.DisplayName(null, cell.Item.Target, _config.ShowFileExtension),
             MinHeight = 0,
-            Padding = new Thickness(Fluent.Space1, 2, Fluent.Space1, 2),
+            Padding = new Thickness(FamilySpace.S1, 0, FamilySpace.S1, 0),
             IsSpellCheckEnabled = false,
             VerticalAlignment = VerticalAlignment.Center,
         };
@@ -706,8 +708,6 @@ internal sealed partial class ShortcutsView
     }
 
     // ---- search ([S-1385]) -------------------------------------------------------------------------
-
-    private void OnSearchButton(object sender, RoutedEventArgs args) => ToggleSearch();
 
     private void ToggleSearch()
     {

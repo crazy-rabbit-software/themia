@@ -45,9 +45,7 @@
   "widgetsC.shortcuts.settings.openWith.single": "સિંગલ ક્લિક",
   "widgetsC.shortcuts.settings.pick.file": "ફાઇલ…",
   "widgetsC.shortcuts.settings.pick.folder": "ફોલ્ડર…",
-  "widgetsC.shortcuts.settings.rowSize.label": "પંક્તિનું કદ",
-  "widgetsC.shortcuts.settings.stretch.label": "ભરવા માટે ટાઇલ્સ ખેંચો",
-  "widgetsC.shortcuts.settings.tileSize.label": "ટાઇલનું કદ",
   "widgetsC.shortcuts.settings.view.tiles": "ટાઇલ્સ",
-  "widgetsC.shortcuts.tooltip.missing": "{name} (લક્ષ્ય ગુમ)\n{target}"
+  "widgetsC.shortcuts.tooltip.missing": "{name} (લક્ષ્ય ગુમ)\n{target}",
+  "widgetsC.shortcuts.setup": "શૉર્ટકટ ઉમેરો"
 }

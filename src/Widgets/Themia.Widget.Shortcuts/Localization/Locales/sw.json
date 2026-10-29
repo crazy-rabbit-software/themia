@@ -45,9 +45,7 @@
   "widgetsC.shortcuts.settings.openWith.single": "Kubofya mara moja",
   "widgetsC.shortcuts.settings.pick.file": "Faili…",
   "widgetsC.shortcuts.settings.pick.folder": "Folda…",
-  "widgetsC.shortcuts.settings.rowSize.label": "Ukubwa wa safu mlalo",
-  "widgetsC.shortcuts.settings.stretch.label": "Nyoosha vigae vijaze",
-  "widgetsC.shortcuts.settings.tileSize.label": "Ukubwa wa kigae",
   "widgetsC.shortcuts.settings.view.tiles": "Vigae",
-  "widgetsC.shortcuts.tooltip.missing": "{name} (lengo halipo)\n{target}"
+  "widgetsC.shortcuts.tooltip.missing": "{name} (lengo halipo)\n{target}",
+  "widgetsC.shortcuts.setup": "Ongeza njia ya mkato"
 }

@@ -27,13 +27,6 @@ internal static class ShortcutsMenu
     private const string Scope = "shortcut-menu";
 
     // Built per menu, not cached: the labels follow the language the menu is built in.
-    private static (ShortcutItemSize, string)[] Sizes() =>
-    [
-        (ShortcutItemSize.Small, Str.Folder_Small.Text()),
-        (ShortcutItemSize.Medium, Str.Folder_Medium.Text()),
-        (ShortcutItemSize.Large, Str.Folder_Large.Text()),
-    ];
-
     private static (ItemClickMode, string)[] Clicks() =>
     [
         (ItemClickMode.Double, ShortcutsStr.WidgetsC_Shortcuts_Settings_OpenWith_Double.Text()),
@@ -50,24 +43,9 @@ internal static class ShortcutsMenu
         // [S-6401] What only the current look draws with, under Style ([S-6070]): picking another
         // style builds the menu again with its own.
         var look = menu.StyleLines;
-        if (config.Offers(ShortcutsSetting.TileSize))
-        {
-            look.Add(menu.Choice(Glyphs.Scale, ShortcutsStr.WidgetsC_Shortcuts_Settings_TileSize_Label.Text(), Sizes(), config.GridSize, value => config.GridSize = value));
-        }
-
-        if (config.Offers(ShortcutsSetting.RowSize))
-        {
-            look.Add(menu.Choice(Glyphs.TextSize, ShortcutsStr.WidgetsC_Shortcuts_Settings_RowSize_Label.Text(), Sizes(), config.ListSize, value => config.ListSize = value));
-        }
-
         if (config.Offers(ShortcutsSetting.IconOnly))
         {
             look.Add(menu.Toggle(null, ShortcutsStr.CtxMenu_IconOnly.Text(), config.GridIconOnly, on => config.GridIconOnly = on));
-        }
-
-        if (config.Offers(ShortcutsSetting.Stretch))
-        {
-            look.Add(menu.Toggle(null, ShortcutsStr.WidgetsC_Shortcuts_Settings_Stretch_Label.Text(), config.GridStretchHeight, on => config.GridStretchHeight = on));
         }
 
         if (config.Offers(ShortcutsSetting.Extensions))

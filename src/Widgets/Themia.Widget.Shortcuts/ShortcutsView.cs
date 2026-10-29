@@ -8,7 +8,9 @@ using Themia.Core.Diagnostics;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
+using Themia.Sdk.Kit;
 using Themia.Sdk.WinUI;
+using Themia.Sdk.WinUI.Kit;
 using Themia.Widget.Shortcuts;
 
 namespace Themia.App.Widgets;
@@ -53,7 +55,8 @@ internal sealed partial class ShortcutsView : Grid, IWidgetView, IWidgetSurfaceA
     private readonly SelectionLabel _fullName;
     private readonly Grid _surface = new();
     private readonly ScrollViewer _scroll;
-    private readonly Button _searchButton;
+    private readonly HeaderParts _header = new();
+    private readonly Border _searchButton;
     private readonly ScrollFade _fade;
 
     private readonly ItemSelection _selection = new();
@@ -84,7 +87,7 @@ internal sealed partial class ShortcutsView : Grid, IWidgetView, IWidgetSurfaceA
     public ShortcutsView(IWidgetHost host)
     {
         _widgetHost = host;
-        Background = ThemeBrush.Of("SubtleFillColorTransparentBrush", Colors.Transparent);
+        Background = Family.Brush(ColourRole.Clear);
 
         RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
         RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
@@ -93,20 +96,20 @@ internal sealed partial class ShortcutsView : Grid, IWidgetView, IWidgetSurfaceA
         _search.PlaceholderText = ShortcutsStr.WidgetsC_Shortcuts_Search.Text();
         _search.IsSpellCheckEnabled = false;
         _search.IsTextPredictionEnabled = false;
-        _search.CornerRadius = new CornerRadius(Fluent.ControlRadius);
+        _search.Height = FamilyShape.Button;
         _search.TextChanged += OnSearchChanged;
         _search.KeyDown += OnSearchKeyDown;
         _search.GotFocus += OnTextGotFocus;
         _search.LostFocus += OnTextLostFocus;
 
+        // [S-1385] The search box: a 32 text box at the side inset, 8 over the items.
         _searchHost = new Border
         {
             Child = _search,
-            Padding = new Thickness(Fluent.Space2, Fluent.Space1, Fluent.Space2, 0),
+            Padding = new Thickness(FamilySpace.Inset, 0, FamilySpace.Inset, FamilySpace.S2),
             Visibility = Visibility.Collapsed,
         };
 
-        _columnHeader.Padding = new Thickness(Fluent.Space4, Fluent.Space1, Fluent.Space4, Fluent.Space1);
         _columnHeader.Visibility = Visibility.Collapsed;
 
         // [S-6624] The desktop's rubber band, and [S-6629] a selected tile's full name, over the items.
@@ -114,13 +117,14 @@ internal sealed partial class ShortcutsView : Grid, IWidgetView, IWidgetSurfaceA
         _bandLayer.Children.Add(_band);
         _fullName = new SelectionLabel(_bandLayer);
 
-        _surface.Background = ThemeBrush.Of("SubtleFillColorTransparentBrush", Colors.Transparent);
+        _surface.Background = Family.Brush(ColourRole.Clear);
         _surface.Children.Add(_panel);
         _surface.Children.Add(_bandLayer);
 
         _scroll = new ScrollViewer
         {
             Content = _surface,
+            VerticalAlignment = VerticalAlignment.Top,
             HorizontalScrollMode = ScrollMode.Disabled,
             HorizontalScrollBarVisibility = ScrollBarVisibility.Disabled,
             VerticalScrollBarVisibility = ScrollBarVisibility.Hidden,
@@ -128,19 +132,8 @@ internal sealed partial class ShortcutsView : Grid, IWidgetView, IWidgetSurfaceA
 
         _fade = new ScrollFade(_scroll, _panel);
 
-        _searchButton = new Button
-        {
-            Content = new FontIcon { Glyph = Glyphs.Search, FontSize = FluentType.Caption.FontSize },
-            Padding = new Thickness(Fluent.Space1 + 2, Fluent.Space1, Fluent.Space1 + 2, Fluent.Space1),
-            MinWidth = 0,
-            MinHeight = 0,
-            Background = ThemeBrush.Of("SubtleFillColorTransparentBrush", Colors.Transparent),
-            BorderThickness = new Thickness(0),
-            CornerRadius = new CornerRadius(Fluent.ControlRadius),
-            VerticalAlignment = VerticalAlignment.Center,
-        };
-        ToolTipService.SetToolTip(_searchButton, ShortcutsStr.WidgetsC_Shortcuts_Search.Text());
-        _searchButton.Click += OnSearchButton;
+        // [S-1385] [S-6710] The header's one button: search.
+        _searchButton = _header.Add(HeaderPartKind.Button, HeaderBlock.Button(Glyphs.Search, ShortcutsStr.WidgetsC_Shortcuts_Search.Text(), ToggleSearch));
 
         SetRow(_searchHost, 0);
         SetRow(_columnHeader, 1);
@@ -158,7 +151,7 @@ internal sealed partial class ShortcutsView : Grid, IWidgetView, IWidgetSurfaceA
     }
 
     /// <inheritdoc />
-    public FrameworkElement? HeaderTrailing => _searchButton;
+    public FrameworkElement? HeaderTrailing => _header;
 
     public void Bind(IWidgetSurface surface) => _surfaceHost = surface;
 
@@ -406,7 +399,7 @@ internal sealed partial class ShortcutsView : Grid, IWidgetView, IWidgetSurfaceA
         // No items: the card's Set up button covers this ([S-1862]); a drop still lands here.
         _scroll.Visibility = hasItems ? Visibility.Visible : Visibility.Collapsed;
         _searchHost.Visibility = _searchOpen && hasItems ? Visibility.Visible : Visibility.Collapsed;
-        _searchButton.Visibility = hasItems ? Visibility.Visible : Visibility.Collapsed;
+        _header.Want(_searchButton, hasItems);
 
         if (!hasItems)
         {
@@ -415,41 +408,43 @@ internal sealed partial class ShortcutsView : Grid, IWidgetView, IWidgetSurfaceA
             return;
         }
 
+        // The view's area less the card's bottom inset and the open search box: the items' room.
         var area = _area.IsMeasured ? _area : new WidgetArea(320, 200);
-        var room = new Disclosure(area, gap: ShortcutLayout.Gap);
-
-        if (_searchOpen)
-        {
-            room.Reserve(Fluent.RowHeightCompact + Fluent.Space1);
-        }
-
-        var inset = Inset();
-        var width = Math.Max(0, area.Width - inset.Left - inset.Right);
-        var height = Math.Max(0, room.Remaining - inset.Top - inset.Bottom);
+        var height = Math.Max(0, area.Height - FamilySpace.Inset - (_searchOpen ? ShortcutLayout.SearchHeight : 0));
+        var width = Math.Max(0, area.Width - (2 * FamilySpace.Inset));
 
         CellShape shape;
 
         if (_config.Style == ShortcutsStyle.Grid)
         {
-            var size = ShortcutLayout.GridSize(_config.GridSize, area);
-            var tiles = ShortcutLayout.Grid(width, height, visible.Count, size, _config.GridIconOnly,
-                _config.GridStretchHeight, ShortcutLayout.GridDetail(area));
+            var tiles = ShortcutLayout.Grid(area, width, height, visible.Count, _config.GridIconOnly);
             shape = new CellShape(_config.Style, tiles, default, visible.Count, width);
+
+            // [S-6713] A cell's mark stands 4 around it: the marks start 4 over the items' top and 12 in
+            // from the edge, and only whole rows of cells show.
+            _scroll.Padding = new Thickness(FamilySpace.S3, 0, FamilySpace.S3, 0);
+            _scroll.Margin = new Thickness(0, -FamilySpace.S1, 0, 0);
+            _scroll.Height = Math.Max(1, tiles.Rows) * tiles.PitchY;
         }
         else
         {
-            var rows = ShortcutLayout.Rows(area, _config.ListSize, _config.Style == ShortcutsStyle.Details);
+            var rows = ShortcutLayout.Rows(area, _config.Style == ShortcutsStyle.Details);
 
-            // The column header costs a row of the list; only where the list keeps two more.
-            if (rows.ColumnHeader && Disclosure.WholeRows(height - FluentType.Caption.LineHeight - Fluent.Space2, rows.RowHeight) < 2)
+            // The column titles cost a Caption line and 8; only where the list keeps two rows under them.
+            if (rows.ColumnHeader && RowRules.Fit(height - KitLadder.ColumnHeaderHeight, rows.Lines) < 2)
             {
                 rows = rows with { ColumnHeader = false };
             }
 
             shape = new CellShape(_config.Style, default, rows, visible.Count, width);
+
+            // [S-6712] As tall as its whole rows: never a part of one at its foot.
+            _scroll.Padding = new Thickness(0);
+            _scroll.Margin = new Thickness(0);
+            _scroll.Height = Math.Max(1, RowRules.Fit(height - (rows.ColumnHeader ? KitLadder.ColumnHeaderHeight : 0), rows.Lines)) * rows.RowHeight;
         }
 
-        _surface.MinHeight = height;
+        _surface.MinHeight = Math.Max(0, _scroll.Height - _scroll.Padding.Top - _scroll.Padding.Bottom);
 
         if (shape != _shape)
         {
@@ -461,11 +456,6 @@ internal sealed partial class ShortcutsView : Grid, IWidgetView, IWidgetSurfaceA
             PaintAll();
         }
     }
-
-    /// <summary>The padding around the items: tiles keep a margin from the card edge, rows go edge to edge.</summary>
-    private Thickness Inset() => _config.Style == ShortcutsStyle.Grid
-        ? new Thickness(Fluent.Space2, Fluent.Space1, Fluent.Space2, Fluent.Space2)
-        : WidgetLayout.ListInset;
 
     /// <summary>The items a search leaves, in order.</summary>
     private List<ShortcutItem> Visible()
@@ -558,7 +548,6 @@ internal sealed partial class ShortcutsView : Grid, IWidgetView, IWidgetSurfaceA
         _search.KeyDown -= OnSearchKeyDown;
         _search.GotFocus -= OnTextGotFocus;
         _search.LostFocus -= OnTextLostFocus;
-        _searchButton.Click -= OnSearchButton;
 
         PointerPressed -= OnRootPointerPressed;
         PointerMoved -= OnRootPointerMoved;
@@ -574,5 +563,5 @@ internal sealed partial class ShortcutsView : Grid, IWidgetView, IWidgetSurfaceA
     }
 
     /// <summary>What the cells were last built for; a different one rebuilds them.</summary>
-    private readonly record struct CellShape(ShortcutsStyle View, ShortcutTilePlan Tiles, ShortcutRowPlan Rows, int Count, double Width);
+    private readonly record struct CellShape(ShortcutsStyle View, CellGrid Tiles, ShortcutRowPlan Rows, int Count, double Width);
 }

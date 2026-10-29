@@ -45,9 +45,7 @@
   "widgetsC.shortcuts.settings.openWith.single": "سنگل کلک",
   "widgetsC.shortcuts.settings.pick.file": "فائل…",
   "widgetsC.shortcuts.settings.pick.folder": "فولڈر…",
-  "widgetsC.shortcuts.settings.rowSize.label": "قطار کا سائز",
-  "widgetsC.shortcuts.settings.stretch.label": "ٹائلز کو پھیلا کر بھریں",
-  "widgetsC.shortcuts.settings.tileSize.label": "ٹائل کا سائز",
   "widgetsC.shortcuts.settings.view.tiles": "ٹائلز",
-  "widgetsC.shortcuts.tooltip.missing": "{name} (ہدف موجود نہیں)\n{target}"
+  "widgetsC.shortcuts.tooltip.missing": "{name} (ہدف موجود نہیں)\n{target}",
+  "widgetsC.shortcuts.setup": "شارٹ کٹ شامل کریں"
 }

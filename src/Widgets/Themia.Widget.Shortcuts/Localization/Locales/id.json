@@ -42,9 +42,7 @@
   "widgetsC.shortcuts.settings.openWith.single": "Sekali klik",
   "widgetsC.shortcuts.settings.pick.file": "File…",
   "widgetsC.shortcuts.settings.pick.folder": "Folder…",
-  "widgetsC.shortcuts.settings.rowSize.label": "Ukuran baris",
-  "widgetsC.shortcuts.settings.stretch.label": "Regangkan ubin agar memenuhi",
-  "widgetsC.shortcuts.settings.tileSize.label": "Ukuran ubin",
   "widgetsC.shortcuts.settings.view.tiles": "Ubin",
-  "widgetsC.shortcuts.tooltip.missing": "{name} (target hilang)\n{target}"
+  "widgetsC.shortcuts.tooltip.missing": "{name} (target hilang)\n{target}",
+  "widgetsC.shortcuts.setup": "Tambahkan pintasan"
 }

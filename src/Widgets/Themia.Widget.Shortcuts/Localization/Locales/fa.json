@@ -45,9 +45,7 @@
   "widgetsC.shortcuts.settings.openWith.single": "یک کلیک",
   "widgetsC.shortcuts.settings.pick.file": "فایل…",
   "widgetsC.shortcuts.settings.pick.folder": "پوشه…",
-  "widgetsC.shortcuts.settings.rowSize.label": "اندازه ردیف",
-  "widgetsC.shortcuts.settings.stretch.label": "کشیدن کاشی‌ها برای پر کردن",
-  "widgetsC.shortcuts.settings.tileSize.label": "اندازه کاشی",
   "widgetsC.shortcuts.settings.view.tiles": "کاشی‌ها",
-  "widgetsC.shortcuts.tooltip.missing": "{name} (مقصد پیدا نشد)\n{target}"
+  "widgetsC.shortcuts.tooltip.missing": "{name} (مقصد پیدا نشد)\n{target}",
+  "widgetsC.shortcuts.setup": "یک میان‌بر اضافه کنید"
 }

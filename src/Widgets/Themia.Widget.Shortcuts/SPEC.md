@@ -11,7 +11,7 @@ app layouts (the tree, the walk, the placement and window matching, the editor: 
 through `IHoldsAppLayouts`) and the layout item's naming, menu and repair ([S-1405], [S-1406]).
 
 Owning files: everything in this folder: `ShortcutsModule.cs` (descriptor, glyph, view factory, menu
-lines, JSON context), `ShortcutsConfig.cs` (the items, the styles, sizes and switches, the layout items),
+lines, JSON context), `ShortcutsConfig.cs` (the items, the styles and switches, the layout items),
 `ShortcutsView.cs` (the items, health, search, the bin badge through `IWidgetHost.RecycleBin`) with
 `.Cells.cs` (tiles, rows, icons through `AppIconSource`, site icons through `IWidgetHost.Favicons`),
 `.Input.cs` (selection, keys, the item menu, opening through its launcher, layouts through
@@ -25,45 +25,53 @@ through `SettingsHost.OwnPicker`, the layout editor through `SettingsHost.AppLay
 `ShortcutsHostTests`, `LauncherPersistenceTests` and `ListStylesHostTests`.
 
 - **[S-1380]** Config (original S-21..S-23, S-33, S-46..S-48, S-71): `Style` Grid (default) / List /
-  Details ([S-6401]), `GridSize` and `ListSize` Small / Medium / Large, `GridStretchHeight`, `GridIconOnly`,
-  `ShowFileExtension`, `ClickMode` (shared `ItemClickMode`, Double by default). Enums are written as
-  names; `Repair` brings unknown values back, drops null items and mends blank or repeated ids.
-  `ShowTarget` and `OpenOnSingleClick` are gone (the details view and `ClickMode` replace them).
+  Details ([S-6401]), `GridIconOnly`, `ShowFileExtension`, `ClickMode` (shared `ItemClickMode`, Double by
+  default). Enums are written as names; `Repair` brings unknown values back, drops null items and mends
+  blank or repeated ids. `ShowTarget` and `OpenOnSingleClick` are gone (the details view and `ClickMode`
+  replace them), and with group G6 (2026-10-29) `GridSize`, `ListSize` and `GridStretchHeight`: the family's
+  cells and rows decide their size and keep it ([S-6704], [S-6713]).
 - **[S-6401]** Shortcuts' styles ([S-6000]) are its views, `ShortcutsConfig.Style`
   (`ShortcutsStyle`, `"style": "grid"`): **Tiles** (Grid), **List** and **Details**, in that order;
-  the View expander is gone. Under Style the menu offers the tile size, icons only and stretch for
-  Tiles (`ShortcutsConfig.ShownSettings`, [S-6070]), the row size for List and Details, and file
-  extensions for all three.
+  the View expander is gone. Under Style the menu offers icons only for Tiles
+  (`ShortcutsConfig.ShownSettings`, [S-6070]) and file extensions for all three (not on a grid of icons
+  alone, which draws no names). The tile size, row size and stretch lines are gone ([S-1380]).
 - **[S-1381]** Display name: label, else host without `www.`, else the Windows location's name, else
   the file name without its extension unless `ShowFileExtension` (original S-05, S-18, S-48).
-- **[S-1382]** Grid ladder (`ShortcutLayout.Grid`): tiles keep the chosen size and the columns share
-  out the width; L and XL step the size up once; XL adds a caption line under the name (host, the
-  folder it is in, or "Windows location"). Names go, then tiles shrink (down to a 16 px icon), only
-  when keeping them would leave fewer than four items (or all of them) on screen: XS 3×2 icon-only,
-  S icons, M 3 columns with names, Wide one row of five named tiles, Tall 2 columns. Stretch shares
-  the height out when every row fits. Every view fills from the top-left of its box, row by row
-  (a grid in the columns the width was shared into); room the items do not use stays at the right and
-  bottom, never shared out to centre them (was: a grid whose items all fit sat centred as a group).
+- **[S-1382]** Grid ladder (`ShortcutLayout.Grid`): Row.Cell cells ([S-6713], `RowRules.Cells`), the family's
+  icon (32, 48 from an expanded width) over its name in Caption, one line (the whole name on selection,
+  [S-6629]); the columns share the width out 12 apart, the marks 4 around the cells. Names go, then the icons
+  step down to 32 and to the last-resort 16, only when keeping them would leave fewer than four items (or all
+  of them) on screen: XS 3×2 icons of 16, S icons of 32, M three named columns, Wide one row of five named
+  cells at 48, Tall two named columns. Only whole rows of cells show; the rest scrolls. Every view fills from
+  the top-left of its box, row by row; room the items do not use stays at the right and bottom, never shared
+  out to centre them. Retired with group G6: the user's tile size and its step up on L and XL, stretching the
+  tiles to the height, and XL's caption line under the name (the tooltip says where an item points).
 - **[S-1383]** Real icons: a file, folder, executable or `shell:` location gets Explorer's icon
   through `IShellItemImageFactory` (icon only, never a thumbnail) at twice the drawn size, one
   extraction at a time (concurrent first requests return E_PENDING; one immediate re-ask, no wait),
   cached per path, size and variant; a web address gets the site's own `/favicon.ico` through the
-  shared guarded `FaviconCache` (no third-party service). The kind glyph shows until the icon
-  arrives and stays when there is none. List and details rows: 32 / 40 / 48 high (one step smaller
-  on a short tile), the target as a caption line on L/XL, two columns on XL and on a Wide strip.
-- **[S-1384]** Details view: name; target column from Wide up; kind column (Web address / Windows
-  location / File / Folder / Missing / Not allowed) on XL; column header when it has the target
-  column and room for two rows under it. No status footer at any size (was: "N shortcuts", "N
-  selected" at XL; retired, concise widgets).
-- **[S-1385]** Search (original S-43): the header's search button (or the card menu) opens a box
-  above the items; it narrows to items whose shown name or target holds the text, ignoring case.
-  Escape closes it and clears the query; Enter opens the first match. Typing rides the keyboard lease.
+  shared guarded `FaviconCache` (no third-party service). The kind's glyph at the icon's own size shows
+  until the icon arrives and stays when there is none. List and details rows are the Row block
+  ([S-6711], [S-6712], `ShortcutLayout.Rows`): one line of 32 with a 16 icon while the tile is compact either
+  way; the list's rows two lines of 48 with a 32 icon from a regular tile (the name, the target under it: the
+  site, the folder it is in, or "Windows location"); the details table one line; a list in two columns where
+  each keeps 320 (XL). Only whole rows show.
+- **[S-1384]** Details view: the table on the Row block (`RowBlock.Cells`, Body: the name primary, the rest
+  secondary, 12 apart): name; target column from an expanded width; kind column (Web address / Windows
+  location / File / Folder / Missing / Not allowed) from the widest; column titles (a Caption line and 8,
+  secondary, at the text edge) when it has the target column on a regular height and two rows still fit
+  under them. No status footer at any size (was: "N shortcuts", "N selected" at XL; retired, concise widgets).
+- **[S-1385]** Search (original S-43): the header's search button (a 24 header button, [S-6710]) or the card
+  menu opens a box above the items (a 32 text box at the side inset, 8 over them); it narrows to items whose
+  shown name or target holds the text, ignoring case. Escape closes it and clears the query; Enter opens the
+  first match. Typing rides the keyboard lease.
 - **[S-1386]** Broken targets (original S-44): a local path is checked on attach and every minute on
-  the thread pool; a missing one is dimmed, struck through and its tooltip says "(target missing)".
+  the thread pool; a missing one is faded (the desktop's cut look, `SelectionLook.Faded`), struck through and
+  its tooltip says "(target missing)".
   Web and shell items are never marked. A UNC path is never probed (no icon, no existence check):
   touching it connects to that server with the user's credentials, and the path came from a file
-  anything can rewrite. It still opens when clicked. A refused target is dimmed with a warning glyph
-  and its refusal in the tooltip, and cannot be opened.
+  anything can rewrite. It still opens when clicked. A refused target is faded with a warning glyph
+  (the critical role) and its refusal in the tooltip, and cannot be opened.
 - **[S-1387]** Item menu (original S-26): Open (disabled when refused) or "Open N" on a right-click
   inside a multi-selection; web: Copy URL; file: Open file location, Copy path; shell: Copy path;
   Rename (off for several; no moves: an item is dragged, [S-1410], or moved with Alt+Shift+Up /
@@ -81,7 +89,9 @@ through `SettingsHost.OwnPicker`, the layout editor through `SettingsHost.AppLay
   and the shortcuts themselves ([S-3729]). Shortcuts are ordered, renamed and removed on the widget ([S-1387], [S-1410]); the list editor
   is gone. (Tests `ShortcutsMenuTests`.)
 - **[S-1389]** Recycle Bin (original S-75): an item pointing at `shell:RecycleBinFolder` shows a
-  count badge ("99+" cap; a dot under a 24 px icon), none when empty or unknown; tooltip
+  count badge ("99+" cap) over a 32 or 48 icon: the neutral count pill over a picture ([S-6706],
+  `HeaderBlock.Count`: Caption on the solid fill), at the icon's top-right corner moved out 8 and up 4 by a
+  transform; none on a 16 icon (no room: the tooltip says how many), none when empty or unknown; tooltip
   "name — N items (size)" / "name — empty". `RecycleBinStatus` is process-wide, single-flight,
   asked when the bin changes, never on a clock: the command window registers for the shell's change
   notifications on the Recycle Bin folder (`SHChangeNotifyRegister`, recursive, shell level), and a
@@ -101,11 +111,12 @@ through `SettingsHost.OwnPicker`, the layout editor through `SettingsHost.AppLay
 - **[S-1995]** Type-ahead ([S-1980]) over the shortcut names selects the match alone and moves the
   cursor to it; not while a rename box or the search box is open.
 - **[S-1391]** Card menu (original S-27, S-49): Search, Open on single / double click, Select all,
-  Undo remove. The view, sizes, icons only, stretch and file extensions are on the properties menu only ([S-1746], [S-1388]).
+  Undo remove. The view, icons only and file extensions are on the properties menu only ([S-1746], [S-1388]).
 - **[S-1392]** Items enter the widget's own surface through one method (`AddItems`); every
   target-specific choice (icon, menu, open, health) switches on `LaunchKind`. The seams PD builds on.
 - **[S-1393]** A new Shortcuts widget starts with the Recycle Bin and This PC (original S-20); the
-  "under the clock on a new screen" placement belongs to the default layout and is not ported here.
+  "under the clock on a new screen" placement belongs to the default layout and is not ported here. One
+  with no shortcut left waits in the card's Set up row: "Add a shortcut" ([S-1862]); a drop still lands there.
 - **[S-1400]** Files, folders, links and web addresses dropped onto the Shortcuts widget's content become
   items at the end, by reference (never copied). The drop arrives only through the desktop surface's one
   OLE target and `IWidgetDropTarget` (no XAML `AllowDrop`, no target of the widget's own). Every target

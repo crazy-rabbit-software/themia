@@ -55,8 +55,8 @@ public sealed class FilesStateFixtureTests
         Assert.IsType<RecentFilesConfig>(configs[3]);
 
         var list = Assert.IsType<ShortcutsConfig>(configs[4]);
-        Assert.Equal((ShortcutsStyle.List, ShortcutItemSize.Large, ShortcutItemSize.Small, true, true, true, ItemClickMode.Single),
-            (list.Style, list.ListSize, list.GridSize, list.GridStretchHeight, list.GridIconOnly, list.ShowFileExtension, list.ClickMode));
+        Assert.Equal((ShortcutsStyle.List, true, true, ItemClickMode.Single),
+            (list.Style, list.GridIconOnly, list.ShowFileExtension, list.ClickMode));
         Assert.Equal(["i1", "i2", "i3", "i4", "i5"], list.Items.Select(i => i.Id));
         Assert.Equal(("News ✓", "https://example.com/news"), (list.Items[1].Label, list.Items[1].Target));
         Assert.Equal(@"C:\Games\game.ico", list.Items[3].IconPath);

@@ -28,29 +28,11 @@ public enum ShortcutsStyle
 /// <summary>[S-6401] [S-6074] The shortcuts' rows that only some styles or states draw with.</summary>
 public enum ShortcutsSetting
 {
-    /// <summary>The grid's tile size.</summary>
-    TileSize,
-
     /// <summary>The grid's icons-only switch.</summary>
     IconOnly,
 
-    /// <summary>The grid's stretch to the height.</summary>
-    Stretch,
-
-    /// <summary>The list and details row size.</summary>
-    RowSize,
-
     /// <summary>File extensions on the names: not on a grid of icons alone, which draws no names.</summary>
     Extensions,
-}
-
-/// <summary>[S-1380] How big a tile or a row is drawn (original S-23 / S-46).</summary>
-[JsonConverter(typeof(JsonStringEnumConverter<ShortcutItemSize>))]
-public enum ShortcutItemSize
-{
-    Small = 0,
-    Medium = 1,
-    Large = 2,
 }
 
 /// <summary>
@@ -128,6 +110,9 @@ public sealed class ShortcutsConfig : WidgetConfig, IStyled, IShownSettings<Shor
     /// <summary>[S-1881] Its setup is a drop onto the widget itself, so it runs while it waits.</summary>
     bool ISetupRule.SetsUpInPlace => true;
 
+    /// <summary>[S-1862] What the Set up row says while it holds nothing.</summary>
+    string? ISetupRule.SetupSentence => ShortcutsStr.WidgetsC_Shortcuts_Setup.Text();
+
     public List<ShortcutItem> Items { get; set; } = [];
 
     /// <summary>[S-1411] The layout item with this id, for the host's one layout editor.</summary>
@@ -155,18 +140,9 @@ public sealed class ShortcutsConfig : WidgetConfig, IStyled, IShownSettings<Shor
     [JsonIgnore]
     public IReadOnlyList<ShortcutsSetting> ShownSettings => Style == ShortcutsStyle.Grid
         ? GridIconOnly
-            ? [ShortcutsSetting.TileSize, ShortcutsSetting.IconOnly, ShortcutsSetting.Stretch]
-            : [ShortcutsSetting.TileSize, ShortcutsSetting.IconOnly, ShortcutsSetting.Stretch, ShortcutsSetting.Extensions]
-        : [ShortcutsSetting.RowSize, ShortcutsSetting.Extensions];
-
-    /// <summary>[S-1380] Tile size in the grid (original <c>gridItemSize</c>).</summary>
-    public ShortcutItemSize GridSize { get; set; } = ShortcutItemSize.Medium;
-
-    /// <summary>[S-1380] Row size in the list and details views (original <c>itemSize</c>).</summary>
-    public ShortcutItemSize ListSize { get; set; } = ShortcutItemSize.Medium;
-
-    /// <summary>[S-1380] Grid tiles share out the widget's height instead of keeping their own (original S-47).</summary>
-    public bool GridStretchHeight { get; set; }
+            ? [ShortcutsSetting.IconOnly]
+            : [ShortcutsSetting.IconOnly, ShortcutsSetting.Extensions]
+        : [ShortcutsSetting.Extensions];
 
     /// <summary>[S-1380] Grid tiles show only their icon (original S-71).</summary>
     public bool GridIconOnly { get; set; }
@@ -203,18 +179,6 @@ public sealed class ShortcutsConfig : WidgetConfig, IStyled, IShownSettings<Shor
         if (Items.RemoveAll(item => item is null || item.Target is null || item.Label is null) > 0)
         {
             repairs.Add("Shortcuts widget had a broken item");
-        }
-
-        if (!Enum.IsDefined(GridSize))
-        {
-            repairs.Add("Shortcuts widget had an unknown tile size");
-            GridSize = ShortcutItemSize.Medium;
-        }
-
-        if (!Enum.IsDefined(ListSize))
-        {
-            repairs.Add("Shortcuts widget had an unknown row size");
-            ListSize = ShortcutItemSize.Medium;
         }
 
         if (!Enum.IsDefined(ClickMode))
@@ -266,9 +230,6 @@ public sealed class ShortcutsConfig : WidgetConfig, IStyled, IShownSettings<Shor
         var copy = new ShortcutsConfig
         {
             Style = Style,
-            GridSize = GridSize,
-            ListSize = ListSize,
-            GridStretchHeight = GridStretchHeight,
             GridIconOnly = GridIconOnly,
             ShowFileExtension = ShowFileExtension,
             ClickMode = ClickMode,

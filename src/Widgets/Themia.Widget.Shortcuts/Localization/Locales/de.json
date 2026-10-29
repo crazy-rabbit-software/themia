@@ -45,9 +45,7 @@
   "widgetsC.shortcuts.settings.openWith.single": "Einfacher Klick",
   "widgetsC.shortcuts.settings.pick.file": "Datei…",
   "widgetsC.shortcuts.settings.pick.folder": "Ordner…",
-  "widgetsC.shortcuts.settings.rowSize.label": "Zeilengröße",
-  "widgetsC.shortcuts.settings.stretch.label": "Kacheln auf volle Höhe strecken",
-  "widgetsC.shortcuts.settings.tileSize.label": "Kachelgröße",
   "widgetsC.shortcuts.settings.view.tiles": "Kacheln",
-  "widgetsC.shortcuts.tooltip.missing": "{name} (Ziel fehlt)\n{target}"
+  "widgetsC.shortcuts.tooltip.missing": "{name} (Ziel fehlt)\n{target}",
+  "widgetsC.shortcuts.setup": "Verknüpfung hinzufügen"
 }

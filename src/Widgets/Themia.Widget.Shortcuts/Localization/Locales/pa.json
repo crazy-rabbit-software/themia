@@ -45,9 +45,7 @@
   "widgetsC.shortcuts.settings.openWith.single": "ਸਿੰਗਲ ਕਲਿੱਕ",
   "widgetsC.shortcuts.settings.pick.file": "ਫ਼ਾਈਲ…",
   "widgetsC.shortcuts.settings.pick.folder": "ਫੋਲਡਰ…",
-  "widgetsC.shortcuts.settings.rowSize.label": "ਕਤਾਰ ਦਾ ਆਕਾਰ",
-  "widgetsC.shortcuts.settings.stretch.label": "ਭਰਨ ਲਈ ਟਾਈਲਾਂ ਖਿੱਚੋ",
-  "widgetsC.shortcuts.settings.tileSize.label": "ਟਾਈਲ ਦਾ ਆਕਾਰ",
   "widgetsC.shortcuts.settings.view.tiles": "ਟਾਈਲਾਂ",
-  "widgetsC.shortcuts.tooltip.missing": "{name} (ਟੀਚਾ ਗੁੰਮ)\n{target}"
+  "widgetsC.shortcuts.tooltip.missing": "{name} (ਟੀਚਾ ਗੁੰਮ)\n{target}",
+  "widgetsC.shortcuts.setup": "ਇੱਕ ਸ਼ਾਰਟਕੱਟ ਜੋੜੋ"
 }

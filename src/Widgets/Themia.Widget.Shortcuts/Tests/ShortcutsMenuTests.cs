@@ -57,30 +57,21 @@ public sealed class ShortcutsMenuTests
     }
 
     [Fact]
-    public void S1388_tiles_offer_their_size_icons_only_and_stretch_under_style()
+    public void S1388_tiles_offer_icons_only_and_extensions_under_style_and_no_size()
     {
         var look = Build(new ShortcutsConfig { Style = ShortcutsStyle.Grid }).Lines.StyleLines.Select(l => l.Text).ToList();
 
-        Assert.Equal(
-            [
-                ShortcutsStr.WidgetsC_Shortcuts_Settings_TileSize_Label.Text(),
-                ShortcutsStr.CtxMenu_IconOnly.Text(),
-                ShortcutsStr.WidgetsC_Shortcuts_Settings_Stretch_Label.Text(),
-                Str.Folder_ShowExtMenu.Text(),
-            ],
-            look);
+        Assert.Equal([ShortcutsStr.CtxMenu_IconOnly.Text(), Str.Folder_ShowExtMenu.Text()], look);
     }
 
     [Theory]
     [InlineData(ShortcutsStyle.List)]
     [InlineData(ShortcutsStyle.Details)]
-    public void S1388_a_list_and_details_offer_the_row_size_and_no_tile_options(ShortcutsStyle style)
+    public void S1388_a_list_and_details_offer_only_the_extensions_under_style(ShortcutsStyle style)
     {
         var look = Build(new ShortcutsConfig { Style = style }).Lines.StyleLines.Select(l => l.Text).ToList();
 
-        Assert.Contains(ShortcutsStr.WidgetsC_Shortcuts_Settings_RowSize_Label.Text(), look);
-        Assert.DoesNotContain(ShortcutsStr.WidgetsC_Shortcuts_Settings_TileSize_Label.Text(), look);
-        Assert.DoesNotContain(ShortcutsStr.CtxMenu_IconOnly.Text(), look);
+        Assert.Equal([Str.Folder_ShowExtMenu.Text()], look);
     }
 
     [Fact]

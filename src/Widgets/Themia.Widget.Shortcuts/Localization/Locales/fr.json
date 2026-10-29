@@ -45,9 +45,7 @@
   "widgetsC.shortcuts.settings.openWith.single": "Simple clic",
   "widgetsC.shortcuts.settings.pick.file": "Fichier…",
   "widgetsC.shortcuts.settings.pick.folder": "Dossier…",
-  "widgetsC.shortcuts.settings.rowSize.label": "Taille des lignes",
-  "widgetsC.shortcuts.settings.stretch.label": "Étirer les vignettes",
-  "widgetsC.shortcuts.settings.tileSize.label": "Taille des vignettes",
   "widgetsC.shortcuts.settings.view.tiles": "Vignettes",
-  "widgetsC.shortcuts.tooltip.missing": "{name} (cible introuvable)\n{target}"
+  "widgetsC.shortcuts.tooltip.missing": "{name} (cible introuvable)\n{target}",
+  "widgetsC.shortcuts.setup": "Ajoutez un raccourci"
 }

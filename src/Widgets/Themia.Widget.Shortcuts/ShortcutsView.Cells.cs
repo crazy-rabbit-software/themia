@@ -13,7 +13,9 @@ using Themia.Core.Diagnostics;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
+using Themia.Sdk.Kit;
 using Themia.Sdk.WinUI;
+using Themia.Sdk.WinUI.Kit;
 using Themia.Widget.Shortcuts;
 using Windows.Storage.Streams;
 
@@ -34,7 +36,7 @@ internal sealed partial class ShortcutsView
 
         public required Border Root { get; init; }
 
-        /// <summary>[S-6627] The selection's mark, inside the root and over its item fill.</summary>
+        /// <summary>[S-6627] The selection's mark: behind the row or the cell, over all of it and over its item fill.</summary>
         public required Border Chrome { get; init; }
 
         /// <summary>A labelled tile, whose name may be shown in full when selected ([S-6629]).</summary>
@@ -67,9 +69,6 @@ internal sealed partial class ShortcutsView
         public string? IconVariant { get; set; }
     }
 
-    /// <summary>Below this icon size the Recycle Bin's badge is a dot rather than a count.</summary>
-    private const double DotBelow = 24;
-
     /// <summary>Decoded favicons by origin, per view: the bytes are shared app-wide by the host's cache (<see cref="IWidgetHost.Favicons"/>).</summary>
     private readonly Dictionary<string, Task<BitmapImage?>> _favicons = new(StringComparer.OrdinalIgnoreCase);
 
@@ -80,7 +79,6 @@ internal sealed partial class ShortcutsView
 
         _panel.RowDefinitions.Clear();
         _panel.ColumnDefinitions.Clear();
-        _panel.Padding = Inset();
 
         if (_config.Style == ShortcutsStyle.Grid)
         {
@@ -96,27 +94,29 @@ internal sealed partial class ShortcutsView
         _fade.Refresh();
     }
 
-    private void RenderGrid(List<ShortcutItem> visible, ShortcutTilePlan plan)
+    /// <summary>
+    /// [S-1382] [S-6713] The cells fill from the top-left, row by row, each mark 4 from the next (so the
+    /// cells are 12 apart and the first stands at the inset); a grid that does not fill the tile leaves
+    /// the room at the right and bottom.
+    /// </summary>
+    private void RenderGrid(List<ShortcutItem> visible, CellGrid plan)
     {
         _columnHeader.Visibility = Visibility.Collapsed;
-        _panel.ColumnSpacing = ShortcutLayout.Gap;
-        _panel.RowSpacing = ShortcutLayout.Gap;
-
-        // [S-1382] The tiles fill from the top-left, row by row, in the columns the plan shared the
-        // width into; a grid that does not fill the tile leaves the room at the right and bottom.
-        _panel.HorizontalAlignment = HorizontalAlignment.Stretch;
+        _panel.ColumnSpacing = FamilySpace.S1;
+        _panel.RowSpacing = FamilySpace.S1;
+        _panel.HorizontalAlignment = HorizontalAlignment.Left;
         _panel.VerticalAlignment = VerticalAlignment.Top;
 
         for (var c = 0; c < plan.Columns; c++)
         {
-            _panel.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+            _panel.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(plan.MarkWidth) });
         }
 
         var rows = (visible.Count + plan.Columns - 1) / plan.Columns;
 
         for (var r = 0; r < rows; r++)
         {
-            _panel.RowDefinitions.Add(new RowDefinition { Height = new GridLength(plan.TileHeight) });
+            _panel.RowDefinitions.Add(new RowDefinition { Height = new GridLength(plan.MarkHeight) });
         }
 
         for (var i = 0; i < visible.Count; i++)
@@ -128,52 +128,30 @@ internal sealed partial class ShortcutsView
         }
     }
 
-    private Cell BuildTile(ShortcutItem item, ShortcutTilePlan plan)
+    /// <summary>[S-6713] A cell (Row.Cell): the item's icon over its name in Caption (none on an icons-only grid), its mark 4 around them.</summary>
+    private Cell BuildTile(ShortcutItem item, CellGrid plan)
     {
         var target = LaunchTargets.Classify(item.Target);
         var (iconHost, image, fallback, badge, badgeText) = BuildIcon(item, target, plan.Icon);
-        iconHost.HorizontalAlignment = HorizontalAlignment.Center;
 
-        var name = Fluent.Text(FluentType.Caption);
-        name.Text = NameOf(item);
-        name.TextAlignment = TextAlignment.Center;
-        name.HorizontalAlignment = HorizontalAlignment.Stretch;
-        name.TextTrimming = TextTrimming.CharacterEllipsis;
-        name.TextWrapping = TextWrapping.NoWrap;
-        name.Margin = new Thickness(0, ShortcutLayout.LabelGap, 0, 0);
-        name.Visibility = plan.Labels ? Visibility.Visible : Visibility.Collapsed;
+        var view = new RowCell(plan.Icon) { Width = plan.Width, Margin = new Thickness(FamilySpace.S1) };
+        view.Show(iconHost, plan.Named ? NameOf(item) : string.Empty);
 
-        var stack = new StackPanel { VerticalAlignment = VerticalAlignment.Center };
-        stack.Children.Add(iconHost);
-        stack.Children.Add(name);
-
-        if (plan.Labels && plan.Detail)
-        {
-            var detail = Fluent.Text(FluentType.Caption, "TextFillColorTertiaryBrush");
-            detail.Text = DetailOf(item, target);
-            detail.TextAlignment = TextAlignment.Center;
-            detail.TextTrimming = TextTrimming.CharacterEllipsis;
-            detail.TextWrapping = TextWrapping.NoWrap;
-            stack.Children.Add(detail);
-        }
-
-        // [S-6627] The whole tile, icon and name, is the item's mark.
-        var chrome = SelectionChrome.Wrap(stack);
-        chrome.Padding = new Thickness(Fluent.Space1, 0, Fluent.Space1, 0);
-
+        // [S-6627] The whole cell, icon and name, is the item's mark.
+        var chrome = SelectionChrome.Wrap(new Grid());
         var root = new Border
         {
-            Child = chrome,
-            CornerRadius = new CornerRadius(Fluent.ControlRadius),
+            Child = new Grid { Children = { chrome, view } },
+            CornerRadius = Family.Radius,
         };
 
-        if (!plan.Labels)
+        if (!plan.Named)
         {
-            // An icon-only tile still says what it is, on hover.
+            // An icon-only cell still says what it is, on hover.
             ToolTipService.SetToolTip(root, NameOf(item));
         }
 
-        return NewCell(item, target, root, chrome, stack, image, fallback, name, badge, badgeText, null, plan.Icon, tile: plan.Labels);
+        return NewCell(item, target, root, chrome, view, image, fallback, view.NameText, badge, badgeText, null, plan.Icon, tile: plan.Named);
     }
 
     private void RenderRows(List<ShortcutItem> visible, ShortcutRowPlan plan)
@@ -207,92 +185,79 @@ internal sealed partial class ShortcutsView
         }
     }
 
+    /// <summary>
+    /// [S-6711] A row: the Row block — the item's icon (16, or 32 on a taller row) as its lead, the name
+    /// primary, the target under it where the row has two lines (the list); the details table puts its
+    /// columns in the name's place. The selection's mark lies behind the whole row.
+    /// </summary>
     private Cell BuildRow(ShortcutItem item, ShortcutRowPlan plan, bool details)
     {
         var target = LaunchTargets.Classify(item.Target);
-        var (iconHost, image, fallback, badge, badgeText) = BuildIcon(item, target, plan.Icon);
-        iconHost.Margin = new Thickness(0, 0, Fluent.Space3, 0);
-        iconHost.VerticalAlignment = VerticalAlignment.Center;
+        var (iconHost, image, fallback, badge, badgeText) = BuildIcon(item, target, plan.Lead);
 
-        var name = Fluent.Text(FluentType.Body);
-        name.Text = NameOf(item);
-        name.TextTrimming = TextTrimming.CharacterEllipsis;
-        name.TextWrapping = TextWrapping.NoWrap;
+        var block = new RowBlock(RowKind.List, plan.Lead) { Lines = plan.Lines };
+        block.Lead(iconHost);
 
-        var grid = new Grid();
-        DetailColumns(grid, details, plan);
-
-        SetColumn(iconHost, 0);
-        grid.Children.Add(iconHost);
-
-        FrameworkElement nameBlock = name;
-
-        if (plan.SecondLine)
-        {
-            var line = Fluent.Text(FluentType.Caption, "TextFillColorSecondaryBrush");
-            line.Text = DetailOf(item, target);
-            line.TextTrimming = TextTrimming.CharacterEllipsis;
-            line.TextWrapping = TextWrapping.NoWrap;
-            nameBlock = new StackPanel { VerticalAlignment = VerticalAlignment.Center, Children = { name, line } };
-        }
-
-        SetColumn(nameBlock, 1);
-        grid.Children.Add(nameBlock);
-
+        TextBlock name;
         TextBlock? kind = null;
 
-        if (details && plan.TargetColumn)
+        if (details)
         {
-            var path = Fluent.Text(FluentType.Caption, "TextFillColorSecondaryBrush");
-            path.Text = item.IsLayout ? LayoutPlan.Summary(item.Layout) : item.Target;
-            path.TextTrimming = TextTrimming.CharacterEllipsis;
-            path.TextWrapping = TextWrapping.NoWrap;
-            path.Margin = new Thickness(Fluent.Space3, 0, 0, 0);
-            SetColumn(path, 2);
-            grid.Children.Add(path);
+            block.Show(string.Empty);
+            var grid = new Grid { ColumnSpacing = FamilySpace.ColumnGap };
+            DetailColumns(grid, plan);
+            name = Family.Text(FamilyType.Body, ColourRole.TextPrimary, NameOf(item));
+            name.VerticalAlignment = VerticalAlignment.Center;
+            grid.Children.Add(name);
+
+            if (plan.TargetColumn)
+            {
+                var path = Family.Text(FamilyType.Body, ColourRole.TextSecondary, item.IsLayout ? LayoutPlan.Summary(item.Layout) : item.Target);
+                path.VerticalAlignment = VerticalAlignment.Center;
+                SetColumn(path, 1);
+                grid.Children.Add(path);
+            }
+
+            if (plan.KindColumn)
+            {
+                kind = Family.Text(FamilyType.Body, ColourRole.TextSecondary);
+                kind.VerticalAlignment = VerticalAlignment.Center;
+                SetColumn(kind, 2);
+                grid.Children.Add(kind);
+            }
+
+            block.Cells(grid);
+        }
+        else
+        {
+            block.Show(NameOf(item), null, plan.Lines > 1 ? DetailOf(item, target) : null);
+            name = block.NameText;
         }
 
-        if (details && plan.KindColumn)
-        {
-            kind = Fluent.Text(FluentType.Caption, "TextFillColorSecondaryBrush");
-            kind.Margin = new Thickness(Fluent.Space3, 0, 0, 0);
-            kind.TextTrimming = TextTrimming.CharacterEllipsis;
-            SetColumn(kind, 3);
-            grid.Children.Add(kind);
-        }
+        // [S-6627] The whole row is the item's mark, laid behind the row so marking it moves nothing.
+        var chrome = SelectionChrome.Wrap(new Grid());
+        var root = new Border { Child = new Grid { Children = { chrome, block } } };
 
-        grid.VerticalAlignment = VerticalAlignment.Center;
-
-        // [S-6627] The whole row is the item's mark.
-        var chrome = SelectionChrome.Wrap(grid);
-        chrome.Padding = new Thickness(Fluent.Space4, 0, Fluent.Space4, 0);
-
-        var root = new Border
-        {
-            Child = chrome,
-            CornerRadius = new CornerRadius(Fluent.ControlRadius),
-        };
-
-        return NewCell(item, target, root, chrome, grid, image, fallback, name, badge, badgeText, kind, plan.Icon, tile: false);
+        return NewCell(item, target, root, chrome, block, image, fallback, name, badge, badgeText, kind, plan.Lead, tile: false);
     }
 
-    /// <summary>The details table's columns: icon, name, then target and kind where the plan has them.</summary>
-    private static void DetailColumns(Grid grid, bool details, ShortcutRowPlan plan)
+    /// <summary>The details table's columns: name, then target and kind where the plan has them.</summary>
+    private static void DetailColumns(Grid grid, ShortcutRowPlan plan)
     {
-        grid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
         grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
 
-        if (details && plan.TargetColumn)
+        if (plan.TargetColumn)
         {
             grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1.4, GridUnitType.Star) });
         }
 
-        if (details && plan.KindColumn)
+        if (plan.KindColumn)
         {
-            grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(120) });
+            grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(ShortcutLayout.KindWidth) });
         }
     }
 
+    /// <summary>[S-1384] [S-7034] The details table's titles: a Caption line (secondary) over the columns, at the text edge.</summary>
     private void BuildColumnHeader(bool show, ShortcutRowPlan plan)
     {
         _columnHeader.Children.Clear();
@@ -304,32 +269,32 @@ internal sealed partial class ShortcutsView
             return;
         }
 
-        DetailColumns(_columnHeader, details: true, plan);
-
-        var spacer = new Border { Width = plan.Icon + Fluent.Space3 };
-        _columnHeader.Children.Add(spacer);
+        DetailColumns(_columnHeader, plan);
+        _columnHeader.ColumnSpacing = FamilySpace.ColumnGap;
+        _columnHeader.Height = KitLadder.ColumnHeaderHeight;
+        _columnHeader.Padding = new Thickness(FamilySpace.Inset + RowRules.NameStart(plan.Lead), 0, FamilySpace.Inset, 0);
 
         string[] titles = [Str.Folder_ColName.Text(), ShortcutsStr.WidgetsC_Shortcuts_Column_Target.Text(), ShortcutsStr.WidgetsC_Shortcuts_Column_Kind.Text()];
 
-        for (var c = 1; c < _columnHeader.ColumnDefinitions.Count; c++)
+        for (var c = 0; c < _columnHeader.ColumnDefinitions.Count; c++)
         {
-            var title = Fluent.Text(FluentType.Caption, "TextFillColorTertiaryBrush");
-            title.Text = titles[c - 1];
-            title.Margin = new Thickness(c == 1 ? 0 : Fluent.Space3, 0, 0, 0);
+            var title = Family.Text(FamilyType.Caption, ColourRole.TextSecondary, titles[c]);
+            title.VerticalAlignment = VerticalAlignment.Top;
             SetColumn(title, c);
             _columnHeader.Children.Add(title);
         }
     }
 
     /// <summary>
-    /// An item's icon slot: the glyph for its kind straight away, replaced by the real icon when it
-    /// arrives; the Recycle Bin's count badge pinned to the slot's top-right corner.
+    /// An item's icon slot: the glyph for its kind straight away at the slot's size, replaced by the real
+    /// icon when it arrives; on a 32 or 48 icon the Recycle Bin's count, the neutral pill over a picture
+    /// ([S-6706]), at the slot's top-right corner, moved out by half its height (a transform, never a margin).
     /// </summary>
     private (Grid Host, Image Image, FontIcon Fallback, Border Badge, TextBlock BadgeText) BuildIcon(ShortcutItem item, LaunchTarget target, double size)
     {
         var fallback = item.IsLayout
-            ? Fluent.Icon(Glyphs.AppLayout, "TextFillColorSecondaryBrush", Math.Round(size * 0.75))
-            : Fluent.Icon(GlyphFor(target.Kind), ColorKeyFor(target.Kind), Math.Round(size * 0.75));
+            ? Family.Glyph(Glyphs.AppLayout, size, ColourRole.TextSecondary)
+            : Family.Glyph(GlyphFor(target.Kind), size, target.Kind == LaunchKind.Refused ? ColourRole.Critical : ColourRole.TextSecondary);
         fallback.HorizontalAlignment = HorizontalAlignment.Center;
 
         var image = new Image
@@ -341,27 +306,10 @@ internal sealed partial class ShortcutsView
         };
 
         var badgeText = new TextBlock();
-        var badge = Themia.Sdk.WinUI.Kit.HeaderBlock.Count(badgeText, overImage: true);
-
-        // 42% of the icon, held between 12 and 20 DIPs (original S-75).
-        var badgeHeight = Math.Clamp(size * 0.42, 12, 20);
-
-        if (size < DotBelow)
-        {
-            // Too small an icon for a legible count: a dot says "not empty", the tooltip says how much.
-            badgeHeight = Fluent.Space2;
-            badge.CornerRadius = new CornerRadius(badgeHeight / 2);
-            badgeText.Visibility = Visibility.Collapsed;
-        }
-
-        badge.MinHeight = badgeHeight;
-        badge.MinWidth = badgeHeight;
-        badge.Padding = size < DotBelow ? new Thickness(0) : new Thickness(Fluent.Space1, 0, Fluent.Space1, 0);
-        badgeText.FontSize = Math.Max(9, badgeHeight * 0.62);
-        badgeText.LineHeight = badgeHeight;
+        var badge = HeaderBlock.Count(badgeText, overImage: true);
         badge.HorizontalAlignment = HorizontalAlignment.Right;
         badge.VerticalAlignment = VerticalAlignment.Top;
-        badge.Margin = new Thickness(0, -badgeHeight / 3, -badgeHeight / 2, 0);
+        badge.RenderTransform = new TranslateTransform { X = FamilySpace.S2, Y = -FamilySpace.S1 };
         badge.Visibility = Visibility.Collapsed;
 
         var host = new Grid { Width = size, Height = size };
@@ -527,7 +475,7 @@ internal sealed partial class ShortcutsView
         }
 
         var missing = cell.Health == TargetHealth.Missing;
-        cell.Content.Opacity = missing || (!cell.Target.IsValid && !cell.Item.IsLayout) ? 0.5 : 1;
+        cell.Content.Opacity = missing || (!cell.Target.IsValid && !cell.Item.IsLayout) ? SelectionLook.Faded : 1;
         cell.Name.TextDecorations = missing ? Windows.UI.Text.TextDecorations.Strikethrough : Windows.UI.Text.TextDecorations.None;
 
         if (cell.Kind is { } kind)
@@ -555,7 +503,8 @@ internal sealed partial class ShortcutsView
         var badge = ShortcutRules.BadgeText(state);
 
         cell.BadgeText.Text = badge ?? string.Empty;
-        cell.Badge.Visibility = badge is null ? Visibility.Collapsed : Visibility.Visible;
+        // [S-1389] The count only over a 32 or 48 icon; a 16 one has no room for it (the tooltip says how many).
+        cell.Badge.Visibility = badge is null || cell.IconSize < FamilyShape.IconLarge ? Visibility.Collapsed : Visibility.Visible;
         ToolTipService.SetToolTip(cell.Root, RecycleBinState.Tooltip(NameOf(cell.Item), state));
 
         var variant = state is not { } bin ? "unknown" : bin.IsEmpty ? "empty" : "full";
@@ -716,7 +665,7 @@ internal sealed partial class ShortcutsView
                 Stretch = Stretch.Uniform,
                 HorizontalAlignment = HorizontalAlignment.Left,
                 VerticalAlignment = VerticalAlignment.Top,
-                Margin = new Thickness(step * i, step * i, 0, 0),
+                RenderTransform = new TranslateTransform { X = step * i, Y = step * i },
             });
         }
 
@@ -745,6 +694,4 @@ internal sealed partial class ShortcutsView
         _ => Glyphs.Warning,
     };
 
-    private static string ColorKeyFor(LaunchKind kind)
-        => kind == LaunchKind.Refused ? "SystemFillColorCriticalBrush" : "TextFillColorSecondaryBrush";
 }

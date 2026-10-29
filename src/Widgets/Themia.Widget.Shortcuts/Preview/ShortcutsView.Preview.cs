@@ -78,6 +78,17 @@ internal sealed partial class ShortcutsView : IWidgetPreviewState
                 }
 
                 PaintAll();
+
+                // The focus in view as the keys left it, at once (the keys' scroll is animated, and a shot
+                // taken while it runs catches the grid half way): the least scroll that shows its row whole.
+                if (_selection.Focus is { } id && _cells.FindIndex(cell => cell.Item.Id == id) is var index and >= 0)
+                {
+                    var pitch = _config.Style == ShortcutsStyle.Grid ? _shape.Tiles.PitchY : _shape.Rows.RowHeight;
+                    _scroll.UpdateLayout();
+                    var bottom = ((index / Columns()) + 1) * pitch;
+                    _scroll.ChangeView(null, Math.Max(0, bottom - _scroll.ViewportHeight), null, disableAnimation: true);
+                }
+
                 break;
 
             case "lasso" when _cells.Count >= 2:

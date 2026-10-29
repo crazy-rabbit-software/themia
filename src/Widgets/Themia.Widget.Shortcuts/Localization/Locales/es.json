@@ -45,9 +45,7 @@
   "widgetsC.shortcuts.settings.openWith.single": "Un clic",
   "widgetsC.shortcuts.settings.pick.file": "Archivo…",
   "widgetsC.shortcuts.settings.pick.folder": "Carpeta…",
-  "widgetsC.shortcuts.settings.rowSize.label": "Tamaño de fila",
-  "widgetsC.shortcuts.settings.stretch.label": "Estirar mosaicos para rellenar",
-  "widgetsC.shortcuts.settings.tileSize.label": "Tamaño de mosaico",
   "widgetsC.shortcuts.settings.view.tiles": "Mosaicos",
-  "widgetsC.shortcuts.tooltip.missing": "{name} (destino no encontrado)\n{target}"
+  "widgetsC.shortcuts.tooltip.missing": "{name} (destino no encontrado)\n{target}",
+  "widgetsC.shortcuts.setup": "Añade un acceso directo"
 }

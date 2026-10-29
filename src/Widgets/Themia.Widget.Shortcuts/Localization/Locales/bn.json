@@ -45,9 +45,7 @@
   "widgetsC.shortcuts.settings.openWith.single": "এক ক্লিক",
   "widgetsC.shortcuts.settings.pick.file": "ফাইল…",
   "widgetsC.shortcuts.settings.pick.folder": "ফোল্ডার…",
-  "widgetsC.shortcuts.settings.rowSize.label": "সারির আকার",
-  "widgetsC.shortcuts.settings.stretch.label": "টাইল প্রসারিত করে ভরান",
-  "widgetsC.shortcuts.settings.tileSize.label": "টাইলের আকার",
   "widgetsC.shortcuts.settings.view.tiles": "টাইল",
-  "widgetsC.shortcuts.tooltip.missing": "{name} (লক্ষ্য পাওয়া যায়নি)\n{target}"
+  "widgetsC.shortcuts.tooltip.missing": "{name} (লক্ষ্য পাওয়া যায়নি)\n{target}",
+  "widgetsC.shortcuts.setup": "একটি শর্টকাট যোগ করুন"
 }

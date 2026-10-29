@@ -45,9 +45,7 @@
   "widgetsC.shortcuts.settings.openWith.single": "Enkele klik",
   "widgetsC.shortcuts.settings.pick.file": "Bestand…",
   "widgetsC.shortcuts.settings.pick.folder": "Map…",
-  "widgetsC.shortcuts.settings.rowSize.label": "Rijgrootte",
-  "widgetsC.shortcuts.settings.stretch.label": "Tegels uitrekken",
-  "widgetsC.shortcuts.settings.tileSize.label": "Tegelgrootte",
   "widgetsC.shortcuts.settings.view.tiles": "Tegels",
-  "widgetsC.shortcuts.tooltip.missing": "{name} (doel ontbreekt)\n{target}"
+  "widgetsC.shortcuts.tooltip.missing": "{name} (doel ontbreekt)\n{target}",
+  "widgetsC.shortcuts.setup": "Voeg een snelkoppeling toe"
 }

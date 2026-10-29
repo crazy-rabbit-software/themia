@@ -651,9 +651,6 @@
               }
             ],
             "style": "grid",
-            "gridSize": "Medium",
-            "listSize": "Medium",
-            "gridStretchHeight": false,
             "gridIconOnly": false,
             "showFileExtension": false,
             "clickMode": "Double"

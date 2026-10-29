@@ -42,9 +42,7 @@
   "widgetsC.shortcuts.settings.openWith.single": "한 번 클릭",
   "widgetsC.shortcuts.settings.pick.file": "파일…",
   "widgetsC.shortcuts.settings.pick.folder": "폴더…",
-  "widgetsC.shortcuts.settings.rowSize.label": "행 크기",
-  "widgetsC.shortcuts.settings.stretch.label": "타일을 늘려 채우기",
-  "widgetsC.shortcuts.settings.tileSize.label": "타일 크기",
   "widgetsC.shortcuts.settings.view.tiles": "타일",
-  "widgetsC.shortcuts.tooltip.missing": "{name}(대상 없음)\n{target}"
+  "widgetsC.shortcuts.tooltip.missing": "{name}(대상 없음)\n{target}",
+  "widgetsC.shortcuts.setup": "바로 가기 추가"
 }

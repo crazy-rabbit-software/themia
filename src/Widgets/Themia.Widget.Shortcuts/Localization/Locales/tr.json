@@ -45,9 +45,7 @@
   "widgetsC.shortcuts.settings.openWith.single": "Tek tıklama",
   "widgetsC.shortcuts.settings.pick.file": "Dosya…",
   "widgetsC.shortcuts.settings.pick.folder": "Klasör…",
-  "widgetsC.shortcuts.settings.rowSize.label": "Satır boyutu",
-  "widgetsC.shortcuts.settings.stretch.label": "Kutucukları doldurmak için uzat",
-  "widgetsC.shortcuts.settings.tileSize.label": "Kutucuk boyutu",
   "widgetsC.shortcuts.settings.view.tiles": "Kutucuklar",
-  "widgetsC.shortcuts.tooltip.missing": "{name} (hedef eksik)\n{target}"
+  "widgetsC.shortcuts.tooltip.missing": "{name} (hedef eksik)\n{target}",
+  "widgetsC.shortcuts.setup": "Kısayol ekleyin"
 }

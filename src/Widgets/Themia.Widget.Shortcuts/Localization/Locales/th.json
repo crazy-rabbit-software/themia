@@ -42,9 +42,7 @@
   "widgetsC.shortcuts.settings.openWith.single": "คลิกครั้งเดียว",
   "widgetsC.shortcuts.settings.pick.file": "ไฟล์…",
   "widgetsC.shortcuts.settings.pick.folder": "โฟลเดอร์…",
-  "widgetsC.shortcuts.settings.rowSize.label": "ขนาดแถว",
-  "widgetsC.shortcuts.settings.stretch.label": "ยืดไทล์ให้เต็ม",
-  "widgetsC.shortcuts.settings.tileSize.label": "ขนาดไทล์",
   "widgetsC.shortcuts.settings.view.tiles": "ไทล์",
-  "widgetsC.shortcuts.tooltip.missing": "{name} (ไม่พบเป้าหมาย)\n{target}"
+  "widgetsC.shortcuts.tooltip.missing": "{name} (ไม่พบเป้าหมาย)\n{target}",
+  "widgetsC.shortcuts.setup": "เพิ่มทางลัด"
 }

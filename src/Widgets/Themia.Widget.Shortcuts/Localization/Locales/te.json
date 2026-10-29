@@ -45,9 +45,7 @@
   "widgetsC.shortcuts.settings.openWith.single": "సింగిల్ క్లిక్",
   "widgetsC.shortcuts.settings.pick.file": "ఫైల్…",
   "widgetsC.shortcuts.settings.pick.folder": "ఫోల్డర్…",
-  "widgetsC.shortcuts.settings.rowSize.label": "వరుస పరిమాణం",
-  "widgetsC.shortcuts.settings.stretch.label": "నింపేలా టైల్‌లను సాగదీయి",
-  "widgetsC.shortcuts.settings.tileSize.label": "టైల్ పరిమాణం",
   "widgetsC.shortcuts.settings.view.tiles": "టైల్‌లు",
-  "widgetsC.shortcuts.tooltip.missing": "{name} (లక్ష్యం లేదు)\n{target}"
+  "widgetsC.shortcuts.tooltip.missing": "{name} (లక్ష్యం లేదు)\n{target}",
+  "widgetsC.shortcuts.setup": "షార్ట్‌కట్‌ను జోడించండి"
 }

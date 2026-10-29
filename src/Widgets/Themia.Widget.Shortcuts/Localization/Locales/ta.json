@@ -45,9 +45,7 @@
   "widgetsC.shortcuts.settings.openWith.single": "ஒருமுறை கிளிக்",
   "widgetsC.shortcuts.settings.pick.file": "கோப்பு…",
   "widgetsC.shortcuts.settings.pick.folder": "கோப்புறை…",
-  "widgetsC.shortcuts.settings.rowSize.label": "வரிசை அளவு",
-  "widgetsC.shortcuts.settings.stretch.label": "நிரப்ப ஓடுகளை நீட்டு",
-  "widgetsC.shortcuts.settings.tileSize.label": "ஓடு அளவு",
   "widgetsC.shortcuts.settings.view.tiles": "ஓடுகள்",
-  "widgetsC.shortcuts.tooltip.missing": "{name} (இலக்கு இல்லை)\n{target}"
+  "widgetsC.shortcuts.tooltip.missing": "{name} (இலக்கு இல்லை)\n{target}",
+  "widgetsC.shortcuts.setup": "குறுக்குவழியைச் சேர்க்கவும்"
 }
