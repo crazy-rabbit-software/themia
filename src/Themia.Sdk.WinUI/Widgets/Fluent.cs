@@ -126,17 +126,6 @@ public static class Fluent
     /// </summary>
     public const double ChartWash = FamilyShape.Wash;
 
-    // ---- breakpoints -----------------------------------------------------------------------
-
-    /// <summary>
-    /// Below this height a list uses compact rows.
-    /// <para>
-    /// Named because four widgets each invented their own threshold and no two agreed, which is how
-    /// a desktop of widgets ends up with three different row heights on it.
-    /// </para>
-    /// </summary>
-    public const double CompactBelow = RowHeight * 5;
-
     // ---- pieces ----------------------------------------------------------------------------
 
     /// <summary>A 16px icon in one of the named text colours.</summary>
@@ -219,10 +208,6 @@ public static class Fluent
             ItemFill.Paint(_row, ItemRole.Row);
         }
     }
-
-    /// <summary>Switch a row between the standard and compact heights without rebuilding it.</summary>
-    public static void SetDensity(Border row, bool compact)
-        => row.MinHeight = compact ? RowHeightCompact : RowHeight;
 
     /// <summary>The margin a header carries when it sits above a full-bleed list.</summary>
     public static Thickness HeaderMargin { get; } = new(Space4, Space4, Space4, Space2);

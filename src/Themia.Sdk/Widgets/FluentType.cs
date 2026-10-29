@@ -141,8 +141,8 @@ public static class FluentType
     private const double AverageAdvance = 0.58;
 
     /// <summary>
-    /// The same width estimate <see cref="Fit"/> chooses steps with, for a layout decision that has
-    /// to agree with it — whether a caption still fits beside a fitted reading, say.
+    /// A width estimate of <paramref name="characters"/> characters at a step (0.58em a character), for a
+    /// layout decision that only has to be close: whether a caption still fits beside a reading, say.
     /// </summary>
     public static double EstimateWidth(TypeStep step, double characters) => Advance(step, characters);
 
@@ -151,110 +151,4 @@ public static class FluentType
     /// <summary>The ramp in order, smallest first, at the live <see cref="TextScale"/>.</summary>
     public static IReadOnlyList<TypeStep> Ramp => _ramp;
 
-    /// <summary>
-    /// The largest step whose line fits the box, never smaller than <paramref name="floor"/> and
-    /// never larger than <paramref name="ceiling"/>.
-    /// <para>
-    /// The fit is measured against the line height rather than the font size, because a line of type
-    /// occupies its line height and sizing to the glyph box is how text ends up touching the thing
-    /// above it.
-    /// </para>
-    /// </summary>
-    /// <param name="width">Available width in DIPs.</param>
-    /// <param name="height">Height this line may occupy in DIPs.</param>
-    /// <param name="characters">
-    /// Roughly how many characters the line has to hold. Width matters as much as height: a readout
-    /// of "100%" and one of "1.9 GB of 64 GB" want very different steps in the same box.
-    /// </param>
-    public static TypeStep Fit(double width, double height, double characters, TypeStep floor, TypeStep ceiling)
-        => FitWidth(width, height, AverageAdvance * Math.Max(1, characters), floor, ceiling);
-
-    /// <summary>
-    /// <see cref="Fit"/> for a line whose width is known in ems rather than guessed from its length
-    /// (<see cref="HeroFit.Ems"/>): the largest step whose line fits the box and whose
-    /// <paramref name="ems"/> × size fits the width, from <paramref name="floor"/> to <paramref name="ceiling"/>.
-    /// </summary>
-    public static TypeStep FitWidth(double width, double height, double ems, TypeStep floor, TypeStep ceiling)
-    {
-        // An unmeasured or degenerate box gets the floor rather than a NaN that would reach a
-        // FontSize and throw on the render path.
-        if (!IsUsable(width) || !IsUsable(height) || !IsUsable(ems))
-        {
-            return floor;
-        }
-
-        var chosen = floor;
-
-        foreach (var step in Ramp)
-        {
-            if (step.FontSize < floor.FontSize || step.FontSize > ceiling.FontSize)
-            {
-                continue;
-            }
-
-            if (step.LineHeight <= height && step.FontSize * ems <= width)
-            {
-                chosen = step;
-            }
-        }
-
-        return chosen;
-    }
-
-    /// <summary>
-    /// A step scaled past the ramp, for the one case the ramp does not cover: a readout that is the
-    /// entire point of a very large tile.
-    /// <para>
-    /// The ramp stops at 68px because Windows has nothing bigger to say. A clock filling a
-    /// quarter-screen tile legitimately does, so it is allowed to scale <see cref="Display"/> up —
-    /// keeping Fluent's own line-height ratio, so it is still the ramp's shape rather than a new one.
-    /// </para>
-    /// </summary>
-    public static TypeStep Scaled(TypeStep step, double factor)
-    {
-        if (!double.IsFinite(factor) || factor <= 0)
-        {
-            return step;
-        }
-
-        var ratio = step.LineHeight / step.FontSize;
-        var size = step.FontSize * factor;
-
-        return new TypeStep(size, size * ratio, step.SemiBold);
-    }
-
-    /// <summary>
-    /// The readout for a tile whose whole point is one number: a ramp step while the box is small,
-    /// and once it can hold <see cref="TitleLarge"/>, that step scaled to fill the box.
-    /// <para>
-    /// [S-641] It used to stay on the ramp until <see cref="Display"/> fitted and only then scale.
-    /// The gap between those two steps is 40px of line height, so every box between them — a wide
-    /// strip, a tall column — drew a 40px clock in a tile with room for one half as big again: the
-    /// readout jumped from 40 to 68 and never stood anywhere in between. Scaling from TitleLarge
-    /// closes the gap, keeping that step's own line-height ratio so it is still the ramp's shape.
-    /// </para>
-    /// </summary>
-    public static TypeStep Hero(double width, double height, double characters)
-    {
-        if (!IsUsable(width) || !IsUsable(height))
-        {
-            return Subtitle;
-        }
-
-        var fitted = Fit(width, height, characters, Caption, Display);
-
-        if (fitted.FontSize < TitleLarge.FontSize)
-        {
-            return fitted;
-        }
-
-        var wanted = Math.Max(1, characters);
-        var byWidth = width / Advance(TitleLarge, wanted);
-        var byHeight = height / TitleLarge.LineHeight;
-        var factor = Math.Min(byWidth, byHeight);
-
-        return factor > 1 ? Scaled(TitleLarge, factor) : TitleLarge;
-    }
-
-    private static bool IsUsable(double value) => double.IsFinite(value) && value > 0;
 }

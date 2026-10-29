@@ -1012,9 +1012,9 @@ module author's guide is docs/WIDGET-KIT.md 16.
   place, never beside them (the order is the family's phase plan): the card's header is the Header
   block now and `Fluent.Header` is gone; the Set up row is the Status block now. `KitHeader`,
   `KitStatePanel`, `EmptyStatePanel`/`Fluent.EmptyState`, `Fluent.Row`/`Fluent.Badge`,
-  `AddFooterRow`, `HeroFit.Figures`, `FluentType.Hero`/`Fit`/
-  `FitWidth`/`Scaled` and the off-family ramp steps, `RingPart` stay until the group that migrates their callers rebuilds them
-  on the blocks; each then goes. The meters and the details are on the blocks (G1, 2026-10-29):
+  `AddFooterRow`, `HeroFit`'s fill rules, `FluentType.Hero`/`Fit`/`FitWidth`/`Scaled` and the
+  off-family ramp steps and `RingPart` stayed until the group that migrated their callers rebuilt them
+  on the blocks; each then went. The meters and the details are on the blocks (G1, 2026-10-29):
   `MeterView` and `DetailView` are built from the Readout, Row and Chart blocks, `SparkBand` draws on
   `ChartSeries`, the GPU meter is a `MeterView` like the others, and `MeterFace`, `MeterStyleFace`,
   `MeterLookParts` (`BarList`, `TileGrid`), `MeterBrushes`, `CoreGraphGrid`, `PictureFace`,
@@ -1065,7 +1065,21 @@ module author's guide is docs/WIDGET-KIT.md 16.
   Shortcuts' own row and tile sizes. `Fluent.Row`, `Fluent.RowHeight`, `CompactBelow`,
   `Fluent.EmptyState` (`EmptyStatePanel`, `EmptyStateFit`), `RingPart`, `AudioFeed`, `AudioLook`,
   `Fluent.Space5`, `Fluent.OverlayRadius` and the off-family `FluentType` steps are left to G5's
-  widgets and the app's shell alone.
+  widgets and the app's shell alone. The time and media widgets are on the blocks (G5, 2026-10-29):
+  the clock's seven styles are one block each in the card's inset on the Hero steps, its flip the
+  split-flap cards of [S-6740], its dial and its words from the tokens; the timers share one face
+  ([S-6739]): a centred Hero readout, its ring the Chart's, the Controls row centred at the foot with
+  one main action (Start, Dismiss) and its icon buttons and switch ([S-6716]); the music widget is a
+  Title line, its secondary line, a `ChartBar` progress and a transport whose Play is the main icon
+  action; volume and brightness are the Controls row's slider; the mixer's sessions and the Bluetooth
+  devices are Row blocks, a slider in the mixer row's meter place. `HeroFit`'s fill rules (`Row`,
+  `Stacked`, `Figures`, `BaselineDrop`, `ClockRow`, the solid leading), `FluentType.Hero`, `Fit`,
+  `FitWidth` and `Scaled`, `RingPart` and `RingArc`, `Fluent.SetDensity` and `CompactBelow` are gone
+  (`HeroFit.Ems` stays: the measure every step is chosen on); so are the clock's own date size, the
+  pomodoro's and the focus session's item layers, the mixer's three row styles and count pill and the
+  Bluetooth status and signal columns. `Fluent.RowHeight` (the picker), `Fluent.EmptyState` with
+  `EmptyStatePanel` and `EmptyStateFit` (the card's fault and waiting states), `Fluent.Space5`,
+  `Fluent.OverlayRadius`, `FluentType.BodyLarge` and `Strong` (the view bar) are the shell's alone.
 - **[S-6730]** The **source guard** (`FamilyGuardTests.S6730_no_literal_outside_the_family_tokens`)
   reads every module, the SDK's UI parts and the app's Shell and Widgets (not `Tests/`, `Fixtures/`,
   `Gallery/`) and fails on a type size or line, a weight other than 400/600, a spacing, thickness,
@@ -1085,7 +1099,7 @@ module author's guide is docs/WIDGET-KIT.md 16.
   the card's, the item layer's, a data colour, or clear), no text or glyph in the accent.
   `scripts/family-check.ps1` runs it for both themes and holds the findings (kind, element, rule; the
   values stripped, `FamilyCheck.Rule`) to `scripts/family-check.allow.txt`, shrink-only as the guard.
-  It needs the Debug app, so it is a definition-of-done step, not a test. Baseline 2026-10-29: 298 lines over all 78 kinds (about 47 700 elements in the two themes); two runs gave the same lines.
+  It needs the Debug app, so it is a definition-of-done step, not a test. Baseline 2026-10-29: 298 lines over all 78 kinds (about 47 700 elements in the two themes); two runs gave the same lines. The list is empty since group G5 (2026-10-29): every kind walks clean, and a finding fails it.
 - **[S-6732]** `Themia.exe --family-blocks-png <outDir> [--theme] [--only]` draws each block in every
   variant (32 since G5) at the seven tiers with its visual tree beside it (`TreeDump`; `--widget-png … --tree`
   writes the same for a widget). The family's mockups draw the same variants over the same data, and
@@ -2834,11 +2848,9 @@ widget on the properties panel ([S-6007], its one place, [S-6536]). Owning files
   several of the kind, the line is there when any one's look would differ, and a pick sets every one.
 - **[S-6009]** *(Retired by [S-6536], 2026-10-19: there is no **More settings** line; with every
   option on the menu there is no widget page left for it to open.)*
-- **[S-6060]** One progress ring for every widget that draws one (`RingPart`, its geometry
-  `RingArc`): a track in the control's strong rest fill, the arc in a brush the widget gives,
-  clockwise from twelve, round caps, nothing under 0.05 % and the whole ring from 99.95 % (two half
-  arcs: an arc back to its own start draws nothing); the stroke a twentieth of the diameter, 3 to
-  12 DIPs. Not the meters' half-circle gauge.
+- **[S-6060]** *(Retired, group G5, 2026-10-29: every ring is the Chart block's `ChartRing`, stroke 2
+  over its Track ring ([S-6717]); the timers set their readout in its hole ([S-6739]). `RingPart`, its
+  geometry `RingArc` and the stroke of a twentieth of the diameter are gone.)*
 - **[S-6061]** One reflow rule for every dot grid (`DotGrid.Fit`: the moon's month): every column count is tried and the one whose square cells are largest kept, on a tie
   the one with fewer empty cells in the last row; the gap is a quarter of the pitch, so a larger
   tile spaces the dots in proportion.
@@ -3388,9 +3400,9 @@ removed, [S-1863]). Sizing rules live in Core with tests in
 
 - **[S-640]** A card header's title ends in an ellipsis. A Grid does not clip a child to its cell,
   so an untrimmed title was cut mid-word ("Countdow") or drawn under the trailing element.
-- **[S-641]** A hero readout (clock, pomodoro, meters, power, volume) is a ramp step while the box is
-  small and, once it holds TitleLarge, that step scaled to fill it, keeping its line-height ratio.
-  It used to wait for Display to fit, so every box between the two drew a 40px readout.
+- **[S-641]** *(Retired, group G5, 2026-10-29: no readout is scaled to fill its box any more. A
+  data widget's number is on the Big steps ([S-6702]) and a one-readout widget's on the Hero steps
+  ([S-6737], [S-6739]); `FluentType.Hero`, `Fit`, `FitWidth` and `Scaled` are gone.)*
 - **[S-642]** An empty state sheds to fit: the glyph goes first, then the sentence is held to the
   lines the box has and ends in an ellipsis. Every empty state is `Fluent.EmptyState`; the countdown
   view no longer draws a text block of its own. The panel never touches the glyph's

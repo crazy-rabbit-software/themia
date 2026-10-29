@@ -7,34 +7,13 @@ using Xunit;
 namespace Themia.Core.Tests;
 
 /// <summary>
-/// [S-6030]..[S-6061] The styles of the countdown and the pomodoro, and the shared ring and
-/// dot-grid rules they draw with (the sun's and the moon's are their modules').
+/// [S-6061] The shared dot-grid rule (the moon's month; the sun's and the moon's own rules are their modules').
 /// </summary>
 public class TimeStylesTests
 {
     // ---- the styles themselves ---------------------------------------------------------------
 
     // ---- the shared ring and dot grid ----------------------------------------------------------
-
-    [Fact]
-    public void S6060_a_ring_runs_clockwise_from_twelve_and_is_empty_or_whole_at_its_ends()
-    {
-        var quarter = RingArc.Of(100, 10, 0.25);
-        Assert.Equal((50, 45), (quarter.Centre, quarter.Radius));
-        Assert.Equal((50d, 5d), (quarter.StartX, quarter.StartY));
-        Assert.Equal(95, quarter.EndX, 6);
-        Assert.Equal(50, quarter.EndY, 6);
-        Assert.False(quarter.IsLarge);
-
-        Assert.True(RingArc.Of(100, 10, 0.75).IsLarge);
-        Assert.True(RingArc.Of(100, 10, 0).Empty);
-        Assert.True(RingArc.Of(100, 10, double.NaN).Empty);
-        Assert.True(RingArc.Of(100, 10, 1.4).Full);
-        Assert.False(RingArc.Of(100, 10, 0.5).Full);
-        Assert.Equal(1, RingArc.Of(4, 10, 0.5).Radius);
-        Assert.Equal(3, RingArc.Stroke(20));
-        Assert.Equal(12, RingArc.Stroke(1000));
-    }
 
     [Fact]
     public void S6061_the_dot_grid_reflows_to_the_box_and_every_dot_fits()

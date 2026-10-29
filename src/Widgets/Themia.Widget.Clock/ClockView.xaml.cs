@@ -450,8 +450,8 @@ public sealed partial class ClockView : UserControl, IWidgetView, IWidgetSizeAwa
         {
             Width = thickness,
             Height = length + tail,
-            RadiusX = thickness / 2,
-            RadiusY = thickness / 2,
+            RadiusX = FamilyShape.Round(thickness, length + tail),
+            RadiusY = FamilyShape.Round(thickness, length + tail),
             Fill = brush,
             RenderTransformOrigin = new Point(0.5, length / (length + tail)),
             RenderTransform = rotation,
