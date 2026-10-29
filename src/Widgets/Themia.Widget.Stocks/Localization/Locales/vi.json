@@ -1,18 +1,16 @@
 {
   "stocks.dimWhenClosed": "Chỉ báo đóng cửa",
-  "stocks.downColor": "Màu giảm",
   "stocks.extendedHours": "Ngoài giờ",
   "stocks.extendedHoursDesc": "Theo dõi giao dịch trước giờ mở cửa và sau giờ đóng cửa (1D và 5D)",
+  "stocks.setup": "Chọn một mã",
   "stocks.showMinMax": "Đánh dấu thấp/cao nhất",
   "stocks.tab.symbols": "Mã",
   "stocks.timeframe": "Khung thời gian",
-  "stocks.upColor": "Màu tăng",
   "styles.stocks.chart": "Biểu đồ",
   "styles.stocks.number": "Con số",
   "widget.stocks.label": "Chứng khoán",
   "widgetsA.catalog.stocks.description": "Mã cổ phiếu và tiền mã hóa, kèm biểu đồ nhỏ",
-  "widgetsC.stocks.extendedLine": "{session} {price} {change} · {time}",
-  "widgetsC.stocks.holding.line": "Nắm giữ {amount} · {value}",
+  "widgetsC.stocks.holding.amount": "Nắm giữ {amount}",
   "widgetsC.stocks.noQuote": "Không có giá cho mã đó",
   "widgetsC.stocks.notSymbol": "\"{symbol}\" không phải mã hợp lệ",
   "widgetsC.stocks.period.days": {
@@ -27,7 +25,5 @@
   "widgetsC.stocks.phaseTooltip": "{phase}. {zone}",
   "widgetsC.stocks.settings.holding.label": "Số lượng sở hữu",
   "widgetsC.stocks.settings.holding.refused": "Nhập số lượng từ {zero} trở lên, ví dụ {example}",
-  "widgetsC.stocks.settings.symbolRefused": "Chọn một kết quả tìm kiếm, hoặc nhập mã: chỉ chữ, số và . - ^ =",
-  "widgetsC.stocks.settings.windowsGreen": "Xanh lá Windows",
-  "widgetsC.stocks.settings.windowsRed": "Đỏ Windows"
+  "widgetsC.stocks.settings.symbolRefused": "Chọn một kết quả tìm kiếm, hoặc nhập mã: chỉ chữ, số và . - ^ ="
 }

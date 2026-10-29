@@ -1,18 +1,16 @@
 {
   "stocks.dimWhenClosed": "બંધ સૂચક",
-  "stocks.downColor": "ઘટાડાનો રંગ",
   "stocks.extendedHours": "વિસ્તૃત કલાકો",
   "stocks.extendedHoursDesc": "પ્રી-માર્કેટ અને આફ્ટર-અવર્સ ટ્રેડિંગ ટ્રૅક કરો (1D અને 5D)",
+  "stocks.setup": "એક પ્રતીક પસંદ કરો",
   "stocks.showMinMax": "ન્યૂનતમ/મહત્તમ ચિહ્નો",
   "stocks.tab.symbols": "પ્રતીક",
   "stocks.timeframe": "સમયગાળો",
-  "stocks.upColor": "વધારાનો રંગ",
   "styles.stocks.chart": "ચાર્ટ",
   "styles.stocks.number": "સંખ્યા",
   "widget.stocks.label": "સ્ટૉક્સ",
   "widgetsA.catalog.stocks.description": "ટિકર અને ક્રિપ્ટો, સ્પાર્કલાઇન સાથે",
-  "widgetsC.stocks.extendedLine": "{session} {price} {change} · {time}",
-  "widgetsC.stocks.holding.line": "{amount} ધારિત · {value}",
+  "widgetsC.stocks.holding.amount": "{amount} ધારિત",
   "widgetsC.stocks.noQuote": "તે પ્રતીક માટે કોઈ ભાવ નથી",
   "widgetsC.stocks.notSymbol": "\"{symbol}\" પ્રતીક નથી",
   "widgetsC.stocks.period.days": {
@@ -30,7 +28,5 @@
   "widgetsC.stocks.phaseTooltip": "{phase}. {zone}",
   "widgetsC.stocks.settings.holding.label": "માલિકીના શેર",
   "widgetsC.stocks.settings.holding.refused": "{zero} કે વધુની રકમ લખો, જેમ કે {example}",
-  "widgetsC.stocks.settings.symbolRefused": "શોધ પરિણામ પસંદ કરો, અથવા પ્રતીક લખો: ફક્ત અક્ષરો, અંકો અને . - ^ =",
-  "widgetsC.stocks.settings.windowsGreen": "Windows લીલો",
-  "widgetsC.stocks.settings.windowsRed": "Windows લાલ"
+  "widgetsC.stocks.settings.symbolRefused": "શોધ પરિણામ પસંદ કરો, અથવા પ્રતીક લખો: ફક્ત અક્ષરો, અંકો અને . - ^ ="
 }

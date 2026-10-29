@@ -1,18 +1,16 @@
 {
   "stocks.dimWhenClosed": "বন্ধ থাকার চিহ্ন",
-  "stocks.downColor": "ক্ষতির রং",
   "stocks.extendedHours": "বর্ধিত সময়",
   "stocks.extendedHoursDesc": "প্রি-মার্কেট ও আফটার-আওয়ার্স ট্রেডিং দেখান (1D ও 5D)",
+  "stocks.setup": "একটি প্রতীক বেছে নিন",
   "stocks.showMinMax": "সর্বনিম্ন/সর্বোচ্চ চিহ্ন",
   "stocks.tab.symbols": "প্রতীক",
   "stocks.timeframe": "সময়সীমা",
-  "stocks.upColor": "লাভের রং",
   "styles.stocks.chart": "চার্ট",
   "styles.stocks.number": "সংখ্যা",
   "widget.stocks.label": "স্টক",
   "widgetsA.catalog.stocks.description": "স্টক ও ক্রিপ্টো, স্পার্কলাইনসহ",
-  "widgetsC.stocks.extendedLine": "{session} {price} {change} · {time}",
-  "widgetsC.stocks.holding.line": "{amount} ধারণকৃত · {value}",
+  "widgetsC.stocks.holding.amount": "{amount} ধারণকৃত",
   "widgetsC.stocks.noQuote": "এই প্রতীকের কোনো দর নেই",
   "widgetsC.stocks.notSymbol": "\"{symbol}\" কোনো প্রতীক নয়",
   "widgetsC.stocks.period.days": {
@@ -30,7 +28,5 @@
   "widgetsC.stocks.phaseTooltip": "{phase}। {zone}",
   "widgetsC.stocks.settings.holding.label": "মালিকানাধীন পরিমাণ",
   "widgetsC.stocks.settings.holding.refused": "{zero} বা তার বেশি পরিমাণ লিখুন, যেমন {example}",
-  "widgetsC.stocks.settings.symbolRefused": "একটি অনুসন্ধান ফলাফল বেছে নিন, বা প্রতীক লিখুন: শুধু অক্ষর, অঙ্ক এবং . - ^ =",
-  "widgetsC.stocks.settings.windowsGreen": "Windows সবুজ",
-  "widgetsC.stocks.settings.windowsRed": "Windows লাল"
+  "widgetsC.stocks.settings.symbolRefused": "একটি অনুসন্ধান ফলাফল বেছে নিন, বা প্রতীক লিখুন: শুধু অক্ষর, অঙ্ক এবং . - ^ ="
 }

@@ -1,18 +1,16 @@
 {
   "stocks.dimWhenClosed": "نشانگر بسته بودن",
-  "stocks.downColor": "رنگ زیان",
   "stocks.extendedHours": "ساعات تمدیدی",
   "stocks.extendedHoursDesc": "دنبال کردن معاملات پیش از بازار و پس از بازار (یک روز و پنج روز)",
+  "stocks.setup": "یک نماد انتخاب کنید",
   "stocks.showMinMax": "نشانگر کمینه/بیشینه",
   "stocks.tab.symbols": "نماد",
   "stocks.timeframe": "بازه زمانی",
-  "stocks.upColor": "رنگ سود",
   "styles.stocks.chart": "نمودار",
   "styles.stocks.number": "عدد",
   "widget.stocks.label": "سهام",
   "widgetsA.catalog.stocks.description": "نمادها و رمزارزها، با نمودار کوچک",
-  "widgetsC.stocks.extendedLine": "{session} {price} {change} · {time}",
-  "widgetsC.stocks.holding.line": "{amount} در اختیار · {value}",
+  "widgetsC.stocks.holding.amount": "{amount} در اختیار",
   "widgetsC.stocks.noQuote": "قیمتی برای آن نماد نیست",
   "widgetsC.stocks.notSymbol": "«{symbol}» نماد نیست",
   "widgetsC.stocks.period.days": {
@@ -30,7 +28,5 @@
   "widgetsC.stocks.phaseTooltip": "{phase}. {zone}",
   "widgetsC.stocks.settings.holding.label": "سهام در اختیار",
   "widgetsC.stocks.settings.holding.refused": "مقداری {zero} یا بیشتر تایپ کنید، مانند {example}",
-  "widgetsC.stocks.settings.symbolRefused": "یک نتیجه جستجو انتخاب کنید یا نمادی تایپ کنید: فقط حروف، ارقام و . - ^ =",
-  "widgetsC.stocks.settings.windowsGreen": "سبز Windows",
-  "widgetsC.stocks.settings.windowsRed": "قرمز Windows"
+  "widgetsC.stocks.settings.symbolRefused": "یک نتیجه جستجو انتخاب کنید یا نمادی تایپ کنید: فقط حروف، ارقام و . - ^ ="
 }

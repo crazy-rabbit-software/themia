@@ -8,7 +8,8 @@ namespace Themia.App.Widgets;
 
 /// <summary>
 /// Debug renders only ([S-1917]): a fixture quote, so the ladder can be looked at without a
-/// symbol, the network or the sync service. Nothing is fetched or saved.
+/// symbol, the network or the sync service. Nothing is fetched or saved. Its bars start at a pinned
+/// moment (Monday 12 October 2026, 12:30 UTC), so the chart's times compare between renders.
 /// </summary>
 internal sealed partial class StocksView : IWidgetPreviewState
 {
@@ -16,13 +17,13 @@ internal sealed partial class StocksView : IWidgetPreviewState
 
     public Task ShowPreviewStateAsync(string state)
     {
-        if (state is not ("quote" or "falling"))
+        if (state is not ("quote" or "falling" or "stale"))
         {
             return Task.CompletedTask;
         }
 
-        var rising = state == "quote";
-        var start = DateTimeOffset.UtcNow.AddHours(-7).ToUnixTimeSeconds();
+        var rising = state != "falling";
+        var start = new DateTimeOffset(2026, 10, 12, 12, 30, 0, TimeSpan.Zero).ToUnixTimeSeconds();
         var bars = new List<QuoteBar>();
 
         for (var i = 0; i < 78; i++)
@@ -36,7 +37,7 @@ internal sealed partial class StocksView : IWidgetPreviewState
         var trace = MarketQuote.Trace(bars, bars[^1].Close, null);
         var quote = new TickerQuote("MSFT", "Microsoft Corporation", bars[^1].Close, trace.ChangePercent, "USD", 2, trace.Bars, TradingSessions.None);
 
-        // [S-2777] "quote" holds ten shares, so the holding's caption can be looked at; "falling" none.
+        // [S-2777] "quote" and "stale" hold ten shares, so the holding's row can be looked at; "falling" none.
         _config = new StocksConfig { Symbol = "MSFT", ShowMinMax = true, SharesOwned = rising ? 10 : null, Style = _config.Style };
         _applied = (StocksConfig)_config.Clone();
         _want = null;

@@ -44,9 +44,6 @@ public sealed class StocksMenuTests
                 StocksStr.Stocks_DimWhenClosed.Text(),
                 StocksStr.Stocks_ExtendedHours.Text(),
                 string.Empty,
-                StocksStr.Stocks_UpColor.Text(),
-                StocksStr.Stocks_DownColor.Text(),
-                string.Empty,
                 Str.EditBar_Link_UpdateInterval.Text(),
             ],
             lines.Lines.Select(l => l.IsSeparator ? string.Empty : l.Text));

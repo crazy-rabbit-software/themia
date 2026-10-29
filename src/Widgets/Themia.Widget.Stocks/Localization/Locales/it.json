@@ -1,18 +1,16 @@
 {
   "stocks.dimWhenClosed": "Indicatore di chiusura",
-  "stocks.downColor": "Colore perdita",
   "stocks.extendedHours": "Orario esteso",
   "stocks.extendedHoursDesc": "Seguire gli scambi pre-apertura e dopo la chiusura (1G e 5G)",
+  "stocks.setup": "Scegli un simbolo",
   "stocks.showMinMax": "Indicatori min/max",
   "stocks.tab.symbols": "Simbolo",
   "stocks.timeframe": "Periodo",
-  "stocks.upColor": "Colore guadagno",
   "styles.stocks.chart": "Grafico",
   "styles.stocks.number": "Numero",
   "widget.stocks.label": "Borsa",
   "widgetsA.catalog.stocks.description": "Titoli e cripto, con minigrafico",
-  "widgetsC.stocks.extendedLine": "{session} {price} {change} · {time}",
-  "widgetsC.stocks.holding.line": "{amount} posseduti · {value}",
+  "widgetsC.stocks.holding.amount": "{amount} posseduti",
   "widgetsC.stocks.noQuote": "Nessuna quotazione per questo simbolo",
   "widgetsC.stocks.notSymbol": "«{symbol}» non è un simbolo",
   "widgetsC.stocks.period.days": {
@@ -30,7 +28,5 @@
   "widgetsC.stocks.phaseTooltip": "{phase}. {zone}",
   "widgetsC.stocks.settings.holding.label": "Quantità posseduta",
   "widgetsC.stocks.settings.holding.refused": "Inserisci una quantità pari o superiore a {zero}, ad esempio {example}",
-  "widgetsC.stocks.settings.symbolRefused": "Scegli un risultato di ricerca o digita un simbolo: solo lettere, cifre e . - ^ =",
-  "widgetsC.stocks.settings.windowsGreen": "Verde di Windows",
-  "widgetsC.stocks.settings.windowsRed": "Rosso di Windows"
+  "widgetsC.stocks.settings.symbolRefused": "Scegli un risultato di ricerca o digita un simbolo: solo lettere, cifre e . - ^ ="
 }

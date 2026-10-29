@@ -1,3 +1,5 @@
+using Themia.Sdk.Kit;
+
 namespace Themia.Core.Widgets;
 
 /// <summary>A caption's footprint on the chart, in DIPs from the chart's top-left corner.</summary>
@@ -23,25 +25,23 @@ public readonly record struct ChartBand(double Top, double Usable);
 public static class StockChartLabels
 {
     /// <summary>Space kept between a marker's price and the dot.</summary>
-    public const double Clearance = 2;
-
-    /// <summary>The thickness the trace is kept in by when nothing is written above or below it.</summary>
-    public const double Stroke = 2;
+    public const double Clearance = FamilyShape.Stroke;
 
     /// <summary>The time labels' distance from the chart's bottom edge.</summary>
-    public const double TimesBottom = 4;
+    public const double TimesBottom = FamilySpace.S1;
 
-    private static double Line => FluentType.Caption.LineHeight;
+    private static double Line => FamilyType.Caption.LineHeight;
 
     /// <summary>
     /// The trace's band in a chart <paramref name="height"/> tall: a caption line above for the high's
     /// price and below for the low's when <paramref name="markers"/>, and the times' line under that
-    /// when <paramref name="times"/>, so the lowest point and its price never sit on a time.
+    /// when <paramref name="times"/>, so the lowest point and its price never sit on a time. Without
+    /// either the band is the chart's whole height: the line keeps its stroke inside it ([S-6717]).
     /// </summary>
     public static ChartBand Band(double height, bool markers, bool times)
     {
-        var top = markers ? Line : Stroke;
-        var bottom = (markers ? Line : Stroke) + (times ? Line + TimesBottom : 0);
+        var top = markers ? Line : 0;
+        var bottom = (markers ? Line : 0) + (times ? Line + TimesBottom : 0);
         return new ChartBand(top, Math.Max(1, height - top - bottom));
     }
 
@@ -57,8 +57,8 @@ public static class StockChartLabels
 
         foreach (var marker in markers)
         {
-            var estimate = FluentType.EstimateWidth(FluentType.Caption, marker.Text.Length);
-            var left = Math.Clamp(marker.X - (estimate / 2), StockLayout.Gap, Math.Max(StockLayout.Gap, width - estimate - StockLayout.Gap));
+            var estimate = HeroFit.Ems(marker.Text) * FamilyType.Caption.FontSize;
+            var left = Math.Clamp(marker.X - (estimate / 2), FamilySpace.S1, Math.Max(FamilySpace.S1, width - estimate - FamilySpace.S1));
             var top = marker.Above ? marker.Y - Line - Clearance : marker.Y + Clearance;
             placed.Add(new LabelBox(left, top, estimate, Line));
         }

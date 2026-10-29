@@ -56,7 +56,7 @@ public sealed class OnlineStateFixtureTests
 
         var stocks = Assert.IsType<StocksConfig>(configs[5]);
         Assert.Equal(("bitcoin", QuoteMarket.Crypto, QuoteRange.Month, StocksStyle.Number), (stocks.Symbol, stocks.Market, stocks.Range, stocks.Style));
-        Assert.Equal((0.25, "#22AA44", true, true), (stocks.SharesOwned, stocks.UpColor, stocks.ShowMinMax, stocks.ShowExtendedHours));
+        Assert.Equal((0.25, true, true), (stocks.SharesOwned, stocks.ShowMinMax, stocks.ShowExtendedHours));
 
         Assert.Equal(TemperatureScale.Fahrenheit, state.Preferences.Region.Temperature);
     }

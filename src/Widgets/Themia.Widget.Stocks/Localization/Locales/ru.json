@@ -1,18 +1,16 @@
 {
   "stocks.dimWhenClosed": "Индикатор закрытия",
-  "stocks.downColor": "Цвет падения",
   "stocks.extendedHours": "Расширенные часы",
   "stocks.extendedHoursDesc": "Учитывать торги до открытия и после закрытия (1 Д и 5 Д)",
+  "stocks.setup": "Выберите тикер",
   "stocks.showMinMax": "Метки мин./макс.",
   "stocks.tab.symbols": "Тикер",
   "stocks.timeframe": "Период",
-  "stocks.upColor": "Цвет роста",
   "styles.stocks.chart": "График",
   "styles.stocks.number": "Число",
   "widget.stocks.label": "Акции",
   "widgetsA.catalog.stocks.description": "Тикеры и криптовалюты с мини-графиком",
-  "widgetsC.stocks.extendedLine": "{session} {price} {change} · {time}",
-  "widgetsC.stocks.holding.line": "В собственности {amount} · {value}",
+  "widgetsC.stocks.holding.amount": "В собственности {amount}",
   "widgetsC.stocks.noQuote": "Нет котировки для этого тикера",
   "widgetsC.stocks.notSymbol": "«{symbol}» — не тикер",
   "widgetsC.stocks.period.days": {
@@ -36,7 +34,5 @@
   "widgetsC.stocks.phaseTooltip": "{phase}. {zone}",
   "widgetsC.stocks.settings.holding.label": "Количество в собственности",
   "widgetsC.stocks.settings.holding.refused": "Введите количество от {zero}, например {example}",
-  "widgetsC.stocks.settings.symbolRefused": "Выберите результат поиска или введите тикер: только буквы, цифры и . - ^ =",
-  "widgetsC.stocks.settings.windowsGreen": "Зеленый Windows",
-  "widgetsC.stocks.settings.windowsRed": "Красный Windows"
+  "widgetsC.stocks.settings.symbolRefused": "Выберите результат поиска или введите тикер: только буквы, цифры и . - ^ ="
 }

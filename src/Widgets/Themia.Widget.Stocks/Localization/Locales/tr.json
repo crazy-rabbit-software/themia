@@ -1,18 +1,16 @@
 {
   "stocks.dimWhenClosed": "Kapalı göstergesi",
-  "stocks.downColor": "Kayıp rengi",
   "stocks.extendedHours": "Uzatılmış saatler",
   "stocks.extendedHoursDesc": "Piyasa öncesi ve seans sonrası işlemleri izle (1G ve 5G)",
+  "stocks.setup": "Bir sembol seçin",
   "stocks.showMinMax": "En düşük/en yüksek işaretleri",
   "stocks.tab.symbols": "Sembol",
   "stocks.timeframe": "Zaman aralığı",
-  "stocks.upColor": "Kazanç rengi",
   "styles.stocks.chart": "Grafik",
   "styles.stocks.number": "Sayı",
   "widget.stocks.label": "Hisseler",
   "widgetsA.catalog.stocks.description": "Mini grafikle hisseler ve kripto",
-  "widgetsC.stocks.extendedLine": "{session} {price} {change} · {time}",
-  "widgetsC.stocks.holding.line": "{amount} adet · {value}",
+  "widgetsC.stocks.holding.amount": "{amount} adet",
   "widgetsC.stocks.noQuote": "Bu sembol için fiyat yok",
   "widgetsC.stocks.notSymbol": "\"{symbol}\" bir sembol değil",
   "widgetsC.stocks.period.days": {
@@ -30,7 +28,5 @@
   "widgetsC.stocks.phaseTooltip": "{phase}. {zone}",
   "widgetsC.stocks.settings.holding.label": "Sahip olunan adet",
   "widgetsC.stocks.settings.holding.refused": "{zero} veya daha büyük bir miktar yazın, örneğin {example}",
-  "widgetsC.stocks.settings.symbolRefused": "Bir arama sonucu seçin veya bir sembol yazın: yalnızca harfler, rakamlar ve . - ^ =",
-  "widgetsC.stocks.settings.windowsGreen": "Windows yeşili",
-  "widgetsC.stocks.settings.windowsRed": "Windows kırmızısı"
+  "widgetsC.stocks.settings.symbolRefused": "Bir arama sonucu seçin veya bir sembol yazın: yalnızca harfler, rakamlar ve . - ^ ="
 }

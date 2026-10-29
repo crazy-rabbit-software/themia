@@ -1,18 +1,16 @@
 {
   "stocks.dimWhenClosed": "बंद होने का संकेत",
-  "stocks.downColor": "गिरावट का रंग",
   "stocks.extendedHours": "विस्तारित घंटे",
   "stocks.extendedHoursDesc": "प्री-मार्केट और आफ़्टर-आवर्स ट्रेडिंग ट्रैक करें (1D और 5D)",
+  "stocks.setup": "एक सिंबल चुनें",
   "stocks.showMinMax": "न्यूनतम/अधिकतम चिह्न",
   "stocks.tab.symbols": "सिंबल",
   "stocks.timeframe": "समय सीमा",
-  "stocks.upColor": "बढ़त का रंग",
   "styles.stocks.chart": "चार्ट",
   "styles.stocks.number": "संख्या",
   "widget.stocks.label": "स्टॉक",
   "widgetsA.catalog.stocks.description": "स्पार्कलाइन के साथ टिकर और क्रिप्टो",
-  "widgetsC.stocks.extendedLine": "{session} {price} {change} · {time}",
-  "widgetsC.stocks.holding.line": "{amount} धारित · {value}",
+  "widgetsC.stocks.holding.amount": "{amount} धारित",
   "widgetsC.stocks.noQuote": "उस सिंबल का कोई भाव नहीं",
   "widgetsC.stocks.notSymbol": "\"{symbol}\" सिंबल नहीं है",
   "widgetsC.stocks.period.days": {
@@ -30,7 +28,5 @@
   "widgetsC.stocks.phaseTooltip": "{phase}। {zone}",
   "widgetsC.stocks.settings.holding.label": "स्वामित्व वाली मात्रा",
   "widgetsC.stocks.settings.holding.refused": "{zero} या अधिक की मात्रा लिखें, जैसे {example}",
-  "widgetsC.stocks.settings.symbolRefused": "कोई खोज परिणाम चुनें, या सिंबल लिखें: केवल अक्षर, अंक और . - ^ =",
-  "widgetsC.stocks.settings.windowsGreen": "Windows हरा",
-  "widgetsC.stocks.settings.windowsRed": "Windows लाल"
+  "widgetsC.stocks.settings.symbolRefused": "कोई खोज परिणाम चुनें, या सिंबल लिखें: केवल अक्षर, अंक और . - ^ ="
 }

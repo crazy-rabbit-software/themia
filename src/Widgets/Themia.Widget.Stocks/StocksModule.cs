@@ -30,7 +30,7 @@ public sealed class StocksModule : IWidgetModule
         Glyph = Glyphs.Stocks,
         DefaultWidth = 320,
         DefaultHeight = 240,
-        Traits = WidgetTraits.CanHaveHeader,
+        Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader,
         Add = new(AddFolderId.Markets, 0, 0),
     };
 

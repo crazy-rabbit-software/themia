@@ -1,75 +1,72 @@
-using System.Globalization;
-using Microsoft.UI;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Input;
-using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Shapes;
-using Themia.App.Shell;
-using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
-using Themia.Sdk.WinUI;
-using Windows.Foundation;
+using Themia.Sdk.Kit;
+using Themia.Sdk.WinUI.Kit;
 
 namespace Themia.App.Widgets;
 
 /// <summary>
-/// The chart and what is written on it: the trace (solid in session, dashed outside it [S-1308]),
-/// the optional fill and high/low markers [S-1310], the start and end times in the exchange's zone
-/// [S-1309] inside its bottom band, and the pointer readout [S-1311]. Full-bleed: edge to edge and
-/// down to the card's bottom edge, whose rounded corners clip it.
+/// [S-1311] The chart and what is written on it, on the Chart block ([S-6717]): the period's line at 2
+/// with its wash (the accent, Critical while the price falls), the bars outside the regular session as
+/// the second series in the tertiary role ([S-1308]), the optional high and low markers [S-1310], the
+/// start and end times in Caption tertiary inside its bottom band [S-1309], and the pointer readout.
+/// Edge to edge and down to the card's foot, whose rounded corners clip it.
 /// </summary>
 internal sealed partial class StocksView
 {
-    private readonly Grid _chart = new() { MinHeight = StockLayout.MinChart };
-    private readonly Canvas _canvas = new();
-    private readonly Polygon _fill = new();
+    /// <summary>[S-1310] A marker's dot: the line's stroke either side of the track, so it reads on the 2 px line.</summary>
+    private const double MarkerDot = FamilyShape.Track + FamilyShape.Stroke;
+
+    private readonly Grid _chart = new();
+    private readonly ChartSeries _series = new();
+    private readonly Canvas _canvas = new() { IsHitTestVisible = false };
     private readonly Canvas _overlay = new() { IsHitTestVisible = false };
-    private readonly Line _rule = new() { StrokeThickness = Fluent.Hairline, Visibility = Visibility.Collapsed };
-    private readonly Border _probe = new() { Visibility = Visibility.Collapsed, Padding = new Thickness(Fluent.Space1, 0, Fluent.Space1, 0) };
-    private readonly TextBlock _probeText = Fluent.Text(FluentType.Caption);
+    private readonly Line _rule = new() { StrokeThickness = FamilyShape.Hairline, Visibility = Visibility.Collapsed };
+    private readonly Border _probe = new() { Visibility = Visibility.Collapsed, Padding = new Thickness(FamilySpace.S1, 0, FamilySpace.S1, 0) };
+    private readonly TextBlock _probeText = Family.Text(FamilyType.Caption);
 
     private readonly Grid _labels = new() { IsHitTestVisible = false, VerticalAlignment = VerticalAlignment.Bottom };
-    private readonly TextBlock _startTime = Fluent.Text(FluentType.Caption, "TextFillColorSecondaryBrush");
-    private readonly TextBlock _endTime = Fluent.Text(FluentType.Caption, "TextFillColorSecondaryBrush");
+    private readonly TextBlock _startTime = Family.Text(FamilyType.Caption, ColourRole.TextTertiary);
+    private readonly TextBlock _endTime = Family.Text(FamilyType.Caption, ColourRole.TextTertiary);
 
-    /// <summary>Where each bar was drawn, for the pointer readout.</summary>
-    private readonly List<Point> _drawn = [];
+    /// <summary>Where each bar was drawn, for the markers and the pointer readout.</summary>
+    private readonly List<ChartPoint> _drawn = [];
 
     private void BuildChart()
     {
-        _fill.Opacity = Fluent.ChartWash;
-        _fill.IsHitTestVisible = false;
-        _canvas.IsHitTestVisible = false;
-
-        _rule.Stroke = ThemeBrush.Of("TextFillColorTertiaryBrush", Colors.Gray);
+        _rule.Stroke = Family.Brush(ColourRole.TextTertiary);
         _probe.Child = _probeText;
-        _probe.CornerRadius = new CornerRadius(Fluent.ControlRadius);
-        _probe.Background = ThemeBrush.Of("SolidBackgroundFillColorTertiaryBrush", Colors.Black);
+        _probe.CornerRadius = Family.Radius;
+        _probe.Background = Family.Brush(ColourRole.Solid);
         _overlay.Children.Add(_rule);
         _overlay.Children.Add(_probe);
 
+        _chart.Children.Add(_series);
         _chart.Children.Add(_canvas);
         _chart.Children.Add(_labels);
         _chart.Children.Add(_overlay);
 
         // The chart's own surface takes the pointer for the readout; the rest of the card is still
-        // the card's to drag. A transparent fill is what makes an empty area hit-testable.
+        // the card's to drag. A clear fill is what makes an empty area hit-testable.
         // [S-1113] A price over time: the time axis runs left to right in every language.
         _chart.FlowDirection = FlowDirection.LeftToRight;
-        _chart.Background = ThemeBrush.Of("SubtleFillColorTransparentBrush", Colors.Transparent);
+        _chart.Background = Family.Brush(ColourRole.Clear);
         _chart.SizeChanged += OnChartSizeChanged;
         _chart.PointerMoved += OnChartPointerMoved;
         _chart.PointerExited += OnChartPointerGone;
         _chart.PointerCanceled += OnChartPointerGone;
 
-        // [S-1311] The start and end times, over the fill in the chart's bottom band, lined up with
-        // the text above; the trace's band keeps clear of them (StockChartLabels.Band).
+        // [S-1311] The start and end times, over the wash in the chart's bottom band, at the text's
+        // inset; the trace's band keeps clear of them (StockChartLabels.Band).
         _endTime.HorizontalAlignment = HorizontalAlignment.Right;
+        _startTime.HorizontalAlignment = HorizontalAlignment.Left;
         _labels.Children.Add(_startTime);
         _labels.Children.Add(_endTime);
-        _labels.Margin = new Thickness(StockLayout.Inset, 0, StockLayout.Inset, StockChartLabels.TimesBottom);
+        _labels.Margin = new Thickness(FamilySpace.Inset, 0, FamilySpace.Inset, StockChartLabels.TimesBottom);
     }
 
     /// <summary>[S-1309] [S-1311] The start and end times, only those, in the exchange's zone.</summary>
@@ -87,8 +84,8 @@ internal sealed partial class StocksView
     private void OnChartSizeChanged(object sender, SizeChangedEventArgs args) => RedrawChart();
 
     /// <summary>
-    /// Redraw the trace. Cheap by construction: a handful of shapes, rebuilt only on a new quote or
-    /// a resize, over a series the service already downsampled to a few hundred points.
+    /// Redraw the line on its band. Cheap by construction: a handful of shapes, rebuilt only on a new
+    /// quote or a resize, over a series the service already downsampled to a few hundred points.
     /// </summary>
     private void RedrawChart()
     {
@@ -103,104 +100,80 @@ internal sealed partial class StocksView
         var width = _chart.ActualWidth;
         var height = _chart.ActualHeight;
         var bars = quote.Bars;
-
         if (width <= 0 || height <= 0 || bars.Count < 2)
         {
+            _series.Show(Array.Empty<ChartPoint>(), null);
             return;
         }
 
-        var scaled = MarketQuote.Normalise(MarketQuote.Closes(bars));
+        var role = _falling ? ColourRole.Critical : ColourRole.Accent;
+        _series.Role(role);
 
         // [S-1310] [S-1311] The trace keeps clear of what is written on the chart: the high/low
-        // prices above and below it, the times under that. The fill still reaches the bottom edge.
-        var markers = _plan.MinMax;
-        var band = StockChartLabels.Band(height, markers, _plan.Labels);
-        var pad = band.Top;
-        var usable = band.Usable;
-
+        // prices above and below it, the times under that. The wash still reaches the bottom edge.
+        var band = StockChartLabels.Band(height, _plan.MinMax, _plan.Labels);
+        var scaled = MarketQuote.Normalise(MarketQuote.Closes(bars));
         for (var i = 0; i < scaled.Count; i++)
         {
-            // The window is exactly as long as the series, which spreads the points edge to edge.
-            var x = Sparkline.SampleX(i, scaled.Count, scaled.Count) * width;
-            var y = pad + (Sparkline.SampleY(scaled[i]) * usable);
-            _drawn.Add(new Point(x, y));
+            _drawn.Add(new ChartPoint(i * width / (scaled.Count - 1), band.Top + ChartRules.Y(scaled[i], band.Usable)));
         }
 
-        // [S-1310] The area under the trace is always filled: the trend reads at a glance.
-        var fill = new PointCollection { new(_drawn[0].X, height) };
+        // [S-1308] The regular session is the line and its wash; the bars outside it the second series.
+        var (from, to) = Regular(bars, quote.HasPrePost ? quote.Sessions : null);
+        var regular = from == 0 && to == _drawn.Count ? _drawn : _drawn.GetRange(from, to - from);
+        _series.Show(regular, regular.Count == _drawn.Count ? null : _drawn);
 
-        foreach (var point in _drawn)
+        if (_plan.MinMax && MarketQuote.Extremes(bars) is { } extremes)
         {
-            fill.Add(point);
-        }
-
-        fill.Add(new Point(_drawn[^1].X, height));
-        _fill.Points = fill;
-        _fill.Fill = _direction;
-        _canvas.Children.Add(_fill);
-
-        // [S-1308] Solid inside the regular session, dashed and fainter outside it.
-        foreach (var (from, to, extended) in MarketQuote.Segments(bars, quote.HasPrePost ? quote.Sessions : null))
-        {
-            var line = new Polyline
+            var marked = new List<ChartMarker>(2)
             {
-                Stroke = _direction,
-                StrokeThickness = Fluent.ChartStroke,
-                StrokeLineJoin = PenLineJoin.Round,
-                Opacity = extended ? 0.55 : 1,
-                Points = [],
+                new(_drawn[extremes.High].X, _drawn[extremes.High].Y, MarketQuote.Price(bars[extremes.High].Close, quote.PriceHint), Above: true),
+                new(_drawn[extremes.Low].X, _drawn[extremes.Low].Y, MarketQuote.Price(bars[extremes.Low].Close, quote.PriceHint), Above: false),
             };
 
-            if (extended)
+            var boxes = StockChartLabels.Place(width, marked);
+            for (var i = 0; i < marked.Count; i++)
             {
-                line.StrokeDashArray = [2, 2];
+                Marker(marked[i], boxes[i], role);
             }
-
-            // Each run starts at the last point of the one before, so the line has no gap.
-            for (var i = Math.Max(0, from - 1); i < to; i++)
-            {
-                line.Points.Add(_drawn[i]);
-            }
-
-            _canvas.Children.Add(line);
-        }
-
-        var marked = new List<ChartMarker>(2);
-
-        if (markers && MarketQuote.Extremes(bars) is { } extremes)
-        {
-            marked.Add(new ChartMarker(_drawn[extremes.High].X, _drawn[extremes.High].Y, MarketQuote.Price(bars[extremes.High].Close, quote.PriceHint), Above: true));
-            marked.Add(new ChartMarker(_drawn[extremes.Low].X, _drawn[extremes.Low].Y, MarketQuote.Price(bars[extremes.Low].Close, quote.PriceHint), Above: false));
-        }
-
-        var boxes = StockChartLabels.Place(width, marked);
-
-        for (var i = 0; i < marked.Count; i++)
-        {
-            Marker(marked[i], boxes[i]);
         }
     }
 
-    /// <summary>[S-1310] A dot on the extreme with its price beside it, kept inside the chart.</summary>
-    private void Marker(ChartMarker marker, LabelBox box)
+    /// <summary>[S-1308] The run of bars in the regular session (all of them without sessions to tell).</summary>
+    private static (int From, int To) Regular(IReadOnlyList<QuoteBar> bars, TradingSessions? sessions)
     {
-        const double Dot = 6;
-        var dot = new Ellipse { Width = Dot, Height = Dot, Fill = _direction };
-        Canvas.SetLeft(dot, marker.X - (Dot / 2));
-        Canvas.SetTop(dot, marker.Y - (Dot / 2));
+        var from = -1;
+        var to = 0;
+        foreach (var (start, end, extended) in MarketQuote.Segments(bars, sessions))
+        {
+            if (!extended)
+            {
+                from = from < 0 ? Math.Max(0, start - 1) : from;
+                to = end;
+            }
+        }
+
+        return from < 0 ? (0, bars.Count) : (from, Math.Max(from + 1, to));
+    }
+
+    /// <summary>[S-1310] A dot on the extreme in the line's role, with its price beside it (an axis label: Caption tertiary), kept inside the chart.</summary>
+    private void Marker(ChartMarker marker, LabelBox box, ColourRole role)
+    {
+        var dot = new Ellipse { Width = MarkerDot, Height = MarkerDot, Fill = Family.Brush(role) };
+        Canvas.SetLeft(dot, marker.X - (MarkerDot / 2));
+        Canvas.SetTop(dot, marker.Y - (MarkerDot / 2));
         _canvas.Children.Add(dot);
 
-        var label = Fluent.Text(FluentType.Caption, "TextFillColorSecondaryBrush");
-        label.Text = marker.Text;
+        var label = Family.Text(FamilyType.Caption, ColourRole.TextTertiary, marker.Text);
         Canvas.SetLeft(label, box.Left);
         Canvas.SetTop(label, box.Top);
         _canvas.Children.Add(label);
     }
 
-    /// <summary>[S-1311] On a large tile, the pointer over the chart reads the bar under it: time and price.</summary>
+    /// <summary>[S-1311] On an expanded width, the pointer over the chart reads the bar under it: time and price.</summary>
     private void OnChartPointerMoved(object sender, PointerRoutedEventArgs args)
     {
-        if (_drawn.Count < 2 || _quote?.Value is not { } quote || _area.WidthClass < SizeClass.Expanded || _plan.Beside)
+        if (_drawn.Count < 2 || _quote?.Value is not { } quote || _area.WidthClass < SizeClass.Expanded)
         {
             return;
         }
@@ -220,7 +193,7 @@ internal sealed partial class StocksView
         _probeText.Text = $"{ExchangeTime.Label(bar.Time, quote.ExchangeOffset, range, DateTimeOffset.Now.Offset)} · {MarketQuote.Price(bar.Close, quote.PriceHint)}";
         _probe.Visibility = Visibility.Visible;
 
-        var estimate = FluentType.EstimateWidth(FluentType.Caption, _probeText.Text.Length) + (2 * Fluent.Space1);
+        var estimate = (HeroFit.Ems(_probeText.Text) * FamilyType.Caption.FontSize) + (2 * FamilySpace.S1);
         Canvas.SetLeft(_probe, Math.Clamp(point.X - (estimate / 2), 0, Math.Max(0, width - estimate)));
         Canvas.SetTop(_probe, 0);
     }

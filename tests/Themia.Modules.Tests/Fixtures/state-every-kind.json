@@ -587,9 +587,7 @@
             "style": "chart",
             "showMarketState": true,
             "showExtendedHours": false,
-            "showMinMax": false,
-            "upColor": "",
-            "downColor": ""
+            "showMinMax": false
           }
         },
         {

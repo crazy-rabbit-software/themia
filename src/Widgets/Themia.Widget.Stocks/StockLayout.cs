@@ -1,244 +1,74 @@
+using Themia.Sdk.Kit;
+
 namespace Themia.Core.Widgets;
 
 /// <summary>What the stock widget is asked to fit.</summary>
-/// <param name="PriceCharacters">The price's worst-case length in characters (at least seven).</param>
-/// <param name="ExtrasCharacters">The change and currency beside it, in characters.</param>
-/// <param name="Chart">A chart is wanted and there are at least two bars.</param>
-/// <param name="Extended">An extended-hours print is to be shown.</param>
+/// <param name="Price">The price and its currency as the Readout draws them ("420.27", " USD").</param>
+/// <param name="Delta">The change's widest case in the user's language ("+88.88%"), so the fold does not move with the price.</param>
+/// <param name="Rows">[S-2777] [S-1308] The fact rows it has under the price: the holding, the extended-hours print (0 to 2).</param>
+/// <param name="Chart">The chart style, with at least two bars to draw.</param>
 /// <param name="MinMax">The high and low markers are switched on.</param>
-/// <param name="Holding">[S-2777] A holding is set and priced: its worth wants a caption line.</param>
-/// <param name="Number">[S-6166] The Number style: no chart, the price and its change large.</param>
-public readonly record struct StockInputs(
-    double PriceCharacters,
-    double ExtrasCharacters,
-    bool Chart,
-    bool Extended,
-    bool MinMax,
-    bool Holding = false,
-    bool Number = false);
+/// <param name="OwnUnder">A line of its own under the price (the market's session, "Market closed").</param>
+public readonly record struct StockInputs(ReadoutText Price, string Delta, int Rows, bool Chart, bool MinMax, bool OwnUnder = false);
 
-/// <summary>One layout of the stock widget.</summary>
-public readonly record struct StockPlan(
-    TypeStep Price,
-    TypeStep Change,
-    bool ExtrasUnder,
-    bool Currency,
-    bool BadgeText,
-    bool Beside,
-    double ReadoutWidth,
-    bool ExtendedLine,
-    bool Chart,
-    double ChartHeight,
-    bool Labels,
-    bool MinMax,
-    bool Holding = false);
+/// <summary>[S-1311] One layout of the stock widget.</summary>
+/// <param name="Price">The price's Readout step.</param>
+/// <param name="Fold">Whether the currency is drawn, and whether the change stands beside the price or under it ([S-6707]).</param>
+/// <param name="Under">Whether the line under the price is shown (the change folded under it, else the session).</param>
+/// <param name="Rows">How many fact rows stand under the price (the first ones).</param>
+/// <param name="RowsTop">Where the rows start in the view: 8 under the price.</param>
+/// <param name="ChartTop">Where the chart starts in the view: 8 under the price, or 8 under the rows.</param>
+/// <param name="ChartHeight">The chart's height, down to the card's foot; 0 for none.</param>
+/// <param name="Labels">The start and end times, inside the chart's bottom band.</param>
+/// <param name="MinMax">The high and low markers.</param>
+public readonly record struct StockPlan(TypeStep Price, ReadoutFold Fold, bool Under, int Rows, double RowsTop, double ChartTop, double ChartHeight, bool Labels, bool MinMax)
+{
+    public bool Chart => ChartHeight > 0;
+}
 
 /// <summary>
-/// [S-1311] The stock widget's disclosure ladder, replacing the fixed chart band (34% of the tile,
-/// capped at 120px) that left a dead band over the price on a large tile.
-/// <list type="number">
-/// <item>Rung 0 at every size: the price and its signed, coloured change.</item>
-/// <item>The currency and the session glyph from 180px wide; the session's words from 300px.</item>
-/// <item>[S-2777] The holding's worth and move, one caption under the price, from 180px wide.</item>
-/// <item>The extended-hours print under the price, when there is one and a line for it.</item>
-/// <item>The chart, at least 24px, full-bleed: edge to edge and down to the card's bottom edge. The
-/// start and end times (only those) from 128px of height, drawn inside the chart's bottom band;
-/// the high/low markers (if on) from 48px of chart. No price axis: the markers carry the range's
-/// prices, and an axis would need an inset of its own.</item>
-/// <item>A wide strip puts the readout <i>beside</i> the chart, which then has the strip's whole
-/// height, instead of a 50px band under a readout.</item>
-/// </list>
-/// [S-2770] Nothing else at any size: no facts (previous close, ranges, volume) and no range
-/// chips; the period is a setting. The chart takes what is left, not a fixed share; the price
-/// grows only to a cap set by the tile's size class, so a big tile shows a big chart rather than a
-/// huge number over a strip.
+/// [S-1311] The stock widget's ladder, on the family's blocks ([S-6702], [S-6711], [S-6717]), read as a
+/// meter reads ([S-1762]): the price is a Readout at the view's top, start-aligned, on the step it takes
+/// in the area (28, 40, 68 and no larger, [S-666]), the currency after it and the change beside it or,
+/// where they do not fit, on the line under it ([S-6707]); the holding and the extended-hours print are
+/// fact rows 8 under it ([S-2777], [S-1308]); the chart style's period runs 8 under them, edge to edge and
+/// down to the card's foot, as a meter's history ([S-1824]). The chart wins over the rows: a row is shown
+/// only while the chart keeps <see cref="BandFloor"/> under it. The start and end times from a regular
+/// height, the high and low markers from a chart of <see cref="MarkersFrom"/>. Room left at L and XL is
+/// the chart's ([S-2770]); the Number style has no chart and leaves it empty.
 /// </summary>
 public static class StockLayout
 {
-    public const double Inset = HeroLayout.SideInset;
-    public const double Gap = 4;
-    public const double MinChart = 24;
+    /// <summary>The least chart worth drawing under the price.</summary>
+    public const double BandFloor = FamilySpace.S6;
 
-    /// <summary>[S-2777] Below this a tile is the price and its change: the holding is shed first.</summary>
-    public const double HoldingMinWidth = 180;
-
-    private static double LabelLine => FluentType.Caption.LineHeight;
+    /// <summary>[S-1310] The markers' prices need a caption line above and below the trace.</summary>
+    public const double MarkersFrom = FamilyShape.Row2;
 
     public static StockPlan Plan(WidgetArea area, StockInputs input)
     {
-        var chars = Math.Max(7, input.PriceCharacters);
+        var (width, height) = (Math.Max(0, area.Width - (2 * FamilySpace.Inset)), Math.Max(0, area.Height - FamilySpace.Inset));
+        var text = input.Price with { LineUnder = true };
+        var step = ReadoutRules.Step(area, width, height, text);
+        var fold = ReadoutRules.Fold(step, input.Price, input.Delta, width);
+        var under = (!fold.DeltaBeside || input.OwnUnder) && ReadoutRules.Height(step, text) <= height;
+        var top = step.LineHeight + (under ? FamilyType.Under(step).LineHeight : 0) + FamilySpace.S2;
 
-        if (!area.IsMeasured)
+        if (input.Chart)
         {
-            return new StockPlan(FluentType.Subtitle, FluentType.Body, false, true, true, false, 0, input.Extended,
-                input.Chart, MinChart, false, false);
-        }
-
-        var text = Math.Max(0, area.Width - (2 * Inset));
-        var currency = area.Width >= 180;
-        var badgeText = area.Width >= 300;
-
-        if (input.Number)
-        {
-            return NumberPlan(area, input, chars, text, currency, badgeText);
-        }
-
-        // A strip: readout on the left, the chart beside it with the strip's whole height.
-        if (input.Chart && area.Shape == AreaShape.Wide && area.Width >= 400)
-        {
-            var readout = Math.Clamp(text * 0.42, 150, 280);
-            var room = new Disclosure(readout, Math.Max(0, area.Height - (2 * Gap)), Gap);
-            room.Reserve(FluentType.Subtitle.LineHeight);
-            room.Reserve(FluentType.Body.LineHeight);
-            var holdingBeside = input.Holding && room.Take(LabelLine);
-            var extendedBeside = input.Extended && room.Take(LabelLine);
-
-            var price = FluentType.Fit(readout, FluentType.Subtitle.LineHeight + room.Remaining, chars, FluentType.Subtitle, Cap(area));
-            // The strip's whole height; the times are drawn inside it.
-            var chart = Math.Max(MinChart, area.Height);
-            var labels = area.Height >= 96;
-
-            return new StockPlan(price, ChangeStep(price), true, currency, true, true, readout, extendedBeside,
-                true, chart, labels, input.MinMax && chart >= 48, holdingBeside);
-        }
-
-        var budget = new Disclosure(area.Width, Math.Max(0, area.Height - Gap), Gap);
-
-        // Rung 0: the price at its smallest, and the change line it may need under it.
-        budget.Reserve(FluentType.Subtitle.LineHeight);
-
-        var smallest = FluentType.Subtitle;
-        var under = input.ExtrasCharacters > 1 && !ReadoutLayout.CaptionFitsBeside(
-            text * 0.98, smallest, chars, ChangeStep(smallest), input.ExtrasCharacters, 8);
-
-        if (under)
-        {
-            budget.Reserve(FluentType.Body.LineHeight);
-        }
-
-        var holding = input.Holding && area.Width >= HoldingMinWidth && budget.Take(LabelLine);
-        var extended = input.Extended && budget.Take(LabelLine);
-
-        var chartWanted = input.Chart && budget.Take(MinChart);
-
-        // The times are drawn inside the chart's bottom band, so their line is the chart's height.
-        var labelsLine = chartWanted && area.HeightClass >= SizeClass.Regular && budget.Take(LabelLine);
-
-        // What is left: the price grows to its cap, the chart takes the rest.
-        var leftover = budget.Remaining;
-        var priceRoom = FluentType.Subtitle.LineHeight + (chartWanted ? Math.Min(leftover, leftover * 0.45) : leftover);
-        var priceWidth = under ? text : text * 0.66;
-        var priceStep = FluentType.Fit(priceWidth, priceRoom, chars, FluentType.Subtitle, chartWanted ? Cap(area) : FluentType.Display);
-
-        // Re-check the change line against the grown price: beside where it fits, under where it does not.
-        var extrasUnder = input.ExtrasCharacters > 1 && !ReadoutLayout.CaptionFitsBeside(
-            text * 0.98, priceStep, chars, ChangeStep(priceStep), input.ExtrasCharacters, 8);
-
-        if (extrasUnder && !under)
-        {
-            // The change now needs a line of its own; take it from the price, never from rung 0.
-            var withLine = FluentType.Fit(text, priceRoom - FluentType.Body.LineHeight - Gap, chars, FluentType.Subtitle, priceStep);
-            priceStep = withLine;
-            leftover -= FluentType.Body.LineHeight + Gap;
-        }
-
-        var chartHeight = chartWanted
-            ? Math.Max(MinChart, MinChart + leftover - (priceStep.LineHeight - FluentType.Subtitle.LineHeight))
-                + (labelsLine ? LabelLine + Gap : 0)
-            : 0;
-
-        return new StockPlan(
-            priceStep,
-            ChangeStep(priceStep),
-            extrasUnder,
-            currency,
-            badgeText,
-            false,
-            text,
-            extended,
-            chartWanted,
-            chartHeight,
-            labelsLine,
-            input.MinMax && chartWanted && chartHeight >= 48,
-            holding);
-    }
-
-    /// <summary>
-    /// [S-6166] The Number style: the price and, on its own line under it, the change, both as large
-    /// as the tile holds (the price to Display and past it by <see cref="HeroLayout.MaxGrowth"/>, the
-    /// change at <see cref="NumberChangeStep"/>); the holding and the extended print keep their
-    /// caption lines under them. No chart at any size.
-    /// </summary>
-    private static StockPlan NumberPlan(WidgetArea area, StockInputs input, double chars, double text, bool currency, bool badgeText)
-    {
-        var budget = new Disclosure(area.Width, Math.Max(0, area.Height - (2 * Gap)), Gap);
-        budget.Reserve(FluentType.Subtitle.LineHeight);
-        budget.Reserve(NumberChangeStep(FluentType.Subtitle).LineHeight);
-        var holding = input.Holding && area.Width >= HoldingMinWidth && budget.Take(LabelLine);
-        var extended = input.Extended && budget.Take(LabelLine);
-
-        var room = FluentType.Subtitle.LineHeight + NumberChangeStep(FluentType.Subtitle).LineHeight + Gap + Math.Max(0, budget.Remaining);
-        var price = FluentType.Subtitle;
-
-        foreach (var candidate in NumberSteps())
-        {
-            var change = NumberChangeStep(candidate);
-            var fits = candidate.LineHeight + Gap + change.LineHeight <= room + Disclosure.Tolerance
-                && FluentType.EstimateWidth(candidate, chars) <= text
-                && FluentType.EstimateWidth(change, input.ExtrasCharacters) <= text;
-
-            if (fits)
+            for (var rows = Math.Max(0, input.Rows); rows >= 0; rows--)
             {
-                price = candidate;
+                var chartTop = top + (rows > 0 ? (rows * FamilyShape.Row1) + FamilySpace.S2 : 0);
+                var band = area.Height - chartTop;
+                if (band >= BandFloor)
+                {
+                    var labels = area.HeightClass >= SizeClass.Regular;
+                    return new StockPlan(step, fold, under, rows, top, chartTop, band, labels, input.MinMax && band >= MarkersFrom);
+                }
             }
         }
 
-        return new StockPlan(price, NumberChangeStep(price), true, currency, badgeText, false, text, extended,
-            false, 0, false, false, holding);
+        var fit = Math.Min(Math.Max(0, input.Rows), RowRules.Fit(height - top, 1));
+        return new StockPlan(step, fold, under, fit, top, 0, 0, false, false);
     }
-
-    /// <summary>The steps the Number style's price may take: the ramp from Subtitle, then Display grown in tenths.</summary>
-    private static IEnumerable<TypeStep> NumberSteps()
-    {
-        foreach (var step in FluentType.Ramp)
-        {
-            if (step.FontSize >= FluentType.Subtitle.FontSize && step.FontSize <= FluentType.Display.FontSize)
-            {
-                yield return step;
-            }
-        }
-
-        for (var factor = 1.1; factor <= HeroLayout.MaxGrowth + 1e-9; factor += 0.1)
-        {
-            yield return FluentType.Scaled(FluentType.Display, factor);
-        }
-    }
-
-    /// <summary>
-    /// [S-6166] The Number style's change: the largest ramp step no bigger than half the price, never
-    /// under Body, so a 68px price carries a 28px change rather than a footnote.
-    /// </summary>
-    public static TypeStep NumberChangeStep(TypeStep price)
-    {
-        var chosen = FluentType.Body;
-
-        foreach (var step in FluentType.Ramp)
-        {
-            if (step.FontSize <= price.FontSize * 0.5 && step.FontSize > chosen.FontSize)
-            {
-                chosen = step;
-            }
-        }
-
-        return chosen;
-    }
-
-    /// <summary>
-    /// The change steps once, with the price, rather than sliding: next to a 28px number a 14px
-    /// line is right, next to a 68px one it is a footnote.
-    /// </summary>
-    public static TypeStep ChangeStep(TypeStep price) => HeroLayout.TrailingStep(price);
-
-    /// <summary>[S-3860] How large the price may grow while a chart shares the tile: the shared tier ladder.</summary>
-    private static TypeStep Cap(WidgetArea area) => HeroLayout.TierStep(area);
 }

@@ -14,7 +14,7 @@ namespace Themia.App.Shell.Config;
 /// [S-2778] The Stocks widget's options, all on its properties menu ([S-3719]): under Style the
 /// chart's markers (the chart style only, [S-6074]); then Appearance ([S-3723]), the symbol as a
 /// search ([S-1307], [S-3722]) and the holding; after a divider the period with the closed market and
-/// the extended hours where they apply; after another the colours. It has no settings page.
+/// the extended hours where they apply; after another the update interval's link. It has no settings page.
 /// </summary>
 internal static class StocksMenu
 {
@@ -71,13 +71,6 @@ internal static class StocksMenu
         {
             lines.Add(menu.Toggle(Glyphs.Sun, StocksStr.Stocks_ExtendedHours.Text(), config.ShowExtendedHours, on => config.ShowExtendedHours = on));
         }
-
-        // [S-1310] The colours of a rise and a fall.
-        lines.Add(ItemMenuEntry.Separator);
-        lines.Add(menu.Colour(StocksStr.Stocks_UpColor.Text(), config.UpColor, value => config.UpColor = value,
-            new ColorChoiceOptions { DefaultLabel = StocksStr.WidgetsC_Stocks_Settings_WindowsGreen.Text(), DefaultColor = () => ThemeColor("SystemFillColorSuccessBrush") }));
-        lines.Add(menu.Colour(StocksStr.Stocks_DownColor.Text(), config.DownColor, value => config.DownColor = value,
-            new ColorChoiceOptions { DefaultLabel = StocksStr.WidgetsC_Stocks_Settings_WindowsRed.Text(), DefaultColor = () => ThemeColor("SystemFillColorCriticalBrush") }));
 
         // [S-3749] How often the markets are asked: ⚙'s, for every market widget at once.
         lines.Add(ItemMenuEntry.Separator);
@@ -174,10 +167,6 @@ internal static class StocksMenu
         => StockHolding.TryParse(Strings.Current, typed, out _)
             ? null
             : StocksStr.WidgetsC_Stocks_Settings_Holding_Refused.Format(("zero", 0), ("example", StockHolding.Amount(Strings.Current, 12.5)));
-
-    /// <summary>What a theme brush currently paints, for a default swatch.</summary>
-    private static Windows.UI.Color? ThemeColor(string key)
-        => ThemeBrush.Of(key, Microsoft.UI.Colors.Gray) is Microsoft.UI.Xaml.Media.SolidColorBrush brush ? brush.Color : null;
 
     /// <summary>One answer: "Microsoft Corporation — MSFT · NASDAQ · Shares".</summary>
     internal static string Describe(SymbolHit hit)

@@ -1,18 +1,16 @@
 {
   "stocks.dimWhenClosed": "بند ہونے کا اشارہ",
-  "stocks.downColor": "کمی کا رنگ",
   "stocks.extendedHours": "توسیعی اوقات",
   "stocks.extendedHoursDesc": "پری مارکیٹ اور آفٹر آورز ٹریڈنگ دکھائیں (1D اور 5D)",
+  "stocks.setup": "ایک علامت منتخب کریں",
   "stocks.showMinMax": "کم/زیادہ کے نشان",
   "stocks.tab.symbols": "علامت",
   "stocks.timeframe": "مدت",
-  "stocks.upColor": "اضافے کا رنگ",
   "styles.stocks.chart": "چارٹ",
   "styles.stocks.number": "عدد",
   "widget.stocks.label": "اسٹاکس",
   "widgetsA.catalog.stocks.description": "اسپارک لائن کے ساتھ ٹکرز اور کرپٹو",
-  "widgetsC.stocks.extendedLine": "{session} {price} {change} · {time}",
-  "widgetsC.stocks.holding.line": "{amount} ملکیت · {value}",
+  "widgetsC.stocks.holding.amount": "{amount} ملکیت",
   "widgetsC.stocks.noQuote": "اس علامت کی کوئی قیمت نہیں",
   "widgetsC.stocks.notSymbol": "\"{symbol}\" کوئی علامت نہیں",
   "widgetsC.stocks.period.days": {
@@ -30,7 +28,5 @@
   "widgetsC.stocks.phaseTooltip": "{phase}۔ {zone}",
   "widgetsC.stocks.settings.holding.label": "ملکیتی مقدار",
   "widgetsC.stocks.settings.holding.refused": "{zero} یا اس سے زیادہ مقدار لکھیں، جیسے {example}",
-  "widgetsC.stocks.settings.symbolRefused": "تلاش کا کوئی نتیجہ چنیں، یا علامت ٹائپ کریں: صرف حروف، ہندسے اور . - ^ =",
-  "widgetsC.stocks.settings.windowsGreen": "Windows سبز",
-  "widgetsC.stocks.settings.windowsRed": "Windows سرخ"
+  "widgetsC.stocks.settings.symbolRefused": "تلاش کا کوئی نتیجہ چنیں، یا علامت ٹائپ کریں: صرف حروف، ہندسے اور . - ^ ="
 }

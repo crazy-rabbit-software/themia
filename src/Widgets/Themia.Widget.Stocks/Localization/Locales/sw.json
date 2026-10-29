@@ -1,18 +1,16 @@
 {
   "stocks.dimWhenClosed": "Kiashiria cha kufungwa",
-  "stocks.downColor": "Rangi ya hasara",
   "stocks.extendedHours": "Saa za ziada",
   "stocks.extendedHoursDesc": "Fuatilia biashara kabla ya soko kufunguliwa na baada ya saa za kazi (1D na 5D)",
+  "stocks.setup": "Chagua alama",
   "stocks.showMinMax": "Alama za chini/juu",
   "stocks.tab.symbols": "Alama",
   "stocks.timeframe": "Kipindi cha muda",
-  "stocks.upColor": "Rangi ya faida",
   "styles.stocks.chart": "Chati",
   "styles.stocks.number": "Nambari",
   "widget.stocks.label": "Hisa",
   "widgetsA.catalog.stocks.description": "Hisa na sarafu za kidijitali, na mstari wa mwenendo",
-  "widgetsC.stocks.extendedLine": "{session} {price} {change} · {time}",
-  "widgetsC.stocks.holding.line": "{amount} unazoshikilia · {value}",
+  "widgetsC.stocks.holding.amount": "{amount} unazoshikilia",
   "widgetsC.stocks.noQuote": "Hakuna bei ya alama hiyo",
   "widgetsC.stocks.notSymbol": "\"{symbol}\" si alama",
   "widgetsC.stocks.period.days": {
@@ -30,7 +28,5 @@
   "widgetsC.stocks.phaseTooltip": "{phase}. {zone}",
   "widgetsC.stocks.settings.holding.label": "Hisa unazomiliki",
   "widgetsC.stocks.settings.holding.refused": "Andika kiasi cha {zero} au zaidi, kama {example}",
-  "widgetsC.stocks.settings.symbolRefused": "Chagua tokeo la utafutaji, au andika alama: herufi, tarakimu na . - ^ = tu",
-  "widgetsC.stocks.settings.windowsGreen": "Kijani cha Windows",
-  "widgetsC.stocks.settings.windowsRed": "Nyekundu ya Windows"
+  "widgetsC.stocks.settings.symbolRefused": "Chagua tokeo la utafutaji, au andika alama: herufi, tarakimu na . - ^ = tu"
 }

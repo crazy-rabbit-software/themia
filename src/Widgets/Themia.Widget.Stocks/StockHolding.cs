@@ -37,19 +37,21 @@ public static class StockHolding
     /// <summary>The decimals a sum of money is written with: to the cent.</summary>
     public const int MoneyDecimals = 2;
 
-    /// <summary>[S-2777] From this width the caption names the amount as well: "10 held · 4,202.70 USD".</summary>
+    /// <summary>[S-2777] From this width the holding's row adds the move after the worth: "4,202.70 USD +82.95".</summary>
     public const double LongLineWidth = 300;
 
+    /// <summary>[S-2777] The holding's row name: the amount held, grouped like every number on screen ("10 held").</summary>
+    public static string Held(Locale locale, double amount)
+        => StocksStr.WidgetsC_Stocks_Holding_Amount.Format(locale, ("amount", AmountShown(locale, amount)));
+
     /// <summary>
-    /// [S-2777] The holding's caption at a tile width: the worth alone where it is narrow (concise
-    /// first: the sum is the point), the amount and the worth from <see cref="LongLineWidth"/>.
+    /// [S-2777] The holding's row value at a tile width: the worth alone where it is narrow (concise
+    /// first: the sum is the point), the worth and the signed move from <see cref="LongLineWidth"/>.
     /// </summary>
-    public static string Caption(Locale locale, double amount, Money worth, double width)
+    public static string Value(Locale locale, Money worth, Money? move, double width)
     {
         var sum = Sum(locale, worth);
-        return width >= LongLineWidth
-            ? StocksStr.WidgetsC_Stocks_Holding_Line.Format(locale, ("amount", AmountShown(locale, amount)), ("value", sum))
-            : sum;
+        return width >= LongLineWidth && move is { } m ? $"{sum} {SignedSum(locale, m)}" : sum;
     }
 
     /// <summary>

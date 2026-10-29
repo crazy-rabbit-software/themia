@@ -63,6 +63,9 @@ public sealed class StocksConfig : WidgetConfig, IStyled, IShownSettings<StocksS
     /// <summary>[S-6906] It waits for setup while this holds.</summary>
     public bool NeedsSetup(FeatureSet signedIn) => string.IsNullOrWhiteSpace(Symbol);
 
+    /// <summary>[S-1862] What the Set up row says beside its button: "Choose a symbol".</summary>
+    string? ISetupRule.SetupSentence => StocksStr.Stocks_Setup.Text();
+
     private static readonly StyleOption[] StockStyles =
     [
         StyleOption.Of(StocksStyle.Chart, StocksStr.Styles_Stocks_Chart.Local(), 0xE9D2),
@@ -110,12 +113,6 @@ public sealed class StocksConfig : WidgetConfig, IStyled, IShownSettings<StocksS
 
     /// <summary>[S-1310] Mark the period's high and low on the chart.</summary>
     public bool ShowMinMax { get; set; }
-
-    /// <summary>[S-1310] The colour of a rise, <c>#RRGGBB</c>; empty = the theme's success green.</summary>
-    public string UpColor { get; set; } = string.Empty;
-
-    /// <summary>[S-1310] The colour of a fall, <c>#RRGGBB</c>; empty = the theme's critical red.</summary>
-    public string DownColor { get; set; } = string.Empty;
 
     /// <summary>
     /// [S-2776] How many of the instrument the user owns, for the holding's worth under the price.
@@ -200,35 +197,11 @@ public sealed class StocksConfig : WidgetConfig, IStyled, IShownSettings<StocksS
         DisplayName = string.Empty;
     }
 
-    /// <summary>A hand-edited colour that is not <c>#RRGGBB</c> goes back to the theme's; an unusable amount owned to none.</summary>
+    /// <summary>An unusable amount owned goes to none, logged.</summary>
     public override IReadOnlyList<string> Repair()
     {
-        var repairs = new List<string>();
-
-        foreach (var (name, value, set) in new (string, string?, Action<string>)[]
-        {
-            ("up colour", UpColor, v => UpColor = v),
-            ("down colour", DownColor, v => DownColor = v),
-        })
-        {
-            var normal = HexColor.Normalise(value);
-
-            if (!string.IsNullOrEmpty(value) && normal.Length == 0)
-            {
-                repairs.Add($"stocks: {name} '{value}' is not a colour");
-            }
-
-            set(normal);
-        }
-
         SharesOwned = StockHolding.Normalise(SharesOwned, out var problem);
-
-        if (problem is not null)
-        {
-            repairs.Add(problem);
-        }
-
-        return repairs;
+        return problem is null ? [] : [problem];
     }
 
     public override WidgetConfig Clone() => new StocksConfig
@@ -241,8 +214,6 @@ public sealed class StocksConfig : WidgetConfig, IStyled, IShownSettings<StocksS
         ShowMarketState = ShowMarketState,
         ShowExtendedHours = ShowExtendedHours,
         ShowMinMax = ShowMinMax,
-        UpColor = UpColor,
-        DownColor = DownColor,
         SharesOwned = SharesOwned,
     };
 }

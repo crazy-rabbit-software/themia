@@ -1,6 +1,7 @@
 using Themia.Core.Model;
 using Themia.Core.Widgets;
 using Themia.Sdk;
+using Themia.Sdk.Kit;
 using Themia.Core.Tests;
 using Xunit;
 using static Themia.Core.Tests.StyleTiers;
@@ -9,42 +10,37 @@ namespace Themia.Widget.Stocks.Tests;
 
 /// <summary>
 /// [S-6166] The stock widget's number style at the seven size tiers (each card less its ~44px header).
-/// Moved with the widget from Core's WeatherStylesTests, unchanged in what they assert.
 /// </summary>
 public sealed class StocksNumberTests
 {
     // ---- stocks number [S-6166] --------------------------------------------------------------
 
-    private static StockPlan Number(WidgetArea area)
-        => StockLayout.Plan(area, new StockInputs(6, 10, Chart: false, Extended: false, MinMax: true, Number: true));
+    private static StockPlan Number(WidgetArea area, int rows = 0)
+        => StockLayout.Plan(area, new StockInputs(new ReadoutText("420.27", " USD"), "+88.88%", rows, Chart: false, MinMax: true));
 
     [Fact]
-    public void S6166_the_number_style_has_no_chart_and_its_change_on_a_line_of_its_own()
+    public void S6166_the_number_style_has_no_chart_at_any_size()
+        => Assert.All(Tiers, tier => Assert.False(Number(tier).Chart));
+
+    [Fact]
+    public void S6166_the_price_is_the_charts_step_never_bigger()
     {
         foreach (var tier in Tiers)
         {
-            var plan = Number(tier);
-            Assert.False(plan.Chart);
-            Assert.True(plan.ExtrasUnder);
-            Assert.True(plan.Price.LineHeight + StockLayout.Gap + plan.Change.LineHeight <= tier.Height, $"{tier}");
+            var chart = StockLayout.Plan(tier, new StockInputs(new ReadoutText("420.27", " USD"), "+88.88%", 0, Chart: true, MinMax: true));
+            Assert.Equal(chart.Price, Number(tier).Price);
         }
     }
 
     [Fact]
-    public void S6166_the_price_and_the_change_grow_with_the_tile()
+    public void S6166_its_rows_take_the_room_under_the_price_in_whole_rows()
     {
-        var large = Number(Xl);
-
-        Assert.True(large.Price.FontSize > FluentType.Display.FontSize, $"price {large.Price.FontSize}");
-        Assert.True(large.Change.FontSize >= FluentType.Title.FontSize, $"change {large.Change.FontSize}");
-        Assert.True(Number(M).Price.FontSize > StockLayout.Plan(M, new StockInputs(6, 10, true, false, true)).Price.FontSize);
-    }
-
-    [Fact]
-    public void S6166_the_change_is_the_largest_step_within_half_the_price_and_never_under_body()
-    {
-        Assert.Equal(FluentType.Title, StockLayout.NumberChangeStep(FluentType.Display));
-        Assert.Equal(FluentType.Body, StockLayout.NumberChangeStep(FluentType.Subtitle));
-        Assert.Equal(FluentType.TitleLarge, StockLayout.NumberChangeStep(FluentType.Scaled(FluentType.Display, 1.5)));
+        Assert.Equal(0, Number(Xs, rows: 2).Rows);
+        Assert.Equal(2, Number(Xl, rows: 2).Rows);
+        foreach (var tier in Tiers)
+        {
+            var plan = Number(tier, rows: 2);
+            Assert.True(plan.RowsTop + (plan.Rows * FamilyShape.Row1) <= tier.Height - FamilySpace.Inset + 0.01, $"{tier}");
+        }
     }
 }

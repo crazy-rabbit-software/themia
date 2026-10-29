@@ -1,8 +1,5 @@
-using Microsoft.UI;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
-using Run = Microsoft.UI.Xaml.Documents.Run;
-using Microsoft.UI.Xaml.Media;
 using Themia.App.Services;
 using Themia.App.Services.Web;
 using Themia.App.Shell;
@@ -10,6 +7,7 @@ using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Sync;
 using Themia.Core.Widgets;
+using Themia.Sdk.Kit;
 using Themia.Sdk.WinUI;
 using Themia.Sdk.WinUI.Kit;
 using Themia.Widget.Stocks;
@@ -17,14 +15,12 @@ using Themia.Widget.Stocks;
 namespace Themia.App.Widgets;
 
 /// <summary>
-/// One instrument's price, its move, and the shape of the period — the readout
-/// a system meter gives (<c>MeterView</c>), pointed at a market.
-/// <para>
-/// The chart is <b>full-bleed</b>: it reaches the card's left, right and bottom edges, and the text
-/// above it carries the inset instead. It takes whatever the ladder leaves ([S-1311]) rather than a
-/// fixed band, so a large tile is a large chart with its axis and times, not a strip under a huge
-/// number. Concise ([S-2770]): no facts and no range chips; the period is a setting.
-/// </para>
+/// One instrument's price, its move and the shape of the period, read as a system meter reads
+/// (<c>MeterView</c>), on the family's blocks: the price a Readout at the top with its currency and its
+/// change ([S-6707]: beside it, or on the line under it), the holding and the extended-hours print as
+/// fact rows under it, and the chart style's period 8 under them, edge to edge and down to the card's
+/// foot ([S-1311]). Where each goes at each size is <see cref="StockLayout"/>'s. The change is secondary
+/// while the price rises or holds, Critical while it falls, and so is the chart (no green, [S-6706]).
 /// <para>
 /// The two services behind it — Yahoo's chart endpoint and CoinGecko's public API — are free,
 /// shared and unauthenticated, so this widget is careful about asking: one request per symbol per
@@ -38,27 +34,16 @@ internal sealed partial class StocksView : Grid, IWidgetView, IWidgetHeaderConte
 
     /// <summary>[S-7064] The header's problem glyph ([S-7042]): the one stale rule, no age.</summary>
     private readonly KitHeader _header;
-    // [S-667] The shared hero readout: the price with its currency smaller beside it, the change
-    // and the session on its baseline (or on a line under it), then the holding and the extended
-    // print as its caption lines.
-    private readonly HeroReadout _hero = new();
-    private readonly TextBlock _holding;
-    private readonly TextBlock _extended;
-    private readonly Run _change = new();
-    private readonly Run _phaseIcon;
-    private readonly Run _phase = new();
-    private string _changeText = string.Empty;
-    private string _phaseText = string.Empty;
-    private bool _phaseShown;
-    private string _phaseGlyph = Glyphs.Moon;
 
-    private readonly StackPanel _emptyState;
-    private readonly TextBlock _emptyMessage = new();
+    private readonly ReadoutBlock _price = new() { HorizontalAlignment = HorizontalAlignment.Left, VerticalAlignment = VerticalAlignment.Top, Margin = Family.SideInset };
 
-    private readonly Brush _freshBrush = ThemeBrush.Of("TextFillColorTertiaryBrush", Colors.Gray);
-    private readonly Brush _flatBrush = ThemeBrush.Of("TextFillColorSecondaryBrush", Colors.Gray);
-    private readonly Brush _accentBrush = ThemeBrush.Of("AccentTextFillColorPrimaryBrush", Colors.DodgerBlue);
+    /// <summary>[S-2777] [S-1308] The holding and the extended print: fact rows under the price.</summary>
+    private readonly StackPanel _facts = new() { VerticalAlignment = VerticalAlignment.Top, Margin = new Thickness(0, FamilySpace.S2, 0, 0) };
+    private readonly RowBlock _holdingRow = new(RowKind.Fact, lead: 0);
+    private readonly RowBlock _extendedRow = new(RowKind.Fact, lead: 0);
 
+    /// <summary>[S-6734] No quote to draw: the Status row at the top.</summary>
+    private readonly StatusBlock _state = new();
 
     private Ticker? _ticker;
     private StocksConfig _config = new();
@@ -83,62 +68,51 @@ internal sealed partial class StocksView : Grid, IWidgetView, IWidgetHeaderConte
     private Fetched<TickerQuote>? _quote;
     private WidgetArea _area;
     private StockPlan _plan;
-    private Brush _direction;
+
+    /// <summary>The chart's and the change's role: Critical while the price falls, else the accent (the change secondary).</summary>
+    private bool _falling;
     private bool _detached;
 
     public StocksView(IWidgetHost host)
     {
         _host = host;
         _header = new KitHeader(host);
-        // Rows: the readout (price, change, extended print), the chart (the rest, its times inside it).
-        // Columns: one, or readout | chart on a strip.
+
+        // Three rows: the price, the facts 8 under it, the chart 8 under those and down to the foot.
+        RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
         RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
         RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
-        ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
-        ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
 
-        _direction = _flatBrush;
-
-        _phaseIcon = WidgetParts.GlyphRun(Glyphs.Moon, _freshBrush);
-        BuildReadout(out _holding, out _extended);
+        _facts.Children.Add(_holdingRow);
+        _facts.Children.Add(_extendedRow);
+        SetRow(_facts, 1);
         BuildChart();
+        SetRow(_chart, 2);
 
-        _emptyState = Fluent.EmptyState(Glyphs.Stocks, _emptyMessage, out _);
-        _emptyState.Visibility = Visibility.Collapsed;
-        SetRowSpan(_emptyState, 2);
-        SetColumnSpan(_emptyState, 2);
+        // Collapsed until a state is said: a view waiting for setup is never attached.
+        _state.Visibility = Visibility.Collapsed;
+        SetRowSpan(_state, 3);
 
-        Children.Add(_hero);
+        Children.Add(_price);
+        Children.Add(_facts);
         Children.Add(_chart);
-        Children.Add(_emptyState);
+        Children.Add(_state);
     }
 
-    /// <summary>
-    /// The age of the quote, in the card's header. Built in the constructor because the card reads
-    /// this once, when it builds that header.
-    /// </summary>
+    /// <summary>The header's problem glyph. Built in the constructor because the card reads this once, when it builds that header.</summary>
     public FrameworkElement? HeaderTrailing => _header;
 
     /// <summary>[S-1311] Refresh: the network now, past the cache and any back-off.</summary>
     public IReadOnlyList<WidgetAction> ContextActions =>
         _config.EffectiveSymbol.Length == 0 ? [] : [new WidgetAction(Glyphs.Refresh, OnlineParts.RefreshLabel(_quote), () => Reload(force: true))];
 
-    private void BuildReadout(out TextBlock holding, out TextBlock extended)
-    {
-        holding = _hero.AddLine(FluentType.Caption);
-        extended = _hero.AddLine(FluentType.Caption);
-        holding.Visibility = Visibility.Collapsed;
-        extended.Visibility = Visibility.Collapsed;
-        _hero.Margin = new Thickness(StockLayout.Inset, Fluent.Space1, StockLayout.Inset, 0);
-    }
-
     public void Attach(Ticker ticker, WidgetConfig config)
     {
         _ticker = ticker;
         _detached = false;
 
-        // [S-1311] The session badge and the age follow the clock, not the refresh: with a
-        // 30-minute refresh the badge must still flip at the bell. A render, never a fetch.
+        // [S-1311] The session follows the clock, not the refresh: with a 30-minute refresh it must
+        // still say "Market closed" at the bell. A render, never a fetch.
         _clock = ticker.Subscribe(TimeSpan.FromMinutes(1), OnMinute);
 
         // [S-1110] The texts follow the app's language. A static event: Detach unsubscribes.
@@ -163,21 +137,8 @@ internal sealed partial class StocksView : Grid, IWidgetView, IWidgetHeaderConte
         PublishTitle();
     }
 
-    /// <summary>[S-6583] Where the price and its change sit: the widget's alignment, from the start by default ([S-6582]).</summary>
-    private ContentAlign _align = ContentAlign.Left;
-
-    /// <summary>[S-6583] The widget's alignment, from the properties panel.</summary>
-    public void ApplyAlign(ContentAlign align)
-    {
-        if (align == _align)
-        {
-            return;
-        }
-
-        _align = align;
-        _hero.Align(align);
-        Render();
-    }
+    /// <summary>[S-6583] The Number style's price across the card: the widget's alignment, from the start by default ([S-6582]).</summary>
+    public void ApplyAlign(ContentAlign align) => _price.HorizontalAlignment = Aligned.Horizontal(align);
 
     public void ApplySize(WidgetArea area)
     {
@@ -206,21 +167,16 @@ internal sealed partial class StocksView : Grid, IWidgetView, IWidgetHeaderConte
         }
 
         // [S-2663] Always through the sync: it asks nothing for a quote already held and fresh, so
-        // a colour or a toggle costs no request.
+        // a toggle costs no request.
         Reload(force: false);
     }
 
     private void OnMinute()
     {
-        if (_detached || _quote?.Value is not { } quote)
+        if (!_detached && _quote?.Value is not null)
         {
-            return;
+            Render();
         }
-
-        var now = DateTimeOffset.Now;
-        UpdatePhase(quote, now);
-        _header.Show(OnlineParts.Problems(_quote), busy: false);
-        Lay(quote);
     }
 
     /// <summary>
@@ -282,224 +238,134 @@ internal sealed partial class StocksView : Grid, IWidgetView, IWidgetHeaderConte
             return;
         }
 
-        var now = DateTimeOffset.Now;
         var held = _quote;
-
         if (held?.Value is not { } quote)
         {
-            var status = _status;
-
-            _emptyMessage.Text = status switch
-            {
-                // No symbol yet: the card's Set up button covers this ([S-1862]).
-                FetchStatus.NotConfigured => string.Empty,
-                FetchStatus.Refused => StocksStr.WidgetsC_Stocks_NotSymbol.Format(("symbol", _config.Symbol)),
-                FetchStatus.Empty => StocksStr.WidgetsC_Stocks_NoQuote.Text(),
-                _ => FetchState.Message(status),
-            };
-
-            _emptyState.Visibility = Visibility.Visible;
-            _hero.Visibility = Visibility.Collapsed;
-            _chart.Visibility = Visibility.Collapsed;
-            _header.Clear();
+            ShowState();
             return;
         }
 
-        _emptyState.Visibility = Visibility.Collapsed;
-        _hero.Visibility = Visibility.Visible;
-
-        var price = MarketQuote.Price(quote.Price, quote.PriceHint);
-        _hero.SetValue(price, quote.Currency, spaced: true);
-        _changeText = MarketQuote.ChangePercent(quote.ChangePercent);
-
-        _direction = quote.ChangePercent switch
+        _state.Hide();
+        _header.Show(OnlineParts.Problems(held), busy: false);
+        if (!_area.IsMeasured)
         {
-            > 0 => Up(),
-            < 0 => Down(),
-            _ => _flatBrush,
-        };
+            return;
+        }
 
-        _change.Foreground = _direction;
-        var holding = UpdateHolding(quote);
+        var now = DateTimeOffset.Now;
+        var price = MarketQuote.Price(quote.Price, quote.PriceHint);
+        var currency = quote.Currency.Length > 0 ? " " + quote.Currency : string.Empty;
+        var change = MarketQuote.ChangePercent(quote.ChangePercent);
+        _falling = quote.ChangePercent < 0;
 
-        var phase = UpdatePhase(quote, now);
+        var phase = MarketQuote.Phase(quote.Sessions, now);
         var extended = _config.WantsPrePost
             ? MarketQuote.CurrentExtended(MarketQuote.ExtendedQuotesOf(quote.Bars, quote.Sessions, quote.Price), phase)
             : null;
+        var holding = ShowHolding(quote);
+        var extendedShown = ShowExtended(quote, extended, phase, now);
 
-        UpdateExtended(quote, extended);
-        _header.Show(OnlineParts.Problems(held), busy: false);
+        // [S-1311] The session under the price, unless the extended print's row names it already.
+        var session = !_config.ShowMarketState || _config.Market == QuoteMarket.Crypto || extendedShown ? string.Empty : MarketQuote.PhaseLabel(phase);
+        var chart = _config.Style == StocksStyle.Chart && quote.Bars.Count >= 2;
 
-        // [S-6165] The chart style draws the period's line; the number style the price and change alone.
-        var number = _config.Style == StocksStyle.Number;
-        var chart = !number && quote.Bars.Count >= 2;
-        var extras = _changeText.Length + 1 + quote.Currency.Length;
+        _plan = StockLayout.Plan(_area, new StockInputs(
+            new ReadoutText(price, currency),
+            MarketQuote.ChangePercent(88.88),
+            (holding ? 1 : 0) + (extendedShown ? 1 : 0),
+            chart,
+            _config.ShowMinMax,
+            session.Length > 0));
 
-        _plan = StockLayout.Plan(_area, new StockInputs(price.Length, extras, chart, extended is not null, _config.ShowMinMax, holding, number));
-        Lay(quote);
-    }
-
-    /// <summary>Place the parts the plan chose. The chart draws itself on its own size change.</summary>
-    private void Lay(TickerQuote quote)
-    {
         var plan = _plan;
+        var changeRole = _falling ? ColourRole.Critical : ColourRole.TextSecondary;
+        var underText = !plan.Under ? null : plan.Fold.DeltaBeside ? session : change;
+        _price.Use(plan.Price);
+        _price.Show(
+            price,
+            plan.Fold.Unit ? currency : string.Empty,
+            underText,
+            plan.Fold.DeltaBeside ? change : null,
+            changeRole,
+            underRole: plan.Fold.DeltaBeside ? ColourRole.TextSecondary : changeRole);
+        _price.Visibility = Visibility.Visible;
 
-        _hero.ShowUnit(plan.Currency);
-        _holding.Visibility = plan.Holding && _holding.Inlines.Count > 0 ? Visibility.Visible : Visibility.Collapsed;
-        _extended.Visibility = plan.ExtendedLine && _extended.Text.Length > 0 ? Visibility.Visible : Visibility.Collapsed;
+        // [S-1309] The session names the exchange's zone, so "closed" reads against its clock.
+        var label = MarketQuote.PhaseLabel(phase);
+        ToolTipService.SetToolTip(_price, label.Length == 0 ? null : StocksStr.WidgetsC_Stocks_PhaseTooltip.Format(("phase", label), ("zone", ExchangeTime.ZoneNote(quote.ZoneName))));
 
-        // The change and the session: on the price's baseline, or on their own line under it.
-        var beside = !plan.ExtrasUnder;
-        _change.Text = (beside ? "  " : string.Empty) + _changeText;
-        var trailing = new List<Run> { _change };
-
-        if (_phaseShown)
-        {
-            _phaseIcon.Text = "  " + _phaseGlyph;
-            trailing.Add(_phaseIcon);
-
-            if (plan.BadgeText)
-            {
-                _phase.Text = " " + _phaseText;
-                trailing.Add(_phase);
-            }
-        }
-
-        _hero.SetTrailing(trailing);
-        _hero.Lay(plan.Price, icon: false, trailingBeside: beside, linesBeside: false,
-            _config.Style == StocksStyle.Number ? plan.Change : null);
-
-        if (plan.Beside)
-        {
-            // A strip: the readout is a column on the left, the chart has the strip's height.
-            ColumnDefinitions[0].Width = new GridLength(plan.ReadoutWidth + (2 * StockLayout.Inset));
-            ColumnDefinitions[1].Width = new GridLength(1, GridUnitType.Star);
-            Place(_hero, 0, 0, 2, 1);
-            _hero.VerticalAlignment = VerticalAlignment.Center;
-            Place(_chart, 0, 1, 2, 1);
-        }
-        else
-        {
-            ColumnDefinitions[0].Width = new GridLength(1, GridUnitType.Star);
-            ColumnDefinitions[1].Width = GridLength.Auto;
-            Place(_hero, 0, 0, plan.Chart ? 1 : 2, 2);
-
-            // Without a chart the price is the tile: centred in it rather than stranded at the top.
-            _hero.VerticalAlignment = plan.Chart ? VerticalAlignment.Top : VerticalAlignment.Center;
-            _hero.Margin = new Thickness(StockLayout.Inset, plan.Chart ? Fluent.Space1 : 0, StockLayout.Inset, 0);
-            Place(_chart, 1, 0, 1, 2);
-        }
+        // The rows the plan has room for, the holding first.
+        var rows = plan.Rows;
+        _holdingRow.Visibility = holding && rows > 0 ? Visibility.Visible : Visibility.Collapsed;
+        var left = rows - (holding ? 1 : 0);
+        _extendedRow.Visibility = extendedShown && left > 0 ? Visibility.Visible : Visibility.Collapsed;
+        _facts.Visibility = rows > 0 ? Visibility.Visible : Visibility.Collapsed;
 
         _chart.Visibility = plan.Chart ? Visibility.Visible : Visibility.Collapsed;
-        _labels.Visibility = plan.Labels ? Visibility.Visible : Visibility.Collapsed;
-
+        _chart.Margin = new Thickness(0, FamilySpace.S2, 0, 0);
         if (plan.Chart)
         {
+            _labels.Visibility = plan.Labels ? Visibility.Visible : Visibility.Collapsed;
             UpdateLabels(quote);
             RedrawChart();
         }
     }
 
-    /// <summary>
-    /// [S-2777] The holding's caption: what the shares owned are worth now and how much that moved
-    /// over the shown period, in the quote's currency ("10 held · 4,202.70 USD  +82.95"; the amount
-    /// is dropped where the line is narrow). False when there is no holding or nothing to price it.
-    /// </summary>
-    private bool UpdateHolding(TickerQuote quote)
+    /// <summary>[S-6734] No quote: the symbol refused, nothing quoted for it, or how the sync went; not set up is the card's Set up row ([S-1862]).</summary>
+    private void ShowState()
     {
-        _holding.Inlines.Clear();
+        _price.Visibility = Visibility.Collapsed;
+        _facts.Visibility = Visibility.Collapsed;
+        _chart.Visibility = Visibility.Collapsed;
+        _header.Clear();
 
+        switch (_status)
+        {
+            case FetchStatus.Refused:
+                _state.Show(StatusKind.Problem, Glyphs.Stocks, StocksStr.WidgetsC_Stocks_NotSymbol.Format(("symbol", _config.Symbol)));
+                break;
+            case FetchStatus.Empty:
+                _state.Show(StatusKind.Empty, Glyphs.Stocks, StocksStr.WidgetsC_Stocks_NoQuote.Text());
+                break;
+            default:
+                OnlineParts.ShowState(_state, _status, Glyphs.Stocks, () => Reload(force: true));
+                break;
+        }
+    }
+
+    /// <summary>
+    /// [S-2777] The holding's row: "10 held" and what they are worth now with how much that moved over
+    /// the period, in the quote's currency ("4,202.68 USD +82.68"; the move from 300 wide). False when
+    /// there is no holding or nothing to price it.
+    /// </summary>
+    private bool ShowHolding(TickerQuote quote)
+    {
         var locale = Strings.Current;
         if (_config.SharesOwned is not { } owned || StockHolding.Worth(owned, quote.Price, quote.Currency) is not { } worth)
         {
             return false;
         }
 
-        _holding.Inlines.Add(new Run { Text = StockHolding.Caption(locale, owned, worth, _area.Width) });
-
-        if (StockHolding.Change(owned, quote.Price, quote.ChangePercent, quote.Currency) is { } move)
-        {
-            _holding.Inlines.Add(WidgetParts.Run("  " + StockHolding.SignedSum(locale, move), _direction));
-        }
-
+        var move = StockHolding.Change(owned, quote.Price, quote.ChangePercent, quote.Currency);
+        _holdingRow.Show(StockHolding.Held(locale, owned), StockHolding.Value(locale, worth, move, _area.Width));
         return true;
     }
 
-    private static void Place(FrameworkElement element, int row, int column, int rowSpan, int columnSpan)
-    {
-        SetRow(element, row);
-        SetColumn(element, column);
-        SetRowSpan(element, rowSpan);
-        SetColumnSpan(element, columnSpan);
-    }
-
-    /// <summary>
-    /// The session badge, evaluated against the clock (not the fetch), so it flips at the bell
-    /// whatever the refresh interval. Crypto never carries one; an unknown schedule carries none.
-    /// [S-1308] An extended session with a print shows in the accent colour.
-    /// </summary>
-    private MarketPhase UpdatePhase(TickerQuote quote, DateTimeOffset now)
-    {
-        var phase = MarketQuote.Phase(quote.Sessions, now);
-        var label = !_config.ShowMarketState || _config.Market == QuoteMarket.Crypto ? string.Empty : MarketQuote.PhaseLabel(phase);
-
-        _phaseShown = label.Length > 0;
-        _phaseText = label;
-
-        if (!_phaseShown)
-        {
-            ToolTipService.SetToolTip(_hero.ValueLine, null);
-            return phase;
-        }
-
-        var accent = _config.WantsPrePost && phase is MarketPhase.Pre or MarketPhase.Post && quote.HasPrePost;
-        var brush = accent ? _accentBrush : _freshBrush;
-
-        _phase.Foreground = brush;
-        _phaseGlyph = phase == MarketPhase.Closed ? Glyphs.Moon : Glyphs.Sun;
-        _phaseIcon.Foreground = brush;
-
-        // [S-1309] The session names the exchange's zone, so "closed" reads against its clock.
-        ToolTipService.SetToolTip(_hero.ValueLine, StocksStr.WidgetsC_Stocks_PhaseTooltip.Format(("phase", label), ("zone", ExchangeTime.ZoneNote(quote.ZoneName))));
-        return phase;
-    }
-
-    /// <summary>[S-1308] "After hours 412.10 −0.36%" under the price, in its own direction's colour.</summary>
-    private void UpdateExtended(TickerQuote quote, ExtendedPrint? print)
+    /// <summary>[S-1308] The extended print's row: "After hours · 16:42" and "412.10 −0.36%". False when there is none.</summary>
+    private bool ShowExtended(TickerQuote quote, ExtendedPrint? print, MarketPhase phase, DateTimeOffset now)
     {
         if (print is not { } p)
         {
-            _extended.Text = string.Empty;
-            return;
+            return false;
         }
 
-        var phase = MarketQuote.Phase(quote.Sessions, DateTimeOffset.Now);
         var name = phase == MarketPhase.Pre || (phase != MarketPhase.Post && quote.Sessions.Pre is { } pre && p.At >= pre.Start && p.At < pre.End)
             ? Str.Stocks_PreMarket.Text()
             : Str.Stocks_AfterHours.Text();
-        var at = ExchangeTime.Label(p.At, quote.ExchangeOffset, QuoteRange.Day, DateTimeOffset.Now.Offset);
-
-        _extended.Text = StocksStr.WidgetsC_Stocks_ExtendedLine.Format(
-            ("session", name),
-            ("price", MarketQuote.Price(p.Price, quote.PriceHint)),
-            ("change", MarketQuote.ChangePercent(p.ChangePercent)),
-            ("time", at));
-        _extended.Foreground = p.ChangePercent switch
-        {
-            > 0 => Up(),
-            < 0 => Down(),
-            _ => _flatBrush,
-        };
+        var at = ExchangeTime.Label(p.At, quote.ExchangeOffset, QuoteRange.Day, now.Offset);
+        _extendedRow.Show($"{name} · {at}", $"{MarketQuote.Price(p.Price, quote.PriceHint)} {MarketQuote.ChangePercent(p.ChangePercent)}");
+        return true;
     }
-
-    /// <summary>[S-1310] The rise colour: the user's, or the theme's success green.</summary>
-    private Brush Up() => Custom(_config.UpColor) ?? ThemeBrush.Of("SystemFillColorSuccessBrush", Colors.SeaGreen);
-
-    /// <summary>[S-1310] The fall colour: the user's, or the theme's critical red.</summary>
-    private Brush Down() => Custom(_config.DownColor) ?? ThemeBrush.Of("SystemFillColorCriticalBrush", Colors.IndianRed);
-
-    private static SolidColorBrush? Custom(string? hex)
-        => HexColor.TryParse(hex, out var r, out var g, out var b) ? new SolidColorBrush(Windows.UI.Color.FromArgb(255, r, g, b)) : null;
 
     public void Detach()
     {

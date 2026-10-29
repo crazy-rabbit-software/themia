@@ -1,18 +1,16 @@
 {
   "stocks.dimWhenClosed": "Indikator tutup",
-  "stocks.downColor": "Warna turun",
   "stocks.extendedHours": "Jam tambahan",
   "stocks.extendedHoursDesc": "Lacak perdagangan pra-pasar dan setelah jam (1D dan 5D)",
+  "stocks.setup": "Pilih simbol",
   "stocks.showMinMax": "Penanda min/maks",
   "stocks.tab.symbols": "Simbol",
   "stocks.timeframe": "Rentang waktu",
-  "stocks.upColor": "Warna naik",
   "styles.stocks.chart": "Grafik",
   "styles.stocks.number": "Angka",
   "widget.stocks.label": "Saham",
   "widgetsA.catalog.stocks.description": "Saham dan kripto, dengan grafik mini",
-  "widgetsC.stocks.extendedLine": "{session} {price} {change} · {time}",
-  "widgetsC.stocks.holding.line": "{amount} dimiliki · {value}",
+  "widgetsC.stocks.holding.amount": "{amount} dimiliki",
   "widgetsC.stocks.noQuote": "Tidak ada harga untuk simbol itu",
   "widgetsC.stocks.notSymbol": "\"{symbol}\" bukan simbol",
   "widgetsC.stocks.period.days": {
@@ -27,7 +25,5 @@
   "widgetsC.stocks.phaseTooltip": "{phase}. {zone}",
   "widgetsC.stocks.settings.holding.label": "Jumlah dimiliki",
   "widgetsC.stocks.settings.holding.refused": "Ketik jumlah {zero} atau lebih, misalnya {example}",
-  "widgetsC.stocks.settings.symbolRefused": "Pilih hasil pencarian, atau ketik simbol: hanya huruf, angka, dan . - ^ =",
-  "widgetsC.stocks.settings.windowsGreen": "Hijau Windows",
-  "widgetsC.stocks.settings.windowsRed": "Merah Windows"
+  "widgetsC.stocks.settings.symbolRefused": "Pilih hasil pencarian, atau ketik simbol: hanya huruf, angka, dan . - ^ ="
 }

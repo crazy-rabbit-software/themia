@@ -1,18 +1,16 @@
 {
   "stocks.dimWhenClosed": "மூடல் குறிகாட்டி",
-  "stocks.downColor": "நஷ்ட நிறம்",
   "stocks.extendedHours": "நீட்டிக்கப்பட்ட நேரம்",
   "stocks.extendedHoursDesc": "சந்தைக்கு முந்தைய மற்றும் பிந்தைய வர்த்தகத்தைக் கண்காணி (1D மற்றும் 5D)",
+  "stocks.setup": "ஒரு குறியீட்டைத் தேர்ந்தெடுக்கவும்",
   "stocks.showMinMax": "குறைந்த/அதிக குறிப்பான்கள்",
   "stocks.tab.symbols": "குறியீடு",
   "stocks.timeframe": "காலவரம்பு",
-  "stocks.upColor": "லாப நிறம்",
   "styles.stocks.chart": "விளக்கப்படம்",
   "styles.stocks.number": "எண்",
   "widget.stocks.label": "பங்குகள்",
   "widgetsA.catalog.stocks.description": "பங்குக் குறியீடுகளும் கிரிப்டோவும், சிறு வரைபடத்துடன்",
-  "widgetsC.stocks.extendedLine": "{session} {price} {change} · {time}",
-  "widgetsC.stocks.holding.line": "{amount} வைத்துள்ளது · {value}",
+  "widgetsC.stocks.holding.amount": "{amount} வைத்துள்ளது",
   "widgetsC.stocks.noQuote": "அந்தக் குறியீட்டுக்கு விலை இல்லை",
   "widgetsC.stocks.notSymbol": "\"{symbol}\" ஒரு குறியீடு அல்ல",
   "widgetsC.stocks.period.days": {
@@ -30,7 +28,5 @@
   "widgetsC.stocks.phaseTooltip": "{phase}. {zone}",
   "widgetsC.stocks.settings.holding.label": "வைத்திருக்கும் பங்குகள்",
   "widgetsC.stocks.settings.holding.refused": "{zero} அல்லது அதற்கு மேற்பட்ட அளவைத் தட்டச்சு செய்யவும், {example} போல",
-  "widgetsC.stocks.settings.symbolRefused": "தேடல் முடிவைத் தேர்ந்தெடுக்கவும், அல்லது குறியீட்டைத் தட்டச்சு செய்யவும்: எழுத்துகள், இலக்கங்கள் மற்றும் . - ^ = மட்டும்",
-  "widgetsC.stocks.settings.windowsGreen": "Windows பச்சை",
-  "widgetsC.stocks.settings.windowsRed": "Windows சிவப்பு"
+  "widgetsC.stocks.settings.symbolRefused": "தேடல் முடிவைத் தேர்ந்தெடுக்கவும், அல்லது குறியீட்டைத் தட்டச்சு செய்யவும்: எழுத்துகள், இலக்கங்கள் மற்றும் . - ^ = மட்டும்"
 }

@@ -84,9 +84,9 @@ public sealed class SyncHousekeepingTests : IDisposable
         stock.Range = QuoteRange.Year;
         Assert.NotEqual(key, SyncInterests.From(state).Key());
 
-        // A colour is drawing only: nothing to sync changes.
+        // A marker is drawing only: nothing to sync changes.
         key = SyncInterests.From(state).Key();
-        stock.UpColor = "#00FF00";
+        stock.ShowMinMax = !stock.ShowMinMax;
         Assert.Equal(key, SyncInterests.From(state).Key());
     }
 

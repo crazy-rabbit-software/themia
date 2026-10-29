@@ -1,18 +1,16 @@
 {
   "stocks.dimWhenClosed": "Geschlossen-Symbol",
-  "stocks.downColor": "Verlustfarbe",
   "stocks.extendedHours": "Erweiterter Handel",
   "stocks.extendedHoursDesc": "Vor- und nachbörslichen Handel anzeigen (1T und 5T)",
+  "stocks.setup": "Symbol auswählen",
   "stocks.showMinMax": "Min/Max-Marker",
   "stocks.tab.symbols": "Symbol",
   "stocks.timeframe": "Zeitraum",
-  "stocks.upColor": "Gewinnfarbe",
   "styles.stocks.chart": "Diagramm",
   "styles.stocks.number": "Zahl",
   "widget.stocks.label": "Aktien",
   "widgetsA.catalog.stocks.description": "Aktien und Krypto, mit Verlaufskurve",
-  "widgetsC.stocks.extendedLine": "{session} {price} {change} · {time}",
-  "widgetsC.stocks.holding.line": "{amount} im Besitz · {value}",
+  "widgetsC.stocks.holding.amount": "{amount} im Besitz",
   "widgetsC.stocks.noQuote": "Kein Kurs für dieses Symbol",
   "widgetsC.stocks.notSymbol": "„{symbol}“ ist kein Symbol",
   "widgetsC.stocks.period.days": {
@@ -30,7 +28,5 @@
   "widgetsC.stocks.phaseTooltip": "{phase}. {zone}",
   "widgetsC.stocks.settings.holding.label": "Anzahl im Besitz",
   "widgetsC.stocks.settings.holding.refused": "Geben Sie eine Menge ab {zero} ein, z. B. {example}",
-  "widgetsC.stocks.settings.symbolRefused": "Wähle ein Suchergebnis aus oder gib ein Symbol ein: nur Buchstaben, Ziffern und . - ^ =",
-  "widgetsC.stocks.settings.windowsGreen": "Windows-Grün",
-  "widgetsC.stocks.settings.windowsRed": "Windows-Rot"
+  "widgetsC.stocks.settings.symbolRefused": "Wähle ein Suchergebnis aus oder gib ein Symbol ein: nur Buchstaben, Ziffern und . - ^ ="
 }

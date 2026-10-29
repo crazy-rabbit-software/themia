@@ -175,8 +175,6 @@
             "showMarketState": true,
             "showExtendedHours": true,
             "showMinMax": true,
-            "upColor": "#22AA44",
-            "downColor": "",
             "sharesOwned": 0.25
           }
         }

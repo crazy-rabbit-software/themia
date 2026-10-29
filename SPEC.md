@@ -5823,9 +5823,9 @@ card is re-created, no tick restarts. Pure rules live in Core (`DesignLook`, `De
   (`QuickSet.SetBackgroundImage`; a path that breaks [S-6591] changes nothing). The three labels are
   English only so far.
 - **[S-6570]** Whether a kind **has items** (`ItemKinds.Has`): its view paints rows, tiles, chips or
-  tracks through the item layer ([S-6513]). Sixteen kinds paint none (Alarm, Audio visualizer,
+  tracks through the item layer ([S-6513]). Fifteen kinds paint none (Alarm, Audio visualizer,
   Brightness, Exchange rates, Gallery, Next meeting, Notes, Rain next hour, Recycle bin, the screen
-  time chart and donut, Stocks, Stopwatch, Video stream, Volume, Weather now). Each widget's descriptor states
+  time chart and donut, Stopwatch, Video stream, Volume, Weather now); Stocks' holding is a Row. Each widget's descriptor states
   it (`Traits.HasItems`, [S-6905]) and it cannot drift: `ItemKindsTests` reads every view's source (and the shared parts
   it builds — the flip card, rings, meter bars — to the fixed point) and fails when a descriptor and
   what its view paints disagree either way.
@@ -5871,7 +5871,7 @@ card is re-created, no tick restarts. Pure rules live in Core (`DesignLook`, `De
   (`ControlCornerRadius`) for controls and row highlights; text `TextFillColorPrimary/Secondary/
   Tertiary`; accent `AccentFillColorDefault` (Light2 dark / Dark1 light); status
   `SystemFillColorSuccess/Caution/Critical` (#6CCB5F/#FCE100/#FF99A4 dark, #0F7B0F/#9D5D00/#C42B1C
-  light), which are also Stocks' rising/falling colours unless the user picks their own. Type ramp
+  light); no widget paints a success green ([S-6706]: a falling price is Critical, [S-1310]). Type ramp
   and 16px inset as the Windows widget guidance (Caption 12/16 … Title 28/36, 16px margins). The
   references: [Color](https://learn.microsoft.com/windows/apps/design/style/color),
   [Geometry](https://learn.microsoft.com/windows/apps/design/signature-experiences/geometry),

@@ -3,6 +3,7 @@ using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Storage;
 using Themia.Core.Widgets;
+using Themia.Sdk.Kit;
 using Xunit;
 
 namespace Themia.Widget.Stocks.Tests;
@@ -175,39 +176,43 @@ public sealed class StockHoldingTests
     // ---- [S-2777] where it shows -------------------------------------------------------------
 
     [Fact]
-    public void S2777_the_caption_is_the_worth_alone_when_narrow_and_names_the_amount_when_wide()
+    public void S2777_the_row_names_the_amount_held_and_its_value_adds_the_move_from_300_wide()
     {
         var worth = new Money(4202.70, "USD");
+        var move = new Money(82.95, "USD");
 
-        Assert.Equal("4,202.70 USD", StockHolding.Caption(Locale.En, 10, worth, 200));
-        Assert.Equal("10 held · 4,202.70 USD", StockHolding.Caption(Locale.En, 10, worth, 320));
-        Assert.Equal("0.5 held · 4,202.70 USD", StockHolding.Caption(Locale.En, 0.5, worth, 320));
+        Assert.Equal("10 held", StockHolding.Held(Locale.En, 10));
+        Assert.Equal("0.5 held", StockHolding.Held(Locale.En, 0.5));
+        Assert.Equal("4,202.70 USD", StockHolding.Value(Locale.En, worth, move, 200));
+        Assert.Equal("4,202.70 USD +82.95", StockHolding.Value(Locale.En, worth, move, 320));
+        Assert.Equal("4,202.70 USD", StockHolding.Value(Locale.En, worth, null, 320));
     }
 
-    private static StockPlan Plan(double width, double height, bool holding)
-        => StockLayout.Plan(new WidgetArea(width, height), new StockInputs(6, 10, Chart: true, Extended: false, MinMax: true, Holding: holding));
+    private static StockPlan Plan(WidgetArea area, bool holding)
+        => StockLayout.Plan(area, new StockInputs(new ReadoutText("420.27", " USD"), "+88.88%", holding ? 1 : 0, Chart: true, MinMax: true));
 
     [Fact]
-    public void S2777_the_extra_small_tile_sheds_the_holding()
-        => Assert.False(Plan(120, 76, holding: true).Holding);
+    public void S2777_a_tile_too_short_for_the_row_and_the_chart_keeps_the_chart()
+    {
+        Assert.Equal(0, Plan(new WidgetArea(120, 76), holding: true).Rows);
+        Assert.Equal(0, Plan(new WidgetArea(200, 106), holding: true).Rows);
+    }
 
     [Theory]
-    [InlineData(200, 106)]
     [InlineData(320, 196)]
     [InlineData(200, 356)]
     [InlineData(560, 376)]
     [InlineData(800, 516)]
-    [InlineData(480, 116)]
     public void S2777_every_tile_with_room_shows_it_and_the_chart_pays_for_it(double width, double height)
     {
-        var with = Plan(width, height, holding: true);
-        var without = Plan(width, height, holding: false);
+        var with = Plan(new WidgetArea(width, height), holding: true);
+        var without = Plan(new WidgetArea(width, height), holding: false);
 
-        Assert.True(with.Holding, $"{width}x{height}");
-        Assert.True(with.ChartHeight <= without.ChartHeight, $"{width}x{height}");
+        Assert.Equal(1, with.Rows);
+        Assert.Equal(without.ChartHeight - FamilyShape.Row1 - FamilySpace.S2, with.ChartHeight, 6);
     }
 
     [Fact]
-    public void S2777_no_holding_asks_no_line()
-        => Assert.False(Plan(560, 376, holding: false).Holding);
+    public void S2777_no_holding_asks_no_row()
+        => Assert.Equal(0, Plan(new WidgetArea(560, 376), holding: false).Rows);
 }
