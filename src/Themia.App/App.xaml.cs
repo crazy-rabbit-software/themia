@@ -102,6 +102,15 @@ public partial class App : Application
         // never write into the user's log folder while the user's own copy is running ([S-980]).
         LogFiles.InstallBasics();
 
+        // [S-68] A flag this build does not know never starts the app and never reaches the hand-off,
+        // which would toggle the running copy's edit mode: it is named and the process exits.
+        var start = StartArguments.Classify(commandLine, KnownRenderFlags);
+        if (start.Request == StartRequest.Unknown)
+        {
+            RefuseStart(StartArguments.UnknownFlagMessage(start.Flag ?? string.Empty));
+            return;
+        }
+
 #if DEBUG
         // [S-1814] Showcase views into a state file, then exit. Before the single-instance hand-off,
         // which would toggle the running copy's edit mode instead.
@@ -212,6 +221,13 @@ public partial class App : Application
         }
 #endif
 
+        // [S-68] A render flag no render above took: still never the app.
+        if (start.Request == StartRequest.Render)
+        {
+            RefuseStart(StartArguments.UntakenRenderMessage(start.Flag ?? string.Empty));
+            return;
+        }
+
         // [S-934] A sign-in launch (the Run entry's --autostart, or the package's startup task) and
         // a launch by hand are told apart here, once, for whatever wants to stay quiet at sign-in;
         // before the hand-off, which tells the running copy which of the two this was ([S-66]).
@@ -256,6 +272,22 @@ public partial class App : Application
 
         _host = new AppHost(dispatcher, store, load.State);
         _host.Start();
+    }
+
+    /// <summary>[S-68] The renders and checks this build runs instead of the app: none in a Release build.</summary>
+    private static IReadOnlyCollection<string> KnownRenderFlags =>
+#if DEBUG
+        Shell.Gallery.RenderFlags.All;
+#else
+        [];
+#endif
+
+    /// <summary>[S-68] Say why nothing started, on the console and in the log, and exit non-zero.</summary>
+    private static void RefuseStart(string message)
+    {
+        Log.Error(Scope, message);
+        Console.Error.WriteLine(message);
+        Environment.Exit(StartArguments.UnknownFlagExitCode);
     }
 
     private static void OnFatalException(object sender, System.UnhandledExceptionEventArgs e)

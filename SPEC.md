@@ -527,6 +527,13 @@ busy desktop ([S-6601]), Debug, private bytes.
 - **[S-67]** Quitting is offered in one place, the last line of the edit bar's settings menu (**Quit
   Themia**, [S-3532]), and never as a button beside **Done**: it is the only action there that cannot
   be undone and **Done** is the one the user presses constantly.
+- **[S-68]** **A flag Themia does not know starts nothing.** The start's first argument is classified
+  before anything else (`StartArguments.Classify`): no argument or a value is the app, as is the Run
+  entry's `--autostart` ([S-934]); a render or check flag this build has (Debug only,
+  `Gallery.RenderFlags`) runs that render and exits; any other argument starting with a dash prints
+  an error naming it (stderr and the log) and exits with code 2, never starting the app and never
+  reaching the hand-off of [S-66], which would toggle the running copy's edit mode. A render flag no
+  render took is refused the same way. A Release build knows no render flag. Tests `StartArgumentsTests`.
 
 ## Not on this machine (UNAVAILABLE)
 
