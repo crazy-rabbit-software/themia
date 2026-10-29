@@ -9,14 +9,14 @@ namespace Themia.Core.Desktop;
 /// (none: the next free cell of that view, a paste with no press point).
 /// <paramref name="Names"/> are the file names the arrival is expected under (a drop's files); empty
 /// means "whatever arrives next" (a paste or New › from the background menu, whose names the shell
-/// chooses). [S-5552] <paramref name="Renames"/>: the command was one of New â€º's, so what it made
-/// opens its rename box once it lands, as Explorer's New â€º does.
+/// chooses). [S-5552] <paramref name="Renames"/>: the command was one of New ›'s, so what it made
+/// opens its rename box once it lands, as Explorer's New › does.
 /// </summary>
 public sealed record DesktopLandingHint(string ViewId, double? X, double? Y, IReadOnlyList<string> Names, bool Renames = false);
 
 /// <summary>
 /// [S-5591] Where one arrival lands: the view, and the point its cell is looked for from (null: the next
-/// free cell). [S-5552] <paramref name="Renames"/>: it is what New â€º made, to be renamed in place.
+/// free cell). [S-5552] <paramref name="Renames"/>: it is what New › made, to be renamed in place.
 /// </summary>
 public readonly record struct DesktopLandingSpot(string ViewId, double? X, double? Y, bool Renames = false);
 
@@ -76,7 +76,7 @@ public sealed class DesktopLandings
             return spots;
         }
 
-        // [S-5552] New â€º makes one item: the first arrival it lands is the one renamed.
+        // [S-5552] New › makes one item: the first arrival it lands is the one renamed.
         var any = hint.Names.Count == 0;
         var renames = hint.Renames;
         for (var i = 0; i < arrivals.Count; i++)
