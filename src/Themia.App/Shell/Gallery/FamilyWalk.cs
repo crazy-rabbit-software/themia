@@ -48,6 +48,12 @@ internal static class FamilyWalk
             visit(fe);
         }
 
+        // A glyph is judged as a glyph: its own text inside is the icon's, not a text of the card's.
+        if (node is FontIcon)
+        {
+            return;
+        }
+
         // A control's template is the framework's: walk past it to what the widget placed inside.
         if (node is Control control and not UserControl)
         {
