@@ -1,70 +1,41 @@
 using Themia.Core.Localization;
+using Themia.Sdk.Kit;
 using Themia.Widget.RecycleBin;
 
 namespace Themia.Core.Widgets;
 
 /// <summary>[S-4862] What the Recycle Bin widget shows at one size.</summary>
-/// <param name="Glyph">The bin's icon, in DIPs (0: none).</param>
-/// <param name="Side">The icon and the button stand beside the text (a strip) rather than over and under it.</param>
-/// <param name="Count">The item count under the size.</param>
-/// <param name="Button">The Empty button.</param>
-/// <param name="Large">The size in TitleLarge (a tile with height to spare), else Subtitle.</param>
-public readonly record struct RecycleBinPlan(double Glyph, bool Side, bool Count, bool Button, bool Large = false);
+/// <param name="Step">The size's Readout step.</param>
+/// <param name="Count">The item count as the size's line under.</param>
+/// <param name="Button">Empty, the one main action in the Controls row at the bottom inset.</param>
+public readonly record struct RecycleBinPlan(TypeStep Step, bool Count, bool Button);
 
 /// <summary>
-/// [S-4862] The Recycle Bin ladder. The size is the must-show part; then the item count, the Empty
-/// button, and the bin's icon over them all, as the height allows. A strip puts the icon at the left
-/// and Empty at the right. Below the button's rung Empty stays in the card menu. From
-/// <see cref="LargeFrom"/> of height the size and the icon are drawn larger.
+/// [S-4862] The Recycle Bin on the family's blocks ([S-6702], [S-6716]): the size is a Readout at the
+/// view's top, start-aligned, on the step its widest case ("1023 MB") takes; the count is its line
+/// under; Empty is the one main action in the Controls row at the bottom inset. The Controls row is
+/// kept where it fits under the floor step and its line under, and the size takes the largest step
+/// the rest of the box holds; where Empty does not fit it stays in the card menu, with Open Recycle Bin.
 /// </summary>
 public static class RecycleBinLayout
 {
-    /// <summary>The Empty button (a standard Windows button).</summary>
-    public const double ButtonHeight = 32;
-
-    /// <summary>The Empty button's width beside the text on a strip.</summary>
-    public const double ButtonWidth = 96;
-
-    /// <summary>The icon over the text on a tall tile, and beside it on a strip.</summary>
-    public const double LargeGlyph = 40;
-
-    public const double Gap = 8;
-
-    /// <summary>The icon on a large tile.</summary>
-    public const double HugeGlyph = 72;
-
-    /// <summary>The height from which the size and the icon are drawn larger.</summary>
-    public const double LargeFrom = 300;
-
-    /// <summary>The step the size is set in at a size.</summary>
-    public static TypeStep SizeStepFor(bool large) => large ? FluentType.TitleLarge : FluentType.Subtitle;
+    /// <summary>The size's widest case, with its line under.</summary>
+    public static readonly ReadoutText Worst = new("1023", " MB", LineUnder: true);
 
     public static RecycleBinPlan Plan(WidgetArea area)
     {
         if (!area.IsMeasured)
         {
-            return new RecycleBinPlan(0, false, false, false);
+            return new RecycleBinPlan(FamilyType.Big28, false, false);
         }
 
-        if (area.Shape == AreaShape.Wide && area.WidthClass >= SizeClass.Regular)
-        {
-            var text = SizeStepFor(false).LineHeight + FluentType.Caption.LineHeight;
-            var room = new Disclosure(area.Width - LargeGlyph - ButtonWidth - (2 * Gap), area.Height);
-            room.Reserve(SizeStepFor(false).LineHeight);
-            var count = room.Take(FluentType.Caption.LineHeight);
-            var button = ButtonHeight <= area.Height + Disclosure.Tolerance;
-            var glyph = text <= area.Height + Disclosure.Tolerance ? LargeGlyph : 0;
-            return new RecycleBinPlan(glyph, true, count, button);
-        }
-
-        var large = area.Height >= LargeFrom;
-        var stack = new Disclosure(area, Gap);
-        stack.Reserve(SizeStepFor(large).LineHeight);
-        var shown = stack.Take(FluentType.Caption.LineHeight);
-        var empty = stack.Take(ButtonHeight);
-        var iconSize = large ? HugeGlyph : LargeGlyph;
-        var icon = stack.Take(iconSize) ? iconSize : 0;
-        return new RecycleBinPlan(icon, false, shown, empty, large);
+        var width = Math.Max(0, area.Width - (2 * FamilySpace.Inset));
+        var height = Math.Max(0, area.Height - FamilySpace.Inset);
+        var controls = FamilySpace.S2 + FamilyShape.Button;
+        var button = ReadoutRules.Height(FamilyType.Big28, Worst) + controls <= height + 0.01;
+        var box = button ? height - controls : height;
+        var step = ReadoutRules.Step(area, width, box, Worst);
+        return new RecycleBinPlan(step, ReadoutRules.Height(step, Worst) <= box + 0.01, button);
     }
 
     /// <summary>[S-4861] "12 items" / "Empty", in <paramref name="locale"/>; null before the first answer.</summary>

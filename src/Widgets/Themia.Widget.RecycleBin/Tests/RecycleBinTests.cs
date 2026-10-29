@@ -4,6 +4,7 @@ using Themia.Core.Model;
 using Themia.Core.Storage;
 using Themia.Core.Widgets;
 using Themia.Sdk;
+using Themia.Sdk.Kit;
 using Xunit;
 
 namespace Themia.Widget.RecycleBin.Tests;
@@ -14,8 +15,6 @@ namespace Themia.Widget.RecycleBin.Tests;
 /// </summary>
 public sealed class RecycleBinTests
 {
-    private static WidgetArea Inset(double width, double height) => new WidgetArea(width, height).Deflate(16, 16);
-
     [Fact]
     public void S4860_its_config_round_trips_and_it_never_asks_to_be_set_up()
     {
@@ -43,17 +42,16 @@ public sealed class RecycleBinTests
     }
 
     [Fact]
-    public void S4862_the_size_always_shows_and_the_button_comes_with_room()
+    public void S4862_the_size_climbs_its_steps_the_count_comes_under_it_and_empty_where_the_controls_fit()
     {
-        var xs = RecycleBinLayout.Plan(Inset(120, 76));
-        Assert.False(xs.Button);
+        // The view's area: the card less its header (44 of a card's height).
+        static RecycleBinPlan At(double width, double cardHeight) => RecycleBinLayout.Plan(new WidgetArea(width, cardHeight - 44));
 
-        var medium = RecycleBinLayout.Plan(Inset(200, 200));
-        Assert.True(medium.Count);
-        Assert.True(medium.Button);
-
-        var strip = RecycleBinLayout.Plan(Inset(480, 116));
-        Assert.True(strip.Side);
-        Assert.True(strip.Button);
+        Assert.Equal(new RecycleBinPlan(FamilyType.Big28, Count: true, Button: false), At(120, 120));
+        Assert.Equal(new RecycleBinPlan(FamilyType.Big28, Count: true, Button: false), At(200, 150));
+        Assert.Equal(new RecycleBinPlan(FamilyType.Big40, Count: true, Button: true), At(320, 240));
+        Assert.Equal(new RecycleBinPlan(FamilyType.Big28, Count: true, Button: true), At(480, 160));
+        Assert.Equal(new RecycleBinPlan(FamilyType.Big68, Count: true, Button: true), At(800, 560));
+        Assert.False(RecycleBinLayout.Plan(default).Button);
     }
 }

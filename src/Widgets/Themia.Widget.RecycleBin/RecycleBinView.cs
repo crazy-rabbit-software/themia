@@ -6,29 +6,31 @@ using Themia.App.Shell;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
+using Themia.Sdk.Kit;
 using Themia.Sdk.WinUI;
+using Themia.Sdk.WinUI.Kit;
 using Themia.Widget.RecycleBin;
 
 namespace Themia.App.Widgets;
 
 /// <summary>
-/// [S-4860] How full the Recycle Bin is: its size, its item count and an Empty button that hands the
-/// emptying to Windows, confirmation and all. A click elsewhere on the tile opens the bin. The
-/// answer is the host's one answer (<see cref="IWidgetHost.RecycleBin"/>) the Shortcuts badge reads, on its cadence:
-/// one query for every widget showing the bin.
+/// [S-4860] How full the Recycle Bin is, on the family's blocks: its size as a Readout with the item
+/// count under it, and Empty as the one main action in the Controls row at the bottom inset, which
+/// hands the emptying to Windows, confirmation and all. An empty bin is the Status row. A click
+/// elsewhere on the tile opens the bin. The answer is the host's one answer
+/// (<see cref="IWidgetHost.RecycleBin"/>) the Shortcuts badge reads, on its cadence: one query for
+/// every widget showing the bin.
 /// </summary>
 internal sealed partial class RecycleBinView : Grid, IWidgetView, IWidgetSizeAware, IWidgetSurfaceAware, IWidgetContextActions
 {
-    private readonly FontIcon _icon = Fluent.Icon(Glyphs.RecycleBin, "TextFillColorSecondaryBrush", RecycleBinLayout.LargeGlyph);
-    private readonly TextBlock _size = Fluent.Text(FluentType.Strong(RecycleBinLayout.SizeStepFor(false)));
-    private readonly TextBlock _count = Fluent.Text(FluentType.Caption, "TextFillColorSecondaryBrush");
-    private readonly TextBlock _buttonLabel = new();
+    private readonly ReadoutBlock _size = new() { VerticalAlignment = VerticalAlignment.Top };
+    private readonly ControlsBlock _controls = new();
     private readonly Button _empty;
-    private readonly StackPanel _text = new() { VerticalAlignment = VerticalAlignment.Center };
-    private readonly Grid _content = new() { Margin = WidgetLayout.Inset, VerticalAlignment = VerticalAlignment.Center };
+    private readonly StatusBlock _status = new();
 
     private IWidgetSurface? _surface;
     private IDisposable? _binWatch;
+    private WidgetArea _area;
     private RecycleBinPlan _plan = RecycleBinLayout.Plan(default);
     private bool _detached;
 
@@ -42,28 +44,18 @@ internal sealed partial class RecycleBinView : Grid, IWidgetView, IWidgetSizeAwa
     {
         _widgetHost = host;
         _state = () => host.RecycleBin.Current;
-        _size.TextTrimming = TextTrimming.CharacterEllipsis;
-        _count.TextTrimming = TextTrimming.CharacterEllipsis;
-        Microsoft.UI.Xaml.Documents.Typography.SetNumeralAlignment(_size, FontNumeralAlignment.Tabular);
-        _text.Children.Add(_size);
-        _text.Children.Add(_count);
+        _size.Margin = Family.SideInset;
+        _empty = _controls.Main(RecycleBinStr.RecycleBin_Empty.Text(), () => _ = EmptyAsync());
+        _controls.VerticalAlignment = VerticalAlignment.Bottom;
+        _controls.Margin = new Thickness(FamilySpace.Inset, 0, FamilySpace.Inset, FamilySpace.Inset);
+        _status.Hide();
 
-        _empty = new Button
-        {
-            Content = _buttonLabel,
-            MinHeight = RecycleBinLayout.ButtonHeight,
-            MinWidth = RecycleBinLayout.ButtonWidth,
-            VerticalAlignment = VerticalAlignment.Center,
-        };
-        _empty.Click += OnEmptyClicked;
-
-        _content.Children.Add(_icon);
-        _content.Children.Add(_text);
-        _content.Children.Add(_empty);
-        Children.Add(_content);
+        Children.Add(_size);
+        Children.Add(_controls);
+        Children.Add(_status);
 
         // The whole tile is the way into the bin, as its icon on the desktop is.
-        Background = ThemeBrush.Of("SubtleFillColorTransparentBrush", Microsoft.UI.Colors.Transparent);
+        Background = Family.Brush(ColourRole.Clear);
         Tapped += OnTapped;
     }
 
@@ -82,8 +74,8 @@ internal sealed partial class RecycleBinView : Grid, IWidgetView, IWidgetSizeAwa
 
     public void ApplySize(WidgetArea area)
     {
-        _plan = RecycleBinLayout.Plan(area.Deflate(WidgetLayout.ContentInset, WidgetLayout.ContentInset));
-        Lay();
+        _area = area;
+        _plan = RecycleBinLayout.Plan(area);
         Render();
     }
 
@@ -106,56 +98,12 @@ internal sealed partial class RecycleBinView : Grid, IWidgetView, IWidgetSizeAwa
         _widgetHost.RecycleBin.Changed -= Render;
         _binWatch?.Dispose();
         _binWatch = null;
-        _empty.Click -= OnEmptyClicked;
         Tapped -= OnTapped;
     }
 
     private void OnLanguage(Locale locale) => Render();
 
-    /// <summary>[S-4862] Place the parts: stacked and centred, or icon, text and button across a strip.</summary>
-    private void Lay()
-    {
-        _content.ColumnDefinitions.Clear();
-        _content.RowDefinitions.Clear();
-        _icon.Visibility = _plan.Glyph > 0 ? Visibility.Visible : Visibility.Collapsed;
-        _icon.FontSize = _plan.Glyph > 0 ? _plan.Glyph : RecycleBinLayout.LargeGlyph;
-        _size.Apply(FluentType.Strong(RecycleBinLayout.SizeStepFor(_plan.Large)));
-        _count.Visibility = _plan.Count ? Visibility.Visible : Visibility.Collapsed;
-        _empty.Visibility = _plan.Button ? Visibility.Visible : Visibility.Collapsed;
-
-        if (_plan.Side)
-        {
-            _content.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
-            _content.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
-            _content.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
-            Place(_icon, 0, 0, new Thickness(0, 0, Fluent.Space3, 0), HorizontalAlignment.Left);
-            Place(_text, 0, 1, new Thickness(0), HorizontalAlignment.Stretch);
-            Place(_empty, 0, 2, new Thickness(Fluent.Space2, 0, 0, 0), HorizontalAlignment.Right);
-            _size.HorizontalAlignment = HorizontalAlignment.Left;
-            _count.HorizontalAlignment = HorizontalAlignment.Left;
-            return;
-        }
-
-        for (var i = 0; i < 3; i++)
-        {
-            _content.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
-        }
-
-        Place(_icon, 0, 0, new Thickness(0, 0, 0, RecycleBinLayout.Gap), HorizontalAlignment.Center);
-        Place(_text, 1, 0, new Thickness(0), HorizontalAlignment.Center);
-        Place(_empty, 2, 0, new Thickness(0, RecycleBinLayout.Gap, 0, 0), HorizontalAlignment.Center);
-        _size.HorizontalAlignment = HorizontalAlignment.Center;
-        _count.HorizontalAlignment = HorizontalAlignment.Center;
-    }
-
-    private static void Place(FrameworkElement element, int row, int column, Thickness margin, HorizontalAlignment alignment)
-    {
-        SetRow(element, row);
-        SetColumn(element, column);
-        element.Margin = margin;
-        element.HorizontalAlignment = alignment;
-    }
-
+    /// <summary>[S-4861] [S-4862] The size, its count and Empty as the plan has room; an empty bin, the Status row.</summary>
     private void Render()
     {
         if (_detached)
@@ -165,16 +113,31 @@ internal sealed partial class RecycleBinView : Grid, IWidgetView, IWidgetSizeAwa
 
         var locale = Strings.Current;
         var state = _state();
-        _size.Text = RecycleBinLayout.SizeText(locale, state);
-        _count.Text = RecycleBinLayout.CountText(locale, state) ?? string.Empty;
-        _buttonLabel.Text = RecycleBinStr.RecycleBin_Empty.Text();
+        ToolTipService.SetToolTip(this, RecycleBinState.Tooltip(locale, RecycleBinStr.WidgetsC_Location_RecycleBin.Text(), state));
+
+        if (state is { IsEmpty: true })
+        {
+            _status.Show(StatusKind.Empty, Glyphs.RecycleBin, RecycleBinLayout.CountText(locale, state) ?? string.Empty);
+            _size.Visibility = Visibility.Collapsed;
+            _controls.Visibility = Visibility.Collapsed;
+            return;
+        }
+
+        _status.Hide();
+        if (_empty.Content is TextBlock label)
+        {
+            label.Text = RecycleBinStr.RecycleBin_Empty.Text();
+        }
+
+        _size.Visibility = Visibility.Visible;
+        _size.Use(_plan.Step);
+        var size = ReadoutRules.Split(RecycleBinLayout.SizeText(locale, state));
+        _size.Show(size.Value, size.Unit, _plan.Count ? RecycleBinLayout.CountText(locale, state) : null);
 
         // Empty is offered only when there is something to empty, and not twice at once (process-wide).
+        _controls.Visibility = _plan.Button && state is not null ? Visibility.Visible : Visibility.Collapsed;
         _empty.IsEnabled = RecycleBinState.CanEmpty(state, _widgetHost.RecycleBin.Emptying);
-        ToolTipService.SetToolTip(this, RecycleBinState.Tooltip(locale, RecycleBinStr.WidgetsC_Location_RecycleBin.Text(), state));
     }
-
-    private void OnEmptyClicked(object sender, RoutedEventArgs args) => _ = EmptyAsync();
 
     /// <summary>[S-4863] Windows asks; the widget never empties on its own say. The shared status guards and redraws.</summary>
     private Task EmptyAsync()
@@ -182,7 +145,7 @@ internal sealed partial class RecycleBinView : Grid, IWidgetView, IWidgetSizeAwa
 
     private void OnTapped(object sender, TappedRoutedEventArgs args)
     {
-        if (_surface?.EditMode == true || args.OriginalSource is DependencyObject source && Within(source, _empty))
+        if (_surface?.EditMode == true || args.OriginalSource is DependencyObject source && Within(source, _controls))
         {
             return;
         }

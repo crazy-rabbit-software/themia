@@ -15,10 +15,15 @@ context), `RecycleBinConfig.cs`, `RecycleBinRules.cs` (the texts, the ladder), `
   `SHQueryRecycleBinW` over every drive on the thread pool, single-flight, asked when the shell says
   the bin changed while a widget shows it. The size line is the bytes ("–" before the first answer);
   the count "37 items", "No items" when empty.
-- **[S-4862]** The ladder (`RecycleBinLayout.Plan`): the size always; then the count, the Empty
-  button, the bin's icon over them; from 300 DIPs of height the size in TitleLarge and a 72-DIP
-  icon. A wide strip puts the icon at the left and Empty at the right.
-  Where the button does not fit, Empty stays in the card menu, with Open Recycle Bin.
+- **[S-4862]** On the family's blocks (group G6, 2026-10-29; `RecycleBinLayout.Plan`): the header
+  (the bin's glyph and name); the size as a Readout at the view's top, start-aligned ([S-6702]: on its
+  widest case "1023 MB", 28 at XS, S and Wide, 40 at M and Tall, 68 at L and XL), the count as its line
+  under; Empty as the one main action in the Controls row at the bottom inset ([S-6716]), kept where it
+  fits under the floor step and its line under (not at XS and S), the size taking the largest step the
+  rest holds. Where Empty does not fit it stays in the card menu, with Open Recycle Bin. An empty bin is
+  the Status row at the top ("No items" under the bin's glyph, [S-6714]); before the first answer the
+  size is "–" with no Empty. The bin's 40 and 72 icon, the centred stack, the wide strip and the
+  Subtitle and TitleLarge sizes are gone.
 
 Needs a live pass: Empty with Windows' dialog (Yes and No), deleting a file from Explorer (the count
 following within 15 s).
