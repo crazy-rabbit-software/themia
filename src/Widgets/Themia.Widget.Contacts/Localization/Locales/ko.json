@@ -17,5 +17,6 @@
   "widgetsA.contacts.readFailed": "연락처를 읽을 수 없습니다. themia.log를 참조하세요.",
   "widgetsA.contacts.settings.count.label": "사람",
   "widgetsA.contacts.settings.every": "모든 연락처 계정",
-  "widgetsA.contacts.settings.layout.label": "레이아웃"
+  "widgetsA.contacts.settings.layout.label": "레이아웃",
+  "contacts.setup.sentence": "연락처를 보려면 계정을 추가하세요"
 }

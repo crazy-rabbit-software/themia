@@ -6,6 +6,7 @@ using Themia.Core.Office;
 using Themia.Core.Sync;
 using Themia.Core.Widgets;
 using Themia.Sdk;
+using Themia.Widget.Contacts;
 
 namespace Themia.Core.Model;
 
@@ -22,6 +23,9 @@ public enum ContactsSetting
 /// </summary>
 public sealed class ContactsConfig : WidgetConfig, IShownSettings<ContactsSetting>, ISetupRule, IInterests
 {
+    /// <summary>[S-1862] What its Set up row says it waits for.</summary>
+    string? ISetupRule.SetupSentence => ContactsStr.Contacts_Setup_Sentence.Text();
+
     /// <summary>[S-2608] What the background sync keeps fresh for it.</summary>
     public void AddInterests(InterestsBuilder interests) => interests.Of<ContactsInterest>().Add(new ContactsInterest([.. AccountIds]));
 

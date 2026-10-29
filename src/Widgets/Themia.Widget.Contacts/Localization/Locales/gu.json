@@ -17,5 +17,6 @@
   "widgetsA.contacts.readFailed": "સંપર્કો વાંચી શકાયા નહીં. themia.log જુઓ.",
   "widgetsA.contacts.settings.count.label": "લોકો",
   "widgetsA.contacts.settings.every": "દરેક સંપર્ક એકાઉન્ટ",
-  "widgetsA.contacts.settings.layout.label": "લેઆઉટ"
+  "widgetsA.contacts.settings.layout.label": "લેઆઉટ",
+  "contacts.setup.sentence": "તમારા સંપર્કો બતાવવા માટે એકાઉન્ટ ઉમેરો"
 }

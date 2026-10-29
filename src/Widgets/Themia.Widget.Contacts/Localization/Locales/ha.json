@@ -17,5 +17,6 @@
   "widgetsA.contacts.readFailed": "Ba a iya karanta lambobin sadarwa ba. Duba themia.log.",
   "widgetsA.contacts.settings.count.label": "Mutane",
   "widgetsA.contacts.settings.every": "Kowane asusun lambobin sadarwa",
-  "widgetsA.contacts.settings.layout.label": "Tsari"
+  "widgetsA.contacts.settings.layout.label": "Tsari",
+  "contacts.setup.sentence": "Ƙara asusu don nuna lambobin sadarwarka"
 }

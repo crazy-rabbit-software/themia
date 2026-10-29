@@ -17,5 +17,6 @@
   "widgetsA.contacts.readFailed": "Hindi mabasa ang mga contact. Tingnan ang themia.log.",
   "widgetsA.contacts.settings.count.label": "Mga tao",
   "widgetsA.contacts.settings.every": "Bawat account ng contact",
-  "widgetsA.contacts.settings.layout.label": "Layout"
+  "widgetsA.contacts.settings.layout.label": "Layout",
+  "contacts.setup.sentence": "Magdagdag ng account para ipakita ang iyong mga contact"
 }

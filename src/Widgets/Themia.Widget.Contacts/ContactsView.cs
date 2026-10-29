@@ -1,9 +1,6 @@
-using System.Globalization;
-using Microsoft.UI;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Input;
-using Microsoft.UI.Xaml.Media;
 using Themia.App.Services;
 using Themia.App.Services.Office;
 using Themia.App.Shell;
@@ -13,45 +10,37 @@ using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Office;
 using Themia.Core.Widgets;
-using Themia.Sdk.WinUI;
 using Themia.Sdk;
-using Windows.ApplicationModel.DataTransfer;
+using Themia.Sdk.Kit;
+using Themia.Sdk.WinUI;
 using Themia.Sdk.WinUI.Kit;
 using Themia.Widget.Contacts;
+using Windows.ApplicationModel.DataTransfer;
 
 namespace Themia.App.Widgets;
 
 /// <summary>
 /// [S-580] People from the user's Microsoft, Google and CardDAV address books, through Themia's own
-/// accounts, merged into one list: as a list, compact rows, a details table or avatar cards
+/// accounts, merged into one list: as a list, compact rows, a details table or a grid of cells
 /// ([S-581]), with a search box ([S-584]) and per-person actions on right-click ([S-587]).
 /// <para>
 /// The view asks the shared <see cref="IOfficeSource"/> ([S-588]) and keeps the merged list it was
 /// given; searching, capping and switching layouts redraw from that list without asking again.
 /// </para>
 /// <para>
-/// It discloses by size ([S-1270]): names alone on an XS tile, then avatars and roles, a way to
-/// reach each person, both address and number on a tall tile, rows flowed into columns on a wide
-/// one. No detail pane beside the list at any size ([S-1274] retired).
+/// It is drawn from the family's parts ([S-6711]..[S-6714]): the kit's header extras (the problem
+/// glyph, the ring, the search button, the neutral count), Row blocks of one, two or three lines by
+/// the tier leading with a 32 monogram (<see cref="ContactsPlan"/>, [S-1270]), the table's cells in
+/// a Row block, <c>Row.Cell</c>s for the grid, and the kit's state row. No detail pane beside the
+/// list at any size ([S-1274] retired).
 /// </para>
 /// </summary>
 internal sealed partial class ContactsView : Grid, IWidgetView, IWidgetHeaderContent, IWidgetSurfaceAware, IWidgetContextActions, IWidgetSizeAware, IWidgetKeys
 {
     private const string Scope = "contacts-widget";
 
+    /// <summary>Contacts change rarely; the sync service keeps them fresher than this anyway.</summary>
     private static readonly TimeSpan Poll = TimeSpan.FromMinutes(15);
-
-    /// <summary>The search box and its margin, which the list gives up while it shows.</summary>
-    private const double SearchHeight = 40;
-
-    /// <summary>A grid card: 6 + 40 avatar + 2 + name 16 + 2 + detail 16 + 6.</summary>
-    private const double CardHeight = 88;
-
-    /// <summary>A large card ([S-1273]): 12 + 56 avatar + 4 + 2 + name 20 + 2 + two lines of 16 + 2 + 12.</summary>
-    private const double LargeCardHeight = 142;
-
-    /// <summary>Below this width the count gives its room to the title.</summary>
-    private const double NarrowBelow = 160;
 
     private static readonly string PhoneGlyph = char.ConvertFromUtf32(0xE717);
     private static readonly string MessageGlyph = char.ConvertFromUtf32(0xE8BD);
@@ -60,15 +49,10 @@ internal sealed partial class ContactsView : Grid, IWidgetView, IWidgetHeaderCon
     private readonly Grid _columnHeader = new();
     private readonly ScrollViewer _scroll;
     private readonly KitStatePanel _state;
-    private readonly ProgressRing _busy = new();
-    private readonly FontIcon _warning;
-    private readonly Button _searchButton;
-    private readonly TextBlock _badge = new();
-    private readonly Border _badgeHost;
-    private readonly StackPanel _trailing;
+    private readonly KitHeader _header;
+    private ScrollFade? _fade;
     private readonly List<IDisposable> _hovers = [];
-    private readonly Dictionary<string, Border> _indicators = new(StringComparer.Ordinal);
-    private readonly Dictionary<string, Border> _rows = new(StringComparer.Ordinal);
+    private readonly Dictionary<string, FrameworkElement> _rows = new(StringComparer.Ordinal);
 
     private IWidgetSurface? _surface;
     private IOfficeSource? _source;
@@ -81,89 +65,55 @@ internal sealed partial class ContactsView : Grid, IWidgetView, IWidgetHeaderCon
     private IReadOnlyList<Contact> _contacts = [];
     private IReadOnlyList<Contact> _visible = [];
 
-    /// <summary>[S-1983] The names typed so far ([S-1980]).</summary>
+    /// <summary>[S-1983] Type-ahead over the names on screen.</summary>
     private readonly TypeAhead _typeAhead = new();
     private Screen _screen = Screen.Loading;
-    /// <summary>The problem in words, worded when shown so a language switch reaches it ([S-1109]).</summary>
     private Func<string> _problemText = () => string.Empty;
     private bool _problemOffersAccounts;
     private Func<string>? _warningText;
     private bool _warningOpensAccounts;
     private string _requestKey = string.Empty;
     private bool _refreshing;
+    private bool _busy;
     private bool _again;
     private bool _againForced;
     private bool _detached;
 
-    /// <summary>[S-6913] What the view asks of the host: the launcher, ⚙ › Accounts.</summary>
+    /// <summary>A Debug render's fixture holds the list: no refresh replaces it.</summary>
+    private bool _frozen;
+
+    /// <summary>[S-6913] What the view asks of the host: the shared Office source, the launcher, ⚙ › Accounts.</summary>
     private readonly IWidgetHost _widgetHost;
 
     public ContactsView(IWidgetHost host)
     {
         _widgetHost = host;
-        _state = new(Glyphs.Contact, host);
+        _state = new(Glyphs.Contact, host) { Visibility = Visibility.Collapsed };
+        _header = new KitHeader(host);
         RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
         RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
         RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
-        ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
-        ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
 
-        _busy.Width = Fluent.IconSize;
-        _busy.Height = Fluent.IconSize;
-        _busy.IsActive = false;
-        _busy.Visibility = Visibility.Collapsed;
-
-        _warning = Fluent.Icon(Glyphs.Warning, "SystemFillColorCautionBrush");
-        _warning.Visibility = Visibility.Collapsed;
-        _warning.Tapped += OnWarningTapped;
-
-        // [S-1275] Where the box would cost too much of a mid-size tile, the header offers it instead.
-        // A header-sized button, like the calendar's paging ones, so the header keeps its height.
-        _searchButton = new Button
-        {
-            Content = new FontIcon { Glyph = Glyphs.Search, FontSize = FluentType.Caption.FontSize },
-            Padding = new Thickness(Fluent.Space1 + 2, Fluent.Space1, Fluent.Space1 + 2, Fluent.Space1),
-            MinWidth = 0,
-            MinHeight = 0,
-            Background = ThemeBrush.Of("SubtleFillColorTransparentBrush", Colors.Transparent),
-            BorderThickness = new Thickness(0),
-            CornerRadius = new CornerRadius(Fluent.ControlRadius),
-            VerticalAlignment = VerticalAlignment.Center,
-            Visibility = Visibility.Collapsed,
-        };
-        ToolTipService.SetToolTip(_searchButton, ContactsStr.Contacts_SearchPlaceholder.Text());
-        _searchButton.Click += OnSearchButton;
-
-        _badgeHost = Themia.Sdk.WinUI.Kit.HeaderBlock.Count(_badge);
-        _badgeHost.Visibility = Visibility.Collapsed;
-
-        _trailing = new StackPanel
-        {
-            Orientation = Orientation.Horizontal,
-            Spacing = Fluent.Space2,
-            VerticalAlignment = VerticalAlignment.Center,
-            Children = { _warning, _busy, _searchButton, _badgeHost },
-        };
-
-        // [S-584] The stock Windows search box, so it has the system's caret, clear button and menu.
+        // [S-584] The stock Windows search box, so it has the system's caret, clear button and menu:
+        // one control of 32, the card's inset either side, 8 over the list.
         _search.PlaceholderText = ContactsStr.Contacts_SearchPlaceholder.Text();
         _search.IsSpellCheckEnabled = false;
         _search.IsTextPredictionEnabled = false;
-        _search.CornerRadius = new CornerRadius(Fluent.ControlRadius);
-        _search.Margin = new Thickness(Fluent.Space3, 0, Fluent.Space3, Fluent.Space2);
+        _search.Height = FamilyShape.Button;
+        _search.Padding = new Thickness(FamilySpace.S3, FamilySpace.S1, FamilySpace.S2, FamilySpace.S1);
+        _search.Visibility = Visibility.Collapsed;
+        _search.Margin = new Thickness(FamilySpace.Inset, 0, FamilySpace.Inset, FamilySpace.S2);
         _search.TextChanged += OnSearchChanged;
         _search.GotFocus += OnSearchFocus;
         _search.LostFocus += OnSearchBlur;
         _search.KeyDown += OnSearchKeyDown;
         SetRow(_search, 0);
 
-        _columnHeader.Padding = new Thickness(Fluent.Space4, 0, Fluent.Space4, Fluent.Space1);
         _columnHeader.Visibility = Visibility.Collapsed;
         SetRow(_columnHeader, 1);
 
         _scroll = new ScrollViewer
         {
-            Padding = Fluent.ListPadding,
             HorizontalScrollMode = ScrollMode.Disabled,
             HorizontalScrollBarVisibility = ScrollBarVisibility.Disabled,
             VerticalScrollBarVisibility = ScrollBarVisibility.Hidden,
@@ -173,7 +123,6 @@ internal sealed partial class ContactsView : Grid, IWidgetView, IWidgetHeaderCon
 
         SetRow(_state, 0);
         SetRowSpan(_state, 3);
-        SetColumnSpan(_state, 2);
 
         Children.Add(_search);
         Children.Add(_columnHeader);
@@ -186,6 +135,7 @@ internal sealed partial class ContactsView : Grid, IWidgetView, IWidgetHeaderCon
         Tapped += OnBackgroundTapped;
     }
 
+    /// <summary>Which of the widget's states is on screen.</summary>
     private enum Screen
     {
         Loading,
@@ -195,8 +145,8 @@ internal sealed partial class ContactsView : Grid, IWidgetView, IWidgetHeaderCon
         Ready,
     }
 
-    /// <inheritdoc />
-    public FrameworkElement? HeaderTrailing => _trailing;
+    /// <summary>[S-7064] The kit's header extras: the problem glyph, the ring, the search button, the count.</summary>
+    public FrameworkElement? HeaderTrailing => _header;
 
     public void Bind(IWidgetSurface surface) => _surface = surface;
 
@@ -212,13 +162,13 @@ internal sealed partial class ContactsView : Grid, IWidgetView, IWidgetHeaderCon
         }
 
         Strings.Changed += OnLanguage;
+
+        // The ticker runs once as it subscribes.
         _poll = ticker.Subscribe(Poll, () => _ = RefreshAsync(force: false));
     }
 
-    /// <summary>[S-1109] Headings, states and the search box follow the language; nothing is refetched.</summary>
     private void OnLanguage(Locale locale)
     {
-        ToolTipService.SetToolTip(_searchButton, ContactsStr.Contacts_SearchPlaceholder.Text());
         _search.PlaceholderText = ContactsStr.Contacts_SearchPlaceholder.Text();
         Render();
     }
@@ -235,14 +185,12 @@ internal sealed partial class ContactsView : Grid, IWidgetView, IWidgetHeaderCon
         Render();
     }
 
-    /// <inheritdoc />
     public void ApplySize(WidgetArea area)
     {
         _area = area;
         Render();
     }
 
-    /// <summary>[S-581] Refresh. [S-1746] The layout is how the widget looks: it is chosen in its settings only.</summary>
     public IReadOnlyList<WidgetAction> ContextActions => [new(Glyphs.Refresh, Str.Common_Refresh.Text(), () => _ = RefreshAsync(force: true))];
 
     public void Detach()
@@ -268,10 +216,9 @@ internal sealed partial class ContactsView : Grid, IWidgetView, IWidgetHeaderCon
         _search.GotFocus -= OnSearchFocus;
         _search.LostFocus -= OnSearchBlur;
         _search.KeyDown -= OnSearchKeyDown;
-        _searchButton.Click -= OnSearchButton;
-        _warning.Tapped -= OnWarningTapped;
         Tapped -= OnBackgroundTapped;
         _state.Detach();
+        _header.Detach();
         ClearRows();
     }
 
@@ -285,7 +232,7 @@ internal sealed partial class ContactsView : Grid, IWidgetView, IWidgetHeaderCon
 
     private async Task RefreshAsync(bool force)
     {
-        if (_detached)
+        if (_detached || _frozen)
         {
             return;
         }
@@ -385,8 +332,8 @@ internal sealed partial class ContactsView : Grid, IWidgetView, IWidgetHeaderCon
 
     private void SetBusy(bool busy)
     {
-        _busy.IsActive = busy;
-        _busy.Visibility = busy ? Visibility.Visible : Visibility.Collapsed;
+        _busy = busy;
+        ShowHeader();
     }
 
     // -----------------------------------------------------------------------------------------
@@ -430,7 +377,7 @@ internal sealed partial class ContactsView : Grid, IWidgetView, IWidgetHeaderCon
     }
 
     /// <summary>[S-1275] The header's search button opens the box and puts the caret in it.</summary>
-    private void OnSearchButton(object sender, RoutedEventArgs args)
+    private void OpenSearch()
     {
         _searchOpen = true;
         Render();
@@ -442,15 +389,6 @@ internal sealed partial class ContactsView : Grid, IWidgetView, IWidgetHeaderCon
         if (!args.Handled && _selectedId is not null)
         {
             Select(null);
-        }
-    }
-
-    private void OnWarningTapped(object sender, TappedRoutedEventArgs args)
-    {
-        if (_warningOpensAccounts)
-        {
-            args.Handled = true;
-            _state.OpenAccounts();
         }
     }
 
@@ -528,6 +466,31 @@ internal sealed partial class ContactsView : Grid, IWidgetView, IWidgetHeaderCon
     // Drawing
     // -----------------------------------------------------------------------------------------
 
+    /// <summary>[S-1281] The rows' panel goes into the scroll, its rows fading at the foot while there is more below.</summary>
+    private void Use(Panel rows)
+    {
+        _scroll.Content = rows;
+        _fade = new ScrollFade(_scroll, rows);
+        _fade.Refresh();
+    }
+
+    /// <summary>[S-7064] The header extras: the problem glyph while a list is up with an account that failed, the ring, the search button, the count.</summary>
+    private void ShowHeader()
+    {
+        var ready = _screen == Screen.Ready;
+        var problems = ready && _warningText is not null ? _warningText().Split(Environment.NewLine) : [];
+        var search = ready && ContactRules.Search(_area.Height) == ContactSearch.OnDemand && !SearchShown(ready);
+        IReadOnlyList<KitHeaderButton> buttons = search ? [new KitHeaderButton(Glyphs.Search, ContactsStr.Contacts_SearchPlaceholder.Text(), OpenSearch)] : [];
+        _header.Show(problems, _busy, _warningOpensAccounts, ready && _visible.Count > 0 ? _visible.Count : null, buttons);
+    }
+
+    /// <summary>[S-1275] The box is there when it costs little, on request on a mid-size tile, never on a small one.</summary>
+    private bool SearchShown(bool ready)
+    {
+        var search = ContactRules.Search(_area.Height);
+        return ready && (search == ContactSearch.Shown || (search == ContactSearch.OnDemand && (_searchOpen || _query.Length > 0)));
+    }
+
     private void Render()
     {
         if (_detached)
@@ -537,18 +500,16 @@ internal sealed partial class ContactsView : Grid, IWidgetView, IWidgetHeaderCon
 
         ClearRows();
 
-        var width = _area.Width;
-        var height = _area.Height;
         var ready = _screen == Screen.Ready;
-        _warning.Visibility = ready && _warningText is not null ? Visibility.Visible : Visibility.Collapsed;
-        ToolTipService.SetToolTip(_warning, _warningText?.Invoke());
-        _badgeHost.Visibility = Visibility.Collapsed;
-
-        // [S-1275] The box is there when it costs little, on request on a mid-size tile, never on a small one.
-        var search = ContactRules.Search(height);
-        var showSearch = ready && (search == ContactSearch.Shown || (search == ContactSearch.OnDemand && (_searchOpen || _query.Length > 0)));
+        var showSearch = SearchShown(ready);
         _search.Visibility = showSearch ? Visibility.Visible : Visibility.Collapsed;
-        _searchButton.Visibility = ready && search == ContactSearch.OnDemand && !showSearch ? Visibility.Visible : Visibility.Collapsed;
+        SetRow(_state, 0);
+        SetRowSpan(_state, 3);
+
+        // A search typed into a box that has since been hidden still filters; the box shows the
+        // query again as soon as there is room for it.
+        _visible = ready ? ContactRules.Visible(_contacts, _query, _config.EffectiveCount) : [];
+        ShowHeader();
 
         switch (_screen)
         {
@@ -557,65 +518,53 @@ internal sealed partial class ContactsView : Grid, IWidgetView, IWidgetHeaderCon
                 return;
 
             case Screen.NoAccounts:
-                // [S-1862] The card shows its Set up button over this.
+                // [S-1862] The card shows its Set up row over this.
                 _state.Hide();
                 return;
 
             case Screen.AccountsGone:
-                _state.Show(SyncProblems.Message(SyncProblem.NoAccount, SyncSubject.Contacts, Strings.Current), offerAccounts: true);
+                _state.Show(SyncProblems.Message(SyncProblem.NoAccount, SyncSubject.Contacts, Strings.Current), offerAccounts: true, problem: true);
                 return;
 
             case Screen.Problem:
-                _state.Show(_problemText(), _problemOffersAccounts);
+                _state.Show(_problemText(), _problemOffersAccounts, problem: true);
                 return;
         }
 
-        // A search typed into a box that has since been hidden still filters; the box shows the
-        // query again as soon as there is room for it.
-        var visible = ContactRules.Visible(_contacts, _query, _config.EffectiveCount);
-        _visible = visible;
-
-        if (visible.Count == 0)
+        if (_visible.Count == 0)
         {
-            _state.Show((_contacts.Count == 0 ? ContactsStr.WidgetsA_Contacts_None : ContactsStr.Contacts_NoContacts).Text(), offerAccounts: false);
-
-            // The box stays, so a search that matched nothing can be changed.
+            // The box stays, so a search that matched nothing can be changed; the row stands under it.
             if (showSearch)
             {
-                _state.Margin = new Thickness(0, SearchHeight, 0, 0);
+                SetRow(_state, 2);
+                SetRowSpan(_state, 1);
             }
 
+            _state.Show((_contacts.Count == 0 ? ContactsStr.WidgetsA_Contacts_None : ContactsStr.Contacts_NoContacts).Text(), offerAccounts: false);
             return;
         }
 
-        _state.Margin = new Thickness(0);
         _state.Hide();
 
-        _badge.Text = visible.Count.ToString(CultureInfo.InvariantCulture);
-        // The count gives way to the title on a tile too narrow for both.
-        _badgeHost.Visibility = width is > 0 and < NarrowBelow ? Visibility.Collapsed : Visibility.Visible;
-
-        var layout = ContactRules.Effective(_config.EffectiveLayout, width, _config.EffectiveColumns.Count);
-
-        // The list has the whole width at every size: no detail pane beside it ([S-1274] retired);
-        // a person's actions are the row menu's.
-        var listWidth = width;
-
-        var listHeight = height - (showSearch ? SearchHeight : 0) - Fluent.ListPadding.Bottom;
-
-        switch (layout)
+        var plan = ContactsPlan.Of(_area, _config.EffectiveLayout, _config.EffectiveColumns.Count, showSearch);
+        switch (plan.Layout)
         {
             case ContactsLayout.Details:
-                DrawDetails(visible, listWidth, listHeight);
+                DrawDetails(_visible, plan);
                 break;
 
             case ContactsLayout.Grid:
-                DrawCards(visible, width, listHeight);
+                DrawCells(_visible, plan);
                 break;
 
             default:
-                DrawList(visible, layout == ContactsLayout.Compact, listWidth, listHeight);
+                DrawRows(_visible, plan);
                 break;
+        }
+
+        if (_selectedId is { } id)
+        {
+            Mark(id, true);
         }
     }
 
@@ -627,36 +576,29 @@ internal sealed partial class ContactsView : Grid, IWidgetView, IWidgetHeaderCon
         }
 
         _hovers.Clear();
-        _indicators.Clear();
         _rows.Clear();
+        _fade?.Dispose();
+        _fade = null;
         _scroll.Content = null;
-        _scroll.MaxHeight = double.PositiveInfinity;
+        _scroll.Height = double.NaN;
         _columnHeader.Children.Clear();
         _columnHeader.ColumnDefinitions.Clear();
         _columnHeader.Visibility = Visibility.Collapsed;
     }
 
-    /// <summary>
-    /// [S-581] List: avatar, name, then what the tile has room for ([S-1270]): the role, a way to
-    /// reach them, or both the address and the number, each with its glyph. Compact ([S-1271]): one
-    /// line — a small avatar, the name, and one field right-aligned when the column is wide enough.
-    /// Rows flow into columns of 240 px, and the list shows whole rows only.
-    /// </summary>
-    private void DrawList(IReadOnlyList<Contact> contacts, bool compactLayout, double width, double height)
+    /// <summary>[S-6712] The list is as tall as its whole rows; the rest is a scroll away.</summary>
+    private void WholeRows(int lines, ContactsLayoutPlan plan)
     {
-        var columns = ContactRules.ListColumns(width);
-        var columnWidth = width > 0 ? width / columns : 0;
-        var detail = compactLayout ? ContactDetail.Name : ContactRules.ListDetail(new WidgetArea(_area.Width, height));
-        var avatar = ContactRules.ShowsAvatar(columnWidth) && (compactLayout || detail != ContactDetail.Name);
-        var aside = compactLayout && ContactRules.CompactAside(columnWidth);
+        var shown = Math.Max(1, Math.Min(lines, plan.Rows));
+        _scroll.Height = lines > shown ? shown * plan.Pitch : double.NaN;
+    }
 
-        // Every row of a render is one height: the most lines anyone on screen has, at this level.
-        var lines = contacts.Count == 0 ? 0 : contacts.Max(c => ContactRules.Lines(c, detail).Count);
-        var rowHeight = compactLayout || lines == 0 ? Fluent.RowHeightCompact : ContactRules.RowHeight(lines);
-        var avatarSize = compactLayout ? 24 : 32;
-
+    /// <summary>[S-1270] [S-1271] The list and the compact rows: Row blocks in columns, read left to right.</summary>
+    private void DrawRows(IReadOnlyList<Contact> contacts, ContactsLayoutPlan plan)
+    {
+        var compact = plan.Layout == ContactsLayout.Compact;
         var grid = new Grid();
-        for (var c = 0; c < columns; c++)
+        for (var c = 0; c < plan.Columns; c++)
         {
             grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
         }
@@ -664,121 +606,58 @@ internal sealed partial class ContactsView : Grid, IWidgetView, IWidgetHeaderCon
         for (var i = 0; i < contacts.Count; i++)
         {
             var contact = contacts[i];
-            if (i % columns == 0)
+            if (i % plan.Columns == 0)
             {
                 grid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
             }
 
-            var row = compactLayout
-                ? CompactRow(contact, avatar ? avatarSize : 0, aside)
-                : ListRow(contact, detail, avatar ? avatarSize : 0);
-            row.MinHeight = rowHeight;
-            row.Height = rowHeight;
-            row.Padding = new Thickness(Fluent.Space4 - Fluent.Space2, 0, columns > 1 ? Fluent.Space2 : Fluent.Space4, 0);
-            Wire(row, contact);
-            SetRow(row, i / columns);
-            SetColumn(row, i % columns);
+            var block = new RowBlock(RowKind.List, plan.Avatar ? FamilyShape.IconLarge : 0) { Lines = plan.Lines };
+            if (compact)
+            {
+                block.Show(contact.Name, plan.Aside ? ContactRules.CompactDetail(contact) : null);
+            }
+            else
+            {
+                var (second, third) = ContactsPlan.Lines(contact, plan.Lines);
+                block.Show(contact.Name, null, second, third);
+            }
+
+            if (plan.Avatar)
+            {
+                block.Lead(Monogram(contact, FamilyShape.IconLarge));
+            }
+
+            var row = Item(block, contact);
+            SetRow(row, i / plan.Columns);
+            SetColumn(row, i % plan.Columns);
             grid.Children.Add(row);
         }
 
-        WholeRows((contacts.Count + columns - 1) / columns, rowHeight, height);
-        _scroll.Content = grid;
-    }
-
-    private Border ListRow(Contact contact, ContactDetail detail, double avatarSize)
-    {
-        var text = new StackPanel { Spacing = 0, VerticalAlignment = VerticalAlignment.Center };
-        var name = Fluent.Text(FluentType.BodyStrong);
-        name.Text = contact.Name;
-        text.Children.Add(name);
-
-        foreach (var (kind, value) in ContactRules.Lines(contact, detail))
-        {
-            var line = Fluent.Text(FluentType.Caption, "TextFillColorTertiaryBrush");
-            line.Text = value;
-
-            if (kind == ContactLine.Role || detail == ContactDetail.Role)
-            {
-                text.Children.Add(line);
-                continue;
-            }
-
-            // [S-1270] The address and the number each carry their glyph, as the classic rows did.
-            var glyph = Fluent.Icon(kind == ContactLine.Email ? Glyphs.Mail : PhoneGlyph, "TextFillColorTertiaryBrush", FluentType.Caption.FontSize);
-            glyph.Margin = new Thickness(0, 0, Fluent.Space1 + 2, 0);
-            glyph.VerticalAlignment = VerticalAlignment.Center;
-            var withGlyph = new Grid
-            {
-                ColumnDefinitions =
-                {
-                    new ColumnDefinition { Width = GridLength.Auto },
-                    new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) },
-                },
-            };
-            SetColumn(line, 1);
-            withGlyph.Children.Add(glyph);
-            withGlyph.Children.Add(line);
-            text.Children.Add(withGlyph);
-        }
-
-        var row = Fluent.Row(RowBody(contact, avatarSize > 0 ? Avatar(contact, avatarSize) : null, text));
-        return row;
-    }
-
-    /// <summary>[S-1271] One line: avatar, name, and the one field (email, else company, else phone) on the right.</summary>
-    private Border CompactRow(Contact contact, double avatarSize, bool aside)
-    {
-        // The name keeps the larger share; the field trims first.
-        var line = new Grid
-        {
-            ColumnDefinitions =
-            {
-                new ColumnDefinition { Width = new GridLength(1.25, GridUnitType.Star) },
-                new ColumnDefinition { Width = aside ? new GridLength(1, GridUnitType.Star) : new GridLength(0) },
-            },
-            VerticalAlignment = VerticalAlignment.Center,
-        };
-
-        var name = Fluent.Text(FluentType.Body);
-        name.Text = contact.Name;
-        line.Children.Add(name);
-
-        if (aside && ContactRules.CompactDetail(contact) is { Length: > 0 } field)
-        {
-            var right = Fluent.Text(FluentType.Caption, "TextFillColorTertiaryBrush");
-            right.Text = field;
-            right.HorizontalAlignment = HorizontalAlignment.Right;
-            right.VerticalAlignment = VerticalAlignment.Center;
-            right.Margin = new Thickness(Fluent.Space2, 0, 0, 0);
-            SetColumn(right, 1);
-            line.Children.Add(right);
-        }
-
-        return Fluent.Row(RowBody(contact, avatarSize > 0 ? Avatar(contact, avatarSize) : null, line), compact: true);
+        WholeRows((contacts.Count + plan.Columns - 1) / plan.Columns, plan);
+        Use(grid);
     }
 
     /// <summary>
-    /// [S-582] Details: a table of the chosen columns, in canonical order, under a header row; the
-    /// name carries a small avatar when the table is wide enough to spare it ([S-1272]).
+    /// [S-582] The details table: one row of 32 per person, the chosen columns in the name's place 12
+    /// apart (the name primary, the rest secondary), their titles in Caption over them.
     /// </summary>
-    private void DrawDetails(IReadOnlyList<Contact> contacts, double width, double height)
+    private void DrawDetails(IReadOnlyList<Contact> contacts, ContactsLayoutPlan plan)
     {
         var columns = _config.EffectiveColumns;
-        var avatars = width >= 360 && columns.Count > 0 && columns[0] == ContactColumn.Name;
 
         _columnHeader.Visibility = Visibility.Visible;
+        _columnHeader.Height = ContactsPlan.HeaderHeight;
+        _columnHeader.Padding = Family.SideInset;
         AddColumns(_columnHeader, columns);
         for (var c = 0; c < columns.Count; c++)
         {
-            var title = Fluent.Text(FluentType.Caption, "TextFillColorTertiaryBrush");
-            title.Text = ContactRules.ColumnTitle(columns[c], Strings.Current);
-            title.Margin = new Thickness(c == 0 && avatars ? 20 + Fluent.Space2 : 0, 0, Fluent.Space2, 0);
+            var title = Family.Text(FamilyType.Caption, ColourRole.TextSecondary, ContactRules.ColumnTitle(columns[c], Strings.Current));
+            title.VerticalAlignment = VerticalAlignment.Top;
             SetColumn(title, c);
             _columnHeader.Children.Add(title);
         }
 
-        var list = new StackPanel { Spacing = 0 };
-
+        var list = new StackPanel();
         foreach (var contact in contacts)
         {
             var cells = new Grid();
@@ -786,196 +665,76 @@ internal sealed partial class ContactsView : Grid, IWidgetView, IWidgetHeaderCon
 
             for (var c = 0; c < columns.Count; c++)
             {
-                var cell = Fluent.Text(c == 0 ? FluentType.BodyStrong : FluentType.Body, c == 0 ? "TextFillColorPrimaryBrush" : "TextFillColorSecondaryBrush");
-                cell.Text = ContactRules.Cell(contact, columns[c]);
-                cell.Margin = new Thickness(0, 0, Fluent.Space2, 0);
+                var cell = Family.Text(FamilyType.Body, c == 0 ? ColourRole.TextPrimary : ColourRole.TextSecondary, ContactRules.Cell(contact, columns[c]));
                 cell.VerticalAlignment = VerticalAlignment.Center;
-
-                FrameworkElement content = cell;
-                if (c == 0 && avatars)
-                {
-                    var face = Avatar(contact, 20);
-                    face.Margin = new Thickness(0, 0, Fluent.Space2, 0);
-                    var named = new Grid
-                    {
-                        ColumnDefinitions =
-                        {
-                            new ColumnDefinition { Width = GridLength.Auto },
-                            new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) },
-                        },
-                    };
-                    SetColumn(cell, 1);
-                    named.Children.Add(face);
-                    named.Children.Add(cell);
-                    content = named;
-                }
-
-                SetColumn(content, c);
-                cells.Children.Add(content);
+                SetColumn(cell, c);
+                cells.Children.Add(cell);
             }
 
-            var body = RowBody(contact, null, cells);
-            var row = Fluent.Row(body, compact: true);
-            row.Padding = new Thickness(Fluent.Space4 - Fluent.Space2, 0, Fluent.Space4, 0);
-            Wire(row, contact);
-            list.Children.Add(row);
+            var block = new RowBlock(RowKind.List, lead: 0);
+            block.Cells(cells);
+            list.Children.Add(Item(block, contact));
         }
 
-        WholeRows(contacts.Count, Fluent.RowHeightCompact, height - FluentType.Caption.LineHeight - Fluent.Space1);
-        _scroll.Content = list;
+        WholeRows(contacts.Count, plan);
+        Use(list);
     }
 
-    /// <summary>
-    /// Whole rows only: the viewport stops at the last row that fits instead of cutting a face in
-    /// half; scrolling still reaches everyone.
-    /// </summary>
-    private void WholeRows(int rows, double rowHeight, double height)
-    {
-        var fit = Disclosure.WholeRows(height, rowHeight);
-        if (height > 0 && fit > 0 && fit < rows)
-        {
-            _scroll.MaxHeight = (fit * rowHeight) + Fluent.ListPadding.Bottom;
-        }
-    }
-
-    /// <summary>The classic widths: the phone a fixed column, the email a little wider than the rest.</summary>
     private static void AddColumns(Grid grid, IReadOnlyList<ContactColumn> columns)
     {
+        grid.ColumnSpacing = FamilySpace.ColumnGap;
         foreach (var column in columns)
         {
             grid.ColumnDefinitions.Add(new ColumnDefinition
             {
-                Width = column switch
-                {
-                    ContactColumn.Phone => new GridLength(124),
-                    ContactColumn.Email => new GridLength(1.2, GridUnitType.Star),
-                    _ => new GridLength(1, GridUnitType.Star),
-                },
+                Width = column == ContactColumn.Email ? new GridLength(1.2, GridUnitType.Star) : new GridLength(1, GridUnitType.Star),
             });
         }
     }
 
-    /// <summary>
-    /// [S-581] Grid: avatar cards with the name and the company (or job title); on a large tile
-    /// ([S-1273]) the cards grow a 56 px avatar and the address as a second line.
-    /// </summary>
-    private void DrawCards(IReadOnlyList<Contact> contacts, double width, double height)
+    /// <summary>[S-1273] The grid: one <c>Row.Cell</c> per person (the monogram over the name), cells 12 apart, whole lines only.</summary>
+    private void DrawCells(IReadOnlyList<Contact> contacts, ContactsLayoutPlan plan)
     {
-        var large = ContactRules.LargeCards(_area);
-
-        // One height for every card (a person missing a field keeps the line), so rows align and
-        // the viewport can stop at a whole row.
-        var cardHeight = large ? LargeCardHeight : CardHeight;
-        var perRow = ContactRules.CardsPerRow(width, large);
-        var grid = new Grid { Padding = new Thickness(Fluent.Space1, 0, Fluent.Space1, 0) };
-
-        for (var c = 0; c < perRow; c++)
+        var panel = new Grid { Padding = Family.SideInset, ColumnSpacing = FamilySpace.ColumnGap, RowSpacing = FamilySpace.ColumnGap, HorizontalAlignment = HorizontalAlignment.Left };
+        for (var c = 0; c < plan.Columns; c++)
         {
-            grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+            panel.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(plan.ColumnWidth) });
         }
 
         for (var i = 0; i < contacts.Count; i++)
         {
-            if (i % perRow == 0)
+            if (i % plan.Columns == 0)
             {
-                grid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
+                panel.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
             }
 
             var contact = contacts[i];
-            var stack = new StackPanel { Spacing = 2, HorizontalAlignment = HorizontalAlignment.Stretch };
+            var cell = new RowCell(plan.Icon);
+            cell.Show(Monogram(contact, plan.Icon), contact.Name);
+            cell.NameText.MaxWidth = plan.ColumnWidth;
 
-            var avatar = Avatar(contact, large ? 56 : 40);
-            avatar.HorizontalAlignment = HorizontalAlignment.Center;
-            avatar.Margin = new Thickness(0, 0, 0, large ? Fluent.Space1 : 0);
-            stack.Children.Add(avatar);
-
-            var name = Fluent.Text(large ? FluentType.BodyStrong : FluentType.Strong(FluentType.Caption));
-            name.Text = contact.Name;
-            name.HorizontalAlignment = HorizontalAlignment.Center;
-            stack.Children.Add(name);
-
-            // A large card keeps one line per field even when a person lacks it, so the cards align.
-            var lines = new List<string> { ContactRules.CardDetail(contact) };
-            if (large)
-            {
-                lines.Add(contact.Email ?? contact.Phone ?? string.Empty);
-            }
-
-            foreach (var value in lines)
-            {
-                    var line = Fluent.Text(FluentType.Caption, "TextFillColorTertiaryBrush");
-                line.Text = value;
-                line.HorizontalAlignment = HorizontalAlignment.Center;
-                stack.Children.Add(line);
-            }
-
-            var card = new Border
-            {
-                Child = stack,
-                Height = cardHeight,
-                Padding = new Thickness(Fluent.Space1, large ? Fluent.Space3 : 6, Fluent.Space1, large ? Fluent.Space3 : 6),
-                Margin = new Thickness(2),
-                CornerRadius = new CornerRadius(Fluent.ControlRadius),
-            };
-
-            ItemFill.Paint(card, ItemRole.Row);
-            Wire(card, contact);
-            SetRow(card, i / perRow);
-            SetColumn(card, i % perRow);
-            grid.Children.Add(card);
+            // The keyboard's ring over the cell, taking no room: selecting moves nothing.
+            var ring = new Border { BorderThickness = new Thickness(FamilyShape.Stroke), CornerRadius = Family.Radius, BorderBrush = Family.Brush(ColourRole.Clear), IsHitTestVisible = false };
+            var item = Item(new Grid { Children = { cell, ring } }, contact);
+            SetRow(item, i / plan.Columns);
+            SetColumn(item, i % plan.Columns);
+            panel.Children.Add(item);
         }
 
-        WholeRows((contacts.Count + perRow - 1) / perRow, cardHeight + 4, height);
-        _scroll.Content = grid;
+        // The panel's last gap is not a line of its own.
+        var lines = (contacts.Count + plan.Columns - 1) / plan.Columns;
+        var shown = Math.Max(1, Math.Min(lines, plan.Rows));
+        _scroll.Height = lines > shown ? (shown * plan.Pitch) - FamilySpace.ColumnGap : double.NaN;
+        Use(panel);
     }
 
-    /// <summary>A row's content: the selection mark, the avatar when there is one, and the text.</summary>
-    private Grid RowBody(Contact contact, FrameworkElement? avatar, FrameworkElement text)
+    /// <summary>
+    /// [S-586] A person's monogram: one or two initials in the secondary role on the subtle fill, round
+    /// (a person is not a data colour: no hue of its own, DECISIONS 6).
+    /// </summary>
+    private static Border Monogram(Contact contact, double size)
     {
-        var body = new Grid
-        {
-            ColumnDefinitions =
-            {
-                new ColumnDefinition { Width = new GridLength(Fluent.Space2) },
-                new ColumnDefinition { Width = GridLength.Auto },
-                new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) },
-            },
-        };
-
-        // [S-580] Selection is the accent pill Windows lists use, so it never fights the hover fill.
-        var indicator = new Border
-        {
-            Width = 3,
-            Height = Fluent.IconSize,
-            CornerRadius = new CornerRadius(1.5),
-            Background = ThemeBrush.Of("AccentFillColorDefaultBrush", Colors.DodgerBlue),
-            HorizontalAlignment = HorizontalAlignment.Left,
-            VerticalAlignment = VerticalAlignment.Center,
-            Visibility = contact.Id == _selectedId ? Visibility.Visible : Visibility.Collapsed,
-        };
-        _indicators[contact.Id] = indicator;
-        body.Children.Add(indicator);
-
-        if (avatar is not null)
-        {
-            SetColumn(avatar, 1);
-            body.Children.Add(avatar);
-        }
-
-        SetColumn(text, 2);
-        body.Children.Add(text);
-        return body;
-    }
-
-    /// <summary>[S-586] Initials on a colour hashed from the name, so a person keeps their colour.</summary>
-    private static Border Avatar(Contact contact, double size)
-    {
-        var initials = Fluent.Text(size >= 56 ? FluentType.Subtitle : size >= 40 ? FluentType.BodyStrong : FluentType.Caption);
-
-        // The fill is always dark (34% lightness, the classic hsl), so the initials are always white,
-        // in either theme; a theme brush would put black on it in the dark theme.
-        initials.Foreground = new SolidColorBrush(Colors.White);
-        initials.Text = Formatting.Monogram(contact.Name);
+        var initials = Family.Text(size >= FamilyShape.IconHuge ? FamilyType.BodyStrong : FamilyType.Caption, ColourRole.TextSecondary, Formatting.Monogram(contact.Name));
         initials.HorizontalAlignment = HorizontalAlignment.Center;
         initials.VerticalAlignment = VerticalAlignment.Center;
         initials.TextTrimming = TextTrimming.None;
@@ -985,16 +744,17 @@ internal sealed partial class ContactsView : Grid, IWidgetView, IWidgetHeaderCon
             Child = initials,
             Width = size,
             Height = size,
-            CornerRadius = new CornerRadius(size / 2),
-            Background = new SolidColorBrush(FromHsl(ContactRules.AvatarHue(contact.Name), 0.38, 0.34)),
+            CornerRadius = Family.Round(size, size),
+            Background = Family.Brush(ColourRole.Subtle),
             VerticalAlignment = VerticalAlignment.Center,
-            Margin = new Thickness(0, 0, size >= 32 ? Fluent.Space3 : Fluent.Space2, 0),
         };
     }
 
-    /// <summary>Hover, select on click, and the per-person menu on right-click.</summary>
-    private void Wire(Border row, Contact contact)
+    /// <summary>A person's item: the item layer's fill and hover, its tooltip, a click selects, a right-click opens its menu.</summary>
+    private Border Item(FrameworkElement content, Contact contact)
     {
+        var row = new Border { Child = content, CornerRadius = content is RowBlock ? default : Family.Radius };
+        ItemFill.Paint(row, ItemRole.Row);
         _hovers.Add(Fluent.Hover(row));
         _rows[contact.Id] = row;
         ToolTipService.SetToolTip(row, Tooltip(contact));
@@ -1013,6 +773,26 @@ internal sealed partial class ContactsView : Grid, IWidgetView, IWidgetHeaderCon
             Select(contact.Id);
             ItemMenu.ShowAt(row, args.GetPosition(row), BuildMenu(contact));
         };
+
+        return row;
+    }
+
+    /// <summary>[S-580] The selected person: the keyboard's ring (a Row block's, or a cell's outline).</summary>
+    private void Mark(string id, bool on)
+    {
+        if (!_rows.TryGetValue(id, out var element) || element is not Border row)
+        {
+            return;
+        }
+
+        if (row.Child is RowBlock block)
+        {
+            block.Focused = on;
+        }
+        else if (row.Child is Grid { Children: [_, Border ring] })
+        {
+            ring.BorderBrush = Family.Brush(on ? ColourRole.Accent : ColourRole.Clear);
+        }
     }
 
     private void Select(string? id)
@@ -1022,23 +802,19 @@ internal sealed partial class ContactsView : Grid, IWidgetView, IWidgetHeaderCon
             return;
         }
 
-        if (_selectedId is { } old && _indicators.TryGetValue(old, out var previous))
+        if (_selectedId is { } old)
         {
-            previous.Visibility = Visibility.Collapsed;
+            Mark(old, false);
         }
 
         _selectedId = id;
 
-        if (id is not null && _indicators.TryGetValue(id, out var current))
+        if (id is not null)
         {
-            current.Visibility = Visibility.Visible;
+            Mark(id, true);
         }
     }
 
-    /// <summary>
-    /// [S-587] The classic contact menu: the name and role as a header, then write and copy the
-    /// address, call, message and copy the number, copy the name, and refresh.
-    /// </summary>
     private List<ItemMenuEntry> BuildMenu(Contact contact)
     {
         var menu = new List<ItemMenuEntry>
@@ -1099,23 +875,4 @@ internal sealed partial class ContactsView : Grid, IWidgetView, IWidgetHeaderCon
         return string.Join(Environment.NewLine, lines);
     }
 
-    /// <summary>The classic <c>hsl(h, 38%, 34%)</c>, as a colour.</summary>
-    private static Windows.UI.Color FromHsl(int hue, double saturation, double lightness)
-    {
-        var c = (1 - Math.Abs((2 * lightness) - 1)) * saturation;
-        var x = c * (1 - Math.Abs((hue / 60.0 % 2) - 1));
-        var m = lightness - (c / 2);
-
-        var (r, g, b) = (hue / 60) switch
-        {
-            0 => (c, x, 0.0),
-            1 => (x, c, 0.0),
-            2 => (0.0, c, x),
-            3 => (0.0, x, c),
-            4 => (x, 0.0, c),
-            _ => (c, 0.0, x),
-        };
-
-        return Windows.UI.Color.FromArgb(255, (byte)Math.Round((r + m) * 255), (byte)Math.Round((g + m) * 255), (byte)Math.Round((b + m) * 255));
-    }
 }

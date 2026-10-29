@@ -17,5 +17,6 @@
   "widgetsA.contacts.readFailed": "ਸੰਪਰਕ ਪੜ੍ਹੇ ਨਹੀਂ ਜਾ ਸਕੇ। themia.log ਦੇਖੋ।",
   "widgetsA.contacts.settings.count.label": "ਲੋਕ",
   "widgetsA.contacts.settings.every": "ਹਰ ਸੰਪਰਕ ਖਾਤਾ",
-  "widgetsA.contacts.settings.layout.label": "ਖਾਕਾ"
+  "widgetsA.contacts.settings.layout.label": "ਖਾਕਾ",
+  "contacts.setup.sentence": "ਆਪਣੇ ਸੰਪਰਕ ਦਿਖਾਉਣ ਲਈ ਖਾਤਾ ਜੋੜੋ"
 }

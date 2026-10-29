@@ -17,5 +17,6 @@
   "widgetsA.contacts.readFailed": "संपर्क वाचता आले नाहीत. themia.log पहा.",
   "widgetsA.contacts.settings.count.label": "लोक",
   "widgetsA.contacts.settings.every": "प्रत्येक संपर्क खाते",
-  "widgetsA.contacts.settings.layout.label": "लेआउट"
+  "widgetsA.contacts.settings.layout.label": "लेआउट",
+  "contacts.setup.sentence": "तुमचे संपर्क दाखवण्यासाठी खाते जोडा"
 }

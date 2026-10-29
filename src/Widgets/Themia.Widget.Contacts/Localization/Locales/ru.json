@@ -17,5 +17,6 @@
   "widgetsA.contacts.readFailed": "Не удалось прочитать контакты. См. themia.log.",
   "widgetsA.contacts.settings.count.label": "Люди",
   "widgetsA.contacts.settings.every": "Все учетные записи контактов",
-  "widgetsA.contacts.settings.layout.label": "Макет"
+  "widgetsA.contacts.settings.layout.label": "Макет",
+  "contacts.setup.sentence": "Добавьте учётную запись, чтобы видеть контакты"
 }

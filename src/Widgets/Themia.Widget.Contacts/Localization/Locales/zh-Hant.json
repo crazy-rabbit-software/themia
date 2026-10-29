@@ -17,5 +17,6 @@
   "widgetsA.contacts.readFailed": "無法讀取連絡人。請查看 themia.log。",
   "widgetsA.contacts.settings.count.label": "人數",
   "widgetsA.contacts.settings.every": "所有連絡人帳戶",
-  "widgetsA.contacts.settings.layout.label": "版面配置"
+  "widgetsA.contacts.settings.layout.label": "版面配置",
+  "contacts.setup.sentence": "新增帳戶以顯示你的連絡人"
 }

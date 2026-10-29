@@ -17,5 +17,6 @@
   "widgetsA.contacts.readFailed": "Không đọc được danh bạ. Xem themia.log.",
   "widgetsA.contacts.settings.count.label": "Số người",
   "widgetsA.contacts.settings.every": "Mọi tài khoản danh bạ",
-  "widgetsA.contacts.settings.layout.label": "Bố cục"
+  "widgetsA.contacts.settings.layout.label": "Bố cục",
+  "contacts.setup.sentence": "Thêm tài khoản để hiển thị danh bạ của bạn"
 }

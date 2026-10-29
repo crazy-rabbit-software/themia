@@ -17,5 +17,6 @@
   "widgetsA.contacts.readFailed": "Haikuweza kusoma anwani. Angalia themia.log.",
   "widgetsA.contacts.settings.count.label": "Watu",
   "widgetsA.contacts.settings.every": "Kila akaunti ya anwani",
-  "widgetsA.contacts.settings.layout.label": "Mpangilio"
+  "widgetsA.contacts.settings.layout.label": "Mpangilio",
+  "contacts.setup.sentence": "Ongeza akaunti ili kuonyesha anwani zako"
 }

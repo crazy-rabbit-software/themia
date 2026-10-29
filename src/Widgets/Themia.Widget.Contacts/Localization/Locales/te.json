@@ -17,5 +17,6 @@
   "widgetsA.contacts.readFailed": "పరిచయాలను చదవడం సాధ్యం కాలేదు. themia.log చూడండి.",
   "widgetsA.contacts.settings.count.label": "వ్యక్తులు",
   "widgetsA.contacts.settings.every": "ప్రతి పరిచయాల ఖాతా",
-  "widgetsA.contacts.settings.layout.label": "లేఅవుట్"
+  "widgetsA.contacts.settings.layout.label": "లేఅవుట్",
+  "contacts.setup.sentence": "మీ పరిచయాలను చూపడానికి ఖాతాను జోడించండి"
 }

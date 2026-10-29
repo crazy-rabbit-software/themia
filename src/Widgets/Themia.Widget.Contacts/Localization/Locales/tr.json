@@ -17,5 +17,6 @@
   "widgetsA.contacts.readFailed": "Kişiler okunamadı. themia.log dosyasına bakın.",
   "widgetsA.contacts.settings.count.label": "Kişiler",
   "widgetsA.contacts.settings.every": "Tüm kişiler hesapları",
-  "widgetsA.contacts.settings.layout.label": "Düzen"
+  "widgetsA.contacts.settings.layout.label": "Düzen",
+  "contacts.setup.sentence": "Kişilerinizi görmek için bir hesap ekleyin"
 }

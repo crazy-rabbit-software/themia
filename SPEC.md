@@ -3619,16 +3619,20 @@ hub. Pure rules in `Themia.Core/Office` (tested), one shared source in `Services
 - **[S-580]** Contacts lists people from Microsoft (`/me/contacts`), Google (People connections) and
   CardDAV (`addressbook-query`) accounts in one list by name; the same person in two accounts once.
   Config: `accountIds` (empty = every contacts account), `layout`, `columns`, `count`.
-  Clicking selects (an accent pill), clicking the background clears.
-- **[S-581]** Layouts: list (avatar, name, role, address/number), compact (small avatar, name, one
-  field), details (table), grid (avatar cards). Details narrower than 88 px a column fall back to the
-  list, a grid under two cards to compact. Under 160 px wide the avatars and the count are dropped.
+  Clicking selects (the keyboard's ring, [S-1288]), clicking the background clears. With no contacts
+  account the card's Set up row says "Add an account to show your contacts" ([S-1862]).
+- **[S-581]** Layouts: list (monogram, name, role, address/number), compact (name and one field),
+  details (table), grid (cells). Details narrower than 88 px a column fall back to the list, a grid
+  under two cells to compact. The count is the header's neutral pill and folds with its extras
+  ([S-7064]).
 - **[S-582]** Details columns stay in canonical order (Name, Email, Phone, Company, Title); the last
   one cannot be turned off.
 - **[S-583]** `count` is at least 5 (steps of 5, no upper bound); each account is asked for
   clamp(count, 500, 1000) so a search spans the address book; search filters before the cap.
 - **[S-585]** Search matches name, email, company or job title, case-insensitively.
-- **[S-586]** Avatars: one or two initials on `hsl(hash(name), 38%, 34%)`, white text.
+- **[S-586]** Monograms: one or two initials (the first and last word) in the secondary role on the
+  subtle fill, round, 32 (48 in a grid on an expanded width); a person is not a data colour, so no
+  hue of their own (G2, DECISIONS 6; was `hsl(hash(name), 38%, 34%)` with white initials).
 - **[S-587]** Right-click a person: their name and role, Send email / Copy email, Call / Message /
   Copy phone, Copy name, Refresh. `mailto:`, `tel:` and `sms:` are built only from a plain address or
   number (`ContactLinks`) and opened through `ShellLauncher.OpenContactLink`.
@@ -4512,20 +4516,22 @@ partial per layout), `CalendarData.cs` (the data seam), `ContactsView.cs`.
   period moves nothing and one outside pages to its period ([S-3621]). Columns share the width
   (`CalendarFit.Week(width, height, days)`), so fewer days are roomier columns; the band, lists and
   hour grid are the same layout for any count.
-- **[S-1270]** Contacts list rows say what the list's area allows (`ContactRules.ListDetail`, on the
-  tile less its search box): width Compact → the name only (32 px rows, no avatar); height Compact →
-  the role, else the address/number; Regular → the role plus the address (else number) when three
-  such rows fit, else the role; Expanded+ → role, address and number, each address/number with its
-  glyph. Every row of a render is one height. Rows flow into columns of 240 px (up to 4), row-major;
-  avatars from 180 px columns; the viewport stops at a whole row.
-- **[S-1271]** Compact rows are one line: a 24 px avatar, the name, and the one field right-aligned
-  (columns ≥240 px; the name keeps the larger share).
-- **[S-1273]** Grid cards are one height (88 px; whole rows only); at width and height class Expanded+
-  they are 140 px wide with a 56 px avatar and the address as a second line.
+- **[S-1270]** Contacts list rows are Row blocks ([S-6711], `ContactsPlan.Of`): one, two or three
+  lines by the tier ([S-6712], `RowRules.Lines` on the view's area): the name primary; then the role
+  (else the address, else the number) secondary; then the address (else the number) tertiary. Every
+  row of a render is one height (32, 48, 64). Rows flow into columns of 240 px (up to 4), row-major;
+  the 32 monogram leads from 180 px columns; the rows that fit whole in the view's area less the
+  card's bottom inset and the search box show, the rest a scroll away under the fade ([S-1281]).
+- **[S-1271]** Compact rows are one line: the name and, from 240 px columns, the one field (address,
+  else company, else number) as the row's value, secondary and end-aligned.
+- **[S-1273]** Grid cells are the family's `Row.Cell` ([S-6713]): the monogram (32, 48 from an
+  expanded width) over the name in Caption, each the icon and 24 either side wide, 12 apart, whole
+  lines only.
 - **[S-1274]** *(Retired: no detail pane beside the list on an XL tile. The list keeps the whole
   width; a person's actions (Send email, Call, Message, Copy …) are the row menu's, [S-1277].)*
-- **[S-1275]** Search box: always from 220 px tall; from 128 a header search button opens it (it folds
-  away again when left empty); below 128 none. A typed query keeps the box open.
+- **[S-1275]** Search box: always from 220 px tall; from 128 a header search button (one of the kit's
+  24 header buttons, [S-7064]) opens it (it folds away again when left empty); below 128 none. A
+  typed query keeps the box open. The box is one control of 32 at the card's inset, 8 over the list.
 - **[S-1277]** Keys (classic S-31/32), `ContactsView.HandleKey`: Up/Down move the selection through the
   people on screen (from none, Down picks the first, Up the last), Home/End jump, Escape clears, Enter
   writes (else calls). A click anywhere else — another widget, the desktop, another app — ends the

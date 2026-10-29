@@ -17,5 +17,6 @@
   "widgetsA.contacts.readFailed": "連絡先を読み込めませんでした。themia.log を確認してください。",
   "widgetsA.contacts.settings.count.label": "人数",
   "widgetsA.contacts.settings.every": "すべての連絡先アカウント",
-  "widgetsA.contacts.settings.layout.label": "レイアウト"
+  "widgetsA.contacts.settings.layout.label": "レイアウト",
+  "contacts.setup.sentence": "連絡先を表示するにはアカウントを追加してください"
 }

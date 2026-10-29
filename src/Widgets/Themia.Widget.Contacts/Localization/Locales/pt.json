@@ -17,5 +17,6 @@
   "widgetsA.contacts.readFailed": "Não foi possível ler os contatos. Veja themia.log.",
   "widgetsA.contacts.settings.count.label": "Pessoas",
   "widgetsA.contacts.settings.every": "Todas as contas de contatos",
-  "widgetsA.contacts.settings.layout.label": "Layout"
+  "widgetsA.contacts.settings.layout.label": "Layout",
+  "contacts.setup.sentence": "Adicione uma conta para ver seus contatos"
 }

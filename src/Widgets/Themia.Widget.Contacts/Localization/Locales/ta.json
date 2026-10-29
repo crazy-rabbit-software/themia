@@ -17,5 +17,6 @@
   "widgetsA.contacts.readFailed": "தொடர்புகளைப் படிக்க முடியவில்லை. themia.log ஐப் பார்க்கவும்.",
   "widgetsA.contacts.settings.count.label": "நபர்கள்",
   "widgetsA.contacts.settings.every": "ஒவ்வொரு தொடர்புகள் கணக்கும்",
-  "widgetsA.contacts.settings.layout.label": "தளவமைப்பு"
+  "widgetsA.contacts.settings.layout.label": "தளவமைப்பு",
+  "contacts.setup.sentence": "உங்கள் தொடர்புகளைக் காட்ட ஒரு கணக்கைச் சேர்க்கவும்"
 }

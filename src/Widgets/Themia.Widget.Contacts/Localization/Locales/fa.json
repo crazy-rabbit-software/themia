@@ -17,5 +17,6 @@
   "widgetsA.contacts.readFailed": "مخاطبین خوانده نشدند. themia.log را ببینید.",
   "widgetsA.contacts.settings.count.label": "افراد",
   "widgetsA.contacts.settings.every": "همه حساب‌های مخاطبین",
-  "widgetsA.contacts.settings.layout.label": "چیدمان"
+  "widgetsA.contacts.settings.layout.label": "چیدمان",
+  "contacts.setup.sentence": "برای نمایش مخاطبانتان یک حساب اضافه کنید"
 }

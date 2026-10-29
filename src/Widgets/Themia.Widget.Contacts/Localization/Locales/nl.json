@@ -17,5 +17,6 @@
   "widgetsA.contacts.readFailed": "Kan de contactpersonen niet lezen. Zie themia.log.",
   "widgetsA.contacts.settings.count.label": "Personen",
   "widgetsA.contacts.settings.every": "Elk contactenaccount",
-  "widgetsA.contacts.settings.layout.label": "Indeling"
+  "widgetsA.contacts.settings.layout.label": "Indeling",
+  "contacts.setup.sentence": "Voeg een account toe om je contacten te zien"
 }
