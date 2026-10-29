@@ -170,3 +170,53 @@ public static class StreamChromeRules
         _ => string.Empty,
     };
 }
+
+/// <summary>
+/// [S-1313] The frame age's one-second tick, held only while it is wanted. The shared ticker fires a
+/// new subscription at once, inside Subscribe, so the callback (which asks again whether to tick) runs
+/// before the subscription is handed back: the lease marks itself held before subscribing, so that
+/// first tick does not subscribe again (it did, until the stack overflowed), and a lease let go
+/// during that first tick drops the subscription as soon as it arrives.
+/// </summary>
+public sealed class TickLease : IDisposable
+{
+    private IDisposable? _subscription;
+    private bool _held;
+
+    /// <summary>Whether the tick is held now.</summary>
+    public bool Held => _held;
+
+    /// <summary>Hold the tick (<paramref name="subscribe"/> is called once) or let it go.</summary>
+    public void Want(bool wanted, Func<IDisposable> subscribe)
+    {
+        ArgumentNullException.ThrowIfNull(subscribe);
+
+        if (wanted == _held)
+        {
+            return;
+        }
+
+        _held = wanted;
+
+        if (!wanted)
+        {
+            _subscription?.Dispose();
+            _subscription = null;
+            return;
+        }
+
+        var subscription = subscribe();
+
+        if (_held && _subscription is null)
+        {
+            _subscription = subscription;
+        }
+        else
+        {
+            // Let go (or held again by a newer subscribe) while this one was being made.
+            subscription.Dispose();
+        }
+    }
+
+    public void Dispose() => Want(false, static () => throw new InvalidOperationException("not subscribing"));
+}

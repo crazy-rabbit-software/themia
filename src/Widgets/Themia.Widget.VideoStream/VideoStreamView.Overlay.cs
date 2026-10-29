@@ -49,7 +49,7 @@ internal sealed partial class VideoStreamView
     private StreamChrome _chrome;
     private bool _hovered;
     private Ticker? _ticker;
-    private IDisposable? _ageTick;
+    private readonly TickLease _ageTick = new();
 
     /// <summary>Failures in a row since the last frame: the "reconnecting 3" of the status.</summary>
     private int _reconnects;
@@ -243,14 +243,13 @@ internal sealed partial class VideoStreamView
 
         // The age counts up while it is on screen, and only then.
         var ticking = strip && live;
-        if (ticking && _ageTick is null && _ticker is not null)
+        if (_ticker is { } ticker)
         {
-            _ageTick = _ticker.Subscribe(TimeSpan.FromSeconds(1), RenderChrome);
+            _ageTick.Want(ticking, () => ticker.Subscribe(TimeSpan.FromSeconds(1), RenderChrome));
         }
-        else if (!ticking && _ageTick is not null)
+        else
         {
             _ageTick.Dispose();
-            _ageTick = null;
         }
     }
 
@@ -267,8 +266,7 @@ internal sealed partial class VideoStreamView
 
     private void StopChrome()
     {
-        _ageTick?.Dispose();
-        _ageTick = null;
+        _ageTick.Dispose();
         _hovered = false;
         _chip.Visibility = Visibility.Collapsed;
         _strip.Visibility = Visibility.Collapsed;

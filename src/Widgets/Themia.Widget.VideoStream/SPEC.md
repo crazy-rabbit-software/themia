@@ -61,7 +61,10 @@ releases everything.
   through `IStreamSink.OnFrame`; for MP4/HLS the player's natural video size); frame rate over the
   last 5 s of arrivals (`FrameRateMeter`, monotonic timestamps, "12 fps" / "2.5 fps"), shown only
   for an open MJPEG stream; transport MJPEG / Snapshot / Video / HLS. The age ticks through the
-  shared ticker at 1 s only while the strip is on screen and the stream is live.
+  shared ticker at 1 s only while the strip is on screen and the stream is live, held once
+  (`TickLease`): the ticker fires a new subscription at once, inside Subscribe, and that first tick
+  asked again and subscribed again until the stack overflowed whenever the strip first showed on a
+  live stream (2026-10-29). (Tests `TickLeaseTests`.)
 
 Needs a live pass: a real MJPEG camera, a snapshot endpoint on an interval, an MP4 and an HLS stream
 (the cap at a small tile), a camera that drops off the network and comes back, and Pause surviving a
