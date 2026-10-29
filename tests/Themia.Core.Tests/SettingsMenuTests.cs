@@ -38,10 +38,6 @@ public sealed partial class SettingsMenuTests
 
         public List<bool> StartupAsked { get; } = [];
 
-        public bool DesktopIconsShown { get; set; } = true;
-
-        public List<bool> DesktopIconsAsked { get; } = [];
-
         public bool Suspended { get; set; }
 
         public bool AnimationsEnabled { get; set; } = true;
@@ -61,7 +57,7 @@ public sealed partial class SettingsMenuTests
 
         public void SetStartup(bool on) => StartupAsked.Add(on);
 
-        public void SetDesktopIcons(bool shown) => DesktopIconsAsked.Add(shown);
+        public void SetDesktop(DesktopShows shows) => Mutate(s => s.Preferences.Desktop = shows);
 
         public void SetGameModeSuspend(bool on) => Mutate(s => s.Preferences.GameModeSuspend = on);
 
@@ -124,7 +120,7 @@ public sealed partial class SettingsMenuTests
         var keys = Root(new FakeHost()).Select(l => l is SettingsSeparator ? "-" : l.Key).ToArray();
 
         Assert.Equal(
-            ["startup", "desktopIcons", "gameMode", "-", "appearance", "accounts", "language", "online", "-", "pro", "backup", "about", "-", "quit"],
+            ["startup", "desktop", "gameMode", "-", "appearance", "accounts", "language", "online", "-", "pro", "backup", "about", "-", "quit"],
             keys);
     }
 
@@ -227,19 +223,21 @@ public sealed partial class SettingsMenuTests
 
         var host = new FakeHost { Startup = new AutostartStatus(AutostartState.Off, AutostartProblem.Failed, "0x80070005") };
         var keys = SettingsMenu.General(host).Select(l => l.Key).ToArray();
-        Assert.Equal(["startup", "startup/advice", "startup/detail", "desktopIcons", "gameMode"], keys);
+        Assert.Equal(["startup", "startup/advice", "startup/detail", "desktop", "gameMode"], keys);
     }
 
     [Fact]
-    public void S3525_desktop_icons_show_what_windows_has_and_ask_windows()
+    public void S5500_the_desktop_line_is_one_choice_of_three_that_shows_what_was_chosen()
     {
-        var host = new FakeHost { DesktopIconsShown = false };
-        var line = At<SettingsToggle>(host, "desktopIcons");
-        Assert.False(line.On);
+        var host = new FakeHost();
+        var line = At<SettingsChoice>(host, "desktop");
+        Assert.Equal(["desktop/themia", "desktop/windows", "desktop/nothing"], line.Options.Select(o => o.Key).ToArray());
+        Assert.Equal("desktop/windows", line.Options.Single(o => o.Holds).Key);
 
-        line.Set(true);
-        Assert.Equal([true], host.DesktopIconsAsked);
-        Assert.Equal(0, host.Mutations);
+        line.Options[0].Pick();
+        Assert.Equal(DesktopShows.ThemiaItems, host.State.Preferences.Desktop);
+        Assert.Equal(1, host.Mutations);
+        Assert.Equal("desktop/themia", At<SettingsChoice>(host, "desktop").Options.Single(o => o.Holds).Key);
     }
 
     [Fact]

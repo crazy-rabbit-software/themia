@@ -1,17 +1,20 @@
 using System.Runtime.InteropServices;
+using Microsoft.Win32;
 using Themia.Core.Diagnostics;
 using Themia.Core.Shell;
 
 namespace Themia.App.Interop;
 
 /// <summary>
-/// [S-930] Windows' own desktop icons: whether they are shown, the switch that hides them, and their
-/// selection.
+/// [S-930] [S-5503] Windows' own desktop icons: whether they are shown, the session-only hide the
+/// desktop choice holds, the shell's own command, and their selection.
 /// <para>
-/// Everything goes through the shell, never around it. Hiding is the exact command the desktop's
-/// context menu posts (View › Show desktop icons), so Explorer hides the icons <i>and</i> persists it
-/// in its own settings: the choice survives Themia quitting, Explorer restarting and a reboot, and
-/// the context menu's check mark stays honest. Themia never re-asserts or restores it ([S-932]).
+/// Two ways to hide, kept apart. The desktop choice ([S-5500]) hides the icon list window itself for
+/// this session only (<see cref="Hold"/>): Explorer's own setting and its menu's check mark stay as the
+/// user left them, an Explorer restart shows the icons by itself, and <see cref="Restore"/> shows them
+/// again on quit, at start and from the last-chance handlers. The shell's own command (View › Show
+/// desktop icons), which Explorer persists, is sent only when the user picks Windows' icons while
+/// Windows hides them ([S-5505], <see cref="Request"/>).
 /// </para>
 /// <para>
 /// The shell's windows are looked up on every use rather than cached: Explorer restarts replace
@@ -96,31 +99,14 @@ internal static unsafe class DesktopIcons
         return style == 0 ? null : DesktopIconRules.IsShown(style);
     }
 
-    /// <summary>
-    /// [S-931] Whether the icons are shown, or null when the shell cannot be found. Explorer hides the
-    /// list window itself, so its own visible bit <i>is</i> the state and is current the instant the
-    /// shell has handled the command — unlike the persisted flag, which Explorer writes lazily.
-    /// Non-blocking: no message goes to Explorer, so the UI thread may call it.
-    /// </summary>
-    public static bool? AreVisible() => Find() is { } shell ? IsShown(shell.List) : null;
-
     /// <summary>Bounds the wait on a hung Explorer; a responsive one answers in milliseconds.</summary>
     private const uint CommandTimeoutMs = 3000;
 
     private static readonly DesktopIconRequests Requests = new();
 
-    /// <summary>[S-939] A request is being applied. The switch does not adopt the live state meanwhile.</summary>
-    public static bool Busy => Requests.Busy;
-
     /// <summary>
-    /// [S-939] Raised on a worker thread once every request has been applied (or given up on, logged).
-    /// The switch reads the live state then. Subscribe while on screen only.
-    /// </summary>
-    public static event Action? Settled;
-
-    /// <summary>
-    /// [S-939] Ask for the icons shown or hidden. Returns at once; one worker applies the requests,
-    /// latest wins, and raises <see cref="Settled"/> when it is done.
+    /// [S-939] [S-5505] Ask Windows' own setting for the icons shown or hidden, through the shell's
+    /// command. Returns at once; one worker applies the requests, latest wins.
     /// </summary>
     public static void Request(bool visible)
     {
@@ -141,15 +127,6 @@ internal static unsafe class DesktopIcons
                 {
                     Log.Error(Scope, "applying the desktop icons switch threw", ex);
                 }
-            }
-
-            try
-            {
-                Settled?.Invoke();
-            }
-            catch (Exception ex)
-            {
-                Log.Error(Scope, "a desktop icons listener threw", ex);
             }
         });
     }
@@ -236,13 +213,183 @@ internal static unsafe class DesktopIcons
         DesktopFolderView.DeselectAll();
     }
 
+    // ---- [S-5503] [S-5504] the session-only hide ------------------------------------------
+
+    private const string AdvancedKey = @"Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced";
+    private const string PolicyKey = @"Software\Microsoft\Windows\CurrentVersion\Policies\Explorer";
+
+    /// <summary>The choice holds the list hidden. UI thread.</summary>
+    private static bool _holding;
+
+    /// <summary>[S-5503] Re-hides spent since the choice was applied. UI thread.</summary>
+    private static int _rehides;
+
+    /// <summary>The held list's show and hide hook. UI thread.</summary>
+    private static IDisposable? _holdWatch;
+
     /// <summary>
-    /// [S-932] Hear the icons being shown or hidden, by anyone — the desktop's context menu, a script,
-    /// this app. The shell broadcasts nothing for it, but the list window's own show and hide are
-    /// window events, so a WinEvent hook scoped to that one thread hears exactly them. Dispose to stop.
-    /// Returns null (logged) when the shell cannot be found or the hook cannot be installed.
+    /// [S-5504] This process hid the list at least once: only then do quit and the last-chance
+    /// handlers restore it, so a debug render (which never hides) never touches the desktop's icons.
     /// </summary>
-    public static IDisposable? Watch(Action changed)
+    private static volatile bool _hidThisRun;
+
+    /// <summary>
+    /// [S-5503] Hide Explorer's icon list for the session and keep it hidden: its own show event, and
+    /// <see cref="ShellRestarted"/> for a new Explorer, hide it again (at most
+    /// <see cref="DesktopIconRules.MaxRehides"/> times). Never Explorer's persisted setting. UI thread.
+    /// </summary>
+    public static void Hold()
+    {
+        _holding = true;
+        _rehides = 0;
+        _hidThisRun = true;
+        HookAndHide();
+    }
+
+    /// <summary>[S-5504] The hold ends (the choice is Windows' icons now): unhooked, and the list shown as Windows has it. UI thread.</summary>
+    public static void Release()
+    {
+        _holding = false;
+        _holdWatch?.Dispose();
+        _holdWatch = null;
+        Restore();
+    }
+
+    /// <summary>[S-5503] Explorer restarted (<c>TaskbarCreated</c>): its new list is hooked and hidden while the hold lasts. UI thread.</summary>
+    public static void ShellRestarted()
+    {
+        if (!_holding)
+        {
+            return;
+        }
+
+        _rehides = 0;
+        HookAndHide();
+    }
+
+    private static void HookAndHide()
+    {
+        _holdWatch?.Dispose();
+        _holdWatch = Watch(OnHeldListChanged);
+
+        if (Find() is not { } shell || shell.List == 0)
+        {
+            Log.Warn(Scope, "the desktop's icon list was not found; it is hidden when Explorer builds its desktop");
+            return;
+        }
+
+        if (IsShown(shell.List) != true)
+        {
+            return;
+        }
+
+        if (!Win32.ShowWindowAsync(shell.List, Win32.SwHide))
+        {
+            Log.Warn(Scope, $"could not hide the desktop's icons (win32 {Marshal.GetLastPInvokeError()}); they show under Themia's items");
+            return;
+        }
+
+        Log.Info(Scope, "desktop icons hidden for this session");
+    }
+
+    /// <summary>[S-5503] The held list was shown or hidden: shown again while held, it is hidden again, up to the cap.</summary>
+    private static void OnHeldListChanged()
+    {
+        if (Find() is not { } shell)
+        {
+            return;
+        }
+
+        var shown = IsShown(shell.List);
+        if (DesktopIconRules.Rehide(_holding, shown, _rehides))
+        {
+            _rehides++;
+            if (!Win32.ShowWindowAsync(shell.List, Win32.SwHide))
+            {
+                Log.Warn(Scope, $"could not hide the desktop's icons again (win32 {Marshal.GetLastPInvokeError()})");
+            }
+
+            return;
+        }
+
+        if (_holding && shown == true && _rehides == DesktopIconRules.MaxRehides)
+        {
+            // Said once: the count passes the cap, so this is not reached again until the choice is applied anew.
+            _rehides++;
+            Log.Warn(Scope, $"the desktop's icons were shown again {DesktopIconRules.MaxRehides} times; something else keeps them shown, so they are left shown");
+        }
+    }
+
+    /// <summary>[S-5504] Quit and the last-chance handlers: show the list again if this process hid it. Any thread, never blocks.</summary>
+    public static void RestoreIfHidden()
+    {
+        if (_hidThisRun)
+        {
+            Restore();
+        }
+    }
+
+    /// <summary>
+    /// [S-5504] Show the list again as Windows has it: only a hidden list, only when Windows' own
+    /// setting says shown. Any thread: no COM, no message awaited (the show is posted to Explorer's
+    /// thread), so a crash handler may call it. Never throws.
+    /// </summary>
+    public static void Restore()
+    {
+        try
+        {
+            if (Find() is not { } shell || shell.List == 0)
+            {
+                return;
+            }
+
+            if (!DesktopIconRules.Restore(IsShown(shell.List), WindowsHides()))
+            {
+                return;
+            }
+
+            if (!Win32.ShowWindowAsync(shell.List, Win32.SwShowNa))
+            {
+                Log.Warn(Scope, $"could not show the desktop's icons again (win32 {Marshal.GetLastPInvokeError()}); Explorer shows them when it restarts");
+                return;
+            }
+
+            Log.Info(Scope, "desktop icons shown again, as Windows has them");
+        }
+        catch (Exception ex)
+        {
+            Log.Error(Scope, "restoring the desktop's icons threw", ex);
+        }
+    }
+
+    /// <summary>[S-5504] Whether Windows' own setting hides the icons: Explorer's <c>HideIcons</c>, or the <c>NoDesktop</c> policy.</summary>
+    public static bool WindowsHides()
+        => DesktopIconRules.WindowsHides(
+            ReadDword(Registry.CurrentUser, AdvancedKey, "HideIcons"),
+            ReadDword(Registry.CurrentUser, PolicyKey, "NoDesktop") ?? ReadDword(Registry.LocalMachine, PolicyKey, "NoDesktop"));
+
+    /// <summary>A DWORD value, or null when it is absent; one that cannot be read is logged and taken as absent.</summary>
+    private static int? ReadDword(RegistryKey hive, string path, string name)
+    {
+        try
+        {
+            using var key = hive.OpenSubKey(path, writable: false);
+            return key?.GetValue(name) is int value ? value : null;
+        }
+        catch (Exception ex) when (ex is System.Security.SecurityException or UnauthorizedAccessException or IOException)
+        {
+            Log.Warn(Scope, $"could not read {name} under {path}", ex);
+            return null;
+        }
+    }
+
+    /// <summary>
+    /// [S-5503] Hear the icon list being shown or hidden, by anyone: Explorer, a script, this app. The
+    /// shell broadcasts nothing for it, but the list window's own show and hide are window events, so a
+    /// WinEvent hook scoped to that one thread hears exactly them. Dispose to stop. Returns null
+    /// (logged) when the shell cannot be found or the hook cannot be installed.
+    /// </summary>
+    private static IDisposable? Watch(Action changed)
     {
         ArgumentNullException.ThrowIfNull(changed);
 
@@ -263,7 +410,7 @@ internal static unsafe class DesktopIcons
 
         if (watch.Hook == 0)
         {
-            Log.Warn(Scope, "could not watch the desktop icons; the switch shows what was read when the page opened");
+            Log.Warn(Scope, "could not watch the desktop's icon list; a list Explorer shows again stays shown");
             return null;
         }
 

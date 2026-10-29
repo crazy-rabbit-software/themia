@@ -253,11 +253,8 @@ public interface ISettingsMenuHost
     /// <summary>[S-933] Ask Windows to start Themia at sign-in, or not; what it reached comes back as <see cref="Startup"/>.</summary>
     void SetStartup(bool on);
 
-    /// <summary>[S-930] Whether Windows' desktop icons show, as Windows says now (the stored cache where it cannot be read).</summary>
-    bool DesktopIconsShown { get; }
-
-    /// <summary>[S-930] Ask Windows to show or hide its desktop icons.</summary>
-    void SetDesktopIcons(bool shown);
+    /// <summary>[S-5500] Store and apply what the desktop shows (Themia's items, Windows' icons or nothing).</summary>
+    void SetDesktop(DesktopShows shows);
 
     /// <summary>[S-920] Game mode is holding the widgets now.</summary>
     bool Suspended { get; }
@@ -371,7 +368,7 @@ public static partial class SettingsMenu
     public static class Keys
     {
         public const string Startup = "startup";
-        public const string DesktopIcons = "desktopIcons";
+        public const string Desktop = "desktop";
         public const string GameMode = "gameMode";
         public const string Appearance = "appearance";
         public const string Language = "language";

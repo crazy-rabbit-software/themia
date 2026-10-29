@@ -467,6 +467,13 @@ public sealed class AppStateStore : IAsyncDisposable
             repairs.Add("unknown language; following Windows");
         }
 
+        // [S-5500] An unknown choice leaves the desktop as Windows has it.
+        if (!Enum.IsDefined(state.Preferences.Desktop))
+        {
+            state.Preferences.Desktop = DesktopShows.WindowsIcons;
+            repairs.Add("unknown desktop choice; Windows' icons");
+        }
+
         // [S-3772] [S-3781] The shared formats and cadences: a hand-edited null is the defaults.
         if (state.Preferences.Region is null)
         {
@@ -531,6 +538,7 @@ public sealed class AppStateStore : IAsyncDisposable
         }
 
         repairs.AddRange(ValidateViewBars(state));
+        repairs.AddRange(Desktop.DesktopReconcile.RepairKnown(state));
         return repairs;
     }
 

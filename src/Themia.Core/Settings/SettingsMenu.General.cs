@@ -1,13 +1,15 @@
 using Themia.App.Shell;
 using Themia.Core.Localization;
+using Themia.Core.Model;
 using Themia.Core.Shell;
 
 namespace Themia.Core.Settings;
 
 /// <summary>
-/// [S-3525] General, on the menu's first level: start with Windows, Windows' desktop icons and game
-/// mode. All three show something Windows owns or decides, so the host reads Windows for them
-/// (as the menu opens, and while it is open) rather than trusting what Themia last wrote.
+/// [S-3525] General, on the menu's first level: start with Windows, what the desktop shows and game
+/// mode. Start with Windows and game mode show something Windows owns or decides, so the host reads
+/// Windows for them rather than trusting what Themia last wrote; the desktop is Themia's own choice
+/// ([S-5500]).
 /// </summary>
 public static partial class SettingsMenu
 {
@@ -38,8 +40,8 @@ public static partial class SettingsMenu
             lines.Add(new SettingsNote(Keys.Startup + "/detail", detail));
         }
 
-        // [S-930] Shown as Windows has them, never as last asked.
-        lines.Add(new SettingsToggle(Keys.DesktopIcons, Str.Settings_DesktopIcons_Label.Text(), Glyphs.Apps, host.DesktopIconsShown, host.SetDesktopIcons));
+        // [S-5500] What the desktop shows: Themia's own choice, so it shows what was chosen.
+        lines.Add(Desktop(host));
 
         // [S-920] Game mode, "Paused now" at its end while it is holding the widgets.
         lines.Add(new SettingsToggle(Keys.GameMode, Str.SettingsMenu_GameMode.Text(), Glyphs.Game, state.Preferences.GameModeSuspend, host.SetGameModeSuspend)
@@ -48,6 +50,24 @@ public static partial class SettingsMenu
         });
 
         return lines;
+    }
+
+    /// <summary>
+    /// [S-5500] On the desktop: Themia's items, Windows' icons or nothing, the one line that sets it
+    /// ([S-3592]). A pick goes to the host, which stores it and hides or shows Explorer's icons.
+    /// </summary>
+    private static SettingsChoice Desktop(ISettingsMenuHost host)
+    {
+        var shows = host.State.Preferences.Desktop;
+        SettingsRadio Option(DesktopShows option, string key, Str text)
+            => new(Keys.Desktop + "/" + key, text.Text(), shows == option, () => host.SetDesktop(option));
+
+        return new SettingsChoice(Keys.Desktop, Str.Desktop_Choice_Label.Text(), Glyphs.Apps,
+        [
+            Option(DesktopShows.ThemiaItems, "themia", Str.Desktop_Choice_Themia),
+            Option(DesktopShows.WindowsIcons, "windows", Str.Desktop_Choice_Windows),
+            Option(DesktopShows.Nothing, "nothing", Str.Desktop_Choice_Nothing),
+        ]);
     }
 
     /// <summary>

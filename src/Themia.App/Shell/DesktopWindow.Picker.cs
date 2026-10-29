@@ -361,6 +361,7 @@ internal sealed partial class DesktopWindow
     {
         if (!EditMode)
         {
+            OnDesktopPressed(e);
             return;
         }
 

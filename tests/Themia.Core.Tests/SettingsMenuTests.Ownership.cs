@@ -66,9 +66,8 @@ public sealed partial class SettingsMenuTests
             var leaves = new Dictionary<string, string>(StringComparer.Ordinal);
             Flatten(JsonNode.Parse(JsonSerializer.Serialize(Settings.State, StateJson.AppState)), string.Empty, leaves);
 
-            // [S-933] [S-930] Windows owns these two; what the menu asked of it is its write.
+            // [S-933] Windows owns this one; what the menu asked of it is its write.
             leaves["windows.startup"] = string.Join(",", Settings.StartupAsked);
-            leaves["windows.desktopIcons"] = string.Join(",", Settings.DesktopIconsAsked);
             return leaves;
         }
 
@@ -327,8 +326,8 @@ public sealed partial class SettingsMenuTests
         string[] fields =
         [
             .. typeof(DesignState).GetProperties().Where(p => p.CanWrite && p.Name != nameof(DesignState.RunAtStartup)).Select(p => "design." + JsonNamingPolicy.CamelCase.ConvertName(p.Name)),
-            .. typeof(AppPreferences).GetProperties().Where(p => p.CanWrite && p.Name is not nameof(AppPreferences.DesktopIconsVisible)).Select(p => "preferences." + JsonNamingPolicy.CamelCase.ConvertName(p.Name)),
-            "windows.startup", "windows.desktopIcons", "monitorScales", "monitorViews", "disabledMonitors", "defaultViewForNewDisplays",
+            .. typeof(AppPreferences).GetProperties().Where(p => p.CanWrite).Select(p => "preferences." + JsonNamingPolicy.CamelCase.ConvertName(p.Name)),
+            "windows.startup", "monitorScales", "monitorViews", "disabledMonitors", "defaultViewForNewDisplays",
 
             // [S-3544] This display's view bar: every field of it from Display ▾ alone (its type and labels too, [S-5400], [S-5405]).
             .. typeof(ViewBarSettings).GetProperties().Where(p => p.CanWrite).Select(p => "viewBars.a." + JsonNamingPolicy.CamelCase.ConvertName(p.Name)),

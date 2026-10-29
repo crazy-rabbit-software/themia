@@ -330,6 +330,9 @@ public sealed class AppState
     /// </summary>
     public Dictionary<string, ViewBarSettings> ViewBars { get; set; } = [];
 
+    /// <summary>[S-5522] The desktop layer's memory: the desktop items the reconcile has seen.</summary>
+    public DesktopState Desktop { get; set; } = new();
+
     /// <summary>
     /// [S-893] A fresh profile: the maker's own Home and Work views, so switching views is
     /// discoverable from the start and the desktop looks lived-in (<see cref="FirstRunDesktop"/>, the

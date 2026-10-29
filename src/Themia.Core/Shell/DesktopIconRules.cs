@@ -1,3 +1,5 @@
+using Themia.Core.Model;
+
 namespace Themia.Core.Shell;
 
 /// <summary>
@@ -25,12 +27,13 @@ public enum DesktopIconStep
 }
 
 /// <summary>
-/// [S-930] The desktop-icons switch, as pure rules.
+/// [S-930] [S-5503]..[S-5505] Explorer's desktop icons, as pure rules.
 /// <para>
-/// Windows owns this setting, not Themia: the shell's own command flips it and persists it, and the
-/// user can flip it back from the desktop's context menu at any time. So the stored preference is
-/// only a first-paint cache for the settings switch, and the only write Themia ever makes is the one
-/// the user asks for by moving that switch.
+/// Windows owns its "Show desktop icons" setting, not Themia: the shell's own command flips it and
+/// persists it, and the user can flip it back from the desktop's context menu at any time. Themia's
+/// own choice (<see cref="DesktopShows"/>) therefore hides the icon list for the session only and
+/// shows it again as Windows has it; the one write to Windows' setting is the Windows' icons pick
+/// while Windows hides them.
 /// </para>
 /// </summary>
 public static class DesktopIconRules
@@ -103,18 +106,40 @@ public static class DesktopIconRules
     }
 
     /// <summary>
-    /// [S-932] What to write into the cached preference after reading the live state: the live value
-    /// when it is known and disagrees, otherwise null for "leave it alone" — an unreadable shell must
-    /// not clobber the cache, and an agreeing one must not cause a save.
+    /// [S-5503] How often a held list may be shown again (by Explorer, a refresh, a third party)
+    /// before Themia leaves it shown: a hide that never stays is someone else's, not a fight to win.
     /// </summary>
-    public static bool? Adopt(bool? live, bool stored) => live is bool current && current != stored ? current : null;
+    public const int MaxRehides = 8;
+
+    /// <summary>[S-5503] Whether <paramref name="shows"/> hides Explorer's icons for the session.</summary>
+    public static bool Hides(DesktopShows shows) => shows is DesktopShows.ThemiaItems or DesktopShows.Nothing;
 
     /// <summary>
-    /// [S-932] What the settings switch shows after reading the live state: the live state when it is
-    /// known, else the cached preference — never the position the user just moved it to when nothing
-    /// could be done about it.
+    /// [S-5503] Whether a held list that was just shown again is hidden again: while the hide is held
+    /// and fewer than <see cref="MaxRehides"/> re-hides were spent since the choice was applied.
     /// </summary>
-    public static bool Shown(bool? live, bool stored) => live ?? stored;
+    public static bool Rehide(bool holding, bool? shown, int rehidesSoFar) => holding && shown == true && rehidesSoFar < MaxRehides;
+
+    /// <summary>
+    /// [S-5504] Whether Windows' own setting hides the desktop icons: Explorer's <c>HideIcons</c>
+    /// value (absent: shown) or the <c>NoDesktop</c> policy. Read from the registry, which needs no
+    /// Explorer reply, so a crash handler can ask it.
+    /// </summary>
+    public static bool WindowsHides(int? hideIcons, int? noDesktopPolicy) => hideIcons is int hide && hide != 0 || noDesktopPolicy is int policy && policy != 0;
+
+    /// <summary>
+    /// [S-5504] Whether a restore shows the list: only a list that is there and hidden, and only when
+    /// Windows' own setting says shown. It never shows icons the user hid in Windows, and an
+    /// unreadable shell gets nothing.
+    /// </summary>
+    public static bool Restore(bool? shown, bool windowsHides) => shown == false && !windowsHides;
+
+    /// <summary>
+    /// [S-5505] Whether picking <paramref name="picked"/> sends the shell's own command: only the
+    /// Windows' icons pick, only while Windows' own setting hides them. Every other pick leaves
+    /// Windows' setting alone.
+    /// </summary>
+    public static bool AsksWindows(DesktopShows picked, bool windowsHides) => picked == DesktopShows.WindowsIcons && windowsHides;
 }
 
 /// <summary>

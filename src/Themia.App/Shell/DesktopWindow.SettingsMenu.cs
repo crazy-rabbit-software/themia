@@ -15,9 +15,6 @@ namespace Themia.App.Shell;
 /// </summary>
 internal sealed partial class DesktopWindow
 {
-    /// <summary>[S-3525] The desktop icons followed while the menu is open.</summary>
-    private IDisposable? _settingsIcons;
-
     /// <summary>[S-3524] The settings menu's lines, as the state and Windows hold them now.</summary>
     private Func<IReadOnlyList<SettingsLine>> SettingsMenuLines()
     {
@@ -31,15 +28,12 @@ internal sealed partial class DesktopWindow
     /// </summary>
     private void SettingsMenuOpened()
     {
-        _settingsIcons ??= _host.WatchDesktopIcons();
         _host.SettingsMenuOpened();
     }
 
     /// <summary>[S-3557] Closed: what was followed stops, and with the last menu every form empties.</summary>
     private void SettingsMenuClosed()
     {
-        _settingsIcons?.Dispose();
-        _settingsIcons = null;
         _host.SettingsMenuClosed();
     }
 
@@ -161,7 +155,7 @@ internal sealed partial class DesktopWindow
 
         public AutostartStatus? Startup => Host.StartupStatus;
 
-        public bool DesktopIconsShown => Host.DesktopIconsShown;
+
 
         public bool Suspended => Host.Suspended;
 
@@ -171,7 +165,7 @@ internal sealed partial class DesktopWindow
 
         public void SetStartup(bool on) => Host.SetStartup(on);
 
-        public void SetDesktopIcons(bool shown) => Host.SetDesktopIcons(shown);
+        public void SetDesktop(DesktopShows shows) => Host.SetDesktop(shows);
 
         public void SetGameModeSuspend(bool on) => Host.SetGameModeSuspend(on);
 

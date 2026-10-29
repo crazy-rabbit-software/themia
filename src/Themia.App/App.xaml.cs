@@ -69,6 +69,7 @@ public partial class App : Application
         // [S-988] A throw on a background thread ends the process whatever is done here; it is put on
         // record first (the log flushes per record), so a crash is never "without a trace".
         AppDomain.CurrentDomain.UnhandledException += OnFatalException;
+        AppDomain.CurrentDomain.ProcessExit += OnProcessExit;
         TaskScheduler.UnobservedTaskException += OnUnobservedTaskException;
     }
 
@@ -261,7 +262,13 @@ public partial class App : Application
         {
             // ignore: the process is going down and the logger itself failed; nothing is left to tell.
         }
+
+        // [S-5504] Last chance: Explorer's icons back if this run hid them (never throws, never blocks).
+        Interop.DesktopIcons.RestoreIfHidden();
     }
+
+    /// <summary>[S-5504] The process is exiting, however it got there: Explorer's icons back if this run hid them.</summary>
+    private static void OnProcessExit(object? sender, EventArgs e) => Interop.DesktopIcons.RestoreIfHidden();
 
     private static void OnUnobservedTaskException(object? sender, UnobservedTaskExceptionEventArgs e)
     {

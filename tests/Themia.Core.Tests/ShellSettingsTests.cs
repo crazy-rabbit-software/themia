@@ -80,7 +80,7 @@ public sealed class ShellSettingsTests : IDisposable
         var state = Parse(json);
 
         Assert.NotNull(state.Preferences);
-        Assert.True(state.Preferences.DesktopIconsVisible);
+        Assert.Equal(DesktopShows.WindowsIcons, state.Preferences.Desktop);
         Assert.Empty(state.DisabledMonitors);
         Assert.Empty(state.MonitorScales);
     }
@@ -100,7 +100,8 @@ public sealed class ShellSettingsTests : IDisposable
         state.Design.UnlockAnimationMs = 900;
         state.Preferences.Language = AppLanguage.Japanese;
         state.Preferences.GameModeSuspend = true;
-        state.Preferences.DesktopIconsVisible = false;
+        state.Preferences.Desktop = DesktopShows.ThemiaItems;
+        state.Desktop.Known.Add(@"C:\Users\Public\Desktop\Report.docx");
         view.Color = "#3366CC";
         state.DefaultViewForNewDisplays = view.Id;
         state.DisabledMonitors.Add(@"\\.\DISPLAY2");
@@ -126,7 +127,8 @@ public sealed class ShellSettingsTests : IDisposable
         Assert.Equal(900, back.Design.UnlockAnimationMs);
         Assert.Equal(AppLanguage.Japanese, back.Preferences.Language);
         Assert.True(back.Preferences.GameModeSuspend);
-        Assert.False(back.Preferences.DesktopIconsVisible);
+        Assert.Equal(DesktopShows.ThemiaItems, back.Preferences.Desktop);
+        Assert.Equal([@"C:\Users\Public\Desktop\Report.docx"], back.Desktop.Known);
         Assert.Equal("#3366CC", back.Views[0].Color);
         Assert.Equal(view.Id, back.DefaultViewForNewDisplays);
         Assert.Equal([@"\\.\DISPLAY2"], back.DisabledMonitors);

@@ -131,8 +131,6 @@ internal static partial class EditBarRender
 
         public AutostartStatus? Startup { get; init; } = new(AutostartState.On);
 
-        public bool DesktopIconsShown => true;
-
         public bool Suspended { get; init; }
 
         public bool AnimationsEnabled { get; init; } = true;
@@ -148,10 +146,8 @@ internal static partial class EditBarRender
             // ignore: a render never reaches Windows' startup apps.
         }
 
-        public void SetDesktopIcons(bool shown)
-        {
-            // ignore: a render never shows or hides the user's desktop icons.
-        }
+        // [S-5500] Stored in the render's own state only: a render never hides or shows the user's desktop icons.
+        public void SetDesktop(DesktopShows shows) => Mutate(s => s.Preferences.Desktop = shows);
 
         public void SetGameModeSuspend(bool on) => Mutate(s => s.Preferences.GameModeSuspend = on);
 

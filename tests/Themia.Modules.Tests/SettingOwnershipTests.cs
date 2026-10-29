@@ -39,12 +39,7 @@ public sealed class SettingOwnershipTests
             // ignore: nothing is asked of Windows here.
         }
 
-        public bool DesktopIconsShown => true;
-
-        public void SetDesktopIcons(bool shown)
-        {
-            // ignore: nothing is asked of Windows here.
-        }
+        public void SetDesktop(DesktopShows shows) => State.Preferences.Desktop = shows;
 
         public bool Suspended => false;
 

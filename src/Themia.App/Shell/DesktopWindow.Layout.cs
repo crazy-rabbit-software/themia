@@ -334,7 +334,8 @@ internal sealed partial class DesktopWindow
         var allowed = new PixelRect(work.Left - window.Left, work.Top - window.Top, work.Width, work.Height);
 
         // [S-1005] The hyperspace veil spans the work area while it plays, so the region does too.
-        if (EditMode || MotionCoversScreen)
+        // [S-5501] Under Themia's items empty desktop is Themia's: the whole work area takes clicks.
+        if (EditMode || MotionCoversScreen || _host.ShowsDesktopItems)
         {
             DesktopLayer.SetHitRegion(_hwnd, [ToRegionRect(allowed)]);
             return;

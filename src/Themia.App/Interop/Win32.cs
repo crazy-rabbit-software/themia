@@ -95,6 +95,20 @@ internal static partial class Win32
     /// <summary>Show without stealing focus — the only way this app ever shows a window.</summary>
     internal const int SwShowNoActivate = 4;
 
+    /// <summary>[S-5503] Hide a window.</summary>
+    internal const int SwHide = 0;
+
+    /// <summary>[S-5504] Show a window as it was, without activating it.</summary>
+    internal const int SwShowNa = 8;
+
+    /// <summary>
+    /// [S-5503] [S-5504] <c>ShowWindow</c> for another thread's window without waiting for it: posts
+    /// the change to the window's own thread, so a hung Explorer or a crashing process never blocks on it.
+    /// </summary>
+    [LibraryImport("user32.dll", SetLastError = true)]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    internal static partial bool ShowWindowAsync(nint hWnd, int nCmdShow);
+
     [LibraryImport("user32.dll")]
     internal static partial uint GetDpiForWindow(nint hWnd);
 

@@ -91,6 +91,9 @@ internal sealed unsafe class CommandWindow : IDisposable
     /// </summary>
     public event Action? DisplaysChanged;
 
+    /// <summary>[S-5503] Explorer restarted (<c>TaskbarCreated</c>): its desktop and icon list are new.</summary>
+    public event Action? ShellRestarted;
+
     /// <summary>
     /// [S-4655] A volume arrived or left, or a network drive was mapped or dropped: Windows broadcasts
     /// <c>WM_DEVICECHANGE</c> (DBT_DEVICEARRIVAL / DBT_DEVICEREMOVECOMPLETE) to every top-level window. UI thread.
@@ -335,6 +338,11 @@ internal sealed unsafe class CommandWindow : IDisposable
                 else if (msg == WmPowerBroadcast && wParam is PbtResumeAutomatic or PbtResumeSuspend)
                 {
                     self.Resumed?.Invoke();
+                }
+
+                if (_taskbarCreatedMessage != 0 && msg == _taskbarCreatedMessage)
+                {
+                    self.ShellRestarted?.Invoke();
                 }
 
                 if (msg == WmDisplayChange

@@ -1,4 +1,5 @@
 using Themia.Core.Localization;
+using Themia.Core.Model;
 using Themia.Core.Shell;
 using Xunit;
 
@@ -116,22 +117,57 @@ public sealed class DesktopIntegrationTests
 
     // ---- Desktop icons ---------------------------------------------------------------------
 
+    [Theory]
+    [InlineData(DesktopShows.ThemiaItems, true)]
+    [InlineData(DesktopShows.Nothing, true)]
+    [InlineData(DesktopShows.WindowsIcons, false)]
+    public void S5503_themias_items_and_nothing_hide_explorers_icons_for_the_session(DesktopShows shows, bool hides)
+        => Assert.Equal(hides, DesktopIconRules.Hides(shows));
+
     [Fact]
-    public void S932_adopt_only_a_known_disagreeing_live_state()
+    public void S5503_a_held_list_shown_again_is_hidden_again_until_the_cap()
     {
-        Assert.False(DesktopIconRules.Adopt(false, stored: true));
-        Assert.True(DesktopIconRules.Adopt(true, stored: false));
-        Assert.Null(DesktopIconRules.Adopt(true, stored: true));
-        Assert.Null(DesktopIconRules.Adopt(null, stored: false));
+        Assert.True(DesktopIconRules.Rehide(holding: true, shown: true, rehidesSoFar: 0));
+        Assert.True(DesktopIconRules.Rehide(holding: true, shown: true, rehidesSoFar: DesktopIconRules.MaxRehides - 1));
+
+        // Explorer (or a third party) keeps showing it: Themia stops rather than fight in a loop.
+        Assert.False(DesktopIconRules.Rehide(holding: true, shown: true, rehidesSoFar: DesktopIconRules.MaxRehides));
+
+        // A hide event, an unreadable list or a released hold is never answered with a hide.
+        Assert.False(DesktopIconRules.Rehide(holding: true, shown: false, rehidesSoFar: 0));
+        Assert.False(DesktopIconRules.Rehide(holding: true, shown: null, rehidesSoFar: 0));
+        Assert.False(DesktopIconRules.Rehide(holding: false, shown: true, rehidesSoFar: 0));
+    }
+
+    [Theory]
+    [InlineData(null, null, false)]
+    [InlineData(0, null, false)]
+    [InlineData(1, null, true)]
+    [InlineData(0, 1, true)]
+    [InlineData(null, 0, false)]
+    public void S5504_windows_own_setting_is_hideicons_or_the_nodesktop_policy(int? hideIcons, int? noDesktop, bool hides)
+        => Assert.Equal(hides, DesktopIconRules.WindowsHides(hideIcons, noDesktop));
+
+    [Fact]
+    public void S5504_restore_shows_only_a_hidden_list_that_windows_itself_shows()
+    {
+        Assert.True(DesktopIconRules.Restore(shown: false, windowsHides: false));
+
+        // The user hid the icons in Windows: a restore never shows them.
+        Assert.False(DesktopIconRules.Restore(shown: false, windowsHides: true));
+
+        // Already shown, or no list to read: nothing to do.
+        Assert.False(DesktopIconRules.Restore(shown: true, windowsHides: false));
+        Assert.False(DesktopIconRules.Restore(shown: null, windowsHides: false));
     }
 
     [Fact]
-    public void S932_the_switch_shows_the_live_state_or_the_cache_never_the_unapplied_request()
+    public void S5505_only_the_windows_icons_pick_while_windows_hides_them_asks_windows()
     {
-        Assert.True(DesktopIconRules.Shown(true, stored: false));
-        Assert.False(DesktopIconRules.Shown(false, stored: true));
-        Assert.True(DesktopIconRules.Shown(null, stored: true));
-        Assert.False(DesktopIconRules.Shown(null, stored: false));
+        Assert.True(DesktopIconRules.AsksWindows(DesktopShows.WindowsIcons, windowsHides: true));
+        Assert.False(DesktopIconRules.AsksWindows(DesktopShows.WindowsIcons, windowsHides: false));
+        Assert.False(DesktopIconRules.AsksWindows(DesktopShows.ThemiaItems, windowsHides: true));
+        Assert.False(DesktopIconRules.AsksWindows(DesktopShows.Nothing, windowsHides: true));
     }
 
     // Regression: the state was read with IsWindowVisible, which is false whenever an ancestor of

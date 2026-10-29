@@ -479,7 +479,19 @@ public static class SettingsTransfer
         }
 
         Toggle(Str.Shell_Settings_General_GameMode, old.GameModeSuspend, @new.GameModeSuspend);
-        Toggle(Str.Settings_DesktopIcons_Label, old.DesktopIconsVisible, @new.DesktopIconsVisible);
+        // [S-5500] What the desktop shows, in the words of ⚙'s line.
+        string Shows(DesktopShows shows) => Strings.Get(locale, shows switch
+        {
+            DesktopShows.ThemiaItems => Str.Desktop_Choice_Themia,
+            DesktopShows.Nothing => Str.Desktop_Choice_Nothing,
+            _ => Str.Desktop_Choice_Windows,
+        });
+
+        if (old.Desktop != @new.Desktop)
+        {
+            changes.Add(Strings.Format(locale, Str.Shell_Transfer_Change,
+                ("label", Strings.Get(locale, Str.Desktop_Choice_Label)), ("before", Shows(old.Desktop)), ("after", Shows(@new.Desktop))));
+        }
 
         // [S-3770] [S-3780] The formats and cadences every widget shares.
         void Value(string label, string before, string after)

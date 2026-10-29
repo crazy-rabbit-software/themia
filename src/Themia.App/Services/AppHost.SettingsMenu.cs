@@ -1,21 +1,17 @@
 using Themia.App.Interop;
 using Themia.Core.Diagnostics;
+using Themia.Core.Model;
 using Themia.Core.Shell;
 
 namespace Themia.App.Services;
 
 /// <summary>
-/// [S-3525] What the edit bar's settings menu shows that Windows owns: start with Windows and the
-/// desktop icons. Read when a menu opens and followed while one is open, never trusted from what
-/// Themia last wrote; every display's menu reads the one answer.
+/// [S-3525] What the edit bar's settings menu shows that Windows owns (start with Windows), read
+/// when a menu opens and never trusted from what Themia last wrote, and [S-5500] what the desktop
+/// shows; every display's menu reads the one answer.
 /// </summary>
 internal sealed partial class AppHost
 {
-    /// <summary>[S-3525] The desktop icons' watch while a settings menu is open, and how many are.</summary>
-    private IDisposable? _iconWatch;
-
-    private int _iconWatchers;
-
     /// <summary>[S-3550] What ⚙ › Accounts reads and does, the same on every display.</summary>
     public Themia.App.Services.Accounts.AccountsMenuHost AccountsMenu { get; }
 
@@ -24,7 +20,7 @@ internal sealed partial class AppHost
 
     /// <summary>
     /// [S-3531] Something a settings menu shows that is not the state changed (what Windows said of
-    /// start with Windows, its desktop icons): the open menus show it. Raised on the UI thread.
+    /// start with Windows): the open menus show it. Raised on the UI thread.
     /// </summary>
     public event Action? SettingsOutdated;
 
@@ -119,78 +115,19 @@ internal sealed partial class AppHost
         SettingsOutdated?.Invoke();
     }
 
-    /// <summary>[S-930] Whether the desktop icons show, as Windows has them (the cache where the shell cannot be read).</summary>
-    public bool DesktopIconsShown => DesktopIconRules.Shown(DesktopIcons.AreVisible(), State.Preferences.DesktopIconsVisible);
-
-    /// <summary>[S-930] [S-931] Ask Windows to show or hide its icons; the menus follow once it has.</summary>
-    public void SetDesktopIcons(bool shown) => DesktopIcons.Request(shown);
-
     /// <summary>
-    /// [S-932] Follow the desktop icons while a settings menu is open: shown or hidden from anywhere
-    /// (the desktop's own menu included), the open menus show it. Dispose when the menu closes.
+    /// [S-5500] Store and apply what the desktop shows: the surfaces relayout (their region and the
+    /// item cards follow it), Explorer's icons are hidden or shown again, and [S-5505] picking
+    /// Windows' icons while Windows hides them asks Windows once.
     /// </summary>
-    public IDisposable WatchDesktopIcons()
+    public void SetDesktop(DesktopShows shows)
     {
-        if (_iconWatchers++ == 0)
-        {
-            _iconWatch = DesktopIcons.Watch(AdoptDesktopIcons);
-            DesktopIcons.Settled += OnDesktopIconsSettled;
-        }
-
-        AdoptDesktopIcons();
-        return new IconWatcher(this);
-    }
-
-    private void StopWatchingDesktopIcons()
-    {
-        if (_iconWatchers == 0 || --_iconWatchers > 0)
+        if (!Enum.IsDefined(shows) || State.Preferences.Desktop == shows)
         {
             return;
         }
 
-        DesktopIcons.Settled -= OnDesktopIconsSettled;
-        _iconWatch?.Dispose();
-        _iconWatch = null;
-    }
-
-    /// <summary>[S-932] The live state adopted: the cache follows Windows, and the menus show it.</summary>
-    private void AdoptDesktopIcons()
-    {
-        // While a request is being applied the list shows and hides on the way; Settled reads the end.
-        if (DesktopIcons.Busy)
-        {
-            return;
-        }
-
-        if (DesktopIconRules.Adopt(DesktopIcons.AreVisible(), State.Preferences.DesktopIconsVisible) is bool cached)
-        {
-            Mutate(s => s.Preferences.DesktopIconsVisible = cached, relayout: false);
-        }
-
-        SettingsOutdated?.Invoke();
-    }
-
-    /// <summary>[S-939] Raised on the worker thread: the icons are read on the UI thread.</summary>
-    private void OnDesktopIconsSettled()
-    {
-        if (!_dispatcher.TryEnqueue(AdoptDesktopIcons))
-        {
-            Log.Debug("desktop-icons", "could not queue reading the icons; the menu reads them when it opens again");
-        }
-    }
-
-    /// <summary>One open menu's hold on the desktop icons' watch.</summary>
-    private sealed class IconWatcher(AppHost host) : IDisposable
-    {
-        private bool _disposed;
-
-        public void Dispose()
-        {
-            if (!_disposed)
-            {
-                _disposed = true;
-                host.StopWatchingDesktopIcons();
-            }
-        }
+        Mutate(s => s.Preferences.Desktop = shows);
+        ApplyDesktop(picked: true);
     }
 }

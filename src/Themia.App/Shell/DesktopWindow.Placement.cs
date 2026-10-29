@@ -241,8 +241,6 @@ internal sealed partial class DesktopWindow
             SettingsMenuClosed();
         }
 
-        _settingsIcons?.Dispose();
-        _settingsIcons = null;
         Strings.Changed -= OnLanguageChanged;
 
         foreach (var card in _cards)

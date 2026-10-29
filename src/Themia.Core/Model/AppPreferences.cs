@@ -16,8 +16,8 @@ public sealed class AppPreferences
     /// <summary>Hide the widgets while a full-screen game or presentation has the screen.</summary>
     public bool GameModeSuspend { get; set; }
 
-    /// <summary>Whether Explorer's desktop icons are shown under the widgets.</summary>
-    public bool DesktopIconsVisible { get; set; } = true;
+    /// <summary>[S-5500] What the desktop shows while Themia runs: Themia's items, Windows' icons or nothing.</summary>
+    public DesktopShows Desktop { get; set; } = DesktopShows.WindowsIcons;
 
     /// <summary>[S-3770] How every widget writes times and dates and measures temperature.</summary>
     public RegionPreferences Region { get; set; } = new();
@@ -29,7 +29,7 @@ public sealed class AppPreferences
     {
         Language = Language,
         GameModeSuspend = GameModeSuspend,
-        DesktopIconsVisible = DesktopIconsVisible,
+        Desktop = Desktop,
         Region = Region.Clone(),
         Refresh = Refresh.Clone(),
     };

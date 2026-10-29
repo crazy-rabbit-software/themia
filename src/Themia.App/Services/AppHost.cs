@@ -303,6 +303,10 @@ internal sealed partial class AppHost : IDisposable
         // [S-4623] Alarms ring whether or not a widget shows them, from the first moment.
         StartAlarms();
 
+        // [S-5503] [S-5504] What the desktop shows, before the surfaces: Explorer's icons held hidden
+        // or given back from an earlier run that could not.
+        StartDesktop();
+
         // [S-890] Counted before the surfaces exist: a start that dies building them leaves its count.
         BeginStartGuard();
 
@@ -406,6 +410,7 @@ internal sealed partial class AppHost : IDisposable
         }
 
         _disposed = true;
+        StopDesktop();
         StopOutsideWatch();
         StopPlacementKeys();
         Notices.Disconnect();
