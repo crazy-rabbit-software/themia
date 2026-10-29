@@ -4,18 +4,17 @@ using Xunit;
 
 namespace Themia.Widget.Notes.Tests;
 
-/// <summary>[S-1362] [S-1363] [S-3963] The note widget's ladder, its one status line and its header bar. Moved with the widget from Core's NoteStoreTests, unchanged in what they assert.</summary>
+/// <summary>[S-1363] [S-3963] The note widget's body and its header bar.</summary>
 public sealed class NotesLayoutTests
 {
-    private static NotesLayoutPlan Plan(double width, double height, bool notSaved = false)
-        => NotesLayout.Plan(new WidgetArea(width, height - 44), inset: 16, gap: 8, lineHeight: 18, statusHeight: 16, notSaved);
+    private static NotesLayoutPlan Plan(double width, double height)
+        => NotesLayout.Plan(new WidgetArea(width, height - 44), lineHeight: 20);
 
     [Fact]
-    public void S1363_xs_and_s_show_text_alone()
+    public void S1363_xs_and_s_show_the_text_alone_at_least_two_lines()
     {
         foreach (var plan in new[] { Plan(120, 120), Plan(200, 150) })
         {
-            Assert.False(plan.Status);
             Assert.True(plan.TextLines >= NotesLayout.MinTextLines);
         }
     }
@@ -23,39 +22,9 @@ public sealed class NotesLayoutTests
     [Fact]
     public void S3963_the_body_gives_no_row_to_a_formatting_bar()
     {
-        // [S-3963] The bar lives in the header: at M and on a wide strip the body is the text alone,
-        // as many lines as the box holds.
-        var m = Plan(320, 240);
-        var wide = Plan(480, 160);
-
-        Assert.False(m.Status);
-        Assert.False(wide.Status);
-        Assert.Equal(NotesLayout.MinTextLines + Disclosure.WholeRows((240 - 44 - 32) - (18 * NotesLayout.MinTextLines), 18), m.TextLines);
-    }
-
-    /// <summary>[S-1362] No word or character count and no "Saved" (user requirement): a saved note is its text alone at every size.</summary>
-    [Theory]
-    [InlineData(120, 120)]
-    [InlineData(200, 150)]
-    [InlineData(320, 240)]
-    [InlineData(480, 160)]
-    [InlineData(200, 400)]
-    [InlineData(560, 420)]
-    [InlineData(800, 560)]
-    public void S1362_a_saved_note_has_no_status_line_at_any_size(double width, double height)
-        => Assert.False(Plan(width, height).Status);
-
-    [Fact]
-    public void S1362_a_failed_save_is_said_under_the_text_where_a_line_is_left()
-    {
-        var saved = Plan(320, 240);
-        var failed = Plan(320, 240, notSaved: true);
-
-        Assert.True(failed.Status);
-        Assert.True(failed.TextLines < saved.TextLines);
-
-        // The text keeps its two lines first.
-        Assert.False(Plan(120, 120, notSaved: true).Status);
+        // [S-3963] The bar lives in the header: at M the body is the text alone, every whole line the
+        // view's area holds under the card's bottom inset.
+        Assert.Equal((240 - 44 - 16) / 20, Plan(320, 240).TextLines);
     }
 
     [Fact]
@@ -63,24 +32,21 @@ public sealed class NotesLayoutTests
         => Assert.True(Plan(800, 560).TextLines > Plan(560, 420).TextLines);
 
     /// <summary>
-    /// [S-1363] The widget is the one note at every size: the text takes the whole width even at
-    /// XL, where a note list used to sit beside it (user decision: never a list on the left).
+    /// [S-1363] The widget is the one note at every size: the text takes the whole width less the card's
+    /// inset even at XL, where a note list used to sit beside it (user decision: never a list on the left).
     /// </summary>
     [Fact]
     public void S1363_xl_never_gives_width_to_a_note_list()
-    {
-        var xl = NotesLayout.Plan(new WidgetArea(800, 516), inset: 16, gap: 8, lineHeight: 18, statusHeight: 16);
-        Assert.Equal(800 - 32, xl.TextWidth);
-    }
+        => Assert.Equal(800 - 32, NotesLayout.Plan(new WidgetArea(800, 516), lineHeight: 20).TextWidth);
 
     [Fact]
     public void S1363_unmeasured_shows_the_text_only()
-        => Assert.False(NotesLayout.Plan(default, 16, 8, 18, 16).Status);
+        => Assert.Equal(NotesLayout.MinTextLines, NotesLayout.Plan(default, 20).TextLines);
 
     [Theory]
     [InlineData(400, true, 9, false)]
     [InlineData(800, true, 9, false)]
-    [InlineData(320, true, 5, true)]
+    [InlineData(320, true, 6, true)]
     [InlineData(240, true, 2, true)]
     [InlineData(180, true, 0, true)]
     [InlineData(170, false, 0, true)]

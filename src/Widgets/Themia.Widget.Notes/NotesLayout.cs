@@ -1,12 +1,12 @@
 using Themia.Core.Widgets;
+using Themia.Sdk.Kit;
 
 namespace Themia.Core.Notes;
 
 /// <summary>What the note widget's body shows at one size.</summary>
-/// <param name="Status">The line under the text that says the note is not saved ([S-1362]).</param>
 /// <param name="TextWidth">The width the text has: the whole box at every size, never shared with a note list.</param>
 /// <param name="TextLines">Whole lines of text the editor shows at least (for tests; the editor scrolls).</param>
-public sealed record NotesLayoutPlan(bool Status, double TextWidth, int TextLines);
+public sealed record NotesLayoutPlan(double TextWidth, int TextLines);
 
 /// <summary>
 /// [S-3963] The formatting bar in the card's header: how many buttons stand in it, and whether the
@@ -31,13 +31,9 @@ public readonly record struct NotesHeaderBar(int Inline, bool Overflow)
 }
 
 /// <summary>
-/// [S-1363] The note widget's disclosure ladder (<see cref="Disclosure"/>, S-660).
-/// <list type="number">
-/// <item>The text — always, at least two lines, even at 120 × 120.</item>
-/// <item>"Not saved" under the text, only while the note's last write failed ([S-1362]): no word or
-/// character count (user requirement), and nothing while all is well.</item>
-/// </list>
-/// The formatting bar is not part of the body: it stands in the card's header while the note is
+/// [S-1363] The note widget's body: the text, and nothing else, at every size, from the view's top in
+/// the card's inset (16 either side and under it, [S-6703]). A failed write is the header's problem
+/// glyph ([S-1362]), never a line of the body. The formatting bar is not part of the body: it stands in the card's header while the note is
 /// being edited ([S-3963], <see cref="HeaderBar"/>). The widget is the one note at every size: a
 /// larger tile gives the text more room, never a note list beside it (switching notes is the
 /// header's picker, [S-1364]).
@@ -47,49 +43,41 @@ public static class NotesLayout
     /// <summary>Every button the bar can show.</summary>
     public const int AllButtons = 9;
 
-    /// <summary>The bar's buttons, square and compact: they sit on the header's title line.</summary>
-    public const double ButtonSize = 24;
+    /// <summary>The bar's buttons: the header's buttons, 24, side by side on the header's title line ([S-6710]).</summary>
+    public const double ButtonSize = FamilyShape.HeaderButton;
 
-    public const double ButtonGap = 2;
+    public const double ButtonGap = 0;
 
     /// <summary>Lines of text the editor reserves before anything else is shown.</summary>
     public const int MinTextLines = 2;
 
-    /// <summary>The header's own inset on each side (<c>Fluent.HeaderMargin</c>).</summary>
-    public const double HeaderInset = 16;
+    /// <summary>The header's own inset on each side.</summary>
+    public const double HeaderInset = FamilySpace.Inset;
 
     /// <summary>The header's icon and the gap after it.</summary>
-    public const double HeaderLeading = 24;
+    public const double HeaderLeading = HeaderRules.Leading;
 
     /// <summary>The gap between the title and the bar.</summary>
-    public const double TitleGap = 8;
+    public const double TitleGap = FamilySpace.S2;
 
-    /// <summary>The note picker's chevron button and the gap before it.</summary>
-    public const double PickerWidth = 24;
+    /// <summary>The note picker's chevron button (side by side with the bar's).</summary>
+    public const double PickerWidth = FamilyShape.HeaderButton;
 
-    /// <param name="area">The view's slot.</param>
-    /// <param name="inset">The padding the view keeps on each side of its parts.</param>
-    /// <param name="gap">The margin between parts.</param>
-    /// <param name="lineHeight">One line of the note at its size.</param>
-    /// <param name="statusHeight">One line of the status (Caption).</param>
-    /// <param name="notSaved">The note's last write failed, which the status line says.</param>
-    public static NotesLayoutPlan Plan(WidgetArea area, double inset, double gap, double lineHeight, double statusHeight, bool notSaved = false)
+    /// <summary>The rename box under the picker: room for a title of a few words.</summary>
+    public const double RenameWidth = 200;
+
+    /// <param name="area">The view's slot (the card less its header).</param>
+    /// <param name="lineHeight">One line of the note (the Body line at the text size).</param>
+    public static NotesLayoutPlan Plan(WidgetArea area, double lineHeight)
     {
         if (!area.IsMeasured)
         {
-            return new NotesLayoutPlan(false, 0, MinTextLines);
+            return new NotesLayoutPlan(0, MinTextLines);
         }
 
-        var box = area.Deflate(inset, inset);
-        var width = box.Width;
-
-        var room = new Disclosure(width, box.Height, gap);
-        room.Reserve(lineHeight * MinTextLines);
-
-        var status = notSaved && room.Take(statusHeight);
-
-        var lines = MinTextLines + Disclosure.WholeRows(room.Remaining, lineHeight);
-        return new NotesLayoutPlan(status, width, lines);
+        var width = Math.Max(0, area.Width - (2 * FamilySpace.Inset));
+        var height = Math.Max(0, area.Height - FamilySpace.Inset);
+        return new NotesLayoutPlan(width, Math.Max(MinTextLines, Disclosure.WholeRows(height, lineHeight)));
     }
 
     /// <summary>

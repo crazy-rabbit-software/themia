@@ -1,4 +1,3 @@
-using System.Globalization;
 using Themia.App.Widgets;
 using Themia.Core.Localization;
 using Themia.Core.Model;
@@ -11,8 +10,9 @@ namespace Themia.App.Shell.Config;
 /// <summary>
 /// [S-1349] The Notes widget's options, all on its properties menu ([S-3719]): Appearance
 /// ([S-3723]), which note it shows (picked from the notes kept on this PC, which can be made, renamed
-/// and deleted there), apart from it the text size, and apart again clearing the note where one is
-/// shown. It has no settings page.
+/// and deleted there), and apart from it clearing the note where one is shown. The note is drawn in the
+/// family's steps, at the text size every widget follows ([S-6700]); it has no size of its own. It has
+/// no settings page.
 /// <para>
 /// The notes are device-wide (the host's pool, read through <see cref="SettingsHost.Notes"/>):
 /// renaming or deleting one does it for every widget showing it. Only the choice of note and the look
@@ -21,11 +21,6 @@ namespace Themia.App.Shell.Config;
 /// </summary>
 internal static class NotesMenu
 {
-    /// <summary>The text sizes the config clamps to ([S-1346]), so the menu never offers one it would not draw.</summary>
-    private const double MinFont = 8;
-
-    private const double MaxFont = 48;
-
     /// <param name="pool">The notes on this PC, or null where the host has none to offer.</param>
     /// <param name="now">For each note's last-written age.</param>
     public static void Lines(WidgetMenuLines menu, NotesConfig config, INotes? pool, DateTimeOffset now)
@@ -34,12 +29,6 @@ internal static class NotesMenu
         ArgumentNullException.ThrowIfNull(config);
 
         menu.Lines.Add(Notes(menu, config, pool, now));
-
-        // The note's base size, how it reads, apart from which note it is; headings are drawn larger.
-        menu.Lines.Add(ItemMenuEntry.Separator);
-        menu.Lines.Add(menu.Number(Glyphs.TextSize, NotesStr.Notes_FontSizeLabel.Text(),
-            Math.Round(config.EffectiveFontSizePx), MinFont, MaxFont, 1d,
-            value => string.Create(CultureInfo.InvariantCulture, $"{value:0} px"), value => config.FontSizePx = value));
 
         // [S-130] Empties the note's text for good (there is no undo, no bin, no second copy), so it
         // asks first; greyed while there is nothing to clear. The note itself stays, with its title.

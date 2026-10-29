@@ -1,4 +1,3 @@
-using Microsoft.UI;
 using Microsoft.UI.Dispatching;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
@@ -9,7 +8,9 @@ using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Notes;
 using Themia.Core.Widgets;
+using Themia.Sdk.Kit;
 using Themia.Sdk.WinUI;
+using Themia.Sdk.WinUI.Kit;
 using Themia.Widget.Notes;
 
 namespace Themia.App.Widgets;
@@ -25,8 +26,8 @@ namespace Themia.App.Widgets;
 /// </para>
 /// <para>
 /// The editing itself is <see cref="MarkdownEditor"/>; this view binds it to the pool, saves on a
-/// debounce and on blur and detach, and lays the parts out by the ladder in <see cref="NotesLayout"/>:
-/// text, then a status line. The formatting bar stands in the card's header while the note is being
+/// debounce and on blur and detach, and draws the text alone in the card's inset (<see cref="NotesLayout"/>);
+/// a failed write is the header's problem glyph, a note it cannot show the Status row. The formatting bar stands in the card's header while the note is being
 /// edited ([S-3963]), beside the note picker. It shows the one note at every size; another note is
 /// picked from the header (<see cref="HeaderTrailing"/>), never from a list beside the text.
 /// </para>
@@ -63,11 +64,14 @@ internal sealed partial class NotesView : Grid, IWidgetView, IWidgetSurfaceAware
 
     private readonly MarkdownEditor _editor = new();
     private readonly Grid _body = new();
-    private readonly TextBlock _status;
-    private readonly TextBlock _messageText;
-    private readonly Border _message;
 
-    /// <summary>[S-3963] The header's trailing part: the formatting bar, its "More" button, the picker.</summary>
+    /// <summary>[S-1347] [S-6714] What the widget says instead of the note it cannot show: the Status row at the top.</summary>
+    private readonly StatusBlock _message = new();
+
+    /// <summary>[S-1362] The header's problem glyph while the note's last write failed.</summary>
+    private readonly FontIcon _notSavedGlyph;
+
+    /// <summary>[S-3963] The header's trailing part: the problem glyph, the formatting bar, its "More" button, the picker.</summary>
     private readonly StackPanel _headerBar;
     private readonly Button _more;
     private readonly DispatcherQueueTimer? _saveTimer;
@@ -79,12 +83,12 @@ internal sealed partial class NotesView : Grid, IWidgetView, IWidgetSurfaceAware
     private string? _shownId;
     private NoteState _state = NoteState.Unbound;
     private WidgetArea _area;
-    private NotesLayoutPlan _plan = new(false, 0, NotesLayout.MinTextLines);
+    private NotesLayoutPlan _plan = new(0, NotesLayout.MinTextLines);
     private bool _dirty;
     private bool _resolving;
     private bool _editorFocused;
 
-    // [S-1362] The note's last write failed: the status line says so.
+    // [S-1362] The note's last write failed: the header's problem glyph says so.
     private bool _notSaved;
 
     /// <summary>[S-3963] The "More" menu is open: the bar stays while the note's focus is in it.</summary>
@@ -102,50 +106,34 @@ internal sealed partial class NotesView : Grid, IWidgetView, IWidgetSurfaceAware
     public NotesView(IWidgetHost host)
     {
         _host = host;
-        // The card no longer pads its content; a view that is not a list carries its own inset.
-        Padding = WidgetLayout.Inset;
-
-        _body.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });         // text
-        _body.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });                              // status
+        // [S-6703] The text from the view's top (the content top under the header), in the card's
+        // inset either side and under it; the Status row carries its own side inset.
+        _body.Margin = new Thickness(FamilySpace.Inset, 0, FamilySpace.Inset, FamilySpace.Inset);
 
         BuildEditor();
 
-        _status = Fluent.Text(FluentType.Caption, "TextFillColorTertiaryBrush");
-        _status.TextTrimming = TextTrimming.CharacterEllipsis;
-        _status.TextWrapping = TextWrapping.NoWrap;
-        _status.Margin = new Thickness(0, Fluent.Space2, 0, 0);
-        Microsoft.UI.Xaml.Documents.Typography.SetNumeralAlignment(_status, FontNumeralAlignment.Tabular);
-
-        _messageText = Fluent.Text(FluentType.Body);
-        _message = new Border
-        {
-            Child = Fluent.EmptyState(Glyphs.Note, _messageText, out _),
-            VerticalAlignment = VerticalAlignment.Center,
-            Visibility = Visibility.Collapsed,
-        };
-
-        SetRow(_editor.Box, 0);
-        SetRow(_message, 0);
-        SetRow(_status, 1);
+        _message.Visibility = Visibility.Collapsed;
         _body.Children.Add(_editor.Box);
-        _body.Children.Add(_message);
-        _body.Children.Add(_status);
-
         Children.Add(_body);
+        Children.Add(_message);
 
         BuildPicker();
 
         _more = BuildMore();
 
-        // [S-3963] The bar on the header's title line: its buttons are taller than the line, so the
-        // negative margin keeps the header the height it has without them, and focusing the note
-        // never moves the text.
+        _notSavedGlyph = HeaderBlock.Problem(NotesStr.WidgetsC_Notes_NotSaved.Text());
+        _notSavedGlyph.Margin = new Thickness(0, 0, FamilySpace.S1, 0);
+        _notSavedGlyph.Visibility = Visibility.Collapsed;
+
+        // [S-3963] The bar on the header's title line, its buttons side by side as the header's are: they
+        // stand 2 over the line either way, so the header keeps its height and focusing the note never
+        // moves the text, and the last one's glyph sits on the inset ([S-6710]).
         _headerBar = new StackPanel
         {
             Orientation = Orientation.Horizontal,
             Spacing = NotesLayout.ButtonGap,
-            Margin = new Thickness(NotesLayout.TitleGap, -Fluent.Space1 / 2, 0, -Fluent.Space1 / 2),
-            Children = { _editor.Toolbar, _more, _picker },
+            Margin = new Thickness(NotesLayout.TitleGap, -FamilySpace.ButtonOverflow, -HeaderRules.ButtonOverhang, -FamilySpace.ButtonOverflow),
+            Children = { _notSavedGlyph, _editor.Toolbar, _more, _picker },
         };
 
         _editor.TextEdited += OnTextEdited;
@@ -189,7 +177,7 @@ internal sealed partial class NotesView : Grid, IWidgetView, IWidgetSurfaceAware
     private void BuildEditor()
     {
         var box = _editor.Box;
-        var clear = ThemeBrush.Of("SubtleFillColorTransparentBrush", Colors.Transparent);
+        var clear = Family.Brush(ColourRole.Clear);
 
         box.Resources["TextControlBackground"] = clear;
         box.Resources["TextControlBackgroundPointerOver"] = clear;
@@ -197,29 +185,24 @@ internal sealed partial class NotesView : Grid, IWidgetView, IWidgetSurfaceAware
         box.Resources["TextControlBackgroundDisabled"] = clear;
         box.Resources["TextControlBackgroundReadOnly"] = clear;
 
-        box.Resources["TextControlBorderBrush"] = clear;
-        box.Resources["TextControlBorderBrushPointerOver"] = clear;
-        box.Resources["TextControlBorderBrushDisabled"] = clear;
-
-        // No frame on focus either: the focused state draws the accent through its own elevation
-        // brush and thickness, past the box's BorderThickness, so those keys are cleared too.
-        box.Resources["TextControlBorderBrushFocused"] = clear;
-        box.Resources["TextControlElevationBorderFocusedBrush"] = clear;
+        // No frame at rest, under the pointer or on focus: the border is no thickness in every state
+        // (the focused state's own thickness, which draws the accent line past the box's, included),
+        // so no brush of it is ever drawn and none needs replacing.
         box.Resources["TextControlBorderThemeThicknessFocused"] = new Thickness(0);
         box.UseSystemFocusVisuals = false;
 
         box.BorderThickness = new Thickness(0);
-        box.CornerRadius = new CornerRadius(Fluent.ControlRadius);
+        box.CornerRadius = Family.Radius;
 
         // The fill is inset from the text by one grid unit and the field pulled back out by the same,
         // so the focus fill has room to breathe while the words stay where the inset put them.
-        box.Padding = new Thickness(Fluent.Space1);
-        box.Margin = new Thickness(-Fluent.Space1);
+        box.Padding = new Thickness(FamilySpace.S1);
+        box.Margin = new Thickness(-FamilySpace.S1);
         box.MinHeight = 0;
         box.HorizontalAlignment = HorizontalAlignment.Stretch;
         box.VerticalAlignment = VerticalAlignment.Stretch;
         box.VerticalContentAlignment = VerticalAlignment.Top;
-        box.Foreground = ThemeBrush.Of("TextFillColorPrimaryBrush", Colors.White);
+        box.Foreground = Family.Brush(ColourRole.TextPrimary);
 
         ScrollViewer.SetVerticalScrollBarVisibility(box, ScrollBarVisibility.Auto);
         ScrollViewer.SetHorizontalScrollBarVisibility(box, ScrollBarVisibility.Disabled);
@@ -257,7 +240,8 @@ internal sealed partial class NotesView : Grid, IWidgetView, IWidgetSurfaceAware
     {
         _config = config as NotesConfig ?? new NotesConfig();
 
-        _editor.FontSize = _config.DrawnFontSizePx(FluentType.TextScale);
+        // [S-6700] The note is Body (its title Title) at the text size every widget follows: no size of its own.
+        _editor.FontSize = FamilyType.Body.FontSize;
         _editor.Wrap = true;
 
         Resolve();
@@ -384,20 +368,30 @@ internal sealed partial class NotesView : Grid, IWidgetView, IWidgetSurfaceAware
     /// <summary>The note can be typed in: a real note, or a preview's draft that is never saved.</summary>
     private bool Editable => _state is NoteState.Ready or NoteState.Unbound;
 
-    /// <summary>[S-1347] What the widget says instead of the note, when it cannot show one.</summary>
+    /// <summary>
+    /// [S-1347] [S-6714] What the widget says instead of the note, when it cannot show one: the Status
+    /// row at the top, the note's glyph for a note that is gone or a PC with no notes, the warning for
+    /// a note whose file could not be read.
+    /// </summary>
     private void UpdateMessage()
     {
-        _messageText.Text = _state switch
+        var sentence = _state switch
         {
             NoteState.Deleted => NotesStr.Notes_NoteGone.Text(),
             NoteState.Unreadable => NotesStr.WidgetsC_Notes_Unreadable.Text(),
             NoteState.Unavailable => NotesStr.WidgetsC_Notes_Unavailable.Text(),
-            _ => string.Empty,
+            _ => null,
         };
 
-        var showMessage = _state is NoteState.Deleted or NoteState.Unreadable or NoteState.Unavailable;
-        _message.Visibility = showMessage ? Visibility.Visible : Visibility.Collapsed;
-        _editor.Box.Visibility = showMessage ? Visibility.Collapsed : Visibility.Visible;
+        if (sentence is null)
+        {
+            _message.Hide();
+            _body.Visibility = Visibility.Visible;
+            return;
+        }
+
+        _message.Show(_state == NoteState.Unreadable ? StatusKind.Problem : StatusKind.Empty, Glyphs.Note, sentence);
+        _body.Visibility = Visibility.Collapsed;
     }
 
     private void OnPoolChanged(string? id)
@@ -486,20 +480,15 @@ internal sealed partial class NotesView : Grid, IWidgetView, IWidgetSurfaceAware
     }
 
     /// <summary>
-    /// [S-1362] "Not saved" while the note's last write failed, and nothing at all otherwise: no
-    /// word or character count, no "Saved" (user requirement). The line takes a rung of the ladder,
-    /// so a change of state lays the body out again.
+    /// [S-1362] "Not saved" while the note's last write failed, as the header's problem glyph (its
+    /// tooltip says it), and nothing at all otherwise: no word or character count, no "Saved" (user
+    /// requirement). The text keeps all its room.
     /// </summary>
     private void UpdateStatus()
     {
-        var failed = _state == NoteState.Ready && _pool?.WriteFailed == true;
-        if (failed != _notSaved)
-        {
-            _notSaved = failed;
-            Lay();
-        }
-
-        _status.Text = NotesStr.WidgetsC_Notes_NotSaved.Text();
+        _notSaved = _state == NoteState.Ready && _pool?.WriteFailed == true;
+        _notSavedGlyph.Visibility = _notSaved ? Visibility.Visible : Visibility.Collapsed;
+        ToolTipService.SetToolTip(_notSavedGlyph, NotesStr.WidgetsC_Notes_NotSaved.Text());
     }
 
     // -----------------------------------------------------------------------------------------
@@ -514,12 +503,8 @@ internal sealed partial class NotesView : Grid, IWidgetView, IWidgetSurfaceAware
             return;
         }
 
-        // A line of the note at its size: the type ramp's leading for body text, scaled.
-        var lineHeight = _config.EffectiveFontSizePx * FluentType.Body.LineHeight / FluentType.Body.FontSize;
-        _plan = NotesLayout.Plan(_area, WidgetLayout.ContentInset, Fluent.Space2, lineHeight, FluentType.Caption.LineHeight, _notSaved);
-
+        _plan = NotesLayout.Plan(_area, FamilyType.Body.LineHeight);
         _editor.FlatHeadings = _area.WidthClass == SizeClass.Compact;
-        _status.Visibility = _plan.Status ? Visibility.Visible : Visibility.Collapsed;
 
         UpdatePicker();
         UpdateBar();
@@ -556,16 +541,16 @@ internal sealed partial class NotesView : Grid, IWidgetView, IWidgetSurfaceAware
     /// <summary>[S-3963] The "More" button: the commands the header had no room for, as a menu.</summary>
     private Button BuildMore()
     {
+        // [S-6710] A header button: 24, a 16 glyph in the secondary role, the one radius.
         var more = new Button
         {
-            Content = new FontIcon { Glyph = Glyphs.More, FontSize = Fluent.IconSize },
+            Content = Family.Glyph(Glyphs.More),
             Width = NotesLayout.ButtonSize,
             Height = NotesLayout.ButtonSize,
             Padding = new Thickness(0),
             BorderThickness = new Thickness(0),
-            CornerRadius = new CornerRadius(Fluent.ControlRadius),
-            Background = ThemeBrush.Of("SubtleFillColorTransparentBrush", Colors.Transparent),
-            Foreground = ThemeBrush.Of("TextFillColorSecondaryBrush", Colors.Gray),
+            CornerRadius = Family.Radius,
+            Background = Family.Brush(ColourRole.Clear),
             VerticalAlignment = VerticalAlignment.Center,
             Visibility = Visibility.Collapsed,
 

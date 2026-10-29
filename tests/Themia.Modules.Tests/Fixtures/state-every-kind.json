@@ -319,8 +319,7 @@
           "itemTextColor": "",
           "scale": 1,
           "config": {
-            "kind": "notes",
-            "fontSizePx": 13
+            "kind": "notes"
           }
         },
         {

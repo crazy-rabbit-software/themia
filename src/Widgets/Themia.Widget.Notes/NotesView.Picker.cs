@@ -1,12 +1,14 @@
-using Microsoft.UI;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Controls.Primitives;
 using Themia.App.Shell;
 using Themia.Core.Diagnostics;
 using Themia.Core.Localization;
+using Themia.Core.Notes;
 using Themia.Core.Widgets;
+using Themia.Sdk.Kit;
 using Themia.Sdk.WinUI;
+using Themia.Sdk.WinUI.Kit;
 using Windows.System;
 using Themia.Widget.Notes;
 
@@ -31,14 +33,18 @@ internal sealed partial class NotesView
 
     private void BuildPicker()
     {
+        // [S-6710] A header button: 24, a 16 glyph in the secondary role, the one radius.
         _picker = new Button
         {
-            Content = Fluent.Icon(Glyphs.ChevronDown, "TextFillColorSecondaryBrush", 12),
-            Padding = new Thickness(Fluent.Space1),
+            Content = Family.Glyph(Glyphs.ChevronDown),
+            Width = NotesLayout.PickerWidth,
+            Height = NotesLayout.ButtonSize,
+            Padding = new Thickness(0),
             MinWidth = 0,
             MinHeight = 0,
             BorderThickness = new Thickness(0),
-            Background = ThemeBrush.Of("SubtleFillColorTransparentBrush", Colors.Transparent),
+            CornerRadius = Family.Radius,
+            Background = Family.Brush(ColourRole.Clear),
             VerticalAlignment = VerticalAlignment.Center,
             Visibility = Visibility.Collapsed,
         };
@@ -94,7 +100,7 @@ internal sealed partial class NotesView
             return;
         }
 
-        var box = new TextBox { Text = note.Title, MinWidth = 200, PlaceholderText = NotesStr.Notes_NamePlaceholder.Text() };
+        var box = new TextBox { Text = note.Title, MinWidth = NotesLayout.RenameWidth, PlaceholderText = NotesStr.Notes_NamePlaceholder.Text() };
         // [S-1500] Its own popup: inside the surface's window the region clips it to the card.
         var flyout = new Flyout { Content = box, Placement = FlyoutPlacementMode.Bottom, ShouldConstrainToRootBounds = false };
         var cancelled = false;

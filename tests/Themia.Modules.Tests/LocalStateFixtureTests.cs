@@ -44,7 +44,7 @@ public sealed class LocalStateFixtureTests
         Assert.Equal(12, configs.Count);
 
         var notes = Assert.IsType<NotesConfig>(configs[0]);
-        Assert.Equal(("1a2b3c4d5e6f708192a3b4c5d6e7f809", 16d), (notes.NoteId, notes.FontSizePx));
+        Assert.Equal("1a2b3c4d5e6f708192a3b4c5d6e7f809", notes.NoteId);
         var weekly = Assert.IsType<HabitTrackerConfig>(configs[1]);
         Assert.Equal(("list-weekly", HabitTrackerStyle.Heatmap, HabitPeriod.Weekly, 12, false), (weekly.ListId, weekly.Style, weekly.Period, weekly.HistoryDots, weekly.ShowStreak));
         var custom = Assert.IsType<HabitTrackerConfig>(configs[2]);

@@ -11,7 +11,9 @@ using Themia.Core.Diagnostics;
 using Themia.Core.Localization;
 using Themia.Core.Notes;
 using Themia.Core.Widgets;
+using Themia.Sdk.Kit;
 using Themia.Sdk.WinUI;
+using Themia.Sdk.WinUI.Kit;
 using Windows.ApplicationModel.DataTransfer;
 using Windows.System;
 using Windows.UI;
@@ -95,7 +97,7 @@ internal sealed class MarkdownEditor
     private readonly bool _finalMark;
 
     private string? _baseFont;
-    private double _fontSize = 13;
+    private double _fontSize = FamilyType.Body.FontSize;
     private bool _composing;
     private bool _flatHeadings;
     private bool _readOnly;
@@ -443,12 +445,12 @@ internal sealed class MarkdownEditor
     // Drawing
     // -----------------------------------------------------------------------------------------
 
+    /// <summary>[S-1358] The text roles a note is drawn in: never the accent ([S-6706]).</summary>
     private enum Ink
     {
         Primary,
         Secondary,
         Tertiary,
-        Accent,
     }
 
     private readonly record struct FormatKey(float Points, int Weight, bool Italic, bool Strike, bool Mono, Ink Ink);
@@ -497,6 +499,10 @@ internal sealed class MarkdownEditor
         var line = _lines[index];
         var at = _lineStarts[index];
 
+        // [S-6700] The line is its step's exactly: a title's 28, a body line's 20 (RichEdit's spacing is in points).
+        var paragraph = Box.Document.GetRange(at, at + line.Spans.Sum(s => s.Text.Length));
+        paragraph.ParagraphFormat.SetLineSpacing(LineSpacingRule.Exactly, (float)(LineOf(line) * 0.75));
+
         foreach (var span in line.Spans)
         {
             var range = Box.Document.GetRange(at, at + span.Text.Length);
@@ -510,22 +516,28 @@ internal sealed class MarkdownEditor
         }
     }
 
+    /// <summary>
+    /// [S-6700] A note's title (a first-level heading) is Title, 20 on its 28 line; every other line is
+    /// Body, 14 on 20, a lower heading in BodyStrong. On a compact width the title is BodyStrong too
+    /// ([S-1363]): there a heading half as large again wraps its marker onto a line of its own.
+    /// </summary>
+    private bool IsTitle(NoteLine line) => !_flatHeadings && line.Kind == NoteLineKind.Heading1;
+
+    /// <summary>The line a note's line stands on, in DIPs: the title's or the body's, at the note's text size.</summary>
+    private double LineOf(NoteLine line)
+        => _fontSize * (IsTitle(line) ? FamilyType.Title.LineHeight : FamilyType.Body.LineHeight) / FamilyType.Body.FontSize;
+
     private FormatKey KeyFor(NoteLine line, NoteSpan span)
     {
-        var scale = _flatHeadings ? 1.0 : line.Kind switch
-        {
-            NoteLineKind.Heading1 => 1.5,
-            NoteLineKind.Heading2 => 1.3,
-            NoteLineKind.Heading3 => 1.15,
-            _ => 1.0,
-        };
+        var scale = IsTitle(line) ? FamilyType.Title.FontSize / FamilyType.Body.FontSize : 1.0;
 
+        // [S-6700] Two weights: a heading and a bold span are 600, everything else 400.
         var heading = line.Kind is NoteLineKind.Heading1 or NoteLineKind.Heading2 or NoteLineKind.Heading3;
-        var weight = span.Has(NoteSpanStyle.Bold) ? 700 : heading ? 600 : 400;
+        var weight = span.Has(NoteSpanStyle.Bold) || heading ? FontWeights.SemiBold.Weight : FontWeights.Normal.Weight;
         var mono = span.Has(NoteSpanStyle.Code) || line.Kind is NoteLineKind.Code or NoteLineKind.Fence;
 
-        var ink = span.Has(NoteSpanStyle.Box) ? Ink.Accent
-            : span.Has(NoteSpanStyle.Marker) ? Ink.Tertiary
+        // [S-1358] The marks (and a task's box) are tertiary, never the accent; a done task, code and a quote are secondary.
+        var ink = span.Has(NoteSpanStyle.Box) || span.Has(NoteSpanStyle.Marker) ? Ink.Tertiary
             : line.Kind is NoteLineKind.Code or NoteLineKind.Quote || (line.Kind == NoteLineKind.Task && line.Checked) ? Ink.Secondary
             : Ink.Primary;
 
@@ -556,34 +568,16 @@ internal sealed class MarkdownEditor
     }
 
     /// <summary>
-    /// The theme's text colours, made opaque over the card's colour: the control draws a text colour
-    /// without its alpha, so the secondary and tertiary fills — white at 60 % and 40 % in the dark
+    /// [S-6738] The text roles, as the opaque colours they show on the card: the control draws a text
+    /// colour without its alpha, so the secondary and tertiary roles — white at 77 % and 53 % in the dark
     /// theme — would otherwise all come out as the primary.
     /// </summary>
-    private static Color Color(Ink ink)
+    private static Color Color(Ink ink) => HexBrush.OnCard(ink switch
     {
-        var key = ink switch
-        {
-            Ink.Secondary => "TextFillColorSecondaryBrush",
-            Ink.Tertiary => "TextFillColorTertiaryBrush",
-            Ink.Accent => "AccentTextFillColorPrimaryBrush",
-            _ => "TextFillColorPrimaryBrush",
-        };
-
-        var fill = (ThemeBrush.Of(key, Colors.Gray) as SolidColorBrush)?.Color ?? Colors.Gray;
-        var under = (ThemeBrush.Of("SolidBackgroundFillColorBaseBrush", Colors.Black) as SolidColorBrush)?.Color ?? Colors.Black;
-        return Blend(fill, under);
-    }
-
-    private static Color Blend(Color over, Color under)
-    {
-        var a = over.A / 255.0;
-        return Windows.UI.Color.FromArgb(
-            255,
-            (byte)Math.Round((over.R * a) + (under.R * (1 - a))),
-            (byte)Math.Round((over.G * a) + (under.G * (1 - a))),
-            (byte)Math.Round((over.B * a) + (under.B * (1 - a))));
-    }
+        Ink.Secondary => ColourRole.TextSecondary,
+        Ink.Tertiary => ColourRole.TextTertiary,
+        _ => ColourRole.TextPrimary,
+    });
 
     private void OnThemeChanged(FrameworkElement sender, object args) => Restyle();
 
@@ -785,18 +779,19 @@ internal sealed class MarkdownEditor
         foreach (var (command, glyph, label, tip, rank) in BarButtons)
         {
             object content = glyph is not null
-                ? new FontIcon { Glyph = glyph, FontSize = Fluent.IconSize }
+                ? Family.Glyph(glyph)
                 : LabelFor(label ?? string.Empty);
 
+            // [S-6710] A header button: 24, a 16 glyph (or its letters in BodyStrong), the one radius.
             var button = new Button
             {
                 Content = content,
-                Width = NotesLayout.ButtonSize,
-                Height = NotesLayout.ButtonSize,
+                Width = FamilyShape.HeaderButton,
+                Height = FamilyShape.HeaderButton,
                 Padding = new Thickness(0),
                 BorderThickness = new Thickness(0),
-                CornerRadius = new CornerRadius(Fluent.ControlRadius),
-                Background = ThemeBrush.Of("SubtleFillColorTransparentBrush", Colors.Transparent),
+                CornerRadius = Family.Radius,
+                Background = Family.Brush(ColourRole.Clear),
 
                 // [S-1365] The note keeps the focus and its selection; the command runs on that.
                 IsTabStop = false,
@@ -841,11 +836,24 @@ internal sealed class MarkdownEditor
 
     private static TextBlock LabelFor(string label)
     {
-        var text = Fluent.Text(FluentType.BodyStrong, "TextFillColorSecondaryBrush");
-        text.Text = label;
+        var text = Family.Text(FamilyType.BodyStrong, ColourRole.TextSecondary, label);
         text.HorizontalAlignment = HorizontalAlignment.Center;
         text.VerticalAlignment = VerticalAlignment.Center;
         return text;
+    }
+
+    /// <summary>A bar button's glyph or letters in <paramref name="role"/>.</summary>
+    private static void Paint(object content, ColourRole role)
+    {
+        switch (content)
+        {
+            case FontIcon icon:
+                icon.Foreground = Family.Brush(role);
+                break;
+            case TextBlock text:
+                text.Foreground = Family.Brush(role);
+                break;
+        }
     }
 
     /// <summary>[S-1359] Light the buttons for what is in force at the caret.</summary>
@@ -863,8 +871,9 @@ internal sealed class MarkdownEditor
         {
             var on = IsOn(command, marks);
 
-            button.Background = ThemeBrush.Of(on ? "SubtleFillColorSecondaryBrush" : "SubtleFillColorTransparentBrush", Colors.Transparent);
-            button.Foreground = ThemeBrush.Of(on ? "AccentTextFillColorPrimaryBrush" : "TextFillColorSecondaryBrush", Colors.Gray);
+            // [S-6706] A mark in force is the subtle fill and the primary role, never the accent.
+            button.Background = Family.Brush(on ? ColourRole.Subtle : ColourRole.Clear);
+            Paint(button.Content, on ? ColourRole.TextPrimary : ColourRole.TextSecondary);
         }
     }
 
