@@ -40,7 +40,11 @@ internal static class DesktopItemsCheck
             var lines = new List<string>();
             try
             {
-                var items = await Task.Run(DesktopNamespace.Read).ConfigureAwait(true);
+                // --key <key> <kind>: one item's icon only (a key on no disk tests the type fallback).
+                var keyAt = Array.IndexOf(args, "--key");
+                IReadOnlyList<DesktopItem>? items = keyAt >= 0 && keyAt + 2 < args.Length && Enum.TryParse<DesktopItemKind>(args[keyAt + 2], out var kindArg)
+                    ? [new DesktopItem(args[keyAt + 1], DesktopItemKeys.FallbackName(args[keyAt + 1]), kindArg)]
+                    : await Task.Run(DesktopNamespace.Read).ConfigureAwait(true);
                 if (items is null)
                 {
                     lines.Add("read: failed (see the log)");
@@ -68,7 +72,7 @@ internal static class DesktopItemsCheck
             catch (Exception ex)
             {
                 Log.Error(Scope, "the desktop items check threw", ex);
-                lines.Add("threw: " + ex.GetType().Name);
+                lines.Add("threw: " + ex);
             }
 
             try

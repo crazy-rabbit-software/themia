@@ -7546,7 +7546,7 @@ Owning files: `Themia.Core/Desktop/*`, `Themia.Core/Shell/DesktopIconRules.cs`,
   each read and after an undo or redo (which may bring back a widget whose item has gone), only
   while a listing is held. A rename made while Themia was not running reads as a removal and an
   arrival. Nothing in the reconcile touches a file.
-- **[S-5521]** **The next free cell** (`DesktopGrid.NextFree`): cells of the item's size (90 × 100
+- **[S-5521]** **The next free cell** (`DesktopGrid.NextFree`): cells of the item's size (90 × 110
   DIPs, [S-5601]) from the work area's top-left corner, down a column and then the next column to
   the right (Explorer's order), as fractions of the display ([S-01]); the first that overlaps no
   widget of the view. A view with no free cell leaves the item unplaced, logged, and Add widget

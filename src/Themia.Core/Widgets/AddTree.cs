@@ -32,6 +32,9 @@ public sealed record AddFolder(AddShelf Shelf, IReadOnlyList<AddRow> Rows) : Add
 /// <summary>A line as the menu shows it: always between two rows.</summary>
 public sealed record AddRule : AddRow;
 
+/// <summary>[S-5523] A row that places the widget of one desktop item, preset to it.</summary>
+public sealed record AddDesktopItem(DesktopItem Item) : AddRow;
+
 /// <summary>One of the menu's top columns: its heading's shelf and its rows.</summary>
 public sealed record AddColumn(AddShelf Shelf, IReadOnlyList<AddRow> Rows);
 
@@ -201,6 +204,55 @@ public static class AddTree
         }
 
         return columns;
+    }
+
+    /// <summary>
+    /// [S-5523] The menu with the desktop item kind's row (<paramref name="itemKind"/>) made "On the
+    /// desktop": a folder of <paramref name="unplaced"/>'s items, each a row placing its widget, or no
+    /// row at all when none is unplaced. The kind is never a pick of its own: an item widget always
+    /// stands for one item. A top column left empty goes.
+    /// </summary>
+    public static IReadOnlyList<AddColumn> WithDesktopItems(IReadOnlyList<AddColumn> columns, WidgetId itemKind, IReadOnlyList<DesktopItem> unplaced, LocalText title)
+    {
+        ArgumentNullException.ThrowIfNull(columns);
+        ArgumentNullException.ThrowIfNull(unplaced);
+
+        AddRow? folder = unplaced.Count == 0
+            ? null
+            : new AddFolder(new AddShelf(AddFolderId.DesktopItems, title, itemKind, []), [.. unplaced.Select(item => (AddRow)new AddDesktopItem(item))]);
+
+        List<AddRow> Swap(IReadOnlyList<AddRow> rows)
+        {
+            var swapped = new List<AddRow>(rows.Count);
+            foreach (var row in rows)
+            {
+                switch (row)
+                {
+                    case AddPick pick when pick.Kind == itemKind:
+                        if (folder is not null && !pick.Again)
+                        {
+                            swapped.Add(folder);
+                        }
+
+                        break;
+                    case AddFolder inner:
+                        var kept = Tidy(Swap(inner.Rows));
+                        if (kept.Count(r => r is not AddRule) > 0)
+                        {
+                            swapped.Add(kept.Count(r => r is not AddRule) == 1 && kept.Single(r => r is not AddRule) is AddPick only ? only : inner with { Rows = kept });
+                        }
+
+                        break;
+                    default:
+                        swapped.Add(row);
+                        break;
+                }
+            }
+
+            return swapped;
+        }
+
+        return [.. columns.Select(column => column with { Rows = Tidy(Swap(column.Rows)) }).Where(column => column.Rows.Count > 0)];
     }
 
     /// <summary>

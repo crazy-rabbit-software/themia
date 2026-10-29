@@ -27,7 +27,7 @@ public enum AddMenuAction
     /// <summary>The menu moved, opened or closed a submenu.</summary>
     Moved,
 
-    /// <summary>Add the widget on the cursor (<see cref="AddMenuStep.Kind"/>).</summary>
+    /// <summary>Add the widget on the cursor (<see cref="AddMenuStep.Kind"/>, or [S-5523] <see cref="AddMenuStep.Item"/>'s).</summary>
     Pick,
 
     /// <summary>Close the menu: Escape with nothing open.</summary>
@@ -35,7 +35,8 @@ public enum AddMenuAction
 }
 
 /// <summary>The menu after a key, and what to do.</summary>
-public readonly record struct AddMenuStep(AddMenuNav Nav, AddMenuAction Action, WidgetId Kind = default);
+/// <param name="Item">[S-5523] A desktop item's row was picked: its widget is placed, preset to it.</param>
+public readonly record struct AddMenuStep(AddMenuNav Nav, AddMenuAction Action, WidgetId Kind = default, DesktopItem? Item = null);
 
 /// <summary>
 /// [S-3514] The add menu's tree walked, pure, so the dropdown is a drawing of what these return:
@@ -152,6 +153,9 @@ public static class AddMenuKeys
 
             case WidgetKey.Enter or WidgetKey.Space when row is AddPick pick:
                 return new AddMenuStep(nav, AddMenuAction.Pick, pick.Kind);
+
+            case WidgetKey.Enter or WidgetKey.Space when row is AddDesktopItem desktopItem:
+                return new AddMenuStep(nav, AddMenuAction.Pick, Item: desktopItem.Item);
 
             case WidgetKey.Right when isTop && cursor.Column + 1 < top.Count:
                 return Moved(Across(top, nav, cursor, cursor.Column + 1));

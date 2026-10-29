@@ -7,8 +7,8 @@ internal sealed partial class DesktopWindow
 {
     /// <summary>
     /// [S-5502] A press on empty desktop outside edit mode. It reaches the surface only under Themia's
-    /// items, whose region covers the work area ([S-5501]); a press on a card is the card's. It ends a
-    /// keyboard lease held on this surface, as a click on the desktop would.
+    /// items, whose region covers the work area ([S-5501]); a press on a card is the card's. It clears
+    /// the item selection and ends a keyboard lease held on this surface, as a click on the desktop would.
     /// </summary>
     private void OnDesktopPressed(PointerRoutedEventArgs e)
     {
@@ -17,6 +17,7 @@ internal sealed partial class DesktopWindow
             return;
         }
 
+        Themia.App.Services.Files.HostDesktopItems.Instance.Select(null);
         _host.KeyboardEndOn(this);
     }
 }

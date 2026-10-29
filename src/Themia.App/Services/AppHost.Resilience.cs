@@ -169,6 +169,9 @@ internal sealed partial class AppHost
         // A view taken away by the undo leaves its display without one: give it an existing one, as
         // at startup ([S-1705]), without making that an undo step of its own.
         DisplayPlan.AssignViews(State, DisplayViewKeys());
+
+        // [S-5520] A widget the step brought back whose item has gone from the desktop goes again.
+        ReconcileDesktopAfterStep();
         _history.Rebase(State);
         HistoryChanged?.Invoke();
 

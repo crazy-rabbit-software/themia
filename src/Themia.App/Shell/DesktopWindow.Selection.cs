@@ -42,7 +42,8 @@ internal sealed partial class DesktopWindow
 
     /// <summary>The ids of the cards on this surface that are collapsed, so draw nothing.</summary>
     private HashSet<string> HiddenIds()
-        => [.. _cards.Where(c => c.Visibility == Visibility.Collapsed).Select(c => c.Model.Id)];
+        => [.. _cards.Where(c => c.Visibility == Visibility.Collapsed).Select(c => c.Model.Id),
+            .. ViewForThisMonitor(_host.State).Widgets.Where(w => _cards.All(c => !ReferenceEquals(c.Model, w))).Select(w => w.Id)];
 
     // -----------------------------------------------------------------------------------------
     // Moving the selection

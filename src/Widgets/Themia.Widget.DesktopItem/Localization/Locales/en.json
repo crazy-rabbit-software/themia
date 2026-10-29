@@ -1,0 +1,5 @@
+{
+  "$englishOnly": ["desktopItem.label", "desktopItem.desc"],
+  "desktopItem.label": "Desktop item",
+  "desktopItem.desc": "A file, folder or shortcut from your desktop"
+}

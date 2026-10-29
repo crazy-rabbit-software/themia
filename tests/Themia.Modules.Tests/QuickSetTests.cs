@@ -219,8 +219,10 @@ public sealed class QuickSetTests
     {
         foreach (var kind in ModuleCatalog.Widgets.Select(w => w.Id).ToArray())
         {
+            // [S-5600] A desktop item's name is under its icon, as a toggle's is.
             var toggle = Themia.Core.Widgets.QuickToggleRules.ForKind(kind) is not null
-                || kind == new WidgetId("audioVisualizer");
+                || kind == new WidgetId("audioVisualizer")
+                || typeof(IDesktopItemConfig).IsAssignableFrom(ModuleCatalog.Of(kind).ConfigType);
             Assert.Equal(!toggle, WidgetInstance.CanHaveHeader(kind));
             if (toggle)
             {

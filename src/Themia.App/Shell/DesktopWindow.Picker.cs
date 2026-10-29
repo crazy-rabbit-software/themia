@@ -59,7 +59,8 @@ internal sealed partial class DesktopWindow
         flyout.Opening += (_, _) =>
         {
             var area = Metrics.IsUsable ? GridGeometry.AllowedPixels(Metrics) : new PixelRect(0, 0, 1280, 720);
-            flyout.Content = new WidgetPicker(definition => OnPicked(flyout, definition), flyout.Hide, area);
+            flyout.Content = new WidgetPicker(definition => OnPicked(flyout, definition), flyout.Hide, area,
+                _host.UnplacedDesktopItems(CurrentViewId), item => OnPickedItem(flyout, item));
         };
 
         // [S-3514] Typing searches at once: the caret is in the box as soon as the picker is open.
@@ -72,6 +73,13 @@ internal sealed partial class DesktopWindow
     {
         flyout.Hide();
         _host.BeginPlacement(definition.Id);
+    }
+
+    /// <summary>[S-5523] An unplaced desktop item was chosen: its widget is placed like any widget.</summary>
+    private void OnPickedItem(Flyout flyout, Themia.Sdk.DesktopItem item)
+    {
+        flyout.Hide();
+        _host.BeginPlacement(item, Metrics);
     }
 
     /// <summary>

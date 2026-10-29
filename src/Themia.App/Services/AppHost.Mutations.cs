@@ -19,9 +19,11 @@ internal sealed partial class AppHost
     /// <para>
     /// [S-884] And so does the undo history: the change is committed to it, which records a step
     /// named <paramref name="undo"/> when the arrangement of the desktop changed and nothing otherwise.
+    /// [S-5520] A null <paramref name="undo"/> is a change the system made, not the user (the desktop's
+    /// files changed): adopted without a step.
     /// </para>
     /// </summary>
-    public void Mutate(Action<AppState> change, bool relayout = true, UndoAction undo = UndoAction.Change)
+    public void Mutate(Action<AppState> change, bool relayout = true, UndoAction? undo = UndoAction.Change)
     {
         ArgumentNullException.ThrowIfNull(change);
 
@@ -34,7 +36,15 @@ internal sealed partial class AppHost
             Log.Error(Scope, "a state mutation threw; state may be partially applied", ex);
         }
 
-        _history?.Commit(State, undo);
+        if (undo is { } step)
+        {
+            _history?.Commit(State, step);
+        }
+        else
+        {
+            _history?.Rebase(State);
+        }
+
         _store.SaveSoon(State);
         HistoryChanged?.Invoke();
 

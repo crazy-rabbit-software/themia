@@ -23,7 +23,8 @@ internal static partial class AppIcons
     private const int ShilExtraLarge = 2;
     private const int ShilJumbo = 4;
     private const uint IldTransparent = 0x1;
-    private const int IdoShgioiLink = 0x0FFFFFFE;
+    private const int ShortcutOverlay = 2;
+    private const int MaxOverlay = 15;
     private const int SlotGetIcon = 10; // IImageList: IUnknown (3) + Add .. Remove (7)
 
     /// <summary>IID_IImageList.</summary>
@@ -78,17 +79,17 @@ internal static partial class AppIcons
         {
             var info = default(OverlaidFileInfo);
             uint attributesOut = 0;
-            if (SHParseDisplayName(key, 0, &pidl, 0, &attributesOut) >= 0 && pidl != 0)
+
+            // The icon handle is only there because the overlay index needs it; it is destroyed below.
+            var found = SHParseDisplayName(key, 0, &pidl, 0, &attributesOut) >= 0 && pidl != 0
+                && SHGetFileInfoW((char*)pidl, 0, &info, (uint)sizeof(OverlaidFileInfo), ShgfiPidl | ShgfiIcon | ShgfiSysIconIndex | ShgfiOverlayIndex) != 0;
+
+            if (!found)
             {
-                // The icon handle is only there because the overlay index needs it; it is destroyed below.
-                if (SHGetFileInfoW((char*)pidl, 0, &info, (uint)sizeof(OverlaidFileInfo), ShgfiPidl | ShgfiIcon | ShgfiSysIconIndex | ShgfiOverlayIndex) == 0)
-                {
-                    return null;
-                }
-            }
-            else
-            {
-                fixed (char* path = name)
+                // Not (or no longer) there: its type's icon, from the key's own file name (a shortcut keeps its .lnk).
+                info = default;
+                var typed = DesktopItemKeys.IsShellItem(key) ? name : Path.GetFileName(key.TrimEnd(Path.DirectorySeparatorChar));
+                fixed (char* path = typed)
                 {
                     var attributes = kind == DesktopItemKind.Folder ? FileAttributeDirectory : FileAttributeNormal;
                     if (SHGetFileInfoW(path, attributes, &info, (uint)sizeof(OverlaidFileInfo), ShgfiUseFileAttributes | ShgfiSysIconIndex) == 0)
@@ -105,9 +106,16 @@ internal static partial class AppIcons
 
             var index = info.IconIndex & 0x00FFFFFF;
             var overlay = (info.IconIndex >> 24) & 0xFF;
-            if (overlay == 0 && kind == DesktopItemKind.Shortcut && SHGetIconOverlayIndex(null, IdoShgioiLink) is var link and > 0)
+            // The image list's overlays are numbered 1..15; the shell's own: 1 the share, 2 the shortcut
+            // arrow. A shortcut the shell gave no overlay for (one not on disk) gets the arrow.
+            if (overlay == 0 && kind == DesktopItemKind.Shortcut)
             {
-                overlay = link;
+                overlay = ShortcutOverlay;
+            }
+
+            if (overlay is < 0 or > MaxOverlay)
+            {
+                overlay = 0;
             }
 
             var iid = ImageListIid;
@@ -252,9 +260,6 @@ internal static partial class AppIcons
 
     [LibraryImport("shell32.dll")]
     private static unsafe partial nuint SHGetFileInfoW(char* path, uint attributes, OverlaidFileInfo* info, uint size, uint flags);
-
-    [LibraryImport("shell32.dll", StringMarshalling = StringMarshalling.Utf16)]
-    private static partial int SHGetIconOverlayIndex(string? iconPath, int iconIndex);
 
     [LibraryImport("shell32.dll")]
     private static unsafe partial int SHGetImageList(int list, Guid* iid, nint* imageList);

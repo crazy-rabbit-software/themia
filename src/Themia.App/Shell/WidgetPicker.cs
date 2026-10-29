@@ -66,6 +66,9 @@ internal sealed partial class WidgetPicker : Grid
     private static (Locale Locale, (IndexedWidget Index, AddHome Home)[] Entries)? _searchIndex;
 
     private readonly Action<WidgetDescriptor> _pick;
+
+    /// <summary>[S-5523] Runs when an unplaced desktop item is chosen; null where none is offered.</summary>
+    private readonly Action<Themia.Sdk.DesktopItem>? _pickItem;
     private readonly Action _close;
 
     private readonly TextBox _search;
@@ -99,12 +102,21 @@ internal sealed partial class WidgetPicker : Grid
     /// <param name="pick">Runs when a widget is chosen.</param>
     /// <param name="close">Runs on Escape with nothing typed and nothing open.</param>
     /// <param name="room">The work area in DIPs, in the coordinates of the window's content: the submenus stay inside it.</param>
-    public WidgetPicker(Action<WidgetDescriptor> pick, Action close, PixelRect room)
+    /// <param name="desktopItems">[S-5523] The view's unplaced desktop items: "On the desktop" lists them.</param>
+    /// <param name="pickItem">[S-5523] Runs when one of them is chosen.</param>
+    public WidgetPicker(Action<WidgetDescriptor> pick, Action close, PixelRect room, IReadOnlyList<Themia.Sdk.DesktopItem>? desktopItems = null, Action<Themia.Sdk.DesktopItem>? pickItem = null)
     {
         _pick = pick;
         _close = close;
         _room = room;
+        _pickItem = pickItem;
         _menu = AddTree.On([.. ModuleCatalog.Widgets.Select(definition => definition.Id)]);
+
+        // [S-5523] The item kind's row is the view's unplaced items, or nothing.
+        if (ModuleCatalog.Widgets.FirstOrDefault(d => typeof(Themia.Core.Model.IDesktopItemConfig).IsAssignableFrom(d.ConfigType)) is { } itemKind)
+        {
+            _menu = AddTree.WithDesktopItems(_menu, itemKind.Id, desktopItems ?? [], Str.Desktop_Add_Folder.Local());
+        }
 
         RowSpacing = Fluent.Space3;
         RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
@@ -395,6 +407,7 @@ internal sealed partial class WidgetPicker : Grid
         {
             AddFolder folder => (ModuleCatalog.Of(folder.Shelf.Icon).Glyph, folder.Shelf.Title.Text(), (string?)null),
             AddPick pick => (ModuleCatalog.Of(pick.Kind).Glyph, ModuleCatalog.Of(pick.Kind).Name, ModuleCatalog.Of(pick.Kind).Describe()),
+            AddDesktopItem desktop => (ItemGlyph(desktop.Item.Kind), desktop.Item.Name, (string?)null),
             _ => (string.Empty, string.Empty, null),
         };
 
@@ -477,6 +490,12 @@ internal sealed partial class WidgetPicker : Grid
         if (spot.Column < columns.Count && spot.Row < columns[spot.Column].Count && columns[spot.Column][spot.Row] is AddPick pick)
         {
             Pick(pick.Kind);
+            return;
+        }
+
+        if (spot.Column < columns.Count && spot.Row < columns[spot.Column].Count && columns[spot.Column][spot.Row] is AddDesktopItem desktop)
+        {
+            PickItem(desktop.Item);
             return;
         }
 
@@ -696,6 +715,9 @@ internal sealed partial class WidgetPicker : Grid
         {
             case AddMenuAction.Unhandled:
                 return false;
+            case AddMenuAction.Pick when step.Item is { } item:
+                PickItem(item);
+                return true;
             case AddMenuAction.Pick:
                 Pick(step.Kind);
                 return true;
@@ -730,6 +752,28 @@ internal sealed partial class WidgetPicker : Grid
             VirtualKey.Space when onRow => WidgetKey.Space,
             _ => null,
         };
+    }
+
+    /// <summary>[S-5523] A desktop item's row glyph: what it is, as Explorer's own icons say it.</summary>
+    private static string ItemGlyph(Themia.Sdk.DesktopItemKind kind) => kind switch
+    {
+        Themia.Sdk.DesktopItemKind.Folder => Glyphs.Folder,
+        Themia.Sdk.DesktopItemKind.Shortcut => Glyphs.Link,
+        Themia.Sdk.DesktopItemKind.ShellItem => Glyphs.Display,
+        _ => Glyphs.File,
+    };
+
+    private void PickItem(Themia.Sdk.DesktopItem item)
+    {
+        try
+        {
+            _hover?.Stop();
+            _pickItem?.Invoke(item);
+        }
+        catch (Exception ex)
+        {
+            Log.Error(Scope, "picking a desktop item failed", ex);
+        }
     }
 
     private void Pick(WidgetId kind)

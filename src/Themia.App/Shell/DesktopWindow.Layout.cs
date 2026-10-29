@@ -189,7 +189,9 @@ internal sealed partial class DesktopWindow
         }
 
         var view = ViewForThisMonitor(_host.State);
-        var wanted = view.Widgets;
+
+        // [S-5506] The item widgets have cards only while Themia's items show.
+        var wanted = Themia.Core.Desktop.DesktopReconcile.Shown(view.Widgets, _host.ShowsDesktopItems);
 
         // Reuse the cards that survived the change: rebuilding every card on every state change
         // would restart each widget's tick subscription and flash the whole surface. [S-1882] The
