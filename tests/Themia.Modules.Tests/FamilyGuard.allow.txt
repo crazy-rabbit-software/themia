@@ -1,3 +1,0 @@
-# [S-6730] Today's offenders against the family's tokens: count, file, rule, literal (tab-separated).
-# The list only shrinks: FamilyGuardTests fails on an offence not listed here and on a line that no longer
-# occurs as often. Rewrite it with THEMIA_FAMILY_GUARD_WRITE=1 only after fixing offenders. Empty is done.

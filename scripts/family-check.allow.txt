@@ -1,2 +1,0 @@
-# [S-6731] Today's render-walk findings: kind <TAB> element and rule (values stripped). Only shrinks:
-# scripts/family-check.ps1 fails on a finding not listed here and on a line no longer found. Empty is done.

@@ -2,25 +2,23 @@
 # default, preview states and styles, judged element by element against the family's tokens
 # (Themia.exe --family-check, rules in Core: FamilyCheck). Needs a Debug build of the app.
 #
-#   powershell -ExecutionPolicy Bypass -File scripts/family-check.ps1 [-Exe <Themia.exe>] [-Kinds a,b] [-Out <dir>] [-Write]
+#   powershell -ExecutionPolicy Bypass -File scripts/family-check.ps1 [-Exe <Themia.exe>] [-Kinds a,b] [-Out <dir>]
 #
-# Fails on any finding (kind, element type, rule) not in scripts/family-check.allow.txt, and on any line
-# of that list that no longer occurs: the list only shrinks, and the family is done when it is empty.
-# -Write rewrites the list from this run (to shrink it after fixing offenders, never to grow it).
-# The full findings with their values and the first variant each was seen in are in <Out>/<theme>-<kind>.json.
+# Fails on any finding (kind, element type, rule). It held a baseline of the day's findings that every
+# phase of the family shrank; since group G5 every kind walks clean and the list is gone (shell sweep,
+# 2026-10-30). The full findings with their values and the first variant each was seen in are in
+# <Out>/<theme>-<kind>.json.
 # Never starts Themia.exe without a render flag; draws off-screen, touches no user state.
 
 param(
     [string]$Exe,
     [string]$Kinds,
     [string]$Out,
-    [int]$Jobs = 6,
-    [switch]$Write
+    [int]$Jobs = 6
 )
 
 $ErrorActionPreference = 'Stop'
 $root = Split-Path -Parent $PSScriptRoot
-$allowPath = Join-Path $PSScriptRoot 'family-check.allow.txt'
 if (-not $Out) { $Out = Join-Path $root 'TestResults\family-check' }
 New-Item -ItemType Directory -Force $Out | Out-Null
 
@@ -93,37 +91,10 @@ foreach ($file in Get-ChildItem $Out -Filter '*.json') {
 $kindsWith = ($today.Keys | ForEach-Object { $_.Split("`t")[0] } | Sort-Object -Unique).Count
 Write-Host ("family-check: {0} findings (kind, element, rule) in {1} of {2} kinds, {3} elements" -f $today.Count, $kindsWith, $all.Count, $elements)
 
-if ($Write) {
-    $lines = @(
-        '# [S-6731] Today''s render-walk findings: kind <TAB> element and rule (values stripped). Only shrinks:',
-        '# scripts/family-check.ps1 fails on a finding not listed here and on a line no longer found. Empty is done.'
-    ) + ($today.Keys | Sort-Object)
-    [System.IO.File]::WriteAllLines($allowPath, $lines)
-    Write-Host "family-check: wrote $allowPath ($($today.Count) lines)"
-    exit 0
+if ($today.Count -gt 0) {
+    Write-Host "family-check: findings off the family's tokens:" -ForegroundColor Red
+    $today.Keys | Sort-Object | ForEach-Object { Write-Host "  $_" }
+    exit 1
 }
-
-$allowed = @{}
-if (Test-Path $allowPath) {
-    foreach ($line in [System.IO.File]::ReadAllLines($allowPath)) {
-        if ($line -and -not $line.StartsWith('#')) { $allowed[$line] = $true }
-    }
-}
-
-# Only the kinds checked in this run are held to their lines of the list.
-$checked = @{}
-foreach ($k in $all) { $checked[$k] = $true }
-$fresh = @($today.Keys | Where-Object { -not $allowed.ContainsKey($_) } | Sort-Object)
-$stale = @($allowed.Keys | Where-Object { $checked.ContainsKey($_.Split("`t")[0]) -and -not $today.ContainsKey($_) } | Sort-Object)
-
-if ($fresh.Count -gt 0) {
-    Write-Host "family-check: new findings (off the family's tokens):" -ForegroundColor Red
-    $fresh | ForEach-Object { Write-Host "  $_" }
-}
-if ($stale.Count -gt 0) {
-    Write-Host "family-check: fixed, take off scripts/family-check.allow.txt:" -ForegroundColor Yellow
-    $stale | ForEach-Object { Write-Host "  $_" }
-}
-if ($fresh.Count -gt 0 -or $stale.Count -gt 0) { exit 1 }
-Write-Host "family-check: matches its baseline ($($allowed.Count) lines)" -ForegroundColor Green
+Write-Host "family-check: no finding" -ForegroundColor Green
 exit 0

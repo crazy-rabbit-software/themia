@@ -1118,11 +1118,13 @@ module author's guide is docs/WIDGET-KIT.md 16.
   reads every module, the SDK's UI parts and the app's Shell and Widgets (not `Tests/`, `Fixtures/`,
   `Gallery/`) and fails on a type size or line, a weight other than 400/600, a spacing, thickness,
   radius, row size, stroke or opacity given as a number (0 and a hairline 1 aside; the motion code
-  and `ScrollFade` may fade), an off-family ramp helper, `Fluent.Space5`, a colour made from numbers
-  (but in `HexBrush`, under `Family.Data`), a `Colors.*` that is not a fallback, a `#RRGGBB` string, or a theme brush
-  outside the roles; except today's offenders, listed in `FamilyGuard.allow.txt`, a list that only
-  shrinks: the test fails on an offence not on it and on an entry that no longer occurs as often.
-  Baseline 2026-10-29: 505 entries, 723 offences in 132 files.
+  and `ScrollFade` may fade), a second ramp or an old helper (`FluentType`, `HeroLayout`, `HeroFit` but
+  its `Ems`, `Fluent.Space5`, `OverlayRadius`, `RowHeight`, `EmptyState`), a colour made from numbers
+  (but in `HexBrush` and `ShellColours`, [S-6747]), a `Colors.*` that is not a fallback, a `#RRGGBB`
+  string, a theme brush outside the roles, or the shell's tokens in a module or a block ([S-6747]).
+  It started (baseline 2026-10-29: 505 entries, 723 offences in 132 files) with a list of the day's
+  offenders that only shrank; the shell sweep (2026-10-30) emptied it and the list is gone: **any**
+  offence fails the test.
 - **[S-6731]** The **render walk** (`Themia.exe --family-check <out.json> [--theme] [--kinds]`, Debug):
   every kind at the seven tiers in its default, its preview states and its styles, each card's header,
   view and Set up row walked element by element (a control's template skipped, its content walked)
@@ -1131,9 +1133,10 @@ module author's guide is docs/WIDGET-KIT.md 16.
   [S-6737]), every padding, margin
   and spacing on the scale, radii 0, 4 or round, strokes 0, 1, 2 or 4, every solid colour a role (or
   the card's, the item layer's, a data colour, or clear), no text or glyph in the accent.
-  `scripts/family-check.ps1` runs it for both themes and holds the findings (kind, element, rule; the
-  values stripped, `FamilyCheck.Rule`) to `scripts/family-check.allow.txt`, shrink-only as the guard.
-  It needs the Debug app, so it is a definition-of-done step, not a test. Baseline 2026-10-29: 298 lines over all 78 kinds (about 47 700 elements in the two themes); two runs gave the same lines. The list is empty since group G5 (2026-10-29): every kind walks clean, and a finding fails it.
+  `scripts/family-check.ps1` runs it for both themes and fails on any finding (kind, element, rule;
+  the values stripped, `FamilyCheck.Rule`). It needs the Debug app, so it is a definition-of-done
+  step, not a test. Baseline 2026-10-29: 298 lines over all 78 kinds (about 47 700 elements in the two
+  themes); every kind walks clean since group G5, and the shell sweep (2026-10-30) removed the list.
 - **[S-6732]** `Themia.exe --family-blocks-png <outDir> [--theme] [--only]` draws each block in every
   variant (32 since G5) at the seven tiers with its visual tree beside it (`TreeDump`; `--widget-png … --tree`
   writes the same for a widget). The family's mockups draw the same variants over the same data, and

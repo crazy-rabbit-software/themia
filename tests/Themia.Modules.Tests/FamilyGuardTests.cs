@@ -1,4 +1,3 @@
-using System.Text;
 using System.Text.RegularExpressions;
 using Themia.Sdk.Kit;
 using Themia.Tests;
@@ -13,18 +12,14 @@ namespace Themia.Modules.Tests;
 /// (<c>src/Themia.App/Shell/**</c>, <c>src/Themia.App/Widgets/**</c>); a module's <c>Tests/</c> and
 /// <c>Fixtures/</c> and the debug renders (<c>Gallery/</c>) left out.
 /// <para>
-/// Today's offenders are listed in <c>FamilyGuard.allow.txt</c> beside this file (count, file, rule,
-/// the literal), so the test is green on the day the guard came in; it fails on any offence not on the
-/// list (a new literal, or one more of an old one) and on any entry that no longer occurs as often (a
-/// fixed offender must leave the list). The list only shrinks, and every group phase ends with fewer
-/// lines; the family is done when it is empty. Regenerate it (to shrink it, never to grow it) with
-/// <c>THEMIA_FAMILY_GUARD_WRITE=1</c>.
+/// It started (2026-10-29) with a list of the day's offenders that every phase of the family had to
+/// shrink; the shell sweep emptied it and the list is gone: any offence fails the test now. A value the
+/// family has no token for is a token first (an SDK change with its test), and a measurement of the
+/// app's chrome is named in <c>ShellMetrics</c> ([S-6745]), never written in place.
 /// </para>
 /// </summary>
 public sealed partial class FamilyGuardTests
 {
-    private const string AllowFile = "FamilyGuard.allow.txt";
-
     /// <summary>A number in code: not part of a name, not a member access.</summary>
     [GeneratedRegex(@"(?<![\w.])-?\d+(?:\.\d+)?(?![\w.])")]
     private static partial Regex Number();
@@ -230,51 +225,15 @@ public sealed partial class FamilyGuardTests
         return found;
     }
 
-    private static string AllowPath => RepoFiles.At("tests", "Themia.Modules.Tests", AllowFile);
-
-    private static Dictionary<string, int> Allowed()
-    {
-        var allowed = new Dictionary<string, int>(StringComparer.Ordinal);
-        foreach (var line in File.ReadAllLines(AllowPath))
-        {
-            if (line.Length == 0 || line.StartsWith('#'))
-            {
-                continue;
-            }
-
-            var tab = line.IndexOf('\t', StringComparison.Ordinal);
-            allowed[line[(tab + 1)..]] = int.Parse(line[..tab], System.Globalization.CultureInfo.InvariantCulture);
-        }
-
-        return allowed;
-    }
-
     [Fact]
     public void S6730_no_literal_outside_the_family_tokens()
     {
-        var today = Today();
+        var found = Today();
 
-        if (Environment.GetEnvironmentVariable("THEMIA_FAMILY_GUARD_WRITE") == "1")
-        {
-            var text = new StringBuilder();
-            text.Append("# [S-6730] Today's offenders against the family's tokens: count, file, rule, literal (tab-separated).\n");
-            text.Append("# The list only shrinks: FamilyGuardTests fails on an offence not listed here and on a line that no longer\n");
-            text.Append("# occurs as often. Rewrite it with THEMIA_FAMILY_GUARD_WRITE=1 only after fixing offenders. Empty is done.\n");
-            foreach (var (key, count) in today)
-            {
-                text.Append(System.Globalization.CultureInfo.InvariantCulture, $"{count}\t{key}\n");
-            }
-
-            File.WriteAllText(AllowPath, text.ToString());
-            return;
-        }
-
-        var allowed = Allowed();
-        var fresh = today.Where(t => t.Value > allowed.GetValueOrDefault(t.Key)).Select(t => $"{t.Value - allowed.GetValueOrDefault(t.Key)}× {t.Key}").ToList();
-        var stale = allowed.Where(a => a.Value > today.GetValueOrDefault(a.Key)).Select(a => $"{a.Value - today.GetValueOrDefault(a.Key)}× fewer: {a.Key}").ToList();
-
-        Assert.True(fresh.Count == 0, "Literals outside the family's tokens (use FamilyType, FamilySpace, FamilyShape, ColourRole: docs/WIDGET-KIT.md 16):\n" + string.Join('\n', fresh));
-        Assert.True(stale.Count == 0, $"Fixed offenders still on {AllowFile} (take them off; the list only shrinks):\n" + string.Join('\n', stale));
+        Assert.True(
+            found.Count == 0,
+            "Literals outside the family's tokens (use FamilyType, FamilySpace, FamilyShape, ColourRole; the chrome's measurements ShellMetrics, its colours ShellRole: docs/WIDGET-KIT.md 16):\n"
+                + string.Join('\n', found.Select(f => $"{f.Value}× {f.Key}")));
     }
 
     [Fact]
