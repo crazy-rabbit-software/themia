@@ -14,11 +14,13 @@ context), `RecentFilesConfig.cs`, `RecentFilesView.cs` (the rows, the icons thro
 meeting's is the module host's `DeskInfoHostTests`.
 
 - **[S-4840]** `RecentFiles` (126): the files opened last, as Windows lists them. No settings.
-- **[S-4842]** The ladder (`RecentFilesLayout.Plan`): compact one-line rows on a Compact height; the
-  folder under the name from a Regular width and height; when, as a column at the end from an
-  Expanded width (else after the folder). The rest scrolls.
+- **[S-4842]** The ladder (`RecentFilesLayout.Plan`) on the family's rows ([S-6711], [S-6712]): the name
+  primary, when it was opened the value, its folder on the second line from a Regular width and height;
+  the file's icon (16) and the time from a column of 180; as many whole rows as fit, the rest scrolls.
+  Nothing opened, or the folder unread, is the state row's sentence at the top.
 - **[S-4844]** A click focuses the row, drawn as the desktop draws a selected file and the row
-  under the pointer lit as its hover ([S-6627]; one row, no multi-selection); a double-click or Enter opens the file (a gone one reads
+  under the pointer lit as its hover ([S-6627]: the chrome laid behind the row, over its whole width,
+  so marking it moves nothing; one row, no multi-selection); a double-click or Enter opens the file (a gone one reads
   the list again; [S-7065], it opened on a click and checked edit mode itself, which the card does). The row menu: Open, Open
   file location (Explorer with it selected), Remove from list, which deletes its Recent Items
   shortcut as Explorer's "Remove from Recent" does; the file is never touched, and nothing outside
