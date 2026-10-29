@@ -47,6 +47,12 @@ internal interface IDesktopDesk
     string? CommitRename(string key, string text);
 
     void CancelRename();
+
+    bool IsFocused(string key);
+
+    (int Position, int Count)? PositionOf(string key);
+
+    string? RenameTo(string key, string name);
 }
 
 /// <summary>
@@ -153,6 +159,15 @@ internal sealed class HostDesktopItems : IDesktopItems
 
     /// <inheritdoc />
     public void CancelRename() => Desk?.CancelRename();
+
+    /// <inheritdoc/>
+    public bool IsFocused(string key) => Desk?.IsFocused(key) == true;
+
+    /// <inheritdoc/>
+    public (int Position, int Count)? PositionOf(string key) => Desk?.PositionOf(key);
+
+    /// <inheritdoc/>
+    public string? RenameTo(string key, string name) => Desk?.RenameTo(key, name);
 
     /// <summary>The selection, a rename box or a drag's target changed: every item widget redraws. UI thread.</summary>
     public void Repaint() => Raise();

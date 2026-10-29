@@ -32,6 +32,12 @@ public interface IDesktopItems
     /// <summary>[S-6626] Whether the desktop has the keyboard: a selection is drawn active, else inactive.</summary>
     bool Active { get; }
 
+    /// <summary>[S-5570] Whether <paramref name="key"/> is the focused item while the desktop has the keyboard: what a screen reader is told has the focus.</summary>
+    bool IsFocused(string key);
+
+    /// <summary>[S-5570] <paramref name="key"/>'s place in the desktop's order and the count ("3 of 12"), or null when it is not shown.</summary>
+    (int Position, int Count)? PositionOf(string key);
+
     /// <summary>[S-5545] Whether <paramref name="key"/> is cut and still on the clipboard: drawn faded, as Explorer does.</summary>
     bool IsCut(string key);
 
@@ -83,6 +89,13 @@ public interface IDesktopItems
 
     /// <summary>[S-5543] The rename box closes without a rename (Escape).</summary>
     void CancelRename();
+
+    /// <summary>
+    /// [S-5570] Rename <paramref name="key"/> to <paramref name="name"/> without the box (a screen reader's
+    /// value pattern), by F2's rules ([S-5543]): null when it was handed to the shell's rename (or
+    /// unchanged), else the sentence saying why not.
+    /// </summary>
+    string? RenameTo(string key, string name);
 
     /// <summary>[S-5512] The cached icon for <paramref name="item"/> at <paramref name="pixels"/> (physical), if there is one (no extraction).</summary>
     bool TryIcon(DesktopItem item, int pixels, out ImageSource? image);

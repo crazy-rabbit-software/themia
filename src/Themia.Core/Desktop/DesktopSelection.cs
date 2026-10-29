@@ -40,6 +40,29 @@ public static class DesktopNav
     }
 
     /// <summary>
+    /// [S-5570] Where <paramref name="key"/> stands in the desktop's order, as a screen reader says it
+    /// ("3 of 12"): its one-based place and the count, or null when it is not shown.
+    /// </summary>
+    public static (int Position, int Count)? PositionOf(IReadOnlyList<DesktopBox> ordered, string? key)
+    {
+        ArgumentNullException.ThrowIfNull(ordered);
+        if (key is null)
+        {
+            return null;
+        }
+
+        for (var i = 0; i < ordered.Count; i++)
+        {
+            if (DesktopItemKeys.Comparer.Equals(ordered[i].Key, key))
+            {
+                return (i + 1, ordered.Count);
+            }
+        }
+
+        return null;
+    }
+
+    /// <summary>
     /// [S-5541] The item an arrow moves to from <paramref name="from"/>: of the items whose centre lies
     /// that way, the nearest one in the same column (Up, Down) or row (Left, Right), their boxes
     /// overlapping across the arrow; with none there, the nearest centre within 45 degrees of the

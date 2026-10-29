@@ -54,6 +54,12 @@ internal sealed partial class AppHost : IDesktopDesk
 
     public string? DropTargetWidget => _dropTargetWidget;
 
+    /// <summary>[S-5570] The focused item, while the desktop has the keyboard: what Narrator is told has the focus.</summary>
+    public bool IsFocused(string key) => _deskActive && DesktopItemKeys.Comparer.Equals(_desk.Focus, key);
+
+    /// <summary>[S-5570] The item's place in the desktop's order ("3 of 12").</summary>
+    public (int Position, int Count)? PositionOf(string key) => DesktopNav.PositionOf(_desk.Ordered, key);
+
     /// <summary>[S-5540] The desk follows the host: the listing, the layout and the clipboard's cut redraw every item widget.</summary>
     private void StartDesk()
     {
@@ -523,7 +529,22 @@ internal sealed partial class AppHost : IDesktopDesk
             return null;
         }
 
-        var result = DesktopRename.Commit(item, text, DesktopRename.Siblings(key, HostDesktopItems.Instance.Items));
+        return Rename(item, text, closeBox: true);
+    }
+
+    /// <summary>
+    /// [S-5570] A screen reader's value pattern sets the name: F2's rules without the box ([S-5543]);
+    /// shell items are not renamed.
+    /// </summary>
+    public string? RenameTo(string key, string name)
+        => HostDesktopItems.Instance.Find(key) is { } item && DesktopRename.CanRename(item)
+            ? Rename(item, name, closeBox: false)
+            : null;
+
+    /// <summary>[S-5543] One rename by F2's rules: the sentence why not, or null once handed to the shell (or unchanged).</summary>
+    private string? Rename(DesktopItem item, string text, bool closeBox)
+    {
+        var result = DesktopRename.Commit(item, text, DesktopRename.Siblings(item.Key, HostDesktopItems.Instance.Items));
         switch (result.Verdict)
         {
             case DesktopRenameVerdict.Invalid:
@@ -531,11 +552,19 @@ internal sealed partial class AppHost : IDesktopDesk
             case DesktopRenameVerdict.Clash:
                 return Str.Desktop_Rename_Clash.Text();
             case DesktopRenameVerdict.Rename when result.FullName is { } full:
-                CancelRename();
-                _ = RenameAsync(key, full);
+                if (closeBox)
+                {
+                    CancelRename();
+                }
+
+                _ = RenameAsync(item.Key, full);
                 return null;
             default:
-                CancelRename();
+                if (closeBox)
+                {
+                    CancelRename();
+                }
+
                 return null;
         }
     }
