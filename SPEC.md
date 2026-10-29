@@ -5397,8 +5397,11 @@ menu), `Services/GpuSampler.cs`, the SDK's `GpuRules` and `MeterFace`;
 
 - [S-1200], [S-1201]: moved with the GPU widget into its module's `SPEC.md` (`src/Widgets/Themia.Widget.Gpu/`).
 - **[S-1207]** *(Retired: one adapter per widget, [S-433]; nothing shares the tile.)*
-- **[S-1210]** The ring's total takes the largest step that fits its hole; when even Caption cannot
-  hold `4h 37m` it shows the compact form (`4.6h`, `13h` from ten hours, `37m`, `<1m`). Never clipped.
+- **[S-1210]** The ring's total stands in its hole on the family's Readout steps (`ScreenTimeRules.Figure`,
+  [S-6702]): the largest of 28, 40 and 68 (capped by the area as every data widget's number) whose line,
+  and the line under it where it fits, stands inside the hole as the rectangle the circle holds; when
+  `4h 37m` fits on none, the compact form (`4.6h`, `13h` from ten hours, `37m`, `<1m`) on the largest
+  that holds it, else in BodyStrong. Never clipped; the line under is cut to the hole's width.
 - **[S-1211]** *(The app list's since [S-3352]; `ShowList` retired with the legend.)* `MaxApps` is a ceiling over what fits: 0 (the default) lists as many apps as the tile has
   whole rows for, 1–50 at most that many; an "Other" row joins when apps are left over. `ShowList`
   (on) switches the legend off. Supersedes the fixed default of 7 and "0 lists none" in [S-452].

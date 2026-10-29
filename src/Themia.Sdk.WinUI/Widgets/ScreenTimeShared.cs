@@ -223,16 +223,6 @@ public static class ScreenTimeLook
     /// </summary>
     public const double DimOpacity = FamilyShape.Wash;
 
-    public static Brush Primary => Family.Brush(ColourRole.TextPrimary);
-
-    public static Brush Critical => Family.Brush(ColourRole.Critical);
-
-    public static Brush Accent => Family.Brush(ColourRole.Accent);
-
-    public static Brush AccentText => Family.Brush(ColourRole.TextPrimary);
-
-    public static Brush EmptyCell => Family.Brush(ColourRole.Track);
-
     /// <summary>[S-452] "Other": no app, so no colour of its own: the disabled role.</summary>
     public static Brush Other => Family.Brush(ColourRole.TextDisabled);
 
@@ -363,9 +353,6 @@ public sealed class ScreenTimeDayNav
         ToolTipService.SetToolTip(button, text);
         Microsoft.UI.Xaml.Automation.AutomationProperties.SetName(button, text);
     }
-
-    /// <summary>The callers' older form: the header folds the parts to its width itself.</summary>
-    public void Update(ScreenTimePeriod period, WidgetArea area) => Update(period);
 
     /// <summary>Show the day's label and arrows, or the window's name, for this period.</summary>
     public void Update(ScreenTimePeriod period)

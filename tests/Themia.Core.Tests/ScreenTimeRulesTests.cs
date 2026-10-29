@@ -73,22 +73,6 @@ public sealed class ScreenTimeRulesTests
     }
 
     [Fact]
-    public void S1210_the_ring_text_is_never_wider_than_the_hole()
-    {
-        var seconds = (4 * 3600) + (37 * 60);
-
-        // A large hole keeps the full duration at a large step.
-        var (large, largeStep) = ScreenTimeRules.RingText(seconds, 200, 60);
-        Assert.Equal("4h 37m", large);
-        Assert.True(largeStep.FontSize > FluentType.Caption.FontSize);
-
-        // The XS ring's hole (about 40 DIPs) cannot hold "4h 37m" even at Caption: it drops the minutes.
-        var (small, smallStep) = ScreenTimeRules.RingText(seconds, 40, 20);
-        Assert.Equal("4.6h", small);
-        Assert.True(FluentType.EstimateWidth(smallStep, small.Length) <= 40);
-    }
-
-    [Fact]
     public void S1210_the_ring_figure_is_a_readout_step_that_stands_inside_the_hole()
     {
         var seconds = (4 * 3600) + (37 * 60);

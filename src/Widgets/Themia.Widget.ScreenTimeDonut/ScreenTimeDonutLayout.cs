@@ -1,37 +1,30 @@
+using Themia.Sdk.Kit;
+
 namespace Themia.Core.Widgets;
 
 /// <summary>What the screen-time donut shows at one size ([S-3342]).</summary>
 /// <param name="Ring">The ring's diameter, DIPs: never dropped.</param>
-/// <param name="Thickness">The ring's stroke.</param>
-/// <param name="Detail">A second line in the hole (the share, "of 4h"), when the hole has room for it.</param>
-public readonly record struct ScreenTimeDonutPlan(double Ring, double Thickness, bool Detail);
+/// <param name="Thickness">The ring's stroke: the family's track ([S-6704]).</param>
+/// <param name="Hole">The hole's diameter, where the figure stands.</param>
+public readonly record struct ScreenTimeDonutPlan(double Ring, double Thickness, double Hole);
 
 /// <summary>[S-3342] The donut's ladder.</summary>
 public static class ScreenTimeDonutLayout
 {
-    /// <summary>The ring never shrinks below this: under it the total in its hole cannot be read.</summary>
-    public const double MinRing = 56;
-
-    /// <summary>A hole narrower than this carries the figure alone.</summary>
-    public const double DetailHole = 72;
-
     /// <summary>
-    /// [S-3342] The donut: one ring as large as the tile lets it be, the total in its hole, and the
-    /// line under it once the hole is wide enough to read it.
+    /// [S-3342] The donut: one ring as large as the view's area less the card's insets lets it be
+    /// (16 at the sides and the foot), its wedges in the family's track (4), the figure in its hole
+    /// (<see cref="ScreenTimeRules.Figure"/>).
     /// </summary>
     public static ScreenTimeDonutPlan Donut(WidgetArea area)
     {
+        var thickness = FamilyShape.Track;
         if (!area.IsMeasured)
         {
-            return new ScreenTimeDonutPlan(MinRing, Thickness(MinRing), false);
+            return new ScreenTimeDonutPlan(0, thickness, 0);
         }
 
-        var fits = Math.Min(area.Width - (2 * ScreenTimeLayout.Inset), area.Height - ScreenTimeLayout.Gap);
-        var ring = Math.Floor(Math.Max(Math.Min(MinRing, Math.Max(0, area.Height - 2)), fits));
-        var thickness = Thickness(ring);
-        return new ScreenTimeDonutPlan(ring, thickness, ring - (2 * thickness) >= DetailHole);
+        var ring = Math.Floor(Math.Max(0, Math.Min(area.Width - (2 * FamilySpace.Inset), area.Height - FamilySpace.Inset)));
+        return new ScreenTimeDonutPlan(ring, thickness, Math.Max(0, ring - (2 * thickness)));
     }
-
-    /// <summary>[S-3342] The ring's stroke: a seventh of its size, never thinner than 8.</summary>
-    public static double Thickness(double ring) => Math.Max(8, ring * 0.14);
 }

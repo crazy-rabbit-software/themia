@@ -1,5 +1,3 @@
-using Microsoft.UI;
-using Microsoft.UI.Text;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Documents;
@@ -9,7 +7,9 @@ using Themia.App.Shell;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
+using Themia.Sdk.Kit;
 using Themia.Sdk.WinUI;
+using Themia.Sdk.WinUI.Kit;
 using Windows.Foundation;
 using Themia.Widget.ScreenTimeDonut;
 using Glyphs = Themia.App.Shell.Glyphs;
@@ -17,29 +17,34 @@ using Glyphs = Themia.App.Shell.Glyphs;
 namespace Themia.App.Widgets;
 
 /// <summary>
-/// [S-3340] Each app's share of the day (or the week, or the month) as one ring, the total in its
-/// hole. Hovering or selecting a wedge — here or in the chart or the app list on the same view —
-/// lifts it, dims the rest and names it in the hole ([S-3343]).
+/// [S-3340] Each app's share of the day (or the week, or the month) as one ring of data colours
+/// ([S-6705]) in the family's track, the total in its hole on the Readout's steps ([S-1210]). Hovering
+/// or selecting a wedge — here or in the chart or the app list on the same view — dims the rest to
+/// their wash and names it in the hole ([S-3343]).
 /// <para>
 /// The history is the app's one tracker ([S-458]), read through <see cref="IWidgetHost.ScreenTime"/>;
 /// the widget has no timer and redraws when the tracker says something changed. [S-3325] A wedge is
 /// kept per app across reads: a read moves its arc and its tip, and only a new app gets a new one.
 /// </para>
 /// </summary>
-internal sealed partial class ScreenTimeDonutView : Grid, IWidgetView, IWidgetSurfaceAware, IWidgetHeaderContent, IWidgetSizeAware, IWidgetKeys
+internal sealed partial class ScreenTimeDonutView : Grid, IWidgetView, IWidgetSurfaceAware, IWidgetHeaderContent, IWidgetSizeAware, IWidgetKeys, IWidgetContextActions
 {
-    /// <summary>[S-3343] The lit wedge's stroke against the ring's.</summary>
-    private const double LiftFactor = 1.3;
-
     private readonly ScreenTimeLinks _links;
     private readonly ScreenTimeDayNav _nav;
     private readonly Canvas _canvas = new();
-    private readonly TextBlock _total = Fluent.Text(FluentType.Caption);
-    private readonly TextBlock _detail = Fluent.Text(FluentType.Caption, "TextFillColorSecondaryBrush");
-    private readonly StackPanel _hole;
+
+    /// <summary>[S-1210] The figure in the hole: the family's Readout, centred.</summary>
+    private readonly ReadoutBlock _figure = new()
+    {
+        HorizontalAlignment = HorizontalAlignment.Center,
+        VerticalAlignment = VerticalAlignment.Center,
+        IsHitTestVisible = false,
+    };
+
     private readonly Grid _ring = new() { HorizontalAlignment = HorizontalAlignment.Center, VerticalAlignment = VerticalAlignment.Center };
-    private readonly StackPanel _empty;
-    private readonly TextBlock _emptyText = new();
+
+    /// <summary>[S-6714] Nothing to draw: the Status block's one row at the top.</summary>
+    private readonly StatusBlock _empty = new() { Visibility = Visibility.Collapsed };
     private readonly List<(ScreenTimeSegment Segment, Wedge Arc)> _arcs = [];
 
     /// <summary>[S-3325] One wedge per app (and Other), kept across reads.</summary>
@@ -63,7 +68,7 @@ internal sealed partial class ScreenTimeDonutView : Grid, IWidgetView, IWidgetSu
         _nav = new ScreenTimeDayNav(Render);
 
         // The whole tile takes taps, so a click on its empty space lets the selection go ([S-3302]).
-        Background = new SolidColorBrush(Colors.Transparent);
+        Background = Family.Brush(ColourRole.Clear);
         Tapped += (_, _) =>
         {
             if (_links.ClearSelection())
@@ -72,29 +77,12 @@ internal sealed partial class ScreenTimeDonutView : Grid, IWidgetView, IWidgetSu
             }
         };
 
-        _total.TextTrimming = TextTrimming.None;
-        _total.HorizontalAlignment = HorizontalAlignment.Center;
-        _total.TextAlignment = TextAlignment.Center;
-        Typography.SetNumeralAlignment(_total, FontNumeralAlignment.Tabular);
-        _detail.HorizontalAlignment = HorizontalAlignment.Center;
-        _detail.TextAlignment = TextAlignment.Center;
-        _detail.TextTrimming = TextTrimming.CharacterEllipsis;
-
-        // The hole takes no pointer input, so the wedges under its box stay hoverable.
-        _hole = new StackPanel
-        {
-            HorizontalAlignment = HorizontalAlignment.Center,
-            VerticalAlignment = VerticalAlignment.Center,
-            IsHitTestVisible = false,
-            Children = { _total, _detail },
-        };
-
+        // The figure takes no pointer input, so the wedges under its box stay hoverable.
         _ring.Children.Add(_canvas);
-        _ring.Children.Add(_hole);
-        _ring.Margin = new Thickness(0, 0, 0, ScreenTimeLayout.Gap);
+        _ring.Children.Add(_figure);
 
-        _empty = Fluent.EmptyState(Glyphs.ScreenTimeDonut, _emptyText, out _);
-        _empty.Visibility = Visibility.Collapsed;
+        // The ring stands in the content's box: the card's inset at the sides and the foot.
+        _ring.Margin = new Thickness(FamilySpace.Inset, 0, FamilySpace.Inset, FamilySpace.Inset);
 
         Children.Add(_ring);
         Children.Add(_empty);
@@ -102,6 +90,9 @@ internal sealed partial class ScreenTimeDonutView : Grid, IWidgetView, IWidgetSu
 
     /// <inheritdoc />
     public FrameworkElement? HeaderTrailing => _nav.Host;
+
+    /// <summary>[S-454] Back to today, while a past day is pinned.</summary>
+    public IReadOnlyList<WidgetAction> ContextActions => _nav.ContextActions;
 
     public void Bind(IWidgetSurface surface) => _surface = surface;
 
@@ -178,7 +169,7 @@ internal sealed partial class ScreenTimeDonutView : Grid, IWidgetView, IWidgetSu
             return;
         }
 
-        _nav.Update(_config.Period, _area);
+        _nav.Update(_config.Period);
 
         if (_source is null)
         {
@@ -204,7 +195,7 @@ internal sealed partial class ScreenTimeDonutView : Grid, IWidgetView, IWidgetSu
         _data = null;
         _segments = [];
         DropWedges();
-        _emptyText.Text = message;
+        _empty.Show(StatusKind.Empty, Glyphs.ScreenTimeDonut, message);
         _empty.Visibility = Visibility.Visible;
         _ring.Visibility = Visibility.Collapsed;
     }
@@ -224,7 +215,7 @@ internal sealed partial class ScreenTimeDonutView : Grid, IWidgetView, IWidgetSu
         _segments = ScreenTimeRules.Segments(data.Apps, data.Total, ScreenTimeRules.DrawingApps, Str.Screentime_Other.Text());
 
         var size = _plan.Ring;
-        var radius = (size - (_plan.Thickness * LiftFactor)) / 2;
+        var radius = (size - _plan.Thickness) / 2;
         var centre = size / 2;
 
         _canvas.Width = size;
@@ -245,10 +236,6 @@ internal sealed partial class ScreenTimeDonutView : Grid, IWidgetView, IWidgetSu
             _arcs.Add((segment, wedge));
         }
 
-        var hole = size - (_plan.Thickness * 2);
-        _hole.MaxWidth = hole * 0.9;
-        _detail.MaxWidth = hole * 0.86;
-        _detail.Visibility = _plan.Detail ? Visibility.Visible : Visibility.Collapsed;
         ApplyFocus();
     }
 
@@ -260,7 +247,7 @@ internal sealed partial class ScreenTimeDonutView : Grid, IWidgetView, IWidgetSu
         }
     }
 
-    /// <summary>[S-3343] Lift the focused wedge, dim the rest, and say what it is in the hole.</summary>
+    /// <summary>[S-3343] Dim every wedge but the focused one to its wash, and say what it is in the hole.</summary>
     private void ApplyFocus()
     {
         if (_detached || _data is not { } data)
@@ -272,9 +259,7 @@ internal sealed partial class ScreenTimeDonutView : Grid, IWidgetView, IWidgetSu
 
         foreach (var (segment, wedge) in _arcs)
         {
-            var emphasis = ScreenTimeRules.Emphasis(segment.Key, part);
-            wedge.Path.Opacity = ScreenTimeLook.Opacity(emphasis);
-            wedge.Path.StrokeThickness = emphasis == ScreenTimeEmphasis.Lit ? _plan.Thickness * LiftFactor : _plan.Thickness;
+            wedge.Path.Opacity = ScreenTimeLook.Opacity(ScreenTimeRules.Emphasis(segment.Key, part));
         }
 
         var focused = part is null ? null : _segments.FirstOrDefault(s => s.Key == part);
@@ -282,13 +267,14 @@ internal sealed partial class ScreenTimeDonutView : Grid, IWidgetView, IWidgetSu
             ? (f.Seconds, $"{f.Name} · {ScreenTimeLook.Percent(f.Seconds, data.Total)}", false)
             : Headline(data);
 
-        var hole = _plan.Ring - (_plan.Thickness * 2);
-        var (text, step) = ScreenTimeRules.RingText(seconds, hole * 0.86, hole * (_plan.Detail ? 0.4 : 0.6));
-        _total.Apply(step);
-        _total.Text = text;
-        _total.Foreground = over ? ScreenTimeLook.Critical : ScreenTimeLook.Primary;
-        _detail.Text = line;
-        _detail.Visibility = _plan.Detail && line.Length > 0 ? Visibility.Visible : Visibility.Collapsed;
+        // [S-1210] The figure on the largest Readout step its hole holds, the line under it where it fits.
+        var figure = ScreenTimeRules.Figure(seconds, _area, _plan.Hole, line.Length > 0);
+        _figure.Use(figure.Step, centred: true);
+
+        // The line under is cut to the hole's width at the figure's height, so it never runs over the ring.
+        var height = figure.Step.LineHeight + (figure.Under ? FamilyType.Under(figure.Step).LineHeight : 0);
+        _figure.MaxWidth = Math.Floor(ScreenTimeRules.HoleWidth(height, _plan.Hole));
+        _figure.Show(figure.Text, under: figure.Under ? line : null, valueRole: over ? ColourRole.Critical : ColourRole.TextPrimary);
     }
 
     /// <summary>[S-3343] [S-457] The total, and under it the day's limit ("of 4h") or a window's average per day.</summary>

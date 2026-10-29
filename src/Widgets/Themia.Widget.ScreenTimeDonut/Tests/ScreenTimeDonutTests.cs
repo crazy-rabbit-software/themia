@@ -1,11 +1,11 @@
 using Themia.Core.Model;
-using Themia.Core.Tests;
 using Themia.Core.Widgets;
+using Themia.Sdk.Kit;
 using Xunit;
 
 namespace Themia.Widget.ScreenTimeDonut.Tests;
 
-/// <summary>[S-3342] The donut's ladder. Moved with the widget from Core's ScreenTimeLayoutTests, unchanged in what they assert (the ladder is ScreenTimeDonutLayout's now).</summary>
+/// <summary>[S-3342] The donut's ladder: one ring in the family's track inside the card's insets.</summary>
 public sealed class ScreenTimeDonutTests
 {
     /// <summary>The card's header, which the content area is the card less.</summary>
@@ -28,18 +28,19 @@ public sealed class ScreenTimeDonutTests
 
     [Theory]
     [MemberData(nameof(Tiers))]
-    public void S3342_the_ring_fits_the_tile(string name)
+    public void S3342_the_ring_fits_the_tile_inside_the_cards_insets(string name)
     {
         var area = Content(Tier(name));
         var plan = ScreenTimeDonutLayout.Donut(area);
 
-        Assert.True(plan.Ring <= area.Height, $"{name}: ring {plan.Ring} taller than {area.Height}");
-        Assert.True(plan.Ring <= area.Width - (2 * ScreenTimeLayout.Inset) || plan.Ring <= ScreenTimeDonutLayout.MinRing);
-        Assert.Equal(ScreenTimeDonutLayout.Thickness(plan.Ring), plan.Thickness);
+        Assert.True(plan.Ring <= area.Height - FamilySpace.Inset, $"{name}: ring {plan.Ring} taller than {area.Height}");
+        Assert.True(plan.Ring <= area.Width - (2 * FamilySpace.Inset), name);
+        Assert.Equal(FamilyShape.Track, plan.Thickness);
+        Assert.Equal(plan.Ring - (2 * FamilyShape.Track), plan.Hole);
     }
 
     [Fact]
-    public void S3342_a_larger_tile_draws_a_larger_ring_and_names_more_in_the_hole()
+    public void S3342_a_larger_tile_draws_a_larger_ring()
     {
         var s = ScreenTimeDonutLayout.Donut(Content(Tier("S")));
         var m = ScreenTimeDonutLayout.Donut(Content(Tier("M")));
@@ -47,7 +48,5 @@ public sealed class ScreenTimeDonutTests
 
         Assert.True(m.Ring > s.Ring);
         Assert.True(xl.Ring > m.Ring);
-        Assert.False(s.Detail);
-        Assert.True(m.Detail);
     }
 }

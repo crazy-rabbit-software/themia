@@ -22,13 +22,16 @@ menu, ending with the shared lines), `Preview/` (Debug renders: `--state sample|
   lines ([S-3323]: of the limits the day's).
 - **[S-3341]** The wedges: the busiest seven apps and one Other, from cumulative seconds ([S-452]).
   No legend: the list is its own widget ([S-666]); a wedge's tooltip names it.
-- **[S-3342]** Ladder (`ScreenTimeDonutLayout.Donut`): the ring as large as the tile allows (at least 56,
-  the 16 DIP inset at the sides), a seventh of it the stroke; the hole's figure is [S-1210]'s fit,
-  and its second line (the day's "of 4h", a window's "2h 10m/day", or the focused app's share)
-  appears once the hole is 72 DIPs wide.
-- **[S-3343]** Linked focus: the focused wedge is lifted (its stroke 1.3 times as thick), the others
-  dimmed, and the hole names it ("Code · 41%"). An app folded into Other lights Other
-  (`ScreenTimeRules.FocusPart`); a hidden one lights nothing. Click selects, empty space clears.
+- **[S-3342]** Ladder (`ScreenTimeDonutLayout.Donut`): the ring as large as the view's area less the
+  card's insets allows (16 at the sides and the foot), centred there, its wedges in the family's track
+  (4, [S-6704]; it was a seventh of the ring); the hole's figure is [S-1210]'s (the Readout's steps,
+  centred), its line under (the day's "of 4h", a window's "2h 10m/day", or the focused app's share) where
+  it fits, cut to the hole's width. Nothing to draw is the Status block's one row at the top ([S-6714]).
+- **[S-3343]** Linked focus: every wedge but the focused one is drawn at its wash (16 %, [S-6704]; the lit
+  wedge's 1.3 times thicker stroke went: one track), and the hole names it ("Code · 41%"). An app
+  folded into Other lights Other (`ScreenTimeRules.FocusPart`); a hidden one lights nothing. Click
+  selects, empty space clears. A past day pinned in the header ([S-454]) goes back to today from the
+  card menu.
 - **[S-3344]** Keys: Up/Down, PgUp/PgDn, Home/End step through the wedges clockwise from twelve;
   Enter/Space select; Left / Right step the day (a day period); Menu hides; Escape lets the cursor go.
 

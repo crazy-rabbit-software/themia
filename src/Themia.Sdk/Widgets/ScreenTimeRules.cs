@@ -160,26 +160,6 @@ public static class ScreenTimeRules
     }
 
     /// <summary>
-    /// [S-1210] The total in the ring's hole, and the type it is set in: the full duration at the
-    /// largest step that fits, or — when even Caption cannot hold it — the compact one. Never text
-    /// that the hole would clip. The character budget carries one spare character, since bold digits
-    /// run wider than the average advance the estimate uses.
-    /// </summary>
-    public static (string Text, TypeStep Step) RingText(double seconds, double width, double height)
-    {
-        var full = FormatDuration(seconds);
-        var step = FluentType.Fit(width, height, full.Length + 1, FluentType.Caption, FluentType.Title);
-
-        if (FluentType.EstimateWidth(step, full.Length + 1) <= width)
-        {
-            return (full, step);
-        }
-
-        var compact = CompactDuration(seconds);
-        return (compact, FluentType.Fit(width, height, compact.Length + 1, FluentType.Caption, FluentType.Title));
-    }
-
-    /// <summary>
     /// [S-1210] [S-6702] The donut's figure in its hole, on the family's steps: the full duration on the
     /// largest Readout step (28, 40, 68, capped by the area as every data widget's number) whose line,
     /// and the line under it when <paramref name="under"/> asks for one, stands inside the hole as the
