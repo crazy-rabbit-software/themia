@@ -966,7 +966,7 @@ module author's guide is docs/WIDGET-KIT.md 16.
 - **[S-6717]** **Chart**: one series in the accent at 2 with a 16 % wash, a second in tertiary,
   Caution or Critical only while the reading is over its threshold (`ChartRules.Role`); a meter's bar
   is a 4 round track with its fill (`ChartBar`; a column is the same track standing up, filled from
-  its foot), a ring a stroke-2 arc over its track from twelve, clockwise (`ChartRing`), a gauge the
+  its foot or between two ends; a fill moves along its track by a transform, never a margin), a ring a stroke-2 arc over its track from twelve, clockwise (`ChartRing`), a gauge the
   ring's upper half from nine o'clock (`ChartRing` half, `ChartRules.GaugeSweep`, `GaugeHeight`); a band
   (`ChartSeries`) runs edge to edge at the card's bottom ([S-215]), its points spread evenly or laid out
   by its owner on fixed slots (a meter's history, `ChartRules.Y`). A part's role, fraction and points
@@ -975,9 +975,8 @@ module author's guide is docs/WIDGET-KIT.md 16.
   place, never beside them (the order is the family's phase plan): the card's header is the Header
   block now and `Fluent.Header` is gone; the Set up row is the Status block now. `KitHeader`,
   `KitStatePanel`, `EmptyStatePanel`/`Fluent.EmptyState`, `Fluent.Row`/`Fluent.Badge`,
-  `AddFooterRow`, `HeroReadout`/`HeroLayout`/`HeroFit.Figures`, `FluentType.Hero`/`Fit`/`FitWidth`/
-  `Scaled` and the off-family ramp steps, `RingPart`, `ArmRing`, `GaugeDial` (the air quality's) and
-  the toggles' and power buttons' faces stay until the group that migrates their callers rebuilds them
+  `AddFooterRow`, `HeroLayout` (its fit, for `RingFace`)/`HeroFit.Figures`, `FluentType.Hero`/`Fit`/
+  `FitWidth`/`Scaled` and the off-family ramp steps, `RingPart`, `ArmRing` and the toggles' and power buttons' faces stay until the group that migrates their callers rebuilds them
   on the blocks; each then goes. The meters and the details are on the blocks (G1, 2026-10-29):
   `MeterView` and `DetailView` are built from the Readout, Row and Chart blocks, `SparkBand` draws on
   `ChartSeries`, the GPU meter is a `MeterView` like the others, and `MeterFace`, `MeterStyleFace`,
@@ -990,7 +989,19 @@ module author's guide is docs/WIDGET-KIT.md 16.
   32; `HeaderTrail`, `Fluent.Badge`, `KitHeaderParts` (folded into `HeaderRules.Wants`),
   `KitList.Lined` and the old ladders' measures are gone. `Fluent.Row`, `SetDensity`, `RowHeight`,
   `CompactBelow` and `EmptyStatePanel`, `EmptyStateFit`, `Fluent.EmptyState` stay for the groups
-  whose widgets still call them (G3, G5, G6, the card's fault state).
+  whose widgets still call them (G5, G6, the card's fault and setup code). The weather, sky, finance
+  and text widgets are on the blocks (G3, 2026-10-29): weather now, air quality, stocks and the rates
+  are a Readout (28/40/68) and fact rows laid out as the details are (`DetailFace`), a falling price or
+  rate Critical (its delta and its line, [S-6707]); the forecast's days are Row blocks with a range
+  `ChartBar`, its columns, curve and grid from tokens; rain's bars are `ChartBar` columns; the air
+  quality's gauge is `ChartRing` half; the sun and the moon have the Header and their shared rows and
+  disc are on the blocks ([S-6735]); the quote is set on the Big ramp and notes on Title and Body with
+  their marks tertiary ([S-6738]); an online widget without an answer says so in the Status row
+  ([S-6734]). `HeroReadout`, `WidgetParts` (`StatLine`, `StatCell`, `Figure`, the runs), `StatPart`,
+  `FactStyle`, `PartMetrics`, `OnlineLayouts`, `GaugeDial`, `GaugeLayout` and `HeroLayout`'s glyph,
+  token, growth, fill and tier steps are gone; the forecast's now mark, the air quality's band strip,
+  the sun's number strip, Stocks' own rising and falling colours and the note's own font size went
+  with them.
 - **[S-6730]** The **source guard** (`FamilyGuardTests.S6730_no_literal_outside_the_family_tokens`)
   reads every module, the SDK's UI parts and the app's Shell and Widgets (not `Tests/`, `Fixtures/`,
   `Gallery/`) and fails on a type size or line, a weight other than 400/600, a spacing, thickness,
@@ -2676,9 +2687,8 @@ rules in Core `Model/QuickSet.cs` and `Geometry/StripPlacement.cs` and the SDK's
 - **[S-6583]** The card hands its view the alignment it draws (`ContentAlignment.Shown`: the own
   choice, else the kind's default for its style, and the default for a value outside the set or a
   style that does not align) before the view attaches and before every config it hears. In the
-  view: the clock's column; the weather's and air quality's reading (the shared hero readout,
-  [S-667]: its value row and the lines under it together; lines beside the value still read from
-  it), the readings under it keep their grid; the large-icon and minimal reading and the gauge; the
+  view: the clock's column; the weather's and air quality's Readout ([S-6702]: its value row and
+  the line under it together), the fact rows beside or under it keep their places; the large-icon and minimal reading and the gauge; the
   rate and the price; the countdown's lines, ring and cards; the quote's mark, lines and author; the
   moon's readout (the moon, its lit share and the phase's name under them) over or beside its rows.
 - **[S-6584]** The properties panel's **Alignment** row, first in Appearance: a level of Left, Centre
@@ -3319,7 +3329,7 @@ removed, [S-1863]). Sizing rules live in Core with tests in
   0% side by side: the first moved the baseline and the second measured a millisecond.
 - [S-644]: moved with the Pomodoro widget into its module's `SPEC.md` (`src/Widgets/Themia.Widget.Pomodoro/`).
 - [S-645]: moved with the Clock widget into its module's `SPEC.md` (`src/Widgets/Themia.Widget.Clock/`).
-- **[S-646]** A reading's caption (meters, power, weather's condition) moves under the reading when
+- **[S-646]** A reading's caption (meters, power) moves under the reading when
   it would be trimmed beside it, or when its own line lets the reading be drawn larger.
 - **[S-647]** *(Retired: the power tile is gone, [S-1910].)*
 - **[S-648]** A process row shows both numbers only from 232px of content; below that only the
@@ -3338,18 +3348,15 @@ removed, [S-1863]). Sizing rules live in Core with tests in
   The rule reaches a label that is the trailing element; a label among the kit's header extras (the
   exchange rates' day) is one of their parts and folds first ([S-7064]); other panels are left alone. Commands in the
   header are not touched; their views shed them.
-- **[S-656]** The current-weather reading is sized against the tile less its detail line, not
-  against its own height (which pinned the first step chosen); the condition icon goes first on a
-  tile too narrow for it.
-- **[S-657]** The stock price is fitted to its own text (at least seven characters), not the widest
-  price any symbol could have, and the change, currency and session badge go under it when they do
-  not fit beside it. The badge is a grid so its label ends in an ellipsis.
+- **[S-656]** *(Retired 2026-10-29, group G3: weather now's reading is the family's Readout on the
+  step its widest case takes, [S-6702]; the condition is its line under and the glyph its lead.)*
+- **[S-657]** *(Retired 2026-10-29, group G3: the price is the family's Readout and its change folds
+  beside it or under it by `ReadoutRules.Fold`, [S-6707]; the session is the line under it.)*
 - **[S-658]** A forecast row on a content narrower than 120 (the smallest tile) is the day and its high, and no
   row leads (they all lead or none do, [S-6711]); the sky's glyph and the low come back from 120 ([S-725]).
 - **[S-659]** **A readout that is the whole tile fills it** (`HeroFit`; user request 2026-10-17: the
   clock and the weather left a wide band between their content and the card's edge). The clock's
-  time (Digital, Stacked, Minimal, and the Flip cards' digits) and the current weather's
-  temperature (every style) are measured by their glyphs, not by 0.58em a character:
+  time (Digital, Stacked, Minimal, and the Flip cards' digits) is measured by its glyphs, not by 0.58em a character:
   `HeroFit.Ems` takes Segoe UI Variable's advances by class (digit 0.58, colon or stop 0.25, space
   0.28, "-" 0.41, "°" 0.39, capital 0.72, "M"/"W" 0.95, small letter 0.56, an unknown script 1 em,
   a combining mark 0), the widest over its weights and optical sizes. The clock's row is "88:88"
@@ -3359,9 +3366,8 @@ removed, [S-1863]). Sizing rules live in Core with tests in
   full-size letters and drew "10:42 AM" across 61 % of the M tile. Below TitleLarge the size is a
   ramp step; from TitleLarge it is continuous, the size at which the readout fills the width or a
   1.15 line (`HeroFit.Leading`, figures set solid: digits have no descenders) fills the height,
-  with no ceiling. The temperature fills from TitleLarge the same way (`HeroLayout.Fill`), the glyph,
-  the number, the unit and the condition standing beside it measured together; the condition goes
-  under the reading when that draws it larger ([S-646]). The meridiem sits on the digits'
+  with no ceiling (the weather's temperature left the fill with group G3: it is a Readout, [S-6702]).
+  The meridiem sits on the digits'
   baseline (`HeroFit.BaselineDrop`: a line's baseline stands 0.19 of it above its bottom). Only
   the rungs ([S-660]) and the card's inset take room from the fill; lists, charts and the other
   heroes keep their ladders. The widget's own scale ([S-6532]) lays the content out in the card
@@ -3733,29 +3739,18 @@ is no toast pipeline yet; the header warning stays and opens Accounts), and birt
   [S-1624], [S-723], [S-725], [S-763], [S-767], [S-768], [S-783], [S-1213], [S-1274], [S-1285],
   [S-665], [S-1571], [S-1323], [S-1284], [S-1469], [S-1475]; the stock
   facts and range chips, [S-2770]; the mixer's percent, [S-2771]).
-- **[S-667]** **The hero readout** (`HeroReadout`, metrics in `HeroLayout`; Weather now, Stocks,
-  Air quality, Exchange rates, the system meters and the GPU, the detail widgets, [S-3860]): the one big value
-  with its unit, an optional token on its baseline, an optional leading glyph and caption lines.
-  Value, unit and token are runs of one text block, so they share a baseline (they were three
-  bottom-aligned blocks of different line heights, a few pixels apart). The unit is the largest ramp
-  step at most 45% of the value's size (Caption under a Subtitle value, Title beside Display),
-  regular, secondary, after the number ("14" then a smaller "°C"; "420.27" then " USD"); the token is Body, BodyLarge from a Title value; the
-  glyph is 0.8 of the value's size, at least 24, and 12 from it, and is the first part shed; past
-  Display (a filled reading, [S-659]) the unit grows with the value from Title, and the glyph has no ceiling. Caption
-  lines stand beside the value (12 from it, centred on it) where the longest fits across and their
-  height is within the value's line, else under it, starting at the readout's left edge.
-- **[S-668]** **Stat line and stat cell** (`WidgetParts.StatLine` / `StatCell`, sizes in
-  `PartMetrics`): a reading as one 28px line (16px glyph, Body label secondary, Body value primary
-  at the end) or as a 36px cell (12px glyph and Caption label over a Body Strong value, no box). The
-  weather readings use only these two, beside or under the reading (they were three shapes with
-  three glyph sizes).
+- **[S-667]** *(Retired 2026-10-29, group G3: `HeroReadout` is gone; every data widget's number is
+  the family's Readout ([S-6702], [S-6707]). `HeroLayout` keeps only the unit step and the fit the
+  ring's figure uses, `RingFace.Figure`.)*
+- **[S-668]** *(Retired 2026-10-29, group G3: the stat line and cell (`WidgetParts`, `PartMetrics`) are
+  gone; a reading is a fact row of the Row block, the value primary, [S-6711].)*
 - **[S-669]** *(Retired 2026-10-29, group G3: the forecast's days are the family's Row block and tokens at
   every size ([S-725], [S-726], [S-6171], [S-6711]); the day-row parts, `DayScale` and its ramp steps are gone.)*
 - **[S-3860]** **One hero ladder for chart and reading widgets.** While a hero shares its tile with
   the content it heads (a chart, readings) it grows to the tier's step, by the tile's smaller size
-  class (`HeroLayout.TierStep`): Title up to Regular, TitleLarge at Expanded, Display at Huge,
-  fitted down where the width is short. Stocks ([S-1311]) uses it. The meters, the GPU and the
-  detail widgets are on the family's Readout instead ([S-6702]: 28 at XS and S, 40 at M, Wide and
+  class: Title up to Regular, TitleLarge at Expanded, Display at Huge, fitted down where the width
+  is short. No widget uses it any more (Stocks left it with group G3, `HeroLayout.TierStep` is gone):
+  the meters, the GPU, the detail widgets, the price and the rate are on the family's Readout ([S-6702]: 28 at XS and S, 40 at M, Wide and
   Tall, 68 at L and XL, and no larger; [S-1762], [S-2402]). A formatted reading is split for a
   readout by `ReadoutRules.Split`: the leading figure (digits of any script, `.` `,` and the Arabic
   separators) and the unit after it with the space that stood between ("42" + "%", "1.2" + " MB/s");
@@ -8064,7 +8059,8 @@ gallery ([S-1863]).
   tooltip the sentence). The sentence is the config's own (`ISetupRule.SetupSentence`, in the
   module's words: "Choose a place" for every widget about a place; "Add a feed", "Add an account to
   show your mail", "… your tasks", "… your calendar", "… your contacts", "Add an account to plan
-  your week", "… your next meeting" for the lists, G2), else "Add an account to show this" where an
+  your week", "… your next meeting" for the lists, G2; "Choose a symbol" for Stocks and "Add a quote"
+  for a Quote with no quote to show, G3), else "Add an account to show this" where an
   account is all it lacks, else "Set up what this widget needs". On a row too narrow for both (XS, S) the sentence
   goes and the glyph and the button stay, at every size. The button takes
   no focus, so it works outside edit mode on the `WS_EX_NOACTIVATE` surface. A click goes where what

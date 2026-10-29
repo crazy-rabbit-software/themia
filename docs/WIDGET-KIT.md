@@ -2917,6 +2917,19 @@ files, the clipboard, contacts, the week planner) builds `RowBlock`s the same wa
 columns go in the name's place (`RowBlock.Cells`). A data colour (a calendar's) is a 2 px bar or a dot
 through `Family.Data`, never the accent; a count is the neutral pill; no text is in the accent.
 
+### 16.2b A Readout and its facts, online (G3, 2026-10-29)
+
+A widget about one number (weather now, air quality, a price, a rate) is the detail widgets' face:
+a `ReadoutBlock` at the view's top, start-aligned, sized on its widest case (`ReadoutRules.Step`:
+28, 40, 68 by the area), the line under it its own (the sky, the band, the session), and fact rows
+(`RowBlock(RowKind.Fact)`, the value primary) placed by `DetailFace.Plan`: beside it in a column of
+two fifths on an expanded width, else 8 under it, whole rows only, room left empty. A change is the
+Readout's delta, folded beside the value or under it by `ReadoutRules.Fold`, secondary when rising,
+Critical when falling ([S-6707]); a history is a `ChartSeries` band to the card's foot in the same
+role. With no answer the view calls `OnlineParts.ShowState(row, status, glyph, retry)`: the Status row
+at the top, a problem with Retry where asking again helps ([S-6734]); an answer kept through a
+failure stays on screen and the header's problem glyph (`OnlineParts.Problems`) says so.
+
 ### 16.3 The guard
 
 - **Source** (`FamilyGuardTests`, in `dotnet test`): a number given for a type size, weight, spacing,
