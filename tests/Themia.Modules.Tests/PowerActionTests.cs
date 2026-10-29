@@ -345,57 +345,30 @@ public class PowerActionTests
         Assert.Equal("Erneut klicken: Herunterfahren", PowerActionRules.ArmedLabel(Locale.De, PowerAction.Shutdown));
     }
 
-    // ---- face ladder -----------------------------------------------------------------------
+    // ---- the tile ------------------------------------------------------------------------------
 
     [Fact]
-    public void S1912_xs_is_the_icon_alone()
+    public void S1913_armed_and_failed_are_the_tile_in_the_critical_role_and_unavailable_is_disabled()
     {
-        var plan = PowerFace.Plan(new WidgetArea(120, 120), 104, 104, "Shut down".Length, "Click again to shut down".Length);
-
-        Assert.Null(plan.Label);
-        Assert.Equal(0, plan.LabelSlot);
-        Assert.InRange(plan.IconBox, PowerFace.MinBox, 104);
+        Assert.Equal(Themia.Sdk.Kit.TileState.Off, PowerActionRules.Tile(available: true, armed: false, failed: false));
+        Assert.Equal(Themia.Sdk.Kit.TileState.Critical, PowerActionRules.Tile(available: true, armed: true, failed: false));
+        Assert.Equal(Themia.Sdk.Kit.TileState.Critical, PowerActionRules.Tile(available: true, armed: false, failed: true));
+        Assert.Equal(Themia.Sdk.Kit.TileState.Unavailable, PowerActionRules.Tile(available: false, armed: false, failed: true));
     }
 
     [Fact]
-    public void S1912_from_s_up_the_name_sits_under_the_icon_and_both_grow()
+    public void S1912_the_glyph_stands_inside_its_ring_at_every_tier_so_arming_moves_nothing()
     {
-        var s = PowerFace.Plan(new WidgetArea(200, 150), 176, 126, 9, 24);
-        var m = PowerFace.Plan(new WidgetArea(320, 240), 296, 216, 9, 24);
-        var xl = PowerFace.Plan(new WidgetArea(800, 560), 776, 536, 9, 24);
-
-        Assert.NotNull(s.Label);
-        Assert.NotNull(m.Label);
-        Assert.NotNull(xl.Label);
-        Assert.True(s.IconBox < m.IconBox && m.IconBox <= xl.IconBox);
-        Assert.True(s.Label!.Value.FontSize <= m.Label!.Value.FontSize);
-
-        // Everything fits: the icon square, the gap and the label slot.
-        foreach (var (plan, height) in new[] { (s, 126.0), (m, 216.0), (xl, 536.0) })
+        // The name's line is planned at every size and the sentence takes it; the glyph is the
+        // ringed one whether the ring shows or not.
+        foreach (var tier in WidgetTiers.All)
         {
-            Assert.True(plan.IconBox + PowerFace.LabelGap + plan.LabelSlot <= height);
-            Assert.True(plan.IconSize < plan.IconBox);
+            var (w, h) = (tier.Width - 32, tier.Height - 32);
+            var ring = Themia.Sdk.Kit.TileRules.GlyphStep(w, h, label: true, state: false).FontSize;
+            var glyph = Themia.Sdk.Kit.TileRules.RingGlyph(ring);
+            Assert.True(glyph <= ring * Themia.Sdk.Kit.TileRules.RingShare, tier.Name);
+            Assert.True(ring + Themia.Sdk.Kit.TileRules.Below(label: true, state: false) <= h, tier.Name);
         }
-    }
-
-    [Fact]
-    public void S1912_the_armed_sentence_keeps_the_face_still()
-    {
-        // The slot is planned for the longer of the two, so arming does not move the icon.
-        var plan = PowerFace.Plan(new WidgetArea(200, 150), 176, 126, "Herunterfahren".Length, "Erneut klicken: Herunterfahren".Length);
-
-        Assert.NotNull(plan.Label);
-        Assert.True(plan.LabelSlot >= plan.Label!.Value.LineHeight);
-        Assert.True(plan.LabelSlot >= plan.Armed.LineHeight * plan.ArmedLines || plan.ArmedLines == 1);
-    }
-
-    [Fact]
-    public void S1912_an_unmeasured_box_is_the_icon_alone()
-    {
-        var plan = PowerFace.Plan(default, double.NaN, 0, 9, 0);
-
-        Assert.Null(plan.Label);
-        Assert.Equal(PowerFace.MinBox, plan.IconBox);
     }
 
     // ---- call plan -------------------------------------------------------------------------

@@ -3,8 +3,8 @@
 The module `hibernate` ([S-6911]): one of the seven power buttons, one action each. What the seven share
 is the host's and the SDK's (root `SPEC.md`, Power and Bluetooth: one widget per action [S-1910],
 the button [S-1911]..[S-1916], [S-1919], the Win32 calls [S-1243], previews [S-1251]; the view
-`PowerButtonView` and the rules `PowerButton`, `PowerActionRules`, `PowerFace` in the SDK, the
-backend on `IWidgetHost.Power`). This file's tag is its own.
+`PowerButtonView` (the family's Tile block, ringed, [S-6736]) and the rules `PowerButton` and
+`PowerActionRules` in the SDK, the backend on `IWidgetHost.Power`). This file's tag is its own.
 
 Owning files: everything in this folder: `HibernateModule.cs` (descriptor, view factory, JSON context),
 `HibernateConfig.cs`, `Localization/Locales/` (its own `HibernateStr`, 30 languages: its description, and
@@ -13,6 +13,7 @@ its name copied from the host's table, which the shared view also reads). Tests:
 
 - **[S-7700]** `hibernate` stands for `PowerAction.Hibernate` (its config's `Action`, [S-6906]): its widget is
   in the add menu's Devices & power › Power buttons at place 4 ([S-3511]), 120×120, headerless at
-  first ([S-700]), and it arms on the first click and runs on the second ([S-1913]).
+  first ([S-700]), and it arms on the first click and runs on the second ([S-1913]). Its descriptor declares it a
+  one-readout widget ([S-6737]).
 
 Needs a manual pass: the action itself on a real desktop (never in a render or a test, [S-1251]).

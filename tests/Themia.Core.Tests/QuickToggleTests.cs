@@ -9,7 +9,7 @@ namespace Themia.Core.Tests;
 
 /// <summary>
 /// The quick-setting toggle widgets: the decoders of what Windows answers, the click
-/// gate, the look and the face ladder. [S-3903..S-3915] Nothing here touches the machine. Which kinds
+/// gate, the look and the tile's state. [S-3903..S-3915] Nothing here touches the machine. Which kinds
 /// are toggles, their configs and their names are the module test host's QuickToggleHostTests (the
 /// toggles are module projects).
 /// </summary>
@@ -147,73 +147,15 @@ public class QuickToggleTests
         Assert.False(gate.Press(ToggleReading.Of(true), T0 - TimeSpan.FromMinutes(5)));
     }
 
-    // ---- the face ------------------------------------------------------------------------------
-
-    private static ToggleFacePlan Face(double w, double h, int name = 13)
-    {
-        var area = new WidgetArea(w, h);
-        return ToggleFace.Plan(area, w - 24, h - 24, name, 11);
-    }
+    // ---- the tile ------------------------------------------------------------------------------
 
     [Fact]
-    public void S3906_xs_is_the_icon_alone()
+    public void S3904_on_is_the_accent_tile_off_the_item_layers_not_known_secondary_and_unavailable_disabled()
     {
-        var plan = Face(120, 120);
-        Assert.Null(plan.Name);
-        Assert.Null(plan.State);
-        Assert.InRange(plan.IconSize, ToggleFace.MinIcon, ToggleFace.MaxIcon);
-    }
-
-    [Fact]
-    public void S3906_from_regular_width_the_name_shows_and_the_state_where_the_height_allows()
-    {
-        foreach (var tier in WidgetTiers.All.Where(t => t.Name != "XS"))
-        {
-            var plan = Face(tier.Width, tier.Height);
-            Assert.True(plan.Name is not null, tier.Name);
-            Assert.True(plan.State is not null, $"{tier.Name} has no state line");
-        }
-    }
-
-    [Fact]
-    public void S3906_a_wide_strip_puts_the_icon_beside_the_words()
-    {
-        Assert.True(Face(480, 160).Row);
-        Assert.False(Face(320, 240).Row);
-        Assert.False(Face(200, 400).Row);
-    }
-
-    [Fact]
-    public void S3906_the_face_fits_its_box_at_every_tier()
-    {
-        foreach (var tier in WidgetTiers.All)
-        {
-            var w = tier.Width - 24;
-            var h = tier.Height - 24;
-            var plan = Face(tier.Width, tier.Height);
-            var words = (plan.Name?.LineHeight ?? 0) + (plan.State?.LineHeight ?? 0);
-            if (plan.Row)
-            {
-                Assert.True(plan.IconSize + ToggleFace.Gap <= w, tier.Name);
-                Assert.True(Math.Max(plan.IconSize, words) <= h, tier.Name);
-            }
-            else
-            {
-                var gaps = (plan.Name is null ? 0 : ToggleFace.Gap) + (plan.State is null ? 0 : ToggleFace.Gap);
-                Assert.True(plan.IconSize + gaps + words <= h, tier.Name);
-                Assert.True(plan.IconSize <= w, tier.Name);
-            }
-
-            Assert.Equal(0, plan.IconSize % 2);
-        }
-    }
-
-    [Fact]
-    public void S3906_a_degenerate_box_still_plans_an_icon()
-    {
-        var plan = ToggleFace.Plan(new WidgetArea(double.NaN, 0), double.NaN, -5, 5, 5);
-        Assert.Null(plan.Name);
-        Assert.Equal(ToggleFace.MinIcon, plan.IconSize);
+        Assert.Equal(Themia.Sdk.Kit.TileState.On, QuickToggleRules.Tile(ToggleLook.On));
+        Assert.Equal(Themia.Sdk.Kit.TileState.Off, QuickToggleRules.Tile(ToggleLook.Off));
+        Assert.Equal(Themia.Sdk.Kit.TileState.Unknown, QuickToggleRules.Tile(ToggleLook.Unknown));
+        Assert.Equal(Themia.Sdk.Kit.TileState.Unavailable, QuickToggleRules.Tile(ToggleLook.Unavailable));
     }
 
     // ---- decoders ------------------------------------------------------------------------------

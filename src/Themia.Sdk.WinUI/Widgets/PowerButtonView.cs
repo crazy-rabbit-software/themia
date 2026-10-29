@@ -1,10 +1,8 @@
-using Microsoft.UI;
 using Microsoft.UI.Dispatching;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Automation;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Input;
-using Microsoft.UI.Xaml.Media;
 using Themia.App.Services;
 using Themia.App.Shell;
 using Themia.Core.Diagnostics;
@@ -13,6 +11,8 @@ using Themia.Core.Model;
 using Themia.Core.Widgets;
 using Themia.Sdk.WinUI;
 using Themia.Sdk;
+using Themia.Sdk.Kit;
+using Themia.Sdk.WinUI.Kit;
 
 namespace Themia.App.Widgets;
 
@@ -20,8 +20,9 @@ namespace Themia.App.Widgets;
 /// [S-1910] One power action as a whole widget: shut down, restart, sleep, hibernate, lock, sign out
 /// or turn off the display. One view for all seven, parameterised by the action its kind maps to.
 /// <para>
-/// <b>The tile is the button</b> ([S-1911]): an icon centred with the name underneath where there is
-/// room ([S-1912]), and the Windows 11 button's hover and pressed fills across the whole card. It is
+/// <b>The tile is the button</b> ([S-1911]): the family's Tile block, ringed ([S-1912], [S-6736]): the
+/// glyph centred inside its arm ring's room with the name under it, and the item layer's hover and
+/// pressed fills across the whole card. It is
 /// not a <see cref="Button"/>: a button takes the press for itself, and in edit mode the press must
 /// reach the card so the widget is selected and moved, never run.
 /// </para>
@@ -32,9 +33,8 @@ namespace Themia.App.Widgets;
 /// inert until the card says this is a real widget on the desktop ([S-1251]).
 /// </para>
 /// <para>
-/// <b>Styles</b> ([S-1919]): the tile, or a round accent button (the part the toggles' Round style
-/// uses too). Only the drawing differs; the whole slot stays the hit target, so arming, edit mode
-/// and the click are one path.
+/// <b>Styles</b> ([S-1919]): the Tile block's tile or round look, as the toggles'. Only the drawing
+/// differs; the whole slot stays the hit target, so arming, edit mode and the click are one path.
 /// </para>
 /// </summary>
 public sealed partial class PowerButtonView : Grid, IWidgetView, IWidgetSizeAware, IWidgetSurfaceAware
@@ -42,14 +42,7 @@ public sealed partial class PowerButtonView : Grid, IWidgetView, IWidgetSizeAwar
     private const string Scope = "power";
 
     private readonly PowerAction _action;
-    private readonly Grid _face = new() { HorizontalAlignment = HorizontalAlignment.Center, VerticalAlignment = VerticalAlignment.Center };
-    private readonly Grid _iconBox = new() { HorizontalAlignment = HorizontalAlignment.Center };
-    private readonly FontIcon _icon;
-    private readonly ArmRing _ring = new();
-    private readonly ArmRing _roundRing = new();
-    private readonly RoundButtonPart _round;
-
-    private readonly TextBlock _label = Fluent.Text(FluentType.Body);
+    private readonly TileBlock _tile = new(TileLook.Tile, ringed: true) { Padding = Family.Inset };
 
     /// <summary>
     /// [S-1913] Fires once, when the arm window runs out, to draw the widget disarmed. Cosmetic like
@@ -57,25 +50,9 @@ public sealed partial class PowerButtonView : Grid, IWidgetView, IWidgetSizeAwar
     /// </summary>
     private readonly DispatcherQueueTimer? _expiry;
 
-    private readonly Brush _rest = new SolidColorBrush(Colors.Transparent);
-    private readonly Brush _armedFill = ThemeBrush.Of("SystemFillColorCriticalBackgroundBrush", Colors.MistyRose);
-    private readonly Brush _critical = ThemeBrush.Of("SystemFillColorCriticalBrush", Colors.Red);
-    private readonly Brush _primary = ThemeBrush.Of("TextFillColorPrimaryBrush", Colors.White);
-    private readonly Brush _secondary = ThemeBrush.Of("TextFillColorSecondaryBrush", Colors.Gray);
-    private readonly Brush _disabled = ThemeBrush.Of("TextFillColorDisabledBrush", Colors.Gray);
-    private readonly Brush _accent = ThemeBrush.Of("AccentFillColorDefaultBrush", Colors.DodgerBlue);
-    private readonly Brush _accentHover = ThemeBrush.Of("AccentFillColorSecondaryBrush", Colors.DodgerBlue);
-    private readonly Brush _accentPressed = ThemeBrush.Of("AccentFillColorTertiaryBrush", Colors.DodgerBlue);
-    private readonly Brush _accentDisabled = ThemeBrush.Of("AccentFillColorDisabledBrush", Colors.Gray);
-    private readonly Brush _onAccent = ThemeBrush.Of("TextOnAccentFillColorPrimaryBrush", Colors.White);
-    private readonly Brush _onAccentDisabled = ThemeBrush.Of("TextOnAccentFillColorDisabledBrush", Colors.White);
-    private readonly Brush _controlEdge = ThemeBrush.Of("ControlStrokeColorDefaultBrush", Colors.Gray);
-
     private IWidgetSurface? _surface;
     private PowerButton? _button;
     private WidgetArea _area;
-    private PowerFacePlan _plan;
-    private PowerButtonStyle _style = PowerButtonStyle.Tile;
     private bool _hover;
     private bool _pressed;
     private bool _detached = true;
@@ -94,27 +71,10 @@ public sealed partial class PowerButtonView : Grid, IWidgetView, IWidgetSizeAwar
             Log.Error(Scope, $"{kind} is not a power widget; showing Lock");
         }
 
-        _icon = Fluent.Icon(Glyph(_action), "TextFillColorPrimaryBrush", 32);
-        _icon.HorizontalAlignment = HorizontalAlignment.Center;
-        _iconBox.Children.Add(_ring.Root);
-        _iconBox.Children.Add(_icon);
-
-        _label.HorizontalAlignment = HorizontalAlignment.Center;
-        _label.TextAlignment = TextAlignment.Center;
-        _label.VerticalAlignment = VerticalAlignment.Top;
-
-        _face.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
-        _face.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
-        SetRow(_label, 1);
-        _face.Children.Add(_iconBox);
-        _face.Children.Add(_label);
-        Children.Add(_face);
-
-        _round = new RoundButtonPart(Glyph(_action));
-        _round.Overlay(_roundRing.Root);
+        Children.Add(_tile);
 
         // The whole slot is hit-testable, edge to edge: the tile is the button.
-        Background = _rest;
+        Background = Family.Brush(ColourRole.Clear);
 
         _expiry = DispatcherQueue.GetForCurrentThread()?.CreateTimer();
         if (_expiry is not null)
@@ -176,14 +136,8 @@ public sealed partial class PowerButtonView : Grid, IWidgetView, IWidgetSizeAwar
     /// </summary>
     public void ApplyConfig(WidgetConfig config)
     {
-        _style = config is PowerButtonConfig { Style: var style } && Enum.IsDefined(style) ? style : PowerButtonStyle.Tile;
-
-        UIElement face = _style == PowerButtonStyle.Round ? _round : _face;
-        if (Children.Count != 1 || Children[0] != face)
-        {
-            Children.Clear();
-            Children.Add(face);
-        }
+        var style = config is PowerButtonConfig { Style: var chosen } && Enum.IsDefined(chosen) ? chosen : PowerButtonStyle.Tile;
+        _tile.Look = style == PowerButtonStyle.Round ? TileLook.Round : TileLook.Tile;
 
         _expiry?.Stop();
         _button?.Disarm();
@@ -220,13 +174,16 @@ public sealed partial class PowerButtonView : Grid, IWidgetView, IWidgetSizeAwar
         }
 
         _button?.Disarm();
-        _ring.Stop();
-        _roundRing.Stop();
+        _tile.Ring.Stop();
     }
 
     // ---- layout ------------------------------------------------------------------------------
 
-    /// <summary>[S-1912] Icon alone at XS, icon and name above; both grow with the tile.</summary>
+    /// <summary>
+    /// [S-1912] The Tile block in the card's inset, ringed: the glyph inside its ring's room, the name
+    /// under it; no state line. The armed sentence and a failure take the name's line, so arming
+    /// moves nothing.
+    /// </summary>
     private void Lay()
     {
         if (_detached)
@@ -234,42 +191,7 @@ public sealed partial class PowerButtonView : Grid, IWidgetView, IWidgetSizeAwar
             return;
         }
 
-        // [S-3916] The toggles' inset: the card's standard one, tighter while Compact.
-        var inset = ButtonInset.For(_area);
-        Padding = new Thickness(inset);
-
-        var name = PowerActionRules.Label(_action);
-        var armedChars = PowerActionRules.NeedsArming(_action) ? PowerActionRules.ArmedLabel(_action).Length : 0;
-        var width = _area.Width - (2 * inset);
-        var height = _area.Height - (2 * inset);
-
-        if (_style == PowerButtonStyle.Round)
-        {
-            _round.Lay(RoundButtonFace.Plan(_area, width, height, name.Length, armedChars), width);
-            Paint();
-            return;
-        }
-
-        _plan = PowerFace.Plan(_area, width, height, name.Length, armedChars);
-
-        _iconBox.Width = _plan.IconBox;
-        _iconBox.Height = _plan.IconBox;
-        _ring.Root.Width = _plan.IconBox;
-        _ring.Root.Height = _plan.IconBox;
-        _icon.FontSize = _plan.IconSize;
-
-        if (_plan.Label is null)
-        {
-            _label.Visibility = Visibility.Collapsed;
-        }
-        else
-        {
-            _label.Visibility = Visibility.Visible;
-            _label.Margin = new Thickness(0, PowerFace.LabelGap, 0, 0);
-            _label.Height = _plan.LabelSlot;
-            _label.MaxWidth = Math.Max(0, width);
-        }
-
+        _tile.Size(_area.Width - (2 * FamilySpace.Inset), _area.Height - (2 * FamilySpace.Inset), state: false);
         Paint();
     }
 
@@ -283,143 +205,36 @@ public sealed partial class PowerButtonView : Grid, IWidgetView, IWidgetSizeAwar
 
         var now = DateTimeOffset.UtcNow;
         var armed = button.IsArmed(now);
+        var failure = button.Available && !armed ? button.Failure : null;
         var name = PowerActionRules.Label(_action);
 
-        string tooltip;
-        Brush? fill = null;
-        var face = ItemState.Rest;
-        Brush iconBrush;
-        Brush labelBrush;
-        var glyph = Glyph(_action);
-        var text = name;
+        // [S-1913] The tile says what the next click does; [S-1915] after a failure, why (the
+        // machine is still up), until the next press; [S-1914] greyed with the reason on hover.
+        var (glyph, text, tooltip) = !button.Available
+            ? (Glyph(_action), name, PowerActionRules.UnavailableHint)
+            : armed
+                ? (Glyph(_action), PowerActionRules.ArmedLabel(_action), PowerActionRules.ArmedLabel(_action))
+                : failure is not null
+                    ? (Glyphs.Warning, failure, failure)
+                    : (Glyph(_action), name, name);
 
-        if (!button.Available)
-        {
-            // [S-1914] Shown, but greyed and inert, with the reason on hover.
-            tooltip = PowerActionRules.UnavailableHint;
-            iconBrush = _disabled;
-            labelBrush = _disabled;
-        }
-        else if (armed)
-        {
-            // [S-1913] The tile says what the next click does, and the ring shows how long it waits.
-            text = PowerActionRules.ArmedLabel(_action);
-            tooltip = text;
-            fill = _armedFill;
-            iconBrush = _critical;
-            labelBrush = _critical;
-        }
-        else if (button.Failure is { } failure)
-        {
-            // [S-1915] The machine is still up, so the tile says why, until the next press.
-            glyph = Glyphs.Warning;
-            text = failure;
-            tooltip = failure;
-            face = _hover ? ItemState.Hover : ItemState.Rest;
-            iconBrush = _critical;
-            labelBrush = _critical;
-        }
-        else
-        {
-            tooltip = name;
-            face = _pressed ? ItemState.Pressed : _hover ? ItemState.Hover : ItemState.Rest;
-            iconBrush = _pressed ? _secondary : _primary;
-            labelBrush = _pressed ? _secondary : _primary;
-        }
+        _tile.Show(glyph, text, string.Empty, PowerActionRules.Tile(button.Available, armed, failure is not null));
+        _tile.Face(!button.Available ? ItemState.Rest : _pressed ? ItemState.Pressed : _hover ? ItemState.Hover : ItemState.Rest);
 
         // [S-1913] The ring starts draining when the widget arms and drains on its own (the
         // compositor's): a repaint while armed (a hover) leaves it be.
-        var ring = _style == PowerButtonStyle.Round ? _roundRing : _ring;
-        (_style == PowerButtonStyle.Round ? _ring : _roundRing).Stop();
-
         if (!armed)
         {
-            ring.Stop();
+            _tile.Ring.Stop();
         }
-        else if (!ring.Shown)
+        else if (!_tile.Ring.Draining)
         {
-            ring.Drain(button.ArmRemaining(now), button.ArmLeft(now), _critical);
-        }
-
-        if (_style == PowerButtonStyle.Round)
-        {
-            PaintRound(button, armed, glyph, text);
-        }
-        else
-        {
-            // [S-6513] The tile is an item of the card's item layer; armed, it is the critical tint.
-            if (fill is null)
-            {
-                ItemFill.Paint(this, ItemRole.Row, face);
-            }
-            else
-            {
-                ItemFill.Release(this);
-                Background = fill;
-            }
-
-            _icon.Glyph = glyph;
-            _icon.Foreground = iconBrush;
-            _label.Text = text;
-            _label.Foreground = labelBrush;
-            ApplyLabelStep(armed || button.Failure is not null);
+            _tile.Ring.Drain(button.ArmRemaining(now), button.ArmLeft(now));
         }
 
         ToolTipService.SetToolTip(this, tooltip);
         AutomationProperties.SetHelpText(this, tooltip);
         AutomationProperties.SetItemStatus(this, armed ? Str.WidgetsC_Power_ArmedStatus.Text() : string.Empty);
-    }
-
-    /// <summary>
-    /// [S-1919] The round button: an accent circle (its hover and pressed steps on the circle, not the
-    /// tile); armed, the critical background with the ring draining round its rim; failed, the
-    /// warning glyph on a control fill; unavailable, the disabled accent.
-    /// </summary>
-    private void PaintRound(PowerButton button, bool armed, string glyph, string text)
-    {
-        // [S-6546] The round look draws no tile: only its circle is an item.
-        ItemFill.Release(this);
-        Background = _rest;
-
-        if (!button.Available)
-        {
-            _round.Paint(_accentDisabled, _accentDisabled, glyph, _onAccentDisabled, text, _disabled);
-        }
-        else if (armed)
-        {
-            _round.Paint(_armedFill, _critical, glyph, _critical, text, _critical, sentence: true);
-        }
-        else if (button.Failure is not null)
-        {
-            _round.Paint(ItemState.Rest, _controlEdge, glyph, _critical, text, _critical, sentence: true);
-        }
-        else
-        {
-            var fill = _pressed ? _accentPressed : _hover ? _accentHover : _accent;
-            _round.Paint(fill, fill, glyph, _onAccent, text, _primary);
-        }
-    }
-
-    /// <summary>The name on its step; the armed sentence (or a failure) on its own, wrapping to two lines if planned.</summary>
-    private void ApplyLabelStep(bool sentence)
-    {
-        if (_plan.Label is not { } step)
-        {
-            return;
-        }
-
-        if (sentence)
-        {
-            _label.Apply(_plan.Armed);
-            _label.MaxLines = _plan.ArmedLines;
-            _label.TextWrapping = _plan.ArmedLines > 1 ? TextWrapping.WrapWholeWords : TextWrapping.NoWrap;
-        }
-        else
-        {
-            _label.Apply(step);
-            _label.MaxLines = 1;
-            _label.TextWrapping = TextWrapping.NoWrap;
-        }
     }
 
     // ---- pointer -----------------------------------------------------------------------------

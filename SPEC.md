@@ -4357,8 +4357,8 @@ plots and how it is coloured. Layout is the SDK's `MeterFace` (tests `MeterFaceT
 ## Power and Bluetooth
 
 Power: one widget per action (R7-POWER), replacing the port of `main`'s Power tile
-(`widgets/system/power`, [S-01]..[S-11]). The SDK: `PowerActionRules`, `PowerButton`, `PowerFace`,
-`PowerButtonView` (the one view of all seven) and the base `PowerButtonConfig`; App: `Win32PowerActions`
+(`widgets/system/power`, [S-01]..[S-11]). The SDK: `PowerActionRules`, `PowerButton`,
+`PowerButtonView` (the one view of all seven, on the family's `TileBlock`) and the base `PowerButtonConfig`; App: `Win32PowerActions`
 and `InertPowerActions`, behind `IWidgetHost.Power`; tests `PowerActionTests` (the module test host).
 Each power button is a module of its own (`src/Widgets/Themia.Widget.Shutdown` … `.ScreenOff`, one
 tag each, [S-7400]..[S-8000]), and so is Bluetooth (`src/Widgets/Themia.Widget.Bluetooth`).
@@ -4374,33 +4374,37 @@ tag each, [S-7400]..[S-8000]), and so is Bluetooth (`src/Widgets/Themia.Widget.B
   power plans or timeouts, and no power-state sampling. A state file with the old `power` kind fails
   load validation like any unknown kind ([S-1050]).
 - **[S-1911]** The whole widget is the button. A new power widget has no header ([S-700]); the icon is
-  centred with the name under it. Hover and pressed paint Windows 11's subtle fills
-  (`SubtleFillColorSecondary`/`Tertiary`) across the whole content area, inside the card's own fill,
-  border and corners; a click is press and release on the tile (sliding off cancels). It is not a
-  `Button`: in edit mode the press is left to the card, which selects and moves the widget, so a
-  click there never runs anything (`IWidgetSurface.EditMode`).
-- **[S-1912]** Ladder (`PowerFace`): Compact width (XS) is the icon alone; from Regular width the name
-  sits under it on a ramp step fitted to the width (Body to Title, about a sixth of the height). The
-  icon's square (icon plus the arm ring) takes the rest, 24–192 DIPs, the icon two thirds of it. The
-  label slot is planned for the taller of the name and the armed sentence, so arming moves nothing.
-- **[S-1913]** Shut down, restart, sign out and hibernate arm on the first click: the tile turns to
-  the critical background, the icon and a draining ring in the critical colour, and the name becomes
-  "Click again to shut down" (wrapping to two Caption lines where one does not fit; the tooltip
-  carries it at XS). The second click within 5 s runs it; a second click within 400 ms of arming is
-  ignored (a double-click is one intent); the arm ends after 5 s, on pointer exit, on a config change
-  or when the widget goes away. Sleep, lock and display-off run on one click. The window is checked by
-  `PowerButton` against the press time. The ring (`ArmRing`: an arc from twelve, clockwise, round caps,
-  no track, a stroke a tenth of its size, as the WinUI progress ring drew it) drains on the compositor, one linear animation of its end over
-  the time left (`PowerButton.ArmLeft`), and one timer set to that time draws the widget disarmed:
+  centred with the name under it. Hover and pressed paint the card's item layer's fills
+  ([S-6513]) across the whole content area, inside the card's own fill, border and corners; a click
+  is press and release on the tile (sliding off cancels). It is not a `Button`: in edit mode the
+  press is left to the card, which selects and moves the widget, so a click there never runs anything
+  (`IWidgetSurface.EditMode`).
+- **[S-1912]** The face is the family's Tile block, ringed ([S-6715], [S-6736]): the icon centred in
+  its ring's room (the step is the largest Readout or Hero step above the name's Body line and at
+  most 0.6 of the width, the icon the largest family glyph size within three quarters of it), the name
+  under it at every size (cut with an ellipsis where it does not fit, whole in the tooltip), no state
+  line, in the card's inset of 16. The armed sentence and a failure take the name's line, so arming
+  moves nothing. Room left at L and XL stays empty past the 192 step (concise first).
+- **[S-1913]** Shut down, restart, sign out and hibernate arm on the first click: the icon, a draining
+  ring round it and the name's line turn critical, and the line becomes "Click again to shut down"
+  (one Body line, cut where it does not fit; the tooltip carries it whole); the tile itself takes no
+  fill (`PowerActionRules.Tile`: the Tile's critical state, [S-6736]). The second click within 5 s
+  runs it; a second click within 400 ms of arming is ignored (a double-click is one intent); the arm
+  ends after 5 s, on pointer exit, on a config change or when the widget goes away. Sleep, lock and
+  display-off run on one click. The window is checked by `PowerButton` against the press time. The
+  ring is the Tile's (`ChartRing`: an arc from twelve, clockwise, round caps, stroke 2 over its
+  track) and drains on the compositor (`ChartRing.Drain`), one linear animation of its end over the
+  time left (`PowerButton.ArmLeft`), and one timer set to that time draws the widget disarmed:
   nothing runs on the UI thread while it drains (CPU audit 2026-10-26: it was a whole repaint every
-  50 ms). Both are cosmetic; a click after the window arms again whatever the drawing shows.
+  50 ms). Both are cosmetic; a click after the window arms again whatever the drawing shows. A
+  render does not capture the compositor's arc: the armed render shows the ring's track only.
 - **[S-1914]** Hibernate is offered only where the machine can (`IsPwrHibernateAllowed`): elsewhere
   the widget is drawn in the disabled text colour, takes no hover or press, and its tooltip says
   "Hibernation is turned off on this PC". The probe runs when the widget attaches and when the
   pointer comes onto it, so turning hibernation on shows up without polling.
 - **[S-1915]** A failed action shows the warning glyph and "Could not <verb>: <reason>" in the
-  critical colour in the label's place (tooltip at XS) until the next press, and logs a warning
-  ([S-1246]).
+  critical role in the name's line (cut where it does not fit, whole in the tooltip) until the next
+  press, and logs a warning ([S-1246]).
 - **[S-1916]** One run at a time per widget: a press while the action is still running (sleep runs
   until the machine resumes) does nothing.
 - **[S-1917]** Debug: `--widget-png <Kind> <out.png> [w h] [--theme light|dark] [--state name]`
@@ -4412,14 +4416,12 @@ tag each, [S-7400]..[S-8000]), and so is Bluetooth (`src/Widgets/Themia.Widget.B
   in-between sizes on one page (with `tiers`, the seven as well).
 - **[S-1919]** Styles ([S-6000]): one `PowerButtonStyle` on the base `PowerButtonConfig`, shared by all
   seven kinds: **Tile** (the default, [S-1911], [S-1912]) and **Round button** (`round`), named,
-  labelled and drawn as the toggles' Round style ([S-3917], one `RoundButtonFace` and one round part
-  for both). The round button is an accent circle (`AccentFillColorDefault`, Secondary on hover,
-  Tertiary pressed) holding the icon in the on-accent colour, the name under it in the primary text
-  colour; armed, the circle takes the critical background, the icon the critical colour and the
-  draining ring runs round its rim, the sentence in the name's place (the label slot is planned for
-  the taller of the two, so arming moves nothing); failed, the warning glyph on a control fill;
-  unavailable, `AccentFillColorDisabled`. The whole tile stays the button: arming, edit mode and a
-  config change disarming it ([S-1913]) are the same in both styles.
+  labelled and drawn as the toggles' Round style ([S-3917]: the Tile block's round look). The circle
+  is the item layer's tile (a power button is never on, so never the accent) holding the icon in the
+  primary role at the largest family glyph size within half of it, the name under it; armed, the
+  icon, the ring round its rim and the sentence in the name's line are critical; failed, the warning
+  glyph and the sentence critical; unavailable, every part disabled. The whole tile stays the button:
+  arming, edit mode and a config change disarming it ([S-1913]) are the same in both styles.
 - **[S-1918]** *(Retired: the seven power widgets are one family of the add menu, Devices & power ›
   Power buttons, [S-3511].)*
 - **[S-1240]** *(Retired: one widget per action, [S-1910].)*
@@ -6761,8 +6763,8 @@ account).
 ## Quick-setting toggles (QUICK-TOGGLES)
 
 The toggle widgets of Karpo's Quick settings (`karpo-app`, docs\widgets.md §117: the ones a click
-flips where they stand), each its own widget. SDK: `QuickToggleRules`, `ToggleGate`, `ToggleFace`,
-`SwitchFace` (`Themia.Sdk`), `QuickToggleView` and `IQuickToggles` (`Themia.Sdk.WinUI`); Core:
+flips where they stand), each its own widget. SDK: `QuickToggleRules`, `ToggleGate`
+(`Themia.Sdk`), `QuickToggleView` (on the family's `TileBlock`) and `IQuickToggles` (`Themia.Sdk.WinUI`); Core:
 `ToggleFollowing` (`ReadingOrder`, `KeyFollow`), `NightLightValue`; App: `Services/Toggles/*` (one
 source per toggle, `ToggleHub`); tests `QuickToggleTests`.
 
@@ -6793,21 +6795,24 @@ source per toggle, `ToggleHub`); tests `QuickToggleTests`.
   spatial sound), `TurnedOff` (Windows says the setting does not apply, or a radio's hardware switch
   holds it). Nothing ever elevates: what needs more than the user's rights is one of these.
 - **[S-3904]** The tile is a Windows 11 quick-settings button over the whole content area, inside the
-  card's own fill and corners: on, `AccentFillColorDefault` (Secondary on hover, Tertiary pressed)
-  with `TextOnAccentFillColorPrimary` icon and name; off, the subtle fills on hover and press; not
-  known, the secondary text colour; unavailable, the disabled text colour, no hover, no press, and
-  the reason in the tooltip ("Bluetooth: This PC does not have it"). The tooltip is otherwise
-  "Wi-Fi: On"; after a refused click, "…: Windows did not switch it" until the next click. In edit
-  mode the press is the card's ([S-1911]).
+  card's own fill and corners, drawn as the family's Tile block ([S-6715], [S-6736]): on, the whole
+  tile in the accent (the subtle fills laid over it on hover and press) with the icon and name on it
+  and the state line in the on-accent secondary role; off, the card's item layer with its hover and
+  press fills; not known, every part secondary; unavailable, every part disabled, no hover, no
+  press, and the reason in the tooltip ("Bluetooth: This PC does not have it"). The tooltip is
+  otherwise "Wi-Fi: On"; after a refused click, "…: Windows did not switch it" until the next click.
+  In edit mode the press is the card's ([S-1911]).
 - **[S-3905]** Clicks go through `ToggleGate`: a click asks for the opposite of what is read and the
   tile shows it at once; while that switch is on its way every click does nothing; a click within
   400 ms of the last is the same click (a double-click never flips back). When Windows answers, the
   source's reading stands. Space or Enter switch it while the widget holds the keyboard lease
   ([S-800]); a toggle that cannot be switched does not take the keyboard (`WantsKeys`).
-- **[S-3906]** Ladder (`ToggleFace`): Compact width (XS) is the icon alone; then the name under it
-  (Caption to Title, about a sixth of the height), and the state line ("On", "Off", "Unavailable",
-  one step smaller) where the height allows; a wide strip puts the icon left of the name and state.
-  The text is planned for the language's longest state line, so switching moves nothing. Icon 16–128.
+- **[S-3906]** The face is the Tile block ([S-6715]) in the card's inset of 16: the icon centred on the
+  largest Readout or Hero step above the name (Body) and the state line ("On", "Off",
+  "Unavailable", Caption) and at most 0.6 of the width, the name and the state at every size (cut
+  with an ellipsis where they do not fit, whole in the tooltip). Both lines are planned whether or
+  not they say anything (a reading not answered yet has no state text), so switching moves nothing.
+  Room left at L and XL stays empty past the 192 step (concise first).
 - **[S-3907]** One source per toggle for the whole app (`ToggleHub`, host code; a widget reaches it
   through `IWidgetHost.Toggles`, [S-6913]), started by its first widget and stopped by its last; a change reaches each widget on its own thread. No source polls: each follows
   the notification its setting has and reads again when it fires. The pointer coming onto a tile
@@ -6870,37 +6875,24 @@ source per toggle, `ToggleHub`); tests `QuickToggleTests`.
   between is never lost behind a parent that will not signal again.
 - **[S-3916]** Styles ([S-6000]): one `QuickToggleStyle` on the base `QuickToggleConfig`, shared by
   all thirteen kinds (never an enum per kind): **Tile** (the default, [S-3904]..[S-3906]), **Round
-  button** (`round`, [S-3917]) and **Switch** ([S-3918]). Every style is drawn over the same whole-tile
-  hit target, so the click gate ([S-3905]), Space/Enter under the lease, edit mode, the tooltip and
-  "never a header" ([S-3901]) are the same in each; only the drawing differs. Every style (and the
-  power widgets') insets by `ButtonInset`: the card's standard 16 (`Fluent.Space4`), 8 while the
-  tile's short side is under 128.
-- **[S-3917]** Round button (`RoundButtonFace`, the part the power widgets' Round style shares,
-  [S-1919]): a circle holding the icon, the name under it (Caption to Subtitle, about a sixth of the
-  height) from Regular width; XS is the circle alone. The circle takes the rest of the box (32–320,
-  even, 0.85 of the room), the icon two fifths of it; L and XL get a bigger button, never more parts.
-  On, the circle is `AccentFillColorDefault` (Secondary on hover, Tertiary pressed) with the icon in
-  `TextOnAccentFillColorPrimary`; off, `ControlFillColorDefault` with a control stroke (Secondary
-  and Tertiary fills on hover and press); not known, the secondary text colour; unavailable,
-  `ControlFillColorDisabled` and the disabled text colour. The tile behind it stays clear.
-- **[S-3918]** Switch (`SwitchFace`): Windows' toggle switch drawn (not a `ToggleSwitch`, which would
-  take the press): a pill track in Windows' 2:1 (40×20 at Body, the knob 12 of 20 at rest and 14
-  under the pointer); off, the `ControlAltFillColorSecondary` track with a strong stroke and the knob
-  left; on, the accent track with the knob right in the on-accent colour; under the pointer the tile
-  takes the subtle fill, as a Settings card does; unavailable, the disabled track, stroke and knob.
-  One level per step of the type ramp sizes everything together: the name on that step, the state
-  line a step below, the track as high as the name's line (never below 20, at most 80), the icon 1.5×
-  the line, the gaps 8 to 24 on the 4 px grid. The face takes the largest level at which icon, name
-  and switch fit the box inside the inset ([S-3916]); only where none does it drop the icon, then the
-  name; the state line is added where it fits at that level. So the content grows with the tile in
-  steps and never falls to a smaller one while the next still fits, and the level never drops as the
-  tile grows at one inset. A **column** (icon, name, state, switch) is centred as one group in both
-  axes, every part on the centre line; a **row** (a Settings row: icon, then name over state, at the
-  left; the switch at the right edge of the inset) has every part centred on the row's height. Both
-  are planned and the higher level wins, a tie going to the row where the box is at least twice as
-  wide as high. Every part's box is Core's (`SwitchFacePlan`), so the view only places them. The
-  text is planned for the language's longest state line, so switching moves nothing, and a planned
-  line always fits its box (no ellipsis by design).
+  button** (`round`, [S-3917]) and **Switch** ([S-3918]), the Tile block's three looks. Every style is
+  drawn over the same whole-tile hit target, so the click gate ([S-3905]), Space/Enter under the
+  lease, edit mode, the tooltip and "never a header" ([S-3901]) are the same in each; only the
+  drawing differs. Every style (and the power widgets') insets by the card's 16 at every size
+  ([S-6703]).
+- **[S-3917]** Round button (the Tile block's round look, which the power widgets' Round style
+  shares, [S-1919]): a circle of the Tile's step holding the icon at the largest family glyph size
+  within half of it, the name and the state line under it at every size. On, the circle is the
+  accent (the subtle fills over it on hover and press) with the icon on it, the name primary; off, the
+  circle is the item layer's tile with its hover and press fills; not known, every part secondary;
+  unavailable, every part disabled. The tile behind it stays clear.
+- **[S-3918]** Switch (the Tile block's switch look, [S-6736]): a row centred in the tile's height:
+  [icon 16] 8 [name, Body, over its state, Caption] 12 [Windows' toggle switch, 40 × 20], the switch
+  drawn by WinUI's own control, inert (`IsHitTestVisible` off), so the tile stays the one hit
+  target. Off, the switch off; on, the switch on (its track the accent); unavailable, the switch
+  disabled and every part disabled. The name and state need 96 beside the switch: on a narrow tile
+  the icon gives way first (S, Tall), then the lines (XS: the icon and the switch). Room left stays
+  empty (concise first).
 - Needs a live pass on real hardware: every switch is untested against this PC's state by design
   (no test touches the user's radios or settings).
 

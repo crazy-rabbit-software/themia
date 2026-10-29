@@ -1,6 +1,7 @@
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Sdk;
+using Themia.Sdk.Kit;
 
 namespace Themia.Core.Widgets;
 
@@ -198,6 +199,14 @@ public static class PowerActionRules
     /// <summary><see cref="ArmedLabel(PowerAction)"/> in an explicit language.</summary>
     public static string ArmedLabel(Locale locale, PowerAction action)
         => Strings.Format(locale, Str.WidgetsC_Power_ConfirmHint, ("action", Verb(locale, action)));
+
+    /// <summary>
+    /// [S-1913] [S-1915] [S-6736] What a power button's tile says by its colours: disabled where the
+    /// machine cannot ([S-1914]), critical while armed or after a failure (DECISIONS 4: a Tile shows
+    /// its state in the tile), else at rest. Never on: a power button switches nothing.
+    /// </summary>
+    public static TileState Tile(bool available, bool armed, bool failed)
+        => !available ? TileState.Unavailable : armed || failed ? TileState.Critical : TileState.Off;
 
     /// <summary>[S-1914] The tooltip of a hibernate widget on a machine that cannot hibernate.</summary>
     public static string UnavailableHint => Str.WidgetsC_Power_HibernateUnavailable.Text();

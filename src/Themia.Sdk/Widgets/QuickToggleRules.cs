@@ -1,6 +1,7 @@
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Sdk;
+using Themia.Sdk.Kit;
 
 namespace Themia.Core.Widgets;
 
@@ -162,6 +163,15 @@ public static class QuickToggleRules
         ToggleLook.Off => Strings.Get(locale, Str.Toggle_Off),
         ToggleLook.Unavailable => Strings.Get(locale, Str.Toggles_State_Unavailable),
         _ => string.Empty,
+    };
+
+    /// <summary>[S-3904] [S-6736] What the tile says by its colours for a look: on the accent, off the item layer's, not known secondary, unavailable disabled.</summary>
+    public static TileState Tile(ToggleLook look) => look switch
+    {
+        ToggleLook.On => TileState.On,
+        ToggleLook.Off => TileState.Off,
+        ToggleLook.Unavailable => TileState.Unavailable,
+        _ => TileState.Unknown,
     };
 
     /// <summary>The longest state line in a language: the face is planned for it, so switching moves nothing.</summary>
