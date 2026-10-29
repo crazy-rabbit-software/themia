@@ -29,6 +29,7 @@ public sealed partial class ReadoutBlock : StackPanel
     private ColourRole _underRole = ColourRole.TextSecondary;
     private bool _painted;
     private bool _centred;
+    private HorizontalAlignment? _align;
     private bool _underFits = true;
 
     public ReadoutBlock()
@@ -111,6 +112,7 @@ public sealed partial class ReadoutBlock : StackPanel
     {
         _step = ReadoutRules.Step(area, width, height, worst);
         _centred = worst.OneReadout;
+        _align = null;
 
         // A box too short for the line under even the floor step sheds that line, never the value.
         _underFits = !worst.LineUnder || ReadoutRules.Height(_step, worst) <= height;
@@ -122,6 +124,20 @@ public sealed partial class ReadoutBlock : StackPanel
     {
         _step = step;
         _centred = centred;
+        _align = null;
+        Apply();
+    }
+
+    /// <summary>
+    /// Draw the readout on a step chosen elsewhere, its value, its lines (a stacked clock's hours over its
+    /// minutes) and its line under aligned to <paramref name="align"/>: a widget whose one block the person
+    /// aligns ([S-6581], the clock) sets the readout's own alignment with it.
+    /// </summary>
+    public void Use(TypeStep step, HorizontalAlignment align)
+    {
+        _step = step;
+        _centred = align == HorizontalAlignment.Center;
+        _align = align;
         Apply();
     }
 
@@ -139,10 +155,17 @@ public sealed partial class ReadoutBlock : StackPanel
         Family.Step(_under, FamilyType.Under(_step));
         ShowUnder();
 
-        var align = _centred ? HorizontalAlignment.Center : HorizontalAlignment.Left;
+        var align = _align ?? (_centred ? HorizontalAlignment.Center : HorizontalAlignment.Left);
+        var text = align switch
+        {
+            HorizontalAlignment.Center => TextAlignment.Center,
+            HorizontalAlignment.Right => TextAlignment.Right,
+            _ => TextAlignment.Left,
+        };
         _row.HorizontalAlignment = align;
+        _line.TextAlignment = text;
         _under.HorizontalAlignment = align;
-        _under.TextAlignment = _centred ? TextAlignment.Center : TextAlignment.Left;
+        _under.TextAlignment = text;
         Paint();
     }
 
