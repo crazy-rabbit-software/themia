@@ -58,6 +58,18 @@ internal sealed class NetworkDetailPart : DetailPart
         host.Present(NetworkDetailRules.Sheet(Strings.Current, _throughput.Value, addresses, publicAddress));
     }
 
+#if DEBUG
+    /// <summary>[S-1917] Two fixed adapters, so the renders are one picture on every machine.</summary>
+    public override DetailSheet? SampleSheet()
+    {
+        var wifi = new InterfaceRate("wifi", "Wi-Fi", 2.4 * 1024 * 1024, 320 * 1024, 812L << 20, 96L << 20, AdapterMedium.Wireless, LinkBitsPerSecond: 866_000_000);
+        var wired = new InterfaceRate("lan", "Ethernet", 12 * 1024, 3 * 1024, 41L << 20, 9L << 20, AdapterMedium.Ethernet, LinkBitsPerSecond: 1_000_000_000);
+        var sample = new ThroughputSample(wifi.Down + wired.Down, wifi.Up + wired.Up, [wifi, wired], 853L << 20, 105L << 20);
+        var addresses = new Dictionary<string, string> { ["wifi"] = "192.168.1.174", ["lan"] = "10.0.0.12" };
+        return NetworkDetailRules.Sheet(Strings.Current, sample, addresses, new PublicAddressReading(PublicAddressState.Off));
+    }
+#endif
+
     public override void Detach()
     {
         _throughput.Release();
