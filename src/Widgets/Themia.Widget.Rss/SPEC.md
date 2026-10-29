@@ -31,14 +31,14 @@ sample|single|stale|failed|empty|loading`, sample feeds on the reserved `.exampl
   feeds is out, the kit header's ring turns (classic S-33), so Refresh is never a button with no
   visible effect; the card menu's line says how old the oldest list on screen is ("Refresh · updated
   4 min ago", [S-7042]; the age is no longer in the header).
-- **[S-1305]** Rss ladder (the kit's rich look, `KitLadder.Plan` over `RssSpec.Spec` ([S-7031]), rows shown whole, measured since rows are
-  as tall as their headlines, the rest a scroll away with the shared fade [S-1281]): rung 0 the
-  newest headline, two lines (one if even that does not fit); its age; its site icon from 180px of
-  row width (inline at the start of the age line); the site's name on its own line from 240px; two
-  columns from 400px wide (three from 720px on a short strip), read left to right; the summary where
-  it costs no row, or where ≥3 rows still fit on a tile ≥280px high and not a tall column (1–2
-  lines). By tier: XS one headline; S headline + icon + age; M two rows with names; Wide two
-  columns; Tall 5+ headlines; L two columns with summaries; XL three columns with summaries.
+- **[S-1305]** Rss ladder (the kit's rich look, `KitLadder.Plan` over `RssSpec.Spec` ([S-7031]) on the
+  family's rows, [S-6711]): one row per headline, its title the name (one line, ending in an
+  ellipsis), its age the value, the site's name on the second line and the summary on the third,
+  the site's icon as the lead; the lines grow with the tile both ways, the rows that fit whole show
+  and the rest is a scroll away with the shared fade ([S-1281]). By tier: XS and S the headline
+  (S with its icon and age); Wide one line per headline with icon and age; M and Tall two lines
+  (the site's name); L three (the summary); XL three in two columns, read left to right. With no
+  feed the card's Set up row says "Add a feed" ([S-1862]).
 - **[S-1306]** No reading pane at any size (retired: it read one item beside the list; user
   decision, the feed is its headlines). A click on a row focuses it; a double-click opens it
   everywhere, as every list on this desktop, through the host's launcher ([S-7062]; fixed: the

@@ -6,6 +6,7 @@ using Themia.Core.Sync;
 using Themia.Core.Widgets;
 using Themia.Sdk;
 using Themia.Sdk.Kit;
+using Themia.Widget.Rss;
 
 namespace Themia.Core.Model;
 
@@ -32,6 +33,9 @@ public sealed class RssFeed
 /// </summary>
 public sealed class RssConfig : WidgetConfig, IKitConfig, IInterests
 {
+    /// <summary>[S-1862] What its Set up row says it waits for.</summary>
+    string? ISetupRule.SetupSentence => RssStr.WidgetsC_Rss_Settings_Add_Title.Text();
+
     /// <summary>[S-2608] What the background sync keeps fresh for it.</summary>
     public void AddInterests(InterestsBuilder interests)
     {
