@@ -4096,7 +4096,8 @@ their `SPEC.md`); this section keeps what they share. Shared rules in `Themia.Sd
   knows where its coordinates came from; the stored config is never written by it. The name is "My
   location": the geocoder answers names, not places, so there is no reverse lookup.
 - **[S-2854]** While the switch is on and Windows gives no position, the card's body is the widget's
-  wait (`DevicePlaces.Waits`): Windows' location glyph over the sentence of the state (finding it,
+  wait (`DevicePlaces.Waits`): the Status block's row at the top ([S-6714]), Windows' location glyph
+  and the sentence of the state (finding it,
   turned off in Windows settings, not available), the view parked as under Set up ([S-1881]), so
   nothing is fetched or drawn for a place it does not have and no other place stands in.
 - **[S-2855]** Debug renders: `--editbar-png` draws `props-*-device-off`, `-located`, `-locating`,
@@ -7364,13 +7365,16 @@ What needs a manual pass is BAR-MENUS' ([S-3548]).
   routes the faults of subscriptions made inside a card's `CatchFaults` scope (Attach, ApplyConfig)
   to that card; a fault on the first tick during Attach counts as an attach failure, a later one
   swaps on the next UI-queue pass. The card keeps its header (the view's trailing part goes) and
-  shows "This widget stopped working.", Retry, and Details: a flyout with the exception type and
+  shows the Status block's row where its content's first row would be ([S-6714]; at the top inset
+  without a header above): the caution warning, "This widget stopped working." and Retry, and under
+  it Details, a standard button opening a flyout with the exception type and
   message (scrolling past 240 DIPs) and **Copy**, which puts the widget's kind and the whole
   exception with its stack on the clipboard, through the log's redactor ([S-983]). The flyout is a
   windowed popup, never cut off at the card's edge by the surface's region ([S-851]; user
-  report). Logged with the widget id and kind. Retry builds the view again in place. Below 160 DIP
-  high the glyph goes; below 150×110 DIP the Details link goes too and the line shortens to
-  "Stopped working." (Retry always stays).
+  report). Logged with the widget id and kind. Retry builds the view again in place. Below 150×110
+  DIP the Details go and the sentence shortens to "Stopped working."; on a row too narrow for the
+  sentence beside Retry the sentence goes ([S-6714]); Retry always stays. Safe mode's paused card
+  ([S-890]) is the same row with the pause glyph, "Paused: …" and Start.
 - **[S-892]** ⚙ › Back up & reset › Reset all settings… (asked first, [S-3578]): the current state is written to
   `state.before-reset-<stamp>.json` beside the state file (if that fails nothing changes and an error
   notice says why), then views, widgets, appearance and preferences become a fresh profile's (Start

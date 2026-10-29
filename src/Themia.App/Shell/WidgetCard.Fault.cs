@@ -9,6 +9,8 @@ using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
 using Themia.Sdk;
+using Themia.Sdk.Kit;
+using Themia.Sdk.WinUI.Kit;
 
 namespace Themia.App.Shell;
 
@@ -362,97 +364,85 @@ internal sealed partial class WidgetCard
         => LogRedactor.Redact($"Themia {kind} widget stopped working.\r\n{error}");
 
     /// <summary>
-    /// [S-891] The body of a card whose view is not running: a mark, one line, Retry, and Details
-    /// (the error itself) when it failed. Sheds like an empty state on a small tile — the glyph
-    /// first, then the details link — so the Retry button is still there at XS.
+    /// [S-891] The body of a card whose view is not running: the Status block's row (the warning, one
+    /// sentence, Retry; paused: the pause glyph and Start) and, when it failed, Details (the error
+    /// itself) under it. On a small tile the details go and the sentence shortens, so Retry is still
+    /// there at XS.
     /// </summary>
     private sealed partial class FaultCard : Grid
     {
+        private readonly StatusBlock _status = new();
+
+        private readonly FrameworkElement? _detailsRow;
+
         public FaultCard(WidgetCard owner, bool paused)
         {
             Paused = paused;
 
+            // [S-891] [S-6714] The Status block's row where the content's first row would be: a failed
+            // view is a problem (the caution warning, Retry), a paused one an empty state (its pause
+            // glyph, Start); on a tile too narrow for the whole sentence the short one stands in.
             var full = paused ? Str.Shell_Card_Paused.Text() : Str.Shell_Card_Failed.Text();
             var brief = paused ? Str.Shell_Card_PausedShort.Text() : Str.Shell_Card_FailedShort.Text();
-            var message = new TextBlock { Text = full };
-            var state = Fluent.EmptyState(paused ? Glyphs.Pause : Glyphs.Broken, message, out var icon);
+            var action = paused ? Str.Shell_Card_Start.Text() : Str.Common_Retry.Text();
+            var kind = paused ? StatusKind.Empty : StatusKind.Problem;
+            var said = full;
+            Show(full);
 
-            var retry = new Button
-            {
-                Content = paused ? Str.Shell_Card_Start.Text() : Str.Common_Retry.Text(),
-                HorizontalAlignment = HorizontalAlignment.Center,
-                AllowFocusOnInteraction = false,
-            };
-            retry.Click += (_, _) => owner.Retry();
+            RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
+            RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
+            Children.Add(_status);
 
-            // The word is long in some languages ("Erneut versuchen"); on a tile too narrow for it the
-            // button keeps its job as the refresh mark, with the word as its name and tooltip.
-            var retryText = paused ? Str.Shell_Card_Start.Text() : Str.Common_Retry.Text();
-            ToolTipService.SetToolTip(retry, retryText);
-            Microsoft.UI.Xaml.Automation.AutomationProperties.SetName(retry, retryText);
-
-            var actions = new StackPanel
-            {
-                Orientation = Orientation.Horizontal,
-                HorizontalAlignment = HorizontalAlignment.Center,
-                Spacing = Fluent.Space2,
-                Margin = new Thickness(0, Fluent.Space2, 0, 0),
-                Children = { retry },
-            };
-
+            // The error itself, under the row: a standard button opening the details' flyout.
             if (!paused && owner._fault is { } error)
             {
-                var details = new HyperlinkButton
+                Button? details = null;
+                var kindId = owner.Model.Kind;
+                details = ControlsBlock.TextButton(Str.CtxMenu_Details.Text(), main: false, () => ShowDetails(details!, Describe(error), Report(kindId, error)));
+                details.AllowFocusOnInteraction = false;
+                _detailsRow = new Border
                 {
-                    Content = Str.CtxMenu_Details.Text(),
-                    AllowFocusOnInteraction = false,
-                    VerticalAlignment = VerticalAlignment.Center,
+                    Child = details,
+                    Padding = Family.SideInset,
+                    Margin = new Thickness(0, FamilySpace.S2, 0, 0),
+                    HorizontalAlignment = HorizontalAlignment.Left,
                 };
-                var kind = owner.Model.Kind;
-                details.Click += (_, _) => ShowDetails(details, Describe(error), Report(kind, error));
-                actions.Children.Add(details);
+                SetRow(_detailsRow, 1);
+                Children.Add(_detailsRow);
             }
 
-            var column = new StackPanel
-            {
-                VerticalAlignment = VerticalAlignment.Center,
-                Children = { state, actions },
-            };
-
-            Children.Add(column);
-
-            // The ladder down: the details link, then the glyph, then the long sentence go; the
-            // short sentence and the button stay at XS. Decided here because the column measures its
-            // children with unlimited height, so the empty state's own shedding never triggers.
+            // The ladder down: below 150 × 110 the short sentence and no details; the details also go
+            // where their row does not fit under the status row.
             SizeChanged += (_, e) =>
             {
                 var narrow = e.NewSize.Width < 150 || e.NewSize.Height < 110;
-                var low = e.NewSize.Height < 160;
-                icon.Visibility = low || narrow ? Visibility.Collapsed : Visibility.Visible;
-                message.Text = narrow ? brief : full;
-
-                // The buttons shed by what fits, not by a width guessed for English: the details
-                // link goes first, then the button's word gives way to its mark.
-                var room = e.NewSize.Width - (2 * Fluent.Space3);
-                retry.Content = retryText;
-                if (actions.Children.Count > 1)
+                var text = narrow ? brief : full;
+                if (!string.Equals(text, said, StringComparison.Ordinal))
                 {
-                    actions.Children[1].Visibility = narrow ? Visibility.Collapsed : Visibility.Visible;
+                    said = text;
+                    Show(text);
                 }
 
-                actions.Measure(new Windows.Foundation.Size(double.PositiveInfinity, double.PositiveInfinity));
-                if (actions.DesiredSize.Width > room && actions.Children.Count > 1)
+                if (_detailsRow is not null)
                 {
-                    actions.Children[1].Visibility = Visibility.Collapsed;
-                    actions.Measure(new Windows.Foundation.Size(double.PositiveInfinity, double.PositiveInfinity));
-                }
-
-                if (!paused && (narrow || actions.DesiredSize.Width > room))
-                {
-                    retry.Content = new FontIcon { Glyph = Glyphs.Refresh, FontSize = FluentType.Body.FontSize };
+                    var room = e.NewSize.Height - _status.Margin.Top - FamilyShape.Row1 - FamilySpace.S2;
+                    _detailsRow.Visibility = narrow || room < FamilyShape.Button ? Visibility.Collapsed : Visibility.Visible;
                 }
             };
+
+            void Show(string sentence)
+            {
+                _status.Show(kind, Glyphs.Pause, sentence, action, owner.Retry);
+                if (_status.ActionButton is { } button)
+                {
+                    button.AllowFocusOnInteraction = false;
+                    Microsoft.UI.Xaml.Automation.AutomationProperties.SetName(button, action);
+                }
+            }
         }
+
+        /// <summary>[S-6714] The row sits right under a header above it, or at the card's top inset when there is none, as the Set up row does.</summary>
+        public void HeaderAbove(bool above) => _status.Margin = new Thickness(0, above ? 0 : FamilySpace.Inset, 0, 0);
 
         public bool Paused { get; }
 
@@ -463,7 +453,7 @@ internal sealed partial class WidgetCard
         /// </summary>
         private static void ShowDetails(FrameworkElement anchor, string text, string report)
         {
-            var body = Fluent.Text(FluentType.Body, "TextFillColorPrimaryBrush");
+            var body = Fluent.Text(FamilyType.Body, "TextFillColorPrimaryBrush");
             body.Text = text;
             body.TextWrapping = TextWrapping.Wrap;
             body.IsTextSelectionEnabled = true;
@@ -474,7 +464,7 @@ internal sealed partial class WidgetCard
                 {
                     Orientation = Orientation.Horizontal,
                     Spacing = Fluent.Space2,
-                    Children = { Fluent.Icon(Glyphs.Copy, "TextFillColorPrimaryBrush", FluentType.Body.FontSize), new TextBlock { Text = Str.Common_Copy.Text() } },
+                    Children = { Fluent.Icon(Glyphs.Copy, "TextFillColorPrimaryBrush"), new TextBlock { Text = Str.Common_Copy.Text() } },
                 },
                 HorizontalAlignment = HorizontalAlignment.Left,
             };
@@ -490,11 +480,11 @@ internal sealed partial class WidgetCard
 
             var content = new StackPanel
             {
-                Spacing = Fluent.Space3,
-                MaxWidth = 320,
+                Spacing = FamilySpace.S3,
+                MaxWidth = ShellMetrics.Details.Width,
                 Children =
                 {
-                    new ScrollViewer { Content = body, MaxHeight = 240, VerticalScrollBarVisibility = ScrollBarVisibility.Auto },
+                    new ScrollViewer { Content = body, MaxHeight = ShellMetrics.Details.MaxHeight, VerticalScrollBarVisibility = ScrollBarVisibility.Auto },
                     copy,
                 },
             };

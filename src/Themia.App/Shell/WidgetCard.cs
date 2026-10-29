@@ -14,8 +14,10 @@ using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Shell;
 using Themia.Core.Widgets;
+using Themia.Sdk.Kit;
 using Themia.Sdk.WinUI;
 using Themia.Sdk;
+using Themia.Sdk.WinUI.Kit;
 using Windows.Foundation;
 
 namespace Themia.App.Shell;
@@ -274,7 +276,7 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface, IItemPaletteOwn
         // attempt did - left the card almost invisible over the wallpaper.
         _tint = new Border
         {
-            Background = ThemeBrush.Of("CardBackgroundFillColorDefaultBrush", Colors.Transparent),
+            Background = ShellBrush.Of(ShellRole.CardFill),
             IsHitTestVisible = false,
         };
 
@@ -350,7 +352,7 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface, IItemPaletteOwn
         Children.Add(_stroke);
         Children.Add(_markers);
 
-        Background = new SolidColorBrush(Colors.Transparent); // makes the whole card hit-testable for drags
+        Background = Family.Brush(ColourRole.Clear); // makes the whole card hit-testable for drags
 
         // Focusable so that clicking a widget gives the surface keyboard focus. Without something
         // focusable in the tree no KeyDown is raised at all, and the edit-mode shortcuts never fire.
@@ -424,6 +426,12 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface, IItemPaletteOwn
         _headerBand.Visibility = hidden ? Visibility.Collapsed : Visibility.Visible;
         ApplyBodyFill();
         _setup?.HeaderAbove(HeaderAbove);
+        if (_waiting is not null)
+        {
+            _waiting.Margin = StatusTop(HeaderAbove);
+        }
+
+        (_view as FaultCard)?.HeaderAbove(HeaderAbove);
 
         if (hidden)
         {
@@ -493,7 +501,7 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface, IItemPaletteOwn
         var custom = ColourBrush(fill);
 
         _fill.Background = opacity <= 0 ? null
-            : custom ?? ThemeBrush.Of("SolidBackgroundFillColorBaseBrush", Colors.Black);
+            : custom ?? ShellBrush.Of(ShellRole.CardBase);
         _fill.BorderBrush = null;
         _fill.BorderThickness = new Thickness(0);
         _fill.Opacity = opacity <= 0 ? 1 : opacity;
@@ -572,11 +580,11 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface, IItemPaletteOwn
 
         // Shared with the widget: the same base and Fluent lift as the body, faded on their own.
         _headerBase.Background = own is null && surface > 0
-            ? custom ?? ThemeBrush.Of("SolidBackgroundFillColorBaseBrush", Colors.Black)
+            ? custom ?? ShellBrush.Of(ShellRole.CardBase)
             : null;
         _headerBase.Opacity = opacity;
         _headerTint.Background = own is null && custom is null && surface > 0
-            ? ThemeBrush.Of("CardBackgroundFillColorDefaultBrush", Colors.Transparent)
+            ? ShellBrush.Of(ShellRole.CardFill)
             : null;
         _headerTint.Opacity = opacity;
         _headerBase.CornerRadius = radius;

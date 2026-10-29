@@ -42,11 +42,6 @@
 1	src/Themia.App/Shell/Motion/HackerTile.cs	stroke	StrokeThickness = 2
 1	src/Themia.App/Shell/Motion/HyperspaceOverlay.cs	colour	Color.FromArgb(
 1	src/Themia.App/Shell/Motion/HyperspaceOverlay.cs	colour	Colors.Black
-1	src/Themia.App/Shell/WidgetCard.Fault.cs	size	MaxHeight = 240
-1	src/Themia.App/Shell/WidgetCard.Fault.cs	size	MaxWidth = 320
-2	src/Themia.App/Shell/WidgetCard.cs	brush	CardBackgroundFillColorDefaultBrush
-2	src/Themia.App/Shell/WidgetCard.cs	brush	SolidBackgroundFillColorBaseBrush
-1	src/Themia.App/Shell/WidgetCard.cs	colour	Colors.Transparent
 1	src/Themia.Sdk.WinUI/Shell/ColorChoice.cs	brush	SolidBackgroundFillColorTertiaryBrush
 4	src/Themia.Sdk.WinUI/Shell/ColorChoice.cs	colour	Color.FromArgb(
 1	src/Themia.Sdk.WinUI/Shell/ColorChoice.cs	ramp	Fluent.Space5
