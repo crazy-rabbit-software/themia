@@ -1,5 +1,6 @@
 using Themia.Core.Model;
 using Themia.Core.Localization;
+using Themia.Sdk.Kit;
 
 namespace Themia.Core.Widgets;
 
@@ -69,6 +70,24 @@ public sealed record GalleryScan(GalleryStatus Status, IReadOnlyList<string> Pat
 /// <summary>The sentences the gallery shows instead of a picture.</summary>
 public static class GalleryFormatting
 {
+    /// <summary>
+    /// [S-6714] How the Status row says a scan with nothing to draw: still reading, a folder with no
+    /// picture in it and no network for the photo of the day are plain (the gallery's glyph); every
+    /// other outcome is a problem (the caution warning). Nothing chosen yet is the card's Set up row.
+    /// </summary>
+    public static StatusKind Look(GalleryStatus status) => status switch
+    {
+        GalleryStatus.NoFolder or GalleryStatus.NoFile => StatusKind.Setup,
+        GalleryStatus.Loading or GalleryStatus.Ok or GalleryStatus.NoImages or GalleryStatus.Offline => StatusKind.Empty,
+        _ => StatusKind.Problem,
+    };
+
+    /// <summary>
+    /// [S-6714] Whether the Status row offers Retry: only where reading again can help (a read that failed,
+    /// Bing that did not answer), never for a path, a refusal or a file that only an edit or the user mends.
+    /// </summary>
+    public static bool Retries(GalleryStatus status) => status is GalleryStatus.Failed or GalleryStatus.Unavailable;
+
     /// <summary>
     /// What to say about a scan that produced nothing. Each names the state and, where there is one,
     /// the thing to do about it — a message that only says something went wrong leaves the reader
