@@ -9,7 +9,9 @@ using Themia.App.Widgets;
 using Themia.Core.Localization;
 using Themia.Core.Shell;
 using Themia.Core.Widgets;
+using Themia.Sdk.Kit;
 using Themia.Sdk.WinUI;
+using Themia.Sdk.WinUI.Kit;
 using Windows.Foundation;
 
 namespace Themia.App.Shell;
@@ -73,22 +75,22 @@ internal enum BarMenu
 internal sealed partial class EditBar : Grid
 {
     /// <summary>[S-3500] A button's height and an icon-only button's side.</summary>
-    public const double ButtonSize = 36;
+    public const double ButtonSize = ShellMetrics.EditBar.Button;
 
     /// <summary>[S-3500] The padding round the buttons and the room between two of them.</summary>
-    public const double Gap = 6;
+    public const double Gap = ShellMetrics.EditBar.Gap;
 
     /// <summary>[S-3500] The bar's height: a button in its padding.</summary>
-    public const double BarHeight = ButtonSize + (2 * Gap);
+    public const double BarHeight = ShellMetrics.EditBar.Height;
 
     /// <summary>[S-3500] The hairline between the groups, 12 DIPs clear of either neighbour.</summary>
-    private const double DividerHeight = 20;
+    private const double DividerHeight = ShellMetrics.EditBar.Divider;
 
     /// <summary>[S-3500] Done is at least this wide, as Karpo's.</summary>
-    private const double DoneWidth = 80;
+    private const double DoneWidth = ShellMetrics.EditBar.DoneWidth;
 
     /// <summary>[S-3507] The room between the trail and Add widget: the trail is where, the rest what to do.</summary>
-    private const double TrailGap = Fluent.Space6;
+    private const double TrailGap = FamilySpace.S6;
 
     /// <summary>The bar's frame; the grid around it carries the surface's margins.</summary>
     private readonly Border _frame = new() { Padding = new Thickness(Gap), Margin = new Thickness(Fluent.Space2, 0, Fluent.Space2, 0) };
@@ -253,10 +255,10 @@ internal sealed partial class EditBar : Grid
     {
         ArgumentNullException.ThrowIfNull(toggle);
 
-        var accent = ThemeBrush.Of("AccentFillColorDefaultBrush", Colors.DodgerBlue);
-        var accentHover = ThemeBrush.Of("AccentFillColorSecondaryBrush", Colors.DodgerBlue);
-        var accentPressed = ThemeBrush.Of("AccentFillColorTertiaryBrush", Colors.DodgerBlue);
-        var onAccent = ThemeBrush.Of("TextOnAccentFillColorPrimaryBrush", Colors.White);
+        var accent = Family.Brush(ColourRole.Accent);
+        var accentHover = ShellBrush.Of(ShellRole.AccentHover);
+        var accentPressed = ShellBrush.Of(ShellRole.AccentPressed);
+        var onAccent = Family.Brush(ColourRole.TextOnAccent);
         toggle.Resources["ToggleButtonBackgroundChecked"] = accent;
         toggle.Resources["ToggleButtonBackgroundCheckedPointerOver"] = accentHover;
         toggle.Resources["ToggleButtonBackgroundCheckedPressed"] = accentPressed;
@@ -332,7 +334,7 @@ internal sealed partial class EditBar : Grid
         var icon = UiLanguage.Mirrored(new FontIcon { Glyph = glyph, FontSize = Fluent.IconSize, VerticalAlignment = VerticalAlignment.Center });
         if (accent)
         {
-            icon.Foreground = ThemeBrush.Of("AccentTextFillColorPrimaryBrush", Colors.DodgerBlue);
+            icon.Foreground = ShellBrush.Of(ShellRole.AccentText);
         }
 
         return new StackPanel { Orientation = Orientation.Horizontal, Spacing = Fluent.Space2, Children = { icon, Words(text) } };
@@ -341,7 +343,7 @@ internal sealed partial class EditBar : Grid
     /// <summary>A button's words in Body, in the button's own colour (which a checked toggle or an accent button turns).</summary>
     private static TextBlock Words(string text)
     {
-        var words = Fluent.Text(FluentType.Body);
+        var words = Fluent.Text(FamilyType.Body);
         words.Text = text;
         words.ClearValue(TextBlock.ForegroundProperty);
         words.VerticalAlignment = VerticalAlignment.Center;
@@ -409,10 +411,10 @@ internal sealed partial class EditBar : Grid
         button.Resources[prefix + "BackgroundPointerOver"] = hover;
         button.Resources[prefix + "BackgroundPressed"] = pressed;
         button.Resources[prefix + "BackgroundDisabled"] = clear;
-        button.Resources[prefix + "BorderBrush"] = clear;
-        button.Resources[prefix + "BorderBrushPointerOver"] = clear;
-        button.Resources[prefix + "BorderBrushPressed"] = clear;
-        button.Resources[prefix + "BorderBrushDisabled"] = clear;
+        button.Resources[prefix + nameof(Control.BorderBrush)] = clear;
+        button.Resources[prefix + nameof(Control.BorderBrush) + "PointerOver"] = clear;
+        button.Resources[prefix + nameof(Control.BorderBrush) + "Pressed"] = clear;
+        button.Resources[prefix + nameof(Control.BorderBrush) + "Disabled"] = clear;
     }
 
     /// <summary>[S-3520] [S-3508] A button whose menu is open stays lit with the subtle fill; the others clear.</summary>
@@ -448,7 +450,7 @@ internal sealed partial class EditBar : Grid
     private static FontIcon Separator() => new()
     {
         Glyph = Glyphs.ChevronRight,
-        FontSize = Fluent.Space3,
+        FontSize = ShellMetrics.Chevron,
         Width = EditBarTrail.Between,
         MirroredWhenRightToLeft = true,
         HorizontalAlignment = HorizontalAlignment.Center,

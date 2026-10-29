@@ -1,10 +1,11 @@
 using System.Numerics;
-using Microsoft.UI;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media;
 using Themia.App.Widgets;
+using Themia.Sdk.Kit;
 using Themia.Sdk.WinUI;
+using Themia.Sdk.WinUI.Kit;
 
 namespace Themia.App.Shell;
 
@@ -16,16 +17,16 @@ namespace Themia.App.Shell;
 public static class ChromeFrame
 {
     /// <summary>The frame's lift: the depth Windows gives a flyout, which casts its shadow.</summary>
-    private const float Elevation = 32;
+    private const float Elevation = ShellMetrics.Shadow.Elevation;
 
     public static void Apply(Border border)
     {
         ArgumentNullException.ThrowIfNull(border);
 
-        border.CornerRadius = new CornerRadius(Fluent.OverlayRadius);
-        border.Background = ThemeBrush.Of("AcrylicBackgroundFillColorDefaultBrush", Colors.Black);
-        border.BorderBrush = ThemeBrush.Of("SurfaceStrokeColorFlyoutBrush", Colors.Gray);
-        border.BorderThickness = new Thickness(Fluent.Hairline);
+        border.CornerRadius = new CornerRadius(ShellMetrics.OverlayRadius);
+        border.Background = ShellBrush.Of(ShellRole.Acrylic);
+        border.BorderBrush = ShellBrush.Of(ShellRole.FlyoutStroke);
+        border.BorderThickness = new Thickness(FamilyShape.Hairline);
         border.Shadow = new ThemeShadow();
         border.Translation = new Vector3(0, 0, Elevation);
     }

@@ -105,7 +105,7 @@ internal sealed partial class DesktopWindow : IWidgetCardHost
         {
             // Transparent, not null: the root still has to receive the pointer input that edit mode
             // needs, while the window itself shows the wallpaper straight through.
-            Background = new SolidColorBrush(Colors.Transparent),
+            Background = Themia.Sdk.WinUI.Kit.Family.Brush(Themia.Sdk.Kit.ColourRole.Clear),
             Children = { _menuAnchor, _gridOverlay, _widgetLayer, _markerLayer.Halos, _markerLayer.Inks, _barLayer, _ghostLayer, _propertiesLayer, _toolbar, _placementHint },
 
             // Focusable so edit-mode keyboard commands (copy / cut / paste / delete) and the keys of

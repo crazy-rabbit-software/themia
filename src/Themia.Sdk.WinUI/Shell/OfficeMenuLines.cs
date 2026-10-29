@@ -226,7 +226,7 @@ public static class OfficeMenuLines
             Presets = presets,
             DefaultLabel = Str.WidgetsA_Calendar_Settings_ColorAuto.Text(),
             DefaultColor = () => HexColor.TryParse(automatic, out var r, out var g, out var b)
-                ? Windows.UI.Color.FromArgb(255, r, g, b)
+                ? HexBrush.Colour(new RgbColor(r, g, b))
                 : null,
         });
     }

@@ -6,7 +6,9 @@ using Themia.Core.Diagnostics;
 using Themia.Core.Localization;
 using Themia.Core.Shell;
 using Themia.Core.Widgets;
+using Themia.Sdk.Kit;
 using Themia.Sdk.WinUI;
+using Themia.Sdk.WinUI.Kit;
 
 namespace Themia.App.Widgets;
 
@@ -30,7 +32,7 @@ public static class ConfirmFlyout
     private const string Scope = "confirm";
 
     /// <summary>The widest the question runs before it wraps; it never needs the tile's width.</summary>
-    private const double MaxWidth = 260;
+    private const double MaxWidth = ShellMetrics.Picker.QuestionMaxWidth;
 
     /// <summary>
     /// Build the flyout; <paramref name="confirmed"/> runs on the action button only. The caller
@@ -49,12 +51,12 @@ public static class ConfirmFlyout
         bool danger = false)
     {
         var words = new StackPanel { Spacing = Fluent.Space1 };
-        words.Children.Add(Wrapped(question, detail is null ? FluentType.Body : FluentType.BodyStrong, "TextFillColorPrimaryBrush"));
+        words.Children.Add(Wrapped(question, detail is null ? FamilyType.Body : FamilyType.BodyStrong, "TextFillColorPrimaryBrush"));
 
         if (detail is { Length: > 0 })
         {
             // What cannot be undone, under the question: the detail a dialog's body used to carry.
-            words.Children.Add(Wrapped(detail, FluentType.Body, "TextFillColorSecondaryBrush"));
+            words.Children.Add(Wrapped(detail, FamilyType.Body, "TextFillColorSecondaryBrush"));
         }
 
         var look = ConfirmLook.For(danger);
@@ -130,15 +132,15 @@ public static class ConfirmFlyout
     /// </summary>
     private static void Critical(Button button)
     {
-        var fill = ThemeBrush.Of("SystemFillColorCriticalBrush", Microsoft.UI.Colors.Firebrick);
-        var words = ThemeBrush.Of("TextOnAccentFillColorPrimaryBrush", Microsoft.UI.Colors.White);
+        var fill = Family.Brush(ColourRole.Critical);
+        var words = Family.Brush(ColourRole.TextOnAccent);
         button.Background = fill;
         button.Foreground = words;
         button.BorderThickness = new Thickness(0);
         button.Resources["ButtonBackgroundPointerOver"] = fill;
         button.Resources["ButtonBackgroundPressed"] = fill;
         button.Resources["ButtonForegroundPointerOver"] = words;
-        button.Resources["ButtonForegroundPressed"] = ThemeBrush.Of("TextOnAccentFillColorSecondaryBrush", Microsoft.UI.Colors.White);
+        button.Resources["ButtonForegroundPressed"] = Family.Brush(ColourRole.TextOnAccentSecondary);
         button.Resources["ButtonBorderBrushPointerOver"] = fill;
         button.Resources["ButtonBorderBrushPressed"] = fill;
     }

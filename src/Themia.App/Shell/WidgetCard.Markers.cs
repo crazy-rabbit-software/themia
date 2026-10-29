@@ -5,7 +5,9 @@ using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Shapes;
 using Themia.Core.Geometry;
+using Themia.Sdk.Kit;
 using Themia.Sdk.WinUI;
+using Themia.Sdk.WinUI.Kit;
 
 namespace Themia.App.Shell;
 
@@ -35,10 +37,10 @@ internal sealed partial class WidgetCard
     private XamlRoot? _markerRoot;
 
     /// <summary>The contrast stroke under every bar, opaque.</summary>
-    private static readonly Brush MarkerHalo = ThemeBrush.Of("SolidBackgroundFillColorBaseBrush", Colors.White);
+    private static readonly Brush MarkerHalo = ShellBrush.Of(ShellRole.CardBase);
 
     /// <summary>The theme's neutral strong stroke, translucent: never drawn itself (see <see cref="NeutralInk"/>).</summary>
-    private static readonly Brush MarkerNeutral = ThemeBrush.Of("ControlStrongFillColorDefaultBrush", Colors.Gray);
+    private static readonly Brush MarkerNeutral = ShellBrush.Of(ShellRole.StrongFill);
 
     private static SolidColorBrush? _neutralInk;
 
@@ -85,7 +87,7 @@ internal sealed partial class WidgetCard
             var bars = IsCorner(handle) ? 2 : 1;
 
             // Transparent, not null: the whole grip takes the press, not just its ink.
-            var grip = new ResizeHandleDot { Background = new SolidColorBrush(Colors.Transparent), Tag = handle };
+            var grip = new ResizeHandleDot { Background = Family.Brush(ColourRole.Clear), Tag = handle };
             grip.SetCursorShape(CursorFor(handle));
 
             // Every halo under every bar (two plates), so an L's two strokes merge instead of crossing its

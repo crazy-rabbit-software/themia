@@ -12,6 +12,7 @@ using Themia.Core.Model;
 using Themia.Core.Settings;
 using Themia.Core.Shell;
 using Themia.Core.Widgets;
+using Themia.Sdk.Kit;
 using Themia.Sdk.WinUI;
 using Themia.Sdk;
 
@@ -72,15 +73,15 @@ internal sealed partial class PropertiesStrip : MenuPanel
     private const string Scope = "properties";
 
     /// <summary>[S-3717] The top row and its buttons: 40-DIP squares, the plate under the pointer 4 DIPs in from each side (Karpo's, Explorer's).</summary>
-    private const double TopRow = 40;
+    private const double TopRow = ShellMetrics.Menu.TopRow;
 
-    private const double ButtonPlate = 4;
+    private const double ButtonPlate = ShellMetrics.Menu.TopPlate;
 
     /// <summary>[S-3717] The hairline between two of the top row's buttons.</summary>
-    private const double ButtonRule = 20;
+    private const double ButtonRule = ShellMetrics.Menu.TopRule;
 
     /// <summary>[S-3717] The least room between the type's words and the first button.</summary>
-    private const double TypeGap = Fluent.Space3;
+    private const double TypeGap = FamilySpace.S3;
 
     private PropertiesCommands _commands;
 
@@ -454,7 +455,7 @@ internal sealed partial class PropertiesStrip : MenuPanel
         var type = new TextBlock
         {
             Text = _offer is { HasTitle: true, TitleKind: { } kind } ? ModuleCatalog.Of(kind).Name : Str.Shell_Views_WidgetCount.Plural(_offer.Count),
-            FontSize = FluentType.Body.FontSize,
+            FontSize = FamilyType.Body.FontSize,
             FontWeight = FontWeights.SemiBold,
             TextTrimming = TextTrimming.CharacterEllipsis,
             TextWrapping = TextWrapping.NoWrap,
@@ -537,9 +538,7 @@ internal sealed partial class PropertiesStrip : MenuPanel
 
     /// <summary>What the text "Default" paints its swatch with: the app-wide item text colour, or nothing (the theme's).</summary>
     private static Windows.UI.Color? AppItemTextColour()
-        => DesignApplier.Current is { } design && HexColor.TryParse(design.ItemTextColor, out var r, out var g, out var b)
-            ? Windows.UI.Color.FromArgb(255, r, g, b)
-            : null;
+        => HexBrush.Colour(DesignApplier.Current?.ItemTextColor);
 
     /// <summary>What the background's "Default" paints its swatch with: the app-wide colour, or nothing (the Windows card).</summary>
     private static Windows.UI.Color? AppBackgroundColour() => AppColour(DesignApplier.Current?.Background);
@@ -548,9 +547,7 @@ internal sealed partial class PropertiesStrip : MenuPanel
     private static Windows.UI.Color? AppItemColour() => AppColour(DesignApplier.Current?.ItemBackground);
 
     private static Windows.UI.Color? AppColour(FillChoice? fill)
-        => fill is { Kind: FillKind.Colour } && HexColor.TryParse(fill.Colour, out var r, out var g, out var b)
-            ? Windows.UI.Color.FromArgb(FillChoice.Alpha(fill.Opacity), r, g, b)
-            : null;
+        => fill is { Kind: FillKind.Colour } ? HexBrush.Colour(fill.Colour, FillChoice.Alpha(fill.Opacity) / 255.0) : null;
 
     private static string ScaleText(double scale) => LocaleFormat.Percent(Strings.Current, WidgetScale.Percent(scale));
 }

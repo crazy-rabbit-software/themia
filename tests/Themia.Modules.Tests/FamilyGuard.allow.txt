@@ -1,22 +1,12 @@
 # [S-6730] Today's offenders against the family's tokens: count, file, rule, literal (tab-separated).
 # The list only shrinks: FamilyGuardTests fails on an offence not listed here and on a line that no longer
 # occurs as often. Rewrite it with THEMIA_FAMILY_GUARD_WRITE=1 only after fixing offenders. Empty is done.
-4	src/Themia.App/Shell/DesignApplier.cs	colour	Color.FromArgb(
 1	src/Themia.App/Shell/DesktopWindow.Picker.cs	colour	Color.FromArgb(
 1	src/Themia.App/Shell/DesktopWindow.Picker.cs	colour	Colors.DodgerBlue
 1	src/Themia.App/Shell/DesktopWindow.Picker.cs	stroke	StrokeThickness = 2
 1	src/Themia.App/Shell/DesktopWindow.Picker.cs	type	FontSize = 28
 1	src/Themia.App/Shell/DesktopWindow.Selection.cs	colour	Color.FromArgb(
 1	src/Themia.App/Shell/DesktopWindow.Selection.cs	colour	Colors.DodgerBlue
-1	src/Themia.App/Shell/DesktopWindow.cs	colour	Colors.Transparent
-1	src/Themia.App/Shell/EditBar.cs	brush	AccentFillColorSecondaryBrush
-1	src/Themia.App/Shell/EditBar.cs	brush	AccentFillColorTertiaryBrush
-1	src/Themia.App/Shell/EditBar.cs	brush	AccentTextFillColorPrimaryBrush
-1	src/Themia.App/Shell/EditBar.cs	brush	BorderBrush
-1	src/Themia.App/Shell/FlyoutSurface.cs	brush	SolidBackgroundFillColorQuarternaryBrush
-1	src/Themia.App/Shell/FlyoutSurface.cs	brush	SurfaceStrokeColorFlyoutBrush
-2	src/Themia.App/Shell/FlyoutSurface.cs	colour	Colors.Black
-1	src/Themia.App/Shell/FontPicker.cs	brush	AccentTextFillColorPrimaryBrush
 1	src/Themia.App/Shell/IconPicker.cs	type	FontSize = 13
 1	src/Themia.App/Shell/IconPicker.cs	type	FontSize = 16
 1	src/Themia.App/Shell/LayoutEditorWindow.cs	brush	CardStrokeColorDefaultBrush
@@ -46,29 +36,10 @@
 1	src/Themia.App/Shell/LayoutEditorWindow.cs	space	new Thickness(36, 8, 36, 36)
 1	src/Themia.App/Shell/LayoutEditorWindow.cs	space	new Thickness(4)
 1	src/Themia.App/Shell/LayoutEditorWindow.cs	type	FontSize = 10
-1	src/Themia.App/Shell/Menu/MenuPanel.Entries.cs	brush	ControlStrokeColorSecondaryBrush
-1	src/Themia.App/Shell/Menu/MenuPanel.Entries.cs	colour	Color.FromArgb(
-1	src/Themia.App/Shell/Menu/MenuPanel.Entries.cs	colour	Colors.Black
-1	src/Themia.App/Shell/Menu/MenuPanel.Entries.cs	colour	Colors.White
-1	src/Themia.App/Shell/Menu/MenuPanel.Entries.cs	space	new Thickness(RowInset + PadStart - ((SwatchCell - SwatchSize) / 2)
-1	src/Themia.App/Shell/Menu/MenuPanel.Entries.cs	space	new Thickness(chosen ? 2 : Fluent.Hairline)
-1	src/Themia.App/Shell/Menu/MenuPanel.Lines.cs	brush	AccentFillColorDisabledBrush
-1	src/Themia.App/Shell/Menu/MenuPanel.Lines.cs	brush	ControlAltFillColorDisabledBrush
-1	src/Themia.App/Shell/Menu/MenuPanel.Lines.cs	brush	ControlAltFillColorSecondaryBrush
-1	src/Themia.App/Shell/Menu/MenuPanel.Lines.cs	brush	ControlStrongStrokeColorDefaultBrush
-1	src/Themia.App/Shell/Menu/MenuPanel.Lines.cs	brush	ControlStrongStrokeColorDisabledBrush
-1	src/Themia.App/Shell/Menu/MenuPanel.Lines.cs	brush	TextOnAccentFillColorDisabledBrush
-3	src/Themia.App/Shell/Menu/MenuPanel.Lines.cs	colour	Colors.Transparent
-1	src/Themia.App/Shell/Menu/MenuPanel.Lines.cs	radius	new CornerRadius(SwitchHeight / 2)
-1	src/Themia.App/Shell/Menu/MenuPanel.Lines.cs	space	new Thickness((SwitchHeight - KnobSize) / 2, 0, (SwitchHeight - KnobSize) / 2, 0)
-1	src/Themia.App/Shell/Menu/MenuPanel.Lines.cs	space	new Thickness(Fluent.Space2 + 2, 3, Fluent.Space1 + 2, 3)
-3	src/Themia.App/Shell/Menu/MenuPanel.Lines.cs	space	new Thickness(RowInset, (LineHeight - FillHeight) / 2, RowInset, (LineHeight - FillHeight) / 2)
-1	src/Themia.App/Shell/Menu/MenuPanel.Lines.cs	space	new Thickness(start, Fluent.Space1, RowInset + PadStart, Fluent.Space1 + 2)
 2	src/Themia.App/Shell/Menu/MenuPanel.Order.cs	opacity	Opacity = 0.5
 1	src/Themia.App/Shell/Menu/MenuPanel.Order.cs	radius	RadiusX = 1
 1	src/Themia.App/Shell/Menu/MenuPanel.Order.cs	radius	RadiusY = 1
 1	src/Themia.App/Shell/Menu/MenuPanel.Order.cs	size	Height = 2
-1	src/Themia.App/Shell/Menu/MenuPanel.cs	type	LineHeight = 32
 3	src/Themia.App/Shell/Motion/HackerTile.cs	colour	Color.FromArgb(
 1	src/Themia.App/Shell/Motion/HackerTile.cs	space	new Thickness(4, 0, 4, 0)
 1	src/Themia.App/Shell/Motion/HackerTile.cs	stroke	StrokeThickness = 1.5
@@ -86,8 +57,6 @@
 1	src/Themia.App/Shell/NoticeCard.cs	space	new Thickness(0, 2, Fluent.Space3, 0)
 1	src/Themia.App/Shell/NoticeCard.cs	space	new Thickness(Fluent.Space2, -4, -6, 0)
 1	src/Themia.App/Shell/NoticeCard.cs	space	new Thickness(Fluent.Space3, -4, 0, 0) : new Thickness(0, Fluent.Space2, 0, 0)
-2	src/Themia.App/Shell/PropertiesStrip.cs	colour	Color.FromArgb(
-1	src/Themia.App/Shell/TransparentBackdrop.cs	colour	Color.FromArgb(
 1	src/Themia.App/Shell/ViewBar.cs	brush	AccentTextFillColorPrimaryBrush
 1	src/Themia.App/Shell/ViewBar.cs	brush	CardStrokeColorDefaultBrush
 1	src/Themia.App/Shell/ViewBar.cs	brush	ControlFillColorSecondaryBrush
@@ -100,14 +69,9 @@
 1	src/Themia.App/Shell/ViewBar.cs	space	new Thickness(look.IconOnly ? metrics.PadX * 0.75 : metrics.PadX, metrics.PadY, metrics.PadX * 0.75, metrics.PadY)
 1	src/Themia.App/Shell/WidgetCard.Fault.cs	size	MaxHeight = 240
 1	src/Themia.App/Shell/WidgetCard.Fault.cs	size	MaxWidth = 320
-1	src/Themia.App/Shell/WidgetCard.Markers.cs	brush	ControlStrongFillColorDefaultBrush
-1	src/Themia.App/Shell/WidgetCard.Markers.cs	brush	SolidBackgroundFillColorBaseBrush
-1	src/Themia.App/Shell/WidgetCard.Markers.cs	colour	Colors.Transparent
 2	src/Themia.App/Shell/WidgetCard.cs	brush	CardBackgroundFillColorDefaultBrush
 2	src/Themia.App/Shell/WidgetCard.cs	brush	SolidBackgroundFillColorBaseBrush
 1	src/Themia.App/Shell/WidgetCard.cs	colour	Colors.Transparent
-1	src/Themia.Sdk.WinUI/Shell/ChromeFrame.cs	brush	AcrylicBackgroundFillColorDefaultBrush
-1	src/Themia.Sdk.WinUI/Shell/ChromeFrame.cs	brush	SurfaceStrokeColorFlyoutBrush
 1	src/Themia.Sdk.WinUI/Shell/ColorChoice.cs	brush	SolidBackgroundFillColorTertiaryBrush
 4	src/Themia.Sdk.WinUI/Shell/ColorChoice.cs	colour	Color.FromArgb(
 1	src/Themia.Sdk.WinUI/Shell/ColorChoice.cs	ramp	Fluent.Space5
@@ -115,7 +79,3 @@
 1	src/Themia.Sdk.WinUI/Shell/FluentLayout.cs	size	MaxWidth = 300
 1	src/Themia.Sdk.WinUI/Shell/FluentLayout.cs	size	Width = 32
 1	src/Themia.Sdk.WinUI/Shell/FluentLayout.cs	type	FontSize = 12
-1	src/Themia.Sdk.WinUI/Shell/OfficeMenuLines.cs	colour	Color.FromArgb(
-1	src/Themia.Sdk.WinUI/Widgets/ConfirmFlyout.cs	colour	Colors.Firebrick
-2	src/Themia.Sdk.WinUI/Widgets/ConfirmFlyout.cs	colour	Colors.White
-1	src/Themia.Sdk.WinUI/Widgets/ConfirmFlyout.cs	size	MaxWidth = 260

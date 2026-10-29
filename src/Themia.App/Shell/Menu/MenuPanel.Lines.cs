@@ -11,7 +11,9 @@ using Themia.Core.Localization;
 using Themia.Core.Settings;
 using Themia.Core.Shell;
 using Themia.Core.Widgets;
+using Themia.Sdk.Kit;
 using Themia.Sdk.WinUI;
+using Themia.Sdk.WinUI.Kit;
 using Windows.Foundation;
 
 namespace Themia.App.Shell;
@@ -20,10 +22,10 @@ namespace Themia.App.Shell;
 internal partial class MenuPanel
 {
     /// <summary>[S-3734] Inside a row's fill: the room before its icon (the icon then stands 16 DIPs in from the menu's edge).</summary>
-    private const double PadStart = 11;
+    private const double PadStart = ShellMetrics.Menu.PadStart;
 
     /// <summary>[S-3734] Inside a row's fill: the room after the end slot (the chevron's box ends 13 DIPs in from the menu's edge).</summary>
-    private const double PadEnd = 8;
+    private const double PadEnd = ShellMetrics.Menu.PadEnd;
 
     /// <summary>[S-3734] The icon's column: the 16-DIP icon and 12 to the words, which start 44 DIPs in.</summary>
     private const double LeadColumn = Fluent.IconSize + Fluent.Space3;
@@ -38,27 +40,27 @@ internal partial class MenuPanel
     private const double WordsGap = Fluent.Space2;
 
     /// <summary>[S-3741] Windows' toggle switch, at a row's end.</summary>
-    private const double SwitchWidth = 40;
+    private const double SwitchWidth = ShellMetrics.Menu.SwitchWidth;
 
-    private const double SwitchHeight = 20;
+    private const double SwitchHeight = ShellMetrics.Menu.SwitchHeight;
 
-    private const double KnobSize = 12;
+    private const double KnobSize = ShellMetrics.Menu.Knob;
 
     /// <summary>[S-3731] A slider row's compact track, and the least it gives way to long words; its value's column.</summary>
-    private const double SliderWidth = 96;
+    private const double SliderWidth = ShellMetrics.Menu.SliderWidth;
 
-    private const double SliderMinWidth = 64;
+    private const double SliderMinWidth = ShellMetrics.Menu.SliderMinWidth;
 
-    private const double SliderValueWidth = 40;
+    private const double SliderValueWidth = ShellMetrics.Menu.SliderValueWidth;
 
     /// <summary>[S-3740] A heading row's height.</summary>
-    private const double HeadingHeight = 32;
+    private const double HeadingHeight = ShellMetrics.Menu.HeadingHeight;
 
     /// <summary>[S-3734] A rule: one hairline with 4 DIPs over and under it.</summary>
-    private const double RuleGap = 4;
+    private const double RuleGap = ShellMetrics.Menu.RuleGap;
 
     /// <summary>The chevron of a row with a level of its own: Windows' thin ChevronRight, at the menu's 12.</summary>
-    private const double SmallGlyph = 12;
+    private const double SmallGlyph = ShellMetrics.Chevron;
 
     /// <summary>[S-3556] What a password row shows while its form holds one: never its letters.</summary>
     protected const string MaskedValue = "●●●●●●●●";
@@ -150,7 +152,7 @@ internal partial class MenuPanel
     /// <summary>[S-3743] A level's rows: their panel takes a dragged row's pointer, and the arrows move between them.</summary>
     private static StackPanel NewLines() => new()
     {
-        Background = new SolidColorBrush(Colors.Transparent),
+        Background = Family.Brush(ColourRole.Clear),
         XYFocusKeyboardNavigation = XYFocusKeyboardNavigationMode.Enabled,
     };
 
@@ -390,18 +392,18 @@ internal partial class MenuPanel
     /// </summary>
     private static Grid SwitchArt(bool on, bool enabled)
     {
-        string track, stroke, knob;
+        Brush track, stroke, knob;
         if (on)
         {
-            track = enabled ? "AccentFillColorDefaultBrush" : "AccentFillColorDisabledBrush";
+            track = enabled ? Family.Brush(ColourRole.Accent) : ShellBrush.Of(ShellRole.AccentDisabled);
             stroke = track;
-            knob = enabled ? "TextOnAccentFillColorPrimaryBrush" : "TextOnAccentFillColorDisabledBrush";
+            knob = enabled ? Family.Brush(ColourRole.TextOnAccent) : ShellBrush.Of(ShellRole.TextOnAccentDisabled);
         }
         else
         {
-            track = enabled ? "ControlAltFillColorSecondaryBrush" : "ControlAltFillColorDisabledBrush";
-            stroke = enabled ? "ControlStrongStrokeColorDefaultBrush" : "ControlStrongStrokeColorDisabledBrush";
-            knob = enabled ? "TextFillColorSecondaryBrush" : "TextFillColorDisabledBrush";
+            track = ShellBrush.Of(enabled ? ShellRole.SwitchTrack : ShellRole.SwitchTrackDisabled);
+            stroke = ShellBrush.Of(enabled ? ShellRole.SwitchRim : ShellRole.SwitchRimDisabled);
+            knob = Family.Brush(enabled ? ColourRole.TextSecondary : ColourRole.TextDisabled);
         }
 
         return new Grid
@@ -414,19 +416,19 @@ internal partial class MenuPanel
             {
                 new Border
                 {
-                    CornerRadius = new CornerRadius(SwitchHeight / 2),
-                    Background = ThemeBrush.Of(track, Colors.Gray),
-                    BorderBrush = ThemeBrush.Of(stroke, Colors.Gray),
+                    CornerRadius = Family.Round(SwitchWidth, SwitchHeight),
+                    Background = track,
+                    BorderBrush = stroke,
                     BorderThickness = new Thickness(Fluent.Hairline),
                 },
                 new Ellipse
                 {
                     Width = KnobSize,
                     Height = KnobSize,
-                    Fill = ThemeBrush.Of(knob, Colors.White),
+                    Fill = knob,
                     HorizontalAlignment = on ? HorizontalAlignment.Right : HorizontalAlignment.Left,
                     VerticalAlignment = VerticalAlignment.Center,
-                    Margin = new Thickness((SwitchHeight - KnobSize) / 2, 0, (SwitchHeight - KnobSize) / 2, 0),
+                    Margin = new Thickness(ShellMetrics.Menu.KnobInset, 0, ShellMetrics.Menu.KnobInset, 0),
                 },
             },
         };
@@ -470,7 +472,7 @@ internal partial class MenuPanel
 
         var words = new TextBlock
         {
-            FontSize = FluentType.Body.FontSize,
+            FontSize = FamilyType.Body.FontSize,
             VerticalAlignment = VerticalAlignment.Center,
             HorizontalAlignment = HorizontalAlignment.Left,
             TextTrimming = TextTrimming.CharacterEllipsis,
@@ -478,7 +480,7 @@ internal partial class MenuPanel
         };
         var value = new TextBlock
         {
-            FontSize = FluentType.Body.FontSize,
+            FontSize = FamilyType.Body.FontSize,
             VerticalAlignment = VerticalAlignment.Center,
             HorizontalAlignment = HorizontalAlignment.Right,
             TextAlignment = TextAlignment.Right,
@@ -569,9 +571,9 @@ internal partial class MenuPanel
     }
 
     /// <summary>[S-3549] A tool's square inside a row's 28-DIP fill, and the room between two.</summary>
-    private const double ToolSize = 24;
+    private const double ToolSize = ShellMetrics.Menu.Tool;
 
-    private const double ToolGap = 2;
+    private const double ToolGap = ShellMetrics.Menu.ToolGap;
 
     /// <summary>
     /// [S-3549] A thing's tools: subtle 24-DIP squares, each its glyph at 12 with its name (and key) as
@@ -656,7 +658,7 @@ internal partial class MenuPanel
             HorizontalAlignment = HorizontalAlignment.Stretch,
             HorizontalContentAlignment = HorizontalAlignment.Stretch,
             VerticalContentAlignment = VerticalAlignment.Stretch,
-            Margin = new Thickness(RowInset, (LineHeight - FillHeight) / 2, RowInset, (LineHeight - FillHeight) / 2),
+            Margin = new Thickness(RowInset, FillInset, RowInset, FillInset),
         };
         EditBar.Subtle(line);
         line.Height = FillHeight;
@@ -675,7 +677,7 @@ internal partial class MenuPanel
         var words = new TextBlock
         {
             Text = step.Title,
-            FontSize = FluentType.Body.FontSize,
+            FontSize = FamilyType.Body.FontSize,
             FontWeight = FontWeights.SemiBold,
             VerticalAlignment = VerticalAlignment.Center,
             TextTrimming = TextTrimming.CharacterEllipsis,
@@ -704,12 +706,12 @@ internal partial class MenuPanel
     {
         box.Height = FillHeight;
         box.MinHeight = FillHeight;
-        box.Padding = new Thickness(Fluent.Space2 + 2, 3, Fluent.Space1 + 2, 3);
+        box.Padding = new Thickness(ShellMetrics.Menu.FieldPadStart, ShellMetrics.Menu.FieldPadY, ShellMetrics.Menu.FieldPadEnd, ShellMetrics.Menu.FieldPadY);
         box.VerticalAlignment = VerticalAlignment.Center;
         return new Border
         {
             Child = box,
-            Margin = new Thickness(RowInset, (LineHeight - FillHeight) / 2, RowInset, (LineHeight - FillHeight) / 2),
+            Margin = new Thickness(RowInset, FillInset, RowInset, FillInset),
         };
     }
 
@@ -721,7 +723,7 @@ internal partial class MenuPanel
             return Divider(full: false);
         }
 
-        var words = Fluent.Text(FluentType.Caption, "TextFillColorSecondaryBrush");
+        var words = Fluent.Text(FamilyType.Caption, "TextFillColorSecondaryBrush");
         words.FontWeight = FontWeights.SemiBold;
         words.Text = node.Text;
         words.VerticalAlignment = VerticalAlignment.Center;
@@ -747,9 +749,9 @@ internal partial class MenuPanel
         var parts = new Grid
         {
             Height = FillHeight,
-            Margin = new Thickness(RowInset, (LineHeight - FillHeight) / 2, RowInset, (LineHeight - FillHeight) / 2),
+            Margin = new Thickness(RowInset, FillInset, RowInset, FillInset),
             Padding = new Thickness(PadStart, 0, PadEnd, 0),
-            Background = new SolidColorBrush(Colors.Transparent),
+            Background = Family.Brush(ColourRole.Clear),
         };
         var column = 0;
 
@@ -767,7 +769,7 @@ internal partial class MenuPanel
 
         var words = new TextBlock
         {
-            FontSize = FluentType.Body.FontSize,
+            FontSize = FamilyType.Body.FontSize,
             VerticalAlignment = VerticalAlignment.Center,
             HorizontalAlignment = HorizontalAlignment.Left,
             TextTrimming = TextTrimming.CharacterEllipsis,
@@ -791,7 +793,7 @@ internal partial class MenuPanel
 
         var value = new TextBlock
         {
-            FontSize = FluentType.Body.FontSize,
+            FontSize = FamilyType.Body.FontSize,
             Foreground = ThemeBrush.Of("TextFillColorSecondaryBrush", Colors.Gray),
             VerticalAlignment = VerticalAlignment.Center,
             HorizontalAlignment = HorizontalAlignment.Right,
@@ -924,7 +926,7 @@ internal partial class MenuPanel
     /// </summary>
     private static NoteView NoteLine(MenuNode node, bool icons)
     {
-        var words = Fluent.Text(FluentType.Caption, "TextFillColorTertiaryBrush");
+        var words = Fluent.Text(FamilyType.Caption, "TextFillColorTertiaryBrush");
         words.TextWrapping = TextWrapping.WrapWholeWords;
         words.HorizontalAlignment = HorizontalAlignment.Left;
         words.VerticalAlignment = VerticalAlignment.Center;
@@ -942,7 +944,7 @@ internal partial class MenuPanel
         var root = new Border
         {
             Child = new StackPanel { Orientation = Orientation.Horizontal, Children = { ring, words } },
-            Background = new SolidColorBrush(Colors.Transparent),
+            Background = Family.Brush(ColourRole.Clear),
         };
 
         var view = new NoteView(root, words, ring, icons);
@@ -963,7 +965,7 @@ internal partial class MenuPanel
         view.Words.MaxWidth = busy ? room - Fluent.IconSize - Fluent.Space2 : room;
         if (node.Strong)
         {
-            view.Words.Apply(FluentType.Body);
+            view.Words.Apply(FamilyType.Body);
         }
 
         view.Words.Foreground = node.Danger
@@ -974,7 +976,7 @@ internal partial class MenuPanel
         view.Ring.Visibility = busy ? Visibility.Visible : Visibility.Collapsed;
         view.Root.Padding = empty
             ? new Thickness(0)
-            : new Thickness(start, Fluent.Space1, RowInset + PadStart, Fluent.Space1 + 2);
+            : new Thickness(start, FamilySpace.S1, RowInset + PadStart, ShellMetrics.Menu.NotePadBottom);
         AutomationProperties.SetName(view.Words, text);
 
         // What went wrong, or how a try is going, is said to a screen reader as it changes.

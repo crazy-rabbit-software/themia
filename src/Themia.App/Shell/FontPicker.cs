@@ -6,6 +6,7 @@ using Microsoft.UI.Xaml.Media;
 using Themia.App.Widgets;
 using Themia.Core.Localization;
 using Themia.Core.Widgets;
+using Themia.Sdk.Kit;
 using Windows.System;
 
 namespace Themia.App.Shell;
@@ -27,7 +28,7 @@ namespace Themia.App.Shell;
 /// </summary>
 internal sealed partial class FontPicker : Grid
 {
-    private const double ListHeight = 360;
+    private const double ListHeight = ShellMetrics.Picker.FontListHeight;
 
     /// <summary>
     /// An empty grid per row: the template only gives each container a root of its own, filled in
@@ -89,7 +90,7 @@ internal sealed partial class FontPicker : Grid
         _list.PreviewKeyDown += OnListKeyDown;
         _list.CharacterReceived += OnListCharacter;
 
-        _empty = Fluent.Text(FluentType.Body, "TextFillColorSecondaryBrush");
+        _empty = Fluent.Text(FamilyType.Body, "TextFillColorSecondaryBrush");
         _empty.TextWrapping = TextWrapping.Wrap;
         _empty.Margin = new Thickness(Fluent.Space1, 0, Fluent.Space1, 0);
         _empty.Visibility = Visibility.Collapsed;
@@ -283,11 +284,11 @@ internal sealed partial class FontPicker : Grid
     {
         public Row(Grid root)
         {
-            Label = Fluent.Text(FluentType.Body);
+            Label = Fluent.Text(FamilyType.Body);
             Label.TextTrimming = TextTrimming.CharacterEllipsis;
             Label.VerticalAlignment = VerticalAlignment.Center;
 
-            Tick = Fluent.Icon(Glyphs.Done, "AccentTextFillColorPrimaryBrush");
+            Tick = Fluent.Icon(Glyphs.Done, ShellRoles.Key(ShellRole.AccentText));
             Tick.Margin = new Thickness(Fluent.Space2, 0, 0, 0);
             SetColumn(Tick, 1);
 

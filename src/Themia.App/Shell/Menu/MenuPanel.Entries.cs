@@ -10,6 +10,7 @@ using Themia.Core.Model;
 using Themia.Core.Settings;
 using Themia.Core.Shell;
 using Themia.Core.Widgets;
+using Themia.Sdk.Kit;
 using Themia.Sdk.WinUI;
 
 namespace Themia.App.Shell;
@@ -18,9 +19,9 @@ namespace Themia.App.Shell;
 internal partial class MenuPanel
 {
     /// <summary>[S-3723] A swatch of a colour level's grid, in its 32-DIP cell, eight to a line (Karpo's).</summary>
-    private const double SwatchSize = 24;
+    private const double SwatchSize = ShellMetrics.Menu.Swatch;
 
-    private const double SwatchCell = 32;
+    private const double SwatchCell = ShellMetrics.Menu.SwatchCell;
 
     /// <summary>
     /// [S-3719] A widget's own lines (and the card's colours) as the menu's rows: its levels,
@@ -227,7 +228,7 @@ internal partial class MenuPanel
     {
         var grid = new Grid
         {
-            Margin = new Thickness(RowInset + PadStart - ((SwatchCell - SwatchSize) / 2), Fluent.Space1, 0, Fluent.Space1),
+            Margin = new Thickness(RowInset + PadStart - ShellMetrics.Menu.SwatchInset, FamilySpace.S1, 0, FamilySpace.S1),
             HorizontalAlignment = HorizontalAlignment.Left,
         };
 
@@ -247,6 +248,7 @@ internal partial class MenuPanel
             var hex = HexColor.Normalise(preset.Hex);
             HexColor.TryParse(hex, out var r, out var g, out var b);
             var chosen = hex == current;
+            var fill = HexBrush.Of(hex) ?? Themia.Sdk.WinUI.Kit.Family.Brush(ColourRole.Clear);
 
             var swatch = new Button
             {
@@ -258,8 +260,8 @@ internal partial class MenuPanel
                 HorizontalAlignment = HorizontalAlignment.Center,
                 VerticalAlignment = VerticalAlignment.Center,
                 CornerRadius = new CornerRadius(Fluent.ControlRadius),
-                Background = new SolidColorBrush(Windows.UI.Color.FromArgb(255, r, g, b)),
-                BorderThickness = new Thickness(chosen ? 2 : Fluent.Hairline),
+                Background = fill,
+                BorderThickness = new Thickness(chosen ? FamilyShape.Stroke : FamilyShape.Hairline),
                 BorderBrush = chosen ? ThemeBrush.Of("AccentFillColorDefaultBrush", Colors.DodgerBlue) : ThemeBrush.Of("ControlStrokeColorDefaultBrush", Colors.Gray),
                 Content = chosen
                     ? new FontIcon
@@ -268,7 +270,7 @@ internal partial class MenuPanel
                         FontSize = SmallGlyph,
 
                         // The tick is drawn ON the colour, so its colour is the colour's contrast, not a theme brush.
-                        Foreground = new SolidColorBrush(ScreenPick.WantsDarkInk(r, g, b) ? Colors.Black : Colors.White),
+                        Foreground = HexBrush.Ink(new RgbColor(r, g, b)),
                     }
                     : null,
             };
@@ -276,7 +278,7 @@ internal partial class MenuPanel
             // The colour stays itself under the pointer: only the ring says it is pointed at.
             swatch.Resources["ButtonBackgroundPointerOver"] = swatch.Background;
             swatch.Resources["ButtonBackgroundPressed"] = swatch.Background;
-            swatch.Resources["ButtonBorderBrushPointerOver"] = ThemeBrush.Of("ControlStrokeColorSecondaryBrush", Colors.Gray);
+            swatch.Resources["ButtonBorderBrushPointerOver"] = ShellBrush.Of(ShellRole.ControlStrokeHover);
 
             ToolTipService.SetToolTip(swatch, preset.Name);
             AutomationProperties.SetName(swatch, preset.Name);

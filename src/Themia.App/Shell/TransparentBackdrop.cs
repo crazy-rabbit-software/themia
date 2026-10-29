@@ -43,7 +43,7 @@ internal sealed partial class TransparentBackdrop : SystemBackdrop
             }
 
             _compositor ??= new Windows.UI.Composition.Compositor();
-            connectedTarget.SystemBackdrop = _compositor.CreateColorBrush(Windows.UI.Color.FromArgb(0, 0, 0, 0));
+            connectedTarget.SystemBackdrop = _compositor.CreateColorBrush(ShellColours.None);
         }
         catch (Exception ex)
         {

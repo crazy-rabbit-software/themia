@@ -4,6 +4,7 @@ using Microsoft.UI.Xaml.Media;
 using Themia.Core.Diagnostics;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
+using Themia.Sdk.WinUI;
 using Windows.UI.ViewManagement;
 using Color = Windows.UI.Color;
 
@@ -206,7 +207,7 @@ internal static class DesignApplier
 
         if (!Plain.TryGetValue(key, out var brush))
         {
-            brush = new SolidColorBrush(Color.FromArgb(alpha, r, g, b));
+            brush = new SolidColorBrush(HexBrush.Colour(new RgbColor(r, g, b), alpha / 255.0));
             Plain[key] = brush;
         }
 
@@ -263,7 +264,7 @@ internal static class DesignApplier
             // reaches it too.
             if (_systemShades is { } system && _shades is { } current && ShadeOf(value, system) is int accentShade)
             {
-                color = Color.FromArgb(value.A, current[accentShade].R, current[accentShade].G, current[accentShade].B);
+                color = HexBrush.Colour(new RgbColor(current[accentShade].R, current[accentShade].G, current[accentShade].B), value.A / 255.0);
             }
         }
         else if (appBrush is not null)
@@ -330,7 +331,7 @@ internal static class DesignApplier
     {
         if (HexColor.TryParse(hex, out var r, out var g, out var b))
         {
-            return [.. DesignLook.Shades(new RgbColor(r, g, b)).ToArray().Select(c => Color.FromArgb(255, c.R, c.G, c.B))];
+            return [.. DesignLook.Shades(new RgbColor(r, g, b)).ToArray().Select(c => HexBrush.Colour(new RgbColor(c.R, c.G, c.B)))];
         }
 
         return SystemShades();
@@ -369,7 +370,7 @@ internal static class DesignApplier
                         && DesignLook.AccentShade(key, dark) is int shade)
                     {
                         var c = shades[shade];
-                        brush.Color = Color.FromArgb(brush.Color.A, c.R, c.G, c.B);
+                        brush.Color = HexBrush.Colour(new RgbColor(c.R, c.G, c.B), brush.Color.A / 255.0);
                         recoloured++;
                     }
                 }

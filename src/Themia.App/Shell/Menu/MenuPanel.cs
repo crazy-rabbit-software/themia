@@ -7,6 +7,7 @@ using Themia.App.Shell.Motion;
 using Themia.App.Widgets;
 using Themia.Core.Diagnostics;
 using Themia.Core.Widgets;
+using Themia.Sdk.Kit;
 using Themia.Sdk.WinUI;
 
 namespace Themia.App.Shell;
@@ -184,33 +185,36 @@ internal partial class MenuPanel : Grid
     private const string Scope = "menu";
 
     /// <summary>[S-3734] The one width of the menu and every level, at a text size of 100 % (Karpo's SettingsWidthDip).</summary>
-    internal const double MenuWidth = 320;
+    internal const double MenuWidth = ShellMetrics.Menu.Width;
 
     /// <summary>[S-3734] The one height of the menu and every level, at a text size of 100 % (Karpo's SettingsHeightDip).</summary>
-    internal const double MenuHeight = 440;
+    internal const double MenuHeight = ShellMetrics.Menu.Height;
 
     /// <summary>[S-3734] The rows' pitch: a 28-DIP fill with 2 DIPs above and under it.</summary>
-    protected const double LineHeight = 32;
+    protected const double LineHeight = ShellMetrics.Menu.Pitch;
 
     /// <summary>[S-3734] The fill under a row, as Explorer's menu draws it.</summary>
-    protected const double FillHeight = 28;
+    protected const double FillHeight = ShellMetrics.Menu.Fill;
+
+    /// <summary>[S-3734] The room over and under a row's fill inside its pitch.</summary>
+    protected const double FillInset = ShellMetrics.Menu.FillInset;
 
     /// <summary>[S-3734] Where a row's fill starts in from the menu's edge (5 DIPs), less the rim the frame draws there.</summary>
-    protected const double RowInset = 5 - Fluent.Hairline;
+    protected const double RowInset = ShellMetrics.Menu.RowInset;
 
     /// <summary>[S-3734] The room over the first row and under the last (Karpo's panel padding).</summary>
-    private const double BandPadding = 3;
+    private const double BandPadding = ShellMetrics.Menu.BandPadding;
 
     /// <summary>[S-3742] A level with more rows to pick than this has a filter field under its head.</summary>
     internal const int FilterFrom = 10;
 
     /// <summary>[S-3738] How far a level's rows slide in, and for how long (Karpo's 16 DIPs over 167 ms).</summary>
-    private const float SlideDip = 16;
+    private const float SlideDip = ShellMetrics.Menu.SlideDip;
 
     private static readonly TimeSpan SlideTime = TimeSpan.FromMilliseconds(167);
 
     /// <summary>[S-3734] How far a notch of the mouse wheel scrolls.</summary>
-    private const double WheelStep = 48;
+    private const double WheelStep = ShellMetrics.Menu.WheelStep;
 
     /// <summary>The node a level's head row stands for: a click on it goes back.</summary>
     private static readonly MenuNode HeadNode = new("<back>");

@@ -1,12 +1,13 @@
 using System.Numerics;
-using Microsoft.UI;
 using Microsoft.UI.Composition;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Hosting;
 using Themia.App.Widgets;
 using Themia.Core.Diagnostics;
+using Themia.Sdk.Kit;
 using Themia.Sdk.WinUI;
+using Themia.Sdk.WinUI.Kit;
 
 namespace Themia.App.Shell;
 
@@ -34,14 +35,14 @@ internal static class FlyoutSurface
     private const string Scope = "flyout-surface";
 
     /// <summary>Fluent's flyout shadow (elevation 32): a key light 8 DIPs down, blurred over 32.</summary>
-    private const float ShadowOffsetY = 8;
+    private const float ShadowOffsetY = ShellMetrics.Shadow.OffsetY;
 
-    private const float ShadowBlur = 32;
+    private const float ShadowBlur = ShellMetrics.Shadow.Blur;
 
     /// <summary>How dark the shadow is: Windows draws it deeper on the dark theme, where a lighter one would not show.</summary>
-    private const float ShadowOpacityLight = 0.18f;
+    private const float ShadowOpacityLight = ShellMetrics.Shadow.OpacityLight;
 
-    private const float ShadowOpacityDark = 0.42f;
+    private const float ShadowOpacityDark = ShellMetrics.Shadow.OpacityDark;
 
     /// <summary>
     /// Give <paramref name="frame"/> the flyout's surface, and cast its shadow from a plate inserted
@@ -52,9 +53,9 @@ internal static class FlyoutSurface
         ArgumentNullException.ThrowIfNull(host);
         ArgumentNullException.ThrowIfNull(frame);
 
-        frame.CornerRadius = new CornerRadius(Fluent.OverlayRadius);
-        frame.Background = ThemeBrush.Of("SolidBackgroundFillColorQuarternaryBrush", Colors.Black);
-        frame.BorderBrush = ThemeBrush.Of("SurfaceStrokeColorFlyoutBrush", Colors.Gray);
+        frame.CornerRadius = new CornerRadius(ShellMetrics.OverlayRadius);
+        frame.Background = ShellBrush.Of(ShellRole.Flyout);
+        frame.BorderBrush = ShellBrush.Of(ShellRole.FlyoutStroke);
         frame.BorderThickness = new Thickness(Fluent.Hairline);
 
         var caster = new Border { IsHitTestVisible = false };
@@ -64,17 +65,17 @@ internal static class FlyoutSurface
         {
             var compositor = ElementCompositionPreview.GetElementVisual(caster).Compositor;
             var geometry = compositor.CreateRoundedRectangleGeometry();
-            geometry.CornerRadius = new Vector2((float)Fluent.OverlayRadius);
+            geometry.CornerRadius = new Vector2((float)ShellMetrics.OverlayRadius);
 
             // The plate only shapes the shadow: it lies under the opaque frame and is never seen, so
             // its colour is not a design colour. Inset a hair so no anti-aliased edge of it shows.
             var plate = compositor.CreateSpriteVisual();
-            plate.Brush = compositor.CreateColorBrush(Colors.Black);
+            plate.Brush = compositor.CreateColorBrush(ShellColours.Shadow);
             plate.Clip = compositor.CreateGeometricClip(geometry);
             plate.Offset = new Vector3((float)Fluent.Hairline, (float)Fluent.Hairline, 0);
 
             var shadow = compositor.CreateDropShadow();
-            shadow.Color = Colors.Black;
+            shadow.Color = ShellColours.Shadow;
             shadow.BlurRadius = ShadowBlur;
             shadow.Offset = new Vector3(0, ShadowOffsetY, 0);
 
