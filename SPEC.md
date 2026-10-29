@@ -17,7 +17,7 @@ Sections, grouped by area (file order below; search for the heading).
 
 - **Foundations.** Geometry model; Rendering; Grid snap aid; Constraints; Defaults & placement; Views & displays; Window layering; Transparency; Ticking; Live widgets and resource use (R6-RESOURCES); Memory; Persistence; Failure rules; Not on this machine (UNAVAILABLE); Clipboard & transfer between displays; No backwards compatibility; Widget modules and the registry (MODULES); The widget kit (KIT); The service layer (SERVICES).
 - **Shell, windows and settings.** Displays (WP2); Desktop integration and suspend (WP3); Appearance engine (WP1); Notices, resilience and undo (WP4); Widget picker: search (WP5); Multi-select and the placement session (MULTISELECT-PLACEMENT); Widget styles (STYLES); Context menus (R4-MENUS); Views and the view bar (WP8); The Displays and Views pages (R4-NAV, R5-PAGES); Icon picker and showcase views (R4-ICONS); Keyboard lease (WP11); Widget keys (WIDGET-KEYS); Item selection (ITEM-SELECTION); View links (VIEW-LINKS); Keyboard in the shell (SHELL-KEYS); Motion: intros, hyperspace, hacker (WP9-MOTION); Desktop surface drops (WP10-SURFACE); Opening a widget's app (R7-OPEN, retired); Shell hooks (PA); Removed widgets (R7-REMOVE); Shell skeleton and shared settings; Shared widget settings: region and updates (SETTINGS-AUDIT); Colours, fonts and uninstall (the settings window, retired); Settings navigation icons (NAV-ICONS, retired); Logging (WP7); Network safety (WP6); Localization infrastructure (LOC-INFRA); Microsoft Store package and licensing; Gallery.
-- **Look and layout.** Rows and the card edge; Looking like Windows; The widget header; Responsive layout (shared foundation); Adding a widget; Layout pass over the ported widgets; Widget polish 1 (POLISH-1); Widget polish 2: leftover parity and layout gaps (POLISH-2); The Set up button (R5-SETUP).
+- **Look and layout.** Rows and the card edge; Looking like Windows; The widget header; The widget family: tokens and blocks (FAMILY); Responsive layout (shared foundation); Adding a widget; Layout pass over the ported widgets; Widget polish 1 (POLISH-1); Widget polish 2: leftover parity and layout gaps (POLISH-2); The Set up button (R5-SETUP).
 - **Accounts and sign-in.** Where account data comes from; Accounts and sign-in.
 - **System widgets.** (The seven meters, the seven detail widgets, Drive, Removable drives, Brightness, Mixer, Volume, Music, the Audio visualizer, the three screen-time widgets, Notifications and the Focus session are modules: their sections are their projects' `SPEC.md`; the sections named here keep the hub, the samplers and the rules they share, the SDK's.) System data hub (SYS-HUB); System meters; Meter framework and memory; CPU; Disk and ping; Battery and network; Network and ping; System widgets: GPU, mixer and screen time; Screen time: chart, donut and apps (SCREENTIME-SPLIT); GPU and screen time: the whole tile (SYS-P4); System details (SYS-DETAILS); Mixer and Volume (SYS-P5); Power and Bluetooth; Device and location (DEVICE-AND-LOCATION); Quick-setting toggles (QUICK-TOGGLES); Windows' panels: notifications, focus session, brightness (WINDOWS-PANELS).
 - **Time, desk and launch widgets.** (Clock, Countdown, Stopwatch, Pomodoro, Quote, Sun, Moon, Scratchpad, Recycle Bin, Alarm, Notes, Clipboard, the Habit tracker, the Gallery, Recent files, Shortcuts and the Folder are modules: their sections are their projects' `SPEC.md`, `src/Widgets/Themia.Widget.<Name>/`; so are Bluetooth, the seven power buttons and the thirteen quick-setting toggles, under System widgets, whose shared rules stay here.) Clock; Countdown and pomodoro; Stopwatch, alarm and drives (KARPO-2); Sun and moon; Audio visualizer (VISUALIZER); Clock, Sun & moon, Quote and Scratchpad: parity and the whole tile (PJ); Music and Pomodoro: parity and the whole tile (PF); Notes; Notes: note store and markdown editor; Clipboard and Countdown: the whole tile; Recent files (RECENT-FILES, the host's list); Recycle Bin (RECYCLE-BIN); Date (DATE); Habits; Shortcuts B: drop, reorder and app layouts (PD); Folder: the file browser (FOLDER, the host's file services); About and the settings file.
@@ -846,6 +846,128 @@ shared row and moon drawing) and `SkyPlaceRows` (the shared place line on their 
   header's height), and the content beside it must stay at least as wide as the narrowest card every
   widget is laid out for, the XS tier's 120 ([S-1810]). Under 96 (the old threshold) an XS card kept
   about 76 DIPs of content: Notes' empty text wrapped per letter and Mail's Set up button clipped.
+
+## The widget family: tokens and blocks (FAMILY)
+
+Every widget is built from the same few sizes, colours and parts, so the desktop reads as one family
+(user decisions 2026-10-29). Owning files: `Themia.Sdk/Kit/Family/*` (the tokens and the blocks'
+rules), `Themia.Sdk.WinUI/Kit/Family/*` (the tokens as WinUI parts and the seven blocks),
+`Themia.Core/Widgets/FamilyCheck.cs` (the render walk's rules), `Themia.App/Shell/Gallery/Family*.cs`
+and `TreeDump.cs` (the renders); tests `FamilyTokensTests`, `FamilyBlockRulesTests`,
+`FamilyCheckTests` (Core), `FamilyGuardTests` (module host); `scripts/family-check.ps1`. The
+module author's guide is docs/WIDGET-KIT.md 16.
+
+- **[S-6700]** Text is drawn in **nine sizes and two weights**: Caption 12/16, Body 14/20 (BodyStrong
+  at 600), Title 20/28 (600), the Readout steps Big 28/36, 40/52, 68/92 (600), and the Hero steps
+  96/128, 136/180, 192/252 (600) that only a one-readout widget (Clock, Alarm, Countdown, Stopwatch,
+  Pomodoro, Focus session, the quick toggles, the power buttons) may use. Weights are 400 and 600,
+  nothing else. Every step is the base size times the user's text size ([S-821]); the Fluent ramp's
+  Caption, Body and Subtitle are the family's own numbers (`FamilyType`). A text's line is the step's
+  exactly (`LineStackingStrategy.BlockLineHeight`).
+- **[S-6701]** A value's **unit** and the **line under** it follow from its step: the unit (400,
+  secondary) is 14 beside 28, 20 beside 40, 28 beside 68, 40 beside 96 and 136, 68 beside 192; the
+  line under is Caption under 28, Body under 40 and 68, Title (400) under a Hero step.
+- **[S-6702]** The **Readout**'s step is chosen, never computed: the largest whose line (and the line
+  under it) fits the box and whose lead glyph, value and unit fit its width (`ReadoutRules.Step`,
+  widths by `HeroFit.Ems`), never below 28. A data widget's number climbs 28 (XS, S) → 40 (M, Wide,
+  Tall) → 68 (L, XL) and stops: the ceiling is 28 while the view area's two classes sum to less than
+  2, 40 from 2, 68 once it is expanded both ways. Room left at L and XL goes to more of the widget's
+  own content, never a bigger number ([S-666]). A one-readout widget climbs the Hero steps as far as
+  they fit, on fixed steps, never filling the box. A box too short for the line under the floor step
+  sheds that line, never the value.
+- **[S-6703]** Space is one 4-based scale, **4 · 8 · 12 · 16 · 24**, and its sums: the card inset 16
+  on every side at every tier; the header one 20 line at 16, then 8, so the content starts at 44; a
+  glyph 8 from its text; a name 12 from its value and a column 12 from the next; the text edge 40
+  with a 16 lead (16 without); a 24 header button stands 2 over the header's line (`FamilySpace`).
+- **[S-6704]** Shapes: rows 32 · 48 · 64 (one, two, three lines) at every tier; icons 16 (header,
+  row, status, inline), 32 (an avatar, an app or file icon, a cell), 48 (a large cell); one radius,
+  4, for every inner rectangle, a pill, dot, ring or track round (half its short side); one stroke,
+  2, with a 16 % wash under a chart line; one track, 4; a hairline 1. Buttons: a text button 32 tall
+  with 12 either side and Body text, an icon button 32 × 32, a header button 24 × 24, each with a 16
+  glyph (`FamilyShape`). The card's own radius is the design's setting.
+- **[S-6705]** Colours are **roles**, never values (`ColourRole`, its one table `ColourRoles`): text
+  primary, secondary, tertiary and disabled; the accent with text on it (primary, secondary); Caution
+  and Critical; Track (a rail), Solid (a pill over an image), Subtle (a count pill, a hover), Clear,
+  Control (a standard button) and its stroke. The item layer's fills stay `ItemFill`'s. A data colour
+  (a calendar's, an app's, a pen, a photo's) comes from the data through one entry point,
+  `Family.Data(hex)`, as a 2 px bar, a dot or a series only.
+- **[S-6706]** The accent is only for **on or selected** (a toggle that is on, today's circle, a
+  checked box), the **one main action** (Set up, Join, Start, Play) and **charts and meters**, never
+  for text on the card. There is **no success green**: a healthy reading is the accent, a rising
+  price secondary. A **count badge is neutral**: Caption in the primary role on the subtle fill.
+  `UnavailableLook` stays: a part missing on this PC is drawn in the disabled role ([S-1940]).
+- **[S-6710]** **Header**: [glyph 16] 8 [name, BodyStrong, secondary, ellipsis] … [trailing], one 20
+  line at the inset (`HeaderBlock`, the card's header). Its trailing parts, from the start: the
+  problem glyph (caution), the busy ring, an informing label (Caption, secondary), at most two header
+  buttons, the count pill (`HeaderParts`). On a narrow card they give way before the name is cut:
+  the label, then the buttons from the last, then the count; the problem glyph and the ring stay
+  (`HeaderRules`). Parts stand 4 apart, buttons side by side, a last button's glyph on the inset.
+- **[S-6711]** **Row**: [lead] 8 [name, Body] 12 [inline meter] 12 [value, Body, end-aligned]; a
+  second line Caption secondary, a third Caption tertiary; it carries the side inset itself, so it
+  and its hover reach both edges; no divider (`RowBlock`). **What is read is primary**: a fact's
+  value (Humidity 71 %) is primary and its name secondary; a list item's name (a task, a mail, a
+  file) is primary and its value (a time, a size) secondary (`RowRules.Roles`). A widget's rows all
+  lead or none do. The one emphasised row of a list (today, unread) is BodyStrong.
+- **[S-6712]** A row's **lines come from the tier**, its pitch from its lines: one while the view
+  area is compact either way (XS, S, Wide), two from regular both ways (M, Tall), three from expanded
+  both ways (L, XL); only whole rows are shown (`RowRules.Lines`, `Fit`).
+- **[S-6713]** **Row.Cell** (`RowCell`): a grid's item (Shortcuts', a folder's icons), its lead (32,
+  48 from an expanded width) over its name in Caption, primary, centred, 4 apart; cells 12 apart.
+- **[S-6714]** **Status** (empty, problem, set up): one 32 row where the content's first row would
+  be, under the header: [state glyph 16] 8 [one sentence, Body, secondary, ellipsis, its whole text
+  in the tooltip] 12 [its one action] (`StatusBlock`). Empty: the widget's glyph, tertiary. Problem:
+  the caution warning; Try again or Open Accounts as a standard button. Set up: the widget's glyph and
+  the accent Set up button ([S-1862]). A row with an action and less than 96 left for the sentence
+  drops it and keeps the glyph and the action (`StatusRules`); without an action the sentence stays. Tile widgets show their state in the tile.
+- **[S-6715]** **Tile** (`TileBlock`), a one-readout widget's body: the glyph centred on the largest
+  Readout or Hero step that fits above its label (Body, 8 under it) and its state line (Caption) and
+  takes at most 0.6 of the width (`TileRules.GlyphStep`). On, the **whole tile** is the accent with
+  the text and glyph on it; Round puts the glyph in a circle (the accent when on, the subtle fill
+  off) at the largest family glyph size within half of it; Switch is a row with a switch as its
+  value. Missing on this PC, every part is disabled. A power button's arm ring is the Tile's ring.
+- **[S-6716]** **Controls** (`ControlsBlock`): what a person does to a widget, one row of 32 controls
+  8 apart at the card's bottom inset: at most one main action in the accent, standard buttons, icon
+  buttons and a slider (its rail Track, its value the accent) taking the room left. On a narrow card
+  the icon buttons give way from the last, then the buttons, then the slider; the main action stays
+  (`ControlsRules`). No control takes focus ([S-800]).
+- **[S-6717]** **Chart**: one series in the accent at 2 with a 16 % wash, a second in tertiary,
+  Caution or Critical only while the reading is over its threshold (`ChartRules.Role`); a meter's bar
+  is a 4 round track with its fill (`ChartBar`), a ring a stroke-2 arc over its track from twelve,
+  clockwise (`ChartRing`); a band (`ChartSeries`) runs edge to edge at the card's bottom ([S-215]).
+- **[S-6720]** The blocks replace the SDK's older parts as each widget group moves onto them, in
+  place, never beside them (the order is the family's phase plan): the card's header is the Header
+  block now and `Fluent.Header` is gone; the Set up row is the Status block now. `KitHeader`,
+  `KitStatePanel`, `EmptyStatePanel`/`Fluent.EmptyState`, `Fluent.Row`/`Fluent.Badge`,
+  `AddFooterRow`, `HeroReadout`/`HeroLayout`/`HeroFit.Figures`, `FluentType.Hero`/`Fit`/`FitWidth`/
+  `Scaled` and the off-family ramp steps, `MeterView`'s and `DetailView`'s faces, `SparkBand`,
+  `RingPart`, `ArmRing`, `GaugeDial`, `CoreGraphGrid` and the toggles' and power buttons' faces stay
+  until the group that migrates their callers rebuilds them on the blocks; each then goes.
+- **[S-6730]** The **source guard** (`FamilyGuardTests.S6730_no_literal_outside_the_family_tokens`)
+  reads every module, the SDK's UI parts and the app's Shell and Widgets (not `Tests/`, `Fixtures/`,
+  `Gallery/`) and fails on a type size or line, a weight other than 400/600, a spacing, thickness,
+  radius, row size, stroke or opacity given as a number (0 and a hairline 1 aside; the motion code
+  and `ScrollFade` may fade), an off-family ramp helper, `Fluent.Space5`, a colour made from numbers
+  (but in `HexBrush`, under `Family.Data`), a `Colors.*` that is not a fallback, a `#RRGGBB` string, or a theme brush
+  outside the roles; except today's offenders, listed in `FamilyGuard.allow.txt`, a list that only
+  shrinks: the test fails on an offence not on it and on an entry that no longer occurs as often.
+  Baseline 2026-10-29: 505 entries, 723 offences in 132 files.
+- **[S-6731]** The **render walk** (`Themia.exe --family-check <out.json> [--theme] [--kinds]`, Debug):
+  every kind at the seven tiers in its default, its preview states and its styles, each card's header,
+  view and Set up row walked element by element (a control's template skipped, its content walked)
+  and judged by `FamilyCheck`: a text's size, line and weight, a glyph's size, every padding, margin
+  and spacing on the scale, radii 0, 4 or round, strokes 0, 1, 2 or 4, every solid colour a role (or
+  the card's, the item layer's, a data colour, or clear), no text or glyph in the accent.
+  `scripts/family-check.ps1` runs it for both themes and holds the findings (kind, element, rule; the
+  values stripped, `FamilyCheck.Rule`) to `scripts/family-check.allow.txt`, shrink-only as the guard.
+  It needs the Debug app, so it is a definition-of-done step, not a test. Baseline 2026-10-29: 298 lines over all 78 kinds (about 47 700 elements in the two themes); two runs gave the same lines.
+- **[S-6732]** `Themia.exe --family-blocks-png <outDir> [--theme] [--only]` draws each block in every
+  variant at the seven tiers with its visual tree beside it (`TreeDump`; `--widget-png … --tree`
+  writes the same for a widget). The family's mockups draw the same variants over the same data, and
+  their texts and glyphs are paired with the render's and held to ±1 DIP in position and size with the
+  same colour role (DECISIONS 11).
+
+Needs a manual pass: the showcase views on the live desktop (the blocks change no widget yet, but
+the card's header and the Set up row are theirs now).
 
 ## Widget modules and the registry (MODULES)
 
@@ -7563,9 +7685,13 @@ gallery ([S-1863]).
 - **[S-1861]** An account widget needs setting up while no signed-in account offers its feature: Mail,
   Calendar, Contacts, Tasks (account source only). The features are the union of the signed-in providers' (`WidgetSetup.Offered`); an
   account that needs signing in again still counts (the widget says so itself, with the Accounts link).
-- **[S-1862]** Such a widget's body is the Set up button and nothing else: the widget's glyph over one
-  accent button ("Set up"; tooltip "Set up what this widget needs"), centred, no sentence. The glyph is
-  dropped on a body too short for both; the button stays at every size, XS included. The button takes
+- **[S-1862]** Such a widget's body is the Status block's set-up row ([S-6714]) and nothing else, where
+  its first content row would be (under the header; at the top inset when the header is not above):
+  the widget's glyph, one sentence saying what it waits for, and one accent button ("Set up"; its
+  tooltip the sentence). The sentence is the config's own (`ISetupRule.SetupSentence`: "Choose a
+  place" for every widget about a place), else "Add an account to show this" where an account is all
+  it lacks, else "Set up what this widget needs". On a row too narrow for both (XS, S) the sentence
+  goes and the glyph and the button stay, at every size. The button takes
   no focus, so it works outside edit mode on the `WS_EX_NOACTIVATE` surface. A click goes where what
   the widget waits for is set (`WidgetSetup.Goes`): where an **account** is all it lacks (it would be
   set up with every feature the installed providers offer: Mail, Calendar, Contacts, Next meeting, the

@@ -212,6 +212,10 @@ bar's menus ([S-3520]); there is no settings window ([S-3585]) and a widget has 
   counts footer, the next days on "weather now"). Room left at L/XL goes to the core content (a
   larger ramp step, more rows); if that is used up, empty space is fine. Clock and the meters are the
   reference. Check every size tier on the showcase views.
+- **One family** (SPEC "FAMILY", [S-6700]..[S-6732]; docs/WIDGET-KIT.md 16): a widget is drawn from the
+  family's tokens (`FamilyType`, `FamilySpace`, `FamilyShape`, `ColourRole`; `Family.*` in WinUI) and its
+  seven blocks (Header, Row, Readout, Chart, Status, Tile, Controls in `Themia.Sdk.WinUI.Kit`); the
+  guards (`FamilyGuardTests`, `scripts/family-check.ps1`) hold shrink-only lists of today's offenders.
 - **List widgets are built on the kit** (`Themia.Sdk.Kit` pure, `Themia.Sdk.WinUI.Kit` UI; SPEC
   "The widget kit (KIT)", [S-7000]..[S-7071]; design and as-built in docs/WIDGET-KIT.md 5, 6 and 11.2;
   RSS, `src/Widgets/Themia.Widget.Rss`, is the reference). A list widget writes: its config as an

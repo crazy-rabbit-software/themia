@@ -2853,3 +2853,65 @@ in `tests/Themia.Modules.Tests/WidgetMenuLinesTests.cs`, rendered in `--editbar-
   the user's request) and lists them; retire the page's lines there.
 - **Render it**: `--editbar-png` with the widget selected and its levels open (add a case to
   `EditBarRender.PropsShots`), and look at the PNGs.
+
+## 16. One family: tokens, blocks and the guard
+
+*Added 2026-10-29 (phase A of "make every widget look like it belongs to one family"; SPEC "The widget
+family: tokens and blocks (FAMILY)", [S-6700]..[S-6732]).* A widget is drawn from a handful of sizes,
+colours and parts. This section is what a module author uses; the reasons are in the SPEC lines.
+
+### 16.1 The tokens (`Themia.Sdk.Kit`, pure; `Themia.Sdk.WinUI.Kit`, WinUI; each in a `Kit/Family/` folder)
+
+| what | token | values |
+|---|---|---|
+| type | `FamilyType.Caption`, `Body`, `BodyStrong`, `Title`; `Big28`/`Big40`/`Big68` (`Big`); `Hero96`/`Hero136`/`Hero192` (`Hero`, one-readout widgets only) | 12/16, 14/20, 14/20 600, 20/28 600; 28/36, 40/52, 68/92 600; 96/128, 136/180, 192/252 600 |
+| a value's unit, its line under | `FamilyType.Unit(step)`, `FamilyType.Under(step)` | 28→14 / Caption, 40→20 / Body, 68→28 / Body, 96 and 136→40 / Title, 192→68 / Title |
+| space | `FamilySpace.S1`, `S2`, `S3`, `S4`, `S6`; `Inset`, `HeaderLine`, `HeaderGap`, `ContentTop`, `GlyphGap`, `ColumnGap`, `TextEdge` | 4, 8, 12, 16, 24; 16, 20, 8, 44, 8, 12, 40 |
+| shapes | `FamilyShape.Row1`/`Row2`/`Row3` (`RowHeight(lines)`), `Icon`/`IconLarge`/`IconHuge`, `Radius`, `Round(w, h)`, `Stroke`, `Track`, `Hairline`, `Wash`, `Button`, `ButtonPadding`, `IconButton`, `HeaderButton` | 32/48/64, 16/32/48, 4, half the short side, 2, 4, 1, 0.16, 32, 12, 32, 24 |
+| colour | `ColourRole` (`ColourRoles.Key`): `TextPrimary`, `TextSecondary`, `TextTertiary`, `TextDisabled`, `Accent`, `TextOnAccent`, `TextOnAccentSecondary`, `Caution`, `Critical`, `Track`, `Solid`, `Subtle`, `SubtlePressed`, `Clear`, `Control`, `ControlStroke` | the theme's brushes |
+
+In WinUI: `Family.Text(step, role, text)` (a one-line text, its line exact), `Family.Step(block, step)`,
+`Family.Run(step, role, text)`, `Family.Glyph(glyph, size, role)`, `Family.Brush(role)`,
+`Family.Inset`/`SideInset`/`HeaderInset`, `Family.Radius`, `Family.Round(w, h)`, and
+`Family.Data(hex)`, the one way to draw a data colour (a calendar's, an app's, a pen). The older
+`Fluent.Space1..6`, `ControlRadius`, `IconSize`, `ChartStroke`, `ChartWash` and `RowHeightCompact` are
+these same values; new code names the family's.
+
+Rules: what is read is primary (a fact's value, a list item's name); the accent is on/selected, the
+one main action, charts and meters, never text; no success green; a count is neutral; a missing part
+is `TextDisabled` (`UnavailableLook`).
+
+### 16.2 The seven blocks (`Themia.Sdk.WinUI.Kit`; rules in `Themia.Sdk.Kit`)
+
+| block | part | what a view calls | its rules |
+|---|---|---|---|
+| Header | `HeaderBlock` (the card's), `HeaderParts` | its `HeaderTrailing` returns a `HeaderParts` with `Add(kind, HeaderBlock.Problem(lines) / Busy() / Label(text) / Button(glyph, tooltip, run) / Count(text))` | `HeaderRules.Shown`: label, then buttons from the last, then the count give way; two buttons at most |
+| Row | `RowBlock(kind, lead)`, `RowCell(icon)` | `Show(name, value, second, third)`, `Lines`, `Strong`, `LeadGlyph`/`Lead`, `Meter(bar, width)`, `Interactive`, `Detach` | `RowRules.Roles(kind)`, `Lines(area, wanted)`, `Fit(height, lines)`, `CellIcon`, `CellHeight` |
+| Readout | `ReadoutBlock` | `Show(value, unit, under, delta, deltaRole, lead, valueRole)`, `Size(area, width, height, worst)` or `Use(step)` | `ReadoutRules.Step` (28/40/68 by the area, Hero for `OneReadout`), `Width`, `Height` |
+| Chart | `ChartSeries`, `ChartBar`, `ChartRing` | `Show(values, second)` / `Show(to, from)` / `Show(fraction)`, `Role(role)` | `ChartRules.Role(reading, caution, critical)`, `Line`, `Bar`, `Sweep` |
+| Status | `StatusBlock` | `Show(kind, glyph, sentence, action, run)`, `Hide` | `StatusRules.Look(kind)`, `ShowsSentence(width, actionWidth)` |
+| Tile | `TileBlock(look)` | `Show(glyph, label, state, on, available)`, `Size(width, height)`, `Look`, `Ring` | `TileRules.GlyphStep`, `RoundGlyph`, `Roles(look, on, available)` |
+| Controls | `ControlsBlock` | `Main(label, run)`, `Button(label, run)`, `Icon(glyph, tooltip, run)`, `Slider(min, max, value, changed)`; `ControlsBlock.TextButton`/`IconButton` alone | `ControlsRules.Check` (one main action), `Shown` |
+
+Layout around them is the family's too: the header in the card's header inset; content from 44 (16
+without a header); rows, the status and a band full width (they carry their own inset); everything
+else inside the 16 inset; Controls at the bottom inset. The render flag `--family-blocks-png <dir>`
+draws every variant at every tier; `TestResults/family/mockups/blocksheet.py` draws the same as
+mockups and `TestResults/family/match.py blocks` compares them box by box.
+
+### 16.3 The guard
+
+- **Source** (`FamilyGuardTests`, in `dotnet test`): a number given for a type size, weight, spacing,
+  thickness, radius, size, stroke or opacity, an off-family ramp helper (`FluentType.BodyLarge`,
+  `Subtitle`, `Title`, `TitleLarge`, `Display`, `Hero`, `Fit`, `FitWidth`, `Scaled`, `HeroLayout.*`,
+  `HeroFit.*` but `Ems`), `Fluent.Space5`, a typed colour, a theme brush outside the roles: each fails,
+  unless it is one of today's offenders in `tests/Themia.Modules.Tests/FamilyGuard.allow.txt`. A
+  widget you touch should leave that list shorter; a new widget must not appear on it.
+- **Render** (`powershell -ExecutionPolicy Bypass -File scripts/family-check.ps1`, needs a Debug
+  build): every kind, tier, theme, state and style walked; findings not in
+  `scripts/family-check.allow.txt` fail it, and so do lines of it no longer found. Run it in the
+  definition of done of any widget work; `-Kinds a,b` for the ones you touched, `-Write` only after
+  fixing offenders.
+
+Both lists only shrink and end empty. A widget that needs something the blocks lack (a row look, a
+chart variant) gets it as a block change first, in its own SDK commit with tests (4.1).
