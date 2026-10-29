@@ -5764,7 +5764,7 @@ window. One apply path: `DesignApplier.Apply(design)` (app-wide: theme, accent, 
 runs first on every state change (`AppHost` subscribes it before any surface), then each card's
 `WidgetCard.ApplyDesign` (fill, border, header fill, radius, font scope). Nothing is rebuilt: no
 card is re-created, no tick restarts. Pure rules live in Core (`DesignLook`, `DesignPresets`,
-`FluentType.StepsAt`), tested in `DesignEngineTests`.
+`FamilyType.StepsAt`), tested in `DesignEngineTests`.
 
 - **[S-820]** Accent override. Empty = the Windows accent (`UISettings` Accent, AccentDark1..3,
   AccentLight1..3). A colour of the user's own is walked into seven shades (HSL lightness, hue and
