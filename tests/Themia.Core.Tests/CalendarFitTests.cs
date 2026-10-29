@@ -24,34 +24,46 @@ public sealed class CalendarFitTests
 
     // ---- [S-2702] month ----------------------------------------------------------------------------
 
+    // The tiers' month boxes: the card less its 16 inset either side, the header and the bottom inset.
     [Theory]
-    [InlineData(120, 76, WeekdayLabel.None, MonthDensity.Number, 0)]     // XS: the numbers are the month
-    [InlineData(200, 106, WeekdayLabel.Initials, MonthDensity.Number, 0)] // S
-    [InlineData(320, 196, WeekdayLabel.Initials, MonthDensity.Chips, 1)]  // M
-    [InlineData(200, 356, WeekdayLabel.Initials, MonthDensity.Dots, 0)]   // Tall: cells too narrow for words
-    [InlineData(560, 376, WeekdayLabel.Short, MonthDensity.Chips, 3)]     // L
-    [InlineData(800, 516, WeekdayLabel.Short, MonthDensity.Chips, 4)]     // XL: roomy chip lines
-    public void S2702_AMonthShedsWithinItself(double width, double height, WeekdayLabel weekdays, MonthDensity density, int chips)
+    [InlineData(88, 60, WeekdayLabel.None, MonthDensity.Number, 0, 3)]       // XS: the weeks that fit
+    [InlineData(168, 90, WeekdayLabel.None, MonthDensity.Number, 0, 5)]      // S: every week, no header
+    [InlineData(288, 136, WeekdayLabel.Initials, MonthDensity.Dots, 0, 5)]   // M
+    [InlineData(448, 56, WeekdayLabel.None, MonthDensity.Number, 0, 3)]      // Wide
+    [InlineData(168, 340, WeekdayLabel.Initials, MonthDensity.Dots, 0, 5)]   // Tall: cells too narrow for words
+    [InlineData(528, 316, WeekdayLabel.Short, MonthDensity.Chips, 2, 5)]     // L
+    [InlineData(768, 456, WeekdayLabel.Short, MonthDensity.Chips, 3, 5)]     // XL
+    public void S2702_AMonthShedsWithinItself(double width, double height, WeekdayLabel weekdays, MonthDensity density, int chips, int rows)
     {
-        var fit = CalendarFit.Month(width, height, rows: 5);
+        var fit = CalendarFit.Month(width, height, rows: 5, focusRow: 4);
 
-        Assert.Equal(5, fit.Rows);
+        Assert.Equal(rows, fit.Rows);
         Assert.Equal(weekdays, fit.Weekdays);
         Assert.Equal(density, fit.Density);
         Assert.Equal(chips, fit.ChipLines);
         Assert.Equal(height, fit.HeaderHeight + (fit.Rows * fit.CellHeight), 6);
+        Assert.True(fit.CellHeight >= FluentType.Caption.LineHeight, "a number's Caption line is never squeezed");
+    }
+
+    [Fact]
+    public void S2702_a_box_too_short_for_every_week_keeps_the_focused_one_among_those_it_shows()
+    {
+        Assert.Equal(2, CalendarFit.Month(88, 60, rows: 5, focusRow: 4).FirstRow);   // rows 2..4
+        Assert.Equal(0, CalendarFit.Month(88, 60, rows: 5, focusRow: 0).FirstRow);
+        Assert.Equal(1, CalendarFit.Month(88, 60, rows: 5, focusRow: 2).FirstRow);   // centred: 1..3
+        Assert.Equal(0, CalendarFit.Month(288, 136, rows: 5, focusRow: 4).FirstRow);
     }
 
     [Fact]
     public void S2702_ChipTimesFromWideCellsAndWeekdayLettersByColumn()
     {
-        Assert.True(CalendarFit.Month(800, 516, 5).Times);
-        Assert.False(CalendarFit.Month(560, 376, 5).Times);
+        Assert.True(CalendarFit.Month(768, 456, 5).Times);
+        Assert.False(CalendarFit.Month(528, 316, 5).Times);
         Assert.Equal(WeekdayLabel.Narrow, CalendarFit.Weekdays(15));
         Assert.Equal(WeekdayLabel.None, CalendarFit.Weekdays(8));
-        Assert.True(CalendarFit.Month(480, 116, 5).InlineDots);  // Wide: dots beside the numbers
-        Assert.False(CalendarFit.Month(200, 106, 5).InlineDots); // S: too narrow
-        Assert.False(CalendarFit.Month(320, 196, 5).InlineDots);
+        Assert.True(CalendarFit.Month(448, 56, 5).InlineDots);   // Wide: dots beside the numbers
+        Assert.False(CalendarFit.Month(168, 90, 5).InlineDots);  // S: too narrow
+        Assert.False(CalendarFit.Month(288, 136, 5).InlineDots);
     }
 
     [Theory]

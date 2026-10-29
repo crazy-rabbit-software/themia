@@ -491,21 +491,6 @@ public static class CalendarRules
     // ---- layout ------------------------------------------------------------------------------
 
     /// <summary>
-    /// [S-572] How many chips fit in a month cell of a given height: what is left under the day
-    /// number, in whole chips, at least one and at most six (past which a cell is noise).
-    /// </summary>
-    public static int ChipCapacity(double cellHeight, double numberHeight, double chipHeight)
-    {
-        if (!double.IsFinite(cellHeight) || cellHeight <= 0 || chipHeight <= 0)
-        {
-            return 2;
-        }
-
-        var fit = (int)Math.Floor((cellHeight - numberHeight) / chipHeight);
-        return Math.Clamp(fit, 1, 6);
-    }
-
-    /// <summary>
     /// [S-573] Side-by-side lanes for overlapping timed events in the day view, so none hides
     /// another. Each run of mutually-overlapping events shares one column count; touching events
     /// (one ends as the next starts) do not overlap. Results are in input order.
@@ -566,12 +551,6 @@ public static class CalendarRules
     public const int TimelineFirstHour = 7;
 
     public const int TimelineEndHour = 22;
-
-    /// <summary>[S-572] How a month cell draws its events at a given cell size.</summary>
-    public static MonthDensity MonthCellDensity(double cellWidth, double cellHeight)
-        => cellWidth >= 40 && cellHeight >= 34 ? MonthDensity.Chips
-            : cellHeight >= 24 ? MonthDensity.Dots
-            : MonthDensity.Number;
 
     // ---- provider datetimes ------------------------------------------------------------------
 

@@ -2,6 +2,7 @@ using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
 using Themia.Sdk;
+using Themia.Sdk.Kit;
 
 namespace Themia.Core.Office;
 
@@ -44,12 +45,18 @@ public enum WeekdayLabel
 }
 
 /// <summary>
-/// [S-2702] What a month grid of a given box draws: its week rows, the weekday header, the cell
-/// height, how the cells show their days ([S-572]), how many chip lines a cell holds, and whether a
-/// chip leads with its start time. A cell too short for dots under its number but wide enough for
-/// them beside it (a wide, short tile) puts them there (<c>InlineDots</c>).
+/// [S-2702] What a month grid of a given box draws: the week rows it shows (<c>Rows</c> of them from
+/// <c>FirstRow</c>: every week of the month, or on a box too short for them the weeks around the
+/// focused one), the weekday header, the cell height, how the cells show their days ([S-572]), how
+/// many chip lines a cell holds, and whether a chip leads with its start time. A cell too short for
+/// dots under its number but wide enough for them beside it (a wide, short tile) puts them there
+/// (<c>InlineDots</c>).
 /// </summary>
-public sealed record MonthFit(int Rows, WeekdayLabel Weekdays, double HeaderHeight, double CellHeight, MonthDensity Density, int ChipLines, double ChipLine, bool Times, bool InlineDots);
+public sealed record MonthFit(int Rows, WeekdayLabel Weekdays, double HeaderHeight, double CellHeight, MonthDensity Density, int ChipLines, double ChipLine, bool Times, bool InlineDots)
+{
+    /// <summary>The first week row shown (0 unless the box holds fewer rows than the month has).</summary>
+    public int FirstRow { get; init; }
+}
 
 /// <summary>
 /// [S-2703] One item of a week row as a bar: the columns it covers (clipped to the row), the line
@@ -101,19 +108,20 @@ public static class CalendarFit
     /// <summary>[S-1264] A month chip leads with its start time once a cell is this wide (the classic S-44).</summary>
     public const double ChipTimeFrom = 100;
 
-    /// <summary>A chip's line with its gap, and a tall cell's roomier one ([S-1264]).</summary>
-    public static double ChipLine => FluentType.Caption.LineHeight + 1;
-
-    public static double RoomyChipLine => FluentType.Caption.LineHeight + 4;
-
-    /// <summary>A cell from this height gets the roomier chip line.</summary>
-    public const double RoomyCellFrom = 90;
+    /// <summary>[S-1264] A chip's line: the chip (a Caption line) and the family's 4 under it.</summary>
+    public static double ChipLine => FluentType.Caption.LineHeight + FamilySpace.S1;
 
     /// <summary>[S-2702] A number-only cell this wide holds its dots beside the number.</summary>
     public const double InlineDotsFrom = 48;
 
-    /// <summary>A month cell's own margin, padding and gap under its number, which chips cannot use.</summary>
-    public const double MonthCellChrome = 4;
+    /// <summary>A month cell's padding over its number (the family's 4), which chips cannot use.</summary>
+    public const double MonthCellChrome = FamilySpace.S1;
+
+    /// <summary>[S-572] A day's dot: the track's thickness, 4 from its neighbour and from the number.</summary>
+    public const double Dot = FamilyShape.Track;
+
+    /// <summary>[S-572] Under this column width a cell shows no chips.</summary>
+    public const double ChipsFromWidth = 40;
 
     /// <summary>
     /// [S-1264] How many week rows a month needs: the weeks holding one of its days (four to six).
@@ -134,11 +142,14 @@ public static class CalendarFit
             : WeekdayLabel.None;
 
     /// <summary>
-    /// [S-2702] The month grid for a box: only the weeks holding a day of the month; the weekday
-    /// header while the cells keep a day number's line under it (else the header goes first, the
-    /// numbers are the month); then chips, dots or the number alone by the cell ([S-572]).
+    /// [S-2702] The month grid for a box: the weekday header where it and every row's number line fit,
+    /// the rows sharing what is left; on a box too short for every week's number line (a Caption line,
+    /// never squeezed) the weeks that fit, the focused one (today's) among them. A cell shows chips
+    /// where its column is 40 wide and it holds its number and a chip line under its padding, dots
+    /// where it holds the number and a dot under it, else the number alone.
     /// </summary>
-    public static MonthFit Month(double width, double height, int rows)
+    /// <param name="focusRow">The week row to keep when not every row fits (today's, else the first).</param>
+    public static MonthFit Month(double width, double height, int rows, int focusRow = 0)
     {
         rows = Math.Clamp(rows, 4, 6);
         var line = FluentType.Caption.LineHeight;
@@ -157,12 +168,18 @@ public static class CalendarFit
             labels = WeekdayLabel.None;
         }
 
-        var cellHeight = room.Remaining / rows;
-        var density = CalendarRules.MonthCellDensity(columnWidth, cellHeight);
-        var chipLine = cellHeight >= RoomyCellFrom ? RoomyChipLine : ChipLine;
-        var chipLines = density == MonthDensity.Chips ? CalendarRules.ChipCapacity(cellHeight - MonthCellChrome, line, chipLine) : 0;
+        var shown = Math.Clamp(Disclosure.WholeRows(room.Remaining, line), 1, rows);
+        var first = shown >= rows ? 0 : Math.Clamp(focusRow - ((shown - 1) / 2), 0, rows - shown);
+        var cellHeight = room.Remaining / shown;
+        var density = columnWidth >= ChipsFromWidth && cellHeight >= MonthCellChrome + line + ChipLine ? MonthDensity.Chips
+            : cellHeight >= MonthCellChrome + line + Dot ? MonthDensity.Dots
+            : MonthDensity.Number;
+        var chipLines = density == MonthDensity.Chips ? Math.Clamp((int)Math.Floor((cellHeight - MonthCellChrome - line + Disclosure.Tolerance) / ChipLine), 1, 6) : 0;
 
-        return new MonthFit(rows, labels, header, cellHeight, density, chipLines, chipLine, density == MonthDensity.Chips && columnWidth >= ChipTimeFrom, density == MonthDensity.Number && columnWidth >= InlineDotsFrom);
+        return new MonthFit(shown, labels, header, cellHeight, density, chipLines, ChipLine, density == MonthDensity.Chips && columnWidth >= ChipTimeFrom, density == MonthDensity.Number && columnWidth >= InlineDotsFrom)
+        {
+            FirstRow = first,
+        };
     }
 
     // ---- bars ([S-2703]) ---------------------------------------------------------------------------
