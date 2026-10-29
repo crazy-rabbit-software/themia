@@ -62,6 +62,9 @@ public sealed partial class FamilyGuardTests
     [GeneratedRegex(@"""(\w+Brush)""")]
     private static partial Regex BrushKey();
 
+    [GeneratedRegex(@"\b(ShellMetrics|ShellRoles?|ShellColours|ShellBrush)\.\w+")]
+    private static partial Regex ShellToken();
+
     [GeneratedRegex(@"\s+")]
     private static partial Regex Spaces();
 
@@ -95,6 +98,12 @@ public sealed partial class FamilyGuardTests
 
         // The one place a data colour (a user's, a calendar's) becomes a brush (HexBrush, under Family.Data): the colour rule's marked exception.
         var dataEntry = relative.EndsWith("/Shell/HexBrush.cs", StringComparison.Ordinal);
+
+        // [S-6747] The colours that are no role and no data (a shadow's black, a backdrop's clear, the motion effects' art): their one file.
+        var fixedEntry = relative.EndsWith("/Shell/ShellColours.cs", StringComparison.Ordinal);
+
+        // [S-6747] The chrome's own tokens are the shell's: a module or one of the family's blocks may not name them (nor ShellBrush, which draws them).
+        var widgetPart = relative.StartsWith("src/Widgets/", StringComparison.Ordinal) || relative.StartsWith("src/Themia.Sdk.WinUI/Kit/", StringComparison.Ordinal);
 
         foreach (var raw in code.Split('\n'))
         {
@@ -175,9 +184,17 @@ public sealed partial class FamilyGuardTests
 
             foreach (Match m in Colour().Matches(line))
             {
-                if (!dataEntry)
+                if (!dataEntry && !fixedEntry)
                 {
                     yield return ("colour", Clean(m.Value));
+                }
+            }
+
+            if (widgetPart)
+            {
+                foreach (Match m in ShellToken().Matches(line))
+                {
+                    yield return ("shell", m.Value);
                 }
             }
 
@@ -294,5 +311,30 @@ public sealed partial class FamilyGuardTests
                 ("ramp", "HeroFit.Figures"), ("opacity", "Opacity = 0.5"), ("colour", "Colors.Red"), ("brush", "AccentTextFillColorPrimaryBrush"), ("colour", "\"#FF8800\""),
             ],
             found);
+    }
+
+    [Fact]
+    public void S6747_the_chromes_tokens_are_the_shells_and_its_fixed_colours_have_one_file()
+    {
+        const string code = """
+            menu.Width = ShellMetrics.Menu.Width;
+            frame.Background = ShellBrush.Of(ShellRole.Flyout);
+            shadow.Color = ShellColours.Shadow;
+            plate.Brush = compositor.CreateColorBrush(Colors.Black);
+            button.Resources[prefix + nameof(Control.BorderBrush)] = clear;
+            """;
+
+        // In the shell: its own tokens pass; a colour made outside ShellColours does not.
+        Assert.Equal([("colour", "Colors.Black")], Offences("src/Themia.App/Shell/FlyoutSurface.cs", code).ToList());
+
+        // A widget or one of the family's blocks may not draw with the chrome's tokens.
+        Assert.Equal(
+            [("shell", "ShellMetrics.Menu"), ("shell", "ShellBrush.Of"), ("shell", "ShellRole.Flyout"), ("shell", "ShellColours.Shadow"), ("colour", "Colors.Black")],
+            Offences("src/Widgets/Themia.Widget.Sample/SampleView.cs", code).ToList());
+        Assert.Contains(("shell", "ShellRole.Flyout"), Offences("src/Themia.Sdk.WinUI/Kit/Family/RowBlock.cs", code));
+
+        // Its one file may make a colour from numbers; nothing else may.
+        Assert.Empty(Offences("src/Themia.Sdk.WinUI/Shell/ShellColours.cs", "public static Color Shadow { get; } = Color.FromArgb(0xFF, 0, 0, 0);"));
+        Assert.Single(Offences("src/Themia.App/Shell/ShellColours2.cs", "public static Color Shadow { get; } = Color.FromArgb(0xFF, 0, 0, 0);"));
     }
 }

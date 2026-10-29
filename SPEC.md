@@ -1008,6 +1008,29 @@ module author's guide is docs/WIDGET-KIT.md 16.
   hairline split in the Track role across its middle. The step is chosen as a Readout's: the largest
   the widget may take on which the cards, their gaps and what stands beside the row fit the width and
   the line and its line under fit the height, never below 28.
+- **[S-6745]** **The shell's measurements** (`ShellMetrics`, `Themia.Sdk/Kit/Family/ShellTokens.cs`): the
+  app's own chrome is drawn from the family's tokens like a widget, its own spacings on the scale; what
+  Windows or Karpo measure for a piece of chrome and the family has no token for is named there, each
+  with where it comes from, and nowhere else: Windows' overlay radius 8 and its menu chevron 12, a
+  flyout's shadow (elevation 32, 8 down, blurred 32, 18 % light / 42 % dark), Karpo's menu (320 × 440,
+  rows 32 apart with a 28 fill inset 5, its switch 40 × 20 with a 12 knob, the top row's 40 squares,
+  [S-3734]), Karpo's edit bar (48 tall, 36 buttons in a 6 padding, [S-3500]), the view bar's squares
+  ([S-911]), Windows' toast width 364 ([S-881]), the error details' 320 × 240 ([S-891]), the layout
+  editor's window (a 48 title bar, a page at most 1000 wide inset 36, sections 30 under and 6 over,
+  Windows' settings page) and the pickers' cells. Tests `ShellTokensTests` pin them: the menu's
+  rectangle and rows must not change.
+- **[S-6746]** **The shell's colours** are roles too (`ShellRole`, its one table `ShellRoles`; drawn
+  with `ShellBrush.Of`): a flyout's solid sheet and its stroke, the edit bar's acrylic, a
+  raised sheet (a notice), a window's layer, the card's own base, fill and stroke, accent words on the
+  chrome, the accent pointed at, pressed and disabled, a control pointed at, a drawn switch's track and
+  rim, a strong fill (the resize marks). None is a widget's colour role ([S-6705]).
+- **[S-6747]** **The guard's shell rules** ([S-6730]): a module or one of the family's blocks
+  (`Themia.Sdk.WinUI/Kit`) that names `ShellMetrics`, `ShellRole`(`s`), `ShellBrush` or `ShellColours` fails it. A
+  colour is made from numbers in two files only: `HexBrush` (a data colour, the user's design, a
+  stored colour's swatch and the ink drawn on it, a role's 16 % wash under its stroke: the rubber band,
+  a placing outline) and `ShellColours` (the colours that are no role and no data: a shadow's black,
+  a see-through backdrop's clear, Windows' default accent where the custom colour dialog starts, the
+  motion effects' own palettes: the hacker tiles' phosphor, the warp's black space and its stars).
 - **[S-6720]** The blocks replace the SDK's older parts as each widget group moves onto them, in
   place, never beside them (the order is the family's phase plan): the card's header is the Header
   block now and `Fluent.Header` is gone; the Set up row is the Status block now. `KitHeader`,
