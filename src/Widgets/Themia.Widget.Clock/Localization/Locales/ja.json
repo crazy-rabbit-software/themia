@@ -1,7 +1,4 @@
 {
-  "clockText.large": "大",
-  "clockText.sizeLabel": "場所と日付のサイズ",
-  "clockText.small": "小",
   "clock.dateLabel": "日付を表示",
   "clock.offsetLabel": "時差",
   "clock.secondsLabel": "秒を表示",

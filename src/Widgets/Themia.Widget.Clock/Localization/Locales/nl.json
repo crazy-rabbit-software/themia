@@ -1,7 +1,4 @@
 {
-  "clockText.large": "Groot",
-  "clockText.sizeLabel": "Grootte van plaats en datum",
-  "clockText.small": "Klein",
   "clock.dateLabel": "Datum weergeven",
   "clock.offsetLabel": "Verschil",
   "clock.secondsLabel": "Seconden weergeven",

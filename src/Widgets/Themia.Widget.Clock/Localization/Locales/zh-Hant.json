@@ -1,7 +1,4 @@
 {
-  "clockText.large": "大",
-  "clockText.sizeLabel": "地點和日期大小",
-  "clockText.small": "小",
   "clock.dateLabel": "顯示日期",
   "clock.offsetLabel": "時差",
   "clock.secondsLabel": "顯示秒數",

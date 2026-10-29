@@ -3,6 +3,7 @@ using Themia.Core.Model;
 using Themia.Core.Widgets;
 using Themia.Core.Tests;
 using Themia.Sdk;
+using Themia.Sdk.Kit;
 using Xunit;
 
 namespace Themia.Widget.Clock.Tests;
@@ -14,11 +15,17 @@ public class ClockDateStyleTests
 
     public static TheoryData<string> Tiers() => [.. WidgetTiers.All.Select(t => t.Name)];
 
-    /// <summary>A tier's content area as the clock lays it out (the card less the clock's inset).</summary>
-    private static WidgetArea Box(string tier)
+    /// <summary>A tier as the clock lays it out: the card's area, and its content box (the card less its inset of 16 on every side).</summary>
+    private static (WidgetArea Area, double Width, double Height) Box(string tier)
     {
         var t = WidgetTiers.All.Single(x => x.Name == tier);
-        return new WidgetArea(t.Width - 32, t.Height - 16);
+        return (new WidgetArea(t.Width, t.Height), t.Width - 32, t.Height - 32);
+    }
+
+    private static ClockDatePlan Plan(string tier)
+    {
+        var (area, width, height) = Box(tier);
+        return ClockFace.Date(area, width, height);
     }
 
     [Fact]
@@ -36,39 +43,39 @@ public class ClockDateStyleTests
 
     [Theory]
     [MemberData(nameof(Tiers))]
-    public void S5301_every_tier_shows_the_day_and_never_more_than_fits(string tier)
+    public void S6744_every_tier_shows_the_day_on_a_family_step_and_never_more_than_fits(string tier)
     {
-        var box = Box(tier);
-        var plan = DateLayout.Plan(box);
+        var (_, width, height) = Box(tier);
+        var plan = Plan(tier);
+        var line = FamilyType.Under(plan.Step);
 
-        Assert.True(plan.Number.FontSize >= FluentType.Subtitle.FontSize, $"{tier}: day {plan.Number.FontSize}");
+        Assert.True(FamilyType.BaseOf(plan.Step) >= 28, $"{tier}: day {plan.Step.FontSize}");
+        Assert.Contains(FamilyType.BaseOf(plan.Step), new double[] { 28, 40, 68, 96, 136, 192 });
 
         if (plan.Face == DateFace.Column)
         {
-            var used = plan.Number.LineHeight
-                + (plan.Weekday ? plan.WeekdayStep.LineHeight : 0)
-                + (plan.Month ? plan.MonthStep.LineHeight : 0);
-            Assert.True(used <= box.Height + Disclosure.Tolerance, $"{tier}: {used} > {box.Height}");
+            var used = plan.Step.LineHeight + (plan.Weekday ? line.LineHeight : 0) + (plan.Month ? line.LineHeight : 0);
+            Assert.True(used <= height, $"{tier}: {used} > {height}");
         }
         else
         {
-            Assert.True(plan.Number.LineHeight <= box.Height + Disclosure.Tolerance, tier);
-            Assert.True(plan.TextWidth > 0, tier);
+            Assert.True(plan.Step.LineHeight <= height, tier);
+            Assert.True(plan.WordsWidth > 0 && plan.WordsWidth < width, tier);
         }
     }
 
     [Fact]
-    public void S5301_a_strip_puts_the_words_beside_the_day_and_a_larger_tile_a_larger_day()
+    public void S6744_a_strip_puts_the_words_beside_the_day_and_a_larger_tile_a_larger_step()
     {
-        Assert.Equal(DateFace.Row, DateLayout.Plan(Box("Wide")).Face);
-        Assert.Equal(DateFace.Column, DateLayout.Plan(Box("M")).Face);
-        Assert.Equal(DateFace.Column, DateLayout.Plan(Box("Tall")).Face);
+        Assert.Equal(DateFace.Row, Plan("Wide").Face);
+        Assert.Equal(DateFace.Column, Plan("M").Face);
+        Assert.Equal(DateFace.Column, Plan("Tall").Face);
 
-        var m = DateLayout.Plan(Box("M"));
-        var l = DateLayout.Plan(Box("L"));
-        var xl = DateLayout.Plan(Box("XL"));
-        Assert.True(l.Number.FontSize > m.Number.FontSize);
-        Assert.True(xl.Number.FontSize > l.Number.FontSize);
+        var m = Plan("M");
+        var l = Plan("L");
+        var xl = Plan("XL");
+        Assert.True(l.Step.FontSize > m.Step.FontSize);
+        Assert.True(xl.Step.FontSize >= l.Step.FontSize);
 
         // [S-666] Concise: the extra room goes to the date itself, both words shown from M up.
         Assert.True(m.Weekday && m.Month);
@@ -78,11 +85,10 @@ public class ClockDateStyleTests
     [Fact]
     public void S5302_a_narrow_tile_shortens_the_names()
     {
-        var narrow = DateLayout.Plan(Box("XS"));
-        Assert.True(narrow.ShortWeekday);
-        Assert.True(DateLayout.Plan(new WidgetArea(56, 120)).ShortMonth);
+        Assert.True(Plan("XS").ShortWeekday);
+        Assert.True(ClockFace.Date(new WidgetArea(88, 152), 56, 120).ShortMonth);
 
-        var wide = DateLayout.Plan(Box("M"));
+        var wide = Plan("M");
         Assert.False(wide.ShortWeekday);
         Assert.False(wide.ShortMonth);
 

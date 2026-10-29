@@ -2859,8 +2859,8 @@ widget on the properties panel ([S-6007], its one place, [S-6536]). Owning files
   only, [S-1542].)*
 - **[S-6074]** The options each kind offers only in some styles or states: Mail: Subject/Account in List
   and Compact, Preview lines in List, the columns in Table. Folder: [S-4121]. Calendar: [S-3641].
-  Clock: Seconds in Digital, Analog, Stacked and Flip; Date and Offset in all but Minimal and Date,
-  and Text size there only while a city's label, the date or an offset is drawn ([S-1476]). Quote: Shuffle and
+  Clock: Seconds in Digital, Analog, Stacked and Flip; Date and Offset in all but Minimal and Date
+  (its own Text size is gone, [S-1476]). Quote: Shuffle and
   Refresh with two quotes or more, Reshuffle with Shuffle on too. Gallery: a folder's rows (folder, subfolders, pictures, shuffle, Explorer) for the
   folder source, the slide time for its Slideshow, Picture size for Slideshow and Grid (Scatter and
   Mosaic always crop), for a picture file without an outline and for the photo of the day; a
@@ -3425,26 +3425,15 @@ removed, [S-1863]). Sizing rules live in Core with tests in
   beside it or under it by `ReadoutRules.Fold`, [S-6707]; the session is the line under it.)*
 - **[S-658]** A forecast row on a content narrower than 120 (the smallest tile) is the day and its high, and no
   row leads (they all lead or none do, [S-6711]); the sky's glyph and the low come back from 120 ([S-725]).
-- **[S-659]** **A readout that is the whole tile fills it** (`HeroFit`; user request 2026-10-17: the
-  clock and the weather left a wide band between their content and the card's edge). The clock's
-  time (Digital, Stacked, Minimal, and the Flip cards' digits) is measured by its glyphs, not by 0.58em a character:
-  `HeroFit.Ems` takes Segoe UI Variable's advances by class (digit 0.58, colon or stop 0.25, space
-  0.28, "-" 0.41, "°" 0.39, capital 0.72, "M"/"W" 0.95, small letter 0.56, an unknown script 1 em,
-  a combining mark 0), the widest over its weights and optical sizes. The clock's row is "88:88"
-  (or "88:88:88") and, after the row's gap, the language's wider meridiem at its own step
-  (`HeroFit.Row`: the largest time whose meridiem, the largest ramp step whose line is within 0.45
-  of the time's size, Caption..Title, fits beside it); it was laid out for "12:34" plus three
-  full-size letters and drew "10:42 AM" across 61 % of the M tile. Below TitleLarge the size is a
-  ramp step; from TitleLarge it is continuous, the size at which the readout fills the width or a
-  1.15 line (`HeroFit.Leading`, figures set solid: digits have no descenders) fills the height,
-  with no ceiling (the weather's temperature left the fill with group G3: it is a Readout, [S-6702]).
-  The meridiem sits on the digits'
-  baseline (`HeroFit.BaselineDrop`: a line's baseline stands 0.19 of it above its bottom). Only
-  the rungs ([S-660]) and the card's inset take room from the fill; lists, charts and the other
-  heroes keep their ladders. The widget's own scale ([S-6532]) lays the content out in the card
-  less that scale, so a filled readout still fills its card at every scale: the scale magnifies
-  the header, the date, the label and the inset round it, and so takes room from it at 150 % and
-  gives room at 75 %. The word clock keeps its own rule ([S-6013]); the analog dial fills by its geometry.
+- **[S-659]** *(Retired, group G5, 2026-10-29: a readout no longer fills its tile. The clock's time
+  was its last user (`HeroFit.Row`, `Stacked`, `Figures`, `BaselineDrop`, the solid leading, the 0.45
+  meridiem): it is on the Hero steps now ([S-6702], [S-6737], the clock's [S-6741]..[S-6744]), so a
+  larger card sets it on a larger fixed step and the room past the step is left empty ([S-666]).)*
+  What stays is the measure: `HeroFit.Ems` takes Segoe UI Variable's advances by class (digit 0.58,
+  colon or stop 0.25, space 0.28, "-" 0.41, "°" 0.39, capital 0.72, "M"/"W" 0.95, small letter 0.56,
+  an unknown script 1 em, a combining mark 0), the widest over its weights and optical sizes, so a
+  readout's width is judged by its glyphs ([S-6702]).
+
 
 Known and left: sparklines grow in from the right for their first minute by design ([Sparkline]);
 the scrolling lists (feed, folder) show a partial last row at

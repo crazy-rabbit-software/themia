@@ -2,6 +2,7 @@ using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Time;
 using Themia.Core.Widgets;
+using Themia.Sdk.Kit;
 using Xunit;
 
 namespace Themia.Widget.Clock.Tests;
@@ -162,8 +163,9 @@ public class ClockFormatterTests
         Assert.Equal("AM", ClockFormatter.WidestMeridiem(Locale.En));
         Assert.True(HeroFit.Ems(ClockFormatter.WidestMeridiem(Locale.Ta)) > 2 * HeroFit.Ems("PM"));
 
-        var english = HeroFit.Row(288, 400, false, ClockFormatter.WidestMeridiem(Locale.En), 4);
-        var tamil = HeroFit.Row(288, 400, false, ClockFormatter.WidestMeridiem(Locale.Ta), 4);
-        Assert.True(tamil.Time.FontSize < english.Time.FontSize);
+        var area = new WidgetArea(320, 432);
+        var english = ClockFace.Readout(area, 288, 400, ClockStyle.Digital, false, ClockFormatter.WidestMeridiem(Locale.En), under: true);
+        var tamil = ClockFace.Readout(area, 288, 400, ClockStyle.Digital, false, ClockFormatter.WidestMeridiem(Locale.Ta), under: true);
+        Assert.True(FamilyType.BaseOf(tamil.Step) < FamilyType.BaseOf(english.Step));
     }
 }

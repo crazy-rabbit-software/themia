@@ -1,7 +1,4 @@
 {
-  "clockText.large": "Крупный",
-  "clockText.sizeLabel": "Размер места и даты",
-  "clockText.small": "Мелкий",
   "clock.dateLabel": "Показывать дату",
   "clock.offsetLabel": "Смещение",
   "clock.secondsLabel": "Показывать секунды",

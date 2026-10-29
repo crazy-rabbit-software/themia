@@ -1,9 +1,6 @@
 {
   "$englishOnly": [],
   "$comment": "[S-6020] The Clock's word style. wordClock.hours: one or more hour forms separated by ';', each 12 entries (index 0 = twelve, then one..eleven) or 24 entries (index 0 = midnight .. 23) separated by '|'. wordClock.mNN: the sentence for NN minutes past the hour (rounded to the nearest five). In a sentence [h] is the hour in form 1, [n] the next hour in form 1, [h2]/[n2] form 2, and so on. The first letter of the result is capitalised.",
-  "clockText.large": "Large",
-  "clockText.sizeLabel": "Label and date size",
-  "clockText.small": "Small",
   "clock.dateLabel": "Show date",
   "clock.offsetLabel": "Offset",
   "clock.secondsLabel": "Show seconds",

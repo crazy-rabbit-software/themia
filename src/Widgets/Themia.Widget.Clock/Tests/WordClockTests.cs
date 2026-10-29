@@ -1,6 +1,7 @@
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
+using Themia.Sdk.Kit;
 using Xunit;
 
 namespace Themia.Widget.Clock.Tests;
@@ -117,12 +118,18 @@ public sealed class WordClockTests
         var sample = WordClock.Longest(Locale.En);
         Assert.True(sample.Length >= "It's twenty-five past eleven".Length - 2);
 
-        var small = WordClock.Fit(150, 80, sample, FluentType.Caption);
-        var large = WordClock.Fit(600, 400, sample, FluentType.Caption);
+        var small = WordClock.Fit(150, 80, sample);
+        var large = WordClock.Fit(600, 400, sample);
 
         Assert.True(large.FontSize > small.FontSize);
         Assert.True(WordClock.Lines(sample, 150, small) * small.LineHeight <= 80);
         Assert.True(WordClock.Lines(sample, 600, large) * large.LineHeight <= 400);
+
+        // [S-6024] Only the family's steps, Body to 68, never a Hero step for a sentence; the line under counted.
+        Assert.Contains(large, WordClock.Steps);
+        Assert.Equal(FamilyType.Big68, WordClock.Fit(4000, 4000, sample));
+        Assert.Equal(FamilyType.Body, WordClock.Fit(40, 20, sample));
+        Assert.True(FamilyType.BaseOf(WordClock.Fit(600, 200, sample, under: true)) <= FamilyType.BaseOf(WordClock.Fit(600, 200, sample)));
     }
 
     [Fact]

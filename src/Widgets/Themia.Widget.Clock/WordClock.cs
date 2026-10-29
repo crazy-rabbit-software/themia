@@ -1,6 +1,7 @@
 using System.Collections.Concurrent;
 using Themia.Core.Diagnostics;
 using Themia.Core.Localization;
+using Themia.Sdk.Kit;
 using Themia.Widget.Clock;
 
 namespace Themia.Core.Widgets;
@@ -93,27 +94,24 @@ public static class WordClock
     });
 
     /// <summary>
-    /// [S-6024] The largest type step at which <paramref name="sample"/>, wrapped at words, fits
-    /// the box: the ramp's steps while it is small, then <see cref="FluentType.TitleLarge"/> scaled
-    /// (as <see cref="FluentType.Hero"/> does). Never below <paramref name="floor"/>. A script without
-    /// spaces (Chinese, Japanese, Thai) wraps anywhere, as the text block does.
+    /// [S-6024] The largest family step (Body, Title, then the Readout's 28, 40 and 68: a sentence, never a Hero
+    /// step) at which <paramref name="sample"/>, wrapped at words, fits the box with the line under it when the
+    /// face has one (<see cref="FamilyType.Under"/>). Never below Body. A script without spaces (Chinese,
+    /// Japanese, Thai) wraps anywhere, as the text block does.
     /// </summary>
-    public static TypeStep Fit(double width, double height, string sample, TypeStep floor)
+    public static TypeStep Fit(double width, double height, string sample, bool under = false)
     {
         ArgumentNullException.ThrowIfNull(sample);
 
+        var chosen = FamilyType.Body;
         if (!double.IsFinite(width) || !double.IsFinite(height) || width <= 0 || height <= 0)
         {
-            return floor;
+            return chosen;
         }
 
-        // The ramp's average advance is a regular weight's; the large steps are semibold and wider,
-        // and a word the estimate lets through by a hair is broken mid-word by the text block.
-        var room = width * WidthMargin;
-        var chosen = floor;
-        foreach (var step in Candidates())
+        foreach (var step in Steps)
         {
-            if (step.FontSize >= floor.FontSize && Lines(sample, room, step) * step.LineHeight <= height)
+            if (Holds(width, height, sample, step, under))
             {
                 chosen = step;
             }
@@ -122,21 +120,19 @@ public static class WordClock
         return chosen;
     }
 
-    private static IEnumerable<TypeStep> Candidates()
+    /// <summary>[S-6024] Whether <paramref name="sample"/> wrapped on <paramref name="step"/> (and the line under it) fits the box.</summary>
+    public static bool Holds(double width, double height, string sample, TypeStep step, bool under)
     {
-        foreach (var step in FluentType.Ramp)
-        {
-            if (step.FontSize <= FluentType.TitleLarge.FontSize)
-            {
-                yield return step;
-            }
-        }
+        ArgumentNullException.ThrowIfNull(sample);
 
-        for (var factor = 1.1; factor <= 8; factor += 0.1)
-        {
-            yield return FluentType.Scaled(FluentType.TitleLarge, factor);
-        }
+        // The average advance is a regular weight's; the large steps are semibold and wider, and a word
+        // the estimate lets through by a hair is broken mid-word by the text block.
+        var tall = (Lines(sample, width * WidthMargin, step) * step.LineHeight) + (under ? FamilyType.Under(step).LineHeight : 0);
+        return tall <= height;
     }
+
+    /// <summary>[S-6024] The steps the sentence may take, smallest first.</summary>
+    public static IReadOnlyList<TypeStep> Steps => [FamilyType.Body, FamilyType.Title, .. FamilyType.Big];
 
     /// <summary>[S-6024] How many lines <paramref name="text"/> wraps to at <paramref name="step"/> in <paramref name="width"/>.</summary>
     public static int Lines(string text, double width, TypeStep step)

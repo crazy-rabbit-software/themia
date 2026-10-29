@@ -25,23 +25,11 @@ public enum ClockStyle
     /// <summary>[S-6013] The time in words, in five-minute steps ("It's quarter past ten").</summary>
     Word = 4,
 
-    /// <summary>[S-6014] The time alone, in a thin weight: no date, label, seconds or offset.</summary>
+    /// <summary>[S-6014] The time alone, in the regular weight: no date, label, seconds or offset.</summary>
     Minimal = 5,
 
     /// <summary>[S-5300] The day without the time: the weekday, the day of the month large, the month.</summary>
     Date = 6,
-}
-
-/// <summary>
-/// [S-1476] How large the clock sets the place label and the date (and the offset line) against
-/// the time: a step of the type ramp down or up, never a free size.
-/// </summary>
-[JsonConverter(typeof(JsonStringEnumConverter<ClockTextSize>))]
-public enum ClockTextSize
-{
-    Default = 0,
-    Small = 1,
-    Large = 2,
 }
 
 /// <summary>[S-1485] The offset line under the date: none, from UTC, or from the machine's own zone.</summary>
@@ -61,9 +49,6 @@ public enum ClockSetting
 
     /// <summary>The date line: not the minimal clock, nor the date style, which is the date.</summary>
     Date,
-
-    /// <summary>The size of the label, date and offset lines.</summary>
-    TextSize,
 
     /// <summary>The offset line, under the zone.</summary>
     Offset,
@@ -111,9 +96,6 @@ public sealed class ClockConfig : WidgetConfig, IStyled, IShownSettings<ClockSet
 
     public ClockOffsetMode OffsetMode { get; set; } = ClockOffsetMode.None;
 
-    /// <summary>[S-1476] The label and date size (user request: both were hard to read).</summary>
-    public ClockTextSize TextSize { get; set; } = ClockTextSize.Default;
-
     public override WidgetConfig Clone() => new ClockConfig
     {
         Style = Style,
@@ -121,7 +103,6 @@ public sealed class ClockConfig : WidgetConfig, IStyled, IShownSettings<ClockSet
         ShowDate = ShowDate,
         TimeZoneId = TimeZoneId,
         OffsetMode = OffsetMode,
-        TextSize = TextSize,
     };
 
     /// <summary>
@@ -136,10 +117,9 @@ public sealed class ClockConfig : WidgetConfig, IStyled, IShownSettings<ClockSet
 
     /// <summary>
     /// [S-6074] The rows the menu offers: seconds where the face ticks them; the date and offset
-    /// lines wherever there are lines under the time, so neither on the minimal clock ([S-6014]) nor
-    /// on the date style ([S-5303]). [S-1476] The text size sizes the label, the date and the offset
-    /// line, so it is offered only while one of them is drawn: a city's label, the date switched on,
-    /// or an offset chosen. The zone applies to every style; the alignment is the properties panel's ([S-6580]).
+    /// lines wherever there is a line under the time, so neither on the minimal clock ([S-6014]) nor
+    /// on the date style ([S-5303]). The line's size is its step's ([S-6741]): the clock has no text
+    /// size of its own. The zone applies to every style; the alignment is the properties panel's ([S-6580]).
     /// </summary>
     [JsonIgnore]
     public IReadOnlyList<ClockSetting> ShownSettings
@@ -151,18 +131,13 @@ public sealed class ClockConfig : WidgetConfig, IStyled, IShownSettings<ClockSet
                 return [];
             }
 
-            var shown = new List<ClockSetting>(4);
+            var shown = new List<ClockSetting>(3);
             if (Style != ClockStyle.Word)
             {
                 shown.Add(ClockSetting.Seconds);
             }
 
             shown.Add(ClockSetting.Date);
-            if (ShowDate || OffsetMode != ClockOffsetMode.None || IsWorldClock)
-            {
-                shown.Add(ClockSetting.TextSize);
-            }
-
             shown.Add(ClockSetting.Offset);
             return shown;
         }
@@ -196,12 +171,6 @@ public sealed class ClockConfig : WidgetConfig, IStyled, IShownSettings<ClockSet
         {
             repairs.Add($"clock offset mode {(int)OffsetMode} unknown; none");
             OffsetMode = ClockOffsetMode.None;
-        }
-
-        if (!Enum.IsDefined(TextSize))
-        {
-            repairs.Add($"clock text size {(int)TextSize} unknown; default");
-            TextSize = ClockTextSize.Default;
         }
 
         if (!string.IsNullOrWhiteSpace(TimeZoneId) && ZoneCatalog.Find(TimeZoneId) is null)

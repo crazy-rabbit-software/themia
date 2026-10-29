@@ -1,7 +1,4 @@
 {
-  "clockText.large": "Groß",
-  "clockText.sizeLabel": "Größe von Ort und Datum",
-  "clockText.small": "Klein",
   "clock.dateLabel": "Datum anzeigen",
   "clock.offsetLabel": "Zeitverschiebung",
   "clock.secondsLabel": "Sekunden anzeigen",

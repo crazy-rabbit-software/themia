@@ -10,7 +10,7 @@ namespace Themia.App.Shell.Config;
 
 /// <summary>
 /// [S-1480] The Clock's options, all on its properties menu ([S-3719]): under Style what the look
-/// draws (seconds, the date line, the text size: [S-6074] only the ones the style draws); then
+/// draws (seconds, the date line: [S-6074] only the ones the style draws); then
 /// Appearance ([S-3723]) and the time zone, a search ([S-3722]), with the offset line after it on the
 /// same level (what is shown is chosen on the first level, not inside a search); then a link to the
 /// 12- or 24-hour clock every widget tells time on ([S-3749], [S-3590]: ⚙'s, never the clock's own).
@@ -35,14 +35,6 @@ internal static class ClockMenu
         if (clock.Offers(ClockSetting.Date))
         {
             look.Add(menu.Toggle(null, ClockStr.Clock_DateLabel.Text(), clock.ShowDate, on => clock.ShowDate = on));
-        }
-
-        // [S-1476] The place and the date larger (user request: both were hard to read) or smaller.
-        if (clock.Offers(ClockSetting.TextSize))
-        {
-            look.Add(menu.Choice(Glyphs.Font, ClockStr.ClockText_SizeLabel.Text(),
-                [(ClockTextSize.Small, ClockStr.ClockText_Small.Text()), (ClockTextSize.Default, Str.Common_Default.Text()), (ClockTextSize.Large, ClockStr.ClockText_Large.Text())],
-                clock.TextSize, value => clock.TextSize = value));
         }
 
         // [S-1478] The look (Style, Appearance), a divider, then what time it tells.

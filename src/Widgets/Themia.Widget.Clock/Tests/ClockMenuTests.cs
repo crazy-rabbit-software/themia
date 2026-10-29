@@ -20,9 +20,9 @@ public sealed class ClockMenuTests
     }
 
     [Fact]
-    public void S1478_the_digital_clock_offers_seconds_date_and_text_size_under_style()
+    public void S1478_the_digital_clock_offers_seconds_and_the_date_under_style()
         => Assert.Equal(
-            [ClockStr.Clock_SecondsLabel.Text(), ClockStr.Clock_DateLabel.Text(), ClockStr.ClockText_SizeLabel.Text()],
+            [ClockStr.Clock_SecondsLabel.Text(), ClockStr.Clock_DateLabel.Text()],
             Build(new ClockConfig { Style = ClockStyle.Digital }).StyleLines.Select(l => l.Text));
 
     [Fact]
@@ -60,22 +60,13 @@ public sealed class ClockMenuTests
     }
 
     [Fact]
-    public void S1476_the_text_size_is_offered_only_while_a_line_under_the_time_is_drawn()
+    public void S6741_the_clock_has_no_text_size_of_its_own_its_line_is_its_steps()
     {
-        static bool Offered(ClockConfig c) => c.Offers(ClockSetting.TextSize);
-
-        Assert.True(Offered(new ClockConfig { ShowDate = true }));
-        Assert.False(Offered(new ClockConfig { ShowDate = false }));
-        Assert.True(Offered(new ClockConfig { ShowDate = false, OffsetMode = ClockOffsetMode.Utc }));
-        Assert.True(Offered(new ClockConfig { ShowDate = false, TimeZoneId = "Asia/Tokyo" }));
-        Assert.False(Offered(new ClockConfig { Style = ClockStyle.Minimal, ShowDate = true }));
-    }
-
-    [Fact]
-    public void S1476_with_nothing_under_the_time_the_style_lines_lose_the_text_size()
-        => Assert.Equal(
+        // [S-1476] retired: the line under the time follows the readout's step ([S-6701]); the text size is ⚙'s.
+        Assert.Equal(
             [ClockStr.Clock_SecondsLabel.Text(), ClockStr.Clock_DateLabel.Text()],
-            Build(new ClockConfig { Style = ClockStyle.Digital, ShowDate = false }).StyleLines.Select(l => l.Text));
+            Build(new ClockConfig { Style = ClockStyle.Digital, ShowDate = false, TimeZoneId = "Asia/Tokyo" }).StyleLines.Select(l => l.Text));
+    }
 
     [Fact]
     public void S1478_the_seconds_switch_turns_them_the_other_way()

@@ -7,103 +7,11 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d">
 
-    <Grid x:Name="Root">
+    <!--
+        [S-6011] Every style is one block in the card's inset of 16, centred in it top to bottom and placed by the
+        widget's alignment: the Readout (digital, stacked, minimal; the date style's day), the sentence (words), the
+        split-flap cards (flip) or the dial (analog), each with the one line under it. Built in code (see Lay).
+    -->
+    <Grid x:Name="Root" />
 
-        <!--
-            One column for every style ([S-6011]): the label over the face, the date and the details under it.
-            On a wide strip an analog face turns the column on its side (the dial left, the text
-            right); the label then moves to the top of the text (see Arrange).
-
-            The digital readout grows with the box by picking a step of the Windows 11 type ramp (and,
-            past the ramp's top, a multiple of it that keeps Fluent's own line-height ratio) rather
-            than by taking a fraction of the width. Deliberately not a Viewbox: that stretches an
-            already-rendered glyph, and text laid out at 48px and blown up four times is soft where
-            text laid out at 192px is sharp.
-        -->
-        <StackPanel x:Name="Stack" HorizontalAlignment="Center" VerticalAlignment="Center">
-            <TextBlock
-                x:Name="LabelText"
-                TextTrimming="CharacterEllipsis"
-                Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                Visibility="Collapsed"
-                Text="" />
-
-            <Grid x:Name="FaceHost">
-                <StackPanel
-                    x:Name="TimeRow"
-                    Orientation="Horizontal"
-                    HorizontalAlignment="Center">
-                    <TextBlock
-                        x:Name="TimeText"
-                        Foreground="{ThemeResource TextFillColorPrimaryBrush}"
-                        VerticalAlignment="Bottom"
-                        Text="00:00" />
-                    <!--
-                        [S-1483] Beside the last line: the seconds of a stacked readout (a step down,
-                        as the original set them) over the meridiem.
-                    -->
-                    <StackPanel x:Name="Tail" VerticalAlignment="Bottom">
-                        <TextBlock
-                            x:Name="SecondsText"
-                            Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                            Visibility="Collapsed"
-                            Text="00" />
-                        <TextBlock
-                            x:Name="MeridiemText"
-                            Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                            Visibility="Collapsed"
-                            Text="AM" />
-                    </StackPanel>
-                </StackPanel>
-
-                <!--
-                    Analog face. Built in code at the tile's own pixel scale (see BuildAnalogFace)
-                    rather than drawn small and scaled up by a Viewbox: a Windows clock face is
-                    hairline ticks and thin hands, and a hairline that has been through a 4x Viewbox
-                    is a 4px rule. Everything on it is a named theme brush.
-                -->
-                <!-- [S-6013] The word style: the sentence, wrapped at words, sized by the language's longest. -->
-                <TextBlock
-                    x:Name="WordsText"
-                    TextWrapping="Wrap"
-                    Foreground="{ThemeResource TextFillColorPrimaryBrush}"
-                    Visibility="Collapsed"
-                    Text="" />
-
-                <!--
-                    [S-6012] The flip style: one split-flap card per part of the time, built in code
-                    (see SizeFlip). Digits read left to right in every language, as on the digital face.
-                -->
-                <StackPanel
-                    x:Name="FlipRow"
-                    FlowDirection="LeftToRight"
-                    Orientation="Horizontal"
-                    HorizontalAlignment="Center"
-                    Visibility="Collapsed" />
-
-                <Canvas
-                    x:Name="AnalogFace"
-                    FlowDirection="LeftToRight"
-                    HorizontalAlignment="Center"
-                    VerticalAlignment="Center"
-                    Visibility="Collapsed" />
-            </Grid>
-
-            <StackPanel x:Name="Info" VerticalAlignment="Center">
-                <TextBlock
-                    x:Name="DateText"
-                    TextTrimming="CharacterEllipsis"
-                    Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                    Text="" />
-                <!-- [S-1485] The offset. -->
-                <TextBlock
-                    x:Name="OffsetText"
-                    TextTrimming="CharacterEllipsis"
-                    Foreground="{ThemeResource TextFillColorTertiaryBrush}"
-                    Visibility="Collapsed"
-                    Text="" />
-            </StackPanel>
-        </StackPanel>
-
-    </Grid>
 </UserControl>

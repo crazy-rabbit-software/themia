@@ -1,7 +1,4 @@
 {
-  "clockText.large": "크게",
-  "clockText.sizeLabel": "장소 및 날짜 크기",
-  "clockText.small": "작게",
   "clock.dateLabel": "날짜 표시",
   "clock.offsetLabel": "시차",
   "clock.secondsLabel": "초 표시",

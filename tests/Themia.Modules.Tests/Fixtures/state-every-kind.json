@@ -30,8 +30,7 @@
             "style": "digital",
             "showSeconds": false,
             "showDate": true,
-            "offsetMode": "None",
-            "textSize": "Default"
+            "offsetMode": "None"
           }
         },
         {
