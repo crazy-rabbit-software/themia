@@ -3199,9 +3199,13 @@ are cited from there, the ones it replaced are marked.
   `ShowAverage` (on): in a window, the per-day average (divided by the window length, so
   idle days count) beside the total and on each row. `ShowSwitches` (off): how often the foreground
   app changed. `ShowPercent` (off): each app's share of the shown total.
-- **[S-454]** Day navigation in the header (back, label, forward, and a today button when away from
-  today): today plus 89 days back. A pinned date stays that date across midnight, and returning to
-  today unpins. A window shows "Last 7 days" or "Last 30 days" instead. Reading a day includes the
+- **[S-454]** Day navigation in the header, on the Header block's parts ([S-6710], `ScreenTimeDayNav`,
+  G6 2026-10-29): the day as its informing label ("Today", "Yesterday", "Mon 26 Oct"), then two 24
+  header buttons, back and forward, each wanted only while it can go somewhere (forward away from today,
+  back until the oldest day), so the header folds them as any; back to today is the card menu's
+  "Back to today" while a past day is pinned (the header's third button went: two at most). Today plus
+  89 days back. A pinned date stays that date across midnight, and returning to
+  today unpins. A window shows "Last 7 days" or "Last 30 days" as the label alone. Reading a day includes the
   interval still open, unless paused or older than a suspend leaves it; a range has one entry per
   calendar day, oldest first, gap days as zeros, clamped to retention. Executable paths are kept per
   app so past days have icons; at start, apps in the history with no path or name are filled from

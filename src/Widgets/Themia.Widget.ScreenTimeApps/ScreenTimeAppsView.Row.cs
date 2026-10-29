@@ -1,15 +1,14 @@
-using Microsoft.UI;
-using Microsoft.UI.Text;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
-using Microsoft.UI.Xaml.Documents;
 using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Media;
 using Themia.App.Services;
 using Themia.App.Shell;
 using Themia.Core.Localization;
 using Themia.Core.Widgets;
+using Themia.Sdk.Kit;
 using Themia.Sdk.WinUI;
+using Themia.Sdk.WinUI.Kit;
 using Themia.Widget.ScreenTimeApps;
 using Glyphs = Themia.App.Shell.Glyphs;
 
@@ -19,97 +18,48 @@ namespace Themia.App.Widgets;
 internal sealed partial class ScreenTimeAppsView
 {
     /// <summary>
-    /// [S-3350] One row: the app's icon (or an initial chip in its colour), its name, then the
-    /// figures — average, share, and the time, always the last column. [S-3353] The row is lit,
-    /// dimmed, marked selected and ringed for the keyboard from the view's links, never from its own
-    /// pointer alone, so a hover in the chart lights it here.
+    /// [S-3350] One row, the family's Row block ([S-6711]): the app's icon as its lead (or, while it
+    /// loads and when it has none, a 16 dot in the app's colour), its name (primary), its time as the
+    /// value (secondary; Critical over its own limit), and on a second line the share and a window's
+    /// average when the tier gives rows two. [S-3353] The row is lit, dimmed, filled as selected and
+    /// ringed for the keyboard from the view's links, never from its own pointer alone, so a hover in
+    /// the chart lights it here.
     /// </summary>
     private sealed class AppRow
     {
-        private const double IconSize = Fluent.IconSize;
-
-        private static readonly Brush TimeBrush = ThemeBrush.Of("TextFillColorSecondaryBrush", Colors.Gray);
-
         private readonly ScreenTimeAppsView _owner;
-        private readonly Grid _icon = new() { Width = IconSize, Height = IconSize, VerticalAlignment = VerticalAlignment.Center };
-        private readonly Image _image = new() { Width = IconSize, Height = IconSize, Stretch = Stretch.Uniform };
-        private readonly Border _chip = new() { Width = IconSize, Height = IconSize, CornerRadius = new CornerRadius(Fluent.ControlRadius) };
-        private readonly TextBlock _initial = new()
+        private readonly Grid _icon = new() { VerticalAlignment = VerticalAlignment.Center };
+        private readonly Image _image = new() { Stretch = Stretch.Uniform };
+
+        /// <summary>[S-6705] The app's colour as a data dot: where it has no icon, and under it while the icon loads.</summary>
+        private readonly Border _dot = new()
         {
-            FontSize = FluentType.Caption.FontSize,
-            FontWeight = FontWeights.SemiBold,
+            Width = FamilyShape.Icon,
+            Height = FamilyShape.Icon,
+            CornerRadius = Family.Round(FamilyShape.Icon, FamilyShape.Icon),
             HorizontalAlignment = HorizontalAlignment.Center,
             VerticalAlignment = VerticalAlignment.Center,
         };
 
-        private readonly TextBlock _name = Fluent.Text(FluentType.Body);
-        private readonly TextBlock _average = Fluent.Text(FluentType.Caption, "TextFillColorTertiaryBrush");
-        private readonly TextBlock _percent = Fluent.Text(FluentType.Caption, "TextFillColorTertiaryBrush");
-        private readonly TextBlock _time = Fluent.Text(FluentType.Body, "TextFillColorSecondaryBrush");
-
-        /// <summary>Fluent's list selection pill, in the row's left padding.</summary>
-        private readonly Border _pill = new()
-        {
-            Width = 3,
-            Height = Fluent.IconSize,
-            CornerRadius = new CornerRadius(1.5),
-            HorizontalAlignment = HorizontalAlignment.Left,
-            VerticalAlignment = VerticalAlignment.Center,
-            Margin = new Thickness(-Fluent.Space3, 0, 0, 0),
-            Visibility = Visibility.Collapsed,
-        };
-
         private ScreenTimeSegment? _segment;
+        private ScreenTimeGoal? _goal;
         private string? _iconPath;
         private LogoTheme _iconTheme;
 
-        public AppRow(ScreenTimeAppsView owner)
+        /// <param name="lead">The lead's size (<see cref="ScreenTimeAppsPlan.Lead"/>): a row of another lead is a new row.</param>
+        public AppRow(ScreenTimeAppsView owner, double lead)
         {
             _owner = owner;
-
-            _initial.Foreground = ThemeBrush.Of("TextOnAccentFillColorPrimaryBrush", Colors.White);
-            _chip.Child = _initial;
-            _icon.Children.Add(_chip);
+            Lead = lead;
+            _icon.Width = lead;
+            _icon.Height = lead;
+            _image.Width = lead;
+            _image.Height = lead;
+            _icon.Children.Add(_dot);
             _icon.Children.Add(_image);
-            _pill.Background = ScreenTimeLook.Accent;
 
-            foreach (var figure in new[] { _average, _percent, _time })
-            {
-                figure.VerticalAlignment = VerticalAlignment.Center;
-                figure.Margin = new Thickness(Fluent.Space2, 0, 0, 0);
-                Typography.SetNumeralAlignment(figure, FontNumeralAlignment.Tabular);
-            }
-
-            _time.TextAlignment = TextAlignment.Right;
-            _name.Margin = new Thickness(Fluent.Space2, 0, 0, 0);
-            _name.TextTrimming = TextTrimming.CharacterEllipsis;
-
-            var grid = new Grid
-            {
-                ColumnDefinitions =
-                {
-                    new ColumnDefinition { Width = GridLength.Auto },
-                    new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) },
-                    new ColumnDefinition { Width = GridLength.Auto },
-                    new ColumnDefinition { Width = GridLength.Auto },
-                    new ColumnDefinition { Width = GridLength.Auto },
-                },
-            };
-
-            SetColumn(_icon, 0);
-            SetColumn(_name, 1);
-            SetColumn(_average, 2);
-            SetColumn(_percent, 3);
-            SetColumn(_time, 4);
-            grid.Children.Add(_pill);
-            grid.Children.Add(_icon);
-            grid.Children.Add(_name);
-            grid.Children.Add(_average);
-            grid.Children.Add(_percent);
-            grid.Children.Add(_time);
-
-            Host = Fluent.Row(grid, compact: true);
-            RowFocus.Prepare(Host);
+            Host = new RowBlock(RowKind.List, lead);
+            Host.Lead(_icon);
             Host.PointerEntered += OnEntered;
             Host.PointerExited += OnLeft;
             Host.PointerCanceled += OnLeft;
@@ -119,31 +69,27 @@ internal sealed partial class ScreenTimeAppsView
             Host.ActualThemeChanged += OnThemeChanged;
         }
 
-        public Border Host { get; }
+        public RowBlock Host { get; }
 
         public string? Key => _segment?.Key;
 
-        public void Show(ScreenTimeSegment segment, string? average, string? percent, ScreenTimeGoal? goal, bool name)
+        /// <summary>The lead's size the row was made for.</summary>
+        public double Lead { get; }
+
+        public void Show(ScreenTimeSegment segment, string? figures, ScreenTimeGoal? goal, ScreenTimeAppsPlan plan)
         {
             _segment = segment;
-            var colour = ScreenTimeLook.For(segment.Key);
+            _goal = goal;
+            var time = ScreenTimeRules.FormatDuration(segment.Seconds);
 
             // [S-3352] Too narrow for a name: the icon and the time, the name stays in the tooltip.
-            _name.Text = segment.Name;
-            _name.Visibility = name ? Visibility.Visible : Visibility.Collapsed;
-            _average.Text = average ?? string.Empty;
-            _average.Visibility = average is null ? Visibility.Collapsed : Visibility.Visible;
-            _percent.Text = percent ?? string.Empty;
-            _percent.Visibility = percent is null ? Visibility.Collapsed : Visibility.Visible;
-            _time.Text = ScreenTimeRules.FormatDuration(segment.Seconds);
+            Host.Lines = plan.Lines;
+            Host.Show(plan.Names ? segment.Name : string.Empty, time, figures);
 
-            // [S-457] Over its own daily limit, the app's time says so in the critical colour.
-            _time.Foreground = goal is { Over: true } ? ScreenTimeLook.Critical : TimeBrush;
-
-            var tip = $"{segment.Name} — {_time.Text}";
-            if (average is not null)
+            var tip = $"{segment.Name} — {time}";
+            if (figures is not null)
             {
-                tip += $" · {average}";
+                tip += $" · {figures}";
             }
 
             if (goal is { } g)
@@ -152,32 +98,40 @@ internal sealed partial class ScreenTimeAppsView
             }
 
             ToolTipService.SetToolTip(Host, tip);
-            ShowIcon(segment, colour);
+            ShowIcon(segment);
         }
 
-        /// <summary>[S-3353] The row against the view's links.</summary>
+        /// <summary>
+        /// [S-3353] The row against the view's links: the focused one in the item layer's hover fill,
+        /// the selected one in its selected fill, every other row's texts in the tertiary role while
+        /// something is focused; the keyboard cursor's ring.
+        /// </summary>
         public void Mark(ScreenTimeEmphasis emphasis, bool selected, bool cursor)
         {
-            Host.Opacity = emphasis == ScreenTimeEmphasis.Dimmed ? 0.45 : 1;
-            // [S-6513] Selected keeps the lighter Fluent step it always had (SubtleFillColorTertiary).
+            var dim = emphasis == ScreenTimeEmphasis.Dimmed;
+            Host.NameText.Foreground = Family.Brush(dim ? ColourRole.TextTertiary : ColourRole.TextPrimary);
+            Host.Second.Foreground = Family.Brush(dim ? ColourRole.TextTertiary : ColourRole.TextSecondary);
+
+            // [S-457] Over its own daily limit, the app's time says so in the critical role.
+            Host.ValueText.Foreground = Family.Brush(_goal is { Over: true } ? ColourRole.Critical : dim ? ColourRole.TextTertiary : ColourRole.TextSecondary);
+
+            // [S-6513] Selected keeps the item layer's lighter step (SubtleFillColorTertiary).
             ItemFill.Paint(Host, ItemRole.Row, emphasis == ScreenTimeEmphasis.Lit ? ItemState.Hover
                 : selected ? ItemState.SelectedHover
                 : ItemState.Rest);
-            _pill.Visibility = selected ? Visibility.Visible : Visibility.Collapsed;
-            RowFocus.Mark(Host, cursor);
+            Host.Focused = cursor;
         }
 
-        /// <summary>The app's icon; while it loads, or when it has none, a chip of its colour with its initial.</summary>
-        private void ShowIcon(ScreenTimeSegment segment, Brush colour)
+        /// <summary>The app's icon at the lead's size; while it loads, or when it has none, the dot of its colour.</summary>
+        private void ShowIcon(ScreenTimeSegment segment)
         {
-            _chip.Background = colour;
-            _initial.Text = segment.IsOther ? string.Empty : ScreenTimeRules.Initial(segment.Name);
+            _dot.Background = ScreenTimeLook.For(segment.Key);
 
             if (segment.Path is not { } path)
             {
                 _iconPath = null;
                 _image.Source = null;
-                _chip.Visibility = Visibility.Visible;
+                _dot.Visibility = Visibility.Visible;
                 return;
             }
 
@@ -188,7 +142,7 @@ internal sealed partial class ScreenTimeAppsView
 
             _iconPath = path;
             _image.Source = null;
-            _chip.Visibility = Visibility.Visible;
+            _dot.Visibility = Visibility.Visible;
             _ = LoadIconAsync(path);
         }
 
@@ -213,7 +167,7 @@ internal sealed partial class ScreenTimeAppsView
             }
 
             _image.Source = image;
-            _chip.Visibility = Visibility.Collapsed;
+            _dot.Visibility = Visibility.Collapsed;
         }
 
         private void OnEntered(object sender, PointerRoutedEventArgs args)

@@ -1,4 +1,3 @@
-using Microsoft.UI;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media;
@@ -7,30 +6,30 @@ using Themia.App.Shell;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
+using Themia.Sdk.Kit;
 using Themia.Sdk.WinUI;
+using Themia.Sdk.WinUI.Kit;
 using Glyphs = Themia.App.Shell.Glyphs;
 
 namespace Themia.App.Widgets;
 
 /// <summary>
-/// [S-3350] The apps of the day (or the week, or the month), busiest first: icon, name, time, and
-/// over its own limit the time in the critical colour. A row is hovered or selected for every
+/// [S-3350] The apps of the day (or the week, or the month), busiest first, as the family's rows
+/// ([S-6711]): icon, name, time, and over its own limit the time in the critical role. A row is hovered or selected for every
 /// screen-time widget on the view: the chart and the donut light the same app ([S-3353]).
 /// <para>
 /// The history is the app's one tracker ([S-458]); the widget has no timer of its own.
 /// </para>
 /// </summary>
-internal sealed partial class ScreenTimeAppsView : Grid, IWidgetView, IWidgetSurfaceAware, IWidgetHeaderContent, IWidgetSizeAware, IWidgetKeys
+internal sealed partial class ScreenTimeAppsView : Grid, IWidgetView, IWidgetSurfaceAware, IWidgetHeaderContent, IWidgetSizeAware, IWidgetKeys, IWidgetContextActions
 {
-    /// <summary>A row: Fluent's compact list row.</summary>
-    private const double RowHeight = Fluent.RowHeightCompact;
-
     private readonly ScreenTimeLinks _links;
     private readonly ScreenTimeDayNav _nav;
     private readonly StackPanel _list = new() { VerticalAlignment = VerticalAlignment.Top };
     private readonly List<AppRow> _rows = [];
-    private readonly StackPanel _empty;
-    private readonly TextBlock _emptyText = new();
+
+    /// <summary>[S-6714] Nothing to list: the Status block's one row at the top.</summary>
+    private readonly StatusBlock _empty = new() { Visibility = Visibility.Collapsed };
 
     private IWidgetSurface? _surface;
     private IScreenTimeSource? _source;
@@ -49,7 +48,7 @@ internal sealed partial class ScreenTimeAppsView : Grid, IWidgetView, IWidgetSur
         _nav = new ScreenTimeDayNav(Render);
 
         // The space under the rows takes taps, so a click there lets the selection go ([S-3302]).
-        Background = new SolidColorBrush(Colors.Transparent);
+        Background = Family.Brush(ColourRole.Clear);
         Tapped += (_, _) =>
         {
             if (_links.ClearSelection())
@@ -58,15 +57,15 @@ internal sealed partial class ScreenTimeAppsView : Grid, IWidgetView, IWidgetSur
             }
         };
 
-        _empty = Fluent.EmptyState(Glyphs.ScreenTime, _emptyText, out _);
-        _empty.Visibility = Visibility.Collapsed;
-
         Children.Add(_list);
         Children.Add(_empty);
     }
 
     /// <inheritdoc />
     public FrameworkElement? HeaderTrailing => _nav.Host;
+
+    /// <summary>[S-454] Back to today, while a past day is pinned.</summary>
+    public IReadOnlyList<WidgetAction> ContextActions => _nav.ContextActions;
 
     public void Bind(IWidgetSurface surface) => _surface = surface;
 
@@ -100,6 +99,11 @@ internal sealed partial class ScreenTimeAppsView : Grid, IWidgetView, IWidgetSur
         UseSource(null);
         _links.Leave();
 
+        ClearRows();
+    }
+
+    private void ClearRows()
+    {
         foreach (var row in _rows)
         {
             row.Detach();
@@ -146,7 +150,7 @@ internal sealed partial class ScreenTimeAppsView : Grid, IWidgetView, IWidgetSur
             return;
         }
 
-        _nav.Update(_config.Period, _area);
+        _nav.Update(_config.Period);
 
         if (_source is null)
         {
@@ -171,7 +175,7 @@ internal sealed partial class ScreenTimeAppsView : Grid, IWidgetView, IWidgetSur
     {
         _data = null;
         _segments = [];
-        _emptyText.Text = message;
+        _empty.Show(StatusKind.Empty, Glyphs.ScreenTime, message);
         _empty.Visibility = Visibility.Visible;
         _list.Visibility = Visibility.Collapsed;
     }
@@ -189,14 +193,21 @@ internal sealed partial class ScreenTimeAppsView : Grid, IWidgetView, IWidgetSur
         }
 
         var wanted = ScreenTimeRules.ListWanted(_config.MaxApps, data.Apps.Count);
-        var plan = ScreenTimeAppsLayout.Apps(_area, RowHeight, wanted, data.Window, _config.ShowAverage, _config.ShowPercent);
+        var average = data.Window && _config.ShowAverage;
+        var plan = ScreenTimeAppsLayout.Apps(_area, wanted, ScreenTimeAppsLayout.Figures(data.Window, _config.ShowAverage, _config.ShowPercent));
         var named = ScreenTimeRules.ListNamed(plan.Rows, data.Apps.Count);
         _segments = plan.Rows == 0 ? [] : ScreenTimeRules.Segments(data.Apps, data.Total, named, Str.Screentime_Other.Text());
         var rows = Math.Min(plan.Rows, _segments.Count);
 
+        // A row's lead is made for its size: rows of another lead are made again.
+        if (_rows.Count > 0 && !_rows[0].Lead.Equals(plan.Lead))
+        {
+            ClearRows();
+        }
+
         while (_rows.Count < rows)
         {
-            var row = new AppRow(this);
+            var row = new AppRow(this, plan.Lead);
             _rows.Add(row);
             _list.Children.Add(row.Host);
         }
@@ -210,17 +221,24 @@ internal sealed partial class ScreenTimeAppsView : Grid, IWidgetView, IWidgetSur
             }
 
             var segment = _segments[i];
-            var average = ScreenTimeRules.DailyAverage(segment.Seconds, data.Days);
-            var judged = data.Window ? average : segment.Seconds;
+            var perDay = ScreenTimeRules.DailyAverage(segment.Seconds, data.Days);
+            var judged = data.Window ? perDay : segment.Seconds;
             var goal = segment.IsOther ? null : ScreenTimeRules.Goal(judged, data.AppLimit(segment.Key));
 
+            // [S-3350] The second line: the share, then a window's average, as far as they are on.
+            List<string> figures = [];
+            if (_config.ShowPercent)
+            {
+                figures.Add(ScreenTimeLook.Percent(segment.Seconds, data.Total));
+            }
+
+            if (average)
+            {
+                figures.Add(Str.Screentime_PerDay.Format(("value", ScreenTimeRules.FormatDuration(perDay))));
+            }
+
             _rows[i].Host.Visibility = Visibility.Visible;
-            _rows[i].Show(
-                segment,
-                plan.Average ? Str.Screentime_PerDay.Format(("value", ScreenTimeRules.FormatDuration(average))) : null,
-                plan.Percent ? ScreenTimeLook.Percent(segment.Seconds, data.Total) : null,
-                goal,
-                plan.Names);
+            _rows[i].Show(segment, figures.Count == 0 ? null : string.Join(" · ", figures), goal, plan);
         }
 
         ApplyFocus();
