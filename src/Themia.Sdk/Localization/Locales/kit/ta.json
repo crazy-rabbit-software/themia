@@ -1,4 +1,5 @@
 {
   "kit.ownerProblem": "{name}: {reason}",
-  "kit.refreshUpdated": "புதுப்பி · புதுப்பிக்கப்பட்டது {age}"
+  "kit.refreshUpdated": "புதுப்பி · புதுப்பிக்கப்பட்டது {age}",
+  "kit.problemSeveral": "{name} மற்றும் மேலும் {count} ஏற்ற முடியவில்லை"
 }

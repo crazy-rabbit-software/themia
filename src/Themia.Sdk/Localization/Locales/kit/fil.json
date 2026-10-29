@@ -1,4 +1,5 @@
 {
   "kit.ownerProblem": "{name}: {reason}",
-  "kit.refreshUpdated": "I-refresh · na-update {age}"
+  "kit.refreshUpdated": "I-refresh · na-update {age}",
+  "kit.problemSeveral": "Hindi ma-load ang {name} at {count} pa"
 }

@@ -12,15 +12,14 @@ namespace Themia.Core.Tests;
 public sealed class KitAccountWidgetTests
 {
     [Fact]
-    public void S7064_view_buttons_show_the_header_and_each_needs_its_width()
+    public void S7064_view_buttons_show_the_header_at_most_two()
     {
-        Assert.Equal(new KitHeaderParts(false, false, false, Buttons: true), KitHeaderParts.Of(0, busy: false, count: null, buttons: 2));
-        Assert.True(KitHeaderParts.Of(0, busy: false, count: null, buttons: 1).Any);
-        Assert.False(KitHeaderParts.Of(0, busy: false, count: null, buttons: 0).Any);
+        Assert.Equal(new HeaderWants(false, false, false, Buttons: 2), HeaderRules.Wants(0, busy: false, count: null, buttons: 2));
+        Assert.True(HeaderRules.Wants(0, busy: false, count: null, buttons: 1).Any);
+        Assert.False(HeaderRules.Wants(0, busy: false, count: null, buttons: 0).Any);
 
-        Assert.True(KitHeaderParts.Fits(240, 240));
-        Assert.False(KitHeaderParts.Fits(240, 239));
-        Assert.False(KitHeaderParts.Fits(200, 0)); // unmeasured: none until the card has a width
+        // Where they show is the header's fold ([S-6710]): a third is never asked for.
+        Assert.Equal(2, HeaderRules.Wants(0, busy: false, count: null, buttons: 3).Buttons);
     }
 
     [Fact]

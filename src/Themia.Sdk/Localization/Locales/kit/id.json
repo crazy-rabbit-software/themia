@@ -1,4 +1,5 @@
 {
   "kit.ownerProblem": "{name}: {reason}",
-  "kit.refreshUpdated": "Segarkan · diperbarui {age}"
+  "kit.refreshUpdated": "Segarkan · diperbarui {age}",
+  "kit.problemSeveral": "{name} dan {count} lainnya tidak dapat dimuat"
 }

@@ -1,4 +1,5 @@
 {
   "kit.ownerProblem": "{name}: {reason}",
-  "kit.refreshUpdated": "تحديث · آخر تحديث {age}"
+  "kit.refreshUpdated": "تحديث · آخر تحديث {age}",
+  "kit.problemSeveral": "تعذّر تحميل {name} و{count} غيرها"
 }

@@ -1,4 +1,5 @@
 {
   "kit.ownerProblem": "{name}: {reason}",
-  "kit.refreshUpdated": "Sabunta · an sabunta {age}"
+  "kit.refreshUpdated": "Sabunta · an sabunta {age}",
+  "kit.problemSeveral": "Ba a iya loda {name} da ƙarin {count} ba"
 }

@@ -1,4 +1,5 @@
 {
   "kit.ownerProblem": "{name}: {reason}",
-  "kit.refreshUpdated": "Yenile · {age} güncellendi"
+  "kit.refreshUpdated": "Yenile · {age} güncellendi",
+  "kit.problemSeveral": "{name} ve {count} tane daha yüklenemedi"
 }

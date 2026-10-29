@@ -1,4 +1,5 @@
 {
   "kit.ownerProblem": "{name}：{reason}",
-  "kit.refreshUpdated": "重新整理 · {age}更新"
+  "kit.refreshUpdated": "重新整理 · {age}更新",
+  "kit.problemSeveral": "無法載入 {name} 和另外 {count} 項"
 }

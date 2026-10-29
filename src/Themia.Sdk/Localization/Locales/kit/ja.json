@@ -1,4 +1,5 @@
 {
   "kit.ownerProblem": "{name}: {reason}",
-  "kit.refreshUpdated": "更新 · {age}に更新"
+  "kit.refreshUpdated": "更新 · {age}に更新",
+  "kit.problemSeveral": "{name} とほか {count} 件を読み込めませんでした"
 }

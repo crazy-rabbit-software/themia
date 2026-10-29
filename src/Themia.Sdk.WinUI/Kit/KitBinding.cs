@@ -177,7 +177,6 @@ public sealed class KitBinding : IDisposable
     public void Size(WidgetArea area)
     {
         _area = area;
-        Header.Size(area.Width);
         Render();
     }
 

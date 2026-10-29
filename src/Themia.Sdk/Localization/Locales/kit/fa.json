@@ -1,4 +1,5 @@
 {
   "kit.ownerProblem": "{name}: {reason}",
-  "kit.refreshUpdated": "تازه‌سازی · به‌روزشده {age}"
+  "kit.refreshUpdated": "تازه‌سازی · به‌روزشده {age}",
+  "kit.problemSeveral": "بارگیری {name} و {count} مورد دیگر ممکن نشد"
 }

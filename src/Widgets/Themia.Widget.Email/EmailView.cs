@@ -30,12 +30,6 @@ internal sealed partial class EmailView : Grid, IWidgetView, IWidgetHeaderConten
 {
     private const string Scope = "email-widget";
 
-    /// <summary>[S-1289] Below this width the sort button would squeeze the folder name; the menu still has it.</summary>
-    private const double SortNeedsWidth = 200;
-
-    /// <summary>[S-558] Below this width the compose button would squeeze the folder name; the menu still has it.</summary>
-    private const double ComposeNeedsWidth = 240;
-
     /// <summary>Only the relative times ("4m") move between fetches; the feed itself is pushed.</summary>
     private static readonly TimeSpan Tick = TimeSpan.FromMinutes(1);
 
@@ -197,7 +191,6 @@ internal sealed partial class EmailView : Grid, IWidgetView, IWidgetHeaderConten
             buttons.Add(new KitHeaderButton(
                 Glyphs.MailCompose,
                 EmailStr.WidgetsB_Email_Compose.Text(),
-                ComposeNeedsWidth,
                 Choices: [.. writers.Select(a => new KitHeaderChoice(Glyphs.Mail, a.Label, () => Compose(a)))]));
         }
 
@@ -206,7 +199,6 @@ internal sealed partial class EmailView : Grid, IWidgetView, IWidgetHeaderConten
             buttons.Add(new KitHeaderButton(
                 Glyphs.Sort,
                 (_config.SortOrder == MailSortOrder.NewestFirst ? EmailStr.WidgetsB_Email_SortNewestTip : EmailStr.WidgetsB_Email_SortOldestTip).Text(),
-                SortNeedsWidth,
                 () => Edit(c => c.SortOrder = c.SortOrder == MailSortOrder.NewestFirst ? MailSortOrder.OldestFirst : MailSortOrder.NewestFirst)));
         }
 

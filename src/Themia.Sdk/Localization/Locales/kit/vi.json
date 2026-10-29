@@ -1,4 +1,5 @@
 {
   "kit.ownerProblem": "{name}: {reason}",
-  "kit.refreshUpdated": "Làm mới · đã cập nhật {age}"
+  "kit.refreshUpdated": "Làm mới · đã cập nhật {age}",
+  "kit.problemSeveral": "Không thể tải {name} và {count} mục khác"
 }

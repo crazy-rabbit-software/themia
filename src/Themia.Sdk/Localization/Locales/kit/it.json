@@ -1,4 +1,5 @@
 {
   "kit.ownerProblem": "{name}: {reason}",
-  "kit.refreshUpdated": "Aggiorna · aggiornato {age}"
+  "kit.refreshUpdated": "Aggiorna · aggiornato {age}",
+  "kit.problemSeveral": "Impossibile caricare {name} e altri {count}"
 }

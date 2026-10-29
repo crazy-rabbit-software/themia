@@ -1249,8 +1249,9 @@ The shared parts a list widget is built from, and the rules they keep (design an
   sentence with the Accounts link. Then items held: the list, one header line per failed source
   ("World News: HTTP 404 Not Found"); a source not answered yet: loading; every source answering
   with nothing: the spec's empty sentence (a filter on: its no-match one); else every failed
-  source's line in the sources' order. A source's line uses its own words when it has them, else
-  the shared sentence ([S-62]).
+  source's line in the sources' order, as one sentence: the one source's line, or with several
+  "World News and 2 more could not be loaded", every line in its details (the state row's tooltip).
+  A source's line uses its own words when it has them, else the shared sentence ([S-62]).
 - **[S-7041]** The accounts a kit widget reads: every account offering its need when it names none,
   else the named ones still signed in.
 - **[S-7063]** `KitMenuLines`: a kit widget's standard lines on its properties menu ([S-3719];
@@ -1267,16 +1268,24 @@ The shared parts a list widget is built from, and the rules they keep (design an
 - **[S-7042]** `KitFreshness`, the one stale rule's words: one line per source and problem, folded,
   stamped with the oldest copy among them ("Work: No network · updated Mon 10:42", [S-2664]); the
   Refresh line with the age of the oldest copy on screen ("Refresh · updated 4 min ago").
-- **[S-7064]** `KitHeader`: the header extras of every widget that shows a source's data, at the one
-  icon size, leading to trailing: the problem glyph (only while a copy is on screen that the last
-  attempt of some source could not improve on, its tooltip `KitFreshness`' lines, a click opening
-  ⚙ › Accounts where only the user can mend it), the busy ring (only while a fetch of its own
-  sources is out), the count badge. The age is never drawn in a header. With none of the three to
-  show the header is collapsed: it takes no room and no spacing beside the widget's own trailing
-  text (the exchange rates' day stays at the edge, `KitHeaderParts`).
-- **[S-7039]** `KitStatePanel` may carry the widget's own way out of a state beside the Accounts link
-  (its words and what it does: Tasks' "Try again", "Start a list"), kept like the link while the
-  sentence sheds to fit.
+- **[S-7064]** `KitHeader`: the header extras of every widget that shows a source's data, the
+  Header block's trailing parts ([S-6710], `HeaderParts`, so the header folds them), leading to
+  trailing: the problem glyph (only while a copy is on screen that the last attempt of some source
+  could not improve on, its tooltip `KitFreshness`' lines, a click opening ⚙ › Accounts where only
+  the user can mend it), the busy ring (only while a fetch of its own sources is out), an informing
+  label the widget keeps (the exchange rates' day), at most two of the widget's own header buttons
+  (24 with 16 glyphs: Mail's compose and sort, the calendar's back and forward, the task list's
+  picker; an action, or choices asked in a menu under it) and the neutral count pill ([S-6706]).
+  Which have something to say is `HeaderRules.Wants`; where they show is the header's fold (the
+  label first, then the buttons from the last, then the count). The age is never drawn in a header.
+  With nothing to show the extras are collapsed: they take no room and no gap.
+- **[S-7039]** `KitStatePanel` is the Status block's one row at the top of the content ([S-6714],
+  where the first row would be): the widget's glyph (the caution warning for a problem), one
+  sentence (its lines in the tooltip) and its one way out, a standard button: Accounts ("Open
+  Accounts", "Accounts" under 200px) where only the user can mend it there, else the page that widens
+  what the account may read ([S-9919]), else the widget's own (its words and what it does: Tasks'
+  "Try again", "Start a list"). Too narrow for both, the sentence goes and the glyph and the button
+  stay.
 - **[S-7062]** One launcher: a kit item's address opens through the host's one launcher
   (`IWidgetHost.Launcher`, which classifies it again on the literal string it hands the shell), never
   a process of the widget's own; a preview opens nothing. Nothing in the source starts a process but
@@ -3275,8 +3284,8 @@ removed, [S-1863]). Sizing rules live in Core with tests in
 - [S-653]: moved with the Quote widget into its module's `SPEC.md` (`src/Widgets/Themia.Widget.Quote/`).
 - **[S-655]** An informational header label ("Just now", "by CPU") gives the title at least 64px and
   is not drawn when less than 40px would be left for it. Through `MaxWidth`, never `Visibility`.
-  The rule reaches a label that is the trailing element or the label of a `HeaderTrail` (the
-  exchange rates' day beside the kit's header extras); other panels are left alone. Commands in the
+  The rule reaches a label that is the trailing element; a label among the kit's header extras (the
+  exchange rates' day) is one of their parts and folds first ([S-7064]); other panels are left alone. Commands in the
   header are not touched; their views shed them.
 - **[S-656]** The current-weather reading is sized against the tile less its detail line, not
   against its own height (which pinned the first step chosen); the condition icon goes first on a

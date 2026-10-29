@@ -1,4 +1,5 @@
 {
   "kit.ownerProblem": "{name}: {reason}",
-  "kit.refreshUpdated": "Onyesha upya · imesasishwa {age}"
+  "kit.refreshUpdated": "Onyesha upya · imesasishwa {age}",
+  "kit.problemSeveral": "Haikuweza kupakia {name} na {count} zaidi"
 }

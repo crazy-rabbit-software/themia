@@ -341,7 +341,7 @@ internal sealed partial class ShortcutsView
         };
 
         var badgeText = new TextBlock();
-        var badge = Fluent.Badge(badgeText);
+        var badge = Themia.Sdk.WinUI.Kit.HeaderBlock.Count(badgeText, overImage: true);
 
         // 42% of the icon, held between 12 and 20 DIPs (original S-75).
         var badgeHeight = Math.Clamp(size * 0.42, 12, 20);

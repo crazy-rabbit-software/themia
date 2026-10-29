@@ -71,6 +71,12 @@ public sealed record KitScreen(KitScreenKind Kind, string Sentence, bool OffersA
     /// </summary>
     public Uri? Grant { get; init; }
 
+    /// <summary>
+    /// [S-7040] Every line behind the sentence (one per failed source, "World News: HTTP 404 Not
+    /// Found"), for the state row's tooltip; empty when the sentence says it all.
+    /// </summary>
+    public IReadOnlyList<string> Details { get; init; } = [];
+
     /// <summary>The screen offers the grant page.</summary>
     public bool OffersGrant => Grant is not null;
 
@@ -115,7 +121,8 @@ public static class KitScreens
             return accountScreen.Kind == KitScreenKind.Forbidden ? accountScreen with { Grant = grantPage } : accountScreen;
         }
 
-        var problems = outcomes.Where(o => FetchState.IsFailure(o.Status)).Select(o => Line(locale, o, now)).ToList();
+        var failed = outcomes.Where(o => FetchState.IsFailure(o.Status)).ToList();
+        var problems = failed.Select(o => Line(locale, o, now)).ToList();
 
         if (itemCount > 0)
         {
@@ -138,7 +145,11 @@ public static class KitScreens
 
         // [S-9919] Every source refused or missing: the user widens what the account may read there.
         var refused = outcomes.Count > 0 && outcomes.All(o => o.Status is FetchStatus.Forbidden or FetchStatus.NotFound);
-        return new KitScreen(KitScreenKind.Problem, string.Join("\n", problems), refused && accounts is not null, []) { Grant = refused ? grantPage : null };
+        return new KitScreen(KitScreenKind.Problem, Summary(locale, failed, problems), refused && accounts is not null, [])
+        {
+            Grant = refused ? grantPage : null,
+            Details = problems,
+        };
     }
 
     /// <summary>[S-7041] The accounts a widget reads: every one offering its need when it names none, else the ones it names that are still signed in.</summary>
@@ -183,6 +194,21 @@ public static class KitScreens
         }
 
         return null;
+    }
+
+    /// <summary>
+    /// [S-7040] The state row's one sentence for the failed sources: the one source's line, or with
+    /// several "World News and 2 more could not be loaded" (the lines go in its tooltip).
+    /// </summary>
+    private static string Summary(Locale locale, IReadOnlyList<KitOutcome> failed, IReadOnlyList<string> lines)
+    {
+        if (lines.Count <= 1)
+        {
+            return lines.Count == 1 ? lines[0] : string.Empty;
+        }
+
+        var name = failed[0].Owner is { Length: > 0 } owner ? owner : lines[0];
+        return Strings.Format(locale, Str.Kit_ProblemSeveral, ("name", name), ("count", LocaleFormat.Integer(locale, lines.Count - 1)));
     }
 
     /// <summary>

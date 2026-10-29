@@ -15,5 +15,6 @@
   "kit.allSignInAgain": "Sign in to these accounts again to see them here.",
   "kit.forbidden": "These accounts did not allow this widget to read this.",
   "kit.retryAt": "{state} · asking again at {time}",
-  "kit.grantPage": "Choose what it may read"
+  "kit.grantPage": "Choose what it may read",
+  "kit.problemSeveral": "{name} and {count} more could not be loaded"
 }

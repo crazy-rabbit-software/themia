@@ -1,4 +1,5 @@
 {
   "kit.ownerProblem": "{name}: {reason}",
-  "kit.refreshUpdated": "รีเฟรช · อัปเดตเมื่อ {age}"
+  "kit.refreshUpdated": "รีเฟรช · อัปเดตเมื่อ {age}",
+  "kit.problemSeveral": "โหลด {name} และอีก {count} รายการไม่ได้"
 }

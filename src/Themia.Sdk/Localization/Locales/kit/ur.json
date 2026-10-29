@@ -1,4 +1,5 @@
 {
   "kit.ownerProblem": "{name}: {reason}",
-  "kit.refreshUpdated": "ریفریش · اپ ڈیٹ ہوا {age}"
+  "kit.refreshUpdated": "ریفریش · اپ ڈیٹ ہوا {age}",
+  "kit.problemSeveral": "{name} اور مزید {count} لوڈ نہیں ہو سکے"
 }

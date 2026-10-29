@@ -135,4 +135,20 @@ public static class HeaderRules
             }
         }
     }
+
+    /// <summary>
+    /// [S-7064] Which of a kit header's parts have something to say: the problem glyph while there is a
+    /// problem line, the ring while a fetch is out, the count pill for a positive count, the widget's own
+    /// buttons (at most <see cref="MaxButtons"/>). With none of them the extras take no room at all.
+    /// Where the wanted ones show is the fold's (<see cref="Shown"/>).
+    /// </summary>
+    public static HeaderWants Wants(int problems, bool busy, long? count, int buttons = 0)
+        => new(problems > 0, busy, count is > 0, Math.Clamp(buttons, 0, MaxButtons));
+}
+
+/// <summary>[S-7064] The parts a kit header wants: what <see cref="HeaderRules.Wants"/> decided.</summary>
+public readonly record struct HeaderWants(bool Problem, bool Busy, bool Count, int Buttons = 0)
+{
+    /// <summary>Whether the extras show at all.</summary>
+    public bool Any => Problem || Busy || Count || Buttons > 0;
 }

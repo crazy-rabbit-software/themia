@@ -134,7 +134,7 @@ internal sealed partial class ContactsView : Grid, IWidgetView, IWidgetHeaderCon
         ToolTipService.SetToolTip(_searchButton, ContactsStr.Contacts_SearchPlaceholder.Text());
         _searchButton.Click += OnSearchButton;
 
-        _badgeHost = Fluent.Badge(_badge);
+        _badgeHost = Themia.Sdk.WinUI.Kit.HeaderBlock.Count(_badge);
         _badgeHost.Visibility = Visibility.Collapsed;
 
         _trailing = new StackPanel

@@ -1,4 +1,5 @@
 {
   "kit.ownerProblem": "{name}: {reason}",
-  "kit.refreshUpdated": "রিফ্রেশ · আপডেট হয়েছে {age}"
+  "kit.refreshUpdated": "রিফ্রেশ · আপডেট হয়েছে {age}",
+  "kit.problemSeveral": "{name} এবং আরও {count}টি লোড করা যায়নি"
 }

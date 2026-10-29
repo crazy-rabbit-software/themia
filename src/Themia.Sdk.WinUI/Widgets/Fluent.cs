@@ -149,24 +149,6 @@ public static class Fluent
             VerticalAlignment = VerticalAlignment.Center,
         });
 
-    /// <summary>An accent pill, the shape Windows uses for an unread or overflow count.</summary>
-    public static Border Badge(TextBlock content)
-    {
-        content.Apply(FluentType.Caption);
-        content.Foreground = ThemeBrush.Of("TextOnAccentFillColorPrimaryBrush", Colors.White);
-        content.HorizontalAlignment = HorizontalAlignment.Center;
-
-        return new Border
-        {
-            Child = content,
-            Background = ThemeBrush.Of("AccentFillColorDefaultBrush", Colors.DodgerBlue),
-            CornerRadius = new CornerRadius(OverlayRadius),
-            Padding = new Thickness(Space2, 0, Space2, 0),
-            MinWidth = Space5,
-            VerticalAlignment = VerticalAlignment.Center,
-        };
-    }
-
     /// <summary>
     /// The centred glyph-over-a-line shape Windows uses when a list has nothing in it. The icon is
     /// dropped on a tile too short to carry it, because a tile showing only an icon says less than

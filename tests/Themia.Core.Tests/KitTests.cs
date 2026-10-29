@@ -356,13 +356,23 @@ public sealed class KitTests
     }
 
     [Fact]
-    public void S7040_every_source_failing_says_every_reason_in_order()
+    public void S7040_several_failing_sources_are_one_sentence_with_every_reason_in_the_details()
     {
         var screen = Decide([new("A", FetchStatus.Unreachable), new("B", FetchStatus.BadResponse, "HTTP 404 Not Found"), new("C", FetchStatus.Empty, "the feed has no items")], 0);
 
         Assert.Equal(KitScreenKind.Problem, screen.Kind);
-        Assert.Equal($"A: {FetchState.Message(Locale.En, FetchStatus.Unreachable)}\nB: HTTP 404 Not Found\nC: the feed has no items", screen.Sentence);
+        Assert.Equal("A and 2 more could not be loaded", screen.Sentence);
+        Assert.Equal([$"A: {FetchState.Message(Locale.En, FetchStatus.Unreachable)}", "B: HTTP 404 Not Found", "C: the feed has no items"], screen.Details);
         Assert.False(screen.OffersAccounts);
+    }
+
+    [Fact]
+    public void S7040_one_failing_source_is_its_own_line()
+    {
+        var screen = Decide([new("A", FetchStatus.Ok), new("B", FetchStatus.BadResponse, "HTTP 404 Not Found")], 0);
+
+        Assert.Equal("B: HTTP 404 Not Found", screen.Sentence);
+        Assert.Equal(["B: HTTP 404 Not Found"], screen.Details);
     }
 
     [Fact]
@@ -435,17 +445,17 @@ public sealed class KitTests
     {
         // Regression: an empty header stayed visible at zero width, so the panel it shares with the
         // exchange rates' day still spent its spacing on it (the day stood one gap in from the edge).
-        Assert.False(KitHeaderParts.Of(problems: 0, busy: false, count: null).Any);
-        Assert.False(KitHeaderParts.Of(problems: 0, busy: false, count: 0).Any);
+        Assert.False(HeaderRules.Wants(problems: 0, busy: false, count: null).Any);
+        Assert.False(HeaderRules.Wants(problems: 0, busy: false, count: 0).Any);
     }
 
     [Fact]
     public void S7064_each_part_shows_on_its_own_and_shows_the_header()
     {
-        Assert.Equal(new KitHeaderParts(Problem: true, Ring: false, Badge: false), KitHeaderParts.Of(2, busy: false, count: null));
-        Assert.Equal(new KitHeaderParts(Problem: false, Ring: true, Badge: false), KitHeaderParts.Of(0, busy: true, count: -1));
-        Assert.Equal(new KitHeaderParts(Problem: false, Ring: false, Badge: true), KitHeaderParts.Of(0, busy: false, count: 3));
-        Assert.True(KitHeaderParts.Of(0, busy: false, count: 3).Any);
+        Assert.Equal(new HeaderWants(Problem: true, Busy: false, Count: false), HeaderRules.Wants(2, busy: false, count: null));
+        Assert.Equal(new HeaderWants(Problem: false, Busy: true, Count: false), HeaderRules.Wants(0, busy: true, count: -1));
+        Assert.Equal(new HeaderWants(Problem: false, Busy: false, Count: true), HeaderRules.Wants(0, busy: false, count: 3));
+        Assert.True(HeaderRules.Wants(0, busy: false, count: 3).Any);
     }
 
     // ---- [S-7050] setup -----------------------------------------------------------------------

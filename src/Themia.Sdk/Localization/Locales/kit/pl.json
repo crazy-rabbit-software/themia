@@ -1,4 +1,5 @@
 {
   "kit.ownerProblem": "{name}: {reason}",
-  "kit.refreshUpdated": "Odśwież · zaktualizowano {age}"
+  "kit.refreshUpdated": "Odśwież · zaktualizowano {age}",
+  "kit.problemSeveral": "Nie udało się wczytać: {name} i {count} innych"
 }

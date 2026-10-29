@@ -32,7 +32,6 @@ internal sealed partial class ExchangeRatesView : Grid, IWidgetView, IWidgetHead
     private readonly KitHeader _header;
 
     /// <summary>[S-655] The day and the problem glyph: the day gives way to the title on a small tile.</summary>
-    private readonly HeaderTrail _trailing;
     private readonly HeroReadout _hero = new();
     private readonly TextBlock _perBase;
     private readonly Canvas _chart = new() { IsHitTestVisible = false };
@@ -53,9 +52,7 @@ internal sealed partial class ExchangeRatesView : Grid, IWidgetView, IWidgetHead
     public ExchangeRatesView(IWidgetHost host)
     {
         _host = host;
-        _header = new KitHeader(host);
-        _fix.VerticalAlignment = VerticalAlignment.Center;
-        _trailing = new HeaderTrail(_fix, _header);
+        _header = new KitHeader(host, _fix);
         RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
         RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
         ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
@@ -80,7 +77,7 @@ internal sealed partial class ExchangeRatesView : Grid, IWidgetView, IWidgetHead
         Children.Add(_emptyState);
     }
 
-    public FrameworkElement? HeaderTrailing => _trailing;
+    public FrameworkElement? HeaderTrailing => _header;
 
     public IReadOnlyList<WidgetAction> ContextActions =>
         [new WidgetAction(Glyphs.Refresh, OnlineParts.RefreshLabel(_table), () => Reload(force: true))];

@@ -11,10 +11,10 @@ namespace Themia.Sdk.WinUI.Kit;
 /// <summary>
 /// [S-6710] The Header block: [glyph 16] 8 [name, BodyStrong, secondary, ellipsis] … [trailing], one
 /// line of 20, the card's header (it sits in the card's <see cref="Family.HeaderInset"/>). The
-/// trailing slot is the view's own element: a <see cref="HeaderTrail"/> of family parts
-/// (<see cref="Button"/>, <see cref="Count"/>, a problem glyph, a ring, a label) folds by
-/// <see cref="HeaderRules"/>; a lone label ("by CPU", a <c>HeaderTrail</c> of the exchange rates')
-/// gives way to the name by [S-655]'s rule.
+/// trailing slot is the view's own element: <see cref="HeaderParts"/> of family parts
+/// (<see cref="Button"/>, <see cref="Count"/>, a problem glyph, a ring, a label; the kit's
+/// <c>KitHeader</c>) fold by <see cref="HeaderRules"/>; a lone label ("by CPU") gives way to the
+/// name by [S-655]'s rule.
 /// </summary>
 public sealed partial class HeaderBlock : Grid
 {
@@ -59,15 +59,8 @@ public sealed partial class HeaderBlock : Grid
 
         // [S-655] A label that only informs gives way to the title on a narrow tile (HeaderFit),
         // through MaxWidth, never Visibility, which views already set on their own labels. A label
-        // beside the kit's header extras comes in a HeaderTrail: the rule reaches it there too.
-        var label = trailing switch
-        {
-            TextBlock one => one,
-            Themia.App.Widgets.HeaderTrail trail => trail.Label,
-            _ => null,
-        };
-
-        if (label is not null)
+        // beside the kit's header extras is one of their parts and folds with them.
+        if (trailing is TextBlock label)
         {
             label.TextTrimming = TextTrimming.CharacterEllipsis;
             SizeChanged += (_, args) => label.MaxWidth = HeaderFit.TrailingLabelWidth(args.NewSize.Width, HeaderRules.Leading);
@@ -187,7 +180,7 @@ public sealed partial class HeaderBlock : Grid
 /// to the header's width by <see cref="HeaderRules"/>: the label first, then the buttons from the
 /// last, then the count; the name is cut only when nothing is left to give way.
 /// </summary>
-public sealed partial class HeaderParts : StackPanel
+public partial class HeaderParts : StackPanel
 {
     private readonly List<(HeaderPartKind Kind, FrameworkElement Element)> _parts = [];
 
@@ -217,6 +210,10 @@ public sealed partial class HeaderParts : StackPanel
     {
         if (wanted ? _unwanted.Remove(element) : _unwanted.Add(element))
         {
+            // Shown at once (the header's fold, when this is its trailing slot, decides again in its
+            // measure pass): parts in a panel of a view's own are never folded.
+            element.Visibility = wanted ? Visibility.Visible : Visibility.Collapsed;
+            Space();
             InvalidateMeasure();
             (Parent as UIElement)?.InvalidateMeasure();
         }
