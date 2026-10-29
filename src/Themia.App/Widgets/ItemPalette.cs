@@ -9,6 +9,7 @@ using Themia.App.Shell;
 using Themia.Core.Diagnostics;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
+using Themia.Sdk.WinUI;
 
 namespace Themia.App.Widgets;
 
@@ -142,7 +143,7 @@ internal sealed class ItemPalette
 
         if (ink.Colour is { } c)
         {
-            brush.Color = Windows.UI.Color.FromArgb(255, c.R, c.G, c.B);
+            brush.Color = HexBrush.Colour(c);
             brush.Opacity = ink.Opacity;
             return;
         }
@@ -156,7 +157,7 @@ internal sealed class ItemPalette
         else
         {
             Log.Warn("items", $"'{ink.ThemeKey}' is not a plain colour; item text is drawn grey");
-            brush.Color = Colors.Gray;
+            brush.Color = HexBrush.Colour(SelectionLook.NeutralGrey);
             brush.Opacity = 1;
         }
     }
@@ -167,7 +168,7 @@ internal sealed class ItemPalette
 
         if (ink.Colour is { } c)
         {
-            brush.Color = Windows.UI.Color.FromArgb(255, c.R, c.G, c.B);
+            brush.Color = HexBrush.Colour(c);
             brush.Opacity = ink.Opacity;
             return;
         }
@@ -181,7 +182,7 @@ internal sealed class ItemPalette
         else
         {
             Log.Warn("items", $"'{ink.ThemeKey}' is not a plain colour; the item is drawn clear");
-            brush.Color = Colors.Transparent;
+            brush.Color = default; // clear: transparent black
             brush.Opacity = 1;
         }
     }
