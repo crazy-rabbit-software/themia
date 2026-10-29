@@ -4,5 +4,10 @@
   "desktop.choice.windows": "Aikoni za Windows",
   "desktop.choice.nothing": "Hakuna kitu",
   "desktop.add.folder": "Kwenye eneo-kazi",
-  "desktop.rename.clash": "Tayari kuna kipengee chenye jina hili hapa."
+  "desktop.rename.clash": "Tayari kuna kipengee chenye jina hili hapa.",
+  "desktop.menu.edit": "Hariri wijeti",
+  "desktop.delete.fromView": "Ondoa kwenye mwonekano huu",
+  "desktop.automation.list": "Eneo-kazi",
+  "desktop.coexist.replaced": "Programu nyingine imebadilisha aikoni za eneo-kazi, kwa hivyo Themia inaiachia eneo-kazi.",
+  "desktop.coexist.keptShown": "Programu nyingine inaendelea kuonyesha aikoni za Windows, kwa hivyo Themia inaziacha zionekane. Chagua tena ili ujaribu tena."
 }

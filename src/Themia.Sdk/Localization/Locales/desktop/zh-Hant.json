@@ -4,5 +4,10 @@
   "desktop.choice.windows": "Windows 圖示",
   "desktop.choice.nothing": "無",
   "desktop.add.folder": "桌面上",
-  "desktop.rename.clash": "這裡已有同名的項目。"
+  "desktop.rename.clash": "這裡已有同名的項目。",
+  "desktop.menu.edit": "編輯小工具",
+  "desktop.delete.fromView": "從此檢視中移除",
+  "desktop.automation.list": "桌面",
+  "desktop.coexist.replaced": "另一個程式已取代桌面圖示，因此 Themia 將桌面交給它。",
+  "desktop.coexist.keptShown": "另一個程式一直在顯示 Windows 圖示，因此 Themia 讓它們保持顯示。請重新選擇以再試一次。"
 }

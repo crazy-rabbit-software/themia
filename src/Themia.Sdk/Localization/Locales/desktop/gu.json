@@ -4,5 +4,10 @@
   "desktop.choice.windows": "Windows ના આઇકન",
   "desktop.choice.nothing": "કંઈ નહીં",
   "desktop.add.folder": "ડેસ્કટોપ પર",
-  "desktop.rename.clash": "અહીં આ નામની આઇટમ પહેલેથી જ છે."
+  "desktop.rename.clash": "અહીં આ નામની આઇટમ પહેલેથી જ છે.",
+  "desktop.menu.edit": "વિજેટ સંપાદિત કરો",
+  "desktop.delete.fromView": "આ દૃશ્યમાંથી દૂર કરો",
+  "desktop.automation.list": "ડેસ્કટોપ",
+  "desktop.coexist.replaced": "બીજા પ્રોગ્રામે ડેસ્કટોપના આઇકન બદલી નાખ્યા છે, તેથી Themia ડેસ્કટોપ તેને સોંપે છે.",
+  "desktop.coexist.keptShown": "બીજો પ્રોગ્રામ Windows ના આઇકન બતાવતો રહે છે, તેથી Themia તેમને દેખાવા દે છે. ફરી પ્રયાસ કરવા માટે ફરીથી પસંદ કરો."
 }

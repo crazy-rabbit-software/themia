@@ -4,5 +4,10 @@
   "desktop.choice.windows": "Biểu tượng của Windows",
   "desktop.choice.nothing": "Không có gì",
   "desktop.add.folder": "Trên màn hình nền",
-  "desktop.rename.clash": "Đã có một mục có tên này ở đây."
+  "desktop.rename.clash": "Đã có một mục có tên này ở đây.",
+  "desktop.menu.edit": "Chỉnh sửa tiện ích",
+  "desktop.delete.fromView": "Xóa khỏi chế độ xem này",
+  "desktop.automation.list": "Màn hình nền",
+  "desktop.coexist.replaced": "Một chương trình khác đã thay thế các biểu tượng màn hình nền, nên Themia để màn hình nền cho chương trình đó.",
+  "desktop.coexist.keptShown": "Một chương trình khác cứ hiện các biểu tượng của Windows, nên Themia để chúng hiện. Hãy chọn lại để thử lần nữa."
 }

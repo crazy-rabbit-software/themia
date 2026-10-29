@@ -256,6 +256,9 @@ public interface ISettingsMenuHost
     /// <summary>[S-5500] Store and apply what the desktop shows (Themia's items, Windows' icons or nothing).</summary>
     void SetDesktop(DesktopShows shows);
 
+    /// <summary>[S-5575] Who else holds the desktop's windows, as last read: âš™ â€º On the desktop says why its choice does not show.</summary>
+    Themia.Core.Desktop.DesktopHolder DesktopHolder => Themia.Core.Desktop.DesktopHolder.None;
+
     /// <summary>[S-920] Game mode is holding the widgets now.</summary>
     bool Suspended { get; }
 

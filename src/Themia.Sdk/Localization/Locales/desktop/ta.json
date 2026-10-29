@@ -4,5 +4,10 @@
   "desktop.choice.windows": "Windows ஐகான்கள்",
   "desktop.choice.nothing": "எதுவுமில்லை",
   "desktop.add.folder": "டெஸ்க்டாப்பில்",
-  "desktop.rename.clash": "இந்தப் பெயரில் ஓர் உருப்படி ஏற்கனவே இங்கே உள்ளது."
+  "desktop.rename.clash": "இந்தப் பெயரில் ஓர் உருப்படி ஏற்கனவே இங்கே உள்ளது.",
+  "desktop.menu.edit": "விட்ஜெட்களைத் திருத்து",
+  "desktop.delete.fromView": "இந்தக் காட்சியிலிருந்து அகற்று",
+  "desktop.automation.list": "டெஸ்க்டாப்",
+  "desktop.coexist.replaced": "வேறொரு நிரல் டெஸ்க்டாப் ஐகான்களை மாற்றியுள்ளது, எனவே Themia டெஸ்க்டாப்பை அதனிடமே விடுகிறது.",
+  "desktop.coexist.keptShown": "வேறொரு நிரல் Windows ஐகான்களைக் காட்டிக்கொண்டே இருக்கிறது, எனவே Themia அவற்றைக் காட்டியபடியே விடுகிறது. மீண்டும் முயல மீண்டும் தேர்வுசெய்யவும்."
 }

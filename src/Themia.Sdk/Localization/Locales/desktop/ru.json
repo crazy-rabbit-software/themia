@@ -4,5 +4,10 @@
   "desktop.choice.windows": "Значки Windows",
   "desktop.choice.nothing": "Ничего",
   "desktop.add.folder": "На рабочем столе",
-  "desktop.rename.clash": "Здесь уже есть элемент с таким именем."
+  "desktop.rename.clash": "Здесь уже есть элемент с таким именем.",
+  "desktop.menu.edit": "Изменить виджеты",
+  "desktop.delete.fromView": "Убрать из этого вида",
+  "desktop.automation.list": "Рабочий стол",
+  "desktop.coexist.replaced": "Другая программа заменила значки рабочего стола, поэтому Themia оставляет рабочий стол ей.",
+  "desktop.coexist.keptShown": "Другая программа снова и снова показывает значки Windows, поэтому Themia оставляет их. Выберите вариант ещё раз, чтобы повторить попытку."
 }

@@ -539,6 +539,7 @@ public sealed class AppStateStore : IAsyncDisposable
 
         repairs.AddRange(ValidateViewBars(state));
         repairs.AddRange(Desktop.DesktopReconcile.RepairKnown(state));
+        repairs.AddRange(Desktop.DesktopDisplays.RepairFallbacks(state));
         return repairs;
     }
 

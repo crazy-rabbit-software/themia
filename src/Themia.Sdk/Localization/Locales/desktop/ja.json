@@ -4,5 +4,10 @@
   "desktop.choice.windows": "Windows のアイコン",
   "desktop.choice.nothing": "なし",
   "desktop.add.folder": "デスクトップ上",
-  "desktop.rename.clash": "この名前の項目は既にここにあります。"
+  "desktop.rename.clash": "この名前の項目は既にここにあります。",
+  "desktop.menu.edit": "ウィジェットを編集",
+  "desktop.delete.fromView": "このビューから削除",
+  "desktop.automation.list": "デスクトップ",
+  "desktop.coexist.replaced": "別のプログラムがデスクトップのアイコンを置き換えているため、Themia はデスクトップをそのプログラムに任せます。",
+  "desktop.coexist.keptShown": "別のプログラムが Windows のアイコンを表示し続けているため、Themia はそのまま表示します。もう一度試すには、選択し直してください。"
 }

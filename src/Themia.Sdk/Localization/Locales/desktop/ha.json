@@ -4,5 +4,10 @@
   "desktop.choice.windows": "Gumakan Windows",
   "desktop.choice.nothing": "Babu komai",
   "desktop.add.folder": "A kan tebur",
-  "desktop.rename.clash": "Akwai wani abu mai wannan suna a nan tuni."
+  "desktop.rename.clash": "Akwai wani abu mai wannan suna a nan tuni.",
+  "desktop.menu.edit": "Gyara widget",
+  "desktop.delete.fromView": "Cire daga wannan duba",
+  "desktop.automation.list": "Tebur",
+  "desktop.coexist.replaced": "Wani shiri ya maye gurbin gumakan tebur, don haka Themia ta bar masa tebur.",
+  "desktop.coexist.keptShown": "Wani shiri yana ci gaba da nuna gumakan Windows, don haka Themia ta bar su a bayyane. Sake zaɓa don sake gwadawa."
 }

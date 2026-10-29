@@ -4,5 +4,10 @@
   "desktop.choice.windows": "أيقونات Windows",
   "desktop.choice.nothing": "لا شيء",
   "desktop.add.folder": "على سطح المكتب",
-  "desktop.rename.clash": "يوجد بالفعل عنصر بهذا الاسم هنا."
+  "desktop.rename.clash": "يوجد بالفعل عنصر بهذا الاسم هنا.",
+  "desktop.menu.edit": "تحرير الأدوات",
+  "desktop.delete.fromView": "إزالة من طريقة العرض هذه",
+  "desktop.automation.list": "سطح المكتب",
+  "desktop.coexist.replaced": "استبدل برنامج آخر أيقونات سطح المكتب، لذا يترك Themia سطح المكتب له.",
+  "desktop.coexist.keptShown": "يواصل برنامج آخر إظهار أيقونات Windows، لذا يتركها Themia ظاهرة. اختر مرة أخرى لإعادة المحاولة."
 }

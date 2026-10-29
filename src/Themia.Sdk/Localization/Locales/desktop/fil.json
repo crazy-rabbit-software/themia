@@ -4,5 +4,10 @@
   "desktop.choice.windows": "Mga icon ng Windows",
   "desktop.choice.nothing": "Wala",
   "desktop.add.folder": "Sa desktop",
-  "desktop.rename.clash": "May item na may ganitong pangalan na rito."
+  "desktop.rename.clash": "May item na may ganitong pangalan na rito.",
+  "desktop.menu.edit": "I-edit ang mga widget",
+  "desktop.delete.fromView": "Alisin sa view na ito",
+  "desktop.automation.list": "Desktop",
+  "desktop.coexist.replaced": "Pinalitan ng ibang program ang mga icon ng desktop, kaya iniiwan ng Themia ang desktop dito.",
+  "desktop.coexist.keptShown": "Patuloy na ipinapakita ng ibang program ang mga icon ng Windows, kaya hinahayaan ng Themia na nakikita ang mga ito. Pumili muli para subukan ulit."
 }

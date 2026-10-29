@@ -4,5 +4,10 @@
   "desktop.choice.windows": "نمادهای Windows",
   "desktop.choice.nothing": "هیچ",
   "desktop.add.folder": "روی دسکتاپ",
-  "desktop.rename.clash": "در اینجا موردی با این نام از قبل وجود دارد."
+  "desktop.rename.clash": "در اینجا موردی با این نام از قبل وجود دارد.",
+  "desktop.menu.edit": "ویرایش ابزارک‌ها",
+  "desktop.delete.fromView": "حذف از این نما",
+  "desktop.automation.list": "دسکتاپ",
+  "desktop.coexist.replaced": "برنامهٔ دیگری نمادهای دسکتاپ را جایگزین کرده است، پس Themia دسکتاپ را به آن می‌سپارد.",
+  "desktop.coexist.keptShown": "برنامهٔ دیگری مدام نمادهای Windows را نشان می‌دهد، پس Themia آن‌ها را نمایان می‌گذارد. برای تلاش دوباره، دوباره انتخاب کنید."
 }

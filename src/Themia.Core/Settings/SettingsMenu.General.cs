@@ -43,6 +43,12 @@ public static partial class SettingsMenu
         // [S-5500] What the desktop shows: Themia's own choice, so it shows what was chosen.
         lines.Add(Desktop(host));
 
+        // [S-5575] Under it, why it does not show while another program holds the desktop.
+        if (Themia.Core.Desktop.DesktopCoexistence.Note(state.Preferences.Desktop, host.DesktopHolder) is { } held)
+        {
+            lines.Add(new SettingsNote(Keys.Desktop + "/held", held));
+        }
+
         // [S-920] Game mode, "Paused now" at its end while it is holding the widgets.
         lines.Add(new SettingsToggle(Keys.GameMode, Str.SettingsMenu_GameMode.Text(), Glyphs.Game, state.Preferences.GameModeSuspend, host.SetGameModeSuspend)
         {

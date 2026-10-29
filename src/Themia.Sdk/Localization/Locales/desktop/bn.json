@@ -4,5 +4,10 @@
   "desktop.choice.windows": "Windows-এর আইকন",
   "desktop.choice.nothing": "কিছু না",
   "desktop.add.folder": "ডেস্কটপে",
-  "desktop.rename.clash": "এখানে এই নামে ইতিমধ্যে একটি আইটেম আছে।"
+  "desktop.rename.clash": "এখানে এই নামে ইতিমধ্যে একটি আইটেম আছে।",
+  "desktop.menu.edit": "উইজেট সম্পাদনা করুন",
+  "desktop.delete.fromView": "এই ভিউ থেকে সরান",
+  "desktop.automation.list": "ডেস্কটপ",
+  "desktop.coexist.replaced": "অন্য একটি প্রোগ্রাম ডেস্কটপের আইকন বদলে দিয়েছে, তাই Themia ডেস্কটপ সেটির জন্য ছেড়ে দেয়।",
+  "desktop.coexist.keptShown": "অন্য একটি প্রোগ্রাম Windows-এর আইকন দেখিয়েই চলেছে, তাই Themia সেগুলো দেখানোই রাখে। আবার চেষ্টা করতে আবার বেছে নিন।"
 }

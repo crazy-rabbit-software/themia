@@ -4,5 +4,10 @@
   "desktop.choice.windows": "Windows के आइकन",
   "desktop.choice.nothing": "कुछ नहीं",
   "desktop.add.folder": "डेस्कटॉप पर",
-  "desktop.rename.clash": "यहाँ इस नाम का एक आइटम पहले से मौजूद है।"
+  "desktop.rename.clash": "यहाँ इस नाम का एक आइटम पहले से मौजूद है।",
+  "desktop.menu.edit": "विजेट संपादित करें",
+  "desktop.delete.fromView": "इस दृश्य से हटाएँ",
+  "desktop.automation.list": "डेस्कटॉप",
+  "desktop.coexist.replaced": "किसी अन्य प्रोग्राम ने डेस्कटॉप आइकन बदल दिए हैं, इसलिए Themia डेस्कटॉप उसी पर छोड़ देता है।",
+  "desktop.coexist.keptShown": "कोई अन्य प्रोग्राम Windows के आइकन दिखाता रहता है, इसलिए Themia उन्हें दिखने देता है। फिर से कोशिश करने के लिए दोबारा चुनें।"
 }

@@ -4,5 +4,10 @@
   "desktop.choice.windows": "Iconos de Windows",
   "desktop.choice.nothing": "Nada",
   "desktop.add.folder": "En el escritorio",
-  "desktop.rename.clash": "Ya hay un elemento con este nombre aquí."
+  "desktop.rename.clash": "Ya hay un elemento con este nombre aquí.",
+  "desktop.menu.edit": "Editar widgets",
+  "desktop.delete.fromView": "Quitar de esta vista",
+  "desktop.automation.list": "Escritorio",
+  "desktop.coexist.replaced": "Otro programa ha sustituido los iconos del escritorio, así que Themia le deja el escritorio.",
+  "desktop.coexist.keptShown": "Otro programa sigue mostrando los iconos de Windows, así que Themia los deja visibles. Vuelve a elegir para intentarlo de nuevo."
 }

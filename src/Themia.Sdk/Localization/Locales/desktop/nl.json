@@ -4,5 +4,10 @@
   "desktop.choice.windows": "Pictogrammen van Windows",
   "desktop.choice.nothing": "Niets",
   "desktop.add.folder": "Op het bureaublad",
-  "desktop.rename.clash": "Er is hier al een item met deze naam."
+  "desktop.rename.clash": "Er is hier al een item met deze naam.",
+  "desktop.menu.edit": "Widgets bewerken",
+  "desktop.delete.fromView": "Uit deze weergave verwijderen",
+  "desktop.automation.list": "Bureaublad",
+  "desktop.coexist.replaced": "Een ander programma heeft de bureaubladpictogrammen vervangen, dus laat Themia het bureaublad aan dat programma.",
+  "desktop.coexist.keptShown": "Een ander programma blijft de Windows-pictogrammen tonen, dus laat Themia ze staan. Kies opnieuw om het nog eens te proberen."
 }

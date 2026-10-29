@@ -4,5 +4,10 @@
   "desktop.choice.windows": "ไอคอนของ Windows",
   "desktop.choice.nothing": "ไม่มี",
   "desktop.add.folder": "บนเดสก์ท็อป",
-  "desktop.rename.clash": "มีรายการชื่อนี้อยู่ที่นี่แล้ว"
+  "desktop.rename.clash": "มีรายการชื่อนี้อยู่ที่นี่แล้ว",
+  "desktop.menu.edit": "แก้ไขวิดเจ็ต",
+  "desktop.delete.fromView": "นำออกจากมุมมองนี้",
+  "desktop.automation.list": "เดสก์ท็อป",
+  "desktop.coexist.replaced": "โปรแกรมอื่นได้แทนที่ไอคอนบนเดสก์ท็อปแล้ว Themia จึงปล่อยเดสก์ท็อปให้โปรแกรมนั้น",
+  "desktop.coexist.keptShown": "โปรแกรมอื่นยังคงแสดงไอคอนของ Windows อยู่ Themia จึงปล่อยให้แสดงไว้ เลือกอีกครั้งเพื่อลองใหม่"
 }

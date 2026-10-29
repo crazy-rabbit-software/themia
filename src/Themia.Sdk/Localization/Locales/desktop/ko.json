@@ -4,5 +4,10 @@
   "desktop.choice.windows": "Windows 아이콘",
   "desktop.choice.nothing": "없음",
   "desktop.add.folder": "바탕 화면",
-  "desktop.rename.clash": "여기에 이 이름의 항목이 이미 있습니다."
+  "desktop.rename.clash": "여기에 이 이름의 항목이 이미 있습니다.",
+  "desktop.menu.edit": "위젯 편집",
+  "desktop.delete.fromView": "이 보기에서 제거",
+  "desktop.automation.list": "바탕 화면",
+  "desktop.coexist.replaced": "다른 프로그램이 바탕 화면 아이콘을 대체했으므로 Themia는 바탕 화면을 그 프로그램에 맡깁니다.",
+  "desktop.coexist.keptShown": "다른 프로그램이 Windows 아이콘을 계속 표시하므로 Themia는 아이콘을 그대로 둡니다. 다시 시도하려면 다시 선택하세요."
 }

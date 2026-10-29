@@ -4,5 +4,10 @@
   "desktop.choice.windows": "Ikon Windows",
   "desktop.choice.nothing": "Tidak ada",
   "desktop.add.folder": "Di desktop",
-  "desktop.rename.clash": "Sudah ada item dengan nama ini di sini."
+  "desktop.rename.clash": "Sudah ada item dengan nama ini di sini.",
+  "desktop.menu.edit": "Edit widget",
+  "desktop.delete.fromView": "Hapus dari tampilan ini",
+  "desktop.automation.list": "Desktop",
+  "desktop.coexist.replaced": "Program lain telah menggantikan ikon desktop, jadi Themia menyerahkan desktop kepadanya.",
+  "desktop.coexist.keptShown": "Program lain terus menampilkan ikon Windows, jadi Themia membiarkannya tampil. Pilih lagi untuk mencoba sekali lagi."
 }

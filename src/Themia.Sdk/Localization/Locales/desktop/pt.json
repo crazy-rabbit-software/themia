@@ -4,5 +4,10 @@
   "desktop.choice.windows": "Ícones do Windows",
   "desktop.choice.nothing": "Nada",
   "desktop.add.folder": "Na área de trabalho",
-  "desktop.rename.clash": "Já existe um item com este nome aqui."
+  "desktop.rename.clash": "Já existe um item com este nome aqui.",
+  "desktop.menu.edit": "Editar widgets",
+  "desktop.delete.fromView": "Remover desta vista",
+  "desktop.automation.list": "Área de trabalho",
+  "desktop.coexist.replaced": "Outro programa substituiu os ícones da área de trabalho, por isso o Themia deixa-lhe a área de trabalho.",
+  "desktop.coexist.keptShown": "Outro programa continua a mostrar os ícones do Windows, por isso o Themia deixa-os visíveis. Escolha de novo para tentar outra vez."
 }

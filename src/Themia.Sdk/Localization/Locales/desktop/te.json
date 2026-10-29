@@ -4,5 +4,10 @@
   "desktop.choice.windows": "Windows చిహ్నాలు",
   "desktop.choice.nothing": "ఏమీ లేదు",
   "desktop.add.folder": "డెస్క్‌టాప్‌లో",
-  "desktop.rename.clash": "ఈ పేరుతో ఒక అంశం ఇక్కడ ఇప్పటికే ఉంది."
+  "desktop.rename.clash": "ఈ పేరుతో ఒక అంశం ఇక్కడ ఇప్పటికే ఉంది.",
+  "desktop.menu.edit": "విడ్జెట్‌లను సవరించండి",
+  "desktop.delete.fromView": "ఈ వీక్షణ నుండి తీసివేయండి",
+  "desktop.automation.list": "డెస్క్‌టాప్",
+  "desktop.coexist.replaced": "మరో ప్రోగ్రామ్ డెస్క్‌టాప్ చిహ్నాలను భర్తీ చేసింది, కాబట్టి Themia డెస్క్‌టాప్‌ను దానికే వదిలేస్తుంది.",
+  "desktop.coexist.keptShown": "మరో ప్రోగ్రామ్ Windows చిహ్నాలను చూపిస్తూనే ఉంది, కాబట్టి Themia వాటిని కనిపించనిస్తుంది. మళ్లీ ప్రయత్నించడానికి మళ్లీ ఎంచుకోండి."
 }

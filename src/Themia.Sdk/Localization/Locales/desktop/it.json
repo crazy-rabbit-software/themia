@@ -4,5 +4,10 @@
   "desktop.choice.windows": "Icone di Windows",
   "desktop.choice.nothing": "Niente",
   "desktop.add.folder": "Sul desktop",
-  "desktop.rename.clash": "Esiste già un elemento con questo nome qui."
+  "desktop.rename.clash": "Esiste già un elemento con questo nome qui.",
+  "desktop.menu.edit": "Modifica widget",
+  "desktop.delete.fromView": "Rimuovi da questa vista",
+  "desktop.automation.list": "Desktop",
+  "desktop.coexist.replaced": "Un altro programma ha sostituito le icone del desktop, quindi Themia gli lascia il desktop.",
+  "desktop.coexist.keptShown": "Un altro programma continua a mostrare le icone di Windows, quindi Themia le lascia visibili. Scegli di nuovo per riprovare."
 }

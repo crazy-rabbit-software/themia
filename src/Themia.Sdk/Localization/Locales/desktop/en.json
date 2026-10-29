@@ -5,5 +5,10 @@
   "desktop.choice.windows": "Windows' icons",
   "desktop.choice.nothing": "Nothing",
   "desktop.add.folder": "On the desktop",
-  "desktop.rename.clash": "There's already an item with this name here."
+  "desktop.rename.clash": "There's already an item with this name here.",
+  "desktop.menu.edit": "Edit widgets",
+  "desktop.delete.fromView": "Remove from this view",
+  "desktop.automation.list": "Desktop",
+  "desktop.coexist.replaced": "Another program has replaced the desktop's icons, so Themia leaves the desktop to it.",
+  "desktop.coexist.keptShown": "Another program keeps showing Windows' icons, so Themia leaves them shown. Pick a choice again to try once more."
 }

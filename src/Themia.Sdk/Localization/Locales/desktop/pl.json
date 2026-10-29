@@ -4,5 +4,10 @@
   "desktop.choice.windows": "Ikony systemu Windows",
   "desktop.choice.nothing": "Nic",
   "desktop.add.folder": "Na pulpicie",
-  "desktop.rename.clash": "Element o tej nazwie już tu istnieje."
+  "desktop.rename.clash": "Element o tej nazwie już tu istnieje.",
+  "desktop.menu.edit": "Edytuj widżety",
+  "desktop.delete.fromView": "Usuń z tego widoku",
+  "desktop.automation.list": "Pulpit",
+  "desktop.coexist.replaced": "Inny program zastąpił ikony pulpitu, więc Themia zostawia mu pulpit.",
+  "desktop.coexist.keptShown": "Inny program wciąż pokazuje ikony systemu Windows, więc Themia je zostawia. Wybierz ponownie, aby spróbować jeszcze raz."
 }

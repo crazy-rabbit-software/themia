@@ -4,5 +4,10 @@
   "desktop.choice.windows": "Windows کے آئیکنز",
   "desktop.choice.nothing": "کچھ نہیں",
   "desktop.add.folder": "ڈیسک ٹاپ پر",
-  "desktop.rename.clash": "یہاں اس نام کا آئٹم پہلے سے موجود ہے۔"
+  "desktop.rename.clash": "یہاں اس نام کا آئٹم پہلے سے موجود ہے۔",
+  "desktop.menu.edit": "ویجٹس میں ترمیم کریں",
+  "desktop.delete.fromView": "اس منظر سے ہٹائیں",
+  "desktop.automation.list": "ڈیسک ٹاپ",
+  "desktop.coexist.replaced": "کسی اور پروگرام نے ڈیسک ٹاپ کے آئیکنز کی جگہ لے لی ہے، اس لیے Themia ڈیسک ٹاپ اسی کے لیے چھوڑ دیتا ہے۔",
+  "desktop.coexist.keptShown": "کوئی اور پروگرام Windows کے آئیکنز دکھاتا رہتا ہے، اس لیے Themia انہیں دکھائی دینے دیتا ہے۔ دوبارہ کوشش کرنے کے لیے پھر سے منتخب کریں۔"
 }

@@ -4,5 +4,10 @@
   "desktop.choice.windows": "Icônes de Windows",
   "desktop.choice.nothing": "Rien",
   "desktop.add.folder": "Sur le bureau",
-  "desktop.rename.clash": "Un élément portant ce nom existe déjà ici."
+  "desktop.rename.clash": "Un élément portant ce nom existe déjà ici.",
+  "desktop.menu.edit": "Modifier les widgets",
+  "desktop.delete.fromView": "Retirer de cette vue",
+  "desktop.automation.list": "Bureau",
+  "desktop.coexist.replaced": "Un autre programme a remplacé les icônes du Bureau ; Themia lui laisse donc le Bureau.",
+  "desktop.coexist.keptShown": "Un autre programme continue d'afficher les icônes de Windows ; Themia les laisse donc affichées. Choisissez à nouveau pour réessayer."
 }

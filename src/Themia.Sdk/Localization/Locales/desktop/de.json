@@ -4,5 +4,10 @@
   "desktop.choice.windows": "Windows-Symbole",
   "desktop.choice.nothing": "Nichts",
   "desktop.add.folder": "Auf dem Desktop",
-  "desktop.rename.clash": "Hier gibt es bereits ein Element mit diesem Namen."
+  "desktop.rename.clash": "Hier gibt es bereits ein Element mit diesem Namen.",
+  "desktop.menu.edit": "Widgets bearbeiten",
+  "desktop.delete.fromView": "Aus dieser Ansicht entfernen",
+  "desktop.automation.list": "Desktop",
+  "desktop.coexist.replaced": "Ein anderes Programm hat die Desktopsymbole ersetzt, daher überlässt Themia ihm den Desktop.",
+  "desktop.coexist.keptShown": "Ein anderes Programm zeigt die Windows-Symbole immer wieder an, daher lässt Themia sie stehen. Wählen Sie erneut, um es noch einmal zu versuchen."
 }

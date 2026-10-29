@@ -4,5 +4,10 @@
   "desktop.choice.windows": "Windows ਦੇ ਆਈਕਨ",
   "desktop.choice.nothing": "ਕੁਝ ਨਹੀਂ",
   "desktop.add.folder": "ਡੈਸਕਟਾਪ ਉੱਤੇ",
-  "desktop.rename.clash": "ਇੱਥੇ ਇਸ ਨਾਮ ਦੀ ਆਈਟਮ ਪਹਿਲਾਂ ਹੀ ਮੌਜੂਦ ਹੈ।"
+  "desktop.rename.clash": "ਇੱਥੇ ਇਸ ਨਾਮ ਦੀ ਆਈਟਮ ਪਹਿਲਾਂ ਹੀ ਮੌਜੂਦ ਹੈ।",
+  "desktop.menu.edit": "ਵਿਜੇਟ ਸੋਧੋ",
+  "desktop.delete.fromView": "ਇਸ ਦ੍ਰਿਸ਼ ਤੋਂ ਹਟਾਓ",
+  "desktop.automation.list": "ਡੈਸਕਟਾਪ",
+  "desktop.coexist.replaced": "ਕਿਸੇ ਹੋਰ ਪ੍ਰੋਗਰਾਮ ਨੇ ਡੈਸਕਟਾਪ ਦੇ ਆਈਕਨ ਬਦਲ ਦਿੱਤੇ ਹਨ, ਇਸ ਲਈ Themia ਡੈਸਕਟਾਪ ਉਸੇ ਲਈ ਛੱਡ ਦਿੰਦਾ ਹੈ।",
+  "desktop.coexist.keptShown": "ਕੋਈ ਹੋਰ ਪ੍ਰੋਗਰਾਮ Windows ਦੇ ਆਈਕਨ ਦਿਖਾਉਂਦਾ ਰਹਿੰਦਾ ਹੈ, ਇਸ ਲਈ Themia ਉਨ੍ਹਾਂ ਨੂੰ ਦਿਖਣ ਦਿੰਦਾ ਹੈ। ਦੁਬਾਰਾ ਕੋਸ਼ਿਸ਼ ਕਰਨ ਲਈ ਮੁੜ ਚੁਣੋ।"
 }
