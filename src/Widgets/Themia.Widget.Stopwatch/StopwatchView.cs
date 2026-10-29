@@ -234,9 +234,9 @@ internal sealed partial class StopwatchView : Grid, IWidgetView, IWidgetSizeAwar
         var lapLine = _state.Phase == StopwatchPhase.Paused && laps.Length == 0
             ? StopwatchStr.Stopwatch_Paused.Text()
             : laps.Length == 0 ? null
-            : $"{StopwatchStr.Stopwatch_LapNumber.Format(("n", LocaleFormat.Integer(laps.Length + 1)))} · {Time(_state.CurrentLap(now), tenths: !_state.Running)}";
+            : $"{StopwatchStr.Stopwatch_LapNumber.Format(("n", LocaleFormat.Integer(laps.Length + 1)))} · {Time(_state.CurrentLap(now), tenths: _plan.Tenths && !_state.Running)}";
         _clock.Show(
-            Time(elapsed, tenths: !_state.Running && !_state.Idle),
+            Time(elapsed, tenths: _plan.Tenths && !_state.Running && !_state.Idle),
             under: _plan.Face.Under ? lapLine : null,
             valueRole: _state.Phase == StopwatchPhase.Paused ? ColourRole.TextSecondary : ColourRole.TextPrimary);
 
@@ -301,7 +301,7 @@ internal sealed partial class StopwatchView : Grid, IWidgetView, IWidgetSizeAwar
         _face.RowSpacing = _plan.Face.Controls ? FamilySpace.S2 : 0;
         _controls.Visibility = _plan.Face.Controls ? Visibility.Visible : Visibility.Collapsed;
         _laps.Visibility = side ? Visibility.Visible : Visibility.Collapsed;
-        _clock.Size(area, _plan.FaceWidth, _plan.Face.Box, new ReadoutText(StopwatchFace.Widest(_hours), LineUnder: true, OneReadout: true));
+        _clock.Size(area, _plan.FaceWidth, _plan.Face.Box, new ReadoutText(StopwatchFace.Widest(_hours, _plan.Tenths), LineUnder: true, OneReadout: true));
         Render();
     }
 

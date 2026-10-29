@@ -15,6 +15,21 @@ public sealed class StopwatchFaceTests
     }
 
     [Fact]
+    public void S4605_a_face_too_narrow_for_the_tenth_on_the_floor_step_never_shows_it()
+    {
+        // XS: 88 wide; "88:88.8" on 28 is 95, "88:88" 72.
+        var xs = StopwatchFace.Plan(new WidgetArea(120, 76), hours: false);
+        Assert.False(xs.Tenths);
+        Assert.Equal(FamilyType.Big28, xs.Face.Step);
+        Assert.Equal("88:88", StopwatchFace.Widest(hours: false, tenths: false));
+        Assert.True(ReadoutRules.Width(xs.Face.Step, new ReadoutText(StopwatchFace.Widest(false, xs.Tenths))) <= xs.FaceWidth);
+
+        // S and larger keep it.
+        Assert.True(StopwatchFace.Plan(new WidgetArea(200, 106), hours: false).Tenths);
+        Assert.True(StopwatchFace.Plan(new WidgetArea(800, 516), hours: true).Tenths);
+    }
+
+    [Fact]
     public void S4605_below_an_expanded_width_the_lap_line_alone_says_where_the_laps_are()
     {
         foreach (var area in new[] { new WidgetArea(120, 76), new WidgetArea(200, 106), new WidgetArea(320, 196), new WidgetArea(200, 356) })

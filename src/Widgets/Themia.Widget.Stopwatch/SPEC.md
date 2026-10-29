@@ -35,7 +35,8 @@ key map `StopwatchKeys`), `StopwatchFace.cs` (the face and the laps' column), `S
   the letters L and R do the same (type-ahead, `StopwatchKeys.Letter`).
 - **[S-4605]** The face (`StopwatchFace.Plan`, `TimerFace.Plan`): the time on the Hero steps, centred
   both ways over the centred Controls row, which shows only where the 28 line, 8 and the row fit (XS
-  keeps the time and its lap line); from an expanded width (Wide, L, XL) the laps stand in a column of
+  keeps the time and its lap line); a face too narrow for the widest reading with its tenth even on
+  the 28 step (XS) never shows the tenth, so a stopped time is not cut; from an expanded width (Wide, L, XL) the laps stand in a column of
   two fifths of the view at its end edge, from the content's top: fact rows (`RowBlock`, no lead) of
   "Lap N" and its length, its total the second line where the tier gives rows two lines ([S-6712]),
   whole rows only; "No laps yet" is the Status row at the column's top until the first lap. Narrower,
