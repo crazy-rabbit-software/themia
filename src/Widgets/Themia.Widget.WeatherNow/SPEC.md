@@ -4,46 +4,48 @@ The module `weatherNow` ([S-6911]): the weather where the user says they are, fr
 tags are this file's alone; the root `SPEC.md` holds the host's sections and what both weather
 widgets share (Weather: current conditions and forecast: the request [S-720], the header's place
 title [S-728], the stored answers [S-729], Refresh [S-730], the place row [S-2840]..[S-2848], the
-glyphs [S-733]; the hero readout [S-667], the stat parts [S-668]; the background web sync [S-2663]).
+glyphs [S-733]; the background web sync [S-2663]; the family's blocks [S-6702], [S-6711], [S-6714] and the
+online widgets' state row [S-6734]).
 
 Owning files: everything in this folder: `WeatherNowModule.cs` (descriptor, view factory, settings
 rows, JSON context), `WeatherNowConfig.cs` (with its styles and the row only one style offers),
 `WeatherNowView.cs` and `WeatherNowView.Styles.cs` (they read the reading through
-`IWidgetHost.Weather`), `WeatherNowLayout.cs` (the standard style's ladder), `WeatherNowStyles.cs`
-(the other two styles' fits), `WeatherFacts.cs` (its readings), `WeatherNowMenu.cs` (its properties-menu
-lines: the weather family's `WeatherPlaceRows.LocationLine` and Show detail), `Preview/` (Debug renders: `--state sample`,
+`IWidgetHost.Weather`), `WeatherNowLayout.cs` (the standard style's face), `WeatherNowStyles.cs`
+(the other two styles' steps), `WeatherFacts.cs` (its readings), `WeatherNowMenu.cs` (its properties-menu
+lines: the weather family's `WeatherPlaceRows.LocationLine` and Show detail), `Preview/` (Debug renders: `--state sample|stale|failed`,
 the SDK's `WeatherSample`), `Localization/Locales/` (its own `WeatherNowStr`, 30 languages, its style
 names included). Tests: `Tests/WeatherNowTests.cs` (run by `tests/Themia.Modules.Tests`); host rules it
 is the example of are in the module test host (`OnlineHostTests`, `SyncHousekeepingTests`,
 `ConfigSnapshotTests`).
 
-- **[S-722]** The current readings, in order: Feels like, Humidity, Wind ("11 km/h NW"),
-  Precipitation (the last hour's amount while it rains, else today's chance), Pressure, UV index,
-  Cloud cover, Gusts, Sunrise, Sunset. A reading the service did not send is left out, not "--".
-- **[S-723]** Current-conditions ladder (`WeatherNowLayout.Plan`): the temperature always, as the
-  hero readout ([S-667]: icon beside once it fits; the condition, today's range and the Feels
-  token are its caption lines, beside or under, [S-656]); then — a strip, or a tile Expanded wide
-  (not tall) with H ≥ Regular: the readings as stat lines ([S-668]) in a column beside the reading,
-  one column while they fit and two only when not; a tall column (H ≥ Expanded): today's high/low,
-  then up to 8 stat lines under it; otherwise a flat row of stat cells (no boxes, original S-07)
-  once H ≥ Regular and three cells fit, else a single "Feels 17°C" caption line under the
-  condition; today's "H 19°  L 11°" (Least ≥ Regular, or beside on a strip); a second row of cells
-  at Huge both ways where the cells are under the reading. The reading and its rungs are one group,
-  centred in the tile, inset 16 either side and 12 above and below (the bottom readings used to
-  run within 4px of the card's edge). No next-days strip and no next-24-hours chart at any size (retired, [S-666]:
-  the hours and the days are the forecast widget's job); what the rungs leave is the reading's.
-  "Show detail" off = the reading alone at every size.
+- **[S-722]** The current readings, in order: Today ("H 16°  L 8°", today's high and low, when the
+  answer has today), Feels like, Humidity, Wind ("11 km/h NW"), Precipitation (the last hour's amount
+  while it rains, else today's chance), Pressure, UV index, Cloud cover, Gusts, Sunrise, Sunset. A
+  reading the service did not send is left out, not "--".
+- **[S-723]** The standard style's face (`WeatherNowLayout.Plan`), the detail widgets' plan ([S-2402],
+  `DetailFace`) on the family's blocks: the temperature is the Readout at the view's top, start-aligned
+  (or where the widget's alignment puts it in its column, [S-6583]), led by the sky's glyph at its step,
+  the condition its line under, on the step the widest reading ("-18°F" with its glyph and line under)
+  takes: 28 (XS, S), 40 (M, Wide, Tall), 68 (L, XL) where it fits, never larger ([S-6702], [S-666]).
+  The readings are fact rows ([S-6711]: their 16 glyph, the name secondary, the value primary), only
+  whole rows: in a column beside the reading from the top on an expanded width (the reading's column
+  two fifths of the card), else 8 under it; XS and S are the reading alone. Room left at L and XL stays
+  empty. No next days and no next hours at any size ([S-666]: the forecast widget's job). "Show detail"
+  off is the reading alone at every size. A reading kept through a failed refresh stays and the header's
+  problem glyph says so ([S-7042]); with no reading the Status row at the top says why ([S-6734]).
 - **[S-6160]** The current conditions' styles ([S-6000]), `WeatherNowConfig.Style`
   (`WeatherNowStyle`): **Standard** (the ladder, [S-723]), **Large icon** and **Minimal**, in that
   order. "Show detail" is the standard style's; the place and the location name are every style's.
-- **[S-6161]** **Large icon** (`WeatherNowStyles.LargeIcon`): the sky's glyph is the picture, as tall
-  as the inset box (at most 42 % of its width, 24..200), the temperature beside it in the width left
-  (Subtitle to Display, then filled past it, [S-659]); the condition, then today's range, under the
-  temperature where the height has their lines. A tall column puts the glyph above (70 % of the
-  width, 60 % of the height left) and the text centred under it. No readings at any size.
-- **[S-6162]** **Minimal** (`WeatherNowStyles.Minimal`): the temperature and its unit alone, in
-  Segoe's light weight, as large as the inset box holds it (the ramp, then filled past TitleLarge,
-  [S-659], as the minimal clock, [S-6014]); no glyph, condition, range or readings.
+- **[S-6161]** **Large icon** (`WeatherNowStyles.LargeIcon`): the sky's glyph beside the temperature,
+  the condition under the temperature: the largest Readout step (within the area's ceiling, 28, 40, 68)
+  whose block (its line and the condition's) fits the content's height with a glyph beside it; the glyph
+  the largest family glyph size (16, 28, 32, 40, 48, 68) no taller than that block that leaves the
+  temperature its width, 8 between; the condition ends in an ellipsis in the width it has. The pair
+  stands at the view's top, centred unless the widget is aligned elsewhere ([S-6582]). No readings and
+  no range at any size.
+- **[S-6162]** **Minimal** (`WeatherNowStyles.Minimal`): the temperature and its unit alone, the
+  Readout on the step its content box takes (28, 40, 68, [S-6702]; no light weight, never filling the
+  box), at the view's top, centred unless aligned elsewhere; no glyph, condition, range or readings.
 - **[S-6174]** Its options are all on the properties menu ([S-3719], user request 2026-10-19); it
   has no settings page. Under Style the readings line's switch (the standard style only, [S-6074]);
   then Appearance ([S-3723]) and behind a divider **Location**, the weather family's search ([S-3722],

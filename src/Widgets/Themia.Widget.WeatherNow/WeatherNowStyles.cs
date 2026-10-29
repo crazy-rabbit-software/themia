@@ -1,99 +1,72 @@
+using Themia.Sdk.Kit;
+
 namespace Themia.Core.Widgets;
 
 /// <summary>What the large-icon style draws at one size ([S-6161]).</summary>
-/// <param name="Stacked">The glyph above the temperature (a tall column), not beside it.</param>
-/// <param name="IconSize">The sky's glyph, in DIPs.</param>
-/// <param name="Temperature">The temperature's step.</param>
-/// <param name="Condition">The condition ("Partly cloudy") under the temperature.</param>
-/// <param name="HighLow">Today's high and low under the condition.</param>
-public readonly record struct LargeIconPlan(bool Stacked, double IconSize, TypeStep Temperature, bool Condition, bool HighLow);
+/// <param name="Temperature">The temperature's Readout step.</param>
+/// <param name="Glyph">The sky's glyph: a family glyph size, no taller than the Readout's block; 0 for none.</param>
+/// <param name="Condition">Whether the condition stands under the temperature.</param>
+public readonly record struct LargeIconPlan(TypeStep Temperature, double Glyph, bool Condition);
 
 /// <summary>
-/// [S-6161] [S-6162] The current conditions' other two styles, as pure functions of the slot. Both
-/// keep the standard style's inset ([S-723]) and measure against the widest reading ("-18°C").
+/// [S-6161] [S-6162] The current conditions' other two styles, on the Readout's steps ([S-6702]): the
+/// same reading, never filling the box (a data widget's number stops at 68, [S-666]).
 /// </summary>
 public static class WeatherNowStyles
 {
-    /// <summary>The widest number the widget prints ("-18") and its unit ("°F"), in characters.</summary>
-    public const double ValueCharacters = 3;
+    /// <summary>The widest reading, the condition under it; no lead: the large icon stands beside it.</summary>
+    public static readonly ReadoutText Worst = new("-18", "°F", LineUnder: true);
 
-    public const double UnitCharacters = 2;
+    /// <summary>The minimal style's widest reading: the temperature alone.</summary>
+    public static readonly ReadoutText Bare = new("-18", "°F");
 
-    /// <summary>Between the glyph and the temperature.</summary>
-    public const double IconGap = 12;
-
-    /// <summary>The glyph's floor; under it the style is a temperature with a bullet.</summary>
-    public const double IconMin = 24;
-
-    /// <summary>The glyph's ceiling: a large tile is a large reading, not a poster of a cloud.</summary>
-    public const double IconMax = 200;
+    /// <summary>The family's glyph sizes ([S-6704]: 16, 32, 48 and the Readout steps), smallest first.</summary>
+    private static IEnumerable<double> GlyphSizes =>
+        new[] { FamilyShape.Icon, FamilyShape.IconLarge, FamilyShape.IconHuge }.Concat(FamilyType.Big.Select(step => step.FontSize)).Order();
 
     /// <summary>
-    /// [S-6161] The sky's glyph is the picture: as tall as the box beside the temperature, or on a
-    /// tall column above it. The temperature takes the width left (Subtitle to Display); the
-    /// condition, then today's range, follow under it where the height has a line for them and the
-    /// width the condition's words (<paramref name="conditionCharacters"/>): never cut short.
+    /// [S-6161] The sky's glyph beside the temperature: the largest Readout step whose block (its line and the
+    /// condition's under it) fits the content's height, within the area's ceiling, with a glyph beside it;
+    /// the glyph the largest family size no taller than that block and as wide as the width the temperature
+    /// leaves (8 between). Too narrow even for 28 with a 16 glyph, the temperature stands alone.
     /// </summary>
-    public static LargeIconPlan LargeIcon(WidgetArea slot, bool hasToday, int conditionCharacters = 14)
+    public static LargeIconPlan LargeIcon(WidgetArea area)
     {
-        var box = slot.Deflate(WeatherNowLayout.Inset, WeatherNowLayout.VerticalInset);
-        var floor = HeroLayout.ValueWidth(FluentType.Subtitle, ValueCharacters, UnitCharacters);
+        var (width, height) = MeterPlan.Content(area);
+        var ceiling = ReadoutRules.Ceiling(area);
+        LargeIconPlan? chosen = null;
 
-        if (!slot.IsMeasured || box.Width <= 0 || box.Height <= 0)
+        foreach (var step in FamilyType.Big)
         {
-            return new LargeIconPlan(false, IconMin, FluentType.Subtitle, false, false);
+            var block = ReadoutRules.Height(step, Worst);
+            var glyph = Glyph(width, step, block);
+            if (FamilyType.BaseOf(step) <= ceiling && block <= height && glyph > 0)
+            {
+                chosen = new LargeIconPlan(step, glyph, Condition: true);
+            }
         }
 
-        if (slot.Shape == AreaShape.Tall)
+        if (chosen is { } plan)
         {
-            // A column: the glyph across most of the width, the reading and its lines under it.
-            var lines = new Disclosure(box.Width, box.Height, WeatherNowLayout.Gap);
-            lines.Reserve(FluentType.Subtitle.LineHeight);
-            var conditionUnder = lines.Take(FluentType.Body.LineHeight, FluentType.EstimateWidth(FluentType.Body, conditionCharacters));
-            var rangeUnder = hasToday && conditionUnder && lines.Take(FluentType.Caption.LineHeight);
-            var linesHeight = (conditionUnder ? FluentType.Body.LineHeight : 0) + (rangeUnder ? FluentType.Caption.LineHeight : 0);
-            var reading = box.Height - linesHeight;
-            var tallIcon = Math.Clamp(Math.Min(box.Width * 0.7, (reading - WeatherNowLayout.Gap) * 0.6), IconMin, IconMax);
-            var tallStep = Step(box.Width, Math.Max(FluentType.Subtitle.LineHeight, reading - tallIcon - WeatherNowLayout.Gap));
-            return new LargeIconPlan(true, Math.Floor(tallIcon), tallStep, conditionUnder, rangeUnder);
+            return plan;
         }
 
-        // Beside: the glyph as tall as the box (within its share of the width), the text in the rest.
-        var icon = Math.Clamp(Math.Min(box.Height, box.Width * 0.42), IconMin, IconMax);
-        if (box.Width - icon - IconGap < floor)
-        {
-            icon = Math.Max(IconMin, box.Width - IconGap - floor);
-        }
-
-        var text = Math.Max(0, box.Width - icon - IconGap);
-        var room = new Disclosure(text, box.Height, 0);
-        room.Reserve(FluentType.Subtitle.LineHeight);
-        var condition = room.Take(FluentType.Body.LineHeight, FluentType.EstimateWidth(FluentType.Body, conditionCharacters));
-        var highLow = hasToday && condition && room.Take(FluentType.Caption.LineHeight);
-        var step = Step(text, FluentType.Subtitle.LineHeight + room.Remaining);
-        return new LargeIconPlan(false, Math.Floor(icon), step, condition, highLow);
+        var floor = FamilyType.Big28;
+        var under = ReadoutRules.Height(floor, Worst) <= height;
+        return new LargeIconPlan(floor, Glyph(width, floor, under ? ReadoutRules.Height(floor, Worst) : floor.LineHeight), under);
     }
 
-    /// <summary>
-    /// [S-6162] [S-659] The temperature alone, as large as the box holds it: the ramp while it is
-    /// small, then filled past Display, as the minimal clock fills its tile ([S-6014]).
-    /// </summary>
-    public static TypeStep Minimal(WidgetArea slot)
+    /// <summary>The largest family glyph no taller than <paramref name="block"/> that leaves the temperature its width.</summary>
+    private static double Glyph(double width, TypeStep step, double block)
     {
-        var box = slot.Deflate(WeatherNowLayout.Inset, WeatherNowLayout.VerticalInset);
-        if (!slot.IsMeasured || box.Width <= 0 || box.Height <= 0)
-        {
-            return FluentType.Subtitle;
-        }
-
-        var fitted = HeroLayout.Fit(box.Width, box.Height, ValueCharacters, UnitCharacters, FluentType.Body, FluentType.Display);
-        return HeroLayout.Fill(fitted, box.Width, box.Height, ValueCharacters, UnitCharacters, icon: false, beside: 0);
+        var room = width - FamilySpace.GlyphGap - ReadoutRules.Width(step, Worst);
+        return GlyphSizes.Where(size => size <= block && size <= room).DefaultIfEmpty(0).Max();
     }
 
-    /// <summary>[S-659] The temperature's step in a box: the ramp to Display, then filled past it.</summary>
-    private static TypeStep Step(double width, double height)
+    /// <summary>[S-6162] The temperature alone: the Readout's step for the content box (28, 40, 68 by the area).</summary>
+    public static TypeStep Minimal(WidgetArea area)
     {
-        var step = HeroLayout.Fit(width, height, ValueCharacters, UnitCharacters, FluentType.Subtitle, FluentType.Display);
-        return HeroLayout.Fill(step, width, height, ValueCharacters, UnitCharacters, icon: false, beside: 0);
+        var (width, height) = MeterPlan.Content(area);
+        return ReadoutRules.Step(area, width, height, Bare);
     }
 }
