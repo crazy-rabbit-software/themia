@@ -17,31 +17,20 @@ public sealed record KitDue(string Short, string Long, bool Urgent);
 /// </summary>
 public static class KitChecks
 {
-    /// <summary>Under this column width the time goes under the title: a column beside it would starve it.</summary>
-    public const double BesideNeedsWidth = 240;
-
-    /// <summary>Under this column width the emphasis mark ("!") is dropped; the weight and the tooltip still say it.</summary>
-    public const double MarkNeedsWidth = 160;
-
-    /// <summary>The space between two columns of rows, so two hover fills never read as one row.</summary>
-    public const double ColumnGap = 8;
-
-    /// <summary>The list's own padding under its last row.</summary>
-    public const double ListBottomPadding = 8;
-
-    /// <summary>Fluent's standard and compact list rows.</summary>
-    public const double Row = 40;
-
-    public const double CompactRow = 32;
+    /// <summary>The space between two columns of rows: none, each row carries its side inset (two hover fills meet, as the rich look's).</summary>
+    public const double ColumnGap = 0;
 
     /// <summary>[S-786] A press only becomes a drag past this distance, so a click is never a tiny move.</summary>
     public const double DragThreshold = 5;
 
     /// <summary>
-    /// [S-7037] The check look's ladder ([S-780]): rung 0 is one item (what is next); then the add
-    /// footer ([S-3850]: from Regular height, always under an empty list); the list takes the rest, in
-    /// two columns on a Huge-wide tile when one would not hold it. Width decides how much of the time
-    /// is said and where; height decides the row density and the title's lines.
+    /// [S-780] The check look's ladder on the family's rows ([S-6711], [S-6712]): rows of one line while
+    /// the area is compact either way, of two (the subtitle, a list's name, under the title) where the
+    /// spec offers it and the area is regular both ways, never more; the due as the row's value, only
+    /// when urgent on a compact width and in its long words from expanded both ways; the add row, one
+    /// row of 32, where a regular height has room for it after the first row (always on an empty
+    /// writable list); two columns on a Huge-wide tile when one would not hold the list; the done
+    /// group's heading from an expanded height.
     /// </summary>
     public static KitPlan Plan(WidgetArea area, KitSpec spec, KitChoices choices)
     {
@@ -51,46 +40,32 @@ public static class KitChecks
         var on = choices.Shows & spec.Optional;
         bool Has(KitShow field) => (on & field) == field;
 
-        var compact = area.HeightClass < SizeClass.Expanded;
-        var row = compact ? CompactRow : Row;
-        var lines = Math.Clamp(choices.TitleLines, 1, 6);
-        var titleLines = area.HeightClass == SizeClass.Compact ? 1 : compact ? Math.Min(2, lines) : lines;
+        var measured = area.IsMeasured;
+        var lines = measured ? RowRules.Lines(area, Has(KitShow.Subtitle) && !choices.OneLine ? 2 : 1) : 1;
+        var row = FamilyShape.RowHeight(lines);
 
-        var room = new Disclosure(area);
+        var room = new Disclosure(area.Width, KitLadder.ListHeight(area));
         room.Reserve(row);
-        var addRow = AddFooter.Show(room, area, choices.CanAdd, choices.Count == 0, row);
+        var addRow = AddFooter.Show(room, area, choices.CanAdd, choices.Count == 0, FamilyShape.Row1);
 
-        var listHeight = area.Height - (addRow ? row : 0) - ListBottomPadding;
-        var columns = Columns(area, listHeight, row, choices.Count);
+        var listHeight = KitLadder.ListHeight(area) - (addRow ? FamilyShape.Row1 : 0);
+        var columns = measured ? Columns(area, listHeight, row, choices.Count) : 1;
         var columnWidth = ColumnWidth(area.Width, columns);
 
-        // On the smallest tile a time line would cost the second item; the lead's tone still says it is late.
+        // On the smallest tile a time would cost the title most of its letters; the check's tone still says it is late.
         var when = Has(KitShow.When) && !(area.WidthClass == SizeClass.Compact && area.HeightClass == SizeClass.Compact);
         var urgent = when && area.WidthClass == SizeClass.Compact;
         var wide = when && !urgent && area.AtLeast(SizeClass.Expanded, SizeClass.Expanded);
-        var beside = columnWidth >= BesideNeedsWidth && (choices.WhenBeside || area.WidthClass >= SizeClass.Expanded);
 
-        return new KitPlan(
-            spec.Look,
-            columns,
-            columnWidth,
-            true,
-            Has(KitShow.Subtitle) && area.AtLeast(SizeClass.Expanded, SizeClass.Expanded),
-            titleLines,
-            0,
-            when,
-            Compact: compact,
-            Narrow: area.WidthClass == SizeClass.Compact,
-            RowHeight: row)
+        return new KitPlan(spec.Look, columns, columnWidth, lines, true, lines >= 2, false, when, RowHeight: row)
         {
             AddRow = addRow,
             Headings = area.HeightClass >= SizeClass.Expanded,
-            Mark = columnWidth >= MarkNeedsWidth,
             UrgentOnly = urgent,
             LongWhen = wide,
-            WhenBeside = beside,
         };
     }
+
 
     /// <summary>
     /// [S-782] Two columns only on a Huge-wide tile, and only when one column would not hold every

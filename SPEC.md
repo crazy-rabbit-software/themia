@@ -911,7 +911,8 @@ module author's guide is docs/WIDGET-KIT.md 16.
   file) is primary and its value (a time, a size) secondary (`RowRules.Roles`). A widget's rows all
   lead or none do. The one emphasised row of a list (today, unread) is BodyStrong. A meter's own rows
   (an engine's load, reads and writes) let their meter take all the room between the name and the
-  value (`RowBlock.Meter` with no width). A row of a part missing on this PC is all disabled
+  value (`RowBlock.Meter` with no width); a table's row puts its columns in the name's place
+  (`RowBlock.Cells`, [S-7034]). A row of a part missing on this PC is all disabled
   (`RowBlock.Available`). The keyboard's ring on a row is a stroke-2 outline over its whole width in
   the accent, clear otherwise, so focusing it moves nothing (`RowBlock.Focused`, [S-1288]).
 - **[S-6712]** A row's **lines come from the tier**, its pitch from its lines: one while the view
@@ -1180,51 +1181,49 @@ The shared parts a list widget is built from, and the rules they keep (design an
 - **[S-7030]** `KitSpec`: a kit widget's shape (its row look, the optional fields it offers
   (`KitShow`: lead, subtitle, preview, when), its time, its overflow, its column cap, its untitled
   sentence); the user's own fields are bounded by it.
-- **[S-7031]** `KitLadder.Plan`: the kit's one disclosure ladder ([S-660]..[S-666]). The rich look
-  (the feed's, [S-1305]): rung 0 the newest title whole (two lines, one if even that does not fit);
-  its time; its lead from 180px of column width; the subtitle line from 240px; two columns from
-  400px wide, three from 720px, while a column keeps 200px, never more than the spec allows; a
-  preview where it costs no row, or where three rows still fit on a tile at least 280px high that
-  is not a tall column. Rows are measured and shown whole ([S-639]).
-- **[S-7032]** The lined looks (Mail's ladder, [S-556], as the kit's): `TwoLine` rows stack the title
-  and its time (from 110px), the subtitle with the first badge beside it (from 260px), then the
-  preview (from 120px high and 180px wide; one line under 240px, else the user's 1 to 5); the lead
-  glyph in front from 300px, in its tone (tertiary when neutral); an item's tone draws a bar in the
-  row's leading inset and the time in its text colour; emphasis is the strong title and a primary
-  subtitle. On a strip (from 420px wide under 220px high) and from 640px wide the row is one `Line`:
-  the title's column (24% of the line, 96..200px), the subtitle with the preview after an en dash
-  (from 440px), the badge (from 560px), the time (at least 36px). Rows go compact under 200px of
-  height; the list fills the slot and scrolls under the fade ([S-1281]); times are re-labelled
-  without rebuilding a row. The ladder's measures are the list's (a test pins them).
+- **[S-7031]** `KitLadder.Plan`: the kit's one disclosure ladder ([S-660]..[S-666]) on the family's
+  rows ([S-6711], [S-6712]): every look is the Row block, one row of 32, 48 or 64 for one, two or
+  three lines, never taller for a long title (one line, ending in an ellipsis). The lines grow with
+  the tile both ways (`RowRules.Lines`: one while the view's area is compact either way, two from
+  regular, three from expanded), up to what the row has to say (the title; the subtitle with the badge
+  after it; the preview, on the second line when there is no subtitle); the title always, the lead
+  (a 16 glyph or the site's icon) and the time (the value, secondary) from a column of 180, the badge
+  from 260. From 400 wide a spec may go to two columns (three from 720) while a column keeps 320,
+  never more than the spec allows. The list shows the rows that fit whole in the view's area less the
+  card's bottom inset (`KitLadder.Fit`), the rest a scroll away under the fade ([S-639], [S-1281]).
+  The rich look (the feed's, [S-1305]): the title, its age, the source on the second line, the
+  summary on the third.
+- **[S-7032]** The message looks (Mail's, [S-556], as the kit's): `TwoLine` rows are the sender (the
+  name, BodyStrong while unread), the time as the value, the subject with the account's badge after
+  it ("Quarterly numbers · Work") on the second line, the preview on the third; the lead the
+  message's glyph, secondary. `Line` holds the same row to one line at every tier (a compact style:
+  `KitChoices.OneLine`). An item's tone colours its time (Caution, Critical) and its lead; the accent
+  never colours a text, and no bar marks a row. Times are re-labelled without rebuilding a row.
 - **[S-7035]** `KitOverflow.Page`: pages of the rows that fit whole, never scrolled ([S-2709]): a
-  page is the plan's columns filled one after the other, each group's heading (a day's: "Today",
-  "Tomorrow" with the date where the line holds it whole, else the date, [S-2716]; in the accent for
-  the selected day, [S-3622]) over its first row and again over a column that starts mid-group;
-  on a tile under 128px a first group that is today drops its heading ([S-1267]); at least one row
-  per column, so paging always moves. Rows are fitted at one title line; what is left under a
-  column's rows gives long titles their second line in order ([S-2717], `Disclosure.SecondLines`).
-  The widget turns the page (`KitList.Page`); the cursor takes the page with it.
-- **[S-7036]** The `Schedule` look (the agenda's): the stripe in the item's calendar colour (or its
-  tone, a birthday's caution), the time column (start over end; a word such as "All day" or "Now"
-  in the strong step trims, a clock never; the lead's glyph for an item with no time), measured for
-  the widest of the spec's labels in the current language on the 4px grid (at least 52px, at most
-  35% of the column), then the title over its detail. Two columns from 720px; under 260px of column
-  the time folds into the detail line ("10:30–11:30 · Room 4"); from 480px of column on a tile that
-  is not compact where and who get columns of their own; rows of one height (two lines unless the
-  tile is compact and wide), headings of one height. A view may hook its rows (`KitList.Decorate`:
-  the calendar's links across widgets).
-- **[S-7037]** The `Check` look (Tasks' ladder, [S-780]..[S-785], as the kit's, `KitChecks`): the
-  lead is the item's check (`KitLead.Check`: a ring, the item's tone on a late one; a filled tick
-  when done; a click on it toggles the item, drawn at once, then the widget's write); the title
-  wraps to the plan's lines (one on a Compact-high tile, at most two under Expanded, else the
-  user's 1 to 6), struck through and tertiary when done, the strong step with the emphasis mark
-  (its first badge, "!") before it from 160px of column; the subtitle line (a list's name) from
-  Expanded × Expanded; the time (`KitDue`, the source's words) under the title, or beside it from
-  240px of column when the tile is Expanded-wide or the spec asks; only urgent on a Compact-wide
-  tile, none on a Compact × Compact one, long from Expanded × Expanded. Rows go compact under
-  Expanded height; two columns, filled column by column, on a Huge-wide tile when one would not hold
-  them; whole lines only, never ending on a heading; the bottom lines fade while there is more below
-  ([S-1281]); the done group under its heading from Expanded height. The ring is laid over the row.
+  page is the plan's columns filled one after the other, each group's heading (one row of 32,
+  BodyStrong secondary; a day's: "Today", "Tomorrow" with the date where the line holds it whole,
+  else the date, [S-2716]; primary for the selected day, [S-3622]) over its first row and again over
+  a column that starts mid-group; on a tile under 128px a first group that is today drops its
+  heading ([S-1267]); at least one row per column, so paging always moves. The widget turns the page
+  (`KitList.Page`); the cursor takes the page with it.
+- **[S-7036]** The `Schedule` look (the agenda's): a Row block per item, its calendar's colour as a
+  2 px bar at the lead's start (a data colour, [S-6705]; the item's lead glyph when it has no
+  calendar), the title as the name, the start as the value ("All day"; "Now" BodyStrong while under
+  way), the span, where and who (or the item's note) on the second line where the plan gives two.
+  Two columns from 720px; rows of two lines from regular both ways, one on a compact tile; headings
+  one row of 32. A view may hook its rows (`KitList.Decorate`: the calendar's links across widgets).
+- **[S-7037]** The `Check` look (Tasks' ladder, [S-780]..[S-784], as the kit's, `KitChecks`): a Row
+  block per item, its lead the item's check (`KitLead.Check`: a 16 ring of stroke 2, secondary or
+  the item's tone on a late one; the accent's filled circle with the tick when done; a click on it
+  toggles the item, drawn at once, then the widget's write); the title as the name, BodyStrong when
+  emphasised and open, struck through and tertiary when done; the due as the value (`KitDue`, the
+  source's words, in the item's tone while open): only urgent on a Compact-wide tile, none on a
+  Compact × Compact one, long from Expanded × Expanded; the subtitle (a list's name) on a second
+  line from regular both ways, never with the compact style (`KitChoices.OneLine`). Rows of one
+  height in one or two columns (two on a Huge-wide tile when one would not hold them), filled column
+  by column, whole lines only, never ending on a heading; the bottom lines fade while there is more
+  below ([S-1281]); the done group under its heading (one row of 32, BodyStrong secondary) from
+  Expanded height. The keyboard's ring is the Row block's.
 - **[S-7038]** The check look's editing: a row renamed in place (the title's column becomes a box with
   the whole title; Enter or leaving it commits, Escape cancels, Tab commits and opens the next row's
   box, none past the last; Shift+Tab commits and closes); the add row under the list ([S-3850], the
@@ -1234,15 +1233,16 @@ The shared parts a list widget is built from, and the rules they keep (design an
   under it (the held show is drawn when they let go); a box whose item has gone goes with it. The
   widget carries every change out (`Renamed`, `Added`, `Reordered`) and asks its surface for the
   keyboard while a box is open (`TextInput`, [S-808]).
-- **[S-7033]** Inline actions: a spec's actions flagged inline (and runnable) swap in for the time on
-  a `Line` row under the pointer or the keyboard, on a Huge-wide tile only; the slot is always as
-  wide as the wider of the two, the hidden time keeps its box and the buttons overhang the line, so
-  nothing else in the row moves. The menu has them too.
-- **[S-7034]** The `Table` look: one line of the user's columns (`KitColumn`: title, subtitle,
-  preview, time, badge) in the user's order; title, time and badge have fixed widths, subtitle and
-  preview share the rest; the most essential columns are kept while their minimums fit, the first
-  always; from 700px a lone subtitle taking over 40% of the line is followed by the preview; the
-  columns' titles (the spec's words) show over the rows from 140px of height where they cost no row;
+- **[S-7033]** Retired (G2, 2026-10-29): the inline actions a `Line` row showed under the pointer on
+  a Huge-wide tile. A row is the Row block, a control is not one of its rungs ([S-666]); the menu
+  and the keys carry every action.
+- **[S-7034]** The `Table` look: one row of 32 of the user's columns (`KitColumn`: title, subtitle,
+  preview, time, badge) in the user's order, in the Row block's place for the name
+  (`RowBlock.Cells`), 12 apart; title, time and badge have fixed widths, subtitle and preview share
+  the rest; the most essential columns are kept while their minimums fit, the first always; from
+  700px a lone subtitle taking over 40% of the line is followed by the preview; the title primary
+  (BodyStrong while unread), the rest secondary, the time end-aligned; the columns' titles (the
+  spec's words, Caption secondary, one line and 8 under it) show over the rows from 140px of height;
   the time column is written as a stamp (the time today, the weekday this week, then the date).
 - **[S-7040]** `KitScreens.Decide`: the one state machine. A widget that reads accounts: none at all
   is the card's Set up; its accounts all gone, all needing a sign-in, or all refused, each its
@@ -3713,9 +3713,8 @@ is no toast pipeline yet; the header warning stays and opens Accounts), and birt
   ([S-6712]). A fact that is "--" or of a thing not on this PC is drawn in the disabled role. The stat
   cells and lines (`StatPart`) are no longer theirs.
 - **[S-3850]** **The add footer** (every widget that adds an item in place: Habits [S-1427], Tasks
-  [S-780]). One full-width list row, built only by `AddFooterRow`: a plus glyph and the secondary
-  Body line ("Add a habit", "Add a task"), the list's own row height (compact with the rows) and
-  side inset, the row hover; a tap swaps the line for the widget's text box (Enter adds and keeps it
+  [S-780]). One Row block of 32 ([S-6711]), built only by `AddFooterRow`: the + glyph as its lead and
+  its name the secondary Body line ("Add a habit", "Add a task"), the card's side inset, the row hover; a tap swaps the line for the widget's text box (Enter adds and keeps it
   open, leaving it adds and closes, Escape cancels). It is **pinned to the bottom of the content
   box**: the list sits at the top and scrolls or pages above it, and the room a short list leaves is
   between them, never under the footer (the Windows 11 list-ends-in-its-add-row pattern, held in

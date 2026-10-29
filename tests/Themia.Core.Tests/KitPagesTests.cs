@@ -43,34 +43,21 @@ public sealed class KitPagesTests
     private static readonly KitSpec Schedule = new(KitRowLook.Schedule, KitShow.None, () => string.Empty, () => string.Empty, Overflow: KitOverflow.Page);
 
     [Theory]
-    [InlineData(120, 76, 1, false, true)]
-    [InlineData(320, 196, 1, false, false)]
-    [InlineData(560, 376, 1, true, false)]
-    [InlineData(800, 516, 2, false, false)]
-    [InlineData(1400, 360, 2, true, false)]
-    [InlineData(200, 356, 1, false, true)]
-    public void S7036_the_schedule_plan_follows_the_width(double width, double height, int columns, bool details, bool narrow)
+    [InlineData(120, 76, 1, 1)]
+    [InlineData(320, 196, 1, 2)]
+    [InlineData(480, 116, 1, 1)]
+    [InlineData(560, 376, 1, 2)]
+    [InlineData(800, 516, 2, 2)]
+    [InlineData(200, 356, 1, 2)]
+    public void S7036_the_schedule_plan_follows_the_width_and_the_tier(double width, double height, int columns, int lines)
     {
         var plan = KitLadder.Plan(new WidgetArea(width, height), Schedule, KitShow.None);
 
         Assert.Equal(columns, plan.Columns);
-        Assert.Equal(columns == 1 ? width : (width - KitLadder.ScheduleGutter) / 2, plan.ColumnWidth);
-        Assert.Equal(details, plan.Details);
-        Assert.Equal(narrow, plan.Narrow);
-        Assert.Equal(height < KitLadder.CompactBelow, plan.Compact);
-        Assert.Equal(FluentType.BodyStrong.LineHeight + 12, plan.HeadingHeight);
-    }
-
-    [Fact]
-    public void S7036_rows_have_two_lines_unless_the_tile_is_compact_and_wide()
-    {
-        var compactWide = KitLadder.Plan(new WidgetArea(480, 116), Schedule, KitShow.None);
-        var compactNarrow = KitLadder.Plan(new WidgetArea(200, 106), Schedule, KitShow.None);
-        var roomy = KitLadder.Plan(new WidgetArea(320, 300), Schedule, KitShow.None);
-
-        Assert.Equal(Math.Max(32, FluentType.BodyStrong.LineHeight + 8), compactWide.RowHeight);
-        Assert.Equal(FluentType.BodyStrong.LineHeight + FluentType.Caption.LineHeight + 8, compactNarrow.RowHeight);
-        Assert.Equal(compactNarrow.RowHeight, roomy.RowHeight);
+        Assert.Equal(width / columns, plan.ColumnWidth);
+        Assert.Equal(lines, plan.Lines);
+        Assert.Equal(FamilyShape.RowHeight(lines), plan.RowHeight);
+        Assert.Equal(FamilyShape.Row1, plan.HeadingHeight);
     }
 
     [Fact]

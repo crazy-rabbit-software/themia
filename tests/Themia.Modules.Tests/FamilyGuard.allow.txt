@@ -109,22 +109,6 @@
 2	src/Themia.App/Widgets/ItemPalette.cs	colour	Color.FromArgb(
 1	src/Themia.App/Widgets/ItemPalette.cs	colour	Colors.Gray
 1	src/Themia.App/Widgets/ItemPalette.cs	colour	Colors.Transparent
-1	src/Themia.Sdk.WinUI/Kit/KitList.Checked.cs	brush	ControlStrongStrokeColorDefaultBrush
-1	src/Themia.Sdk.WinUI/Kit/KitList.Checked.cs	radius	new CornerRadius(size / 2)
-1	src/Themia.Sdk.WinUI/Kit/KitList.Checked.cs	ramp	Fluent.Space5
-1	src/Themia.Sdk.WinUI/Kit/KitList.Checked.cs	space	new Thickness(0, 0, Fluent.Space1 + (Fluent.Space1 / 2)
-1	src/Themia.Sdk.WinUI/Kit/KitList.Checked.cs	type	FontSize = Math.Round(size * 0.6)
-1	src/Themia.Sdk.WinUI/Kit/KitList.Lined.cs	brush	AccentTextFillColorPrimaryBrush
-2	src/Themia.Sdk.WinUI/Kit/KitList.Lined.cs	brush	SystemFillColorSuccessBrush
-1	src/Themia.Sdk.WinUI/Kit/KitList.Lined.cs	radius	RadiusX = 1.5
-1	src/Themia.Sdk.WinUI/Kit/KitList.Lined.cs	radius	RadiusY = 1.5
-1	src/Themia.Sdk.WinUI/Kit/KitList.Lined.cs	size	Width = 3
-1	src/Themia.Sdk.WinUI/Kit/KitList.Lined.cs	space	new Thickness(0, (FluentType.Body.LineHeight - KitLadder.LeadSize) / 2, Fluent.Space2, 0)
-1	src/Themia.Sdk.WinUI/Kit/KitList.Paged.cs	brush	AccentTextFillColorPrimaryBrush
-1	src/Themia.Sdk.WinUI/Kit/KitList.Paged.cs	radius	new CornerRadius(1)
-1	src/Themia.Sdk.WinUI/Kit/KitList.Paged.cs	size	Width = 2
-1	src/Themia.Sdk.WinUI/Kit/KitList.Paged.cs	space	new Thickness(0, 2, Fluent.Space2 - 2, 2)
-1	src/Themia.Sdk.WinUI/Kit/KitList.cs	space	new Thickness(0, KitLadder.ListInset / 2, 0, KitLadder.ListInset / 2)
 1	src/Themia.Sdk.WinUI/Shell/ChromeFrame.cs	brush	AcrylicBackgroundFillColorDefaultBrush
 1	src/Themia.Sdk.WinUI/Shell/ChromeFrame.cs	brush	SurfaceStrokeColorFlyoutBrush
 1	src/Themia.Sdk.WinUI/Shell/ColorChoice.cs	brush	SolidBackgroundFillColorTertiaryBrush
@@ -135,7 +119,6 @@
 1	src/Themia.Sdk.WinUI/Shell/FluentLayout.cs	size	Width = 32
 1	src/Themia.Sdk.WinUI/Shell/FluentLayout.cs	type	FontSize = 12
 1	src/Themia.Sdk.WinUI/Shell/OfficeMenuLines.cs	colour	Color.FromArgb(
-1	src/Themia.Sdk.WinUI/Widgets/AddFooterRow.cs	space	new Thickness(Fluent.Space1 / 2, 0, Fluent.Space3 + (Fluent.Space1 / 2)
 1	src/Themia.Sdk.WinUI/Widgets/ConfirmFlyout.cs	colour	Colors.Firebrick
 2	src/Themia.Sdk.WinUI/Widgets/ConfirmFlyout.cs	colour	Colors.White
 1	src/Themia.Sdk.WinUI/Widgets/ConfirmFlyout.cs	size	MaxWidth = 260

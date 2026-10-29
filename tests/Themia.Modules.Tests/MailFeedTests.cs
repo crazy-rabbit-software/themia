@@ -465,28 +465,28 @@ public class MailLayoutTests
             .Select(c => chosen.First(m => Themia.Widget.Email.MailSpec.Kit(m) == c.Column));
 
     [Fact]
-    public void S556_rows_shed_account_then_preview_on_a_small_tile()
+    public void S556_rows_add_the_subject_then_the_preview_as_the_tile_grows()
     {
-        var config = new EmailConfig { PreviewLines = 3 };
+        var config = new EmailConfig();
 
-        var large = Plan(config, 560, 380);
-        Assert.True(large.Subtitle && large.Badges && large.When && large.Lead);
-        Assert.Equal(3, large.PreviewLines);
+        var large = Plan(config, 560, 376);
+        Assert.True(large.Subtitle && large.Badges && large.When && large.Lead && large.Preview);
+        Assert.Equal(3, large.Lines);
 
-        // Narrow: the account tag goes, the rest stays.
-        Assert.False(Plan(config, 200, 380).Badges);
-        Assert.True(Plan(config, 200, 380).PreviewLines > 0);
+        // Narrow: the account tag goes, the subject stays.
+        var tall = Plan(config, 200, 356);
+        Assert.False(tall.Badges);
+        Assert.True(tall.Subtitle);
+        Assert.False(tall.Preview);
 
-        // Short: one preview line, then none.
-        Assert.Equal(1, Plan(config, 480, 120).PreviewLines);
-        Assert.Equal(0, Plan(config, 120, 80).PreviewLines);
+        // Short: the sender and the time.
+        Assert.Equal(1, Plan(config, 480, 116).Lines);
+        Assert.False(Plan(config, 120, 76).When);
 
-        // Too narrow for a time beside the sender.
-        Assert.False(Plan(config, 100, 80).When);
-
-        // Compact view never previews.
+        // Compact view never previews: the sender and the subject.
         config.Style = EmailStyle.Compact;
-        Assert.Equal(0, Plan(config, 560, 380).PreviewLines);
+        Assert.Equal(2, Plan(config, 560, 376).Lines);
+        Assert.False(Plan(config, 560, 376).Preview);
     }
 
     [Fact]

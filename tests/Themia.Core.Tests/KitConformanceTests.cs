@@ -113,7 +113,7 @@ public sealed partial class KitConformanceTests
     /// and Recent files check no edit mode for it: the card makes its widget inert there ([S-1751]).
     /// </summary>
     [Theory]
-    [InlineData("KitList.cs", true)]
+    [InlineData("KitList.Rows.cs", true)]
     [InlineData("RecentFilesView.cs", true)]
     [InlineData("NotificationsView.cs", false)]
     public void S7065_a_list_row_opens_on_a_double_click_and_a_click_only_focuses(string file, bool leavesEditModeToTheCard)

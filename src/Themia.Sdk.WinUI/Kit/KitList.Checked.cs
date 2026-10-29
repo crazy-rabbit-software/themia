@@ -35,6 +35,9 @@ public sealed partial class KitList
     /// <summary>The open editor: renaming an item (its id) or adding one (null).</summary>
     private (TextBox Box, string? Id)? _editor;
 
+    /// <summary>What an open box hid, to show again when it closes.</summary>
+    private readonly List<UIElement> _editorHidden = [];
+
     private Border? _pressRow;
     private uint _pressPointer;
     private Point _pressAt;
@@ -64,7 +67,6 @@ public sealed partial class KitList
     {
         _checks = new KitRowsPanel();
         _scroll.Content = _checks;
-        _scroll.Padding = Fluent.ListPadding;
         _scroll.VerticalAlignment = VerticalAlignment.Stretch;
         _checkHost = new KitListHost(_scroll, _checks);
         SetRow(_checkHost, 1);
@@ -99,10 +101,7 @@ public sealed partial class KitList
     /// or while it holds an editor; at the rows' density and inset.
     /// </summary>
     private void FitAddRow(bool shown)
-        => _addRow?.Fit(
-            (shown && _plan.AddRow) || _editor is { Id: null },
-            _plan.Compact,
-            _plan.Narrow ? Fluent.Space2 : Fluent.Space4);
+        => _addRow?.Fit((shown && _plan.AddRow) || _editor is { Id: null });
 
     /// <summary>[S-3850] Without a list (another screen) the add row goes, unless it holds the user's words.</summary>
     private void HideAddRow(KitPlan plan)
@@ -146,9 +145,6 @@ public sealed partial class KitList
         var panel = _checks!;
         panel.Columns = _plan.Columns;
 
-        // A tile with no add row and no height to spare spends the list's foot padding on a row.
-        _scroll.Padding = _plan.AddRow ? Fluent.ListPadding : new Thickness(0);
-
         for (var i = 0; i < _items.Count; i++)
         {
             var item = _items[i];
@@ -168,122 +164,42 @@ public sealed partial class KitList
         FitAddRow(shown: true);
     }
 
-    private static TextBlock CheckHeading(string text)
+    /// <summary>[S-784] A group's heading (the done ones): one row of 32, BodyStrong, secondary.</summary>
+    private static Grid CheckHeading(string text)
     {
-        var heading = Fluent.Text(FluentType.Caption, "TextFillColorSecondaryBrush");
-        heading.Text = text;
-        heading.Margin = new Thickness(Fluent.Space4, Fluent.Space2, Fluent.Space4, Fluent.Space1);
-        return heading;
+        var heading = Family.Text(FamilyType.BodyStrong, ColourRole.TextSecondary, text);
+        heading.VerticalAlignment = VerticalAlignment.Center;
+        return new Grid { Children = { heading }, Height = FamilyShape.Row1, Padding = Family.SideInset };
     }
 
     /// <summary>
-    /// [S-7037] One row: the check, the title wrapping to the plan's lines with the emphasis mark
-    /// before it, the subtitle under it, and as much of the time as the width earns, beside it or
-    /// under it.
+    /// [S-7037] One row, a Row block: the check as its lead, the title as the name (BodyStrong when
+    /// emphasised and open; struck through and tertiary when done), the due as its value in the item's
+    /// tone, the subtitle (a list's name) on its second line where the plan gives two.
     /// </summary>
     private Border CheckRow(KitItem item, int index)
     {
         var done = item.Lead.IsDone;
-        var markerSize = _plan.Compact ? Fluent.IconSize : Fluent.Space5;
-
-        // [S-780] An open item that is late rings in its tone: the cue that survives on a tile with no
-        // room for the word.
-        var marker = CheckMarker(done, markerSize, item.Lead.Tone, index);
-        var inset = _plan.Narrow ? Fluent.Space2 : Fluent.Space4;
-
-        if (_plan.Narrow)
-        {
-            marker.Margin = new Thickness(0, 0, Fluent.Space2, 0);
-        }
-
-        var emphasis = item.Emphasis && !done;
-        var title = Fluent.Text(emphasis ? FluentType.BodyStrong : FluentType.Body, done ? "TextFillColorTertiaryBrush" : "TextFillColorPrimaryBrush");
-        title.Text = TitleText(item);
-        title.TextWrapping = TextWrapping.WrapWholeWords;
-        title.TextTrimming = TextTrimming.CharacterEllipsis;
-        title.MaxLines = _plan.TitleLines;
+        var marker = CheckMarker(done, item.Lead.Tone, index);
+        var block = new RowBlock(RowKind.List) { Lines = _plan.Lines, Strong = item.Emphasis && !done };
+        block.Show(TitleText(item), _plan.When ? DueText(item) : null, _plan.Subtitle ? item.Subtitle : null);
+        block.Lead(marker);
 
         // [S-186] Done is struck through, not merely dimmed: the one mark that says "done" without a
-        // legend and without relying on colour.
-        title.TextDecorations = done ? Windows.UI.Text.TextDecorations.Strikethrough : Windows.UI.Text.TextDecorations.None;
-
-        var titleLine = new Grid
+        // legend and without relying on colour. Late says so in words as well as in its tone, and
+        // only for open work.
+        if (done)
         {
-            ColumnDefinitions =
-            {
-                new ColumnDefinition { Width = GridLength.Auto },
-                new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) },
-            },
-        };
-        SetColumn(title, 1);
-        titleLine.Children.Add(title);
-
-        if (emphasis && _plan.Mark && item.Badges is [{ Text: { Length: > 0 } mark } badge, ..])
+            block.NameText.TextDecorations = Windows.UI.Text.TextDecorations.Strikethrough;
+            block.NameText.Foreground = Family.Brush(ColourRole.TextTertiary);
+        }
+        else
         {
-            // [S-785] The mark in its tone, leading the title: never cut off by the ellipsis, and read
-            // before the words it qualifies.
-            var bang = Fluent.Text(FluentType.BodyStrong, ToneText(badge.Tone));
-            bang.Text = mark;
-            bang.Margin = new Thickness(0, 0, Fluent.Space1 + (Fluent.Space1 / 2), 0);
-            bang.VerticalAlignment = VerticalAlignment.Top;
-            titleLine.Children.Add(bang);
+            block.ValueText.Foreground = Family.Brush(ToneRole(item.Tone, ColourRole.TextSecondary));
         }
 
-        var content = new StackPanel { VerticalAlignment = VerticalAlignment.Center };
-        content.Children.Add(titleLine);
-
-        if (_plan.Subtitle && item.Subtitle is { Length: > 0 } subtitle)
-        {
-            var line = Fluent.Text(FluentType.Caption, "TextFillColorTertiaryBrush");
-            line.Text = subtitle;
-            content.Children.Add(line);
-        }
-
-        var body = new Grid
-        {
-            ColumnDefinitions =
-            {
-                new ColumnDefinition { Width = GridLength.Auto },
-                new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) },
-                new ColumnDefinition { Width = GridLength.Auto },
-            },
-        };
-
-        SetColumn(marker, 0);
-        SetColumn(content, 1);
-        body.Children.Add(marker);
-        body.Children.Add(content);
-
-        if (_plan.When && DueText(item) is { } text)
-        {
-            // [S-186] Late says so in words as well as in its tone, and only for open work.
-            var when = Fluent.Text(FluentType.Caption, item.Tone == KitTone.Neutral || done ? "TextFillColorTertiaryBrush" : ToneText(item.Tone));
-            when.Text = text;
-
-            if (_plan.WhenBeside)
-            {
-                when.VerticalAlignment = VerticalAlignment.Center;
-                when.Margin = new Thickness(Fluent.Space2, 0, 0, 0);
-                SetColumn(when, 2);
-                body.Children.Add(when);
-            }
-            else
-            {
-                content.Children.Add(when);
-            }
-        }
-
-        // The title may wrap; a little air above and below keeps two wrapped rows apart without a rule.
-        var padding = new Thickness(inset, Fluent.Space1, inset, Fluent.Space1);
-
-        // [S-1288] The keyboard's row is the ring, laid over the row so it moves nothing.
-        var (holder, ring) = RowFocus.Overlay(body, padding);
-        var row = Fluent.Row(holder, _plan.Compact);
-        holder.VerticalAlignment = VerticalAlignment.Stretch;
-        body.VerticalAlignment = VerticalAlignment.Center;
-        row.Padding = padding;
-        row.Tag = index;
-        _rings[index] = ring;
+        var row = new Border { Child = block, Tag = index };
+        ItemFill.Paint(row, ItemRole.Row);
         _checksByRow[index] = marker;
 
         _rowHooks.Add(Fluent.Hover(row));
@@ -301,7 +217,6 @@ public sealed partial class KitList
         return row;
     }
 
-    /// <summary>[S-780] The time a row says at this width: only when urgent on a narrow tile, the long words on a wide one.</summary>
     private string? DueText(KitItem item)
     {
         if (item.Due is not { } due)
@@ -322,15 +237,18 @@ public sealed partial class KitList
     /// work, a filled tick for done. Drawn rather than taken from the icon font (there is no hollow
     /// circle in it), sized from the row height, never from the tile.
     /// </summary>
-    private Border CheckMarker(bool done, double size, KitTone tone, int index)
+    /// <summary>
+    /// [S-780] The check: a 16 ring (stroke 2, in the item's tone when it is late, else secondary), the
+    /// accent's filled circle with the tick on it when done (a checked box is the accent's to say).
+    /// </summary>
+    private Border CheckMarker(bool done, KitTone tone, int index)
     {
         var marker = new Border
         {
-            Width = size,
-            Height = size,
-            CornerRadius = new CornerRadius(size / 2),
+            Width = FamilyShape.Icon,
+            Height = FamilyShape.Icon,
+            CornerRadius = Family.Round(FamilyShape.Icon, FamilyShape.Icon),
             VerticalAlignment = VerticalAlignment.Center,
-            Margin = new Thickness(0, 0, Fluent.Space3, 0),
             Tag = index,
         };
 
@@ -346,26 +264,14 @@ public sealed partial class KitList
         return marker;
     }
 
-    /// <summary>The check's face: a ring in the item's tone while open, a filled tick when done.</summary>
     private static void PaintCheck(Border marker, bool done, KitTone tone)
     {
-        var size = marker.Width;
-        marker.BorderBrush = Fluent.Brush(tone == KitTone.Neutral ? "ControlStrongStrokeColorDefaultBrush" : ToneText(tone));
-        marker.BorderThickness = new Thickness(done ? 0 : 1);
-        marker.Background = done ? Fluent.Brush("AccentFillColorDefaultBrush") : Fluent.Clear();
-        marker.Child = done
-            ? new FontIcon
-            {
-                Glyph = Glyphs.Done,
-                FontSize = Math.Round(size * 0.6),
-                Foreground = Fluent.Brush("TextOnAccentFillColorPrimaryBrush"),
-                HorizontalAlignment = HorizontalAlignment.Center,
-                VerticalAlignment = VerticalAlignment.Center,
-            }
-            : null;
+        marker.BorderBrush = Family.Brush(ToneRole(tone, ColourRole.TextSecondary));
+        marker.BorderThickness = new Thickness(done ? 0 : FamilyShape.Stroke);
+        marker.Background = Family.Brush(done ? ColourRole.Accent : ColourRole.Clear);
+        marker.Child = done ? Family.Glyph(Glyphs.Done, FamilyShape.Icon, ColourRole.TextOnAccent) : null;
     }
 
-    /// <summary>The check's tooltip: what a click on it does (the item's toggle line).</summary>
     private string? CheckTooltip(int index)
         => index < _items.Count ? _actions(_items[index]).FirstOrDefault(a => a.Kind == KitActionKind.Toggle)?.Label : null;
 
@@ -422,7 +328,7 @@ public sealed partial class KitList
         ArgumentNullException.ThrowIfNull(item);
 
         var index = IndexOf(item.Id);
-        if (!Checked || index < 0 || index >= _rowElements.Count || _rowElements[index].Child is not Grid { Children: [Grid body, ..] })
+        if (!Checked || index < 0 || index >= _rowElements.Count || _rowElements[index].Child is not RowBlock body)
         {
             return;
         }
@@ -431,14 +337,16 @@ public sealed partial class KitList
 
         var box = NewEditor(item.Title);
         SetColumn(box, 1);
-        SetColumnSpan(box, 2);
+        SetColumnSpan(box, 3);
 
-        // The title's column takes the box; the rest of the row stays as it was.
-        foreach (var child in body.Children)
+        // The title's column takes the box; the check stays as it was.
+        _editorHidden.Clear();
+        foreach (var child in body.Children.OfType<FrameworkElement>())
         {
-            if (GetColumn((FrameworkElement)child) >= 1)
+            if (GetColumn(child) >= 1 && child.Visibility == Visibility.Visible)
             {
                 child.Visibility = Visibility.Collapsed;
+                _editorHidden.Add(child);
             }
         }
 
@@ -458,7 +366,8 @@ public sealed partial class KitList
 
         var box = NewEditor(string.Empty);
         box.PlaceholderText = _spec.AddPlaceholder?.Invoke() ?? string.Empty;
-        _addRow.Open(box);
+        _editorHidden.Clear();
+        _editorHidden.AddRange(_addRow.Open(box));
         _editor = (box, null);
         StartTyping(box);
     }
@@ -597,12 +506,15 @@ public sealed partial class KitList
         if (editor.Box.Parent is Panel parent)
         {
             parent.Children.Remove(editor.Box);
-
-            foreach (var child in parent.Children)
-            {
-                child.Visibility = Visibility.Visible;
-            }
         }
+
+        // Only what the box hid comes back (the add row's line, a row's texts).
+        foreach (var child in _editorHidden)
+        {
+            child.Visibility = Visibility.Visible;
+        }
+
+        _editorHidden.Clear();
 
         TextInput?.Invoke(false);
     }
@@ -727,7 +639,7 @@ public sealed partial class KitList
     private void AutoScroll(PointerRoutedEventArgs args)
     {
         var y = args.GetCurrentPoint(_scroll).Position.Y;
-        var step = y < AutoScrollEdge ? -Fluent.Space2 : y > _scroll.ActualHeight - AutoScrollEdge ? Fluent.Space2 : 0;
+        var step = y < AutoScrollEdge ? -FamilySpace.S2 : y > _scroll.ActualHeight - AutoScrollEdge ? FamilySpace.S2 : 0;
 
         if (step != 0)
         {

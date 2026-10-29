@@ -16,9 +16,10 @@ using Windows.Storage.Streams;
 namespace Themia.Sdk.WinUI.Kit;
 
 /// <summary>
-/// [S-7060] The list part of every kit widget: rows for the plan the ladder chose
-/// (<see cref="KitLadder.Plan"/>), full-bleed with their own inset ([S-190]), no separators, in
-/// columns read left to right, shown whole under a scroll with the shared fade ([S-639], [S-1281]).
+/// [S-7060] The list part of every kit widget: the family's rows ([S-6711], <see cref="RowBlock"/>) for
+/// the plan the ladder chose (<see cref="KitLadder.Plan"/>), full-bleed with their own inset ([S-190]),
+/// no separators, in columns read left to right, as many whole rows as fit under a scroll with the
+/// shared fade ([S-639], [S-1281]), the card's bottom inset kept under them.
 /// <para>
 /// One focus model, <see cref="RowFocus"/>: a click focuses a row, a double-click or Enter runs its
 /// primary action ([S-1288], [S-1306]); the card makes the list inert in edit mode ([S-1751]), so it
@@ -30,9 +31,6 @@ namespace Themia.Sdk.WinUI.Kit;
 public sealed partial class KitList : Grid
 {
     private const string Scope = "kit";
-
-    /// <summary>The globe that stands in for a site's icon: the caption's size, so it sits on the caption's line.</summary>
-    private const double GlobeSize = 12;
 
     private readonly IWidgetHost _host;
     private readonly KitSpec _spec;
@@ -77,20 +75,14 @@ public sealed partial class KitList : Grid
         _scroll = new ScrollViewer
         {
             Content = _rows,
-            Padding = new Thickness(0, KitLadder.ListInset / 2, 0, KitLadder.ListInset / 2),
             HorizontalScrollMode = ScrollMode.Disabled,
             HorizontalScrollBarVisibility = ScrollBarVisibility.Disabled,
             VerticalScrollBarVisibility = ScrollBarVisibility.Hidden,
             VerticalAlignment = VerticalAlignment.Top,
         };
 
-        // [S-7032] The lined looks fill the slot and scroll under the fade, the table's column
-        // titles over them; the rich look is given the height of its whole rows (FitWholeRows).
-        if (spec.Look != KitRowLook.Rich)
-        {
-            _scroll.Padding = Fluent.ListPadding;
-            _scroll.VerticalAlignment = VerticalAlignment.Stretch;
-        }
+        // [S-6712] The rows stand in the view's top, the card's bottom inset under them.
+        Padding = new Thickness(0, 0, 0, FamilySpace.Inset);
 
         RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
         RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
@@ -247,7 +239,7 @@ public sealed partial class KitList : Grid
 
         for (var i = 0; i < _items.Count; i++)
         {
-            var row = _spec.Look == KitRowLook.Rich ? BuildRow(_items[i], i, now) : BuildLinedRow(_items[i], i, now);
+            var row = BuildFamilyRow(_items[i], i, now);
             SetRow(row, i / columns);
             SetColumn(row, i % columns);
             _rows.Children.Add(row);
@@ -259,17 +251,13 @@ public sealed partial class KitList : Grid
             Mark(_cursorIndex, true);
         }
 
-        if (_spec.Look == KitRowLook.Rich)
-        {
-            FitWholeRows(columns);
-        }
-
+        FitWholeRows(columns);
         _fade?.Refresh();
     }
 
     /// <summary>
-    /// [S-639] The list is given the height of the rows that fit whole; the rest is a scroll away.
-    /// Rows are as tall as their titles, so they are measured at their column's width.
+    /// [S-639] [S-6712] The list is given the height of the rows that fit whole (each of the plan's one
+    /// height); the rest is a scroll away.
     /// </summary>
     private void FitWholeRows(int columns)
     {
@@ -279,129 +267,19 @@ public sealed partial class KitList : Grid
             return;
         }
 
-        var columnWidth = Math.Max(1, _area.Width / columns);
-        var heights = new List<double>();
-
-        for (var i = 0; i < _rowElements.Count; i++)
-        {
-            _rowElements[i].Measure(new Size(columnWidth, double.PositiveInfinity));
-            var line = i / columns;
-
-            if (line == heights.Count)
-            {
-                heights.Add(0);
-            }
-
-            heights[line] = Math.Max(heights[line], _rowElements[i].DesiredSize.Height);
-        }
-
-        var available = Math.Max(0, _area.Height - KitLadder.ListInset);
-        var shown = KitLadder.WholeRows(heights, available);
-        _scroll.Height = KitLadder.ListInset + heights.Take(shown).Sum();
+        var lines = (_rowElements.Count + columns - 1) / columns;
+        var shown = Math.Max(1, Math.Min(lines, KitLadder.Fit(_plan, KitLadder.ListHeight(_area))));
+        _scroll.Height = shown * _plan.RowHeight;
     }
-
-    /// <summary>
-    /// [S-7031] One rich row: the subtitle (with the lead) on its own line, the title wrapping to the
-    /// plan's lines, the preview where the ladder affords it, and the time (with the lead at its start
-    /// when the subtitle has no line). As tall as its title needs, not a fixed list row.
-    /// </summary>
-    private Border BuildRow(KitItem item, int index, DateTimeOffset now)
-    {
-        var stack = new StackPanel { Spacing = KitLadder.LineGap };
-
-        if (_plan.Subtitle && item.Subtitle is { Length: > 0 } subtitle)
-        {
-            var source = new StackPanel { Orientation = Orientation.Horizontal, Spacing = Fluent.Space2 };
-            if (_plan.Lead && Lead(item) is { } lead)
-            {
-                source.Children.Add(lead);
-            }
-
-            var name = Fluent.Text(FluentType.Caption, "TextFillColorTertiaryBrush");
-            name.Text = subtitle;
-            name.TextTrimming = TextTrimming.CharacterEllipsis;
-            source.Children.Add(name);
-            stack.Children.Add(source);
-        }
-
-        var title = Fluent.Text(item.Emphasis ? FluentType.BodyStrong : FluentType.Body);
-        title.Text = item.Title.Length > 0 ? item.Title : _spec.Untitled();
-        title.TextWrapping = TextWrapping.Wrap;
-        title.TextTrimming = TextTrimming.CharacterEllipsis;
-        title.MaxLines = _plan.TitleLines;
-        stack.Children.Add(title);
-
-        if (_plan.PreviewLines > 0 && item.Preview is { Length: > 0 } text)
-        {
-            var preview = Fluent.Text(FluentType.Caption, "TextFillColorSecondaryBrush");
-            preview.Text = text;
-            preview.TextWrapping = TextWrapping.Wrap;
-            preview.TextTrimming = TextTrimming.CharacterEllipsis;
-            preview.MaxLines = _plan.PreviewLines;
-            stack.Children.Add(preview);
-        }
-
-        var leadInline = _plan.Lead && !_plan.Subtitle ? Lead(item) : null;
-        var when = _plan.When ? KitText.When(Strings.Current, item.When, _spec.Time, now) : string.Empty;
-
-        if (leadInline is not null || when.Length > 0)
-        {
-            var meta = new StackPanel { Orientation = Orientation.Horizontal, Spacing = Fluent.Space2 };
-
-            if (leadInline is not null)
-            {
-                meta.Children.Add(leadInline);
-            }
-
-            if (when.Length > 0)
-            {
-                var time = Fluent.Text(FluentType.Caption, "TextFillColorTertiaryBrush");
-                time.Text = when;
-                meta.Children.Add(time);
-            }
-
-            stack.Children.Add(meta);
-        }
-
-        var row = new Border
-        {
-            Child = stack,
-            Padding = new Thickness(Fluent.Space4, KitLadder.RowPadding, Fluent.Space4, KitLadder.RowPadding),
-            Tag = index,
-        };
-
-        ItemFill.Paint(row, ItemRole.Row);
-        RowFocus.Prepare(row);
-        _rowHooks.Add(Fluent.Hover(row));
-        _rowHooks.Add(ItemMenu.Attach(row, () => Entries(item)));
-
-        if ((item.Tooltip ?? item.Link?.OriginalString) is { } tip)
-        {
-            ToolTipService.SetToolTip(row, tip);
-        }
-
-        row.Tapped += OnRowTapped;
-        row.DoubleTapped += OnRowDoubleTapped;
-
-        return row;
-    }
-
-    /// <summary>The row's lead, or null when it has none to draw.</summary>
-    private FrameworkElement? Lead(KitItem item) => item.Lead.Kind switch
-    {
-        KitLeadKind.SiteIcon when item.Lead.Value is { Length: > 0 } link => SiteIcon(link),
-        KitLeadKind.Icon when Enum.TryParse<KitIcon>(item.Lead.Value, out var icon) => Fluent.Icon(KitIcons.Glyph(icon)),
-        _ => null,
-    };
 
     /// <summary>[S-1304] The site's own icon (the host's one cache), with a globe in its place until it arrives or when the site has none.</summary>
     private Grid SiteIcon(string link)
     {
-        var globe = Fluent.Icon(Glyphs.Globe, "TextFillColorTertiaryBrush", GlobeSize);
+        var globe = Family.Glyph(Glyphs.Globe, FamilyShape.Icon, ColourRole.TextSecondary);
         globe.HorizontalAlignment = HorizontalAlignment.Center;
 
-        var image = new Image { Width = Fluent.IconSize, Height = Fluent.IconSize, Visibility = Visibility.Collapsed };
-        var holder = new Grid { Width = Fluent.IconSize, Height = Fluent.IconSize, VerticalAlignment = VerticalAlignment.Center };
+        var image = new Image { Width = FamilyShape.Icon, Height = FamilyShape.Icon, Visibility = Visibility.Collapsed };
+        var holder = new Grid { Width = FamilyShape.Icon, Height = FamilyShape.Icon, VerticalAlignment = VerticalAlignment.Center };
         holder.Children.Add(globe);
         holder.Children.Add(image);
 
@@ -458,7 +336,7 @@ public sealed partial class KitList : Grid
             stream.Seek(0);
 
             // Decoded at twice the drawn size, so the icon is sharp at 200% scale and no bigger.
-            var bitmap = new BitmapImage { DecodePixelWidth = (int)(Fluent.IconSize * 2) };
+            var bitmap = new BitmapImage { DecodePixelWidth = (int)(FamilyShape.Icon * 2) };
             await bitmap.SetSourceAsync(stream);
             return bitmap;
         }
@@ -480,8 +358,6 @@ public sealed partial class KitList : Grid
 
         _rowHooks.Clear();
         _times.Clear();
-        _reveals.Clear();
-        _rings.Clear();
 
         foreach (var row in _rowElements)
         {

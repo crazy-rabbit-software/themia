@@ -50,7 +50,7 @@ public static class MailSpec
             | (config.Shows(MailListField.Account) ? KitShow.Badges : KitShow.None)
             | (config.ShowsPreview ? KitShow.Preview : KitShow.None);
 
-        return new KitChoices(shows, config.EffectivePreviewLines, [.. config.EffectiveColumns.Select(Kit)]);
+        return new KitChoices(shows, [.. config.EffectiveColumns.Select(Kit)]);
     }
 
     /// <summary>[S-543] A table column of the user's as the kit's.</summary>

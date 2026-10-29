@@ -569,8 +569,7 @@ internal sealed partial class TasksView : Grid, IWidgetView, IWidgetHeaderConten
         {
             Count = count,
             CanAdd = CanAdd,
-            TitleLines = _config.EffectiveTitleLines,
-            WhenBeside = _config.Style == TasksStyle.Compact,
+            OneLine = _config.Style == TasksStyle.Compact,
         });
 
     /// <summary>[S-663] A new slot: re-lay the rows only when the ladder lands somewhere else.</summary>

@@ -20,7 +20,7 @@ namespace Themia.App.Widgets;
 /// </summary>
 internal sealed partial class EmailView : IWidgetPreviewState
 {
-    public IReadOnlyList<string> PreviewStates { get; } = ["messages", "accounts", "empty", "hovered", "focused", "stale", "offline"];
+    public IReadOnlyList<string> PreviewStates { get; } = ["messages", "accounts", "empty", "focused", "stale", "offline"];
 
     public Task ShowPreviewStateAsync(string state)
     {
@@ -55,11 +55,7 @@ internal sealed partial class EmailView : IWidgetPreviewState
         UseSource(source);
         _binding.Apply(source, _config, Tick, show: true);
 
-        if (state == "hovered")
-        {
-            _binding.List.PreviewHover(0);
-        }
-        else if (state == "focused")
+        if (state == "focused")
         {
             _binding.List.Focus(1);
         }

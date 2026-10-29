@@ -2,29 +2,28 @@ using Themia.Core.Widgets;
 
 namespace Themia.Sdk.Kit;
 
-/// <summary>The row looks a kit list draws.</summary>
+/// <summary>
+/// The row looks a kit list draws. Every look is the family's Row block ([S-6711]): one row of 32, 48
+/// or 64 for one, two or three lines by the tier ([S-6712], <see cref="RowRules.Lines"/>), never by
+/// the length of its text; the name (the item's title) primary, Strong for the one emphasised row
+/// (unread, today), the value (the time) secondary at the end, a second line in Caption secondary, a
+/// third in Caption tertiary; the lead a 16 glyph or the site's icon. No divider.
+/// </summary>
 public enum KitRowLook
 {
     /// <summary>
-    /// [S-7031] A row as tall as its title needs: the subtitle on a line of its own above the title
-    /// (with the lead beside it), the title wrapping to the plan's lines, the preview under it, and
-    /// the time last (with the lead at its start when the subtitle has no line). Rows are measured and
-    /// shown whole ([S-639]). Feeds.
+    /// [S-7031] An article: the title, the time as its value, the source (with its icon as the lead)
+    /// on the second line, the preview on the third. Rows in up to the spec's columns. Feeds.
     /// </summary>
     Rich,
 
     /// <summary>
-    /// [S-7032] Rows of stacked lines: the title with its time beside it, then the subtitle with the
-    /// first badge beside it, then the preview; the lead in front and the tone's bar in the row's
-    /// inset. On a wide strip or a very wide tile the row goes onto one line (<see cref="Line"/>). Mail.
+    /// [S-7032] A message: the sender, the time as its value, the subject (and the account's badge
+    /// after it) on the second line, the preview on the third; the lead the message's own glyph. Mail.
     /// </summary>
     TwoLine,
 
-    /// <summary>
-    /// [S-7032] One line per item: the title in a column of its own, the subtitle with the preview
-    /// after a dash, the first badge, the time; the spec's inline actions swap in for the time on the
-    /// hovered and the focused row ([S-7033]). The plan's look on a strip for <see cref="TwoLine"/>.
-    /// </summary>
+    /// <summary>[S-7032] The same row as <see cref="TwoLine"/> held to one line at every tier: the sender and the time.</summary>
     Line,
 
     /// <summary>
@@ -34,20 +33,18 @@ public enum KitRowLook
     Table,
 
     /// <summary>
-    /// [S-7036] A scheduled item: the stripe in its calendar's colour, the time column (start over
-    /// end), the title over its detail; on a narrow column the time folds into the detail line, on a
-    /// wide one where and who get columns of their own. Rows of one height, in pages with day
-    /// groups ([S-7035]). The agenda.
+    /// [S-7036] A scheduled item: its calendar's colour as a 2 px bar in the lead, the title, the
+    /// start as its value, the span and where on the second line. Rows of one height in pages with
+    /// day headings ([S-7035]). The agenda.
     /// </summary>
     Schedule,
 
     /// <summary>
-    /// [S-7037] An item with a check: the lead is the check (a ring, a filled tick when done, the
-    /// ring in the item's tone when it is late), the title wraps to the plan's lines and is struck
-    /// through when done, the emphasis mark ("!") before it, the subtitle line (a list's name), the
-    /// time beside or under it in the item's tone. Rows in one or two columns filled column by column,
-    /// whole lines only, the done group under its heading, reordered by a drag, renamed in place, an
-    /// add row under them ([S-7038]). Tasks.
+    /// [S-7037] An item with a check: the lead is the check (a ring, the accent's filled tick when done,
+    /// the ring in the item's tone when it is late), the title struck through when done, the due as its
+    /// value in the item's tone, the subtitle (a list's name) on the second line. Rows in one or two
+    /// columns filled column by column, whole rows only, the done group under its heading, reordered
+    /// by a drag, renamed in place, an add row under them ([S-7038]). Tasks.
     /// </summary>
     Check,
 }
@@ -67,17 +64,8 @@ public enum KitColumn
 /// <summary>[S-7034] One table column at the width it gets: a fixed width, or a share of what is left.</summary>
 public readonly record struct KitColumnFit(KitColumn Column, double Width, double Star);
 
-/// <summary>
-/// [S-7033] A line row's boxes, leading to trailing: the title, the subtitle line, the badge (0 when
-/// it is not shown) and the trailing slot that holds the time or, revealed, the inline actions.
-/// </summary>
-public readonly record struct KitLineBoxes(double Title, double Line, double Badge, double Slot);
-
-/// <summary>
-/// [S-7030] What the user chose for a kit list: the optional fields on, how many preview lines (the
-/// stacked look's, 1 to 5), and a table's columns in their order.
-/// </summary>
-public sealed record KitChoices(KitShow Shows, int PreviewLines = 2, IReadOnlyList<KitColumn>? Columns = null)
+/// <summary>[S-7030] What the user chose for a kit list: the optional fields on and a table's columns in their order.</summary>
+public sealed record KitChoices(KitShow Shows, IReadOnlyList<KitColumn>? Columns = null)
 {
     /// <summary>[S-7037] How many items the list holds (two columns only when one would not hold them).</summary>
     public int Count { get; init; }
@@ -85,11 +73,8 @@ public sealed record KitChoices(KitShow Shows, int PreviewLines = 2, IReadOnlyLi
     /// <summary>[S-7038] An item can be added (the add row has a purpose).</summary>
     public bool CanAdd { get; init; }
 
-    /// <summary>[S-7037] How many lines a title may wrap to, as the user chose (1 to 6).</summary>
-    public int TitleLines { get; init; } = 2;
-
-    /// <summary>[S-7037] The time beside the title wherever the column has room (a compact style), not only on a wide tile.</summary>
-    public bool WhenBeside { get; init; }
+    /// <summary>[S-7037] One line per row at every tier (a compact style): the subtitle line left out.</summary>
+    public bool OneLine { get; init; }
 }
 
 /// <summary>[S-7030] The optional fields of a kit row, which a spec offers and the user may turn off.</summary>
@@ -148,13 +133,6 @@ public sealed record KitSpec(
     /// <summary>[S-7034] How a table's time column writes it.</summary>
     public KitTime ColumnTime { get; init; } = KitTime.Stamp;
 
-    /// <summary>
-    /// [S-7036] Every label a schedule's time column may show at its widest ("All day", "Now" in the
-    /// strong step, a clock in the language's digits), measured in the current language for the
-    /// column's width.
-    /// </summary>
-    public Func<IReadOnlyList<(string Text, bool Strong)>>? TimeLabels { get; init; }
-
     /// <summary>[S-7038] The check look's add row ("Add a task"), in the current language.</summary>
     public Func<string>? AddLabel { get; init; }
 
@@ -163,40 +141,32 @@ public sealed record KitSpec(
 }
 
 /// <summary>[S-7030] What one size of a kit list shows; chosen by <see cref="KitLadder.Plan"/>.</summary>
-/// <param name="Columns">How many columns of rows, read left to right, then down.</param>
+/// <param name="Columns">How many columns of rows, read left to right, then down (a check look's: top to bottom, then across).</param>
 /// <param name="ColumnWidth">The width one column is laid out in (0 before the box is measured).</param>
+/// <param name="Lines">[S-6712] The lines every row shows (1 to 3); its height is <see cref="RowHeight"/>.</param>
 /// <param name="Lead">The row carries its lead.</param>
-/// <param name="Subtitle">The subtitle on its own line over the title (with the lead beside it).</param>
-/// <param name="TitleLines">How many lines a title may wrap to.</param>
-/// <param name="PreviewLines">Lines of preview; 0 for none.</param>
-/// <param name="When">The time.</param>
-/// <param name="Badges">[S-7032] The first badge.</param>
-/// <param name="Compact">[S-7032] The compact row density of a short tile.</param>
+/// <param name="Subtitle">The subtitle (with the badge after it, <see cref="Badges"/>) on the second line.</param>
+/// <param name="Preview">The preview: on the third line under a subtitle, else on the second.</param>
+/// <param name="When">The time, as the row's value.</param>
+/// <param name="Badges">[S-7032] The first badge after the subtitle.</param>
 /// <param name="ColumnHeader">[S-7034] The table's column titles over its rows.</param>
-/// <param name="InlineActions">[S-7033] The spec's inline actions on the hovered and the focused row.</param>
 /// <param name="Table">[S-7034] The table's columns at their widths, in the user's order; null for any other look.</param>
-/// <param name="Narrow">[S-7036] A narrow column: the time folds into the detail line.</param>
-/// <param name="Details">[S-7036] Where and who in columns of their own.</param>
-/// <param name="RowHeight">[S-7035] A paged look's one row height (one title line).</param>
-/// <param name="HeadingHeight">[S-7035] A group heading's height.</param>
+/// <param name="RowHeight">The rows' one height (<see cref="FamilyShape.RowHeight"/> of <see cref="Lines"/>).</param>
+/// <param name="HeadingHeight">[S-7035] A group heading's height: one row of 32.</param>
 public readonly record struct KitPlan(
     KitRowLook Look,
     int Columns,
     double ColumnWidth,
+    int Lines,
     bool Lead,
     bool Subtitle,
-    int TitleLines,
-    int PreviewLines,
+    bool Preview,
     bool When,
     bool Badges = false,
-    bool Compact = false,
     bool ColumnHeader = false,
-    bool InlineActions = false,
     IReadOnlyList<KitColumnFit>? Table = null,
-    bool Narrow = false,
-    bool Details = false,
-    double RowHeight = 0,
-    double HeadingHeight = 0)
+    double RowHeight = FamilyShape.Row1,
+    double HeadingHeight = FamilyShape.Row1)
 {
     /// <summary>[S-7038] The add row under the list.</summary>
     public bool AddRow { get; init; }
@@ -204,266 +174,40 @@ public readonly record struct KitPlan(
     /// <summary>[S-7037] A group's heading over its rows (the done ones).</summary>
     public bool Headings { get; init; }
 
-    /// <summary>[S-7037] The emphasis mark ("!") before an emphasised title.</summary>
-    public bool Mark { get; init; }
-
     /// <summary>[S-7037] The time only when it is urgent (overdue, today).</summary>
     public bool UrgentOnly { get; init; }
 
     /// <summary>[S-7037] The time in its long words, with its date.</summary>
     public bool LongWhen { get; init; }
-
-    /// <summary>[S-7037] The time beside the title rather than under it.</summary>
-    public bool WhenBeside { get; init; }
-
-    /// <summary>The line under the title and preview: the time, and the lead when the subtitle has no line.</summary>
-    public bool MetaLine => When || (Lead && !Subtitle);
 }
 
 /// <summary>
 /// [S-7031] The kit's disclosure ladder ([S-660]..[S-666]), the one place a kit list's breakpoints
-/// live. For the rich look, at every size the newest title, whole (two lines, one when even that does
-/// not fit); then its time, then its lead (from 180px of column width), then the subtitle line (from
-/// 240px); from 400px wide two columns (three from 720px, while a column keeps 200px); a preview
-/// where it costs no row, or where at least three rows still fit on a tile at least 280px high that
-/// is not a tall column (more titles beat previews). Rows are never counted here: they are as tall as
-/// their titles, so the list measures them and shows only those that fit whole ([S-639]); the
-/// estimate below only chooses the rungs. Concise first ([S-666]): no rung adds a control or a pane.
+/// live. Rows are the family's ([S-6711], [S-6712]): a tile shows more lines per row as it grows both
+/// ways (one while compact either way, two from regular, three from expanded) and as many whole rows
+/// as fit; from 400 wide a spec may go to two columns (three from 720) while a column keeps 320. In a
+/// row the title always shows; the lead and the time from a column of 180, the badge from 260.
+/// Concise first ([S-666]): no rung adds a control or a pane.
 /// </summary>
 public static class KitLadder
 {
-    /// <summary>The space between columns: none, rows carry their own side padding so their fills meet.</summary>
-    public const double Gutter = 0;
-
-    /// <summary>A column narrower than this cannot hold a two-line title worth reading.</summary>
-    public const double MinColumn = 200;
-
-    /// <summary>From here a row has room for the subtitle beside its lead.</summary>
-    public const double SubtitleNeedsWidth = 240;
+    /// <summary>A column narrower than this cannot hold a one-line title worth reading beside its time.</summary>
+    public const double MinColumn = 320;
 
     /// <summary>From here a row carries its lead.</summary>
     public const double LeadNeedsWidth = 180;
 
-    /// <summary>A rich row's padding above and below its text.</summary>
-    public const double RowPadding = 4;
-
-    /// <summary>The space between the lines of a rich row.</summary>
-    public const double LineGap = 2;
-
-    /// <summary>Height lost to the list's own inset (top and bottom).</summary>
-    public const double ListInset = 4;
-
-    private static double Title => FluentType.Body.LineHeight;
-    private static double Caption => FluentType.Caption.LineHeight;
-
-    /// <param name="shows">The optional fields the user has on (the spec's <see cref="KitSpec.Optional"/> bounds them).</param>
-    public static KitPlan Plan(WidgetArea area, KitSpec spec, KitShow shows) => Plan(area, spec, new KitChoices(shows));
-
-    /// <param name="choices">What the user chose: the optional fields (bounded by the spec's <see cref="KitSpec.Optional"/>), preview lines, a table's columns.</param>
-    public static KitPlan Plan(WidgetArea area, KitSpec spec, KitChoices choices)
-    {
-        ArgumentNullException.ThrowIfNull(spec);
-        ArgumentNullException.ThrowIfNull(choices);
-
-        if (spec.Look == KitRowLook.Schedule)
-        {
-            return Scheduled(area, spec);
-        }
-
-        if (spec.Look == KitRowLook.Check)
-        {
-            return KitChecks.Plan(area, spec, choices);
-        }
-
-        if (spec.Look != KitRowLook.Rich)
-        {
-            return Lined(area, spec, choices);
-        }
-
-        var shows = choices.Shows;
-
-        var on = shows & spec.Optional;
-        bool Has(KitShow field) => (on & field) == field;
-
-        if (!area.IsMeasured)
-        {
-            return new KitPlan(spec.Look, 1, 0, Has(KitShow.Lead), Has(KitShow.Subtitle), 2, Has(KitShow.Preview) ? 2 : 0, Has(KitShow.When));
-        }
-
-        var height = Math.Max(0, area.Height - ListInset);
-        var columns = Math.Min(Math.Max(1, spec.MaxColumns), area.Width >= 720 ? 3 : area.Width >= 400 ? 2 : 1);
-
-        while (columns > 1 && Column(area.Width, columns) < MinColumn)
-        {
-            columns--;
-        }
-
-        var width = Column(area.Width, columns);
-        var plan = new KitPlan(
-            spec.Look,
-            columns,
-            width,
-            Has(KitShow.Lead) && width >= LeadNeedsWidth,
-            Has(KitShow.Subtitle) && width >= SubtitleNeedsWidth,
-            2,
-            0,
-            Has(KitShow.When));
-
-        plan = Fit(plan, height);
-
-        if (!Has(KitShow.Preview))
-        {
-            return plan;
-        }
-
-        var without = Disclosure.WholeRows(height, RowEstimate(plan));
-
-        foreach (var lines in new[] { 2, 1 })
-        {
-            var with = plan with { PreviewLines = lines };
-            var rows = Disclosure.WholeRows(height, RowEstimate(with));
-
-            var free = rows >= 1 && rows == without;
-            var roomy = area.Shape != AreaShape.Tall && area.HeightClass >= SizeClass.Expanded && rows >= 3;
-
-            if (free || roomy)
-            {
-                return with;
-            }
-        }
-
-        return plan;
-    }
-
-    /// <summary>
-    /// What one row of <paramref name="plan"/> is expected to need with a title that wraps to all its
-    /// lines. An upper bound: a one-line title makes a shorter row.
-    /// </summary>
-    public static double RowEstimate(KitPlan plan)
-    {
-        var height = (RowPadding * 2) + (plan.TitleLines * Title);
-
-        if (plan.Subtitle)
-        {
-            height += Caption + LineGap;
-        }
-
-        if (plan.PreviewLines > 0)
-        {
-            height += LineGap + (plan.PreviewLines * Caption);
-        }
-
-        if (plan.MetaLine)
-        {
-            height += LineGap + Caption;
-        }
-
-        return height;
-    }
-
-    /// <summary>[S-639] How many lines of rows to keep from measured line heights: whole lines, at least one.</summary>
-    public static int WholeRows(IReadOnlyList<double> rowHeights, double available)
-    {
-        ArgumentNullException.ThrowIfNull(rowHeights);
-
-        var used = 0.0;
-        var count = 0;
-
-        foreach (var row in rowHeights)
-        {
-            if (count > 0 && used + row > available + Disclosure.Tolerance)
-            {
-                break;
-            }
-
-            used += row;
-            count++;
-        }
-
-        return count;
-    }
-
-    private static double Column(double width, int columns)
-        => columns <= 1 ? width : (width - ((columns - 1) * Gutter)) / columns;
-
-    /// <summary>
-    /// Rung 0 must fit whole: shed the secondary lines (the subtitle, then the time and lead, then the
-    /// title's second line) until one row does.
-    /// </summary>
-    private static KitPlan Fit(KitPlan plan, double height)
-    {
-        if (RowEstimate(plan) <= height + Disclosure.Tolerance)
-        {
-            return plan;
-        }
-
-        plan = plan with { Subtitle = false };
-        if (RowEstimate(plan) <= height + Disclosure.Tolerance)
-        {
-            return plan;
-        }
-
-        plan = plan with { When = false, Lead = false };
-        if (RowEstimate(plan) <= height + Disclosure.Tolerance)
-        {
-            return plan;
-        }
-
-        return plan with { TitleLines = 1 };
-    }
-
-    // ---- the lined looks ([S-7032]..[S-7034]) ---------------------------------------------------
-
-    /// <summary>A lined row's side inset and focus ring, each side: the room its text never has (Fluent's Space4 and the ring).</summary>
-    public const double LinedInset = 16 + 1.5;
-
-    /// <summary>[S-7032] A lined row's lead glyph.</summary>
-    public const double LeadSize = 14;
-
-    /// <summary>[S-7032] The lead in front of a lined row's text and the gap after it (Fluent's Space2).</summary>
-    public const double LeadLane = LeadSize + 8;
-
-    /// <summary>Fluent's compact list row.</summary>
-    public const double CompactRow = 32;
-
-    /// <summary>Under this height a tile's lined rows go compact (Fluent's five standard rows).</summary>
-    public const double CompactBelow = 40 * 5;
-
-    /// <summary>[S-7032] From this width the lead costs the title nothing it needs.</summary>
-    public const double LeadFromWidth = 300;
-
-    /// <summary>[S-7032] Below this width the badge has no room beside the subtitle.</summary>
+    /// <summary>[S-7032] Below this width the badge has no room after the subtitle.</summary>
     public const double BadgeNeedsWidth = 260;
 
-    /// <summary>[S-7032] Below this width a time beside the title leaves it a handful of letters.</summary>
-    public const double WhenNeedsWidth = 110;
-
-    /// <summary>[S-7032] Below this height one more line per item costs a whole item.</summary>
-    public const double PreviewNeedsHeight = 120;
-
-    /// <summary>[S-7032] Below this width there is no preview on a stacked row.</summary>
-    public const double PreviewNeedsWidth = 180;
-
-    /// <summary>[S-7032] From this width a stacked row is one line whatever the height.</summary>
-    public const double LineFromWidth = 640;
-
-    /// <summary>[S-7032] A strip at least this wide and shorter than <see cref="LineStripBelowHeight"/> goes one line per item.</summary>
-    public const double LineStripWidth = 420;
-
-    /// <summary>[S-7032] Under this height a wide tile is a strip: stacked rows would show two items.</summary>
-    public const double LineStripBelowHeight = 220;
-
-    /// <summary>[S-7032] On one line the preview needs this much width beside the subtitle.</summary>
-    public const double LinePreviewNeedsWidth = 440;
-
-    /// <summary>[S-7032] On one line the badge column needs this much width.</summary>
-    public const double LineBadgeNeedsWidth = 560;
-
-    /// <summary>[S-7033] The narrowest a line row's time is drawn, so "now" and "12:45" line up.</summary>
-    public const double LineTimeWidth = 36;
+    /// <summary>[S-7032] Below this width (a compact one) a time beside the title leaves it a handful of letters.</summary>
+    public const double WhenNeedsWidth = 180;
 
     /// <summary>[S-7034] Below this height the table's column titles cost a row.</summary>
     public const double ColumnHeaderNeedsHeight = 140;
+
+    /// <summary>[S-7034] The table's column titles: one Caption line and the gap under it.</summary>
+    public static double ColumnHeaderHeight => FamilyType.Caption.LineHeight + FamilySpace.S2;
 
     /// <summary>[S-7034] From this width the table adds the preview column when the subtitle would hog the line.</summary>
     public const double RoomyPreviewFromWidth = 700;
@@ -471,91 +215,75 @@ public static class KitLadder
     /// <summary>[S-7034] The share of the line a lone subtitle column may take before the preview joins it.</summary>
     public const double RoomySubtitleShare = 0.4;
 
-    /// <summary>[S-7034] The gap between table columns (Fluent's Space2).</summary>
-    public const double ColumnGap = 8;
+    /// <summary>[S-7034] The gap between table columns: the family's column gap.</summary>
+    public const double ColumnGap = FamilySpace.ColumnGap;
 
-    /// <summary>
-    /// [S-7032]..[S-7034] The lined looks' ladder (Mail's, [S-556], [S-1280]..[S-1287]): a row never
-    /// clips or overlaps; the badge goes first, then the preview, then extra preview lines; a stacked
-    /// row goes onto one line on a wide strip or a very wide tile, where the inline actions show on a
-    /// Huge-wide one; a table sheds whole columns, the least essential first, the first column the
-    /// user chose always staying, and shows its column titles where they cost no row.
-    /// </summary>
-    private static KitPlan Lined(WidgetArea area, KitSpec spec, KitChoices choices)
+    /// <summary>[S-1267] From this width a schedule flows its days into two columns.</summary>
+    public const double TwoScheduleColumnsFrom = 720;
+
+    /// <param name="shows">The optional fields the user has on (the spec's <see cref="KitSpec.Optional"/> bounds them).</param>
+    public static KitPlan Plan(WidgetArea area, KitSpec spec, KitShow shows) => Plan(area, spec, new KitChoices(shows));
+
+    /// <param name="choices">What the user chose: the optional fields (bounded by the spec's <see cref="KitSpec.Optional"/>), a table's columns.</param>
+    public static KitPlan Plan(WidgetArea area, KitSpec spec, KitChoices choices)
+    {
+        ArgumentNullException.ThrowIfNull(spec);
+        ArgumentNullException.ThrowIfNull(choices);
+
+        return spec.Look switch
+        {
+            KitRowLook.Schedule => Scheduled(area),
+            KitRowLook.Check => KitChecks.Plan(area, spec, choices),
+            _ => Rows(area, spec, choices),
+        };
+    }
+
+    /// <summary>The height a list has for its rows in <paramref name="area"/>: the view's, less the card's bottom inset.</summary>
+    public static double ListHeight(WidgetArea area) => Math.Max(0, area.Height - FamilySpace.Inset);
+
+    /// <summary>[S-6712] Whole rows of <paramref name="plan"/> in a list <paramref name="height"/> tall, under the table's column titles when it has them.</summary>
+    public static int Fit(KitPlan plan, double height)
+        => RowRules.Fit(height - (plan.ColumnHeader ? ColumnHeaderHeight : 0), plan.Lines);
+
+    private static KitPlan Rows(WidgetArea area, KitSpec spec, KitChoices choices)
     {
         var on = choices.Shows & spec.Optional;
         bool Has(KitShow field) => (on & field) == field;
 
-        var width = area.Width;
-        var height = area.Height;
-        var compact = height > 0 && height < CompactBelow;
-        var lead = Has(KitShow.Lead) && width >= LeadFromWidth;
+        var width = Math.Max(0, area.Width);
+        var columns = Math.Min(Math.Max(1, spec.MaxColumns), width >= 720 ? 3 : width >= 400 ? 2 : 1);
+        while (columns > 1 && width / columns < MinColumn)
+        {
+            columns--;
+        }
+
+        var column = width / columns;
+        var measured = area.IsMeasured;
+        var lead = Has(KitShow.Lead) && (!measured || column >= LeadNeedsWidth);
+        var when = Has(KitShow.When) && (!measured || column >= WhenNeedsWidth);
 
         if (spec.Look == KitRowLook.Table)
         {
-            var columns = TableColumns(choices.Columns is { Count: > 0 } chosen ? chosen : [KitColumn.Title], InnerWidth(width, lead), ColumnGap);
-            var room = new Disclosure(area);
-            room.Reserve(CompactRow);
-            var header = height >= ColumnHeaderNeedsHeight && room.Take(FluentType.Caption.LineHeight + 4);
-            return new KitPlan(KitRowLook.Table, 1, width, lead, false, 1, 0, false, Compact: compact, ColumnHeader: header, Table: columns);
+            var chosen = choices.Columns is { Count: > 0 } picked ? picked : [KitColumn.Title];
+            var fits = TableColumns(chosen, InnerWidth(column, lead), ColumnGap);
+            var header = measured && area.Height >= ColumnHeaderNeedsHeight;
+            return new KitPlan(KitRowLook.Table, 1, column, 1, lead, false, false, false, ColumnHeader: header, Table: fits);
         }
 
-        if (spec.Look == KitRowLook.Line || width >= LineFromWidth || (width >= LineStripWidth && height < LineStripBelowHeight))
-        {
-            return new KitPlan(
-                KitRowLook.Line,
-                1,
-                width,
-                lead,
-                Has(KitShow.Subtitle),
-                1,
-                Has(KitShow.Preview) && width >= LinePreviewNeedsWidth ? 1 : 0,
-                Has(KitShow.When),
-                Has(KitShow.Badges) && width >= LineBadgeNeedsWidth,
-                compact,
-                InlineActions: area.WidthClass >= SizeClass.Huge);
-        }
+        var badges = Has(KitShow.Badges) && measured && column >= BadgeNeedsWidth;
+        var second = Has(KitShow.Subtitle) || badges;
+        var preview = Has(KitShow.Preview);
+        var wanted = spec.Look == KitRowLook.Line || choices.OneLine ? 1 : 1 + (second ? 1 : 0) + (preview ? 1 : 0);
+        var lines = measured ? RowRules.Lines(area, wanted) : 1;
+        var subtitle = second && lines >= 2;
+        var shown = preview && lines >= (subtitle ? 3 : 2);
 
-        var preview = Has(KitShow.Preview) && height >= PreviewNeedsHeight && width >= PreviewNeedsWidth;
-        var lines = preview ? (height < 2 * PreviewNeedsHeight ? 1 : Math.Clamp(choices.PreviewLines, 1, 5)) : 0;
-
-        return new KitPlan(
-            KitRowLook.TwoLine,
-            1,
-            width,
-            lead,
-            Has(KitShow.Subtitle),
-            1,
-            lines,
-            Has(KitShow.When) && width >= WhenNeedsWidth,
-            Has(KitShow.Badges) && width >= BadgeNeedsWidth,
-            compact);
+        return new KitPlan(spec.Look, columns, column, lines, lead, subtitle, shown, when, badges && subtitle, RowHeight: FamilyShape.RowHeight(lines));
     }
 
-    /// <summary>A lined row's width inside its inset and ring and past its lead: what its text has to share.</summary>
+    /// <summary>A row's width inside its side insets and past its lead: what its text has to share.</summary>
     public static double InnerWidth(double width, bool lead)
-        => Math.Max(0, width - (2 * LinedInset) - (lead ? LeadLane : 0));
-
-    /// <summary>[S-7033] How wide a row of <paramref name="count"/> inline-action buttons is.</summary>
-    public static double InlineActionsWidth(int count, double button, double gap)
-        => count <= 0 ? 0 : (count * button) + ((count - 1) * gap);
-
-    /// <summary>
-    /// [S-7033] A line row's boxes at <paramref name="inner"/> (its inner width). The trailing slot is
-    /// as wide as the wider of the time and the inline actions whether or not they show, so revealing
-    /// them under the pointer or the keyboard swaps the slot's content and moves nothing else: the
-    /// title, the subtitle line and the badge keep their boxes, the subtitle truncates in one place.
-    /// </summary>
-    /// <param name="badge">The badge column's width; 0 when it is not shown.</param>
-    /// <param name="actions">The inline actions' width (<see cref="InlineActionsWidth"/>); 0 when the row has none.</param>
-    public static KitLineBoxes LineBoxes(double inner, double gap, double badge, double actions)
-    {
-        var title = Math.Clamp(inner * 0.24, 96, 200);
-        var slot = Math.Max(LineTimeWidth, actions);
-        var gaps = (badge > 0 ? 3 : 2) * gap;
-        var line = Math.Max(0, inner - title - badge - slot - gaps);
-        return new KitLineBoxes(title, line, badge, slot);
-    }
+        => Math.Max(0, width - (2 * FamilySpace.Inset) - (lead ? RowRules.NameStart(FamilyShape.Icon) : 0));
 
     /// <summary>[S-7034] The narrowest each column can be and still say anything.</summary>
     public static double MinWidth(KitColumn column) => column switch
@@ -633,70 +361,16 @@ public static class KitLadder
 
     // ---- the schedule look ([S-7035], [S-7036]) -------------------------------------------------
 
-    /// <summary>[S-1267] From this column width a schedule row puts where and who in columns of their own.</summary>
-    public const double DetailsFrom = 480;
-
-    /// <summary>[S-1267] From this width a schedule flows its days into two columns.</summary>
-    public const double TwoScheduleColumnsFrom = 720;
-
-    /// <summary>[S-574] Below this column width the time column folds into the line under the title.</summary>
-    public const double ScheduleNarrowBelow = 260;
-
-    /// <summary>[S-571] The time column at its narrowest: a clock and the English "All day".</summary>
-    public const double TimeColumnMin = 52;
-
-    /// <summary>The space between a schedule's two columns (Fluent's Space2).</summary>
-    public const double ScheduleGutter = 8;
-
-    /// <summary>The list's padding under its last row (Fluent's ListPadding).</summary>
-    public const double ListFoot = 8;
-
-    /// <summary>A schedule row's padding above and below, and a heading's (Fluent's Space1 and Space2).</summary>
-    private const double PadSmall = 4;
-
-    private const double PadLarge = 8;
-
     /// <summary>
-    /// [S-7036] The schedule's plan: two columns from 720px, a narrow column under 260px (the time in
-    /// the detail line), where and who in columns from 480px of column width on a tile that is not
-    /// compact; rows of one height (two lines where a second is drawn: always but on a compact wide
-    /// tile), headings of one height.
+    /// [S-7036] The schedule's plan: two columns from 720, rows of two lines (the title and its start,
+    /// the span and where under them) from regular both ways and of one on a compact tile, headings
+    /// one row of 32.
     /// </summary>
-    private static KitPlan Scheduled(WidgetArea area, KitSpec spec)
+    private static KitPlan Scheduled(WidgetArea area)
     {
-        var width = area.Width;
-        var height = area.Height;
+        var width = Math.Max(0, area.Width);
         var columns = width >= TwoScheduleColumnsFrom ? 2 : 1;
-        var column = columns == 1 ? width : (width - ScheduleGutter) / 2;
-        var compact = height > 0 && height < CompactBelow;
-        var narrow = column > 0 && column < ScheduleNarrowBelow;
-        var details = column >= DetailsFrom && !compact;
-        var twoLines = narrow || !compact;
-        var row = twoLines
-            ? FluentType.BodyStrong.LineHeight + FluentType.Caption.LineHeight + (2 * PadSmall)
-            : Math.Max(CompactRow, FluentType.BodyStrong.LineHeight + (2 * PadSmall));
-
-        return new KitPlan(
-            spec.Look,
-            columns,
-            column,
-            false,
-            twoLines,
-            1,
-            0,
-            true,
-            Compact: compact,
-            Narrow: narrow,
-            Details: details,
-            RowHeight: row,
-            HeadingHeight: FluentType.BodyStrong.LineHeight + PadLarge + PadSmall);
+        var lines = area.IsMeasured ? RowRules.Lines(area, 2) : 1;
+        return new KitPlan(KitRowLook.Schedule, columns, width / columns, lines, true, lines >= 2, false, true, RowHeight: FamilyShape.RowHeight(lines));
     }
-
-    /// <summary>
-    /// [S-571] The time column for a widest label of <paramref name="widestLabel"/> DIPs: wide enough
-    /// for it on the 4px grid, so a long word for "all day" is not cut, but never more than 35% of the
-    /// row, where the title keeps the rest and an even longer label trims.
-    /// </summary>
-    public static double TimeColumn(double widestLabel, double columnWidth)
-        => Math.Clamp(Math.Ceiling(widestLabel / 4) * 4, TimeColumnMin, Math.Max(TimeColumnMin, Math.Floor(columnWidth * 0.35)));
 }

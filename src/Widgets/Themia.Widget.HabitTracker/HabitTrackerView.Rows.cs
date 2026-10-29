@@ -359,7 +359,7 @@ internal sealed partial class HabitTrackerView
     /// editor it stays whatever the plan says.
     /// </summary>
     private void FitAddRow(HabitLayoutPlan plan)
-        => _addRow.Fit((plan.AddRow && Writable) || _editor is { HabitId: null }, plan.CompactRows, plan.Inset);
+        => _addRow.Fit((plan.AddRow && Writable) || _editor is { HabitId: null });
 
     private TextBox NewEditor(string text)
     {

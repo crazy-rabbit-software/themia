@@ -23,8 +23,8 @@ public sealed class TaskLayoutTests
     /// <summary>How much of a due date a row says: the kit plan's time rungs.</summary>
     private static Detail Due(KitPlan plan) => !plan.When ? Detail.None : plan.UrgentOnly ? Detail.Urgent : plan.LongWhen ? Detail.Long : Detail.Short;
 
-    private static KitPlan Kit(WidgetArea area, int count, bool writable, bool today, TasksStyle mode, int lines)
-        => KitLadder.Plan(area, Check, new KitChoices((today ? KitShow.Subtitle : KitShow.None) | KitShow.When) { Count = count, CanAdd = writable, TitleLines = lines, WhenBeside = mode == TasksStyle.Compact });
+    private static KitPlan Kit(WidgetArea area, int count, bool writable, bool today, TasksStyle mode)
+        => KitLadder.Plan(area, Check, new KitChoices((today ? KitShow.Subtitle : KitShow.None) | KitShow.When) { Count = count, CanAdd = writable, OneLine = mode == TasksStyle.Compact });
 
     // The size tiers as content areas (card less the ~44 DIP header).
     private static readonly WidgetArea XS = new(120, 76);
@@ -35,85 +35,77 @@ public sealed class TaskLayoutTests
     private static readonly WidgetArea L = new(560, 376);
     private static readonly WidgetArea XL = new(800, 516);
 
-    private static KitPlan Plan(WidgetArea area, int count = 7, bool today = false, TasksStyle mode = TasksStyle.List, int lines = 2)
-        => Kit(area, count, writable: true, today, mode, lines);
+    private static KitPlan Plan(WidgetArea area, int count = 7, bool today = false, TasksStyle mode = TasksStyle.List)
+        => Kit(area, count, writable: true, today, mode);
 
     [Fact]
-    public void S780_XS_shows_one_line_titles_and_no_due_line_with_no_add_row()
+    public void S780_XS_shows_one_line_rows_and_no_due_with_no_add_row()
     {
         var plan = Plan(XS);
-        Assert.True(plan.Compact);
-        Assert.Equal(1, plan.TitleLines);
+        Assert.Equal(1, plan.Lines);
+        Assert.Equal(FamilyShape.Row1, plan.RowHeight);
         Assert.Equal(Detail.None, Due(plan));
         Assert.Equal(Detail.Urgent, Due(Plan(new WidgetArea(120, 356))));
         Assert.False(plan.AddRow);
-        Assert.False(plan.Mark);
     }
 
     [Fact]
-    public void S780_S_puts_the_due_under_one_line_titles_and_drops_the_add_row()
+    public void S780_S_and_a_wide_strip_say_the_short_due_and_drop_the_add_row()
     {
-        var plan = Plan(S);
-        Assert.Equal(1, plan.TitleLines);
-        Assert.Equal(Detail.Short, Due(plan));
-        Assert.False(plan.WhenBeside);
-        Assert.False(plan.AddRow);
+        foreach (var area in new[] { S, Wide })
+        {
+            var plan = Plan(area);
+            Assert.Equal(1, plan.Lines);
+            Assert.Equal(Detail.Short, Due(plan));
+            Assert.False(plan.AddRow);
+            Assert.Equal(1, plan.Columns);
+        }
     }
 
     [Fact]
-    public void S780_a_wide_strip_puts_the_due_beside_even_in_list_layout()
+    public void S780_M_and_a_tall_column_have_the_add_row_and_rows_of_one_line_without_a_subtitle()
     {
-        var plan = Plan(Wide);
-        Assert.True(plan.WhenBeside);
-        Assert.Equal(1, plan.TitleLines);
-        Assert.Equal(1, plan.Columns);
-        Assert.False(plan.AddRow);
+        foreach (var area in new[] { M, Tall })
+        {
+            var plan = Plan(area);
+            Assert.True(plan.AddRow);
+            Assert.Equal(1, plan.Lines);
+        }
+
+        Assert.True(Plan(Tall).Headings);
+        Assert.False(Plan(M).Headings);
     }
 
     [Fact]
-    public void S780_M_has_compact_rows_and_the_add_row_and_follows_the_layout_setting()
+    public void S789_the_list_names_under_Today_take_a_second_line_from_a_regular_tile_and_the_long_due_from_an_expanded_one()
     {
-        Assert.True(Plan(M).AddRow);
-        Assert.True(Plan(M).Compact);
-        Assert.False(Plan(M).WhenBeside);
-        Assert.True(Plan(M, mode: TasksStyle.Compact).WhenBeside);
-    }
+        var m = Plan(M, today: true);
+        Assert.Equal(2, m.Lines);
+        Assert.True(m.Subtitle);
+        Assert.Equal(Detail.Short, Due(m));
 
-    [Fact]
-    public void S780_a_tall_column_stacks_standard_rows_with_the_due_under_the_title()
-    {
-        var plan = Plan(Tall, lines: 4);
-        Assert.False(plan.Compact);
-        Assert.Equal(4, plan.TitleLines);
-        Assert.False(plan.WhenBeside);
-        Assert.True(plan.AddRow);
-        Assert.True(plan.Headings);
-    }
-
-    [Fact]
-    public void S789_a_panel_adds_a_long_due_column_and_list_names_under_Today()
-    {
-        var plan = Plan(L, today: true);
-        Assert.Equal(Detail.Long, Due(plan));
-        Assert.True(plan.WhenBeside);
-        Assert.True(plan.Subtitle);
-        Assert.Equal(1, plan.Columns);
+        var l = Plan(L, today: true);
+        Assert.Equal(Detail.Long, Due(l));
+        Assert.Equal(FamilyShape.Row2, l.RowHeight);
         Assert.False(Plan(L).Subtitle);
+
+        // [S-7037] The compact style keeps one line everywhere.
+        Assert.Equal(1, Plan(L, today: true, mode: TasksStyle.Compact).Lines);
     }
 
     [Fact]
     public void S782_XL_goes_to_two_columns_only_when_one_would_not_hold_the_list()
     {
-        Assert.Equal(1, Plan(XL, count: 7).Columns);
-        Assert.Equal(2, Plan(XL, count: 14).Columns);
+        // 516 less the bottom inset and the add row: 468, fourteen rows of 32.
+        Assert.Equal(1, Plan(XL, count: 14).Columns);
+        Assert.Equal(2, Plan(XL, count: 15).Columns);
         Assert.Equal(1, Plan(L, count: 30).Columns);
-        Assert.True(Plan(XL, count: 14).WhenBeside);
     }
 
     [Fact]
     public void S780_an_unwritable_list_has_no_add_row()
     {
-        var readOnly = Kit(L, 5, writable: false, false, TasksStyle.List, 2);
+        var readOnly = Kit(L, 5, writable: false, false, TasksStyle.List);
         Assert.False(readOnly.AddRow);
     }
 
@@ -122,7 +114,7 @@ public sealed class TaskLayoutTests
     {
         Assert.True(Plan(XS, count: 0).AddRow);
         Assert.True(Plan(Wide, count: 0).AddRow);
-        var readOnly = Kit(XS, 0, writable: false, false, TasksStyle.List, 2);
+        var readOnly = Kit(XS, 0, writable: false, false, TasksStyle.List);
         Assert.False(readOnly.AddRow);
     }
 
@@ -130,7 +122,7 @@ public sealed class TaskLayoutTests
     public void S780_an_unmeasured_area_starts_minimal()
     {
         var plan = Plan(default);
-        Assert.True(plan.Compact);
+        Assert.Equal(1, plan.Lines);
         Assert.False(plan.AddRow);
         Assert.Equal(1, plan.Columns);
     }
@@ -141,7 +133,7 @@ public sealed class TaskLayoutTests
         Assert.Equal(0, KitChecks.LinesFor(0, 2));
         Assert.Equal(7, KitChecks.LinesFor(7, 1));
         Assert.Equal(4, KitChecks.LinesFor(7, 2));
-        Assert.Equal(396, KitChecks.ColumnWidth(800, 2));
+        Assert.Equal(400, KitChecks.ColumnWidth(800, 2));   // rows carry their inset: no gap between columns
     }
 
     [Fact]

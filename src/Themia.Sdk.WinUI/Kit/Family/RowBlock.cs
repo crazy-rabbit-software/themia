@@ -19,6 +19,7 @@ public sealed partial class RowBlock : Grid
 {
     private readonly Border _lead;
     private readonly ContentPresenter _meter;
+    private readonly StackPanel _texts;
     private Border? _ring;
     private bool _interactive;
     private RowKind _kind;
@@ -48,6 +49,7 @@ public sealed partial class RowBlock : Grid
         ValueText.Margin = new Thickness(FamilySpace.ColumnGap, 0, 0, 0);
 
         var lines = new StackPanel { VerticalAlignment = VerticalAlignment.Center, Children = { NameText, Second, Third } };
+        _texts = lines;
         _meter = new ContentPresenter { VerticalAlignment = VerticalAlignment.Center, Visibility = Visibility.Collapsed };
 
         ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
@@ -172,6 +174,30 @@ public sealed partial class RowBlock : Grid
         ColumnDefinitions[1].Width = fills ? GridLength.Auto : new GridLength(1, GridUnitType.Star);
         ColumnDefinitions[2].Width = fills ? new GridLength(1, GridUnitType.Star) : GridLength.Auto;
     }
+
+    /// <summary>
+    /// [S-7034] Columns in the place of the name and the meter (a table's: its cells, 12 apart, at the
+    /// text edge), one line; null gives the row its name back.
+    /// </summary>
+    public void Cells(FrameworkElement? cells)
+    {
+        if (_cells is not null)
+        {
+            Children.Remove(_cells);
+        }
+
+        _cells = cells;
+        _texts.Visibility = cells is null ? Visibility.Visible : Visibility.Collapsed;
+        if (cells is not null)
+        {
+            cells.VerticalAlignment = VerticalAlignment.Center;
+            SetColumn(cells, 1);
+            SetColumnSpan(cells, 2);
+            Children.Add(cells);
+        }
+    }
+
+    private FrameworkElement? _cells;
 
     /// <summary>
     /// [S-1288] The keyboard's ring on the row: a stroke-2 outline over the row's whole width (its side

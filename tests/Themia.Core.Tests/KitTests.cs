@@ -270,17 +270,18 @@ public sealed class KitTests
     [MemberData(nameof(Tiers))]
     public void S7031_one_whole_row_fits_at_every_tier(string tier, double width, double height)
     {
-        var plan = KitLadder.Plan(new WidgetArea(width, height), Rich, KitShow.All);
+        var area = new WidgetArea(width, height);
+        var plan = KitLadder.Plan(area, Rich, KitShow.All);
 
-        Assert.True(KitLadder.RowEstimate(plan) <= height - KitLadder.ListInset + Disclosure.Tolerance, tier);
-        Assert.True(plan.TitleLines >= 1, tier);
+        Assert.True(KitLadder.Fit(plan, KitLadder.ListHeight(area)) >= 1, tier);
+        Assert.Equal(FamilyShape.RowHeight(plan.Lines), plan.RowHeight);
     }
 
     [Fact]
     public void S7031_the_columns_follow_the_width_and_the_specs_cap()
     {
-        Assert.Equal(3, KitLadder.Plan(new WidgetArea(800, 516), Rich, KitShow.All).Columns);
-        Assert.Equal(2, KitLadder.Plan(new WidgetArea(480, 116), Rich, KitShow.All).Columns);
+        Assert.Equal(2, KitLadder.Plan(new WidgetArea(800, 516), Rich, KitShow.All).Columns);
+        Assert.Equal(1, KitLadder.Plan(new WidgetArea(480, 116), Rich, KitShow.All).Columns);
         Assert.Equal(1, KitLadder.Plan(new WidgetArea(320, 196), Rich, KitShow.All).Columns);
         Assert.Equal(1, KitLadder.Plan(new WidgetArea(800, 516), Rich with { MaxColumns = 1 }, KitShow.All).Columns);
     }
@@ -291,28 +292,26 @@ public sealed class KitTests
         var off = KitLadder.Plan(new WidgetArea(560, 376), Rich, KitShow.None);
         var unoffered = KitLadder.Plan(new WidgetArea(560, 376), Rich with { Optional = KitShow.When }, KitShow.All);
 
-        Assert.False(off.Lead || off.Subtitle || off.When || off.PreviewLines > 0);
+        Assert.False(off.Lead || off.Subtitle || off.When || off.Preview);
+        Assert.Equal(1, off.Lines);
         Assert.True(unoffered.When);
-        Assert.False(unoffered.Lead || unoffered.Subtitle || unoffered.PreviewLines > 0);
+        Assert.False(unoffered.Lead || unoffered.Subtitle || unoffered.Preview);
     }
 
     [Fact]
-    public void S7031_more_titles_beat_previews_on_a_medium_tile_and_a_tall_column()
+    public void S7031_the_source_line_from_a_regular_tile_the_preview_from_an_expanded_one()
     {
-        Assert.Equal(0, KitLadder.Plan(new WidgetArea(320, 196), Rich, KitShow.All).PreviewLines);
+        var m = KitLadder.Plan(new WidgetArea(320, 196), Rich, KitShow.All);
+        Assert.True(m.Subtitle);
+        Assert.False(m.Preview);
+
         var tall = KitLadder.Plan(new WidgetArea(200, 356), Rich, KitShow.All);
-        Assert.Equal(0, tall.PreviewLines);
+        Assert.Equal(2, tall.Lines);
         Assert.True(tall.Lead);
-        Assert.False(tall.Subtitle);
-        Assert.True(KitLadder.Plan(new WidgetArea(800, 516), Rich, KitShow.All).PreviewLines > 0);
-    }
 
-    [Fact]
-    public void S7031_whole_rows_only_at_least_one()
-    {
-        Assert.Equal(2, KitLadder.WholeRows([60, 60, 60], 150));
-        Assert.Equal(1, KitLadder.WholeRows([200], 100));
-        Assert.Equal(0, KitLadder.WholeRows([], 100));
+        var xl = KitLadder.Plan(new WidgetArea(800, 516), Rich, KitShow.All);
+        Assert.Equal(3, xl.Lines);
+        Assert.True(xl.Preview);
     }
 
     // ---- [S-7040] [S-7041] screens ------------------------------------------------------------

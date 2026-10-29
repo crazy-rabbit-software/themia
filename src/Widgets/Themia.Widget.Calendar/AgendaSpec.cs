@@ -12,17 +12,7 @@ namespace Themia.Widget.Calendar;
 /// </summary>
 public static class AgendaSpec
 {
-    public static KitSpec Spec { get; } = new(KitRowLook.Schedule, KitShow.None, () => Str.Calendar_NoTitle.Text(), () => CalendarStr.Calendar_NoUpcoming.Text(), KitTime.None, KitOverflow.Page, MaxColumns: 2)
-    {
-        // [S-571] The widest the time column says: "All day" and "Now" run far longer than a clock
-        // in some languages; the clock as the rows write it, in the language's digits and separator.
-        TimeLabels = () =>
-        [
-            (Str.Calendar_AllDay.Text(), false),
-            (CalendarStr.WidgetsA_Calendar_Now.Text(), true),
-            (LocaleFormat.Time(Strings.Current, TimeOnly.MinValue, HourCycle.H24), false),
-        ],
-    };
+    public static KitSpec Spec { get; } = new(KitRowLook.Schedule, KitShow.None, () => Str.Calendar_NoTitle.Text(), () => CalendarStr.Calendar_NoUpcoming.Text(), KitTime.None, KitOverflow.Page, MaxColumns: 2);
 
     /// <summary>
     /// [S-571] One agenda row: an event's part on <paramref name="day"/> (a timed event over several
