@@ -125,6 +125,9 @@ public interface IWidgetHost
     /// <summary>[S-1324] A file's shell icon, thumbnail, type name and a folder's count: the host's one cache.</summary>
     IFileIcons FileIcons { get; }
 
+    /// <summary>[S-5510] The desktop's items, their overlaid icons and the one item selection: the host's one listing.</summary>
+    IDesktopItems DesktopItems { get; }
+
     /// <summary>[S-1329] Files on the real Windows clipboard, interchangeable with Explorer.</summary>
     IFileClipboard FileClipboard { get; }
 

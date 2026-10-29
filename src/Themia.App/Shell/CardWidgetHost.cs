@@ -79,6 +79,8 @@ internal sealed class CardWidgetHost(IWidgetCardHost card) : IWidgetHost
 
     public IFileIcons FileIcons => Themia.App.Services.Files.HostFileIcons.Instance;
 
+    public IDesktopItems DesktopItems => Themia.App.Services.Files.HostDesktopItems.Instance;
+
     public IFileClipboard FileClipboard => Themia.App.Services.Files.HostFileClipboard.Instance;
 
     public IFolders Folders => Themia.App.Services.Files.HostFolders.Instance;

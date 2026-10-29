@@ -140,6 +140,12 @@ public partial class App : Application
             return;
         }
 
+        // [S-5510] [S-5512] This PC's desktop namespace read once, without its names.
+        if (Shell.Gallery.DesktopItemsCheck.TryRunFromCommandLine(this, Environment.GetCommandLineArgs()))
+        {
+            return;
+        }
+
         // And for the desktop's notices and a widget's error card ([S-880], [S-891]).
         if (Shell.Gallery.NoticeRender.TryRunFromCommandLine(this, Environment.GetCommandLineArgs()))
         {

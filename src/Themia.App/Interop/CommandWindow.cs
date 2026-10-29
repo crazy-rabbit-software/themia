@@ -95,6 +95,15 @@ internal sealed unsafe class CommandWindow : IDisposable
     public event Action? ShellRestarted;
 
     /// <summary>
+    /// [S-5511] The shell reported a change on the desktop: the message's two parameters, to be read
+    /// (<see cref="DesktopNotifications.Read"/>) before the handler returns. Raised in the window procedure.
+    /// </summary>
+    public event Action<nint, nint>? DesktopChanged;
+
+    /// <summary>The window the shell's notifications are posted to; 0 before <see cref="Create"/>.</summary>
+    public nint Handle => _hwnd;
+
+    /// <summary>
     /// [S-4655] A volume arrived or left, or a network drive was mapped or dropped: Windows broadcasts
     /// <c>WM_DEVICECHANGE</c> (DBT_DEVICEARRIVAL / DBT_DEVICEREMOVECOMPLETE) to every top-level window. UI thread.
     /// </summary>
@@ -313,6 +322,12 @@ internal sealed unsafe class CommandWindow : IDisposable
                 if (msg == RecycleBinNotifications.Message)
                 {
                     self.RecycleBinChanged?.Invoke();
+                    return 0;
+                }
+
+                if (msg == DesktopNotifications.Message)
+                {
+                    self.DesktopChanged?.Invoke(wParam, lParam);
                     return 0;
                 }
 

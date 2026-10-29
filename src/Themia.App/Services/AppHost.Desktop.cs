@@ -21,6 +21,7 @@ internal sealed partial class AppHost
     private void StartDesktop()
     {
         _command.ShellRestarted += DesktopIcons.ShellRestarted;
+        _command.DesktopChanged += Files.HostDesktopItems.Instance.OnNotification;
         ApplyDesktop(picked: false);
     }
 
@@ -28,6 +29,8 @@ internal sealed partial class AppHost
     private void StopDesktop()
     {
         _command.ShellRestarted -= DesktopIcons.ShellRestarted;
+        _command.DesktopChanged -= Files.HostDesktopItems.Instance.OnNotification;
+        Files.HostDesktopItems.Instance.Stop();
         DesktopIcons.RestoreIfHidden();
     }
 
@@ -39,6 +42,17 @@ internal sealed partial class AppHost
     private void ApplyDesktop(bool picked)
     {
         var shows = State.Preferences.Desktop;
+
+        // [S-5511] The namespace is read and watched only while its items show.
+        if (shows == DesktopShows.ThemiaItems)
+        {
+            Files.HostDesktopItems.Instance.Start(_command.Handle, _dispatcher);
+        }
+        else
+        {
+            Files.HostDesktopItems.Instance.Stop();
+        }
+
         if (DesktopIconRules.Hides(shows))
         {
             DesktopIcons.Hold();

@@ -1,4 +1,5 @@
 using Themia.Core.Model;
+using Themia.Sdk;
 
 namespace Themia.Core.Desktop;
 
@@ -8,12 +9,10 @@ namespace Themia.Core.Desktop;
 /// </summary>
 public static partial class DesktopReconcile
 {
-    /// <summary>[S-5522] The longest key kept: the shell's own limit on a path (<c>UNICODE_STRING</c>'s, 32 767).</summary>
-    public const int MaxKeyLength = 32_767;
-
     /// <summary>
     /// [S-5522] Keep the known set a list of distinct (ignoring case), non-empty keys no longer than
-    /// <see cref="MaxKeyLength"/>; a hand-edited null is an empty set. Each repair is said.
+    /// <see cref="DesktopItemKeys.MaxLength"/> and holding no control character (<see cref="DesktopItemKeys.IsValid"/>);
+    /// a hand-edited null is an empty set. Each repair is said.
     /// </summary>
     public static IReadOnlyList<string> RepairKnown(AppState state)
     {
@@ -34,12 +33,12 @@ public static partial class DesktopReconcile
             return repairs;
         }
 
-        var seen = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        var seen = new HashSet<string>(DesktopItemKeys.Comparer);
         var kept = new List<string>(state.Desktop.Known.Count);
         var dropped = 0;
         foreach (var key in state.Desktop.Known)
         {
-            if (string.IsNullOrWhiteSpace(key) || key.Length > MaxKeyLength || !seen.Add(key))
+            if (!DesktopItemKeys.IsValid(key) || !seen.Add(key))
             {
                 dropped++;
                 continue;
