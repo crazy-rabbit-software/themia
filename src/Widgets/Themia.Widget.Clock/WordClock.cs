@@ -139,13 +139,13 @@ public static class WordClock
     {
         ArgumentNullException.ThrowIfNull(text);
 
-        var space = FluentType.EstimateWidth(step, 1);
+        var space = FamilyType.EstimateWidth(step, 1);
         var lines = 1;
         var used = 0.0;
 
         foreach (var word in text.Split(' ', StringSplitOptions.RemoveEmptyEntries))
         {
-            var wide = FluentType.EstimateWidth(step, Cells(word));
+            var wide = FamilyType.EstimateWidth(step, Cells(word));
             if (wide > width)
             {
                 // Longer than a line: the text block breaks it wherever it must.

@@ -165,7 +165,7 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface, IItemPaletteOwn
     private readonly ContentPresenter _fontScope;
 
     /// <summary>[S-821] The text size the text already on this card was laid out at.</summary>
-    private double _textScale = FluentType.TextScale;
+    private double _textScale = FamilyType.TextScale;
     private readonly Grid _headerHost;
 
     /// <summary>The header strip: its own fill ([S-1761]) under the header row.</summary>
@@ -684,7 +684,7 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface, IItemPaletteOwn
     /// </summary>
     private void ApplyTextScale()
     {
-        var scale = FluentType.TextScale;
+        var scale = FamilyType.TextScale;
         if (Math.Abs(scale - _textScale) < 0.0001)
         {
             return;

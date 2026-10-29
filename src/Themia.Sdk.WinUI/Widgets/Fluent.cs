@@ -35,8 +35,6 @@ public static class Fluent
     /// <summary>The standard content inset for a card.</summary>
     public const double Space4 = FamilySpace.S4;
 
-    public const double Space5 = 20;
-
     public const double Space6 = FamilySpace.S6;
 
     // ---- shape -----------------------------------------------------------------------------
@@ -44,19 +42,7 @@ public static class Fluent
     /// <summary>Fluent's control radius. Buttons, text fields, row highlights.</summary>
     public const double ControlRadius = FamilyShape.Radius;
 
-    /// <summary>Fluent's overlay radius. Cards, flyouts, dialogs.</summary>
-    public const double OverlayRadius = 8;
-
-    /// <summary>
-    /// The height of a standard Windows 11 list row, and of the compact variant a small tile uses.
-    /// <para>
-    /// Rows are not sized to a fraction of the tile: a list whose rows grow with the window is a web
-    /// idea, and next to Explorer or Settings it reads as the wrong application. A tile shows as many
-    /// rows of the right height as it has room for.
-    /// </para>
-    /// </summary>
-    public const double RowHeight = 40;
-
+    /// <summary>A list row of one line ([S-6704]: the family's row, <see cref="FamilyShape.Row1"/>).</summary>
     public const double RowHeightCompact = FamilyShape.Row1;
 
     // ---- type ------------------------------------------------------------------------------
@@ -81,30 +67,6 @@ public static class Fluent
 
         text.Apply(step);
         return text;
-    }
-
-    /// <summary>
-    /// A list row, in the Windows 11 shape: a fixed height, the standard inset as its own padding so
-    /// it spans the full width of the widget, and a subtle fill under the pointer. [S-6513] Its fill
-    /// is the item layer's row (<see cref="ItemFill"/>), not the card's.
-    /// <para>
-    /// No divider. Windows 11 lists separate rows with space and hover, not with a rule between every
-    /// one — Settings, Explorer and the Widgets board all do it this way, and a ruled list is the
-    /// single clearest tell of a web table.
-    /// </para>
-    /// </summary>
-    public static Border Row(FrameworkElement content, bool compact = false)
-    {
-        var row = new Border
-        {
-            Child = content,
-            MinHeight = compact ? RowHeightCompact : RowHeight,
-            Padding = new Thickness(Space4, 0, Space4, 0),
-        };
-
-        ItemFill.Paint(row, ItemRole.Row);
-        content.VerticalAlignment = VerticalAlignment.Center;
-        return row;
     }
 
     /// <summary>A 1px rule. Every tick, hairline and divider in the app is this thickness.</summary>
@@ -137,32 +99,6 @@ public static class Fluent
             Foreground = ThemeBrush.Of(colorKey, Colors.Gray),
             VerticalAlignment = VerticalAlignment.Center,
         });
-
-    /// <summary>
-    /// The centred glyph-over-a-line shape Windows uses when a list has nothing in it. The icon is
-    /// dropped on a tile too short to carry it, because a tile showing only an icon says less than
-    /// one showing only the sentence.
-    /// </summary>
-    public static StackPanel EmptyState(string glyph, TextBlock message, out FontIcon icon)
-    {
-        icon = Icon(glyph, "TextFillColorTertiaryBrush", Space6);
-        icon.HorizontalAlignment = HorizontalAlignment.Center;
-        icon.Margin = new Thickness(0, 0, 0, Space2);
-
-        message.Apply(FluentType.Body);
-        message.Foreground = ThemeBrush.Of("TextFillColorSecondaryBrush", Colors.Gray);
-        message.TextAlignment = TextAlignment.Center;
-        message.TextWrapping = TextWrapping.Wrap;
-
-        // [S-642] The panel sheds the glyph, then lines, on a box too short for both; see
-        // EmptyStatePanel. Still a StackPanel to every caller.
-        return new EmptyStatePanel(icon, message)
-        {
-            VerticalAlignment = VerticalAlignment.Center,
-            HorizontalAlignment = HorizontalAlignment.Stretch,
-            Padding = new Thickness(Space4, 0, Space4, 0),
-        };
-    }
 
     /// <summary>
     /// Light a row while the pointer is over it, and reliably put it back.
@@ -211,9 +147,6 @@ public static class Fluent
 
     /// <summary>The margin a header carries when it sits above a full-bleed list.</summary>
     public static Thickness HeaderMargin { get; } = new(Space4, Space4, Space4, Space2);
-
-    /// <summary>A list's own padding: none either side so rows reach both edges, a little below.</summary>
-    public static Thickness ListPadding { get; } = new(0, 0, 0, Space2);
 
     /// <summary>
     /// A clear fill that still takes the pointer, for a surface that is not an item (a list's

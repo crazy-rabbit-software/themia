@@ -50,7 +50,7 @@ public sealed partial class FamilyGuardTests
     [GeneratedRegex(@"\bStrokeThickness\s*=\s*([^;,}\r\n]+)")]
     private static partial Regex Stroke();
 
-    [GeneratedRegex(@"\bFluentType\.(BodyLarge|Subtitle|TitleLarge|Title|Display|Hero|FitWidth|Fit|Scaled)\b|\bHeroLayout\.\w+|\bHeroFit\.(?!Ems\b)\w+|\bFluent\.Space5\b")]
+    [GeneratedRegex(@"\bFluentType\.\w+|\bHeroLayout\.\w+|\bHeroFit\.(?!Ems\b)\w+|\bFluent\.(Space5|OverlayRadius|RowHeight|EmptyState)\b")]
     private static partial Regex Ramp();
 
     [GeneratedRegex(@"\bOpacity\s*=\s*(-?\d+(?:\.\d+)?)\s*(?=[,;}\r\n])")]

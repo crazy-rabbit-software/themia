@@ -23,16 +23,13 @@ public sealed class FamilyTokensTests
     }
 
     [Fact]
-    public void S6700_the_fluent_ramp_shares_the_family_sizes()
+    public void S6748_the_family_type_is_the_only_ramp()
     {
-        // One place: the ramp's caption, body and subtitle are the family's own numbers.
-        Assert.Equal(FamilyType.Caption, FluentType.Caption);
-        Assert.Equal(FamilyType.Body, FluentType.Body);
-        Assert.Equal(FamilyType.BodyStrong, FluentType.BodyStrong);
-        Assert.Equal(FamilyType.Title, FluentType.Subtitle);
-        Assert.Equal(FamilyType.Big28, FluentType.Title);
-        Assert.Equal(FamilyType.Big40, FluentType.TitleLarge);
-        Assert.Equal(FamilyType.Big68, FluentType.Display);
+        // One path: the steps at the live text size are the family's, in the order StepsAt lists them.
+        Assert.Equal(
+            [FamilyType.Caption, FamilyType.Body, FamilyType.BodyStrong, FamilyType.Title, .. FamilyType.Big, .. FamilyType.Hero],
+            FamilyType.StepsAt(FamilyType.TextScale));
+        Assert.Equal(FamilyType.Sizes, FamilyType.StepsAt(1).Select(s => s.FontSize).Distinct());
     }
 
     [Fact]

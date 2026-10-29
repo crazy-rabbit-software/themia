@@ -9,7 +9,7 @@ namespace Themia.Core.Astronomy;
 /// words are a language's, not a size's, so the row decides from the words it has: the name takes its
 /// short form ("Aufgang" for "Mondaufgang") where the long one and the value do not fit side by side,
 /// and a date drops its weekday where even that does not fit. Widths are the ramp's estimate
-/// (<see cref="FluentType.EstimateWidth"/>), Body for both texts.
+/// (<see cref="FamilyType.EstimateWidth"/>), Body for both texts.
 /// </summary>
 public static class SkyRows
 {
@@ -25,5 +25,5 @@ public static class SkyRows
     public static string Name(double room, string name, string? shortName, string value)
         => string.IsNullOrEmpty(shortName) || Fits(room, name, value) ? name : shortName;
 
-    private static double Width(string text) => text.Length == 0 ? 0 : FluentType.EstimateWidth(FluentType.Body, text.Length);
+    private static double Width(string text) => text.Length == 0 ? 0 : FamilyType.EstimateWidth(FamilyType.Body, text.Length);
 }

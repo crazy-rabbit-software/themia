@@ -6,6 +6,7 @@ using Themia.Core.Motion;
 using Themia.Core.Settings;
 using Themia.Core.Shell;
 using Themia.Core.Sync;
+using Themia.Sdk.Kit;
 using Xunit;
 
 namespace Themia.Core.Tests;
@@ -351,7 +352,7 @@ public sealed partial class SettingsMenuTests
         Assert.Equal((0, 1, 0.05), (Slider("theme", "headerOpacity").Min, Slider("theme", "headerOpacity").Max, Slider("theme", "headerOpacity").Step));
         Assert.Equal((0, 32, 1), (Slider("cards", "radius").Min, Slider("cards", "radius").Max, Slider("cards", "radius").Step));
         Assert.Equal((0, 8, 1), (Slider("cards", "borderWidth").Min, Slider("cards", "borderWidth").Max, Slider("cards", "borderWidth").Step));
-        Assert.Equal((Widgets.FluentType.MinTextScale, Widgets.FluentType.MaxTextScale), (Slider("text", "size").Min, Slider("text", "size").Max));
+        Assert.Equal((FamilyType.MinTextScale, FamilyType.MaxTextScale), (Slider("text", "size").Min, Slider("text", "size").Max));
         Assert.Equal((0, 48, 2), (Slider("cards", "gap").Min, Slider("cards", "gap").Max, Slider("cards", "gap").Step));
 
         Assert.Equal("12px", Slider("cards", "radius").Format(12));

@@ -6,6 +6,7 @@ using Microsoft.UI.Xaml.Controls;
 using Themia.App.Interop;
 using Themia.App.Widgets;
 using Themia.Core.Diagnostics;
+using Themia.Sdk.Kit;
 using Windows.Graphics;
 
 namespace Themia.App.Shell.Gallery;
@@ -73,7 +74,7 @@ internal static class IconPickerRender
                 {
                     Child = picker,
                     Padding = new Thickness(Fluent.Space4),
-                    CornerRadius = new CornerRadius(Fluent.OverlayRadius),
+                    CornerRadius = new CornerRadius(ShellMetrics.OverlayRadius),
                     BorderThickness = new Thickness(1),
                     BorderBrush = DesignApplier.Brush("SurfaceStrokeColorFlyoutBrush", Colors.Gray),
                     Background = DesignApplier.Brush("AcrylicBackgroundFillColorDefaultBrush", Colors.Black),

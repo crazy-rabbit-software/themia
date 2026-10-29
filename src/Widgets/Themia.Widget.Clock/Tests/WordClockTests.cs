@@ -135,10 +135,10 @@ public sealed class WordClockTests
     [Fact]
     public void S6024_text_without_spaces_wraps_by_its_characters()
     {
-        var step = FluentType.Body;
+        var step = FamilyType.Body;
         var text = new string('時', 20);
 
-        Assert.True(WordClock.Lines(text, FluentType.EstimateWidth(step, 1.75 * 5), step) >= 4);
+        Assert.True(WordClock.Lines(text, FamilyType.EstimateWidth(step, 1.75 * 5), step) >= 4);
     }
 
     [Fact]

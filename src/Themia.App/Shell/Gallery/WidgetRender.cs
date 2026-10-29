@@ -12,6 +12,7 @@ using Themia.Core.Geometry;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
 using Themia.Sdk;
+using Themia.Sdk.Kit;
 using Windows.Graphics;
 
 namespace Themia.App.Shell.Gallery;
@@ -361,7 +362,7 @@ internal static class WidgetRender
         {
             foreach (var tier in rows[row])
             {
-                var label = Fluent.Text(FluentType.Caption, "TextFillColorSecondaryBrush");
+                var label = Fluent.Text(FamilyType.Caption, "TextFillColorSecondaryBrush");
                 label.Text = $"{tier.Name}  {tier.Width:0} x {tier.Height:0}";
                 Canvas.SetLeft(label, x[row]);
                 Canvas.SetTop(label, top[row]);
@@ -418,9 +419,9 @@ internal static class WidgetRender
     private static void PlaceReference(Canvas page, WidgetTier tier, double left)
     {
         var resources = Application.Current.Resources;
-        var radius = resources["OverlayCornerRadius"] is CornerRadius r ? r : new CornerRadius(Fluent.OverlayRadius);
+        var radius = resources["OverlayCornerRadius"] is CornerRadius r ? r : new CornerRadius(ShellMetrics.OverlayRadius);
 
-        var label = Fluent.Text(FluentType.Caption, "TextFillColorSecondaryBrush");
+        var label = Fluent.Text(FamilyType.Caption, "TextFillColorSecondaryBrush");
         label.Text = "WinUI reference";
         Canvas.SetLeft(label, left);
         Canvas.SetTop(label, Gap);

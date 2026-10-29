@@ -30,10 +30,4 @@ public static class WidgetLayout
 
     /// <summary>A footer's inset: both sides and the bottom.</summary>
     public static Thickness FooterInset { get; } = new(ContentInset, 0, ContentInset, ContentInset);
-
-    /// <summary>
-    /// A list's own inset: none either side, so rows reach both edges, and a little top and bottom
-    /// so the first and last row are not flush against the header and the card.
-    /// </summary>
-    public static Thickness ListInset { get; } = new(0, 2, 0, ContentInset - 4);
 }

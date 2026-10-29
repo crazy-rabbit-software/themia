@@ -881,9 +881,13 @@ module author's guide is docs/WIDGET-KIT.md 16.
   at 600), Title 20/28 (600), the Readout steps Big 28/36, 40/52, 68/92 (600), and the Hero steps
   96/128, 136/180, 192/252 (600) that only a one-readout widget (Clock, Alarm, Countdown, Stopwatch,
   Pomodoro, Focus session, the quick toggles, the power buttons) may use. Weights are 400 and 600,
-  nothing else. Every step is the base size times the user's text size ([S-821]); the Fluent ramp's
-  Caption, Body and Subtitle are the family's own numbers (`FamilyType`). A text's line is the step's
-  exactly (`LineStackingStrategy.BlockLineHeight`).
+  nothing else. Every step is the base size times the user's text size ([S-821]). A text's line is the
+  step's exactly (`LineStackingStrategy.BlockLineHeight`).
+- **[S-6748]** The family's type is the app's **only** type: the shell draws on its steps too, and the
+  old Fluent ramp is folded into `FamilyType` (the text size, `TextScale`/`SetTextScale`/
+  `ClampTextScale`, the width estimate `EstimateWidth`, `StepsAt(scale)` for tests); `FluentType` and
+  its off-family steps (Body Large, the 28/40/68 "Title" steps, `Ramp`, `Strong`) are gone (shell
+  sweep, 2026-10-30).
 - **[S-6701]** A value's **unit** and the **line under** it follow from its step: the unit (400,
   secondary) is 14 beside 28, 20 beside 40, 28 beside 68, 40 beside 96 and 136, 68 beside 192; the
   line under is Caption under 28, Body under 40 and 68, Title (400) under a Hero step.
@@ -1103,6 +1107,13 @@ module author's guide is docs/WIDGET-KIT.md 16.
   Bluetooth status and signal columns. `Fluent.RowHeight` (the picker), `Fluent.EmptyState` with
   `EmptyStatePanel` and `EmptyStateFit` (the card's fault and waiting states), `Fluent.Space5`,
   `Fluent.OverlayRadius`, `FluentType.BodyLarge` and `Strong` (the view bar) are the shell's alone.
+  The app's chrome is on the tokens (the shell sweep, 2026-10-30): the menus, the edit bar, the view
+  bar, the notices, the pickers, the layout editor, the card's own fill, markers, fault and waiting
+  states draw from the family's tokens, the shell's measurements and colour roles ([S-6745],
+  [S-6746]); `Fluent.RowHeight`, `Fluent.Row`, `Fluent.EmptyState`, `EmptyStatePanel`,
+  `EmptyStateFit`, `Fluent.Space5`, `Fluent.OverlayRadius`, `Fluent.ListPadding`,
+  `WidgetLayout.ListInset`, `ReadoutLayout` and `FluentType` (folded into `FamilyType`, [S-6748])
+  are gone. No old helper is left.
 - **[S-6730]** The **source guard** (`FamilyGuardTests.S6730_no_literal_outside_the_family_tokens`)
   reads every module, the SDK's UI parts and the app's Shell and Widgets (not `Tests/`, `Fixtures/`,
   `Gallery/`) and fails on a type size or line, a weight other than 400/600, a spacing, thickness,
@@ -3426,17 +3437,16 @@ removed, [S-1863]). Sizing rules live in Core with tests in
 - **[S-641]** *(Retired, group G5, 2026-10-29: no readout is scaled to fill its box any more. A
   data widget's number is on the Big steps ([S-6702]) and a one-readout widget's on the Hero steps
   ([S-6737], [S-6739]); `FluentType.Hero`, `Fit`, `FitWidth` and `Scaled` are gone.)*
-- **[S-642]** An empty state sheds to fit: the glyph goes first, then the sentence is held to the
-  lines the box has and ends in an ellipsis. Every empty state is `Fluent.EmptyState`; the countdown
-  view no longer draws a text block of its own. The panel never touches the glyph's
-  `Visibility`, which several views own.
+- **[S-642]** *(Retired, shell sweep, 2026-10-30: every empty, problem and waiting state is the Status
+  block's one row at the top, [S-6714]; `Fluent.EmptyState`, `EmptyStatePanel` and `EmptyStateFit`
+  are gone with their last callers, the card's fault and waiting states.)*
 - **[S-643]** *(Superseded by [S-2501]: the hub is the only reader, once per tick.)* CPU load and network throughput are deltas against a process-wide baseline, so a read
   within 250ms of the last real one is answered from that one. Two CPU tiles used to show 31% and
   0% side by side: the first moved the baseline and the second measured a millisecond.
 - [S-644]: moved with the Pomodoro widget into its module's `SPEC.md` (`src/Widgets/Themia.Widget.Pomodoro/`).
 - [S-645]: moved with the Clock widget into its module's `SPEC.md` (`src/Widgets/Themia.Widget.Clock/`).
-- **[S-646]** A reading's caption (meters, power) moves under the reading when
-  it would be trimmed beside it, or when its own line lets the reading be drawn larger.
+- **[S-646]** *(Retired: a reading's line under is the Readout block's, [S-6701], [S-6702];
+  `ReadoutLayout` had no caller left and went in the shell sweep.)*
 - **[S-647]** *(Retired: the power tile is gone, [S-1910].)*
 - **[S-648]** A process row shows both numbers only from 232px of content; below that only the
   ranked one, and on a narrow tile the columns stop holding open their widest value. The "by CPU"
@@ -5761,8 +5771,8 @@ card is re-created, no tick restarts. Pure rules live in Core (`DesignLook`, `De
   `SystemAccentColor*` resources are set for later lookups. So template `{ThemeResource}` uses
   follow, in widgets and in the menus. `SystemFillColorAttentionBrush` is an accent alias with no colour
   resource of its own (Light2 in dark theme, the accent itself in light) and is mapped like the others.
-- **[S-821]** Text size (`FontScale`, 0.5..2) scales the whole `FluentType` ramp (size and line
-  height together), so `Fit`/`Hero` still pick real steps and a layout sheds rather than
+- **[S-821]** Text size (`FontScale`, 0.5..2) scales every family step (`FamilyType.TextScale`, size
+  and line height together), so a chooser still picks real steps and a layout sheds rather than
   overflows. Live: before a card's view re-lays out on the state change, text already on the card
   whose size was set on the element is rescaled by the ratio; text built afterwards comes from the
   scaled ramp. Icons keep their size (widget scale, [S-850], scales everything).

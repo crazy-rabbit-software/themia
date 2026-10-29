@@ -58,8 +58,8 @@ internal sealed partial class CalendarView
         }
 
         // The month's name as long as the small month is wide: "September", "Sep", "S".
-        var nameWidth = miniWidth >= FluentType.EstimateWidth(FluentType.Caption, 9) ? NameWidth.Wide
-            : miniWidth >= FluentType.EstimateWidth(FluentType.Caption, 3) ? NameWidth.Short
+        var nameWidth = miniWidth >= FamilyType.EstimateWidth(FamilyType.Caption, 9) ? NameWidth.Wide
+            : miniWidth >= FamilyType.EstimateWidth(FamilyType.Caption, 3) ? NameWidth.Short
             : NameWidth.Narrow;
 
         for (var i = 0; i < fit.Months; i++)

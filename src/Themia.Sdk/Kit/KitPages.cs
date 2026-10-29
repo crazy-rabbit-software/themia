@@ -163,6 +163,6 @@ public static class KitDays
             }
         }
 
-        return width >= FluentType.EstimateWidth(FluentType.BodyStrong, longest);
+        return width >= FamilyType.EstimateWidth(FamilyType.BodyStrong, longest);
     }
 }

@@ -2,6 +2,7 @@ using Themia.App.Shell;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
+using Themia.Sdk.Kit;
 
 namespace Themia.Core.Settings;
 
@@ -161,7 +162,7 @@ public static partial class SettingsMenu
         [
             new SettingsFont(key + "/font", Str.Settings_Font_FamilyLabel.Text(), Glyphs.Font, design.FontFamily,
                 v => host.Mutate(s => s.Design.FontFamily = v)),
-            new SettingsSlider(key + "/size", Str.Shell_Appearance_TextSize.Text(), Glyphs.TextSize, design.FontScale, FluentType.MinTextScale, FluentType.MaxTextScale, 0.05, Percent,
+            new SettingsSlider(key + "/size", Str.Shell_Appearance_TextSize.Text(), Glyphs.TextSize, design.FontScale, FamilyType.MinTextScale, FamilyType.MaxTextScale, 0.05, Percent,
                 v => host.Mutate(s => s.Design.FontScale = v)),
         ]);
     }

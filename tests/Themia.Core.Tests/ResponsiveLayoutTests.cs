@@ -196,13 +196,6 @@ public class ResponsiveLayoutTests
         Assert.Equal(920, room.Remaining);
     }
 
-    [Fact]
-    public void S662_the_empty_state_line_budget_counts_rows_the_same_way()
-    {
-        Assert.Equal(Disclosure.WholeRows(99.6, 20), EmptyStateFit.LineBudget(99.6, 20));
-        Assert.Equal(1, EmptyStateFit.LineBudget(5, 20));
-    }
-
     // The chart's window now comes from the span setting: see MeterFrameworkTests (S-1121).
 
 }

@@ -227,7 +227,7 @@ public static class ClockFace
             wordsWidth);
     }
 
-    private static double Words(TypeStep step, int characters) => FluentType.EstimateWidth(step, characters);
+    private static double Words(TypeStep step, int characters) => FamilyType.EstimateWidth(step, characters);
 
     /// <summary>
     /// [S-6741] The one line under a clock's face: the city of a world clock, the date and the offset, " · "

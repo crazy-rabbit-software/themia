@@ -109,7 +109,7 @@ public static class CalendarFit
     public const double ChipTimeFrom = 100;
 
     /// <summary>[S-1264] A chip's line: the chip (a Caption line) and the family's 4 under it.</summary>
-    public static double ChipLine => FluentType.Caption.LineHeight + FamilySpace.S1;
+    public static double ChipLine => FamilyType.Caption.LineHeight + FamilySpace.S1;
 
     /// <summary>[S-2702] A number-only cell this wide holds its dots beside the number.</summary>
     public const double InlineDotsFrom = 48;
@@ -128,7 +128,7 @@ public static class CalendarFit
     /// Caption. Narrower (a month or a week on the smallest tile) the grid would run its numbers into
     /// each other: the calendar shows the day it is on as a Readout instead.
     /// </summary>
-    public static bool HoldsDays(double columnWidth) => columnWidth >= FluentType.EstimateWidth(FluentType.Caption, 2);
+    public static bool HoldsDays(double columnWidth) => columnWidth >= FamilyType.EstimateWidth(FamilyType.Caption, 2);
 
     /// <summary>
     /// [S-1264] How many week rows a month needs: the weeks holding one of its days (four to six).
@@ -159,7 +159,7 @@ public static class CalendarFit
     public static MonthFit Month(double width, double height, int rows, int focusRow = 0)
     {
         rows = Math.Clamp(rows, 4, 6);
-        var line = FluentType.Caption.LineHeight;
+        var line = FamilyType.Caption.LineHeight;
         var columnWidth = Math.Max(0, width) / 7;
         var labels = Weekdays(columnWidth);
 
@@ -333,7 +333,7 @@ public static class CalendarFit
     // ---- hours ([S-2705]) --------------------------------------------------------------------------
 
     /// <summary>[S-2705] An hour is never drawn shorter than an event's one line.</summary>
-    public static double MinHour => FluentType.Caption.LineHeight + 4;
+    public static double MinHour => FamilyType.Caption.LineHeight + 4;
 
     /// <summary>[S-2705] Nor taller than a roomy list row: past it the timeline shows more of the day instead.</summary>
     public const double MaxHour = 48;
@@ -408,9 +408,9 @@ public static class CalendarFit
     /// </summary>
     public static YearFit Year(double width, double height, double gap)
     {
-        var title = FluentType.Caption.LineHeight;
-        var line = FluentType.Caption.LineHeight;
-        var digits = FluentType.EstimateWidth(FluentType.Caption, 2);
+        var title = FamilyType.Caption.LineHeight;
+        var line = FamilyType.Caption.LineHeight;
+        var digits = FamilyType.EstimateWidth(FamilyType.Caption, 2);
 
         foreach (var (months, shapes) in YearSteps)
         {
@@ -634,7 +634,7 @@ public static class CalendarFit
     public const int DayBandKeepsHours = 3;
 
     /// <summary>[S-2718] A span bar: a body line with room around it, so it reads as a bar, not a chip.</summary>
-    public static double DayBar => FluentType.Body.LineHeight + 8;
+    public static double DayBar => FamilyType.Body.LineHeight + 8;
 
     /// <summary>
     /// [S-2718] The day's all-day band for <paramref name="items"/> all-day and multi-day items over a

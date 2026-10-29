@@ -42,7 +42,7 @@ public sealed class CalendarFitTests
         Assert.Equal(density, fit.Density);
         Assert.Equal(chips, fit.ChipLines);
         Assert.Equal(height, fit.HeaderHeight + (fit.Rows * fit.CellHeight), 6);
-        Assert.True(fit.CellHeight >= FluentType.Caption.LineHeight, "a number's Caption line is never squeezed");
+        Assert.True(fit.CellHeight >= FamilyType.Caption.LineHeight, "a number's Caption line is never squeezed");
     }
 
     [Fact]

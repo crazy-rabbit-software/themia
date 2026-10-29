@@ -1,5 +1,6 @@
 using Themia.Core.Model;
 using Themia.Core.Widgets;
+using Themia.Sdk.Kit;
 using Xunit;
 
 namespace Themia.Core.Tests;
@@ -357,13 +358,16 @@ public sealed class DesignEngineTests
     [Fact]
     public void S821_steps_scale_size_and_line_height_together()
     {
-        var at1 = FluentType.StepsAt(1);
-        var at15 = FluentType.StepsAt(1.5);
+        var at1 = FamilyType.StepsAt(1);
+        var at15 = FamilyType.StepsAt(1.5);
 
         Assert.Equal(12, at1[0].FontSize);
         Assert.Equal(18, at15[0].FontSize);
         Assert.Equal(24, at15[0].LineHeight);
-        Assert.Equal(at1[7].SemiBold, at15[7].SemiBold);
+        Assert.Equal(288, at15[^1].FontSize);
+        Assert.Equal(378, at15[^1].LineHeight);
+        Assert.Equal(at1[^1].SemiBold, at15[^1].SemiBold);
+        Assert.Equal(at1.Select(s => s.SemiBold), at15.Select(s => s.SemiBold));
     }
 
     [Theory]
@@ -373,7 +377,7 @@ public sealed class DesignEngineTests
     [InlineData(0, 1.0)]
     [InlineData(1.25, 1.25)]
     public void S821_text_scale_clamps(double setting, double expected)
-        => Assert.Equal(expected, FluentType.ClampTextScale(setting));
+        => Assert.Equal(expected, FamilyType.ClampTextScale(setting));
 
     [Fact]
     public void S831_a_fresh_design_is_the_default_preset()

@@ -8,6 +8,7 @@ using Themia.App.Widgets;
 using Themia.Core.Diagnostics;
 using Themia.Core.Geometry;
 using Themia.Core.Widgets;
+using Themia.Sdk.Kit;
 using Windows.Graphics;
 
 namespace Themia.App.Shell.Gallery;
@@ -125,7 +126,7 @@ internal static class PickerRender
     {
         Child = content,
         Padding = new Thickness(Fluent.Space4),
-        CornerRadius = new CornerRadius(Fluent.OverlayRadius),
+        CornerRadius = new CornerRadius(ShellMetrics.OverlayRadius),
         BorderThickness = new Thickness(Fluent.Hairline),
         BorderBrush = DesignApplier.Brush("SurfaceStrokeColorFlyoutBrush", Colors.Gray),
         Background = DesignApplier.Brush("AcrylicBackgroundFillColorDefaultBrush", Colors.Black),

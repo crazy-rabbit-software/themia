@@ -4,6 +4,7 @@ using Microsoft.UI.Xaml.Media;
 using Themia.Core.Diagnostics;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
+using Themia.Sdk.Kit;
 using Themia.Sdk.WinUI;
 using Windows.UI.ViewManagement;
 using Color = Windows.UI.Color;
@@ -132,7 +133,7 @@ internal static class DesignApplier
                 ContentFont = fontName is null ? null : new FontFamily(fontName);
             }
 
-            FluentType.SetTextScale(design.FontScale);
+            FamilyType.SetTextScale(design.FontScale);
         }
         catch (Exception ex)
         {

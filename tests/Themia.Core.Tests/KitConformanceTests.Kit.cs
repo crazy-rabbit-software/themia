@@ -37,7 +37,7 @@ public sealed partial class KitConformanceTests
     private static partial Regex LiteralType();
 
     /// <summary>
-    /// [S-7067] [S-210] Type comes from the Fluent ramp (<c>FluentType</c>, <c>Fluent.Apply</c>), never a
+    /// [S-7067] [S-210] Type comes from the family's steps (<c>FamilyType</c>, <c>Family.Step</c>, <c>Fluent.Apply</c>), never a
     /// literal size or a font of a view's own. No view sets one any more (the list it held only shrank:
     /// the clipboard page's colour preview went with the page, the habit tracker's rows and the
     /// folder's tile glyphs with group G6's Row blocks and cells).
@@ -85,7 +85,7 @@ public sealed partial class KitConformanceTests
         Assert.Empty(offending);
     }
 
-    [GeneratedRegex(@"\b(ScrollViewer|RowFocus|ItemMenu|ItemMenuEntry|ProgressRing|ItemCursor|ListKeys|Process)\b|Fluent\.EmptyState")]
+    [GeneratedRegex(@"\b(ScrollViewer|RowFocus|ItemMenu|ItemMenuEntry|ProgressRing|ItemCursor|ListKeys|Process)\b")]
     private static partial Regex ListPlumbing();
 
     /// <summary>

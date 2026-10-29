@@ -13,6 +13,7 @@ using Themia.Core.Geometry;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
+using Themia.Sdk.Kit;
 using Themia.Sdk.WinUI;
 using Themia.Sdk;
 using Windows.Foundation;
@@ -57,7 +58,7 @@ internal sealed partial class WidgetPicker : Grid
     private const double RuleHeight = Fluent.Space2 + Fluent.Hairline;
 
     /// <summary>[S-3515] A result: its name over where it lives.</summary>
-    private const double ResultHeight = Fluent.RowHeight + Fluent.Space2;
+    private const double ResultHeight = FamilyShape.Row2;
 
     /// <summary>
     /// The search index, built once per language: the catalogue does not change while the app runs,
@@ -152,7 +153,7 @@ internal sealed partial class WidgetPicker : Grid
         };
 
         _resultRows = new StackPanel { Width = topWidth };
-        _none = Fluent.Text(FluentType.Body, "TextFillColorSecondaryBrush");
+        _none = Fluent.Text(FamilyType.Body, "TextFillColorSecondaryBrush");
         _none.Margin = new Thickness(Fluent.Space3, Fluent.Space2, Fluent.Space3, Fluent.Space2);
         _results = new ScrollViewer
         {
@@ -258,7 +259,7 @@ internal sealed partial class WidgetPicker : Grid
     private void AddColumnView(string heading, IReadOnlyList<AddRow> rows, int column)
     {
         var stack = new StackPanel { Width = ColumnWidth, Margin = new Thickness(0, Fluent.Space1 + Fluent.Hairline, 0, 0) };
-        var title = Fluent.Text(FluentType.Caption, "TextFillColorSecondaryBrush");
+        var title = Fluent.Text(FamilyType.Caption, "TextFillColorSecondaryBrush");
         title.Text = heading;
         title.Height = LineHeight;
         title.Padding = new Thickness(Fluent.Space3, Fluent.Space3, Fluent.Space3, 0);
@@ -421,7 +422,7 @@ internal sealed partial class WidgetPicker : Grid
     /// <summary>The shape every row of the menu shares: icon, name (and where it lives, for a result), a folder's chevron.</summary>
     private static Button RowButton(string glyph, string label, string? help, bool folder, double height, string? path)
     {
-        var name = Fluent.Text(FluentType.Body);
+        var name = Fluent.Text(FamilyType.Body);
         name.Text = label;
 
         // A grid, not a stack: a stack sized the name to the path under it and cut it off.
@@ -430,7 +431,7 @@ internal sealed partial class WidgetPicker : Grid
         {
             words.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
             words.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
-            var where = Fluent.Text(FluentType.Caption, "TextFillColorSecondaryBrush");
+            var where = Fluent.Text(FamilyType.Caption, "TextFillColorSecondaryBrush");
             where.Text = path;
             SetRow(where, 1);
             words.Children.Add(where);
