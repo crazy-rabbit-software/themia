@@ -77,6 +77,7 @@ internal static class FamilyBlockSamples
         ("tile-round-off", (w, h) => TileCard(w, h, TileLook.Round, on: false)),
         ("tile-switch", (w, h) => TileCard(w, h, TileLook.Switch, on: true)),
         ("tile-unavailable", (w, h) => TileCard(w, h, TileLook.Tile, on: false, available: false)),
+        ("tile-armed", (w, h) => ArmedCard(w, h)),
         ("controls", ControlsCard),
         ("controls-slider", SliderCard),
     ];
@@ -339,8 +340,19 @@ internal static class FamilyBlockSamples
     private static FrameworkElement TileCard(double w, double h, TileLook look, bool on, bool available = true)
     {
         var tile = new TileBlock(look) { Padding = Family.Inset };
-        tile.Show(G(0xE701), "Wi-Fi", available ? (on ? "On" : "Off") : "Not on this PC", on, available);
+        tile.Show(G(0xE701), "Wi-Fi", available ? (on ? "On" : "Off") : "Not on this PC", !available ? TileState.Unavailable : on ? TileState.On : TileState.Off);
         tile.Size(w - (2 * FamilySpace.Inset), h - (2 * FamilySpace.Inset));
+        return new Grid { Width = w, Height = h, Children = { tile } };
+    }
+
+    /// <summary>[S-6736] A ringed tile armed: the glyph inside its ring, the ring (drawn still here, three fifths left) and the sentence critical.</summary>
+    private static FrameworkElement ArmedCard(double w, double h)
+    {
+        var tile = new TileBlock(TileLook.Tile, ringed: true) { Padding = Family.Inset };
+        tile.Show(G(0xE7E8), "Click again to shut down", string.Empty, TileState.Critical);
+        tile.Size(w - (2 * FamilySpace.Inset), h - (2 * FamilySpace.Inset), state: false);
+        tile.Ring.Visibility = Visibility.Visible;
+        tile.Ring.Show(0.6);
         return new Grid { Width = w, Height = h, Children = { tile } };
     }
 

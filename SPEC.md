@@ -954,10 +954,27 @@ module author's guide is docs/WIDGET-KIT.md 16.
   drops it and keeps the glyph and the action (`StatusRules`); without an action the sentence stays. Tile widgets show their state in the tile.
 - **[S-6715]** **Tile** (`TileBlock`), a one-readout widget's body: the glyph centred on the largest
   Readout or Hero step that fits above its label (Body, 8 under it) and its state line (Caption) and
-  takes at most 0.6 of the width (`TileRules.GlyphStep`). On, the **whole tile** is the accent with
-  the text and glyph on it; Round puts the glyph in a circle (the accent when on, the subtle fill
-  off) at the largest family glyph size within half of it; Switch is a row with a switch as its
-  value. Missing on this PC, every part is disabled. A power button's arm ring is the Tile's ring.
+  takes at most 0.6 of the width (`TileRules.GlyphStep`), in the card's inset of 16 at every size. On,
+  the **whole tile** is the accent with the text and glyph on it; Round puts the glyph in a circle
+  (the accent when on, the item layer's tile otherwise) at the largest family glyph size within half
+  of it; Switch is a row with a switch as its value. Not on, the tile is an item of the card's item
+  layer ([S-6513]). Missing on this PC, every part is disabled. A power button's arm ring is the
+  Tile's ring ([S-6736]).
+- **[S-6736]** A Tile says its state by its roles (`TileRules.Roles`, `TileState`): **on** the accent
+  (the tile, or the round look's circle); **off** the primary text on the item layer; **not known yet**
+  every part secondary; **unavailable** every part disabled; **critical** (a power button armed, or
+  its last run failed) the glyph, the text and the ring in Critical, nothing filled: the tile shows
+  its state itself, never a Status row (DECISIONS 4). The lines are planned whether or not they say
+  anything now (a reading not answered has an empty state line), so a change of state moves nothing.
+  The owner keeps the whole tile as its hit target and tells the block the pointer (`Face`): the item
+  layer's hover and press, or over the accent the subtle fills laid on it. A **ringed** tile keeps
+  its glyph inside its ring, at the largest family glyph size within three quarters of the step
+  (`TileRules.RingGlyph`), so the arm ring shows without moving anything; the ring is the Chart's
+  (`ChartRing`, stroke 2 over its track) and drains on the compositor (`ChartRing.Drain`: one linear
+  animation of the arc's end over the time left, nothing on the UI thread, [S-1913]). The **switch**
+  look is a row: [glyph 16] 8 [name over state] 12 [Windows' toggle switch, 40 wide, drawn and
+  inert]; the name and state need 96 beside the switch, so on a narrow tile the glyph gives way
+  first, then the lines, and the glyph and the switch stay (`TileRules.Switch`).
 - **[S-6737]** A **one-readout** widget (DECISIONS 2: the clock and the timers, the quick toggles and
   the power buttons) says so in its module's descriptor (`WidgetTraits.OneReadout`); it alone may climb
   the Hero steps (`ReadoutRules.OneReadout`, `ReadoutRules.Steps`), and the render walk ([S-6731])

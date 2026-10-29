@@ -202,11 +202,12 @@ public sealed class FamilyBlockRulesTests
     [Fact]
     public void S6715_on_is_the_whole_tile_in_the_accent_and_missing_is_disabled()
     {
-        Assert.Equal(new TileRoles(ColourRole.Accent, null, ColourRole.TextOnAccent, ColourRole.TextOnAccent, ColourRole.TextOnAccentSecondary), TileRules.Roles(TileLook.Tile, on: true));
-        Assert.Equal(new TileRoles(null, null, ColourRole.TextPrimary, ColourRole.TextPrimary, ColourRole.TextSecondary), TileRules.Roles(TileLook.Tile, on: false));
-        Assert.Equal(ColourRole.Accent, TileRules.Roles(TileLook.Round, on: true).Circle);
-        Assert.Null(TileRules.Roles(TileLook.Round, on: true).Fill);
-        var missing = TileRules.Roles(TileLook.Tile, on: true, available: false);
+        Assert.Equal(new TileRoles(ColourRole.Accent, null, ColourRole.TextOnAccent, ColourRole.TextOnAccent, ColourRole.TextOnAccentSecondary), TileRules.Roles(TileLook.Tile, TileState.On));
+        Assert.Equal(new TileRoles(null, null, ColourRole.TextPrimary, ColourRole.TextPrimary, ColourRole.TextSecondary), TileRules.Roles(TileLook.Tile, TileState.Off));
+        Assert.Equal(ColourRole.Accent, TileRules.Roles(TileLook.Round, TileState.On).Circle);
+        Assert.Null(TileRules.Roles(TileLook.Round, TileState.On).Fill);
+        Assert.Null(TileRules.Roles(TileLook.Round, TileState.Off).Circle);
+        var missing = TileRules.Roles(TileLook.Tile, TileState.Unavailable);
         Assert.Null(missing.Fill);
         Assert.Equal(ColourRole.TextDisabled, missing.Glyph);
 
@@ -214,6 +215,46 @@ public sealed class FamilyBlockRulesTests
         Assert.Equal(48, TileRules.RoundGlyph(96));
         Assert.Equal(16, TileRules.RoundGlyph(28));
     }
+
+    [Theory]
+    [InlineData(TileLook.Tile)]
+    [InlineData(TileLook.Round)]
+    [InlineData(TileLook.Switch)]
+    public void S6736_unknown_is_secondary_critical_is_critical_and_neither_fills(TileLook look)
+    {
+        Assert.Equal(new TileRoles(null, null, ColourRole.TextSecondary, ColourRole.TextSecondary, ColourRole.TextSecondary), TileRules.Roles(look, TileState.Unknown));
+        Assert.Equal(new TileRoles(null, null, ColourRole.Critical, ColourRole.Critical, ColourRole.Critical), TileRules.Roles(look, TileState.Critical));
+        Assert.Equal(new TileRoles(null, null, ColourRole.TextDisabled, ColourRole.TextDisabled, ColourRole.TextDisabled), TileRules.Roles(look, TileState.Unavailable));
+
+        // The accent is only for on, never for text on the card.
+        foreach (var state in Enum.GetValues<TileState>())
+        {
+            var roles = TileRules.Roles(look, state);
+            Assert.NotEqual(ColourRole.Accent, roles.Label);
+            Assert.NotEqual(ColourRole.Accent, roles.State);
+            Assert.NotEqual(ColourRole.Accent, roles.Glyph);
+            Assert.Equal(state == TileState.On && look != TileLook.Switch, roles.Fill is not null || roles.Circle is not null);
+        }
+    }
+
+    [Theory]
+    [InlineData(28, 16)]
+    [InlineData(40, 28)]
+    [InlineData(68, 48)]
+    [InlineData(96, 68)]
+    [InlineData(136, 96)]
+    [InlineData(192, 136)]
+    public void S6736_a_ringed_glyph_is_the_largest_family_size_within_three_quarters_of_its_ring(double ring, double glyph)
+        => Assert.Equal(glyph, TileRules.RingGlyph(ring));
+
+    [Theory]
+    [InlineData(88, true, false)]
+    [InlineData(168, false, true)]
+    [InlineData(176, true, true)]
+    [InlineData(288, true, true)]
+    [InlineData(double.NaN, true, false)]
+    public void S6736_the_switch_row_drops_its_glyph_first_then_its_lines(double width, bool glyph, bool lines)
+        => Assert.Equal(new SwitchParts(glyph, lines), TileRules.Switch(width));
 
     [Fact]
     public void S6716_one_main_action_and_icons_give_way_first()

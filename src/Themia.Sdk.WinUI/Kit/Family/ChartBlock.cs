@@ -1,7 +1,11 @@
+using System.Numerics;
+using Microsoft.UI.Composition;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Hosting;
 using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Shapes;
+using Themia.Core.Diagnostics;
 using Themia.Sdk.Kit;
 using Windows.Foundation;
 using Path = Microsoft.UI.Xaml.Shapes.Path;
@@ -200,9 +204,22 @@ public sealed partial class ChartBar : Grid
 /// [S-6717] A meter's ring: a track ring in the Track role at the Chart's stroke, and the reading's
 /// arc over it in the accent (or Caution/Critical), from twelve, clockwise, round caps. Square, the
 /// size of its box's short side. A gauge is its upper half, the arc from nine o'clock.
+/// <para>
+/// [S-6736] [S-1913] A ring that drains (a power button's arm ring, the Tile's) draws its arc on the
+/// compositor instead (<see cref="Drain"/>): one linear animation of the arc's end over the time that
+/// is left, so nothing on the UI thread runs while it shrinks back to twelve.
+/// </para>
 /// </summary>
 public sealed partial class ChartRing : Grid
 {
+    private const string Scope = "chart";
+    private const string TrimEnd = nameof(CompositionGeometry.TrimEnd);
+    private readonly Grid _drainHost = new() { IsHitTestVisible = false };
+    private Compositor? _compositor;
+    private ShapeVisual? _visual;
+    private CompositionEllipseGeometry? _geometry;
+    private CompositionColorBrush? _drainBrush;
+    private bool _drainFailed;
     private readonly Ellipse _track = new() { StrokeThickness = FamilyShape.Stroke };
     private readonly Path _halfTrack = new() { StrokeThickness = FamilyShape.Stroke, StrokeStartLineCap = PenLineCap.Round, StrokeEndLineCap = PenLineCap.Round };
     private readonly Path _arc = new() { StrokeThickness = FamilyShape.Stroke, StrokeStartLineCap = PenLineCap.Round, StrokeEndLineCap = PenLineCap.Round };
@@ -226,8 +243,126 @@ public sealed partial class ChartRing : Grid
         Children.Add(_track);
         Children.Add(_halfTrack);
         Children.Add(_arc);
+        Children.Add(_drainHost);
         Role(ColourRole.Accent);
-        SizeChanged += (_, _) => Draw(resized: true);
+        SizeChanged += (_, _) =>
+        {
+            Draw(resized: true);
+            SizeDrain();
+        };
+    }
+
+    /// <summary>Whether the arc is draining on the compositor (<see cref="Drain"/>).</summary>
+    public bool Draining { get; private set; }
+
+    /// <summary>
+    /// [S-6736] Show the ring with its arc at <paramref name="remaining"/> (1 full, 0 gone) in its role
+    /// and drain it to nothing over <paramref name="left"/> on the compositor. Its drawing only: what
+    /// the time means is its owner's.
+    /// </summary>
+    public void Drain(double remaining, TimeSpan left)
+    {
+        Draining = true;
+        Visibility = Visibility.Visible;
+        _arc.Visibility = Visibility.Collapsed;
+
+        if (!EnsureDrain() || _compositor is not { } compositor || _geometry is not { } geometry || _drainBrush is not { } fill)
+        {
+            return;
+        }
+
+        // The role's brush is recoloured in place on a theme change; the drain takes its colour now.
+        if (_arc.Stroke is SolidColorBrush solid)
+        {
+            fill.Color = solid.Color;
+        }
+
+        var from = (float)Math.Clamp(remaining, 0, 1);
+        geometry.StopAnimation(TrimEnd);
+        geometry.TrimEnd = from;
+
+        // Under a millisecond there is nothing to drain; the owner's expiry stops the ring.
+        if (from <= 0 || left < TimeSpan.FromMilliseconds(1))
+        {
+            geometry.TrimEnd = 0;
+            return;
+        }
+
+        var drain = compositor.CreateScalarKeyFrameAnimation();
+        drain.InsertKeyFrame(0f, from);
+        drain.InsertKeyFrame(1f, 0f, compositor.CreateLinearEasingFunction());
+        drain.Duration = left;
+        geometry.StartAnimation(TrimEnd, drain);
+    }
+
+    /// <summary>[S-6736] Stop a drain: the ring is hidden and its arc is the XAML one again.</summary>
+    public void Stop()
+    {
+        Draining = false;
+        Visibility = Visibility.Collapsed;
+        _arc.Visibility = Visibility.Visible;
+        if (_geometry is { } geometry)
+        {
+            geometry.StopAnimation(TrimEnd);
+            geometry.TrimEnd = 0;
+        }
+    }
+
+    /// <summary>The compositor's shape under the drain's host, made on the first drain. False (logged once) where the compositor refuses it.</summary>
+    private bool EnsureDrain()
+    {
+        if (_visual is not null)
+        {
+            return true;
+        }
+
+        if (_drainFailed)
+        {
+            return false;
+        }
+
+        try
+        {
+            var compositor = ElementCompositionPreview.GetElementVisual(_drainHost).Compositor;
+            var geometry = compositor.CreateEllipseGeometry();
+            var brush = compositor.CreateColorBrush();
+            var shape = compositor.CreateSpriteShape(geometry);
+            shape.StrokeBrush = brush;
+            shape.StrokeStartCap = CompositionStrokeCap.Round;
+            shape.StrokeEndCap = CompositionStrokeCap.Round;
+            shape.StrokeThickness = (float)FamilyShape.Stroke;
+
+            // An ellipse geometry's outline starts at twelve o'clock and runs clockwise: the ring's
+            // own start and direction, no turn (checked on the power buttons' --state armed render).
+            var visual = compositor.CreateShapeVisual();
+            visual.Shapes.Add(shape);
+            ElementCompositionPreview.SetElementChildVisual(_drainHost, visual);
+
+            (_compositor, _geometry, _drainBrush, _visual) = (compositor, geometry, brush, visual);
+            SizeDrain();
+            return true;
+        }
+        catch (Exception ex)
+        {
+            // The owner still arms, says so and expires on its own clock; only the drain is missing.
+            _drainFailed = true;
+            Log.Warn(Scope, "could not drain the ring on the compositor", ex);
+            return false;
+        }
+    }
+
+    private void SizeDrain()
+    {
+        if (_visual is null || _geometry is null)
+        {
+            return;
+        }
+
+        var (w, h) = (ActualWidth, ActualHeight);
+        var side = Math.Max(0, Math.Min(w, h));
+        _visual.Size = new Vector2((float)Math.Max(0, w), (float)Math.Max(0, h));
+        _geometry.Center = new Vector2((float)(w / 2), (float)(h / 2));
+        _geometry.Radius = new Vector2((float)Math.Max(0, (side - FamilyShape.Stroke) / 2));
     }
 
     /// <summary>[S-6330] The reading's share, drawn at once; the same share again draws nothing.</summary>
