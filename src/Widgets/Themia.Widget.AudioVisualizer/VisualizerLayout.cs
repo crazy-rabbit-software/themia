@@ -1,4 +1,5 @@
 using Themia.Core.Model;
+using Themia.Sdk.Kit;
 
 namespace Themia.Core.Widgets;
 
@@ -58,8 +59,8 @@ public static class VisualizerLayout
     /// <summary>A spoke thinner than this is lost around the ring.</summary>
     public const double MinSpoke = 3;
 
-    /// <summary>The idle baseline's height, DIPs: a flat line of stubs while nothing plays.</summary>
-    public const double Baseline = 3;
+    /// <summary>The idle baseline's height, DIPs: a flat line of stubs while nothing plays, as thick as the family's track.</summary>
+    public const double Baseline = FamilyShape.Track;
 
     /// <summary>The most LED cells in one column: past it the cells only grow.</summary>
     public const int MaxCells = 24;
@@ -92,10 +93,21 @@ public static class VisualizerLayout
     /// <summary>[S-3213] Fewer points than this and a waveform is a zigzag.</summary>
     public const int MinScopePoints = 16;
 
+    /// <summary>[S-3213] From this short side the waveform's line is the family's track (4) instead of its stroke (2).</summary>
+    public const double ThickLineFrom = 240;
+
+    /// <summary>
+    /// [S-3216] A bar's, spoke's or cell's corners ([S-6704]): round while it is thinner than twice the
+    /// family's radius, the radius (4) once it is thicker, never a size of its own.
+    /// </summary>
+    public static double CornerRadius(double thickness)
+        => thickness <= 0 ? 0 : Math.Min(FamilyShape.Round(thickness, thickness), FamilyShape.Radius);
+
     /// <summary>
     /// [S-3213] The waveform: along the long side like the linear designs (down a Tall column), a point
-    /// every <see cref="ScopeStep"/> DIPs up to the trace's <see cref="Oscilloscope.Points"/>, the line 2
-    /// to 4 DIPs thick as the tile grows, swinging about the centre line across the short side.
+    /// every <see cref="ScopeStep"/> DIPs up to the trace's <see cref="Oscilloscope.Points"/>, the line the
+    /// family's stroke (2), its track (4) from a short side of <see cref="ThickLineFrom"/>, swinging about
+    /// the centre line across the short side.
     /// </summary>
     private static VisualizerPlan PlanScope(WidgetArea area)
     {
@@ -103,7 +115,7 @@ public static class VisualizerLayout
         var along = horizontal ? area.Height : area.Width;
         var across = horizontal ? area.Width : area.Height;
         var points = Math.Clamp((int)Math.Floor(along / ScopeStep) + 1, MinScopePoints, Oscilloscope.Points);
-        var line = Math.Clamp(Math.Round(across / 60), 2, 4);
+        var line = across >= ThickLineFrom ? FamilyShape.Track : FamilyShape.Stroke;
         return new VisualizerPlan(AudioVisualizerStyle.Waveform, horizontal, points, line, 0, across, 0, Run: along);
     }
 

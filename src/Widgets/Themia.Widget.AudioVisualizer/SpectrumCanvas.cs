@@ -1,4 +1,3 @@
-using Microsoft.UI;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media;
@@ -6,7 +5,9 @@ using Microsoft.UI.Xaml.Shapes;
 using Themia.App.Shell;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
+using Themia.Sdk.Kit;
 using Themia.Sdk.WinUI;
+using Themia.Sdk.WinUI.Kit;
 using Path = Microsoft.UI.Xaml.Shapes.Path;
 using Point = Windows.Foundation.Point;
 
@@ -14,23 +15,21 @@ namespace Themia.App.Widgets;
 
 /// <summary>
 /// [S-3205] [S-3216] The audio visualizer's drawing, for every design: shapes placed once per layout
-/// from a <see cref="VisualizerPlan"/>, and a frame that only writes numbers into them (a scale, an
-/// opacity, a curve's points). No layout pass and no allocation per frame,
+/// from a <see cref="VisualizerPlan"/>, and a frame that only writes numbers into them (a scale, a
+/// cell's fill, a curve's points). No layout pass and no allocation per frame,
 /// which is what lets it run at the capture rate on the UI thread for nothing. Edge to edge: the
 /// canvas is the card's whole content area and the card's rounded corners clip it.
 /// </summary>
 internal sealed partial class SpectrumCanvas : Canvas
 {
-    /// <summary>An unlit LED cell: there, so the column reads as a meter, but quiet.</summary>
-    private const double DimOpacity = 0.18;
-
-    /// <summary>The wave's fill under its line.</summary>
-    private const double AreaOpacity = 0.35;
-
-    private const double LineThickness = 2;
+    /// <summary>[S-6717] The wave's line: the chart's one stroke.</summary>
+    private const double LineThickness = FamilyShape.Stroke;
 
     private readonly AudioVisualizerStyle _style;
     private readonly Brush _fill;
+
+    /// <summary>[S-3216] An unlit LED cell: the track's role, so the column reads as a meter but stays quiet.</summary>
+    private readonly Brush _unlit = Family.Brush(ColourRole.Track);
     private readonly float[] _grouped = new float[Spectrum.Bands];
     private VisualizerPlan _plan;
 
@@ -65,7 +64,7 @@ internal sealed partial class SpectrumCanvas : Canvas
     public SpectrumCanvas(AudioVisualizerStyle style, bool available)
     {
         _style = style;
-        _fill = available ? ThemeBrush.Of("AccentFillColorDefaultBrush", Colors.DodgerBlue) : UnavailableLook.Fill;
+        _fill = available ? Family.Brush(ColourRole.Accent) : UnavailableLook.Fill;
         _plan = VisualizerLayout.Plan(default, style);
 
         var shapes = style switch
@@ -95,7 +94,7 @@ internal sealed partial class SpectrumCanvas : Canvas
             _area = new Path
             {
                 Fill = _fill,
-                Opacity = AreaOpacity,
+                Opacity = FamilyShape.Wash,
                 Data = new PathGeometry { Figures = { _areaFigure } },
             };
             _line = new Path
@@ -192,7 +191,7 @@ internal sealed partial class SpectrumCanvas : Canvas
         Draw();
     }
 
-    private double Radius(double thickness) => Math.Min(thickness / 2, Fluent.ControlRadius / 2);
+    private static double Radius(double thickness) => VisualizerLayout.CornerRadius(thickness);
 
     private void ArrangeBars(VisualizerPlan plan, bool mirrored)
     {
@@ -282,7 +281,7 @@ internal sealed partial class SpectrumCanvas : Canvas
 
         while (_cells.Count < needed)
         {
-            var cell = new Rectangle { Fill = _fill };
+            var cell = new Rectangle { Fill = _unlit };
             _cells.Add(cell);
             Children.Add(cell);
         }
@@ -321,7 +320,7 @@ internal sealed partial class SpectrumCanvas : Canvas
                 SetTop(cell, plan.Length - plan.Cell - rowOffset);
             }
 
-            cell.Opacity = DimOpacity;
+            cell.Fill = _unlit;
             cell.Visibility = Visibility.Visible;
         }
 
@@ -473,7 +472,7 @@ internal sealed partial class SpectrumCanvas : Canvas
 
             for (var row = low; row < high; row++)
             {
-                _cells[(column * _plan.Cells) + row].Opacity = row < lit ? 1 : DimOpacity;
+                _cells[(column * _plan.Cells) + row].Fill = row < lit ? _fill : _unlit;
             }
 
             _lit[column] = lit;

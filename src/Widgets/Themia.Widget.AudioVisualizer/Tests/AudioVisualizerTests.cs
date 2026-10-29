@@ -334,4 +334,29 @@ public class AudioVisualizerTests
         Assert.True(xl.Thickness > xs.Thickness);
         Assert.Equal(Oscilloscope.Points, xl.Bars);
     }
+    [Theory]
+    [InlineData(3, 1.5)]
+    [InlineData(6, 3)]
+    [InlineData(8, 4)]
+    [InlineData(20, 4)]
+    [InlineData(0, 0)]
+    public void S3216_a_bar_is_round_while_thin_and_the_family_radius_once_thick(double thickness, double radius)
+    {
+        Assert.Equal(radius, VisualizerLayout.CornerRadius(thickness), 6);
+        Assert.True(Themia.Sdk.Kit.FamilyShape.IsRadius(VisualizerLayout.CornerRadius(thickness), thickness, 100));
+    }
+
+    [Theory]
+    [MemberData(nameof(Tiers))]
+    public void S3213_the_waveform_line_is_the_family_stroke_or_track_never_between(string tier)
+    {
+        var area = Tier(tier);
+        var plan = VisualizerLayout.Plan(area, AudioVisualizerStyle.Waveform);
+        var across = plan.Horizontal ? area.Width : area.Height;
+        Assert.Equal(across >= VisualizerLayout.ThickLineFrom ? 4 : 2, plan.Thickness);
+    }
+
+    [Fact]
+    public void S3206_the_idle_stub_is_the_family_track()
+        => Assert.Equal(Themia.Sdk.Kit.FamilyShape.Track, VisualizerLayout.Baseline);
 }
