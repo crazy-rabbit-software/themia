@@ -232,12 +232,12 @@ public sealed partial class SettingsMenuTests
         var host = new FakeHost();
         var line = At<SettingsChoice>(host, "desktop");
         Assert.Equal(["desktop/themia", "desktop/windows", "desktop/nothing"], line.Options.Select(o => o.Key).ToArray());
-        Assert.Equal("desktop/windows", line.Options.Single(o => o.Holds).Key);
+        Assert.Equal("desktop/themia", line.Options.Single(o => o.Holds).Key);
 
-        line.Options[0].Pick();
-        Assert.Equal(DesktopShows.ThemiaItems, host.State.Preferences.Desktop);
+        line.Options[1].Pick();
+        Assert.Equal(DesktopShows.WindowsIcons, host.State.Preferences.Desktop);
         Assert.Equal(1, host.Mutations);
-        Assert.Equal("desktop/themia", At<SettingsChoice>(host, "desktop").Options.Single(o => o.Holds).Key);
+        Assert.Equal("desktop/windows", At<SettingsChoice>(host, "desktop").Options.Single(o => o.Holds).Key);
     }
 
     [Fact]

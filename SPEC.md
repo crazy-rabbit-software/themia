@@ -7514,9 +7514,11 @@ Owning files: `Themia.Core/Desktop/*`, `Themia.Core/Shell/DesktopIconRules.cs`,
 - **[S-5500]** **The choice.** ⚙'s one line **On the desktop** chooses what the desktop shows while
   Themia runs: **Themia's items**, **Windows' icons** or **Nothing** (`Preferences.Desktop`, a
   `DesktopShows`). It replaces "Show desktop icons": one setting, one level ([S-3592]); no view,
-  display or widget holds a copy, and it applies to every display. The default is **Windows'
-  icons**, so the desktop is as it was until the user picks Themia's items (D1; D2 makes Themia's
-  items the default once Explorer parity is in). A pick is stored and applied at once.
+  display or widget holds a copy, and it applies to every display. The default is **Themia's
+  items**, since Explorer parity holds outside edit mode ([S-5540]..[S-5550]): a new state hides
+  Explorer's icons for the session and lays every desktop item into the primary display's view
+  ([S-5522]). A stored choice that is no `DesktopShows` is repaired to Windows' icons, the desktop as
+  Windows has it. A pick is stored and applied at once.
 - **[S-5501]** **The surface covers the display** while the choice is Themia's items: outside edit
   mode too, every display's hit region is its whole work area (as in edit mode, [S-851]), so no
   click on empty desktop falls through to Explorer; empty desktop is Themia's (the press of

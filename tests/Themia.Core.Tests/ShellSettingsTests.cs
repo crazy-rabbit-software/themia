@@ -80,7 +80,7 @@ public sealed class ShellSettingsTests : IDisposable
         var state = Parse(json);
 
         Assert.NotNull(state.Preferences);
-        Assert.Equal(DesktopShows.WindowsIcons, state.Preferences.Desktop);
+        Assert.Equal(DesktopShows.ThemiaItems, state.Preferences.Desktop);
         Assert.Empty(state.DisabledMonitors);
         Assert.Empty(state.MonitorScales);
     }
