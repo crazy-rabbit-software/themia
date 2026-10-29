@@ -3,5 +3,6 @@
   "meeting.join": "Participar",
   "meeting.joinTip": "Participar da reunião online",
   "meeting.label": "Próxima reunião",
-  "meeting.none": "Nada programado"
+  "meeting.none": "Nada programado",
+  "nextMeeting.setup.sentence": "Adicione uma conta para ver sua próxima reunião"
 }

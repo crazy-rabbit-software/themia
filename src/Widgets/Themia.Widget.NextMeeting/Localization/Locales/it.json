@@ -3,5 +3,6 @@
   "meeting.join": "Partecipa",
   "meeting.joinTip": "Partecipa alla riunione online",
   "meeting.label": "Prossima riunione",
-  "meeting.none": "Nessun impegno in arrivo"
+  "meeting.none": "Nessun impegno in arrivo",
+  "nextMeeting.setup.sentence": "Aggiungi un account per vedere la tua prossima riunione"
 }

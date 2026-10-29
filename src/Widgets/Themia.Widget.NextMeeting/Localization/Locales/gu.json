@@ -3,5 +3,6 @@
   "meeting.join": "જોડાઓ",
   "meeting.joinTip": "ઑનલાઇન મીટિંગમાં જોડાઓ",
   "meeting.label": "આગલી મીટિંગ",
-  "meeting.none": "આગળ કંઈ નથી"
+  "meeting.none": "આગળ કંઈ નથી",
+  "nextMeeting.setup.sentence": "તમારી આગામી મીટિંગ બતાવવા માટે એકાઉન્ટ ઉમેરો"
 }

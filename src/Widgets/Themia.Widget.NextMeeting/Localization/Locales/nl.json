@@ -3,5 +3,6 @@
   "meeting.join": "Deelnemen",
   "meeting.joinTip": "Deelnemen aan de onlinevergadering",
   "meeting.label": "Volgende vergadering",
-  "meeting.none": "Niets gepland"
+  "meeting.none": "Niets gepland",
+  "nextMeeting.setup.sentence": "Voeg een account toe om je volgende vergadering te zien"
 }

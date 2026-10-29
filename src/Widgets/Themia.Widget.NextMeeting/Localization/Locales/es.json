@@ -3,5 +3,6 @@
   "meeting.join": "Unirse",
   "meeting.joinTip": "Unirse a la reunión en línea",
   "meeting.label": "Próxima reunión",
-  "meeting.none": "Nada próximamente"
+  "meeting.none": "Nada próximamente",
+  "nextMeeting.setup.sentence": "Añade una cuenta para ver tu próxima reunión"
 }

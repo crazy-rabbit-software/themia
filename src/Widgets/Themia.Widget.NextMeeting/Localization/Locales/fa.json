@@ -3,5 +3,6 @@
   "meeting.join": "پیوستن",
   "meeting.joinTip": "پیوستن به جلسه آنلاین",
   "meeting.label": "جلسه بعدی",
-  "meeting.none": "چیزی در پیش نیست"
+  "meeting.none": "چیزی در پیش نیست",
+  "nextMeeting.setup.sentence": "برای نمایش جلسهٔ بعدی‌تان یک حساب اضافه کنید"
 }

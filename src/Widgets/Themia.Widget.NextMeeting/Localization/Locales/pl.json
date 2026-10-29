@@ -3,5 +3,6 @@
   "meeting.join": "Dołącz",
   "meeting.joinTip": "Dołącz do spotkania online",
   "meeting.label": "Następne spotkanie",
-  "meeting.none": "Brak nadchodzących wydarzeń"
+  "meeting.none": "Brak nadchodzących wydarzeń",
+  "nextMeeting.setup.sentence": "Dodaj konto, aby zobaczyć najbliższe spotkanie"
 }

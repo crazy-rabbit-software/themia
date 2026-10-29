@@ -3,5 +3,6 @@
   "meeting.join": "加入",
   "meeting.joinTip": "加入在线会议",
   "meeting.label": "下一个会议",
-  "meeting.none": "近期没有安排"
+  "meeting.none": "近期没有安排",
+  "nextMeeting.setup.sentence": "添加帐户以显示你的下一个会议"
 }

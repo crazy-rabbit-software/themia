@@ -3,5 +3,6 @@
   "meeting.join": "参加",
   "meeting.joinTip": "オンライン会議に参加",
   "meeting.label": "次の会議",
-  "meeting.none": "予定はありません"
+  "meeting.none": "予定はありません",
+  "nextMeeting.setup.sentence": "次の会議を表示するにはアカウントを追加してください"
 }

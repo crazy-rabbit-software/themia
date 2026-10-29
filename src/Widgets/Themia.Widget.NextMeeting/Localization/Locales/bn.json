@@ -3,5 +3,6 @@
   "meeting.join": "যোগ দিন",
   "meeting.joinTip": "অনলাইন মিটিংয়ে যোগ দিন",
   "meeting.label": "পরবর্তী মিটিং",
-  "meeting.none": "সামনে কিছু নেই"
+  "meeting.none": "সামনে কিছু নেই",
+  "nextMeeting.setup.sentence": "আপনার পরবর্তী মিটিং দেখাতে একটি অ্যাকাউন্ট যোগ করুন"
 }

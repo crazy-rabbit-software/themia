@@ -3,5 +3,6 @@
   "meeting.join": "انضمام",
   "meeting.joinTip": "الانضمام إلى الاجتماع عبر الإنترنت",
   "meeting.label": "الاجتماع التالي",
-  "meeting.none": "لا شيء قادم"
+  "meeting.none": "لا شيء قادم",
+  "nextMeeting.setup.sentence": "أضف حسابًا لعرض اجتماعك التالي"
 }

@@ -4,6 +4,7 @@ using Themia.Core.Accounts;
 using Themia.Core.Localization;
 using Themia.Core.Widgets;
 using Themia.Sdk;
+using Themia.Widget.NextMeeting;
 
 namespace Themia.Core.Model;
 
@@ -14,6 +15,9 @@ namespace Themia.Core.Model;
 /// </summary>
 public sealed class NextMeetingConfig : CalendarConfig
 {
+    /// <summary>[S-1862] What its Set up row says it waits for.</summary>
+    public override string? SetupSentence => NextMeetingStr.NextMeeting_Setup_Sentence.Text();
+
     public NextMeetingConfig()
     {
         ShowBirthdays = false;

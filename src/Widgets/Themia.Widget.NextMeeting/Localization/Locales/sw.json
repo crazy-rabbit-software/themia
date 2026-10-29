@@ -3,5 +3,6 @@
   "meeting.join": "Jiunge",
   "meeting.joinTip": "Jiunge na mkutano wa mtandaoni",
   "meeting.label": "Mkutano ujao",
-  "meeting.none": "Hakuna kinachokuja"
+  "meeting.none": "Hakuna kinachokuja",
+  "nextMeeting.setup.sentence": "Ongeza akaunti ili kuonyesha mkutano wako ujao"
 }

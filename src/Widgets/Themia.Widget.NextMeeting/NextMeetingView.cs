@@ -14,6 +14,7 @@ using Themia.Core.Sync;
 using Themia.Core.Widgets;
 using Themia.Sdk.WinUI;
 using Themia.Sdk;
+using Themia.Sdk.Kit;
 using Themia.Sdk.WinUI.Kit;
 using Themia.Widget.NextMeeting;
 
@@ -43,17 +44,25 @@ internal sealed partial class NextMeetingView : Grid, IWidgetView, IWidgetSurfac
     private const double DimOpacity = 0.35;
 
     private readonly KitStatePanel _state;
-    private readonly StackPanel _empty;
-    private readonly TextBlock _emptyText = new();
-    private readonly Grid _content = new() { Margin = WidgetLayout.Inset, VerticalAlignment = VerticalAlignment.Center };
-    private readonly StackPanel _text = new() { Spacing = NextMeetingLayout.Gap, VerticalAlignment = VerticalAlignment.Center };
-    private readonly TextBlock _when = Fluent.Text(FluentType.Caption, "AccentTextFillColorPrimaryBrush");
-    private readonly TextBlock _title = Fluent.Text(FluentType.BodyStrong);
-    private readonly TextBlock _range = Fluent.Text(FluentType.Caption, "TextFillColorSecondaryBrush");
+
+    /// <summary>[S-4824] The meeting: its lines from the content top, Join in the Controls row at the foot.</summary>
+    private readonly Grid _content = new() { Margin = new Thickness(FamilySpace.Inset, 0, FamilySpace.Inset, FamilySpace.Inset), Visibility = Visibility.Collapsed };
+
+    private readonly StackPanel _text = new() { Spacing = NextMeetingLayout.Gap, VerticalAlignment = VerticalAlignment.Top };
+
+    /// <summary>"in 12 min.", "Now · ends 11:30 AM": the secondary role; the accent is never a text's ([S-6706]).</summary>
+    private readonly TextBlock _when = Family.Text(FamilyType.Body, ColourRole.TextSecondary);
+
+    /// <summary>The one prominent line ([S-6700]: Title).</summary>
+    private readonly TextBlock _title = Family.Text(FamilyType.Title, ColourRole.TextPrimary);
+
+    private readonly (Grid Row, TextBlock Text) _range = DetailLine(Glyphs.Clock);
     private readonly (Grid Row, TextBlock Text) _location = DetailLine(Glyphs.Place);
     private readonly (Grid Row, TextBlock Text) _organizer = DetailLine(Glyphs.Contact);
+
+    /// <summary>[S-4824] Join: the one main action ([S-6716]), at the content's foot.</summary>
+    private readonly ControlsBlock _controls = new();
     private readonly Button _join;
-    private readonly TextBlock _joinLabel = new() { Text = NextMeetingStr.Meeting_Join.Text() };
 
     private IWidgetSurface? _surface;
     private ICalendarData? _data;
@@ -81,62 +90,28 @@ internal sealed partial class NextMeetingView : Grid, IWidgetView, IWidgetSurfac
     public NextMeetingView(IWidgetHost host)
     {
         _widgetHost = host;
-        _state = new(Glyphs.Meeting, host);
-        _title.TextTrimming = TextTrimming.CharacterEllipsis;
-        _title.TextWrapping = TextWrapping.Wrap;
-        _when.TextTrimming = TextTrimming.CharacterEllipsis;
-        _range.TextTrimming = TextTrimming.CharacterEllipsis;
-        Tabular(_when);
-        Tabular(_range);
+        _state = new(Glyphs.Meeting, host) { Visibility = Visibility.Collapsed };
 
-        _join = new Button
-        {
-            Content = new StackPanel
-            {
-                Orientation = Orientation.Horizontal,
-                Spacing = Fluent.Space2,
-                Children = { Fluent.Icon(Glyphs.Meeting, "TextOnAccentFillColorPrimaryBrush"), _joinLabel },
-            },
-            MinHeight = NextMeetingLayout.JoinHeight,
-            HorizontalAlignment = HorizontalAlignment.Left,
-            VerticalAlignment = VerticalAlignment.Center,
-        };
-
-        if (Application.Current.Resources.TryGetValue("AccentButtonStyle", out var accent) && accent is Style style)
-        {
-            _join.Style = style;
-        }
-        else
-        {
-            Log.Warn(Scope, "AccentButtonStyle is missing; Join falls back to the standard button style");
-        }
-
-        _join.Click += OnJoinClicked;
+        _join = _controls.Main(NextMeetingStr.Meeting_Join.Text(), Join);
 
         _text.Children.Add(_when);
         _text.Children.Add(_title);
-        _text.Children.Add(_range);
+        _text.Children.Add(_range.Row);
         _text.Children.Add(_location.Row);
         _text.Children.Add(_organizer.Row);
 
-        _content.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
-        _content.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
-        _content.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
-        _content.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
         _content.Children.Add(_text);
-        _content.Children.Add(_join);
-
+        _content.Children.Add(_controls);
+        _content.Background = Family.Brush(ColourRole.Clear);
         _content.PointerEntered += OnPointerEntered;
         _content.PointerExited += OnPointerExited;
         _content.Tapped += OnTapped;
 
-        _empty = Fluent.EmptyState(Glyphs.Meeting, _emptyText, out _);
-
         Children.Add(_content);
-        Children.Add(_empty);
         Children.Add(_state);
     }
 
+    /// <summary>Which of the widget's states is on screen.</summary>
     private enum Screen
     {
         Loading,
@@ -196,7 +171,6 @@ internal sealed partial class NextMeetingView : Grid, IWidgetView, IWidgetSurfac
         _member?.Dispose();
         _member = null;
 
-        _join.Click -= OnJoinClicked;
         _content.PointerEntered -= OnPointerEntered;
         _content.PointerExited -= OnPointerExited;
         _content.Tapped -= OnTapped;
@@ -205,7 +179,11 @@ internal sealed partial class NextMeetingView : Grid, IWidgetView, IWidgetSurfac
 
     private void OnLanguage(Locale locale)
     {
-        _joinLabel.Text = NextMeetingStr.Meeting_Join.Text();
+        if (_join.Content is TextBlock label)
+        {
+            label.Text = NextMeetingStr.Meeting_Join.Text();
+        }
+
         Render();
     }
 
@@ -325,7 +303,6 @@ internal sealed partial class NextMeetingView : Grid, IWidgetView, IWidgetSurfac
         }
 
         _content.Visibility = Visibility.Collapsed;
-        _empty.Visibility = Visibility.Collapsed;
 
         switch (_screen)
         {
@@ -334,20 +311,18 @@ internal sealed partial class NextMeetingView : Grid, IWidgetView, IWidgetSurfac
                 return;
 
             case Screen.NoAccounts:
-                // [S-1862] The card shows its Set up button over this.
+                // [S-1862] The card shows its Set up row over this.
                 _state.Hide();
                 return;
 
             case Screen.AccountsGone:
-                _state.Show(SyncProblems.Message(SyncProblem.NoAccount, SyncSubject.Calendar, Strings.Current), offerAccounts: true);
+                _state.Show(SyncProblems.Message(SyncProblem.NoAccount, SyncSubject.Calendar, Strings.Current), offerAccounts: true, problem: true);
                 return;
 
             case Screen.Problem:
-                _state.Show(_problemText(), _problemOffersAccounts);
+                _state.Show(_problemText(), _problemOffersAccounts, problem: true);
                 return;
         }
-
-        _state.Hide();
 
         var now = _clock();
         var item = NextMeetingRules.Pick(_events, now);
@@ -355,47 +330,38 @@ internal sealed partial class NextMeetingView : Grid, IWidgetView, IWidgetSurfac
 
         if (item is null)
         {
-            _emptyText.Text = NextMeetingStr.Meeting_None.Text();
-            _empty.Visibility = Visibility.Visible;
+            // [S-4822] Nothing coming up: the state row, where the meeting's first line would be.
+            _state.Show(NextMeetingStr.Meeting_None.Text(), offerAccounts: false);
             return;
         }
 
+        _state.Hide();
         var locale = Strings.Current;
         var zone = TimeZoneInfo.Local;
-        // A short tile keeps a half inset top and bottom, so Join and the when line both fit.
-        var vertical = _area.HeightClass == SizeClass.Compact ? Fluent.Space2 : WidgetLayout.ContentInset;
-        _content.Margin = new Thickness(WidgetLayout.ContentInset, vertical, WidgetLayout.ContentInset, vertical);
+        var join = item.JoinUrl is not null;
         var plan = NextMeetingLayout.Plan(
-            _area.Deflate(WidgetLayout.ContentInset, vertical),
-            item.JoinUrl is not null,
+            new WidgetArea(Math.Max(0, _area.Width - (2 * FamilySpace.Inset)), Math.Max(0, _area.Height - FamilySpace.Inset)),
+            join,
             !string.IsNullOrWhiteSpace(item.Location),
             !string.IsNullOrWhiteSpace(item.Organizer));
 
-        _when.Apply(NextMeetingLayout.WhenStep(plan.Large));
         _when.Text = NextMeetingRules.When(locale, item, now, zone);
         _when.Visibility = Show(plan.When);
-        _title.Apply(FluentType.Strong(NextMeetingLayout.TitleStep(plan.Large)));
         _title.Text = string.IsNullOrWhiteSpace(item.Subject) ? Str.Calendar_NoTitle.Text() : item.Subject;
-        _title.MaxLines = Math.Max(1, plan.Title);
-        _title.Visibility = Show(plan.Title > 0);
-        _range.Text = NextMeetingRules.Range(locale, item, zone);
-        _range.Visibility = Show(plan.Range);
+        _title.Visibility = Show(plan.Title);
+        _range.Text.Text = NextMeetingRules.Range(locale, item, zone);
+        _range.Row.Visibility = Show(plan.Range);
         _location.Text.Text = item.Location ?? string.Empty;
         _location.Row.Visibility = Show(plan.Location);
         _organizer.Text.Text = item.Organizer ?? string.Empty;
         _organizer.Row.Visibility = Show(plan.Organizer);
 
-        _join.Visibility = Show(item.JoinUrl is not null);
+        _controls.Visibility = Show(join);
         ToolTipService.SetToolTip(_join, NextMeetingStr.Meeting_JoinTip.Text());
-        SetRow(_join, plan.JoinBeside ? 0 : 1);
-        SetColumn(_join, plan.JoinBeside ? 1 : 0);
-        _join.Margin = plan.JoinBeside ? new Thickness(Fluent.Space2, 0, 0, 0) : new Thickness(0, NextMeetingLayout.Gap, 0, 0);
-
         ToolTipService.SetToolTip(_text, Describe(item, locale, zone));
         _content.Visibility = Visibility.Visible;
     }
 
-    /// <summary>Remember the event on screen; a different one drops the hover this widget published for the old.</summary>
     private void SetShown(CalendarEvent? item)
     {
         if (_shown is { } old && (item is null || CalendarShare.Key(old) != CalendarShare.Key(item)))
@@ -432,7 +398,7 @@ internal sealed partial class NextMeetingView : Grid, IWidgetView, IWidgetSurfac
     // Input and links
     // -----------------------------------------------------------------------------------------
 
-    private void OnJoinClicked(object sender, RoutedEventArgs args)
+    private void Join()
     {
         if (_surface?.IsPreview == true || _shown?.JoinUrl is not { } link)
         {
@@ -488,14 +454,14 @@ internal sealed partial class NextMeetingView : Grid, IWidgetView, IWidgetSurfac
         _content.Opacity = _shown is { } item && CalendarShare.Dimmed(value, item) ? DimOpacity : 1;
     }
 
-    /// <summary>A glyph and one trimmed line: a grid, so the text is bounded and its ellipsis shows.</summary>
+    /// <summary>A line of the meeting: its 16 glyph, 8, the text in Body secondary.</summary>
     private static (Grid Row, TextBlock Text) DetailLine(string glyph)
     {
-        var text = Fluent.Text(FluentType.Caption, "TextFillColorSecondaryBrush");
-        text.TextTrimming = TextTrimming.CharacterEllipsis;
-        var icon = Fluent.Icon(glyph, "TextFillColorSecondaryBrush", FluentType.Caption.FontSize);
-        icon.VerticalAlignment = VerticalAlignment.Center;
-        icon.Margin = new Thickness(0, 0, Fluent.Space1, 0);
+        var text = Family.Text(FamilyType.Body, ColourRole.TextSecondary);
+        text.VerticalAlignment = VerticalAlignment.Center;
+        var icon = Family.Glyph(glyph);
+        icon.Margin = new Thickness(0, 0, FamilySpace.GlyphGap, 0);
+
         var row = new Grid
         {
             ColumnDefinitions =
@@ -504,6 +470,7 @@ internal sealed partial class NextMeetingView : Grid, IWidgetView, IWidgetSurfac
                 new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) },
             },
         };
+
         SetColumn(text, 1);
         row.Children.Add(icon);
         row.Children.Add(text);
@@ -511,7 +478,4 @@ internal sealed partial class NextMeetingView : Grid, IWidgetView, IWidgetSurfac
     }
 
     private static Visibility Show(bool visible) => visible ? Visibility.Visible : Visibility.Collapsed;
-
-    private static void Tabular(TextBlock text)
-        => Microsoft.UI.Xaml.Documents.Typography.SetNumeralAlignment(text, FontNumeralAlignment.Tabular);
 }

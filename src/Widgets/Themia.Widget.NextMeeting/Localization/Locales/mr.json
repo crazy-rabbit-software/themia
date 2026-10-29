@@ -3,5 +3,6 @@
   "meeting.join": "सामील व्हा",
   "meeting.joinTip": "ऑनलाइन मीटिंगमध्ये सामील व्हा",
   "meeting.label": "पुढील मीटिंग",
-  "meeting.none": "पुढे काहीही नाही"
+  "meeting.none": "पुढे काहीही नाही",
+  "nextMeeting.setup.sentence": "तुमची पुढील मीटिंग दाखवण्यासाठी खाते जोडा"
 }

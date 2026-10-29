@@ -8280,12 +8280,16 @@ tests `DeskInfoWidgetsTests` (Core).
   the gate before the default handler opens it.
 - **[S-4823]** When, in words: "Now · ends 10:30" under way; "in 12 min." within the hour; else
   "Today, 14:00", "Tomorrow, 09:00", "Mon, Oct 19, 09:00". Times on the regional clock ([S-3773]).
-- **[S-4824]** The ladder (`NextMeetingLayout.Plan`): Join when there is a link (always), then the
-  when line, then the title (always, without Join), then the title's further lines (two, three from
-  300 DIPs of height, where the title is set in Subtitle), the time range, the location, the
-  organiser. XS with a link is the when line and Join; a short tile keeps a half inset top and
-  bottom. A wide strip stands Join at the right. Join is the accent button;
-  a click elsewhere on the event opens it in its calendar ([S-1268]).
+- **[S-4824]** The ladder (`NextMeetingLayout.Plan`) on the family's tokens, in the content box (the
+  view's area less the card's insets): Join when there is a link (always), the one main action,
+  accent, in the Controls row at the box's foot with 8 over it ([S-6716]); then the when line (Body,
+  secondary: "in 12 min." and "Now · ends 11:30" alike, never the accent), then the title (Title,
+  one line ending in an ellipsis; always, without Join), then the time range, the location and the
+  organiser, each a Body secondary line behind its 16 glyph, 4 apart; the first line that does not
+  fit ends the ladder. XS and S with a link are the when line and Join; a larger tile shows more of
+  the meeting's own lines, never a larger title (concise first, [S-666]). Nothing coming up, loading
+  and a problem are the state row at the content top ([S-7039]). A click elsewhere on the event
+  opens it in its calendar ([S-1268]).
 
 ## Recent files (RECENT-FILES)
 

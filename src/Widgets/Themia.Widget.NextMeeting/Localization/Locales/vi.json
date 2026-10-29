@@ -3,5 +3,6 @@
   "meeting.join": "Tham gia",
   "meeting.joinTip": "Tham gia cuộc họp trực tuyến",
   "meeting.label": "Cuộc họp tiếp theo",
-  "meeting.none": "Không có sự kiện sắp tới"
+  "meeting.none": "Không có sự kiện sắp tới",
+  "nextMeeting.setup.sentence": "Thêm tài khoản để hiển thị cuộc họp tiếp theo của bạn"
 }

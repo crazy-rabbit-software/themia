@@ -16,7 +16,7 @@ lines: the SDK's calendar lines), `Preview/` (Debug renders: `--state sample|run
 - **[S-4820]** `NextMeeting` (125): the one event that matters now from the synced calendars. Its
   config is a `CalendarConfig` (`NextMeetingConfig`): accounts and calendars chosen as every
   calendar widget chooses them ([S-562], [S-567]), so it needs setting up without a calendar
-  account ([S-1862]). It reads through the calendars' seam (`ICalendarData`, the offline store and
+  account, its Set up row saying "Add an account to show your next meeting" ([S-1862]). It reads through the calendars' seam (`ICalendarData`, the offline store and
   the shared sync, [S-2701]) for yesterday to fourteen days on, on the calendars' 5-minute poll and
   the accounts' change event; it never fetches on its own. It never asks for birthdays (all-day,
   never a meeting; `Repair` puts `showBirthdays` back to false).

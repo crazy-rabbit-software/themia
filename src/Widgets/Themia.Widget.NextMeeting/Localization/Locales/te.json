@@ -3,5 +3,6 @@
   "meeting.join": "చేరు",
   "meeting.joinTip": "ఆన్‌లైన్ సమావేశంలో చేరండి",
   "meeting.label": "తదుపరి సమావేశం",
-  "meeting.none": "రాబోయేవి ఏవీ లేవు"
+  "meeting.none": "రాబోయేవి ఏవీ లేవు",
+  "nextMeeting.setup.sentence": "మీ తదుపరి సమావేశాన్ని చూపడానికి ఖాతాను జోడించండి"
 }

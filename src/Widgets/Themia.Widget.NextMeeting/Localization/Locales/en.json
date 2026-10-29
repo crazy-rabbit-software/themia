@@ -4,5 +4,6 @@
   "meeting.join": "Join",
   "meeting.joinTip": "Join the online meeting",
   "meeting.label": "Next meeting",
-  "meeting.none": "Nothing coming up"
+  "meeting.none": "Nothing coming up",
+  "nextMeeting.setup.sentence": "Add an account to show your next meeting"
 }

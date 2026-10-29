@@ -1,5 +1,6 @@
 using Themia.Core.Localization;
 using Themia.Core.Office;
+using Themia.Sdk.Kit;
 
 namespace Themia.Core.Widgets;
 
@@ -117,76 +118,49 @@ public static class NextMeetingRules
 
 /// <summary>[S-4824] What the Next meeting widget shows at one size.</summary>
 /// <param name="When">The when line ("in 12 min.").</param>
-/// <param name="Title">How many lines the title takes (0: none, on the smallest tile with Join).</param>
+/// <param name="Title">The title's one line (none only on the smallest tile with Join).</param>
 /// <param name="Range">The time range line ("10:00 – 10:30").</param>
 /// <param name="Location">The location line, when the event has one.</param>
 /// <param name="Organizer">The organiser line, when the event has one.</param>
-/// <param name="JoinBeside">Join stands beside the text (a wide strip) rather than under it.</param>
-/// <param name="Large">The title in Subtitle and the when line in Body: a tile with height to spare.</param>
-public readonly record struct NextMeetingPlan(bool When, int Title, bool Range, bool Location, bool Organizer, bool JoinBeside, bool Large);
+public readonly record struct NextMeetingPlan(bool When, bool Title, bool Range, bool Location, bool Organizer);
 
 /// <summary>
-/// [S-4824] The Next meeting ladder, on the area less its inset. Join, when there is a link, is
-/// always there (it is the reason for the widget); then the when line; then the title, which is
-/// always there without Join; then the title's further lines, the time range, the location and the
-/// organiser. From 300 DIPs of height the title is set larger. On a strip Join stands at the right.
+/// [S-4824] The Next meeting ladder on the family's tokens, in the content box (the view's area less
+/// the card's insets): Join, when there is a link, is always there, the one main action in the Controls
+/// row at the box's foot with 8 over it (it is the reason for the widget); then the when line (Body);
+/// then the title (Title, one line), which is always there without Join; then the time range, the
+/// location and the organiser (Body lines with their 16 glyphs), 4 apart. A larger tile shows more of
+/// the meeting's own lines, never a larger title (concise first, [S-666]).
 /// </summary>
 public static class NextMeetingLayout
 {
-    /// <summary>The Join button's height (a standard Windows button).</summary>
-    public const double JoinHeight = 32;
+    /// <summary>Between two lines.</summary>
+    public const double Gap = FamilySpace.S1;
 
-    /// <summary>Join's width on a strip.</summary>
-    public const double JoinWidth = 88;
+    /// <summary>What Join costs: the Controls row and the gap over it.</summary>
+    public static double JoinCost => FamilyShape.Button + FamilySpace.S2;
 
-    /// <summary>Between two lines, and above Join.</summary>
-    public const double Gap = 4;
-
-    /// <summary>The height from which the title is set in Subtitle.</summary>
-    public const double LargeFrom = 300;
-
-    public static TypeStep TitleStep(bool large) => large ? FluentType.Subtitle : FluentType.BodyStrong;
-
-    public static TypeStep WhenStep(bool large) => large ? FluentType.Body : FluentType.Caption;
-
-    public static NextMeetingPlan Plan(WidgetArea area, bool hasJoin, bool hasLocation, bool hasOrganizer)
+    public static NextMeetingPlan Plan(WidgetArea box, bool hasJoin, bool hasLocation, bool hasOrganizer)
     {
-        if (!area.IsMeasured)
+        if (!box.IsMeasured)
         {
-            return new NextMeetingPlan(false, 1, false, false, false, false, false);
+            return new NextMeetingPlan(false, true, false, false, false);
         }
 
-        var large = area.Height >= LargeFrom;
-        var title = TitleStep(large).LineHeight;
-        var beside = hasJoin && area.Shape == AreaShape.Wide && area.Width >= 280;
-        var room = new Disclosure(beside ? area.Width - JoinWidth - 8 : area.Width, area.Height, Gap);
+        var room = new Disclosure(box.Width, box.Height - (hasJoin ? JoinCost : 0), Gap);
+        var title = FamilyType.Title.LineHeight;
+        var line = FamilyType.Body.LineHeight;
 
-        var lines = 0;
-        if (hasJoin && !beside)
-        {
-            room.Reserve(JoinHeight + Gap);
-        }
-        else
+        if (!hasJoin)
         {
             room.Reserve(title);
-            lines = 1;
         }
 
-        var when = room.Take(WhenStep(large).LineHeight);
-        if (lines == 0 && room.Take(title))
-        {
-            lines = 1;
-        }
-
-        var most = large ? 3 : 2;
-        while (lines > 0 && lines < most && room.Take(title))
-        {
-            lines++;
-        }
-
-        var range = room.Take(FluentType.Caption.LineHeight);
-        var location = hasLocation && room.Take(FluentType.Caption.LineHeight);
-        var organizer = hasOrganizer && room.Take(FluentType.Caption.LineHeight);
-        return new NextMeetingPlan(when, lines, range, location, organizer, beside, large);
+        var when = room.Take(line);
+        var titled = !hasJoin || room.Take(title);
+        var range = room.Take(line);
+        var location = hasLocation && room.Take(line);
+        var organizer = hasOrganizer && room.Take(line);
+        return new NextMeetingPlan(when, titled, range, location, organizer);
     }
 }

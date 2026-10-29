@@ -3,5 +3,6 @@
   "meeting.join": "Teilnehmen",
   "meeting.joinTip": "An der Onlinebesprechung teilnehmen",
   "meeting.label": "Nächster Termin",
-  "meeting.none": "Keine anstehenden Termine"
+  "meeting.none": "Keine anstehenden Termine",
+  "nextMeeting.setup.sentence": "Füge ein Konto hinzu, um deine nächste Besprechung zu sehen"
 }
