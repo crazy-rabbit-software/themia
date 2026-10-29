@@ -1,30 +1,14 @@
 namespace Themia.Core.Widgets;
 
 /// <summary>
-/// [S-667] The shared hero readout's metrics: the one big value a widget is about (a temperature,
-/// a price), its unit, the short token beside it (a change) and the caption lines under it.
-/// <para>
-/// Weather, Stocks and the clock each grew their own: the unit at the value's full size ("14°C"
-/// as one 68px word), a change bottom-aligned against a taller line so its baseline sat a few
-/// pixels off the price's, a glyph sized by a different factor per widget. One set of rules here,
-/// one control in the app (<c>HeroReadout</c>), so a temperature and a price on the same desktop
-/// read as the same kind of thing.
-/// </para>
+/// [S-667] What is left of the hero readout's metrics: a value's unit step and the fit of a figure
+/// and its unit into a box, which the ring's figure still uses (<see cref="RingFace.Figure"/>). The
+/// readouts themselves are the family's Readout block ([S-6702]); the weather, the price, the rate
+/// and the air quality left this ladder with group G3, and its glyph, token, growth, fill and tier
+/// steps went with them.
 /// </summary>
 public static class HeroLayout
 {
-    /// <summary>[S-3860] The readout's inset from the card's sides, in every widget that draws one.</summary>
-    public const double SideInset = 16;
-
-    /// <summary>[S-3860] The readout's inset under the card's header: the header already ends in its own air.</summary>
-    public const double TopInset = 4;
-
-    /// <summary>Between the leading glyph and the value.</summary>
-    public const double IconGap = 12;
-
-    /// <summary>Between the value line and what stands beside it (a change, a condition).</summary>
-    public const double BesideGap = 12;
-
     /// <summary>The unit's size as a share of the value's: Windows' own readouts set it at about half.</summary>
     private const double UnitShare = 0.45;
 
@@ -55,24 +39,6 @@ public static class HeroLayout
 
         return chosen with { SemiBold = false };
     }
-
-    /// <summary>
-    /// The step of the token beside the value (a change): Body next to a small value, BodyLarge
-    /// once the value is a Title or larger, where 14px reads as a footnote.
-    /// </summary>
-    public static TypeStep TrailingStep(TypeStep value)
-        => value.FontSize >= FluentType.Title.FontSize ? FluentType.BodyLarge : FluentType.Body;
-
-    /// <summary>
-    /// The leading glyph's size: it grows with the value, 0.8 of it and never under 24, so it reads
-    /// as the condition and not a bullet. [S-659] No ceiling: on the ramp it tops out at 54 beside
-    /// Display, and past it a filled reading keeps its glyph in proportion.
-    /// </summary>
-    public static double IconSize(TypeStep value)
-        => Math.Max(24, value.FontSize * IconShare);
-
-    /// <summary>The glyph against the value's size.</summary>
-    private const double IconShare = 0.8;
 
     /// <summary>
     /// How wide the value and its unit are at a step: the value's characters at the step, the
@@ -109,80 +75,6 @@ public static class HeroLayout
         }
 
         return chosen;
-    }
-
-    /// <summary>The most a value grows past Display: a large tile's reading, not a poster.</summary>
-    public const double MaxGrowth = 1.5;
-
-    /// <summary>
-    /// Past the ramp: once <paramref name="step"/> is Display and the box has room for more, the
-    /// value scales up (Display's own line-height ratio, as <see cref="FluentType.Hero"/> does for
-    /// the clock) to at most <see cref="MaxGrowth"/>, so an XL tile is a large reading rather than
-    /// a Display number in a field of nothing. Any other step comes back unchanged.
-    /// </summary>
-    public static TypeStep Grow(TypeStep step, double width, double height, double valueCharacters, double unitCharacters)
-    {
-        if (step.FontSize < FluentType.Display.FontSize || !double.IsFinite(width) || !double.IsFinite(height) || width <= 0 || height <= 0)
-        {
-            return step;
-        }
-
-        var byWidth = width / ValueWidth(FluentType.Display, valueCharacters, unitCharacters);
-        var byHeight = height / FluentType.Display.LineHeight;
-        var factor = Math.Min(MaxGrowth, Math.Min(byWidth, byHeight));
-        return factor > 1 ? FluentType.Scaled(FluentType.Display, factor) : FluentType.Display;
-    }
-
-    /// <summary>
-    /// [S-659] Up the ramp's last gap and past it with no ceiling, for a reading that is the whole
-    /// tile (the temperature): once <paramref name="step"/> is TitleLarge (as the clock scales from
-    /// it, [S-641]), the largest size at which the glyph (when
-    /// <paramref name="icon"/>), the value, its unit and <paramref name="beside"/> DIPs of what stands
-    /// beside it (the condition, with its gap) fill <paramref name="width"/>, and a
-    /// <see cref="HeroFit.Leading"/> line fits <paramref name="height"/>. Every part grows with the
-    /// value, so the room is solved once rather than measured at one size and drawn at another.
-    /// A smaller step, or a box that has no room for more, comes back unchanged.
-    /// </summary>
-    public static TypeStep Fill(TypeStep step, double width, double height, double valueCharacters, double unitCharacters, bool icon, double beside)
-    {
-        if (step.FontSize < FluentType.TitleLarge.FontSize || !double.IsFinite(width) || !double.IsFinite(height) || width <= 0 || height <= 0)
-        {
-            return step;
-        }
-
-        // Per DIP of the value's size: its characters, the unit's at its widest share, the glyph's.
-        var perSize = FluentType.EstimateWidth(new TypeStep(1, 1, true), valueCharacters)
-            + (unitCharacters > 0 ? FluentType.EstimateWidth(new TypeStep(UnitShare, 1, false), unitCharacters) : 0)
-            + (icon ? IconShare : 0);
-        var fixedWidth = (icon ? IconGap : 0) + Math.Max(0, beside);
-        var size = Math.Min((width - fixedWidth) / perSize, height / HeroFit.Leading);
-
-        return size > step.FontSize ? new TypeStep(size, size * HeroFit.Leading, true) : step;
-    }
-
-    /// <summary>
-    /// [S-3860] The step a hero grows to while it shares the tile with the content it heads (a
-    /// chart, readings, a list), by the tile's smaller size class: Title up to Regular, TitleLarge
-    /// at Expanded, Display at Huge. One ladder for every such widget, so a CPU meter, a stock and
-    /// a detail widget of one size draw their number at one size. Fitted down where the width is
-    /// short; never up past it while the other content is on the tile.
-    /// </summary>
-    public static TypeStep TierStep(WidgetArea area) => area.Least switch
-    {
-        SizeClass.Huge => FluentType.Display,
-        SizeClass.Expanded => FluentType.TitleLarge,
-        _ => FluentType.Title,
-    };
-
-    /// <summary>
-    /// <see cref="Fit"/> with the leading glyph beside the value when <paramref name="icon"/>: the
-    /// glyph's size follows the step, so the room is measured once at the glyph-free step and
-    /// again with that step's glyph taken off.
-    /// </summary>
-    public static TypeStep FitBeside(double width, double height, double valueCharacters, double unitCharacters, TypeStep floor, TypeStep ceiling, bool icon)
-    {
-        var step = Fit(width, height, valueCharacters, unitCharacters, floor, ceiling);
-        return icon ? Fit(width - IconSize(step) - IconGap, height, valueCharacters, unitCharacters, floor, ceiling) : step;
     }
 }
 

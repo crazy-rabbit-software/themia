@@ -124,44 +124,7 @@ public sealed class HeroFitTests
         Assert.Equal((230 - 36) * 0.19, lift, 6);
     }
 
-    // ---- the temperature ----------------------------------------------------------------------
-
-    [Fact]
-    public void S659_the_reading_fills_past_Display_with_no_ceiling()
-    {
-        var filled = HeroLayout.Fill(FluentType.Display, 2000, 460, 3, 2, icon: false, beside: 0);
-
-        Assert.Equal(400, filled.FontSize, 6);
-        Assert.True(filled.FontSize > FluentType.Display.FontSize * HeroLayout.MaxGrowth);
-    }
-
-    [Fact]
-    public void S659_the_reading_starts_filling_at_TitleLarge_and_leaves_smaller_steps_alone()
-    {
-        Assert.Equal(FluentType.Title, HeroLayout.Fill(FluentType.Title, 2000, 2000, 3, 2, icon: true, beside: 0));
-
-        var grown = HeroLayout.Fill(FluentType.TitleLarge, 2000, 70, 3, 2, icon: true, beside: 0);
-        Assert.True(grown.FontSize > FluentType.TitleLarge.FontSize);
-        Assert.True(grown.FontSize < FluentType.Display.FontSize);
-
-        // A box with no room for more returns the step it was given.
-        Assert.Equal(FluentType.Display, HeroLayout.Fill(FluentType.Display, 100, 2000, 3, 2, icon: true, beside: 0));
-    }
-
-    [Theory]
-    [InlineData(400, 300, true, 0)]
-    [InlineData(400, 300, true, 120)]
-    [InlineData(700, 200, false, 0)]
-    [InlineData(250, 600, true, 0)]
-    public void S659_the_glyph_value_unit_and_what_stands_beside_fit_the_width_together(double width, double height, bool icon, double beside)
-    {
-        var step = HeroLayout.Fill(FluentType.Display, width, height, 3, 2, icon, beside);
-        var used = (icon ? HeroLayout.IconSize(step) + HeroLayout.IconGap : 0) + HeroLayout.ValueWidth(step, 3, 2) + beside;
-
-        Assert.True(used <= width + 0.001, $"{used} > {width}");
-        Assert.True(step.LineHeight <= height + 0.001);
-        Assert.True(used >= width * 0.97 || step.LineHeight >= height * 0.97);
-    }
+    // ---- the unit past the ramp --------------------------------------------------------------
 
     [Fact]
     public void S659_the_unit_grows_with_a_filled_value_from_Title()
@@ -172,5 +135,4 @@ public sealed class HeroFitTests
         Assert.Equal(2 * FluentType.Title.FontSize, unit.FontSize, 6);
         Assert.False(unit.SemiBold);
     }
-
 }

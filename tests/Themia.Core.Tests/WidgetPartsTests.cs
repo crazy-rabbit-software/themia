@@ -30,24 +30,6 @@ public sealed class WidgetPartsTests
     }
 
     [Fact]
-    public void S667_the_token_beside_a_value_steps_up_once_with_it()
-    {
-        Assert.Equal(FluentType.Body, HeroLayout.TrailingStep(FluentType.Subtitle));
-        Assert.Equal(FluentType.BodyLarge, HeroLayout.TrailingStep(FluentType.Title));
-        Assert.Equal(FluentType.BodyLarge, HeroLayout.TrailingStep(FluentType.Display));
-    }
-
-    [Fact]
-    public void S667_S659_the_glyph_grows_with_the_value_from_24()
-    {
-        Assert.Equal(24, HeroLayout.IconSize(FluentType.Subtitle));
-        Assert.True(HeroLayout.IconSize(FluentType.TitleLarge) < HeroLayout.IconSize(FluentType.Display));
-
-        // [S-659] No ceiling past the ramp: a filled reading keeps its glyph in proportion.
-        Assert.Equal(0.8 * 3 * FluentType.Display.FontSize, HeroLayout.IconSize(FluentType.Scaled(FluentType.Display, 3)), 6);
-    }
-
-    [Fact]
     public void S667_the_fit_counts_the_unit_and_never_leaves_the_bounds()
     {
         // The unit costs width: a value that fits alone at Display may not with its unit.
@@ -69,27 +51,4 @@ public sealed class WidgetPartsTests
         Assert.Equal(("--", string.Empty), WeatherReport.TemperatureParts(null, TemperatureUnit.Celsius));
         Assert.Equal(("--", string.Empty), WeatherReport.TemperatureParts(double.NaN, TemperatureUnit.Celsius));
     }
-
-    [Fact]
-    public void S669_a_day_row_figure_holds_the_widest_temperature()
-    {
-        // "-18°" at Body Strong: the degree sign is half a character.
-        Assert.True(FluentType.EstimateWidth(FluentType.BodyStrong, 3.5) <= PartMetrics.FigureWidth);
-        Assert.True(PartMetrics.DayIcon > PartMetrics.LineIcon);
-    }
-
-    [Fact]
-    public void S667_a_value_grows_past_display_only_from_display_and_at_most_half_again()
-    {
-        Assert.Equal(FluentType.Title, HeroLayout.Grow(FluentType.Title, 2000, 2000, 3, 2));
-
-        var grown = HeroLayout.Grow(FluentType.Display, 2000, 2000, 3, 2);
-        Assert.Equal(FluentType.Display.FontSize * HeroLayout.MaxGrowth, grown.FontSize, 6);
-
-        // Held by the box: no taller than the height, no wider than the width.
-        var held = HeroLayout.Grow(FluentType.Display, 2000, 110, 3, 2);
-        Assert.True(held.LineHeight <= 110 + 0.001);
-        Assert.Equal(FluentType.Display, HeroLayout.Grow(FluentType.Display, 100, 2000, 3, 2));
-    }
-
 }
