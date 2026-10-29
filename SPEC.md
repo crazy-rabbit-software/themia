@@ -3740,8 +3740,8 @@ is no toast pipeline yet; the header warning stays and opens Accounts), and birt
   [S-665], [S-1571], [S-1323], [S-1284], [S-1469], [S-1475]; the stock
   facts and range chips, [S-2770]; the mixer's percent, [S-2771]).
 - **[S-667]** *(Retired 2026-10-29, group G3: `HeroReadout` is gone; every data widget's number is
-  the family's Readout ([S-6702], [S-6707]). `HeroLayout` keeps only the unit step and the fit the
-  ring's figure uses, `RingFace.Figure`.)*
+  the family's Readout ([S-6702], [S-6707]). `HeroLayout` went with the drive's ring face, `RingFace`,
+  in group G6.)*
 - **[S-668]** *(Retired 2026-10-29, group G3: the stat line and cell (`WidgetParts`, `PartMetrics`) are
   gone; a reading is a fact row of the Row block, the value primary, [S-6711].)*
 - **[S-669]** *(Retired 2026-10-29, group G3: the forecast's days are the family's Row block and tokens at
@@ -5337,8 +5337,8 @@ and their history are the same in every style. Tests `MeterPlanTests`, `IoStyles
 - **[S-6266]** **Ring** (battery): the Chart block's ring of the charge in its role, as large as the
   content's short side, start-aligned, the reading centred in it on the step its widest case takes in
   three quarters of the hole's width and half its height (`MeterPlan.Ring`, `RingReading`); under 48
-  the reading stands alone. A ring face with lines (the drive's, [S-6274]) keeps `RingFace` until the
-  drives move onto the blocks (G6).
+  the reading stands alone. The drive's ring ([S-6274]) is the same ring with the space line under it
+  (G6); `RingFace` is gone.
 - **[S-6267]** Only the graph style draws the history (`GaugeConfig.DrawsHistory`); a styled meter's
   menu offers no Show history switch ([S-1122]), the chart span stays (under Style).
 - [S-6270]: moved with the Network widget into its module's `SPEC.md` (`src/Widgets/Themia.Widget.Network/`).

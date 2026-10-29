@@ -123,16 +123,4 @@ public sealed class HeroFitTests
         var lift = HeroFit.BaselineDrop(time) - HeroFit.BaselineDrop(tail);
         Assert.Equal((230 - 36) * 0.19, lift, 6);
     }
-
-    // ---- the unit past the ramp --------------------------------------------------------------
-
-    [Fact]
-    public void S659_the_unit_grows_with_a_filled_value_from_Title()
-    {
-        Assert.Equal(FluentType.Title.FontSize, HeroLayout.UnitStep(FluentType.Display).FontSize);
-
-        var unit = HeroLayout.UnitStep(FluentType.Scaled(FluentType.Display, 2));
-        Assert.Equal(2 * FluentType.Title.FontSize, unit.FontSize, 6);
-        Assert.False(unit.SemiBold);
-    }
 }

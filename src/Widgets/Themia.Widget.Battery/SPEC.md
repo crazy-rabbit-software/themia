@@ -4,7 +4,7 @@ The module `battery` ([S-6911]): the battery's charge. Its tags are this file's 
 `SPEC.md` holds the host's sections and what the meters share (the meter framework [S-1120]..[S-1123],
 [S-1762], the readouts' rule [S-6330], the system hub [S-2500]..[S-2513]); the reading's rules are the SDK's
 `BatteryRules` with their root tags ([S-1180] the charge and the no-battery decision, [S-1187] the
-glyph), the battery and ring faces the SDK's (`BatteryShape`, `RingFace`: [S-6261], [S-6262], [S-6266]).
+glyph), the battery and ring faces `MeterPlan`'s on the Chart block ([S-6261], [S-6262], [S-6266]).
 
 Owning files: everything in this folder: `BatteryModule.cs` (descriptor, view factory, menu lines,
 JSON context), `BatteryConfig.cs` (with its styles and what it asks the hub, `IReadsSystem`),

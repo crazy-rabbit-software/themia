@@ -3,8 +3,8 @@
 The module `drive` ([S-6911]): one drive's card. Its tags are this file's alone; the root `SPEC.md`
 holds the host's sections and what the drive widgets share (the walk and its rules, the SDK's
 `DriveRules` and the host's `DriveCatalog`, with their root tags: [S-4650]..[S-4657], the pick of the
-named or system drive [S-4670]; the drive's picture and capacity bar, the SDK's `DriveIcon`/`DriveBar`;
-the ring face, the SDK's `RingFace` [S-6266]), the drives coming from the host's one walk
+named or system drive [S-4670]; the capacity bar, the SDK's `DriveBar`; the ring, the Chart block's
+`ChartRing` [S-6266]), the drives coming from the host's one walk
 (`IWidgetHost.Drives`, [S-4655]).
 
 Owning files: everything in this folder: `DriveModule.cs` (descriptor, view factory, menu lines,
