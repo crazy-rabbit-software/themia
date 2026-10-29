@@ -34,7 +34,7 @@ internal static class FamilyCheckRender
     private static readonly HashSet<string> Skip = new(StringComparer.Ordinal)
     {
         "hover", "pressed", "focus", "hovered", "selected", "lasso", "inactive", "fullname", "packaged", "unknown",
-        "confirm", "editing", "open", "linked", "sticker", "file",
+        "confirm", "editing", "open", "linked", "sticker", "file", "dropTarget",
     };
 
     /// <summary>

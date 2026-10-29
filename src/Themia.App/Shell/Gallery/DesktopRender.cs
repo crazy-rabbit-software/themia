@@ -37,9 +37,9 @@ internal static class DesktopRender
         (0, 1, "::{645FF040-5081-101B-9F08-00AA002F954E}", "recycleBin"),
         (0, 2, @"C:\Users\Public\Desktop\Notes.lnk", "cut"),
         (1, 0, @"C:\Users\Public\Desktop\Holiday photos", "selected"),
-        (1, 1, @"C:\Users\Public\Desktop\Report.docx", "focused"),
+        (1, 1, @"C:\Users\Public\Desktop\Report.docx", "focus"),
         (1, 2, @"C:\Users\Public\Desktop\Quarterly budget review with all the departments 2026.xlsx", "longName"),
-        (2, 0, @"C:\Users\Public\Desktop\Report.docx", "renaming"),
+        (2, 0, @"C:\Users\Public\Desktop\Report.docx", "editing"),
         (2, 1, @"C:\Users\Public\Desktop\Holiday photos", "dropTarget"),
         (2, 2, @"C:\Users\Public\Desktop\desktop notes.txt", "hidden"),
     ];

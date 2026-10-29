@@ -36,7 +36,8 @@ Owning files: everything in this folder. Tests: `Tests/DesktopItemTests.cs` (run
   item's own shell drop target, refused when the item is in the drag). The card still takes the press
   for its lease ([S-800]). A preview acts on nothing. In edit mode every press is the card's.
 - **[S-5605]** Preview states (debug renders, `--state`): `document`, `folder`, `shortcut`, `thisPc`,
-  `recycleBin`, `longName`, `selected`, `focused`, `renaming`, `dropTarget`, `cut`, `hidden`. This PC
+  `recycleBin`, `longName`, `selected`, `focus`, `editing` (the rename box), `dropTarget`, `cut`, `hidden`;
+  the family's render walk skips the interaction ones ([S-6731]). This PC
   and the Recycle Bin are the shell's own; the files are names on no disk, drawn with their type's
   icon (and the arrow), the same on every PC; none reads the user's desktop. `--desktop-png <outDir>`
   draws them together on stand-in wallpapers with the band ([S-5544]).

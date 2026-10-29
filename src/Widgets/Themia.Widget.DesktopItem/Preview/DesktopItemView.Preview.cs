@@ -11,14 +11,14 @@ namespace Themia.Widget.DesktopItem;
 /// </summary>
 internal sealed partial class DesktopItemView : IWidgetPreviewState
 {
-    public IReadOnlyList<string> PreviewStates { get; } = ["document", "folder", "shortcut", "thisPc", "recycleBin", "longName", "selected", "focused", "renaming", "dropTarget", "cut", "hidden"];
+    public IReadOnlyList<string> PreviewStates { get; } = ["document", "folder", "shortcut", "thisPc", "recycleBin", "longName", "selected", "focus", "editing", "dropTarget", "cut", "hidden"];
 
     public Task ShowPreviewStateAsync(string state)
     {
         _fixture.On = true;
-        _fixture.Selected = state is "selected" or "focused" or "renaming";
-        _fixture.Focused = state == "focused";
-        _fixture.Renaming = state == "renaming";
+        _fixture.Selected = state is "selected" or "focus" or "editing";
+        _fixture.Focused = state == "focus";
+        _fixture.Renaming = state == "editing";
         _fixture.DropTarget = state == "dropTarget";
         _fixture.Faded = state is "cut" or "hidden";
         _fixture.Item = state switch
