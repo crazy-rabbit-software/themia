@@ -1,65 +1,43 @@
 using Themia.Core.Model;
+using Themia.Sdk.Kit;
 
 namespace Themia.Core.Widgets;
 
-/// <summary>[S-5146] The exchange-rate widget's ladder for one size.</summary>
-/// <param name="HeroRoom">The readout's height (the rate line and its caption).</param>
-/// <param name="ChartHeight">[S-6168] The 90-day chart under the readout; 0 for none.</param>
-/// <param name="Beside">[S-6168] A strip: the readout is a column on the left, the chart beside it with the strip's height.</param>
-/// <param name="HeroWidth">[S-6168] The readout column's width when <paramref name="Beside"/>; else 0.</param>
-public sealed record RatesPlan(double HeroRoom, double ChartHeight, bool Beside = false, double HeroWidth = 0);
+/// <summary>[S-5146] The exchange-rate widget's layout for one size.</summary>
+/// <param name="Rate">The rate's Readout step.</param>
+/// <param name="Fold">Whether the quote's code is drawn, and whether the day change stands beside the rate or under it ([S-6707]).</param>
+/// <param name="Under">Whether the line under the rate is shown (the change folded under it, else "per CHF").</param>
+/// <param name="ChartTop">[S-6168] Where the 90 days start in the view: 8 under the rate.</param>
+/// <param name="ChartHeight">[S-6168] The 90 days' height, down to the card's foot; 0 for none.</param>
+public readonly record struct RatesPlan(TypeStep Rate, ReadoutFold Fold, bool Under, double ChartTop, double ChartHeight)
+{
+    public bool Chart => ChartHeight > 0;
+}
 
-/// <summary>[S-5146] [S-6168] The exchange-rate widget's ladders: the number style's and the chart style's.</summary>
+/// <summary>
+/// [S-5146] [S-6168] The exchange-rate widget's layout, on the family's blocks ([S-6702], [S-6717]), read
+/// as a meter reads ([S-1762]): the rate is a Readout at the view's top, start-aligned, on the step it
+/// takes in the area (28, 40, 68 and no larger, [S-666]), the quote's code after it and the day change
+/// beside it or, where they do not fit, on the line under it ([S-6707]); else "per CHF" is that line. The
+/// chart style's 90 days run 8 under it, edge to edge and down to the card's foot, from
+/// <see cref="BandFloor"/>. Room left at L and XL is the chart's; the Number style leaves it empty.
+/// </summary>
 public static class RatesLayout
 {
-    /// <summary>[S-5146] The hero chart needs this much to show a trend rather than a squiggle.</summary>
-    public const double HeroChartMin = 56;
+    /// <summary>The least chart worth drawing under the rate.</summary>
+    public const double BandFloor = FamilySpace.S6;
 
-    /// <summary>
-    /// [S-5146] The number style: the pair's rate is the whole tile, as large as the tile allows.
-    /// The chart style ([S-6168]) puts its 90 days under it.
-    /// </summary>
-    public static RatesPlan Rates(WidgetArea area, ExchangeRatesStyle style, double heroFloor)
+    /// <summary>The plan for a view of <paramref name="area"/>: the rate and its code (<paramref name="rate"/>), the change's widest case, the style.</summary>
+    public static RatesPlan Rates(WidgetArea area, ExchangeRatesStyle style, ReadoutText rate, string delta)
     {
-        if (!area.IsMeasured)
-        {
-            return new RatesPlan(0, 0);
-        }
-
-        var box = area.Deflate(0, OnlineLayouts.VerticalInset);
-        var width = box.Width - (2 * OnlineLayouts.Inset);
-
-        return style == ExchangeRatesStyle.Chart
-            ? RatesChart(area, box, width, heroFloor)
-            : new RatesPlan(box.Height, 0);
-    }
-
-    /// <summary>
-    /// [S-6168] The chart style: the rate large, and its 90 days in what the readout leaves, edge to
-    /// edge and down to the card's bottom; on a strip (at least 400 wide, 2:1) the readout is a column
-    /// beside a chart of the strip's height. Where the chart would have under
-    /// <see cref="HeroChartMin"/>, the readout alone.
-    /// </summary>
-    private static RatesPlan RatesChart(WidgetArea area, WidgetArea box, double width, double heroFloor)
-    {
-        if (area.Shape == AreaShape.Wide && area.Width >= 400)
-        {
-            var column = Math.Clamp(width * 0.42, 150, 280);
-            return new RatesPlan(box.Height, Math.Max(HeroChartMin, area.Height), Beside: true, HeroWidth: column);
-        }
-
-        var room = new Disclosure(box.Width, box.Height, OnlineLayouts.Gap);
-        room.Reserve(heroFloor);
-
-        if (width < 160 || !room.Fits(HeroChartMin))
-        {
-            return new RatesPlan(box.Height, 0);
-        }
-
-        // The readout grows into a share of what is spare, the chart takes the rest (the stock rule, [S-1311]).
-        var spare = Math.Max(0, room.Remaining - OnlineLayouts.Gap - HeroChartMin);
-        var heroRoom = heroFloor + (spare * 0.4);
-        var chart = area.Height - OnlineLayouts.VerticalInset - heroRoom - OnlineLayouts.Gap;
-        return new RatesPlan(heroRoom, chart);
+        var (width, height) = (Math.Max(0, area.Width - (2 * FamilySpace.Inset)), Math.Max(0, area.Height - FamilySpace.Inset));
+        var text = rate with { LineUnder = true };
+        var step = ReadoutRules.Step(area, width, height, text);
+        var fold = ReadoutRules.Fold(step, rate, delta, width);
+        var under = ReadoutRules.Height(step, text) <= height;
+        var top = step.LineHeight + (under ? FamilyType.Under(step).LineHeight : 0) + FamilySpace.S2;
+        var band = area.Height - top;
+        var chart = style == ExchangeRatesStyle.Chart && band >= BandFloor ? band : 0;
+        return new RatesPlan(step, fold, under, chart > 0 ? top : 0, chart);
     }
 }

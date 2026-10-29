@@ -9,7 +9,8 @@ namespace Themia.App.Widgets;
 /// <summary>
 /// Debug renders only ([S-1917]): a fixture table (<c>sample</c>), ninety days of the ECB document,
 /// so the ladder can be looked at without the network or the sync. Built through the SDK's parser.
-/// Nothing is fetched or saved.
+/// Nothing is fetched or saved. Its latest day is pinned (Monday 12 October 2026), so the header's
+/// "ECB, Oct 12" compares between renders.
 /// </summary>
 internal sealed partial class ExchangeRatesView : IWidgetPreviewState
 {
@@ -23,7 +24,7 @@ internal sealed partial class ExchangeRatesView : IWidgetPreviewState
         }
 
         // Ninety days of a gently wandering euro, as the ECB document would carry them.
-        var day = DateOnly.FromDateTime(DateTime.Today.AddDays(-1));
+        var day = new DateOnly(2026, 10, 12);
         var xml = new System.Text.StringBuilder("<Envelope><Cube>");
         for (int i = 0, written = 0; written < 63; i++)
         {

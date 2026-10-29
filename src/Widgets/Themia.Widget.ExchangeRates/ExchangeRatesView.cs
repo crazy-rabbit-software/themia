@@ -1,8 +1,5 @@
-using Microsoft.UI;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
-using Microsoft.UI.Xaml.Media;
-using Microsoft.UI.Xaml.Shapes;
 using Themia.App.Services;
 using Themia.App.Services.Web;
 using Themia.App.Shell;
@@ -10,33 +7,34 @@ using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Sync;
 using Themia.Core.Widgets;
+using Themia.Sdk.Kit;
 using Themia.Sdk.WinUI;
 using Themia.Sdk.WinUI.Kit;
-using Windows.Foundation;
 using Themia.Widget.ExchangeRates;
 
 namespace Themia.App.Widgets;
 
 /// <summary>
-/// [S-5140] The ECB's reference rate of one pair, in one of two styles ([S-6167]). Number: the rate
-/// as the hero readout with its day change (the shared <see cref="HeroReadout"/>), as large as the
-/// tile allows ([S-5146]). Chart: the same readout over (or on a strip beside) its 90 days
-/// ([S-6168]). The header names the pair and says which day's rate this is.
+/// [S-5140] The ECB's reference rate of one pair, in one of two styles ([S-6167]), on the family's
+/// blocks: the rate a Readout at the top with the quote's code and the day change ([S-6707]: beside it,
+/// or on the line under it) and "per CHF" under it; the Chart style's 90 days 8 under it, edge to edge
+/// and down to the card's foot ([S-6168]). The change is secondary while the rate rises or holds,
+/// Critical while it falls, and so is the chart (no green, [S-6706]). The header names the pair and says
+/// which day's rate this is. Where each goes at each size is <see cref="RatesLayout"/>'s.
 /// </summary>
 internal sealed partial class ExchangeRatesView : Grid, IWidgetView, IWidgetHeaderContent, IWidgetSurfaceAware, IWidgetSizeAware, IWidgetContextActions, IWidgetAligned
 {
-    /// <summary>[S-5146] The rate's day ("ECB, 9 Oct"), in the header beside the problem glyph.</summary>
-    private readonly TextBlock _fix = Fluent.Text(FluentType.Caption, "TextFillColorTertiaryBrush");
+    /// <summary>[S-5146] The rate's day ("ECB, 9 Oct"), the header's informing label beside the problem glyph.</summary>
+    private readonly TextBlock _fix = Family.Text(FamilyType.Caption, ColourRole.TextSecondary);
 
-    /// <summary>[S-7064] The header's problem glyph ([S-7042]): the one stale rule, no age.</summary>
+    /// <summary>[S-7064] The header's problem glyph ([S-7042]): the one stale rule, no age; the day gives way to the title on a small tile.</summary>
     private readonly KitHeader _header;
 
-    /// <summary>[S-655] The day and the problem glyph: the day gives way to the title on a small tile.</summary>
-    private readonly HeroReadout _hero = new();
-    private readonly TextBlock _perBase;
-    private readonly Canvas _chart = new() { IsHitTestVisible = false };
-    private readonly StackPanel _emptyState;
-    private readonly TextBlock _emptyMessage = new();
+    private readonly ReadoutBlock _rate = new() { HorizontalAlignment = HorizontalAlignment.Left, VerticalAlignment = VerticalAlignment.Top, Margin = Family.SideInset };
+    private readonly ChartSeries _chart = new() { Margin = new Thickness(0, FamilySpace.S2, 0, 0) };
+
+    /// <summary>[S-6734] No rate to draw: the Status row at the top.</summary>
+    private readonly StatusBlock _state = new();
 
     private Ticker? _ticker;
     private IWidgetSurface? _surface;
@@ -55,26 +53,18 @@ internal sealed partial class ExchangeRatesView : Grid, IWidgetView, IWidgetHead
         _header = new KitHeader(host, _fix);
         RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
         RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
-        ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
-        ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
-
-        _perBase = _hero.AddLine(FluentType.Caption);
-        _hero.Margin = new Thickness(OnlineLayouts.Inset, OnlineLayouts.VerticalInset, OnlineLayouts.Inset, 0);
-        _hero.VerticalAlignment = VerticalAlignment.Center;
 
         // [S-1113] Time runs left to right in every language.
         _chart.FlowDirection = FlowDirection.LeftToRight;
-        _chart.Margin = new Thickness(0, OnlineLayouts.Gap, 0, 0);
-        _chart.SizeChanged += (_, _) => DrawChart();
         SetRow(_chart, 1);
 
-        _emptyState = Fluent.EmptyState(ExchangeRatesModule.Glyph, _emptyMessage, out _);
-        SetRowSpan(_emptyState, 2);
-        SetColumnSpan(_emptyState, 2);
+        // Collapsed until a state is said: a view waiting for setup is never attached.
+        _state.Visibility = Visibility.Collapsed;
+        SetRowSpan(_state, 2);
 
-        Children.Add(_hero);
+        Children.Add(_rate);
         Children.Add(_chart);
-        Children.Add(_emptyState);
+        Children.Add(_state);
     }
 
     public FrameworkElement? HeaderTrailing => _header;
@@ -93,7 +83,7 @@ internal sealed partial class ExchangeRatesView : Grid, IWidgetView, IWidgetHead
         _web = _host.Rates;
         _web.Updated += OnWebUpdated;
 
-        // Only the age in the header moves between fetches; a minute is fine enough for it.
+        // Only the header's day and problem move between fetches; a minute is fine enough for them.
         _subscription?.Dispose();
         _subscription = _ticker.Subscribe(TimeSpan.FromMinutes(1), () =>
         {
@@ -123,21 +113,8 @@ internal sealed partial class ExchangeRatesView : Grid, IWidgetView, IWidgetHead
         Reload(force: false);
     }
 
-    /// <summary>[S-6583] Where the rate and its change sit: the widget's alignment, from the start by default ([S-6582]).</summary>
-    private ContentAlign _align = ContentAlign.Left;
-
-    /// <summary>[S-6583] The widget's alignment, from the properties panel.</summary>
-    public void ApplyAlign(ContentAlign align)
-    {
-        if (align == _align)
-        {
-            return;
-        }
-
-        _align = align;
-        _hero.Align(align);
-        Render();
-    }
+    /// <summary>[S-6583] The Number style's rate across the card: the widget's alignment, from the start by default ([S-6582]).</summary>
+    public void ApplyAlign(ContentAlign align) => _rate.HorizontalAlignment = Aligned.Horizontal(align);
 
     public void ApplySize(WidgetArea area)
     {
@@ -202,141 +179,59 @@ internal sealed partial class ExchangeRatesView : Grid, IWidgetView, IWidgetHead
             return;
         }
 
-        var quote = _config.EffectiveQuote;
-        var rate = _table?.Value is { } table ? ExchangeRules.Cross(table, _config.EffectiveBase, quote) : null;
+        var rate = _table?.Value is { } table ? ExchangeRules.Cross(table, _config.EffectiveBase, _config.EffectiveQuote) : null;
+        Stamp();
 
-        // [S-5145] No table yet, or the latest day lacks one of the two: said as a state.
+        // [S-5145] [S-6734] No table yet: how the sync went; the latest day lacks one of the two: said as a state.
         if (rate is null)
         {
-            _emptyMessage.Text = _table is null ? FetchState.Message(_status) : ExchangeRatesStr.Online_Rates_Missing.Text();
-            _emptyState.Visibility = Visibility.Visible;
-            _hero.Visibility = _chart.Visibility = Visibility.Collapsed;
-            Stamp();
+            _rate.Visibility = Visibility.Collapsed;
+            _chart.Visibility = Visibility.Collapsed;
+            if (_table is null)
+            {
+                OnlineParts.ShowState(_state, _status, ExchangeRatesModule.Glyph, () => Reload(force: true));
+            }
+            else
+            {
+                _state.Show(StatusKind.Empty, ExchangeRatesModule.Glyph, ExchangeRatesStr.Online_Rates_Missing.Text());
+            }
+
             return;
         }
 
-        _emptyState.Visibility = Visibility.Collapsed;
-        Stamp();
-
+        _state.Hide();
         if (!_area.IsMeasured)
         {
             return;
         }
 
-        // The readout's floor is Subtitle. Alone (Number) it is the widget and grows as far as the tile
-        // allows, past Display as a lone reading does ([S-1762]); over a chart, to the tier's step ([S-3860]).
-        var heroWidth = Math.Max(0, _area.Width - (2 * OnlineLayouts.Inset));
-        var heroFloor = FluentType.Subtitle.LineHeight + FluentType.Caption.LineHeight;
-        var plan = RatesLayout.Rates(_area, _config.Style, heroFloor);
-
-        // [S-6168] A strip in the chart style: the readout a column on the left, the chart beside it.
-        ColumnDefinitions[0].Width = plan.Beside ? new GridLength(plan.HeroWidth + (2 * OnlineLayouts.Inset)) : new GridLength(1, GridUnitType.Star);
-        ColumnDefinitions[1].Width = plan.Beside ? new GridLength(1, GridUnitType.Star) : GridLength.Auto;
-        SetRow(_chart, plan.Beside ? 0 : 1);
-        SetRowSpan(_chart, plan.Beside ? 2 : 1);
-        SetColumn(_chart, plan.Beside ? 1 : 0);
-        SetColumnSpan(_chart, plan.Beside ? 1 : 2);
-        SetRowSpan(_hero, plan.Beside ? 2 : 1);
-        _chart.Margin = new Thickness(0, plan.Beside ? 0 : OnlineLayouts.Gap, 0, 0);
-        _hero.Margin = new Thickness(OnlineLayouts.Inset, plan.Beside ? 0 : OnlineLayouts.VerticalInset, OnlineLayouts.Inset, 0);
-
-        _hero.Visibility = Visibility.Visible;
-        var alone = _config.Style == ExchangeRatesStyle.Number;
-        ShowHero(rate, plan.HeroRoom, plan.Beside ? plan.HeroWidth : heroWidth, alone ? FluentType.Display : HeroLayout.TierStep(_area), grow: alone);
-
-        _chartRate = plan.ChartHeight > 0 ? rate : null;
-        _chart.Visibility = _chartRate is not null ? Visibility.Visible : Visibility.Collapsed;
-        var heroOnly = _chartRate is null || plan.Beside;
-        RowDefinitions[0].Height = heroOnly ? new GridLength(1, GridUnitType.Star) : GridLength.Auto;
-        RowDefinitions[1].Height = heroOnly ? GridLength.Auto : new GridLength(1, GridUnitType.Star);
-        DrawChart();
-    }
-
-    private PairRate? _chartRate;
-
-    /// <summary>[S-5145] The pair, big: the rate, the quote's code, the day change beside it, "per CHF" under.</summary>
-    private void ShowHero(PairRate rate, double room, double width, TypeStep ceiling, bool grow)
-    {
-        _hero.SetValue(ExchangeRules.Format(rate.Rate), rate.Quote, spaced: true);
-        _perBase.Text = ExchangeRatesStr.Online_Rates_PerBase.Format(("code", rate.Base));
-
-        // The change stands beside the rate where it fits; under it, its line is paid for out of
-        // the same room, so the hero never grows past what the ladder gave it (an overflow here
-        // changed the card's header and the area with it, and the two fought).
-        bool Beside(TypeStep s) => HeroLayout.ValueWidth(s, ExchangeRules.RateCharacters, 4) + HeroLayout.BesideGap
-            + FluentType.EstimateWidth(HeroLayout.TrailingStep(s), 7) <= width;
-
-        var lines = room - FluentType.Caption.LineHeight;
-        var step = HeroLayout.Fit(width, lines, ExchangeRules.RateCharacters, 3, FluentType.Subtitle, ceiling);
-        var beside = Beside(step);
-        if (!beside)
-        {
-            step = HeroLayout.Fit(width, lines - HeroLayout.TrailingStep(step).LineHeight, ExchangeRules.RateCharacters, 3, FluentType.Subtitle, ceiling);
-            beside = Beside(step);
-        }
-
-        // [S-5146] Alone on the tile, past Display where the box has room for more.
-        if (grow)
-        {
-            var grown = HeroLayout.Grow(step, width, beside ? lines : lines - HeroLayout.TrailingStep(step).LineHeight, ExchangeRules.RateCharacters, 3);
-            if (!beside || Beside(grown))
-            {
-                step = grown;
-            }
-        }
-
-        // The change: after a space beside the rate, flush with the inset under it.
+        var value = ExchangeRules.Format(rate.Rate);
+        var code = " " + rate.Quote;
         var change = RatesText.Change(rate.ChangePercent);
-        _hero.SetTrailing(change.Length > 0 ? [WidgetParts.Run((beside ? " " : string.Empty) + change, Direction(rate.ChangePercent))] : []);
-        _hero.Lay(step, icon: false, trailingBeside: beside, linesBeside: false);
+        var falling = rate.ChangePercent < 0;
+        var plan = RatesLayout.Rates(_area, _config.Style, new ReadoutText(value, code), RatesText.Change(88.88));
+
+        var changeRole = falling ? ColourRole.Critical : ColourRole.TextSecondary;
+        var beside = plan.Fold.DeltaBeside || change.Length == 0;
+        var perBase = ExchangeRatesStr.Online_Rates_PerBase.Format(("code", rate.Base));
+        _rate.Use(plan.Rate);
+        _rate.Show(
+            value,
+            plan.Fold.Unit ? code : string.Empty,
+            !plan.Under ? null : beside ? perBase : change,
+            beside ? change : null,
+            changeRole,
+            underRole: beside ? ColourRole.TextSecondary : changeRole);
+        _rate.Visibility = Visibility.Visible;
+
+        // [S-6168] The pair's 90 days, edge to edge and down to the card's foot, washed under the line.
+        _chart.Visibility = plan.Chart && rate.History.Count >= 2 ? Visibility.Visible : Visibility.Collapsed;
+        if (_chart.Visibility == Visibility.Visible)
+        {
+            _chart.Role(falling ? ColourRole.Critical : ColourRole.Accent);
+            _chart.Show(MarketQuote.Normalise(rate.History));
+        }
     }
-
-    /// <summary>[S-6168] The pair's 90 days, edge to edge and down to the card's bottom, filled under the line.</summary>
-    private void DrawChart()
-    {
-        _chart.Children.Clear();
-
-        if (_chartRate is not { History.Count: >= 2 } rate || _chart.Visibility != Visibility.Visible)
-        {
-            return;
-        }
-
-        var width = _chart.ActualWidth;
-        var height = _chart.ActualHeight;
-        if (width <= 0 || height <= 0)
-        {
-            return;
-        }
-
-        var scaled = MarketQuote.Normalise(rate.History);
-        var pad = Fluent.Space2;
-        var usable = Math.Max(1, height - (2 * pad));
-        var brush = Direction(rate.ChangePercent);
-        var points = new PointCollection();
-
-        for (var i = 0; i < scaled.Count; i++)
-        {
-            points.Add(new Point(Sparkline.SampleX(i, scaled.Count, scaled.Count) * width, pad + (Sparkline.SampleY(scaled[i]) * usable)));
-        }
-
-        var fill = new PointCollection { new(points[0].X, height) };
-        foreach (var p in points)
-        {
-            fill.Add(p);
-        }
-
-        fill.Add(new Point(points[^1].X, height));
-        _chart.Children.Add(new Polygon { Points = fill, Fill = brush, Opacity = Fluent.ChartWash });
-        _chart.Children.Add(new Polyline { Points = points, Stroke = brush, StrokeThickness = Fluent.ChartStroke, StrokeLineJoin = PenLineJoin.Round });
-    }
-
-    /// <summary>Up in the success colour, down in the critical one, unchanged in the secondary text colour.</summary>
-    private static Brush Direction(double? change) => change switch
-    {
-        > 0 => ThemeBrush.Of("SystemFillColorSuccessBrush", Colors.SeaGreen),
-        < 0 => ThemeBrush.Of("SystemFillColorCriticalBrush", Colors.Red),
-        _ => ThemeBrush.Of("TextFillColorSecondaryBrush", Colors.Gray),
-    };
 
     public void Detach()
     {
@@ -351,7 +246,6 @@ internal sealed partial class ExchangeRatesView : Grid, IWidgetView, IWidgetHead
             _web = null;
         }
 
-        _chart.Children.Clear();
         _ticker = null;
     }
 }

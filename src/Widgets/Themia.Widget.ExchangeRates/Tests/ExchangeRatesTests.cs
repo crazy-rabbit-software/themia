@@ -1,6 +1,7 @@
 using Themia.Core.Model;
 using Themia.Core.Tests;
 using Themia.Core.Widgets;
+using Themia.Sdk.Kit;
 using Xunit;
 using static Themia.Core.Tests.StyleTiers;
 
@@ -8,8 +9,7 @@ namespace Themia.Widget.ExchangeRates.Tests;
 
 /// <summary>
 /// [S-5143] [S-5144] [S-5146] [S-6168] The exchange-rate widget: its pair's defaults and repair, and
-/// both styles' ladders. Moved with the widget from Core's OnlineWidgetsTests and WeatherStylesTests,
-/// unchanged in what they assert.
+/// both styles' layouts on the family's blocks.
 /// </summary>
 public sealed class ExchangeRatesTests
 {
@@ -71,50 +71,44 @@ public sealed class ExchangeRatesTests
         Assert.Equal("JPY", config.EffectiveQuote);
     }
 
-    [Fact]
-    public void S5146_the_number_style_is_the_rate_alone_on_the_whole_tile()
-    {
-        var floor = FluentType.Subtitle.LineHeight + FluentType.Caption.LineHeight;
+    private static readonly ReadoutText Rate = new("1.0675", " EUR");
 
-        foreach (var area in new[] { new WidgetArea(160, 120), new WidgetArea(440, 116), new WidgetArea(420, 420) })
+    private static RatesPlan Plan(WidgetArea area, ExchangeRatesStyle style) => RatesLayout.Rates(area, style, Rate, "+88.88%");
+
+    [Fact]
+    public void S5146_the_rate_climbs_28_40_68_with_the_area_and_stops()
+    {
+        Assert.Equal(FamilyType.Big28, Plan(Xs, ExchangeRatesStyle.Number).Rate);
+        Assert.Equal(FamilyType.Big40, Plan(M, ExchangeRatesStyle.Number).Rate);
+        Assert.Equal(FamilyType.Big68, Plan(Xl, ExchangeRatesStyle.Number).Rate);
+        Assert.Equal(FamilyType.Big68, Plan(new WidgetArea(1600, 1200), ExchangeRatesStyle.Number).Rate);
+    }
+
+    [Fact]
+    public void S5146_the_number_style_has_no_chart_at_any_size()
+        => Assert.All(Tiers, tier => Assert.False(Plan(tier, ExchangeRatesStyle.Number).Chart));
+
+    [Fact]
+    public void S5146_a_narrow_tile_folds_the_change_under_the_rate_and_a_wide_one_keeps_it_beside()
+    {
+        Assert.False(Plan(Xs, ExchangeRatesStyle.Number).Fold.DeltaBeside);
+        Assert.True(Plan(M, ExchangeRatesStyle.Number).Fold is { DeltaBeside: true, Unit: true });
+    }
+
+    [Fact]
+    public void S6168_the_chart_runs_8_under_the_rate_down_to_the_cards_foot()
+    {
+        foreach (var tier in new[] { S, M, Wide, Tall, L, Xl })
         {
-            var plan = RatesLayout.Rates(area, ExchangeRatesStyle.Number, floor);
-            Assert.Equal(area.Height - (2 * OnlineLayouts.VerticalInset), plan.HeroRoom);
-            Assert.Equal(0, plan.ChartHeight);
-            Assert.False(plan.Beside);
+            var plan = Plan(tier, ExchangeRatesStyle.Chart);
+            Assert.True(plan.Chart, $"{tier}");
+            var under = plan.Under ? FamilyType.Under(plan.Rate).LineHeight : 0;
+            Assert.Equal(plan.Rate.LineHeight + under + FamilySpace.S2, plan.ChartTop);
+            Assert.Equal(tier.Height, plan.ChartTop + plan.ChartHeight, 6);
         }
     }
 
-    private static RatesPlan RatesChart(WidgetArea area)
-        => RatesLayout.Rates(area, ExchangeRatesStyle.Chart, FluentType.Subtitle.LineHeight + FluentType.Caption.LineHeight);
-
     [Fact]
-    public void S6168_the_chart_style_is_the_rate_over_its_chart()
-    {
-        foreach (var tier in new[] { M, Tall, L, Xl })
-        {
-            var plan = RatesChart(tier);
-            Assert.False(plan.Beside);
-            Assert.True(plan.ChartHeight >= RatesLayout.HeroChartMin, $"{tier}: chart {plan.ChartHeight}");
-        }
-    }
-
-    [Fact]
-    public void S6168_a_strip_puts_the_chart_beside_the_hero_with_the_strip_s_height()
-    {
-        var plan = RatesChart(Wide);
-
-        Assert.True(plan.Beside);
-        Assert.True(plan.HeroWidth >= 150);
-        Assert.True(plan.ChartHeight >= Wide.Height);
-    }
-
-    [Fact]
-    public void S6168_a_tile_too_small_for_the_chart_is_the_hero_alone()
-    {
-        var plan = RatesChart(Xs);
-
-        Assert.Equal(0, plan.ChartHeight);
-        Assert.False(plan.Beside);
-    }
+    public void S6168_a_tile_too_short_for_the_chart_is_the_rate_alone()
+        => Assert.False(Plan(Xs, ExchangeRatesStyle.Chart).Chart);
 }
