@@ -1,6 +1,7 @@
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
+using Themia.Sdk.Kit;
 using Xunit;
 
 namespace Themia.Core.Tests;
@@ -85,6 +86,61 @@ public sealed class ScreenTimeRulesTests
         var (small, smallStep) = ScreenTimeRules.RingText(seconds, 40, 20);
         Assert.Equal("4.6h", small);
         Assert.True(FluentType.EstimateWidth(smallStep, small.Length) <= 40);
+    }
+
+    [Fact]
+    public void S1210_the_ring_figure_is_a_readout_step_that_stands_inside_the_hole()
+    {
+        var seconds = (4 * 3600) + (37 * 60);
+
+        // A large hole of an expanded tile: the full duration on the largest step the area allows, its line under.
+        var large = ScreenTimeRules.Figure(seconds, new WidgetArea(800, 516), 400, under: true);
+        Assert.Equal("4h 37m", large.Text);
+        Assert.Equal(FamilyType.Big68, large.Step);
+        Assert.True(large.Under);
+
+        // The same hole on a regular tile: the number stops at 40 ([S-6702]).
+        Assert.Equal(FamilyType.Big40, ScreenTimeRules.Figure(seconds, new WidgetArea(320, 196), 400, under: true).Step);
+
+        // A hole too small for "4h 37m" on 28: the compact duration on the step that holds it, never cut.
+        var mid = ScreenTimeRules.Figure(seconds, new WidgetArea(200, 106), 72, under: true);
+        Assert.Equal("4.6h", mid.Text);
+        Assert.Equal(FamilyType.Big28, mid.Step);
+        Assert.True(ScreenTimeRules.InHole(ReadoutRules.Width(mid.Step, new ReadoutText(mid.Text)), mid.Step.LineHeight, 72));
+
+        // Smaller still: the compact duration in BodyStrong, the family's floor, and no line under.
+        var small = ScreenTimeRules.Figure(seconds, new WidgetArea(120, 76), 40, under: true);
+        Assert.Equal("4.6h", small.Text);
+        Assert.Equal(FamilyType.BodyStrong, small.Step);
+        Assert.False(small.Under);
+    }
+
+    [Fact]
+    public void S1210_the_line_under_the_figure_is_shown_only_where_it_fits()
+    {
+        var seconds = (6 * 3600) + (50 * 60);
+
+        // A hole that holds "6.8h" on 28 but not its line under: the value keeps its step, the line goes.
+        var tight = ScreenTimeRules.Figure(seconds, new WidgetArea(320, 196), 70, under: true);
+        Assert.Equal(FamilyType.Big28, tight.Step);
+        Assert.False(tight.Under);
+
+        // The figure's lines are cut to the hole's width at their height: a 3-4-5 circle, and none past it.
+        Assert.Equal(300, ScreenTimeRules.HoleWidth(400, 500), 3);
+        Assert.Equal(0, ScreenTimeRules.HoleWidth(60, 40));
+
+        // A roomy one keeps both; none is asked for, none is shown.
+        Assert.True(ScreenTimeRules.Figure(seconds, new WidgetArea(320, 196), 180, under: true).Under);
+        Assert.False(ScreenTimeRules.Figure(seconds, new WidgetArea(320, 196), 180, under: false).Under);
+    }
+
+    [Fact]
+    public void S452_an_apps_colour_is_its_hue_as_a_data_colour()
+    {
+        var (r, g, b) = ScreenTimeRules.HslToRgb(ScreenTimeRules.Hue("code"), 0.62, 0.60);
+        Assert.Equal($"#{r:X2}{g:X2}{b:X2}", ScreenTimeRules.Colour("code"));
+        Assert.Matches("^#[0-9A-F]{6}$", ScreenTimeRules.Colour("chrome"));
+        Assert.Equal(ScreenTimeRules.Colour("chrome"), ScreenTimeRules.Colour("chrome"));
     }
 
     [Fact]

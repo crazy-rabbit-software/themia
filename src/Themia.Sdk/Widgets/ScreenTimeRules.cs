@@ -1,6 +1,7 @@
 using System.Globalization;
 using Themia.Core.Localization;
 using Themia.Core.Model;
+using Themia.Sdk.Kit;
 
 namespace Themia.Core.Widgets;
 
@@ -39,6 +40,9 @@ public enum ScreenTimeEmphasis
 }
 
 /// <summary>Whether a pinned day is today, yesterday, or just a date.</summary>
+/// <summary>[S-1210] The donut's figure: its text, its step, and whether the line under it is shown.</summary>
+public readonly record struct ScreenTimeFigure(string Text, TypeStep Step, bool Under);
+
 public enum ScreenTimeDayKind
 {
     Today = 0,
@@ -174,6 +178,47 @@ public static class ScreenTimeRules
         var compact = CompactDuration(seconds);
         return (compact, FluentType.Fit(width, height, compact.Length + 1, FluentType.Caption, FluentType.Title));
     }
+
+    /// <summary>
+    /// [S-1210] [S-6702] The donut's figure in its hole, on the family's steps: the full duration on the
+    /// largest Readout step (28, 40, 68, capped by the area as every data widget's number) whose line,
+    /// and the line under it when <paramref name="under"/> asks for one, stands inside the hole as the
+    /// rectangle a circle of <paramref name="hole"/> holds; else the compact duration ("4.6h") on the
+    /// largest that does; else the compact one in BodyStrong, the family's floor for text. The line under
+    /// is shown only where its step's line fits too, so the value never gives way to it.
+    /// </summary>
+    public static ScreenTimeFigure Figure(double seconds, WidgetArea area, double hole, bool under)
+    {
+        var ceiling = ReadoutRules.Ceiling(area);
+        foreach (var text in new[] { FormatDuration(seconds), CompactDuration(seconds) })
+        {
+            ScreenTimeFigure? best = null;
+            foreach (var step in FamilyType.Big.Where(s => FamilyType.BaseOf(s) <= ceiling))
+            {
+                var value = new ReadoutText(text);
+                if (InHole(ReadoutRules.Width(step, value), step.LineHeight, hole))
+                {
+                    var withUnder = under && InHole(ReadoutRules.Width(step, value), ReadoutRules.Height(step, value with { LineUnder = true }), hole);
+                    best = new ScreenTimeFigure(text, step, withUnder);
+                }
+            }
+
+            if (best is { } figure)
+            {
+                return figure;
+            }
+        }
+
+        return new ScreenTimeFigure(CompactDuration(seconds), FamilyType.BodyStrong, false);
+    }
+
+    /// <summary>Whether a box <paramref name="width"/> × <paramref name="height"/> centred in a circle of <paramref name="diameter"/> stays inside it.</summary>
+    public static bool InHole(double width, double height, double diameter)
+        => diameter > 0 && (width * width) + (height * height) <= diameter * diameter;
+
+    /// <summary>[S-1210] How wide a box <paramref name="height"/> tall may be, centred in a circle of <paramref name="diameter"/>: the figure's lines are cut to it.</summary>
+    public static double HoleWidth(double height, double diameter)
+        => diameter > height ? Math.Sqrt((diameter * diameter) - (height * height)) : 0;
 
     /// <summary>[S-3321] An unknown period from a hand-edited file reads as a day.</summary>
     public static ScreenTimePeriod ClampPeriod(ScreenTimePeriod period)
@@ -499,6 +544,13 @@ public static class ScreenTimeRules
         }
 
         return ((hash % 360) + 360) % 360;
+    }
+
+    /// <summary>[S-452] [S-6705] An app's data colour as <c>#RRGGBB</c>: its hue at one saturation and lightness, the same in every widget.</summary>
+    public static string Colour(string app)
+    {
+        var (r, g, b) = HslToRgb(Hue(app), 0.62, 0.60);
+        return $"#{r:X2}{g:X2}{b:X2}";
     }
 
     /// <summary>An HSL colour as RGB, for the per-app hues. Saturation and lightness are 0..1.</summary>
