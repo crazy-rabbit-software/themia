@@ -16,7 +16,7 @@ Owning files: `Themia.Core/Geometry/*`, `Themia.Core/Model/*`, `Themia.Core/Stor
 Sections, grouped by area (file order below; search for the heading).
 
 - **Foundations.** Geometry model; Rendering; Grid snap aid; Constraints; Defaults & placement; Views & displays; Window layering; Transparency; Ticking; Live widgets and resource use (R6-RESOURCES); Memory; Persistence; Failure rules; Not on this machine (UNAVAILABLE); Clipboard & transfer between displays; No backwards compatibility; Widget modules and the registry (MODULES); The widget kit (KIT); The service layer (SERVICES).
-- **Shell, windows and settings.** Displays (WP2); Desktop integration and suspend (WP3); Appearance engine (WP1); Notices, resilience and undo (WP4); Widget picker: search (WP5); Multi-select and the placement session (MULTISELECT-PLACEMENT); Widget styles (STYLES); Context menus (R4-MENUS); Views and the view bar (WP8); The Displays and Views pages (R4-NAV, R5-PAGES); Icon picker and showcase views (R4-ICONS); Keyboard lease (WP11); Widget keys (WIDGET-KEYS); Item selection (ITEM-SELECTION); View links (VIEW-LINKS); Keyboard in the shell (SHELL-KEYS); Motion: intros, hyperspace, hacker (WP9-MOTION); Desktop surface drops (WP10-SURFACE); Opening a widget's app (R7-OPEN, retired); Shell hooks (PA); Removed widgets (R7-REMOVE); Shell skeleton and shared settings; Shared widget settings: region and updates (SETTINGS-AUDIT); Colours, fonts and uninstall (the settings window, retired); Settings navigation icons (NAV-ICONS, retired); Logging (WP7); Network safety (WP6); Localization infrastructure (LOC-INFRA); Microsoft Store package and licensing; Gallery.
+- **Shell, windows and settings.** Displays (WP2); Desktop integration and suspend (WP3); Appearance engine (WP1); Notices, resilience and undo (WP4); Widget picker: search (WP5); Multi-select and the placement session (MULTISELECT-PLACEMENT); Widget styles (STYLES); Context menus (R4-MENUS); Views and the view bar (WP8); The Displays and Views pages (R4-NAV, R5-PAGES); Icon picker and showcase views (R4-ICONS); Keyboard lease (WP11); Widget keys (WIDGET-KEYS); Item selection (ITEM-SELECTION); View links (VIEW-LINKS); Keyboard in the shell (SHELL-KEYS); Motion: intros, hyperspace, hacker (WP9-MOTION); Desktop surface drops (WP10-SURFACE); The desktop layer (DESKTOP); Opening a widget's app (R7-OPEN, retired); Shell hooks (PA); Removed widgets (R7-REMOVE); Shell skeleton and shared settings; Shared widget settings: region and updates (SETTINGS-AUDIT); Colours, fonts and uninstall (the settings window, retired); Settings navigation icons (NAV-ICONS, retired); Logging (WP7); Network safety (WP6); Localization infrastructure (LOC-INFRA); Microsoft Store package and licensing; Gallery.
 - **Look and layout.** Rows and the card edge; Looking like Windows; The widget header; The widget family: tokens and blocks (FAMILY); Responsive layout (shared foundation); Adding a widget; Layout pass over the ported widgets; Widget polish 1 (POLISH-1); Widget polish 2: leftover parity and layout gaps (POLISH-2); The Set up button (R5-SETUP).
 - **Accounts and sign-in.** Where account data comes from; Accounts and sign-in.
 - **System widgets.** (The seven meters, the seven detail widgets, Drive, Removable drives, Brightness, Mixer, Volume, Music, the Audio visualizer, the three screen-time widgets, Notifications and the Focus session are modules: their sections are their projects' `SPEC.md`; the sections named here keep the hub, the samplers and the rules they share, the SDK's.) System data hub (SYS-HUB); System meters; Meter framework and memory; CPU; Disk and ping; Battery and network; Network and ping; System widgets: GPU, mixer and screen time; Screen time: chart, donut and apps (SCREENTIME-SPLIT); GPU and screen time: the whole tile (SYS-P4); System details (SYS-DETAILS); Mixer and Volume (SYS-P5); Power and Bluetooth; Device and location (DEVICE-AND-LOCATION); Quick-setting toggles (QUICK-TOGGLES); Windows' panels: notifications, focus session, brightness (WINDOWS-PANELS).
@@ -1694,8 +1694,7 @@ mechanism), `Shell/DesktopWindow.SettingsMenu.cs`, `Services/AppHost.SettingsMen
   read from Windows each time the menu opens and the stored value until then; a click asks Windows and
   the tick shows what it reached), with under it, as notes, what holds against it ([S-935]: switched
   off in Windows, a policy, a change that did not take, the raw error under that advice only);
-  **Show desktop icons** ([S-930]; as Windows has them, read when the menu opens and followed while it
-  is open, [S-932]); **Pause during full-screen apps** (game mode, [S-920]; "Paused now" at its end
+  **On the desktop** (Themia's items, Windows' icons or Nothing, [S-5500]); **Pause during full-screen apps** (game mode, [S-920]; "Paused now" at its end
   while it holds the widgets).
 - **[S-3526]** **Appearance ›**, the look every widget shares ([S-3830]), behind dividers: **Style ›**
   ([S-3527]); **Theme and colours ›** (Theme › Use system setting, Light, Dark; Accent, a colour whose
@@ -6135,7 +6134,8 @@ FullscreenWatch,DesktopIcons,DesktopFolderView,ShellClicks}.cs`; host in `Servic
 - **[S-929]** Resuming re-tracks and shows each surface, rebuilds its widgets from the state (each
   fires at once, so nothing shows pre-game data), unpauses the ticker and requests a display pass for
   any mode or monitor change the game made.
-- **[S-930]** "Show desktop icons" (original DI-01..05): posted as the shell's own command
+- **[S-930]** The shell's "Show desktop icons" command (original DI-01..05), sent only by the pick of
+  [S-5505] (⚙'s line is the desktop choice now, [S-5500]): posted as the shell's own command
   (`WM_COMMAND 0x7402` to `SHELLDLL_DefView`), so Explorer persists it and the desktop menu's check
   mark agrees; Themia never re-asserts or restores it (it survives quitting Themia, Explorer
   restarts and reboots: Explorer persists it, so nothing is re-applied on `TaskbarCreated`). The
@@ -6147,7 +6147,8 @@ FullscreenWatch,DesktopIcons,DesktopFolderView,ShellClicks}.cs`; host in `Servic
   unreadable shell gets nothing. The live state is the icon list's own `WS_VISIBLE` bit, not
   `IsWindowVisible` (which is also false while an ancestor is hidden, and then turned a "show" into
   a hide).
-- **[S-932]** Windows owns the state; `Preferences.DesktopIconsVisible` is a first-paint cache. The
+- **[S-932]** *(Retired by [S-5500]: ⚙'s line is Themia's own choice, so nothing adopts Windows' state
+  into it; the icon list's show and hide hook now keeps the session hide, [S-5503].)* Windows owns the state; `Preferences.DesktopIconsVisible` is a first-paint cache. The
   switch adopts the live state on every visit and, while on screen, on the icon list's own
   `EVENT_OBJECT_SHOW/HIDE` (a WinEvent hook scoped to that one Explorer thread) — event-driven,
   replacing the original's 1 s poll. Adopting writes only on a known disagreement. The switch shows
@@ -7446,6 +7447,131 @@ above); the original's "copy/move" effect over widgets without drops (it showed 
 nothing; now refused). Needs live verification: real drags from Explorer, Outlook, a browser, VS Code
 and the Start menu onto Folder, Shortcuts and bare edit-mode surface; the drag image and caption;
 a right-button drag's menu; Escape mid-drag; multi-monitor and mixed DPI hit-testing.
+
+## The desktop layer (DESKTOP)
+
+Themia can take over what the desktop shows: Explorer's icons hidden for the session, and each of
+the desktop's files, folders, shortcuts and shell items a widget on the grid, placed, moved and
+removed like any widget and different in every view (the user's decisions of 2026-10-29). Phase
+D1 builds the choice, the full-display surface, the session-only hide with its restore, the items
+as widgets and their placement, and click, double-click and Enter; the rest of Explorer's desktop
+is D2 and the display and accessibility edge cases D3 ([S-5590]). The item widget's own look is
+its module's `SPEC.md` (`src/Widgets/Themia.Widget.DesktopItem`, [S-5600]..[S-5699]).
+
+Owning files: `Themia.Core/Desktop/*`, `Themia.Core/Shell/DesktopIconRules.cs`,
+`Themia.App/Interop/DesktopIcons.cs`, `Themia.App/Interop/DesktopNamespace.cs`,
+`Themia.App/Services/AppHost.Desktop.cs`, `Themia.Sdk/Files/DesktopItem.cs`,
+`Themia.Sdk.WinUI/Modules/IDesktopItems.cs`. Tests: `DesktopLayerTests` (Core), the module's own.
+
+- **[S-5500]** **The choice.** ⚙'s one line **On the desktop** chooses what the desktop shows while
+  Themia runs: **Themia's items**, **Windows' icons** or **Nothing** (`Preferences.Desktop`, a
+  `DesktopShows`). It replaces "Show desktop icons": one setting, one level ([S-3592]); no view,
+  display or widget holds a copy, and it applies to every display. The default is **Windows'
+  icons**, so the desktop is as it was until the user picks Themia's items (D1; D2 makes Themia's
+  items the default once Explorer parity is in). A pick is stored and applied at once.
+- **[S-5501]** **The surface covers the display** while the choice is Themia's items: outside edit
+  mode too, every display's hit region is its whole work area (as in edit mode, [S-851]), so no
+  click on empty desktop falls through to Explorer; empty desktop is Themia's (the press of
+  [S-5502], and in D2 the lasso, the background menu and drops). The taskbar stays Windows' (the
+  region stops at the work area), and so does the wallpaper, drawn under the transparent surface.
+  With Windows' icons or Nothing the region traces the widgets as before ([S-851]).
+- **[S-5502]** A press on empty desktop under Themia's items, outside edit mode, clears the item
+  selection ([S-5530]) and ends a keyboard lease held on that surface ([S-802]). Nothing else in D1:
+  the right button opens nothing, the lasso and the shell's background menu are D2.
+- **[S-5503]** **Explorer's icons are hidden for the session only** while the choice is Themia's
+  items or Nothing: Themia hides the desktop's icon list window (the `SysListView32` of the shell's
+  `SHELLDLL_DefView`, found as in [S-930]) with `ShowWindowAsync(SW_HIDE)`, never with the shell's
+  toggle command, so Explorer's own setting (its desktop menu's View › Show desktop icons,
+  `Explorer\Advanced\HideIcons`) and its check mark stay as the user left them, and an Explorer
+  restart builds a list that shows the icons by itself. While the choice holds, the hide is kept,
+  event-driven: the list's own show event (the WinEvent hook of [S-932]) hides it again, and on
+  `TaskbarCreated` (Explorer restarted) the new list is found, hooked and hidden. A list shown again
+  more than `DesktopIconRules.MaxRehides` (8) times since the choice was last applied is left
+  shown, logged once: Themia never fights Explorer in a loop.
+- **[S-5504]** **Restore.** Themia shows the list again (`ShowWindowAsync(SW_SHOWNA)`) when the
+  choice becomes Windows' icons, on quit, at every start before the choice is applied (so a crash
+  or a kill of an earlier run is undone by the next start), and from the last-chance handlers (an
+  exception nothing caught off the UI thread, and process exit): one non-blocking call with no COM
+  and no reply awaited, safe while the process goes down. It shows the list only when the list is
+  hidden and Windows' own setting says shown (`HideIcons` not 1, no `NoDesktop` policy): it never
+  shows icons the user hid in Windows (`DesktopIconRules.Restore`). A process killed outright
+  cannot restore: the icons stay hidden until Themia starts again, Explorer restarts or the user
+  signs out, and nothing persisted has changed.
+- **[S-5505]** Picking Windows' icons while Windows' own setting hides them sends the shell's own
+  command once ([S-930], [S-931], [S-939]): the user asked to see Windows' icons. That pick is the
+  only time Themia writes Windows' setting; it is never re-asserted at start or on an Explorer
+  restart, and Themia's items and Nothing never write it.
+- **[S-5506]** Item widgets show only while the choice is Themia's items. Under Windows' icons and
+  Nothing they stay in their views untouched but have no card (not drawn, no clicks, not selected
+  by Select all), Add widget offers none ([S-5523]), and the namespace is neither read nor watched.
+- **[S-5510]** **The items are the shell's desktop namespace**: the desktop root's own
+  `IShellFolder` enumeration (`SHGetDesktopFolder`, `EnumObjects` with folders and non-folders),
+  which merges the user's and the Public desktop and lists the shell items Windows' desktop-icon
+  settings show (This PC, the Recycle Bin, the user's folder, Network, Control Panel): exactly what
+  Explorer's desktop lists, nothing Themia decides. Each is a `DesktopItem`: its **key**, the
+  shell's parsing name relative to the desktop (a full path for a file, `::{CLSID}` for a shell
+  item, `DesktopItemKeys`), its name as Explorer shows it (`SHGDN_NORMAL`: no `.lnk`, extensions as
+  Explorer's setting says) and its kind (file, folder, shortcut, shell item). Hidden items are not
+  listed in D1. Read off the UI thread (a COM worker); a failed read keeps the last listing, is
+  logged, and is never taken as "every item gone".
+- **[S-5511]** **Kept current by the shell's change notifications**, never a poll:
+  `SHChangeNotifyRegister` (shell and interrupt level, new delivery) on the desktop root and on both
+  desktop folders, for items created, deleted, renamed, updated, their attributes and the shell's
+  icons, posted to the command window. A burst is coalesced without a timer (one re-read queued
+  while one is pending, as [S-1333]); a rename's old and new keys are kept for [S-5520]. Registered
+  while the choice is Themia's items, dropped otherwise.
+- **[S-5512]** An item's icon is the shell's as Explorer's list draws it: the system image list's
+  image (the extra-large list at up to 48 pixels, the jumbo list above) with the item's overlay
+  (the shortcut arrow, a share, a sync engine's state) composed by the image list itself,
+  extracted off the UI thread one at a time with every other icon ([S-1324]) and cached per item
+  and size. A key the shell cannot parse any more (a moment before its removal, a preview) gets
+  its type's icon from its name, with the shortcut arrow when it is a shortcut.
+- **[S-5520]** **Reconcile** (`DesktopReconcile.Plan`, pure): after each read, the listing, the
+  known set ([S-5522]) and every view's item widgets give the changes, applied as one mutation that
+  is not an undo step (the history is rebased: the disk changed, not the arrangement). In order:
+  (1) a rename heard from the notifications rewrites the key of every widget of the old item in
+  every view, keeping its place; (2) an item no longer listed (deleted, moved or renamed away) has
+  its widgets removed from every view; (3) an item not in the known set is new and gets one widget
+  in the view showing on the primary display (a drop's own display in D2, [S-5591]), at the next
+  free cell ([S-5521]), and no other view gets it; (4) the known set becomes the listing. An item
+  known but in no view stays unplaced, by the user's own removal ([S-5523], [S-5524]). It runs after
+  each read and after an undo or redo (which may bring back a widget whose item has gone), only
+  while a listing is held. A rename made while Themia was not running reads as a removal and an
+  arrival. Nothing in the reconcile touches a file.
+- **[S-5521]** **The next free cell** (`DesktopGrid.NextFree`): cells of the item's size (90 × 100
+  DIPs, [S-5601]) from the work area's top-left corner, down a column and then the next column to
+  the right (Explorer's order), as fractions of the display ([S-01]); the first that overlaps no
+  widget of the view. A view with no free cell leaves the item unplaced, logged, and Add widget
+  reaches it. New items of one read take cells in `DesktopItemOrder` (shell items first, then
+  folders, then files, each by name ignoring case: Explorer's Sort by name).
+- **[S-5522]** The known set is `desktop.known` in the state document: the keys of every item the
+  reconcile has seen. Load keeps it a list of distinct (case-insensitive), non-empty keys of at
+  most `DesktopItemKeys.MaxLength` characters, dropping the rest loudly. The first time Themia's
+  items is chosen it is empty, so every item arrives in the primary display's view.
+- **[S-5523]** **Unplaced items stay reachable**: while the choice is Themia's items, Add widget's
+  Files subject has an **On the desktop** folder listing the items with no widget in the view being
+  added to, in `DesktopItemOrder`; picking one places its widget like any widget ([S-1587]). With
+  none unplaced the row is not there. The item kind is never offered on its own: an item widget
+  always stands for one item.
+- **[S-5524]** **Two deletes, apart.** In edit mode Delete (the properties menu's, the card menu's,
+  the key) removes the item's widget from this view only: the file stays on the desktop, its
+  widgets in other views stay, and it is listed under [S-5523]. Outside edit mode Delete is to send
+  the file to the Recycle Bin through the shell's own operation (D2); nothing in D1 deletes a file.
+- **[S-5530]** **D1's interaction** outside edit mode: a press on an item selects it alone, clearing
+  every other item's selection on every display (one selection, the host's:
+  `IDesktopItems.Select`); a press on empty desktop clears it ([S-5502]); a double-click, or Enter
+  with the keyboard lease the press gives ([S-800]), opens it through the launcher
+  (`IWidgetHost.Launcher`; a path as it is, a shell item as `shell:::{CLSID}`,
+  `DesktopItemKeys.LaunchTarget`), and a double-click on an item never toggles edit mode.
+- **[S-5590]** *Planned, D2*: Explorer parity outside edit mode, DECISIONS 8 in full: several
+  selected across item widgets (Ctrl/Shift and the lasso on empty desktop, through `ItemSelection`,
+  `SelectionBand`, `SelectionChrome`), F2 rename in place, Ctrl+C/X/V/A, arrows and type-to-find,
+  Delete to the Recycle Bin, the shell's item menu and its desktop background menu, dragging in,
+  out, between displays and onto a folder, app or the Recycle Bin, keyboard focus after Win+D;
+  the Folder widget's host parts reused. *D3*: moves between displays, unplugged displays, mixed
+  DPI, UI Automation and Narrator, living beside Fences and Wallpaper Engine.
+- **[S-5591]** *Planned, D2*: a file dropped on the desktop gets its widget in the view showing on
+  the display it was dropped on, at the drop point ([S-11]).
 
 ## Shortcuts B: drop, reorder and app layouts (PD)
 
