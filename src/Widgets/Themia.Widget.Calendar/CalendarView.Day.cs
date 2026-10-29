@@ -203,6 +203,7 @@ internal sealed partial class CalendarView
     private Grid SharedBandLine(IReadOnlyList<DayItem> allDay, DateOnly day, double width, double lineHeight, bool showColors)
     {
         const double MinChip = 56;
+        const double MaxChip = 200;
         var fits = Math.Max(1, (int)Math.Floor((width + FamilySpace.S1) / (MinChip + FamilySpace.S1)));
         var shown = allDay.Count <= fits ? allDay.Count : Math.Max(1, fits - 1);
 
@@ -210,7 +211,7 @@ internal sealed partial class CalendarView
 
         for (var i = 0; i < shown; i++)
         {
-            bar.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star), MaxWidth = 200 });
+            bar.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star), MaxWidth = MaxChip });
             var chip = AllDayChip(allDay[i], day, lineHeight, showColors);
             SetColumn(chip, i);
             bar.Children.Add(chip);

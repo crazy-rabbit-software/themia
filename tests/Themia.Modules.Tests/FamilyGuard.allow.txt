@@ -186,47 +186,6 @@
 1	src/Widgets/Themia.Widget.Alarm/AlarmView.cs	ramp	FluentType.Title
 1	src/Widgets/Themia.Widget.Bluetooth/BluetoothView.cs	size	Height = 14
 1	src/Widgets/Themia.Widget.Bluetooth/BluetoothView.cs	size	Width = 14
-1	src/Widgets/Themia.Widget.Calendar/CalendarView.Day.cs	radius	new CornerRadius(lineHeight > CalendarFit.ChipLine ? Fluent.ControlRadius : 2)
-1	src/Widgets/Themia.Widget.Calendar/CalendarView.Day.cs	size	MaxWidth = 200
-1	src/Widgets/Themia.Widget.Calendar/CalendarView.Day.cs	space	new Thickness(0, 0, 0, 2)
-2	src/Widgets/Themia.Widget.Calendar/CalendarView.Day.cs	space	new Thickness(2, 0, 0, 0)
-1	src/Widgets/Themia.Widget.Calendar/CalendarView.Day.cs	space	new Thickness(before ? 0 : 3, 0, 0, 0)
-2	src/Widgets/Themia.Widget.Calendar/CalendarView.Month.cs	radius	new CornerRadius(line / 2)
-1	src/Widgets/Themia.Widget.Calendar/CalendarView.Month.cs	size	Height = 5
-1	src/Widgets/Themia.Widget.Calendar/CalendarView.Month.cs	size	Width = 5
-1	src/Widgets/Themia.Widget.Calendar/CalendarView.Month.cs	space	Spacing = 1
-1	src/Widgets/Themia.Widget.Calendar/CalendarView.Month.cs	space	Spacing = 2
-1	src/Widgets/Themia.Widget.Calendar/CalendarView.Month.cs	space	new Thickness(2, 0, 0, 0)
-1	src/Widgets/Themia.Widget.Calendar/CalendarView.Month.cs	space	new Thickness(3, 0, 0, 0)
-1	src/Widgets/Themia.Widget.Calendar/CalendarView.Month.cs	space	new Thickness(3, 0, 2, 0)
-2	src/Widgets/Themia.Widget.Calendar/CalendarView.Month.cs	space	new Thickness(3, 0, 3, 0)
-1	src/Widgets/Themia.Widget.Calendar/CalendarView.Month.cs	space	new Thickness(bar.ContinuesBefore ? 0 : 2, 0, 0, 0)
-1	src/Widgets/Themia.Widget.Calendar/CalendarView.Week.cs	radius	new CornerRadius(2)
-1	src/Widgets/Themia.Widget.Calendar/CalendarView.Week.cs	radius	new CornerRadius(ThinBar / 2)
-1	src/Widgets/Themia.Widget.Calendar/CalendarView.Week.cs	radius	new CornerRadius(line / 2)
-1	src/Widgets/Themia.Widget.Calendar/CalendarView.Week.cs	size	Height = 2
-1	src/Widgets/Themia.Widget.Calendar/CalendarView.Week.cs	space	Spacing = 2
-1	src/Widgets/Themia.Widget.Calendar/CalendarView.Week.cs	space	Spacing = 3
-1	src/Widgets/Themia.Widget.Calendar/CalendarView.Week.cs	space	new Thickness(0, 0, 0, 2)
-1	src/Widgets/Themia.Widget.Calendar/CalendarView.Week.cs	space	new Thickness(0, 2, 0, 0)
-1	src/Widgets/Themia.Widget.Calendar/CalendarView.Week.cs	space	new Thickness(2, 0, 0, 0)
-1	src/Widgets/Themia.Widget.Calendar/CalendarView.Week.cs	space	new Thickness(3, 1, 2, 1)
-1	src/Widgets/Themia.Widget.Calendar/CalendarView.Week.cs	space	new Thickness(4, 0, 4, 0)
-1	src/Widgets/Themia.Widget.Calendar/CalendarView.Year.cs	brush	AccentTextFillColorPrimaryBrush
-1	src/Widgets/Themia.Widget.Calendar/CalendarView.Year.cs	radius	new CornerRadius((cell - 1) / 2)
-1	src/Widgets/Themia.Widget.Calendar/CalendarView.Year.cs	radius	new CornerRadius(Math.Min(2, side / 4)
-1	src/Widgets/Themia.Widget.Calendar/CalendarView.Year.cs	radius	new CornerRadius(isToday ? (cell - 1) / 2 : 0)
-1	src/Widgets/Themia.Widget.Calendar/CalendarView.Year.cs	size	Height = 2
-1	src/Widgets/Themia.Widget.Calendar/CalendarView.Year.cs	space	new Thickness(0, 0, 0, Math.Max(1, Math.Floor(cell / 8)
-1	src/Widgets/Themia.Widget.Calendar/CalendarView.Year.cs	space	new Thickness(0, 0, 0, items.Count > 0 && !isToday ? 2 : 0)
-1	src/Widgets/Themia.Widget.Calendar/CalendarView.Year.cs	space	new Thickness(fit.Numbers ? 2 : 0, 0, 0, 0)
-1	src/Widgets/Themia.Widget.Calendar/CalendarView.Year.cs	space	new Thickness(ring ? Math.Max(1, Math.Floor(side / 5)
-1	src/Widgets/Themia.Widget.Calendar/CalendarView.cs	colour	Color.FromArgb(
-1	src/Widgets/Themia.Widget.Calendar/CalendarView.cs	space	new Thickness(Fluent.Space1 + 2, Fluent.Space1, Fluent.Space1 + 2, Fluent.Space1)
-1	src/Widgets/Themia.Widget.Clipboard/ClipboardView.cs	brush	AccentTextFillColorPrimaryBrush
-1	src/Widgets/Themia.Widget.Clipboard/ClipboardView.cs	brush	FocusStrokeColorOuterBrush
-1	src/Widgets/Themia.Widget.Clipboard/ClipboardView.cs	colour	Color.FromArgb(
-1	src/Widgets/Themia.Widget.Clipboard/ClipboardView.cs	space	new Thickness(on ? Fluent.Hairline * 2 : 0)
 1	src/Widgets/Themia.Widget.Clock/ClockText.cs	ramp	FluentType.Fit
 1	src/Widgets/Themia.Widget.Clock/ClockView.xaml.cs	brush	AccentTextFillColorPrimaryBrush
 1	src/Widgets/Themia.Widget.Clock/ClockView.xaml.cs	radius	RadiusX = thickness / 2
@@ -247,19 +206,6 @@
 1	src/Widgets/Themia.Widget.Clock/DateLayout.cs	ramp	FluentType.Title
 1	src/Widgets/Themia.Widget.Clock/WordClock.cs	ramp	FluentType.Scaled
 2	src/Widgets/Themia.Widget.Clock/WordClock.cs	ramp	FluentType.TitleLarge
-1	src/Widgets/Themia.Widget.Contacts/ContactsView.cs	colour	Color.FromArgb(
-1	src/Widgets/Themia.Widget.Contacts/ContactsView.cs	colour	Colors.White
-1	src/Widgets/Themia.Widget.Contacts/ContactsView.cs	radius	new CornerRadius(1.5)
-1	src/Widgets/Themia.Widget.Contacts/ContactsView.cs	radius	new CornerRadius(size / 2)
-1	src/Widgets/Themia.Widget.Contacts/ContactsView.cs	ramp	FluentType.Subtitle
-1	src/Widgets/Themia.Widget.Contacts/ContactsView.cs	size	Width = 3
-1	src/Widgets/Themia.Widget.Contacts/ContactsView.cs	space	Spacing = 2
-1	src/Widgets/Themia.Widget.Contacts/ContactsView.cs	space	new Thickness(0, 0, Fluent.Space1 + 2, 0)
-1	src/Widgets/Themia.Widget.Contacts/ContactsView.cs	space	new Thickness(0, 0, size >= 32 ? Fluent.Space3 : Fluent.Space2, 0)
-1	src/Widgets/Themia.Widget.Contacts/ContactsView.cs	space	new Thickness(2)
-1	src/Widgets/Themia.Widget.Contacts/ContactsView.cs	space	new Thickness(Fluent.Space1 + 2, Fluent.Space1, Fluent.Space1 + 2, Fluent.Space1)
-1	src/Widgets/Themia.Widget.Contacts/ContactsView.cs	space	new Thickness(Fluent.Space1, large ? Fluent.Space3 : 6, Fluent.Space1, large ? Fluent.Space3 : 6)
-1	src/Widgets/Themia.Widget.Contacts/ContactsView.cs	space	new Thickness(c == 0 && avatars ? 20 + Fluent.Space2 : 0, 0, Fluent.Space2, 0)
 3	src/Widgets/Themia.Widget.Countdown/CountdownView.cs	ramp	FluentType.Hero
 2	src/Widgets/Themia.Widget.Countdown/CountdownView.cs	ramp	FluentType.Subtitle
 1	src/Widgets/Themia.Widget.Countdown/CountdownView.cs	ramp	FluentType.Title
@@ -322,7 +268,6 @@
 1	src/Widgets/Themia.Widget.Music/MusicView.Layout.cs	ramp	FluentType.Title
 2	src/Widgets/Themia.Widget.Music/MusicView.Layout.cs	ramp	FluentType.TitleLarge
 1	src/Widgets/Themia.Widget.Music/MusicView.cs	brush	ControlFillColorSecondaryBrush
-1	src/Widgets/Themia.Widget.NextMeeting/NextMeetingView.cs	brush	AccentTextFillColorPrimaryBrush
 2	src/Widgets/Themia.Widget.Notes/MarkdownEditor.cs	brush	AccentTextFillColorPrimaryBrush
 1	src/Widgets/Themia.Widget.Notes/MarkdownEditor.cs	brush	SolidBackgroundFillColorBaseBrush
 1	src/Widgets/Themia.Widget.Notes/MarkdownEditor.cs	colour	Color.FromArgb(
@@ -332,10 +277,6 @@
 1	src/Widgets/Themia.Widget.Notes/NotesView.cs	brush	TextControlBorderBrush
 1	src/Widgets/Themia.Widget.Notes/NotesView.cs	brush	TextControlElevationBorderFocusedBrush
 1	src/Widgets/Themia.Widget.Notes/NotesView.cs	space	new Thickness(NotesLayout.TitleGap, -Fluent.Space1 / 2, 0, -Fluent.Space1 / 2)
-1	src/Widgets/Themia.Widget.Notifications/NotificationsView.cs	ramp	FluentType.Subtitle
-2	src/Widgets/Themia.Widget.Notifications/NotificationsView.cs	size	Height = 24
-2	src/Widgets/Themia.Widget.Notifications/NotificationsView.cs	size	Width = 24
-1	src/Widgets/Themia.Widget.Notifications/NotificationsView.cs	space	new Thickness(0, 2, 0, 0)
 1	src/Widgets/Themia.Widget.Pomodoro/PomodoroView.cs	brush	AccentTextFillColorPrimaryBrush
 2	src/Widgets/Themia.Widget.Pomodoro/PomodoroView.cs	brush	SystemFillColorSuccessBrush
 1	src/Widgets/Themia.Widget.Pomodoro/PomodoroView.cs	ramp	FluentType.Display
@@ -413,7 +354,6 @@
 1	src/Widgets/Themia.Widget.Sun/SunView.cs	brush	SolidBackgroundFillColorBaseBrush
 1	src/Widgets/Themia.Widget.Sun/SunView.cs	ramp	FluentType.Fit
 1	src/Widgets/Themia.Widget.Sun/SunView.cs	ramp	FluentType.Subtitle
-1	src/Widgets/Themia.Widget.Tasks/TasksView.Picker.cs	size	MinWidth = 200
 2	src/Widgets/Themia.Widget.VideoStream/VideoStreamView.Overlay.cs	brush	AcrylicInAppFillColorDefaultBrush
 1	src/Widgets/Themia.Widget.VideoStream/VideoStreamView.Overlay.cs	space	new Thickness(Fluent.Space2, Fluent.Space1 / 2, Fluent.Space2, Fluent.Space1 / 2)
 1	src/Widgets/Themia.Widget.VideoStream/VideoStreamView.cs	colour	Colors.Transparent
@@ -443,8 +383,3 @@
 4	src/Widgets/Themia.Widget.WeatherNow/WeatherNowView.cs	ramp	HeroLayout.IconGap
 4	src/Widgets/Themia.Widget.WeatherNow/WeatherNowView.cs	ramp	HeroLayout.IconSize
 2	src/Widgets/Themia.Widget.WeatherNow/WeatherNowView.cs	ramp	HeroLayout.ValueWidth
-2	src/Widgets/Themia.Widget.WeekPlanner/WeekPlannerView.cs	brush	AccentTextFillColorPrimaryBrush
-1	src/Widgets/Themia.Widget.WeekPlanner/WeekPlannerView.cs	brush	ControlStrongStrokeColorDefaultBrush
-1	src/Widgets/Themia.Widget.WeekPlanner/WeekPlannerView.cs	colour	Color.FromArgb(
-1	src/Widgets/Themia.Widget.WeekPlanner/WeekPlannerView.cs	radius	new CornerRadius(RingSize / 2)
-1	src/Widgets/Themia.Widget.WeekPlanner/WeekPlannerView.cs	radius	new CornerRadius(StripeWidth / 2)

@@ -24,22 +24,6 @@ bluetoothToggle	FontIcon glyph-size
 bluetoothToggle	TextBlock text-size
 brightness	Slider radius
 brightness	TextBlock text-size
-calendar	Border colour bg
-calendar	Border colour border
-calendar	Border radius
-calendar	Border space margin
-calendar	Border space padding
-calendar	Border stroke
-calendar	Button space padding
-calendar	Ellipse colour fill
-calendar	FontIcon glyph-size
-calendar	StackPanel space margin
-calendar	StackPanel space spacing
-calendar	TextBlock colour fg
-calendar	TextBlock text-line
-calendar	TextBlock text-size
-clipboard	FontIcon glyph-size
-clipboard	TextBlock text-size
 clock	Border radius
 clock	StackPanel space margin
 clock	TextBlock colour fg
@@ -48,7 +32,6 @@ clock	TextBlock text-weight
 colorFiltersToggle	Ellipse space margin
 colorFiltersToggle	FontIcon glyph-size
 colorFiltersToggle	TextBlock text-size
-contacts	TextBlock text-size
 countdown	Border radius
 countdown	Ellipse stroke
 countdown	Path stroke
@@ -61,14 +44,6 @@ drive	FontIcon glyph-size
 drive	Path stroke
 drive	ProgressBar radius
 drive	TextBlock text-size
-email	Border stroke
-email	FontIcon colour fg
-email	FontIcon glyph-size
-email	FontIcon space margin
-email	Grid space margin
-email	Grid space padding
-email	TextBlock colour fg
-email	TextBlock text-size
 energySaverToggle	Ellipse space margin
 energySaverToggle	FontIcon glyph-size
 energySaverToggle	TextBlock text-size
@@ -110,19 +85,11 @@ monoAudioToggle	TextBlock text-size
 moon	TextBlock colour fg
 music	FontIcon glyph-size
 music	TextBlock text-size
-nextMeeting	Button space padding
-nextMeeting	FontIcon glyph-size
-nextMeeting	TextBlock colour fg
-nextMeeting	TextBlock text-size
 nightLightToggle	Ellipse space margin
 nightLightToggle	FontIcon glyph-size
 nightLightToggle	TextBlock text-size
 notes	FontIcon glyph-size
 notes	TextBlock text-size
-notifications	Border stroke
-notifications	Button space padding
-notifications	FontIcon glyph-size
-notifications	TextBlock text-size
 pomodoro	Ellipse stroke
 pomodoro	FontIcon colour fg
 pomodoro	Path stroke
@@ -136,8 +103,6 @@ rainNextHour	FontIcon glyph-size
 rainNextHour	Rectangle radius
 rainNextHour	TextBlock colour fg
 rainNextHour	TextBlock text-size
-recentFiles	FontIcon glyph-size
-recentFiles	TextBlock text-size
 recycleBin	Button space padding
 recycleBin	FontIcon glyph-size
 recycleBin	TextBlock text-size
@@ -150,9 +115,6 @@ restart	TextBlock text-size
 rotationLockToggle	Ellipse space margin
 rotationLockToggle	FontIcon glyph-size
 rotationLockToggle	TextBlock text-size
-rss	Border stroke
-rss	FontIcon glyph-size
-rss	TextBlock text-size
 scratchpad	Ellipse colour fill
 scratchpad	Ellipse stroke
 scratchpad	FontIcon glyph-size
@@ -202,10 +164,6 @@ stopwatch	TextBlock text-size
 sun	Rectangle colour fill
 sun	TextBlock colour fg
 sun	TextBlock text-size
-tasks	Border stroke
-tasks	FontIcon glyph-size
-tasks	FontIcon space margin
-tasks	TextBlock text-size
 videoStream	TextBlock text-size
 volume	Slider radius
 volume	TextBlock text-size
@@ -220,9 +178,6 @@ weatherNow	Run text-size
 weatherNow	Run text-weight
 weatherNow	TextBlock text-line
 weatherNow	TextBlock text-size
-weekPlanner	Border colour bg
-weekPlanner	TextBlock colour fg
-weekPlanner	TextBlock text-size
 wifiToggle	Ellipse space margin
 wifiToggle	FontIcon glyph-size
 wifiToggle	TextBlock text-size

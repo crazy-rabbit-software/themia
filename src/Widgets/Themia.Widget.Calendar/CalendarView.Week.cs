@@ -115,7 +115,7 @@ internal sealed partial class CalendarView
             // [S-3620] The selected day's head is underlined; a click on a head selects its day.
             if (_selected == day)
             {
-                header.BorderThickness = new Thickness(0, 0, 0, 2);
+                header.BorderThickness = new Thickness(0, 0, 0, FamilyShape.Stroke);
                 header.BorderBrush = Accent();
             }
 

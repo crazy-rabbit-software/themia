@@ -24,6 +24,9 @@ namespace Themia.App.Widgets;
 /// </summary>
 internal sealed partial class CalendarView
 {
+    /// <summary>[S-3653] Under this side a day's ring is a hairline: a stroke of 2 would fill the day.</summary>
+    private const double RingStrokeFrom = 10;
+
     private void DrawYear(double width, double height)
     {
         var gap = FamilySpace.S2;
@@ -189,7 +192,7 @@ internal sealed partial class CalendarView
             Width = side,
             Height = side,
             Background = items.Count > 0 ? MarkOf(items[0], showColors) : null,
-            BorderThickness = new Thickness(ring ? (side >= 10 ? FamilyShape.Stroke : FamilyShape.Hairline) : 0),
+            BorderThickness = new Thickness(ring ? (side >= RingStrokeFrom ? FamilyShape.Stroke : FamilyShape.Hairline) : 0),
             BorderBrush = isSelected ? Accent() : isToday ? Family.Brush(ColourRole.TextPrimary) : null,
         };
 
