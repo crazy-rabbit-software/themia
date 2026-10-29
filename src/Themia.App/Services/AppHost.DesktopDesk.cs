@@ -257,14 +257,46 @@ internal sealed partial class AppHost : IDesktopDesk
         var (x, y) = ShellContextMenu.ToScreen(surface.Hwnd, (int)Math.Round(dip.X * scale), (int)Math.Round(dip.Y * scale));
         try
         {
-            if (ShellContextMenu.ShowForDesktop(x, y, surface.Hwnd))
+            var choice = ShellContextMenu.ShowForDesktop(x, y, surface.Hwnd, DesktopMenuLines());
+            if (choice.Ran)
             {
-                _landings.Expect(new DesktopLandingHint(surface.CurrentViewId, dip.X / metrics.Width, dip.Y / metrics.Height, []));
+                // [S-5552] What New › made lands at the click and opens its rename box.
+                _landings.Expect(new DesktopLandingHint(surface.CurrentViewId, dip.X / metrics.Width, dip.Y / metrics.Height, [], Renames: choice.New));
+            }
+            else if (choice.Themia is { } command)
+            {
+                RunDesktopMenuCommand(surface, dip, command);
             }
         }
         catch (Exception ex)
         {
             Log.Error(Scope, "the desktop's background menu failed", ex);
+        }
+    }
+
+    /// <summary>[S-5551] Themia's lines in the background menu, worded as the rest of Themia words them.</summary>
+    internal static IReadOnlyList<(DesktopMenuCommand Command, string Text)> DesktopMenuLines()
+        => [.. DesktopBackground.ThemiaLines.Select(command => (command, command switch
+        {
+            DesktopMenuCommand.AddWidget => Str.Shell_Toolbar_AddWidget.Text(),
+            _ => Str.Desktop_Menu_Edit.Text(),
+        }))];
+
+    /// <summary>
+    /// [S-5551] One of Themia's lines: the same commands the card menu's way in and the surface menu's
+    /// Add widget run (edit mode on; the picker at the click once the surface is in edit mode).
+    /// </summary>
+    private void RunDesktopMenuCommand(DesktopWindow surface, Point dip, DesktopMenuCommand command)
+    {
+        SetEditMode(true);
+        if (command != DesktopMenuCommand.AddWidget)
+        {
+            return;
+        }
+
+        if (!_dispatcher.TryEnqueue(Microsoft.UI.Dispatching.DispatcherQueuePriority.Low, () => surface.OpenPickerFromDesktop(dip)))
+        {
+            Log.Warn(Scope, "could not queue Add widget from the desktop's menu; edit mode is on, the bar's Add widget opens it");
         }
     }
 

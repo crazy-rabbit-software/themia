@@ -49,6 +49,13 @@ Owning files: everything in this folder. Tests: `Tests/DesktopItemTests.cs` (run
   ([S-801]); Enter and losing focus commit through the host, Escape reverts, and a sentence the host
   returns (an invalid or clashing name) stays as the box's tip while the box stays.
 
+- **[S-5608]** To a screen reader the view is one desktop item ([S-5570], `DesktopItemAutomationPeer`):
+  a list item named as shown, its place in the desktop's order, the selection item, invoke and value
+  patterns forwarded to the host's desktop (nothing in a preview or in edit mode), and on each paint a
+  selection that changed and a focus that arrived announced.
+- **[S-5609]** The icon is asked for at the pixels of the display the view is on
+  (`DesktopIconPixels.For`, [S-5563]), and again when that display's scale changes (`XamlRoot.Changed`).
+
 Needs a manual pass: the item widgets on the live desktop under Themia's items (the showcase views
 do not hold them: they are made by the reconcile), at 100 % and at a scaled display, and every
 gesture of [S-5604] there.

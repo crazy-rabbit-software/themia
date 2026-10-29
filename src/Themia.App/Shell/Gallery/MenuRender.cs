@@ -118,6 +118,15 @@ internal static class MenuRender
                     new SurfaceMenuActions(noop, noop, noop, noop, noop, noop, noop));
                 await RenderAsync(root, surface, System.IO.Path.Combine(outDir, "surface.png")).ConfigureAwait(true);
 
+                // [S-5524] A desktop item's card in edit mode: its Delete takes the widget off this view only.
+                var item = WidgetInstance.Create(new WidgetId("desktopItem"), new FracRect(0.6, 0.6, 0.1, 0.12));
+                view.Widgets.Add(item);
+                var itemCard = new WidgetCard(host, item) { Width = 90, Height = 110 };
+                root.Children.Add(new Canvas { Children = { itemCard } });
+                await Task.Delay(300).ConfigureAwait(true);
+                host.Set(editMode: true, selection: 1, canPaste: true);
+                await RenderAsync(root, itemCard.CardMenu(), System.IO.Path.Combine(outDir, "card-edit-desktopitem.png")).ConfigureAwait(true);
+
                 // An item menu in File Explorer's shape: the row on top, a submenu and a danger entry below.
                 List<ItemMenuEntry> item =
                 [

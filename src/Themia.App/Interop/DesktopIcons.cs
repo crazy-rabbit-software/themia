@@ -90,6 +90,66 @@ internal static unsafe class DesktopIcons
     }
 
     /// <summary>
+    /// [S-5575] What the desktop's windows say of other programs: a desktop view of another process
+    /// under <c>Progman</c> or a <c>WorkerW</c> (a replaced desktop), another process's window among
+    /// their children (a wallpaper engine's), and whether the re-hide cap was reached ([S-5503]).
+    /// Read only (a handful of <c>FindWindowEx</c> calls), never a message to another program's window.
+    /// </summary>
+    public static Themia.Core.Desktop.DesktopShellFacts ReadFacts()
+    {
+        var keptShown = _keptShown;
+        var progman = Win32.GetShellWindow();
+        if (progman == 0)
+        {
+            return new(false, false, keptShown);
+        }
+
+        Win32.GetWindowThreadProcessId(progman, out var shellPid);
+        var own = (uint)Environment.ProcessId;
+        var foreignView = false;
+        var foreignChild = false;
+
+        void Look(nint parent)
+        {
+            for (var child = Win32.FindWindowEx(parent, 0, null, null); child != 0; child = Win32.FindWindowEx(parent, child, null, null))
+            {
+                Win32.GetWindowThreadProcessId(child, out var pid);
+                if (pid == 0 || pid == shellPid || pid == own)
+                {
+                    continue;
+                }
+
+                if (Win32.FindWindowEx(parent, 0, "SHELLDLL_DefView", null) is var view && view == child)
+                {
+                    foreignView = true;
+                }
+                else
+                {
+                    foreignChild = true;
+                }
+            }
+        }
+
+        Look(progman);
+        for (var worker = Win32.FindWindowEx(progman, 0, "WorkerW", null); worker != 0; worker = Win32.FindWindowEx(progman, worker, "WorkerW", null))
+        {
+            Look(worker);
+        }
+
+        for (var worker = Win32.FindWindowEx(0, 0, "WorkerW", null); worker != 0; worker = Win32.FindWindowEx(0, worker, "WorkerW", null))
+        {
+            // Only the shell's own WorkerW windows are the desktop's; any process may register the class.
+            Win32.GetWindowThreadProcessId(worker, out var pid);
+            if (pid == shellPid)
+            {
+                Look(worker);
+            }
+        }
+
+        return new(foreignView, foreignChild, keptShown);
+    }
+
+    /// <summary>
     /// [S-931] The icon list's own <c>WS_VISIBLE</c> bit, or null when the window has gone (a live
     /// list always has a style: it is a <c>WS_CHILD</c>).
     /// </summary>
@@ -224,6 +284,12 @@ internal static unsafe class DesktopIcons
     /// <summary>[S-5503] Re-hides spent since the choice was applied. UI thread.</summary>
     private static int _rehides;
 
+    /// <summary>[S-5575] The cap was reached since the choice was last applied: something else holds the icons shown.</summary>
+    private static volatile bool _keptShown;
+
+    /// <summary>[S-5575] Raised (UI thread) when the re-hide cap is reached: the host stands its items down.</summary>
+    public static event Action? GaveUp;
+
     /// <summary>The held list's show and hide hook. UI thread.</summary>
     private static IDisposable? _holdWatch;
 
@@ -242,9 +308,24 @@ internal static unsafe class DesktopIcons
     {
         _holding = true;
         _rehides = 0;
+        _keptShown = false;
         _hidThisRun = true;
         HookAndHide();
     }
+
+    /// <summary>
+    /// [S-5575] Stop holding without showing anything (another program holds the desktop): the watch
+    /// goes, the list is left as it is, nothing of Explorer's is touched. UI thread.
+    /// </summary>
+    public static void Unhold()
+    {
+        _holding = false;
+        _holdWatch?.Dispose();
+        _holdWatch = null;
+    }
+
+    /// <summary>[S-5575] The user applies the choice anew: the cap starts over, so Themia tries once more.</summary>
+    public static void ForgetKeptShown() => _keptShown = false;
 
     /// <summary>[S-5504] The hold ends (the choice is Windows' icons now): unhooked, and the list shown as Windows has it. UI thread.</summary>
     public static void Release()
@@ -264,6 +345,7 @@ internal static unsafe class DesktopIcons
         }
 
         _rehides = 0;
+        _keptShown = false;
         HookAndHide();
     }
 
@@ -316,7 +398,9 @@ internal static unsafe class DesktopIcons
         {
             // Said once: the count passes the cap, so this is not reached again until the choice is applied anew.
             _rehides++;
+            _keptShown = true;
             Log.Warn(Scope, $"the desktop's icons were shown again {DesktopIconRules.MaxRehides} times; something else keeps them shown, so they are left shown");
+            GaveUp?.Invoke();
         }
     }
 

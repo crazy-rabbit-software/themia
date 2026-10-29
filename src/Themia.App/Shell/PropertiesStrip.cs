@@ -480,7 +480,8 @@ internal sealed partial class PropertiesStrip : MenuPanel
 
         Add(Glyphs.Cut, Verb(Str.CtxMenu_Cut, Str.Shell_Card_CutMany), KeyChord.Ctrl(ChordKey.X), commands.Cut);
         Add(Glyphs.Copy, Verb(Str.CtxMenu_Copy, Str.Shell_Card_CopyMany), KeyChord.Ctrl(ChordKey.C), commands.Copy);
-        Add(Glyphs.Delete, Verb(Str.Common_Delete, Str.Shell_Card_DeleteMany), KeyChord.Plain(ChordKey.Delete), commands.Delete);
+        // [S-5524] Desktop items' widgets leave this view only: the files stay on the desktop.
+        Add(Glyphs.Delete, _offer.RemovesFromView ? Str.Desktop_Delete_FromView.Text() : Verb(Str.Common_Delete, Str.Shell_Card_DeleteMany), KeyChord.Plain(ChordKey.Delete), commands.Delete);
         return row;
 
         void Add(string glyph, string words, KeyChord chord, Action? run)

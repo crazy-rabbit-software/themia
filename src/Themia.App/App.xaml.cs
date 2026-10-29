@@ -155,6 +155,12 @@ public partial class App : Application
             return;
         }
 
+        // [S-5551] The desktop's background menu with Themia's lines, built and read back, never shown.
+        if (Shell.Gallery.DesktopMenuCheck.TryRunFromCommandLine(this, Environment.GetCommandLineArgs()))
+        {
+            return;
+        }
+
         // And for the desktop's notices and a widget's error card ([S-880], [S-891]).
         if (Shell.Gallery.NoticeRender.TryRunFromCommandLine(this, Environment.GetCommandLineArgs()))
         {

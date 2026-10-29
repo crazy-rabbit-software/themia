@@ -106,6 +106,15 @@ internal sealed partial class DesktopWindow
     /// [S-1744] The Add-widget picker, opened where the right-click was rather than under the
     /// toolbar: choosing a widget then starts the placement that follows the pointer ([S-1587]).
     /// </summary>
+    /// <summary>[S-5551] The desktop's background menu's Add widget, once edit mode is on: the picker where the right-click was.</summary>
+    internal void OpenPickerFromDesktop(Point at)
+    {
+        if (!_closed && EditMode)
+        {
+            OpenPickerAt(at);
+        }
+    }
+
     private void OpenPickerAt(Point at)
     {
         if (_closed || !EditMode)

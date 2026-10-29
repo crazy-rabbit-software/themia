@@ -1028,6 +1028,11 @@ module author's guide is docs/WIDGET-KIT.md 16.
   standard button where asking again can help, never after a 429 nor for a refusal only an edit mends
   (`FetchState.Look`, `OnlineParts.ShowState`). An answer kept through a failure stays on screen and the
   header's problem glyph says so ([S-7042]); not set up is the card's Set up row ([S-1862]).
+- **[S-6738]** A control that draws a text colour **without its alpha** (the note editor's RichEdit) is
+  given the role's opaque equivalent on the card instead: the role over the card's fill over its base, as
+  the theme and the user's design have them now (`HexBrush.OnCard`, `HexColor.Over`; asked again when the
+  theme changes), so its secondary and tertiary text stay secondary and tertiary. Only a role, never a colour
+  of its own.
 
 Needs a manual pass: the showcase views on the live desktop (the blocks change no widget yet, but
 the card's header and the Set up row are theirs now).
@@ -7530,16 +7535,18 @@ the desktop's files, folders, shortcuts and shell items a widget on the grid, pl
 removed like any widget and different in every view (the user's decisions of 2026-10-29). Phase
 D1 built the choice, the full-display surface, the session-only hide with its restore, the items
 as widgets and their placement, and click, double-click and Enter; D2 the rest of Explorer's
-desktop outside edit mode ([S-5540]..[S-5550], [S-5591]); the display and accessibility edge cases
-are D3 ([S-5590]). The item widget's own look is
+desktop outside edit mode ([S-5540]..[S-5550], [S-5591]); D3 Themia's own lines in the background
+menu, New ›'s rename, the keyboard after Win+D, displays that come and go, mixed DPI, UI Automation
+and living beside other desktop programs ([S-5551]..[S-5575]). The item widget's own look is
 its module's `SPEC.md` (`src/Widgets/Themia.Widget.DesktopItem`, [S-5600]..[S-5699]).
 
 Owning files: `Themia.Core/Desktop/*`, `Themia.Core/Shell/DesktopIconRules.cs`,
 `Themia.App/Interop/DesktopIcons.cs`, `Themia.App/Interop/DesktopNamespace.cs`,
 `Themia.App/Services/AppHost.Desktop.cs`, `Themia.App/Services/AppHost.DesktopDesk.cs`,
-`Themia.App/Shell/DesktopWindow.Desktop.cs`, `Themia.Sdk/Files/DesktopItem.cs`,
-`Themia.Sdk/Files/DesktopRename.cs`, `Themia.Sdk.WinUI/Modules/IDesktopItems.cs`. Tests:
-`DesktopLayerTests`, `DesktopParityTests` (Core), the module's own.
+`Themia.App/Shell/DesktopWindow.Desktop.cs`, `Themia.App/Shell/DesktopRoot.cs`,
+`Themia.Sdk/Files/DesktopItem.cs`, `Themia.Sdk/Files/DesktopRename.cs`,
+`Themia.Sdk/Files/DesktopIconPixels.cs`, `Themia.Sdk.WinUI/Modules/IDesktopItems.cs`. Tests:
+`DesktopLayerTests`, `DesktopParityTests`, `DesktopEdgeTests` (Core), the module's own.
 
 - **[S-5500]** **The choice.** ⚙'s one line **On the desktop** chooses what the desktop shows while
   Themia runs: **Themia's items**, **Windows' icons** or **Nothing** (`Preferences.Desktop`, a
@@ -7636,8 +7643,11 @@ Owning files: `Themia.Core/Desktop/*`, `Themia.Core/Shell/DesktopIconRules.cs`,
   always stands for one item.
 - **[S-5524]** **Two deletes, apart.** In edit mode Delete (the properties menu's, the card menu's,
   the key) removes the item's widget from this view only: the file stays on the desktop, its
-  widgets in other views stay, and it is listed under [S-5523]. Outside edit mode Delete is the
-  shell's own delete of the file, with the shell's prompt ([S-5545]).
+  widgets in other views stay, and it is listed under [S-5523]. Its button on the properties menu's
+  top row and its line on the card menu say so: **Remove from this view** while every widget it acts
+  on is a desktop item's (`DesktopBackground.RemovesFromView`, `QuickSetOffer.RemovesFromView`); a
+  selection with any other widget says Delete. Outside edit mode Delete is the shell's own delete of
+  the file, with the shell's prompt ([S-5545]).
 - **[S-5530]** **Opening** outside edit mode: a double-click on an item, or Enter with the keys
   ([S-5550]), opens the selection (the double-clicked item alone when it is not selected), at most 15
   items at once (the rest logged), through the launcher (a path as it is, a shell item as
@@ -7706,7 +7716,7 @@ Owning files: `Themia.Core/Desktop/*`, `Themia.Core/Shell/DesktopIconRules.cs`,
   New ›'s owner-drawn lines forwarded. **View, Sort by, Group by and Refresh are left out**: they are
   Explorer's own view's (they would arrange Explorer's hidden icon list); Themia's arrangement is the
   grid and edit mode, one meaning only. What a background command brings (a new folder, a paste)
-  lands where the click was ([S-5591]).
+  lands where the click was ([S-5591]). Themia's own lines are in it too ([S-5551]).
 - **[S-5549]** **Drags**: an item pressed and moved past the dead zone drags the selection (the item
   alone when it is not selected) out as the shell's own data object with the shell's drag image
   (`SHDoDragDrop`, the Folder widget's `DragDropInterop.DragOut`): onto Explorer, an app or the
@@ -7722,10 +7732,82 @@ Owning files: `Themia.Core/Desktop/*`, `Themia.Core/Shell/DesktopIconRules.cs`,
   foreground and drops `WS_EX_NOACTIVATE` while it holds them, [S-800]'s rule); either way the keys
   above go to the one selection. Escape ends the hold and hands the keyboard back; a click on
   another app or a card ends it. The selection stays (drawn inactive) when the keys go elsewhere.
-- **[S-5590]** *Planned, D3*: the keyboard after Win+D (Explorer's desktop takes the foreground and
-  its hidden list the focus), unplugged and re-plugged displays, mixed DPI, UI Automation and
-  Narrator, living beside Fences and Wallpaper Engine, Themia's own lines (edit mode, Add widget)
-  in the background menu, New ›'s rename of the new item.
+- **[S-5551]** **Themia's lines in the background menu**: with Themia's items, empty desktop's
+  right-click menu ([S-5548]) holds **Edit widgets** (edit mode on, as the card menu's Edit layout and
+  Ctrl+Alt+W) and **Add widget** (edit mode on, then the picker where the right-click was, as the
+  surface menu's Add widget, [S-1744]), so edit mode is reachable with no widget on screen and no
+  shortcut known. One group where Windows puts an app's lines: right after Paste and Paste shortcut,
+  else first, before the third-party lines, New › and Display settings, a separator on either side and
+  never two in a row (`DesktopBackground.Slot`, over the lines the shell filled in). Their ids lie past
+  every id the shell's handlers were given, so the shell never sees them; their words are Themia's
+  ("Add widget" is the bar's own). Debug: `--desktop-menu-check <out.txt>` builds the menu as a
+  right-click would and writes its lines, never showing it or running a command.
+- **[S-5552]** **New › renames what it made**, as Explorer does: a command chosen in New › (the
+  submenu that holds New › Folder, `DesktopBackground.IsNewCommand`) expects its arrival at the click
+  ([S-5591]) with `Renames`; the first item that lands for it is selected and its rename box opens
+  ([S-5543]) once the reconcile that placed it is applied. A paste, a drop or any other command renames
+  nothing.
+- **[S-5553]** **The keyboard after Win+D** stays where Windows puts it. Show desktop makes
+  Explorer's desktop window the foreground (the z-order controller hears it and lifts the surfaces
+  over it, [S-33], so the items stay visible and take clicks) and Explorer gives the keyboard to its
+  own icon list, hidden. Themia cannot take the keyboard there properly: `SetForegroundWindow` is
+  refused to a process that did not receive the last input (the Win+D was Explorer's), and the ways
+  around the foreground lock (attaching to Explorer's input queue, a synthetic key press, a timer
+  retrying) are exactly the hacks Themia does not use. So after Win+D the first click on Themia's
+  desktop (an item or empty desktop) gives it the keys ([S-5550]), and from then on arrows, Enter, F2
+  and the rest work as on Windows' desktop. Until that click, keys typed go to Explorer's hidden list:
+  a manual pass checks what Explorer does with them.
+- **[S-5560]** **A display unplugged**: the listed items placed only in the view of a display that is
+  no longer connected (its stored assignment, [S-18]) and in no view a live surface shows get a
+  stand-in widget each in the primary display's view, at its next free cells ([S-5521]) in the
+  stranded view's own order, recorded with their cells (`desktop.fallbacks`, written only while there
+  are some, repaired at load). The unplugged display's view is never touched: its item widgets keep
+  their cells. A view no display shows is the user's own (per view, the user's decision 1) and lends
+  nothing; a display Themia is switched off on is still connected and lends nothing either (its items
+  are listed by Add widget, [S-5523]). Not an undo step (`DesktopDisplays`, after every display pass and
+  every read of the desktop).
+- **[S-5561]** **A display plugged in** shows its view as the user set it ([S-18]: its stored
+  assignment; a new display the active view), and new files still land on the primary display's view
+  ([S-5520]). A stand-in whose item a shown view holds again (its display is back) goes; one the user
+  moved off its cell, or removed, is the user's own from then on and stays.
+- **[S-5562]** **The work area changing** (the taskbar moved, resized, or no longer hiding): in every
+  shown view, an item widget no longer whole inside its display's work area moves to the free cell
+  nearest after where it was (`DesktopCells.FreeFrom`), as Explorer keeps its icons off the taskbar;
+  one with no free cell stays. A work area that grows moves nothing back, and no other widget follows
+  the work area ([S-841]). Not an undo step.
+- **[S-5563]** **Mixed DPI**: an item's icon is drawn at its display's own scale
+  (`DesktopIconPixels.For`: a 48 icon is 48 pixels at 100 %, 60 at 125 %, 72 at 150 %, 96 at 200 %),
+  from the extra-large list up to 48 pixels and the jumbo list above (drawn down, as Explorer does);
+  an item with no large image, which the jumbo list returns as a small image in a corner of an empty
+  square, is the extra-large image drawn up (`HoldsOnlySmallImage`). A display's scale changing, or
+  the widget moving to a display of another scale, asks for the icon again at the new pixels. The cell
+  stays 90 × 110 DIPs on every display; the selection's boxes are in physical pixels across displays
+  ([S-5540]).
+- **[S-5570]** **Each item to a screen reader** (UI Automation, the item view's peer): a list item
+  named as Explorer shows it, its place in the desktop's order and the count ("3 of 12",
+  `DesktopNav.PositionOf`), the selection item pattern over the one selection (select alone, add,
+  remove, its container the desktop's list), invoke opening it ([S-5530]), and a value that is its
+  name, set by F2's rules (`IDesktopItems.RenameTo`; read-only for shell items). The focused item has
+  the keyboard focus while the desktop holds the keys; a focus that arrives on it (an arrow, a click)
+  and a selection that changes are announced. A refusal is logged, never thrown back into UI Automation.
+- **[S-5571]** **The surface is the desktop's list** while Themia's items show outside edit mode
+  (`DesktopRoot`): a list named **Desktop**, as Explorer's is, holding the items in the desktop's order
+  before anything else, with the selection pattern (several at once, none required) and the focused
+  item as its focused element. In edit mode, and under Windows' icons or Nothing, it is a plain pane.
+- **[S-5575]** **Living beside other desktop programs** (`DesktopCoexistence`), read from the
+  desktop's windows when the choice is applied, at start and when Explorer restarts (`TaskbarCreated`),
+  never by a message to another program's window: a window of another process among `Progman`'s or a
+  `WorkerW`'s children is a wallpaper engine's (Wallpaper Engine, Lively): it changes nothing, as it
+  draws under the surface (an interactive wallpaper no longer gets the clicks on empty desktop, which
+  are Themia's, [S-5501]); a desktop view (`SHELLDLL_DefView`) of another process means something has
+  replaced the desktop's icons; the re-hide cap reached ([S-5503]) means something keeps Explorer's
+  icons shown. In those two cases Themia never fights: its items stand down (no item widget has a card,
+  the surface traces the widgets as under Windows' icons) and Explorer's list is neither hidden nor shown
+  by Themia, and ⚙ › On the desktop says why under the choice. Picking a choice again (the same one
+  too) tries once more. A program that hides Explorer's list itself (Fences can) is not told apart from
+  an earlier run of Themia that was killed with the list hidden, so it is not detected: both its icons
+  and Themia's items show (a manual pass with Fences).
+- **[S-5590]** *Retired*: D3's plan, now [S-5551]..[S-5575].
 - **[S-5591]** **Where an arrival lands** (`DesktopLandings`, `DesktopCells`): a drop on empty
   desktop names the files it brings (the drag's file names and virtual file names) and the point;
   when they arrive, their widgets go to the view of the display it was dropped on, at the cell under

@@ -53,7 +53,7 @@ internal sealed partial class DesktopWindow : IWidgetCardHost
     /// <summary>[S-1585] The ghost's outlines, one per widget being placed; pooled, grown on demand.</summary>
     private readonly List<GhostCard> _ghosts = [];
 
-    private readonly Grid _root;
+    private readonly DesktopRoot _root;
 
     /// <summary>
     /// [S-1113] What menus opened on the bare surface hang from: a full-size, never hit-tested layer
@@ -100,7 +100,8 @@ internal sealed partial class DesktopWindow : IWidgetCardHost
         // thing that catches the click. The rubber band ([S-1581]) is drawn here too, for the same reason.
         _ghostLayer = new Canvas { IsHitTestVisible = false };
 
-        _root = new Grid
+        // [S-5571] A screen reader sees the desktop's list while Themia's items show outside edit mode.
+        _root = new DesktopRoot(() => !_closed && !EditMode && _host.ShowsDesktopItems)
         {
             // Transparent, not null: the root still has to receive the pointer input that edit mode
             // needs, while the window itself shows the wallpaper straight through.
@@ -316,6 +317,12 @@ internal sealed partial class DesktopWindow : IWidgetCardHost
     public bool IsSelected(WidgetCard card) => _host.Selection.Contains(card.Model.Id);
 
     public int SelectionCount => _host.Selection.Count;
+
+    /// <summary>[S-5524] The selection's Delete (the card alone when it is not selected) on desktop items only takes them off this view.</summary>
+    public bool DeleteRemovesFromView(WidgetCard card)
+        => !IsSelected(card) || ViewForThisMonitor(_host.State) is not { } view
+            ? Themia.Core.Desktop.DesktopBackground.RemovesFromView([card.Model.Config])
+            : Themia.Core.Desktop.DesktopBackground.RemovesFromView(view.Widgets.Where(w => _host.Selection.Contains(w.Id)).Select(w => w.Config));
 
     public void RequestSelect(WidgetCard card) => _host.Select(card.Model.Id);
 

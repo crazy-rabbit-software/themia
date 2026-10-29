@@ -122,8 +122,21 @@ internal sealed partial class AppHost
     /// </summary>
     public void SetDesktop(DesktopShows shows)
     {
-        if (!Enum.IsDefined(shows) || State.Preferences.Desktop == shows)
+        if (!Enum.IsDefined(shows))
         {
+            return;
+        }
+
+        // [S-5575] The same choice again, while another program holds the desktop: Themia tries once more.
+        if (State.Preferences.Desktop == shows)
+        {
+            if (_desktopHolder is not (Core.Desktop.DesktopHolder.None or Core.Desktop.DesktopHolder.Wallpaper))
+            {
+                ApplyDesktop(picked: true);
+                StateChanged?.Invoke();
+                SettingsOutdated?.Invoke();
+            }
+
             return;
         }
 

@@ -90,7 +90,20 @@ internal sealed partial class DesktopItemView : Grid, IWidgetView, IWidgetSizeAw
     }
 
     /// <summary>Whether gestures act: on the desktop, outside edit mode, never in a preview.</summary>
-    private bool Acts => _surface?.EditMode != true && !_fixture.On && !_host.IsPreview;
+    internal bool Acts => _surface?.EditMode != true && !_fixture.On && !_host.IsPreview;
+
+    /// <summary>[S-5570] The host, for the item's automation peer.</summary>
+    internal IWidgetHost Host => _host;
+
+    /// <summary>[S-5570] The item drawn, for the item's automation peer.</summary>
+    internal Themia.Sdk.DesktopItem? ShownItem => Item;
+
+    /// <summary>[S-5570] What was last announced: a change of either is told to a screen reader.</summary>
+    private bool _toldSelected;
+    private bool _toldFocused;
+
+    /// <summary>[S-5570] A screen reader sees the item as a list item of the desktop's list.</summary>
+    protected override Microsoft.UI.Xaml.Automation.Peers.AutomationPeer OnCreateAutomationPeer() => new DesktopItemAutomationPeer(this);
 
     private string? WidgetId => _surface?.WidgetId;
 
@@ -106,6 +119,8 @@ internal sealed partial class DesktopItemView : Grid, IWidgetView, IWidgetSizeAw
         DoubleTapped += OnDoubleTapped;
         RightTapped += OnRightTapped;
         SizeChanged += OnSizeChanged;
+        Loaded += OnLoaded;
+        Unloaded += OnUnloaded;
         _hover = SelectionChrome.Hover(this, hovered =>
         {
             _hovered = hovered;
@@ -148,6 +163,9 @@ internal sealed partial class DesktopItemView : Grid, IWidgetView, IWidgetSizeAw
         DoubleTapped -= OnDoubleTapped;
         RightTapped -= OnRightTapped;
         SizeChanged -= OnSizeChanged;
+        Loaded -= OnLoaded;
+        Unloaded -= OnUnloaded;
+        WatchScale(null);
         _hover?.Dispose();
         _hover = null;
         _pressed = false;
@@ -168,6 +186,41 @@ internal sealed partial class DesktopItemView : Grid, IWidgetView, IWidgetSizeAw
     public bool KeepsSelectionWhenLeft => true;
 
     private void OnItemsChanged() => Render();
+
+    /// <summary>[S-5563] The root the view is drawn in, watched for its scale (a display's scale changed).</summary>
+    private XamlRoot? _scaleRoot;
+
+    private void OnLoaded(object sender, RoutedEventArgs e) => WatchScale(XamlRoot);
+
+    private void OnUnloaded(object sender, RoutedEventArgs e) => WatchScale(null);
+
+    private void WatchScale(XamlRoot? root)
+    {
+        if (ReferenceEquals(root, _scaleRoot))
+        {
+            return;
+        }
+
+        if (_scaleRoot is not null)
+        {
+            _scaleRoot.Changed -= OnRootChanged;
+        }
+
+        _scaleRoot = root;
+        if (root is not null)
+        {
+            root.Changed += OnRootChanged;
+        }
+    }
+
+    /// <summary>[S-5563] A new scale wants the icon at its own pixels, never the old one's stretched.</summary>
+    private void OnRootChanged(XamlRoot sender, XamlRootChangedEventArgs args)
+    {
+        if (DesktopIconPixels.For(_fit.Icon, sender.RasterizationScale) != _iconPixels)
+        {
+            LoadIcon(Item);
+        }
+    }
 
     /// <summary>[S-5540] A left press outside edit mode is the desktop's selection's; the card still gets the press (the lease, [S-800]).</summary>
     private void OnPressed(object sender, PointerRoutedEventArgs e)
@@ -316,6 +369,18 @@ internal sealed partial class DesktopItemView : Grid, IWidgetView, IWidgetSizeAw
         // [S-5545] [S-5547] A cut item and a hidden one are faded, as Explorer draws them.
         var faded = _fixture.On ? _fixture.Faded : key is not null && (_host.DesktopItems.IsCut(key) || Item?.Hidden == true);
         _icon.Opacity = faded ? SelectionLook.Faded : 1;
+
+        // [S-5570] Told to a screen reader: the selection as it changes, the focus as it arrives.
+        var selected = Selected;
+        var focused = Acts && key is not null && _host.DesktopItems.IsFocused(key);
+        if ((selected != _toldSelected || focused != _toldFocused)
+            && Microsoft.UI.Xaml.Automation.Peers.FrameworkElementAutomationPeer.FromElement(this) is DesktopItemAutomationPeer peer)
+        {
+            peer.Changed(_toldSelected, selected, _toldFocused, focused);
+        }
+
+        _toldSelected = selected;
+        _toldFocused = focused;
     }
 
     private void Render()
@@ -448,6 +513,9 @@ internal sealed partial class DesktopItemView : Grid, IWidgetView, IWidgetSizeAw
         }
     }
 
+    /// <summary>[S-5563] The pixels the icon was last asked at.</summary>
+    private int _iconPixels;
+
     private async void LoadIcon(Themia.Sdk.DesktopItem? item)
     {
         var request = ++_iconRequest;
@@ -457,8 +525,9 @@ internal sealed partial class DesktopItemView : Grid, IWidgetView, IWidgetSizeAw
             return;
         }
 
-        var scale = XamlRoot?.RasterizationScale is > 0 and var s ? s : 1.0;
-        var pixels = (int)Math.Round(_fit.Icon * scale);
+        // [S-5563] The icon at this display's own scale: 48 pixels at 100 %, 72 at 150 %, 96 at 200 %.
+        var pixels = DesktopIconPixels.For(_fit.Icon, XamlRoot?.RasterizationScale ?? 1.0);
+        _iconPixels = pixels;
         if (_host.DesktopItems.TryIcon(item, pixels, out var cached))
         {
             _icon.Source = cached;

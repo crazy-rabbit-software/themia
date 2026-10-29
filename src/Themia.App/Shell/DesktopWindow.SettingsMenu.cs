@@ -167,6 +167,8 @@ internal sealed partial class DesktopWindow
 
         public void SetDesktop(DesktopShows shows) => Host.SetDesktop(shows);
 
+        public Core.Desktop.DesktopHolder DesktopHolder => Host.DesktopHolder;
+
         public void SetGameModeSuspend(bool on) => Host.SetGameModeSuspend(on);
 
         public void ReplayIntro(IntroMode mode) => Host.ReplayIntro(mode);

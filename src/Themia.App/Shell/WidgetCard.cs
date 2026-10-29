@@ -111,6 +111,9 @@ internal interface IWidgetCardHost
     /// <summary>How many widgets are selected, so the card menu can say what its commands act on.</summary>
     int SelectionCount => 1;
 
+    /// <summary>[S-5524] Whether this card's Delete takes desktop items' widgets off the view only ("Remove from this view").</summary>
+    bool DeleteRemovesFromView(WidgetCard card) => Themia.Core.Desktop.DesktopBackground.RemovesFromView([card.Model.Config]);
+
     /// <summary>[S-1584] A move of this card starts: it and every other selected card move together.</summary>
     void BeginMove(WidgetCard card)
     {
@@ -1102,7 +1105,7 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface, IItemPaletteOwn
             ShellCommand.Cut => new(Glyphs.Cut, Verb(Str.CtxMenu_Cut, Str.Shell_Card_CutMany), () => _host.RequestCut(this), Quick: item.Quick, Shortcut: KeyChord.Ctrl(ChordKey.X)),
             ShellCommand.Copy => new(Glyphs.Copy, Verb(Str.CtxMenu_Copy, Str.Shell_Card_CopyMany), () => _host.RequestCopy(this), Quick: item.Quick, Shortcut: KeyChord.Ctrl(ChordKey.C)),
             ShellCommand.Paste => new(Glyphs.Paste, Str.CtxMenu_Paste.Text(), _host.RequestPaste, Disabled: disabled, Quick: item.Quick, Shortcut: KeyChord.Ctrl(ChordKey.V)),
-            ShellCommand.Delete => new(Glyphs.Delete, Verb(Str.Common_Delete, Str.Shell_Card_DeleteMany), () => _host.RequestDelete(this), Danger: true, Quick: item.Quick, Shortcut: KeyChord.Plain(ChordKey.Delete)),
+            ShellCommand.Delete => new(Glyphs.Delete, _host.DeleteRemovesFromView(this) ? Str.Desktop_Delete_FromView.Text() : Verb(Str.Common_Delete, Str.Shell_Card_DeleteMany), () => _host.RequestDelete(this), Danger: true, Quick: item.Quick, Shortcut: KeyChord.Plain(ChordKey.Delete)),
             ShellCommand.BringToFront => new(Glyphs.MoveUp, Str.Shell_Card_BringToFront.Text(), () => _host.RequestZOrder(this, front: true), Disabled: disabled),
             ShellCommand.SendToBack => new(Glyphs.MoveDown, Str.Shell_Card_SendToBack.Text(), () => _host.RequestZOrder(this, front: false), Disabled: disabled),
             ShellCommand.ToggleEditMode => _host.EditMode

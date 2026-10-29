@@ -118,20 +118,18 @@ internal static partial class AppIcons
                 overlay = 0;
             }
 
-            var iid = ImageListIid;
-            if (SHGetImageList(size <= 48 ? ShilExtraLarge : ShilJumbo, &iid, &list) < 0 || list == 0)
+            // [S-5563] The list that has the pixels: extra-large up to 48, jumbo above.
+            var jumbo = DesktopIconPixels.ListFor(size) == DesktopIconList.Jumbo;
+            var drawn = FromList(jumbo ? ShilJumbo : ShilExtraLarge, index, overlay, ref list, ref icon);
+
+            // An item with no large image comes back from the jumbo list as its 48-pixel image in a
+            // corner of an empty square: the extra-large image, drawn up, is the icon then.
+            if (jumbo && drawn is not null && DesktopIconPixels.HoldsOnlySmallImage(drawn.Bgra, drawn.Width, drawn.Height))
             {
-                return null;
+                drawn = FromList(ShilExtraLarge, index, overlay, ref list, ref icon) ?? drawn;
             }
 
-            // INDEXTOOVERLAYMASK: the overlay's one-based number in the flags' second byte.
-            var getIcon = (delegate* unmanaged[Stdcall]<nint, int, uint, nint*, int>)(*(nint**)list)[SlotGetIcon];
-            if (getIcon(list, index, IldTransparent | (uint)(overlay << 8), &icon) < 0 || icon == 0)
-            {
-                return null;
-            }
-
-            return ReadIcon(icon);
+            return drawn;
         }
         finally
         {
@@ -155,6 +153,45 @@ internal static partial class AppIcons
                 CoUninitialize();
             }
         }
+    }
+
+    /// <summary>
+    /// [S-5512] One image of a system image list with the overlay composed by the list. The list and
+    /// icon handles of an earlier call are released first; the caller releases the last ones.
+    /// </summary>
+    private static unsafe Pixels? FromList(int which, int index, int overlay, ref nint list, ref nint icon)
+    {
+        if (icon != 0)
+        {
+            DestroyIcon(icon);
+            icon = 0;
+        }
+
+        if (list != 0)
+        {
+            ((delegate* unmanaged[Stdcall]<nint, uint>)(*(nint**)list)[2])(list);
+            list = 0;
+        }
+
+        var iid = ImageListIid;
+        nint got;
+        if (SHGetImageList(which, &iid, &got) < 0 || got == 0)
+        {
+            return null;
+        }
+
+        list = got;
+
+        // INDEXTOOVERLAYMASK: the overlay's one-based number in the flags' second byte.
+        nint drawn;
+        var getIcon = (delegate* unmanaged[Stdcall]<nint, int, uint, nint*, int>)(*(nint**)got)[SlotGetIcon];
+        if (getIcon(got, index, IldTransparent | (uint)(overlay << 8), &drawn) < 0 || drawn == 0)
+        {
+            return null;
+        }
+
+        icon = drawn;
+        return ReadIcon(drawn);
     }
 
     /// <summary>An icon's pixels, premultiplied: its own alpha when it has one, else its mask.</summary>

@@ -17,6 +17,7 @@ internal static class RenderFlags
         "--iconpicker-png",
         "--viewbar-png",
         "--desktop-items-check",
+        DesktopMenuCheck.Flag,
         "--notices-png",
         "--layout-editor-png",
         "--widget-png",

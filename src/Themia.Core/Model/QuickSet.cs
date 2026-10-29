@@ -26,6 +26,7 @@ namespace Themia.Core.Model;
 /// <param name="Align">[S-6584] Where the widgets that can align draw their content, or null when they differ.</param>
 /// <param name="HasItemText">[S-6574] Whether any selected widget draws items with text on them (not tracks only); the Item text line is not shown without.</param>
 /// <param name="BackgroundImage">[S-6593] Their background image's path (empty: none), or null when they differ.</param>
+/// <param name="RemovesFromView">[S-5524] Every selected widget is a desktop item's: Delete reads "Remove from this view".</param>
 public sealed record QuickSetOffer(
     int Count,
     HeaderPlacement? Header,
@@ -43,7 +44,8 @@ public sealed record QuickSetOffer(
     bool CanAlign = false,
     ContentAlign? Align = null,
     bool HasItemText = true,
-    string? BackgroundImage = "")
+    string? BackgroundImage = "",
+    bool RemovesFromView = false)
 {
     public static readonly QuickSetOffer None = new(0, null, null, null, null, null, false);
 
@@ -89,6 +91,8 @@ public static class QuickSet
             return QuickSetOffer.None;
         }
 
+        // [S-5524] Desktop items only: Delete takes their widgets off this view, the files stay.
+        var removes = Desktop.DesktopBackground.RemovesFromView(widgets.Select(w => w.Config));
         var hasHeader = widgets.TrueForAll(w => WidgetInstance.CanHaveHeader(w.Kind));
         var header = hasHeader ? Common(widgets.Select(w => w.Header)) : null;
         var background = CommonFill(widgets.Select(w => w.Background));
@@ -125,10 +129,10 @@ public static class QuickSet
         if (widgets.Count == 1)
         {
             var only = widgets[0];
-            return new QuickSetOffer(1, header, background, only.Id, only.Kind, only.Label, hasHeader, styleKind, style, items, hasItems, scale, itemText, canAlign, align, hasItemText, image);
+            return new QuickSetOffer(1, header, background, only.Id, only.Kind, only.Label, hasHeader, styleKind, style, items, hasItems, scale, itemText, canAlign, align, hasItemText, image, removes);
         }
 
-        return new QuickSetOffer(widgets.Count, header, background, null, null, null, hasHeader, styleKind, style, items, hasItems, scale, itemText, canAlign, align, hasItemText, image);
+        return new QuickSetOffer(widgets.Count, header, background, null, null, null, hasHeader, styleKind, style, items, hasItems, scale, itemText, canAlign, align, hasItemText, image, removes);
     }
 
     /// <summary>
