@@ -997,7 +997,7 @@ module author's guide is docs/WIDGET-KIT.md 16.
   place, never beside them (the order is the family's phase plan): the card's header is the Header
   block now and `Fluent.Header` is gone; the Set up row is the Status block now. `KitHeader`,
   `KitStatePanel`, `EmptyStatePanel`/`Fluent.EmptyState`, `Fluent.Row`/`Fluent.Badge`,
-  `AddFooterRow`, `HeroLayout` (its fit, for `RingFace`)/`HeroFit.Figures`, `FluentType.Hero`/`Fit`/
+  `AddFooterRow`, `HeroFit.Figures`, `FluentType.Hero`/`Fit`/
   `FitWidth`/`Scaled` and the off-family ramp steps, `RingPart` stay until the group that migrates their callers rebuilds them
   on the blocks; each then goes. The meters and the details are on the blocks (G1, 2026-10-29):
   `MeterView` and `DetailView` are built from the Readout, Row and Chart blocks, `SparkBand` draws on
@@ -1029,7 +1029,28 @@ module author's guide is docs/WIDGET-KIT.md 16.
   `ToggleFace`, `SwitchFace`, `RoundButtonFace`, `PowerFace` and `ButtonInset` (the 8 inset under a
   short side of 128) are gone, and with them the toggles' wide-strip row, the switch's own drawn track
   and its levels, the round button's 0.85 circle and Subtitle name, the power buttons' critical tile
-  fill, the armed sentence's two Caption lines and the always-accent round power button.
+  fill, the armed sentence's two Caption lines and the always-accent round power button. The files,
+  stores and special widgets are on the blocks (G6, 2026-10-29): the folder's and Shortcuts' lists
+  and tables are Row blocks (Details on `RowBlock.Cells`), their grids `RowCell`s laid out by
+  `RowRules.Cells` (32, 48 from an expanded width, 12 apart), their selection `SelectionChrome`'s
+  marks on the family's tokens, Shortcuts' Recycle Bin count the neutral pill; drive has the Header,
+  the used share as a Readout over its `ChartBar` with fact rows, or a `ChartRing`; removable drives
+  are Row blocks with an inline `ChartBar`; the Recycle Bin's size is a Readout with Empty the
+  Controls row's one main action; a habit is a Row block with its days as the inline meter, the
+  heatmap's cells filled from their foot; the scratchpad's tools are two header buttons and a bar of
+  32 tools, its inks data colours; the screen-time widgets' day is the header's label and buttons,
+  their apps' colours data colours (`Family.Data`), the chart's total a Readout, the donut's wedges
+  stroke 4; the gallery and the video stream say a missing picture in the Status row and draw their
+  overlays on the Solid role; the visualizer's styles are the Chart's tokens; `UnavailableLook` is
+  the disabled role ([S-6706]). `RingFace`, `HeroLayout`, `ScreenTimeLayout` and
+  `ScreenTimeRules.RingText` are gone, and with them the drive's picture and its four-figure tile, the
+  folder's cloud badge, the removable drives' Eject buttons, the Recycle Bin's icon, the habits'
+  rate and best columns and the heatmap's shades, the scratchpad's header eraser, the screen-time
+  chart's weekday labels, the calendar's shades and the donut's thick lifted ring, the Folder's and
+  Shortcuts' own row and tile sizes. `Fluent.Row`, `Fluent.RowHeight`, `CompactBelow`,
+  `Fluent.EmptyState` (`EmptyStatePanel`, `EmptyStateFit`), `RingPart`, `AudioFeed`, `AudioLook`,
+  `Fluent.Space5`, `Fluent.OverlayRadius` and the off-family `FluentType` steps are left to G5's
+  widgets and the app's shell alone.
 - **[S-6730]** The **source guard** (`FamilyGuardTests.S6730_no_literal_outside_the_family_tokens`)
   reads every module, the SDK's UI parts and the app's Shell and Widgets (not `Tests/`, `Fixtures/`,
   `Gallery/`) and fails on a type size or line, a weight other than 400/600, a spacing, thickness,
@@ -8102,7 +8123,7 @@ gallery ([S-1863]).
   module's words: "Choose a place" for every widget about a place; "Add a feed", "Add an account to
   show your mail", "… your tasks", "… your calendar", "… your contacts", "Add an account to plan
   your week", "… your next meeting" for the lists, G2; "Choose a symbol" for Stocks and "Add a quote"
-  for a Quote with no quote to show, G3), else "Add an account to show this" where an
+  for a Quote with no quote to show, G3; "Add a shortcut" for Shortcuts, "Choose a folder of pictures" or "Choose a picture" for Pictures and "Add a stream" for a Video stream, G6), else "Add an account to show this" where an
   account is all it lacks, else "Set up what this widget needs". On a row too narrow for both (XS, S) the sentence
   goes and the glyph and the button stay, at every size. The button takes
   no focus, so it works outside edit mode on the `WS_EX_NOACTIVATE` surface. A click goes where what

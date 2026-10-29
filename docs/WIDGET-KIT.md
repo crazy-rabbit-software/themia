@@ -2945,6 +2945,25 @@ timer ([S-1913]). Its module declares `WidgetTraits.OneReadout` ([S-6737]): the 
 glyph or readout may climb the Hero steps (`ReadoutRules.OneReadout`); the render walk reads the same
 trait.
 
+### 16.2d Files, stores and special widgets (G6, 2026-10-29)
+
+A grid of items (Shortcuts, a folder's Grid and Icons) is `RowCell`s placed by `RowRules.Cells`: the
+family's icon (32, 48 from an expanded width) over its name in one Caption line, the columns sharing the
+width 12 apart, each cell's selection mark (`SelectionChrome`, its look `SelectionLook`'s) 4 around its
+lead and name. A list or a table of files is the Row block (a table's columns on `RowBlock.Cells`, the
+titles a Caption line at the text edge), the mark behind the row over its full width. A count over a
+picture (the Recycle Bin's on Shortcuts) is the neutral pill (`HeaderBlock.Count`), moved out to the
+icon's corner by a transform. A widget about one size or share (the Recycle Bin, a drive) is a Readout
+sized on its widest case with its line under; a drive's bar is a `ChartBar`, its ring a `ChartRing`;
+the one thing a person does to it (Empty) is the Controls row's main action at the bottom inset. A
+colour that is the data's (an app's in the screen-time widgets, a pen, the selection's marks from
+Windows' highlight, the item palette's) goes through `Family.Data`/`HexBrush` and is drawn as a bar, a
+dot, a series or a wedge of the family's stroke; a part not in focus is drawn at the wash, never at an
+opacity of its own. A picture, a stream or ink is content: only the header, the Status row (a missing
+folder, a stream that dropped: one row at the top, Retry where reading again helps) and the overlays
+over it (the Solid role, radius 4, 32 icon buttons) follow the family. `RingFace`, `HeroLayout` and
+`ScreenTimeLayout` are gone; `UnavailableLook` stays, the disabled role ([S-1940]).
+
 ### 16.3 The guard
 
 - **Source** (`FamilyGuardTests`, in `dotnet test`): a number given for a type size, weight, spacing,
