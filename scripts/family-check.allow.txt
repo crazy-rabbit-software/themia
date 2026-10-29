@@ -3,18 +3,6 @@
 airplaneModeToggle	Ellipse space margin
 airplaneModeToggle	FontIcon glyph-size
 airplaneModeToggle	TextBlock text-size
-airQuality	Ellipse space margin
-airQuality	FontIcon colour fg
-airQuality	FontIcon glyph-size
-airQuality	Grid space margin
-airQuality	Path colour stroke
-airQuality	Path stroke
-airQuality	Rectangle colour fill
-airQuality	Rectangle space margin
-airQuality	Run text-size
-airQuality	TextBlock colour fg
-airQuality	TextBlock text-line
-airQuality	TextBlock text-size
 alarm	TextBlock colour fg
 alarm	TextBlock text-size
 audioVisualizer	Rectangle radius
@@ -47,11 +35,6 @@ drive	TextBlock text-size
 energySaverToggle	Ellipse space margin
 energySaverToggle	FontIcon glyph-size
 energySaverToggle	TextBlock text-size
-exchangeRates	FontIcon glyph-size
-exchangeRates	Run colour fg
-exchangeRates	Run text-size
-exchangeRates	TextBlock text-line
-exchangeRates	TextBlock text-size
 focusSession	Ellipse stroke
 focusSession	Path stroke
 focusSession	TextBlock text-size
@@ -82,27 +65,16 @@ mixer	TextBlock text-size
 monoAudioToggle	Ellipse space margin
 monoAudioToggle	FontIcon glyph-size
 monoAudioToggle	TextBlock text-size
-moon	TextBlock colour fg
 music	FontIcon glyph-size
 music	TextBlock text-size
 nightLightToggle	Ellipse space margin
 nightLightToggle	FontIcon glyph-size
 nightLightToggle	TextBlock text-size
-notes	FontIcon glyph-size
-notes	TextBlock text-size
 pomodoro	Ellipse stroke
 pomodoro	FontIcon colour fg
 pomodoro	Path stroke
 pomodoro	TextBlock colour fg
 pomodoro	TextBlock text-size
-quote	FontIcon colour fg
-quote	TextBlock colour fg
-quote	TextBlock text-size
-rainNextHour	FontIcon colour fg
-rainNextHour	FontIcon glyph-size
-rainNextHour	Rectangle radius
-rainNextHour	TextBlock colour fg
-rainNextHour	TextBlock text-size
 recycleBin	Button space padding
 recycleBin	FontIcon glyph-size
 recycleBin	TextBlock text-size
@@ -154,30 +126,10 @@ soundToggle	TextBlock text-size
 spatialSoundToggle	Ellipse space margin
 spatialSoundToggle	FontIcon glyph-size
 spatialSoundToggle	TextBlock text-size
-stocks	Ellipse colour fill
-stocks	FontIcon glyph-size
-stocks	Run colour fg
-stocks	Run text-size
-stocks	TextBlock text-line
-stocks	TextBlock text-size
 stopwatch	TextBlock text-size
-sun	Rectangle colour fill
-sun	TextBlock colour fg
-sun	TextBlock text-size
 videoStream	TextBlock text-size
 volume	Slider radius
 volume	TextBlock text-size
-weatherForecast	Border space padding
-weatherForecast	FontIcon colour fg
-weatherForecast	FontIcon glyph-size
-weatherForecast	Grid space padding
-weatherForecast	TextBlock colour fg
-weatherForecast	TextBlock text-size
-weatherNow	FontIcon glyph-size
-weatherNow	Run text-size
-weatherNow	Run text-weight
-weatherNow	TextBlock text-line
-weatherNow	TextBlock text-size
 wifiToggle	Ellipse space margin
 wifiToggle	FontIcon glyph-size
 wifiToggle	TextBlock text-size

@@ -155,32 +155,8 @@
 1	src/Themia.Sdk.WinUI/Widgets/SelectionChrome.cs	brush	CardBackgroundFillColorDefaultBrush
 1	src/Themia.Sdk.WinUI/Widgets/SelectionChrome.cs	brush	SolidBackgroundFillColorBaseBrush
 1	src/Themia.Sdk.WinUI/Widgets/SelectionChrome.cs	colour	Color.FromArgb(
-1	src/Themia.Sdk.WinUI/Widgets/SkyParts.cs	brush	AccentTextFillColorPrimaryBrush
 1	src/Themia.Sdk.WinUI/Widgets/UnavailableLook.cs	brush	AccentFillColorDisabledBrush
 1	src/Themia.Sdk.WinUI/Widgets/UnavailableLook.cs	brush	ControlStrongStrokeColorDisabledBrush
-1	src/Themia.Sdk.WinUI/Widgets/WidgetParts.cs	ramp	FluentType.Subtitle
-1	src/Themia.Sdk.WinUI/Widgets/WidgetParts.cs	ramp	HeroLayout.BesideGap
-1	src/Themia.Sdk.WinUI/Widgets/WidgetParts.cs	ramp	HeroLayout.IconGap
-2	src/Themia.Sdk.WinUI/Widgets/WidgetParts.cs	ramp	HeroLayout.IconSize
-1	src/Themia.Sdk.WinUI/Widgets/WidgetParts.cs	ramp	HeroLayout.TrailingStep
-1	src/Themia.Sdk.WinUI/Widgets/WidgetParts.cs	ramp	HeroLayout.UnitStep
-1	src/Widgets/Themia.Widget.AirQuality/AirQualityView.Gauge.cs	colour	Colors.White
-2	src/Widgets/Themia.Widget.AirQuality/AirQualityView.Gauge.cs	ramp	FluentType.Display
-1	src/Widgets/Themia.Widget.AirQuality/AirQualityView.Gauge.cs	ramp	FluentType.Subtitle
-1	src/Widgets/Themia.Widget.AirQuality/AirQualityView.Gauge.cs	ramp	HeroLayout.Fit
-1	src/Widgets/Themia.Widget.AirQuality/AirQualityView.cs	brush	SystemFillColorSuccessBrush
-1	src/Widgets/Themia.Widget.AirQuality/AirQualityView.cs	colour	Colors.White
-1	src/Widgets/Themia.Widget.AirQuality/AirQualityView.cs	radius	RadiusX = Bar / 2
-1	src/Widgets/Themia.Widget.AirQuality/AirQualityView.cs	radius	RadiusY = Bar / 2
-2	src/Widgets/Themia.Widget.AirQuality/AirQualityView.cs	ramp	FluentType.Display
-6	src/Widgets/Themia.Widget.AirQuality/AirQualityView.cs	ramp	FluentType.Subtitle
-1	src/Widgets/Themia.Widget.AirQuality/AirQualityView.cs	ramp	HeroLayout.BesideGap
-2	src/Widgets/Themia.Widget.AirQuality/AirQualityView.cs	ramp	HeroLayout.Fit
-4	src/Widgets/Themia.Widget.AirQuality/AirQualityView.cs	ramp	HeroLayout.IconGap
-5	src/Widgets/Themia.Widget.AirQuality/AirQualityView.cs	ramp	HeroLayout.IconSize
-3	src/Widgets/Themia.Widget.AirQuality/AirQualityView.cs	ramp	HeroLayout.ValueWidth
-1	src/Widgets/Themia.Widget.AirQuality/AirQualityView.cs	space	new Thickness(Math.Clamp((AirQualityRules.ScalePosition(scale, index) * width) - (Marker / 2)
-1	src/Widgets/Themia.Widget.AirQuality/AirQualityView.cs	space	new Thickness(band == 0 ? 0 : 1, 0, band == 5 ? 0 : 1, 0)
 1	src/Widgets/Themia.Widget.Alarm/AlarmView.cs	brush	AccentTextFillColorPrimaryBrush
 1	src/Widgets/Themia.Widget.Alarm/AlarmView.cs	ramp	FluentType.Hero
 1	src/Widgets/Themia.Widget.Alarm/AlarmView.cs	ramp	FluentType.Title
@@ -212,15 +188,6 @@
 2	src/Widgets/Themia.Widget.Drive/DriveView.Ring.cs	ramp	FluentType.Subtitle
 1	src/Widgets/Themia.Widget.Drive/DriveView.cs	ramp	FluentType.BodyLarge
 1	src/Widgets/Themia.Widget.Drive/DriveView.cs	ramp	FluentType.Subtitle
-1	src/Widgets/Themia.Widget.ExchangeRates/ExchangeRatesView.cs	brush	SystemFillColorSuccessBrush
-1	src/Widgets/Themia.Widget.ExchangeRates/ExchangeRatesView.cs	ramp	FluentType.Display
-3	src/Widgets/Themia.Widget.ExchangeRates/ExchangeRatesView.cs	ramp	FluentType.Subtitle
-1	src/Widgets/Themia.Widget.ExchangeRates/ExchangeRatesView.cs	ramp	HeroLayout.BesideGap
-2	src/Widgets/Themia.Widget.ExchangeRates/ExchangeRatesView.cs	ramp	HeroLayout.Fit
-1	src/Widgets/Themia.Widget.ExchangeRates/ExchangeRatesView.cs	ramp	HeroLayout.Grow
-1	src/Widgets/Themia.Widget.ExchangeRates/ExchangeRatesView.cs	ramp	HeroLayout.TierStep
-3	src/Widgets/Themia.Widget.ExchangeRates/ExchangeRatesView.cs	ramp	HeroLayout.TrailingStep
-1	src/Widgets/Themia.Widget.ExchangeRates/ExchangeRatesView.cs	ramp	HeroLayout.ValueWidth
 1	src/Widgets/Themia.Widget.FocusSession/FocusSessionView.cs	ramp	FluentType.Display
 2	src/Widgets/Themia.Widget.FocusSession/FocusSessionView.cs	ramp	FluentType.Hero
 1	src/Widgets/Themia.Widget.Folder/FolderView.Commands.cs	size	MaxWidth = 240
@@ -254,7 +221,6 @@
 1	src/Widgets/Themia.Widget.Mixer/MixerView.Row.cs	space	new Thickness(Fluent.Space1 + 2)
 1	src/Widgets/Themia.Widget.Mixer/MixerView.Row.cs	space	new Thickness(Fluent.Space1 + 2, 0, Fluent.Space1 + 2, 0)
 1	src/Widgets/Themia.Widget.Mixer/MixerView.Row.cs	space	new Thickness(Fluent.Space4, 2, Fluent.Space2, 0)
-1	src/Widgets/Themia.Widget.Moon/MoonView.cs	colour	Colors.DodgerBlue
 1	src/Widgets/Themia.Widget.Music/MusicSeekBar.cs	colour	Colors.Transparent
 2	src/Widgets/Themia.Widget.Music/MusicSeekBar.cs	radius	new CornerRadius(TrackHeight / 2)
 1	src/Widgets/Themia.Widget.Music/MusicSeekBar.cs	stroke	StrokeThickness = 2
@@ -268,33 +234,11 @@
 1	src/Widgets/Themia.Widget.Music/MusicView.Layout.cs	ramp	FluentType.Title
 2	src/Widgets/Themia.Widget.Music/MusicView.Layout.cs	ramp	FluentType.TitleLarge
 1	src/Widgets/Themia.Widget.Music/MusicView.cs	brush	ControlFillColorSecondaryBrush
-2	src/Widgets/Themia.Widget.Notes/MarkdownEditor.cs	brush	AccentTextFillColorPrimaryBrush
-1	src/Widgets/Themia.Widget.Notes/MarkdownEditor.cs	brush	SolidBackgroundFillColorBaseBrush
-1	src/Widgets/Themia.Widget.Notes/MarkdownEditor.cs	colour	Color.FromArgb(
-1	src/Widgets/Themia.Widget.Notes/MarkdownEditor.cs	colour	Colors.Black
-1	src/Widgets/Themia.Widget.Notes/MarkdownEditor.cs	colour	Colors.Gray
-1	src/Widgets/Themia.Widget.Notes/NotesView.Picker.cs	size	MinWidth = 200
-1	src/Widgets/Themia.Widget.Notes/NotesView.cs	brush	TextControlBorderBrush
-1	src/Widgets/Themia.Widget.Notes/NotesView.cs	brush	TextControlElevationBorderFocusedBrush
-1	src/Widgets/Themia.Widget.Notes/NotesView.cs	space	new Thickness(NotesLayout.TitleGap, -Fluent.Space1 / 2, 0, -Fluent.Space1 / 2)
 1	src/Widgets/Themia.Widget.Pomodoro/PomodoroView.cs	brush	AccentTextFillColorPrimaryBrush
 2	src/Widgets/Themia.Widget.Pomodoro/PomodoroView.cs	brush	SystemFillColorSuccessBrush
 1	src/Widgets/Themia.Widget.Pomodoro/PomodoroView.cs	ramp	FluentType.Display
 3	src/Widgets/Themia.Widget.Pomodoro/PomodoroView.cs	ramp	FluentType.Hero
 1	src/Widgets/Themia.Widget.Pomodoro/PomodoroView.cs	ramp	FluentType.Subtitle
-1	src/Widgets/Themia.Widget.Quote/QuoteLayout.cs	ramp	FluentType.Display
-1	src/Widgets/Themia.Widget.Quote/QuoteLayout.cs	ramp	FluentType.Title
-1	src/Widgets/Themia.Widget.Quote/QuoteLayout.cs	ramp	FluentType.TitleLarge
-1	src/Widgets/Themia.Widget.Quote/QuoteView.cs	brush	AccentTextFillColorPrimaryBrush
-1	src/Widgets/Themia.Widget.Quote/QuoteView.cs	brush	ButtonBorderBrush
-1	src/Widgets/Themia.Widget.Quote/QuoteView.cs	ramp	FluentType.Display
-1	src/Widgets/Themia.Widget.Quote/QuoteView.cs	ramp	FluentType.TitleLarge
-1	src/Widgets/Themia.Widget.RainNextHour/RainNextHourView.cs	brush	AccentTextFillColorPrimaryBrush
-1	src/Widgets/Themia.Widget.RainNextHour/RainNextHourView.cs	radius	RadiusX = share > 0 ? Fluent.ControlRadius / 2 : 0
-1	src/Widgets/Themia.Widget.RainNextHour/RainNextHourView.cs	radius	RadiusY = share > 0 ? Fluent.ControlRadius / 2 : 0
-2	src/Widgets/Themia.Widget.RainNextHour/RainNextHourView.cs	ramp	FluentType.Fit
-1	src/Widgets/Themia.Widget.RainNextHour/RainNextHourView.cs	ramp	FluentType.Subtitle
-3	src/Widgets/Themia.Widget.RainNextHour/RainNextHourView.cs	ramp	FluentType.Title
 1	src/Widgets/Themia.Widget.RecycleBin/RecycleBinRules.cs	ramp	FluentType.Subtitle
 1	src/Widgets/Themia.Widget.RecycleBin/RecycleBinRules.cs	ramp	FluentType.TitleLarge
 1	src/Widgets/Themia.Widget.RecycleBin/RecycleBinView.cs	colour	Colors.Transparent
@@ -333,53 +277,8 @@
 1	src/Widgets/Themia.Widget.Shortcuts/ShortcutsView.Drop.cs	space	new Thickness(on ? Fluent.Hairline * 2 : 0)
 1	src/Widgets/Themia.Widget.Shortcuts/ShortcutsView.Input.cs	space	new Thickness(Fluent.Space1, 2, Fluent.Space1, 2)
 1	src/Widgets/Themia.Widget.Shortcuts/ShortcutsView.cs	space	new Thickness(Fluent.Space1 + 2, Fluent.Space1, Fluent.Space1 + 2, Fluent.Space1)
-3	src/Widgets/Themia.Widget.Stocks/StockLayout.cs	ramp	FluentType.Display
-3	src/Widgets/Themia.Widget.Stocks/StockLayout.cs	ramp	FluentType.Fit
-1	src/Widgets/Themia.Widget.Stocks/StockLayout.cs	ramp	FluentType.Scaled
-16	src/Widgets/Themia.Widget.Stocks/StockLayout.cs	ramp	FluentType.Subtitle
-1	src/Widgets/Themia.Widget.Stocks/StockLayout.cs	ramp	HeroLayout.MaxGrowth
-1	src/Widgets/Themia.Widget.Stocks/StockLayout.cs	ramp	HeroLayout.SideInset
-1	src/Widgets/Themia.Widget.Stocks/StockLayout.cs	ramp	HeroLayout.TierStep
-1	src/Widgets/Themia.Widget.Stocks/StockLayout.cs	ramp	HeroLayout.TrailingStep
-1	src/Widgets/Themia.Widget.Stocks/StocksMenu.cs	brush	SystemFillColorSuccessBrush
-1	src/Widgets/Themia.Widget.Stocks/StocksMenu.cs	colour	Colors.Gray
-1	src/Widgets/Themia.Widget.Stocks/StocksView.Chart.cs	brush	SolidBackgroundFillColorTertiaryBrush
-1	src/Widgets/Themia.Widget.Stocks/StocksView.cs	brush	AccentTextFillColorPrimaryBrush
-1	src/Widgets/Themia.Widget.Stocks/StocksView.cs	brush	SystemFillColorSuccessBrush
-1	src/Widgets/Themia.Widget.Stocks/StocksView.cs	colour	Color.FromArgb(
 1	src/Widgets/Themia.Widget.Stopwatch/StopwatchView.cs	ramp	FluentType.Display
 3	src/Widgets/Themia.Widget.Stopwatch/StopwatchView.cs	ramp	FluentType.Hero
-1	src/Widgets/Themia.Widget.Sun/SunView.cs	brush	AccentFillColorDisabledBrush
-1	src/Widgets/Themia.Widget.Sun/SunView.cs	brush	AccentFillColorTertiaryBrush
-1	src/Widgets/Themia.Widget.Sun/SunView.cs	brush	SolidBackgroundFillColorBaseBrush
-1	src/Widgets/Themia.Widget.Sun/SunView.cs	ramp	FluentType.Fit
-1	src/Widgets/Themia.Widget.Sun/SunView.cs	ramp	FluentType.Subtitle
 2	src/Widgets/Themia.Widget.VideoStream/VideoStreamView.Overlay.cs	brush	AcrylicInAppFillColorDefaultBrush
 1	src/Widgets/Themia.Widget.VideoStream/VideoStreamView.Overlay.cs	space	new Thickness(Fluent.Space2, Fluent.Space1 / 2, Fluent.Space2, Fluent.Space1 / 2)
 1	src/Widgets/Themia.Widget.VideoStream/VideoStreamView.cs	colour	Colors.Transparent
-4	src/Widgets/Themia.Widget.WeatherForecast/ForecastDays.cs	ramp	FluentType.BodyLarge
-2	src/Widgets/Themia.Widget.WeatherForecast/ForecastDays.cs	ramp	FluentType.Subtitle
-2	src/Widgets/Themia.Widget.WeatherForecast/ForecastDays.cs	ramp	FluentType.Title
-1	src/Widgets/Themia.Widget.WeatherForecast/WeatherForecastView.Curve.cs	brush	AccentTextFillColorPrimaryBrush
-1	src/Widgets/Themia.Widget.WeatherForecast/WeatherForecastView.Curve.cs	colour	Colors.Transparent
-3	src/Widgets/Themia.Widget.WeatherForecast/WeatherForecastView.Layouts.cs	brush	AccentTextFillColorPrimaryBrush
-1	src/Widgets/Themia.Widget.WeatherForecast/WeatherForecastView.Layouts.cs	radius	new CornerRadius(thickness / 2)
-1	src/Widgets/Themia.Widget.WeatherForecast/WeatherForecastView.Layouts.cs	size	MinWidth = 36
-1	src/Widgets/Themia.Widget.WeatherForecast/WeatherForecastView.Layouts.cs	size	MinWidth = 44
-1	src/Widgets/Themia.Widget.WeatherForecast/WeatherForecastView.Layouts.cs	size	MinWidth = 56
-1	src/Widgets/Themia.Widget.WeatherForecast/WeatherForecastView.Layouts.cs	space	Spacing = 2
-2	src/Widgets/Themia.Widget.WeatherNow/WeatherNowStyles.cs	ramp	FluentType.Display
-8	src/Widgets/Themia.Widget.WeatherNow/WeatherNowStyles.cs	ramp	FluentType.Subtitle
-2	src/Widgets/Themia.Widget.WeatherNow/WeatherNowStyles.cs	ramp	HeroLayout.Fill
-2	src/Widgets/Themia.Widget.WeatherNow/WeatherNowStyles.cs	ramp	HeroLayout.Fit
-1	src/Widgets/Themia.Widget.WeatherNow/WeatherNowStyles.cs	ramp	HeroLayout.ValueWidth
-1	src/Widgets/Themia.Widget.WeatherNow/WeatherNowView.Styles.cs	ramp	HeroLayout.UnitStep
-2	src/Widgets/Themia.Widget.WeatherNow/WeatherNowView.Styles.cs	weight	FontWeights.Light
-2	src/Widgets/Themia.Widget.WeatherNow/WeatherNowView.cs	ramp	FluentType.Display
-4	src/Widgets/Themia.Widget.WeatherNow/WeatherNowView.cs	ramp	FluentType.Subtitle
-2	src/Widgets/Themia.Widget.WeatherNow/WeatherNowView.cs	ramp	HeroLayout.BesideGap
-1	src/Widgets/Themia.Widget.WeatherNow/WeatherNowView.cs	ramp	HeroLayout.Fill
-2	src/Widgets/Themia.Widget.WeatherNow/WeatherNowView.cs	ramp	HeroLayout.Fit
-4	src/Widgets/Themia.Widget.WeatherNow/WeatherNowView.cs	ramp	HeroLayout.IconGap
-4	src/Widgets/Themia.Widget.WeatherNow/WeatherNowView.cs	ramp	HeroLayout.IconSize
-2	src/Widgets/Themia.Widget.WeatherNow/WeatherNowView.cs	ramp	HeroLayout.ValueWidth
