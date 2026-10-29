@@ -30,7 +30,7 @@ public sealed class SunModule : IWidgetModule
         Glyph = Glyphs.Sun,
         DefaultWidth = 320,
         DefaultHeight = 240,
-        Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader,
+        Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader | WidgetTraits.StartsHeaderless,
         Add = new(AddFolderId.Weather, 1, 0),
     };
 

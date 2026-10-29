@@ -1,6 +1,7 @@
 using Themia.Core.Model;
 using Themia.Core.Tests;
 using Themia.Core.Widgets;
+using Themia.Sdk.Kit;
 using Xunit;
 using static Themia.Core.Tests.OnlineReplies;
 using static Themia.Core.Tests.StyleTiers;
@@ -8,9 +9,8 @@ using static Themia.Core.Tests.StyleTiers;
 namespace Themia.Widget.AirQuality.Tests;
 
 /// <summary>
-/// [S-5103]..[S-5109] [S-6170] The air quality widget: the index rules, the ladder of both styles and
-/// the scale's repair. Moved with the widget from Core's OnlineWidgetsTests and WeatherStylesTests,
-/// unchanged in what they assert.
+/// [S-5103]..[S-5107] [S-6170] The air quality widget: the index rules and their roles, both styles'
+/// faces on the family's blocks and the scale's repair.
 /// </summary>
 public sealed class AirQualityTests
 {
@@ -85,25 +85,6 @@ public sealed class AirQualityTests
         Assert.Equal([(PollenType.Grass, PollenLevel.Moderate), (PollenType.Ragweed, PollenLevel.Moderate)], pollen);
     }
 
-    [Theory]
-    [InlineData(AirQualityScale.European, 0, 0)]
-    [InlineData(AirQualityScale.European, 10, 1.0 / 12)]
-    [InlineData(AirQualityScale.European, 30, 1.5 / 6)]
-    [InlineData(AirQualityScale.Us, 125, 2.5 / 6)]
-    [InlineData(AirQualityScale.Us, 9999, 1)]
-    public void S5109_the_strip_places_the_index_inside_its_band(AirQualityScale scale, double value, double expected)
-        => Assert.Equal(expected, AirQualityRules.ScalePosition(scale, value), 6);
-
-    [Fact]
-    public void S5109_the_strip_is_the_rung_after_every_reading()
-    {
-        var floor = FluentType.Subtitle.LineHeight + FluentType.Body.LineHeight;
-
-        Assert.False(AirLayout.Air(new WidgetArea(320, 240), floor, 7).Strip);
-        Assert.True(AirLayout.Air(new WidgetArea(560, 420), floor, 7).Strip);
-        Assert.True(AirLayout.Air(new WidgetArea(800, 560), floor, 7).Strip);
-    }
-
     [Fact]
     public void S5103_repair_puts_an_unknown_scale_back_on_auto()
     {
@@ -114,23 +95,35 @@ public sealed class AirQualityTests
     }
 
     [Fact]
-    public void S5107_the_air_ladder_shows_more_as_it_grows()
+    public void S5104_the_index_is_primary_while_good_then_caution_then_critical_and_never_green()
     {
-        var floor = FluentType.Subtitle.LineHeight + FluentType.Body.LineHeight;
+        Assert.Equal(ColourRole.TextPrimary, AirQualityRules.ValueRole(AirTone.Good));
+        Assert.Equal(ColourRole.Caution, AirQualityRules.ValueRole(AirTone.Caution));
+        Assert.Equal(ColourRole.Critical, AirQualityRules.ValueRole(AirTone.Critical));
+        Assert.Equal(ColourRole.Accent, AirQualityRules.ArcRole(AirTone.Good));
+        Assert.Equal(ColourRole.Caution, AirQualityRules.ArcRole(AirTone.Caution));
+        Assert.Equal(ColourRole.Critical, AirQualityRules.ArcRole(AirTone.Critical));
+    }
 
-        var small = AirLayout.Air(new WidgetArea(160, 100), floor, 5);
-        var medium = AirLayout.Air(new WidgetArea(320, 260), floor, 5);
-        var tall = AirLayout.Air(new WidgetArea(200, 460), floor, 5);
-        var strip = AirLayout.Air(new WidgetArea(720, 140), floor, 5);
+    [Fact]
+    public void S5107_the_number_style_is_the_detail_plan_its_readings_beside_on_an_expanded_width()
+    {
+        var small = AirLayout.Number(Xs, 7);
+        var medium = AirLayout.Number(M, 7);
+        var tall = AirLayout.Number(Tall, 7);
+        var wide = AirLayout.Number(Wide, 7);
+        var xl = AirLayout.Number(Xl, 7);
 
-        Assert.Equal(AirFacts.None, small.Facts);
-        Assert.Equal(AirFacts.Cells, medium.Facts);
-        Assert.True(medium.Count >= 3);
-        Assert.Equal(AirFacts.Lines, tall.Facts);
-        Assert.Equal(5, tall.Count);
-        Assert.Equal(AirFacts.Side, strip.Facts);
-        Assert.True(strip.Count >= 4);
-        Assert.True(medium.HeroRoom >= floor);
+        Assert.Equal(0, small.Facts);
+        Assert.True(small.Under, "the band under the index");
+        Assert.False(medium.Side);
+        Assert.Equal(3, medium.Facts);
+        Assert.Equal(7, tall.Facts);
+        Assert.True(wide.Side);
+        Assert.Equal(3, wide.Facts);
+        Assert.True(xl.Side);
+        Assert.Equal(7, xl.Facts);
+        Assert.Equal(FamilyType.Big68, xl.Hero);
     }
 
     [Theory]
@@ -144,21 +137,30 @@ public sealed class AirQualityTests
         => Assert.Equal(fraction, AirQualityRules.ScalePosition(scale, index), 6);
 
     [Fact]
-    public void S6170_the_gauge_takes_the_tile_and_the_readings_come_beside_on_a_strip_and_under_on_a_column()
+    public void S6170_the_gauge_takes_its_box_while_its_half_and_the_band_fit_and_the_readings_follow()
     {
-        var small = AirLayout.AirGauge(Xs, 7);
-        var medium = AirLayout.AirGauge(M, 7);
-        var tall = AirLayout.AirGauge(Tall, 7);
-        var strip = AirLayout.AirGauge(new WidgetArea(720, 140), 7);
+        foreach (var tier in Tiers)
+        {
+            var plan = AirLayout.Gauge(tier, 7);
+            var (width, height) = MeterPlan.Content(tier);
+            Assert.True(plan.Diameter >= MeterPlan.GaugeFloor, $"{tier}: a gauge at every tier");
+            Assert.True(plan.Part <= height + 0.01, $"{tier}: the gauge and its band fit");
+            Assert.True(plan.Diameter <= (plan.Side ? plan.Column - 16 : width), $"{tier}: the gauge fits its box");
+        }
 
-        Assert.Equal(AirFacts.None, small.Facts);
-        Assert.NotNull(GaugeLayout.Fit(small.GaugeWidth, small.GaugeHeight));
-        Assert.True(medium.Band);
-        Assert.Equal(AirFacts.None, medium.Facts);
-        Assert.Equal(AirFacts.Lines, tall.Facts);
-        Assert.True(tall.Count > 0);
-        Assert.True(GaugeLayout.Fit(tall.GaugeWidth, tall.GaugeHeight)!.Value.Width >= Tall.Width - (2 * OnlineLayouts.Inset) - 4, "the gauge keeps the column's width");
-        Assert.Equal(AirFacts.Side, strip.Facts);
-        Assert.True(strip.SideWidth > 0 && strip.GaugeWidth + strip.SideWidth <= 720 - (2 * OnlineLayouts.Inset));
+        var small = AirLayout.Gauge(S, 7);
+        Assert.Equal(146, small.Diameter);
+        Assert.Equal(0, small.Facts);
+        var tall = AirLayout.Gauge(Tall, 7);
+        Assert.Equal(168, tall.Diameter);
+        Assert.Equal(7, tall.Facts);
+        var wide = AirLayout.Gauge(Wide, 7);
+        Assert.True(wide.Side);
+        Assert.Equal(3, wide.Facts);
+        Assert.Equal(FamilyType.Big68, AirLayout.Gauge(Xl, 7).Reading);
     }
+
+    [Fact]
+    public void S6170_a_box_too_small_for_a_ring_is_the_index_alone()
+        => Assert.Equal(0, AirLayout.Gauge(new WidgetArea(80, 50), 0).Diameter);
 }
