@@ -171,7 +171,7 @@ public sealed partial class KitRowsPanel : Panel
             child.Measure(new Size(columnWidth, double.PositiveInfinity));
             var line = slot % lines;
             heights[line] = Math.Max(heights[line], child.DesiredSize.Height);
-            rowsIn[line] |= child is not TextBlock;
+            rowsIn[line] |= child is Border;   // a row is an item; a heading is a line of text
         }
 
         _lineHeadings.Clear();

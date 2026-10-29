@@ -162,6 +162,36 @@ public sealed partial class KitList
 
         panel.ResetOrder();
         FitAddRow(shown: true);
+        CapToWholeLines();
+    }
+
+    /// <summary>
+    /// [S-781] [S-6712] The scroll shows only the lines that fit whole in the list's room (the view's
+    /// area less the bottom inset and the add row), never ending on a heading: the rows' heights are
+    /// the plan's, so the cap is decided here rather than from a measure that may not have run yet.
+    /// </summary>
+    private void CapToWholeLines()
+    {
+        if (!_area.IsMeasured || _checks is not { } panel)
+        {
+            _scroll.MaxHeight = double.PositiveInfinity;
+            return;
+        }
+
+        var lines = KitChecks.LinesFor(panel.Children.Count, panel.Columns);
+        var bottoms = new List<double>(lines);
+        var headings = new List<bool>(lines);
+        var total = 0.0;
+        for (var line = 0; line < lines; line++)
+        {
+            var heading = panel.Children[line] is not Border;
+            total += heading ? FamilyShape.Row1 : _plan.RowHeight;
+            bottoms.Add(total);
+            headings.Add(heading);
+        }
+
+        var room = KitLadder.ListHeight(_area) - (_addRow?.Element.Visibility == Visibility.Visible ? FamilyShape.Row1 : 0);
+        _scroll.MaxHeight = total <= room + Disclosure.Tolerance ? double.PositiveInfinity : KitChecks.WholeLineCap(bottoms, room, headings);
     }
 
     /// <summary>[S-784] A group's heading (the done ones): one row of 32, BodyStrong, secondary.</summary>

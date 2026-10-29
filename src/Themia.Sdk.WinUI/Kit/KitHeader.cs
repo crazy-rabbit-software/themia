@@ -114,6 +114,12 @@ public sealed partial class KitHeader : HeaderParts
         Visibility = wants.Any || _label is not null ? Visibility.Visible : Visibility.Collapsed;
     }
 
+    /// <summary>
+    /// The element of the header button at <paramref name="index"/> (in the order last shown), for a
+    /// popup of the widget's own to stand under (a list's rename box); null when there is none.
+    /// </summary>
+    public FrameworkElement? ButtonAt(int index) => index >= 0 && index < _shownButtons.Count ? _buttons[index].Element : null;
+
     /// <summary>Nothing to say: every part hidden, the ring stopped (a label the widget keeps stays).</summary>
     public void Clear() => Show([], busy: false);
 
@@ -133,7 +139,11 @@ public sealed partial class KitHeader : HeaderParts
         }
 
         var button = _shownButtons[index];
-        if (button.Choices is { Count: > 1 } choices)
+        if (button.Menu is { } menu)
+        {
+            ItemMenu.Open(_buttons[index].Element, menu());
+        }
+        else if (button.Choices is { Count: > 1 } choices)
         {
             ItemMenu.Open(_buttons[index].Element, choices.Select(c => new ItemMenuEntry(c.Glyph, c.Label, c.Run)));
         }
@@ -163,11 +173,16 @@ public sealed partial class KitHeader : HeaderParts
 }
 
 /// <summary>
-/// [S-7064] One of a widget's own header buttons (Mail's compose and sort): a glyph, its tooltip, and
-/// what it does — an action, or choices the header asks between in a menu under it (one choice runs
-/// at once). Where it shows is the header's fold ([S-6710]).
+/// [S-7064] One of a widget's own header buttons (Mail's compose and sort, the task list's picker): a
+/// glyph, its tooltip, and what it does — an action, choices the header asks between in a menu under
+/// it (one choice runs at once), or a menu of the widget's own lines (ticks, separators), built when
+/// it opens. Where it shows is the header's fold ([S-6710]).
 /// </summary>
-public sealed record KitHeaderButton(string Glyph, string Tooltip, Action? Run = null, IReadOnlyList<KitHeaderChoice>? Choices = null);
+public sealed record KitHeaderButton(string Glyph, string Tooltip, Action? Run = null, IReadOnlyList<KitHeaderChoice>? Choices = null)
+{
+    /// <summary>The widget's own menu under the button, built when it opens; wins over <see cref="Choices"/>.</summary>
+    public Func<IEnumerable<ItemMenuEntry>>? Menu { get; init; }
+}
 
 /// <summary>[S-7064] One choice of a header button's menu.</summary>
 public sealed record KitHeaderChoice(string Glyph, string Label, Action Run);
