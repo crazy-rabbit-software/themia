@@ -130,12 +130,12 @@ internal sealed partial class SunView : Grid, IWidgetView, IWidgetSurfaceAware, 
         _setLabel = new StripLabel(Glyphs.Sun);
         _strip = BuildStrip();
 
-        _sunriseRow = new SkyEventRow(Fluent.Icon(Glyphs.Sun));
-        _sunsetRow = new SkyEventRow(Fluent.Icon(Glyphs.Sun));
-        _daylightRow = new SkyEventRow(Fluent.Icon(Glyphs.Clock));
-        _noonRow = new SkyEventRow(Fluent.Icon(Glyphs.Sun));
-        _dawnRow = new SkyEventRow(Fluent.Icon(Glyphs.Sun));
-        _duskRow = new SkyEventRow(Fluent.Icon(Glyphs.Moon));
+        _sunriseRow = new SkyEventRow(Glyphs.Sun);
+        _sunsetRow = new SkyEventRow(Glyphs.Sun);
+        _daylightRow = new SkyEventRow(Glyphs.Clock);
+        _noonRow = new SkyEventRow(Glyphs.Sun);
+        _dawnRow = new SkyEventRow(Glyphs.Sun);
+        _duskRow = new SkyEventRow(Glyphs.Moon);
         LabelRows();
 
         _ladder = [_sunriseRow, _sunsetRow, _daylightRow, _noonRow, _dawnRow, _duskRow];
@@ -412,7 +412,6 @@ internal sealed partial class SunView : Grid, IWidgetView, IWidgetSurfaceAware, 
             && StripColumn(graphicWidth) >= FluentType.EstimateWidth(FluentType.Caption, WidestCountdown().Length);
         var showDaylightLabel = graphicWidth >= 140;
         var showSmallExtras = graphicWidth >= 250;
-        var rowNotes = rowWidth >= 280;
 
         // What the rows may have: everything the graphic does not keep. On a strip the rows have the
         // whole height beside it.
@@ -440,15 +439,10 @@ internal sealed partial class SunView : Grid, IWidgetView, IWidgetSurfaceAware, 
         _strip.Visibility = Show(showStrip);
         _rowGrid.Visibility = Show(_rowCount > 0);
 
-        // What a row has for its label, note and value: its width less its padding and glyph.
-        var rowRoom = rowWidth - (2 * Fluent.Space4) - Fluent.IconSize - Fluent.Space3 - (pairs ? Fluent.Space2 / 2 : 0);
-
         foreach (var row in _ladder)
         {
-            row.SetDensity(compact);
-            row.Room = rowRoom;
-            row.AllowCountdown = showCountdown || (side && rowNotes);
-            row.AllowNote = rowNotes;
+            row.Lines = compact ? 1 : 2;
+            row.Room = SkyRows.Room(rowWidth);
         }
 
 

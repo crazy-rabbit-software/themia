@@ -753,6 +753,15 @@ shared row and moon drawing) and `SkyPlaceRows` (the shared place line on their 
 - [S-3105], [S-6050], [S-6051]: moved with the Moon widget into its module's `SPEC.md` (`src/Widgets/Themia.Widget.Moon/`).
 - **[S-3106]** A rise or set reads as the time alone when it falls today in the machine's zone, else
   with the short weekday before it ("Mon 9:55 AM"): the next one is often tomorrow.
+- **[S-6735]** The pair's shared parts are on the family's blocks (`SkyParts`, G3 2026-10-29): a row
+  (`SkyEventRow`) is the fact row ([S-6711]): a 16 lead (a glyph, or the moon drawn at 16), the name
+  secondary, the time at the end primary; the next event's name is BodyStrong, never in the accent,
+  and its countdown, or a plain row's note ("civil", "35°", "−3m 20s"), is the row's second line where
+  the tier gives rows two lines ([S-6712]). Its name takes its short form ("Rise" for "Moonrise") where
+  the long one and the value do not fit side by side in its room, the row's width less the insets, the
+  lead and its gap and the gap before the value (`SkyRows`, the ramp's width estimate). The moon's
+  drawing (`SkyMoonDisc`, [S-169]) is a lead: its lit part in the secondary role, the unlit rim a
+  hairline in the tertiary one, a role lower each below the horizon.
 
 ## Rows and the card edge
 

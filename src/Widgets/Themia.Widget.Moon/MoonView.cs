@@ -252,10 +252,8 @@ internal sealed partial class MoonView : Grid, IWidgetView, IWidgetSurfaceAware,
         {
             var row = _rows[i];
             row.Root.Visibility = Show(i < _plan.Rows);
-            row.SetDensity(compact);
+            row.Lines = compact ? 1 : 2;
             row.Room = rowRoom;
-            row.AllowCountdown = true;
-            row.AllowNote = true;
         }
 
         Refresh();

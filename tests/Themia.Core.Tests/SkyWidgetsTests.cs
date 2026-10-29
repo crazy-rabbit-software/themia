@@ -125,4 +125,31 @@ public class SkyWidgetsTests
         var json = JsonSerializer.Serialize(config, StateJson.WidgetConfig);
         return JsonSerializer.Deserialize(json, StateJson.WidgetConfig)!;
     }
+
+    // -----------------------------------------------------------------------------------------
+    // [S-6735] A sky row's words: the room it has, and which form of its name it shows
+    // -----------------------------------------------------------------------------------------
+
+    [Fact]
+    public void S6735_a_rows_room_is_its_width_less_the_insets_the_lead_and_the_two_gaps()
+    {
+        // 16 either side, the 16 lead and its 8, the 12 before the value.
+        Assert.Equal(320 - 16 - 16 - 16 - 8 - 12, SkyRows.Room(320));
+        Assert.Equal(0, SkyRows.Room(40));
+    }
+
+    [Fact]
+    public void S6735_the_long_name_stands_where_it_fits_beside_the_value_else_the_short_one()
+    {
+        var room = SkyRows.Room(320);
+        Assert.Equal("Moonrise", SkyRows.Name(room, "Moonrise", "Rise", "Tue 11:06 AM"));
+
+        var narrow = SkyRows.Room(200);
+        Assert.False(SkyRows.Fits(narrow, "Moonrise", "Tue 11:06 AM"));
+        Assert.Equal("Rise", SkyRows.Name(narrow, "Moonrise", "Rise", "Tue 11:06 AM"));
+    }
+
+    [Fact]
+    public void S6735_a_name_without_a_short_form_keeps_its_long_one()
+        => Assert.Equal("Solar noon", SkyRows.Name(10, "Solar noon", null, "1:12 PM"));
 }

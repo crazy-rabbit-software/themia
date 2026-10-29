@@ -1,27 +1,25 @@
-using Microsoft.UI;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Shapes;
-using Themia.App.Shell;
 using Themia.Core.Astronomy;
-using Themia.Core.Widgets;
-using Themia.Sdk.WinUI;
+using Themia.Sdk.Kit;
+using Themia.Sdk.WinUI.Kit;
 using Windows.Foundation;
 
 namespace Themia.App.Widgets;
 
-// [S-3100] The parts the Sun and Moon widgets share: one list row and one moon drawing, so the two
-// views stay thin and cannot drift apart.
+// [S-3100] [S-6735] The parts the Sun and Moon widgets share, on the family's blocks: one fact row and
+// one moon drawing, so the two views stay thin and cannot drift apart.
 
 /// <summary>
-/// The moon at its current phase, drawn the same way by the Moon widget's disc and its row glyph. [S-169]
+/// The moon at its current phase, drawn the same way by the Moon widget's readout and its rows' leads. [S-169]
 /// <para>
-/// The lit limb comes from <see cref="MoonDisc"/>, so the large disc and the glyph in the row
-/// list are the same drawing and cannot disagree about how much of the moon is lit.
-/// The unlit part keeps a hairline rim, so a thin crescent still reads as a moon rather than as
-/// a stray mark, and below the horizon the whole disc steps down a named grey rather than being
-/// faded with an opacity.
+/// The lit limb comes from <see cref="MoonDisc"/>, so the large disc and a row's lead are the same
+/// drawing and cannot disagree about how much of the moon is lit. [S-6735] It is a lead, so it is in
+/// the lead's role (secondary); the unlit part keeps a hairline rim in the tertiary role, so a thin
+/// crescent still reads as a moon rather than as a stray mark; below the horizon both step down a role
+/// (tertiary, disabled) rather than being faded with an opacity.
 /// </para>
 /// </summary>
 public sealed class SkyMoonDisc
@@ -29,24 +27,20 @@ public sealed class SkyMoonDisc
     private readonly Ellipse _rim = new();
     private readonly Polygon _lit = new();
 
-    private readonly Brush _litUp = ThemeBrush.Of("TextFillColorPrimaryBrush", Colors.White);
-    private readonly Brush _litDown = ThemeBrush.Of("TextFillColorTertiaryBrush", Colors.Gray);
-    private readonly Brush _rimUp = ThemeBrush.Of("TextFillColorTertiaryBrush", Colors.Gray);
-    private readonly Brush _rimDown = ThemeBrush.Of("TextFillColorDisabledBrush", Colors.DimGray);
-
     private double _size;
     private double _phase;
     private bool _southern;
 
     public SkyMoonDisc()
     {
-        _rim.StrokeThickness = Fluent.Hairline;
+        _rim.StrokeThickness = FamilyShape.Hairline;
         _rim.Fill = null;
-        _rim.Stroke = _rimUp;
-        _lit.Fill = _litUp;
+        _rim.HorizontalAlignment = HorizontalAlignment.Center;
+        _rim.VerticalAlignment = VerticalAlignment.Center;
+        Paint(up: true);
 
         Root = new Grid { Children = { _rim, _lit } };
-        Resize(Fluent.IconSize);
+        Resize(FamilyShape.Icon);
     }
 
     public Grid Root { get; }
@@ -61,15 +55,14 @@ public sealed class SkyMoonDisc
         _size = size;
         Root.Width = size;
         Root.Height = size;
-        _rim.Width = size - 1;
-        _rim.Height = size - 1;
+        _rim.Width = size - FamilyShape.Hairline;
+        _rim.Height = size - FamilyShape.Hairline;
         Rebuild();
     }
 
     public void Update(double phase, bool southern, bool up)
     {
-        _lit.Fill = up ? _litUp : _litDown;
-        _rim.Stroke = up ? _rimUp : _rimDown;
+        Paint(up);
 
         if (Math.Abs(phase - _phase) < 0.0005 && southern == _southern)
         {
@@ -81,9 +74,15 @@ public sealed class SkyMoonDisc
         Rebuild();
     }
 
+    private void Paint(bool up)
+    {
+        _lit.Fill = Family.Brush(up ? ColourRole.TextSecondary : ColourRole.TextTertiary);
+        _rim.Stroke = Family.Brush(up ? ColourRole.TextTertiary : ColourRole.TextDisabled);
+    }
+
     private void Rebuild()
     {
-        var radius = Math.Max(1, (_size - 1) / 2);
+        var radius = Math.Max(1, (_size - FamilyShape.Hairline) / 2);
         var centre = _size / 2;
         var points = new PointCollection();
 
@@ -97,139 +96,82 @@ public sealed class SkyMoonDisc
 }
 
 /// <summary>
-/// One line of the Sun or Moon widget's readout, in the Windows 11 list-row shape: a 16px glyph,
-/// what it is, the time remaining while it is next, and the value. The next event's row is emphasised in the accent
-/// text colour rather than banner-ed.
+/// [S-6735] One row of the Sun or Moon widget: the family's fact row ([S-6711]) — a 16 lead (a glyph, or
+/// the moon drawn at 16), what it is (secondary), the time at the end (primary). The next event's
+/// name is BodyStrong, never in the accent; its countdown, or a plain row's note ("civil", "35°"), is
+/// the row's second line where the tier gives rows two lines ([S-6712]). The name takes its short form
+/// where the long one and the value do not fit side by side (<see cref="SkyRows.Name"/>).
 /// </summary>
 public sealed class SkyEventRow
 {
-    private readonly FrameworkElement _glyph;
-    private readonly TextBlock _label = Fluent.Text(FluentType.Body, "TextFillColorSecondaryBrush");
-    private readonly TextBlock _countdown = Fluent.Text(FluentType.Caption, "TextFillColorTertiaryBrush");
-    private readonly TextBlock _value = Fluent.Text(FluentType.BodyStrong);
+    private string _name = string.Empty;
+    private string? _shortName;
+    private string _value = string.Empty;
+    private string? _second;
+    private bool _next;
+    private double _room = double.PositiveInfinity;
 
-    private readonly Brush _primary = ThemeBrush.Of("TextFillColorPrimaryBrush", Colors.White);
-    private readonly Brush _secondary = ThemeBrush.Of("TextFillColorSecondaryBrush", Colors.Gray);
-
-    // The accent tuned for text. AccentFillColorDefaultBrush is a fill and is not contrast-safe
-    // under small type; this is the key Windows uses when the accent has to be read.
-    private readonly Brush _accentText = ThemeBrush.Of("AccentTextFillColorPrimaryBrush", Colors.DodgerBlue);
-
-    public SkyEventRow(FrameworkElement glyph)
+    /// <summary>A row led by a 16 glyph.</summary>
+    public SkyEventRow(string glyph)
     {
-        // A Fluent.Icon when it is a glyph; the moon draws its own disc at the same size.
-        _glyph = glyph;
-        _glyph.VerticalAlignment = VerticalAlignment.Center;
-        _glyph.Margin = new Thickness(0, 0, Fluent.Space3, 0);
-
-        _label.VerticalAlignment = VerticalAlignment.Center;
-
-        _countdown.VerticalAlignment = VerticalAlignment.Center;
-        _countdown.Margin = new Thickness(Fluent.Space2, 0, 0, 0);
-        _countdown.TextTrimming = TextTrimming.Clip;
-        _countdown.Visibility = Visibility.Collapsed;
-
-        _value.HorizontalAlignment = HorizontalAlignment.Right;
-        _value.VerticalAlignment = VerticalAlignment.Center;
-
-        var grid = new Grid
-        {
-            ColumnDefinitions =
-            {
-                new ColumnDefinition { Width = GridLength.Auto },
-                new ColumnDefinition { Width = GridLength.Auto },
-                new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) },
-                new ColumnDefinition { Width = GridLength.Auto },
-            },
-        };
-
-        Grid.SetColumn(_glyph, 0);
-        Grid.SetColumn(_label, 1);
-        Grid.SetColumn(_countdown, 2);
-        Grid.SetColumn(_value, 3);
-
-        grid.Children.Add(_glyph);
-        grid.Children.Add(_label);
-        grid.Children.Add(_countdown);
-        grid.Children.Add(_value);
-
-        Root = Fluent.Row(grid);
+        Root.LeadGlyph(glyph);
     }
 
-    public Border Root { get; }
+    /// <summary>A row led by a drawing of the lead's size (the moon at its phase).</summary>
+    public SkyEventRow(FrameworkElement lead)
+    {
+        Root.Lead(lead);
+    }
 
-    public bool AllowCountdown { get; set; } = true;
+    public RowBlock Root { get; } = new(RowKind.Fact);
 
-    public void SetDensity(bool compact) => Fluent.SetDensity(Root, compact);
+    /// <summary>[S-6712] The lines the row shows (its pitch follows): the second is the countdown or the note.</summary>
+    public int Lines
+    {
+        get => Root.Lines;
+        set => Root.Lines = value;
+    }
 
-    /// <summary>
-    /// [S-1109] The width the label, its note and the value share (the row less its padding and
-    /// glyph). Long words are a language's, not a size's, so the row decides from the words it
-    /// has: the note goes first, then the label takes its short form.
-    /// </summary>
-    public double Room { get; set; } = double.PositiveInfinity;
+    /// <summary>The width the name and the value share (<see cref="SkyRows.Room"/> of the row's width).</summary>
+    public double Room
+    {
+        get => _room;
+        set
+        {
+            _room = value;
+            Show();
+        }
+    }
 
-    private string _fullLabel = string.Empty;
-    private string? _shortLabel;
-
-    /// <summary>The label, and a shorter one ("Aufgang" for "Sonnenaufgang") for a narrow row.</summary>
+    /// <summary>The name, and a shorter one ("Rise" for "Moonrise") for a narrow row.</summary>
     public void SetLabel(string label, string? shortLabel = null)
     {
-        _fullLabel = label;
-        _shortLabel = shortLabel;
-        _label.Text = label;
+        _name = label;
+        _shortName = shortLabel;
+        Show();
     }
 
+    /// <summary>A rise or a set: the next one (a countdown given) is emphasised and carries it as its second line.</summary>
     public void Set(string value, string? countdown)
     {
-        _value.Text = value;
-
-        var isNext = countdown is not null;
-        _countdown.Text = countdown ?? string.Empty;
-
-        var step = isNext ? FluentType.BodyStrong : FluentType.Body;
-        _label.Apply(step);
-        _label.Foreground = isNext ? _accentText : _secondary;
-        _value.Foreground = isNext ? _accentText : _primary;
-        Fit(step, isNext && AllowCountdown);
+        _value = value;
+        _second = countdown;
+        _next = countdown is not null;
+        Show();
     }
 
-    /// <summary>Pick the label's form and whether the note shows, from their estimated widths.</summary>
-    private void Fit(TypeStep labelStep, bool noteAllowed)
-    {
-        var value = FluentType.EstimateWidth(FluentType.BodyStrong, _value.Text.Length) + Fluent.Space2;
-        var label = FluentType.EstimateWidth(labelStep, _fullLabel.Length);
-        var shortLabel = _shortLabel ?? string.Empty;
-        var useShort = shortLabel.Length > 0 && label + value > Room;
-
-        if (useShort)
-        {
-            label = FluentType.EstimateWidth(labelStep, shortLabel.Length);
-        }
-
-        _label.Text = useShort ? shortLabel : _fullLabel;
-
-        var note = _countdown.Text.Length == 0
-            ? 0
-            : Fluent.Space2 + FluentType.EstimateWidth(FluentType.Caption, _countdown.Text.Length);
-
-        _countdown.Visibility = noteAllowed && note > 0 && label + note + value <= Room
-            ? Visibility.Visible
-            : Visibility.Collapsed;
-    }
-
-    /// <summary>[S-1490] Whether a plain row's note ("+2m 14s", "34°") has the width to show.</summary>
-    public bool AllowNote { get; set; } = true;
-
-    /// <summary>A row that is never "next": its value, and a quiet note beside the label.</summary>
+    /// <summary>A row that is never "next": its value, and a quiet note as its second line.</summary>
     public void SetPlain(string value, string? note)
     {
-        _value.Text = value;
-        _countdown.Text = note ?? string.Empty;
+        _value = value;
+        _second = note;
+        _next = false;
+        Show();
+    }
 
-        _label.Apply(FluentType.Body);
-        _label.Foreground = _secondary;
-        _value.Foreground = _primary;
-        Fit(FluentType.Body, note is not null && AllowNote);
+    private void Show()
+    {
+        Root.Strong = _next;
+        Root.Show(SkyRows.Name(_room, _name, _shortName, _value), _value, _second);
     }
 }
