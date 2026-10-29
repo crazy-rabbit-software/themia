@@ -2869,6 +2869,7 @@ colours and parts. This section is what a module author uses; the reasons are in
 | what | token | values |
 |---|---|---|
 | type | `FamilyType.Caption`, `Body`, `BodyStrong`, `Title`; `Big28`/`Big40`/`Big68` (`Big`); `Hero96`/`Hero136`/`Hero192` (`Hero`, one-readout widgets only) | 12/16, 14/20, 14/20 600, 20/28 600; 28/36, 40/52, 68/92 600; 96/128, 136/180, 192/252 600 |
+| the user's text size | `FamilyType.TextScale` (every step is its base times this), `StepsAt(scale)`, `EstimateWidth(step, chars)` | 0.5 to 2 |
 | a value's unit, its line under | `FamilyType.Unit(step)`, `FamilyType.Under(step)` | 28→14 / Caption, 40→20 / Body, 68→28 / Body, 96 and 136→40 / Title, 192→68 / Title |
 | space | `FamilySpace.S1`, `S2`, `S3`, `S4`, `S6`; `Inset`, `HeaderLine`, `HeaderGap`, `ContentTop`, `GlyphGap`, `ColumnGap`, `TextEdge` | 4, 8, 12, 16, 24; 16, 20, 8, 44, 8, 12, 40 |
 | shapes | `FamilyShape.Row1`/`Row2`/`Row3` (`RowHeight(lines)`), `Icon`/`IconLarge`/`IconHuge`, `Radius`, `Round(w, h)`, `Stroke`, `Track`, `Hairline`, `Wash`, `Button`, `ButtonPadding`, `IconButton`, `HeaderButton` | 32/48/64, 16/32/48, 4, half the short side, 2, 4, 1, 0.16, 32, 12, 32, 24 |
@@ -2878,8 +2879,9 @@ In WinUI: `Family.Text(step, role, text)` (a one-line text, its line exact), `Fa
 `Family.Run(step, role, text)`, `Family.Glyph(glyph, size, role)`, `Family.Brush(role)`,
 `Family.Inset`/`SideInset`/`HeaderInset`, `Family.Radius`, `Family.Round(w, h)`, and
 `Family.Data(hex)`, the one way to draw a data colour (a calendar's, an app's, a pen). The older
-`Fluent.Space1..6`, `ControlRadius`, `IconSize`, `ChartStroke`, `ChartWash` and `RowHeightCompact` are
-these same values; new code names the family's.
+`Fluent.Space1..4`, `Space6`, `ControlRadius`, `IconSize`, `ChartStroke`, `ChartWash` and
+`RowHeightCompact` are these same values; new code names the family's. The family's type is the only
+type: there is no second ramp (`FluentType` is folded into `FamilyType`, [S-6748]).
 
 Rules: what is read is primary (a fact's value, a list item's name); the accent is on/selected, the
 one main action, charts and meters, never text; no success green; a count is neutral; a missing part
@@ -2980,16 +2982,32 @@ row's meter place is `ControlsBlock.RailSlider`.
 ### 16.3 The guard
 
 - **Source** (`FamilyGuardTests`, in `dotnet test`): a number given for a type size, weight, spacing,
-  thickness, radius, size, stroke or opacity, an off-family ramp helper (`FluentType.BodyLarge`,
-  `Subtitle`, `Title`, `TitleLarge`, `Display`, `Hero`, `Fit`, `FitWidth`, `Scaled`, `HeroLayout.*`,
-  `HeroFit.*` but `Ems`), `Fluent.Space5`, a typed colour, a theme brush outside the roles: each fails,
-  unless it is one of today's offenders in `tests/Themia.Modules.Tests/FamilyGuard.allow.txt`. A
-  widget you touch should leave that list shorter; a new widget must not appear on it.
+  thickness, radius, size, stroke or opacity; a second ramp or an old helper (`FluentType.*`,
+  `HeroLayout.*`, `HeroFit.*` but `Ems`, `Fluent.Space5`, `OverlayRadius`, `RowHeight`,
+  `EmptyState`); a colour made from numbers outside `HexBrush` and `ShellColours`, a `Colors.*` that is
+  not a fallback, a `#RRGGBB` string; a theme brush outside the roles; and in a module or a block, the
+  shell's own tokens (16.4). Each fails: there is no list of exceptions any more (it held 505 entries
+  on 2026-10-29 and every phase shrank it; the shell sweep emptied it and it is gone).
 - **Render** (`powershell -ExecutionPolicy Bypass -File scripts/family-check.ps1`, needs a Debug
-  build): every kind, tier, theme, state and style walked; findings not in
-  `scripts/family-check.allow.txt` fail it, and so do lines of it no longer found. Run it in the
-  definition of done of any widget work; `-Kinds a,b` for the ones you touched, `-Write` only after
-  fixing offenders.
+  build): every kind, tier, theme, state and style walked; any finding fails it (the list it once held
+  has been empty since group G5 and is gone). Run it in the definition of done of any widget work;
+  `-Kinds a,b` for the ones you touched.
 
-Both lists only shrink and end empty. A widget that needs something the blocks lack (a row look, a
-chart variant) gets it as a block change first, in its own SDK commit with tests (4.1).
+A widget that needs something the blocks lack (a row look, a chart variant) gets it as a block change
+first, in its own SDK commit with tests (4.1); a value the family has no token for is a token first.
+
+### 16.4 The app's chrome (shell sweep, 2026-10-30)
+
+The edit bar, the menus, the view bar, the notices, the pickers, the layout editor and the card's own
+fill, markers, fault and waiting states are drawn from the same tokens as a widget: their spacings on
+the scale, their type the family's steps, their glyphs the family's icons. Two tables hold what the
+family has no token for, the shell's alone (the guard fails on a module or a block naming them):
+
+| what | token | for |
+|---|---|---|
+| measurements | `ShellMetrics` (`Themia.Sdk/Kit/Family/ShellTokens.cs`): `OverlayRadius`, `Chevron`, `Shadow.*`, `Menu.*`, `EditBar.*`, `ViewBar.*`, `Notice.*`, `Details.*`, `Window.*`, `LayoutEditor.*`, `Picker.*` | Windows' and Karpo's measures, each with its source: the menu's fixed 320 × 440 and its 32 rows (pinned by `ShellTokensTests`), the edit bar's 48, the view bar's squares, the toast's 364, the settings page's 48 title bar and 36 inset |
+| colours | `ShellRole` (`ShellRoles.Key`, drawn by `ShellBrush.Of`): `Flyout`, `FlyoutStroke`, `Acrylic`, `Raised`, `Layer`, `CardBase`, `CardFill`, `CardStroke`, `AccentText`, `AccentHover`, `AccentPressed`, `AccentDisabled`, `TextOnAccentDisabled`, `ControlHover`, `ControlStrokeHover`, `SwitchTrack`(`Disabled`), `SwitchRim`(`Disabled`), `StrongFill` | the chrome's sheets, the card's own brushes, the accent's states, a drawn switch |
+| fixed colours | `ShellColours`: `Shadow`, `None`, `WindowsAccent`, the motion palettes (`Phosphor`, `Space`, `Star`) | colours no role or data gives; with `HexBrush` (data, the user's design, `Wash`, `Ink`) the only places a colour is made from numbers |
+
+The card's fault and waiting states and the Set up row are the Status block ([S-6714]); a notice's
+severity is the accent, Caution or Critical (no success green).
