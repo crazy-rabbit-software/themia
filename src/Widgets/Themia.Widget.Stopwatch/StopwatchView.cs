@@ -1,22 +1,22 @@
-using Microsoft.UI;
-using Microsoft.UI.Text;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Themia.App.Services;
 using Themia.App.Shell;
-using Themia.Core.Diagnostics;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
+using Themia.Sdk.Kit;
 using Themia.Sdk.WinUI;
+using Themia.Sdk.WinUI.Kit;
 using Themia.Widget.Stopwatch;
 
 namespace Themia.App.Widgets;
 
 /// <summary>
-/// [S-4600]..[S-4606] A stopwatch in the timer's style (Karpo §84): the time as the hero, the accent
-/// start button (Start, Pause, Resume), Lap and Reset beside it — greyed, never gone, where they do
-/// nothing — and the laps under it, newest first, as many as the tile holds.
+/// [S-4600]..[S-4606] A stopwatch (Karpo §84) on the timers' face ([S-6739]): the time as the Readout,
+/// centred, the lap under way its line under, the Controls row under it (Start, Pause or Resume as the
+/// one main action, Lap and Reset greyed, never gone, where they do nothing) and, from an expanded
+/// width, the laps beside it, newest first, as many whole rows as the tile holds.
 /// <para>
 /// The stopwatch is the widget's config ([S-4602]): written on every press, read back on attach, so
 /// it keeps running across a restart. In memory it counts on the monotonic clock; the shared ticker
@@ -26,24 +26,18 @@ namespace Themia.App.Widgets;
 /// </summary>
 internal sealed partial class StopwatchView : Grid, IWidgetView, IWidgetSizeAware, IWidgetSurfaceAware, IWidgetKeys
 {
-    private const string Scope = "stopwatch";
-
-    /// <summary>The laps column beside the time needs this much to say "Lap 12  0:03.9  1:02:03.4".</summary>
-    private const double LapsColumnMinimum = 220;
-
     /// <summary>Every view of one stopwatch (the same view on two displays): one press reaches all of them.</summary>
     private static event Action<StopwatchConfig>? Acted;
 
-    private readonly Canvas _canvas = new();
-    private readonly TextBlock _clock = Fluent.Text(FluentType.Display);
-    private readonly TextBlock _lapLine = Fluent.Text(FluentType.Caption, "TextFillColorSecondaryBrush");
-    private readonly Button _startButton = new();
-    private readonly FontIcon _startIcon = new();
-    private readonly Button _lapButton = new();
-    private readonly Button _resetButton = new();
-    private readonly StackPanel _controls;
-    private readonly StackPanel _laps = new();
-    private readonly TextBlock _noLaps = Fluent.Text(FluentType.Caption, "TextFillColorTertiaryBrush");
+    private readonly Grid _face = new();
+    private readonly ReadoutBlock _clock = new() { HorizontalAlignment = HorizontalAlignment.Center, VerticalAlignment = VerticalAlignment.Center };
+    private readonly ControlsBlock _controls = new() { HorizontalAlignment = HorizontalAlignment.Center };
+    private readonly Button _startButton;
+    private readonly Button _lapButton;
+    private readonly Button _resetButton;
+    private readonly StackPanel _laps = new() { VerticalAlignment = VerticalAlignment.Top };
+    private readonly StatusBlock _noLaps = new();
+    private readonly ColumnDefinition _lapColumn = new() { Width = new GridLength(0) };
 
     private Ticker? _ticker;
     private StopwatchConfig _config = new();
@@ -51,60 +45,31 @@ internal sealed partial class StopwatchView : Grid, IWidgetView, IWidgetSizeAwar
     private IDisposable? _subscription;
     private IWidgetSurface? _surface;
     private WidgetArea _area;
-    private int _lapRows;
-    private int _hourDigits;
+    private StopwatchPlan _plan;
+    private bool _hours;
 
     public StopwatchView()
     {
-        Microsoft.UI.Xaml.Documents.Typography.SetNumeralAlignment(_clock, FontNumeralAlignment.Tabular);
-        Microsoft.UI.Xaml.Documents.Typography.SetNumeralAlignment(_lapLine, FontNumeralAlignment.Tabular);
-        _clock.TextTrimming = TextTrimming.None;
-        _clock.TextAlignment = TextAlignment.Center;
-        _lapLine.TextAlignment = TextAlignment.Center;
-        _noLaps.TextAlignment = TextAlignment.Center;
+        ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+        ColumnDefinitions.Add(_lapColumn);
 
-        Prepare(_startButton, _startIcon, Glyphs.Play);
-        Prepare(_lapButton, new FontIcon(), StopwatchModule.LapGlyph);
-        Prepare(_resetButton, new FontIcon(), Glyphs.Reset);
+        _face.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
+        _face.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
+        _face.Children.Add(_clock);
+        SetRow(_controls, 1);
+        _face.Children.Add(_controls);
 
-        _startButton.Click += (_, _) => Act(state => state.Act(Now()));
-        _lapButton.Click += (_, _) => Act(state => state.Lap(Now()));
-        _resetButton.Click += (_, _) => Act(_ => StopwatchState.None);
+        // [S-4601] Start first, so the icons give way before it: Lap, then Reset, from the last.
+        _startButton = _controls.Main(StopwatchStr.Stopwatch_Start.Text(), () => Act(state => state.Act(Now())));
+        _lapButton = _controls.Icon(StopwatchModule.LapGlyph, StopwatchStr.Stopwatch_Lap.Text(), () => Act(state => state.Lap(Now())));
+        _resetButton = _controls.Icon(Glyphs.Reset, StopwatchStr.Stopwatch_Reset.Text(), () => Act(_ => StopwatchState.None));
 
-        // The primary action takes the accent, as the pomodoro's does.
-        if (Application.Current.Resources.TryGetValue("AccentButtonStyle", out var accent) && accent is Style style)
-        {
-            _startButton.Style = style;
-        }
-        else
-        {
-            Log.Warn(Scope, "AccentButtonStyle is missing; the start button falls back to the standard style");
-        }
-
-        // Lap and reset at the left, the start button at the right, as Windows' Clock has them.
-        _controls = new StackPanel
-        {
-            Orientation = Orientation.Horizontal,
-            Spacing = Fluent.Space2,
-            Children = { _resetButton, _lapButton, _startButton },
-        };
-
-        _canvas.Children.Add(_clock);
-        _canvas.Children.Add(_lapLine);
-        _canvas.Children.Add(_controls);
-        _canvas.Children.Add(_laps);
-        _canvas.Children.Add(_noLaps);
-        Children.Add(_canvas);
-
-        Tooltips();
-
-        static void Prepare(Button button, FontIcon icon, string glyph)
-        {
-            icon.FontSize = Fluent.IconSize;
-            icon.Glyph = glyph;
-            button.Content = icon;
-            button.Padding = new Thickness(0);
-        }
+        SetColumn(_laps, 1);
+        SetColumn(_noLaps, 1);
+        _noLaps.Hide();
+        Children.Add(_face);
+        Children.Add(_laps);
+        Children.Add(_noLaps);
     }
 
     /// <summary>The monotonic clock the stopwatch counts on: setting Windows' clock never moves it.</summary>
@@ -236,9 +201,10 @@ internal sealed partial class StopwatchView : Grid, IWidgetView, IWidgetSizeAwar
 
     private void Tooltips()
     {
+        ControlsBlock.Reglyph(_lapButton, StopwatchModule.LapGlyph, StopwatchStr.Stopwatch_Lap.Text());
+        ControlsBlock.Reglyph(_resetButton, Glyphs.Reset, StopwatchStr.Stopwatch_Reset.Text());
         ToolTipService.SetToolTip(_lapButton, StopwatchStr.Stopwatch_Lap.Text());
         ToolTipService.SetToolTip(_resetButton, StopwatchStr.Stopwatch_Reset.Text());
-        _noLaps.Text = StopwatchStr.Stopwatch_NoLaps.Text();
     }
 
     // ---- drawing ----------------------------------------------------------------------------
@@ -254,70 +220,72 @@ internal sealed partial class StopwatchView : Grid, IWidgetView, IWidgetSizeAwar
         var now = Now();
         var elapsed = _state.Elapsed(now);
 
+        // From an hour up the time is three figures wider: the face is planned again once.
+        var hours = elapsed >= TimeSpan.FromHours(1);
+        if (hours != _hours)
+        {
+            _hours = hours;
+            Lay();
+            return;
+        }
+
         // [S-4603] Running: whole seconds, the one the ticker can keep. Stopped: the tenth too.
-        _clock.Text = Time(elapsed, tenths: !_state.Running && !_state.Idle);
-        _clock.Foreground = ThemeBrush.Of(_state.Phase == StopwatchPhase.Paused ? "TextFillColorSecondaryBrush" : "TextFillColorPrimaryBrush", Colors.Gray);
-
         var laps = _state.Splits;
-        _lapLine.Text = _state.Phase == StopwatchPhase.Paused && laps.Length == 0
+        var lapLine = _state.Phase == StopwatchPhase.Paused && laps.Length == 0
             ? StopwatchStr.Stopwatch_Paused.Text()
-            : laps.Length == 0 ? string.Empty
+            : laps.Length == 0 ? null
             : $"{StopwatchStr.Stopwatch_LapNumber.Format(("n", LocaleFormat.Integer(laps.Length + 1)))} · {Time(_state.CurrentLap(now), tenths: !_state.Running)}";
+        _clock.Show(
+            Time(elapsed, tenths: !_state.Running && !_state.Idle),
+            under: _plan.Face.Under ? lapLine : null,
+            valueRole: _state.Phase == StopwatchPhase.Paused ? ColourRole.TextSecondary : ColourRole.TextPrimary);
 
-        _startIcon.Glyph = _state.Running ? Glyphs.Pause : Glyphs.Play;
-        ToolTipService.SetToolTip(_startButton, (_state.Running ? StopwatchStr.Stopwatch_Pause : _state.Idle ? StopwatchStr.Stopwatch_Start : StopwatchStr.Stopwatch_Resume).Text());
+        ControlsBlock.Relabel(_startButton, (_state.Running ? StopwatchStr.Stopwatch_Pause : _state.Idle ? StopwatchStr.Stopwatch_Start : StopwatchStr.Stopwatch_Resume).Text());
 
         // [S-4601] Greyed where they do nothing, never taken away: the row never moves.
         _lapButton.IsEnabled = _state.CanLap;
         _resetButton.IsEnabled = _state.CanReset;
 
         FillLaps();
-
-        // From an hour up the time is three figures wider: the ladder runs again once.
-        var hours = elapsed >= TimeSpan.FromHours(1) ? 1 : 0;
-        if (hours != _hourDigits)
-        {
-            _hourDigits = hours;
-            Lay();
-        }
     }
 
-    /// <summary>The newest laps that fit, each "Lap N", its length and its total.</summary>
+    /// <summary>[S-4605] The newest laps that fit, each a fact row: "Lap N", its length, its total on the second line.</summary>
     private void FillLaps()
     {
         var laps = _state.Splits;
-        var shown = Math.Min(_lapRows, laps.Length);
+        var shown = Math.Min(_plan.LapRows, laps.Length);
 
         while (_laps.Children.Count < shown)
         {
-            _laps.Children.Add(new LapRow().Root);
+            _laps.Children.Add(new RowBlock(RowKind.Fact, lead: 0));
         }
 
         for (var i = 0; i < _laps.Children.Count; i++)
         {
-            var row = (Grid)_laps.Children[i];
+            var row = (RowBlock)_laps.Children[i];
             row.Visibility = i < shown ? Visibility.Visible : Visibility.Collapsed;
 
             if (i < shown && _state.LapAt(laps.Length - 1 - i) is { } lap)
             {
-                LapRow.Show(row, StopwatchStr.Stopwatch_LapNumber.Format(("n", LocaleFormat.Integer(laps.Length - i))), Time(lap.Length, true), Time(lap.Total, true));
+                row.Lines = _plan.LapLines;
+                row.Show(StopwatchStr.Stopwatch_LapNumber.Format(("n", LocaleFormat.Integer(laps.Length - i))), Time(lap.Length, true), Time(lap.Total, true));
             }
         }
 
-        _noLaps.Visibility = _lapRows > 0 && laps.Length == 0 && _laps.Visibility == Visibility.Visible ? Visibility.Visible : Visibility.Collapsed;
+        // "No laps yet" stands where the laps will, the Status row of a list with nothing in it.
+        if (_plan.LapColumn > 0 && laps.Length == 0)
+        {
+            _noLaps.Show(StatusKind.Empty, StopwatchModule.LapGlyph, StopwatchStr.Stopwatch_NoLaps.Text());
+        }
+        else
+        {
+            _noLaps.Hide();
+        }
     }
 
-    // ---- the ladder -------------------------------------------------------------------------
+    // ---- the face ---------------------------------------------------------------------------
 
-    /// <summary>
-    /// [S-4605] What a tile this size shows. The time and the start button never drop.
-    /// <list type="bullet">
-    /// <item>XS: the time over the start button.</item>
-    /// <item>A short strip: the time (and the lap under way) left, the three buttons right.</item>
-    /// <item>Taller: the time, the lap under way, the buttons, then as many laps as fit.</item>
-    /// <item>Wide and tall: the time and buttons in a column, the laps beside them.</item>
-    /// </list>
-    /// </summary>
+    /// <summary>[S-4605] What a tile this size shows (<see cref="StopwatchFace"/>): the face, and the laps' column from an expanded width.</summary>
     private void Lay()
     {
         var area = _area.IsMeasured ? _area : new WidgetArea(ActualWidth, ActualHeight);
@@ -326,190 +294,15 @@ internal sealed partial class StopwatchView : Grid, IWidgetView, IWidgetSizeAwar
             return;
         }
 
-        var shortTile = area.HeightClass == SizeClass.Compact;
-        var padY = !shortTile ? Fluent.Space4 : area.WidthClass == SizeClass.Compact ? Fluent.Space1 : Fluent.Space2;
-        var box = area.Deflate(Fluent.Space4, padY);
-        var side = area.Least >= SizeClass.Expanded ? Fluent.RowHeight : Fluent.RowHeightCompact;
-
-        // The widest the time can read in this hour: every figure an 8, with its tenth.
-        var characters = _hourDigits > 0 ? StopwatchText.Widest.Length : StopwatchText.Widest.Length - 3;
-
-        _lapRows = 0;
-        Hide(_lapLine, _laps, _noLaps);
-
-        var all = area.WidthClass >= SizeClass.Regular || area.HeightClass >= SizeClass.Regular;
-        var buttons = SetButtons(side, all);
-
-        if (shortTile && area.WidthClass >= SizeClass.Expanded)
-        {
-            LayStrip(box, padY, side, buttons, characters);
-        }
-        else if (area.WidthClass >= SizeClass.Expanded && area.HeightClass >= SizeClass.Regular && box.Width / 2 >= LapsColumnMinimum)
-        {
-            LayColumns(box, side, buttons, characters);
-        }
-        else
-        {
-            LayStack(area, box, padY, side, buttons, characters);
-        }
-
-        FillLaps();
-    }
-
-    private void LayStack(WidgetArea area, WidgetArea box, double padY, double side, double buttons, int characters)
-    {
-        var gap = Fluent.Space2;
-        var room = new Disclosure(box, gap);
-        room.Reserve(side);
-        room.Reserve(FluentType.Body.LineHeight);
-        var lapLine = area.WidthClass >= SizeClass.Regular && room.Take(FluentType.Caption.LineHeight);
-
-        // The time takes up to half of a tall tile; the laps the rest.
-        var heroRoom = area.HeightClass >= SizeClass.Regular ? Math.Min(room.Remaining, box.Height * 0.4) : room.Remaining;
-        var digits = FluentType.Hero(box.Width, heroRoom + FluentType.Body.LineHeight, characters);
-        room = new Disclosure(box, gap);
-        room.Reserve(side);
-        room.Reserve(digits.LineHeight);
-        if (lapLine)
-        {
-            room.Reserve(FluentType.Caption.LineHeight);
-        }
-
-        var lapRows = area.HeightClass >= SizeClass.Regular ? room.TakeRows(LapRow.Height, StopwatchState.MostLaps) : 0;
-
-        _clock.Apply(digits);
-        _clock.TextAlignment = TextAlignment.Center;
-        _lapLine.Apply(FluentType.Caption);
-        _lapLine.TextAlignment = TextAlignment.Center;
-
-        var height = digits.LineHeight + gap + side
-            + (lapLine ? FluentType.Caption.LineHeight + gap : 0)
-            + (lapRows > 0 ? (lapRows * LapRow.Height) + gap : 0);
-
-        var x = Fluent.Space4;
-        var y = padY + (lapRows > 0 ? 0 : Math.Max(0, (box.Height - height) / 2));
-
-        Place(_clock, x, y, box.Width, digits.LineHeight);
-        y += digits.LineHeight + gap;
-
-        if (lapLine)
-        {
-            Place(_lapLine, x, y, box.Width, FluentType.Caption.LineHeight);
-            y += FluentType.Caption.LineHeight + gap;
-        }
-
-        Place(_controls, x + ((box.Width - buttons) / 2), y, buttons, side);
-        y += side + gap;
-
-        PlaceLaps(x, y, box.Width, lapRows);
-    }
-
-    /// <summary>A short, wider tile: the time and the lap under way left, the buttons right.</summary>
-    private void LayStrip(WidgetArea box, double padY, double side, double buttons, int characters)
-    {
-        var left = Math.Max(0, box.Width - buttons - Fluent.Space3);
-        var room = new Disclosure(left, box.Height, Fluent.Space1);
-        room.Reserve(FluentType.Body.LineHeight);
-        var lapLine = room.Take(FluentType.Caption.LineHeight);
-
-        var digits = FluentType.Hero(left, room.Remaining + FluentType.Body.LineHeight, characters);
-        _clock.Apply(digits);
-        _clock.TextAlignment = TextAlignment.Left;
-        _lapLine.Apply(FluentType.Caption);
-        _lapLine.TextAlignment = TextAlignment.Left;
-
-        var column = digits.LineHeight + (lapLine ? FluentType.Caption.LineHeight + Fluent.Space1 : 0);
-        var x = Fluent.Space4;
-        var y = padY + Math.Max(0, (box.Height - column) / 2);
-
-        Place(_clock, x, y, left, digits.LineHeight);
-        if (lapLine)
-        {
-            Place(_lapLine, x, y + digits.LineHeight + Fluent.Space1, left, FluentType.Caption.LineHeight);
-        }
-
-        Place(_controls, x + box.Width - buttons, padY + Math.Max(0, (box.Height - side) / 2), buttons, side);
-    }
-
-    /// <summary>Wide and tall: the time, the lap under way and the buttons in the left half, the laps in the right.</summary>
-    private void LayColumns(WidgetArea box, double side, double buttons, int characters)
-    {
-        var gap = Fluent.Space3;
-        var half = (box.Width - gap) / 2;
-        var room = new Disclosure(half, box.Height, Fluent.Space2);
-        room.Reserve(side);
-        room.Reserve(FluentType.Body.LineHeight);
-        var lapLine = room.Take(FluentType.Caption.LineHeight);
-
-        var digits = FluentType.Hero(half, room.Remaining + FluentType.Body.LineHeight, characters);
-        _clock.Apply(digits);
-        _clock.TextAlignment = TextAlignment.Center;
-        _lapLine.Apply(FluentType.Body);
-        _lapLine.TextAlignment = TextAlignment.Center;
-
-        var lapHeight = lapLine ? FluentType.Body.LineHeight + Fluent.Space2 : 0;
-        var height = digits.LineHeight + lapHeight + Fluent.Space2 + side;
-        var x = Fluent.Space4;
-        var y = Fluent.Space4 + Math.Max(0, (box.Height - height) / 2);
-
-        Place(_clock, x, y, half, digits.LineHeight);
-        y += digits.LineHeight + Fluent.Space2;
-
-        if (lapLine)
-        {
-            Place(_lapLine, x, y, half, FluentType.Body.LineHeight);
-            y += lapHeight;
-        }
-
-        Place(_controls, x + ((half - buttons) / 2), y, buttons, side);
-
-        var rows = Disclosure.WholeRows(box.Height, LapRow.Height);
-        PlaceLaps(x + half + gap, Fluent.Space4, half, rows);
-    }
-
-    private void PlaceLaps(double x, double y, double width, int rows)
-    {
-        _lapRows = rows;
-        if (rows <= 0)
-        {
-            return;
-        }
-
-        Place(_laps, x, y, width, rows * LapRow.Height);
-        Place(_noLaps, x, y, width, FluentType.Caption.LineHeight);
-    }
-
-    /// <summary>Size the buttons; Lap and Reset only where there is room for three. Returns the row's width.</summary>
-    private double SetButtons(double side, bool all)
-    {
-        foreach (var button in new[] { _startButton, _lapButton, _resetButton })
-        {
-            button.Width = side;
-            button.Height = side;
-        }
-
-        _lapButton.Visibility = all ? Visibility.Visible : Visibility.Collapsed;
-        _resetButton.Visibility = all ? Visibility.Visible : Visibility.Collapsed;
-
-        var count = all ? 3 : 1;
-        return (count * side) + ((count - 1) * Fluent.Space2);
-    }
-
-    private static void Place(FrameworkElement element, double x, double y, double width, double height)
-    {
-        Canvas.SetLeft(element, x);
-        Canvas.SetTop(element, y);
-        element.Width = Math.Max(0, width);
-        element.Height = Math.Max(0, height);
-        element.Visibility = Visibility.Visible;
-    }
-
-    private static void Hide(params UIElement[] elements)
-    {
-        foreach (var element in elements)
-        {
-            element.Visibility = Visibility.Collapsed;
-        }
+        _plan = StopwatchFace.Plan(area, _hours);
+        var side = _plan.LapColumn > 0;
+        _lapColumn.Width = new GridLength(_plan.LapColumn);
+        _face.Margin = new Thickness(FamilySpace.Inset, 0, side ? 0 : FamilySpace.Inset, FamilySpace.Inset);
+        _face.RowSpacing = _plan.Face.Controls ? FamilySpace.S2 : 0;
+        _controls.Visibility = _plan.Face.Controls ? Visibility.Visible : Visibility.Collapsed;
+        _laps.Visibility = side ? Visibility.Visible : Visibility.Collapsed;
+        _clock.Size(area, _plan.FaceWidth, _plan.Face.Box, new ReadoutText(StopwatchFace.Widest(_hours), LineUnder: true, OneReadout: true));
+        Render();
     }
 
     public void Detach()
@@ -521,48 +314,5 @@ internal sealed partial class StopwatchView : Grid, IWidgetView, IWidgetSizeAwar
 
         // A key the lease delivers after the card left ([S-802]) must not press a detached stopwatch.
         _ticker = null;
-    }
-
-    /// <summary>One lap's row: its number, its length, and the total at the end in the quieter ink.</summary>
-    private sealed class LapRow
-    {
-        public const double Height = Fluent.RowHeightCompact - 4;
-
-        public LapRow()
-        {
-            var name = Fluent.Text(FluentType.Body, "TextFillColorSecondaryBrush");
-            name.TextTrimming = TextTrimming.CharacterEllipsis;
-            var length = Fluent.Text(FluentType.Body);
-            var total = Fluent.Text(FluentType.Body, "TextFillColorSecondaryBrush");
-
-            foreach (var text in new[] { length, total })
-            {
-                Microsoft.UI.Xaml.Documents.Typography.SetNumeralAlignment(text, FontNumeralAlignment.Tabular);
-                text.TextAlignment = TextAlignment.Right;
-                text.HorizontalAlignment = HorizontalAlignment.Right;
-            }
-
-            Root = new Grid { Height = Height, ColumnSpacing = Fluent.Space3 };
-            // The name takes the slack (and gives way first); the figures are tabular, so their columns line up.
-            Root.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
-            Root.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
-            Root.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto, MinWidth = FluentType.EstimateWidth(FluentType.Body, 6) });
-
-            foreach (var (text, column) in new[] { (name, 0), (length, 1), (total, 2) })
-            {
-                text.VerticalAlignment = VerticalAlignment.Center;
-                Grid.SetColumn(text, column);
-                Root.Children.Add(text);
-            }
-        }
-
-        public Grid Root { get; }
-
-        public static void Show(Grid row, string name, string length, string total)
-        {
-            ((TextBlock)row.Children[0]).Text = name;
-            ((TextBlock)row.Children[1]).Text = length;
-            ((TextBlock)row.Children[2]).Text = total;
-        }
     }
 }
