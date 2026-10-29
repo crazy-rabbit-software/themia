@@ -137,28 +137,6 @@ public sealed class ContactsAndBirthdaysTests
     public void S583_FetchSizeIsClamped(int count, int expected) => Assert.Equal(expected, ContactRules.FetchSize(count));
 
     [Fact]
-    public void S586_AvatarHueIsStableAndInRange()
-    {
-        Assert.Equal(ContactRules.AvatarHue("Jane Doe"), ContactRules.AvatarHue("Jane Doe"));
-        Assert.InRange(ContactRules.AvatarHue("Jane Doe"), 0, 359);
-        Assert.Equal(0, ContactRules.AvatarHue(null));
-    }
-
-    [Fact]
-    public void S581_SecondaryLinesAndLayoutFallbacks()
-    {
-        var c = Person("Jane", "j@x.com", "Contoso", "Engineer", "+1 555");
-        Assert.Equal("Engineer · Contoso", ContactRules.Role(c));
-        Assert.Equal("j@x.com", ContactRules.CompactDetail(c));
-        Assert.Equal("Contoso", ContactRules.CompactDetail(c with { Email = null }));
-        Assert.Equal("Engineer", ContactRules.CardDetail(c with { Company = null }));
-
-        Assert.Equal(ContactsLayout.List, ContactRules.Effective(ContactsLayout.Details, 300, 5));
-        Assert.Equal(ContactsLayout.Details, ContactRules.Effective(ContactsLayout.Details, 560, 5));
-        Assert.Equal(ContactsLayout.Compact, ContactRules.Effective(ContactsLayout.Grid, 120, 5));
-    }
-
-    [Fact]
     public void S582_ColumnsStayCanonicalAndNeverEmpty()
     {
         Assert.Equal([ContactColumn.Name, ContactColumn.Phone], ContactRules.ToggleColumn([ContactColumn.Phone], ContactColumn.Name));

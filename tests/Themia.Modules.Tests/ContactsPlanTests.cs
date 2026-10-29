@@ -2,9 +2,10 @@ using Themia.Core.Model;
 using Themia.Core.Office;
 using Themia.Core.Widgets;
 using Themia.Sdk.Kit;
+using Themia.Widget.Contacts;
 using Xunit;
 
-namespace Themia.Widget.Contacts.Tests;
+namespace Themia.Modules.Tests;
 
 /// <summary>[S-1270]..[S-1275] The contacts widget's ladder on the family's rows and cells.</summary>
 public sealed class ContactsPlanTests

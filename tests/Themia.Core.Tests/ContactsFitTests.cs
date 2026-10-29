@@ -23,18 +23,6 @@ public sealed class ContactsFitTests
     // ---- [S-1270] lines and columns ----------------------------------------------------------------
 
     [Theory]
-    [InlineData(120, 76, ContactDetail.Name)]          // XS
-    [InlineData(200, 106, ContactDetail.Role)]         // S
-    [InlineData(320, 188, ContactDetail.RoleAndReach)] // M: three rows of 60 still fit
-    [InlineData(320, 150, ContactDetail.Role)]         // a short M: two would not
-    [InlineData(480, 116, ContactDetail.Role)]         // Wide
-    [InlineData(200, 356, ContactDetail.Everything)]   // Tall
-    [InlineData(560, 376, ContactDetail.Everything)]   // L
-    [InlineData(800, 516, ContactDetail.Everything)]   // XL
-    public void S1270_RowsSayMoreAsTheTileGrows(double width, double height, ContactDetail expected)
-        => Assert.Equal(expected, ContactRules.ListDetail(new WidgetArea(width, height)));
-
-    [Theory]
     [InlineData(0, 1)]
     [InlineData(200, 1)]
     [InlineData(480, 2)]
@@ -43,23 +31,6 @@ public sealed class ContactsFitTests
     [InlineData(5000, 4)]
     public void S1270_RowsFlowIntoColumnsOf240(double width, int columns)
         => Assert.Equal(columns, ContactRules.ListColumns(width));
-
-    [Fact]
-    public void S1270_LinesAreOnlyWhatThePersonHas()
-    {
-        Assert.Empty(ContactRules.Lines(Full, ContactDetail.Name));
-        Assert.Equal([(ContactLine.Role, "Product Manager · Contoso")], ContactRules.Lines(Full, ContactDetail.Role));
-        Assert.Equal(
-            [(ContactLine.Role, "Product Manager · Contoso"), (ContactLine.Email, "amara@contoso.com")],
-            ContactRules.Lines(Full, ContactDetail.RoleAndReach));
-        Assert.Equal(3, ContactRules.Lines(Full, ContactDetail.Everything).Count);
-
-        // No role: the short row's one line is the way to reach them; a phone-only person gets the phone.
-        var phoneOnly = new Contact { Id = "2", Name = "Noah", Phone = "+41 79 555 90 12" };
-        Assert.Equal([(ContactLine.Phone, "+41 79 555 90 12")], ContactRules.Lines(phoneOnly, ContactDetail.Role));
-        Assert.Equal([(ContactLine.Phone, "+41 79 555 90 12")], ContactRules.Lines(phoneOnly, ContactDetail.Everything));
-        Assert.Equal(3, ContactRules.MaxLines(ContactDetail.Everything));
-    }
 
     [Fact]
     public void S1270_S1271_AvatarAndCompactAsideNeedTheirWidth()
@@ -72,16 +43,6 @@ public sealed class ContactsFitTests
     }
 
     // ---- [S-1273] / [S-1274] / [S-1275] -----------------------------------------------------------
-
-    [Fact]
-    public void S1273_CardsGrowOnLargeTiles()
-    {
-        Assert.False(ContactRules.LargeCards(new WidgetArea(320, 196)));
-        Assert.True(ContactRules.LargeCards(new WidgetArea(560, 376)));
-        Assert.Equal(5, ContactRules.CardsPerRow(560, large: false));
-        Assert.Equal(3, ContactRules.CardsPerRow(560, large: true));
-        Assert.Equal(2, ContactRules.CardsPerRow(120, large: false));
-    }
 
     [Theory]
     [InlineData(76, ContactSearch.Hidden)]
