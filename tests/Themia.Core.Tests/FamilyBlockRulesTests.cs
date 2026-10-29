@@ -112,6 +112,19 @@ public sealed class FamilyBlockRulesTests
     }
 
     [Fact]
+    public void S6710_a_part_with_nothing_to_say_takes_no_room_and_folds_nothing_away()
+    {
+        // Regression: the kit's header folded its Clear all button on a 200 tile because its hidden
+        // problem glyph and ring still counted a gap each (Notifications at S).
+        HeaderPart[] parts = [new(HeaderPartKind.Problem, 0), new(HeaderPartKind.Busy, 0), new(HeaderPartKind.Button, 24), new(HeaderPartKind.Count, 19)];
+        bool[] wanted = [false, false, true, true];
+
+        // 24 leading + 81.5 name + 8 + 24 + 4 + 19 = 160.5 fits 164; with the hidden two it would need 168.5.
+        Assert.Equal([false, false, true, true], HeaderRules.Shown(164, 81.5, parts, wanted));
+        Assert.Equal([false, false, false, true], HeaderRules.Shown(150, 81.5, parts, wanted));
+    }
+
+    [Fact]
     public void S6711_what_is_read_is_primary()
     {
         var fact = RowRules.Roles(RowKind.Fact);

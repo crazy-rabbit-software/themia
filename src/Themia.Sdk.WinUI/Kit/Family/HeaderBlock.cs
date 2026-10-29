@@ -224,15 +224,27 @@ public partial class HeaderParts : StackPanel
     /// <summary>Show the parts that fit a header <paramref name="width"/> wide whose name needs <paramref name="nameWidth"/>.</summary>
     public void Fold(double width, double nameWidth)
     {
-        var parts = _parts.Select(p => new HeaderPart(p.Kind, _unwanted.Contains(p.Element) ? 0 : Measured(p.Element))).ToList();
-        var shown = HeaderRules.Shown(width, nameWidth, parts);
+        // Only the wanted parts are folded: one with nothing to say takes no room and no gap.
+        var wanted = _parts.Select(p => !_unwanted.Contains(p.Element)).ToList();
+        var shown = HeaderRules.Shown(width, nameWidth, [.. _parts.Select((p, i) => new HeaderPart(p.Kind, wanted[i] ? Measured(p.Element) : 0))], wanted);
+        var any = false;
         for (var i = 0; i < _parts.Count; i++)
         {
-            var visibility = shown[i] && !_unwanted.Contains(_parts[i].Element) ? Visibility.Visible : Visibility.Collapsed;
-            if (_parts[i].Element.Visibility != visibility)
+            var element = _parts[i].Element;
+            var visible = shown[i];
+            any |= visible;
+            var visibility = visible ? Visibility.Visible : Visibility.Collapsed;
+            if (element.Visibility != visibility)
             {
-                _parts[i].Element.Visibility = visibility;
+                element.Visibility = visibility;
             }
+        }
+
+        // With every part folded away the gap before them goes too, as HeaderRules.Needs counts it.
+        var margin = new Thickness(any ? FamilySpace.S2 : 0, 0, 0, 0);
+        if (Margin != margin)
+        {
+            Margin = margin;
         }
 
         Space();

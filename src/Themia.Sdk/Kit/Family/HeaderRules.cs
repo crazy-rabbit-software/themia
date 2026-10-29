@@ -81,6 +81,27 @@ public static class HeaderRules
         return shown;
     }
 
+    /// <summary>
+    /// [S-6710] <see cref="Shown(double, double, IReadOnlyList{HeaderPart})"/> over the parts that have
+    /// something to say now (<paramref name="wanted"/>): a part that is not wanted is never shown and
+    /// takes no room and no gap, so it never folds a wanted one away.
+    /// </summary>
+    public static bool[] Shown(double width, double nameWidth, IReadOnlyList<HeaderPart> parts, IReadOnlyList<bool> wanted)
+    {
+        ArgumentNullException.ThrowIfNull(parts);
+        ArgumentNullException.ThrowIfNull(wanted);
+
+        var indices = Enumerable.Range(0, parts.Count).Where(i => i < wanted.Count && wanted[i]).ToList();
+        var folded = Shown(width, nameWidth, [.. indices.Select(i => parts[i])]);
+        var shown = new bool[parts.Count];
+        for (var k = 0; k < indices.Count; k++)
+        {
+            shown[indices[k]] = folded[k];
+        }
+
+        return shown;
+    }
+
     /// <summary>The width the header needs with the parts <paramref name="shown"/>: leading, name, the parts and their gaps.</summary>
     public static double Needs(double nameWidth, IReadOnlyList<HeaderPart> parts, IReadOnlyList<bool> shown)
     {
