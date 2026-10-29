@@ -1,4 +1,3 @@
-using Microsoft.UI;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media;
@@ -8,7 +7,9 @@ using Themia.Core.Links;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
+using Themia.Sdk.Kit;
 using Themia.Sdk.WinUI;
+using Themia.Sdk.WinUI.Kit;
 using Glyphs = Themia.App.Shell.Glyphs;
 
 namespace Themia.App.Widgets;
@@ -210,23 +211,34 @@ public sealed class ScreenTimeLinks
     }
 }
 
-/// <summary>The screen-time widgets' shared look: per-app colours, the brushes, durations in tooltips.</summary>
+/// <summary>
+/// The screen-time widgets' shared look on the family's roles ([S-6705]): an app's colour is data, a
+/// part not in focus is drawn as its wash, durations in tooltips.
+/// </summary>
 public static class ScreenTimeLook
 {
-    /// <summary>[S-3312] A dimmed part's opacity: present, so the whole still reads, but clearly not the point.</summary>
-    public const double DimOpacity = 0.35;
+    /// <summary>
+    /// [S-3312] A dimmed part's opacity: the family's wash ([S-6704]), the one "less" a chart has, so the
+    /// whole still reads but is clearly not the point.
+    /// </summary>
+    public const double DimOpacity = FamilyShape.Wash;
 
-    public static readonly Brush Primary = ThemeBrush.Of("TextFillColorPrimaryBrush", Colors.White);
-    public static readonly Brush Secondary = ThemeBrush.Of("TextFillColorSecondaryBrush", Colors.Gray);
-    public static readonly Brush Critical = ThemeBrush.Of("SystemFillColorCriticalBrush", Colors.Red);
-    public static readonly Brush Other = ThemeBrush.Of("TextFillColorDisabledBrush", Colors.Gray);
-    public static readonly Brush Accent = ThemeBrush.Of("AccentFillColorDefaultBrush", Colors.DodgerBlue);
-    public static readonly Brush AccentText = ThemeBrush.Of("AccentTextFillColorPrimaryBrush", Colors.DodgerBlue);
-    public static readonly Brush EmptyCell = ThemeBrush.Of("ControlFillColorSecondaryBrush", Colors.Gray);
+    public static Brush Primary => Family.Brush(ColourRole.TextPrimary);
+
+    public static Brush Critical => Family.Brush(ColourRole.Critical);
+
+    public static Brush Accent => Family.Brush(ColourRole.Accent);
+
+    public static Brush AccentText => Family.Brush(ColourRole.TextPrimary);
+
+    public static Brush EmptyCell => Family.Brush(ColourRole.Track);
+
+    /// <summary>[S-452] "Other": no app, so no colour of its own: the disabled role.</summary>
+    public static Brush Other => Family.Brush(ColourRole.TextDisabled);
 
     private static readonly Dictionary<string, Brush> AppBrushes = new(StringComparer.Ordinal);
 
-    /// <summary>[S-452] An app's colour: the hue its key hashes to, at one saturation and lightness, the same in every widget.</summary>
+    /// <summary>[S-452] [S-6705] An app's colour: the hue its key hashes to, a data colour (<see cref="Family.Data"/>), the same in every widget.</summary>
     public static Brush For(string key)
     {
         if (key == ScreenTimeRules.OtherKey)
@@ -236,8 +248,7 @@ public static class ScreenTimeLook
 
         if (!AppBrushes.TryGetValue(key, out var brush))
         {
-            var (r, g, b) = ScreenTimeRules.HslToRgb(ScreenTimeRules.Hue(key), 0.62, 0.60);
-            brush = new SolidColorBrush(Windows.UI.Color.FromArgb(255, r, g, b));
+            brush = Family.Data(ScreenTimeRules.Colour(key));
             AppBrushes[key] = brush;
         }
 
@@ -288,41 +299,47 @@ public static class ScreenTimeLook
 }
 
 /// <summary>
-/// [S-454] The day navigation on a screen-time card's header (back, the day, forward, back to
-/// today) for a day period; the window's name for a week or a month. The donut and the app list
-/// each have one; the pinned day is the widget's own.
+/// [S-454] The day navigation in a screen-time card's header, on the Header block's parts ([S-6710]):
+/// the day ("Today", "Yesterday", "Mon 26 Oct") as the informing label and two header buttons, back and
+/// forward, for a day period; the window's name alone for a week or a month. A button with nowhere to
+/// go (forward on today, back on the oldest day) is not wanted and takes no room; back to today is the
+/// card menu's (<see cref="ContextActions"/>). The donut and the app list each have one; the pinned day
+/// is the widget's own.
 /// </summary>
 public sealed class ScreenTimeDayNav
 {
-    /// <summary>Below this width the header has room for the widget's name and nothing else.</summary>
-    private const double HidesBelow = 170;
-
     private static readonly string ChevronLeft = char.ConvertFromUtf32(0xE76B);
-    private static readonly string ChevronRight = char.ConvertFromUtf32(0xE76C);
+    private static readonly string ChevronRight = Glyphs.ChevronRight;
 
-    private readonly Button _back;
-    private readonly Button _forward;
-    private readonly Button _today;
-    private readonly TextBlock _label = Fluent.Text(FluentType.Caption, "TextFillColorSecondaryBrush");
+    private readonly HeaderParts _parts = new();
+    private readonly TextBlock _label = HeaderBlock.Label(string.Empty);
+    private readonly Border _back;
+    private readonly Border _forward;
     private readonly Action _moved;
 
     /// <param name="moved">Called after the pinned day changed, to redraw.</param>
     public ScreenTimeDayNav(Action moved)
     {
         _moved = moved;
-        _back = Button(ChevronLeft, () => Step(-1));
-        _forward = Button(ChevronRight, () => Step(1));
-        _today = Button(Glyphs.Calendar, () => { Pinned = null; _moved(); });
-        _label.VerticalAlignment = VerticalAlignment.Center;
-        _label.TextAlignment = TextAlignment.Center;
-        _label.Margin = new Thickness(Fluent.Space1, 0, Fluent.Space1, 0);
 
-        Host = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 0, Children = { _back, _label, _forward, _today } };
-        Retext();
+        // Centred on the header's line beside the 24 buttons, as a label alone is.
+        _label.VerticalAlignment = VerticalAlignment.Center;
+        _parts.Add(HeaderPartKind.Label, _label);
+        _back = _parts.Add(HeaderPartKind.Button, HeaderBlock.Button(ChevronLeft, Str.Screentime_PrevDay.Text(), () => Step(-1)));
+        _forward = _parts.Add(HeaderPartKind.Button, HeaderBlock.Button(ChevronRight, Str.Screentime_NextDay.Text(), () => Step(1)));
+
+        // The arrows point the way time runs in the language's reading order.
+        foreach (var button in new[] { _back, _forward })
+        {
+            if (button.Child is FontIcon icon)
+            {
+                UiLanguage.Mirrored(icon);
+            }
+        }
     }
 
-    /// <summary>The header's trailing element.</summary>
-    public StackPanel Host { get; }
+    /// <summary>The header's trailing parts.</summary>
+    public HeaderParts Host => _parts;
 
     /// <summary>[S-454] The day shown, or null for today (which follows the clock across midnight).</summary>
     public string? Pinned { get; set; }
@@ -330,40 +347,41 @@ public sealed class ScreenTimeDayNav
     /// <summary>The source's today, so the navigation and the tracker never disagree about midnight.</summary>
     public Func<LocalDay>? Today { get; set; }
 
+    /// <summary>[S-454] The card menu's "Back to today" while a past day is pinned.</summary>
+    public IReadOnlyList<WidgetAction> ContextActions
+        => Pinned is null ? [] : [new WidgetAction(Glyphs.Calendar, Str.Screentime_BackToToday.Text(), () => { Pinned = null; _moved(); })];
+
     /// <summary>[S-1110] The tooltips in the current language.</summary>
     public void Retext()
     {
-        ToolTipService.SetToolTip(_back, Str.Screentime_PrevDay.Text());
-        ToolTipService.SetToolTip(_forward, Str.Screentime_NextDay.Text());
-        ToolTipService.SetToolTip(_today, Str.Screentime_BackToToday.Text());
+        Tip(_back, Str.Screentime_PrevDay.Text());
+        Tip(_forward, Str.Screentime_NextDay.Text());
     }
 
-    /// <summary>Show the day's controls, or the window's name, for this period and width.</summary>
-    public void Update(ScreenTimePeriod period, WidgetArea area)
+    private static void Tip(Border button, string text)
     {
-        var narrow = area.IsMeasured && area.Width <= 220;
-        var window = ScreenTimeRules.ClampPeriod(period) != ScreenTimePeriod.Day;
+        ToolTipService.SetToolTip(button, text);
+        Microsoft.UI.Xaml.Automation.AutomationProperties.SetName(button, text);
+    }
 
-        Host.Visibility = area.IsMeasured && area.Width < HidesBelow ? Visibility.Collapsed : Visibility.Visible;
-        _back.Visibility = window ? Visibility.Collapsed : Visibility.Visible;
-        _forward.Visibility = window ? Visibility.Collapsed : Visibility.Visible;
+    /// <summary>The callers' older form: the header folds the parts to its width itself.</summary>
+    public void Update(ScreenTimePeriod period, WidgetArea area) => Update(period);
 
-        if (window)
+    /// <summary>Show the day's label and arrows, or the window's name, for this period.</summary>
+    public void Update(ScreenTimePeriod period)
+    {
+        if (ScreenTimeRules.ClampPeriod(period) != ScreenTimePeriod.Day)
         {
-            _today.Visibility = Visibility.Collapsed;
             _label.Text = ScreenTimeRules.PeriodLabel(period);
-            _label.MinWidth = 0;
+            _parts.Want(_back, false);
+            _parts.Want(_forward, false);
             return;
         }
 
         var today = CurrentDay();
         _label.Text = ScreenTimeRules.DayLabel(Pinned, today);
-        _label.MinWidth = narrow ? 0 : Fluent.Space6 * 3;
-        _forward.IsEnabled = Pinned is not null;
-        _back.IsEnabled = ScreenTimeRules.CanGoBack(Pinned, today);
-
-        // On a narrow card the jump back to today goes first: the arrows still get there.
-        _today.Visibility = Pinned is not null && !narrow ? Visibility.Visible : Visibility.Collapsed;
+        _parts.Want(_back, ScreenTimeRules.CanGoBack(Pinned, today));
+        _parts.Want(_forward, Pinned is not null);
     }
 
     /// <summary>[S-1989] Left / Right: the day before or after, never past today. Returns whether it moved.</summary>
@@ -384,29 +402,5 @@ public sealed class ScreenTimeDayNav
     {
         Pinned = ScreenTimeRules.Step(Pinned, CurrentDay(), delta);
         _moved();
-    }
-
-    private static Button Button(string glyph, Action click)
-    {
-        var button = new Button
-        {
-            Content = UiLanguage.Mirrored(new FontIcon { Glyph = glyph, FontSize = FluentType.Caption.FontSize }),
-            Padding = new Thickness(Fluent.Space1 + 2, Fluent.Space1, Fluent.Space1 + 2, Fluent.Space1),
-            MinWidth = 0,
-            MinHeight = 0,
-            Background = ThemeBrush.Of("SubtleFillColorTransparentBrush", Colors.Transparent),
-            BorderThickness = new Thickness(0),
-            CornerRadius = new CornerRadius(Fluent.ControlRadius),
-            VerticalAlignment = VerticalAlignment.Center,
-        };
-
-        // A disabled arrow is dimmed, not boxed: the stock disabled fill would draw a grey tile
-        // around the one arrow that cannot be pressed.
-        var clear = ThemeBrush.Of("SubtleFillColorTransparentBrush", Colors.Transparent);
-        button.Resources["ButtonBackgroundDisabled"] = clear;
-        button.Resources["ButtonBorderBrushDisabled"] = clear;
-
-        button.Click += (_, _) => click();
-        return button;
     }
 }

@@ -3245,10 +3245,11 @@ by the list.
 Screen time is three widgets on the one tracker, so a view can put the week, the share and the list
 side by side and they light the same app together. Each is a module of its own
 (`src/Widgets/Themia.Widget.ScreenTimeChart`, `.ScreenTimeDonut`, `.ScreenTimeApps`, each its SPEC.md and
-its own ladder). What they share stays here: the SDK's `Widgets/{ScreenTimeRules,ScreenTimeLayout,
+its own ladder). What they share stays here: the SDK's `Widgets/{ScreenTimeRules,
 ScreenTimePreferences,ScreenTimeDay}.cs` and `Model/Configs/ScreenTimeSettings.cs` (the period, the chart
 style and the settings the configs share), Themia.Sdk.WinUI's `Widgets/ScreenTimeShared.cs`
-(data, links, look, day navigation), `Widgets/ScreenTimeSample.cs` (the previews' fixture) and
+(data, links, the look on the family's roles with each app's colour a data colour through `Family.Data`
+and a part not in focus at its wash, the day navigation on the Header block's parts), `Widgets/ScreenTimeSample.cs` (the previews' fixture) and
 `Shell/ScreenTimeMenuLines.cs` (the menus' shared lines), the `IScreenTimeSource` contract; Core's
 `Widgets/ScreenTimeTracker.cs` and `Storage/ScreenTimeStore.cs`; the host's `Services/ScreenTimeService.cs`.
 Tests `ScreenTimeRulesTests`, `ScreenTimeStoreTests`, `LocalStoreFixtureTests`, the module host's
