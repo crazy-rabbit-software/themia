@@ -94,7 +94,7 @@ src/Themia.Sdk.WinUI/  the widget SDK, WinUI: IWidgetModule, IWidgetHost (+ IShe
                    Kit/ (KitList, KitHeader, KitStatePanel, KitBinding, KitMenuLines: the kit's UI parts),
                    contracts (IWidgetView, IWidgetSurface, IWidgetKeys, IWidgetDropTarget, ...), Ticker, Fluent,
                    WidgetLayout, ThemeBrush, ItemFill, ItemMenu, RowFocus, WidgetItems, ConfirmFlyout, RingPart,
-                   UiLanguage, ScrollFade, EmptyStatePanel, Notices, the meters' and details' shared views (MeterView,
+                   UiLanguage, ScrollFade, Notices, the meters' and details' shared views (MeterView,
                    DetailView, SparkBand, CoreGraphGrid), AudioFeed, the screen-time widgets' shared parts, AddFooterRow,
                    RotatedBox; Modules/: the host's contracts (IWidgetHost's members, among them the file shell's:
                    FileIcons, FileClipboard, Folders, FileOps, ExplorerMenus, RecentFiles, AppLayouts, Streams;
