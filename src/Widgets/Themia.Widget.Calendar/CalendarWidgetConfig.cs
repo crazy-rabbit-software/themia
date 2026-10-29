@@ -20,6 +20,7 @@ namespace Themia.Core.Model;
 public sealed class CalendarWidgetConfig : CalendarConfig, IStyled, IShownSettings<CalendarSetting>
 {
     /// <summary>[S-1862] What its Set up row says it waits for.</summary>
+    [JsonIgnore]
     public override string? SetupSentence => CalendarStr.Calendar_Setup_Sentence.Text();
 
     private static readonly StyleOption[] CalendarStyles =

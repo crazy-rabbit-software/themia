@@ -29,6 +29,7 @@ public enum WeekPlannerSetting
 public sealed class WeekPlannerConfig : CalendarConfig, IShownSettings<WeekPlannerSetting>
 {
     /// <summary>[S-1862] What its Set up row says it waits for.</summary>
+    [JsonIgnore]
     public override string? SetupSentence => WeekPlannerStr.WeekPlanner_Setup_Sentence.Text();
 
     /// <summary>
