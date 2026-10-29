@@ -30,7 +30,7 @@ public sealed class NightLightToggleModule : IWidgetModule
         Glyph = Glyphs.NightLight,
         DefaultWidth = 120,
         DefaultHeight = 120,
-        Traits = WidgetTraits.HasItems,
+        Traits = WidgetTraits.HasItems | WidgetTraits.OneReadout,
         Add = new(AddFolderId.QuickSettings, 2, 0),
     };
 

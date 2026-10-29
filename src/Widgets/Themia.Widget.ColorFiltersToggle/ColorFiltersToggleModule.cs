@@ -30,7 +30,7 @@ public sealed class ColorFiltersToggleModule : IWidgetModule
         Glyph = Glyphs.ColorFilters,
         DefaultWidth = 120,
         DefaultHeight = 120,
-        Traits = WidgetTraits.HasItems,
+        Traits = WidgetTraits.HasItems | WidgetTraits.OneReadout,
         Add = new(AddFolderId.QuickSettings, 2, 1),
     };
 

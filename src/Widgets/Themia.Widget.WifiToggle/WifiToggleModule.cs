@@ -31,7 +31,7 @@ public sealed class WifiToggleModule : IWidgetModule
         Glyph = Glyphs.Wifi,
         DefaultWidth = 120,
         DefaultHeight = 120,
-        Traits = WidgetTraits.HasItems,
+        Traits = WidgetTraits.HasItems | WidgetTraits.OneReadout,
         Add = new(AddFolderId.QuickSettings, 0, 0),
     };
 

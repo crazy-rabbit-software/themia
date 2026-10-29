@@ -30,7 +30,7 @@ public sealed class SignOutModule : IWidgetModule
         Glyph = Glyphs.SignOut,
         DefaultWidth = 120,
         DefaultHeight = 120,
-        Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader | WidgetTraits.StartsHeaderless,
+        Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader | WidgetTraits.StartsHeaderless | WidgetTraits.OneReadout,
         Add = new(AddFolderId.PowerButtons, 0, 5),
     };
 

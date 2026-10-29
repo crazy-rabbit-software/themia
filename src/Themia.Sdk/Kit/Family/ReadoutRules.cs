@@ -6,7 +6,8 @@ namespace Themia.Sdk.Kit;
 /// [S-6702] What a Readout is asked to hold, as its widest case: the value ("188.8"), the unit set
 /// after it (" KB/s", "%", empty for none, a space included where one is drawn), whether a glyph
 /// leads it, whether a line stands under it, and whether the widget is a one-readout widget (a
-/// clock, a timer, a quick toggle, a power button), which alone may use the Hero steps.
+/// clock, a timer, a quick toggle, a power button: <see cref="ReadoutRules.OneReadout"/> of its
+/// module's traits), which alone may use the Hero steps.
 /// </summary>
 public readonly record struct ReadoutText(string Value, string Unit = "", bool Lead = false, bool LineUnder = false, bool OneReadout = false);
 
@@ -31,6 +32,16 @@ public readonly record struct ReadoutFold(bool Unit, bool DeltaBeside);
 /// </summary>
 public static class ReadoutRules
 {
+    /// <summary>
+    /// [S-6737] Whether a widget's Readout may climb the Hero steps: only a widget its module declares
+    /// one-readout (<see cref="WidgetTraits.OneReadout"/>), the one trait the render walk reads too,
+    /// so no list of kinds is kept anywhere else.
+    /// </summary>
+    public static bool OneReadout(WidgetTraits traits) => traits.HasFlag(WidgetTraits.OneReadout);
+
+    /// <summary>[S-6702] [S-6737] The steps a Readout may take: the Big ramp, and the Hero steps after it for a one-readout widget.</summary>
+    public static IReadOnlyList<TypeStep> Steps(bool oneReadout) => oneReadout ? [.. FamilyType.Big, .. FamilyType.Hero] : FamilyType.Big;
+
     /// <summary>The Readout step for <paramref name="text"/> in a <paramref name="width"/> × <paramref name="height"/> box of a view given <paramref name="area"/>.</summary>
     public static TypeStep Step(WidgetArea area, double width, double height, ReadoutText text)
     {
@@ -43,8 +54,7 @@ public static class ReadoutRules
         var ceiling = text.OneReadout ? double.PositiveInfinity : Ceiling(area);
         var chosen = floor;
 
-        IEnumerable<TypeStep> steps = text.OneReadout ? [.. FamilyType.Big, .. FamilyType.Hero] : FamilyType.Big;
-        foreach (var step in steps)
+        foreach (var step in Steps(text.OneReadout))
         {
             if (FamilyType.BaseOf(step) > ceiling)
             {

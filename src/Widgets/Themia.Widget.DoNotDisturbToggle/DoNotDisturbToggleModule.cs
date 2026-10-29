@@ -30,7 +30,7 @@ public sealed class DoNotDisturbToggleModule : IWidgetModule
         Glyph = Glyphs.QuietHours,
         DefaultWidth = 120,
         DefaultHeight = 120,
-        Traits = WidgetTraits.HasItems,
+        Traits = WidgetTraits.HasItems | WidgetTraits.OneReadout,
         Add = new(AddFolderId.QuickSettings, 3, 1),
     };
 

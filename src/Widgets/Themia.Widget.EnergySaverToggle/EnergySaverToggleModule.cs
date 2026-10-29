@@ -30,7 +30,7 @@ public sealed class EnergySaverToggleModule : IWidgetModule
         Glyph = Glyphs.EnergySaver,
         DefaultWidth = 120,
         DefaultHeight = 120,
-        Traits = WidgetTraits.HasItems,
+        Traits = WidgetTraits.HasItems | WidgetTraits.OneReadout,
         Add = new(AddFolderId.QuickSettings, 3, 0),
     };
 

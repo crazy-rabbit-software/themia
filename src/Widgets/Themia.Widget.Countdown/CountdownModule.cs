@@ -30,7 +30,7 @@ public sealed class CountdownModule : IWidgetModule
         Glyph = Glyphs.Countdown,
         DefaultWidth = 300,
         DefaultHeight = 200,
-        Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader,
+        Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader | WidgetTraits.OneReadout,
         Add = new(AddFolderId.Time, 0, 2),
     };
 

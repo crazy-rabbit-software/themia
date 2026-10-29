@@ -34,7 +34,7 @@ public sealed class ClockModule : IWidgetModule
         Glyph = Glyphs.Clock,
         DefaultWidth = 280,
         DefaultHeight = 140,
-        Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader | WidgetTraits.StartsHeaderless,
+        Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader | WidgetTraits.StartsHeaderless | WidgetTraits.OneReadout,
         Add = new(AddFolderId.Time, 0, 0, Popular: 0),
     };
 

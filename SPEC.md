@@ -958,6 +958,10 @@ module author's guide is docs/WIDGET-KIT.md 16.
   the text and glyph on it; Round puts the glyph in a circle (the accent when on, the subtle fill
   off) at the largest family glyph size within half of it; Switch is a row with a switch as its
   value. Missing on this PC, every part is disabled. A power button's arm ring is the Tile's ring.
+- **[S-6737]** A **one-readout** widget (DECISIONS 2: the clock and the timers, the quick toggles and
+  the power buttons) says so in its module's descriptor (`WidgetTraits.OneReadout`); it alone may climb
+  the Hero steps (`ReadoutRules.OneReadout`, `ReadoutRules.Steps`), and the render walk ([S-6731])
+  reads the same trait, so no list of kinds is kept anywhere else.
 - **[S-6716]** **Controls** (`ControlsBlock`): what a person does to a widget, one row of 32 controls
   8 apart at the card's bottom inset: at most one main action in the accent, standard buttons, icon
   buttons and a slider (its rail Track, its value the accent) taking the room left. On a narrow card
@@ -1015,7 +1019,8 @@ module author's guide is docs/WIDGET-KIT.md 16.
   every kind at the seven tiers in its default, its preview states and its styles, each card's header,
   view and Set up row walked element by element (a control's template skipped, its content walked)
   and judged by `FamilyCheck` (a glyph is judged as a glyph: the text inside its `FontIcon` is not
-  walked): a text's size, line and weight, a glyph's size, every padding, margin
+  walked): a text's size, line and weight, a glyph's size (a Hero step only in a one-readout kind,
+  [S-6737]), every padding, margin
   and spacing on the scale, radii 0, 4 or round, strokes 0, 1, 2 or 4, every solid colour a role (or
   the card's, the item layer's, a data colour, or clear), no text or glyph in the accent.
   `scripts/family-check.ps1` runs it for both themes and holds the findings (kind, element, rule; the

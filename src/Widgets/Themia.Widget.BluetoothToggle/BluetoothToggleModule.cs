@@ -30,7 +30,7 @@ public sealed class BluetoothToggleModule : IWidgetModule
         Glyph = Glyphs.Bluetooth,
         DefaultWidth = 120,
         DefaultHeight = 120,
-        Traits = WidgetTraits.HasItems,
+        Traits = WidgetTraits.HasItems | WidgetTraits.OneReadout,
         Add = new(AddFolderId.QuickSettings, 0, 1),
     };
 

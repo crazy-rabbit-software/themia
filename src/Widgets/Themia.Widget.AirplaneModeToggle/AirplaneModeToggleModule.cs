@@ -30,7 +30,7 @@ public sealed class AirplaneModeToggleModule : IWidgetModule
         Glyph = Glyphs.Airplane,
         DefaultWidth = 120,
         DefaultHeight = 120,
-        Traits = WidgetTraits.HasItems,
+        Traits = WidgetTraits.HasItems | WidgetTraits.OneReadout,
         Add = new(AddFolderId.QuickSettings, 0, 2),
     };
 

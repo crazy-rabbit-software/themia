@@ -33,7 +33,7 @@ public sealed class StopwatchModule : IWidgetModule
         Glyph = Glyph,
         DefaultWidth = 260,
         DefaultHeight = 200,
-        Traits = WidgetTraits.CanHaveHeader,
+        Traits = WidgetTraits.CanHaveHeader | WidgetTraits.OneReadout,
         Add = new(AddFolderId.Time, 0, 3),
     };
 

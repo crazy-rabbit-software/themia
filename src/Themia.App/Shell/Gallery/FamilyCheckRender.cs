@@ -10,6 +10,7 @@ using Themia.Core.Diagnostics;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
 using Themia.Sdk;
+using Themia.Sdk.Kit;
 using Windows.Graphics;
 
 namespace Themia.App.Shell.Gallery;
@@ -35,15 +36,6 @@ internal static class FamilyCheckRender
     {
         "hover", "pressed", "focus", "hovered", "selected", "lasso", "inactive", "fullname", "packaged", "unknown",
         "confirm", "editing", "open", "linked", "sticker", "file", "dropTarget",
-    };
-
-    /// <summary>
-    /// The one-readout widgets (DECISIONS 2, [S-6702]): the only ones a Hero step is allowed in. The
-    /// quick toggles and power buttons by their shared config; the six timers and the clock by id.
-    /// </summary>
-    private static readonly HashSet<string> OneReadoutIds = new(StringComparer.Ordinal)
-    {
-        "clock", "alarm", "countdown", "stopwatch", "pomodoro", "focusSession",
     };
 
     public static ApplicationTheme? RequestedTheme(string[] args)
@@ -190,7 +182,8 @@ internal static class FamilyCheckRender
                 await Task.Delay(300).ConfigureAwait(true);
             }
 
-            var oneReadout = OneReadoutIds.Contains(kind.Value) || cards[0].Model.Config is QuickToggleConfig or PowerButtonConfig;
+            // [S-6737] The one-readout widgets, the only ones a Hero step is allowed in, by their module's trait.
+            var oneReadout = ReadoutRules.OneReadout(ModuleCatalog.Of(kind).Traits);
             var palette = FamilyWalk.Palette(cards[0]);
             var accent = FamilyWalk.Accent();
             for (var i = 0; i < cards.Count; i++)

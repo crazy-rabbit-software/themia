@@ -30,7 +30,7 @@ public sealed class GameModeToggleModule : IWidgetModule
         Glyph = Glyphs.GameMode,
         DefaultWidth = 120,
         DefaultHeight = 120,
-        Traits = WidgetTraits.HasItems,
+        Traits = WidgetTraits.HasItems | WidgetTraits.OneReadout,
         Add = new(AddFolderId.QuickSettings, 3, 2),
     };
 

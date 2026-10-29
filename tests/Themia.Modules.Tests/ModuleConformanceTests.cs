@@ -432,6 +432,22 @@ public sealed partial class ModuleConformanceTests
         Assert.Equal(paints, Module(id).Descriptor.Traits.HasFlag(WidgetTraits.HasItems));
     }
 
+    /// <summary>[S-6737] The one-readout widgets, the only ones a Hero step is allowed in, are those their modules declare: the clock and the timers, the quick toggles and the power buttons.</summary>
+    [Fact]
+    public void S6737_the_one_readout_widgets_are_the_ones_their_modules_declare()
+    {
+        string[] expected =
+        [
+            "clock", "alarm", "countdown", "stopwatch", "pomodoro", "focusSession",
+            "airplaneModeToggle", "bluetoothToggle", "colorFiltersToggle", "doNotDisturbToggle", "energySaverToggle", "gameModeToggle",
+            "microphoneToggle", "monoAudioToggle", "nightLightToggle", "rotationLockToggle", "soundToggle", "spatialSoundToggle", "wifiToggle",
+            "hibernate", "lock", "restart", "screenOff", "shutdown", "signOut", "sleep",
+        ];
+
+        var declared = ModuleCatalog.Widgets.Where(w => Themia.Sdk.Kit.ReadoutRules.OneReadout(w.Traits)).Select(w => w.Id.Value).Order(StringComparer.Ordinal);
+        Assert.Equal(expected.Order(StringComparer.Ordinal), declared);
+    }
+
     /// <summary>[S-6573] Only a kind with items can say which of its styles and states draw them: on any other the contract would claim items its view never paints.</summary>
     [Theory]
     [MemberData(nameof(WidgetsOrNone))]

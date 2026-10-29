@@ -26,4 +26,11 @@ public enum WidgetTraits
     /// the moon and the drive, which say what they are ([S-1161]).
     /// </summary>
     StartsHeaderless = 4,
+
+    /// <summary>
+    /// [S-6737] A one-readout widget (DECISIONS 2): its readout or glyph is the widget, so it alone may
+    /// climb the Hero steps (96, 136, 192): the clock and the timers, the quick toggles and the power
+    /// buttons. The render walk and <c>ReadoutRules.OneReadout</c> read it; no list of kinds is kept.
+    /// </summary>
+    OneReadout = 8,
 }

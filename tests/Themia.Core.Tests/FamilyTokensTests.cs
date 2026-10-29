@@ -136,4 +136,13 @@ public sealed class FamilyTokensTests
         Assert.False(ColourRoles.IsRoleKey("AccentTextFillColorPrimaryBrush"));
         Assert.Null(ColourRoles.Of("SystemFillColorSuccessBrush"));
     }
+
+    [Fact]
+    public void S6737_only_a_widget_its_module_declares_one_readout_climbs_the_hero_steps()
+    {
+        Assert.True(ReadoutRules.OneReadout(Themia.Sdk.WidgetTraits.HasItems | Themia.Sdk.WidgetTraits.OneReadout));
+        Assert.False(ReadoutRules.OneReadout(Themia.Sdk.WidgetTraits.HasItems | Themia.Sdk.WidgetTraits.CanHaveHeader));
+        Assert.Equal(FamilyType.Big, ReadoutRules.Steps(oneReadout: false));
+        Assert.Equal([.. FamilyType.Big, .. FamilyType.Hero], ReadoutRules.Steps(oneReadout: true));
+    }
 }
