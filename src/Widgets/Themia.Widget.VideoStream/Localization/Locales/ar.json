@@ -6,6 +6,7 @@
   "videoStream.resume": "استئناف البث",
   "videoStream.rotate": "تدوير",
   "videoStream.rotationLabel": "التدوير",
+  "videoStream.setup": "أضف بثًا",
   "widgetsA.catalog.videoStream.description": "كاميرا مباشرة: MJPEG أو لقطة أو MP4 أو HLS",
   "widgetsA.catalog.videoStream.label": "بث الفيديو",
   "widgetsC.videoStream.age.hours": "منذ {value} س",

@@ -6,6 +6,7 @@
   "videoStream.resume": "ادامه پخش",
   "videoStream.rotate": "چرخاندن",
   "videoStream.rotationLabel": "چرخش",
+  "videoStream.setup": "یک جریان اضافه کنید",
   "widgetsA.catalog.videoStream.description": "دوربین زنده: MJPEG، عکس لحظه‌ای، MP4 یا HLS",
   "widgetsA.catalog.videoStream.label": "پخش ویدیو",
   "widgetsC.videoStream.age.hours": "{value} ساعت پیش",

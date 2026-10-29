@@ -162,3 +162,35 @@ public sealed class StreamChromeTests
         Assert.Null(meter.Last);
     }
 }
+
+/// <summary>[S-1314] A stream with no picture says so in the Status row at the top; the state dot's role.</summary>
+public sealed class StreamStatusTests
+{
+    [Fact]
+    public void S1314_no_address_is_the_set_up_row_and_a_live_stream_says_nothing()
+    {
+        Assert.Null(StreamChromeRules.Look(hasAddress: false, addressValid: false, paused: false, Themia.App.Services.Web.StreamPhase.Connecting));
+        Assert.Null(StreamChromeRules.Look(hasAddress: true, addressValid: true, paused: false, Themia.App.Services.Web.StreamPhase.Live));
+    }
+
+    [Theory]
+    [InlineData(false, false, Themia.App.Services.Web.StreamPhase.Live, Themia.Sdk.Kit.StatusKind.Problem, StreamAction.None)]
+    [InlineData(true, true, Themia.App.Services.Web.StreamPhase.Live, Themia.Sdk.Kit.StatusKind.Empty, StreamAction.None)]
+    [InlineData(true, false, Themia.App.Services.Web.StreamPhase.Connecting, Themia.Sdk.Kit.StatusKind.Empty, StreamAction.None)]
+    [InlineData(true, false, Themia.App.Services.Web.StreamPhase.Retrying, Themia.Sdk.Kit.StatusKind.Problem, StreamAction.Retry)]
+    [InlineData(true, false, Themia.App.Services.Web.StreamPhase.Unsupported, Themia.Sdk.Kit.StatusKind.Problem, StreamAction.None)]
+    public void S1314_each_state_is_plain_or_a_problem_with_its_one_action(bool valid, bool paused, Themia.App.Services.Web.StreamPhase phase, Themia.Sdk.Kit.StatusKind kind, StreamAction action)
+        => Assert.Equal(new StreamLook(kind, action), StreamChromeRules.Look(hasAddress: true, valid, paused, phase));
+
+    [Fact]
+    public void S1314_the_dot_is_the_accent_while_live_caution_while_waiting_tertiary_while_paused_never_critical()
+    {
+        Assert.Equal(Themia.Sdk.Kit.ColourRole.Accent, StreamChromeRules.DotRole(live: true, paused: false));
+        Assert.Equal(Themia.Sdk.Kit.ColourRole.Caution, StreamChromeRules.DotRole(live: false, paused: false));
+        Assert.Equal(Themia.Sdk.Kit.ColourRole.TextTertiary, StreamChromeRules.DotRole(live: false, paused: true));
+    }
+
+    [Fact]
+    public void S1314_set_up_asks_for_a_stream()
+        => Assert.Equal(VideoStreamStr.VideoStream_Setup.Text(), ((ISetupRule)new VideoStreamConfig()).SetupSentence);
+}

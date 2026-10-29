@@ -6,6 +6,7 @@
   "videoStream.resume": "स्ट्रीम सुरू करा",
   "videoStream.rotate": "फिरवा",
   "videoStream.rotationLabel": "फिरवणे",
+  "videoStream.setup": "एक स्ट्रीम जोडा",
   "widgetsA.catalog.videoStream.description": "थेट कॅमेरा: MJPEG, स्नॅपशॉट, MP4 किंवा HLS",
   "widgetsA.catalog.videoStream.label": "व्हिडिओ स्ट्रीम",
   "widgetsC.videoStream.age.hours": "{value} ता पूर्वी",

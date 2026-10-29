@@ -10,6 +10,7 @@
   "videoStream.resume": "Resume stream",
   "videoStream.rotate": "Rotate",
   "videoStream.rotationLabel": "Rotation",
+  "videoStream.setup": "Add a stream",
   "widgetsA.catalog.videoStream.description": "A live camera: MJPEG, a snapshot, MP4 or HLS",
   "widgetsA.catalog.videoStream.label": "Video stream",
   "widgetsC.videoStream.age.hours": "{value} h ago",

@@ -1,4 +1,6 @@
+using Themia.App.Services.Web;
 using Themia.Core.Localization;
+using Themia.Sdk.Kit;
 using Themia.Widget.VideoStream;
 
 namespace Themia.Core.Widgets;
@@ -72,9 +74,64 @@ public sealed class FrameRateMeter
     }
 }
 
+/// <summary>[S-1314] The one action a stream's Status row offers.</summary>
+public enum StreamAction
+{
+    /// <summary>
+    /// Nothing to offer here: connecting, an address only an edit mends, or a paused stream (Resume is
+    /// the card menu's, Space's and the strip's; a worded button does not fit the small tiles).
+    /// </summary>
+    None,
+
+    /// <summary>A stream that dropped: reconnect now, the backoff reset.</summary>
+    Retry,
+}
+
+/// <summary>[S-1314] How the Status row says a stream with no picture: plain or a problem, and its one action.</summary>
+public readonly record struct StreamLook(StatusKind Kind, StreamAction Action);
+
 /// <summary>[S-1312]/[S-1313] The camera's chrome: which parts show at a size, and their words.</summary>
 public static class StreamChromeRules
 {
+    /// <summary>
+    /// [S-1314] A stream with no picture to draw, as the Status row at the top says it: an address that
+    /// is refused or a stream this widget cannot show is a problem with no action (only the menu mends
+    /// it); a dropped stream a problem with Retry; a paused one and connecting plain. Null
+    /// while the picture is on screen, and for no address at all (the card's Set up row, [S-1862]).
+    /// </summary>
+    public static StreamLook? Look(bool hasAddress, bool addressValid, bool paused, StreamPhase phase)
+    {
+        if (!hasAddress)
+        {
+            return null;
+        }
+
+        if (!addressValid)
+        {
+            return new StreamLook(StatusKind.Problem, StreamAction.None);
+        }
+
+        if (paused)
+        {
+            return new StreamLook(StatusKind.Empty, StreamAction.None);
+        }
+
+        return phase switch
+        {
+            StreamPhase.Live => null,
+            StreamPhase.Connecting => new StreamLook(StatusKind.Empty, StreamAction.None),
+            StreamPhase.Unsupported => new StreamLook(StatusKind.Problem, StreamAction.None),
+            _ => new StreamLook(StatusKind.Problem, StreamAction.Retry),
+        };
+    }
+
+    /// <summary>
+    /// [S-1314] The state dot's role on the strip and the chip: the accent while live (on, [S-6706]),
+    /// caution while it waits for a frame, tertiary while paused. Never a success green, never critical
+    /// for a stream that is working.
+    /// </summary>
+    public static ColourRole DotRole(bool live, bool paused) => live ? ColourRole.Accent : paused ? ColourRole.TextTertiary : ColourRole.Caution;
+
     /// <summary>
     /// [S-1312] The ladder. Nothing on XS and S (or any strip under Regular height: a Wide strip is
     /// all picture). M and Tall: the hover strip. L: plus controls and details. XL: plus the status

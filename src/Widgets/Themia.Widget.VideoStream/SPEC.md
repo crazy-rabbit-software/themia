@@ -13,7 +13,7 @@ menu lines, JSON context), `VideoStreamConfig.cs` (the address gate, fit, rotati
 the chrome's two switches), `VideoStreamView.cs` (the session through `IWidgetHost.Streams`, the frames,
 Windows' player for a video) with `.Overlay.cs` (the hover strip, the controls, the chip),
 `ShownWatch.cs` (whether the card can be seen), `StreamChromeRules.cs` (the chrome ladder, its words,
-the frame-rate meter), `VideoStreamMenu.cs` (its properties-menu lines), `Localization/Locales/` (its own
+the frame-rate meter, the Status row's look, the tick's lease), `Preview/` (Debug stills, [S-1314]), `VideoStreamMenu.cs` (its properties-menu lines), `Localization/Locales/` (its own
 `VideoStreamStr`, 30 languages). Tests: `Tests/StreamChromeTests.cs`, `Tests/VideoStreamConfigTests.cs`, `Tests/VideoStreamMenuTests.cs`
 (run by `tests/Themia.Modules.Tests`); its config under the root's rules is the module host's
 `VideoStreamHostTests`.
@@ -30,8 +30,8 @@ releases everything.
   `Stretch` mapping drives both the decoded-frame `Image` and the video player.
 - **[S-467]** The stream address is checked by `WebInput.Url` on every read — http/https only, no
   credentials, no UNC, refused rather than repaired — and the menu's address box explains a refusal as it is typed (was
-  [S-09]). A refused address shows its reason in place of the picture; an empty one is the Set up button
-  ([S-1862], was [S-02]).
+  [S-09]). A refused address shows its reason in the Status row ([S-1314]) in place of the picture; an
+  empty one is the Set up button, its sentence "Add a stream" ([S-1862], was [S-02]).
 - **[S-469]** Paused is persisted, so a parked camera stays parked across restarts and uses no network;
   it shows "Paused" (was [S-07]).
 - **[S-473]** Its options are all on the properties menu ([S-3719], user request 2026-10-19); it
@@ -47,7 +47,7 @@ releases everything.
 - **[S-1312]** Video stream chrome ladder (`StreamChromeRules.Chrome`, `IWidgetSizeAware`). The
   picture is the widget at every size; nothing else ever shows on XS, S or a Wide strip (height
   under Regular). From M (Regular × Regular, so Tall too), with the pointer on the picture, a
-  bottom strip shows a state dot, the state and the frame's age. From L (Expanded × Expanded) the
+  bottom strip shows a state dot, the state and the frame's age ([S-1314] its look). From L (Expanded × Expanded) the
   strip adds Pause/Resume, Rotate and Refresh (the same handlers as the context menu's) and
   the camera's resolution and measured frame rate. At XL (Huge × Huge) a persistent top-left chip
   shows the state and transport. Two switches ([S-473]): `HoverControls` (default **on**: invisible until
@@ -65,6 +65,23 @@ releases everything.
   (`TickLease`): the ticker fires a new subscription at once, inside Subscribe, and that first tick
   asked again and subscribed again until the stack overflowed whenever the strip first showed on a
   live stream (2026-10-29). (Tests `TickLeaseTests`.)
+
+- **[S-1314]** On the family's blocks (G6, 2026-10-29). A stream with no picture to draw says why in
+  the Status block's one row at the top of the content ([S-6714]), never a centred panel
+  (`StreamChromeRules.Look`): a refused address or a reply this widget cannot show is a problem (the
+  caution warning) with no action, only the menu mends it; a dropped stream is a problem with Retry
+  (reconnect now, the backoff reset; why the last attempt failed is in the sentence's tooltip); a paused
+  one is plain, the pause glyph tertiary, with no button (Resume is the card menu's, Space's and the
+  strip's: a worded button overflows the small tiles); connecting is plain. The strip and the status chip
+  are drawn from the tokens over the picture: the solid role with a hairline edge in the control stroke,
+  the one radius, 8 in from the picture's edges; the strip a row of 32 at least (8 and 4 inside), the
+  chip one Caption line with 8 and 4 around it, shown only while no Status row is (that row says the
+  state itself); their words Caption, the state primary and the details
+  secondary; the state dot a round 8 in the accent while live, caution while it waits, tertiary while
+  paused (no critical red for a working stream, `StreamChromeRules.DotRole`); the strip's Pause,
+  Rotate and Refresh the family's 32 icon buttons, clear on it, side by side. The acrylic fill is gone.
+  Debug renders draw stills only, never a camera: `--state live|paused|connecting|dropped|refused`
+  (a made-up frame, no address reached). (Tests `StreamStatusTests`.)
 
 Needs a live pass: a real MJPEG camera, a snapshot endpoint on an interval, an MP4 and an HLS stream
 (the cap at a small tile), a camera that drops off the network and comes back, and Pause surviving a

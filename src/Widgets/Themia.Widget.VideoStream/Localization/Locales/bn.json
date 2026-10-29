@@ -6,6 +6,7 @@
   "videoStream.resume": "স্ট্রিম আবার চালান",
   "videoStream.rotate": "ঘোরান",
   "videoStream.rotationLabel": "ঘোরানো",
+  "videoStream.setup": "একটি স্ট্রিম যোগ করুন",
   "widgetsA.catalog.videoStream.description": "লাইভ ক্যামেরা: MJPEG, স্ন্যাপশট, MP4 বা HLS",
   "widgetsA.catalog.videoStream.label": "ভিডিও স্ট্রিম",
   "widgetsC.videoStream.age.hours": "{value} ঘণ্টা আগে",

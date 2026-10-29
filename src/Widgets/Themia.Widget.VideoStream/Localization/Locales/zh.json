@@ -6,6 +6,7 @@
   "videoStream.resume": "继续播放",
   "videoStream.rotate": "旋转",
   "videoStream.rotationLabel": "旋转",
+  "videoStream.setup": "添加视频流",
   "widgetsA.catalog.videoStream.description": "实时摄像头：MJPEG、快照、MP4 或 HLS",
   "widgetsA.catalog.videoStream.label": "视频流",
   "widgetsC.videoStream.age.hours": "{value} 小时前",

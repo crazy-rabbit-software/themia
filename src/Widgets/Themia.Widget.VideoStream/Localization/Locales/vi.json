@@ -6,6 +6,7 @@
   "videoStream.resume": "Tiếp tục luồng",
   "videoStream.rotate": "Xoay",
   "videoStream.rotationLabel": "Xoay",
+  "videoStream.setup": "Thêm một luồng",
   "widgetsA.catalog.videoStream.description": "Camera trực tiếp: MJPEG, ảnh chụp nhanh, MP4 hoặc HLS",
   "widgetsA.catalog.videoStream.label": "Luồng video",
   "widgetsC.videoStream.age.hours": "{value} giờ trước",

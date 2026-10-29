@@ -6,6 +6,7 @@
   "videoStream.resume": "اسٹریم دوبارہ شروع کریں",
   "videoStream.rotate": "گھمائیں",
   "videoStream.rotationLabel": "گردش",
+  "videoStream.setup": "ایک سٹریم شامل کریں",
   "widgetsA.catalog.videoStream.description": "لائیو کیمرا: MJPEG، اسنیپ شاٹ، MP4 یا HLS",
   "widgetsA.catalog.videoStream.label": "ویڈیو اسٹریم",
   "widgetsC.videoStream.age.hours": "{value} گھنٹے پہلے",

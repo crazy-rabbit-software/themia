@@ -6,6 +6,7 @@
   "videoStream.resume": "Lanjutkan streaming",
   "videoStream.rotate": "Putar",
   "videoStream.rotationLabel": "Rotasi",
+  "videoStream.setup": "Tambahkan streaming",
   "widgetsA.catalog.videoStream.description": "Kamera langsung: MJPEG, snapshot, MP4, atau HLS",
   "widgetsA.catalog.videoStream.label": "Streaming video",
   "widgetsC.videoStream.age.hours": "{value} j lalu",

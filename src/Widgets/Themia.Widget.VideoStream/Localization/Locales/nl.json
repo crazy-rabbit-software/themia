@@ -6,6 +6,7 @@
   "videoStream.resume": "Stream hervatten",
   "videoStream.rotate": "Draaien",
   "videoStream.rotationLabel": "Draaiing",
+  "videoStream.setup": "Voeg een stream toe",
   "widgetsA.catalog.videoStream.description": "Een livecamera: MJPEG, een momentopname, MP4 of HLS",
   "widgetsA.catalog.videoStream.label": "Videostream",
   "widgetsC.videoStream.age.hours": "{value} u geleden",

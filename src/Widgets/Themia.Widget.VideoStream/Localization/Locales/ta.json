@@ -6,6 +6,7 @@
   "videoStream.resume": "ஸ்ட்ரீமைத் தொடர்",
   "videoStream.rotate": "சுழற்று",
   "videoStream.rotationLabel": "சுழற்சி",
+  "videoStream.setup": "ஒரு ஸ்ட்ரீமைச் சேர்க்கவும்",
   "widgetsA.catalog.videoStream.description": "நேரலை கேமரா: MJPEG, ஸ்னாப்ஷாட், MP4 அல்லது HLS",
   "widgetsA.catalog.videoStream.label": "வீடியோ ஸ்ட்ரீம்",
   "widgetsC.videoStream.age.hours": "{value} மணி முன்பு",

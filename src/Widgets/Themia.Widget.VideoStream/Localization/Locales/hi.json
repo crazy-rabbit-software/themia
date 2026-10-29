@@ -6,6 +6,7 @@
   "videoStream.resume": "स्ट्रीम जारी रखें",
   "videoStream.rotate": "घुमाएँ",
   "videoStream.rotationLabel": "घुमाव",
+  "videoStream.setup": "एक स्ट्रीम जोड़ें",
   "widgetsA.catalog.videoStream.description": "लाइव कैमरा: MJPEG, स्नैपशॉट, MP4 या HLS",
   "widgetsA.catalog.videoStream.label": "वीडियो स्ट्रीम",
   "widgetsC.videoStream.age.hours": "{value} घं पहले",

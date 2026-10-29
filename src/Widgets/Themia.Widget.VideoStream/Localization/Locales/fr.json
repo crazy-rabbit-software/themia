@@ -6,6 +6,7 @@
   "videoStream.resume": "Reprendre le flux",
   "videoStream.rotate": "Pivoter",
   "videoStream.rotationLabel": "Rotation",
+  "videoStream.setup": "Ajoutez un flux",
   "widgetsA.catalog.videoStream.description": "Une caméra en direct : MJPEG, instantané, MP4 ou HLS",
   "widgetsA.catalog.videoStream.label": "Flux vidéo",
   "widgetsC.videoStream.age.hours": "il y a {value} h",

@@ -6,6 +6,7 @@
   "videoStream.resume": "Возобновить поток",
   "videoStream.rotate": "Повернуть",
   "videoStream.rotationLabel": "Поворот",
+  "videoStream.setup": "Добавьте поток",
   "widgetsA.catalog.videoStream.description": "Камера в реальном времени: MJPEG, снимок, MP4 или HLS",
   "widgetsA.catalog.videoStream.label": "Видеопоток",
   "widgetsC.videoStream.age.hours": "{value} ч назад",

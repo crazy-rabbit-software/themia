@@ -6,6 +6,7 @@
   "videoStream.resume": "સ્ટ્રીમ ફરી શરૂ કરો",
   "videoStream.rotate": "ફેરવો",
   "videoStream.rotationLabel": "પરિભ્રમણ",
+  "videoStream.setup": "એક સ્ટ્રીમ ઉમેરો",
   "widgetsA.catalog.videoStream.description": "લાઇવ કૅમેરા: MJPEG, સ્નૅપશૉટ, MP4 અથવા HLS",
   "widgetsA.catalog.videoStream.label": "વિડિયો સ્ટ્રીમ",
   "widgetsC.videoStream.age.hours": "{value} કલાક પહેલાં",

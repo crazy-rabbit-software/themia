@@ -6,6 +6,7 @@
   "videoStream.resume": "Akışı sürdür",
   "videoStream.rotate": "Döndür",
   "videoStream.rotationLabel": "Döndürme",
+  "videoStream.setup": "Bir akış ekleyin",
   "widgetsA.catalog.videoStream.description": "Canlı kamera: MJPEG, anlık görüntü, MP4 veya HLS",
   "widgetsA.catalog.videoStream.label": "Video akışı",
   "widgetsC.videoStream.age.hours": "{value} sa önce",

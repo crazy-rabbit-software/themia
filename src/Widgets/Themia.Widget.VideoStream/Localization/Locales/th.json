@@ -6,6 +6,7 @@
   "videoStream.resume": "เล่นสตรีมต่อ",
   "videoStream.rotate": "หมุน",
   "videoStream.rotationLabel": "การหมุน",
+  "videoStream.setup": "เพิ่มสตรีม",
   "widgetsA.catalog.videoStream.description": "กล้องสด: MJPEG ภาพนิ่ง MP4 หรือ HLS",
   "widgetsA.catalog.videoStream.label": "สตรีมวิดีโอ",
   "widgetsC.videoStream.age.hours": "{value} ชม. ที่แล้ว",

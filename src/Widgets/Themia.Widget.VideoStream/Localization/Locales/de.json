@@ -6,6 +6,7 @@
   "videoStream.resume": "Stream fortsetzen",
   "videoStream.rotate": "Drehen",
   "videoStream.rotationLabel": "Drehung",
+  "videoStream.setup": "Stream hinzufügen",
   "widgetsA.catalog.videoStream.description": "Eine Live-Kamera: MJPEG, Standbild, MP4 oder HLS",
   "widgetsA.catalog.videoStream.label": "Videostream",
   "widgetsC.videoStream.age.hours": "vor {value} Std.",

@@ -4,6 +4,7 @@ using Themia.Core.Accounts;
 using Themia.Core.Localization;
 using Themia.Core.Widgets;
 using Themia.Sdk;
+using Themia.Widget.VideoStream;
 
 namespace Themia.Core.Model;
 
@@ -20,6 +21,9 @@ public sealed class VideoStreamConfig : WidgetConfig, ISetupRule
 {
     /// <summary>[S-6906] It waits for setup while this holds.</summary>
     public bool NeedsSetup(FeatureSet signedIn) => ResolvedUrl.Problem == WebUrlProblem.Empty;
+
+    /// <summary>[S-1862] The Set up row's sentence.</summary>
+    string? ISetupRule.SetupSentence => VideoStreamStr.VideoStream_Setup.Text();
 
     /// <summary>The stream address, exactly as typed. Never repaired; never normalised, because cameras route on the query.</summary>
     public string Url { get; set; } = string.Empty;

@@ -6,6 +6,7 @@
   "videoStream.resume": "Endeleza mtiririko",
   "videoStream.rotate": "Zungusha",
   "videoStream.rotationLabel": "Mzunguko",
+  "videoStream.setup": "Ongeza mtiririko",
   "widgetsA.catalog.videoStream.description": "Kamera ya moja kwa moja: MJPEG, picha, MP4 au HLS",
   "widgetsA.catalog.videoStream.label": "Mtiririko wa video",
   "widgetsC.videoStream.age.hours": "saa {value} zilizopita",

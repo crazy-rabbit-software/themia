@@ -6,6 +6,7 @@
   "videoStream.resume": "Riprendi il flusso",
   "videoStream.rotate": "Ruota",
   "videoStream.rotationLabel": "Rotazione",
+  "videoStream.setup": "Aggiungi un flusso",
   "widgetsA.catalog.videoStream.description": "Una telecamera dal vivo: MJPEG, istantanea, MP4 o HLS",
   "widgetsA.catalog.videoStream.label": "Flusso video",
   "widgetsC.videoStream.age.hours": "{value} h fa",

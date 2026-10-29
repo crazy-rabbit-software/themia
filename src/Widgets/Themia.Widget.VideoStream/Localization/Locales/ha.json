@@ -6,6 +6,7 @@
   "videoStream.resume": "Ci gaba da rafi",
   "videoStream.rotate": "Juya",
   "videoStream.rotationLabel": "Juyawa",
+  "videoStream.setup": "Ƙara rafi",
   "widgetsA.catalog.videoStream.description": "Kyamara kai tsaye: MJPEG, hoto, MP4 ko HLS",
   "widgetsA.catalog.videoStream.label": "Rafin bidiyo",
   "widgetsC.videoStream.age.hours": "awa {value} da suka wuce",

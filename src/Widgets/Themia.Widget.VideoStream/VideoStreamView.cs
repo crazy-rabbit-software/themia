@@ -10,7 +10,9 @@ using Themia.Core.Diagnostics;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
+using Themia.Sdk.Kit;
 using Themia.Sdk.WinUI;
+using Themia.Sdk.WinUI.Kit;
 using Themia.Widget.VideoStream;
 using Windows.Graphics.Imaging;
 using Windows.Media.Core;
@@ -38,17 +40,18 @@ internal sealed partial class VideoStreamView : Grid, IWidgetView, IWidgetSurfac
 {
     private const string Scope = "video-stream";
 
-    /// <summary>Below this height the message drops its icon; below the width, its body size.</summary>
-    private const double IconNeedsHeight = 110;
-
-    private const double BodyNeedsWidth = 170;
-
     private readonly RotatedBox _frame = new();
     private readonly Image _picture = new() { Stretch = Stretch.Uniform };
     private SoftwareBitmapSource? _pictureSource;
-    private readonly Border _messageHost;
-    private readonly TextBlock _message = new();
-    private readonly FontIcon _messageIcon;
+
+    /// <summary>[S-1314] A stream with no picture: the Status row at the top, never a centred panel.</summary>
+    private readonly StatusBlock _status = new() { Visibility = Visibility.Collapsed };
+
+    /// <summary>
+    /// A Debug render's still (`Preview/`): the frame is handed in and no session is ever opened, so a
+    /// render never reaches a camera. Always false outside a render.
+    /// </summary>
+    private bool _still;
     private ShownWatch? _shown;
 
     private VideoStreamConfig _config = new();
@@ -82,19 +85,16 @@ internal sealed partial class VideoStreamView : Grid, IWidgetView, IWidgetSurfac
         _picture.Visibility = Visibility.Collapsed;
         _frame.Children.Add(_picture);
 
-        var empty = Fluent.EmptyState(VideoStreamModule.Glyph, _message, out _messageIcon);
-        _messageHost = new Border { Child = empty, VerticalAlignment = VerticalAlignment.Center };
-
-        (_chip, _strip) = BuildOverlay();
+        (_chip, _strip, _pauseButton) = BuildOverlay();
 
         Children.Add(_frame);
-        Children.Add(_messageHost);
+        Children.Add(_status);
         Children.Add(_chip);
         Children.Add(_strip);
 
         // Hit-testable everywhere, so the hover strip appears wherever the pointer is on the
         // picture, letterbox bars included.
-        Background = ThemeBrush.Of("SubtleFillColorTransparentBrush", Microsoft.UI.Colors.Transparent);
+        Background = Family.Brush(ColourRole.Clear);
         PointerEntered += OnPointerEntered;
         PointerExited += OnPointerGone;
         PointerCanceled += OnPointerGone;
@@ -228,7 +228,7 @@ internal sealed partial class VideoStreamView : Grid, IWidgetView, IWidgetSurfac
         var resolved = _config.ResolvedUrl;
         var key = (resolved.Url, _config.EffectiveRefreshSeconds);
 
-        if (!resolved.IsValid || _config.Paused || _shown is not { IsShown: true })
+        if (!resolved.IsValid || _config.Paused || _still || _shown is not { IsShown: true })
         {
             StopSession();
             Render();
@@ -559,33 +559,12 @@ internal sealed partial class VideoStreamView : Grid, IWidgetView, IWidgetSurfac
         }
 
         var resolved = _config.ResolvedUrl;
-        string? message;
-        var glyph = VideoStreamModule.Glyph;
+        var hasAddress = resolved.Problem != WebUrlProblem.Empty;
+        var look = StreamChromeRules.Look(hasAddress, resolved.IsValid, _config.Paused, _phase);
 
-        if (!resolved.IsValid)
-        {
-            // No address yet: the card's Set up button covers this ([S-1862]).
-            message = resolved.Problem == WebUrlProblem.Empty
-                ? string.Empty
-                : Explain(resolved.Problem);
-        }
-        else if (_config.Paused)
-        {
-            message = VideoStreamStr.VideoStream_Paused.Text();
-            glyph = Glyphs.Pause;
-        }
-        else
-        {
-            message = _phase switch
-            {
-                StreamPhase.Live => null,
-                StreamPhase.Connecting => VideoStreamStr.VideoStream_Connecting.Text(),
-                StreamPhase.Unsupported => _detail ?? VideoStreamStr.WidgetsC_VideoStream_NotCamera.Text(),
-                _ => VideoStreamStr.WidgetsC_VideoStream_UnavailableRetrying.Text(),
-            };
-        }
-
-        var live = message is null;
+        // The picture shows only for a valid address with nothing to say; no address at all is the
+        // card's Set up row ([S-1862]).
+        var live = resolved.IsValid && look is null;
         _picture.Visibility = live && !_showingVideo ? Visibility.Visible : Visibility.Collapsed;
 
         if (_videoElement is not null)
@@ -593,21 +572,53 @@ internal sealed partial class VideoStreamView : Grid, IWidgetView, IWidgetSurfac
             _videoElement.Visibility = live && _showingVideo ? Visibility.Visible : Visibility.Collapsed;
         }
 
-        _messageHost.Visibility = live ? Visibility.Collapsed : Visibility.Visible;
-        RenderChrome();
-
-        if (message is null)
+        if (look is not { } state)
         {
+            _status.Hide();
+            RenderChrome();
             return;
         }
 
-        _message.Text = message;
-        _messageIcon.Glyph = glyph;
+        // [S-1314] One row at the top: the sentence (the stream's own words for what went wrong), and
+        // its one action.
+        string sentence;
+        var glyph = VideoStreamModule.Glyph;
+        if (!resolved.IsValid)
+        {
+            sentence = Explain(resolved.Problem);
+        }
+        else if (_config.Paused)
+        {
+            sentence = VideoStreamStr.VideoStream_Paused.Text();
+            glyph = Glyphs.Pause;
+        }
+        else
+        {
+            sentence = _phase switch
+            {
+                StreamPhase.Connecting => VideoStreamStr.VideoStream_Connecting.Text(),
+                StreamPhase.Unsupported => _detail ?? VideoStreamStr.WidgetsC_VideoStream_NotCamera.Text(),
+                _ => VideoStreamStr.WidgetsC_VideoStream_UnavailableRetrying.Text(),
+            };
+        }
 
-        // Shed detail on a small tile: the icon first, then the body size.
-        _messageIcon.Visibility = _area.IsMeasured && _area.Height < IconNeedsHeight ? Visibility.Collapsed : Visibility.Visible;
-        _message.Apply(_area.IsMeasured && _area.Width < BodyNeedsWidth ? FluentType.Caption : FluentType.Body);
-        ToolTipService.SetToolTip(_messageHost, _phase == StreamPhase.Retrying ? _detail : null);
+        switch (state.Action)
+        {
+            case StreamAction.Retry:
+                _status.Show(state.Kind, glyph, sentence, Str.Common_Retry.Text(), RefreshNow);
+                break;
+            default:
+                _status.Show(state.Kind, glyph, sentence);
+                break;
+        }
+
+        // Why the last attempt failed, beside the sentence, for whoever wants to know.
+        if (_phase == StreamPhase.Retrying && !string.IsNullOrEmpty(_detail) && resolved.IsValid && !_config.Paused)
+        {
+            ToolTipService.SetToolTip(_status.Sentence, $"{sentence}\n{_detail}");
+        }
+
+        RenderChrome();
     }
 
     /// <summary>[S-1110] The message and the chrome again; the picture is untouched.</summary>

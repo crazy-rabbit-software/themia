@@ -6,6 +6,7 @@
   "videoStream.resume": "繼續串流",
   "videoStream.rotate": "旋轉",
   "videoStream.rotationLabel": "旋轉",
+  "videoStream.setup": "新增串流",
   "widgetsA.catalog.videoStream.description": "即時攝影機：MJPEG、快照、MP4 或 HLS",
   "widgetsA.catalog.videoStream.label": "視訊串流",
   "widgetsC.videoStream.age.hours": "{value} 小時前",

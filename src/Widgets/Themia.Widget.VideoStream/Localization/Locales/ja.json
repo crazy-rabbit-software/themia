@@ -6,6 +6,7 @@
   "videoStream.resume": "ストリームを再開",
   "videoStream.rotate": "回転",
   "videoStream.rotationLabel": "回転",
+  "videoStream.setup": "ストリームを追加",
   "widgetsA.catalog.videoStream.description": "ライブカメラ: MJPEG、スナップショット、MP4、HLS",
   "widgetsA.catalog.videoStream.label": "ビデオストリーム",
   "widgetsC.videoStream.age.hours": "{value} 時間前",

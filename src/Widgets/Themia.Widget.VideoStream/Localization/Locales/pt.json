@@ -6,6 +6,7 @@
   "videoStream.resume": "Retomar transmissão",
   "videoStream.rotate": "Rodar",
   "videoStream.rotationLabel": "Rotação",
+  "videoStream.setup": "Adicione uma transmissão",
   "widgetsA.catalog.videoStream.description": "Uma câmera ao vivo: MJPEG, instantâneo, MP4 ou HLS",
   "widgetsA.catalog.videoStream.label": "Transmissão de vídeo",
   "widgetsC.videoStream.age.hours": "há {value} h",

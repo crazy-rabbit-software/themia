@@ -6,6 +6,7 @@
   "videoStream.resume": "Ituloy ang stream",
   "videoStream.rotate": "I-rotate",
   "videoStream.rotationLabel": "Pag-ikot",
+  "videoStream.setup": "Magdagdag ng stream",
   "widgetsA.catalog.videoStream.description": "Isang live na camera: MJPEG, snapshot, MP4 o HLS",
   "widgetsA.catalog.videoStream.label": "Stream ng video",
   "widgetsC.videoStream.age.hours": "{value} o ang nakalipas",

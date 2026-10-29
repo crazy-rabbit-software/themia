@@ -3,13 +3,15 @@ using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml;
-using Microsoft.UI;
+using Microsoft.UI.Xaml.Shapes;
 using Themia.App.Services.Web;
 using Themia.App.Services;
 using Themia.App.Shell;
 using Themia.Core.Localization;
 using Themia.Core.Widgets;
+using Themia.Sdk.Kit;
 using Themia.Sdk.WinUI;
+using Themia.Sdk.WinUI.Kit;
 using Themia.Widget.VideoStream;
 
 namespace Themia.App.Widgets;
@@ -29,21 +31,17 @@ internal sealed partial class VideoStreamView
     private readonly Stopwatch _clock = Stopwatch.StartNew();
     private readonly FrameRateMeter _rate = new();
 
-    private readonly FontIcon _chipDot = Dot();
-    private readonly TextBlock _chipText = Fluent.Text(FluentType.Caption);
-    private readonly FontIcon _stripDot = Dot();
-    private readonly TextBlock _stripText = Fluent.Text(FluentType.Caption);
-    private readonly TextBlock _stripDetails = Fluent.Text(FluentType.Caption, "TextFillColorSecondaryBrush");
-    private readonly Button _pauseButton = FluentLayout.IconCommand(Glyphs.Pause, VideoStreamStr.VideoStream_Pause.Text());
-    private readonly StackPanel _controls = new() { Orientation = Orientation.Horizontal, Spacing = Fluent.Space1, HorizontalAlignment = HorizontalAlignment.Right };
+    private readonly Ellipse _chipDot = Dot();
+    private readonly TextBlock _chipText = Family.Text(FamilyType.Caption, ColourRole.TextPrimary);
+    private readonly Ellipse _stripDot = Dot();
+    private readonly TextBlock _stripText = Family.Text(FamilyType.Caption, ColourRole.TextPrimary);
+    private readonly TextBlock _stripDetails = Family.Text(FamilyType.Caption, ColourRole.TextSecondary);
+    private readonly Button _pauseButton;
+    private readonly StackPanel _controls = new() { Orientation = Orientation.Horizontal, HorizontalAlignment = HorizontalAlignment.Right };
 
     /// <summary>Built by the constructor through <see cref="BuildOverlay"/>.</summary>
     private readonly Border _chip;
     private readonly Border _strip;
-
-    private readonly Brush _liveBrush = ThemeBrush.Of("SystemFillColorCriticalBrush", Colors.IndianRed);
-    private readonly Brush _waitBrush = ThemeBrush.Of("SystemFillColorCautionBrush", Colors.Goldenrod);
-    private readonly Brush _idleBrush = ThemeBrush.Of("TextFillColorTertiaryBrush", Colors.Gray);
 
     private WidgetArea _area;
     private StreamChrome _chrome;
@@ -57,12 +55,12 @@ internal sealed partial class VideoStreamView
     private FrameFacts _facts;
     private StreamTransport _transport = StreamTransport.Unsupported;
 
-    private (Border Chip, Border Strip) BuildOverlay()
+    private (Border Chip, Border Strip, Button Pause) BuildOverlay()
     {
         var chip = Pill(_chipDot, _chipText);
         chip.HorizontalAlignment = HorizontalAlignment.Left;
         chip.VerticalAlignment = VerticalAlignment.Top;
-        chip.Margin = new Thickness(Fluent.Space2);
+        chip.Margin = new Thickness(FamilySpace.S2);
 
         _stripText.VerticalAlignment = VerticalAlignment.Center;
         _stripDetails.VerticalAlignment = VerticalAlignment.Center;
@@ -70,27 +68,24 @@ internal sealed partial class VideoStreamView
         var info = new StackPanel
         {
             Orientation = Orientation.Horizontal,
-            Spacing = Fluent.Space1,
+            Spacing = FamilySpace.S1,
             VerticalAlignment = VerticalAlignment.Center,
             Children = { _stripDot, _stripText, _stripDetails },
         };
 
-        // [S-1312] The context menu's three actions, one click away while the pointer is here.
-        _pauseButton.Click += (_, _) => SetPaused(!_config.Paused);
+        // [S-1312] The context menu's three actions, one click away while the pointer is here: the
+        // family's icon buttons, clear on the bar as a header's buttons are ([S-6716]).
+        var pause = BarButton(Glyphs.Pause, VideoStreamStr.VideoStream_Pause.Text(), () => SetPaused(!_config.Paused));
+        var rotate = BarButton(Glyphs.Rotate, VideoStreamStr.VideoStream_Rotate.Text(), Rotate);
+        var refresh = BarButton(Glyphs.Refresh, Str.Common_Refresh.Text(), RefreshNow);
 
-        var rotate = FluentLayout.IconCommand(Glyphs.Rotate, VideoStreamStr.VideoStream_Rotate.Text());
-        rotate.Click += (_, _) => Rotate();
-
-        var refresh = FluentLayout.IconCommand(Glyphs.Refresh, Str.Common_Refresh.Text());
-        refresh.Click += (_, _) => RefreshNow();
-
-        _controls.Children.Add(_pauseButton);
+        _controls.Children.Add(pause);
         _controls.Children.Add(rotate);
         _controls.Children.Add(refresh);
 
         var row = new Grid
         {
-            ColumnSpacing = Fluent.Space2,
+            ColumnSpacing = FamilySpace.S2,
             ColumnDefinitions =
             {
                 new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) },
@@ -101,38 +96,54 @@ internal sealed partial class VideoStreamView
         Grid.SetColumn(_controls, 1);
         row.Children.Add(_controls);
 
+        // [S-1314] Over the picture: the solid role with a hairline edge, the one radius, a row of 32 at
+        // least (42 with the buttons), 8 in from the picture's edges.
         var strip = new Border
         {
             Child = row,
-            Background = ThemeBrush.Of("AcrylicInAppFillColorDefaultBrush", Colors.Black),
-            CornerRadius = new CornerRadius(Fluent.ControlRadius),
-            Padding = new Thickness(Fluent.Space2, Fluent.Space1, Fluent.Space1, Fluent.Space1),
-            Margin = new Thickness(Fluent.Space2),
+            Background = Family.Brush(ColourRole.Solid),
+            BorderBrush = Family.Brush(ColourRole.ControlStroke),
+            BorderThickness = new Thickness(FamilyShape.Hairline),
+            CornerRadius = Family.Radius,
+            Padding = new Thickness(FamilySpace.S2, FamilySpace.S1, FamilySpace.S1, FamilySpace.S1),
+            Margin = new Thickness(FamilySpace.S2),
             VerticalAlignment = VerticalAlignment.Bottom,
-            MinHeight = Fluent.RowHeightCompact,
+            MinHeight = FamilyShape.Row1,
             Visibility = Visibility.Collapsed,
         };
 
-        return (chip, strip);
+        return (chip, strip, pause);
     }
 
-    private static FontIcon Dot() => new()
+    /// <summary>[S-1314] The state dot: a round 8, its role by <see cref="StreamChromeRules.DotRole"/>.</summary>
+    private static Ellipse Dot() => new()
     {
-        Glyph = Glyphs.Dot,
-        FontSize = Fluent.Space2,
+        Width = FamilySpace.S2,
+        Height = FamilySpace.S2,
         VerticalAlignment = VerticalAlignment.Center,
     };
 
-    private static Border Pill(FontIcon dot, TextBlock text)
+    private static Button BarButton(string glyph, string tooltip, Action run)
+    {
+        var button = ControlsBlock.IconButton(glyph, tooltip, run);
+        button.Background = Family.Brush(ColourRole.Clear);
+        button.BorderThickness = new Thickness(0);
+        return button;
+    }
+
+    /// <summary>[S-1314] The status chip: the strip's look, one Caption line, 8 and 4 around it.</summary>
+    private static Border Pill(Ellipse dot, TextBlock text)
     {
         text.VerticalAlignment = VerticalAlignment.Center;
 
         return new Border
         {
-            Child = new StackPanel { Orientation = Orientation.Horizontal, Spacing = Fluent.Space1, Children = { dot, text } },
-            Background = ThemeBrush.Of("AcrylicInAppFillColorDefaultBrush", Colors.Black),
-            CornerRadius = new CornerRadius(Fluent.ControlRadius),
-            Padding = new Thickness(Fluent.Space2, Fluent.Space1 / 2, Fluent.Space2, Fluent.Space1 / 2),
+            Child = new StackPanel { Orientation = Orientation.Horizontal, Spacing = FamilySpace.S1, Children = { dot, text } },
+            Background = Family.Brush(ColourRole.Solid),
+            BorderBrush = Family.Brush(ColourRole.ControlStroke),
+            BorderThickness = new Thickness(FamilyShape.Hairline),
+            CornerRadius = Family.Radius,
+            Padding = new Thickness(FamilySpace.S2, FamilySpace.S1, FamilySpace.S2, FamilySpace.S1),
             IsHitTestVisible = false,
             Visibility = Visibility.Collapsed,
         };
@@ -208,19 +219,20 @@ internal sealed partial class VideoStreamView
         _chrome = StreamChromeRules.Chrome(_area, _config.HoverControls, _config.ShowStatus);
 
         var configured = _config.ResolvedUrl.IsValid;
-        var live = _phase == StreamPhase.Live && !_config.Paused && _session is not null;
+        var live = _phase == StreamPhase.Live && !_config.Paused && (_session is not null || _still);
         var status = _config.Paused ? VideoStreamStr.WidgetsC_VideoStream_Status_Paused.Text() : StreamChromeRules.Status(live, _reconnects, _config.EffectiveRefreshSeconds);
-        var dot = live ? _liveBrush : _config.Paused ? _idleBrush : _waitBrush;
+        var dot = Family.Brush(StreamChromeRules.DotRole(live, _config.Paused));
 
-        // [S-1312] The chip: XL, the user's choice, and only once there is a stream to describe.
-        var chip = _chrome.StatusChip && configured;
+        // [S-1312] The chip: XL, the user's choice, and only once there is a stream to describe; never
+        // beside the Status row, which says the state itself ([S-1314]).
+        var chip = _chrome.StatusChip && configured && _status.Visibility == Visibility.Collapsed;
         _chip.Visibility = chip ? Visibility.Visible : Visibility.Collapsed;
 
         if (chip)
         {
             var transport = StreamChromeRules.Transport(_transport);
             _chipText.Text = transport.Length > 0 && live ? $"{status} · {transport}" : status;
-            _chipDot.Foreground = dot;
+            _chipDot.Fill = dot;
         }
 
         var strip = _chrome.HoverStrip && _hovered && configured;
@@ -229,7 +241,7 @@ internal sealed partial class VideoStreamView
 
         if (strip)
         {
-            _stripDot.Foreground = dot;
+            _stripDot.Fill = dot;
             _stripText.Text = live && _rate.Last is { } last
                 ? $"{status} · {StreamChromeRules.FrameAge(_clock.Elapsed - last)}"
                 : status;
