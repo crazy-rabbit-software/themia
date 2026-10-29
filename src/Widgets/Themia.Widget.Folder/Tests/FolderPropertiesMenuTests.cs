@@ -23,16 +23,14 @@ public sealed class FolderPropertiesMenuTests
     }
 
     [Theory]
-    [InlineData(FolderStyle.List, new[] { "rows", "ext", "sort" })]
-    [InlineData(FolderStyle.Details, new[] { "rows", "columns", "ext" })]
-    [InlineData(FolderStyle.Grid, new[] { "tiles", "ext", "sort" })]
-    [InlineData(FolderStyle.Icons, new[] { "tiles", "sort" })]
+    [InlineData(FolderStyle.List, new[] { "ext", "sort" })]
+    [InlineData(FolderStyle.Details, new[] { "columns", "ext" })]
+    [InlineData(FolderStyle.Grid, new[] { "ext", "sort" })]
+    [InlineData(FolderStyle.Icons, new[] { "sort" })]
     public void S1337_each_style_offers_only_what_it_draws_under_style(FolderStyle style, string[] expected)
     {
         var names = new Dictionary<string, string>
         {
-            [FolderStr.WidgetsB_Settings_Folder_RowSize_Label.Text()] = "rows",
-            [FolderStr.WidgetsB_Settings_Folder_TileSize_Label.Text()] = "tiles",
             [FolderStr.WidgetsB_Settings_Folder_Columns_Label.Text()] = "columns",
             [Str.Folder_ShowExtMenu.Text()] = "ext",
             [FolderStr.WidgetsB_Settings_Folder_SortBy_Label.Text()] = "sort",

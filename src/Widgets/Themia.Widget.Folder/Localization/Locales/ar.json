@@ -66,14 +66,11 @@
   "widgetsB.settings.folder.columns.label": "أعمدة التفاصيل",
   "widgetsB.settings.folder.dateModified": "تاريخ التعديل",
   "widgetsB.settings.folder.doubleClick": "نقرة مزدوجة",
-  "widgetsB.settings.folder.extraSmall": "صغير جدًا",
   "widgetsB.settings.folder.inExplorer": "في المستكشف",
   "widgetsB.settings.folder.insideWidget": "داخل الأداة",
   "widgetsB.settings.folder.openFolders.label": "فتح المجلدات",
   "widgetsB.settings.folder.openWith.label": "فتح العناصر بـ",
   "widgetsB.settings.folder.reverse.label": "ترتيب عكسي",
-  "widgetsB.settings.folder.rowSize.label": "حجم الصف",
   "widgetsB.settings.folder.singleClick": "نقرة واحدة",
-  "widgetsB.settings.folder.sortBy.label": "الفرز حسب",
-  "widgetsB.settings.folder.tileSize.label": "حجم المربع"
+  "widgetsB.settings.folder.sortBy.label": "الفرز حسب"
 }

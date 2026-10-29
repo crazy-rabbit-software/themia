@@ -27,25 +27,35 @@ web|wallpapers|lasso`, Windows' own folders; `--menu-png`'s folder menus through
 by `tests/Themia.Modules.Tests`); its config and rules under the root's tags are the module host's
 `FolderKindsTests` and `FolderHostTests`.
 
-- **[S-1320]** Settings (orig. S-14..S-24, S-58), one config for every style ([S-4121]): `Path` (empty = profile), `ItemSize`
-  ExtraSmall/Small/Medium/Large (rows 24/28/32/40, icons 12/14/16/20), `TileSize` Small/Medium/Large (80x90/110x120/150x160,
-  icons 32/48/64), `Columns` (ordered; default Size, Modified, Type; `Repair` drops unknown/repeats loudly),
+- **[S-1320]** Settings (orig. S-14..S-24, S-58), one config for every style ([S-4121]): `Path` (empty = profile),
+  `Columns` (ordered; default Size, Modified, Type; `Repair` drops unknown/repeats loudly),
   `Navigation` Explorer/Navigate, `ClickMode` (`ItemClickMode`, default Double), `Sort`/`Descending`,
   `ShowHidden`, `ShowExtensions` (default off), `Style`. `ShowDetail`/`MaxCount`, and since [S-4121] `View`, `StretchTiles`,
-  `Filter` and `FoldersFirst`, are gone (no compatibility).
-- **[S-1323]** Ladder (`FolderLayout.Plan`): one row / one tile row always; an open search box; the details column header;
-  list view adds unlabelled Modified (W >= Regular), Size (>= Expanded), Type (>= Huge), drawn right to left ([S-6411]); at Expanded x Expanded a breadcrumb
-  (tail first, clickable), no status footer ("24 items · 2 selected", retired [S-666]); Huge width: grid tiles one size
-  up. Grid columns = floor(width / tile), stretched to fill the row; rows keep the preset height (no stretch, [S-4121]);
-  Icons view packs tiles to icon + 24. Over 1000 items: the first 1000 and a "N more in Explorer…" row.
+  `Filter` and `FoldersFirst`, are gone (no compatibility); so are `ItemSize` (rows of 24/28/32/40) and `TileSize`
+  (tiles of 80/110/150) since the family's rows and cells decide their size ([S-6704], [S-6713]; group G6 2026-10-29).
+- **[S-1323]** Ladder (`FolderLayout.Plan`, on the family's blocks): one row (or one row of cells) always; an open
+  search box (a 32 text box at the side inset, 8 over the items); the details column titles (a Caption line and 8, as
+  the kit's table, [S-7034]); at Expanded x Expanded the path as a row of 32 (tail first, clickable: the folders above
+  in Body secondary, the shown one primary, 16 chevrons tertiary, 4 apart); no status footer ("24 items · 2 selected",
+  retired [S-666]). Rows are the Row block's one line of 32 at every tier ([S-6711], [S-6712]): the file's own 16 icon
+  as the lead, the name primary; List's one value is the date modified (secondary) from a width of 180, Details puts
+  its columns in the name's place (`RowBlock.Cells`, Body secondary, 12 apart). Grid and Icons are Row.Cell grids
+  ([S-6713], `RowRules.Cells`): the icon (or the picture's thumbnail) 32, 48 from an expanded width, Grid's name one
+  Caption line under it (the whole name on selection, [S-6629]), Icons the icon alone; the cells share the width out
+  12 apart, their marks 4 around them. Only whole rows (or rows of cells) show; the rest scrolls under the fade.
+  Over 1000 items: the first 1000 and a "N more in Explorer…" row (a Row block with the open glyph, its name
+  secondary). Retired with group G6: the list's unlabelled Size and Type columns (Details is the table), XL's one-size-up
+  tiles and the tiles' two- and three-line names.
 - **[S-6411]** The rightmost column ends at the row's right inset, the same as the header's buttons, at
   every width and in every style (user report 2026-10-16: from 400 DIPs the list put Size last, blank for
-  every folder, so the dates stopped a column short of the edge). The list's unlabelled columns are drawn
-  Type, Size, Modified (Modified, filled by every row, last) and Size is left out when nothing shown is
-  a file (`FolderLayout.ListColumns`); in Details the last column, whatever it is, is drawn from the right
-  of its slot, header included (`FolderColumns.AlignsRight(column, last)`). Grid and Icons stretch their
-  tiles to the row ([S-1323]).
-- **[S-1326]** Header (trailing, shed by width): Up, Back, Search, Sort (not in Details), Forward, git badge, Home.
+  every folder, so the dates stopped a column short of the edge). The list has one value, the date modified,
+  end-aligned as every Row block's value; in Details the last column, whatever it is, is drawn from the right
+  of its slot, its title included (`FolderColumns.AlignsRight(column, last)`). Grid and Icons share the row's
+  width out between their cells ([S-1323]).
+- **[S-1326]** Header ([S-6710], `FolderLayout.Header`): at most two 24 buttons — Back and Up in navigate mode (the
+  disabled role when they cannot go), else Search and Sort (Search alone in Details, whose column titles sort) — the
+  git badge as its informing label (List and Details) and the busy ring; the header folds them by its own rule.
+  Forward, Home (navigate mode, where they can act) and, in navigate mode, Search are on the card menu ([S-1335]).
   Navigate mode keeps a 50-deep history restoring each place's scroll offset; Backspace and mouse X1/X2 go back/forward;
   a `.lnk` to a folder opens inside the widget. Explorer mode opens folders in Explorer.
 - **[S-1993]** Type-ahead ([S-1980]) over the shown names: the match is selected alone and focused,
@@ -91,25 +101,27 @@ by `tests/Themia.Modules.Tests`); its config and rules under the root's tags are
   items, folders with all they hold (hidden files too; directory links not followed), named after the item the menu was
   opened on without its extension, made unique ("a (2).zip", `FolderMenu.ZipName`), then renamed in place as Explorer
   does. A failure removes the half-written ZIP (its own output, nothing of the user's) and says so at the widget.
-- **[S-1334]** Every rowless state says which it is (status messages; "Nothing here matches." under a filter).
-- **[S-1335]** Card menu: Open in Explorer, Refresh. The views, row or tile sizes, hidden items and file extensions
-  are settings only ([S-1746]).
+- **[S-1334]** Every rowless state says which it is in the Status row at the top of the content ([S-6714]): the
+  folder's glyph for loading, an empty folder and "Nothing here matches." under a filter; the warning for a folder
+  that cannot be read (missing, denied, not a path).
+- **[S-1335]** Card menu: in navigate mode Search, Forward (when there is one) and Home (away from the widget's
+  folder), the header having room for two buttons only ([S-1326]); then Open in Explorer, Refresh. The views, the
+  columns, hidden items and file extensions are settings only ([S-1746]).
 - **[S-1339]** *(Retired: the debug widget gallery and its fixtures are gone, [S-1863].)*
 - **[S-4120]** *(Retired: one widget kind per layout; they are one kind with four styles, [S-4123].)*
 - **[S-4121]** Each style shows only what it draws (user decision 2026-10-12;
-  `FolderConfig.ShownSettings`, [S-6070]), and the config holds the union, a style ignoring the rest (`Rows`,
-  `Tiles`, `Extensions`, `DetailColumns` read a neutral value where the style draws none). Every
+  `FolderConfig.ShownSettings`, [S-6070]), and the config holds the union, a style ignoring the rest (`Extensions`,
+  `DetailColumns` read a neutral value where the style draws none). Every
   style: the folder, Open files with (double / single click), Open folders (Explorer / inside the
-  widget), Show hidden items. List: row size, file extensions, Sort by + Reverse. Details: row size,
-  columns, file extensions; no sort row (its column headers sort, saved). Grid: tile size, file
-  extensions, Sort by + Reverse. Icons: tile size, Sort by + Reverse; no extensions (it draws no
-  names; a rename there edits the stem). One tile size for grid and icons (default Medium). Picking
+  widget), Show hidden items. List: file extensions, Sort by + Reverse. Details: columns, file extensions; no sort
+  row (its column titles sort, saved). Grid: file extensions, Sort by + Reverse. Icons: Sort by + Reverse; no
+  extensions (it draws no names; a rename there edits the stem). Picking
   another style builds the menu again ([S-6071]); these lines stand under Style ([S-1337]). Retired for every style: the stored keyword filter (the
-  header search covers it), Folders first (always on), Stretch tiles (tiles keep their preset height).
+  header search covers it), Folders first (always on), Stretch tiles (tiles keep their height), and with group G6 the
+  Row size and the Tile size (the family's rows and cells, [S-1320]).
 - **[S-1337]** Its options are all on the properties menu ([S-3719], user request 2026-10-19); it
-  has no settings page. Under Style what the style draws ([S-4121]): Row size or Tile size (a
-  choice), Details columns (a submenu of switches), Show file extensions, Sort by (Name / Date
-  modified / Size, with Reverse order under them). Then Appearance ([S-3723]) and, each group
+  has no settings page. Under Style what the style draws ([S-4121]): Details columns (a submenu of switches), Show
+  file extensions, Sort by (Name / Date modified / Size, with Reverse order under them). Then Appearance ([S-3723]) and, each group
   behind a divider, **Folder** (its name
   at the line's end, the user folder's while empty) with Browse… (Windows' folder picker, [S-3730])
   and Type a path… (asked beside the menu, [S-3721]: checked by `FolderPath` as it is typed and

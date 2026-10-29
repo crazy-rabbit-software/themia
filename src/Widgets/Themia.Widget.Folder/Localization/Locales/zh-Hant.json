@@ -56,14 +56,11 @@
   "widgetsB.settings.folder.columns.label": "詳細資料欄",
   "widgetsB.settings.folder.dateModified": "修改日期",
   "widgetsB.settings.folder.doubleClick": "按兩下",
-  "widgetsB.settings.folder.extraSmall": "特小",
   "widgetsB.settings.folder.inExplorer": "在檔案總管中",
   "widgetsB.settings.folder.insideWidget": "在小工具內",
   "widgetsB.settings.folder.openFolders.label": "開啟資料夾",
   "widgetsB.settings.folder.openWith.label": "開啟項目的方式",
   "widgetsB.settings.folder.reverse.label": "反向排序",
-  "widgetsB.settings.folder.rowSize.label": "列大小",
   "widgetsB.settings.folder.singleClick": "按一下",
-  "widgetsB.settings.folder.sortBy.label": "排序方式",
-  "widgetsB.settings.folder.tileSize.label": "磚大小"
+  "widgetsB.settings.folder.sortBy.label": "排序方式"
 }

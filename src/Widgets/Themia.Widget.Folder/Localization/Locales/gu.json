@@ -58,14 +58,11 @@
   "widgetsB.settings.folder.columns.label": "વિગતોની કૉલમ",
   "widgetsB.settings.folder.dateModified": "સંશોધન તારીખ",
   "widgetsB.settings.folder.doubleClick": "ડબલ ક્લિક",
-  "widgetsB.settings.folder.extraSmall": "અતિ નાનું",
   "widgetsB.settings.folder.inExplorer": "File Explorer માં",
   "widgetsB.settings.folder.insideWidget": "વિજેટની અંદર",
   "widgetsB.settings.folder.openFolders.label": "ફોલ્ડર ખોલો",
   "widgetsB.settings.folder.openWith.label": "આઇટમ્સ આનાથી ખોલો",
   "widgetsB.settings.folder.reverse.label": "ઉલટો ક્રમ",
-  "widgetsB.settings.folder.rowSize.label": "પંક્તિનું કદ",
   "widgetsB.settings.folder.singleClick": "સિંગલ ક્લિક",
-  "widgetsB.settings.folder.sortBy.label": "આ પ્રમાણે સૉર્ટ કરો",
-  "widgetsB.settings.folder.tileSize.label": "ટાઇલનું કદ"
+  "widgetsB.settings.folder.sortBy.label": "આ પ્રમાણે સૉર્ટ કરો"
 }

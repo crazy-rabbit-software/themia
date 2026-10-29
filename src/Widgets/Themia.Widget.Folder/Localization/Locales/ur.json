@@ -58,14 +58,11 @@
   "widgetsB.settings.folder.columns.label": "تفصیلات کے کالم",
   "widgetsB.settings.folder.dateModified": "ترمیم کی تاریخ",
   "widgetsB.settings.folder.doubleClick": "ڈبل کلک",
-  "widgetsB.settings.folder.extraSmall": "بہت چھوٹا",
   "widgetsB.settings.folder.inExplorer": "ایکسپلورر میں",
   "widgetsB.settings.folder.insideWidget": "ویجیٹ کے اندر",
   "widgetsB.settings.folder.openFolders.label": "فولڈرز کھولیں",
   "widgetsB.settings.folder.openWith.label": "آئٹمز کھولیں",
   "widgetsB.settings.folder.reverse.label": "الٹی ترتیب",
-  "widgetsB.settings.folder.rowSize.label": "قطار کا سائز",
   "widgetsB.settings.folder.singleClick": "سنگل کلک",
-  "widgetsB.settings.folder.sortBy.label": "ترتیب بلحاظ",
-  "widgetsB.settings.folder.tileSize.label": "ٹائل کا سائز"
+  "widgetsB.settings.folder.sortBy.label": "ترتیب بلحاظ"
 }

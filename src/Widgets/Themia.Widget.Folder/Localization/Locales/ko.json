@@ -56,14 +56,11 @@
   "widgetsB.settings.folder.columns.label": "자세히 보기 열",
   "widgetsB.settings.folder.dateModified": "수정한 날짜",
   "widgetsB.settings.folder.doubleClick": "두 번 클릭",
-  "widgetsB.settings.folder.extraSmall": "아주 작게",
   "widgetsB.settings.folder.inExplorer": "파일 탐색기에서",
   "widgetsB.settings.folder.insideWidget": "위젯 안에서",
   "widgetsB.settings.folder.openFolders.label": "폴더 열기",
   "widgetsB.settings.folder.openWith.label": "항목 열기 방법",
   "widgetsB.settings.folder.reverse.label": "역순",
-  "widgetsB.settings.folder.rowSize.label": "행 크기",
   "widgetsB.settings.folder.singleClick": "한 번 클릭",
-  "widgetsB.settings.folder.sortBy.label": "정렬 기준",
-  "widgetsB.settings.folder.tileSize.label": "타일 크기"
+  "widgetsB.settings.folder.sortBy.label": "정렬 기준"
 }

@@ -56,14 +56,11 @@
   "widgetsB.settings.folder.columns.label": "詳細の列",
   "widgetsB.settings.folder.dateModified": "更新日時",
   "widgetsB.settings.folder.doubleClick": "ダブルクリック",
-  "widgetsB.settings.folder.extraSmall": "極小",
   "widgetsB.settings.folder.inExplorer": "エクスプローラーで",
   "widgetsB.settings.folder.insideWidget": "ウィジェット内で",
   "widgetsB.settings.folder.openFolders.label": "フォルダーを開く場所",
   "widgetsB.settings.folder.openWith.label": "項目を開く方法",
   "widgetsB.settings.folder.reverse.label": "逆順",
-  "widgetsB.settings.folder.rowSize.label": "行のサイズ",
   "widgetsB.settings.folder.singleClick": "シングルクリック",
-  "widgetsB.settings.folder.sortBy.label": "並べ替え",
-  "widgetsB.settings.folder.tileSize.label": "タイルのサイズ"
+  "widgetsB.settings.folder.sortBy.label": "並べ替え"
 }

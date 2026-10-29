@@ -32,19 +32,22 @@ public static class FolderColumns
     /// <summary>The Name column never sheds below this; a name cut to three letters is no listing.</summary>
     public const double NameMinWidth = 120;
 
-    /// <summary>The gap between two columns.</summary>
-    public const double Gap = 8;
+    /// <summary>The gap between two columns: the family's column gap ([S-6703]).</summary>
+    public const double Gap = Themia.Sdk.Kit.FamilySpace.ColumnGap;
 
-    /// <summary>A column's width in DIPs, wide enough for its worst-case text at the Caption step.</summary>
+    /// <summary>
+    /// A column's width in DIPs, wide enough for its worst-case text in Body, the Row block's value
+    /// step ("Sep 30, 2024", "Text Document", "1,023 KB", "999+ items"); the cloud column is one 16 glyph.
+    /// </summary>
     public static double Width(FolderColumn column) => column switch
     {
-        FolderColumn.Size => 64,
-        FolderColumn.Modified => 80,
-        FolderColumn.Type => 96,
-        FolderColumn.Cloud => 24,
-        FolderColumn.Git => 40,
-        FolderColumn.ItemCount => 48,
-        _ => 64,
+        FolderColumn.Size => 72,
+        FolderColumn.Modified => 96,
+        FolderColumn.Type => 120,
+        FolderColumn.Cloud => Themia.Sdk.Kit.FamilyShape.Icon,
+        FolderColumn.Git => 24,
+        FolderColumn.ItemCount => 80,
+        _ => 72,
     };
 
     public static string Title(FolderColumn column) => column switch

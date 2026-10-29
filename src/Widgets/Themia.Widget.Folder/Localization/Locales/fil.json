@@ -58,14 +58,11 @@
   "widgetsB.settings.folder.columns.label": "Mga column ng details",
   "widgetsB.settings.folder.dateModified": "Petsa ng pagbago",
   "widgetsB.settings.folder.doubleClick": "Dobleng click",
-  "widgetsB.settings.folder.extraSmall": "Napakaliit",
   "widgetsB.settings.folder.inExplorer": "Sa Explorer",
   "widgetsB.settings.folder.insideWidget": "Sa loob ng widget",
   "widgetsB.settings.folder.openFolders.label": "Buksan ang mga folder",
   "widgetsB.settings.folder.openWith.label": "Buksan ang mga item sa",
   "widgetsB.settings.folder.reverse.label": "Baligtad na pagkakasunod",
-  "widgetsB.settings.folder.rowSize.label": "Laki ng row",
   "widgetsB.settings.folder.singleClick": "Isang click",
-  "widgetsB.settings.folder.sortBy.label": "Pagbukud-bukurin ayon sa",
-  "widgetsB.settings.folder.tileSize.label": "Laki ng tile"
+  "widgetsB.settings.folder.sortBy.label": "Pagbukud-bukurin ayon sa"
 }

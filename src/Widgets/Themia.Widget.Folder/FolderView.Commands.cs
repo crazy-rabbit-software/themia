@@ -10,7 +10,9 @@ using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Shell;
 using Themia.Core.Widgets;
+using Themia.Sdk.Kit;
 using Themia.Sdk.WinUI;
+using Themia.Sdk.WinUI.Kit;
 using Themia.Widget.Folder;
 
 namespace Themia.App.Widgets;
@@ -240,7 +242,7 @@ internal sealed partial class FolderView
         var box = new TextBox
         {
             Text = shown,
-            Padding = new Thickness(4, 0, 4, 0),
+            Padding = new Thickness(FamilySpace.S1, 0, FamilySpace.S1, 0),
             MinHeight = 0,
             VerticalAlignment = VerticalAlignment.Center,
             TextWrapping = TextWrapping.NoWrap,
@@ -248,6 +250,7 @@ internal sealed partial class FolderView
 
         _renaming = new RenameSession(visual, box);
         visual.Name.Visibility = Visibility.Collapsed;
+        Grid.SetColumn(box, visual.NameColumn);
         visual.NameCell.Children.Add(box);
 
         box.GotFocus += (_, _) => _surface?.RequestTextInput(true);
@@ -343,10 +346,8 @@ internal sealed partial class FolderView
 
     private static void ShowNote(FrameworkElement at, string message)
     {
-        var text = Fluent.Text(FluentType.Body);
-        text.Text = message;
+        var text = Family.Text(FamilyType.Body, ColourRole.TextPrimary, message);
         text.TextWrapping = TextWrapping.Wrap;
-        text.MaxWidth = 240;
 
         try
         {
@@ -613,11 +614,32 @@ internal sealed partial class FolderView
     /// [S-1746] The view, the size, the columns, hidden items and extensions are how the widget looks:
     /// they are in its settings only.
     /// </summary>
-    public IReadOnlyList<WidgetAction> ContextActions =>
-    [
-        new(Glyphs.OpenExternal, Str.Folder_OpenInExplorer.Text(), () => _widgetHost.FileOps.Open(CurrentPath)),
-        new(Glyphs.Refresh, Str.Common_Refresh.Text(), () => Reload(force: false)),
-    ];
+    public IReadOnlyList<WidgetAction> ContextActions
+    {
+        get
+        {
+            // [S-1326] What the header has no room for ([S-6710]: two buttons at most): Search in
+            // navigate mode (whose header holds Back and Up), Forward and Home where they can act.
+            List<WidgetAction> actions = [];
+            if (Navigates)
+            {
+                actions.Add(new(Glyphs.Search, FolderStr.WidgetsB_Folder_SearchTip.Text(), ToggleSearch));
+                if (_history.CanGoForward)
+                {
+                    actions.Add(new(Glyphs.Forward, FolderStr.Folder_Forward.Text(), GoForward));
+                }
+
+                if (!_history.AtHome)
+                {
+                    actions.Add(new(Glyphs.Home, FolderStr.WidgetsB_Folder_HomeTip.Text(), GoHome));
+                }
+            }
+
+            actions.Add(new(Glyphs.OpenExternal, Str.Folder_OpenInExplorer.Text(), () => _widgetHost.FileOps.Open(CurrentPath)));
+            actions.Add(new(Glyphs.Refresh, Str.Common_Refresh.Text(), () => Reload(force: false)));
+            return actions;
+        }
+    }
 
     // ---- search ---------------------------------------------------------------------------------
 

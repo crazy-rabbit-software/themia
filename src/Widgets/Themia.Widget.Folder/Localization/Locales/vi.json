@@ -56,14 +56,11 @@
   "widgetsB.settings.folder.columns.label": "Cột chi tiết",
   "widgetsB.settings.folder.dateModified": "Ngày sửa",
   "widgetsB.settings.folder.doubleClick": "Nhấp đúp",
-  "widgetsB.settings.folder.extraSmall": "Rất nhỏ",
   "widgetsB.settings.folder.inExplorer": "Trong Explorer",
   "widgetsB.settings.folder.insideWidget": "Trong tiện ích",
   "widgetsB.settings.folder.openFolders.label": "Mở thư mục",
   "widgetsB.settings.folder.openWith.label": "Mở mục bằng",
   "widgetsB.settings.folder.reverse.label": "Đảo ngược thứ tự",
-  "widgetsB.settings.folder.rowSize.label": "Kích thước hàng",
   "widgetsB.settings.folder.singleClick": "Nhấp một lần",
-  "widgetsB.settings.folder.sortBy.label": "Sắp xếp theo",
-  "widgetsB.settings.folder.tileSize.label": "Kích thước ô"
+  "widgetsB.settings.folder.sortBy.label": "Sắp xếp theo"
 }

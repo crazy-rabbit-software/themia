@@ -58,14 +58,11 @@
   "widgetsB.settings.folder.columns.label": "Colunas de detalhes",
   "widgetsB.settings.folder.dateModified": "Data de modificação",
   "widgetsB.settings.folder.doubleClick": "Clique duplo",
-  "widgetsB.settings.folder.extraSmall": "Extra pequeno",
   "widgetsB.settings.folder.inExplorer": "No Explorador",
   "widgetsB.settings.folder.insideWidget": "Dentro do widget",
   "widgetsB.settings.folder.openFolders.label": "Abrir pastas",
   "widgetsB.settings.folder.openWith.label": "Abrir itens com",
   "widgetsB.settings.folder.reverse.label": "Ordem inversa",
-  "widgetsB.settings.folder.rowSize.label": "Tamanho da linha",
   "widgetsB.settings.folder.singleClick": "Clique simples",
-  "widgetsB.settings.folder.sortBy.label": "Classificar por",
-  "widgetsB.settings.folder.tileSize.label": "Tamanho do bloco"
+  "widgetsB.settings.folder.sortBy.label": "Classificar por"
 }

@@ -58,14 +58,11 @@
   "widgetsB.settings.folder.columns.label": "விவர நெடுவரிசைகள்",
   "widgetsB.settings.folder.dateModified": "மாற்றிய தேதி",
   "widgetsB.settings.folder.doubleClick": "இருமுறை கிளிக்",
-  "widgetsB.settings.folder.extraSmall": "மிகச் சிறியது",
   "widgetsB.settings.folder.inExplorer": "எக்ஸ்ப்ளோரரில்",
   "widgetsB.settings.folder.insideWidget": "விட்ஜெட்டுக்குள்",
   "widgetsB.settings.folder.openFolders.label": "கோப்புறைகளைத் திற",
   "widgetsB.settings.folder.openWith.label": "உருப்படிகளைத் திறக்க",
   "widgetsB.settings.folder.reverse.label": "தலைகீழ் வரிசை",
-  "widgetsB.settings.folder.rowSize.label": "வரிசை அளவு",
   "widgetsB.settings.folder.singleClick": "ஒருமுறை கிளிக்",
-  "widgetsB.settings.folder.sortBy.label": "வரிசைப்படுத்து",
-  "widgetsB.settings.folder.tileSize.label": "ஓடு அளவு"
+  "widgetsB.settings.folder.sortBy.label": "வரிசைப்படுத்து"
 }

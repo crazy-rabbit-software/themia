@@ -33,15 +33,13 @@
             "sort": "Modified",
             "descending": true,
             "showHidden": true,
-            "itemSize": "Small",
             "showExtensions": true,
             "columns": [
               "Modified",
               "Git",
               "Size",
               "ItemCount"
-            ],
-            "tileSize": "Medium"
+            ]
           }
         },
         {
@@ -72,14 +70,12 @@
             "sort": "Size",
             "descending": false,
             "showHidden": false,
-            "itemSize": "Medium",
             "showExtensions": false,
             "columns": [
               "Size",
               "Modified",
               "Type"
-            ],
-            "tileSize": "Large"
+            ]
           }
         },
         {
@@ -110,10 +106,8 @@
             "sort": "Name",
             "descending": false,
             "showHidden": false,
-            "itemSize": "Medium",
             "showExtensions": false,
-            "columns": [],
-            "tileSize": "Small"
+            "columns": []
           }
         },
         {

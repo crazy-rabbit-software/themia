@@ -58,14 +58,11 @@
   "widgetsB.settings.folder.columns.label": "বিস্তারিত কলাম",
   "widgetsB.settings.folder.dateModified": "পরিবর্তনের তারিখ",
   "widgetsB.settings.folder.doubleClick": "ডাবল ক্লিকে",
-  "widgetsB.settings.folder.extraSmall": "অতি ছোট",
   "widgetsB.settings.folder.inExplorer": "এক্সপ্লোরারে",
   "widgetsB.settings.folder.insideWidget": "উইজেটের ভিতরে",
   "widgetsB.settings.folder.openFolders.label": "ফোল্ডার খুলুন",
   "widgetsB.settings.folder.openWith.label": "আইটেম খুলুন",
   "widgetsB.settings.folder.reverse.label": "উল্টো ক্রম",
-  "widgetsB.settings.folder.rowSize.label": "সারির আকার",
   "widgetsB.settings.folder.singleClick": "এক ক্লিকে",
-  "widgetsB.settings.folder.sortBy.label": "সাজানোর ক্রম",
-  "widgetsB.settings.folder.tileSize.label": "টাইলের আকার"
+  "widgetsB.settings.folder.sortBy.label": "সাজানোর ক্রম"
 }

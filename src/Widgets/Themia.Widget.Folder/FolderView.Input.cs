@@ -284,9 +284,10 @@ internal sealed partial class FolderView : IWidgetDropTarget
         _band.Height = Math.Max(1, rect.Height);
         _band.Visibility = Visibility.Visible;
 
+        // A cell's slot is its pitch: the 4 between two marks counts to the cell before it.
         var (columns, cellWidth, cellHeight) = _plan?.Grid is { } grid
-            ? (Math.Max(1, grid.Columns), grid.CellWidth, grid.CellHeight)
-            : (1, _items.ActualWidth, _plan?.RowHeight ?? FolderLayout.RowHeight(_config.Rows));
+            ? (Math.Max(1, grid.Columns), grid.PitchX, grid.PitchY)
+            : (1, _items.ActualWidth, FolderLayout.RowHeight);
 
         _selection.Band(SelectionBand.GridHits(rect, _shown.Count, columns, cellWidth, cellHeight));
         RefreshSelectionVisuals();
@@ -580,7 +581,7 @@ internal sealed partial class FolderView : IWidgetDropTarget
     private bool MoveCursor(WidgetKey key)
     {
         var columns = _plan?.Grid?.Columns ?? 1;
-        var row = _plan?.Grid?.CellHeight ?? _plan?.RowHeight ?? Fluent.RowHeightCompact;
+        var row = _plan?.Grid?.PitchY ?? FolderLayout.RowHeight;
         var pageRows = Math.Max(1, (int)(_scroll.ViewportHeight / Math.Max(1, row)));
 
         if (!_selection.Key(key, ShiftDown(), columns, pageRows))

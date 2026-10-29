@@ -56,14 +56,11 @@
   "widgetsB.settings.folder.columns.label": "详细信息列",
   "widgetsB.settings.folder.dateModified": "修改日期",
   "widgetsB.settings.folder.doubleClick": "双击",
-  "widgetsB.settings.folder.extraSmall": "超小",
   "widgetsB.settings.folder.inExplorer": "在资源管理器中",
   "widgetsB.settings.folder.insideWidget": "在小组件内",
   "widgetsB.settings.folder.openFolders.label": "打开文件夹",
   "widgetsB.settings.folder.openWith.label": "打开项目的方式",
   "widgetsB.settings.folder.reverse.label": "倒序",
-  "widgetsB.settings.folder.rowSize.label": "行大小",
   "widgetsB.settings.folder.singleClick": "单击",
-  "widgetsB.settings.folder.sortBy.label": "排序方式",
-  "widgetsB.settings.folder.tileSize.label": "磁贴大小"
+  "widgetsB.settings.folder.sortBy.label": "排序方式"
 }

@@ -58,14 +58,11 @@
   "widgetsB.settings.folder.columns.label": "ستون‌های جزئیات",
   "widgetsB.settings.folder.dateModified": "تاریخ تغییر",
   "widgetsB.settings.folder.doubleClick": "دوبار کلیک",
-  "widgetsB.settings.folder.extraSmall": "خیلی کوچک",
   "widgetsB.settings.folder.inExplorer": "در مرورگر فایل",
   "widgetsB.settings.folder.insideWidget": "درون ویجت",
   "widgetsB.settings.folder.openFolders.label": "باز کردن پوشه‌ها",
   "widgetsB.settings.folder.openWith.label": "باز کردن موارد با",
   "widgetsB.settings.folder.reverse.label": "ترتیب معکوس",
-  "widgetsB.settings.folder.rowSize.label": "اندازه ردیف",
   "widgetsB.settings.folder.singleClick": "یک کلیک",
-  "widgetsB.settings.folder.sortBy.label": "مرتب‌سازی بر اساس",
-  "widgetsB.settings.folder.tileSize.label": "اندازه کاشی"
+  "widgetsB.settings.folder.sortBy.label": "مرتب‌سازی بر اساس"
 }

@@ -43,20 +43,6 @@ internal static class FolderPropertiesMenu
     private static void StyleLines(WidgetMenuLines menu, FolderConfig config)
     {
         var look = menu.StyleLines;
-        if (config.Offers(FolderSetting.RowSize))
-        {
-            look.Add(menu.Choice(Glyphs.TextSize, FolderStr.WidgetsB_Settings_Folder_RowSize_Label.Text(),
-                [(FolderItemSize.ExtraSmall, FolderStr.WidgetsB_Settings_Folder_ExtraSmall.Text()), (FolderItemSize.Small, Str.Folder_Small.Text()), (FolderItemSize.Medium, Str.Folder_Medium.Text()), (FolderItemSize.Large, Str.Folder_Large.Text())],
-                config.ItemSize, value => config.ItemSize = value));
-        }
-
-        if (config.Offers(FolderSetting.TileSize))
-        {
-            look.Add(menu.Choice(Glyphs.GridLayout, FolderStr.WidgetsB_Settings_Folder_TileSize_Label.Text(),
-                [(FolderTileSize.Small, Str.Folder_Small.Text()), (FolderTileSize.Medium, Str.Folder_Medium.Text()), (FolderTileSize.Large, Str.Folder_Large.Text())],
-                config.TileSize, value => config.TileSize = value));
-        }
-
         if (config.Offers(FolderSetting.Columns))
         {
             look.Add(WidgetMenuLines.Submenu(Glyphs.ColumnsLayout, FolderStr.WidgetsB_Settings_Folder_Columns_Label.Text(),

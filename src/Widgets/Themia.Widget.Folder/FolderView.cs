@@ -6,7 +6,9 @@ using Themia.App.Services;
 using Themia.App.Shell;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
+using Themia.Sdk.Kit;
 using Themia.Sdk.WinUI;
+using Themia.Sdk.WinUI.Kit;
 
 namespace Themia.App.Widgets;
 
@@ -360,7 +362,7 @@ internal sealed partial class FolderView : Grid, IWidgetView, IWidgetHeaderConte
         {
             // Asked whether the badge would have room if there were a repository, not whether it is
             // shown now: it is not shown until the status exists.
-            var wanted = (_area.IsMeasured && FolderLayout.Header(_area.Width, _config.Style, Navigates, hasGit: true).Git)
+            var wanted = (_area.IsMeasured && FolderLayout.Header(_config.Style, Navigates, hasGit: true).Git)
                 || (_config.Style == FolderStyle.Details && _config.DetailColumns.Contains(FolderColumn.Git));
 
             var status = wanted ? await _widgetHost.Folders.GitStatusAsync(path).ConfigureAwait(true) : null;
@@ -427,7 +429,7 @@ internal sealed partial class FolderView : Grid, IWidgetView, IWidgetHeaderConte
         }
 
         _busy.IsActive = busy;
-        _busy.Visibility = busy ? Visibility.Visible : Visibility.Collapsed;
+        _header.Want(_busy, busy);
     }
 
     private void OnClipboardChanged()
@@ -476,7 +478,7 @@ internal sealed partial class FolderView : Grid, IWidgetView, IWidgetHeaderConte
     private static bool ShiftDown() => SelectionInput.ShiftHeld();
 
     /// <inheritdoc />
-    public FrameworkElement? HeaderTrailing => _trailing;
+    public FrameworkElement? HeaderTrailing => _header;
 
     /// <summary>A view of nothing but chrome taps (no keys of its own) still clears its own handlers on Detach.</summary>
     private void DetachInput()

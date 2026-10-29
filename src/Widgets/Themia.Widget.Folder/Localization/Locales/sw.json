@@ -58,14 +58,11 @@
   "widgetsB.settings.folder.columns.label": "Safu wima za maelezo",
   "widgetsB.settings.folder.dateModified": "Tarehe ya kurekebishwa",
   "widgetsB.settings.folder.doubleClick": "Kubofya mara mbili",
-  "widgetsB.settings.folder.extraSmall": "Ndogo sana",
   "widgetsB.settings.folder.inExplorer": "Kwenye Kichunguzi",
   "widgetsB.settings.folder.insideWidget": "Ndani ya wijeti",
   "widgetsB.settings.folder.openFolders.label": "Fungua folda",
   "widgetsB.settings.folder.openWith.label": "Fungua vipengee kwa",
   "widgetsB.settings.folder.reverse.label": "Geuza mpangilio",
-  "widgetsB.settings.folder.rowSize.label": "Ukubwa wa safu mlalo",
   "widgetsB.settings.folder.singleClick": "Kubofya mara moja",
-  "widgetsB.settings.folder.sortBy.label": "Panga kwa",
-  "widgetsB.settings.folder.tileSize.label": "Ukubwa wa kigae"
+  "widgetsB.settings.folder.sortBy.label": "Panga kwa"
 }

@@ -56,14 +56,11 @@
   "widgetsB.settings.folder.columns.label": "Kolom detail",
   "widgetsB.settings.folder.dateModified": "Tanggal diubah",
   "widgetsB.settings.folder.doubleClick": "Klik ganda",
-  "widgetsB.settings.folder.extraSmall": "Sangat kecil",
   "widgetsB.settings.folder.inExplorer": "Di Explorer",
   "widgetsB.settings.folder.insideWidget": "Di dalam widget",
   "widgetsB.settings.folder.openFolders.label": "Buka folder",
   "widgetsB.settings.folder.openWith.label": "Buka item dengan",
   "widgetsB.settings.folder.reverse.label": "Balik urutan",
-  "widgetsB.settings.folder.rowSize.label": "Ukuran baris",
   "widgetsB.settings.folder.singleClick": "Sekali klik",
-  "widgetsB.settings.folder.sortBy.label": "Urutkan menurut",
-  "widgetsB.settings.folder.tileSize.label": "Ukuran ubin"
+  "widgetsB.settings.folder.sortBy.label": "Urutkan menurut"
 }

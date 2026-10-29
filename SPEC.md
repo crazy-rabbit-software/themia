@@ -5149,12 +5149,14 @@ Outside edit mode only: there the cards are inert ([S-1751]) and edit mode clear
   foreground) and draws the selection inactive; the focus cue, a pending press, a half-typed name
   and an open rename (committed) go. Escape, a press on its own empty space ([S-814]) and edit mode
   still clear it (`AppHost.LeaveWidget`). A press in the widget makes it active again.
-- **[S-6627]** The look (`SelectionLook.Ink`, `SelectionChrome`): each item's content sits in one
-  chrome border (`SelectionChrome.Wrap`: 1 DIP, `ControlRadius` 4, over the whole tile or row, icon
-  and name), inside the item and over its item fill ([S-6513], painted once at rest), so the user's
-  item background ([S-6562]) stays the item's rest and the selection is laid over it, behind the
+- **[S-6627]** The look (`SelectionLook.Ink`, `SelectionChrome`): each item's mark is one chrome border
+  (`SelectionChrome.Wrap`: the hairline, the family's radius 4) over the whole of it, icon and name, laid behind its
+  content (a row's mark under its Row block, over the row's full width; a cell's 4 around its lead and name, [S-6713]),
+  so marking it moves nothing; it sits inside the item and over its item fill ([S-6513], painted once at rest), so the
+  user's item background ([S-6562]) stays the item's rest and the selection is laid over it, behind the
   text; the text keeps its colour ([S-6540]). Colour: Windows' highlight (`UISettings` Highlight,
-  `COLOR_HIGHLIGHT`; the contrast theme's in high contrast; #0078D7 if it cannot be read), the same
+  `COLOR_HIGHLIGHT`; the contrast theme's in high contrast; #0078D7 if it cannot be read), a colour from data made a
+  brush through the data entry (`HexBrush.Colour`, [S-6705]), the same
   in light and dark, recoloured when Windows' colours change. Opacities, fill / border: hover
   12 % / 35 %; selected 32 % / 65 %; selected under the pointer 40 % / 75 %; selected without the
   keyboard a neutral grey (#808080) 28 % / 42 % (34 % / 50 % under the pointer); the focus alone a
@@ -7374,18 +7376,23 @@ Shortcuts, Recent files and the shell, and the shared rules (the SDK's `FolderBa
   path re-reads the disk.
 - **[S-1322]** Details columns: Size, Modified, Type (shell type name, `SHGetFileInfo`, cached per extension), Cloud, Git,
   Items (folder entry count, counted off-thread up to 1000, shown "999+"). Shown in the user's order while each fits beside
-  a 120 DIP name; the first that does not fit ends the row. Header click sorts Name/Size/Modified (again = reverse, saved);
+  a 120 DIP name; the first that does not fit ends the row. The cells are the Row block's ([S-6711], `RowBlock.Cells`):
+  Body, secondary, 12 apart, at widths for their worst case in Body (Size 72, Modified 96, Type 120, Items 80, Git 24,
+  Cloud one 16 glyph); the titles a Caption line over them. Header click sorts Name/Size/Modified (again = reverse, saved);
   the columns are chosen in the settings only ([S-1746]; the header has no menu of its own).
 - **[S-1324]** Real shell icons (`IShellItemImageFactory`, shared per extension except exe/lnk/ico/url…, customised folders
-  per path) and image thumbnails in Grid/Icons (`SIIGBF_THUMBNAILONLY`; never for cloud placeholders). Caches bounded and
-  shared; extraction serialised (orig. S-64). Cloud badge from attributes (cloud-only / always kept / available) over the
-  icon and in the Cloud column; "Always keep on this device" / "Free up space" set the pin bits.
+  per path) and image thumbnails in Grid/Icons (`SIIGBF_THUMBNAILONLY`; never for cloud placeholders), at the family's
+  icon sizes (16 in a row, 32 or 48 in a cell, [S-6704]). Caches bounded and shared; extraction serialised (orig. S-64).
+  The cloud state from attributes (cloud-only / always kept / available) is the Cloud column's 16 glyph (secondary) and a
+  line of the item's tooltip; no badge over the icon (it would be under the family's 16 and in the accent or a success
+  green, [S-6706]; group G6 2026-10-29). "Always keep on this device" / "Free up space" set the pin bits.
 - **[S-5175]** Icon and thumbnail caches (`LoadCache`) keep only what a load found: one load per key in flight, and a
   load that found nothing is asked again on the next render, never kept as "no icon" (orig. #4/#16: a transient
   extraction failure left a type's items as glyphs until restart).
 - **[S-1325]** Git: only when a `.git` exists up the tree; `git --no-optional-locks status --porcelain=v1 --branch -z`
-  off-thread, single-flight per repository; no git = no badge. Header badge "main ~2 ?3" (List/Details, by width) and the
-  Git column (file code; "•" for a folder with changes beneath).
+  off-thread, single-flight per repository; no git = no badge. The header's informing label "main ~2 ?3" (Caption,
+  secondary; List/Details; the first part to give way, [S-6710]) and the Git column (file code; "•" for a folder with
+  changes beneath).
 - **[S-1327]** Selection is the desktop's, through the one item selection ([S-6620]..[S-6629]): click, Ctrl, Shift,
   a press on a selected item narrowing on release (a multi-item drag keeps it), background click clears, right-click,
   the band, the selection keys (Ctrl+arrows, Space/Ctrl+Space, Ctrl+A among them) and the look; the selection stays,

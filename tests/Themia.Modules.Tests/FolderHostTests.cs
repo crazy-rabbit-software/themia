@@ -22,10 +22,10 @@ public sealed class FolderHostTests
         IReadOnlyList<FolderColumn> chosen = [FolderColumn.Type, FolderColumn.Size, FolderColumn.Cloud];
 
         Assert.Empty(FolderColumns.Fit(chosen, 200));
-        Assert.Equal([FolderColumn.Type], FolderColumns.Fit(chosen, FolderColumns.NameMinWidth + 104));
+        Assert.Equal([FolderColumn.Type], FolderColumns.Fit(chosen, FolderColumns.NameMinWidth + 132));
 
-        // Cloud (24 + 8) would fit after Type alone, but Size came first and did not.
-        Assert.Equal([FolderColumn.Type], FolderColumns.Fit(chosen, FolderColumns.NameMinWidth + 104 + 40));
+        // Cloud (16 + 12) would fit after Type alone, but Size (72 + 12) came first and did not.
+        Assert.Equal([FolderColumn.Type], FolderColumns.Fit(chosen, FolderColumns.NameMinWidth + 132 + 40));
         Assert.Equal(chosen, FolderColumns.Fit(chosen, 1000));
     }
 

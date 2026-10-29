@@ -18,12 +18,10 @@ public sealed class FolderBrowserTests
         var config = new FolderConfig();
 
         Assert.Equal(FolderStyle.List, config.Style);
-        Assert.Equal(FolderItemSize.Medium, config.ItemSize);
         Assert.Equal(FolderNavigation.Explorer, config.Navigation);
         Assert.Equal(ItemClickMode.Double, config.ClickMode);
         Assert.False(config.ShowExtensions);
         Assert.Equal([FolderColumn.Size, FolderColumn.Modified, FolderColumn.Type], config.Columns);
-        Assert.Equal(FolderTileSize.Medium, config.TileSize);
     }
 
     [Fact]
@@ -182,70 +180,42 @@ public sealed class FolderBrowserTests
 
     // ---- the ladder -----------------------------------------------------------------------------
 
-    [Fact]
-    public void S1323_tiles_stretch_to_fill_the_row()
+    [Theory]
+    [InlineData(FolderStyle.Grid, 330, 32, true, 4)]
+    [InlineData(FolderStyle.Icons, 330, 32, false, 7)]
+    [InlineData(FolderStyle.Grid, 560, 48, true, 5)]
+    public void S1323_cells_are_the_family_s_32_or_48_from_an_expanded_width(FolderStyle style, double width, double icon, bool named, int columns)
     {
-        var plan = FolderLayout.Grid(width: 330, count: 7, FolderTileSize.Small, labelled: true);
+        var plan = FolderLayout.Plan(new WidgetArea(width, 300), new FolderConfig { Style = style }, 20, true, false, false, false);
+        var grid = plan.Grid!.Value;
 
-        Assert.Equal(4, plan.Columns);
-        Assert.Equal(82.5, plan.CellWidth);
-        Assert.Equal(2, plan.Rows);
-        Assert.Equal(90, plan.CellHeight);
-    }
-
-    [Fact]
-    public void S4121_tiles_keep_their_preset_height_there_is_no_stretch()
-    {
-        // A grid that would fit twice over still draws its preset rows and leaves the rest empty.
-        var plan = FolderLayout.Grid(320, 8, FolderTileSize.Small, true);
-        Assert.Equal(90, plan.CellHeight);
-        Assert.Equal(2, plan.Rows);
-    }
-
-    [Fact]
-    public void S1323_icons_view_packs_tiles_to_the_icon()
-    {
-        var plan = FolderLayout.Grid(560, 20, FolderTileSize.Small, labelled: false);
-
-        Assert.Equal(56, plan.CellHeight);
-        Assert.Equal(10, plan.Columns);
-    }
-
-    [Fact]
-    public void S1323_a_narrow_box_still_gets_one_column()
-        => Assert.Equal(1, FolderLayout.Grid(30, 3, FolderTileSize.Large, true).Columns);
-
-    [Fact]
-    public void S1323_list_columns_grow_with_the_width()
-    {
-        Assert.Empty(FolderLayout.ListColumns(new WidgetArea(150, 100), 100, anyFile: true));
-        Assert.Equal([FolderColumn.Modified], FolderLayout.ListColumns(new WidgetArea(300, 200), 250, anyFile: true));
-        Assert.Equal([FolderColumn.Size, FolderColumn.Modified], FolderLayout.ListColumns(new WidgetArea(480, 116), 424, anyFile: true));
-        Assert.Equal([FolderColumn.Type, FolderColumn.Size, FolderColumn.Modified], FolderLayout.ListColumns(new WidgetArea(800, 500), 744, anyFile: true));
+        Assert.Equal(icon, grid.Icon);
+        Assert.Equal(named, grid.Named);
+        Assert.Equal(columns, grid.Columns);
+        Assert.Equal(Themia.Sdk.Kit.RowRules.CellHeight(icon, named), grid.Height);
     }
 
     [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
-    public void S6411_the_list_s_rightmost_column_is_one_every_row_fills_at_every_width(bool anyFile)
+    [InlineData(76, 1)]    // XS: 60 for the items, one row
+    [InlineData(196, 5)]   // M: 180, five whole rows
+    [InlineData(516, 15)]  // XL: 500
+    public void S1323_rows_are_the_row_block_s_one_line_of_32_and_only_whole_ones_show(double height, int rows)
     {
-        // The bug: from 400 DIPs the list put Size last, blank for every folder, so the dates ended
-        // a hidden column's width short of the right edge.
-        for (var width = 120; width <= 1200; width += 10)
-        {
-            var area = new WidgetArea(width, 300);
-            var columns = FolderLayout.ListColumns(area, width - 56, anyFile);
+        var area = new WidgetArea(320, height);
+        var plan = FolderLayout.Plan(area, new FolderConfig(), 40, true, false, false, false);
 
-            if (columns.Count > 0)
-            {
-                Assert.Equal(FolderColumn.Modified, columns[^1]);
-            }
+        Assert.Null(plan.Grid);
+        Assert.Equal(32, FolderLayout.RowHeight);
+        Assert.Equal(rows, FolderLayout.Rows(FolderLayout.ItemsHeight(area, plan.SearchBox, plan.ColumnHeader, plan.Breadcrumb)));
+    }
 
-            if (!anyFile)
-            {
-                Assert.DoesNotContain(FolderColumn.Size, columns);
-            }
-        }
+    [Fact]
+    public void S1323_the_list_shows_the_date_modified_from_a_width_of_180_and_no_other_column()
+    {
+        Assert.False(FolderLayout.Plan(new WidgetArea(150, 100), new FolderConfig(), 4, true, false, false, false).Modified);
+        var wide = FolderLayout.Plan(new WidgetArea(800, 500), new FolderConfig(), 4, true, false, false, false);
+        Assert.True(wide.Modified);
+        Assert.Empty(wide.Columns);
     }
 
     [Fact]
@@ -271,14 +241,6 @@ public sealed class FolderBrowserTests
 
         Assert.False(FolderColumns.AlignsRight(FolderColumn.Type, last: false));
         Assert.True(FolderColumns.AlignsRight(FolderColumn.Size, last: false));
-    }
-
-    [Fact]
-    public void S6411_a_listing_of_folders_only_reserves_no_size_column()
-    {
-        var plan = FolderLayout.Plan(new WidgetArea(670, 300), new FolderConfig(), 4, anyFile: false, searchOpen: false, navigate: false, hasGit: false);
-
-        Assert.Equal([FolderColumn.Modified], plan.Columns);
     }
 
     [Fact]
@@ -311,39 +273,25 @@ public sealed class FolderBrowserTests
     {
         var config = new FolderConfig { Style = FolderStyle.Details };
 
-        var plan = FolderLayout.Plan(new WidgetArea(300, 80), config, 20, true, searchOpen: true, navigate: false, hasGit: false);
+        var plan = FolderLayout.Plan(new WidgetArea(300, 96), config, 20, true, searchOpen: true, navigate: false, hasGit: false);
 
         Assert.True(plan.SearchBox);
         Assert.False(plan.ColumnHeader);
     }
 
     [Fact]
-    public void S1323_xl_grid_tiles_are_one_size_larger()
+    public void S1326_the_header_holds_two_buttons_at_most_back_and_up_or_search_and_sort()
     {
-        var config = new FolderConfig { Style = FolderStyle.Grid, TileSize = FolderTileSize.Small };
+        Assert.Equal(new FolderHeaderPlan(Back: true, Up: true, Search: false, Sort: false, Git: true), FolderLayout.Header(FolderStyle.List, navigate: true, hasGit: true));
+        Assert.Equal(new FolderHeaderPlan(Back: false, Up: false, Search: true, Sort: true, Git: false), FolderLayout.Header(FolderStyle.Grid, navigate: false, hasGit: true));
+        Assert.Equal(new FolderHeaderPlan(Back: false, Up: false, Search: true, Sort: false, Git: true), FolderLayout.Header(FolderStyle.Details, navigate: false, hasGit: true));
 
-        var plan = FolderLayout.Plan(new WidgetArea(800, 516), config, 20, true, false, false, false);
-
-        Assert.Equal(48, plan.Grid?.Icon);
-    }
-
-    [Fact]
-    public void S1326_header_buttons_shed_in_priority_order()
-    {
-        Assert.Equal(FolderHeaderPlan.None, FolderLayout.Header(150, FolderStyle.List, navigate: true, hasGit: true));
-
-        var narrow = FolderLayout.Header(200, FolderStyle.List, true, true);
-        Assert.True(narrow.Up);
-        Assert.False(narrow.Back);
-
-        var wide = FolderLayout.Header(800, FolderStyle.List, true, true);
-        Assert.Equal(new FolderHeaderPlan(true, true, true, true, true, true, true), wide);
-
-        var details = FolderLayout.Header(800, FolderStyle.Details, navigate: false, hasGit: false);
-        Assert.False(details.Sort);
-        Assert.False(details.Back);
-        Assert.True(details.Search);
-
-        Assert.False(FolderLayout.Header(800, FolderStyle.Grid, false, hasGit: true).Git);
+        foreach (var style in Enum.GetValues<FolderStyle>())
+        {
+            foreach (var navigate in new[] { true, false })
+            {
+                Assert.True(FolderLayout.Header(style, navigate, hasGit: true).Buttons <= 2);
+            }
+        }
     }
 }

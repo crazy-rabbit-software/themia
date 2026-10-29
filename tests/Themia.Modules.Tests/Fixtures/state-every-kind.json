@@ -408,14 +408,12 @@
             "sort": "Name",
             "descending": false,
             "showHidden": false,
-            "itemSize": "Medium",
             "showExtensions": false,
             "columns": [
               "Size",
               "Modified",
               "Type"
-            ],
-            "tileSize": "Medium"
+            ]
           }
         },
         {

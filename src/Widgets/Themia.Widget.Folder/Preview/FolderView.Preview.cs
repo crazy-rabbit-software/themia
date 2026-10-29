@@ -71,7 +71,7 @@ internal sealed partial class FolderView : IWidgetPreviewState, IWidgetPreviewMe
         if (state == "lasso")
         {
             // The same calls a real drag makes, from the empty part of the first row.
-            var row = _plan?.RowHeight ?? 32;
+            var row = FolderLayout.RowHeight;
             var x = Math.Max(0, _items.ActualWidth - 140);
             _active = true;
             _selection.BeginBand(BandMode.Replace);
@@ -96,6 +96,17 @@ internal sealed partial class FolderView : IWidgetPreviewState, IWidgetPreviewMe
             }
 
             RefreshSelectionVisuals();
+
+            // The focus in view as the keys left it, at once: the keys' scroll is animated, and a shot
+            // taken while it runs would catch the list half way.
+            // (the least scroll that shows the focused row whole, as BringIntoView would end up).
+            if (_selection.FocusIndex is var focus && focus >= 0)
+            {
+                var (extent, columns) = ItemExtent();
+                _scroll.UpdateLayout();
+                var bottom = ((focus / columns) + 1) * extent;
+                _scroll.ChangeView(null, Math.Max(0, bottom - _scroll.ViewportHeight), null, disableAnimation: true);
+            }
         }
 
         if (state == "fullname" && _shown.Count > 0)

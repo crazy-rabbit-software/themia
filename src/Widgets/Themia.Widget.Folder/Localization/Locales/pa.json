@@ -58,14 +58,11 @@
   "widgetsB.settings.folder.columns.label": "ਵੇਰਵਾ ਕਾਲਮ",
   "widgetsB.settings.folder.dateModified": "ਸੋਧ ਦੀ ਮਿਤੀ",
   "widgetsB.settings.folder.doubleClick": "ਡਬਲ ਕਲਿੱਕ",
-  "widgetsB.settings.folder.extraSmall": "ਬਹੁਤ ਛੋਟਾ",
   "widgetsB.settings.folder.inExplorer": "ਐਕਸਪਲੋਰਰ ਵਿੱਚ",
   "widgetsB.settings.folder.insideWidget": "ਵਿਜੇਟ ਦੇ ਅੰਦਰ",
   "widgetsB.settings.folder.openFolders.label": "ਫੋਲਡਰ ਖੋਲ੍ਹੋ",
   "widgetsB.settings.folder.openWith.label": "ਆਈਟਮਾਂ ਇਸ ਨਾਲ ਖੋਲ੍ਹੋ",
   "widgetsB.settings.folder.reverse.label": "ਉਲਟਾ ਕ੍ਰਮ",
-  "widgetsB.settings.folder.rowSize.label": "ਕਤਾਰ ਦਾ ਆਕਾਰ",
   "widgetsB.settings.folder.singleClick": "ਸਿੰਗਲ ਕਲਿੱਕ",
-  "widgetsB.settings.folder.sortBy.label": "ਇਸ ਅਨੁਸਾਰ ਛਾਂਟੋ",
-  "widgetsB.settings.folder.tileSize.label": "ਟਾਈਲ ਦਾ ਆਕਾਰ"
+  "widgetsB.settings.folder.sortBy.label": "ਇਸ ਅਨੁਸਾਰ ਛਾਂਟੋ"
 }

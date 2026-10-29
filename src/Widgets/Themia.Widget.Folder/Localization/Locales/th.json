@@ -56,14 +56,11 @@
   "widgetsB.settings.folder.columns.label": "คอลัมน์รายละเอียด",
   "widgetsB.settings.folder.dateModified": "วันที่ปรับเปลี่ยน",
   "widgetsB.settings.folder.doubleClick": "ดับเบิลคลิก",
-  "widgetsB.settings.folder.extraSmall": "เล็กพิเศษ",
   "widgetsB.settings.folder.inExplorer": "ใน Explorer",
   "widgetsB.settings.folder.insideWidget": "ภายในวิดเจ็ต",
   "widgetsB.settings.folder.openFolders.label": "เปิดโฟลเดอร์",
   "widgetsB.settings.folder.openWith.label": "เปิดรายการด้วย",
   "widgetsB.settings.folder.reverse.label": "กลับลำดับ",
-  "widgetsB.settings.folder.rowSize.label": "ขนาดแถว",
   "widgetsB.settings.folder.singleClick": "คลิกครั้งเดียว",
-  "widgetsB.settings.folder.sortBy.label": "เรียงลำดับตาม",
-  "widgetsB.settings.folder.tileSize.label": "ขนาดไทล์"
+  "widgetsB.settings.folder.sortBy.label": "เรียงลำดับตาม"
 }

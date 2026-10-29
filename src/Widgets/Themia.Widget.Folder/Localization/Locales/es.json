@@ -58,14 +58,11 @@
   "widgetsB.settings.folder.columns.label": "Columnas de detalles",
   "widgetsB.settings.folder.dateModified": "Fecha de modificación",
   "widgetsB.settings.folder.doubleClick": "Doble clic",
-  "widgetsB.settings.folder.extraSmall": "Muy pequeño",
   "widgetsB.settings.folder.inExplorer": "En el Explorador",
   "widgetsB.settings.folder.insideWidget": "Dentro del widget",
   "widgetsB.settings.folder.openFolders.label": "Abrir carpetas",
   "widgetsB.settings.folder.openWith.label": "Abrir elementos con",
   "widgetsB.settings.folder.reverse.label": "Orden inverso",
-  "widgetsB.settings.folder.rowSize.label": "Tamaño de fila",
   "widgetsB.settings.folder.singleClick": "Un solo clic",
-  "widgetsB.settings.folder.sortBy.label": "Ordenar por",
-  "widgetsB.settings.folder.tileSize.label": "Tamaño de mosaico"
+  "widgetsB.settings.folder.sortBy.label": "Ordenar por"
 }

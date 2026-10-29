@@ -58,14 +58,11 @@
   "widgetsB.settings.folder.columns.label": "विवरण कॉलम",
   "widgetsB.settings.folder.dateModified": "संशोधन दिनांक",
   "widgetsB.settings.folder.doubleClick": "डबल क्लिक",
-  "widgetsB.settings.folder.extraSmall": "बहुत छोटा",
   "widgetsB.settings.folder.inExplorer": "एक्सप्लोरर में",
   "widgetsB.settings.folder.insideWidget": "विजेट के अंदर",
   "widgetsB.settings.folder.openFolders.label": "फ़ोल्डर खोलें",
   "widgetsB.settings.folder.openWith.label": "आइटम खोलें",
   "widgetsB.settings.folder.reverse.label": "उलटा क्रम",
-  "widgetsB.settings.folder.rowSize.label": "पंक्ति का आकार",
   "widgetsB.settings.folder.singleClick": "सिंगल क्लिक",
-  "widgetsB.settings.folder.sortBy.label": "इसके अनुसार क्रमित करें",
-  "widgetsB.settings.folder.tileSize.label": "टाइल का आकार"
+  "widgetsB.settings.folder.sortBy.label": "इसके अनुसार क्रमित करें"
 }

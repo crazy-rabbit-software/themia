@@ -1,33 +1,34 @@
-using Microsoft.UI.Text;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml;
-using Microsoft.UI;
 using Themia.App.Services.Files;
 using Themia.App.Shell;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
+using Themia.Sdk.Kit;
 using Themia.Sdk.WinUI;
+using Themia.Sdk.WinUI.Kit;
 using Themia.Widget.Folder;
 using Windows.Foundation;
 
 namespace Themia.App.Widgets;
 
-/// <summary>[S-1323] Drawing: the chrome, the ladder, rows, tiles, icons, badges.</summary>
+/// <summary>
+/// [S-1323] Drawing, on the family's blocks ([S-6711], [S-6713]): the header's parts, the path, the
+/// ladder, the rows (Row blocks of 32 with the file's own 16 icon) and the cells (Row.Cell, 32 or 48),
+/// icons, the Status row.
+/// </summary>
 internal sealed partial class FolderView
 {
     private readonly List<ItemVisual> _visuals = [];
     private readonly List<IDisposable> _hovers = [];
 
+    private HeaderParts _header = null!;
     private ProgressRing _busy = null!;
-    private StackPanel _trailing = null!;
-    private Border _gitBadge = null!;
     private TextBlock _gitText = null!;
     private Border _backButton = null!;
-    private Border _forwardButton = null!;
     private Border _upButton = null!;
-    private Border _homeButton = null!;
     private Border _searchButton = null!;
     private Border _sortButton = null!;
     private Border _crumbHost = null!;
@@ -40,8 +41,7 @@ internal sealed partial class FolderView
     private Canvas _bandLayer = null!;
     private Border _band = null!;
     private SelectionLabel _fullName = null!;
-    private Border _messageHost = null!;
-    private TextBlock _message = null!;
+    private StatusBlock _status = null!;
     private ScrollFade? _fade;
 
     private WidgetArea _area;
@@ -62,7 +62,7 @@ internal sealed partial class FolderView
 
         public required Border Root { get; init; }
 
-        /// <summary>[S-6627] The selection's mark, inside the root and over its item fill.</summary>
+        /// <summary>[S-6627] The selection's mark: behind the row or the cell, over all of it and over its item fill.</summary>
         public required Border Chrome { get; init; }
 
         /// <summary>Dimmed while the item is cut; the row itself carries the scroll fade's opacity.</summary>
@@ -76,9 +76,13 @@ internal sealed partial class FolderView
 
         public required TextBlock Name { get; init; }
 
-        public required Grid NameCell { get; init; }
+        /// <summary>Where a rename's box stands in for the name ([S-1331]): the row's grid (in <see cref="NameColumn"/>) or the cell.</summary>
+        public required Panel NameCell { get; init; }
 
-        /// <summary>A tile, not a row: its name may be shown in full when selected ([S-6629]).</summary>
+        /// <summary>The grid column of <see cref="NameCell"/> the name stands in.</summary>
+        public int NameColumn { get; init; }
+
+        /// <summary>A cell, not a row: its name may be shown in full when selected ([S-6629]).</summary>
         public bool Tile { get; init; }
 
         public Dictionary<FolderColumn, TextBlock> Cells { get; } = [];
@@ -97,45 +101,27 @@ internal sealed partial class FolderView
         RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
         RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
 
-        _busy = new ProgressRing { Width = 14, Height = 14, IsActive = false, Visibility = Visibility.Collapsed };
-
-        _gitText = Fluent.Text(FluentType.Caption, "TextFillColorSecondaryBrush");
-        _gitText.TextTrimming = TextTrimming.CharacterEllipsis;
-        _gitText.MaxWidth = FolderLayout.GitBadgeWidth - 22;
-        _gitBadge = new Border
+        // [S-1326] [S-6710] The header's parts: the busy ring, the git badge as its informing label and
+        // at most two buttons, wanted by FolderLayout.Header; the header folds them by its own rule.
+        _header = new HeaderParts();
+        _busy = _header.Add(HeaderPartKind.Busy, HeaderBlock.Busy());
+        _gitText = _header.Add(HeaderPartKind.Label, HeaderBlock.Label(string.Empty));
+        _backButton = _header.Add(HeaderPartKind.Button, HeaderBlock.Button(Glyphs.Back, Str.Common_Back.Text(), GoBack));
+        _upButton = _header.Add(HeaderPartKind.Button, HeaderBlock.Button(Glyphs.MoveUp, FolderStr.WidgetsB_Folder_UpTip.Text(), GoUp));
+        _searchButton = _header.Add(HeaderPartKind.Button, HeaderBlock.Button(Glyphs.Search, FolderStr.WidgetsB_Folder_SearchTip.Text(), ToggleSearch));
+        _sortButton = _header.Add(HeaderPartKind.Button, HeaderBlock.Button(Glyphs.Sort, FolderStr.WidgetsB_Folder_ReverseTip.Text(), () => Edit(c => c.Descending = !c.Descending)));
+        foreach (var part in new FrameworkElement[] { _busy, _gitText, _backButton, _upButton, _searchButton, _sortButton })
         {
-            Child = new StackPanel
-            {
-                Orientation = Orientation.Horizontal,
-                Spacing = Fluent.Space1,
-                Children = { Fluent.Icon(Glyphs.PullRequest, "TextFillColorSecondaryBrush", 12), _gitText },
-            },
-            VerticalAlignment = VerticalAlignment.Center,
-            Visibility = Visibility.Collapsed,
-        };
+            _header.Want(part, false);
+        }
 
-        _backButton = HeaderButton(Glyphs.Back, Str.Common_Back.Text(), GoBack);
-        _forwardButton = HeaderButton(Glyphs.Forward, FolderStr.Folder_Forward.Text(), GoForward);
-        _upButton = HeaderButton(Glyphs.MoveUp, FolderStr.WidgetsB_Folder_UpTip.Text(), GoUp);
-        _homeButton = HeaderButton(Glyphs.Home, FolderStr.WidgetsB_Folder_HomeTip.Text(), GoHome);
-        _searchButton = HeaderButton(Glyphs.Search, FolderStr.WidgetsB_Folder_SearchTip.Text(), ToggleSearch);
-        _sortButton = HeaderButton(Glyphs.Sort, FolderStr.WidgetsB_Folder_ReverseTip.Text(), () => Edit(c => c.Descending = !c.Descending));
-
-        // Read once by the card when it builds the header, so it exists from construction.
-        _trailing = new StackPanel
-        {
-            Orientation = Orientation.Horizontal,
-            Spacing = 2,
-            VerticalAlignment = VerticalAlignment.Center,
-            Children = { _busy, _gitBadge, _backButton, _forwardButton, _upButton, _homeButton, _searchButton, _sortButton },
-        };
-
-        _crumbs = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 2, VerticalAlignment = VerticalAlignment.Center };
+        // [S-1323] The path: a row of 32 at the side inset.
+        _crumbs = new StackPanel { Orientation = Orientation.Horizontal, Spacing = FamilySpace.S1, VerticalAlignment = VerticalAlignment.Center };
         _crumbHost = new Border
         {
             Child = _crumbs,
             Height = FolderLayout.BreadcrumbHeight,
-            Padding = new Thickness(Fluent.Space3, 0, Fluent.Space3, 0),
+            Padding = Family.SideInset,
             Visibility = Visibility.Collapsed,
         };
         SetRow(_crumbHost, 0);
@@ -143,7 +129,8 @@ internal sealed partial class FolderView
         _searchBox = new TextBox
         {
             PlaceholderText = FolderStr.WidgetsB_Folder_SearchPlaceholder.Text(),
-            Margin = new Thickness(Fluent.Space3, 0, Fluent.Space3, Fluent.Space1),
+            Height = FamilyShape.Button,
+            Margin = new Thickness(FamilySpace.Inset, 0, FamilySpace.Inset, FamilySpace.S2),
             VerticalAlignment = VerticalAlignment.Center,
             Visibility = Visibility.Collapsed,
         };
@@ -162,13 +149,14 @@ internal sealed partial class FolderView
         _searchBox.LostFocus += (_, _) => _surface?.RequestTextInput(false);
         SetRow(_searchBox, 1);
 
+        // [S-7034] The details table's titles: a Caption line over the columns, as the kit's table.
         _columnHeader = new Grid
         {
             Height = FolderLayout.ColumnHeaderHeight,
-            Padding = new Thickness(FolderLayout.RowInset, 0, FolderLayout.RowInset, 0),
+            Padding = new Thickness(FamilySpace.TextEdge, 0, FamilySpace.Inset, 0),
             ColumnSpacing = FolderColumns.Gap,
             Visibility = Visibility.Collapsed,
-            Background = Fluent.Clear(),
+            Background = Family.Brush(ColourRole.Clear),
         };
         SetRow(_columnHeader, 2);
 
@@ -179,14 +167,14 @@ internal sealed partial class FolderView
         _bandLayer = new Canvas { IsHitTestVisible = false, Children = { _band } };
         _fullName = new SelectionLabel(_bandLayer);
 
-        // Transparent, not null: the empty area below the items must still take presses (the band,
+        // Clear, not null: the empty area below the items must still take presses (the band,
         // the background menu, a click that clears the selection) and drops.
-        _scrollContent = new Grid { Background = Fluent.Clear(), Children = { _items, _bandLayer } };
+        _scrollContent = new Grid { Background = Family.Brush(ColourRole.Clear), Children = { _items, _bandLayer } };
 
         _scroll = new ScrollViewer
         {
             Content = _scrollContent,
-            Padding = WidgetLayout.ListInset,
+            VerticalAlignment = VerticalAlignment.Top,
             HorizontalScrollMode = ScrollMode.Disabled,
             HorizontalScrollBarVisibility = ScrollBarVisibility.Disabled,
             VerticalScrollBarVisibility = ScrollBarVisibility.Hidden,
@@ -201,46 +189,19 @@ internal sealed partial class FolderView
             RealizeMore();
         };
 
-        _message = new TextBlock();
-        _messageHost = new Border
-        {
-            Child = Fluent.EmptyState(Glyphs.Folder, _message, out _),
-            VerticalAlignment = VerticalAlignment.Stretch,
-            Visibility = Visibility.Collapsed,
-        };
-        SetRow(_messageHost, 0);
-        SetRowSpan(_messageHost, 4);
+        // [S-1334] [S-6714] A folder with nothing to show says which state it is in the Status row, at the top.
+        _status = new StatusBlock { VerticalAlignment = VerticalAlignment.Top };
+        _status.Hide();
+        SetRow(_status, 3);
 
         Children.Add(_crumbHost);
         Children.Add(_searchBox);
         Children.Add(_columnHeader);
         Children.Add(_scroll);
-        Children.Add(_messageHost);
+        Children.Add(_status);
 
         _fade = new ScrollFade(_scroll, _items);
         AttachInput();
-    }
-
-    private Border HeaderButton(string glyph, string tip, Action action)
-    {
-        var button = new Border
-        {
-            Child = Fluent.Icon(glyph, "TextFillColorSecondaryBrush", 14),
-            Padding = new Thickness(7),
-            CornerRadius = new CornerRadius(Fluent.ControlRadius),
-            Visibility = Visibility.Collapsed,
-        };
-
-        ItemFill.Paint(button, ItemRole.Row);
-        button.Tapped += (_, args) =>
-        {
-            args.Handled = true;
-            action();
-        };
-
-        ToolTipService.SetToolTip(button, tip);
-        _hovers.Add(Fluent.Hover(button));
-        return button;
     }
 
     // ---- the ladder -----------------------------------------------------------------------------
@@ -254,7 +215,7 @@ internal sealed partial class FolderView
 
     /// <summary>
     /// [S-1323] One layout pass: the plan for this size, the chrome it shows, and a rebuild of the
-    /// items only when what they look like changed (a resize that keeps the same columns and tiles
+    /// items only when what they look like changed (a resize that keeps the same columns and cells
     /// moves nothing).
     /// </summary>
     private void Lay()
@@ -276,8 +237,8 @@ internal sealed partial class FolderView
 
     private string ItemsKey(FolderPlan plan)
     {
-        var grid = plan.Grid is { } g ? $"{g.Columns}|{Math.Round(g.CellWidth)}|{Math.Round(g.CellHeight)}|{g.Icon}" : "-";
-        return $"{_config.Style}|{plan.RowHeight}|{string.Join(',', plan.Columns)}|{grid}";
+        var grid = plan.Grid is { } g ? $"{g.Columns}|{Math.Round(g.Width)}|{g.Icon}|{g.Named}" : "-";
+        return $"{_config.Style}|{plan.Modified}|{string.Join(',', plan.Columns)}|{grid}";
     }
 
     private void ApplyChrome(FolderPlan plan)
@@ -285,7 +246,23 @@ internal sealed partial class FolderView
         _crumbHost.Visibility = plan.Breadcrumb ? Visibility.Visible : Visibility.Collapsed;
         _searchBox.Visibility = plan.SearchBox ? Visibility.Visible : Visibility.Collapsed;
         _columnHeader.Visibility = plan.ColumnHeader ? Visibility.Visible : Visibility.Collapsed;
-        _scroll.Padding = plan.Grid is null ? WidgetLayout.ListInset : new Thickness(4, 2, 4, Fluent.Space2);
+
+        // [S-6712] [S-6713] As tall as its whole rows (or rows of cells): never a part of one at its foot.
+        // A cell's mark stands 4 around it, so the grid starts 4 over the items' top and 12 in from the edge.
+        var height = FolderLayout.ItemsHeight(_area, plan.SearchBox, plan.ColumnHeader, plan.Breadcrumb);
+        if (plan.Grid is { } grid)
+        {
+            _scroll.Padding = new Thickness(FamilySpace.S3, 0, FamilySpace.S3, 0);
+            _scroll.Margin = new Thickness(0, -FamilySpace.S1, 0, 0);
+            _scroll.Height = Math.Max(1, grid.Rows) * grid.PitchY;
+        }
+        else
+        {
+            _scroll.Padding = new Thickness(0);
+            _scroll.Margin = new Thickness(0);
+            _scroll.Height = FolderLayout.Rows(height) * FolderLayout.RowHeight;
+        }
+
         FillViewport();
         ApplyHeader();
     }
@@ -297,37 +274,43 @@ internal sealed partial class FolderView
     private void FillViewport()
         => _scrollContent.MinHeight = Math.Max(0, _scroll.ActualHeight - _scroll.Padding.Top - _scroll.Padding.Bottom);
 
-    /// <summary>[S-1326] The header's buttons and git badge, by the plan and by what history allows.</summary>
+    /// <summary>[S-1326] The header's buttons and git label, by the plan and by what history allows.</summary>
     private void ApplyHeader()
     {
         // Re-planned here rather than read from the last pass: the git badge's rung depends on a status
         // that arrives after the listing, and must not wait for the next resize to appear.
-        var header = _area.IsMeasured ? FolderLayout.Header(_area.Width, _config.Style, Navigates, _git is not null) : FolderHeaderPlan.None;
+        var header = _area.IsMeasured ? FolderLayout.Header(_config.Style, Navigates, _git is not null) : FolderHeaderPlan.None;
 
-        static Visibility Show(bool shown) => shown ? Visibility.Visible : Visibility.Collapsed;
-
-        _backButton.Visibility = Show(header.Back);
-        _backButton.Opacity = _history.CanGoBack ? 1 : 0.4;
-        _forwardButton.Visibility = Show(header.Forward);
-        _forwardButton.Opacity = _history.CanGoForward ? 1 : 0.4;
-        _upButton.Visibility = Show(header.Up);
-        _upButton.Opacity = _history.CanGoUp ? 1 : 0.4;
-        _homeButton.Visibility = Show(header.Home && !_history.AtHome);
-        _searchButton.Visibility = Show(header.Search || _searchOpen);
-        _sortButton.Visibility = Show(header.Sort);
+        _header.Want(_backButton, header.Back);
+        Enable(_backButton, _history.CanGoBack);
+        _header.Want(_upButton, header.Up);
+        Enable(_upButton, _history.CanGoUp);
+        _header.Want(_searchButton, header.Search);
+        _header.Want(_sortButton, header.Sort);
         ToolTipService.SetToolTip(_sortButton, _config.Descending ? FolderStr.WidgetsB_Folder_OrderDescTip.Text() : FolderStr.WidgetsB_Folder_OrderAscTip.Text());
 
         if (header.Git && _git is { } git)
         {
             var counts = git.Summary.Counts();
             _gitText.Text = counts.Length == 0 ? git.Summary.Branch : $"{git.Summary.Branch} {counts}";
-            ToolTipService.SetToolTip(_gitBadge, GitTip(git.Summary));
-            _gitBadge.Visibility = Visibility.Visible;
+            ToolTipService.SetToolTip(_gitText, GitTip(git.Summary));
+            _header.Want(_gitText, true);
         }
         else
         {
-            _gitBadge.Visibility = Visibility.Collapsed;
+            _header.Want(_gitText, false);
         }
+    }
+
+    /// <summary>A header button that cannot act now (no way back, at the root): its glyph in the disabled role ([S-1940]).</summary>
+    private static void Enable(Border button, bool can)
+    {
+        if (button.Child is FontIcon glyph)
+        {
+            glyph.Foreground = Family.Brush(can ? ColourRole.TextSecondary : ColourRole.TextDisabled);
+        }
+
+        button.IsHitTestVisible = can;
     }
 
     private static string GitTip(GitSummary s) => s.Clean
@@ -366,7 +349,7 @@ internal sealed partial class FolderView
 
         if (status == FolderListingStatus.Ok && _shown.Count == 0)
         {
-            ShowMessage(_search.Length > 0
+            ShowMessage(StatusKind.Empty, _search.Length > 0
                 ? FolderStr.WidgetsB_Folder_NoMatches.Text()
                 : Str.WidgetsB_Folder_Status_Empty.Text());
             return;
@@ -374,11 +357,12 @@ internal sealed partial class FolderView
 
         if (status != FolderListingStatus.Ok)
         {
-            ShowMessage(FolderFormatting.StatusMessage(status, _resolved.Problem));
+            ShowMessage(status is FolderListingStatus.Loading or FolderListingStatus.Empty ? StatusKind.Empty : StatusKind.Problem,
+                FolderFormatting.StatusMessage(status, _resolved.Problem));
             return;
         }
 
-        _messageHost.Visibility = Visibility.Collapsed;
+        _status.Hide();
         _scroll.Visibility = Visibility.Visible;
 
         EnsureItemsPanel();
@@ -426,11 +410,11 @@ internal sealed partial class FolderView
     /// <summary>[S-1887] The spacer standing for the items not built yet, or the "+N more" row; always last.</summary>
     private FrameworkElement? _tail;
 
-    /// <summary>[S-1887] One item's height and how many sit side by side, as the plan lays them.</summary>
+    /// <summary>[S-1887] One item's pitch and how many sit side by side, as the plan lays them.</summary>
     private (double Extent, int Columns) ItemExtent()
         => _plan?.Grid is { } grid
-            ? (grid.CellHeight, Math.Max(1, grid.Columns))
-            : (_plan?.RowHeight ?? FolderLayout.RowHeight(_config.Rows), 1);
+            ? (grid.PitchY, Math.Max(1, grid.Columns))
+            : (FolderLayout.RowHeight, 1);
 
     /// <summary>The DIPs of list in view: the scroller's once it is measured, the tile's before.</summary>
     private double Viewport() => _scroll.ViewportHeight > 0 ? _scroll.ViewportHeight : _area.Height;
@@ -542,10 +526,10 @@ internal sealed partial class FolderView
         return -1;
     }
 
-    private void ShowMessage(string text)
+    /// <summary>[S-1334] [S-6714] The Status row where the first item would be: the folder's glyph for a plain state, the warning for a problem.</summary>
+    private void ShowMessage(StatusKind kind, string text)
     {
-        _message.Text = text;
-        _messageHost.Visibility = Visibility.Visible;
+        _status.Show(kind, Glyphs.Folder, text);
         _scroll.Visibility = Visibility.Collapsed;
         _columnHeader.Visibility = Visibility.Collapsed;
         _itemsKey = string.Empty;
@@ -560,7 +544,7 @@ internal sealed partial class FolderView
         {
             if (_items is TilePanel tiles && _plan?.Grid is { } g)
             {
-                tiles.Set(g.Columns, g.CellWidth, g.CellHeight);
+                tiles.Set(g);
             }
 
             return;
@@ -570,7 +554,7 @@ internal sealed partial class FolderView
         _scrollContent.Children.Remove(_items);
 
         _items = wantTiles && _plan?.Grid is { } grid
-            ? new TilePanel(grid.Columns, grid.CellWidth, grid.CellHeight)
+            ? new TilePanel(grid)
             : new StackPanel();
 
         _scrollContent.Children.Insert(0, _items);
@@ -594,82 +578,113 @@ internal sealed partial class FolderView
 
     // ---- rows -----------------------------------------------------------------------------------
 
+    /// <summary>
+    /// [S-6711] A row: the Row block of 32, the file's own icon (16) as its lead, the name primary, and
+    /// the list's date modified as its value or the details table's columns in the name's place
+    /// ([S-7034]). The selection's mark lies behind the whole row, so marking it moves nothing.
+    /// </summary>
     private ItemVisual BuildRow(FolderEntry entry, int index, FolderPlan? plan, DateTimeOffset now)
     {
-        var rowHeight = plan?.RowHeight ?? FolderLayout.RowHeight(_config.Rows);
-        var iconSize = plan?.IconSize ?? FolderLayout.IconSize(_config.Rows);
         var columns = plan?.Columns ?? [];
+        var details = _config.Style == FolderStyle.Details;
+        var (iconBox, image, glyph) = IconBox(entry, FolderLayout.Lead);
 
-        var (iconBox, image, glyph) = IconBox(entry, iconSize);
+        var block = new RowBlock(RowKind.List, FolderLayout.Lead) { Lines = 1 };
+        block.Lead(iconBox);
 
-        var name = Fluent.Text(plan?.SmallText == true ? FluentType.Caption : FluentType.Body);
-        name.Text = FileNamesDisplay(entry);
-        name.VerticalAlignment = VerticalAlignment.Center;
+        TextBlock name;
+        Panel nameCell;
+        var nameColumn = 1;
+
+        if (details)
+        {
+            block.Show(string.Empty);
+            var cells = new Grid { ColumnSpacing = FolderColumns.Gap };
+            cells.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+            name = Family.Text(FamilyType.Body, ColourRole.TextPrimary, FileNamesDisplay(entry));
+            name.VerticalAlignment = VerticalAlignment.Center;
+            cells.Children.Add(name);
+            block.Cells(cells);
+            nameCell = cells;
+            nameColumn = 0;
+        }
+        else
+        {
+            block.Show(FileNamesDisplay(entry), plan?.Modified == true ? FolderFormatting.Modified(entry.Modified, now) : null);
+            name = block.NameText;
+            nameCell = block;
+        }
 
         // [S-6412] As wide as its text: the rest of the row is empty space a band can start from.
         name.HorizontalAlignment = HorizontalAlignment.Left;
 
-        var nameCell = new Grid { Children = { name } };
-
-        var content = new Grid { ColumnSpacing = FolderColumns.Gap, Margin = new Thickness(FolderLayout.RowInset, 0, FolderLayout.RowInset, 0) };
-        content.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(iconSize) });
-        content.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
-
-        SetColumn(iconBox, 0);
-        SetColumn(nameCell, 1);
-        content.Children.Add(iconBox);
-        content.Children.Add(nameCell);
-
         // [S-6627] The whole row is the item's mark, as the desktop marks the whole icon and name.
-        var chrome = SelectionChrome.Wrap(content);
+        var chrome = SelectionChrome.Wrap(new Grid());
 
         var visual = new ItemVisual
         {
             Entry = entry,
             Index = index,
-            Root = new Border { Height = rowHeight, Child = chrome, Tag = index },
+            Root = new Border { Height = FolderLayout.RowHeight, Child = new Grid { Children = { chrome, block } }, Tag = index },
             Chrome = chrome,
-            Content = content,
+            Content = block,
             Image = image,
             Glyph = glyph,
             IconBox = iconBox,
             Name = name,
             NameCell = nameCell,
+            NameColumn = nameColumn,
         };
 
-        for (var c = 0; c < columns.Count; c++)
+        if (details && nameCell is Grid grid)
         {
-            var column = columns[c];
-            content.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(FolderColumns.Width(column)) });
+            for (var c = 0; c < columns.Count; c++)
+            {
+                var column = columns[c];
+                grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(FolderColumns.Width(column)) });
 
-            var cell = Cell(column, last: c == columns.Count - 1);
-            cell.Text = CellText(entry, column, now);
-            SetColumn(cell, c + 2);
-            content.Children.Add(cell);
-            visual.Cells[column] = cell;
+                FrameworkElement shown;
+                if (column == FolderColumn.Cloud)
+                {
+                    // [S-1324] The cloud state as a 16 glyph, secondary; none for a local item.
+                    var state = CloudBadges.State(entry.Attributes);
+                    shown = Family.Glyph(CloudGlyph(state), FamilyShape.Icon, ColourRole.TextSecondary);
+                    shown.HorizontalAlignment = c == columns.Count - 1 ? HorizontalAlignment.Right : HorizontalAlignment.Center;
+                    shown.Visibility = state == CloudState.None ? Visibility.Collapsed : Visibility.Visible;
+                }
+                else
+                {
+                    var cell = Cell(column, last: c == columns.Count - 1);
+                    cell.Text = CellText(entry, column, now);
+                    visual.Cells[column] = cell;
+                    shown = cell;
+                }
+
+                shown.VerticalAlignment = VerticalAlignment.Center;
+                SetColumn(shown, c + 1);
+                grid.Children.Add(shown);
+            }
         }
 
         WidgetItems.Mark(visual.Root); // [S-814] a press here is the item's, not the background's
         ItemFill.Paint(visual.Root, ItemRole.Row); // [S-6513] the item layer at rest; the selection is laid over it
         Prime(visual);
-        ToolTipService.SetToolTip(visual.Root, entry.FullPath);
+        ToolTipService.SetToolTip(visual.Root, Tip(entry));
         return visual;
     }
 
+    /// <summary>An item's tooltip: its path, and its cloud state where it has one ([S-1324]).</summary>
+    private static string Tip(FolderEntry entry)
+        => CloudBadges.State(entry.Attributes) is var cloud && cloud != CloudState.None
+            ? $"{entry.FullPath}{Environment.NewLine}{CloudBadges.Describe(cloud)}"
+            : entry.FullPath;
+
+    /// <summary>[S-6711] A table cell: Body, secondary, as the Row block's value; a number column end-aligned.</summary>
     private static TextBlock Cell(FolderColumn column, bool last)
     {
-        var cell = Fluent.Text(FluentType.Caption, "TextFillColorSecondaryBrush");
-        cell.VerticalAlignment = VerticalAlignment.Center;
-        cell.TextTrimming = TextTrimming.CharacterEllipsis;
+        var cell = Family.Text(FamilyType.Body, ColourRole.TextSecondary);
         cell.TextAlignment = FolderColumns.AlignsRight(column, last) ? TextAlignment.Right : TextAlignment.Left;
-
-        if (column == FolderColumn.Cloud)
-        {
-            cell.FontFamily = new FontFamily("Segoe Fluent Icons,Segoe MDL2 Assets");
-            cell.TextAlignment = last ? TextAlignment.Right : TextAlignment.Center;
-        }
-
-        Microsoft.UI.Xaml.Documents.Typography.SetNumeralAlignment(cell, FontNumeralAlignment.Tabular);
+        cell.HorizontalAlignment = FolderColumns.AlignsRight(column, last) ? HorizontalAlignment.Right : HorizontalAlignment.Left;
         return cell;
     }
 
@@ -678,7 +693,6 @@ internal sealed partial class FolderView
         FolderColumn.Size => FolderFormatting.Size(entry),
         FolderColumn.Modified => FolderFormatting.Modified(entry.Modified, now),
         FolderColumn.Type => _widgetHost.FileIcons.TypeName(entry),
-        FolderColumn.Cloud => CloudGlyph(CloudBadges.State(entry.Attributes)),
         FolderColumn.Git => GitCode(entry),
         _ => string.Empty,
     };
@@ -688,7 +702,7 @@ internal sealed partial class FolderView
         CloudState.CloudOnly => Glyphs.Cloudy,
         CloudState.Pinned => Glyphs.CheckCircleSolid,
         CloudState.Synced => Glyphs.CheckCircle,
-        _ => string.Empty,
+        _ => Glyphs.Cloudy,
     };
 
     private string GitCode(FolderEntry entry)
@@ -716,50 +730,37 @@ internal sealed partial class FolderView
     private string FileNamesDisplay(FolderEntry entry)
         => Themia.Core.Files.FileNames.Display(entry.Name, entry.IsDirectory, _config.Extensions);
 
-    /// <summary>The "+N more" row past the render cap: opens the folder in Explorer, where all of it is.</summary>
-    private Border MoreRow(int more)
+    /// <summary>The "+N more" row past the render cap: a Row block of 32 that opens the folder in Explorer, where all of it is.</summary>
+    private RowBlock MoreRow(int more)
     {
-        var text = Fluent.Text(FluentType.Caption, "TextFillColorSecondaryBrush");
-        text.Text = FolderStr.WidgetsB_Folder_MoreInExplorer.Plural(more);
-        var row = Fluent.Row(text, compact: true);
+        var row = new RowBlock(RowKind.List, FolderLayout.Lead) { Interactive = true };
+        row.LeadGlyph(Glyphs.OpenExternal);
+        row.Show(FolderStr.WidgetsB_Folder_MoreInExplorer.Plural(more));
+        row.NameText.Foreground = Family.Brush(ColourRole.TextSecondary);
         row.Tapped += (_, args) =>
         {
             args.Handled = true;
             _widgetHost.FileOps.Open(CurrentPath);
         };
-        _itemHovers.Add(Fluent.Hover(row));
+        _itemHovers.Add(new Unhook(row.Detach));
         return row;
     }
 
     // ---- tiles ----------------------------------------------------------------------------------
 
-    private ItemVisual BuildTile(FolderEntry entry, int index, GridPlan grid)
+    /// <summary>
+    /// [S-6713] A cell (Row.Cell): the file's icon (or the picture's thumbnail) at the grid's 32 or 48
+    /// over its name in Caption, one line (the whole name shows on selection, [S-6629]); Icons draws
+    /// no name. Its mark stands 4 around it.
+    /// </summary>
+    private ItemVisual BuildTile(FolderEntry entry, int index, CellGrid grid)
     {
-        var labelled = _config.Style == FolderStyle.Grid;
         var (iconBox, image, glyph) = IconBox(entry, grid.Icon);
-        iconBox.HorizontalAlignment = HorizontalAlignment.Center;
+        var cell = new RowCell(grid.Icon) { Width = grid.Width, Margin = new Thickness(FamilySpace.S1) };
+        cell.Show(iconBox, grid.Named ? FileNamesDisplay(entry) : string.Empty);
 
-        var name = Fluent.Text(FluentType.Caption);
-        name.Text = FileNamesDisplay(entry);
-        name.TextWrapping = TextWrapping.Wrap;
-        name.MaxLines = _config.Tiles == FolderTileSize.Large ? 3 : 2;
-        name.TextAlignment = TextAlignment.Center;
-        name.TextTrimming = TextTrimming.CharacterEllipsis;
-        name.HorizontalAlignment = HorizontalAlignment.Center;
-        name.Visibility = labelled ? Visibility.Visible : Visibility.Collapsed;
-
-        var nameCell = new Grid { Children = { name } };
-
-        var content = new StackPanel
-        {
-            Spacing = Fluent.Space1,
-            VerticalAlignment = labelled ? VerticalAlignment.Top : VerticalAlignment.Center,
-            Padding = new Thickness(Fluent.Space1, labelled ? Fluent.Space2 : 0, Fluent.Space1, 0),
-            Children = { iconBox, nameCell },
-        };
-
-        // [S-6627] The tile, icon and name, is the item's mark.
-        var chrome = SelectionChrome.Wrap(content);
+        // [S-6627] The cell, icon and name, is the item's mark.
+        var chrome = SelectionChrome.Wrap(new Grid());
 
         var visual = new ItemVisual
         {
@@ -767,55 +768,35 @@ internal sealed partial class FolderView
             Index = index,
             Root = new Border
             {
-                Child = chrome,
-                Margin = new Thickness(1),
-                CornerRadius = new CornerRadius(Fluent.ControlRadius),
+                Child = new Grid { Children = { chrome, cell } },
+                CornerRadius = Family.Radius,
                 Tag = index,
             },
             Chrome = chrome,
-            Content = content,
+            Content = cell,
             Image = image,
             Glyph = glyph,
             IconBox = iconBox,
-            Name = name,
-            NameCell = nameCell,
+            Name = cell.NameText,
+            NameCell = cell,
             Tile = true,
         };
 
         WidgetItems.Mark(visual.Root); // [S-814] a press here is the item's, not the background's
         ItemFill.Paint(visual.Root, ItemRole.Row); // [S-6513] the item layer at rest; the selection is laid over it
         Prime(visual);
-        ToolTipService.SetToolTip(visual.Root, labelled ? entry.FullPath : $"{entry.Name}\n{entry.FullPath}");
+        ToolTipService.SetToolTip(visual.Root, grid.Named ? Tip(entry) : $"{entry.Name}\n{Tip(entry)}");
         return visual;
     }
 
-    /// <summary>The icon slot: a glyph at once, the shell's icon (or a thumbnail) over it when it arrives, and the cloud badge.</summary>
-    private (Grid Box, Image Image, FontIcon Glyph) IconBox(FolderEntry entry, double size)
+    /// <summary>The icon slot: the kind's glyph at once (secondary, the lead's role), the shell's icon (or a thumbnail) over it when it arrives.</summary>
+    private static (Grid Box, Image Image, FontIcon Glyph) IconBox(FolderEntry entry, double size)
     {
-        var glyph = Fluent.Icon(
-            entry.IsDirectory ? Glyphs.Folder : Glyphs.File,
-            entry.IsDirectory ? "TextFillColorPrimaryBrush" : "TextFillColorSecondaryBrush",
-            size);
+        var glyph = Family.Glyph(entry.IsDirectory ? Glyphs.Folder : Glyphs.File, size, ColourRole.TextSecondary);
         glyph.HorizontalAlignment = HorizontalAlignment.Center;
 
         var image = new Image { Width = size, Height = size, Stretch = Stretch.Uniform };
         var box = new Grid { Width = size, Height = size, VerticalAlignment = VerticalAlignment.Center, Children = { glyph, image } };
-
-        var cloud = CloudBadges.State(entry.Attributes);
-
-        if (cloud != CloudState.None)
-        {
-            // [S-1324] Over the icon's bottom-right corner, as Explorer draws its status overlay.
-            var badge = Fluent.Icon(CloudGlyph(cloud),
-                cloud == CloudState.CloudOnly ? "AccentTextFillColorPrimaryBrush" : "SystemFillColorSuccessBrush",
-                Math.Max(8, Math.Round(size * 0.5)));
-            badge.HorizontalAlignment = HorizontalAlignment.Right;
-            badge.VerticalAlignment = VerticalAlignment.Bottom;
-            badge.Margin = new Thickness(0, 0, -2, -2);
-            ToolTipService.SetToolTip(badge, CloudBadges.Describe(cloud));
-            box.Children.Add(badge);
-        }
-
         return (box, image, glyph);
     }
 
@@ -907,11 +888,9 @@ internal sealed partial class FolderView
             return;
         }
 
-        var iconSize = plan.IconSize;
-        _columnHeader.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(iconSize) });
         _columnHeader.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
 
-        AddHeaderCell(Str.Folder_ColName.Text(), 1, FolderSort.Name, TextAlignment.Left);
+        AddHeaderCell(Str.Folder_ColName.Text(), 0, FolderSort.Name, TextAlignment.Left);
 
         for (var c = 0; c < plan.Columns.Count; c++)
         {
@@ -925,20 +904,20 @@ internal sealed partial class FolderView
                 _ => null,
             };
 
-            AddHeaderCell(FolderColumns.Title(column), c + 2, sort, FolderColumns.AlignsRight(column, last: c == plan.Columns.Count - 1) ? TextAlignment.Right : TextAlignment.Left);
+            AddHeaderCell(FolderColumns.Title(column), c + 1, sort, FolderColumns.AlignsRight(column, last: c == plan.Columns.Count - 1) ? TextAlignment.Right : TextAlignment.Left);
         }
     }
 
-    /// <summary>A column title; a sortable one sorts on click and turns the order round on a second ([S-1322]).</summary>
+    /// <summary>A column title (Caption, secondary); a sortable one sorts on click and turns the order round on a second ([S-1322]).</summary>
     private void AddHeaderCell(string title, int column, FolderSort? sort, TextAlignment alignment)
     {
-        var text = Fluent.Text(FluentType.Caption, "TextFillColorSecondaryBrush");
-        text.Text = sort is { } s && s == _config.Sort ? $"{title} {(_config.Descending ? "↓" : "↑")}" : title;
+        var text = Family.Text(FamilyType.Caption, ColourRole.TextSecondary,
+            sort is { } s && s == _config.Sort ? $"{title} {(_config.Descending ? "↓" : "↑")}" : title);
         text.TextAlignment = alignment;
-        text.TextTrimming = TextTrimming.CharacterEllipsis;
-        text.VerticalAlignment = VerticalAlignment.Center;
+        text.HorizontalAlignment = alignment == TextAlignment.Right ? HorizontalAlignment.Right : HorizontalAlignment.Left;
+        text.VerticalAlignment = VerticalAlignment.Top;
 
-        var cell = new Border { Child = text, Background = Fluent.Clear() };
+        var cell = new Border { Child = text, Background = Family.Brush(ColourRole.Clear) };
         SetColumn(cell, column);
 
         if (sort is { } key)
@@ -957,6 +936,10 @@ internal sealed partial class FolderView
         _columnHeader.Children.Add(cell);
     }
 
+    /// <summary>
+    /// [S-1323] The path, tail first as Explorer's address bar keeps it: the folders above in Body
+    /// secondary, the shown one primary, 16 chevrons (tertiary) between them, 4 apart.
+    /// </summary>
     private void UpdateCrumbs()
     {
         _crumbs.Children.Clear();
@@ -969,12 +952,13 @@ internal sealed partial class FolderView
         var crumbs = FolderHistory.Crumbs(CurrentPath);
 
         // The tail is what matters; leading crumbs give way first, as Explorer's address bar does.
-        var budget = _area.Width - (2 * Fluent.Space3);
+        var budget = _area.Width - (2 * FamilySpace.Inset);
         var shown = new List<(string Label, string Path)>();
+        var step = FamilyShape.Icon + (2 * FamilySpace.S1);
 
         for (var i = crumbs.Count - 1; i >= 0; i--)
         {
-            var cost = FluentType.EstimateWidth(FluentType.Caption, crumbs[i].Label.Length) + 20;
+            var cost = (HeroFit.Ems(crumbs[i].Label) * FamilyType.Body.FontSize) + step;
 
             if (cost > budget && shown.Count > 0)
             {
@@ -989,20 +973,16 @@ internal sealed partial class FolderView
         {
             if (i > 0)
             {
-                _crumbs.Children.Add(Fluent.Icon(Glyphs.ChevronRight, "TextFillColorTertiaryBrush", 10));
+                _crumbs.Children.Add(Family.Glyph(Glyphs.ChevronRight, FamilyShape.Icon, ColourRole.TextTertiary));
             }
 
             var (label, path) = shown[i];
             var last = i == shown.Count - 1;
-            var text = Fluent.Text(FluentType.Caption, last ? "TextFillColorPrimaryBrush" : "TextFillColorSecondaryBrush");
-            text.Text = label;
-            text.TextTrimming = TextTrimming.CharacterEllipsis;
-
             var crumb = new Border
             {
-                Child = text,
-                Padding = new Thickness(Fluent.Space1, 2, Fluent.Space1, 2),
-                CornerRadius = new CornerRadius(Fluent.ControlRadius),
+                Child = Family.Text(FamilyType.Body, last ? ColourRole.TextPrimary : ColourRole.TextSecondary, label),
+                CornerRadius = Family.Radius,
+                VerticalAlignment = VerticalAlignment.Center,
             };
 
             ItemFill.Paint(crumb, ItemRole.Row);
@@ -1030,38 +1010,36 @@ internal sealed partial class FolderView
         }
     }
 
-    /// <summary>[S-1329] Cut items dimmed while the cut is still on the clipboard.</summary>
+    /// <summary>[S-1329] Cut items faded as the desktop fades them, while the cut is still on the clipboard.</summary>
     private void RefreshDims()
     {
         var pending = _widgetHost.FileClipboard.CutStillPending();
 
         foreach (var visual in _visuals)
         {
-            visual.Content.Opacity = pending && _widgetHost.FileClipboard.IsCut(visual.Entry.FullPath) ? 0.45 : 1;
+            visual.Content.Opacity = pending && _widgetHost.FileClipboard.IsCut(visual.Entry.FullPath) ? SelectionLook.Faded : 1;
         }
     }
 
     // ---- the tile panel -------------------------------------------------------------------------
 
     /// <summary>
-    /// [S-1323] The grid views' layout: fixed cells in rows, as many columns as the plan says, each
-    /// cell stretched so a row fills the width (the original's <c>minmax(col, 1fr)</c>).
+    /// [S-6713] The grid views' layout: each cell's mark at its pitch (the marks 4 apart, so the cells
+    /// are 12 apart), as many columns as the plan says, the cells sharing the width out.
     /// </summary>
     private sealed partial class TilePanel : Panel
     {
-        private int _columns;
-        private double _cellWidth;
-        private double _cellHeight;
+        private CellGrid _grid;
 
-        public TilePanel(int columns, double cellWidth, double cellHeight) => Set(columns, cellWidth, cellHeight);
+        public TilePanel(CellGrid grid) => Set(grid);
 
-        public void Set(int columns, double cellWidth, double cellHeight)
+        public void Set(CellGrid grid)
         {
-            _columns = Math.Max(1, columns);
-            _cellWidth = Math.Max(1, cellWidth);
-            _cellHeight = Math.Max(1, cellHeight);
+            _grid = grid;
             InvalidateMeasure();
         }
+
+        private int Columns => Math.Max(1, _grid.Columns);
 
         protected override Size MeasureOverride(Size availableSize)
         {
@@ -1072,19 +1050,19 @@ internal sealed partial class FolderView
             {
                 if (child is FrameworkElement { Tag: int })
                 {
-                    child.Measure(new Size(_cellWidth, _cellHeight));
+                    child.Measure(new Size(_grid.MarkWidth, _grid.MarkHeight));
                     tiles++;
                 }
                 else
                 {
                     // The "+N more" row sits under the tiles at full width.
-                    child.Measure(new Size(_columns * _cellWidth, double.PositiveInfinity));
+                    child.Measure(new Size(Columns * _grid.PitchX, double.PositiveInfinity));
                     extra += child.DesiredSize.Height;
                 }
             }
 
-            var rows = (tiles + _columns - 1) / _columns;
-            return new Size(_columns * _cellWidth, (rows * _cellHeight) + extra);
+            var rows = (tiles + Columns - 1) / Columns;
+            return new Size((Columns * _grid.PitchX) - FamilySpace.S1, (rows * _grid.PitchY) + extra);
         }
 
         protected override Size ArrangeOverride(Size finalSize)
@@ -1096,15 +1074,15 @@ internal sealed partial class FolderView
             {
                 if (child is FrameworkElement { Tag: int })
                 {
-                    var row = i / _columns;
-                    var column = i % _columns;
-                    child.Arrange(new Rect(column * _cellWidth, row * _cellHeight, _cellWidth, _cellHeight));
+                    var row = i / Columns;
+                    var column = i % Columns;
+                    child.Arrange(new Rect(column * _grid.PitchX, row * _grid.PitchY, _grid.MarkWidth, _grid.MarkHeight));
                     rows = row + 1;
                     i++;
                 }
             }
 
-            var y = rows * _cellHeight;
+            var y = rows * _grid.PitchY;
 
             foreach (var child in Children)
             {

@@ -58,14 +58,11 @@
   "widgetsB.settings.folder.columns.label": "Detailkolommen",
   "widgetsB.settings.folder.dateModified": "Gewijzigd op",
   "widgetsB.settings.folder.doubleClick": "Dubbelklikken",
-  "widgetsB.settings.folder.extraSmall": "Extra klein",
   "widgetsB.settings.folder.inExplorer": "In Verkenner",
   "widgetsB.settings.folder.insideWidget": "In de widget",
   "widgetsB.settings.folder.openFolders.label": "Mappen openen",
   "widgetsB.settings.folder.openWith.label": "Items openen met",
   "widgetsB.settings.folder.reverse.label": "Omgekeerde volgorde",
-  "widgetsB.settings.folder.rowSize.label": "Rijgrootte",
   "widgetsB.settings.folder.singleClick": "Enkele klik",
-  "widgetsB.settings.folder.sortBy.label": "Sorteren op",
-  "widgetsB.settings.folder.tileSize.label": "Tegelgrootte"
+  "widgetsB.settings.folder.sortBy.label": "Sorteren op"
 }

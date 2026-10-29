@@ -43,13 +43,13 @@ public sealed class FilesStateFixtureTests
         Assert.Equal(8, configs.Count);
 
         var details = Assert.IsType<FolderConfig>(configs[0]);
-        Assert.Equal((@"D:\Projects\Themia", FolderStyle.Details, FolderNavigation.Navigate, ItemClickMode.Single, FolderSort.Modified, true, true, FolderItemSize.Small, true),
-            (details.Path, details.Style, details.Navigation, details.ClickMode, details.Sort, details.Descending, details.ShowHidden, details.ItemSize, details.ShowExtensions));
+        Assert.Equal((@"D:\Projects\Themia", FolderStyle.Details, FolderNavigation.Navigate, ItemClickMode.Single, FolderSort.Modified, true, true, true),
+            (details.Path, details.Style, details.Navigation, details.ClickMode, details.Sort, details.Descending, details.ShowHidden, details.ShowExtensions));
         Assert.Equal([FolderColumn.Modified, FolderColumn.Git, FolderColumn.Size, FolderColumn.ItemCount], details.Columns);
         var grid = Assert.IsType<FolderConfig>(configs[1]);
-        Assert.Equal((@"%USERPROFILE%\Pictures", FolderStyle.Grid, FolderTileSize.Large, FolderSort.Size), (grid.Path, grid.Style, grid.TileSize, grid.Sort));
+        Assert.Equal((@"%USERPROFILE%\Pictures", FolderStyle.Grid, FolderSort.Size), (grid.Path, grid.Style, grid.Sort));
         var icons = Assert.IsType<FolderConfig>(configs[2]);
-        Assert.Equal((FolderStyle.Icons, FolderTileSize.Small), (icons.Style, icons.TileSize));
+        Assert.Equal(FolderStyle.Icons, icons.Style);
         Assert.Empty(icons.Columns);
 
         Assert.IsType<RecentFilesConfig>(configs[3]);

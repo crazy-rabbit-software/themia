@@ -60,7 +60,7 @@ public sealed class FolderKindsTests
     [Fact]
     public void S4121_the_folder_stores_the_shared_settings_and_the_union_of_its_styles()
     {
-        string[] expected = ["kind", "style", "path", "navigation", "clickMode", "sort", "descending", "showHidden", "itemSize", "showExtensions", "columns", "tileSize"];
+        string[] expected = ["kind", "style", "path", "navigation", "clickMode", "sort", "descending", "showHidden", "showExtensions", "columns"];
         Assert.Equal(expected.Order(StringComparer.Ordinal), Properties(new FolderConfig()).Order(StringComparer.Ordinal));
     }
 
@@ -72,14 +72,16 @@ public sealed class FolderKindsTests
         Assert.DoesNotContain("foldersFirst", names);
         Assert.DoesNotContain("stretchTiles", names);
         Assert.DoesNotContain("view", names);
+        Assert.DoesNotContain("itemSize", names);
+        Assert.DoesNotContain("tileSize", names);
     }
 
     public static TheoryData<FolderStyle, FolderSetting[]> StyleSettings() => new()
     {
-        { FolderStyle.List, [FolderSetting.RowSize, FolderSetting.Extensions, FolderSetting.Sort] },
-        { FolderStyle.Details, [FolderSetting.RowSize, FolderSetting.Columns, FolderSetting.Extensions] },
-        { FolderStyle.Grid, [FolderSetting.TileSize, FolderSetting.Extensions, FolderSetting.Sort] },
-        { FolderStyle.Icons, [FolderSetting.TileSize, FolderSetting.Sort] },
+        { FolderStyle.List, [FolderSetting.Extensions, FolderSetting.Sort] },
+        { FolderStyle.Details, [FolderSetting.Columns, FolderSetting.Extensions] },
+        { FolderStyle.Grid, [FolderSetting.Extensions, FolderSetting.Sort] },
+        { FolderStyle.Icons, [FolderSetting.Sort] },
     };
 
     [Theory]
@@ -99,10 +101,8 @@ public sealed class FolderKindsTests
             Sort = FolderSort.Modified,
             Descending = true,
             ShowHidden = true,
-            ItemSize = FolderItemSize.Large,
             ShowExtensions = true,
             Columns = [FolderColumn.Git],
-            TileSize = FolderTileSize.Large,
         };
 
         var copy = Assert.IsType<FolderConfig>(details.Clone());
@@ -113,10 +113,8 @@ public sealed class FolderKindsTests
         Assert.Equal(FolderSort.Modified, copy.Sort);
         Assert.True(copy.Descending);
         Assert.True(copy.ShowHidden);
-        Assert.Equal(FolderItemSize.Large, copy.ItemSize);
         Assert.True(copy.Extensions);
         Assert.Equal([FolderColumn.Git], copy.DetailColumns);
-        Assert.Equal(FolderTileSize.Large, copy.TileSize);
 
         copy.Columns.Add(FolderColumn.Size);
         Assert.Equal([FolderColumn.Git], details.Columns);
@@ -125,20 +123,15 @@ public sealed class FolderKindsTests
     [Fact]
     public void S4121_what_a_style_does_not_draw_reads_as_its_neutral_value()
     {
-        // The icons draw no names, so a rename there edits the stem; the tile styles have no rows,
-        // the row styles no tiles, and only the details table has columns.
-        var config = new FolderConfig { ShowExtensions = true, ItemSize = FolderItemSize.Large, TileSize = FolderTileSize.Large };
+        // The icons draw no names, so a rename there edits the stem; only the details table has columns.
+        var config = new FolderConfig { ShowExtensions = true };
 
         config.Style = FolderStyle.Icons;
         Assert.False(config.Extensions);
-        Assert.Equal(FolderItemSize.Medium, config.Rows);
-        Assert.Equal(FolderTileSize.Large, config.Tiles);
         Assert.Empty(config.DetailColumns);
 
         config.Style = FolderStyle.List;
         Assert.True(config.Extensions);
-        Assert.Equal(FolderItemSize.Large, config.Rows);
-        Assert.Equal(FolderTileSize.Small, config.Tiles);
         Assert.Empty(config.DetailColumns);
 
         config.Style = FolderStyle.Details;
@@ -165,14 +158,15 @@ public sealed class FolderKindsTests
     }
 
     [Fact]
-    public void S4121_icons_tiles_pack_to_the_icon_and_grid_tiles_keep_their_label_room()
+    public void S4121_icons_cells_are_the_icon_alone_and_grid_cells_keep_their_name()
     {
         var area = new WidgetArea(320, 240);
-        var icons = FolderLayout.Plan(area, new FolderConfig { Style = FolderStyle.Icons, TileSize = FolderTileSize.Small }, 20, true, false, false, false).Grid!.Value;
-        var grid = FolderLayout.Plan(area, new FolderConfig { Style = FolderStyle.Grid, TileSize = FolderTileSize.Small }, 20, true, false, false, false).Grid!.Value;
+        var icons = FolderLayout.Plan(area, new FolderConfig { Style = FolderStyle.Icons }, 20, true, false, false, false).Grid!.Value;
+        var grid = FolderLayout.Plan(area, new FolderConfig { Style = FolderStyle.Grid }, 20, true, false, false, false).Grid!.Value;
 
-        Assert.Equal(icons.Icon + 24, icons.CellHeight);
-        Assert.Equal(FolderLayout.Tile(FolderTileSize.Small).Row, grid.CellHeight);
+        Assert.False(icons.Named);
+        Assert.Equal(icons.Icon, icons.Height);
+        Assert.True(grid.Named);
         Assert.True(icons.Columns > grid.Columns);
     }
 }
