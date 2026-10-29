@@ -2895,7 +2895,7 @@ is `TextDisabled` (`UnavailableLook`).
 | Chart | `ChartSeries`, `ChartBar` (`vertical`: a column), `ChartRing` (`half`: a gauge) | `Show(values, second)` or `Show(points, second)` / `Show(to, from)` / `Show(fraction)`, `Role(role)` | `ChartRules.Role(reading, caution, critical)`, `Line`, `Y`, `Bar`, `Sweep`, `GaugeSweep`, `GaugeHeight` |
 | Status | `StatusBlock` | `Show(kind, glyph, sentence, action, run)`, `Hide` | `StatusRules.Look(kind)`, `ShowsSentence(width, actionWidth)` |
 | Tile | `TileBlock(look, ringed)` | `Show(glyph, label, state, tone)` (`TileState`: off, on, unknown, unavailable, critical), `Size(width, height, label, state)`, `Face(itemState)`, `Look`, `Ring` (`Drain(remaining, left)`, `Stop`) | `TileRules.GlyphStep`, `RoundGlyph`, `RingGlyph`, `Switch`, `Roles(look, tone)` |
-| Controls | `ControlsBlock` | `Main(label, run)`, `Button(label, run)`, `Icon(glyph, tooltip, run)`, `Slider(min, max, value, changed)`; `ControlsBlock.TextButton`/`IconButton` alone | `ControlsRules.Check` (one main action), `Shown` |
+| Controls | `ControlsBlock` | `Main(label, run)` or `MainIcon(glyph, tooltip, run)` (a transport's Play), `Button(label, run)`, `Icon(glyph, tooltip, run)`, `Slider(min, max, value, changed)`, `Switch(on, name, changed)` (and `Set` to show a state read back); `Relabel`/`Reglyph` (Start → Pause); `ControlsBlock.TextButton`/`IconButton` alone | `ControlsRules.Check` (one main action), `Shown` (the main action and the switch stay) |
 
 Layout around them is the family's too: the header in the card's header inset; content from 44 (16
 without a header); rows, the status and a band full width (they carry their own inset); everything

@@ -3,7 +3,7 @@ namespace Themia.Sdk.Kit;
 /// <summary>[S-6716] What a control in a Controls row is.</summary>
 public enum ControlKind
 {
-    /// <summary>The one main action (Start, Play, Join, Empty): a text button in the accent.</summary>
+    /// <summary>The one main action (Start, Play, Join, Empty): a text button, or a 32 icon button (Play), in the accent.</summary>
     Main,
 
     /// <summary>A standard text button.</summary>
@@ -14,6 +14,9 @@ public enum ControlKind
 
     /// <summary>A slider: the rail is the track (4, in Track), the value in the accent; it takes the room left.</summary>
     Slider,
+
+    /// <summary>An on/off switch (Windows' toggle switch, 40 wide): the widget's own state (an alarm that is set). It stays, as the main action does.</summary>
+    Switch,
 }
 
 /// <summary>[S-6716] One control and the width it needs (a slider's is its least).</summary>
@@ -22,9 +25,10 @@ public readonly record struct ControlPart(ControlKind Kind, double Width);
 /// <summary>
 /// [S-6716] The Controls block: what a person does to a widget, not what it shows. One row of
 /// buttons (32 tall, 8 apart) at the card's bottom inset, never mid-content: at most one main action
-/// in the accent, the rest standard buttons and 32 icon buttons, and an optional slider that takes
-/// the room left. On a narrow card the icon buttons give way from the last, then the standard
-/// buttons, then the slider; the main action stays.
+/// in the accent (a text button, or a 32 icon button such as Play), the rest standard buttons and 32
+/// icon buttons, an optional slider that takes the room left and an optional on/off switch. On a
+/// narrow card the icon buttons give way from the last, then the standard buttons, then the slider;
+/// the main action and the switch stay.
 /// </summary>
 public static class ControlsRules
 {
@@ -33,6 +37,9 @@ public static class ControlsRules
 
     /// <summary>A slider's least width: less than this and it gives way.</summary>
     public const double MinSlider = 80;
+
+    /// <summary>A switch's width: Windows' toggle switch track (the Tile's switch look draws the same).</summary>
+    public const double SwitchWidth = TileRules.SwitchWidth;
 
     /// <summary>Throws unless <paramref name="parts"/> has at most one main action: a row of two accent buttons says nothing is the main one.</summary>
     public static void Check(IReadOnlyList<ControlPart> parts)

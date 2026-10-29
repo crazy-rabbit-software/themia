@@ -9,10 +9,12 @@ namespace Themia.Sdk.WinUI.Kit;
 
 /// <summary>
 /// [S-6716] The Controls block: one row of controls at the card's bottom inset, 8 apart — at most one
-/// main action in the accent (<see cref="Main"/>), standard buttons (<see cref="Button"/>), 32 icon
-/// buttons (<see cref="Icon"/>) and a slider (<see cref="Slider"/>, its rail the Track role, its
-/// value the accent) that takes the room left. On a narrow card the icon buttons give way from the
-/// last, then the standard buttons, then the slider (<see cref="ControlsRules"/>); the main action stays.
+/// main action in the accent (<see cref="Main"/>, or <see cref="MainIcon"/> for a transport's Play),
+/// standard buttons (<see cref="Button"/>), 32 icon buttons (<see cref="Icon"/>), a slider
+/// (<see cref="Slider"/>, its rail the Track role, its value the accent) that takes the room left and
+/// an on/off switch (<see cref="Switch"/>). On a narrow card the icon buttons give way from the last,
+/// then the standard buttons, then the slider (<see cref="ControlsRules"/>); the main action and the
+/// switch stay.
 /// No control takes focus: the surface does not activate outside edit mode ([S-800]).
 /// </summary>
 public sealed partial class ControlsBlock : Grid
@@ -38,6 +40,90 @@ public sealed partial class ControlsBlock : Grid
 
     /// <summary>The one main action: a text button in the accent.</summary>
     public Button Main(string label, Action run) => Add(ControlKind.Main, TextButton(label, main: true, run));
+
+    /// <summary>The one main action as a 32 × 32 icon button in the accent (a transport's Play), its tooltip its name.</summary>
+    public Button MainIcon(string glyph, string tooltip, Action run) => Add(ControlKind.Main, IconButton(glyph, tooltip, run, main: true));
+
+    /// <summary>
+    /// An on/off switch (Windows' toggle switch, 40 wide, no words of its own: its name is its
+    /// tooltip). <paramref name="changed"/> runs on the person's toggle only, never on <see cref="Set"/>.
+    /// </summary>
+    public ToggleSwitch Switch(bool on, string name, Action<bool> changed)
+    {
+        ArgumentNullException.ThrowIfNull(changed);
+        var toggle = new ToggleSwitch
+        {
+            IsOn = on,
+            OnContent = string.Empty,
+            OffContent = string.Empty,
+            MinWidth = 0,
+            Width = ControlsRules.SwitchWidth,
+
+            // The template's own row is taller than the Controls row: the row stays 32 (its track is 20).
+            MinHeight = 0,
+            Height = FamilyShape.Button,
+            VerticalAlignment = VerticalAlignment.Center,
+            AllowFocusOnInteraction = false,
+            IsTabStop = false,
+        };
+
+        ToolTipService.SetToolTip(toggle, name);
+        AutomationProperties.SetName(toggle, name);
+        toggle.Toggled += (_, _) =>
+        {
+            if (!_setting.Contains(toggle))
+            {
+                changed(toggle.IsOn);
+            }
+        };
+
+        return Add(ControlKind.Switch, toggle);
+    }
+
+    private readonly HashSet<ToggleSwitch> _setting = [];
+
+    /// <summary>Show <paramref name="on"/> on a switch of this row without running its handler (a state read back, not a person's toggle).</summary>
+    public void Set(ToggleSwitch toggle, bool on)
+    {
+        ArgumentNullException.ThrowIfNull(toggle);
+        if (toggle.IsOn == on)
+        {
+            return;
+        }
+
+        _setting.Add(toggle);
+        try
+        {
+            toggle.IsOn = on;
+        }
+        finally
+        {
+            _setting.Remove(toggle);
+        }
+    }
+
+    /// <summary>A text button's new label (Start → Pause), its automation name with it.</summary>
+    public static void Relabel(Button button, string label)
+    {
+        ArgumentNullException.ThrowIfNull(button);
+        if (button.Content is TextBlock text && text.Text != label)
+        {
+            text.Text = label;
+            AutomationProperties.SetName(button, label);
+        }
+    }
+
+    /// <summary>An icon button's new glyph and name (Play → Pause).</summary>
+    public static void Reglyph(Button button, string glyph, string tooltip)
+    {
+        ArgumentNullException.ThrowIfNull(button);
+        if (button.Content is FontIcon icon && icon.Glyph != glyph)
+        {
+            icon.Glyph = glyph;
+            ToolTipService.SetToolTip(button, tooltip);
+            AutomationProperties.SetName(button, tooltip);
+        }
+    }
 
     /// <summary>A standard text button.</summary>
     public Button Button(string label, Action run) => Add(ControlKind.Button, TextButton(label, main: false, run));
@@ -106,6 +192,11 @@ public sealed partial class ControlsBlock : Grid
             return ControlsRules.MinSlider;
         }
 
+        if (part.Kind == ControlKind.Switch)
+        {
+            return ControlsRules.SwitchWidth;
+        }
+
         if (part.Element.Visibility == Visibility.Visible)
         {
             part.Element.Measure(new Windows.Foundation.Size(double.PositiveInfinity, double.PositiveInfinity));
@@ -150,13 +241,17 @@ public sealed partial class ControlsBlock : Grid
         return button;
     }
 
-    /// <summary>[S-6716] An icon button: 32 × 32, a 16 glyph, the one radius, its tooltip its name. Takes no focus.</summary>
-    public static Button IconButton(string glyph, string tooltip, Action run)
+    /// <summary>
+    /// [S-6716] An icon button: 32 × 32, a 16 glyph, the one radius, its tooltip its name; the
+    /// <paramref name="main"/> action's in the accent with the glyph on it. Takes no focus.
+    /// </summary>
+    public static Button IconButton(string glyph, string tooltip, Action run, bool main = false)
     {
         ArgumentNullException.ThrowIfNull(run);
         var button = new Button
         {
-            Content = Family.Glyph(glyph, FamilyShape.Icon, ColourRole.TextPrimary),
+            // The main action's glyph names no brush: it takes the accent style's on-accent foreground.
+            Content = main ? UiLanguage.Mirrored(new FontIcon { Glyph = glyph, FontSize = FamilyShape.Icon, Width = FamilyShape.Icon, Height = FamilyShape.Icon, VerticalAlignment = VerticalAlignment.Center }) : Family.Glyph(glyph, FamilyShape.Icon, ColourRole.TextPrimary),
             Width = FamilyShape.IconButton,
             Height = FamilyShape.IconButton,
             Padding = new Thickness(0),
@@ -164,6 +259,15 @@ public sealed partial class ControlsBlock : Grid
             VerticalAlignment = VerticalAlignment.Center,
             AllowFocusOnInteraction = false,
         };
+
+        if (main)
+        {
+            FluentLayout.ApplyStyle(button, "AccentButtonStyle");
+            button.Width = FamilyShape.IconButton;
+            button.Height = FamilyShape.IconButton;
+            button.Padding = new Thickness(0);
+            button.CornerRadius = Family.Radius;
+        }
 
         ToolTipService.SetToolTip(button, tooltip);
         AutomationProperties.SetName(button, tooltip);

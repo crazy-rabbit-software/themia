@@ -979,10 +979,12 @@ module author's guide is docs/WIDGET-KIT.md 16.
   the Hero steps (`ReadoutRules.OneReadout`, `ReadoutRules.Steps`), and the render walk ([S-6731])
   reads the same trait, so no list of kinds is kept anywhere else.
 - **[S-6716]** **Controls** (`ControlsBlock`): what a person does to a widget, one row of 32 controls
-  8 apart at the card's bottom inset: at most one main action in the accent, standard buttons, icon
-  buttons and a slider (its rail Track, its value the accent) taking the room left. On a narrow card
-  the icon buttons give way from the last, then the buttons, then the slider; the main action stays
-  (`ControlsRules`). No control takes focus ([S-800]).
+  8 apart at the card's bottom inset: at most one main action in the accent (a text button, or a 32
+  icon button for a transport's Play: `MainIcon`), standard buttons, icon buttons, a slider (its rail
+  Track, its value the accent) taking the room left and an on/off switch (Windows' toggle switch, 40
+  wide, its name its tooltip: an alarm that is set; `Switch`, set back without running its handler by
+  `Set`). On a narrow card the icon buttons give way from the last, then the buttons, then the slider;
+  the main action and the switch stay (`ControlsRules`). No control takes focus ([S-800]).
 - **[S-6717]** **Chart**: one series in the accent at 2 with a 16 % wash, a second in tertiary,
   Caution or Critical only while the reading is over its threshold (`ChartRules.Role`); a meter's bar
   is a 4 round track with its fill (`ChartBar`; a column is the same track standing up, filled from
@@ -1049,7 +1051,7 @@ module author's guide is docs/WIDGET-KIT.md 16.
   values stripped, `FamilyCheck.Rule`) to `scripts/family-check.allow.txt`, shrink-only as the guard.
   It needs the Debug app, so it is a definition-of-done step, not a test. Baseline 2026-10-29: 298 lines over all 78 kinds (about 47 700 elements in the two themes); two runs gave the same lines.
 - **[S-6732]** `Themia.exe --family-blocks-png <outDir> [--theme] [--only]` draws each block in every
-  variant (29 since G1) at the seven tiers with its visual tree beside it (`TreeDump`; `--widget-png … --tree`
+  variant (32 since G5) at the seven tiers with its visual tree beside it (`TreeDump`; `--widget-png … --tree`
   writes the same for a widget). The family's mockups draw the same variants over the same data, and
   their texts and glyphs are paired with the render's and held to ±1 DIP in position and size with the
   same colour role (DECISIONS 11).

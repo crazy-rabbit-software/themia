@@ -80,6 +80,8 @@ internal static class FamilyBlockSamples
         ("tile-armed", (w, h) => ArmedCard(w, h)),
         ("controls", ControlsCard),
         ("controls-slider", SliderCard),
+        ("controls-transport", TransportCard),
+        ("controls-switch", SwitchCard),
     ];
 
     private enum HeaderKind
@@ -381,6 +383,34 @@ internal static class FamilyBlockSamples
         readout.Size(Area(w, h), w - (2 * FamilySpace.Inset), ContentHeight(h) - FamilyShape.Button - FamilySpace.S2, new ReadoutText("100", "%"));
         var content = new Grid { Children = { readout, controls } };
         return Card(w, h, Header(0xE767, "Volume"), content);
+    }
+
+    /// <summary>[S-6716] A transport: Previous, Play as the one main action (an accent icon button), Next.</summary>
+    private static FrameworkElement TransportCard(double w, double h)
+    {
+        var controls = new ControlsBlock { VerticalAlignment = VerticalAlignment.Bottom };
+        controls.Icon(G(0xE892), "Previous", () => { });
+        controls.MainIcon(G(0xE768), "Play", () => { });
+        controls.Icon(G(0xE893), "Next", () => { });
+
+        var title = Family.Text(FamilyType.Title, ColourRole.TextPrimary, "Northern Lights");
+        title.VerticalAlignment = VerticalAlignment.Top;
+        var content = new Grid { Children = { title, controls } };
+        return Card(w, h, Header(0xE8D6, "Now playing"), content);
+    }
+
+    /// <summary>[S-6716] A switch: an alarm's on/off, beside a standard button.</summary>
+    private static FrameworkElement SwitchCard(double w, double h)
+    {
+        var controls = new ControlsBlock { VerticalAlignment = VerticalAlignment.Bottom };
+        controls.Switch(on: true, "Alarm on", _ => { });
+        controls.Button("Skip next", () => { });
+
+        var readout = new ReadoutBlock { VerticalAlignment = VerticalAlignment.Top };
+        readout.Show("6:45", " AM", "Weekdays");
+        readout.Size(Area(w, h), w - (2 * FamilySpace.Inset), ContentHeight(h) - FamilyShape.Button - FamilySpace.S2, new ReadoutText("6:45", " AM", LineUnder: true));
+        var content = new Grid { Children = { readout, controls } };
+        return Card(w, h, Header(0xE916, "Alarm"), content);
     }
 }
 #endif
