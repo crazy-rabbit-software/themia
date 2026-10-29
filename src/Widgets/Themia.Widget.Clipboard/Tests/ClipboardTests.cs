@@ -6,7 +6,7 @@ using Xunit;
 
 namespace Themia.Widget.Clipboard.Tests;
 
-/// <summary>[S-1440] [S-1441] [S-1442] [S-1443] The clipboard's capacity, its previews, how a row is marked and its ladder. Moved with the widget from Core's TrackersLayoutTests, unchanged in what they assert.</summary>
+/// <summary>[S-1440] [S-1441] [S-1442] [S-1443] The clipboard's capacity, its previews, how a row is marked and its ladder. Moved with the widget from Core's TrackersLayoutTests; the ladder is on the family's rows.</summary>
 public sealed class ClipboardTests
 {
     // The size tiers' slots (card less a 44px header).
@@ -30,29 +30,8 @@ public sealed class ClipboardTests
     }
 
     [Fact]
-    public void S1441_one_line_preview_is_the_collapsed_preview()
-    {
-        const string text = "line one\n  line   two\n";
-        Assert.Equal(ClipboardFormatting.Preview(text, 120), ClipboardLayout.PreviewLines(text, 1, 120));
-    }
-
-    [Fact]
-    public void S1441_multi_line_preview_keeps_breaks_drops_blank_lines_and_marks_more()
-    {
-        const string text = "Street 1\r\n\r\n  8000   Zurich \nSwitzerland\nEurope";
-
-        Assert.Equal("Street 1\n8000 Zurich", ClipboardLayout.PreviewLines(text, 2, 120).Split(" …")[0]);
-        Assert.EndsWith(" …", ClipboardLayout.PreviewLines(text, 2, 120));
-        Assert.Equal("Street 1\n8000 Zurich\nSwitzerland …", ClipboardLayout.PreviewLines(text, 3, 120));
-        Assert.Equal("Street 1\n8000 Zurich\nSwitzerland\nEurope", ClipboardLayout.PreviewLines(text, 4, 120));
-    }
-
-    [Theory]
-    [InlineData(null, 3)]
-    [InlineData("", 3)]
-    [InlineData("abc", 0)]
-    public void S1441_nothing_to_preview_is_empty(string? text, int lines)
-        => Assert.Equal(string.Empty, ClipboardLayout.PreviewLines(text, lines, 120));
+    public void S1441_a_rows_preview_is_the_entry_on_one_line()
+        => Assert.Equal("line one line two", ClipboardFormatting.Preview("line one\n  line   two\n", 120));
 
     [Theory]
     [InlineData("https://example.com/a?b=1", ClipboardContent.Link)]
@@ -81,17 +60,19 @@ public sealed class ClipboardTests
     [Fact]
     public void S1443_clipboard_ladder_by_tier()
     {
-        // L and XL give the rows a third line; no count footer under them (concise: the entries only).
-        Assert.Equal(new ClipboardPlan(1, false, false, true), ClipboardLayout.Plan(XS));
-        Assert.Equal(new ClipboardPlan(1, false, false, true), ClipboardLayout.Plan(S));
-        Assert.Equal(new ClipboardPlan(1, false, true, false), ClipboardLayout.Plan(M));
-        Assert.Equal(new ClipboardPlan(2, false, true, false), ClipboardLayout.Plan(Wide));
-        Assert.Equal(new ClipboardPlan(2, true, false, false), ClipboardLayout.Plan(Tall));
-        Assert.Equal(new ClipboardPlan(3, true, false, false), ClipboardLayout.Plan(L));
-        Assert.Equal(new ClipboardPlan(3, true, false, false), ClipboardLayout.Plan(XL));
+        // [S-6712] The preview, and how much it is under it from a regular tile; the marker and the
+        // time from 180 wide; never more lines (concise: the entries only).
+        Assert.Equal(new ClipboardPlan(1, Lead: false, Time: false), ClipboardLayout.Plan(XS));
+        Assert.Equal(new ClipboardPlan(1, Lead: true, Time: true), ClipboardLayout.Plan(S));
+        Assert.Equal(new ClipboardPlan(2, Lead: true, Time: true), ClipboardLayout.Plan(M));
+        Assert.Equal(new ClipboardPlan(1, Lead: true, Time: true), ClipboardLayout.Plan(Wide));
+        Assert.Equal(new ClipboardPlan(2, Lead: true, Time: true), ClipboardLayout.Plan(Tall));
+        Assert.Equal(new ClipboardPlan(2, Lead: true, Time: true), ClipboardLayout.Plan(L));
+        Assert.Equal(new ClipboardPlan(2, Lead: true, Time: true), ClipboardLayout.Plan(XL));
+        Assert.Equal(3, ClipboardLayout.Rows(M, ClipboardLayout.Plan(M)));
     }
 
     [Fact]
     public void S1443_unmeasured_area_is_one_plain_line()
-        => Assert.Equal(1, ClipboardLayout.Plan(default).PreviewLines);
+        => Assert.Equal(1, ClipboardLayout.Plan(default).Lines);
 }

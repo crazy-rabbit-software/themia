@@ -11,21 +11,25 @@ Owning files: everything in this folder: `ClipboardModule.cs` (descriptor, glyph
 menu lines, JSON context), `ClipboardConfig.cs` (capacity and timestamps), `ClipboardView.cs` (the
 rows through its host, the menu, the keys, the copy back through `IWidgetHost.CopyText`),
 `ClipboardLayout.cs` (the ladder, the previews, how a row is marked), `ClipboardMenu.cs` (its
-properties-menu lines), `Preview/` (Debug renders: `--state confirm`), `Localization/Locales/` (its own
+properties-menu lines), `Preview/` (Debug renders: `--state sample|confirm`), `Localization/Locales/` (its own
 `ClipboardStr`, 30 languages). Tests: `Tests/ClipboardTests.cs`, `Tests/ClipboardMenuTests.cs` (run by `tests/Themia.Modules.Tests`);
 the host's history under its config is the module host's `ClipboardHostTests`.
 
 - **[S-1440]** Clipboard keeps 1–200 entries, default 50 (original `maxItems`), in steps of 1.
-- **[S-1441]** A row's preview is up to the plan's lines: the entry's own line breaks kept, blank
-  lines dropped, whitespace collapsed inside a line, " …" when more lines follow; wrapped and
-  trimmed by the row. One line is exactly the old single-line preview.
-- **[S-1442]** Each row is marked by what it looks like (`ClipboardLayout.Classify`): link (http/https/
-  ftp), address, number (leading digit/sign), colour (`#hex`, `rgb()`, `hsl()` → a swatch of it),
-  several lines, else text; the current entry keeps the accent tick. Display only, never opened.
-- **[S-1443]** Clipboard ladder (`ClipboardLayout.Plan`): XS/S one line, compact rows → M + time
-  column → Wide 2-line previews + time → Tall 2 lines + detail line ("4m · 32 characters")
-  → L/XL 3 lines + detail; no count footer (concise: the entries only). A preview card never
-  subscribes to the real clipboard.
+- **[S-1441]** A row's preview is the entry on one line (`ClipboardFormatting.Preview`: whitespace and line
+  breaks collapsed, ending in an ellipsis), trimmed by the row; how much it is ("32 characters", "3
+  lines") is its second line ([S-1443]).
+- **[S-1442]** Each row is marked by what it looks like (`ClipboardLayout.Classify`), a 16 lead in the
+  secondary role: link (http/https/ftp), address, number (leading digit/sign), colour (`#hex`, `rgb()`,
+  `hsl()` → a 16 dot of it, a data colour, [S-6705]), several lines, else text; the entry on the clipboard
+  now keeps the tick and its preview in BodyStrong (no accent: [S-6706]). Display only, never opened.
+- **[S-1443]** Clipboard ladder (`ClipboardLayout.Plan`) on the family's rows ([S-6711], [S-6712]): one
+  row per entry, the preview the name, when it was copied the value (when shown), how much it is on the
+  second line from a regular tile (M, Tall, L, XL); the marker and the time from a column of 180; as
+  many whole rows as fit, the rest a scroll away under the fade; no count footer (concise: the entries
+  only). The header's clear is a header button ([S-6710]), there only while there is something to clear.
+  An empty or unwatched history is the state row's sentence at the top. A preview card never subscribes
+  to the real clipboard; its `sample` state is a fixed history.
 - **[S-1444]** Clipboard row menu (shared `ItemMenu`): Copy, Remove from history, Clear history…
   (confirmed through `FluentLayout.ConfirmAsync`, like the header bin). `HandleKey`: Up/Down/Home/End
   cursor, Enter copies, Escape drops it — through the shell's keyboard lease ([S-800]..[S-812]),

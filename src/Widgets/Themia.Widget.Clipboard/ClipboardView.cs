@@ -1,8 +1,6 @@
-using Microsoft.UI;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Input;
-using Microsoft.UI.Xaml.Media;
 using Themia.App.Services;
 using Themia.App.Shell;
 using Themia.Core.Diagnostics;
@@ -10,7 +8,9 @@ using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
 using Themia.Core.Shell;
+using Themia.Sdk.Kit;
 using Themia.Sdk.WinUI;
+using Themia.Sdk.WinUI.Kit;
 using Themia.Widget.Clipboard;
 
 namespace Themia.App.Widgets;
@@ -34,35 +34,32 @@ namespace Themia.App.Widgets;
 /// clipboard is read exactly when Windows says it changed and at no other time.
 /// </para>
 /// <para>
-/// [S-1443] The tile uses its room through <see cref="ClipboardLayout.Plan"/>: one line per row on
-/// a small tile, wrapped two- and three-line previews as it grows, a detail line (when · how much)
-/// on tall tiles and a time column where the width allows; nothing but the entries.
+/// [S-1443] Each entry is one of the family's rows ([S-6711], <see cref="ClipboardLayout.Plan"/>): its
+/// preview on one line, how much it is under it on a regular tile, its marker and when it was
+/// copied from 180 wide; the clear is the header's button; nothing but the entries.
 /// </para>
 /// </summary>
 internal sealed partial class ClipboardView : Grid, IWidgetView, IWidgetHeaderContent, IWidgetSizeAware, IWidgetSurfaceAware, IWidgetKeys
 {
     private const string Scope = "clipboard-widget";
 
-    /// <summary>How many characters of each line a row shows before the ellipsis.</summary>
-    private const int PreviewLength = 120;
-
-    /// <summary>What the "when" column reserves, so the times line up down the list.</summary>
-    private const double TimestampWidth = 40;
-
-    private readonly Button _clear;
-    private readonly StackPanel _list = new() { Spacing = 0 };
+    /// <summary>[S-1444] The header's clear: a header button ([S-6710]), there only while there is something to clear.</summary>
+    private readonly HeaderParts _trailing = new();
+    private readonly Border _clear;
+    private readonly StackPanel _list = new();
     private readonly ScrollViewer _scroll;
-    private readonly StackPanel _empty;
-    private readonly TextBlock _emptyText = new();
+    private readonly ScrollFade _fade;
+    private readonly KitStatePanel _state;
 
     /// <summary>One per row, so the hover and menu handlers come off with the rows they serve.</summary>
     private readonly List<IDisposable> _rowHandles = [];
 
-    private readonly List<Border> _rows = [];
-
+    /// <summary>The rows in order, for the keyboard cursor ([S-1444]).</summary>
+    private readonly List<RowBlock> _rows = [];
 
     private ClipboardConfig _config = new();
     private ClipboardPlan _plan = ClipboardLayout.Plan(default);
+    private WidgetArea _area;
     private readonly IWidgetHost _host;
     private IClipboardHistory? _source;
     private IDisposable? _subscription;
@@ -71,45 +68,31 @@ internal sealed partial class ClipboardView : Grid, IWidgetView, IWidgetHeaderCo
     private int? _cursor;
     private bool _detached;
 
+    /// <summary>A Debug render's fixed entries in place of the history ([S-1917]); never the user's clipboard.</summary>
+    private IReadOnlyList<ClipboardEntry>? _sample;
+
     public ClipboardView(IWidgetHost host)
     {
         _host = host;
-        RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
-        RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
-
-        _clear = new Button
-        {
-            Content = Fluent.Icon(Glyphs.Delete, "TextFillColorSecondaryBrush", 14),
-            Padding = new Thickness(Fluent.Space2, Fluent.Space1, Fluent.Space2, Fluent.Space1),
-            MinWidth = 0,
-        };
-
-        _clear.Click += OnClearClicked;
-        ToolTipService.SetToolTip(_clear, ClipboardStr.Clipboard_ClearHistory.Text());
+        _clear = _trailing.Add(HeaderPartKind.Button, HeaderBlock.Button(Glyphs.Delete, ClipboardStr.Clipboard_ClearHistory.Text(), () => _ = ConfirmClearAsync()));
 
         _scroll = new ScrollViewer
         {
             Content = _list,
-            Padding = WidgetLayout.ListInset,
             HorizontalScrollMode = ScrollMode.Disabled,
             HorizontalScrollBarVisibility = ScrollBarVisibility.Disabled,
             VerticalScrollBarVisibility = ScrollBarVisibility.Hidden,
+            VerticalAlignment = VerticalAlignment.Top,
         };
-
-        _empty = Fluent.EmptyState(ClipboardModule.Glyph, _emptyText, out _);
-        SetRowSpan(_empty, 2);
+        _fade = new ScrollFade(_scroll, _list);
+        _state = new KitStatePanel(ClipboardModule.Glyph, host) { Visibility = Visibility.Collapsed };
 
         Children.Add(_scroll);
-        Children.Add(_empty);
+        Children.Add(_state);
     }
 
-    /// <summary>
-    /// The clear-history button, in the card's header. Built in the constructor because the card
-    /// reads this once, when it builds that header.
-    /// </summary>
-    public FrameworkElement? HeaderTrailing => _clear;
+    public FrameworkElement? HeaderTrailing => _trailing;
 
-    /// <inheritdoc />
     public void Bind(IWidgetSurface surface) => _surface = surface;
 
     public void Attach(Ticker ticker, WidgetConfig config)
@@ -143,12 +126,13 @@ internal sealed partial class ClipboardView : Grid, IWidgetView, IWidgetHeaderCo
         Render();
     }
 
-    /// <inheritdoc />
+    /// <summary>[S-1443] [S-663] A new size: draw again only when the ladder lands elsewhere or the rows that fit change.</summary>
     public void ApplySize(WidgetArea area)
     {
         var plan = ClipboardLayout.Plan(area);
-
-        if (plan == _plan)
+        var moved = plan != _plan || ClipboardLayout.Rows(area, plan) != ClipboardLayout.Rows(_area, _plan);
+        _area = area;
+        if (!moved)
         {
             return;
         }
@@ -157,13 +141,16 @@ internal sealed partial class ClipboardView : Grid, IWidgetView, IWidgetHeaderCo
         Render();
     }
 
-    /// <summary>The newest entries, as many as this widget keeps; none for a preview.</summary>
+    /// <summary>The entries this widget shows: the newest, as many as its own setting keeps.</summary>
     private IReadOnlyList<ClipboardEntry> Entries
-        => _source is not { } source ? []
-            : source.Entries.Count <= _config.EffectiveCapacity ? source.Entries
-            : [.. source.Entries.Take(_config.EffectiveCapacity)];
+    {
+        get
+        {
+            var all = _sample ?? _source?.Entries ?? [];
+            return all.Count <= _config.EffectiveCapacity ? all : [.. all.Take(_config.EffectiveCapacity)];
+        }
+    }
 
-    /// <summary>The shared history changed (only a real change is raised): redraw.</summary>
     private void OnHistoryChanged()
     {
         if (!_detached)
@@ -188,107 +175,60 @@ internal sealed partial class ClipboardView : Grid, IWidgetView, IWidgetHeaderCo
     {
         ClearRows();
 
-        _clear.IsEnabled = Entries.Count > 0;
+        var entries = Entries;
+        _trailing.Want(_clear, entries.Count > 0);
 
-        if (Entries.Count == 0)
+        if (entries.Count == 0)
         {
-            // Each state says which it is. "Nothing copied yet" and "the listener never started"
-            // need very different things from the reader.
-            _emptyText.Text = _host.ClipboardHistory?.Listening == true || _surface?.IsPreview == true
-                ? ClipboardStr.WidgetsA_Clipboard_Empty.Text()
-                : ClipboardStr.WidgetsA_Clipboard_NoListener.Text();
-
-            _empty.Visibility = Visibility.Visible;
+            // [S-6714] Each state says which it is, in one row where the first entry would be.
+            // "Nothing copied yet" and "the listener never started" need very different things.
+            var listening = _host.ClipboardHistory?.Listening == true || _surface?.IsPreview == true;
+            _state.Show((listening ? ClipboardStr.WidgetsA_Clipboard_Empty : ClipboardStr.WidgetsA_Clipboard_NoListener).Text(), offerAccounts: false, problem: !listening);
             _scroll.Visibility = Visibility.Collapsed;
             _cursor = null;
             return;
         }
 
-        _empty.Visibility = Visibility.Collapsed;
+        _state.Hide();
         _scroll.Visibility = Visibility.Visible;
 
         // One clock reading for the whole list, so a list drawn across a minute boundary cannot
         // show two different ideas of "now".
         var now = DateTimeOffset.Now;
 
-        for (var i = 0; i < Entries.Count; i++)
+        for (var i = 0; i < entries.Count; i++)
         {
-            var row = BuildRow(Entries[i], i == 0, now);
+            var row = BuildRow(entries[i], i == 0, now);
             _rows.Add(row);
             _list.Children.Add(row);
         }
 
-        _cursor = _cursor is { } cursor && cursor < Entries.Count ? cursor : null;
+        // [S-6712] As tall as its whole rows: never a part of one at its foot.
+        _scroll.Height = _area.IsMeasured ? Math.Min(_rows.Count, ClipboardLayout.Rows(_area, _plan)) * _plan.RowHeight : double.NaN;
+
+        _cursor = _cursor is { } cursor && cursor < entries.Count ? cursor : null;
         ShowCursor();
+        _fade.Refresh();
     }
 
-    private Border BuildRow(ClipboardEntry entry, bool current, DateTimeOffset now)
+    /// <summary>
+    /// [S-1441] [S-1442] One entry: its marker, its preview on one line (BodyStrong for what is on the
+    /// clipboard now), when it was copied, how much it is on the second line.
+    /// </summary>
+    private RowBlock BuildRow(ClipboardEntry entry, bool current, DateTimeOffset now)
     {
-        var icon = Marker(entry.Text, current);
-        icon.Margin = new Thickness(0, 0, Fluent.Space3, 0);
-        icon.VerticalAlignment = _plan.PreviewLines > 1 || _plan.Detail ? VerticalAlignment.Top : VerticalAlignment.Center;
+        var row = new RowBlock(RowKind.List, _plan.Lead ? FamilyShape.Icon : 0) { Lines = _plan.Lines, Strong = current, Interactive = true };
+        row.Show(
+            ClipboardFormatting.Preview(entry.Text, ClipboardLayout.PreviewLength),
+            _plan.Time && _config.ShowTimestamp ? Formatting.Ago(entry.CapturedAt, now) : null,
+            ClipboardFormatting.Describe(entry.Text, Strings.Current));
 
-        // [S-1441] Wrapped, up to the plan's lines, with the entry's own line breaks kept.
-        var text = Fluent.Text(FluentType.Body);
-        text.Text = ClipboardLayout.PreviewLines(entry.Text, _plan.PreviewLines, PreviewLength * _plan.PreviewLines);
-        text.TextWrapping = _plan.PreviewLines > 1 ? TextWrapping.Wrap : TextWrapping.NoWrap;
-        text.MaxLines = _plan.PreviewLines;
-        text.TextTrimming = TextTrimming.CharacterEllipsis;
-
-        var body = new StackPanel { Spacing = 0, VerticalAlignment = VerticalAlignment.Center };
-        body.Children.Add(text);
-
-        if (_plan.Detail)
+        if (_plan.Lead)
         {
-            // When · how much, under the preview: the tall tiles' replacement for the time column.
-            var detail = Fluent.Text(FluentType.Caption, "TextFillColorSecondaryBrush");
-            var size = ClipboardFormatting.Describe(entry.Text, Strings.Current);
-            detail.Text = _config.ShowTimestamp ? $"{Formatting.Ago(entry.CapturedAt, now)} · {size}" : size;
-            detail.MaxLines = 1;
-            Microsoft.UI.Xaml.Documents.Typography.SetNumeralAlignment(detail, FontNumeralAlignment.Tabular);
-            body.Children.Add(detail);
-        }
-
-        var grid = new Grid
-        {
-            ColumnDefinitions =
-            {
-                new ColumnDefinition { Width = GridLength.Auto },
-                new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) },
-                new ColumnDefinition { Width = GridLength.Auto },
-            },
-        };
-
-        SetColumn(icon, 0);
-        SetColumn(body, 1);
-        grid.Children.Add(icon);
-        grid.Children.Add(body);
-
-        if (_plan.TimeColumn && _config.ShowTimestamp)
-        {
-            var when = Fluent.Text(FluentType.Caption, "TextFillColorSecondaryBrush");
-            when.Text = Formatting.Ago(entry.CapturedAt, now);
-            when.TextAlignment = TextAlignment.Right;
-            when.MinWidth = TimestampWidth;
-            when.Margin = new Thickness(Fluent.Space2, 0, 0, 0);
-            when.VerticalAlignment = _plan.PreviewLines > 1 ? VerticalAlignment.Top : VerticalAlignment.Center;
-
-            Microsoft.UI.Xaml.Documents.Typography.SetNumeralAlignment(when, FontNumeralAlignment.Tabular);
-
-            SetColumn(when, 2);
-            grid.Children.Add(when);
-        }
-
-        var row = Fluent.Row(grid, _plan.Compact);
-
-        if (_plan.PreviewLines > 1 || _plan.Detail)
-        {
-            // Rows that hold more than one line pad themselves like a two-line Windows list item.
-            row.Padding = new Thickness(Fluent.Space4, Fluent.Space2, Fluent.Space4, Fluent.Space2);
+            row.Lead(Marker(entry.Text, current));
         }
 
         row.Tag = entry.Text;
-        _rowHandles.Add(Fluent.Hover(row));
 
         // [S-1444] The row menu, read fresh on each right-tap.
         var captured = entry.Text;
@@ -304,34 +244,30 @@ internal sealed partial class ClipboardView : Grid, IWidgetView, IWidgetHeaderCo
     }
 
     /// <summary>
-    /// [S-1442] The row's leading mark. The top entry is what is on the clipboard right now, said with
-    /// the stock tick in the accent colour (the widget's only, event-driven, feedback that a click
-    /// landed). Otherwise what the entry looks like: a swatch for a colour, a glyph for a link, an
-    /// address, a number or several lines.
+    /// [S-1442] What the entry looks like it is: the tick for what is on the clipboard now, a dot of a
+    /// colour's own colour (a data colour, [S-6705]), else its kind's glyph, all 16.
     /// </summary>
     private static FrameworkElement Marker(string text, bool current)
     {
         if (current)
         {
-            return Fluent.Icon(Glyphs.Done, "AccentTextFillColorPrimaryBrush");
+            return Family.Glyph(Glyphs.Done);
         }
 
         if (ClipboardLayout.TryColour(text, out var colour))
         {
             return new Border
             {
-                Width = Fluent.IconSize,
-                Height = Fluent.IconSize,
-                CornerRadius = new CornerRadius(Fluent.ControlRadius),
-                BorderThickness = new Thickness(Fluent.Hairline),
-                BorderBrush = ThemeBrush.Of("ControlStrokeColorDefaultBrush", Colors.Gray),
+                Width = FamilyShape.Icon,
+                Height = FamilyShape.Icon,
+                CornerRadius = Family.Round(FamilyShape.Icon, FamilyShape.Icon),
 
                 // The user's own colour, which is the content here, not a design choice.
-                Background = new SolidColorBrush(Windows.UI.Color.FromArgb(255, colour.R, colour.G, colour.B)),
+                Background = Family.Data($"#{colour.R:X2}{colour.G:X2}{colour.B:X2}"),
             };
         }
 
-        return Fluent.Icon(ClipboardLayout.Classify(text) switch
+        return Family.Glyph(ClipboardLayout.Classify(text) switch
         {
             ClipboardContent.Link => Glyphs.Link,
             ClipboardContent.Email => Glyphs.Mail,
@@ -361,7 +297,7 @@ internal sealed partial class ClipboardView : Grid, IWidgetView, IWidgetHeaderCo
     {
         args.Handled = true;
 
-        if (!_detached && sender is Border { Tag: string text })
+        if (!_detached && sender is RowBlock { Tag: string text })
         {
             CopyBack(text);
         }
@@ -369,7 +305,7 @@ internal sealed partial class ClipboardView : Grid, IWidgetView, IWidgetHeaderCo
 
     private void CopyBack(string text)
     {
-        if (_detached)
+        if (_detached || _sample is not null)
         {
             return;
         }
@@ -386,7 +322,6 @@ internal sealed partial class ClipboardView : Grid, IWidgetView, IWidgetHeaderCo
         // widget hoped it wrote.
     }
 
-    /// <summary>[S-1444] Forget one entry. Leaves the clipboard itself alone.</summary>
     private void Remove(string text)
     {
         if (!_detached)
@@ -408,8 +343,9 @@ internal sealed partial class ClipboardView : Grid, IWidgetView, IWidgetHeaderCo
         foreach (var row in _rows)
         {
             row.Tapped -= OnRowTapped;
+            row.Detach();
 
-            // Drop the reference to the copied text with the row. A detached Border holding a
+            // Drop the reference to the copied text with the row. A detached row holding a
             // password in its Tag is exactly the thing this widget should not be doing.
             row.Tag = null;
         }
@@ -422,13 +358,7 @@ internal sealed partial class ClipboardView : Grid, IWidgetView, IWidgetHeaderCo
     // Keyboard ([S-1444])
     // -----------------------------------------------------------------------------------------
 
-    /// <summary>
-    /// [S-1444] [S-1561] A key from the shell's keyboard lease, decided by <see cref="ListKeys"/> like
-    /// every list's: Up/Down, Page Up/Down, Home/End move a cursor through the entries, Enter copies
-    /// the one under it back to the clipboard, Delete removes it from the history (the cursor stays
-    /// on the row that took its place), the Menu key opens its menu, Escape — also sent whenever the
-    /// lease ends — drops the cursor. Returns whether the key was used.
-    /// </summary>
+    /// <summary>[S-1561] Up/Down/Page/Home/End move a cursor, Enter copies back, Delete removes, Menu opens the row's menu, Escape drops it.</summary>
     public bool HandleKey(WidgetKey key)
     {
         if (_detached)
@@ -436,7 +366,8 @@ internal sealed partial class ClipboardView : Grid, IWidgetView, IWidgetHeaderCo
             return false;
         }
 
-        var decision = ListKeys.Decide(key, _cursor ?? -1, Entries.Count);
+        var entries = Entries;
+        var decision = ListKeys.Decide(key, _cursor ?? -1, entries.Count);
 
         switch (decision.Command)
         {
@@ -446,17 +377,17 @@ internal sealed partial class ClipboardView : Grid, IWidgetView, IWidgetHeaderCo
                 return true;
 
             case ListCommand.Open:
-                CopyBack(Entries[decision.Index].Text);
+                CopyBack(entries[decision.Index].Text);
                 return true;
 
             case ListCommand.Delete:
                 // Render keeps a cursor that is still in range, which is the row that moved up.
-                _cursor = ListKeys.AfterRemoval(decision.Index, Entries.Count - 1) is var next and >= 0 ? next : null;
-                Remove(Entries[decision.Index].Text);
+                _cursor = ListKeys.AfterRemoval(decision.Index, entries.Count - 1) is var next and >= 0 ? next : null;
+                Remove(entries[decision.Index].Text);
                 return true;
 
             case ListCommand.Menu when decision.Index < _rows.Count:
-                ItemMenu.Open(_rows[decision.Index], RowMenu(Entries[decision.Index].Text));
+                ItemMenu.Open(_rows[decision.Index], RowMenu(entries[decision.Index].Text));
                 return true;
 
             case ListCommand.Release:
@@ -470,22 +401,12 @@ internal sealed partial class ClipboardView : Grid, IWidgetView, IWidgetHeaderCo
         }
     }
 
-    /// <summary>The cursor row carries the focus outline; the others none.</summary>
+    /// <summary>[S-1288] The keyboard's ring: the Row block's own, over the whole row.</summary>
     private void ShowCursor()
     {
-        var focus = ThemeBrush.Of("FocusStrokeColorOuterBrush", Colors.White);
-
         for (var i = 0; i < _rows.Count; i++)
         {
-            var on = _cursor == i;
-            _rows[i].BorderBrush = on ? focus : null;
-            _rows[i].BorderThickness = new Thickness(on ? Fluent.Hairline * 2 : 0);
-            _rows[i].CornerRadius = new CornerRadius(on ? Fluent.ControlRadius : 0);
-
-            if (on)
-            {
-                _rows[i].StartBringIntoView();
-            }
+            _rows[i].Focused = _cursor == i;
         }
     }
 
@@ -493,12 +414,6 @@ internal sealed partial class ClipboardView : Grid, IWidgetView, IWidgetHeaderCo
     // Clearing
     // -----------------------------------------------------------------------------------------
 
-    private void OnClearClicked(object sender, RoutedEventArgs args) => _ = ConfirmClearAsync();
-
-    /// <summary>
-    /// Ask, then clear. Awaited rather than fired and forgotten, so a question that could not be
-    /// shown is never mistaken for the user saying yes.
-    /// </summary>
     private async Task ConfirmClearAsync()
     {
         if (_detached || Entries.Count == 0)
@@ -517,17 +432,13 @@ internal sealed partial class ClipboardView : Grid, IWidgetView, IWidgetHeaderCo
         _source?.Clear();
     }
 
-    /// <summary>
-    /// [S-1500] The question beside the header's clear, or under the widget when the menu asked and
-    /// the header has no room for the button.
-    /// </summary>
+    /// <summary>[S-1500] The widgets' one confirmation, beside the header's clear (or the widget when it is folded away).</summary>
     private Task<bool> AskToClearAsync() => ConfirmFlyout.AskAsync(
         _clear.XamlRoot is not null && _clear.Visibility == Visibility.Visible && _clear.ActualWidth > 0 ? _clear : this,
         ClipboardStr.WidgetsA_Clipboard_ClearConfirm_Title.Text(),
         Str.Common_Clear.Text(),
         ClipboardStr.WidgetsA_Clipboard_ClearConfirm_Body.Text());
 
-    /// <summary>[S-1109] Rows and sizes are worded again in the new language.</summary>
     private void OnLanguage(Locale locale)
     {
         ToolTipService.SetToolTip(_clear, ClipboardStr.Clipboard_ClearHistory.Text());
@@ -544,8 +455,6 @@ internal sealed partial class ClipboardView : Grid, IWidgetView, IWidgetHeaderCo
         _detached = true;
         Strings.Changed -= OnLanguage;
 
-        _clear.Click -= OnClearClicked;
-
         _subscription?.Dispose();
         _subscription = null;
 
@@ -558,7 +467,8 @@ internal sealed partial class ClipboardView : Grid, IWidgetView, IWidgetHeaderCo
         }
 
         ClearRows();
-
+        _fade.Dispose();
+        _state.Detach();
         _ticker = null;
     }
 }

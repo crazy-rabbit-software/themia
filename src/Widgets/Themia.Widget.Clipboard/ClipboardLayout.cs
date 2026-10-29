@@ -1,4 +1,5 @@
 using System.Globalization;
+using Themia.Sdk.Kit;
 
 namespace Themia.Core.Widgets;
 
@@ -18,102 +19,40 @@ public enum ClipboardContent
 }
 
 /// <summary>
-/// [S-1443] What one Clipboard tile shows, from its area: how many lines a row's preview may take,
-/// whether the row carries a detail line (when · how much) or a time column. Nothing but the
-/// entries: no count footer at any size.
+/// [S-1443] What one Clipboard tile shows, on the family's rows ([S-6711]): each entry one row, its
+/// preview the name on one line, how much it is ("32 characters") on the second line where the tile
+/// is regular both ways ([S-6712]); its marker and when it was copied from a column of 180. Nothing
+/// but the entries: no count footer at any size.
 /// </summary>
-/// <param name="PreviewLines">1 to 3: wrapped lines of the preview per row.</param>
-/// <param name="Detail">A caption under each preview: "4m · 32 characters".</param>
-/// <param name="TimeColumn">The relative time in a right-hand column (only when there is no detail line).</param>
-/// <param name="Compact">Rows at the compact 32px height (one-line rows on a short tile).</param>
-public readonly record struct ClipboardPlan(int PreviewLines, bool Detail, bool TimeColumn, bool Compact);
+/// <param name="Lines">The rows' lines: 1, or 2 with how much it is.</param>
+/// <param name="Lead">The marker (what the entry looks like it is, [S-1442]) before the preview.</param>
+/// <param name="Time">When it was copied, as the row's value (when the user shows it).</param>
+public readonly record struct ClipboardPlan(int Lines, bool Lead, bool Time)
+{
+    /// <summary>The rows' one height (32 or 48).</summary>
+    public double RowHeight => FamilyShape.RowHeight(Lines);
+}
 
-/// <summary>
-/// How a clipboard entry reads at different tile sizes. Pure, so the ladder and the content rules
-/// are pinned by tests rather than by looking at screenshots.
-/// </summary>
+/// <summary>[S-1442] [S-1443] The clipboard's ladder and how a row is marked; pure, so each tier is pinned by a test.</summary>
 public static class ClipboardLayout
 {
-    /// <summary>The most lines a row's preview ever takes.</summary>
-    public const int MaxPreviewLines = 3;
+    /// <summary>[S-1441] The characters a row's one-line preview keeps before its ellipsis.</summary>
+    public const int PreviewLength = 120;
 
-    /// <summary>
-    /// [S-1443] The ladder. One line on the small tiles; a second line once the row is wide (a Wide
-    /// strip) or the tile is tall; a third on a large tile. The detail line arrives with height
-    /// (Tall, L, XL) and replaces the time column, which only earns its width on M and Wide.
-    /// </summary>
     public static ClipboardPlan Plan(WidgetArea area)
     {
         if (!area.IsMeasured)
         {
-            return new ClipboardPlan(1, Detail: false, TimeColumn: false, Compact: false);
+            return new ClipboardPlan(1, Lead: true, Time: true);
         }
 
-        var lines = 1;
-
-        if (area.WidthClass >= SizeClass.Expanded || (area.WidthClass >= SizeClass.Regular && area.HeightClass >= SizeClass.Expanded))
-        {
-            lines++;
-        }
-
-        if (area.AtLeast(SizeClass.Expanded, SizeClass.Expanded))
-        {
-            lines++;
-        }
-
-        var detail = area.HeightClass >= SizeClass.Expanded;
-        var column = !detail && (area.WidthClass >= SizeClass.Expanded || area.AtLeast(SizeClass.Regular, SizeClass.Regular));
-        var compact = lines == 1 && area.HeightClass == SizeClass.Compact;
-
-        return new ClipboardPlan(Math.Min(lines, MaxPreviewLines), detail, column, compact);
+        var wide = area.Width >= KitLadder.LeadNeedsWidth;
+        return new ClipboardPlan(RowRules.Lines(area, 2), wide, wide);
     }
 
-    /// <summary>
-    /// [S-1441] A preview of up to <paramref name="maxLines"/> lines: the entry's own line breaks
-    /// are kept (blank lines dropped), whitespace inside a line is collapsed, each line is cut at
-    /// <paramref name="maxCharsPerLine"/>, and a line is marked with an ellipsis when more of the
-    /// entry follows than is shown. One line is exactly <see cref="ClipboardFormatting.Preview"/>.
-    /// </summary>
-    public static string PreviewLines(string? text, int maxLines, int maxCharsPerLine)
-    {
-        if (string.IsNullOrEmpty(text) || maxLines <= 0 || maxCharsPerLine <= 0)
-        {
-            return string.Empty;
-        }
-
-        if (maxLines == 1)
-        {
-            return ClipboardFormatting.Preview(text, maxCharsPerLine);
-        }
-
-        var shown = new List<string>(maxLines);
-        var more = false;
-
-        foreach (var raw in text.Split('\n'))
-        {
-            var line = ClipboardFormatting.Preview(raw, maxCharsPerLine);
-
-            if (line.Length == 0)
-            {
-                continue;
-            }
-
-            if (shown.Count == maxLines)
-            {
-                more = true;
-                break;
-            }
-
-            shown.Add(line);
-        }
-
-        if (more && shown.Count > 0 && !shown[^1].EndsWith('…'))
-        {
-            shown[^1] += " …";
-        }
-
-        return string.Join('\n', shown);
-    }
+    /// <summary>[S-6712] The whole rows of <paramref name="plan"/> in the view's area less the card's bottom inset (at least one).</summary>
+    public static int Rows(WidgetArea area, ClipboardPlan plan)
+        => Math.Max(1, RowRules.Fit(KitLadder.ListHeight(area), plan.Lines));
 
     /// <summary>
     /// [S-1442] What an entry looks like it is. Conservative: a hex colour needs its <c>#</c> (a bare
