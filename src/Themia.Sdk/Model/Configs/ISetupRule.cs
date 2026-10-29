@@ -18,4 +18,10 @@ public interface ISetupRule
     /// (the shortcuts' drop target) rather than on its properties menu.
     /// </summary>
     bool SetsUpInPlace => false;
+
+    /// <summary>
+    /// [S-1862] The sentence the Set up status says beside its button ("Choose a place"), in the user's
+    /// language; null for the card's own (an account to add, or what the widget needs set).
+    /// </summary>
+    string? SetupSentence => null;
 }

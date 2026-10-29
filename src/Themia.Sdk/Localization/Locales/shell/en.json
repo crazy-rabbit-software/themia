@@ -1,4 +1,8 @@
 {
+  "$englishOnly": [
+    "shell.setup.place",
+    "shell.setup.account"
+  ],
   "shell.time.justNow": "Just now",
   "shell.fetch.notConfigured": "Not set up yet",
   "shell.fetch.loading": "Loading",
@@ -138,6 +142,8 @@
   "shell.card.start": "Start",
   "shell.setup.button": "Set up",
   "shell.setup.hint": "Set up what this widget needs",
+  "shell.setup.place": "Choose a place",
+  "shell.setup.account": "Add an account to show this",
   "shell.toolbar.addWidget": "Add widget",
   "shell.toolbar.snap": "Snap",
   "shell.toolbar.snapTip": "Snap widgets to the grid while moving and resizing",

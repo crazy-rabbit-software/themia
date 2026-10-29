@@ -1,4 +1,5 @@
 using Themia.Core.Accounts;
+using Themia.Core.Localization;
 using Themia.Sdk;
 
 namespace Themia.Core.Model;
@@ -36,4 +37,7 @@ public interface IPlaced : ISetupRule
 
     /// <summary>[S-2848] [S-2850] No place chosen, or cleared, is the Set up state; the device's location is a place.</summary>
     bool ISetupRule.NeedsSetup(FeatureSet signedIn) => !HasLocation && !UseDeviceLocation;
+
+    /// <summary>[S-1862] What its Set up status says: the place is what it waits for.</summary>
+    string? ISetupRule.SetupSentence => Str.Shell_Setup_Place.Text();
 }

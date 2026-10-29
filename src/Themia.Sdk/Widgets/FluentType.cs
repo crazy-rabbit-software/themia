@@ -41,11 +41,11 @@ public static class FluentType
     /// <summary>The unscaled Windows 11 ramp, smallest first.</summary>
     private static readonly TypeStep[] BaseRamp =
     [
-        new(12, 16, false),  // Caption
-        new(14, 20, false),  // Body
-        new(14, 20, true),   // BodyStrong
-        new(18, 24, false),  // BodyLarge
-        new(20, 28, true),   // Subtitle
+        new(Themia.Sdk.Kit.FamilyType.CaptionSize, Themia.Sdk.Kit.FamilyType.CaptionLine, false),  // Caption ([S-6700]: the family's sizes)
+        new(Themia.Sdk.Kit.FamilyType.BodySize, Themia.Sdk.Kit.FamilyType.BodyLine, false),        // Body
+        new(Themia.Sdk.Kit.FamilyType.BodySize, Themia.Sdk.Kit.FamilyType.BodyLine, true),         // BodyStrong
+        new(18, 24, false),  // BodyLarge (off the family's sizes: goes once no view uses it)
+        new(Themia.Sdk.Kit.FamilyType.TitleSize, Themia.Sdk.Kit.FamilyType.TitleLine, true),       // Subtitle: the family's Title
         new(28, 36, true),   // Title
         new(40, 52, true),   // TitleLarge
         new(68, 92, true),   // Display

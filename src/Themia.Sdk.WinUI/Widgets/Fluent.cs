@@ -6,6 +6,7 @@ using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Media;
 using Themia.App.Shell;
 using Themia.Core.Widgets;
+using Themia.Sdk.Kit;
 using Themia.Sdk.WinUI;
 
 namespace Themia.App.Widgets;
@@ -22,26 +23,26 @@ namespace Themia.App.Widgets;
 /// </summary>
 public static class Fluent
 {
-    // ---- spacing ---------------------------------------------------------------------------
+    // ---- spacing ([S-6703]: the family's scale, FamilySpace, is the one place these are set) ----
 
     /// <summary>The 4px grid Fluent lays out on. Every gap a widget uses is one of these.</summary>
-    public const double Space1 = 4;
+    public const double Space1 = FamilySpace.S1;
 
-    public const double Space2 = 8;
+    public const double Space2 = FamilySpace.S2;
 
-    public const double Space3 = 12;
+    public const double Space3 = FamilySpace.S3;
 
     /// <summary>The standard content inset for a card.</summary>
-    public const double Space4 = 16;
+    public const double Space4 = FamilySpace.S4;
 
     public const double Space5 = 20;
 
-    public const double Space6 = 24;
+    public const double Space6 = FamilySpace.S6;
 
     // ---- shape -----------------------------------------------------------------------------
 
     /// <summary>Fluent's control radius. Buttons, text fields, row highlights.</summary>
-    public const double ControlRadius = 4;
+    public const double ControlRadius = FamilyShape.Radius;
 
     /// <summary>Fluent's overlay radius. Cards, flyouts, dialogs.</summary>
     public const double OverlayRadius = 8;
@@ -56,7 +57,7 @@ public static class Fluent
     /// </summary>
     public const double RowHeight = 40;
 
-    public const double RowHeightCompact = 32;
+    public const double RowHeightCompact = FamilyShape.Row1;
 
     // ---- type ------------------------------------------------------------------------------
 
@@ -171,13 +172,13 @@ public static class Fluent
     }
 
     /// <summary>A 1px rule. Every tick, hairline and divider in the app is this thickness.</summary>
-    public const double Hairline = 1;
+    public const double Hairline = FamilyShape.Hairline;
 
     /// <summary>The icon size Windows pairs with body text.</summary>
-    public const double IconSize = 16;
+    public const double IconSize = FamilyShape.Icon;
 
     /// <summary>Fluent draws a chart line at 2px: 1px reads as a hairline artefact, 3px as a border.</summary>
-    public const double ChartStroke = 2;
+    public const double ChartStroke = FamilyShape.Stroke;
 
     /// <summary>
     /// The alpha of an area wash under a chart line.
@@ -187,7 +188,7 @@ public static class Fluent
     /// surface in the app paints with.
     /// </para>
     /// </summary>
-    public const double ChartWash = 0.16;
+    public const double ChartWash = FamilyShape.Wash;
 
     // ---- breakpoints -----------------------------------------------------------------------
 
