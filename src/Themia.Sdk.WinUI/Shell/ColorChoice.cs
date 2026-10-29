@@ -13,7 +13,9 @@ using Themia.Core.Model;
 using Themia.Core.Settings;
 using Themia.Core.Shell;
 using Themia.Core.Widgets;
+using Themia.Sdk.Kit;
 using Themia.Sdk.WinUI;
+using Themia.Sdk.WinUI.Kit;
 
 namespace Themia.App.Shell;
 
@@ -110,7 +112,7 @@ public static class ColorChoice
 
         if (fill.Kind == FillKind.Colour && HexColor.TryParse(fill.Colour, out var r, out var g, out var b))
         {
-            swatch.Background = new SolidColorBrush(Windows.UI.Color.FromArgb(FillChoice.Alpha(fill.Opacity), r, g, b));
+            swatch.Background = new SolidColorBrush(HexBrush.Colour(new RgbColor(r, g, b), FillChoice.Alpha(fill.Opacity) / 255.0));
             return;
         }
 
@@ -132,22 +134,22 @@ public static class ColorChoice
     {
         if (HexColor.TryParse(hex, out var r, out var g, out var b))
         {
-            swatch.Background = new SolidColorBrush(Windows.UI.Color.FromArgb(255, r, g, b));
+            swatch.Background = new SolidColorBrush(HexBrush.Colour(new RgbColor(r, g, b)));
             return;
         }
 
         swatch.Background = options.DefaultColor?.Invoke() is { } fallback
             ? new SolidColorBrush(fallback)
-            : ThemeBrush.Of("SolidBackgroundFillColorTertiaryBrush", Colors.Gray);
+            : ShellBrush.Of(ShellRole.Raised);
     }
 
     /// <summary>The eyedropper's loupe, sized from the design tokens: 11 magnified pixels a side.</summary>
     private static LoupeMetrics Loupe => new(
         Cells: 11,
         CellDips: Fluent.Space3,
-        OffsetDips: Fluent.Space5,
+        OffsetDips: FamilySpace.S6,
         GapDips: Fluent.Space1,
-        LabelHeightDips: FluentType.BodyStrong.LineHeight + (2 * Fluent.Space1));
+        LabelHeightDips: FamilyType.BodyStrong.LineHeight + (2 * Fluent.Space1));
 
     /// <summary>[S-1556] [S-3723] The eyedropper from a line of the properties menu, which stays where it is.</summary>
     internal static void PickFromScreen(Action<string> choose)
@@ -184,7 +186,7 @@ public static class ColorChoice
         try
         {
             Eyedropper.WaitForComposedFrame();
-            var result = await Eyedropper.PickAsync(Loupe, FluentType.BodyStrong.FontSize);
+            var result = await Eyedropper.PickAsync(Loupe, FamilyType.BodyStrong.FontSize);
             switch (result.Outcome)
             {
                 case ScreenPickOutcome.Picked:
@@ -234,11 +236,11 @@ public static class ColorChoice
         Windows.UI.Color start;
         if (HexColor.TryParse(current, out var r, out var g, out var b))
         {
-            start = Windows.UI.Color.FromArgb(255, r, g, b);
+            start = HexBrush.Colour(new RgbColor(r, g, b));
         }
         else
         {
-            start = options.DefaultColor?.Invoke() ?? Windows.UI.Color.FromArgb(255, 0x00, 0x78, 0xD4);
+            start = options.DefaultColor?.Invoke() ?? ShellColours.WindowsAccent;
         }
 
         if (opacity is { } alpha)

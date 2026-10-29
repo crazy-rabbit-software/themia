@@ -1,20 +1,3 @@
 # [S-6730] Today's offenders against the family's tokens: count, file, rule, literal (tab-separated).
 # The list only shrinks: FamilyGuardTests fails on an offence not listed here and on a line that no longer
 # occurs as often. Rewrite it with THEMIA_FAMILY_GUARD_WRITE=1 only after fixing offenders. Empty is done.
-1	src/Themia.App/Shell/DesktopWindow.Picker.cs	colour	Color.FromArgb(
-1	src/Themia.App/Shell/DesktopWindow.Picker.cs	colour	Colors.DodgerBlue
-1	src/Themia.App/Shell/DesktopWindow.Picker.cs	stroke	StrokeThickness = 2
-1	src/Themia.App/Shell/DesktopWindow.Picker.cs	type	FontSize = 28
-1	src/Themia.App/Shell/DesktopWindow.Selection.cs	colour	Color.FromArgb(
-1	src/Themia.App/Shell/DesktopWindow.Selection.cs	colour	Colors.DodgerBlue
-1	src/Themia.App/Shell/IconPicker.cs	type	FontSize = 13
-1	src/Themia.App/Shell/IconPicker.cs	type	FontSize = 16
-3	src/Themia.App/Shell/Motion/HackerTile.cs	colour	Color.FromArgb(
-1	src/Themia.App/Shell/Motion/HackerTile.cs	space	new Thickness(4, 0, 4, 0)
-1	src/Themia.App/Shell/Motion/HackerTile.cs	stroke	StrokeThickness = 1.5
-1	src/Themia.App/Shell/Motion/HackerTile.cs	stroke	StrokeThickness = 2
-1	src/Themia.App/Shell/Motion/HyperspaceOverlay.cs	colour	Color.FromArgb(
-1	src/Themia.App/Shell/Motion/HyperspaceOverlay.cs	colour	Colors.Black
-1	src/Themia.Sdk.WinUI/Shell/ColorChoice.cs	brush	SolidBackgroundFillColorTertiaryBrush
-4	src/Themia.Sdk.WinUI/Shell/ColorChoice.cs	colour	Color.FromArgb(
-1	src/Themia.Sdk.WinUI/Shell/ColorChoice.cs	ramp	Fluent.Space5

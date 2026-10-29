@@ -6,6 +6,7 @@ using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Shapes;
 using Themia.Core.Motion;
 using Themia.Core.Widgets;
+using Themia.Sdk.Kit;
 using Windows.Foundation;
 using Windows.UI;
 
@@ -22,9 +23,9 @@ namespace Themia.App.Shell.Motion;
 /// </summary>
 internal static class HackerTile
 {
-    private static readonly Color Phosphor = Color.FromArgb(0xFF, 0x39, 0xFF, 0x7A);
-    private static readonly Color PhosphorDim = Color.FromArgb(0xFF, 0x1C, 0x8A, 0x45);
-    private static readonly Color Screen = Color.FromArgb(0xFF, 0x03, 0x0B, 0x06);
+    private static readonly Color Phosphor = ShellColours.Phosphor;
+    private static readonly Color PhosphorDim = ShellColours.PhosphorDim;
+    private static readonly Color Screen = ShellColours.PhosphorScreen;
     private static readonly FontFamily Mono = new("Cascadia Mono, Consolas");
 
     /// <summary>
@@ -69,7 +70,7 @@ internal static class HackerTile
         var tag = new Border
         {
             Background = new SolidColorBrush(Screen),
-            Padding = new Thickness(4, 0, 4, 0),
+            Padding = new Thickness(FamilySpace.S1, 0, FamilySpace.S1, 0),
             Child = Text(variant.Tag, Phosphor),
         };
         stage.Children.Add(tag);
@@ -107,13 +108,13 @@ internal static class HackerTile
     /// <summary>A log or a hex dump, twice the tile's height, scrolling up through it.</summary>
     private static void BuildConsole(Canvas stage, List<Action<MotionKit>> loops, int seed, double w, double h, bool hex)
     {
-        var lineHeight = FluentType.Caption.LineHeight;
+        var lineHeight = FamilyType.Caption.LineHeight;
         var count = (int)Math.Ceiling(h / lineHeight) * 2;
         var lines = HackerIntro.ConsoleLines(seed, count, hex);
         var text = new TextBlock
         {
             FontFamily = Mono,
-            FontSize = FluentType.Caption.FontSize,
+            FontSize = FamilyType.Caption.FontSize,
             LineHeight = lineHeight,
             Foreground = new SolidColorBrush(Phosphor),
             Text = string.Join('\n', lines),
@@ -221,7 +222,7 @@ internal static class HackerTile
         stage.Children.Add(Bond(new Point(centre.X, centre.Y - (size / 2)), new Point(centre.X, centre.Y + (size / 2)), PhosphorDim));
 
         var sweep = new Canvas { Width = size, Height = size };
-        sweep.Children.Add(new Line { X1 = size / 2, Y1 = size / 2, X2 = size, Y2 = size / 2, Stroke = new SolidColorBrush(Phosphor), StrokeThickness = 2 });
+        sweep.Children.Add(new Line { X1 = size / 2, Y1 = size / 2, X2 = size, Y2 = size / 2, Stroke = new SolidColorBrush(Phosphor), StrokeThickness = FamilyShape.Stroke });
         Canvas.SetLeft(sweep, centre.X - (size / 2));
         Canvas.SetTop(sweep, centre.Y - (size / 2));
         stage.Children.Add(sweep);
@@ -250,7 +251,7 @@ internal static class HackerTile
     /// <summary>An oscilloscope: a sine twice the tile's width, scrolling through it seamlessly.</summary>
     private static void BuildWave(Canvas stage, List<Action<MotionKit>> loops, double w, double h)
     {
-        var line = new Polyline { Stroke = new SolidColorBrush(Phosphor), StrokeThickness = 1.5 };
+        var line = new Polyline { Stroke = new SolidColorBrush(Phosphor), StrokeThickness = FamilyShape.Stroke };
         var period = Math.Max(24, w / 2);
         for (var x = 0.0; x <= (w * 2) + period; x += 3)
         {
@@ -273,7 +274,7 @@ internal static class HackerTile
     {
         Text = text,
         FontFamily = Mono,
-        FontSize = FluentType.Caption.FontSize,
+        FontSize = FamilyType.Caption.FontSize,
         Foreground = new SolidColorBrush(colour),
     };
 

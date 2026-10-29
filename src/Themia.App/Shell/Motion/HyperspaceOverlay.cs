@@ -52,7 +52,7 @@ internal sealed class HyperspaceOverlay : IDisposable
 
         // Pure black space, the style's identity rather than a theme colour: the warp blacks the
         // desktop out completely and the widgets crash into it as it lifts.
-        _veil = new Rectangle { Fill = new SolidColorBrush(Colors.Black) };
+        _veil = new Rectangle { Fill = new SolidColorBrush(ShellColours.Space) };
         _field = new Canvas();
         _root = new Grid
         {
@@ -127,7 +127,7 @@ internal sealed class HyperspaceOverlay : IDisposable
         foreach (var star in Hyperspace.Stars(Hyperspace.StarCount, Seed, radius))
         {
             var (r, g, b) = Hyperspace.Colour(star, radius);
-            var brush = compositor.CreateColorBrush(Windows.UI.Color.FromArgb(0xFF, r, g, b));
+            var brush = compositor.CreateColorBrush(ShellColours.Star(r, g, b));
             var sprite = compositor.CreateSpriteVisual();
             sprite.Brush = brush;
             sprite.Size = new Vector2(1, 1);

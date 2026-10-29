@@ -8,6 +8,8 @@ using Themia.App.Widgets;
 using Themia.Core.Icons;
 using Themia.Core.Localization;
 using Themia.Core.Widgets;
+using Themia.Sdk.Kit;
+using Themia.Sdk.WinUI.Kit;
 using Windows.System;
 
 namespace Themia.App.Shell;
@@ -28,10 +30,10 @@ internal sealed partial class IconPicker : Grid
 {
     private const int Columns = 8;
     private const int VisibleRows = 8;
-    private const double Cell = 32;
+    private const double Cell = ShellMetrics.Picker.Cell;
 
     /// <summary>The glyph in a cell: the 20-DIP icon box Settings draws its icons in ([S-903]).</summary>
-    private const double GlyphSize = 20;
+    private const double GlyphSize = ShellMetrics.Picker.Glyph;
 
     /// <summary>The search for the language it was built in; rebuilt when the language changes.</summary>
     private static (Locale Locale, IconSearch Search)? _search;
@@ -107,7 +109,7 @@ internal sealed partial class IconPicker : Grid
         };
         _grid.ContainerContentChanging += OnContainerContentChanging;
 
-        _empty = Fluent.Text(FluentType.Body, "TextFillColorSecondaryBrush");
+        _empty = Fluent.Text(FamilyType.Body, "TextFillColorSecondaryBrush");
         _empty.TextWrapping = TextWrapping.Wrap;
         _empty.Margin = new Thickness(Fluent.Space1, Fluent.Space2, Fluent.Space1, 0);
         _empty.VerticalAlignment = VerticalAlignment.Top;
@@ -233,6 +235,14 @@ internal sealed partial class IconPicker : Grid
 internal sealed class IconLook(string defaultGlyph, string? defaultText)
 {
     public UIElement For(string? glyph) => glyph is null && defaultText is not null
-        ? new TextBlock { Text = defaultText, FontSize = 13, FontWeight = Microsoft.UI.Text.FontWeights.SemiBold, VerticalAlignment = VerticalAlignment.Center }
-        : new FontIcon { Glyph = glyph ?? defaultGlyph, FontSize = 16 };
+        ? Initials(defaultText)
+        : new FontIcon { Glyph = glyph ?? defaultGlyph, FontSize = FamilyShape.Icon };
+
+    /// <summary>A view's initials where it has no icon: BodyStrong, in the colour of the cell it stands in.</summary>
+    private static TextBlock Initials(string text)
+    {
+        var initials = new TextBlock { Text = text, VerticalAlignment = VerticalAlignment.Center };
+        Family.Step(initials, FamilyType.BodyStrong);
+        return initials;
+    }
 }

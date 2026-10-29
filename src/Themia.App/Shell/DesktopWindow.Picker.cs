@@ -19,6 +19,8 @@ using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
 using Themia.Sdk;
+using Themia.Sdk.Kit;
+using Themia.Sdk.WinUI;
 using Windows.Foundation;
 using Windows.Graphics;
 
@@ -111,19 +113,18 @@ internal sealed partial class DesktopWindow
     {
         public GhostCard(Brush accent)
         {
-            // The fill is the stroke's colour at low alpha: the same accent, so it reads as one shape
-            // rather than a box inside a box.
-            var colour = (accent as SolidColorBrush)?.Color ?? Colors.DodgerBlue;
+            // The fill is the stroke's colour as the family's wash: the same accent, so it reads as one
+            // shape rather than a box inside a box.
             Frame = new Rectangle
             {
-                Fill = new SolidColorBrush(Windows.UI.Color.FromArgb(0x33, colour.R, colour.G, colour.B)),
+                Fill = HexBrush.Wash(ColourRole.Accent),
                 Stroke = accent,
-                StrokeThickness = 2,
+                StrokeThickness = FamilyShape.Stroke,
                 StrokeDashArray = [4, 3],
             };
 
-            Icon = new FontIcon { FontSize = 28, HorizontalAlignment = HorizontalAlignment.Center };
-            Label = Fluent.Text(FluentType.BodyStrong);
+            Icon = new FontIcon { FontSize = FamilyShape.IconLarge, HorizontalAlignment = HorizontalAlignment.Center };
+            Label = Fluent.Text(FamilyType.BodyStrong);
             Label.HorizontalAlignment = HorizontalAlignment.Center;
             Content = new StackPanel
             {

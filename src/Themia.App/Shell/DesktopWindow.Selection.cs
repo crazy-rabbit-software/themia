@@ -6,6 +6,8 @@ using Microsoft.UI.Xaml.Shapes;
 using Themia.Core.Diagnostics;
 using Themia.Core.Geometry;
 using Themia.Core.Model;
+using Themia.Sdk.Kit;
+using Themia.Sdk.WinUI;
 using Windows.Foundation;
 
 namespace Themia.App.Shell;
@@ -283,13 +285,11 @@ internal sealed partial class DesktopWindow
         }
 
         // The ghost's look, solid rather than dashed: an accent outline over a faint accent wash.
-        var accent = Brush("AccentFillColorDefaultBrush", Colors.DodgerBlue);
-        var colour = (accent as SolidColorBrush)?.Color ?? Colors.DodgerBlue;
         _lassoBand = new Rectangle
         {
-            Stroke = accent,
-            StrokeThickness = 1,
-            Fill = new SolidColorBrush(Windows.UI.Color.FromArgb(0x26, colour.R, colour.G, colour.B)),
+            Stroke = Themia.Sdk.WinUI.Kit.Family.Brush(ColourRole.Accent),
+            StrokeThickness = FamilyShape.Hairline,
+            Fill = HexBrush.Wash(ColourRole.Accent),
             IsHitTestVisible = false,
             Visibility = Visibility.Collapsed,
         };
