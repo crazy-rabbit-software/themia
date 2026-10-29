@@ -8639,7 +8639,8 @@ Moved with the widget into its module: `src/Widgets/Themia.Widget.Stopwatch/SPEC
   in words ([S-4671]); its picture wears no badge.
 - **[S-4660]** Removable drives (add menu: Devices & power, [S-3511]): a row per USB stick or card (removable), disc
   (optical) and external disk (hot-plug fixed), by letter; an empty reader is left out, as Explorer
-  hides empty drives. Nothing plugged in says so, centred, under the stick glyph. No options of its own.
+  hides empty drives. Nothing plugged in is the Status row at the top under the stick glyph ([S-6714]).
+  No options of its own.
 - [S-4661], [S-4662], [S-4664]: moved with the Removable drives widget into its module's `SPEC.md` (`src/Widgets/Themia.Widget.RemovableDrives/`).
 - **[S-4670]** Drive (add menu: Devices & power, [S-3511]): one drive (`drive`, a root; empty for the system drive; anything
   else is repaired to the system drive at load). A drive that is not there keeps its card, "Not
