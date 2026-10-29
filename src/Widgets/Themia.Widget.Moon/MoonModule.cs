@@ -30,7 +30,7 @@ public sealed class MoonModule : IWidgetModule
         Glyph = Glyphs.Moon,
         DefaultWidth = 240,
         DefaultHeight = 220,
-        Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader | WidgetTraits.StartsHeaderless,
+        Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader,
         Add = new(AddFolderId.Weather, 1, 1),
     };
 
