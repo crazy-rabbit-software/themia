@@ -206,6 +206,7 @@ public sealed class KeyboardLeaseTests
     [InlineData(0x1B, false, WidgetKey.Escape)]
     [InlineData(0x20, false, WidgetKey.Space)]
     [InlineData(0x2E, false, WidgetKey.Delete)]
+    [InlineData(0x2E, true, WidgetKey.PermanentDelete)] // [S-5545] its own key: only the desktop answers it, with the shell's prompt
     [InlineData(0x71, false, WidgetKey.Rename)]
     [InlineData(0x5D, false, WidgetKey.Menu)]
     [InlineData(0x79, true, WidgetKey.Menu)]
@@ -215,7 +216,6 @@ public sealed class KeyboardLeaseTests
     [Theory]
     [InlineData(0x41, false, false, false)] // a letter: type-ahead is not a widget key
     [InlineData(0x79, false, false, false)] // F10 alone is the menu bar
-    [InlineData(0x2E, true, false, false)] // Shift+Delete: never a permanent delete by accident
     [InlineData(0x22, false, true, false)] // Ctrl+Page Down (Ctrl+arrows are the selection keys, [S-6623])
     [InlineData(0x25, false, false, true)] // Alt+Left
     [InlineData(0x1B, false, true, false)] // Ctrl+Esc is the Start menu

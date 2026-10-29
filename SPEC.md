@@ -4942,8 +4942,9 @@ the keyboard through one lease. Rules in Core `KeyboardLease<T>` / `WidgetKeys` 
 - **[S-803]** Keys: arrows, Page Up/Down, Home/End, Tab / Shift+Tab, Enter, Space, Delete, F2
   (Rename), the Menu key / Shift+F10 (Menu), Escape. Ctrl and Alt chords are never widget keys
   (but the clipboard's, [S-1327], [S-6417], and the selection's Ctrl+arrows and Ctrl+Space, [S-6623]);
-  Shift+Delete, Shift+Space and Shift+F2 are not either. A view returns whether it used the key; an
-  unused key carries on (Tab still moves focus).
+  Shift+Space and Shift+F2 are not either. Shift+Delete is its own key (`PermanentDelete`), never
+  Delete: only the desktop's items answer it, with the shell's own prompt ([S-5545]). A view returns
+  whether it used the key; an unused key carries on (Tab still moves focus).
 - **[S-804]** While a text box on the surface has focus, every key but Escape is the box's. Escape
   reaches the lease only when the box did not handle it (a search box that clears on Escape keeps it).
 - **[S-805]** The keyboard is never taken without the user asking: only a press in a card or a text
