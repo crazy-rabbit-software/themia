@@ -28,7 +28,7 @@ public sealed class CalendarModule : IWidgetModule
         // [S-3640] The five former calendar widgets' names and words find the one calendar.
         Keywords =
         [
-            "events", "meetings", "appointments", "schedule", "outlook", "google calendar", "birthdays",
+            "events", "meetings", "appointments", "schedule", "outlook", "birthdays",
             "month calendar", "week calendar", "day calendar", "year calendar", "agenda", "upcoming", "next", "today",
             "timeline", "holidays", "overview",
         ],

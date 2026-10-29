@@ -25,7 +25,7 @@ public sealed class TasksModule : IWidgetModule
         ConfigType = typeof(TasksConfig),
         CreateDefault = () => new TasksConfig(),
         Json = TasksJsonContext.Default,
-        Keywords = ["todo", "to-do", "checklist", "reminders", "microsoft to do", "google tasks"],
+        Keywords = ["todo", "to-do", "checklist", "reminders", "microsoft to do"],
         Providers = [HostProviders.Microsoft, HostProviders.Google],
         Label = TasksStr.WidgetsA_Catalog_Tasks_Label.Local(),
         Description = TasksStr.WidgetsA_Catalog_Tasks_Description.Local(),

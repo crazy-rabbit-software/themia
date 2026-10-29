@@ -11,7 +11,7 @@
   "ctxMenu.message": "Mag-message",
   "ctxMenu.sendEmail": "Magpadala ng email",
   "widget.contacts.label": "Mga contact",
-  "widgetsA.catalog.contacts.description": "Mga tao mula sa iyong mga address book sa Microsoft, Google at CardDAV",
+  "widgetsA.catalog.contacts.description": "Mga tao mula sa iyong mga address book sa Microsoft at CardDAV",
   "widgetsA.contacts.noAccount": "Wala pang account ng contact",
   "widgetsA.contacts.none": "Walang contact",
   "widgetsA.contacts.readFailed": "Hindi mabasa ang mga contact. Tingnan ang themia.log.",

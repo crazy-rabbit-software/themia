@@ -11,7 +11,7 @@
   "ctxMenu.message": "پیغام بھیجیں",
   "ctxMenu.sendEmail": "ای میل بھیجیں",
   "widget.contacts.label": "رابطے",
-  "widgetsA.catalog.contacts.description": "آپ کی Microsoft، Google اور CardDAV ایڈریس بکس کے لوگ",
+  "widgetsA.catalog.contacts.description": "آپ کی Microsoft اور CardDAV ایڈریس بکس کے لوگ",
   "widgetsA.contacts.noAccount": "ابھی کوئی رابطوں کا اکاؤنٹ نہیں",
   "widgetsA.contacts.none": "کوئی رابطہ نہیں",
   "widgetsA.contacts.readFailed": "رابطے پڑھے نہیں جا سکے۔ themia.log دیکھیں۔",

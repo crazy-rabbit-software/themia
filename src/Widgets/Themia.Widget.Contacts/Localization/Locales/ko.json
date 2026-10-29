@@ -11,7 +11,7 @@
   "ctxMenu.message": "메시지",
   "ctxMenu.sendEmail": "메일 보내기",
   "widget.contacts.label": "연락처",
-  "widgetsA.catalog.contacts.description": "Microsoft, Google 및 CardDAV 주소록의 사람",
+  "widgetsA.catalog.contacts.description": "Microsoft 및 CardDAV 주소록의 사람",
   "widgetsA.contacts.noAccount": "아직 연락처 계정이 없습니다",
   "widgetsA.contacts.none": "연락처 없음",
   "widgetsA.contacts.readFailed": "연락처를 읽을 수 없습니다. themia.log를 참조하세요.",

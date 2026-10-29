@@ -11,7 +11,7 @@
   "ctxMenu.message": "Saƙo",
   "ctxMenu.sendEmail": "Aika imel",
   "widget.contacts.label": "Lambobin sadarwa",
-  "widgetsA.catalog.contacts.description": "Mutane daga littattafan adireshinka na Microsoft, Google da CardDAV",
+  "widgetsA.catalog.contacts.description": "Mutane daga littattafan adireshinka na Microsoft da CardDAV",
   "widgetsA.contacts.noAccount": "Babu asusun lambobin sadarwa tukuna",
   "widgetsA.contacts.none": "Babu lambobin sadarwa",
   "widgetsA.contacts.readFailed": "Ba a iya karanta lambobin sadarwa ba. Duba themia.log.",

@@ -12,7 +12,7 @@
   "ctxMenu.message": "Message",
   "ctxMenu.sendEmail": "Send email",
   "widget.contacts.label": "Contacts",
-  "widgetsA.catalog.contacts.description": "People from your Microsoft, Google and CardDAV address books",
+  "widgetsA.catalog.contacts.description": "People from your Microsoft and CardDAV address books",
   "widgetsA.contacts.noAccount": "No contacts account yet",
   "widgetsA.contacts.none": "No contacts",
   "widgetsA.contacts.readFailed": "Could not read contacts. See themia.log.",

@@ -11,7 +11,7 @@
   "ctxMenu.message": "संदेश",
   "ctxMenu.sendEmail": "ईमेल भेजें",
   "widget.contacts.label": "संपर्क",
-  "widgetsA.catalog.contacts.description": "आपकी Microsoft, Google और CardDAV पता पुस्तिकाओं के लोग",
+  "widgetsA.catalog.contacts.description": "आपकी Microsoft और CardDAV पता पुस्तिकाओं के लोग",
   "widgetsA.contacts.noAccount": "अभी कोई संपर्क खाता नहीं",
   "widgetsA.contacts.none": "कोई संपर्क नहीं",
   "widgetsA.contacts.readFailed": "संपर्क नहीं पढ़े जा सके। themia.log देखें।",

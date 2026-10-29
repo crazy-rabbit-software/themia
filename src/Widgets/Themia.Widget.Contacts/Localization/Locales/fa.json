@@ -11,7 +11,7 @@
   "ctxMenu.message": "پیام",
   "ctxMenu.sendEmail": "ارسال ایمیل",
   "widget.contacts.label": "مخاطبین",
-  "widgetsA.catalog.contacts.description": "افراد از دفترچه‌های نشانی Microsoft، Google و CardDAV شما",
+  "widgetsA.catalog.contacts.description": "افراد از دفترچه‌های نشانی Microsoft و CardDAV شما",
   "widgetsA.contacts.noAccount": "هنوز حساب مخاطبینی نیست",
   "widgetsA.contacts.none": "مخاطبی نیست",
   "widgetsA.contacts.readFailed": "مخاطبین خوانده نشدند. themia.log را ببینید.",

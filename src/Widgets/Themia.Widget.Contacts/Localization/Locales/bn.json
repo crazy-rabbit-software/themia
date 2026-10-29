@@ -11,7 +11,7 @@
   "ctxMenu.message": "বার্তা পাঠান",
   "ctxMenu.sendEmail": "ইমেল পাঠান",
   "widget.contacts.label": "পরিচিতি",
-  "widgetsA.catalog.contacts.description": "আপনার Microsoft, Google ও CardDAV ঠিকানা বইয়ের মানুষ",
+  "widgetsA.catalog.contacts.description": "আপনার Microsoft ও CardDAV ঠিকানা বইয়ের মানুষ",
   "widgetsA.contacts.noAccount": "এখনও কোনো পরিচিতি অ্যাকাউন্ট নেই",
   "widgetsA.contacts.none": "কোনো পরিচিতি নেই",
   "widgetsA.contacts.readFailed": "পরিচিতি পড়া যায়নি। themia.log দেখুন।",

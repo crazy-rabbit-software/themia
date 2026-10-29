@@ -11,7 +11,7 @@
   "ctxMenu.message": "Tuma ujumbe",
   "ctxMenu.sendEmail": "Tuma barua pepe",
   "widget.contacts.label": "Anwani",
-  "widgetsA.catalog.contacts.description": "Watu kutoka vitabu vyako vya anwani vya Microsoft, Google na CardDAV",
+  "widgetsA.catalog.contacts.description": "Watu kutoka vitabu vyako vya anwani vya Microsoft na CardDAV",
   "widgetsA.contacts.noAccount": "Bado hakuna akaunti ya anwani",
   "widgetsA.contacts.none": "Hakuna anwani",
   "widgetsA.contacts.readFailed": "Haikuweza kusoma anwani. Angalia themia.log.",

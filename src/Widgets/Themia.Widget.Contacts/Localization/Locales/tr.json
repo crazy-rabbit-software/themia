@@ -11,7 +11,7 @@
   "ctxMenu.message": "İleti gönder",
   "ctxMenu.sendEmail": "E-posta gönder",
   "widget.contacts.label": "Kişiler",
-  "widgetsA.catalog.contacts.description": "Microsoft, Google ve CardDAV adres defterlerinizdeki kişiler",
+  "widgetsA.catalog.contacts.description": "Microsoft ve CardDAV adres defterlerinizdeki kişiler",
   "widgetsA.contacts.noAccount": "Henüz kişiler hesabı yok",
   "widgetsA.contacts.none": "Kişi yok",
   "widgetsA.contacts.readFailed": "Kişiler okunamadı. themia.log dosyasına bakın.",

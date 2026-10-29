@@ -11,7 +11,7 @@
   "ctxMenu.message": "Pesan",
   "ctxMenu.sendEmail": "Kirim email",
   "widget.contacts.label": "Kontak",
-  "widgetsA.catalog.contacts.description": "Orang dari buku alamat Microsoft, Google, dan CardDAV Anda",
+  "widgetsA.catalog.contacts.description": "Orang dari buku alamat Microsoft dan CardDAV Anda",
   "widgetsA.contacts.noAccount": "Belum ada akun kontak",
   "widgetsA.contacts.none": "Tidak ada kontak",
   "widgetsA.contacts.readFailed": "Tidak dapat membaca kontak. Lihat themia.log.",

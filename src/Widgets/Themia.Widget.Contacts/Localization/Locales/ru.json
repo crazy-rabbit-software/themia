@@ -11,7 +11,7 @@
   "ctxMenu.message": "Сообщение",
   "ctxMenu.sendEmail": "Написать письмо",
   "widget.contacts.label": "Контакты",
-  "widgetsA.catalog.contacts.description": "Люди из адресных книг Microsoft, Google и CardDAV",
+  "widgetsA.catalog.contacts.description": "Люди из адресных книг Microsoft и CardDAV",
   "widgetsA.contacts.noAccount": "Учетной записи контактов пока нет",
   "widgetsA.contacts.none": "Нет контактов",
   "widgetsA.contacts.readFailed": "Не удалось прочитать контакты. См. themia.log.",

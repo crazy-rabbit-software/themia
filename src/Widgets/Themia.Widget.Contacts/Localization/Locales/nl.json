@@ -11,7 +11,7 @@
   "ctxMenu.message": "Bericht",
   "ctxMenu.sendEmail": "E-mail verzenden",
   "widget.contacts.label": "Contactpersonen",
-  "widgetsA.catalog.contacts.description": "Personen uit je Microsoft-, Google- en CardDAV-adresboeken",
+  "widgetsA.catalog.contacts.description": "Personen uit je Microsoft- en CardDAV-adresboeken",
   "widgetsA.contacts.noAccount": "Nog geen contactenaccount",
   "widgetsA.contacts.none": "Geen contactpersonen",
   "widgetsA.contacts.readFailed": "Kan de contactpersonen niet lezen. Zie themia.log.",

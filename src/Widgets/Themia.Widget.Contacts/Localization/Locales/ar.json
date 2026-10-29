@@ -11,7 +11,7 @@
   "ctxMenu.message": "رسالة",
   "ctxMenu.sendEmail": "إرسال بريد",
   "widget.contacts.label": "جهات الاتصال",
-  "widgetsA.catalog.contacts.description": "أشخاص من دفاتر عناوين Microsoft وGoogle وCardDAV",
+  "widgetsA.catalog.contacts.description": "أشخاص من دفاتر عناوين Microsoft وCardDAV",
   "widgetsA.contacts.noAccount": "لا يوجد حساب جهات اتصال بعد",
   "widgetsA.contacts.none": "لا جهات اتصال",
   "widgetsA.contacts.readFailed": "تعذرت قراءة جهات الاتصال. راجع themia.log.",

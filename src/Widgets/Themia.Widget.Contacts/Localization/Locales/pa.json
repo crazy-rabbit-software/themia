@@ -11,7 +11,7 @@
   "ctxMenu.message": "ਸੁਨੇਹਾ",
   "ctxMenu.sendEmail": "ਈਮੇਲ ਭੇਜੋ",
   "widget.contacts.label": "ਸੰਪਰਕ",
-  "widgetsA.catalog.contacts.description": "ਤੁਹਾਡੀਆਂ Microsoft, Google ਅਤੇ CardDAV ਪਤਾ ਪੁਸਤਕਾਂ ਦੇ ਲੋਕ",
+  "widgetsA.catalog.contacts.description": "ਤੁਹਾਡੀਆਂ Microsoft ਅਤੇ CardDAV ਪਤਾ ਪੁਸਤਕਾਂ ਦੇ ਲੋਕ",
   "widgetsA.contacts.noAccount": "ਹਾਲੇ ਕੋਈ ਸੰਪਰਕ ਖਾਤਾ ਨਹੀਂ",
   "widgetsA.contacts.none": "ਕੋਈ ਸੰਪਰਕ ਨਹੀਂ",
   "widgetsA.contacts.readFailed": "ਸੰਪਰਕ ਪੜ੍ਹੇ ਨਹੀਂ ਜਾ ਸਕੇ। themia.log ਦੇਖੋ।",

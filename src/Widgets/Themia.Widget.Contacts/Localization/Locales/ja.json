@@ -11,7 +11,7 @@
   "ctxMenu.message": "メッセージを送信",
   "ctxMenu.sendEmail": "メールを送信",
   "widget.contacts.label": "連絡先",
-  "widgetsA.catalog.contacts.description": "Microsoft、Google、CardDAV のアドレス帳の連絡先",
+  "widgetsA.catalog.contacts.description": "Microsoft と CardDAV のアドレス帳の連絡先",
   "widgetsA.contacts.noAccount": "連絡先のアカウントはまだありません",
   "widgetsA.contacts.none": "連絡先はありません",
   "widgetsA.contacts.readFailed": "連絡先を読み込めませんでした。themia.log を確認してください。",

@@ -11,7 +11,7 @@
   "ctxMenu.message": "Nhắn tin",
   "ctxMenu.sendEmail": "Gửi email",
   "widget.contacts.label": "Danh bạ",
-  "widgetsA.catalog.contacts.description": "Mọi người từ sổ địa chỉ Microsoft, Google và CardDAV",
+  "widgetsA.catalog.contacts.description": "Mọi người từ sổ địa chỉ Microsoft và CardDAV",
   "widgetsA.contacts.noAccount": "Chưa có tài khoản danh bạ",
   "widgetsA.contacts.none": "Không có liên hệ",
   "widgetsA.contacts.readFailed": "Không đọc được danh bạ. Xem themia.log.",

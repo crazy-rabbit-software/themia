@@ -11,7 +11,7 @@
   "ctxMenu.message": "Enviar mensagem",
   "ctxMenu.sendEmail": "Enviar e-mail",
   "widget.contacts.label": "Contatos",
-  "widgetsA.catalog.contacts.description": "Pessoas dos seus catálogos de endereços Microsoft, Google e CardDAV",
+  "widgetsA.catalog.contacts.description": "Pessoas dos seus catálogos de endereços Microsoft e CardDAV",
   "widgetsA.contacts.noAccount": "Nenhuma conta de contatos ainda",
   "widgetsA.contacts.none": "Nenhum contato",
   "widgetsA.contacts.readFailed": "Não foi possível ler os contatos. Veja themia.log.",

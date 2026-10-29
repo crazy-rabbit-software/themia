@@ -1974,7 +1974,9 @@ written in place), `Shell/DesktopWindow.SettingsMenu.cs` (`RequestAccounts`). Te
   sign in again the way they were added ([S-3552]) and sign out, so no data is dropped and a widget
   reading one keeps showing it. **Google is held back** while Google has not verified the OAuth app
   for its restricted Gmail scope (docs/GOOGLE-VERIFICATION.md); its sign-in, sync and tests stay, and
-  offering it again is deleting `GoogleProvider.Offered` (`src/Themia.Core/Accounts/HostProviders.cs`).
+  offering it again is deleting `GoogleProvider.Offered` (`src/Themia.Core/Accounts/HostProviders.cs`)
+  and naming Google again where the texts stopped: the Contacts and Tasks descriptions, the Tasks
+  menu's no-account note and the Tasks and Calendar picker keywords.
   Gmail itself can still be added as a mail server with an app password ([S-522]).
 - **[S-3554]** The forms, a draft each (`AccountForm`, one per kind, the same wherever it is opened
   from, kept while menus come and go), each a level of one-row rows as Karpo's (§338): every field a

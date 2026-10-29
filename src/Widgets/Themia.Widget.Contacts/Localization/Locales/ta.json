@@ -11,7 +11,7 @@
   "ctxMenu.message": "செய்தி",
   "ctxMenu.sendEmail": "மின்னஞ்சல் அனுப்பு",
   "widget.contacts.label": "தொடர்புகள்",
-  "widgetsA.catalog.contacts.description": "உங்கள் Microsoft, Google மற்றும் CardDAV முகவரிப் புத்தகங்களிலிருந்து நபர்கள்",
+  "widgetsA.catalog.contacts.description": "உங்கள் Microsoft மற்றும் CardDAV முகவரிப் புத்தகங்களிலிருந்து நபர்கள்",
   "widgetsA.contacts.noAccount": "இன்னும் தொடர்புகள் கணக்கு இல்லை",
   "widgetsA.contacts.none": "தொடர்புகள் இல்லை",
   "widgetsA.contacts.readFailed": "தொடர்புகளைப் படிக்க முடியவில்லை. themia.log ஐப் பார்க்கவும்.",

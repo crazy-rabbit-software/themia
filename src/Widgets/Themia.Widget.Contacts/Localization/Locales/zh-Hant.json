@@ -11,7 +11,7 @@
   "ctxMenu.message": "訊息",
   "ctxMenu.sendEmail": "傳送電子郵件",
   "widget.contacts.label": "連絡人",
-  "widgetsA.catalog.contacts.description": "來自您 Microsoft、Google 和 CardDAV 通訊錄的連絡人",
+  "widgetsA.catalog.contacts.description": "來自您 Microsoft 和 CardDAV 通訊錄的連絡人",
   "widgetsA.contacts.noAccount": "尚無連絡人帳戶",
   "widgetsA.contacts.none": "沒有連絡人",
   "widgetsA.contacts.readFailed": "無法讀取連絡人。請查看 themia.log。",

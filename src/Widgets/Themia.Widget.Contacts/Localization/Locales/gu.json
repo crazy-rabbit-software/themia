@@ -11,7 +11,7 @@
   "ctxMenu.message": "સંદેશ",
   "ctxMenu.sendEmail": "ઇમેઇલ મોકલો",
   "widget.contacts.label": "સંપર્કો",
-  "widgetsA.catalog.contacts.description": "તમારી Microsoft, Google અને CardDAV સરનામા પુસ્તિકાઓના લોકો",
+  "widgetsA.catalog.contacts.description": "તમારી Microsoft અને CardDAV સરનામા પુસ્તિકાઓના લોકો",
   "widgetsA.contacts.noAccount": "હજી કોઈ સંપર્ક એકાઉન્ટ નથી",
   "widgetsA.contacts.none": "કોઈ સંપર્કો નથી",
   "widgetsA.contacts.readFailed": "સંપર્કો વાંચી શકાયા નહીં. themia.log જુઓ.",
