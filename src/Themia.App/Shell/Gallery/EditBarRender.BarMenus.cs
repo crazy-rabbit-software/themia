@@ -137,7 +137,7 @@ internal static partial class EditBarRender
         var button = editBar.MenuButtonBox(which, canvas) ?? barRect;
         menu.RoomHeight = DropDownPlacement.Room(barRect, area);
         menu.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
-        var (x, y) = DropDownPlacement.Place(button, barRect, menu.DesiredSize.Width, menu.DesiredSize.Height, area, [barRect], UiLanguage.Flow == FlowDirection.RightToLeft);
+        var (x, y) = DropDownPlacement.Place(button, barRect, menu.DesiredSize.Width, menu.DesiredSize.Height, area, [barRect]);
         Canvas.SetLeft(menu, Math.Round(x));
         Canvas.SetTop(menu, Math.Round(y));
         screen.UpdateLayout();

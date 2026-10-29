@@ -241,7 +241,7 @@ internal sealed partial class DesktopWindow
         menu.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
         var size = menu.DesiredSize;
 
-        var (x, y) = DropDownPlacement.Place(button, bar, size.Width, size.Height, area, bars, UiLanguage.Flow == FlowDirection.RightToLeft);
+        var (x, y) = DropDownPlacement.Place(button, bar, size.Width, size.Height, area, bars);
         Canvas.SetLeft(menu, Math.Round(x));
         Canvas.SetTop(menu, Math.Round(y));
     }

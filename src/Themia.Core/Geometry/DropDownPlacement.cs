@@ -2,8 +2,8 @@ namespace Themia.Core.Geometry;
 
 /// <summary>
 /// [S-3522] Where a menu that drops down from an edit-bar button stands (the settings menu under ⚙):
-/// under the bar, its start edge level with the button's (right to left: its end edges), slid along
-/// to stay inside the work area, and stepped down clear of what it would cover (the view bar)
+/// under the bar, centred under its button (the same in either reading direction), slid along to
+/// stay inside the work area, and stepped down clear of what it would cover (the view bar)
 /// wherever the work area leaves room below; never above the work area's top. Pure: the surface
 /// measures the button and the menu and asks.
 /// </summary>
@@ -17,11 +17,11 @@ public static class DropDownPlacement
     /// the menu <paramref name="width"/> × <paramref name="height"/>, inside <paramref name="area"/>,
     /// clear of each of <paramref name="avoid"/> where there is room.
     /// </summary>
-    public static (double X, double Y) Place(PixelRect button, PixelRect bar, double width, double height, PixelRect area, IReadOnlyList<PixelRect> avoid, bool rightToLeft)
+    public static (double X, double Y) Place(PixelRect button, PixelRect bar, double width, double height, PixelRect area, IReadOnlyList<PixelRect> avoid)
     {
         ArgumentNullException.ThrowIfNull(avoid);
 
-        var x = rightToLeft ? button.X + button.Width - width : button.X;
+        var x = button.X + ((button.Width - width) / 2);
         x = Math.Max(area.X, Math.Min(x, area.X + area.Width - width));
 
         var y = bar.Y + bar.Height + Gap;

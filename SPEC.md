@@ -1648,8 +1648,9 @@ mechanism), `Shell/DesktopWindow.SettingsMenu.cs`, `Services/AppHost.SettingsMen
   of the bar's menus (Display ▾, View ▾, [S-3540]) opens, or the widget crumb is clicked ([S-3508]); when a placement starts; and on Done or leaving edit mode any other way. Each display has
   its own, opened from that display's bar. Closed, its levels close as going back closes them: it
   opens again on its own rows.
-- **[S-3522]** Where it stands (`DropDownPlacement`): 4 DIPs under the bar, its start edge level with
-  ⚙'s (right to left, its end edge level with ⚙'s end), slid along to stay inside the work area,
+- **[S-3522]** Where it stands (`DropDownPlacement`): 4 DIPs under the bar, centred under the button
+  it drops from (⚙, Display ▾, View ▾; the same in either reading direction), slid along to stay
+  inside the work area,
   stepped down below the view bar where it would cover it while the work area leaves room, and never
   outside the work area: its one rectangle is no taller than the work area under the bar
   (`DropDownPlacement.Room`, [S-3734]). It stays where it stands while it is used: a level opening or
