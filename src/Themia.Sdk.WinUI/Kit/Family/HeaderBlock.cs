@@ -140,18 +140,23 @@ public sealed partial class HeaderBlock : Grid
         text.HorizontalAlignment = HorizontalAlignment.Center;
         text.VerticalAlignment = VerticalAlignment.Center;
 
-        return new Border
+        var stroke = overImage ? FamilyShape.Hairline : 0;
+        var pill = new Border
         {
             Child = text,
             Height = FamilyShape.PillHeight,
             MinWidth = FamilyShape.PillHeight,
             CornerRadius = Family.Round(FamilyShape.PillHeight, FamilyShape.PillHeight),
-            Padding = new Thickness(FamilyShape.PillPadding, 0, FamilyShape.PillPadding, 0),
             Background = Family.Brush(overImage ? ColourRole.Solid : ColourRole.Subtle),
             BorderBrush = overImage ? Family.Brush(ColourRole.ControlStroke) : null,
-            BorderThickness = new Thickness(overImage ? FamilyShape.Hairline : 0),
+            BorderThickness = new Thickness(stroke),
             VerticalAlignment = VerticalAlignment.Center,
         };
+
+        // The pill is its text and 6 either side ([S-6706]), as a size the text sets rather than a
+        // padding: a padding of 6 is off the space scale the render walk holds every padding to.
+        text.SizeChanged += (_, args) => pill.Width = Math.Max(FamilyShape.PillHeight, args.NewSize.Width + (2 * FamilyShape.PillPadding) + (2 * stroke));
+        return pill;
     }
 
     /// <summary>[S-6710] The problem glyph: the caution warning, its lines in the tooltip.</summary>
