@@ -246,6 +246,16 @@ public sealed class FamilyBlockRulesTests
     }
 
     [Fact]
+    public void S6717_a_range_bar_fills_between_its_two_ends_from_the_tracks_start_or_its_foot()
+    {
+        // A day's range from 8° to 16° on a week of 5° to 17°: along a row's track, or up a column's.
+        var (start, length) = ChartRules.Bar(120, (16 - 5) / 12.0, (8 - 5) / 12.0);
+        Assert.Equal(30, start, 6);
+        Assert.Equal(80, length, 6);
+        Assert.Equal(ChartRules.Bar(120, 0.25, 0.75), ChartRules.Bar(120, 0.75, 0.25));
+    }
+
+    [Fact]
     public void S6717_a_value_stands_inside_its_band_and_a_gauge_is_the_rings_upper_half()
     {
         // A 0 half a stroke over the foot, a 1 half a stroke under the top, a bad value at 0.

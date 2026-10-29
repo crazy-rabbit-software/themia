@@ -111,11 +111,15 @@ public sealed partial class ChartSeries : Grid
 /// <summary>
 /// [S-6717] A meter's bar (and a range bar, and an inline meter in a row): a 4 track in the Track role,
 /// round, with its fill in the accent (or Caution/Critical) from one fraction to another; or a column
-/// (a core's load): the same track standing up, filled from its foot.
+/// (a core's load, a day's range standing up): the same track standing up, filled upwards from one
+/// fraction of its height to another (from its foot when the first is 0). The fill is moved along the
+/// track, never set off by a margin, so a range starting past the track's start stays on the family's
+/// space scale ([S-6731]).
 /// </summary>
 public sealed partial class ChartBar : Grid
 {
     private readonly Border _fill;
+    private readonly TranslateTransform _offset = new();
     private readonly bool _vertical;
     private double _from;
     private double _to;
@@ -143,6 +147,7 @@ public sealed partial class ChartBar : Grid
             CornerRadius = round,
             HorizontalAlignment = vertical ? HorizontalAlignment.Stretch : HorizontalAlignment.Left,
             VerticalAlignment = vertical ? VerticalAlignment.Bottom : VerticalAlignment.Stretch,
+            RenderTransform = _offset,
         };
         Children.Add(_fill);
         Role(ColourRole.Accent);
@@ -176,15 +181,16 @@ public sealed partial class ChartBar : Grid
     {
         if (_vertical)
         {
-            // A column fills from its foot: its share of the height, nothing under it; round at any length.
-            var height = ChartRules.Bar(ActualHeight, _to).Width;
+            // A column fills upwards: its share of the height, raised by what lies under it; round at any length.
+            var (foot, height) = ChartRules.Bar(ActualHeight, _to, _from);
             _fill.Height = height;
+            _offset.Y = -foot;
             _fill.CornerRadius = Family.Round(FamilyShape.Track, height);
             return;
         }
 
         var (left, width) = ChartRules.Bar(ActualWidth, _to, _from);
-        _fill.Margin = new Thickness(left, 0, 0, 0);
+        _offset.X = left;
         _fill.Width = width;
         _fill.CornerRadius = Family.Round(width, FamilyShape.Track);
     }
