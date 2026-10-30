@@ -15,6 +15,10 @@ internal readonly record struct DesktopChange((string Old, string New)? Renamed,
 /// shell and interrupt level, every event. New delivery, so each message is a handle locked with
 /// <c>SHChangeNotification_Lock</c> while it is handled: that is how a rename's two names are read.
 /// Registered while the desktop shows Themia's items; disposed otherwise.
+/// <para>
+/// One registration per folder: on Windows 11 build 26300 a call naming two or more entries crashes
+/// the process inside windows.storage.dll, so each folder is its own call to the same message.
+/// </para>
 /// </summary>
 internal sealed unsafe partial class DesktopNotifications : IDisposable
 {
@@ -38,12 +42,12 @@ internal sealed unsafe partial class DesktopNotifications : IDisposable
     private const int ShcneAssocChanged = 0x08000000;
 
     private readonly List<PidlHandle> _folders;
-    private uint _registration;
+    private readonly List<uint> _registrations;
 
-    private DesktopNotifications(List<PidlHandle> folders, uint registration)
+    private DesktopNotifications(List<PidlHandle> folders, List<uint> registrations)
     {
         _folders = folders;
-        _registration = registration;
+        _registrations = registrations;
     }
 
     /// <summary>Register <paramref name="hwnd"/> for the desktop's changes; null (logged) when the shell refuses.</summary>
@@ -64,16 +68,25 @@ internal sealed unsafe partial class DesktopNotifications : IDisposable
             return null;
         }
 
-        var entries = stackalloc ChangeNotifyEntry[folders.Count];
-        for (var i = 0; i < folders.Count; i++)
+        var registrations = new List<uint>(folders.Count);
+        foreach (var folder in folders)
         {
-            entries[i] = new ChangeNotifyEntry { Pidl = folders[i].DangerousGetHandle(), Recursive = 0 };
+            var entry = new ChangeNotifyEntry { Pidl = folder.DangerousGetHandle(), Recursive = 0 };
+            var id = SHChangeNotifyRegister(hwnd, ShcnrfShellLevel | ShcnrfInterruptLevel | ShcnrfNewDelivery, ShcneAllEvents, Message, 1, &entry);
+            if (id != 0)
+            {
+                registrations.Add(id);
+            }
         }
 
-        var id = SHChangeNotifyRegister(hwnd, ShcnrfShellLevel | ShcnrfInterruptLevel | ShcnrfNewDelivery, ShcneAllEvents, Message, folders.Count, entries);
-        if (id == 0)
+        if (registrations.Count < folders.Count)
         {
-            Log.Warn(Scope, "SHChangeNotifyRegister refused the desktop; the items are read only when the desktop choice is applied");
+            Log.Warn(Scope, $"SHChangeNotifyRegister refused {folders.Count - registrations.Count} of the desktop's {folders.Count} folders");
+        }
+
+        if (registrations.Count == 0)
+        {
+            Log.Warn(Scope, "the items are read only when the desktop choice is applied");
             foreach (var folder in folders)
             {
                 folder.Dispose();
@@ -82,7 +95,7 @@ internal sealed unsafe partial class DesktopNotifications : IDisposable
             return null;
         }
 
-        return new DesktopNotifications(folders, id);
+        return new DesktopNotifications(folders, registrations);
     }
 
     /// <summary>
@@ -124,17 +137,17 @@ internal sealed unsafe partial class DesktopNotifications : IDisposable
 
     public void Dispose()
     {
-        if (_registration != 0)
+        foreach (var registration in _registrations)
         {
-            if (!SHChangeNotifyDeregister(_registration))
+            if (!SHChangeNotifyDeregister(registration))
             {
                 Log.Warn(Scope, "SHChangeNotifyDeregister failed");
             }
-
-            _registration = 0;
         }
 
-        // After the registration is gone: the shell no longer refers to the folders' ID lists.
+        _registrations.Clear();
+
+        // After the registrations are gone: the shell no longer refers to the folders' ID lists.
         foreach (var folder in _folders)
         {
             folder.Dispose();

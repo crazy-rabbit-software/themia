@@ -7722,7 +7722,8 @@ Owning files: `Themia.Core/Desktop/*`, `Themia.Core/Shell/DesktopIconRules.cs`,
   logged, and is never taken as "every item gone".
 - **[S-5511]** **Kept current by the shell's change notifications**, never a poll:
   `SHChangeNotifyRegister` (shell and interrupt level, new delivery) on the desktop root and on both
-  desktop folders, for items created, deleted, renamed, updated, their attributes and the shell's
+  desktop folders (one registration per folder: a call naming more crashes in windows.storage on
+  build 26300), for items created, deleted, renamed, updated, their attributes and the shell's
   icons, posted to the command window. A burst is coalesced without a timer (one re-read queued
   while one is pending, as [S-1333]); a rename's old and new keys are kept for [S-5520]. Registered
   while the choice is Themia's items, dropped otherwise.
