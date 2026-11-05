@@ -1,6 +1,7 @@
 using Themia.Core.Diagnostics;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
+using Themia.Sdk;
 
 namespace Themia.App.Services.Web;
 
@@ -73,7 +74,8 @@ internal static class MarketService
     /// <summary>
     /// [S-1307] Symbols matching <paramref name="query"/>: Yahoo's search and CoinGecko's, asked
     /// together, merged alternately. A service that fails contributes nothing (logged), so a
-    /// CoinGecko rate limit still leaves the share results.
+    /// CoinGecko rate limit still leaves the share results; when both fail it throws
+    /// <see cref="SymbolSearchFailedException"/>, so the menu says why instead of "no matches".
     /// </summary>
     public static async Task<IReadOnlyList<SymbolHit>> SearchAsync(string query, CancellationToken token)
     {
@@ -103,6 +105,12 @@ internal static class MarketService
         if (coinStatus != FetchStatus.Ok)
         {
             Log.Info(Scope, $"coin search: {FetchState.Message(coinStatus)} {coinDetail}".TrimEnd());
+        }
+
+        // [S-1307] Neither answered (blocked where the user is, offline): the menu says why.
+        if (MarketSearch.Unanswered(listedStatus, coinStatus) is { } failure)
+        {
+            throw new SymbolSearchFailedException(failure);
         }
 
         var listedHits = MarketSearch.Listed((listedReply?.Quotes ?? [])

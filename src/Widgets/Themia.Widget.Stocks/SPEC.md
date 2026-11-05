@@ -26,7 +26,8 @@ own `StocksStr`, 30 languages, its style names included). Tests: `Tests/` (run b
   symbol, exchange and class. A pick sets symbol, market and name; typed text that is a plausible symbol
   is offered first as "Use “…”", a listed symbol ([S-3790]); text no symbol has is said to be one in
   place of the answers, never stripped. The chosen symbol is at the line's end. A failing service
-  contributes nothing (logged).
+  contributes nothing (logged); when neither answers (blocked where the user is, offline: issue 187)
+  a note under the typed symbol says why (`MarketSearch.Unanswered`), never "no matches".
 - **[S-1308]** Extended hours (classic S-34/S-35, `ShowExtendedHours`, off): listed symbols on the
   1-day and 5-day charts ask `includePrePost=true` (part of the cache key). The last pre-market /
   after-hours bar against the regular close is a fact row under the price (the name "After hours ·

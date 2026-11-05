@@ -2,6 +2,7 @@ using Themia.App.Shell.Config;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
+using Themia.Sdk;
 using Themia.Sdk.WinUI;
 using Xunit;
 
@@ -82,6 +83,23 @@ public sealed class StocksMenuTests
         Assert.Equal("MSFT", config.Symbol);
         Assert.Equal("Microsoft Corporation", config.DisplayName);
         Assert.Equal(1, _saves);
+    }
+
+    [Fact]
+    public async Task S1307_issue_187_a_search_no_service_answered_says_why_and_still_offers_the_typed_symbol()
+    {
+        var config = new StocksConfig();
+        var lines = new WidgetMenuLines(() => _saves++, ask => _asked = ask);
+        StocksMenu.Lines(lines, config, (_, _) => throw new SymbolSearchFailedException(FetchStatus.TimedOut));
+        var search = lines.Lines[0].Search!;
+
+        var typed = await search.Find("600519.SS", CancellationToken.None);
+        Assert.Null(typed.Note);
+        Assert.Equal([StocksStr.Stocks_Menu_UseTyped.Format(("symbol", "600519.SS")), FetchState.Message(FetchStatus.TimedOut)], typed.Lines.Select(l => l.Text));
+        Assert.True(typed.Lines[1].Note);
+
+        var named = await search.Find("Kweichow Moutai", CancellationToken.None);
+        Assert.Equal([FetchState.Message(FetchStatus.TimedOut)], named.Lines.Select(l => l.Text));
     }
 
     [Fact]

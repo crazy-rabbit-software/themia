@@ -81,7 +81,7 @@ internal static class StocksMenu
     /// [S-1307] The symbol: a search asking Yahoo and CoinGecko together once typing pauses; a pick
     /// sets the symbol, its market and its name in one go. What is typed, if it is a plausible
     /// symbol, is offered first as itself ([S-3790]: a listed one), so a symbol typed in full still
-    /// works. Refused, not repaired: a symbol with characters no symbol has is said to be one, never
+    /// works; when no service answered, a note says why under it. Refused, not repaired: a symbol with characters no symbol has is said to be one, never
     /// stripped into something the widget would quote in its place.
     /// </summary>
     private static ItemMenuEntry SymbolLine(WidgetMenuLines menu, StocksConfig config, Func<string, CancellationToken, Task<IReadOnlyList<SymbolHit>>> lookup)
@@ -95,15 +95,24 @@ internal static class StocksMenu
             }
 
             IReadOnlyList<SymbolHit> hits;
+            string? unanswered = null;
             try
             {
                 hits = await lookup(query, cancel).ConfigureAwait(true);
+            }
+            catch (SymbolSearchFailedException ex)
+            {
+                // [S-1307] No service answered (blocked, offline): say why, never "no matches".
+                Log.Info(Scope, ex.Message);
+                hits = [];
+                unanswered = FetchState.Message(ex.Status);
             }
             catch (Exception ex) when (ex is not OperationCanceledException)
             {
                 // A symbol typed in full still works without the search.
                 Log.Warn(Scope, $"symbol search failed: {ex.GetType().Name}");
                 hits = [];
+                unanswered = FetchState.Message(FetchStatus.Unreachable);
             }
 
             var lines = new List<ItemMenuEntry>();
@@ -124,6 +133,12 @@ internal static class StocksMenu
                 config.Choose(hit);
                 menu.Save();
             })));
+
+            if (unanswered is not null)
+            {
+                lines.Add(WidgetMenuLines.Note(unanswered));
+                return new MenuSearchAnswer(lines);
+            }
 
             return lines.Count > 0
                 ? new MenuSearchAnswer(lines)
