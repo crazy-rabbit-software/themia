@@ -65,6 +65,23 @@ public class MailImapTests
     }
 
     [Fact]
+    public void S553_issue_187_qq_mail_puts_no_space_after_a_literal()
+    {
+        // QQ Mail runs the next item straight on after a literal's octets (no SP before FLAGS).
+        const string header = "From: Ann <ann@qq.com>\r\nSubject: Hi\r\n\r\n";
+        const string text = "Hello\r\n";
+        var response = $"* 3061 FETCH (UID 3523 RFC822.HEADER {{{header.Length}}}\r\n{header}FLAGS () BODY[TEXT] {{{text.Length}}}\r\n{text})\r\n";
+
+        var fetched = ImapData.Fetch(Parse(response));
+
+        Assert.NotNull(fetched);
+        Assert.Equal(3523u, fetched.Uid);
+        Assert.False(fetched.Seen);
+        Assert.Equal(header, Encoding.ASCII.GetString(fetched.Header!));
+        Assert.Equal(text, Encoding.ASCII.GetString(fetched.Text!));
+    }
+
+    [Fact]
     public void S553_select_data_exists_and_uidvalidity()
     {
         Assert.Equal(172, ImapData.Exists(Parse("* 172 EXISTS\r\n")));
