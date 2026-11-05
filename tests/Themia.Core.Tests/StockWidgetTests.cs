@@ -52,6 +52,15 @@ public sealed class StockWidgetTests
     }
 
     [Theory]
+    [InlineData(FetchStatus.Ok, FetchStatus.Ok, null)]
+    [InlineData(FetchStatus.Ok, FetchStatus.TimedOut, null)]
+    [InlineData(FetchStatus.Forbidden, FetchStatus.Ok, null)]
+    [InlineData(FetchStatus.Forbidden, FetchStatus.TimedOut, FetchStatus.Forbidden)]
+    [InlineData(FetchStatus.Offline, FetchStatus.Offline, FetchStatus.Offline)]
+    public void S1307_issue_187_a_search_no_service_answered_says_why(FetchStatus listed, FetchStatus coins, FetchStatus? expected)
+        => Assert.Equal(expected, MarketSearch.Unanswered(listed, coins));
+
+    [Theory]
     [InlineData("", false)]
     [InlineData("   ", false)]
     [InlineData("apple", true)]

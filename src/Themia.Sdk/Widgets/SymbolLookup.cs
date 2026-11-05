@@ -24,3 +24,13 @@ public static class SymbolLookup
         }
     }
 }
+
+/// <summary>
+/// [S-1307] The symbol search reached no service: thrown by the host's search so the menu can say why
+/// (<see cref="FetchState.Message(FetchStatus)"/>) instead of "no matches".
+/// </summary>
+public sealed class SymbolSearchFailedException(FetchStatus status)
+    : Exception($"the symbol search reached no service ({status})")
+{
+    public FetchStatus Status { get; } = status;
+}

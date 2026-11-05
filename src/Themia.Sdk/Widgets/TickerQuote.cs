@@ -83,6 +83,13 @@ public static class MarketSearch
     public static IReadOnlySet<string> SearchableTypes { get; } =
         new HashSet<string>(StringComparer.OrdinalIgnoreCase) { "EQUITY", "ETF", "MUTUALFUND", "INDEX", "CURRENCY", "FUTURE" };
 
+    /// <summary>
+    /// [S-1307] Why a search has no answers because no service answered: when both failed, the share
+    /// service's failure (the one most searches are for), else null (one answered, even with nothing).
+    /// </summary>
+    public static FetchStatus? Unanswered(FetchStatus listed, FetchStatus coins)
+        => listed != FetchStatus.Ok && coins != FetchStatus.Ok ? listed : null;
+
     /// <summary>Whether a query is worth sending: something typed, and not absurdly long.</summary>
     public static bool IsQuery(string? text) => text?.Trim() is { Length: > 0 and <= 60 };
 
