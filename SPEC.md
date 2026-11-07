@@ -4569,7 +4569,8 @@ The host's one read of every peripheral battery Windows reports, for the Device 
   not a whole number is none; charging is a 0 or 1 (or a boolean), anything else no answer; a
   controller's level is its remaining over its full capacity, rounded, a remaining one over the full
   one full, either missing none; a container id is Windows' braced GUID, the empty one none; the kind
-  is Windows' category for the container read part by part ("Input.Mouse", "Audio.Headphone"; audio
+  is Windows' category read part by part (a paired device's own, `System.Devices.Aep.Category`:
+  "Communication.Headset.Bluetooth", else its container's: "Input.Mouse", "Audio.Headphone"; audio
   gives way to a more specific part), else the name's guess ([S-240]).
 - **[S-4472]** Events, not polling, where Windows gives them: device watchers on the paired Classic
   and LE devices (their connection), on the containers that carry a level, and on the device nodes

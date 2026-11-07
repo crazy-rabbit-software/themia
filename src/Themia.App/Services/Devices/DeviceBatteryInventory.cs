@@ -28,13 +28,16 @@ internal static class DeviceBatteryInventory
 
     internal const string ConnectedProperty = "System.Devices.Aep.IsConnected";
     internal const string AepContainerProperty = "System.Devices.Aep.ContainerId";
+
+    /// <summary>[S-4471] The paired device's own categories ("Communication.Headset.Bluetooth"): the kind where its container has none.</summary>
+    internal const string AepCategoryProperty = "System.Devices.Aep.Category";
     internal const string NodeContainerProperty = "System.Devices.ContainerId";
     internal const string BatteryLifeProperty = "System.Devices.BatteryLife";
     internal const string ChargingProperty = "System.Devices.ChargingState";
     internal const string CategoryProperty = "System.Devices.Category";
     internal const string ContainerConnectedProperty = "System.Devices.Connected";
 
-    internal static readonly string[] AepProperties = [ConnectedProperty, AepContainerProperty];
+    internal static readonly string[] AepProperties = [ConnectedProperty, AepContainerProperty, AepCategoryProperty];
 
     internal static readonly string[] NodeProperties = [DeviceBatteryRules.BluetoothBatteryProperty, NodeContainerProperty];
 
@@ -76,7 +79,7 @@ internal static class DeviceBatteryInventory
 
         foreach (var device in connected)
         {
-            var kind = Kind(device.Container, containers, device.Name);
+            var kind = DeviceKinds.FromCategories(device.Categories) ?? Kind(device.Container, containers, device.Name);
 
             if (device.Container is { } id && nodeLevels.TryGetValue(id, out var level))
             {
@@ -118,7 +121,7 @@ internal static class DeviceBatteryInventory
         return new Pass(readings, btContainers, gatt);
     }
 
-    private sealed record Paired(string Id, string Name, bool Connected, Guid? Container, bool Le);
+    private sealed record Paired(string Id, string Name, bool Connected, Guid? Container, bool Le, string?[] Categories);
 
     private sealed record Container(Guid Id, string Name, int? Percent, bool? Charging, bool? Connected, string?[] Categories);
 
@@ -139,7 +142,8 @@ internal static class DeviceBatteryInventory
                     info.Name ?? string.Empty,
                     info.Properties.TryGetValue(ConnectedProperty, out var on) && on is true,
                     info.Properties.TryGetValue(AepContainerProperty, out var box) ? DeviceBatteryRules.ParseContainer(box) : null,
-                    le)),
+                    le,
+                    info.Properties.TryGetValue(AepCategoryProperty, out var categories) ? DeviceBatteryRules.Categories(categories) : [])),
             ];
         }
         catch (OperationCanceledException)
@@ -183,7 +187,7 @@ internal static class DeviceBatteryInventory
                     props.TryGetValue(BatteryLifeProperty, out var life) ? DeviceBatteryRules.ParsePercent(life) : null,
                     props.TryGetValue(ChargingProperty, out var charging) ? DeviceBatteryRules.ParseCharging(charging) : null,
                     props.TryGetValue(ContainerConnectedProperty, out var on) && on is bool flag ? flag : null,
-                    props.TryGetValue(CategoryProperty, out var categories) && categories is string[] list ? list : []);
+                    props.TryGetValue(CategoryProperty, out var categories) ? DeviceBatteryRules.Categories(categories) : []);
             }
         }
         catch (OperationCanceledException)

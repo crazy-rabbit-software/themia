@@ -201,6 +201,18 @@ public static class DeviceBatteryRules
         return (int)Math.Round(Math.Min(left, whole) * 100.0 / whole, MidpointRounding.AwayFromZero);
     }
 
+    /// <summary>
+    /// [S-4471] A categories property as its strings: a multi-string comes boxed as an array or a
+    /// list, a single category as a string; anything else is none.
+    /// </summary>
+    public static string?[] Categories(object? raw) => raw switch
+    {
+        string one => [one],
+        IEnumerable<string?> many => [.. many],
+        IEnumerable<object?> boxed => [.. boxed.Select(item => item as string)],
+        _ => [],
+    };
+
     /// <summary>[S-4471] A device container's id ("{guid}", as Windows writes it) as a Guid; null for anything else or the empty one.</summary>
     public static Guid? ParseContainer(object? raw) => raw switch
     {

@@ -13,6 +13,7 @@ public sealed class DeviceBatteryRulesTests
     [InlineData("Input.Pen", DeviceKind.Pen)]
     [InlineData("Audio.Headphone", DeviceKind.Audio)]
     [InlineData("Phone", DeviceKind.Phone)]
+    [InlineData("Communication.Headset.Bluetooth", DeviceKind.Audio)]
     public void S4471_a_category_names_the_kind_part_by_part(string category, DeviceKind kind)
         => Assert.Equal(kind, DeviceKinds.FromCategories([category]));
 
@@ -65,6 +66,17 @@ public sealed class DeviceBatteryRulesTests
         Assert.Null(DeviceBatteryRules.ParseContainer(Guid.Empty.ToString("B")));
         Assert.Null(DeviceBatteryRules.ParseContainer("BTHENUM\\DEV_8099E7CDCB65"));
         Assert.Null(DeviceBatteryRules.ParseContainer(null));
+    }
+
+    [Fact]
+    public void S4471_categories_come_as_an_array_a_list_or_one_string()
+    {
+        Assert.Equal(new string?[] { "Input.Mouse" }, DeviceBatteryRules.Categories("Input.Mouse").AsEnumerable());
+        Assert.Equal(new string?[] { "A", "B" }, DeviceBatteryRules.Categories(new[] { "A", "B" }).AsEnumerable());
+        Assert.Equal(new string?[] { "A" }, DeviceBatteryRules.Categories(new List<string> { "A" }).AsEnumerable());
+        Assert.Equal(new string?[] { "A", null }, DeviceBatteryRules.Categories(new object[] { "A", 3 }).AsEnumerable());
+        Assert.Empty(DeviceBatteryRules.Categories(42));
+        Assert.Empty(DeviceBatteryRules.Categories(null));
     }
 
     [Fact]
