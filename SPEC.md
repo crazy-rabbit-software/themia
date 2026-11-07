@@ -8248,7 +8248,10 @@ then), and one global table decided every kind. Brought back differently as CARD
 ## Opening what a widget is about (CARD-OPEN)
 
 Issue 75 ("click a widget to open its app"), as the user decided on 2026-11-07. Each widget's own
-target is in its module's `SPEC.md` ([S-2010]..[S-2049]); the host has no table of kinds.
+target is in its module's `SPEC.md` ([S-2010]..[S-2045]: the meters, details and settings-page
+widgets, Clock and Alarm, Music, the file widgets, weather, Stocks and the account widgets); the host
+has no table of kinds. Widgets with nothing sensible to open (notes, habits, countdowns, toggles and
+power buttons, whose whole body is their button) open nothing.
 
 - **[S-2000]** Outside edit mode a **plain left click** on a widget (no Ctrl, Shift or Alt), one that
   none of the view's own buttons, rows, links, sliders or boxes took, **opens what the widget is
@@ -8283,7 +8286,7 @@ target is in its module's `SPEC.md` ([S-2010]..[S-2049]); the host has no table 
   presses) mark the click handled, so the card never opens on top of them. Empty space between
   them, the header's icon and title, and a widget's readouts are the card's.
 - **[S-2005]** Account widgets open the account's own service on the web
-  (`AccountPages.Home(feature, chosen, accounts)`, SDK): of the accounts the widget reads (all with
+  (`AccountPages.Home(feature, chosen, accounts)`, SDK, over `IWidgetHost.AccountsWith`): of the accounts the widget reads (all with
   the feature when it names none), the first whose provider has a page for the feature. Microsoft:
   mail `https://outlook.office.com/mail/`, calendar `https://outlook.office.com/calendar/`, contacts
   `https://outlook.office.com/people/`, tasks `https://to-do.office.com/tasks/`. Google: mail
@@ -8296,8 +8299,8 @@ target is in its module's `SPEC.md` ([S-2010]..[S-2049]); the host has no table 
   `loc` parameter (base64 JSON of the name and the coordinates to four places), because a name alone
   lands on whichever town MSN guesses. No place, no page.
 
-Needs a manual pass (the live desktop): a click on each widget below outside edit mode opens its
-target once and at once; a click on a row, a button, a slider or a link does only what it did; a
+Needs a manual pass (the live desktop): a click on each widget with a target ([S-2010]..[S-2045])
+outside edit mode opens it once and at once; a click on a row, a button, a slider or a link does only what it did; a
 double-click does not enter edit mode; Ctrl+Alt+W and launching Themia again still do; in edit mode
 a click still selects.
 
