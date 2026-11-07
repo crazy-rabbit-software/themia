@@ -66,6 +66,16 @@ public sealed class ShortcutItem : IAppLayoutItem
     /// </summary>
     public string? IconPath { get; set; }
 
+    /// <summary>
+    /// [S-1417] The user's own picture for it (png, jpg, bmp, gif, ico or svg), drawn instead of any
+    /// other icon while the file is there; null for none. A local path, checked by
+    /// <see cref="ShortcutIcons.IsPicture"/> as it is chosen and on load ([S-1419]).
+    /// </summary>
+    public string? IconPicture { get; set; }
+
+    /// <summary>[S-1417] The user's own emoji for it (one grapheme, <see cref="ShortcutIcons.Emoji"/>); null for none. Never with a picture.</summary>
+    public string? IconEmoji { get; set; }
+
     /// <summary>[S-1405] The app layout's pane tree, or null for an ordinary shortcut.</summary>
     public LayoutNode? Layout { get; set; }
 
@@ -95,6 +105,8 @@ public sealed class ShortcutItem : IAppLayoutItem
         Label = Label,
         Target = Target,
         IconPath = IconPath,
+        IconPicture = IconPicture,
+        IconEmoji = IconEmoji,
         Layout = Layout?.Clone(),
     };
 }
@@ -206,6 +218,8 @@ public sealed class ShortcutsConfig : WidgetConfig, IStyled, IShownSettings<Shor
                 item.IconPath = null;
                 repairs.Add("Shortcuts widget had an icon that is not a local file");
             }
+
+            ShortcutIcons.Repair(item, repairs);
         }
 
         // Ids are what selection, rename and remove key on; a hand-edited file with a blank or
