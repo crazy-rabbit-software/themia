@@ -38,10 +38,15 @@ internal sealed partial class PomodoroView : Grid, IWidgetView, IWidgetSizeAware
     private readonly Button _runButton;
     private readonly Button _resetButton;
     private readonly Button _skipButton;
+    private readonly Button _shorterButton;
+    private readonly Button _longerButton;
 
     private Ticker? _ticker;
     private PomodoroConfig _config = new();
     private PomodoroState _state;
+
+    /// <summary>[S-8111] How long the current phase runs in all: the menu's length, or a nudged one until the phase ends.</summary>
+    private int _length;
     private IDisposable? _subscription;
     private WidgetArea _area;
     private PomodoroPlan _plan;
@@ -58,9 +63,13 @@ internal sealed partial class PomodoroView : Grid, IWidgetView, IWidgetSizeAware
 
     public PomodoroView()
     {
-        _state = PomodoroCycle.Fresh(_config);
+        Load(PomodoroCycle.Fresh(_config));
 
+        // [S-8111] Start first, then − and + beside it, then Reset and Skip: the icons give way from the
+        // last, so the nudges stay longest (the keys still reach Reset and Skip).
         _runButton = _controls.Main(PomodoroStr.WidgetsC_Pomodoro_Start.Text(), () => SetRunning(!_running));
+        _shorterButton = _controls.Icon(Glyphs.Minus, PomodoroStr.Pomodoro_Shorter.Text(), () => Nudge(-1));
+        _longerButton = _controls.Icon(Glyphs.Add, PomodoroStr.Pomodoro_Longer.Text(), () => Nudge(+1));
         _resetButton = _controls.Icon(Glyphs.Reset, PomodoroStr.Pomodoro_Reset.Text(), Reset);
         _skipButton = _controls.Icon(Glyphs.Next, PomodoroStr.WidgetsC_Pomodoro_Skip.Text(), Skip);
 
@@ -96,9 +105,11 @@ internal sealed partial class PomodoroView : Grid, IWidgetView, IWidgetSizeAware
         ApplyConfig(config);
     }
 
-    /// <summary>[S-1110] The two fixed tooltips again; <see cref="Render"/> re-reads the rest.</summary>
+    /// <summary>[S-1110] The fixed tooltips again; <see cref="Render"/> re-reads the rest.</summary>
     private void OnLanguage(Locale locale)
     {
+        ToolTipService.SetToolTip(_shorterButton, PomodoroStr.Pomodoro_Shorter.Text());
+        ToolTipService.SetToolTip(_longerButton, PomodoroStr.Pomodoro_Longer.Text());
         ToolTipService.SetToolTip(_resetButton, PomodoroStr.Pomodoro_Reset.Text());
         ToolTipService.SetToolTip(_skipButton, PomodoroStr.WidgetsC_Pomodoro_Skip.Text());
         Render();
@@ -113,7 +124,7 @@ internal sealed partial class PomodoroView : Grid, IWidgetView, IWidgetSizeAware
         // the remaining seconds and reloads them itself at the next flip.
         if (!_running)
         {
-            _state = new PomodoroState(_state.Phase, PomodoroCycle.PhaseSeconds(_state.Phase, _config));
+            Load(new PomodoroState(_state.Phase, PomodoroCycle.PhaseSeconds(_state.Phase, _config)));
         }
 
         Lay();
@@ -154,12 +165,19 @@ internal sealed partial class PomodoroView : Grid, IWidgetView, IWidgetSizeAware
         Render();
     }
 
-    /// <summary>[S-1987] Space or Enter start and pause, Right skips, Home resets (<see cref="ControlKeys.Pomodoro"/>).</summary>
+    /// <summary>[S-1987] Space or Enter start and pause, Right skips, Home resets, + / Up and − / Down nudge ([S-8111]) (<see cref="ControlKeys.Pomodoro"/>).</summary>
     public bool HandleKey(WidgetKey key)
     {
         if (_ticker is null)
         {
             return false;
+        }
+
+        var nudge = PomodoroKeys.Nudge(key);
+        if (nudge != 0)
+        {
+            Nudge(nudge);
+            return true;
         }
 
         switch (PomodoroKeys.Of(key))
@@ -185,15 +203,33 @@ internal sealed partial class PomodoroView : Grid, IWidgetView, IWidgetSizeAware
     private void Reset()
     {
         SetRunning(false);
-        _state = PomodoroCycle.Fresh(_config);
+        Load(PomodoroCycle.Fresh(_config));
         Render();
     }
 
     /// <summary>[S-1466] Skip to the next phase, running or not. A skip is the user's own flip: silent.</summary>
     private void Skip()
     {
-        _state = PomodoroCycle.Skip(_state, _config);
+        Load(PomodoroCycle.Skip(_state, _config));
         Render();
+    }
+
+    /// <summary>[S-8111] A phase as the menu sets it: its length the configured one, a nudge forgotten.</summary>
+    private void Load(PomodoroState state)
+    {
+        _state = state;
+        _length = PomodoroCycle.PhaseSeconds(state.Phase, _config);
+    }
+
+    /// <summary>[S-8111] The current phase 5 minutes shorter (−1) or longer (+1), running or not; nothing at a bound.</summary>
+    private void Nudge(int direction)
+    {
+        if (PomodoroNudge.Apply(_state, _length, direction) is { } nudged)
+        {
+            _state = nudged.State;
+            _length = nudged.LengthSeconds;
+            Render();
+        }
     }
 
     private void Tick()
@@ -214,7 +250,14 @@ internal sealed partial class PomodoroView : Grid, IWidgetView, IWidgetSizeAware
             PomodoroCycle.PhaseSeconds(PomodoroPhase.Work, _config),
             PomodoroCycle.PhaseSeconds(PomodoroPhase.Break, _config));
 
-        _state = new PomodoroState(tick.Phase, tick.RemainingSeconds);
+        if (tick.Flipped)
+        {
+            Load(new PomodoroState(tick.Phase, tick.RemainingSeconds));
+        }
+        else
+        {
+            _state = new PomodoroState(tick.Phase, tick.RemainingSeconds);
+        }
 
         // [S-152] The flip is the only thing that sounds, and it announces the phase being ENTERED.
         // Never from a preview card: it makes no sound ([S-1251]).
@@ -229,8 +272,7 @@ internal sealed partial class PomodoroView : Grid, IWidgetView, IWidgetSizeAware
     /// <summary>[S-6330] The time, the phase and the progress as they are now: a tick sets what changed and nothing else.</summary>
     private void Render()
     {
-        var total = PomodoroCycle.PhaseSeconds(_state.Phase, _config);
-        var fraction = PomodoroCycle.Progress(_state, total);
+        var fraction = PomodoroCycle.Progress(_state, _length);
 
         // [S-6706] The phase is said by its word; neither it nor the break is coloured (no accent text, no success green).
         _readout.Show(PomodoroCycle.Clock(_state.RemainingSeconds), under: _plan.Under ? PomodoroCycle.PhaseLabel(_state.Phase) : null);
@@ -245,6 +287,8 @@ internal sealed partial class PomodoroView : Grid, IWidgetView, IWidgetSizeAware
             _bar.Show(fraction);
         }
 
+        _shorterButton.IsEnabled = PomodoroNudge.Can(_state, _length, -1);
+        _longerButton.IsEnabled = PomodoroNudge.Can(_state, _length, +1);
         ControlsBlock.Relabel(_runButton, (_running ? PomodoroStr.WidgetsC_Pomodoro_Pause : PomodoroStr.WidgetsC_Pomodoro_Start).Text());
     }
 
