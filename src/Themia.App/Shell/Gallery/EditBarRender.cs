@@ -348,6 +348,10 @@ internal static partial class EditBarRender
             (shortcuts, "shortcuts-background", Str.Settings_Section_Appearance.Text() + "/" + Str.Settings_Style_BgLabel.Text(), null),
             (shortcuts, "shortcuts-add", Str.Common_Add.Text(), null),
             (shortcuts, "shortcuts-items", "Shortcuts", null),
+
+            // [S-1417] A shortcut's own level and its Icon submenu.
+            (shortcuts, "shortcuts-item", "Shortcuts/Recycle Bin", null),
+            (shortcuts, "shortcuts-icon", "Shortcuts/Recycle Bin/Icon", null),
             (clock, "clock-style", Str.Styles_Label.Text(), null),
 
             // [S-3735] The Header level: the Title row and the positions for one, the positions for several;

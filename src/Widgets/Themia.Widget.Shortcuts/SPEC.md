@@ -17,10 +17,10 @@ lines, JSON context), `ShortcutsConfig.cs` (the items, the styles and switches, 
 `.Input.cs` (selection, keys, the item menu, opening through its launcher, layouts through
 `IWidgetHost.AppLayouts`) and `.Drop.cs` (drops through `IWidgetDropTarget`, a Start-menu app through
 `IWidgetHost.InstalledApps`, reorder, the drag out through `IWidgetHost.FileOps`), `ShortcutRules.cs`,
-`ShortcutDrop.cs`, `ShortcutLayout.cs`, `ShortcutSelection.cs`, `ShortcutsMenu.cs` (its properties-menu lines: pickers
+`ShortcutDrop.cs`, `ShortcutIcons.cs` (a shortcut's own icon), `ShortcutLayout.cs`, `ShortcutSelection.cs`, `ShortcutsMenu.cs` (its properties-menu lines: pickers
 through `SettingsHost.OwnPicker`, the layout editor through `SettingsHost.AppLayouts`), `Preview/`
-(Debug renders: `--state sample|grid3|grid7|grid20|list7|details7`), `Localization/Locales/` (its own
-`ShortcutsStr`, 30 languages). Tests: `Tests/ShortcutsTests.cs`, `Tests/ShortcutDropTests.cs` (run by
+(Debug renders: `--state sample|grid3|grid7|grid20|list7|details7|icons`), `Localization/Locales/` (its own
+`ShortcutsStr`, 30 languages). Tests: `Tests/ShortcutsTests.cs`, `Tests/ShortcutDropTests.cs`, `Tests/ShortcutIconsTests.cs` (run by
 `tests/Themia.Modules.Tests`); its config under the root's rules is the module host's
 `ShortcutsHostTests`, `LauncherPersistenceTests` and `ListStylesHostTests`.
 
@@ -133,6 +133,31 @@ through `SettingsHost.OwnPicker`, the layout editor through `SettingsHost.AppLay
   shortcut of that name; a packaged (Store / MSIX) app with none becomes its Apps-folder item
   `shell:AppsFolder\<AUMID>`, named as Start names it (issue 189: Claude); one with neither, or one
   the widget already holds, is skipped (logged). `ShortcutDrop.FromStartMenu`.
+- **[S-1417]** A shortcut's own icon (issue 157): each shortcut's line in the properties menu's list (an
+  app layout's too) has an **Icon** submenu, its line ending with what is chosen (the emoji, or the
+  picture's file name): **Picture…** (the shell's picker over png, jpg, jpeg, bmp, gif, ico and svg;
+  stored as `IconPicture`, a local path), **Emoji…** (asked beside the menu, [S-3721]: one emoji or
+  character, typed or from Windows' emoji panel, Win + .; stored as `IconEmoji`) and **Automatic icon**
+  (off while there is none). A picture replaces an emoji and an emoji a picture; Reset clears both and
+  keeps a `.url`'s own icon ([S-1401]). The cell draws it in the icon's square at every size of the
+  ladder ([S-1382], [S-1383]): the emoji at once in the glyph's place (colour, its ink box scaled to the
+  square), a picture loaded over the glyph like a real icon (an `.ico` through the shell, which picks
+  its best size; an svg rasterised at the size; a bitmap decoded at twice the drawn size, a GIF held
+  still). A picture that is gone, past 16 MB or will not decode is logged and the automatic icon drawn:
+  no notice. The menu's list rows keep the target's own icon. (Tests `ShortcutIconsTests`.)
+- **[S-1418]** Which icon a cell draws, best first (`ShortcutIcons.Choose`): the user's picture while it
+  reads, the user's emoji, the icon a dropped `.url` named (`IconPath`, [S-1401]), then the target's own
+  icon as Explorer draws it, Windows' own choices included: a `.lnk` kept as a link because it has an
+  icon of its own ([S-1401]) shows that icon, not its target's (the shell item of the link itself, whose
+  icon handler reads the link's icon location), and a folder with a `desktop.ini` `IconResource` shows
+  that icon (the folder's shell item honours it). The Folder widget's items take their icon from the
+  same shell item factory (`IFileIcons`, [S-1324]), so a link or folder there shows Windows' icon too;
+  it has no icon of its own to choose.
+- **[S-1419]** The own icon is checked as it is set and on load (`ShortcutIcons`, `Repair`): a picture
+  must be a local, probe-able path ([S-1386]: never UNC) with one of the picture extensions; an emoji
+  exactly one grapheme (`StringInfo`), trimmed, at most 32 UTF-16 units, not a control, format,
+  separator, private-use or unassigned character. A refused one is dropped with a repair line, and an
+  item holding both keeps its picture. Nothing is migrated: the fields are new ([S-1050]).
 - **[S-1410]** Pressing an item and moving 5 px drags it (the selection, if it was on it); the list moves
   under the pointer; release commits exactly the preview (before the item under the pointer's first
   half, else after; empty space = end); an unchanged order writes nothing.
@@ -153,5 +178,7 @@ the dedicated "Add shortcut" window (S-66: the menu's Add carries the same affor
 favicons are cached per run in memory, not on disk.
 
 Needs a live pass: drops from Explorer, Edge, Chrome and the Start menu, pointer reorder and the drag
-out on the real surface, a full and an empty Recycle Bin item, real icons and site icons, a layout
+out on the real surface, a full and an empty Recycle Bin item, real icons and site icons, a picture and an emoji chosen through the Icon submenu (the picker on
+the desktop, the emoji panel in the ask box), a link given its own icon with Change Icon… and a folder
+icon set in its Properties shown on Shortcuts and on the Folder widget, a layout
 launched from an item, the Add submenu's pickers and typed address on the desktop.

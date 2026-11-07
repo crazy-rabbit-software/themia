@@ -1,5 +1,12 @@
 {
-  "$englishOnly": [],
+  "$englishOnly": [
+    "widgetsC.shortcuts.icon.automatic",
+    "widgetsC.shortcuts.icon.emoji",
+    "widgetsC.shortcuts.icon.emojiPlaceholder",
+    "widgetsC.shortcuts.icon.emojiRefused",
+    "widgetsC.shortcuts.icon.label",
+    "widgetsC.shortcuts.icon.picture"
+  ],
   "common.search": "Search",
   "ctxMenu.iconOnly": "Icon only",
   "ctxMenu.list": "List",
@@ -16,6 +23,12 @@
   "widgetsC.shortcuts.column.target": "Target",
   "widgetsC.shortcuts.drop.add": "Add to Shortcuts",
   "widgetsC.shortcuts.drop.moveHere": "Move here",
+  "widgetsC.shortcuts.icon.automatic": "Automatic icon",
+  "widgetsC.shortcuts.icon.emoji": "Emoji…",
+  "widgetsC.shortcuts.icon.emojiPlaceholder": "One emoji (Windows + . opens the emoji panel)",
+  "widgetsC.shortcuts.icon.emojiRefused": "Type one emoji or character",
+  "widgetsC.shortcuts.icon.label": "Icon",
+  "widgetsC.shortcuts.icon.picture": "Picture…",
   "widgetsC.shortcuts.kind.location": "Windows location",
   "widgetsC.shortcuts.kind.missing": "Missing",
   "widgetsC.shortcuts.kind.path": "Path",
@@ -47,6 +60,6 @@
   "widgetsC.shortcuts.settings.pick.file": "File…",
   "widgetsC.shortcuts.settings.pick.folder": "Folder…",
   "widgetsC.shortcuts.settings.view.tiles": "Tiles",
-  "widgetsC.shortcuts.tooltip.missing": "{name} (target missing)\n{target}",
-  "widgetsC.shortcuts.setup": "Add a shortcut"
+  "widgetsC.shortcuts.setup": "Add a shortcut",
+  "widgetsC.shortcuts.tooltip.missing": "{name} (target missing)\n{target}"
 }

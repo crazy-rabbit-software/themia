@@ -13,6 +13,10 @@ namespace Themia.App.Widgets;
 /// focus moved on by Ctrl+arrows ([S-6627]); "inactive" the same after the widget lost the keyboard
 /// ([S-6626]); "lasso" a rubber band over the first items ([S-6624]); "fullname" a long name selected,
 /// shown in full ([S-6629]).
+/// "icons" ([S-1417], [S-1418]) is seven items with icons of their own: two emoji, a Windows wallpaper as
+/// a picture, a picture that is gone (its automatic icon), and from <c>%TEMP%\themia-preview-icons</c>, made
+/// by hand when a render should show them, <c>picture.svg</c>, <c>Custom icon.lnk</c> (a link given its own
+/// icon with Change Icon…) and <c>Custom folder</c> (a folder with a <c>desktop.ini</c> icon).
 /// The fixture is applied, never saved.
 /// </summary>
 internal sealed partial class ShortcutsView : IWidgetPreviewState
@@ -29,7 +33,7 @@ internal sealed partial class ShortcutsView : IWidgetPreviewState
         @"C:\Windows\notepad.exe", @"C:\Windows\explorer.exe", @"C:\ProgramData", @"C:\Windows\Fonts",
     ];
 
-    public IReadOnlyList<string> PreviewStates { get; } = ["sample", "grid3", "grid7", "grid20", "list7", "details7", "selected", "inactive", "lasso", "fullname"];
+    public IReadOnlyList<string> PreviewStates { get; } = ["sample", "grid3", "grid7", "grid20", "list7", "details7", "selected", "inactive", "lasso", "fullname", "icons"];
 
     public Task ShowPreviewStateAsync(string state)
     {
@@ -44,6 +48,13 @@ internal sealed partial class ShortcutsView : IWidgetPreviewState
             "details7" => (ShortcutsStyle.Details, 7),
             _ => (ShortcutsStyle.Grid, 0),
         };
+
+        if (state == "icons")
+        {
+            ApplyConfig(new ShortcutsConfig { Style = _config.Style, Items = IconItems() });
+            UpdateLayout();
+            return Task.CompletedTask;
+        }
 
         if (count == 0)
         {
@@ -110,6 +121,28 @@ internal sealed partial class ShortcutsView : IWidgetPreviewState
         }
 
         return Task.CompletedTask;
+    }
+
+    private static List<ShortcutItem> IconItems()
+    {
+        var fixtures = Path.Combine(Path.GetTempPath(), "themia-preview-icons");
+        var emoji = ShortcutItem.Create(@"C:\Windows\notepad.exe", "Notes");
+        emoji.IconEmoji = "🚀";
+        var person = ShortcutItem.Create(LaunchTargets.ShellTarget("Downloads"));
+        person.IconEmoji = "👩🏽‍💻";
+        var wallpaper = ShortcutItem.Create(@"C:\Windows", "Wallpaper");
+        wallpaper.IconPicture = @"C:\Windows\Web\Wallpaper\Windows\img0.jpg";
+        var missing = ShortcutItem.Create(@"C:\Windows\explorer.exe", "Gone");
+        missing.IconPicture = @"C:\Windows\no-such-picture.png";
+        var svg = ShortcutItem.Create(@"C:\Users", "Vector");
+        svg.IconPicture = Path.Combine(fixtures, "picture.svg");
+
+        return
+        [
+            emoji, person, wallpaper, missing, svg,
+            ShortcutItem.Create(Path.Combine(fixtures, "Custom icon.lnk")),
+            ShortcutItem.Create(Path.Combine(fixtures, "Custom folder")),
+        ];
     }
 }
 #endif

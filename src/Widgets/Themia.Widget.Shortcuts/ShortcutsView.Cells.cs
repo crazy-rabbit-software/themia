@@ -314,6 +314,14 @@ internal sealed partial class ShortcutsView
 
         var host = new Grid { Width = size, Height = size };
         host.Children.Add(fallback);
+
+        // [S-1417] The user's emoji stands in the glyph's place at once; a picture loads over it the
+        // way a real icon loads over the glyph (an item never holds both, [S-1419]).
+        if (item.IconEmoji is { } emoji)
+        {
+            fallback.Visibility = Visibility.Collapsed;
+            host.Children.Add(EmojiIcon(emoji, size));
+        }
         host.Children.Add(image);
         host.Children.Add(badge);
 
@@ -523,6 +531,30 @@ internal sealed partial class ShortcutsView
     /// </summary>
     private async Task LoadIconAsync(Cell cell, string? variant)
     {
+        // [S-1418] The user's own icon first: a picture while its file reads, else the emoji the cell
+        // already shows; only then what Windows gives the target.
+        if (cell.Item.IconPicture is { } picturePath)
+        {
+            var picture = await PictureAsync(picturePath, (int)Math.Ceiling(cell.IconSize * 2)).ConfigureAwait(true);
+
+            if (picture is not null)
+            {
+                if (!_detached && _cells.Contains(cell))
+                {
+                    cell.Image.Source = picture;
+                    cell.Image.Visibility = Visibility.Visible;
+                    cell.Fallback.Visibility = Visibility.Collapsed;
+                }
+
+                return;
+            }
+        }
+
+        if (ShortcutIcons.Choose(cell.Item, pictureReadable: false) == ShortcutIconSource.Emoji)
+        {
+            return;
+        }
+
         if (cell.Item.IsLayout)
         {
             await LoadLayoutIconAsync(cell).ConfigureAwait(true);
@@ -558,6 +590,96 @@ internal sealed partial class ShortcutsView
         {
             // The glyph stays; an icon is decoration.
             Log.Warn(Scope, "could not load a shortcut icon", ex);
+        }
+    }
+
+    /// <summary>
+    /// [S-1417] An emoji as an icon: colour glyphs from the system's emoji font (XAML falls back to it
+    /// for emoji code points), its tight ink box scaled to fill the icon's square as the shell's icons do.
+    /// </summary>
+    private static Viewbox EmojiIcon(string emoji, double size) => new()
+    {
+        Width = size,
+        Height = size,
+        Stretch = Stretch.Uniform,
+        Child = new TextBlock
+        {
+            Text = emoji,
+            IsColorFontEnabled = true,
+            TextLineBounds = TextLineBounds.Tight,
+            IsTextScaleFactorEnabled = false,
+        },
+    };
+
+    /// <summary>
+    /// [S-1417] [S-1418] The user's picture at <paramref name="pixels"/>, or null when it cannot be drawn:
+    /// a file that is gone, too big or will not decode (logged; the automatic icon is drawn instead,
+    /// no notice: a moved picture is not an error the user must act on). An <c>.ico</c> goes through the
+    /// shell, which picks its best size; an <c>.svg</c> is rasterised at the size; the rest are decoded.
+    /// </summary>
+    private async Task<ImageSource?> PictureAsync(string path, int pixels)
+    {
+        if (!ShortcutIcons.IsPicture(path))
+        {
+            return null; // repair refuses these on load; a picture set since is checked as it is set.
+        }
+
+        try
+        {
+            var bytes = await Task.Run(() =>
+            {
+                var file = new FileInfo(path);
+                if (!file.Exists)
+                {
+                    Log.Info(Scope, $"a shortcut's picture is missing ({file.Name}); its automatic icon is drawn");
+                    return null;
+                }
+
+                if (file.Length > ShortcutIcons.MaxPictureBytes)
+                {
+                    Log.Warn(Scope, $"a shortcut's picture is too big to draw ({file.Name}, {file.Length} bytes); its automatic icon is drawn");
+                    return null;
+                }
+
+                return ShortcutIcons.IsIconFile(path) ? [] : File.ReadAllBytes(path);
+            }).ConfigureAwait(true);
+
+            if (bytes is null)
+            {
+                return null;
+            }
+
+            if (ShortcutIcons.IsIconFile(path))
+            {
+                return await AppIconSource.GetAsync(path, pixels, AppIconSource.ThemeOf(this)).ConfigureAwait(true);
+            }
+
+            using var stream = new InMemoryRandomAccessStream();
+            await stream.WriteAsync(bytes.AsBuffer());
+            stream.Seek(0);
+
+            if (ShortcutIcons.IsSvg(path))
+            {
+                var svg = new SvgImageSource { RasterizePixelWidth = pixels, RasterizePixelHeight = pixels };
+                var status = await svg.SetSourceAsync(stream);
+                if (status != SvgImageSourceLoadStatus.Success)
+                {
+                    Log.Warn(Scope, $"a shortcut's picture would not draw ({Path.GetFileName(path)}: {status}); its automatic icon is drawn");
+                    return null;
+                }
+
+                return svg;
+            }
+
+            // An animated GIF holds still: a desktop icon that moves is a distraction and a cost.
+            var bitmap = new BitmapImage { DecodePixelWidth = pixels, AutoPlay = false };
+            await bitmap.SetSourceAsync(stream);
+            return bitmap;
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or COMException or ArgumentException or InvalidOperationException)
+        {
+            Log.Warn(Scope, $"a shortcut's picture would not load ({Path.GetFileName(path)}); its automatic icon is drawn", ex);
+            return null;
         }
     }
 

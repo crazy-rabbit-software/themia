@@ -82,15 +82,105 @@ internal static class ShortcutsMenu
                     AllowEmpty = true,
                 },
                 Extra = item => item.IsLayout
-                    ? [new(Glyphs.Edit, ShortcutsStr.Shortcut_EditLayoutMenu.Text(), () => layouts.Edit(item.Id), Disabled: !layouts.CanEdit)]
+                    ? [new(Glyphs.Edit, ShortcutsStr.Shortcut_EditLayoutMenu.Text(), () => layouts.Edit(item.Id), Disabled: !layouts.CanEdit), Icon(menu, item)]
                     : [new(Glyphs.Link, ShortcutsStr.WidgetsC_Shortcuts_Menu_ChangeTarget.Text(), () => menu.Ask(new WidgetTextAsk(
                         ShortcutsStr.WidgetsC_Shortcuts_Menu_ChangeTarget.Text().TrimEnd('…'),
                         @"https://example.com  ·  C:\Users\…  ·  shell:Downloads",
                         Str.Common_Save.Text(),
                         Refusal,
                         typed => Retarget(item, typed, menu),
-                        Initial: item.Target)), Asks: true)],
+                        Initial: item.Target)), Asks: true), Icon(menu, item)],
             });
+
+    /// <summary>
+    /// [S-1417] A shortcut's Icon submenu (issue 157): Picture… (the shell's picker over the picture
+    /// types), Emoji… (one typed, or from Windows' emoji panel, Win + .), and Automatic icon back to
+    /// what Windows gives it. Its line ends with what is chosen: the emoji, or the picture's file name.
+    /// </summary>
+    internal static ItemMenuEntry Icon(WidgetMenuLines menu, ShortcutItem item)
+    {
+        var lines = new List<ItemMenuEntry>
+        {
+            new(Glyphs.Photo, ShortcutsStr.WidgetsC_Shortcuts_Icon_Picture.Text(), () => _ = PickPictureAsync(path =>
+            {
+                if (ShortcutIcons.SetPicture(item, path))
+                {
+                    menu.Save();
+                }
+            })),
+            new(Glyphs.Emoji, ShortcutsStr.WidgetsC_Shortcuts_Icon_Emoji.Text(), () => menu.Ask(new WidgetTextAsk(
+                ShortcutsStr.WidgetsC_Shortcuts_Icon_Emoji.Text().TrimEnd('…'),
+                ShortcutsStr.WidgetsC_Shortcuts_Icon_EmojiPlaceholder.Text(),
+                Str.Common_Save.Text(),
+                EmojiRefusal,
+                typed =>
+                {
+                    if (ShortcutIcons.SetEmoji(item, typed))
+                    {
+                        menu.Save();
+                    }
+                },
+                Initial: item.IconEmoji)), Asks: true),
+            ItemMenuEntry.Separator,
+            new(Glyphs.Reset, ShortcutsStr.WidgetsC_Shortcuts_Icon_Automatic.Text(), () =>
+            {
+                if (ShortcutIcons.Reset(item))
+                {
+                    menu.Save();
+                }
+            }, Disabled: !ShortcutIcons.HasOwn(item)),
+        };
+
+        var value = item.IconEmoji ?? (item.IconPicture is { } picture ? Path.GetFileName(picture) : null);
+        return WidgetMenuLines.Submenu(Glyphs.Photo, ShortcutsStr.WidgetsC_Shortcuts_Icon_Label.Text(), lines) with { Value = value };
+    }
+
+    /// <summary>[S-1417] Why a typed emoji cannot be the icon, or null when it can.</summary>
+    internal static string? EmojiRefusal(string typed)
+        => ShortcutIcons.Emoji(typed) is null ? ShortcutsStr.WidgetsC_Shortcuts_Icon_EmojiRefused.Text() : null;
+
+    /// <summary>
+    /// [S-1417] The shell's picker over the picture types a cell can draw. The chosen file is checked
+    /// again by <see cref="ShortcutIcons.SetPicture"/>: a picker can hand back a network path.
+    /// </summary>
+    private static async Task PickPictureAsync(Action<string> set)
+    {
+        try
+        {
+            var picker = new Windows.Storage.Pickers.FileOpenPicker
+            {
+                ViewMode = Windows.Storage.Pickers.PickerViewMode.Thumbnail,
+                SuggestedStartLocation = Windows.Storage.Pickers.PickerLocationId.PicturesLibrary,
+            };
+
+            foreach (var extension in ShortcutIcons.PictureExtensions)
+            {
+                picker.FileTypeFilter.Add(extension);
+            }
+
+            // The picker needs an owner window: the desktop in edit mode, as for Add › File….
+            SettingsHost.OwnPicker(picker);
+
+            var file = await picker.PickSingleFileAsync();
+            if (file is null)
+            {
+                return; // ignore: the user cancelled the dialog.
+            }
+
+            if (!ShortcutIcons.IsPicture(file.Path))
+            {
+                Log.Warn(Scope, "the chosen picture is not a local picture file; the icon is unchanged");
+                return;
+            }
+
+            set(file.Path);
+        }
+        catch (Exception ex)
+        {
+            // The emoji and the automatic icon still work.
+            Log.Error(Scope, "the picture picker could not be shown", ex);
+        }
+    }
 
     /// <summary>[S-1381] The name an item shows: its label, else the one its target gives it.</summary>
     internal static string ShownName(ShortcutItem item, ShortcutsConfig config)
