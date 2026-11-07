@@ -1,5 +1,6 @@
 using Themia.App.Services;
 using Themia.Core.Office;
+using Themia.Core.Widgets;
 
 namespace Themia.Sdk.WinUI;
 
@@ -37,6 +38,14 @@ public interface IShellLauncher
 
     /// <summary>[S-4406] Start an app by its AppUserModelID.</summary>
     LaunchOutcome OpenApp(string? appUserModelId);
+
+    /// <summary>
+    /// [S-2000] Open what a click on a widget's card opens (<see cref="Themia.App.Widgets.IWidgetOpens"/>): a
+    /// <see cref="CardOpenKind.Target"/> as <see cref="Open"/> does, a Settings page as
+    /// <see cref="OpenWindowsSettings"/>, an app as <see cref="OpenApp"/> (a desktop app already
+    /// running brought to the front instead, [S-2003]). The value's gate is applied again here.
+    /// </summary>
+    LaunchOutcome OpenCard(CardOpen open);
 
     /// <summary>[S-4661] Eject a drive with the shell's own verb on its root; Windows reports how it went.</summary>
     void Eject(string? root);

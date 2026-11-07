@@ -336,9 +336,11 @@ public sealed partial class KitList
         return true;
     }
 
-    /// <summary>[S-787] A click on a row (not its check) focuses it.</summary>
+    /// <summary>[S-787] A click on a row (not its check) focuses it, and is the row's ([S-2004]).</summary>
     private void OnCheckRowTapped(object sender, TappedRoutedEventArgs args)
     {
+        args.Handled = true;
+
         if (ConsumeDragEnd() || _editor is not null || sender is not Border { Tag: int index })
         {
             return;

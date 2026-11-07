@@ -376,9 +376,11 @@ public sealed partial class KitList : Grid
 
     // ---- pointer, menu, keys -----------------------------------------------------------------
 
-    /// <summary>A click focuses the row.</summary>
+    /// <summary>A click focuses the row, and is the row's: it never reaches the card ([S-2004]).</summary>
     private void OnRowTapped(object sender, TappedRoutedEventArgs args)
     {
+        args.Handled = true;
+
         if (sender is Border { Tag: int index })
         {
             Focus(index);

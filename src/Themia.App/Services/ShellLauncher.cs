@@ -231,6 +231,119 @@ internal static class ShellLauncher
     }
 
     /// <summary>
+    /// [S-2000] Open what a click on a widget's card opens. Each kind keeps its own gate, applied
+    /// again to the literal value: a target is <see cref="LaunchTargets"/>'s ([S-2002]), a Settings
+    /// page must still be a plain page name, an app id must still pass <see cref="CardOpen.App"/>.
+    /// [S-2003] A desktop app that is running already (the player whose session it is) is brought
+    /// to the front, window and all: its Start entry would open a second window, or nothing.
+    /// </summary>
+    public static LaunchOutcome OpenCard(CardOpen open)
+    {
+        ArgumentNullException.ThrowIfNull(open);
+
+        switch (open.Kind)
+        {
+            case CardOpenKind.Target:
+                return Open(open.Value);
+
+            case CardOpenKind.Settings:
+                if (!open.Value.StartsWith(CardOpen.SettingsScheme, StringComparison.Ordinal)
+                    || CardOpen.Settings(open.Value[CardOpen.SettingsScheme.Length..]) is null
+                    || !Uri.TryCreate(open.Value, UriKind.Absolute, out var page))
+                {
+                    Log.Warn(Scope, $"refused to open '{Excerpt(open.Value)}' as a Settings page");
+                    return LaunchOutcome.Refused;
+                }
+
+                return OpenWindowsSettings(page);
+
+            case CardOpenKind.App:
+                if (CardOpen.App(open.Value) is not { Kind: CardOpenKind.App } app)
+                {
+                    Log.Warn(Scope, $"refused to open '{Excerpt(open.Value)}' as an app");
+                    return LaunchOutcome.Refused;
+                }
+
+                return BringForward(ProcessName(app.Value)) ? LaunchOutcome.Opened : OpenApp(app.Value);
+
+            default:
+                Log.Warn(Scope, $"refused a card target of unknown kind {open.Kind}");
+                return LaunchOutcome.Refused;
+        }
+    }
+
+    /// <summary>The process a desktop app's id names (<c>Spotify.exe</c> → <c>Spotify</c>).</summary>
+    private static string ProcessName(string appId)
+        => appId.EndsWith(".exe", StringComparison.OrdinalIgnoreCase) && appId.Length > 4 ? appId[..^4] : appId;
+
+    /// <summary>
+    /// Bring the visible main window of a running process of this name to the front. False when
+    /// there is none, so the caller opens the app instead.
+    /// </summary>
+    private static bool BringForward(string processName)
+    {
+        Process[] processes;
+
+        try
+        {
+            processes = Process.GetProcessesByName(processName);
+        }
+        catch (Exception ex) when (ex is InvalidOperationException or System.ComponentModel.Win32Exception)
+        {
+            Log.Warn(Scope, $"could not list processes named '{processName}'", ex);
+            return false;
+        }
+
+        try
+        {
+            foreach (var process in processes)
+            {
+                nint window;
+
+                try
+                {
+                    window = process.MainWindowHandle;
+                }
+                catch (InvalidOperationException)
+                {
+                    continue; // ignore: the process exited while the list was walked
+                }
+
+                if (window == 0 || !Themia.App.Interop.Win32.IsWindowVisible(window))
+                {
+                    continue;
+                }
+
+                if (Themia.App.Interop.Win32.IsIconic(window))
+                {
+                    _ = Themia.App.Interop.Win32.ShowWindow(window, SwRestore);
+                }
+
+                // The click that asked for this is input this process received, which is what lets
+                // it hand the foreground on.
+                if (Themia.App.Interop.Win32.SetForegroundWindow(window))
+                {
+                    return true;
+                }
+
+                Log.Warn(Scope, $"Windows would not bring '{processName}' to the front");
+                return false;
+            }
+
+            return false;
+        }
+        finally
+        {
+            foreach (var process in processes)
+            {
+                process.Dispose();
+            }
+        }
+    }
+
+    private const int SwRestore = 9;
+
+    /// <summary>
     /// [S-4661] Eject a drive with the shell's own verb on its root — what Explorer's "Eject" runs (and
     /// Karpo's): Windows flushes the volume, tells whatever still has it open, and says how it went
     /// in its own notice, so nothing here claims an outcome. Only a drive root is accepted
@@ -385,6 +498,8 @@ internal sealed class HostLauncher : IShellLauncher
     public LaunchOutcome OpenWindowsSettings(Uri page) => ShellLauncher.OpenWindowsSettings(page);
 
     public LaunchOutcome OpenApp(string? appUserModelId) => ShellLauncher.OpenApp(appUserModelId);
+
+    public LaunchOutcome OpenCard(CardOpen open) => ShellLauncher.OpenCard(open);
 
     public void Eject(string? root) => ShellLauncher.Eject(root);
 }

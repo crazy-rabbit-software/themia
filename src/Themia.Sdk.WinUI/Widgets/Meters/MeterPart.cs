@@ -165,6 +165,9 @@ public abstract class MeterPart
     /// </summary>
     public virtual string? ReadingTip => null;
 
+    /// <summary>[S-2001] What a click on the card opens for this config (Task Manager, a Settings page); null for nothing.</summary>
+    public virtual CardOpen? Opens(WidgetConfig config) => null;
+
     /// <summary>
     /// [S-2504] [S-2513] The hub series this config shows: the one the state asks the hub for, so
     /// the history is there from app start. A different one is a different history.

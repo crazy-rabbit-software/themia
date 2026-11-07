@@ -24,7 +24,7 @@ namespace Themia.App.Widgets;
 /// Detach, and the view only lays out the sheets it is handed.
 /// </para>
 /// </summary>
-public sealed partial class DetailView : Grid, IWidgetView, IWidgetSizeAware, IWidgetSurfaceAware, IWidgetContextActions, IDetailHost
+public sealed partial class DetailView : Grid, IWidgetView, IWidgetOpens, IWidgetSizeAware, IWidgetSurfaceAware, IWidgetContextActions, IDetailHost
 {
     private const string LogScope = "details";
 
@@ -75,6 +75,9 @@ public sealed partial class DetailView : Grid, IWidgetView, IWidgetSizeAware, IW
     }
 
     // ---- IWidgetView ----------------------------------------------------------------------------
+
+    /// <inheritdoc />
+    public CardOpen? Opens => _part.Opens(_config);
 
     public void Attach(Ticker ticker, WidgetConfig config)
     {

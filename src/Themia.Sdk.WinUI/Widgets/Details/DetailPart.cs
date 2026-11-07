@@ -61,6 +61,9 @@ public abstract class DetailPart
     /// <summary>Commands for the card's right-click menu, read each time it opens.</summary>
     public virtual IReadOnlyList<WidgetAction> ContextActions(IDetailHost host) => [];
 
+    /// <summary>[S-2001] What a click on the card, off its rows, opens for this config; null for nothing.</summary>
+    public virtual CardOpen? Opens(WidgetConfig config) => null;
+
     /// <summary>[S-2404] Enter on a row.</summary>
     public virtual void Open(DetailRow row)
     {

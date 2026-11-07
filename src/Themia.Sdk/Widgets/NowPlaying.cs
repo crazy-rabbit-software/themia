@@ -24,6 +24,7 @@ public enum MediaTransport
 /// <param name="Artist">[S-1469] The artist alone, for the large tile's own line.</param>
 /// <param name="Album">[S-1469] The album alone; empty when it repeats the artist.</param>
 /// <param name="Origin">The session's own start time, which a seek is expressed against.</param>
+/// <param name="AppId">[S-2003] The AppUserModelID of the app that owns the session, as it reported it (untrusted: <c>CardOpen.App</c> checks it).</param>
 public readonly record struct NowPlaying(
     MusicState State,
     string Title,
@@ -37,7 +38,8 @@ public readonly record struct NowPlaying(
     bool CanSeek = false,
     string Artist = "",
     string Album = "",
-    TimeSpan Origin = default)
+    TimeSpan Origin = default,
+    string AppId = "")
 {
     /// <summary>A state with nothing in it. Used for loading and for every flavour of idle.</summary>
     public static NowPlaying Of(MusicState state) => new(

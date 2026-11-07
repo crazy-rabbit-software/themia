@@ -62,6 +62,7 @@ public sealed partial class DetailView : IWidgetKeys
         foreach (var row in _rows)
         {
             row.Block.PointerPressed -= OnRowPressed;
+            row.Block.Tapped -= OnRowTapped;
             row.Block.Detach();
         }
     }
@@ -109,6 +110,7 @@ public sealed partial class DetailView : IWidgetKeys
             var row = new ListRow();
             row.Block.Tag = _rows.Count;
             row.Block.PointerPressed += OnRowPressed;
+            row.Block.Tapped += OnRowTapped;
             _rows.Add(row);
             _list.Children.Insert(_list.Children.Count - 1, row.Block);
         }
@@ -219,6 +221,9 @@ public sealed partial class DetailView : IWidgetKeys
             Focus(index, bringIntoView: false);
         }
     }
+
+    /// <summary>[S-2004] A click on a row is the row's (it focused it): it never reaches the card.</summary>
+    private static void OnRowTapped(object sender, TappedRoutedEventArgs args) => args.Handled = true;
 
     /// <summary>
     /// One list row (<see cref="RowBlock"/>): a 16 lead (an adapter's kind, a program's own icon,

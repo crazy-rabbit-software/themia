@@ -28,7 +28,7 @@ namespace Themia.App.Widgets;
 /// with the tile, so a large tile is a longer chart, never a bigger number.
 /// </para>
 /// </summary>
-public sealed partial class MeterView : Grid, IWidgetView, IWidgetSizeAware, IWidgetSurfaceAware, IMeterHost
+public sealed partial class MeterView : Grid, IWidgetView, IWidgetOpens, IWidgetSizeAware, IWidgetSurfaceAware, IMeterHost
 {
     private const string Scope = "meter";
 
@@ -105,6 +105,9 @@ public sealed partial class MeterView : Grid, IWidgetView, IWidgetSizeAware, IWi
     /// </summary>
     private string? Lead(MeterReading reading)
         => _look == MeterLook.Numbers ? Glyphs.Download : DrawsCharge ? null : _part.Badge(reading);
+
+    /// <inheritdoc />
+    public CardOpen? Opens => _part.Opens(_config);
 
     public void Attach(Ticker ticker, WidgetConfig config)
     {

@@ -231,7 +231,8 @@ internal sealed class MediaSession : IMediaSession
                 CanSeek: (controls?.IsPlaybackPositionEnabled ?? false) && timeline.Duration > TimeSpan.Zero,
                 Artist: MusicRules.Artist(properties?.Artist),
                 Album: MusicRules.Album(properties?.Artist, properties?.AlbumTitle),
-                Origin: raw?.StartTime ?? TimeSpan.Zero);
+                Origin: raw?.StartTime ?? TimeSpan.Zero,
+                AppId: session.SourceAppUserModelId ?? string.Empty);
         }
         catch (OperationCanceledException)
         {
