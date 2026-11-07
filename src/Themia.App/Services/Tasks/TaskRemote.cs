@@ -4,6 +4,7 @@ using Themia.App.Services.Accounts;
 using Themia.Core.Accounts;
 using Themia.Core.Diagnostics;
 using Themia.Core.Localization;
+using Themia.Core.Office;
 using Themia.Core.Sync;
 using Themia.Core.Tasks;
 using Themia.Sdk;
@@ -44,7 +45,7 @@ internal interface ITaskRemote
 }
 
 /// <summary>
-/// [S-591] Microsoft To Do (Graph) and Google Tasks through <see cref="AccountService"/>: every
+/// [S-591] [S-618] Microsoft To Do (Graph), Google Tasks and CalDAV task lists (read-only, [S-621]) through <see cref="AccountService"/>: every
 /// request authorized, retried on a throttle and refreshed on a 401 there, failing with a typed
 /// <see cref="AccountException"/>. Addresses, bodies and mapping are <see cref="TaskWire"/>'s.
 /// </summary>
@@ -59,7 +60,7 @@ internal sealed class AccountTaskRemote(AccountService accounts) : ITaskRemote
     [
         .. accounts.WithFeature(HostFeatures.Tasks)
             .Where(a => TaskWire.Supports(a.Provider))
-            .Select(a => new TaskAccount(a.Id, a.Provider, a.Label, a.Problem)),
+            .Select(a => new TaskAccount(a.Id, a.Provider, a.Label, a.Problem, TaskWire.ReadOnly(a.Provider))),
     ];
 
     public event Action? AccountsChanged
@@ -71,6 +72,11 @@ internal sealed class AccountTaskRemote(AccountService accounts) : ITaskRemote
     public async Task<IReadOnlyList<TaskListInfo>> ListsAsync(string accountId, CancellationToken cancellation)
     {
         var provider = Provider(accountId);
+        if (provider == HostProviders.CalDav)
+        {
+            return await DavListsAsync(accountId, cancellation).ConfigureAwait(false);
+        }
+
         var address = TaskWire.Lists(provider);
 
         if (provider == HostProviders.Google)
@@ -92,6 +98,11 @@ internal sealed class AccountTaskRemote(AccountService accounts) : ITaskRemote
         string accountId, string listId, bool includeCompleted, IReadOnlyList<TaskItem>? held, SyncCursor? cursor, CancellationToken cancellation)
     {
         var provider = Provider(accountId);
+        if (provider == HostProviders.CalDav)
+        {
+            return DavTasksAsync(accountId, listId, includeCompleted, cancellation);
+        }
+
         return _fallback.ReadAsync($"{accountId}|{listId}", $"{accountId}: list {listId}",
             () => ChangesAsync(provider, accountId, listId, includeCompleted, held, cursor, cancellation),
             () => PlainAsync(provider, accountId, listId, includeCompleted, cancellation));
@@ -196,22 +207,93 @@ internal sealed class AccountTaskRemote(AccountService accounts) : ITaskRemote
         return (tasks, round.Complete && whole ? SyncCursors.Advance(cursor, Instant(now - DeltaRules.ClockOverlap), now) : null);
     }
 
+    // ---- CalDAV ([S-618], [S-619]) ---------------------------------------------------------------
+
+    /// <summary>
+    /// [S-618] The VTODO collections of the account's calendar home set; with no home set to list,
+    /// the collection it was set up with (Nextcloud's and Radicale's default calendars take tasks too:
+    /// one that does not simply answers no VTODO).
+    /// </summary>
+    private async Task<IReadOnlyList<TaskListInfo>> DavListsAsync(string accountId, CancellationToken cancellation)
+    {
+        var collection = DavCollection(accountId);
+
+        if (await DavHomes.CalendarListingAsync(accounts, accountId, collection, cancellation).ConfigureAwait(false) is not { } listing)
+        {
+            var single = DavOffice.SingleCalendar(collection);
+            return [new TaskListInfo(single.Id, single.Name, true)];
+        }
+
+        return DavOffice.TaskLists(listing.Body, listing.FinalUrl, collection);
+    }
+
+    /// <summary>
+    /// [S-619] One task list in full: a <c>calendar-query</c> REPORT for its VTODOs, read by
+    /// <see cref="IcsTasks"/> against today, filtered and bounded as every list is ([S-591]). No
+    /// cursor: the list is read whole on the account's cadence ([S-2652]). A list id from the config
+    /// is asked only on the account's own origin ([S-578]).
+    /// </summary>
+    private async Task<(IReadOnlyList<TaskItem> Tasks, SyncCursor? Cursor)> DavTasksAsync(string accountId, string listId, bool includeCompleted, CancellationToken cancellation)
+    {
+        var collection = DavCollection(accountId);
+        if (!Uri.TryCreate(listId, UriKind.Absolute, out var list) || !DavOffice.SameOrigin(list, collection))
+        {
+            throw new AccountException(AccountError.Refused, Str.Shell_Accounts_CalendarElsewhere.Text());
+        }
+
+        var reply = await accounts.DavAsync(accountId, "REPORT", list, DavOffice.TodoQuery, 1, cancellation).ConfigureAwait(false);
+        var today = DateOnly.FromDateTime(DateTime.Now);
+
+        var all = new List<TaskItem>();
+        foreach (var data in DavOffice.CalendarData(reply.Body))
+        {
+            all.AddRange(IcsTasks.Read(data, listId, today, TimeZoneInfo.Local));
+        }
+
+        // A UID in two resources (a copy a server left behind) is one task: the first is kept.
+        var unique = all.DistinctBy(t => t.Id, StringComparer.Ordinal).ToList();
+        var (tasks, _) = DeltaMerge.Tasks([], unique, [], includeCompleted, TaskWire.MaxTasksPerList);
+        return (tasks, null);
+    }
+
+    private Uri DavCollection(string accountId)
+        => accounts.Find(accountId) is { } account && Uri.TryCreate(account.ServerUrl, UriKind.Absolute, out var url)
+            ? url
+            : throw new AccountException(AccountError.UnknownAccount, Str.Shell_Accounts_NotSignedIn.Text());
+
+    /// <summary>[S-621] A write for a read-only account: the service never queues one; this is the floor under it.</summary>
+    private void Writable(string accountId)
+    {
+        if (TaskWire.ReadOnly(Provider(accountId)))
+        {
+            throw new AccountException(AccountError.Refused, Str.Shell_Tasks_ReadOnly.Text());
+        }
+    }
+
     private static string Instant(DateTimeOffset moment) => moment.UtcDateTime.ToString("o", CultureInfo.InvariantCulture);
 
     public Task SetCompletedAsync(string accountId, string listId, string taskId, bool completed, CancellationToken cancellation)
     {
+        Writable(accountId);
         var provider = Provider(accountId);
         return accounts.SendJsonAsync(accountId, HttpMethod.Patch, TaskWire.Task(provider, listId, taskId), TaskWire.CompleteBody(provider, completed), cancellation);
     }
 
     public Task RenameAsync(string accountId, string listId, string taskId, string title, CancellationToken cancellation)
-        => accounts.SendJsonAsync(accountId, HttpMethod.Patch, TaskWire.Task(Provider(accountId), listId, taskId), TaskWire.RenameBody(title), cancellation);
+    {
+        Writable(accountId);
+        return accounts.SendJsonAsync(accountId, HttpMethod.Patch, TaskWire.Task(Provider(accountId), listId, taskId), TaskWire.RenameBody(title), cancellation);
+    }
 
     public Task DeleteAsync(string accountId, string listId, string taskId, CancellationToken cancellation)
-        => accounts.SendJsonAsync(accountId, HttpMethod.Delete, TaskWire.Task(Provider(accountId), listId, taskId), null, cancellation);
+    {
+        Writable(accountId);
+        return accounts.SendJsonAsync(accountId, HttpMethod.Delete, TaskWire.Task(Provider(accountId), listId, taskId), null, cancellation);
+    }
 
     public async Task<TaskItem> CreateAsync(string accountId, string listId, string title, DateOnly? due, CancellationToken cancellation)
     {
+        Writable(accountId);
         var provider = Provider(accountId);
         var reply = await accounts.SendJsonAsync(accountId, HttpMethod.Post, TaskWire.Create(provider, listId), TaskWire.CreateBody(provider, title, due), cancellation)
             .ConfigureAwait(false);
@@ -222,6 +304,7 @@ internal sealed class AccountTaskRemote(AccountService accounts) : ITaskRemote
 
     public Task RenameListAsync(string accountId, string listId, string name, CancellationToken cancellation)
     {
+        Writable(accountId);
         var provider = Provider(accountId);
         return accounts.SendJsonAsync(accountId, HttpMethod.Patch, TaskWire.List(provider, listId), TaskWire.RenameListBody(provider, name), cancellation);
     }

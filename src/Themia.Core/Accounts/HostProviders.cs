@@ -79,7 +79,8 @@ public sealed class CalDavProvider : IProviderModule
 
     public LocalText Label => Str.Shell_Accounts_Provider_CalDav.Local();
 
-    public FeatureSet Features { get; } = HostFeatures.Calendar;
+    /// <summary>[S-502] [S-618] Its calendars, and the VTODO collections beside them as read-only task lists.</summary>
+    public FeatureSet Features { get; } = FeatureSet.Of(HostFeatures.Calendar, HostFeatures.Tasks);
 
     public AccountAuth Auth => AccountAuth.Password;
 

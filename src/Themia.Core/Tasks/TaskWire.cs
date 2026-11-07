@@ -126,7 +126,14 @@ public static class TaskWire
     public const int MaxTasksPerList = 400;
 
     /// <summary>Whether this provider holds tasks at all.</summary>
-    public static bool Supports(ProviderId provider) => provider == HostProviders.Microsoft || provider == HostProviders.Google;
+    public static bool Supports(ProviderId provider) => provider == HostProviders.Microsoft || provider == HostProviders.Google || ReadOnly(provider);
+
+    /// <summary>
+    /// [S-621] Whether its tasks are read and never written: CalDAV (generic, iCloud, Nextcloud, DAVx⁵'s
+    /// servers). Writing a VTODO back means an If-Match PUT of the whole object with every property the
+    /// other clients wrote; Themia does not, by decision (issue 185).
+    /// </summary>
+    public static bool ReadOnly(ProviderId provider) => provider == HostProviders.CalDav;
 
     // ---- addresses -----------------------------------------------------------------------------
 

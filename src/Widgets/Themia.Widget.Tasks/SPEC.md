@@ -1,6 +1,7 @@
 # Tasks
 
-The module `tasks` ([S-6911]): one task list of an account (Microsoft To Do, Google Tasks), Today
+The module `tasks` ([S-6911]): one task list of an account (Microsoft To Do, Google Tasks, a CalDAV
+server's lists read-only: root [S-618]..[S-621]), Today
 across an account's lists, or a list kept on this PC. Its tags are this file's alone; the root
 `SPEC.md` holds what it shares with the host and the week planner, with their root tags: the task
 service and its offline store ([S-590], [S-591], [S-596], [S-597]), due dates and the list rules
@@ -10,7 +11,7 @@ service and its offline store ([S-590], [S-591], [S-596], [S-597]), due dates an
 Owning files: everything in this folder: `TasksModule.cs` (descriptor, view factory, JSON context),
 `TasksConfig.cs`, `TaskSpec.cs` (a task as a kit item, its actions, the check spec),
 `TaskFreshness.cs`, `TasksView*.cs` (over `IWidgetHost.Tasks`: the screens, the writes the kit's list
-hands back, the list picker), `TasksMenu.cs` (its properties-menu lines), `Preview/` (Debug renders: `--state tasks|few|empty|done|stale`,
+hands back, the list picker), `TasksMenu.cs` (its properties-menu lines), `Preview/` (Debug renders: `--state tasks|few|empty|done|stale|failed|nolocal|caldav`,
 the lists on this PC in memory), `Localization/Locales/` (its own `TasksStr`, 30 languages). Tests:
 the config's are the module host's (`TasksConfigTests`, [S-611]); the rules' are Core's
 (`TaskRulesTests`, `TaskSyncTests`, `LocalTaskListsTests`, `TaskLayoutTests` over the kit's check
@@ -63,8 +64,8 @@ look); the spec's are `Tests/TaskSpecTests.cs` and `Tests/TaskFreshnessTests.cs`
   lines (1 to 6, dots); after another, which tasks the list keeps: Show completed, **Filter** (Due
   and Important only for an account's tasks, Title contains…, asked for as text, at most 100
   characters, an empty box clears it, [S-611]) and New tasks at the top. **Important only** is
-  offered only where tasks can be important (Microsoft To Do's star, `TasksConfig.HasImportance`,
-  [S-6070]): Google Tasks has no importance, so there it could only empty the list, and the filter
+  offered only where tasks can be important (Microsoft To Do's star, a CalDAV task's PRIORITY 1 to 4
+  ([S-619]), `TasksConfig.HasImportance`, [S-6070]): Google Tasks has no importance, so there it could only empty the list, and the filter
   leaves it out there as it does on this PC, so a value kept from another account cannot hide every
   task (user request 2026-10-19).
 - **[S-2044]** A click on the card ([S-2000]) opens the task service of its account on the web:
@@ -72,6 +73,12 @@ look); the spec's are `Tests/TaskSpecTests.cs` and `Tests/TaskFreshnessTests.cs`
   ([S-2005], `TasksModule.Opens`); a list kept on this PC opens nothing. A task's row and its check
   keep their clicks ([S-2004]).
 
-Needs a live pass: a signed-in Microsoft and Google account (the list picker, Today, ticking,
+- **[S-7517]** A CalDAV account's list is read-only ([S-621]): under the List line the menu's note
+  says why ("Tasks from <account> are read-only here. Tick them off, change and add them in the app
+  they sync with."), the rows' only action is the disabled tick saying "Read-only here", and there is
+  no add row and no Rename list…
+
+Needs a live pass: a CalDAV account (Nextcloud Tasks, a DAVx⁵ / jtx Board server, iCloud Reminders
+over CalDAV: its lists, due dates, recurring tasks), a signed-in Microsoft and Google account (the list picker, Today, ticking,
 renaming, deleting and adding a task landing on the server, offline edits catching up), a list on
 this PC, dragging a row, the keys, and the showcase views on the live desktop.

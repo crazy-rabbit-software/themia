@@ -3039,6 +3039,10 @@ Themia's own accounts, the source of mail, calendar, contacts and tasks. Ported 
 - **[S-502]** What an account feeds (a `FeatureSet` of `FeatureId`s: `mail`, `calendar`, `contacts`,
   `tasks`, `HostFeatures`) and how it proves itself (`AccountAuth`) follow from the provider's module
   alone. Widgets ask for a feature, never a provider name.
+- **[S-622]** A CalDAV account (any server: Nextcloud, iCloud, Radicale, a DAVx⁵ / jtx Board setup)
+  feeds `calendar` and `tasks` (`CalDavProvider`, issue 185): its calendar home set's VEVENT
+  collections are calendars ([S-567]) and its VTODO collections task lists ([S-618]), read-only
+  ([S-621]). Nothing new is asked at sign-in; the one stored collection and password serve both.
 - **[S-503]** `accounts.json` lives beside `state.json` and carries a `schemaVersion`; a newer schema is
   set aside rather than half-read.
 - **[S-504]** Every stored entry becomes a whole `Account` or nothing. A field that says *where* the
@@ -3592,8 +3596,8 @@ ladder and its keys), `Themia.App/Services/Tasks/*` (the service). The widget is
 `src/Widgets/Themia.Widget.Tasks` (its `SPEC.md`: the list picker, the styles, load repair, the
 important mark). Tests: `TaskRulesTests`, `LocalTaskListsTests`, `TaskSyncTests`.
 
-- **[S-590]** A Tasks widget reads Microsoft To Do (Graph) or Google Tasks through an account
-  with the Tasks feature, or a list kept on this PC (`TaskSource`, a closed set). An empty account
+- **[S-590]** A Tasks widget reads Microsoft To Do (Graph), Google Tasks or a CalDAV server's task
+  lists ([S-618], read-only) through an account with the Tasks feature, or a list kept on this PC (`TaskSource`, a closed set). An empty account
   id means the first such account and an empty list id its default list, so a widget dropped by a
   signed-in user shows tasks without a trip to settings; a *named* account that has gone is never
   swapped for another — the widget says so. Every non-list state names itself (no account, sign in
@@ -3692,6 +3696,39 @@ important mark). Tests: `TaskRulesTests`, `LocalTaskListsTests`, `TaskSyncTests`
   started before it, and a refusal puts the old name back and says why. Today and To Do's own lists
   (`wellknownListName` other than `none`: Tasks, Flagged email — To Do refuses to rename them) offer
   no Rename. A list on this PC is renamed in its pool ([S-603]).
+- **[S-618]** CalDAV task lists (issue 185): the account's calendar home set (found as for calendars,
+  `DavHomes`: the stored collection, its home set directly or through the principal, never on another
+  origin, [S-578]) is listed at Depth 1 and every collection whose
+  `supported-calendar-component-set` includes VTODO is a list (`DavOffice.TaskLists`; one that
+  advertises no set takes every component, RFC 4791 §5.2.3); a VEVENT-only calendar and the
+  scheduling inbox are not. The stored collection is the default list when it takes tasks, else the
+  first. With no home set to list, the stored collection is the one list. The lists are the same
+  chooser as every account's ([S-592], [S-7516]), Today included ([S-596]).
+- **[S-619]** A list is read whole with a `calendar-query` REPORT for its VTODOs (`DavOffice.TodoQuery`,
+  no time range, no expand, finished ones included and filtered here, [S-595]) on the account's sync
+  and cadence ([S-591], [S-2652]: single-flight, backed off, failures in the one vocabulary,
+  [S-615] its stale rule), no change cursor. `IcsTasks` reads each VTODO: SUMMARY (unescaped,
+  unfolded), DUE (a DATE or a wall-clock midnight, floating or zoned, is the day; any other time is
+  the instant it names through the object's VTIMEZONE, [S-578], [S-593]), done when STATUS is
+  COMPLETED or, with no STATUS, when COMPLETED is set or PERCENT-COMPLETE is 100 (COMPLETED its
+  stamp, [S-612]), important for PRIORITY 1 to 4 ("Important only" is offered, [S-6070]). A
+  CANCELLED task is no row; one without a UID is skipped (no id survives a refresh); a UID seen twice
+  is one task. The task model is flat and has no categories: RELATED-TO subtasks are rows like any
+  other, CATEGORIES are not read. VEVENTs and VJOURNALs in the same collection are not tasks.
+- **[S-620]** A recurring VTODO (RRULE over DUE, else DTSTART; EXDATE; RECURRENCE-ID overrides) is one
+  row under its UID: its current instance, the first occurrence due today or later that an override
+  has not finished or cancelled (earlier ones count as done), with a moved instance's own fields;
+  once the rule has run out, its last occurrence; a finished master is the finished task. An
+  unsupported rule ([S-576]) shows the master once. Picked at each sync against the viewer's day.
+- **[S-621]** CalDAV tasks are read-only, by decision (issue 185): writing a VTODO back is an
+  If-Match PUT of the whole object other clients wrote. The task account says so
+  (`TaskAccount.ReadOnly`, `ITaskFeed.ReadOnly`, `TaskWire.ReadOnly`): no tick (the check does
+  nothing; its tooltip and the row menu's one disabled line say "Read-only here: change it in the app
+  it syncs with"), no Rename or Delete, no add row, no Rename list…, and the properties menu says
+  why under the list line ("Tasks from <account> are read-only here…"). The week planner's ring
+  does nothing and says so. The service queues no write for the account and the remote refuses one
+  (`AccountError.Refused`) as the floor under it. A widget's own row order ([S-598]) still moves:
+  it is the widget's config, not the server's.
 
 Not ported, deliberately: the pop-out window [S-39] (out of scope by user decision), the per-widget
 header hide and label [S-02, S-20] (the card's own header does this for every widget), the 600 ms delay before a completed task leaves the list [S-26] (no wall-clock timing in the

@@ -1,5 +1,6 @@
 using System.Globalization;
 using Themia.Core.Accounts;
+using Themia.Core.Tasks;
 
 namespace Themia.Core.Office;
 
@@ -33,6 +34,24 @@ public static class DavOffice
             </C:calendar-query>
             """;
     }
+
+    /// <summary>
+    /// [S-619] A <c>calendar-query</c> REPORT for every VTODO of a task list, finished ones included:
+    /// the list's filters are applied here ([S-595]), not by the server, because iCloud and older
+    /// servers answer prop-filters inconsistently and a finished task without STATUS would slip through.
+    /// No <c>expand</c>: a recurring task's current instance is picked by <see cref="IcsTasks"/>.
+    /// </summary>
+    public const string TodoQuery = """
+        <?xml version="1.0" encoding="UTF-8"?>
+        <C:calendar-query xmlns:C="urn:ietf:params:xml:ns:caldav" xmlns:D="DAV:">
+          <D:prop><D:getetag/><C:calendar-data/></D:prop>
+          <C:filter>
+            <C:comp-filter name="VCALENDAR">
+              <C:comp-filter name="VTODO"/>
+            </C:comp-filter>
+          </C:filter>
+        </C:calendar-query>
+        """;
 
     /// <summary>An <c>addressbook-query</c> REPORT for every card's data, as the classic app sent it.</summary>
     public const string AddressBookQuery = """
@@ -81,6 +100,39 @@ public static class DavOffice
             found[index] = found[index] with { IsDefault = true };
         }
 
+        return found;
+    }
+
+    /// <summary>
+    /// [S-618] The task lists in a Depth-1 listing of a calendar home set: the collections whose
+    /// <c>supported-calendar-component-set</c> includes VTODO (jtx Board's and Nextcloud's task
+    /// lists, iCloud's Reminders lists), ids resolved to absolute URLs, on the account's origin only
+    /// ([S-578]). The collection the account was set up with is the default when it holds tasks, else
+    /// the first. Every one is read-only ([S-621]).
+    /// </summary>
+    public static IReadOnlyList<TaskListInfo> TaskLists(string? listing, Uri listedAt, Uri accountCollection)
+    {
+        var found = new List<TaskListInfo>();
+        var seen = new HashSet<string>(StringComparer.Ordinal);
+
+        foreach (var c in DavXml.Collections(listing, DavKind.Calendar, "VTODO"))
+        {
+            if (DavUrls.Resolve(listedAt, c.Href) is not { } url || !SameOrigin(url, accountCollection) || !seen.Add(Trimmed(url)))
+            {
+                continue;
+            }
+
+            found.Add(new TaskListInfo(url.AbsoluteUri, c.Name, false));
+        }
+
+        if (found.Count == 0)
+        {
+            return found;
+        }
+
+        var stored = Trimmed(accountCollection);
+        var index = Math.Max(0, found.FindIndex(l => Trimmed(new Uri(l.Id)) == stored));
+        found[index] = found[index] with { IsDefault = true };
         return found;
     }
 

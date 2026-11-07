@@ -1,6 +1,8 @@
 {
   "$englishOnly": [
-    "widgetsC.tasks.menu.textFilterLong"
+    "widgetsC.tasks.menu.textFilterLong",
+    "widgetsC.tasks.readOnly",
+    "widgetsC.tasks.settings.readOnlyNote"
   ],
   "connect.tryAgain": "Try again",
   "todo.loadingLists": "Loading lists…",
@@ -23,6 +25,8 @@
   "widgetsC.tasks.error.forbidden": "This account does not allow Themia to read its tasks. Sign in again to grant it.",
   "widgetsC.tasks.error.notFound": "That task list is not there any more. Pick another on this widget's menu in edit mode.",
   "widgetsC.tasks.highPriority": "High priority",
+  "widgetsC.tasks.readOnly": "Read-only here: change it in the app it syncs with",
+  "widgetsC.tasks.settings.readOnlyNote": "Tasks from {account} are read-only here. Tick them off, change and add them in the app they sync with.",
   "widgetsC.tasks.listEmpty": "No tasks on this list yet.",
   "widgetsC.tasks.loading": "Loading tasks…",
   "widgetsC.tasks.markNotDone": "Mark as not done",

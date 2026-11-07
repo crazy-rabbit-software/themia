@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- A calendar-query REPORT answer for VTODOs as DAVx⁵ syncs jtx Board's tasks to a server (scrubbed, made up). -->
+<d:multistatus xmlns:d="DAV:" xmlns:cal="urn:ietf:params:xml:ns:caldav">
+  <d:response>
+    <d:href>/dav/calendars/alex/tasks/6f1c2a6e-1b7e-4f0e-9c1d-3b1f0a2e7c11.ics</d:href>
+    <d:propstat>
+      <d:prop>
+        <d:getetag>"a1b2c3"</d:getetag>
+        <cal:calendar-data>BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:+//IDN techbee.at//jtx Board 2.9.4//EN
+BEGIN:VTODO
+DTSTAMP:20261105T081500Z
+UID:6f1c2a6e-1b7e-4f0e-9c1d-3b1f0a2e7c11
+SEQUENCE:2
+CREATED:20261101T090000Z
+LAST-MODIFIED:20261105T081500Z
+SUMMARY:Prepare the quarterly report
+DESCRIPTION:Numbers from the shared drive\, then the slides.
+CATEGORIES:Work,Reports
+STATUS:IN-PROCESS
+PERCENT-COMPLETE:40
+PRIORITY:2
+CLASS:PUBLIC
+DTSTART;TZID=Europe/Berlin:20261108T090000
+DUE;TZID=Europe/Berlin:20261110T170000
+X-JTX-LIST-ORDER:1
+END:VTODO
+BEGIN:VTIMEZONE
+TZID:Europe/Berlin
+BEGIN:STANDARD
+TZNAME:CET
+TZOFFSETFROM:+0200
+TZOFFSETTO:+0100
+DTSTART:19701025T030000
+RRULE:FREQ=YEARLY;BYMONTH=10;BYDAY=-1SU
+END:STANDARD
+BEGIN:DAYLIGHT
+TZNAME:CEST
+TZOFFSETFROM:+0100
+TZOFFSETTO:+0200
+DTSTART:19700329T020000
+RRULE:FREQ=YEARLY;BYMONTH=3;BYDAY=-1SU
+END:DAYLIGHT
+END:VTIMEZONE
+END:VCALENDAR
+</cal:calendar-data>
+      </d:prop>
+      <d:status>HTTP/1.1 200 OK</d:status>
+    </d:propstat>
+  </d:response>
+  <d:response>
+    <d:href>/dav/calendars/alex/tasks/9a8d7c6b-5e4f-4a3b-8c2d-1e0f9a8b7c6d.ics</d:href>
+    <d:propstat>
+      <d:prop>
+        <d:getetag>"d4e5f6"</d:getetag>
+        <cal:calendar-data>BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:+//IDN techbee.at//jtx Board 2.9.4//EN
+BEGIN:VTODO
+DTSTAMP:20261105T081600Z
+UID:9a8d7c6b-5e4f-4a3b-8c2d-1e0f9a8b7c6d
+SUMMARY:Collect the sales figures
+STATUS:NEEDS-ACTION
+RELATED-TO;RELTYPE=PARENT:6f1c2a6e-1b7e-4f0e-9c1d-3b1f0a2e7c11
+DUE;VALUE=DATE:20261109
+END:VTODO
+END:VCALENDAR
+</cal:calendar-data>
+      </d:prop>
+      <d:status>HTTP/1.1 200 OK</d:status>
+    </d:propstat>
+  </d:response>
+  <d:response>
+    <d:href>/dav/calendars/alex/tasks/0c1d2e3f-4a5b-4c6d-9e7f-8a9b0c1d2e3f.ics</d:href>
+    <d:propstat>
+      <d:prop>
+        <d:getetag>"0a0b0c"</d:getetag>
+        <cal:calendar-data>BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:+//IDN techbee.at//jtx Board 2.9.4//EN
+BEGIN:VTODO
+DTSTAMP:20261106T120000Z
+UID:0c1d2e3f-4a5b-4c6d-9e7f-8a9b0c1d2e3f
+SUMMARY:Book the train tickets
+STATUS:COMPLETED
+PERCENT-COMPLETE:100
+COMPLETED:20261106T115900Z
+PRIORITY:5
+DUE;VALUE=DATE:20261106
+END:VTODO
+END:VCALENDAR
+</cal:calendar-data>
+      </d:prop>
+      <d:status>HTTP/1.1 200 OK</d:status>
+    </d:propstat>
+  </d:response>
+  <d:response>
+    <d:href>/dav/calendars/alex/tasks/5b6c7d8e-9f0a-4b1c-8d2e-3f4a5b6c7d8e.ics</d:href>
+    <d:propstat>
+      <d:prop>
+        <d:getetag>"112233"</d:getetag>
+        <cal:calendar-data>BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:+//IDN techbee.at//jtx Board 2.9.4//EN
+BEGIN:VTODO
+DTSTAMP:20261101T070000Z
+UID:5b6c7d8e-9f0a-4b1c-8d2e-3f4a5b6c7d8e
+SUMMARY:Water the office plants
+STATUS:NEEDS-ACTION
+DTSTART;VALUE=DATE:20261002
+DUE;VALUE=DATE:20261002
+RRULE:FREQ=WEEKLY;BYDAY=FR
+EXDATE;VALUE=DATE:20261113
+END:VTODO
+BEGIN:VTODO
+DTSTAMP:20261106T160000Z
+UID:5b6c7d8e-9f0a-4b1c-8d2e-3f4a5b6c7d8e
+RECURRENCE-ID;VALUE=DATE:20261106
+SUMMARY:Water the office plants
+STATUS:COMPLETED
+COMPLETED:20261106T155500Z
+DUE;VALUE=DATE:20261106
+END:VTODO
+END:VCALENDAR
+</cal:calendar-data>
+      </d:prop>
+      <d:status>HTTP/1.1 200 OK</d:status>
+    </d:propstat>
+  </d:response>
+  <d:response>
+    <d:href>/dav/calendars/alex/tasks/7e8f9a0b-1c2d-4e3f-8a4b-5c6d7e8f9a0b.ics</d:href>
+    <d:propstat>
+      <d:prop>
+        <d:getetag>"445566"</d:getetag>
+        <cal:calendar-data>BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:+//IDN techbee.at//jtx Board 2.9.4//EN
+BEGIN:VTODO
+DTSTAMP:20261103T100000Z
+UID:7e8f9a0b-1c2d-4e3f-8a4b-5c6d7e8f9a0b
+SUMMARY:Order the old printer toner
+STATUS:CANCELLED
+END:VTODO
+END:VCALENDAR
+</cal:calendar-data>
+      </d:prop>
+      <d:status>HTTP/1.1 200 OK</d:status>
+    </d:propstat>
+  </d:response>
+</d:multistatus>

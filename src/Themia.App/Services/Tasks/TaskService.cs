@@ -37,6 +37,9 @@ internal sealed class TaskFeed : ITaskFeed
 
     public bool IsToday => TaskRules.IsToday(ListId);
 
+    /// <summary>[S-621] The account's tasks are read-only (CalDAV).</summary>
+    public bool ReadOnly => Owner.ReadOnly;
+
     /// <summary>The account's changes: shared by every feed on it.</summary>
     public TaskEdits Edits => Owner.Edits;
 
@@ -239,9 +242,9 @@ internal sealed class TaskService : ITaskSource, IDisposable
         ArgumentNullException.ThrowIfNull(feed);
         ArgumentNullException.ThrowIfNull(task);
 
-        if (feed.Edits.IsUnconfirmedCreate(task.Id))
+        if (feed.ReadOnly || feed.Edits.IsUnconfirmedCreate(task.Id))
         {
-            return Task.CompletedTask; // no real id to write to yet
+            return Task.CompletedTask; // [S-621] read-only, or no real id to write to yet
         }
 
         return feed.Owner.Enqueue(completed ? PendingKind.TaskComplete : PendingKind.TaskReopen, task.Id, task.ListId, null, null, TaskEdit.Complete(task.Id, completed, DateTimeOffset.UtcNow));
@@ -255,7 +258,7 @@ internal sealed class TaskService : ITaskSource, IDisposable
         ArgumentNullException.ThrowIfNull(task);
 
         var clean = title.Trim();
-        if (clean.Length == 0 || clean == task.Title || feed.Edits.IsUnconfirmedCreate(task.Id))
+        if (feed.ReadOnly || clean.Length == 0 || clean == task.Title || feed.Edits.IsUnconfirmedCreate(task.Id))
         {
             return Task.CompletedTask;
         }
@@ -273,7 +276,7 @@ internal sealed class TaskService : ITaskSource, IDisposable
     {
         ArgumentNullException.ThrowIfNull(list);
 
-        if (!TaskRules.CanRename(list) || TaskRules.RenameTo(list.Name, name) is not { } clean || BoxFor(accountId) is not { } box)
+        if (!TaskRules.CanRename(list) || TaskRules.RenameTo(list.Name, name) is not { } clean || BoxFor(accountId) is not { ReadOnly: false } box)
         {
             return Task.CompletedTask;
         }
@@ -288,7 +291,7 @@ internal sealed class TaskService : ITaskSource, IDisposable
         ArgumentNullException.ThrowIfNull(feed);
         ArgumentNullException.ThrowIfNull(task);
 
-        if (feed.Edits.IsUnconfirmedCreate(task.Id))
+        if (feed.ReadOnly || feed.Edits.IsUnconfirmedCreate(task.Id))
         {
             return Task.CompletedTask;
         }
@@ -308,7 +311,7 @@ internal sealed class TaskService : ITaskSource, IDisposable
         ArgumentNullException.ThrowIfNull(feed);
 
         var clean = title.Trim();
-        if (clean.Length == 0)
+        if (clean.Length == 0 || feed.ReadOnly)
         {
             return null;
         }
@@ -556,6 +559,9 @@ internal sealed class TaskService : ITaskSource, IDisposable
         public DateTimeOffset? LastSync => Schedule.LastSuccess;
 
         public bool Usable => _owner.Find(AccountId) is { Problem: null };
+
+        /// <summary>[S-621] Nothing is written for this account: every write below returns before it queues.</summary>
+        public bool ReadOnly => _owner.Find(AccountId) is { ReadOnly: true };
 
         /// <summary>
         /// The last refusal, else — once the head has had to wait (offline, throttled, sign-in) — how

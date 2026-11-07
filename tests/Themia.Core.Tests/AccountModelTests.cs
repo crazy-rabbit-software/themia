@@ -73,7 +73,7 @@ public sealed class AccountModelTests : IDisposable
         Assert.True(HostProviders.Microsoft.Features().Has(HostFeatures.Tasks));
         Assert.True(HostProviders.Google.Features().Has(HostFeatures.Tasks));
         Assert.Equal(HostFeatures.Mail, HostProviders.Imap.Features());
-        Assert.Equal(HostFeatures.Calendar, HostProviders.CalDav.Features());
+        Assert.Equal(FeatureSet.Of(HostFeatures.Calendar, HostFeatures.Tasks), HostProviders.CalDav.Features()); // [S-622]
         Assert.Equal(HostFeatures.Contacts, HostProviders.CardDav.Features());
         Assert.Equal(AccountAuth.OAuthRefresh, HostProviders.Google.Auth());
         Assert.Equal(AccountAuth.Password, HostProviders.CardDav.Auth());

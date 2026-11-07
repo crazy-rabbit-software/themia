@@ -102,10 +102,11 @@ public static class DavXml
 
     /// <summary>
     /// The usable collections in a Depth-1 home-set listing, in document order. For calendars, one
-    /// that advertises its components must include VEVENT (a tasks-only or birthday collection is not
-    /// a calendar of events); one that advertises nothing is accepted.
+    /// that advertises its components must include <paramref name="component"/> (VEVENT: a tasks-only
+    /// or birthday collection is not a calendar of events; [S-618] VTODO: a task list); one that
+    /// advertises nothing is accepted, as RFC 4791 §5.2.3 reads its absence (every component).
     /// </summary>
-    public static IReadOnlyList<DavCollection> Collections(string? xml, DavKind kind)
+    public static IReadOnlyList<DavCollection> Collections(string? xml, DavKind kind, string component = "VEVENT")
     {
         var found = new List<DavCollection>();
 
@@ -118,7 +119,7 @@ public static class DavXml
 
             if (kind == DavKind.Calendar
                 && response.Prop("supported-calendar-component-set") is { } components
-                && !components.Elements().Any(c => string.Equals((string?)c.Attribute("name"), "VEVENT", StringComparison.OrdinalIgnoreCase)))
+                && !components.Elements().Any(c => string.Equals((string?)c.Attribute("name"), component, StringComparison.OrdinalIgnoreCase)))
             {
                 continue;
             }

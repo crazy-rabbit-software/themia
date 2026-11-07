@@ -5,7 +5,11 @@ using Themia.Sdk;
 namespace Themia.App.Services.Tasks;
 
 /// <summary>[S-590] An account that holds task lists, as the task widgets list it.</summary>
-public sealed record TaskAccount(string Id, ProviderId Provider, string Label, string? Problem);
+/// <param name="ReadOnly">
+/// [S-621] Its tasks are read, never written (a CalDAV account): no tick, rename, delete, add or list
+/// rename is offered, and the service writes nothing for it.
+/// </param>
+public sealed record TaskAccount(string Id, ProviderId Provider, string Label, string? Problem, bool ReadOnly = false);
 
 /// <summary>
 /// [S-590] [S-6913] Where the task widgets read and write: the host's one task service (the accounts'
@@ -58,6 +62,9 @@ public interface ITaskFeed
     bool ShowCompleted { get; }
 
     bool IsToday { get; }
+
+    /// <summary>[S-621] The account's tasks are read-only here: the feed offers no write.</summary>
+    bool ReadOnly { get; }
 
     /// <summary>[S-2610] The writes not yet confirmed, over what the account holds.</summary>
     TaskEdits Edits { get; }

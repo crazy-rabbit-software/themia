@@ -1,0 +1,91 @@
+<?xml version="1.0"?>
+<!-- A calendar-query REPORT answer from Nextcloud (sabre/dav) for a list kept with Nextcloud Tasks (scrubbed, made up). -->
+<d:multistatus xmlns:d="DAV:" xmlns:s="http://sabredav.org/ns" xmlns:cal="urn:ietf:params:xml:ns:caldav" xmlns:cs="http://calendarserver.org/ns/" xmlns:oc="http://owncloud.org/ns" xmlns:nc="http://nextcloud.org/ns">
+ <d:response>
+  <d:href>/remote.php/dav/calendars/alex/personal/2b7a8c4e-0d3f-4b9a-a1c6-7e5f2d8b9c0a.ics</d:href>
+  <d:propstat>
+   <d:prop>
+    <d:getetag>&quot;8f3e2a1b0c9d&quot;</d:getetag>
+    <cal:calendar-data>BEGIN:VCALENDAR&#13;
+VERSION:2.0&#13;
+PRODID:-//Nextcloud Tasks v0.16.1&#13;
+BEGIN:VTODO&#13;
+UID:2b7a8c4e-0d3f-4b9a-a1c6-7e5f2d8b9c0a&#13;
+CREATED:20261102T101500&#13;
+LAST-MODIFIED:20261104T081200&#13;
+DTSTAMP:20261104T081200&#13;
+SUMMARY:Call the plumber about the boiler&#13;
+PRIORITY:1&#13;
+STATUS:NEEDS-ACTION&#13;
+DUE;TZID=Europe/Zurich:20261107T000000&#13;
+X-APPLE-SORT-ORDER:-1234567&#13;
+END:VTODO&#13;
+BEGIN:VTIMEZONE&#13;
+TZID:Europe/Zurich&#13;
+BEGIN:STANDARD&#13;
+TZOFFSETFROM:+0200&#13;
+TZOFFSETTO:+0100&#13;
+TZNAME:CET&#13;
+DTSTART:19701025T030000&#13;
+RRULE:FREQ=YEARLY;BYMONTH=10;BYDAY=-1SU&#13;
+END:STANDARD&#13;
+BEGIN:DAYLIGHT&#13;
+TZOFFSETFROM:+0100&#13;
+TZOFFSETTO:+0200&#13;
+TZNAME:CEST&#13;
+DTSTART:19700329T020000&#13;
+RRULE:FREQ=YEARLY;BYMONTH=3;BYDAY=-1SU&#13;
+END:DAYLIGHT&#13;
+END:VTIMEZONE&#13;
+END:VCALENDAR&#13;
+</cal:calendar-data>
+   </d:prop>
+   <d:status>HTTP/1.1 200 OK</d:status>
+  </d:propstat>
+ </d:response>
+ <d:response>
+  <d:href>/remote.php/dav/calendars/alex/personal/c4d5e6f7-a8b9-4c0d-9e1f-2a3b4c5d6e7f.ics</d:href>
+  <d:propstat>
+   <d:prop>
+    <d:getetag>&quot;1a2b3c4d5e6f&quot;</d:getetag>
+    <cal:calendar-data>BEGIN:VCALENDAR&#13;
+VERSION:2.0&#13;
+PRODID:-//Nextcloud Tasks v0.16.1&#13;
+BEGIN:VTODO&#13;
+UID:c4d5e6f7-a8b9-4c0d-9e1f-2a3b4c5d6e7f&#13;
+CREATED:20261020T120000&#13;
+DTSTAMP:20261105T090000&#13;
+SUMMARY:Return the library books&#13;
+PRIORITY:9&#13;
+STATUS:COMPLETED&#13;
+PERCENT-COMPLETE:100&#13;
+COMPLETED:20261105T090000Z&#13;
+DUE;VALUE=DATE:20261104&#13;
+END:VTODO&#13;
+END:VCALENDAR&#13;
+</cal:calendar-data>
+   </d:prop>
+   <d:status>HTTP/1.1 200 OK</d:status>
+  </d:propstat>
+ </d:response>
+ <d:response>
+  <d:href>/remote.php/dav/calendars/alex/personal/e1f2a3b4-c5d6-4e7f-8a9b-0c1d2e3f4a5b.ics</d:href>
+  <d:propstat>
+   <d:prop>
+    <d:getetag>&quot;9e8d7c6b5a4f&quot;</d:getetag>
+    <cal:calendar-data>BEGIN:VCALENDAR&#13;
+VERSION:2.0&#13;
+PRODID:-//Nextcloud Tasks v0.16.1&#13;
+BEGIN:VTODO&#13;
+UID:e1f2a3b4-c5d6-4e7f-8a9b-0c1d2e3f4a5b&#13;
+CREATED:20261106T193000&#13;
+DTSTAMP:20261106T193000&#13;
+SUMMARY:Ideas for the garden&#13;
+END:VTODO&#13;
+END:VCALENDAR&#13;
+</cal:calendar-data>
+   </d:prop>
+   <d:status>HTTP/1.1 200 OK</d:status>
+  </d:propstat>
+ </d:response>
+</d:multistatus>

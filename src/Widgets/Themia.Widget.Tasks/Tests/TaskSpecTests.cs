@@ -41,4 +41,16 @@ public sealed class TaskSpecTests
         Assert.Equal(KitKeyCommand.MoveDown, KitKeys.Decide(WidgetKey.MoveDown, 0, 3).Command);
         Assert.Equal(new KitKeyResult(KitKeyCommand.Focus, 0), KitKeys.Decide(WidgetKey.Up, -1, 3)); // Up with nothing focused: the first
     }
+
+    [Fact]
+    public void S7517_a_read_only_task_offers_only_a_disabled_tick_that_says_why()
+    {
+        var actions = TaskSpec.Actions(Open, renamable: true, readOnly: true);
+
+        var only = Assert.Single(actions);
+        Assert.Equal(KitActionKind.Toggle, only.Kind);
+        Assert.False(only.Runnable); // the check does nothing and Space ticks nothing
+        Assert.Equal(TasksStr.WidgetsC_Tasks_ReadOnly.Text(), only.Label); // the menu line and the check's tooltip
+        Assert.Null(KitMenu.Primary(actions)); // no rename on double-click or Enter
+    }
 }

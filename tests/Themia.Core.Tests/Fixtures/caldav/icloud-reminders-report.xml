@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- A calendar-query REPORT answer from iCloud for a Reminders list read over CalDAV (scrubbed, made up). -->
+<multistatus xmlns="DAV:">
+  <response>
+    <href>/1234567890/calendars/A1B2C3D4-E5F6-4A7B-8C9D-0E1F2A3B4C5D/8D3C2B1A-0F9E-4D8C-B7A6-5E4D3C2B1A0F.ics</href>
+    <propstat>
+      <prop>
+        <getetag xmlns="DAV:">"C=1501@U=0a1b2c3d-4e5f-6a7b-8c9d-0e1f2a3b4c5d"</getetag>
+        <calendar-data xmlns="urn:ietf:params:xml:ns:caldav"><![CDATA[BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Apple Inc.//iOS 18.1//EN
+CALSCALE:GREGORIAN
+BEGIN:VTODO
+CREATED:20261101T080000Z
+DTSTAMP:20261104T071500Z
+LAST-MODIFIED:20261104T071500Z
+SEQUENCE:0
+UID:8D3C2B1A-0F9E-4D8C-B7A6-5E4D3C2B1A0F
+SUMMARY:Pick up the dry clea
+ ning
+PRIORITY:1
+STATUS:NEEDS-ACTION
+DTSTART;TZID=Europe/Zurich:20261108T173000
+DUE;TZID=Europe/Zurich:20261108T173000
+X-APPLE-SORT-ORDER:742000000
+BEGIN:VALARM
+X-WR-ALARMUID:5A4B3C2D-1E0F-4A9B-8C7D-6E5F4A3B2C1D
+UID:5A4B3C2D-1E0F-4A9B-8C7D-6E5F4A3B2C1D
+TRIGGER;VALUE=DATE-TIME:20261108T163000Z
+ACTION:DISPLAY
+DESCRIPTION:Reminder
+END:VALARM
+END:VTODO
+BEGIN:VTIMEZONE
+TZID:Europe/Zurich
+BEGIN:DAYLIGHT
+TZOFFSETFROM:+0100
+RRULE:FREQ=YEARLY;BYMONTH=3;BYDAY=-1SU
+DTSTART:19810329T020000
+TZNAME:CEST
+TZOFFSETTO:+0200
+END:DAYLIGHT
+BEGIN:STANDARD
+TZOFFSETFROM:+0200
+RRULE:FREQ=YEARLY;BYMONTH=10;BYDAY=-1SU
+DTSTART:19961027T030000
+TZNAME:CET
+TZOFFSETTO:+0100
+END:STANDARD
+END:VTIMEZONE
+END:VCALENDAR
+]]></calendar-data>
+      </prop>
+      <status>HTTP/1.1 200 OK</status>
+    </propstat>
+  </response>
+  <response>
+    <href>/1234567890/calendars/A1B2C3D4-E5F6-4A7B-8C9D-0E1F2A3B4C5D/2F1E0D9C-8B7A-4C6D-9E5F-4A3B2C1D0E9F.ics</href>
+    <propstat>
+      <prop>
+        <getetag xmlns="DAV:">"C=1502@U=0a1b2c3d-4e5f-6a7b-8c9d-0e1f2a3b4c5d"</getetag>
+        <calendar-data xmlns="urn:ietf:params:xml:ns:caldav"><![CDATA[BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Apple Inc.//macOS 15.1//EN
+BEGIN:VTODO
+DTSTAMP:20261103T191000Z
+UID:2F1E0D9C-8B7A-4C6D-9E5F-4A3B2C1D0E9F
+SUMMARY:Buy milk
+COMPLETED:20261103T191000Z
+DUE;VALUE=DATE:20261103
+X-APPLE-SORT-ORDER:741000000
+END:VTODO
+END:VCALENDAR
+]]></calendar-data>
+      </prop>
+      <status>HTTP/1.1 200 OK</status>
+    </propstat>
+  </response>
+  <response>
+    <href>/1234567890/calendars/A1B2C3D4-E5F6-4A7B-8C9D-0E1F2A3B4C5D/6C5B4A3F-2E1D-4C0B-9A8F-7E6D5C4B3A2F.ics</href>
+    <propstat>
+      <prop>
+        <getetag xmlns="DAV:">"C=1503@U=0a1b2c3d-4e5f-6a7b-8c9d-0e1f2a3b4c5d"</getetag>
+        <calendar-data xmlns="urn:ietf:params:xml:ns:caldav"><![CDATA[BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Apple Inc.//iOS 18.1//EN
+BEGIN:VTODO
+DTSTAMP:20261001T060000Z
+UID:6C5B4A3F-2E1D-4C0B-9A8F-7E6D5C4B3A2F
+SUMMARY:Pay the rent
+STATUS:NEEDS-ACTION
+DUE;VALUE=DATE:20260901
+RRULE:FREQ=MONTHLY;COUNT=12
+END:VTODO
+END:VCALENDAR
+]]></calendar-data>
+      </prop>
+      <status>HTTP/1.1 200 OK</status>
+    </propstat>
+  </response>
+  <response>
+    <href>/1234567890/calendars/A1B2C3D4-E5F6-4A7B-8C9D-0E1F2A3B4C5D/0000-no-uid.ics</href>
+    <propstat>
+      <prop>
+        <calendar-data xmlns="urn:ietf:params:xml:ns:caldav"><![CDATA[BEGIN:VCALENDAR
+VERSION:2.0
+BEGIN:VTODO
+SUMMARY:A task a broken client wrote without a UID
+END:VTODO
+END:VCALENDAR
+]]></calendar-data>
+      </prop>
+      <status>HTTP/1.1 200 OK</status>
+    </propstat>
+  </response>
+</multistatus>

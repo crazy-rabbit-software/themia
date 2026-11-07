@@ -70,7 +70,7 @@ internal sealed partial class TasksView
                 entries.Add(new ItemMenuEntry(null, Display(name), () => PickAccountList(id, name), Checked: !feed.IsToday && id == feed.ListId));
             }
 
-            if (TaskRules.CanRename(ShownList()))
+            if (!feed.ReadOnly && TaskRules.CanRename(ShownList()))
             {
                 entries.Add(ItemMenuEntry.Separator);
                 entries.Add(new ItemMenuEntry(Glyphs.Rename, TasksStr.WidgetsC_Tasks_RenameListEllipsis.Text(), () => RenameInFlyout(ShownList()?.Name ?? string.Empty)));
