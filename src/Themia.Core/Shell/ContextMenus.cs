@@ -197,4 +197,14 @@ public static class CardGestures
     /// a row's, a button's or an item menu's.
     /// </summary>
     public static bool ContentTakesInput(bool editMode) => !editMode;
+
+    /// <summary>
+    /// [S-2000] Whether a click on the card (one no child of the view took) opens what the widget is
+    /// about: a plain left click (no Ctrl, Shift or Alt) outside edit mode, on a real desktop card (never a
+    /// debug render's preview, [S-1251]) that is not showing its Set up button ([S-1862]). In edit mode
+    /// a click selects ([S-1745]). At once: a double-click is nothing of the card's ([S-65]), so
+    /// there is nothing to wait for.
+    /// </summary>
+    public static bool Opens(bool editMode, bool preview, bool leftButton, bool modifier, bool showsSetup)
+        => !editMode && !preview && leftButton && !modifier && !showsSetup;
 }

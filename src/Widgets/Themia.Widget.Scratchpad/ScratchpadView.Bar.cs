@@ -144,7 +144,7 @@ internal sealed partial class ScratchpadView
             }
         };
 
-        // Two quick taps on a tool are two taps, not the card's double-click into edit mode.
+        // Two quick taps on a tool are two taps, not a double-click.
         button.DoubleTapped += (_, args) => args.Handled = true;
         return button;
     }

@@ -24,7 +24,7 @@ namespace Themia.Widget.DesktopItem;
 /// Its gestures are the desktop's ([S-5540]..[S-5549]): a press, a key, a typed letter, the right
 /// button, a drag and a drop are handed to the host's one desktop selection
 /// (<see cref="IWidgetHost.DesktopItems"/>), which paints back what it decided; F2's box is drawn here.
-/// A double-click and a right-click never reach the card, which would toggle edit mode or open its menu.
+/// A right-click never reaches the card, which would open its menu.
 /// </summary>
 internal sealed partial class DesktopItemView : Grid, IWidgetView, IWidgetSizeAware, IWidgetKeys, IWidgetSurfaceAware, IWidgetDropTarget
 {
@@ -278,7 +278,7 @@ internal sealed partial class DesktopItemView : Grid, IWidgetView, IWidgetSizeAw
 
     private void OnPressLost(object sender, PointerRoutedEventArgs e) => _pressed = false;
 
-    /// <summary>[S-5530] A double-click opens the selection, and is the item's: the card does not toggle edit mode.</summary>
+    /// <summary>[S-5530] A double-click opens the selection, and is the item's.</summary>
     private void OnDoubleTapped(object sender, DoubleTappedRoutedEventArgs e)
     {
         if (_surface?.EditMode == true)

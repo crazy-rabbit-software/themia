@@ -250,8 +250,8 @@ internal sealed partial class AppHost : IDisposable
         if (!_command.Create())
         {
             // Without it the hotkey and the second-launch route are both gone, and edit mode is
-            // only reachable by double-clicking a widget the user may not have.
-            Log.Error(Scope, "no command window; edit mode can only be reached by double-clicking a widget");
+            // only reachable from a widget's right-click menu (Edit layout, [S-1758]).
+            Log.Error(Scope, "no command window; edit mode can only be reached from a widget's right-click menu");
         }
 
         // Show Desktop raises the desktop window above everything, including anything pinned below

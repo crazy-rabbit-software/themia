@@ -148,6 +148,9 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface, IItemPaletteOwn
     /// <summary>[S-6913] What the view may ask of the host, handed to its module when it is built.</summary>
     private readonly IWidgetHost _widgetHost;
 
+    /// <summary>[S-2000] The last press reached the card unhandled, outside edit mode: its tap may open.</summary>
+    private bool _openArmed;
+
     /// <summary>[S-6512] The item fills of this widget's view, from its own item layer or the app-wide one.</summary>
     private readonly ItemPalette _items = new();
 
@@ -377,7 +380,7 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface, IItemPaletteOwn
         PointerReleased += OnPointerReleased;
         PointerCaptureLost += OnPointerCaptureLost;
         RightTapped += OnRightTapped;
-        DoubleTapped += OnDoubleTapped;
+        Tapped += OnTapped;
 
         // [S-800] Handled presses too: a click on a row's button or a list item is still a click in
         // this widget, and the controls inside mark their presses handled.
@@ -886,8 +889,17 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface, IItemPaletteOwn
     {
         if (!_host.EditMode)
         {
+            // [S-2000] A press no child took arms the click that may open the widget's subject.
+            _openArmed = CardGestures.Opens(
+                editMode: false,
+                preview: _host.IsPreview,
+                leftButton: e.GetCurrentPoint(this).Properties.IsLeftButtonPressed,
+                modifier: e.KeyModifiers != Windows.System.VirtualKeyModifiers.None,
+                showsSetup: ShowsSetup);
             return;
         }
+
+        _openArmed = false;
 
         // [S-1745] What the press starts.
         var handle = HitHandle(e.OriginalSource);
@@ -1033,12 +1045,40 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface, IItemPaletteOwn
 
     private UIElement ParentSurface() => Parent as UIElement ?? this;
 
-    private void OnDoubleTapped(object sender, DoubleTappedRoutedEventArgs e)
+    /// <summary>
+    /// [S-2000] A click the view's own buttons, rows, links and controls did not take opens what the
+    /// widget is about, at once ([S-2001]: the view says what, <see cref="IWidgetOpens"/>). The press
+    /// must have reached the card unhandled too: a control that takes the press but not the tap
+    /// keeps its click. Outside edit mode only; in edit mode the press selected.
+    /// </summary>
+    private void OnTapped(object sender, TappedRoutedEventArgs e)
     {
-        // Ctrl+Alt+W is the documented way in, but a double-click on a widget is the one people
-        // actually try — and it is the fallback when another program already owns the hotkey.
-        _host.RequestEditMode(!_host.EditMode);
-        e.Handled = true;
+        var armed = _openArmed;
+        _openArmed = false;
+
+        if (!armed || _view is not IWidgetOpens opens)
+        {
+            return;
+        }
+
+        try
+        {
+            if (opens.Opens is not { } target)
+            {
+                return;
+            }
+
+            e.Handled = true;
+            var outcome = _widgetHost.Launcher.OpenCard(target);
+            if (outcome != LaunchOutcome.Opened)
+            {
+                Log.Warn(Scope, $"{Model.Kind}: a click opened nothing ({outcome})");
+            }
+        }
+        catch (Exception ex)
+        {
+            Log.Error(Scope, $"{Model.Kind} threw saying what a click opens", ex);
+        }
     }
 
     /// <summary>

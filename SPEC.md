@@ -16,7 +16,7 @@ Owning files: `Themia.Core/Geometry/*`, `Themia.Core/Model/*`, `Themia.Core/Stor
 Sections, grouped by area (file order below; search for the heading).
 
 - **Foundations.** Geometry model; Rendering; Grid snap aid; Constraints; Defaults & placement; Views & displays; Window layering; Transparency; Ticking; Live widgets and resource use (R6-RESOURCES); Memory; Persistence; Failure rules; Not on this machine (UNAVAILABLE); Clipboard & transfer between displays; No backwards compatibility; Widget modules and the registry (MODULES); The widget kit (KIT); The service layer (SERVICES).
-- **Shell, windows and settings.** Displays (WP2); Desktop integration and suspend (WP3); Appearance engine (WP1); Notices, resilience and undo (WP4); Widget picker: search (WP5); Multi-select and the placement session (MULTISELECT-PLACEMENT); Widget styles (STYLES); Context menus (R4-MENUS); Views and the view bar (WP8); The Displays and Views pages (R4-NAV, R5-PAGES); Icon picker and showcase views (R4-ICONS); Keyboard lease (WP11); Widget keys (WIDGET-KEYS); Item selection (ITEM-SELECTION); View links (VIEW-LINKS); Keyboard in the shell (SHELL-KEYS); Motion: intros, hyperspace, hacker (WP9-MOTION); Desktop surface drops (WP10-SURFACE); The desktop layer (DESKTOP); Opening a widget's app (R7-OPEN, retired); Shell hooks (PA); Removed widgets (R7-REMOVE); Shell skeleton and shared settings; Shared widget settings: region and updates (SETTINGS-AUDIT); Colours, fonts and uninstall (the settings window, retired); Settings navigation icons (NAV-ICONS, retired); Logging (WP7); Network safety (WP6); Localization infrastructure (LOC-INFRA); Microsoft Store package and licensing; Gallery.
+- **Shell, windows and settings.** Displays (WP2); Desktop integration and suspend (WP3); Appearance engine (WP1); Notices, resilience and undo (WP4); Widget picker: search (WP5); Multi-select and the placement session (MULTISELECT-PLACEMENT); Widget styles (STYLES); Context menus (R4-MENUS); Views and the view bar (WP8); The Displays and Views pages (R4-NAV, R5-PAGES); Icon picker and showcase views (R4-ICONS); Keyboard lease (WP11); Widget keys (WIDGET-KEYS); Item selection (ITEM-SELECTION); View links (VIEW-LINKS); Keyboard in the shell (SHELL-KEYS); Motion: intros, hyperspace, hacker (WP9-MOTION); Desktop surface drops (WP10-SURFACE); The desktop layer (DESKTOP); Opening a widget's app (R7-OPEN, retired); Opening what a widget is about (CARD-OPEN); Shell hooks (PA); Removed widgets (R7-REMOVE); Shell skeleton and shared settings; Shared widget settings: region and updates (SETTINGS-AUDIT); Colours, fonts and uninstall (the settings window, retired); Settings navigation icons (NAV-ICONS, retired); Logging (WP7); Network safety (WP6); Localization infrastructure (LOC-INFRA); Microsoft Store package and licensing; Gallery.
 - **Look and layout.** Rows and the card edge; Looking like Windows; The widget header; The widget family: tokens and blocks (FAMILY); Responsive layout (shared foundation); Adding a widget; Layout pass over the ported widgets; Widget polish 1 (POLISH-1); Widget polish 2: leftover parity and layout gaps (POLISH-2); The Set up button (R5-SETUP).
 - **Accounts and sign-in.** Where account data comes from; Accounts and sign-in.
 - **System widgets.** (The seven meters, the seven detail widgets, Drive, Removable drives, Brightness, Mixer, Volume, Music, the Audio visualizer, the three screen-time widgets, Notifications and the Focus session are modules: their sections are their projects' `SPEC.md`; the sections named here keep the hub, the samplers and the rules they share, the SDK's.) System data hub (SYS-HUB); System meters; Meter framework and memory; CPU; Disk and ping; Battery and network; Network and ping; System widgets: GPU, mixer and screen time; Screen time: chart, donut and apps (SCREENTIME-SPLIT); GPU and screen time: the whole tile (SYS-P4); System details (SYS-DETAILS); Mixer and Volume (SYS-P5); Power and Bluetooth; Device and location (DEVICE-AND-LOCATION); Quick-setting toggles (QUICK-TOGGLES); Windows' panels: notifications, focus session, brightness (WINDOWS-PANELS).
@@ -509,9 +509,13 @@ busy desktop ([S-6601]), Debug, private bytes.
   app used to hang everything off, so what it was the only route to has to live somewhere else:
   edit mode on a global hotkey, and everything that menu offered on the edit toolbar.
 - **[S-65]** **Ctrl+Alt+W** toggles edit mode, registered `MOD_NOREPEAT` so a held key does not
-  toggle it dozens of times a second. Another program may already own the combination; that is
-  logged as an error and leaves a working app, because double-clicking a widget and launching
-  Themia again both still reach edit mode. The hotkey is unregistered on shutdown — one that
+  toggle it dozens of times a second. Edit mode is reached by this hotkey and by launching Themia
+  again ([S-66]); a widget's right-click menu's Edit layout ([S-1758]) leads there too. A
+  double-click on a widget does **not** enter edit mode (user decision 2026-11-07, issue 75): a click
+  on a widget opens what it is about ([S-2000]), and waiting out the double-click time before every
+  such click was the reason the first attempt was retired. Another program may already own the
+  combination; that is logged as an error and leaves a working app, because launching Themia again
+  still reaches edit mode. The hotkey is unregistered on shutdown — one that
   outlives its window is a combination nothing can claim until the session ends, including the copy
   the user starts next.
 - **[S-66]** Launching Themia while it is running **activates the running copy** instead of starting
@@ -8224,10 +8228,10 @@ away when an account is added.
 
 ## Opening a widget's app (R7-OPEN, retired)
 
-Removed again by the user's decision, with its table, launcher, hover affordance, strings and tests.
-Outside edit mode a click on a widget's body or header does nothing at the card level; the widget's
-own buttons, rows, links and controls keep their clicks, and a double-click enters edit mode at once
-([S-65]). The tags are not reused.
+Removed by the user's decision on 2026-10-05, with its table, launcher, hover affordance, strings
+and tests: a single click had to wait out the double-click time (a double-click entered edit mode
+then), and one global table decided every kind. Brought back differently as CARD-OPEN below
+([S-2000]..[S-2009]). These tags are not reused.
 
 - **[S-1920]** *(Retired: a click on a widget opens nothing.)*
 - **[S-1921]** *(Retired: no click targets.)*
@@ -8240,6 +8244,62 @@ own buttons, rows, links and controls keep their clicks, and a double-click ente
 - **[S-1928]** *(Retired: account widgets open no service.)*
 - **[S-1929]** *(Retired: folder and pictures open no folder.)*
 - **[S-1930]** *(Retired: a feed does not keep its site.)*
+
+## Opening what a widget is about (CARD-OPEN)
+
+Issue 75 ("click a widget to open its app"), as the user decided on 2026-11-07. Each widget's own
+target is in its module's `SPEC.md` ([S-2010]..[S-2049]); the host has no table of kinds.
+
+- **[S-2000]** Outside edit mode a **plain left click** on a widget (no Ctrl, Shift or Alt), one that
+  none of the view's own buttons, rows, links, sliders or boxes took, **opens what the widget is
+  about at once** (`CardGestures.Opens`): the press must reach the card unhandled and so must its
+  tap (`WidgetCard.OnTapped`), so a control that takes either keeps its click. Nothing waits: a
+  double-click is nothing of the card's ([S-65]), and its second click opens nothing again. A
+  widget that shows its Set up button ([S-1862]) and a debug render's preview ([S-1251]) open
+  nothing; in edit mode a click selects ([S-1745]). A click that opened nothing (refused, missing,
+  the shell said no) is logged; the desktop stays as it was.
+- **[S-2001]** The widget decides, through its view: a view implements the SDK's `IWidgetOpens`
+  (`CardOpen? Opens`, read on the click so it follows what the view shows now: the playing app, the
+  folder it is in). Null opens nothing (not set up, no data yet, nothing fits); a view with nothing
+  to open at all does not implement it. The shared views ask their module's part: `MeterPart.Opens`
+  and `DetailPart.Opens` (default nothing). What is opened is a `CardOpen`, built only through its
+  factories, and opened only through `IWidgetHost.Launcher.OpenCard`.
+- **[S-2002]** A `CardOpen` is one of three kinds, each with its own gate, checked when it is built
+  and again by the launcher on the literal value: a **target** `LaunchTargets` accepts (`Target`,
+  `Web` for https pages only (an http page opens nothing), `Place` for a folder, file or `shell:`
+  location, `SystemProgram` for a bare `.exe` name in the system folder: Task Manager), a **Settings
+  page** (`Settings("sound")` → `ms-settings:sound`, the name lower-case letters, digits and dashes
+  only), or an **app** (`App`). Windows' Clock app is its Apps-folder item
+  (`shell:AppsFolder\Microsoft.WindowsAlarms_8wekyb3d8bbwe!App`, `CardOpen.ClockApp`).
+- **[S-2003]** An app is the AppUserModelID another process reported (the media session's
+  `SourceAppUserModelId`, `NowPlaying.AppId`): untrusted, so a packaged app's id becomes its
+  Apps-folder target and a desktop app's own id (`Spotify.exe`, `Chrome`) passes only as ASCII
+  letters, digits and `. - _` (no leading dot or dash, no `..`, at most 128). The launcher brings a
+  running desktop app's visible window to the front (restored when minimised) and otherwise opens
+  its Apps-folder item.
+- **[S-2004]** A widget's own clicks stay its own: a kit row (`KitList`, plain and checked), a
+  detail row (`DetailView`), a calendar event, a header's button (`HeaderBlock`), the Quote widget's
+  next-quote click and every WinUI control (buttons, sliders, toggles, links, which handle their
+  presses) mark the click handled, so the card never opens on top of them. Empty space between
+  them, the header's icon and title, and a widget's readouts are the card's.
+- **[S-2005]** Account widgets open the account's own service on the web
+  (`AccountPages.Home(feature, chosen, accounts)`, SDK): of the accounts the widget reads (all with
+  the feature when it names none), the first whose provider has a page for the feature. Microsoft:
+  mail `https://outlook.office.com/mail/`, calendar `https://outlook.office.com/calendar/`, contacts
+  `https://outlook.office.com/people/`, tasks `https://to-do.office.com/tasks/`. Google: mail
+  `https://mail.google.com/`, calendar `https://calendar.google.com/`, contacts
+  `https://contacts.google.com/`, tasks `https://tasks.google.com/`. IMAP, CalDAV and CardDAV have no
+  page: nothing opens.
+- **[S-2006]** Weather widgets open MSN Weather's forecast for the widget's own place
+  (`WeatherPages.Forecast(config, locale)`, SDK, beside `WeatherConfig`), in the UI language's
+  market (`de-de`, …, `en-us` for English and any other), in its unit; the place travels as MSN's
+  `loc` parameter (base64 JSON of the name and the coordinates to four places), because a name alone
+  lands on whichever town MSN guesses. No place, no page.
+
+Needs a manual pass (the live desktop): a click on each widget below outside edit mode opens its
+target once and at once; a click on a row, a button, a slider or a link does only what it did; a
+double-click does not enter edit mode; Ctrl+Alt+W and launching Themia again still do; in edit mode
+a click still selects.
 
 ## Removed widgets (R7-REMOVE)
 

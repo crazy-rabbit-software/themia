@@ -666,8 +666,12 @@ internal sealed partial class CalendarView : Grid, IWidgetView, IWidgetHeaderCon
 
         if (Openable(item))
         {
-            // Not handled: the card's double-click into edit mode still has to reach it.
-            element.Tapped += (_, _) => Open(item);
+            // [S-2004] The event's click is its own: it never reaches the card's open.
+            element.Tapped += (_, args) =>
+            {
+                args.Handled = true;
+                Open(item);
+            };
         }
     }
 

@@ -164,12 +164,12 @@ internal sealed partial class QuoteView : Grid, IWidgetView, IWidgetHeaderConten
         Render();
     }
 
-    /// <summary>
-    /// Deliberately not marked handled: the card's own double-click still has to reach it, which is
-    /// how the desktop is put into edit mode. The cost is that a double-click advances twice, which
-    /// is a quote, and the benefit is that the gesture works the same on every widget.
-    /// </summary>
-    private void OnTapped(object sender, TappedRoutedEventArgs args) => ShowNext();
+    /// <summary>A click shows the next quote, and is the widget's own ([S-2004]).</summary>
+    private void OnTapped(object sender, TappedRoutedEventArgs args)
+    {
+        args.Handled = true;
+        ShowNext();
+    }
 
     private void ShowNext()
     {

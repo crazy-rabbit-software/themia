@@ -281,13 +281,12 @@ internal sealed unsafe class CommandWindow : IDisposable
                 continue;
             }
 
-            // Another program owns the combination. Double-clicking a widget, launching Themia
-            // again and the edit bar's Add widget all still work, so this is a degraded app rather
-            // than an unusable one.
+            // Another program owns the combination. Launching Themia again still enters edit mode
+            // ([S-65]), so this is a degraded app rather than an unusable one.
             Log.Error(
                 Scope,
                 $"{binding.Keys} is taken by another program (win32 {Marshal.GetLastWin32Error()}); " +
-                "edit mode can still be reached by double-clicking a widget or launching Themia again");
+                "edit mode can still be reached by launching Themia again");
         }
     }
 
