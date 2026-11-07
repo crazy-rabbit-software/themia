@@ -159,4 +159,42 @@ public sealed class ShortcutDropTests
         Assert.Null(ShortcutDrop.InsertBefore(order, 2, 0.9));
         Assert.Null(ShortcutDrop.InsertBefore(order, -1, 0));
     }
+
+    [Fact]
+    public void S1416_issue_189_a_start_menu_app_without_a_shortcut_becomes_its_apps_folder_item()
+    {
+        var result = ShortcutDrop.FromStartMenu(
+            [("Claude", @"::{4234d49b-0245-4df3-b780-3893943456e1}\Claude_pzs8sxrjxfjjc!Claude")],
+            _ => null, [], NoLink, NoText);
+
+        var item = Assert.Single(result.Items);
+        Assert.Equal(@"shell:AppsFolder\Claude_pzs8sxrjxfjjc!Claude", item.Target);
+        Assert.Equal("Claude", item.Label);
+    }
+
+    [Fact]
+    public void S1416_a_start_menu_app_with_a_shortcut_is_that_shortcut()
+    {
+        const string link = @"C:\ProgramData\Microsoft\Windows\Start Menu\Programs\Notepad++.lnk";
+
+        var result = ShortcutDrop.FromStartMenu(
+            [("Notepad++", @"::{4234d49b-0245-4df3-b780-3893943456e1}\{6D809377-6AF0-444B-8957-A3773F02200E}\Notepad++\notepad++.exe")],
+            name => name == "Notepad++" ? link : null,
+            [], NoLink, NoText);
+
+        Assert.Equal(link, Assert.Single(result.Items).Target);
+    }
+
+    [Fact]
+    public void S1416_a_start_menu_app_with_neither_or_already_held_is_skipped()
+    {
+        var held = new List<ShortcutItem> { ShortcutItem.Create(@"shell:AppsFolder\Claude_pzs8sxrjxfjjc!Claude") };
+
+        var result = ShortcutDrop.FromStartMenu(
+            [("Claude", "Claude_pzs8sxrjxfjjc!Claude"), ("Explorer", @"::{4234d49b-0245-4df3-b780-3893943456e1}\Microsoft.Windows.Explorer")],
+            _ => null, held, NoLink, NoText);
+
+        Assert.Empty(result.Items);
+        Assert.Equal(2, result.Skipped);
+    }
 }

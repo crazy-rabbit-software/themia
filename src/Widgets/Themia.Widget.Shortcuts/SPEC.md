@@ -126,8 +126,13 @@ through `SettingsHost.OwnPicker`, the layout editor through `SettingsHost.AppLay
 - **[S-1401]** A `.url` becomes its http(s) address named after the file; a `.url` to any other scheme
   (`steam://`) is kept as the `.url` file itself with its `IconFile=` as the item's `IconPath` — the
   launch allow list is not widened (orig. S-29/S-73). A `.lnk` becomes its target named as the link,
-  unless it passes arguments or cannot be resolved, then the link itself (orig. S-30). `IconPath` must
+  unless it passes arguments, has an icon of its own (`ShortcutLinks.KeepsLinkItself`, issue 190) or
+  cannot be resolved, then the link itself (orig. S-30). `IconPath` must
   be a local path (repair drops anything else).
+- **[S-1416]** A Start menu app dropped as a shell item (no path, [S-1402]) becomes the Start menu's own
+  shortcut of that name; a packaged (Store / MSIX) app with none becomes its Apps-folder item
+  `shell:AppsFolder\<AUMID>`, named as Start names it (issue 189: Claude); one with neither, or one
+  the widget already holds, is skipped (logged). `ShortcutDrop.FromStartMenu`.
 - **[S-1410]** Pressing an item and moving 5 px drags it (the selection, if it was on it); the list moves
   under the pointer; release commits exactly the preview (before the item under the pointer's first
   half, else after; empty space = end); an unchanged order writes nothing.

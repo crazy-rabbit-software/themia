@@ -489,16 +489,16 @@ internal sealed partial class ShortcutsView
         // Read now: the data object is only valid during the drop.
         var shellItems = drag.ReadShellItems();
         var paths = shellItems.Where(item => item.FileSystemPath is not null).Select(item => item.FileSystemPath!).ToList();
-        var names = shellItems.Where(item => item.FileSystemPath is null && item.DisplayName.Length > 0).Select(item => item.DisplayName).ToList();
+        var apps = shellItems.Where(item => item.FileSystemPath is null && item.DisplayName.Length > 0).Select(item => (item.DisplayName, item.ParsingName)).ToList();
 
         if (paths.Count > 0)
         {
             AddDropped(ShortcutDrop.FromDrop(paths, [], _config.Items, ResolveLink, ReadUrlFile));
         }
 
-        if (names.Count > 0)
+        if (apps.Count > 0)
         {
-            _ = AddStartMenuAppsAsync(names);
+            _ = AddStartMenuAppsAsync(apps);
         }
     }
 
@@ -512,32 +512,25 @@ internal sealed partial class ShortcutsView
         AddItems(result.Items);
     }
 
-    /// <summary>Start menu apps dropped by name: each becomes the Start menu's own shortcut for it.</summary>
-    private async Task AddStartMenuAppsAsync(IReadOnlyList<string> names)
+    /// <summary>
+    /// [S-1416] Start menu apps dropped as shell items: each becomes the Start menu's own shortcut for
+    /// it, or a packaged app without one its Apps-folder item.
+    /// </summary>
+    private async Task AddStartMenuAppsAsync(IReadOnlyList<(string Name, string ParsingName)> dropped)
     {
         try
         {
             var apps = await Task.Run(() => _widgetHost.InstalledApps.Read(2000, CancellationToken.None)).ConfigureAwait(true);
-            var paths = new List<string>();
 
-            foreach (var name in names)
-            {
-                if (apps.FirstOrDefault(app => string.Equals(app.Name, name, StringComparison.OrdinalIgnoreCase)) is { Target.Length: > 0 } app)
-                {
-                    paths.Add(app.Target);
-                }
-                else
-                {
-                    Log.Info(Scope, "a dropped Start menu app has no Start menu shortcut to keep (a Store-only app?)");
-                }
-            }
-
-            if (_detached || paths.Count == 0)
+            if (_detached)
             {
                 return;
             }
 
-            AddDropped(ShortcutDrop.FromDrop(paths, [], _config.Items, ResolveLink, ReadUrlFile));
+            string? ShortcutOf(string name)
+                => apps.FirstOrDefault(app => string.Equals(app.Name, name, StringComparison.OrdinalIgnoreCase)).Target;
+
+            AddDropped(ShortcutDrop.FromStartMenu(dropped, ShortcutOf, _config.Items, ResolveLink, ReadUrlFile));
         }
         catch (Exception ex)
         {
@@ -545,9 +538,9 @@ internal sealed partial class ShortcutsView
         }
     }
 
-    /// <summary>A dropped link's target, or null to keep the link (unreadable, or it passes arguments).</summary>
+    /// <summary>A dropped link's target, or null to keep the link (unreadable, it passes arguments or it has its own icon).</summary>
     private string? ResolveLink(string path)
-        => LaunchTargets.MayProbe(LaunchTargets.Classify(path)) ? _widgetHost.FileOps.ResolveShortcut(path, withoutArguments: true) : null;
+        => LaunchTargets.MayProbe(LaunchTargets.Classify(path)) ? _widgetHost.FileOps.ResolveShortcut(path, plainOnly: true) : null;
 
     /// <summary>A dropped <c>.url</c> file's text: local only, and only as long as such a file can be.</summary>
     private static string? ReadUrlFile(string path)

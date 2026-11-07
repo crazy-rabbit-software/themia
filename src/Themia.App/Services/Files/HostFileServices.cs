@@ -115,7 +115,7 @@ internal sealed class HostFileOps : IShellFileOps
 
     public int SetCloudPin(IReadOnlyList<string> paths, CloudPin pin) => ShellFileOps.SetCloudPin(paths, pin);
 
-    public string? ResolveShortcut(string path, bool withoutArguments = false) => ShellFileOps.ResolveShortcut(path, withoutArguments);
+    public string? ResolveShortcut(string path, bool plainOnly = false) => ShellFileOps.ResolveShortcut(path, plainOnly);
 
     public DropEffect DragOut(IReadOnlyList<string> paths, DropEffect allowed, nint window) => DragDropInterop.DragOut(paths, allowed, window);
 }

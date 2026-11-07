@@ -473,12 +473,12 @@ internal static unsafe partial class ShellFileOps
     /// [S-1330] Where a shortcut (.lnk) points, for navigate mode to open a linked folder inside the
     /// widget; null when it cannot be read or points nowhere on disk.
     /// <para>
-    /// [S-1401] With <paramref name="withoutArguments"/>, also null when the link passes arguments
-    /// (a browser profile, a game launcher): its target alone would open something else, so a drop
-    /// onto the Shortcuts widget keeps the link itself.
+    /// [S-1401] With <paramref name="plainOnly"/>, also null when the link passes arguments (a
+    /// browser profile, a game launcher) or has an icon of its own (<see cref="ShortcutLinks"/>): its
+    /// target alone would lose them, so a drop onto the Shortcuts widget keeps the link itself.
     /// </para>
     /// </summary>
-    public static string? ResolveShortcut(string path, bool withoutArguments = false)
+    public static string? ResolveShortcut(string path, bool plainOnly = false)
     {
         nint link;
         var clsid = ClsidShellLink;
@@ -519,13 +519,24 @@ internal static unsafe partial class ShellFileOps
 
         var target = new string(buffer);
 
-        if (withoutArguments && target.Length > 0)
+        if (plainOnly && target.Length > 0)
         {
             // IShellLinkW::GetArguments is slot 10: (LPWSTR, int).
             buffer[0] = '\0';
 
-            if (((delegate* unmanaged[Stdcall]<nint, char*, int, int>)(*(nint**)link)[10])(link, buffer, 1024) < 0
-                || new string(buffer).Trim().Length > 0)
+            if (((delegate* unmanaged[Stdcall]<nint, char*, int, int>)(*(nint**)link)[10])(link, buffer, 1024) < 0)
+            {
+                return null;
+            }
+
+            var arguments = new string(buffer);
+
+            // IShellLinkW::GetIconLocation is slot 16: (LPWSTR, int, int* index).
+            buffer[0] = '\0';
+            int index;
+
+            if (((delegate* unmanaged[Stdcall]<nint, char*, int, int*, int>)(*(nint**)link)[16])(link, buffer, 1024, &index) < 0
+                || ShortcutLinks.KeepsLinkItself(arguments, new string(buffer)))
             {
                 return null;
             }

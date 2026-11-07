@@ -92,7 +92,7 @@ public static class ShortcutDrop
     /// <param name="paths">Dropped file-system paths.</param>
     /// <param name="urls">Dropped web addresses.</param>
     /// <param name="existing">What the widget holds now.</param>
-    /// <param name="resolveLink">A <c>.lnk</c>'s target, or null to keep the <c>.lnk</c> itself (it failed, or it carries arguments the target alone would lose).</param>
+    /// <param name="resolveLink">A <c>.lnk</c>'s target, or null to keep the <c>.lnk</c> itself (it failed, or it carries arguments or an icon the target alone would lose).</param>
     /// <param name="readText">A <c>.url</c> file's text, or null when it cannot be read.</param>
     public static ShortcutDropResult FromDrop(
         IReadOnlyList<string> paths,
@@ -136,6 +136,52 @@ public static class ShortcutDrop
             {
                 Take(LaunchTargets.Classify(url) is { Kind: LaunchKind.Web } web ? ShortcutItem.Create(web.Value) : null);
             }
+        }
+
+        return new ShortcutDropResult(added, skipped);
+    }
+
+    /// <summary>
+    /// [S-1416] Start menu apps dropped as shell items (no paths): each is the Start menu's own
+    /// shortcut of that name when there is one, else a packaged app's Apps-folder item
+    /// (<c>shell:AppsFolder\&lt;AUMID&gt;</c>, from the item's parsing name) named as Start names it.
+    /// One with neither is skipped, as is one the widget already holds.
+    /// </summary>
+    /// <param name="apps">The dropped items: the name Start shows, and the shell's parsing name.</param>
+    /// <param name="shortcutOf">The Start menu shortcut of that name, or null.</param>
+    /// <param name="existing">What the widget holds now.</param>
+    /// <param name="resolveLink">As in <see cref="FromDrop"/>.</param>
+    /// <param name="readText">As in <see cref="FromDrop"/>.</param>
+    public static ShortcutDropResult FromStartMenu(
+        IReadOnlyList<(string Name, string ParsingName)> apps,
+        Func<string, string?> shortcutOf,
+        IEnumerable<ShortcutItem> existing,
+        Func<string, string?> resolveLink,
+        Func<string, string?> readText)
+    {
+        ArgumentNullException.ThrowIfNull(apps);
+        ArgumentNullException.ThrowIfNull(shortcutOf);
+        ArgumentNullException.ThrowIfNull(existing);
+
+        var held = existing.ToList();
+        var added = new List<ShortcutItem>();
+        var skipped = 0;
+
+        foreach (var (name, parsingName) in apps)
+        {
+            ShortcutItem? item = shortcutOf(name) is { Length: > 0 } shortcut
+                ? FromPath(shortcut, resolveLink, readText)
+                : LaunchTargets.AppsFolderTarget(parsingName) is { } packaged
+                    ? ShortcutItem.Create(packaged, name)
+                    : null;
+
+            if (item is null || held.Concat(added).Any(other => LaunchTargets.SameTarget(other.Target, item.Target)))
+            {
+                skipped++;
+                continue;
+            }
+
+            added.Add(item);
         }
 
         return new ShortcutDropResult(added, skipped);
