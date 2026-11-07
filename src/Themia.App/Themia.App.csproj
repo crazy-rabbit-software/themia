@@ -36,6 +36,8 @@
     -->
     <PublishAot>true</PublishAot>
     <PublishReadyToRun>false</PublishReadyToRun>
+    <!-- See PatchedRuntime below. -->
+    <ThemiaPatchedRuntime>10.0.14</ThemiaPatchedRuntime>
     <InvariantGlobalization>true</InvariantGlobalization>
     <EventSourceSupport>false</EventSourceSupport>
     <MetadataUpdaterSupport>false</MetadataUpdaterSupport>
@@ -196,5 +198,20 @@
       <TargetPlatformVersion>10.0.26100.0</TargetPlatformVersion>
     </TargetDeviceFamily>
   </ItemGroup>
+
+  <!--
+    PatchedRuntime: the .NET runtime this self-contained app ships and the ILCompiler that builds it,
+    raised past the SDK's bundled 10.0.11. GHSA-p3jp-9v83-76w9 (CVE-2026-111497, the Brotli decoder)
+    is fixed in 10.0.14, and NuGet's audit fails the build on the older ILCompiler. The SDK's own
+    knobs, not a PackageReference or RuntimeFrameworkVersion (that one also re-versions the Windows
+    SDK projection pack): a self-contained app takes its framework's LatestRuntimeFrameworkVersion.
+    Drop this once the installed SDK bundles a patched runtime.
+  -->
+  <Target Name="PatchedRuntime" BeforeTargets="ProcessFrameworkReferences">
+    <ItemGroup>
+      <KnownFrameworkReference Update="Microsoft.NETCore.App" Condition="'%(TargetFramework)' == 'net10.0'" LatestRuntimeFrameworkVersion="$(ThemiaPatchedRuntime)" />
+      <KnownILCompilerPack Update="Microsoft.DotNet.ILCompiler" Condition="'%(TargetFramework)' == 'net10.0'" ILCompilerPackVersion="$(ThemiaPatchedRuntime)" />
+    </ItemGroup>
+  </Target>
 
 </Project>
