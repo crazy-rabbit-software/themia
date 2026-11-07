@@ -101,4 +101,7 @@ internal sealed class CardWidgetHost(IWidgetCardHost card) : IWidgetHost
 
     /// <summary>[S-3558] ⚙ › Accounts on the card's display.</summary>
     public bool ShowAccounts() => card.RequestAccounts();
+
+    public IReadOnlyList<Themia.App.Services.Accounts.AccountInfo> AccountsWith(Themia.Sdk.FeatureId feature)
+        => AppServices.Accounts?.WithFeature(feature) ?? [];
 }

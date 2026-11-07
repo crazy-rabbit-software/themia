@@ -35,6 +35,13 @@ public interface IWidgetHost
     /// <summary>Open ⚙ › Accounts, for a widget whose empty state is "sign in". False where there is none to open (a debug render).</summary>
     bool ShowAccounts();
 
+    /// <summary>
+    /// [S-2005] The signed-in accounts offering <paramref name="feature"/>, in the order they were
+    /// added: what an account widget's click reads to open its service's page. Empty before the host
+    /// has started.
+    /// </summary>
+    IReadOnlyList<Themia.App.Services.Accounts.AccountInfo> AccountsWith(FeatureId feature);
+
     /// <summary>[S-4863] The Recycle Bin: the one answer how full it is, and Windows' own empty.</summary>
     IRecycleBin RecycleBin { get; }
 
