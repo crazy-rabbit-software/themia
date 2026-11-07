@@ -18,6 +18,7 @@
   "details.cpu.handles": "ਹੈਂਡਲ",
   "details.cpu.uptime": "ਚਾਲੂ ਸਮਾਂ",
   "details.cpu.temperature": "ਥਰਮਲ ਜ਼ੋਨ",
+  "details.cpu.package": "CPU ਪੈਕੇਜ",
   "details.cpu.caption": "{percent} ਵਰਤੋਂ",
   "details.memory.available": "ਉਪਲਬਧ",
   "details.memory.committed": "ਵਚਨਬੱਧ",

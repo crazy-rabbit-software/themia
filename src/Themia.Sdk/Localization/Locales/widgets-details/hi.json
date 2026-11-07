@@ -18,6 +18,7 @@
   "details.cpu.handles": "हैंडल",
   "details.cpu.uptime": "अपटाइम",
   "details.cpu.temperature": "थर्मल ज़ोन",
+  "details.cpu.package": "CPU पैकेज",
   "details.cpu.caption": "{percent} उपयोग",
   "details.memory.available": "उपलब्ध",
   "details.memory.committed": "कमिट की गई",

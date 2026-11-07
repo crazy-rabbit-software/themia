@@ -18,6 +18,7 @@
   "details.cpu.handles": "ஹேண்டில்கள்",
   "details.cpu.uptime": "இயக்க நேரம்",
   "details.cpu.temperature": "வெப்ப மண்டலம்",
+  "details.cpu.package": "CPU தொகுப்பு",
   "details.cpu.caption": "{percent} பயன்பாடு",
   "details.memory.available": "கிடைப்பது",
   "details.memory.committed": "ஒதுக்கியது",

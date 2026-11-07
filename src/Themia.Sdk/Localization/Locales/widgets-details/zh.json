@@ -18,6 +18,7 @@
   "details.cpu.handles": "句柄",
   "details.cpu.uptime": "正常运行时间",
   "details.cpu.temperature": "热区",
+  "details.cpu.package": "CPU 封装",
   "details.cpu.caption": "使用率 {percent}",
   "details.memory.available": "可用",
   "details.memory.committed": "已提交",

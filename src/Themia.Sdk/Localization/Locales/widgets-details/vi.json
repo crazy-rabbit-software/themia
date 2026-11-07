@@ -18,6 +18,7 @@
   "details.cpu.handles": "Handle",
   "details.cpu.uptime": "Thời gian hoạt động",
   "details.cpu.temperature": "Vùng nhiệt",
+  "details.cpu.package": "Gói CPU",
   "details.cpu.caption": "Sử dụng {percent}",
   "details.memory.available": "Khả dụng",
   "details.memory.committed": "Đã cam kết",

@@ -18,6 +18,7 @@
   "details.cpu.handles": "Vishikio",
   "details.cpu.uptime": "Muda wa kufanya kazi",
   "details.cpu.temperature": "Eneo la joto",
+  "details.cpu.package": "Kifurushi cha CPU",
   "details.cpu.caption": "Matumizi {percent}",
   "details.memory.available": "Inayopatikana",
   "details.memory.committed": "Iliyojitolea",

@@ -18,6 +18,7 @@
   "details.cpu.handles": "핸들",
   "details.cpu.uptime": "작동 시간",
   "details.cpu.temperature": "열 영역",
+  "details.cpu.package": "CPU 패키지",
   "details.cpu.caption": "사용률 {percent}",
   "details.memory.available": "사용 가능",
   "details.memory.committed": "커밋됨",

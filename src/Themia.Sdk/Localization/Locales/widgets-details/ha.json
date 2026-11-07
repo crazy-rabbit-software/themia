@@ -18,6 +18,7 @@
   "details.cpu.handles": "Hannaye",
   "details.cpu.uptime": "Lokacin aiki",
   "details.cpu.temperature": "Yankin zafi",
+  "details.cpu.package": "Fakitin CPU",
   "details.cpu.caption": "Amfani {percent}",
   "details.memory.available": "Akwai",
   "details.memory.committed": "An ɗaura",

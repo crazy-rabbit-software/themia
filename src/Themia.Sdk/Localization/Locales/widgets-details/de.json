@@ -18,6 +18,7 @@
   "details.cpu.handles": "Handles",
   "details.cpu.uptime": "Betriebszeit",
   "details.cpu.temperature": "Thermische Zone",
+  "details.cpu.package": "CPU-Package",
   "details.cpu.caption": "{percent} Auslastung",
   "details.memory.available": "Verfügbar",
   "details.memory.committed": "Zugesichert",

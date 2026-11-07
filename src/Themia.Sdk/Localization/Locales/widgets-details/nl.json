@@ -18,6 +18,7 @@
   "details.cpu.handles": "Ingangen",
   "details.cpu.uptime": "Actieve tijd",
   "details.cpu.temperature": "Thermische zone",
+  "details.cpu.package": "CPU-package",
   "details.cpu.caption": "{percent} gebruik",
   "details.memory.available": "Beschikbaar",
   "details.memory.committed": "Toegewezen",
