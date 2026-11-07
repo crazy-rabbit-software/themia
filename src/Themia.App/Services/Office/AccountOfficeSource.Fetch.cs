@@ -134,35 +134,19 @@ internal sealed partial class AccountOfficeSource
     }
 
     /// <summary>
-    /// [S-567] The collection the account was set up with → its calendar home set (directly, or via
-    /// the principal) → a Depth-1 listing. Degrades to the one stored collection when there is no
-    /// home set to list, as the original did. Never follows a home set or principal to another
-    /// origin: the account's password goes only where the account lives ([S-578]).
+    /// [S-567] The calendars of the account's home set listing (<see cref="DavHomes"/>). Degrades to
+    /// the one stored collection when there is no home set to list, as the original did.
     /// </summary>
     private async Task<IReadOnlyList<CalendarInfo>> LoadDavCalendarsAsync(AccountInfo account, CancellationToken ct)
     {
         var collection = Collection(account);
         var single = (IReadOnlyList<CalendarInfo>)[DavOffice.SingleCalendar(collection)];
 
-        var probe = await _accounts.DavAsync(account.Id, "PROPFIND", null, DavDiscovery.DiscoveryBody(DavKind.Calendar), 0, ct).ConfigureAwait(false);
-
-        Uri? home = null;
-        if (DavUrls.Resolve(probe.FinalUrl, DavXml.HomeSet(probe.Body, DavKind.Calendar)) is { } direct)
-        {
-            home = direct;
-        }
-        else if (DavUrls.Resolve(probe.FinalUrl, DavXml.Principal(probe.Body)) is { } principal && DavOffice.SameOrigin(principal, collection))
-        {
-            var answer = await _accounts.DavAsync(account.Id, "PROPFIND", principal, DavDiscovery.HomeBody(DavKind.Calendar), 0, ct).ConfigureAwait(false);
-            home = DavUrls.Resolve(answer.FinalUrl, DavXml.HomeSet(answer.Body, DavKind.Calendar));
-        }
-
-        if (home is null || !DavOffice.SameOrigin(home, collection))
+        if (await DavHomes.CalendarListingAsync(_accounts, account.Id, collection, ct).ConfigureAwait(false) is not { } listing)
         {
             return single;
         }
 
-        var listing = await _accounts.DavAsync(account.Id, "PROPFIND", home, DavDiscovery.ListBody(DavKind.Calendar), 1, ct).ConfigureAwait(false);
         var calendars = DavOffice.Calendars(listing.Body, listing.FinalUrl, collection);
         return calendars.Count > 0 ? calendars : single;
     }
