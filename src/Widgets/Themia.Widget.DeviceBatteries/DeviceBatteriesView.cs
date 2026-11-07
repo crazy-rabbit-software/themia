@@ -100,11 +100,23 @@ internal sealed partial class DeviceBatteriesView : Grid, IWidgetView, IWidgetHe
     private sealed class BatterySource(IDeviceBatteries batteries, Func<DeviceBatteriesConfig> config) : IKitSource
     {
         private IDisposable? _watch;
+
+#if DEBUG
+        /// <summary>Debug renders only: a snapshot held in place of the host's.</summary>
         private DeviceBatterySnapshot? _held;
+
+        private bool Holding => _held is not null;
+
+        private DeviceBatterySnapshot Snapshot => _held ?? batteries.Last;
+#else
+        private static bool Holding => false;
+
+        private DeviceBatterySnapshot Snapshot => batteries.Last;
+#endif
 
         public event Action? Changed;
 
-        public bool Busy => _held is null && batteries.Busy;
+        public bool Busy => !Holding && batteries.Busy;
 
         public void Start(Ticker ticker) => _watch ??= batteries.Watch(ticker, () => Changed?.Invoke());
 
@@ -116,7 +128,7 @@ internal sealed partial class DeviceBatteriesView : Grid, IWidgetView, IWidgetHe
 
         public void Show(bool refresh)
         {
-            if (refresh && _held is null)
+            if (refresh && !Holding)
             {
                 batteries.Refresh();
             }
@@ -124,7 +136,7 @@ internal sealed partial class DeviceBatteriesView : Grid, IWidgetView, IWidgetHe
 
         public KitRead Read()
         {
-            var snapshot = _held ?? batteries.Last;
+            var snapshot = Snapshot;
             var settings = config();
             var status = snapshot.Status switch
             {
