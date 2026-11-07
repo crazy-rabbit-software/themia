@@ -49,6 +49,17 @@ internal static unsafe partial class ClipboardWatcher
 
     private static readonly List<Action<string>> Listeners = [];
 
+    /// <summary>[S-9978] The formats that keep a copy out of clipboard histories and the cloud clipboard.</summary>
+    private static readonly string[] PrivateFormats =
+    [
+        "ExcludeClipboardContentFromMonitorProcessing",
+        "CanIncludeInClipboardHistory",
+        "CanUploadToCloudClipboard",
+    ];
+
+    /// <summary>[S-9978] The clipboard's sequence number right after the last private write; 0 for none.</summary>
+    private static uint _privateSequence;
+
     private static ushort _atom;
     private static nint _hwnd;
     private static bool _listening;
@@ -89,7 +100,18 @@ internal static unsafe partial class ClipboardWatcher
     /// Put text back on the clipboard, which is what clicking a history row does. Returns whether
     /// it landed; never throws.
     /// </summary>
-    public static bool SetText(string text)
+    public static bool SetText(string text) => Write(text, keepPrivate: false);
+
+    /// <summary>
+    /// [S-9978] Put a secret-bearing text on the clipboard (an assistant's setup with its token): marked
+    /// with the formats Windows' clipboard history, the cloud clipboard and other clipboard monitors
+    /// honour (<c>ExcludeClipboardContentFromMonitorProcessing</c>, <c>CanIncludeInClipboardHistory</c>
+    /// and <c>CanUploadToCloudClipboard</c> at 0), and never taken into Themia's own clipboard history.
+    /// Returns whether it landed; never throws.
+    /// </summary>
+    public static bool SetPrivateText(string text) => Write(text, keepPrivate: true);
+
+    private static bool Write(string text, bool keepPrivate)
     {
         ArgumentNullException.ThrowIfNull(text);
 
@@ -156,6 +178,22 @@ internal static unsafe partial class ClipboardWatcher
                 // ignore: as above — the free is the recovery, its result changes nothing.
                 GlobalFree(buffer);
                 return false;
+            }
+
+            if (keepPrivate)
+            {
+                foreach (var name in PrivateFormats)
+                {
+                    if (!SetDword(name, 0))
+                    {
+                        // The text is there unmarked: take it back off rather than leave a secret to the histories.
+                        // ignore: EmptyClipboard's failure leaves nothing better to do than report the copy failed.
+                        EmptyClipboard();
+                        return false;
+                    }
+                }
+
+                _privateSequence = GetClipboardSequenceNumber();
             }
 
             return true;
@@ -296,6 +334,12 @@ internal static unsafe partial class ClipboardWatcher
 
     private static void OnClipboardChanged()
     {
+        // [S-9978] What SetPrivateText put there is not history.
+        if (_privateSequence != 0 && GetClipboardSequenceNumber() == _privateSequence)
+        {
+            return;
+        }
+
         var text = ReadText();
 
         if (text is not { Length: > 0 })
@@ -449,6 +493,55 @@ internal static unsafe partial class ClipboardWatcher
 
     [LibraryImport("user32.dll", SetLastError = true)]
     private static partial nint SetClipboardData(uint format, nint hMem);
+
+    [LibraryImport("user32.dll", SetLastError = true, StringMarshalling = StringMarshalling.Utf16, EntryPoint = "RegisterClipboardFormatW")]
+    private static partial uint RegisterClipboardFormat(string format);
+
+    [LibraryImport("user32.dll")]
+    private static partial uint GetClipboardSequenceNumber();
+
+    /// <summary>A registered format holding one DWORD, on the open clipboard; whether it landed.</summary>
+    private static bool SetDword(string name, uint value)
+    {
+        var format = RegisterClipboardFormat(name);
+        if (format == 0)
+        {
+            Log.Warn(Scope, $"RegisterClipboardFormat failed (win32 {Marshal.GetLastWin32Error()})");
+            return false;
+        }
+
+        var buffer = GlobalAlloc(GmemMoveable, sizeof(uint));
+        if (buffer == 0)
+        {
+            Log.Warn(Scope, $"GlobalAlloc failed (win32 {Marshal.GetLastWin32Error()})");
+            return false;
+        }
+
+        var destination = GlobalLock(buffer);
+        if (destination == 0)
+        {
+            Log.Warn(Scope, $"GlobalLock failed (win32 {Marshal.GetLastWin32Error()})");
+
+            // ignore: nothing further to do about a buffer that cannot be released.
+            GlobalFree(buffer);
+            return false;
+        }
+
+        *(uint*)destination = value;
+
+        // ignore: GlobalUnlock returns false once the lock count reaches zero, the expected outcome.
+        GlobalUnlock(buffer);
+        if (SetClipboardData(format, buffer) == 0)
+        {
+            Log.Warn(Scope, $"SetClipboardData failed (win32 {Marshal.GetLastWin32Error()})");
+
+            // ignore: ownership did not transfer; the free is the recovery.
+            GlobalFree(buffer);
+            return false;
+        }
+
+        return true;
+    }
 
     [LibraryImport("kernel32.dll", SetLastError = true)]
     private static partial nint GlobalAlloc(uint flags, nuint bytes);

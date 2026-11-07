@@ -16,7 +16,7 @@ Owning files: `Themia.Core/Geometry/*`, `Themia.Core/Model/*`, `Themia.Core/Stor
 Sections, grouped by area (file order below; search for the heading).
 
 - **Foundations.** Geometry model; Rendering; Grid snap aid; Constraints; Defaults & placement; Views & displays; Window layering; Transparency; Ticking; Live widgets and resource use (R6-RESOURCES); Memory; Persistence; Failure rules; Not on this machine (UNAVAILABLE); Clipboard & transfer between displays; No backwards compatibility; Widget modules and the registry (MODULES); The widget kit (KIT); The service layer (SERVICES).
-- **Shell, windows and settings.** Displays (WP2); Desktop integration and suspend (WP3); Appearance engine (WP1); Notices, resilience and undo (WP4); Widget picker: search (WP5); Multi-select and the placement session (MULTISELECT-PLACEMENT); Widget styles (STYLES); Context menus (R4-MENUS); Views and the view bar (WP8); The Displays and Views pages (R4-NAV, R5-PAGES); Icon picker and showcase views (R4-ICONS); Keyboard lease (WP11); Widget keys (WIDGET-KEYS); Item selection (ITEM-SELECTION); View links (VIEW-LINKS); Keyboard in the shell (SHELL-KEYS); Motion: intros, hyperspace, hacker (WP9-MOTION); Desktop surface drops (WP10-SURFACE); The desktop layer (DESKTOP); Opening a widget's app (R7-OPEN, retired); Opening what a widget is about (CARD-OPEN); Shell hooks (PA); Removed widgets (R7-REMOVE); Shell skeleton and shared settings; Shared widget settings: region and updates (SETTINGS-AUDIT); Colours, fonts and uninstall (the settings window, retired); Settings navigation icons (NAV-ICONS, retired); Logging (WP7); Network safety (WP6); Localization infrastructure (LOC-INFRA); Microsoft Store package and licensing; Gallery.
+- **Shell, windows and settings.** Displays (WP2); Desktop integration and suspend (WP3); Appearance engine (WP1); Notices, resilience and undo (WP4); Widget picker: search (WP5); Multi-select and the placement session (MULTISELECT-PLACEMENT); Widget styles (STYLES); Context menus (R4-MENUS); Views and the view bar (WP8); The Displays and Views pages (R4-NAV, R5-PAGES); Icon picker and showcase views (R4-ICONS); Keyboard lease (WP11); Widget keys (WIDGET-KEYS); Item selection (ITEM-SELECTION); View links (VIEW-LINKS); Keyboard in the shell (SHELL-KEYS); Motion: intros, hyperspace, hacker (WP9-MOTION); Desktop surface drops (WP10-SURFACE); The desktop layer (DESKTOP); Opening a widget's app (R7-OPEN, retired); Opening what a widget is about (CARD-OPEN); Shell hooks (PA); Removed widgets (R7-REMOVE); Shell skeleton and shared settings; Shared widget settings: region and updates (SETTINGS-AUDIT); Colours, fonts and uninstall (the settings window, retired); Settings navigation icons (NAV-ICONS, retired); Logging (WP7); Network safety (WP6); The assistants' server (MCP); Localization infrastructure (LOC-INFRA); Microsoft Store package and licensing; Gallery.
 - **Look and layout.** Rows and the card edge; Looking like Windows; The widget header; The widget family: tokens and blocks (FAMILY); Responsive layout (shared foundation); Adding a widget; Layout pass over the ported widgets; Widget polish 1 (POLISH-1); Widget polish 2: leftover parity and layout gaps (POLISH-2); The Set up button (R5-SETUP).
 - **Accounts and sign-in.** Where account data comes from; Accounts and sign-in.
 - **System widgets.** (The seven meters, the seven detail widgets, Drive, Removable drives, Brightness, Mixer, Volume, Music, the Audio visualizer, the three screen-time widgets, Notifications and the Focus session are modules: their sections are their projects' `SPEC.md`; the sections named here keep the hub, the samplers and the rules they share, the SDK's.) System data hub (SYS-HUB); System meters; Meter framework and memory; CPU; Disk and ping; Battery and network; Network and ping; System widgets: GPU, mixer and screen time; Screen time: chart, donut and apps (SCREENTIME-SPLIT); GPU and screen time: the whole tile (SYS-P4); System details (SYS-DETAILS); Mixer and Volume (SYS-P5); Power and Bluetooth; Device and location (DEVICE-AND-LOCATION); Quick-setting toggles (QUICK-TOGGLES); Windows' panels: notifications, focus session, brightness (WINDOWS-PANELS).
@@ -2962,7 +2962,8 @@ itself is ⚙ › About Themia ([S-3580]). Owning files: `Themia.Core/Storage/Se
   have landed — and if that backup cannot be written nothing is imported.
 - **[S-498]** The import replaces the state **in place** in one mutation, then gives connected
   displays without an assignment a view as at startup. Start with Windows keeps this PC's value: it
-  is a fact about the registry here, not a preference.
+  is a fact about the registry here, not a preference. So does the assistants' server switch
+  ([S-9960]): a file never opens or closes a listener on this PC.
 - **[S-499]** *(Retired by [S-3585]: there is no settings window and no `--settings-png`; ⚙'s
   sections are drawn by `--editbar-png`, [S-3535], [S-3583], over the same detached store that writes
   nothing.)*
@@ -8946,3 +8947,127 @@ config, its page, setup and sync); the SDK's rules it is drawn by stay here. Tes
   nothing are skipped and the list ends at the first day cut short or whose heading and a row no
   longer fit. Loading and a problem are the state row at the content top ([S-7039]).
 
+## The assistants' server (MCP)
+
+Issue #165. AI assistants (Claude Code, other MCP clients) read what Themia shows over the Model
+Context Protocol, only while the user has switched it on. Core: `Themia.Core/Mcp/` (JSON-RPC,
+the HTTP rules, the protocol, the tools, the listener, the address) and
+`Settings/SettingsMenu.Assistants.cs`; the app: `Services/AppHost.Mcp.cs`, `Services/Mcp/`
+(`HostMcpData`, `McpKeyFile`). Tests: `tests/Themia.Core.Tests/McpTests.cs`,
+`SettingsMenuTests.Assistants.cs`, `tests/Themia.Modules.Tests/McpDeskTests.cs`.
+
+- **[S-9960]** Off by default (`Preferences.McpServer` false). ⚙ › AI assistants' switch is the one
+  line that sets it ([S-3592]); with it off no socket is open and no server code runs. Every state
+  change reconciles the server (`AppHost.ReconcileMcp`), so the switch, an undo or a reset start or
+  stop it at once: stopping closes the listening socket before it returns and drops the requests
+  being served. An import keeps this PC's value ([S-498]). A detached state (every render flag) and
+  the time before the app has started never run it.
+- **[S-9961]** Transport: MCP's Streamable HTTP, served by the running app on `127.0.0.1` only (a
+  `TcpListener` on `IPAddress.Loopback` with exclusive use of the address, never `Any` or IPv6), at
+  `http://127.0.0.1:<port>/mcp`. Why not a stdio shim (`Themia.exe --mcp` over a named pipe):
+  Themia is one long-running process, and HTTP needs no second process, no exe alias in the
+  package and no start of the WinUI exe for each client session; Claude Code adds an HTTP server
+  with one command. Another machine cannot reach it (loopback is not routed; a peer that is not
+  loopback is dropped all the same); another Windows user on this PC can open the port but is
+  refused without this install's token ([S-9966], [S-9977]). Left open: a program of another user
+  that takes the port while Themia is not running would receive the token from a client; on a PC
+  shared with untrusted users, choose New address and key afterwards. Claude Desktop's config file
+  starts stdio servers only: it reaches Themia through a stdio-to-HTTP bridge of the user's choosing
+  until a stdio shim exists. The MSIX package is full trust (`runFullTrust`), which is not subject to
+  AppContainer's loopback isolation, and binding to loopback raises no firewall prompt; this needs a
+  live pass in the packaged build.
+- **[S-9962]** Protocol version 2025-06-18, and 2025-03-26: `initialize` answers the client's
+  version when it is one of them, else 2025-06-18, with the `tools` capability (`listChanged`
+  false), `serverInfo` (`themia`, the app's version) and short `instructions`. `ping` answers `{}`;
+  `tools/list` and `tools/call` as [S-9967]; any other method is -32601. Notifications and a
+  client's replies get 202 and no body. Stateless: no `Mcp-Session-Id`, no server-sent events, no
+  requests from the server.
+- **[S-9963]** JSON-RPC 2.0 at the trust boundary (`JsonRpc.Parse`, pure): one object per body; a
+  batch (an array: 2025-06-18 has none), a missing or wrong `"jsonrpc"`, an id that is null,
+  fractional, an object or longer than 256 characters, a method that is not a string of 1 to 128
+  characters, or params that are not an object or array are -32600 (invalid request), answered
+  under the id when one could be read and `null` otherwise; a body that is not UTF-8 JSON, has
+  comments or trailing commas is -32700 (parse error). Answers are written with `Utf8JsonWriter`, no
+  reflection.
+- **[S-9964]** Limits: a body of at most 64 KiB (`JsonRpc.MaxBodyBytes`, refused by its length
+  before it is read, [S-9966]), nesting at most 16 deep; past either the message is refused.
+- **[S-9965]** HTTP/1.1 only, one request per connection, every answer `Connection: close` and
+  `Cache-Control: no-store`. The head is at most 8 KiB (431 past it) and 64 header lines, printable
+  ASCII, no folded lines; `Host`, `Origin`, `Authorization`, `Content-Length`, `Content-Type`,
+  `Transfer-Encoding` and `MCP-Protocol-Version` at most once. At most 8 connections are served at
+  once (503 beyond); a client has 10 s to send its request and a tool 30 s to answer (the UI thread
+  busy): resource bounds, not correctness waits.
+- **[S-9966]** Checked before the body is read, in this order: `Host` is `127.0.0.1:<port>` or
+  `localhost:<port>` and an `Origin`, when sent, is `http://` one of those (DNS rebinding: 403); the
+  path is `/mcp` exactly (404); `Authorization: Bearer <token>` holds this install's token, compared
+  in constant time (401 with `WWW-Authenticate: Bearer`); the method is POST (405, `Allow: POST`:
+  no event stream to GET, no session to DELETE); an `MCP-Protocol-Version` header names a version
+  spoken (400); no `Transfer-Encoding` (400); a `Content-Length` of 1 to 64 KiB (411, 400, 413);
+  `Content-Type` `application/json` (415); an `Accept`, when sent, takes JSON (406). A message that
+  could not be read at all is answered 400 with its JSON-RPC error, any other 200. No CORS headers
+  are ever sent, so a web page cannot read an answer.
+- **[S-9967]** Eight tools, each read-only (annotations `readOnlyHint` true, `destructiveHint`
+  false, `idempotentHint` true, `openWorldHint` false), each with an object input schema that
+  allows no other argument: `list_displays`, `list_views`, `list_widgets` (`view_id`),
+  `list_notes`, `read_note` (`note_id`), `read_tasks`, `read_habits`, `read_calendar` (`days`, 1 to
+  31, default 7). No tool writes, opens, signs in or starts a sync.
+- **[S-9968]** A call answers one JSON object as MCP text content. An unknown tool, an argument
+  that is not in the schema or of the wrong type, and a value out of range are -32602 (invalid
+  params); a view or note that is not there, and a read that failed, are a result with `isError`
+  true and words for the model (a failure's exception is logged, never sent).
+- **[S-9969]** Every read is made on the UI thread (`HostMcpData`) from what the host already
+  holds; the server's threads only wait. Never returned: a token, an account's secret or address
+  book, a mail, a file's contents, a display's device path, a meeting's join link, an event's web
+  link. The clipboard history is left out on purpose: it holds what was copied from password
+  managers and one-time codes, and an assistant that reads it can be steered by text in a page or
+  file to read it out. Mail is left out of this first version for the same reason (its senders and
+  previews are other people's words, and a mail is the classic carrier of instructions aimed at an
+  assistant).
+- **[S-9970]** `list_displays`: each display as the shell has it, numbered from 1 in the shell's
+  order, its name (`MonitorTarget.ShortName`), its size in physical pixels, primary, whether Themia
+  is on there, and the id of the view it shows (its assignment, else the active view: read without
+  repairing a dangling one, `McpDesk.Of`).
+- **[S-9971]** `list_views`: id, name, active, widget count and the displays showing it.
+  `list_widgets`: per view, each widget's id, kind (its module id), label (the one the user gave,
+  else its kind's name in the current language) and position and size as fractions of its display
+  (four decimals).
+- **[S-9972]** *(Reserved.)*
+- **[S-9973]** `list_notes`: id, title and last change of each note of the note pool; `read_note`:
+  one note's Markdown as the Notes widget would show it (the latest typed), cut at 32 768
+  characters with `truncated` true.
+- **[S-9974]** `read_tasks`: the task lists kept on this PC (source "This PC"), then each account
+  list (or Today) a Tasks widget holds now, as last synced, with the account's label and when it
+  synced; a list nobody shows is not read, so no sync is started. Each task's title, done and due as
+  the provider gave it; at most 500 a list (`truncated`).
+- **[S-9975]** `read_habits`: each habit list, each habit's name and the periods it was done in,
+  most recent first, at most 120.
+- **[S-9976]** `read_calendar`: from today's local midnight for `days` days, every signed-in
+  calendar account's default calendar as the calendar widgets read it (the offline store, never
+  forced), in start order, at most 500 an account: subject, all-day days or start and end with
+  their offsets, location, organizer, declined; the account's label, when it synced and the sync's
+  problem when there is one.
+- **[S-9977]** The address: a port and a token of 32 random bytes (base64url, 43 characters), in
+  `mcp.json` beside the state file with the token sealed by DPAPI for this Windows user ([S-525]),
+  written atomically; never in the settings file, so no backup carries it, never logged (the log
+  shows the URL only, and redacts bearer credentials besides, [S-983]). The first start takes a free
+  port from Windows and stores it, so the setup stays valid across restarts. A file that is absent,
+  not JSON, of another shape, or whose token will not open here (another user or PC, plain text) is
+  made again and logged. A token that cannot be stored stops the start ("its key could not be
+  saved"). New address and key (asked first) takes a new token and a new free port at once: what
+  was set up before is refused from then on. A taken port is said in ⚙ and never retried on a timer.
+- **[S-9978]** ⚙'s setups: the Claude Code command (`claude mcp add --transport http --scope user
+  themia <url> --header "Authorization: Bearer <token>"`) and the JSON entry other clients take
+  (`mcpServers.themia`: `type` http, `url`, `headers.Authorization`). They are copied, never shown:
+  the clipboard text is marked `ExcludeClipboardContentFromMonitorProcessing`,
+  `CanIncludeInClipboardHistory` 0 and `CanUploadToCloudClipboard` 0 (Windows' history, the cloud
+  clipboard and other monitors leave it), and Themia's own clipboard history skips it
+  (`ClipboardWatcher.SetPrivateText`). Under the line: "Copied. It holds this PC's access key…", or
+  that another app holds the clipboard.
+- **[S-9979]** ⚙ › AI assistants (after Online updates; "On"/"Off" at its end): the switch "Let AI
+  assistants read Themia", under it what the server is doing (off, starting with a ring, "Listening
+  on http://127.0.0.1:<port>/mcp, for this PC only.", or why it could not start in the critical
+  colour); while on and listening, how to connect, Copy Claude Code command and Copy JSON setup
+  with their outcome under each; while on, New address and key; then what assistants can and cannot
+  read. The token is in no line's words. Not there for a host that runs no server (a render's
+  stand-in draws a made-up one, `--editbar-png`: `settings-*-assistants*`). Words English-only for
+  now (`Locales/mcp/`).

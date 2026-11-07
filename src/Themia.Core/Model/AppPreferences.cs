@@ -25,6 +25,12 @@ public sealed class AppPreferences
     /// <summary>[S-3780] How often the widgets that ask an online service ask it.</summary>
     public RefreshPreferences Refresh { get; set; } = RefreshPreferences.WithDefaults();
 
+    /// <summary>
+    /// [S-9960] The assistants' server (MCP) is on: off by default, and only ⚙ › AI assistants turns
+    /// it on. This PC's own choice: an imported file never switches it ([S-498]).
+    /// </summary>
+    public bool McpServer { get; set; }
+
     public AppPreferences Clone() => new()
     {
         Language = Language,
@@ -32,5 +38,6 @@ public sealed class AppPreferences
         Desktop = Desktop,
         Region = Region.Clone(),
         Refresh = Refresh.Clone(),
+        McpServer = McpServer,
     };
 }

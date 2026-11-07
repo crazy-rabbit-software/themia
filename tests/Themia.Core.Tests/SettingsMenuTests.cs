@@ -92,6 +92,9 @@ public sealed partial class SettingsMenuTests
 
         public SettingsOutcomes Outcomes { get; } = new();
 
+        /// <summary>[S-9979] No server unless a test gives one.</summary>
+        public IMcpMenuHost? Mcp { get; set; }
+
         public void Quit() => Quits++;
     }
 
