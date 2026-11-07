@@ -77,6 +77,55 @@ public static class DeviceKinds
         return DeviceKind.Unknown;
     }
 
+    /// <summary>
+    /// [S-4471] What a device is from Windows' own categories for its container
+    /// (<c>System.Devices.Category</c>: "Input.Mouse", "Audio.Headphone", "Input.Gaming"), read part by
+    /// part, never by substring; null where none says (the name's guess is then the fallback).
+    /// </summary>
+    public static DeviceKind? FromCategories(IEnumerable<string?>? categories)
+    {
+        if (categories is null)
+        {
+            return null;
+        }
+
+        DeviceKind? audio = null;
+
+        foreach (var category in categories)
+        {
+            if (string.IsNullOrWhiteSpace(category))
+            {
+                continue;
+            }
+
+            foreach (var part in category.Split('.', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
+            {
+                switch (part.ToLowerInvariant())
+                {
+                    case "mouse" or "touchpad" or "trackpad":
+                        return DeviceKind.Mouse;
+                    case "keyboard":
+                        return DeviceKind.Keyboard;
+                    case "gaming" or "gamepad" or "gamecontroller" or "joystick":
+                        return DeviceKind.Gamepad;
+                    case "pen" or "stylus":
+                        return DeviceKind.Pen;
+                    case "phone" or "cellphone" or "smartphone":
+                        return DeviceKind.Phone;
+                    case "watch" or "wearable":
+                        return DeviceKind.Watch;
+                    case "headphone" or "headphones" or "headset" or "speaker" or "speakers" or "audio":
+                        // A headset is often also "Communication": the audio answer holds unless a
+                        // more specific category follows.
+                        audio = DeviceKind.Audio;
+                        break;
+                }
+            }
+        }
+
+        return audio;
+    }
+
     private static bool Contains(string haystack, params string[] needles)
     {
         foreach (var needle in needles)
@@ -123,6 +172,42 @@ public static class DeviceBatteryRules
 
         return value is >= 0 and <= 100 ? (int)value.Value : null;
     }
+
+    /// <summary>
+    /// [S-4471] A charging flag (<c>System.Devices.ChargingState</c>, a byte that is 0 or 1; a boolean
+    /// box too): anything else is no answer, never "not charging".
+    /// </summary>
+    public static bool? ParseCharging(object? raw) => raw switch
+    {
+        bool flag => flag,
+        byte b and (0 or 1) => b == 1,
+        int i and (0 or 1) => i == 1,
+        uint u and (0 or 1) => u == 1,
+        _ => null,
+    };
+
+    /// <summary>
+    /// [S-4471] A battery report's level (a controller's remaining and full capacity, in mWh) as a
+    /// percentage, rounded; no reading where either is missing, the full capacity is not positive or
+    /// the remaining one is negative. A remaining capacity over the full one is full.
+    /// </summary>
+    public static int? Percent(int? remaining, int? full)
+    {
+        if (remaining is not { } left || full is not { } whole || whole <= 0 || left < 0)
+        {
+            return null;
+        }
+
+        return (int)Math.Round(Math.Min(left, whole) * 100.0 / whole, MidpointRounding.AwayFromZero);
+    }
+
+    /// <summary>[S-4471] A device container's id ("{guid}", as Windows writes it) as a Guid; null for anything else or the empty one.</summary>
+    public static Guid? ParseContainer(object? raw) => raw switch
+    {
+        Guid id when id != Guid.Empty => id,
+        string text when Guid.TryParse(text.Trim(), out var id) && id != Guid.Empty => id,
+        _ => null,
+    };
 
     /// <summary>
     /// [S-3252] One battery per device container from the device nodes that carry the property. A

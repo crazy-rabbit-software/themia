@@ -19,7 +19,7 @@ Sections, grouped by area (file order below; search for the heading).
 - **Shell, windows and settings.** Displays (WP2); Desktop integration and suspend (WP3); Appearance engine (WP1); Notices, resilience and undo (WP4); Widget picker: search (WP5); Multi-select and the placement session (MULTISELECT-PLACEMENT); Widget styles (STYLES); Context menus (R4-MENUS); Views and the view bar (WP8); The Displays and Views pages (R4-NAV, R5-PAGES); Icon picker and showcase views (R4-ICONS); Keyboard lease (WP11); Widget keys (WIDGET-KEYS); Item selection (ITEM-SELECTION); View links (VIEW-LINKS); Keyboard in the shell (SHELL-KEYS); Motion: intros, hyperspace, hacker (WP9-MOTION); Desktop surface drops (WP10-SURFACE); The desktop layer (DESKTOP); Opening a widget's app (R7-OPEN, retired); Shell hooks (PA); Removed widgets (R7-REMOVE); Shell skeleton and shared settings; Shared widget settings: region and updates (SETTINGS-AUDIT); Colours, fonts and uninstall (the settings window, retired); Settings navigation icons (NAV-ICONS, retired); Logging (WP7); Network safety (WP6); Localization infrastructure (LOC-INFRA); Microsoft Store package and licensing; Gallery.
 - **Look and layout.** Rows and the card edge; Looking like Windows; The widget header; The widget family: tokens and blocks (FAMILY); Responsive layout (shared foundation); Adding a widget; Layout pass over the ported widgets; Widget polish 1 (POLISH-1); Widget polish 2: leftover parity and layout gaps (POLISH-2); The Set up button (R5-SETUP).
 - **Accounts and sign-in.** Where account data comes from; Accounts and sign-in.
-- **System widgets.** (The seven meters, the seven detail widgets, Drive, Removable drives, Brightness, Mixer, Volume, Music, the Audio visualizer, the three screen-time widgets, Notifications and the Focus session are modules: their sections are their projects' `SPEC.md`; the sections named here keep the hub, the samplers and the rules they share, the SDK's.) System data hub (SYS-HUB); System meters; Meter framework and memory; CPU; Disk and ping; Battery and network; Network and ping; System widgets: GPU, mixer and screen time; Screen time: chart, donut and apps (SCREENTIME-SPLIT); GPU and screen time: the whole tile (SYS-P4); System details (SYS-DETAILS); Mixer and Volume (SYS-P5); Power and Bluetooth; Device and location (DEVICE-AND-LOCATION); Quick-setting toggles (QUICK-TOGGLES); Windows' panels: notifications, focus session, brightness (WINDOWS-PANELS).
+- **System widgets.** (The seven meters, the seven detail widgets, Drive, Removable drives, Brightness, Mixer, Volume, Music, the Audio visualizer, the three screen-time widgets, Notifications and the Focus session are modules: their sections are their projects' `SPEC.md`; the sections named here keep the hub, the samplers and the rules they share, the SDK's.) System data hub (SYS-HUB); System meters; Meter framework and memory; CPU; Disk and ping; Battery and network; Network and ping; System widgets: GPU, mixer and screen time; Screen time: chart, donut and apps (SCREENTIME-SPLIT); GPU and screen time: the whole tile (SYS-P4); System details (SYS-DETAILS); Mixer and Volume (SYS-P5); Power and Bluetooth; Peripheral batteries (DEVICE-BATTERIES); Device and location (DEVICE-AND-LOCATION); Quick-setting toggles (QUICK-TOGGLES); Windows' panels: notifications, focus session, brightness (WINDOWS-PANELS).
 - **Time, desk and launch widgets.** (Clock, Countdown, Stopwatch, Pomodoro, Quote, Sun, Moon, Scratchpad, Recycle Bin, Alarm, Notes, Clipboard, the Habit tracker, the Gallery, Recent files, Shortcuts and the Folder are modules: their sections are their projects' `SPEC.md`, `src/Widgets/Themia.Widget.<Name>/`; so are Bluetooth, the seven power buttons and the thirteen quick-setting toggles, under System widgets, whose shared rules stay here.) Clock; Countdown and pomodoro; Stopwatch, alarm and drives (KARPO-2); Sun and moon; Audio visualizer (VISUALIZER); Clock, Sun & moon, Quote and Scratchpad: parity and the whole tile (PJ); Music and Pomodoro: parity and the whole tile (PF); Notes; Notes: note store and markdown editor; Clipboard and Countdown: the whole tile; Recent files (RECENT-FILES, the host's list); Recycle Bin (RECYCLE-BIN); Date (DATE); Habits; Shortcuts B: drop, reorder and app layouts (PD); Folder: the file browser (FOLDER, the host's file services); About and the settings file.
 - **Mail, calendar, tasks and online widgets.** (Every widget here is a module: Email, Calendar, Contacts, Next meeting, Week planner, Tasks, RSS, Weather now, Weather forecast, Rain next hour, Air quality, Exchange rates, Stocks and the Video stream; their own behaviour is their projects' `SPEC.md`, and the sections named here keep what they share with the host: the mail, office and task services, the offline sync and the SDK's rules.) Mail; Calendar and contacts; Tasks; Mail: the whole tile; Calendar and contacts: the whole tile; Calendar: five styles and shared dates (CAL-SPLIT); Tasks: using the whole tile, and the rest of the original; Weather: current conditions and forecast; Feed, stocks and the web widgets: parity and the whole tile (OFF-E); Web widgets: video stream; Web widgets: size ladder and overlay; Offline sync (SYNC); Next meeting (NEXT-MEETING); Week planner (WEEK-PLANNER); Air quality, rain and exchange rates (ONLINE-2).
 
@@ -4543,6 +4543,43 @@ tag each, [S-7400]..[S-8000]), and so is Bluetooth (`src/Widgets/Themia.Widget.B
 - **[S-1252]** *(Retired: a power widget always has its action, [S-1910].)*
 - **[S-1253]** *(Retired: the debug widget gallery and its fixtures are gone, [S-1863].)*
 - [S-1254], [S-1255], [S-1256], [S-1257], [S-1258], [S-1259], [S-3252], [S-3253], [S-3254], [S-3961]: moved with the Bluetooth widget into its module's `SPEC.md` (`src/Widgets/Themia.Widget.Bluetooth/`).
+
+## Peripheral batteries (DEVICE-BATTERIES)
+
+The host's one read of every peripheral battery Windows reports, for the Device batteries widget
+(`src/Widgets/Themia.Widget.DeviceBatteries`, its own `SPEC.md`) and whatever else lists one. SDK:
+`Themia.Sdk.Devices` (`DeviceBatteryReading`, `DeviceBatterySnapshot`, `DeviceKinds`,
+`DeviceBatteryRules`) and `IWidgetHost.DeviceBatteries` (`IDeviceBatteries`); App:
+`Services/Devices/DeviceBatteryService.cs` and `DeviceBatteryInventory.cs`. Tests:
+`DeviceBatteryRulesTests` (Core).
+
+- **[S-4470]** One source for every widget instance (`IDeviceBatteries`: the last snapshot, Busy,
+  Watch, Refresh), reading only while a widget watches. A snapshot is every reading of every path,
+  unfolded: the paired Bluetooth devices that are **connected**, with the level Windows holds
+  (`DEVPKEY_Bluetooth_Battery` on a node of their container, [S-3252]) or else, within an 8 s budget
+  per pass, the GATT Battery Service of an LE device; every device container that carries
+  `System.Devices.BatteryLife` (with `System.Devices.ChargingState`) and is not disconnected: Windows'
+  devices list, any bus, which is where a USB receiver's mouse or keyboard appears when its driver
+  reports a level; every game controller with a battery report (`Windows.Gaming.Input`: Xbox
+  controllers wired, on the wireless adapter or on Bluetooth; charging from its status). Windows
+  reads no other HID battery (Logitech's Unifying and Bolt receivers speak HID++), so those devices
+  are not listed. No WMI. A failed path is logged and the others still answer; a failed read is the
+  Failed state with no readings.
+- **[S-4471]** The readings' rules (`DeviceBatteryRules`, `DeviceKinds`): a level outside 0..100 or
+  not a whole number is none; charging is a 0 or 1 (or a boolean), anything else no answer; a
+  controller's level is its remaining over its full capacity, rounded, a remaining one over the full
+  one full, either missing none; a container id is Windows' braced GUID, the empty one none; the kind
+  is Windows' category for the container read part by part ("Input.Mouse", "Audio.Headphone"; audio
+  gives way to a more specific part), else the name's guess ([S-240]).
+- **[S-4472]** Events, not polling, where Windows gives them: device watchers on the paired Classic
+  and LE devices (their connection), on the containers that carry a level, and on the device nodes
+  of the connected Bluetooth containers (rebuilt as that set changes), and the game controllers
+  arriving and leaving. Only what comes after a watcher's first enumeration asks for a read; such a
+  read takes what Windows holds and keeps the GATT levels of the last pass for devices still connected.
+  Reads are single-flight: one asked for while one is out follows it.
+- **[S-4473]** What Windows sends no event for (a GATT level, a controller's report) is read again
+  every 2 minutes on the shared ticker while a widget watches, and on Refresh. The last widget
+  letting go stops the watchers and cancels a read that is out.
 
 ## Habits
 

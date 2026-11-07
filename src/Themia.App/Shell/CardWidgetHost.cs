@@ -51,6 +51,8 @@ internal sealed class CardWidgetHost(IWidgetCardHost card) : IWidgetHost
 
     public IDrives Drives => Themia.App.Services.Drives.DriveService.Shared;
 
+    public IDeviceBatteries DeviceBatteries => Themia.App.Services.Devices.DeviceBatteryService.Shared;
+
     public IAudioOutputs Audio => HostAudioOutputs.Instance;
 
     public IBrightness Brightness => Themia.App.Services.Brightness.HostBrightness.Instance;
