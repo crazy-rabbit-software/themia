@@ -31,6 +31,8 @@ the module host's `MeterHostTests` (`S6310_`, `S6318_`).
 - Its options are on the properties menu ([S-3719], user request 2026-10-19), no settings page:
   Appearance, and under Style in the Graph and Core graphs styles the Chart span every meter has
   ([S-1122], `MeterMenuHostTests`).
+- **[S-2010]** A click on the card ([S-2000]) opens Task Manager (`CardOpen.TaskManager`, the system
+  folder's `Taskmgr.exe`); the module decides it (`CpuModule.Opens`, through its part's `Opens`).
 
 Needs a manual pass: the meter on a live desktop (the load moving, each style, the core graphs on a
 machine with many cores).

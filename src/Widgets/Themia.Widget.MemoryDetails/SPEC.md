@@ -15,5 +15,8 @@ context; no settings rows), `MemoryDetailsConfig.cs` (what it asks the hub, `IRe
 - **[S-9600]** Memory details as a module: it reads the hub's performance feed (the machine-wide
   memory figures and the page files, `SystemSource.Performance`) and charts nothing; it has nothing to
   choose, so no settings page ([S-1750]).
+- **[S-2013]** A click on the card ([S-2000]) opens Task Manager (`CardOpen.TaskManager`, the system
+  folder's `Taskmgr.exe`) (a row's click stays the row's, [S-2004]); the module decides it
+  (`MemoryDetailsModule.Opens`, through its part's `Opens`).
 
 Needs a manual pass: the widget on a live desktop (the figures moving as programs start and close).

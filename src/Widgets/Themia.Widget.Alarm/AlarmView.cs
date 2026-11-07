@@ -19,8 +19,11 @@ namespace Themia.App.Widgets;
 /// What the alarm is <i>doing</i> is the app's alarm service's ([S-4623]), which rings it whether or not
 /// this view exists. Several alarms are several widgets.
 /// </summary>
-internal sealed partial class AlarmView : Grid, IWidgetView, IWidgetSizeAware, IWidgetSurfaceAware, IWidgetKeys, IWidgetContextActions
+internal sealed partial class AlarmView : Grid, IWidgetView, IWidgetOpens, IWidgetSizeAware, IWidgetSurfaceAware, IWidgetKeys, IWidgetContextActions
 {
+    /// <inheritdoc />
+    public CardOpen? Opens => AlarmModule.Opens;
+
     private readonly ReadoutBlock _time = new() { HorizontalAlignment = HorizontalAlignment.Center, VerticalAlignment = VerticalAlignment.Center };
 
     // Three rows of controls, one shown: a row folds its own parts, so a part is never hidden by hand.

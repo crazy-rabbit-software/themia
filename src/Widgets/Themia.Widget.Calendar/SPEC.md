@@ -77,6 +77,10 @@ languages). Tests: the rules' are Core's; the config's are the module host's (`C
   setting up runs its view for the preview (`WidgetCard.RunForPreview`).
 - **[S-3625]** Paging (back, forward, today) publishes the days now on screen (`VisibleRange`) and moves
   no other widget: two months on a view can show two months, and only a selection is followed.
+- **[S-2040]** A click on the card ([S-2000]) opens the calendar of the account it reads on the web:
+  Outlook's for a Microsoft account, Google's for a Google one, the first chosen account that has
+  such a page ([S-2005], `CalendarModule.Opens`); an IMAP, CalDAV or CardDAV account opens nothing.
+  The day cells, events and the week's day headers keep their clicks ([S-2004]).
 
 Needs a live pass: a signed-in Microsoft, Google and CalDAV calendar in every style (paging, opening
 an event in Outlook or the browser, the hover link with Next meeting and the week planner on the

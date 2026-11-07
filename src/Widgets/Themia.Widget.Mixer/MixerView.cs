@@ -30,8 +30,11 @@ namespace Themia.App.Widgets;
 /// original hit exactly that and had to switch its list to position keying for the same reason.
 /// </para>
 /// </summary>
-internal sealed partial class MixerView : Grid, IWidgetView, IWidgetSizeAware, IWidgetSurfaceAware, IWidgetKeys, IWidgetContextActions
+internal sealed partial class MixerView : Grid, IWidgetView, IWidgetOpens, IWidgetSizeAware, IWidgetSurfaceAware, IWidgetKeys, IWidgetContextActions
 {
+    /// <inheritdoc />
+    public CardOpen? Opens => MixerModule.Opens;
+
     private readonly AudioFeed _feed;
     private readonly StackPanel _list = new();
     private readonly ScrollViewer _scroller;

@@ -4,6 +4,7 @@ using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
 using Themia.Sdk;
+using Themia.Widget.CpuDetails;
 
 namespace Themia.App.Widgets.Details;
 
@@ -15,6 +16,9 @@ namespace Themia.App.Widgets.Details;
 /// </summary>
 internal sealed class CpuDetailPart : DetailPart
 {
+    /// <inheritdoc />
+    public override CardOpen? Opens(WidgetConfig config) => CpuDetailsModule.Opens;
+
     private readonly WatchSlot<MeterReading> _load = new();
     private readonly WatchSlot<PerformanceSnapshot> _counts = new();
     private readonly WatchSlot<CpuFigures> _processor = new();

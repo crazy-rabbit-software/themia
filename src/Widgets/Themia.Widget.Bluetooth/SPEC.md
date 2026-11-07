@@ -87,6 +87,8 @@ them, `BluetoothRulesTests`, which carried these tags with no SPEC line):
 - **[S-1988]** *(Retired with the detail panel: the Bluetooth list takes no lease keys.)*
 - **[S-3794]** Bluetooth: no device-count and no refresh setting; the list holds at most 30 devices
   and fills the tile.
+- **[S-2024]** A click on the card ([S-2000]) opens Windows' Bluetooth & devices page
+  (`ms-settings:bluetooth`); the module decides it (`BluetoothModule.Opens`).
 
 Not ported: Bluetooth's 1–30 s refresh choices (kept 5–300 s: enumeration and GATT reads take
 seconds); per-metric `visibleMetrics` ordering (fixed ladder order).

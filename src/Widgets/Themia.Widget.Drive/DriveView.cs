@@ -22,8 +22,11 @@ namespace Themia.App.Widgets;
 /// gone) is one Status row at the top. The drives come from the host's one walk
 /// (<see cref="IDrives"/>), never read here.
 /// </summary>
-internal sealed partial class DriveView : Grid, IWidgetView, IWidgetSizeAware, IWidgetSurfaceAware, IWidgetContextActions
+internal sealed partial class DriveView : Grid, IWidgetView, IWidgetOpens, IWidgetSizeAware, IWidgetSurfaceAware, IWidgetContextActions
 {
+    /// <inheritdoc />
+    public CardOpen? Opens => DriveModule.Opens(_config.Drive, Path.GetPathRoot(Environment.SystemDirectory));
+
     private readonly StackPanel _figure = new();
     private readonly ReadoutBlock _readout = new();
     private readonly ChartBar _bar = DriveBar.Create();

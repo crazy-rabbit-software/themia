@@ -42,6 +42,10 @@ module host's `MusicHostTests`.
   has no settings page. Appearance ([S-3723]), then **Show the transport** and **Show progress**
   (switches, for every style), a divider, and **Hide when idle** (Never / When no player is open /
   When nothing is playing, [S-1464]; edit mode still shows it). (Tests `MusicMenuTests`.)
+- **[S-2030]** A click on the card ([S-2000]) opens the app that is playing: the media session's own
+  app (`NowPlaying.AppId`, `SourceAppUserModelId`), a packaged app by its Apps-folder item, a
+  desktop player brought to the front when it runs ([S-2003]); nothing with no session. The
+  transport buttons and the seek bar keep their clicks ([S-2004]). `MusicModule.Opens`.
 
 Needs a manual pass: the widget on a live desktop (a player started, paused, skipped and sought, a
 stream with nothing to seek, art and no art, each style, hide when idle).

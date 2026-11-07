@@ -21,8 +21,11 @@ namespace Themia.App.Widgets;
 /// (<see cref="IWidgetHost.RecycleBin"/>) the Shortcuts badge reads, on its cadence: one query for
 /// every widget showing the bin.
 /// </summary>
-internal sealed partial class RecycleBinView : Grid, IWidgetView, IWidgetSizeAware, IWidgetSurfaceAware, IWidgetContextActions
+internal sealed partial class RecycleBinView : Grid, IWidgetView, IWidgetOpens, IWidgetSizeAware, IWidgetSurfaceAware, IWidgetContextActions
 {
+    /// <inheritdoc />
+    public CardOpen? Opens => RecycleBinModule.Opens;
+
     private readonly ReadoutBlock _size = new() { VerticalAlignment = VerticalAlignment.Top };
     private readonly ControlsBlock _controls = new();
     private readonly Button _empty;
@@ -56,7 +59,6 @@ internal sealed partial class RecycleBinView : Grid, IWidgetView, IWidgetSizeAwa
 
         // The whole tile is the way into the bin, as its icon on the desktop is.
         Background = Family.Brush(ColourRole.Clear);
-        Tapped += OnTapped;
     }
 
     public void Bind(IWidgetSurface surface) => _surface = surface;
@@ -98,7 +100,6 @@ internal sealed partial class RecycleBinView : Grid, IWidgetView, IWidgetSizeAwa
         _widgetHost.RecycleBin.Changed -= Render;
         _binWatch?.Dispose();
         _binWatch = null;
-        Tapped -= OnTapped;
     }
 
     private void OnLanguage(Locale locale) => Render();
@@ -143,34 +144,11 @@ internal sealed partial class RecycleBinView : Grid, IWidgetView, IWidgetSizeAwa
     private Task EmptyAsync()
         => _detached || _surface?.IsPreview == true ? Task.CompletedTask : _widgetHost.RecycleBin.EmptyAsync();
 
-    private void OnTapped(object sender, TappedRoutedEventArgs args)
-    {
-        if (_surface?.EditMode == true || args.OriginalSource is DependencyObject source && Within(source, _controls))
-        {
-            return;
-        }
-
-        OpenBin();
-    }
-
     private void OpenBin()
     {
         if (_surface?.IsPreview != true)
         {
             _widgetHost.Launcher.Open(RecycleBinState.Target);
         }
-    }
-
-    private static bool Within(DependencyObject source, DependencyObject ancestor)
-    {
-        for (var node = source; node is not null; node = Microsoft.UI.Xaml.Media.VisualTreeHelper.GetParent(node))
-        {
-            if (ReferenceEquals(node, ancestor))
-            {
-                return true;
-            }
-        }
-
-        return false;
     }
 }

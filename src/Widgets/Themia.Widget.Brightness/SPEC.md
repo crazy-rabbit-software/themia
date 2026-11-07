@@ -30,6 +30,8 @@ the sun, the levels through `IWidgetHost.Brightness`, its own display through it
   display (or the own choice sets none), so the line is not there. Until the displays have been
   looked at it is offered. The menu reads the host's last answer (`BrightnessDisplays`, installed at
   start, as `DriveList` is).
+- **[S-2027]** A click on the card ([S-2000]) opens Windows' Display page (`ms-settings:display`);
+  the sliders keep their clicks ([S-2004]); the module decides it (`BrightnessModule.Opens`).
 
 Needs a manual pass: a laptop panel and a DDC/CI monitor (two displays, mixed DPI, "only the screen
 it's on"), the keys and Windows' quick settings moving the panel while the widget shows.

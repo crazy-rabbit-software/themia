@@ -40,6 +40,8 @@ meter has),
   choice ([S-433]) and under Style in the Graph style the Chart span ([S-1122]). Supersedes the fixed 60-sample band of [S-430].
 - **[S-1201]** The tile is a meter's face ([S-1762], `MeterPlan`): the load at the top on its Readout
   step, the history 8 under it to the card's foot.
+- **[S-2014]** A click on the card ([S-2000]) opens Task Manager (`CardOpen.TaskManager`, the system
+  folder's `Taskmgr.exe`); the module decides it (`GpuModule.Opens`, through its part's `Opens`).
 
 Needs a manual pass: the meter on a live desktop (a game or a video moving the load, each style, two
 adapters and the choice between them, an eGPU unplugged).

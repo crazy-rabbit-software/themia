@@ -15,6 +15,9 @@ languages). Tests: `Tests/BatteryDetailsTests.cs` (run by `tests/Themia.Modules.
 - **[S-9800]** Battery details as a module: it reads the hub's charge and battery pack feeds
   (`SystemSource.Battery`, `BatteryPack`) and charts nothing; it has nothing to choose, so no settings
   page ([S-1750]).
+- **[S-2023]** A click on the card ([S-2000]) opens Windows' Power & battery page
+  (`ms-settings:batterysaver`) (a row's click stays the row's, [S-2004]); the module decides it
+  (`BatteryDetailsModule.Opens`, through its part's `Opens`).
 
 Needs a manual pass: the widget on a laptop (charging, discharging, full) and on a desktop with no
 battery (a battery's facts, each "--", dimmed, [S-1942]; `--state unavailable` renders it anywhere).

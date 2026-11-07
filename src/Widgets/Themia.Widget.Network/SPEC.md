@@ -18,5 +18,8 @@ styles side by side with the other I/O meters' are the module host's `IoStylesHo
 - **[S-6270]** Network: `NetworkConfig.Style`, **Graph** ([S-1191]) and **Numbers** ([S-6264]).
 - Its options are on the properties menu ([S-3719], user request 2026-10-19), no settings page:
   Appearance, and under Style in the Graph style the Chart span every meter has ([S-1122]).
+- **[S-2018]** A click on the card ([S-2000]) opens Windows' network status page
+  (`ms-settings:network-status`); the module decides it (`NetworkModule.Opens`, through its part's
+  `Opens`).
 
 Needs a manual pass: the meter on a live desktop (a download and an upload moving the chart, both styles).

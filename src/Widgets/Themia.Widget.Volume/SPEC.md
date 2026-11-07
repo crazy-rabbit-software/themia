@@ -28,6 +28,9 @@ slider and the speaker through the shared `AudioFeed`), `VolumeMenu.cs` (its pro
   [S-1222]; only where there is a choice, [S-1236]), a divider, **Allow changes** (a switch) and,
   while changes are allowed, as a note, how the keys work ([S-1226]: the keys are ignored without,
   so the note is not there).
+- **[S-2025]** A click on the card ([S-2000]) opens Windows' Sound page (`ms-settings:sound`); the
+  slider and the mute button keep their clicks ([S-2004]); the module decides it
+  (`VolumeModule.Opens`).
 
 Needs a manual pass: the tile on a live desktop (the level moved by Windows' own slider and by the
 tile, muted, a second device chosen and unplugged, the keys and the wheel), never in a render: a

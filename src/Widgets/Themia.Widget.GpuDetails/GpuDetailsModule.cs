@@ -18,6 +18,9 @@ namespace Themia.Widget.GpuDetails;
 /// <summary>[S-2430] One adapter's memory and sensors: video memory in use as the hero, then shared memory, temperature, fan and power where the driver reports them. SPEC.md beside this file.</summary>
 public sealed class GpuDetailsModule : IWidgetModule
 {
+    /// <summary>[S-2015] A click on the card opens Task Manager.</summary>
+    internal static CardOpen? Opens => CardOpen.TaskManager;
+
     /// <summary>[S-6902] What the host knows of the widget without its UI.</summary>
     public WidgetDescriptor Descriptor { get; } = new()
     {

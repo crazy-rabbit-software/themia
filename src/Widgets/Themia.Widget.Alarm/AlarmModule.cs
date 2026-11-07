@@ -17,6 +17,9 @@ namespace Themia.Widget.Alarm;
 /// <summary>[S-4620] One alarm: a time, the days it repeats on, a name, its sound and snooze, rung by the host's alarm service whether or not the widget is shown. SPEC.md beside this file.</summary>
 public sealed class AlarmModule : IWidgetModule
 {
+    /// <summary>[S-2029] What a click on the card opens ([S-2000]).</summary>
+    internal static CardOpen? Opens => CardOpen.ClockApp;
+
     /// <summary>[S-4620] Its glyph, the module's own (U+ECC5): Segoe has no alarm clock, so the clock with its arrow round (Karpo's choice); the bell is the notifications'.</summary>
     internal static readonly string Glyph = char.ConvertFromUtf32(0xECC5);
 

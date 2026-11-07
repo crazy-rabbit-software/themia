@@ -18,6 +18,9 @@ namespace Themia.Widget.Network;
 /// <summary>[S-1191] Network throughput: download as the reading over both directions' history, or both numbers ([S-6270]). SPEC.md beside this file.</summary>
 public sealed class NetworkModule : IWidgetModule
 {
+    /// <summary>[S-2018] A click on the card opens Windows' network status page.</summary>
+    internal static CardOpen? Opens => CardOpen.Settings("network-status");
+
     /// <summary>[S-6902] What the host knows of the widget without its UI.</summary>
     public WidgetDescriptor Descriptor { get; } = new()
     {

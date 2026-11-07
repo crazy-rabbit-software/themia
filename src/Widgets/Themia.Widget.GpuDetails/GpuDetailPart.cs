@@ -15,6 +15,9 @@ namespace Themia.App.Widgets.Details;
 /// </summary>
 internal sealed class GpuDetailPart : DetailPart
 {
+    /// <inheritdoc />
+    public override CardOpen? Opens(WidgetConfig config) => GpuDetailsModule.Opens;
+
     private readonly WatchSlot<GpuSnapshot> _gpu = new();
     private GpuDetailsConfig _config = new();
     private IDetailHost? _host;

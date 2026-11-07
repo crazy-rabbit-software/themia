@@ -11,6 +11,9 @@ namespace Themia.App.Widgets.Meters;
 /// <summary>[S-1130] Physical memory in use, coloured by how full it is; its styles [S-6315].</summary>
 internal sealed class MemoryMeter : MeterPart
 {
+    /// <inheritdoc />
+    public override CardOpen? Opens(WidgetConfig config) => MemoryModule.Opens;
+
     public override WidgetId Kind => new WidgetId("memory");
 
     public override MeterPressure PressureOf(MeterReading reading)

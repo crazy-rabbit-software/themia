@@ -4,12 +4,16 @@ using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
 using Themia.Sdk;
+using Themia.Widget.MemoryDetails;
 
 namespace Themia.App.Widgets.Details;
 
 /// <summary>[S-2408] Memory in use, available, committed, cached, the pools and the page file.</summary>
 internal sealed class MemoryDetailPart : DetailPart
 {
+    /// <inheritdoc />
+    public override CardOpen? Opens(WidgetConfig config) => MemoryDetailsModule.Opens;
+
     private readonly WatchSlot<PerformanceSnapshot> _figures = new();
     private IDetailHost? _host;
 

@@ -6,6 +6,7 @@ using Themia.Core.Model;
 using Themia.Core.SystemData;
 using Themia.Core.Widgets;
 using Themia.Sdk;
+using Themia.Widget.PingDetails;
 
 namespace Themia.App.Widgets.Details;
 
@@ -18,6 +19,9 @@ namespace Themia.App.Widgets.Details;
 /// </summary>
 internal sealed class PingDetailPart : DetailPart
 {
+    /// <inheritdoc />
+    public override CardOpen? Opens(WidgetConfig config) => PingDetailsModule.Opens;
+
     private PingDetailsConfig _config = new();
     private ISeriesWatch? _watch;
     private SeriesInterest? _series;

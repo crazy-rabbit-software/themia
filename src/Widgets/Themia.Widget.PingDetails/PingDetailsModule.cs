@@ -18,6 +18,9 @@ namespace Themia.Widget.PingDetails;
 /// <summary>[S-2426] Latency statistics over a window of probes: the latest as the hero, then average, range, jitter and loss. SPEC.md beside this file.</summary>
 public sealed class PingDetailsModule : IWidgetModule
 {
+    /// <summary>[S-2021] A click on the card opens Windows' network status page.</summary>
+    internal static CardOpen? Opens => CardOpen.Settings("network-status");
+
     /// <summary>[S-6902] What the host knows of the widget without its UI.</summary>
     public WidgetDescriptor Descriptor { get; } = new()
     {

@@ -17,6 +17,9 @@ namespace Themia.Widget.Clock;
 /// <summary>[S-6011] The clock: the time in seven styles, a zone of its own, a label and the date. SPEC.md beside this file.</summary>
 public sealed class ClockModule : IWidgetModule
 {
+    /// <summary>[S-2028] What a click on the card opens ([S-2000]).</summary>
+    internal static CardOpen? Opens => CardOpen.ClockApp;
+
     /// <summary>[S-6902] What the host knows of the widget without its UI.</summary>
     public WidgetDescriptor Descriptor { get; } = new()
     {

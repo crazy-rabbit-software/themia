@@ -55,6 +55,9 @@ is the example of are in the module test host (`OnlineHostTests`, `SyncHousekeep
   divider the links to what it follows and does not set ([S-3749], [S-3590]): **Temperature unit**
   (⚙ › Language & region) and **Update interval** (⚙ › Online updates › Weather), each with what is in
   force. (Tests `WeatherNowMenuTests`.)
+- **[S-2035]** A click on the card ([S-2000]) opens MSN Weather's forecast for the widget's place,
+  in the UI language's market and the unit shown ([S-2006], `WeatherNowModule.Opens`); nothing while
+  it has no place (it shows Set up then).
 
 Needs a live pass: the widget against the real service, offline with a restored shelf, the first-run
 desktop's bare large-icon reading.

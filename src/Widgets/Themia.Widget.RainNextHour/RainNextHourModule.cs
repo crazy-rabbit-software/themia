@@ -17,6 +17,9 @@ namespace Themia.Widget.RainNextHour;
 /// <summary>[S-5120] Rain in the next two hours at a place: one sentence, then the intensity and chance, then a bar per quarter hour. SPEC.md beside this file.</summary>
 public sealed class RainNextHourModule : IWidgetModule
 {
+    /// <summary>[S-2037] A click on the card opens MSN Weather's forecast for its place ([S-2006]); nothing with no place.</summary>
+    internal static CardOpen? Opens(WeatherConfig config, TemperatureUnit unit, Locale locale) => WeatherPages.Forecast(config, unit, locale);
+
     /// <summary>[S-6902] What the host knows of the widget without its UI.</summary>
     public WidgetDescriptor Descriptor { get; } = new()
     {

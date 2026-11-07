@@ -187,6 +187,8 @@ them). Tests: `Tests/` (run by `tests/Themia.Modules.Tests`).
   apply to it and are not shown.
 - **[S-5304]** One tick a minute on the shared ticker (`ClockConfig.TickInterval`): the date turns
   over within a minute of midnight.
+- **[S-2028]** A click on the card ([S-2000]) opens Windows' Clock app (`CardOpen.ClockApp`, its
+  Apps-folder item); the module decides it (`ClockModule.Opens`).
 
 Needs a manual pass: every style at every tier on the live desktop (showcase views, [S-1810]); a
 flip turning over on the minute; the zone picker with a live search.

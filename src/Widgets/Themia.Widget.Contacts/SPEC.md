@@ -35,6 +35,10 @@ config's are the module host's (`ContactsHostTests`, `OfficeConfigTests`); the m
   [S-582]) and **People**, a number asked for as text (`KitMenuLines.Count`, [S-3726]): 5 to 1000,
   rounded to a step of 5, anything else refused with the range as the reason (the count had no upper
   bound; 1000 is past what the widget lists, [S-583]).
+- **[S-2045]** A click on the card ([S-2000]) opens the contacts of the account it reads on the web:
+  Outlook's for a Microsoft account, Google's for a Google one, the first chosen account that has
+  such a page ([S-2005], `ContactsModule.Opens`); an IMAP, CalDAV or CardDAV account opens nothing.
+  A contact's row keeps its click ([S-2004]).
 
 Needs a live pass: a Microsoft, Google and CardDAV address book with a few hundred people (search,
 the menu's email, call and message hand-offs), and the search box under the keyboard lease.

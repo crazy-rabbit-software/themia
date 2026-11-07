@@ -9,6 +9,7 @@ using Themia.Core.Widgets;
 using Themia.Sdk.Kit;
 using Themia.Sdk.WinUI;
 using Themia.Sdk.WinUI.Kit;
+using Themia.Widget.Bluetooth;
 
 namespace Themia.App.Widgets;
 
@@ -33,8 +34,11 @@ namespace Themia.App.Widgets;
 /// Every empty list says which empty list it is, in the Status row at the top ([S-244], [S-6714]).
 /// </para>
 /// </summary>
-internal sealed partial class BluetoothView : Grid, IWidgetView, IWidgetHeaderContent, IWidgetSizeAware, IWidgetContextActions
+internal sealed partial class BluetoothView : Grid, IWidgetView, IWidgetOpens, IWidgetHeaderContent, IWidgetSizeAware, IWidgetContextActions
 {
+    /// <inheritdoc />
+    public CardOpen? Opens => BluetoothModule.Opens;
+
     private const string Scope = "bluetooth";
 
     // Segoe Fluent Icons code points this view needs beyond the shared table.

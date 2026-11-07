@@ -9,6 +9,7 @@ using Themia.Core.Widgets;
 using Themia.Sdk.Kit;
 using Themia.Sdk.WinUI;
 using Themia.Sdk.WinUI.Kit;
+using Themia.Widget.Folder;
 
 namespace Themia.App.Widgets;
 
@@ -28,9 +29,12 @@ namespace Themia.App.Widgets;
 /// shell ([S-1330]).
 /// </para>
 /// </summary>
-internal sealed partial class FolderView : Grid, IWidgetView, IWidgetHeaderContent, IWidgetSurfaceAware,
+internal sealed partial class FolderView : Grid, IWidgetView, IWidgetOpens, IWidgetHeaderContent, IWidgetSurfaceAware,
     IWidgetSizeAware, IWidgetKeys, IWidgetContextActions
 {
+    /// <inheritdoc />
+    public CardOpen? Opens => FolderModule.Opens(CurrentPath);
+
     private const string Scope = "folder";
 
     /// <summary>
@@ -484,6 +488,7 @@ internal sealed partial class FolderView : Grid, IWidgetView, IWidgetHeaderConte
     private void DetachInput()
     {
         _scrollContent.PointerPressed -= OnPointerPressed;
+        _scrollContent.Tapped -= OnAreaTapped;
         _scrollContent.PointerMoved -= OnPointerMoved;
         _scrollContent.PointerReleased -= OnPointerReleased;
         _scrollContent.PointerCanceled -= OnPointerCanceled;

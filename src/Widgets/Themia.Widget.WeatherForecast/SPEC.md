@@ -70,5 +70,8 @@ precipitation and days), `Preview/` (Debug renders: `--state sample`, the SDK's 
   current conditions', [S-6174]), Days (1 to 14, the current one with the dot) and the precipitation
   switch, and the links to Temperature unit and Update interval ([S-3749], as the current
   conditions'). (Tests `WeatherForecastMenuTests`.)
+- **[S-2036]** A click on the card ([S-2000]) opens MSN Weather's forecast for the widget's place,
+  in the UI language's market and the unit shown ([S-2006], `WeatherForecastModule.Opens`); nothing
+  while it has no place (it shows Set up then).
 
 Needs a live pass: the widget against the real service (1 and 14 days), offline with a restored shelf.

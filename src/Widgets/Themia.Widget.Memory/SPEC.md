@@ -20,5 +20,7 @@ own `MemoryStr`, 30 languages, its style names included). Tests: `Tests/MemoryTe
   (`MemoryFigures`), so bar and number agree.
 - Its options are on the properties menu ([S-3719], user request 2026-10-19), no settings page:
   Appearance, and under Style in the Graph style the Chart span every meter has ([S-1122]).
+- **[S-2012]** A click on the card ([S-2000]) opens Task Manager (`CardOpen.TaskManager`, the system
+  folder's `Taskmgr.exe`); the module decides it (`MemoryModule.Opens`, through its part's `Opens`).
 
 Needs a manual pass: the meter on a live desktop (the reading moving, each style).

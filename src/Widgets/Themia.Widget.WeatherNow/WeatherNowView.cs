@@ -10,6 +10,7 @@ using Themia.Core.Widgets;
 using Themia.Sdk.Kit;
 using Themia.Sdk.WinUI;
 using Themia.Sdk.WinUI.Kit;
+using Themia.Widget.WeatherNow;
 
 namespace Themia.App.Widgets;
 
@@ -25,9 +26,12 @@ namespace Themia.App.Widgets;
 /// so; with no reading at all the Status block's one row at the top says why ([S-6734]).
 /// </para>
 /// </summary>
-internal sealed partial class WeatherNowView : Grid, IWidgetView, IWidgetHeaderContent, IWidgetSurfaceAware,
+internal sealed partial class WeatherNowView : Grid, IWidgetView, IWidgetOpens, IWidgetHeaderContent, IWidgetSurfaceAware,
     IWidgetSizeAware, IWidgetContextActions, IWidgetAligned
 {
+    /// <inheritdoc />
+    public CardOpen? Opens => WeatherNowModule.Opens(_config, RegionFormat.Current.Temperature, Strings.Current);
+
     /// <summary>[S-7064] The header's problem glyph ([S-7042]): the one stale rule, no age.</summary>
     private readonly KitHeader _header;
 

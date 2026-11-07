@@ -17,6 +17,9 @@ namespace Themia.App.Widgets.Meters;
 /// </summary>
 internal sealed class GpuMeter : MeterPart
 {
+    /// <inheritdoc />
+    public override CardOpen? Opens(WidgetConfig config) => GpuModule.Opens;
+
     /// <summary>[S-1940] The engines every adapter has, drawn for one that is not there: "--", no bar.</summary>
     private static readonly GpuEngineKind[] StandIn = [GpuEngineKind.ThreeD, GpuEngineKind.Copy, GpuEngineKind.VideoEncode, GpuEngineKind.VideoDecode];
 

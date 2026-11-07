@@ -138,9 +138,13 @@ by `tests/Themia.Modules.Tests`); its config and rules under the root's tags are
   hand, the listing, selection and history kept. Folder details, Folder grid and Folder icons were
   kinds of their own (114..116); a state file holding one drops that widget at load ([S-1050]).
   Their names still find the folder in search ([S-943]).
+- **[S-2031]** A click on the card ([S-2000]) opens the folder it shows now (where it navigated to,
+  else its own) in File Explorer (`FolderModule.Opens`). The file area is the widget's own: a click
+  there selects, starts a band or clears the selection and never reaches the card ([S-2004]), so the
+  click that opens is on the header (its icon and title).
 
-Not ported: header double-click opens Explorer (orig. S-07; the card owns the header, so "Open in
-Explorer" is in the card menu); image-item inline toggles (orig. S-29).
+Not ported: header double-click opens Explorer (orig. S-07; a single click on the header does,
+[S-2031], and "Open in Explorer" is in the card menu); image-item inline toggles (orig. S-29).
 
 Needs a live pass: a real folder (navigation, the lasso, double-click and Enter opening, rename,
 New, Delete to the Recycle Bin), drag in and out with Explorer and Outlook, the Explorer menu's

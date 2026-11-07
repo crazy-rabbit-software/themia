@@ -46,6 +46,8 @@ the module host's `DriveHostTests`, its styles beside the meters' `IoStylesHostT
   page: Appearance, then behind a divider Drive — the system drive (by name), every drive the walk lists (shares
   included, never waited for), and a chosen drive that is gone as "not connected". The card menu has Open
   in Explorer, Eject for a removable drive, and Refresh.
+- **[S-2032]** A click on the card ([S-2000]) opens the drive's root in File Explorer: its own
+  drive, or the system drive when it shows that (`DriveModule.Opens`).
 
 Needs a manual pass: the card on a live desktop (a USB drive chosen then removed, a mapped share
 disconnected, a drive filling past 90 %, both styles).

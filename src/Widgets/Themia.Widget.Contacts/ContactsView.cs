@@ -35,8 +35,11 @@ namespace Themia.App.Widgets;
 /// list at any size ([S-1274] retired).
 /// </para>
 /// </summary>
-internal sealed partial class ContactsView : Grid, IWidgetView, IWidgetHeaderContent, IWidgetSurfaceAware, IWidgetContextActions, IWidgetSizeAware, IWidgetKeys
+internal sealed partial class ContactsView : Grid, IWidgetView, IWidgetOpens, IWidgetHeaderContent, IWidgetSurfaceAware, IWidgetContextActions, IWidgetSizeAware, IWidgetKeys
 {
+    /// <inheritdoc />
+    public CardOpen? Opens => ContactsModule.Opens(_config.AccountIds, _widgetHost.AccountsWith(HostFeatures.Contacts));
+
     private const string Scope = "contacts-widget";
 
     /// <summary>Contacts change rarely; the sync service keeps them fresher than this anyway.</summary>
@@ -392,6 +395,8 @@ internal sealed partial class ContactsView : Grid, IWidgetView, IWidgetHeaderCon
     {
         if (!args.Handled && _selectedId is not null)
         {
+            // [S-2004] This click cleared the selection: it does not also open the address book.
+            args.Handled = true;
             Select(null);
         }
     }

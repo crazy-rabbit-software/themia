@@ -18,6 +18,9 @@ namespace Themia.Widget.Cpu;
 /// <summary>[S-1140] Processor load across all cores: the reading and its history, or each processor (bars, tiles, their own graphs) or a gauge ([S-6311]). SPEC.md beside this file.</summary>
 public sealed class CpuModule : IWidgetModule
 {
+    /// <summary>[S-2010] A click on the card opens Task Manager.</summary>
+    internal static CardOpen? Opens => CardOpen.TaskManager;
+
     /// <summary>[S-6902] What the host knows of the widget without its UI.</summary>
     public WidgetDescriptor Descriptor { get; } = new()
     {

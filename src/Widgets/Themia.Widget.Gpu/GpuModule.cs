@@ -18,6 +18,9 @@ namespace Themia.Widget.Gpu;
 /// <summary>[S-430] One graphics adapter's load: the reading over its history, or a row per engine type, or a gauge ([S-6320]). SPEC.md beside this file.</summary>
 public sealed class GpuModule : IWidgetModule
 {
+    /// <summary>[S-2014] A click on the card opens Task Manager.</summary>
+    internal static CardOpen? Opens => CardOpen.TaskManager;
+
     /// <summary>[S-6902] What the host knows of the widget without its UI.</summary>
     public WidgetDescriptor Descriptor { get; } = new()
     {

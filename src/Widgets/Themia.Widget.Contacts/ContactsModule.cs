@@ -10,6 +10,7 @@ using Themia.Core.Widgets;
 using Themia.Sdk;
 using Themia.Sdk.WinUI;
 using Themia.Widget.Contacts;
+using Themia.App.Services.Accounts;
 
 [assembly: ThemiaWidget("contacts", typeof(ContactsModule))]
 
@@ -18,6 +19,10 @@ namespace Themia.Widget.Contacts;
 /// <summary>Contacts: the people of the signed-in accounts, searched and opened. SPEC.md beside this file.</summary>
 public sealed class ContactsModule : IWidgetModule
 {
+    /// <summary>[S-2045] A click on the card opens the contacts of the account it reads, on the web ([S-2005]).</summary>
+    internal static CardOpen? Opens(IReadOnlyList<string> accountIds, IReadOnlyList<AccountInfo> accounts)
+        => AccountPages.Home(HostFeatures.Contacts, accountIds, accounts);
+
     /// <summary>[S-6902] What the host knows of the widget without its UI.</summary>
     public WidgetDescriptor Descriptor { get; } = new()
     {

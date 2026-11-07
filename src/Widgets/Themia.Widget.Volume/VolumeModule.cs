@@ -17,6 +17,9 @@ namespace Themia.Widget.Volume;
 /// <summary>[S-2730] An output device's volume: the slider and nothing else, its mute on the speaker. SPEC.md beside this file.</summary>
 public sealed class VolumeModule : IWidgetModule
 {
+    /// <summary>[S-2025] What a click on the card opens ([S-2000]).</summary>
+    internal static CardOpen? Opens => CardOpen.Settings("sound");
+
     /// <summary>[S-6902] What the host knows of the widget without its UI.</summary>
     public WidgetDescriptor Descriptor { get; } = new()
     {

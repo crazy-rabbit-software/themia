@@ -50,6 +50,7 @@ internal sealed partial class FolderView : IWidgetDropTarget
         _scrollContent.PointerCaptureLost += OnPointerCanceled;
         _scrollContent.RightTapped += OnBackgroundRightTapped;
         _scrollContent.DoubleTapped += OnDoubleTapped;
+        _scrollContent.Tapped += OnAreaTapped;
         _scrollContent.PointerEntered += OnPointerEntered;
 
         // [S-1332] Drops come from the surface's one OLE drop target ([S-1021]) through
@@ -91,6 +92,9 @@ internal sealed partial class FolderView : IWidgetDropTarget
     }
 
     // ---- pointer --------------------------------------------------------------------------------
+
+    /// <summary>[S-2031] A click in the file area is the widget's (a selection, a band): it never opens the folder over it.</summary>
+    private static void OnAreaTapped(object sender, TappedRoutedEventArgs e) => e.Handled = true;
 
     private void OnPointerPressed(object sender, PointerRoutedEventArgs e)
     {

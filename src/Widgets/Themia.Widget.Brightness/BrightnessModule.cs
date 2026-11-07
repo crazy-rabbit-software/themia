@@ -17,6 +17,9 @@ namespace Themia.Widget.Brightness;
 /// <summary>[S-4440] The display brightness: one slider and the sun, every display together or the one it is on. SPEC.md beside this file.</summary>
 public sealed class BrightnessModule : IWidgetModule
 {
+    /// <summary>[S-2027] What a click on the card opens ([S-2000]).</summary>
+    internal static CardOpen? Opens => CardOpen.Settings("display");
+
     /// <summary>[S-6902] What the host knows of the widget without its UI.</summary>
     public WidgetDescriptor Descriptor { get; } = new()
     {

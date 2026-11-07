@@ -19,6 +19,9 @@ is the module host's `DetailHostTests`.
   has room for and groups a program's processes into one row by default, and a clone keeps all three.
   Its options are on the properties menu ([S-3719], user request 2026-10-19), no settings page:
   Appearance, Sort by, Rows (Fit, 3, 5, 10, 20, 50; a count not offered holds Fit), Group by program.
+- **[S-2017]** A click on the card ([S-2000]) opens Task Manager (`CardOpen.TaskManager`, the system
+  folder's `Taskmgr.exe`) (a row's click stays the row's, [S-2004]); the module decides it
+  (`TopProcessesModule.Opens`, through its part's `Opens`).
 
 Needs a manual pass: the widget on a live desktop (a busy program rising, sort by memory, grouping
 off, a list of 50 scrolled).

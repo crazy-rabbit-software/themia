@@ -28,6 +28,11 @@ lines: the SDK's calendar lines), `Preview/` (Debug renders: `--state sample|run
   (`OfficeMenuLines.CalendarAccounts`, [S-561]) without their colours (`colours: false`, [S-6070]:
   it draws no calendar's colour), so an account with one calendar has nothing to choose and no line,
   and Calendars is there only while a chosen account has two or more; no display lines (no birthdays). Debug: `--state sample` (a Teams meeting twelve minutes away), `running`, `none`.
+- **[S-2041]** A click on the card ([S-2000]) opens the calendar of the account it reads on the web:
+  Outlook's for a Microsoft account, Google's for a Google one, the first chosen account that has
+  such a page ([S-2005], `NextMeetingModule.Opens`); an IMAP, CalDAV or CardDAV account opens
+  nothing. A click on the meeting shown still opens that meeting, and Join stays Join; the card
+  opens the calendar only where no meeting is shown.
 
 Needs a live pass: a signed-in Microsoft and Google account with a Teams, Zoom and Meet meeting
 (Join opening the app), a declined invitation, and the hover link with a calendar on the view.

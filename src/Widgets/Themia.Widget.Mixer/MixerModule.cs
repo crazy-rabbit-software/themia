@@ -17,6 +17,9 @@ namespace Themia.Widget.Mixer;
 /// <summary>[S-440] Per-app volume for an output device: a row per app, its icon, name, slider and mute. SPEC.md beside this file.</summary>
 public sealed class MixerModule : IWidgetModule
 {
+    /// <summary>[S-2026] What a click on the card opens ([S-2000]).</summary>
+    internal static CardOpen? Opens => CardOpen.Settings("apps-volume");
+
     /// <summary>[S-6902] What the host knows of the widget without its UI.</summary>
     public WidgetDescriptor Descriptor { get; } = new()
     {

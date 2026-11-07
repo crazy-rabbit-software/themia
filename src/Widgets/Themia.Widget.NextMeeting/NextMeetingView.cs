@@ -32,8 +32,11 @@ namespace Themia.App.Widgets;
 /// lights the event in the calendar widgets there (<see cref="LinkTopics.HoveredEvent"/>).
 /// </para>
 /// </summary>
-internal sealed partial class NextMeetingView : Grid, IWidgetView, IWidgetSurfaceAware, IWidgetSizeAware, IWidgetContextActions
+internal sealed partial class NextMeetingView : Grid, IWidgetView, IWidgetOpens, IWidgetSurfaceAware, IWidgetSizeAware, IWidgetContextActions
 {
+    /// <inheritdoc />
+    public CardOpen? Opens => NextMeetingModule.Opens(_config.AccountIds, _widgetHost.AccountsWith(HostFeatures.Calendar));
+
     private const string Scope = "next-meeting";
 
     private static readonly TimeSpan Poll = TimeSpan.FromMinutes(5);
@@ -419,6 +422,8 @@ internal sealed partial class NextMeetingView : Grid, IWidgetView, IWidgetSurfac
         ProviderId? provider = _providers.TryGetValue(item.AccountId, out var known) ? known : null;
         if (CalendarLinks.Open(item, provider, provider == HostProviders.Microsoft && _widgetHost.Launcher.OutlookInstalled) is { } link)
         {
+            // [S-2004] The meeting's own click: the card does not open the calendar over it.
+            args.Handled = true;
             _widgetHost.Launcher.OpenCalendarLink(link);
         }
     }

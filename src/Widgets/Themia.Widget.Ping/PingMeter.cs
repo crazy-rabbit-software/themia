@@ -10,6 +10,7 @@ using Themia.Sdk.WinUI;
 using Themia.Sdk;
 using Themia.Sdk.Kit;
 using Themia.Sdk.WinUI.Kit;
+using Themia.Widget.Ping;
 
 namespace Themia.App.Widgets.Meters;
 
@@ -25,6 +26,9 @@ namespace Themia.App.Widgets.Meters;
 /// </summary>
 internal sealed class PingMeter : MeterPart
 {
+    /// <inheritdoc />
+    public override CardOpen? Opens(WidgetConfig config) => PingModule.Opens;
+
     // [S-1170] [S-6710] The header's problem glyph: the caution warning while the host does not answer,
     // nothing while it does or while the first probe is out (no success green, [S-6706]).
     private readonly FontIcon _problem = HeaderBlock.Problem(string.Empty);

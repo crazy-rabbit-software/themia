@@ -10,6 +10,7 @@ using Themia.Core.Widgets;
 using Themia.Sdk;
 using Themia.Sdk.WinUI;
 using Themia.Widget.Email;
+using Themia.App.Services.Accounts;
 
 [assembly: ThemiaWidget("email", typeof(EmailModule))]
 
@@ -18,6 +19,10 @@ namespace Themia.Widget.Email;
 /// <summary>Email: recent mail of the signed-in accounts, as a list, compact or a table. SPEC.md beside this file.</summary>
 public sealed class EmailModule : IWidgetModule
 {
+    /// <summary>[S-2043] A click on the card opens the mail of the account it reads, on the web ([S-2005]).</summary>
+    internal static CardOpen? Opens(IReadOnlyList<string> accountIds, IReadOnlyList<AccountInfo> accounts)
+        => AccountPages.Home(HostFeatures.Mail, accountIds, accounts);
+
     /// <summary>[S-6902] What the host knows of the widget without its UI.</summary>
     public WidgetDescriptor Descriptor { get; } = new()
     {

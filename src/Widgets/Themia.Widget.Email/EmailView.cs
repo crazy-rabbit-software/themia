@@ -11,6 +11,7 @@ using Themia.Sdk.Kit;
 using Themia.Sdk.WinUI;
 using Themia.Sdk.WinUI.Kit;
 using Themia.Widget.Email;
+using Themia.Sdk;
 
 namespace Themia.App.Widgets;
 
@@ -26,8 +27,11 @@ namespace Themia.App.Widgets;
 /// right-click offers what its account allows ([S-544]).
 /// </para>
 /// </summary>
-internal sealed partial class EmailView : Grid, IWidgetView, IWidgetHeaderContent, IWidgetSurfaceAware, IWidgetContextActions, IWidgetSizeAware, IWidgetKeys
+internal sealed partial class EmailView : Grid, IWidgetView, IWidgetOpens, IWidgetHeaderContent, IWidgetSurfaceAware, IWidgetContextActions, IWidgetSizeAware, IWidgetKeys
 {
+    /// <inheritdoc />
+    public CardOpen? Opens => EmailModule.Opens(_config.EffectiveAccountIds, _widgetHost.AccountsWith(HostFeatures.Mail));
+
     private const string Scope = "email-widget";
 
     /// <summary>Only the relative times ("4m") move between fetches; the feed itself is pushed.</summary>

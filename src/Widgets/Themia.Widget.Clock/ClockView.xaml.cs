@@ -11,6 +11,7 @@ using Themia.Sdk.WinUI;
 using Themia.Sdk.WinUI.Kit;
 using Windows.Foundation;
 using DayText = Themia.Core.Widgets.DateText;
+using Themia.Widget.Clock;
 
 namespace Themia.App.Widgets;
 
@@ -27,8 +28,11 @@ namespace Themia.App.Widgets;
 /// they fit (<see cref="ClockFace.Under"/>), on the step's line under.
 /// </para>
 /// </summary>
-public sealed partial class ClockView : UserControl, IWidgetView, IWidgetSizeAware, IWidgetAligned
+public sealed partial class ClockView : UserControl, IWidgetView, IWidgetOpens, IWidgetSizeAware, IWidgetAligned
 {
+    /// <inheritdoc />
+    public CardOpen? Opens => ClockModule.Opens;
+
     /// <summary>The face's one block, centred top to bottom in the inset; the alignment places it across.</summary>
     private readonly StackPanel _stack = new() { VerticalAlignment = VerticalAlignment.Center };
 

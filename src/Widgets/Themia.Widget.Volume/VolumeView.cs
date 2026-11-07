@@ -31,8 +31,11 @@ namespace Themia.App.Widgets;
 /// accent. A larger tile gives the slider more length, nothing else ([S-666]).
 /// </para>
 /// </summary>
-internal sealed partial class VolumeView : Grid, IWidgetView, IWidgetSizeAware, IWidgetSurfaceAware, IWidgetKeys, IWidgetContextActions
+internal sealed partial class VolumeView : Grid, IWidgetView, IWidgetOpens, IWidgetSizeAware, IWidgetSurfaceAware, IWidgetKeys, IWidgetContextActions
 {
+    /// <inheritdoc />
+    public CardOpen? Opens => VolumeModule.Opens;
+
     private readonly AudioFeed _feed;
     private readonly ControlsBlock _controls = new();
     private readonly Slider _slider;

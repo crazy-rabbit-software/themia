@@ -23,6 +23,8 @@ I/O meters' are `IoStylesHostTests`.
   page: Appearance, then Drive (system drive / all drives / each drive Windows lists, a removed one
   offered as "not connected", the one held with the dot); under Style in the Graph style the Chart span
   ([S-1122]).
+- **[S-2016]** A click on the card ([S-2000]) opens Task Manager (`CardOpen.TaskManager`, the system
+  folder's `Taskmgr.exe`); the module decides it (`DiskModule.Opens`, through its part's `Opens`).
 
 Needs a manual pass: the meter on a live desktop (a copy moving the chart, a USB drive chosen then
 removed, all drives, both styles, the header switched off).

@@ -28,9 +28,12 @@ namespace Themia.App.Widgets;
 /// week that runs 12° to 14° every day should draw seven short marks in the same place.
 /// </para>
 /// </summary>
-internal sealed partial class WeatherForecastView : Grid, IWidgetView, IWidgetHeaderContent, IWidgetSurfaceAware,
+internal sealed partial class WeatherForecastView : Grid, IWidgetView, IWidgetOpens, IWidgetHeaderContent, IWidgetSurfaceAware,
     IWidgetSizeAware, IWidgetContextActions
 {
+    /// <inheritdoc />
+    public CardOpen? Opens => WeatherForecastModule.Opens(_config, RegionFormat.Current.Temperature, Strings.Current);
+
     private const string Scope = "forecast";
 
     /// <summary>[S-7064] The header's problem glyph ([S-7042]): the one stale rule, no age.</summary>

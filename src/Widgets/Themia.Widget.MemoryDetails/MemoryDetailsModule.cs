@@ -18,6 +18,9 @@ namespace Themia.Widget.MemoryDetails;
 /// <summary>[S-2408] Memory in use as the hero, then available, committed, cached, the pools and the page file as the tile grows. SPEC.md beside this file.</summary>
 public sealed class MemoryDetailsModule : IWidgetModule
 {
+    /// <summary>[S-2013] A click on the card opens Task Manager.</summary>
+    internal static CardOpen? Opens => CardOpen.TaskManager;
+
     /// <summary>[S-6902] What the host knows of the widget without its UI.</summary>
     public WidgetDescriptor Descriptor { get; } = new()
     {

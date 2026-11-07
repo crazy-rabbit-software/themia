@@ -14,6 +14,7 @@ using Themia.Sdk.Kit;
 using Themia.Sdk.WinUI;
 using Themia.Sdk.WinUI.Kit;
 using Themia.Widget.Tasks;
+using Themia.Sdk;
 
 namespace Themia.App.Widgets;
 
@@ -32,8 +33,11 @@ namespace Themia.App.Widgets;
 /// A list on this PC needs no account at all.
 /// </para>
 /// </summary>
-internal sealed partial class TasksView : Grid, IWidgetView, IWidgetHeaderContent, IWidgetSurfaceAware, IWidgetContextActions, IWidgetSizeAware, IWidgetKeys
+internal sealed partial class TasksView : Grid, IWidgetView, IWidgetOpens, IWidgetHeaderContent, IWidgetSurfaceAware, IWidgetContextActions, IWidgetSizeAware, IWidgetKeys
 {
+    /// <inheritdoc />
+    public CardOpen? Opens => TasksModule.Opens(_config, _widgetHost.AccountsWith(HostFeatures.Tasks));
+
     private const string Scope = "tasks-widget";
 
 

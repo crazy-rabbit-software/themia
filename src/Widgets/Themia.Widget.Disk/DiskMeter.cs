@@ -24,6 +24,9 @@ namespace Themia.App.Widgets.Meters;
 /// <param name="widgetHost">[S-6913] Opens the drive in Explorer.</param>
 internal sealed class DiskMeter(IWidgetHost widgetHost) : MeterPart
 {
+    /// <inheritdoc />
+    public override CardOpen? Opens(WidgetConfig config) => DiskModule.Opens;
+
     /// <summary>[S-6271] The bars' window: the totals of the last minute's readings, the graph's own top over them.</summary>
     private const int BarWindow = 60;
 

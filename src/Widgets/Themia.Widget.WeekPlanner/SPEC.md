@@ -34,6 +34,10 @@ lines: the SDK's calendar lines, then Today's tasks), `Preview/` (Debug renders:
   week" ([S-1862]); with tasks alone it is a week of tasks.
   `SyncInterests` takes its calendars as a calendar interest and its task account's Today view as a
   task interest, so both sync with everything else.
+- **[S-2042]** A click on the card ([S-2000]) opens the calendar of the account it reads on the web:
+  Outlook's for a Microsoft account, Google's for a Google one, the first chosen account that has
+  such a page ([S-2005], `WeekPlannerModule.Opens`); an IMAP, CalDAV or CardDAV account opens
+  nothing. An event's row and a task's ring keep their clicks ([S-2004]).
 
 Needs a live pass: a signed-in Microsoft and Google account (events, colours, opening an event,
 ticking a task off and seeing it leave every Tasks widget), a day turning over at midnight, and the

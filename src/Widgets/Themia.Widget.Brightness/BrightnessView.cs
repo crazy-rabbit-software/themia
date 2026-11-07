@@ -28,8 +28,11 @@ namespace Themia.App.Widgets;
 /// pointer comes by; while the thumb is held a reading never moves it.
 /// </para>
 /// </summary>
-internal sealed partial class BrightnessView : Grid, IWidgetView, IWidgetSizeAware, IWidgetSurfaceAware, IWidgetKeys
+internal sealed partial class BrightnessView : Grid, IWidgetView, IWidgetOpens, IWidgetSizeAware, IWidgetSurfaceAware, IWidgetKeys
 {
+    /// <inheritdoc />
+    public CardOpen? Opens => BrightnessModule.Opens;
+
     private readonly ControlsBlock _controls = new();
     private readonly Slider _slider;
 

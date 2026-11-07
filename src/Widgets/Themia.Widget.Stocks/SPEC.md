@@ -101,6 +101,10 @@ own `StocksStr`, 30 languages, its style names included). Tests: `Tests/` (run b
   held", secondary) and its worth with its code as its value (primary), the signed move added from 300
   wide ("4,202.70 USD +82.95", `StockHolding.Held`, `Value`); before the extended print, shown only
   while the chart keeps its 24 under it (so not on XS or S). Numbers through `LocaleFormat`.
+- **[S-2039]** A click on the card ([S-2000]) opens the symbol's own page: Yahoo Finance's quote
+  (`https://finance.yahoo.com/quote/<symbol>/`) for a listed symbol, CoinGecko's coin page
+  (`https://www.coingecko.com/en/coins/<id>`) for a coin; nothing with no symbol
+  (`StocksModule.Opens`).
 
 Needs a live pass: the widget against the real services (a listed symbol through a session and its
 extended hours, a coin), the symbol search, offline with a restored shelf.

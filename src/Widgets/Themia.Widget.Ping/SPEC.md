@@ -23,6 +23,9 @@ I/O meters' are `IoStylesHostTests`.
   Style in the Graph style the Chart span ([S-1122]).
 - **[S-6273]** Ping: `PingConfig.Style`, **Graph** ([S-1172]) and **Signal bars** ([S-6263]); the
   header's problem glyph ([S-1170]) and Refresh are the same in both.
+- **[S-2020]** A click on the card ([S-2000]) opens Windows' network status page
+  (`ms-settings:network-status`); the module decides it (`PingModule.Opens`, through its part's
+  `Opens`).
 
 Needs a manual pass: the meter on a live desktop (a host answering, one that does not, the network
 going away, Refresh, both styles).

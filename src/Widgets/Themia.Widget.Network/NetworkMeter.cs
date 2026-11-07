@@ -4,6 +4,7 @@ using Themia.Core.Model;
 using Themia.Core.Widgets;
 using Themia.Sdk;
 using Themia.Sdk.Kit;
+using Themia.Widget.Network;
 
 namespace Themia.App.Widgets.Meters;
 
@@ -14,6 +15,9 @@ namespace Themia.App.Widgets.Meters;
 /// </summary>
 internal sealed class NetworkMeter : MeterPart
 {
+    /// <inheritdoc />
+    public override CardOpen? Opens(WidgetConfig config) => NetworkModule.Opens;
+
     public override WidgetId Kind => new WidgetId("network");
 
     /// <summary>"1023 KB/s": the widest a rate is written.</summary>

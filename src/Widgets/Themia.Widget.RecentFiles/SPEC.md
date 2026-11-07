@@ -27,6 +27,9 @@ meeting's is the module host's `DeskInfoHostTests`.
   the Recent Items folder is ever deleted.
 - **[S-4845]** Keys through the lease ([S-1288]): Up/Down, Page Up/Down, Home/End move, Enter opens,
   Delete removes from the list, the Menu key opens the row's menu, Escape lets go.
+- **[S-2033]** A click on the card ([S-2000]) opens File Explorer at Windows' Recent items
+  (`shell:Recent`); a file's row keeps its click (it focuses; a double-click opens the file,
+  [S-7065]); the module decides it (`RecentFilesModule.Opens`).
 
 Needs a live pass: opening files from Explorer and Office (the list updating), Remove from list
 (and Explorer's Home agreeing), a file on a disconnected share.

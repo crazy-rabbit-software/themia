@@ -18,6 +18,9 @@ namespace Themia.Widget.Memory;
 /// <summary>[S-1130] Physical memory in use: the reading and its history, or the used share against the free, or a gauge ([S-6315]). SPEC.md beside this file.</summary>
 public sealed class MemoryModule : IWidgetModule
 {
+    /// <summary>[S-2012] A click on the card opens Task Manager.</summary>
+    internal static CardOpen? Opens => CardOpen.TaskManager;
+
     /// <summary>[S-6902] What the host knows of the widget without its UI.</summary>
     public WidgetDescriptor Descriptor { get; } = new()
     {

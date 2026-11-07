@@ -3,6 +3,7 @@ using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
 using Themia.Sdk;
+using Themia.Widget.NetworkDetails;
 
 namespace Themia.App.Widgets.Details;
 
@@ -14,6 +15,9 @@ namespace Themia.App.Widgets.Details;
 /// </summary>
 internal sealed class NetworkDetailPart : DetailPart
 {
+    /// <inheritdoc />
+    public override CardOpen? Opens(WidgetConfig config) => NetworkDetailsModule.Opens;
+
     private readonly WatchSlot<ThroughputSample?> _throughput = new();
     private readonly WatchSlot<IReadOnlyDictionary<string, string>> _addresses = new();
     private readonly WatchSlot<PublicAddressReading> _public = new();

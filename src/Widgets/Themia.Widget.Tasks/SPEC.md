@@ -67,6 +67,10 @@ look); the spec's are `Tests/TaskSpecTests.cs` and `Tests/TaskFreshnessTests.cs`
   [S-6070]): Google Tasks has no importance, so there it could only empty the list, and the filter
   leaves it out there as it does on this PC, so a value kept from another account cannot hide every
   task (user request 2026-10-19).
+- **[S-2044]** A click on the card ([S-2000]) opens the task service of its account on the web:
+  Microsoft To Do (`https://to-do.office.com/tasks/`) or Google Tasks (`https://tasks.google.com/`)
+  ([S-2005], `TasksModule.Opens`); a list kept on this PC opens nothing. A task's row and its check
+  keep their clicks ([S-2004]).
 
 Needs a live pass: a signed-in Microsoft and Google account (the list picker, Today, ticking,
 renaming, deleting and adding a task landing on the server, offline edits catching up), a list on

@@ -18,6 +18,9 @@ styles side by side with the other I/O meters' are the module host's `IoStylesHo
   the middle ([S-1941]), the figure "--", "No battery" as the tooltip. Render `--state unavailable`.
 - Its options are on the properties menu ([S-3719], user request 2026-10-19), no settings page:
   Appearance, and under Style in the Graph style the Chart span every meter has ([S-1122]).
+- **[S-2022]** A click on the card ([S-2000]) opens Windows' Power & battery page
+  (`ms-settings:batterysaver`); the module decides it (`BatteryModule.Opens`, through its part's
+  `Opens`).
 
 Needs a manual pass: the meter on a laptop (charging, discharging, each style) and on a desktop with
 no battery (the disabled meter).

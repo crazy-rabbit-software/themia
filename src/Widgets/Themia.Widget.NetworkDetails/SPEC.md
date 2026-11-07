@@ -17,6 +17,9 @@ lines, JSON context), `NetworkDetailsConfig.cs` (the public address switch and w
   guarded `WebFetch` client, only while such a widget lives. Its options are on the properties menu
   ([S-3719], user request 2026-10-19), no settings page: Appearance, then the Public address switch
   and under it, greyed, whom it asks and how often.
+- **[S-2019]** A click on the card ([S-2000]) opens Windows' network status page
+  (`ms-settings:network-status`) (a row's click stays the row's, [S-2004]); the module decides it
+  (`NetworkDetailsModule.Opens`, through its part's `Opens`).
 
 Needs a manual pass: the widget on a live desktop (an adapter coming up and going away, the public
 address switched on, offline).

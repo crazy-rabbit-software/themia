@@ -17,6 +17,9 @@ namespace Themia.Widget.WeatherNow;
 /// <summary>[S-723] The weather where the user says they are: the temperature as the hero readout, then its readings as the tile grows. SPEC.md beside this file.</summary>
 public sealed class WeatherNowModule : IWidgetModule
 {
+    /// <summary>[S-2035] A click on the card opens MSN Weather's forecast for its place ([S-2006]); nothing with no place.</summary>
+    internal static CardOpen? Opens(WeatherConfig config, TemperatureUnit unit, Locale locale) => WeatherPages.Forecast(config, unit, locale);
+
     /// <summary>[S-6902] What the host knows of the widget without its UI.</summary>
     public WidgetDescriptor Descriptor { get; } = new()
     {

@@ -4,6 +4,7 @@ using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
 using Themia.Sdk;
+using Themia.Widget.Battery;
 
 namespace Themia.App.Widgets.Meters;
 
@@ -15,6 +16,9 @@ namespace Themia.App.Widgets.Meters;
 /// </summary>
 internal sealed class BatteryMeter : MeterPart
 {
+    /// <inheritdoc />
+    public override CardOpen? Opens(WidgetConfig config) => BatteryModule.Opens;
+
     // Segoe Fluent Icons: Battery0..Battery9, Battery10; BatteryCharging0..8, BatteryCharging9 (also
     // drawn for a full charging battery — the font has no charging-10 in the same family).
     private static readonly string[] Levels =

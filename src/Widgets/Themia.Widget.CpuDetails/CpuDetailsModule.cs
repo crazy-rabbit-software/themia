@@ -18,6 +18,9 @@ namespace Themia.Widget.CpuDetails;
 /// <summary>[S-2405] The processor's figures beside its load: the effective clock as the hero, then cores, processes, threads, handles, uptime and temperature as the tile grows. SPEC.md beside this file.</summary>
 public sealed class CpuDetailsModule : IWidgetModule
 {
+    /// <summary>[S-2011] A click on the card opens Task Manager.</summary>
+    internal static CardOpen? Opens => CardOpen.TaskManager;
+
     /// <summary>[S-6902] What the host knows of the widget without its UI.</summary>
     public WidgetDescriptor Descriptor { get; } = new()
     {

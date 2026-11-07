@@ -10,6 +10,7 @@ using Themia.Core.Widgets;
 using Themia.Sdk;
 using Themia.Sdk.WinUI;
 using Themia.Widget.Calendar;
+using Themia.App.Services.Accounts;
 
 [assembly: ThemiaWidget("calendar", typeof(CalendarModule))]
 
@@ -18,6 +19,10 @@ namespace Themia.Widget.Calendar;
 /// <summary>Calendar: the synced calendars as a month, a week, a day, an agenda or a year. SPEC.md beside this file.</summary>
 public sealed class CalendarModule : IWidgetModule
 {
+    /// <summary>[S-2040] A click on the card opens the calendar of the account it reads, on the web ([S-2005]).</summary>
+    internal static CardOpen? Opens(IReadOnlyList<string> accountIds, IReadOnlyList<AccountInfo> accounts)
+        => AccountPages.Home(HostFeatures.Calendar, accountIds, accounts);
+
     /// <summary>[S-6902] What the host knows of the widget without its UI.</summary>
     public WidgetDescriptor Descriptor { get; } = new()
     {

@@ -16,6 +16,9 @@ Tests: `Tests/GpuDetailsTests.cs` (run by `tests/Themia.Modules.Tests`).
   by default), offered with two or more adapters; one that is gone shows the first. Its options are
   on the properties menu ([S-3719], user request 2026-10-19), no settings page: Appearance, then
   Adapter.
+- **[S-2015]** A click on the card ([S-2000]) opens Task Manager (`CardOpen.TaskManager`, the system
+  folder's `Taskmgr.exe`) (a row's click stays the row's, [S-2004]); the module decides it
+  (`GpuDetailsModule.Opens`, through its part's `Opens`).
 
 Needs a manual pass: the widget on a live desktop (video memory moving under a game, the sensors of a
 WDDM 2.4+ driver, two adapters and the choice between them).

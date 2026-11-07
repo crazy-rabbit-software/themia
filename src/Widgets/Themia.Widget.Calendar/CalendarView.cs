@@ -39,8 +39,11 @@ namespace Themia.App.Widgets;
 /// Polls every five minutes; a context-menu Refresh asks past every cache.
 /// </para>
 /// </summary>
-internal sealed partial class CalendarView : Grid, IWidgetView, IWidgetHeaderContent, IWidgetSurfaceAware, IWidgetContextActions, IWidgetSizeAware, IWidgetKeys
+internal sealed partial class CalendarView : Grid, IWidgetView, IWidgetOpens, IWidgetHeaderContent, IWidgetSurfaceAware, IWidgetContextActions, IWidgetSizeAware, IWidgetKeys
 {
+    /// <inheritdoc />
+    public CardOpen? Opens => CalendarModule.Opens(_config.AccountIds, _widgetHost.AccountsWith(HostFeatures.Calendar));
+
     private const string Scope = "calendar-widget";
 
     private static readonly TimeSpan Poll = TimeSpan.FromMinutes(5);

@@ -9,6 +9,7 @@ using Themia.Core.Widgets;
 using Themia.Sdk;
 using Themia.Sdk.WinUI;
 using Themia.Widget.Music;
+using Themia.App.Services;
 
 [assembly: ThemiaWidget("music", typeof(MusicModule))]
 
@@ -17,6 +18,9 @@ namespace Themia.Widget.Music;
 /// <summary>[S-1475] What Windows is playing: the art, the title and artist, the transport and the seek bar, through Windows' own media session. SPEC.md beside this file.</summary>
 public sealed class MusicModule : IWidgetModule
 {
+    /// <summary>[S-2030] A click on the card opens the app that owns the media session (its id as Windows reported it, [S-2003]); nothing with no session.</summary>
+    internal static CardOpen? Opens(NowPlaying now) => now.State is MusicState.NoSession or MusicState.Loading ? null : CardOpen.App(now.AppId);
+
     /// <summary>[S-6902] What the host knows of the widget without its UI.</summary>
     public WidgetDescriptor Descriptor { get; } = new()
     {

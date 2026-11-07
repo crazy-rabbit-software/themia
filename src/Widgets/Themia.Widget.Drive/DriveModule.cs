@@ -17,6 +17,10 @@ namespace Themia.Widget.Drive;
 /// <summary>[S-4670] One drive's card: its picture and name, the space line and the used share as a bar or a ring. SPEC.md beside this file.</summary>
 public sealed class DriveModule : IWidgetModule
 {
+    /// <summary>[S-2032] A click on the card opens the drive's root in File Explorer: its own drive, else the system drive.</summary>
+    internal static CardOpen? Opens(string drive, string? systemRoot)
+        => CardOpen.Place(DiskRules.Root(drive) ?? DiskRules.Root(systemRoot));
+
     /// <summary>[S-6902] What the host knows of the widget without its UI.</summary>
     public WidgetDescriptor Descriptor { get; } = new()
     {

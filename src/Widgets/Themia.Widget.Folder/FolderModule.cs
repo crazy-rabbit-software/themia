@@ -17,6 +17,9 @@ namespace Themia.Widget.Folder;
 /// <summary>[S-1320] A folder on this PC as a small Windows 11 file browser: list, details, grid or icons, with Explorer's selection, keys, menus, file operations, clipboard and drag and drop. SPEC.md beside this file.</summary>
 public sealed class FolderModule : IWidgetModule
 {
+    /// <summary>[S-2031] A click on the card opens the folder it shows, in File Explorer; nothing with no folder.</summary>
+    internal static CardOpen? Opens(string? shown) => CardOpen.Place(shown);
+
     /// <summary>[S-6902] What the host knows of the widget without its UI.</summary>
     public WidgetDescriptor Descriptor { get; } = new()
     {

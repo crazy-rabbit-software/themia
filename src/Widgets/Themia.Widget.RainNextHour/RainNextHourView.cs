@@ -22,9 +22,12 @@ namespace Themia.App.Widgets;
 /// ([S-6714]). The sentence is re-read from the held nowcast every minute, so "in 30 min" counts down
 /// between fetches.
 /// </summary>
-internal sealed partial class RainNextHourView : Grid, IWidgetView, IWidgetHeaderContent, IWidgetSurfaceAware,
+internal sealed partial class RainNextHourView : Grid, IWidgetView, IWidgetOpens, IWidgetHeaderContent, IWidgetSurfaceAware,
     IWidgetSizeAware, IWidgetContextActions
 {
+    /// <inheritdoc />
+    public CardOpen? Opens => RainNextHourModule.Opens(_config, RegionFormat.Current.Temperature, Strings.Current);
+
     /// <summary>[S-7064] The header's problem glyph ([S-7042]): the one stale rule, no age.</summary>
     private readonly KitHeader _header;
     private readonly TextBlock _headline = Family.Text(FamilyType.Title);

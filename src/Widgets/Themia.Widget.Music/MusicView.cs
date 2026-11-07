@@ -37,8 +37,11 @@ namespace Themia.App.Widgets;
 /// places the parts is <see cref="MusicFace"/>, applied in <c>MusicView.Layout.cs</c>.
 /// </para>
 /// </summary>
-internal sealed partial class MusicView : Grid, IWidgetView, IWidgetSizeAware, IWidgetSurfaceAware, IWidgetKeys
+internal sealed partial class MusicView : Grid, IWidgetView, IWidgetOpens, IWidgetSizeAware, IWidgetSurfaceAware, IWidgetKeys
 {
+    /// <inheritdoc />
+    public CardOpen? Opens => MusicModule.Opens(_now);
+
     private const string Scope = "music";
 
     /// <summary>The content in the card's inset: the lines at its top, the progress row and the transport at its foot.</summary>

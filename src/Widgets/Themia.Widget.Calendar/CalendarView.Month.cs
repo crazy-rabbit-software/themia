@@ -105,7 +105,12 @@ internal sealed partial class CalendarView
                 // [S-3620] The selected day (also the keys' cursor day, [S-3624]) is marked in its cell.
                 var cell = DayCell(day, items, count, hidden, day.Month == _anchor.Month, day == today, _selected == day, fit, showColors, dotLimit);
 
-                cell.Tapped += (_, _) => ToggleDay(day);
+                // [S-2004] The click is the widget's own: it never reaches the card.
+                cell.Tapped += (_, args) =>
+                {
+                    args.Handled = true;
+                    ToggleDay(day);
+                };
                 WidgetItems.Mark(cell); // [S-814] a press on a day is the day's toggle
 
                 if (count > 0)

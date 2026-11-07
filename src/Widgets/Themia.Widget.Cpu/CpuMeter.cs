@@ -3,12 +3,16 @@ using Themia.App.Services.SystemData;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
 using Themia.Sdk;
+using Themia.Widget.Cpu;
 
 namespace Themia.App.Widgets.Meters;
 
 /// <summary>[S-1140] Processor load across all cores, coloured by how busy the machine is; its styles [S-6311].</summary>
 internal sealed class CpuMeter : MeterPart
 {
+    /// <inheritdoc />
+    public override CardOpen? Opens(WidgetConfig config) => CpuModule.Opens;
+
     public override WidgetId Kind => new WidgetId("cpu");
 
     public override MeterPressure PressureOf(MeterReading reading)

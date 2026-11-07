@@ -4,6 +4,7 @@ using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
 using Themia.Sdk;
+using Themia.Widget.BatteryDetails;
 
 namespace Themia.App.Widgets.Details;
 
@@ -15,6 +16,9 @@ namespace Themia.App.Widgets.Details;
 /// </summary>
 internal sealed class BatteryDetailPart : DetailPart
 {
+    /// <inheritdoc />
+    public override CardOpen? Opens(WidgetConfig config) => BatteryDetailsModule.Opens;
+
     private readonly WatchSlot<BatteryPower?> _power = new();
     private readonly WatchSlot<BatteryPack?> _pack = new();
     private ISystemFeeds? _hub;

@@ -18,6 +18,9 @@ namespace Themia.Widget.NetworkDetails;
 /// <summary>[S-2415] Down and up as Task Manager's network page has them: download as the hero, the session's totals, the addresses and every adapter. SPEC.md beside this file.</summary>
 public sealed class NetworkDetailsModule : IWidgetModule
 {
+    /// <summary>[S-2019] A click on the card opens Windows' network status page.</summary>
+    internal static CardOpen? Opens => CardOpen.Settings("network-status");
+
     /// <summary>[S-6902] What the host knows of the widget without its UI.</summary>
     public WidgetDescriptor Descriptor { get; } = new()
     {

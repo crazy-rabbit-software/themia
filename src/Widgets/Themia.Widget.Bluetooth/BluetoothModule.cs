@@ -17,6 +17,9 @@ namespace Themia.Widget.Bluetooth;
 /// <summary>[S-1254] Bluetooth: the paired devices, which are connected, their battery and signal. SPEC.md beside this file.</summary>
 public sealed class BluetoothModule : IWidgetModule
 {
+    /// <summary>[S-2024] What a click on the card opens ([S-2000]).</summary>
+    internal static CardOpen? Opens => CardOpen.Settings("bluetooth");
+
     /// <summary>[S-6902] What the host knows of the widget without its UI.</summary>
     public WidgetDescriptor Descriptor { get; } = new()
     {

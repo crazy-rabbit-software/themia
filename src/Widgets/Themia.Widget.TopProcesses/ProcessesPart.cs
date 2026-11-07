@@ -17,6 +17,9 @@ namespace Themia.App.Widgets.Details;
 /// </summary>
 internal sealed class ProcessesPart : DetailPart
 {
+    /// <inheritdoc />
+    public override CardOpen? Opens(WidgetConfig config) => TopProcessesModule.Opens;
+
     /// <summary>One for the app: every list shows the same processes, read on the same tick.</summary>
     private static readonly ProcessPathCache Paths = new(pid => ProcessPaths.ExePath((uint)pid));
 

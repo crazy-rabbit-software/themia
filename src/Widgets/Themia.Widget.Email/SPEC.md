@@ -99,6 +99,10 @@ its rows the kit's `KitList`), `EmailMenu.cs` (its properties-menu lines), `Prev
   Then Appearance, **Accounts** (the kit's Accounts submenu over the signed-in mail accounts: Every
   mail account, a switch each, the last one greyed, Manage accounts) and **Folder** (Inbox, Sent,
   Drafts, Deleted, Junk).
+- **[S-2043]** A click on the card ([S-2000]) opens the mail of the account it reads on the web:
+  Outlook's for a Microsoft account, Google's for a Google one, the first chosen account that has
+  such a page ([S-2005], `EmailModule.Opens`); an IMAP, CalDAV or CardDAV account opens nothing. A
+  message's row keeps its click ([S-2004]).
 
 Needs a live pass: a signed-in Microsoft, Google and IMAP account (the three styles, opening and
 replying, the quick actions, Mark read and Delete landing on the server, Write email), and the

@@ -27,9 +27,12 @@ namespace Themia.App.Widgets;
 /// interval however many widgets want it, and a failure backs off rather than retrying.
 /// </para>
 /// </summary>
-internal sealed partial class StocksView : Grid, IWidgetView, IWidgetHeaderContent, IWidgetSurfaceAware,
+internal sealed partial class StocksView : Grid, IWidgetView, IWidgetOpens, IWidgetHeaderContent, IWidgetSurfaceAware,
     IWidgetSizeAware, IWidgetContextActions, IWidgetAligned
 {
+    /// <inheritdoc />
+    public CardOpen? Opens => StocksModule.Opens(_config);
+
     private const string Scope = "stocks";
 
     /// <summary>[S-7064] The header's problem glyph ([S-7042]): the one stale rule, no age.</summary>

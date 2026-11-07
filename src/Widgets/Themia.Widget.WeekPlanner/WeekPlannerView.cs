@@ -37,8 +37,11 @@ namespace Themia.App.Widgets;
 /// is <see cref="WeekPlannerRules"/>.
 /// </para>
 /// </summary>
-internal sealed partial class WeekPlannerView : Grid, IWidgetView, IWidgetSurfaceAware, IWidgetSizeAware, IWidgetContextActions
+internal sealed partial class WeekPlannerView : Grid, IWidgetView, IWidgetOpens, IWidgetSurfaceAware, IWidgetSizeAware, IWidgetContextActions
 {
+    /// <inheritdoc />
+    public CardOpen? Opens => WeekPlannerModule.Opens(_config.AccountIds, _widgetHost.AccountsWith(HostFeatures.Calendar));
+
     private const string Scope = "week-planner";
 
     private static readonly TimeSpan Poll = TimeSpan.FromMinutes(5);
@@ -526,7 +529,12 @@ internal sealed partial class WeekPlannerView : Grid, IWidgetView, IWidgetSurfac
         ToolTipService.SetToolTip(row, tip);
         if (item.Event is { } openable)
         {
-            row.Tapped += (_, _) => Open(openable);
+            // [S-2004] The click is the widget's own: it never reaches the card.
+            row.Tapped += (_, args) =>
+            {
+                args.Handled = true;
+                Open(openable);
+            };
         }
 
         return row;

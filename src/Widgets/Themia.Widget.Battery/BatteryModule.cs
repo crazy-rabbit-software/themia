@@ -18,6 +18,9 @@ namespace Themia.Widget.Battery;
 /// <summary>[S-1180] The battery's charge: the reading with its glyph and its history, or a battery or a ring of the charge ([S-6272]). SPEC.md beside this file.</summary>
 public sealed class BatteryModule : IWidgetModule
 {
+    /// <summary>[S-2022] A click on the card opens Windows' Power & battery page.</summary>
+    internal static CardOpen? Opens => CardOpen.Settings("batterysaver");
+
     /// <summary>[S-6902] What the host knows of the widget without its UI.</summary>
     public WidgetDescriptor Descriptor { get; } = new()
     {

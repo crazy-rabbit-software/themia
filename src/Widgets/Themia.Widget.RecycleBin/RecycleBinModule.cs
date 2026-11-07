@@ -17,6 +17,9 @@ namespace Themia.Widget.RecycleBin;
 /// <summary>[S-4860] The Recycle Bin: its size and item count, with Empty. SPEC.md beside this file.</summary>
 public sealed class RecycleBinModule : IWidgetModule
 {
+    /// <summary>[S-2034] What a click on the card opens ([S-2000]).</summary>
+    internal static CardOpen? Opens => CardOpen.Place(RecycleBinState.Target);
+
     /// <summary>[S-6902] What the host knows of the widget without its UI.</summary>
     public WidgetDescriptor Descriptor { get; } = new()
     {

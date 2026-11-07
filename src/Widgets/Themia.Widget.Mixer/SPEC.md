@@ -45,6 +45,9 @@ volume tile's is the module host's `AudioHostTests`, its menu `Tests/MixerMenuTe
   (the shared search of [S-1222]; only where there is a choice, [S-1236]); which rows the list
   holds, **One row per app** ([S-442]), **Only apps playing now** and **System sounds** ([S-445]);
   what a row shows, **App icons**; and, as a note, how the keys work ([S-1225]).
+- **[S-2026]** A click on the card ([S-2000]) opens Windows' Volume mixer page
+  (`ms-settings:apps-volume`); the sliders and buttons keep their clicks ([S-2004]); the module
+  decides it (`MixerModule.Opens`).
 
 Needs a manual pass: the mixer on a live desktop (apps playing, one muted and dragged, a second
 output device chosen and unplugged, the keys), never in a render: a render's sliders are inert.

@@ -24,6 +24,9 @@ context), `RecycleBinConfig.cs`, `RecycleBinRules.cs` (the texts, the ladder), `
   the Status row at the top ("No items" under the bin's glyph, [S-6714]); before the first answer the
   size is "–" with no Empty. The bin's 40 and 72 icon, the centred stack, the wide strip and the
   Subtitle and TitleLarge sizes are gone.
+- **[S-2034]** A click on the card ([S-2000]) opens the Recycle Bin in File Explorer
+  (`shell:RecycleBinFolder`); Empty keeps its click ([S-2004]); the module decides it
+  (`RecycleBinModule.Opens`).
 
 Needs a live pass: Empty with Windows' dialog (Yes and No), deleting a file from Explorer (the count
 following within 15 s).

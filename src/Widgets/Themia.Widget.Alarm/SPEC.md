@@ -46,6 +46,9 @@ rules and the book under its config are the module host's `AlarmTests`.
   only while a sound is chosen, previewed once: silent, a level changes nothing) and **Snooze for**
   (typed, 1–30 min, [S-3726]); the note of [S-4627] last.
   (Tests `AlarmMenuTests`.)
+- **[S-2029]** A click on the card ([S-2000]) opens Windows' Clock app, where its alarms are
+  (`CardOpen.ClockApp`); the widget's buttons keep their clicks ([S-2004]); the module decides it
+  (`AlarmModule.Opens`).
 
 Needs a manual pass: the widget on a live desktop ([S-4628]..[S-4631]: the readout and switch at every
 size, a ring with its sound and its notification's Snooze and Dismiss, the keys through the lease, the

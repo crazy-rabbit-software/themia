@@ -15,6 +15,9 @@ one tick's figures), `Localization/Locales/` (its own `CpuDetailsStr`, 30 langua
 - **[S-9500]** CPU details as a module: it reads the hub's load, counts and processor feeds
   (`SystemSource.Cpu`, `Performance`, `Processor`, in the hub's read order, so one tick's figures go
   together, [S-2501]) and charts nothing; it has nothing to choose, so no settings page ([S-1750]).
+- **[S-2011]** A click on the card ([S-2000]) opens Task Manager (`CardOpen.TaskManager`, the system
+  folder's `Taskmgr.exe`) (a row's click stays the row's, [S-2004]); the module decides it
+  (`CpuDetailsModule.Opens`, through its part's `Opens`).
 
 Needs a manual pass: the widget on a live desktop (the clock moving with load, the temperature on a
 machine whose firmware reports a thermal zone).

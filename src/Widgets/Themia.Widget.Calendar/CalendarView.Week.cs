@@ -119,7 +119,12 @@ internal sealed partial class CalendarView
                 header.BorderBrush = Accent();
             }
 
-            header.Tapped += (_, _) => ToggleDay(day);
+            // [S-2004] The click is the widget's own: it never reaches the card.
+            header.Tapped += (_, args) =>
+            {
+                args.Handled = true;
+                ToggleDay(day);
+            };
             WidgetItems.Mark(header); // [S-814]
 
 

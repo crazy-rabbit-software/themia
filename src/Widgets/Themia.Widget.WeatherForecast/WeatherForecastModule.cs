@@ -17,6 +17,9 @@ namespace Themia.Widget.WeatherForecast;
 /// <summary>[S-724] The next few days at a place, from open-meteo: rows, columns, the temperature curve or the grid. SPEC.md beside this file.</summary>
 public sealed class WeatherForecastModule : IWidgetModule
 {
+    /// <summary>[S-2036] A click on the card opens MSN Weather's forecast for its place ([S-2006]); nothing with no place.</summary>
+    internal static CardOpen? Opens(WeatherConfig config, TemperatureUnit unit, Locale locale) => WeatherPages.Forecast(config, unit, locale);
+
     /// <summary>Its glyph, the module's own (U+E9CA, the weather set's thermometer, checked against the font, [S-652]).</summary>
     internal static readonly string Glyph = char.ConvertFromUtf32(0xE9CA);
 

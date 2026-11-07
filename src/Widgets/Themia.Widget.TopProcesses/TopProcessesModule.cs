@@ -18,6 +18,9 @@ namespace Themia.Widget.TopProcesses;
 /// <summary>[S-2410] The busiest processes, ranked by processor or memory, one row each or one per program. SPEC.md beside this file.</summary>
 public sealed class TopProcessesModule : IWidgetModule
 {
+    /// <summary>[S-2017] A click on the card opens Task Manager.</summary>
+    internal static CardOpen? Opens => CardOpen.TaskManager;
+
     /// <summary>[S-6902] What the host knows of the widget without its UI.</summary>
     public WidgetDescriptor Descriptor { get; } = new()
     {

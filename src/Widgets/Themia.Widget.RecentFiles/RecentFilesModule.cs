@@ -17,6 +17,9 @@ namespace Themia.Widget.RecentFiles;
 /// <summary>[S-4840] The files opened last, as Windows lists them in Recent Items. SPEC.md beside this file.</summary>
 public sealed class RecentFilesModule : IWidgetModule
 {
+    /// <summary>[S-2033] What a click on the card opens ([S-2000]).</summary>
+    internal static CardOpen? Opens => CardOpen.Place("shell:Recent");
+
     /// <summary>Its glyph, the module's own (U+E81C).</summary>
     internal static readonly string Glyph = char.ConvertFromUtf32(0xE81C);
 

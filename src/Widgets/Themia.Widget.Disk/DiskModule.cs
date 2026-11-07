@@ -18,6 +18,9 @@ namespace Themia.Widget.Disk;
 /// <summary>[S-1820] Disk activity: the drive's reads and writes together per second, over their history, or as two bars; the header names the drive ([S-1161]). SPEC.md beside this file.</summary>
 public sealed class DiskModule : IWidgetModule
 {
+    /// <summary>[S-2016] A click on the card opens Task Manager.</summary>
+    internal static CardOpen? Opens => CardOpen.TaskManager;
+
     /// <summary>[S-6902] What the host knows of the widget without its UI.</summary>
     public WidgetDescriptor Descriptor { get; } = new()
     {

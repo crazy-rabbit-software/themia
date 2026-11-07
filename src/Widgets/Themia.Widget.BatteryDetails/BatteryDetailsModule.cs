@@ -18,6 +18,9 @@ namespace Themia.Widget.BatteryDetails;
 /// <summary>[S-2423] What the battery itself reports: the charge and status, time left, health, cycles, voltage and rate. SPEC.md beside this file.</summary>
 public sealed class BatteryDetailsModule : IWidgetModule
 {
+    /// <summary>[S-2023] A click on the card opens Windows' Power & battery page.</summary>
+    internal static CardOpen? Opens => CardOpen.Settings("batterysaver");
+
     /// <summary>[S-6902] What the host knows of the widget without its UI.</summary>
     public WidgetDescriptor Descriptor { get; } = new()
     {

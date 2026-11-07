@@ -10,6 +10,8 @@ using Themia.Core.Widgets;
 using Themia.Sdk;
 using Themia.Sdk.WinUI;
 using Themia.Widget.Tasks;
+using Themia.App.Services.Accounts;
+using Themia.Core.Tasks;
 
 [assembly: ThemiaWidget("tasks", typeof(TasksModule))]
 
@@ -18,6 +20,12 @@ namespace Themia.Widget.Tasks;
 /// <summary>Tasks: a task list of an account or kept on this PC, ticked, renamed, reordered and added to. SPEC.md beside this file.</summary>
 public sealed class TasksModule : IWidgetModule
 {
+    /// <summary>[S-2044] A click on the card opens the task service of its account on the web ([S-2005]); a list kept on this PC opens nothing.</summary>
+    internal static CardOpen? Opens(TasksConfig config, IReadOnlyList<AccountInfo> accounts)
+        => config.Source == TaskSource.Account
+            ? AccountPages.Home(HostFeatures.Tasks, string.IsNullOrWhiteSpace(config.AccountId) ? [] : [config.AccountId], accounts)
+            : null;
+
     /// <summary>[S-6902] What the host knows of the widget without its UI.</summary>
     public WidgetDescriptor Descriptor { get; } = new()
     {

@@ -23,8 +23,11 @@ namespace Themia.App.Widgets;
 /// or takes it off the list. The list is the shared <see cref="RecentItems"/>, redrawn when its folder
 /// changes; the minute tick only keeps "2h" honest. Keys through the lease, as every list ([S-1288]).
 /// </summary>
-internal sealed partial class RecentFilesView : Grid, IWidgetView, IWidgetSizeAware, IWidgetSurfaceAware, IWidgetKeys
+internal sealed partial class RecentFilesView : Grid, IWidgetView, IWidgetOpens, IWidgetSizeAware, IWidgetSurfaceAware, IWidgetKeys
 {
+    /// <inheritdoc />
+    public CardOpen? Opens => RecentFilesModule.Opens;
+
     private readonly StackPanel _list = new();
     private readonly ScrollViewer _scroll;
     private readonly ScrollFade _fade;
