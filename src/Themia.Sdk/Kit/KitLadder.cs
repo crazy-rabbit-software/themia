@@ -138,6 +138,12 @@ public sealed record KitSpec(
 
     /// <summary>[S-7038] The add row's box, empty ("Task name").</summary>
     public Func<string>? AddPlaceholder { get; init; }
+
+    /// <summary>
+    /// [S-7073] The row's value is a reading (<see cref="KitItem.Value"/>: a battery's level), the
+    /// item's point: kept at every width, where a time gives way below 180; the title ellipsises first.
+    /// </summary>
+    public bool Readings { get; init; }
 }
 
 /// <summary>[S-7030] What one size of a kit list shows; chosen by <see cref="KitLadder.Plan"/>.</summary>
@@ -260,7 +266,7 @@ public static class KitLadder
         var column = width / columns;
         var measured = area.IsMeasured;
         var lead = Has(KitShow.Lead) && (!measured || column >= LeadNeedsWidth);
-        var when = Has(KitShow.When) && (!measured || column >= WhenNeedsWidth);
+        var when = Has(KitShow.When) && (!measured || column >= WhenNeedsWidth || spec.Readings);
 
         if (spec.Look == KitRowLook.Table)
         {

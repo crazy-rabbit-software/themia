@@ -138,6 +138,14 @@ public static class Glyphs
     public static readonly string Game = From(0xE7FC);
     public static readonly string Bluetooth = From(0xE702);
 
+    // [S-7072] A peripheral by kind (Headphone, KeyboardClassic, CellPhone, PenWorkspace, Stopwatch for a watch, Devices).
+    public static readonly string Headphone = From(0xE7F6);
+    public static readonly string Keyboard = From(0xE765);
+    public static readonly string Phone = From(0xE8EA);
+    public static readonly string Pen = From(0xE929);
+    public static readonly string Watch = From(0xE916);
+    public static readonly string Devices = From(0xE772);
+
     // [S-2416] [S-2433] The system details' list rows: an adapter by kind, a program without an icon.
     public static readonly string Ethernet = From(0xE839);
     public static readonly string Program = From(0xECAA);

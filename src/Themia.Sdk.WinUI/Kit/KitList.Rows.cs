@@ -67,11 +67,12 @@ public sealed partial class KitList
             var block = new RowBlock(RowKind.List, _plan.Lead ? FamilyShape.Icon : 0) { Lines = _plan.Lines, Strong = item.Emphasis };
             var second = _plan.Subtitle ? SubtitleLine(item) : _plan.Preview ? item.Preview : null;
             var third = _plan.Subtitle && _plan.Preview ? item.Preview : null;
-            var when = _plan.When ? KitText.When(Strings.Current, item.When, _spec.Time, now) : null;
+            // [S-7072] A reading stands in the time's place, and is not rewritten on the ticker.
+            var when = _plan.When ? item.Value ?? KitText.When(Strings.Current, item.When, _spec.Time, now) : null;
             block.Show(TitleText(item), when, second, third);
             block.ValueText.Foreground = Family.Brush(ToneRole(item.Tone, ColourRole.TextSecondary));
 
-            if (_plan.When)
+            if (_plan.When && item.Value is null)
             {
                 _times.Add((block.ValueText, item.When, _spec.Time));
             }
@@ -154,7 +155,7 @@ public sealed partial class KitList
                 KitColumn.Subtitle => item.Subtitle ?? string.Empty,
                 KitColumn.Preview => item.Preview ?? string.Empty,
                 KitColumn.Badge => BadgeText(item) ?? string.Empty,
-                _ => KitText.When(Strings.Current, item.When, _spec.ColumnTime, now),
+                _ => item.Value ?? KitText.When(Strings.Current, item.When, _spec.ColumnTime, now),
             };
 
             if (column == KitColumn.When)
@@ -162,7 +163,10 @@ public sealed partial class KitList
                 cell.TextAlignment = TextAlignment.Right;
                 cell.HorizontalAlignment = HorizontalAlignment.Right;
                 cell.Foreground = Family.Brush(ToneRole(item.Tone, ColourRole.TextSecondary));
-                _times.Add((cell, item.When, _spec.ColumnTime));
+                if (item.Value is null)
+                {
+                    _times.Add((cell, item.When, _spec.ColumnTime));
+                }
             }
 
             SetColumn(cell, i);

@@ -1484,6 +1484,13 @@ The shared parts a list widget is built from, and the rules they keep (design an
   - **[S-7071]** The kit's shared code names no service, provider, service header or error code;
     outside the provider projects nothing names a kit service or reads a service's own header beyond
     today's two (the rate-limit rules' `X-RateLimit-*`, the calendar's iCalendar `X-` properties).
+- **[S-7072]** A row's value may be a reading instead of a time (`KitItem.Value`: a battery's
+  level, "45%"), drawn where the time would be, in the item's tone (the Critical role for a low
+  battery), cut to 24 characters, an empty one none; the ticker never rewrites it. `KitIcon` names
+  a peripheral by kind for a row's lead (headphones, mouse, keyboard, phone, controller, pen, watch,
+  any other device).
+- **[S-7073]** A spec whose value is a reading (`KitSpec.Readings`) keeps it at every width: it is
+  the item's point, where a time gives way below a column of 180; the title ellipsises first.
 - **[S-7050]** `IKitConfig`: a kit widget's config states what it needs (a feature, or none for a
   web source), whether it is configured, the accounts it reads and the fields the user has on; its
   setup rule follows ([S-1860], [S-1861]): it waits while it has nothing to read, or while no
