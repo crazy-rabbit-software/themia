@@ -179,6 +179,9 @@ internal sealed class TaskService : ITaskSource, IDisposable
         }
     }
 
+    /// <summary>[S-9974] The feeds some widget holds now: what the assistants' server reads of the accounts' tasks.</summary>
+    internal IReadOnlyList<ITaskFeed> HeldFeeds => [.. _feeds.Values];
+
     /// <summary>Hold a feed. Every <see cref="Acquire"/> is matched by one <see cref="Release"/>.</summary>
     public ITaskFeed Acquire(string accountId, string listId, bool showCompleted)
     {

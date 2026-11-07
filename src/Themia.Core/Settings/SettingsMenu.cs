@@ -289,6 +289,9 @@ public interface ISettingsMenuHost
     /// <summary>[S-3580] The app itself: About Themia ›.</summary>
     IAboutMenuHost About { get; }
 
+    /// <summary>[S-9979] The assistants' server: ⚙ › AI assistants; null where none runs (a render's detached state).</summary>
+    IMcpMenuHost? Mcp => null;
+
     /// <summary>[S-3572] [S-3576] How what the lines of Themia Pro and Back up &amp; reset started went, under each.</summary>
     SettingsOutcomes Outcomes { get; }
 
@@ -308,8 +311,8 @@ public interface ISettingsMenuHost
 public static partial class SettingsMenu
 {
     /// <summary>
-    /// [S-3524] The first level: General's lines; Appearance, Accounts, Language &amp; region and Online
-    /// updates; Themia Pro, Back up &amp; reset and About Themia; then Quit Themia.
+    /// [S-3524] The first level: General's lines; Appearance, Accounts, Language &amp; region, Online
+    /// updates and AI assistants ([S-9979]); Themia Pro, Back up &amp; reset and About Themia; then Quit Themia.
     /// </summary>
     public static IReadOnlyList<SettingsLine> Root(ISettingsMenuHost host)
     {
@@ -318,7 +321,7 @@ public static partial class SettingsMenu
         IReadOnlyList<SettingsLine>[] bands =
         [
             General(host),
-            [Appearance(host), Accounts(host), Language(host), OnlineUpdates(host)],
+            [Appearance(host), Accounts(host), Language(host), OnlineUpdates(host), .. Optional(Assistants(host))],
             [Pro(host), Backup(host), About(host)],
             [new SettingsCommand(Keys.Quit, Str.Settings_Quit_Label.Text(), Glyphs.Power, host.Quit)],
         ];
@@ -336,6 +339,9 @@ public static partial class SettingsMenu
 
         return lines;
     }
+
+    /// <summary>A line that may not be there, as a band's part: none, or itself.</summary>
+    private static IEnumerable<SettingsLine> Optional(SettingsLine? line) => line is null ? [] : [line];
 
     /// <summary>
     /// The lines along <paramref name="path"/> (keys, first level first), as the menu would open
@@ -378,6 +384,11 @@ public static partial class SettingsMenu
         public const string Accounts = "accounts";
         public const string AddAccount = "accounts/add";
         public const string Online = "online";
+        public const string Mcp = "assistants";
+        public const string McpServer = "assistants/server";
+        public const string McpCopyClaudeCode = "assistants/copyClaudeCode";
+        public const string McpCopyJson = "assistants/copyJson";
+        public const string McpNewAddress = "assistants/newAddress";
         public const string Pro = "pro";
         public const string ProUpgrade = "pro/upgrade";
         public const string ProRestore = "pro/restore";

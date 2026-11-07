@@ -189,6 +189,8 @@ internal sealed partial class DesktopWindow
 
         public IAboutMenuHost About => this;
 
+        public IMcpMenuHost? Mcp => Host.McpMenu;
+
         public SettingsOutcomes Outcomes => Host.SettingsOutcomes;
 
         // ---- [S-3570] Themia Pro ------------------------------------------------------------------

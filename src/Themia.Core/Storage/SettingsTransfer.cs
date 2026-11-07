@@ -192,7 +192,8 @@ public static class SettingsTransfer
     /// <para>
     /// Start with Windows is the exception: it is a fact about this PC's registry rather than a
     /// preference, and importing another machine's answer would leave the setting saying something
-    /// the registry does not.
+    /// the registry does not. [S-9960] So is the assistants' server: a file never opens a listener
+    /// on this PC, nor closes the one the user opened.
     /// </para>
     /// </summary>
     public static void Apply(AppState target, AppState incoming)
@@ -201,6 +202,7 @@ public static class SettingsTransfer
         ArgumentNullException.ThrowIfNull(incoming);
 
         var runAtStartup = target.Design.RunAtStartup;
+        var mcpServer = target.Preferences.McpServer;
 
         target.SchemaVersion = incoming.SchemaVersion;
         target.Views = incoming.Views;
@@ -209,6 +211,7 @@ public static class SettingsTransfer
         target.Design = incoming.Design;
         target.Design.RunAtStartup = runAtStartup;
         target.Preferences = incoming.Preferences;
+        target.Preferences.McpServer = mcpServer;
         target.DefaultViewForNewDisplays = incoming.DefaultViewForNewDisplays;
         target.DisabledMonitors = incoming.DisabledMonitors;
         target.MonitorScales = incoming.MonitorScales;

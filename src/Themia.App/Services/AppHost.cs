@@ -276,6 +276,9 @@ internal sealed partial class AppHost : IDisposable
             Path.Combine(Path.GetDirectoryName(_store.Path) ?? string.Empty, Themia.Core.Storage.ScreenTimeStore.FileName));
         AppServices.ScreenTime = _screenTime;
 
+        // [S-9960] The assistants' server follows ⚙'s switch from here on (off unless it is on).
+        StartMcp();
+
         // [S-2609] Syncs that waited for the network go as soon as it is back.
         Sync.Start();
 
@@ -415,6 +418,7 @@ internal sealed partial class AppHost : IDisposable
         StopPlacementKeys();
         Notices.Disconnect();
         StopGameMode();
+        StopMcp();
         _command.DisplaysChanged -= DesktopZOrder.Refresh;
         _command.SessionUnlocked -= DesktopZOrder.Refresh;
         _command.Resumed -= DesktopZOrder.Refresh;
