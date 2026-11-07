@@ -589,7 +589,8 @@
       "markets": 5,
       "feeds": 30,
       "accounts": 2
-    }
+    },
+    "mcpServer": false
   },
   "disabledMonitors": [],
   "monitorScales": {},
