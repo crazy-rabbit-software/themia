@@ -18,6 +18,7 @@
   "details.cpu.handles": "ہینڈلز",
   "details.cpu.uptime": "اپ ٹائم",
   "details.cpu.temperature": "تھرمل زون",
+  "details.cpu.package": "CPU پیکیج",
   "details.cpu.caption": "{percent} استعمال",
   "details.memory.available": "دستیاب",
   "details.memory.committed": "کمٹڈ",

@@ -18,6 +18,7 @@
   "details.cpu.handles": "控制代碼",
   "details.cpu.uptime": "運作時間",
   "details.cpu.temperature": "溫度區域",
+  "details.cpu.package": "CPU 封裝",
   "details.cpu.caption": "使用率 {percent}",
   "details.memory.available": "可用",
   "details.memory.committed": "已認可",

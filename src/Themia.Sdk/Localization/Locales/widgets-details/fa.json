@@ -18,6 +18,7 @@
   "details.cpu.handles": "دستگیره‌ها",
   "details.cpu.uptime": "زمان روشن بودن",
   "details.cpu.temperature": "منطقه حرارتی",
+  "details.cpu.package": "پکیج CPU",
   "details.cpu.caption": "{percent} بهره‌وری",
   "details.memory.available": "در دسترس",
   "details.memory.committed": "تخصیص‌یافته",

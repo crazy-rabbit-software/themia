@@ -16,7 +16,7 @@ namespace Themia.Core.Widgets;
 /// <param name="Threads">Threads running.</param>
 /// <param name="Handles">Kernel handles open.</param>
 /// <param name="Uptime">Time since boot.</param>
-/// <param name="Celsius">The hottest ACPI thermal zone ([S-2407]).</param>
+/// <param name="Temperature">The processor's temperature and its source ([S-2434]): a tool's package reading, else the hottest ACPI thermal zone ([S-2407]).</param>
 /// <param name="Name">The processor's own name, cleaned.</param>
 public sealed record CpuFigures(
     double? Load = null,
@@ -28,7 +28,7 @@ public sealed record CpuFigures(
     long? Threads = null,
     long? Handles = null,
     TimeSpan? Uptime = null,
-    double? Celsius = null,
+    CpuTemperature? Temperature = null,
     string? Name = null);
 
 /// <summary>[S-2405]..[S-2407] The CPU details widget's rules, pure.</summary>
@@ -157,7 +157,7 @@ public static class CpuDetailRules
 
     /// <summary>
     /// [S-2405] The sheet: the clock as the hero, utilization as its caption, then base speed, cores,
-    /// logical processors, processes, threads, handles, up time and the thermal zone, in
+    /// logical processors, processes, threads, handles, up time and the temperature, in
     /// that order (the name is the header title). A figure Windows does not give is left out.
     /// </summary>
     public static DetailSheet Sheet(Locale locale, CpuFigures f)
@@ -180,7 +180,11 @@ public static class CpuDetailRules
         Add(Str.Details_Cpu_Threads, f.Threads is >= 0 and var t ? LocaleFormat.Integer(locale, t) : null);
         Add(Str.Details_Cpu_Handles, f.Handles is >= 0 and var h ? LocaleFormat.Integer(locale, h) : null);
         Add(Str.Details_Cpu_Uptime, f.Uptime is { } up ? CpuRules.Uptime(locale, up) : null);
-        Add(Str.Details_Cpu_Temperature, f.Celsius is { } celsius ? Celsius(locale, celsius) : null);
+        // [S-2434] The label says what was measured: the package (a tool's sensor) or the board's zone.
+        if (f.Temperature is { } temperature)
+        {
+            Add(temperature.IsPackage ? Str.Details_Cpu_Package : Str.Details_Cpu_Temperature, Celsius(locale, temperature.Celsius));
+        }
 
         var caption = f.Load is { } load
             ? Strings.Format(locale, Str.Details_Cpu_Caption, ("percent", Formatting.Percent(locale, load)))

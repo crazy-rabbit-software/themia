@@ -18,6 +18,7 @@
   "details.cpu.handles": "Дескрипторы",
   "details.cpu.uptime": "Время работы",
   "details.cpu.temperature": "Термальная зона",
+  "details.cpu.package": "Корпус ЦП",
   "details.cpu.caption": "Загрузка {percent}",
   "details.memory.available": "Доступно",
   "details.memory.committed": "Выделено",

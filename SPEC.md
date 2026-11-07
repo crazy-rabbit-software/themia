@@ -5617,8 +5617,30 @@ strings in `Locales/widgets-details`.
   the registry, without vendor and generation noise ("Core i9-12900K").
 - **[S-2406]** The clock is the base clock times `\Processor Information(_Total)\% Processor Performance`
   (Task Manager's figure, past 100 % under turbo); without the counter the reported clock stands in.
-- **[S-2407]** Temperature is the hottest ACPI thermal zone (`\Thermal Zone Information(*)\Temperature`),
-  labelled "Thermal zone" because it is the board's zone, not the package; 1–150 °C or left out.
+- **[S-2407]** Without a temperature tool's reading ([S-2434]) the temperature is the hottest ACPI thermal
+  zone (`\Thermal Zone Information(*)\Temperature`), labelled "Thermal zone" because it is the board's
+  zone, not the package; 1–150 °C or left out. Many desktop boards expose none (issue 95).
+- **[S-2434]** The temperature's sources, in order: Core Temp's shared memory ([S-2435]), HWiNFO's
+  ([S-2436]), the thermal zone ([S-2407]); nothing found is no temperature fact. The reading carries its
+  source (`CpuTemperature`), and the fact is labelled "CPU package" for a tool's reading, "Thermal zone"
+  for the zone. A mapping is opened read-only on the processor source's own tick and closed before
+  its copy is parsed (`CpuSensorMemory`, pure): no handle is held between reads (it would outlive the
+  tool and freeze its last figures), no faster retry, the tools' mutexes are not taken. The copy is
+  what the layout or header claims and never past the view (`VirtualQuery`); a short, foreign or
+  absurd memory is logged once per fault and skipped, a tool with no reading yet is simply absent.
+- **[S-2435]** Core Temp: `CoreTempMappingObjectEx`, else the older `CoreTempMappingObject` (the same
+  prefix, 4-byte packing, alcpu.com/CoreTemp/developers.html). The hottest core of every CPU
+  (`fTemp[cpu × uiCoreCnt + core]`, counts at most 256 cores, 128 CPUs); `ucFahrenheit` is converted,
+  `ucDeltaToTjMax` is subtracted from that CPU's `uiTjMax`; both at once is refused (the TjMax unit is
+  undocumented). 1–150 °C or left out.
+- **[S-2436]** HWiNFO: `Global\HWiNFO_SENS_SM2` (hwisenssm2.h, packed). Only while HWiNFO's "Shared
+  Memory Support" is on, which is off by default and in the free version switches itself off after
+  12 hours (HWiNFO writes "DEAD" into the signature: absent, not corrupt). A temperature reading
+  (`SENSOR_TYPE_TEMP`) whose English label (`szLabelOrig`, whatever the user renamed it to) is, best
+  first, "CPU Package", "CPU (Tctl/Tdie)", "CPU (Tdie)", "CPU Die (average)", "CPU (Tctl)", "Core Max";
+  the hottest of the best label present (two sockets); the unit (UTF-8 in layout 2, else ANSI) ending
+  in F is converted. A board's "CPU" zone is not one. Signature "HWiS", at most 65 536 elements and
+  64 MB, elements no smaller than their version-1 layout, arrays after the header.
 - **[S-2408]** Memory details: in use as the hero, "41% of 64 GB"; available, committed (of the commit
   limit), cached, paged pool, non-paged pool (`GetPerformanceInfo`), page file.
 - **[S-2409]** The page file is `NtQuerySystemInformation(SystemPageFileInformation)`, every file summed

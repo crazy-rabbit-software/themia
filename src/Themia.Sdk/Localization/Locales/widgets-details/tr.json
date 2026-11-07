@@ -18,6 +18,7 @@
   "details.cpu.handles": "Tanıtıcılar",
   "details.cpu.uptime": "Çalışma süresi",
   "details.cpu.temperature": "Termal bölge",
+  "details.cpu.package": "CPU paketi",
   "details.cpu.caption": "{percent} kullanım",
   "details.memory.available": "Kullanılabilir",
   "details.memory.committed": "Kaydedilmiş",

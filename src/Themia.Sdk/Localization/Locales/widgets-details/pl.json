@@ -18,6 +18,7 @@
   "details.cpu.handles": "Dojścia",
   "details.cpu.uptime": "Czas pracy",
   "details.cpu.temperature": "Strefa termiczna",
+  "details.cpu.package": "Pakiet CPU",
   "details.cpu.caption": "Wykorzystanie: {percent}",
   "details.memory.available": "Dostępna",
   "details.memory.committed": "Zadeklarowana",

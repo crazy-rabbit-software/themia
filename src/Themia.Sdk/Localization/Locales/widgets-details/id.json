@@ -18,6 +18,7 @@
   "details.cpu.handles": "Handle",
   "details.cpu.uptime": "Waktu aktif",
   "details.cpu.temperature": "Zona termal",
+  "details.cpu.package": "Paket CPU",
   "details.cpu.caption": "Penggunaan {percent}",
   "details.memory.available": "Tersedia",
   "details.memory.committed": "Dialokasikan",

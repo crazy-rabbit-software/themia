@@ -18,6 +18,7 @@
   "details.cpu.handles": "Identificadores",
   "details.cpu.uptime": "Tiempo activo",
   "details.cpu.temperature": "Zona térmica",
+  "details.cpu.package": "Paquete de CPU",
   "details.cpu.caption": "{percent} de uso",
   "details.memory.available": "Disponible",
   "details.memory.committed": "Confirmada",

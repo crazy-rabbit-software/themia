@@ -18,6 +18,7 @@
   "details.cpu.handles": "المؤشرات",
   "details.cpu.uptime": "مدة التشغيل",
   "details.cpu.temperature": "المنطقة الحرارية",
+  "details.cpu.package": "حزمة المعالج",
   "details.cpu.caption": "استخدام {percent}",
   "details.memory.available": "المتاحة",
   "details.memory.committed": "المخصصة",

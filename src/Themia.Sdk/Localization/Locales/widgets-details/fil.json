@@ -18,6 +18,7 @@
   "details.cpu.handles": "Mga handle",
   "details.cpu.uptime": "Tagal ng pagtakbo",
   "details.cpu.temperature": "Thermal zone",
+  "details.cpu.package": "CPU package",
   "details.cpu.caption": "{percent} na paggamit",
   "details.memory.available": "Magagamit",
   "details.memory.committed": "Committed",

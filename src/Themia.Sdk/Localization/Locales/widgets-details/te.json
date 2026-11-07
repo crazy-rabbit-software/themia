@@ -18,6 +18,7 @@
   "details.cpu.handles": "హ్యాండిల్‌లు",
   "details.cpu.uptime": "అప్ టైమ్",
   "details.cpu.temperature": "థర్మల్ జోన్",
+  "details.cpu.package": "CPU ప్యాకేజీ",
   "details.cpu.caption": "{percent} వినియోగం",
   "details.memory.available": "అందుబాటులో ఉంది",
   "details.memory.committed": "కమిట్ చేయబడింది",

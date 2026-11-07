@@ -18,6 +18,7 @@
   "details.cpu.handles": "แฮนเดิล",
   "details.cpu.uptime": "เวลาทำงาน",
   "details.cpu.temperature": "โซนความร้อน",
+  "details.cpu.package": "แพ็กเกจ CPU",
   "details.cpu.caption": "การใช้งาน {percent}",
   "details.memory.available": "พร้อมใช้งาน",
   "details.memory.committed": "ที่จองไว้",

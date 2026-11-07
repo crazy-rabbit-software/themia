@@ -9,8 +9,9 @@ namespace Themia.App.Services;
 /// [S-2405]..[S-2407] The processor's figures for the CPU details widget, from Win32 and PDH only:
 /// the clock from <c>CallNtPowerInformation</c> and
 /// <c>\Processor Information(_Total)\% Processor Performance</c>, cores from
-/// <c>GetLogicalProcessorInformationEx</c>, the thermal zone from <c>\Thermal Zone Information(*)\Temperature</c> and the name from the
-/// registry. No WMI, no driver, no admin.
+/// <c>GetLogicalProcessorInformationEx</c>, the temperature from Core Temp's or HWiNFO's shared memory
+/// (<see cref="SensorMemory"/>, [S-2434]) else <c>\Thermal Zone Information(*)\Temperature</c>, and the
+/// name from the registry. No WMI, no driver of ours, no admin.
 /// <para>
 /// The counters are one <see cref="PdhQuery"/> held while a CPU details widget lives
 /// (<see cref="Acquire"/>) and closed when the last one goes. What cannot change while Windows runs
@@ -56,14 +57,18 @@ internal static unsafe partial class ProcessorInfo
         ReadStatic();
 
         double? performance = null;
-        double? celsius = null;
+        double? zone = null;
 
         if (Open() is { } query)
         {
             query.Collect();
             performance = _performance is { } p ? query.Double(p) : null;
-            celsius = _zones is { } z ? CpuDetailRules.HottestZone(query.Doubles(z).Select(i => i.Value)) : null;
+            zone = _zones is { } z ? CpuDetailRules.HottestZone(query.Doubles(z).Select(i => i.Value)) : null;
         }
+
+        // [S-2434] A temperature tool's package reading first (not tied to PDH); the board's zone only without one.
+        var temperature = (_leases > 0 ? SensorMemory.Read() : null)
+            ?? (zone is { } celsius ? new CpuTemperature(celsius, CpuTemperatureSource.ThermalZone) : (CpuTemperature?)null);
 
         var logical = (int)GetActiveProcessorCount(AllGroups);
 
@@ -73,7 +78,7 @@ internal static unsafe partial class ProcessorInfo
             Cores: _cores,
             Logical: logical > 0 ? logical : null,
             Uptime: TimeSpan.FromMilliseconds(Environment.TickCount64),
-            Celsius: celsius,
+            Temperature: temperature,
             Name: _name);
     }
 
@@ -220,7 +225,7 @@ internal static unsafe partial class ProcessorInfo
 
         if (_zones is null)
         {
-            Log.Info(Scope, "this machine reports no ACPI thermal zone; the CPU details show no temperature");
+            Log.Info(Scope, "this machine reports no ACPI thermal zone; the CPU details show a temperature only from Core Temp or HWiNFO");
         }
 
         // A rate counter needs a first collection to have something to rate against.
@@ -241,6 +246,7 @@ internal static unsafe partial class ProcessorInfo
         _query = null;
         _performance = _zones = null;
         _queryFailed = false;
+        SensorMemory.Release();
     }
 
     [LibraryImport("powrprof")]
