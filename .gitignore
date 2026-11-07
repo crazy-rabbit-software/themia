@@ -19,5 +19,8 @@ TestResults/
 .env.*
 
 # ---- Local tooling -------------------------------------------------------------------------
-.claude/
+.claude/*
+# The project's skills are shared; their per-run plans and logs are not.
+!.claude/skills/
+.claude/skills/*/runs/
 *.log
