@@ -46,6 +46,9 @@ public static class Glyphs
 
     /// <summary>[S-6593] A picture: the card's background image line.</summary>
     public static readonly string Photo = From(0xE91B);
+
+    /// <summary>[S-1417] A smiling face: a shortcut's Emoji… icon line.</summary>
+    public static readonly string Emoji = From(0xE76E);
     public static readonly string Motion = From(0xE9D2);
     public static readonly string Clock = From(0xE823);
     public static readonly string Timer = From(0xE916);
