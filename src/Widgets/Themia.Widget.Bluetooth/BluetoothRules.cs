@@ -1,4 +1,5 @@
 using Themia.Core.Localization;
+using Themia.Sdk.Devices;
 using Themia.Widget.Bluetooth;
 namespace Themia.Core.Widgets;
 
@@ -82,67 +83,7 @@ public static class BluetoothRules
     /// way that a slightly wrong icon does not.
     /// </para>
     /// </summary>
-    public static BluetoothDeviceKind Classify(string? name)
-    {
-        if (string.IsNullOrWhiteSpace(name))
-        {
-            return BluetoothDeviceKind.Unknown;
-        }
-
-        var lower = name.ToLowerInvariant();
-
-        if (Contains(lower, "headphone", "headset", "speaker", "earbud", "airpod", "buds", "audio", "soundbar", "soundcore"))
-        {
-            return BluetoothDeviceKind.Audio;
-        }
-
-        if (Contains(lower, "mouse", "trackpad", "magic trackpad"))
-        {
-            return BluetoothDeviceKind.Mouse;
-        }
-
-        if (Contains(lower, "keyboard", "keychron"))
-        {
-            return BluetoothDeviceKind.Keyboard;
-        }
-
-        // Before the phone brands, not after: a "Galaxy Watch" and a "Pixel Watch" both carry a
-        // phone maker's name and are not phones. The more specific word wins.
-        if (Contains(lower, "watch", "band", "fitbit", "garmin"))
-        {
-            return BluetoothDeviceKind.Watch;
-        }
-
-        if (Contains(lower, "phone", "iphone", "galaxy", "pixel"))
-        {
-            return BluetoothDeviceKind.Phone;
-        }
-
-        if (Contains(lower, "controller", "gamepad", "xbox", "dualsense", "dualshock", "joy-con"))
-        {
-            return BluetoothDeviceKind.Gamepad;
-        }
-
-        if (Contains(lower, "pen", "stylus"))
-        {
-            return BluetoothDeviceKind.Pen;
-        }
-
-        return BluetoothDeviceKind.Unknown;
-    }
-
-    private static bool Contains(string haystack, params string[] needles)
-    {
-        foreach (var needle in needles)
-        {
-            if (haystack.Contains(needle, StringComparison.Ordinal))
-            {
-                return true;
-            }
-        }
-
-        return false;
-    }
+    public static BluetoothDeviceKind Classify(string? name) => (BluetoothDeviceKind)DeviceKinds.FromName(name);
 
     /// <summary>
     /// What to call a device. A paired device with no name is common enough — some LE peripherals
@@ -192,48 +133,14 @@ public static class BluetoothRules
     /// on the wire; any whole-number box is accepted, and anything that is not a whole number in
     /// 0..100 (255 is "unknown") is no reading rather than a guess.
     /// </summary>
-    public static int? ParseBattery(object? raw)
-    {
-        long? value = raw switch
-        {
-            byte b => b,
-            sbyte sb => sb,
-            short s => s,
-            ushort us => us,
-            int i => i,
-            uint ui => ui,
-            long l => l,
-            ulong ul => ul <= long.MaxValue ? (long)ul : null,
-            _ => null,
-        };
-
-        return value is >= 0 and <= 100 ? (int)value.Value : null;
-    }
+    public static int? ParseBattery(object? raw) => DeviceBatteryRules.ParsePercent(raw);
 
     /// <summary>
-    /// [S-3252] One battery per device container from the device nodes that carry the property. A
-    /// headset's container holds several nodes (the device, its hands-free and audio services), and
-    /// more than one may report; the highest valid reading is the device's. Nodes without a
-    /// container or a valid reading say nothing.
+    /// [S-3252] One battery per device container from the device nodes that carry the property
+    /// (<see cref="DeviceBatteryRules.BatteryByContainer"/>): the highest valid reading per container.
     /// </summary>
     public static Dictionary<Guid, int> BatteryByContainer(IEnumerable<(Guid? Container, object? Raw)> nodes)
-    {
-        ArgumentNullException.ThrowIfNull(nodes);
-
-        var map = new Dictionary<Guid, int>();
-
-        foreach (var (container, raw) in nodes)
-        {
-            if (container is not { } id || id == Guid.Empty || ParseBattery(raw) is not { } percent)
-            {
-                continue;
-            }
-
-            map[id] = map.TryGetValue(id, out var known) ? Math.Max(known, percent) : percent;
-        }
-
-        return map;
-    }
+        => DeviceBatteryRules.BatteryByContainer(nodes);
 
     /// <summary>
     /// [S-3252] Give each connected device its container's battery. A paired but disconnected device

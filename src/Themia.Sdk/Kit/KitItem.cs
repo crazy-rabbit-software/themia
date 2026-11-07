@@ -19,6 +19,7 @@ namespace Themia.Sdk.Kit;
 /// <param name="Tooltip">The row's hover text, when the spec writes one (whom a message is from, its date); else its link.</param>
 /// <param name="Schedule">[S-7036] A scheduled item's time column and details (the agenda's look).</param>
 /// <param name="Due">[S-7037] The day an item of the check look is due, in its words.</param>
+/// <param name="Value">[S-7072] A reading drawn as the row's value in place of its time (a battery's level), in the item's tone.</param>
 public sealed record KitItem(
     string Id,
     string Title,
@@ -33,7 +34,8 @@ public sealed record KitItem(
     KitGroup? Group = null,
     string? Tooltip = null,
     KitSchedule? Schedule = null,
-    KitDue? Due = null);
+    KitDue? Due = null,
+    string? Value = null);
 
 /// <summary>
 /// [S-7036] What a scheduled item's row shows beside its title, written by the source's rules: the
@@ -186,4 +188,14 @@ public enum KitIcon
     Sort,
     Undo,
     Gift,
+
+    /// <summary>[S-7072] A peripheral by kind (a battery list's lead): headphones, mouse, keyboard, phone, controller, pen, watch, any other device.</summary>
+    Headphones,
+    Mouse,
+    Keyboard,
+    Phone,
+    Gamepad,
+    Pen,
+    Watch,
+    Device,
 }

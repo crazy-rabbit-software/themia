@@ -314,6 +314,25 @@ public sealed class KitTests
         Assert.True(xl.Preview);
     }
 
+    [Fact]
+    public void S7072_a_reading_is_cut_to_its_bound_and_an_empty_one_is_none()
+    {
+        var clean = KitItems.Clean([new KitItem("a", "Headset", Value: new string('9', 100)), new KitItem("b", "Mouse", Value: "")]);
+
+        Assert.Equal(KitBounds.Value, clean[0].Value!.Length);
+        Assert.Null(clean[1].Value);
+    }
+
+    [Fact]
+    public void S7073_a_reading_stays_at_every_width_where_a_time_gives_way()
+    {
+        var xs = new WidgetArea(120, 76);
+
+        Assert.False(KitLadder.Plan(xs, Rich, KitShow.All).When);
+        Assert.True(KitLadder.Plan(xs, Rich with { Readings = true }, KitShow.All).When);
+        Assert.False(KitLadder.Plan(xs, Rich with { Readings = true }, KitShow.None).When);
+    }
+
     // ---- [S-7040] [S-7041] screens ------------------------------------------------------------
 
     private static KitScreen Decide(IReadOnlyList<KitOutcome> outcomes, int items, IReadOnlyList<KitAccount>? accounts = null, IReadOnlyList<string>? chosen = null, string? noMatch = null)

@@ -17,6 +17,9 @@ public static class KitBounds
     public const int Badge = 40;
     public const int Badges = 4;
     public const int Heading = 120;
+
+    /// <summary>[S-7072] A row's reading ("100%"): a few characters, never a sentence.</summary>
+    public const int Value = 24;
 }
 
 /// <summary>
@@ -57,6 +60,7 @@ public static class KitItems
                 Title = Cut(item.Title, KitBounds.Title) ?? string.Empty,
                 Subtitle = Cut(item.Subtitle, KitBounds.Subtitle),
                 Preview = Cut(item.Preview, KitBounds.Preview),
+                Value = string.IsNullOrWhiteSpace(item.Value) ? null : Cut(item.Value, KitBounds.Value),
                 Badges = item.Badges is { Count: > 0 } badges
                     ? [.. badges.Where(b => !string.IsNullOrWhiteSpace(b.Text)).Take(KitBounds.Badges).Select(b => b with { Text = Cut(b.Text, KitBounds.Badge)! })]
                     : null,
