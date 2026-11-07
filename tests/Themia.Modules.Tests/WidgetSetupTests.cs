@@ -106,7 +106,7 @@ public class WidgetSetupTests
     public void S1861_features_are_the_union_of_the_signed_in_providers()
     {
         Assert.Equal(FeatureSet.None, WidgetSetup.Offered([]));
-        Assert.Equal(FeatureSet.Of(HostFeatures.Mail, HostFeatures.Calendar), WidgetSetup.Offered([HostProviders.Imap, HostProviders.CalDav]));
+        Assert.Equal(FeatureSet.Of(HostFeatures.Mail, HostFeatures.Calendar, HostFeatures.Tasks), WidgetSetup.Offered([HostProviders.Imap, HostProviders.CalDav])); // [S-622]
         Assert.True(WidgetSetup.Offered([HostProviders.Microsoft]).Has(HostFeatures.Tasks));
         Assert.False(WidgetSetup.Offered([HostProviders.CardDav]).Has(HostFeatures.Tasks));
     }

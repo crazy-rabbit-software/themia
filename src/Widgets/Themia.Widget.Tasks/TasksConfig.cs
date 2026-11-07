@@ -135,10 +135,10 @@ public sealed class TasksConfig : WidgetConfig, IStyled, IShownSettings<TasksSet
 
     /// <summary>
     /// [S-7516] Whether an account's tasks can be important: Microsoft To Do's star (Graph's
-    /// importance). Google Tasks has no such field, so "Important only" there would only ever empty
+    /// importance; [S-619] a CalDAV task's PRIORITY 1 to 4). Google Tasks has no such field, so "Important only" there would only ever empty
     /// the list. An account that is gone (null) is given the benefit of the doubt.
     /// </summary>
-    public static bool HasImportance(ProviderId? provider) => provider is not { } known || known == HostProviders.Microsoft;
+    public static bool HasImportance(ProviderId? provider) => provider is not { } known || known == HostProviders.Microsoft || known == HostProviders.CalDav;
 
     /// <summary>[S-591] [S-3780] How often an account list is asked: the shared accounts cadence (⚙ › Online updates).</summary>
     [JsonIgnore]

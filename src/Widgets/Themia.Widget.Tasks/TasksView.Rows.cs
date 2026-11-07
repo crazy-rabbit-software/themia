@@ -40,7 +40,10 @@ internal sealed partial class TasksView
 
     /// <summary>[S-616] A row's actions, read fresh for every menu and key.</summary>
     private IReadOnlyList<KitAction> ActionsOf(KitItem item)
-        => TaskOf(item) is { } task ? TaskSpec.Actions(task, _feed?.Edits.IsUnconfirmedCreate(task.Id) != true) : [];
+        => TaskOf(item) is { } task ? TaskSpec.Actions(task, _feed?.Edits.IsUnconfirmedCreate(task.Id) != true, ReadOnly) : [];
+
+    /// <summary>[S-621] An account list that is read here and never written (CalDAV).</summary>
+    private bool ReadOnly => !IsLocal && _feed is { ReadOnly: true };
 
     /// <summary>Carry out a task's action: tick, rename in place, delete.</summary>
     private void Run(KitItem item, KitAction action)
@@ -233,7 +236,7 @@ internal sealed partial class TasksView
         Render();
     }
 
-    private bool Writable => IsLocal ? _local?.Writable == true && _localListId is not null : _feed is { Loaded: true };
+    private bool Writable => IsLocal ? _local?.Writable == true && _localListId is not null : _feed is { Loaded: true, ReadOnly: false };
 
     /// <summary>
     /// [S-611] Whether the add row may show: a list to add to, and no filter narrowing it — a task

@@ -56,6 +56,12 @@ internal static class TasksMenu
             {
                 menu.Lines.Add(list);
             }
+
+            // [S-621] Why a CalDAV account's tasks have no check, rename, delete or add row here.
+            if (ReadOnlyAccount(config, service) is { } readOnly)
+            {
+                menu.Lines.Add(WidgetMenuLines.Note(TasksStr.WidgetsC_Tasks_Settings_ReadOnlyNote.Format(("account", readOnly.Label))));
+            }
         }
 
         // [S-7516] What each task shows.
@@ -74,6 +80,18 @@ internal static class TasksMenu
 
         // [S-610] Where a new task lands; the stored order ([S-598]) is kept either way.
         menu.Lines.Add(menu.Toggle(Glyphs.Sort, TasksStr.WidgetsC_Tasks_Settings_NewOnTop_Label.Text(), config.NewOnTop, on => config.NewOnTop = on));
+    }
+
+    /// <summary>[S-621] The account the widget reads when its tasks are read-only, else null.</summary>
+    internal static TaskAccount? ReadOnlyAccount(TasksConfig config, ITaskSource service)
+    {
+        if (config.Source == TaskSource.Local)
+        {
+            return null;
+        }
+
+        var account = string.IsNullOrEmpty(config.AccountId) ? service.Accounts.FirstOrDefault() : service.Find(config.AccountId);
+        return account is { ReadOnly: true } ? account : null;
     }
 
     /// <summary>[S-7516] Whether the account the widget reads has importance (before the service has started, assumed so).</summary>

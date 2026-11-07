@@ -82,9 +82,18 @@ public static class TaskSpec
     /// has not confirmed yet cannot be renamed until it has.
     /// </summary>
     /// <param name="renamable">The task can be renamed now.</param>
-    public static IReadOnlyList<KitAction> Actions(TaskItem task, bool renamable)
+    /// <param name="readOnly">
+    /// [S-621] The list is read-only (a CalDAV account): the one line is the tick, disabled and saying
+    /// why, which is also what its check's tooltip says; no rename, no delete.
+    /// </param>
+    public static IReadOnlyList<KitAction> Actions(TaskItem task, bool renamable, bool readOnly = false)
     {
         ArgumentNullException.ThrowIfNull(task);
+
+        if (readOnly)
+        {
+            return [new(KitActionKind.Toggle, TasksStr.WidgetsC_Tasks_ReadOnly.Text(), KitIcon.Check, Disabled: true, Id: ToggleId)];
+        }
 
         return
         [

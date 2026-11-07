@@ -1,7 +1,8 @@
 {
   "$englishOnly": [
     "shell.setup.place",
-    "shell.setup.account"
+    "shell.setup.account",
+    "shell.tasks.readOnly"
   ],
   "shell.time.justNow": "Just now",
   "shell.fetch.notConfigured": "Not set up yet",
@@ -460,6 +461,7 @@
   "shell.tasks.addFailed": "Could not add the task",
   "shell.tasks.noList": "Could not add the task: this account has no task list to put it in.",
   "shell.tasks.unreadable": "The task list could not be read.",
+  "shell.tasks.readOnly": "This account's tasks are read-only in Themia.",
   "shell.tasks.createdUndescribed": "The task was created, but the answer did not describe it.",
   "shell.common.problemReason": "{problem}: {reason}",
   "shell.accounts.calendarElsewhere": "That calendar is not on this account's server.",

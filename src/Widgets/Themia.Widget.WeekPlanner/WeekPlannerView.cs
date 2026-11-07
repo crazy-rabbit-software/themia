@@ -547,11 +547,16 @@ internal sealed partial class WeekPlannerView : Grid, IWidgetView, IWidgetSurfac
             VerticalAlignment = VerticalAlignment.Center,
         };
 
-        ToolTipService.SetToolTip(ring, Str.WidgetsC_Tasks_MarkDone.Text());
+        // [S-621] A read-only account's task (CalDAV) has no tick: the ring says so and does nothing.
+        var readOnly = _feed?.ReadOnly == true;
+        ToolTipService.SetToolTip(ring, readOnly ? Str.Shell_Tasks_ReadOnly.Text() : Str.WidgetsC_Tasks_MarkDone.Text());
         ring.Tapped += (_, args) =>
         {
             args.Handled = true;
-            _ = CompleteAsync(task);
+            if (!readOnly)
+            {
+                _ = CompleteAsync(task);
+            }
         };
 
         var block = new RowBlock(RowKind.List);

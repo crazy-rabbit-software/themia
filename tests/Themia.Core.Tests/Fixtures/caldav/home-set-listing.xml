@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- A Depth-1 PROPFIND of a calendar home set (sabre/dav shape, scrubbed, made up): the home itself, an
+     events-only calendar, a tasks-only list, a calendar that takes both, one that advertises nothing,
+     the scheduling inbox, and a collection on another host. -->
+<d:multistatus xmlns:d="DAV:" xmlns:cal="urn:ietf:params:xml:ns:caldav" xmlns:x1="http://apple.com/ns/ical/">
+  <d:response>
+    <d:href>/dav/calendars/alex/</d:href>
+    <d:propstat>
+      <d:prop><d:resourcetype><d:collection/></d:resourcetype><d:displayname/></d:prop>
+      <d:status>HTTP/1.1 200 OK</d:status>
+    </d:propstat>
+  </d:response>
+  <d:response>
+    <d:href>/dav/calendars/alex/work/</d:href>
+    <d:propstat>
+      <d:prop>
+        <d:resourcetype><d:collection/><cal:calendar/></d:resourcetype>
+        <d:displayname>Work</d:displayname>
+        <cal:supported-calendar-component-set><cal:comp name="VEVENT"/></cal:supported-calendar-component-set>
+        <x1:calendar-color>#0082C9FF</x1:calendar-color>
+      </d:prop>
+      <d:status>HTTP/1.1 200 OK</d:status>
+    </d:propstat>
+  </d:response>
+  <d:response>
+    <d:href>/dav/calendars/alex/tasks/</d:href>
+    <d:propstat>
+      <d:prop>
+        <d:resourcetype><d:collection/><cal:calendar/></d:resourcetype>
+        <d:displayname>Household</d:displayname>
+        <cal:supported-calendar-component-set><cal:comp name="VTODO"/><cal:comp name="VJOURNAL"/></cal:supported-calendar-component-set>
+      </d:prop>
+      <d:status>HTTP/1.1 200 OK</d:status>
+    </d:propstat>
+  </d:response>
+  <d:response>
+    <d:href>/dav/calendars/alex/personal/</d:href>
+    <d:propstat>
+      <d:prop>
+        <d:resourcetype><d:collection/><cal:calendar/></d:resourcetype>
+        <d:displayname>Personal</d:displayname>
+        <cal:supported-calendar-component-set><cal:comp name="VEVENT"/><cal:comp name="VTODO"/></cal:supported-calendar-component-set>
+      </d:prop>
+      <d:status>HTTP/1.1 200 OK</d:status>
+    </d:propstat>
+  </d:response>
+  <d:response>
+    <d:href>/dav/calendars/alex/old%20list/</d:href>
+    <d:propstat>
+      <d:prop>
+        <d:resourcetype><d:collection/><cal:calendar/></d:resourcetype>
+      </d:prop>
+      <d:status>HTTP/1.1 200 OK</d:status>
+    </d:propstat>
+    <d:propstat>
+      <d:prop><d:displayname/><cal:supported-calendar-component-set/></d:prop>
+      <d:status>HTTP/1.1 404 Not Found</d:status>
+    </d:propstat>
+  </d:response>
+  <d:response>
+    <d:href>/dav/calendars/alex/inbox/</d:href>
+    <d:propstat>
+      <d:prop>
+        <d:resourcetype><d:collection/><cal:schedule-inbox/></d:resourcetype>
+        <cal:supported-calendar-component-set><cal:comp name="VEVENT"/><cal:comp name="VTODO"/></cal:supported-calendar-component-set>
+      </d:prop>
+      <d:status>HTTP/1.1 200 OK</d:status>
+    </d:propstat>
+  </d:response>
+  <d:response>
+    <d:href>https://elsewhere.example/dav/calendars/alex/shared/</d:href>
+    <d:propstat>
+      <d:prop>
+        <d:resourcetype><d:collection/><cal:calendar/></d:resourcetype>
+        <d:displayname>Shared</d:displayname>
+        <cal:supported-calendar-component-set><cal:comp name="VTODO"/></cal:supported-calendar-component-set>
+      </d:prop>
+      <d:status>HTTP/1.1 200 OK</d:status>
+    </d:propstat>
+  </d:response>
+</d:multistatus>

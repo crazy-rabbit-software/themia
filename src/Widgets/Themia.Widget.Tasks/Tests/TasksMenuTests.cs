@@ -107,6 +107,18 @@ public sealed class TasksMenuTests
     }
 
     [Fact]
+    public void S7517_a_caldav_account_says_its_tasks_are_read_only_and_has_importance()
+    {
+        var dav = new Service([new("d", HostProviders.CalDav, "Nextcloud", null, ReadOnly: true)], new MemoryTaskLists([]), _ => Task.FromResult(WorkLists));
+        var note = TasksStr.WidgetsC_Tasks_Settings_ReadOnlyNote.Format(("account", "Nextcloud"));
+
+        Assert.Contains(note, Build(new TasksConfig(), dav).Lines.Select(l => l.Text));
+        Assert.DoesNotContain(note, Build(new TasksConfig { Source = TaskSource.Local }, dav).Lines.Select(l => l.Text));
+        Assert.DoesNotContain(Build(new TasksConfig(), Accounts()).Lines, l => l.Text.Contains("Nextcloud", StringComparison.Ordinal));
+        Assert.True(TasksConfig.HasImportance(HostProviders.CalDav)); // PRIORITY 1 to 4 ([S-619])
+    }
+
+    [Fact]
     public void S7516_a_list_on_this_pc_has_no_due_dates_or_importance()
     {
         var lines = Build(new TasksConfig { Source = TaskSource.Local }, Accounts());
