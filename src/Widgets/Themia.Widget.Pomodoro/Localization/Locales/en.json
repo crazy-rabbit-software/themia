@@ -1,10 +1,15 @@
 {
-  "$englishOnly": [],
+  "$englishOnly": [
+    "pomodoro.longer",
+    "pomodoro.shorter"
+  ],
   "pomodoro.alarmSound.label": "Alarm sound",
   "pomodoro.alarmVolume.label": "Alarm volume",
   "pomodoro.breakLength.label": "Break length",
   "pomodoro.focusLength.label": "Focus length",
+  "pomodoro.longer": "5 minutes longer",
   "pomodoro.reset": "Reset",
+  "pomodoro.shorter": "5 minutes shorter",
   "styles.pomodoro.bar": "Bar",
   "styles.pomodoro.digits": "Digits",
   "styles.pomodoro.ring": "Ring",

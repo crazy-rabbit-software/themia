@@ -124,6 +124,50 @@ public static class PomodoroCycle
     }
 }
 
+/// <summary>[S-8111] The phase after a nudge: where it is now and how long the phase runs in all.</summary>
+public readonly record struct PomodoroNudged(PomodoroState State, int LengthSeconds);
+
+/// <summary>
+/// [S-8111] The − and + nudge (issue 186): the current phase 5 minutes shorter or longer, without the
+/// menu. One rule whether the timer runs or not: the time left and the phase's length move together,
+/// so the time already gone (and the ring's share of it) stays where it was, and an idle phase simply
+/// starts that much shorter or longer. The nudge is this phase's alone, run state like the rest
+/// ([S-150]): the menu's lengths stay the standard every new phase loads ([S-8101]), so a flip, a
+/// skip or a reset forgets it. A press that would leave less than a minute, or make the phase longer
+/// than the menu's most, does nothing: a nudge is 5 minutes or nothing, never a part step.
+/// </summary>
+public static class PomodoroNudge
+{
+    /// <summary>One press: 5 minutes.</summary>
+    public const int StepSeconds = 5 * 60;
+
+    /// <summary>The least a shorter nudge leaves: the menu's least length.</summary>
+    public const int LeastSeconds = PomodoroConfig.MinMinutes * 60;
+
+    /// <summary>The most a longer nudge makes the phase: the menu's most.</summary>
+    public const int MostSeconds = PomodoroConfig.MaxMinutes * 60;
+
+    /// <summary>[S-8111] Whether a press of <paramref name="direction"/> (−1 shorter, +1 longer) does anything: its button is disabled where not.</summary>
+    public static bool Can(PomodoroState state, int lengthSeconds, int direction) => direction switch
+    {
+        < 0 => state.RemainingSeconds - StepSeconds >= LeastSeconds && lengthSeconds - StepSeconds >= LeastSeconds,
+        > 0 => lengthSeconds + StepSeconds <= MostSeconds && state.RemainingSeconds + StepSeconds <= MostSeconds,
+        _ => false,
+    };
+
+    /// <summary>[S-8111] The phase after one press of <paramref name="direction"/>, or null where <see cref="Can"/> says it does nothing.</summary>
+    public static PomodoroNudged? Apply(PomodoroState state, int lengthSeconds, int direction)
+    {
+        if (!Can(state, lengthSeconds, direction))
+        {
+            return null;
+        }
+
+        var delta = Math.Sign(direction) * StepSeconds;
+        return new PomodoroNudged(state with { RemainingSeconds = state.RemainingSeconds + delta }, lengthSeconds + delta);
+    }
+}
+
 /// <summary>[S-1987] The pomodoro's key map (<see cref="ControlKey"/>): a pure function of the key, so it is tested here and the view only carries the answer out.</summary>
 public static class PomodoroKeys
 {
@@ -137,5 +181,13 @@ public static class PomodoroKeys
         WidgetKey.Right => ControlKey.Next,
         WidgetKey.Home => ControlKey.Reset,
         _ => ControlKey.None,
+    };
+
+    /// <summary>[S-1987] [S-8111] The nudge keys: + or Up makes the phase 5 minutes longer (+1), − or Down shorter (−1); any other key 0.</summary>
+    public static int Nudge(WidgetKey key) => key switch
+    {
+        WidgetKey.Plus or WidgetKey.Up => 1,
+        WidgetKey.Minus or WidgetKey.Down => -1,
+        _ => 0,
     };
 }

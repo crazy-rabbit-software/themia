@@ -52,13 +52,29 @@ from the tests that pinned them under those numbers, which are the root's geomet
   Readout on the Hero steps (a one-readout widget, [S-6737]), sized on the longer phase's widest time
   (its figures as 8s, `PomodoroFace.Worst`) so neither a tick nor a new phase moves it, centred in
   its box, the phase ("Focus", "Break") its line under where it fits and "Next: Break 5:00" its
-  tooltip; Start (Pause while it runs) as the one main action and Reset and Skip as 32 icon buttons in
-  the Controls row at the bottom inset, centred, the icons giving way from the last on a narrow tile.
+  tooltip; Start (Pause while it runs) as the one main action and −, +, Reset and Skip as 32 icon
+  buttons after it in the Controls row at the bottom inset, centred, the icons giving way from the
+  last on a narrow tile (Skip, Reset, then the nudges, [S-8111]); where the row does not fit, none of
+  them shows.
   Skip loads the other phase in full, silently, keeping the running state.
 - **[S-1467]** *(Retired: the XL "N sessions done" row (dots and count) and the session counter are
   gone; XL shows the ring, the phase, the next phase and the controls like L.)*
 - **[S-1987]** Pomodoro keys (`PomodoroKeys.Of`): Space or Enter start / pause, Right skips to
-  the next phase, Home resets: the three buttons in their order. Nothing after the card left.
+  the next phase, Home resets: the three buttons in their order; + or Up and − or Down
+  (`PomodoroKeys.Nudge`) are the nudges ([S-8111]), at a bound doing nothing. Nothing after the card left.
+- **[S-8111]** The − and + nudge (issue 186, a student's request: change the time without going
+  into the menu): − makes the **current** phase 5 minutes shorter, + 5 minutes longer, running or
+  not, outside edit mode (the buttons take their own click, never the card's). One rule
+  (`PomodoroNudge`): the time left and the phase's length move together, so the time already gone and
+  the ring's or bar's share of it stay put, and an idle phase starts 5 minutes shorter or longer. A
+  press that would leave less than the menu's least (1 minute) or make the phase longer than its most
+  (180 minutes, [S-8101]) does nothing, its button disabled: a nudge is 5 minutes or nothing. The nudge
+  is this phase's alone, run state like the rest ([S-150]), never the stored Focus or Break length:
+  those lengths are the standard every phase loads, a nudge is "a bit more of this one", and a
+  write would change the standard from a button that says nothing about it (and, as run state is the
+  instance's, race the same widget on another monitor). The next flip, a skip or a reset loads the
+  menu's length again; a changed length in the menu while stopped does too. Debug: `--state running`
+  (9:24 left, going), `--state least` (a fresh 5-minute break, − disabled).
 - **[S-8110]** Its options are all on the properties menu ([S-3719], user request 2026-10-19); it
   has no settings page. Appearance ([S-3723]), then **Focus length** and **Break length** (typed,
   1–180 min, [S-3726], the clamped length at the end of the line, [S-8101]); under a divider

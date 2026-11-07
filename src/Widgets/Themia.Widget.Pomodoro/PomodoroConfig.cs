@@ -52,6 +52,12 @@ public sealed class PomodoroConfig : WidgetConfig, IStyled, IShownSettings<Sound
     [JsonIgnore]
     public bool DrawsBar => Style != PomodoroStyle.Digits;
 
+    /// <summary>[S-8101] The shortest phase, in minutes: the menu's least length and the least a nudge leaves ([S-8111]).</summary>
+    public const int MinMinutes = 1;
+
+    /// <summary>[S-8101] The longest phase, in minutes: the menu's most and the most a nudge makes ([S-8111]).</summary>
+    public const int MaxMinutes = 180;
+
     /// <summary>Length of a focus phase, 1 to 180 minutes.</summary>
     public int WorkMinutes { get; set; } = 25;
 
@@ -69,10 +75,10 @@ public sealed class PomodoroConfig : WidgetConfig, IStyled, IShownSettings<Sound
     public int Volume { get; set; } = DefaultVolume;
 
     [JsonIgnore]
-    public int EffectiveWorkMinutes => Math.Clamp(WorkMinutes, 1, 180);
+    public int EffectiveWorkMinutes => Math.Clamp(WorkMinutes, MinMinutes, MaxMinutes);
 
     [JsonIgnore]
-    public int EffectiveBreakMinutes => Math.Clamp(BreakMinutes, 1, 180);
+    public int EffectiveBreakMinutes => Math.Clamp(BreakMinutes, MinMinutes, MaxMinutes);
 
     [JsonIgnore]
     public int EffectiveVolume => Math.Clamp(Volume, 0, 100);
