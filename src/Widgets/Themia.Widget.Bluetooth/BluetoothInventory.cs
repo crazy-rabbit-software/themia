@@ -61,7 +61,7 @@ internal static class BluetoothInventory
     /// device node of the container for hands-free (HFP) headsets and the LE devices Windows reads
     /// itself. Requested by GUID and property id: it has no canonical name.
     /// </summary>
-    private const string BatteryProperty = "{104EA319-6EE2-4701-BD47-8DDBF425BBE5} 2";
+    private const string BatteryProperty = Themia.Sdk.Devices.DeviceBatteryRules.BluetoothBatteryProperty;
 
     private static readonly string[] RequestedProperties = [ConnectedProperty, AepContainerProperty];
 
