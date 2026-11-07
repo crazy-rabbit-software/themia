@@ -282,6 +282,72 @@ public static class LaunchTargets
             && string.Equals(left.Value, right.Value, StringComparison.OrdinalIgnoreCase);
     }
 
+    /// <summary>The shell folder that lists every app Start shows, packaged ones included.</summary>
+    public const string AppsFolderName = "AppsFolder";
+
+    /// <summary>
+    /// [S-1402] Whether <paramref name="id"/> is a packaged app's id (an AUMID):
+    /// <c>&lt;name&gt;_&lt;publisher id&gt;!&lt;app id&gt;</c>, the package name letters, digits, dots
+    /// and dashes, the publisher id 13 lower-case letters or digits, the app id letters, digits,
+    /// dots, dashes and underscores. Nothing else, so it is a name and never a path.
+    /// </summary>
+    public static bool IsPackagedAppId(string? id)
+    {
+        if (string.IsNullOrEmpty(id) || id.Length > 256)
+        {
+            return false;
+        }
+
+        var bang = id.IndexOf('!', StringComparison.Ordinal);
+
+        if (bang <= 0 || bang == id.Length - 1 || id.IndexOf('!', bang + 1) >= 0)
+        {
+            return false;
+        }
+
+        var family = id[..bang];
+        var app = id[(bang + 1)..];
+        var underscore = family.LastIndexOf('_');
+
+        if (underscore <= 0 || family.Length - underscore - 1 != 13)
+        {
+            return false;
+        }
+
+        var packageName = family[..underscore];
+        var publisher = family[(underscore + 1)..];
+
+        return packageName.All(static c => char.IsAsciiLetterOrDigit(c) || c is '.' or '-')
+            && !packageName.Contains("..", StringComparison.Ordinal)
+            && publisher.All(static c => char.IsAsciiDigit(c) || char.IsAsciiLetterLower(c))
+            && app.All(static c => char.IsAsciiLetterOrDigit(c) || c is '.' or '-' or '_')
+            && !app.Contains("..", StringComparison.Ordinal);
+    }
+
+    /// <summary>
+    /// [S-1402] The <c>shell:AppsFolder\&lt;AUMID&gt;</c> target of a Start menu item from its shell
+    /// parsing name (<c>::{4234d49b-…}\Claude_pzs8sxrjxfjjc!Claude</c>: the Apps folder's class id,
+    /// then the app's id), or null when its last part is not a packaged app's id (a desktop app's
+    /// item is found by its shortcut instead).
+    /// </summary>
+    public static string? AppsFolderTarget(string? parsingName)
+    {
+        if (string.IsNullOrWhiteSpace(parsingName))
+        {
+            return null;
+        }
+
+        var id = parsingName.Trim();
+        var slash = id.LastIndexOf('\\');
+
+        if (slash >= 0)
+        {
+            id = id[(slash + 1)..];
+        }
+
+        return IsPackagedAppId(id) ? ShellPrefix + AppsFolderName + @"\" + id : null;
+    }
+
     /// <summary>The <c>shell:</c> target for a well-known name, ready to store.</summary>
     public static string ShellTarget(string name) => ShellPrefix + name.Trim();
 
@@ -348,6 +414,19 @@ public static class LaunchTargets
         if (name.Length == 0)
         {
             return LaunchTarget.Refuse(LaunchRefusal.EmptyShellName);
+        }
+
+        // [S-1402] The one shell name with a separator: a packaged app's Apps-folder item,
+        // AppsFolder\<family>!<app id>, which is how Start opens an app that has no shortcut on disk
+        // (Claude, WhatsApp). Only that exact shape: the id after the backslash holds no separator,
+        // so it cannot step out of the Apps folder.
+        if (name.StartsWith(AppsFolderName + @"\", StringComparison.OrdinalIgnoreCase))
+        {
+            var id = name[(AppsFolderName.Length + 1)..];
+
+            return IsPackagedAppId(id)
+                ? new LaunchTarget(LaunchKind.ShellNamespace, ShellPrefix + AppsFolderName + @"\" + id, LaunchRefusal.None)
+                : LaunchTarget.Refuse(LaunchRefusal.InvalidShellName);
         }
 
         // A shell name is a namespace name or a class id, and nothing else. No separators, so it

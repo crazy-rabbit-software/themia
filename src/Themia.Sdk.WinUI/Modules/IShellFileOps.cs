@@ -50,8 +50,8 @@ public interface IShellFileOps
     /// <summary>[S-1324] "Always keep on this device" / "Free up space" on each path: how many took it.</summary>
     int SetCloudPin(IReadOnlyList<string> paths, CloudPin pin);
 
-    /// <summary>A <c>.lnk</c>'s target (with its arguments unless <paramref name="withoutArguments"/>), or null.</summary>
-    string? ResolveShortcut(string path, bool withoutArguments = false);
+    /// <summary>A <c>.lnk</c>'s target, or null; with <paramref name="plainOnly"/> also null for a link that passes arguments or has its own icon ([S-1401]).</summary>
+    string? ResolveShortcut(string path, bool plainOnly = false);
 
     /// <summary>Drag <paramref name="paths"/> out of <paramref name="window"/> to any app, in OLE's own loop: what the target did.</summary>
     DropEffect DragOut(IReadOnlyList<string> paths, DropEffect allowed, nint window);

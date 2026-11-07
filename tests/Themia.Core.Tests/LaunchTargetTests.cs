@@ -286,4 +286,46 @@ public class LaunchTargetTests
             Assert.False(string.IsNullOrWhiteSpace(LaunchTargets.ShellDisplayName(target.Value)));
         }
     }
+
+    // ---- [S-1402] a packaged app's Apps-folder item ------------------------------------------------
+
+    [Theory]
+    [InlineData(@"shell:AppsFolder\Claude_pzs8sxrjxfjjc!Claude")]
+    [InlineData(@"shell:AppsFolder\5319275A.WhatsAppDesktop_cv1g1gvanyjgm!App")]
+    [InlineData(@"shell:appsfolder\Microsoft.WindowsCalculator_8wekyb3d8bbwe!App")]
+    public void S1402_issue_189_a_packaged_apps_folder_item_is_a_shell_target(string raw)
+    {
+        var target = LaunchTargets.Classify(raw);
+
+        Assert.Equal(LaunchKind.ShellNamespace, target.Kind);
+        Assert.StartsWith(@"shell:AppsFolder\", target.Value, StringComparison.Ordinal);
+    }
+
+    [Theory]
+    [InlineData(@"shell:AppsFolder\..\..\Windows")]
+    [InlineData(@"shell:AppsFolder\C:\Windows\calc.exe")]
+    [InlineData(@"shell:AppsFolder\Claude_pzs8sxrjxfjjc!Claude\x")]
+    [InlineData(@"shell:AppsFolder\Claude_short!Claude")]
+    [InlineData(@"shell:AppsFolder\Claude_pzs8sxrjxfjjc!")]
+    [InlineData(@"shell:AppsFolder\Claude_pzs8sxrjxfjjc!Cl&aude")]
+    [InlineData(@"shell:AppsFolder\Claude_PZS8SXRJXFJJC!Claude")]
+    [InlineData(@"shell:AppsFolder\")]
+    [InlineData(@"shell:Downloads\x")]
+    public void S1402_any_other_shell_name_with_a_separator_is_still_refused(string raw)
+    {
+        var target = LaunchTargets.Classify(raw);
+
+        Assert.False(target.IsValid);
+        Assert.Equal(LaunchRefusal.InvalidShellName, target.Refusal);
+    }
+
+    [Theory]
+    [InlineData(@"::{4234d49b-0245-4df3-b780-3893943456e1}\Claude_pzs8sxrjxfjjc!Claude", @"shell:AppsFolder\Claude_pzs8sxrjxfjjc!Claude")]
+    [InlineData("Claude_pzs8sxrjxfjjc!Claude", @"shell:AppsFolder\Claude_pzs8sxrjxfjjc!Claude")]
+    [InlineData(@"::{4234d49b-0245-4df3-b780-3893943456e1}\{6D809377-6AF0-444B-8957-A3773F02200E}\Notepad++\notepad++.exe", null)]
+    [InlineData(@"::{4234d49b-0245-4df3-b780-3893943456e1}\Microsoft.Windows.Explorer", null)]
+    [InlineData("", null)]
+    [InlineData(null, null)]
+    public void S1402_issue_189_a_start_menu_items_parsing_name_gives_its_apps_folder_target(string? parsing, string? expected)
+        => Assert.Equal(expected, LaunchTargets.AppsFolderTarget(parsing));
 }

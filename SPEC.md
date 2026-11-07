@@ -7949,7 +7949,10 @@ Tests: `ShortcutsDropLayoutTests`; the layout item's config, the module host's `
 - [S-1400], [S-1401], [S-1410], [S-1415]: moved with the Shortcuts widget into its module's `SPEC.md` (`src/Widgets/Themia.Widget.Shortcuts/`).
 - [S-1402] Browser links: `UniformResourceLocatorW`, else the http(s) lines of the text. A Start menu app
   (shell items, no paths) is found by name among the Start menu's shortcuts and added as that `.lnk`; a
-  Store-only app with no shortcut is not added (logged).
+  packaged (Store / MSIX) app with no shortcut is added as its Apps-folder item
+  `shell:AppsFolder\<AUMID>` from the item's parsing name, named as Start names it (issue 189: Claude).
+  `LaunchTargets` accepts that one shell name with a separator, and only for a packaged app's id
+  (`<name>_<13-char publisher id>!<app id>`, `IsPackagedAppId`); anything else is skipped (logged).
 - [S-1403] App layout tree: a pane or a split (side by side / stacked, first-child share 0.05..0.95).
   Split keeps the pane as the first half plus a new empty pane; remove gives the sibling the space and
   never leaves zero panes; depth ≤ 6.
