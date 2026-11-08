@@ -1,4 +1,4 @@
-"""Apply a triage plan to crazy-rabbit-software/themia issues and the nwalser/projects/4 board.
+"""Apply a triage plan to crazy-rabbit-software/themia issues (labels, type, milestone, issue fields).
 
     python -X utf8 .claude/skills/github-issues/apply.py plan.json [--dry-run]
 
@@ -10,8 +10,8 @@ plan.json is a list of entries, one per issue; every key but "n" is optional:
      "milestone": "v1.0.0" | null            (null removes it; omit to leave it)
      "assign": false                         (default: nwalser is added to every issue)
      "status": "Todo" | "In progress" | "Blocked" | "Done not Tested" | "Done not Released" | "Done",
-     "priority": "Low" | "Medium" | "High",
-     "size": "XS" | "S" | "M" | "L" | "XL",
+     "priority": "Low" | "Medium" | "High" | "Urgent",
+     "effort": "Low" | "Medium" | "High",
      "parent": 76,                           (becomes a sub-issue of #76)
      "comment": "path/to/reply.md" or the text itself,
      "close": "completed" | "not planned" | {"duplicate": 132}}
@@ -27,10 +27,11 @@ import sys
 from pathlib import Path
 
 REPO = "crazy-rabbit-software/themia"
-OWNER = "nwalser"
-PROJECT = 4
-PROJECT_ID = "PVT_kwHOAfy6XM4BVSm_"
+ORG = "crazy-rabbit-software"
 ME = "nwalser"
+
+# Plan key -> the organization's issue field (Status, Priority, Effort are single selects).
+FIELDS = (("Status", "status"), ("Priority", "priority"), ("Effort", "effort"))
 
 DRY = "--dry-run" in sys.argv
 failures = []
@@ -48,34 +49,19 @@ def gh(*args, capture=False):
     return r.stdout
 
 
-def board():
-    """Field ids, option ids, and the board item of every issue number."""
-    fields = json.loads(subprocess.run(
-        ["gh", "project", "field-list", str(PROJECT), "--owner", OWNER, "--format", "json"],
-        capture_output=True, text=True, encoding="utf-8", check=True).stdout)["fields"]
-    options = {f["name"]: (f["id"], {o["name"]: o["id"] for o in f.get("options", [])}) for f in fields}
-    items = json.loads(subprocess.run(
-        ["gh", "project", "item-list", str(PROJECT), "--owner", OWNER, "--limit", "1000", "--format", "json"],
-        capture_output=True, text=True, encoding="utf-8", check=True).stdout)["items"]
-    by_number = {i["content"]["number"]: i["id"] for i in items
-                 if i.get("content", {}).get("repository") == REPO and "number" in i.get("content", {})}
-    return options, by_number
-
-
-def item_for(n, items):
-    if n in items:
-        return items[n]
-    out = gh("project", "item-add", str(PROJECT), "--owner", OWNER,
-             "--url", f"https://github.com/{REPO}/issues/{n}", "--format", "json")
-    if out:
-        items[n] = json.loads(out)["id"]
-        return items[n]
-    return None
+def issue_fields():
+    """{field name: (field id, {option name: option id})} of the organization's issue fields."""
+    q = ('{organization(login:"%s"){issueFields(first:50){nodes{... on IssueFieldSingleSelect'
+         '{id name options{id name}}}}}}' % ORG)
+    out = subprocess.run(["gh", "api", "graphql", "-f", f"query={q}"],
+                         capture_output=True, text=True, encoding="utf-8", check=True).stdout
+    nodes = json.loads(out)["data"]["organization"]["issueFields"]["nodes"]
+    return {f["name"]: (f["id"], {o["name"]: o["id"] for o in f["options"]}) for f in nodes if f}
 
 
 def main():
     plan = json.loads(Path(sys.argv[1]).read_text(encoding="utf-8"))
-    options, items = board()
+    options = issue_fields()
 
     for e in plan:
         n = e["n"]
@@ -106,15 +92,22 @@ def main():
         if edit:
             gh("issue", "edit", str(n), "-R", REPO, *edit)
 
-        for field, key in (("Status", "status"), ("Priority", "priority"), ("Size", "size")):
-            if key in e:
+        values = []
+        for field, key in FIELDS:
+            if key not in e:
+                continue
+            if field not in options:
+                failures.append(f"#{n}: no issue field '{field}' in {ORG}")
+            elif e[key] not in options[field][1]:
+                failures.append(f"#{n}: no {field} option '{e[key]}'")
+            else:
                 field_id, opts = options[field]
-                item = item_for(n, items)
-                if item and e[key] in opts:
-                    gh("project", "item-edit", "--id", item, "--project-id", PROJECT_ID,
-                       "--field-id", field_id, "--single-select-option-id", opts[e[key]])
-                elif e[key] not in opts:
-                    failures.append(f"#{n}: no {field} option '{e[key]}'")
+                values.append(f'{{fieldId:"{field_id}",singleSelectOptionId:"{opts[e[key]]}"}}')
+        if values:
+            node = gh("api", f"repos/{REPO}/issues/{n}", "--jq", ".node_id") if not DRY else "<node>"
+            if node:
+                gh("api", "graphql", "-f", "query=mutation{setIssueFieldValue(input:{issueId:\"%s\","
+                   "issueFields:[%s]}){issue{number}}}" % (node.strip(), ",".join(values)), "--silent")
 
         if "parent" in e:
             child = gh("api", f"repos/{REPO}/issues/{n}", "--jq", ".id")

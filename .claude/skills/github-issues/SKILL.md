@@ -1,12 +1,13 @@
 ---
 name: github-issues
-description: Handle Themia's GitHub issues (crazy-rabbit-software/themia) - read the ones waiting on Nathaniel, reply in his voice, triage them (issue type, labels, milestone, assignee, board Status/Priority, sub-issues, duplicates) and fix what the winui code still gets wrong. Use when the user says "handle the issues", "answer the GitHub issues", "triage issues", or /github-issues.
+description: Handle Themia's GitHub issues (crazy-rabbit-software/themia) - read the ones waiting on Nathaniel, reply in his voice, triage them (issue type, labels, milestone, assignee, the Status/Priority issue fields, sub-issues, duplicates) and fix what the winui code still gets wrong. Use when the user says "handle the issues", "answer the GitHub issues", "triage issues", or /github-issues.
 ---
 
 # Handle Themia's GitHub issues
 
-Repo `crazy-rabbit-software/themia` (public). Board: user project `nwalser/projects/4`
-(owner `nwalser`, id `PVT_kwHOAfy6XM4BVSm_`). Maintainer login `nwalser`. The code to check
+Repo `crazy-rabbit-software/themia` (public). State lives on the issue itself, in the
+organization's issue fields (Status, Priority, Effort; no project board since 2026-11-08). Maintainer
+login `nwalser`. The code to check
 against is this checkout's `winui` branch: the WinUI rebuild, manifest version 1.0.0, which replies
 call "the next major version". The released app (v0.15.x, Tauri) is on `main`
 (`git show main:<path>`, never switch branches).
@@ -77,14 +78,14 @@ Nathaniel
 | Flag labels | `needs-info` (waiting on reporter), `upstream` (Windows or a service limits it), `wontfix`, `duplicate`, `invalid` (spam, empty) |
 | Milestone | `v1.0.0` = done or fixed in winui (the next major version). No milestone = backlog. `v0.16.0` is retired: move its issues out |
 | Assignee | always `nwalser`, on every issue touched, open or closed (his rule, 2026-11-07); `apply.py` adds him unless an entry says `"assign": false` |
-| Board Status | `Todo`; `In progress`; `Blocked` (waiting on outside: Google verification); `Done not Tested` (fixed in code, needs a live pass: desktop layering, sign-in, displays, shell); `Done not Released` (done in winui, verified); `Done` (released) |
-| Board Priority | `High` crash, data loss, app or a core widget unusable; `Medium` broken feature with a workaround, popular request; `Low` nice to have |
-| Size | only when it helps planning a Todo |
+| Status (issue field) | `Todo`; `In progress`; `Blocked` (waiting on outside: Google verification); `Done not Tested` (fixed in code, needs a live pass: desktop layering, sign-in, displays, shell); `Done not Released` (done in winui, verified); `Done` (released) |
+| Priority (issue field) | `Urgent` release blocker; `High` crash, data loss, app or a core widget unusable; `Medium` broken feature with a workaround, popular request; `Low` nice to have |
+| Effort (issue field) | `Low` / `Medium` / `High`, only when it helps planning a Todo |
 | Relatives | exact duplicate -> close `--duplicate-of` the older/better issue after a comment pointing there; parts of a bigger request -> sub-issue of the umbrella (`parent`) |
 | Closing | duplicate; "completed" when an existing widget already does it; "not planned" for declined, `invalid`, or `needs-info` silent for 30+ days. Issues done in winui stay open until 1.0 ships |
 
 When 1.0 ships: close every `v1.0.0` issue as completed with a short "This is in v1.0, available
-in the Microsoft Store" comment, set board Status `Done`.
+in the Microsoft Store" comment, set Status `Done`.
 
 ## 5. Apply
 
@@ -99,8 +100,10 @@ python -X utf8 .claude/skills/github-issues/apply.py <plan.json>
 Keep the plan and the log in `runs/<date>.json` / `.log` next to this file (git-ignored). An HTTP 410 means
 GitHub deleted the issue (spam): skip it. A "Something went wrong" GraphQL error is transient:
 rerun that one edit. Comments are public: post them only when the user asked to respond in this request. Labels must
-exist first (`gh label list`); create a missing `area:*` with colour `c5def5`. `gh project` needs
-the `project` scope (`gh auth refresh -s project`).
+exist first (`gh label list`); create a missing `area:*` with colour `c5def5`. Setting an issue
+field needs only the `repo` scope; creating or changing a field itself (`createIssueField`) needs
+`admin:org` (`gh auth refresh -h github.com -s admin:org`). List the fields with
+`gh api orgs/crazy-rabbit-software/issue-fields`; an issue's values are its `issue_field_values`.
 
 ## 6. Report
 
