@@ -1,12 +1,12 @@
 ---
 name: github-issues
-description: Handle Themia's GitHub issues (crazy-rabbit-software/themia) - read the ones waiting on Nathaniel, reply in his voice, triage them (issue type, labels, milestone, assignee, the Status/Priority issue fields, sub-issues, duplicates) and fix what the winui code still gets wrong. Use when the user says "handle the issues", "answer the GitHub issues", "triage issues", or /github-issues.
+description: Handle Themia's GitHub issues (crazy-rabbit-software/themia) - read the ones waiting on Nathaniel, reply in his voice, triage them (issue type, labels, milestone, assignee, the Stage/Priority issue fields, sub-issues, duplicates) and fix what the winui code still gets wrong. Use when the user says "handle the issues", "answer the GitHub issues", "triage issues", or /github-issues.
 ---
 
 # Handle Themia's GitHub issues
 
 Repo `crazy-rabbit-software/themia` (public). State lives on the issue itself, in the
-organization's issue fields (Status, Priority, Effort; no project board since 2026-11-08). Maintainer
+organization's issue fields (Stage, Priority, Effort; GitHub reserves the name "Status"; no project board since 2026-11-08). Maintainer
 login `nwalser`. The code to check
 against is this checkout's `winui` branch: the WinUI rebuild, manifest version 1.0.0, which replies
 call "the next major version". The released app (v0.15.x, Tauri) is on `main`
@@ -78,14 +78,14 @@ Nathaniel
 | Flag labels | `needs-info` (waiting on reporter), `upstream` (Windows or a service limits it), `wontfix`, `duplicate`, `invalid` (spam, empty) |
 | Milestone | `v1.0.0` = done or fixed in winui (the next major version). No milestone = backlog. `v0.16.0` is retired: move its issues out |
 | Assignee | always `nwalser`, on every issue touched, open or closed (his rule, 2026-11-07); `apply.py` adds him unless an entry says `"assign": false` |
-| Status (issue field) | `Todo`; `In progress`; `Blocked` (waiting on outside: Google verification); `Done not Tested` (fixed in code, needs a live pass: desktop layering, sign-in, displays, shell); `Done not Released` (done in winui, verified); `Done` (released) |
+| Stage (issue field) | `Todo`; `In progress`; `Blocked` (waiting on outside: Google verification); `Done not Tested` (fixed in code, needs a live pass: desktop layering, sign-in, displays, shell); `Done not Released` (done in winui, verified); `Done` (released) |
 | Priority (issue field) | `Urgent` release blocker; `High` crash, data loss, app or a core widget unusable; `Medium` broken feature with a workaround, popular request; `Low` nice to have |
 | Effort (issue field) | `Low` / `Medium` / `High`, only when it helps planning a Todo |
 | Relatives | exact duplicate -> close `--duplicate-of` the older/better issue after a comment pointing there; parts of a bigger request -> sub-issue of the umbrella (`parent`) |
 | Closing | duplicate; "completed" when an existing widget already does it; "not planned" for declined, `invalid`, or `needs-info` silent for 30+ days. Issues done in winui stay open until 1.0 ships |
 
 When 1.0 ships: close every `v1.0.0` issue as completed with a short "This is in v1.0, available
-in the Microsoft Store" comment, set Status `Done`.
+in the Microsoft Store" comment, set Stage `Done`.
 
 ## 5. Apply
 

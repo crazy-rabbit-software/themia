@@ -9,7 +9,7 @@ plan.json is a list of entries, one per issue; every key but "n" is optional:
      "add": ["area:files"], "remove": ["widget-request"],
      "milestone": "v1.0.0" | null            (null removes it; omit to leave it)
      "assign": false                         (default: nwalser is added to every issue)
-     "status": "Todo" | "In progress" | "Blocked" | "Done not Tested" | "Done not Released" | "Done",
+     "stage": "Todo" | "In progress" | "Blocked" | "Done not Tested" | "Done not Released" | "Done",
      "priority": "Low" | "Medium" | "High" | "Urgent",
      "effort": "Low" | "Medium" | "High",
      "parent": 76,                           (becomes a sub-issue of #76)
@@ -31,7 +31,7 @@ ORG = "crazy-rabbit-software"
 ME = "nwalser"
 
 # Plan key -> the organization's issue field (Status, Priority, Effort are single selects).
-FIELDS = (("Status", "status"), ("Priority", "priority"), ("Effort", "effort"))
+FIELDS = (("Stage", "stage"), ("Priority", "priority"), ("Effort", "effort"))
 
 DRY = "--dry-run" in sys.argv
 failures = []
