@@ -107,6 +107,10 @@ by `tests/Themia.Modules.Tests`); its config and rules under the root's tags are
 - **[S-1335]** Card menu: in navigate mode Search, Forward (when there is one) and Home (away from the widget's
   folder), the header having room for two buttons only ([S-1326]); then Open in Explorer, Refresh. The views, the
   columns, hidden items and file extensions are settings only ([S-1746]).
+- **[S-1338]** Sort by name is Explorer's order (`FolderRules.CompareNatural`, issue 194): a run of digits
+  compares by its value, so "Week 2" comes before "Week 10", and the rest ignores case; names that still tie
+  ("7" and "007", "README" and "readme") get one fixed ordinal order. Folders stay first, and the name is the
+  tie-break of the date and size sorts too.
 - **[S-1339]** *(Retired: the debug widget gallery and its fixtures are gone, [S-1863].)*
 - **[S-4120]** *(Retired: one widget kind per layout; they are one kind with four styles, [S-4123].)*
 - **[S-4121]** Each style shows only what it draws (user decision 2026-10-12;

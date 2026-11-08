@@ -41,6 +41,38 @@ public class FolderRulesTests
     }
 
     [Fact]
+    public void S1338_issue_194_numbers_in_names_sort_by_value_as_Explorer_does()
+    {
+        var entries = new[] { Dir("Week 10"), Dir("Week 2"), Dir("Week 11"), Dir("Week 1"), Dir("week 3") };
+
+        Assert.Equal(["Week 1", "Week 2", "week 3", "Week 10", "Week 11"], Names(Arrange(entries)));
+        Assert.Equal(["Week 11", "Week 10", "week 3", "Week 2", "Week 1"], Names(Arrange(entries, descending: true)));
+    }
+
+    [Fact]
+    public void S1338_digit_runs_compare_by_value_whatever_their_length_or_leading_zeros()
+    {
+        var entries = new[]
+        {
+            File("img12.png"), File("img007.png"), File("img7b.png"), File("img99999999999999999999.png"),
+            File("img100000000000000000000.png"), File("img.png"), File("img2.png"),
+        };
+
+        Assert.Equal(
+            ["img.png", "img2.png", "img007.png", "img7b.png", "img12.png", "img99999999999999999999.png", "img100000000000000000000.png"],
+            Names(Arrange(entries)));
+    }
+
+    [Fact]
+    public void S1338_names_equal_in_value_still_have_one_fixed_order()
+    {
+        var ordered = Names(Arrange([File("v7"), File("v007")]));
+        var again = Names(Arrange([File("v007"), File("v7")]));
+
+        Assert.Equal(ordered, again);
+    }
+
+    [Fact]
     public void Modified_sorts_oldest_first_and_newest_first_when_reversed()
     {
         var entries = new[] { File("b", day: 5), File("a", day: 9), File("c", day: 1) };

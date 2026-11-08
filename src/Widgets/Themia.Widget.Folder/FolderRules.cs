@@ -121,8 +121,53 @@ public static class FolderRules
         /// </summary>
         private static int CompareNames(string x, string y)
         {
-            var insensitive = string.Compare(x, y, StringComparison.OrdinalIgnoreCase);
+            var insensitive = CompareNatural(x, y);
             return insensitive != 0 ? insensitive : string.CompareOrdinal(x, y);
         }
+    }
+
+    /// <summary>
+    /// [S-1338] Explorer's name order (its StrCmpLogicalW, issue 194): a run of digits compares by
+    /// its number, so "Week 2" comes before "Week 10", and everything else compares ignoring case.
+    /// Written out because the app runs with invariant globalization, where culture compares are
+    /// ordinal. Runs equal in value ("7" and "007") tie here; the caller's ordinal tie-break orders them.
+    /// </summary>
+    internal static int CompareNatural(string x, string y)
+    {
+        int i = 0, j = 0;
+        while (i < x.Length && j < y.Length)
+        {
+            if (char.IsAsciiDigit(x[i]) && char.IsAsciiDigit(y[j]))
+            {
+                int iEnd = i, jEnd = j;
+                while (iEnd < x.Length && char.IsAsciiDigit(x[iEnd])) iEnd++;
+                while (jEnd < y.Length && char.IsAsciiDigit(y[jEnd])) jEnd++;
+
+                // Compare the values without parsing (a run can be longer than any integer):
+                // drop leading zeros, then the longer run is the larger, else digit by digit.
+                var a = x.AsSpan(i, iEnd - i).TrimStart('0');
+                var b = y.AsSpan(j, jEnd - j).TrimStart('0');
+                var byValue = a.Length != b.Length ? a.Length.CompareTo(b.Length) : a.SequenceCompareTo(b);
+                if (byValue != 0)
+                {
+                    return Math.Sign(byValue);
+                }
+
+                i = iEnd;
+                j = jEnd;
+                continue;
+            }
+
+            var byChar = char.ToUpperInvariant(x[i]).CompareTo(char.ToUpperInvariant(y[j]));
+            if (byChar != 0)
+            {
+                return Math.Sign(byChar);
+            }
+
+            i++;
+            j++;
+        }
+
+        return (x.Length - i).CompareTo(y.Length - j);
     }
 }
