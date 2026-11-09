@@ -1,0 +1,16 @@
+{
+  "panels.notifications.allow": "ခွင့်ပြုရန်",
+  "panels.notifications.clearAll": "အားလုံး ရှင်းရန်",
+  "panels.notifications.clearApp": "{app} မှ အားလုံး ရှင်းရန်",
+  "panels.notifications.denied": "Themia အတွက် အသိပေးချက် ဝင်ရောက်ခွင့် ပိတ်ထားသည်",
+  "panels.notifications.desc": "အက်ပ်အလိုက် အုပ်စုဖွဲ့ထားသော Windows ၏ အသိပေးချက်များ",
+  "panels.notifications.dismiss": "ပိတ်ရန်",
+  "panels.notifications.label": "အသိပေးချက်များ",
+  "panels.notifications.none": "အသိပေးချက် အသစ် မရှိပါ",
+  "panels.notifications.open": "{app} ဖွင့်ရန်",
+  "panels.notifications.openSettings": "ဆက်တင်များ ဖွင့်ရန်",
+  "panels.notifications.seeFewer": "နည်းနည်း ပြရန်",
+  "panels.notifications.seeMore": "ပိုပြရန် ({count})",
+  "panels.notifications.unspecified": "Themia ကို သင့်အသိပေးချက်များ ဖတ်ခွင့်ပြုပါ",
+  "panels.notifications.unsupported": "ဤ Windows ဗားရှင်းတွင် ဖတ်ရန် အသိပေးချက်စာရင်း မရှိပါ"
+}

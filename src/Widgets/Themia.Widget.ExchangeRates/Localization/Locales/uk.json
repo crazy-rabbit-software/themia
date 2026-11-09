@@ -1,0 +1,14 @@
+{
+  "online.rates.label": "Курси валют",
+  "online.rates.desc": "Довідкові курси Європейського центрального банку",
+  "online.rates.fix": "ЄЦБ, {date}",
+  "online.rates.fixTooltip": "Довідкові курси на {date} від Європейського центрального банку",
+  "online.rates.perBase": "за {code}",
+  "online.rates.missing": "Не опубліковано",
+  "online.rates.settings.base.label": "Базова валюта",
+  "online.rates.settings.base.region": "Регіон Windows ({code})",
+  "online.rates.settings.quote.label": "Валюта",
+  "online.rates.settings.quote.default": "За замовчуванням ({code})",
+  "styles.rates.chart": "Графік",
+  "styles.rates.number": "Число"
+}

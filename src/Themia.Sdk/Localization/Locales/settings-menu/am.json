@@ -1,0 +1,20 @@
+{
+  "settingsMenu.onlineUpdates": "የመስመር ላይ ዝማኔዎች",
+  "settingsMenu.gameMode": "በሙሉ ማያ ገጽ መተግበሪያዎች ጊዜ ለአፍታ አቁም",
+  "settingsMenu.findLanguage": "ቋንቋ ፈልግ",
+  "settingsMenu.proFree": "ነጻ",
+  "settingsMenu.backup": "ምትኬ እና ዳግም ማስጀመር",
+  "settingsMenu.about": "ስለ Themia",
+  "settingsMenu.exportSettings": "ቅንብሮችን ላክ…",
+  "settingsMenu.importSettings": "ቅንብሮችን አስመጣ…",
+  "settingsMenu.resetAll": "ሁሉንም ቅንብሮች ዳግም አስጀምር…",
+  "settingsMenu.reset": "ዳግም አስጀምር",
+  "settingsMenu.exported": "እንደ {file} ተቀምጧል",
+  "settingsMenu.imported": "ቅንብሮች መጥተዋል። የነበሩዎት እንደ {backup} ተቀምጠዋል።",
+  "settingsMenu.resetDone": "ቅንብሮች ዳግም ተጀምረዋል። የነበሩዎት እንደ {backup} ተቀምጠዋል።",
+  "settingsMenu.purchasing": "Microsoft Storeን በመጠበቅ ላይ…",
+  "settingsMenu.aboutOpenMeteo": "የአየር ሁኔታ፣ ዝናብና የአየር ጥራት። የአየር ጥራት ከCopernicus Atmosphere Monitoring Service (CAMS) ጭምር።",
+  "settingsMenu.uninstallEllipsis": "አራግፍ…",
+  "settingsMenu.uninstallDataGoes": "ዊጀቶችዎ፣ ቅንብሮችዎና መለያዎችዎም ይሰረዛሉ።",
+  "settingsMenu.uninstallDeleteData": "ውሂቤንም ሰርዝ"
+}

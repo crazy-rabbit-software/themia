@@ -1,0 +1,10 @@
+{
+  "forecast.daysLabel": "Показані дні",
+  "forecast.layoutColumns": "Стовпці",
+  "forecast.layoutRows": "Рядки",
+  "styles.forecast.curve": "Крива температури",
+  "styles.forecast.grid": "Сітка",
+  "widgetsA.catalog.forecast.description": "Найближчі кілька днів",
+  "widgetsA.catalog.forecast.label": "Прогноз",
+  "widgetsC.weather.settings.showPrecipitation.label": "Показувати опади"
+}

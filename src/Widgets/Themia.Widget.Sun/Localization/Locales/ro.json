@@ -1,0 +1,16 @@
+{
+  "widgetsC.sun.label": "Soare",
+  "widgetsC.sun.desc": "Răsărit, apus și lumina zilei",
+  "styles.sun.arc": "Arc",
+  "styles.sun.dayBar": "Bara zilei",
+  "styles.sun.times": "Doar orele",
+  "sunMoon.events.label": "Evenimente",
+  "widgetUi.daylight": "Lumina zilei",
+  "widgetsC.sunMoon.civil": "civil",
+  "widgetsC.sunMoon.dawn": "Zori",
+  "widgetsC.sunMoon.dusk": "Amurg",
+  "widgetsC.sunMoon.short.daylight": "Lumina zilei",
+  "widgetsC.sunMoon.short.sunrise": "Răsărit",
+  "widgetsC.sunMoon.short.sunset": "Apus",
+  "widgetsC.sunMoon.solarNoon": "Amiaza solară"
+}

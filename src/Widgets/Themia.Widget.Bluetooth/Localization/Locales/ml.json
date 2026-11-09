@@ -1,0 +1,30 @@
+{
+  "widget.bluetooth.label": "Bluetooth",
+  "widgetsA.bluetooth.connected": "കണക്റ്റ് ചെയ്തു",
+  "widgetsA.bluetooth.connectedCount": {
+    "one": "{count} എണ്ണം കണക്റ്റ് ചെയ്തു",
+    "other": "{count} എണ്ണം കണക്റ്റ് ചെയ്തു"
+  },
+  "widgetsA.bluetooth.kind.audio": "ഓഡിയോ",
+  "widgetsA.bluetooth.kind.controller": "കൺട്രോളർ",
+  "widgetsA.bluetooth.kind.device": "ഉപകരണം",
+  "widgetsA.bluetooth.kind.keyboard": "കീബോർഡ്",
+  "widgetsA.bluetooth.kind.mouse": "മൗസ്",
+  "widgetsA.bluetooth.kind.pen": "പേന",
+  "widgetsA.bluetooth.kind.phone": "ഫോൺ",
+  "widgetsA.bluetooth.kind.watch": "വാച്ച്",
+  "widgetsA.bluetooth.paired": "ജോടിയാക്കി",
+  "widgetsA.bluetooth.settings.connectedOnly.label": "കണക്റ്റ് ചെയ്തവ മാത്രം",
+  "widgetsA.bluetooth.settings.connection.label": "കണക്ഷൻ",
+  "widgetsA.bluetooth.settings.icon.label": "ഉപകരണ ഐക്കൺ",
+  "widgetsA.bluetooth.settings.signal.label": "സിഗ്നൽ ശക്തി",
+  "widgetsA.bluetooth.status.failed": "ജോടിയാക്കിയ ഉപകരണങ്ങൾ വായിക്കാനായില്ല",
+  "widgetsA.bluetooth.status.loading": "ജോടിയാക്കിയ ഉപകരണങ്ങൾ വായിക്കുന്നു",
+  "widgetsA.bluetooth.status.noRadio": "ഈ PC-യിൽ Bluetooth റേഡിയോയില്ല",
+  "widgetsA.bluetooth.status.none": "ജോടിയാക്കിയ ഉപകരണങ്ങളില്ല",
+  "widgetsA.bluetooth.status.permissionDenied": "റേഡിയോകളിലേക്ക് Windows ആക്സസ് അനുവദിച്ചിട്ടില്ല",
+  "widgetsA.bluetooth.status.radioOff": "Bluetooth ഓഫാണ്",
+  "widgetsA.bluetooth.unknownDevice": "അജ്ഞാത ഉപകരണം",
+  "widgetsA.catalog.bluetooth.description": "ജോടിയാക്കിയ ഉപകരണങ്ങളും അവയുടെ ബാറ്ററിയും",
+  "widget.battery.label": "ബാറ്ററി"
+}

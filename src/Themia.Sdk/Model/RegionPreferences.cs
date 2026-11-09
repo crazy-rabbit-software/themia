@@ -41,6 +41,16 @@ public enum AppLanguage
     Persian = 28,
     Thai = 29,
     Gujarati = 30,
+    Malay = 31,
+    Ukrainian = 32,
+    Romanian = 33,
+    Greek = 34,
+    Czech = 35,
+    Kannada = 36,
+    Malayalam = 37,
+    Amharic = 38,
+    Yoruba = 39,
+    Burmese = 40,
 }
 
 /// <summary>[S-3771] The clock the widgets tell time on: Windows' own choice, or a fixed one.</summary>

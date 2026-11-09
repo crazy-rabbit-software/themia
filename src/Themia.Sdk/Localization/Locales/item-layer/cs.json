@@ -1,0 +1,9 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "shell.items.background": "Pozadí položky",
+  "shell.items.text": "Barva textu položky",
+  "shell.items.textShort": "Text položky",
+  "shell.fill.transparent": "Průhledné",
+  "shell.fill.opacity": "Neprůhlednost",
+  "shell.fill.withOpacity": "{colour}, {percent}"
+}

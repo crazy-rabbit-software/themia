@@ -1,0 +1,12 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "styles.audioVisualizer.bars": "Bar",
+  "styles.audioVisualizer.desc": "Apa sahaja yang dimainkan PC ini, sebagai bar bergerak, gelombang atau garisan",
+  "styles.audioVisualizer.label": "Pemvisual audio",
+  "styles.audioVisualizer.led": "LED",
+  "styles.audioVisualizer.mirrored": "Bercermin",
+  "styles.audioVisualizer.radial": "Jejarian",
+  "styles.audioVisualizer.wave": "Gelombang",
+  "styles.audioVisualizer.waveform": "Bentuk gelombang",
+  "widgetsC.visualizer.unavailable": "Output audio tidak tersedia"
+}

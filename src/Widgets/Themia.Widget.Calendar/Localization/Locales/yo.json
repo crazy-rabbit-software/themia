@@ -1,0 +1,31 @@
+{
+  "calendar.agendaEvents.label": "Àwọn ìṣẹ̀lẹ̀ àkójọ",
+  "calendar.noEventsToday": "Kò sí ìṣẹ̀lẹ̀ lónìí",
+  "calendar.noUpcoming": "Kò sí ìṣẹ̀lẹ̀ tó ń bọ̀.",
+  "calendar.today": "Òní",
+  "common.next": "Èyí tó kàn",
+  "styles.calendar.agenda": "Àkójọ ìṣẹ̀lẹ̀",
+  "styles.calendar.day": "Ọjọ́",
+  "styles.calendar.desc": "Àwọn ìṣẹ̀lẹ̀ àti ọjọ́ìbí rẹ ní oṣù, ọ̀sẹ̀, ọjọ́ tàbí ọdún, tàbí bí àkójọ ìṣẹ̀lẹ̀",
+  "styles.calendar.label": "Kàlẹ́ńdà",
+  "styles.calendar.month": "Oṣù",
+  "styles.calendar.week": "Ọ̀sẹ̀",
+  "styles.calendar.year": "Ọdún",
+  "widgetsA.calendar.allDayOn": "Gbogbo ọjọ́ · {date}",
+  "widgetsA.calendar.birthday": "Ọjọ́ìbí",
+  "widgetsA.calendar.noEvents": "Kò sí ìṣẹ̀lẹ̀",
+  "widgetsA.calendar.now": "Nísinsìnyí",
+  "widgetsA.calendar.previous": "Ti tẹ́lẹ̀",
+  "widgetsA.calendar.settings.agendaRange.custom": "Àdáni",
+  "widgetsA.calendar.settings.agendaRange.days": {
+    "other": "Ọjọ́ {count}"
+  },
+  "widgetsA.calendar.settings.agendaRange.label": "Ààlà ọjọ́",
+  "widgetsA.calendar.settings.agendaRange.todayTomorrow": "Òní àti ọ̀la",
+  "widgetsA.calendar.settings.days.label": "Àwọn ọjọ́ tí a fihàn",
+  "widgetsA.calendar.settings.weekFrom.label": "Bẹ̀rẹ̀ ní",
+  "widgetsA.calendar.settings.weekFrom.weekStart": "Ọjọ́ kínní ọ̀sẹ̀ ({day})",
+  "widgetsA.calendar.spanWithLength": "{from}–{to} ({length})",
+  "widgetsA.clock.date": "{weekday}, {date}",
+  "calendar.setup.sentence": "Ṣàfikún àkáǹtì láti fi kàlẹ́ńdà rẹ hàn"
+}

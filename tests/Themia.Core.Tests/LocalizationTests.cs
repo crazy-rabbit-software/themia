@@ -484,9 +484,9 @@ public sealed class LocalizationTests
     }
 
     [Fact]
-    public void S1112_thirty_languages_and_each_setting_round_trips()
+    public void S1112_forty_languages_and_each_setting_round_trips()
     {
-        Assert.Equal(30, LanguageResolver.All.Count);
+        Assert.Equal(40, LanguageResolver.All.Count);
         Assert.Equal(LanguageResolver.All.Count, Enum.GetValues<Locale>().Length);
         Assert.Equal(LanguageResolver.All.Count + 1, Enum.GetValues<AppLanguage>().Length);
         foreach (var locale in LanguageResolver.All)

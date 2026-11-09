@@ -1,0 +1,11 @@
+{
+  "styles.audioVisualizer.bars": "ಬಾರ್‌ಗಳು",
+  "styles.audioVisualizer.desc": "ಈ PC ಏನು ಪ್ಲೇ ಮಾಡಿದರೂ, ಚಲಿಸುವ ಬಾರ್‌ಗಳು, ಅಲೆ ಅಥವಾ ರೇಖೆಯಾಗಿ",
+  "styles.audioVisualizer.label": "ಆಡಿಯೊ ವಿಶುವಲೈಸರ್",
+  "styles.audioVisualizer.led": "LED",
+  "styles.audioVisualizer.mirrored": "ಪ್ರತಿಬಿಂಬಿತ",
+  "styles.audioVisualizer.radial": "ವೃತ್ತಾಕಾರ",
+  "styles.audioVisualizer.wave": "ಅಲೆ",
+  "styles.audioVisualizer.waveform": "ತರಂಗರೂಪ",
+  "widgetsC.visualizer.unavailable": "ಆಡಿಯೊ ಔಟ್‌ಪುಟ್ ಲಭ್ಯವಿಲ್ಲ"
+}

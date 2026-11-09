@@ -1,0 +1,45 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "countdown.setup": "Pilih tarikh untuk dikira detik",
+  "styles.countdown.ring": "Cincin",
+  "styles.countdown.text": "Teks",
+  "styles.countdown.unitDays": "hari",
+  "styles.countdown.unitHours": "jam",
+  "styles.countdown.unitMinutes": "min",
+  "styles.countdown.unitSeconds": "saat",
+  "widget.countdown.label": "Kira detik",
+  "widgetsA.catalog.countdown.description": "Baki masa sehingga tarikh yang penting bagi kamu",
+  "widgetsA.countdown.ago": "{duration} yang lalu",
+  "widgetsA.countdown.compact.dh": "{days}h {hours}j",
+  "widgetsA.countdown.compact.dhm": "{days}h {hours}j {minutes}m",
+  "widgetsA.countdown.compact.dhms": "{days}h {hours}j {minutes}m {seconds}s",
+  "widgetsA.countdown.compact.hm": "{hours}j {minutes}m",
+  "widgetsA.countdown.dateTime": "{date}, {time}",
+  "widgetsA.countdown.days": {
+    "other": "{count} hari"
+  },
+  "widgetsA.countdown.daysAgo": {
+    "other": "{count} hari yang lalu"
+  },
+  "widgetsA.countdown.daysIn": {
+    "other": "dalam {count} hari"
+  },
+  "widgetsA.countdown.format.auto": "Automatik",
+  "widgetsA.countdown.format.days": "Hari sahaja",
+  "widgetsA.countdown.format.dhm": "Hari · Jam · Min",
+  "widgetsA.countdown.format.dhms": "Hari · Jam · Min · Saat",
+  "widgetsA.countdown.fullDateTime": "{date} pada {time}",
+  "widgetsA.countdown.hours": {
+    "other": "{count} jam"
+  },
+  "widgetsA.countdown.in": "dalam {duration}",
+  "widgetsA.countdown.inAMoment": "sebentar lagi",
+  "widgetsA.countdown.justNow": "sebentar tadi",
+  "widgetsA.countdown.minutes": {
+    "other": "{count} min"
+  },
+  "widgetsA.countdown.settings.format.label": "Format",
+  "widgetsA.countdown.settings.name.label": "Nama",
+  "widgetsA.countdown.untitled": "Tanpa tajuk",
+  "styles.clock.flip": "Selak"
+}

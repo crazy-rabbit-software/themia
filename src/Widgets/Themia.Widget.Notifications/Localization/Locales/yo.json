@@ -1,0 +1,16 @@
+{
+  "panels.notifications.allow": "Gbà láàyè",
+  "panels.notifications.clearAll": "Kó gbogbo rẹ̀ kúrò",
+  "panels.notifications.clearApp": "Kó gbogbo èyí tó wá láti {app} kúrò",
+  "panels.notifications.denied": "Ààyè sí ìfitónilétí ti wà ní pípa fún Themia",
+  "panels.notifications.desc": "Àwọn ìfitónilétí Windows, tí a kó jọ ní ìbámu pẹ̀lú áàpù",
+  "panels.notifications.dismiss": "Mú kúrò",
+  "panels.notifications.label": "Ìfitónilétí",
+  "panels.notifications.none": "Kò sí ìfitónilétí tuntun",
+  "panels.notifications.open": "Ṣí {app}",
+  "panels.notifications.openSettings": "Ṣí ètò",
+  "panels.notifications.seeFewer": "Wo díẹ̀",
+  "panels.notifications.seeMore": "Wo síi ({count})",
+  "panels.notifications.unspecified": "Jẹ́ kí Themia ka àwọn ìfitónilétí rẹ",
+  "panels.notifications.unsupported": "Ẹ̀dà Windows yìí kò ní àtòjọ ìfitónilétí tí a lè kà"
+}

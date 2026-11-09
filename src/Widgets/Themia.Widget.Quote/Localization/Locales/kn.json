@@ -1,0 +1,19 @@
+{
+  "widgetsA.catalog.quote.label": "ಉಕ್ತಿ",
+  "widgetsA.catalog.quote.description": "ಮತ್ತೆ ಓದಲು ಯೋಗ್ಯವಾದ ಸಾಲು",
+  "quote.shuffle": "ಕಲಸು",
+  "widgetsC.quote.quoted": "“{text}”",
+  "widgetsC.quote.showAnother": "ಬೇರೆ ಉಕ್ತಿ ತೋರಿಸು",
+  "widgetsC.quote.settings.quotes": "ಉಕ್ತಿಗಳು",
+  "widgetsC.quote.settings.emptyList": "ಯಾವುದೇ ಉಕ್ತಿಗಳು ಉಳಿದಿಲ್ಲ. ಒಂದನ್ನು ಸೇರಿಸುವವರೆಗೆ ವಿಜೆಟ್ ಹಾಗೆಯೇ ಹೇಳುತ್ತದೆ.",
+  "widgetsC.quote.settings.add.title": "ಉಕ್ತಿ ಸೇರಿಸು",
+  "widgetsC.quote.settings.textPlaceholder": "ಮತ್ತೆ ಓದಲು ಯೋಗ್ಯವಾದದ್ದು",
+  "widgetsC.quote.settings.authorPlaceholder": "ಯಾರು ಹೇಳಿದ್ದು",
+  "widgetsC.quote.settings.showAuthor.label": "ಲೇಖಕರನ್ನು ತೋರಿಸು",
+  "widgetsC.quote.settings.reshuffle.label": "ಮರು ಕಲಸು",
+  "widgetsC.quote.settings.cadence.manual": "ಕ್ಲಿಕ್ ಮಾಡಿದಾಗ ಮಾತ್ರ",
+  "widgetsC.quote.settings.cadence.hourly": "ಪ್ರತಿ ಗಂಟೆ",
+  "widgetsC.quote.settings.cadence.daily": "ಪ್ರತಿದಿನ",
+  "styles.quote.plain": "ಸರಳ",
+  "styles.quote.marks": "ದೊಡ್ಡ ಉದ್ಧರಣ ಚಿಹ್ನೆಗಳು"
+}

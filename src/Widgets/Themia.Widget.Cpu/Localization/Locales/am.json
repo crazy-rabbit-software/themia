@@ -1,0 +1,9 @@
+{
+  "styles.cpu.coreGraphs": "የኮር ግራፎች",
+  "styles.cpu.cores": "ሁሉም ኮሮች",
+  "styles.cpu.gauge": "መለኪያ",
+  "styles.cpu.graph": "ግራፍ",
+  "styles.cpu.grid": "የኮር ፍርግርግ",
+  "widgetsA.catalog.cpu.label": "CPU",
+  "widgetsA.catalog.cpu.description": "በሁሉም ኮሮች ላይ ያለ የፕሮሰሰር ጭነት"
+}

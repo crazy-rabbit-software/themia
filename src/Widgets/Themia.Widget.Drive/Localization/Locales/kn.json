@@ -1,0 +1,10 @@
+{
+  "drives.drive.desc": "ಒಂದು ಡ್ರೈವ್‌ನ ಸ್ಥಳ ಮತ್ತು ಫೈಲ್ ಸಿಸ್ಟಮ್, ಮ್ಯಾಪ್ ಮಾಡಿದ ಡ್ರೈವ್‌ಗಳೂ ಸಹ",
+  "drives.drive.label": "ಡ್ರೈವ್",
+  "drives.fact.capacity": "ಸಾಮರ್ಥ್ಯ",
+  "drives.fact.fileSystem": "ಫೈಲ್ ಸಿಸ್ಟಮ್",
+  "drives.fact.free": "ಖಾಲಿ",
+  "drives.fact.used": "ಬಳಸಲಾಗಿದೆ",
+  "drives.settings.drive.label": "ಡ್ರೈವ್",
+  "styles.io.bar": "ಬಾರ್"
+}

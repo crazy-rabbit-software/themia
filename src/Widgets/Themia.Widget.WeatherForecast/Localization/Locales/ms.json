@@ -1,0 +1,11 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "forecast.daysLabel": "Hari ditunjukkan",
+  "forecast.layoutColumns": "Lajur",
+  "forecast.layoutRows": "Baris",
+  "styles.forecast.curve": "Lengkung suhu",
+  "styles.forecast.grid": "Grid",
+  "widgetsA.catalog.forecast.description": "Beberapa hari akan datang",
+  "widgetsA.catalog.forecast.label": "Ramalan",
+  "widgetsC.weather.settings.showPrecipitation.label": "Tunjukkan kerpasan"
+}

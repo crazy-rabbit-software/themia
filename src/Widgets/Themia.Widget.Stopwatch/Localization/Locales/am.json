@@ -1,0 +1,12 @@
+{
+  "stopwatch.label": "የሩጫ ሰዓት",
+  "stopwatch.desc": "በዙሮች ይለካል፣ ዳግም ሲጀመርም መሥራቱን ይቀጥላል",
+  "stopwatch.start": "ጀምር",
+  "stopwatch.pause": "ለአፍታ አቁም",
+  "stopwatch.resume": "ቀጥል",
+  "stopwatch.lap": "ዙር",
+  "stopwatch.reset": "ዳግም አስጀምር",
+  "stopwatch.lapNumber": "ዙር {n}",
+  "stopwatch.noLaps": "እስካሁን ዙሮች የሉም",
+  "stopwatch.paused": "ለአፍታ ቆሟል"
+}

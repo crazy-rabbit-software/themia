@@ -1,0 +1,11 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "widgetPrefs.updates.note": "Ìgbà mélòó ni àwọn wíjẹ́ẹ̀tì ń béèrè lọ́wọ́ àwọn iṣẹ́ orí ayélujára. Sọ dọ̀tun lórí wíjẹ́ẹ̀tì kan ń béèrè lẹ́sẹ̀kẹsẹ̀.",
+  "widgetPrefs.updates.weather": "Ojú ọjọ́",
+  "widgetPrefs.updates.markets": "Ìpín ọjà",
+  "widgetPrefs.updates.feeds": "Fíìdì ìròyìn",
+  "widgetPrefs.updates.accounts": "Ímeèlì, kàlẹ́ńdà àti iṣẹ́",
+  "widgetPrefs.updates.everyHours": {
+    "other": "Ní gbogbo wákàtí {count}"
+  }
+}

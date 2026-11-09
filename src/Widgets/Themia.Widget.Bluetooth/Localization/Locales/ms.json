@@ -1,0 +1,30 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "widget.bluetooth.label": "Bluetooth",
+  "widgetsA.bluetooth.connected": "Disambungkan",
+  "widgetsA.bluetooth.connectedCount": {
+    "other": "{count} disambungkan"
+  },
+  "widgetsA.bluetooth.kind.audio": "Audio",
+  "widgetsA.bluetooth.kind.controller": "Pengawal",
+  "widgetsA.bluetooth.kind.device": "Peranti",
+  "widgetsA.bluetooth.kind.keyboard": "Papan kekunci",
+  "widgetsA.bluetooth.kind.mouse": "Tetikus",
+  "widgetsA.bluetooth.kind.pen": "Pen",
+  "widgetsA.bluetooth.kind.phone": "Telefon",
+  "widgetsA.bluetooth.kind.watch": "Jam tangan",
+  "widgetsA.bluetooth.paired": "Dipasangkan",
+  "widgetsA.bluetooth.settings.connectedOnly.label": "Disambungkan sahaja",
+  "widgetsA.bluetooth.settings.connection.label": "Sambungan",
+  "widgetsA.bluetooth.settings.icon.label": "Ikon peranti",
+  "widgetsA.bluetooth.settings.signal.label": "Kekuatan isyarat",
+  "widgetsA.bluetooth.status.failed": "Tidak dapat membaca peranti yang dipasangkan",
+  "widgetsA.bluetooth.status.loading": "Membaca peranti yang dipasangkan",
+  "widgetsA.bluetooth.status.noRadio": "PC ini tiada radio Bluetooth",
+  "widgetsA.bluetooth.status.none": "Tiada peranti dipasangkan",
+  "widgetsA.bluetooth.status.permissionDenied": "Windows belum memberikan akses kepada radio",
+  "widgetsA.bluetooth.status.radioOff": "Bluetooth dimatikan",
+  "widgetsA.bluetooth.unknownDevice": "Peranti tidak diketahui",
+  "widgetsA.catalog.bluetooth.description": "Peranti yang dipasangkan dan baterinya",
+  "widget.battery.label": "Bateri"
+}

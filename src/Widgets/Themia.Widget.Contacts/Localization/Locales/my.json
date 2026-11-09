@@ -1,0 +1,22 @@
+{
+  "apps.viewCompact": "ကျစ်လျစ်",
+  "apps.viewGrid": "ဇယားကွက်",
+  "apps.viewList": "စာရင်း",
+  "contacts.noContacts": "အဆက်အသွယ် မတွေ့ပါ။",
+  "contacts.searchPlaceholder": "အဆက်အသွယ်များ ရှာရန်…",
+  "ctxMenu.call": "ဖုန်းခေါ်ရန်",
+  "ctxMenu.copyEmail": "အီးမေးလ် ကူးရန်",
+  "ctxMenu.copyName": "အမည် ကူးရန်",
+  "ctxMenu.copyPhone": "ဖုန်း ကူးရန်",
+  "ctxMenu.message": "စာ ပို့ရန်",
+  "ctxMenu.sendEmail": "အီးမေးလ် ပို့ရန်",
+  "widget.contacts.label": "အဆက်အသွယ်များ",
+  "widgetsA.catalog.contacts.description": "သင့် Microsoft နှင့် CardDAV လိပ်စာစာအုပ်များမှ လူများ",
+  "widgetsA.contacts.noAccount": "အဆက်အသွယ် အကောင့် မရှိသေးပါ",
+  "widgetsA.contacts.none": "အဆက်အသွယ် မရှိပါ",
+  "widgetsA.contacts.readFailed": "အဆက်အသွယ်များကို မဖတ်နိုင်ခဲ့ပါ။ themia.log ကို ကြည့်ပါ။",
+  "widgetsA.contacts.settings.count.label": "လူများ",
+  "widgetsA.contacts.settings.every": "အဆက်အသွယ် အကောင့်တိုင်း",
+  "widgetsA.contacts.settings.layout.label": "အပြင်အဆင်",
+  "contacts.setup.sentence": "သင့်အဆက်အသွယ်များကို ပြရန် အကောင့်တစ်ခု ထည့်ပါ"
+}

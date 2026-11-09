@@ -1,0 +1,12 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "widgetPrefs.updates.note": "വിജറ്റുകൾ ഓൺലൈൻ സേവനങ്ങളോട് എത്ര തവണ ചോദിക്കുന്നു. ഒരു വിജറ്റിലെ പുതുക്കുക ഉടൻ ചോദിക്കുന്നു.",
+  "widgetPrefs.updates.weather": "കാലാവസ്ഥ",
+  "widgetPrefs.updates.markets": "ഓഹരികൾ",
+  "widgetPrefs.updates.feeds": "വാർത്താ ഫീഡുകൾ",
+  "widgetPrefs.updates.accounts": "മെയിൽ, കലണ്ടറുകൾ, ടാസ്‌ക്കുകൾ",
+  "widgetPrefs.updates.everyHours": {
+    "one": "ഓരോ {count} മണിക്കൂറിലും",
+    "other": "ഓരോ {count} മണിക്കൂറിലും"
+  }
+}

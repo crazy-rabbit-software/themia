@@ -1,0 +1,10 @@
+{
+  "forecast.daysLabel": "ပြမည့် နေ့များ",
+  "forecast.layoutColumns": "ကော်လံများ",
+  "forecast.layoutRows": "အတန်းများ",
+  "styles.forecast.curve": "အပူချိန် မျဉ်းကွေး",
+  "styles.forecast.grid": "ဇယားကွက်",
+  "widgetsA.catalog.forecast.description": "လာမည့် ရက်အနည်းငယ်",
+  "widgetsA.catalog.forecast.label": "ခန့်မှန်းချက်",
+  "widgetsC.weather.settings.showPrecipitation.label": "မိုးရေချိန် ပြရန်"
+}

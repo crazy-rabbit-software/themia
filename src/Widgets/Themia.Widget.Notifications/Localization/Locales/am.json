@@ -1,0 +1,16 @@
+{
+  "panels.notifications.allow": "ፍቀድ",
+  "panels.notifications.clearAll": "ሁሉንም አጽዳ",
+  "panels.notifications.clearApp": "ከ{app} ሁሉንም አጽዳ",
+  "panels.notifications.denied": "ለThemia የማሳወቂያ መዳረሻ ጠፍቷል",
+  "panels.notifications.desc": "የWindows ማሳወቂያዎች፣ በመተግበሪያ የተቧደኑ",
+  "panels.notifications.dismiss": "አሰናብት",
+  "panels.notifications.label": "ማሳወቂያዎች",
+  "panels.notifications.none": "ምንም አዲስ ማሳወቂያ የለም",
+  "panels.notifications.open": "{app}ን ክፈት",
+  "panels.notifications.openSettings": "ቅንብሮችን ክፈት",
+  "panels.notifications.seeFewer": "ያነሰ ይመልከቱ",
+  "panels.notifications.seeMore": "ተጨማሪ ይመልከቱ ({count})",
+  "panels.notifications.unspecified": "Themia ማሳወቂያዎችዎን እንዲያነብ ይፍቀዱ",
+  "panels.notifications.unsupported": "ይህ የWindows ስሪት የሚነበብ የማሳወቂያ ዝርዝር የለውም"
+}

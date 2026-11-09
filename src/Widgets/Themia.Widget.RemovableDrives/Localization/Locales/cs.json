@@ -1,0 +1,6 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "drives.nothing": "Nic není připojeno",
+  "drives.removable.desc": "USB disky, karty a externí disky, s tlačítkem Vysunout",
+  "drives.removable.label": "Vyměnitelné jednotky"
+}

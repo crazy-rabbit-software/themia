@@ -1,0 +1,17 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "addMenu.popular": "Populare",
+  "addMenu.browse": "Răsfoiește",
+  "addMenu.subject.time": "Timp",
+  "addMenu.subject.calendar": "Calendar și e-mail",
+  "addMenu.subject.weather": "Vreme și cer",
+  "addMenu.subject.markets": "Știri și piețe",
+  "addMenu.subject.media": "Muzică și media",
+  "addMenu.subject.notes": "Note și instrumente",
+  "addMenu.subject.files": "Fișiere și aplicații",
+  "addMenu.subject.system": "Sistem",
+  "addMenu.subject.devices": "Dispozitive și alimentare",
+  "addMenu.subject.more": "Mai multe",
+  "addMenu.family.screenTime": "Timp petrecut pe ecran",
+  "addMenu.family.powerButtons": "Butoane de alimentare"
+}

@@ -1,0 +1,12 @@
+{
+  "stopwatch.label": "Секундомір",
+  "stopwatch.desc": "Вимірює час з колами й працює далі після перезапуску",
+  "stopwatch.start": "Почати",
+  "stopwatch.pause": "Пауза",
+  "stopwatch.resume": "Продовжити",
+  "stopwatch.lap": "Коло",
+  "stopwatch.reset": "Скинути",
+  "stopwatch.lapNumber": "Коло {n}",
+  "stopwatch.noLaps": "Ще немає кіл",
+  "stopwatch.paused": "Призупинено"
+}

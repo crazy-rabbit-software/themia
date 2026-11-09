@@ -1,0 +1,15 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "clipboard.clearHistory": "Vymazat historii",
+  "widgetsA.catalog.clipboard.description": "Nedávno zkopírované položky",
+  "widgetsA.catalog.clipboard.label": "Schránka",
+  "widgetsA.clipboard.clearConfirm.body": "Všechno v tomto seznamu se zapomene. Nejde to vrátit zpět a nezmění to, co je teď ve schránce.",
+  "widgetsA.clipboard.clearConfirm.title": "Vymazat historii schránky?",
+  "widgetsA.clipboard.clearEllipsis": "Vymazat historii…",
+  "widgetsA.clipboard.empty": "Zatím nic zkopírováno. Něco zkopíruj a objeví se to tady.",
+  "widgetsA.clipboard.noListener": "Windows této aplikaci nedovolil sledovat schránku.",
+  "widgetsA.clipboard.remove": "Odebrat z historie",
+  "widgetsA.clipboard.settings.entries.label": "Položky",
+  "widgetsA.clipboard.settings.privacyNote": "Zkopírovaný text zůstává jen v paměti. Soubory a obrázky se nikdy nečtou.",
+  "widgetsA.clipboard.settings.timestamp.label": "Zobrazit, kdy se kopírovalo"
+}

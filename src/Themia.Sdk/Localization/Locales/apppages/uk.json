@@ -1,0 +1,59 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "shell.view.colour": "Колір",
+  "shell.view.colourDefault": "Колір тексту",
+  "shell.appearance.themeColours": "Тема й кольори",
+  "shell.appearance.cards": "Картки віджетів",
+  "shell.appearance.textAndSize": "Текст і розмір",
+  "shell.net.blockedLocal": "{host} розташований у локальній мережі. Themia звертається туди лише за адресою, яку ти ввів сам",
+  "shell.accounts.stats.mail": "Пошта",
+  "shell.accounts.stats.calendar": "Календар",
+  "shell.accounts.stats.contacts": "Контакти",
+  "shell.accounts.stats.tasks": "Завдання",
+  "shell.accounts.stats.messages": {
+    "one": "{count} лист",
+    "few": "{count} листи",
+    "many": "{count} листів",
+    "other": "{count} листа"
+  },
+  "shell.accounts.stats.events": {
+    "one": "{count} подія",
+    "few": "{count} події",
+    "many": "{count} подій",
+    "other": "{count} події"
+  },
+  "shell.accounts.stats.people": {
+    "one": "{count} контакт",
+    "few": "{count} контакти",
+    "many": "{count} контактів",
+    "other": "{count} контакту"
+  },
+  "shell.accounts.stats.taskCount": {
+    "one": "{count} завдання",
+    "few": "{count} завдання",
+    "many": "{count} завдань",
+    "other": "{count} завдання"
+  },
+  "shell.accounts.stats.folders": {
+    "one": "у {count} папці",
+    "few": "у {count} папках",
+    "many": "у {count} папках",
+    "other": "у {count} папки"
+  },
+  "shell.accounts.stats.calendars": {
+    "one": "у {count} календарі",
+    "few": "у {count} календарях",
+    "many": "у {count} календарях",
+    "other": "у {count} календаря"
+  },
+  "shell.accounts.stats.lists": {
+    "one": "у {count} списку",
+    "few": "у {count} списках",
+    "many": "у {count} списках",
+    "other": "у {count} списку"
+  },
+  "shell.accounts.stats.synced": "синхронізовано {time}",
+  "shell.accounts.stats.neverSynced": "ще не синхронізовано",
+  "shell.accounts.stats.nothing": "На цьому ПК ще нічого не збережено",
+  "shell.accounts.reconnect": "Увійти знову"
+}

@@ -1,0 +1,13 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "widgetPrefs.updates.note": "Cât de des întreabă widgeturile serviciile online. Reîmprospătarea unui widget întreabă imediat.",
+  "widgetPrefs.updates.weather": "Vreme",
+  "widgetPrefs.updates.markets": "Acțiuni",
+  "widgetPrefs.updates.feeds": "Fluxuri de știri",
+  "widgetPrefs.updates.accounts": "E-mail, calendare și activități",
+  "widgetPrefs.updates.everyHours": {
+    "one": "La fiecare {count} oră",
+    "few": "La fiecare {count} ore",
+    "other": "La fiecare {count} de ore"
+  }
+}

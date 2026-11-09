@@ -1,0 +1,17 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "alarm.desc": "Zazvoní v nastavený čas, jednou nebo ve vybrané dny",
+  "alarm.label": "Budík",
+  "alarm.settings.namePlaceholder": "Název (volitelné)",
+  "alarm.settings.name.label": "Název",
+  "alarm.settings.on.label": "Zapnuto",
+  "alarm.settings.repeat": "Opakovat v",
+  "alarm.settings.repeat.desc": "Nic nevybráno: zazvoní jednou",
+  "alarm.settings.snooze.label": "Odložit o",
+  "alarm.settings.sound.label": "Zvuk",
+  "alarm.settings.time.label": "Čas",
+  "alarm.settings.volume.label": "Hlasitost",
+  "alarm.settings.whileRunning": "Budíky zvoní, jen když běží Themia. Budík, jehož čas nastane, když počítač spí, zazvoní po probuzení, pokud je to do pěti minut.",
+  "alarm.switchOff": "Vypnout {name}",
+  "alarm.switchOn": "Zapnout {name}"
+}

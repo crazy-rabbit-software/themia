@@ -1,0 +1,17 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "addMenu.popular": "ജനപ്രിയം",
+  "addMenu.browse": "ബ്രൗസ് ചെയ്യുക",
+  "addMenu.subject.time": "സമയം",
+  "addMenu.subject.calendar": "കലണ്ടറും മെയിലും",
+  "addMenu.subject.weather": "കാലാവസ്ഥയും ആകാശവും",
+  "addMenu.subject.markets": "വാർത്തകളും വിപണികളും",
+  "addMenu.subject.media": "സംഗീതവും മീഡിയയും",
+  "addMenu.subject.notes": "കുറിപ്പുകളും ടൂളുകളും",
+  "addMenu.subject.files": "ഫയലുകളും ആപ്പുകളും",
+  "addMenu.subject.system": "സിസ്റ്റം",
+  "addMenu.subject.devices": "ഉപകരണങ്ങളും പവറും",
+  "addMenu.subject.more": "കൂടുതൽ",
+  "addMenu.family.screenTime": "സ്ക്രീൻ സമയം",
+  "addMenu.family.powerButtons": "പവർ ബട്ടണുകൾ"
+}

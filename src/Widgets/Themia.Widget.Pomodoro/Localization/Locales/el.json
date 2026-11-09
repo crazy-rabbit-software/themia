@@ -1,0 +1,19 @@
+{
+  "pomodoro.alarmSound.label": "Ήχος ειδοποίησης",
+  "pomodoro.alarmVolume.label": "Ένταση ειδοποίησης",
+  "pomodoro.breakLength.label": "Διάρκεια διαλείμματος",
+  "pomodoro.focusLength.label": "Διάρκεια εστίασης",
+  "pomodoro.reset": "Επαναφορά",
+  "styles.pomodoro.bar": "Μπάρα",
+  "styles.pomodoro.digits": "Ψηφία",
+  "styles.pomodoro.ring": "Δακτύλιος",
+  "widgetUi.break": "Διάλειμμα",
+  "widgetUi.focus": "Εστίαση",
+  "widget.pomodoro.label": "Pomodoro",
+  "widgetsA.catalog.pomodoro.description": "Χρονόμετρο εστίασης και διαλείμματος",
+  "widgetsC.pomodoro.next": "Επόμενο: {phase} {time}",
+  "widgetsC.pomodoro.pause": "Παύση",
+  "widgetsC.pomodoro.skip": "Μετάβαση στην επόμενη φάση",
+  "widgetsC.pomodoro.start": "Έναρξη",
+  "widgetsC.pomodoro.minutesUnit": " λεπ."
+}

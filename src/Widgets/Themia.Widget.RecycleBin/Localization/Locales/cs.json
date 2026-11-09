@@ -1,0 +1,14 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "recycleBin.desc": "Jak plný je koš, s tlačítkem Vysypat",
+  "recycleBin.empty": "Vysypat",
+  "recycleBin.isEmpty": "Žádné položky",
+  "recycleBin.items": {
+    "one": "{count} položka",
+    "few": "{count} položky",
+    "other": "{count} položek"
+  },
+  "recycleBin.open": "Otevřít Koš",
+  "recycleBin.emptyEllipsis": "Vysypat Koš…",
+  "widgetsC.location.recycleBin": "Koš"
+}

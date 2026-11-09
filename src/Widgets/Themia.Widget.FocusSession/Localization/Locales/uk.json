@@ -1,0 +1,15 @@
+{
+  "panels.focus.desc": "Час зосередитися, сповіщення затримано",
+  "panels.focus.end": "Завершити сеанс",
+  "panels.focus.label": "Сеанс зосередження",
+  "panels.focus.left": "Залишилося {time}",
+  "panels.focus.lengthLabel": "Тривалість",
+  "panels.focus.longer": "Довше",
+  "panels.focus.quietLabel": "Увімкнути «Не турбувати»",
+  "panels.focus.quietOn": "«Не турбувати» увімкнено",
+  "panels.focus.quietUnavailable": "«Не турбувати» тут не можна ввімкнути",
+  "panels.focus.shorter": "Коротше",
+  "panels.focus.start": "Почати",
+  "panels.focus.willQuiet": "Вмикає «Не турбувати»",
+  "panels.focus.windows": "Триває сеанс зосередження Windows"
+}

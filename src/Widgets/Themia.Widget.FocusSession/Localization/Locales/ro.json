@@ -1,0 +1,15 @@
+{
+  "panels.focus.desc": "Timp de concentrare, cu notificările reținute",
+  "panels.focus.end": "Încheie sesiunea",
+  "panels.focus.label": "Sesiune de concentrare",
+  "panels.focus.left": "{time} rămase",
+  "panels.focus.lengthLabel": "Durată",
+  "panels.focus.longer": "Mai lung",
+  "panels.focus.quietLabel": "Activează Nu deranja",
+  "panels.focus.quietOn": "Nu deranja este activat",
+  "panels.focus.quietUnavailable": "Nu deranja nu poate fi activat aici",
+  "panels.focus.shorter": "Mai scurt",
+  "panels.focus.start": "Pornește",
+  "panels.focus.willQuiet": "Activează Nu deranja",
+  "panels.focus.windows": "O sesiune de concentrare Windows este activă"
+}

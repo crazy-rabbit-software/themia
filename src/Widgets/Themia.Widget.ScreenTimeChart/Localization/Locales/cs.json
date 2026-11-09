@@ -1,0 +1,8 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "screentime.goalPerDay": "z {value}/den",
+  "styles.screenTimeChart.bars": "Sloupce",
+  "styles.screenTimeChart.calendar": "Kalendář",
+  "widgetsC.screenTime.chart.desc": "Tvůj čas u obrazovky den po dni, za týden nebo měsíc",
+  "widgetsC.screenTime.chart.label": "Čas u obrazovky: graf"
+}

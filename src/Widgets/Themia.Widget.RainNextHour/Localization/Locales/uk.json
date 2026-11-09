@@ -1,0 +1,15 @@
+{
+  "online.rain.label": "Дощ найближчої години",
+  "online.rain.desc": "Коли дощ почнеться чи скінчиться, кроками по {minutes} хв",
+  "online.rain.startsIn": "Дощ за {minutes} хв",
+  "online.rain.stopsIn": "Дощ скінчиться за {minutes} хв",
+  "online.rain.continues": "Дощ упродовж наступних 2 годин",
+  "online.rain.dry": "Без дощу впродовж наступних 2 годин",
+  "online.rain.outdated": "Немає прогнозу на наступну годину",
+  "online.rain.intensity.light": "Невеликий дощ",
+  "online.rain.intensity.moderate": "Помірний дощ",
+  "online.rain.intensity.heavy": "Сильний дощ",
+  "online.rain.chance": "Імовірність {percent}",
+  "online.rain.total": "{amount} мм за 2 години",
+  "online.rain.now": "Зараз"
+}

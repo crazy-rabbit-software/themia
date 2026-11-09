@@ -1,0 +1,19 @@
+{
+  "widgetsA.catalog.quote.label": "ကိုးကားချက်",
+  "widgetsA.catalog.quote.description": "ပြန်ဖတ်ထိုက်သော စာကြောင်း",
+  "quote.shuffle": "ရောမွှေ",
+  "widgetsC.quote.quoted": "“{text}”",
+  "widgetsC.quote.showAnother": "အခြား ကိုးကားချက် ပြရန်",
+  "widgetsC.quote.settings.quotes": "ကိုးကားချက်များ",
+  "widgetsC.quote.settings.emptyList": "ကိုးကားချက် မကျန်တော့ပါ။ တစ်ခု ထည့်သည်အထိ ဝစ်ဂျက်က ထိုသို့ ပြောမည်။",
+  "widgetsC.quote.settings.add.title": "ကိုးကားချက် ထည့်ရန်",
+  "widgetsC.quote.settings.textPlaceholder": "ပြန်ဖတ်ထိုက်သော အရာ",
+  "widgetsC.quote.settings.authorPlaceholder": "ပြောသူ",
+  "widgetsC.quote.settings.showAuthor.label": "ရေးသူ ပြရန်",
+  "widgetsC.quote.settings.reshuffle.label": "ပြန်ရောမွှေ",
+  "widgetsC.quote.settings.cadence.manual": "နှိပ်မှသာ",
+  "widgetsC.quote.settings.cadence.hourly": "နာရီတိုင်း",
+  "widgetsC.quote.settings.cadence.daily": "နေ့တိုင်း",
+  "styles.quote.plain": "ရိုးရိုး",
+  "styles.quote.marks": "ကြီးမားသော ကိုးကားအမှတ်များ"
+}

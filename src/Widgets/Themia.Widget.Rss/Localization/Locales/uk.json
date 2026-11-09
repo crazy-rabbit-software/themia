@@ -1,0 +1,14 @@
+{
+  "widgetsA.catalog.feed.label": "Стрічка",
+  "widgetsA.catalog.feed.description": "Заголовки зі стрічок, які ти вибереш",
+  "widgetsC.rss.untitled": "(без назви)",
+  "widgetsC.rss.copyLink": "Копіювати посилання",
+  "widgetsC.rss.noArticles": "У цій стрічці немає статей",
+  "widgetsC.rss.settings.feeds": "Стрічки",
+  "widgetsC.rss.settings.empty": "Ще немає стрічок. Додай адресу стрічки RSS або Atom.",
+  "widgetsC.rss.settings.add.title": "Додати стрічку",
+  "widgetsC.rss.settings.articles": "Статті",
+  "widgetsC.rss.settings.source.label": "Показувати джерело",
+  "widgetsC.rss.settings.preview.label": "Показувати попередній перегляд",
+  "widgetsC.rss.settings.date.label": "Показувати дату"
+}

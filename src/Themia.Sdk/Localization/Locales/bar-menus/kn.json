@@ -1,0 +1,14 @@
+{
+  "barMenus.display": "ಡಿಸ್‌ಪ್ಲೇ",
+  "barMenus.display.all": "ಎಲ್ಲಾ ಡಿಸ್‌ಪ್ಲೇಗಳು",
+  "barMenus.display.showOn": "Themia ಎಲ್ಲಿ ತೋರಿಸಬೇಕು",
+  "barMenus.display.this": "ಈ ಡಿಸ್‌ಪ್ಲೇ",
+  "barMenus.viewBar": "ವೀಕ್ಷಣೆ ಬಾರ್",
+  "barMenus.viewBar.position": "ಸ್ಥಾನ",
+  "barMenus.viewBar.size": "ಗಾತ್ರ",
+  "barMenus.viewBar.hidden": "ಮರೆಮಾಡಲಾಗಿದೆ",
+  "barMenus.viewBar.views": "ವೀಕ್ಷಣೆಗಳು",
+  "barMenus.view.renameTitle": "ವೀಕ್ಷಣೆ ಮರುಹೆಸರಿಸು",
+  "barMenus.view.deleteQuestion": "“{name}” ಅಳಿಸಬೇಕೇ?",
+  "barMenus.view.deleteDetail": "ಅದರ ವಿಜೆಟ್‌ಗಳೂ ಹೋಗುತ್ತವೆ ({widgets}). ರದ್ದುಗೊಳಿಸಿದರೆ ಎಲ್ಲವೂ ಮರಳಿ ಬರುತ್ತದೆ."
+}

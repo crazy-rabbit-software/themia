@@ -1,0 +1,12 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "styles.audioVisualizer.bars": "Sloupce",
+  "styles.audioVisualizer.desc": "Cokoli tento počítač přehrává, jako pohyblivé sloupce, vlna nebo čára",
+  "styles.audioVisualizer.label": "Vizualizace zvuku",
+  "styles.audioVisualizer.led": "LED",
+  "styles.audioVisualizer.mirrored": "Zrcadlené",
+  "styles.audioVisualizer.radial": "Kruhové",
+  "styles.audioVisualizer.wave": "Vlna",
+  "styles.audioVisualizer.waveform": "Průběh vlny",
+  "widgetsC.visualizer.unavailable": "Zvukový výstup není k dispozici"
+}

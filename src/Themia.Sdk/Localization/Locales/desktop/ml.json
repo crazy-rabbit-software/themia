@@ -1,0 +1,13 @@
+{
+  "desktop.choice.label": "ഡെസ്‌ക്‌ടോപ്പിൽ",
+  "desktop.choice.themia": "Themia-യുടെ ഇനങ്ങൾ",
+  "desktop.choice.windows": "Windows-ന്റെ ഐക്കണുകൾ",
+  "desktop.choice.nothing": "ഒന്നുമില്ല",
+  "desktop.add.folder": "ഡെസ്‌ക്‌ടോപ്പിൽ",
+  "desktop.rename.clash": "ഈ പേരിൽ ഇവിടെ ഇതിനകം ഒരു ഇനമുണ്ട്.",
+  "desktop.menu.edit": "വിജറ്റുകൾ എഡിറ്റ് ചെയ്യുക",
+  "desktop.delete.fromView": "ഈ കാഴ്ചയിൽ നിന്ന് നീക്കം ചെയ്യുക",
+  "desktop.automation.list": "ഡെസ്‌ക്‌ടോപ്പ്",
+  "desktop.coexist.replaced": "മറ്റൊരു പ്രോഗ്രാം ഡെസ്‌ക്‌ടോപ്പിന്റെ ഐക്കണുകൾ മാറ്റിസ്ഥാപിച്ചു, അതിനാൽ Themia ഡെസ്‌ക്‌ടോപ്പ് അതിന് വിട്ടുകൊടുക്കുന്നു.",
+  "desktop.coexist.keptShown": "മറ്റൊരു പ്രോഗ്രാം Windows-ന്റെ ഐക്കണുകൾ കാണിച്ചുകൊണ്ടിരിക്കുന്നു, അതിനാൽ Themia അവ കാണിച്ചുതന്നെ വിടുന്നു. ഒരിക്കൽ കൂടി ശ്രമിക്കാൻ വീണ്ടും ഒരു തിരഞ്ഞെടുപ്പ് നടത്തുക."
+}

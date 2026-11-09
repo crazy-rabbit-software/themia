@@ -1,0 +1,13 @@
+{
+  "details.catalog.ping.desc": "ಸರಾಸರಿ, ವ್ಯಾಪ್ತಿ, ಜಿಟರ್ ಮತ್ತು ಪ್ಯಾಕೆಟ್ ನಷ್ಟ",
+  "details.ping.answered": "ಉತ್ತರಿಸಿದವು",
+  "details.ping.answeredOf": "{sent} ರಲ್ಲಿ {answered}",
+  "details.ping.average": "ಸರಾಸರಿ",
+  "details.ping.jitter": "ಜಿಟರ್",
+  "details.ping.loss": "ಪ್ಯಾಕೆಟ್ ನಷ್ಟ",
+  "details.ping.maximum": "ಗರಿಷ್ಠ",
+  "details.ping.minimum": "ಕನಿಷ್ಠ",
+  "details.catalog.ping.label": "ಪಿಂಗ್ ಅಂಕಿಅಂಶಗಳು",
+  "details.settings.ping.window.label": "ಅಂಕಿಅಂಶಗಳ ವ್ಯಾಪ್ತಿ",
+  "details.settings.ping.window.probes": "{count} ಪ್ರೋಬ್‌ಗಳು"
+}

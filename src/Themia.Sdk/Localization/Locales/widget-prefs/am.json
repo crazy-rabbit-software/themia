@@ -1,0 +1,11 @@
+{
+  "widgetPrefs.updates.note": "ዊጀቶች የመስመር ላይ አገልግሎቶችን ምን ያህል ጊዜ እንደሚጠይቁ። በዊጀት ላይ ማደስ ወዲያውኑ ይጠይቃል።",
+  "widgetPrefs.updates.weather": "የአየር ሁኔታ",
+  "widgetPrefs.updates.markets": "አክሲዮኖች",
+  "widgetPrefs.updates.feeds": "የዜና ምግቦች",
+  "widgetPrefs.updates.accounts": "ደብዳቤ፣ ቀን መቁጠሪያዎችና ተግባራት",
+  "widgetPrefs.updates.everyHours": {
+    "one": "በየ{count} ሰዓቱ",
+    "other": "በየ{count} ሰዓቱ"
+  }
+}

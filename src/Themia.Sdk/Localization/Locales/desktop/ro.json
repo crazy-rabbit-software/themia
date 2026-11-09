@@ -1,0 +1,13 @@
+{
+  "desktop.choice.label": "Pe desktop",
+  "desktop.choice.themia": "Elementele Themia",
+  "desktop.choice.windows": "Pictogramele Windows",
+  "desktop.choice.nothing": "Nimic",
+  "desktop.add.folder": "Pe desktop",
+  "desktop.rename.clash": "Aici există deja un element cu acest nume.",
+  "desktop.menu.edit": "Editează widgeturile",
+  "desktop.delete.fromView": "Elimină din această vizualizare",
+  "desktop.automation.list": "Desktop",
+  "desktop.coexist.replaced": "Alt program a înlocuit pictogramele de pe desktop, așa că Themia îi lasă desktopul.",
+  "desktop.coexist.keptShown": "Alt program continuă să arate pictogramele Windows, așa că Themia le lasă afișate. Alege din nou o opțiune ca să mai încerci o dată."
+}

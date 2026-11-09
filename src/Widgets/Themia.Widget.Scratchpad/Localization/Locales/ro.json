@@ -1,0 +1,16 @@
+{
+  "scratchpad.drawHere": "Desenează aici",
+  "scratchpad.penColorLabel": "Culoarea creionului",
+  "scratchpad.penSizeLabel": "Grosimea creionului",
+  "widget.scratchpad.label": "Schițe",
+  "widgetsA.catalog.scratchpad.description": "Un loc pentru desen",
+  "widgetsC.scratchpad.clearConfirm": "Golești tot desenul?",
+  "widgetsC.scratchpad.clearDrawing": "Golește desenul",
+  "widgetsC.scratchpad.draw": "Desenează",
+  "widgetsC.scratchpad.eraseStrokes": "Șterge trăsături",
+  "widgetsC.scratchpad.exitFullScreen": "Ieși din ecran complet",
+  "widgetsC.scratchpad.fullScreen": "Ecran complet",
+  "widgetsC.scratchpad.penSizeTip": "Grosimea creionului {size} px",
+  "widgetsC.scratchpad.settings.showTools.label": "Arată instrumentele",
+  "widgetsC.scratchpad.undo": "Anulează"
+}

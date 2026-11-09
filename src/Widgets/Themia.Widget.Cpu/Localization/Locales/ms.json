@@ -1,0 +1,10 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "styles.cpu.coreGraphs": "Graf teras",
+  "styles.cpu.cores": "Semua teras",
+  "styles.cpu.gauge": "Tolok",
+  "styles.cpu.graph": "Graf",
+  "styles.cpu.grid": "Grid teras",
+  "widgetsA.catalog.cpu.label": "CPU",
+  "widgetsA.catalog.cpu.description": "Beban pemproses merentas semua teras"
+}

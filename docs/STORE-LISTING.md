@@ -90,7 +90,7 @@ steps around it (reservation, identity, the Pro add-on, building the package) ar
 9. CPU, GPU, memory, disk, network, battery and audio at a glance
 10. Your data stays on your PC; no analytics, no telemetry
 11. Native WinUI 3 app, compiled ahead of time: fast and light
-12. Available in 30 languages
+12. Available in 40 languages
 13. Free for up to 20 widgets and 2 views; Pro is a one-time purchase
 
 **Search terms** (up to 7): `desktop widgets`, `widgets`, `clock widget`, `weather widget`,

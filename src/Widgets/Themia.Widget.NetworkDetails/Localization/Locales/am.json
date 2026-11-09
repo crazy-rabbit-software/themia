@@ -1,0 +1,6 @@
+{
+  "details.catalog.network.desc": "ፍጥነቶች፣ ጥቅም ላይ የዋለ ውሂብ፣ አድራሻዎችና አስማሚዎች",
+  "details.catalog.network.label": "የአውታረ መረብ ዝርዝሮች",
+  "details.settings.network.public.desc": "api.ipify.orgን ይጠይቃል፣ ቢበዛ በየ{minutes} ደቂቃው",
+  "details.settings.network.public.label": "ይፋዊ አድራሻ"
+}

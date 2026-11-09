@@ -14,7 +14,7 @@ namespace Themia.Core.Settings;
 public static partial class SettingsMenu
 {
     /// <summary>
-    /// [S-1109] The thirty languages in the order the page listed them, each by its own name ("Deutsch",
+    /// [S-1109] The forty languages in the order the page listed them, each by its own name ("Deutsch",
     /// "日本語", the same in every language, so someone landed in a language they cannot read still
     /// finds theirs), with its English name and code, which a search finds it by too.
     /// </summary>
@@ -50,6 +50,16 @@ public static partial class SettingsMenu
         (AppLanguage.Persian, Str.Settings_Language_Persian, "Persian Farsi fa"),
         (AppLanguage.Thai, Str.Settings_Language_Thai, "Thai th"),
         (AppLanguage.Gujarati, Str.Settings_Language_Gujarati, "Gujarati gu"),
+        (AppLanguage.Malay, Str.Settings_Language_Malay, "Malay ms"),
+        (AppLanguage.Ukrainian, Str.Settings_Language_Ukrainian, "Ukrainian uk"),
+        (AppLanguage.Romanian, Str.Settings_Language_Romanian, "Romanian ro"),
+        (AppLanguage.Greek, Str.Settings_Language_Greek, "Greek el"),
+        (AppLanguage.Czech, Str.Settings_Language_Czech, "Czech cs"),
+        (AppLanguage.Kannada, Str.Settings_Language_Kannada, "Kannada kn"),
+        (AppLanguage.Malayalam, Str.Settings_Language_Malayalam, "Malayalam ml"),
+        (AppLanguage.Amharic, Str.Settings_Language_Amharic, "Amharic am"),
+        (AppLanguage.Yoruba, Str.Settings_Language_Yoruba, "Yoruba yo"),
+        (AppLanguage.Burmese, Str.Settings_Language_Burmese, "Burmese Myanmar my"),
     ];
 
     /// <summary>[S-3536] The Language &amp; region line and its submenu, its value the language that holds.</summary>

@@ -1,0 +1,15 @@
+{
+  "online.rain.label": "അടുത്ത മണിക്കൂറിലെ മഴ",
+  "online.rain.desc": "മഴ തുടങ്ങുകയോ നിൽക്കുകയോ ചെയ്യുന്നത്, {minutes} മിനിറ്റ് ഇടവേളകളിൽ",
+  "online.rain.startsIn": "{minutes} മിനിറ്റിനുള്ളിൽ മഴ",
+  "online.rain.stopsIn": "{minutes} മിനിറ്റിനുള്ളിൽ മഴ നിൽക്കും",
+  "online.rain.continues": "അടുത്ത 2 മണിക്കൂർ മഴ",
+  "online.rain.dry": "അടുത്ത 2 മണിക്കൂറിൽ മഴയില്ല",
+  "online.rain.outdated": "അടുത്ത മണിക്കൂറിന് പ്രവചനമില്ല",
+  "online.rain.intensity.light": "നേരിയ മഴ",
+  "online.rain.intensity.moderate": "മിതമായ മഴ",
+  "online.rain.intensity.heavy": "കനത്ത മഴ",
+  "online.rain.chance": "{percent} സാധ്യത",
+  "online.rain.total": "2 മണിക്കൂറിൽ {amount} മി.മീ",
+  "online.rain.now": "ഇപ്പോൾ"
+}

@@ -1,0 +1,9 @@
+{
+  "styles.memory.bar": "ဘား",
+  "styles.memory.free": "{size} လွတ်",
+  "styles.memory.gauge": "တိုင်းကိရိယာ",
+  "styles.memory.graph": "ဂရပ်",
+  "styles.memory.used": "{size} သုံးထား",
+  "widgetsA.catalog.memory.description": "သုံးနေသော physical မမ်မိုရီ",
+  "widgetsA.catalog.memory.label": "မမ်မိုရီ"
+}

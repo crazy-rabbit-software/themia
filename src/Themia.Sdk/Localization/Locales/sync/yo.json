@@ -1,0 +1,9 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "sync.updated": "Ìmúdójúìwọ̀n {time}",
+  "sync.stateUpdated": "{state} · ìmúdójúìwọ̀n {time}",
+  "sync.pending": {
+    "other": "ìyípadà {count} ń dúró láti mú ṣọ̀kan"
+  },
+  "sync.queueFull": "Ìyípadà tó pọ̀ jù ń dúró láti mú ṣọ̀kan; a kò pa èyí mọ́."
+}

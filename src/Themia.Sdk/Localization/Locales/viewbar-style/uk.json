@@ -1,0 +1,10 @@
+{
+  "barMenus.viewBar.type": "Тип",
+  "barMenus.viewBar.labels": "Підписи",
+  "shell.viewBar.typeInline": "У рядку",
+  "shell.viewBar.typeSelect": "Список вибору",
+  "shell.viewBar.labelsIconAndText": "Значок і текст",
+  "shell.viewBar.labelsIconOnly": "Лише значок",
+  "shell.viewBar.labelsTextOnly": "Лише текст",
+  "shell.viewBar.pickTip": "{name}\nКлацни, щоб вибрати вигляд"
+}

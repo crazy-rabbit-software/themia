@@ -1,0 +1,8 @@
+{
+  "menu.rename": "പേരുമാറ്റുക…",
+  "menu.add": "ചേർക്കുക…",
+  "menu.reorderHint": "പുനഃക്രമീകരിക്കാൻ വലിച്ചിടുക, അല്ലെങ്കിൽ Ctrl+Up അല്ലെങ്കിൽ Ctrl+Down അമർത്തുക",
+  "menu.filter": "തിരയുക",
+  "menu.opensIn": "{name} തുറക്കുന്നു",
+  "menu.numberRange": "{min} മുതൽ {max} വരെയുള്ള ഒരു സംഖ്യ നൽകുക"
+}

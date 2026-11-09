@@ -1,0 +1,11 @@
+{
+  "details.catalog.processes.desc": "പ്രോസസർ അല്ലെങ്കിൽ മെമ്മറി അനുസരിച്ച്, ഏറ്റവും തിരക്കുള്ള ആപ്പുകൾ",
+  "details.processes.unavailable": "Windows പ്രോസസുകൾ ലിസ്റ്റ് ചെയ്തില്ല",
+  "details.catalog.processes.label": "മുൻനിര പ്രോസസുകൾ",
+  "details.settings.processes.group.label": "ആപ്പ് അനുസരിച്ച് ഗ്രൂപ്പ് ചെയ്യുക",
+  "details.settings.processes.rows.fit": "ഒതുങ്ങുന്നത്ര",
+  "details.settings.processes.rows.label": "വരികൾ",
+  "details.settings.processes.sort.cpu": "പ്രോസസർ",
+  "details.settings.processes.sort.label": "റാങ്ക് ചെയ്യുന്നത്",
+  "details.settings.processes.sort.memory": "മെമ്മറി"
+}

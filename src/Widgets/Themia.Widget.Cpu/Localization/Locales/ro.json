@@ -1,0 +1,9 @@
+{
+  "styles.cpu.coreGraphs": "Grafice pe nucleu",
+  "styles.cpu.cores": "Toate nucleele",
+  "styles.cpu.gauge": "Indicator",
+  "styles.cpu.graph": "Grafic",
+  "styles.cpu.grid": "Grilă de nuclee",
+  "widgetsA.catalog.cpu.label": "CPU",
+  "widgetsA.catalog.cpu.description": "Încărcarea procesorului pe toate nucleele"
+}

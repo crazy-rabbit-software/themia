@@ -1,0 +1,14 @@
+{
+  "recycleBin.desc": "Наскільки заповнений кошик, з кнопкою «Очистити»",
+  "recycleBin.empty": "Очистити",
+  "recycleBin.isEmpty": "Немає елементів",
+  "recycleBin.items": {
+    "one": "{count} елемент",
+    "few": "{count} елементи",
+    "many": "{count} елементів",
+    "other": "{count} елемента"
+  },
+  "recycleBin.open": "Відкрити кошик",
+  "recycleBin.emptyEllipsis": "Очистити кошик…",
+  "widgetsC.location.recycleBin": "Кошик"
+}

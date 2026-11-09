@@ -1,0 +1,16 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "online.rain.label": "Déšť v příští hodině",
+  "online.rain.desc": "Kdy déšť začne nebo skončí, po {minutes}minutových krocích",
+  "online.rain.startsIn": "Déšť za {minutes} min",
+  "online.rain.stopsIn": "Déšť skončí za {minutes} min",
+  "online.rain.continues": "Déšť v příštích 2 hodinách",
+  "online.rain.dry": "V příštích 2 hodinách bez deště",
+  "online.rain.outdated": "Žádná předpověď na příští hodinu",
+  "online.rain.intensity.light": "Slabý déšť",
+  "online.rain.intensity.moderate": "Mírný déšť",
+  "online.rain.intensity.heavy": "Silný déšť",
+  "online.rain.chance": "Pravděpodobnost {percent}",
+  "online.rain.total": "{amount} mm za 2 hodiny",
+  "online.rain.now": "Teď"
+}

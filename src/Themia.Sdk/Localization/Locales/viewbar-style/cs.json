@@ -1,0 +1,11 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "barMenus.viewBar.type": "Typ",
+  "barMenus.viewBar.labels": "Popisky",
+  "shell.viewBar.typeInline": "V řádku",
+  "shell.viewBar.typeSelect": "Výběr",
+  "shell.viewBar.labelsIconAndText": "Ikona a text",
+  "shell.viewBar.labelsIconOnly": "Jen ikona",
+  "shell.viewBar.labelsTextOnly": "Jen text",
+  "shell.viewBar.pickTip": "{name}\nKliknutím vybereš pohled"
+}

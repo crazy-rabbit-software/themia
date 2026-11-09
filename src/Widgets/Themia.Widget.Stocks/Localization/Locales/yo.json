@@ -1,0 +1,29 @@
+{
+  "stocks.dimWhenClosed": "Àmì ọjà tí a tì",
+  "stocks.extendedHours": "Wákàtí àfikún",
+  "stocks.extendedHoursDesc": "Tọpasẹ̀ ìṣòwò ṣáájú ìṣí ọjà àti lẹ́yìn wákàtí (1D àti 5D)",
+  "stocks.setup": "Yan àmì ọjà",
+  "stocks.showMinMax": "Àmì kéré jù/ga jù",
+  "stocks.tab.symbols": "Àmì ọjà",
+  "stocks.timeframe": "Sáà àkókò",
+  "styles.stocks.chart": "Àtẹ",
+  "styles.stocks.number": "Nọ́ńbà",
+  "widget.stocks.label": "Àwọn ìpín ọjà",
+  "widgetsA.catalog.stocks.description": "Àwọn àmì ọjà àti owó dígítà, pẹ̀lú àtẹ kékeré",
+  "widgetsC.stocks.holding.amount": "{amount} ní ọwọ́",
+  "widgetsC.stocks.noQuote": "Kò sí iye fún àmì yẹn",
+  "widgetsC.stocks.notSymbol": "\"{symbol}\" kì í ṣe àmì ọjà",
+  "widgetsC.stocks.period.days": {
+    "other": "Ọjọ́ {count}"
+  },
+  "widgetsC.stocks.period.months": {
+    "other": "Oṣù {count}"
+  },
+  "widgetsC.stocks.period.years": {
+    "other": "Ọdún {count}"
+  },
+  "widgetsC.stocks.phaseTooltip": "{phase}. {zone}",
+  "widgetsC.stocks.settings.holding.label": "Ìpín tí o ní",
+  "widgetsC.stocks.settings.holding.refused": "Tẹ iye {zero} tàbí jù bẹ́ẹ̀ lọ, bíi {example}",
+  "widgetsC.stocks.settings.symbolRefused": "Yan èsì ìṣàwárí kan, tàbí tẹ àmì ọjà: lẹ́tà, díjítì àti . - ^ = nìkan"
+}

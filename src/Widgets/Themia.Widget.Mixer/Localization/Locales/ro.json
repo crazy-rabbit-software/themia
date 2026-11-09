@@ -1,0 +1,18 @@
+{
+  "mixer.cfg.activeLabel": "Doar aplicațiile care redau acum",
+  "mixer.cfg.iconsLabel": "Pictograme aplicații",
+  "mixer.cfg.systemLabel": "Sunete de sistem",
+  "mixer.empty": "Nicio aplicație nu redă sunet",
+  "mixer.systemSounds": "Sunete de sistem",
+  "mixer.unknownApp": "Aplicație necunoscută",
+  "widgetsA.catalog.mixer.description": "Volumul fiecărei aplicații care redă sunet",
+  "widgetsA.catalog.mixer.label": "Mixer",
+  "widgetsB.mixer.defaultNotChanged": "Ieșirea implicită nu a fost schimbată",
+  "widgetsB.mixer.deviceMissing": "{device} nu este conectat",
+  "widgetsB.mixer.followDefault": "Urmează ieșirea implicită",
+  "widgetsB.mixer.noDevice": "Niciun dispozitiv de ieșire",
+  "widgetsB.mixer.notPlaying": "{name} (nu redă)",
+  "widgetsB.mixer.unavailable": "Sunetul nu este disponibil",
+  "widgetsB.settings.mixer.groupByApp.label": "Un rând per aplicație",
+  "widgetsB.settings.mixer.note": "Fă clic pe mixer, apoi ↑ și ↓ aleg un rând, ← și → îl modifică, M dezactivează sunetul."
+}

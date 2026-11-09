@@ -1,0 +1,51 @@
+{
+  "common.search": "ಹುಡುಕು",
+  "ctxMenu.iconOnly": "ಐಕಾನ್ ಮಾತ್ರ",
+  "ctxMenu.list": "ಪಟ್ಟಿ",
+  "ctxMenu.openDouble": "ಡಬಲ್ ಕ್ಲಿಕ್‌ನಲ್ಲಿ ತೆರೆ",
+  "ctxMenu.openSingle": "ಒಂದೇ ಕ್ಲಿಕ್‌ನಲ್ಲಿ ತೆರೆ",
+  "recycleBin.emptyEllipsis": "ಮರುಬಳಕೆ ಬುಟ್ಟಿ ಖಾಲಿ ಮಾಡು…",
+  "shortcut.addTitle": "ಶಾರ್ಟ್‌ಕಟ್ ಸೇರಿಸು",
+  "shortcut.copyPath": "ಪಾತ್ ನಕಲಿಸು",
+  "shortcut.copyUrl": "URL ನಕಲಿಸು",
+  "shortcut.editLayoutMenu": "ಲೇಔಟ್ ಎಡಿಟ್ ಮಾಡು…",
+  "widgetsA.catalog.shortcuts.description": "ನೀನು ಕೈಗೆಟುಕುವಂತೆ ಇಡುವ ಲಿಂಕ್‌ಗಳು, ಫೈಲ್‌ಗಳು ಮತ್ತು ಫೋಲ್ಡರ್‌ಗಳು",
+  "widgetsA.catalog.shortcuts.label": "ಶಾರ್ಟ್‌ಕಟ್‌ಗಳು",
+  "widgetsC.shortcuts.column.kind": "ಬಗೆ",
+  "widgetsC.shortcuts.column.target": "ಗುರಿ",
+  "widgetsC.shortcuts.drop.add": "ಶಾರ್ಟ್‌ಕಟ್‌ಗಳಿಗೆ ಸೇರಿಸು",
+  "widgetsC.shortcuts.drop.moveHere": "ಇಲ್ಲಿಗೆ ಸರಿಸು",
+  "widgetsC.shortcuts.kind.location": "Windows ಸ್ಥಳ",
+  "widgetsC.shortcuts.kind.missing": "ಕಾಣೆಯಾಗಿದೆ",
+  "widgetsC.shortcuts.kind.path": "ಪಾತ್",
+  "widgetsC.shortcuts.kind.refused": "ಅನುಮತಿ ಇಲ್ಲ",
+  "widgetsC.shortcuts.menu.addLayout": "ಆ್ಯಪ್ ಲೇಔಟ್…",
+  "widgetsC.shortcuts.menu.addLink": "ವೆಬ್ ವಿಳಾಸ ಅಥವಾ ಪಾತ್…",
+  "widgetsC.shortcuts.menu.changeTarget": "ಗುರಿ ಬದಲಾಯಿಸು…",
+  "widgetsC.shortcuts.menu.closeSearch": "ಹುಡುಕಾಟ ಮುಚ್ಚು",
+  "widgetsC.shortcuts.menu.openLayout": "ಲೇಔಟ್ ತೆರೆ",
+  "widgetsC.shortcuts.menu.openMany": {
+    "one": "{count} ಶಾರ್ಟ್‌ಕಟ್ ತೆರೆ",
+    "other": "{count} ಶಾರ್ಟ್‌ಕಟ್‌ಗಳನ್ನು ತೆರೆ"
+  },
+  "widgetsC.shortcuts.menu.removeMany": {
+    "one": "{count} ಶಾರ್ಟ್‌ಕಟ್ ತೆಗೆದುಹಾಕು",
+    "other": "{count} ಶಾರ್ಟ್‌ಕಟ್‌ಗಳನ್ನು ತೆಗೆದುಹಾಕು"
+  },
+  "widgetsC.shortcuts.menu.undoRemove": "ತೆಗೆದುಹಾಕಿದ್ದನ್ನು ರದ್ದುಗೊಳಿಸು",
+  "widgetsC.shortcuts.menu.undoRemoveCount": {
+    "one": "ತೆಗೆದುಹಾಕಿದ್ದನ್ನು ರದ್ದುಗೊಳಿಸು ({count})",
+    "other": "ತೆಗೆದುಹಾಕಿದ್ದನ್ನು ರದ್ದುಗೊಳಿಸು ({count})"
+  },
+  "widgetsC.shortcuts.search": "ಶಾರ್ಟ್‌ಕಟ್‌ಗಳನ್ನು ಹುಡುಕು",
+  "widgetsC.shortcuts.settings.list.empty": "ಇನ್ನೂ ಯಾವುದೇ ಶಾರ್ಟ್‌ಕಟ್‌ಗಳಿಲ್ಲ.",
+  "widgetsC.shortcuts.settings.locations": "Windows ಸ್ಥಳಗಳು",
+  "widgetsC.shortcuts.settings.openWith.double": "ಡಬಲ್ ಕ್ಲಿಕ್",
+  "widgetsC.shortcuts.settings.openWith.label": "ಇದರಿಂದ ತೆರೆ",
+  "widgetsC.shortcuts.settings.openWith.single": "ಒಂದೇ ಕ್ಲಿಕ್",
+  "widgetsC.shortcuts.settings.pick.file": "ಫೈಲ್…",
+  "widgetsC.shortcuts.settings.pick.folder": "ಫೋಲ್ಡರ್…",
+  "widgetsC.shortcuts.settings.view.tiles": "ಟೈಲ್‌ಗಳು",
+  "widgetsC.shortcuts.setup": "ಶಾರ್ಟ್‌ಕಟ್ ಸೇರಿಸು",
+  "widgetsC.shortcuts.tooltip.missing": "{name} (ಗುರಿ ಕಾಣೆಯಾಗಿದೆ)\n{target}"
+}

@@ -1,0 +1,32 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "calendar.agendaEvents.label": "Acara agenda",
+  "calendar.noEventsToday": "Tiada acara hari ini",
+  "calendar.noUpcoming": "Tiada acara akan datang.",
+  "calendar.today": "Hari ini",
+  "common.next": "Seterusnya",
+  "styles.calendar.agenda": "Agenda",
+  "styles.calendar.day": "Hari",
+  "styles.calendar.desc": "Acara dan hari jadi kamu mengikut bulan, minggu, hari atau tahun, atau sebagai agenda",
+  "styles.calendar.label": "Kalendar",
+  "styles.calendar.month": "Bulan",
+  "styles.calendar.week": "Minggu",
+  "styles.calendar.year": "Tahun",
+  "widgetsA.calendar.allDayOn": "Sepanjang hari · {date}",
+  "widgetsA.calendar.birthday": "Hari jadi",
+  "widgetsA.calendar.noEvents": "Tiada acara",
+  "widgetsA.calendar.now": "Sekarang",
+  "widgetsA.calendar.previous": "Sebelumnya",
+  "widgetsA.calendar.settings.agendaRange.custom": "Tersuai",
+  "widgetsA.calendar.settings.agendaRange.days": {
+    "other": "{count} hari"
+  },
+  "widgetsA.calendar.settings.agendaRange.label": "Julat tarikh",
+  "widgetsA.calendar.settings.agendaRange.todayTomorrow": "Hari ini dan esok",
+  "widgetsA.calendar.settings.days.label": "Hari ditunjukkan",
+  "widgetsA.calendar.settings.weekFrom.label": "Bermula pada",
+  "widgetsA.calendar.settings.weekFrom.weekStart": "Hari pertama minggu ({day})",
+  "widgetsA.calendar.spanWithLength": "{from}–{to} ({length})",
+  "widgetsA.clock.date": "{weekday}, {date}",
+  "calendar.setup.sentence": "Tambah akaun untuk menunjukkan kalendar kamu"
+}

@@ -1,0 +1,16 @@
+{
+  "panels.notifications.allow": "ಅನುಮತಿಸು",
+  "panels.notifications.clearAll": "ಎಲ್ಲವನ್ನೂ ತೆರವುಗೊಳಿಸು",
+  "panels.notifications.clearApp": "{app} ನಿಂದ ಬಂದ ಎಲ್ಲವನ್ನೂ ತೆರವುಗೊಳಿಸು",
+  "panels.notifications.denied": "Themia ಗೆ ಅಧಿಸೂಚನೆ ಪ್ರವೇಶ ಆಫ್ ಆಗಿದೆ",
+  "panels.notifications.desc": "Windows ಅಧಿಸೂಚನೆಗಳು, ಆ್ಯಪ್ ಪ್ರಕಾರ ಗುಂಪು ಮಾಡಲಾಗಿದೆ",
+  "panels.notifications.dismiss": "ವಜಾಗೊಳಿಸು",
+  "panels.notifications.label": "ಅಧಿಸೂಚನೆಗಳು",
+  "panels.notifications.none": "ಹೊಸ ಅಧಿಸೂಚನೆಗಳಿಲ್ಲ",
+  "panels.notifications.open": "{app} ತೆರೆ",
+  "panels.notifications.openSettings": "ಸೆಟ್ಟಿಂಗ್‌ಗಳನ್ನು ತೆರೆ",
+  "panels.notifications.seeFewer": "ಕಡಿಮೆ ನೋಡು",
+  "panels.notifications.seeMore": "ಇನ್ನಷ್ಟು ನೋಡು ({count})",
+  "panels.notifications.unspecified": "ನಿನ್ನ ಅಧಿಸೂಚನೆಗಳನ್ನು ಓದಲು Themia ಗೆ ಅನುಮತಿಸು",
+  "panels.notifications.unsupported": "Windows ನ ಈ ಆವೃತ್ತಿಯಲ್ಲಿ ಓದಲು ಅಧಿಸೂಚನೆ ಪಟ್ಟಿ ಇಲ್ಲ"
+}

@@ -1,0 +1,8 @@
+{
+  "menu.rename": "Redenumește…",
+  "menu.add": "Adaugă…",
+  "menu.numberRange": "Introdu un număr de la {min} la {max}",
+  "menu.reorderHint": "Trage pentru a reordona sau apasă Ctrl+Sus ori Ctrl+Jos",
+  "menu.filter": "Caută",
+  "menu.opensIn": "Deschide {name}"
+}

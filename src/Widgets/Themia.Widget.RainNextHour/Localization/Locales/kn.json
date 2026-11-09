@@ -1,0 +1,15 @@
+{
+  "online.rain.label": "ಮುಂದಿನ ಗಂಟೆಯ ಮಳೆ",
+  "online.rain.desc": "ಮಳೆ ಯಾವಾಗ ಶುರುವಾಗುತ್ತದೆ ಅಥವಾ ನಿಲ್ಲುತ್ತದೆ, {minutes} ನಿಮಿಷದ ಹಂತಗಳಲ್ಲಿ",
+  "online.rain.startsIn": "{minutes} ನಿಮಿಷದಲ್ಲಿ ಮಳೆ",
+  "online.rain.stopsIn": "{minutes} ನಿಮಿಷದಲ್ಲಿ ಮಳೆ ನಿಲ್ಲುತ್ತದೆ",
+  "online.rain.continues": "ಮುಂದಿನ 2 ಗಂಟೆ ಮಳೆ",
+  "online.rain.dry": "ಮುಂದಿನ 2 ಗಂಟೆಗಳಲ್ಲಿ ಮಳೆ ಇಲ್ಲ",
+  "online.rain.outdated": "ಮುಂದಿನ ಗಂಟೆಗೆ ಮುನ್ಸೂಚನೆ ಇಲ್ಲ",
+  "online.rain.intensity.light": "ಸಾಧಾರಣ ಮಳೆ",
+  "online.rain.intensity.moderate": "ಮಧ್ಯಮ ಮಳೆ",
+  "online.rain.intensity.heavy": "ಭಾರೀ ಮಳೆ",
+  "online.rain.chance": "{percent} ಸಾಧ್ಯತೆ",
+  "online.rain.total": "2 ಗಂಟೆಗಳಲ್ಲಿ {amount} mm",
+  "online.rain.now": "ಈಗ"
+}

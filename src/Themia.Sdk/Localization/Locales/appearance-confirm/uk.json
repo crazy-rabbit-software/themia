@@ -1,0 +1,5 @@
+{
+  "shell.appearance.replaceLook.title": "Замінити твій власний вигляд?",
+  "shell.appearance.replaceLook.body": "{preset} замінює твою тему, кольори, шрифт, рамку, кути й відступи. Розмір тексту, масштаб віджетів і анімація лишаються як є.",
+  "shell.appearance.replaceLook.action": "Замінити"
+}

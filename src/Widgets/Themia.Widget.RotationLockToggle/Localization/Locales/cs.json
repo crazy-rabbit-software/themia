@@ -1,0 +1,5 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "toggles.rotationLock.label": "Zámek otáčení zap./vyp.",
+  "toggles.rotationLock.desc": "Zabrání otáčení obrazovky spolu se zařízením"
+}

@@ -1,0 +1,10 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "sync.updated": "{time} ಅಪ್‌ಡೇಟ್ ಆಗಿದೆ",
+  "sync.stateUpdated": "{state} · {time} ಅಪ್‌ಡೇಟ್ ಆಗಿದೆ",
+  "sync.pending": {
+    "one": "{count} ಬದಲಾವಣೆ ಸಿಂಕ್‌ಗಾಗಿ ಕಾಯುತ್ತಿದೆ",
+    "other": "{count} ಬದಲಾವಣೆಗಳು ಸಿಂಕ್‌ಗಾಗಿ ಕಾಯುತ್ತಿವೆ"
+  },
+  "sync.queueFull": "ತುಂಬಾ ಬದಲಾವಣೆಗಳು ಸಿಂಕ್‌ಗಾಗಿ ಕಾಯುತ್ತಿವೆ; ಇದನ್ನು ಉಳಿಸಲಾಗಿಲ್ಲ."
+}

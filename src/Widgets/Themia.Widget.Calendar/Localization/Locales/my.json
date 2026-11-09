@@ -1,0 +1,31 @@
+{
+  "calendar.agendaEvents.label": "အစီအစဉ် ဖြစ်ရပ်များ",
+  "calendar.noEventsToday": "ယနေ့ ဖြစ်ရပ် မရှိပါ",
+  "calendar.noUpcoming": "လာမည့် ဖြစ်ရပ် မရှိပါ။",
+  "calendar.today": "ယနေ့",
+  "common.next": "နောက်",
+  "styles.calendar.agenda": "အစီအစဉ်",
+  "styles.calendar.day": "နေ့",
+  "styles.calendar.desc": "သင့်ဖြစ်ရပ်များနှင့် မွေးနေ့များကို လ၊ ရက်သတ္တပတ်၊ နေ့ သို့မဟုတ် နှစ်အလိုက်၊ သို့မဟုတ် အစီအစဉ်အဖြစ်",
+  "styles.calendar.label": "ပြက္ခဒိန်",
+  "styles.calendar.month": "လ",
+  "styles.calendar.week": "ရက်သတ္တပတ်",
+  "styles.calendar.year": "နှစ်",
+  "widgetsA.calendar.allDayOn": "တစ်နေကုန် · {date}",
+  "widgetsA.calendar.birthday": "မွေးနေ့",
+  "widgetsA.calendar.noEvents": "ဖြစ်ရပ် မရှိပါ",
+  "widgetsA.calendar.now": "ယခု",
+  "widgetsA.calendar.previous": "ယခင်",
+  "widgetsA.calendar.settings.agendaRange.custom": "စိတ်ကြိုက်",
+  "widgetsA.calendar.settings.agendaRange.days": {
+    "other": "{count} ရက်"
+  },
+  "widgetsA.calendar.settings.agendaRange.label": "ရက်စွဲ အပိုင်းအခြား",
+  "widgetsA.calendar.settings.agendaRange.todayTomorrow": "ယနေ့နှင့် မနက်ဖြန်",
+  "widgetsA.calendar.settings.days.label": "ပြမည့် နေ့များ",
+  "widgetsA.calendar.settings.weekFrom.label": "စမည့်နေ့",
+  "widgetsA.calendar.settings.weekFrom.weekStart": "ရက်သတ္တပတ်၏ ပထမနေ့ ({day})",
+  "widgetsA.calendar.spanWithLength": "{from}–{to} ({length})",
+  "widgetsA.clock.date": "{weekday}၊ {date}",
+  "calendar.setup.sentence": "သင့်ပြက္ခဒိန်ကို ပြရန် အကောင့်တစ်ခု ထည့်ပါ"
+}

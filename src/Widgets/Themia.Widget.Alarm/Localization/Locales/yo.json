@@ -1,0 +1,16 @@
+{
+  "alarm.desc": "Ó ń dún ní àkókò tí o yàn, lẹ́ẹ̀kan tàbí ní àwọn ọjọ́ tí o yàn",
+  "alarm.label": "Aago ìjìdìde",
+  "alarm.settings.namePlaceholder": "Orúkọ (àṣàyàn)",
+  "alarm.settings.name.label": "Orúkọ",
+  "alarm.settings.on.label": "Títàn",
+  "alarm.settings.repeat": "Ó ń tún dún ní",
+  "alarm.settings.repeat.desc": "Kò sí èyí tí a yàn: yóò dún lẹ́ẹ̀kan",
+  "alarm.settings.snooze.label": "Sún síwájú fún",
+  "alarm.settings.sound.label": "Ohùn",
+  "alarm.settings.time.label": "Àkókò",
+  "alarm.settings.volume.label": "Ìwọ̀n ohùn",
+  "alarm.settings.whileRunning": "Aago ìjìdìde máa ń dún kìkì nígbà tí Themia bá ń ṣiṣẹ́. Èyí tí àkókò rẹ̀ bá tó nígbà tí PC ń sùn yóò dún nígbà tí ó bá jí, tí ìyẹn bá wà láàárín ìṣẹ́jú márùn-ún.",
+  "alarm.switchOff": "Pa {name}",
+  "alarm.switchOn": "Tàn {name}"
+}

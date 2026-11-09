@@ -1,0 +1,45 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "shell.view.colour": "ቀለም",
+  "shell.view.colourDefault": "የጽሑፍ ቀለም",
+  "shell.appearance.themeColours": "ገጽታ እና ቀለሞች",
+  "shell.appearance.cards": "የዊጀት ካርዶች",
+  "shell.appearance.textAndSize": "ጽሑፍ እና መጠን",
+  "shell.net.blockedLocal": "{host} በአካባቢው አውታረ መረብ ላይ ነው። Themia ወደዚያ የሚሄደው እርስዎ ራስዎ ለተየቡት አድራሻ ብቻ ነው",
+  "shell.accounts.stats.mail": "ደብዳቤ",
+  "shell.accounts.stats.calendar": "ቀን መቁጠሪያ",
+  "shell.accounts.stats.contacts": "እውቂያዎች",
+  "shell.accounts.stats.tasks": "ተግባራት",
+  "shell.accounts.stats.messages": {
+    "one": "{count} መልዕክት",
+    "other": "{count} መልዕክቶች"
+  },
+  "shell.accounts.stats.events": {
+    "one": "{count} ክስተት",
+    "other": "{count} ክስተቶች"
+  },
+  "shell.accounts.stats.people": {
+    "one": "{count} እውቂያ",
+    "other": "{count} እውቂያዎች"
+  },
+  "shell.accounts.stats.taskCount": {
+    "one": "{count} ተግባር",
+    "other": "{count} ተግባራት"
+  },
+  "shell.accounts.stats.folders": {
+    "one": "በ{count} አቃፊ ውስጥ",
+    "other": "በ{count} አቃፊዎች ውስጥ"
+  },
+  "shell.accounts.stats.calendars": {
+    "one": "በ{count} ቀን መቁጠሪያ ውስጥ",
+    "other": "በ{count} ቀን መቁጠሪያዎች ውስጥ"
+  },
+  "shell.accounts.stats.lists": {
+    "one": "በ{count} ዝርዝር ውስጥ",
+    "other": "በ{count} ዝርዝሮች ውስጥ"
+  },
+  "shell.accounts.stats.synced": "{time} ተመሳስሏል",
+  "shell.accounts.stats.neverSynced": "እስካሁን አልተመሳሰለም",
+  "shell.accounts.stats.nothing": "እስካሁን በዚህ ፒሲ ላይ ምንም አልተቀመጠም",
+  "shell.accounts.reconnect": "እንደገና ይግቡ"
+}

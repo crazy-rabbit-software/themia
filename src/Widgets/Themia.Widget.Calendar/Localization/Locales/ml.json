@@ -1,0 +1,32 @@
+{
+  "calendar.agendaEvents.label": "അജണ്ട ഇവന്റുകൾ",
+  "calendar.noEventsToday": "ഇന്ന് ഇവന്റുകളില്ല",
+  "calendar.noUpcoming": "വരാനിരിക്കുന്ന ഇവന്റുകളില്ല.",
+  "calendar.today": "ഇന്ന്",
+  "common.next": "അടുത്തത്",
+  "styles.calendar.agenda": "അജണ്ട",
+  "styles.calendar.day": "ദിവസം",
+  "styles.calendar.desc": "മാസം, ആഴ്ച, ദിവസം അല്ലെങ്കിൽ വർഷം അനുസരിച്ച്, അല്ലെങ്കിൽ അജണ്ടയായി, നിങ്ങളുടെ ഇവന്റുകളും ജന്മദിനങ്ങളും",
+  "styles.calendar.label": "കലണ്ടർ",
+  "styles.calendar.month": "മാസം",
+  "styles.calendar.week": "ആഴ്ച",
+  "styles.calendar.year": "വർഷം",
+  "widgetsA.calendar.allDayOn": "ദിവസം മുഴുവൻ · {date}",
+  "widgetsA.calendar.birthday": "ജന്മദിനം",
+  "widgetsA.calendar.noEvents": "ഇവന്റുകളില്ല",
+  "widgetsA.calendar.now": "ഇപ്പോൾ",
+  "widgetsA.calendar.previous": "മുമ്പത്തേത്",
+  "widgetsA.calendar.settings.agendaRange.custom": "ഇഷ്‌ടാനുസൃതം",
+  "widgetsA.calendar.settings.agendaRange.days": {
+    "one": "{count} ദിവസം",
+    "other": "{count} ദിവസം"
+  },
+  "widgetsA.calendar.settings.agendaRange.label": "തീയതി പരിധി",
+  "widgetsA.calendar.settings.agendaRange.todayTomorrow": "ഇന്നും നാളെയും",
+  "widgetsA.calendar.settings.days.label": "കാണിക്കുന്ന ദിവസങ്ങൾ",
+  "widgetsA.calendar.settings.weekFrom.label": "തുടങ്ങുന്നത്",
+  "widgetsA.calendar.settings.weekFrom.weekStart": "ആഴ്ചയിലെ ആദ്യ ദിവസം ({day})",
+  "widgetsA.calendar.spanWithLength": "{from}–{to} ({length})",
+  "widgetsA.clock.date": "{weekday}, {date}",
+  "calendar.setup.sentence": "നിങ്ങളുടെ കലണ്ടർ കാണിക്കാൻ ഒരു അക്കൗണ്ട് ചേർക്കുക"
+}

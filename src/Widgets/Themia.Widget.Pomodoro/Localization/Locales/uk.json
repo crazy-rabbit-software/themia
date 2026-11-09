@@ -1,0 +1,19 @@
+{
+  "pomodoro.alarmSound.label": "Звук сигналу",
+  "pomodoro.alarmVolume.label": "Гучність сигналу",
+  "pomodoro.breakLength.label": "Тривалість перерви",
+  "pomodoro.focusLength.label": "Тривалість зосередження",
+  "pomodoro.reset": "Скинути",
+  "styles.pomodoro.bar": "Смуга",
+  "styles.pomodoro.digits": "Цифри",
+  "styles.pomodoro.ring": "Кільце",
+  "widgetUi.break": "Перерва",
+  "widgetUi.focus": "Зосередження",
+  "widget.pomodoro.label": "Pomodoro",
+  "widgetsA.catalog.pomodoro.description": "Таймер зосередження й перерв",
+  "widgetsC.pomodoro.next": "Далі: {phase} {time}",
+  "widgetsC.pomodoro.pause": "Пауза",
+  "widgetsC.pomodoro.skip": "Перейти до наступної фази",
+  "widgetsC.pomodoro.start": "Почати",
+  "widgetsC.pomodoro.minutesUnit": " хв"
+}

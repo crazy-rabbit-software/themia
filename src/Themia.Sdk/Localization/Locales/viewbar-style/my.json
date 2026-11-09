@@ -1,0 +1,10 @@
+{
+  "barMenus.viewBar.type": "အမျိုးအစား",
+  "barMenus.viewBar.labels": "တံဆိပ်များ",
+  "shell.viewBar.typeInline": "တစ်တန်းတည်း",
+  "shell.viewBar.typeSelect": "ရွေးချယ်ရန်",
+  "shell.viewBar.labelsIconAndText": "အိုင်ကွန်နှင့် စာသား",
+  "shell.viewBar.labelsIconOnly": "အိုင်ကွန်သာ",
+  "shell.viewBar.labelsTextOnly": "စာသားသာ",
+  "shell.viewBar.pickTip": "{name}\nမြင်ကွင်းတစ်ခု ရွေးရန် နှိပ်ပါ"
+}

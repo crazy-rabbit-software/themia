@@ -1,0 +1,5 @@
+{
+  "screentime.ofGoal": "з {value}",
+  "widgetsC.screenTime.donut.desc": "Частка кожної програми в часі використання, у вигляді кільця",
+  "widgetsC.screenTime.donut.label": "Кільце часу використання"
+}

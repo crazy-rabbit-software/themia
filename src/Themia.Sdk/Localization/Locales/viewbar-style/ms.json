@@ -1,0 +1,11 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "barMenus.viewBar.type": "Jenis",
+  "barMenus.viewBar.labels": "Label",
+  "shell.viewBar.typeInline": "Sebaris",
+  "shell.viewBar.typeSelect": "Pilih",
+  "shell.viewBar.labelsIconAndText": "Ikon dan teks",
+  "shell.viewBar.labelsIconOnly": "Ikon sahaja",
+  "shell.viewBar.labelsTextOnly": "Teks sahaja",
+  "shell.viewBar.pickTip": "{name}\nKlik untuk memilih paparan"
+}

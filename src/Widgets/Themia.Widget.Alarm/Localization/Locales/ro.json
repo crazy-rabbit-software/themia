@@ -1,0 +1,16 @@
+{
+  "alarm.desc": "Sună la ora setată, o dată sau în zilele alese",
+  "alarm.label": "Alarmă",
+  "alarm.settings.namePlaceholder": "Nume (opțional)",
+  "alarm.settings.name.label": "Nume",
+  "alarm.settings.on.label": "Activată",
+  "alarm.settings.repeat": "Se repetă în",
+  "alarm.settings.repeat.desc": "Nicio zi aleasă: sună o singură dată",
+  "alarm.settings.snooze.label": "Amânare pentru",
+  "alarm.settings.sound.label": "Sunet",
+  "alarm.settings.time.label": "Oră",
+  "alarm.settings.volume.label": "Volum",
+  "alarm.settings.whileRunning": "Alarmele sună doar cât rulează Themia. Una care vine la rând cât PC-ul e în repaus sună la trezire, dacă asta se întâmplă în cinci minute.",
+  "alarm.switchOff": "Dezactivează {name}",
+  "alarm.switchOn": "Activează {name}"
+}

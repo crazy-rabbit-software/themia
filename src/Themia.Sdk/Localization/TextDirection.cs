@@ -64,6 +64,9 @@ public static class TextDirection
     /// digits, as Windows' fa-IR does. Thai, Telugu, Tamil, Gujarati and Punjabi keep Latin
     /// digits, Windows' default for th-TH, te-IN, ta-IN, gu-IN and pa-IN (their own digits are an
     /// opt-in there); so does every other language here.
+    /// Burmese is laid out with an English tag: Windows substitutes Burmese digits for every digit
+    /// under any <c>my</c> tag (<c>-u-nu-latn</c> included), and its tall ၂ ran down into the line below
+    /// the clock. Its letters still come out in Myanmar Text, which font fallback picks by script.
     /// </para>
     /// </summary>
     public static string LayoutTag(Locale locale) => locale switch
@@ -91,6 +94,16 @@ public static class TextDirection
         Locale.Fa => "fa-IR",
         Locale.Th => "th-TH",
         Locale.Gu => "gu-IN",
+        Locale.Ms => "ms-MY",
+        Locale.Uk => "uk-UA",
+        Locale.Ro => "ro-RO",
+        Locale.El => "el-GR",
+        Locale.Cs => "cs-CZ",
+        Locale.Kn => "kn-IN",
+        Locale.Ml => "ml-IN",
+        Locale.Am => "am-ET",
+        Locale.Yo => "yo-NG",
+        Locale.My => "en-US",
         _ => LanguageResolver.Code(locale),
     };
 }

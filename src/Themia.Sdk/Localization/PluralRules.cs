@@ -38,6 +38,9 @@ public static class PluralRules
             case Locale.Ko:
             case Locale.ZhHant:
             case Locale.Th:
+            case Locale.Ms:
+            case Locale.Yo:
+            case Locale.My:
                 return PluralCategory.Other;
 
             case Locale.Fr:
@@ -47,6 +50,8 @@ public static class PluralRules
             case Locale.Pa:
             case Locale.Gu:
             case Locale.Fa:
+            case Locale.Kn:
+            case Locale.Am:
                 // fr, pt: i = 0,1. hi, bn, gu, fa: i = 0 or n = 1; pa: n = 0..1 — the same for whole numbers.
                 return n <= 1 ? PluralCategory.One : PluralCategory.Other;
 
@@ -55,6 +60,7 @@ public static class PluralRules
                 return n % 10 is 4 or 6 or 9 ? PluralCategory.Other : PluralCategory.One;
 
             case Locale.Ru:
+            case Locale.Uk:
             {
                 // one: 1, 21, 31 … but not 11; few: 2–4, 22–24 … but not 12–14; many: the rest
                 // (0, 5–20, 25–30 …). "other" is for fractions only.
@@ -106,8 +112,29 @@ public static class PluralRules
                 return PluralCategory.Many;
             }
 
+            case Locale.Cs:
+                // cs: one 1, few 2–4, other every other whole number ("many" is for fractions only).
+                return n switch
+                {
+                    1 => PluralCategory.One,
+                    >= 2 and <= 4 => PluralCategory.Few,
+                    _ => PluralCategory.Other,
+                };
+
+            case Locale.Ro:
+            {
+                // ro: one 1, few 0 and n % 100 = 2–19 (2–19, 101–119 …), other the rest (20 …, 100 …).
+                if (n == 1)
+                {
+                    return PluralCategory.One;
+                }
+
+                var mod100 = n % 100;
+                return n == 0 || mod100 is >= 2 and <= 19 ? PluralCategory.Few : PluralCategory.Other;
+            }
+
             default:
-                // en, de, es, it, ur, mr, nl, tr, te, ha, sw, ta: n = 1.
+                // en, de, es, it, ur, mr, nl, tr, te, ha, sw, ta, el, ml: n = 1.
                 return n == 1 ? PluralCategory.One : PluralCategory.Other;
         }
     }
@@ -115,8 +142,9 @@ public static class PluralRules
     /// <summary>The categories a language uses for whole numbers (what a translator must supply).</summary>
     public static IReadOnlyList<PluralCategory> Categories(Locale locale) => locale switch
     {
-        Locale.Ja or Locale.Zh or Locale.Id or Locale.Vi or Locale.Ko or Locale.ZhHant or Locale.Th => [PluralCategory.Other],
-        Locale.Pl or Locale.Ru => [PluralCategory.One, PluralCategory.Few, PluralCategory.Many, PluralCategory.Other],
+        Locale.Ja or Locale.Zh or Locale.Id or Locale.Vi or Locale.Ko or Locale.ZhHant or Locale.Th or Locale.Ms or Locale.Yo or Locale.My => [PluralCategory.Other],
+        Locale.Pl or Locale.Ru or Locale.Uk => [PluralCategory.One, PluralCategory.Few, PluralCategory.Many, PluralCategory.Other],
+        Locale.Cs or Locale.Ro => [PluralCategory.One, PluralCategory.Few, PluralCategory.Other],
         Locale.Ar => [PluralCategory.Zero, PluralCategory.One, PluralCategory.Two, PluralCategory.Few, PluralCategory.Many, PluralCategory.Other],
         _ => [PluralCategory.One, PluralCategory.Other],
     };

@@ -1,0 +1,10 @@
+{
+  "settingsAccounts.ownServer": "Setez singur serverul",
+  "settingsAccounts.test": "Testează conexiunea",
+  "settingsAccounts.connectedTo": "Conectat la {host}.",
+  "settingsAccounts.noServer": "Themia nu cunoaște serverul pentru {domain}. Setează-l singur.",
+  "settingsAccounts.davAddress": "Introdu adresa web a serverului, de exemplu https://cloud.example.com.",
+  "settingsAccounts.code": "Cod",
+  "settingsAccounts.pasteToken": "Lipește mai întâi tokenul.",
+  "settingsAccounts.enterAddress": "Introdu adresa de e-mail și parola ei."
+}

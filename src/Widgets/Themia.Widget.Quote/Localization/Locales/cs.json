@@ -1,0 +1,20 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "widgetsA.catalog.quote.label": "Citát",
+  "widgetsA.catalog.quote.description": "Věta, která stojí za opakované přečtení",
+  "quote.shuffle": "Zamíchat",
+  "widgetsC.quote.quoted": "„{text}“",
+  "widgetsC.quote.showAnother": "Zobrazit jiný citát",
+  "widgetsC.quote.settings.quotes": "Citáty",
+  "widgetsC.quote.settings.emptyList": "Nezbyly žádné citáty. Widget to bude hlásit, dokud nějaký nepřidáš.",
+  "widgetsC.quote.settings.add.title": "Přidat citát",
+  "widgetsC.quote.settings.textPlaceholder": "Něco, co stojí za opakované přečtení",
+  "widgetsC.quote.settings.authorPlaceholder": "Kdo to řekl",
+  "widgetsC.quote.settings.showAuthor.label": "Zobrazit autora",
+  "widgetsC.quote.settings.reshuffle.label": "Znovu zamíchat",
+  "widgetsC.quote.settings.cadence.manual": "Jen po kliknutí",
+  "widgetsC.quote.settings.cadence.hourly": "Každou hodinu",
+  "widgetsC.quote.settings.cadence.daily": "Každý den",
+  "styles.quote.plain": "Prosté",
+  "styles.quote.marks": "Velké uvozovky"
+}

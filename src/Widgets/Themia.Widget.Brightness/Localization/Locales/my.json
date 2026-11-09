@@ -1,0 +1,10 @@
+{
+  "panels.brightness.all": "မျက်နှာပြင်အားလုံး",
+  "panels.brightness.desc": "မျက်နှာပြင် တောက်ပမှုအတွက် slider တစ်ခု",
+  "panels.brightness.label": "တောက်ပမှု",
+  "panels.brightness.level": "တောက်ပမှု {level}",
+  "panels.brightness.none": "သတ်မှတ်ရန် မျက်နှာပြင် တောက်ပမှု မရှိပါ",
+  "panels.brightness.own": "ရှိနေသော မျက်နှာပြင်သာ",
+  "panels.brightness.ownNone": "ဤမျက်နှာပြင်၏ တောက်ပမှုကို သတ်မှတ်၍ မရပါ",
+  "panels.brightness.screensLabel": "မှိန်စေမည့် မျက်နှာပြင်များ"
+}

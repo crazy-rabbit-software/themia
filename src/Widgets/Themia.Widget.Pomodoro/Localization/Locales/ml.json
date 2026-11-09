@@ -1,0 +1,19 @@
+{
+  "pomodoro.alarmSound.label": "അലാറം ശബ്‌ദം",
+  "pomodoro.alarmVolume.label": "അലാറം വോളിയം",
+  "pomodoro.breakLength.label": "ഇടവേളയുടെ ദൈർഘ്യം",
+  "pomodoro.focusLength.label": "ഫോക്കസ് ദൈർഘ്യം",
+  "pomodoro.reset": "റീസെറ്റ് ചെയ്യുക",
+  "styles.pomodoro.bar": "ബാർ",
+  "styles.pomodoro.digits": "അക്കങ്ങൾ",
+  "styles.pomodoro.ring": "വളയം",
+  "widgetUi.break": "ഇടവേള",
+  "widgetUi.focus": "ഫോക്കസ്",
+  "widget.pomodoro.label": "Pomodoro",
+  "widgetsA.catalog.pomodoro.description": "ഒരു ഫോക്കസ്, ഇടവേള ടൈമർ",
+  "widgetsC.pomodoro.next": "അടുത്തത്: {phase} {time}",
+  "widgetsC.pomodoro.pause": "താൽക്കാലികമായി നിർത്തുക",
+  "widgetsC.pomodoro.skip": "അടുത്ത ഘട്ടത്തിലേക്ക് പോകുക",
+  "widgetsC.pomodoro.start": "ആരംഭിക്കുക",
+  "widgetsC.pomodoro.minutesUnit": " മി"
+}

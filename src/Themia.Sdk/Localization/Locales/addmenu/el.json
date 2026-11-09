@@ -1,0 +1,17 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "addMenu.popular": "Δημοφιλή",
+  "addMenu.browse": "Περιήγηση",
+  "addMenu.subject.time": "Ώρα",
+  "addMenu.subject.calendar": "Ημερολόγιο και αλληλογραφία",
+  "addMenu.subject.weather": "Καιρός και ουρανός",
+  "addMenu.subject.markets": "Ειδήσεις και αγορές",
+  "addMenu.subject.media": "Μουσική και πολυμέσα",
+  "addMenu.subject.notes": "Σημειώσεις και εργαλεία",
+  "addMenu.subject.files": "Αρχεία και εφαρμογές",
+  "addMenu.subject.system": "Σύστημα",
+  "addMenu.subject.devices": "Συσκευές και τροφοδοσία",
+  "addMenu.subject.more": "Περισσότερα",
+  "addMenu.family.screenTime": "Χρόνος οθόνης",
+  "addMenu.family.powerButtons": "Κουμπιά τροφοδοσίας"
+}

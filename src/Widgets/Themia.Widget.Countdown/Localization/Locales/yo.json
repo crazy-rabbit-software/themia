@@ -1,0 +1,44 @@
+{
+  "countdown.setup": "Yan ọjọ́ tí a ó kà dé",
+  "styles.countdown.ring": "Òrùka",
+  "styles.countdown.text": "Ọ̀rọ̀",
+  "styles.countdown.unitDays": "ọjọ́",
+  "styles.countdown.unitHours": "wákàtí",
+  "styles.countdown.unitMinutes": "ìṣẹ́jú",
+  "styles.countdown.unitSeconds": "àáyá",
+  "widget.countdown.label": "Ìkàsẹ̀yìn",
+  "widgetsA.catalog.countdown.description": "Àkókò tó kù títí di ọjọ́ kan tó ṣe pàtàkì sí ọ",
+  "widgetsA.countdown.ago": "{duration} sẹ́yìn",
+  "widgetsA.countdown.compact.dh": "{days}ọj {hours}wk",
+  "widgetsA.countdown.compact.dhm": "{days}ọj {hours}wk {minutes}ìṣ",
+  "widgetsA.countdown.compact.dhms": "{days}ọj {hours}wk {minutes}ìṣ {seconds}àá",
+  "widgetsA.countdown.compact.hm": "{hours}wk {minutes}ìṣ",
+  "widgetsA.countdown.dateTime": "{date}, {time}",
+  "widgetsA.countdown.days": {
+    "other": "ọjọ́ {count}"
+  },
+  "widgetsA.countdown.daysAgo": {
+    "other": "ọjọ́ {count} sẹ́yìn"
+  },
+  "widgetsA.countdown.daysIn": {
+    "other": "lẹ́yìn ọjọ́ {count}"
+  },
+  "widgetsA.countdown.format.auto": "Aládàáṣe",
+  "widgetsA.countdown.format.days": "Ọjọ́ nìkan",
+  "widgetsA.countdown.format.dhm": "Ọjọ́ · Wákàtí · Ìṣẹ́jú",
+  "widgetsA.countdown.format.dhms": "Ọjọ́ · Wákàtí · Ìṣẹ́jú · Àáyá",
+  "widgetsA.countdown.fullDateTime": "{date} ní {time}",
+  "widgetsA.countdown.hours": {
+    "other": "wákàtí {count}"
+  },
+  "widgetsA.countdown.in": "lẹ́yìn {duration}",
+  "widgetsA.countdown.inAMoment": "láìpẹ́",
+  "widgetsA.countdown.justNow": "ní báyìí",
+  "widgetsA.countdown.minutes": {
+    "other": "ìṣẹ́jú {count}"
+  },
+  "widgetsA.countdown.settings.format.label": "Ìgbékalẹ̀",
+  "widgetsA.countdown.settings.name.label": "Orúkọ",
+  "widgetsA.countdown.untitled": "Aláìlórúkọ",
+  "styles.clock.flip": "Yíyí"
+}

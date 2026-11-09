@@ -1,0 +1,13 @@
+{
+  "desktop.choice.label": "ဒက်စ်တော့ပေါ်တွင်",
+  "desktop.choice.themia": "Themia ၏ အရာများ",
+  "desktop.choice.windows": "Windows ၏ အိုင်ကွန်များ",
+  "desktop.choice.nothing": "ဘာမှ မပြ",
+  "desktop.add.folder": "ဒက်စ်တော့ပေါ်တွင်",
+  "desktop.rename.clash": "ဤနေရာတွင် ဤအမည်ဖြင့် အရာတစ်ခု ရှိပြီးဖြစ်သည်။",
+  "desktop.menu.edit": "ဝစ်ဂျက်များ တည်းဖြတ်ရန်",
+  "desktop.delete.fromView": "ဤမြင်ကွင်းမှ ဖယ်ရှားရန်",
+  "desktop.automation.list": "ဒက်စ်တော့",
+  "desktop.coexist.replaced": "အခြား ပရိုဂရမ်တစ်ခုက ဒက်စ်တော့၏ အိုင်ကွန်များကို အစားထိုးထားသဖြင့် Themia သည် ဒက်စ်တော့ကို ၎င်းထံ ချန်ထားသည်။",
+  "desktop.coexist.keptShown": "အခြား ပရိုဂရမ်တစ်ခုက Windows ၏ အိုင်ကွန်များကို ဆက်ပြနေသဖြင့် Themia က ၎င်းတို့ကို ပြထားသည်။ ထပ်စမ်းရန် ရွေးချယ်မှုတစ်ခုကို ထပ်ရွေးပါ။"
+}

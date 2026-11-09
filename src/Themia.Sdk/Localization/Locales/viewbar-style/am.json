@@ -1,0 +1,10 @@
+{
+  "barMenus.viewBar.type": "ዓይነት",
+  "barMenus.viewBar.labels": "መለያዎች",
+  "shell.viewBar.typeInline": "በመስመር",
+  "shell.viewBar.typeSelect": "ምረጥ",
+  "shell.viewBar.labelsIconAndText": "አዶ እና ጽሑፍ",
+  "shell.viewBar.labelsIconOnly": "አዶ ብቻ",
+  "shell.viewBar.labelsTextOnly": "ጽሑፍ ብቻ",
+  "shell.viewBar.pickTip": "{name}\nእይታ ለመምረጥ ጠቅ ያድርጉ"
+}

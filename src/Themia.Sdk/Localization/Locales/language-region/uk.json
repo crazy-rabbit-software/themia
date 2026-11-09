@@ -1,0 +1,7 @@
+{
+  "languageRegion.nav": "Мова й регіон",
+  "languageRegion.clock": "Формат часу",
+  "languageRegion.clock12": "{hours}-годинний",
+  "languageRegion.clock24": "{hours}-годинний",
+  "languageRegion.followWindows": "Налаштування Windows ({value})"
+}

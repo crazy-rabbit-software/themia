@@ -1,0 +1,5 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "meeting.nowEnds": "Τώρα · λήγει {time}",
+  "meeting.dayTime": "{day}, {time}"
+}

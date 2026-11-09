@@ -1,0 +1,7 @@
+{
+  "languageRegion.nav": "Limbă și regiune",
+  "languageRegion.clock": "Format oră",
+  "languageRegion.clock12": "{hours} ore",
+  "languageRegion.clock24": "{hours} ore",
+  "languageRegion.followWindows": "Setarea Windows ({value})"
+}

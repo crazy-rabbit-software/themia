@@ -1,0 +1,31 @@
+{
+  "widget.bluetooth.label": "Bluetooth",
+  "widgetsA.bluetooth.connected": "Conectat",
+  "widgetsA.bluetooth.connectedCount": {
+    "one": "{count} conectat",
+    "few": "{count} conectate",
+    "other": "{count} conectate"
+  },
+  "widgetsA.bluetooth.kind.audio": "Audio",
+  "widgetsA.bluetooth.kind.controller": "Controler",
+  "widgetsA.bluetooth.kind.device": "Dispozitiv",
+  "widgetsA.bluetooth.kind.keyboard": "Tastatură",
+  "widgetsA.bluetooth.kind.mouse": "Mouse",
+  "widgetsA.bluetooth.kind.pen": "Stilou",
+  "widgetsA.bluetooth.kind.phone": "Telefon",
+  "widgetsA.bluetooth.kind.watch": "Ceas",
+  "widgetsA.bluetooth.paired": "Asociat",
+  "widgetsA.bluetooth.settings.connectedOnly.label": "Doar conectate",
+  "widgetsA.bluetooth.settings.connection.label": "Conexiune",
+  "widgetsA.bluetooth.settings.icon.label": "Pictogramă dispozitiv",
+  "widgetsA.bluetooth.settings.signal.label": "Putere semnal",
+  "widgetsA.bluetooth.status.failed": "Dispozitivele asociate nu au putut fi citite",
+  "widgetsA.bluetooth.status.loading": "Se citesc dispozitivele asociate",
+  "widgetsA.bluetooth.status.noRadio": "Acest PC nu are Bluetooth",
+  "widgetsA.bluetooth.status.none": "Niciun dispozitiv asociat",
+  "widgetsA.bluetooth.status.permissionDenied": "Windows nu a acordat acces la emițătoare",
+  "widgetsA.bluetooth.status.radioOff": "Bluetooth este dezactivat",
+  "widgetsA.bluetooth.unknownDevice": "Dispozitiv necunoscut",
+  "widgetsA.catalog.bluetooth.description": "Dispozitivele asociate și bateria lor",
+  "widget.battery.label": "Baterie"
+}

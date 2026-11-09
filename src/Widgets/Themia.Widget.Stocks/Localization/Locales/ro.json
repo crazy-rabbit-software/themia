@@ -1,0 +1,35 @@
+{
+  "stocks.dimWhenClosed": "Indicator de închidere",
+  "stocks.extendedHours": "Program extins",
+  "stocks.extendedHoursDesc": "Urmărește tranzacțiile înainte de deschidere și după închidere (1Z și 5Z)",
+  "stocks.setup": "Alege un simbol",
+  "stocks.showMinMax": "Marcaje min/max",
+  "stocks.tab.symbols": "Simbol",
+  "stocks.timeframe": "Interval de timp",
+  "styles.stocks.chart": "Grafic",
+  "styles.stocks.number": "Număr",
+  "widget.stocks.label": "Acțiuni",
+  "widgetsA.catalog.stocks.description": "Simboluri bursiere și cripto, cu un minigrafic",
+  "widgetsC.stocks.holding.amount": "{amount} deținute",
+  "widgetsC.stocks.noQuote": "Nicio cotație pentru acest simbol",
+  "widgetsC.stocks.notSymbol": "„{symbol}” nu este un simbol",
+  "widgetsC.stocks.period.days": {
+    "one": "{count} zi",
+    "few": "{count} zile",
+    "other": "{count} de zile"
+  },
+  "widgetsC.stocks.period.months": {
+    "one": "{count} lună",
+    "few": "{count} luni",
+    "other": "{count} de luni"
+  },
+  "widgetsC.stocks.period.years": {
+    "one": "{count} an",
+    "few": "{count} ani",
+    "other": "{count} de ani"
+  },
+  "widgetsC.stocks.phaseTooltip": "{phase}. {zone}",
+  "widgetsC.stocks.settings.holding.label": "Acțiuni deținute",
+  "widgetsC.stocks.settings.holding.refused": "Scrie o cantitate de {zero} sau mai mult, de exemplu {example}",
+  "widgetsC.stocks.settings.symbolRefused": "Alege un rezultat al căutării sau scrie un simbol: doar litere, cifre și . - ^ ="
+}

@@ -1,0 +1,15 @@
+{
+  "panels.focus.desc": "ለማተኮር ጊዜ፣ ማሳወቂያዎች ተይዘው",
+  "panels.focus.end": "ክፍለ ጊዜውን ጨርስ",
+  "panels.focus.label": "የትኩረት ክፍለ ጊዜ",
+  "panels.focus.left": "{time} ቀርቷል",
+  "panels.focus.lengthLabel": "ርዝመት",
+  "panels.focus.longer": "ረዘም",
+  "panels.focus.quietLabel": "አትረብሽን አብራ",
+  "panels.focus.quietOn": "አትረብሽ በርቷል",
+  "panels.focus.quietUnavailable": "አትረብሽ እዚህ ሊበራ አይችልም",
+  "panels.focus.shorter": "አጠር",
+  "panels.focus.start": "ጀምር",
+  "panels.focus.willQuiet": "አትረብሽን ያበራል",
+  "panels.focus.windows": "የWindows የትኩረት ክፍለ ጊዜ በርቷል"
+}

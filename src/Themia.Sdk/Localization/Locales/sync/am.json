@@ -1,0 +1,10 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "sync.updated": "{time} ዘምኗል",
+  "sync.stateUpdated": "{state} · {time} ዘምኗል",
+  "sync.pending": {
+    "one": "ለማመሳሰል የሚጠብቅ {count} ለውጥ",
+    "other": "ለማመሳሰል የሚጠብቁ {count} ለውጦች"
+  },
+  "sync.queueFull": "ለማመሳሰል የሚጠብቁ ለውጦች በጣም ብዙ ናቸው፤ ይህኛው አልተቀመጠም።"
+}

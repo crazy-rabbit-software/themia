@@ -1,0 +1,8 @@
+{
+  "shell.items.background": "የንጥል ዳራ",
+  "shell.items.text": "የንጥል ጽሑፍ ቀለም",
+  "shell.items.textShort": "የንጥል ጽሑፍ",
+  "shell.fill.transparent": "ግልጽ",
+  "shell.fill.opacity": "ግልጽነት",
+  "shell.fill.withOpacity": "{colour}፣ {percent}"
+}

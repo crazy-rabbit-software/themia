@@ -1,0 +1,12 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "widget.volume.label": "Kelantangan",
+  "widgetsA.catalog.volume.description": "Tahap output utama dan redam",
+  "widgetsC.volume.defaultNotChanged": "Output lalai tidak diubah",
+  "widgetsC.volume.followDefault": "Ikut output lalai",
+  "widgetsC.volume.noDevice": "Tiada peranti output",
+  "widgetsC.volume.notConnected": "{device} tidak disambungkan",
+  "widgetsC.volume.settings.allow.label": "Benarkan perubahan",
+  "widgetsC.volume.settings.keysNote": "Klik jubin, kemudian guna kekunci anak panah atau + dan −; M meredam.",
+  "widgetsC.volume.unavailable": "Bunyi tidak tersedia"
+}

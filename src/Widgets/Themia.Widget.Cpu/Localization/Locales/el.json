@@ -1,0 +1,9 @@
+{
+  "styles.cpu.coreGraphs": "Γραφήματα πυρήνων",
+  "styles.cpu.cores": "Όλοι οι πυρήνες",
+  "styles.cpu.gauge": "Μετρητής",
+  "styles.cpu.graph": "Γράφημα",
+  "styles.cpu.grid": "Πλέγμα πυρήνων",
+  "widgetsA.catalog.cpu.label": "CPU",
+  "widgetsA.catalog.cpu.description": "Φορτίο επεξεργαστή σε όλους τους πυρήνες"
+}

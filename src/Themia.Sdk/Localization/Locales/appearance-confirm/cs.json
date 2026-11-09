@@ -1,0 +1,6 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "shell.appearance.replaceLook.title": "Nahradit tvůj vlastní vzhled?",
+  "shell.appearance.replaceLook.body": "{preset} nahradí tvůj motiv, barvy, písmo, okraj, rohy a rozestupy. Velikost textu, měřítko widgetů a animace zůstanou, jak jsou.",
+  "shell.appearance.replaceLook.action": "Nahradit"
+}

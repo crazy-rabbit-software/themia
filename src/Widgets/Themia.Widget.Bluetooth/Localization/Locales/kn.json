@@ -1,0 +1,30 @@
+{
+  "widget.bluetooth.label": "Bluetooth",
+  "widgetsA.bluetooth.connected": "ಸಂಪರ್ಕಗೊಂಡಿದೆ",
+  "widgetsA.bluetooth.connectedCount": {
+    "one": "{count} ಸಂಪರ್ಕಗೊಂಡಿದೆ",
+    "other": "{count} ಸಂಪರ್ಕಗೊಂಡಿವೆ"
+  },
+  "widgetsA.bluetooth.kind.audio": "ಆಡಿಯೊ",
+  "widgetsA.bluetooth.kind.controller": "ಕಂಟ್ರೋಲರ್",
+  "widgetsA.bluetooth.kind.device": "ಸಾಧನ",
+  "widgetsA.bluetooth.kind.keyboard": "ಕೀಬೋರ್ಡ್",
+  "widgetsA.bluetooth.kind.mouse": "ಮೌಸ್",
+  "widgetsA.bluetooth.kind.pen": "ಪೆನ್",
+  "widgetsA.bluetooth.kind.phone": "ಫೋನ್",
+  "widgetsA.bluetooth.kind.watch": "ವಾಚ್",
+  "widgetsA.bluetooth.paired": "ಜೋಡಿಸಲಾಗಿದೆ",
+  "widgetsA.bluetooth.settings.connectedOnly.label": "ಸಂಪರ್ಕಗೊಂಡವು ಮಾತ್ರ",
+  "widgetsA.bluetooth.settings.connection.label": "ಸಂಪರ್ಕ",
+  "widgetsA.bluetooth.settings.icon.label": "ಸಾಧನದ ಐಕಾನ್",
+  "widgetsA.bluetooth.settings.signal.label": "ಸಿಗ್ನಲ್ ಸಾಮರ್ಥ್ಯ",
+  "widgetsA.bluetooth.status.failed": "ಜೋಡಿಸಿದ ಸಾಧನಗಳನ್ನು ಓದಲು ಆಗಲಿಲ್ಲ",
+  "widgetsA.bluetooth.status.loading": "ಜೋಡಿಸಿದ ಸಾಧನಗಳನ್ನು ಓದಲಾಗುತ್ತಿದೆ",
+  "widgetsA.bluetooth.status.noRadio": "ಈ PC ಯಲ್ಲಿ Bluetooth ರೇಡಿಯೊ ಇಲ್ಲ",
+  "widgetsA.bluetooth.status.none": "ಜೋಡಿಸಿದ ಸಾಧನಗಳಿಲ್ಲ",
+  "widgetsA.bluetooth.status.permissionDenied": "Windows ರೇಡಿಯೊಗಳಿಗೆ ಪ್ರವೇಶ ನೀಡಿಲ್ಲ",
+  "widgetsA.bluetooth.status.radioOff": "Bluetooth ಆಫ್ ಆಗಿದೆ",
+  "widgetsA.bluetooth.unknownDevice": "ಅಜ್ಞಾತ ಸಾಧನ",
+  "widgetsA.catalog.bluetooth.description": "ಜೋಡಿಸಿದ ಸಾಧನಗಳು ಮತ್ತು ಅವುಗಳ ಬ್ಯಾಟರಿ",
+  "widget.battery.label": "ಬ್ಯಾಟರಿ"
+}

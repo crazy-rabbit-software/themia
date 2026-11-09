@@ -1,0 +1,5 @@
+{
+  "kit.ownerProblem": "{name}: {reason}",
+  "kit.refreshUpdated": "Reîmprospătează · actualizat {age}",
+  "kit.problemSeveral": "{name} și încă {count} nu s-au putut încărca"
+}

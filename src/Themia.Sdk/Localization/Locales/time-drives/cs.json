@@ -1,0 +1,23 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "alarm.untitled": "Budík",
+  "alarm.off": "Vypnuto",
+  "alarm.ringing": "Zvoní",
+  "alarm.snoozedUntil": "Odloženo do {time}",
+  "alarm.everyDay": "Každý den",
+  "alarm.weekdays": "Pracovní dny",
+  "alarm.weekends": "Víkendy",
+  "alarm.snooze": "Odložit",
+  "alarm.dismiss": "Zavřít",
+  "drives.label.cd": "Jednotka CD",
+  "drives.label.network": "Síťová jednotka",
+  "drives.label.ram": "Disk RAM",
+  "drives.type.removable": "Vyměnitelný disk",
+  "drives.type.optical": "Jednotka CD",
+  "drives.type.network": "Síťová jednotka",
+  "drives.type.disconnected": "Odpojená síťová jednotka",
+  "drives.noMedia": "Žádné médium",
+  "drives.pending": "Připojování…",
+  "drives.disconnected": "Odpojeno",
+  "drives.eject": "Vysunout"
+}

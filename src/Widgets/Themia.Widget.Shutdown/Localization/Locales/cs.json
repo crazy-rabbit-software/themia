@@ -1,0 +1,5 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "widgetsC.power.desc.shutdown": "Zavře všechny aplikace a vypne počítač",
+  "power.action.shutdown": "Vypnout"
+}

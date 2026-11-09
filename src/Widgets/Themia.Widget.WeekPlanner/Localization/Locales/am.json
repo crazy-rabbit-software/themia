@@ -1,0 +1,9 @@
+{
+  "planner.desc": "የሚመጡት ቀናት ከክስተቶቻቸው ጋር፣ እና ዛሬ የሚያበቃው",
+  "planner.free": "ምንም አልታቀደም",
+  "planner.label": "የሳምንት ዕቅድ አውጪ",
+  "planner.showTasks": "የዛሬ ተግባራትን አሳይ",
+  "planner.taskAccount": "ተግባራት ከ",
+  "planner.taskAccountFirst": "ተግባራት ያሉት የመጀመሪያው መለያ",
+  "weekPlanner.setup.sentence": "ሳምንትዎን ለማቀድ መለያ ያክሉ"
+}

@@ -1,0 +1,19 @@
+{
+  "widgetsA.catalog.quote.label": "Àyọlò",
+  "widgetsA.catalog.quote.description": "Ìlà kan tó yẹ ká tún kà",
+  "quote.shuffle": "Dà á pọ̀",
+  "widgetsC.quote.quoted": "“{text}”",
+  "widgetsC.quote.showAnother": "Fi àyọlò míì hàn",
+  "widgetsC.quote.settings.quotes": "Àwọn àyọlò",
+  "widgetsC.quote.settings.emptyList": "Kò sí àyọlò kankan mọ́. Wíjẹ́ẹ̀tì náà yóò máa sọ bẹ́ẹ̀ títí a ó fi ṣàfikún ọ̀kan.",
+  "widgetsC.quote.settings.add.title": "Ṣàfikún àyọlò",
+  "widgetsC.quote.settings.textPlaceholder": "Ohun tó yẹ ká tún kà",
+  "widgetsC.quote.settings.authorPlaceholder": "Ta ló sọ ọ́",
+  "widgetsC.quote.settings.showAuthor.label": "Fi ẹni tó sọ ọ́ hàn",
+  "widgetsC.quote.settings.reshuffle.label": "Tún dà á pọ̀",
+  "widgetsC.quote.settings.cadence.manual": "Nígbà tí o bá tẹ̀ nìkan",
+  "widgetsC.quote.settings.cadence.hourly": "Ní gbogbo wákàtí",
+  "widgetsC.quote.settings.cadence.daily": "Ojoojúmọ́",
+  "styles.quote.plain": "Lásán",
+  "styles.quote.marks": "Àmì àyọlò ńlá"
+}

@@ -1,0 +1,11 @@
+{
+  "widget.volume.label": "የድምፅ መጠን",
+  "widgetsA.catalog.volume.description": "ዋና የውጤት ደረጃና ድምፅ አጥፋ",
+  "widgetsC.volume.defaultNotChanged": "ነባሪው ውጤት አልተቀየረም",
+  "widgetsC.volume.followDefault": "ነባሪውን ውጤት ተከተል",
+  "widgetsC.volume.noDevice": "ምንም የውጤት መሣሪያ የለም",
+  "widgetsC.volume.notConnected": "{device} አልተገናኘም",
+  "widgetsC.volume.settings.allow.label": "ለውጦችን ፍቀድ",
+  "widgetsC.volume.settings.keysNote": "ሰቁን ጠቅ ያድርጉ፣ ከዚያ የቀስት ቁልፎችን ወይም + እና −ን ይጠቀሙ፤ M ድምፅ ያጠፋል።",
+  "widgetsC.volume.unavailable": "ድምፅ አይገኝም"
+}

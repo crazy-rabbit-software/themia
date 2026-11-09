@@ -1,0 +1,12 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "widget.volume.label": "Hlasitost",
+  "widgetsA.catalog.volume.description": "Hlavní úroveň výstupu a ztlumení",
+  "widgetsC.volume.defaultNotChanged": "Výchozí výstup se nezměnil",
+  "widgetsC.volume.followDefault": "Řídit se výchozím výstupem",
+  "widgetsC.volume.noDevice": "Žádné výstupní zařízení",
+  "widgetsC.volume.notConnected": "{device} není připojeno",
+  "widgetsC.volume.settings.allow.label": "Povolit změny",
+  "widgetsC.volume.settings.keysNote": "Klikni na dlaždici a použij šipky nebo + a −, M ztlumí.",
+  "widgetsC.volume.unavailable": "Zvuk není k dispozici"
+}

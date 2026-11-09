@@ -1,0 +1,19 @@
+{
+  "widgetsA.catalog.quote.label": "Απόφθεγμα",
+  "widgetsA.catalog.quote.description": "Μια φράση που αξίζει να ξαναδιαβάσεις",
+  "quote.shuffle": "Τυχαία σειρά",
+  "widgetsC.quote.quoted": "«{text}»",
+  "widgetsC.quote.showAnother": "Εμφάνιση άλλου αποφθέγματος",
+  "widgetsC.quote.settings.quotes": "Αποφθέγματα",
+  "widgetsC.quote.settings.emptyList": "Δεν έμειναν αποφθέγματα. Το γραφικό στοιχείο θα το λέει μέχρι να προστεθεί ένα.",
+  "widgetsC.quote.settings.add.title": "Προσθήκη αποφθέγματος",
+  "widgetsC.quote.settings.textPlaceholder": "Κάτι που αξίζει να ξαναδιαβάσεις",
+  "widgetsC.quote.settings.authorPlaceholder": "Ποιος το είπε",
+  "widgetsC.quote.settings.showAuthor.label": "Εμφάνιση συγγραφέα",
+  "widgetsC.quote.settings.reshuffle.label": "Ανακάτεμα",
+  "widgetsC.quote.settings.cadence.manual": "Μόνο με κλικ",
+  "widgetsC.quote.settings.cadence.hourly": "Κάθε ώρα",
+  "widgetsC.quote.settings.cadence.daily": "Κάθε μέρα",
+  "styles.quote.plain": "Απλό",
+  "styles.quote.marks": "Μεγάλα εισαγωγικά"
+}

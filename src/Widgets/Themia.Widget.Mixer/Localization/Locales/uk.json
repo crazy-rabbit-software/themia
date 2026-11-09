@@ -1,0 +1,18 @@
+{
+  "mixer.cfg.activeLabel": "Лише програми, що відтворюють зараз",
+  "mixer.cfg.iconsLabel": "Значки програм",
+  "mixer.cfg.systemLabel": "Системні звуки",
+  "mixer.empty": "Жодна програма не відтворює звук",
+  "mixer.systemSounds": "Системні звуки",
+  "mixer.unknownApp": "Невідома програма",
+  "widgetsA.catalog.mixer.description": "Гучність для кожної програми, що відтворює звук",
+  "widgetsA.catalog.mixer.label": "Мікшер",
+  "widgetsB.mixer.defaultNotChanged": "Пристрій виводу за замовчуванням не змінено",
+  "widgetsB.mixer.deviceMissing": "{device} не підключено",
+  "widgetsB.mixer.followDefault": "Стежити за пристроєм виводу за замовчуванням",
+  "widgetsB.mixer.noDevice": "Немає пристрою виводу",
+  "widgetsB.mixer.notPlaying": "{name} (не відтворює)",
+  "widgetsB.mixer.unavailable": "Звук недоступний",
+  "widgetsB.settings.mixer.groupByApp.label": "Один рядок на програму",
+  "widgetsB.settings.mixer.note": "Клацни мікшер, потім ↑ і ↓ вибирають рядок, ← і → змінюють його, M вимикає звук."
+}

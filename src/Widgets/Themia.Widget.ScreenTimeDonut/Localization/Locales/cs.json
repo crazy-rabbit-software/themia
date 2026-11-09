@@ -1,0 +1,6 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "screentime.ofGoal": "z {value}",
+  "widgetsC.screenTime.donut.desc": "Podíl každé aplikace na tvém čase u obrazovky, jako kruh",
+  "widgetsC.screenTime.donut.label": "Čas u obrazovky: prstenec"
+}

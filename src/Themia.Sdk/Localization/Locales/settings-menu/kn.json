@@ -1,0 +1,20 @@
+{
+  "settingsMenu.onlineUpdates": "ಆನ್‌ಲೈನ್ ಅಪ್‌ಡೇಟ್‌ಗಳು",
+  "settingsMenu.gameMode": "ಪೂರ್ಣ ಪರದೆ ಆ್ಯಪ್‌ಗಳ ಸಮಯದಲ್ಲಿ ವಿರಾಮ",
+  "settingsMenu.findLanguage": "ಭಾಷೆ ಹುಡುಕು",
+  "settingsMenu.proFree": "ಉಚಿತ",
+  "settingsMenu.backup": "ಬ್ಯಾಕಪ್ ಮತ್ತು ಮರುಹೊಂದಿಕೆ",
+  "settingsMenu.about": "Themia ಬಗ್ಗೆ",
+  "settingsMenu.exportSettings": "ಸೆಟ್ಟಿಂಗ್‌ಗಳನ್ನು ರಫ್ತು ಮಾಡು…",
+  "settingsMenu.importSettings": "ಸೆಟ್ಟಿಂಗ್‌ಗಳನ್ನು ಆಮದು ಮಾಡು…",
+  "settingsMenu.resetAll": "ಎಲ್ಲಾ ಸೆಟ್ಟಿಂಗ್‌ಗಳನ್ನು ಮರುಹೊಂದಿಸು…",
+  "settingsMenu.reset": "ಮರುಹೊಂದಿಸು",
+  "settingsMenu.exported": "{file} ಆಗಿ ಉಳಿಸಲಾಗಿದೆ",
+  "settingsMenu.imported": "ಸೆಟ್ಟಿಂಗ್‌ಗಳನ್ನು ಆಮದು ಮಾಡಲಾಗಿದೆ. ನಿನ್ನ ಹಳೆಯವುಗಳನ್ನು {backup} ಆಗಿ ಇರಿಸಲಾಗಿದೆ.",
+  "settingsMenu.resetDone": "ಸೆಟ್ಟಿಂಗ್‌ಗಳನ್ನು ಮರುಹೊಂದಿಸಲಾಗಿದೆ. ನಿನ್ನ ಹಳೆಯವುಗಳನ್ನು {backup} ಆಗಿ ಇರಿಸಲಾಗಿದೆ.",
+  "settingsMenu.purchasing": "Microsoft Store ಗಾಗಿ ಕಾಯುತ್ತಿದೆ…",
+  "settingsMenu.aboutOpenMeteo": "ಹವಾಮಾನ, ಮಳೆ ಮತ್ತು ಗಾಳಿಯ ಗುಣಮಟ್ಟ. ಗಾಳಿಯ ಗುಣಮಟ್ಟ Copernicus Atmosphere Monitoring Service (CAMS) ನಿಂದಲೂ ಬರುತ್ತದೆ.",
+  "settingsMenu.uninstallEllipsis": "ಅನ್‌ಇನ್‌ಸ್ಟಾಲ್ ಮಾಡು…",
+  "settingsMenu.uninstallDataGoes": "ನಿನ್ನ ವಿಜೆಟ್‌ಗಳು, ಸೆಟ್ಟಿಂಗ್‌ಗಳು ಮತ್ತು ಖಾತೆಗಳೂ ಅಳಿಸಲ್ಪಡುತ್ತವೆ.",
+  "settingsMenu.uninstallDeleteData": "ನನ್ನ ಡೇಟಾವನ್ನೂ ಅಳಿಸು"
+}

@@ -1,0 +1,14 @@
+{
+  "barMenus.display": "Дисплей",
+  "barMenus.display.all": "Усі дисплеї",
+  "barMenus.display.showOn": "Показувати Themia на",
+  "barMenus.display.this": "Цей дисплей",
+  "barMenus.viewBar": "Панель виглядів",
+  "barMenus.viewBar.position": "Розташування",
+  "barMenus.viewBar.size": "Розмір",
+  "barMenus.viewBar.hidden": "Приховано",
+  "barMenus.viewBar.views": "Вигляди",
+  "barMenus.view.renameTitle": "Перейменувати вигляд",
+  "barMenus.view.deleteQuestion": "Видалити «{name}»?",
+  "barMenus.view.deleteDetail": "Його віджети зникнуть разом із ним ({widgets}). Скасування поверне все."
+}

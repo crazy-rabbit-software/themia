@@ -1,0 +1,32 @@
+{
+  "calendar.agendaEvents.label": "የአጀንዳ ክስተቶች",
+  "calendar.noEventsToday": "ዛሬ ምንም ክስተት የለም",
+  "calendar.noUpcoming": "ምንም መጪ ክስተት የለም።",
+  "calendar.today": "ዛሬ",
+  "common.next": "ቀጣይ",
+  "styles.calendar.agenda": "አጀንዳ",
+  "styles.calendar.day": "ቀን",
+  "styles.calendar.desc": "ክስተቶችዎና የልደት ቀናት በወር፣ በሳምንት፣ በቀን ወይም በዓመት፣ ወይም እንደ አጀንዳ",
+  "styles.calendar.label": "ቀን መቁጠሪያ",
+  "styles.calendar.month": "ወር",
+  "styles.calendar.week": "ሳምንት",
+  "styles.calendar.year": "ዓመት",
+  "widgetsA.calendar.allDayOn": "ሙሉ ቀን · {date}",
+  "widgetsA.calendar.birthday": "የልደት ቀን",
+  "widgetsA.calendar.noEvents": "ምንም ክስተት የለም",
+  "widgetsA.calendar.now": "አሁን",
+  "widgetsA.calendar.previous": "ያለፈው",
+  "widgetsA.calendar.settings.agendaRange.custom": "ብጁ",
+  "widgetsA.calendar.settings.agendaRange.days": {
+    "one": "{count} ቀን",
+    "other": "{count} ቀናት"
+  },
+  "widgetsA.calendar.settings.agendaRange.label": "የቀን ክልል",
+  "widgetsA.calendar.settings.agendaRange.todayTomorrow": "ዛሬ እና ነገ",
+  "widgetsA.calendar.settings.days.label": "የሚታዩ ቀናት",
+  "widgetsA.calendar.settings.weekFrom.label": "የሚጀምረው በ",
+  "widgetsA.calendar.settings.weekFrom.weekStart": "የሳምንቱ የመጀመሪያ ቀን ({day})",
+  "widgetsA.calendar.spanWithLength": "{from}–{to} ({length})",
+  "widgetsA.clock.date": "{weekday}፣ {date}",
+  "calendar.setup.sentence": "ቀን መቁጠሪያዎን ለማሳየት መለያ ያክሉ"
+}

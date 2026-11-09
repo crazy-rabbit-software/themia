@@ -1,0 +1,13 @@
+{
+  "shell.meters.gpuDescription": "ಒಂದು ಗ್ರಾಫಿಕ್ಸ್ ಕಾರ್ಡ್‌ನ ಲೋಡ್",
+  "styles.gpu.engine3d": "3D",
+  "styles.gpu.engineCopy": "ನಕಲು",
+  "styles.gpu.engineVideoDecode": "ವೀಡಿಯೊ ಡಿಕೋಡ್",
+  "styles.gpu.engineVideoEncode": "ವೀಡಿಯೊ ಎನ್‌ಕೋಡ್",
+  "styles.gpu.engines": "ಎಂಜಿನ್‌ಗಳು",
+  "styles.gpu.gauge": "ಗೇಜ್",
+  "styles.gpu.graph": "ಗ್ರಾಫ್",
+  "widgetsA.catalog.gpu.label": "GPU",
+  "widgetsB.gpu.adapterMissing": "ಆಯ್ಕೆಮಾಡಿದ ಗ್ರಾಫಿಕ್ಸ್ ಅಡಾಪ್ಟರ್ ಇಲ್ಲಿ ಇಲ್ಲ",
+  "widgetsB.gpu.noAdapter": "ಓದಲು ಯಾವುದೇ ಗ್ರಾಫಿಕ್ಸ್ ಅಡಾಪ್ಟರ್ ಇಲ್ಲ"
+}

@@ -1,0 +1,18 @@
+{
+  "mixer.cfg.activeLabel": "Μόνο εφαρμογές που παίζουν τώρα",
+  "mixer.cfg.iconsLabel": "Εικονίδια εφαρμογών",
+  "mixer.cfg.systemLabel": "Ήχοι συστήματος",
+  "mixer.empty": "Καμία εφαρμογή δεν παίζει ήχο",
+  "mixer.systemSounds": "Ήχοι συστήματος",
+  "mixer.unknownApp": "Άγνωστη εφαρμογή",
+  "widgetsA.catalog.mixer.description": "Ένταση για κάθε εφαρμογή που παίζει ήχο",
+  "widgetsA.catalog.mixer.label": "Μείκτης",
+  "widgetsB.mixer.defaultNotChanged": "Η προεπιλεγμένη έξοδος δεν άλλαξε",
+  "widgetsB.mixer.deviceMissing": "Το {device} δεν είναι συνδεδεμένο",
+  "widgetsB.mixer.followDefault": "Ακολούθηση της προεπιλεγμένης εξόδου",
+  "widgetsB.mixer.noDevice": "Χωρίς συσκευή εξόδου",
+  "widgetsB.mixer.notPlaying": "{name} (δεν παίζει)",
+  "widgetsB.mixer.unavailable": "Ο ήχος δεν είναι διαθέσιμος",
+  "widgetsB.settings.mixer.groupByApp.label": "Μία γραμμή ανά εφαρμογή",
+  "widgetsB.settings.mixer.note": "Κάνε κλικ στον μείκτη και μετά τα ↑ και ↓ διαλέγουν γραμμή, τα ← και → την αλλάζουν, το M κάνει σίγαση."
+}

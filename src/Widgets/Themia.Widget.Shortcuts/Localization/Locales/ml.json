@@ -1,0 +1,51 @@
+{
+  "common.search": "തിരയുക",
+  "ctxMenu.iconOnly": "ഐക്കൺ മാത്രം",
+  "ctxMenu.list": "ലിസ്റ്റ്",
+  "ctxMenu.openDouble": "ഡബിൾ ക്ലിക്കിൽ തുറക്കുക",
+  "ctxMenu.openSingle": "സിംഗിൾ ക്ലിക്കിൽ തുറക്കുക",
+  "recycleBin.emptyEllipsis": "റീസൈക്കിൾ ബിൻ ശൂന്യമാക്കുക…",
+  "shortcut.addTitle": "കുറുക്കുവഴി ചേർക്കുക",
+  "shortcut.copyPath": "പാത പകർത്തുക",
+  "shortcut.copyUrl": "URL പകർത്തുക",
+  "shortcut.editLayoutMenu": "ലേഔട്ട് എഡിറ്റ് ചെയ്യുക…",
+  "widgetsA.catalog.shortcuts.description": "നിങ്ങൾ കൈയെത്തും ദൂരത്ത് സൂക്ഷിക്കുന്ന ലിങ്കുകൾ, ഫയലുകൾ, ഫോൾഡറുകൾ",
+  "widgetsA.catalog.shortcuts.label": "കുറുക്കുവഴികൾ",
+  "widgetsC.shortcuts.column.kind": "തരം",
+  "widgetsC.shortcuts.column.target": "ലക്ഷ്യം",
+  "widgetsC.shortcuts.drop.add": "കുറുക്കുവഴികളിലേക്ക് ചേർക്കുക",
+  "widgetsC.shortcuts.drop.moveHere": "ഇവിടേക്ക് നീക്കുക",
+  "widgetsC.shortcuts.kind.location": "Windows ലൊക്കേഷൻ",
+  "widgetsC.shortcuts.kind.missing": "കാണാനില്ല",
+  "widgetsC.shortcuts.kind.path": "പാത",
+  "widgetsC.shortcuts.kind.refused": "അനുവദനീയമല്ല",
+  "widgetsC.shortcuts.menu.addLayout": "ആപ്പ് ലേഔട്ട്…",
+  "widgetsC.shortcuts.menu.addLink": "വെബ് വിലാസം അല്ലെങ്കിൽ പാത…",
+  "widgetsC.shortcuts.menu.changeTarget": "ലക്ഷ്യം മാറ്റുക…",
+  "widgetsC.shortcuts.menu.closeSearch": "തിരയൽ അടയ്ക്കുക",
+  "widgetsC.shortcuts.menu.openLayout": "ലേഔട്ട് തുറക്കുക",
+  "widgetsC.shortcuts.menu.openMany": {
+    "one": "{count} കുറുക്കുവഴി തുറക്കുക",
+    "other": "{count} കുറുക്കുവഴികൾ തുറക്കുക"
+  },
+  "widgetsC.shortcuts.menu.removeMany": {
+    "one": "{count} കുറുക്കുവഴി നീക്കം ചെയ്യുക",
+    "other": "{count} കുറുക്കുവഴികൾ നീക്കം ചെയ്യുക"
+  },
+  "widgetsC.shortcuts.menu.undoRemove": "നീക്കം ചെയ്തത് പഴയപടിയാക്കുക",
+  "widgetsC.shortcuts.menu.undoRemoveCount": {
+    "one": "നീക്കം ചെയ്തത് പഴയപടിയാക്കുക ({count})",
+    "other": "നീക്കം ചെയ്തത് പഴയപടിയാക്കുക ({count})"
+  },
+  "widgetsC.shortcuts.search": "കുറുക്കുവഴികൾ തിരയുക",
+  "widgetsC.shortcuts.settings.list.empty": "ഇതുവരെ കുറുക്കുവഴികളില്ല.",
+  "widgetsC.shortcuts.settings.locations": "Windows ലൊക്കേഷനുകൾ",
+  "widgetsC.shortcuts.settings.openWith.double": "ഡബിൾ ക്ലിക്ക്",
+  "widgetsC.shortcuts.settings.openWith.label": "ഇത് ഉപയോഗിച്ച് തുറക്കുക",
+  "widgetsC.shortcuts.settings.openWith.single": "സിംഗിൾ ക്ലിക്ക്",
+  "widgetsC.shortcuts.settings.pick.file": "ഫയൽ…",
+  "widgetsC.shortcuts.settings.pick.folder": "ഫോൾഡർ…",
+  "widgetsC.shortcuts.settings.view.tiles": "ടൈലുകൾ",
+  "widgetsC.shortcuts.setup": "ഒരു കുറുക്കുവഴി ചേർക്കുക",
+  "widgetsC.shortcuts.tooltip.missing": "{name} (ലക്ഷ്യം കാണാനില്ല)\n{target}"
+}

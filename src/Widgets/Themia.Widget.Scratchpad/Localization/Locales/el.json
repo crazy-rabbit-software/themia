@@ -1,0 +1,16 @@
+{
+  "scratchpad.drawHere": "Ζωγράφισε εδώ",
+  "scratchpad.penColorLabel": "Χρώμα πένας",
+  "scratchpad.penSizeLabel": "Μέγεθος πένας",
+  "widget.scratchpad.label": "Πρόχειρο σχέδιο",
+  "widgetsA.catalog.scratchpad.description": "Ένα μέρος για να ζωγραφίζεις",
+  "widgetsC.scratchpad.clearConfirm": "Απαλοιφή όλου του σχεδίου;",
+  "widgetsC.scratchpad.clearDrawing": "Απαλοιφή του σχεδίου",
+  "widgetsC.scratchpad.draw": "Σχεδίαση",
+  "widgetsC.scratchpad.eraseStrokes": "Σβήσιμο πινελιών",
+  "widgetsC.scratchpad.exitFullScreen": "Έξοδος από πλήρη οθόνη",
+  "widgetsC.scratchpad.fullScreen": "Πλήρης οθόνη",
+  "widgetsC.scratchpad.penSizeTip": "Μέγεθος πένας {size} px",
+  "widgetsC.scratchpad.settings.showTools.label": "Εμφάνιση εργαλείων",
+  "widgetsC.scratchpad.undo": "Αναίρεση"
+}

@@ -1,0 +1,22 @@
+{
+  "apps.viewCompact": "Συμπαγής",
+  "apps.viewGrid": "Πλέγμα",
+  "apps.viewList": "Λίστα",
+  "contacts.noContacts": "Δεν βρέθηκαν επαφές.",
+  "contacts.searchPlaceholder": "Αναζήτηση επαφών…",
+  "ctxMenu.call": "Κλήση",
+  "ctxMenu.copyEmail": "Αντιγραφή email",
+  "ctxMenu.copyName": "Αντιγραφή ονόματος",
+  "ctxMenu.copyPhone": "Αντιγραφή τηλεφώνου",
+  "ctxMenu.message": "Μήνυμα",
+  "ctxMenu.sendEmail": "Αποστολή email",
+  "widget.contacts.label": "Επαφές",
+  "widgetsA.catalog.contacts.description": "Άτομα από τα βιβλία διευθύνσεων Microsoft και CardDAV",
+  "widgetsA.contacts.noAccount": "Δεν υπάρχει ακόμα λογαριασμός επαφών",
+  "widgetsA.contacts.none": "Καμία επαφή",
+  "widgetsA.contacts.readFailed": "Δεν ήταν δυνατή η ανάγνωση των επαφών. Δες το themia.log.",
+  "widgetsA.contacts.settings.count.label": "Άτομα",
+  "widgetsA.contacts.settings.every": "Κάθε λογαριασμός επαφών",
+  "widgetsA.contacts.settings.layout.label": "Διάταξη",
+  "contacts.setup.sentence": "Πρόσθεσε έναν λογαριασμό για να εμφανιστούν οι επαφές σου"
+}

@@ -44,6 +44,16 @@ public enum Locale
     Fa = 27,
     Th = 28,
     Gu = 29,
+    Ms = 30,
+    Uk = 31,
+    Ro = 32,
+    El = 33,
+    Cs = 34,
+    Kn = 35,
+    Ml = 36,
+    Am = 37,
+    Yo = 38,
+    My = 39,
 }
 
 /// <summary>[S-1108] Turning the language setting (and Windows' language list) into a <see cref="Locale"/>.</summary>
@@ -54,7 +64,8 @@ public static class LanguageResolver
         [Locale.En, Locale.De, Locale.Es, Locale.Fr, Locale.It, Locale.Ja, Locale.Pl, Locale.Pt, Locale.Zh,
          Locale.Hi, Locale.Ar, Locale.Bn, Locale.Ru, Locale.Id, Locale.Ur, Locale.Mr, Locale.Vi,
          Locale.Ko, Locale.Nl, Locale.Tr, Locale.ZhHant, Locale.Te, Locale.Ha, Locale.Pa, Locale.Sw,
-         Locale.Fil, Locale.Ta, Locale.Fa, Locale.Th, Locale.Gu];
+         Locale.Fil, Locale.Ta, Locale.Fa, Locale.Th, Locale.Gu,
+         Locale.Ms, Locale.Uk, Locale.Ro, Locale.El, Locale.Cs, Locale.Kn, Locale.Ml, Locale.Am, Locale.Yo, Locale.My];
 
     /// <summary>
     /// The language's code, which is also the locale file's name (<c>de</c> → de.json): two
@@ -94,6 +105,16 @@ public static class LanguageResolver
         Locale.Fa => "fa",
         Locale.Th => "th",
         Locale.Gu => "gu",
+        Locale.Ms => "ms",
+        Locale.Uk => "uk",
+        Locale.Ro => "ro",
+        Locale.El => "el",
+        Locale.Cs => "cs",
+        Locale.Kn => "kn",
+        Locale.Ml => "ml",
+        Locale.Am => "am",
+        Locale.Yo => "yo",
+        Locale.My => "my",
         _ => "en",
     };
 
@@ -142,6 +163,16 @@ public static class LanguageResolver
             AppLanguage.Persian => Locale.Fa,
             AppLanguage.Thai => Locale.Th,
             AppLanguage.Gujarati => Locale.Gu,
+            AppLanguage.Malay => Locale.Ms,
+            AppLanguage.Ukrainian => Locale.Uk,
+            AppLanguage.Romanian => Locale.Ro,
+            AppLanguage.Greek => Locale.El,
+            AppLanguage.Czech => Locale.Cs,
+            AppLanguage.Kannada => Locale.Kn,
+            AppLanguage.Malayalam => Locale.Ml,
+            AppLanguage.Amharic => Locale.Am,
+            AppLanguage.Yoruba => Locale.Yo,
+            AppLanguage.Burmese => Locale.My,
             _ => FromSystem(preferredUiLanguages),
         };
     }
@@ -178,6 +209,16 @@ public static class LanguageResolver
         Locale.Fa => AppLanguage.Persian,
         Locale.Th => AppLanguage.Thai,
         Locale.Gu => AppLanguage.Gujarati,
+        Locale.Ms => AppLanguage.Malay,
+        Locale.Uk => AppLanguage.Ukrainian,
+        Locale.Ro => AppLanguage.Romanian,
+        Locale.El => AppLanguage.Greek,
+        Locale.Cs => AppLanguage.Czech,
+        Locale.Kn => AppLanguage.Kannada,
+        Locale.Ml => AppLanguage.Malayalam,
+        Locale.Am => AppLanguage.Amharic,
+        Locale.Yo => AppLanguage.Yoruba,
+        Locale.My => AppLanguage.Burmese,
         _ => AppLanguage.English,
     };
 

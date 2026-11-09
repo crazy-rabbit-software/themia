@@ -1,0 +1,16 @@
+{
+  "alarm.desc": "သင်သတ်မှတ်သော အချိန်တွင် မြည်သည်၊ တစ်ကြိမ် သို့မဟုတ် ရွေးထားသော နေ့များတွင်",
+  "alarm.label": "နှိုးစက်",
+  "alarm.settings.namePlaceholder": "အမည် (ရွေးချယ်နိုင်)",
+  "alarm.settings.name.label": "အမည်",
+  "alarm.settings.on.label": "ဖွင့်ထားသည်",
+  "alarm.settings.repeat": "ထပ်ခါ ပြုလုပ်မည့်နေ့",
+  "alarm.settings.repeat.desc": "ဘာမှ မရွေးထား: တစ်ကြိမ်သာ မြည်မည်",
+  "alarm.settings.snooze.label": "ခဏဆိုင်းချိန်",
+  "alarm.settings.sound.label": "အသံ",
+  "alarm.settings.time.label": "အချိန်",
+  "alarm.settings.volume.label": "အသံအတိုးအကျယ်",
+  "alarm.settings.whileRunning": "နှိုးစက်များသည် Themia လည်ပတ်နေစဉ်သာ မြည်သည်။ PC အိပ်နေစဉ် အချိန်ကျသော နှိုးစက်သည် ငါးမိနစ်အတွင်းဖြစ်လျှင် နိုးလာသည့်အခါ မြည်မည်။",
+  "alarm.switchOff": "{name} ကို ပိတ်ရန်",
+  "alarm.switchOn": "{name} ကို ဖွင့်ရန်"
+}

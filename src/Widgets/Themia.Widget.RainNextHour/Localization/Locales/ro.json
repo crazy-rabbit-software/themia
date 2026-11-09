@@ -1,0 +1,15 @@
+{
+  "online.rain.label": "Ploaie în ora următoare",
+  "online.rain.desc": "Când începe sau se oprește ploaia, în pași de {minutes} minute",
+  "online.rain.startsIn": "Ploaie peste {minutes} min",
+  "online.rain.stopsIn": "Ploaia se oprește peste {minutes} min",
+  "online.rain.continues": "Ploaie în următoarele 2 ore",
+  "online.rain.dry": "Fără ploaie în următoarele 2 ore",
+  "online.rain.outdated": "Nicio prognoză pentru ora următoare",
+  "online.rain.intensity.light": "Ploaie slabă",
+  "online.rain.intensity.moderate": "Ploaie moderată",
+  "online.rain.intensity.heavy": "Ploaie puternică",
+  "online.rain.chance": "Șanse {percent}",
+  "online.rain.total": "{amount} mm în 2 ore",
+  "online.rain.now": "Acum"
+}

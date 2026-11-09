@@ -1,0 +1,19 @@
+{
+  "widgetsA.catalog.quote.label": "ጥቅስ",
+  "widgetsA.catalog.quote.description": "እንደገና ሊነበብ የሚገባው መስመር",
+  "quote.shuffle": "በዘፈቀደ",
+  "widgetsC.quote.quoted": "«{text}»",
+  "widgetsC.quote.showAnother": "ሌላ ጥቅስ አሳይ",
+  "widgetsC.quote.settings.quotes": "ጥቅሶች",
+  "widgetsC.quote.settings.emptyList": "የቀሩ ጥቅሶች የሉም። አንድ እስኪታከል ድረስ ዊጀቱ ይህንኑ ይናገራል።",
+  "widgetsC.quote.settings.add.title": "ጥቅስ ያክሉ",
+  "widgetsC.quote.settings.textPlaceholder": "እንደገና ሊነበብ የሚገባው ነገር",
+  "widgetsC.quote.settings.authorPlaceholder": "ማን እንደተናገረው",
+  "widgetsC.quote.settings.showAuthor.label": "ደራሲውን አሳይ",
+  "widgetsC.quote.settings.reshuffle.label": "እንደገና ቀላቅል",
+  "widgetsC.quote.settings.cadence.manual": "ጠቅ ሲደረግ ብቻ",
+  "widgetsC.quote.settings.cadence.hourly": "በየሰዓቱ",
+  "widgetsC.quote.settings.cadence.daily": "በየቀኑ",
+  "styles.quote.plain": "ቀላል",
+  "styles.quote.marks": "ትላልቅ የጥቅስ ምልክቶች"
+}

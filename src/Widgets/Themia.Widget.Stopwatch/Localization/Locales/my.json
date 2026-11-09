@@ -1,0 +1,12 @@
+{
+  "stopwatch.label": "စတော့ဝါ့ချ်",
+  "stopwatch.desc": "အပတ်များနှင့် အချိန်ကို တိုင်းပြီး ပြန်စပြီးနောက်လည်း ဆက်လည်ပတ်သည်",
+  "stopwatch.start": "စတင်ရန်",
+  "stopwatch.pause": "ခဏရပ်ရန်",
+  "stopwatch.resume": "ဆက်လုပ်ရန်",
+  "stopwatch.lap": "အပတ်",
+  "stopwatch.reset": "ပြန်စရန်",
+  "stopwatch.lapNumber": "အပတ် {n}",
+  "stopwatch.noLaps": "အပတ် မရှိသေးပါ",
+  "stopwatch.paused": "ခဏရပ်ထား"
+}

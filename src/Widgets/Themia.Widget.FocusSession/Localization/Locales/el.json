@@ -1,0 +1,15 @@
+{
+  "panels.focus.desc": "Χρόνος συγκέντρωσης, με τις ειδοποιήσεις σε αναμονή",
+  "panels.focus.end": "Τέλος περιόδου",
+  "panels.focus.label": "Περίοδος εστίασης",
+  "panels.focus.left": "Απομένουν {time}",
+  "panels.focus.lengthLabel": "Διάρκεια",
+  "panels.focus.longer": "Περισσότερο",
+  "panels.focus.quietLabel": "Ενεργοποίηση του Μην ενοχλείτε",
+  "panels.focus.quietOn": "Το Μην ενοχλείτε είναι ενεργό",
+  "panels.focus.quietUnavailable": "Το Μην ενοχλείτε δεν μπορεί να ενεργοποιηθεί εδώ",
+  "panels.focus.shorter": "Λιγότερο",
+  "panels.focus.start": "Έναρξη",
+  "panels.focus.willQuiet": "Ενεργοποιεί το Μην ενοχλείτε",
+  "panels.focus.windows": "Είναι ενεργή μια περίοδος εστίασης των Windows"
+}

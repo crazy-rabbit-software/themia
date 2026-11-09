@@ -1,0 +1,11 @@
+{
+  "styles.audioVisualizer.bars": "አሞሌዎች",
+  "styles.audioVisualizer.desc": "ይህ ፒሲ የሚያጫውተው ማንኛውም ነገር፣ እንደ ተንቀሳቃሽ አሞሌዎች፣ ሞገድ ወይም መስመር",
+  "styles.audioVisualizer.label": "የኦዲዮ ምስላዊ ማሳያ",
+  "styles.audioVisualizer.led": "LED",
+  "styles.audioVisualizer.mirrored": "የተንጸባረቀ",
+  "styles.audioVisualizer.radial": "ክብ",
+  "styles.audioVisualizer.wave": "ሞገድ",
+  "styles.audioVisualizer.waveform": "የሞገድ ቅርጽ",
+  "widgetsC.visualizer.unavailable": "የኦዲዮ ውጤት አይገኝም"
+}

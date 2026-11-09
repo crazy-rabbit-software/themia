@@ -1,0 +1,13 @@
+{
+  "widgetPrefs.updates.note": "Як часто віджети звертаються до онлайн-служб. «Оновити» на віджеті звертається негайно.",
+  "widgetPrefs.updates.weather": "Погода",
+  "widgetPrefs.updates.markets": "Акції",
+  "widgetPrefs.updates.feeds": "Стрічки новин",
+  "widgetPrefs.updates.accounts": "Пошта, календарі й завдання",
+  "widgetPrefs.updates.everyHours": {
+    "one": "Кожну {count} годину",
+    "few": "Кожні {count} години",
+    "many": "Кожні {count} годин",
+    "other": "Кожні {count} години"
+  }
+}

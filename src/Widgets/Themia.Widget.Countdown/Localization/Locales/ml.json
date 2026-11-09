@@ -1,0 +1,49 @@
+{
+  "countdown.setup": "എണ്ണാൻ ഒരു തീയതി തിരഞ്ഞെടുക്കുക",
+  "styles.countdown.ring": "വളയം",
+  "styles.countdown.text": "വാചകം",
+  "styles.countdown.unitDays": "ദിവസം",
+  "styles.countdown.unitHours": "മണിക്കൂർ",
+  "styles.countdown.unitMinutes": "മിനിറ്റ്",
+  "styles.countdown.unitSeconds": "സെക്കൻഡ്",
+  "widget.countdown.label": "കൗണ്ട്‌ഡൗൺ",
+  "widgetsA.catalog.countdown.description": "നിങ്ങൾക്ക് പ്രധാനപ്പെട്ട ഒരു തീയതി വരെയുള്ള ബാക്കി സമയം",
+  "widgetsA.countdown.ago": "{duration} മുമ്പ്",
+  "widgetsA.countdown.compact.dh": "{days}ദി {hours}മ",
+  "widgetsA.countdown.compact.dhm": "{days}ദി {hours}മ {minutes}മി",
+  "widgetsA.countdown.compact.dhms": "{days}ദി {hours}മ {minutes}മി {seconds}സെ",
+  "widgetsA.countdown.compact.hm": "{hours}മ {minutes}മി",
+  "widgetsA.countdown.dateTime": "{date}, {time}",
+  "widgetsA.countdown.days": {
+    "one": "{count} ദിവസം",
+    "other": "{count} ദിവസം"
+  },
+  "widgetsA.countdown.daysAgo": {
+    "one": "{count} ദിവസം മുമ്പ്",
+    "other": "{count} ദിവസം മുമ്പ്"
+  },
+  "widgetsA.countdown.daysIn": {
+    "one": "{count} ദിവസത്തിനുള്ളിൽ",
+    "other": "{count} ദിവസത്തിനുള്ളിൽ"
+  },
+  "widgetsA.countdown.format.auto": "സ്വയമേവ",
+  "widgetsA.countdown.format.days": "ദിവസങ്ങൾ മാത്രം",
+  "widgetsA.countdown.format.dhm": "ദിവസം · മണിക്കൂർ · മിനിറ്റ്",
+  "widgetsA.countdown.format.dhms": "ദിവസം · മണിക്കൂർ · മിനിറ്റ് · സെക്കൻഡ്",
+  "widgetsA.countdown.fullDateTime": "{date}, {time}-ന്",
+  "widgetsA.countdown.hours": {
+    "one": "{count} മ.",
+    "other": "{count} മ."
+  },
+  "widgetsA.countdown.in": "{duration} കഴിഞ്ഞ്",
+  "widgetsA.countdown.inAMoment": "ഒരു നിമിഷത്തിനുള്ളിൽ",
+  "widgetsA.countdown.justNow": "ഇപ്പോൾ തന്നെ",
+  "widgetsA.countdown.minutes": {
+    "one": "{count} മി.",
+    "other": "{count} മി."
+  },
+  "widgetsA.countdown.settings.format.label": "ഫോർമാറ്റ്",
+  "widgetsA.countdown.settings.name.label": "പേര്",
+  "widgetsA.countdown.untitled": "പേരില്ലാത്തത്",
+  "styles.clock.flip": "ഫ്ലിപ്പ്"
+}

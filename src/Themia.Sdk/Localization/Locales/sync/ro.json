@@ -1,0 +1,11 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "sync.updated": "Actualizat {time}",
+  "sync.stateUpdated": "{state} · actualizat {time}",
+  "sync.pending": {
+    "one": "{count} modificare așteaptă sincronizarea",
+    "few": "{count} modificări așteaptă sincronizarea",
+    "other": "{count} de modificări așteaptă sincronizarea"
+  },
+  "sync.queueFull": "Prea multe modificări așteaptă sincronizarea; aceasta nu a fost păstrată."
+}

@@ -1,0 +1,5 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "toggles.monoAudio.label": "Audio mono hidup/mati",
+  "toggles.monoAudio.desc": "Memainkan saluran kiri dan kanan sebagai satu"
+}

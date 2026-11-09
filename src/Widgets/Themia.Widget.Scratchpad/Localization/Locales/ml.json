@@ -1,0 +1,16 @@
+{
+  "scratchpad.drawHere": "ഇവിടെ വരയ്ക്കുക",
+  "scratchpad.penColorLabel": "പേനയുടെ നിറം",
+  "scratchpad.penSizeLabel": "പേനയുടെ വലുപ്പം",
+  "widget.scratchpad.label": "സ്ക്രാച്ച്‌പാഡ്",
+  "widgetsA.catalog.scratchpad.description": "വരയ്ക്കാനുള്ള ഒരിടം",
+  "widgetsC.scratchpad.clearConfirm": "മുഴുവൻ ചിത്രവും മായ്‌ക്കണോ?",
+  "widgetsC.scratchpad.clearDrawing": "ചിത്രം മായ്‌ക്കുക",
+  "widgetsC.scratchpad.draw": "വരയ്ക്കുക",
+  "widgetsC.scratchpad.eraseStrokes": "വരകൾ മായ്‌ക്കുക",
+  "widgetsC.scratchpad.exitFullScreen": "ഫുൾ സ്ക്രീനിൽ നിന്ന് പുറത്തുകടക്കുക",
+  "widgetsC.scratchpad.fullScreen": "ഫുൾ സ്ക്രീൻ",
+  "widgetsC.scratchpad.penSizeTip": "പേനയുടെ വലുപ്പം {size} px",
+  "widgetsC.scratchpad.settings.showTools.label": "ടൂളുകൾ കാണിക്കുക",
+  "widgetsC.scratchpad.undo": "പഴയപടിയാക്കുക"
+}

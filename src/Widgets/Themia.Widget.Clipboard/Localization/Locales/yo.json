@@ -1,0 +1,14 @@
+{
+  "clipboard.clearHistory": "Sọ ìtàn di òfo",
+  "widgetsA.catalog.clipboard.description": "Ohun tí o ṣẹ̀dà láìpẹ́",
+  "widgetsA.catalog.clipboard.label": "Pátákó ẹ̀dà",
+  "widgetsA.clipboard.clearConfirm.body": "Gbogbo ohun tó wà nínú àkójọ yìí ni a ó gbàgbé. A kò lè mú èyí padà, kò sì ní yí ohun tó wà lórí pátákó ẹ̀dà báyìí padà.",
+  "widgetsA.clipboard.clearConfirm.title": "Sọ ìtàn pátákó ẹ̀dà di òfo?",
+  "widgetsA.clipboard.clearEllipsis": "Sọ ìtàn di òfo…",
+  "widgetsA.clipboard.empty": "Kò sí ohun tí a ti ṣẹ̀dà síbẹ̀. Ṣẹ̀dà nǹkan, yóò sì farahàn níbí.",
+  "widgetsA.clipboard.noListener": "Windows kò jẹ́ kí áàpù yìí máa wo pátákó ẹ̀dà.",
+  "widgetsA.clipboard.remove": "Yọ kúrò nínú ìtàn",
+  "widgetsA.clipboard.settings.entries.label": "Àwọn ohun",
+  "widgetsA.clipboard.settings.privacyNote": "Ọ̀rọ̀ tí a ṣẹ̀dà ń wà nínú ìrántí nìkan. A kò jẹ́ ka fáìlì tàbí àwòrán láé.",
+  "widgetsA.clipboard.settings.timestamp.label": "Fi ìgbà tí a ṣẹ̀dà rẹ̀ hàn"
+}

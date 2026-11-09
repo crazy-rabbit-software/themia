@@ -1,0 +1,30 @@
+{
+  "widget.bluetooth.label": "Bluetooth",
+  "widgetsA.bluetooth.connected": "Συνδεδεμένο",
+  "widgetsA.bluetooth.connectedCount": {
+    "one": "{count} συνδεδεμένη",
+    "other": "{count} συνδεδεμένες"
+  },
+  "widgetsA.bluetooth.kind.audio": "Ήχος",
+  "widgetsA.bluetooth.kind.controller": "Χειριστήριο",
+  "widgetsA.bluetooth.kind.device": "Συσκευή",
+  "widgetsA.bluetooth.kind.keyboard": "Πληκτρολόγιο",
+  "widgetsA.bluetooth.kind.mouse": "Ποντίκι",
+  "widgetsA.bluetooth.kind.pen": "Πένα",
+  "widgetsA.bluetooth.kind.phone": "Τηλέφωνο",
+  "widgetsA.bluetooth.kind.watch": "Ρολόι",
+  "widgetsA.bluetooth.paired": "Σε ζεύξη",
+  "widgetsA.bluetooth.settings.connectedOnly.label": "Μόνο συνδεδεμένες",
+  "widgetsA.bluetooth.settings.connection.label": "Σύνδεση",
+  "widgetsA.bluetooth.settings.icon.label": "Εικονίδιο συσκευής",
+  "widgetsA.bluetooth.settings.signal.label": "Ισχύς σήματος",
+  "widgetsA.bluetooth.status.failed": "Δεν ήταν δυνατή η ανάγνωση των συσκευών σε ζεύξη",
+  "widgetsA.bluetooth.status.loading": "Ανάγνωση συσκευών σε ζεύξη",
+  "widgetsA.bluetooth.status.noRadio": "Αυτός ο υπολογιστής δεν έχει πομπό Bluetooth",
+  "widgetsA.bluetooth.status.none": "Δεν υπάρχουν συσκευές σε ζεύξη",
+  "widgetsA.bluetooth.status.permissionDenied": "Τα Windows δεν έχουν δώσει πρόσβαση στους πομπούς",
+  "widgetsA.bluetooth.status.radioOff": "Το Bluetooth είναι απενεργοποιημένο",
+  "widgetsA.bluetooth.unknownDevice": "Άγνωστη συσκευή",
+  "widgetsA.catalog.bluetooth.description": "Συσκευές σε ζεύξη και η μπαταρία τους",
+  "widget.battery.label": "Μπαταρία"
+}

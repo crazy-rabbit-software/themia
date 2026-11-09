@@ -1,0 +1,9 @@
+{
+  "styles.memory.bar": "Μπάρα",
+  "styles.memory.free": "{size} ελεύθερα",
+  "styles.memory.gauge": "Μετρητής",
+  "styles.memory.graph": "Γράφημα",
+  "styles.memory.used": "{size} σε χρήση",
+  "widgetsA.catalog.memory.description": "Φυσική μνήμη σε χρήση",
+  "widgetsA.catalog.memory.label": "Μνήμη"
+}

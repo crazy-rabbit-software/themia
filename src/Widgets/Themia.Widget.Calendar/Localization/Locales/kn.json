@@ -1,0 +1,32 @@
+{
+  "calendar.agendaEvents.label": "ಅಜೆಂಡಾ ಈವೆಂಟ್‌ಗಳು",
+  "calendar.noEventsToday": "ಇಂದು ಈವೆಂಟ್‌ಗಳಿಲ್ಲ",
+  "calendar.noUpcoming": "ಮುಂಬರುವ ಈವೆಂಟ್‌ಗಳಿಲ್ಲ.",
+  "calendar.today": "ಇಂದು",
+  "common.next": "ಮುಂದೆ",
+  "styles.calendar.agenda": "ಅಜೆಂಡಾ",
+  "styles.calendar.day": "ದಿನ",
+  "styles.calendar.desc": "ನಿನ್ನ ಈವೆಂಟ್‌ಗಳು ಮತ್ತು ಹುಟ್ಟುಹಬ್ಬಗಳು ತಿಂಗಳು, ವಾರ, ದಿನ ಅಥವಾ ವರ್ಷದ ಪ್ರಕಾರ, ಅಥವಾ ಅಜೆಂಡಾ ಆಗಿ",
+  "styles.calendar.label": "ಕ್ಯಾಲೆಂಡರ್",
+  "styles.calendar.month": "ತಿಂಗಳು",
+  "styles.calendar.week": "ವಾರ",
+  "styles.calendar.year": "ವರ್ಷ",
+  "widgetsA.calendar.allDayOn": "ಇಡೀ ದಿನ · {date}",
+  "widgetsA.calendar.birthday": "ಹುಟ್ಟುಹಬ್ಬ",
+  "widgetsA.calendar.noEvents": "ಈವೆಂಟ್‌ಗಳಿಲ್ಲ",
+  "widgetsA.calendar.now": "ಈಗ",
+  "widgetsA.calendar.previous": "ಹಿಂದಿನದು",
+  "widgetsA.calendar.settings.agendaRange.custom": "ಕಸ್ಟಮ್",
+  "widgetsA.calendar.settings.agendaRange.days": {
+    "one": "{count} ದಿನ",
+    "other": "{count} ದಿನಗಳು"
+  },
+  "widgetsA.calendar.settings.agendaRange.label": "ದಿನಾಂಕ ವ್ಯಾಪ್ತಿ",
+  "widgetsA.calendar.settings.agendaRange.todayTomorrow": "ಇಂದು ಮತ್ತು ನಾಳೆ",
+  "widgetsA.calendar.settings.days.label": "ತೋರಿಸುವ ದಿನಗಳು",
+  "widgetsA.calendar.settings.weekFrom.label": "ಪ್ರಾರಂಭದ ದಿನ",
+  "widgetsA.calendar.settings.weekFrom.weekStart": "ವಾರದ ಮೊದಲ ದಿನ ({day})",
+  "widgetsA.calendar.spanWithLength": "{from}–{to} ({length})",
+  "widgetsA.clock.date": "{weekday}, {date}",
+  "calendar.setup.sentence": "ನಿನ್ನ ಕ್ಯಾಲೆಂಡರ್ ತೋರಿಸಲು ಖಾತೆ ಸೇರಿಸು"
+}

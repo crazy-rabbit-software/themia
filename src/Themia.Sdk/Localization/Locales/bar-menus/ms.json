@@ -1,0 +1,15 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "barMenus.display": "Skrin",
+  "barMenus.display.all": "Semua skrin",
+  "barMenus.display.showOn": "Tunjukkan Themia pada",
+  "barMenus.display.this": "Skrin ini",
+  "barMenus.viewBar": "Bar paparan",
+  "barMenus.viewBar.position": "Kedudukan",
+  "barMenus.viewBar.size": "Saiz",
+  "barMenus.viewBar.hidden": "Tersembunyi",
+  "barMenus.viewBar.views": "Paparan",
+  "barMenus.view.renameTitle": "Namakan semula paparan",
+  "barMenus.view.deleteQuestion": "Padam “{name}”?",
+  "barMenus.view.deleteDetail": "Widgetnya turut dipadam ({widgets}). Buat asal akan mengembalikan semuanya."
+}

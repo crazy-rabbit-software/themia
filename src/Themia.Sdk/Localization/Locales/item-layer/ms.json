@@ -1,0 +1,9 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "shell.items.background": "Latar item",
+  "shell.items.text": "Warna teks item",
+  "shell.items.textShort": "Teks item",
+  "shell.fill.transparent": "Lutsinar",
+  "shell.fill.opacity": "Kelegapan",
+  "shell.fill.withOpacity": "{colour}, {percent}"
+}

@@ -1,0 +1,12 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "widgetPrefs.updates.note": "Πόσο συχνά ρωτούν τα γραφικά στοιχεία τις online υπηρεσίες. Η Ανανέωση σε ένα γραφικό στοιχείο ρωτά αμέσως.",
+  "widgetPrefs.updates.weather": "Καιρός",
+  "widgetPrefs.updates.markets": "Μετοχές",
+  "widgetPrefs.updates.feeds": "Ροές ειδήσεων",
+  "widgetPrefs.updates.accounts": "Αλληλογραφία, ημερολόγια και εργασίες",
+  "widgetPrefs.updates.everyHours": {
+    "one": "Κάθε {count} ώρα",
+    "other": "Κάθε {count} ώρες"
+  }
+}

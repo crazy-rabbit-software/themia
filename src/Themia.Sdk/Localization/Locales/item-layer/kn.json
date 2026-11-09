@@ -1,0 +1,8 @@
+{
+  "shell.items.background": "ಐಟಂ ಹಿನ್ನೆಲೆ",
+  "shell.items.text": "ಐಟಂ ಪಠ್ಯದ ಬಣ್ಣ",
+  "shell.items.textShort": "ಐಟಂ ಪಠ್ಯ",
+  "shell.fill.transparent": "ಪಾರದರ್ಶಕ",
+  "shell.fill.opacity": "ಅಪಾರದರ್ಶಕತೆ",
+  "shell.fill.withOpacity": "{colour}, {percent}"
+}

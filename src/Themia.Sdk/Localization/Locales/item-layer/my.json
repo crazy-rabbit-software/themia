@@ -1,0 +1,8 @@
+{
+  "shell.items.background": "အရာ နောက်ခံ",
+  "shell.items.text": "အရာ စာသား အရောင်",
+  "shell.items.textShort": "အရာ စာသား",
+  "shell.fill.transparent": "ဖောက်ထွင်းမြင်ရ",
+  "shell.fill.opacity": "အလင်းပိတ်နှုန်း",
+  "shell.fill.withOpacity": "{colour}၊ {percent}"
+}

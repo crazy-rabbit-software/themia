@@ -1,0 +1,20 @@
+{
+  "settingsMenu.onlineUpdates": "အွန်လိုင်း အပ်ဒိတ်များ",
+  "settingsMenu.gameMode": "မျက်နှာပြင်အပြည့် အက်ပ်များ ဖွင့်စဉ် ခဏရပ်ရန်",
+  "settingsMenu.findLanguage": "ဘာသာစကား ရှာရန်",
+  "settingsMenu.proFree": "အခမဲ့",
+  "settingsMenu.backup": "အရန်ကူးပြီး ပြန်လည်သတ်မှတ်ရန်",
+  "settingsMenu.about": "Themia အကြောင်း",
+  "settingsMenu.exportSettings": "ဆက်တင်များ ထုတ်ယူရန်…",
+  "settingsMenu.importSettings": "ဆက်တင်များ တင်သွင်းရန်…",
+  "settingsMenu.resetAll": "ဆက်တင်အားလုံး ပြန်လည်သတ်မှတ်ရန်…",
+  "settingsMenu.reset": "ပြန်လည်သတ်မှတ်ရန်",
+  "settingsMenu.exported": "{file} အဖြစ် သိမ်းပြီး",
+  "settingsMenu.imported": "ဆက်တင်များ တင်သွင်းပြီး။ သင့်ယခင် ဆက်တင်များကို {backup} အဖြစ် ထားရှိသည်။",
+  "settingsMenu.resetDone": "ဆက်တင်များ ပြန်လည်သတ်မှတ်ပြီး။ သင့်ယခင် ဆက်တင်များကို {backup} အဖြစ် ထားရှိသည်။",
+  "settingsMenu.purchasing": "Microsoft Store ကို စောင့်နေသည်…",
+  "settingsMenu.aboutOpenMeteo": "ရာသီဥတု၊ မိုးနှင့် လေထု အရည်အသွေး။ လေထု အရည်အသွေးကို Copernicus Atmosphere Monitoring Service (CAMS) မှလည်း ရယူသည်။",
+  "settingsMenu.uninstallEllipsis": "ဖြုတ်ရန်…",
+  "settingsMenu.uninstallDataGoes": "သင့်ဝစ်ဂျက်၊ ဆက်တင်နှင့် အကောင့်များလည်း ဖျက်ခံရမည်။",
+  "settingsMenu.uninstallDeleteData": "ကျွန်ုပ်၏ ဒေတာကိုလည်း ဖျက်ရန်"
+}

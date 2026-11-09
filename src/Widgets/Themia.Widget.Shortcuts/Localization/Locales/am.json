@@ -1,0 +1,51 @@
+{
+  "common.search": "ፈልግ",
+  "ctxMenu.iconOnly": "አዶ ብቻ",
+  "ctxMenu.list": "ዝርዝር",
+  "ctxMenu.openDouble": "በሁለቴ ጠቅታ ክፈት",
+  "ctxMenu.openSingle": "በአንድ ጠቅታ ክፈት",
+  "recycleBin.emptyEllipsis": "ሪሳይክል ቢንን ባዶ አድርግ…",
+  "shortcut.addTitle": "አቋራጭ አክል",
+  "shortcut.copyPath": "ዱካውን ቅዳ",
+  "shortcut.copyUrl": "URLን ቅዳ",
+  "shortcut.editLayoutMenu": "አቀማመጥ አርትዕ…",
+  "widgetsA.catalog.shortcuts.description": "በእጅዎ የሚያቆዩዋቸው አገናኞች፣ ፋይሎችና አቃፊዎች",
+  "widgetsA.catalog.shortcuts.label": "አቋራጮች",
+  "widgetsC.shortcuts.column.kind": "ዓይነት",
+  "widgetsC.shortcuts.column.target": "ዒላማ",
+  "widgetsC.shortcuts.drop.add": "ወደ አቋራጮች አክል",
+  "widgetsC.shortcuts.drop.moveHere": "ወደዚህ አንቀሳቅስ",
+  "widgetsC.shortcuts.kind.location": "የWindows አካባቢ",
+  "widgetsC.shortcuts.kind.missing": "የጠፋ",
+  "widgetsC.shortcuts.kind.path": "ዱካ",
+  "widgetsC.shortcuts.kind.refused": "አልተፈቀደም",
+  "widgetsC.shortcuts.menu.addLayout": "የመተግበሪያ አቀማመጥ…",
+  "widgetsC.shortcuts.menu.addLink": "የድር አድራሻ ወይም ዱካ…",
+  "widgetsC.shortcuts.menu.changeTarget": "ዒላማውን ቀይር…",
+  "widgetsC.shortcuts.menu.closeSearch": "ፍለጋውን ዝጋ",
+  "widgetsC.shortcuts.menu.openLayout": "አቀማመጡን ክፈት",
+  "widgetsC.shortcuts.menu.openMany": {
+    "one": "{count} አቋራጭ ክፈት",
+    "other": "{count} አቋራጮችን ክፈት"
+  },
+  "widgetsC.shortcuts.menu.removeMany": {
+    "one": "{count} አቋራጭ አስወግድ",
+    "other": "{count} አቋራጮችን አስወግድ"
+  },
+  "widgetsC.shortcuts.menu.undoRemove": "ማስወገዱን ቀልብስ",
+  "widgetsC.shortcuts.menu.undoRemoveCount": {
+    "one": "ማስወገዱን ቀልብስ ({count})",
+    "other": "ማስወገዱን ቀልብስ ({count})"
+  },
+  "widgetsC.shortcuts.search": "አቋራጮችን ፈልግ",
+  "widgetsC.shortcuts.settings.list.empty": "እስካሁን አቋራጮች የሉም።",
+  "widgetsC.shortcuts.settings.locations": "የWindows አካባቢዎች",
+  "widgetsC.shortcuts.settings.openWith.double": "ሁለቴ ጠቅታ",
+  "widgetsC.shortcuts.settings.openWith.label": "በዚህ ክፈት",
+  "widgetsC.shortcuts.settings.openWith.single": "አንድ ጠቅታ",
+  "widgetsC.shortcuts.settings.pick.file": "ፋይል…",
+  "widgetsC.shortcuts.settings.pick.folder": "አቃፊ…",
+  "widgetsC.shortcuts.settings.view.tiles": "ሰቆች",
+  "widgetsC.shortcuts.setup": "አቋራጭ ያክሉ",
+  "widgetsC.shortcuts.tooltip.missing": "{name} (ዒላማው የለም)\n{target}"
+}

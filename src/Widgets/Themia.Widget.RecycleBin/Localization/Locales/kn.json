@@ -1,0 +1,12 @@
+{
+  "recycleBin.desc": "ಮರುಬಳಕೆ ಬುಟ್ಟಿ ಎಷ್ಟು ತುಂಬಿದೆ, ಖಾಲಿ ಮಾಡುವ ಬಟನ್‌ನೊಂದಿಗೆ",
+  "recycleBin.empty": "ಖಾಲಿ ಮಾಡು",
+  "recycleBin.isEmpty": "ಐಟಂಗಳಿಲ್ಲ",
+  "recycleBin.items": {
+    "one": "{count} ಐಟಂ",
+    "other": "{count} ಐಟಂಗಳು"
+  },
+  "recycleBin.open": "ಮರುಬಳಕೆ ಬುಟ್ಟಿ ತೆರೆ",
+  "recycleBin.emptyEllipsis": "ಮರುಬಳಕೆ ಬುಟ್ಟಿ ಖಾಲಿ ಮಾಡು…",
+  "widgetsC.location.recycleBin": "ಮರುಬಳಕೆ ಬುಟ್ಟಿ"
+}

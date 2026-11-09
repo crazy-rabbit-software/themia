@@ -1,0 +1,12 @@
+{
+  "stopwatch.label": "സ്റ്റോപ്പ്‌വാച്ച്",
+  "stopwatch.desc": "ലാപ്പുകളോടെ സമയം അളക്കുന്നു, പുനരാരംഭിച്ചാലും തുടരുന്നു",
+  "stopwatch.start": "ആരംഭിക്കുക",
+  "stopwatch.pause": "താൽക്കാലികമായി നിർത്തുക",
+  "stopwatch.resume": "തുടരുക",
+  "stopwatch.lap": "ലാപ്പ്",
+  "stopwatch.reset": "റീസെറ്റ് ചെയ്യുക",
+  "stopwatch.lapNumber": "ലാപ്പ് {n}",
+  "stopwatch.noLaps": "ഇതുവരെ ലാപ്പുകളില്ല",
+  "stopwatch.paused": "താൽക്കാലികമായി നിർത്തി"
+}

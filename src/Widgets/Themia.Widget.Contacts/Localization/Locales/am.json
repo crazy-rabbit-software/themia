@@ -1,0 +1,22 @@
+{
+  "apps.viewCompact": "የታመቀ",
+  "apps.viewGrid": "ፍርግርግ",
+  "apps.viewList": "ዝርዝር",
+  "contacts.noContacts": "ምንም እውቂያ አልተገኘም።",
+  "contacts.searchPlaceholder": "እውቂያዎችን ፈልግ…",
+  "ctxMenu.call": "ደውል",
+  "ctxMenu.copyEmail": "ኢሜይሉን ቅዳ",
+  "ctxMenu.copyName": "ስሙን ቅዳ",
+  "ctxMenu.copyPhone": "ስልኩን ቅዳ",
+  "ctxMenu.message": "መልዕክት",
+  "ctxMenu.sendEmail": "ኢሜይል ላክ",
+  "widget.contacts.label": "እውቂያዎች",
+  "widgetsA.catalog.contacts.description": "ከMicrosoft እና CardDAV የአድራሻ መዝገቦችዎ ያሉ ሰዎች",
+  "widgetsA.contacts.noAccount": "እስካሁን የእውቂያዎች መለያ የለም",
+  "widgetsA.contacts.none": "እውቂያዎች የሉም",
+  "widgetsA.contacts.readFailed": "እውቂያዎችን ማንበብ አልተቻለም። themia.logን ይመልከቱ።",
+  "widgetsA.contacts.settings.count.label": "ሰዎች",
+  "widgetsA.contacts.settings.every": "ሁሉም የእውቂያዎች መለያ",
+  "widgetsA.contacts.settings.layout.label": "አቀማመጥ",
+  "contacts.setup.sentence": "እውቂያዎችዎን ለማሳየት መለያ ያክሉ"
+}

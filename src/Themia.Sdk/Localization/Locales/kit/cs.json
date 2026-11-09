@@ -1,0 +1,6 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "kit.ownerProblem": "{name}: {reason}",
+  "kit.refreshUpdated": "Aktualizovat · aktualizováno {age}",
+  "kit.problemSeveral": "{name} a další ({count}) se nepodařilo načíst"
+}

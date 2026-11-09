@@ -1,0 +1,8 @@
+{
+  "menu.rename": "Μετονομασία…",
+  "menu.add": "Προσθήκη…",
+  "menu.numberRange": "Πληκτρολόγησε έναν αριθμό από {min} έως {max}",
+  "menu.reorderHint": "Σύρε για αλλαγή σειράς ή πάτησε Ctrl+Πάνω ή Ctrl+Κάτω",
+  "menu.filter": "Αναζήτηση",
+  "menu.opensIn": "Ανοίγει το {name}"
+}

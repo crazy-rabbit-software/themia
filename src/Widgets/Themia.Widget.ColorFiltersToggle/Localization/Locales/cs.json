@@ -1,0 +1,5 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "toggles.colorFilters.label": "Barevné filtry zap./vyp.",
+  "toggles.colorFilters.desc": "Zapne nebo vypne barevný filtr obrazovky"
+}

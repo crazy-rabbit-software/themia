@@ -1,0 +1,16 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "online.rain.label": "Hujan sejam akan datang",
+  "online.rain.desc": "Bila hujan bermula atau berhenti, dalam langkah {minutes} minit",
+  "online.rain.startsIn": "Hujan dalam {minutes} min",
+  "online.rain.stopsIn": "Hujan berhenti dalam {minutes} min",
+  "online.rain.continues": "Hujan untuk 2 jam akan datang",
+  "online.rain.dry": "Tiada hujan dalam 2 jam akan datang",
+  "online.rain.outdated": "Tiada ramalan untuk sejam akan datang",
+  "online.rain.intensity.light": "Hujan renyai",
+  "online.rain.intensity.moderate": "Hujan sederhana",
+  "online.rain.intensity.heavy": "Hujan lebat",
+  "online.rain.chance": "Peluang {percent}",
+  "online.rain.total": "{amount} mm dalam 2 jam",
+  "online.rain.now": "Sekarang"
+}

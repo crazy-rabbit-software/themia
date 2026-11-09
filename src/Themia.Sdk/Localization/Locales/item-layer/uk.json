@@ -1,0 +1,8 @@
+{
+  "shell.items.background": "Тло елемента",
+  "shell.items.text": "Колір тексту елемента",
+  "shell.items.textShort": "Текст елемента",
+  "shell.fill.transparent": "Прозорий",
+  "shell.fill.opacity": "Непрозорість",
+  "shell.fill.withOpacity": "{colour}, {percent}"
+}

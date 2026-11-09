@@ -1,0 +1,38 @@
+{
+  "stocks.dimWhenClosed": "Позначка закритого ринку",
+  "stocks.extendedHours": "Розширені години",
+  "stocks.extendedHoursDesc": "Відстежувати торги до відкриття й після закриття (1Д і 5Д)",
+  "stocks.setup": "Вибери символ",
+  "stocks.showMinMax": "Позначки мін./макс.",
+  "stocks.tab.symbols": "Символ",
+  "stocks.timeframe": "Часовий проміжок",
+  "styles.stocks.chart": "Графік",
+  "styles.stocks.number": "Число",
+  "widget.stocks.label": "Акції",
+  "widgetsA.catalog.stocks.description": "Тікери й криптовалюта з мініграфіком",
+  "widgetsC.stocks.holding.amount": "У власності {amount}",
+  "widgetsC.stocks.noQuote": "Немає котирування для цього символу",
+  "widgetsC.stocks.notSymbol": "«{symbol}» не є символом",
+  "widgetsC.stocks.period.days": {
+    "one": "{count} день",
+    "few": "{count} дні",
+    "many": "{count} днів",
+    "other": "{count} дня"
+  },
+  "widgetsC.stocks.period.months": {
+    "one": "{count} місяць",
+    "few": "{count} місяці",
+    "many": "{count} місяців",
+    "other": "{count} місяця"
+  },
+  "widgetsC.stocks.period.years": {
+    "one": "{count} рік",
+    "few": "{count} роки",
+    "many": "{count} років",
+    "other": "{count} року"
+  },
+  "widgetsC.stocks.phaseTooltip": "{phase}. {zone}",
+  "widgetsC.stocks.settings.holding.label": "Акцій у власності",
+  "widgetsC.stocks.settings.holding.refused": "Введи кількість від {zero}, наприклад {example}",
+  "widgetsC.stocks.settings.symbolRefused": "Вибери результат пошуку або введи символ: лише літери, цифри та . - ^ ="
+}

@@ -1,0 +1,10 @@
+{
+  "panels.brightness.all": "ሁሉም ማያ ገጾች",
+  "panels.brightness.desc": "ለማሳያ ብሩህነት አንድ ተንሸራታች",
+  "panels.brightness.label": "ብሩህነት",
+  "panels.brightness.level": "ብሩህነት {level}",
+  "panels.brightness.none": "የሚቀናበር የማሳያ ብሩህነት የለም",
+  "panels.brightness.own": "ያለበት ማያ ገጽ ብቻ",
+  "panels.brightness.ownNone": "የዚህ ማሳያ ብሩህነት ሊቀናበር አይችልም",
+  "panels.brightness.screensLabel": "የሚያደበዝዛቸው ማያ ገጾች"
+}

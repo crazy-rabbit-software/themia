@@ -1,0 +1,15 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "widgetsA.catalog.feed.label": "Suapan",
+  "widgetsA.catalog.feed.description": "Tajuk berita daripada suapan yang kamu pilih",
+  "widgetsC.rss.untitled": "(tanpa tajuk)",
+  "widgetsC.rss.copyLink": "Salin pautan",
+  "widgetsC.rss.noArticles": "Suapan ini tiada artikel",
+  "widgetsC.rss.settings.feeds": "Suapan",
+  "widgetsC.rss.settings.empty": "Belum ada suapan. Tambah alamat suapan RSS atau Atom.",
+  "widgetsC.rss.settings.add.title": "Tambah suapan",
+  "widgetsC.rss.settings.articles": "Artikel",
+  "widgetsC.rss.settings.source.label": "Tunjukkan sumber",
+  "widgetsC.rss.settings.preview.label": "Tunjukkan pratonton",
+  "widgetsC.rss.settings.date.label": "Tunjukkan tarikh"
+}

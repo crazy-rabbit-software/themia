@@ -1,0 +1,16 @@
+{
+  "alarm.desc": "Χτυπά την ώρα που ορίζεις, μία φορά ή τις ημέρες που διαλέγεις",
+  "alarm.label": "Ξυπνητήρι",
+  "alarm.settings.namePlaceholder": "Όνομα (προαιρετικό)",
+  "alarm.settings.name.label": "Όνομα",
+  "alarm.settings.on.label": "Ενεργό",
+  "alarm.settings.repeat": "Επαναλαμβάνεται",
+  "alarm.settings.repeat.desc": "Αν δεν επιλέξεις τίποτα, χτυπά μία φορά",
+  "alarm.settings.snooze.label": "Αναβολή για",
+  "alarm.settings.sound.label": "Ήχος",
+  "alarm.settings.time.label": "Ώρα",
+  "alarm.settings.volume.label": "Ένταση",
+  "alarm.settings.whileRunning": "Τα ξυπνητήρια χτυπούν μόνο όσο εκτελείται το Themia. Ένα που λήγει ενώ ο υπολογιστής είναι σε αναστολή χτυπά όταν ξυπνήσει, αν αυτό γίνει μέσα σε πέντε λεπτά.",
+  "alarm.switchOff": "Απενεργοποίηση του {name}",
+  "alarm.switchOn": "Ενεργοποίηση του {name}"
+}

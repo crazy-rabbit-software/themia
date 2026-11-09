@@ -1,0 +1,14 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "desktop.choice.label": "Pada desktop",
+  "desktop.choice.themia": "Item Themia",
+  "desktop.choice.windows": "Ikon Windows",
+  "desktop.choice.nothing": "Tiada apa-apa",
+  "desktop.add.folder": "Pada desktop",
+  "desktop.rename.clash": "Sudah ada item dengan nama ini di sini.",
+  "desktop.menu.edit": "Edit widget",
+  "desktop.delete.fromView": "Alih keluar daripada paparan ini",
+  "desktop.automation.list": "Desktop",
+  "desktop.coexist.replaced": "Program lain telah menggantikan ikon desktop, jadi Themia menyerahkan desktop kepadanya.",
+  "desktop.coexist.keptShown": "Program lain terus menunjukkan ikon Windows, jadi Themia membiarkannya ditunjukkan. Pilih sekali lagi untuk mencuba semula."
+}

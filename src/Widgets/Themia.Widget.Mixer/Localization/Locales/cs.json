@@ -1,0 +1,19 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "mixer.cfg.activeLabel": "Jen aplikace, které právě hrají",
+  "mixer.cfg.iconsLabel": "Ikony aplikací",
+  "mixer.cfg.systemLabel": "Systémové zvuky",
+  "mixer.empty": "Žádná aplikace nepřehrává zvuk",
+  "mixer.systemSounds": "Systémové zvuky",
+  "mixer.unknownApp": "Neznámá aplikace",
+  "widgetsA.catalog.mixer.description": "Hlasitost každé aplikace, která přehrává zvuk",
+  "widgetsA.catalog.mixer.label": "Směšovač",
+  "widgetsB.mixer.defaultNotChanged": "Výchozí výstup se nezměnil",
+  "widgetsB.mixer.deviceMissing": "{device} není připojeno",
+  "widgetsB.mixer.followDefault": "Řídit se výchozím výstupem",
+  "widgetsB.mixer.noDevice": "Žádné výstupní zařízení",
+  "widgetsB.mixer.notPlaying": "{name} (nehraje)",
+  "widgetsB.mixer.unavailable": "Zvuk není k dispozici",
+  "widgetsB.settings.mixer.groupByApp.label": "Jeden řádek na aplikaci",
+  "widgetsB.settings.mixer.note": "Klikni na směšovač, pak ↑ a ↓ vyberou řádek, ← a → ho změní, M ztlumí."
+}

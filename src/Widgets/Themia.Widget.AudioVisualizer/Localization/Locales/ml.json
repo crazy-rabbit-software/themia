@@ -1,0 +1,11 @@
+{
+  "styles.audioVisualizer.bars": "ബാറുകൾ",
+  "styles.audioVisualizer.desc": "ഈ PC പ്ലേ ചെയ്യുന്നതെന്തും, ചലിക്കുന്ന ബാറുകളായോ തരംഗമായോ വരയായോ",
+  "styles.audioVisualizer.label": "ഓഡിയോ വിഷ്വലൈസർ",
+  "styles.audioVisualizer.led": "LED",
+  "styles.audioVisualizer.mirrored": "പ്രതിഫലിപ്പിച്ചത്",
+  "styles.audioVisualizer.radial": "വൃത്താകൃതി",
+  "styles.audioVisualizer.wave": "തരംഗം",
+  "styles.audioVisualizer.waveform": "തരംഗരൂപം",
+  "widgetsC.visualizer.unavailable": "ഓഡിയോ ഔട്ട്‌പുട്ട് ലഭ്യമല്ല"
+}

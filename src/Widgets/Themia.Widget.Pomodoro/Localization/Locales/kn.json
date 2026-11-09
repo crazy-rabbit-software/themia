@@ -1,0 +1,19 @@
+{
+  "pomodoro.alarmSound.label": "ಅಲಾರಾಂ ಧ್ವನಿ",
+  "pomodoro.alarmVolume.label": "ಅಲಾರಾಂ ವಾಲ್ಯೂಮ್",
+  "pomodoro.breakLength.label": "ವಿರಾಮದ ಅವಧಿ",
+  "pomodoro.focusLength.label": "ಫೋಕಸ್ ಅವಧಿ",
+  "pomodoro.reset": "ಮರುಹೊಂದಿಸು",
+  "styles.pomodoro.bar": "ಬಾರ್",
+  "styles.pomodoro.digits": "ಅಂಕೆಗಳು",
+  "styles.pomodoro.ring": "ಉಂಗುರ",
+  "widgetUi.break": "ವಿರಾಮ",
+  "widgetUi.focus": "ಫೋಕಸ್",
+  "widget.pomodoro.label": "ಪೊಮೊಡೊರೊ",
+  "widgetsA.catalog.pomodoro.description": "ಫೋಕಸ್ ಮತ್ತು ವಿರಾಮದ ಟೈಮರ್",
+  "widgetsC.pomodoro.next": "ಮುಂದೆ: {phase} {time}",
+  "widgetsC.pomodoro.pause": "ವಿರಾಮಗೊಳಿಸು",
+  "widgetsC.pomodoro.skip": "ಮುಂದಿನ ಹಂತಕ್ಕೆ ಹೋಗು",
+  "widgetsC.pomodoro.start": "ಪ್ರಾರಂಭಿಸು",
+  "widgetsC.pomodoro.minutesUnit": " ನಿಮಿ"
+}

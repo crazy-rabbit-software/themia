@@ -1,0 +1,29 @@
+{
+  "stocks.dimWhenClosed": "ပိတ်ထားကြောင်း ညွှန်ပြချက်",
+  "stocks.extendedHours": "တိုးချဲ့ အချိန်များ",
+  "stocks.extendedHoursDesc": "ဈေးမဖွင့်မီနှင့် ဈေးပိတ်ပြီး အရောင်းအဝယ်ကို ခြေရာခံရန် (1D နှင့် 5D)",
+  "stocks.setup": "သင်္ကေတ ရွေးပါ",
+  "stocks.showMinMax": "အနိမ့်/အမြင့် အမှတ်အသားများ",
+  "stocks.tab.symbols": "သင်္ကေတ",
+  "stocks.timeframe": "အချိန်ကာလ",
+  "styles.stocks.chart": "ဇယား",
+  "styles.stocks.number": "နံပါတ်",
+  "widget.stocks.label": "စတော့များ",
+  "widgetsA.catalog.stocks.description": "ticker နှင့် crypto များ၊ sparkline နှင့်",
+  "widgetsC.stocks.holding.amount": "{amount} ပိုင်ဆိုင်ထား",
+  "widgetsC.stocks.noQuote": "ထိုသင်္ကေတအတွက် ဈေးနှုန်း မရှိပါ",
+  "widgetsC.stocks.notSymbol": "\"{symbol}\" သည် သင်္ကေတ မဟုတ်ပါ",
+  "widgetsC.stocks.period.days": {
+    "other": "{count} ရက်"
+  },
+  "widgetsC.stocks.period.months": {
+    "other": "{count} လ"
+  },
+  "widgetsC.stocks.period.years": {
+    "other": "{count} နှစ်"
+  },
+  "widgetsC.stocks.phaseTooltip": "{phase}။ {zone}",
+  "widgetsC.stocks.settings.holding.label": "ပိုင်ဆိုင်ထားသော ရှယ်ယာ",
+  "widgetsC.stocks.settings.holding.refused": "{zero} သို့မဟုတ် ထို့ထက်ပိုသော ပမာဏကို ရိုက်ပါ၊ ဥပမာ {example}",
+  "widgetsC.stocks.settings.symbolRefused": "ရှာဖွေမှုရလဒ်တစ်ခု ရွေးပါ၊ သို့မဟုတ် သင်္ကေတတစ်ခု ရိုက်ပါ: စာလုံး၊ ဂဏန်းနှင့် . - ^ = သာ"
+}

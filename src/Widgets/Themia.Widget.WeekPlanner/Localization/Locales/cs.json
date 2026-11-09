@@ -1,0 +1,10 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "planner.desc": "Nadcházející dny s událostmi a co je dnes k vyřízení",
+  "planner.free": "Nic v plánu",
+  "planner.label": "Týdenní plánovač",
+  "planner.showTasks": "Zobrazit dnešní úkoly",
+  "planner.taskAccount": "Úkoly z",
+  "planner.taskAccountFirst": "První účet s úkoly",
+  "weekPlanner.setup.sentence": "Přidej účet a naplánuj si týden"
+}

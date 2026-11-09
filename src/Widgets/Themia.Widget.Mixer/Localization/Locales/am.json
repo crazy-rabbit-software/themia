@@ -1,0 +1,18 @@
+{
+  "mixer.cfg.activeLabel": "አሁን የሚያጫውቱ መተግበሪያዎች ብቻ",
+  "mixer.cfg.iconsLabel": "የመተግበሪያ አዶዎች",
+  "mixer.cfg.systemLabel": "የሥርዓት ድምፆች",
+  "mixer.empty": "ኦዲዮ የሚያጫውት መተግበሪያ የለም",
+  "mixer.systemSounds": "የሥርዓት ድምፆች",
+  "mixer.unknownApp": "ያልታወቀ መተግበሪያ",
+  "widgetsA.catalog.mixer.description": "ድምፅ ለሚያጫውት ለእያንዳንዱ መተግበሪያ የድምፅ መጠን",
+  "widgetsA.catalog.mixer.label": "ቀላቃይ",
+  "widgetsB.mixer.defaultNotChanged": "ነባሪው ውጤት አልተቀየረም",
+  "widgetsB.mixer.deviceMissing": "{device} አልተገናኘም",
+  "widgetsB.mixer.followDefault": "ነባሪውን ውጤት ተከተል",
+  "widgetsB.mixer.noDevice": "ምንም የውጤት መሣሪያ የለም",
+  "widgetsB.mixer.notPlaying": "{name} (እየተጫወተ አይደለም)",
+  "widgetsB.mixer.unavailable": "ድምፅ አይገኝም",
+  "widgetsB.settings.mixer.groupByApp.label": "ለእያንዳንዱ መተግበሪያ አንድ ረድፍ",
+  "widgetsB.settings.mixer.note": "ቀላቃዩን ጠቅ ያድርጉ፣ ከዚያ ↑ እና ↓ ረድፍ ይመርጣሉ፣ ← እና → ይቀይሩታል፣ M ድምፅ ያጠፋል።"
+}

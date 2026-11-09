@@ -1,0 +1,5 @@
+{
+  "screentime.ofGoal": "din {value}",
+  "widgetsC.screenTime.donut.desc": "Ponderea fiecărei aplicații din timpul pe ecran, ca inel",
+  "widgetsC.screenTime.donut.label": "Inel timp pe ecran"
+}

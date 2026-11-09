@@ -1,0 +1,17 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "addMenu.popular": "Popular",
+  "addMenu.browse": "Semak imbas",
+  "addMenu.subject.time": "Masa",
+  "addMenu.subject.calendar": "Kalendar & mel",
+  "addMenu.subject.weather": "Cuaca & langit",
+  "addMenu.subject.markets": "Berita & pasaran",
+  "addMenu.subject.media": "Muzik & media",
+  "addMenu.subject.notes": "Nota & alatan",
+  "addMenu.subject.files": "Fail & apl",
+  "addMenu.subject.system": "Sistem",
+  "addMenu.subject.devices": "Peranti & kuasa",
+  "addMenu.subject.more": "Lagi",
+  "addMenu.family.screenTime": "Masa skrin",
+  "addMenu.family.powerButtons": "Butang kuasa"
+}

@@ -1,0 +1,15 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "clipboard.clearHistory": "Kosongkan sejarah",
+  "widgetsA.catalog.clipboard.description": "Apa yang kamu salin baru-baru ini",
+  "widgetsA.catalog.clipboard.label": "Papan keratan",
+  "widgetsA.clipboard.clearConfirm.body": "Semua dalam senarai ini akan dilupakan. Ini tidak boleh dibuat asal, dan ia tidak mengubah apa yang ada pada papan keratan sekarang.",
+  "widgetsA.clipboard.clearConfirm.title": "Kosongkan sejarah papan keratan?",
+  "widgetsA.clipboard.clearEllipsis": "Kosongkan sejarah…",
+  "widgetsA.clipboard.empty": "Belum ada yang disalin. Salin sesuatu dan ia akan muncul di sini.",
+  "widgetsA.clipboard.noListener": "Windows tidak membenarkan apl ini memerhati papan keratan.",
+  "widgetsA.clipboard.remove": "Alih keluar daripada sejarah",
+  "widgetsA.clipboard.settings.entries.label": "Entri",
+  "widgetsA.clipboard.settings.privacyNote": "Teks yang disalin hanya kekal dalam memori. Fail dan imej tidak pernah dibaca.",
+  "widgetsA.clipboard.settings.timestamp.label": "Tunjukkan bila ia disalin"
+}

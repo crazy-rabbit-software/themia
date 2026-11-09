@@ -1,0 +1,32 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "widget.bluetooth.label": "Bluetooth",
+  "widgetsA.bluetooth.connected": "Připojeno",
+  "widgetsA.bluetooth.connectedCount": {
+    "one": "{count} připojené",
+    "few": "{count} připojená",
+    "other": "{count} připojených"
+  },
+  "widgetsA.bluetooth.kind.audio": "Zvuk",
+  "widgetsA.bluetooth.kind.controller": "Ovladač",
+  "widgetsA.bluetooth.kind.device": "Zařízení",
+  "widgetsA.bluetooth.kind.keyboard": "Klávesnice",
+  "widgetsA.bluetooth.kind.mouse": "Myš",
+  "widgetsA.bluetooth.kind.pen": "Pero",
+  "widgetsA.bluetooth.kind.phone": "Telefon",
+  "widgetsA.bluetooth.kind.watch": "Hodinky",
+  "widgetsA.bluetooth.paired": "Spárováno",
+  "widgetsA.bluetooth.settings.connectedOnly.label": "Jen připojená",
+  "widgetsA.bluetooth.settings.connection.label": "Připojení",
+  "widgetsA.bluetooth.settings.icon.label": "Ikona zařízení",
+  "widgetsA.bluetooth.settings.signal.label": "Síla signálu",
+  "widgetsA.bluetooth.status.failed": "Spárovaná zařízení se nepodařilo načíst",
+  "widgetsA.bluetooth.status.loading": "Načítám spárovaná zařízení",
+  "widgetsA.bluetooth.status.noRadio": "Tento počítač nemá Bluetooth",
+  "widgetsA.bluetooth.status.none": "Žádná spárovaná zařízení",
+  "widgetsA.bluetooth.status.permissionDenied": "Windows nepovolil přístup k rádiím",
+  "widgetsA.bluetooth.status.radioOff": "Bluetooth je vypnuté",
+  "widgetsA.bluetooth.unknownDevice": "Neznámé zařízení",
+  "widgetsA.catalog.bluetooth.description": "Spárovaná zařízení a jejich baterie",
+  "widget.battery.label": "Baterie"
+}

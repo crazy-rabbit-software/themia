@@ -1,0 +1,16 @@
+{
+  "widgetsC.sun.label": "ಸೂರ್ಯ",
+  "widgetsC.sun.desc": "ಸೂರ್ಯೋದಯ, ಸೂರ್ಯಾಸ್ತ ಮತ್ತು ಹಗಲು",
+  "styles.sun.arc": "ಕಮಾನು",
+  "styles.sun.dayBar": "ದಿನದ ಬಾರ್",
+  "styles.sun.times": "ಸಮಯಗಳು ಮಾತ್ರ",
+  "sunMoon.events.label": "ಘಟನೆಗಳು",
+  "widgetUi.daylight": "ಹಗಲು",
+  "widgetsC.sunMoon.civil": "ನಾಗರಿಕ",
+  "widgetsC.sunMoon.dawn": "ಮುಂಜಾವು",
+  "widgetsC.sunMoon.dusk": "ಮುಸ್ಸಂಜೆ",
+  "widgetsC.sunMoon.short.daylight": "ಹಗಲು",
+  "widgetsC.sunMoon.short.sunrise": "ಸೂರ್ಯೋದಯ",
+  "widgetsC.sunMoon.short.sunset": "ಸೂರ್ಯಾಸ್ತ",
+  "widgetsC.sunMoon.solarNoon": "ಸೌರ ಮಧ್ಯಾಹ್ನ"
+}

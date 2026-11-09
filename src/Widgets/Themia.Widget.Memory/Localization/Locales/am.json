@@ -1,0 +1,9 @@
+{
+  "styles.memory.bar": "አሞሌ",
+  "styles.memory.free": "{size} ነጻ",
+  "styles.memory.gauge": "መለኪያ",
+  "styles.memory.graph": "ግራፍ",
+  "styles.memory.used": "{size} ጥቅም ላይ ውሏል",
+  "widgetsA.catalog.memory.description": "በጥቅም ላይ ያለ አካላዊ ማህደረ ትውስታ",
+  "widgetsA.catalog.memory.label": "ማህደረ ትውስታ"
+}

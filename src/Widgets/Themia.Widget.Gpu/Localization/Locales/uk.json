@@ -1,0 +1,13 @@
+{
+  "shell.meters.gpuDescription": "Навантаження однієї відеокарти",
+  "styles.gpu.engine3d": "3D",
+  "styles.gpu.engineCopy": "Копіювання",
+  "styles.gpu.engineVideoDecode": "Декодування відео",
+  "styles.gpu.engineVideoEncode": "Кодування відео",
+  "styles.gpu.engines": "Рушії",
+  "styles.gpu.gauge": "Шкала",
+  "styles.gpu.graph": "Графік",
+  "widgetsA.catalog.gpu.label": "ГП",
+  "widgetsB.gpu.adapterMissing": "Вибраного графічного адаптера тут немає",
+  "widgetsB.gpu.noAdapter": "Немає графічного адаптера для читання"
+}

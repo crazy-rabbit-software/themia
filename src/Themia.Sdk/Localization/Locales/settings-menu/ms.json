@@ -1,0 +1,21 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "settingsMenu.onlineUpdates": "Kemas kini dalam talian",
+  "settingsMenu.gameMode": "Jeda semasa apl skrin penuh",
+  "settingsMenu.findLanguage": "Cari bahasa",
+  "settingsMenu.proFree": "Percuma",
+  "settingsMenu.backup": "Sandaran & set semula",
+  "settingsMenu.about": "Perihal Themia",
+  "settingsMenu.exportSettings": "Eksport seting…",
+  "settingsMenu.importSettings": "Import seting…",
+  "settingsMenu.resetAll": "Set semula semua seting…",
+  "settingsMenu.reset": "Set semula",
+  "settingsMenu.exported": "Disimpan sebagai {file}",
+  "settingsMenu.imported": "Seting diimport. Seting lama kamu disimpan sebagai {backup}.",
+  "settingsMenu.resetDone": "Seting telah diset semula. Seting lama kamu disimpan sebagai {backup}.",
+  "settingsMenu.purchasing": "Menunggu Microsoft Store…",
+  "settingsMenu.aboutOpenMeteo": "Cuaca, hujan dan kualiti udara. Kualiti udara juga daripada Copernicus Atmosphere Monitoring Service (CAMS).",
+  "settingsMenu.uninstallEllipsis": "Nyahpasang…",
+  "settingsMenu.uninstallDataGoes": "Widget, seting dan akaun kamu turut dipadam.",
+  "settingsMenu.uninstallDeleteData": "Padam juga data saya"
+}

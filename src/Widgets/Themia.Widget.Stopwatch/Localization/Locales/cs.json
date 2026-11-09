@@ -1,0 +1,13 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "stopwatch.label": "Stopky",
+  "stopwatch.desc": "Měří čas s mezičasy a běží dál i po restartu",
+  "stopwatch.start": "Spustit",
+  "stopwatch.pause": "Pozastavit",
+  "stopwatch.resume": "Pokračovat",
+  "stopwatch.lap": "Mezičas",
+  "stopwatch.reset": "Vynulovat",
+  "stopwatch.lapNumber": "Mezičas {n}",
+  "stopwatch.noLaps": "Zatím žádné mezičasy",
+  "stopwatch.paused": "Pozastaveno"
+}

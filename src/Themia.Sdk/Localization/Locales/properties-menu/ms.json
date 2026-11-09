@@ -1,0 +1,9 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "menu.rename": "Namakan semula…",
+  "menu.add": "Tambah…",
+  "menu.reorderHint": "Seret untuk menyusun semula, atau tekan Ctrl+Up atau Ctrl+Down",
+  "menu.filter": "Cari",
+  "menu.opensIn": "Membuka {name}",
+  "menu.numberRange": "Masukkan nombor dari {min} hingga {max}"
+}

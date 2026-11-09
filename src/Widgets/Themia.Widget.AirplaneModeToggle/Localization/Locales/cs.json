@@ -1,0 +1,5 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "toggles.airplaneMode.label": "Režim Letadlo zap./vyp.",
+  "toggles.airplaneMode.desc": "Vypne všechna bezdrátová rádia, nebo je zase zapne"
+}

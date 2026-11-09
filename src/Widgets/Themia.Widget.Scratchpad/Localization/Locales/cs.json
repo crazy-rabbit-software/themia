@@ -1,0 +1,17 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "scratchpad.drawHere": "Kresli sem",
+  "scratchpad.penColorLabel": "Barva pera",
+  "scratchpad.penSizeLabel": "Velikost pera",
+  "widget.scratchpad.label": "Náčrtník",
+  "widgetsA.catalog.scratchpad.description": "Místo na kreslení",
+  "widgetsC.scratchpad.clearConfirm": "Vymazat celou kresbu?",
+  "widgetsC.scratchpad.clearDrawing": "Vymazat kresbu",
+  "widgetsC.scratchpad.draw": "Kreslit",
+  "widgetsC.scratchpad.eraseStrokes": "Mazat tahy",
+  "widgetsC.scratchpad.exitFullScreen": "Ukončit celou obrazovku",
+  "widgetsC.scratchpad.fullScreen": "Celá obrazovka",
+  "widgetsC.scratchpad.penSizeTip": "Velikost pera {size} px",
+  "widgetsC.scratchpad.settings.showTools.label": "Zobrazit nástroje",
+  "widgetsC.scratchpad.undo": "Zpět"
+}

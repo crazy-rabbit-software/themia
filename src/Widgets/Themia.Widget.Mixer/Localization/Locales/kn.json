@@ -1,0 +1,18 @@
+{
+  "mixer.cfg.activeLabel": "ಈಗ ಪ್ಲೇ ಆಗುತ್ತಿರುವ ಆ್ಯಪ್‌ಗಳು ಮಾತ್ರ",
+  "mixer.cfg.iconsLabel": "ಆ್ಯಪ್ ಐಕಾನ್‌ಗಳು",
+  "mixer.cfg.systemLabel": "ಸಿಸ್ಟಮ್ ಧ್ವನಿಗಳು",
+  "mixer.empty": "ಯಾವುದೇ ಆ್ಯಪ್ ಆಡಿಯೊ ಪ್ಲೇ ಮಾಡುತ್ತಿಲ್ಲ",
+  "mixer.systemSounds": "ಸಿಸ್ಟಮ್ ಧ್ವನಿಗಳು",
+  "mixer.unknownApp": "ಅಪರಿಚಿತ ಆ್ಯಪ್",
+  "widgetsA.catalog.mixer.description": "ಧ್ವನಿ ಪ್ಲೇ ಮಾಡುವ ಪ್ರತಿ ಆ್ಯಪ್‌ಗೆ ವಾಲ್ಯೂಮ್",
+  "widgetsA.catalog.mixer.label": "ಮಿಕ್ಸರ್",
+  "widgetsB.mixer.defaultNotChanged": "ಡಿಫಾಲ್ಟ್ ಔಟ್‌ಪುಟ್ ಬದಲಾಗಿಲ್ಲ",
+  "widgetsB.mixer.deviceMissing": "{device} ಸಂಪರ್ಕಗೊಂಡಿಲ್ಲ",
+  "widgetsB.mixer.followDefault": "ಡಿಫಾಲ್ಟ್ ಔಟ್‌ಪುಟ್ ಅನುಸರಿಸು",
+  "widgetsB.mixer.noDevice": "ಔಟ್‌ಪುಟ್ ಸಾಧನವಿಲ್ಲ",
+  "widgetsB.mixer.notPlaying": "{name} (ಪ್ಲೇ ಆಗುತ್ತಿಲ್ಲ)",
+  "widgetsB.mixer.unavailable": "ಧ್ವನಿ ಲಭ್ಯವಿಲ್ಲ",
+  "widgetsB.settings.mixer.groupByApp.label": "ಪ್ರತಿ ಆ್ಯಪ್‌ಗೆ ಒಂದು ಸಾಲು",
+  "widgetsB.settings.mixer.note": "ಮಿಕ್ಸರ್ ಮೇಲೆ ಕ್ಲಿಕ್ ಮಾಡು, ನಂತರ ↑ ಮತ್ತು ↓ ಸಾಲನ್ನು ಆಯ್ಕೆಮಾಡುತ್ತವೆ, ← ಮತ್ತು → ಅದನ್ನು ಬದಲಾಯಿಸುತ್ತವೆ, M ಮ್ಯೂಟ್ ಮಾಡುತ್ತದೆ."
+}

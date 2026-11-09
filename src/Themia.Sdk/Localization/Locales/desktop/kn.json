@@ -1,0 +1,13 @@
+{
+  "desktop.choice.label": "ಡೆಸ್ಕ್‌ಟಾಪ್‌ನಲ್ಲಿ",
+  "desktop.choice.themia": "Themia ಐಟಂಗಳು",
+  "desktop.choice.windows": "Windows ಐಕಾನ್‌ಗಳು",
+  "desktop.choice.nothing": "ಏನೂ ಇಲ್ಲ",
+  "desktop.add.folder": "ಡೆಸ್ಕ್‌ಟಾಪ್‌ನಲ್ಲಿ",
+  "desktop.rename.clash": "ಈ ಹೆಸರಿನ ಐಟಂ ಈಗಾಗಲೇ ಇಲ್ಲಿದೆ.",
+  "desktop.menu.edit": "ವಿಜೆಟ್‌ಗಳನ್ನು ಎಡಿಟ್ ಮಾಡು",
+  "desktop.delete.fromView": "ಈ ವೀಕ್ಷಣೆಯಿಂದ ತೆಗೆದುಹಾಕು",
+  "desktop.automation.list": "ಡೆಸ್ಕ್‌ಟಾಪ್",
+  "desktop.coexist.replaced": "ಇನ್ನೊಂದು ಪ್ರೋಗ್ರಾಂ ಡೆಸ್ಕ್‌ಟಾಪ್ ಐಕಾನ್‌ಗಳನ್ನು ಬದಲಾಯಿಸಿದೆ, ಆದ್ದರಿಂದ Themia ಡೆಸ್ಕ್‌ಟಾಪ್ ಅನ್ನು ಅದಕ್ಕೇ ಬಿಡುತ್ತದೆ.",
+  "desktop.coexist.keptShown": "ಇನ್ನೊಂದು ಪ್ರೋಗ್ರಾಂ Windows ಐಕಾನ್‌ಗಳನ್ನು ತೋರಿಸುತ್ತಲೇ ಇದೆ, ಆದ್ದರಿಂದ Themia ಅವುಗಳನ್ನು ತೋರಿಸಿದಂತೆಯೇ ಬಿಡುತ್ತದೆ. ಮತ್ತೊಮ್ಮೆ ಪ್ರಯತ್ನಿಸಲು ಒಂದು ಆಯ್ಕೆಯನ್ನು ಮತ್ತೆ ಆರಿಸು."
+}

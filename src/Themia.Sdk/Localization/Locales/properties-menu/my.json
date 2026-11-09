@@ -1,0 +1,8 @@
+{
+  "menu.rename": "အမည်ပြောင်းရန်…",
+  "menu.add": "ထည့်ရန်…",
+  "menu.reorderHint": "ပြန်စီရန် ဆွဲပါ၊ သို့မဟုတ် Ctrl+Up သို့မဟုတ် Ctrl+Down ကို နှိပ်ပါ",
+  "menu.filter": "ရှာဖွေရန်",
+  "menu.opensIn": "{name} ကို ဖွင့်သည်",
+  "menu.numberRange": "{min} မှ {max} အထိ နံပါတ်တစ်ခု ထည့်ပါ"
+}

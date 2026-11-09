@@ -1,0 +1,23 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "alarm.untitled": "Будильник",
+  "alarm.off": "Вимк.",
+  "alarm.ringing": "Дзвонить",
+  "alarm.snoozedUntil": "Відкладено до {time}",
+  "alarm.everyDay": "Щодня",
+  "alarm.weekdays": "Робочі дні",
+  "alarm.weekends": "Вихідні",
+  "alarm.snooze": "Відкласти",
+  "alarm.dismiss": "Закрити",
+  "drives.label.cd": "CD-дисковод",
+  "drives.label.network": "Мережевий диск",
+  "drives.label.ram": "RAM-диск",
+  "drives.type.removable": "Знімний диск",
+  "drives.type.optical": "CD-дисковод",
+  "drives.type.network": "Мережевий диск",
+  "drives.type.disconnected": "Відключений мережевий диск",
+  "drives.noMedia": "Немає носія",
+  "drives.pending": "Підключення…",
+  "drives.disconnected": "Відключено",
+  "drives.eject": "Вийняти"
+}

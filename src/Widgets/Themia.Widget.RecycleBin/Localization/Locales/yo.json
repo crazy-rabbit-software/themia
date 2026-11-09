@@ -1,0 +1,11 @@
+{
+  "recycleBin.desc": "Bí Àpò àtúnlò ṣe kún tó, pẹ̀lú Ṣe é ní òfo",
+  "recycleBin.empty": "Ṣe é ní òfo",
+  "recycleBin.isEmpty": "Kò sí ohunkóhun",
+  "recycleBin.items": {
+    "other": "Ohun {count}"
+  },
+  "recycleBin.open": "Ṣí Àpò àtúnlò",
+  "recycleBin.emptyEllipsis": "Ṣe Àpò àtúnlò ní òfo…",
+  "widgetsC.location.recycleBin": "Àpò àtúnlò"
+}

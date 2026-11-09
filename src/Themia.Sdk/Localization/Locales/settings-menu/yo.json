@@ -1,0 +1,20 @@
+{
+  "settingsMenu.onlineUpdates": "Ìmúdójúìwọ̀n orí ayélujára",
+  "settingsMenu.gameMode": "Dánudúró nígbà àwọn áàpù ojú-ìbòjú kíkún",
+  "settingsMenu.findLanguage": "Wá èdè kan",
+  "settingsMenu.proFree": "Ọ̀fẹ́",
+  "settingsMenu.backup": "Ìpamọ́ àti àtúntò",
+  "settingsMenu.about": "Nípa Themia",
+  "settingsMenu.exportSettings": "Gbé ètò jáde…",
+  "settingsMenu.importSettings": "Gbé ètò wọlé…",
+  "settingsMenu.resetAll": "Tún gbogbo ètò tò…",
+  "settingsMenu.reset": "Tún tò",
+  "settingsMenu.exported": "A ti fi pamọ́ bí {file}",
+  "settingsMenu.imported": "A ti gbé ètò wọlé. A pa àwọn tí o ní tẹ́lẹ̀ mọ́ bí {backup}.",
+  "settingsMenu.resetDone": "A ti tún ètò tò. A pa àwọn tí o ní tẹ́lẹ̀ mọ́ bí {backup}.",
+  "settingsMenu.purchasing": "Ó ń dúró de Microsoft Store…",
+  "settingsMenu.aboutOpenMeteo": "Ojú ọjọ́, òjò àti dídára afẹ́fẹ́. Dídára afẹ́fẹ́ tún wá láti Copernicus Atmosphere Monitoring Service (CAMS).",
+  "settingsMenu.uninstallEllipsis": "Yọ kúrò lórí ẹ̀rọ…",
+  "settingsMenu.uninstallDataGoes": "A ó pa àwọn wíjẹ́ẹ̀tì, ètò àti àkáǹtì rẹ rẹ́ pẹ̀lú.",
+  "settingsMenu.uninstallDeleteData": "Pa dátà mi rẹ́ pẹ̀lú"
+}

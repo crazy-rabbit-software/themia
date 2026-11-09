@@ -1,0 +1,7 @@
+{
+  "screentime.goalPerDay": "{value}/ရက် အနက်",
+  "styles.screenTimeChart.bars": "ဘားများ",
+  "styles.screenTimeChart.calendar": "ပြက္ခဒိန်",
+  "widgetsC.screenTime.chart.desc": "ရက်သတ္တပတ် သို့မဟုတ် လတစ်လအတွင်း နေ့အလိုက် သင့်ကြည့်ချိန်",
+  "widgetsC.screenTime.chart.label": "ကြည့်ချိန် ဇယား"
+}

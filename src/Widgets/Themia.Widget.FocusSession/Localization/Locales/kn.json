@@ -1,0 +1,15 @@
+{
+  "panels.focus.desc": "ಗಮನ ಕೊಡುವ ಸಮಯ, ಅಧಿಸೂಚನೆಗಳನ್ನು ತಡೆಹಿಡಿದು",
+  "panels.focus.end": "ಸೆಷನ್ ಕೊನೆಗೊಳಿಸು",
+  "panels.focus.label": "ಫೋಕಸ್ ಸೆಷನ್",
+  "panels.focus.left": "{time} ಬಾಕಿ",
+  "panels.focus.lengthLabel": "ಅವಧಿ",
+  "panels.focus.longer": "ಹೆಚ್ಚು",
+  "panels.focus.quietLabel": "ತೊಂದರೆ ನೀಡಬೇಡಿ ಆನ್ ಮಾಡು",
+  "panels.focus.quietOn": "ತೊಂದರೆ ನೀಡಬೇಡಿ ಆನ್ ಆಗಿದೆ",
+  "panels.focus.quietUnavailable": "ಇಲ್ಲಿ ತೊಂದರೆ ನೀಡಬೇಡಿ ಆನ್ ಮಾಡಲು ಆಗುವುದಿಲ್ಲ",
+  "panels.focus.shorter": "ಕಡಿಮೆ",
+  "panels.focus.start": "ಪ್ರಾರಂಭಿಸು",
+  "panels.focus.willQuiet": "ತೊಂದರೆ ನೀಡಬೇಡಿ ಆನ್ ಮಾಡುತ್ತದೆ",
+  "panels.focus.windows": "Windows ಫೋಕಸ್ ಸೆಷನ್ ಚಾಲನೆಯಲ್ಲಿದೆ"
+}

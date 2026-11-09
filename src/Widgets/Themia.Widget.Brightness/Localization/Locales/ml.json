@@ -1,0 +1,10 @@
+{
+  "panels.brightness.all": "എല്ലാ സ്ക്രീനുകളും",
+  "panels.brightness.desc": "ഡിസ്‌പ്ലേ തെളിച്ചത്തിന് ഒരു സ്ലൈഡർ",
+  "panels.brightness.label": "തെളിച്ചം",
+  "panels.brightness.level": "തെളിച്ചം {level}",
+  "panels.brightness.none": "സജ്ജമാക്കാൻ ഡിസ്‌പ്ലേ തെളിച്ചമില്ല",
+  "panels.brightness.own": "അതുള്ള സ്ക്രീൻ മാത്രം",
+  "panels.brightness.ownNone": "ഈ ഡിസ്‌പ്ലേയുടെ തെളിച്ചം സജ്ജമാക്കാനാവില്ല",
+  "panels.brightness.screensLabel": "അത് മങ്ങിക്കുന്ന സ്ക്രീനുകൾ"
+}

@@ -1,0 +1,11 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "panels.brightness.all": "Všechny obrazovky",
+  "panels.brightness.desc": "Jeden posuvník pro jas displeje",
+  "panels.brightness.label": "Jas",
+  "panels.brightness.level": "Jas {level}",
+  "panels.brightness.none": "Není jas displeje, který by šel nastavit",
+  "panels.brightness.own": "Jen obrazovka, na které je",
+  "panels.brightness.ownNone": "Jas tohoto displeje nejde nastavit",
+  "panels.brightness.screensLabel": "Obrazovky, které ztlumí"
+}

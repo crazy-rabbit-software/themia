@@ -1,0 +1,29 @@
+{
+  "widget.bluetooth.label": "Bluetooth",
+  "widgetsA.bluetooth.connected": "Ti sopọ̀",
+  "widgetsA.bluetooth.connectedCount": {
+    "other": "{count} ti sopọ̀"
+  },
+  "widgetsA.bluetooth.kind.audio": "Ohùn",
+  "widgetsA.bluetooth.kind.controller": "Adarí eré",
+  "widgetsA.bluetooth.kind.device": "Ẹ̀rọ",
+  "widgetsA.bluetooth.kind.keyboard": "Pátákó ìtẹ̀wé",
+  "widgetsA.bluetooth.kind.mouse": "Mọ́ọ̀sì",
+  "widgetsA.bluetooth.kind.pen": "Kálámù",
+  "widgetsA.bluetooth.kind.phone": "Fóònù",
+  "widgetsA.bluetooth.kind.watch": "Aago ọwọ́",
+  "widgetsA.bluetooth.paired": "Ti ṣe pọ̀",
+  "widgetsA.bluetooth.settings.connectedOnly.label": "Àwọn tó ti sopọ̀ nìkan",
+  "widgetsA.bluetooth.settings.connection.label": "Ìsopọ̀",
+  "widgetsA.bluetooth.settings.icon.label": "Àmì ẹ̀rọ",
+  "widgetsA.bluetooth.settings.signal.label": "Agbára sígínà",
+  "widgetsA.bluetooth.status.failed": "A kò lè ka àwọn ẹ̀rọ tí a ti ṣe pọ̀",
+  "widgetsA.bluetooth.status.loading": "Ó ń ka àwọn ẹ̀rọ tí a ti ṣe pọ̀",
+  "widgetsA.bluetooth.status.noRadio": "PC yìí kò ní rédíò Bluetooth",
+  "widgetsA.bluetooth.status.none": "Kò sí ẹ̀rọ tí a ti ṣe pọ̀",
+  "widgetsA.bluetooth.status.permissionDenied": "Windows kò tíì fún un ní àyè sí àwọn rédíò",
+  "widgetsA.bluetooth.status.radioOff": "Bluetooth ti wà ní pípa",
+  "widgetsA.bluetooth.unknownDevice": "Ẹ̀rọ àìmọ̀",
+  "widgetsA.catalog.bluetooth.description": "Àwọn ẹ̀rọ tí a ti ṣe pọ̀ àti bátìrì wọn",
+  "widget.battery.label": "Bátìrì"
+}

@@ -1,0 +1,8 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "languageRegion.nav": "Bahasa & wilayah",
+  "languageRegion.clock": "Format masa",
+  "languageRegion.clock12": "{hours} jam",
+  "languageRegion.clock24": "{hours} jam",
+  "languageRegion.followWindows": "Seting Windows ({value})"
+}

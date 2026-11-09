@@ -1,0 +1,5 @@
+{
+  "details.catalog.gpu.desc": "Відеопам’ять, температура й частоти",
+  "details.catalog.gpu.label": "Відомості про ГП",
+  "details.gpu.none": "Немає графічного адаптера"
+}

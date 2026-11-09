@@ -1,0 +1,14 @@
+{
+  "clipboard.clearHistory": "ታሪክን አጽዳ",
+  "widgetsA.catalog.clipboard.description": "በቅርቡ የቀዱት",
+  "widgetsA.catalog.clipboard.label": "የቅንጥብ ሰሌዳ",
+  "widgetsA.clipboard.clearConfirm.body": "በዚህ ዝርዝር ውስጥ ያለው ሁሉ ይረሳል። ይህ ሊቀለበስ አይችልም፣ አሁን በቅንጥብ ሰሌዳው ላይ ያለውንም አይቀይርም።",
+  "widgetsA.clipboard.clearConfirm.title": "የቅንጥብ ሰሌዳ ታሪክ ይጽዳ?",
+  "widgetsA.clipboard.clearEllipsis": "ታሪክን አጽዳ…",
+  "widgetsA.clipboard.empty": "እስካሁን ምንም አልተቀዳም። አንድ ነገር ይቅዱ፣ እዚህም ይታያል።",
+  "widgetsA.clipboard.noListener": "Windows ይህ መተግበሪያ የቅንጥብ ሰሌዳውን እንዲከታተል አልፈቀደም።",
+  "widgetsA.clipboard.remove": "ከታሪክ አስወግድ",
+  "widgetsA.clipboard.settings.entries.label": "ግቤቶች",
+  "widgetsA.clipboard.settings.privacyNote": "የተቀዳ ጽሑፍ በማህደረ ትውስታ ውስጥ ብቻ ይቆያል። ፋይሎችና ምስሎች በጭራሽ አይነበቡም።",
+  "widgetsA.clipboard.settings.timestamp.label": "መቼ እንደተቀዳ አሳይ"
+}

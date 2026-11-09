@@ -1,0 +1,12 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "widgetPrefs.updates.note": "ವಿಜೆಟ್‌ಗಳು ಆನ್‌ಲೈನ್ ಸೇವೆಗಳನ್ನು ಎಷ್ಟು ಬಾರಿ ಕೇಳುತ್ತವೆ. ವಿಜೆಟ್‌ನಲ್ಲಿ ರಿಫ್ರೆಶ್ ಮಾಡಿದರೆ ತಕ್ಷಣ ಕೇಳುತ್ತದೆ.",
+  "widgetPrefs.updates.weather": "ಹವಾಮಾನ",
+  "widgetPrefs.updates.markets": "ಷೇರುಗಳು",
+  "widgetPrefs.updates.feeds": "ಸುದ್ದಿ ಫೀಡ್‌ಗಳು",
+  "widgetPrefs.updates.accounts": "ಮೇಲ್, ಕ್ಯಾಲೆಂಡರ್‌ಗಳು ಮತ್ತು ಕಾರ್ಯಗಳು",
+  "widgetPrefs.updates.everyHours": {
+    "one": "ಪ್ರತಿ {count} ಗಂಟೆಗೆ",
+    "other": "ಪ್ರತಿ {count} ಗಂಟೆಗಳಿಗೆ"
+  }
+}

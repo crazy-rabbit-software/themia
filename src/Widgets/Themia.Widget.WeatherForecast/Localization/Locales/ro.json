@@ -1,0 +1,10 @@
+{
+  "forecast.daysLabel": "Zile afișate",
+  "forecast.layoutColumns": "Coloane",
+  "forecast.layoutRows": "Rânduri",
+  "styles.forecast.curve": "Curba temperaturii",
+  "styles.forecast.grid": "Grilă",
+  "widgetsA.catalog.forecast.description": "Următoarele zile",
+  "widgetsA.catalog.forecast.label": "Prognoză",
+  "widgetsC.weather.settings.showPrecipitation.label": "Arată precipitațiile"
+}

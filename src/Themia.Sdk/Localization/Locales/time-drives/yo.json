@@ -1,0 +1,23 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "alarm.untitled": "Aago ìjìdìde",
+  "alarm.off": "Pa",
+  "alarm.ringing": "Ó ń dún",
+  "alarm.snoozedUntil": "A sún un síwájú títí di {time}",
+  "alarm.everyDay": "Ojoojúmọ́",
+  "alarm.weekdays": "Ọjọ́ iṣẹ́",
+  "alarm.weekends": "Òpin ọ̀sẹ̀",
+  "alarm.snooze": "Sún síwájú",
+  "alarm.dismiss": "Mú kúrò",
+  "drives.label.cd": "Díráìfù CD",
+  "drives.label.network": "Díráìfù nẹ́tíwọ̀ọ̀kì",
+  "drives.label.ram": "Dísìkì RAM",
+  "drives.type.removable": "Dísìkì tí a lè yọ",
+  "drives.type.optical": "Díráìfù CD",
+  "drives.type.network": "Díráìfù nẹ́tíwọ̀ọ̀kì",
+  "drives.type.disconnected": "Díráìfù nẹ́tíwọ̀ọ̀kì tí kò sopọ̀",
+  "drives.noMedia": "Kò sí mídíà",
+  "drives.pending": "Ó ń sopọ̀…",
+  "drives.disconnected": "Kò sopọ̀",
+  "drives.eject": "Yọ jáde"
+}

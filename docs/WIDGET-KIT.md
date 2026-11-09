@@ -417,7 +417,7 @@ combined options.
 - `LocalText` (a `StringTable` and an id) is how a descriptor hands its label, description and
   keywords to the host (catalogue, picker, search, settings search) without the host knowing the
   module's enum.
-- The rules of [S-1105], [S-1106] and [S-1112] (every key in 30 languages or `$englishOnly`,
+- The rules of [S-1105], [S-1106] and [S-1112] (every key in 40 languages or `$englishOnly`,
   placeholders and plurals match) run per module over its `StringTable`, in the module test host.
 - Each module owns its keys; tables never mix, so no key prefix rule is needed.
 
@@ -1313,7 +1313,7 @@ offenders, named with the reason, and the list only shrinks.
 | Kit actions | no `ItemMenuEntry` constructed in a kit view; every `KitActionKind` and `KitIcon` member has its mapping in `KitMenu`/`KitIcons` | |
 | Registration | over the registry: every module has a label and description in English, a glyph, an add-menu shelf that exists, a default config of its `ConfigType` that round-trips through the state options with its id as discriminator, and its declared providers registered; the generator already rejects bad, duplicate and mismatched ids at build time (THEMIAMOD001..004) | none once the built-ins are declared as modules (section 11, step M2) |
 | SPEC per module | every module folder has a `SPEC.md`; no tag is used twice across all SPEC files; every non-retired tag of a module's section has a test named `S<tag>_…` or is listed under "Needs a manual pass" | modules only; the root SPEC's host sections keep today's rules |
-| Strings | per string table (the host's `Str` and every module's): every key in all 30 languages or `$englishOnly`, placeholders and plurals match ([S-1105], [S-1106], [S-1112]); a kit widget's table holds every key its spec uses | |
+| Strings | per string table (the host's `Str` and every module's): every key in all 40 languages or `$englishOnly`, placeholders and plurals match ([S-1105], [S-1106], [S-1112]); a kit widget's table holds every key its spec uses | |
 | Fixtures | every file under `Fixtures/` parses, and none contains a token shape (`ghp_`, `gho_`, `ghu_`, `ghr_`, `github_pat_`, `lin_api_`, `lin_oauth_`, a 40-hex run as Todoist tokens are), `Bearer `, `Authorization`, an `@` address outside `example.com`/`users.noreply.github.com` | |
 | Generic kit | no file outside `src/Providers/` (the SDK, Core, the app, `Themia.Sdk.WinUI`) names a kit service or a registered provider id; no service-specific header name (anything but the standard `ETag`, `Last-Modified`, `Link`, `Retry-After`) and no error code literal outside a provider project | none (nothing built yet); `RateLimitRules`' GitHub header constants move into GitHub's descriptor when the check lands |
 | Descriptors | over the registry: every provider with a `Service` has a non-empty `SignIn` list and https `WebHosts`; `BuildTime` implies a `BuildSecret` key `ClientSecretRules` accepts; every query names a bucket the scheme can block; every feature a widget config needs is offered by a registered provider | |

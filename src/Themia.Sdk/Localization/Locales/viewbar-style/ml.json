@@ -1,0 +1,10 @@
+{
+  "barMenus.viewBar.type": "തരം",
+  "barMenus.viewBar.labels": "ലേബലുകൾ",
+  "shell.viewBar.typeInline": "ഇൻലൈൻ",
+  "shell.viewBar.typeSelect": "തിരഞ്ഞെടുക്കുക",
+  "shell.viewBar.labelsIconAndText": "ഐക്കണും വാചകവും",
+  "shell.viewBar.labelsIconOnly": "ഐക്കൺ മാത്രം",
+  "shell.viewBar.labelsTextOnly": "വാചകം മാത്രം",
+  "shell.viewBar.pickTip": "{name}\nഒരു കാഴ്ച തിരഞ്ഞെടുക്കാൻ ക്ലിക്ക് ചെയ്യുക"
+}

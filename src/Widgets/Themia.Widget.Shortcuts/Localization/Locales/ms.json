@@ -1,0 +1,49 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "common.search": "Cari",
+  "ctxMenu.iconOnly": "Ikon sahaja",
+  "ctxMenu.list": "Senarai",
+  "ctxMenu.openDouble": "Buka dengan klik dua kali",
+  "ctxMenu.openSingle": "Buka dengan klik sekali",
+  "recycleBin.emptyEllipsis": "Kosongkan Tong Kitar Semula…",
+  "shortcut.addTitle": "Tambah pintasan",
+  "shortcut.copyPath": "Salin laluan",
+  "shortcut.copyUrl": "Salin URL",
+  "shortcut.editLayoutMenu": "Edit susun atur…",
+  "widgetsA.catalog.shortcuts.description": "Pautan, fail dan folder yang kamu simpan berdekatan",
+  "widgetsA.catalog.shortcuts.label": "Pintasan",
+  "widgetsC.shortcuts.column.kind": "Jenis",
+  "widgetsC.shortcuts.column.target": "Sasaran",
+  "widgetsC.shortcuts.drop.add": "Tambah ke Pintasan",
+  "widgetsC.shortcuts.drop.moveHere": "Alihkan ke sini",
+  "widgetsC.shortcuts.kind.location": "Lokasi Windows",
+  "widgetsC.shortcuts.kind.missing": "Hilang",
+  "widgetsC.shortcuts.kind.path": "Laluan",
+  "widgetsC.shortcuts.kind.refused": "Tidak dibenarkan",
+  "widgetsC.shortcuts.menu.addLayout": "Susun atur apl…",
+  "widgetsC.shortcuts.menu.addLink": "Alamat web atau laluan…",
+  "widgetsC.shortcuts.menu.changeTarget": "Tukar sasaran…",
+  "widgetsC.shortcuts.menu.closeSearch": "Tutup carian",
+  "widgetsC.shortcuts.menu.openLayout": "Buka susun atur",
+  "widgetsC.shortcuts.menu.openMany": {
+    "other": "Buka {count} pintasan"
+  },
+  "widgetsC.shortcuts.menu.removeMany": {
+    "other": "Alih keluar {count} pintasan"
+  },
+  "widgetsC.shortcuts.menu.undoRemove": "Buat asal alih keluar",
+  "widgetsC.shortcuts.menu.undoRemoveCount": {
+    "other": "Buat asal alih keluar ({count})"
+  },
+  "widgetsC.shortcuts.search": "Cari pintasan",
+  "widgetsC.shortcuts.settings.list.empty": "Belum ada pintasan.",
+  "widgetsC.shortcuts.settings.locations": "Lokasi Windows",
+  "widgetsC.shortcuts.settings.openWith.double": "Klik dua kali",
+  "widgetsC.shortcuts.settings.openWith.label": "Buka dengan",
+  "widgetsC.shortcuts.settings.openWith.single": "Klik sekali",
+  "widgetsC.shortcuts.settings.pick.file": "Fail…",
+  "widgetsC.shortcuts.settings.pick.folder": "Folder…",
+  "widgetsC.shortcuts.settings.view.tiles": "Jubin",
+  "widgetsC.shortcuts.setup": "Tambah pintasan",
+  "widgetsC.shortcuts.tooltip.missing": "{name} (sasaran hilang)\n{target}"
+}

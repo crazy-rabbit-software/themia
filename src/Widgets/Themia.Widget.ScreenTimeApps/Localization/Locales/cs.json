@@ -1,0 +1,10 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "screentime.metric.average": "Denní průměr",
+  "screentime.metric.percent": "Podíl z celku",
+  "widgetsC.screenTime.apps.desc": "Aplikace, které používáš, a jak dlouho",
+  "widgetsC.screenTime.apps.label": "Čas u obrazovky: aplikace",
+  "widgetsC.screenTime.limitOverTip": "limit {limit} (překročen)",
+  "widgetsC.screenTime.limitTip": "limit {limit}",
+  "widgetsC.screenTime.settings.most.label": "Nejvíc zobrazených aplikací"
+}

@@ -1,0 +1,11 @@
+{
+  "widget.volume.label": "Volum",
+  "widgetsA.catalog.volume.description": "Nivelul general de ieșire și dezactivarea sunetului",
+  "widgetsC.volume.defaultNotChanged": "Ieșirea implicită nu a fost schimbată",
+  "widgetsC.volume.followDefault": "Urmează ieșirea implicită",
+  "widgetsC.volume.noDevice": "Niciun dispozitiv de ieșire",
+  "widgetsC.volume.notConnected": "{device} nu este conectat",
+  "widgetsC.volume.settings.allow.label": "Permite modificări",
+  "widgetsC.volume.settings.keysNote": "Fă clic pe dală, apoi folosește săgețile sau + și −; M dezactivează sunetul.",
+  "widgetsC.volume.unavailable": "Sunetul nu este disponibil"
+}

@@ -1,0 +1,51 @@
+{
+  "common.search": "Αναζήτηση",
+  "ctxMenu.iconOnly": "Μόνο εικονίδιο",
+  "ctxMenu.list": "Λίστα",
+  "ctxMenu.openDouble": "Άνοιγμα με διπλό κλικ",
+  "ctxMenu.openSingle": "Άνοιγμα με ένα κλικ",
+  "recycleBin.emptyEllipsis": "Άδειασμα Κάδου Ανακύκλωσης…",
+  "shortcut.addTitle": "Προσθήκη συντόμευσης",
+  "shortcut.copyPath": "Αντιγραφή διαδρομής",
+  "shortcut.copyUrl": "Αντιγραφή URL",
+  "shortcut.editLayoutMenu": "Επεξεργασία διάταξης…",
+  "widgetsA.catalog.shortcuts.description": "Σύνδεσμοι, αρχεία και φάκελοι που κρατάς πρόχειρους",
+  "widgetsA.catalog.shortcuts.label": "Συντομεύσεις",
+  "widgetsC.shortcuts.column.kind": "Είδος",
+  "widgetsC.shortcuts.column.target": "Προορισμός",
+  "widgetsC.shortcuts.drop.add": "Προσθήκη στις Συντομεύσεις",
+  "widgetsC.shortcuts.drop.moveHere": "Μετακίνηση εδώ",
+  "widgetsC.shortcuts.kind.location": "Θέση των Windows",
+  "widgetsC.shortcuts.kind.missing": "Λείπει",
+  "widgetsC.shortcuts.kind.path": "Διαδρομή",
+  "widgetsC.shortcuts.kind.refused": "Δεν επιτρέπεται",
+  "widgetsC.shortcuts.menu.addLayout": "Διάταξη εφαρμογών…",
+  "widgetsC.shortcuts.menu.addLink": "Διεύθυνση web ή διαδρομή…",
+  "widgetsC.shortcuts.menu.changeTarget": "Αλλαγή προορισμού…",
+  "widgetsC.shortcuts.menu.closeSearch": "Κλείσιμο αναζήτησης",
+  "widgetsC.shortcuts.menu.openLayout": "Άνοιγμα διάταξης",
+  "widgetsC.shortcuts.menu.openMany": {
+    "one": "Άνοιγμα {count} συντόμευσης",
+    "other": "Άνοιγμα {count} συντομεύσεων"
+  },
+  "widgetsC.shortcuts.menu.removeMany": {
+    "one": "Κατάργηση {count} συντόμευσης",
+    "other": "Κατάργηση {count} συντομεύσεων"
+  },
+  "widgetsC.shortcuts.menu.undoRemove": "Αναίρεση κατάργησης",
+  "widgetsC.shortcuts.menu.undoRemoveCount": {
+    "one": "Αναίρεση κατάργησης ({count})",
+    "other": "Αναίρεση κατάργησης ({count})"
+  },
+  "widgetsC.shortcuts.search": "Αναζήτηση συντομεύσεων",
+  "widgetsC.shortcuts.settings.list.empty": "Δεν υπάρχουν ακόμα συντομεύσεις.",
+  "widgetsC.shortcuts.settings.locations": "Θέσεις των Windows",
+  "widgetsC.shortcuts.settings.openWith.double": "Διπλό κλικ",
+  "widgetsC.shortcuts.settings.openWith.label": "Άνοιγμα με",
+  "widgetsC.shortcuts.settings.openWith.single": "Ένα κλικ",
+  "widgetsC.shortcuts.settings.pick.file": "Αρχείο…",
+  "widgetsC.shortcuts.settings.pick.folder": "Φάκελος…",
+  "widgetsC.shortcuts.settings.view.tiles": "Πλακίδια",
+  "widgetsC.shortcuts.tooltip.missing": "{name} (λείπει ο προορισμός)\n{target}",
+  "widgetsC.shortcuts.setup": "Πρόσθεσε μια συντόμευση"
+}

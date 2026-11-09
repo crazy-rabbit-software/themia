@@ -1,0 +1,12 @@
+{
+  "stopwatch.label": "ಸ್ಟಾಪ್‌ವಾಚ್",
+  "stopwatch.desc": "ಲ್ಯಾಪ್‌ಗಳೊಂದಿಗೆ ಸಮಯ ಅಳೆಯುತ್ತದೆ, ಮರುಪ್ರಾರಂಭಗಳ ನಂತರವೂ ಓಡುತ್ತಿರುತ್ತದೆ",
+  "stopwatch.start": "ಪ್ರಾರಂಭಿಸು",
+  "stopwatch.pause": "ವಿರಾಮಗೊಳಿಸು",
+  "stopwatch.resume": "ಮುಂದುವರಿಸು",
+  "stopwatch.lap": "ಲ್ಯಾಪ್",
+  "stopwatch.reset": "ಮರುಹೊಂದಿಸು",
+  "stopwatch.lapNumber": "ಲ್ಯಾಪ್ {n}",
+  "stopwatch.noLaps": "ಇನ್ನೂ ಲ್ಯಾಪ್‌ಗಳಿಲ್ಲ",
+  "stopwatch.paused": "ವಿರಾಮಗೊಂಡಿದೆ"
+}

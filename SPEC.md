@@ -1945,7 +1945,7 @@ mechanism), `Shell/DesktopWindow.SettingsMenu.cs`, `Services/AppHost.SettingsMen
   window's Language & region page held them ([S-3797]; the page is gone, with its navigation entry,
   search entries and globe icon): **Language ›** ([S-1109]), its value the language Themia speaks in
   its own words; its options **Windows setting (…)** first, naming the language Windows gives Themia
-  ("Windows setting (Deutsch)"), then the thirty, each in its own words in every language; a pick is
+  ("Windows setting (Deutsch)"), then the forty, each in its own words in every language; a pick is
   stored and the whole app speaks it at once ([S-1110]), the menu staying open at the same level in
   the new language ([S-3531]). Under a divider the regional formats every widget shares ([S-3770]):
   **Time format ›**, **Start of week ›** and **Temperature unit ›**, each offering what Windows says
@@ -6818,7 +6818,7 @@ displays, the ghost following the pointer across displays, Ctrl+A/Escape order.
   (`prs-AF`) → fa; `fil-PH` and Tagalog (`tl`) → fil; `sw-KE`/`sw-TZ` → sw; `ha-Latn-NG` → ha;
   `pa-IN`/`pa-Guru*` → pa, but Shahmukhi (`pa-Arab*`, Pakistan) is not taken for the Gurmukhi table and
   the walk goes on. Walks the whole list, not only its head.
-- **[S-1109]** ⚙ › Language & region › Language ([S-3536]): Windows' setting + the thirty, each named in its own
+- **[S-1109]** ⚙ › Language & region › Language ([S-3536]): Windows' setting + the forty, each named in its own
   language. The host resolves the setting before any window is built and again on every state
   change (an import or reset), and `SetLanguage` applies it at once.
 - **[S-1110]** Live switch: `Strings.Changed(Locale)` fires on the UI thread after the language
@@ -6848,6 +6848,11 @@ displays, the ghost following the pointer across displays, Ctrl+A/Escape order.
   (`fil`, the one three-letter code), Tamil, Persian, Thai and Gujarati joined (named తెలుగు, Hausa,
   ਪੰਜਾਬੀ, Kiswahili, Filipino, தமிழ், فارسی, ไทย, ગુજરાતી); also machine translations marked for native
   review in every file's `$comment`.
+  Forty since Malay, Ukrainian, Romanian, Greek, Czech, Kannada, Malayalam, Amharic, Yoruba and Burmese
+  joined (named Bahasa Melayu, Українська, Română, Ελληνικά, Čeština, ಕನ್ನಡ, മലയാളം, አማርኛ, Yorùbá,
+  မြန်မာ), so Themia has the same forty languages as every Lometics app and site. Czech counts
+  one/few/other and Romanian one/few/other ("many" is for fractions only); Malay, Yoruba and Burmese
+  write one form; Kannada and Amharic take the singular for nought too. Burmese keeps Latin digits.
 - **[S-1115]** Native digits: a language that writes its own digits gets them in the text, not from
   DirectWrite's contextual substitution, which follows the neighbouring script (an Arabic agenda row
   "09:00–09:15 · Teams" was drawn with Latin digits). `LocaleFormat` swaps them in as the last step

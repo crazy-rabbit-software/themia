@@ -1,0 +1,48 @@
+{
+  "common.search": "Ṣàwárí",
+  "ctxMenu.iconOnly": "Àmì nìkan",
+  "ctxMenu.list": "Àtòjọ",
+  "ctxMenu.openDouble": "Ṣí pẹ̀lú títẹ̀ lẹ́ẹ̀mejì",
+  "ctxMenu.openSingle": "Ṣí pẹ̀lú títẹ̀ lẹ́ẹ̀kan",
+  "recycleBin.emptyEllipsis": "Ṣe Àpò àtúnlò ní òfo…",
+  "shortcut.addTitle": "Ṣàfikún ọ̀nà àbùjá",
+  "shortcut.copyPath": "Ṣẹ̀dà ipa ọ̀nà",
+  "shortcut.copyUrl": "Ṣẹ̀dà URL",
+  "shortcut.editLayoutMenu": "Ṣàtúnṣe ìtò…",
+  "widgetsA.catalog.shortcuts.description": "Àwọn líǹkì, fáìlì àti fódà tí o fẹ́ ní àrọ́wọ́tó",
+  "widgetsA.catalog.shortcuts.label": "Àwọn ọ̀nà àbùjá",
+  "widgetsC.shortcuts.column.kind": "Irú",
+  "widgetsC.shortcuts.column.target": "Ibi àfojúsùn",
+  "widgetsC.shortcuts.drop.add": "Ṣàfikún sí Àwọn ọ̀nà àbùjá",
+  "widgetsC.shortcuts.drop.moveHere": "Gbé e síbí",
+  "widgetsC.shortcuts.kind.location": "Ibi Windows",
+  "widgetsC.shortcuts.kind.missing": "Kò sí mọ́",
+  "widgetsC.shortcuts.kind.path": "Ipa ọ̀nà",
+  "widgetsC.shortcuts.kind.refused": "Kò gbà láàyè",
+  "widgetsC.shortcuts.menu.addLayout": "Ìtò áàpù…",
+  "widgetsC.shortcuts.menu.addLink": "Àdírẹ́sì wẹ́ẹ̀bù tàbí ipa ọ̀nà…",
+  "widgetsC.shortcuts.menu.changeTarget": "Yí ibi àfojúsùn padà…",
+  "widgetsC.shortcuts.menu.closeSearch": "Pa ìṣàwárí dé",
+  "widgetsC.shortcuts.menu.openLayout": "Ṣí ìtò",
+  "widgetsC.shortcuts.menu.openMany": {
+    "other": "Ṣí ọ̀nà àbùjá {count}"
+  },
+  "widgetsC.shortcuts.menu.removeMany": {
+    "other": "Yọ ọ̀nà àbùjá {count} kúrò"
+  },
+  "widgetsC.shortcuts.menu.undoRemove": "Mú yíyọ kúrò padà",
+  "widgetsC.shortcuts.menu.undoRemoveCount": {
+    "other": "Mú yíyọ kúrò padà ({count})"
+  },
+  "widgetsC.shortcuts.search": "Ṣàwárí àwọn ọ̀nà àbùjá",
+  "widgetsC.shortcuts.settings.list.empty": "Kò sí ọ̀nà àbùjá kankan síbẹ̀.",
+  "widgetsC.shortcuts.settings.locations": "Àwọn ibi Windows",
+  "widgetsC.shortcuts.settings.openWith.double": "Títẹ̀ lẹ́ẹ̀mejì",
+  "widgetsC.shortcuts.settings.openWith.label": "Ṣí pẹ̀lú",
+  "widgetsC.shortcuts.settings.openWith.single": "Títẹ̀ lẹ́ẹ̀kan",
+  "widgetsC.shortcuts.settings.pick.file": "Fáìlì…",
+  "widgetsC.shortcuts.settings.pick.folder": "Fódà…",
+  "widgetsC.shortcuts.settings.view.tiles": "Àwọn àpótí",
+  "widgetsC.shortcuts.tooltip.missing": "{name} (ibi àfojúsùn kò sí)\n{target}",
+  "widgetsC.shortcuts.setup": "Ṣàfikún ọ̀nà àbùjá"
+}

@@ -1,0 +1,14 @@
+{
+  "widgetsA.catalog.feed.label": "ಫೀಡ್",
+  "widgetsA.catalog.feed.description": "ನೀನು ಆಯ್ಕೆಮಾಡುವ ಫೀಡ್‌ಗಳ ಮುಖ್ಯಾಂಶಗಳು",
+  "widgetsC.rss.untitled": "(ಶೀರ್ಷಿಕೆಯಿಲ್ಲ)",
+  "widgetsC.rss.copyLink": "ಲಿಂಕ್ ನಕಲಿಸು",
+  "widgetsC.rss.noArticles": "ಈ ಫೀಡ್‌ನಲ್ಲಿ ಯಾವುದೇ ಲೇಖನಗಳಿಲ್ಲ",
+  "widgetsC.rss.settings.feeds": "ಫೀಡ್‌ಗಳು",
+  "widgetsC.rss.settings.empty": "ಇನ್ನೂ ಯಾವುದೇ ಫೀಡ್‌ಗಳಿಲ್ಲ. RSS ಅಥವಾ Atom ಫೀಡ್‌ನ ವಿಳಾಸವನ್ನು ಸೇರಿಸು.",
+  "widgetsC.rss.settings.add.title": "ಫೀಡ್ ಸೇರಿಸು",
+  "widgetsC.rss.settings.articles": "ಲೇಖನಗಳು",
+  "widgetsC.rss.settings.source.label": "ಮೂಲ ತೋರಿಸು",
+  "widgetsC.rss.settings.preview.label": "ಪೂರ್ವವೀಕ್ಷಣೆ ತೋರಿಸು",
+  "widgetsC.rss.settings.date.label": "ದಿನಾಂಕ ತೋರಿಸು"
+}

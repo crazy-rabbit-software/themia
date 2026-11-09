@@ -1,0 +1,9 @@
+{
+  "styles.memory.bar": "ബാർ",
+  "styles.memory.free": "{size} ഒഴിവ്",
+  "styles.memory.gauge": "ഗേജ്",
+  "styles.memory.graph": "ഗ്രാഫ്",
+  "styles.memory.used": "{size} ഉപയോഗിച്ചു",
+  "widgetsA.catalog.memory.description": "ഉപയോഗത്തിലുള്ള ഭൗതിക മെമ്മറി",
+  "widgetsA.catalog.memory.label": "മെമ്മറി"
+}

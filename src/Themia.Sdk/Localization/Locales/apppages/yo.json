@@ -1,0 +1,38 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "shell.view.colour": "Àwọ̀",
+  "shell.view.colourDefault": "Àwọ̀ ọ̀rọ̀",
+  "shell.appearance.themeColours": "Àkòrí àti àwọ̀",
+  "shell.appearance.cards": "Àwọn káàdì wíjẹ́ẹ̀tì",
+  "shell.appearance.textAndSize": "Ọ̀rọ̀ àti ìwọ̀n",
+  "shell.net.blockedLocal": "{host} wà lórí nẹ́tíwọ̀ọ̀kì àdúgbò. Themia máa ń lọ síbẹ̀ fún àdírẹ́sì tí o tẹ̀ fúnra rẹ nìkan",
+  "shell.accounts.stats.mail": "Ímeèlì",
+  "shell.accounts.stats.calendar": "Kàlẹ́ńdà",
+  "shell.accounts.stats.contacts": "Àwọn olùbásọ̀rọ̀",
+  "shell.accounts.stats.tasks": "Àwọn iṣẹ́",
+  "shell.accounts.stats.messages": {
+    "other": "ìfiránṣẹ́ {count}"
+  },
+  "shell.accounts.stats.events": {
+    "other": "ìṣẹ̀lẹ̀ {count}"
+  },
+  "shell.accounts.stats.people": {
+    "other": "olùbásọ̀rọ̀ {count}"
+  },
+  "shell.accounts.stats.taskCount": {
+    "other": "iṣẹ́ {count}"
+  },
+  "shell.accounts.stats.folders": {
+    "other": "nínú fódà {count}"
+  },
+  "shell.accounts.stats.calendars": {
+    "other": "nínú kàlẹ́ńdà {count}"
+  },
+  "shell.accounts.stats.lists": {
+    "other": "nínú àtòjọ {count}"
+  },
+  "shell.accounts.stats.synced": "a mú un ṣọ̀kan {time}",
+  "shell.accounts.stats.neverSynced": "a kò tíì mú un ṣọ̀kan",
+  "shell.accounts.stats.nothing": "Kò sí nǹkan tí a fi pamọ́ sórí PC yìí síbẹ̀",
+  "shell.accounts.reconnect": "Tún wọlé"
+}

@@ -47,7 +47,7 @@ Themia.exe --editbar-png <outDir> [--theme light|dark] [--only settings|bar]   #
            # --picker-png takes --theme too. There is no settings window and no --settings-png [S-3585]
 Themia.exe --layout-editor-png <out.png> [waitMs] [--empty]
 Themia.exe --add-showcase-views [<statePath>]   # one view per widget kind at the 7 sizes; quit Themia first
-Any render: [--lang en|de|es|fr|it|ja|pl|pt|zh]
+Any render: [--lang <code>]   # any of the forty (en, de, … zh-Hant, … my)
 ```
 
 Build output (`artifacts/`, `bin/`, `obj/`) cannot be read by agents; write render PNGs outside it.
@@ -128,7 +128,7 @@ One window per display, not per widget: every widget on a screen shares one tran
 click-through surface clipped with `SetWindowRgn`. Geometry is stored as fractions of the whole monitor.
 
 Adding a widget or a provider is creating its folder: run `scripts/new-module.ps1` (it writes the
-project, the module class with its descriptor, the config, a view stub, the 30 locale files, the
+project, the module class with its descriptor, the config, a view stub, the 40 locale files, the
 `SPEC.md` with the next free tag block, a first test, and one line in `Themia.slnx`). The glob
 references, the registry generator (THEMIAMOD001..005: the id is the folder's name in camelCase)
 and the module test host pick it up; nothing in the app, Core or the SDK is edited. A module builds

@@ -1,0 +1,11 @@
+{
+  "recycleBin.desc": "Recycle Bin မည်မျှ ပြည့်နေသည်၊ ရှင်းရန် ခလုတ်နှင့်",
+  "recycleBin.empty": "ရှင်းရန်",
+  "recycleBin.isEmpty": "အရာ မရှိပါ",
+  "recycleBin.items": {
+    "other": "{count} ခု"
+  },
+  "recycleBin.open": "Recycle Bin ဖွင့်ရန်",
+  "recycleBin.emptyEllipsis": "Recycle Bin ရှင်းရန်…",
+  "widgetsC.location.recycleBin": "Recycle Bin"
+}

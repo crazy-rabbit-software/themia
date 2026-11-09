@@ -1,0 +1,5 @@
+{
+  "kit.ownerProblem": "{name}: {reason}",
+  "kit.refreshUpdated": "ರಿಫ್ರೆಶ್ · {age} ಅಪ್‌ಡೇಟ್ ಆಗಿದೆ",
+  "kit.problemSeveral": "{name} ಮತ್ತು ಇನ್ನೂ {count} ಲೋಡ್ ಆಗಲಿಲ್ಲ"
+}

@@ -1,0 +1,13 @@
+{
+  "desktop.choice.label": "Στην επιφάνεια εργασίας",
+  "desktop.choice.themia": "Στοιχεία του Themia",
+  "desktop.choice.windows": "Εικονίδια των Windows",
+  "desktop.choice.nothing": "Τίποτα",
+  "desktop.add.folder": "Στην επιφάνεια εργασίας",
+  "desktop.rename.clash": "Υπάρχει ήδη στοιχείο με αυτό το όνομα εδώ.",
+  "desktop.menu.edit": "Επεξεργασία γραφικών στοιχείων",
+  "desktop.delete.fromView": "Κατάργηση από αυτή την προβολή",
+  "desktop.automation.list": "Επιφάνεια εργασίας",
+  "desktop.coexist.replaced": "Ένα άλλο πρόγραμμα έχει αντικαταστήσει τα εικονίδια της επιφάνειας εργασίας, οπότε το Themia του αφήνει την επιφάνεια εργασίας.",
+  "desktop.coexist.keptShown": "Ένα άλλο πρόγραμμα συνεχίζει να εμφανίζει τα εικονίδια των Windows, οπότε το Themia τα αφήνει ορατά. Διάλεξε ξανά μια επιλογή για να δοκιμάσεις άλλη μία φορά."
+}

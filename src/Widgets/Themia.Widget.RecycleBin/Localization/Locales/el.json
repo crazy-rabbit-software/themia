@@ -1,0 +1,12 @@
+{
+  "recycleBin.desc": "Πόσο γεμάτος είναι ο Κάδος Ανακύκλωσης, με Άδειασμα",
+  "recycleBin.empty": "Άδειασμα",
+  "recycleBin.isEmpty": "Κανένα στοιχείο",
+  "recycleBin.items": {
+    "one": "{count} στοιχείο",
+    "other": "{count} στοιχεία"
+  },
+  "recycleBin.open": "Άνοιγμα του Κάδου Ανακύκλωσης",
+  "recycleBin.emptyEllipsis": "Άδειασμα Κάδου Ανακύκλωσης…",
+  "widgetsC.location.recycleBin": "Κάδος Ανακύκλωσης"
+}

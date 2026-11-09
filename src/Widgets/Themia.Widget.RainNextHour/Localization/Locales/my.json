@@ -1,0 +1,15 @@
+{
+  "online.rain.label": "နောက်တစ်နာရီ မိုး",
+  "online.rain.desc": "မိုးစ သို့မဟုတ် ရပ်ချိန်၊ {minutes} မိနစ် အဆင့်များဖြင့်",
+  "online.rain.startsIn": "{minutes} မိနစ်အတွင်း မိုးရွာမည်",
+  "online.rain.stopsIn": "{minutes} မိနစ်အတွင်း မိုးရပ်မည်",
+  "online.rain.continues": "နောက် 2 နာရီ မိုးရွာမည်",
+  "online.rain.dry": "နောက် 2 နာရီအတွင်း မိုးမရွာပါ",
+  "online.rain.outdated": "နောက်တစ်နာရီအတွက် ခန့်မှန်းချက် မရှိပါ",
+  "online.rain.intensity.light": "မိုးအနည်းငယ်",
+  "online.rain.intensity.moderate": "မိုး အလယ်အလတ်",
+  "online.rain.intensity.heavy": "မိုးသည်း",
+  "online.rain.chance": "ဖြစ်နိုင်ခြေ {percent}",
+  "online.rain.total": "2 နာရီအတွင်း {amount} mm",
+  "online.rain.now": "ယခု"
+}
