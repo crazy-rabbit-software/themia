@@ -1,0 +1,17 @@
+{
+  "styles.weatherNow.largeIcon": "Μεγάλο εικονίδιο",
+  "styles.weatherNow.minimal": "Μινιμαλιστικό",
+  "styles.weatherNow.standard": "Τυπικό",
+  "weather.feelsLike": "Αίσθηση",
+  "weather.humidity": "Υγρασία",
+  "weather.wind": "Άνεμος",
+  "widget.weatherCurrent.label": "Καιρός",
+  "widgetsA.catalog.weather.description": "Οι συνθήκες εκεί που βρίσκεσαι",
+  "widgetsC.weather.fact.cloudCover": "Νεφοκάλυψη",
+  "widgetsC.weather.fact.gusts": "Ριπές",
+  "widgetsC.weather.fact.precipitation": "Υετός",
+  "widgetsC.weather.fact.pressure": "Πίεση",
+  "widgetsC.weather.fact.uvIndex": "Δείκτης UV",
+  "widgetsC.weather.feelsShort": "Αίσθηση {temperature}",
+  "widgetsC.weather.settings.showDetail.label": "Εμφάνιση λεπτομερειών"
+}

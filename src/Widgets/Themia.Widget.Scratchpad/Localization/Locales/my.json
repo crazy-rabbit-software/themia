@@ -1,0 +1,16 @@
+{
+  "scratchpad.drawHere": "ဤနေရာတွင် ဆွဲပါ",
+  "scratchpad.penColorLabel": "ဘောပင် အရောင်",
+  "scratchpad.penSizeLabel": "ဘောပင် အရွယ်",
+  "widget.scratchpad.label": "ပုံကြမ်းဆွဲ စာရွက်",
+  "widgetsA.catalog.scratchpad.description": "ပုံဆွဲရန် နေရာ",
+  "widgetsC.scratchpad.clearConfirm": "ပုံ တစ်ခုလုံးကို ရှင်းမလား။",
+  "widgetsC.scratchpad.clearDrawing": "ပုံကို ရှင်းရန်",
+  "widgetsC.scratchpad.draw": "ဆွဲရန်",
+  "widgetsC.scratchpad.eraseStrokes": "stroke များ ဖျက်ရန်",
+  "widgetsC.scratchpad.exitFullScreen": "မျက်နှာပြင်အပြည့်မှ ထွက်ရန်",
+  "widgetsC.scratchpad.fullScreen": "မျက်နှာပြင်အပြည့်",
+  "widgetsC.scratchpad.penSizeTip": "ဘောပင် အရွယ် {size} px",
+  "widgetsC.scratchpad.settings.showTools.label": "ကိရိယာများ ပြရန်",
+  "widgetsC.scratchpad.undo": "နောက်ပြန်ရန်"
+}

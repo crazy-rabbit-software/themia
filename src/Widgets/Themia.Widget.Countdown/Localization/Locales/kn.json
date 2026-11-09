@@ -1,0 +1,49 @@
+{
+  "countdown.setup": "ಎಣಿಸಬೇಕಾದ ದಿನಾಂಕ ಆಯ್ಕೆಮಾಡು",
+  "styles.countdown.ring": "ಉಂಗುರ",
+  "styles.countdown.text": "ಪಠ್ಯ",
+  "styles.countdown.unitDays": "ದಿನಗಳು",
+  "styles.countdown.unitHours": "ಗಂಟೆಗಳು",
+  "styles.countdown.unitMinutes": "ನಿಮಿ",
+  "styles.countdown.unitSeconds": "ಸೆಕೆಂ",
+  "widget.countdown.label": "ಕೌಂಟ್‌ಡೌನ್",
+  "widgetsA.catalog.countdown.description": "ನಿನಗೆ ಮುಖ್ಯವಾದ ದಿನಾಂಕಕ್ಕೆ ಉಳಿದ ಸಮಯ",
+  "widgetsA.countdown.ago": "{duration} ಹಿಂದೆ",
+  "widgetsA.countdown.compact.dh": "{days}ದಿ {hours}ಗಂ",
+  "widgetsA.countdown.compact.dhm": "{days}ದಿ {hours}ಗಂ {minutes}ನಿ",
+  "widgetsA.countdown.compact.dhms": "{days}ದಿ {hours}ಗಂ {minutes}ನಿ {seconds}ಸೆ",
+  "widgetsA.countdown.compact.hm": "{hours}ಗಂ {minutes}ನಿ",
+  "widgetsA.countdown.dateTime": "{date}, {time}",
+  "widgetsA.countdown.days": {
+    "one": "{count} ದಿನ",
+    "other": "{count} ದಿನಗಳು"
+  },
+  "widgetsA.countdown.daysAgo": {
+    "one": "{count} ದಿನದ ಹಿಂದೆ",
+    "other": "{count} ದಿನಗಳ ಹಿಂದೆ"
+  },
+  "widgetsA.countdown.daysIn": {
+    "one": "{count} ದಿನದಲ್ಲಿ",
+    "other": "{count} ದಿನಗಳಲ್ಲಿ"
+  },
+  "widgetsA.countdown.format.auto": "ಸ್ವಯಂ",
+  "widgetsA.countdown.format.days": "ದಿನಗಳು ಮಾತ್ರ",
+  "widgetsA.countdown.format.dhm": "ದಿನಗಳು · ಗಂಟೆಗಳು · ನಿಮಿ",
+  "widgetsA.countdown.format.dhms": "ದಿನಗಳು · ಗಂಟೆಗಳು · ನಿಮಿ · ಸೆಕೆಂ",
+  "widgetsA.countdown.fullDateTime": "{date}, {time} ಕ್ಕೆ",
+  "widgetsA.countdown.hours": {
+    "one": "{count} ಗಂಟೆ",
+    "other": "{count} ಗಂಟೆಗಳು"
+  },
+  "widgetsA.countdown.in": "{duration} ನಂತರ",
+  "widgetsA.countdown.inAMoment": "ಸ್ವಲ್ಪ ಹೊತ್ತಿನಲ್ಲಿ",
+  "widgetsA.countdown.justNow": "ಈಗಷ್ಟೇ",
+  "widgetsA.countdown.minutes": {
+    "one": "{count} ನಿಮಿ",
+    "other": "{count} ನಿಮಿ"
+  },
+  "widgetsA.countdown.settings.format.label": "ಸ್ವರೂಪ",
+  "widgetsA.countdown.settings.name.label": "ಹೆಸರು",
+  "widgetsA.countdown.untitled": "ಶೀರ್ಷಿಕೆ ಇಲ್ಲ",
+  "styles.clock.flip": "ಫ್ಲಿಪ್"
+}

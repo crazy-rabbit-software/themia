@@ -1,0 +1,5 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "toggles.monoAudio.label": "Mono zvuk zap./vyp.",
+  "toggles.monoAudio.desc": "Přehraje levý a pravý kanál jako jeden"
+}

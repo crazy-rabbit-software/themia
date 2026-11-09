@@ -1,0 +1,17 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "panels.notifications.allow": "Benarkan",
+  "panels.notifications.clearAll": "Kosongkan semua",
+  "panels.notifications.clearApp": "Kosongkan semua daripada {app}",
+  "panels.notifications.denied": "Akses pemberitahuan dimatikan untuk Themia",
+  "panels.notifications.desc": "Pemberitahuan Windows, dikumpulkan mengikut apl",
+  "panels.notifications.dismiss": "Ketepikan",
+  "panels.notifications.label": "Pemberitahuan",
+  "panels.notifications.none": "Tiada pemberitahuan baharu",
+  "panels.notifications.open": "Buka {app}",
+  "panels.notifications.openSettings": "Buka seting",
+  "panels.notifications.seeFewer": "Lihat lebih sedikit",
+  "panels.notifications.seeMore": "Lihat lagi ({count})",
+  "panels.notifications.unspecified": "Benarkan Themia membaca pemberitahuan kamu",
+  "panels.notifications.unsupported": "Versi Windows ini tiada senarai pemberitahuan untuk dibaca"
+}

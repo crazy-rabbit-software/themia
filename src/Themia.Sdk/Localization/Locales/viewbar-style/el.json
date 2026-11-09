@@ -1,0 +1,10 @@
+{
+  "barMenus.viewBar.type": "Τύπος",
+  "barMenus.viewBar.labels": "Ετικέτες",
+  "shell.viewBar.typeInline": "Ενσωματωμένη",
+  "shell.viewBar.typeSelect": "Επιλογή",
+  "shell.viewBar.labelsIconAndText": "Εικονίδιο και κείμενο",
+  "shell.viewBar.labelsIconOnly": "Μόνο εικονίδιο",
+  "shell.viewBar.labelsTextOnly": "Μόνο κείμενο",
+  "shell.viewBar.pickTip": "{name}\nΚάνε κλικ για να διαλέξεις προβολή"
+}

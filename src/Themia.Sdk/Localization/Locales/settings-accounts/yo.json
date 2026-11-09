@@ -1,0 +1,10 @@
+{
+  "settingsAccounts.ownServer": "Ṣètò sáfà fúnra mi",
+  "settingsAccounts.test": "Dán ìsopọ̀ wò",
+  "settingsAccounts.connectedTo": "A ti sopọ̀ mọ́ {host}.",
+  "settingsAccounts.noServer": "Themia kò mọ sáfà fún {domain}. Ṣètò rẹ̀ fúnra rẹ.",
+  "settingsAccounts.davAddress": "Tẹ àdírẹ́sì wẹ́ẹ̀bù sáfà náà, bíi https://cloud.example.com.",
+  "settingsAccounts.code": "Kóòdù",
+  "settingsAccounts.pasteToken": "Kọ́kọ́ lẹ tókìnì náà.",
+  "settingsAccounts.enterAddress": "Tẹ àdírẹ́sì ímeèlì àti ọ̀rọ̀ aṣínà rẹ̀."
+}

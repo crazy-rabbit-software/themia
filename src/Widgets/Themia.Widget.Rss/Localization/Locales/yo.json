@@ -1,0 +1,14 @@
+{
+  "widgetsA.catalog.feed.label": "Fíìdì",
+  "widgetsA.catalog.feed.description": "Àwọn àkọlé ìròyìn láti àwọn fíìdì tí o yàn",
+  "widgetsC.rss.untitled": "(láìní àkọlé)",
+  "widgetsC.rss.copyLink": "Ṣẹ̀dà líǹkì",
+  "widgetsC.rss.noArticles": "Fíìdì yìí kò ní àpilẹ̀kọ kankan",
+  "widgetsC.rss.settings.feeds": "Àwọn fíìdì",
+  "widgetsC.rss.settings.empty": "Kò sí fíìdì kankan síbẹ̀. Ṣàfikún àdírẹ́sì fíìdì RSS tàbí Atom.",
+  "widgetsC.rss.settings.add.title": "Ṣàfikún fíìdì",
+  "widgetsC.rss.settings.articles": "Àwọn àpilẹ̀kọ",
+  "widgetsC.rss.settings.source.label": "Fi orísun hàn",
+  "widgetsC.rss.settings.preview.label": "Fi àkọ́wò hàn",
+  "widgetsC.rss.settings.date.label": "Fi ọjọ́ hàn"
+}

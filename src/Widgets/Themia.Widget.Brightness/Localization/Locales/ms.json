@@ -1,0 +1,11 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "panels.brightness.all": "Semua skrin",
+  "panels.brightness.desc": "Satu peluncur untuk kecerahan paparan",
+  "panels.brightness.label": "Kecerahan",
+  "panels.brightness.level": "Kecerahan {level}",
+  "panels.brightness.none": "Tiada kecerahan paparan untuk ditetapkan",
+  "panels.brightness.own": "Hanya skrin tempat ia berada",
+  "panels.brightness.ownNone": "Kecerahan skrin ini tidak boleh ditetapkan",
+  "panels.brightness.screensLabel": "Skrin yang dimalapkannya"
+}

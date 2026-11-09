@@ -1,0 +1,7 @@
+{
+  "languageRegion.nav": "Γλώσσα και περιοχή",
+  "languageRegion.clock": "Μορφή ώρας",
+  "languageRegion.clock12": "{hours}ωρη",
+  "languageRegion.clock24": "{hours}ωρη",
+  "languageRegion.followWindows": "Ρύθμιση των Windows ({value})"
+}

@@ -1,0 +1,22 @@
+{
+  "apps.viewCompact": "Компактно",
+  "apps.viewGrid": "Сітка",
+  "apps.viewList": "Список",
+  "contacts.noContacts": "Контактів не знайдено.",
+  "contacts.searchPlaceholder": "Шукати контакти…",
+  "ctxMenu.call": "Зателефонувати",
+  "ctxMenu.copyEmail": "Копіювати адресу пошти",
+  "ctxMenu.copyName": "Копіювати ім’я",
+  "ctxMenu.copyPhone": "Копіювати телефон",
+  "ctxMenu.message": "Повідомлення",
+  "ctxMenu.sendEmail": "Надіслати лист",
+  "widget.contacts.label": "Контакти",
+  "widgetsA.catalog.contacts.description": "Люди з твоїх адресних книг Microsoft і CardDAV",
+  "widgetsA.contacts.noAccount": "Ще немає облікового запису контактів",
+  "widgetsA.contacts.none": "Немає контактів",
+  "widgetsA.contacts.readFailed": "Не вдалося прочитати контакти. Див. themia.log.",
+  "widgetsA.contacts.settings.count.label": "Люди",
+  "widgetsA.contacts.settings.every": "Усі облікові записи контактів",
+  "widgetsA.contacts.settings.layout.label": "Макет",
+  "contacts.setup.sentence": "Додай обліковий запис, щоб показати свої контакти"
+}

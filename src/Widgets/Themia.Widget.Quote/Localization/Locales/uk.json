@@ -1,0 +1,19 @@
+{
+  "widgetsA.catalog.quote.label": "Цитата",
+  "widgetsA.catalog.quote.description": "Рядок, який варто перечитати",
+  "quote.shuffle": "Перемішати",
+  "widgetsC.quote.quoted": "«{text}»",
+  "widgetsC.quote.showAnother": "Показати іншу цитату",
+  "widgetsC.quote.settings.quotes": "Цитати",
+  "widgetsC.quote.settings.emptyList": "Цитат не лишилося. Віджет так і повідомлятиме, доки не додаси нову.",
+  "widgetsC.quote.settings.add.title": "Додати цитату",
+  "widgetsC.quote.settings.textPlaceholder": "Щось, що варто перечитати",
+  "widgetsC.quote.settings.authorPlaceholder": "Хто це сказав",
+  "widgetsC.quote.settings.showAuthor.label": "Показувати автора",
+  "widgetsC.quote.settings.reshuffle.label": "Перемішувати",
+  "widgetsC.quote.settings.cadence.manual": "Лише за клацанням",
+  "widgetsC.quote.settings.cadence.hourly": "Щогодини",
+  "widgetsC.quote.settings.cadence.daily": "Щодня",
+  "styles.quote.plain": "Простий",
+  "styles.quote.marks": "Великі лапки"
+}

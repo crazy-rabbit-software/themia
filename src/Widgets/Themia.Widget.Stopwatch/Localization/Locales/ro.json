@@ -1,0 +1,12 @@
+{
+  "stopwatch.label": "Cronometru",
+  "stopwatch.desc": "Cronometrează cu ture și continuă după reporniri",
+  "stopwatch.start": "Pornește",
+  "stopwatch.pause": "Pauză",
+  "stopwatch.resume": "Reia",
+  "stopwatch.lap": "Tură",
+  "stopwatch.reset": "Resetează",
+  "stopwatch.lapNumber": "Tura {n}",
+  "stopwatch.noLaps": "Nicio tură încă",
+  "stopwatch.paused": "În pauză"
+}

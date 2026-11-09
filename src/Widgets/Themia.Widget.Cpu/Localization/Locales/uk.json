@@ -1,0 +1,9 @@
+{
+  "styles.cpu.coreGraphs": "Графіки ядер",
+  "styles.cpu.cores": "Усі ядра",
+  "styles.cpu.gauge": "Шкала",
+  "styles.cpu.graph": "Графік",
+  "styles.cpu.grid": "Сітка ядер",
+  "widgetsA.catalog.cpu.label": "ЦП",
+  "widgetsA.catalog.cpu.description": "Навантаження процесора на всіх ядрах"
+}

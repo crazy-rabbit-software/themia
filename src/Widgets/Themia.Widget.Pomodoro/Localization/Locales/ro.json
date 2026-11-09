@@ -1,0 +1,19 @@
+{
+  "pomodoro.alarmSound.label": "Sunet alarmă",
+  "pomodoro.alarmVolume.label": "Volum alarmă",
+  "pomodoro.breakLength.label": "Durata pauzei",
+  "pomodoro.focusLength.label": "Durata concentrării",
+  "pomodoro.reset": "Resetează",
+  "styles.pomodoro.bar": "Bară",
+  "styles.pomodoro.digits": "Cifre",
+  "styles.pomodoro.ring": "Inel",
+  "widgetUi.break": "Pauză",
+  "widgetUi.focus": "Concentrare",
+  "widget.pomodoro.label": "Pomodoro",
+  "widgetsA.catalog.pomodoro.description": "Un cronometru pentru concentrare și pauze",
+  "widgetsC.pomodoro.next": "Urmează: {phase} {time}",
+  "widgetsC.pomodoro.pause": "Pauză",
+  "widgetsC.pomodoro.skip": "Treci la faza următoare",
+  "widgetsC.pomodoro.start": "Pornește",
+  "widgetsC.pomodoro.minutesUnit": " min"
+}

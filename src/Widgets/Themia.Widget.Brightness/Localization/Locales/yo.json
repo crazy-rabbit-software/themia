@@ -1,0 +1,10 @@
+{
+  "panels.brightness.all": "Gbogbo ojú-ìbòjú",
+  "panels.brightness.desc": "Sláìdà kan fún ìmọ́lẹ̀ ojú-ìbòjú",
+  "panels.brightness.label": "Ìmọ́lẹ̀",
+  "panels.brightness.level": "Ìmọ́lẹ̀ {level}",
+  "panels.brightness.none": "Kò sí ìmọ́lẹ̀ ojú-ìbòjú láti ṣètò",
+  "panels.brightness.own": "Ojú-ìbòjú tí ó wà lórí rẹ̀ nìkan",
+  "panels.brightness.ownNone": "A kò lè ṣètò ìmọ́lẹ̀ ojú-ìbòjú yìí",
+  "panels.brightness.screensLabel": "Ojú-ìbòjú tí ó ń dín ìmọ́lẹ̀ wọn kù"
+}

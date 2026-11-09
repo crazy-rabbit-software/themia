@@ -1,0 +1,15 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "barMenus.display": "Displej",
+  "barMenus.display.all": "Všechny displeje",
+  "barMenus.display.showOn": "Zobrazit Themia na",
+  "barMenus.display.this": "Tento displej",
+  "barMenus.viewBar": "Lišta pohledů",
+  "barMenus.viewBar.position": "Umístění",
+  "barMenus.viewBar.size": "Velikost",
+  "barMenus.viewBar.hidden": "Skrytá",
+  "barMenus.viewBar.views": "Pohledy",
+  "barMenus.view.renameTitle": "Přejmenovat pohled",
+  "barMenus.view.deleteQuestion": "Odstranit „{name}“?",
+  "barMenus.view.deleteDetail": "Odstraní se i jeho widgety ({widgets}). Akcí Zpět vše vrátíš."
+}

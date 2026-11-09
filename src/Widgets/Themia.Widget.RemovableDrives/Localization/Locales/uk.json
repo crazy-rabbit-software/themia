@@ -1,0 +1,5 @@
+{
+  "drives.nothing": "Нічого не підключено",
+  "drives.removable.desc": "USB-накопичувачі, картки й зовнішні диски, з кнопкою «Вийняти»",
+  "drives.removable.label": "Знімні диски"
+}

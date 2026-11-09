@@ -1,0 +1,15 @@
+{
+  "panels.focus.desc": "അറിയിപ്പുകൾ തടഞ്ഞുനിർത്തി, ശ്രദ്ധിക്കാനുള്ള സമയം",
+  "panels.focus.end": "സെഷൻ അവസാനിപ്പിക്കുക",
+  "panels.focus.label": "ഫോക്കസ് സെഷൻ",
+  "panels.focus.left": "{time} ബാക്കി",
+  "panels.focus.lengthLabel": "ദൈർഘ്യം",
+  "panels.focus.longer": "കൂടുതൽ നേരം",
+  "panels.focus.quietLabel": "ശല്യപ്പെടുത്തരുത് ഓണാക്കുക",
+  "panels.focus.quietOn": "ശല്യപ്പെടുത്തരുത് ഓണാണ്",
+  "panels.focus.quietUnavailable": "ഇവിടെ ശല്യപ്പെടുത്തരുത് ഓണാക്കാനാവില്ല",
+  "panels.focus.shorter": "കുറച്ച് നേരം",
+  "panels.focus.start": "ആരംഭിക്കുക",
+  "panels.focus.willQuiet": "ശല്യപ്പെടുത്തരുത് ഓണാക്കും",
+  "panels.focus.windows": "ഒരു Windows ഫോക്കസ് സെഷൻ ഓണാണ്"
+}

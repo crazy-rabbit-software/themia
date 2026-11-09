@@ -1,0 +1,15 @@
+{
+  "online.rain.label": "Òjò ní wákàtí tó ń bọ̀",
+  "online.rain.desc": "Ìgbà tí òjò bá bẹ̀rẹ̀ tàbí dá, ní ìgbésẹ̀ ìṣẹ́jú {minutes}",
+  "online.rain.startsIn": "Òjò ní ìṣẹ́jú {minutes}",
+  "online.rain.stopsIn": "Òjò yóò dá ní ìṣẹ́jú {minutes}",
+  "online.rain.continues": "Òjò fún wákàtí 2 tó ń bọ̀",
+  "online.rain.dry": "Kò sí òjò ní wákàtí 2 tó ń bọ̀",
+  "online.rain.outdated": "Kò sí àsọtẹ́lẹ̀ fún wákàtí tó ń bọ̀",
+  "online.rain.intensity.light": "Òjò díẹ̀",
+  "online.rain.intensity.moderate": "Òjò àárín",
+  "online.rain.intensity.heavy": "Òjò ńlá",
+  "online.rain.chance": "Àǹfààní {percent}",
+  "online.rain.total": "{amount} mm ní wákàtí 2",
+  "online.rain.now": "Nísinsìnyí"
+}

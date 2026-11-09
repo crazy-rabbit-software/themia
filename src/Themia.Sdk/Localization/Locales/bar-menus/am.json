@@ -1,0 +1,14 @@
+{
+  "barMenus.display": "ማሳያ",
+  "barMenus.display.all": "ሁሉም ማሳያዎች",
+  "barMenus.display.showOn": "Themiaን አሳይ በ",
+  "barMenus.display.this": "ይህ ማሳያ",
+  "barMenus.viewBar": "የእይታ አሞሌ",
+  "barMenus.viewBar.position": "ቦታ",
+  "barMenus.viewBar.size": "መጠን",
+  "barMenus.viewBar.hidden": "የተደበቀ",
+  "barMenus.viewBar.views": "እይታዎች",
+  "barMenus.view.renameTitle": "እይታውን ዳግም ሰይም",
+  "barMenus.view.deleteQuestion": "«{name}» ይሰረዝ?",
+  "barMenus.view.deleteDetail": "ዊጀቶቹ አብረውት ይሄዳሉ ({widgets})። ቀልብስ ሁሉንም ይመልሳል።"
+}

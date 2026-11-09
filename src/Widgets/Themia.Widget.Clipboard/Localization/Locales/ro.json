@@ -1,0 +1,14 @@
+{
+  "clipboard.clearHistory": "Golește istoricul",
+  "widgetsA.catalog.clipboard.description": "Ce ai copiat recent",
+  "widgetsA.catalog.clipboard.label": "Clipboard",
+  "widgetsA.clipboard.clearConfirm.body": "Tot ce e în această listă se uită. Acțiunea nu poate fi anulată și nu schimbă ce e acum în clipboard.",
+  "widgetsA.clipboard.clearConfirm.title": "Golești istoricul clipboardului?",
+  "widgetsA.clipboard.clearEllipsis": "Golește istoricul…",
+  "widgetsA.clipboard.empty": "Nimic copiat încă. Copiază ceva și va apărea aici.",
+  "widgetsA.clipboard.noListener": "Windows nu i-a permis aplicației să urmărească clipboardul.",
+  "widgetsA.clipboard.remove": "Elimină din istoric",
+  "widgetsA.clipboard.settings.entries.label": "Intrări",
+  "widgetsA.clipboard.settings.privacyNote": "Textul copiat rămâne doar în memorie. Fișierele și imaginile nu sunt citite niciodată.",
+  "widgetsA.clipboard.settings.timestamp.label": "Arată când a fost copiat"
+}

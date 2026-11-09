@@ -1,0 +1,13 @@
+{
+  "details.catalog.ping.desc": "Medie, interval, jitter și pierdere de pachete",
+  "details.ping.answered": "Răspunse",
+  "details.ping.answeredOf": "{answered} din {sent}",
+  "details.ping.average": "Medie",
+  "details.ping.jitter": "Jitter",
+  "details.ping.loss": "Pierdere de pachete",
+  "details.ping.maximum": "Maxim",
+  "details.ping.minimum": "Minim",
+  "details.catalog.ping.label": "Statistici ping",
+  "details.settings.ping.window.label": "Statisticile acoperă",
+  "details.settings.ping.window.probes": "{count} sondări"
+}

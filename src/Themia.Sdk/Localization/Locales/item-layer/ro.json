@@ -1,0 +1,8 @@
+{
+  "shell.items.background": "Fundal element",
+  "shell.items.text": "Culoare text element",
+  "shell.items.textShort": "Text element",
+  "shell.fill.transparent": "Transparent",
+  "shell.fill.opacity": "Opacitate",
+  "shell.fill.withOpacity": "{colour}, {percent}"
+}

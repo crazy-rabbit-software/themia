@@ -1,0 +1,13 @@
+{
+  "desktop.choice.label": "На робочому столі",
+  "desktop.choice.themia": "Елементи Themia",
+  "desktop.choice.windows": "Значки Windows",
+  "desktop.choice.nothing": "Нічого",
+  "desktop.add.folder": "На робочому столі",
+  "desktop.rename.clash": "Тут уже є елемент із такою назвою.",
+  "desktop.menu.edit": "Редагувати віджети",
+  "desktop.delete.fromView": "Прибрати з цього вигляду",
+  "desktop.automation.list": "Робочий стіл",
+  "desktop.coexist.replaced": "Інша програма замінила значки робочого столу, тож Themia залишає робочий стіл їй.",
+  "desktop.coexist.keptShown": "Інша програма й далі показує значки Windows, тож Themia лишає їх видимими. Вибери варіант ще раз, щоб спробувати знову."
+}

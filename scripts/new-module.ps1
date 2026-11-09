@@ -9,7 +9,7 @@
     build, test and publish do not read the solution):
 
       widget    <Name>.csproj, <Name>Module.cs (descriptor, view factory, JSON context, glyph),
-                <Name>Config.cs, <Name>View.cs, Localization/Locales/*.json (30 languages),
+                <Name>Config.cs, <Name>View.cs, Localization/Locales/*.json (40 languages),
                 SPEC.md (its own tag block), Tests/<Name>Tests.cs
       provider  <Name>.csproj, <Name>Provider.cs, Localization/Locales/*.json, SPEC.md,
                 Tests/<Name>ProviderTests.cs
@@ -65,7 +65,8 @@ foreach ($existing in @(Get-ChildItem (Join-Path $repoRoot "src\$parent") -Direc
 }
 
 $codes = @('en', 'de', 'es', 'fr', 'it', 'ja', 'pl', 'pt', 'zh', 'hi', 'ar', 'bn', 'ru', 'id', 'ur', 'mr', 'vi', 'ko', 'nl', 'tr',
-    'zh-Hant', 'te', 'ha', 'pa', 'sw', 'fil', 'ta', 'fa', 'th', 'gu')
+    'zh-Hant', 'te', 'ha', 'pa', 'sw', 'fil', 'ta', 'fa', 'th', 'gu',
+    'ms', 'uk', 'ro', 'el', 'cs', 'kn', 'ml', 'am', 'yo', 'my')
 
 # ---- the SPEC tag block ---------------------------------------------------------------------------
 

@@ -1,0 +1,14 @@
+{
+  "clipboard.clearHistory": "Απαλοιφή ιστορικού",
+  "widgetsA.catalog.clipboard.description": "Ό,τι αντέγραψες πρόσφατα",
+  "widgetsA.catalog.clipboard.label": "Πρόχειρο",
+  "widgetsA.clipboard.clearConfirm.body": "Ό,τι υπάρχει σε αυτή τη λίστα ξεχνιέται. Αυτό δεν αναιρείται και δεν αλλάζει ό,τι βρίσκεται τώρα στο πρόχειρο.",
+  "widgetsA.clipboard.clearConfirm.title": "Απαλοιφή ιστορικού προχείρου;",
+  "widgetsA.clipboard.clearEllipsis": "Απαλοιφή ιστορικού…",
+  "widgetsA.clipboard.empty": "Δεν έχεις αντιγράψει τίποτα ακόμα. Αντίγραψε κάτι και θα εμφανιστεί εδώ.",
+  "widgetsA.clipboard.noListener": "Τα Windows δεν επέτρεψαν σε αυτή την εφαρμογή να παρακολουθεί το πρόχειρο.",
+  "widgetsA.clipboard.remove": "Κατάργηση από το ιστορικό",
+  "widgetsA.clipboard.settings.entries.label": "Καταχωρίσεις",
+  "widgetsA.clipboard.settings.privacyNote": "Το κείμενο που αντιγράφεις μένει μόνο στη μνήμη. Αρχεία και εικόνες δεν διαβάζονται ποτέ.",
+  "widgetsA.clipboard.settings.timestamp.label": "Εμφάνιση του πότε αντιγράφηκε"
+}

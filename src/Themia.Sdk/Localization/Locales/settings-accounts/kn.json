@@ -1,0 +1,10 @@
+{
+  "settingsAccounts.ownServer": "ಸರ್ವರ್ ಅನ್ನು ನಾನೇ ಹೊಂದಿಸುತ್ತೇನೆ",
+  "settingsAccounts.test": "ಸಂಪರ್ಕ ಪರೀಕ್ಷಿಸು",
+  "settingsAccounts.connectedTo": "{host} ಗೆ ಸಂಪರ್ಕಗೊಂಡಿದೆ.",
+  "settingsAccounts.noServer": "{domain} ನ ಸರ್ವರ್ Themiaಗೆ ಗೊತ್ತಿಲ್ಲ. ಅದನ್ನು ನೀನೇ ಹೊಂದಿಸು.",
+  "settingsAccounts.davAddress": "ಸರ್ವರ್‌ನ ವೆಬ್ ವಿಳಾಸ ನಮೂದಿಸು, ಉದಾಹರಣೆಗೆ https://cloud.example.com.",
+  "settingsAccounts.code": "ಕೋಡ್",
+  "settingsAccounts.pasteToken": "ಮೊದಲು ಟೋಕನ್ ಅಂಟಿಸು.",
+  "settingsAccounts.enterAddress": "ಇಮೇಲ್ ವಿಳಾಸ ಮತ್ತು ಅದರ ಪಾಸ್‌ವರ್ಡ್ ನಮೂದಿಸು."
+}

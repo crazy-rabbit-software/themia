@@ -1,0 +1,19 @@
+{
+  "widgetsA.catalog.quote.label": "ഉദ്ധരണി",
+  "widgetsA.catalog.quote.description": "വീണ്ടും വായിക്കാൻ മൂല്യമുള്ള ഒരു വരി",
+  "quote.shuffle": "ഷഫിൾ",
+  "widgetsC.quote.quoted": "“{text}”",
+  "widgetsC.quote.showAnother": "മറ്റൊരു ഉദ്ധരണി കാണിക്കുക",
+  "widgetsC.quote.settings.quotes": "ഉദ്ധരണികൾ",
+  "widgetsC.quote.settings.emptyList": "ഇനി ഉദ്ധരണികളൊന്നുമില്ല. ഒന്ന് ചേർക്കുന്നതുവരെ വിജറ്റ് അങ്ങനെ പറയും.",
+  "widgetsC.quote.settings.add.title": "ഒരു ഉദ്ധരണി ചേർക്കുക",
+  "widgetsC.quote.settings.textPlaceholder": "വീണ്ടും വായിക്കാൻ മൂല്യമുള്ള എന്തെങ്കിലും",
+  "widgetsC.quote.settings.authorPlaceholder": "ആര് പറഞ്ഞു",
+  "widgetsC.quote.settings.showAuthor.label": "രചയിതാവിനെ കാണിക്കുക",
+  "widgetsC.quote.settings.reshuffle.label": "വീണ്ടും ഷഫിൾ ചെയ്യുക",
+  "widgetsC.quote.settings.cadence.manual": "ക്ലിക്ക് ചെയ്യുമ്പോൾ മാത്രം",
+  "widgetsC.quote.settings.cadence.hourly": "ഓരോ മണിക്കൂറിലും",
+  "widgetsC.quote.settings.cadence.daily": "എല്ലാ ദിവസവും",
+  "styles.quote.plain": "ലളിതം",
+  "styles.quote.marks": "വലിയ ഉദ്ധരണി ചിഹ്നങ്ങൾ"
+}

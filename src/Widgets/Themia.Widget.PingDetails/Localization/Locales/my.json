@@ -1,0 +1,13 @@
+{
+  "details.catalog.ping.desc": "ပျမ်းမျှ၊ အပိုင်းအခြား၊ jitter နှင့် packet ဆုံးရှုံးမှု",
+  "details.ping.answered": "ဖြေပြီး",
+  "details.ping.answeredOf": "{sent} အနက် {answered}",
+  "details.ping.average": "ပျမ်းမျှ",
+  "details.ping.jitter": "Jitter တုန်ခါမှု",
+  "details.ping.loss": "Packet ဆုံးရှုံးမှု",
+  "details.ping.maximum": "အများဆုံး",
+  "details.ping.minimum": "အနည်းဆုံး",
+  "details.catalog.ping.label": "ပင်း စာရင်းအင်း",
+  "details.settings.ping.window.label": "စာရင်းအင်း ပါဝင်မှု",
+  "details.settings.ping.window.probes": "probe {count} ခု"
+}

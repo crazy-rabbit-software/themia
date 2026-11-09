@@ -1,0 +1,9 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "sync.updated": "Dikemas kini {time}",
+  "sync.stateUpdated": "{state} · dikemas kini {time}",
+  "sync.pending": {
+    "other": "{count} perubahan menunggu untuk disegerakkan"
+  },
+  "sync.queueFull": "Terlalu banyak perubahan menunggu untuk disegerakkan; yang ini tidak disimpan."
+}

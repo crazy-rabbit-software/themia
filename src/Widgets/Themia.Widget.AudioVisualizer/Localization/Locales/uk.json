@@ -1,0 +1,11 @@
+{
+  "styles.audioVisualizer.bars": "Стовпчики",
+  "styles.audioVisualizer.desc": "Усе, що відтворює цей ПК, у вигляді рухомих стовпчиків, хвилі або лінії",
+  "styles.audioVisualizer.label": "Аудіовізуалізатор",
+  "styles.audioVisualizer.led": "LED",
+  "styles.audioVisualizer.mirrored": "Дзеркальний",
+  "styles.audioVisualizer.radial": "Радіальний",
+  "styles.audioVisualizer.wave": "Хвиля",
+  "styles.audioVisualizer.waveform": "Осцилограма",
+  "widgetsC.visualizer.unavailable": "Аудіовихід недоступний"
+}

@@ -1,0 +1,10 @@
+{
+  "barMenus.viewBar.type": "Irú",
+  "barMenus.viewBar.labels": "Àwọn àkọlé",
+  "shell.viewBar.typeInline": "Nínú ìlà",
+  "shell.viewBar.typeSelect": "Yíyàn",
+  "shell.viewBar.labelsIconAndText": "Àmì àti ọ̀rọ̀",
+  "shell.viewBar.labelsIconOnly": "Àmì nìkan",
+  "shell.viewBar.labelsTextOnly": "Ọ̀rọ̀ nìkan",
+  "shell.viewBar.pickTip": "{name}\nTẹ̀ láti yan ìwò kan"
+}

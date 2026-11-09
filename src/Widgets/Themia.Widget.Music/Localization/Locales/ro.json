@@ -1,0 +1,18 @@
+{
+  "music.hideWhenIdle.label": "Ascunde în repaus",
+  "music.hideWhenIdle.never": "Niciodată",
+  "styles.music.artwork": "Copertă și text",
+  "styles.music.cover": "Copertă întreagă",
+  "styles.music.text": "Doar text",
+  "widgetsA.catalog.music.description": "Orice redă Windows",
+  "widgetsA.catalog.music.label": "Se redă acum",
+  "widgetsB.music.next": "Următorul",
+  "widgetsB.music.pause": "Pauză",
+  "widgetsB.music.play": "Redă",
+  "widgetsB.music.playPause": "Redă sau pune pe pauză",
+  "widgetsB.music.previous": "Anteriorul",
+  "widgetsB.settings.music.hideWhenIdle.noSession": "Când niciun player nu e deschis",
+  "widgetsB.settings.music.hideWhenIdle.notPlaying": "Când nu se redă nimic",
+  "widgetsB.settings.music.progress.label": "Arată progresul",
+  "widgetsB.settings.music.transport.label": "Arată comenzile de redare"
+}

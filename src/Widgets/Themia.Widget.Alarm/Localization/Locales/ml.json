@@ -1,0 +1,16 @@
+{
+  "alarm.desc": "നിങ്ങൾ സജ്ജമാക്കിയ സമയത്ത് മുഴങ്ങുന്നു, ഒരിക്കൽ അല്ലെങ്കിൽ തിരഞ്ഞെടുത്ത ദിവസങ്ങളിൽ",
+  "alarm.label": "അലാറം",
+  "alarm.settings.namePlaceholder": "പേര് (ഐച്ഛികം)",
+  "alarm.settings.name.label": "പേര്",
+  "alarm.settings.on.label": "ഓണാക്കി",
+  "alarm.settings.repeat": "ആവർത്തിക്കുന്ന ദിവസങ്ങൾ",
+  "alarm.settings.repeat.desc": "ഒന്നും തിരഞ്ഞെടുത്തിട്ടില്ല: ഒരിക്കൽ മുഴങ്ങും",
+  "alarm.settings.snooze.label": "സ്നൂസ് ദൈർഘ്യം",
+  "alarm.settings.sound.label": "ശബ്‌ദം",
+  "alarm.settings.time.label": "സമയം",
+  "alarm.settings.volume.label": "വോളിയം",
+  "alarm.settings.whileRunning": "Themia പ്രവർത്തിക്കുമ്പോൾ മാത്രമേ അലാറങ്ങൾ മുഴങ്ങൂ. PC സ്ലീപ്പിലായിരിക്കുമ്പോൾ സമയമാകുന്ന ഒന്ന്, അഞ്ച് മിനിറ്റിനുള്ളിലാണെങ്കിൽ, ഉണരുമ്പോൾ മുഴങ്ങും.",
+  "alarm.switchOff": "{name} ഓഫാക്കുക",
+  "alarm.switchOn": "{name} ഓണാക്കുക"
+}

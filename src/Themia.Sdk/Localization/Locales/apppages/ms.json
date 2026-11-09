@@ -1,0 +1,38 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "shell.view.colour": "Warna",
+  "shell.view.colourDefault": "Warna teks",
+  "shell.appearance.themeColours": "Tema dan warna",
+  "shell.appearance.cards": "Kad widget",
+  "shell.appearance.textAndSize": "Teks dan saiz",
+  "shell.net.blockedLocal": "{host} berada dalam rangkaian setempat. Themia pergi ke sana hanya untuk alamat yang kamu taip sendiri",
+  "shell.accounts.stats.mail": "Mel",
+  "shell.accounts.stats.calendar": "Kalendar",
+  "shell.accounts.stats.contacts": "Kenalan",
+  "shell.accounts.stats.tasks": "Tugasan",
+  "shell.accounts.stats.messages": {
+    "other": "{count} mesej"
+  },
+  "shell.accounts.stats.events": {
+    "other": "{count} acara"
+  },
+  "shell.accounts.stats.people": {
+    "other": "{count} kenalan"
+  },
+  "shell.accounts.stats.taskCount": {
+    "other": "{count} tugasan"
+  },
+  "shell.accounts.stats.folders": {
+    "other": "dalam {count} folder"
+  },
+  "shell.accounts.stats.calendars": {
+    "other": "dalam {count} kalendar"
+  },
+  "shell.accounts.stats.lists": {
+    "other": "dalam {count} senarai"
+  },
+  "shell.accounts.stats.synced": "disegerakkan {time}",
+  "shell.accounts.stats.neverSynced": "belum disegerakkan",
+  "shell.accounts.stats.nothing": "Belum ada apa-apa disimpan pada PC ini",
+  "shell.accounts.reconnect": "Daftar masuk semula"
+}

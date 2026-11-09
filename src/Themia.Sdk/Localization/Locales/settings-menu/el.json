@@ -1,0 +1,20 @@
+{
+  "settingsMenu.onlineUpdates": "Ενημερώσεις από το διαδίκτυο",
+  "settingsMenu.gameMode": "Παύση σε εφαρμογές πλήρους οθόνης",
+  "settingsMenu.findLanguage": "Εύρεση γλώσσας",
+  "settingsMenu.proFree": "Δωρεάν",
+  "settingsMenu.backup": "Αντίγραφο ασφαλείας και επαναφορά",
+  "settingsMenu.about": "Σχετικά με το Themia",
+  "settingsMenu.exportSettings": "Εξαγωγή ρυθμίσεων…",
+  "settingsMenu.importSettings": "Εισαγωγή ρυθμίσεων…",
+  "settingsMenu.resetAll": "Επαναφορά όλων των ρυθμίσεων…",
+  "settingsMenu.reset": "Επαναφορά",
+  "settingsMenu.exported": "Αποθηκεύτηκε ως {file}",
+  "settingsMenu.imported": "Οι ρυθμίσεις εισήχθησαν. Όσες είχες φυλάσσονται ως {backup}.",
+  "settingsMenu.resetDone": "Οι ρυθμίσεις επανήλθαν. Όσες είχες φυλάσσονται ως {backup}.",
+  "settingsMenu.purchasing": "Αναμονή για το Microsoft Store…",
+  "settingsMenu.aboutOpenMeteo": "Καιρός, βροχή και ποιότητα αέρα. Η ποιότητα αέρα προέρχεται επίσης από την Υπηρεσία Παρακολούθησης Ατμόσφαιρας Copernicus (CAMS).",
+  "settingsMenu.uninstallEllipsis": "Κατάργηση εγκατάστασης…",
+  "settingsMenu.uninstallDataGoes": "Διαγράφονται επίσης τα γραφικά στοιχεία, οι ρυθμίσεις και οι λογαριασμοί σου.",
+  "settingsMenu.uninstallDeleteData": "Διαγραφή και των δεδομένων μου"
+}

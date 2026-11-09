@@ -1,0 +1,17 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "widgetsC.sun.label": "Slunce",
+  "widgetsC.sun.desc": "Východ a západ slunce a denní světlo",
+  "styles.sun.arc": "Oblouk",
+  "styles.sun.dayBar": "Pruh dne",
+  "styles.sun.times": "Jen časy",
+  "sunMoon.events.label": "Události",
+  "widgetUi.daylight": "Denní světlo",
+  "widgetsC.sunMoon.civil": "občanský",
+  "widgetsC.sunMoon.dawn": "Svítání",
+  "widgetsC.sunMoon.dusk": "Soumrak",
+  "widgetsC.sunMoon.short.daylight": "Den",
+  "widgetsC.sunMoon.short.sunrise": "Východ",
+  "widgetsC.sunMoon.short.sunset": "Západ",
+  "widgetsC.sunMoon.solarNoon": "Pravé poledne"
+}

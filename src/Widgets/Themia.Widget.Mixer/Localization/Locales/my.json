@@ -1,0 +1,18 @@
+{
+  "mixer.cfg.activeLabel": "ယခု ဖွင့်နေသော အက်ပ်များသာ",
+  "mixer.cfg.iconsLabel": "အက်ပ် အိုင်ကွန်များ",
+  "mixer.cfg.systemLabel": "စနစ် အသံများ",
+  "mixer.empty": "အသံဖွင့်နေသော အက်ပ် မရှိပါ",
+  "mixer.systemSounds": "စနစ် အသံများ",
+  "mixer.unknownApp": "မသိသော အက်ပ်",
+  "widgetsA.catalog.mixer.description": "အသံဖွင့်သော အက်ပ်တစ်ခုစီအတွက် အသံအတိုးအကျယ်",
+  "widgetsA.catalog.mixer.label": "အသံ mixer",
+  "widgetsB.mixer.defaultNotChanged": "မူလ အထွက်ကို မပြောင်းခဲ့ပါ",
+  "widgetsB.mixer.deviceMissing": "{device} ကို ချိတ်ဆက်မထားပါ",
+  "widgetsB.mixer.followDefault": "မူလ အထွက်အတိုင်း",
+  "widgetsB.mixer.noDevice": "အထွက် စက်ပစ္စည်း မရှိပါ",
+  "widgetsB.mixer.notPlaying": "{name} (မဖွင့်နေ)",
+  "widgetsB.mixer.unavailable": "အသံ မရနိုင်ပါ",
+  "widgetsB.settings.mixer.groupByApp.label": "အက်ပ်တစ်ခုလျှင် အတန်းတစ်တန်း",
+  "widgetsB.settings.mixer.note": "mixer ကို နှိပ်ပါ၊ ထို့နောက် ↑ နှင့် ↓ က အတန်းရွေးသည်၊ ← နှင့် → က ပြောင်းသည်၊ M က အသံပိတ်သည်။"
+}

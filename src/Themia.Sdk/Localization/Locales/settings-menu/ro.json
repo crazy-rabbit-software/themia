@@ -1,0 +1,20 @@
+{
+  "settingsMenu.onlineUpdates": "Actualizări online",
+  "settingsMenu.gameMode": "Pauză în timpul aplicațiilor pe ecran complet",
+  "settingsMenu.findLanguage": "Caută o limbă",
+  "settingsMenu.proFree": "Gratuit",
+  "settingsMenu.backup": "Copie de rezervă și resetare",
+  "settingsMenu.about": "Despre Themia",
+  "settingsMenu.exportSettings": "Exportă setările…",
+  "settingsMenu.importSettings": "Importă setările…",
+  "settingsMenu.resetAll": "Resetează toate setările…",
+  "settingsMenu.reset": "Resetează",
+  "settingsMenu.exported": "Salvat ca {file}",
+  "settingsMenu.imported": "Setările au fost importate. Cele vechi sunt păstrate ca {backup}.",
+  "settingsMenu.resetDone": "Setările au fost resetate. Cele vechi sunt păstrate ca {backup}.",
+  "settingsMenu.purchasing": "Se așteaptă Microsoft Store…",
+  "settingsMenu.aboutOpenMeteo": "Vreme, ploaie și calitatea aerului. Calitatea aerului provine și de la Copernicus Atmosphere Monitoring Service (CAMS).",
+  "settingsMenu.uninstallEllipsis": "Dezinstalează…",
+  "settingsMenu.uninstallDataGoes": "Widgeturile, setările și conturile tale se șterg și ele.",
+  "settingsMenu.uninstallDeleteData": "Șterge și datele mele"
+}

@@ -1,0 +1,13 @@
+{
+  "desktop.choice.label": "በዴስክቶፕ ላይ",
+  "desktop.choice.themia": "የThemia ንጥሎች",
+  "desktop.choice.windows": "የWindows አዶዎች",
+  "desktop.choice.nothing": "ምንም",
+  "desktop.add.folder": "በዴስክቶፕ ላይ",
+  "desktop.rename.clash": "እዚህ በዚህ ስም ያለ ንጥል አስቀድሞ አለ።",
+  "desktop.menu.edit": "ዊጀቶችን አርትዕ",
+  "desktop.delete.fromView": "ከዚህ እይታ አስወግድ",
+  "desktop.automation.list": "ዴስክቶፕ",
+  "desktop.coexist.replaced": "ሌላ ፕሮግራም የዴስክቶፑን አዶዎች ተክቷል፣ ስለዚህ Themia ዴስክቶፑን ለእሱ ይተዋል።",
+  "desktop.coexist.keptShown": "ሌላ ፕሮግራም የWindows አዶዎችን ማሳየቱን ቀጥሏል፣ ስለዚህ Themia እንደታዩ ይተዋቸዋል። እንደገና ለመሞከር ምርጫውን እንደገና ይምረጡ።"
+}

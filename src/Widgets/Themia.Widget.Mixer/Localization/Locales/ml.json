@@ -1,0 +1,18 @@
+{
+  "mixer.cfg.activeLabel": "ഇപ്പോൾ പ്ലേ ചെയ്യുന്ന ആപ്പുകൾ മാത്രം",
+  "mixer.cfg.iconsLabel": "ആപ്പ് ഐക്കണുകൾ",
+  "mixer.cfg.systemLabel": "സിസ്റ്റം ശബ്‌ദങ്ങൾ",
+  "mixer.empty": "ഒരു ആപ്പും ഓഡിയോ പ്ലേ ചെയ്യുന്നില്ല",
+  "mixer.systemSounds": "സിസ്റ്റം ശബ്‌ദങ്ങൾ",
+  "mixer.unknownApp": "അജ്ഞാത ആപ്പ്",
+  "widgetsA.catalog.mixer.description": "ശബ്‌ദം പ്ലേ ചെയ്യുന്ന ഓരോ ആപ്പിനും വോളിയം",
+  "widgetsA.catalog.mixer.label": "മിക്സർ",
+  "widgetsB.mixer.defaultNotChanged": "സ്ഥിരസ്ഥിതി ഔട്ട്‌പുട്ട് മാറ്റിയില്ല",
+  "widgetsB.mixer.deviceMissing": "{device} കണക്റ്റ് ചെയ്തിട്ടില്ല",
+  "widgetsB.mixer.followDefault": "സ്ഥിരസ്ഥിതി ഔട്ട്‌പുട്ട് പിന്തുടരുക",
+  "widgetsB.mixer.noDevice": "ഔട്ട്‌പുട്ട് ഉപകരണമില്ല",
+  "widgetsB.mixer.notPlaying": "{name} (പ്ലേ ചെയ്യുന്നില്ല)",
+  "widgetsB.mixer.unavailable": "ശബ്‌ദം ലഭ്യമല്ല",
+  "widgetsB.settings.mixer.groupByApp.label": "ഓരോ ആപ്പിനും ഒരു വരി",
+  "widgetsB.settings.mixer.note": "മിക്സറിൽ ക്ലിക്ക് ചെയ്യുക, പിന്നെ ↑, ↓ ഒരു വരി തിരഞ്ഞെടുക്കുന്നു, ←, → അത് മാറ്റുന്നു, M മ്യൂട്ട് ചെയ്യുന്നു."
+}

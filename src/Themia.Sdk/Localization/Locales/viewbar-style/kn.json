@@ -1,0 +1,10 @@
+{
+  "barMenus.viewBar.type": "ಪ್ರಕಾರ",
+  "barMenus.viewBar.labels": "ಲೇಬಲ್‌ಗಳು",
+  "shell.viewBar.typeInline": "ಸಾಲಿನಲ್ಲಿ",
+  "shell.viewBar.typeSelect": "ಆಯ್ಕೆ ಪಟ್ಟಿ",
+  "shell.viewBar.labelsIconAndText": "ಐಕಾನ್ ಮತ್ತು ಪಠ್ಯ",
+  "shell.viewBar.labelsIconOnly": "ಐಕಾನ್ ಮಾತ್ರ",
+  "shell.viewBar.labelsTextOnly": "ಪಠ್ಯ ಮಾತ್ರ",
+  "shell.viewBar.pickTip": "{name}\nವೀಕ್ಷಣೆ ಆಯ್ಕೆಮಾಡಲು ಕ್ಲಿಕ್ ಮಾಡು"
+}

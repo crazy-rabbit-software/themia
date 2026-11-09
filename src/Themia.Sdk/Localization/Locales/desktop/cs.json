@@ -1,0 +1,14 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "desktop.choice.label": "Na ploše",
+  "desktop.choice.themia": "Položky Themia",
+  "desktop.choice.windows": "Ikony Windows",
+  "desktop.choice.nothing": "Nic",
+  "desktop.add.folder": "Na ploše",
+  "desktop.rename.clash": "Položka s tímto názvem tu už je.",
+  "desktop.menu.edit": "Upravit widgety",
+  "desktop.delete.fromView": "Odebrat z tohoto pohledu",
+  "desktop.automation.list": "Plocha",
+  "desktop.coexist.replaced": "Ikony na ploše nahradil jiný program, takže mu Themia plochu přenechá.",
+  "desktop.coexist.keptShown": "Jiný program dál zobrazuje ikony Windows, takže je Themia nechá zobrazené. Pokud to chceš zkusit znovu, vyber možnost ještě jednou."
+}

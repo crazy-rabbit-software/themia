@@ -1,0 +1,14 @@
+{
+  "widgetsA.catalog.feed.label": "Ροή",
+  "widgetsA.catalog.feed.description": "Τίτλοι από τις ροές που διαλέγεις",
+  "widgetsC.rss.untitled": "(χωρίς τίτλο)",
+  "widgetsC.rss.copyLink": "Αντιγραφή συνδέσμου",
+  "widgetsC.rss.noArticles": "Αυτή η ροή δεν έχει άρθρα",
+  "widgetsC.rss.settings.feeds": "Ροές",
+  "widgetsC.rss.settings.empty": "Δεν υπάρχουν ακόμα ροές. Πρόσθεσε τη διεύθυνση μιας ροής RSS ή Atom.",
+  "widgetsC.rss.settings.add.title": "Προσθήκη ροής",
+  "widgetsC.rss.settings.articles": "Άρθρα",
+  "widgetsC.rss.settings.source.label": "Εμφάνιση πηγής",
+  "widgetsC.rss.settings.preview.label": "Εμφάνιση προεπισκόπησης",
+  "widgetsC.rss.settings.date.label": "Εμφάνιση ημερομηνίας"
+}

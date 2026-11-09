@@ -1,0 +1,8 @@
+{
+  "shell.meters.drive.label": "Диск",
+  "styles.io.bars": "Стовпчики",
+  "styles.io.read": "Читання",
+  "styles.io.write": "Запис",
+  "widgetsA.catalog.disk.description": "Операції читання й запису диска за секунду",
+  "widgetsA.catalog.disk.label": "Диск"
+}

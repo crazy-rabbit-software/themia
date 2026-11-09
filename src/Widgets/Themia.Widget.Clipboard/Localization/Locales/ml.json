@@ -1,0 +1,14 @@
+{
+  "clipboard.clearHistory": "ചരിത്രം മായ്‌ക്കുക",
+  "widgetsA.catalog.clipboard.description": "നിങ്ങൾ അടുത്തിടെ പകർത്തിയവ",
+  "widgetsA.catalog.clipboard.label": "ക്ലിപ്പ്ബോർഡ്",
+  "widgetsA.clipboard.clearConfirm.body": "ഈ ലിസ്റ്റിലുള്ളതെല്ലാം മറക്കും. ഇത് പഴയപടിയാക്കാനാവില്ല, ഇപ്പോൾ ക്ലിപ്പ്ബോർഡിലുള്ളത് മാറുകയുമില്ല.",
+  "widgetsA.clipboard.clearConfirm.title": "ക്ലിപ്പ്ബോർഡ് ചരിത്രം മായ്‌ക്കണോ?",
+  "widgetsA.clipboard.clearEllipsis": "ചരിത്രം മായ്‌ക്കുക…",
+  "widgetsA.clipboard.empty": "ഇതുവരെ ഒന്നും പകർത്തിയിട്ടില്ല. എന്തെങ്കിലും പകർത്തിയാൽ അത് ഇവിടെ കാണിക്കും.",
+  "widgetsA.clipboard.noListener": "ക്ലിപ്പ്ബോർഡ് നിരീക്ഷിക്കാൻ Windows ഈ ആപ്പിനെ അനുവദിച്ചില്ല.",
+  "widgetsA.clipboard.remove": "ചരിത്രത്തിൽ നിന്ന് നീക്കം ചെയ്യുക",
+  "widgetsA.clipboard.settings.entries.label": "എൻട്രികൾ",
+  "widgetsA.clipboard.settings.privacyNote": "പകർത്തിയ വാചകം മെമ്മറിയിൽ മാത്രം നിൽക്കും. ഫയലുകളും ചിത്രങ്ങളും ഒരിക്കലും വായിക്കില്ല.",
+  "widgetsA.clipboard.settings.timestamp.label": "എപ്പോൾ പകർത്തിയെന്ന് കാണിക്കുക"
+}

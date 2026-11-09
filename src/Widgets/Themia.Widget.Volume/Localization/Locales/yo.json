@@ -1,0 +1,11 @@
+{
+  "widget.volume.label": "Ìwọ̀n ohùn",
+  "widgetsA.catalog.volume.description": "Ìwọ̀n ìjáde gbogbogbò àti pípa ohùn",
+  "widgetsC.volume.defaultNotChanged": "A kò yí ẹ̀rọ ìjáde àkọ́kọ́ padà",
+  "widgetsC.volume.followDefault": "Tẹ̀lé ẹ̀rọ ìjáde àkọ́kọ́",
+  "widgetsC.volume.noDevice": "Kò sí ẹ̀rọ ìjáde",
+  "widgetsC.volume.notConnected": "{device} kò sopọ̀",
+  "widgetsC.volume.settings.allow.label": "Gba àyípadà láàyè",
+  "widgetsC.volume.settings.keysNote": "Tẹ àpótí náà, lẹ́yìn náà lo àwọn bọ́tìnnì ọfà tàbí + àti −; M ń pa ohùn.",
+  "widgetsC.volume.unavailable": "Ohùn kò sí ní àrọ́wọ́tó"
+}

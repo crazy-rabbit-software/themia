@@ -1,0 +1,16 @@
+{
+  "panels.notifications.allow": "അനുവദിക്കുക",
+  "panels.notifications.clearAll": "എല്ലാം മായ്‌ക്കുക",
+  "panels.notifications.clearApp": "{app}-ൽ നിന്നുള്ളതെല്ലാം മായ്‌ക്കുക",
+  "panels.notifications.denied": "Themia-യ്ക്ക് അറിയിപ്പ് ആക്സസ് ഓഫാണ്",
+  "panels.notifications.desc": "Windows അറിയിപ്പുകൾ, ആപ്പ് തിരിച്ച് ഗ്രൂപ്പ് ചെയ്തത്",
+  "panels.notifications.dismiss": "ഒഴിവാക്കുക",
+  "panels.notifications.label": "അറിയിപ്പുകൾ",
+  "panels.notifications.none": "പുതിയ അറിയിപ്പുകളില്ല",
+  "panels.notifications.open": "{app} തുറക്കുക",
+  "panels.notifications.openSettings": "ക്രമീകരണങ്ങൾ തുറക്കുക",
+  "panels.notifications.seeFewer": "കുറച്ച് കാണുക",
+  "panels.notifications.seeMore": "കൂടുതൽ കാണുക ({count})",
+  "panels.notifications.unspecified": "നിങ്ങളുടെ അറിയിപ്പുകൾ വായിക്കാൻ Themia-യെ അനുവദിക്കുക",
+  "panels.notifications.unsupported": "Windows-ന്റെ ഈ പതിപ്പിൽ വായിക്കാൻ അറിയിപ്പ് ലിസ്റ്റില്ല"
+}

@@ -1,0 +1,19 @@
+{
+  "pomodoro.alarmSound.label": "የማንቂያ ድምፅ",
+  "pomodoro.alarmVolume.label": "የማንቂያ ድምፅ መጠን",
+  "pomodoro.breakLength.label": "የእረፍት ርዝመት",
+  "pomodoro.focusLength.label": "የትኩረት ርዝመት",
+  "pomodoro.reset": "ዳግም አስጀምር",
+  "styles.pomodoro.bar": "አሞሌ",
+  "styles.pomodoro.digits": "አሃዞች",
+  "styles.pomodoro.ring": "ቀለበት",
+  "widgetUi.break": "እረፍት",
+  "widgetUi.focus": "ትኩረት",
+  "widget.pomodoro.label": "ፖሞዶሮ",
+  "widgetsA.catalog.pomodoro.description": "የትኩረትና የእረፍት ሰዓት ቆጣሪ",
+  "widgetsC.pomodoro.next": "ቀጣይ፦ {phase} {time}",
+  "widgetsC.pomodoro.pause": "ለአፍታ አቁም",
+  "widgetsC.pomodoro.skip": "ወደ ቀጣዩ ደረጃ ዝለል",
+  "widgetsC.pomodoro.start": "ጀምር",
+  "widgetsC.pomodoro.minutesUnit": " ደቂቃ"
+}

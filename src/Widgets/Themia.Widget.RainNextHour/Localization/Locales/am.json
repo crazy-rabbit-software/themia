@@ -1,0 +1,15 @@
+{
+  "online.rain.label": "በቀጣዩ ሰዓት ዝናብ",
+  "online.rain.desc": "ዝናብ መቼ እንደሚጀምር ወይም እንደሚቆም፣ በ{minutes} ደቂቃ ደረጃዎች",
+  "online.rain.startsIn": "በ{minutes} ደቂቃ ውስጥ ዝናብ",
+  "online.rain.stopsIn": "ዝናቡ በ{minutes} ደቂቃ ውስጥ ይቆማል",
+  "online.rain.continues": "ለቀጣዮቹ 2 ሰዓታት ዝናብ",
+  "online.rain.dry": "በቀጣዮቹ 2 ሰዓታት ዝናብ የለም",
+  "online.rain.outdated": "ለቀጣዩ ሰዓት ትንበያ የለም",
+  "online.rain.intensity.light": "ቀላል ዝናብ",
+  "online.rain.intensity.moderate": "መካከለኛ ዝናብ",
+  "online.rain.intensity.heavy": "ከባድ ዝናብ",
+  "online.rain.chance": "{percent} ዕድል",
+  "online.rain.total": "በ2 ሰዓታት ውስጥ {amount} ሚሜ",
+  "online.rain.now": "አሁን"
+}

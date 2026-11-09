@@ -1,0 +1,44 @@
+{
+  "countdown.setup": "ရေတွက်မည့် ရက်စွဲ ရွေးပါ",
+  "styles.countdown.ring": "ကွင်း",
+  "styles.countdown.text": "စာသား",
+  "styles.countdown.unitDays": "ရက်",
+  "styles.countdown.unitHours": "နာရီ",
+  "styles.countdown.unitMinutes": "မိနစ်",
+  "styles.countdown.unitSeconds": "စက္ကန့်",
+  "widget.countdown.label": "နောက်ပြန်ရေတွက်",
+  "widgetsA.catalog.countdown.description": "သင်ဂရုစိုက်သော ရက်စွဲအထိ ကျန်ရှိချိန်",
+  "widgetsA.countdown.ago": "{duration} အကြာက",
+  "widgetsA.countdown.compact.dh": "{days} ရက် {hours} နာရီ",
+  "widgetsA.countdown.compact.dhm": "{days} ရက် {hours} နာရီ {minutes} မိနစ်",
+  "widgetsA.countdown.compact.dhms": "{days} ရက် {hours} နာရီ {minutes} မိနစ် {seconds} စက္ကန့်",
+  "widgetsA.countdown.compact.hm": "{hours} နာရီ {minutes} မိနစ်",
+  "widgetsA.countdown.dateTime": "{date}၊ {time}",
+  "widgetsA.countdown.days": {
+    "other": "{count} ရက်"
+  },
+  "widgetsA.countdown.daysAgo": {
+    "other": "{count} ရက်အကြာက"
+  },
+  "widgetsA.countdown.daysIn": {
+    "other": "{count} ရက်အတွင်း"
+  },
+  "widgetsA.countdown.format.auto": "အလိုအလျောက်",
+  "widgetsA.countdown.format.days": "ရက်သာ",
+  "widgetsA.countdown.format.dhm": "ရက် · နာရီ · မိနစ်",
+  "widgetsA.countdown.format.dhms": "ရက် · နာရီ · မိနစ် · စက္ကန့်",
+  "widgetsA.countdown.fullDateTime": "{date} {time} တွင်",
+  "widgetsA.countdown.hours": {
+    "other": "{count} နာရီ"
+  },
+  "widgetsA.countdown.in": "{duration} အတွင်း",
+  "widgetsA.countdown.inAMoment": "ခဏနေလျှင်",
+  "widgetsA.countdown.justNow": "ယခုလေးတင်",
+  "widgetsA.countdown.minutes": {
+    "other": "{count} မိနစ်"
+  },
+  "widgetsA.countdown.settings.format.label": "ပုံစံ",
+  "widgetsA.countdown.settings.name.label": "အမည်",
+  "widgetsA.countdown.untitled": "အမည်မဲ့",
+  "styles.clock.flip": "လှန်"
+}

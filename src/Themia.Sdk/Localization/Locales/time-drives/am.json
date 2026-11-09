@@ -1,0 +1,23 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "alarm.untitled": "ማንቂያ",
+  "alarm.off": "ጠፍቷል",
+  "alarm.ringing": "በመደወል ላይ",
+  "alarm.snoozedUntil": "እስከ {time} ድረስ አሸልቧል",
+  "alarm.everyDay": "በየቀኑ",
+  "alarm.weekdays": "የሥራ ቀናት",
+  "alarm.weekends": "ቅዳሜና እሁድ",
+  "alarm.snooze": "አሸልብ",
+  "alarm.dismiss": "አሰናብት",
+  "drives.label.cd": "CD አንጻፊ",
+  "drives.label.network": "የአውታረ መረብ አንጻፊ",
+  "drives.label.ram": "RAM ዲስክ",
+  "drives.type.removable": "ተነቃይ ዲስክ",
+  "drives.type.optical": "CD አንጻፊ",
+  "drives.type.network": "የአውታረ መረብ አንጻፊ",
+  "drives.type.disconnected": "የተቋረጠ የአውታረ መረብ አንጻፊ",
+  "drives.noMedia": "ሚዲያ የለም",
+  "drives.pending": "በማገናኘት ላይ…",
+  "drives.disconnected": "ተቋርጧል",
+  "drives.eject": "አስወጣ"
+}

@@ -1,0 +1,17 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "addMenu.popular": "Oblíbené",
+  "addMenu.browse": "Procházet",
+  "addMenu.subject.time": "Čas",
+  "addMenu.subject.calendar": "Kalendář a pošta",
+  "addMenu.subject.weather": "Počasí a obloha",
+  "addMenu.subject.markets": "Zprávy a trhy",
+  "addMenu.subject.media": "Hudba a média",
+  "addMenu.subject.notes": "Poznámky a nástroje",
+  "addMenu.subject.files": "Soubory a aplikace",
+  "addMenu.subject.system": "Systém",
+  "addMenu.subject.devices": "Zařízení a napájení",
+  "addMenu.subject.more": "Další",
+  "addMenu.family.screenTime": "Čas u obrazovky",
+  "addMenu.family.powerButtons": "Tlačítka napájení"
+}

@@ -1,0 +1,52 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "shell.view.colour": "Barva",
+  "shell.view.colourDefault": "Barva textu",
+  "shell.appearance.themeColours": "Motiv a barvy",
+  "shell.appearance.cards": "Karty widgetů",
+  "shell.appearance.textAndSize": "Text a velikost",
+  "shell.net.blockedLocal": "{host} je v místní síti. Themia se tam připojí jen k adrese, kterou zadáš ty",
+  "shell.accounts.stats.mail": "Pošta",
+  "shell.accounts.stats.calendar": "Kalendář",
+  "shell.accounts.stats.contacts": "Kontakty",
+  "shell.accounts.stats.tasks": "Úkoly",
+  "shell.accounts.stats.messages": {
+    "one": "{count} zpráva",
+    "few": "{count} zprávy",
+    "other": "{count} zpráv"
+  },
+  "shell.accounts.stats.events": {
+    "one": "{count} událost",
+    "few": "{count} události",
+    "other": "{count} událostí"
+  },
+  "shell.accounts.stats.people": {
+    "one": "{count} kontakt",
+    "few": "{count} kontakty",
+    "other": "{count} kontaktů"
+  },
+  "shell.accounts.stats.taskCount": {
+    "one": "{count} úkol",
+    "few": "{count} úkoly",
+    "other": "{count} úkolů"
+  },
+  "shell.accounts.stats.folders": {
+    "one": "v {count} složce",
+    "few": "ve {count} složkách",
+    "other": "v {count} složkách"
+  },
+  "shell.accounts.stats.calendars": {
+    "one": "v {count} kalendáři",
+    "few": "ve {count} kalendářích",
+    "other": "v {count} kalendářích"
+  },
+  "shell.accounts.stats.lists": {
+    "one": "v {count} seznamu",
+    "few": "ve {count} seznamech",
+    "other": "v {count} seznamech"
+  },
+  "shell.accounts.stats.synced": "synchronizováno {time}",
+  "shell.accounts.stats.neverSynced": "zatím nesynchronizováno",
+  "shell.accounts.stats.nothing": "V tomto PC zatím není nic uloženo",
+  "shell.accounts.reconnect": "Přihlásit se znovu"
+}

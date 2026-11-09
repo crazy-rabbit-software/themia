@@ -1,0 +1,6 @@
+{
+  "details.catalog.network.desc": "ದರಗಳು, ಬಳಸಿದ ಡೇಟಾ, ವಿಳಾಸಗಳು ಮತ್ತು ಅಡಾಪ್ಟರ್‌ಗಳು",
+  "details.catalog.network.label": "ನೆಟ್‌ವರ್ಕ್ ವಿವರಗಳು",
+  "details.settings.network.public.desc": "api.ipify.org ಅನ್ನು ಕೇಳುತ್ತದೆ, ಹೆಚ್ಚೆಂದರೆ ಪ್ರತಿ {minutes} ನಿಮಿಷಗಳಿಗೊಮ್ಮೆ",
+  "details.settings.network.public.label": "ಸಾರ್ವಜನಿಕ ವಿಳಾಸ"
+}

@@ -1,0 +1,7 @@
+{
+  "screentime.goalPerDay": "з {value}/день",
+  "styles.screenTimeChart.bars": "Стовпчики",
+  "styles.screenTimeChart.calendar": "Календар",
+  "widgetsC.screenTime.chart.desc": "Твій час використання день за днем, за тиждень або місяць",
+  "widgetsC.screenTime.chart.label": "Графік часу використання"
+}

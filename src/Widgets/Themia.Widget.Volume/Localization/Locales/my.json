@@ -1,0 +1,11 @@
+{
+  "widget.volume.label": "အသံအတိုးအကျယ်",
+  "widgetsA.catalog.volume.description": "ပင်မ အထွက် အဆင့်နှင့် အသံပိတ်",
+  "widgetsC.volume.defaultNotChanged": "မူလ အထွက်ကို မပြောင်းခဲ့ပါ",
+  "widgetsC.volume.followDefault": "မူလ အထွက်အတိုင်း",
+  "widgetsC.volume.noDevice": "အထွက် စက်ပစ္စည်း မရှိပါ",
+  "widgetsC.volume.notConnected": "{device} ကို ချိတ်ဆက်မထားပါ",
+  "widgetsC.volume.settings.allow.label": "ပြောင်းလဲမှုများ ခွင့်ပြုရန်",
+  "widgetsC.volume.settings.keysNote": "tile ကို နှိပ်ပါ၊ ထို့နောက် မြှားကီးများ သို့မဟုတ် + နှင့် − ကို သုံးပါ၊ M က အသံပိတ်သည်။",
+  "widgetsC.volume.unavailable": "အသံ မရနိုင်ပါ"
+}

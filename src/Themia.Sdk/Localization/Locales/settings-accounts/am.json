@@ -1,0 +1,10 @@
+{
+  "settingsAccounts.ownServer": "አገልጋዩን ራሴ አዘጋጃለሁ",
+  "settingsAccounts.test": "ግንኙነቱን ፈትሽ",
+  "settingsAccounts.connectedTo": "ከ{host} ጋር ተገናኝቷል።",
+  "settingsAccounts.noServer": "Themia የ{domain}ን አገልጋይ አያውቅም። ራስዎ ያዘጋጁት።",
+  "settingsAccounts.davAddress": "የአገልጋዩን የድር አድራሻ ያስገቡ፣ ለምሳሌ https://cloud.example.com።",
+  "settingsAccounts.code": "ኮድ",
+  "settingsAccounts.pasteToken": "መጀመሪያ ቶከኑን ይለጥፉ።",
+  "settingsAccounts.enterAddress": "የኢሜይል አድራሻውንና የይለፍ ቃሉን ያስገቡ።"
+}

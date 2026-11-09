@@ -1,0 +1,14 @@
+{
+  "widgetsA.catalog.feed.label": "ഫീഡ്",
+  "widgetsA.catalog.feed.description": "നിങ്ങൾ തിരഞ്ഞെടുക്കുന്ന ഫീഡുകളിൽ നിന്നുള്ള തലക്കെട്ടുകൾ",
+  "widgetsC.rss.untitled": "(ശീർഷകമില്ല)",
+  "widgetsC.rss.copyLink": "ലിങ്ക് പകർത്തുക",
+  "widgetsC.rss.noArticles": "ഈ ഫീഡിൽ ലേഖനങ്ങളില്ല",
+  "widgetsC.rss.settings.feeds": "ഫീഡുകൾ",
+  "widgetsC.rss.settings.empty": "ഇതുവരെ ഫീഡുകളില്ല. ഒരു RSS അല്ലെങ്കിൽ Atom ഫീഡിന്റെ വിലാസം ചേർക്കുക.",
+  "widgetsC.rss.settings.add.title": "ഒരു ഫീഡ് ചേർക്കുക",
+  "widgetsC.rss.settings.articles": "ലേഖനങ്ങൾ",
+  "widgetsC.rss.settings.source.label": "ഉറവിടം കാണിക്കുക",
+  "widgetsC.rss.settings.preview.label": "പ്രിവ്യൂ കാണിക്കുക",
+  "widgetsC.rss.settings.date.label": "തീയതി കാണിക്കുക"
+}

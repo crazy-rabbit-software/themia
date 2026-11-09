@@ -1,0 +1,9 @@
+{
+  "styles.memory.bar": "ಬಾರ್",
+  "styles.memory.free": "{size} ಖಾಲಿ",
+  "styles.memory.gauge": "ಗೇಜ್",
+  "styles.memory.graph": "ಗ್ರಾಫ್",
+  "styles.memory.used": "{size} ಬಳಸಲಾಗಿದೆ",
+  "widgetsA.catalog.memory.description": "ಬಳಕೆಯಲ್ಲಿರುವ ಭೌತಿಕ ಮೆಮೊರಿ",
+  "widgetsA.catalog.memory.label": "ಮೆಮೊರಿ"
+}

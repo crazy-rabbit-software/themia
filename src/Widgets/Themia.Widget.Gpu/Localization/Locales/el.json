@@ -1,0 +1,13 @@
+{
+  "shell.meters.gpuDescription": "Φορτίο μιας κάρτας γραφικών",
+  "styles.gpu.engine3d": "3D",
+  "styles.gpu.engineCopy": "Αντιγραφή",
+  "styles.gpu.engineVideoDecode": "Αποκωδικοποίηση βίντεο",
+  "styles.gpu.engineVideoEncode": "Κωδικοποίηση βίντεο",
+  "styles.gpu.engines": "Μηχανές",
+  "styles.gpu.gauge": "Μετρητής",
+  "styles.gpu.graph": "Γράφημα",
+  "widgetsA.catalog.gpu.label": "GPU",
+  "widgetsB.gpu.adapterMissing": "Ο επιλεγμένος προσαρμογέας γραφικών δεν είναι εδώ",
+  "widgetsB.gpu.noAdapter": "Δεν υπάρχει προσαρμογέας γραφικών για ανάγνωση"
+}

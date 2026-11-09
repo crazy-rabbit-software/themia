@@ -1,0 +1,17 @@
+{
+  "styles.weatherNow.largeIcon": "Великий значок",
+  "styles.weatherNow.minimal": "Мінімальний",
+  "styles.weatherNow.standard": "Стандартний",
+  "weather.feelsLike": "Відчувається як",
+  "weather.humidity": "Вологість",
+  "weather.wind": "Вітер",
+  "widget.weatherCurrent.label": "Погода",
+  "widgetsA.catalog.weather.description": "Погода там, де ти",
+  "widgetsC.weather.fact.cloudCover": "Хмарність",
+  "widgetsC.weather.fact.gusts": "Пориви",
+  "widgetsC.weather.fact.precipitation": "Опади",
+  "widgetsC.weather.fact.pressure": "Тиск",
+  "widgetsC.weather.fact.uvIndex": "УФ-індекс",
+  "widgetsC.weather.feelsShort": "Відчувається {temperature}",
+  "widgetsC.weather.settings.showDetail.label": "Показувати подробиці"
+}

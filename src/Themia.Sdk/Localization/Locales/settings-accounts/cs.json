@@ -1,0 +1,11 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "settingsAccounts.ownServer": "Nastavit server ručně",
+  "settingsAccounts.test": "Otestovat připojení",
+  "settingsAccounts.connectedTo": "Připojeno k {host}.",
+  "settingsAccounts.noServer": "Themia nezná server pro {domain}. Nastav ho ručně.",
+  "settingsAccounts.davAddress": "Zadej webovou adresu serveru, například https://cloud.example.com.",
+  "settingsAccounts.code": "Kód",
+  "settingsAccounts.pasteToken": "Nejdřív vlož token.",
+  "settingsAccounts.enterAddress": "Zadej e-mailovou adresu a její heslo."
+}

@@ -1,0 +1,29 @@
+{
+  "widget.bluetooth.label": "Bluetooth",
+  "widgetsA.bluetooth.connected": "ချိတ်ဆက်ထားသည်",
+  "widgetsA.bluetooth.connectedCount": {
+    "other": "{count} ခု ချိတ်ဆက်ထားသည်"
+  },
+  "widgetsA.bluetooth.kind.audio": "အသံ",
+  "widgetsA.bluetooth.kind.controller": "ထိန်းချုပ်ကိရိယာ",
+  "widgetsA.bluetooth.kind.device": "စက်ပစ္စည်း",
+  "widgetsA.bluetooth.kind.keyboard": "ကီးဘုတ်",
+  "widgetsA.bluetooth.kind.mouse": "မောက်စ်",
+  "widgetsA.bluetooth.kind.pen": "ဘောပင်",
+  "widgetsA.bluetooth.kind.phone": "ဖုန်း",
+  "widgetsA.bluetooth.kind.watch": "နာရီ",
+  "widgetsA.bluetooth.paired": "တွဲချိတ်ထားသည်",
+  "widgetsA.bluetooth.settings.connectedOnly.label": "ချိတ်ဆက်ထားသည်များသာ",
+  "widgetsA.bluetooth.settings.connection.label": "ချိတ်ဆက်မှု",
+  "widgetsA.bluetooth.settings.icon.label": "စက်ပစ္စည်း အိုင်ကွန်",
+  "widgetsA.bluetooth.settings.signal.label": "Signal အားကောင်းမှု",
+  "widgetsA.bluetooth.status.failed": "တွဲချိတ်ထားသော စက်ပစ္စည်းများကို မဖတ်နိုင်ခဲ့ပါ",
+  "widgetsA.bluetooth.status.loading": "တွဲချိတ်ထားသော စက်ပစ္စည်းများကို ဖတ်နေသည်",
+  "widgetsA.bluetooth.status.noRadio": "ဤ PC တွင် Bluetooth ရေဒီယို မရှိပါ",
+  "widgetsA.bluetooth.status.none": "တွဲချိတ်ထားသော စက်ပစ္စည်း မရှိပါ",
+  "widgetsA.bluetooth.status.permissionDenied": "Windows က ရေဒီယိုများသို့ ဝင်ရောက်ခွင့် မပေးထားပါ",
+  "widgetsA.bluetooth.status.radioOff": "Bluetooth ပိတ်ထားသည်",
+  "widgetsA.bluetooth.unknownDevice": "မသိသော စက်ပစ္စည်း",
+  "widgetsA.catalog.bluetooth.description": "တွဲချိတ်ထားသော စက်ပစ္စည်းများနှင့် ၎င်းတို့၏ ဘက်ထရီ",
+  "widget.battery.label": "ဘက်ထရီ"
+}

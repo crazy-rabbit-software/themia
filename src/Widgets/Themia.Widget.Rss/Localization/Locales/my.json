@@ -1,0 +1,14 @@
+{
+  "widgetsA.catalog.feed.label": "ဖိဒ်",
+  "widgetsA.catalog.feed.description": "သင်ရွေးသော feed များမှ ခေါင်းကြီးများ",
+  "widgetsC.rss.untitled": "(ခေါင်းစဉ်မဲ့)",
+  "widgetsC.rss.copyLink": "လင့်ခ် ကူးရန်",
+  "widgetsC.rss.noArticles": "ဤ feed တွင် ဆောင်းပါး မရှိပါ",
+  "widgetsC.rss.settings.feeds": "Feed များ",
+  "widgetsC.rss.settings.empty": "feed မရှိသေးပါ။ RSS သို့မဟုတ် Atom feed ၏ လိပ်စာကို ထည့်ပါ။",
+  "widgetsC.rss.settings.add.title": "Feed ထည့်ရန်",
+  "widgetsC.rss.settings.articles": "ဆောင်းပါးများ",
+  "widgetsC.rss.settings.source.label": "ရင်းမြစ် ပြရန်",
+  "widgetsC.rss.settings.preview.label": "အစမ်းကြည့် ပြရန်",
+  "widgetsC.rss.settings.date.label": "ရက်စွဲ ပြရန်"
+}

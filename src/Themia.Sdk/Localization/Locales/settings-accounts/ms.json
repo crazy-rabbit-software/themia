@@ -1,0 +1,11 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "settingsAccounts.ownServer": "Tetapkan pelayan sendiri",
+  "settingsAccounts.test": "Uji sambungan",
+  "settingsAccounts.connectedTo": "Disambungkan ke {host}.",
+  "settingsAccounts.noServer": "Themia tidak tahu pelayan untuk {domain}. Tetapkannya sendiri.",
+  "settingsAccounts.davAddress": "Masukkan alamat web pelayan, seperti https://cloud.example.com.",
+  "settingsAccounts.code": "Kod",
+  "settingsAccounts.pasteToken": "Tampal token dahulu.",
+  "settingsAccounts.enterAddress": "Masukkan alamat e-mel dan kata laluannya."
+}

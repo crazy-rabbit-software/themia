@@ -1,0 +1,13 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "stopwatch.label": "Jam randik",
+  "stopwatch.desc": "Mengukur masa dengan pusingan, dan terus berjalan merentas permulaan semula",
+  "stopwatch.start": "Mula",
+  "stopwatch.pause": "Jeda",
+  "stopwatch.resume": "Sambung",
+  "stopwatch.lap": "Pusingan",
+  "stopwatch.reset": "Set semula",
+  "stopwatch.lapNumber": "Pusingan {n}",
+  "stopwatch.noLaps": "Belum ada pusingan",
+  "stopwatch.paused": "Dijeda"
+}

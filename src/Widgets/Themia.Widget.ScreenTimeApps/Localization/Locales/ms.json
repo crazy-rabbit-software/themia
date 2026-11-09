@@ -1,0 +1,10 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "screentime.metric.average": "Purata harian",
+  "screentime.metric.percent": "Bahagian daripada jumlah",
+  "widgetsC.screenTime.apps.desc": "Apl yang kamu gunakan, dan berapa lama",
+  "widgetsC.screenTime.apps.label": "Apl masa skrin",
+  "widgetsC.screenTime.limitOverTip": "had {limit} (melebihi)",
+  "widgetsC.screenTime.limitTip": "had {limit}",
+  "widgetsC.screenTime.settings.most.label": "Paling banyak apl disenaraikan"
+}

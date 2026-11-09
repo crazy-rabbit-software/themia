@@ -1,0 +1,11 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "widgetPrefs.updates.note": "ဝစ်ဂျက်များက အွန်လိုင်း ဝန်ဆောင်မှုများကို မည်မျှ မကြာခဏ မေးသည်။ ဝစ်ဂျက်ပေါ်ရှိ ပြန်လည်ဆန်းသစ်ရန်က ချက်ချင်း မေးသည်။",
+  "widgetPrefs.updates.weather": "ရာသီဥတု",
+  "widgetPrefs.updates.markets": "စတော့များ",
+  "widgetPrefs.updates.feeds": "သတင်း feed များ",
+  "widgetPrefs.updates.accounts": "မေးလ်၊ ပြက္ခဒိန်နှင့် လုပ်ငန်းတာဝန်များ",
+  "widgetPrefs.updates.everyHours": {
+    "other": "{count} နာရီတိုင်း"
+  }
+}

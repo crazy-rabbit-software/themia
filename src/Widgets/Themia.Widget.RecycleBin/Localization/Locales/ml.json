@@ -1,0 +1,12 @@
+{
+  "recycleBin.desc": "റീസൈക്കിൾ ബിൻ എത്ര നിറഞ്ഞു, ശൂന്യമാക്കൽ ബട്ടണോടെ",
+  "recycleBin.empty": "ശൂന്യമാക്കുക",
+  "recycleBin.isEmpty": "ഇനങ്ങളില്ല",
+  "recycleBin.items": {
+    "one": "{count} ഇനം",
+    "other": "{count} ഇനങ്ങൾ"
+  },
+  "recycleBin.open": "റീസൈക്കിൾ ബിൻ തുറക്കുക",
+  "recycleBin.emptyEllipsis": "റീസൈക്കിൾ ബിൻ ശൂന്യമാക്കുക…",
+  "widgetsC.location.recycleBin": "റീസൈക്കിൾ ബിൻ"
+}

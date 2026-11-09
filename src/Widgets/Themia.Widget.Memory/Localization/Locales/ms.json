@@ -1,0 +1,10 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "styles.memory.bar": "Bar",
+  "styles.memory.free": "{size} kosong",
+  "styles.memory.gauge": "Tolok",
+  "styles.memory.graph": "Graf",
+  "styles.memory.used": "{size} digunakan",
+  "widgetsA.catalog.memory.description": "Memori fizikal yang digunakan",
+  "widgetsA.catalog.memory.label": "Memori"
+}

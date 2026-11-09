@@ -1,0 +1,11 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "widgetPrefs.updates.note": "Kekerapan widget bertanya kepada perkhidmatan dalam talian. Muat semula pada widget akan bertanya serta-merta.",
+  "widgetPrefs.updates.weather": "Cuaca",
+  "widgetPrefs.updates.markets": "Saham",
+  "widgetPrefs.updates.feeds": "Suapan berita",
+  "widgetPrefs.updates.accounts": "Mel, kalendar dan tugasan",
+  "widgetPrefs.updates.everyHours": {
+    "other": "Setiap {count} jam"
+  }
+}

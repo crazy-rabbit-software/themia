@@ -1,0 +1,8 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "languageRegion.nav": "Jazyk a oblast",
+  "languageRegion.clock": "Formát času",
+  "languageRegion.clock12": "{hours}hodinový",
+  "languageRegion.clock24": "{hours}hodinový",
+  "languageRegion.followWindows": "Nastavení Windows ({value})"
+}

@@ -1,0 +1,7 @@
+{
+  "screentime.goalPerDay": "ከ{value}/ቀን",
+  "styles.screenTimeChart.bars": "አሞሌዎች",
+  "styles.screenTimeChart.calendar": "ቀን መቁጠሪያ",
+  "widgetsC.screenTime.chart.desc": "የማያ ገጽ ጊዜዎ በየቀኑ፣ በሳምንት ወይም በወር",
+  "widgetsC.screenTime.chart.label": "የማያ ገጽ ጊዜ ገበታ"
+}

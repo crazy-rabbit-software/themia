@@ -1,0 +1,7 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "details.catalog.network.desc": "Kadar, data digunakan, alamat dan penyesuai",
+  "details.catalog.network.label": "Butiran rangkaian",
+  "details.settings.network.public.desc": "Bertanya kepada api.ipify.org, paling kerap setiap {minutes} minit",
+  "details.settings.network.public.label": "Alamat awam"
+}

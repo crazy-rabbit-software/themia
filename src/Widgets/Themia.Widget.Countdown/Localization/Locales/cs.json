@@ -1,0 +1,55 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "countdown.setup": "Vyber datum, ke kterému se má odpočítávat",
+  "styles.countdown.ring": "Kruh",
+  "styles.countdown.text": "Text",
+  "styles.countdown.unitDays": "dní",
+  "styles.countdown.unitHours": "hod",
+  "styles.countdown.unitMinutes": "min",
+  "styles.countdown.unitSeconds": "s",
+  "widget.countdown.label": "Odpočet",
+  "widgetsA.catalog.countdown.description": "Zbývající čas do data, na kterém ti záleží",
+  "widgetsA.countdown.ago": "před {duration}",
+  "widgetsA.countdown.compact.dh": "{days} d {hours} h",
+  "widgetsA.countdown.compact.dhm": "{days} d {hours} h {minutes} min",
+  "widgetsA.countdown.compact.dhms": "{days} d {hours} h {minutes} min {seconds} s",
+  "widgetsA.countdown.compact.hm": "{hours} h {minutes} min",
+  "widgetsA.countdown.dateTime": "{date}, {time}",
+  "widgetsA.countdown.days": {
+    "one": "{count} den",
+    "few": "{count} dny",
+    "other": "{count} dní"
+  },
+  "widgetsA.countdown.daysAgo": {
+    "one": "před {count} dnem",
+    "few": "před {count} dny",
+    "other": "před {count} dny"
+  },
+  "widgetsA.countdown.daysIn": {
+    "one": "za {count} den",
+    "few": "za {count} dny",
+    "other": "za {count} dní"
+  },
+  "widgetsA.countdown.format.auto": "Automaticky",
+  "widgetsA.countdown.format.days": "Jen dny",
+  "widgetsA.countdown.format.dhm": "Dny · Hodiny · Min",
+  "widgetsA.countdown.format.dhms": "Dny · Hodiny · Min · S",
+  "widgetsA.countdown.fullDateTime": "{date} v {time}",
+  "widgetsA.countdown.hours": {
+    "one": "{count} hod",
+    "few": "{count} hod",
+    "other": "{count} hod"
+  },
+  "widgetsA.countdown.in": "za {duration}",
+  "widgetsA.countdown.inAMoment": "za okamžik",
+  "widgetsA.countdown.justNow": "právě teď",
+  "widgetsA.countdown.minutes": {
+    "one": "{count} min",
+    "few": "{count} min",
+    "other": "{count} min"
+  },
+  "widgetsA.countdown.settings.format.label": "Formát",
+  "widgetsA.countdown.settings.name.label": "Název",
+  "widgetsA.countdown.untitled": "Bez názvu",
+  "styles.clock.flip": "Překlápěcí"
+}

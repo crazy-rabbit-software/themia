@@ -1,0 +1,5 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "toggles.airplaneMode.label": "Mod pesawat hidup/mati",
+  "toggles.airplaneMode.desc": "Mematikan setiap radio tanpa wayar, atau menghidupkannya semula"
+}

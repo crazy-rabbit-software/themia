@@ -1,0 +1,17 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "panels.notifications.allow": "Povolit",
+  "panels.notifications.clearAll": "Vymazat vše",
+  "panels.notifications.clearApp": "Vymazat vše z {app}",
+  "panels.notifications.denied": "Themia má přístup k oznámením vypnutý",
+  "panels.notifications.desc": "Oznámení z Windows seskupená podle aplikace",
+  "panels.notifications.dismiss": "Zavřít",
+  "panels.notifications.label": "Oznámení",
+  "panels.notifications.none": "Žádná nová oznámení",
+  "panels.notifications.open": "Otevřít {app}",
+  "panels.notifications.openSettings": "Otevřít nastavení",
+  "panels.notifications.seeFewer": "Zobrazit méně",
+  "panels.notifications.seeMore": "Zobrazit další ({count})",
+  "panels.notifications.unspecified": "Povol, ať Themia čte tvoje oznámení",
+  "panels.notifications.unsupported": "Tato verze Windows nemá seznam oznámení, který by šel číst"
+}

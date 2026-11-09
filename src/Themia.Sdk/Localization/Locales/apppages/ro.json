@@ -1,0 +1,52 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "shell.view.colour": "Culoare",
+  "shell.view.colourDefault": "Culoare text",
+  "shell.appearance.themeColours": "Temă și culori",
+  "shell.appearance.cards": "Carduri widget",
+  "shell.appearance.textAndSize": "Text și mărime",
+  "shell.net.blockedLocal": "{host} este în rețeaua locală. Themia accesează rețeaua locală doar pentru o adresă pe care ai scris-o tu",
+  "shell.accounts.stats.mail": "E-mail",
+  "shell.accounts.stats.calendar": "Calendar",
+  "shell.accounts.stats.contacts": "Contacte",
+  "shell.accounts.stats.tasks": "Activități",
+  "shell.accounts.stats.messages": {
+    "one": "{count} mesaj",
+    "few": "{count} mesaje",
+    "other": "{count} de mesaje"
+  },
+  "shell.accounts.stats.events": {
+    "one": "{count} eveniment",
+    "few": "{count} evenimente",
+    "other": "{count} de evenimente"
+  },
+  "shell.accounts.stats.people": {
+    "one": "{count} contact",
+    "few": "{count} contacte",
+    "other": "{count} de contacte"
+  },
+  "shell.accounts.stats.taskCount": {
+    "one": "{count} activitate",
+    "few": "{count} activități",
+    "other": "{count} de activități"
+  },
+  "shell.accounts.stats.folders": {
+    "one": "în {count} folder",
+    "few": "în {count} foldere",
+    "other": "în {count} de foldere"
+  },
+  "shell.accounts.stats.calendars": {
+    "one": "în {count} calendar",
+    "few": "în {count} calendare",
+    "other": "în {count} de calendare"
+  },
+  "shell.accounts.stats.lists": {
+    "one": "în {count} listă",
+    "few": "în {count} liste",
+    "other": "în {count} de liste"
+  },
+  "shell.accounts.stats.synced": "sincronizat {time}",
+  "shell.accounts.stats.neverSynced": "nesincronizat încă",
+  "shell.accounts.stats.nothing": "Nimic stocat încă pe acest PC",
+  "shell.accounts.reconnect": "Conectează-te din nou"
+}

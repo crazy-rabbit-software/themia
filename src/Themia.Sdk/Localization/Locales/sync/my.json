@@ -1,0 +1,9 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "sync.updated": "{time} တွင် အပ်ဒိတ်လုပ်ပြီး",
+  "sync.stateUpdated": "{state} · {time} တွင် အပ်ဒိတ်လုပ်ပြီး",
+  "sync.pending": {
+    "other": "sync လုပ်ရန် စောင့်နေသော ပြောင်းလဲမှု {count} ခု"
+  },
+  "sync.queueFull": "sync လုပ်ရန် စောင့်နေသော ပြောင်းလဲမှု များလွန်းသည်၊ ဤတစ်ခုကို မထားရှိခဲ့ပါ။"
+}

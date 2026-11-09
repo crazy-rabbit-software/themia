@@ -1,0 +1,14 @@
+{
+  "barMenus.display": "Afișaj",
+  "barMenus.display.all": "Toate afișajele",
+  "barMenus.display.showOn": "Arată Themia pe",
+  "barMenus.display.this": "Acest afișaj",
+  "barMenus.viewBar": "Bara de vizualizări",
+  "barMenus.viewBar.position": "Poziție",
+  "barMenus.viewBar.size": "Mărime",
+  "barMenus.viewBar.hidden": "Ascunsă",
+  "barMenus.viewBar.views": "Vizualizări",
+  "barMenus.view.renameTitle": "Redenumește vizualizarea",
+  "barMenus.view.deleteQuestion": "Ștergi „{name}”?",
+  "barMenus.view.deleteDetail": "Widgeturile ei dispar odată cu ea ({widgets}). Anularea readuce totul."
+}

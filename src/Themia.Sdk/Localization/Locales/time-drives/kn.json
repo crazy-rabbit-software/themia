@@ -1,0 +1,23 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "alarm.untitled": "ಅಲಾರಾಂ",
+  "alarm.off": "ಆಫ್",
+  "alarm.ringing": "ರಿಂಗ್ ಆಗುತ್ತಿದೆ",
+  "alarm.snoozedUntil": "{time} ವರೆಗೆ ಸ್ನೂಜ್ ಆಗಿದೆ",
+  "alarm.everyDay": "ಪ್ರತಿದಿನ",
+  "alarm.weekdays": "ವಾರದ ದಿನಗಳು",
+  "alarm.weekends": "ವಾರಾಂತ್ಯಗಳು",
+  "alarm.snooze": "ಸ್ನೂಜ್",
+  "alarm.dismiss": "ವಜಾಗೊಳಿಸು",
+  "drives.label.cd": "CD ಡ್ರೈವ್",
+  "drives.label.network": "ನೆಟ್‌ವರ್ಕ್ ಡ್ರೈವ್",
+  "drives.label.ram": "RAM ಡಿಸ್ಕ್",
+  "drives.type.removable": "ತೆಗೆಯಬಹುದಾದ ಡಿಸ್ಕ್",
+  "drives.type.optical": "CD ಡ್ರೈವ್",
+  "drives.type.network": "ನೆಟ್‌ವರ್ಕ್ ಡ್ರೈವ್",
+  "drives.type.disconnected": "ಸಂಪರ್ಕ ಕಡಿತಗೊಂಡ ನೆಟ್‌ವರ್ಕ್ ಡ್ರೈವ್",
+  "drives.noMedia": "ಮೀಡಿಯಾ ಇಲ್ಲ",
+  "drives.pending": "ಸಂಪರ್ಕಿಸಲಾಗುತ್ತಿದೆ…",
+  "drives.disconnected": "ಸಂಪರ್ಕ ಕಡಿತಗೊಂಡಿದೆ",
+  "drives.eject": "ಹೊರತೆಗೆ"
+}

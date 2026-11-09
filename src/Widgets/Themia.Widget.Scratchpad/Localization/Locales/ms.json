@@ -1,0 +1,17 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "scratchpad.drawHere": "Lukis di sini",
+  "scratchpad.penColorLabel": "Warna pen",
+  "scratchpad.penSizeLabel": "Saiz pen",
+  "widget.scratchpad.label": "Pad conteng",
+  "widgetsA.catalog.scratchpad.description": "Tempat untuk melukis",
+  "widgetsC.scratchpad.clearConfirm": "Kosongkan keseluruhan lukisan?",
+  "widgetsC.scratchpad.clearDrawing": "Kosongkan lukisan",
+  "widgetsC.scratchpad.draw": "Lukis",
+  "widgetsC.scratchpad.eraseStrokes": "Padam lakaran",
+  "widgetsC.scratchpad.exitFullScreen": "Keluar dari skrin penuh",
+  "widgetsC.scratchpad.fullScreen": "Skrin penuh",
+  "widgetsC.scratchpad.penSizeTip": "Saiz pen {size} px",
+  "widgetsC.scratchpad.settings.showTools.label": "Tunjukkan alatan",
+  "widgetsC.scratchpad.undo": "Buat asal"
+}

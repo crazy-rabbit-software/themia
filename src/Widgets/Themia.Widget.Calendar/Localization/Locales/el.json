@@ -1,0 +1,32 @@
+{
+  "calendar.agendaEvents.label": "Συμβάντα ατζέντας",
+  "calendar.noEventsToday": "Κανένα συμβάν σήμερα",
+  "calendar.noUpcoming": "Κανένα επερχόμενο συμβάν.",
+  "calendar.today": "Σήμερα",
+  "common.next": "Επόμενο",
+  "styles.calendar.agenda": "Ατζέντα",
+  "styles.calendar.day": "Ημέρα",
+  "styles.calendar.desc": "Τα συμβάντα και τα γενέθλιά σου ανά μήνα, εβδομάδα, ημέρα ή έτος, ή ως ατζέντα",
+  "styles.calendar.label": "Ημερολόγιο",
+  "styles.calendar.month": "Μήνας",
+  "styles.calendar.week": "Εβδομάδα",
+  "styles.calendar.year": "Έτος",
+  "widgetsA.calendar.allDayOn": "Ολοήμερο · {date}",
+  "widgetsA.calendar.birthday": "Γενέθλια",
+  "widgetsA.calendar.noEvents": "Κανένα συμβάν",
+  "widgetsA.calendar.now": "Τώρα",
+  "widgetsA.calendar.previous": "Προηγούμενο",
+  "widgetsA.calendar.settings.agendaRange.custom": "Προσαρμοσμένο",
+  "widgetsA.calendar.settings.agendaRange.days": {
+    "one": "{count} ημέρα",
+    "other": "{count} ημέρες"
+  },
+  "widgetsA.calendar.settings.agendaRange.label": "Εύρος ημερομηνιών",
+  "widgetsA.calendar.settings.agendaRange.todayTomorrow": "Σήμερα και αύριο",
+  "widgetsA.calendar.settings.days.label": "Ημέρες που εμφανίζονται",
+  "widgetsA.calendar.settings.weekFrom.label": "Ξεκινά",
+  "widgetsA.calendar.settings.weekFrom.weekStart": "Πρώτη ημέρα της εβδομάδας ({day})",
+  "widgetsA.calendar.spanWithLength": "{from}–{to} ({length})",
+  "widgetsA.clock.date": "{weekday}, {date}",
+  "calendar.setup.sentence": "Πρόσθεσε έναν λογαριασμό για να εμφανιστεί το ημερολόγιό σου"
+}

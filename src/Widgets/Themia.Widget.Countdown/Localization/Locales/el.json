@@ -1,0 +1,49 @@
+{
+  "countdown.setup": "Διάλεξε μια ημερομηνία για την αντίστροφη μέτρηση",
+  "styles.countdown.ring": "Δακτύλιος",
+  "styles.countdown.text": "Κείμενο",
+  "styles.countdown.unitDays": "ημέρες",
+  "styles.countdown.unitHours": "ώρες",
+  "styles.countdown.unitMinutes": "λεπ.",
+  "styles.countdown.unitSeconds": "δευτ.",
+  "widget.countdown.label": "Αντίστροφη μέτρηση",
+  "widgetsA.catalog.countdown.description": "Ο χρόνος που απομένει ως μια ημερομηνία που σε ενδιαφέρει",
+  "widgetsA.countdown.ago": "πριν από {duration}",
+  "widgetsA.countdown.compact.dh": "{days}η {hours}ώ",
+  "widgetsA.countdown.compact.dhm": "{days}η {hours}ώ {minutes}λ",
+  "widgetsA.countdown.compact.dhms": "{days}η {hours}ώ {minutes}λ {seconds}δ",
+  "widgetsA.countdown.compact.hm": "{hours}ώ {minutes}λ",
+  "widgetsA.countdown.dateTime": "{date}, {time}",
+  "widgetsA.countdown.days": {
+    "one": "{count} ημέρα",
+    "other": "{count} ημέρες"
+  },
+  "widgetsA.countdown.daysAgo": {
+    "one": "πριν από {count} ημέρα",
+    "other": "πριν από {count} ημέρες"
+  },
+  "widgetsA.countdown.daysIn": {
+    "one": "σε {count} ημέρα",
+    "other": "σε {count} ημέρες"
+  },
+  "widgetsA.countdown.format.auto": "Αυτόματα",
+  "widgetsA.countdown.format.days": "Μόνο ημέρες",
+  "widgetsA.countdown.format.dhm": "Ημέρες · Ώρες · Λεπτά",
+  "widgetsA.countdown.format.dhms": "Ημέρες · Ώρες · Λεπτά · Δευτ.",
+  "widgetsA.countdown.fullDateTime": "{date} στις {time}",
+  "widgetsA.countdown.hours": {
+    "one": "{count} ώρα",
+    "other": "{count} ώρες"
+  },
+  "widgetsA.countdown.in": "σε {duration}",
+  "widgetsA.countdown.inAMoment": "σε λίγο",
+  "widgetsA.countdown.justNow": "μόλις τώρα",
+  "widgetsA.countdown.minutes": {
+    "one": "{count} λεπτό",
+    "other": "{count} λεπτά"
+  },
+  "widgetsA.countdown.settings.format.label": "Μορφή",
+  "widgetsA.countdown.settings.name.label": "Όνομα",
+  "widgetsA.countdown.untitled": "Χωρίς τίτλο",
+  "styles.clock.flip": "Αναδιπλούμενο"
+}

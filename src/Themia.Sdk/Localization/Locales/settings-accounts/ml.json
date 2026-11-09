@@ -1,0 +1,10 @@
+{
+  "settingsAccounts.ownServer": "സെർവർ ഞാൻ തന്നെ സജ്ജമാക്കാം",
+  "settingsAccounts.test": "കണക്ഷൻ പരിശോധിക്കുക",
+  "settingsAccounts.connectedTo": "{host}-ലേക്ക് കണക്റ്റ് ചെയ്തു.",
+  "settingsAccounts.noServer": "{domain}-നുള്ള സെർവർ Themia-യ്ക്ക് അറിയില്ല. അത് നിങ്ങൾ തന്നെ സജ്ജമാക്കുക.",
+  "settingsAccounts.davAddress": "സെർവറിന്റെ വെബ് വിലാസം നൽകുക, ഉദാഹരണത്തിന് https://cloud.example.com.",
+  "settingsAccounts.code": "കോഡ്",
+  "settingsAccounts.pasteToken": "ആദ്യം ടോക്കൺ ഒട്ടിക്കുക.",
+  "settingsAccounts.enterAddress": "ഇമെയിൽ വിലാസവും അതിന്റെ പാസ്‌വേഡും നൽകുക."
+}

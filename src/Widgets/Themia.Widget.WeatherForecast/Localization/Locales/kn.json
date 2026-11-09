@@ -1,0 +1,10 @@
+{
+  "forecast.daysLabel": "ತೋರಿಸುವ ದಿನಗಳು",
+  "forecast.layoutColumns": "ಕಾಲಮ್‌ಗಳು",
+  "forecast.layoutRows": "ಸಾಲುಗಳು",
+  "styles.forecast.curve": "ತಾಪಮಾನ ವಕ್ರರೇಖೆ",
+  "styles.forecast.grid": "ಗ್ರಿಡ್",
+  "widgetsA.catalog.forecast.description": "ಮುಂದಿನ ಕೆಲವು ದಿನಗಳು",
+  "widgetsA.catalog.forecast.label": "ಮುನ್ಸೂಚನೆ",
+  "widgetsC.weather.settings.showPrecipitation.label": "ಮಳೆಯ ಪ್ರಮಾಣ ತೋರಿಸು"
+}

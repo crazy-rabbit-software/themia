@@ -1,0 +1,8 @@
+{
+  "menu.rename": "ዳግም ሰይም…",
+  "menu.add": "አክል…",
+  "menu.reorderHint": "እንደገና ለማደራጀት ይጎትቱ፣ ወይም Ctrl+Up ወይም Ctrl+Down ይጫኑ",
+  "menu.filter": "ፈልግ",
+  "menu.opensIn": "{name}ን ይከፍታል",
+  "menu.numberRange": "ከ{min} እስከ {max} ያለ ቁጥር ያስገቡ"
+}

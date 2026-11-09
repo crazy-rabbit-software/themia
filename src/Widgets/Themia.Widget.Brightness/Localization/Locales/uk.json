@@ -1,0 +1,10 @@
+{
+  "panels.brightness.all": "Усі екрани",
+  "panels.brightness.desc": "Один повзунок для яскравості дисплея",
+  "panels.brightness.label": "Яскравість",
+  "panels.brightness.level": "Яскравість {level}",
+  "panels.brightness.none": "Немає яскравості дисплея для налаштування",
+  "panels.brightness.own": "Лише екран, на якому він є",
+  "panels.brightness.ownNone": "Яскравість цього дисплея не можна налаштувати",
+  "panels.brightness.screensLabel": "Екрани, які він затемнює"
+}

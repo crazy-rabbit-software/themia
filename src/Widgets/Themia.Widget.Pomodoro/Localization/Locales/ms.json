@@ -1,0 +1,20 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "pomodoro.alarmSound.label": "Bunyi penggera",
+  "pomodoro.alarmVolume.label": "Kelantangan penggera",
+  "pomodoro.breakLength.label": "Tempoh rehat",
+  "pomodoro.focusLength.label": "Tempoh fokus",
+  "pomodoro.reset": "Set semula",
+  "styles.pomodoro.bar": "Bar",
+  "styles.pomodoro.digits": "Digit",
+  "styles.pomodoro.ring": "Cincin",
+  "widgetUi.break": "Rehat",
+  "widgetUi.focus": "Fokus",
+  "widget.pomodoro.label": "Pomodoro",
+  "widgetsA.catalog.pomodoro.description": "Pemasa fokus dan rehat",
+  "widgetsC.pomodoro.next": "Seterusnya: {phase} {time}",
+  "widgetsC.pomodoro.pause": "Jeda",
+  "widgetsC.pomodoro.skip": "Langkau ke fasa seterusnya",
+  "widgetsC.pomodoro.start": "Mula",
+  "widgetsC.pomodoro.minutesUnit": " min"
+}

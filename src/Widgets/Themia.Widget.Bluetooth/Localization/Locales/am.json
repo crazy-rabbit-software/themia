@@ -1,0 +1,30 @@
+{
+  "widget.bluetooth.label": "Bluetooth",
+  "widgetsA.bluetooth.connected": "ተገናኝቷል",
+  "widgetsA.bluetooth.connectedCount": {
+    "one": "{count} ተገናኝቷል",
+    "other": "{count} ተገናኝተዋል"
+  },
+  "widgetsA.bluetooth.kind.audio": "ኦዲዮ",
+  "widgetsA.bluetooth.kind.controller": "መቆጣጠሪያ",
+  "widgetsA.bluetooth.kind.device": "መሣሪያ",
+  "widgetsA.bluetooth.kind.keyboard": "ቁልፍ ሰሌዳ",
+  "widgetsA.bluetooth.kind.mouse": "አይጥ",
+  "widgetsA.bluetooth.kind.pen": "ብዕር",
+  "widgetsA.bluetooth.kind.phone": "ስልክ",
+  "widgetsA.bluetooth.kind.watch": "ሰዓት",
+  "widgetsA.bluetooth.paired": "ተጣምሯል",
+  "widgetsA.bluetooth.settings.connectedOnly.label": "የተገናኙ ብቻ",
+  "widgetsA.bluetooth.settings.connection.label": "ግንኙነት",
+  "widgetsA.bluetooth.settings.icon.label": "የመሣሪያ አዶ",
+  "widgetsA.bluetooth.settings.signal.label": "የምልክት ጥንካሬ",
+  "widgetsA.bluetooth.status.failed": "የተጣመሩ መሣሪያዎችን ማንበብ አልተቻለም",
+  "widgetsA.bluetooth.status.loading": "የተጣመሩ መሣሪያዎችን በማንበብ ላይ",
+  "widgetsA.bluetooth.status.noRadio": "ይህ ፒሲ የBluetooth ሬዲዮ የለውም",
+  "widgetsA.bluetooth.status.none": "ምንም የተጣመረ መሣሪያ የለም",
+  "widgetsA.bluetooth.status.permissionDenied": "Windows ለሬዲዮዎቹ መዳረሻ አልሰጠም",
+  "widgetsA.bluetooth.status.radioOff": "Bluetooth ጠፍቷል",
+  "widgetsA.bluetooth.unknownDevice": "ያልታወቀ መሣሪያ",
+  "widgetsA.catalog.bluetooth.description": "የተጣመሩ መሣሪያዎችና ባትሪያቸው",
+  "widget.battery.label": "ባትሪ"
+}

@@ -1,0 +1,16 @@
+{
+  "panels.notifications.allow": "Να επιτρέπεται",
+  "panels.notifications.clearAll": "Απαλοιφή όλων",
+  "panels.notifications.clearApp": "Απαλοιφή όλων από {app}",
+  "panels.notifications.denied": "Η πρόσβαση στις ειδοποιήσεις είναι απενεργοποιημένη για το Themia",
+  "panels.notifications.desc": "Οι ειδοποιήσεις των Windows, ομαδοποιημένες ανά εφαρμογή",
+  "panels.notifications.dismiss": "Απόρριψη",
+  "panels.notifications.label": "Ειδοποιήσεις",
+  "panels.notifications.none": "Καμία νέα ειδοποίηση",
+  "panels.notifications.open": "Άνοιγμα {app}",
+  "panels.notifications.openSettings": "Άνοιγμα ρυθμίσεων",
+  "panels.notifications.seeFewer": "Εμφάνιση λιγότερων",
+  "panels.notifications.seeMore": "Εμφάνιση περισσότερων ({count})",
+  "panels.notifications.unspecified": "Επίτρεψε στο Themia να διαβάζει τις ειδοποιήσεις σου",
+  "panels.notifications.unsupported": "Αυτή η έκδοση των Windows δεν έχει λίστα ειδοποιήσεων για ανάγνωση"
+}

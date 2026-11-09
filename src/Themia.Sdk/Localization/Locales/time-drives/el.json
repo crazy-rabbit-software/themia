@@ -1,0 +1,23 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "alarm.untitled": "Ξυπνητήρι",
+  "alarm.off": "Ανενεργό",
+  "alarm.ringing": "Χτυπά",
+  "alarm.snoozedUntil": "Σε αναβολή έως {time}",
+  "alarm.everyDay": "Κάθε μέρα",
+  "alarm.weekdays": "Καθημερινές",
+  "alarm.weekends": "Σαββατοκύριακα",
+  "alarm.snooze": "Αναβολή",
+  "alarm.dismiss": "Απόρριψη",
+  "drives.label.cd": "Μονάδα CD",
+  "drives.label.network": "Μονάδα δικτύου",
+  "drives.label.ram": "Δίσκος RAM",
+  "drives.type.removable": "Αφαιρούμενος δίσκος",
+  "drives.type.optical": "Μονάδα CD",
+  "drives.type.network": "Μονάδα δικτύου",
+  "drives.type.disconnected": "Αποσυνδεδεμένη μονάδα δικτύου",
+  "drives.noMedia": "Χωρίς μέσο",
+  "drives.pending": "Σύνδεση…",
+  "drives.disconnected": "Αποσυνδέθηκε",
+  "drives.eject": "Εξαγωγή"
+}

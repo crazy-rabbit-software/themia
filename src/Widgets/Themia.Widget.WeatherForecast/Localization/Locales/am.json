@@ -1,0 +1,10 @@
+{
+  "forecast.daysLabel": "የሚታዩ ቀናት",
+  "forecast.layoutColumns": "ዓምዶች",
+  "forecast.layoutRows": "ረድፎች",
+  "styles.forecast.curve": "የሙቀት ኩርባ",
+  "styles.forecast.grid": "ፍርግርግ",
+  "widgetsA.catalog.forecast.description": "ቀጣዮቹ ጥቂት ቀናት",
+  "widgetsA.catalog.forecast.label": "ትንበያ",
+  "widgetsC.weather.settings.showPrecipitation.label": "ዝናብን አሳይ"
+}

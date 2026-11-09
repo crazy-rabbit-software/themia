@@ -1,0 +1,32 @@
+{
+  "stocks.dimWhenClosed": "Ένδειξη κλειστής αγοράς",
+  "stocks.extendedHours": "Διευρυμένο ωράριο",
+  "stocks.extendedHoursDesc": "Παρακολούθηση συναλλαγών πριν το άνοιγμα και μετά το κλείσιμο (1Η και 5Η)",
+  "stocks.setup": "Διάλεξε ένα σύμβολο",
+  "stocks.showMinMax": "Δείκτες ελάχιστου/μέγιστου",
+  "stocks.tab.symbols": "Σύμβολο",
+  "stocks.timeframe": "Χρονικό διάστημα",
+  "styles.stocks.chart": "Γράφημα",
+  "styles.stocks.number": "Αριθμός",
+  "widget.stocks.label": "Μετοχές",
+  "widgetsA.catalog.stocks.description": "Μετοχές και κρυπτονομίσματα, με μικρογράφημα",
+  "widgetsC.stocks.holding.amount": "{amount} στην κατοχή σου",
+  "widgetsC.stocks.noQuote": "Δεν υπάρχει τιμή για αυτό το σύμβολο",
+  "widgetsC.stocks.notSymbol": "Το \"{symbol}\" δεν είναι σύμβολο",
+  "widgetsC.stocks.period.days": {
+    "one": "{count} ημέρα",
+    "other": "{count} ημέρες"
+  },
+  "widgetsC.stocks.period.months": {
+    "one": "{count} μήνας",
+    "other": "{count} μήνες"
+  },
+  "widgetsC.stocks.period.years": {
+    "one": "{count} έτος",
+    "other": "{count} έτη"
+  },
+  "widgetsC.stocks.phaseTooltip": "{phase}. {zone}",
+  "widgetsC.stocks.settings.holding.label": "Μετοχές στην κατοχή σου",
+  "widgetsC.stocks.settings.holding.refused": "Πληκτρολόγησε ποσότητα {zero} ή μεγαλύτερη, για παράδειγμα {example}",
+  "widgetsC.stocks.settings.symbolRefused": "Διάλεξε ένα αποτέλεσμα αναζήτησης ή πληκτρολόγησε σύμβολο: μόνο γράμματα, ψηφία και . - ^ ="
+}

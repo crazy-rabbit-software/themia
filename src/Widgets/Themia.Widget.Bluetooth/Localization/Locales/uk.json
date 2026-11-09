@@ -1,0 +1,32 @@
+{
+  "widget.bluetooth.label": "Bluetooth",
+  "widgetsA.bluetooth.connected": "Підключено",
+  "widgetsA.bluetooth.connectedCount": {
+    "one": "Підключено {count}",
+    "few": "Підключено {count}",
+    "many": "Підключено {count}",
+    "other": "Підключено {count}"
+  },
+  "widgetsA.bluetooth.kind.audio": "Аудіо",
+  "widgetsA.bluetooth.kind.controller": "Контролер",
+  "widgetsA.bluetooth.kind.device": "Пристрій",
+  "widgetsA.bluetooth.kind.keyboard": "Клавіатура",
+  "widgetsA.bluetooth.kind.mouse": "Миша",
+  "widgetsA.bluetooth.kind.pen": "Перо",
+  "widgetsA.bluetooth.kind.phone": "Телефон",
+  "widgetsA.bluetooth.kind.watch": "Годинник",
+  "widgetsA.bluetooth.paired": "Спарено",
+  "widgetsA.bluetooth.settings.connectedOnly.label": "Лише підключені",
+  "widgetsA.bluetooth.settings.connection.label": "З’єднання",
+  "widgetsA.bluetooth.settings.icon.label": "Значок пристрою",
+  "widgetsA.bluetooth.settings.signal.label": "Рівень сигналу",
+  "widgetsA.bluetooth.status.failed": "Не вдалося прочитати спарені пристрої",
+  "widgetsA.bluetooth.status.loading": "Читання спарених пристроїв",
+  "widgetsA.bluetooth.status.noRadio": "На цьому ПК немає радіомодуля Bluetooth",
+  "widgetsA.bluetooth.status.none": "Немає спарених пристроїв",
+  "widgetsA.bluetooth.status.permissionDenied": "Windows не надала доступ до радіомодулів",
+  "widgetsA.bluetooth.status.radioOff": "Bluetooth вимкнено",
+  "widgetsA.bluetooth.unknownDevice": "Невідомий пристрій",
+  "widgetsA.catalog.bluetooth.description": "Спарені пристрої та їхній заряд",
+  "widget.battery.label": "Акумулятор"
+}

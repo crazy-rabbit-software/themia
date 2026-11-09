@@ -1,0 +1,9 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "meeting.desc": "Tvoje další událost, s tlačítkem Připojit pro online schůzky",
+  "meeting.join": "Připojit",
+  "meeting.joinTip": "Připojit se k online schůzce",
+  "meeting.label": "Další schůzka",
+  "meeting.none": "Nic nového v plánu",
+  "nextMeeting.setup.sentence": "Přidej účet, ať se zobrazí tvoje další schůzka"
+}

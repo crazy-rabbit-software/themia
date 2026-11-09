@@ -1,0 +1,22 @@
+{
+  "apps.viewCompact": "Compact",
+  "apps.viewGrid": "Grilă",
+  "apps.viewList": "Listă",
+  "contacts.noContacts": "Nu s-au găsit contacte.",
+  "contacts.searchPlaceholder": "Caută contacte…",
+  "ctxMenu.call": "Apelează",
+  "ctxMenu.copyEmail": "Copiază e-mailul",
+  "ctxMenu.copyName": "Copiază numele",
+  "ctxMenu.copyPhone": "Copiază telefonul",
+  "ctxMenu.message": "Mesaj",
+  "ctxMenu.sendEmail": "Trimite e-mail",
+  "widget.contacts.label": "Contacte",
+  "widgetsA.catalog.contacts.description": "Persoane din agendele tale Microsoft și CardDAV",
+  "widgetsA.contacts.noAccount": "Niciun cont de contacte încă",
+  "widgetsA.contacts.none": "Niciun contact",
+  "widgetsA.contacts.readFailed": "Contactele nu au putut fi citite. Vezi themia.log.",
+  "widgetsA.contacts.settings.count.label": "Persoane",
+  "widgetsA.contacts.settings.every": "Toate conturile de contacte",
+  "widgetsA.contacts.settings.layout.label": "Aspect",
+  "contacts.setup.sentence": "Adaugă un cont ca să-ți afișezi contactele"
+}

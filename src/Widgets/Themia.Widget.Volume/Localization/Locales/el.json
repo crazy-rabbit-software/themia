@@ -1,0 +1,11 @@
+{
+  "widget.volume.label": "Ένταση",
+  "widgetsA.catalog.volume.description": "Κύρια στάθμη εξόδου και σίγαση",
+  "widgetsC.volume.defaultNotChanged": "Η προεπιλεγμένη έξοδος δεν άλλαξε",
+  "widgetsC.volume.followDefault": "Ακολούθηση της προεπιλεγμένης εξόδου",
+  "widgetsC.volume.noDevice": "Χωρίς συσκευή εξόδου",
+  "widgetsC.volume.notConnected": "Το {device} δεν είναι συνδεδεμένο",
+  "widgetsC.volume.settings.allow.label": "Να επιτρέπονται αλλαγές",
+  "widgetsC.volume.settings.keysNote": "Κάνε κλικ στο πλακίδιο και μετά χρησιμοποίησε τα βελάκια ή τα + και −· το M κάνει σίγαση.",
+  "widgetsC.volume.unavailable": "Ο ήχος δεν είναι διαθέσιμος"
+}

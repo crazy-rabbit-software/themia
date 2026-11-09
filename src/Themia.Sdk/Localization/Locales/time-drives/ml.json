@@ -1,0 +1,23 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "alarm.untitled": "അലാറം",
+  "alarm.off": "ഓഫ്",
+  "alarm.ringing": "മുഴങ്ങുന്നു",
+  "alarm.snoozedUntil": "{time} വരെ സ്നൂസ് ചെയ്തു",
+  "alarm.everyDay": "എല്ലാ ദിവസവും",
+  "alarm.weekdays": "പ്രവൃത്തിദിവസങ്ങൾ",
+  "alarm.weekends": "വാരാന്ത്യങ്ങൾ",
+  "alarm.snooze": "സ്നൂസ് ചെയ്യുക",
+  "alarm.dismiss": "ഒഴിവാക്കുക",
+  "drives.label.cd": "CD ഡ്രൈവ്",
+  "drives.label.network": "നെറ്റ്‌വർക്ക് ഡ്രൈവ്",
+  "drives.label.ram": "RAM ഡിസ്‌ക്",
+  "drives.type.removable": "നീക്കം ചെയ്യാവുന്ന ഡിസ്‌ക്",
+  "drives.type.optical": "CD ഡ്രൈവ്",
+  "drives.type.network": "നെറ്റ്‌വർക്ക് ഡ്രൈവ്",
+  "drives.type.disconnected": "വിച്ഛേദിച്ച നെറ്റ്‌വർക്ക് ഡ്രൈവ്",
+  "drives.noMedia": "മീഡിയയില്ല",
+  "drives.pending": "കണക്റ്റ് ചെയ്യുന്നു…",
+  "drives.disconnected": "വിച്ഛേദിച്ചു",
+  "drives.eject": "പുറത്തെടുക്കുക"
+}

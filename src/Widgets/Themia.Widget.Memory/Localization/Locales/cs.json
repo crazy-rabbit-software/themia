@@ -1,0 +1,10 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "styles.memory.bar": "Pruh",
+  "styles.memory.free": "{size} volné",
+  "styles.memory.gauge": "Ukazatel",
+  "styles.memory.graph": "Graf",
+  "styles.memory.used": "{size} využito",
+  "widgetsA.catalog.memory.description": "Používaná fyzická paměť",
+  "widgetsA.catalog.memory.label": "Paměť"
+}

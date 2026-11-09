@@ -78,6 +78,16 @@
     <Resource Language="fa" />
     <Resource Language="th" />
     <Resource Language="gu" />
+    <Resource Language="ms" />
+    <Resource Language="uk" />
+    <Resource Language="ro" />
+    <Resource Language="el" />
+    <Resource Language="cs" />
+    <Resource Language="kn" />
+    <Resource Language="ml" />
+    <Resource Language="am" />
+    <Resource Language="yo" />
+    <Resource Language="my" />
   </Resources>
 
   <Applications>

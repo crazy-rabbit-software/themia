@@ -1,0 +1,10 @@
+{
+  "forecast.daysLabel": "Ημέρες που εμφανίζονται",
+  "forecast.layoutColumns": "Στήλες",
+  "forecast.layoutRows": "Γραμμές",
+  "styles.forecast.curve": "Καμπύλη θερμοκρασίας",
+  "styles.forecast.grid": "Πλέγμα",
+  "widgetsA.catalog.forecast.description": "Οι επόμενες λίγες ημέρες",
+  "widgetsA.catalog.forecast.label": "Πρόγνωση",
+  "widgetsC.weather.settings.showPrecipitation.label": "Εμφάνιση υετού"
+}

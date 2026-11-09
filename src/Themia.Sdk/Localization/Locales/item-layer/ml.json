@@ -1,0 +1,8 @@
+{
+  "shell.items.background": "ഇനത്തിന്റെ പശ്ചാത്തലം",
+  "shell.items.text": "ഇനത്തിന്റെ വാചക നിറം",
+  "shell.items.textShort": "ഇനത്തിന്റെ വാചകം",
+  "shell.fill.transparent": "സുതാര്യം",
+  "shell.fill.opacity": "അതാര്യത",
+  "shell.fill.withOpacity": "{colour}, {percent}"
+}

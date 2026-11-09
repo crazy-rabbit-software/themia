@@ -25,7 +25,7 @@ public sealed partial class SettingsMenuTests
         var host = new FakeHost { WindowsLanguage = Locale.De };
         var display = At<SettingsChoice>(host, "language", "language/display");
 
-        Assert.Equal(31, display.Options.Count);
+        Assert.Equal(41, display.Options.Count);
         Assert.Equal("Windows setting (Deutsch)", display.Options[0].Text);
         Assert.True(display.Options[0].Holds);
         Assert.Equal("Deutsch", display.Value);

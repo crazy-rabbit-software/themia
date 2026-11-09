@@ -1,0 +1,11 @@
+{
+  "styles.audioVisualizer.bars": "Μπάρες",
+  "styles.audioVisualizer.desc": "Ό,τι παίζει αυτός ο υπολογιστής, ως κινούμενες μπάρες, κύμα ή γραμμή",
+  "styles.audioVisualizer.label": "Οπτικοποίηση ήχου",
+  "styles.audioVisualizer.led": "LED",
+  "styles.audioVisualizer.mirrored": "Κατοπτρικό",
+  "styles.audioVisualizer.radial": "Ακτινωτό",
+  "styles.audioVisualizer.wave": "Κύμα",
+  "styles.audioVisualizer.waveform": "Κυματομορφή",
+  "widgetsC.visualizer.unavailable": "Η έξοδος ήχου δεν είναι διαθέσιμη"
+}

@@ -1,0 +1,16 @@
+{
+  "scratchpad.drawHere": "Ya àwòrán síbí",
+  "scratchpad.penColorLabel": "Àwọ̀ kálámù",
+  "scratchpad.penSizeLabel": "Ìtóbi kálámù",
+  "widget.scratchpad.label": "Pátákó àyàwòrán",
+  "widgetsA.catalog.scratchpad.description": "Ibì kan láti ya àwòrán",
+  "widgetsC.scratchpad.clearConfirm": "Pa gbogbo àwòrán náà rẹ́?",
+  "widgetsC.scratchpad.clearDrawing": "Pa àwòrán náà rẹ́",
+  "widgetsC.scratchpad.draw": "Ya àwòrán",
+  "widgetsC.scratchpad.eraseStrokes": "Pa àwọn ìlà rẹ́",
+  "widgetsC.scratchpad.exitFullScreen": "Jáde kúrò ní ojú-ìbòjú kíkún",
+  "widgetsC.scratchpad.fullScreen": "Ojú-ìbòjú kíkún",
+  "widgetsC.scratchpad.penSizeTip": "Ìtóbi kálámù {size} px",
+  "widgetsC.scratchpad.settings.showTools.label": "Fi àwọn irinṣẹ́ hàn",
+  "widgetsC.scratchpad.undo": "Mú padà"
+}

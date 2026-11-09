@@ -1,0 +1,45 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "shell.view.colour": "Χρώμα",
+  "shell.view.colourDefault": "Χρώμα κειμένου",
+  "shell.appearance.themeColours": "Θέμα και χρώματα",
+  "shell.appearance.cards": "Κάρτες γραφικών στοιχείων",
+  "shell.appearance.textAndSize": "Κείμενο και μέγεθος",
+  "shell.net.blockedLocal": "Το {host} βρίσκεται στο τοπικό δίκτυο. Το Themia πηγαίνει εκεί μόνο για διεύθυνση που πληκτρολόγησες εσύ",
+  "shell.accounts.stats.mail": "Αλληλογραφία",
+  "shell.accounts.stats.calendar": "Ημερολόγιο",
+  "shell.accounts.stats.contacts": "Επαφές",
+  "shell.accounts.stats.tasks": "Εργασίες",
+  "shell.accounts.stats.messages": {
+    "one": "{count} μήνυμα",
+    "other": "{count} μηνύματα"
+  },
+  "shell.accounts.stats.events": {
+    "one": "{count} συμβάν",
+    "other": "{count} συμβάντα"
+  },
+  "shell.accounts.stats.people": {
+    "one": "{count} επαφή",
+    "other": "{count} επαφές"
+  },
+  "shell.accounts.stats.taskCount": {
+    "one": "{count} εργασία",
+    "other": "{count} εργασίες"
+  },
+  "shell.accounts.stats.folders": {
+    "one": "σε {count} φάκελο",
+    "other": "σε {count} φακέλους"
+  },
+  "shell.accounts.stats.calendars": {
+    "one": "σε {count} ημερολόγιο",
+    "other": "σε {count} ημερολόγια"
+  },
+  "shell.accounts.stats.lists": {
+    "one": "σε {count} λίστα",
+    "other": "σε {count} λίστες"
+  },
+  "shell.accounts.stats.synced": "συγχρονίστηκε {time}",
+  "shell.accounts.stats.neverSynced": "δεν έχει συγχρονιστεί ακόμα",
+  "shell.accounts.stats.nothing": "Δεν έχει αποθηκευτεί τίποτα σε αυτόν τον υπολογιστή ακόμα",
+  "shell.accounts.reconnect": "Σύνδεση ξανά"
+}

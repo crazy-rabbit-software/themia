@@ -1,0 +1,17 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "addMenu.popular": "လူကြိုက်များ",
+  "addMenu.browse": "ရှာဖွေကြည့်ရန်",
+  "addMenu.subject.time": "အချိန်",
+  "addMenu.subject.calendar": "ပြက္ခဒိန်နှင့် မေးလ်",
+  "addMenu.subject.weather": "ရာသီဥတုနှင့် ကောင်းကင်",
+  "addMenu.subject.markets": "သတင်းနှင့် ဈေးကွက်",
+  "addMenu.subject.media": "ဂီတနှင့် မီဒီယာ",
+  "addMenu.subject.notes": "မှတ်စုနှင့် ကိရိယာများ",
+  "addMenu.subject.files": "ဖိုင်နှင့် အက်ပ်များ",
+  "addMenu.subject.system": "စနစ်",
+  "addMenu.subject.devices": "စက်ပစ္စည်းနှင့် ပါဝါ",
+  "addMenu.subject.more": "နောက်ထပ်",
+  "addMenu.family.screenTime": "မျက်နှာပြင် ကြည့်ချိန်",
+  "addMenu.family.powerButtons": "ပါဝါ ခလုတ်များ"
+}

@@ -1,0 +1,11 @@
+{
+  "widget.volume.label": "ವಾಲ್ಯೂಮ್",
+  "widgetsA.catalog.volume.description": "ಮುಖ್ಯ ಔಟ್‌ಪುಟ್ ಮಟ್ಟ ಮತ್ತು ಮ್ಯೂಟ್",
+  "widgetsC.volume.defaultNotChanged": "ಡಿಫಾಲ್ಟ್ ಔಟ್‌ಪುಟ್ ಬದಲಾಗಿಲ್ಲ",
+  "widgetsC.volume.followDefault": "ಡಿಫಾಲ್ಟ್ ಔಟ್‌ಪುಟ್ ಅನುಸರಿಸು",
+  "widgetsC.volume.noDevice": "ಔಟ್‌ಪುಟ್ ಸಾಧನವಿಲ್ಲ",
+  "widgetsC.volume.notConnected": "{device} ಸಂಪರ್ಕಗೊಂಡಿಲ್ಲ",
+  "widgetsC.volume.settings.allow.label": "ಬದಲಾವಣೆಗಳನ್ನು ಅನುಮತಿಸು",
+  "widgetsC.volume.settings.keysNote": "ಟೈಲ್ ಮೇಲೆ ಕ್ಲಿಕ್ ಮಾಡು, ನಂತರ ಬಾಣದ ಕೀಗಳು ಅಥವಾ + ಮತ್ತು − ಬಳಸು; M ಮ್ಯೂಟ್ ಮಾಡುತ್ತದೆ.",
+  "widgetsC.volume.unavailable": "ಧ್ವನಿ ಲಭ್ಯವಿಲ್ಲ"
+}

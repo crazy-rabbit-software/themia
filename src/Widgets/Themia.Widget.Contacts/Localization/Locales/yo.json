@@ -1,0 +1,22 @@
+{
+  "apps.viewCompact": "Ṣókí",
+  "apps.viewGrid": "Àwọ̀n",
+  "apps.viewList": "Àkójọ",
+  "contacts.noContacts": "A kò rí olùbásọ̀rọ̀ kankan.",
+  "contacts.searchPlaceholder": "Ṣàwárí olùbásọ̀rọ̀…",
+  "ctxMenu.call": "Pè",
+  "ctxMenu.copyEmail": "Ṣẹ̀dà ímeèlì",
+  "ctxMenu.copyName": "Ṣẹ̀dà orúkọ",
+  "ctxMenu.copyPhone": "Ṣẹ̀dà nọ́mbà fóònù",
+  "ctxMenu.message": "Fi ọ̀rọ̀ ránṣẹ́",
+  "ctxMenu.sendEmail": "Fi ímeèlì ránṣẹ́",
+  "widget.contacts.label": "Àwọn olùbásọ̀rọ̀",
+  "widgetsA.catalog.contacts.description": "Àwọn ènìyàn láti inú ìwé àdírẹ́sì Microsoft àti CardDAV rẹ",
+  "widgetsA.contacts.noAccount": "Kò sí àkáǹtì olùbásọ̀rọ̀ síbẹ̀",
+  "widgetsA.contacts.none": "Kò sí olùbásọ̀rọ̀",
+  "widgetsA.contacts.readFailed": "A kò lè ka àwọn olùbásọ̀rọ̀. Wo themia.log.",
+  "widgetsA.contacts.settings.count.label": "Àwọn ènìyàn",
+  "widgetsA.contacts.settings.every": "Gbogbo àkáǹtì olùbásọ̀rọ̀",
+  "widgetsA.contacts.settings.layout.label": "Ìtò",
+  "contacts.setup.sentence": "Ṣàfikún àkáǹtì láti fi àwọn olùbásọ̀rọ̀ rẹ hàn"
+}

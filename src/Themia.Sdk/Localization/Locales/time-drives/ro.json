@@ -1,0 +1,23 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "alarm.untitled": "Alarmă",
+  "alarm.off": "Dezactivată",
+  "alarm.ringing": "Sună",
+  "alarm.snoozedUntil": "Amânată până la {time}",
+  "alarm.everyDay": "Zilnic",
+  "alarm.weekdays": "Zile lucrătoare",
+  "alarm.weekends": "Weekenduri",
+  "alarm.snooze": "Amână",
+  "alarm.dismiss": "Închide",
+  "drives.label.cd": "Unitate CD",
+  "drives.label.network": "Unitate de rețea",
+  "drives.label.ram": "Disc RAM",
+  "drives.type.removable": "Disc amovibil",
+  "drives.type.optical": "Unitate CD",
+  "drives.type.network": "Unitate de rețea",
+  "drives.type.disconnected": "Unitate de rețea deconectată",
+  "drives.noMedia": "Fără suport",
+  "drives.pending": "Se conectează…",
+  "drives.disconnected": "Deconectat",
+  "drives.eject": "Scoate"
+}

@@ -1,0 +1,13 @@
+{
+  "recycleBin.desc": "Cât de plin e Coșul de reciclare, cu Golire",
+  "recycleBin.empty": "Golește",
+  "recycleBin.isEmpty": "Niciun element",
+  "recycleBin.items": {
+    "one": "{count} element",
+    "few": "{count} elemente",
+    "other": "{count} de elemente"
+  },
+  "recycleBin.open": "Deschide Coșul de reciclare",
+  "recycleBin.emptyEllipsis": "Golește Coșul de reciclare…",
+  "widgetsC.location.recycleBin": "Coș de reciclare"
+}

@@ -1,0 +1,14 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "shell.meters.gpuDescription": "Beban satu kad grafik",
+  "styles.gpu.engine3d": "3D",
+  "styles.gpu.engineCopy": "Salin",
+  "styles.gpu.engineVideoDecode": "Nyahkod video",
+  "styles.gpu.engineVideoEncode": "Kod video",
+  "styles.gpu.engines": "Enjin",
+  "styles.gpu.gauge": "Tolok",
+  "styles.gpu.graph": "Graf",
+  "widgetsA.catalog.gpu.label": "GPU",
+  "widgetsB.gpu.adapterMissing": "Penyesuai grafik yang dipilih tiada di sini",
+  "widgetsB.gpu.noAdapter": "Tiada penyesuai grafik untuk dibaca"
+}

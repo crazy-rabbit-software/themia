@@ -1,0 +1,17 @@
+{
+  "styles.weatherNow.largeIcon": "ትልቅ አዶ",
+  "styles.weatherNow.minimal": "ቀላል",
+  "styles.weatherNow.standard": "መደበኛ",
+  "weather.feelsLike": "የሚሰማው",
+  "weather.humidity": "እርጥበት",
+  "weather.wind": "ነፋስ",
+  "widget.weatherCurrent.label": "የአየር ሁኔታ",
+  "widgetsA.catalog.weather.description": "ባሉበት ያለው የአየር ሁኔታ",
+  "widgetsC.weather.fact.cloudCover": "የደመና ሽፋን",
+  "widgetsC.weather.fact.gusts": "ድንገተኛ ነፋሳት",
+  "widgetsC.weather.fact.precipitation": "ዝናብ",
+  "widgetsC.weather.fact.pressure": "ግፊት",
+  "widgetsC.weather.fact.uvIndex": "የUV መረጃ ጠቋሚ",
+  "widgetsC.weather.feelsShort": "የሚሰማው {temperature}",
+  "widgetsC.weather.settings.showDetail.label": "ዝርዝር አሳይ"
+}

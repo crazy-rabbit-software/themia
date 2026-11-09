@@ -1,0 +1,54 @@
+{
+  "countdown.setup": "Alege o dată până la care să numere",
+  "styles.countdown.ring": "Inel",
+  "styles.countdown.text": "Text",
+  "styles.countdown.unitDays": "zile",
+  "styles.countdown.unitHours": "ore",
+  "styles.countdown.unitMinutes": "min",
+  "styles.countdown.unitSeconds": "sec",
+  "widget.countdown.label": "Numărătoare inversă",
+  "widgetsA.catalog.countdown.description": "Timpul rămas până la o dată importantă pentru tine",
+  "widgetsA.countdown.ago": "acum {duration}",
+  "widgetsA.countdown.compact.dh": "{days} z {hours} h",
+  "widgetsA.countdown.compact.dhm": "{days} z {hours} h {minutes} min",
+  "widgetsA.countdown.compact.dhms": "{days} z {hours} h {minutes} min {seconds} s",
+  "widgetsA.countdown.compact.hm": "{hours} h {minutes} min",
+  "widgetsA.countdown.dateTime": "{date}, {time}",
+  "widgetsA.countdown.days": {
+    "one": "{count} zi",
+    "few": "{count} zile",
+    "other": "{count} de zile"
+  },
+  "widgetsA.countdown.daysAgo": {
+    "one": "acum {count} zi",
+    "few": "acum {count} zile",
+    "other": "acum {count} de zile"
+  },
+  "widgetsA.countdown.daysIn": {
+    "one": "peste {count} zi",
+    "few": "peste {count} zile",
+    "other": "peste {count} de zile"
+  },
+  "widgetsA.countdown.format.auto": "Automat",
+  "widgetsA.countdown.format.days": "Doar zile",
+  "widgetsA.countdown.format.dhm": "Zile · Ore · Min",
+  "widgetsA.countdown.format.dhms": "Zile · Ore · Min · Sec",
+  "widgetsA.countdown.fullDateTime": "{date} la {time}",
+  "widgetsA.countdown.hours": {
+    "one": "{count} oră",
+    "few": "{count} ore",
+    "other": "{count} de ore"
+  },
+  "widgetsA.countdown.in": "peste {duration}",
+  "widgetsA.countdown.inAMoment": "imediat",
+  "widgetsA.countdown.justNow": "chiar acum",
+  "widgetsA.countdown.minutes": {
+    "one": "{count} min",
+    "few": "{count} min",
+    "other": "{count} de min"
+  },
+  "widgetsA.countdown.settings.format.label": "Format",
+  "widgetsA.countdown.settings.name.label": "Nume",
+  "widgetsA.countdown.untitled": "Fără titlu",
+  "styles.clock.flip": "Răsturnare"
+}

@@ -1,0 +1,9 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "menu.rename": "Přejmenovat…",
+  "menu.add": "Přidat…",
+  "menu.reorderHint": "Přetažením změníš pořadí, nebo stiskni Ctrl+Up či Ctrl+Down",
+  "menu.filter": "Hledat",
+  "menu.opensIn": "Otevře {name}",
+  "menu.numberRange": "Zadej číslo od {min} do {max}"
+}

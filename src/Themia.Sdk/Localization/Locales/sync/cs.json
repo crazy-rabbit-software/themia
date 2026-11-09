@@ -1,0 +1,11 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "sync.updated": "Aktualizováno {time}",
+  "sync.stateUpdated": "{state} · aktualizováno {time}",
+  "sync.pending": {
+    "one": "{count} změna čeká na synchronizaci",
+    "few": "{count} změny čekají na synchronizaci",
+    "other": "{count} změn čeká na synchronizaci"
+  },
+  "sync.queueFull": "Na synchronizaci čeká příliš mnoho změn; tato nebyla uložena."
+}

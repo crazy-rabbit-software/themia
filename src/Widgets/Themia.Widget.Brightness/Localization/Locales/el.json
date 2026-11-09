@@ -1,0 +1,10 @@
+{
+  "panels.brightness.all": "Όλες οι οθόνες",
+  "panels.brightness.desc": "Ένα ρυθμιστικό για τη φωτεινότητα της οθόνης",
+  "panels.brightness.label": "Φωτεινότητα",
+  "panels.brightness.level": "Φωτεινότητα {level}",
+  "panels.brightness.none": "Δεν υπάρχει φωτεινότητα οθόνης για ρύθμιση",
+  "panels.brightness.own": "Μόνο η οθόνη όπου βρίσκεται",
+  "panels.brightness.ownNone": "Η φωτεινότητα αυτής της οθόνης δεν μπορεί να ρυθμιστεί",
+  "panels.brightness.screensLabel": "Οθόνες που χαμηλώνει"
+}

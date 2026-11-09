@@ -1,0 +1,7 @@
+{
+  "screentime.goalPerDay": "από {value}/ημέρα",
+  "styles.screenTimeChart.bars": "Μπάρες",
+  "styles.screenTimeChart.calendar": "Ημερολόγιο",
+  "widgetsC.screenTime.chart.desc": "Ο χρόνος οθόνης σου μέρα με τη μέρα, σε μια εβδομάδα ή έναν μήνα",
+  "widgetsC.screenTime.chart.label": "Γράφημα χρόνου οθόνης"
+}

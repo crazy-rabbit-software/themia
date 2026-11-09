@@ -1,0 +1,5 @@
+{
+  "kit.ownerProblem": "{name}: {reason}",
+  "kit.refreshUpdated": "Оновити · оновлено {age}",
+  "kit.problemSeveral": "Не вдалося завантажити {name} і ще {count}"
+}

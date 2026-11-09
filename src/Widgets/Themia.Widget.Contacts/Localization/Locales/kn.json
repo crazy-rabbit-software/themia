@@ -1,0 +1,22 @@
+{
+  "apps.viewCompact": "ಸಾಂದ್ರ",
+  "apps.viewGrid": "ಗ್ರಿಡ್",
+  "apps.viewList": "ಪಟ್ಟಿ",
+  "contacts.noContacts": "ಯಾವುದೇ ಸಂಪರ್ಕಗಳು ಸಿಗಲಿಲ್ಲ.",
+  "contacts.searchPlaceholder": "ಸಂಪರ್ಕಗಳನ್ನು ಹುಡುಕು…",
+  "ctxMenu.call": "ಕರೆ ಮಾಡು",
+  "ctxMenu.copyEmail": "ಇಮೇಲ್ ನಕಲಿಸು",
+  "ctxMenu.copyName": "ಹೆಸರು ನಕಲಿಸು",
+  "ctxMenu.copyPhone": "ಫೋನ್ ಸಂಖ್ಯೆ ನಕಲಿಸು",
+  "ctxMenu.message": "ಸಂದೇಶ",
+  "ctxMenu.sendEmail": "ಇಮೇಲ್ ಕಳುಹಿಸು",
+  "widget.contacts.label": "ಸಂಪರ್ಕಗಳು",
+  "widgetsA.catalog.contacts.description": "ನಿನ್ನ Microsoft ಮತ್ತು CardDAV ವಿಳಾಸ ಪುಸ್ತಕಗಳಿಂದ ಜನರು",
+  "widgetsA.contacts.noAccount": "ಇನ್ನೂ ಸಂಪರ್ಕಗಳ ಖಾತೆ ಇಲ್ಲ",
+  "widgetsA.contacts.none": "ಸಂಪರ್ಕಗಳಿಲ್ಲ",
+  "widgetsA.contacts.readFailed": "ಸಂಪರ್ಕಗಳನ್ನು ಓದಲು ಆಗಲಿಲ್ಲ. themia.log ನೋಡು.",
+  "widgetsA.contacts.settings.count.label": "ಜನರು",
+  "widgetsA.contacts.settings.every": "ಎಲ್ಲಾ ಸಂಪರ್ಕ ಖಾತೆಗಳು",
+  "widgetsA.contacts.settings.layout.label": "ಲೇಔಟ್",
+  "contacts.setup.sentence": "ನಿನ್ನ ಸಂಪರ್ಕಗಳನ್ನು ತೋರಿಸಲು ಖಾತೆ ಸೇರಿಸು"
+}

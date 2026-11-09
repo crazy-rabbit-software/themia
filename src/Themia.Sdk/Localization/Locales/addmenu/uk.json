@@ -1,0 +1,17 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "addMenu.popular": "Популярне",
+  "addMenu.browse": "Огляд",
+  "addMenu.subject.time": "Час",
+  "addMenu.subject.calendar": "Календар і пошта",
+  "addMenu.subject.weather": "Погода й небо",
+  "addMenu.subject.markets": "Новини й ринки",
+  "addMenu.subject.media": "Музика й медіа",
+  "addMenu.subject.notes": "Нотатки й інструменти",
+  "addMenu.subject.files": "Файли й програми",
+  "addMenu.subject.system": "Система",
+  "addMenu.subject.devices": "Пристрої й живлення",
+  "addMenu.subject.more": "Більше",
+  "addMenu.family.screenTime": "Час використання",
+  "addMenu.family.powerButtons": "Кнопки живлення"
+}

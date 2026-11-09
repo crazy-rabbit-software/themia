@@ -1,0 +1,9 @@
+{
+  "styles.cpu.coreGraphs": "Core ဂရပ်များ",
+  "styles.cpu.cores": "Core အားလုံး",
+  "styles.cpu.gauge": "တိုင်းကိရိယာ",
+  "styles.cpu.graph": "ဂရပ်",
+  "styles.cpu.grid": "Core ဇယားကွက်",
+  "widgetsA.catalog.cpu.label": "CPU",
+  "widgetsA.catalog.cpu.description": "core အားလုံးတွင် ပရိုဆက်ဆာ ဝန်"
+}

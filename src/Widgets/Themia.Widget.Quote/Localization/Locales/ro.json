@@ -1,0 +1,19 @@
+{
+  "widgetsA.catalog.quote.label": "Citat",
+  "widgetsA.catalog.quote.description": "Un rând care merită recitit",
+  "quote.shuffle": "Amestecă",
+  "widgetsC.quote.quoted": "„{text}”",
+  "widgetsC.quote.showAnother": "Arată alt citat",
+  "widgetsC.quote.settings.quotes": "Citate",
+  "widgetsC.quote.settings.emptyList": "Nu a mai rămas niciun citat. Widgetul va spune asta până adaugi unul.",
+  "widgetsC.quote.settings.add.title": "Adaugă un citat",
+  "widgetsC.quote.settings.textPlaceholder": "Ceva care merită recitit",
+  "widgetsC.quote.settings.authorPlaceholder": "Cine a spus-o",
+  "widgetsC.quote.settings.showAuthor.label": "Arată autorul",
+  "widgetsC.quote.settings.reshuffle.label": "Reamestecă",
+  "widgetsC.quote.settings.cadence.manual": "Doar la clic",
+  "widgetsC.quote.settings.cadence.hourly": "La fiecare oră",
+  "widgetsC.quote.settings.cadence.daily": "Zilnic",
+  "styles.quote.plain": "Simplu",
+  "styles.quote.marks": "Ghilimele mari"
+}

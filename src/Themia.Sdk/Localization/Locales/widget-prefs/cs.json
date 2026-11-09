@@ -1,0 +1,13 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "widgetPrefs.updates.note": "Jak často se widgety ptají online služeb. Aktualizace u widgetu se zeptá hned.",
+  "widgetPrefs.updates.weather": "Počasí",
+  "widgetPrefs.updates.markets": "Akcie",
+  "widgetPrefs.updates.feeds": "Zpravodajské kanály",
+  "widgetPrefs.updates.accounts": "Pošta, kalendáře a úkoly",
+  "widgetPrefs.updates.everyHours": {
+    "one": "Každou {count} hodinu",
+    "few": "Každé {count} hodiny",
+    "other": "Každých {count} hodin"
+  }
+}

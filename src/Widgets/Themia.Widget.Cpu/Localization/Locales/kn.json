@@ -1,0 +1,9 @@
+{
+  "styles.cpu.coreGraphs": "ಕೋರ್ ಗ್ರಾಫ್‌ಗಳು",
+  "styles.cpu.cores": "ಎಲ್ಲಾ ಕೋರ್‌ಗಳು",
+  "styles.cpu.gauge": "ಗೇಜ್",
+  "styles.cpu.graph": "ಗ್ರಾಫ್",
+  "styles.cpu.grid": "ಕೋರ್ ಗ್ರಿಡ್",
+  "widgetsA.catalog.cpu.label": "CPU",
+  "widgetsA.catalog.cpu.description": "ಎಲ್ಲಾ ಕೋರ್‌ಗಳಲ್ಲಿ ಪ್ರೊಸೆಸರ್ ಲೋಡ್"
+}

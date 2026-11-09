@@ -1,0 +1,20 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "widgetsA.catalog.quote.label": "Petikan",
+  "widgetsA.catalog.quote.description": "Ayat yang wajar dibaca semula",
+  "quote.shuffle": "Rawak",
+  "widgetsC.quote.quoted": "“{text}”",
+  "widgetsC.quote.showAnother": "Tunjukkan petikan lain",
+  "widgetsC.quote.settings.quotes": "Petikan",
+  "widgetsC.quote.settings.emptyList": "Tiada petikan lagi. Widget akan menyatakannya sehingga satu ditambah.",
+  "widgetsC.quote.settings.add.title": "Tambah petikan",
+  "widgetsC.quote.settings.textPlaceholder": "Sesuatu yang wajar dibaca semula",
+  "widgetsC.quote.settings.authorPlaceholder": "Siapa yang mengatakannya",
+  "widgetsC.quote.settings.showAuthor.label": "Tunjukkan pengarang",
+  "widgetsC.quote.settings.reshuffle.label": "Rawak semula",
+  "widgetsC.quote.settings.cadence.manual": "Apabila diklik sahaja",
+  "widgetsC.quote.settings.cadence.hourly": "Setiap jam",
+  "widgetsC.quote.settings.cadence.daily": "Setiap hari",
+  "styles.quote.plain": "Biasa",
+  "styles.quote.marks": "Tanda petikan besar"
+}

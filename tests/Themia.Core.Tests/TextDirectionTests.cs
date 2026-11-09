@@ -69,13 +69,24 @@ public sealed class TextDirectionTests
     [InlineData(Locale.Fa, "fa-IR")]
     [InlineData(Locale.Th, "th-TH")]
     [InlineData(Locale.Gu, "gu-IN")]
+    [InlineData(Locale.Ms, "ms-MY")]
+    [InlineData(Locale.Uk, "uk-UA")]
+    [InlineData(Locale.Ro, "ro-RO")]
+    [InlineData(Locale.El, "el-GR")]
+    [InlineData(Locale.Cs, "cs-CZ")]
+    [InlineData(Locale.Kn, "kn-IN")]
+    [InlineData(Locale.Ml, "ml-IN")]
+    [InlineData(Locale.Am, "am-ET")]
+    [InlineData(Locale.Yo, "yo-NG")]
+    [InlineData(Locale.My, "en-US")]
     public void S1114_layout_tags_carry_the_region_the_font_fallback_needs(Locale locale, string tag)
         => Assert.Equal(tag, TextDirection.LayoutTag(locale));
 
     [Fact]
     public void S1114_every_layout_tag_names_its_own_language()
     {
-        foreach (var locale in LanguageResolver.All)
+        // Burmese alone is laid out with an English tag, so Windows keeps Latin digits (see LayoutTag).
+        foreach (var locale in LanguageResolver.All.Where(l => l != Locale.My))
         {
             Assert.Equal(locale, LanguageResolver.FromTag(TextDirection.LayoutTag(locale)));
         }

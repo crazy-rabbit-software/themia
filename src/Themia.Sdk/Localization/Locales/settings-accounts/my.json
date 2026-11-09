@@ -1,0 +1,10 @@
+{
+  "settingsAccounts.ownServer": "ဆာဗာကို ကိုယ်တိုင် သတ်မှတ်ရန်",
+  "settingsAccounts.test": "ချိတ်ဆက်မှု စမ်းသပ်ရန်",
+  "settingsAccounts.connectedTo": "{host} နှင့် ချိတ်ဆက်ပြီး။",
+  "settingsAccounts.noServer": "Themia သည် {domain} အတွက် ဆာဗာကို မသိပါ။ ကိုယ်တိုင် သတ်မှတ်ပါ။",
+  "settingsAccounts.davAddress": "ဆာဗာ၏ ဝက်ဘ်လိပ်စာကို ထည့်ပါ၊ ဥပမာ https://cloud.example.com။",
+  "settingsAccounts.code": "ကုဒ်",
+  "settingsAccounts.pasteToken": "token ကို အရင် ကပ်ပါ။",
+  "settingsAccounts.enterAddress": "အီးမေးလ်လိပ်စာနှင့် ၎င်း၏ စကားဝှက်ကို ထည့်ပါ။"
+}

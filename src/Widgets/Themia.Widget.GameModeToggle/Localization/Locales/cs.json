@@ -1,0 +1,5 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "toggles.gameMode.label": "Herní režim zap./vyp.",
+  "toggles.gameMode.desc": "Nechá Windows upřednostnit hru, kterou hraješ"
+}

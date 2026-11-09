@@ -1,0 +1,10 @@
+{
+  "panels.brightness.all": "ಎಲ್ಲಾ ಪರದೆಗಳು",
+  "panels.brightness.desc": "ಡಿಸ್‌ಪ್ಲೇ ಪ್ರಕಾಶಮಾನತೆಗೆ ಒಂದು ಸ್ಲೈಡರ್",
+  "panels.brightness.label": "ಪ್ರಕಾಶಮಾನತೆ",
+  "panels.brightness.level": "ಪ್ರಕಾಶಮಾನತೆ {level}",
+  "panels.brightness.none": "ಹೊಂದಿಸಬಹುದಾದ ಡಿಸ್‌ಪ್ಲೇ ಪ್ರಕಾಶಮಾನತೆ ಇಲ್ಲ",
+  "panels.brightness.own": "ಇದು ಇರುವ ಪರದೆ ಮಾತ್ರ",
+  "panels.brightness.ownNone": "ಈ ಡಿಸ್‌ಪ್ಲೇಯ ಪ್ರಕಾಶಮಾನತೆ ಹೊಂದಿಸಲು ಆಗುವುದಿಲ್ಲ",
+  "panels.brightness.screensLabel": "ಇದು ಮಂದಗೊಳಿಸುವ ಪರದೆಗಳು"
+}

@@ -1,0 +1,17 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "addMenu.popular": "ተወዳጅ",
+  "addMenu.browse": "አስስ",
+  "addMenu.subject.time": "ሰዓት",
+  "addMenu.subject.calendar": "ቀን መቁጠሪያ እና ደብዳቤ",
+  "addMenu.subject.weather": "የአየር ሁኔታ እና ሰማይ",
+  "addMenu.subject.markets": "ዜና እና ገበያዎች",
+  "addMenu.subject.media": "ሙዚቃ እና ሚዲያ",
+  "addMenu.subject.notes": "ማስታወሻዎች እና መሣሪያዎች",
+  "addMenu.subject.files": "ፋይሎች እና መተግበሪያዎች",
+  "addMenu.subject.system": "ሥርዓት",
+  "addMenu.subject.devices": "መሣሪያዎች እና ኃይል",
+  "addMenu.subject.more": "ተጨማሪ",
+  "addMenu.family.screenTime": "የማያ ገጽ ጊዜ",
+  "addMenu.family.powerButtons": "የኃይል አዝራሮች"
+}

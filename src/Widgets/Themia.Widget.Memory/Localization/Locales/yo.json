@@ -1,0 +1,9 @@
+{
+  "styles.memory.bar": "Ọ̀pá",
+  "styles.memory.free": "{size} ṣófo",
+  "styles.memory.gauge": "Òṣùwọ̀n",
+  "styles.memory.graph": "Àtẹ",
+  "styles.memory.used": "{size} ní lílò",
+  "widgetsA.catalog.memory.description": "Ìrántí ojúlówó tí a ń lò",
+  "widgetsA.catalog.memory.label": "Ìrántí"
+}

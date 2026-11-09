@@ -1,0 +1,10 @@
+{
+  "panels.brightness.all": "Toate ecranele",
+  "panels.brightness.desc": "Un glisor pentru luminozitatea afișajului",
+  "panels.brightness.label": "Luminozitate",
+  "panels.brightness.level": "Luminozitate {level}",
+  "panels.brightness.none": "Nicio luminozitate de afișaj de setat",
+  "panels.brightness.own": "Doar ecranul pe care se află",
+  "panels.brightness.ownNone": "Luminozitatea acestui afișaj nu poate fi setată",
+  "panels.brightness.screensLabel": "Ecrane pe care le estompează"
+}

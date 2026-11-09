@@ -1,0 +1,14 @@
+{
+  "clipboard.clearHistory": "ಇತಿಹಾಸ ತೆರವುಗೊಳಿಸು",
+  "widgetsA.catalog.clipboard.description": "ನೀನು ಇತ್ತೀಚೆಗೆ ನಕಲಿಸಿದ್ದು",
+  "widgetsA.catalog.clipboard.label": "ಕ್ಲಿಪ್‌ಬೋರ್ಡ್",
+  "widgetsA.clipboard.clearConfirm.body": "ಈ ಪಟ್ಟಿಯಲ್ಲಿರುವ ಎಲ್ಲವೂ ಮರೆತುಹೋಗುತ್ತದೆ. ಇದನ್ನು ರದ್ದುಗೊಳಿಸಲು ಆಗುವುದಿಲ್ಲ, ಮತ್ತು ಈಗ ಕ್ಲಿಪ್‌ಬೋರ್ಡ್‌ನಲ್ಲಿರುವುದನ್ನು ಇದು ಬದಲಾಯಿಸುವುದಿಲ್ಲ.",
+  "widgetsA.clipboard.clearConfirm.title": "ಕ್ಲಿಪ್‌ಬೋರ್ಡ್ ಇತಿಹಾಸ ತೆರವುಗೊಳಿಸಬೇಕೆ?",
+  "widgetsA.clipboard.clearEllipsis": "ಇತಿಹಾಸ ತೆರವುಗೊಳಿಸು…",
+  "widgetsA.clipboard.empty": "ಇನ್ನೂ ಏನೂ ನಕಲಿಸಿಲ್ಲ. ಏನಾದರೂ ನಕಲಿಸು, ಅದು ಇಲ್ಲಿ ಕಾಣಿಸುತ್ತದೆ.",
+  "widgetsA.clipboard.noListener": "ಕ್ಲಿಪ್‌ಬೋರ್ಡ್ ಗಮನಿಸಲು Windows ಈ ಆ್ಯಪ್‌ಗೆ ಬಿಡಲಿಲ್ಲ.",
+  "widgetsA.clipboard.remove": "ಇತಿಹಾಸದಿಂದ ತೆಗೆದುಹಾಕು",
+  "widgetsA.clipboard.settings.entries.label": "ನಮೂದುಗಳು",
+  "widgetsA.clipboard.settings.privacyNote": "ನಕಲಿಸಿದ ಪಠ್ಯ ಮೆಮೊರಿಯಲ್ಲಿ ಮಾತ್ರ ಉಳಿಯುತ್ತದೆ. ಫೈಲ್‌ಗಳು ಮತ್ತು ಚಿತ್ರಗಳನ್ನು ಎಂದಿಗೂ ಓದಲಾಗುವುದಿಲ್ಲ.",
+  "widgetsA.clipboard.settings.timestamp.label": "ಯಾವಾಗ ನಕಲಿಸಲಾಯಿತು ಎಂದು ತೋರಿಸು"
+}

@@ -1,0 +1,15 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "widgetsA.catalog.feed.label": "Kanál",
+  "widgetsA.catalog.feed.description": "Titulky z kanálů, které si vybereš",
+  "widgetsC.rss.untitled": "(bez názvu)",
+  "widgetsC.rss.copyLink": "Kopírovat odkaz",
+  "widgetsC.rss.noArticles": "Tento kanál nemá žádné články",
+  "widgetsC.rss.settings.feeds": "Kanály",
+  "widgetsC.rss.settings.empty": "Zatím žádné kanály. Přidej adresu kanálu RSS nebo Atom.",
+  "widgetsC.rss.settings.add.title": "Přidat kanál",
+  "widgetsC.rss.settings.articles": "Články",
+  "widgetsC.rss.settings.source.label": "Zobrazit zdroj",
+  "widgetsC.rss.settings.preview.label": "Zobrazit náhled",
+  "widgetsC.rss.settings.date.label": "Zobrazit datum"
+}

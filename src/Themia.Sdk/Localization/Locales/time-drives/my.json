@@ -1,0 +1,23 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "alarm.untitled": "နှိုးစက်",
+  "alarm.off": "ပိတ်",
+  "alarm.ringing": "မြည်နေသည်",
+  "alarm.snoozedUntil": "{time} အထိ ခဏဆိုင်းထားသည်",
+  "alarm.everyDay": "နေ့တိုင်း",
+  "alarm.weekdays": "ကြားရက်များ",
+  "alarm.weekends": "စနေ၊ တနင်္ဂနွေ",
+  "alarm.snooze": "ခဏဆိုင်းရန်",
+  "alarm.dismiss": "ပိတ်ရန်",
+  "drives.label.cd": "CD ဒရိုက်",
+  "drives.label.network": "ကွန်ရက် ဒရိုက်",
+  "drives.label.ram": "RAM ဒစ်ခ်",
+  "drives.type.removable": "ဖြုတ်တပ်နိုင်သော ဒစ်ခ်",
+  "drives.type.optical": "CD ဒရိုက်",
+  "drives.type.network": "ကွန်ရက် ဒရိုက်",
+  "drives.type.disconnected": "ချိတ်ဆက်မထားသော ကွန်ရက် ဒရိုက်",
+  "drives.noMedia": "မီဒီယာ မရှိ",
+  "drives.pending": "ချိတ်ဆက်နေသည်…",
+  "drives.disconnected": "ချိတ်ဆက်မှု ပြတ်ထား",
+  "drives.eject": "ထုတ်ရန်"
+}

@@ -1,0 +1,16 @@
+{
+  "scratchpad.drawHere": "Малюй тут",
+  "scratchpad.penColorLabel": "Колір пера",
+  "scratchpad.penSizeLabel": "Розмір пера",
+  "widget.scratchpad.label": "Чернетка",
+  "widgetsA.catalog.scratchpad.description": "Місце для малювання",
+  "widgetsC.scratchpad.clearConfirm": "Очистити весь малюнок?",
+  "widgetsC.scratchpad.clearDrawing": "Очистити малюнок",
+  "widgetsC.scratchpad.draw": "Малювати",
+  "widgetsC.scratchpad.eraseStrokes": "Стерти штрихи",
+  "widgetsC.scratchpad.exitFullScreen": "Вийти з повноекранного режиму",
+  "widgetsC.scratchpad.fullScreen": "На весь екран",
+  "widgetsC.scratchpad.penSizeTip": "Розмір пера {size} пкс",
+  "widgetsC.scratchpad.settings.showTools.label": "Показувати інструменти",
+  "widgetsC.scratchpad.undo": "Скасувати"
+}

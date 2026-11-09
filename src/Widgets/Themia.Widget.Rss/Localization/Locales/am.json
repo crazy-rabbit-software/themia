@@ -1,0 +1,14 @@
+{
+  "widgetsA.catalog.feed.label": "ምግብ",
+  "widgetsA.catalog.feed.description": "ከሚመርጧቸው ምግቦች የመጡ ርዕሰ ዜናዎች",
+  "widgetsC.rss.untitled": "(ርዕስ የሌለው)",
+  "widgetsC.rss.copyLink": "አገናኙን ቅዳ",
+  "widgetsC.rss.noArticles": "ይህ ምግብ ጽሑፎች የሉትም",
+  "widgetsC.rss.settings.feeds": "ምግቦች",
+  "widgetsC.rss.settings.empty": "እስካሁን ምግቦች የሉም። የRSS ወይም Atom ምግብ አድራሻ ያክሉ።",
+  "widgetsC.rss.settings.add.title": "ምግብ ያክሉ",
+  "widgetsC.rss.settings.articles": "ጽሑፎች",
+  "widgetsC.rss.settings.source.label": "ምንጩን አሳይ",
+  "widgetsC.rss.settings.preview.label": "ቅድመ እይታ አሳይ",
+  "widgetsC.rss.settings.date.label": "ቀኑን አሳይ"
+}

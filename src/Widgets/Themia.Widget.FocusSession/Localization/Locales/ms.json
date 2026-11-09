@@ -1,0 +1,16 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "panels.focus.desc": "Masa untuk fokus, dengan pemberitahuan ditahan",
+  "panels.focus.end": "Tamatkan sesi",
+  "panels.focus.label": "Sesi fokus",
+  "panels.focus.left": "Baki {time}",
+  "panels.focus.lengthLabel": "Tempoh",
+  "panels.focus.longer": "Lebih lama",
+  "panels.focus.quietLabel": "Hidupkan jangan ganggu",
+  "panels.focus.quietOn": "Jangan ganggu dihidupkan",
+  "panels.focus.quietUnavailable": "Jangan ganggu tidak boleh dihidupkan di sini",
+  "panels.focus.shorter": "Lebih pendek",
+  "panels.focus.start": "Mula",
+  "panels.focus.willQuiet": "Menghidupkan jangan ganggu",
+  "panels.focus.windows": "Sesi fokus Windows sedang berjalan"
+}

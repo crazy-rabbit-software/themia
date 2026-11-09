@@ -114,6 +114,16 @@ internal sealed class LocaleData
         Locale.Fa => Fa,
         Locale.Th => Th,
         Locale.Gu => Gu,
+        Locale.Ms => Ms,
+        Locale.Uk => Uk,
+        Locale.Ro => Ro,
+        Locale.El => El,
+        Locale.Cs => Cs,
+        Locale.Kn => Kn,
+        Locale.Ml => Ml,
+        Locale.Am => Amharic,
+        Locale.Yo => Yo,
+        Locale.My => My,
         _ => En,
     };
 
@@ -1261,6 +1271,400 @@ internal sealed class LocaleData
         Now = "હમણાં",
         Relative = GujaratiRelative,
         RelativeShort = GujaratiRelative,
+    };
+
+    // ms-MY. Generated from CLDR (ICU 77.1); plural categories other.
+    private static readonly LocaleData Ms = new()
+    {
+        Months = ["Januari", "Februari", "Mac", "April", "Mei", "Jun", "Julai", "Ogos", "September", "Oktober", "November", "Disember"],
+        MonthsShort = ["Jan", "Feb", "Mac", "Apr", "Mei", "Jun", "Jul", "Ogo", "Sep", "Okt", "Nov", "Dis"],
+        Weekdays = ["Ahad", "Isnin", "Selasa", "Rabu", "Khamis", "Jumaat", "Sabtu"],
+        WeekdaysShort = ["Ahd", "Isn", "Sel", "Rab", "Kha", "Jum", "Sab"],
+        WeekdaysNarrow = ["A", "I", "S", "R", "K", "J", "S"],
+        DatePatterns = ["d/MM/y", "d MMM y", "d MMMM y", "EEEE, d MMMM y", "d MMMM", "d MMM", "MMMM y", "EEE, d MMM"],
+        Time24 = "HH:mm",
+        Time12 = "h:mm a",
+        Uses24Hour = false,
+        Am = "PG",
+        Pm = "PTG",
+        Decimal = '.',
+        Group = ",",
+        Percent = "{0}%",
+        FirstDayOfWeek = DayOfWeek.Monday,
+        Now = "sekarang",
+        Relative =
+        [
+            R(new PluralText(Other: "{0} minit lalu"), new PluralText(Other: "dalam {0} minit")),
+            R(new PluralText(Other: "{0} jam lalu"), new PluralText(Other: "dalam {0} jam")),
+            R(new PluralText(Other: "{0} hari lalu"), new PluralText(Other: "dalam {0} hari")),
+            R(new PluralText(Other: "{0} minggu lalu"), new PluralText(Other: "dalam {0} minggu")),
+            R(new PluralText(Other: "{0} bulan lalu"), new PluralText(Other: "dalam {0} bulan")),
+            R(new PluralText(Other: "{0} tahun lalu"), new PluralText(Other: "dalam {0} tahun")),
+        ],
+        RelativeShort =
+        [
+            R(new PluralText(Other: "{0} min lalu"), new PluralText(Other: "dlm {0} min")),
+            R(new PluralText(Other: "{0} jam lalu"), new PluralText(Other: "dlm {0} jam")),
+            R(new PluralText(Other: "{0} hari lalu"), new PluralText(Other: "dlm {0} hari")),
+            R(new PluralText(Other: "{0} mgu lalu"), new PluralText(Other: "dlm {0} mgu")),
+            R(new PluralText(Other: "{0} bln lalu"), new PluralText(Other: "dlm {0} bln")),
+            R(new PluralText(Other: "{0} thn lalu"), new PluralText(Other: "dalam {0} thn")),
+        ],
+    };
+
+    // uk-UA. Generated from CLDR (ICU 77.1); plural categories few/many/one/other.
+    private static readonly LocaleData Uk = new()
+    {
+        Months = ["січень", "лютий", "березень", "квітень", "травень", "червень", "липень", "серпень", "вересень", "жовтень", "листопад", "грудень"],
+        MonthsInDate = ["січня", "лютого", "березня", "квітня", "травня", "червня", "липня", "серпня", "вересня", "жовтня", "листопада", "грудня"],
+        MonthsShort = ["січ.", "лют.", "бер.", "квіт.", "трав.", "черв.", "лип.", "серп.", "вер.", "жовт.", "лист.", "груд."],
+        Weekdays = ["неділя", "понеділок", "вівторок", "середа", "четвер", "пʼятниця", "субота"],
+        WeekdaysShort = ["нд", "пн", "вт", "ср", "чт", "пт", "сб"],
+        WeekdaysNarrow = ["Н", "П", "В", "С", "Ч", "П", "С"],
+        DatePatterns = ["dd.MM.y", "d MMM y' р.'", "d MMMM y' р.'", "EEEE, d MMMM y' р.'", "d MMMM", "d MMM", "LLLL y' р.'", "EEE, d MMM"],
+        Time24 = "HH:mm",
+        Time12 = "h:mm a",
+        Uses24Hour = true,
+        Am = "дп",
+        Pm = "пп",
+        Decimal = ',',
+        Group = " ",
+        Percent = "{0}%",
+        FirstDayOfWeek = DayOfWeek.Monday,
+        Now = "зараз",
+        Relative =
+        [
+            R(new PluralText(Other: "{0} хвилини тому", One: "{0} хвилину тому", Few: "{0} хвилини тому", Many: "{0} хвилин тому"), new PluralText(Other: "через {0} хвилини", One: "через {0} хвилину", Few: "через {0} хвилини", Many: "через {0} хвилин")),
+            R(new PluralText(Other: "{0} години тому", One: "{0} годину тому", Few: "{0} години тому", Many: "{0} годин тому"), new PluralText(Other: "через {0} години", One: "через {0} годину", Few: "через {0} години", Many: "через {0} годин")),
+            R(new PluralText(Other: "{0} дня тому", One: "{0} день тому", Few: "{0} дні тому", Many: "{0} днів тому"), new PluralText(Other: "через {0} дня", One: "через {0} день", Few: "через {0} дні", Many: "через {0} днів")),
+            R(new PluralText(Other: "{0} тижня тому", One: "{0} тиждень тому", Few: "{0} тижні тому", Many: "{0} тижнів тому"), new PluralText(Other: "через {0} тижня", One: "через {0} тиждень", Few: "через {0} тижні", Many: "через {0} тижнів")),
+            R(new PluralText(Other: "{0} місяця тому", One: "{0} місяць тому", Few: "{0} місяці тому", Many: "{0} місяців тому"), new PluralText(Other: "через {0} місяця", One: "через {0} місяць", Few: "через {0} місяці", Many: "через {0} місяців")),
+            R(new PluralText(Other: "{0} року тому", One: "{0} рік тому", Few: "{0} роки тому", Many: "{0} років тому"), new PluralText(Other: "через {0} року", One: "через {0} рік", Few: "через {0} роки", Many: "через {0} років")),
+        ],
+        RelativeShort =
+        [
+            R(new PluralText(Other: "{0} хв тому", One: "{0} хв тому", Few: "{0} хв тому", Many: "{0} хв тому"), new PluralText(Other: "через {0} хв", One: "через {0} хв", Few: "через {0} хв", Many: "через {0} хв")),
+            R(new PluralText(Other: "{0} год тому", One: "{0} год тому", Few: "{0} год тому", Many: "{0} год тому"), new PluralText(Other: "через {0} год", One: "через {0} год", Few: "через {0} год", Many: "через {0} год")),
+            R(new PluralText(Other: "{0} дн. тому", One: "{0} дн. тому", Few: "{0} дн. тому", Many: "{0} дн. тому"), new PluralText(Other: "через {0} дн.", One: "через {0} дн.", Few: "через {0} дн.", Many: "через {0} дн.")),
+            R(new PluralText(Other: "{0} тиж. тому", One: "{0} тиж. тому", Few: "{0} тиж. тому", Many: "{0} тиж. тому"), new PluralText(Other: "через {0} тиж.", One: "через {0} тиж.", Few: "через {0} тиж.", Many: "через {0} тиж.")),
+            R(new PluralText(Other: "{0} міс. тому", One: "{0} міс. тому", Few: "{0} міс. тому", Many: "{0} міс. тому"), new PluralText(Other: "через {0} міс.", One: "через {0} міс.", Few: "через {0} міс.", Many: "через {0} міс.")),
+            R(new PluralText(Other: "{0} р. тому", One: "{0} р. тому", Few: "{0} р. тому", Many: "{0} р. тому"), new PluralText(Other: "через {0} р.", One: "через {0} р.", Few: "через {0} р.", Many: "через {0} р.")),
+        ],
+    };
+
+    // ro-RO. Generated from CLDR (ICU 77.1); plural categories few/one/other.
+    private static readonly LocaleData Ro = new()
+    {
+        Months = ["ianuarie", "februarie", "martie", "aprilie", "mai", "iunie", "iulie", "august", "septembrie", "octombrie", "noiembrie", "decembrie"],
+        MonthsShort = ["ian.", "feb.", "mar.", "apr.", "mai", "iun.", "iul.", "aug.", "sept.", "oct.", "nov.", "dec."],
+        Weekdays = ["duminică", "luni", "marți", "miercuri", "joi", "vineri", "sâmbătă"],
+        WeekdaysShort = ["dum.", "lun.", "mar.", "mie.", "joi", "vin.", "sâm."],
+        WeekdaysNarrow = ["D", "L", "M", "M", "J", "V", "S"],
+        DatePatterns = ["dd.MM.y", "d MMM y", "d MMMM y", "EEEE, d MMMM y", "d MMMM", "d MMM", "MMMM y", "EEE, d MMM"],
+        Time24 = "HH:mm",
+        Time12 = "h:mm a",
+        Uses24Hour = true,
+        Am = "a.m.",
+        Pm = "p.m.",
+        Decimal = ',',
+        Group = ".",
+        Percent = "{0} %",
+        FirstDayOfWeek = DayOfWeek.Monday,
+        Now = "acum",
+        Relative =
+        [
+            R(new PluralText(Other: "acum {0} de minute", One: "acum {0} minut", Few: "acum {0} minute"), new PluralText(Other: "peste {0} de minute", One: "peste {0} minut", Few: "peste {0} minute")),
+            R(new PluralText(Other: "acum {0} de ore", One: "acum {0} oră", Few: "acum {0} ore"), new PluralText(Other: "peste {0} de ore", One: "peste {0} oră", Few: "peste {0} ore")),
+            R(new PluralText(Other: "acum {0} de zile", One: "acum {0} zi", Few: "acum {0} zile"), new PluralText(Other: "peste {0} de zile", One: "peste {0} zi", Few: "peste {0} zile")),
+            R(new PluralText(Other: "acum {0} de săptămâni", One: "acum {0} săptămână", Few: "acum {0} săptămâni"), new PluralText(Other: "peste {0} de săptămâni", One: "peste {0} săptămână", Few: "peste {0} săptămâni")),
+            R(new PluralText(Other: "acum {0} de luni", One: "acum {0} lună", Few: "acum {0} luni"), new PluralText(Other: "peste {0} de luni", One: "peste {0} lună", Few: "peste {0} luni")),
+            R(new PluralText(Other: "acum {0} de ani", One: "acum {0} an", Few: "acum {0} ani"), new PluralText(Other: "peste {0} de ani", One: "peste {0} an", Few: "peste {0} ani")),
+        ],
+        RelativeShort =
+        [
+            R(new PluralText(Other: "acum {0} min.", One: "acum {0} min.", Few: "acum {0} min."), new PluralText(Other: "peste {0} min.", One: "peste {0} min.", Few: "peste {0} min.")),
+            R(new PluralText(Other: "acum {0} h", One: "acum {0} h", Few: "acum {0} h"), new PluralText(Other: "peste {0} h", One: "peste {0} h", Few: "peste {0} h")),
+            R(new PluralText(Other: "acum {0} de zile", One: "acum {0} zi", Few: "acum {0} zile"), new PluralText(Other: "peste {0} de zile", One: "peste {0} zi", Few: "peste {0} zile")),
+            R(new PluralText(Other: "acum {0} săpt.", One: "acum {0} săpt.", Few: "acum {0} săpt."), new PluralText(Other: "peste {0} săpt.", One: "peste {0} săpt.", Few: "peste {0} săpt.")),
+            R(new PluralText(Other: "acum {0} luni", One: "acum {0} lună", Few: "acum {0} luni"), new PluralText(Other: "peste {0} luni", One: "peste {0} lună", Few: "peste {0} luni")),
+            R(new PluralText(Other: "acum {0} de ani", One: "acum {0} an", Few: "acum {0} ani"), new PluralText(Other: "peste {0} de ani", One: "peste {0} an", Few: "peste {0} ani")),
+        ],
+    };
+
+    // el-GR. Generated from CLDR (ICU 77.1); plural categories one/other.
+    private static readonly LocaleData El = new()
+    {
+        Months = ["Ιανουαρίου", "Φεβρουαρίου", "Μαρτίου", "Απριλίου", "Μαΐου", "Ιουνίου", "Ιουλίου", "Αυγούστου", "Σεπτεμβρίου", "Οκτωβρίου", "Νοεμβρίου", "Δεκεμβρίου"],
+        MonthsShort = ["Ιαν", "Φεβ", "Μαρ", "Απρ", "Μαΐ", "Ιουν", "Ιουλ", "Αυγ", "Σεπ", "Οκτ", "Νοε", "Δεκ"],
+        Weekdays = ["Κυριακή", "Δευτέρα", "Τρίτη", "Τετάρτη", "Πέμπτη", "Παρασκευή", "Σάββατο"],
+        WeekdaysShort = ["Κυρ", "Δευ", "Τρί", "Τετ", "Πέμ", "Παρ", "Σάβ"],
+        WeekdaysNarrow = ["Κ", "Δ", "Τ", "Τ", "Π", "Π", "Σ"],
+        DatePatterns = ["d/M/y", "d MMM y", "d MMMM y", "EEEE d MMMM y", "d MMMM", "d MMM", "MMM y", "EEE d MMM"],
+        Time24 = "HH:mm",
+        Time12 = "h:mm a",
+        Uses24Hour = false,
+        Am = "π.μ.",
+        Pm = "μ.μ.",
+        Decimal = ',',
+        Group = ".",
+        Percent = "{0}%",
+        FirstDayOfWeek = DayOfWeek.Monday,
+        Now = "τώρα",
+        Relative =
+        [
+            R(new PluralText(Other: "πριν από {0} λεπτά", One: "πριν από {0} λεπτό"), new PluralText(Other: "σε {0} λεπτά", One: "σε {0} λεπτό")),
+            R(new PluralText(Other: "πριν από {0} ώρες", One: "πριν από {0} ώρα"), new PluralText(Other: "σε {0} ώρες", One: "σε {0} ώρα")),
+            R(new PluralText(Other: "πριν από {0} ημέρες", One: "πριν από {0} ημέρα"), new PluralText(Other: "σε {0} ημέρες", One: "σε {0} ημέρα")),
+            R(new PluralText(Other: "πριν από {0} εβδομάδες", One: "πριν από {0} εβδομάδα"), new PluralText(Other: "σε {0} εβδομάδες", One: "σε {0} εβδομάδα")),
+            R(new PluralText(Other: "πριν από {0} μήνες", One: "πριν από {0} μήνα"), new PluralText(Other: "σε {0} μήνες", One: "σε {0} μήνα")),
+            R(new PluralText(Other: "πριν από {0} έτη", One: "πριν από {0} έτος"), new PluralText(Other: "σε {0} έτη", One: "σε {0} έτος")),
+        ],
+        RelativeShort =
+        [
+            R(new PluralText(Other: "πριν από {0} λεπ.", One: "πριν από {0} λεπ."), new PluralText(Other: "σε {0} λεπ.", One: "σε {0} λεπ.")),
+            R(new PluralText(Other: "πριν από {0} ώ.", One: "πριν από {0} ώ."), new PluralText(Other: "σε {0} ώ.", One: "σε {0} ώ.")),
+            R(new PluralText(Other: "πριν από {0} ημ.", One: "πριν από {0} ημ."), new PluralText(Other: "σε {0} ημ.", One: "σε {0} ημ.")),
+            R(new PluralText(Other: "πριν από {0} εβδ.", One: "πριν από {0} εβδ."), new PluralText(Other: "σε {0} εβδ.", One: "σε {0} εβδ.")),
+            R(new PluralText(Other: "πριν από {0} μήνες", One: "πριν από {0} μήνα"), new PluralText(Other: "σε {0} μήνες", One: "σε {0} μήνα")),
+            R(new PluralText(Other: "πριν από {0} έτη", One: "πριν από {0} έτος"), new PluralText(Other: "σε {0} έτη", One: "σε {0} έτος")),
+        ],
+    };
+
+    // cs-CZ. Generated from CLDR (ICU 77.1); plural categories few/many/one/other.
+    private static readonly LocaleData Cs = new()
+    {
+        Months = ["leden", "únor", "březen", "duben", "květen", "červen", "červenec", "srpen", "září", "říjen", "listopad", "prosinec"],
+        MonthsInDate = ["ledna", "února", "března", "dubna", "května", "června", "července", "srpna", "září", "října", "listopadu", "prosince"],
+        MonthsShort = ["led", "úno", "bře", "dub", "kvě", "čvn", "čvc", "srp", "zář", "říj", "lis", "pro"],
+        MonthsShortInDate = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12"],
+        Weekdays = ["neděle", "pondělí", "úterý", "středa", "čtvrtek", "pátek", "sobota"],
+        WeekdaysShort = ["ne", "po", "út", "st", "čt", "pá", "so"],
+        WeekdaysNarrow = ["N", "P", "Ú", "S", "Č", "P", "S"],
+        DatePatterns = ["dd. MM. y", "d. M. y", "d. MMMM y", "EEEE d. MMMM y", "d. MMMM", "d. M.", "LLLL y", "EEE d. M."],
+        Time24 = "HH:mm",
+        Time12 = "h:mm a",
+        Uses24Hour = true,
+        Am = "dop.",
+        Pm = "odp.",
+        Decimal = ',',
+        Group = " ",
+        Percent = "{0} %",
+        FirstDayOfWeek = DayOfWeek.Monday,
+        Now = "nyní",
+        Relative =
+        [
+            R(new PluralText(Other: "před {0} minutami", One: "před {0} minutou", Few: "před {0} minutami", Many: "před {0} minuty"), new PluralText(Other: "za {0} minut", One: "za {0} minutu", Few: "za {0} minuty", Many: "za {0} minuty")),
+            R(new PluralText(Other: "před {0} hodinami", One: "před {0} hodinou", Few: "před {0} hodinami", Many: "před {0} hodiny"), new PluralText(Other: "za {0} hodin", One: "za {0} hodinu", Few: "za {0} hodiny", Many: "za {0} hodiny")),
+            R(new PluralText(Other: "před {0} dny", One: "před {0} dnem", Few: "před {0} dny", Many: "před {0} dne"), new PluralText(Other: "za {0} dní", One: "za {0} den", Few: "za {0} dny", Many: "za {0} dne")),
+            R(new PluralText(Other: "před {0} týdny", One: "před {0} týdnem", Few: "před {0} týdny", Many: "před {0} týdne"), new PluralText(Other: "za {0} týdnů", One: "za {0} týden", Few: "za {0} týdny", Many: "za {0} týdne")),
+            R(new PluralText(Other: "před {0} měsíci", One: "před {0} měsícem", Few: "před {0} měsíci", Many: "před {0} měsíce"), new PluralText(Other: "za {0} měsíců", One: "za {0} měsíc", Few: "za {0} měsíce", Many: "za {0} měsíce")),
+            R(new PluralText(Other: "před {0} lety", One: "před {0} rokem", Few: "před {0} lety", Many: "před {0} roku"), new PluralText(Other: "za {0} let", One: "za {0} rok", Few: "za {0} roky", Many: "za {0} roku")),
+        ],
+        RelativeShort =
+        [
+            R(new PluralText(Other: "před {0} min", One: "před {0} min", Few: "před {0} min", Many: "před {0} min"), new PluralText(Other: "za {0} min", One: "za {0} min", Few: "za {0} min", Many: "za {0} min")),
+            R(new PluralText(Other: "před {0} h", One: "před {0} h", Few: "před {0} h", Many: "před {0} h"), new PluralText(Other: "za {0} h", One: "za {0} h", Few: "za {0} h", Many: "za {0} h")),
+            R(new PluralText(Other: "před {0} dny", One: "před {0} dnem", Few: "před {0} dny", Many: "před {0} dne"), new PluralText(Other: "za {0} dní", One: "za {0} den", Few: "za {0} dny", Many: "za {0} dne")),
+            R(new PluralText(Other: "před {0} týd.", One: "před {0} týd.", Few: "před {0} týd.", Many: "před {0} týd."), new PluralText(Other: "za {0} týd.", One: "za {0} týd.", Few: "za {0} týd.", Many: "za {0} týd.")),
+            R(new PluralText(Other: "před {0} měs.", One: "před {0} měs.", Few: "před {0} měs.", Many: "před {0} měs."), new PluralText(Other: "za {0} měs.", One: "za {0} měs.", Few: "za {0} měs.", Many: "za {0} měs.")),
+            R(new PluralText(Other: "před {0} l.", One: "před {0} r.", Few: "před {0} r.", Many: "před {0} r."), new PluralText(Other: "za {0} l.", One: "za {0} r.", Few: "za {0} r.", Many: "za {0} r.")),
+        ],
+    };
+
+    // kn-IN. Generated from CLDR (ICU 77.1); plural categories one/other.
+    private static readonly LocaleData Kn = new()
+    {
+        Months = ["ಜನವರಿ", "ಫೆಬ್ರವರಿ", "ಮಾರ್ಚ್", "ಏಪ್ರಿಲ್", "ಮೇ", "ಜೂನ್", "ಜುಲೈ", "ಆಗಸ್ಟ್", "ಸೆಪ್ಟೆಂಬರ್", "ಅಕ್ಟೋಬರ್", "ನವೆಂಬರ್", "ಡಿಸೆಂಬರ್"],
+        MonthsShort = ["ಜನ", "ಫೆಬ್ರ", "ಮಾರ್ಚ್", "ಏಪ್ರಿ", "ಮೇ", "ಜೂನ್", "ಜುಲೈ", "ಆಗ", "ಸೆಪ್ಟೆಂ", "ಅಕ್ಟೋ", "ನವೆಂ", "ಡಿಸೆಂ"],
+        Weekdays = ["ಭಾನುವಾರ", "ಸೋಮವಾರ", "ಮಂಗಳವಾರ", "ಬುಧವಾರ", "ಗುರುವಾರ", "ಶುಕ್ರವಾರ", "ಶನಿವಾರ"],
+        WeekdaysShort = ["ಭಾನು", "ಸೋಮ", "ಮಂಗಳ", "ಬುಧ", "ಗುರು", "ಶುಕ್ರ", "ಶನಿ"],
+        WeekdaysNarrow = ["ಭಾ", "ಸೋ", "ಮಂ", "ಬು", "ಗು", "ಶು", "ಶ"],
+        DatePatterns = ["d/M/y", "MMM d,y", "MMMM d, y", "EEEE, MMMM d, y", "d MMMM", "d MMM", "MMMM y", "EEE, d MMM"],
+        Time24 = "HH:mm",
+        Time12 = "h:mm a",
+        Uses24Hour = false,
+        Am = "AM",
+        Pm = "PM",
+        Decimal = '.',
+        Group = ",",
+        Percent = "{0}%",
+        FirstDayOfWeek = DayOfWeek.Sunday,
+        Now = "ಈಗ",
+        Relative =
+        [
+            R(new PluralText(Other: "{0} ನಿಮಿಷಗಳ ಹಿಂದೆ", One: "{0} ನಿಮಿಷದ ಹಿಂದೆ"), new PluralText(Other: "{0} ನಿಮಿಷಗಳಲ್ಲಿ", One: "{0} ನಿಮಿಷದಲ್ಲಿ")),
+            R(new PluralText(Other: "{0} ಗಂಟೆಗಳ ಹಿಂದೆ", One: "{0} ಗಂಟೆ ಹಿಂದೆ"), new PluralText(Other: "{0} ಗಂಟೆಗಳಲ್ಲಿ", One: "{0} ಗಂಟೆಯಲ್ಲಿ")),
+            R(new PluralText(Other: "{0} ದಿನಗಳ ಹಿಂದೆ", One: "{0} ದಿನದ ಹಿಂದೆ"), new PluralText(Other: "{0} ದಿನಗಳಲ್ಲಿ", One: "{0} ದಿನದಲ್ಲಿ")),
+            R(new PluralText(Other: "{0} ವಾರಗಳ ಹಿಂದೆ", One: "{0} ವಾರದ ಹಿಂದೆ"), new PluralText(Other: "{0} ವಾರಗಳಲ್ಲಿ", One: "{0} ವಾರದಲ್ಲಿ")),
+            R(new PluralText(Other: "{0} ತಿಂಗಳುಗಳ ಹಿಂದೆ", One: "{0} ತಿಂಗಳ ಹಿಂದೆ"), new PluralText(Other: "{0} ತಿಂಗಳುಗಳಲ್ಲಿ", One: "{0} ತಿಂಗಳಲ್ಲಿ")),
+            R(new PluralText(Other: "{0} ವರ್ಷಗಳ ಹಿಂದೆ", One: "{0} ವರ್ಷದ ಹಿಂದೆ"), new PluralText(Other: "{0} ವರ್ಷಗಳಲ್ಲಿ", One: "{0} ವರ್ಷದಲ್ಲಿ")),
+        ],
+        RelativeShort =
+        [
+            R(new PluralText(Other: "{0} ನಿಮಿಷಗಳ ಹಿಂದೆ", One: "{0} ನಿಮಿಷದ ಹಿಂದೆ"), new PluralText(Other: "{0} ನಿಮಿಷಗಳಲ್ಲಿ", One: "{0} ನಿಮಿಷದಲ್ಲಿ")),
+            R(new PluralText(Other: "{0} ಗಂಟೆಗಳ ಹಿಂದೆ", One: "{0} ಗಂಟೆ ಹಿಂದೆ"), new PluralText(Other: "{0} ಗಂಟೆಗಳಲ್ಲಿ", One: "{0} ಗಂಟೆಯಲ್ಲಿ")),
+            R(new PluralText(Other: "{0} ದಿನಗಳ ಹಿಂದೆ", One: "{0} ದಿನದ ಹಿಂದೆ"), new PluralText(Other: "{0} ದಿನಗಳಲ್ಲಿ", One: "{0} ದಿನದಲ್ಲಿ")),
+            R(new PluralText(Other: "{0} ವಾರಗಳ ಹಿಂದೆ", One: "{0} ವಾರದ ಹಿಂದೆ"), new PluralText(Other: "{0} ವಾರಗಳಲ್ಲಿ", One: "{0} ವಾರದಲ್ಲಿ")),
+            R(new PluralText(Other: "{0} ತಿಂಗಳುಗಳ ಹಿಂದೆ", One: "{0} ತಿಂಗಳು ಹಿಂದೆ"), new PluralText(Other: "{0} ತಿಂಗಳುಗಳಲ್ಲಿ", One: "{0} ತಿಂಗಳಲ್ಲಿ")),
+            R(new PluralText(Other: "{0} ವರ್ಷಗಳ ಹಿಂದೆ", One: "{0} ವರ್ಷದ ಹಿಂದೆ"), new PluralText(Other: "{0} ವರ್ಷಗಳಲ್ಲಿ", One: "{0} ವರ್ಷದಲ್ಲಿ")),
+        ],
+    };
+
+    // ml-IN. Generated from CLDR (ICU 77.1); plural categories one/other.
+    private static readonly LocaleData Ml = new()
+    {
+        Months = ["ജനുവരി", "ഫെബ്രുവരി", "മാർച്ച്", "ഏപ്രിൽ", "മേയ്", "ജൂൺ", "ജൂലൈ", "ഓഗസ്റ്റ്", "സെപ്റ്റംബർ", "ഒക്‌ടോബർ", "നവംബർ", "ഡിസംബർ"],
+        MonthsShort = ["ജനു", "ഫെബ്രു", "മാർ", "ഏപ്രി", "മേയ്", "ജൂൺ", "ജൂലൈ", "ഓഗ", "സെപ്റ്റം", "ഒക്ടോ", "നവം", "ഡിസം"],
+        Weekdays = ["ഞായറാഴ്‌ച", "തിങ്കളാഴ്‌ച", "ചൊവ്വാഴ്‌ച", "ബുധനാഴ്‌ച", "വ്യാഴാഴ്‌ച", "വെള്ളിയാഴ്‌ച", "ശനിയാഴ്‌ച"],
+        WeekdaysShort = ["ഞായർ", "തിങ്കൾ", "ചൊവ്വ", "ബുധൻ", "വ്യാഴം", "വെള്ളി", "ശനി"],
+        WeekdaysNarrow = ["ഞാ", "തി", "ചൊ", "ബു", "വ്യാ", "വെ", "ശ"],
+        DatePatterns = ["d/M/y", "y MMM d", "y, MMMM d", "y, MMMM d, EEEE", "MMMM d", "MMM d", "y MMMM", "MMM d, EEE"],
+        Time24 = "HH:mm",
+        Time12 = "h:mm a",
+        Uses24Hour = false,
+        Am = "AM",
+        Pm = "PM",
+        Decimal = '.',
+        Group = ",",
+        SecondaryGrouping = 2,
+        Percent = "{0}%",
+        FirstDayOfWeek = DayOfWeek.Sunday,
+        Now = "ഇപ്പോൾ",
+        Relative =
+        [
+            R(new PluralText(Other: "{0} മിനിറ്റ് മുമ്പ്", One: "{0} മിനിറ്റ് മുമ്പ്"), new PluralText(Other: "{0} മിനിറ്റിൽ", One: "{0} മിനിറ്റിൽ")),
+            R(new PluralText(Other: "{0} മണിക്കൂർ മുമ്പ്", One: "{0} മണിക്കൂർ മുമ്പ്"), new PluralText(Other: "{0} മണിക്കൂറിൽ", One: "{0} മണിക്കൂറിൽ")),
+            R(new PluralText(Other: "{0} ദിവസം മുമ്പ്", One: "{0} ദിവസം മുമ്പ്"), new PluralText(Other: "{0} ദിവസത്തിൽ", One: "{0} ദിവസത്തിൽ")),
+            R(new PluralText(Other: "{0} ആഴ്ച മുമ്പ്", One: "{0} ആഴ്ച മുമ്പ്"), new PluralText(Other: "{0} ആഴ്ചയിൽ", One: "{0} ആഴ്ചയിൽ")),
+            R(new PluralText(Other: "{0} മാസം മുമ്പ്", One: "{0} മാസം മുമ്പ്"), new PluralText(Other: "{0} മാസത്തിൽ", One: "{0} മാസത്തിൽ")),
+            R(new PluralText(Other: "{0} വർഷം മുമ്പ്", One: "{0} വർഷം മുമ്പ്"), new PluralText(Other: "{0} വർഷത്തിൽ", One: "{0} വർഷത്തിൽ")),
+        ],
+        RelativeShort =
+        [
+            R(new PluralText(Other: "{0} മിനിറ്റ് മുമ്പ്", One: "{0} മിനിറ്റ് മുമ്പ്"), new PluralText(Other: "{0} മിനിറ്റിൽ", One: "{0} മിനിറ്റിൽ")),
+            R(new PluralText(Other: "{0} മണിക്കൂർ മുമ്പ്", One: "{0} മണിക്കൂർ മുമ്പ്"), new PluralText(Other: "{0} മണിക്കൂറിൽ", One: "{0} മണിക്കൂറിൽ")),
+            R(new PluralText(Other: "{0} ദിവസം മുമ്പ്", One: "{0} ദിവസം മുമ്പ്"), new PluralText(Other: "{0} ദിവസത്തിൽ", One: "{0} ദിവസത്തിൽ")),
+            R(new PluralText(Other: "{0} ആഴ്ച മുമ്പ്", One: "{0} ആഴ്ച മുമ്പ്"), new PluralText(Other: "{0} ആഴ്ചയിൽ", One: "{0} ആഴ്ചയിൽ")),
+            R(new PluralText(Other: "{0} മാസം മുമ്പ്", One: "{0} മാസം മുമ്പ്"), new PluralText(Other: "{0} മാസത്തിൽ", One: "{0} മാസത്തിൽ")),
+            R(new PluralText(Other: "{0} വർഷം മുമ്പ്", One: "{0} വർഷം മുമ്പ്"), new PluralText(Other: "{0} വർഷത്തിൽ", One: "{0} വർഷത്തിൽ")),
+        ],
+    };
+
+    // am-ET. Generated from CLDR (ICU 77.1); plural categories one/other.
+    private static readonly LocaleData Amharic = new()
+    {
+        Months = ["ጃንዋሪ", "ፌብሩዋሪ", "ማርች", "ኤፕሪል", "ሜይ", "ጁን", "ጁላይ", "ኦገስት", "ሴፕቴምበር", "ኦክቶበር", "ኖቬምበር", "ዲሴምበር"],
+        MonthsShort = ["ጃን", "ፌብ", "ማርች", "ኤፕሪ", "ሜይ", "ጁን", "ጁላይ", "ኦገስ", "ሴፕቴ", "ኦክቶ", "ኖቬም", "ዲሴም"],
+        Weekdays = ["እሑድ", "ሰኞ", "ማክሰኞ", "ረቡዕ", "ሐሙስ", "ዓርብ", "ቅዳሜ"],
+        WeekdaysShort = ["እሑድ", "ሰኞ", "ማክሰ", "ረቡዕ", "ሐሙስ", "ዓርብ", "ቅዳሜ"],
+        WeekdaysNarrow = ["እ", "ሰ", "ማ", "ረ", "ሐ", "ዓ", "ቅ"],
+        DatePatterns = ["dd/MM/y", "MMM d y", "d MMMM y", "EEEE d MMMM y", "MMMM d", "MMM d", "MMMM y", "EEEE፣ MMM d"],
+        Time24 = "HH:mm",
+        Time12 = "h:mm a",
+        Uses24Hour = false,
+        Am = "ጥዋት",
+        Pm = "ከሰዓት",
+        Decimal = '.',
+        Group = ",",
+        Percent = "{0}%",
+        FirstDayOfWeek = DayOfWeek.Sunday,
+        Now = "አሁን",
+        Relative =
+        [
+            R(new PluralText(Other: "ከ{0} ደቂቃዎች በፊት", One: "ከ{0} ደቂቃ በፊት"), new PluralText(Other: "በ{0} ደቂቃዎች ውስጥ", One: "በ{0} ደቂቃ ውስጥ")),
+            R(new PluralText(Other: "ከ{0} ሰዓቶች በፊት", One: "ከ{0} ሰዓት በፊት"), new PluralText(Other: "በ{0} ሰዓቶች ውስጥ", One: "በ{0} ሰዓት ውስጥ")),
+            R(new PluralText(Other: "ከ{0} ቀናት በፊት", One: "ከ{0} ቀን በፊት"), new PluralText(Other: "በ{0} ቀናት ውስጥ", One: "በ{0} ቀን ውስጥ")),
+            R(new PluralText(Other: "ከ{0} ሳምንታት በፊት", One: "ከ{0} ሳምንት በፊት"), new PluralText(Other: "በ{0} ሳምንታት ውስጥ", One: "በ{0} ሳምንት ውስጥ")),
+            R(new PluralText(Other: "ከ{0} ወራት በፊት", One: "ከ{0} ወር በፊት"), new PluralText(Other: "በ{0} ወራት ውስጥ", One: "በ{0} ወር ውስጥ")),
+            R(new PluralText(Other: "ከ{0} ዓመታት በፊት", One: "ከ{0} ዓመት በፊት"), new PluralText(Other: "በ{0} ዓመታት ውስጥ", One: "በ{0} ዓመታት ውስጥ")),
+        ],
+        RelativeShort =
+        [
+            R(new PluralText(Other: "ከ{0} ደቂቃዎች በፊት", One: "ከ{0} ደቂቃ በፊት"), new PluralText(Other: "በ{0} ደቂቃዎች ውስጥ", One: "በ{0} ደቂቃ ውስጥ")),
+            R(new PluralText(Other: "ከ{0} ሰዓቶች በፊት", One: "ከ{0} ሰዓት በፊት"), new PluralText(Other: "በ{0} ሰዓቶች ውስጥ", One: "በ{0} ሰዓት ውስጥ")),
+            R(new PluralText(Other: "ከ{0} ቀኖች በፊት", One: "ከ {0} ቀን በፊት"), new PluralText(Other: "በ{0} ቀኖች ውስጥ", One: "በ{0} ቀን ውስጥ")),
+            R(new PluralText(Other: "ከ{0} ሳምንታት በፊት", One: "ከ{0} ሳምንታት በፊት"), new PluralText(Other: "በ{0} ሳምንታት ውስጥ", One: "በ{0} ሳምንታት ውስጥ")),
+            R(new PluralText(Other: "ከ{0} ወራት በፊት", One: "ከ{0} ወራት በፊት"), new PluralText(Other: "በ{0} ወራት ውስጥ", One: "በ{0} ወራት ውስጥ")),
+            R(new PluralText(Other: "ከ{0} ዓመታት በፊት", One: "ከ{0} ዓመታት በፊት"), new PluralText(Other: "በ{0} ዓመታት ውስጥ", One: "በ{0} ዓመታት ውስጥ")),
+        ],
+    };
+
+    // yo-NG. Generated from CLDR (ICU 77.1); plural categories other.
+    private static readonly LocaleData Yo = new()
+    {
+        Months = ["Oṣù Ṣẹ́rẹ́", "Oṣù Èrèlè", "Oṣù Ẹrẹ̀nà", "Oṣù Ìgbé", "Oṣù Ẹ̀bibi", "Oṣù Òkúdu", "Oṣù Agẹmọ", "Oṣù Ògún", "Oṣù Owewe", "Oṣù Ọ̀wàrà", "Oṣù Bélú", "Oṣù Ọ̀pẹ̀"],
+        MonthsShort = ["Oṣù Ṣẹ́rẹ́", "Oṣù Èrèlè", "Oṣù Ẹrẹ̀nà", "Oṣù Ìgbé", "Oṣù Ẹ̀bibi", "Oṣù Òkúdu", "Oṣù Agẹmọ", "Oṣù Ògún", "Oṣù Owewe", "Oṣù Ọ̀wàrà", "Oṣù Bélú", "Oṣù Ọ̀pẹ̀"],
+        Weekdays = ["Àìkú", "Ajé", "Ìsẹ́gun", "Ọjọ́rú", "Ọjọ́bọ", "Ẹtì", "Àbámẹ́ta"],
+        WeekdaysShort = ["Àìkú", "Ajé", "Ìsẹ́gun", "Ọjọ́rú", "Ọjọ́bọ", "Ẹtì", "Àbámẹ́ta"],
+        WeekdaysNarrow = ["À", "A", "Ì", "Ọ", "Ọ", "Ẹ", "À"],
+        DatePatterns = ["d/M/y", "d MMMM y", "d MMMM y", "EEEE, d MMMM y", "d MMMM", "d MMMM", "MMMM y", "d MMMM, EEEE"],
+        Time24 = "HH:mm",
+        Time12 = "h:mm a",
+        Uses24Hour = true,
+        Am = "Àárọ̀",
+        Pm = "Ọ̀sán",
+        Decimal = '.',
+        Group = ",",
+        Percent = "{0}%",
+        FirstDayOfWeek = DayOfWeek.Monday,
+        Now = "nísinsìyí",
+        Relative =
+        [
+            R(new PluralText(Other: "ìṣẹ́jú {0} sẹ́yìn"), new PluralText(Other: "ní ìṣẹ́jú {0}")),
+            R(new PluralText(Other: "wákàtí {0} sẹ́yìn"), new PluralText(Other: "ní wákàtí {0}")),
+            R(new PluralText(Other: "ọjọ́ {0} sẹ́yìn"), new PluralText(Other: "ní ọjọ́ {0}")),
+            R(new PluralText(Other: "ọ̀sẹ̀ {0} sẹ́yìn"), new PluralText(Other: "ní ọ̀sẹ̀ {0}")),
+            R(new PluralText(Other: "oṣù {0} sẹ́yìn"), new PluralText(Other: "ní oṣù {0}")),
+            R(new PluralText(Other: "ọdún {0} sẹ́yìn"), new PluralText(Other: "ní ọdún {0}")),
+        ],
+        RelativeShort =
+        [
+            R(new PluralText(Other: "ìṣẹ́jú {0} sẹ́yìn"), new PluralText(Other: "ní ìṣẹ́jú {0}")),
+            R(new PluralText(Other: "wákàtí {0} sẹ́yìn"), new PluralText(Other: "ní wákàtí {0}")),
+            R(new PluralText(Other: "ọjọ́ {0} sẹ́yìn"), new PluralText(Other: "ní ọjọ́ {0}")),
+            R(new PluralText(Other: "ọ̀sẹ̀ {0} sẹ́yìn"), new PluralText(Other: "ní ọ̀sẹ̀ {0}")),
+            R(new PluralText(Other: "oṣù {0} sẹ́yìn"), new PluralText(Other: "ní oṣù {0}")),
+            R(new PluralText(Other: "ọdún {0} sẹ́yìn"), new PluralText(Other: "ní ọdún {0}")),
+        ],
+    };
+
+    // my-MM. Generated from CLDR (ICU 77.1); plural categories other.
+    private static readonly LocaleData My = new()
+    {
+        Months = ["ဇန်နဝါရီ", "ဖေဖော်ဝါရီ", "မတ်", "ဧပြီ", "မေ", "ဇွန်", "ဇူလိုင်", "ဩဂုတ်", "စက်တင်ဘာ", "အောက်တိုဘာ", "နိုဝင်ဘာ", "ဒီဇင်ဘာ"],
+        MonthsShort = ["ဇန်", "ဖေ", "မတ်", "ဧ", "မေ", "ဇွန်", "ဇူ", "ဩ", "စက်", "အောက်", "နို", "ဒီ"],
+        Weekdays = ["တနင်္ဂနွေ", "တနင်္လာ", "အင်္ဂါ", "ဗုဒ္ဓဟူး", "ကြာသပတေး", "သောကြာ", "စနေ"],
+        WeekdaysShort = ["တနင်္ဂနွေ", "တနင်္လာ", "အင်္ဂါ", "ဗုဒ္ဓဟူး", "ကြာသပတေး", "သောကြာ", "စနေ"],
+        WeekdaysNarrow = ["တ", "တ", "အ", "ဗ", "က", "သ", "စ"],
+        DatePatterns = ["d/M/y", "y MMM d", "y MMMM d", "y MMMM d EEEE", "MMMM d", "MMM d", "y MMMM", "MMM d EEEE"],
+        Time24 = "HH:mm",
+        Time12 = "a h:mm",
+        Uses24Hour = true,
+        Am = "နံနက်",
+        Pm = "ညနေ",
+        Decimal = '.',
+        Group = ",",
+        Percent = "{0}%",
+        FirstDayOfWeek = DayOfWeek.Sunday,
+        Now = "ယခု",
+        Relative =
+        [
+            R(new PluralText(Other: "ပြီးခဲ့သည့် {0} မိနစ်"), new PluralText(Other: "{0} မိနစ်အတွင်း")),
+            R(new PluralText(Other: "ပြီးခဲ့သည့် {0} နာရီ"), new PluralText(Other: "{0} နာရီအတွင်း")),
+            R(new PluralText(Other: "ပြီးခဲ့သည့် {0} ရက်"), new PluralText(Other: "{0} ရက်အတွင်း")),
+            R(new PluralText(Other: "ပြီးခဲ့သည့် {0} ပတ်"), new PluralText(Other: "{0} ပတ်အတွင်း")),
+            R(new PluralText(Other: "ပြီးခဲ့သည့် {0} လ"), new PluralText(Other: "{0} လအတွင်း")),
+            R(new PluralText(Other: "ပြီးခဲ့သည့် {0} နှစ်"), new PluralText(Other: "{0} နှစ်အတွင်း")),
+        ],
+        RelativeShort =
+        [
+            R(new PluralText(Other: "ပြီးခဲ့သည့် {0} မိနစ်"), new PluralText(Other: "{0} မိနစ်အတွင်း")),
+            R(new PluralText(Other: "ပြီးခဲ့သည့် {0} နာရီ"), new PluralText(Other: "{0} နာရီအတွင်း")),
+            R(new PluralText(Other: "ပြီးခဲ့သည့် {0} ရက်"), new PluralText(Other: "{0} ရက်အတွင်း")),
+            R(new PluralText(Other: "ပြီးခဲ့သည့် {0} ပတ်"), new PluralText(Other: "{0} ပတ်အတွင်း")),
+            R(new PluralText(Other: "ပြီးခဲ့သည့် {0} လ"), new PluralText(Other: "{0} လအတွင်း")),
+            R(new PluralText(Other: "ပြီးခဲ့သည့် {0} နှစ်"), new PluralText(Other: "{0} နှစ်အတွင်း")),
+        ],
     };
 }
 

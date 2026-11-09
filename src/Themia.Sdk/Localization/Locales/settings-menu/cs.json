@@ -1,0 +1,21 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "settingsMenu.onlineUpdates": "Online aktualizace",
+  "settingsMenu.gameMode": "Pozastavit při aplikacích na celou obrazovku",
+  "settingsMenu.findLanguage": "Najít jazyk",
+  "settingsMenu.proFree": "Zdarma",
+  "settingsMenu.backup": "Zálohování a obnovení",
+  "settingsMenu.about": "O aplikaci Themia",
+  "settingsMenu.exportSettings": "Exportovat nastavení…",
+  "settingsMenu.importSettings": "Importovat nastavení…",
+  "settingsMenu.resetAll": "Obnovit všechna nastavení…",
+  "settingsMenu.reset": "Obnovit",
+  "settingsMenu.exported": "Uloženo jako {file}",
+  "settingsMenu.imported": "Nastavení importováno. Ta původní jsou uložená jako {backup}.",
+  "settingsMenu.resetDone": "Nastavení obnoveno. Ta původní jsou uložená jako {backup}.",
+  "settingsMenu.purchasing": "Čeká se na Microsoft Store…",
+  "settingsMenu.aboutOpenMeteo": "Počasí, srážky a kvalita ovzduší. Kvalita ovzduší také ze služby Copernicus Atmosphere Monitoring Service (CAMS).",
+  "settingsMenu.uninstallEllipsis": "Odinstalovat…",
+  "settingsMenu.uninstallDataGoes": "Odstraní se i tvoje widgety, nastavení a účty.",
+  "settingsMenu.uninstallDeleteData": "Odstranit i moje data"
+}

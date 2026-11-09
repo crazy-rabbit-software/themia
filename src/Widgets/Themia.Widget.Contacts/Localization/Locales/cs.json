@@ -1,0 +1,23 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "apps.viewCompact": "Kompaktní",
+  "apps.viewGrid": "Mřížka",
+  "apps.viewList": "Seznam",
+  "contacts.noContacts": "Nenašly se žádné kontakty.",
+  "contacts.searchPlaceholder": "Hledat kontakty…",
+  "ctxMenu.call": "Zavolat",
+  "ctxMenu.copyEmail": "Kopírovat e-mail",
+  "ctxMenu.copyName": "Kopírovat jméno",
+  "ctxMenu.copyPhone": "Kopírovat telefon",
+  "ctxMenu.message": "Napsat zprávu",
+  "ctxMenu.sendEmail": "Poslat e-mail",
+  "widget.contacts.label": "Kontakty",
+  "widgetsA.catalog.contacts.description": "Lidé z tvých adresářů Microsoft a CardDAV",
+  "widgetsA.contacts.noAccount": "Zatím žádný účet s kontakty",
+  "widgetsA.contacts.none": "Žádné kontakty",
+  "widgetsA.contacts.readFailed": "Kontakty se nepodařilo načíst. Podívej se do themia.log.",
+  "widgetsA.contacts.settings.count.label": "Lidé",
+  "widgetsA.contacts.settings.every": "Všechny účty s kontakty",
+  "widgetsA.contacts.settings.layout.label": "Rozložení",
+  "contacts.setup.sentence": "Přidej účet, ať se zobrazí tvoje kontakty"
+}

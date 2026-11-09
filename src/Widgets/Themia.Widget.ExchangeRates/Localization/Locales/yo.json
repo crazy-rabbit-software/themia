@@ -1,0 +1,14 @@
+{
+  "online.rates.label": "Iye pàṣípààrọ̀ owó",
+  "online.rates.desc": "Iye ìtọ́kasí láti ọ̀dọ̀ European Central Bank",
+  "online.rates.fix": "ECB, {date}",
+  "online.rates.fixTooltip": "Iye ìtọ́kasí ti {date} láti ọ̀dọ̀ European Central Bank",
+  "online.rates.perBase": "fún {code} kan",
+  "online.rates.missing": "A kò tíì gbé e jáde",
+  "online.rates.settings.base.label": "Owó ìpìlẹ̀",
+  "online.rates.settings.base.region": "Agbègbè Windows ({code})",
+  "online.rates.settings.quote.label": "Owó",
+  "online.rates.settings.quote.default": "Àtilẹ̀wá ({code})",
+  "styles.rates.chart": "Àtẹ",
+  "styles.rates.number": "Nọ́mbà"
+}

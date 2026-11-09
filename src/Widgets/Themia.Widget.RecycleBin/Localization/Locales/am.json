@@ -1,0 +1,12 @@
+{
+  "recycleBin.desc": "ሪሳይክል ቢን ምን ያህል እንደሞላ፣ ከባዶ አድርግ ጋር",
+  "recycleBin.empty": "ባዶ አድርግ",
+  "recycleBin.isEmpty": "ንጥሎች የሉም",
+  "recycleBin.items": {
+    "one": "{count} ንጥል",
+    "other": "{count} ንጥሎች"
+  },
+  "recycleBin.open": "ሪሳይክል ቢንን ክፈት",
+  "recycleBin.emptyEllipsis": "ሪሳይክል ቢንን ባዶ አድርግ…",
+  "widgetsC.location.recycleBin": "የሪሳይክል ቢን"
+}

@@ -1,0 +1,9 @@
+{
+  "screentime.metric.average": "Ημερήσιος μέσος όρος",
+  "screentime.metric.percent": "Ποσοστό του συνόλου",
+  "widgetsC.screenTime.apps.desc": "Οι εφαρμογές που χρησιμοποίησες και για πόσο",
+  "widgetsC.screenTime.apps.label": "Εφαρμογές χρόνου οθόνης",
+  "widgetsC.screenTime.limitOverTip": "όριο {limit} (ξεπεράστηκε)",
+  "widgetsC.screenTime.limitTip": "όριο {limit}",
+  "widgetsC.screenTime.settings.most.label": "Μέγιστος αριθμός εφαρμογών"
+}

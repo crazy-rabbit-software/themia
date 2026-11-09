@@ -1,0 +1,17 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "alarm.desc": "Berbunyi pada masa yang kamu tetapkan, sekali atau pada hari yang dipilih",
+  "alarm.label": "Penggera",
+  "alarm.settings.namePlaceholder": "Nama (pilihan)",
+  "alarm.settings.name.label": "Nama",
+  "alarm.settings.on.label": "Dihidupkan",
+  "alarm.settings.repeat": "Berulang pada",
+  "alarm.settings.repeat.desc": "Tiada dipilih: ia berbunyi sekali",
+  "alarm.settings.snooze.label": "Tunda selama",
+  "alarm.settings.sound.label": "Bunyi",
+  "alarm.settings.time.label": "Masa",
+  "alarm.settings.volume.label": "Kelantangan",
+  "alarm.settings.whileRunning": "Penggera berbunyi hanya semasa Themia berjalan. Penggera yang tiba ketika PC tidur akan berbunyi apabila ia bangun, jika masih dalam lima minit.",
+  "alarm.switchOff": "Matikan {name}",
+  "alarm.switchOn": "Hidupkan {name}"
+}

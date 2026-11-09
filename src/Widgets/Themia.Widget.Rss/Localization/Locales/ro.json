@@ -1,0 +1,14 @@
+{
+  "widgetsA.catalog.feed.label": "Flux",
+  "widgetsA.catalog.feed.description": "Titluri din fluxurile pe care le alegi",
+  "widgetsC.rss.untitled": "(fără titlu)",
+  "widgetsC.rss.copyLink": "Copiază linkul",
+  "widgetsC.rss.noArticles": "Acest flux nu are articole",
+  "widgetsC.rss.settings.feeds": "Fluxuri",
+  "widgetsC.rss.settings.empty": "Niciun flux încă. Adaugă adresa unui flux RSS sau Atom.",
+  "widgetsC.rss.settings.add.title": "Adaugă un flux",
+  "widgetsC.rss.settings.articles": "Articole",
+  "widgetsC.rss.settings.source.label": "Arată sursa",
+  "widgetsC.rss.settings.preview.label": "Arată previzualizarea",
+  "widgetsC.rss.settings.date.label": "Arată data"
+}

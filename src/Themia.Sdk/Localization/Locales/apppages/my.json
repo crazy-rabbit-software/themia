@@ -1,0 +1,38 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "shell.view.colour": "အရောင်",
+  "shell.view.colourDefault": "စာသား အရောင်",
+  "shell.appearance.themeColours": "Theme နှင့် အရောင်များ",
+  "shell.appearance.cards": "ဝစ်ဂျက် ကတ်များ",
+  "shell.appearance.textAndSize": "စာသားနှင့် အရွယ်အစား",
+  "shell.net.blockedLocal": "{host} သည် local ကွန်ရက်ပေါ်တွင် ရှိသည်။ Themia သည် သင်ကိုယ်တိုင် ရိုက်ထည့်ထားသော လိပ်စာအတွက်သာ ထိုနေရာသို့ သွားသည်",
+  "shell.accounts.stats.mail": "မေးလ်",
+  "shell.accounts.stats.calendar": "ပြက္ခဒိန်",
+  "shell.accounts.stats.contacts": "အဆက်အသွယ်များ",
+  "shell.accounts.stats.tasks": "လုပ်ငန်းတာဝန်များ",
+  "shell.accounts.stats.messages": {
+    "other": "စာ {count} စောင်"
+  },
+  "shell.accounts.stats.events": {
+    "other": "ဖြစ်ရပ် {count} ခု"
+  },
+  "shell.accounts.stats.people": {
+    "other": "အဆက်အသွယ် {count} ဦး"
+  },
+  "shell.accounts.stats.taskCount": {
+    "other": "လုပ်ငန်းတာဝန် {count} ခု"
+  },
+  "shell.accounts.stats.folders": {
+    "other": "ဖိုဒါ {count} ခုတွင်"
+  },
+  "shell.accounts.stats.calendars": {
+    "other": "ပြက္ခဒိန် {count} ခုတွင်"
+  },
+  "shell.accounts.stats.lists": {
+    "other": "စာရင်း {count} ခုတွင်"
+  },
+  "shell.accounts.stats.synced": "{time} တွင် sync လုပ်ပြီး",
+  "shell.accounts.stats.neverSynced": "sync မလုပ်ရသေးပါ",
+  "shell.accounts.stats.nothing": "ဤ PC ပေါ်တွင် ဘာမှ မသိမ်းရသေးပါ",
+  "shell.accounts.reconnect": "ထပ်မံ ဝင်ရောက်ရန်"
+}

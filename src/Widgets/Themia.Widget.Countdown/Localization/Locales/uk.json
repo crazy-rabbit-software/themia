@@ -1,0 +1,59 @@
+{
+  "countdown.setup": "Вибери дату для зворотного відліку",
+  "styles.countdown.ring": "Кільце",
+  "styles.countdown.text": "Текст",
+  "styles.countdown.unitDays": "дн.",
+  "styles.countdown.unitHours": "год",
+  "styles.countdown.unitMinutes": "хв",
+  "styles.countdown.unitSeconds": "с",
+  "widget.countdown.label": "Зворотний відлік",
+  "widgetsA.catalog.countdown.description": "Скільки лишилося до важливої для тебе дати",
+  "widgetsA.countdown.ago": "{duration} тому",
+  "widgetsA.countdown.compact.dh": "{days} дн. {hours} год",
+  "widgetsA.countdown.compact.dhm": "{days} дн. {hours} год {minutes} хв",
+  "widgetsA.countdown.compact.dhms": "{days} дн. {hours} год {minutes} хв {seconds} с",
+  "widgetsA.countdown.compact.hm": "{hours} год {minutes} хв",
+  "widgetsA.countdown.dateTime": "{date}, {time}",
+  "widgetsA.countdown.days": {
+    "one": "{count} день",
+    "few": "{count} дні",
+    "many": "{count} днів",
+    "other": "{count} дня"
+  },
+  "widgetsA.countdown.daysAgo": {
+    "one": "{count} день тому",
+    "few": "{count} дні тому",
+    "many": "{count} днів тому",
+    "other": "{count} дня тому"
+  },
+  "widgetsA.countdown.daysIn": {
+    "one": "через {count} день",
+    "few": "через {count} дні",
+    "many": "через {count} днів",
+    "other": "через {count} дня"
+  },
+  "widgetsA.countdown.format.auto": "Авто",
+  "widgetsA.countdown.format.days": "Лише дні",
+  "widgetsA.countdown.format.dhm": "Дні · Години · Хв",
+  "widgetsA.countdown.format.dhms": "Дні · Години · Хв · С",
+  "widgetsA.countdown.fullDateTime": "{date} о {time}",
+  "widgetsA.countdown.hours": {
+    "one": "{count} год",
+    "few": "{count} год",
+    "many": "{count} год",
+    "other": "{count} год"
+  },
+  "widgetsA.countdown.in": "через {duration}",
+  "widgetsA.countdown.inAMoment": "за мить",
+  "widgetsA.countdown.justNow": "щойно",
+  "widgetsA.countdown.minutes": {
+    "one": "{count} хв",
+    "few": "{count} хв",
+    "many": "{count} хв",
+    "other": "{count} хв"
+  },
+  "widgetsA.countdown.settings.format.label": "Формат",
+  "widgetsA.countdown.settings.name.label": "Назва",
+  "widgetsA.countdown.untitled": "Без назви",
+  "styles.clock.flip": "Перекидний"
+}

@@ -1,0 +1,19 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "mixer.cfg.activeLabel": "Hanya apl yang sedang bermain",
+  "mixer.cfg.iconsLabel": "Ikon apl",
+  "mixer.cfg.systemLabel": "Bunyi sistem",
+  "mixer.empty": "Tiada apl memainkan audio",
+  "mixer.systemSounds": "Bunyi sistem",
+  "mixer.unknownApp": "Apl tidak diketahui",
+  "widgetsA.catalog.mixer.description": "Kelantangan bagi setiap apl yang memainkan bunyi",
+  "widgetsA.catalog.mixer.label": "Pengadun",
+  "widgetsB.mixer.defaultNotChanged": "Output lalai tidak diubah",
+  "widgetsB.mixer.deviceMissing": "{device} tidak disambungkan",
+  "widgetsB.mixer.followDefault": "Ikut output lalai",
+  "widgetsB.mixer.noDevice": "Tiada peranti output",
+  "widgetsB.mixer.notPlaying": "{name} (tidak bermain)",
+  "widgetsB.mixer.unavailable": "Bunyi tidak tersedia",
+  "widgetsB.settings.mixer.groupByApp.label": "Satu baris bagi setiap apl",
+  "widgetsB.settings.mixer.note": "Klik pengadun, kemudian ↑ dan ↓ memilih baris, ← dan → mengubahnya, M meredam."
+}

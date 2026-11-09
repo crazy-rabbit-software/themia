@@ -1,0 +1,10 @@
+{
+  "drives.drive.desc": "የአንድ አንጻፊ ቦታና የፋይል ሥርዓት፣ የተያያዙ አንጻፊዎችም",
+  "drives.drive.label": "አንጻፊ",
+  "drives.fact.capacity": "አቅም",
+  "drives.fact.fileSystem": "የፋይል ሥርዓት",
+  "drives.fact.free": "ነጻ",
+  "drives.fact.used": "ጥቅም ላይ የዋለ",
+  "drives.settings.drive.label": "አንጻፊ",
+  "styles.io.bar": "አሞሌ"
+}

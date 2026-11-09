@@ -1,0 +1,10 @@
+{
+  "settingsAccounts.ownServer": "Θα ορίσω μόνος μου τον διακομιστή",
+  "settingsAccounts.test": "Δοκιμή σύνδεσης",
+  "settingsAccounts.connectedTo": "Συνδέθηκε στο {host}.",
+  "settingsAccounts.noServer": "Το Themia δεν γνωρίζει τον διακομιστή για το {domain}. Όρισέ τον μόνος σου.",
+  "settingsAccounts.davAddress": "Πληκτρολόγησε τη διεύθυνση web του διακομιστή, για παράδειγμα https://cloud.example.com.",
+  "settingsAccounts.code": "Κωδικός",
+  "settingsAccounts.pasteToken": "Επικόλλησε πρώτα το διακριτικό.",
+  "settingsAccounts.enterAddress": "Πληκτρολόγησε τη διεύθυνση email και τον κωδικό πρόσβασής της."
+}

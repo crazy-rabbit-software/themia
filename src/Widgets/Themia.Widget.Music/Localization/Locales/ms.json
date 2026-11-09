@@ -1,0 +1,19 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "music.hideWhenIdle.label": "Sembunyikan semasa melahu",
+  "music.hideWhenIdle.never": "Jangan sekali-kali",
+  "styles.music.artwork": "Gambar seni dan teks",
+  "styles.music.cover": "Gambar seni penuh",
+  "styles.music.text": "Teks sahaja",
+  "widgetsA.catalog.music.description": "Apa sahaja yang dimainkan oleh Windows",
+  "widgetsA.catalog.music.label": "Sedang dimainkan",
+  "widgetsB.music.next": "Seterusnya",
+  "widgetsB.music.pause": "Jeda",
+  "widgetsB.music.play": "Main",
+  "widgetsB.music.playPause": "Main atau jeda",
+  "widgetsB.music.previous": "Sebelumnya",
+  "widgetsB.settings.music.hideWhenIdle.noSession": "Apabila tiada pemain dibuka",
+  "widgetsB.settings.music.hideWhenIdle.notPlaying": "Apabila tiada apa-apa dimainkan",
+  "widgetsB.settings.music.progress.label": "Tunjukkan kemajuan",
+  "widgetsB.settings.music.transport.label": "Tunjukkan kawalan main"
+}

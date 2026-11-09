@@ -1,0 +1,11 @@
+{
+  "styles.audioVisualizer.bars": "Bare",
+  "styles.audioVisualizer.desc": "Orice redă acest PC, ca bare în mișcare, undă sau linie",
+  "styles.audioVisualizer.label": "Vizualizator audio",
+  "styles.audioVisualizer.led": "LED",
+  "styles.audioVisualizer.mirrored": "În oglindă",
+  "styles.audioVisualizer.radial": "Radial",
+  "styles.audioVisualizer.wave": "Undă",
+  "styles.audioVisualizer.waveform": "Formă de undă",
+  "widgetsC.visualizer.unavailable": "Ieșire audio indisponibilă"
+}

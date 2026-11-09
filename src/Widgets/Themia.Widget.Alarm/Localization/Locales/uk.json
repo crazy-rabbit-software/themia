@@ -1,0 +1,16 @@
+{
+  "alarm.desc": "Дзвонить у заданий час, один раз або у вибрані дні",
+  "alarm.label": "Будильник",
+  "alarm.settings.namePlaceholder": "Назва (необов’язково)",
+  "alarm.settings.name.label": "Назва",
+  "alarm.settings.on.label": "Увімкнено",
+  "alarm.settings.repeat": "Повторювати в",
+  "alarm.settings.repeat.desc": "Нічого не вибрано: дзвонить один раз",
+  "alarm.settings.snooze.label": "Відкласти на",
+  "alarm.settings.sound.label": "Звук",
+  "alarm.settings.time.label": "Час",
+  "alarm.settings.volume.label": "Гучність",
+  "alarm.settings.whileRunning": "Будильники дзвонять лише тоді, коли працює Themia. Якщо час настає, поки ПК спить, будильник задзвонить після пробудження, якщо це в межах п’яти хвилин.",
+  "alarm.switchOff": "Вимкнути {name}",
+  "alarm.switchOn": "Увімкнути {name}"
+}

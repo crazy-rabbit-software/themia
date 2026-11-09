@@ -1,0 +1,8 @@
+{
+  "shell.items.background": "Φόντο στοιχείων",
+  "shell.items.text": "Χρώμα κειμένου στοιχείων",
+  "shell.items.textShort": "Κείμενο στοιχείων",
+  "shell.fill.transparent": "Διαφανές",
+  "shell.fill.opacity": "Αδιαφάνεια",
+  "shell.fill.withOpacity": "{colour}, {percent}"
+}

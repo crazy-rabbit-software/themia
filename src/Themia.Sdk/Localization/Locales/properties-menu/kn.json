@@ -1,0 +1,8 @@
+{
+  "menu.rename": "ಮರುಹೆಸರಿಸು…",
+  "menu.add": "ಸೇರಿಸು…",
+  "menu.reorderHint": "ಕ್ರಮ ಬದಲಾಯಿಸಲು ಎಳೆ, ಅಥವಾ Ctrl+Up ಅಥವಾ Ctrl+Down ಒತ್ತು",
+  "menu.filter": "ಹುಡುಕು",
+  "menu.opensIn": "{name} ತೆರೆಯುತ್ತದೆ",
+  "menu.numberRange": "{min} ರಿಂದ {max} ವರೆಗಿನ ಸಂಖ್ಯೆ ನಮೂದಿಸು"
+}

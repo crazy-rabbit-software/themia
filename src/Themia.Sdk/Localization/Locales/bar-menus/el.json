@@ -1,0 +1,14 @@
+{
+  "barMenus.display": "Οθόνη",
+  "barMenus.display.all": "Όλες οι οθόνες",
+  "barMenus.display.showOn": "Εμφάνιση του Themia σε",
+  "barMenus.display.this": "Αυτή η οθόνη",
+  "barMenus.viewBar": "Γραμμή προβολών",
+  "barMenus.viewBar.position": "Θέση",
+  "barMenus.viewBar.size": "Μέγεθος",
+  "barMenus.viewBar.hidden": "Κρυφή",
+  "barMenus.viewBar.views": "Προβολές",
+  "barMenus.view.renameTitle": "Μετονομασία προβολής",
+  "barMenus.view.deleteQuestion": "Διαγραφή του «{name}»;",
+  "barMenus.view.deleteDetail": "Φεύγουν μαζί και τα γραφικά στοιχεία της ({widgets}). Η αναίρεση τα φέρνει όλα πίσω."
+}

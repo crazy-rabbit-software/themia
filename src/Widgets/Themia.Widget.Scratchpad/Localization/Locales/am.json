@@ -1,0 +1,16 @@
+{
+  "scratchpad.drawHere": "እዚህ ይሳሉ",
+  "scratchpad.penColorLabel": "የብዕር ቀለም",
+  "scratchpad.penSizeLabel": "የብዕር መጠን",
+  "widget.scratchpad.label": "የመሳያ ሰሌዳ",
+  "widgetsA.catalog.scratchpad.description": "የሚሳልበት ቦታ",
+  "widgetsC.scratchpad.clearConfirm": "ሙሉው ሥዕል ይጽዳ?",
+  "widgetsC.scratchpad.clearDrawing": "ሥዕሉን አጽዳ",
+  "widgetsC.scratchpad.draw": "ሣል",
+  "widgetsC.scratchpad.eraseStrokes": "መስመሮችን አጥፋ",
+  "widgetsC.scratchpad.exitFullScreen": "ከሙሉ ማያ ገጽ ውጣ",
+  "widgetsC.scratchpad.fullScreen": "ሙሉ ማያ ገጽ",
+  "widgetsC.scratchpad.penSizeTip": "የብዕር መጠን {size} px",
+  "widgetsC.scratchpad.settings.showTools.label": "መሣሪያዎቹን አሳይ",
+  "widgetsC.scratchpad.undo": "ቀልብስ"
+}

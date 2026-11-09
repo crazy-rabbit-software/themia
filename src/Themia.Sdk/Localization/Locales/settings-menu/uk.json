@@ -1,0 +1,20 @@
+{
+  "settingsMenu.onlineUpdates": "Онлайн-оновлення",
+  "settingsMenu.gameMode": "Призупиняти під час повноекранних програм",
+  "settingsMenu.findLanguage": "Знайти мову",
+  "settingsMenu.proFree": "Безкоштовно",
+  "settingsMenu.backup": "Резервна копія й скидання",
+  "settingsMenu.about": "Про Themia",
+  "settingsMenu.exportSettings": "Експортувати параметри…",
+  "settingsMenu.importSettings": "Імпортувати параметри…",
+  "settingsMenu.resetAll": "Скинути всі параметри…",
+  "settingsMenu.reset": "Скинути",
+  "settingsMenu.exported": "Збережено як {file}",
+  "settingsMenu.imported": "Параметри імпортовано. Попередні збережено як {backup}.",
+  "settingsMenu.resetDone": "Параметри скинуто. Попередні збережено як {backup}.",
+  "settingsMenu.purchasing": "Очікування Microsoft Store…",
+  "settingsMenu.aboutOpenMeteo": "Погода, опади та якість повітря. Якість повітря також від Copernicus Atmosphere Monitoring Service (CAMS).",
+  "settingsMenu.uninstallEllipsis": "Видалити…",
+  "settingsMenu.uninstallDataGoes": "Твої віджети, параметри й облікові записи також буде видалено.",
+  "settingsMenu.uninstallDeleteData": "Також видалити мої дані"
+}

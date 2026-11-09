@@ -1,0 +1,23 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "alarm.untitled": "Penggera",
+  "alarm.off": "Mati",
+  "alarm.ringing": "Berbunyi",
+  "alarm.snoozedUntil": "Ditunda hingga {time}",
+  "alarm.everyDay": "Setiap hari",
+  "alarm.weekdays": "Hari bekerja",
+  "alarm.weekends": "Hujung minggu",
+  "alarm.snooze": "Tunda",
+  "alarm.dismiss": "Ketepikan",
+  "drives.label.cd": "Pemacu CD",
+  "drives.label.network": "Pemacu Rangkaian",
+  "drives.label.ram": "Cakera RAM",
+  "drives.type.removable": "Cakera Boleh Alih",
+  "drives.type.optical": "Pemacu CD",
+  "drives.type.network": "Pemacu Rangkaian",
+  "drives.type.disconnected": "Pemacu rangkaian terputus",
+  "drives.noMedia": "Tiada media",
+  "drives.pending": "Menyambung…",
+  "drives.disconnected": "Terputus",
+  "drives.eject": "Keluarkan"
+}

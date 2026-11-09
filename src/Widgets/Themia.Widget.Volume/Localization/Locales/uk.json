@@ -1,0 +1,11 @@
+{
+  "widget.volume.label": "Гучність",
+  "widgetsA.catalog.volume.description": "Загальний рівень виводу й вимкнення звуку",
+  "widgetsC.volume.defaultNotChanged": "Пристрій виводу за замовчуванням не змінено",
+  "widgetsC.volume.followDefault": "Стежити за пристроєм виводу за замовчуванням",
+  "widgetsC.volume.noDevice": "Немає пристрою виводу",
+  "widgetsC.volume.notConnected": "{device} не підключено",
+  "widgetsC.volume.settings.allow.label": "Дозволити зміни",
+  "widgetsC.volume.settings.keysNote": "Клацни плитку, а потім використовуй клавіші зі стрілками або + і −; M вимикає звук.",
+  "widgetsC.volume.unavailable": "Звук недоступний"
+}

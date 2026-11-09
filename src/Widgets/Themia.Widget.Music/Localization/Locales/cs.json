@@ -1,0 +1,19 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "music.hideWhenIdle.label": "Skrýt při nečinnosti",
+  "music.hideWhenIdle.never": "Nikdy",
+  "styles.music.artwork": "Obal a text",
+  "styles.music.cover": "Celý obal",
+  "styles.music.text": "Jen text",
+  "widgetsA.catalog.music.description": "Cokoli Windows právě přehrává",
+  "widgetsA.catalog.music.label": "Právě hraje",
+  "widgetsB.music.next": "Další",
+  "widgetsB.music.pause": "Pozastavit",
+  "widgetsB.music.play": "Přehrát",
+  "widgetsB.music.playPause": "Přehrát nebo pozastavit",
+  "widgetsB.music.previous": "Předchozí",
+  "widgetsB.settings.music.hideWhenIdle.noSession": "Když není otevřený žádný přehrávač",
+  "widgetsB.settings.music.hideWhenIdle.notPlaying": "Když nic nehraje",
+  "widgetsB.settings.music.progress.label": "Zobrazit průběh",
+  "widgetsB.settings.music.transport.label": "Zobrazit ovládání přehrávání"
+}

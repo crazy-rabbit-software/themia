@@ -1,0 +1,33 @@
+{
+  "calendar.agendaEvents.label": "Evenimente agendă",
+  "calendar.noEventsToday": "Niciun eveniment azi",
+  "calendar.noUpcoming": "Niciun eveniment viitor.",
+  "calendar.today": "Azi",
+  "common.next": "Următorul",
+  "styles.calendar.agenda": "Agendă",
+  "styles.calendar.day": "Zi",
+  "styles.calendar.desc": "Evenimentele și zilele de naștere pe lună, săptămână, zi sau an, ori ca agendă",
+  "styles.calendar.label": "Calendar",
+  "styles.calendar.month": "Lună",
+  "styles.calendar.week": "Săptămână",
+  "styles.calendar.year": "An",
+  "widgetsA.calendar.allDayOn": "Toată ziua · {date}",
+  "widgetsA.calendar.birthday": "Zi de naștere",
+  "widgetsA.calendar.noEvents": "Niciun eveniment",
+  "widgetsA.calendar.now": "Acum",
+  "widgetsA.calendar.previous": "Anterior",
+  "widgetsA.calendar.settings.agendaRange.custom": "Personalizat",
+  "widgetsA.calendar.settings.agendaRange.days": {
+    "one": "{count} zi",
+    "few": "{count} zile",
+    "other": "{count} de zile"
+  },
+  "widgetsA.calendar.settings.agendaRange.label": "Interval de date",
+  "widgetsA.calendar.settings.agendaRange.todayTomorrow": "Azi și mâine",
+  "widgetsA.calendar.settings.days.label": "Zile afișate",
+  "widgetsA.calendar.settings.weekFrom.label": "Începe în",
+  "widgetsA.calendar.settings.weekFrom.weekStart": "Prima zi a săptămânii ({day})",
+  "widgetsA.calendar.spanWithLength": "{from}–{to} ({length})",
+  "widgetsA.clock.date": "{weekday}, {date}",
+  "calendar.setup.sentence": "Adaugă un cont ca să-ți afișezi calendarul"
+}

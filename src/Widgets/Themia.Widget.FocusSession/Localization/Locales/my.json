@@ -1,0 +1,15 @@
+{
+  "panels.focus.desc": "အသိပေးချက်များ ဆိုင်းထားပြီး အာရုံစိုက်ရန် အချိန်",
+  "panels.focus.end": "အချိန်ပိုင်း ပြီးဆုံးရန်",
+  "panels.focus.label": "အာရုံစိုက်ချိန်",
+  "panels.focus.left": "{time} ကျန်သည်",
+  "panels.focus.lengthLabel": "ကြာချိန်",
+  "panels.focus.longer": "ပိုရှည်",
+  "panels.focus.quietLabel": "မနှောင့်ယှက်ရ ဖွင့်ရန်",
+  "panels.focus.quietOn": "မနှောင့်ယှက်ရ ဖွင့်ထားသည်",
+  "panels.focus.quietUnavailable": "ဤနေရာတွင် မနှောင့်ယှက်ရ ကို ဖွင့်၍ မရပါ",
+  "panels.focus.shorter": "ပိုတို",
+  "panels.focus.start": "စတင်ရန်",
+  "panels.focus.willQuiet": "မနှောင့်ယှက်ရ ကို ဖွင့်မည်",
+  "panels.focus.windows": "Windows အာရုံစိုက်ချိန် ဖွင့်ထားသည်"
+}

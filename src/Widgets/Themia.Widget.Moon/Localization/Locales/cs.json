@@ -1,0 +1,11 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "widgetsC.moon.label": "Měsíc",
+  "widgetsC.moon.desc": "Fáze Měsíce, východ a západ",
+  "widgetsC.moon.rise": "Východ Měsíce",
+  "widgetsC.moon.set": "Západ Měsíce",
+  "widgetsC.moon.short.rise": "Východ",
+  "widgetsC.moon.short.set": "Západ",
+  "styles.moon.disc": "Kotouč",
+  "styles.moon.phaseMonth": "Fáze v měsíci"
+}

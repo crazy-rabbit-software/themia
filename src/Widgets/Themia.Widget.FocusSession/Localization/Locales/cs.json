@@ -1,0 +1,16 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "panels.focus.desc": "Čas na soustředění s pozdrženými oznámeními",
+  "panels.focus.end": "Ukončit relaci",
+  "panels.focus.label": "Relace soustředění",
+  "panels.focus.left": "Zbývá {time}",
+  "panels.focus.lengthLabel": "Délka",
+  "panels.focus.longer": "Delší",
+  "panels.focus.quietLabel": "Zapnout Nerušit",
+  "panels.focus.quietOn": "Nerušit je zapnuté",
+  "panels.focus.quietUnavailable": "Nerušit tady nejde zapnout",
+  "panels.focus.shorter": "Kratší",
+  "panels.focus.start": "Spustit",
+  "panels.focus.willQuiet": "Zapne Nerušit",
+  "panels.focus.windows": "Běží relace soustředění ve Windows"
+}

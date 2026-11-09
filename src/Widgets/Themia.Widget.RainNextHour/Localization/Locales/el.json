@@ -1,0 +1,15 @@
+{
+  "online.rain.label": "Βροχή την επόμενη ώρα",
+  "online.rain.desc": "Πότε αρχίζει ή σταματά η βροχή, σε βήματα των {minutes} λεπτών",
+  "online.rain.startsIn": "Βροχή σε {minutes} λεπ.",
+  "online.rain.stopsIn": "Η βροχή σταματά σε {minutes} λεπ.",
+  "online.rain.continues": "Βροχή για τις επόμενες 2 ώρες",
+  "online.rain.dry": "Χωρίς βροχή τις επόμενες 2 ώρες",
+  "online.rain.outdated": "Δεν υπάρχει πρόγνωση για την επόμενη ώρα",
+  "online.rain.intensity.light": "Ασθενής βροχή",
+  "online.rain.intensity.moderate": "Μέτρια βροχή",
+  "online.rain.intensity.heavy": "Ισχυρή βροχή",
+  "online.rain.chance": "Πιθανότητα {percent}",
+  "online.rain.total": "{amount} mm σε 2 ώρες",
+  "online.rain.now": "Τώρα"
+}

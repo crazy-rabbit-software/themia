@@ -1,0 +1,5 @@
+{
+  "kit.ownerProblem": "{name}: {reason}",
+  "kit.refreshUpdated": "ပြန်လည်ဆန်းသစ်ရန် · {age} က အပ်ဒိတ်လုပ်ပြီး",
+  "kit.problemSeveral": "{name} နှင့် နောက်ထပ် {count} ခုကို မဖွင့်နိုင်ခဲ့ပါ"
+}

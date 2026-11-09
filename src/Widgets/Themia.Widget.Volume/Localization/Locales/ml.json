@@ -1,0 +1,11 @@
+{
+  "widget.volume.label": "വോളിയം",
+  "widgetsA.catalog.volume.description": "മാസ്റ്റർ ഔട്ട്‌പുട്ട് നിലയും മ്യൂട്ടും",
+  "widgetsC.volume.defaultNotChanged": "സ്ഥിരസ്ഥിതി ഔട്ട്‌പുട്ട് മാറ്റിയില്ല",
+  "widgetsC.volume.followDefault": "സ്ഥിരസ്ഥിതി ഔട്ട്‌പുട്ട് പിന്തുടരുക",
+  "widgetsC.volume.noDevice": "ഔട്ട്‌പുട്ട് ഉപകരണമില്ല",
+  "widgetsC.volume.notConnected": "{device} കണക്റ്റ് ചെയ്തിട്ടില്ല",
+  "widgetsC.volume.settings.allow.label": "മാറ്റങ്ങൾ അനുവദിക്കുക",
+  "widgetsC.volume.settings.keysNote": "ടൈലിൽ ക്ലിക്ക് ചെയ്യുക, പിന്നെ ആരോ കീകളോ + , − ഓ ഉപയോഗിക്കുക; M മ്യൂട്ട് ചെയ്യുന്നു.",
+  "widgetsC.volume.unavailable": "ശബ്‌ദം ലഭ്യമല്ല"
+}

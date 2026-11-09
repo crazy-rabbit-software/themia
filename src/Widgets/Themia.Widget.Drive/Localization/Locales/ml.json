@@ -1,0 +1,10 @@
+{
+  "drives.drive.desc": "ഒരു ഡ്രൈവിന്റെ ഇടവും ഫയൽ സിസ്റ്റവും, മാപ്പ് ചെയ്ത ഡ്രൈവുകളും",
+  "drives.drive.label": "ഡ്രൈവ്",
+  "drives.fact.capacity": "ശേഷി",
+  "drives.fact.fileSystem": "ഫയൽ സിസ്റ്റം",
+  "drives.fact.free": "ഒഴിവ്",
+  "drives.fact.used": "ഉപയോഗിച്ചത്",
+  "drives.settings.drive.label": "ഡ്രൈവ്",
+  "styles.io.bar": "ബാർ"
+}

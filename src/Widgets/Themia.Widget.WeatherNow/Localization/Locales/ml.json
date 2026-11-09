@@ -1,0 +1,17 @@
+{
+  "styles.weatherNow.largeIcon": "വലിയ ഐക്കൺ",
+  "styles.weatherNow.minimal": "ലളിതം",
+  "styles.weatherNow.standard": "സാധാരണ",
+  "weather.feelsLike": "അനുഭവപ്പെടുന്നത്",
+  "weather.humidity": "ആർദ്രത",
+  "weather.wind": "കാറ്റ്",
+  "widget.weatherCurrent.label": "കാലാവസ്ഥ",
+  "widgetsA.catalog.weather.description": "നിങ്ങൾ ഉള്ളിടത്തെ കാലാവസ്ഥ",
+  "widgetsC.weather.fact.cloudCover": "മേഘാവരണം",
+  "widgetsC.weather.fact.gusts": "കാറ്റിന്റെ വേഗക്കുതിപ്പ്",
+  "widgetsC.weather.fact.precipitation": "മഴ",
+  "widgetsC.weather.fact.pressure": "മർദ്ദം",
+  "widgetsC.weather.fact.uvIndex": "UV സൂചിക",
+  "widgetsC.weather.feelsShort": "അനുഭവപ്പെടുന്നത് {temperature}",
+  "widgetsC.weather.settings.showDetail.label": "വിശദാംശം കാണിക്കുക"
+}

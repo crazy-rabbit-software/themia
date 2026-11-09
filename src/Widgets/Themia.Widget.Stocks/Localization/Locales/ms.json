@@ -1,0 +1,30 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "stocks.dimWhenClosed": "Penunjuk ditutup",
+  "stocks.extendedHours": "Waktu lanjutan",
+  "stocks.extendedHoursDesc": "Jejaki dagangan pra-pasaran dan selepas waktu (1H dan 5H)",
+  "stocks.setup": "Pilih simbol",
+  "stocks.showMinMax": "Penanda min/maks",
+  "stocks.tab.symbols": "Simbol",
+  "stocks.timeframe": "Jangka masa",
+  "styles.stocks.chart": "Carta",
+  "styles.stocks.number": "Nombor",
+  "widget.stocks.label": "Saham",
+  "widgetsA.catalog.stocks.description": "Kaunter dan kripto, dengan garis mini",
+  "widgetsC.stocks.holding.amount": "{amount} dipegang",
+  "widgetsC.stocks.noQuote": "Tiada sebut harga untuk simbol itu",
+  "widgetsC.stocks.notSymbol": "\"{symbol}\" bukan simbol",
+  "widgetsC.stocks.period.days": {
+    "other": "{count} hari"
+  },
+  "widgetsC.stocks.period.months": {
+    "other": "{count} bulan"
+  },
+  "widgetsC.stocks.period.years": {
+    "other": "{count} tahun"
+  },
+  "widgetsC.stocks.phaseTooltip": "{phase}. {zone}",
+  "widgetsC.stocks.settings.holding.label": "Saham dimiliki",
+  "widgetsC.stocks.settings.holding.refused": "Taip jumlah {zero} atau lebih, seperti {example}",
+  "widgetsC.stocks.settings.symbolRefused": "Pilih hasil carian, atau taip simbol: huruf, digit dan . - ^ = sahaja"
+}

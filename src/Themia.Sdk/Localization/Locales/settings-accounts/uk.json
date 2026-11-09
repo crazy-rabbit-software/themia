@@ -1,0 +1,10 @@
+{
+  "settingsAccounts.ownServer": "Указати сервер самостійно",
+  "settingsAccounts.test": "Перевірити з’єднання",
+  "settingsAccounts.connectedTo": "Підключено до {host}.",
+  "settingsAccounts.noServer": "Themia не знає сервера для {domain}. Укажи його сам.",
+  "settingsAccounts.davAddress": "Введи веб-адресу сервера, наприклад https://cloud.example.com.",
+  "settingsAccounts.code": "Код",
+  "settingsAccounts.pasteToken": "Спершу встав токен.",
+  "settingsAccounts.enterAddress": "Введи адресу електронної пошти та її пароль."
+}

@@ -1,0 +1,23 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "apps.viewCompact": "Padat",
+  "apps.viewGrid": "Grid",
+  "apps.viewList": "Senarai",
+  "contacts.noContacts": "Tiada kenalan ditemui.",
+  "contacts.searchPlaceholder": "Cari kenalan…",
+  "ctxMenu.call": "Panggil",
+  "ctxMenu.copyEmail": "Salin e-mel",
+  "ctxMenu.copyName": "Salin nama",
+  "ctxMenu.copyPhone": "Salin telefon",
+  "ctxMenu.message": "Mesej",
+  "ctxMenu.sendEmail": "Hantar e-mel",
+  "widget.contacts.label": "Kenalan",
+  "widgetsA.catalog.contacts.description": "Orang daripada buku alamat Microsoft dan CardDAV kamu",
+  "widgetsA.contacts.noAccount": "Belum ada akaun kenalan",
+  "widgetsA.contacts.none": "Tiada kenalan",
+  "widgetsA.contacts.readFailed": "Tidak dapat membaca kenalan. Lihat themia.log.",
+  "widgetsA.contacts.settings.count.label": "Orang",
+  "widgetsA.contacts.settings.every": "Setiap akaun kenalan",
+  "widgetsA.contacts.settings.layout.label": "Susun atur",
+  "contacts.setup.sentence": "Tambah akaun untuk menunjukkan kenalan kamu"
+}

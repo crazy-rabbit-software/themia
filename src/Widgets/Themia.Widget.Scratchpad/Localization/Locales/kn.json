@@ -1,0 +1,16 @@
+{
+  "scratchpad.drawHere": "ಇಲ್ಲಿ ಚಿತ್ರಿಸು",
+  "scratchpad.penColorLabel": "ಪೆನ್ ಬಣ್ಣ",
+  "scratchpad.penSizeLabel": "ಪೆನ್ ಗಾತ್ರ",
+  "widget.scratchpad.label": "ಸ್ಕ್ರ್ಯಾಚ್‌ಪ್ಯಾಡ್",
+  "widgetsA.catalog.scratchpad.description": "ಚಿತ್ರಿಸಲು ಒಂದು ಜಾಗ",
+  "widgetsC.scratchpad.clearConfirm": "ಸಂಪೂರ್ಣ ಚಿತ್ರವನ್ನು ತೆರವುಗೊಳಿಸಬೇಕೇ?",
+  "widgetsC.scratchpad.clearDrawing": "ಚಿತ್ರವನ್ನು ತೆರವುಗೊಳಿಸು",
+  "widgetsC.scratchpad.draw": "ಚಿತ್ರಿಸು",
+  "widgetsC.scratchpad.eraseStrokes": "ಗೆರೆಗಳನ್ನು ಅಳಿಸು",
+  "widgetsC.scratchpad.exitFullScreen": "ಪೂರ್ಣ ಪರದೆಯಿಂದ ನಿರ್ಗಮಿಸು",
+  "widgetsC.scratchpad.fullScreen": "ಪೂರ್ಣ ಪರದೆ",
+  "widgetsC.scratchpad.penSizeTip": "ಪೆನ್ ಗಾತ್ರ {size} px",
+  "widgetsC.scratchpad.settings.showTools.label": "ಪರಿಕರಗಳನ್ನು ತೋರಿಸು",
+  "widgetsC.scratchpad.undo": "ರದ್ದುಗೊಳಿಸು"
+}

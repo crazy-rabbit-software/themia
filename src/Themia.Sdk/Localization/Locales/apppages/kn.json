@@ -1,0 +1,45 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "shell.view.colour": "ಬಣ್ಣ",
+  "shell.view.colourDefault": "ಪಠ್ಯದ ಬಣ್ಣ",
+  "shell.appearance.themeColours": "ಥೀಮ್ ಮತ್ತು ಬಣ್ಣಗಳು",
+  "shell.appearance.cards": "ವಿಜೆಟ್ ಕಾರ್ಡ್‌ಗಳು",
+  "shell.appearance.textAndSize": "ಪಠ್ಯ ಮತ್ತು ಗಾತ್ರ",
+  "shell.net.blockedLocal": "{host} ಸ್ಥಳೀಯ ನೆಟ್‌ವರ್ಕ್‌ನಲ್ಲಿದೆ. ನೀನೇ ಟೈಪ್ ಮಾಡಿದ ವಿಳಾಸಕ್ಕೆ ಮಾತ್ರ Themia ಅಲ್ಲಿಗೆ ಹೋಗುತ್ತದೆ",
+  "shell.accounts.stats.mail": "ಮೇಲ್",
+  "shell.accounts.stats.calendar": "ಕ್ಯಾಲೆಂಡರ್",
+  "shell.accounts.stats.contacts": "ಸಂಪರ್ಕಗಳು",
+  "shell.accounts.stats.tasks": "ಕಾರ್ಯಗಳು",
+  "shell.accounts.stats.messages": {
+    "one": "{count} ಸಂದೇಶ",
+    "other": "{count} ಸಂದೇಶಗಳು"
+  },
+  "shell.accounts.stats.events": {
+    "one": "{count} ಈವೆಂಟ್",
+    "other": "{count} ಈವೆಂಟ್‌ಗಳು"
+  },
+  "shell.accounts.stats.people": {
+    "one": "{count} ಸಂಪರ್ಕ",
+    "other": "{count} ಸಂಪರ್ಕಗಳು"
+  },
+  "shell.accounts.stats.taskCount": {
+    "one": "{count} ಕಾರ್ಯ",
+    "other": "{count} ಕಾರ್ಯಗಳು"
+  },
+  "shell.accounts.stats.folders": {
+    "one": "{count} ಫೋಲ್ಡರ್‌ನಲ್ಲಿ",
+    "other": "{count} ಫೋಲ್ಡರ್‌ಗಳಲ್ಲಿ"
+  },
+  "shell.accounts.stats.calendars": {
+    "one": "{count} ಕ್ಯಾಲೆಂಡರ್‌ನಲ್ಲಿ",
+    "other": "{count} ಕ್ಯಾಲೆಂಡರ್‌ಗಳಲ್ಲಿ"
+  },
+  "shell.accounts.stats.lists": {
+    "one": "{count} ಪಟ್ಟಿಯಲ್ಲಿ",
+    "other": "{count} ಪಟ್ಟಿಗಳಲ್ಲಿ"
+  },
+  "shell.accounts.stats.synced": "{time} ಸಿಂಕ್ ಆಗಿದೆ",
+  "shell.accounts.stats.neverSynced": "ಇನ್ನೂ ಸಿಂಕ್ ಆಗಿಲ್ಲ",
+  "shell.accounts.stats.nothing": "ಈ PC ಯಲ್ಲಿ ಇನ್ನೂ ಏನನ್ನೂ ಸಂಗ್ರಹಿಸಿಲ್ಲ",
+  "shell.accounts.reconnect": "ಮತ್ತೆ ಸೈನ್ ಇನ್ ಮಾಡು"
+}

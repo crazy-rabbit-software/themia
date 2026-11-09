@@ -1,0 +1,20 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "pomodoro.alarmSound.label": "Zvuk upozornění",
+  "pomodoro.alarmVolume.label": "Hlasitost upozornění",
+  "pomodoro.breakLength.label": "Délka přestávky",
+  "pomodoro.focusLength.label": "Délka soustředění",
+  "pomodoro.reset": "Obnovit",
+  "styles.pomodoro.bar": "Pruh",
+  "styles.pomodoro.digits": "Číslice",
+  "styles.pomodoro.ring": "Kruh",
+  "widgetUi.break": "Přestávka",
+  "widgetUi.focus": "Soustředění",
+  "widget.pomodoro.label": "Pomodoro",
+  "widgetsA.catalog.pomodoro.description": "Časovač pro soustředění a přestávky",
+  "widgetsC.pomodoro.next": "Další: {phase} {time}",
+  "widgetsC.pomodoro.pause": "Pozastavit",
+  "widgetsC.pomodoro.skip": "Přeskočit na další fázi",
+  "widgetsC.pomodoro.start": "Spustit",
+  "widgetsC.pomodoro.minutesUnit": " min"
+}

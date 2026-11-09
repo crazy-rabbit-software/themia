@@ -1,0 +1,16 @@
+{
+  "panels.notifications.allow": "Permite",
+  "panels.notifications.clearAll": "Șterge tot",
+  "panels.notifications.clearApp": "Șterge tot de la {app}",
+  "panels.notifications.denied": "Accesul la notificări e dezactivat pentru Themia",
+  "panels.notifications.desc": "Notificările Windows, grupate pe aplicații",
+  "panels.notifications.dismiss": "Închide",
+  "panels.notifications.label": "Notificări",
+  "panels.notifications.none": "Nicio notificare nouă",
+  "panels.notifications.open": "Deschide {app}",
+  "panels.notifications.openSettings": "Deschide setările",
+  "panels.notifications.seeFewer": "Arată mai puține",
+  "panels.notifications.seeMore": "Arată mai multe ({count})",
+  "panels.notifications.unspecified": "Permite-i Themia să-ți citească notificările",
+  "panels.notifications.unsupported": "Această versiune de Windows nu are o listă de notificări de citit"
+}

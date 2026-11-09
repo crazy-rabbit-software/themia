@@ -1,0 +1,10 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "sync.updated": "Ενημερώθηκε {time}",
+  "sync.stateUpdated": "{state} · ενημερώθηκε {time}",
+  "sync.pending": {
+    "one": "{count} αλλαγή περιμένει συγχρονισμό",
+    "other": "{count} αλλαγές περιμένουν συγχρονισμό"
+  },
+  "sync.queueFull": "Πάρα πολλές αλλαγές περιμένουν συγχρονισμό· αυτή δεν κρατήθηκε."
+}

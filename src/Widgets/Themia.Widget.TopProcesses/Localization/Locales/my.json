@@ -1,0 +1,11 @@
+{
+  "details.catalog.processes.desc": "ပရိုဆက်ဆာ သို့မဟုတ် မမ်မိုရီအလိုက် အလုပ်အများဆုံး အက်ပ်များ",
+  "details.processes.unavailable": "Windows က process များကို စာရင်းမပြုခဲ့ပါ",
+  "details.catalog.processes.label": "ထိပ်တန်း process များ",
+  "details.settings.processes.group.label": "အက်ပ်အလိုက် အုပ်စုဖွဲ့ရန်",
+  "details.settings.processes.rows.fit": "ဆံ့သလောက်",
+  "details.settings.processes.rows.label": "အတန်းများ",
+  "details.settings.processes.sort.cpu": "ပရိုဆက်ဆာ",
+  "details.settings.processes.sort.label": "အဆင့်သတ်မှတ်ပုံ",
+  "details.settings.processes.sort.memory": "မမ်မိုရီ"
+}

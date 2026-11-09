@@ -1,0 +1,10 @@
+{
+  "barMenus.viewBar.type": "Tip",
+  "barMenus.viewBar.labels": "Etichete",
+  "shell.viewBar.typeInline": "În linie",
+  "shell.viewBar.typeSelect": "Selector",
+  "shell.viewBar.labelsIconAndText": "Pictogramă și text",
+  "shell.viewBar.labelsIconOnly": "Doar pictogramă",
+  "shell.viewBar.labelsTextOnly": "Doar text",
+  "shell.viewBar.pickTip": "{name}\nFă clic pentru a alege o vizualizare"
+}

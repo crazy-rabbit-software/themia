@@ -1,0 +1,12 @@
+{
+  "stopwatch.label": "Aago ìkàsíwájú",
+  "stopwatch.desc": "Ó ń ka àkókò pẹ̀lú àwọn yípo, ó sì ń bá a lọ láìka títún bẹ̀rẹ̀ sí",
+  "stopwatch.start": "Bẹ̀rẹ̀",
+  "stopwatch.pause": "Dánudúró",
+  "stopwatch.resume": "Tẹ̀síwájú",
+  "stopwatch.lap": "Yípo",
+  "stopwatch.reset": "Tún tò",
+  "stopwatch.lapNumber": "Yípo {n}",
+  "stopwatch.noLaps": "Kò sí yípo kankan síbẹ̀",
+  "stopwatch.paused": "Ó ti dánudúró"
+}

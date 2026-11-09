@@ -1,0 +1,18 @@
+{
+  "mixer.cfg.activeLabel": "Àwọn áàpù tó ń dún báyìí nìkan",
+  "mixer.cfg.iconsLabel": "Àwọn àmì áàpù",
+  "mixer.cfg.systemLabel": "Ohùn sístẹ́mù",
+  "mixer.empty": "Kò sí áàpù tó ń dún",
+  "mixer.systemSounds": "Ohùn sístẹ́mù",
+  "mixer.unknownApp": "Áàpù àìmọ̀",
+  "widgetsA.catalog.mixer.description": "Ìwọ̀n ohùn fún áàpù kọ̀ọ̀kan tó ń dún",
+  "widgetsA.catalog.mixer.label": "Àdàpọ̀ ohùn",
+  "widgetsB.mixer.defaultNotChanged": "A kò yí ìjáde àtilẹ̀wá padà",
+  "widgetsB.mixer.deviceMissing": "{device} kò sopọ̀",
+  "widgetsB.mixer.followDefault": "Tẹ̀lé ìjáde àtilẹ̀wá",
+  "widgetsB.mixer.noDevice": "Kò sí ẹ̀rọ ìjáde",
+  "widgetsB.mixer.notPlaying": "{name} (kò dún)",
+  "widgetsB.mixer.unavailable": "Ohùn kò sí lárọ̀wọ́tó",
+  "widgetsB.settings.mixer.groupByApp.label": "Ìlà kan fún áàpù kọ̀ọ̀kan",
+  "widgetsB.settings.mixer.note": "Tẹ àdàpọ̀ ohùn, lẹ́yìn náà ↑ àti ↓ yan ìlà kan, ← àti → yí i padà, M pa ohùn."
+}

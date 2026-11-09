@@ -1,0 +1,16 @@
+{
+  "alarm.desc": "ባዘጋጁት ሰዓት ይደውላል፣ አንዴ ወይም በተመረጡ ቀናት",
+  "alarm.label": "ማንቂያ",
+  "alarm.settings.namePlaceholder": "ስም (አማራጭ)",
+  "alarm.settings.name.label": "ስም",
+  "alarm.settings.on.label": "በርቷል",
+  "alarm.settings.repeat": "የሚደገምባቸው ቀናት",
+  "alarm.settings.repeat.desc": "ምንም ካልተመረጠ፦ አንዴ ይደውላል",
+  "alarm.settings.snooze.label": "የማሸለቢያ ጊዜ",
+  "alarm.settings.sound.label": "ድምፅ",
+  "alarm.settings.time.label": "ሰዓት",
+  "alarm.settings.volume.label": "የድምፅ መጠን",
+  "alarm.settings.whileRunning": "ማንቂያዎች የሚደውሉት Themia በሚሠራበት ጊዜ ብቻ ነው። ፒሲው ተኝቶ ሳለ ጊዜው የደረሰ ማንቂያ ፒሲው ሲነቃ ይደውላል፣ ይህም በአምስት ደቂቃ ውስጥ ከሆነ።",
+  "alarm.switchOff": "{name}ን አጥፋ",
+  "alarm.switchOn": "{name}ን አብራ"
+}

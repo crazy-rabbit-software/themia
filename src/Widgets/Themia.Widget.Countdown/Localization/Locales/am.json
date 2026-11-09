@@ -1,0 +1,49 @@
+{
+  "countdown.setup": "የሚቆጠርበትን ቀን ይምረጡ",
+  "styles.countdown.ring": "ቀለበት",
+  "styles.countdown.text": "ጽሑፍ",
+  "styles.countdown.unitDays": "ቀናት",
+  "styles.countdown.unitHours": "ሰዓታት",
+  "styles.countdown.unitMinutes": "ደቂቃ",
+  "styles.countdown.unitSeconds": "ሰከንድ",
+  "widget.countdown.label": "ቆጠራ",
+  "widgetsA.catalog.countdown.description": "እስከሚያስቡት ቀን የቀረው ጊዜ",
+  "widgetsA.countdown.ago": "ከ{duration} በፊት",
+  "widgetsA.countdown.compact.dh": "{days}ቀ {hours}ሰ",
+  "widgetsA.countdown.compact.dhm": "{days}ቀ {hours}ሰ {minutes}ደ",
+  "widgetsA.countdown.compact.dhms": "{days}ቀ {hours}ሰ {minutes}ደ {seconds}s",
+  "widgetsA.countdown.compact.hm": "{hours}ሰ {minutes}ደ",
+  "widgetsA.countdown.dateTime": "{date}፣ {time}",
+  "widgetsA.countdown.days": {
+    "one": "{count} ቀን",
+    "other": "{count} ቀናት"
+  },
+  "widgetsA.countdown.daysAgo": {
+    "one": "ከ{count} ቀን በፊት",
+    "other": "ከ{count} ቀናት በፊት"
+  },
+  "widgetsA.countdown.daysIn": {
+    "one": "በ{count} ቀን ውስጥ",
+    "other": "በ{count} ቀናት ውስጥ"
+  },
+  "widgetsA.countdown.format.auto": "ራስ-ሰር",
+  "widgetsA.countdown.format.days": "ቀናት ብቻ",
+  "widgetsA.countdown.format.dhm": "ቀናት · ሰዓታት · ደቂቃ",
+  "widgetsA.countdown.format.dhms": "ቀናት · ሰዓታት · ደቂቃ · ሰከንድ",
+  "widgetsA.countdown.fullDateTime": "{date} በ{time}",
+  "widgetsA.countdown.hours": {
+    "one": "{count} ሰዓት",
+    "other": "{count} ሰዓታት"
+  },
+  "widgetsA.countdown.in": "በ{duration} ውስጥ",
+  "widgetsA.countdown.inAMoment": "በቅጽበት",
+  "widgetsA.countdown.justNow": "አሁን",
+  "widgetsA.countdown.minutes": {
+    "one": "{count} ደቂቃ",
+    "other": "{count} ደቂቃዎች"
+  },
+  "widgetsA.countdown.settings.format.label": "ቅርጸት",
+  "widgetsA.countdown.settings.name.label": "ስም",
+  "widgetsA.countdown.untitled": "ርዕስ የሌለው",
+  "styles.clock.flip": "ገልባጭ"
+}

@@ -1,0 +1,5 @@
+{
+  "kit.ownerProblem": "{name}: {reason}",
+  "kit.refreshUpdated": "Ανανέωση · ενημερώθηκε {age}",
+  "kit.problemSeveral": "Δεν ήταν δυνατή η φόρτωση του {name} και {count} ακόμα"
+}

@@ -1,0 +1,11 @@
+{
+  "styles.audioVisualizer.bars": "ဘားများ",
+  "styles.audioVisualizer.desc": "ဤ PC ဖွင့်သမျှကို ရွေ့လျားနေသော ဘား၊ လှိုင်း သို့မဟုတ် မျဉ်းအဖြစ်",
+  "styles.audioVisualizer.label": "အသံ visualizer",
+  "styles.audioVisualizer.led": "LED မီး",
+  "styles.audioVisualizer.mirrored": "မှန်ပြောင်း",
+  "styles.audioVisualizer.radial": "စက်ဝိုင်းပုံ",
+  "styles.audioVisualizer.wave": "လှိုင်း",
+  "styles.audioVisualizer.waveform": "လှိုင်းပုံစံ",
+  "widgetsC.visualizer.unavailable": "အသံ အထွက် မရနိုင်ပါ"
+}

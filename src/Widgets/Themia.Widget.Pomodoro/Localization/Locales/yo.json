@@ -1,0 +1,19 @@
+{
+  "pomodoro.alarmSound.label": "Ohùn ìdágìrì",
+  "pomodoro.alarmVolume.label": "Ìwọ̀n ohùn ìdágìrì",
+  "pomodoro.breakLength.label": "Gígùn ìsinmi",
+  "pomodoro.focusLength.label": "Gígùn ìfọkànsí",
+  "pomodoro.reset": "Tún tò",
+  "styles.pomodoro.bar": "Ọ̀pá",
+  "styles.pomodoro.digits": "Àwọn òǹkà",
+  "styles.pomodoro.ring": "Òrùka",
+  "widgetUi.break": "Ìsinmi",
+  "widgetUi.focus": "Ìfọkànsí",
+  "widget.pomodoro.label": "Pomodoro",
+  "widgetsA.catalog.pomodoro.description": "Aago ìfọkànsí àti ìsinmi",
+  "widgetsC.pomodoro.next": "Èyí tó kàn: {phase} {time}",
+  "widgetsC.pomodoro.pause": "Dánudúró",
+  "widgetsC.pomodoro.skip": "Fò lọ sí ìpele tó kàn",
+  "widgetsC.pomodoro.start": "Bẹ̀rẹ̀",
+  "widgetsC.pomodoro.minutesUnit": " ìṣẹ́jú"
+}

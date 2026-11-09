@@ -1,0 +1,12 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "recycleBin.desc": "Tahap kepenuhan Tong Kitar Semula, dengan Kosongkan",
+  "recycleBin.empty": "Kosongkan",
+  "recycleBin.isEmpty": "Tiada item",
+  "recycleBin.items": {
+    "other": "{count} item"
+  },
+  "recycleBin.open": "Buka Tong Kitar Semula",
+  "recycleBin.emptyEllipsis": "Kosongkan Tong Kitar Semula…",
+  "widgetsC.location.recycleBin": "Tong Kitar Semula"
+}

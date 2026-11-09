@@ -1,0 +1,9 @@
+{
+  "styles.memory.bar": "Bară",
+  "styles.memory.free": "{size} liberi",
+  "styles.memory.gauge": "Indicator",
+  "styles.memory.graph": "Grafic",
+  "styles.memory.used": "{size} utilizați",
+  "widgetsA.catalog.memory.description": "Memoria fizică în uz",
+  "widgetsA.catalog.memory.label": "Memorie"
+}

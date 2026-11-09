@@ -1,0 +1,13 @@
+{
+  "shell.meters.gpuDescription": "ഒരു ഗ്രാഫിക്സ് കാർഡിന്റെ ലോഡ്",
+  "styles.gpu.engine3d": "3D",
+  "styles.gpu.engineCopy": "പകർപ്പ്",
+  "styles.gpu.engineVideoDecode": "വീഡിയോ ഡീകോഡ്",
+  "styles.gpu.engineVideoEncode": "വീഡിയോ എൻകോഡ്",
+  "styles.gpu.engines": "എഞ്ചിനുകൾ",
+  "styles.gpu.gauge": "ഗേജ്",
+  "styles.gpu.graph": "ഗ്രാഫ്",
+  "widgetsA.catalog.gpu.label": "GPU",
+  "widgetsB.gpu.adapterMissing": "തിരഞ്ഞെടുത്ത ഗ്രാഫിക്സ് അഡാപ്റ്റർ ഇവിടെയില്ല",
+  "widgetsB.gpu.noAdapter": "വായിക്കാൻ ഗ്രാഫിക്സ് അഡാപ്റ്ററില്ല"
+}

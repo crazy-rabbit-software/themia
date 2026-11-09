@@ -1,0 +1,17 @@
+{
+  "styles.weatherNow.largeIcon": "ದೊಡ್ಡ ಐಕಾನ್",
+  "styles.weatherNow.minimal": "ಕನಿಷ್ಠ",
+  "styles.weatherNow.standard": "ಪ್ರಮಾಣಿತ",
+  "weather.feelsLike": "ಅನಿಸುವುದು",
+  "weather.humidity": "ಆರ್ದ್ರತೆ",
+  "weather.wind": "ಗಾಳಿ",
+  "widget.weatherCurrent.label": "ಹವಾಮಾನ",
+  "widgetsA.catalog.weather.description": "ನೀನು ಇರುವಲ್ಲಿನ ಹವಾಮಾನ ಸ್ಥಿತಿ",
+  "widgetsC.weather.fact.cloudCover": "ಮೋಡದ ಹೊದಿಕೆ",
+  "widgetsC.weather.fact.gusts": "ಗಾಳಿಯ ರಭಸ",
+  "widgetsC.weather.fact.precipitation": "ಮಳೆಯ ಪ್ರಮಾಣ",
+  "widgetsC.weather.fact.pressure": "ಒತ್ತಡ",
+  "widgetsC.weather.fact.uvIndex": "UV ಸೂಚ್ಯಂಕ",
+  "widgetsC.weather.feelsShort": "{temperature} ಅನಿಸುತ್ತದೆ",
+  "widgetsC.weather.settings.showDetail.label": "ವಿವರ ತೋರಿಸು"
+}

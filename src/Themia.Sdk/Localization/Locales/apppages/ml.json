@@ -1,0 +1,45 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "shell.view.colour": "നിറം",
+  "shell.view.colourDefault": "വാചക നിറം",
+  "shell.appearance.themeColours": "തീമും നിറങ്ങളും",
+  "shell.appearance.cards": "വിജറ്റ് കാർഡുകൾ",
+  "shell.appearance.textAndSize": "വാചകവും വലുപ്പവും",
+  "shell.net.blockedLocal": "{host} ലോക്കൽ നെറ്റ്‌വർക്കിലാണ്. നിങ്ങൾ തന്നെ ടൈപ്പ് ചെയ്ത ഒരു വിലാസത്തിന് മാത്രമേ Themia അവിടേക്ക് പോകൂ",
+  "shell.accounts.stats.mail": "മെയിൽ",
+  "shell.accounts.stats.calendar": "കലണ്ടർ",
+  "shell.accounts.stats.contacts": "കോൺടാക്റ്റുകൾ",
+  "shell.accounts.stats.tasks": "ടാസ്‌ക്കുകൾ",
+  "shell.accounts.stats.messages": {
+    "one": "{count} സന്ദേശം",
+    "other": "{count} സന്ദേശങ്ങൾ"
+  },
+  "shell.accounts.stats.events": {
+    "one": "{count} ഇവന്റ്",
+    "other": "{count} ഇവന്റുകൾ"
+  },
+  "shell.accounts.stats.people": {
+    "one": "{count} കോൺടാക്റ്റ്",
+    "other": "{count} കോൺടാക്റ്റുകൾ"
+  },
+  "shell.accounts.stats.taskCount": {
+    "one": "{count} ടാസ്‌ക്",
+    "other": "{count} ടാസ്‌ക്കുകൾ"
+  },
+  "shell.accounts.stats.folders": {
+    "one": "{count} ഫോൾഡറിൽ",
+    "other": "{count} ഫോൾഡറുകളിൽ"
+  },
+  "shell.accounts.stats.calendars": {
+    "one": "{count} കലണ്ടറിൽ",
+    "other": "{count} കലണ്ടറുകളിൽ"
+  },
+  "shell.accounts.stats.lists": {
+    "one": "{count} ലിസ്റ്റിൽ",
+    "other": "{count} ലിസ്റ്റുകളിൽ"
+  },
+  "shell.accounts.stats.synced": "{time} സമന്വയിപ്പിച്ചു",
+  "shell.accounts.stats.neverSynced": "ഇതുവരെ സമന്വയിപ്പിച്ചിട്ടില്ല",
+  "shell.accounts.stats.nothing": "ഈ PC-യിൽ ഇതുവരെ ഒന്നും സംഭരിച്ചിട്ടില്ല",
+  "shell.accounts.reconnect": "വീണ്ടും സൈൻ ഇൻ ചെയ്യുക"
+}

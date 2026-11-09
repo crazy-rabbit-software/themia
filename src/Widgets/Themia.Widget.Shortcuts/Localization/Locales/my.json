@@ -1,0 +1,48 @@
+{
+  "common.search": "ရှာဖွေရန်",
+  "ctxMenu.iconOnly": "အိုင်ကွန်သာ",
+  "ctxMenu.list": "စာရင်း",
+  "ctxMenu.openDouble": "နှစ်ချက်နှိပ်လျှင် ဖွင့်ရန်",
+  "ctxMenu.openSingle": "တစ်ချက်နှိပ်လျှင် ဖွင့်ရန်",
+  "recycleBin.emptyEllipsis": "Recycle Bin ရှင်းရန်…",
+  "shortcut.addTitle": "shortcut ထည့်ရန်",
+  "shortcut.copyPath": "လမ်းကြောင်း ကူးရန်",
+  "shortcut.copyUrl": "URL ကူးရန်",
+  "shortcut.editLayoutMenu": "အပြင်အဆင် တည်းဖြတ်ရန်…",
+  "widgetsA.catalog.shortcuts.description": "လက်တစ်ကမ်းတွင် ထားသော လင့်ခ်၊ ဖိုင်နှင့် ဖိုဒါများ",
+  "widgetsA.catalog.shortcuts.label": "Shortcut များ",
+  "widgetsC.shortcuts.column.kind": "အမျိုးအစား",
+  "widgetsC.shortcuts.column.target": "ပစ်မှတ်",
+  "widgetsC.shortcuts.drop.add": "Shortcut များသို့ ထည့်ရန်",
+  "widgetsC.shortcuts.drop.moveHere": "ဤနေရာသို့ ရွှေ့ရန်",
+  "widgetsC.shortcuts.kind.location": "Windows တည်နေရာ",
+  "widgetsC.shortcuts.kind.missing": "ပျောက်နေသည်",
+  "widgetsC.shortcuts.kind.path": "လမ်းကြောင်း",
+  "widgetsC.shortcuts.kind.refused": "ခွင့်မပြုပါ",
+  "widgetsC.shortcuts.menu.addLayout": "အက်ပ် အပြင်အဆင်…",
+  "widgetsC.shortcuts.menu.addLink": "ဝက်ဘ်လိပ်စာ သို့မဟုတ် လမ်းကြောင်း…",
+  "widgetsC.shortcuts.menu.changeTarget": "ပစ်မှတ် ပြောင်းရန်…",
+  "widgetsC.shortcuts.menu.closeSearch": "ရှာဖွေမှု ပိတ်ရန်",
+  "widgetsC.shortcuts.menu.openLayout": "အပြင်အဆင် ဖွင့်ရန်",
+  "widgetsC.shortcuts.menu.openMany": {
+    "other": "shortcut {count} ခု ဖွင့်ရန်"
+  },
+  "widgetsC.shortcuts.menu.removeMany": {
+    "other": "shortcut {count} ခု ဖယ်ရှားရန်"
+  },
+  "widgetsC.shortcuts.menu.undoRemove": "ဖယ်ရှားမှုကို နောက်ပြန်ရန်",
+  "widgetsC.shortcuts.menu.undoRemoveCount": {
+    "other": "ဖယ်ရှားမှုကို နောက်ပြန်ရန် ({count})"
+  },
+  "widgetsC.shortcuts.search": "shortcut များ ရှာရန်",
+  "widgetsC.shortcuts.settings.list.empty": "shortcut မရှိသေးပါ။",
+  "widgetsC.shortcuts.settings.locations": "Windows တည်နေရာများ",
+  "widgetsC.shortcuts.settings.openWith.double": "နှစ်ချက်နှိပ်",
+  "widgetsC.shortcuts.settings.openWith.label": "ဖွင့်ပုံ",
+  "widgetsC.shortcuts.settings.openWith.single": "တစ်ချက်နှိပ်",
+  "widgetsC.shortcuts.settings.pick.file": "ဖိုင်…",
+  "widgetsC.shortcuts.settings.pick.folder": "ဖိုဒါ…",
+  "widgetsC.shortcuts.settings.view.tiles": "အကွက်များ",
+  "widgetsC.shortcuts.setup": "shortcut ထည့်ရန်",
+  "widgetsC.shortcuts.tooltip.missing": "{name} (ပစ်မှတ် ပျောက်နေ)\n{target}"
+}

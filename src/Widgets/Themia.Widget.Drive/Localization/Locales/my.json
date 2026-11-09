@@ -1,0 +1,10 @@
+{
+  "drives.drive.desc": "ဒရိုက်တစ်ခု၏ နေရာနှင့် file system၊ mapped ဒရိုက်များလည်း",
+  "drives.drive.label": "ဒရိုက်",
+  "drives.fact.capacity": "ပမာဏ",
+  "drives.fact.fileSystem": "ဖိုင်စနစ်",
+  "drives.fact.free": "လွတ်",
+  "drives.fact.used": "သုံးထား",
+  "drives.settings.drive.label": "ဒရိုက်",
+  "styles.io.bar": "ဘား"
+}

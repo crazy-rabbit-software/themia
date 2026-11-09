@@ -1,0 +1,16 @@
+{
+  "alarm.desc": "ನೀನು ಹೊಂದಿಸಿದ ಸಮಯದಲ್ಲಿ, ಒಮ್ಮೆ ಅಥವಾ ಆಯ್ಕೆಮಾಡಿದ ದಿನಗಳಲ್ಲಿ ರಿಂಗ್ ಆಗುತ್ತದೆ",
+  "alarm.label": "ಅಲಾರಾಂ",
+  "alarm.settings.namePlaceholder": "ಹೆಸರು (ಐಚ್ಛಿಕ)",
+  "alarm.settings.name.label": "ಹೆಸರು",
+  "alarm.settings.on.label": "ಆನ್ ಆಗಿದೆ",
+  "alarm.settings.repeat": "ಪುನರಾವರ್ತನೆ ದಿನಗಳು",
+  "alarm.settings.repeat.desc": "ಯಾವುದೂ ಆಯ್ಕೆಯಾಗಿಲ್ಲ: ಒಮ್ಮೆ ಮಾತ್ರ ರಿಂಗ್ ಆಗುತ್ತದೆ",
+  "alarm.settings.snooze.label": "ಸ್ನೂಜ್ ಅವಧಿ",
+  "alarm.settings.sound.label": "ಧ್ವನಿ",
+  "alarm.settings.time.label": "ಸಮಯ",
+  "alarm.settings.volume.label": "ವಾಲ್ಯೂಮ್",
+  "alarm.settings.whileRunning": "Themia ಚಾಲನೆಯಲ್ಲಿರುವಾಗ ಮಾತ್ರ ಅಲಾರಾಂಗಳು ರಿಂಗ್ ಆಗುತ್ತವೆ. PC ನಿದ್ರೆಯಲ್ಲಿರುವಾಗ ಸಮಯವಾದ ಅಲಾರಾಂ, ಐದು ನಿಮಿಷಗಳೊಳಗೆ ಎಚ್ಚರವಾದರೆ, ಎಚ್ಚರವಾದಾಗ ರಿಂಗ್ ಆಗುತ್ತದೆ.",
+  "alarm.switchOff": "{name} ಆಫ್ ಮಾಡು",
+  "alarm.switchOn": "{name} ಆನ್ ಮಾಡು"
+}

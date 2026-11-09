@@ -1,0 +1,12 @@
+{
+  "stopwatch.label": "Χρονόμετρο",
+  "stopwatch.desc": "Χρονομετρεί με γύρους και συνεχίζει και μετά από επανεκκινήσεις",
+  "stopwatch.start": "Έναρξη",
+  "stopwatch.pause": "Παύση",
+  "stopwatch.resume": "Συνέχιση",
+  "stopwatch.lap": "Γύρος",
+  "stopwatch.reset": "Επαναφορά",
+  "stopwatch.lapNumber": "Γύρος {n}",
+  "stopwatch.noLaps": "Δεν υπάρχουν γύροι ακόμα",
+  "stopwatch.paused": "Σε παύση"
+}

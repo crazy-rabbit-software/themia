@@ -1,0 +1,20 @@
+{
+  "settingsMenu.onlineUpdates": "ഓൺലൈൻ അപ്ഡേറ്റുകൾ",
+  "settingsMenu.gameMode": "ഫുൾസ്ക്രീൻ ആപ്പുകൾക്കിടയിൽ താൽക്കാലികമായി നിർത്തുക",
+  "settingsMenu.findLanguage": "ഒരു ഭാഷ കണ്ടെത്തുക",
+  "settingsMenu.proFree": "സൗജന്യം",
+  "settingsMenu.backup": "ബാക്കപ്പും റീസെറ്റും",
+  "settingsMenu.about": "Themia-യെക്കുറിച്ച്",
+  "settingsMenu.exportSettings": "ക്രമീകരണങ്ങൾ എക്സ്പോർട്ട് ചെയ്യുക…",
+  "settingsMenu.importSettings": "ക്രമീകരണങ്ങൾ ഇമ്പോർട്ട് ചെയ്യുക…",
+  "settingsMenu.resetAll": "എല്ലാ ക്രമീകരണങ്ങളും റീസെറ്റ് ചെയ്യുക…",
+  "settingsMenu.reset": "റീസെറ്റ് ചെയ്യുക",
+  "settingsMenu.exported": "{file} ആയി സംരക്ഷിച്ചു",
+  "settingsMenu.imported": "ക്രമീകരണങ്ങൾ ഇമ്പോർട്ട് ചെയ്തു. നിങ്ങൾക്കുണ്ടായിരുന്നവ {backup} ആയി സൂക്ഷിക്കുന്നു.",
+  "settingsMenu.resetDone": "ക്രമീകരണങ്ങൾ റീസെറ്റ് ചെയ്തു. നിങ്ങൾക്കുണ്ടായിരുന്നവ {backup} ആയി സൂക്ഷിക്കുന്നു.",
+  "settingsMenu.purchasing": "Microsoft Store-നായി കാത്തിരിക്കുന്നു…",
+  "settingsMenu.aboutOpenMeteo": "കാലാവസ്ഥ, മഴ, വായു ഗുണനിലവാരം. വായു ഗുണനിലവാരം Copernicus Atmosphere Monitoring Service (CAMS)-ൽ നിന്നും.",
+  "settingsMenu.uninstallEllipsis": "അൺഇൻസ്റ്റാൾ ചെയ്യുക…",
+  "settingsMenu.uninstallDataGoes": "നിങ്ങളുടെ വിജറ്റുകളും ക്രമീകരണങ്ങളും അക്കൗണ്ടുകളും ഇല്ലാതാക്കും.",
+  "settingsMenu.uninstallDeleteData": "എന്റെ ഡാറ്റയും ഇല്ലാതാക്കുക"
+}

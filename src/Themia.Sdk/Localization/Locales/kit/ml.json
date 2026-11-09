@@ -1,0 +1,5 @@
+{
+  "kit.ownerProblem": "{name}: {reason}",
+  "kit.refreshUpdated": "പുതുക്കുക · {age} അപ്ഡേറ്റ് ചെയ്തു",
+  "kit.problemSeveral": "{name}-ഉം മറ്റ് {count} എണ്ണവും ലോഡ് ചെയ്യാനായില്ല"
+}

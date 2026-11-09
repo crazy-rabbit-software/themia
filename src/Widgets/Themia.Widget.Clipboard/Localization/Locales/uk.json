@@ -1,0 +1,14 @@
+{
+  "clipboard.clearHistory": "Очистити історію",
+  "widgetsA.catalog.clipboard.description": "Те, що ти нещодавно скопіював",
+  "widgetsA.catalog.clipboard.label": "Буфер обміну",
+  "widgetsA.clipboard.clearConfirm.body": "Усе в цьому списку буде забуто. Це не можна скасувати, і це не змінює того, що зараз у буфері обміну.",
+  "widgetsA.clipboard.clearConfirm.title": "Очистити історію буфера обміну?",
+  "widgetsA.clipboard.clearEllipsis": "Очистити історію…",
+  "widgetsA.clipboard.empty": "Ще нічого не скопійовано. Скопіюй щось, і воно з’явиться тут.",
+  "widgetsA.clipboard.noListener": "Windows не дозволила цій програмі стежити за буфером обміну.",
+  "widgetsA.clipboard.remove": "Прибрати з історії",
+  "widgetsA.clipboard.settings.entries.label": "Записи",
+  "widgetsA.clipboard.settings.privacyNote": "Скопійований текст зберігається лише в пам’яті. Файли й зображення ніколи не читаються.",
+  "widgetsA.clipboard.settings.timestamp.label": "Показувати, коли скопійовано"
+}

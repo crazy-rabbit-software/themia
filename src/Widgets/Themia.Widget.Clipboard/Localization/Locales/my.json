@@ -1,0 +1,14 @@
+{
+  "clipboard.clearHistory": "မှတ်တမ်း ရှင်းရန်",
+  "widgetsA.catalog.clipboard.description": "မကြာသေးမီက သင်ကူးထားသည်များ",
+  "widgetsA.catalog.clipboard.label": "ကလစ်ဘုတ်",
+  "widgetsA.clipboard.clearConfirm.body": "ဤစာရင်းထဲရှိ အရာအားလုံးကို မေ့လိုက်မည်။ ပြန်ပြင်၍ မရပါ၊ ကလစ်ဘုတ်တွင် ယခုရှိသည်ကိုလည်း မပြောင်းပါ။",
+  "widgetsA.clipboard.clearConfirm.title": "ကလစ်ဘုတ် မှတ်တမ်းကို ရှင်းမလား။",
+  "widgetsA.clipboard.clearEllipsis": "မှတ်တမ်း ရှင်းရန်…",
+  "widgetsA.clipboard.empty": "ဘာမှ မကူးရသေးပါ။ တစ်ခုခု ကူးလိုက်လျှင် ဤနေရာတွင် ပေါ်မည်။",
+  "widgetsA.clipboard.noListener": "Windows က ဤအက်ပ်ကို ကလစ်ဘုတ် စောင့်ကြည့်ခွင့် မပေးခဲ့ပါ။",
+  "widgetsA.clipboard.remove": "မှတ်တမ်းမှ ဖယ်ရှားရန်",
+  "widgetsA.clipboard.settings.entries.label": "အရေအတွက်",
+  "widgetsA.clipboard.settings.privacyNote": "ကူးထားသော စာသားကို မမ်မိုရီတွင်သာ ထားသည်။ ဖိုင်နှင့် ပုံများကို ဘယ်တော့မှ မဖတ်ပါ။",
+  "widgetsA.clipboard.settings.timestamp.label": "ကူးခဲ့သည့်အချိန်ကို ပြရန်"
+}
