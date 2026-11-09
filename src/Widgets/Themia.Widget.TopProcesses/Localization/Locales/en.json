@@ -1,5 +1,9 @@
 {
-  "$englishOnly": [],
+  "$englishOnly": [
+    "details.processes.endDenied",
+    "details.processes.endDeniedWhy",
+    "details.processes.endTask"
+  ],
   "details.catalog.processes.desc": "The busiest apps, by processor or memory",
   "details.processes.unavailable": "Windows would not list the processes",
   "details.catalog.processes.label": "Top processes",
@@ -8,5 +12,8 @@
   "details.settings.processes.rows.label": "Rows",
   "details.settings.processes.sort.cpu": "Processor",
   "details.settings.processes.sort.label": "Rank by",
-  "details.settings.processes.sort.memory": "Memory"
+  "details.settings.processes.sort.memory": "Memory",
+  "details.processes.endTask": "End task",
+  "details.processes.endDenied": "Windows would not let {name} be ended",
+  "details.processes.endDeniedWhy": "It is a system, protected or administrator process, which only Task Manager run as administrator can end."
 }

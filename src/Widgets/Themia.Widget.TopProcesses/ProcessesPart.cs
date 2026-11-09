@@ -1,4 +1,5 @@
 using Themia.App.Services;
+using Themia.App.Shell;
 using Themia.App.Services.SystemData;
 using Themia.Core.Localization;
 using Themia.Core.Model;
@@ -30,6 +31,9 @@ internal sealed class ProcessesPart : DetailPart
     private static readonly Dictionary<string, string?> SystemImages = new(StringComparer.OrdinalIgnoreCase);
 
     private readonly WatchSlot<IReadOnlyList<ProcessSample>?> _processes = new();
+
+    /// <summary>[S-2437] The read the rows on screen came from: what a row's End task ends.</summary>
+    private IReadOnlyList<ProcessSample> _shown = [];
     private TopProcessesConfig _config = new();
     private IDetailHost? _host;
 
@@ -64,8 +68,47 @@ internal sealed class ProcessesPart : DetailPart
 
         // Forget the processes that exited before asking about new ones: a pid is soon someone else's.
         Paths.Retain(samples.Select(s => s.Process));
+        _shown = samples;
         var ranked = ProcessTable.Rank(samples, _config.SortBy, _config.GroupByName);
-        host.Present(new DetailSheet(null, null, [], ProcessTable.Rows(Strings.Current, ranked, _config.SortBy, _config.MaxRows, s => Paths.PathOf(s.Process) ?? SystemImage(s.Name))));
+        host.Present(new DetailSheet(null, null, [], ProcessTable.Rows(Strings.Current, ranked, _config.SortBy, _config.MaxRows, s => Paths.PathOf(s.Process) ?? SystemImage(s.Name), _config.GroupByName)));
+    }
+
+    /// <summary>
+    /// [S-2437] A row's right-click menu: End task, for what the row stands for (every process of the
+    /// program when grouped). Not on Themia's own row, and not on a row whose processes are gone.
+    /// </summary>
+    public override IReadOnlyList<ItemMenuEntry> RowMenu(DetailRow row)
+    {
+        var members = ProcessTable.Members(_shown, row.Key, _config.GroupByName);
+        if (members.Count == 0 || members.Any(p => p.Pid == Environment.ProcessId))
+        {
+            return [];
+        }
+
+        var name = _shown.First(s => members.Contains(s.Process)).Name;
+        return [new ItemMenuEntry(Glyphs.Stop, TopProcessesStr.Details_Processes_EndTask.Text(), () => End(name, members), Danger: true)];
+    }
+
+    private void End(string name, IReadOnlyList<ProcessIdentity> members)
+    {
+        var denied = 0;
+        foreach (var process in members)
+        {
+            if (ProcessControl.End(process) == ProcessEndResult.Denied)
+            {
+                denied++;
+            }
+        }
+
+        if (denied > 0)
+        {
+            Notices.Warning(
+                TopProcessesStr.Details_Processes_EndDenied.Format(("name", name)),
+                TopProcessesStr.Details_Processes_EndDeniedWhy.Text());
+        }
+
+        // The list shows the ended processes gone at once rather than at the next tick.
+        _host?.SampleNow();
     }
 
     private static string? SystemImage(string name)
@@ -112,6 +155,7 @@ internal sealed class ProcessesPart : DetailPart
 
     public override void Detach()
     {
+        _shown = [];
         _processes.Release();
         _host = null;
     }

@@ -23,5 +23,12 @@ is the module host's `DetailHostTests`.
   folder's `Taskmgr.exe`) (a row's click stays the row's, [S-2004]); the module decides it
   (`TopProcessesModule.Opens`, through its part's `Opens`).
 
+- End task (root [S-2437], issue 197): a row's right-click menu (or the Menu key on the focused row) has
+  End task, drawn as a destructive line, which ends what the row stands for (`ProcessesPart.RowMenu`
+  over `ProcessTable.Members`): the program's every process when grouped, else that one process. A
+  refused end (a system or elevated process) is a warning notice; the list reads again at once. Themia's
+  own row, and a row whose processes have gone, have no menu of their own (the card's opens).
+
 Needs a manual pass: the widget on a live desktop (a busy program rising, sort by memory, grouping
-off, a list of 50 scrolled).
+off, a list of 50 scrolled; End task on a program of one and of several processes, grouped and not,
+and on a system process for the notice).
