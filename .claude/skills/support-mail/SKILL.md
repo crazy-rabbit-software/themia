@@ -93,7 +93,10 @@ Nathaniel
 
 Write each body to `runs/<date>/<n>-<sender>.html` (git-ignored) and a `runs/<date>/drafts.json`.
 Show Nathaniel every reply first (mailbox, recipient, subject, the text, any `[[NATHANIEL]]`
-markers) and wait for his OK or edits, then run `batch`. A draft for a thread that already has one
+markers) and wait for his OK or edits. Then `list` again right before `batch`: Nathaniel works the
+same mailbox, so a mail may have been answered, moved or archived meanwhile (a `404 ErrorItemNotFound`
+on `createReply` means exactly that). Drop the drafts whose mail is answered or gone and say so;
+never draft into a thread he answered while you worked. A draft for a thread that already has one
 in Drafts: say so instead of adding a second.
 
 ## 5. Report

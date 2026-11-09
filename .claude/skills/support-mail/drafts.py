@@ -147,7 +147,9 @@ def cmd_list(args):
          f"&$select=id,receivedDateTime,from,subject,conversationId&$filter=receivedDateTime ge {since}")
     for m in _graph("GET", q, token=token)["value"]:
         who = (m.get("from") or {}).get("emailAddress", {}).get("address", "?")
-        done = "answered" if answered.get(m["conversationId"], "") > m["receivedDateTime"] else "OPEN    "
+        # A copy of the mailbox's own reply (it cc'd itself) is not a question waiting for an answer.
+        mine = who.lower() == MAILBOX.lower()
+        done = "answered" if mine or answered.get(m["conversationId"], "") >= m["receivedDateTime"] else "OPEN    "
         print(f"{m['receivedDateTime'][:10]}  {done}  {who:<40.40}  {m.get('subject') or '(no subject)'}\n    {m['id']}")
 
 
