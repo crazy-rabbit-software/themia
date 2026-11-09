@@ -36,6 +36,7 @@ public partial class App : Application
         Themia.Sdk.GpuAdapters.Install(Services.GpuSampler.Adapters);
         Themia.Sdk.BrightnessDisplays.Install(() => Services.Brightness.BrightnessService.Snapshot);
         Themia.Sdk.ProcessPaths.Install(Services.ProcessNames.ExePath, Services.ProcessNames.DisplayName);
+        Themia.Sdk.ProcessControl.Install(Services.ProcessEnding.End);
         Themia.Sdk.WinUI.AppIconSource.Install(Services.AppIcons.GetAsync, Services.AppIcons.DefaultSize);
         Themia.Sdk.WinUI.SettingsHost.Install(() => Services.AppServices.Notes, () => Services.AppServices.Habits, () => Services.AppServices.ScreenTime, Services.HostLauncher.Instance,
             picker => WinRT.Interop.InitializeWithWindow.Initialize(picker, Interop.Win32.GetForegroundWindow()), Services.HostAppLayouts.Instance,

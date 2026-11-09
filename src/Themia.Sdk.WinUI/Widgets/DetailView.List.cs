@@ -4,6 +4,7 @@ using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Media;
 using Themia.App.Services;
 using Themia.App.Shell;
+using Themia.Core.Diagnostics;
 using Themia.Core.Widgets;
 using Themia.Sdk.Kit;
 using Themia.Sdk.WinUI;
@@ -63,6 +64,7 @@ public sealed partial class DetailView : IWidgetKeys
         {
             row.Block.PointerPressed -= OnRowPressed;
             row.Block.Tapped -= OnRowTapped;
+            row.Block.RightTapped -= OnRowRightTapped;
             row.Block.Detach();
         }
     }
@@ -111,6 +113,7 @@ public sealed partial class DetailView : IWidgetKeys
             row.Block.Tag = _rows.Count;
             row.Block.PointerPressed += OnRowPressed;
             row.Block.Tapped += OnRowTapped;
+            row.Block.RightTapped += OnRowRightTapped;
             _rows.Add(row);
             _list.Children.Insert(_list.Children.Count - 1, row.Block);
         }
@@ -178,6 +181,9 @@ public sealed partial class DetailView : IWidgetKeys
                 _part.Open(_sheet.Rows[decision.Index]);
                 return true;
 
+            case ListCommand.Menu when decision.Index >= 0 && decision.Index < _sheet.Rows.Count && decision.Index < _rows.Count:
+                return ItemMenu.Open(_rows[decision.Index].Block, _part.RowMenu(_sheet.Rows[decision.Index]));
+
             case ListCommand.Release:
                 var had = _focus >= 0;
                 Focus(-1, bringIntoView: false);
@@ -224,6 +230,34 @@ public sealed partial class DetailView : IWidgetKeys
 
     /// <summary>[S-2004] A click on a row is the row's (it focused it): it never reaches the card.</summary>
     private static void OnRowTapped(object sender, TappedRoutedEventArgs args) => args.Handled = true;
+
+    /// <summary>
+    /// [S-2437] A right-click on a row opens the row's own menu when its part has one, with the ring on
+    /// the row; with none the event goes on to the card's menu, as before.
+    /// </summary>
+    private void OnRowRightTapped(object sender, RightTappedRoutedEventArgs args)
+    {
+        try
+        {
+            if (_detached || sender is not RowBlock { Tag: int index } block || index >= ListCount || index >= _sheet.Rows.Count)
+            {
+                return;
+            }
+
+            var entries = _part.RowMenu(_sheet.Rows[index]);
+            if (entries.Count == 0)
+            {
+                return;
+            }
+
+            Focus(index, bringIntoView: false);
+            ItemMenu.Show(block, args, entries);
+        }
+        catch (Exception ex)
+        {
+            Log.Error("details", "could not open a row's menu", ex);
+        }
+    }
 
     /// <summary>
     /// One list row (<see cref="RowBlock"/>): a 16 lead (an adapter's kind, a program's own icon,

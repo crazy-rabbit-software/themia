@@ -233,9 +233,9 @@ public static class ProcessTable
     /// [S-2412] The rows to list: the ranking cut to <paramref name="maxRows"/> (0 = no ceiling), the
     /// ranked figure first and the other beside it. A group of several shows its count after the name.
     /// [S-2433] Each row leads with its executable's icon (<paramref name="iconPath"/>), or the
-    /// program symbol when the path cannot be had.
+    /// program symbol when the path cannot be had. [S-2437] Each row's key is <see cref="RowKey"/>.
     /// </summary>
-    public static List<DetailRow> Rows(Locale locale, IReadOnlyList<ProcessSample> ranked, ProcessSort sort, int maxRows, Func<ProcessSample, string?>? iconPath = null)
+    public static List<DetailRow> Rows(Locale locale, IReadOnlyList<ProcessSample> ranked, ProcessSort sort, int maxRows, Func<ProcessSample, string?>? iconPath = null, bool grouped = true)
     {
         ArgumentNullException.ThrowIfNull(ranked);
         var take = maxRows > 0 ? Math.Min(maxRows, ranked.Count) : ranked.Count;
@@ -248,12 +248,40 @@ public static class ProcessTable
             var memory = Formatting.Bytes(locale, s.Memory);
             var name = s.Count > 1 ? $"{s.Name} ({LocaleFormat.Integer(locale, s.Count)})" : s.Name;
             var icon = iconPath?.Invoke(s);
+            var key = RowKey(s, grouped);
             rows.Add(sort == ProcessSort.Memory
-                ? new DetailRow(s.Name, name, memory, cpu, Symbol: RowSymbol.App, IconPath: icon)
-                : new DetailRow(s.Name, name, cpu, memory, Symbol: RowSymbol.App, IconPath: icon));
+                ? new DetailRow(key, name, memory, cpu, Symbol: RowSymbol.App, IconPath: icon)
+                : new DetailRow(key, name, cpu, memory, Symbol: RowSymbol.App, IconPath: icon));
         }
 
         return rows;
+    }
+
+    /// <summary>
+    /// [S-2437] A row's identity: grouped, the program's name (one row per program); one row per
+    /// process, the name and its pid, so two "svchost" rows are two rows and the focus and End task
+    /// stay on the process they were put on. A process whose pid is unknown is its name.
+    /// </summary>
+    public static string RowKey(ProcessSample sample, bool grouped)
+        => grouped || sample.Process.Pid <= 0
+            ? sample.Name
+            : $"{sample.Name}#{sample.Process.Pid.ToString(System.Globalization.CultureInfo.InvariantCulture)}";
+
+    /// <summary>
+    /// [S-2437] The processes a row stands for, in <paramref name="samples"/> (one read, ungrouped):
+    /// grouped, every process of the program's name (ignoring case, as <see cref="Rank"/> groups);
+    /// else the one process. Only processes with a known pid; none for a key the read does not have.
+    /// </summary>
+    public static List<ProcessIdentity> Members(IEnumerable<ProcessSample> samples, string key, bool grouped)
+    {
+        ArgumentNullException.ThrowIfNull(samples);
+        ArgumentNullException.ThrowIfNull(key);
+        var comparison = grouped ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal;
+
+        return [.. samples
+            .Where(s => s.Process.Pid > 0 && string.Equals(RowKey(s, grouped), key, comparison))
+            .Select(s => s.Process)
+            .Distinct()];
     }
 }
 

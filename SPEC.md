@@ -5742,6 +5742,16 @@ strings in `Locales/widgets-details`.
   is remembered as having none: a system process is drawn by its image in System32, as Task Manager does), and the icon once per path and pixel size (`AppIcons`, the shell's
   icon at the row's 16 DIP times the display scale; a packaged app's package logo). A group takes its
   oldest member's. A row without an icon, or before it is extracted, shows the program glyph.
+- **[S-2437]** End task (issue 197): a process row's right-click menu (and the Menu key's) ends what the
+  row stands for, as Task Manager's End task does: grouped, every process of that program; one row per
+  process, that process (its key is the name and the pid, `ProcessTable.RowKey`, so two "svchost" rows
+  are two rows; `ProcessTable.Members`). Only in that menu, never a button on the row. The host
+  (`ProcessControl`, `ProcessEnding`) opens the process to terminate it and ends it only while its pid
+  still names the process the list read (its start time), so a pid Windows has handed on is never
+  ended. Themia runs unelevated: a protected, elevated or system process refuses, and a notice says
+  Windows would not let it be ended. Themia's own row has no End task. A detail list's rows have no
+  menu of their own unless their part gives one (`DetailPart.RowMenu`); without one a right-click is
+  the card's menu, as before.
 - **[S-2411]** `SortBy`: processor (default) or memory; ties by the other figure, then name.
 - **[S-2412]** `MaxRows`: 0 (default) lists every process the list can scroll to, 1–50 a ceiling.
 - **[S-2413]** `GroupByName` (on): every process of one image name is one row, figures added, the count

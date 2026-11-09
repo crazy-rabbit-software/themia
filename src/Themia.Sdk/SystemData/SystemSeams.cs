@@ -1,4 +1,5 @@
 using Themia.App.Services;
+using Themia.Core.Widgets;
 
 namespace Themia.Sdk;
 
@@ -53,5 +54,43 @@ public static class ProcessPaths
         }
 
         Volatile.Write(ref _displayName, displayName);
+    }
+}
+
+/// <summary>[S-2437] What came of asking Windows to end a process.</summary>
+public enum ProcessEndResult
+{
+    /// <summary>Windows ended it.</summary>
+    Ended,
+
+    /// <summary>It had exited already, or its pid is someone else's now: nothing was ended.</summary>
+    Gone,
+
+    /// <summary>Windows refused: a protected, elevated or system process, which an unelevated app cannot end.</summary>
+    Denied,
+}
+
+/// <summary>
+/// [S-2437] Ending a process (the top processes' "End task"): the host's call, installed once at
+/// start as the process paths are. The host ends a process only when its pid still names the process
+/// that started at <see cref="ProcessIdentity.CreateTime"/>, so a pid Windows has handed on since the
+/// list was read is never ended by mistake.
+/// </summary>
+public static class ProcessControl
+{
+    private static Func<ProcessIdentity, ProcessEndResult>? _end;
+
+    /// <summary>End <paramref name="process"/>, as Task Manager's End task does (no chance to save).</summary>
+    public static ProcessEndResult End(ProcessIdentity process)
+        => (Volatile.Read(ref _end) ?? throw new InvalidOperationException("no process control installed: the host installs it before any widget is drawn"))(process);
+
+    /// <summary>The host's call. Once per process.</summary>
+    internal static void Install(Func<ProcessIdentity, ProcessEndResult> end)
+    {
+        ArgumentNullException.ThrowIfNull(end);
+        if (Interlocked.CompareExchange(ref _end, end, null) is not null)
+        {
+            throw new InvalidOperationException("the process control is installed once per process");
+        }
     }
 }

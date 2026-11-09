@@ -2,6 +2,7 @@ using Themia.App.Services.SystemData;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
 using Themia.Sdk;
+using Themia.Sdk.WinUI;
 
 namespace Themia.App.Widgets.Details;
 
@@ -68,6 +69,12 @@ public abstract class DetailPart
     public virtual void Open(DetailRow row)
     {
     }
+
+    /// <summary>
+    /// [S-2437] A row's own right-click menu (and the Menu key's, Shift+F10), read each time it opens;
+    /// empty, the default, leaves the right-click to the card's menu.
+    /// </summary>
+    public virtual IReadOnlyList<ItemMenuEntry> RowMenu(DetailRow row) => [];
 
     /// <summary>Let go of every feed. Safe twice.</summary>
     public abstract void Detach();
