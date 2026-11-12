@@ -7308,9 +7308,11 @@ grouped, so a first desktop is a few clicks.
 - **[S-11342]** **Quick settings**: Wi-Fi, Bluetooth, Do not disturb and Night light, four Medium tiles
   (120) in a row.
 - **[S-11343]** **Power**: Lock, Sleep, Restart and Shut down, four Medium tiles (120) in a row.
-- **[S-2475]** Debug: `--recipe-png <id> <out.png> [--states kind=state,..] [--scale <n>]` draws a recipe
-  placed: a scene built from it (`ReadyMadeScene`), edit mode, the new group selected, on a sample
-  wallpaper; a widget given no state shows its "sample" preview where it has one.
+- **[S-2475]** Debug: `--recipe-png <id> <out.png> [--states kind=state,..] [--theme light|dark] [--edit]
+  [--scale <n>]` draws a recipe placed: a scene built from it (`ReadyMadeScene`), its widgets as one
+  group on a sample wallpaper, no edit chrome, so the picture is the panel; `--edit` draws it in edit
+  mode, the new group selected under the bar with its page hung from the bar's entry. A widget given no
+  state shows its "sample" preview where it has one.
 
 Not live-verified: entering a group by clicks, dragging a group and an entered member, the keys,
 the card menu's lines, a group handed to another display, placing a recipe on a display with a

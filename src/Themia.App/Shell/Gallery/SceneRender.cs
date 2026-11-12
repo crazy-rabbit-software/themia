@@ -39,7 +39,7 @@ internal static class SceneRender
     /// <summary>[S-2475] A ready-made group placed, drawn as a scene of its own: <c>--recipe-png &lt;id&gt; &lt;out.png&gt;</c>.</summary>
     public const string RecipeFlag = "--recipe-png";
 
-    private const string RecipeUsage = $"usage: {RecipeFlag} <id> <out.png> [--states kind=state,..] [--lang <code>] [--scale <n>]";
+    private const string RecipeUsage = $"usage: {RecipeFlag} <id> <out.png> [--states kind=state,..] [--theme light|dark] [--edit] [--lang <code>] [--scale <n>]";
 
     private const string Scope = "scene-render";
     private const string Usage = $"usage: {Flag} <scenes.json> <scene> <out.png> [--lang <code>] [--scale <n>]";
@@ -182,8 +182,9 @@ internal static class SceneRender
 
     /// <summary>
     /// [S-2475] <c>--recipe-png</c>: the ready-made group as it lands, a scene of its own (ReadyMadeScene):
-    /// on a sample wallpaper in edit mode, the new group selected. <c>--states</c> gives a kind a preview
-    /// state; a kind given none shows its "sample" state where it has one.
+    /// on a sample wallpaper, one panel, no edit chrome; <c>--edit</c> draws it in edit mode, the new group
+    /// selected under the bar with its page. <c>--states</c> gives a kind a preview state; a kind given none
+    /// shows its "sample" state where it has one.
     /// </summary>
     private static Job? ReadRecipe(string[] args, out string? problem)
     {
@@ -222,7 +223,9 @@ internal static class SceneRender
             states[parts[0]] = parts[1];
         }
 
-        var file = ReadyMadeScene.Of(recipe, states);
+        // [S-2475] The group as it stands on the desktop; --edit draws it selected under the bar, its page open.
+        var theme = string.Equals(Option(args, "--theme"), "light", StringComparison.OrdinalIgnoreCase) ? AppTheme.Light : AppTheme.Dark;
+        var file = ReadyMadeScene.Of(recipe, states, edit: Array.IndexOf(args, "--edit") >= 0, theme);
         return Finish(file, file.Scenes[0], Path.Combine(Environment.CurrentDirectory, "recipe.json"), args[at + 2], scale, sampleWhereOffered: true, out problem);
     }
 

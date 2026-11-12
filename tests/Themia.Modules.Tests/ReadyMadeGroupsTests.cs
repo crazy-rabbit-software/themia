@@ -236,7 +236,7 @@ public sealed class ReadyMadeGroupsTests
 
     [Theory]
     [MemberData(nameof(Recipes))]
-    public void S2475_the_recipe_scene_is_its_widgets_selected_as_one_group(string id)
+    public void S2475_the_recipe_scene_is_its_widgets_as_one_group_with_no_edit_chrome(string id)
     {
         var recipe = Of(id);
 
@@ -244,6 +244,20 @@ public sealed class ReadyMadeGroupsTests
 
         Assert.Equal(recipe.Widgets.Count, scene.Widgets.Count);
         Assert.Equal([recipe.Name.Text()], scene.Groups);
+        Assert.Null(scene.Edit);
+        Assert.Empty(scene.Selected);
+        Assert.Empty(SceneWidgets.Check(scene, SceneScreen.Default));
+    }
+
+    [Theory]
+    [MemberData(nameof(Recipes))]
+    public void S2475_asked_for_edit_mode_the_group_is_selected_under_the_bar(string id)
+    {
+        var recipe = Of(id);
+
+        var scene = ReadyMadeScene.Of(recipe, new Dictionary<string, string>(), edit: true).Scenes[0];
+
+        Assert.True(scene.Edit is { Bar: true });
         Assert.Equal(scene.Widgets, scene.Selected);
         Assert.Empty(SceneWidgets.Check(scene, SceneScreen.Default));
     }
