@@ -129,6 +129,34 @@ public static class HeaderRules
     public static double Gap(HeaderPartKind before, HeaderPartKind after)
         => before == HeaderPartKind.Button && after == HeaderPartKind.Button ? 0 : PartGap;
 
+    /// <summary>
+    /// [S-2260] What a header's informing label says about where or which the widget is about (the
+    /// place of a sky widget, the adapter of a GPU widget, the host of a ping): the text trimmed, or null
+    /// when there is none, and then the label is not wanted and takes no room. The name says what the
+    /// widget is; this label never replaces it.
+    /// </summary>
+    public static string? About(string? text) => string.IsNullOrWhiteSpace(text) ? null : text.Trim();
+
+    /// <summary>
+    /// [S-2260] Where a part of <paramref name="kind"/> stands among <paramref name="kinds"/> (the parts
+    /// already there, in order): after every part of its own kind and of the kinds before it, so a part
+    /// added later (a label set once the place is known) still stands in the header's order.
+    /// </summary>
+    public static int InsertAt(IReadOnlyList<HeaderPartKind> kinds, HeaderPartKind kind)
+    {
+        ArgumentNullException.ThrowIfNull(kinds);
+
+        for (var i = 0; i < kinds.Count; i++)
+        {
+            if (kinds[i] > kind)
+            {
+                return i;
+            }
+        }
+
+        return kinds.Count;
+    }
+
     /// <summary>The order parts give way in: labels, then buttons from the last, then the count.</summary>
     private static IEnumerable<int> FoldOrder(IReadOnlyList<HeaderPart> parts)
     {

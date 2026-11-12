@@ -195,15 +195,63 @@ public partial class HeaderParts : StackPanel
         VerticalAlignment = VerticalAlignment.Center;
     }
 
-    /// <summary>Add a part of <paramref name="kind"/>; returns it.</summary>
+    /// <summary>Add a part of <paramref name="kind"/> in its place in the header's order; returns it.</summary>
     public T Add<T>(HeaderPartKind kind, T element)
         where T : FrameworkElement
     {
         ArgumentNullException.ThrowIfNull(element);
-        _parts.Add((kind, element));
-        Children.Add(element);
+        var at = HeaderRules.InsertAt([.. _parts.Select(p => p.Kind)], kind);
+        var child = at < _parts.Count ? Children.IndexOf(_parts[at].Element) : -1;
+        _parts.Insert(at, (kind, element));
+        if (child >= 0)
+        {
+            Children.Insert(child, element);
+        }
+        else
+        {
+            Children.Add(element);
+        }
+
         Space();
         return element;
+    }
+
+    private TextBlock? _about;
+
+    /// <summary>
+    /// [S-2260] The informing label that says where or which the widget is about (a place, an adapter, a
+    /// host), beside the name that says what it is: added the first time there is something to say,
+    /// not wanted while there is none (<see cref="HeaderRules.About"/>). The first part to give way.
+    /// </summary>
+    public void SetAbout(string? text)
+    {
+        var shown = HeaderRules.About(text);
+        if (_about is null)
+        {
+            if (shown is null)
+            {
+                return;
+            }
+
+            _about = Add(HeaderPartKind.Label, HeaderBlock.Label(shown));
+        }
+        else if (_about.Text != (shown ?? string.Empty))
+        {
+            _about.Text = shown ?? string.Empty;
+            InvalidateMeasure();
+            (Parent as UIElement)?.InvalidateMeasure();
+        }
+
+        Want(_about, shown is not null);
+        OnAboutChanged();
+    }
+
+    /// <summary>[S-2260] Whether the label of <see cref="SetAbout"/> has something to say now.</summary>
+    public bool Informs => _about is not null && !_unwanted.Contains(_about);
+
+    /// <summary>The label of <see cref="SetAbout"/> came or went: a header that hides itself with nothing to say decides again.</summary>
+    protected virtual void OnAboutChanged()
+    {
     }
 
     /// <summary>

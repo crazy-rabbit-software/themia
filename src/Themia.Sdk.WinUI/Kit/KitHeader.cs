@@ -109,10 +109,20 @@ public sealed partial class KitHeader : HeaderParts
         _countText.Text = wants.Count ? KitText.Count(Strings.Current, count!.Value) : string.Empty;
         Want(_count, wants.Count);
 
-        // With nothing to show the extras take no room, not even the gap before them; a widget's label
-        // is its own to fill and always stands.
-        Visibility = wants.Any || _label is not null ? Visibility.Visible : Visibility.Collapsed;
+        _wants = wants;
+        ApplyVisibility();
     }
+
+    private HeaderWants _wants;
+
+    /// <summary>
+    /// With nothing to show the extras take no room, not even the gap before them; a widget's label is
+    /// its own to fill and always stands, and the label of <see cref="HeaderParts.SetAbout"/> while it says something.
+    /// </summary>
+    private void ApplyVisibility()
+        => Visibility = _wants.Any || _label is not null || Informs ? Visibility.Visible : Visibility.Collapsed;
+
+    protected override void OnAboutChanged() => ApplyVisibility();
 
     /// <summary>
     /// The element of the header button at <paramref name="index"/> (in the order last shown), for a
