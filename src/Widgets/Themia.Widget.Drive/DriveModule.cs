@@ -32,8 +32,8 @@ public sealed class DriveModule : IWidgetModule
         Label = DriveStr.Drives_Drive_Label.Local(),
         Description = DriveStr.Drives_Drive_Desc.Local(),
         Glyph = Glyphs.Disk,
-        Sizing = _ => WidgetSizing.Legacy(280, 160),
-        Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader,
+        Sizing = c => DriveFace.Sizing(((DriveConfig)c).Style),
+        Traits = WidgetTraits.CanHaveHeader,
         Add = new(AddFolderId.Devices, 2, 0),
     };
 

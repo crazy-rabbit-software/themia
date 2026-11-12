@@ -8,6 +8,7 @@
     <Project Path="src/Themia.Sdk.WinUI/Themia.Sdk.WinUI.csproj" />
   </Folder>
   <Folder Name="/src/Widgets/">
+    <Project Path="src/Widgets/Themia.Widget.DriveFacts/Themia.Widget.DriveFacts.csproj" />
     <Project Path="src/Widgets/Themia.Widget.BatteryHistory/Themia.Widget.BatteryHistory.csproj" />
     <Project Path="src/Widgets/Themia.Widget.PingHistory/Themia.Widget.PingHistory.csproj" />
     <Project Path="src/Widgets/Themia.Widget.NetworkAdapters/Themia.Widget.NetworkAdapters.csproj" />

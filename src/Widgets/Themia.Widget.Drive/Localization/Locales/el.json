@@ -1,10 +1,5 @@
 {
   "drives.drive.desc": "Ο χώρος και το σύστημα αρχείων μιας μονάδας δίσκου, και των αντιστοιχισμένων μονάδων",
   "drives.drive.label": "Μονάδα δίσκου",
-  "drives.fact.capacity": "Χωρητικότητα",
-  "drives.fact.fileSystem": "Σύστημα αρχείων",
-  "drives.fact.free": "Ελεύθερος",
-  "drives.fact.used": "Χρησιμοποιημένος",
-  "drives.settings.drive.label": "Μονάδα δίσκου",
   "styles.io.bar": "Μπάρα"
 }

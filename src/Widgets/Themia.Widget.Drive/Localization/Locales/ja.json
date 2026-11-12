@@ -1,10 +1,5 @@
 {
   "drives.drive.desc": "1 つのドライブの容量とファイル システム (ネットワーク ドライブも)",
   "drives.drive.label": "ドライブ",
-  "drives.fact.capacity": "容量",
-  "drives.fact.fileSystem": "ファイル システム",
-  "drives.fact.free": "空き",
-  "drives.fact.used": "使用中",
-  "drives.settings.drive.label": "ドライブ",
   "styles.io.bar": "バー"
 }

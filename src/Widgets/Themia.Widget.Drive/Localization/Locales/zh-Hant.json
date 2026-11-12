@@ -1,10 +1,5 @@
 {
   "drives.drive.desc": "單一磁碟機的空間與檔案系統，也包括對應的磁碟機",
   "drives.drive.label": "磁碟機",
-  "drives.fact.capacity": "容量",
-  "drives.fact.fileSystem": "檔案系統",
-  "drives.fact.free": "可用",
-  "drives.fact.used": "已使用",
-  "drives.settings.drive.label": "磁碟機",
   "styles.io.bar": "長條"
 }

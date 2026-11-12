@@ -1,10 +1,5 @@
 {
   "drives.drive.desc": "พื้นที่และระบบไฟล์ของไดรฟ์หนึ่ง รวมถึงไดรฟ์ที่แมปไว้",
   "drives.drive.label": "ไดรฟ์",
-  "drives.fact.capacity": "ความจุ",
-  "drives.fact.fileSystem": "ระบบไฟล์",
-  "drives.fact.free": "ว่าง",
-  "drives.fact.used": "ใช้ไป",
-  "drives.settings.drive.label": "ไดรฟ์",
   "styles.io.bar": "แถบ"
 }

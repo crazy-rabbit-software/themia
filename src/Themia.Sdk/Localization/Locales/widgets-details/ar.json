@@ -76,5 +76,9 @@
   "details.gpu.engineVideoEncode": "ترميز الفيديو",
   "details.disk.drive": "محرك الأقراص",
   "details.disk.read": "قراءة",
-  "details.disk.write": "كتابة"
+  "details.disk.write": "كتابة",
+  "details.drive.capacity": "السعة",
+  "details.drive.fileSystem": "نظام الملفات",
+  "details.drive.free": "متاح",
+  "details.drive.used": "مستخدم"
 }

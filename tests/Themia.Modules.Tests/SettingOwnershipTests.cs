@@ -288,7 +288,7 @@ public sealed class SettingOwnershipTests
     /// The kinds whose menus read a list only the running host installs (the displays with a brightness,
     /// the drives, the graphics adapters, the launcher): built with stand-ins by their own menu tests.
     /// </summary>
-    private static readonly string[] NeedsTheHost = ["brightness", "disk", "diskHistory", "drive", "gpu", "gpuEngines", "gpuFacts", "gpuHistory", "shortcuts"];
+    private static readonly string[] NeedsTheHost = ["brightness", "disk", "diskHistory", "drive", "driveFacts", "gpu", "gpuEngines", "gpuFacts", "gpuHistory", "shortcuts"];
 
     [Fact]
     public void S3592_no_widget_sets_what_a_higher_level_owns_except_through_a_link()

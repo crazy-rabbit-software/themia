@@ -76,5 +76,9 @@
   "details.gpu.engineVideoEncode": "Codare video",
   "details.disk.drive": "Unitate",
   "details.disk.read": "Citire",
-  "details.disk.write": "Scriere"
+  "details.disk.write": "Scriere",
+  "details.drive.capacity": "Capacitate",
+  "details.drive.fileSystem": "Sistem de fișiere",
+  "details.drive.free": "Liber",
+  "details.drive.used": "Utilizat"
 }

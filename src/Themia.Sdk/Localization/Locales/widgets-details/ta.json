@@ -76,5 +76,9 @@
   "details.gpu.engineVideoEncode": "வீடியோ குறியாக்கம்",
   "details.disk.drive": "இயக்ககம்",
   "details.disk.read": "படித்தல்",
-  "details.disk.write": "எழுதுதல்"
+  "details.disk.write": "எழுதுதல்",
+  "details.drive.capacity": "கொள்ளளவு",
+  "details.drive.fileSystem": "கோப்பு முறைமை",
+  "details.drive.free": "காலி",
+  "details.drive.used": "பயன்படுத்தியது"
 }

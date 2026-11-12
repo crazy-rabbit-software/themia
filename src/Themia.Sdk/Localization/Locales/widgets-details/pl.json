@@ -76,5 +76,9 @@
   "details.gpu.engineVideoEncode": "Kodowanie wideo",
   "details.disk.drive": "Dysk",
   "details.disk.read": "Odczyt",
-  "details.disk.write": "Zapis"
+  "details.disk.write": "Zapis",
+  "details.drive.capacity": "Pojemność",
+  "details.drive.fileSystem": "System plików",
+  "details.drive.free": "Wolne",
+  "details.drive.used": "Użyte"
 }

@@ -76,5 +76,9 @@
   "details.gpu.engineVideoEncode": "Kod video",
   "details.disk.drive": "Pemacu",
   "details.disk.read": "Baca",
-  "details.disk.write": "Tulis"
+  "details.disk.write": "Tulis",
+  "details.drive.capacity": "Kapasiti",
+  "details.drive.fileSystem": "Sistem fail",
+  "details.drive.free": "Kosong",
+  "details.drive.used": "Digunakan"
 }

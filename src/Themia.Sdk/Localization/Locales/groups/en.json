@@ -42,7 +42,9 @@
     "groups.recipe.battery",
     "groups.recipe.batteryAbout",
     "groups.recipe.batteryDetails",
-    "groups.recipe.batteryDetailsAbout"
+    "groups.recipe.batteryDetailsAbout",
+    "groups.recipe.drive",
+    "groups.recipe.driveAbout"
   ],
   "groups.undo.group": "group",
   "groups.undo.ungroup": "ungroup",
@@ -89,5 +91,7 @@
   "groups.recipe.battery": "Battery",
   "groups.recipe.batteryAbout": "The charge over its history",
   "groups.recipe.batteryDetails": "Battery details",
-  "groups.recipe.batteryDetailsAbout": "The charge over the battery's status and health"
+  "groups.recipe.batteryDetailsAbout": "The charge over the battery's status and health",
+  "groups.recipe.drive": "Drive",
+  "groups.recipe.driveAbout": "A drive's used share over its facts"
 }

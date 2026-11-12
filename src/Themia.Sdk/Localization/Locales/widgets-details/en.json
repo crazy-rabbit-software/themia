@@ -7,7 +7,8 @@
     "details.gpu.dedicated",
     "details.network.download",
     "details.battery.charge",
-    "details.battery.status"
+    "details.battery.status",
+    "details.drive.type"
   ],
   "details.units.gigahertz": "{value} GHz",
   "details.units.megahertz": "{value} MHz",
@@ -92,5 +93,10 @@
   "details.gpu.engineVideoEncode": "Video encode",
   "details.disk.drive": "Drive",
   "details.disk.read": "Read",
-  "details.disk.write": "Write"
+  "details.disk.write": "Write",
+  "details.drive.capacity": "Capacity",
+  "details.drive.fileSystem": "File system",
+  "details.drive.free": "Free",
+  "details.drive.used": "Used",
+  "details.drive.type": "Type"
 }

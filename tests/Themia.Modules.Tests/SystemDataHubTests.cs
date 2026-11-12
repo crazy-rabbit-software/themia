@@ -423,7 +423,8 @@ public sealed class SystemDataHubTests
         {
             var config = WidgetConfig.CreateDefault(kind);
             var wants = SystemInterests.For(config, Root);
-            var system = config is DetailConfig or ReadingConfig or HistoryConfig;
+            // [S-11026] A drive's facts read the host's drive walk, not the hub.
+            var system = config is DetailConfig or ReadingConfig or HistoryConfig && config is IReadsSystem;
 
             Assert.Equal(system, wants.Feeds.Count > 0);
 

@@ -1,10 +1,5 @@
 {
   "drives.drive.desc": "Espaço e sistema de arquivos de uma unidade, inclusive mapeadas",
   "drives.drive.label": "Unidade",
-  "drives.fact.capacity": "Capacidade",
-  "drives.fact.fileSystem": "Sistema de arquivos",
-  "drives.fact.free": "Livre",
-  "drives.fact.used": "Usado",
-  "drives.settings.drive.label": "Unidade",
   "styles.io.bar": "Barra"
 }

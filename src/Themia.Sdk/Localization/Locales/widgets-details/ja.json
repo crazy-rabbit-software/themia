@@ -76,5 +76,9 @@
   "details.gpu.engineVideoEncode": "ビデオ エンコード",
   "details.disk.drive": "ドライブ",
   "details.disk.read": "読み取り",
-  "details.disk.write": "書き込み"
+  "details.disk.write": "書き込み",
+  "details.drive.capacity": "容量",
+  "details.drive.fileSystem": "ファイル システム",
+  "details.drive.free": "空き",
+  "details.drive.used": "使用中"
 }

@@ -76,5 +76,9 @@
   "details.gpu.engineVideoEncode": "Video coderen",
   "details.disk.drive": "Station",
   "details.disk.read": "Lezen",
-  "details.disk.write": "Schrijven"
+  "details.disk.write": "Schrijven",
+  "details.drive.capacity": "Capaciteit",
+  "details.drive.fileSystem": "Bestandssysteem",
+  "details.drive.free": "Vrij",
+  "details.drive.used": "Gebruikt"
 }

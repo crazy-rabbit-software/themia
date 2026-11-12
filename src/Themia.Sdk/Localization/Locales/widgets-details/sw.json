@@ -76,5 +76,9 @@
   "details.gpu.engineVideoEncode": "Usimbaji wa video",
   "details.disk.drive": "Hifadhi",
   "details.disk.read": "Kusoma",
-  "details.disk.write": "Kuandika"
+  "details.disk.write": "Kuandika",
+  "details.drive.capacity": "Uwezo",
+  "details.drive.fileSystem": "Mfumo wa faili",
+  "details.drive.free": "Wazi",
+  "details.drive.used": "Imetumika"
 }

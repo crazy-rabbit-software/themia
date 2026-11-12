@@ -1,10 +1,5 @@
 {
   "drives.drive.desc": "ایک ڈرائیو کی جگہ اور فائل سسٹم، میپ شدہ ڈرائیوز بھی",
   "drives.drive.label": "ڈرائیو",
-  "drives.fact.capacity": "گنجائش",
-  "drives.fact.fileSystem": "فائل سسٹم",
-  "drives.fact.free": "خالی",
-  "drives.fact.used": "استعمال شدہ",
-  "drives.settings.drive.label": "ڈرائیو",
   "styles.io.bar": "بار"
 }

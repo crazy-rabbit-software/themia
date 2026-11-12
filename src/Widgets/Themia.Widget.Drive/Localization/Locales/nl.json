@@ -1,10 +1,5 @@
 {
   "drives.drive.desc": "Ruimte en bestandssysteem van één station, ook toegewezen stations",
   "drives.drive.label": "Station",
-  "drives.fact.capacity": "Capaciteit",
-  "drives.fact.fileSystem": "Bestandssysteem",
-  "drives.fact.free": "Vrij",
-  "drives.fact.used": "Gebruikt",
-  "drives.settings.drive.label": "Station",
   "styles.io.bar": "Balk"
 }

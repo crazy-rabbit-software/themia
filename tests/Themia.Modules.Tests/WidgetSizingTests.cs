@@ -23,12 +23,11 @@ public sealed class WidgetSizingTests
     [
         "airQuality", "airplaneModeToggle", "alarm", "audioVisualizer", "bluetooth",
         "bluetoothToggle", "brightness", "calendar", "clipboard", "colorFiltersToggle", "contacts", "countdown",
-        "deviceBatteries", "doNotDisturbToggle", "drive", "email", "energySaverToggle", "exchangeRates",
-        "focusSession", "gameModeToggle", "habitTracker", "hibernate", "lock", "microphoneToggle", "mixer",
-        "monoAudioToggle", "moon", "music", "nextMeeting", "nightLightToggle", "notifications", "pomodoro", "quote",
-        "rainNextHour", "removableDrives", "restart", "rotationLockToggle", "rss", "screenOff", "screenTimeApps",
-        "screenTimeChart", "screenTimeDonut", "shutdown", "signOut", "sleep", "soundToggle", "spatialSoundToggle",
-        "stocks", "stopwatch", "sun", "volume",
+        "doNotDisturbToggle", "email", "energySaverToggle", "exchangeRates", "focusSession", "gameModeToggle",
+        "habitTracker", "hibernate", "lock", "microphoneToggle", "mixer", "monoAudioToggle", "moon", "music",
+        "nextMeeting", "nightLightToggle", "notifications", "pomodoro", "quote", "rainNextHour", "restart",
+        "rotationLockToggle", "rss", "screenOff", "screenTimeApps", "screenTimeChart", "screenTimeDonut", "shutdown",
+        "signOut", "sleep", "soundToggle", "spatialSoundToggle", "stocks", "stopwatch", "sun", "volume",
         "weatherForecast", "weatherNow", "weekPlanner", "wifiToggle",
     ];
 

@@ -76,5 +76,9 @@
   "details.gpu.engineVideoEncode": "Кодування відео",
   "details.disk.drive": "Диск",
   "details.disk.read": "Читання",
-  "details.disk.write": "Запис"
+  "details.disk.write": "Запис",
+  "details.drive.capacity": "Ємність",
+  "details.drive.fileSystem": "Файлова система",
+  "details.drive.free": "Вільно",
+  "details.drive.used": "Використано"
 }

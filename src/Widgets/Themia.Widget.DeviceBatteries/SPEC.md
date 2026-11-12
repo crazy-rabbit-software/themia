@@ -50,6 +50,10 @@ Verified live on the development PC (2026-11-07): a Sony WH-1000XM4 headset over
 disconnected). Not verified live (no such device here): Bluetooth LE GATT levels, device containers
 with `System.Devices.BatteryLife` (and their charging state), game controllers. A Logitech Unifying
 receiver here reports no battery to Windows and is correctly not listed.
+- **[S-11028]** A list atom ([S-11008]): its rows are a setting (`Rows`, 1..20, four by default,
+  `IKitRows`, `KitMenuLines.Rows` without a lines choice: every row has its second line), its height
+  following them (36 + 40 a row + 12, `KitSizing`, 220..520 wide, a new one 300 × 208); more devices
+  scroll inside them. Its menu: Low battery at, Show charging devices, Rows.
 
 Needs a manual pass: every size tier on the live desktop (showcase views, [S-1810]), with a headset
 connecting and disconnecting while the widget shows (the device watchers, [S-4472]).

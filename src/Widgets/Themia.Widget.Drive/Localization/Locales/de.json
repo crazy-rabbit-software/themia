@@ -1,10 +1,5 @@
 {
   "drives.drive.desc": "Speicherplatz und Dateisystem eines Laufwerks, auch Netzlaufwerke",
   "drives.drive.label": "Laufwerk",
-  "drives.fact.capacity": "Kapazität",
-  "drives.fact.fileSystem": "Dateisystem",
-  "drives.fact.free": "Frei",
-  "drives.fact.used": "Belegt",
-  "drives.settings.drive.label": "Laufwerk",
   "styles.io.bar": "Balken"
 }

@@ -76,5 +76,9 @@
   "details.gpu.engineVideoEncode": "የቪዲዮ ኮድ ማድረጊያ",
   "details.disk.drive": "አንጻፊ",
   "details.disk.read": "ንባብ",
-  "details.disk.write": "ጽሕፈት"
+  "details.disk.write": "ጽሕፈት",
+  "details.drive.capacity": "አቅም",
+  "details.drive.fileSystem": "የፋይል ሥርዓት",
+  "details.drive.free": "ነጻ",
+  "details.drive.used": "ጥቅም ላይ የዋለ"
 }

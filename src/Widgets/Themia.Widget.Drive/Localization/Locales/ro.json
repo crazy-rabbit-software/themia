@@ -1,10 +1,5 @@
 {
   "drives.drive.desc": "Spațiul și sistemul de fișiere al unei unități, inclusiv unități mapate",
   "drives.drive.label": "Unitate",
-  "drives.fact.capacity": "Capacitate",
-  "drives.fact.fileSystem": "Sistem de fișiere",
-  "drives.fact.free": "Liber",
-  "drives.fact.used": "Utilizat",
-  "drives.settings.drive.label": "Unitate",
   "styles.io.bar": "Bară"
 }

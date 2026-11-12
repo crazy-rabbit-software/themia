@@ -76,5 +76,9 @@
   "details.gpu.engineVideoEncode": "Enkode video",
   "details.disk.drive": "Drive",
   "details.disk.read": "Baca",
-  "details.disk.write": "Tulis"
+  "details.disk.write": "Tulis",
+  "details.drive.capacity": "Kapasitas",
+  "details.drive.fileSystem": "Sistem file",
+  "details.drive.free": "Kosong",
+  "details.drive.used": "Terpakai"
 }

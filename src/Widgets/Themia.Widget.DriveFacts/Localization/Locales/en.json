@@ -1,0 +1,5 @@
+{
+  "$englishOnly": ["driveFacts.label", "driveFacts.desc"],
+  "driveFacts.label": "Drive facts",
+  "driveFacts.desc": "A drive's used, free and capacity, its file system and type"
+}

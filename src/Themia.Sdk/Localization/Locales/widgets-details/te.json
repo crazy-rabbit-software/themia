@@ -76,5 +76,9 @@
   "details.gpu.engineVideoEncode": "వీడియో ఎన్‌కోడ్",
   "details.disk.drive": "డ్రైవ్",
   "details.disk.read": "చదవడం",
-  "details.disk.write": "రాయడం"
+  "details.disk.write": "రాయడం",
+  "details.drive.capacity": "సామర్థ్యం",
+  "details.drive.fileSystem": "ఫైల్ సిస్టమ్",
+  "details.drive.free": "ఖాళీ",
+  "details.drive.used": "ఉపయోగించినది"
 }

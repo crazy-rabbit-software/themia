@@ -411,7 +411,8 @@
           "itemTextColor": "",
           "scale": 1,
           "config": {
-            "kind": "removableDrives"
+            "kind": "removableDrives",
+            "rows": 3
           }
         },
         {

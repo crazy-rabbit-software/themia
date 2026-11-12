@@ -5818,7 +5818,8 @@ stand), `DetailView` with `DetailPart.Atom` (the facts and list faces), `FactsCo
   **Disk** (`disk` over `diskHistory`, 160 wide), **Network** (`network` over `networkHistory`, 180 wide),
   **Network details** (`network` over `networkFacts` over `networkAdapters` of two rows, 300 wide),
   **Ping** (`ping` over `pingHistory`), **Ping details** (`ping` over `pingFacts`), **Battery**
-  (`battery` over `batteryHistory`), **Battery details** (`battery` over `batteryFacts`).
+  (`battery` over `batteryHistory`), **Battery details** (`battery` over `batteryFacts`), **Drive**
+  (`drive` over `driveFacts`, 260 wide).
 
 ## System details (SYS-DETAILS)
 

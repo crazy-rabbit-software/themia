@@ -1,10 +1,5 @@
 {
   "drives.drive.desc": "एक ड्राइव का स्थान और फ़ाइल सिस्टम, मैप की गई ड्राइव भी",
   "drives.drive.label": "ड्राइव",
-  "drives.fact.capacity": "क्षमता",
-  "drives.fact.fileSystem": "फ़ाइल सिस्टम",
-  "drives.fact.free": "खाली",
-  "drives.fact.used": "उपयोग में",
-  "drives.settings.drive.label": "ड्राइव",
   "styles.io.bar": "बार"
 }

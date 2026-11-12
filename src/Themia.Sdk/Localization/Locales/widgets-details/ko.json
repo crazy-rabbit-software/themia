@@ -76,5 +76,9 @@
   "details.gpu.engineVideoEncode": "비디오 인코딩",
   "details.disk.drive": "드라이브",
   "details.disk.read": "읽기",
-  "details.disk.write": "쓰기"
+  "details.disk.write": "쓰기",
+  "details.drive.capacity": "용량",
+  "details.drive.fileSystem": "파일 시스템",
+  "details.drive.free": "사용 가능",
+  "details.drive.used": "사용"
 }

@@ -1,10 +1,5 @@
 {
   "drives.drive.desc": "Bir sürücünün alanı ve dosya sistemi, eşlenmiş sürücüler de",
   "drives.drive.label": "Sürücü",
-  "drives.fact.capacity": "Kapasite",
-  "drives.fact.fileSystem": "Dosya sistemi",
-  "drives.fact.free": "Boş",
-  "drives.fact.used": "Kullanılan",
-  "drives.settings.drive.label": "Sürücü",
   "styles.io.bar": "Çubuk"
 }

@@ -2,10 +2,5 @@
   "$englishOnly": [],
   "drives.drive.desc": "One drive's space and file system, mapped drives too",
   "drives.drive.label": "Drive",
-  "drives.fact.capacity": "Capacity",
-  "drives.fact.fileSystem": "File system",
-  "drives.fact.free": "Free",
-  "drives.fact.used": "Used",
-  "drives.settings.drive.label": "Drive",
   "styles.io.bar": "Bar"
 }

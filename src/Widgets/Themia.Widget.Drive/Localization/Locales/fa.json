@@ -1,10 +1,5 @@
 {
   "drives.drive.desc": "فضا و سیستم فایل یک درایو، شامل درایوهای نگاشت‌شده",
   "drives.drive.label": "درایو",
-  "drives.fact.capacity": "ظرفیت",
-  "drives.fact.fileSystem": "سیستم فایل",
-  "drives.fact.free": "آزاد",
-  "drives.fact.used": "استفاده‌شده",
-  "drives.settings.drive.label": "درایو",
   "styles.io.bar": "نوار"
 }

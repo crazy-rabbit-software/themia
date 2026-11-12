@@ -76,5 +76,9 @@
   "details.gpu.engineVideoEncode": "رمزگذاری ویدیو",
   "details.disk.drive": "درایو",
   "details.disk.read": "خواندن",
-  "details.disk.write": "نوشتن"
+  "details.disk.write": "نوشتن",
+  "details.drive.capacity": "ظرفیت",
+  "details.drive.fileSystem": "سیستم فایل",
+  "details.drive.free": "آزاد",
+  "details.drive.used": "استفاده‌شده"
 }

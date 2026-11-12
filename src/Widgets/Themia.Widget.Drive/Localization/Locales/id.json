@@ -1,10 +1,5 @@
 {
   "drives.drive.desc": "Ruang dan sistem file satu drive, termasuk drive yang dipetakan",
   "drives.drive.label": "Drive",
-  "drives.fact.capacity": "Kapasitas",
-  "drives.fact.fileSystem": "Sistem file",
-  "drives.fact.free": "Kosong",
-  "drives.fact.used": "Terpakai",
-  "drives.settings.drive.label": "Drive",
   "styles.io.bar": "Batang"
 }

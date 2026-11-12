@@ -76,5 +76,9 @@
   "details.gpu.engineVideoEncode": "ವೀಡಿಯೊ ಎನ್‌ಕೋಡ್",
   "details.disk.drive": "ಡ್ರೈವ್",
   "details.disk.read": "ಓದುವಿಕೆ",
-  "details.disk.write": "ಬರೆಯುವಿಕೆ"
+  "details.disk.write": "ಬರೆಯುವಿಕೆ",
+  "details.drive.capacity": "ಸಾಮರ್ಥ್ಯ",
+  "details.drive.fileSystem": "ಫೈಲ್ ಸಿಸ್ಟಮ್",
+  "details.drive.free": "ಖಾಲಿ",
+  "details.drive.used": "ಬಳಸಲಾಗಿದೆ"
 }

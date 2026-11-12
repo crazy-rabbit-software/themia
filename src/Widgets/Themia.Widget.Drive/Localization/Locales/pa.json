@@ -1,10 +1,5 @@
 {
   "drives.drive.desc": "ਇੱਕ ਡਰਾਈਵ ਦੀ ਥਾਂ ਅਤੇ ਫ਼ਾਈਲ ਸਿਸਟਮ, ਮੈਪ ਕੀਤੀਆਂ ਡਰਾਈਵਾਂ ਵੀ",
   "drives.drive.label": "ਡਰਾਈਵ",
-  "drives.fact.capacity": "ਸਮਰੱਥਾ",
-  "drives.fact.fileSystem": "ਫ਼ਾਈਲ ਸਿਸਟਮ",
-  "drives.fact.free": "ਖਾਲੀ",
-  "drives.fact.used": "ਵਰਤੀ ਗਈ",
-  "drives.settings.drive.label": "ਡਰਾਈਵ",
   "styles.io.bar": "ਬਾਰ"
 }

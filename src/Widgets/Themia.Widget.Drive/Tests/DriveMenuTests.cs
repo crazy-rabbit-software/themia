@@ -35,7 +35,7 @@ public sealed class DriveMenuTests
         var line = Drive(new DriveConfig());
         var system = DiskRules.Instance(DiskRules.Root(SystemDrive.Root) ?? "C:\\");
 
-        Assert.Equal(DriveStr.Drives_Settings_Drive_Label.Text(), line.Text);
+        Assert.Equal(Str.Details_Disk_Drive.Text(), line.Text);
         Assert.Equal(
             [Str.Shell_Meters_SystemDrive.Format(("drive", system)), .. Drives.Select(d => DriveRules.Title(Strings.Current, d))],
             line.Children!.Select(o => o.Text));

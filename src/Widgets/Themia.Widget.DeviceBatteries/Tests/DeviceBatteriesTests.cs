@@ -1,3 +1,5 @@
+using Themia.Core.Widgets;
+using Themia.Sdk;
 using Themia.App.Widgets;
 using Themia.Core.Localization;
 using Themia.Core.Model;
@@ -176,11 +178,21 @@ public sealed class DeviceBatteriesTests
         DeviceBatteriesMenu.Lines(menu, config);
 
         Assert.Equal(
-            [DeviceBatteriesStr.DeviceBatteries_Settings_Low.Text(), DeviceBatteriesStr.DeviceBatteries_Settings_Charging.Text()],
+            [DeviceBatteriesStr.DeviceBatteries_Settings_Low.Text(), DeviceBatteriesStr.DeviceBatteries_Settings_Charging.Text(), Str.Kit_Rows.Text()],
             menu.Lines.Select(l => l.Text));
 
         menu.Lines[1].Action!();
         Assert.False(config.ShowCharging);
         Assert.Equal(1, saves);
+    }
+
+    [Fact]
+    public void S11028_its_height_follows_its_rows_of_two_lines_and_a_dragged_edge_sets_them()
+    {
+        var kind = ModuleCatalog.Of(new WidgetId("deviceBatteries"));
+        Assert.Equal(36 + (4 * 40) + 12, kind.SizingOf().Natural.Height);
+        var two = Assert.IsType<DeviceBatteriesConfig>(kind.SizeSets!(new DeviceBatteriesConfig(), new SizeDip(300, 36 + 80 + 12)));
+        Assert.Equal(2, two.Rows);
+        Assert.Equal(6, ((DeviceBatteriesConfig)new DeviceBatteriesConfig { Rows = 6 }.Clone()).Rows);
     }
 }

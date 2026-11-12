@@ -1,10 +1,5 @@
 {
   "drives.drive.desc": "Місце й файлова система одного диска, також підключених мережевих",
   "drives.drive.label": "Диск",
-  "drives.fact.capacity": "Ємність",
-  "drives.fact.fileSystem": "Файлова система",
-  "drives.fact.free": "Вільно",
-  "drives.fact.used": "Використано",
-  "drives.settings.drive.label": "Диск",
   "styles.io.bar": "Смуга"
 }

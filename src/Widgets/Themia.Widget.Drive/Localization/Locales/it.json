@@ -1,10 +1,5 @@
 {
   "drives.drive.desc": "Spazio e file system di un’unità, anche unità di rete",
   "drives.drive.label": "Unità",
-  "drives.fact.capacity": "Capacità",
-  "drives.fact.fileSystem": "File system",
-  "drives.fact.free": "Libero",
-  "drives.fact.used": "In uso",
-  "drives.settings.drive.label": "Unità",
   "styles.io.bar": "Barra"
 }

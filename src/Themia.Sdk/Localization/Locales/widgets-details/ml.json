@@ -76,5 +76,9 @@
   "details.gpu.engineVideoEncode": "വീഡിയോ എൻകോഡ്",
   "details.disk.drive": "ഡ്രൈവ്",
   "details.disk.read": "വായന",
-  "details.disk.write": "എഴുത്ത്"
+  "details.disk.write": "എഴുത്ത്",
+  "details.drive.capacity": "ശേഷി",
+  "details.drive.fileSystem": "ഫയൽ സിസ്റ്റം",
+  "details.drive.free": "ഒഴിവ്",
+  "details.drive.used": "ഉപയോഗിച്ചത്"
 }

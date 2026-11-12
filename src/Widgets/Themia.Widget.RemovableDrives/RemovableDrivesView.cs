@@ -67,6 +67,7 @@ internal sealed partial class RemovableDrivesView : Grid, IWidgetView, IWidgetSi
 
     public void Attach(Ticker ticker, WidgetConfig config)
     {
+        _rowCount = (config as RemovableDrivesConfig)?.Rows ?? RemovableDrivesPlan.DefaultRows;
         _detached = false;
         Strings.Changed -= OnLanguage;
         Strings.Changed += OnLanguage;
@@ -75,7 +76,14 @@ internal sealed partial class RemovableDrivesView : Grid, IWidgetView, IWidgetSi
         Show();
     }
 
-    public void ApplyConfig(WidgetConfig config) => Show();
+    public void ApplyConfig(WidgetConfig config)
+    {
+        _rowCount = (config as RemovableDrivesConfig)?.Rows ?? RemovableDrivesPlan.DefaultRows;
+        Show();
+    }
+
+    /// <summary>[S-11027] The config's rows: the list's height.</summary>
+    private int _rowCount = RemovableDrivesPlan.DefaultRows;
 
     public void ApplySize(WidgetArea area)
     {
@@ -104,8 +112,7 @@ internal sealed partial class RemovableDrivesView : Grid, IWidgetView, IWidgetSi
             return;
         }
 
-        var area = _area.IsMeasured ? _area : new WidgetArea(ActualWidth, ActualHeight);
-        var look = RemovableDrivesPlan.Of(area);
+        var look = RemovableDrivesPlan.Of(_area.IsMeasured ? _area.Width : ActualWidth);
 
         if (_devices.Count == 0)
         {
@@ -150,7 +157,7 @@ internal sealed partial class RemovableDrivesView : Grid, IWidgetView, IWidgetSi
             }
         }
 
-        _scroll.Height = area.IsMeasured ? RemovableDrivesPlan.ListHeight(area, _devices.Count, look.Lines) : double.NaN;
+        _scroll.Height = RemovableDrivesPlan.ListHeight(_rowCount);
 
         if (_focus >= _devices.Count)
         {

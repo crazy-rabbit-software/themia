@@ -76,5 +76,9 @@
   "details.gpu.engineVideoEncode": "वीडियो एन्कोड",
   "details.disk.drive": "ड्राइव",
   "details.disk.read": "पढ़ना",
-  "details.disk.write": "लिखना"
+  "details.disk.write": "लिखना",
+  "details.drive.capacity": "क्षमता",
+  "details.drive.fileSystem": "फ़ाइल सिस्टम",
+  "details.drive.free": "खाली",
+  "details.drive.used": "उपयोग में"
 }

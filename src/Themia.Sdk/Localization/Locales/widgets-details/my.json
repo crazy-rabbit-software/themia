@@ -76,5 +76,9 @@
   "details.gpu.engineVideoEncode": "ဗီဒီယို encode",
   "details.disk.drive": "ဒရိုက်",
   "details.disk.read": "ဖတ်",
-  "details.disk.write": "ရေး"
+  "details.disk.write": "ရေး",
+  "details.drive.capacity": "ပမာဏ",
+  "details.drive.fileSystem": "ဖိုင်စနစ်",
+  "details.drive.free": "လွတ်",
+  "details.drive.used": "သုံးထား"
 }

@@ -1,10 +1,5 @@
 {
   "drives.drive.desc": "Espace et système de fichiers d’un lecteur, lecteurs réseau compris",
   "drives.drive.label": "Lecteur",
-  "drives.fact.capacity": "Capacité",
-  "drives.fact.fileSystem": "Système de fichiers",
-  "drives.fact.free": "Libre",
-  "drives.fact.used": "Utilisé",
-  "drives.settings.drive.label": "Lecteur",
   "styles.io.bar": "Barre"
 }

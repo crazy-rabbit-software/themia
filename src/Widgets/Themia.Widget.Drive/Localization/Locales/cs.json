@@ -2,10 +2,5 @@
   "$comment": "Machine-written translations: every string in this file needs native review.",
   "drives.drive.desc": "Místo a systém souborů jedné jednotky, i namapované jednotky",
   "drives.drive.label": "Jednotka",
-  "drives.fact.capacity": "Kapacita",
-  "drives.fact.fileSystem": "Systém souborů",
-  "drives.fact.free": "Volné",
-  "drives.fact.used": "Využité",
-  "drives.settings.drive.label": "Jednotka",
   "styles.io.bar": "Pruh"
 }

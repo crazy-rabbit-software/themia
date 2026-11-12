@@ -2,10 +2,5 @@
   "$comment": "Machine-written translations: every string in this file needs native review.",
   "drives.drive.desc": "Ruang dan sistem fail satu pemacu, termasuk pemacu yang dipetakan",
   "drives.drive.label": "Pemacu",
-  "drives.fact.capacity": "Kapasiti",
-  "drives.fact.fileSystem": "Sistem fail",
-  "drives.fact.free": "Kosong",
-  "drives.fact.used": "Digunakan",
-  "drives.settings.drive.label": "Pemacu",
   "styles.io.bar": "Bar"
 }

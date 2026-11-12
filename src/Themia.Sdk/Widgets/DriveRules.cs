@@ -76,6 +76,41 @@ public sealed record DriveEntry(
 /// </summary>
 public static class DriveRules
 {
+    /// <summary>[S-11026] Every fact the drive facts atom can show, in the kind's order; a new one shows the first four.</summary>
+    public static IReadOnlyList<FactOption> Facts { get; } =
+    [
+        new("used", Str.Details_Drive_Used.Local()),
+        new("free", Str.Details_Drive_Free.Local()),
+        new("capacity", Str.Details_Drive_Capacity.Local()),
+        new("fileSystem", Str.Details_Drive_FileSystem.Local()),
+        new("type", Str.Details_Drive_Type.Local()),
+    ];
+
+    /// <summary>
+    /// [S-11026] A drive's facts as a sheet a pick reads (<see cref="FactsRules.Pick"/>): used, free and
+    /// capacity while the drive has figures, its file system where Windows names one, and its type. A
+    /// drive without figures says why in the note (the Status row's sentence is the view's).
+    /// </summary>
+    public static DetailSheet Sheet(Locale locale, DriveEntry drive)
+    {
+        ArgumentNullException.ThrowIfNull(drive);
+        var facts = new List<DetailFact>(5);
+        if (drive.UsedFraction is not null)
+        {
+            facts.Add(new(Strings.Get(locale, Str.Details_Drive_Used), Formatting.Bytes(locale, drive.Used), Key: "used"));
+            facts.Add(new(Strings.Get(locale, Str.Details_Drive_Free), Formatting.Bytes(locale, drive.Free), Key: "free"));
+            facts.Add(new(Strings.Get(locale, Str.Details_Drive_Capacity), Formatting.Bytes(locale, drive.Total), Key: "capacity"));
+        }
+
+        if (drive.FileSystem.Length > 0)
+        {
+            facts.Add(new(Strings.Get(locale, Str.Details_Drive_FileSystem), drive.FileSystem, Key: "fileSystem"));
+        }
+
+        facts.Add(new(Strings.Get(locale, Str.Details_Drive_Type), Description(locale, drive), Key: "type"));
+        return new DetailSheet(null, null, facts, []);
+    }
+
     /// <summary>WNetGetConnectionW's ERROR_CONNECTION_UNAVAIL: a connection Windows remembers but has not made.</summary>
     public const uint ConnectionUnavailable = 1201;
 

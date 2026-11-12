@@ -76,5 +76,9 @@
   "details.gpu.engineVideoEncode": "Mã hóa video",
   "details.disk.drive": "Ổ đĩa",
   "details.disk.read": "Đọc",
-  "details.disk.write": "Ghi"
+  "details.disk.write": "Ghi",
+  "details.drive.capacity": "Dung lượng",
+  "details.drive.fileSystem": "Hệ thống tệp",
+  "details.drive.free": "Còn trống",
+  "details.drive.used": "Đã dùng"
 }

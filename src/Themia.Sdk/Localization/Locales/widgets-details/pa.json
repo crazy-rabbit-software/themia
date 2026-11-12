@@ -76,5 +76,9 @@
   "details.gpu.engineVideoEncode": "ਵੀਡੀਓ ਇਨਕੋਡ",
   "details.disk.drive": "ਡਰਾਈਵ",
   "details.disk.read": "ਪੜ੍ਹਨਾ",
-  "details.disk.write": "ਲਿਖਣਾ"
+  "details.disk.write": "ਲਿਖਣਾ",
+  "details.drive.capacity": "ਸਮਰੱਥਾ",
+  "details.drive.fileSystem": "ਫ਼ਾਈਲ ਸਿਸਟਮ",
+  "details.drive.free": "ਖਾਲੀ",
+  "details.drive.used": "ਵਰਤੀ ਗਈ"
 }

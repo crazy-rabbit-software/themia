@@ -9,8 +9,25 @@ namespace Themia.Widget.DeviceBatteries;
 /// [S-10000] [S-10004] What one Device batteries widget remembers: where a battery counts as low, and
 /// whether a device on its charger is listed. Every property is stored; copy each in <see cref="Clone"/>.
 /// </summary>
-public sealed class DeviceBatteriesConfig : WidgetConfig, IKitConfig
+public sealed class DeviceBatteriesConfig : WidgetConfig, IKitConfig, IKitRows
 {
+    /// <summary>[S-11028] A new list's rows.</summary>
+    public const int DefaultRows = 4;
+
+    /// <summary>[S-11028] How many rows the list shows (1..20); more devices scroll inside them.</summary>
+    public int Rows { get; set; } = DefaultRows;
+
+    /// <summary>[S-11028] Every row has its two lines (the device, its kind or charging under it); the menu offers no choice.</summary>
+    [JsonIgnore]
+    public int Lines
+    {
+        get => 2;
+        set
+        {
+            // ignore: a device's row always has its second line.
+        }
+    }
+
     /// <summary>[S-10003] The thresholds offered: the tray's 20 % in the middle.</summary>
     public static readonly IReadOnlyList<int> Thresholds = [10, 15, 20, 25, 30];
 
@@ -48,19 +65,27 @@ public sealed class DeviceBatteriesConfig : WidgetConfig, IKitConfig
     /// <summary>[S-10003] A threshold off the offered steps is put back to the default, loudly.</summary>
     public override IReadOnlyList<string> Repair()
     {
-        if (Thresholds.Contains(LowThreshold))
+        var notes = new List<string>();
+        if (!Thresholds.Contains(LowThreshold))
         {
-            return [];
+            notes.Add($"deviceBatteries: low threshold {LowThreshold} is not offered; {DefaultThreshold}");
+            LowThreshold = DefaultThreshold;
         }
 
-        var was = LowThreshold;
-        LowThreshold = DefaultThreshold;
-        return [$"deviceBatteries: low threshold {was} is not offered; {DefaultThreshold}"];
+        var rows = KitSizing.ClampRows(Rows);
+        if (rows != Rows)
+        {
+            notes.Add($"deviceBatteries: {Rows} rows is outside {KitSizing.MinRows}..{KitSizing.MaxRows}; using {rows}");
+            Rows = rows;
+        }
+
+        return notes;
     }
 
     public override WidgetConfig Clone() => new DeviceBatteriesConfig
     {
         LowThreshold = LowThreshold,
         ShowCharging = ShowCharging,
+        Rows = Rows,
     };
 }

@@ -1,3 +1,4 @@
+using Themia.Sdk.Kit;
 using System.Text.Json.Serialization;
 using Microsoft.UI.Xaml;
 using Themia.App.Shell;
@@ -24,7 +25,8 @@ public sealed class DeviceBatteriesModule : IWidgetModule
         Label = DeviceBatteriesStr.DeviceBatteries_Label.Local(),
         Description = DeviceBatteriesStr.DeviceBatteries_Desc.Local(),
         Glyph = Glyphs.Devices,
-        Sizing = _ => WidgetSizing.Legacy(300, 200),
+        Sizing = c => KitSizing.Sizing(KitSizing.Choice((DeviceBatteriesConfig)c), addFooter: false),
+        SizeSets = (c, s) => KitSizing.SizeSets(c, s, KitSizing.Choice((DeviceBatteriesConfig)c), addFooter: false),
         Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader,
         Add = new(AddFolderId.Devices, 1, 2),
     };

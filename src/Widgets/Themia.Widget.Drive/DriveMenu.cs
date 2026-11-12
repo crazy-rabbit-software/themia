@@ -20,36 +20,6 @@ internal static class DriveMenu
 
         // [S-4674] The look (Style, Appearance), a divider, then which drive.
         menu.Lines.Add(ItemMenuEntry.Separator);
-        menu.Lines.Add(DriveLine(menu, config, drives));
-    }
-
-    /// <summary>
-    /// [S-4674] Which drive: the system drive (said by name), then every drive Windows has — local,
-    /// removable and mapped network drives, which are listed from the redirector without asking their
-    /// shares. A chosen drive that is not there stays offered as "not connected".
-    /// </summary>
-    private static ItemMenuEntry DriveLine(WidgetMenuLines menu, DriveConfig config, IReadOnlyList<DriveEntry> drives)
-    {
-        var locale = Strings.Current;
-        var system = DiskRules.Root(SystemDrive.Root) ?? "C:\\";
-        var options = new List<(string Value, string Text)>
-        {
-            (string.Empty, Str.Shell_Meters_SystemDrive.Format(("drive", DiskRules.Instance(system)))),
-        };
-
-        foreach (var drive in drives)
-        {
-            options.Add((drive.Root, DriveRules.Title(locale, drive)));
-        }
-
-        var current = DiskRules.Root(config.Drive) ?? string.Empty;
-        var held = options.FindIndex(o => string.Equals(o.Value, current, StringComparison.OrdinalIgnoreCase));
-        if (held < 0)
-        {
-            options.Add((current, Str.WidgetsB_Settings_Disk_NotConnectedDrive.Format(("drive", DiskRules.Instance(current)))));
-            held = options.Count - 1;
-        }
-
-        return menu.Choice(Glyphs.Disk, DriveStr.Drives_Settings_Drive_Label.Text(), options, options[held].Value, value => config.Drive = value);
+        menu.Lines.Add(DriveMenuLines.Drive(menu, config.Drive, value => config.Drive = value, drives));
     }
 }

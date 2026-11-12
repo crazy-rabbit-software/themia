@@ -1,10 +1,5 @@
 {
   "drives.drive.desc": "Nafasi na mfumo wa faili wa hifadhi moja, hata hifadhi zilizoramanishwa",
   "drives.drive.label": "Hifadhi",
-  "drives.fact.capacity": "Uwezo",
-  "drives.fact.fileSystem": "Mfumo wa faili",
-  "drives.fact.free": "Wazi",
-  "drives.fact.used": "Imetumika",
-  "drives.settings.drive.label": "Hifadhi",
   "styles.io.bar": "Pau"
 }

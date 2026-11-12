@@ -76,5 +76,9 @@
   "details.gpu.engineVideoEncode": "ভিডিও এনকোড",
   "details.disk.drive": "ড্রাইভ",
   "details.disk.read": "পড়া",
-  "details.disk.write": "লেখা"
+  "details.disk.write": "লেখা",
+  "details.drive.capacity": "ধারণক্ষমতা",
+  "details.drive.fileSystem": "ফাইল সিস্টেম",
+  "details.drive.free": "খালি",
+  "details.drive.used": "ব্যবহৃত"
 }

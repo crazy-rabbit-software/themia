@@ -1,10 +1,5 @@
 {
   "drives.drive.desc": "Espasyo at file system ng isang drive, pati mga mapped drive",
   "drives.drive.label": "Drive",
-  "drives.fact.capacity": "Kapasidad",
-  "drives.fact.fileSystem": "File system",
-  "drives.fact.free": "Libre",
-  "drives.fact.used": "Nagamit",
-  "drives.settings.drive.label": "Drive",
   "styles.io.bar": "Bar"
 }

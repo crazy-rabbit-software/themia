@@ -76,5 +76,9 @@
   "details.gpu.engineVideoEncode": "Kódování videa",
   "details.disk.drive": "Jednotka",
   "details.disk.read": "Čtení",
-  "details.disk.write": "Zápis"
+  "details.disk.write": "Zápis",
+  "details.drive.capacity": "Kapacita",
+  "details.drive.fileSystem": "Systém souborů",
+  "details.drive.free": "Volné",
+  "details.drive.used": "Využité"
 }

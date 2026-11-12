@@ -1,3 +1,5 @@
+using Themia.Sdk.WinUI.Kit;
+using Themia.Sdk.Kit;
 using System.Text.Json.Serialization;
 using Microsoft.UI.Xaml;
 using Themia.App.Shell;
@@ -28,10 +30,21 @@ public sealed class RemovableDrivesModule : IWidgetModule
         Label = RemovableDrivesStr.Drives_Removable_Label.Local(),
         Description = RemovableDrivesStr.Drives_Removable_Desc.Local(),
         Glyph = Glyphs.Usb,
-        Sizing = _ => WidgetSizing.Legacy(300, 200),
+        Sizing = c => KitSizing.Sizing(Shown((RemovableDrivesConfig)c), addFooter: false),
+        SizeSets = (c, s) => KitSizing.SizeSets(c, s, Shown((RemovableDrivesConfig)c), addFooter: false),
         Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader,
-        Add = new(AddFolderId.Devices, 2, 1),
+        Add = new(AddFolderId.Devices, 2, 2),
     };
+
+    /// <summary>[S-11027] Its rows as drawn: the config's count, two lines each.</summary>
+    internal static KitRowsChoice Shown(RemovableDrivesConfig config) => new(KitSizing.ClampRows(config.Rows), RemovableDrivesPlan.Lines);
+
+    /// <summary>[S-11027] Its one line: how many rows ([S-2440]); a row always has its two lines.</summary>
+    public void MenuLines(WidgetMenuLines menu, WidgetConfig config)
+    {
+        ArgumentNullException.ThrowIfNull(menu);
+        menu.Lines.AddRange(KitMenuLines.Rows(menu, (RemovableDrivesConfig)config, offersLines: false));
+    }
 
     public FrameworkElement CreateView(IWidgetHost host) => new RemovableDrivesView(host);
 }
