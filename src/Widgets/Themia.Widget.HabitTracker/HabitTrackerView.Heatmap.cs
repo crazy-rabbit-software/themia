@@ -16,9 +16,10 @@ using Themia.Widget.HabitTracker;
 namespace Themia.App.Widgets;
 
 /// <summary>
-/// [S-6409] The heatmap style: the last weeks as a calendar grid, per habit (its name over its own
-/// grid, the current period's cell ticking it as its box does) or one grid for the whole list
-/// shaded by how many were done, whichever the tile has room for (<see cref="HabitHeatmap.Plan"/>).
+/// [S-6409] [S-11532] The heatmap style: the last weeks as a calendar grid, per habit (its name over its
+/// own grid, the current period's cell ticking it as its box does; the config's rows of habits) or one
+/// grid for the whole list shaded by how many were done, as the config says (<see cref="HabitHeatmap.Plan"/>);
+/// a wider card holds more weeks.
 /// The cells are rebuilt only when the grid's shape changes; a tick or a rollover recolours them.
 /// </summary>
 internal sealed partial class HabitTrackerView
@@ -55,16 +56,15 @@ internal sealed partial class HabitTrackerView
 
         // The grids stand in the card's inset, from the view's top to the card's bottom inset.
         var inset = FamilySpace.Inset;
-        var box = new WidgetArea(Math.Max(0, _area.Width - (2 * inset)), Math.Max(0, _area.Height - FamilySpace.Inset));
         var nameStep = FamilyType.Body;
-        var plan = HabitHeatmap.Plan(box, count, nameStep.LineHeight);
+        var plan = HabitHeatmap.Plan(_area.Width - (2 * inset), _config.PerHabit);
         var habits = Habits;
         var cadence = _config.Cadence;
         var firstDay = LocaleFormat.FirstDayOfWeek(Strings.Current);
         var periods = HabitHeatmap.Cells(_current, cadence, TimeZoneInfo.Local, plan.Weeks, firstDay);
         var logs = habits.Select(h => HabitRules.Log(h.Log)).ToList();
 
-        var grids = plan.PerHabit ? count : 1;
+        var grids = plan.PerHabit ? Math.Min(count, HabitSizing.ClampRows(_config.Rows)) : 1;
         var shape = (plan.PerHabit, plan.Weeks, plan.Cell, grids);
         if (shape != _heatShape)
         {

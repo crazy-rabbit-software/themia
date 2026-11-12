@@ -288,7 +288,7 @@ internal sealed partial class HabitTrackerView : Grid, IWidgetView, IWidgetSurfa
         return (StatusKind.Empty, HabitTrackerStr.WidgetsB_Habits_Empty.Text());
     }
 
-    /// <summary>[S-1427] Apply the ladder to what is drawn. Cheap: nothing is rebuilt here.</summary>
+    /// <summary>[S-11530] Apply the config's plan to what is drawn. Cheap: nothing is rebuilt here.</summary>
     private void Lay()
     {
         if (_detached)
@@ -302,9 +302,8 @@ internal sealed partial class HabitTrackerView : Grid, IWidgetView, IWidgetSurfa
         // an empty list, which has nothing to draw and still needs a way to add its first habit.
         var heat = IsHeatmap;
         var plan = HabitLayout.Plan(
-            _area,
-            new HabitLayoutInput(count, Writable && (!heat || count == 0), _config.ShowStreak, _config.EffectiveHistoryDots,
-                Checklist: _config.Style == HabitTrackerStyle.Checklist));
+            new HabitLayoutInput(count, Writable, _config.ShowStreak, _config.EffectiveHistoryDots,
+                Checklist: _config.Style == HabitTrackerStyle.Checklist, Rows: _config.Rows, Lines: _config.Lines, RunWords: _config.RunWords, Heatmap: heat));
 
         _plan = plan;
 
@@ -312,9 +311,8 @@ internal sealed partial class HabitTrackerView : Grid, IWidgetView, IWidgetSurfa
         _scroll.Visibility = count == 0 || heat ? Visibility.Collapsed : Visibility.Visible;
         LayHeatmap(count);
 
-        // The rows sit at the top of the tile and the add footer at its bottom ([S-3850]); under a
-        // list that all fits, the room between stays empty: nothing but the habits fills it.
-        // Whole rows in the viewport: the rest scroll, and the last visible row is never cut in half.
+        // [S-11530] The config's rows at the top and the add footer under them ([S-3850]); fewer habits
+        // leave their rows empty. Whole rows in the viewport: the rest scroll.
         _scroll.Height = plan.Rows < count ? plan.Rows * plan.RowHeight : double.NaN;
 
         foreach (var row in _rows)

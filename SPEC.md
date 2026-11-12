@@ -4016,8 +4016,9 @@ converted kind states its sizes and shows the same content inside them ([S-2438]
   between them, never under the footer (the Windows 11 list-ends-in-its-add-row pattern, held in
   place). Whether it shows is one rule (`AddFooter.Show`): only where an add is possible; always
   under an empty list, at any size (it is then the way to begin); otherwise a rung right after the
-  first row, from Regular height, when a whole row is left for it. Where it hides, the widget's
-  settings still add. It takes no keys of its own; the editor in it keeps the widget's lease
+  first row, from Regular height, when a whole row is left for it (a list that states its rows,
+  Tasks [S-2440] and Habits [S-11530], counts it in its height and shows it always where an add is
+  possible). Where it hides, the widget's settings still add. It takes no keys of its own; the editor in it keeps the widget's lease
   ([S-809]) while it is open.
 
 ## Shell skeleton and shared settings

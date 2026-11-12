@@ -109,10 +109,10 @@ public class SettingRulesTests
     [Fact]
     public void S6074_habits_offer_the_minutes_under_the_custom_period_and_the_run_on_the_dots()
     {
-        Assert.Equal([HabitsSetting.Interval, HabitsSetting.Streak, HabitsSetting.History],
+        Assert.Equal([HabitsSetting.Interval, HabitsSetting.Streak, HabitsSetting.RunWords, HabitsSetting.History, HabitsSetting.Lines],
             new HabitTrackerConfig { Period = HabitPeriod.Custom, Style = HabitTrackerStyle.Dots }.ShownSettings);
         Assert.Equal([HabitsSetting.Interval], new HabitTrackerConfig { Period = HabitPeriod.Custom, Style = HabitTrackerStyle.Checklist }.ShownSettings);
-        Assert.Empty(new HabitTrackerConfig { Period = HabitPeriod.Daily, Style = HabitTrackerStyle.Heatmap }.ShownSettings);
+        Assert.Equal([HabitsSetting.PerHabit], new HabitTrackerConfig { Period = HabitPeriod.Daily, Style = HabitTrackerStyle.Heatmap }.ShownSettings);
     }
 
     [Fact]

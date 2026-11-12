@@ -19,16 +19,14 @@ public sealed record HabitHeatmapPlan(bool PerHabit, int Weeks, double Cell)
 }
 
 /// <summary>
-/// [S-6409] The heatmap style's rules: GitHub's contribution calendar over a habit log. Columns of
-/// seven periods, the newest column on the right; under a daily cadence the rows are the weekdays
-/// from the language's first day, so a column is a calendar week and the days after today are
-/// left blank. Pure, so every tier and every edge is pinned by a test.
+/// [S-6409] [S-11532] The heatmap style's rules: GitHub's contribution calendar over a habit log. Columns
+/// of seven periods, the newest column on the right; under a daily cadence the rows are the weekdays
+/// from the language's first day, so a column is a calendar week and the days after today are left
+/// blank. Pure, so every edge is pinned by a test.
 /// <para>
-/// Decided by size: when every habit's name and its own seven-row grid (at least
-/// <see cref="MinWeeks"/> weeks of <see cref="MinCell"/> cells) fit the tile, each habit gets one;
-/// otherwise the list shares one grid whose cells fill from the foot by the share of its habits done.
-/// A larger tile spends its room on bigger cells (up to <see cref="MaxCell"/>) and then on more
-/// weeks (up to <see cref="MaxWeeks"/>), nothing else ([S-666]).
+/// What it draws is its config's: one grid for the list (cells of <see cref="SharedCell"/>, each filled
+/// from its foot by the share of the habits done) or a grid per habit under its name (cells of
+/// <see cref="PerHabitCell"/>). A wider card is a longer calendar: more weeks, never bigger cells.
 /// </para>
 /// </summary>
 public static class HabitHeatmap
@@ -39,14 +37,11 @@ public static class HabitHeatmap
     /// <summary>Space between two cells.</summary>
     public const double Gap = 2;
 
-    /// <summary>The smallest cell that still reads as a square.</summary>
-    public const double MinCell = 6;
+    /// <summary>[S-11532] A cell of the list's one grid.</summary>
+    public const double SharedCell = 12;
 
-    /// <summary>Past this a cell is a tile, not a day: more weeks are worth more than bigger squares.</summary>
-    public const double MaxCell = 20;
-
-    /// <summary>A month: fewer columns would not be a calendar.</summary>
-    public const int MinWeeks = 4;
+    /// <summary>[S-11532] A cell of a habit's own grid.</summary>
+    public const double PerHabitCell = 8;
 
     /// <summary>A year of weeks, as GitHub draws it.</summary>
     public const int MaxWeeks = 53;
@@ -57,29 +52,17 @@ public static class HabitHeatmap
     /// <summary>Space between a habit's name and its grid.</summary>
     public const double NameGap = 4;
 
+    /// <summary>[S-11532] A grid's height: seven rows of <paramref name="cell"/>, <see cref="Gap"/> apart.</summary>
+    public static double GridOf(double cell) => (Rows * (cell + Gap)) - Gap;
+
     /// <summary>
-    /// [S-6409] The plan for <paramref name="habits"/> habits in <paramref name="box"/> (the tile less
-    /// its padding), each name <paramref name="nameLine"/> high when it has its own grid.
+    /// [S-11532] The plan for a box <paramref name="width"/> wide (the card less its inset): a grid per
+    /// habit or one for the list, as the config says; as many weeks as the width holds.
     /// </summary>
-    public static HabitHeatmapPlan Plan(WidgetArea box, int habits, double nameLine)
+    public static HabitHeatmapPlan Plan(double width, bool perHabit)
     {
-        if (habits <= 0 || !box.IsMeasured)
-        {
-            return new HabitHeatmapPlan(false, 0, 0);
-        }
-
-        // The widest a cell may be and still leave a month of columns.
-        var byWidth = ((box.Width + Gap) / MinWeeks) - Gap;
-
-        var block = ((box.Height - ((habits - 1) * BlockGap)) / habits) - nameLine - NameGap;
-        var perHabit = Math.Floor(Math.Min(Math.Min(((block + Gap) / Rows) - Gap, byWidth), MaxCell));
-        if (perHabit >= MinCell)
-        {
-            return new HabitHeatmapPlan(true, WeeksFor(box.Width, perHabit), perHabit);
-        }
-
-        var shared = Math.Floor(Math.Clamp(Math.Min(((box.Height + Gap) / Rows) - Gap, byWidth), MinCell, MaxCell));
-        return new HabitHeatmapPlan(false, WeeksFor(box.Width, shared), shared);
+        var cell = perHabit ? PerHabitCell : SharedCell;
+        return new HabitHeatmapPlan(perHabit, WeeksFor(Math.Max(0, width), cell), cell);
     }
 
     /// <summary>How many whole columns of <paramref name="cell"/> fit across <paramref name="width"/>, within the bounds.</summary>

@@ -887,7 +887,11 @@
             "period": "Daily",
             "customMinutes": 30,
             "historyDots": 7,
-            "showStreak": true
+            "showStreak": true,
+            "rows": 4,
+            "lines": 1,
+            "runWords": false,
+            "perHabit": false
           }
         },
         {

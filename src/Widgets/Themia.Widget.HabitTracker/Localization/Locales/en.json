@@ -1,5 +1,5 @@
 {
-  "$englishOnly": [],
+  "$englishOnly": ["habitTracker.runWords", "habitTracker.perHabit"],
   "habitTracker.intervalLabel": "Interval",
   "habitTracker.lists.namePlaceholder": "List name",
   "styles.habits.cell": "{period}: {done} of {count}",
@@ -56,5 +56,7 @@
   "widgetsB.settings.habits.noLists": "No habit lists on this PC yet.",
   "widgetsB.settings.habits.resets.label": "Resets",
   "widgetsB.settings.habits.streaks.label": "Show streaks",
-  "widgetsB.settings.habits.untitledList": "Untitled list"
+  "widgetsB.settings.habits.untitledList": "Untitled list",
+  "habitTracker.runWords": "Run in words",
+  "habitTracker.perHabit": "A grid per habit"
 }

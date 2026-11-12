@@ -8,7 +8,7 @@ using Xunit;
 
 namespace Themia.Widget.HabitTracker.Tests;
 
-/// <summary>[S-6408] [S-6409] [S-6410] The habit tracker's styles: the dots' own settings, the heatmap and the checklist. Moved with the widget from Core's ListStylesTests, unchanged in what they assert.</summary>
+/// <summary>[S-6408] [S-6409] [S-6410] [S-11532] The habit tracker's styles: the dots' own settings, the heatmap and the checklist. Moved with the widget from Core's ListStylesTests, unchanged in what they assert.</summary>
 public sealed class HabitTrackerStylesTests
 {
     private static readonly TimeZoneInfo Utc = TimeZoneInfo.Utc;
@@ -16,8 +16,9 @@ public sealed class HabitTrackerStylesTests
     [Fact]
     public void S6408_only_the_dots_draw_the_run_and_the_history()
     {
-        Assert.Equal([HabitsSetting.Streak, HabitsSetting.History], new HabitTrackerConfig { Style = HabitTrackerStyle.Dots }.ShownSettings);
-        Assert.Empty(new HabitTrackerConfig { Style = HabitTrackerStyle.Heatmap }.ShownSettings);
+        Assert.Equal([HabitsSetting.Streak, HabitsSetting.RunWords, HabitsSetting.History, HabitsSetting.Lines], new HabitTrackerConfig { Style = HabitTrackerStyle.Dots }.ShownSettings);
+        Assert.Equal([HabitsSetting.Streak, HabitsSetting.History, HabitsSetting.Lines], new HabitTrackerConfig { Style = HabitTrackerStyle.Dots, ShowStreak = false }.ShownSettings);
+        Assert.Equal([HabitsSetting.PerHabit], new HabitTrackerConfig { Style = HabitTrackerStyle.Heatmap }.ShownSettings);
         Assert.Empty(new HabitTrackerConfig { Style = HabitTrackerStyle.Checklist }.ShownSettings);
     }
 
@@ -42,28 +43,18 @@ public sealed class HabitTrackerStylesTests
     }
 
     [Fact]
-    public void S6409_a_few_habits_on_a_large_tile_get_a_grid_each()
+    public void S11532_one_grid_for_the_list_or_one_per_habit_and_a_wider_card_more_weeks()
     {
-        var plan = HabitHeatmap.Plan(new WidgetArea(528, 360), habits: 3, nameLine: 20);
+        var shared = HabitHeatmap.Plan(276, perHabit: false);
+        Assert.Equal((false, HabitHeatmap.SharedCell), (shared.PerHabit, shared.Cell));
+        Assert.True((shared.Weeks * shared.Pitch) - HabitHeatmap.Gap <= 276);
+        Assert.True(((shared.Weeks + 1) * shared.Pitch) - HabitHeatmap.Gap > 276);
 
-        Assert.True(plan.PerHabit);
-        Assert.InRange(plan.Cell, HabitHeatmap.MinCell, HabitHeatmap.MaxCell);
-        Assert.True((3 * (20 + HabitHeatmap.NameGap + plan.GridHeight)) + (2 * HabitHeatmap.BlockGap) <= 360);
-        Assert.True((plan.Weeks * plan.Pitch) - HabitHeatmap.Gap <= 528);
-    }
-
-    [Fact]
-    public void S6409_a_huge_tile_stops_at_a_year()
-        => Assert.Equal(HabitHeatmap.MaxWeeks, HabitHeatmap.Plan(new WidgetArea(4000, 100), 1, 20).Weeks);
-
-    [Fact]
-    public void S6409_a_long_list_shares_one_grid()
-    {
-        var plan = HabitHeatmap.Plan(new WidgetArea(528, 360), habits: 10, nameLine: 20);
-
-        Assert.False(plan.PerHabit);
-        Assert.Equal(HabitHeatmap.MaxCell, plan.Cell);
-        Assert.Equal(24, plan.Weeks);
+        var each = HabitHeatmap.Plan(276, perHabit: true);
+        Assert.Equal((true, HabitHeatmap.PerHabitCell), (each.PerHabit, each.Cell));
+        Assert.True(HabitHeatmap.Plan(496, perHabit: false).Weeks > shared.Weeks);
+        Assert.Equal(HabitHeatmap.MaxWeeks, HabitHeatmap.Plan(4000, false).Weeks);
+        Assert.Equal(HabitHeatmap.GridOf(shared.Cell), shared.GridHeight);
     }
 
     [Theory]
@@ -97,51 +88,21 @@ public sealed class HabitTrackerStylesTests
         Assert.Equal(14, cells.Select(c => c!.Value.Key).Distinct().Count());
     }
 
-    [Theory]
-    [InlineData(104, 60)]
-    [InlineData(168, 90)]
-    [InlineData(288, 180)]
-    [InlineData(448, 100)]
-    [InlineData(168, 340)]
-    [InlineData(528, 360)]
-    [InlineData(768, 500)]
-    public void S6409_every_tier_draws_at_least_a_month_inside_the_tile(double width, double height)
-    {
-        foreach (var habits in new[] { 1, 3, 10 })
-        {
-            var plan = HabitHeatmap.Plan(new WidgetArea(width, height), habits, 20);
-
-            Assert.InRange(plan.Weeks, HabitHeatmap.MinWeeks, HabitHeatmap.MaxWeeks);
-            Assert.InRange(plan.Cell, HabitHeatmap.MinCell, HabitHeatmap.MaxCell);
-            Assert.True((plan.Weeks * plan.Pitch) - HabitHeatmap.Gap <= width + 0.01, $"{width}x{height}, {habits}: too wide");
-        }
-    }
-
     [Fact]
     public void S6409_nothing_to_draw_is_an_empty_plan()
     {
-        Assert.Equal(0, HabitHeatmap.Plan(new WidgetArea(320, 200), 0, 20).Weeks);
         Assert.Empty(HabitHeatmap.Cells(default, new HabitCadence(HabitPeriod.Daily), Utc, 0, DayOfWeek.Monday));
     }
 
-    [Theory]
-    [InlineData(120, 84)]
-    [InlineData(200, 114)]
-    [InlineData(320, 204)]
-    [InlineData(480, 124)]
-    [InlineData(200, 364)]
-    [InlineData(560, 384)]
-    [InlineData(800, 524)]
-    public void S6410_a_checklist_is_the_box_and_the_name_at_every_size(double width, double height)
+    [Fact]
+    public void S6410_a_checklist_is_the_box_and_the_name()
     {
-        var dots = HabitLayout.Plan(new WidgetArea(width, height), new HabitLayoutInput(5, true, true, 7));
-        var plan = HabitLayout.Plan(new WidgetArea(width, height), new HabitLayoutInput(5, true, true, 7, Checklist: true));
+        var plan = HabitLayout.Plan(new HabitLayoutInput(5, true, true, 7, Checklist: true, Lines: 2, RunWords: true));
 
-        // One line per habit: no rate or best run under the name, so at least as many rows.
+        // One line per habit: no run, dots, rate or best run beside or under the name.
         Assert.False(plan.Streak);
         Assert.Equal(0, plan.Dots);
         Assert.Equal(1, plan.Lines);
-        Assert.True(plan.Rows >= dots.Rows);
-        Assert.Equal(dots.AddRow, plan.AddRow);
+        Assert.True(plan.AddRow);
     }
 }

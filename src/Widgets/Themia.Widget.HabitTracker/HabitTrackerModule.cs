@@ -3,6 +3,7 @@ using Microsoft.UI.Xaml;
 using Themia.App.Shell;
 using Themia.App.Shell.Config;
 using Themia.App.Widgets;
+using Themia.Core.Habits;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
@@ -31,7 +32,8 @@ public sealed class HabitTrackerModule : IWidgetModule
         Label = HabitTrackerStr.WidgetsA_Catalog_Habits_Label.Local(),
         Description = HabitTrackerStr.WidgetsA_Catalog_Habits_Description.Local(),
         Glyph = Glyph,
-        Sizing = _ => WidgetSizing.Legacy(320, 240),
+        Sizing = c => HabitSizing.Sizing((HabitTrackerConfig)c),
+        SizeSets = HabitSizing.SizeSets,
         Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader,
         Add = new(AddFolderId.Notes, 1, 0),
     };

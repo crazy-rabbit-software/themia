@@ -559,7 +559,6 @@ internal sealed partial class HabitTrackerView
         private bool _editing;
         private string _name = string.Empty;
         private string _rate = string.Empty;
-        private string _best = string.Empty;
         private string? _value;
 
         public HabitRow(HabitTrackerView owner, string id)
@@ -630,18 +629,19 @@ internal sealed partial class HabitTrackerView
             _recent = HabitRules.Recent(log, current, cadence, zone, historyDots);
             DrawDots(cadence);
 
-            // [S-6712] The rate and the best run are the row's second and third lines.
+            // [S-11531] The rate and, with the streaks, the best run are the row's second line.
             var doneIn = HabitRules.DoneIn(log, current, cadence, zone, HabitRules.RateWindow);
             _rate = HabitTrackerStr.WidgetsB_Habits_DoneOfLast.Format(("done", doneIn), ("units", HabitPeriods.Units(_period, HabitRules.RateWindow)));
 
             var best = HabitRules.BestStreak(log, current, cadence, zone);
-            _best = !showStreak ? string.Empty
-                : best == 0 ? HabitTrackerStr.WidgetsB_Habits_NoBest.Text()
-                : HabitTrackerStr.WidgetsB_Habits_BestRun.Format(("units", HabitPeriods.Units(_period, best)));
+            if (showStreak)
+            {
+                _rate = $"{_rate} · {(best == 0 ? HabitTrackerStr.WidgetsB_Habits_NoBest.Text() : HabitTrackerStr.WidgetsB_Habits_BestRun.Format(("units", HabitPeriods.Units(_period, best))))}";
+            }
 
             if (!_editing)
             {
-                Host.Show(_name, _value, _rate, _best);
+                Host.Show(_name, _value, _rate);
             }
         }
 
@@ -685,7 +685,7 @@ internal sealed partial class HabitTrackerView
             }
         }
 
-        /// <summary>[S-1427] The parts this tile has room for. The oldest dots go first; the name never yields to them.</summary>
+        /// <summary>[S-11531] The parts the config asks for, at every width: the name takes what they leave.</summary>
         public void SetLayout(HabitLayoutPlan plan)
         {
             Host.Lines = plan.Lines;
@@ -699,7 +699,7 @@ internal sealed partial class HabitTrackerView
             _value = _showStreak && plan.Streak && _streakCount > 0
                 ? plan.StreakWords ? HabitPeriods.Units(_period, _streakCount) : LocaleFormat.Integer(_streakCount)
                 : null;
-            Host.Show(_name, _value, _rate, _best);
+            Host.Show(_name, _value, _rate);
 
             var shown = Math.Min(plan.Dots, _dots.Count);
             for (var i = 0; i < _dots.Count; i++)

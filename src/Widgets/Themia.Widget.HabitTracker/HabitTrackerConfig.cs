@@ -1,5 +1,6 @@
 using System.Text.Json.Serialization;
 using Themia.App.Shell;
+using Themia.Core.Habits;
 using Themia.Core.Localization;
 using Themia.Core.Widgets;
 using Themia.Sdk;
@@ -32,6 +33,15 @@ public enum HabitsSetting
 
     /// <summary>The history dots: the dots style's strip.</summary>
     History,
+
+    /// <summary>[S-11531] Lines per row: the dots style's (a checklist row is one line).</summary>
+    Lines,
+
+    /// <summary>[S-11531] The run in words: the dots style's, while the run is shown.</summary>
+    RunWords,
+
+    /// <summary>[S-11532] A grid per habit: the heatmap's.</summary>
+    PerHabit,
 }
 
 /// <summary>
@@ -89,7 +99,18 @@ public sealed class HabitTrackerConfig : WidgetConfig, IStyled, IShownSettings<H
             if (Style == HabitTrackerStyle.Dots)
             {
                 shown.Add(HabitsSetting.Streak);
+                if (ShowStreak)
+                {
+                    shown.Add(HabitsSetting.RunWords);
+                }
+
                 shown.Add(HabitsSetting.History);
+                shown.Add(HabitsSetting.Lines);
+            }
+
+            if (Style == HabitTrackerStyle.Heatmap)
+            {
+                shown.Add(HabitsSetting.PerHabit);
             }
 
             return shown;
@@ -102,14 +123,23 @@ public sealed class HabitTrackerConfig : WidgetConfig, IStyled, IShownSettings<H
     /// <summary>[S-1422] The custom window, in minutes (1–1440). Read through <see cref="Cadence"/>, which clamps.</summary>
     public int CustomMinutes { get; set; } = HabitCadence.DefaultCustomMinutes;
 
-    /// <summary>
-    /// [S-1426] How many past periods each row shows as dots. Zero removes the strip; a narrow tile
-    /// shows fewer, dropping the oldest first.
-    /// </summary>
+    /// <summary>[S-1426] [S-11531] How many past periods each row shows as dots, at every width. Zero removes the strip.</summary>
     public int HistoryDots { get; set; } = 7;
 
     /// <summary>Show the current run beside each habit.</summary>
     public bool ShowStreak { get; set; } = true;
+
+    /// <summary>[S-11530] The habits shown, 1..12 (a new one 4); more scroll inside them. The height follows.</summary>
+    public int Rows { get; set; } = HabitSizing.DefaultRows;
+
+    /// <summary>[S-11531] One line a row, or two (the rate, and the best run with the streaks): the dots style's.</summary>
+    public int Lines { get; set; } = 1;
+
+    /// <summary>[S-11531] The run spelled out ("12 days") rather than a number: off by default.</summary>
+    public bool RunWords { get; set; }
+
+    /// <summary>[S-11532] The heatmap: a grid per habit (its name over it) rather than one for the list.</summary>
+    public bool PerHabit { get; set; }
 
     [JsonIgnore]
     public int EffectiveHistoryDots => Math.Clamp(HistoryDots, 0, HabitRules.MaxHistory);
@@ -129,6 +159,10 @@ public sealed class HabitTrackerConfig : WidgetConfig, IStyled, IShownSettings<H
         CustomMinutes = CustomMinutes,
         HistoryDots = HistoryDots,
         ShowStreak = ShowStreak,
+        Rows = Rows,
+        Lines = Lines,
+        RunWords = RunWords,
+        PerHabit = PerHabit,
     };
 
     public override IReadOnlyList<string> Repair()
@@ -151,6 +185,18 @@ public sealed class HabitTrackerConfig : WidgetConfig, IStyled, IShownSettings<H
         {
             repairs.Add($"habit history {HistoryDots} is out of range; clamped to {EffectiveHistoryDots}");
             HistoryDots = EffectiveHistoryDots;
+        }
+
+        if (Rows != HabitSizing.ClampRows(Rows))
+        {
+            repairs.Add($"habit rows {Rows} are out of range; clamped to {HabitSizing.ClampRows(Rows)}");
+            Rows = HabitSizing.ClampRows(Rows);
+        }
+
+        if (Lines != Math.Clamp(Lines, 1, 2))
+        {
+            repairs.Add($"habit lines {Lines} are out of range; clamped to {Math.Clamp(Lines, 1, 2)}");
+            Lines = Math.Clamp(Lines, 1, 2);
         }
 
         return repairs;

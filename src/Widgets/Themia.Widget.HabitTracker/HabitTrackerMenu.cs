@@ -5,6 +5,7 @@ using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
 using Themia.Sdk.WinUI;
+using Themia.Sdk.WinUI.Kit;
 using Themia.Widget.HabitTracker;
 
 namespace Themia.App.Shell.Config;
@@ -46,12 +47,36 @@ internal static class HabitTrackerMenu
             menu.StyleLines.Add(menu.Toggle(null, HabitTrackerStr.WidgetsB_Settings_Habits_Streaks_Label.Text(), config.ShowStreak, on => config.ShowStreak = on));
         }
 
+        if (config.Offers(HabitsSetting.RunWords))
+        {
+            // [S-11531] "12 days" rather than "12".
+            menu.StyleLines.Add(menu.Toggle(null, HabitTrackerStr.HabitTracker_RunWords.Text(), config.RunWords, on => config.RunWords = on));
+        }
+
         if (config.Offers(HabitsSetting.History))
         {
             // [S-1426] Zero removes the strip.
             menu.StyleLines.Add(menu.Number(Glyphs.Count, HabitTrackerStr.WidgetsB_Settings_Habits_History_Label.Text(),
                 config.EffectiveHistoryDots, 0, HabitRules.MaxHistory, 1,
                 value => value.ToString(CultureInfo.InvariantCulture), value => config.HistoryDots = value));
+        }
+
+        if (config.Offers(HabitsSetting.Lines))
+        {
+            // [S-11531] The rate (and the best run) as each row's second line.
+            menu.StyleLines.Add(menu.Choice(null, Str.Kit_Lines.Text(), [(1, Str.Kit_LinesOne.Text()), (2, Str.Kit_LinesTwo.Text())], Math.Clamp(config.Lines, 1, 2), v => config.Lines = v));
+        }
+
+        if (config.Offers(HabitsSetting.PerHabit))
+        {
+            // [S-11532] A grid per habit under its name, or one for the list.
+            menu.StyleLines.Add(menu.Toggle(null, HabitTrackerStr.HabitTracker_PerHabit.Text(), config.PerHabit, on => config.PerHabit = on));
+        }
+
+        // [S-11530] The habits shown (the height follows); a single grid shows the whole list in one.
+        if (config.Style != HabitTrackerStyle.Heatmap || config.PerHabit)
+        {
+            menu.Lines.Add(KitMenuLines.Count(menu, null, Str.Kit_Rows.Text(), HabitSizing.ClampRows(config.Rows), HabitSizing.MinRows, HabitSizing.MaxRows, 1, v => config.Rows = v));
         }
 
         menu.Lines.Add(Lists(menu, config, pool));

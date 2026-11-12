@@ -56,7 +56,11 @@
             "period": "Weekly",
             "customMinutes": 30,
             "historyDots": 12,
-            "showStreak": false
+            "showStreak": false,
+            "rows": 4,
+            "lines": 1,
+            "runWords": false,
+            "perHabit": false
           }
         },
         {
@@ -85,7 +89,11 @@
             "period": "Custom",
             "customMinutes": 90,
             "historyDots": 7,
-            "showStreak": true
+            "showStreak": true,
+            "rows": 4,
+            "lines": 1,
+            "runWords": false,
+            "perHabit": false
           }
         },
         {
