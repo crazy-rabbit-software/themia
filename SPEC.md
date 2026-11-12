@@ -1920,15 +1920,18 @@ cards), `Settings/NumberEntry.cs`, `Shell/EditBarLayout.cs`, `Shell/SelectionPag
   from this view" for desktop items, [S-5524]), then its sections ([S-2342]). It is where a widget's
   options are: there is no widget settings page ([S-6536]).
 - **[S-2341]** The **selection's entry** on the bar of the display the selection is on
-  (`SelectionPage.Words`): the kind's glyph and name for one widget; "2 × Clock" for several of one kind
-  (`QuickSetOffer.CommonKind`); "3 widgets" for several kinds.
+  (`SelectionPage.Words`, `.Glyph`): the kind's glyph and name for one widget (an entered member too); "2 ×
+  Clock" for several of one kind (`QuickSetOffer.CommonKind`); "3 widgets" for several kinds; a whole group's
+  name and glyph ([S-11754]).
 - **[S-2342]** Its sections (`SelectionPage.Sections`): **What it shows** (the style first as an inline
   picker, only for one kind with styles ([S-6007]), what that look draws under it, then the widget's own
   lines, [S-3719]; for one widget); **Header** (the one widget's title as a text box, the kind's name its
   hint, [S-3704]; where the header stands, an inline picker; not where a widget selected can never have
   a header, [S-3711]); **Appearance** (Alignment ([S-6584]), Background, Item background, Item text
   ([S-6566], [S-6571], [S-6574]), the background image ([S-6593]), Scale ([S-6531])). Several selected:
-  the count in the header card and the shared sections only ([S-3702]); a mixed value reads as a dash.
+  the count in the header card and the shared sections only ([S-3702]), For all of them among them
+  ([S-11756]); a mixed value of the card's own rows reads as a dash. A whole group: its own page
+  ([S-11754]); an entered member: its own page under the link to its group ([S-11757]).
 - **[S-2343]** Selecting a widget adds its entry and **opens its flyout, once per selection**: closed by
   the user it stays closed for that selection; a click on a selected widget opens it again; nothing
   selected removes the entry and closes it. Nothing opens while a drag or a resize runs ([S-3710]) or
@@ -2241,7 +2244,9 @@ tests `WidgetMenuLinesTests` (`S3749_`), Core `SettingsMenuTests.Ownership.cs` a
   Header row's Title alone ([S-3704]; the weather's Location name switch, [S-2849], and the sky's
   Place name line, [S-3101], set it a second time and are gone). A card's own look (the Appearance
   foot, [S-3739]) is a level of its own over the look every widget shares (⚙ › Appearance): its
-  Default is that look, so it is an override, not a copy.
+  Default is that look, so it is an override, not a copy. A group's For all of them ([S-11751]) is no
+  level either: its row is the widgets' own setting (the very line a member's page has, [S-11753]) set on
+  several widgets at once, and each member's page keeps it; a group holds an id and a name only.
 - **[S-3591]** Who sets what, after the audit of every bar menu and every widget's menu (2026-10-26):
   ⚙ (Themia as a whole): start with Windows, the desktop icons, pausing in full screen, the look every
   widget shares, the accounts, the language and the regional formats (time format, start of week,
@@ -2269,7 +2274,9 @@ tests `WidgetMenuLinesTests` (`S3749_`), Core `SettingsMenuTests.Ownership.cs` a
   alone. Modules builds every widget's menu: no line sets something under the words of a setting the
   bar's menus or the card's own rows set unless it is a link (a focus session's Length is its own),
   and no widget's config has a field of a type only a higher level holds (a temperature scale, a
-  clock, a week start, a cadence, a theme, a language).
+  clock, a week start, a cadence, a theme, a language). No shared setting's contract ([S-11750]) reads
+  such a type, each is held by a widget's config, and a group has no field but its id and name
+  (`S3592_a_shared_setting_is_the_widgets_own…`).
 - **[S-3593]** Edit mode's menus live only while edit mode does (user request 2026-10-26: "release
   the edit-mode menus when edit mode ends"). The bar's buttons and its add menu are built as edit
   mode starts (`EditBar.Fill`), a page's flyout as it opens (`OpenPage`, `OpenSelectionPage`) and
@@ -2551,7 +2558,9 @@ rules in Core `Model/QuickSet.cs`, `Shell/SelectionPage.cs` and the SDK's
   rows: a title names one widget, so one typed for many would make them indistinguishable.
 - **[S-3703]** With several, a value the widgets share is ticked and a mixed one ticks nothing
   (`QuickSet.Common`); a pick sets it on every selected widget of the view (`SetHeader`,
-  `SetBackground`) in one `Mutate`, so one undo step ([S-884]) however many it reached.
+  `SetBackground`) in one `Mutate`, so one undo step ([S-884]) however many it reached. A setting of
+  the widgets' own configs that two or more share is set the same way, once for all of them
+  (`QuickSet.SetShared`, [S-11751]); being content, not the arrangement, it takes no undo step ([S-886]).
 - **[S-3704]** The title is a row of the Header level ([S-3735]), its value the title as it reads;
   its level is the field alone ([S-3736]), the kind's name as its hint. It commits on Enter or when
   its level is left any other way (going back, a click on another widget, the menu put away), and
@@ -3901,7 +3910,8 @@ side); tests `WidgetSizingTests` (Core: the rules; module host: every kind, the 
   wheel as before). Its plan is the same at every size in its range (`KitChoices.Rows`: one column,
   its lines, every field it has on, the text cut with its ellipsis; a check list's add row and done
   heading always, its due in the short words). Its menu has Rows and, where its rows can have a second
-  line, Lines per row (`KitMenuLines.Rows`). Tests `KitRowsTests`.
+  line (`IKitRows.OffersLines`: the config says so, its look's way or never for fixed lines), Lines per
+  row (`KitMenuLines.Rows`). Tests `KitRowsTests`.
 - **[S-11580]** **The kit has one path** (2026-11-12, once the calendar's agenda stated its rows): every
   kit plan is the rows a list states (`KitChoices.Rows`, never null; a list naming none is planned as
   the kit's default six rows of one line), in every look (rich, lined, table, schedule, check). The
@@ -7259,8 +7269,82 @@ composition one thing to arrange: an optional lock over ordinary cards, never a 
   still ([S-2244]; `CardJoins.Outlines` takes a set per card: two cards join only within one set).
 - **[S-2458]** **Scenes** ([S-1076]): a widget may carry `"group": "<name>"` (two widgets or more to a
   group, its name its id on the scene's view); the `edit` block may select a group whole (`"group"`) or
-  enter one with a member (`"enter": "<widget id>"`), so the pictures show both frames. A group of one,
-  an edit naming a group or a member that is not there, or both at once are refused at their path.
+  enter one with a member (`"enter": "<widget id>"`), so the pictures show both frames and the page of
+  each ([S-11754], [S-11757]); its `open` names a member's own page by the member's scene id
+  (`member/<widget id>`, [S-11755]). A group of one, an edit naming a group or a member that is not
+  there, or both at once are refused at their path.
+
+**The group's page.** Owner's decision 2026-11-12: the atoms each hold their own setting of what they are
+about (their place, account, drive, host, pair, symbol, period, Size), so a group acts as a container: one
+page where a setting the members share is set once. Owning files: SDK `Model/SharedSettings.cs` (the
+registry), `Model/Configs/SharedContracts.cs` (the contracts added), `Themia.Sdk.WinUI/Widgets/ItemMenu.cs`
+(`ItemMenuEntry.Shares`), `Modules/WidgetMenuLines.cs` (`Shared`); Core `Shell/SelectionPage.cs` (the
+model), `Model/QuickSet.cs` (`SetShared`), `Model/WidgetGroups.cs` (`Rename`); App `Shell/Pages/SelectionRows.cs`,
+`SharedRowLines.cs`, `DesktopWindow.Properties.cs`, `Services/AppHost.QuickSet.cs`. Tests: `SharedSettingsTests`
+(Modules), `EditBarLayoutTests.S11754_` (Core), `SettingOwnershipTests.S3592_a_shared_setting…`.
+
+- **[S-11750]** **Shared settings** (`SharedSettings.All`): a setting several kinds hold is one entry
+  over one config contract (`SharedSetting<T>`: its key, whether a config holds it, whether two hold the
+  same, a copy from one onto another), never matched by a line's words. A setting is shared among the
+  widgets selected when two or more hold it (`Among`), and applies to exactly those; they read as one
+  value or Mixed (`Read`); one value is set on every holder (`Spread`).
+- **[S-11751]** **For all of them**: every setting two or more of the selected widgets share, once, in the
+  registry's order (what they are about first, then how they show it). Its lines are the very lines one
+  holder's module builds for it (the first holder whose page offers them), over a scratch copy of that
+  holder's config; every write they make (a pick, a switch, a typed value, a place or a symbol a lookup
+  found, looked up once) is then set on every holder in one mutation (`QuickSet.SetShared`), nothing where
+  they agree already. While the holders disagree, the lines that read differently on another holder say
+  so: a choice holds no option and its value reads "Mixed", a switch's words read "Mixed" (Windows' switch
+  has no third state), a box's value reads "Mixed"; any pick, the value the first holds included, makes
+  them agree. A shared write is content, not the arrangement: one mutation, no undo step ([S-886]).
+- **[S-11752]** **What is shared, and who holds it** (pinned by `SharedSettingsTests`): the place
+  (`IPlaced`, which names its coordinates and its place name, the weather's `LocationName` and the sky's
+  `Place` under one shape: Weather now, Weather facts, Forecast, Rain next hour, Air quality, Air facts,
+  Sun, Sun times, Moon, Moon times; the same place is the same coordinates or both on the device's);
+  the calendars' accounts with their calendars and colours (`CalendarConfig`: Calendar, Next meeting, Up
+  next, Week planner); the mail and the contacts accounts (`IChoosesAccounts`, by the feature they offer:
+  Email; Contacts); the disk activity's drive (`IDiskScope`: Disk, Disk history); the drive's
+  (`IDriveChoice`: Drive, Drive facts); the ping host (`IPingHost`: Ping, Ping facts, Ping history); the
+  GPU adapter (`IGpuAdapter`, now settable in the SDK: GPU, GPU engines, GPU facts, GPU history); the
+  output device (`IAudioOutput`: Volume, Mixer); the currency pair (`ExchangePairConfig`); the stock
+  symbol and its timeframe (`StockQuoteConfig`, two settings); the screen-time period
+  (`IScreenTimePeriod`: Screen time, its apps, chart and donut); the history span (`ISpansHistory`: the
+  eight history atoms and the cores); a one-readout widget's Size (`IReadoutSized`); a list's Rows, its
+  Lines where they are the user's (`IKitRows.OffersLines`) and its Columns (`IKitColumns`), shared only
+  among lists; when the music atoms hide (`IHidesWhenIdle`: the track, the cover, the progress). Not
+  shared: the units and formats, which stay links ([S-3590]); the network adapter (no network atom
+  chooses one); a list's own source (a feed, a folder, a task list).
+- **[S-11753]** Each shared setting's standard line marks the setting it sets (`ItemMenuEntry.Shares`,
+  `WidgetMenuLines.Shared`): the place rows, the calendar and mail and contacts accounts, the disk and
+  drive choices, the ping host, the GPU adapter, the output device, the pair, the symbol and timeframe,
+  the screen-time period, the span, Size, Rows, Lines, Columns and Hide when idle. Every kind that holds
+  a setting marks its line wherever its look offers it (a look that offers none, a calendar's month, has
+  no row to share), and a mark names only a setting its config holds.
+- **[S-11754]** **A whole group selected**: the bar's entry is the group's name (its own, or "Group") and
+  its glyph (the ready-made group's it was placed as, found by its name; the group glyph otherwise). Its
+  page (`SelectionPage.Of`, `SelectionKind.Group`): the header card with the group's glyph, its name as a
+  box that renames it (Enter or leaving keeps it, Escape restores it; empty, or "Group", is no name; one
+  step), "n widgets" under it, and Ungroup (Ctrl+Shift+G), Cut, Copy and Remove at its end; then For all of
+  them ([S-11751]), Widgets ([S-11755]) and Appearance (the shared appearance rows of [S-2342], set on every
+  member). No title or header placement: a title names one widget, and where a member's header stands is
+  that member's ([S-11755]).
+- **[S-11755]** **Widgets**: a row per member, in view order (its kind's glyph, its name as its header says
+  it, under it its kind, or what the kind is where the name is the kind's), the whole row opening that
+  member's own page as a sub-page behind a back head: the page a lone selection of it shows (its header
+  card, What it shows, Header, Appearance), every write acting on that member alone; so every setting of
+  every member is reached without entering the group on the desktop. At the row's end **Remove from group**
+  (Delete while the row has the keyboard): the member leaves (a group left with one dissolves), one step
+  ("ungroup"); what stays of the group stays selected.
+- **[S-11756]** Several lone widgets (or widgets of several groups) selected share For all of them too, after
+  the style and before the header's place.
+- **[S-11757]** **An entered member** ([S-2451]) is its own page as one widget's, with a link row first
+  under its header card, "Group: <name>", whose click selects the group whole and shows its page.
+
+Needs a live pass: renaming a group in its header card (focus, Enter, leaving, Escape, an undo); a shared
+line's write reaching every member at once (a place found, a toggle, a typed host, a drive, a span) and
+the cards following; Mixed turning into one value on a pick; a member's sub-page and the back head; Remove
+from group by the pointer and Delete; the link from an entered member; a lookup (a place, a symbol) asked
+once on the group's page.
 
 **Ready-made groups.** A ready-made group is a recipe that places several widgets, touching, already
 grouped, so a first desktop is a few clicks.

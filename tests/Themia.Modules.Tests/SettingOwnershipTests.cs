@@ -352,4 +352,29 @@ public sealed class SettingOwnershipTests
 
         Assert.True(copies.Count == 0, "a widget keeps its own copy of what ⚙ owns: " + string.Join(", ", copies));
     }
+
+    /// <summary>
+    /// [S-3590] [S-11750] A group's For all of them is no second home: every setting it shows is one a
+    /// widget holds on its own config (over a contract its kinds implement) and sets on its own page, never
+    /// a format, a cadence, a theme or a language a higher level owns, and never a field of the group's.
+    /// </summary>
+    [Fact]
+    public void S3592_a_shared_setting_is_the_widgets_own_and_never_one_a_higher_level_owns()
+    {
+        foreach (var setting in SharedSettings.All)
+        {
+            var contract = setting.GetType().GetGenericArguments().Single();
+            var owned = contract.GetProperties(BindingFlags.Public | BindingFlags.Instance)
+                .Where(p => p.CanWrite && OwnedTypes.Contains(Nullable.GetUnderlyingType(p.PropertyType) ?? p.PropertyType))
+                .Select(p => p.Name)
+                .ToList();
+            Assert.True(owned.Count == 0, $"{setting} reads {string.Join(", ", owned)}, which a higher level owns: link to it instead ([S-3749])");
+
+            // Held by a widget's config: some kind of the build holds it.
+            Assert.Contains(ModuleRegistry.Widgets, m => setting.Holds(m.Descriptor.CreateDefault()));
+        }
+
+        // The group holds an id and a name only: nothing of what its widgets show.
+        Assert.Equal(["Id", "Name"], typeof(WidgetGroup).GetProperties(BindingFlags.Public | BindingFlags.Instance).Where(p => p.CanWrite).Select(p => p.Name).Order(StringComparer.Ordinal));
+    }
 }

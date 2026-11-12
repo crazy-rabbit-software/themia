@@ -3087,8 +3087,9 @@ text size) but nothing of the instance (not its rect, scale or header).
    `KitSizing.DefaultRows`; `Lines` 1 or 2; copied in `Clone`, held to range in `Repair`), state
    `Sizing = c => KitSizing.Sizing(choice, addFooter)` and
    `SizeSets = (c, s) => KitSizing.SizeSets(c, s, choice, addFooter)` where `choice` is the rows as
-   drawn (a one-line style has one line), add `KitMenuLines.Rows(menu, config, offersLines)` to its
-   lines. An `IKitConfig` passes its rows to the plan by itself (`IKitConfig.Choices`); a view that
+   drawn (a one-line style has one line), say when its lines are the user's (`IKitRows.OffersLines`,
+   true unless its look draws one line or its lines are fixed) and add `KitMenuLines.Rows(menu, config)`
+   to its lines. An `IKitConfig` passes its rows to the plan by itself (`IKitConfig.Choices`); a view that
    plans itself passes `KitChoices.Rows`. The kit then plans one column, its lines, every field it has
    on, at every size; more items scroll inside the rows.
 5. **Take it off the legacy list** (`WidgetSizingTests.Legacy`, module host; it only shrinks) and fix

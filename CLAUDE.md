@@ -326,7 +326,14 @@ bar's pages ([S-2300]); there is no settings window ([S-3585]) and a widget has 
   `PickFolder`, a link row `LinkTo`), separators between its groups, and marks the line the Set up button
   opens with `WidgetMenuLines.SetsUp` ([S-1862]); `PageRows` turns each into the page's row of its kind. An
   Ask or a Confirm is a page of its own. Shortcuts and Clock are the references; docs/WIDGET-KIT.md 15 is
-  the guide.
+  the guide. A setting several kinds hold (a place, accounts, a drive, a host, a span, Size, Rows) is an
+  entry of the SDK's `SharedSettings` over a config contract, and its standard line is marked with
+  `WidgetMenuLines.Shared` ([S-11750]..[S-11753]); a new kind that holds one implements the contract and
+  uses (or marks) that line. **A group's page** ([S-11754]..[S-11757], `SelectionPage.Of` in Core,
+  `SelectionRows` + `SharedRowLines` in the app): the group's name to rename, For all of them (each shared
+  setting once: the first holder's own line over a scratch copy, every write set on every holder, Mixed
+  while they disagree), Widgets (each member's own page as a sub-page, Remove from group), Appearance;
+  several lone widgets get For all of them too; an entered member links back to its group.
 - **Text** goes through the `Str` layer (`Str.X.Text()`); a new key goes into `en.json` and its
   `$englishOnly` list. Dates and numbers through `LocaleFormat`.
 - **Out of scope by decision:** tray icon, always-on-top pin, pop-out windows, Lemon Squeezy, updater,
