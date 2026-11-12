@@ -5749,6 +5749,18 @@ A day (`HoveredDate`, `DateLink`, a hover), and the selected day's (`SelectedDat
   today is today, a day before the history's oldest (89 days back) that oldest day; a selection let go is
   today again. `screenTimeChart` draws windows that end today (a week, a month) and does not follow it.
 
+The event under the pointer (`HoveredEvent`, [S-3623]) beyond the calendars and the next meeting:
+
+- **[S-11935]** `upNext`: a row is its meeting (`CalendarShare.Key`): the pointer on it publishes the
+  meeting, and the row takes the item layer's hover fill while that meeting is pointed at anywhere on the
+  view, as it does for a day it is on ([S-11925]); the rows are lit in place.
+- **[S-11936]** `weekPlanner`: an event's row publishes its event under the pointer and takes the hover fill
+  while that event is pointed at elsewhere (a birthday is no event and takes no part); a row redrawn under
+  the pointer lets its hover go.
+- **[S-11937]** A store scene can point at an event: `"hoveredEvent": { "account": "sample:work", "calendar":
+  "home", "id": "one-on-one-0" }` (the calendar optional: the account's default one), keyed as the calendars
+  key it, refused where it is written when it is not an object of those words ([S-11909]).
+
 Topics:
 
 <!-- view-links:table (made from the descriptors; ViewLinksConformanceTests) -->
@@ -5758,7 +5770,7 @@ Topics:
 | `SelectedApp` | Sticky | `screenTimeApps`, `screenTimeChart`, `screenTimeDonut` | `screenTime`, `screenTimeApps`, `screenTimeChart`, `screenTimeDonut` |
 | `SelectedDate` | Sticky | `calendar` | `calendar`, `screenTime`, `screenTimeApps`, `screenTimeDonut`, `weatherForecast`, `weekPlanner` |
 | `VisibleRange` | Sticky | `calendar` | none |
-| `HoveredEvent` | Hover | `calendar`, `nextMeeting` | `calendar`, `nextMeeting` |
+| `HoveredEvent` | Hover | `calendar`, `nextMeeting`, `upNext`, `weekPlanner` | `calendar`, `nextMeeting`, `upNext`, `weekPlanner` |
 | `HoveredInstant` | Hover | `batteryHistory`, `cpuCores`, `cpuHistory`, `diskHistory`, `exchangeHistory`, `gpuHistory`, `memoryHistory`, `networkHistory`, `pingHistory`, `stockHistory` | `battery`, `batteryHistory`, `cpu`, `cpuCores`, `cpuHistory`, `disk`, `diskHistory`, `exchangeHistory`, `exchangeRate`, `gpu`, `gpuHistory`, `memory`, `memoryHistory`, `network`, `networkHistory`, `ping`, `pingHistory`, `stock`, `stockHistory` |
 | `HoveredDate` | Hover | `calendar`, `habitTracker`, `screenTimeChart`, `tasks`, `weatherForecast`, `weekPlanner` | `calendar`, `habitTracker`, `screenTimeChart`, `tasks`, `upNext`, `weatherForecast`, `weekPlanner` |
 | `HoveredPerson` | Hover | none | none |

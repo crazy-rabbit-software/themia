@@ -43,3 +43,4 @@ Needs a live pass: a signed-in Microsoft and Google account (events, colours, op
 ticking a task off and seeing it leave every Tasks widget), a day turning over at midnight, and the
 showcase views on the live desktop.
 - View links: the day heads publish and light the day under the pointer; the planner starts at the day selected on the view ([S-11924], [S-11927]).
+- View links: an event's row publishes its event and lights for the event pointed at on the view ([S-11936]).

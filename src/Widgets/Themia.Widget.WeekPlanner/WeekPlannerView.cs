@@ -90,6 +90,7 @@ internal sealed partial class WeekPlannerView : Grid, IWidgetView, IWidgetOpens,
         _widgetHost = host;
         _state = new(Glyphs.WeekPlanner, host) { Visibility = Visibility.Collapsed };
         _heads = FollowLinks();
+        _eventRows = new LinkLights<EventLink>(_links, LinkTopics.HoveredEvent);
         // [S-1113] Days run in reading order; the columns follow the language's direction like the week calendar's.
         Children.Add(_content);
         Children.Add(_state);
@@ -506,6 +507,7 @@ internal sealed partial class WeekPlannerView : Grid, IWidgetView, IWidgetOpens,
         ToolTipService.SetToolTip(row, tip);
         if (item.Event is { } openable)
         {
+            LinkEvent(row, openable);
             // [S-2004] The click is the widget's own: it never reaches the card.
             row.Tapped += (_, args) =>
             {
@@ -598,6 +600,8 @@ internal sealed partial class WeekPlannerView : Grid, IWidgetView, IWidgetOpens,
 
         _hovers.Clear();
         _heads.Clear();
+        _eventRows.Clear();
+        _eventRows.Point(null);
         _content.Children.Clear();
         _content.ColumnDefinitions.Clear();
     }

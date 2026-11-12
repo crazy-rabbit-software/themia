@@ -19,6 +19,9 @@ internal sealed partial class WeekPlannerView
     /// <summary>[S-11924] The days' heads drawn now.</summary>
     private readonly LinkLights<DateLink> _heads;
 
+    /// <summary>[S-11936] The event rows drawn now.</summary>
+    private readonly LinkLights<EventLink> _eventRows;
+
     /// <summary>[S-11927] The day selected on the view, which the planner starts at; null: today.</summary>
     private DateOnly? _selected;
 
@@ -44,6 +47,13 @@ internal sealed partial class WeekPlannerView
 
         return new LinkLights<DateLink>(_links, LinkTopics.HoveredDate);
     }
+
+    /// <summary>
+    /// [S-11936] An event's row: the pointer on it publishes the event (<see cref="LinkTopics.HoveredEvent"/>,
+    /// <see cref="CalendarShare.Key"/>), and it takes the hover fill while that event is pointed at anywhere on
+    /// the view (a calendar's chip, the next meeting, up next's row).
+    /// </summary>
+    private void LinkEvent(FrameworkElement row, CalendarEvent item) => _eventRows.Row(row, CalendarShare.Key(item));
 
     /// <summary>[S-11924] A day's head: it publishes its day and takes the hover fill for it.</summary>
     private void LinkHead(FrameworkElement head, DateOnly day) => _heads.Row(head, new DateLink(day));

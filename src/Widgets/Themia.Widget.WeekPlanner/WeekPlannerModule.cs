@@ -39,7 +39,7 @@ public sealed class WeekPlannerModule : IWidgetModule
         Sizing = c => WeekPlannerRules.Sizing(((WeekPlannerConfig)c).Days, ((WeekPlannerConfig)c).RowsPerDay),
         SizeSets = SetRows,
         Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader,
-        Links = LinkUse.Of([LinkTopicId.HoveredDate], [LinkTopicId.HoveredDate, LinkTopicId.SelectedDate]),
+        Links = LinkUse.Of([LinkTopicId.HoveredDate, LinkTopicId.HoveredEvent], [LinkTopicId.HoveredDate, LinkTopicId.SelectedDate, LinkTopicId.HoveredEvent]),
         Add = new(AddFolderId.CalendarMail, 0, 3),
     };
 

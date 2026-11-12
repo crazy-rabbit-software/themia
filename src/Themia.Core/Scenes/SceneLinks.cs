@@ -66,6 +66,13 @@ public sealed record SceneInstant(TimeSpan? Before, DateTimeOffset? At, string S
 }
 
 /// <summary>
+/// [S-11937] A calendar event a scene points at, keyed as the calendar widgets key it
+/// (<see cref="Themia.Core.Office.CalendarShare.Key"/>): its account, its calendar (null: the account's
+/// default one) and the provider's id.
+/// </summary>
+public sealed record SceneEvent(string Account, string? Calendar, string Id);
+
+/// <summary>
 /// [S-11909] What a scene's picture is drawn pointing at and having picked: each a view-links value, set on
 /// the scene's one board after its widgets have drawn and before the picture is taken, so every widget of
 /// the scene that follows the topic shows it. Every value is keyed as the widgets key theirs (<see cref="LinkKeys"/>).
@@ -79,11 +86,12 @@ public sealed record SceneLinks(
     string? HoveredPerson = null,
     string? HoveredFile = null,
     string? HoveredDrive = null,
-    string? HoveredDevice = null)
+    string? HoveredDevice = null,
+    SceneEvent? HoveredEvent = null)
 {
     /// <summary>The property names a scene's <c>links</c> may carry.</summary>
     public static IReadOnlyList<string> Names { get; } =
-        ["hoveredDate", "selectedDate", "hoveredApp", "selectedApp", "hoveredInstant", "hoveredPerson", "hoveredFile", "hoveredDrive", "hoveredDevice"];
+        ["hoveredDate", "selectedDate", "hoveredApp", "selectedApp", "hoveredInstant", "hoveredPerson", "hoveredFile", "hoveredDrive", "hoveredDevice", "hoveredEvent"];
 
     /// <summary>Set every value on the board through <paramref name="director"/>, a member of its own (so every widget hears them).</summary>
     public void Apply(LinkMember director, DateTimeOffset now)
@@ -100,6 +108,7 @@ public sealed record SceneLinks(
         Put(director, LinkTopics.HoveredFile, LinkKeys.FileLink(HoveredFile));
         Put(director, LinkTopics.HoveredDrive, LinkKeys.DriveLink(HoveredDrive));
         Put(director, LinkTopics.HoveredDevice, LinkKeys.DeviceLink(HoveredDevice));
+        Put(director, LinkTopics.HoveredEvent, HoveredEvent is { } e ? new EventLink(e.Account, e.Calendar, e.Id) : null);
     }
 
     private static void Put<T>(LinkMember director, LinkTopic<T> topic, T? value)

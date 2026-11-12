@@ -194,4 +194,28 @@ public sealed class ViewLinksLookTests
         Assert.Null(SceneParser.Parse(Scene(links), out var refusal));
         Assert.Contains(where, refusal!.ToString(), StringComparison.Ordinal);
     }
+
+    [Fact]
+    public void S11937_a_scene_points_at_an_event_keyed_as_the_calendars_key_it()
+    {
+        var file = SceneParser.Parse(Scene("""{ "hoveredEvent": { "account": "sample:work", "id": "one-on-one-0" } }"""), out var refusal);
+        Assert.Null(refusal);
+        var board = new LinkBoard();
+        file!.Scenes[0].Links!.Apply(board.Join(), DateTimeOffset.Now);
+        Assert.Equal(new EventLink("sample:work", null, "one-on-one-0"), board.Peek(LinkTopics.HoveredEvent));
+
+        var home = SceneParser.Parse(Scene("""{ "hoveredEvent": { "account": "sample:home", "calendar": "home", "id": "lunch-lena-0" } }"""), out _);
+        Assert.Equal(new SceneEvent("sample:home", "home", "lunch-lena-0"), home!.Scenes[0].Links!.HoveredEvent);
+    }
+
+    [Theory]
+    [InlineData("""{ "hoveredEvent": "one-on-one-0" }""")]
+    [InlineData("""{ "hoveredEvent": { "account": "sample:work" } }""")]
+    [InlineData("""{ "hoveredEvent": { "id": "x" } }""")]
+    [InlineData("""{ "hoveredEvent": { "account": "a", "id": "x", "when": "now" } }""")]
+    public void S11937_a_wrong_event_is_refused_where_it_is_written(string links)
+    {
+        Assert.Null(SceneParser.Parse(Scene(links), out var refusal));
+        Assert.Contains("hoveredEvent", refusal!.ToString(), StringComparison.Ordinal);
+    }
 }

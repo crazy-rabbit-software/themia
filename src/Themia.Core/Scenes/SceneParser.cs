@@ -308,6 +308,21 @@ public static class SceneParser
             instant = SceneInstant.Parse(text, subject) ?? throw Refuse(at, "not a moment (-00:00:30, or 2026-11-12T14:05:00+01:00)");
         }
 
+        // [S-11937] An event: { "account": .., "calendar": .. (optional), "id": .. }, each a word.
+        SceneEvent? hoveredEvent = null;
+        if (props.TryGetValue("hoveredEvent", out var ev))
+        {
+            var at = $"{path}.hoveredEvent";
+            if (ev.ValueKind != JsonValueKind.Object)
+            {
+                throw Refuse(at, "not an event ({ \"account\": .., \"calendar\": .., \"id\": .. })");
+            }
+
+            var parts = Properties(ev, at, "account", "calendar", "id");
+            string Part(string name) => parts.TryGetValue(name, out var v) && Text(v, $"{at}.{name}").Trim() is { Length: > 0 } t ? t : throw Refuse(at, $"no \"{name}\"");
+            hoveredEvent = new SceneEvent(Part("account"), parts.ContainsKey("calendar") ? Part("calendar") : null, Part("id"));
+        }
+
         return new SceneLinks(
             HoveredDate: Day("hoveredDate"),
             SelectedDate: Day("selectedDate"),
@@ -317,7 +332,8 @@ public static class SceneParser
             HoveredPerson: Keyed("hoveredPerson", text => LinkKeys.Person(text, text), "a person"),
             HoveredFile: Keyed("hoveredFile", text => Path.IsPathFullyQualified(text) ? LinkKeys.File(text) : null, "a full path"),
             HoveredDrive: Keyed("hoveredDrive", LinkKeys.Drive, "a drive (C:)"),
-            HoveredDevice: Keyed("hoveredDevice", LinkKeys.Device, "a device address (A4:C1:38:0B:22:9F)"));
+            HoveredDevice: Keyed("hoveredDevice", LinkKeys.Device, "a device address (A4:C1:38:0B:22:9F)"),
+            HoveredEvent: hoveredEvent);
     }
 
     private static SceneScreen Screen(JsonElement element, string path)

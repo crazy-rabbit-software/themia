@@ -165,6 +165,7 @@ internal sealed partial class UpNextView : Grid, IWidgetView, IWidgetSurfaceAwar
         while (_rows.Count < after.Count)
         {
             var row = new RowBlock(RowKind.List, lead: 0) { Lines = 1 };
+            LinkRow(row);
             _rows.Add(row);
             _list.Children.Add(row);
         }

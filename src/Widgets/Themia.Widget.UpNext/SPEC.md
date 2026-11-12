@@ -29,3 +29,4 @@ this" moved here from Next meeting with its key, English-only as it was). Tests:
 
 Needs a live pass: a signed-in calendar account with meetings today and tomorrow, a row clicked open.
 - View links: the meetings on the day pointed at on the view take the hover fill ([S-11925]).
+- View links: a row publishes its meeting and lights for the meeting pointed at on the view ([S-11935]).
