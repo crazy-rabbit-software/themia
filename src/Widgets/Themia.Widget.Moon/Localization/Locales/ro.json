@@ -1,10 +1,6 @@
 {
-  "widgetsC.moon.label": "Lună",
-  "widgetsC.moon.desc": "Faza, răsăritul și apusul lunii",
-  "widgetsC.moon.rise": "Răsăritul lunii",
-  "widgetsC.moon.set": "Apusul lunii",
-  "widgetsC.moon.short.rise": "Răsărit",
-  "widgetsC.moon.short.set": "Apus",
   "styles.moon.disc": "Disc",
-  "styles.moon.phaseMonth": "Fazele lunii"
+  "styles.moon.phaseMonth": "Fazele lunii",
+  "widgetsC.moon.desc": "Faza, răsăritul și apusul lunii",
+  "widgetsC.moon.label": "Lună"
 }

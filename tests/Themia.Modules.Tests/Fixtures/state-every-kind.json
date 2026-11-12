@@ -1369,7 +1369,6 @@
           "config": {
             "kind": "sun",
             "style": "arc",
-            "showEvents": true,
             "latitude": 47.37,
             "longitude": 8.54,
             "place": "Zurich",

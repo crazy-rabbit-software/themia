@@ -1,16 +1,6 @@
 {
-  "widgetsC.sun.label": "Sole",
-  "widgetsC.sun.desc": "Alba, tramonto e ore di luce",
   "styles.sun.arc": "Arco",
   "styles.sun.dayBar": "Barra del giorno",
-  "styles.sun.times": "Solo orari",
-  "sunMoon.events.label": "Eventi",
-  "widgetUi.daylight": "Ore di luce",
-  "widgetsC.sunMoon.civil": "civile",
-  "widgetsC.sunMoon.dawn": "Alba",
-  "widgetsC.sunMoon.dusk": "Crepuscolo",
-  "widgetsC.sunMoon.short.daylight": "Luce",
-  "widgetsC.sunMoon.short.sunrise": "Alba",
-  "widgetsC.sunMoon.short.sunset": "Tramonto",
-  "widgetsC.sunMoon.solarNoon": "Mezzogiorno solare"
+  "widgetsC.sun.desc": "Alba, tramonto e ore di luce",
+  "widgetsC.sun.label": "Sole"
 }

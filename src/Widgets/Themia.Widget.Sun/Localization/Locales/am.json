@@ -1,16 +1,6 @@
 {
-  "widgetsC.sun.label": "ፀሐይ",
-  "widgetsC.sun.desc": "የፀሐይ መውጫ፣ መጥለቂያና የቀን ብርሃን",
   "styles.sun.arc": "ቅስት",
   "styles.sun.dayBar": "የቀን አሞሌ",
-  "styles.sun.times": "ሰዓታት ብቻ",
-  "sunMoon.events.label": "ክስተቶች",
-  "widgetUi.daylight": "የቀን ብርሃን",
-  "widgetsC.sunMoon.civil": "ሲቪል",
-  "widgetsC.sunMoon.dawn": "ንጋት",
-  "widgetsC.sunMoon.dusk": "ምሽት",
-  "widgetsC.sunMoon.short.daylight": "የቀን ብርሃን",
-  "widgetsC.sunMoon.short.sunrise": "መውጫ",
-  "widgetsC.sunMoon.short.sunset": "መጥለቂያ",
-  "widgetsC.sunMoon.solarNoon": "የፀሐይ እኩለ ቀን"
+  "widgetsC.sun.desc": "የፀሐይ መውጫ፣ መጥለቂያና የቀን ብርሃን",
+  "widgetsC.sun.label": "ፀሐይ"
 }

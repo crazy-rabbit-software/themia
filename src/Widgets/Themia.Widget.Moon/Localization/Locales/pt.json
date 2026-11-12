@@ -1,10 +1,6 @@
 {
-  "widgetsC.moon.label": "Lua",
-  "widgetsC.moon.desc": "Fase, nascer e pôr da lua",
-  "widgetsC.moon.rise": "Nascer da lua",
-  "widgetsC.moon.set": "Pôr da lua",
-  "widgetsC.moon.short.rise": "Nascer",
-  "widgetsC.moon.short.set": "Pôr",
   "styles.moon.disc": "Disco",
-  "styles.moon.phaseMonth": "Fases do mês"
+  "styles.moon.phaseMonth": "Fases do mês",
+  "widgetsC.moon.desc": "Fase, nascer e pôr da lua",
+  "widgetsC.moon.label": "Lua"
 }

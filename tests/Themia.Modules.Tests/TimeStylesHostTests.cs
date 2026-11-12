@@ -15,7 +15,7 @@ public sealed class TimeStylesHostTests
     [Theory]
     [InlineData("countdown", "text,ring,flip")]
     [InlineData("pomodoro", "ring,bar,digits")]
-    [InlineData("sun", "arc,dayBar,times")]
+    [InlineData("sun", "arc,dayBar")]
     [InlineData("moon", "disc,phaseMonth")]
     [InlineData("clock", "digital,analog,stacked,flip,word,minimal,date")]
     public void S6030_each_kind_offers_its_styles_in_order_the_old_look_first(string kindId, string names)

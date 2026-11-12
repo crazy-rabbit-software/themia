@@ -736,11 +736,13 @@ Sun & moon is split in two (user rule: one widget, one thing). Each is a module 
 shared row and moon drawing) and `SkyPlaceRows` (the shared place line on their properties menus); tests `SkyWidgetsTests`
 (`S310x_`, the astronomy), the pair's in the module host's `SkyWidgetsHostTests`.
 
-- **[S-3100]** **Sun** (`sun`, 320×240, sun glyph) is the sun's day: the path graphic, the
-  number strip and the rows sunrise, sunset, daylight (+ change), solar noon, dawn, dusk ([S-3102]).
-  **Moon** (`moon`, 240×220, moon glyph) is the moon: the disc, its phase's name, the lit
-  percentage, moonrise, moonset and the next full or new moon ([S-3105]). Both sit in the add menu's
-  Weather & sky subject ([S-3511]), carry the Header like every data widget (G3, 2026-10-29: titled with the place, the widget's name while it is cleared), start at Zurich, so they
+- **[S-3100]** The sky is four atoms ([S-11170]): **Sun** (`sun`, the sun's day as a graphic: the
+  path or the day bar, headerless by default, [S-11110]), **Sun times** (`sunTimes`, its rows sunrise,
+  sunset, daylight, solar noon, dawn, dusk as a pick, [S-11115]), **Moon** (`moon`, the lit share and
+  the phase, or the month's phases, [S-11120]) and **Moon times** (`moonTimes`, moonrise, moonset, the
+  next full and new moon as a pick, [S-11125]); the ready-made groups "Sun" and "Moon" are the old
+  cards ([S-11172]). All sit in the add menu's Weather & sky subject ([S-3511]), name their place in
+  the header's label where they show a header ([S-2260]), start at Zurich, so they
   need setting up only once their place is cleared ([S-2848]), and have no keys ([S-1996]). There is no combined kind: `SunMoon` (16) is gone and
   a state file holding it drops that widget at load like any unknown kind ([S-1900], [S-1050]).
 - **[S-3101]** Both carry the observer's place (`SkyPlaceConfig`: latitude, longitude, place name)
@@ -749,7 +751,7 @@ shared row and moon drawing) and `SkyPlaceRows` (the shared place line on their 
   with, under its answers, Clear location ([S-2848]), Latitude and Longitude, each asked for as
   text ([S-3721]) and validated ([S-171]). The place's name is what the search found (cut at 80): it
   is the header's title unless one is typed, and the Header row's Title is the one way to change it
-  ([S-3590]; the Place name line that set it a second time is gone). Sun adds the Events switch under Style ([S-3107]); Moon has nothing else ([S-3108]; how
+  ([S-3590]; the Place name line that set it a second time is gone). Sun and Moon have nothing else ([S-3107], [S-3108]; the times atoms add their pick, [S-11117], [S-11127]; how
   each draws itself is its style, [S-6045], [S-6050]). `Repair` at load: a latitude or longitude that is not a number
   in range sends both, and the name, back to Zurich (a `null` one is a cleared place, [S-2848], and
   is left alone); a place name over 80 characters is cut; each
@@ -7247,7 +7249,8 @@ each atom's own `SPEC.md`. Tests: `SkyFactsTests` (Core), each module's, `ReadyM
   atoms compute from the same astronomy (`Themia.Sdk/Astronomy`) at the same instant.
 - **[S-11172]** **The family's ready-made groups**, each the old card's atoms touching as one panel
   (the first carries the header, the others none; [S-2472]): **Weather** (the reading over its facts),
-  and **Weather station** (the reading, its facts, the forecast and the rain, stacked: the seed once
+  **Sun** (the graphic, given the header, over its times), **Moon** (the reading over its times), and
+  **Weather station** (the reading, its facts, the forecast and the rain, stacked: the seed once
   called Weather). Each atom of a recipe starts at its kind's default place rule ([S-2470]: the
   weather's none, the sky's Zurich); the previews and `--recipe-png` draw every atom at the one sample
   place (`SamplePlace`) on the sample day.

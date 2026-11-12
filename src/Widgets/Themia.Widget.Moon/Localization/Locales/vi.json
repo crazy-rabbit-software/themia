@@ -1,10 +1,6 @@
 {
-  "widgetsC.moon.label": "Mặt trăng",
-  "widgetsC.moon.desc": "Pha trăng, giờ trăng mọc và lặn",
-  "widgetsC.moon.rise": "Trăng mọc",
-  "widgetsC.moon.set": "Trăng lặn",
-  "widgetsC.moon.short.rise": "Mọc",
-  "widgetsC.moon.short.set": "Lặn",
   "styles.moon.disc": "Đĩa",
-  "styles.moon.phaseMonth": "Pha trong tháng"
+  "styles.moon.phaseMonth": "Pha trong tháng",
+  "widgetsC.moon.desc": "Pha trăng, giờ trăng mọc và lặn",
+  "widgetsC.moon.label": "Mặt trăng"
 }

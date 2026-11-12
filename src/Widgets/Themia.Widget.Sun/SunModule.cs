@@ -14,7 +14,7 @@ using Themia.Widget.Sun;
 
 namespace Themia.Widget.Sun;
 
-/// <summary>[S-3102] The sun's day where the observer is: its path, rise, set and daylight. SPEC.md beside this file.</summary>
+/// <summary>[S-11110] The sun's day where the observer is, as a graphic: its path, or the day as a bar. SPEC.md beside this file.</summary>
 public sealed class SunModule : IWidgetModule
 {
     /// <summary>[S-6902] What the host knows of the widget without its UI.</summary>
@@ -24,12 +24,12 @@ public sealed class SunModule : IWidgetModule
         ConfigType = typeof(SunConfig),
         CreateDefault = () => new SunConfig(),
         Json = SunJsonContext.Default,
-        Keywords = ["sunrise", "sunset", "daylight", "golden hour", "dawn", "dusk", "solar noon", "astronomy"],
+        Keywords = ["sun path", "arc", "day bar", "daylight", "astronomy", "sky"],
         Label = SunStr.WidgetsC_Sun_Label.Local(),
         Description = SunStr.WidgetsC_Sun_Desc.Local(),
         Glyph = Glyphs.Sun,
-        Sizing = _ => WidgetSizing.Legacy(320, 240),
-        Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader,
+        Sizing = c => SunLayout.Sizing((SunConfig)c),
+        Traits = WidgetTraits.CanHaveHeader | WidgetTraits.StartsHeaderless,
         Add = new(AddFolderId.Weather, 1, 0),
     };
 

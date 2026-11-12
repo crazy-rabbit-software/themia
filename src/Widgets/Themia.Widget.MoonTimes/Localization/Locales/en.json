@@ -1,0 +1,14 @@
+{
+  "$englishOnly": [
+    "moonTimes.label",
+    "moonTimes.desc",
+    "moonTimes.menu.times"
+  ],
+  "moonTimes.desc": "Moonrise, moonset and the next full and new moon",
+  "moonTimes.label": "Moon times",
+  "moonTimes.menu.times": "Times",
+  "widgetsC.moon.rise": "Moonrise",
+  "widgetsC.moon.set": "Moonset",
+  "widgetsC.moon.short.rise": "Rise",
+  "widgetsC.moon.short.set": "Set"
+}

@@ -14,7 +14,7 @@ namespace Themia.Modules.Tests;
 public sealed class SkyRecipesTests
 {
     /// <summary>The family's recipes.</summary>
-    public static TheoryData<string> Recipes() => ["weather"];
+    public static TheoryData<string> Recipes() => ["weather", "sun", "moon"];
 
     [Theory]
     [MemberData(nameof(Recipes))]
@@ -41,7 +41,8 @@ public sealed class SkyRecipesTests
     public void S11172_the_first_atom_carries_the_header_and_the_others_none(string id)
     {
         var recipe = ReadyMadeGroups.Find(id)!;
-        Assert.Null(recipe.Widgets[0].Header);
+        var first = recipe.Widgets[0];
+        Assert.NotEqual(HeaderPlacement.Hidden, first.Header ?? WidgetInstance.DefaultHeader(new WidgetId(first.Kind)));
         Assert.All(recipe.Widgets.Skip(1), w => Assert.Equal(HeaderPlacement.Hidden, w.Header ?? WidgetInstance.DefaultHeader(new WidgetId(w.Kind))));
     }
 }

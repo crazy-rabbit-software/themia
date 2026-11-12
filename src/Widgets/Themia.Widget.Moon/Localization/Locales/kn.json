@@ -1,10 +1,6 @@
 {
-  "widgetsC.moon.label": "ಚಂದ್ರ",
-  "widgetsC.moon.desc": "ಚಂದ್ರನ ಹಂತ, ಉದಯ ಮತ್ತು ಅಸ್ತ",
-  "widgetsC.moon.rise": "ಚಂದ್ರೋದಯ",
-  "widgetsC.moon.set": "ಚಂದ್ರಾಸ್ತ",
-  "widgetsC.moon.short.rise": "ಉದಯ",
-  "widgetsC.moon.short.set": "ಅಸ್ತ",
   "styles.moon.disc": "ಬಿಂಬ",
-  "styles.moon.phaseMonth": "ಹಂತಗಳ ತಿಂಗಳು"
+  "styles.moon.phaseMonth": "ಹಂತಗಳ ತಿಂಗಳು",
+  "widgetsC.moon.desc": "ಚಂದ್ರನ ಹಂತ, ಉದಯ ಮತ್ತು ಅಸ್ತ",
+  "widgetsC.moon.label": "ಚಂದ್ರ"
 }

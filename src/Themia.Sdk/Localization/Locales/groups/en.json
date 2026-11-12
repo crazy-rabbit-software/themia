@@ -46,7 +46,11 @@
     "groups.recipe.drive",
     "groups.recipe.driveAbout",
     "groups.recipe.weatherStation",
-    "groups.recipe.weatherStationAbout"
+    "groups.recipe.weatherStationAbout",
+    "groups.recipe.sun",
+    "groups.recipe.sunAbout",
+    "groups.recipe.moon",
+    "groups.recipe.moonAbout"
   ],
   "groups.undo.group": "group",
   "groups.undo.ungroup": "ungroup",
@@ -97,5 +101,9 @@
   "groups.recipe.drive": "Drive",
   "groups.recipe.driveAbout": "A drive's used share over its facts",
   "groups.recipe.weatherStation": "Weather station",
-  "groups.recipe.weatherStationAbout": "Now, the days ahead and rain in the next hour"
+  "groups.recipe.weatherStationAbout": "Now, the days ahead and rain in the next hour",
+  "groups.recipe.sun": "Sun",
+  "groups.recipe.sunAbout": "The sun's path across the sky and its times",
+  "groups.recipe.moon": "Moon",
+  "groups.recipe.moonAbout": "How much of the moon is lit, its rise, set and next full moon"
 }

@@ -1,17 +1,7 @@
 {
   "$comment": "Machine-written translations: every string in this file needs native review.",
-  "widgetsC.sun.label": "Matahari",
-  "widgetsC.sun.desc": "Matahari terbit, terbenam dan waktu siang",
   "styles.sun.arc": "Lengkung",
   "styles.sun.dayBar": "Bar hari",
-  "styles.sun.times": "Masa sahaja",
-  "sunMoon.events.label": "Peristiwa",
-  "widgetUi.daylight": "Waktu siang",
-  "widgetsC.sunMoon.civil": "sivil",
-  "widgetsC.sunMoon.dawn": "Fajar",
-  "widgetsC.sunMoon.dusk": "Senja",
-  "widgetsC.sunMoon.short.daylight": "Siang",
-  "widgetsC.sunMoon.short.sunrise": "Terbit",
-  "widgetsC.sunMoon.short.sunset": "Terbenam",
-  "widgetsC.sunMoon.solarNoon": "Tengah hari suria"
+  "widgetsC.sun.desc": "Matahari terbit, terbenam dan waktu siang",
+  "widgetsC.sun.label": "Matahari"
 }

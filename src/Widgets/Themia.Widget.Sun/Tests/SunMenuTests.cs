@@ -26,24 +26,10 @@ public sealed class SunMenuTests
     private static ItemMenuEntry Fixed(MenuSearch search, string text) => Assert.Single(search.Fixed, f => f.Text == text);
 
     [Fact]
-    public void S3107_the_events_switch_is_under_style_except_in_the_times_style()
+    public void S3107_nothing_stands_under_style()
     {
-        var events = Assert.Single(Build(new SunConfig { Style = SunStyle.Arc, ShowEvents = false }).StyleLines);
-        Assert.Equal(SunStr.SunMoon_Events_Label.Text(), events.Text);
-        Assert.False(events.Checked);
-
-        Assert.Single(Build(new SunConfig { Style = SunStyle.DayBar }).StyleLines);
-        Assert.Empty(Build(new SunConfig { Style = SunStyle.Times }).StyleLines);
-    }
-
-    [Fact]
-    public void S3107_the_events_switch_turns_them_off_and_saves_once()
-    {
-        var config = new SunConfig { ShowEvents = true };
-        Assert.Single(Build(config).StyleLines).Action!();
-
-        Assert.False(config.ShowEvents);
-        Assert.Equal(1, _saves);
+        Assert.Empty(Build(new SunConfig { Style = SunStyle.Arc }).StyleLines);
+        Assert.Empty(Build(new SunConfig { Style = SunStyle.DayBar }).StyleLines);
     }
 
     [Fact]

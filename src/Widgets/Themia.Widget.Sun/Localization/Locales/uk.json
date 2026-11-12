@@ -1,16 +1,6 @@
 {
-  "widgetsC.sun.label": "Сонце",
-  "widgetsC.sun.desc": "Схід, захід і світловий день",
   "styles.sun.arc": "Дуга",
   "styles.sun.dayBar": "Смуга дня",
-  "styles.sun.times": "Лише час",
-  "sunMoon.events.label": "Події",
-  "widgetUi.daylight": "Світловий день",
-  "widgetsC.sunMoon.civil": "громадянські",
-  "widgetsC.sunMoon.dawn": "Світанок",
-  "widgetsC.sunMoon.dusk": "Сутінки",
-  "widgetsC.sunMoon.short.daylight": "Світловий день",
-  "widgetsC.sunMoon.short.sunrise": "Схід",
-  "widgetsC.sunMoon.short.sunset": "Захід",
-  "widgetsC.sunMoon.solarNoon": "Сонячний полудень"
+  "widgetsC.sun.desc": "Схід, захід і світловий день",
+  "widgetsC.sun.label": "Сонце"
 }

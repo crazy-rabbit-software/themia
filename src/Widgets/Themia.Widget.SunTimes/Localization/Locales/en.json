@@ -1,0 +1,18 @@
+{
+  "$englishOnly": [
+    "sunTimes.label",
+    "sunTimes.desc",
+    "sunTimes.menu.times"
+  ],
+  "sunTimes.desc": "Sunrise, sunset and daylight as rows",
+  "sunTimes.label": "Sun times",
+  "sunTimes.menu.times": "Times",
+  "widgetUi.daylight": "Daylight",
+  "widgetsC.sunMoon.civil": "civil",
+  "widgetsC.sunMoon.dawn": "Dawn",
+  "widgetsC.sunMoon.dusk": "Dusk",
+  "widgetsC.sunMoon.short.daylight": "Daylight",
+  "widgetsC.sunMoon.short.sunrise": "Sunrise",
+  "widgetsC.sunMoon.short.sunset": "Sunset",
+  "widgetsC.sunMoon.solarNoon": "Solar noon"
+}

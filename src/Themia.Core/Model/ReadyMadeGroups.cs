@@ -215,8 +215,22 @@ public static class ReadyMadeGroups
         new("weatherFacts", new(0, 100, 240, 136), Header: HeaderPlacement.Hidden),
     ]);
 
+    /// <summary>[S-11172] Sun: the sun's path across the sky and its times.</summary>
+    public static ReadyMadeGroup Sun { get; } = new("sun", Str.Groups_Recipe_Sun, Str.Groups_Recipe_SunAbout, Glyphs.Sun, AddFolderId.Weather,
+    [
+        new("sun", new(0, 0, 280, 176), Header: HeaderPlacement.Top),
+        new("sunTimes", new(0, 176, 280, 108), Header: HeaderPlacement.Hidden),
+    ]);
+
+    /// <summary>[S-11172] Moon: how much of the moon is lit, its rise, set and next full moon.</summary>
+    public static ReadyMadeGroup Moon { get; } = new("moon", Str.Groups_Recipe_Moon, Str.Groups_Recipe_MoonAbout, Glyphs.Moon, AddFolderId.Weather,
+    [
+        new("moon", new(0, 0, 240, 100)),
+        new("moonTimes", new(0, 100, 240, 108), Header: HeaderPlacement.Hidden),
+    ]);
+
     /// <summary>[S-2470] Every ready-made group, in the add menu's order.</summary>
-    public static IReadOnlyList<ReadyMadeGroup> All { get; } = [ThisPc, MyDay, WeatherStation, MyFiles, Cpu, CpuCores, CpuDetails, Memory, MemoryDetails, Gpu, GpuDetails, Disk, Network, NetworkDetails, Ping, PingDetails, Battery, BatteryDetails, Drive, Weather];
+    public static IReadOnlyList<ReadyMadeGroup> All { get; } = [ThisPc, MyDay, WeatherStation, MyFiles, Cpu, CpuCores, CpuDetails, Memory, MemoryDetails, Gpu, GpuDetails, Disk, Network, NetworkDetails, Ping, PingDetails, Battery, BatteryDetails, Drive, Weather, Sun, Moon];
 
     /// <summary>The ready-made group named <paramref name="id"/>, or null.</summary>
     public static ReadyMadeGroup? Find(string? id) => All.FirstOrDefault(r => string.Equals(r.Id, id, StringComparison.Ordinal));

@@ -8,7 +8,7 @@ using Xunit;
 namespace Themia.Widget.Sun.Tests;
 
 /// <summary>
-/// [S-3102] [S-6045] [S-6046] The Sun widget: its ladder on the family's blocks, its styles' repair and the day bar.
+/// [S-11110] [S-11111] [S-6045] [S-6046] The sun graphic: its sizes, its styles' repair and the day bar.
 /// </summary>
 public sealed class SunTests
 {
@@ -26,7 +26,7 @@ public sealed class SunTests
     public void S6046_the_day_bar_places_sunrise_sunset_and_now_by_their_share_of_the_local_day()
     {
         var now = new DateTimeOffset(2026, 6, 21, 12, 0, 0, TimeSpan.FromHours(2));
-        var times = new SunTimes(new DateTimeOffset(2026, 6, 21, 6, 0, 0, TimeSpan.FromHours(2)), new DateTimeOffset(2026, 6, 21, 21, 0, 0, TimeSpan.FromHours(2)), PolarState.None);
+        var times = new Themia.Core.Astronomy.SunTimes(new DateTimeOffset(2026, 6, 21, 6, 0, 0, TimeSpan.FromHours(2)), new DateTimeOffset(2026, 6, 21, 21, 0, 0, TimeSpan.FromHours(2)), PolarState.None);
 
         var bar = SunDayBar.Of(now, times, Zurich);
         Assert.Equal(0.25, bar.Rise!.Value, 6);
@@ -41,14 +41,14 @@ public sealed class SunTests
     {
         // 29 March 2026: 02:00 is 03:00 in Zurich. 12:00 local is 11 real hours in, of 23.
         var noon = new DateTimeOffset(2026, 3, 29, 12, 0, 0, TimeSpan.FromHours(2));
-        var none = new SunTimes(null, null, PolarState.None);
+        var none = new Themia.Core.Astronomy.SunTimes(null, null, PolarState.None);
         Assert.Equal(11 / 23d, SunDayBar.Of(noon, none, Zurich).Now, 6);
 
-        var day = SunDayBar.Of(noon, new SunTimes(null, null, PolarState.Day), Zurich);
+        var day = SunDayBar.Of(noon, new Themia.Core.Astronomy.SunTimes(null, null, PolarState.Day), Zurich);
         Assert.Equal((0d, 1d), day.Daylight);
         Assert.True(day.NowLit);
 
-        var night = SunDayBar.Of(noon, new SunTimes(null, null, PolarState.Night), Zurich);
+        var night = SunDayBar.Of(noon, new Themia.Core.Astronomy.SunTimes(null, null, PolarState.Night), Zurich);
         Assert.Equal((0d, 0d), night.Daylight);
         Assert.False(night.NowLit);
 
@@ -56,60 +56,31 @@ public sealed class SunTests
         Assert.Null(SunDayBar.Share(noon.AddDays(-2), noon.AddHours(-12), noon.AddHours(11)));
     }
 
-    /// <summary>The view's area at a tier: the card less the header.</summary>
-    private static SunPlan Plan(double width, double height, SunStyle style = SunStyle.Arc, bool events = true)
-        => SunLayout.Plan(new WidgetArea(width, height - FamilySpace.ContentTop), style, events);
-
     [Fact]
-    public void S3102_the_arc_is_never_dropped_and_takes_what_the_rows_leave_up_to_half_its_width()
+    public void S11111_the_arc_is_200_to_480_wide_in_the_inset_its_natural_height_half_its_content_s_width()
     {
-        foreach (var tier in WidgetTiers.All)
-        {
-            var plan = Plan(tier.Width, tier.Height);
-            Assert.True(plan.GraphicHeight >= SunLayout.ArcFloor, tier.Name);
-            Assert.True(plan.GraphicHeight <= Math.Max(SunLayout.ArcFloor, Math.Floor(plan.GraphicWidth / 2)), tier.Name);
-        }
+        var sizing = SunLayout.Sizing(new SunConfig());
 
-        // 320 x 240: three rows of two lines under an arc of what is left (192 - 3 x 40 - 8).
-        var medium = Plan(320, 240);
-        Assert.Equal(296, medium.GraphicWidth);
-        Assert.Equal(64, medium.GraphicHeight);
-        Assert.Equal((3, 2, 72.0), (medium.Rows, medium.Lines, medium.RowsTop));
+        Assert.Equal(new Themia.Sdk.SizeDip(280, 24 + 128), sizing.Natural);
+        Assert.Equal((200.0, 480.0), (sizing.Min.Width, sizing.Max.Width));
+        Assert.Equal((24 + 88.0, 24 + 228.0), (sizing.Min.Height, sizing.Max.Height));
+        Assert.Empty(sizing.Problems());
     }
 
     [Fact]
-    public void S3102_a_compact_width_is_the_graphic_alone_and_the_times_style_the_rows_alone()
+    public void S11111_the_day_bar_is_one_dot_tall_in_the_inset_at_one_height()
     {
-        Assert.Equal(0, Plan(120, 120).Rows);
-        Assert.Equal(1, Plan(200, 150).Rows);
+        var sizing = SunLayout.Sizing(new SunConfig { Style = SunStyle.DayBar });
 
-        var times = Plan(320, 240, SunStyle.Times);
-        Assert.Equal(0, times.GraphicWidth);
-        Assert.Equal(0, times.RowsTop);
-        Assert.Equal(4, times.Rows);
-
-        // [S-170] With the graphic gone the rows are on whatever the switch says, and on a compact tile too.
-        Assert.True(Plan(120, 120, SunStyle.Times, events: false).Rows > 0);
-        Assert.Equal(0, Plan(320, 240, SunStyle.Arc, events: false).Rows);
+        Assert.True(sizing.FixedHeight);
+        Assert.Equal(24 + SunLayout.Dot, sizing.Natural.Height);
+        Assert.Equal((200.0, 280.0, 480.0), (sizing.Min.Width, sizing.Natural.Width, sizing.Max.Width));
     }
 
     [Fact]
-    public void S3102_an_expanded_width_puts_the_rows_beside_the_arc_but_the_bar_stays_over_them()
+    public void S11110_the_sun_starts_headerless_and_its_styles_are_the_arc_and_the_day_bar()
     {
-        var wide = Plan(480, 160);
-        Assert.True(wide.Side);
-        Assert.Equal(Math.Floor(480 * SunLayout.ColumnShare), wide.RowsLeft);
-        Assert.Equal(0, wide.RowsTop);
-        Assert.Equal(4, wide.Rows);
-
-        var bar = Plan(480, 160, SunStyle.DayBar);
-        Assert.False(bar.Side);
-        Assert.Equal(SunLayout.Dot, bar.GraphicHeight);
-        Assert.Equal(SunLayout.Dot + FamilySpace.S2, bar.RowsTop);
-        Assert.Equal(3, bar.Rows);
+        Assert.True(new SunModule().Descriptor.Traits.HasFlag(Themia.Sdk.WidgetTraits.StartsHeaderless));
+        Assert.Equal([SunStyle.Arc, SunStyle.DayBar], Enum.GetValues<SunStyle>());
     }
-
-    [Fact]
-    public void S3102_the_rows_run_sunrise_sunset_daylight_noon_dawn_dusk()
-        => Assert.Equal([SunRow.Sunrise, SunRow.Sunset, SunRow.Daylight, SunRow.Noon, SunRow.Dawn, SunRow.Dusk], SunLayout.Ladder);
 }

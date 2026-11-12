@@ -1,0 +1,10 @@
+{
+  "widgetUi.daylight": "日照时长",
+  "widgetsC.sunMoon.civil": "民用晨昏",
+  "widgetsC.sunMoon.dawn": "黎明",
+  "widgetsC.sunMoon.dusk": "黄昏",
+  "widgetsC.sunMoon.short.daylight": "日照",
+  "widgetsC.sunMoon.short.sunrise": "日出",
+  "widgetsC.sunMoon.short.sunset": "日落",
+  "widgetsC.sunMoon.solarNoon": "太阳正午"
+}

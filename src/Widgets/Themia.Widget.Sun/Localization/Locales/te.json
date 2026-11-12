@@ -1,16 +1,6 @@
 {
-  "widgetsC.sun.label": "సూర్యుడు",
-  "widgetsC.sun.desc": "సూర్యోదయం, సూర్యాస్తమయం మరియు పగటి వెలుగు",
   "styles.sun.arc": "చాపం",
   "styles.sun.dayBar": "రోజు పట్టీ",
-  "styles.sun.times": "సమయాలు మాత్రమే",
-  "sunMoon.events.label": "ఈవెంట్‌లు",
-  "widgetUi.daylight": "పగటి వెలుగు",
-  "widgetsC.sunMoon.civil": "పౌర",
-  "widgetsC.sunMoon.dawn": "తెల్లవారుజాము",
-  "widgetsC.sunMoon.dusk": "సంధ్యా సమయం",
-  "widgetsC.sunMoon.short.daylight": "పగలు",
-  "widgetsC.sunMoon.short.sunrise": "ఉదయం",
-  "widgetsC.sunMoon.short.sunset": "అస్తమయం",
-  "widgetsC.sunMoon.solarNoon": "సౌర మధ్యాహ్నం"
+  "widgetsC.sun.desc": "సూర్యోదయం, సూర్యాస్తమయం మరియు పగటి వెలుగు",
+  "widgetsC.sun.label": "సూర్యుడు"
 }

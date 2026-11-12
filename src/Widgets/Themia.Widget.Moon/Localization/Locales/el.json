@@ -1,10 +1,6 @@
 {
-  "widgetsC.moon.label": "Σελήνη",
-  "widgetsC.moon.desc": "Η φάση, η ανατολή και η δύση της Σελήνης",
-  "widgetsC.moon.rise": "Ανατολή Σελήνης",
-  "widgetsC.moon.set": "Δύση Σελήνης",
-  "widgetsC.moon.short.rise": "Ανατολή",
-  "widgetsC.moon.short.set": "Δύση",
   "styles.moon.disc": "Δίσκος",
-  "styles.moon.phaseMonth": "Φάσεις του μήνα"
+  "styles.moon.phaseMonth": "Φάσεις του μήνα",
+  "widgetsC.moon.desc": "Η φάση, η ανατολή και η δύση της Σελήνης",
+  "widgetsC.moon.label": "Σελήνη"
 }

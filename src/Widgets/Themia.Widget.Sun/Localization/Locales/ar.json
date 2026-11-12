@@ -1,16 +1,6 @@
 {
-  "widgetsC.sun.label": "الشمس",
-  "widgetsC.sun.desc": "الشروق والغروب وضوء النهار",
   "styles.sun.arc": "قوس",
   "styles.sun.dayBar": "شريط اليوم",
-  "styles.sun.times": "الأوقات فقط",
-  "sunMoon.events.label": "الأحداث",
-  "widgetUi.daylight": "ضوء النهار",
-  "widgetsC.sunMoon.civil": "مدني",
-  "widgetsC.sunMoon.dawn": "الفجر",
-  "widgetsC.sunMoon.dusk": "الغسق",
-  "widgetsC.sunMoon.short.daylight": "النهار",
-  "widgetsC.sunMoon.short.sunrise": "الشروق",
-  "widgetsC.sunMoon.short.sunset": "الغروب",
-  "widgetsC.sunMoon.solarNoon": "الظهيرة الشمسية"
+  "widgetsC.sun.desc": "الشروق والغروب وضوء النهار",
+  "widgetsC.sun.label": "الشمس"
 }

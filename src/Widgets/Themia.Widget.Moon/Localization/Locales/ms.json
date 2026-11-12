@@ -1,11 +1,7 @@
 {
   "$comment": "Machine-written translations: every string in this file needs native review.",
-  "widgetsC.moon.label": "Bulan",
-  "widgetsC.moon.desc": "Fasa bulan, terbit dan terbenamnya",
-  "widgetsC.moon.rise": "Bulan terbit",
-  "widgetsC.moon.set": "Bulan terbenam",
-  "widgetsC.moon.short.rise": "Terbit",
-  "widgetsC.moon.short.set": "Terbenam",
   "styles.moon.disc": "Cakera",
-  "styles.moon.phaseMonth": "Bulan fasa"
+  "styles.moon.phaseMonth": "Bulan fasa",
+  "widgetsC.moon.desc": "Fasa bulan, terbit dan terbenamnya",
+  "widgetsC.moon.label": "Bulan"
 }

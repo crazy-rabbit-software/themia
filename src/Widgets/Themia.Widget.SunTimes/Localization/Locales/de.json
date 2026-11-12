@@ -1,0 +1,10 @@
+{
+  "widgetUi.daylight": "Tageslicht",
+  "widgetsC.sunMoon.civil": "bürgerlich",
+  "widgetsC.sunMoon.dawn": "Morgendämmerung",
+  "widgetsC.sunMoon.dusk": "Abenddämmerung",
+  "widgetsC.sunMoon.short.daylight": "Tag",
+  "widgetsC.sunMoon.short.sunrise": "Aufgang",
+  "widgetsC.sunMoon.short.sunset": "Untergang",
+  "widgetsC.sunMoon.solarNoon": "Sonnenhöchststand"
+}

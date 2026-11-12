@@ -8,70 +8,31 @@ using Xunit;
 namespace Themia.Widget.Moon.Tests;
 
 /// <summary>
-/// [S-3105] [S-6051] The Moon widget: its ladder on the family's blocks and the month of phases.
+/// [S-11121] [S-6051] The moon reading: its sizes and the month of phases.
 /// </summary>
 public sealed class MoonTests
 {
     private static readonly TimeZoneInfo Zurich = TimeZoneInfo.FindSystemTimeZoneById("W. Europe Standard Time");
 
-    /// <summary>The view's area at a tier: the card less the header.</summary>
-    private static MoonPlan Plan(double width, double height) => MoonLayout.Plan(new WidgetArea(width, height - FamilySpace.ContentTop));
-
     [Fact]
-    public void S3105_the_lit_share_is_a_readout_on_the_areas_step_and_never_a_bigger_moon()
+    public void S11121_the_disc_is_the_28_readout_and_its_line_under_at_one_height_140_to_320_wide()
     {
-        Assert.Equal(28, Plan(200, 150).Face.Hero.FontSize);
-        Assert.Equal(28, Plan(320, 240).Face.Hero.FontSize);
-        Assert.Equal(40, Plan(800, 560).Face.Hero.FontSize);
+        var sizing = MoonLayout.Sizing(new MoonConfig());
 
-        // The moon leads the readout at its step: never larger than a data widget's 40.
-        foreach (var tier in WidgetTiers.All)
-        {
-            Assert.InRange(Plan(tier.Width, tier.Height).Face.Hero.FontSize, 28, 40);
-        }
+        Assert.Equal(36 + 36 + 16 + 12, sizing.Natural.Height);
+        Assert.True(sizing.FixedHeight);
+        Assert.Equal((140.0, 160.0, 320.0), (sizing.Min.Width, sizing.Natural.Width, sizing.Max.Width));
     }
 
     [Fact]
-    public void S3105_the_moon_gives_way_before_the_figure_where_the_readout_is_too_narrow_for_both()
+    public void S11121_the_phase_month_is_one_size_seven_discs_across_five_rows_down_its_name_over_them()
     {
-        // 120 wide: "100%" at 28 and the moon beside it want 97, the content has 96.
-        var tiny = Plan(120, 120);
-        Assert.False(tiny.Disc);
-        Assert.Equal(28, tiny.Face.Hero.FontSize);
-        Assert.Equal(0, tiny.Face.ListRows);
+        var sizing = MoonLayout.Sizing(new MoonConfig { Style = MoonStyle.PhaseMonth });
 
-        Assert.True(Plan(200, 150).Disc);
-        Assert.True(Plan(320, 240).Disc);
+        Assert.True(sizing.FixedHeight && sizing.FixedWidth);
+        Assert.Equal(new SizeDip(24 + (7 * 28), 36 + 16 + 8 + (5 * 28) + 12), sizing.Natural);
+        Assert.True(MoonLayout.Columns * MoonLayout.Rows >= 31);
     }
-
-    [Fact]
-    public void S3105_rows_follow_the_readout_in_whole_rows_of_the_tiers_lines()
-    {
-        var medium = Plan(320, 240);
-        Assert.False(medium.Face.Side);
-        Assert.Equal(2, medium.Face.ListLines);
-        Assert.Equal(3, medium.Face.ListRows);
-
-        var tall = Plan(200, 400);
-        Assert.Equal(MoonLayout.Ladder.Count, tall.Face.ListRows);
-
-        // A strip: compact height, one line a row.
-        Assert.Equal(1, Plan(480, 160).Face.ListLines);
-    }
-
-    [Fact]
-    public void S3105_an_expanded_width_puts_the_rows_beside_the_readout()
-    {
-        var wide = Plan(480, 160);
-        Assert.True(wide.Face.Side);
-        Assert.Equal(Math.Floor(480 * DetailFace.HeroShare), wide.Face.HeroColumn);
-        Assert.Equal(0, wide.Face.RowsTop);
-        Assert.Equal(MoonLayout.Ladder.Count, wide.Face.ListRows);
-    }
-
-    [Fact]
-    public void S3105_the_rows_run_rise_set_then_the_next_full_or_new_moon()
-        => Assert.Equal([MoonRow.Rise, MoonRow.Set, MoonRow.NextMajor], MoonLayout.Ladder);
 
     [Fact]
     public void S6051_the_phase_month_is_every_day_of_this_month_today_marked_once()

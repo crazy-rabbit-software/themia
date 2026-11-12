@@ -38,16 +38,18 @@ public sealed class ShellSettingsHostTests
         return result.State!;
     }
 
-    [Fact]
-    public void S700_the_clock_starts_without_a_header()
-        => Assert.Equal(HeaderPlacement.Hidden, WidgetInstance.Create(new WidgetId("clock"), new FracRect(0, 0, 0.1, 0.1)).Header);
+    [Theory]
+    [InlineData("clock")]
+    [InlineData("sun")]
+    public void S700_the_clock_and_the_sun_s_graphic_start_without_a_header(string kindId)
+        => Assert.Equal(HeaderPlacement.Hidden, WidgetInstance.Create(new WidgetId(kindId), new FracRect(0, 0, 0.1, 0.1)).Header);
 
     [Theory]
     [InlineData("cpu")]
     [InlineData("disk")]
     [InlineData("notes")]
     [InlineData("countdown")]
-    [InlineData("sun")]
+    [InlineData("sunTimes")]
     [InlineData("moon")]
     [InlineData("drive")]
     public void S700_other_widgets_still_start_with_a_top_header(string kindId)

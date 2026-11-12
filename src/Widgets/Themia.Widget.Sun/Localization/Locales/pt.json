@@ -1,16 +1,6 @@
 {
-  "widgetsC.sun.label": "Sol",
-  "widgetsC.sun.desc": "Nascer e pôr do sol e horas de luz",
   "styles.sun.arc": "Arco",
   "styles.sun.dayBar": "Barra do dia",
-  "styles.sun.times": "Só horários",
-  "sunMoon.events.label": "Eventos",
-  "widgetUi.daylight": "Horas de luz",
-  "widgetsC.sunMoon.civil": "civil",
-  "widgetsC.sunMoon.dawn": "Alvorada",
-  "widgetsC.sunMoon.dusk": "Crepúsculo",
-  "widgetsC.sunMoon.short.daylight": "Luz",
-  "widgetsC.sunMoon.short.sunrise": "Nascer",
-  "widgetsC.sunMoon.short.sunset": "Pôr",
-  "widgetsC.sunMoon.solarNoon": "Meio-dia solar"
+  "widgetsC.sun.desc": "Nascer e pôr do sol e horas de luz",
+  "widgetsC.sun.label": "Sol"
 }

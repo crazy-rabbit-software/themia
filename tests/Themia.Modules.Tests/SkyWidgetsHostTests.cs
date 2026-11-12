@@ -37,7 +37,7 @@ public sealed class SkyWidgetsHostTests
     [Fact]
     public void S3100_the_sun_config_round_trips_with_its_place_and_display_settings()
     {
-        var config = new SunConfig { Latitude = -33.87, Longitude = 151.21, Place = "Sydney", Style = SunStyle.DayBar, ShowEvents = false };
+        var config = new SunConfig { Latitude = -33.87, Longitude = 151.21, Place = "Sydney", Style = SunStyle.DayBar };
 
         var back = Assert.IsType<SunConfig>(RoundTrip(config));
 
@@ -45,7 +45,6 @@ public sealed class SkyWidgetsHostTests
         Assert.Equal(151.21, back.Longitude);
         Assert.Equal("Sydney", back.Place);
         Assert.Equal(SunStyle.DayBar, back.Style);
-        Assert.False(back.ShowEvents);
     }
 
     [Fact]
@@ -63,10 +62,10 @@ public sealed class SkyWidgetsHostTests
     [Fact]
     public void S3100_clone_copies_every_field()
     {
-        var sun = (SunConfig)new SunConfig { Latitude = 1, Longitude = 2, Place = "P", Style = SunStyle.Times, ShowEvents = false }.Clone();
+        var sun = (SunConfig)new SunConfig { Latitude = 1, Longitude = 2, Place = "P", Style = SunStyle.DayBar }.Clone();
         var moon = (MoonConfig)new MoonConfig { Latitude = 3, Longitude = 4, Place = "Q", Style = MoonStyle.PhaseMonth }.Clone();
 
-        Assert.Equal((1d, 2d, "P", SunStyle.Times, false), (sun.Latitude, sun.Longitude, sun.Place, sun.Style, sun.ShowEvents));
+        Assert.Equal((1d, 2d, "P", SunStyle.DayBar), (sun.Latitude, sun.Longitude, sun.Place, sun.Style));
         Assert.Equal((3d, 4d, "Q", MoonStyle.PhaseMonth), (moon.Latitude, moon.Longitude, moon.Place, moon.Style));
     }
 

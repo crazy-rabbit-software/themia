@@ -93,13 +93,6 @@ public class SettingRulesTests
     }
 
     [Theory]
-    [InlineData(SunStyle.Arc, true)]
-    [InlineData(SunStyle.DayBar, true)]
-    [InlineData(SunStyle.Times, false)]
-    public void S6074_the_times_style_is_the_events_so_it_offers_no_switch_for_them(SunStyle style, bool events)
-        => Assert.Equal(events, new SunConfig { Style = style }.Offers(SunSetting.Events));
-
-    [Theory]
     [InlineData(MoonStyle.Disc, true)]
     [InlineData(MoonStyle.PhaseMonth, false)]
     public void S6074_the_month_of_phases_reads_no_longitude(MoonStyle style, bool longitude)

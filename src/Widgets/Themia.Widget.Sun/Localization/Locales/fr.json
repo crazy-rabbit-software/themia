@@ -1,16 +1,6 @@
 {
-  "widgetsC.sun.label": "Soleil",
-  "widgetsC.sun.desc": "Lever et coucher du soleil, durée du jour",
   "styles.sun.arc": "Arc",
   "styles.sun.dayBar": "Barre du jour",
-  "styles.sun.times": "Heures seules",
-  "sunMoon.events.label": "Événements",
-  "widgetUi.daylight": "Durée du jour",
-  "widgetsC.sunMoon.civil": "civil",
-  "widgetsC.sunMoon.dawn": "Aube",
-  "widgetsC.sunMoon.dusk": "Crépuscule",
-  "widgetsC.sunMoon.short.daylight": "Jour",
-  "widgetsC.sunMoon.short.sunrise": "Lever",
-  "widgetsC.sunMoon.short.sunset": "Coucher",
-  "widgetsC.sunMoon.solarNoon": "Midi solaire"
+  "widgetsC.sun.desc": "Lever et coucher du soleil, durée du jour",
+  "widgetsC.sun.label": "Soleil"
 }

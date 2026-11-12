@@ -1,10 +1,6 @@
 {
-  "widgetsC.moon.label": "Місяць",
-  "widgetsC.moon.desc": "Фаза Місяця, схід і захід",
-  "widgetsC.moon.rise": "Схід Місяця",
-  "widgetsC.moon.set": "Захід Місяця",
-  "widgetsC.moon.short.rise": "Схід",
-  "widgetsC.moon.short.set": "Захід",
   "styles.moon.disc": "Диск",
-  "styles.moon.phaseMonth": "Фази за місяць"
+  "styles.moon.phaseMonth": "Фази за місяць",
+  "widgetsC.moon.desc": "Фаза Місяця, схід і захід",
+  "widgetsC.moon.label": "Місяць"
 }

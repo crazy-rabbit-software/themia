@@ -1,16 +1,6 @@
 {
-  "widgetsC.sun.label": "Ήλιος",
-  "widgetsC.sun.desc": "Ανατολή, δύση και φως ημέρας",
   "styles.sun.arc": "Τόξο",
   "styles.sun.dayBar": "Μπάρα ημέρας",
-  "styles.sun.times": "Μόνο ώρες",
-  "sunMoon.events.label": "Γεγονότα",
-  "widgetUi.daylight": "Φως ημέρας",
-  "widgetsC.sunMoon.civil": "πολιτικό",
-  "widgetsC.sunMoon.dawn": "Αυγή",
-  "widgetsC.sunMoon.dusk": "Σούρουπο",
-  "widgetsC.sunMoon.short.daylight": "Φως ημέρας",
-  "widgetsC.sunMoon.short.sunrise": "Ανατολή",
-  "widgetsC.sunMoon.short.sunset": "Δύση",
-  "widgetsC.sunMoon.solarNoon": "Ηλιακό μεσημέρι"
+  "widgetsC.sun.desc": "Ανατολή, δύση και φως ημέρας",
+  "widgetsC.sun.label": "Ήλιος"
 }

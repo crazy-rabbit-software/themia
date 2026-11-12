@@ -117,16 +117,22 @@ public static class MoonPhase
     /// </summary>
     public static MoonEvent NextMajor(DateTimeOffset moment)
     {
-        var phase = At(moment).Phase;
-
-        // Strictly after: a phase of exactly 0.5 is full now, and the next full moon is a month away.
-        var toFull = phase < 0.5 ? 0.5 - phase : 1.5 - phase;
-        var toNew = 1 - phase;
-
-        return toFull < toNew
-            ? new MoonEvent(MoonPhaseName.FullMoon, moment.AddDays(toFull * SynodicMonth))
-            : new MoonEvent(MoonPhaseName.NewMoon, moment.AddDays(toNew * SynodicMonth));
+        var full = NextFull(moment);
+        var fresh = NextNew(moment);
+        return full.At < fresh.At ? full : fresh;
     }
+
+    /// <summary>[S-11125] The next full moon after <paramref name="moment"/>, on the same lunation as <see cref="At"/>.</summary>
+    public static MoonEvent NextFull(DateTimeOffset moment)
+    {
+        // Strictly after: a phase of exactly 0.5 is full now, and the next full moon is a month away.
+        var phase = At(moment).Phase;
+        return new MoonEvent(MoonPhaseName.FullMoon, moment.AddDays((phase < 0.5 ? 0.5 - phase : 1.5 - phase) * SynodicMonth));
+    }
+
+    /// <summary>[S-11125] The next new moon after <paramref name="moment"/>, on the same lunation as <see cref="At"/>.</summary>
+    public static MoonEvent NextNew(DateTimeOffset moment)
+        => new(MoonPhaseName.NewMoon, moment.AddDays((1 - At(moment).Phase) * SynodicMonth));
 
     /// <summary>
     /// The geocentric altitude of the moon's centre at the moment it is seen to rise or set: its

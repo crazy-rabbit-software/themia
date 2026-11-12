@@ -14,7 +14,7 @@ using Themia.Widget.Moon;
 
 namespace Themia.Widget.Moon;
 
-/// <summary>[S-3105] The moon where the observer is: its disc, phase, rise and set, or the month's phases. SPEC.md beside this file.</summary>
+/// <summary>[S-11120] The moon where the observer is: how much of it is lit and its phase, or the month's phases. SPEC.md beside this file.</summary>
 public sealed class MoonModule : IWidgetModule
 {
     /// <summary>[S-6902] What the host knows of the widget without its UI.</summary>
@@ -28,9 +28,9 @@ public sealed class MoonModule : IWidgetModule
         Label = MoonStr.WidgetsC_Moon_Label.Local(),
         Description = MoonStr.WidgetsC_Moon_Desc.Local(),
         Glyph = Glyphs.Moon,
-        Sizing = _ => WidgetSizing.Legacy(240, 220),
+        Sizing = c => MoonLayout.Sizing((MoonConfig)c),
         Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader,
-        Add = new(AddFolderId.Weather, 1, 1),
+        Add = new(AddFolderId.Weather, 1, 2),
     };
 
     /// <summary>[S-3719] Every option is on the properties menu: the widget has no settings page.</summary>

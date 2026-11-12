@@ -1,16 +1,6 @@
 {
-  "widgetsC.sun.label": "സൂര്യൻ",
-  "widgetsC.sun.desc": "സൂര്യോദയം, സൂര്യാസ്തമയം, പകൽവെളിച്ചം",
   "styles.sun.arc": "ചാപം",
   "styles.sun.dayBar": "ദിവസ ബാർ",
-  "styles.sun.times": "സമയങ്ങൾ മാത്രം",
-  "sunMoon.events.label": "സംഭവങ്ങൾ",
-  "widgetUi.daylight": "പകൽവെളിച്ചം",
-  "widgetsC.sunMoon.civil": "സിവിൽ",
-  "widgetsC.sunMoon.dawn": "പ്രഭാതം",
-  "widgetsC.sunMoon.dusk": "സന്ധ്യ",
-  "widgetsC.sunMoon.short.daylight": "പകൽവെളിച്ചം",
-  "widgetsC.sunMoon.short.sunrise": "സൂര്യോദയം",
-  "widgetsC.sunMoon.short.sunset": "സൂര്യാസ്തമയം",
-  "widgetsC.sunMoon.solarNoon": "മധ്യാഹ്നം"
+  "widgetsC.sun.desc": "സൂര്യോദയം, സൂര്യാസ്തമയം, പകൽവെളിച്ചം",
+  "widgetsC.sun.label": "സൂര്യൻ"
 }
