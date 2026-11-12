@@ -14,7 +14,7 @@ using Themia.Sdk.WinUI.Kit;
 namespace Themia.Widget.ExchangeHistory;
 
 /// <summary>
-/// [S-11155] One pair's 90 days on the Chart block's series ([S-6717]), filling the card in its inset:
+/// [S-11155] One pair's 90 days on the Chart block's series ([S-6717]), a history band edge to edge:
 /// the line and its wash in the accent while the latest day rose or held, Critical while it fell (the
 /// rate atom's colour, [S-6706]). Time runs left to right in every language. The table is the one the
 /// rate reads (<see cref="IRateAnswers"/>), so the two agree; a header it is given names the pair.
@@ -22,8 +22,8 @@ namespace Themia.Widget.ExchangeHistory;
 internal sealed partial class ExchangeHistoryView : Grid, IWidgetView, IWidgetHeaderContent, IWidgetSurfaceAware, IWidgetContextActions
 {
     private readonly KitHeader _header;
-    /// <summary>[S-11600] In the inset on the sides and the foot; the top is the card's (the inset, or the header's gap).</summary>
-    private readonly ChartSeries _chart = new() { FlowDirection = FlowDirection.LeftToRight, Margin = Family.Inset with { Top = 0 }, Visibility = Visibility.Collapsed };
+    /// <summary>[S-6717] [S-11002] A history band: edge to edge at the sides and the foot, as the stock's; the top is the card's (the inset, or the header's gap).</summary>
+    private readonly ChartSeries _chart = new() { FlowDirection = FlowDirection.LeftToRight, Visibility = Visibility.Collapsed };
     private readonly StatusBlock _state = new() { Visibility = Visibility.Collapsed };
     private readonly IWidgetHost _host;
     private IRateAnswers? _web;

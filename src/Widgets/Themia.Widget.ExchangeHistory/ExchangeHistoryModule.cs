@@ -43,12 +43,9 @@ public sealed class ExchangeHistoryModule : IWidgetModule
         Add = new(AddFolderId.Markets, 0, 3),
     };
 
-    /// <summary>[S-11156] The chart in the inset (headerless): 200..480 wide, its band 48..200 tall.</summary>
+    /// <summary>[S-11156] The band under the card's top inset (headerless), to the sides and the foot: 200..480 wide, 48..200 tall.</summary>
     internal static WidgetSizing Sizing()
-    {
-        var inset = 2 * FamilySpace.Inset;
-        return WidgetSizing.Range(new(200, inset + BandMin), new(280, inset + BandStart), new(480, inset + BandMax));
-    }
+        => WidgetSizing.Range(new(200, FamilySpace.Inset + BandMin), new(280, FamilySpace.Inset + BandStart), new(480, FamilySpace.Inset + BandMax));
 
     /// <summary>[S-11157] Every option is on the properties menu: the pair, as the rate's.</summary>
     public void MenuLines(WidgetMenuLines menu, WidgetConfig config)

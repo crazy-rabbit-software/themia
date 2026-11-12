@@ -12,14 +12,14 @@ public sealed class ExchangeHistoryTests
     private static readonly WidgetDescriptor Kind = new ExchangeHistoryModule().Descriptor;
 
     [Fact]
-    public void S11156_the_chart_starts_headerless_200_to_480_wide_its_band_48_to_200_in_the_inset()
+    public void S11156_the_chart_starts_headerless_200_to_480_wide_its_band_48_to_200_edge_to_edge_under_the_top_inset()
     {
         var sizing = Kind.Sizing(new ExchangeHistoryConfig());
 
         Assert.True(Kind.Traits.HasFlag(WidgetTraits.StartsHeaderless));
-        Assert.Equal(new SizeDip(280, 24 + 72), sizing.Natural);
+        Assert.Equal(new SizeDip(280, 12 + 72), sizing.Natural);
         Assert.Equal((200.0, 480.0), (sizing.Min.Width, sizing.Max.Width));
-        Assert.Equal((24 + 48.0, 24 + 200.0), (sizing.Min.Height, sizing.Max.Height));
+        Assert.Equal((12 + 48.0, 12 + 200.0), (sizing.Min.Height, sizing.Max.Height));
     }
 
     [Fact]

@@ -12,14 +12,15 @@ JSON context), `ExchangeHistoryConfig.cs` (the SDK's `ExchangePairConfig`), `Exc
 own `ExchangeHistoryStr`). Tests: `Tests/ExchangeHistoryTests.cs`.
 
 - **[S-11155]** **What it shows**: the pair's 90 days (`ExchangeRules.Cross`, the history of the
-  table the rate reads, so the two agree) as the Chart block's series ([S-6717]), in the card's inset on
-  every side: the line and its wash in the accent, Critical while the latest day fell ([S-6706]); time
+  table the rate reads, so the two agree) as the Chart block's series ([S-6717]), a history band edge to
+  edge at the sides and the foot under the card's top inset, as the stock's ([S-11002]): the line and its wash in the accent, Critical while the latest day fell ([S-6706]); time
   left to right in every language. Nothing else at any size. It starts headerless (a chart that sits
   under its reading); a header it is given names the pair ("Rate history · CHF/EUR") with the kit
   header's problem glyph ([S-7042]). No table: the Status row ([S-6734]); a pair not published or of
   fewer than two days: "Not published".
 - **[S-11156]** **Sizes** (headerless): 200..480 wide (a new one 280), the chart's band 48..200 tall (a
-  new one 72) in the inset: the chart only gets longer or taller.
+  new one 72) under the top inset, edge to edge (until 2026-11-12 it stood in the inset on every side,
+  unlike the stock's): the chart only gets longer or taller.
 - **[S-11157]** Its options are all on the properties menu ([S-3719]): the pair, as the rate's
   ([S-5148], `ExchangePairLines`).
 
