@@ -17,10 +17,10 @@ using Themia.Sdk.WinUI.Kit;
 namespace Themia.App.Widgets;
 
 /// <summary>
-/// [S-2707] The year: twelve small months, arranged 4×3, 3×4, 6×2, 2×6, 12×1 or 1×12 by the tile's
-/// shape; on a tile too small for twelve, fewer around the current month. A day that has something
-/// on it is marked (its first item's colour on a square, a strong number with a stripe under it);
-/// today is the accent. Each day's events are on its hover.
+/// [S-2707] [S-11542] The year: twelve small months, 4 × 3, at the size its Size says (Small: squares;
+/// Medium: the day numbers under the weekday letters). A day that has something on it is marked (its
+/// first item's colour on a square, a strong number with a stripe under it); today is the accent.
+/// Each day's events are on its hover.
 /// </summary>
 internal sealed partial class CalendarView
 {
@@ -30,18 +30,19 @@ internal sealed partial class CalendarView
     private void DrawYear(double width, double height)
     {
         var gap = FamilySpace.S2;
-        var inner = new WidgetArea(width, height).Deflate(FamilySpace.Inset, 0);
-        var fit = CalendarFit.Year(inner.Width, Math.Max(0, inner.Height - FamilySpace.Inset), gap);
+        var fit = Themia.Widget.Calendar.CalendarSizing.Year(_config.YearSize);
         var start = _config.EffectiveWeekStart;
         var today = Today;
         var firstMonth = CalendarFit.FirstMonth(_anchor, fit.Months);
         var year = _anchor.Year;
         var showColors = ShowColors;
         var byDay = CalendarFit.ByDay(_events, _birthdays, new DateOnly(year, 1, 1), new DateOnly(year, 12, 31), TimeZoneInfo.Local);
-        var miniWidth = (inner.Width - ((fit.Columns - 1) * gap)) / fit.Columns;
+        var miniWidth = 7 * fit.DayCell;
 
         var grid = new Grid
         {
+            HorizontalAlignment = HorizontalAlignment.Left,
+            VerticalAlignment = VerticalAlignment.Top,
             Padding = new Thickness(FamilySpace.Inset, 0, FamilySpace.Inset, FamilySpace.Inset),
             ColumnSpacing = gap,
             RowSpacing = gap,
@@ -49,12 +50,12 @@ internal sealed partial class CalendarView
 
         for (var c = 0; c < fit.Columns; c++)
         {
-            grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+            grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(miniWidth) });
         }
 
         for (var r = 0; r < fit.Rows; r++)
         {
-            grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
+            grid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
         }
 
         // The month's name as long as the small month is wide: "September", "Sep", "S".

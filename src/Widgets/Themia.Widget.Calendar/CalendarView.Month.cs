@@ -12,17 +12,17 @@ using Themia.Core.Widgets;
 using Themia.Sdk.Kit;
 using Themia.Sdk.WinUI;
 using Themia.Sdk.WinUI.Kit;
+using Themia.Widget.Calendar;
 
 namespace Themia.App.Widgets;
 
 /// <summary>
 /// [S-2702] [S-572] The month: a grid of the family's tokens inside the card's inset ([S-6703]). The
 /// weekday header in Caption tertiary, the days' numbers in Caption (primary, tertiary outside the
-/// month, BodyStrong's weight where something is on), today's on the accent's round pill, the week
-/// rows sharing the height (the weeks around today when not every week's line fits,
-/// <see cref="CalendarFit.Month"/>). A cell shows its items as chips (Caption on the item layer's
-/// chip fill, the calendar's colour as a 2 px bar at its start, the one radius, lanes 4 apart), as
-/// dots (4, 4 apart) or by its number's weight alone.
+/// month, BodyStrong's weight where something is on), today's on the accent's round pill, six week
+/// rows of the config's cells ([S-11544], <see cref="CalendarSizing.Month"/>). A cell shows its items
+/// as chips (Caption on the item layer's chip fill, the calendar's colour as a 2 px bar at its start,
+/// the one radius, lanes 4 apart) or as dots (4, 4 apart), as the config says.
 /// </summary>
 internal sealed partial class CalendarView
 {
@@ -33,24 +33,17 @@ internal sealed partial class CalendarView
         var zone = TimeZoneInfo.Local;
         var showColors = ShowColors;
 
+        // [S-11544] Six weeks of the config's cells at every size: the height was made for them.
         var cells = CalendarRules.MonthCells(_anchor, start);
-        var rows = CalendarFit.MonthRows(_anchor, start);
-        var focus = FocusRow(cells, rows, SelectedInView ? _selected!.Value : InView(today) ? today : _anchor);
         var innerWidth = Math.Max(0, width - (2 * FamilySpace.Inset));
-        if (!CalendarFit.HoldsDays(innerWidth / 7))
-        {
-            DrawDayReadout(width, height);
-            return;
-        }
-
-        var fit = CalendarFit.Month(innerWidth, Math.Max(0, height - FamilySpace.Inset), rows, focus);
+        var fit = CalendarSizing.Month(_config.MonthEvents, innerWidth);
         var columnWidth = innerWidth / 7;
 
         var grid = new Grid { Padding = new Thickness(FamilySpace.Inset, 0, FamilySpace.Inset, FamilySpace.Inset) };
         grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(fit.HeaderHeight) });
         for (var r = 0; r < fit.Rows; r++)
         {
-            grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
+            grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(fit.CellHeight) });
         }
 
         // [S-564] The header follows the week start: Mo..Su or Su..Sa, as much as a column holds.
@@ -138,33 +131,6 @@ internal sealed partial class CalendarView
         }
 
         _content.Children.Add(grid);
-    }
-
-    /// <summary>
-    /// [S-2702] A tile too narrow for a day grid: the day the view is on (the selected one, else
-    /// today) as a Readout, its weekday under it, at the content's top inside the inset.
-    /// </summary>
-    private void DrawDayReadout(double width, double height)
-    {
-        var day = SelectedInView ? _selected!.Value : InView(Today) ? Today : _anchor;
-        var readout = new ReadoutBlock { VerticalAlignment = VerticalAlignment.Top };
-        readout.Size(_area, Math.Max(0, width - (2 * FamilySpace.Inset)), Math.Max(0, height - FamilySpace.Inset), new ReadoutText(LocaleFormat.Digits(Strings.Current, "00"), LineUnder: true));
-        readout.Show(LocaleFormat.Digits(Strings.Current, day.Day.ToString(CultureInfo.InvariantCulture)), under: CalendarText.WeekdayName(day.DayOfWeek));
-        _content.Children.Add(new Grid { Padding = new Thickness(FamilySpace.Inset, 0, FamilySpace.Inset, FamilySpace.Inset), Children = { readout } });
-    }
-
-    /// <summary>The week row holding <paramref name="day"/> among the month's <paramref name="rows"/>; 0 when it is not in the grid.</summary>
-    private static int FocusRow(IReadOnlyList<DateOnly> cells, int rows, DateOnly day)
-    {
-        for (var r = 0; r < rows && (r * 7) + 6 < cells.Count; r++)
-        {
-            if (cells[r * 7] <= day && day <= cells[(r * 7) + 6])
-            {
-                return r;
-            }
-        }
-
-        return 0;
     }
 
     private static Grid Columns7()

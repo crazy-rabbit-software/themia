@@ -45,6 +45,24 @@ public enum CalendarSetting
 
     /// <summary>[S-571] Agenda: how many entries.</summary>
     AgendaCount,
+
+    /// <summary>[S-11540] Agenda: its rows and their lines.</summary>
+    AgendaRows,
+
+    /// <summary>[S-11542] Year: its size.</summary>
+    YearSize,
+
+    /// <summary>[S-11543] Day: the hours its grid shows.</summary>
+    DayHours,
+
+    /// <summary>[S-11544] Month: chips or dots.</summary>
+    MonthEvents,
+
+    /// <summary>[S-11545] Week: the chosen day's rows under the strip.</summary>
+    WeekRows,
+
+    /// <summary>[S-11546] Week: titles in the columns, and then its hours.</summary>
+    WeekTitles,
 }
 
 /// <summary>

@@ -17,9 +17,10 @@ using Themia.Widget.Calendar;
 namespace Themia.App.Widgets;
 
 /// <summary>
-/// [S-573] / [S-2705] The day: its all-day and multi-day events and birthdays as span bars over a
-/// timeline of as many whole hours as the tile holds — the whole day on a tall tile, a few hours
-/// around the next event (or now) on a small one — with overlapping events side by side.
+/// [S-573] / [S-2705] [S-11543] The day: its all-day and multi-day events and birthdays on one band line
+/// (one bar, or chips shared among several) over a timeline of the config's hours around the next
+/// event (or now), with overlapping events side by side. A day with no all-day item gives the band's
+/// line to its hours.
 /// </summary>
 internal sealed partial class CalendarView
 {
@@ -35,13 +36,9 @@ internal sealed partial class CalendarView
         var allDay = items.Where(i => i.Birthday is not null || i.Event!.AllDay || CalendarFit.IsMultiDay(i.Event, zone)).ToList();
         var timed = items.Where(i => i.Event is { AllDay: false } e && !CalendarFit.IsMultiDay(e, zone)).Select(i => i.Event!).ToList();
 
-        // [S-2718] The band's bars first, as many as leave the timeline its hours; the hours take the rest.
-        var room = new Disclosure(width, Math.Max(0, height - FamilySpace.Inset));
-        var band = CalendarFit.DayBand(room.Remaining, allDay.Count);
-        if (band.Lines > 0)
-        {
-            room.Reserve((band.Lines * band.LineHeight) + FamilySpace.S1);
-        }
+        // [S-11543] One band line, its own bar or chips shared among several; the config's hours take the rest.
+        var band = CalendarSizing.DayBand(allDay.Count);
+        var available = Math.Max(0, height - FamilySpace.Inset - (band.Lines > 0 ? band.LineHeight + FamilySpace.S1 : 0));
 
         var gutter = width >= HourLabelsLongFrom ? HourLabelWidth : HourLabelNarrowWidth;
         var timelineWidth = Math.Max(0, width - gutter - (2 * FamilySpace.Inset));
@@ -58,7 +55,7 @@ internal sealed partial class CalendarView
         }
 
         var (earliest, latest) = CalendarFit.EventHours(timed, day, zone);
-        var window = CalendarFit.Hours(room.Remaining, earliest, latest, CalendarFit.FocusHour(timed, day, Today, _clock(), zone));
+        var window = CalendarFit.HoursOf(CalendarSizing.ClampHours(_config.DayHours), available, earliest, latest, CalendarFit.FocusHour(timed, day, Today, _clock(), zone));
 
         var labels = HourLabels(window, long_: gutter == HourLabelWidth);
         SetRow(labels, 1);

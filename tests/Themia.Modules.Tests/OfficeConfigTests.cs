@@ -146,17 +146,17 @@ public sealed class OfficeConfigTests
 
         // [S-3770] No calendar stores a week start: it is the shared regional setting.
         Assert.Equal(
-            [.. new[] { "kind", "style", "accountIds", "calendars", "calendarColors", "showBirthdays", "weekDays", "weekFrom", "agendaCount", "agendaDays" }.Order(StringComparer.Ordinal)],
+            [.. new[] { "kind", "style", "accountIds", "calendars", "calendarColors", "showBirthdays", "weekDays", "weekFrom", "agendaCount", "agendaDays", "rows", "lines", "yearSize", "dayHours", "monthEvents", "weekRows", "weekTitles", "weekHours" }.Order(StringComparer.Ordinal)],
             names);
     }
 
     public static TheoryData<CalendarStyle, CalendarSetting[]> StyleSettings() => new()
     {
-        { CalendarStyle.Month, [] },
-        { CalendarStyle.Day, [] },
-        { CalendarStyle.Year, [] },
-        { CalendarStyle.Week, [CalendarSetting.WeekFrom, CalendarSetting.WeekDays] },
-        { CalendarStyle.Agenda, [CalendarSetting.AgendaRange, CalendarSetting.AgendaCount] },
+        { CalendarStyle.Month, [CalendarSetting.MonthEvents] },
+        { CalendarStyle.Day, [CalendarSetting.DayHours] },
+        { CalendarStyle.Year, [CalendarSetting.YearSize] },
+        { CalendarStyle.Week, [CalendarSetting.WeekFrom, CalendarSetting.WeekDays, CalendarSetting.WeekTitles, CalendarSetting.WeekRows] },
+        { CalendarStyle.Agenda, [CalendarSetting.AgendaRange, CalendarSetting.AgendaCount, CalendarSetting.AgendaRows] },
     };
 
     [Theory]

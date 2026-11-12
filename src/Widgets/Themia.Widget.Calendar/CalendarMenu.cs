@@ -31,7 +31,7 @@ internal static class CalendarMenu
 
         foreach (var setting in calendar.ShownSettings)
         {
-            menu.StyleLines.Add(StyleLine(menu, calendar, setting));
+            menu.StyleLines.AddRange(StyleLines(menu, calendar, setting));
         }
 
         if (calendar.Style is CalendarStyle.Month or CalendarStyle.Week or CalendarStyle.Year)
@@ -49,6 +49,37 @@ internal static class CalendarMenu
             menu.Lines.Add(birthdays);
         }
     }
+
+    /// <summary>[S-3601] A style's own lines for one setting: what it shows and so how large it is ([S-11540]..[S-11546]).</summary>
+    private static IEnumerable<ItemMenuEntry> StyleLines(WidgetMenuLines menu, CalendarWidgetConfig config, CalendarSetting setting) => setting switch
+    {
+        // [S-11540] The agenda's rows and their lines (the kit's rows contract).
+        CalendarSetting.AgendaRows => KitMenuLines.Rows(menu, config),
+
+        // [S-11542] The year's size: squares, or the day numbers.
+        CalendarSetting.YearSize => [menu.Choice(null, Str.Kit_Size.Text(),
+            [(ReadoutSize.Small, Str.Kit_SizeSmall.Text()), (ReadoutSize.Medium, Str.Kit_SizeMedium.Text())],
+            config.YearSize == ReadoutSize.Medium ? ReadoutSize.Medium : ReadoutSize.Small, value => config.YearSize = value)],
+
+        // [S-11543] The day's hours (the height follows).
+        CalendarSetting.DayHours => [KitMenuLines.Count(menu, Glyphs.Hours, CalendarStr.Calendar_Hours.Text(), CalendarSizing.ClampHours(config.DayHours), CalendarSizing.MinHours, CalendarSizing.MaxHours, 1, v => config.DayHours = v)],
+
+        // [S-11544] A month day's events: their titles as chips, or dots.
+        CalendarSetting.MonthEvents => [menu.Choice(null, CalendarStr.Calendar_MonthEvents.Text(),
+            [(MonthEvents.Dots, CalendarStr.Calendar_MonthEvents_Dots.Text()), (MonthEvents.Chips, CalendarStr.Calendar_MonthEvents_Chips.Text())],
+            config.MonthEvents, value => config.MonthEvents = value)],
+
+        // [S-11546] Titles in the week's columns (each at least 96), and then the hours of its grid.
+        CalendarSetting.WeekTitles => config.WeekTitles
+            ? [menu.Toggle(null, CalendarStr.Calendar_WeekTitles.Text(), true, on => config.WeekTitles = on),
+                KitMenuLines.Count(menu, Glyphs.Hours, CalendarStr.Calendar_Hours.Text(), CalendarSizing.ClampHours(config.WeekHours), CalendarSizing.MinHours, CalendarSizing.MaxHours, 1, v => config.WeekHours = v)]
+            : [menu.Toggle(null, CalendarStr.Calendar_WeekTitles.Text(), false, on => config.WeekTitles = on)],
+
+        // [S-11545] The chosen day's rows under the day strip (the height follows).
+        CalendarSetting.WeekRows => [KitMenuLines.Count(menu, null, Str.Kit_Rows.Text(), CalendarSizing.ClampWeekRows(config.WeekRows), 1, CalendarSizing.MaxWeekRows, 1, v => config.WeekRows = v)],
+
+        _ => [StyleLine(menu, config, setting)],
+    };
 
     /// <summary>[S-3601] One of a style's own lines: the week's first column and length, the agenda's range and count.</summary>
     private static ItemMenuEntry StyleLine(WidgetMenuLines menu, CalendarWidgetConfig config, CalendarSetting setting) => setting switch

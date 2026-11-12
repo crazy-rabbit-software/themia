@@ -3428,8 +3428,9 @@ Tests `ScreenTimeRulesTests`, `ScreenTimeStoreTests`, `LocalStoreFixtureTests`, 
 Owner's decision 2026-11-12 (Widget sizing (SIZE), [S-2438]): the last of the lists' and the office's
 kinds state their sizes and show what their config says at every size. Screen time is four atoms
 (`screenTime`, `screenTimeChart`, `screenTimeApps`, `screenTimeDonut`; [S-11500], [S-11505], [S-11510],
-[S-11515] in their modules' `SPEC.md`), the habit tracker one ([S-11530]), the calendar one with five
-styles ([S-11540]..). Tests: each module's, `OfficeRecipesTests` (the groups).
+[S-11515] in their modules' `SPEC.md`), the habit tracker one ([S-11530]..[S-11532]), the calendar one
+with five styles, each its own sizes ([S-11540], [S-11542]..[S-11546]; the kit's schedule states its
+rows for it, [S-11541]). Tests: each module's, `OfficeRecipesTests` (the groups).
 
 - **[S-11520]** **Screen time**, a ready-made group (`ReadyMadeGroups.ScreenTime`, home Screen time):
   the reading (300 × 100, with its header) over the bars (300 × 116) over the apps for the week
@@ -3897,6 +3898,10 @@ side); tests `WidgetSizingTests` (Core: the rules; module host: every kind, the 
   narrow one), its column titles over the rows when the config says so (`KitRowsChoice.ColumnTitles`,
   never the height; they are part of the height's base). A look that needs other widths than the
   kit's states its own (`KitWidths`, passed to `KitSizing.Sizing`). Tests `KitRowsTests.S11401_`.
+- **[S-11541]** **A schedule that states its rows** (`KitRowLook.Schedule` with `KitChoices.Rows`, the
+  calendar's agenda, [S-11540]): one column at every width, its lines (the span and where on the
+  second) as chosen, never the tier's; its pages hold the rows its height was made for, a day's
+  heading taking a row. Tests `KitRowsTests.S11541_`.
 - **[S-2441]** Every kind's sizing holds, for its defaults and every style: sizes positive and finite
   (a legacy Max unbounded), Min ≤ Natural ≤ Max on both axes, a stepped axis's Min, Natural and Max
   on its steps and its count in range (`WidgetSizing.Problems`, checked over the registry).
@@ -4819,13 +4824,13 @@ partial per layout), `CalendarData.cs` (the data seam), `ContactsView.cs`.
 - **[S-1261]** *(Retired: the XS "next event" tile, [S-2700].)*
 - **[S-1262]** *(Retired: the strip of days on a wide tile, [S-2700].)*
 - **[S-1263]** *(Retired: the month with the agenda below or beside it, [S-2700].)*
-- **[S-1264]** Month: weekday names ("Mon") from 64 px columns; chips lead with their start time from
+- **[S-1264]** *(Its weeks retired by [S-11544]: six weeks always; the names and times by column stand.)* Month: weekday names ("Mon") from 64 px columns; chips lead with their start time from
   100 px cells (classic S-44); a chip line is a Caption line and 4 under it at every size; only the
   weeks holding a day of the month are drawn (4–6 rows), all of them where every week's number line
   fits, else the weeks that fit around today ([S-2702]).
 - **[S-1266]** *(Retired: 32/40 px hours on a scrolled timeline, [S-2705].)* A timeline block of three
   caption lines adds a "location · organizer" line; one of a single line keeps the title only.
-- **[S-1267]** Agenda: under 128 tall the first page's "Today" heading is dropped (any other day keeps
+- **[S-1267]** *(Its two columns retired by [S-11540]: one column at every width.)* Agenda: under 128 tall the first page's "Today" heading is dropped (any other day keeps
   its heading); at ≥720 px each page fills two columns, one after the other.
 - **[S-1268]** Opening an event: a Microsoft account's event opens `ms-outlook://events/{id}` when
   Outlook's protocol is registered (one cached check shared with Mail, `ShellLauncher.OutlookInstalled`),
@@ -4836,7 +4841,7 @@ partial per layout), `CalendarData.cs` (the data seam), `ContactsView.cs`.
 - **[S-2701]** The view reads its data through one seam, `ICalendarData.LoadAsync(config, first,
   last)`, for exactly the range its layout covers ([S-568]): the live one wraps the shared office
   source; the render's fixture is another ([S-2711]).
-- **[S-2702]** Month (`CalendarFit.Month`), inside the card's 12 inset: weekday header as names (≥64 px
+- **[S-2702]** *(Retired by [S-11544]: six weeks of the config's chips or dots; no fallback to a Readout. The weekday header's names, initials or letter by column width stand.)* Month (`CalendarFit.Month`), inside the card's 12 inset: weekday header as names (≥64 px
   columns), two-letter initials (≥22), one letter (≥10), dropped where it and every week's number line
   (a Caption line, never squeezed) do not fit; a box too short for every week shows the weeks that fit,
   today's among them (`FirstRow`); then cells of chips (40 wide, holding the 4 padding, the number and a
@@ -4849,19 +4854,19 @@ partial per layout), `CalendarData.cs` (the data seam), `ContactsView.cs`.
   across them, squared off where it runs past the row. Lines are packed from the first column, the
   longest first; what a day's lines cannot hold is its "+N". A timed event ending at midnight is
   one day.
-- **[S-2704]** Week (`CalendarFit.Week`): its day columns ([S-2719]; the widths below are a column's)
+- **[S-2704]** *(Retired by [S-11545], [S-11546]: the day strip or, with titles in the week, one band line over the config's hours; no per-column lists.)* Week (`CalendarFit.Week`): its day columns ([S-2719]; the widths below are a column's)
   under weekday and number (never without one letter of the weekday); a band of bars (up to two lines, three on the hour grid, always leaving a line for
   the body); then, 280 px tall, an hour grid with each day's timed events in overlap lanes; else each
   column's timed events as chips (time over title), then "+N". All of this from 96 px columns only:
   narrower, a column holds marks and the chosen day's events are rows under the week (the widget's
   SPEC, [S-2281]..[S-2285]).
-- **[S-2705]** Hours (`CalendarFit.Hours`): the day wanted is 07–22, widened to every timed event of
+- **[S-2705]** *(How many hours is the config's since [S-11543] (`CalendarFit.HoursOf`); the wanted day, the focus, the labels and the now-line stand.)* Hours (`CalendarFit.Hours`): the day wanted is 07–22, widened to every timed event of
   the day(s) drawn. When it fits at ≥20 px an hour it is drawn whole, a tall box widening it toward
   midnight rather than stretch an hour past 48 px; else as many whole hours as fit, starting an hour
   before the focus (today: the next event still to end, else now; another day: its first event, else 08:00). Hours fill
   the box exactly; hour labels read "07:00", or "07" in a day under 160 px. Today has an accent
   now-line. Events outside the window are on the day's hover.
-- **[S-2707]** Year (`CalendarFit.Year`): twelve small months in the arrangement of 4×3, 3×4, 6×2,
+- **[S-2707]** *(Its arrangements by size retired by [S-11542]: twelve months, 4 × 3, by its Size; the marks stand.)* Year (`CalendarFit.Year`): twelve small months in the arrangement of 4×3, 3×4, 6×2,
   2×6, 12×1 or 1×12 with the largest day cell, preferring cells that hold numbers (a caption line)
   and then a weekday row; under 4 px it falls back to 6, 4, 3, 2 or 1 months around the current one
   (`FirstMonth`, inside the year). The current month's name is primary, the others secondary (never
@@ -4875,7 +4880,7 @@ partial per layout), `CalendarData.cs` (the data seam), `ContactsView.cs`.
 - **[S-2710]** Key map (`CalendarFit.Key`), every layout: Left / Right and Page Up / Page Down step
   the layout's unit (month, week, day, year, agenda page); Up / Down the cursor day a week (month,
   week); Home today; Enter the cursor day's first event (the agenda page's first; none in the year).
-  The header's arrows hide on a Compact-width tile (the keys still page).
+  The header's arrows show in every style (the header folds them where it is short of room, [S-11540]).
 - **[S-2711]** *(Retired: one widget with five layout states; each calendar style has its own renders, [S-3606].)*
 - **[S-2716]** Agenda day headings (`CalendarFit.AgendaHeading`): today and tomorrow are "Today" and
   "Tomorrow", any other day its date ("Tue, Oct 6"). Where the heading line holds the longest
@@ -4889,7 +4894,7 @@ partial per layout), `CalendarData.cs` (the data seam), `ContactsView.cs`.
   timeline block spends its whole caption lines on the title, its time, the title's second line,
   then where and who (`CalendarFit.BlockParts`). Month and band chips and the agenda's rows stay one
   line ([S-7036]).
-- **[S-2718]** The day's all-day band (`CalendarFit.DayBand`): each all-day or multi-day item and
+- **[S-2718]** *(One band line since [S-11543]: its item's bar, or chips shared among several; the bar's look stands.)* The day's all-day band (`CalendarFit.DayBand`): each all-day or multi-day item and
   birthday is a full-width span bar a body line tall (with room around it), up to three, as long as
   the timeline keeps three hours. Its colour runs along the leading edge; an item that began before
   the day or runs past it is squared off with a chevron on that side, and from 200 px names its days
@@ -4900,9 +4905,8 @@ partial per layout), `CalendarData.cs` (the data seam), `ContactsView.cs`.
   today (from today) or from the start of today's week, one step apart: its own length from today,
   else whole weeks (5 days step Monday to Monday, 14 days two weeks). The period on screen is the
   one holding the anchor, so following today keeps the next days rolling, a day selected inside the
-  period moves nothing and one outside pages to its period ([S-3621]). Columns share the width
-  (`CalendarFit.Week(width, height, days)`), so fewer days are roomier columns; the band, lists and
-  hour grid are the same layout for any count.
+  period moves nothing and one outside pages to its period ([S-3621]). Columns share the width, so
+  fewer days are roomier columns; with titles in the week the least width is the days' × 96 ([S-11546]).
 - **[S-1270]** *(Its size rule retired by [S-11406]: what each layout shows is its config's.)* Contacts list rows are Row blocks ([S-6711], `ContactsPlan.Of`): one, two or three
   lines by the tier ([S-6712], `RowRules.Lines` on the view's area): the name primary; then the role
   (else the address, else the number) secondary; then the address (else the number) tertiary. Every

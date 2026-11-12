@@ -381,10 +381,10 @@ internal sealed partial class CalendarView : Grid, IWidgetView, IWidgetOpens, IW
         _header.Show(lines, _refreshing, _outcomesNeedUser, buttons: NavigationButtons());
     }
 
-    /// <summary>[S-569] Back and forward, on a tile wider than compact; in the agenda only where there is a page that way.</summary>
+    /// <summary>[S-569] Back and forward in every style (the header folds them where it is short of room); in the agenda only where there is a page that way.</summary>
     private IReadOnlyList<Themia.Sdk.WinUI.Kit.KitHeaderButton> NavigationButtons()
     {
-        if (!_navigable || (_area.IsMeasured && _area.WidthClass <= SizeClass.Compact))
+        if (!_navigable)
         {
             return [];
         }

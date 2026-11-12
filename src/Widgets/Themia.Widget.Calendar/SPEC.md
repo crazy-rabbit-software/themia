@@ -10,11 +10,45 @@ source and seam ([S-588], [S-2701], [S-3602]), the shared menu lines ([S-3601], 
 Owning files: everything in this folder: `CalendarModule.cs` (descriptor, view factory, JSON
 context), `CalendarWidgetConfig.cs` (the style, the week's and agenda's own settings),
 `CalendarView*.cs` (one partial per style, the links, over `IWidgetHost.Office`), `AgendaSpec.cs`
-(the agenda on the kit's list),
+(the agenda on the kit's list), `CalendarSizing.cs` (each style's sizes and what it draws, from the
+config), `MonthEvents.cs`,
 `CalendarMenu.cs` (its properties-menu lines: the SDK's calendar lines and the style's own), `Preview/` (Debug renders:
 `--state sample|selected|linked|days|stale|empty`), `Localization/Locales/` (its own `CalendarStr`, 30
 languages). Tests: the rules' are Core's; the config's are the module host's (`CalendarHostTests`,
-`OfficeConfigTests`); the agenda's items (and the narrow week's rows) are `Tests/AgendaSpecTests.cs`; the week's fit is Core's `CalendarFitTests`; the menu's `Tests/CalendarMenuTests.cs`.
+`OfficeConfigTests`); the agenda's items (and the narrow week's rows) are `Tests/AgendaSpecTests.cs`; the week's fit is Core's `CalendarFitTests`; the menu's `Tests/CalendarMenuTests.cs`; the sizes'
+`Tests/CalendarSizingTests.cs`.
+
+**Sizes** (owner decision 2026-11-12, [S-2438]): each style's size follows its own settings and never
+the box; no `Disclosure`, no tier, no width decides what a style shows (the weekday names and a
+chip's times still shorten with the column, as text does).
+
+- **[S-11540]** **Agenda**: `Rows` (1..20, a new one 6) and `Lines` (1, a new one, or 2: the span,
+  where and who on the second) on the kit's rows contract ([S-2440], `IKitRows`; the schedule look's
+  rows, [S-11541]): its height is 36 + the rows + 12, 260..520 wide (a new one 300), dragging the
+  bottom edge sets Rows; one column at every width, the pages holding the rows the height was made
+  for (a day's heading takes a row). Its Style lines add Rows and Lines after the range and the count.
+- **[S-11542]** **Year**: twelve months, 4 × 3, one size by **Size** (Small: a square a day, 8;
+  Medium: the day numbers under the weekday letters, a Caption line a day): 272 × 256 and 496 × 448,
+  no handle (`CalendarSizing.Year`).
+- **[S-11543]** **Day**: **Hours shown** (4..16, a new one 8; Style line), an hour a 28 row, over one
+  band line for the all-day items (its item's bar, or chips shared among several, "+N"; a day without
+  gives that line to its hours): 36 + the band's line and 4 + the hours + 12, 240..480 wide (a new one
+  300), dragging the bottom edge sets the hours. The hours are the wanted day (07-22 widened to its
+  events) where it is no longer, else that many from just before the next event or now
+  (`CalendarFit.HoursOf`).
+- **[S-11544]** **Month**: six weeks always (the month's and the next days', dimmed), so every month is
+  one height; **Events as** Dots (a new one's: a 28 cell, the number over its dots) or Titles (chips, two
+  lines a cell under the number, then "+N"): 36 + the weekday line + six cells + 12, 260..420 wide (a
+  new one 300). The day readout a narrow month fell back to is gone.
+- **[S-11545]** **Week, the day strip** (a new one's): each column's head (its weekday, its number) over
+  the room its marks take at most ([S-2282]: three, then "+n"), then 8, then the chosen day's **Rows**
+  (1..12, a new one 3; Style line) as the agenda's one-line rows ([S-2285]): one height for the
+  config, 240..520 wide (a new one 300), dragging the bottom edge sets the rows.
+- **[S-11546]** **Titles in the week** (a Style switch, off by default): the columns hold their events'
+  titles, each at least 96 wide ([S-2281]), so the card is at least the days × 96 + the hours' labels
+  (44) + the inset wide (at most 200 a column); one band line of all-day bars over an hour grid of
+  **Hours shown** (4..16, a new one 8), the height following the hours, dragging the bottom edge sets
+  them. The per-column chip lists the week drew between the two looks are gone.
 
 - **[S-3650]** The agenda is the kit's paged list ([S-7035], [S-7036]): `AgendaSpec` gives its spec
   (the schedule look on the family's rows, two columns at most) and an agenda row as a kit item: its
@@ -46,7 +80,9 @@ languages). Tests: the rules' are Core's; the config's are the module host's (`C
   (the first day of the week, named, or Today) and **Days shown** (1 to 14, dots); the agenda's
   **Date range** (Today, Today and tomorrow, 3, 7 or 30 days, and Custom…, which asks for 1 to 365
   days and holds the dot while the range is none of the others; the line shows the range) and
-  **Agenda events** (1 to 100, asked for as text, [S-3726]). Then Appearance, the calendar widgets'
+  **Agenda events** (1 to 100, asked for as text, [S-3726]), Rows and Lines ([S-11540]); the day's Hours
+  shown ([S-11543]); the month's Events as ([S-11544]); the year's Size ([S-11542]); the week's Titles in
+  the week, then its Hours shown, or its Rows ([S-11545], [S-11546]). Then Appearance, the calendar widgets'
   **Accounts** and **Calendars** (`OfficeMenuLines.CalendarAccounts`, [S-561]) and, after a divider,
   **Show contact birthdays**, offered only while a chosen account has contacts to read them from
   (`OfficeMenuLines.OffersBirthdays`, [S-575], [S-6070]: a CalDAV calendar has no address book, and
@@ -54,22 +90,18 @@ languages). Tests: the rules' are Core's; the config's are the module host's (`C
   Style lines with a link to **Start of week**, which ⚙ › Language & region alone sets ([S-3749],
   [S-3590]); the day and the agenda have none.
 
-- **[S-1265]** Week columns ≥64 px spell the weekday; ≥100 px a timed chip shows start–end and its
-  location under the title.
-- **[S-2281]** The week has two looks, chosen by the measured column width alone
-  (`CalendarFit.Week`, `Marks`, `WeekTitlesFrom` 96): from 96 a column holds its events' titles
-  (the band, chips or the hour grid, [S-2704]), nothing chosen and no rows under it; narrower, it holds
-  marks ([S-2282]) and the chosen day's events are rows under the week ([S-2285]). No tier name decides.
+- **[S-1265]** Week columns ≥64 px spell the weekday. *(Its chips' start–end retired with the per-column lists, [S-11546].)*
+- **[S-2281]** The week has two looks, chosen by its config ([S-11545], [S-11546]; the column width
+  no longer decides): titles in the week, its columns at least 96 (`WeekTitlesFrom`), the band and the
+  hour grid ([S-2704]), nothing chosen and no rows under it; or the day strip, its columns' marks
+  ([S-2282]) and the chosen day's events as rows under the week ([S-2285]).
 - **[S-2282]** A narrow column's marks (`CalendarFit.Marks`, `MarksHeight`): under the day's number,
   one per item of the day (birthdays, then all-day events, then timed ones by start, [S-570]), each a
   round bar a track (`FamilyShape.Track`) high, the column's width less the family's 4 either side, 4
   apart, in its calendar's colour (a birthday's tertiary, the accent with colours off); at most three,
   then "+n" in Caption, tertiary. The head and its marks take the click that chooses the day and list
   the day on hover. Today keeps the accent disc on its number.
-- **[S-2283]** The narrow week spends its height through one `Disclosure` (`CalendarFit.Strip`): the
-  strip first (the day numbers, the weekday line where it and the marks fit, the marks: the most a day
-  of the week shows, and a Caption line when a day has a "+n"), then 8, then the chosen day's rows,
-  whole rows only ([S-6712]); a card too short for one row under the strip shows the strip alone.
+- **[S-2283]** *(Retired by [S-11545]: the strip and the rows are the config's, one height.)*
 - **[S-2284]** The chosen day (`CalendarFit.ChosenDay`) is the selected day ([S-3620]) while it is in
   the week, else today while the week holds it, else the week's first day; its column head stands on
   the selection fill (the item layer's selected chip). A click on a day's head or marks selects it (a
@@ -77,9 +109,8 @@ languages). Tests: the rules' are Core's; the config's are the module host's (`C
   it go, Enter opens its first event. The header's name and its two buttons page the week as before.
 - **[S-2285]** The chosen day's rows are the agenda's ([S-3650]: one row path, the view's one kit
   list, `AgendaSpec.DayRow`): the calendar's colour bar as the lead (a birthday's gift), the title,
-  the start ("All day") as the value, the span, place and who on a second line where `RowRules.Lines`
-  gives two; in no group, so no day heading ([S-2280]); the first page's whole rows, the rest on the
-  day head's hover. A day with nothing says "No events today" (another day "No events") in the Status
+  the start ("All day") as the value; one line a row; in no group, so no day heading ([S-2280]); the
+  config's rows ([S-11545]), the rest on the day head's hover. A day with nothing says "No events today" (another day "No events") in the Status
   block's row ([S-6714]).
 - **[S-1269]** Keys (classic S-31..34) reach `CalendarView.HandleKey(WidgetKey)` through the lease
   ([S-806]); the map is [S-2710]. Up/Down move the cursor day a week in the month (outlined) and the
@@ -87,8 +118,8 @@ languages). Tests: the rules' are Core's; the config's are the module host's (`C
   with the view's other calendars and kept across pages ([S-3624]).
 - **[S-2700]** A calendar widget draws only its own layout (month, week, day, year or agenda: its
   style, [S-3640]), at every size. No size swaps it for another layout, adds an agenda beside a
-  month, or shows a single "next event" instead: each layout sheds detail within itself
-  (`CalendarFit`). Unmeasured, it draws the layout at its smallest.
+  month, or shows a single "next event" instead; what each layout shows is its config's
+  ([S-11540]..[S-11546]).
 - **[S-2706]** Day: the all-day band's shared line ([S-2718]) splits its width in chips of at least
   56 px, the rest "+N" (on hover); a day with nothing says "No events today".
 - **[S-2708]** Month names in the year follow the small month's width: "September", "Sep", "S"

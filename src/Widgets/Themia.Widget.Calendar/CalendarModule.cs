@@ -41,7 +41,8 @@ public sealed class CalendarModule : IWidgetModule
         Label = CalendarStr.Styles_Calendar_Label.Local(),
         Description = CalendarStr.Styles_Calendar_Desc.Local(),
         Glyph = Glyphs.Calendar,
-        Sizing = _ => WidgetSizing.Legacy(340, 260),
+        Sizing = c => CalendarSizing.Sizing((CalendarWidgetConfig)c),
+        SizeSets = CalendarSizing.SizeSets,
         Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader,
         Add = new(AddFolderId.CalendarMail, 0, 0, Popular: 3),
     };

@@ -432,20 +432,6 @@ public sealed class CalendarRulesTests
     // ---- [S-572] / [S-573] / [S-574] layout ------------------------------------------------------
 
     [Fact]
-    public void S572_CellDensityShedsChipsThenDots()
-    {
-        // A cell's padding, its number's Caption line, then a chip line or a dot under it (the
-        // weekday header's 16 over five rows).
-        Assert.Equal(MonthDensity.Chips, CalendarFit.Month(7 * 70, 16 + (5 * 40), 5).Density);
-        Assert.Equal(MonthDensity.Dots, CalendarFit.Month(7 * 70, 16 + (5 * 39), 5).Density);
-        Assert.Equal(MonthDensity.Dots, CalendarFit.Month(7 * 30, 16 + (5 * 40), 5).Density);   // too narrow for a chip
-        Assert.Equal(MonthDensity.Number, CalendarFit.Month(7 * 30, 16 + (5 * 23), 5).Density);
-        Assert.Equal(1, CalendarFit.Month(7 * 70, 16 + (5 * 40), 5).ChipLines);
-        Assert.Equal(3, CalendarFit.Month(7 * 70, 16 + (5 * 80), 5).ChipLines);
-        Assert.Equal(6, CalendarFit.Month(7 * 70, 16 + (5 * 400), 5).ChipLines);
-    }
-
-    [Fact]
     public void S573_LanesMatchTheOriginal()
     {
         Assert.Empty(CalendarRules.Lanes([]));

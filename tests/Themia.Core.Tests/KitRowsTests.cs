@@ -112,4 +112,22 @@ public sealed class KitRowsTests
         Assert.Equal((320, 420, 720), (sizing.Min.Width, sizing.Natural.Width, sizing.Max.Width));
         Assert.Equal(36 + KitLadder.ColumnHeaderHeight + (5 * 28) + 12, sizing.Natural.Height);
     }
+
+    [Fact]
+    public void S11541_a_schedule_with_rows_is_one_column_of_its_lines_at_every_size()
+    {
+        var schedule = new KitSpec(KitRowLook.Schedule, KitShow.None, () => "Untitled", () => "Empty", MaxColumns: 2);
+        foreach (var lines in new[] { 1, 2 })
+        {
+            var choices = new KitChoices(KitShow.None) { Rows = new KitRowsChoice(6, lines) };
+            foreach (var area in new[] { new WidgetArea(260, 100), new WidgetArea(900, 700) })
+            {
+                var plan = KitLadder.Plan(area, schedule, choices);
+                Assert.Equal((1, lines, lines >= 2, FamilyShape.RowHeight(lines)), (plan.Columns, plan.Lines, plan.Subtitle, plan.RowHeight));
+            }
+        }
+
+        // Without rows it keeps the ladder: two columns from 720.
+        Assert.Equal(2, KitLadder.Plan(new WidgetArea(900, 700), schedule, KitShow.None).Columns);
+    }
 }

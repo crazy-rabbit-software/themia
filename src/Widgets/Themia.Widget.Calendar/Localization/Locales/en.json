@@ -1,5 +1,5 @@
 {
-  "$englishOnly": [],
+  "$englishOnly": ["calendar.hours", "calendar.monthEvents", "calendar.monthEvents.dots", "calendar.monthEvents.chips", "calendar.weekTitles"],
   "calendar.agendaEvents.label": "Agenda events",
   "calendar.noEventsToday": "No events today",
   "calendar.noUpcoming": "No upcoming events.",
@@ -29,5 +29,10 @@
   "widgetsA.calendar.settings.weekFrom.weekStart": "First day of the week ({day})",
   "widgetsA.calendar.spanWithLength": "{from}–{to} ({length})",
   "widgetsA.clock.date": "{weekday}, {date}",
-  "calendar.setup.sentence": "Add an account to show your calendar"
+  "calendar.setup.sentence": "Add an account to show your calendar",
+  "calendar.hours": "Hours shown",
+  "calendar.monthEvents": "Events as",
+  "calendar.monthEvents.dots": "Dots",
+  "calendar.monthEvents.chips": "Titles",
+  "calendar.weekTitles": "Titles in the week"
 }

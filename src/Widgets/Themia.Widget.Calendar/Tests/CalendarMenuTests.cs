@@ -61,23 +61,34 @@ public sealed class CalendarMenuTests
     [InlineData(CalendarStyle.Year)]
     public void S7513_a_month_and_a_year_link_to_the_start_of_the_week_under_style_and_set_nothing(CalendarStyle style)
     {
-        var link = Assert.Single(Build(new CalendarWidgetConfig { Style = style }).StyleLines);
+        var link = Build(new CalendarWidgetConfig { Style = style }).StyleLines[^1];
 
         Assert.Equal((Str.Calendar_WeekStart_Label.Text(), Str.LanguageRegion_Nav.Text()), (link.Text, link.LinkTo));
     }
 
     [Fact]
-    public void S7513_a_day_offers_nothing_under_style()
-        => Assert.Empty(Build(new CalendarWidgetConfig { Style = CalendarStyle.Day }).StyleLines);
+    public void S11543_a_day_offers_its_hours_under_style()
+        => Assert.Equal([CalendarStr.Calendar_Hours.Text()], Build(new CalendarWidgetConfig { Style = CalendarStyle.Day }).StyleLines.Select(l => l.Text));
 
     [Fact]
-    public void S7513_the_week_offers_its_first_column_and_its_days_and_the_agenda_its_range_and_length()
+    public void S11544_a_month_offers_chips_or_dots_and_a_year_its_size()
+    {
+        Assert.Equal([CalendarStr.Calendar_MonthEvents.Text(), Str.Calendar_WeekStart_Label.Text()], Build(new CalendarWidgetConfig { Style = CalendarStyle.Month }).StyleLines.Select(l => l.Text));
+        Assert.Equal([Str.Kit_Size.Text(), Str.Calendar_WeekStart_Label.Text()], Build(new CalendarWidgetConfig { Style = CalendarStyle.Year }).StyleLines.Select(l => l.Text));
+        Assert.Equal(2, Build(new CalendarWidgetConfig { Style = CalendarStyle.Year }).StyleLines[0].Children!.Count);
+    }
+
+    [Fact]
+    public void S11545_the_week_offers_its_first_column_its_days_its_titles_and_rows_or_hours_and_the_agenda_its_range_length_and_rows()
     {
         Assert.Equal(
-            [CalendarStr.WidgetsA_Calendar_Settings_WeekFrom_Label.Text(), CalendarStr.WidgetsA_Calendar_Settings_Days_Label.Text(), Str.Calendar_WeekStart_Label.Text()],
+            [CalendarStr.WidgetsA_Calendar_Settings_WeekFrom_Label.Text(), CalendarStr.WidgetsA_Calendar_Settings_Days_Label.Text(), CalendarStr.Calendar_WeekTitles.Text(), Str.Kit_Rows.Text(), Str.Calendar_WeekStart_Label.Text()],
             Build(new CalendarWidgetConfig { Style = CalendarStyle.Week }).StyleLines.Select(l => l.Text));
         Assert.Equal(
-            [Range, CalendarStr.Calendar_AgendaEvents_Label.Text()],
+            [CalendarStr.WidgetsA_Calendar_Settings_WeekFrom_Label.Text(), CalendarStr.WidgetsA_Calendar_Settings_Days_Label.Text(), CalendarStr.Calendar_WeekTitles.Text(), CalendarStr.Calendar_Hours.Text(), Str.Calendar_WeekStart_Label.Text()],
+            Build(new CalendarWidgetConfig { Style = CalendarStyle.Week, WeekTitles = true }).StyleLines.Select(l => l.Text));
+        Assert.Equal(
+            [Range, CalendarStr.Calendar_AgendaEvents_Label.Text(), Str.Kit_Rows.Text(), Str.Kit_Lines.Text()],
             Build(new CalendarWidgetConfig { Style = CalendarStyle.Agenda }).StyleLines.Select(l => l.Text));
     }
 

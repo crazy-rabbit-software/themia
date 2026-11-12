@@ -252,7 +252,7 @@ public static class KitLadder
 
         return spec.Look switch
         {
-            KitRowLook.Schedule => Scheduled(area),
+            KitRowLook.Schedule => Scheduled(area, choices),
             KitRowLook.Check => KitChecks.Plan(area, spec, choices),
             _ => Rows(area, spec, choices),
         };
@@ -419,9 +419,18 @@ public static class KitLadder
     /// the span and where under them) from regular both ways and of one on a compact tile, headings
     /// one row of 28.
     /// </summary>
-    private static KitPlan Scheduled(WidgetArea area)
+    private static KitPlan Scheduled(WidgetArea area, KitChoices choices)
     {
         var width = Math.Max(0, area.Width);
+
+        // [S-11541] A schedule that states its rows: one column, its lines (the span and where on the
+        // second) at every size; the pages hold the rows its height was made for.
+        if (choices.Rows is { } sized)
+        {
+            var chosen = KitSizing.ClampLines(sized.Lines);
+            return new KitPlan(KitRowLook.Schedule, 1, width, chosen, true, chosen >= 2, false, true, RowHeight: FamilyShape.RowHeight(chosen));
+        }
+
         var columns = width >= TwoScheduleColumnsFrom ? 2 : 1;
         var lines = area.IsMeasured ? RowRules.Lines(area, 2) : 1;
         return new KitPlan(KitRowLook.Schedule, columns, width / columns, lines, true, lines >= 2, false, true, RowHeight: FamilyShape.RowHeight(lines));

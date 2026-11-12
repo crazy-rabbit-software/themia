@@ -64,18 +64,6 @@ public sealed record MonthFit(int Rows, WeekdayLabel Weekdays, double HeaderHeig
 /// </summary>
 public sealed record LaneItem(DayItem Item, int First, int Last, int Lane, bool ContinuesBefore, bool ContinuesAfter);
 
-/// <summary>
-/// [S-2704] What a week of a given box draws. [S-2281] <c>Marks</c>: its columns are too narrow for a
-/// title, so each day shows marks and the chosen day's events are rows under the week.
-/// </summary>
-public sealed record WeekFit(WeekdayLabel Weekdays, bool Timeline, bool Marks, bool Detail);
-
-/// <summary>
-/// [S-2283] The narrow week's strip and what is under it: whether the weekday line and the marks fit,
-/// the strip's height (from the view's top), and how many whole rows of the chosen day fit under it.
-/// </summary>
-public sealed record WeekStripFit(bool Weekdays, bool Marks, double Height, int Rows);
-
 /// <summary>[S-2705] The hours a timeline draws: the first, how many, and each one's height.</summary>
 public readonly record struct HourWindow(int First, int Count, double HourHeight)
 {
@@ -120,35 +108,11 @@ public static class CalendarFit
     /// <summary>[S-1264] A chip's line: the chip (a Caption line) and the family's 4 under it.</summary>
     public static double ChipLine => FamilyType.Caption.LineHeight + FamilySpace.S1;
 
-    /// <summary>[S-2702] A number-only cell this wide holds its dots beside the number.</summary>
-    public const double InlineDotsFrom = 48;
-
     /// <summary>A month cell's padding over its number (the family's 4), which chips cannot use.</summary>
     public const double MonthCellChrome = FamilySpace.S1;
 
     /// <summary>[S-572] A day's dot: the track's thickness, 4 from its neighbour and from the number.</summary>
     public const double Dot = FamilyShape.Track;
-
-    /// <summary>[S-572] Under this column width a cell shows no chips.</summary>
-    public const double ChipsFromWidth = 40;
-
-    /// <summary>
-    /// [S-2702] Whether a day column of <paramref name="columnWidth"/> holds a two-digit day number in
-    /// Caption. Narrower (a month or a week on the smallest tile) the grid would run its numbers into
-    /// each other: the calendar shows the day it is on as a Readout instead.
-    /// </summary>
-    public static bool HoldsDays(double columnWidth) => columnWidth >= FamilyType.EstimateWidth(FamilyType.Caption, 2);
-
-    /// <summary>
-    /// [S-1264] How many week rows a month needs: the weeks holding one of its days (four to six).
-    /// </summary>
-    public static int MonthRows(DateOnly anchor, WeekStartDay start)
-    {
-        var first = new DateOnly(anchor.Year, anchor.Month, 1);
-        var last = first.AddMonths(1).AddDays(-1);
-        var gridStart = CalendarDays.StartOfWeek(first, start);
-        return ((last.DayNumber - gridStart.DayNumber) / 7) + 1;
-    }
 
     /// <summary>[S-2702] The weekday label a column of this width holds.</summary>
     public static WeekdayLabel Weekdays(double columnWidth)
@@ -156,47 +120,6 @@ public static class CalendarFit
             : columnWidth >= WeekdayInitialsFrom ? WeekdayLabel.Initials
             : columnWidth >= WeekdayNarrowFrom ? WeekdayLabel.Narrow
             : WeekdayLabel.None;
-
-    /// <summary>
-    /// [S-2702] The month grid for a box: the weekday header where it and every row's number line fit,
-    /// the rows sharing what is left; on a box too short for every week's number line (a Caption line,
-    /// never squeezed) the weeks that fit, the focused one (today's) among them. A cell shows chips
-    /// where its column is 40 wide and it holds its number and a chip line under its padding, dots
-    /// where it holds the number and a dot under it, else the number alone.
-    /// </summary>
-    /// <param name="focusRow">The week row to keep when not every row fits (today's, else the first).</param>
-    public static MonthFit Month(double width, double height, int rows, int focusRow = 0)
-    {
-        rows = Math.Clamp(rows, 4, 6);
-        var line = FamilyType.Caption.LineHeight;
-        var columnWidth = Math.Max(0, width) / 7;
-        var labels = Weekdays(columnWidth);
-
-        var room = new Disclosure(width, height);
-        var header = 0.0;
-        if (labels != WeekdayLabel.None && room.Fits(line + (rows * line)))
-        {
-            room.Take(line);
-            header = line;
-        }
-        else
-        {
-            labels = WeekdayLabel.None;
-        }
-
-        var shown = Math.Clamp(Disclosure.WholeRows(room.Remaining, line), 1, rows);
-        var first = shown >= rows ? 0 : Math.Clamp(focusRow - ((shown - 1) / 2), 0, rows - shown);
-        var cellHeight = room.Remaining / shown;
-        var density = columnWidth >= ChipsFromWidth && cellHeight >= MonthCellChrome + line + ChipLine ? MonthDensity.Chips
-            : cellHeight >= MonthCellChrome + line + Dot ? MonthDensity.Dots
-            : MonthDensity.Number;
-        var chipLines = density == MonthDensity.Chips ? Math.Clamp((int)Math.Floor((cellHeight - MonthCellChrome - line + Disclosure.Tolerance) / ChipLine), 1, 6) : 0;
-
-        return new MonthFit(shown, labels, header, cellHeight, density, chipLines, ChipLine, density == MonthDensity.Chips && columnWidth >= ChipTimeFrom, density == MonthDensity.Number && columnWidth >= InlineDotsFrom)
-        {
-            FirstRow = first,
-        };
-    }
 
     // ---- bars ([S-2703]) ---------------------------------------------------------------------------
 
@@ -311,40 +234,14 @@ public static class CalendarFit
 
     // ---- week ([S-2704]) ---------------------------------------------------------------------------
 
-    /// <summary>[S-2704] A week column this wide gives a timed chip its end time and its location.</summary>
-    public const double WeekDetailFrom = 100;
-
     /// <summary>
     /// [S-2281] A week column this wide holds its events' titles (chips, or the hour grid); a narrower
     /// one holds marks, and the chosen day's events are rows under the week.
     /// </summary>
     public const double WeekTitlesFrom = 96;
 
-    /// <summary>[S-2704] The week is an hour grid from this slot height (its columns holding titles); else a list per day.</summary>
-    public const double WeekTimelineFrom = 280;
-
     /// <summary>[S-2282] A narrow week's day shows at most this many marks; the rest is "+n".</summary>
     public const int WeekMarks = 3;
-
-    /// <summary>
-    /// [S-2704] The week for a box: the hour grid on a large tile, else a list per column; [S-2281]
-    /// marks in a column under <see cref="WeekTitlesFrom"/>, decided by the measured column width alone.
-    /// [S-2719] <paramref name="days"/> columns share the width: fewer days, wider columns.
-    /// </summary>
-    public static WeekFit Week(double width, double height, int days)
-    {
-        var columnWidth = Math.Max(0, width) / Math.Max(1, days);
-        var marks = columnWidth < WeekTitlesFrom;
-
-        // A week column always says which day it is: one letter at the least, over its number.
-        var labels = Weekdays(columnWidth);
-        if (labels == WeekdayLabel.None)
-        {
-            labels = WeekdayLabel.Narrow;
-        }
-
-        return new WeekFit(labels, !marks && height >= WeekTimelineFrom, marks, columnWidth >= WeekDetailFrom);
-    }
 
     /// <summary>[S-2282] A day's marks: one per item up to <see cref="WeekMarks"/>, and how many are left for its "+n".</summary>
     public static (int Shown, int More) Marks(int items)
@@ -376,23 +273,6 @@ public static class CalendarFit
     }
 
     /// <summary>
-    /// [S-2283] The narrow week's strip in a view <paramref name="height"/> tall (the card's bottom inset
-    /// kept): the day numbers always, the weekday line where it and the marks fit, the marks
-    /// (<paramref name="marks"/> tall, <see cref="MarksHeight"/>) where they fit, then the family's gap,
-    /// then the whole rows of <paramref name="lines"/> lines that are left ([S-6712]); none when not one fits.
-    /// </summary>
-    public static WeekStripFit Strip(double height, double marks, int lines)
-    {
-        var room = new Disclosure(1, Math.Max(0, height - FamilySpace.Inset));
-        room.Reserve(FamilyType.BodyStrong.LineHeight + FamilySpace.S1);
-        var weekdays = room.Fits(FamilyType.Caption.LineHeight + marks) && room.Take(FamilyType.Caption.LineHeight);
-        var shown = marks > 0 && room.Take(marks);
-        var strip = Math.Max(0, height - FamilySpace.Inset) - room.Remaining;
-        var rows = RowRules.Fit(room.Remaining - FamilySpace.S2, lines);
-        return new WeekStripFit(weekdays, shown, strip, rows);
-    }
-
-    /// <summary>
     /// [S-2284] The narrow week's chosen day: the selected day while it is in the week, else today
     /// while the week holds it, else the week's first day.
     /// </summary>
@@ -411,32 +291,21 @@ public static class CalendarFit
     public const double MaxHour = 48;
 
     /// <summary>
-    /// [S-2705] The hours a timeline of <paramref name="available"/> height draws, filling it with whole
-    /// hours. The day it wants is 07–22 widened to every timed event on it. When that fits at
-    /// <see cref="MinHour"/> or more it is drawn whole, and a tall box widens it further (toward
-    /// midnight both ways) rather than stretch an hour past <see cref="MaxHour"/>. When it does not
-    /// fit, as many hours as do, placed to start just before <paramref name="focusHour"/> (the next
-    /// event, or now) without leaving the wanted day.
+    /// [S-11543] The window of <paramref name="count"/> hours a timeline the config sized draws, each
+    /// <paramref name="available"/> / count tall: the wanted day (07–22 widened to every timed event)
+    /// when it is no longer, grown evenly toward midnight where the count is longer; else the count's
+    /// hours from just before <paramref name="focusHour"/> (the next event, or now) without leaving it.
     /// </summary>
-    public static HourWindow Hours(double available, int earliestHour, int latestHour, int focusHour)
+    public static HourWindow HoursOf(int count, double available, int earliestHour, int latestHour, int focusHour)
     {
+        var hours = Math.Clamp(count, 1, 24);
         var first = Math.Clamp(Math.Min(CalendarRules.TimelineFirstHour, earliestHour), 0, 23);
         var end = Math.Clamp(Math.Max(CalendarRules.TimelineEndHour, latestHour), first + 1, 24);
+        var height = available > 0 && double.IsFinite(available) ? available / hours : MinHour;
 
-        if (!(available > 0) || !double.IsFinite(available))
+        if (hours >= end - first)
         {
-            return new HourWindow(first, end - first, MinHour);
-        }
-
-        var fit = Math.Clamp(Disclosure.WholeRows(available, MinHour), 1, 24);
-        var span = end - first;
-
-        if (fit >= span)
-        {
-            // Room for the whole day: a tall box shows more of it rather than fatter hours.
-            var wanted = Math.Clamp((int)Math.Ceiling(available / MaxHour), span, Math.Min(24, fit));
-            // Grow on the side with more of the night left, so the extra hours sit evenly round it.
-            while (end - first < wanted)
+            while (end - first < hours)
             {
                 if (end < 24 && (24 - end >= first || first == 0))
                 {
@@ -448,75 +317,13 @@ public static class CalendarFit
                 }
             }
 
-            return new HourWindow(first, end - first, available / (end - first));
+            return new HourWindow(first, hours, height);
         }
 
-        var start = Math.Clamp(focusHour - 1, first, end - fit);
-        return new HourWindow(start, fit, available / fit);
+        return new HourWindow(Math.Clamp(focusHour - 1, first, end - hours), hours, height);
     }
 
     // ---- year ([S-2707]) ---------------------------------------------------------------------------
-
-    /// <summary>[S-2707] A year's day cell is never smaller than this: past it, fewer months.</summary>
-    public const double MinYearCell = 4;
-
-    /// <summary>The month counts a year falls back through, and their arrangements.</summary>
-    private static readonly (int Months, (int Columns, int Rows)[] Shapes)[] YearSteps =
-    [
-        (12, [(4, 3), (3, 4), (6, 2), (2, 6), (12, 1), (1, 12)]),
-        (6, [(3, 2), (2, 3), (6, 1), (1, 6)]),
-        (4, [(2, 2), (4, 1), (1, 4)]),
-        (3, [(3, 1), (1, 3)]),
-        (2, [(2, 1), (1, 2)]),
-        (1, [(1, 1)]),
-    ];
-
-    /// <summary>
-    /// [S-2707] The year for a box: twelve small months in whichever of 4×3, 3×4, 6×2, 2×6, 12×1 or 1×12
-    /// gives them the largest day cell (the shape decides); where even the best leaves a cell under
-    /// <see cref="MinYearCell"/>, six, four, three, two or one month around the current one. A cell
-    /// that holds a caption line carries its day number (and a weekday row when that still does);
-    /// a smaller one is a square, filled when the day has something.
-    /// </summary>
-    public static YearFit Year(double width, double height, double gap)
-    {
-        var title = FamilyType.Caption.LineHeight;
-        var line = FamilyType.Caption.LineHeight;
-        var digits = FamilyType.EstimateWidth(FamilyType.Caption, 2);
-
-        foreach (var (months, shapes) in YearSteps)
-        {
-            YearFit? best = null;
-            foreach (var (columns, rows) in shapes)
-            {
-                var miniWidth = (Math.Max(0, width) - ((columns - 1) * gap)) / columns;
-                var miniHeight = ((Math.Max(0, height) - ((rows - 1) * gap)) / rows) - title;
-                var across = miniWidth / 7;
-
-                // Richest first: numbers under a weekday row, numbers alone, squares.
-                var withWeekdays = Math.Min(across, miniHeight / 7);
-                var plain = Math.Min(across, miniHeight / 6);
-                var fit = withWeekdays >= line && across >= digits ? new YearFit(months, columns, rows, withWeekdays, true, true)
-                    : plain >= line && across >= digits ? new YearFit(months, columns, rows, plain, true, false)
-                    : new YearFit(months, columns, rows, plain, false, false);
-
-                if (best is null || Better(fit, best))
-                {
-                    best = fit;
-                }
-            }
-
-            if (best is not null && best.DayCell >= MinYearCell)
-            {
-                return best;
-            }
-        }
-
-        return new YearFit(1, 1, 1, MinYearCell, false, false);
-
-        static bool Better(YearFit a, YearFit b)
-            => a.Numbers != b.Numbers ? a.Numbers : a.Weekdays != b.Weekdays ? a.Weekdays : a.DayCell > b.DayCell + 0.01;
-    }
 
     /// <summary>
     /// [S-2707] The first of the months a year shows: January for all twelve, else the window of
@@ -699,47 +506,8 @@ public static class CalendarFit
 
     // ---- the day's all-day band ([S-2718]) ---------------------------------------------------------
 
-    /// <summary>[S-2718] At most this many span bars over a day's timeline; the rest share the last line.</summary>
-    public const int DayBandMaxBars = 3;
-
-    /// <summary>[S-2718] The timeline under the band keeps at least this many hours.</summary>
-    public const int DayBandKeepsHours = 3;
-
     /// <summary>[S-2718] A span bar: a body line with room around it, so it reads as a bar, not a chip.</summary>
     public static double DayBar => FamilyType.Body.LineHeight + 8;
-
-    /// <summary>
-    /// [S-2718] The day's all-day band for <paramref name="items"/> all-day and multi-day items over a
-    /// slot of <paramref name="height"/>: one full-width bar per item, as many as fit (up to three)
-    /// while the timeline keeps <see cref="DayBandKeepsHours"/> hours; when items are left over, the
-    /// last line is shared among them ([S-2706]). A box too short for one bar falls back to that one
-    /// shared chip line over an hour; too short even for that, no band (the items are on the hover).
-    /// </summary>
-    public static DayBandFit DayBand(double height, int items)
-    {
-        if (items <= 0)
-        {
-            return new DayBandFit(0, 0, false);
-        }
-
-        var room = new Disclosure(1, height);
-        room.Reserve(DayBandKeepsHours * MinHour);
-
-        var bars = 0;
-        while (bars < Math.Min(items, DayBandMaxBars) && room.Take(DayBar))
-        {
-            bars++;
-        }
-
-        if (bars > 0)
-        {
-            return new DayBandFit(bars, DayBar, bars < items);
-        }
-
-        var chips = new Disclosure(1, height);
-        chips.Reserve(MinHour);
-        return chips.Take(ChipLine) ? new DayBandFit(1, ChipLine, true) : new DayBandFit(0, 0, false);
-    }
 
     // ---- keys ([S-2710]) ---------------------------------------------------------------------------
 

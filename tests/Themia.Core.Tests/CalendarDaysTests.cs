@@ -103,15 +103,6 @@ public sealed class CalendarDaysTests
     }
 
     [Fact]
-    public void S2719_fewer_days_give_each_column_more_width()
-    {
-        Assert.False(CalendarFit.Week(480, 200, 7).Detail);
-        Assert.True(CalendarFit.Week(480, 200, 4).Detail);
-        Assert.True(CalendarFit.Week(480, 200, 7).Marks);
-        Assert.False(CalendarFit.Week(480, 200, 4).Marks);
-    }
-
-    [Fact]
     public void S2719_a_period_holds_its_lengths_inside_their_ranges()
     {
         Assert.Equal(14, new CalendarPeriod(WeekStartDay.Monday, 40).Days);
@@ -209,30 +200,4 @@ public sealed class CalendarDaysTests
 
     // ---- [S-2718] the day's span bars --------------------------------------------------------------
 
-    [Fact]
-    public void S2718_a_roomy_day_gives_each_all_day_item_its_own_bar()
-    {
-        var keep = CalendarFit.DayBandKeepsHours * CalendarFit.MinHour;
-        Assert.Equal(new DayBandFit(0, 0, false), CalendarFit.DayBand(400, 0));
-        Assert.Equal(new DayBandFit(2, CalendarFit.DayBar, false), CalendarFit.DayBand(400, 2));
-        Assert.Equal(new DayBandFit(1, CalendarFit.DayBar, false), CalendarFit.DayBand(keep + CalendarFit.DayBar, 1));
-    }
-
-    [Fact]
-    public void S2718_items_past_the_bars_share_the_last_line()
-    {
-        Assert.Equal(new DayBandFit(3, CalendarFit.DayBar, true), CalendarFit.DayBand(600, 5));
-
-        // Room for two bars over the hours kept: one own bar, then the rest share the second line.
-        var keep = CalendarFit.DayBandKeepsHours * CalendarFit.MinHour;
-        Assert.Equal(new DayBandFit(2, CalendarFit.DayBar, true), CalendarFit.DayBand(keep + (2 * CalendarFit.DayBar), 4));
-    }
-
-    [Fact]
-    public void S2718_a_short_day_falls_back_to_one_shared_chip_line_then_to_none()
-    {
-        var keep = CalendarFit.DayBandKeepsHours * CalendarFit.MinHour;
-        Assert.Equal(new DayBandFit(1, CalendarFit.ChipLine, true), CalendarFit.DayBand(keep + CalendarFit.DayBar - 2, 2));
-        Assert.Equal(new DayBandFit(0, 0, false), CalendarFit.DayBand(CalendarFit.MinHour, 2));
-    }
 }

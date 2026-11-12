@@ -10,9 +10,8 @@ using Themia.Widget.Calendar;
 namespace Themia.App.Widgets;
 
 /// <summary>
-/// [S-571] / [S-2709] The agenda: what is coming up, grouped by day, in pages of the rows that fit
-/// whole — a small tile shows a couple of rows, a large one two columns of them — paged with the
-/// header's arrows and the keys rather than scrolled. The rows are the kit's (<see cref="KitList"/>,
+/// [S-571] / [S-2709] [S-11540] The agenda: what is coming up, grouped by day, in pages of the config's
+/// rows (one column, its lines), paged with the header's arrows and the keys rather than scrolled. The rows are the kit's (<see cref="KitList"/>,
 /// the schedule look on pages with day groups, [S-7035], [S-7036]); what an item says is
 /// <see cref="AgendaSpec"/>'s.
 /// </summary>
@@ -80,7 +79,8 @@ internal sealed partial class CalendarView
         }
 
         var area = new Themia.Core.Widgets.WidgetArea(width, height);
-        var plan = KitLadder.Plan(area, AgendaSpec.Spec, KitShow.None);
+        // [S-11540] The config's rows and lines at every size: the height was made for them.
+        var plan = KitLadder.Plan(area, AgendaSpec.Spec, new KitChoices(KitShow.None) { Rows = Themia.Widget.Calendar.CalendarSizing.AgendaShown(_config) });
         _rowsTop.Height = 0;
         _agenda.Visibility = Visibility.Visible;
         _agenda.Page = _agendaPage;

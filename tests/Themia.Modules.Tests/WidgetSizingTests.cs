@@ -21,7 +21,7 @@ public sealed class WidgetSizingTests
     /// </summary>
     private static readonly string[] Legacy =
     [
-        "calendar",
+
     ];
 
     public static TheoryData<string> Kinds() => [.. ModuleRegistry.WidgetIds];

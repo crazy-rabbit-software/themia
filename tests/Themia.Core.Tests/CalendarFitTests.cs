@@ -25,62 +25,6 @@ public sealed class CalendarFitTests
     // ---- [S-2702] month ----------------------------------------------------------------------------
 
     // The tiers' month boxes: the card less its 16 inset either side, the header and the bottom inset.
-    [Theory]
-    [InlineData(88, 60, WeekdayLabel.None, MonthDensity.Number, 0, 3)]       // XS: the weeks that fit
-    [InlineData(168, 90, WeekdayLabel.None, MonthDensity.Number, 0, 5)]      // S: every week, no header
-    [InlineData(288, 136, WeekdayLabel.Initials, MonthDensity.Dots, 0, 5)]   // M
-    [InlineData(448, 56, WeekdayLabel.None, MonthDensity.Number, 0, 3)]      // Wide
-    [InlineData(168, 340, WeekdayLabel.Initials, MonthDensity.Dots, 0, 5)]   // Tall: cells too narrow for words
-    [InlineData(528, 316, WeekdayLabel.Short, MonthDensity.Chips, 2, 5)]     // L
-    [InlineData(768, 456, WeekdayLabel.Short, MonthDensity.Chips, 3, 5)]     // XL
-    public void S2702_AMonthShedsWithinItself(double width, double height, WeekdayLabel weekdays, MonthDensity density, int chips, int rows)
-    {
-        var fit = CalendarFit.Month(width, height, rows: 5, focusRow: 4);
-
-        Assert.Equal(rows, fit.Rows);
-        Assert.Equal(weekdays, fit.Weekdays);
-        Assert.Equal(density, fit.Density);
-        Assert.Equal(chips, fit.ChipLines);
-        Assert.Equal(height, fit.HeaderHeight + (fit.Rows * fit.CellHeight), 6);
-        Assert.True(fit.CellHeight >= FamilyType.Caption.LineHeight, "a number's Caption line is never squeezed");
-    }
-
-    [Fact]
-    public void S2702_a_box_too_short_for_every_week_keeps_the_focused_one_among_those_it_shows()
-    {
-        Assert.Equal(2, CalendarFit.Month(88, 60, rows: 5, focusRow: 4).FirstRow);   // rows 2..4
-        Assert.Equal(0, CalendarFit.Month(88, 60, rows: 5, focusRow: 0).FirstRow);
-        Assert.Equal(1, CalendarFit.Month(88, 60, rows: 5, focusRow: 2).FirstRow);   // centred: 1..3
-        Assert.Equal(0, CalendarFit.Month(288, 136, rows: 5, focusRow: 4).FirstRow);
-    }
-
-    [Fact]
-    public void S2702_a_column_too_narrow_for_two_digits_holds_no_day_grid()
-    {
-        Assert.False(CalendarFit.HoldsDays(88 / 7.0));    // XS: the day as a Readout
-        Assert.True(CalendarFit.HoldsDays(168 / 7.0));    // S
-        Assert.True(CalendarFit.HoldsDays(168 / 4.0));    // a four-day week on S
-    }
-
-    [Fact]
-    public void S2702_ChipTimesFromWideCellsAndWeekdayLettersByColumn()
-    {
-        Assert.True(CalendarFit.Month(768, 456, 5).Times);
-        Assert.False(CalendarFit.Month(528, 316, 5).Times);
-        Assert.Equal(WeekdayLabel.Narrow, CalendarFit.Weekdays(15));
-        Assert.Equal(WeekdayLabel.None, CalendarFit.Weekdays(8));
-        Assert.True(CalendarFit.Month(448, 56, 5).InlineDots);   // Wide: dots beside the numbers
-        Assert.False(CalendarFit.Month(168, 90, 5).InlineDots);  // S: too narrow
-        Assert.False(CalendarFit.Month(288, 136, 5).InlineDots);
-    }
-
-    [Theory]
-    [InlineData(2026, 10, WeekStartDay.Monday, 5)]  // Thu 1st .. Sat 31st
-    [InlineData(2026, 3, WeekStartDay.Monday, 6)]   // Sun 1st, Monday weeks: six rows
-    [InlineData(2026, 2, WeekStartDay.Sunday, 4)]   // Sun 1st .. Sat 28th: exactly four
-    [InlineData(2026, 8, WeekStartDay.Sunday, 6)]   // Sat 1st .. Mon 31st
-    public void S1264_AMonthNeedsOnlyTheWeeksHoldingItsDays(int year, int month, WeekStartDay start, int rows)
-        => Assert.Equal(rows, CalendarFit.MonthRows(new DateOnly(year, month, 15), start));
 
     // ---- [S-2703] bars -----------------------------------------------------------------------------
 
@@ -129,33 +73,6 @@ public sealed class CalendarFitTests
 
     // ---- [S-2704] week -----------------------------------------------------------------------------
 
-    [Theory]
-    [InlineData(800, 524, true, false, WeekdayLabel.Short)]
-    [InlineData(560, 384, false, true, WeekdayLabel.Short)]    // 80 a column: marks, no hour grid
-    [InlineData(320, 204, false, true, WeekdayLabel.Initials)]
-    [InlineData(200, 364, false, true, WeekdayLabel.Initials)]
-    [InlineData(120, 84, false, true, WeekdayLabel.Narrow)]
-    [InlineData(40, 76, false, true, WeekdayLabel.Narrow)]  // never without its day
-    public void S2704_AWeekIsAnHourGridOnALargeTileElseColumns(double width, double height, bool timeline, bool marks, WeekdayLabel weekdays)
-    {
-        var fit = CalendarFit.Week(width, height, 7);
-        Assert.Equal(timeline, fit.Timeline);
-        Assert.Equal(marks, fit.Marks);
-        Assert.Equal(weekdays, fit.Weekdays);
-    }
-
-    [Theory]
-    [InlineData(7 * 55, true)]
-    [InlineData(7 * 95.9, true)]
-    [InlineData(7 * 96, false)]
-    [InlineData(7 * 130, false)]
-    public void S2281_a_column_under_96_holds_marks_and_from_96_titles(double width, bool marks)
-    {
-        Assert.Equal(marks, CalendarFit.Week(width, 600, 7).Marks);
-        Assert.Equal(marks, CalendarFit.Week(width * 2, 600, 14).Marks);   // the column decides, not the card
-        Assert.False(CalendarFit.Week(width, 600, 7).Timeline && marks);
-    }
-
     [Fact]
     public void S2282_a_day_shows_three_marks_at_most_and_the_rest_as_plus_n()
     {
@@ -171,30 +88,6 @@ public sealed class CalendarFitTests
     }
 
     [Fact]
-    public void S2283_the_strip_comes_first_and_the_rows_take_whole_rows_of_what_is_left()
-    {
-        var marks = CalendarFit.MarksHeight([3]);
-        var strip = FamilyType.Caption.LineHeight + FamilyType.BodyStrong.LineHeight + FamilySpace.S1 + marks;
-
-        var tall = CalendarFit.Strip(400, marks, 1);
-        Assert.True(tall.Weekdays && tall.Marks);
-        Assert.Equal(strip, tall.Height, 6);
-        Assert.Equal(RowRules.Fit(400 - FamilySpace.Inset - strip - FamilySpace.S2, 1), tall.Rows);
-        Assert.Equal(RowRules.Fit(400 - FamilySpace.Inset - strip - FamilySpace.S2, 2), CalendarFit.Strip(400, marks, 2).Rows);
-
-        // One row short: only the strip.
-        var justStrip = CalendarFit.Strip(FamilySpace.Inset + strip + FamilySpace.S2 + FamilyShape.Row1 - 1, marks, 1);
-        Assert.True(justStrip.Marks);
-        Assert.Equal(0, justStrip.Rows);
-        Assert.Equal(1, CalendarFit.Strip(FamilySpace.Inset + strip + FamilySpace.S2 + FamilyShape.Row1, marks, 1).Rows);
-
-        // A week with no events: no marks, the rows start under the numbers.
-        var empty = CalendarFit.Strip(400, 0, 1);
-        Assert.False(empty.Marks);
-        Assert.Equal(strip - marks, empty.Height, 6);
-    }
-
-    [Fact]
     public void S2284_the_chosen_day_is_the_selection_in_the_week_else_today_else_the_first_day()
     {
         var first = new DateOnly(2026, 11, 8);
@@ -207,26 +100,6 @@ public sealed class CalendarFitTests
     }
 
     // ---- [S-2705] hours ----------------------------------------------------------------------------
-
-    [Fact]
-    public void S2705_TheWholeDayFillsTheBoxAndATallOneShowsMoreHours()
-    {
-        Assert.Equal(new HourWindow(7, 15, 40), CalendarFit.Hours(600, 24, 0, 9));
-
-        var tall = CalendarFit.Hours(900, 24, 0, 9);
-        Assert.Equal((3, 19), (tall.First, tall.Count));
-        Assert.True(tall.HourHeight <= CalendarFit.MaxHour);
-        Assert.Equal(900, tall.HourHeight * tall.Count, 6);
-    }
-
-    [Fact]
-    public void S2705_AShortBoxShowsFewerHoursAroundTheFocus()
-    {
-        Assert.Equal(new HourWindow(13, 5, 20), CalendarFit.Hours(100, 24, 0, 14));
-        Assert.Equal(7, CalendarFit.Hours(100, 24, 0, 6).First);   // never before the day it wants
-        Assert.Equal(17, CalendarFit.Hours(100, 24, 0, 23).First); // nor past it
-        Assert.Equal(5, CalendarFit.Hours(600, 5, 7, 6).First);    // an early meeting widens the day
-    }
 
     [Fact]
     public void S2705_EventHoursAndTheFocusFollowTheDaysEvents()
@@ -261,21 +134,6 @@ public sealed class CalendarFitTests
     }
 
     // ---- [S-2707] year -----------------------------------------------------------------------------
-
-    [Theory]
-    [InlineData(800, 524, 12, 4, 3, true, true)]   // XL
-    [InlineData(560, 384, 12, 4, 3, true, false)]  // L
-    [InlineData(320, 204, 12, 4, 3, false, false)] // M: squares
-    [InlineData(480, 124, 12, 6, 2, false, false)] // Wide
-    [InlineData(200, 364, 12, 3, 4, false, false)] // Tall
-    [InlineData(200, 114, 6, 3, 2, false, false)]  // S: half a year
-    [InlineData(120, 84, 3, 3, 1, false, false)]   // XS: three months
-    public void S2707_AYearReflowsByShapeAndShowsFewerMonthsWhenTiny(double width, double height, int months, int columns, int rows, bool numbers, bool weekdays)
-    {
-        var fit = CalendarFit.Year(width, height, gap: 8);
-        Assert.Equal((months, columns, rows, numbers, weekdays), (fit.Months, fit.Columns, fit.Rows, fit.Numbers, fit.Weekdays));
-        Assert.True(fit.DayCell >= CalendarFit.MinYearCell);
-    }
 
     [Theory]
     [InlineData(10, 12, 1)]
