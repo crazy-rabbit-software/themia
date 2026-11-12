@@ -35,6 +35,27 @@ internal static class WidgetCatalog
             [.. definition.Providers.Select(p => p.Value)]);
     }
 
+    /// <summary>
+    /// [S-2473] What the search matches a ready-made group on: its name, what it is about, the names of
+    /// the widgets it places and its subject, in the current language and in English.
+    /// </summary>
+    public static WidgetSearchDoc SearchDoc(ReadyMadeGroup group)
+    {
+        ArgumentNullException.ThrowIfNull(group);
+
+        var locale = Strings.Current;
+        var kinds = group.Widgets
+            .Select(w => WidgetId.TryParse(w.Kind, out var id) && ModuleCatalog.TryGet(id, out var descriptor) ? descriptor : null)
+            .OfType<WidgetDescriptor>()
+            .ToList();
+        return new WidgetSearchDoc(
+            "group:" + group.Id,
+            Both(locale, group.Name),
+            null,
+            [.. Both(locale, group.About), .. kinds.SelectMany(k => Both(locale, k.Label))],
+            [.. Both(locale, Str.Groups_Add_ReadyMade)]);
+    }
+
     /// <summary>The text in <paramref name="locale"/>, then in English when that differs; the first is the shown one.</summary>
     private static string[] Both(Locale locale, Str id) => Both(Strings.Get(locale, id), Strings.Get(Locale.En, id));
 

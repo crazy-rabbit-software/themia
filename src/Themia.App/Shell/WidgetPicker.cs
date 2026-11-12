@@ -64,9 +64,15 @@ internal sealed partial class WidgetPicker : Grid
     /// The search index, built once per language: the catalogue does not change while the app runs,
     /// but its names do when the language does ([S-1109]). UI thread only.
     /// </summary>
-    private static (Locale Locale, (IndexedWidget Index, AddHome Home)[] Entries)? _searchIndex;
+    private static (Locale Locale, (IndexedWidget Index, Found Hit)[] Entries)? _searchIndex;
+
+    /// <summary>[S-2473] What a search found: a widget at its home, or a ready-made group.</summary>
+    private sealed record Found(AddHome? Home, ReadyMadeGroup? ReadyMade);
 
     private readonly Action<WidgetDescriptor> _pick;
+
+    /// <summary>[S-2473] Runs when a ready-made group is chosen; null where they are only shown (a render).</summary>
+    private readonly Action<ReadyMadeGroup>? _pickReadyMade;
 
     /// <summary>[S-5523] Runs when an unplaced desktop item is chosen; null where none is offered.</summary>
     private readonly Action<Themia.Sdk.DesktopItem>? _pickItem;
@@ -88,7 +94,7 @@ internal sealed partial class WidgetPicker : Grid
     /// <summary>The columns drawn, the top ones then each open submenu, each its row buttons (null for a line) by row.</summary>
     private readonly List<Drawn> _columns = [];
 
-    private readonly List<(Button Button, WidgetId Kind)> _hits = [];
+    private readonly List<(Button Button, Action Pick)> _hits = [];
 
     private readonly DispatcherQueueTimer? _hover;
     private AddSpot? _hovered;
@@ -105,12 +111,15 @@ internal sealed partial class WidgetPicker : Grid
     /// <param name="room">The work area in DIPs, in the coordinates of the window's content: the submenus stay inside it.</param>
     /// <param name="desktopItems">[S-5523] The view's unplaced desktop items: "On the desktop" lists them.</param>
     /// <param name="pickItem">[S-5523] Runs when one of them is chosen.</param>
-    public WidgetPicker(Action<WidgetDescriptor> pick, Action close, PixelRect room, IReadOnlyList<Themia.Sdk.DesktopItem>? desktopItems = null, Action<Themia.Sdk.DesktopItem>? pickItem = null)
+    /// <param name="pickReadyMade">[S-2473] Runs when a ready-made group is chosen.</param>
+    public WidgetPicker(Action<WidgetDescriptor> pick, Action close, PixelRect room, IReadOnlyList<Themia.Sdk.DesktopItem>? desktopItems = null,
+        Action<Themia.Sdk.DesktopItem>? pickItem = null, Action<ReadyMadeGroup>? pickReadyMade = null)
     {
         _pick = pick;
         _close = close;
         _room = room;
         _pickItem = pickItem;
+        _pickReadyMade = pickReadyMade;
         _menu = AddTree.On([.. ModuleCatalog.Widgets.Select(definition => definition.Id)]);
 
         // [S-5523] The item kind's row is the view's unplaced items, or nothing.
@@ -118,6 +127,9 @@ internal sealed partial class WidgetPicker : Grid
         {
             _menu = AddTree.WithDesktopItems(_menu, itemKind.Id, desktopItems ?? [], Str.Desktop_Add_Folder.Local());
         }
+
+        // [S-2473] The ready-made groups first, above (before) the widgets.
+        _menu = AddTree.WithReadyMade(_menu, ReadyMadeGroups.Offered());
 
         RowSpacing = Fluent.Space3;
         RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
@@ -232,7 +244,7 @@ internal sealed partial class WidgetPicker : Grid
     private static double RowsHeight(IReadOnlyList<AddRow> rows, int count)
         => rows.Take(count).Sum(row => row is AddRule ? RuleHeight : LineHeight);
 
-    private static (IndexedWidget Index, AddHome Home)[] SearchIndex(IReadOnlyList<AddColumn> menu)
+    private static (IndexedWidget Index, Found Hit)[] SearchIndex(IReadOnlyList<AddColumn> menu)
     {
         var locale = Strings.Current;
         if (_searchIndex is { } built && built.Locale == locale)
@@ -240,9 +252,14 @@ internal sealed partial class WidgetPicker : Grid
             return built.Entries;
         }
 
-        // [S-3513] Each widget once, at its home, its folders' names searched too.
-        (IndexedWidget, AddHome)[] entries =
-            [.. AddTree.Homes(menu).Select(home => (WidgetSearch.Index(WidgetCatalog.SearchDoc(ModuleCatalog.Of(home.Kind), home.Path)), home))];
+        // [S-3513] Each widget once, at its home, its folders' names searched too; [S-2473] and each
+        // ready-made group, by its name, what it is about and the widgets it holds.
+        (IndexedWidget, Found)[] entries =
+        [
+            .. menu.SelectMany(column => column.Rows).OfType<AddReadyMade>()
+                .Select(row => (WidgetSearch.Index(WidgetCatalog.SearchDoc(row.Group)), new Found(null, row.Group))),
+            .. AddTree.Homes(menu).Select(home => (WidgetSearch.Index(WidgetCatalog.SearchDoc(ModuleCatalog.Of(home.Kind), home.Path)), new Found(home, null))),
+        ];
         _searchIndex = (locale, entries);
         return entries;
     }
@@ -409,10 +426,13 @@ internal sealed partial class WidgetPicker : Grid
             AddFolder folder => (ModuleCatalog.Of(folder.Shelf.Icon).Glyph, folder.Shelf.Title.Text(), (string?)null),
             AddPick pick => (ModuleCatalog.Of(pick.Kind).Glyph, ModuleCatalog.Of(pick.Kind).Name, ModuleCatalog.Of(pick.Kind).Describe()),
             AddDesktopItem desktop => (ItemGlyph(desktop.Item.Kind), desktop.Item.Name, (string?)null),
+            AddReadyMade ready => (ready.Group.Glyph, ready.Group.Name.Text(), ready.Group.About.Text()),
             _ => (string.Empty, string.Empty, null),
         };
 
-        var button = RowButton(glyph, label, help, row is AddFolder, LineHeight, path: null);
+        // [S-2473] A ready-made group's row says how many widgets it places.
+        var count = row is AddReadyMade made ? Str.Groups_Add_Count.Plural(made.Group.Widgets.Count) : null;
+        var button = RowButton(glyph, label, help, row is AddFolder, LineHeight, path: null, trailing: count);
         button.PointerEntered += (_, _) => OnHover(spot);
         button.PointerExited += (_, _) => OnHoverLeft(spot);
         button.Click += (_, _) => OnRowClicked(spot);
@@ -420,7 +440,7 @@ internal sealed partial class WidgetPicker : Grid
     }
 
     /// <summary>The shape every row of the menu shares: icon, name (and where it lives, for a result), a folder's chevron.</summary>
-    private static Button RowButton(string glyph, string label, string? help, bool folder, double height, string? path)
+    private static Button RowButton(string glyph, string label, string? help, bool folder, double height, string? path, string? trailing = null)
     {
         var name = Fluent.Text(FamilyType.Body);
         name.Text = label;
@@ -457,6 +477,14 @@ internal sealed partial class WidgetPicker : Grid
             SetColumn(chevron, 2);
             content.Children.Add(chevron);
         }
+        else if (trailing is not null)
+        {
+            var aside = Fluent.Text(FamilyType.Caption, "TextFillColorSecondaryBrush");
+            aside.Text = trailing;
+            aside.VerticalAlignment = VerticalAlignment.Center;
+            SetColumn(aside, 2);
+            content.Children.Add(aside);
+        }
 
         var button = new Button
         {
@@ -479,7 +507,12 @@ internal sealed partial class WidgetPicker : Grid
             AutomationProperties.SetHelpText(button, help);
         }
 
-        AutomationProperties.SetName(button, path is null ? label : $"{label}, {path}");
+        AutomationProperties.SetName(button, (path, trailing) switch
+        {
+            (null, null) => label,
+            (null, { } more) => $"{label}, {more}",
+            ({ } where, _) => $"{label}, {where}",
+        });
         return button;
     }
 
@@ -497,6 +530,12 @@ internal sealed partial class WidgetPicker : Grid
         if (spot.Column < columns.Count && spot.Row < columns[spot.Column].Count && columns[spot.Column][spot.Row] is AddDesktopItem desktop)
         {
             PickItem(desktop.Item);
+            return;
+        }
+
+        if (spot.Column < columns.Count && spot.Row < columns[spot.Column].Count && columns[spot.Column][spot.Row] is AddReadyMade readyMade)
+        {
+            PickReadyMade(readyMade.Group);
             return;
         }
 
@@ -616,7 +655,7 @@ internal sealed partial class WidgetPicker : Grid
             return;
         }
 
-        var ranked = WidgetSearch.Rank(SearchIndex(_menu).Select(entry => (entry.Index, entry.Home)), query);
+        var ranked = WidgetSearch.Rank(SearchIndex(_menu).Select(entry => (entry.Index, entry.Hit)), query);
         if (ranked.Count == 0)
         {
             _none.Text = Str.Shell_Picker_NoMatch.Format(("query", query.Trim()));
@@ -624,15 +663,27 @@ internal sealed partial class WidgetPicker : Grid
             return;
         }
 
-        foreach (var home in ranked)
+        foreach (var hit in ranked)
         {
+            if (hit.ReadyMade is { } group)
+            {
+                // [S-2473] A ready-made group lives under "Ready-made", and says how many widgets it places.
+                var where = $"{Str.Groups_Add_ReadyMade.Text()} · {Str.Groups_Add_Count.Plural(group.Widgets.Count)}";
+                var row = RowButton(group.Glyph, group.Name.Text(), group.About.Text(), folder: false, ResultHeight, where);
+                row.Click += (_, _) => PickReadyMade(group);
+                _resultRows.Children.Add(row);
+                _hits.Add((row, () => PickReadyMade(group)));
+                continue;
+            }
+
+            var home = hit.Home!;
             var definition = ModuleCatalog.Of(home.Kind);
             var path = string.Join(" › ", home.Path.Select(shelf => shelf.Title.Text()));
             var button = RowButton(definition.Glyph, definition.Name, definition.Describe(), folder: false, ResultHeight, path);
             var kind = home.Kind;
             button.Click += (_, _) => Pick(kind);
             _resultRows.Children.Add(button);
-            _hits.Add((button, kind));
+            _hits.Add((button, () => Pick(kind)));
         }
 
         LightHit();
@@ -677,7 +728,7 @@ internal sealed partial class WidgetPicker : Grid
             case VirtualKey.Enter:
                 if (HitTarget() is { } target)
                 {
-                    Pick(_hits[target].Kind);
+                    _hits[target].Pick();
                 }
 
                 return true;
@@ -718,6 +769,9 @@ internal sealed partial class WidgetPicker : Grid
                 return false;
             case AddMenuAction.Pick when step.Item is { } item:
                 PickItem(item);
+                return true;
+            case AddMenuAction.Pick when step.ReadyMade is { } readyMade:
+                PickReadyMade(readyMade);
                 return true;
             case AddMenuAction.Pick:
                 Pick(step.Kind);
@@ -774,6 +828,19 @@ internal sealed partial class WidgetPicker : Grid
         catch (Exception ex)
         {
             Log.Error(Scope, "picking a desktop item failed", ex);
+        }
+    }
+
+    private void PickReadyMade(ReadyMadeGroup group)
+    {
+        try
+        {
+            _hover?.Stop();
+            _pickReadyMade?.Invoke(group);
+        }
+        catch (Exception ex)
+        {
+            Log.Error(Scope, $"picking the ready-made group {group.Id} failed", ex);
         }
     }
 

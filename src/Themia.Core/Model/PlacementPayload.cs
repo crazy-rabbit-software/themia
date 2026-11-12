@@ -81,8 +81,12 @@ public sealed class PlacementPayload
     private readonly double _newWidthPx;
     private readonly double _newHeightPx;
 
-    private PlacementPayload(PlacementMode mode, WidgetId? kind, List<WidgetInstance> widgets, List<string> roots, double widthPx, double heightPx, List<WidgetGroup>? groups = null)
+    /// <summary>[S-2471] The ready-made group a <see cref="PlacementMode.Create"/> payload places, or null.</summary>
+    private readonly ReadyMadeGroup? _readyMade;
+
+    private PlacementPayload(PlacementMode mode, WidgetId? kind, List<WidgetInstance> widgets, List<string> roots, double widthPx, double heightPx, List<WidgetGroup>? groups = null, ReadyMadeGroup? readyMade = null)
     {
+        _readyMade = readyMade;
         Mode = mode;
         NewKind = kind;
         _widgets = widgets;
@@ -96,6 +100,9 @@ public sealed class PlacementPayload
 
     /// <summary>The kind a <see cref="PlacementMode.Create"/> payload makes; null otherwise.</summary>
     public WidgetId? NewKind { get; }
+
+    /// <summary>[S-2471] The ready-made group a <see cref="PlacementMode.Create"/> payload places; null otherwise.</summary>
+    public ReadyMadeGroup? ReadyMade => _readyMade;
 
     /// <summary>
     /// [S-77] The widget the pointer holds, for a drag handed to another display: its centre goes to
@@ -113,12 +120,12 @@ public sealed class PlacementPayload
     public IReadOnlyList<string> RootIds => _roots;
 
     /// <summary>How many widgets the user picked: one for a new widget, otherwise the snapshots.</summary>
-    public int Count => Mode == PlacementMode.Create ? 1 : _roots.Count;
+    public int Count => _readyMade is { } recipe ? recipe.Widgets.Count : Mode == PlacementMode.Create ? 1 : _roots.Count;
 
     /// <summary>[S-1065] How many widgets starting this session would create, for the gate before the ghost appears.</summary>
     public int Creates => Mode switch
     {
-        PlacementMode.Create => 1,
+        PlacementMode.Create => _readyMade?.Widgets.Count ?? 1,
         PlacementMode.Copy => _widgets.Count,
         _ => 0,
     };
@@ -128,6 +135,16 @@ public sealed class PlacementPayload
 
     /// <summary>Whether a widget is one of the originals this payload was taken from.</summary>
     public bool Holds(string? id) => id is not null && _widgets.Exists(w => string.Equals(w.Id, id, StringComparison.Ordinal));
+
+    /// <summary>
+    /// [S-2471] A ready-made group: every one of its widgets new, as one block at the boxes the recipe
+    /// gives them, landing as one new group named after it. One placement, one undo step.
+    /// </summary>
+    public static PlacementPayload ForReadyMade(ReadyMadeGroup recipe)
+    {
+        ArgumentNullException.ThrowIfNull(recipe);
+        return new(PlacementMode.Create, null, [], [], 0, 0, readyMade: recipe);
+    }
 
     /// <summary>[S-421] A new widget of <paramref name="kind"/> at its default size in pixels.</summary>
     public static PlacementPayload ForNew(WidgetId kind, double widthPx, double heightPx)
@@ -192,6 +209,12 @@ public sealed class PlacementPayload
             return [new GhostOutline(BlockGeometry.Apply(rect, delta, screen), kind)];
         }
 
+        if (_readyMade is { } recipe)
+        {
+            var (boxes, delta) = ReadyMadeLayout(recipe, xFrac, yFrac, screen, snapEnabled);
+            return [.. recipe.Widgets.Select((w, i) => new GhostOutline(BlockGeometry.Apply(boxes[i], delta, screen), new WidgetId(w.Kind)))];
+        }
+
         var (drawn, at) = Layout(xFrac, yFrac, screen, snapEnabled);
         return [.. drawn.Select(w => new GhostOutline(BlockGeometry.Apply(w.Rect, at, screen), w.Kind))];
     }
@@ -208,6 +231,23 @@ public sealed class PlacementPayload
             var (rect, delta) = NewLayout(xFrac, yFrac, screen, snapEnabled);
             var widget = WidgetInstance.Create(kind, BlockGeometry.Apply(rect, delta, screen));
             return new PastePlan([widget], [widget.Id], []);
+        }
+
+        if (_readyMade is { } recipe)
+        {
+            // [S-2471] Built where the ghost was: each widget's rect is its box moved by the block's translation.
+            var (_, delta) = ReadyMadeLayout(recipe, xFrac, yFrac, screen, snapEnabled);
+            if (ReadyMadeGroups.Build(recipe, screen) is not var (widgets, group))
+            {
+                return new PastePlan([], [], []);
+            }
+
+            foreach (var widget in widgets)
+            {
+                widget.Rect = BlockGeometry.Apply(widget.Rect, delta, screen);
+            }
+
+            return new PastePlan(widgets, [.. widgets.Select(w => w.Id)], []) { Groups = [group] };
         }
 
         var (_, at) = Layout(xFrac, yFrac, screen, snapEnabled);
@@ -242,6 +282,13 @@ public sealed class PlacementPayload
         var rects = _widgets.Select(w => w.Rect).ToList();
         var anchor = AnchorId is not null && Find(AnchorId) is { } held ? held.Rect : BlockGeometry.Bounds(rects);
         return (_widgets, BlockGeometry.PlaceAt(rects, anchor, xFrac, yFrac, screen, snapEnabled));
+    }
+
+    /// <summary>[S-2471] A ready-made group: its boxes on this display, the block's translation for the point.</summary>
+    private static (List<FracRect> Boxes, BlockGeometry.Delta At) ReadyMadeLayout(ReadyMadeGroup recipe, double xFrac, double yFrac, ScreenMetrics screen, bool snapEnabled)
+    {
+        var boxes = recipe.Widgets.Select(w => ReadyMadeGroups.Rect(w.Box, screen)).ToList();
+        return (boxes, BlockGeometry.PlaceAt(boxes, BlockGeometry.Bounds(boxes), xFrac, yFrac, screen, snapEnabled));
     }
 
     /// <summary>[S-11] A new widget: its default size on this display (snapped when the aid is on), centred on the point.</summary>

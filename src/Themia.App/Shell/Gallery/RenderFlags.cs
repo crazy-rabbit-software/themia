@@ -31,6 +31,7 @@ internal static class RenderFlags
         "--clock-style-check",
         DesktopRender.Flag,
         SceneRender.Flag,
+        SceneRender.RecipeFlag,
     ];
 }
 #endif

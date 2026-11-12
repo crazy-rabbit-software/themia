@@ -51,6 +51,9 @@ Themia.exe --layout-editor-png <out.png> [waitMs] [--empty]
 Themia.exe --add-showcase-views [<statePath>]   # one view per widget kind at the 7 sizes; quit Themia first
 Themia.exe --scene-png <scenes.json> <scene> <out.png> [--scale <n>]   # a store scene: a whole desktop of widgets
            # to one PNG of exactly screen × scale px (default 2) [S-1074]; store/capture.ps1 draws every scene of store/scenes.json
+           # a scene widget may carry "group": "<name>"; the "edit" block "group": "<name>" or "enter": "<widget id>" [S-2458]
+Themia.exe --recipe-png <id> <out.png> [--states kind=state,..] [--scale <n>]   # a ready-made group placed, as a scene:
+           # edit mode, the new group selected; a widget given no state shows its "sample" preview [S-2475]
 Any render: [--lang <code>]   # any of the forty (en, de, … zh-Hant, … my)
 ```
 

@@ -36,7 +36,8 @@ public enum AddMenuAction
 
 /// <summary>The menu after a key, and what to do.</summary>
 /// <param name="Item">[S-5523] A desktop item's row was picked: its widget is placed, preset to it.</param>
-public readonly record struct AddMenuStep(AddMenuNav Nav, AddMenuAction Action, WidgetId Kind = default, DesktopItem? Item = null);
+/// <param name="ReadyMade">[S-2473] A ready-made group's row was picked: its widgets are placed as one group.</param>
+public readonly record struct AddMenuStep(AddMenuNav Nav, AddMenuAction Action, WidgetId Kind = default, DesktopItem? Item = null, ReadyMadeGroup? ReadyMade = null);
 
 /// <summary>
 /// [S-3514] The add menu's tree walked, pure, so the dropdown is a drawing of what these return:
@@ -156,6 +157,9 @@ public static class AddMenuKeys
 
             case WidgetKey.Enter or WidgetKey.Space when row is AddDesktopItem desktopItem:
                 return new AddMenuStep(nav, AddMenuAction.Pick, Item: desktopItem.Item);
+
+            case WidgetKey.Enter or WidgetKey.Space when row is AddReadyMade readyMade:
+                return new AddMenuStep(nav, AddMenuAction.Pick, ReadyMade: readyMade.Group);
 
             case WidgetKey.Right when isTop && cursor.Column + 1 < top.Count:
                 return Moved(Across(top, nav, cursor, cursor.Column + 1));

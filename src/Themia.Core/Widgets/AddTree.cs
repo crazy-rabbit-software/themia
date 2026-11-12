@@ -35,6 +35,9 @@ public sealed record AddRule : AddRow;
 /// <summary>[S-5523] A row that places the widget of one desktop item, preset to it.</summary>
 public sealed record AddDesktopItem(DesktopItem Item) : AddRow;
 
+/// <summary>[S-2473] A row that places a ready-made group: its glyph, its name and how many widgets it holds.</summary>
+public sealed record AddReadyMade(ReadyMadeGroup Group) : AddRow;
+
 /// <summary>One of the menu's top columns: its heading's shelf and its rows.</summary>
 public sealed record AddColumn(AddShelf Shelf, IReadOnlyList<AddRow> Rows);
 
@@ -253,6 +256,25 @@ public static class AddTree
         }
 
         return [.. columns.Select(column => column with { Rows = Tidy(Swap(column.Rows)) }).Where(column => column.Rows.Count > 0)];
+    }
+
+    /// <summary>
+    /// [S-2473] The menu with the ready-made groups as its first column, "Ready-made", before the
+    /// widgets' columns: one row each, in <paramref name="groups"/>' order. None, no column.
+    /// </summary>
+    public static IReadOnlyList<AddColumn> WithReadyMade(IReadOnlyList<AddColumn> columns, IReadOnlyList<ReadyMadeGroup> groups)
+    {
+        ArgumentNullException.ThrowIfNull(columns);
+        ArgumentNullException.ThrowIfNull(groups);
+
+        if (groups.Count == 0)
+        {
+            return columns;
+        }
+
+        var icon = WidgetId.TryParse(groups[0].Widgets[0].Kind, out var first) ? first : columns[0].Shelf.Icon;
+        var shelf = new AddShelf(AddFolderId.ReadyMade, Str.Groups_Add_ReadyMade.Local(), icon, []);
+        return [new AddColumn(shelf, [.. groups.Select(g => (AddRow)new AddReadyMade(g))]), .. columns];
     }
 
     /// <summary>

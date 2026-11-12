@@ -3012,3 +3012,40 @@ family has no token for, the shell's alone (the guard fails on a module or a blo
 
 The card's fault and waiting states and the Set up row are the Status block ([S-6714]); a notice's
 severity is the accent, Caution or Critical (no success green).
+
+## 17. Ready-made groups (recipes)
+
+A ready-made group is data: several widgets of kinds that exist, placed touching (so they draw as
+one panel) and locked together as a group under the recipe's name (SPEC [S-2450], [S-2470]..[S-2475]).
+The add menu lists them in its first column, "Ready-made", and its search finds them with the widgets.
+
+**Adding one** is two edits, no code:
+
+1. An entry in `ReadyMadeGroups.All` (`src/Themia.Core/Model/ReadyMadeGroups.cs`):
+
+   ```csharp
+   public static ReadyMadeGroup Focus { get; } = new("focus", Str.Groups_Recipe_Focus, Str.Groups_Recipe_FocusAbout, Glyphs.Timer, AddFolderId.Notes,
+   [
+       new("clock", new(0, 0, 300, 140), Config: """{ "showDate": false }"""),
+       new("pomodoro", new(0, 140, 300, 200)),
+       new("tasks", new(0, 340, 300, 320)),
+   ]);
+
+   public static IReadOnlyList<ReadyMadeGroup> All { get; } = [ThisPc, MyDay, Weather, Focus];
+   ```
+
+   A widget is `ReadyMadeWidget(Kind, Box, Config?, Header?, Label?)`: the kind's widget id (as the
+   add menu and the first-run seed name it), its box in DIPs from the group's top-left corner, and only
+   what differs from the kind's defaults: a config fragment in the state file's shape (merged over the
+   default property by property), a header placement, a title. A place, an account or a folder is left
+   to the widget's own Set up, as on the first-run desktop: never someone else's town.
+2. Its name and a one-line description in `src/Themia.Sdk/Localization/Locales/groups/en.json`, keys
+   listed under `$englishOnly` until they are translated.
+
+`ReadyMadeGroupsTests` (tests/Themia.Modules.Tests) then holds it to the rules: every kind installed,
+every config property one the kind has, two widgets or more, no boxes overlapping, every widget
+touching another, the whole within a 1280 × 720 work area. Look at it placed with
+`Themia.exe --recipe-png <id> <out.png> [--states kind=state,..]` (Debug): a widget given no state shows
+its "sample" preview where it has one.
+
+Adding one counts against the free limit as adding its widgets one by one would ([S-1065]): all or nothing.

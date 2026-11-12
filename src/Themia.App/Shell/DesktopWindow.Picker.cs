@@ -62,7 +62,7 @@ internal sealed partial class DesktopWindow
         {
             var area = Metrics.IsUsable ? GridGeometry.AllowedPixels(Metrics) : new PixelRect(0, 0, 1280, 720);
             flyout.Content = new WidgetPicker(definition => OnPicked(flyout, definition), flyout.Hide, area,
-                _host.UnplacedDesktopItems(CurrentViewId), item => OnPickedItem(flyout, item));
+                _host.UnplacedDesktopItems(CurrentViewId), item => OnPickedItem(flyout, item), group => OnPickedReadyMade(flyout, group));
         };
 
         // [S-3514] Typing searches at once: the caret is in the box as soon as the picker is open.
@@ -75,6 +75,13 @@ internal sealed partial class DesktopWindow
     {
         flyout.Hide();
         _host.BeginPlacement(definition.Id);
+    }
+
+    /// <summary>[S-2471] A ready-made group was chosen: its widgets are placed together, one click, one new group.</summary>
+    private void OnPickedReadyMade(Flyout flyout, ReadyMadeGroup group)
+    {
+        flyout.Hide();
+        _host.BeginPlacement(PlacementPayload.ForReadyMade(group));
     }
 
     /// <summary>[S-5523] An unplaced desktop item was chosen: its widget is placed like any widget.</summary>
@@ -311,6 +318,12 @@ internal sealed partial class DesktopWindow
     /// <summary>What the click will do, in words: "Click to place Clock", "Click to move 3 widgets".</summary>
     private static string PlacementVerb(PlacementPayload payload)
     {
+        // [S-2471] A ready-made group is placed by its name, as one widget is.
+        if (payload.ReadyMade is { } group)
+        {
+            return Str.Shell_Place_PlaceOne.Format(("name", group.Name.Text()));
+        }
+
         if (payload.SingleKind is { } kind)
         {
             var name = ModuleCatalog.Of(kind).Name;

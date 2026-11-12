@@ -36,6 +36,11 @@ internal static class SceneRender
 {
     public const string Flag = "--scene-png";
 
+    /// <summary>[S-2475] A ready-made group placed, drawn as a scene of its own: <c>--recipe-png &lt;id&gt; &lt;out.png&gt;</c>.</summary>
+    public const string RecipeFlag = "--recipe-png";
+
+    private const string RecipeUsage = $"usage: {RecipeFlag} <id> <out.png> [--states kind=state,..] [--lang <code>] [--scale <n>]";
+
     private const string Scope = "scene-render";
     private const string Usage = $"usage: {Flag} <scenes.json> <scene> <out.png> [--lang <code>] [--scale <n>]";
 
@@ -62,7 +67,7 @@ internal static class SceneRender
 
     public static bool TryRunFromCommandLine(Application app, string[] args)
     {
-        if (Array.IndexOf(args, Flag) < 0)
+        if (Array.IndexOf(args, Flag) < 0 && Array.IndexOf(args, RecipeFlag) < 0)
         {
             return false;
         }
@@ -117,7 +122,8 @@ internal static class SceneRender
     }
 
     /// <summary>What a run draws, every part checked before a window opens.</summary>
-    private sealed record Job(SceneFile File, Scene Scene, IReadOnlyList<(SceneWidget Spec, WidgetInstance Model)> Widgets, string? Wallpaper, string OutPath, double Scale)
+    /// <param name="SampleWhereOffered">[S-2475] A widget given no state shows its view's "sample" state where it has one (a ready-made group's picture).</param>
+    private sealed record Job(SceneFile File, Scene Scene, IReadOnlyList<(SceneWidget Spec, WidgetInstance Model)> Widgets, string? Wallpaper, string OutPath, double Scale, bool SampleWhereOffered = false)
     {
         /// <summary>[S-2210] The sample picture painted as the wallpaper, or null.</summary>
         public string? SampleWallpaper => Scene.SampleWallpaper;
@@ -127,6 +133,11 @@ internal static class SceneRender
     private static Job? Read(string[] args, out string? problem)
     {
         problem = null;
+        if (Array.IndexOf(args, RecipeFlag) >= 0)
+        {
+            return ReadRecipe(args, out problem);
+        }
+
         var at = Array.IndexOf(args, Flag);
         if (at < 0 || at + 3 >= args.Length || args[(at + 1)..(at + 4)].Any(a => a.StartsWith("--", StringComparison.Ordinal)))
         {
@@ -166,6 +177,59 @@ internal static class SceneRender
             return null;
         }
 
+        return Finish(file, scene, path, args[at + 3], scale, sampleWhereOffered: false, out problem);
+    }
+
+    /// <summary>
+    /// [S-2475] <c>--recipe-png</c>: the ready-made group as it lands, a scene of its own (ReadyMadeScene):
+    /// on a sample wallpaper in edit mode, the new group selected. <c>--states</c> gives a kind a preview
+    /// state; a kind given none shows its "sample" state where it has one.
+    /// </summary>
+    private static Job? ReadRecipe(string[] args, out string? problem)
+    {
+        problem = null;
+        var at = Array.IndexOf(args, RecipeFlag);
+        if (at + 2 >= args.Length || args[(at + 1)..(at + 3)].Any(a => a.StartsWith("--", StringComparison.Ordinal)))
+        {
+            problem = RecipeUsage;
+            return null;
+        }
+
+        if (ReadyMadeGroups.Find(args[at + 1]) is not { } recipe)
+        {
+            problem = $"no ready-made group \"{args[at + 1]}\" (has: {string.Join(", ", ReadyMadeGroups.All.Select(r => r.Id))})";
+            return null;
+        }
+
+        var scale = DefaultScale;
+        if (Option(args, "--scale") is { } scaleText
+            && !(double.TryParse(scaleText, NumberStyles.Float, CultureInfo.InvariantCulture, out scale) && double.IsFinite(scale) && scale is >= 0.5 and <= 4))
+        {
+            problem = $"--scale {scaleText}: a number of pixels per DIP from 0.5 to 4";
+            return null;
+        }
+
+        var states = new Dictionary<string, string>(StringComparer.Ordinal);
+        foreach (var pair in (Option(args, "--states") ?? string.Empty).Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
+        {
+            var parts = pair.Split('=', 2, StringSplitOptions.TrimEntries);
+            if (parts.Length != 2 || parts[0].Length == 0 || parts[1].Length == 0)
+            {
+                problem = $"--states {pair}: kind=state, as tasks=tasks";
+                return null;
+            }
+
+            states[parts[0]] = parts[1];
+        }
+
+        var file = ReadyMadeScene.Of(recipe, states);
+        return Finish(file, file.Scenes[0], Path.Combine(Environment.CurrentDirectory, "recipe.json"), args[at + 2], scale, sampleWhereOffered: true, out problem);
+    }
+
+    /// <summary>The scene's widgets built and its wallpaper found: the job, or null and why.</summary>
+    private static Job? Finish(SceneFile file, Scene scene, string path, string outPath, double scale, bool sampleWhereOffered, out string? problem)
+    {
+        problem = null;
         var widgets = new List<(SceneWidget, WidgetInstance)>();
         foreach (var spec in scene.Widgets)
         {
@@ -196,7 +260,7 @@ internal static class SceneRender
             }
         }
 
-        return new Job(file, scene, widgets, wallpaper, Path.GetFullPath(args[at + 3]), scale);
+        return new Job(file, scene, widgets, wallpaper, Path.GetFullPath(outPath), scale, sampleWhereOffered);
     }
 
     private static async Task<int> DrawAsync(Window window, Ticker ticker, Job job, List<WidgetCard> cards)
@@ -395,12 +459,17 @@ internal static class SceneRender
         for (var i = 0; i < cards.Count; i++)
         {
             var (spec, _) = job.Widgets[i];
-            if (spec.State is not { } state)
+            var card = cards[i];
+
+            // [S-2475] A ready-made group's picture: a widget given no state shows its sample where it has one.
+            var sample = job.SampleWhereOffered && card.View is IWidgetPreviewState offered && offered.PreviewStates.Contains("sample", StringComparer.Ordinal)
+                ? "sample"
+                : null;
+            if ((spec.State ?? sample) is not { } state)
             {
                 continue;
             }
 
-            var card = cards[i];
             if (card.View is not IWidgetPreviewState preview)
             {
                 Console.WriteLine($"scene: {spec.Path}.state: {spec.Kind} has no preview states");
