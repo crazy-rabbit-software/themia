@@ -47,10 +47,18 @@ public static class KitPages
         return Math.Max(1, count);
     }
 
-    /// <summary>[S-2709] Whether row <paramref name="i"/> of a column starting at <paramref name="start"/> has its group's heading over it.</summary>
+    /// <summary>
+    /// [S-2709] Whether row <paramref name="i"/> of a column starting at <paramref name="start"/> has its
+    /// group's heading over it. [S-2280] A row in no group (an empty key) has none: there is nothing to name.
+    /// </summary>
     public static bool HeadingBefore(IReadOnlyList<string> groups, int start, int i, bool firstHeading)
     {
         ArgumentNullException.ThrowIfNull(groups);
+        if (groups[i].Length == 0)
+        {
+            return false;
+        }
+
         return i == start ? firstHeading : !string.Equals(groups[i], groups[i - 1], StringComparison.Ordinal);
     }
 

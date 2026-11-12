@@ -40,6 +40,17 @@ public sealed class KitPagesTests
         Assert.Equal([0, 3], KitPages.Pages(keys, 1, 200, 32, 44, firstHeading: true));
     }
 
+    [Fact]
+    public void S2280_rows_in_no_group_have_no_heading_and_fill_the_column()
+    {
+        IReadOnlyList<string> keys = ["", "", "", ""];
+        Assert.False(KitPages.HeadingBefore(keys, 0, 0, firstHeading: true));
+        Assert.False(KitPages.HeadingBefore(keys, 2, 2, firstHeading: true));
+        Assert.Equal(3, KitPages.Fit(keys, 0, 140, 32, 44, firstHeading: true));
+        Assert.Equal(3 * 44, KitPages.ColumnHeight(keys, 0, 3, 32, 44, firstHeading: true));
+        Assert.Equal([0, 3], KitPages.Pages(keys, 1, 140, 32, 44, firstHeading: true));
+    }
+
     private static readonly KitSpec Schedule = new(KitRowLook.Schedule, KitShow.None, () => string.Empty, () => string.Empty, Overflow: KitOverflow.Page);
 
     [Theory]

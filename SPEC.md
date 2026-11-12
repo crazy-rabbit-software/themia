@@ -1386,6 +1386,9 @@ The shared parts a list widget is built from, and the rules they keep (design an
   a column that starts mid-group; on a tile under 128px a first group that is today drops its
   heading ([S-1267]); at least one row per column, so paging always moves. The widget turns the page
   (`KitList.Page`); the cursor takes the page with it.
+- **[S-2280]** An item in no group (`KitItem.Group` null) has no heading over it, on a page's first
+  row or a column's: its rows are the column's whole height (the week's chosen day, under its
+  strip, which names the day already).
 - **[S-7036]** The `Schedule` look (the agenda's): a Row block per item, its calendar's colour as a
   2 px bar at the lead's start (a data colour, [S-6705]; the item's lead glyph when it has no
   calendar), the title as the name, the start as the value ("All day"; "Now" BodyStrong while under
