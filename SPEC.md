@@ -4744,9 +4744,10 @@ partial per layout), `CalendarData.cs` (the data seam), `ContactsView.cs`.
   one day.
 - **[S-2704]** Week (`CalendarFit.Week`): its day columns ([S-2719]; the widths below are a column's)
   under weekday and number (never without one letter of the weekday); a band of bars (up to two lines, three on the hour grid, always leaving a line for
-  the body); then, from 64 px columns and 280 px tall (L, XL), an hour grid with each day's timed
-  events in overlap lanes; else each column's timed events as chips (time over title from 64 px,
-  title alone from 40 px), then "+N"; under 40 px one dot per event and a muted one for the rest.
+  the body); then, 280 px tall, an hour grid with each day's timed events in overlap lanes; else each
+  column's timed events as chips (time over title), then "+N". All of this from 96 px columns only:
+  narrower, a column holds marks and the chosen day's events are rows under the week (the widget's
+  SPEC, [S-2281]..[S-2285]).
 - **[S-2705]** Hours (`CalendarFit.Hours`): the day wanted is 07–22, widened to every timed event of
   the day(s) drawn. When it fits at ≥20 px an hour it is drawn whole, a tall box widening it toward
   midnight rather than stretch an hour past 48 px; else as many whole hours as fit, starting an hour

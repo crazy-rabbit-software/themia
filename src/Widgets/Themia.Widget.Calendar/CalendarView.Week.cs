@@ -13,14 +13,16 @@ using Themia.Core.Widgets;
 using Themia.Sdk.Kit;
 using Themia.Sdk.WinUI;
 using Themia.Sdk.WinUI.Kit;
+using Themia.Widget.Calendar;
 
 namespace Themia.App.Widgets;
 
 /// <summary>
 /// [S-561] / [S-2704] The week: its day columns (seven, or the widget's own count from the week's
-/// first day or from today, [S-2719]) under their weekday and number, a band of bars for all-day and
-/// multi-day events and birthdays ([S-2703]), then on a large tile an hour grid, on a smaller one
-/// each day's timed events as a list (dots in a narrow column).
+/// first day or from today, [S-2719]) under their weekday and number. Columns wide enough for titles
+/// carry a band of bars for all-day and multi-day events and birthdays ([S-2703]), then on a large
+/// tile an hour grid, on a smaller one each day's timed events as chips. [S-2281] Narrower columns
+/// carry marks, and the chosen day's events are the agenda's rows under the week.
 /// </summary>
 internal sealed partial class CalendarView
 {
@@ -31,9 +33,6 @@ internal sealed partial class CalendarView
 
     /// <summary>A day timeline narrower than this writes its hours as "07".</summary>
     private const double HourLabelsLongFrom = 160;
-
-    /// <summary>A bar in a column too narrow for words: a coloured line.</summary>
-    private const double ThinBar = FamilyShape.Track;
 
     private void DrawWeek(double width, double height)
     {
@@ -47,9 +46,18 @@ internal sealed partial class CalendarView
         var fit = CalendarFit.Week(inner.Width, inner.Height, days);
         if (!CalendarFit.HoldsDays(inner.Width / Math.Max(1, days)))
         {
+            HideAgenda();
             DrawDayReadout(width, height);
             return;
         }
+
+        if (fit.Marks)
+        {
+            DrawWeekMarks(width, height, start, days, fit);
+            return;
+        }
+
+        HideAgenda();
 
         var gutter = fit.Timeline ? HourLabelWidth : 0;
         var columnWidth = Math.Max(0, (inner.Width - gutter) / days);
@@ -60,7 +68,7 @@ internal sealed partial class CalendarView
         var weekdays = room.Fits(FamilyType.Caption.LineHeight + (2 * FamilyType.Caption.LineHeight)) && room.Take(FamilyType.Caption.LineHeight);
 
         var bars = CalendarFit.Bars(_events, _birthdays, start, days, zone, singleTimed: false);
-        var barLine = fit.Dots ? ThinBar + FamilySpace.S1 : CalendarFit.ChipLine;
+        var barLine = CalendarFit.ChipLine;
         var wantedLines = Math.Min(CalendarFit.LaneCount(bars), fit.Timeline ? 3 : 2);
 
         // Keep a line of the body for the timed events: the band never takes the whole column.
@@ -106,11 +114,6 @@ internal sealed partial class CalendarView
                 .Where(e => !e.AllDay && !CalendarFit.IsMultiDay(e, zone))];
 
             var header = WeekHeader(day, day == today, weekdays ? fit.Weekdays : WeekdayLabel.None);
-            var items = CalendarRules.DayItems(_events, _birthdays, day, zone);
-            if (items.Count > 0)
-            {
-                ToolTipService.SetToolTip(header, DayTooltip(day, items));
-            }
 
             // [S-3620] The selected day's head is underlined; a click on a head selects its day.
             if (_selected == day)
@@ -119,13 +122,7 @@ internal sealed partial class CalendarView
                 header.BorderBrush = Accent();
             }
 
-            // [S-2004] The click is the widget's own: it never reaches the card.
-            header.Tapped += (_, args) =>
-            {
-                args.Handled = true;
-                ToggleDay(day);
-            };
-            WidgetItems.Mark(header); // [S-814]
+            ChoosesDay(header, day, CalendarRules.DayItems(_events, _birthdays, day, zone));
 
 
             SetColumn(header, first + c);
@@ -135,7 +132,7 @@ internal sealed partial class CalendarView
         // [S-2703] The band: one bar per all-day or multi-day event and birthday, across its days.
         foreach (var bar in bars.Where(b => b.Lane < bandLines))
         {
-            var chip = fit.Dots ? ThinBarOf(bar, showColors) : MonthChip(bar, showColors, times: false);
+            var chip = MonthChip(bar, showColors, times: false);
             chip.VerticalAlignment = VerticalAlignment.Top;
             SetRow(chip, 1 + bar.Lane);
             SetColumn(chip, first + bar.First);
@@ -152,9 +149,7 @@ internal sealed partial class CalendarView
             for (var c = 0; c < days; c++)
             {
                 var hiddenBars = CalendarFit.Hidden(bars, c, bandLines);
-                var column = fit.Dots
-                    ? WeekDots(timedByDay[c], hiddenBars, bodyHeight, showColors)
-                    : WeekList(timedByDay[c], hiddenBars, bodyHeight, columnWidth, showColors, fit.Detail);
+                var column = WeekList(timedByDay[c], hiddenBars, bodyHeight, columnWidth, showColors, fit.Detail);
                 SetRow(column, body);
                 SetColumn(column, c);
                 grid.Children.Add(column);
@@ -162,6 +157,148 @@ internal sealed partial class CalendarView
         }
 
         _content.Children.Add(grid);
+    }
+
+    /// <summary>
+    /// [S-2281] The narrow week: each column's head over its marks ([S-2282]), the chosen day's head on
+    /// the selection fill ([S-2284]), and under the strip the chosen day's events as the agenda's rows
+    /// ([S-2285]), as many whole ones as the height left holds ([S-2283]).
+    /// </summary>
+    private void DrawWeekMarks(double width, double height, DateOnly start, int days, WeekFit fit)
+    {
+        var zone = TimeZoneInfo.Local;
+        var today = Today;
+        var showColors = ShowColors;
+        var chosen = CalendarFit.ChosenDay(_selected, start, days, today);
+        var byDay = new IReadOnlyList<DayItem>[days];
+        for (var c = 0; c < days; c++)
+        {
+            byDay[c] = CalendarRules.DayItems(_events, _birthdays, start.AddDays(c), zone);
+        }
+
+        var area = new WidgetArea(width, height);
+        var plan = KitLadder.Plan(area, AgendaSpec.Spec, KitShow.None);
+        var strip = CalendarFit.Strip(height, CalendarFit.MarksHeight(byDay.Select(d => d.Count)), plan.Lines);
+
+        // The strip, the family's gap, then the empty day's sentence: rows of the content, no margins.
+        _content.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
+        _content.RowDefinitions.Add(new RowDefinition { Height = new GridLength(FamilySpace.S2) });
+        _content.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
+
+        var grid = new Grid { Padding = new Thickness(FamilySpace.Inset, 0, FamilySpace.Inset, 0), VerticalAlignment = VerticalAlignment.Top };
+        grid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
+        grid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
+
+        for (var c = 0; c < days; c++)
+        {
+            grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+
+            var day = start.AddDays(c);
+            var header = WeekHeader(day, day == today, strip.Weekdays ? fit.Weekdays : WeekdayLabel.None);
+            if (day == chosen)
+            {
+                header.CornerRadius = Family.Radius;
+                ItemFill.Paint(header, ItemRole.Chip, ItemState.Selected);
+            }
+
+            ChoosesDay(header, day, byDay[c]);
+            SetColumn(header, c);
+            grid.Children.Add(header);
+
+            if (strip.Marks && byDay[c].Count > 0)
+            {
+                var marks = WeekMarks(byDay[c], showColors);
+                ChoosesDay(marks, day, byDay[c]);
+                SetRow(marks, 1);
+                SetColumn(marks, c);
+                grid.Children.Add(marks);
+            }
+        }
+
+        _content.Children.Add(grid);
+
+        if (strip.Rows == 0)
+        {
+            HideAgenda();
+            return;
+        }
+
+        var top = strip.Height + FamilySpace.S2;
+        var items = byDay[chosen.DayNumber - start.DayNumber];
+        if (items.Count == 0)
+        {
+            HideAgenda();
+
+            // [S-2285] A day with nothing says so in the Status block's row where the first row would be.
+            var none = new StatusBlock();
+            SetRow(none, 2);
+            none.Show(StatusKind.Empty, Themia.App.Shell.Glyphs.Calendar, (chosen == today ? CalendarStr.Calendar_NoEventsToday : CalendarStr.WidgetsA_Calendar_NoEvents).Text());
+            _content.Children.Add(none);
+            return;
+        }
+
+        var now = _clock();
+        Func<CalendarEvent, string>? mark = showColors ? MarkOf : null;
+        var rows = new List<KitItem>(items.Count);
+        _agendaItems.Clear();
+        foreach (var item in items)
+        {
+            var row = AgendaSpec.DayRow(item, chosen, now, mark);
+            _agendaItems[row.Id] = item;
+            rows.Add(row);
+        }
+
+        _rowsTop.Height = top;
+        _agenda.Visibility = Visibility.Visible;
+        _agenda.Page = 0;
+        _agenda.Show(rows, plan, new WidgetArea(width, Math.Max(0, height - top)), now);
+    }
+
+    /// <summary>[S-2284] A click on a day's head or marks chooses it (the selected day, [S-3620]); its hover lists the day.</summary>
+    private void ChoosesDay(FrameworkElement element, DateOnly day, IReadOnlyList<DayItem> items)
+    {
+        if (items.Count > 0)
+        {
+            ToolTipService.SetToolTip(element, DayTooltip(day, items));
+        }
+
+        // [S-2004] The click is the widget's own: it never reaches the card.
+        element.Tapped += (_, args) =>
+        {
+            args.Handled = true;
+            ToggleDay(day);
+        };
+        WidgetItems.Mark(element); // [S-814]
+    }
+
+    /// <summary>
+    /// [S-2282] A day's marks: a short round bar per item in its calendar's colour (a birthday's in the
+    /// tertiary role), the column's width less the family's gap either side, at most three, then "+n".
+    /// </summary>
+    private StackPanel WeekMarks(IReadOnlyList<DayItem> items, bool showColors)
+    {
+        var stack = new StackPanel { Spacing = FamilySpace.S1, Background = Family.Brush(ColourRole.Clear) };
+        var (shown, more) = CalendarFit.Marks(items.Count);
+        foreach (var item in items.Take(shown))
+        {
+            stack.Children.Add(new Border
+            {
+                Height = FamilyShape.Track,
+                CornerRadius = Family.Round(FamilyShape.Track, FamilyShape.Track),
+                Margin = new Thickness(FamilySpace.S1, 0, FamilySpace.S1, 0),
+                Background = MarkOf(item, showColors),
+            });
+        }
+
+        if (more > 0)
+        {
+            var rest = Family.Text(FamilyType.Caption, ColourRole.TextTertiary, LocaleFormat.Digits(Strings.Current, $"+{more.ToString(CultureInfo.InvariantCulture)}"));
+            rest.TextTrimming = TextTrimming.None;
+            rest.HorizontalAlignment = HorizontalAlignment.Center;
+            stack.Children.Add(rest);
+        }
+
+        return stack;
     }
 
     /// <summary>A column's head: the weekday (as much as fits) over the day number, today in the accent disc.</summary>
@@ -191,64 +328,13 @@ internal sealed partial class CalendarView
         return new Border { Child = header, Padding = new Thickness(0, 0, 0, FamilySpace.S1), Background = Family.Brush(ColourRole.Clear) };
     }
 
-    /// <summary>A bar with no room for words: its calendar's colour as a rounded line, the title on hover.</summary>
-    private Border ThinBarOf(LaneItem bar, bool showColors)
-    {
-        var line = new Border
-        {
-            Height = ThinBar,
-            CornerRadius = Family.Round(ThinBar, ThinBar),
-            Margin = new Thickness(bar.ContinuesBefore ? 0 : FamilySpace.S1, 0, bar.ContinuesAfter ? 0 : FamilySpace.S1, 0),
-            Background = MarkOf(bar.Item, showColors),
-        };
-
-        if (bar.Item.Event is { } e)
-        {
-            MakeOpenable(line, e);
-        }
-        else if (bar.Item.Birthday is { } b)
-        {
-            ToolTipService.SetToolTip(line, Str.WidgetsA_Calendar_BirthdayOf.Format(("name", b.Name)));
-        }
-
-        return line;
-    }
-
     /// <summary>
-    /// [S-2704] A narrow column: one dot per timed event, stacked, as many as fit, then a muted dot
-    /// for the rest (and for bars the band had no line for).
-    /// </summary>
-    private StackPanel WeekDots(IReadOnlyList<CalendarEvent> timed, int hiddenBars, double height, bool showColors)
-    {
-        var stack = new StackPanel { Spacing = FamilySpace.S1, HorizontalAlignment = HorizontalAlignment.Center, Margin = new Thickness(0, FamilySpace.S1, 0, 0) };
-        var fits = Disclosure.WholeRows(height - FamilySpace.S1, CalendarFit.Dot, FamilySpace.S1);
-        var more = timed.Count + hiddenBars > fits;
-        var shown = Math.Max(0, more ? fits - 1 : fits);
-
-        foreach (var e in timed.Take(shown))
-        {
-            var dot = Dot(showColors ? ColorOf(e) : Accent());
-            ToolTipService.SetToolTip(dot, Describe(e));
-            stack.Children.Add(dot);
-        }
-
-        if (more && fits > 0)
-        {
-            stack.Children.Add(Dot(Family.Brush(ColourRole.TextTertiary)));
-        }
-
-        return stack;
-    }
-
-    /// <summary>
-    /// [S-2704] A column's timed events as chips: the start time over the title from 64 px columns
-    /// (start–end and the place under it from 100 px, [S-1265]), the title alone in a narrower one;
-    /// as many as fit whole, then "+N". [S-2717] The room left under them gives long titles a second line.
+    /// [S-2704] A column's timed events as chips: the start time over the title (start–end and the
+    /// place under it from 100 px, [S-1265]); as many as fit whole, then "+N". [S-2717] The room left under them gives long titles a second line.
     /// </summary>
     private StackPanel WeekList(IReadOnlyList<CalendarEvent> timed, int hiddenBars, double height, double columnWidth, bool showColors, bool detail)
     {
         var column = new StackPanel { Spacing = FamilySpace.S1 };
-        var stacked = columnWidth >= CalendarFit.WeekdayNamesFrom;
         var line = FamilyType.Caption.LineHeight;
         var room = new Disclosure(columnWidth, height, gap: FamilySpace.S1);
         var shown = 0;
@@ -257,7 +343,7 @@ internal sealed partial class CalendarView
         for (var i = 0; i < timed.Count; i++)
         {
             var e = timed[i];
-            var lines = stacked ? 2 + (detail && e.Location is not null ? 1 : 0) : 1;
+            var lines = 2 + (detail && e.Location is not null ? 1 : 0);
             var cost = (lines * line) + FamilySpace.S1;
 
             // Keep a line for "+N" when something will not fit.
@@ -267,7 +353,7 @@ internal sealed partial class CalendarView
                 break;
             }
 
-            var (chip, title) = WeekChip(e, showColors, stacked, detail);
+            var (chip, title) = WeekChip(e, showColors, detail);
             column.Children.Add(chip);
             titles.Add(title);
             shown++;
@@ -300,7 +386,7 @@ internal sealed partial class CalendarView
     /// [S-561] A timed chip: its start time above the title so the title keeps the column's width; a
     /// wide column ([S-1265]) shows the end time too and puts the place under the title.
     /// </summary>
-    private (Border Chip, TextBlock Title) WeekChip(CalendarEvent e, bool showColors, bool stacked, bool detail)
+    private (Border Chip, TextBlock Title) WeekChip(CalendarEvent e, bool showColors, bool detail)
     {
         var stack = new StackPanel();
         var chip = new Border
@@ -313,11 +399,8 @@ internal sealed partial class CalendarView
         };
         ItemFill.Paint(chip, ItemRole.Chip);
 
-        if (stacked)
-        {
-            var time = Family.Text(FamilyType.Caption, ColourRole.TextSecondary, detail && e.End > e.Start ? $"{Clock(e.Start)}–{Clock(e.End)}" : Clock(e.Start));
-            stack.Children.Add(time);
-        }
+        var time = Family.Text(FamilyType.Caption, ColourRole.TextSecondary, detail && e.End > e.Start ? $"{Clock(e.Start)}–{Clock(e.End)}" : Clock(e.Start));
+        stack.Children.Add(time);
 
         var title = Family.Text(FamilyType.Caption, ColourRole.TextPrimary, Title(e));
         stack.Children.Add(title);

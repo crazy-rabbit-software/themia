@@ -56,6 +56,13 @@ public static class AgendaSpec
                 Mark: mark?.Invoke(e)));
     }
 
+    /// <summary>
+    /// [S-2285] One of the narrow week's chosen day's rows: the agenda's row of the item on that day, in
+    /// no group, so the list names no day (the strip over it does).
+    /// </summary>
+    public static KitItem DayRow(DayItem item, DateOnly day, DateTimeOffset now, Func<CalendarEvent, string>? mark)
+        => Item(item, day, now, null, mark) with { Group = null };
+
     /// <summary>The action id the view carries out: it opens the event where it lives.</summary>
     public const string OpenId = "open";
 

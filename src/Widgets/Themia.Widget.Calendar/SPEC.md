@@ -14,7 +14,7 @@ context), `CalendarWidgetConfig.cs` (the style, the week's and agenda's own sett
 `CalendarMenu.cs` (its properties-menu lines: the SDK's calendar lines and the style's own), `Preview/` (Debug renders:
 `--state sample|selected|linked|days|stale|empty`), `Localization/Locales/` (its own `CalendarStr`, 30
 languages). Tests: the rules' are Core's; the config's are the module host's (`CalendarHostTests`,
-`OfficeConfigTests`); the agenda's items are `Tests/AgendaSpecTests.cs`; the menu's `Tests/CalendarMenuTests.cs`.
+`OfficeConfigTests`); the agenda's items (and the narrow week's rows) are `Tests/AgendaSpecTests.cs`; the week's fit is Core's `CalendarFitTests`; the menu's `Tests/CalendarMenuTests.cs`.
 
 - **[S-3650]** The agenda is the kit's paged list ([S-7035], [S-7036]): `AgendaSpec` gives its spec
   (the schedule look on the family's rows, two columns at most) and an agenda row as a kit item: its
@@ -56,9 +56,34 @@ languages). Tests: the rules' are Core's; the config's are the module host's (`C
 
 - **[S-1265]** Week columns ≥64 px spell the weekday; ≥100 px a timed chip shows start–end and its
   location under the title.
+- **[S-2281]** The week has two looks, chosen by the measured column width alone
+  (`CalendarFit.Week`, `Marks`, `WeekTitlesFrom` 96): from 96 a column holds its events' titles
+  (the band, chips or the hour grid, [S-2704]), nothing chosen and no rows under it; narrower, it holds
+  marks ([S-2282]) and the chosen day's events are rows under the week ([S-2285]). No tier name decides.
+- **[S-2282]** A narrow column's marks (`CalendarFit.Marks`, `MarksHeight`): under the day's number,
+  one per item of the day (birthdays, then all-day events, then timed ones by start, [S-570]), each a
+  round bar a track (`FamilyShape.Track`) high, the column's width less the family's 4 either side, 4
+  apart, in its calendar's colour (a birthday's tertiary, the accent with colours off); at most three,
+  then "+n" in Caption, tertiary. The head and its marks take the click that chooses the day and list
+  the day on hover. Today keeps the accent disc on its number.
+- **[S-2283]** The narrow week spends its height through one `Disclosure` (`CalendarFit.Strip`): the
+  strip first (the day numbers, the weekday line where it and the marks fit, the marks: the most a day
+  of the week shows, and a Caption line when a day has a "+n"), then 8, then the chosen day's rows,
+  whole rows only ([S-6712]); a card too short for one row under the strip shows the strip alone.
+- **[S-2284]** The chosen day (`CalendarFit.ChosenDay`) is the selected day ([S-3620]) while it is in
+  the week, else today while the week holds it, else the week's first day; its column head stands on
+  the selection fill (the item layer's selected chip). A click on a day's head or marks selects it (a
+  click on the selection lets it go, back to today), Up and Down move it a week ([S-1269]), Escape lets
+  it go, Enter opens its first event. The header's name and its two buttons page the week as before.
+- **[S-2285]** The chosen day's rows are the agenda's ([S-3650]: one row path, the view's one kit
+  list, `AgendaSpec.DayRow`): the calendar's colour bar as the lead (a birthday's gift), the title,
+  the start ("All day") as the value, the span, place and who on a second line where `RowRules.Lines`
+  gives two; in no group, so no day heading ([S-2280]); the first page's whole rows, the rest on the
+  day head's hover. A day with nothing says "No events today" (another day "No events") in the Status
+  block's row ([S-6714]).
 - **[S-1269]** Keys (classic S-31..34) reach `CalendarView.HandleKey(WidgetKey)` through the lease
   ([S-806]); the map is [S-2710]. Up/Down move the cursor day a week in the month (outlined) and the
-  week (its column head underlined); Escape lets it go. The cursor day is the selected day, shared
+  week (its column head underlined, or on the selection fill in a narrow week, [S-2284]); Escape lets it go. The cursor day is the selected day, shared
   with the view's other calendars and kept across pages ([S-3624]).
 - **[S-2700]** A calendar widget draws only its own layout (month, week, day, year or agenda: its
   style, [S-3640]), at every size. No size swaps it for another layout, adds an agenda beside a

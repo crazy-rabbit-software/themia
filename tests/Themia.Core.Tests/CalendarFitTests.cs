@@ -131,17 +131,79 @@ public sealed class CalendarFitTests
 
     [Theory]
     [InlineData(800, 516, true, false, WeekdayLabel.Short)]
-    [InlineData(560, 376, true, false, WeekdayLabel.Short)]
-    [InlineData(320, 196, false, false, WeekdayLabel.Initials)]
+    [InlineData(560, 376, false, true, WeekdayLabel.Short)]    // 80 a column: marks, no hour grid
+    [InlineData(320, 196, false, true, WeekdayLabel.Initials)]
     [InlineData(200, 356, false, true, WeekdayLabel.Initials)]
     [InlineData(120, 76, false, true, WeekdayLabel.Narrow)]
     [InlineData(40, 76, false, true, WeekdayLabel.Narrow)]  // never without its day
-    public void S2704_AWeekIsAnHourGridOnALargeTileElseColumns(double width, double height, bool timeline, bool dots, WeekdayLabel weekdays)
+    public void S2704_AWeekIsAnHourGridOnALargeTileElseColumns(double width, double height, bool timeline, bool marks, WeekdayLabel weekdays)
     {
         var fit = CalendarFit.Week(width, height, 7);
         Assert.Equal(timeline, fit.Timeline);
-        Assert.Equal(dots, fit.Dots);
+        Assert.Equal(marks, fit.Marks);
         Assert.Equal(weekdays, fit.Weekdays);
+    }
+
+    [Theory]
+    [InlineData(7 * 55, true)]
+    [InlineData(7 * 95.9, true)]
+    [InlineData(7 * 96, false)]
+    [InlineData(7 * 130, false)]
+    public void S2281_a_column_under_96_holds_marks_and_from_96_titles(double width, bool marks)
+    {
+        Assert.Equal(marks, CalendarFit.Week(width, 600, 7).Marks);
+        Assert.Equal(marks, CalendarFit.Week(width * 2, 600, 14).Marks);   // the column decides, not the card
+        Assert.False(CalendarFit.Week(width, 600, 7).Timeline && marks);
+    }
+
+    [Fact]
+    public void S2282_a_day_shows_three_marks_at_most_and_the_rest_as_plus_n()
+    {
+        Assert.Equal((0, 0), CalendarFit.Marks(0));
+        Assert.Equal((2, 0), CalendarFit.Marks(2));
+        Assert.Equal((3, 0), CalendarFit.Marks(3));
+        Assert.Equal((3, 5), CalendarFit.Marks(8));
+
+        Assert.Equal(0, CalendarFit.MarksHeight([0, 0, 0]));
+        Assert.Equal(FamilyShape.Track, CalendarFit.MarksHeight([1, 0]));
+        Assert.Equal((3 * FamilyShape.Track) + (2 * FamilySpace.S1), CalendarFit.MarksHeight([3, 1]));
+        Assert.Equal((3 * FamilyShape.Track) + (3 * FamilySpace.S1) + FamilyType.Caption.LineHeight, CalendarFit.MarksHeight([8, 1]));
+    }
+
+    [Fact]
+    public void S2283_the_strip_comes_first_and_the_rows_take_whole_rows_of_what_is_left()
+    {
+        var marks = CalendarFit.MarksHeight([3]);
+        var strip = FamilyType.Caption.LineHeight + FamilyType.BodyStrong.LineHeight + FamilySpace.S1 + marks;
+
+        var tall = CalendarFit.Strip(400, marks, 1);
+        Assert.True(tall.Weekdays && tall.Marks);
+        Assert.Equal(strip, tall.Height, 6);
+        Assert.Equal(RowRules.Fit(400 - FamilySpace.Inset - strip - FamilySpace.S2, 1), tall.Rows);
+        Assert.Equal(RowRules.Fit(400 - FamilySpace.Inset - strip - FamilySpace.S2, 2), CalendarFit.Strip(400, marks, 2).Rows);
+
+        // One row short: only the strip.
+        var justStrip = CalendarFit.Strip(FamilySpace.Inset + strip + FamilySpace.S2 + FamilyShape.Row1 - 1, marks, 1);
+        Assert.True(justStrip.Marks);
+        Assert.Equal(0, justStrip.Rows);
+        Assert.Equal(1, CalendarFit.Strip(FamilySpace.Inset + strip + FamilySpace.S2 + FamilyShape.Row1, marks, 1).Rows);
+
+        // A week with no events: no marks, the rows start under the numbers.
+        var empty = CalendarFit.Strip(400, 0, 1);
+        Assert.False(empty.Marks);
+        Assert.Equal(strip - marks, empty.Height, 6);
+    }
+
+    [Fact]
+    public void S2284_the_chosen_day_is_the_selection_in_the_week_else_today_else_the_first_day()
+    {
+        var first = new DateOnly(2026, 11, 8);
+        var today = new DateOnly(2026, 11, 12);
+        Assert.Equal(today, CalendarFit.ChosenDay(null, first, 7, today));
+        Assert.Equal(first.AddDays(1), CalendarFit.ChosenDay(first.AddDays(1), first, 7, today));
+        Assert.Equal(today, CalendarFit.ChosenDay(first.AddDays(7), first, 7, today));   // selected outside the week
+        Assert.Equal(first.AddDays(7), CalendarFit.ChosenDay(null, first.AddDays(7), 7, today));   // a week without today
+        Assert.Equal(first.AddDays(9), CalendarFit.ChosenDay(first.AddDays(9), first.AddDays(7), 7, today));
     }
 
     // ---- [S-2705] hours ----------------------------------------------------------------------------

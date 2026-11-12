@@ -107,8 +107,8 @@ public sealed class CalendarDaysTests
     {
         Assert.False(CalendarFit.Week(480, 200, 7).Detail);
         Assert.True(CalendarFit.Week(480, 200, 4).Detail);
-        Assert.True(CalendarFit.Week(150, 200, 14).Dots);
-        Assert.False(CalendarFit.Week(150, 200, 3).Dots);
+        Assert.True(CalendarFit.Week(480, 200, 7).Marks);
+        Assert.False(CalendarFit.Week(480, 200, 4).Marks);
     }
 
     [Fact]

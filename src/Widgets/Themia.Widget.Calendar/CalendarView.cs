@@ -99,7 +99,7 @@ internal sealed partial class CalendarView : Grid, IWidgetView, IWidgetOpens, IW
 
         _agenda = NewAgenda(host);
         Children.Add(_content);
-        Children.Add(_agenda);
+        Children.Add(RowsHost());
         Children.Add(_state);
     }
 
@@ -495,10 +495,16 @@ internal sealed partial class CalendarView : Grid, IWidgetView, IWidgetOpens, IW
         }
     }
 
-    /// <summary>[S-2710] Enter: the selected day's first event (the anchor's when none is on screen); the agenda's is its list's ([S-3652]).</summary>
+    /// <summary>
+    /// [S-2710] Enter: the selected day's first event (the anchor's when none is on screen; the week's
+    /// chosen day's, [S-2284]); the agenda's is its list's ([S-3652]).
+    /// </summary>
     private bool OpenFirst()
     {
-        var day = SelectedInView ? _selected!.Value : _anchor;
+        var (from, last) = Range();
+        var day = Layout == CalendarStyle.Week
+            ? CalendarFit.ChosenDay(_selected, from, last.DayNumber - from.DayNumber + 1, Today)
+            : SelectedInView ? _selected!.Value : _anchor;
         var first = CalendarRules.DayItems(_events, [], day, TimeZoneInfo.Local).Select(i => i.Event).FirstOrDefault();
 
         if (first is null)
@@ -541,7 +547,8 @@ internal sealed partial class CalendarView : Grid, IWidgetView, IWidgetOpens, IW
         ClearDrawing();
 
         var ready = _screen == Screen.Ready;
-        if (!ready || Layout != CalendarStyle.Agenda)
+        // The agenda and the narrow week ([S-2285]) draw their rows themselves; no other style has any.
+        if (!ready || Layout is not (CalendarStyle.Agenda or CalendarStyle.Week))
         {
             HideAgenda();
         }

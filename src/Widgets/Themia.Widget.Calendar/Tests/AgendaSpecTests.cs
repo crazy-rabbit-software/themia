@@ -44,6 +44,20 @@ public sealed class AgendaSpecTests
     }
 
     [Fact]
+    public void S2285_the_week_s_chosen_day_rows_are_the_agenda_s_rows_in_no_group()
+    {
+        var now = new DateTimeOffset(Today.ToDateTime(new TimeOnly(8, 0), DateTimeKind.Local));
+        var day = new DayItem(At(10, 60), null);
+        var agenda = AgendaSpec.Item(day, Today, now, null, _ => "#FF0000");
+        var row = AgendaSpec.DayRow(day, Today, now, _ => "#FF0000");
+
+        Assert.Null(row.Group);
+        Assert.Equal(agenda.Id, row.Id);
+        Assert.Equal(agenda.Title, row.Title);
+        Assert.Equal(agenda.Schedule, row.Schedule);
+    }
+
+    [Fact]
     public void S3650_a_birthday_has_its_gift_and_a_note_and_no_time()
     {
         var item = AgendaSpec.Item(new DayItem(null, new Birthday("Mia Chen", Today.Month, Today.Day, null)), Today, DateTimeOffset.Now, null, null);

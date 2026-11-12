@@ -64,8 +64,17 @@ public sealed record MonthFit(int Rows, WeekdayLabel Weekdays, double HeaderHeig
 /// </summary>
 public sealed record LaneItem(DayItem Item, int First, int Last, int Lane, bool ContinuesBefore, bool ContinuesAfter);
 
-/// <summary>[S-2704] What a week of a given box draws.</summary>
-public sealed record WeekFit(WeekdayLabel Weekdays, bool Timeline, bool Dots, bool Detail);
+/// <summary>
+/// [S-2704] What a week of a given box draws. [S-2281] <c>Marks</c>: its columns are too narrow for a
+/// title, so each day shows marks and the chosen day's events are rows under the week.
+/// </summary>
+public sealed record WeekFit(WeekdayLabel Weekdays, bool Timeline, bool Marks, bool Detail);
+
+/// <summary>
+/// [S-2283] The narrow week's strip and what is under it: whether the weekday line and the marks fit,
+/// the strip's height (from the view's top), and how many whole rows of the chosen day fit under it.
+/// </summary>
+public sealed record WeekStripFit(bool Weekdays, bool Marks, double Height, int Rows);
 
 /// <summary>[S-2705] The hours a timeline draws: the first, how many, and each one's height.</summary>
 public readonly record struct HourWindow(int First, int Count, double HourHeight)
@@ -305,20 +314,27 @@ public static class CalendarFit
     /// <summary>[S-2704] A week column this wide gives a timed chip its end time and its location.</summary>
     public const double WeekDetailFrom = 100;
 
-    /// <summary>[S-2704] Below this column width an event is a dot, not a chip with words.</summary>
-    public const double WeekChipsFrom = 40;
+    /// <summary>
+    /// [S-2281] A week column this wide holds its events' titles (chips, or the hour grid); a narrower
+    /// one holds marks, and the chosen day's events are rows under the week.
+    /// </summary>
+    public const double WeekTitlesFrom = 96;
 
-    /// <summary>[S-2704] The week is an hour grid from this slot height and column width; else a list per day.</summary>
+    /// <summary>[S-2704] The week is an hour grid from this slot height (its columns holding titles); else a list per day.</summary>
     public const double WeekTimelineFrom = 280;
 
+    /// <summary>[S-2282] A narrow week's day shows at most this many marks; the rest is "+n".</summary>
+    public const int WeekMarks = 3;
+
     /// <summary>
-    /// [S-2704] The week for a box: the hour grid on a large tile, else a list per column (dots when
-    /// narrow). [S-2719] <paramref name="days"/> columns share the width: fewer days, wider columns.
+    /// [S-2704] The week for a box: the hour grid on a large tile, else a list per column; [S-2281]
+    /// marks in a column under <see cref="WeekTitlesFrom"/>, decided by the measured column width alone.
+    /// [S-2719] <paramref name="days"/> columns share the width: fewer days, wider columns.
     /// </summary>
     public static WeekFit Week(double width, double height, int days)
     {
         var columnWidth = Math.Max(0, width) / Math.Max(1, days);
-        var timeline = columnWidth >= WeekdayNamesFrom && height >= WeekTimelineFrom;
+        var marks = columnWidth < WeekTitlesFrom;
 
         // A week column always says which day it is: one letter at the least, over its number.
         var labels = Weekdays(columnWidth);
@@ -327,7 +343,63 @@ public static class CalendarFit
             labels = WeekdayLabel.Narrow;
         }
 
-        return new WeekFit(labels, timeline, columnWidth < WeekChipsFrom, columnWidth >= WeekDetailFrom);
+        return new WeekFit(labels, !marks && height >= WeekTimelineFrom, marks, columnWidth >= WeekDetailFrom);
+    }
+
+    /// <summary>[S-2282] A day's marks: one per item up to <see cref="WeekMarks"/>, and how many are left for its "+n".</summary>
+    public static (int Shown, int More) Marks(int items)
+        => (Math.Clamp(items, 0, WeekMarks), Math.Max(0, items - WeekMarks));
+
+    /// <summary>
+    /// [S-2282] The height the week's marks take under the day numbers: the most marks a day shows
+    /// (a track each, the family's smallest space apart), and a Caption line for "+n" when a day has more.
+    /// </summary>
+    /// <param name="counts">How many items each day of the week has.</param>
+    public static double MarksHeight(IEnumerable<int> counts)
+    {
+        ArgumentNullException.ThrowIfNull(counts);
+        var shown = 0;
+        var more = false;
+        foreach (var count in counts)
+        {
+            var (s, m) = Marks(count);
+            shown = Math.Max(shown, s);
+            more |= m > 0;
+        }
+
+        if (shown == 0)
+        {
+            return 0;
+        }
+
+        return (shown * FamilyShape.Track) + ((shown - 1) * FamilySpace.S1) + (more ? FamilySpace.S1 + FamilyType.Caption.LineHeight : 0);
+    }
+
+    /// <summary>
+    /// [S-2283] The narrow week's strip in a view <paramref name="height"/> tall (the card's bottom inset
+    /// kept): the day numbers always, the weekday line where it and the marks fit, the marks
+    /// (<paramref name="marks"/> tall, <see cref="MarksHeight"/>) where they fit, then the family's gap,
+    /// then the whole rows of <paramref name="lines"/> lines that are left ([S-6712]); none when not one fits.
+    /// </summary>
+    public static WeekStripFit Strip(double height, double marks, int lines)
+    {
+        var room = new Disclosure(1, Math.Max(0, height - FamilySpace.Inset));
+        room.Reserve(FamilyType.BodyStrong.LineHeight + FamilySpace.S1);
+        var weekdays = room.Fits(FamilyType.Caption.LineHeight + marks) && room.Take(FamilyType.Caption.LineHeight);
+        var shown = marks > 0 && room.Take(marks);
+        var strip = Math.Max(0, height - FamilySpace.Inset) - room.Remaining;
+        var rows = RowRules.Fit(room.Remaining - FamilySpace.S2, lines);
+        return new WeekStripFit(weekdays, shown, strip, rows);
+    }
+
+    /// <summary>
+    /// [S-2284] The narrow week's chosen day: the selected day while it is in the week, else today
+    /// while the week holds it, else the week's first day.
+    /// </summary>
+    public static DateOnly ChosenDay(DateOnly? selected, DateOnly first, int days, DateOnly today)
+    {
+        bool InWeek(DateOnly day) => day >= first && day.DayNumber < first.DayNumber + Math.Max(1, days);
+        return selected is { } s && InWeek(s) ? s : InWeek(today) ? today : first;
     }
 
     // ---- hours ([S-2705]) --------------------------------------------------------------------------

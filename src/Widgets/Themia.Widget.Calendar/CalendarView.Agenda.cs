@@ -1,4 +1,5 @@
 using Microsoft.UI.Xaml;
+using Microsoft.UI.Xaml.Controls;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Office;
@@ -17,11 +18,32 @@ namespace Themia.App.Widgets;
 /// </summary>
 internal sealed partial class CalendarView
 {
-    /// <summary>The agenda's rows: the kit's paged list, shown only in the agenda style.</summary>
+    /// <summary>
+    /// The calendar's event rows: the kit's paged list, the agenda style's, and under a narrow week the
+    /// chosen day's ([S-2285]): one row path.
+    /// </summary>
     private readonly KitList _agenda;
 
     /// <summary>The agenda's items on screen by id, for the rows' hooks and Enter.</summary>
     private readonly Dictionary<string, DayItem> _agendaItems = new(StringComparer.Ordinal);
+
+    /// <summary>
+    /// The room over the rows: none in the agenda, the strip and its gap in a narrow week ([S-2283]).
+    /// A height, not a margin, so the rows stand on the family's spaces.
+    /// </summary>
+    private readonly Border _rowsTop = new() { Height = 0 };
+
+    /// <summary>The rows under <see cref="_rowsTop"/>; with no background, so a click over the strip reaches it.</summary>
+    private Grid RowsHost()
+    {
+        var host = new Grid();
+        host.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
+        host.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
+        Grid.SetRow(_agenda, 1);
+        host.Children.Add(_rowsTop);
+        host.Children.Add(_agenda);
+        return host;
+    }
 
     private KitList NewAgenda(Themia.Sdk.WinUI.IWidgetHost host) => new(host, AgendaSpec.Spec, AgendaActions, RunAgenda)
     {
@@ -59,6 +81,7 @@ internal sealed partial class CalendarView
 
         var area = new Themia.Core.Widgets.WidgetArea(width, height);
         var plan = KitLadder.Plan(area, AgendaSpec.Spec, KitShow.None);
+        _rowsTop.Height = 0;
         _agenda.Visibility = Visibility.Visible;
         _agenda.Page = _agendaPage;
         _agenda.Show(items, plan, area, now);
