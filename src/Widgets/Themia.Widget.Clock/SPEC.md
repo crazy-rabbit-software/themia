@@ -32,7 +32,13 @@ them). Tests: `Tests/` (run by `tests/Themia.Modules.Tests`).
   `"style": "digital"`; what was its face): **Digital**, **Analog**, **Stacked** ([S-1483]),
   **Flip**, **Words**, **Minimal** and **Date** ([S-5300]), in that order. Every style is one block in
   the card's inset of 12 (the clock has no header), centred top to bottom and placed by the
-  alignment, on the largest fixed family step that fits, never filling the box ([S-6741]..[S-6744]);
+  alignment, on the step its **Size** names (Small, Medium, Large: 40, 68, 96; the words 28, 40, 68;
+  the dial 96, 144, 192; the first line under Style, [S-2449]), never filling the box. The clock is
+  converted to the sizing ([S-2438], `ClockFace.Sizing`): its card is its face at that size plus the
+  inset (and 2 of slack for pixel rounding), the height one size; Digital, Minimal, Stacked and Flip
+  may be widened to twice their face (the line under then takes its longer form), Analog, Words and
+  Date are one size. A bigger card never draws a bigger face; the planners ([S-6741]..[S-6744]) pick
+  the step the box was made for;
   every style but Minimal and Date draws one line under (beside a dial on a strip) its face
   ([S-6741]). The settings (seconds, date, zone, offset, alignment) are the same for the six time
   styles; Date has only the alignment and the zone ([S-5303]).

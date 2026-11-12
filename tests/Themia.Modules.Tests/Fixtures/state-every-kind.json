@@ -28,6 +28,7 @@
           "scale": 1,
           "config": {
             "kind": "clock",
+            "size": "Medium",
             "style": "digital",
             "showSeconds": false,
             "showDate": true,
@@ -283,6 +284,8 @@
           "scale": 1,
           "config": {
             "kind": "tasks",
+            "rows": 6,
+            "lines": 2,
             "source": "Account",
             "accountId": "",
             "listId": "",

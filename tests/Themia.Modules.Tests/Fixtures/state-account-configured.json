@@ -445,6 +445,8 @@
           "scale": 1,
           "config": {
             "kind": "tasks",
+            "rows": 6,
+            "lines": 2,
             "source": "Account",
             "accountId": "work-graph-id",
             "listId": "AQMkAD-list",
@@ -481,6 +483,8 @@
           "scale": 1,
           "config": {
             "kind": "tasks",
+            "rows": 6,
+            "lines": 2,
             "source": "Local",
             "accountId": "",
             "listId": "",
@@ -517,6 +521,8 @@
           "scale": 1,
           "config": {
             "kind": "tasks",
+            "rows": 6,
+            "lines": 2,
             "source": "Account",
             "accountId": "",
             "listId": "",

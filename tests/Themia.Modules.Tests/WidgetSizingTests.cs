@@ -32,7 +32,6 @@ public sealed class WidgetSizingTests
         "screenTimeChart", "screenTimeDonut", "shortcuts", "shutdown", "signOut", "sleep", "soundToggle",
         "spatialSoundToggle", "stocks", "stopwatch", "sun", "topProcesses", "videoStream", "volume",
         "weatherForecast", "weatherNow", "weekPlanner", "wifiToggle",
-        "clock",
     ];
 
     public static TheoryData<string> Kinds() => [.. ModuleRegistry.WidgetIds];
@@ -162,6 +161,23 @@ public sealed class WidgetSizingTests
 
         var copy = (TasksConfig)config.Clone();
         Assert.Equal((20, 2), (copy.Rows, copy.Lines));
+    }
+
+    [Fact]
+    public void S2449_the_clocks_card_follows_its_size_setting_and_never_the_other_way()
+    {
+        var kind = ModuleCatalog.Of(new WidgetId("clock"));
+        WidgetSizing At(ReadoutSize size, ClockStyle style) => kind.Sizing(new ClockConfig { Size = size, Style = style });
+
+        var (small, medium, large) = (At(ReadoutSize.Small, ClockStyle.Digital), At(ReadoutSize.Medium, ClockStyle.Digital), At(ReadoutSize.Large, ClockStyle.Digital));
+        Assert.True(small.Natural.Height < medium.Natural.Height && medium.Natural.Height < large.Natural.Height);
+        Assert.True(small.Natural.Width < medium.Natural.Width && medium.Natural.Width < large.Natural.Width);
+        Assert.True(medium.FixedHeight && !medium.FixedWidth);
+
+        var dial = At(ReadoutSize.Medium, ClockStyle.Analog);
+        Assert.True(dial.FixedHeight && dial.FixedWidth);
+        Assert.Equal(ReadoutSize.Medium, new ClockConfig().Size);
+        Assert.Equal(ReadoutSize.Large, ((ClockConfig)new ClockConfig { Size = ReadoutSize.Large }.Clone()).Size);
     }
 
     [Fact]

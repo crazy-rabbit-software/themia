@@ -1,3 +1,5 @@
+using Themia.Core.Localization;
+using Themia.Sdk;
 using Themia.Core.Model;
 using Themia.Sdk.Kit;
 
@@ -228,6 +230,90 @@ public static class ClockFace
     }
 
     private static double Words(TypeStep step, int characters) => FamilyType.EstimateWidth(step, characters);
+
+    /// <summary>
+    /// The room a face is given past its own size, so a box rounded to the device's pixels still holds
+    /// the chosen step; far under the next step's growth, so the planners never pick a larger one.
+    /// </summary>
+    public const double Slack = 2;
+
+    /// <summary>[S-2449] The analog dial at each size: three times the readout's 32, 48 and 64 DIP grid.</summary>
+    public static double DialAt(ReadoutSize size) => size switch
+    {
+        ReadoutSize.Small => 96,
+        ReadoutSize.Large => 192,
+        _ => 144,
+    };
+
+    /// <summary>[S-2449] [S-6024] The words' step at each size: a sentence stops at 68, so one step below the readout's.</summary>
+    public static TypeStep WordsAt(ReadoutSize size) => size switch
+    {
+        ReadoutSize.Small => FamilyType.Big28,
+        ReadoutSize.Large => FamilyType.Hero68,
+        _ => FamilyType.Big40,
+    };
+
+    /// <summary>[S-2449] The words' column at each size: about a dozen characters of its step to a line.</summary>
+    public static double WordsWidth(ReadoutSize size) => FamilyType.EstimateWidth(WordsAt(size), 12);
+
+    /// <summary>
+    /// [S-2449] The clock's sizing ([S-2438]): its face at the step its Size names (40, 68, 96; the words
+    /// 28, 40, 68; the dial 96, 144, 192), with the line under it where the face has one, in the card's
+    /// inset of 12; never larger. The time faces (Digital, Minimal, Stacked, Flip) may be widened to twice
+    /// their face, the line under cut to what fits, at the one height; the dial, the words and the date
+    /// are one size. <paramref name="meridiem"/> is the widest AM/PM of the language when the region writes
+    /// 12-hour time, else empty: the face is as wide as its widest time.
+    /// </summary>
+    public static WidgetSizing Sizing(ClockConfig config, string meridiem)
+    {
+        ArgumentNullException.ThrowIfNull(config);
+
+        var size = ReadoutSizes.Normalise(config.Size);
+        var step = ReadoutSizes.Step(size);
+        var unit = string.IsNullOrEmpty(meridiem) ? string.Empty : " " + meridiem;
+        var under = config.Style != ClockStyle.Minimal && (config.IsWorldClock || config.ShowDate || config.OffsetMode != ClockOffsetMode.None);
+        var underLine = under ? FamilyType.Under(step).LineHeight : 0;
+        var seconds = config.DrawsSeconds;
+
+        (double W, double H, bool Widens) face = config.Style switch
+        {
+            ClockStyle.Stacked => (
+                ReadoutRules.Width(step, new ReadoutText(Figures, unit, OneReadout: true)),
+                ((seconds ? 3 : 2) * step.LineHeight) + underLine,
+                true),
+            ClockStyle.Flip => (
+                FlipRules.RowWidth(step, seconds ? 3 : 2, Figures) + (unit.Length == 0 ? 0 : FamilySpace.S2 + (HeroFit.Ems(meridiem) * FamilyType.Unit(step).FontSize)),
+                step.LineHeight + underLine,
+                true),
+            ClockStyle.Analog => (DialAt(size), DialAt(size) + (under ? DialGap + FamilyType.Body.LineHeight : 0), false),
+            ClockStyle.Word => Sentence(size, under),
+            ClockStyle.Date => (
+                Math.Max(ReadoutRules.Width(step, new ReadoutText(Figures, OneReadout: true)), Words(FamilyType.Under(step), WeekdayCharacters)),
+                step.LineHeight + (2 * FamilyType.Under(step).LineHeight),
+                false),
+            _ => (
+                ReadoutRules.Width(step, new ReadoutText(seconds ? "88:88:88" : "88:88", unit, OneReadout: true)),
+                step.LineHeight + underLine,
+                true),
+        };
+
+        var box = new SizeDip(
+            Math.Ceiling(face.W) + (2 * FamilySpace.Inset) + Slack,
+            Math.Ceiling(face.H) + (2 * FamilySpace.Inset) + Slack);
+        return face.Widens
+            ? WidgetSizing.Range(box, box, box with { Width = 2 * box.Width })
+            : WidgetSizing.Fixed(box);
+    }
+
+    /// <summary>[S-6024] The words' face: its column, as many of its lines as the language's longest sentence wraps to, the line under.</summary>
+    private static (double W, double H, bool Widens) Sentence(ReadoutSize size, bool under)
+    {
+        var step = WordsAt(size);
+        var width = WordsWidth(size);
+        var longest = WordClock.Longest(Strings.Current);
+        var height = (WordClock.Lines(longest, width * WordClock.WidthMargin, step) * step.LineHeight) + (under ? FamilyType.Under(step).LineHeight : 0);
+        return (width, height, false);
+    }
 
     /// <summary>
     /// [S-6741] The one line under a clock's face: the city of a world clock, the date and the offset, " · "

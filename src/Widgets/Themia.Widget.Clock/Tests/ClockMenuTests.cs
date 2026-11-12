@@ -22,7 +22,7 @@ public sealed class ClockMenuTests
     [Fact]
     public void S1478_the_digital_clock_offers_seconds_and_the_date_under_style()
         => Assert.Equal(
-            [ClockStr.Clock_SecondsLabel.Text(), ClockStr.Clock_DateLabel.Text()],
+            [Str.Kit_Size.Text(), ClockStr.Clock_SecondsLabel.Text(), ClockStr.Clock_DateLabel.Text()],
             Build(new ClockConfig { Style = ClockStyle.Digital }).StyleLines.Select(l => l.Text));
 
     [Fact]
@@ -64,7 +64,7 @@ public sealed class ClockMenuTests
     {
         // [S-1476] retired: the line under the time follows the readout's step ([S-6701]); the text size is ⚙'s.
         Assert.Equal(
-            [ClockStr.Clock_SecondsLabel.Text(), ClockStr.Clock_DateLabel.Text()],
+            [Str.Kit_Size.Text(), ClockStr.Clock_SecondsLabel.Text(), ClockStr.Clock_DateLabel.Text()],
             Build(new ClockConfig { Style = ClockStyle.Digital, ShowDate = false, TimeZoneId = "Asia/Tokyo" }).StyleLines.Select(l => l.Text));
     }
 

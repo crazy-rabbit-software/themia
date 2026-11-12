@@ -82,7 +82,7 @@ public sealed class TasksMenuTests
     }
 
     [Fact]
-    public void S2440_rows_are_offered_always_and_lines_per_row_only_where_a_task_has_a_second_line()
+    public void S602_rows_are_offered_always_and_lines_per_row_only_where_a_task_has_a_second_line()
     {
         var plain = Build(new TasksConfig(), Accounts()).Lines.Select(l => l.Text).ToList();
         var today = Build(new TasksConfig { ListId = Themia.Core.Tasks.TaskRules.TodayListId }, Accounts()).Lines.Select(l => l.Text).ToList();

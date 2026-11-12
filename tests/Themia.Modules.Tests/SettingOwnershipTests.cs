@@ -270,9 +270,10 @@ public sealed class SettingOwnershipTests
     /// <summary>
     /// [S-3592] A widget's own setting under words a higher level uses too, each for its reason: it is
     /// the widget's own and only shares a word (a focus session's Length is the session's, never an
-    /// animation's, ⚙ › Appearance › Motion's).
+    /// animation's, ⚙ › Appearance › Motion's; [S-2449] a one-readout widget's Size is its face's,
+    /// Small, Medium or Large, never the text size or the scale a higher level sets).
     /// </summary>
-    private static readonly (string Kind, string Words)[] OwnWords = [("focusSession", "Length")];
+    private static readonly (string Kind, string Words)[] OwnWords = [("focusSession", "Length"), ("clock", "Size")];
 
     /// <summary>
     /// The kinds whose menus read a list only the running host installs (the displays with a brightness,

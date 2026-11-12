@@ -66,7 +66,7 @@ public static class WordClock
     private static readonly ConcurrentDictionary<Locale, string> LongestByLocale = new();
 
     /// <summary>[S-6024] The share of the width the fit counts on: the estimate's margin for semibold and long words.</summary>
-    private const double WidthMargin = 0.86;
+    public const double WidthMargin = 0.86;
 
     /// <summary>
     /// [S-6024] The language's longest sentence over the whole day, by drawn width: what the word
