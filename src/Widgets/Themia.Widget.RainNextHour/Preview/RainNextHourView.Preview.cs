@@ -3,11 +3,12 @@ using Themia.App.Services.Web;
 using Themia.App.Shell.Gallery;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
+using Themia.Sdk.Samples;
 
 namespace Themia.App.Widgets;
 
 /// <summary>
-/// Debug renders only ([S-1917]): fixture nowcasts (<c>sample</c>, <c>dry</c>, and <c>stale</c>: the sample
+/// Debug renders only ([S-1917], [S-2052]): fixture nowcasts (<c>sample</c>: the sample day's shower from a quarter past eleven, <c>dry</c>, and <c>stale</c>: the sample
 /// kept through a failed refresh), so the ladder can be
 /// looked at without a place, the network or the sync. Built through the SDK's parser, so a fixture
 /// is exactly what a reply would have become. Nothing is fetched or saved.
@@ -23,21 +24,21 @@ internal sealed partial class RainNextHourView : IWidgetPreviewState
             return Task.CompletedTask;
         }
 
-        // A quarter-hour grid around now: the quarter under way first, then eight more.
-        var now = DateTimeOffset.UtcNow;
+        // A quarter-hour grid around the sample moment: the quarter under way first, then nine more.
+        var now = SampleDay.Now;
         var quarter = now.ToUnixTimeSeconds() / 900 * 900;
-        double[] amounts = state == "dry" ? [0, 0, 0, 0, 0, 0, 0, 0, 0, 0] : [0, 0, 0, 0.3, 0.9, 1.6, 1.1, 0.4, 0.1, 0];
+        IReadOnlyList<double> amounts = state == "dry" ? [0, 0, 0, 0, 0, 0, 0, 0, 0, 0] : SampleWeather.NextQuarters;
         var times = string.Join(',', amounts.Select((_, i) => quarter + (i * 900)));
         var values = string.Join(',', amounts.Select(a => a.ToString(System.Globalization.CultureInfo.InvariantCulture)));
         var hour = now.ToUnixTimeSeconds() / 3600 * 3600;
         var json = "{\"minutely_15\":{\"time\":[" + times + "],\"precipitation\":[" + values + "]},"
-            + "\"hourly\":{\"time\":[" + hour + "," + (hour + 3600) + "],\"precipitation_probability\":[" + (state == "dry" ? "5,10" : "65,80") + "]}}";
+            + "\"hourly\":{\"time\":[" + hour + "," + (hour + 3600) + "],\"precipitation_probability\":[" + (state == "dry" ? "5,10" : $"{SampleWeather.Days(1)[0].PrecipitationChance},80") + "]}}";
 
-        _config = new RainNextHourConfig { Latitude = 47.37, Longitude = 8.54, LocationName = "Zürich, Zurich, Switzerland" };
+        _config = new RainNextHourConfig { Latitude = SamplePlace.Latitude, Longitude = SamplePlace.Longitude, LocationName = SamplePlace.LocationName };
         _applied = (RainNextHourConfig)_config.Clone();
         _want = null;
-        _pinnedNow = DateTimeOffset.FromUnixTimeSeconds(quarter + 420);
-        _nowcast = new Fetched<RainNowcast>(FetchStatus.Ok, RainWire.Parse(json).Value, null, DateTimeOffset.Now.AddMinutes(-6));
+        _pinnedNow = now;
+        _nowcast = new Fetched<RainNowcast>(FetchStatus.Ok, RainWire.Parse(json).Value, null, SampleDay.MinutesAgo(6));
         if (state == "stale")
         {
             // [S-7042] The answer on screen, and the last refresh failed: the header's problem glyph.

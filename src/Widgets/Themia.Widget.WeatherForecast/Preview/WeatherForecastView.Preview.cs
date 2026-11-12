@@ -3,11 +3,12 @@ using Themia.App.Services.Web;
 using Themia.App.Shell.Gallery;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
+using Themia.Sdk.Samples;
 
 namespace Themia.App.Widgets;
 
 /// <summary>
-/// Debug renders only ([S-1917]): a fixture week for Zürich, so each style's ladder can be looked at
+/// Debug renders only ([S-1917], [S-2052]): the sample day's week at its place, so each style's ladder can be looked at
 /// without a place, the network or the sync service. Nothing is fetched or saved. <c>sample</c>
 /// keeps the card's style ([S-6006]: <c>--style rows|columns|curve|grid</c>).
 /// </summary>
@@ -24,15 +25,15 @@ internal sealed partial class WeatherForecastView : IWidgetPreviewState
 
         _config = new WeatherForecastConfig
         {
-            Latitude = 47.37,
-            Longitude = 8.54,
-            LocationName = "Zürich, Zurich, Switzerland",
+            Latitude = SamplePlace.Latitude,
+            Longitude = SamplePlace.Longitude,
+            LocationName = SamplePlace.LocationName,
             Style = _config.Style,
         };
 
         _applied = (WeatherForecastConfig)_config.Clone();
         _want = null;
-        _forecast = new Fetched<Forecast>(FetchStatus.Ok, new Forecast(WeatherSample.Days(_config.EffectiveDays)), null, DateTimeOffset.Now.AddMinutes(-4));
+        _forecast = new Fetched<Forecast>(FetchStatus.Ok, new Forecast(SampleWeather.Days(_config.EffectiveDays)), null, SampleDay.MinutesAgo(4));
         if (state == "stale")
         {
             // [S-7042] The answer on screen, and the last refresh failed: the header's problem glyph.

@@ -45,7 +45,7 @@ public class SampleDayTests
         Assert.InRange(SampleWeather.UvIndex, 0, today.UvMax!.Value);
         Assert.True(today.Precipitation > 0 && today.PrecipitationChance >= 50, "today's forecast names the rain");
         Assert.Equal(0, SampleWeather.NextQuarters[0]);
-        Assert.True(SampleWeather.NextQuarters.Sum() > 0, "the nowcast has the shower");
+        Assert.Equal(today.Precipitation!.Value, SampleWeather.NextQuarters.Sum(), 6);
         Assert.Equal(reading.Days, SampleWeather.Days(7));
     }
 
