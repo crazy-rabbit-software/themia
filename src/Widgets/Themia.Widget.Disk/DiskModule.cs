@@ -4,6 +4,7 @@ using Themia.App.Shell;
 using Themia.App.Shell.Config;
 using Themia.App.Widgets;
 using Themia.App.Widgets.Meters;
+using Themia.Core.Links;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
@@ -35,6 +36,7 @@ public sealed class DiskModule : IWidgetModule
         Glyph = Glyphs.Disk,
         Sizing = c => MeterSizing.Reading(DiskMeter.Look(((DiskConfig)c).Style), ReadoutRules.Split(Formatting.Rate(1023 * 1024)), rows: 2),
         Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader,
+        Links = LinkUse.Of([], [LinkTopicId.HoveredInstant]),
         Add = new(AddFolderId.System, 0, 3),
     };
 

@@ -39,6 +39,7 @@ internal sealed partial class ExchangeHistoryView : Grid, IWidgetView, IWidgetHe
         _header = new KitHeader(host);
         Children.Add(_chart);
         Children.Add(_state);
+        JoinInstants();
     }
 
     public FrameworkElement? HeaderTrailing => _header;
@@ -55,6 +56,7 @@ internal sealed partial class ExchangeHistoryView : Grid, IWidgetView, IWidgetHe
         _web = _host.Rates;
         _web.Updated += OnWebUpdated;
         ApplyConfig(config);
+        _links.Join(_surface?.Links);
     }
 
     public void Bind(IWidgetSurface surface)
@@ -73,6 +75,7 @@ internal sealed partial class ExchangeHistoryView : Grid, IWidgetView, IWidgetHe
     public void Detach()
     {
         _detached = true;
+        _links.Leave();
         Strings.Changed -= OnLanguage;
         if (_web is not null)
         {
@@ -121,6 +124,7 @@ internal sealed partial class ExchangeHistoryView : Grid, IWidgetView, IWidgetHe
     private void Render()
     {
         var rate = _table?.Value is { } table ? ExchangeRules.Cross(table, _config.EffectiveBase, _config.EffectiveQuote) : null;
+        _shownRate = rate;
         if (_table is { } held)
         {
             _header.Show(OnlineParts.Problems(held), busy: false);
@@ -149,5 +153,6 @@ internal sealed partial class ExchangeHistoryView : Grid, IWidgetView, IWidgetHe
         _chart.Visibility = Visibility.Visible;
         _chart.Role(rate.ChangePercent < 0 ? ColourRole.Critical : ColourRole.Accent);
         _chart.Show(MarketQuote.Normalise(rate.History));
+        MarkInstant();
     }
 }

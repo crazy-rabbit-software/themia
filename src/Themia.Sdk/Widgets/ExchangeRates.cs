@@ -114,7 +114,32 @@ public static class EcbWire
 /// <param name="ChangePercent">Against the working day before, or null when there is none.</param>
 /// <param name="History">The rate on each day the table holds both, oldest first, for the line.</param>
 /// <param name="Date">The day of <paramref name="Rate"/>.</param>
-public sealed record PairRate(string Base, string Quote, double Rate, double? ChangePercent, IReadOnlyList<double> History, DateOnly Date);
+/// <param name="Days">[S-11913] The day of each of <paramref name="History"/>'s rates, oldest first (empty when not known).</param>
+public sealed record PairRate(string Base, string Quote, double Rate, double? ChangePercent, IReadOnlyList<double> History, DateOnly Date, IReadOnlyList<DateOnly>? Days = null)
+{
+    /// <summary>[S-11913] The moment a daily rate stands for: its day's noon on <paramref name="offset"/>, so the nearest day is the one meant.</summary>
+    public static DateTimeOffset Noon(DateOnly day, TimeSpan offset) => new(day.ToDateTime(new TimeOnly(12, 0)), offset);
+
+    /// <summary>[S-11913] The rate on the day nearest <paramref name="at"/>, or null outside the days held.</summary>
+    public (double Rate, DateOnly Day)? At(DateTimeOffset at)
+    {
+        if (Days is not { Count: > 0 } days || days.Count != History.Count)
+        {
+            return null;
+        }
+
+        var times = days.Select(day => Noon(day, at.Offset)).ToList();
+        var first = times[0].AddHours(-12);
+        var last = times[^1].AddHours(12);
+        if (at < first || at > last)
+        {
+            return null;
+        }
+
+        var nearest = Themia.Core.Links.LinkInstants.Nearest(times, at < times[0] ? times[0] : at > times[^1] ? times[^1] : at);
+        return nearest is { } i ? (History[i], days[i]) : null;
+    }
+}
 
 /// <summary>[S-5142]..[S-5145] Currencies, cross rates and their text.</summary>
 public static class ExchangeRules
@@ -175,15 +200,14 @@ public static class ExchangeRules
             }
         }
 
-        var history = table.Days
+        var held = table.Days
             .Reverse()
-            .Select(d => Rate(d, basis, quote))
-            .Where(r => r is not null)
-            .Select(r => r!.Value)
+            .Select(d => (d.Date, Rate: Rate(d, basis, quote)))
+            .Where(r => r.Rate is not null)
             .ToList();
 
         var change = previous is { } before ? ((latest - before) / before) * 100 : (double?)null;
-        return new PairRate(basis, quote, latest, change, history, table.Latest.Date);
+        return new PairRate(basis, quote, latest, change, [.. held.Select(r => r.Rate!.Value)], table.Latest.Date, [.. held.Select(r => r.Date)]);
     }
 
     private static double? Rate(RateDay day, string basis, string quote)

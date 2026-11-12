@@ -4,6 +4,7 @@ using Themia.App.Shell;
 using Themia.App.Shell.Config;
 using Themia.App.Widgets;
 using Themia.App.Widgets.Meters;
+using Themia.Core.Links;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
@@ -35,6 +36,7 @@ public sealed class BatteryModule : IWidgetModule
         Glyph = Glyphs.Battery,
         Sizing = c => MeterSizing.Reading(BatteryMeter.Look(((BatteryConfig)c).Style), ReadoutRules.Split(Formatting.Percent(1)) with { Lead = ((BatteryConfig)c).Style == BatteryStyle.Number }),
         Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader,
+        Links = LinkUse.Of([], [LinkTopicId.HoveredInstant]),
         Add = new(AddFolderId.BatteryReading, 0, 0),
     };
 

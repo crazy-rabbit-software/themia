@@ -47,6 +47,7 @@ internal sealed partial class StockView : Grid, IWidgetView, IWidgetOpens, IWidg
 
     public StockView(IWidgetHost host)
     {
+        FollowInstants();
         _header = new KitHeader(host);
         _feed = new(
             () => new(h => host.Quotes.Updated += h, h => host.Quotes.Updated -= h, host.Quotes.Key, host.Quotes.Quote, host.Quotes.Show),
@@ -83,6 +84,7 @@ internal sealed partial class StockView : Grid, IWidgetView, IWidgetOpens, IWidg
         // say "Market closed" at the bell. A render, never a fetch.
         _feed.Attach(ticker, TimeSpan.FromMinutes(1));
         ApplyConfig(config);
+        _links.Join(_surface?.Links);
     }
 
     /// <inheritdoc />
@@ -109,7 +111,12 @@ internal sealed partial class StockView : Grid, IWidgetView, IWidgetOpens, IWidg
         _feed.Reload();
     }
 
-    public void Detach() => _feed.Detach();
+    public void Detach()
+    {
+        _links.Leave();
+        _standsAt = null;
+        _feed.Detach();
+    }
 
     private void Render()
     {
@@ -150,6 +157,12 @@ internal sealed partial class StockView : Grid, IWidgetView, IWidgetOpens, IWidg
             changeRole,
             underRole: fold.DeltaBeside ? ColourRole.TextSecondary : changeRole);
         _price.Visibility = Visibility.Visible;
+
+        // [S-11912] At a moment pointed at on a history of this symbol: the price then, the moment under it.
+        if (PriceAtInstant(quote) is { } then)
+        {
+            _price.Show(then.Price, fold.Unit ? currency : string.Empty, then.Caption);
+        }
 
         // [S-1309] The session names the exchange's zone, so "closed" reads against its clock.
         var label = MarketQuote.PhaseLabel(phase);

@@ -4,6 +4,7 @@ using Themia.App.Services;
 using Themia.App.Shell;
 using Themia.Core.Localization;
 using Themia.Core.Model;
+using Themia.Core.SystemData;
 using Themia.Core.Widgets;
 using Themia.Sdk;
 using Themia.Sdk.Kit;
@@ -46,6 +47,9 @@ public abstract class PingPart : MeterPart
 
     /// <summary>[S-1172] Against the slowest answer on screen, as the original scaled it (floor 1 ms).</summary>
     public override ChartScale Scale => ChartScale.Peak(1);
+
+    /// <summary>[S-11912] A point is the answer's latency, or "--" for a probe not answered.</summary>
+    public override string? ValueAt(SeriesPoint point) => point.Answer is { } ms && double.IsFinite(ms) ? Formatting.Latency(ms) : "--";
 
     /// <summary>[S-1170] Until the first probe is back the tile says so on hover, and the dot is quiet.</summary>
     public override MeterReading Waiting => MeterReading.Unavailable(PingStats.StatusText(PingStatus.Checking));

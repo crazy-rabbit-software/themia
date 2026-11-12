@@ -5,6 +5,7 @@ using Themia.App.Shell;
 using Themia.App.Shell.Config;
 using Themia.App.Widgets;
 using Themia.App.Widgets.Meters;
+using Themia.Core.Links;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.SystemData;
@@ -33,6 +34,7 @@ public sealed class DiskHistoryModule : IWidgetModule
         Glyph = Glyphs.Disk,
         Sizing = _ => MeterSizing.History,
         Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader | WidgetTraits.StartsHeaderless,
+        Links = LinkUse.Of([LinkTopicId.HoveredInstant], [LinkTopicId.HoveredInstant]),
         Add = new(AddFolderId.System, 0, 4),
     };
 
@@ -79,6 +81,9 @@ public sealed class DiskHistoryConfig : HistoryConfig, IReadsSystem, IDiskScope
 /// <summary>[S-11018] The drive's rate as a history against the window's peak ([S-1821]); the header, when it has one, names the drive.</summary>
 internal sealed class DiskHistoryMeter(IWidgetHost host) : DiskPart(host)
 {
+    /// <summary>[S-11910] The moment under the pointer on its history goes to the view; a moment pointed at elsewhere is marked on it.</summary>
+    public override LinkTopic<InstantLink>? Instant => LinkTopics.HoveredInstant;
+
     public override WidgetId Kind => new("diskHistory");
 
     public override MeterAtom Atom => MeterAtom.History;

@@ -5684,6 +5684,32 @@ Declared in data:
   on the scene's one board through a member of its own after the cards drew their states, before the
   picture is taken.
 
+A moment in time (`HoveredInstant`, `InstantLink(at, subject)`, a hover):
+
+- **[S-11910]** Every history chart publishes the moment under the pointer, with what it is of: the
+  system histories (`cpuHistory`, `memoryHistory`, `gpuHistory`, `diskHistory`, `networkHistory`,
+  `pingHistory`, `batteryHistory`, `cpuCores` in its Graphs style: the shared `MeterView`, its part naming
+  the topic, `MeterPart.Instant`), `stockHistory` (the bar under the pointer) and `exchangeHistory` (the
+  day under the pointer, at its noon).
+- **[S-11911]** Every history chart draws a hairline (`FamilyShape.Hairline`, the secondary text role) at
+  a moment pointed at on any chart of the view, where its span holds it: one crosshair down a column of
+  charts (`SparkBand.Mark`, the stock's rule, the rate's marker; `LinkInstants.At`/`X`: the span runs from
+  the oldest slot at the chart's start to the newest at its end, now). A moment outside a chart's span
+  draws nothing on it.
+- **[S-11912]** The reading atom of the same subject shows its value at that moment in place of the live
+  one for as long as the hover lasts, then returns to live: the subject is the series both read
+  (`LinkInstants.Subject`: `cpu`, `gpu//0`, `diskactivity//c:\`, `ping/example.com`; the same adapter, drive scope
+  or host, the keys `SharedSettings` shares across a group), `stock/<symbol>`, `rate/<base>/<quote>`. The
+  value is the reading's own series' (`MeterPart.ValueAt`: a share as a percent, a rate per second, a
+  latency or "--" for a probe not answered; the stock's bar's close; the rate on that day); live readings
+  that arrive meanwhile do not replace it. A moment outside what the reading holds leaves it live.
+- **[S-11913]** The value of a series at a moment is its nearest sample, none outside the span:
+  `LinkInstants.Index` (evenly spaced samples, newest now, half a step of grace), `Nearest` (samples with
+  their own times), `PairRate.At` (a day's rate, its day noon to noon).
+- **[S-11914]** The moment is the reading's caption (`LinkInstants.Caption`): a system reading "32 s ago"
+  (within the minute), "4 min ago" (within the hour), else the time, beside the value in the delta's place
+  so the reading keeps its one line; a stock the day and the time and a rate the day, on its line under.
+
 Topics:
 
 <!-- view-links:table (made from the descriptors; ViewLinksConformanceTests) -->
@@ -5694,7 +5720,7 @@ Topics:
 | `SelectedDate` | Sticky | `calendar` | `calendar` |
 | `VisibleRange` | Sticky | `calendar` | none |
 | `HoveredEvent` | Hover | `calendar`, `nextMeeting` | `calendar`, `nextMeeting` |
-| `HoveredInstant` | Hover | none | none |
+| `HoveredInstant` | Hover | `batteryHistory`, `cpuCores`, `cpuHistory`, `diskHistory`, `exchangeHistory`, `gpuHistory`, `memoryHistory`, `networkHistory`, `pingHistory`, `stockHistory` | `battery`, `batteryHistory`, `cpu`, `cpuCores`, `cpuHistory`, `disk`, `diskHistory`, `exchangeHistory`, `exchangeRate`, `gpu`, `gpuHistory`, `memory`, `memoryHistory`, `network`, `networkHistory`, `ping`, `pingHistory`, `stock`, `stockHistory` |
 | `HoveredDate` | Hover | none | none |
 | `HoveredPerson` | Hover | none | none |
 | `HoveredFile` | Hover | none | none |

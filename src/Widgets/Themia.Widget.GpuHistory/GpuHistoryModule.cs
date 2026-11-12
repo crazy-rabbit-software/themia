@@ -5,6 +5,7 @@ using Themia.App.Shell;
 using Themia.App.Shell.Config;
 using Themia.App.Widgets;
 using Themia.App.Widgets.Meters;
+using Themia.Core.Links;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.SystemData;
@@ -33,6 +34,7 @@ public sealed class GpuHistoryModule : IWidgetModule
         Glyph = Glyphs.Gpu,
         Sizing = _ => MeterSizing.History,
         Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader | WidgetTraits.StartsHeaderless,
+        Links = LinkUse.Of([LinkTopicId.HoveredInstant], [LinkTopicId.HoveredInstant]),
         Add = new(AddFolderId.Graphics, 0, 1),
     };
 
@@ -82,6 +84,9 @@ public sealed class GpuHistoryConfig : HistoryConfig, IReadsSystem, IGpuAdapter
 /// <summary>[S-11014] The adapter's load as a history, absent with the reading when the adapter is gone.</summary>
 internal sealed class GpuHistoryMeter : GpuPart
 {
+    /// <summary>[S-11910] The moment under the pointer on its history goes to the view; a moment pointed at elsewhere is marked on it.</summary>
+    public override LinkTopic<InstantLink>? Instant => LinkTopics.HoveredInstant;
+
     public override WidgetId Kind => new("gpuHistory");
 
     public override MeterAtom Atom => MeterAtom.History;

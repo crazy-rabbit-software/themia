@@ -1,5 +1,6 @@
 using Themia.App.Services;
 using Themia.App.Services.SystemData;
+using Themia.Core.Links;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
@@ -11,6 +12,9 @@ namespace Themia.App.Widgets.Meters;
 /// <summary>[S-1130] Physical memory in use, coloured by how full it is; its styles [S-6315].</summary>
 internal sealed class MemoryMeter : MeterPart
 {
+    /// <summary>[S-11912] At a moment pointed at on a history of its subject, the reading shows its value then.</summary>
+    public override LinkTopic<InstantLink>? Instant => LinkTopics.HoveredInstant;
+
     /// <inheritdoc />
     public override CardOpen? Opens(WidgetConfig config) => MemoryModule.Opens;
 

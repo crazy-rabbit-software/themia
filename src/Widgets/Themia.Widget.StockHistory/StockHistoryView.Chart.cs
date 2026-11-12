@@ -137,6 +137,8 @@ internal sealed partial class StockHistoryView
                 Marker(marked[i], boxes[i], role);
             }
         }
+
+        MarkInstant();
     }
 
     /// <summary>[S-1308] The run of bars in the regular session (all of them without sessions to tell).</summary>
@@ -183,6 +185,7 @@ internal sealed partial class StockHistoryView
         var index = (int)Math.Round(Math.Clamp(x / Math.Max(1, width), 0, 1) * (_drawn.Count - 1));
         var point = _drawn[index];
         var bar = quote.Bars[index];
+        PublishInstant(bar.Time);
 
         _rule.X1 = _rule.X2 = point.X;
         _rule.Y1 = 0;
@@ -198,7 +201,12 @@ internal sealed partial class StockHistoryView
         Canvas.SetTop(_probe, 0);
     }
 
-    private void OnChartPointerGone(object sender, PointerRoutedEventArgs args) => HideProbe();
+    private void OnChartPointerGone(object sender, PointerRoutedEventArgs args)
+    {
+        HideProbe();
+        UnpublishInstant();
+        MarkInstant();
+    }
 
     private void HideProbe()
     {

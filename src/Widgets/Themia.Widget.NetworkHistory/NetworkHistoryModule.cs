@@ -6,6 +6,7 @@ using Themia.App.Shell;
 using Themia.App.Shell.Config;
 using Themia.App.Widgets;
 using Themia.App.Widgets.Meters;
+using Themia.Core.Links;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.SystemData;
@@ -37,6 +38,7 @@ public sealed class NetworkHistoryModule : IWidgetModule
         Glyph = Glyphs.Network,
         Sizing = _ => MeterSizing.History,
         Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader | WidgetTraits.StartsHeaderless,
+        Links = LinkUse.Of([LinkTopicId.HoveredInstant], [LinkTopicId.HoveredInstant]),
         Add = new(AddFolderId.NetworkReading, 0, 1),
     };
 
@@ -69,6 +71,12 @@ public sealed class NetworkHistoryConfig : HistoryConfig, IReadsSystem
 /// <summary>[S-11019] The history in its pressure's role ([S-1123]).</summary>
 internal sealed class NetworkHistoryMeter : MeterPart
 {
+    /// <summary>[S-11910] The moment under the pointer on its history goes to the view; a moment pointed at elsewhere is marked on it.</summary>
+    public override LinkTopic<InstantLink>? Instant => LinkTopics.HoveredInstant;
+
+    /// <summary>[S-11912] A point is the download per second, as the reading writes it.</summary>
+    public override string? ValueAt(SeriesPoint point) => double.IsFinite(point.First) ? Formatting.Rate(point.First) : null;
+
     public override WidgetId Kind => new("networkHistory");
 
     public override MeterAtom Atom => MeterAtom.History;

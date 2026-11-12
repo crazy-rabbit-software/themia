@@ -1,0 +1,11 @@
+{
+  "$comment": "[S-11914] View links: the caption a reading shows while it stands at a moment pointed at on a history chart.",
+  "$englishOnly": [
+    "links.secondsAgo",
+    "links.minutesAgo",
+    "links.dayAndTime"
+  ],
+  "links.secondsAgo": "{count} s ago",
+  "links.minutesAgo": "{count} min ago",
+  "links.dayAndTime": "{day}, {time}"
+}

@@ -1,5 +1,6 @@
 using Themia.App.Services;
 using Themia.App.Services.SystemData;
+using Themia.Core.Links;
 using Themia.Core.Model;
 using Themia.Core.SystemData;
 using Themia.Core.Widgets;
@@ -184,6 +185,21 @@ public abstract class MeterPart
     /// from inside this call ([S-2506]): what is already read is <see cref="MeterItemsWatch.Current"/>.
     /// </summary>
     public virtual MeterItemsWatch? WatchItems(ISystemFeeds hub, Action<IReadOnlyList<MeterItem>> onItems) => null;
+
+    /// <summary>
+    /// [S-11910] [S-11906] The view-links topic of a moment pointed at on a history chart, named by the kind
+    /// that takes part (<c>LinkTopics.HoveredInstant</c>), or null for none: a history atom (and the cores'
+    /// graphs) publishes the moment under the pointer and marks the moment pointed at elsewhere; a reading
+    /// atom shows its value at a moment pointed at on a chart of its own subject ([S-11912]).
+    /// </summary>
+    public virtual LinkTopic<InstantLink>? Instant => null;
+
+    /// <summary>
+    /// [S-11912] One point of the series as the reading writes it ("32%", "1.2 MB/s"), for a reading standing
+    /// at a moment of its history; null when the point says nothing (the kind's own reading then stays).
+    /// </summary>
+    public virtual string? ValueAt(SeriesPoint point)
+        => Scale.FollowsWindow || !double.IsFinite(point.First) ? null : Formatting.Percent(Math.Clamp(point.First, 0, 1));
 
     /// <summary>[S-1940] The items a look draws for a thing not on this PC (the GPU's engines, each "--"); none by default.</summary>
     public virtual IReadOnlyList<MeterItem> AbsentItems => [];

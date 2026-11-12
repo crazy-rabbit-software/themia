@@ -3,6 +3,7 @@ using Microsoft.UI.Xaml;
 using Themia.App.Shell;
 using Themia.App.Widgets;
 using Themia.App.Widgets.Meters;
+using Themia.Core.Links;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
@@ -34,6 +35,7 @@ public sealed class CpuModule : IWidgetModule
         Glyph = Glyphs.Cpu,
         Sizing = c => Sizing((CpuConfig)c),
         Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader,
+        Links = LinkUse.Of([], [LinkTopicId.HoveredInstant]),
         Add = new(AddFolderId.Processor, 0, 0, Popular: 8),
     };
 

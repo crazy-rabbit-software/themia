@@ -3,6 +3,7 @@ using Microsoft.UI.Xaml;
 using Themia.App.Shell;
 using Themia.App.Shell.Config;
 using Themia.App.Widgets;
+using Themia.Core.Links;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
@@ -33,6 +34,7 @@ public sealed class ExchangeRateModule : IWidgetModule
         Glyph = Glyph,
         Sizing = _ => RatesLayout.Sizing(),
         Traits = WidgetTraits.CanHaveHeader,
+        Links = LinkUse.Of([], [LinkTopicId.HoveredInstant]),
         Add = new(AddFolderId.Markets, 0, 2),
     };
 

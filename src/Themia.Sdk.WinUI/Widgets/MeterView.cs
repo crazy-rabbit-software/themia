@@ -84,6 +84,9 @@ public sealed partial class MeterView : Grid, IWidgetView, IWidgetOpens, IWidget
         SetRow(_band, 1);
         _band.Margin = new Thickness(0, FamilySpace.S2, 0, 0);
         Children.Add(_band);
+
+        // [S-11910] The moment pointed at on the view's history charts.
+        JoinInstants();
     }
 
     /// <summary>[S-663] The card's word on how much room the meter has.</summary>
@@ -113,6 +116,7 @@ public sealed partial class MeterView : Grid, IWidgetView, IWidgetOpens, IWidget
     {
         _detached = false;
         ApplyConfig(config);
+        _links.Join(_surface?.Links);
     }
 
     public void ApplyConfig(WidgetConfig config)
@@ -251,7 +255,11 @@ public sealed partial class MeterView : Grid, IWidgetView, IWidgetOpens, IWidget
 
         // Unavailable is a role, not an opacity. Pressure colours the chart, never the number, which
         // stays legible whatever the load; a lead glyph (the battery's) takes Caution or Critical.
-        ShowReading(_reading, reading.Primary, reading.Available, Lead(reading), role);
+        // [S-11912] Not while the reading stands at a moment pointed at on a chart of its subject.
+        if (_standsAt is null)
+        {
+            ShowReading(_reading, reading.Primary, reading.Available, Lead(reading), role);
+        }
 
         // [S-1161] Available, it names what it is about (the disk's drive), for a card whose header is off.
         // [S-6332] Touched only when it says something else.
@@ -290,10 +298,11 @@ public sealed partial class MeterView : Grid, IWidgetView, IWidgetOpens, IWidget
     /// [S-3860] A reading on a Readout, its figure and unit split as the Readout draws them; the block
     /// touches only what changed ([S-6330]).
     /// </summary>
-    private static void ShowReading(ReadoutBlock block, string primary, bool available, string? lead, ColourRole role)
+    private static void ShowReading(ReadoutBlock block, string primary, bool available, string? lead, ColourRole role, string? moment = null)
     {
+        // [S-11914] A moment the reading stands at is said beside it, in the delta's place: the reading keeps its one line.
         var split = ReadoutRules.Split(primary);
-        block.Show(split.Value, split.Unit, lead: lead, valueRole: available ? ColourRole.TextPrimary : ColourRole.TextDisabled,
+        block.Show(split.Value, split.Unit, delta: moment, lead: lead, valueRole: available ? ColourRole.TextPrimary : ColourRole.TextDisabled,
             leadRole: role is ColourRole.Caution or ColourRole.Critical ? role : ColourRole.TextSecondary);
     }
 
@@ -303,6 +312,8 @@ public sealed partial class MeterView : Grid, IWidgetView, IWidgetOpens, IWidget
     public void Detach()
     {
         _detached = true;
+        _links.Leave();
+        _standsAt = null;
 
         // [S-2513] The series and its history stay in the hub while the state wants them, so the
         // meter built in this one's place (a view switch, edit mode) picks them up.

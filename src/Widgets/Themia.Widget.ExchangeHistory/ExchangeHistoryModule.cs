@@ -3,6 +3,7 @@ using Microsoft.UI.Xaml;
 using Themia.App.Shell;
 using Themia.App.Shell.Config;
 using Themia.App.Widgets;
+using Themia.Core.Links;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
 using Themia.Sdk;
@@ -40,6 +41,7 @@ public sealed class ExchangeHistoryModule : IWidgetModule
         Glyph = Glyph,
         Sizing = _ => Sizing(),
         Traits = WidgetTraits.CanHaveHeader | WidgetTraits.StartsHeaderless,
+        Links = LinkUse.Of([LinkTopicId.HoveredInstant], [LinkTopicId.HoveredInstant]),
         Add = new(AddFolderId.Markets, 0, 3),
     };
 

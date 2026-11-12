@@ -47,6 +47,7 @@ internal sealed partial class ExchangeRateView : Grid, IWidgetView, IWidgetHeade
 
     public ExchangeRateView(IWidgetHost host)
     {
+        FollowInstants();
         _host = host;
         _header = new KitHeader(host, _fix);
         _rate.Use(FamilyType.Big28);
@@ -85,6 +86,7 @@ internal sealed partial class ExchangeRateView : Grid, IWidgetView, IWidgetHeade
         });
 
         ApplyConfig(config);
+        _links.Join(_surface?.Links);
     }
 
     public void Bind(IWidgetSurface surface)
@@ -211,11 +213,19 @@ internal sealed partial class ExchangeRateView : Grid, IWidgetView, IWidgetHeade
             changeRole,
             underRole: beside ? ColourRole.TextSecondary : changeRole);
         _rate.Visibility = Visibility.Visible;
+
+        // [S-11912] At a moment pointed at on a history of this pair: that day's rate, the day under it.
+        if (RateAtInstant(rate) is { } then)
+        {
+            _rate.Show(then.Rate, fold.Unit ? code : string.Empty, then.Caption);
+        }
     }
 
     public void Detach()
     {
         _detached = true;
+        _links.Leave();
+        _standsAt = null;
         Strings.Changed -= OnLanguage;
         _subscription?.Dispose();
         _subscription = null;

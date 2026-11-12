@@ -37,6 +37,7 @@ internal sealed partial class StockHistoryView : Grid, IWidgetView, IWidgetOpens
 
     public StockHistoryView(IWidgetHost host)
     {
+        FollowInstants();
         _header = new KitHeader(host);
         _feed = new(
             () => new(h => host.Quotes.Updated += h, h => host.Quotes.Updated -= h, host.Quotes.Key, host.Quotes.Quote, host.Quotes.Show),
@@ -63,6 +64,7 @@ internal sealed partial class StockHistoryView : Grid, IWidgetView, IWidgetOpens
         _config = config as StockHistoryConfig ?? new StockHistoryConfig();
         _feed.Attach(ticker, _config.TickInterval);
         ApplyConfig(config);
+        _links.Join(_surface?.Links);
     }
 
     public void Bind(IWidgetSurface surface)
@@ -80,6 +82,7 @@ internal sealed partial class StockHistoryView : Grid, IWidgetView, IWidgetOpens
 
     public void Detach()
     {
+        _links.Leave();
         _feed.Detach();
         DetachChart();
     }

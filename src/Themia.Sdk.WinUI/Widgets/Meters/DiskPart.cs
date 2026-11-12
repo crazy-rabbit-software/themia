@@ -3,6 +3,7 @@ using Themia.App.Services.SystemData;
 using Themia.App.Shell;
 using Themia.Core.Localization;
 using Themia.Core.Model;
+using Themia.Core.SystemData;
 using Themia.Core.Widgets;
 using Themia.Sdk;
 using Themia.Sdk.Kit;
@@ -41,6 +42,9 @@ public abstract class DiskPart(IWidgetHost widgetHost) : MeterPart
 
         public string Drive { get; set; } = string.Empty;
     }
+
+    /// <summary>[S-11912] A point is the drive's reads and writes per second, as the reading writes it.</summary>
+    public override string? ValueAt(SeriesPoint point) => double.IsFinite(point.First) ? Formatting.Rate(point.First) : null;
 
     /// <summary>[S-2016] A click on the card opens Task Manager.</summary>
     public override CardOpen? Opens(WidgetConfig config) => CardOpen.TaskManager;

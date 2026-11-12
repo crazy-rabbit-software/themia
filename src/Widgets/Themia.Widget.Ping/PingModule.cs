@@ -4,6 +4,7 @@ using Themia.App.Shell;
 using Themia.App.Shell.Config;
 using Themia.App.Widgets;
 using Themia.App.Widgets.Meters;
+using Themia.Core.Links;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
@@ -34,6 +35,7 @@ public sealed class PingModule : IWidgetModule
         Glyph = Glyphs.Ping,
         Sizing = c => MeterSizing.Reading(PingMeter.Look(((PingConfig)c).Style), PingPart.Worst),
         Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader,
+        Links = LinkUse.Of([], [LinkTopicId.HoveredInstant]),
         Add = new(AddFolderId.PingReading, 0, 0),
     };
 

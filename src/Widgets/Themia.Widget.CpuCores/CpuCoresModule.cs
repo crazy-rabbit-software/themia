@@ -6,6 +6,7 @@ using Themia.App.Shell;
 using Themia.App.Shell.Config;
 using Themia.App.Widgets;
 using Themia.App.Widgets.Meters;
+using Themia.Core.Links;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.SystemData;
@@ -42,6 +43,7 @@ public sealed class CpuCoresModule : IWidgetModule
             _ => MeterSizing.Columns,
         },
         Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader | WidgetTraits.StartsHeaderless,
+        Links = LinkUse.Of([LinkTopicId.HoveredInstant], [LinkTopicId.HoveredInstant]),
         Add = new(AddFolderId.Processor, 0, 2),
     };
 
@@ -121,6 +123,9 @@ public sealed class CpuCoresConfig : HistoryConfig, IStyled, IReadsSystem
 /// <summary>[S-11011] The cores as the hub reads them, each in its own usage pressure's role ([S-6301]).</summary>
 internal sealed class CpuCoresMeter : MeterPart
 {
+    /// <summary>[S-11910] The moment under the pointer on its history goes to the view; a moment pointed at elsewhere is marked on it.</summary>
+    public override LinkTopic<InstantLink>? Instant => LinkTopics.HoveredInstant;
+
     public override WidgetId Kind => new("cpuCores");
 
     public override MeterAtom Atom => MeterAtom.Items;

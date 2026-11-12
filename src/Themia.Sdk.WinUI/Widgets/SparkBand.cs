@@ -1,4 +1,5 @@
 using Microsoft.UI.Xaml.Controls;
+using Themia.Core.Links;
 using Themia.Core.SystemData;
 using Themia.Core.Widgets;
 using Themia.Sdk.Kit;
@@ -28,6 +29,18 @@ namespace Themia.App.Widgets;
 public sealed partial class SparkBand : Grid
 {
     private readonly ChartSeries _series = new();
+
+    // [S-11911] The hairline at a moment pointed at on a history chart of the view.
+    private readonly Microsoft.UI.Xaml.Shapes.Rectangle _marker = new()
+    {
+        Width = FamilyShape.Hairline,
+        HorizontalAlignment = Microsoft.UI.Xaml.HorizontalAlignment.Left,
+        Visibility = Microsoft.UI.Xaml.Visibility.Collapsed,
+        IsHitTestVisible = false,
+    };
+
+    private DateTimeOffset? _markedAt;
+    private TimeSpan _markedPeriod;
     private readonly Queue<double> _first;
     private readonly Queue<double> _second;
     private int _capacity;
@@ -48,7 +61,13 @@ public sealed partial class SparkBand : Grid
         FlowDirection = Microsoft.UI.Xaml.FlowDirection.LeftToRight;
         IsHitTestVisible = false;
         Children.Add(_series);
-        SizeChanged += (_, _) => Redraw();
+        _marker.Fill = Family.Brush(ColourRole.TextSecondary);
+        Children.Add(_marker);
+        SizeChanged += (_, _) =>
+        {
+            Redraw();
+            PlaceMarker();
+        };
         RegisterPropertyChangedCallback(VisibilityProperty, (_, _) =>
         {
             if (_stale && Shown)
@@ -161,6 +180,33 @@ public sealed partial class SparkBand : Grid
         }
 
         Redraw();
+    }
+
+    /// <summary>[S-11911] How long the band spans at a series' spacing: its slots, oldest to newest.</summary>
+    public TimeSpan Span(TimeSpan period) => period * Math.Max(1, _capacity - 1);
+
+    /// <summary>[S-11911] The moment the band's <paramref name="x"/> stands for, the newest slot at <paramref name="now"/>.</summary>
+    public DateTimeOffset InstantAt(double x, TimeSpan period, DateTimeOffset now)
+        => LinkInstants.At(x, FamilyShape.Stroke, ActualWidth - FamilyShape.Stroke, Span(period), now);
+
+    /// <summary>
+    /// [S-11911] Draw the hairline at <paramref name="at"/> (null: none) where the band's span holds it,
+    /// the newest slot at now: one crosshair down every history chart of the view.
+    /// </summary>
+    public void Mark(DateTimeOffset? at, TimeSpan period)
+    {
+        _markedAt = at;
+        _markedPeriod = period;
+        PlaceMarker();
+    }
+
+    private void PlaceMarker()
+    {
+        var x = _markedAt is { } at
+            ? LinkInstants.X(at, FamilyShape.Stroke, ActualWidth - FamilyShape.Stroke, Span(_markedPeriod), DateTimeOffset.Now)
+            : null;
+        _marker.Visibility = x is null ? Microsoft.UI.Xaml.Visibility.Collapsed : Microsoft.UI.Xaml.Visibility.Visible;
+        _marker.Margin = new Microsoft.UI.Xaml.Thickness(x ?? 0, 0, 0, 0);
     }
 
     /// <summary>Forget the history: the next reading is of something else.</summary>

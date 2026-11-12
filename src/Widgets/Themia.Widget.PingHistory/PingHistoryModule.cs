@@ -4,6 +4,7 @@ using Themia.App.Shell;
 using Themia.App.Shell.Config;
 using Themia.App.Widgets;
 using Themia.App.Widgets.Meters;
+using Themia.Core.Links;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.SystemData;
@@ -32,6 +33,7 @@ public sealed class PingHistoryModule : IWidgetModule
         Glyph = Glyphs.Network,
         Sizing = _ => MeterSizing.History,
         Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader | WidgetTraits.StartsHeaderless,
+        Links = LinkUse.Of([LinkTopicId.HoveredInstant], [LinkTopicId.HoveredInstant]),
         Add = new(AddFolderId.PingReading, 0, 1),
     };
 
@@ -78,6 +80,9 @@ public sealed class PingHistoryConfig : HistoryConfig, IReadsSystem, IPingHost
 /// <summary>[S-11022] The latency as a history against the window's slowest answer ([S-1172]).</summary>
 internal sealed class PingHistoryMeter : PingPart
 {
+    /// <summary>[S-11910] The moment under the pointer on its history goes to the view; a moment pointed at elsewhere is marked on it.</summary>
+    public override LinkTopic<InstantLink>? Instant => LinkTopics.HoveredInstant;
+
     public override WidgetId Kind => new("pingHistory");
 
     public override MeterAtom Atom => MeterAtom.History;

@@ -5,6 +5,7 @@ using Themia.App.Shell;
 using Themia.App.Shell.Config;
 using Themia.App.Widgets;
 using Themia.App.Widgets.Meters;
+using Themia.Core.Links;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.SystemData;
@@ -36,6 +37,7 @@ public sealed class CpuHistoryModule : IWidgetModule
         Glyph = Glyphs.Cpu,
         Sizing = _ => MeterSizing.History,
         Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader | WidgetTraits.StartsHeaderless,
+        Links = LinkUse.Of([LinkTopicId.HoveredInstant], [LinkTopicId.HoveredInstant]),
         Add = new(AddFolderId.Processor, 0, 1),
     };
 
@@ -68,6 +70,9 @@ public sealed class CpuHistoryConfig : HistoryConfig, IReadsSystem
 /// <summary>[S-11010] The load's history in the usage pressure's role ([S-1123]).</summary>
 internal sealed class CpuHistoryMeter : MeterPart
 {
+    /// <summary>[S-11910] The moment under the pointer on its history goes to the view; a moment pointed at elsewhere is marked on it.</summary>
+    public override LinkTopic<InstantLink>? Instant => LinkTopics.HoveredInstant;
+
     public override WidgetId Kind => new("cpuHistory");
 
     public override MeterAtom Atom => MeterAtom.History;

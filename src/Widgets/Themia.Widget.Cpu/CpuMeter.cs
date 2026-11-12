@@ -1,4 +1,5 @@
 using Themia.App.Services;
+using Themia.Core.Links;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
 using Themia.Sdk;
@@ -9,6 +10,9 @@ namespace Themia.App.Widgets.Meters;
 /// <summary>[S-1140] Processor load across all cores, the reading alone: the number at 28, or in a gauge ([S-6311]).</summary>
 internal sealed class CpuMeter : MeterPart
 {
+    /// <summary>[S-11912] At a moment pointed at on a history of its subject, the reading shows its value then.</summary>
+    public override LinkTopic<InstantLink>? Instant => LinkTopics.HoveredInstant;
+
     /// <inheritdoc />
     public override CardOpen? Opens(WidgetConfig config) => CpuModule.Opens;
 
