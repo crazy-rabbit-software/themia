@@ -654,6 +654,11 @@
               }
             ],
             "style": "grid",
+            "columns": 4,
+            "iconSize": "Small",
+            "lines": 2,
+            "showTarget": true,
+            "showKind": false,
             "gridIconOnly": false,
             "showFileExtension": false,
             "clickMode": "Double"

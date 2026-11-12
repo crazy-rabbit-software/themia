@@ -162,14 +162,10 @@ internal sealed partial class ShortcutsView
         _panel.ColumnSpacing = 0;
         _panel.RowSpacing = 0;
 
-        for (var c = 0; c < plan.Columns; c++)
-        {
-            _panel.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
-        }
+        // [S-11202] One column, one row per shortcut.
+        _panel.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
 
-        var rows = (visible.Count + plan.Columns - 1) / plan.Columns;
-
-        for (var r = 0; r < rows; r++)
+        for (var r = 0; r < visible.Count; r++)
         {
             _panel.RowDefinitions.Add(new RowDefinition { Height = new GridLength(plan.RowHeight) });
         }
@@ -179,8 +175,7 @@ internal sealed partial class ShortcutsView
         for (var i = 0; i < visible.Count; i++)
         {
             var cell = BuildRow(visible[i], plan, details);
-            SetRow(cell.Root, i / plan.Columns);
-            SetColumn(cell.Root, i % plan.Columns);
+            SetRow(cell.Root, i);
             Add(cell);
         }
     }
@@ -222,7 +217,7 @@ internal sealed partial class ShortcutsView
             {
                 kind = Family.Text(FamilyType.Body, ColourRole.TextSecondary);
                 kind.VerticalAlignment = VerticalAlignment.Center;
-                SetColumn(kind, 2);
+                SetColumn(kind, plan.TargetColumn ? 2 : 1);
                 grid.Children.Add(kind);
             }
 
@@ -274,7 +269,17 @@ internal sealed partial class ShortcutsView
         _columnHeader.Height = KitLadder.ColumnHeaderHeight;
         _columnHeader.Padding = new Thickness(FamilySpace.Inset + RowRules.NameStart(plan.Lead), 0, FamilySpace.Inset, 0);
 
-        string[] titles = [Str.Folder_ColName.Text(), ShortcutsStr.WidgetsC_Shortcuts_Column_Target.Text(), ShortcutsStr.WidgetsC_Shortcuts_Column_Kind.Text()];
+        // The titles of the columns the table has: the name, then the target and the kind where shown.
+        List<string> titles = [Str.Folder_ColName.Text()];
+        if (plan.TargetColumn)
+        {
+            titles.Add(ShortcutsStr.WidgetsC_Shortcuts_Column_Target.Text());
+        }
+
+        if (plan.KindColumn)
+        {
+            titles.Add(ShortcutsStr.WidgetsC_Shortcuts_Column_Kind.Text());
+        }
 
         for (var c = 0; c < _columnHeader.ColumnDefinitions.Count; c++)
         {

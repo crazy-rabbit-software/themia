@@ -57,21 +57,28 @@ public sealed class ShortcutsMenuTests
     }
 
     [Fact]
-    public void S1388_tiles_offer_icons_only_and_extensions_under_style_and_no_size()
+    public void S11202_tiles_offer_columns_icon_size_icons_only_and_extensions_under_style()
     {
         var look = Build(new ShortcutsConfig { Style = ShortcutsStyle.Grid }).Lines.StyleLines.Select(l => l.Text).ToList();
 
-        Assert.Equal([ShortcutsStr.CtxMenu_IconOnly.Text(), Str.Folder_ShowExtMenu.Text()], look);
+        Assert.Equal(
+            [
+                ShortcutsStr.WidgetsC_Shortcuts_Settings_Columns.Text(), ShortcutsStr.WidgetsC_Shortcuts_Settings_IconSize.Text(),
+                ShortcutsStr.CtxMenu_IconOnly.Text(), Str.Folder_ShowExtMenu.Text(),
+            ],
+            look);
     }
 
-    [Theory]
-    [InlineData(ShortcutsStyle.List)]
-    [InlineData(ShortcutsStyle.Details)]
-    public void S1388_a_list_and_details_offer_only_the_extensions_under_style(ShortcutsStyle style)
+    [Fact]
+    public void S11202_a_list_offers_its_lines_and_the_table_its_columns_under_style()
     {
-        var look = Build(new ShortcutsConfig { Style = style }).Lines.StyleLines.Select(l => l.Text).ToList();
+        var list = Build(new ShortcutsConfig { Style = ShortcutsStyle.List }).Lines.StyleLines.Select(l => l.Text).ToList();
+        var details = Build(new ShortcutsConfig { Style = ShortcutsStyle.Details }).Lines.StyleLines.Select(l => l.Text).ToList();
 
-        Assert.Equal([Str.Folder_ShowExtMenu.Text()], look);
+        Assert.Equal([Str.Kit_Lines.Text(), Str.Folder_ShowExtMenu.Text()], list);
+        Assert.Equal(
+            [ShortcutsStr.WidgetsC_Shortcuts_Column_Target.Text(), ShortcutsStr.WidgetsC_Shortcuts_Column_Kind.Text(), Str.Folder_ShowExtMenu.Text()],
+            details);
     }
 
     [Fact]

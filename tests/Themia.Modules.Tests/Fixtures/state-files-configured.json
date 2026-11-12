@@ -216,6 +216,11 @@
               }
             ],
             "style": "list",
+            "columns": 4,
+            "iconSize": "Small",
+            "lines": 2,
+            "showTarget": true,
+            "showKind": false,
             "gridIconOnly": true,
             "showFileExtension": true,
             "clickMode": "Single"
@@ -250,6 +255,11 @@
               }
             ],
             "style": "details",
+            "columns": 4,
+            "iconSize": "Small",
+            "lines": 2,
+            "showTarget": true,
+            "showKind": false,
             "gridIconOnly": false,
             "showFileExtension": false,
             "clickMode": "Double"

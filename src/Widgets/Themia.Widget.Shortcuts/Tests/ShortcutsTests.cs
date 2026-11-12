@@ -280,129 +280,100 @@ public sealed class ShortcutsTests
     public void S1389_only_the_bin_is_the_bin(string target, bool expected)
         => Assert.Equal(expected, ShortcutRules.IsRecycleBin(target));
 
-    // ---- the grid ladder ---------------------------------------------------------------------------
+    // ---- the sizing --------------------------------------------------------------------------------
 
-    /// <summary>The size tiers' view areas (the card less its 36 header) and their content boxes (less the inset and the bottom inset).</summary>
-    public static TheoryData<string, double, double> Tiers => new()
+    private static ShortcutsConfig With(int count, ShortcutsStyle style = ShortcutsStyle.Grid)
     {
-        { "XS", 120, 84 },
-        { "S", 200, 114 },
-        { "M", 320, 204 },
-        { "Wide", 480, 124 },
-        { "Tall", 200, 364 },
-        { "L", 560, 384 },
-        { "XL", 800, 524 },
-    };
-
-    private static CellGrid Grid(double w, double h, int count, bool iconOnly = false)
-        => ShortcutLayout.Grid(new WidgetArea(w, h), w - 32, h - 16, count, iconOnly);
-
-    [Theory]
-    [MemberData(nameof(Tiers))]
-    public void S1382_every_tier_shows_at_least_four_items_or_all_of_them(string tier, double width, double height)
-    {
-        foreach (var count in new[] { 1, 2, 5, 12 })
+        var config = new ShortcutsConfig { Style = style };
+        for (var i = 0; i < count; i++)
         {
-            var plan = Grid(width, height, count);
-            var shown = Math.Min(count, plan.Visible);
-
-            Assert.True(shown >= Math.Min(count, ShortcutLayout.KeepVisible), $"{tier}: {count} items, {plan}");
-            Assert.True((plan.Columns * plan.Width) + ((plan.Columns - 1) * FamilySpace.S3) <= width - 32 + 0.5, $"{tier} overflows its width");
-            Assert.Contains(plan.Icon, FamilyShape.Icons);
+            config.Items.Add(ShortcutItem.Create($"https://example{i}.com"));
         }
+
+        return config;
     }
 
     [Fact]
-    public void S1382_xs_sheds_names_then_steps_down_to_16_before_hiding_items()
+    public void S11202_the_grid_is_its_columns_wide_and_its_shortcuts_rows_tall()
     {
-        var plan = Grid(120, 84, 5);
+        // Four columns of 32 icons named (64 each, 12 apart, the insets): 12 + 4 x 76; a row 52 + 12.
+        var two = ShortcutLayout.Sizing(With(2));
+        Assert.Equal(new SizeDip(12 + (4 * 76), 36 + 64), two.Natural);
+        Assert.True(two.FixedHeight);
+        Assert.Equal(4, two.WidthSteps!.Count);
+        Assert.Equal(36 + (3 * 64), ShortcutLayout.Sizing(With(9)).Natural.Height);
+        Assert.Equal(36 + (ShortcutLayout.MaxGridRows * 64), ShortcutLayout.Sizing(With(60)).Natural.Height);
+        Assert.Equal(36 + 64, ShortcutLayout.Sizing(With(0)).Natural.Height);
 
-        Assert.False(plan.Named);
-        Assert.Equal(16, plan.Icon);
-        Assert.True(plan.Visible >= 4);
+        var large = With(9);
+        large.IconSize = ShortcutsIconSize.Large;
+        large.Columns = 3;
+        Assert.Equal(new SizeDip(12 + (3 * 92), 36 + (3 * 80)), ShortcutLayout.Sizing(large).Natural);
     }
 
     [Fact]
-    public void S1382_names_stay_when_there_are_few_items()
+    public void S11202_dragging_the_grids_side_sets_its_columns_on_a_copy_that_keeps_the_ids()
     {
-        var plan = Grid(120, 84, 1);
+        var config = With(6);
+        var next = Assert.IsType<ShortcutsConfig>(ShortcutLayout.SizeSets(config, new SizeDip(12 + (2 * 76), 500)));
 
-        Assert.True(plan.Named);
-        Assert.Equal(1, plan.Columns);
+        Assert.Equal(2, next.Columns);
+        Assert.Equal(4, config.Columns);
+        Assert.Equal(config.Items.Select(i => i.Id), next.Items.Select(i => i.Id));
+        Assert.Same(config, ShortcutLayout.SizeSets(config, new SizeDip(12 + (4 * 76), 10)));
+
+        var list = With(6, ShortcutsStyle.List);
+        Assert.Same(list, ShortcutLayout.SizeSets(list, new SizeDip(200, 200)));
     }
 
     [Fact]
-    public void S1382_a_wide_strip_is_one_row_of_many_named_cells_at_48()
+    public void S11202_a_list_is_one_row_per_shortcut_up_to_twelve_and_its_lines_say_the_target_line()
     {
-        var plan = Grid(480, 124, 12);
+        Assert.Equal(36 + (5 * 40) + 12, ShortcutLayout.Sizing(With(5, ShortcutsStyle.List)).Natural.Height);
+        Assert.Equal(36 + (12 * 40) + 12, ShortcutLayout.Sizing(With(30, ShortcutsStyle.List)).Natural.Height);
 
-        Assert.True(plan.Named);
-        Assert.Equal(48, plan.Icon);
-        Assert.Equal(1, plan.Rows);
-        Assert.True(plan.Columns >= 5);
+        var one = With(5, ShortcutsStyle.List);
+        one.Lines = 1;
+        Assert.Equal((28.0, 16.0), (ShortcutLayout.Rows(one).RowHeight, ShortcutLayout.Rows(one).Lead));
+        Assert.Equal(36 + (5 * 28) + 12, ShortcutLayout.Sizing(one).Natural.Height);
+        Assert.True(ShortcutLayout.Sizing(one).FixedHeight);
     }
 
     [Fact]
-    public void S1382_icon_only_never_shows_names()
+    public void S11202_the_details_columns_are_settings_and_its_least_width_holds_them()
     {
-        var plan = Grid(800, 524, 5, iconOnly: true);
+        var details = With(3, ShortcutsStyle.Details);
+        var plan = ShortcutLayout.Rows(details);
+        Assert.True(plan.TargetColumn && !plan.KindColumn && plan.ColumnHeader);
+        Assert.Equal(36 + 24 + (3 * 28) + 12, ShortcutLayout.Sizing(details).Natural.Height);
 
-        Assert.False(plan.Named);
-        Assert.Equal(48, plan.Icon);
+        details.ShowKind = true;
+        var both = ShortcutLayout.Sizing(details);
+        Assert.Equal(24 + 24 + 120 + 12 + 160 + 12 + 120, both.Min.Width);
+
+        details.ShowTarget = details.ShowKind = false;
+        Assert.False(ShortcutLayout.Rows(details).ColumnHeader);
+        Assert.Equal(36 + (3 * 28) + 12, ShortcutLayout.Sizing(details).Natural.Height);
     }
 
     [Fact]
-    public void S1382_cells_are_the_family_s_32_and_48_from_an_expanded_width()
+    public void S11202_out_of_range_cells_are_repaired_and_a_copy_keeps_the_settings()
     {
-        Assert.Equal(32, Grid(320, 204, 7).Icon);
-        Assert.Equal(48, Grid(560, 384, 7).Icon);
-        Assert.Equal(48, Grid(800, 524, 7).Icon);
-        Assert.True(Grid(800, 524, 7).Named);
+        var config = new ShortcutsConfig { Columns = 30, Lines = 5, IconSize = (ShortcutsIconSize)9, ShowKind = true, ShowTarget = false };
+        Assert.NotEmpty(config.Repair());
+        Assert.Equal((8, 2, ShortcutsIconSize.Small), (config.Columns, config.Lines, config.IconSize));
+
+        var copy = (ShortcutsConfig)config.Clone();
+        Assert.Equal((8, 2, true, false), (copy.Columns, copy.Lines, copy.ShowKind, copy.ShowTarget));
     }
 
     [Fact]
-    public void S1382_columns_share_out_the_width()
+    public void S11202_the_grid_shares_the_box_out_between_its_columns_never_below_a_cells_least()
     {
-        var plan = Grid(320, 204, 6);
-
-        Assert.InRange((plan.Columns * plan.Width) + ((plan.Columns - 1) * FamilySpace.S3), 287.5, 288.5);
-    }
-
-    // ---- the list / details ladder -----------------------------------------------------------------
-
-    [Fact]
-    public void S1383_rows_gain_the_target_line_and_a_32_icon_from_a_regular_tile_and_a_second_column_from_640()
-    {
-        var xs = ShortcutLayout.Rows(new WidgetArea(120, 84), details: false);
-        var m = ShortcutLayout.Rows(new WidgetArea(320, 204), details: false);
-        var l = ShortcutLayout.Rows(new WidgetArea(560, 384), details: false);
-        var xl = ShortcutLayout.Rows(new WidgetArea(800, 524), details: false);
-
-        Assert.Equal((28, 16, 1), (xs.RowHeight, xs.Lead, xs.Lines));
-        Assert.Equal((40, 32, 2), (m.RowHeight, m.Lead, m.Lines));
-        Assert.Equal(40, l.RowHeight);
-        Assert.Equal(1, l.Columns);
-        Assert.Equal(1, m.Columns);
-        Assert.Equal(2, xl.Columns);
-        Assert.Equal(1, ShortcutLayout.Rows(new WidgetArea(480, 124), details: false).Columns);
-    }
-
-    [Fact]
-    public void S1384_details_adds_target_then_kind_then_a_header_as_it_grows()
-    {
-        var m = ShortcutLayout.Rows(new WidgetArea(320, 204), details: true);
-        var wide = ShortcutLayout.Rows(new WidgetArea(480, 124), details: true);
-        var l = ShortcutLayout.Rows(new WidgetArea(560, 384), details: true);
-        var xl = ShortcutLayout.Rows(new WidgetArea(800, 524), details: true);
-
-        Assert.False(m.TargetColumn);
-        Assert.True(wide.TargetColumn);
-        Assert.False(wide.ColumnHeader);
-        Assert.True(l.TargetColumn);
-        Assert.True(l.ColumnHeader);
-        Assert.False(l.KindColumn);
-        Assert.True(xl.KindColumn);
-        Assert.Equal(1, xl.Columns);
-        Assert.Equal((1, 16), (xl.Lines, xl.Lead));
+        var grid = ShortcutLayout.Grid(With(6), 6, 400);
+        Assert.Equal((4, 2), (grid.Columns, grid.Rows));
+        Assert.InRange((grid.Columns * grid.Width) + (3 * FamilySpace.S3), 399.5, 400.5);
+        Assert.Equal(64, ShortcutLayout.Grid(With(6), 6, 10).Width);
+        Assert.False(ShortcutLayout.Grid(new ShortcutsConfig { GridIconOnly = true }, 1, 300).Named);
     }
 }

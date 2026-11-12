@@ -1,113 +1,183 @@
 using Themia.Core.Model;
+using Themia.Sdk;
 using Themia.Sdk.Kit;
 
 namespace Themia.Core.Widgets;
 
 /// <summary>[S-1383] How the list and details views lay out their rows, on the Row block ([S-6711]).</summary>
-/// <param name="Columns">Columns of rows (a list on a tile wide enough for two of 320 runs in two).</param>
-/// <param name="Lines">The rows' lines ([S-6712]): the name, and the target under it from a regular tile (the list).</param>
-/// <param name="Lead">The icon before the name: 16 on a one-line row, 32 on a taller one.</param>
+/// <param name="Lines">The rows' lines ([S-6712]): the name, and the target under it where the list has two.</param>
+/// <param name="Lead">The icon before the name: 16 on a one-line row, 32 on a two-line one.</param>
 /// <param name="TargetColumn">The details view shows the target column.</param>
 /// <param name="KindColumn">The details view shows the kind column.</param>
-/// <param name="ColumnHeader">The details view labels its columns.</param>
-public readonly record struct ShortcutRowPlan(
-    int Columns,
-    int Lines,
-    double Lead,
-    bool TargetColumn,
-    bool KindColumn,
-    bool ColumnHeader)
+public readonly record struct ShortcutRowPlan(int Lines, double Lead, bool TargetColumn, bool KindColumn)
 {
-    /// <summary>One row: 28, 40 or 56 by its lines.</summary>
+    /// <summary>One row: 28 or 40 by its lines.</summary>
     public double RowHeight => FamilyShape.RowHeight(Lines);
+
+    /// <summary>[S-1384] The details table labels its columns when it has a column besides the name.</summary>
+    public bool ColumnHeader => TargetColumn || KindColumn;
 }
 
 /// <summary>
-/// The Shortcuts widget's ladder (S-1382..S-1384) on the family's blocks: what each view shows for the
-/// room it has. Pure, so every tier is pinned by a test.
-/// <para>
-/// The grid is the default and the richest: Row.Cell cells ([S-6713], <see cref="RowRules.Cells"/>)
-/// of the family's icon (32, 48 from an expanded width) over their names; the names go — and then the
-/// icons step down to 32 and to the last-resort 16 — only when keeping them would leave fewer than four
-/// items (or all of them, when there are fewer) on screen.
-/// </para>
+/// [S-11202] The Shortcuts widget's sizes and layout, from its config alone: the user's list has a
+/// known length, so the size follows it. The grid is the config's columns of cells at the config's icon
+/// size, its rows the shortcuts' (at most <see cref="MaxGridRows"/>, then it scrolls); the list and the
+/// details table one row per shortcut (at most <see cref="MaxRows"/>, then they scroll). Nothing in it
+/// follows the box. Pure, so every rule is pinned by a test.
 /// </summary>
 public static class ShortcutLayout
 {
-    /// <summary>How many items the grid tries to keep on screen before it sheds names and size.</summary>
-    public const int KeepVisible = 4;
+    /// <summary>[S-11202] The most rows a list or the details table is tall; more shortcuts scroll.</summary>
+    public const int MaxRows = 12;
+
+    /// <summary>[S-11202] The most rows of cells a grid is tall; more shortcuts scroll.</summary>
+    public const int MaxGridRows = 6;
+
+    /// <summary>[S-11202] The grid's columns: 1..8, a new one 4.</summary>
+    public const int MinColumns = 1;
+
+    public const int MaxColumns = 8;
+
+    public const int DefaultColumns = 4;
 
     /// <summary>The search box (a 32 text box) and the 8 under it, when open.</summary>
     public const double SearchHeight = FamilyShape.Button + FamilySpace.S2;
 
-    /// <summary>A list keeps each of its columns at least this wide (the kit's column, [S-7031]).</summary>
-    public const double MinListColumn = 320;
+    /// <summary>[S-11202] The details table's name column at its least: a name worth reading.</summary>
+    public const double NameLeast = 120;
+
+    /// <summary>[S-11202] The details table's target column at its least: a short path or a site.</summary>
+    public const double TargetLeast = 160;
 
     /// <summary>The details view's kind column.</summary>
     public const double KindWidth = 120;
 
-    /// <summary>
-    /// [S-1382] The cells for <paramref name="count"/> items in a content box <paramref name="width"/> ×
-    /// <paramref name="height"/> (the card less its inset and what stands above the items). Tries,
-    /// richest first: named cells at the family's icon for <paramref name="area"/> (unless
-    /// <paramref name="iconOnly"/>), then unnamed at that icon, at 32, and at 16 as the last resort —
-    /// and takes the first that shows at least <see cref="KeepVisible"/> items (or all of them) in at
-    /// least two columns (one, for one item).
-    /// </summary>
-    public static CellGrid Grid(WidgetArea area, double width, double height, int count, bool iconOnly)
+    /// <summary>A list's widths (the kit's: [S-2440]).</summary>
+    public const double ListMin = KitSizing.MinWidth, ListNatural = KitSizing.NaturalWidth, ListMax = KitSizing.MaxWidth;
+
+    /// <summary>How much wider than its least a details table may grow: past it a column is only empty.</summary>
+    public const double DetailsSpare = 360;
+
+    /// <summary>The grid's columns, held to their range.</summary>
+    public static int ClampColumns(int columns) => Math.Clamp(columns, MinColumns, MaxColumns);
+
+    /// <summary>[S-11202] The cells' icon: Small 32, Large 48.</summary>
+    public static double CellIcon(ShortcutsIconSize size) => size == ShortcutsIconSize.Large ? FamilyShape.IconHuge : FamilyShape.IconLarge;
+
+    /// <summary>[S-11202] The rows of cells <paramref name="count"/> shortcuts take in <paramref name="columns"/>, at least one, at most <see cref="MaxGridRows"/>.</summary>
+    public static int GridRows(int count, int columns)
     {
-        var want = Math.Min(Math.Max(count, 1), KeepVisible);
-        var minColumns = count >= 2 ? 2 : 1;
-        var icon = RowRules.CellIcon(area);
-
-        CellGrid? last = null;
-        foreach (var (size, named) in Candidates(icon, iconOnly))
-        {
-            var grid = RowRules.Cells(width, height, size, named);
-            last = grid;
-            if (grid.Columns >= minColumns && grid.Rows >= 1 && grid.Visible >= want)
-            {
-                return grid;
-            }
-        }
-
-        return last!.Value;
+        var across = ClampColumns(columns);
+        return Math.Clamp((Math.Max(0, count) + across - 1) / across, 1, MaxGridRows);
     }
 
-    private static IEnumerable<(double Icon, bool Named)> Candidates(double icon, bool iconOnly)
+    /// <summary>[S-11202] The rows a list of <paramref name="count"/> shortcuts shows: one per shortcut, at least one, at most <see cref="MaxRows"/>.</summary>
+    public static int ListRows(int count) => Math.Clamp(count, 1, MaxRows);
+
+    /// <summary>
+    /// [S-1382] [S-11202] The grid of <paramref name="config"/> for <paramref name="count"/> shortcuts in a
+    /// content box <paramref name="width"/> wide (the card less its insets): its columns of cells at its
+    /// icon over their names (none on a grid of icons alone), each cell at least its least width and the
+    /// box shared out between them, and its rows.
+    /// </summary>
+    public static CellGrid Grid(ShortcutsConfig config, int count, double width)
     {
-        if (!iconOnly)
-        {
-            yield return (icon, true);
-        }
-
-        yield return (icon, false);
-        if (icon > FamilyShape.IconLarge)
-        {
-            yield return (FamilyShape.IconLarge, false);
-        }
-
-        yield return (FamilyShape.Icon, false);
+        ArgumentNullException.ThrowIfNull(config);
+        var columns = ClampColumns(config.Columns);
+        var icon = CellIcon(config.IconSize);
+        var named = !config.GridIconOnly;
+        var least = RowRules.CellLeast(icon, named);
+        var cell = Math.Max(least, (Math.Max(0, width) - (FamilySpace.S3 * (columns - 1))) / columns);
+        return new CellGrid(columns, GridRows(count, columns), cell, RowRules.CellHeight(icon, named), icon, named);
     }
 
     /// <summary>
-    /// [S-1383] Rows for the list and details views ([S-6711], [S-6712]): the list's rows show the
-    /// target as a second line where the tile is regular both ways, the details table one line; a
-    /// one-line row leads with a 16 icon, a taller one with 32. A list runs in two columns where each
-    /// keeps 320; the details view adds the target column from an expanded width, the kind column on
-    /// the widest, and labels its columns when it has the target column on a regular height.
+    /// [S-1383] [S-11202] Rows for the list and details views ([S-6711], [S-6712]): the list's rows have the
+    /// target as a second line where its Lines are two (a 32 icon then, 16 on one line); the details table is
+    /// one line with its Target and Kind columns as its config says.
     /// </summary>
-    public static ShortcutRowPlan Rows(WidgetArea area, bool details)
+    public static ShortcutRowPlan Rows(ShortcutsConfig config)
     {
-        var lines = RowRules.Lines(area, details ? 1 : 2);
-        var target = details && area.WidthClass >= SizeClass.Expanded;
+        ArgumentNullException.ThrowIfNull(config);
+        if (config.Style == ShortcutsStyle.Details)
+        {
+            return new ShortcutRowPlan(1, FamilyShape.Icon, config.ShowTarget, config.ShowKind);
+        }
 
-        return new ShortcutRowPlan(
-            Columns: !details && area.Width >= 2 * MinListColumn ? 2 : 1,
-            Lines: lines,
-            Lead: lines > 1 ? FamilyShape.IconLarge : FamilyShape.Icon,
-            TargetColumn: target,
-            KindColumn: details && area.WidthClass >= SizeClass.Huge,
-            ColumnHeader: target && area.HeightClass >= SizeClass.Regular);
+        var lines = Math.Clamp(config.Lines, 1, 2);
+        return new ShortcutRowPlan(lines, lines > 1 ? FamilyShape.IconLarge : FamilyShape.Icon, false, false);
+    }
+
+    /// <summary>[S-11202] The details table's least width: the insets, the lead, the name and each column it has, 12 apart.</summary>
+    public static double DetailsLeast(ShortcutRowPlan plan)
+        => (2 * FamilySpace.Inset) + RowRules.NameStart(plan.Lead) + NameLeast
+           + (plan.TargetColumn ? FamilySpace.ColumnGap + TargetLeast : 0)
+           + (plan.KindColumn ? FamilySpace.ColumnGap + KindWidth : 0);
+
+    /// <summary>The grid's width steps: the insets less a gap as the base, a cell and its gap as the step, the config's columns as the count.</summary>
+    public static SizeSteps ColumnSteps(ShortcutsConfig config)
+    {
+        ArgumentNullException.ThrowIfNull(config);
+        var least = RowRules.CellLeast(CellIcon(config.IconSize), !config.GridIconOnly);
+        return new SizeSteps((2 * FamilySpace.Inset) - FamilySpace.S3, least + FamilySpace.S3, MinColumns, MaxColumns, ClampColumns(config.Columns));
+    }
+
+    /// <summary>
+    /// [S-11202] The sizing of <paramref name="config"/> (with its default top header): the grid's width
+    /// in steps of a column (the config's columns) and its one height, its rows of cells; a list or
+    /// a details table one height, its rows (and the details' column titles), and a width range.
+    /// </summary>
+    public static WidgetSizing Sizing(ShortcutsConfig config)
+    {
+        ArgumentNullException.ThrowIfNull(config);
+        var count = config.Items.Count;
+
+        if (config.Style == ShortcutsStyle.Grid)
+        {
+            var named = !config.GridIconOnly;
+            var pitch = RowRules.CellHeight(CellIcon(config.IconSize), named) + FamilySpace.S3;
+            var height = FamilySpace.ContentTop + (GridRows(count, config.Columns) * pitch);
+            return WidgetSizing.Range(new(1, height), new(1, height), new(1, height)).WithWidthSteps(ColumnSteps(config));
+        }
+
+        var plan = Rows(config);
+        var rows = FamilySpace.ContentTop + (plan.ColumnHeader ? KitLadder.ColumnHeaderHeight : 0) + (ListRows(count) * plan.RowHeight) + FamilySpace.Inset;
+        if (config.Style == ShortcutsStyle.List)
+        {
+            return WidgetSizing.Range(new(ListMin, rows), new(ListNatural, rows), new(ListMax, rows));
+        }
+
+        var least = DetailsLeast(plan);
+        return WidgetSizing.Range(new(least, rows), new(least + (DetailsSpare / 3), rows), new(least + DetailsSpare, rows));
+    }
+
+    /// <summary>
+    /// [S-11202] The config a grid <paramref name="size"/> wide means: the columns that width holds. A
+    /// copy when they change; the same config otherwise, and for a list or a table, whose size follows
+    /// nothing a resize can set.
+    /// </summary>
+    public static WidgetConfig SizeSets(ShortcutsConfig config, SizeDip size)
+    {
+        ArgumentNullException.ThrowIfNull(config);
+        if (config.Style != ShortcutsStyle.Grid)
+        {
+            return config;
+        }
+
+        var columns = ColumnSteps(config).Nearest(size.Width);
+        if (columns == config.Columns)
+        {
+            return config;
+        }
+
+        // A copy of the same shortcuts, not a duplicate: the items keep their ids (selection keys on them).
+        var copy = (ShortcutsConfig)config.Clone();
+        for (var i = 0; i < copy.Items.Count; i++)
+        {
+            copy.Items[i].Id = config.Items[i].Id;
+        }
+
+        copy.Columns = columns;
+        return copy;
     }
 }

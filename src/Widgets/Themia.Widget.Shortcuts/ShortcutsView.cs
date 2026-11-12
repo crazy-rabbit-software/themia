@@ -382,9 +382,11 @@ internal sealed partial class ShortcutsView : Grid, IWidgetView, IWidgetSurfaceA
     }
 
     /// <summary>
-    /// The ladder ([S-1382]..[S-1384]): the search box (when open) takes its line first; the items
-    /// take the rest (no status footer at any size), laid out by the view's plan. A change of plan rebuilds the
-    /// cells; anything else repaints them.
+    /// [S-11202] The items laid out as the config says, never as the box does: the grid's columns of cells,
+    /// its rows the shortcuts' (up to its most, then they scroll); a list's or the table's one row per
+    /// shortcut (up to its most). The open search box takes its line over them and they scroll in the rest;
+    /// no status footer. A change of shape rebuilds the cells; anything else repaints them. The box is
+    /// read only for the width the grid's cells share.
     /// </summary>
     private void Lay()
     {
@@ -408,40 +410,33 @@ internal sealed partial class ShortcutsView : Grid, IWidgetView, IWidgetSurfaceA
             return;
         }
 
-        // The view's area less the card's bottom inset and the open search box: the items' room.
-        var area = _area.IsMeasured ? _area : new WidgetArea(320, 200);
-        var height = Math.Max(0, area.Height - FamilySpace.Inset - (_searchOpen ? ShortcutLayout.SearchHeight : 0));
-        var width = Math.Max(0, area.Width - (2 * FamilySpace.Inset));
+        // The width the grid's cells share: the box less the insets (a new one's natural width until measured).
+        var width = Math.Max(0, (_area.IsMeasured ? _area.Width : ShortcutLayout.Sizing(_config).Natural.Width) - (2 * FamilySpace.Inset));
+        var search = _searchOpen ? ShortcutLayout.SearchHeight : 0;
 
         CellShape shape;
 
         if (_config.Style == ShortcutsStyle.Grid)
         {
-            var tiles = ShortcutLayout.Grid(area, width, height, visible.Count, _config.GridIconOnly);
+            // The rows follow every shortcut, not a search's few: the card keeps its size while searching.
+            var tiles = ShortcutLayout.Grid(_config, _config.Items.Count, width);
             shape = new CellShape(_config.Style, tiles, default, visible.Count, width);
 
             // [S-6713] A cell's mark stands 4 around it: the marks start 4 over the items' top and 4
             // inside the inset, and only whole rows of cells show.
             _scroll.Padding = new Thickness(RowRules.CellMarkEdge, 0, RowRules.CellMarkEdge, 0);
             _scroll.Margin = new Thickness(0, -FamilySpace.S1, 0, 0);
-            _scroll.Height = Math.Max(1, tiles.Rows) * tiles.PitchY;
+            _scroll.Height = Math.Max(tiles.PitchY, (tiles.Rows * tiles.PitchY) - search);
         }
         else
         {
-            var rows = ShortcutLayout.Rows(area, _config.Style == ShortcutsStyle.Details);
-
-            // The column titles cost a Caption line and 8; only where the list keeps two rows under them.
-            if (rows.ColumnHeader && RowRules.Fit(height - KitLadder.ColumnHeaderHeight, rows.Lines) < 2)
-            {
-                rows = rows with { ColumnHeader = false };
-            }
-
+            var rows = ShortcutLayout.Rows(_config);
             shape = new CellShape(_config.Style, default, rows, visible.Count, width);
 
-            // [S-6712] As tall as its whole rows: never a part of one at its foot.
+            // [S-6712] As tall as its rows: one per shortcut up to the most, never a part of one at its foot.
             _scroll.Padding = new Thickness(0);
             _scroll.Margin = new Thickness(0);
-            _scroll.Height = Math.Max(1, RowRules.Fit(height - (rows.ColumnHeader ? KitLadder.ColumnHeaderHeight : 0), rows.Lines)) * rows.RowHeight;
+            _scroll.Height = Math.Max(rows.RowHeight, (ShortcutLayout.ListRows(_config.Items.Count) * rows.RowHeight) - search);
         }
 
         _surface.MinHeight = Math.Max(0, _scroll.Height - _scroll.Padding.Top - _scroll.Padding.Bottom);

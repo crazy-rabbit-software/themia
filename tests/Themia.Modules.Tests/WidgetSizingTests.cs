@@ -29,7 +29,7 @@ public sealed class WidgetSizingTests
         "monoAudioToggle", "moon", "music", "network", "networkDetails", "nextMeeting", "nightLightToggle", "notes",
         "notifications", "ping", "pingDetails", "pomodoro", "quote", "rainNextHour",
         "removableDrives", "restart", "rotationLockToggle", "rss", "scratchpad", "screenOff", "screenTimeApps",
-        "screenTimeChart", "screenTimeDonut", "shortcuts", "shutdown", "signOut", "sleep", "soundToggle",
+        "screenTimeChart", "screenTimeDonut", "shutdown", "signOut", "sleep", "soundToggle",
         "spatialSoundToggle", "stocks", "stopwatch", "sun", "topProcesses", "videoStream", "volume",
         "weatherForecast", "weatherNow", "weekPlanner", "wifiToggle",
     ];
@@ -82,9 +82,9 @@ public sealed class WidgetSizingTests
 
         foreach (var wanted in new[] { sizing.Min, sizing.Natural, sizing.Max })
         {
-            var before = config.Clone();
+            var before = StateJsonOf(config);
             var next = sets(config, wanted);
-            Assert.Equal(StateJsonOf(before), StateJsonOf(config));
+            Assert.Equal(before, StateJsonOf(config));
             var after = kind.Sizing(next);
             if (sizing.HeightSteps is { FollowsConfig: true } rows)
             {

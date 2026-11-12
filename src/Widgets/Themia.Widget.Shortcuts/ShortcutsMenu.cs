@@ -43,6 +43,31 @@ internal static class ShortcutsMenu
         // [S-6401] What only the current look draws with, under Style ([S-6070]): picking another
         // style builds the menu again with its own.
         var look = menu.StyleLines;
+
+        // [S-11202] What the look shows is set, never the box: the grid's columns and icon size, the
+        // list's lines per row, the table's columns.
+        if (config.Offers(ShortcutsSetting.Cells))
+        {
+            look.Add(menu.Number(null, ShortcutsStr.WidgetsC_Shortcuts_Settings_Columns.Text(), ShortcutLayout.ClampColumns(config.Columns), ShortcutLayout.MinColumns, ShortcutLayout.MaxColumns, 1, v => LocaleFormat.Integer(v), v => config.Columns = v));
+            look.Add(menu.Choice(
+                null,
+                ShortcutsStr.WidgetsC_Shortcuts_Settings_IconSize.Text(),
+                [(ShortcutsIconSize.Small, Str.Kit_SizeSmall.Text()), (ShortcutsIconSize.Large, Str.Kit_SizeLarge.Text())],
+                config.IconSize,
+                v => config.IconSize = v));
+        }
+
+        if (config.Offers(ShortcutsSetting.Lines))
+        {
+            look.Add(menu.Choice(null, Str.Kit_Lines.Text(), [(1, Str.Kit_LinesOne.Text()), (2, Str.Kit_LinesTwo.Text())], Math.Clamp(config.Lines, 1, 2), v => config.Lines = v));
+        }
+
+        if (config.Offers(ShortcutsSetting.Columns))
+        {
+            look.Add(menu.Toggle(null, ShortcutsStr.WidgetsC_Shortcuts_Column_Target.Text(), config.ShowTarget, on => config.ShowTarget = on));
+            look.Add(menu.Toggle(null, ShortcutsStr.WidgetsC_Shortcuts_Column_Kind.Text(), config.ShowKind, on => config.ShowKind = on));
+        }
+
         if (config.Offers(ShortcutsSetting.IconOnly))
         {
             look.Add(menu.Toggle(null, ShortcutsStr.CtxMenu_IconOnly.Text(), config.GridIconOnly, on => config.GridIconOnly = on));

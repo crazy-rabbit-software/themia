@@ -5,8 +5,12 @@
     "widgetsC.shortcuts.icon.emojiPlaceholder",
     "widgetsC.shortcuts.icon.emojiRefused",
     "widgetsC.shortcuts.icon.label",
-    "widgetsC.shortcuts.icon.picture"
+    "widgetsC.shortcuts.icon.picture",
+    "widgetsC.shortcuts.settings.columns",
+    "widgetsC.shortcuts.settings.iconSize"
   ],
+  "widgetsC.shortcuts.settings.columns": "Columns",
+  "widgetsC.shortcuts.settings.iconSize": "Icon size",
   "common.search": "Search",
   "ctxMenu.iconOnly": "Icon only",
   "ctxMenu.list": "List",

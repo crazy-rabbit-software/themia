@@ -25,6 +25,15 @@ public enum ShortcutsStyle
     Details = 2,
 }
 
+/// <summary>[S-11202] The grid's icon size: Small 32, Large 48 (the family's icons).</summary>
+[JsonConverter(typeof(JsonStringEnumConverter<ShortcutsIconSize>))]
+public enum ShortcutsIconSize
+{
+    Small = 0,
+
+    Large = 1,
+}
+
 /// <summary>[S-6401] [S-6074] The shortcuts' rows that only some styles or states draw with.</summary>
 public enum ShortcutsSetting
 {
@@ -33,6 +42,15 @@ public enum ShortcutsSetting
 
     /// <summary>File extensions on the names: not on a grid of icons alone, which draws no names.</summary>
     Extensions,
+
+    /// <summary>[S-11202] The grid's columns and its icon size.</summary>
+    Cells,
+
+    /// <summary>[S-11202] The list's lines per row (the target under the name).</summary>
+    Lines,
+
+    /// <summary>[S-11202] The details table's Target and Kind columns.</summary>
+    Columns,
 }
 
 /// <summary>
@@ -150,11 +168,28 @@ public sealed class ShortcutsConfig : WidgetConfig, IStyled, IShownSettings<Shor
 
     /// <summary>[S-6401] [S-6074] The look settings the current style draws with; the page shows only these.</summary>
     [JsonIgnore]
-    public IReadOnlyList<ShortcutsSetting> ShownSettings => Style == ShortcutsStyle.Grid
-        ? GridIconOnly
-            ? [ShortcutsSetting.IconOnly]
-            : [ShortcutsSetting.IconOnly, ShortcutsSetting.Extensions]
-        : [ShortcutsSetting.Extensions];
+    public IReadOnlyList<ShortcutsSetting> ShownSettings => Style switch
+    {
+        ShortcutsStyle.Grid when GridIconOnly => [ShortcutsSetting.Cells, ShortcutsSetting.IconOnly],
+        ShortcutsStyle.Grid => [ShortcutsSetting.Cells, ShortcutsSetting.IconOnly, ShortcutsSetting.Extensions],
+        ShortcutsStyle.List => [ShortcutsSetting.Lines, ShortcutsSetting.Extensions],
+        _ => [ShortcutsSetting.Columns, ShortcutsSetting.Extensions],
+    };
+
+    /// <summary>[S-11202] The grid's columns, 1..8; its width follows them, its rows the shortcuts.</summary>
+    public int Columns { get; set; } = ShortcutLayout.DefaultColumns;
+
+    /// <summary>[S-11202] The grid's icon size, Small (32) by default.</summary>
+    public ShortcutsIconSize IconSize { get; set; } = ShortcutsIconSize.Small;
+
+    /// <summary>[S-11202] The list's lines per row: two put the target under the name.</summary>
+    public int Lines { get; set; } = 2;
+
+    /// <summary>[S-11202] The details table's Target column.</summary>
+    public bool ShowTarget { get; set; } = true;
+
+    /// <summary>[S-11202] The details table's Kind column.</summary>
+    public bool ShowKind { get; set; }
 
     /// <summary>[S-1380] Grid tiles show only their icon (original S-71).</summary>
     public bool GridIconOnly { get; set; }
@@ -197,6 +232,14 @@ public sealed class ShortcutsConfig : WidgetConfig, IStyled, IShownSettings<Shor
         {
             repairs.Add("Shortcuts widget had an unknown click mode");
             ClickMode = ItemClickMode.Double;
+        }
+
+        if (Columns != ShortcutLayout.ClampColumns(Columns) || Lines is not (1 or 2) || !Enum.IsDefined(IconSize))
+        {
+            repairs.Add("Shortcuts widget had its columns, lines or icon size out of range");
+            Columns = ShortcutLayout.ClampColumns(Columns);
+            Lines = Math.Clamp(Lines, 1, 2);
+            IconSize = Enum.IsDefined(IconSize) ? IconSize : ShortcutsIconSize.Small;
         }
 
         foreach (var item in Items)
@@ -247,6 +290,11 @@ public sealed class ShortcutsConfig : WidgetConfig, IStyled, IShownSettings<Shor
             GridIconOnly = GridIconOnly,
             ShowFileExtension = ShowFileExtension,
             ClickMode = ClickMode,
+            Columns = Columns,
+            IconSize = IconSize,
+            Lines = Lines,
+            ShowTarget = ShowTarget,
+            ShowKind = ShowKind,
         };
 
         foreach (var item in Items)

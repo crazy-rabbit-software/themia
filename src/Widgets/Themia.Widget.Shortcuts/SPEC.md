@@ -37,30 +37,36 @@ through `SettingsHost.OwnPicker`, the layout editor through `SettingsHost.AppLay
   alone, which draws no names). The tile size, row size and stretch lines are gone ([S-1380]).
 - **[S-1381]** Display name: label, else host without `www.`, else the Windows location's name, else
   the file name without its extension unless `ShowFileExtension` (original S-05, S-18, S-48).
-- **[S-1382]** Grid ladder (`ShortcutLayout.Grid`): Row.Cell cells ([S-6713], `RowRules.Cells`), the family's
-  icon (32, 48 from an expanded width) over its name in Caption, one line (the whole name on selection,
-  [S-6629]); the columns share the width out 12 apart, the marks 4 around the cells. Names go, then the icons
-  step down to 32 and to the last-resort 16, only when keeping them would leave fewer than four items (or all
-  of them) on screen: XS 3×2 icons of 16, S icons of 32, M three named columns, Wide one row of five named
-  cells at 48, Tall two named columns. Only whole rows of cells show; the rest scrolls. Every view fills from
-  the top-left of its box, row by row; room the items do not use stays at the right and bottom, never shared
-  out to centre them. Retired with group G6: the user's tile size and its step up on L and XL, stretching the
-  tiles to the height, and XL's caption line under the name (the tooltip says where an item points).
+- **[S-1382]** Grid (`ShortcutLayout.Grid`): Row.Cell cells ([S-6713]), the config's icon (Icon size:
+  Small 32, Large 48) over its name in Caption (none on a grid of icons alone), one line (the whole name
+  on selection, [S-6629]); the config's columns share the width out 12 apart, the marks 4 around the
+  cells; the cells fill from the top-left, row by row. Nothing in it follows the box ([S-11202]).
 - **[S-1383]** Real icons: a file, folder, executable or `shell:` location gets Explorer's icon
   through `IShellItemImageFactory` (icon only, never a thumbnail) at twice the drawn size, one
   extraction at a time (concurrent first requests return E_PENDING; one immediate re-ask, no wait),
   cached per path, size and variant; a web address gets the site's own `/favicon.ico` through the
   shared guarded `FaviconCache` (no third-party service). The kind's glyph at the icon's own size shows
   until the icon arrives and stays when there is none. List and details rows are the Row block
-  ([S-6711], [S-6712], `ShortcutLayout.Rows`): one line of 32 with a 16 icon while the tile is compact either
-  way; the list's rows two lines of 40 with a 32 icon from a regular tile (the name, the target under it: the
-  site, the folder it is in, or "Windows location"); the details table one line; a list in two columns where
-  each keeps 320 (XL). Only whole rows show.
+  ([S-6711], [S-6712], `ShortcutLayout.Rows`), one column: the list's rows as its Lines per row say, one
+  line of 28 with a 16 icon or two lines of 40 with a 32 icon (the name, the target under it: the site,
+  the folder it is in, or "Windows location"); the details table one line.
 - **[S-1384]** Details view: the table on the Row block (`RowBlock.Cells`, Body: the name primary, the rest
-  secondary, 12 apart): name; target column from an expanded width; kind column (Web address / Windows
-  location / File / Folder / Missing / Not allowed) from the widest; column titles (a Caption line and 8,
-  secondary, at the text edge) when it has the target column on a regular height and two rows still fit
-  under them. No status footer at any size (was: "N shortcuts", "N selected" at XL; retired, concise widgets).
+  secondary, 12 apart): name; the **Target** column and the **Kind** column (Web address / Windows
+  location / File / Folder / Missing / Not allowed) as the two switches under Style say (Target on, Kind
+  off for a new one); column titles (a Caption line and 8, secondary, at the text edge) over the columns
+  it has, whenever it has one besides the name. No status footer.
+- **[S-11202]** Converted to the sizing ([S-2438]): the user's list has a known length, so the size
+  follows it (`ShortcutLayout.Sizing`). **Grid**: Columns (1..8, a new one 4) and Icon size (Small 32,
+  Large 48) under Style; its width is its columns (12 + n × (cell + 12), a named cell 64 or 80, an icon
+  alone 32 or 48), stepped by a column, dragging its side sets Columns (`SizeSets`, the items keep their
+  ids); its one height is the rows its shortcuts take (36 + rows × (cell + 12), at most 6 rows, then it
+  scrolls). **List**: Lines per row (1 or 2, a new one 2) under Style; one height, one row per shortcut
+  (at most 12, then it scrolls), 220..520 wide, a new one 300. **Details**: the Target and Kind
+  switches; one height (the titles and one row per shortcut, at most 12), from its least width (the
+  lead, a name of 120, a target of 160 and a kind of 120 where shown) to 360 more. An open search box
+  takes its line over the items, which scroll in the rest; the card keeps its size. The tier ladder is
+  gone: no tile size, no second list column, no columns or titles by width. Repair holds Columns 1..8,
+  Lines 1..2 and a known Icon size.
 - **[S-1385]** Search (original S-43): the header's search button (a 24 header button, [S-6710]) or the card
   menu opens a box above the items (a 32 text box at the side inset, 8 over them); it narrows to items whose
   shown name or target holds the text, ignoring case. Escape closes it and clears the query; Enter opens the

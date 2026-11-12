@@ -37,10 +37,12 @@ internal sealed partial class ShortcutsView : IWidgetPreviewState
 
     public Task ShowPreviewStateAsync(string state)
     {
-        // [S-6006] "sample": seven items in whatever style the render chose (--style).
+        // [S-6006] "sample": as many items as the config holds (its size follows them, [S-11202]) in
+        // whatever style the render chose (--style); the selection states seven.
         var (view, count) = state switch
         {
-            "sample" or "selected" or "inactive" or "lasso" or "fullname" => (_config.Style, 7),
+            "sample" => (_config.Style, Math.Max(1, _config.Items.Count)),
+            "selected" or "inactive" or "lasso" or "fullname" => (_config.Style, 7),
             "grid3" => (ShortcutsStyle.Grid, 3),
             "grid7" => (ShortcutsStyle.Grid, 7),
             "grid20" => (ShortcutsStyle.Grid, 20),
@@ -69,7 +71,10 @@ internal sealed partial class ShortcutsView : IWidgetPreviewState
             items[1].Label = "Quarterly planning documents and meeting notes";
         }
 
-        ApplyConfig(new ShortcutsConfig { Style = view, Items = items });
+        var shown = (ShortcutsConfig)_config.Clone();
+        shown.Style = view;
+        shown.Items = items;
+        ApplyConfig(shown);
         UpdateLayout();
 
         switch (state)

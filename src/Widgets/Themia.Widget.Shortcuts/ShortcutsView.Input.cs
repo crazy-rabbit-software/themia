@@ -409,7 +409,7 @@ internal sealed partial class ShortcutsView
     /// <summary>How many items an Up / Down step skips: the grid's columns, or the list's.</summary>
     private int Columns() => _config.Style == ShortcutsStyle.Grid
         ? Math.Max(1, _shape.Tiles.Columns)
-        : Math.Max(1, _shape.Rows.Columns);
+        : 1;
 
     /// <summary>How many rows a Page Up / Down steps: what the scroller shows.</summary>
     private int PageRows()
