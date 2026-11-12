@@ -21,19 +21,36 @@ lines: the SDK's calendar lines), `Preview/` (Debug renders: `--state sample|run
   the accounts' change event; it never fetches on its own. It never asks for birthdays (all-day,
   never a meeting; `Repair` puts `showBirthdays` back to false).
 - **[S-2591]** Join beside the meeting, not under it (owner decision 2026-11-12; `NextMeetingJoin`,
-  tests `NextMeetingJoinTests`): the meeting's lines (the when line, the title, the time, the place and
-  the organiser, as the ladder [S-4824] shows them) are a column at the start of the content box and
-  Join, the one main action, stands at its end side, vertically centred on the lines, its end on the
-  card's inset, the family's column gap (12) between them; the title is cut with its ellipsis before
-  it would run under Join. The ladder is then planned in the column's width and spends no height on
-  Join. Where the column beside Join would be under 160 (`NextMeetingJoin.MinTextColumn`, measured on
-  the content box less Join's measured width and the gap, so a longer word for Join moves it sooner),
-  Join goes back under the lines as the Controls row at the foot (8 over it) and the ladder spends its
-  height as before. Right to left mirrors: Join at the left, the lines at the right. The meetings after
-  this one ([S-2160]) stay under the block at the full width. At the tiers in English: XS, S and Tall
-  under; Wide, M, L and XL beside.
-- **[S-2592]** A meeting with no join link has no Join anywhere (`JoinPlace.None`): its lines take the
-  content box's full width and the title is always there ([S-4824]).
+  tests `NextMeetingJoinTests`): the meeting's lines (the title, the time, the place and the organiser,
+  as the ladder [S-4824] shows them) are a column at the start of the content box and the end column
+  (the countdown over Join, [S-5710]) stands at its end side, its end on the card's inset, the family's
+  column gap (12) between them; the title is cut with its ellipsis before it would run under it. The
+  ladder is then planned in the column's width and spends no height on it. Where the column beside it
+  would be under 160 (`NextMeetingJoin.MinTextColumn`, measured on the content box less the end
+  column's width and the gap, so a longer word moves it sooner), the end column goes under the lines as
+  one row at the foot (8 over it): Join at its start, the countdown at its end; the ladder spends its
+  height on that row; where even that row does not hold Join, 12 and the countdown, they stack there as
+  they stand beside the lines, at the start (`EndPlace.Stacked`). Right to left mirrors: the end column at the left, the lines at the right. The
+  meetings after this one ([S-2160]) stay under the block at the full width. At the tiers in English:
+  XS stacked, S and Tall under; Wide, M, L and XL beside; 520 × 230 and 320 × 200 beside.
+- **[S-2592]** A meeting with no join link has no Join anywhere: the end column is the countdown alone,
+  on the title's line (the lines top-aligned, the countdown 4 down so the two lines' middles meet), or
+  alone at the end of the row under the lines where the card is too narrow.
+- **[S-5710]** **It stands without a header** (owner decision 2026-11-12: "it should be designed in a
+  way that it looks good without header … the in x minutes should be moved somewhere else than the
+  top"; it starts headerless, [S-2590]). The title is the first line. How long until it (the
+  countdown: "in 18 min.", "Now · ends 11:45 AM", "Tomorrow, 9:00 AM", as [S-4823] words it; BodyStrong,
+  primary, end-aligned, never the accent, [S-6706]) stands at the end side over Join, 4 apart, one unit:
+  how long, then the action; that end column is vertically centred on the lines. Its width is the wider
+  of Join and the countdown's widest wording in its form (`NextMeetingJoin.Wordings`: within the hour
+  every minute's, so the column does not move as the minutes go; otherwise the one it says, which does
+  not tick), measured in the language on the countdown's step (`NextMeetingJoin.EndWidth`, `Place`).
+  Nothing coming up is the Status row at the content top with the calendar's glyph and "Nothing coming
+  up", as are loading and a problem ([S-7039]); with the header turned on the layout is the same under
+  it, no line repeats the header's name. The block is the taller of the lines and the end column, and
+  the meetings after it stand under that (`NextMeetingFollowing.Rows`). "After this" is English-only
+  for now (the `$englishOnly` rule for a new string). Tests `NextMeetingJoinTests.S5710_`,
+  `NextMeetingFollowingTests.S5710_`, `DeskInfoWidgetsTests.S4824_`.
 - **[S-2160]** What comes after it (owner decision 2026-11-12; `NextMeetingFollowing`, tests
   `NextMeetingFollowingTests`): room left under the meeting's own lines goes to more of the widget's
   own items, the meetings after this one, from what the calendars' seam already reads (yesterday to
@@ -48,9 +65,10 @@ lines: the SDK's calendar lines), `Preview/` (Debug renders: `--state sample|run
   shown meeting's. Debug: `--state sample` and `running` have two more meetings today and three
   tomorrow after the first.
 - **[S-2161]** Where they stand (`NextMeetingFollowing.Rows`): 8 under the details, the label's 16,
-  then as many whole 28 rows as fit over Join (its 28 and 8) or the bottom inset, and only once the
-  details reach their range line; none fitting, no label either. At the tiers: XS, S, Wide and M none
-  (the details fill them), Tall four, L five, XL nine (as many as there are).
+  then as many whole 28 rows as fit over the end column's row (where it stands under the lines) or the
+  bottom inset, and only once the details reach their range line; none fitting, no label either. At the
+  tiers, headerless as it starts: XS, S and Wide none (the details fill them), M three, Tall seven, L
+  nine, XL as many as there are (fourteen fit).
 - **[S-4825]** On a view ([S-3300]), pointing at the event publishes `HoveredEvent`: the same event
   lights in the calendar widgets there, the others dim ([S-3623]); one another widget points at
   dims this one unless it is the same event.

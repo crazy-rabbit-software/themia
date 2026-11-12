@@ -52,18 +52,13 @@ public static class NextMeetingFollowing
     public static bool LaterDays(WidgetArea area) => area.WidthClass >= SizeClass.Expanded;
 
     /// <summary>
-    /// [S-2161] How tall the meeting's own lines stand in <paramref name="plan"/>: each shown line (the when
-    /// and the range, location, organiser lines in Body, the title in Title), 4 apart.
+    /// [S-2161] How tall the meeting's own lines stand in <paramref name="plan"/>: each shown line (the title
+    /// in Title, the range, location and organiser lines in Body), 4 apart.
     /// </summary>
     public static double DetailsHeight(NextMeetingPlan plan)
     {
         var line = FamilyType.Body.LineHeight;
         var heights = new List<double>();
-        if (plan.When)
-        {
-            heights.Add(line);
-        }
-
         if (plan.Title)
         {
             heights.Add(FamilyType.Title.LineHeight);
@@ -82,18 +77,20 @@ public static class NextMeetingFollowing
 
     /// <summary>
     /// [S-2161] How many of <paramref name="count"/> following meetings a content box of
-    /// <paramref name="height"/> shows under the details of <paramref name="plan"/>: whole one-line rows
-    /// in what is left once the details, 8, the label and Join (with its 8) are taken; none while the
-    /// details themselves are cut short (no range line yet), and none where not one row fits.
+    /// <paramref name="height"/> shows under the meeting's block: whole one-line rows in what is left once
+    /// the block (its lines, or the end column beside them where that is taller, <paramref name="endHeight"/>),
+    /// 8, the label and the end column's row under the lines (<paramref name="foot"/>) are taken; none while
+    /// the details themselves are cut short (no range line yet), and none where not one row fits.
     /// </summary>
-    public static int Rows(double height, NextMeetingPlan plan, bool hasJoin, int count)
+    public static int Rows(double height, NextMeetingPlan plan, double foot, double endHeight, int count)
     {
         if (count <= 0 || !plan.Range || !double.IsFinite(height))
         {
             return 0;
         }
 
-        var room = height - (hasJoin ? NextMeetingLayout.JoinCost : 0) - DetailsHeight(plan) - Gap - LabelCost;
+        var block = Math.Max(DetailsHeight(plan), Math.Max(0, endHeight));
+        var room = height - Math.Max(0, foot) - block - Gap - LabelCost;
         return Math.Min(count, RowRules.Fit(room, 1));
     }
 

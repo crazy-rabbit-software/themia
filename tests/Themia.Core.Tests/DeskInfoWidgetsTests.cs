@@ -78,23 +78,22 @@ public class DeskInfoWidgetsTests
     }
 
     [Fact]
-    public void S4824_join_is_always_there_and_the_title_without_it()
+    public void S4824_the_title_is_the_first_line_always_and_more_lines_follow_as_they_fit()
     {
-        // XS: the content box 88 x 60; Join and its gap take 40, the when line the rest.
-        var xs = NextMeetingLayout.Plan(new WidgetArea(88, 60), hasJoin: true, hasLocation: true, hasOrganizer: true);
-        Assert.True(xs.When);
-        Assert.False(xs.Title);
+        // XS with the end column under the lines: its row (28) and gap (8) leave 24 of 60, the title alone.
+        var xs = NextMeetingLayout.Plan(new WidgetArea(88, 60), foot: 36, hasLocation: true, hasOrganizer: true);
+        Assert.True(xs is { Title: true, Range: false });
 
-        var xsPlain = NextMeetingLayout.Plan(new WidgetArea(88, 60), hasJoin: false, hasLocation: true, hasOrganizer: true);
-        Assert.True(xsPlain.Title);
+        // M with it beside them: every line fits (28 + 20 + 20 + 20, 4 apart, in 140).
+        var medium = NextMeetingLayout.Plan(new WidgetArea(220, 140), foot: 0, hasLocation: true, hasOrganizer: true);
+        Assert.True(medium is { Title: true, Range: true, Location: true, Organizer: true });
 
-        // M: every line of the meeting fits above Join (20 + 28 + 20 + 20 + 20, 4 apart, in 140).
-        var medium = NextMeetingLayout.Plan(new WidgetArea(288, 180), hasJoin: true, hasLocation: true, hasOrganizer: true);
-        Assert.True(medium is { When: true, Title: true, Range: true, Location: true, Organizer: true });
+        // A wide strip: the title and the range, no place.
+        var wide = NextMeetingLayout.Plan(new WidgetArea(400, 60), foot: 0, hasLocation: true, hasOrganizer: false);
+        Assert.True(wide is { Title: true, Range: true, Location: false });
 
-        // A wide strip: the when line and the title over Join, no range.
-        var wide = NextMeetingLayout.Plan(new WidgetArea(448, 100), hasJoin: true, hasLocation: false, hasOrganizer: false);
-        Assert.True(wide is { When: true, Title: true, Range: false });
+        // Too short even for the title: it is still the line drawn.
+        Assert.True(NextMeetingLayout.Plan(new WidgetArea(88, 10), foot: 36, hasLocation: false, hasOrganizer: false).Title);
     }
 
     // -----------------------------------------------------------------------------------------

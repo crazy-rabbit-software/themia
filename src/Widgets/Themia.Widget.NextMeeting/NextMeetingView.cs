@@ -49,14 +49,14 @@ internal sealed partial class NextMeetingView : Grid, IWidgetView, IWidgetOpens,
     private readonly KitStatePanel _state;
 
     /// <summary>
-    /// [S-4824] [S-2160] [S-2591] The meeting: its lines from the content top with Join beside them (or
-    /// in the Controls row at the foot where the card is too narrow), the meetings after it under them.
-    /// The bottom inset is the content's; the side inset is each part's, so the following meetings'
-    /// rows reach both edges as every Row does.
+    /// [S-4824] [S-2160] [S-5710] The meeting: its lines from the content top with the end column (the
+    /// countdown over Join) beside them, or as one row at the foot where the card is too narrow, and the
+    /// meetings after it under them. The bottom inset is the content's (the top one the card's, [S-5700]);
+    /// the side inset is each part's, so the following meetings' rows reach both edges as every Row does.
     /// </summary>
     private readonly Grid _content = new() { Margin = new Thickness(0, 0, 0, FamilySpace.Inset), Visibility = Visibility.Collapsed };
 
-    /// <summary>[S-2591] The meeting's block: its lines a column at the start, Join at the end beside them.</summary>
+    /// <summary>[S-5710] The meeting's block: its lines a column at the start, the end column beside them.</summary>
     private readonly Grid _block = new()
     {
         Margin = Family.SideInset,
@@ -69,15 +69,31 @@ internal sealed partial class NextMeetingView : Grid, IWidgetView, IWidgetOpens,
 
     private readonly StackPanel _text = new() { Spacing = NextMeetingLayout.Gap, VerticalAlignment = VerticalAlignment.Center };
 
+    /// <summary>
+    /// [S-5710] The end column: the countdown over Join, one unit (how long, then the action). Beside the
+    /// lines it is a column at their end; under them one row, Join at its start and the countdown at its end.
+    /// </summary>
+    private readonly Grid _end = new()
+    {
+        RowDefinitions = { new RowDefinition { Height = GridLength.Auto }, new RowDefinition { Height = GridLength.Auto } },
+        ColumnDefinitions = { new ColumnDefinition { Width = GridLength.Auto }, new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) } },
+    };
+
     /// <summary>[S-2160] The meetings after this one: a Caption label in the secondary role over one-line Rows.</summary>
     private readonly StackPanel _after = new() { Margin = new Thickness(0, NextMeetingFollowing.Gap, 0, 0), Visibility = Visibility.Collapsed };
     private readonly TextBlock _afterLabel = Family.Text(FamilyType.Caption, ColourRole.TextSecondary);
     private readonly List<RowBlock> _afterRows = [];
 
-    /// <summary>"in 12 min.", "Now · ends 11:30 AM": the secondary role; the accent is never a text's ([S-6706]).</summary>
-    private readonly TextBlock _when = Family.Text(FamilyType.Body, ColourRole.TextSecondary);
+    /// <summary>
+    /// [S-5710] The countdown, "in 12 min", "Now · ends 11:30 AM": BodyStrong in the primary role, at the
+    /// end side; the accent is for on and selected only, never a text's ([S-6706]).
+    /// </summary>
+    private readonly TextBlock _when = Family.Text(FamilyType.BodyStrong, ColourRole.TextPrimary);
 
-    /// <summary>The one prominent line ([S-6700]: Title).</summary>
+    /// <summary>[S-5710] Measures the countdown's wordings off the tree, on its step.</summary>
+    private readonly TextBlock _whenProbe = Family.Text(FamilyType.BodyStrong, ColourRole.TextPrimary);
+
+    /// <summary>The one prominent line, and the first ([S-6700]: Title).</summary>
     private readonly TextBlock _title = Family.Text(FamilyType.Title, ColourRole.TextPrimary);
 
     private readonly (Grid Row, TextBlock Text) _range = DetailLine(Glyphs.Clock);
@@ -114,22 +130,25 @@ internal sealed partial class NextMeetingView : Grid, IWidgetView, IWidgetOpens,
     public NextMeetingView(IWidgetHost host)
     {
         _widgetHost = host;
-        _state = new(Glyphs.Meeting, host) { Visibility = Visibility.Collapsed };
+        // [S-5710] The calendar's glyph: with no header the state row says what the card is about.
+        _state = new(Glyphs.Calendar, host) { Visibility = Visibility.Collapsed };
 
         _join = _controls.Main(NextMeetingStr.Meeting_Join.Text(), Join);
         _join.Loaded += OnJoinLoaded;
 
-        _text.Children.Add(_when);
         _text.Children.Add(_title);
         _text.Children.Add(_range.Row);
         _text.Children.Add(_location.Row);
         _text.Children.Add(_organizer.Row);
 
+        _end.Children.Add(_when);
+        _end.Children.Add(_controls);
+
         _afterLabel.Margin = Family.SideInset;
         _after.Children.Add(_afterLabel);
         _block.Children.Add(_text);
         _content.Children.Add(new StackPanel { VerticalAlignment = VerticalAlignment.Top, Children = { _block, _after } });
-        PlaceJoin(JoinPlace.Under);
+        PlaceEnd(EndPlace.Under, hasJoin: true);
         _content.Background = Family.Brush(ColourRole.Clear);
         _content.PointerEntered += OnPointerEntered;
         _content.PointerExited += OnPointerExited;
@@ -367,21 +386,25 @@ internal sealed partial class NextMeetingView : Grid, IWidgetView, IWidgetOpens,
         _state.Hide();
         var locale = Strings.Current;
         var zone = TimeZoneInfo.Local;
+        // [S-5700] The view's area is the card less what stands above it (a header, or the inset); the
+        // content box is that less the side insets and the foot's.
         var box = new WidgetArea(Math.Max(0, _area.Width - (2 * FamilySpace.Inset)), Math.Max(0, _area.Height - FamilySpace.Inset));
-        var joinWidth = JoinWidth();
-        var place = NextMeetingJoin.Place(item.JoinUrl is not null, box.Width, joinWidth);
-        PlaceJoin(place);
+        var hasJoin = item.JoinUrl is not null;
+        var countdownWidth = CountdownWidth(NextMeetingJoin.Wordings(locale, item, now, zone));
+        var joinWidth = hasJoin ? JoinWidth() : 0;
+        var endWidth = NextMeetingJoin.EndWidth(countdownWidth, joinWidth, hasJoin);
+        var place = NextMeetingJoin.Place(box.Width, countdownWidth, joinWidth, hasJoin);
+        PlaceEnd(place, hasJoin);
 
-        // [S-2591] Beside the lines Join costs width, not height: the lines are planned in their column.
-        var join = place == JoinPlace.Under;
+        // [S-5710] Beside the lines the end column costs width, not height: the lines are planned in their column.
+        var foot = NextMeetingJoin.FootCost(place, hasJoin);
         var plan = NextMeetingLayout.Plan(
-            box.IsMeasured ? new WidgetArea(NextMeetingJoin.TextWidth(place, box.Width, joinWidth), box.Height) : box,
-            join,
+            box.IsMeasured ? new WidgetArea(NextMeetingJoin.TextWidth(place, box.Width, endWidth), box.Height) : box,
+            foot,
             !string.IsNullOrWhiteSpace(item.Location),
             !string.IsNullOrWhiteSpace(item.Organizer));
 
         _when.Text = NextMeetingRules.When(locale, item, now, zone);
-        _when.Visibility = Show(plan.When);
         _title.Text = string.IsNullOrWhiteSpace(item.Subject) ? Str.Calendar_NoTitle.Text() : item.Subject;
         _title.Visibility = Show(plan.Title);
         _range.Text.Text = NextMeetingRules.Range(locale, item, zone);
@@ -391,9 +414,10 @@ internal sealed partial class NextMeetingView : Grid, IWidgetView, IWidgetOpens,
         _organizer.Text.Text = item.Organizer ?? string.Empty;
         _organizer.Row.Visibility = Show(plan.Organizer);
 
-        ShowAfter(NextMeetingFollowing.After(_events, item, now, zone, NextMeetingFollowing.LaterDays(_area)), NextMeetingFollowing.Rows(box.Height, plan, join, int.MaxValue), locale, now, zone);
+        var endHeight = place == EndPlace.Beside ? NextMeetingJoin.EndHeight(hasJoin) : 0;
+        ShowAfter(NextMeetingFollowing.After(_events, item, now, zone, NextMeetingFollowing.LaterDays(_area)), NextMeetingFollowing.Rows(box.Height, plan, foot, endHeight, int.MaxValue), locale, now, zone);
 
-        _controls.Visibility = Show(place != JoinPlace.None);
+        _controls.Visibility = Show(hasJoin);
         ToolTipService.SetToolTip(_join, NextMeetingStr.Meeting_JoinTip.Text());
         ToolTipService.SetToolTip(_text, Describe(item, locale, zone));
         _content.Visibility = Visibility.Visible;
@@ -425,24 +449,64 @@ internal sealed partial class NextMeetingView : Grid, IWidgetView, IWidgetOpens,
     private void OnJoinLoaded(object sender, RoutedEventArgs args) => Render();
 
     /// <summary>
-    /// [S-2591] Put Join where <paramref name="place"/> says: in the block's end column, centred on the
-    /// lines with the family's column gap before it, or the Controls row at the content's foot.
+    /// [S-5710] The countdown's widest wording in its form, measured on the countdown's own step and font
+    /// (the text size may have changed it), so the end column does not move as the minutes go.
     /// </summary>
-    private void PlaceJoin(JoinPlace place)
+    private double CountdownWidth(IReadOnlyList<string> wordings)
     {
-        var beside = place == JoinPlace.Beside;
+        _whenProbe.FontSize = _when.FontSize;
+        _whenProbe.FontWeight = _when.FontWeight;
+        _whenProbe.FontFamily = _when.FontFamily;
+        var widest = 0.0;
+        foreach (var wording in wordings)
+        {
+            _whenProbe.Text = wording;
+            _whenProbe.Measure(new Windows.Foundation.Size(double.PositiveInfinity, double.PositiveInfinity));
+            widest = Math.Max(widest, Math.Ceiling(_whenProbe.DesiredSize.Width));
+        }
+
+        return widest;
+    }
+
+    /// <summary>
+    /// [S-5710] Put the end column where <paramref name="place"/> says. Beside the lines: at their end,
+    /// the family's column gap before it, the countdown end-aligned over Join (4 apart), centred on the
+    /// lines; without Join the countdown alone, top-aligned on the title's line. Under the lines: one row
+    /// at the content's foot (8 over it), Join at its start and the countdown at its end; stacked there
+    /// (too narrow for that row), the countdown over Join at the start.
+    /// </summary>
+    private void PlaceEnd(EndPlace place, bool hasJoin)
+    {
+        var beside = place == EndPlace.Beside;
+        var column = place != EndPlace.Under;
         Panel parent = beside ? _block : _content;
         _block.ColumnSpacing = beside ? NextMeetingJoin.Gap : 0;
 
-        if (!ReferenceEquals(_controls.Parent, parent))
+        if (!ReferenceEquals(_end.Parent, parent))
         {
-            (_controls.Parent as Panel)?.Children.Remove(_controls);
-            parent.Children.Add(_controls);
+            (_end.Parent as Panel)?.Children.Remove(_end);
+            parent.Children.Add(_end);
         }
 
-        SetColumn(_controls, beside ? 1 : 0);
-        _controls.Margin = beside ? new Thickness(0) : Family.SideInset;
-        _controls.VerticalAlignment = beside ? VerticalAlignment.Center : VerticalAlignment.Bottom;
+        SetColumn(_end, beside ? 1 : 0);
+        SetRow(_when, 0);
+        SetColumn(_when, column ? 0 : 1);
+        SetRow(_controls, column ? 1 : 0);
+        SetColumn(_controls, 0);
+        _end.RowSpacing = column && hasJoin ? NextMeetingJoin.Stack : 0;
+        _end.Margin = beside ? new Thickness(0) : Family.SideInset;
+        _end.VerticalAlignment = beside ? (hasJoin ? VerticalAlignment.Center : VerticalAlignment.Top) : VerticalAlignment.Bottom;
+
+        // Beside the lines the column is end-aligned; stacked at the foot it starts at the text edge.
+        var side = place == EndPlace.Stacked ? HorizontalAlignment.Left : HorizontalAlignment.Right;
+        _when.HorizontalAlignment = side;
+        _when.TextAlignment = place == EndPlace.Stacked ? TextAlignment.Left : TextAlignment.Right;
+        _when.VerticalAlignment = column ? VerticalAlignment.Top : VerticalAlignment.Center;
+        _when.Margin = beside && !hasJoin ? new Thickness(0, NextMeetingJoin.TitleLineOffset, 0, 0) : new Thickness(0);
+        _controls.HorizontalAlignment = column ? side : HorizontalAlignment.Left;
+
+        // Without Join the lines start at the top too, so the countdown stands on the title's line.
+        _text.VerticalAlignment = beside && !hasJoin ? VerticalAlignment.Top : VerticalAlignment.Center;
     }
 
     /// <summary>

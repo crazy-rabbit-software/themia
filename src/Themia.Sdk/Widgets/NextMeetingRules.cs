@@ -116,51 +116,43 @@ public static class NextMeetingRules
     }
 }
 
-/// <summary>[S-4824] What the Next meeting widget shows at one size.</summary>
-/// <param name="When">The when line ("in 12 min.").</param>
-/// <param name="Title">The title's one line (none only on the smallest tile with Join).</param>
+/// <summary>[S-4824] What the Next meeting widget's lines show at one size (the countdown is not one of them: it stands over Join, [S-5710]).</summary>
+/// <param name="Title">The title's one line: the first line, always there.</param>
 /// <param name="Range">The time range line ("10:00 – 10:30").</param>
 /// <param name="Location">The location line, when the event has one.</param>
 /// <param name="Organizer">The organiser line, when the event has one.</param>
-public readonly record struct NextMeetingPlan(bool When, bool Title, bool Range, bool Location, bool Organizer);
+public readonly record struct NextMeetingPlan(bool Title, bool Range, bool Location, bool Organizer);
 
 /// <summary>
-/// [S-4824] The Next meeting ladder on the family's tokens, in the content box (the view's area less
-/// the card's insets): Join, when there is a link, is always there, the one main action in the Controls
-/// row at the box's foot with 8 over it (it is the reason for the widget); then the when line (Body);
-/// then the title (Title, one line), which is always there without Join; then the time range, the
-/// location and the organiser (Body lines with their 16 glyphs), 4 apart. A larger tile shows more of
-/// the meeting's own lines, never a larger title (concise first, [S-666]).
+/// [S-4824] The Next meeting ladder on the family's tokens, in the lines' box (the view's area less the
+/// card's insets, and less the end column where that stands beside them): the title (Title, one line)
+/// first and always, then the time range, the location and the organiser (Body lines with their 16
+/// glyphs), 4 apart, over the end column's row where that stands under them (<paramref name="foot"/>).
+/// A larger tile shows more of the meeting's own lines, never a larger title (concise first, [S-666]).
 /// </summary>
 public static class NextMeetingLayout
 {
     /// <summary>Between two lines.</summary>
     public const double Gap = FamilySpace.S1;
 
-    /// <summary>What Join costs: the Controls row and the gap over it.</summary>
-    public static double JoinCost => FamilyShape.Button + FamilySpace.S2;
-
-    public static NextMeetingPlan Plan(WidgetArea box, bool hasJoin, bool hasLocation, bool hasOrganizer)
+    /// <param name="box">The lines' box.</param>
+    /// <param name="foot">What the end column costs under the lines (its row and the gap over it), 0 beside them.</param>
+    /// <param name="hasLocation">The event has a place.</param>
+    /// <param name="hasOrganizer">The event has an organiser.</param>
+    public static NextMeetingPlan Plan(WidgetArea box, double foot, bool hasLocation, bool hasOrganizer)
     {
         if (!box.IsMeasured)
         {
-            return new NextMeetingPlan(false, true, false, false, false);
+            return new NextMeetingPlan(true, false, false, false);
         }
 
-        var room = new Disclosure(box.Width, box.Height - (hasJoin ? JoinCost : 0), Gap);
-        var title = FamilyType.Title.LineHeight;
+        var room = new Disclosure(box.Width, box.Height - Math.Max(0, foot), Gap);
         var line = FamilyType.Body.LineHeight;
 
-        if (!hasJoin)
-        {
-            room.Reserve(title);
-        }
-
-        var when = room.Take(line);
-        var titled = !hasJoin || room.Take(title);
+        room.Reserve(FamilyType.Title.LineHeight);
         var range = room.Take(line);
         var location = hasLocation && room.Take(line);
         var organizer = hasOrganizer && room.Take(line);
-        return new NextMeetingPlan(when, titled, range, location, organizer);
+        return new NextMeetingPlan(true, range, location, organizer);
     }
 }

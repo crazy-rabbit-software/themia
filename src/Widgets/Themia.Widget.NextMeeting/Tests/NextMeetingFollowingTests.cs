@@ -21,12 +21,19 @@ public sealed class NextMeetingFollowingTests
         AccountId = "a",
     };
 
-    // A tier's content box: the card less its 36 header, the inset either side and at the foot.
+    /// <summary>"Join" on the Body step with the button's padding and border, and "in 59 min." in BodyStrong: about 58 and 76.</summary>
+    private const double Join = 58;
+    private const double Countdown = 76;
+
+    // A tier's content box, headerless as the widget starts: the card less the inset on every side ([S-5700]).
     private static int RowsAt(double w, double h, int count = 20)
     {
-        var box = new WidgetArea(w - (2 * FamilySpace.Inset), h - FamilySpace.ContentTop - FamilySpace.Inset);
-        var plan = NextMeetingLayout.Plan(box, hasJoin: true, hasLocation: true, hasOrganizer: true);
-        return NextMeetingFollowing.Rows(box.Height, plan, hasJoin: true, count);
+        var box = new WidgetArea(w - (2 * FamilySpace.Inset), h - (2 * FamilySpace.Inset));
+        var end = NextMeetingJoin.EndWidth(Countdown, Join, hasJoin: true);
+        var place = NextMeetingJoin.Place(box.Width, Countdown, Join, hasJoin: true);
+        var foot = NextMeetingJoin.FootCost(place, hasJoin: true);
+        var plan = NextMeetingLayout.Plan(new WidgetArea(NextMeetingJoin.TextWidth(place, box.Width, end), box.Height), foot, hasLocation: true, hasOrganizer: true);
+        return NextMeetingFollowing.Rows(box.Height, plan, foot, place == EndPlace.Beside ? NextMeetingJoin.EndHeight(hasJoin: true) : 0, count);
     }
 
     [Fact]
@@ -74,18 +81,20 @@ public sealed class NextMeetingFollowingTests
     }
 
     [Fact]
-    public void S2161_whole_rows_fit_between_the_details_and_join_only_once_the_details_are_whole()
+    public void S2161_whole_rows_fit_between_the_block_and_the_foot_only_once_the_details_are_whole()
     {
-        // XS, S and Wide show the when line and the title at most; M has 8 left under its five lines.
+        // XS and S have the end column under the lines and their details cut short; Wide has 12 under its block.
         Assert.Equal(0, RowsAt(120, 120));
         Assert.Equal(0, RowsAt(200, 150));
         Assert.Equal(0, RowsAt(480, 160));
-        Assert.Equal(0, RowsAt(320, 240));
 
-        // Tall: 352 less Join 36, the details' 124, 8 and the label's 16 is 168: six rows of 28.
-        Assert.Equal(6, RowsAt(200, 400));
-        Assert.Equal(6, RowsAt(560, 420));
-        Assert.Equal(11, RowsAt(800, 560));
+        // M: 216 less the block's 100, 8 and the label's 16 is 92: three rows of 28.
+        Assert.Equal(3, RowsAt(320, 240));
+
+        // Tall (the end column's row under the lines: 36): 376 less 36, 100 and 24 is 216: seven rows.
+        Assert.Equal(7, RowsAt(200, 400));
+        Assert.Equal(9, RowsAt(560, 420));
+        Assert.Equal(14, RowsAt(800, 560));
 
         // Never more than there are.
         Assert.Equal(2, RowsAt(800, 560, count: 2));
@@ -93,10 +102,19 @@ public sealed class NextMeetingFollowingTests
     }
 
     [Fact]
+    public void S5710_an_end_column_taller_than_the_lines_holds_the_rows_under_it()
+    {
+        var titleAndRange = new NextMeetingPlan(true, true, false, false);
+        Assert.Equal(52, NextMeetingFollowing.DetailsHeight(titleAndRange));
+        Assert.Equal(1, NextMeetingFollowing.Rows(130, titleAndRange, foot: 0, endHeight: 52, count: 5));
+        Assert.Equal(0, NextMeetingFollowing.Rows(100, titleAndRange, foot: 0, endHeight: 70, count: 5));
+    }
+
+    [Fact]
     public void S2161_the_details_height_is_their_lines_4_apart()
     {
-        var all = new NextMeetingPlan(true, true, true, true, true);
-        Assert.Equal(20 + 28 + 20 + 20 + 20 + (4 * 4), NextMeetingFollowing.DetailsHeight(all));
+        var all = new NextMeetingPlan(true, true, true, true);
+        Assert.Equal(28 + 20 + 20 + 20 + (3 * 4), NextMeetingFollowing.DetailsHeight(all));
         Assert.Equal(0, NextMeetingFollowing.DetailsHeight(default));
     }
 
