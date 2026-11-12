@@ -172,6 +172,7 @@ internal sealed partial class DesktopWindow
         }
 
         PositionCard(card, card.Model.Rect);
+        JoinCards();
         PlaceProperties();
         ApplyHitRegion();
     }
@@ -245,6 +246,8 @@ internal sealed partial class DesktopWindow
             PositionCard(card, card.Model.Rect);
         }
 
+        JoinCards();
+
         Log.Debug(Scope, $"relayout {_monitor.GdiName}: view='{view.Name}' widgets={wanted.Count} " +
             $"metrics={Metrics.Width:0}x{Metrics.Height:0} scale={RasterScale:0.00} edit={EditMode}");
 
@@ -308,6 +311,19 @@ internal sealed partial class DesktopWindow
     }
 
     /// <summary>
+    /// [S-2240] [S-2244] Join the cards that touch, by the one path the scene renderer takes too. A card
+    /// being dragged or resized is free (every corner round, its whole border) until it is dropped,
+    /// and its former neighbours get their corners back at once. Runs whenever the layout is applied:
+    /// a relayout (a view switch, a design change such as the gap), a move, a resize, a nudge.
+    /// </summary>
+    private void JoinCards()
+        => WidgetCard.Join(_cards, Metrics, Design.WidgetGapPx, RasterScale, EditMode, IsFree);
+
+    /// <summary>[S-2244] Whether a card is being dragged (with the selection it carries) or resized.</summary>
+    private bool IsFree(WidgetCard card)
+        => card.IsResizing || (_move is { Moved: true } move && move.Cards.Exists(c => ReferenceEquals(c.Card, card)));
+
+    /// <summary>
     /// Restrict the window to the widgets themselves, so every click that is not on a widget lands
     /// on the desktop underneath. Without this the surface would be an invisible full-screen pane
     /// that swallows every desktop icon double-click.
@@ -340,11 +356,12 @@ internal sealed partial class DesktopWindow
         // [S-5501] Under Themia's items empty desktop is Themia's: the whole work area takes clicks.
         if (EditMode || MotionCoversScreen || _host.ShowsDesktopItems)
         {
-            DesktopLayer.SetHitRegion(_hwnd, [ToRegionRect(allowed)]);
+            DesktopLayer.SetHitRegion(_hwnd, [RegionPiece.Plain(ToRegionRect(allowed))], ToRegionRect(allowed));
             return;
         }
 
-        var rects = new List<Win32.Rect>(_cards.Count);
+        var pieces = new List<RegionPiece>(_cards.Count + 2);
+        var radius = DesignLook.CornerRadius(Design.CornerRadiusPx);
 
         foreach (var card in _cards)
         {
@@ -368,10 +385,9 @@ internal sealed partial class DesktopWindow
                 offsetX + Math.Ceiling((box.X + box.Width) * scale),
                 offsetY + Math.Ceiling((box.Y + box.Height) * scale));
 
-            if (GridGeometry.Intersect(physical, allowed) is { } visible)
-            {
-                rects.Add(ToRegionRect(visible));
-            }
+            // [S-2245] Its own shape: round corners round, the ones a neighbour joins square. The
+            // whole shape, cut to the work area with everything else below.
+            pieces.Add(new RegionPiece(ToRegionRect(physical), CardFrame.Corners(card.Outline, card.DrawsSurface, radius, scale)));
         }
 
         // [S-912] The view bar takes clicks too; everything else around it stays the desktop.
@@ -383,10 +399,7 @@ internal sealed partial class DesktopWindow
                 offsetX + Math.Ceiling((bar.X + bar.Width) * scale),
                 offsetY + Math.Ceiling((bar.Y + bar.Height) * scale));
 
-            if (GridGeometry.Intersect(physical, allowed) is { } visible)
-            {
-                rects.Add(ToRegionRect(visible));
-            }
+            pieces.Add(RegionPiece.Plain(ToRegionRect(physical)));
         }
 
         // [S-880] Notices paint and take clicks only inside the region, like everything else here.
@@ -398,13 +411,11 @@ internal sealed partial class DesktopWindow
                 offsetX + Math.Ceiling((notices.X + notices.Width) * scale),
                 offsetY + Math.Ceiling((notices.Y + notices.Height) * scale));
 
-            if (GridGeometry.Intersect(physical, allowed) is { } visible)
-            {
-                rects.Add(ToRegionRect(visible));
-            }
+            pieces.Add(RegionPiece.Plain(ToRegionRect(physical)));
         }
 
-        DesktopLayer.SetHitRegion(_hwnd, rects);
+        // Everything is cut to the work area at once ([S-851]).
+        DesktopLayer.SetHitRegion(_hwnd, pieces, ToRegionRect(allowed));
     }
 
     private static Win32.Rect ToRegionRect(PixelRect r) => new()

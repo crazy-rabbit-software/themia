@@ -5957,7 +5957,7 @@ card is re-created, no tick restarts. Pure rules live in Core (`DesignLook`, `De
   opacity; without one the header opacity does nothing.
 - **[S-824]** Border: style None/Solid/Dashed (3-on-2 stroke widths)/Dotted (round dots two widths
   apart), width 0..8, colour (empty = the theme's card stroke), opacity 0..1. Drawn as a shape over
-  the content and inset with the gap; none on a transparent widget.
+  the content and inset with the gap; none on a transparent widget. Where cards touch, one line between them ([S-2242]).
 - **[S-6481]** Every border setting shows (`DesignLook.Ink`). A colour of the user's own is drawn
   exactly, opaque, and the border opacity fades the line once (the element's opacity, never also the
   brush's). The theme's colour is Themia's hairline ([S-2102]) for a solid line up to 1px, and the
@@ -5972,7 +5972,7 @@ card is re-created, no tick restarts. Pure rules live in Core (`DesignLook`, `De
   `DesignText` parser, which a store scene's `design` uses too ([S-1075]): pairs in order, a colour
   `#RRGGBB` or empty for the design's own; a pair it cannot read is named (the render prints and skips it,
   a scene is refused). Tests `SceneParserTests.S6480_`.
-- **[S-825]** Corner radius 0..32 on the fill, tint, border and content clip. The edit markers stay square ([S-31b]).
+- **[S-825]** Corner radius 0..32 on the fill, tint, border and content clip; square where a joined neighbour covers the corner ([S-2241]). The edit markers stay square ([S-31b]).
 - **[S-6482]** The default corner radius is 8px (`DesignState.DefaultCornerRadiusPx`; a radius that is
   not a number loads as 8): Windows' own radius for a top-level surface, the same as Themia's menus
   and flyouts (`ShellMetrics.OverlayRadius`), so cards and edit chrome agree; the family's inner
@@ -6261,6 +6261,66 @@ blurred, under its tint. Windows' Mica, done by hand.
 Not ported, on purpose: the original's preset preview tiles (a drop-down lists them, through the
 shared `FluentLayout` row like every setting); the blur that tracked opacity (the blur behind widgets
 is one switch, [S-2110]); the eyedropper (optional in the audit). Motion settings are WP9's.
+
+### Cards that touch (JOIN)
+
+At a small gap neighbouring cards meet. Each used to round all four corners and draw its whole
+border, so a stack showed a notch of wallpaper at every meeting point and a double hairline between
+two cards. Cards that touch now read as one panel: round on the outside, one line between.
+
+- **[S-2240]** **When the painted boxes of two cards touch along a side, they join** (`CardJoins.Outlines`,
+  Core, pure: the painted box of each card in, an outline per card out). Two cards are joined on a side
+  when that side of one lies on the opposite side of the other within the tolerance (half a device
+  pixel, `CardJoins.Tolerance`: 0.5 DIP at 100 %, 0.25 at 200 %) and they overlap along it by more than
+  the tolerance; cards that meet only at a corner do not. Only a card that draws a card surface joins:
+  one whose background is not Transparent, or that has a picture of its own ([S-6590]); a bare widget
+  (a desktop item, a sticker), a hidden one ([S-873]) and one being dragged ([S-2244]) join nothing and
+  nothing joins them. The rule takes no radius and no border: two cards of different looks join by the
+  same geometry, each drawing its own radius and line. With a gap above the tolerance nothing touches
+  and nothing changes. Tests `CardJoinsTests.S2240_`.
+- **[S-2241]** **Corners.** A card's corner is square when a joined neighbour covers it: on one of the
+  two sides meeting there, a joined neighbour's span reaches that corner (within the tolerance).
+  Otherwise it keeps the card's radius. A column of equal cards rounds only the top card's top corners
+  and the bottom card's bottom ones; a narrow card on a wide one squares its lower corners while the
+  wide card keeps the top corners the narrow one does not reach. The card's outline (`CardOutline`,
+  physical sides; mirrored for a card laid out right to left) gives one corner radius per corner to
+  everything that follows the card's shape (`WidgetCard.Join.cs`): the surface's clip (the frost, the
+  fill, the view, a fault or setup overlay, hover and focus fills inside it), a background image, the
+  header's own fill ([S-828]: its strip's outer corners, each only where the card's is round; a side
+  strip maps its turned top corners onto the card's two on that edge). A surface with no round corner
+  at all clips nothing in WinUI, so such a card clips its frost to its box itself (`ClipFrost`; only
+  then, as a rectangle clip under a rounded one changes how the round corners are smoothed). Tests
+  `CardJoinsTests.S2241_`.
+- **[S-2242]** **One line between.** Where two cards join exactly one hairline is drawn. For a joined
+  pair (first: the upper or left card; second: the lower or right one): the second leaves out its
+  joined side when its neighbours cover that side whole; else the first leaves out its own when its
+  neighbours cover it whole and every neighbour along it draws its side; else both draw (staggered,
+  rare: where a first card keeps its line because one neighbour left its own out, another neighbour's
+  stretch along it may show two). A side not drawn never moves the card's content: the border is
+  drawn over the content and insets nothing. Tests `CardJoinsTests.S2242_`.
+- **[S-2243]** **The border's path** (`CardOutline.Stroke`, drawn by a `Path`, which replaced the
+  `Rectangle`): half the stroke inside the card, a round corner an arc at the radius less that half, a
+  square corner a point; all four sides drawn are one closed figure (a free card draws as before), a
+  side left out breaks the path there, and the sides beside it run on to the card's edge so they meet
+  the neighbour's line with no notch. Solid, dashed and dotted borders follow the rule alike; a dashed
+  or dotted pattern starts again at each run's start, so two neighbours' dashes need not line up
+  across a join. Tests `CardJoinsTests.S2243_`.
+- **[S-2244]** **One path, live.** The desktop (`DesktopWindow.JoinCards`) and the scene renderer
+  ([S-1076]) both call `WidgetCard.Join` over a surface's cards (each card's painted box: its live rect's
+  cell inside the gap). The desktop joins again whenever the layout is applied: a relayout (a view
+  switch, a design change such as the gap slider or a preset), a card hidden or shown, a move, a resize,
+  a keyboard nudge. A card being dragged (with the selection it carries, once the drag has moved) or
+  resized is free, every corner round and its whole border, until it is dropped; its former neighbours
+  get their corners back at once. Edit mode's selection outlines, handles, markers, ghosts and the snap
+  guides keep their own shapes; so does an intro's cover while it plays ([S-1007]).
+- **[S-2245]** **The window's region follows the shape** ([S-872]): each card's piece is its painted
+  box with its round corners cut round at its radius in device pixels and its square ones square
+  (`CardFrame.Corners`; `DesktopLayer.SetHitRegion` takes each round corner's square out and puts a
+  circle's quarter back), so no click falls through a notch where cards join and none is taken outside
+  a round corner. A bare card stays a rectangle: its content may reach its corners. The union is cut
+  to the work area last ([S-851]). Tests `CardJoinsTests.S2245_`.
+- **[S-2246]** Nothing of the design changes with it: the default gap (8) and every preset's gap stay
+  as they are ([S-2100], [S-2121]); at those gaps nothing touches and the store scenes draw as before.
 
 ## Logging (WP7)
 
@@ -6665,7 +6725,7 @@ The card hooks widgets use. Rules in Core `LeaseKeyRouting`, `WidgetZOrder`, `Ca
   Escape is still the box's ([S-804]); Escape ends the lease in the bubble, after a box that clears
   on Escape had it.
 - **[S-872]** The hit region follows **paint** (`CardFrame.Hit`): a hidden widget ([S-873]) takes
-  nothing; every other card takes its painted rect, inside the gap.
+  nothing; every other card takes its painted rect, inside the gap, its corners as drawn ([S-2245]).
 - **[S-873]** `IWidgetSurface.SetHidden(bool)`: the card stops drawing its fill, border and content
   and leaves the hit region; the view stays attached so it can show itself again. Edit mode always
   draws it, at half opacity. Not persisted. (For Music's hide-when-idle.)

@@ -306,6 +306,7 @@ internal static class SceneRender
             };
             var cell = GridGeometry.ToPixels(model.Rect, metrics);
             var card = new WidgetCard(host, model) { Width = cell.Width, Height = cell.Height };
+            card.SetLiveRect(model.Rect);
             card.ApplyEditMode(edit is not null);
             card.ApplySelection();
             // [S-1080] The scene's display scale times the widget's own, as the desktop applies them.
@@ -320,6 +321,9 @@ internal static class SceneRender
                 markers.Add(card);
             }
         }
+
+        // [S-2240] Cards that touch join, by the desktop's own path; nothing is dragged in a scene.
+        WidgetCard.Join(cards, metrics, design.WidgetGapPx, job.Scale, edit is not null, _ => false);
 
         if (edit is not null)
         {

@@ -33,6 +33,9 @@ internal sealed partial class DesktopWindow
 
         /// <summary>[S-1591] The same widgets as a move anchored on the held card, for a hand-off to another display.</summary>
         public PlacementPayload? Payload { get; } = payload;
+
+        /// <summary>[S-2244] The cards have moved: they are free of their neighbours until dropped.</summary>
+        public bool Moved { get; set; }
     }
 
     private MoveSession? _move;
@@ -113,6 +116,10 @@ internal sealed partial class DesktopWindow
             PositionCard(moving, BlockGeometry.Apply(start, delta, metrics));
         }
 
+        // [S-2244] Dragged cards are free; the ones they leave get their corners back at once.
+        move.Moved = true;
+        JoinCards();
+
         var leaving = move.Payload is { } payload && _host.PreviewHandOff(this, payload);
         foreach (var (moving, _) in move.Cards)
         {
@@ -156,6 +163,9 @@ internal sealed partial class DesktopWindow
         {
             PositionCard(moving, moving.LiveRect);
         }
+
+        // [S-2244] Dropped: they join where they landed.
+        JoinCards();
 
         // [S-884] The whole drag, every selected widget, is one undo step.
         _host.CommitGeometry(UndoAction.Move);

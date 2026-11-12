@@ -164,8 +164,11 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface, IItemPaletteOwn
     private readonly Border _fill;
     private readonly Border _surface;
 
-    /// <summary>[S-824] The border, drawn as a shape because a <see cref="Border"/> cannot dash.</summary>
-    private readonly Rectangle _stroke;
+    /// <summary>
+    /// [S-824] The border, drawn as a path because a <see cref="Border"/> cannot dash; a path, not a
+    /// rectangle, because a card joined to its neighbours leaves sides out ([S-2243]).
+    /// </summary>
+    private readonly Microsoft.UI.Xaml.Shapes.Path _stroke;
 
     /// <summary>
     /// [S-826] Carries the design's font to the content: text inherits a font family from the
@@ -336,9 +339,13 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface, IItemPaletteOwn
 
         // Over the content, as a CSS border sits round it: a full-bleed chart would otherwise cover
         // the line along its edges. Never hit-testable, so it cannot take a click from the widget.
-        _stroke = new Rectangle { IsHitTestVisible = false };
+        _stroke = new Microsoft.UI.Xaml.Shapes.Path { IsHitTestVisible = false };
 
-        _surface.SizeChanged += (_, _) => FitContent();
+        _surface.SizeChanged += (_, _) =>
+        {
+            FitContent();
+            DrawStroke();
+        };
 
         // [S-1113] The card's content (header, view, its menus) flows with the language; the resize
         // grips are physical corners and keep their places, so a drag on the left grip still moves
@@ -469,7 +476,9 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface, IItemPaletteOwn
     {
         var design = _host.Design;
         var radiusPx = DesignLook.CornerRadius(design.CornerRadiusPx);
-        var radius = new CornerRadius(radiusPx);
+
+        // [S-2241] Round only where no joined neighbour covers the corner.
+        var radius = Corners(radiusPx);
 
         // [S-6510] The second layer: the view's items, on their own colour whatever the card's fill.
         var items = _preview?.Items is { } previewed ? FillChoice.Effective(design.ItemBackground ?? new FillChoice(), previewed) : ItemLook.Effective(design, Model);
@@ -484,7 +493,7 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface, IItemPaletteOwn
         // card for the theme by default, the user's colour exactly otherwise. The surface is genuinely
         // transparent, so what shows through it is the desktop.
         // [S-6592] Over a background image only a colour of the widget's own is painted, as a tint.
-        ApplyImage(radiusPx);
+        ApplyImage(radius);
         BindBackdrop();
         var cardFill = CardFillNow();
         var fill = PaintedFillNow();
@@ -507,10 +516,8 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface, IItemPaletteOwn
                 ?? ThemeBrush.Of(ink.ThemeKey ?? DesignLook.StrongStrokeKey, Colors.Gray);
             _stroke.StrokeThickness = border.Thickness;
             _stroke.Opacity = border.Opacity;
-
-            // A shape strokes inside its bounds along a path inset by half the stroke, so the path's
-            // radius is the card's less that half, or the corners would not meet the fill's.
-            _stroke.RadiusX = _stroke.RadiusY = Math.Max(0, radiusPx - (border.Thickness / 2));
+            _strokeLook = (border.Thickness, radiusPx);
+            DrawStroke();
 
             var dashes = new DoubleCollection();
             foreach (var dash in border.Dashes)
@@ -552,8 +559,9 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface, IItemPaletteOwn
         var r = DesignLook.CornerRadius(design.CornerRadiusPx);
 
         // [S-407] The strip's outer corners. The header inside a side strip is turned, its top
-        // facing out, so its own fill rounds its top corners as a top header's does.
-        var radius = HeaderStrip.IsSide(Model.ShownHeader) ? Round(HeaderStrip.StripCorners(HeaderEdge.Top), r) : Round(HeaderStrip.StripCorners(ShownEdge), r);
+        // facing out, so its own fill rounds its top corners as a top header's does. [S-2241] A
+        // corner a joined neighbour squares is square on the strip too.
+        var radius = HeaderCorners(r);
         var own = DesignLook.HeaderFill(design.HeaderBackgroundColor, design.HeaderOpacity);
 
         _headerHost.Background = own is { Colour: { } c } ? DesignApplier.UserBrush(HexColor.From(c.R, c.G, c.B), own.Value.Opacity) : null;

@@ -253,6 +253,9 @@ internal sealed partial class DesktopWindow : IWidgetCardHost
     {
         PositionCard(card, card.LiveRect);
 
+        // [S-2244] The card being resized is free; its neighbours get their corners back.
+        JoinCards();
+
         // [S-3710] The strip steps aside while the widget is resized.
         HoldProperties(true);
     }
@@ -261,6 +264,7 @@ internal sealed partial class DesktopWindow : IWidgetCardHost
     public void OnGeometryCommitted(WidgetCard card)
     {
         PositionCard(card, card.LiveRect);
+        JoinCards();
         _host.CommitGeometry(UndoAction.Resize);
         HoldProperties(false);
     }

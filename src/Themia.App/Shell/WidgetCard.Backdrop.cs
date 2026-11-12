@@ -13,7 +13,10 @@ namespace Themia.App.Shell;
 /// </summary>
 internal sealed partial class WidgetCard
 {
-    /// <summary>The frost layer: clips nothing itself (the surface's rounded clip does), holds the picture.</summary>
+    /// <summary>
+    /// The frost layer: holds the picture, clipped by the surface's rounded clip
+    /// (<see cref="ClipFrost"/> where the surface has none).
+    /// </summary>
     private readonly Canvas _frost = new() { IsHitTestVisible = false, Visibility = Visibility.Collapsed };
 
     /// <summary>The display's picture, display-sized, placed at minus the card's offset.</summary>
@@ -32,6 +35,7 @@ internal sealed partial class WidgetCard
     private void AttachBackdrop()
     {
         _frost.Children.Add(_frostPicture);
+        _frost.SizeChanged += (_, _) => ClipFrost();
         _leftWatch = RegisterPropertyChangedCallback(Canvas.LeftProperty, (_, _) => PlaceBackdrop());
         _topWatch = RegisterPropertyChangedCallback(Canvas.TopProperty, (_, _) => PlaceBackdrop());
     }
@@ -79,7 +83,23 @@ internal sealed partial class WidgetCard
         if (frosts)
         {
             PlaceBackdrop();
+            ClipFrost();
         }
+    }
+
+    /// <summary>
+    /// [S-2241] A border clips its child only while one of its corners is round: a card joined on all
+    /// four corners (or of radius 0) clipped nothing, and its display-sized picture covered the whole
+    /// screen. Such a card clips the frost to its box itself. Only then: a rectangle clip under the
+    /// border's rounded one changed how the round corners were smoothed.
+    /// </summary>
+    private void ClipFrost()
+    {
+        var c = _surface.CornerRadius;
+        var square = c.TopLeft <= 0 && c.TopRight <= 0 && c.BottomRight <= 0 && c.BottomLeft <= 0;
+        _frost.Clip = square && _frost.ActualWidth > 0 && _frost.ActualHeight > 0
+            ? new RectangleGeometry { Rect = new Windows.Foundation.Rect(0, 0, _frost.ActualWidth, _frost.ActualHeight) }
+            : null;
     }
 
     /// <summary>

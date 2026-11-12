@@ -17,10 +17,4 @@ internal sealed partial class WidgetCard
         Grid.SetRowSpan(element, cell.RowSpan);
         Grid.SetColumnSpan(element, cell.ColumnSpan);
     }
-
-    private static CornerRadius Round(CardCorners corners, double radius) => new(
-        corners.TopStart ? radius : 0,
-        corners.TopEnd ? radius : 0,
-        corners.BottomEnd ? radius : 0,
-        corners.BottomStart ? radius : 0);
 }

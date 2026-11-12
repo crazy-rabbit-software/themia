@@ -142,10 +142,15 @@ internal static partial class Win32
 
     // ---- regions (desktop click-through mask) ---------------------------------------------
 
+    internal const int RgnAnd = 1;
     internal const int RgnOr = 2;
+    internal const int RgnDiff = 4;
 
     [LibraryImport("gdi32.dll", SetLastError = true)]
     internal static partial nint CreateRectRgn(int left, int top, int right, int bottom);
+
+    [LibraryImport("gdi32.dll", SetLastError = true)]
+    internal static partial nint CreateEllipticRgn(int left, int top, int right, int bottom);
 
     [LibraryImport("gdi32.dll", SetLastError = true)]
     internal static partial int CombineRgn(nint dest, nint src1, nint src2, int mode);

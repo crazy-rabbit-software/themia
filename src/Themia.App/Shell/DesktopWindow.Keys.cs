@@ -181,6 +181,9 @@ internal sealed partial class DesktopWindow
             PositionCard(cards[i], rects[i]);
         }
 
+        // [S-2244] A nudge is no drag: the nudged cards join where they now stand.
+        JoinCards();
+
         _nudging = action.Command == EditCommand.Move ? UndoAction.Move : UndoAction.Resize;
         return true;
     }

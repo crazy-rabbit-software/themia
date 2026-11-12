@@ -37,9 +37,10 @@ internal sealed partial class WidgetCard
     /// [S-6590] Show the widget's image, loading it when its path changed. Nothing to show clears the
     /// layer at once; a load runs off the design pass and repaints the card when it lands.
     /// </summary>
-    private void ApplyImage(double radius)
+    private void ApplyImage(CornerRadius corners)
     {
-        _image.CornerRadius = new CornerRadius(radius);
+        // [S-2241] The card's corners, square where a joined neighbour covers them.
+        _image.CornerRadius = corners;
 
         var path = Model.BackgroundImage;
         if (string.Equals(path, _imagePath, StringComparison.Ordinal))

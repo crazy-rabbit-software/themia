@@ -68,8 +68,13 @@ internal static class DesktopLayer
     /// shifted from the widgets it is supposed to trace. Passing an empty list hides the surface
     /// entirely (an empty view really should not swallow the desktop).
     /// </para>
+    /// <para>
+    /// [S-2245] A piece may round its corners (a card's round ones, square where a joined neighbour
+    /// squares them), and the union is cut to <paramref name="clip"/> last, so a card the clip cuts
+    /// keeps the corners of its whole shape.
+    /// </para>
     /// </summary>
-    public static void SetHitRegion(nint hwnd, IReadOnlyList<Win32.Rect> rects)
+    public static void SetHitRegion(nint hwnd, IReadOnlyList<RegionPiece> pieces, Win32.Rect clip)
     {
         if (hwnd == 0 || !Win32.IsWindow(hwnd))
         {
@@ -87,17 +92,17 @@ internal static class DesktopLayer
 
         try
         {
-            foreach (var r in rects)
+            foreach (var p in pieces)
             {
-                if (r.Width <= 0 || r.Height <= 0)
+                if (p.Rect.Width <= 0 || p.Rect.Height <= 0)
                 {
                     continue;
                 }
 
-                var piece = Win32.CreateRectRgn(r.Left, r.Top, r.Right, r.Bottom);
+                var piece = Shape(p);
                 if (piece == 0)
                 {
-                    Log.Warn(Scope, "CreateRectRgn failed for a widget rect; it will not be clickable");
+                    Log.Warn(Scope, "building a widget's region failed; it will not be clickable");
                     continue;
                 }
 
@@ -111,6 +116,8 @@ internal static class DesktopLayer
                 }
             }
 
+            Combine(combined, Win32.CreateRectRgn(clip.Left, clip.Top, clip.Right, clip.Bottom), Win32.RgnAnd);
+
             if (Win32.SetWindowRgn(hwnd, combined, redraw: true) == 0)
             {
                 Log.Warn(Scope, $"SetWindowRgn failed (win32 {Marshal.GetLastWin32Error()})");
@@ -123,6 +130,73 @@ internal static class DesktopLayer
         {
             Log.Error(Scope, "building the hit region threw", ex);
             Win32.DeleteObject(combined);
+        }
+    }
+
+    /// <summary>
+    /// [S-2245] One piece's region: its rect, each round corner's square taken out and the quarter of
+    /// a circle of that radius put back. Zero when GDI failed (logged by the caller).
+    /// </summary>
+    private static nint Shape(RegionPiece p)
+    {
+        var r = p.Rect;
+        var region = Win32.CreateRectRgn(r.Left, r.Top, r.Right, r.Bottom);
+        if (region == 0)
+        {
+            return 0;
+        }
+
+        // A radius larger than half the side would turn the circle outside the rect.
+        var most = Math.Min(r.Width, r.Height) / 2;
+        int Clamp(double radius) => (int)Math.Clamp(Math.Round(radius), 0, most);
+        var corners = new (int Radius, int X, int Y)[]
+        {
+            (Clamp(p.Corners.TopLeft), r.Left, r.Top),
+            (Clamp(p.Corners.TopRight), r.Right, r.Top),
+            (Clamp(p.Corners.BottomRight), r.Right, r.Bottom),
+            (Clamp(p.Corners.BottomLeft), r.Left, r.Bottom),
+        };
+
+        // Every square out first, then every circle in: a circle never reaches outside its own corner's round shape.
+        foreach (var (radius, x, y) in corners)
+        {
+            if (radius > 0)
+            {
+                var left = x == r.Left ? x : x - radius;
+                var top = y == r.Top ? y : y - radius;
+                Combine(region, Win32.CreateRectRgn(left, top, left + radius, top + radius), Win32.RgnDiff);
+            }
+        }
+
+        foreach (var (radius, x, y) in corners)
+        {
+            if (radius > 0)
+            {
+                var left = x == r.Left ? x : x - (2 * radius);
+                var top = y == r.Top ? y : y - (2 * radius);
+                Combine(region, Win32.CreateEllipticRgn(left, top, left + (2 * radius), top + (2 * radius)), Win32.RgnOr);
+            }
+        }
+
+        return region;
+    }
+
+    /// <summary>Combine <paramref name="other"/> into <paramref name="into"/> and free it; a piece GDI could not make is logged and left out.</summary>
+    private static void Combine(nint into, nint other, int mode)
+    {
+        if (other == 0)
+        {
+            Log.Warn(Scope, "a region piece could not be created; the hit region may be off by its corner");
+            return;
+        }
+
+        try
+        {
+            Win32.CombineRgn(into, into, other, mode);
+        }
+        finally
+        {
+            Win32.DeleteObject(other);
         }
     }
 
@@ -195,4 +269,10 @@ internal static class DesktopLayer
             Log.Debug(Scope, $"DwmSetWindowAttribute(BORDER_COLOR) returned 0x{hr:X8}");
         }
     }
+}
+
+/// <summary>[S-2245] A piece of the hit region in physical window pixels, with its corners' radii (0: square).</summary>
+internal readonly record struct RegionPiece(Win32.Rect Rect, Themia.Core.Widgets.HitCorners Corners)
+{
+    public static RegionPiece Plain(Win32.Rect rect) => new(rect, Themia.Core.Widgets.HitCorners.Square);
 }
