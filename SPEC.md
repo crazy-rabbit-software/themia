@@ -7219,7 +7219,7 @@ grouped, so a first desktop is a few clicks.
   widgets, by name, description and the names of the widgets they hold; a result says "Ready-made · n
   widgets".
 - **[S-2474]** **The seeds**: **This PC** (CPU, memory, network and disk as a 2 × 2 grid, each reading over its history, [S-11090]), **My day**
-  (the clock on top, the next meeting and the tasks under it) and **Weather station** ([S-11172]: the
+  (the clock on top, the next meeting, After this and the tasks under it as one panel, [S-11409]) and **Weather station** ([S-11172]: the
   reading, its facts, the forecast and the rain in the next hour, stacked), each with its kinds'
   default configs. The weather, sky and money family adds its own ([S-11172]).
 - **[S-11209]** **My files** (files family): the Documents folder as a list (300 × 308) on the left;
@@ -7227,6 +7227,11 @@ grouped, so a first desktop is a few clicks.
   316 × 100) over the files opened last, four rows (316 × 208): each box the size its kind's sizing
   makes of that config, the folder as tall as the column beside it, so the three join into one panel.
   Its home is Files.
+- **[S-11409]** **The lists' and the office's groups** (the atoms split from old kinds come back as
+  these, joined into one panel at their natural sizes): **Next meeting** (`nextMeetings`: the meeting
+  block, headerless, over After this with its header, 320 wide, 124 + 132), **Inbox and tasks**
+  (`inboxAndTasks`: Mail beside Tasks, 300 + 300), and **My day** rebuilt as [S-2474] says. Tests
+  `ReadyMadeGroupsTests` (the rules of [S-2472]).
 - **[S-2475]** Debug: `--recipe-png <id> <out.png> [--states kind=state,..] [--scale <n>]` draws a recipe
   placed: a scene built from it (`ReadyMadeScene`), edit mode, the new group selected, on a sample
   wallpaper; a widget given no state shows its "sample" preview where it has one.
@@ -9440,7 +9445,7 @@ tests `DeskInfoWidgetsTests` (Core).
   the gate before the default handler opens it.
 - **[S-4823]** When, in words: "Now · ends 10:30" under way; "in 12 min." within the hour; else
   "Today, 14:00", "Tomorrow, 09:00", "Mon, Oct 19, 09:00". Times on the regional clock ([S-3773]).
-- **[S-4824]** The ladder (`NextMeetingLayout.Plan`) on the family's tokens, in the lines' box (the
+- **[S-4824]** *(Retired by [S-11407]: the block shows the lines its config picks at every size.)* The ladder (`NextMeetingLayout.Plan`) on the family's tokens, in the lines' box (the
   view's area less the card's insets, and less the end column where it stands beside them, [S-5710]):
   the title first and always (Title, one line ending in an ellipsis), then the time range, the location
   and the organiser, each a Body secondary line behind its 16 glyph, 4 apart, over the end column's row

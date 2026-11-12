@@ -69,9 +69,10 @@ public static class ReadyMadeGroups
     /// <summary>[S-2474] My day: the clock on top, the next meeting and the tasks under it.</summary>
     public static ReadyMadeGroup MyDay { get; } = new("myDay", Str.Groups_Recipe_MyDay, Str.Groups_Recipe_MyDayAbout, Glyphs.Calendar, AddFolderId.CalendarMail,
     [
-        new("clock", new(0, 0, 320, 140)),
-        new("nextMeeting", new(0, 140, 320, 200)),
-        new("tasks", new(0, 340, 320, 320)),
+        new("clock", new(0, 0, 320, 138)),
+        new("nextMeeting", new(0, 138, 320, 124)),
+        new("upNext", new(0, 262, 320, 108), Header: HeaderPlacement.Hidden),
+        new("tasks", new(0, 370, 320, 220), Header: HeaderPlacement.Hidden),
     ]);
 
     /// <summary>[S-2474] [S-11172] Weather station: the reading, its facts, the days ahead and the rain in the next hour, stacked as one panel.</summary>
@@ -252,7 +253,21 @@ public static class ReadyMadeGroups
     ]);
 
     /// <summary>[S-2470] Every ready-made group, in the add menu's order.</summary>
-    public static IReadOnlyList<ReadyMadeGroup> All { get; } = [ThisPc, MyDay, WeatherStation, MyFiles, Cpu, CpuCores, CpuDetails, Memory, MemoryDetails, Gpu, GpuDetails, Disk, Network, NetworkDetails, Ping, PingDetails, Battery, BatteryDetails, Drive, Weather, Sun, Moon, AirQuality, ExchangeRates, Stocks];
+    /// <summary>[S-11409] The meeting block over the meetings after it: what the Next meeting card was.</summary>
+    public static ReadyMadeGroup NextMeetings { get; } = new("nextMeetings", Str.Groups_Recipe_NextMeeting, Str.Groups_Recipe_NextMeetingAbout, Glyphs.Meeting, AddFolderId.CalendarMail,
+    [
+        new("nextMeeting", new(0, 0, 320, 124)),
+        new("upNext", new(0, 124, 320, 132)),
+    ]);
+
+    /// <summary>[S-11409] The inbox beside the task list.</summary>
+    public static ReadyMadeGroup InboxAndTasks { get; } = new("inboxAndTasks", Str.Groups_Recipe_InboxAndTasks, Str.Groups_Recipe_InboxAndTasksAbout, Glyphs.Mail, AddFolderId.CalendarMail,
+    [
+        new("email", new(0, 0, 300, 248)),
+        new("tasks", new(300, 0, 300, 248), Config: """{ "rows": 7 }""", Header: HeaderPlacement.Hidden),
+    ]);
+
+    public static IReadOnlyList<ReadyMadeGroup> All { get; } = [ThisPc, MyDay, WeatherStation, MyFiles, Cpu, CpuCores, CpuDetails, Memory, MemoryDetails, Gpu, GpuDetails, Disk, Network, NetworkDetails, Ping, PingDetails, Battery, BatteryDetails, Drive, Weather, Sun, Moon, AirQuality, ExchangeRates, Stocks, NextMeetings, InboxAndTasks];
 
     /// <summary>The ready-made group named <paramref name="id"/>, or null.</summary>
     public static ReadyMadeGroup? Find(string? id) => All.FirstOrDefault(r => string.Equals(r.Id, id, StringComparison.Ordinal));

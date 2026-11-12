@@ -1,10 +1,12 @@
 {
   "$englishOnly": [
-    "meeting.after"
+    "nextMeeting.showPlace",
+    "nextMeeting.showOrganizer"
   ],
-  "meeting.after": "After this",
   "meeting.desc": "Your next event, with Join for online meetings",
   "meeting.join": "Join",
+  "nextMeeting.showPlace": "Place",
+  "nextMeeting.showOrganizer": "Organiser",
   "meeting.joinTip": "Join the online meeting",
   "meeting.label": "Next meeting",
   "meeting.none": "Nothing coming up",

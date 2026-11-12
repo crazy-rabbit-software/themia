@@ -15,7 +15,9 @@ public sealed class NextMeetingMenuTests
         var lines = new WidgetMenuLines(() => { }, _ => { });
         NextMeetingMenu.Lines(lines, new NextMeetingConfig(), office: null);
 
-        Assert.Equal([Str.WidgetUi_AccountsLabel.Text()], lines.Lines.Select(l => l.Text));
+        Assert.Equal(
+            [NextMeetingStr.NextMeeting_ShowPlace.Text(), NextMeetingStr.NextMeeting_ShowOrganizer.Text(), string.Empty, Str.WidgetUi_AccountsLabel.Text()],
+            lines.Lines.Select(l => l.IsSeparator ? string.Empty : l.Text));
         Assert.Empty(lines.StyleLines);
     }
 }

@@ -56,7 +56,11 @@
     "groups.recipe.exchangeRates",
     "groups.recipe.exchangeRatesAbout",
     "groups.recipe.stocks",
-    "groups.recipe.stocksAbout"
+    "groups.recipe.stocksAbout",
+    "groups.recipe.nextMeeting",
+    "groups.recipe.nextMeetingAbout",
+    "groups.recipe.inboxAndTasks",
+    "groups.recipe.inboxAndTasksAbout"
   ],
   "groups.undo.group": "group",
   "groups.undo.ungroup": "ungroup",
@@ -117,5 +121,9 @@
   "groups.recipe.exchangeRates": "Exchange rates",
   "groups.recipe.exchangeRatesAbout": "A currency pair's rate today and its last 90 days",
   "groups.recipe.stocks": "Stocks",
-  "groups.recipe.stocksAbout": "A stock's or a coin's price and its chart"
+  "groups.recipe.stocksAbout": "A stock's or a coin's price and its chart",
+  "groups.recipe.nextMeeting": "Next meeting",
+  "groups.recipe.nextMeetingAbout": "Your next meeting with Join, and what comes after it",
+  "groups.recipe.inboxAndTasks": "Inbox and tasks",
+  "groups.recipe.inboxAndTasksAbout": "Your mail beside your to-do list"
 }

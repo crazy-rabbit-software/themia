@@ -1,0 +1,7 @@
+{
+  "$englishOnly": ["meeting.after", "upNext.desc", "upNext.none", "upNext.setup.sentence"],
+  "meeting.after": "After this",
+  "upNext.desc": "The meetings after your next one",
+  "upNext.none": "Nothing after this",
+  "upNext.setup.sentence": "Add an account to show your meetings"
+}

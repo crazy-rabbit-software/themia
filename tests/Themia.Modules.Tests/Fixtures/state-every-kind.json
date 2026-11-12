@@ -2086,6 +2086,8 @@
           "scale": 1,
           "config": {
             "kind": "nextMeeting",
+            "showPlace": true,
+            "showOrganizer": true,
             "accountIds": [],
             "calendars": {},
             "calendarColors": {},

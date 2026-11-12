@@ -344,6 +344,8 @@
           "scale": 1,
           "config": {
             "kind": "nextMeeting",
+            "showPlace": true,
+            "showOrganizer": true,
             "accountIds": [
               "work-graph-id"
             ],
@@ -377,6 +379,8 @@
           "scale": 1,
           "config": {
             "kind": "nextMeeting",
+            "showPlace": true,
+            "showOrganizer": true,
             "accountIds": [],
             "calendars": {},
             "calendarColors": {},

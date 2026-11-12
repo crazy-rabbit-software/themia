@@ -1,44 +1,38 @@
 using Themia.Core.Localization;
+using Themia.Core.Model;
 using Themia.Core.Office;
 using Themia.Core.Widgets;
+using Themia.Sdk;
 using Themia.Sdk.Kit;
 
 namespace Themia.Widget.NextMeeting;
 
-/// <summary>[S-2591] [S-5710] Where the end column (the countdown over Join) stands: beside the meeting's lines, or under them as one row.</summary>
-public enum EndPlace
-{
-    /// <summary>At the end side of the lines: centred on them with Join, on the title's line without.</summary>
-    Beside,
-
-    /// <summary>One row at the content's foot, Join at its start and the countdown at its end: the card too narrow for the lines beside it.</summary>
-    Under,
-
-    /// <summary>At the content's foot as a column, the countdown over Join at the start: too narrow even for the two side by side.</summary>
-    Stacked,
-}
-
 /// <summary>
-/// [S-2591] [S-2592] [S-5710] The meeting stands without a header (owner decision 2026-11-12): its
-/// title is the first line, and how long until it (the countdown) stands at the end side over Join,
-/// one unit (how long, then the action), the family's column gap between the lines and it, as long as
-/// the lines keep a title a sensible width; narrower, the end column goes under the lines as one row.
-/// Decided on the measured widths alone (the end column is the wider of the countdown's widest wording
-/// and Join), so a language with longer words moves it sooner and a ticking countdown never moves it.
+/// [S-2591] [S-2592] [S-5710] [S-11407] The meeting block stands without a header: its title is the
+/// first line, its other lines under it, and how long until it (the countdown) stands at the end side
+/// over Join, one unit (how long, then the action), the family's column gap between the lines and it,
+/// at every width of its range: the title is cut with its ellipsis, the end column never moves. Its
+/// width is the wider of the countdown's widest wording and Join, so a ticking countdown never moves it.
 /// </summary>
 public static class NextMeetingJoin
 {
-    /// <summary>
-    /// The narrowest text column the title keeps beside the end column: about a dozen Title characters,
-    /// under which a meeting's name is cut to a word or two and reads better on its own line.
-    /// </summary>
-    public const double MinTextColumn = 160;
-
     /// <summary>Between the lines' column and the end column.</summary>
     public const double Gap = FamilySpace.ColumnGap;
 
     /// <summary>Between the countdown and Join under it: one unit.</summary>
     public const double Stack = FamilySpace.S1;
+
+    /// <summary>Between two of the meeting's lines.</summary>
+    public const double LineGap = FamilySpace.S1;
+
+    /// <summary>[S-11407] The narrowest the block reads at: a title of a dozen letters beside the end column.</summary>
+    public const double MinWidth = 260;
+
+    /// <summary>[S-11407] A new block's width.</summary>
+    public const double NaturalWidth = 320;
+
+    /// <summary>[S-11407] The widest: past it the title is a sentence across a room.</summary>
+    public const double MaxWidth = 520;
 
     /// <summary>The countdown's one line (BodyStrong).</summary>
     public static double CountdownLine => FamilyType.BodyStrong.LineHeight;
@@ -53,52 +47,36 @@ public static class NextMeetingJoin
     public static double EndWidth(double countdownWidth, double joinWidth, bool hasJoin)
         => Math.Max(Finite(countdownWidth), hasJoin ? Finite(joinWidth) : 0);
 
-    /// <summary>
-    /// [S-2591] Where the end column <paramref name="endWidth"/> wide stands in a content box
-    /// <paramref name="contentWidth"/> wide (the card less its side insets).
-    /// </summary>
-    public static EndPlace Place(double contentWidth, double endWidth)
-        => double.IsFinite(contentWidth) && TextWidth(EndPlace.Beside, contentWidth, endWidth) >= MinTextColumn
-            ? EndPlace.Beside
-            : EndPlace.Under;
+    /// <summary>[S-2591] The lines' column: the content box less the end column and the gap.</summary>
+    public static double TextWidth(double contentWidth, double endWidth)
+        => Math.Max(0, Finite(contentWidth) - Finite(endWidth) - Gap);
 
-    /// <summary>
-    /// [S-5710] Where the end column stands for a countdown <paramref name="countdownWidth"/> wide (its widest
-    /// wording) and Join <paramref name="joinWidth"/> wide: beside the lines where they keep their width;
-    /// else under them as one row, Join and the countdown the column gap apart; and where even that row
-    /// does not fit, stacked at the foot as it stands beside the lines.
-    /// </summary>
-    public static EndPlace Place(double contentWidth, double countdownWidth, double joinWidth, bool hasJoin)
-    {
-        var place = Place(contentWidth, EndWidth(countdownWidth, joinWidth, hasJoin));
-        var row = Finite(countdownWidth) + (hasJoin ? Finite(joinWidth) + Gap : 0);
-        return place == EndPlace.Under && hasJoin && !(double.IsFinite(contentWidth) && row <= contentWidth) ? EndPlace.Stacked : place;
-    }
-
-    /// <summary>The width the meeting's lines have: the content's, less the end column and the gap where it stands beside them.</summary>
-    public static double TextWidth(EndPlace place, double contentWidth, double endWidth)
-        => place == EndPlace.Beside ? Math.Max(0, contentWidth - Finite(endWidth) - Gap) : Math.Max(0, contentWidth);
-
-    /// <summary>[S-5710] The end column's height beside the lines: the countdown, and Join under it.</summary>
+    /// <summary>[S-5710] The end column's height: the countdown over Join, or the countdown alone on the title's line.</summary>
     public static double EndHeight(bool hasJoin)
         => hasJoin ? CountdownLine + Stack + FamilyShape.Button : TitleLineOffset + CountdownLine;
 
-    /// <summary>
-    /// [S-5710] What the end column costs the ladder's height: nothing beside the lines (it costs width),
-    /// under them its row (Join's 28, or the countdown's line without it) or, stacked, its column, and the 8 over it.
-    /// </summary>
-    public static double FootCost(EndPlace place, bool hasJoin) => place switch
+    /// <summary>[S-11407] The lines' height: the title, the time range, and the place and the organiser where the config has them, 4 apart.</summary>
+    public static double LinesHeight(NextMeetingConfig config)
     {
-        EndPlace.Under => (hasJoin ? FamilyShape.Button : CountdownLine) + FamilySpace.S2,
-        EndPlace.Stacked => EndHeight(hasJoin) + FamilySpace.S2,
-        _ => 0,
-    };
+        ArgumentNullException.ThrowIfNull(config);
+        var more = 1 + (config.ShowPlace ? 1 : 0) + (config.ShowOrganizer ? 1 : 0);
+        return FamilyType.Title.LineHeight + (more * (LineGap + FamilyType.Body.LineHeight));
+    }
 
     /// <summary>
-    /// [S-5710] Every wording the countdown can take while <paramref name="item"/> stays in the form it is
-    /// in at <paramref name="now"/>: within the hour every minute's ("in 1 min" .. "in 59 min", "now"),
-    /// else the one it says (a day and a time, "Now · ends …"), which does not tick. The widest of them is
-    /// the end column's width, so the column does not move as the minutes go.
+    /// [S-11407] The block's sizing: the inset over and under the taller of its lines and its end column
+    /// (Join included: the size never depends on the meeting), one height; 260..520 wide, a new one 320.
+    /// </summary>
+    public static WidgetSizing Sizing(NextMeetingConfig config)
+    {
+        var height = (2 * FamilySpace.Inset) + Math.Max(LinesHeight(config), EndHeight(hasJoin: true));
+        return WidgetSizing.Range(new(MinWidth, height), new(NaturalWidth, height), new(MaxWidth, height));
+    }
+
+    /// <summary>
+    /// [S-5710] Every wording the countdown can take before it next changes form: within the hour each
+    /// minute's ("in 1 min." to "in 59 min." and "now"), so its column is as wide as the widest; otherwise
+    /// the one it says, which does not tick.
     /// </summary>
     public static IReadOnlyList<string> Wordings(Locale locale, CalendarEvent item, DateTimeOffset now, TimeZoneInfo zone)
     {

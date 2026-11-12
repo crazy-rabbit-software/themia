@@ -37,7 +37,7 @@ public sealed class WeekPlannerModule : IWidgetModule
         Glyph = Glyphs.WeekPlanner,
         Sizing = _ => WidgetSizing.Legacy(480, 280),
         Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader,
-        Add = new(AddFolderId.CalendarMail, 0, 2),
+        Add = new(AddFolderId.CalendarMail, 0, 3),
     };
 
     /// <summary>[S-3719] [S-5324] Every option is on the properties menu: the widget has no settings page.</summary>

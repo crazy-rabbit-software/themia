@@ -104,6 +104,46 @@ public static class NextMeetingRules
         return Strings.Format(locale, Str.Meeting_DayTime, ("day", day), ("time", LocaleFormat.Time(locale, start)));
     }
 
+    /// <summary>
+    /// [S-2160] The meetings after <paramref name="shown"/> at <paramref name="now"/>, in order: the timed
+    /// events not declined that have not started yet and do not start before it (an event under way is no
+    /// meeting after this one), today's first as time runs, then the next days', ordered as
+    /// <see cref="Pick"/> orders a tie so a redraw never swaps them.
+    /// </summary>
+    public static IReadOnlyList<CalendarEvent> After(IEnumerable<CalendarEvent> events, CalendarEvent shown, DateTimeOffset now, TimeZoneInfo zone)
+    {
+        ArgumentNullException.ThrowIfNull(events);
+        ArgumentNullException.ThrowIfNull(shown);
+        ArgumentNullException.ThrowIfNull(zone);
+        var key = CalendarShare.Key(shown);
+
+        return [.. events
+            .Where(e => !e.AllDay && !e.Declined && e.Start > now && e.Start >= shown.Start && !CalendarShare.Key(e).Equals(key))
+            .OrderBy(e => e.Start)
+            .ThenBy(e => e.JoinUrl is null)
+            .ThenBy(e => e.End - e.Start)
+            .ThenBy(e => e.Subject, StringComparer.Ordinal)
+            .ThenBy(e => e.Id, StringComparer.Ordinal)];
+    }
+
+    /// <summary>
+    /// [S-2160] A following meeting's start: on the regional clock ([S-3773]); on another day than today
+    /// the day too ("Tomorrow, 9:30 AM"), as the countdown says it.
+    /// </summary>
+    public static string Start(Locale locale, CalendarEvent item, DateTimeOffset now, TimeZoneInfo zone)
+    {
+        ArgumentNullException.ThrowIfNull(item);
+        ArgumentNullException.ThrowIfNull(zone);
+
+        var start = TimeZoneInfo.ConvertTime(item.Start, zone).DateTime;
+        var today = DateOnly.FromDateTime(TimeZoneInfo.ConvertTime(now, zone).DateTime);
+        var day = DateOnly.FromDateTime(start);
+        var time = LocaleFormat.Time(locale, start);
+        return day == today
+            ? time
+            : Strings.Format(locale, Str.Meeting_DayTime, ("day", Formatting.DayHeading(locale, day, today)), ("time", time));
+    }
+
     /// <summary>[S-4823] The time range, "10:00 – 10:30", on the regional clock.</summary>
     public static string Range(Locale locale, CalendarEvent item, TimeZoneInfo zone)
     {
@@ -113,46 +153,5 @@ public static class NextMeetingRules
         var start = LocaleFormat.Time(locale, TimeZoneInfo.ConvertTime(item.Start, zone).DateTime);
         var end = LocaleFormat.Time(locale, TimeZoneInfo.ConvertTime(item.End, zone).DateTime);
         return item.End > item.Start ? $"{start} – {end}" : start;
-    }
-}
-
-/// <summary>[S-4824] What the Next meeting widget's lines show at one size (the countdown is not one of them: it stands over Join, [S-5710]).</summary>
-/// <param name="Title">The title's one line: the first line, always there.</param>
-/// <param name="Range">The time range line ("10:00 – 10:30").</param>
-/// <param name="Location">The location line, when the event has one.</param>
-/// <param name="Organizer">The organiser line, when the event has one.</param>
-public readonly record struct NextMeetingPlan(bool Title, bool Range, bool Location, bool Organizer);
-
-/// <summary>
-/// [S-4824] The Next meeting ladder on the family's tokens, in the lines' box (the view's area less the
-/// card's insets, and less the end column where that stands beside them): the title (Title, one line)
-/// first and always, then the time range, the location and the organiser (Body lines with their 16
-/// glyphs), 4 apart, over the end column's row where that stands under them (<paramref name="foot"/>).
-/// A larger tile shows more of the meeting's own lines, never a larger title (concise first, [S-666]).
-/// </summary>
-public static class NextMeetingLayout
-{
-    /// <summary>Between two lines.</summary>
-    public const double Gap = FamilySpace.S1;
-
-    /// <param name="box">The lines' box.</param>
-    /// <param name="foot">What the end column costs under the lines (its row and the gap over it), 0 beside them.</param>
-    /// <param name="hasLocation">The event has a place.</param>
-    /// <param name="hasOrganizer">The event has an organiser.</param>
-    public static NextMeetingPlan Plan(WidgetArea box, double foot, bool hasLocation, bool hasOrganizer)
-    {
-        if (!box.IsMeasured)
-        {
-            return new NextMeetingPlan(true, false, false, false);
-        }
-
-        var room = new Disclosure(box.Width, box.Height - Math.Max(0, foot), Gap);
-        var line = FamilyType.Body.LineHeight;
-
-        room.Reserve(FamilyType.Title.LineHeight);
-        var range = room.Take(line);
-        var location = hasLocation && room.Take(line);
-        var organizer = hasOrganizer && room.Take(line);
-        return new NextMeetingPlan(true, range, location, organizer);
     }
 }

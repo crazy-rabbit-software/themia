@@ -24,6 +24,12 @@ public sealed class NextMeetingConfig : CalendarConfig
         ShowBirthdays = false;
     }
 
+    /// <summary>[S-11407] The meeting's place under its time (where it has one).</summary>
+    public bool ShowPlace { get; set; } = true;
+
+    /// <summary>[S-11407] Who organised it, under its place (where it has one).</summary>
+    public bool ShowOrganizer { get; set; } = true;
+
     /// <summary>What is coming up, reduced to its first entry: the agenda's shape.</summary>
     [JsonIgnore]
     public override CalendarStyle Layout => CalendarStyle.Agenda;
@@ -37,5 +43,11 @@ public sealed class NextMeetingConfig : CalendarConfig
         }
     }
 
-    public override WidgetConfig Clone() => CopySharedTo(new NextMeetingConfig());
+    public override WidgetConfig Clone()
+    {
+        var copy = (NextMeetingConfig)CopySharedTo(new NextMeetingConfig());
+        copy.ShowPlace = ShowPlace;
+        copy.ShowOrganizer = ShowOrganizer;
+        return copy;
+    }
 }
