@@ -5,7 +5,7 @@ namespace Themia.App.Widgets;
 
 /// <summary>
 /// Debug renders only ([S-1917]): the quote shown is the rotation's of the day, so a render pins one:
-/// <c>sample</c> the bundled Newton (a sentence of a typical length), <c>long</c> the longest bundled
+/// <c>sample</c> the quote's sample (<see cref="ShowSampleAsync"/>), <c>long</c> the longest bundled
 /// one (the plant-a-tree proverb), so the step and the ellipsis compare across runs and days.
 /// </summary>
 internal sealed partial class QuoteView : IWidgetPreviewState
@@ -14,12 +14,15 @@ internal sealed partial class QuoteView : IWidgetPreviewState
 
     public Task ShowPreviewStateAsync(string state)
     {
-        _pinned = state switch
+        if (state == "sample")
         {
-            "sample" => 3,
-            "long" => 13,
-            _ => _pinned,
-        };
+            return ShowSampleAsync();
+        }
+
+        if (state == "long")
+        {
+            _pinned = 13;
+        }
 
         Render();
         return Task.CompletedTask;

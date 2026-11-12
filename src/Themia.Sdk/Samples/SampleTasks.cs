@@ -1,11 +1,10 @@
-#if DEBUG
 namespace Themia.Sdk.Samples;
 
 /// <summary>One of Robin's errands: its title and, when it has one, the day it is due, in days from today.</summary>
 public sealed record SampleTask(string Title, int? DueInDays = null);
 
 /// <summary>
-/// Debug renders only ([S-2055]): Robin's errands list, the one the tasks widget shows and whose
+/// The sample day ([S-11850], [S-2055]): Robin's errands list, the one the tasks widget shows and whose
 /// due ones the week planner puts under today: four due today (one of them Mia's birthday present),
 /// one overdue, one in three days, the rest without a date.
 /// </summary>
@@ -30,4 +29,3 @@ public static class SampleTasks
     /// <summary>The errands due by today, overdue first: what the week planner lists under today.</summary>
     public static IReadOnlyList<SampleTask> DueByToday { get; } = [.. Errands.Where(t => t.DueInDays <= 0).OrderBy(t => t.DueInDays)];
 }
-#endif

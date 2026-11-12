@@ -168,12 +168,8 @@ internal sealed partial class DriveFactsView : StackPanel, IWidgetView, IWidgetS
         _watch = null;
     }
 
-#if DEBUG
+    /// <summary>[S-11850] A sample's or a render's own drive, in place of the walk.</summary>
     private DriveEntry? _previewDrive;
-#else
-    // Release has no renders: the field's Debug-only writer (the .Preview.cs part) is not compiled.
-    private DriveEntry? _previewDrive => null;
-#endif
 }
 
 /// <summary>[S-6903] The module's own JSON metadata, with the host's options (camelCase, indented, nulls left out).</summary>

@@ -1,11 +1,10 @@
-#if DEBUG
 using Themia.App.Services.Web;
 using Themia.Core.Widgets;
 
 namespace Themia.Sdk.Samples;
 
 /// <summary>
-/// Debug renders only ([S-2050], [S-2056]): the sample day's quote of MSFT, the last full session before
+/// The sample day ([S-11850], [S-2050], [S-2056]): the sample day's quote of MSFT, the last full session before
 /// the sample moment (New York opens at 15:30 in Zürich, after 10:42): yesterday's, or Friday's, 9:30 to
 /// 16:00 Eastern in five-minute bars, a seeded walk of small moves that ends up (or, falling, down) on
 /// the day. The price and its chart atoms both read it, so a recipe's two agree ([S-11171]).
@@ -38,4 +37,3 @@ public static class SampleQuote
         return new Fetched<TickerQuote>(FetchStatus.Ok, quote, null, SampleDay.Now);
     }
 }
-#endif

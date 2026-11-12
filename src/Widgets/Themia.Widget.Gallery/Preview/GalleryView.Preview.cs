@@ -2,14 +2,12 @@
 using Themia.App.Shell.Gallery;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
-using Themia.Sdk.Samples;
-using Themia.Sdk.WinUI;
 
 namespace Themia.App.Widgets;
 
 /// <summary>
-/// Debug renders only ([S-2056]): pictures without a configured folder. The pictures are the sample
-/// day's, drawn in code (<see cref="SamplePictures"/>), handed in as a finished scan so no folder is walked.
+/// Debug renders only ([S-2056]): pictures without a configured folder: <c>sample</c> is the gallery's
+/// sample (<see cref="ShowSampleAsync"/>), the other picture states the same sample pictures in a fixed style.
 /// </summary>
 internal sealed partial class GalleryView : IWidgetPreviewState
 {
@@ -52,10 +50,15 @@ internal sealed partial class GalleryView : IWidgetPreviewState
             return;
         }
 
-        // [S-6006] "sample": the sample pictures in whatever style the render chose (--style).
+        // [S-6006] "sample": the gallery's sample, in whatever style the render chose (--style).
+        if (state == "sample")
+        {
+            await ShowSampleAsync().ConfigureAwait(true);
+            return;
+        }
+
         var (source, layout) = state switch
         {
-            "sample" => (GallerySource.Folder, _config.Style),
             "slideshow" or "controls" => (GallerySource.Folder, GalleryStyle.Slideshow),
             "grid" => (GallerySource.Folder, GalleryStyle.Grid),
             "scatter" => (GallerySource.Folder, GalleryStyle.Scatter),
@@ -69,34 +72,8 @@ internal sealed partial class GalleryView : IWidgetPreviewState
             return;
         }
 
-        // [S-2056] The sample day's pictures, drawn in code and written under the temp folder: never a
-        // picture of this PC. The scan is handed in, so no folder is walked.
-        var folder = await SamplePictureFiles.WriteAsync("Pictures", SamplePictures.Names).ConfigureAwait(true);
-        if (folder is null)
-        {
-            return;
-        }
-
-        List<string> paths = [.. SamplePictures.Names.Select(name => System.IO.Path.Combine(folder, name))];
-
-        if (chosen == GallerySource.File)
-        {
-            paths = [.. paths.Take(1)];
-        }
-
-        // Unshuffled, so a render is the same picture every time. No source is held: the scan is
-        // handed in, and only the decoding goes through the shared cache.
-        _watch?.Dispose();
-        _watch = null;
-        _config = new GalleryConfig { Source = chosen, Style = layout, Path = folder, FilePath = paths.FirstOrDefault() ?? string.Empty, Shuffle = false };
-        PublishTitle();
-        _scan = new GalleryScan(paths.Count == 0 ? GalleryStatus.NoImages : GalleryStatus.Ok, paths);
-        Select(keepPath: null, index: 0);
-        _slideTimer?.Stop();
-        Lay();
-
-        // The decodes are asynchronous; give them a moment before the render is taken.
-        await Task.Delay(1500).ConfigureAwait(true);
+        // [S-2056] The sample day's pictures, never a picture of this PC.
+        await ShowSamplePicturesAsync(chosen, layout).ConfigureAwait(true);
     }
 }
 #endif

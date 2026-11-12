@@ -57,12 +57,8 @@ internal sealed partial class QuoteView : Grid, IWidgetView, IWidgetHeaderConten
     private long _step;
 
     /// <summary>A debug render's fixed quote (by index), so a render compares; never set outside one.</summary>
-#if DEBUG
+    /// <summary>[S-11850] The bundled quote a sample pins in place of the day's; null on the desktop.</summary>
     private int? _pinned;
-#else
-    // Release has no renders: the field's Debug-only writer (the .Preview.cs part) is not compiled.
-    private int? _pinned => null;
-#endif
 
     private bool _detached;
 

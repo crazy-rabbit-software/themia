@@ -1,8 +1,7 @@
-#if DEBUG
 namespace Themia.Sdk.Samples;
 
 /// <summary>
-/// Debug renders only ([S-2056]): a believable price history for a sample (an exchange rate, a
+/// The sample day ([S-11850], [S-2056]): a believable price history for a sample (an exchange rate, a
 /// stock): a seeded random walk of small moves, not a function plot, the same for a name on every run.
 /// </summary>
 public static class SampleSeries
@@ -42,4 +41,3 @@ public static class SampleSeries
         return [.. logs.Select(l => last * Math.Exp(l - end))];
     }
 }
-#endif

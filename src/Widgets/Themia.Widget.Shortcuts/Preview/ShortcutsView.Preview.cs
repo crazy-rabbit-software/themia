@@ -6,7 +6,7 @@ using Themia.Core.Widgets;
 namespace Themia.App.Widgets;
 
 /// <summary>
-/// Debug renders only ([S-1917]): a widget holding 3, 7 or 20 shortcuts, in the grid (<c>grid3</c>,
+/// Debug renders only ([S-1917]): <c>sample</c> is the sample (<see cref="ShowSampleAsync"/>); a widget holding 3, 7 or 20 shortcuts, in the grid (<c>grid3</c>,
 /// <c>grid7</c>, <c>grid20</c>), the list (<c>list7</c>) or the details view (<c>details7</c>), so a
 /// render shows where the items sit in the tile. Local locations only: no favicon is fetched.
 /// "selected" is seven items in the render's style with two selected, one under the pointer and the
@@ -21,30 +21,22 @@ namespace Themia.App.Widgets;
 /// </summary>
 internal sealed partial class ShortcutsView : IWidgetPreviewState
 {
-    private static readonly string[] PreviewShellNames =
-    [
-        "RecycleBinFolder", "MyComputerFolder", "Downloads", "Personal", "Desktop", "My Pictures",
-        "My Music", "My Video", "UsersFilesFolder", "ControlPanelFolder", "NetworkPlacesFolder", "Profile",
-    ];
-
-    private static readonly string[] PreviewPaths =
-    [
-        @"C:\Windows", @"C:\Program Files", @"C:\Users", @"C:\Windows\System32",
-        @"C:\Windows\notepad.exe", @"C:\Windows\explorer.exe", @"C:\ProgramData", @"C:\Windows\Fonts",
-    ];
-
     public IReadOnlyList<string> PreviewStates { get; } = ["sample", "grid3", "grid7", "grid20", "list7", "details7", "selected", "inactive", "lasso", "fullname", "icons"];
 
     /// <summary>[S-11603] The items a state holds decide the size ([S-11202]): the render sizes the card by them.</summary>
-    public WidgetConfig? DrawnConfig { get; private set; }
+    public WidgetConfig? DrawnConfig => _sampleConfig;
 
     public Task ShowPreviewStateAsync(string state)
     {
-        // [S-6006] "sample": as many items as the config holds (its size follows them, [S-11202]) in
-        // whatever style the render chose (--style); the selection states seven.
+        // [S-6006] "sample" is the sample (<see cref="ShowSampleAsync"/>), in whatever style the render
+        // chose (--style); the selection states seven.
+        if (state == "sample")
+        {
+            return ShowSampleAsync();
+        }
+
         var (view, count) = state switch
         {
-            "sample" => (_config.Style, Math.Max(1, _config.Items.Count)),
             "selected" or "inactive" or "lasso" or "fullname" => (_config.Style, 7),
             "grid3" => (ShortcutsStyle.Grid, 3),
             "grid7" => (ShortcutsStyle.Grid, 7),
@@ -59,7 +51,7 @@ internal sealed partial class ShortcutsView : IWidgetPreviewState
             var icons = (ShortcutsConfig)_config.Clone();
             icons.Items = IconItems();
             ApplyConfig(icons);
-            DrawnConfig = icons;
+            _sampleConfig = icons;
             UpdateLayout();
             return Task.CompletedTask;
         }
@@ -69,20 +61,7 @@ internal sealed partial class ShortcutsView : IWidgetPreviewState
             return Task.CompletedTask;
         }
 
-        var targets = PreviewShellNames.Select(LaunchTargets.ShellTarget).Concat(PreviewPaths).Take(count);
-        var items = targets.Select(target => ShortcutItem.Create(target)).ToList();
-
-        if (state == "fullname")
-        {
-            items[1].Label = "Quarterly planning documents and meeting notes";
-        }
-
-        var shown = (ShortcutsConfig)_config.Clone();
-        shown.Style = view;
-        shown.Items = items;
-        ApplyConfig(shown);
-        DrawnConfig = shown;
-        UpdateLayout();
+        ShowSampleItems(view, count, state == "fullname" ? items => items[1].Label = "Quarterly planning documents and meeting notes" : null);
 
         switch (state)
         {

@@ -1,11 +1,10 @@
-#if DEBUG
 using Themia.Core.Habits;
 using Themia.Sdk.WinUI;
 
 namespace Themia.App.Widgets;
 
 /// <summary>
-/// Debug renders only: habit lists held in memory for a preview, never the user's own. Every change is
+/// [S-11850] Habit lists held in memory for a sample or a preview, never the user's own. Every change is
 /// the same <see cref="HabitLists"/> function the host's pool applies; nothing is written anywhere.
 /// </summary>
 internal sealed class PreviewHabitLists(IReadOnlyList<HabitList> lists) : IHabitLists
@@ -58,4 +57,3 @@ internal sealed class PreviewHabitLists(IReadOnlyList<HabitList> lists) : IHabit
         Changed?.Invoke();
     }
 }
-#endif

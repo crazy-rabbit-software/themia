@@ -1,16 +1,14 @@
 #if DEBUG
 using Themia.App.Services.Web;
 using Themia.App.Shell.Gallery;
-using Themia.Core.Model;
 using Themia.Core.Widgets;
-using Themia.Sdk.Samples;
 
 namespace Themia.App.Widgets;
 
 /// <summary>
-/// Debug renders only ([S-1917], [S-2052]): the sample day's reading at its place, so the reading can
-/// be looked at without a place, the network or the sync service. Nothing is fetched.
-/// <c>failed</c> is no reading and the service out of reach: the Status row ([S-6734]).
+/// Debug renders only ([S-1917], [S-2052]): <c>sample</c> is the sample (<see cref="ShowSampleAsync"/>);
+/// <c>stale</c> that reading through a failed refresh; <c>failed</c> is no reading and the service out of
+/// reach: the Status row ([S-6734]).
 /// </summary>
 internal sealed partial class WeatherNowView : IWidgetPreviewState
 {
@@ -18,24 +16,22 @@ internal sealed partial class WeatherNowView : IWidgetPreviewState
 
     public Task ShowPreviewStateAsync(string state)
     {
-        if (state is not ("sample" or "stale" or "failed"))
+        switch (state)
         {
-            return Task.CompletedTask;
+            case "sample":
+                return ShowSampleAsync();
+
+            case "stale":
+                // [S-7042] The answer on screen, and the last refresh failed: the header's problem glyph.
+                _feed.Preview(SamplePlaceReading().Stale(FetchStatus.Offline, null), FetchStatus.Ok);
+                break;
+
+            case "failed":
+                SamplePlaceReading();
+                _feed.Preview(null, FetchStatus.Unreachable);
+                break;
         }
 
-        _config = new WeatherNowConfig { Latitude = SamplePlace.Latitude, Longitude = SamplePlace.Longitude, LocationName = SamplePlace.LocationName, Style = _config.Style };
-        PublishPlace();
-        var reading = new Fetched<CurrentWeather>(FetchStatus.Ok, SampleWeather.Reading(), null, SampleDay.MinutesAgo(4));
-
-        // [S-7042] The answer on screen, and the last refresh failed: the header's problem glyph.
-        _feed.Preview(
-            state switch
-            {
-                "stale" => reading.Stale(FetchStatus.Offline, null),
-                "failed" => null,
-                _ => reading,
-            },
-            state == "failed" ? FetchStatus.Unreachable : FetchStatus.Ok);
         return Task.CompletedTask;
     }
 }

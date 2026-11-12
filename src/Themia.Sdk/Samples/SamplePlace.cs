@@ -1,10 +1,9 @@
-#if DEBUG
 using Themia.Core.Astronomy;
 
 namespace Themia.Sdk.Samples;
 
 /// <summary>
-/// Debug renders only ([S-2051]): the one place every sample is about, Zürich, spelled the same in
+/// The sample day ([S-11850], [S-2051]): the one place every sample is about, Zürich, spelled the same in
 /// every widget. Its sunrise and sunset are computed by the same astronomy the Sun and Moon widgets
 /// draw with, so the weather's sunrise and the Sun widget's cannot disagree.
 /// </summary>
@@ -31,4 +30,3 @@ public static class SamplePlace
             => at is { } moment ? TimeOnly.FromDateTime(TimeZoneInfo.ConvertTime(moment, TimeZoneInfo.Local).DateTime) : null;
     }
 }
-#endif

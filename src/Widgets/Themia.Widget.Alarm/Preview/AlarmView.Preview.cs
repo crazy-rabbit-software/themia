@@ -1,31 +1,31 @@
 #if DEBUG
 using Themia.App.Shell.Gallery;
-using Themia.Core.Model;
 using Themia.Core.Widgets;
-using Themia.Sdk.Samples;
 
 namespace Themia.App.Widgets;
 
-/// <summary>Debug renders only ([S-2050]): at the sample moment, a weekday alarm at 6:45 set, ringing, snoozed, or switched off.</summary>
+/// <summary>Debug renders only ([S-2050]): at the sample moment, a weekday alarm at 6:45 set (the sample, <see cref="ShowSampleAsync"/>), ringing, snoozed, or switched off.</summary>
 internal sealed partial class AlarmView : IWidgetPreviewState
 {
     public IReadOnlyList<string> PreviewStates { get; } = ["set", "ringing", "snoozed", "off"];
 
     public Task ShowPreviewStateAsync(string state)
     {
-        _config = new AlarmConfig { Time = "06:45", Days = ["mon", "tue", "wed", "thu", "fri"], On = state != "off", Label = "Wake up", Size = _config.Size };
-
-        var now = SampleDay.Now.UtcDateTime;
-        _clock = () => now;
-        _previewStatus = state switch
+        switch (state)
         {
-            "ringing" => new AlarmStatus(AlarmPhase.Ringing),
-            "snoozed" => new AlarmStatus(AlarmPhase.Snoozed, Until: now.AddMinutes(9)),
-            "off" => new AlarmStatus(AlarmPhase.Off),
-            _ => new AlarmStatus(AlarmPhase.Set, AlarmSchedule.Next(_config.Plan, now, TimeZoneInfo.Local)),
-        };
+            case "ringing":
+                HoldSample(on: true, _ => new AlarmStatus(AlarmPhase.Ringing));
+                break;
+            case "snoozed":
+                HoldSample(on: true, now => new AlarmStatus(AlarmPhase.Snoozed, Until: now.AddMinutes(9)));
+                break;
+            case "off":
+                HoldSample(on: false, _ => new AlarmStatus(AlarmPhase.Off));
+                break;
+            default:
+                return ShowSampleAsync();
+        }
 
-        Lay();
         return Task.CompletedTask;
     }
 }

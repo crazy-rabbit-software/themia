@@ -77,12 +77,8 @@ internal sealed partial class VolumeView : Grid, IWidgetView, IWidgetOpens, IWid
 
     private bool _detached;
 
-#if DEBUG
-    // Debug renders: a fixture snapshot stands still; the live feed is not asked again over it.
+    /// <summary>[S-11850] A sample's snapshot stands still (<see cref="ShowSampleAsync"/>): the live feed is not asked again over it.</summary>
     private bool _frozen;
-#else
-    private const bool _frozen = false;
-#endif
 
     public VolumeView(IWidgetHost host)
     {

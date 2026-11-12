@@ -1,4 +1,3 @@
-#if DEBUG
 using Themia.App.Widgets;
 using Themia.Core.Accounts;
 using Themia.Core.Model;
@@ -7,7 +6,7 @@ using Themia.Core.Office;
 namespace Themia.Sdk.Samples;
 
 /// <summary>
-/// Debug renders only ([S-2054]): Robin's calendar around the sample day, two calendars (Work on a
+/// The sample day ([S-11850], [S-2054]): Robin's calendar around the sample day, two calendars (Work on a
 /// Microsoft account, Home on a CalDAV one: only what Themia offers, [S-3562]). Today is fixed: standup at nine, the design review at
 /// eleven (the next meeting, eighteen minutes after the sample moment), lunch with Lena, a 1:1 with
 /// Sam and the budget check-in with Northwind. Every other day of the four weeks around it follows its
@@ -196,7 +195,7 @@ public static class SampleSchedule
 }
 
 /// <summary>
-/// Debug renders only ([S-2054]): <see cref="SampleSchedule"/> as a calendar widget's data seam, for
+/// The sample day ([S-11850], [S-2054]): <see cref="SampleSchedule"/> as a calendar widget's data seam, for
 /// the calendar, the week planner and the next meeting. <c>empty</c> holds no event, <c>freeToday</c>
 /// nothing today, <c>stale</c> the Work calendar's last sync failed (no network) twenty minutes ago.
 /// </summary>
@@ -225,4 +224,3 @@ public sealed class SampleCalendarData(bool empty = false, bool freeToday = fals
             SampleSchedule.Providers, SampleSchedule.Labels, problems, true);
     }
 }
-#endif

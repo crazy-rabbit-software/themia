@@ -5,7 +5,7 @@ using Themia.Sdk;
 namespace Themia.Widget.DesktopItem;
 
 /// <summary>
-/// [S-5605] Debug renders only ([S-1917]): one real-looking item per state, never the user's desktop.
+/// [S-5605] Debug renders only ([S-1917]): one real-looking item per state (<c>document</c> is the sample, <see cref="ShowSampleAsync"/>), never the user's desktop.
 /// This PC and the Recycle Bin are the shell's own (every PC has them); the files and the shortcut are
 /// names on no disk, so the shell draws their type's icon (and the arrow), the same on every machine.
 /// </summary>
@@ -15,6 +15,11 @@ internal sealed partial class DesktopItemView : IWidgetPreviewState
 
     public Task ShowPreviewStateAsync(string state)
     {
+        if (state == "document")
+        {
+            return ShowSampleAsync();
+        }
+
         _fixture.On = true;
         _fixture.Selected = state is "selected" or "focus" or "editing";
         _fixture.Focused = state == "focus";
@@ -30,7 +35,7 @@ internal sealed partial class DesktopItemView : IWidgetPreviewState
             "thisPc" => new("::{20D04FE0-3AEA-1069-A2D8-08002B30309D}", "This PC", DesktopItemKind.ShellItem),
             "recycleBin" => new("::{645FF040-5081-101B-9F08-00AA002F954E}", "Recycle Bin", DesktopItemKind.ShellItem),
             "longName" => new(@"C:\Users\Public\Desktop\Quarterly budget review with all the departments 2026.xlsx", "Quarterly budget review with all the departments 2026.xlsx", DesktopItemKind.File),
-            _ => new(@"C:\Users\Public\Desktop\Report.docx", "Report.docx", DesktopItemKind.File),
+            _ => SampleDocument,
         };
 
         Render();

@@ -75,13 +75,8 @@ internal sealed partial class WeekPlannerView : Grid, IWidgetView, IWidgetOpens,
     private bool _again;
     private bool _detached;
 
-    /// <summary>A debug render's tasks, in place of the service's ([S-1917]).</summary>
-#if DEBUG
+    /// <summary>[S-1917] [S-11850] The sample's tasks in place of the service's (<see cref="ShowSampleAsync"/>), or null.</summary>
     private IReadOnlyList<TaskItem>? _sampleTasks;
-#else
-    // Release has no renders: the field's Debug-only writer (the .Preview.cs part) is not compiled.
-    private IReadOnlyList<TaskItem>? _sampleTasks => null;
-#endif
 
     /// <summary>The clock the days are drawn against: the machine's, which a preview pins.</summary>
     private Func<DateTimeOffset> _clock = static () => DateTimeOffset.Now;

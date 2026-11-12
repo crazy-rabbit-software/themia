@@ -1,8 +1,7 @@
-#if DEBUG
 namespace Themia.Sdk.Samples;
 
 /// <summary>
-/// Debug renders only ([S-2050]): the one moment every widget's sample is drawn at, the day the render
+/// The sample day ([S-11850], [S-2050]): the one moment every widget's sample is drawn at, the day the render
 /// runs on at 10:42 local time. A preview that shows a time relative to now, "today", a countdown or
 /// an age computes it from here, never from the real clock, so a render at 9 am and one at 3 pm draw
 /// the same picture (apart from the calendar date).
@@ -38,4 +37,3 @@ public static class SampleDay
     /// <summary>The sample moment less <paramref name="hours"/>.</summary>
     public static DateTimeOffset HoursAgo(double hours) => Now.AddHours(-hours);
 }
-#endif

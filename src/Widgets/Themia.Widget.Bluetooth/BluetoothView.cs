@@ -86,12 +86,8 @@ internal sealed partial class BluetoothView : Grid, IWidgetView, IWidgetOpens, I
 
     private bool _detached;
 
-#if DEBUG
-    /// <summary>[S-1917] A preview state holds its fixture: no pass of the radio starts over it (the ticker's, a config change's).</summary>
+    /// <summary>[S-11850] [S-1917] A sample or a preview state holds its fixture: no pass of the radio starts over it (the ticker's, a config change's).</summary>
     private bool _held;
-#else
-    private const bool _held = false;
-#endif
 
     public BluetoothView()
     {

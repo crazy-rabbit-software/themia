@@ -1,16 +1,13 @@
 #if DEBUG
 using Themia.App.Services.Web;
 using Themia.App.Shell.Gallery;
-using Themia.Core.Model;
 using Themia.Core.Widgets;
-using Themia.Sdk.Samples;
 
 namespace Themia.App.Widgets;
 
 /// <summary>
-/// Debug renders only ([S-1917]): the SDK's sample quote (<see cref="SampleQuote"/>, the chart's too), so the price can be looked at without a
-/// symbol, the network or the sync service. Nothing is fetched or saved. Its bars are the last
-/// session before the sample moment, a seeded walk ([S-2050], [S-2056]).
+/// Debug renders only ([S-1917]): <c>quote</c> is the sample (<see cref="ShowSampleAsync"/>); <c>falling</c>
+/// the falling session with no holding; <c>stale</c> the sample through a failed refresh.
 /// </summary>
 internal sealed partial class StockView : IWidgetPreviewState
 {
@@ -18,22 +15,21 @@ internal sealed partial class StockView : IWidgetPreviewState
 
     public Task ShowPreviewStateAsync(string state)
     {
-        if (state is not ("quote" or "falling" or "stale"))
+        switch (state)
         {
-            return Task.CompletedTask;
+            case "quote":
+                return ShowSampleAsync();
+
+            case "falling":
+                _feed.Preview(SampleConfig(rising: false), FetchStatus.Ok);
+                break;
+
+            case "stale":
+                // [S-7042] The answer on screen, and the last refresh failed: the header's problem glyph.
+                _feed.Preview(SampleConfig(rising: true).Stale(FetchStatus.Offline, null), FetchStatus.Ok);
+                break;
         }
 
-        // [S-2777] "quote" and "stale" hold ten shares, so the holding's row can be looked at; "falling" none.
-        var rising = state != "falling";
-        // [S-2448] The card's own config (its style, its size) with the sample symbol.
-        var sample = (StockConfig)_config.Clone();
-        sample.Symbol = "MSFT";
-        sample.SharesOwned = rising ? 10 : null;
-        _config = sample;
-        var quote = SampleQuote.Quote(rising);
-
-        // [S-7042] stale: the answer on screen, and the last refresh failed: the header's problem glyph.
-        _feed.Preview(state == "stale" ? quote.Stale(FetchStatus.Offline, null) : quote, FetchStatus.Ok);
         return Task.CompletedTask;
     }
 }

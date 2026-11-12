@@ -83,14 +83,10 @@ public sealed partial class ClockView : UserControl, IWidgetView, IWidgetOpens, 
     private string? _label;
     private ContentAlign _align = ContentAlign.Center;
 
-#if DEBUG
-    /// <summary>A render's fixed instant (the <c>sample</c> preview state), so every style shows the same time.</summary>
+    /// <summary>[S-11850] The sample's fixed instant (<see cref="ShowSampleAsync"/>), so every style shows the same time.</summary>
     private DateTimeOffset? _frozen;
 
     private DateTimeOffset Now => _frozen ?? DateTimeOffset.UtcNow;
-#else
-    private static DateTimeOffset Now => DateTimeOffset.UtcNow;
-#endif
 
     public ClockView()
     {

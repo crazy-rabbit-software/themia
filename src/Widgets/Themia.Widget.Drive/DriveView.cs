@@ -166,11 +166,6 @@ internal sealed partial class DriveView : Grid, IWidgetView, IWidgetOpens, IWidg
         _watch = null;
     }
 
-    /// <summary>Debug renders: a drive of the render's own, in place of the walk.</summary>
-#if DEBUG
+    /// <summary>[S-11850] A sample's or a render's own drive, in place of the walk.</summary>
     private DriveEntry? _previewDrive;
-#else
-    // Release has no renders: the field's Debug-only writer (the .Preview.cs part) is not compiled.
-    private DriveEntry? _previewDrive => null;
-#endif
 }

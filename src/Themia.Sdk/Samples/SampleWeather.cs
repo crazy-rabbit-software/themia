@@ -1,10 +1,9 @@
-#if DEBUG
 using Themia.Core.Widgets;
 
 namespace Themia.Sdk.Samples;
 
 /// <summary>
-/// Debug renders only ([S-2052]): the sample day's weather at <see cref="SamplePlace"/>, the one
+/// The sample day ([S-11850], [S-2052]): the sample day's weather at <see cref="SamplePlace"/>, the one
 /// reading every weather widget draws: an overcast autumn morning, light rain from about
 /// eleven. Weather now, the forecast, air quality and the rain nowcast all read their numbers here,
 /// so one temperature, one high and low, one UV index and one sunrise show on every card.
@@ -73,4 +72,3 @@ public static class SampleWeather
     /// </summary>
     public static IReadOnlyList<double> NextQuarters { get; } = [0, 0, 0, 0.2, 0.5, 0.6, 0.6, 0.5, 0.2, 0];
 }
-#endif

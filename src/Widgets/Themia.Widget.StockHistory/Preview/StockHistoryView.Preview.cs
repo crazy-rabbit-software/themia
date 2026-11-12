@@ -2,30 +2,30 @@
 using Themia.App.Services.Web;
 using Themia.App.Shell.Gallery;
 using Themia.Core.Widgets;
-using Themia.Sdk.Samples;
-using Themia.Widget.StockHistory;
 
 namespace Themia.App.Widgets;
 
-/// <summary>Debug renders only ([S-1917]): the SDK's sample quote (<see cref="SampleQuote"/>), the price atom's, its high and low marked.</summary>
+/// <summary>Debug renders only ([S-1917]): <c>quote</c> is the sample (<see cref="ShowSampleAsync"/>); <c>falling</c> the falling session; <c>stale</c> the sample through a failed refresh.</summary>
 internal sealed partial class StockHistoryView : IWidgetPreviewState
 {
     public IReadOnlyList<string> PreviewStates { get; } = ["quote", "falling", "stale"];
 
     public Task ShowPreviewStateAsync(string state)
     {
-        if (state is not ("quote" or "falling" or "stale"))
+        switch (state)
         {
-            return Task.CompletedTask;
+            case "quote":
+                return ShowSampleAsync();
+
+            case "falling":
+                _feed.Preview(SampleConfig(rising: false), FetchStatus.Ok);
+                break;
+
+            case "stale":
+                _feed.Preview(SampleConfig(rising: true).Stale(FetchStatus.Offline, null), FetchStatus.Ok);
+                break;
         }
 
-        // [S-2448] The card's own config with the sample symbol.
-        var sample = (StockHistoryConfig)_config.Clone();
-        sample.Symbol = "MSFT";
-        sample.ShowMinMax = true;
-        _config = sample;
-        var quote = SampleQuote.Quote(state != "falling");
-        _feed.Preview(state == "stale" ? quote.Stale(FetchStatus.Offline, null) : quote, FetchStatus.Ok);
         return Task.CompletedTask;
     }
 }

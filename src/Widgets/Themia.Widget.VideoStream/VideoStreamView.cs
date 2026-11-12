@@ -54,12 +54,8 @@ internal sealed partial class VideoStreamView : Grid, IWidgetView, IWidgetSurfac
     /// A Debug render's still (`Preview/`): the frame is handed in and no session is ever opened, so a
     /// render never reaches a camera. Always false outside a render.
     /// </summary>
-#if DEBUG
+    /// <summary>[S-11850] A sample's still (<see cref="ShowSampleAsync"/>): no session is started over it.</summary>
     private bool _still;
-#else
-    // Release has no renders: the field's Debug-only writer (the .Preview.cs part) is not compiled.
-    private const bool _still = false;
-#endif
     private ShownWatch? _shown;
 
     private VideoStreamConfig _config = new();

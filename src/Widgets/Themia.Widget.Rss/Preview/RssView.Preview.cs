@@ -1,7 +1,6 @@
 #if DEBUG
 using Themia.App.Services.Web;
 using Themia.App.Shell.Gallery;
-using Themia.Core.Model;
 using Themia.Core.Widgets;
 using Themia.Sdk.Samples;
 using Themia.Widget.Rss;
@@ -9,13 +8,10 @@ using Themia.Widget.Rss;
 namespace Themia.App.Widgets;
 
 /// <summary>
-/// Debug renders only ([S-1917], [S-2056]): sample feeds held in memory (ten items, ages from the sample moment), so <c>--widget-png rss --state sample</c>
-/// draws the rows, the header's age and the empty and failure sentences without the network. The
-/// sites are on the reserved <c>.example</c> domain, so no icon is ever found and every row keeps its
-/// globe: a render is the same on every run. <c>single</c> is one feed (its own title in the header);
-/// <c>stale</c> is a held list with one feed failing (the age in the caution colour); <c>failed</c>
-/// is every feed failing with nothing held; <c>empty</c> a feed that answered with no items;
-/// <c>loading</c> the first fetch out.
+/// Debug renders only ([S-1917], [S-2056]): <c>sample</c> is the feeds' sample (<see cref="ShowSampleAsync"/>);
+/// <c>single</c> is one feed (its own title in the header); <c>stale</c> is a held list with one feed
+/// failing (the age in the caution colour); <c>failed</c> is every feed failing with nothing held;
+/// <c>empty</c> a feed that answered with no items; <c>loading</c> the first fetch out.
 /// </summary>
 internal sealed partial class RssView : IWidgetPreviewState
 {
@@ -23,74 +19,34 @@ internal sealed partial class RssView : IWidgetPreviewState
 
     public Task ShowPreviewStateAsync(string state)
     {
+        if (state == "sample")
+        {
+            return ShowSampleAsync();
+        }
+
         if (!PreviewStates.Contains(state, StringComparer.Ordinal))
         {
             return Task.CompletedTask;
         }
 
         var now = SampleDay.Now;
-        const string news = "https://news.example/rss";
-        const string blog = "https://blog.example/feed.xml";
-        const string tech = "https://tech.example/atom";
-
-        FeedEntry Entry(string site, string slug, string title, double hoursAgo, string summary)
-            => new(title, $"https://{site}/{slug}", hoursAgo < 0 ? null : now.AddHours(-hoursAgo), summary);
-
-        var newsDoc = new FeedDocument("World News",
-        [
-            Entry("news.example", "harbour", "Harbour reopens after the storm as ferries resume their winter timetable", 0.1,
-                "Crews worked through the night to clear the quay; the first ferry left at six with a full deck."),
-            Entry("news.example", "budget", "City council agrees next year's budget", 3,
-                "Libraries and the night buses keep their funding; the new pool waits another year."),
-            Entry("news.example", "trains", "Rail strike called off at the last minute", 26,
-                "Talks ran past midnight and ended with an offer both sides could sign."),
-            Entry("news.example", "museum", "A forgotten painting turns up in the museum's basement", 24 * 9,
-                "Restorers think it is the missing panel of an altarpiece split up two centuries ago."),
-        ]);
-
-        var blogDoc = new FeedDocument("Field notes",
-        [
-            Entry("blog.example", "sourdough", "What a year of sourdough taught me about patience", 1.5,
-                "Most of it is waiting, and the rest is learning which waiting matters."),
-            Entry("blog.example", "lake", "A winter swim club that meets every Sunday at eight", 50,
-                "Nobody stays in long, and everybody comes back the next week."),
-            new FeedEntry("Notes from a week without a phone", string.Empty, now.AddHours(-30), "Less scrolling, more walking, and a lot of old paper maps."),
-        ]);
-
-        var techDoc = new FeedDocument("Tech Daily",
-        [
-            Entry("tech.example", "chips", "New laptop chips promise a full day on one charge", 0.6,
-                "Early tests agree on the battery, less so on the price."),
-            Entry("tech.example", "standards", "A standards body publishes the first draft of the new image format", 7,
-                "Smaller files at the same quality, and a royalty-free licence."),
-            Entry("tech.example", "keyboards", "Why quiet keyboards are winning the open office", 20,
-                "Lower switches, softer caps and fewer complaints from the next desk."),
-        ]);
-
-        Fetched<FeedDocument> Ok(FeedDocument doc, double minutesAgo)
-            => new(FetchStatus.Ok, doc, null, now.AddMinutes(-minutesAgo));
+        var (newsDoc, blogDoc, techDoc) = SampleFeeds(now);
+        const string news = SampleNews;
+        const string blog = SampleBlog;
+        const string tech = SampleTech;
 
         var feeds = state == "single" || state == "empty" ? new[] { news } : new[] { news, blog, tech };
-        // [S-2448] The card's own config (its rows and lines: what its size was drawn for) with the sample feeds.
-        var config = (RssConfig)_config.Clone();
-        config.Feeds = [.. feeds.Select(url => new RssFeed { Url = url })];
         var parts = new Dictionary<string, Fetched<FeedDocument>>(StringComparer.Ordinal);
 
         switch (state)
         {
-            case "sample":
-                parts[news] = Ok(newsDoc, 4);
-                parts[blog] = Ok(blogDoc, 4);
-                parts[tech] = Ok(techDoc, 4);
-                break;
-
             case "single":
-                parts[news] = Ok(newsDoc, 2);
+                parts[news] = SampleAnswer(newsDoc, now, 2);
                 break;
 
             case "stale":
-                parts[news] = Ok(newsDoc, 50);
-                parts[blog] = Ok(blogDoc, 50).Stale(FetchStatus.Offline, null);
+                parts[news] = SampleAnswer(newsDoc, now, 50);
+                parts[blog] = SampleAnswer(blogDoc, now, 50).Stale(FetchStatus.Offline, null);
                 parts[tech] = Fetched<FeedDocument>.Failed(FetchStatus.BadResponse, "HTTP 503 Service Unavailable", now);
                 break;
 
@@ -105,12 +61,7 @@ internal sealed partial class RssView : IWidgetPreviewState
                 break;
         }
 
-        _config = config;
-        _applied = (RssConfig)config.Clone();
-        _source.HoldForPreview(config, parts);
-        _binding.ReleaseCursor();
-        _binding.Clock = () => now;
-        _binding.Apply(_source, _config, _config.TickInterval, show: false);
+        HoldSample(feeds, parts, now);
         return Task.CompletedTask;
     }
 }

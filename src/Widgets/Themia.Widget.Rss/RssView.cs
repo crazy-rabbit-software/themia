@@ -235,8 +235,7 @@ internal sealed partial class RssView : Grid, IWidgetView, IWidgetHeaderContent,
                 FeedAggregate.Title(parts));
         }
 
-#if DEBUG
-        /// <summary>Debug renders only: hold these answers as if the sync had brought them.</summary>
+        /// <summary>[S-11850] A sample only: hold these answers as if the sync had brought them.</summary>
         public void HoldForPreview(RssConfig config, IReadOnlyDictionary<string, Fetched<FeedDocument>> parts)
         {
             _config = config;
@@ -248,7 +247,6 @@ internal sealed partial class RssView : Grid, IWidgetView, IWidgetHeaderContent,
 
             Changed?.Invoke();
         }
-#endif
 
         public void Detach()
         {

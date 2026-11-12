@@ -1,4 +1,3 @@
-#if DEBUG
 namespace Themia.Sdk.Samples;
 
 /// <summary>A colour as 0..255 channels, for mixing.</summary>
@@ -652,4 +651,3 @@ internal sealed class Town
         return _houses[lo];
     }
 }
-#endif

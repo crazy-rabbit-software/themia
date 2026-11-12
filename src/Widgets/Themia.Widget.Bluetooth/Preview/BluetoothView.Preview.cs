@@ -6,9 +6,9 @@ using Themia.Core.Widgets;
 namespace Themia.App.Widgets;
 
 /// <summary>
-/// Debug renders only ([S-2056]): the sample day's paired devices (the peripheral batteries' too, one low) with and without a battery reading, so the
-/// battery column ([S-3252]..[S-3254]) can be looked at on a machine whose devices report none; <c>off</c> is the
-/// radio switched off (the Status row, [S-244]), never this PC's radio.
+/// Debug renders only ([S-2056]): <c>devices</c> is the sample (<see cref="ShowSampleAsync"/>), so the
+/// battery column ([S-3252]..[S-3254]) can be looked at on a machine whose devices report none; <c>off</c>
+/// is the radio switched off (the Status row, [S-244]), never this PC's radio.
 /// </summary>
 internal sealed partial class BluetoothView : IWidgetPreviewState
 {
@@ -16,40 +16,15 @@ internal sealed partial class BluetoothView : IWidgetPreviewState
 
     public Task ShowPreviewStateAsync(string state)
     {
-        if (state == "off")
+        switch (state)
         {
-            _held = true;
-            _inFlight?.Cancel();
-            _inFlight = null;
-            _generation++;
-            SetBusy(false);
-            _snapshot = BluetoothSnapshot.Of(BluetoothStatus.RadioOff);
-            Render();
-            return Task.CompletedTask;
+            case "devices":
+                return ShowSampleAsync();
+            case "off":
+                HoldSample(BluetoothSnapshot.Of(BluetoothStatus.RadioOff));
+                break;
         }
 
-        if (state != "devices")
-        {
-            return Task.CompletedTask;
-        }
-
-        // The radio pass still out would draw over the fixture when it lands: it is now stale.
-        _held = true;
-        _inFlight?.Cancel();
-        _inFlight = null;
-        _generation++;
-        SetBusy(false);
-
-        _snapshot = new BluetoothSnapshot(BluetoothStatus.Ok,
-        [
-            new BluetoothDeviceEntry("Surface Headphones 2", "fixture:headphones", true, BluetoothDeviceKind.Audio, 80),
-            new BluetoothDeviceEntry("MX Master 3S", "fixture:mouse", true, BluetoothDeviceKind.Mouse, 64),
-            new BluetoothDeviceEntry("Keychron K3", "fixture:keyboard", true, BluetoothDeviceKind.Keyboard, 46),
-            new BluetoothDeviceEntry("Surface Slim Pen 2", "fixture:pen", true, BluetoothDeviceKind.Pen, 18),
-            new BluetoothDeviceEntry("Pixel 8", "fixture:phone", false, BluetoothDeviceKind.Phone, null),
-        ]);
-
-        Render();
         return Task.CompletedTask;
     }
 }

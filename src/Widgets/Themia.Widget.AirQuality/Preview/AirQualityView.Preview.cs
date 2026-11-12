@@ -1,17 +1,14 @@
 #if DEBUG
 using Themia.App.Services.Web;
 using Themia.App.Shell.Gallery;
-using Themia.Core.Model;
 using Themia.Core.Widgets;
-using Themia.Sdk.Samples;
 
 namespace Themia.App.Widgets;
 
 /// <summary>
-/// Debug renders only ([S-1917], [S-2052]): fixture readings (<c>sample</c>: the sample day's, at its place and its UV; <c>poor</c>), so the index can be
-/// looked at without a place, the network or the sync. Built through the SDK's parser, so a fixture
-/// is exactly what a reply would have become. Nothing is fetched or saved. <c>stale</c> is the sample
-/// kept through a failed refresh, <c>failed</c> no answer at all.
+/// Debug renders only ([S-1917], [S-2052]): <c>sample</c> is the index's sample (<see cref="ShowSampleAsync"/>);
+/// <c>poor</c> a bad day's readings. <c>stale</c> is the sample kept through a failed refresh, <c>failed</c>
+/// no answer at all.
 /// </summary>
 internal sealed partial class AirQualityView : IWidgetPreviewState
 {
@@ -19,36 +16,23 @@ internal sealed partial class AirQualityView : IWidgetPreviewState
 
     public Task ShowPreviewStateAsync(string state)
     {
-        if (state is not ("sample" or "poor" or "stale" or "failed"))
+        switch (state)
         {
-            return Task.CompletedTask;
+            case "sample":
+                return ShowSampleAsync();
+            case "poor":
+                HoldSample(SampleReading(poor: true), FetchStatus.Ok);
+                break;
+            case "stale":
+                // [S-7042] The answer on screen, and the last refresh failed: the header's problem glyph.
+                HoldSample(SampleReading(poor: false).Stale(FetchStatus.Offline, null), FetchStatus.Ok);
+                break;
+            case "failed":
+                // [S-6734] failed: no answer, and the service out of reach: the Status row.
+                HoldSample(null, FetchStatus.Unreachable);
+                break;
         }
 
-        var at = SampleDay.Now.ToUnixTimeSeconds() / 3600 * 3600;
-        var uv = SampleWeather.UvIndex.ToString(System.Globalization.CultureInfo.InvariantCulture);
-        var poor = state == "poor";
-        var json = "{\"current\":{\"time\":" + at + ",\"interval\":3600"
-            + (poor
-                ? ",\"european_aqi\":72,\"us_aqi\":118,\"pm2_5\":48.6,\"pm10\":71.2,\"ozone\":131.0,\"uv_index\":7.4"
-                  + ",\"alder_pollen\":0,\"birch_pollen\":140,\"grass_pollen\":22,\"mugwort_pollen\":0,\"olive_pollen\":0,\"ragweed_pollen\":0"
-                : ",\"european_aqi\":25,\"us_aqi\":36,\"pm2_5\":7.7,\"pm10\":11.9,\"ozone\":41.0,\"uv_index\":" + uv
-                  + ",\"alder_pollen\":0,\"birch_pollen\":0,\"grass_pollen\":12,\"mugwort_pollen\":0.2,\"olive_pollen\":0,\"ragweed_pollen\":0")
-            + "}}";
-
-        _config = new AirQualityConfig { Latitude = SamplePlace.Latitude, Longitude = SamplePlace.Longitude, LocationName = SamplePlace.LocationName, Style = _config.Style, Scale = _config.Scale };
-        PublishPlace();
-        var reading = new Fetched<AirReading>(FetchStatus.Ok, AirQualityWire.Parse(json).Value, null, SampleDay.MinutesAgo(12));
-
-        // [S-7042] The answer on screen, and the last refresh failed: the header's problem glyph.
-        // [S-6734] failed: no answer, and the service out of reach: the Status row.
-        _feed.Preview(
-            state switch
-            {
-                "stale" => reading.Stale(FetchStatus.Offline, null),
-                "failed" => null,
-                _ => reading,
-            },
-            state == "failed" ? FetchStatus.Unreachable : FetchStatus.Ok);
         return Task.CompletedTask;
     }
 }

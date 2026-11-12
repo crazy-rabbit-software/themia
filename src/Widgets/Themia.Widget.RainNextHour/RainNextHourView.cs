@@ -47,12 +47,8 @@ internal sealed partial class RainNextHourView : Grid, IWidgetView, IWidgetOpens
     private readonly SkyFeed<RainInterest, RainNowcast> _feed;
 
     /// <summary>Debug renders pin the clock so the fixture's window stays where it was drawn.</summary>
-#if DEBUG
+    /// <summary>[S-11850] A sample's fixed moment; null on the desktop.</summary>
     private DateTimeOffset? _pinnedNow;
-#else
-    // Release has no renders: the field's Debug-only writer (the .Preview.cs part) is not compiled.
-    private DateTimeOffset? _pinnedNow => null;
-#endif
 
     public RainNextHourView(IWidgetHost host)
     {

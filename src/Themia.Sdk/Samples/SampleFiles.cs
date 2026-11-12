@@ -1,4 +1,3 @@
-#if DEBUG
 using Themia.Core.Diagnostics;
 
 namespace Themia.Sdk.Samples;
@@ -7,7 +6,7 @@ namespace Themia.Sdk.Samples;
 public sealed record SampleFile(string Name, long Size, double HoursAgo, bool IsFolder = false, byte[]? Bytes = null);
 
 /// <summary>
-/// Debug renders only ([S-2056]): Robin's documents, written as files under the temp folder
+/// The sample day ([S-11850], [S-2056]): Robin's documents, written as files under the temp folder
 /// (<c>%TEMP%\themia-sample\&lt;folder&gt;</c>) so the shell draws its stock icon for each extension
 /// and a widget lists them as it lists any folder, while no name, path or picture of this PC shows.
 /// The files hold zeros of their size; nothing else is ever read or written.
@@ -91,4 +90,3 @@ public static class SampleFiles
         }
     }
 }
-#endif

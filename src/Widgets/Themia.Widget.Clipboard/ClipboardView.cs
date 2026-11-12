@@ -70,12 +70,8 @@ internal sealed partial class ClipboardView : Grid, IWidgetView, IWidgetHeaderCo
     private int? _cursor;
     private bool _detached;
 
-#if DEBUG
-    /// <summary>A Debug render's fixed entries in place of the history ([S-1917]); never the user's clipboard.</summary>
+    /// <summary>[S-11850] The sample's fixed entries in place of the history ([S-1917]); never the user's clipboard.</summary>
     private IReadOnlyList<ClipboardEntry>? _sample;
-#else
-    private static IReadOnlyList<ClipboardEntry>? _sample => null;
-#endif
 
     public ClipboardView(IWidgetHost host)
     {

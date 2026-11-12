@@ -38,12 +38,8 @@ internal sealed partial class RemovableDrivesView : Grid, IWidgetView, IWidgetSi
     private IWidgetSurface? _surface;
     private IDisposable? _watch;
     private IReadOnlyList<DriveEntry> _devices = [];
-#if DEBUG
+    /// <summary>[S-11850] The sample's devices in place of this PC's (<see cref="ShowSampleAsync"/>), or null.</summary>
     private IReadOnlyList<DriveEntry>? _previewDevices;
-#else
-    // Release has no renders: the field's Debug-only writer (the .Preview.cs part) is not compiled.
-    private IReadOnlyList<DriveEntry>? _previewDevices => null;
-#endif
     private WidgetArea _area;
     private double _lead = -1;
     private int _focus = -1;

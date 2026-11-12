@@ -1,10 +1,9 @@
-#if DEBUG
 using static Themia.Sdk.Samples.Shapes;
 
 namespace Themia.Sdk.Samples;
 
 /// <summary>
-/// Debug renders only ([S-2056]): the pictures of the sample day, drawn in code so no preview shows a
+/// The sample day ([S-11850], [S-2056]): the pictures of the sample day, drawn in code so no preview shows a
 /// picture read from this PC: the music widget's album cover, the gallery's pictures and the folder
 /// widget's pictures folder. Each is a flat, poster-like landscape matching its file name (a sky, a
 /// sun or moon, ranges receding into haze, water mirroring them, a town's roofs), painted by
@@ -457,4 +456,3 @@ public static class SamplePictures
         return top;
     };
 }
-#endif

@@ -1,11 +1,10 @@
-#if DEBUG
 using Themia.App.Services.Web;
 using Themia.Core.Widgets;
 
 namespace Themia.Sdk.Samples;
 
 /// <summary>
-/// Debug renders only ([S-2056]): the sample day's ECB table, ninety days (63 working days) of the euro
+/// The sample day ([S-11850], [S-2056]): the sample day's ECB table, ninety days (63 working days) of the euro
 /// as seeded walks of small daily moves per currency, built through the SDK's parser. The latest day is
 /// the last working day before the sample day, as the ECB's 16:00 reference rates stand at 10:42. The
 /// rate and its history atoms both read it, so a recipe's two draw one pair to the digit ([S-11171]).
@@ -50,4 +49,3 @@ public static class SampleRates
         return new Fetched<RateTable>(FetchStatus.Ok, EcbWire.Parse(xml.ToString()).Value, null, SampleDay.HoursAgo(2));
     }
 }
-#endif

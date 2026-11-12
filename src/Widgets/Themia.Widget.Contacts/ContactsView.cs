@@ -82,12 +82,8 @@ internal sealed partial class ContactsView : Grid, IWidgetView, IWidgetOpens, IW
     private bool _againForced;
     private bool _detached;
 
-#if DEBUG
-    /// <summary>A Debug render's fixture holds the list: no refresh replaces it.</summary>
+    /// <summary>[S-11850] The sample (or a render's fixture) holds the list: no refresh replaces it.</summary>
     private bool _frozen;
-#else
-    private const bool _frozen = false;
-#endif
 
     /// <summary>[S-6913] What the view asks of the host: the shared Office source, the launcher, ⚙ › Accounts.</summary>
     private readonly IWidgetHost _widgetHost;

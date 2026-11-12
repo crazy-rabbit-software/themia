@@ -1,14 +1,12 @@
-#if DEBUG
 using Themia.App.Services;
 using Themia.Sdk;
 using Themia.Sdk.Samples;
-using Themia.App.Shell.Gallery;
 using Themia.Core.Widgets;
 
 namespace Themia.App.Widgets;
 
 /// <summary>
-/// Debug renders only ([S-1917], [S-2056]): a fixed month of sample usage to the sample moment — ten apps, quieter weekends, the morning so far today, under a
+/// The sample day ([S-11850], [S-1917], [S-2056]): a fixed month of sample usage to the sample moment — ten apps, quieter weekends, the morning so far today, under a
 /// limit on the whole day and one on Edge (<c>over</c>: tight limits, the readouts over them) — so <c>--widget-png ScreenTimeDonut --state
 /// sample</c> draws what a month of tracking would. <c>hovered</c> and <c>selected</c> light an app
 /// through the render's one board ([S-3300]), so every card on the page shows the link.
@@ -137,23 +135,3 @@ public sealed class SampleScreenTime : IScreenTimeSource
         return [.. chosen];
     }
 }
-
-/// <summary>The linked states a render can ask for.</summary>
-public static class ScreenTimePreviewStates
-{
-    public static void Apply(ScreenTimeLinks links, string state)
-    {
-        switch (state)
-        {
-            case "hovered":
-                links.Hover(SampleScreenTime.HoveredApp);
-                break;
-            case "selected":
-                links.Select(SampleScreenTime.SelectedApp);
-                break;
-            default:
-                break;
-        }
-    }
-}
-#endif

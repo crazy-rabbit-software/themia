@@ -1,18 +1,13 @@
 #if DEBUG
 using Themia.App.Shell.Gallery;
-using Themia.Core.Accounts;
 using Themia.Core.Model;
-using Themia.Core.Office;
-using Themia.Sdk;
 using Themia.Sdk.Samples;
 
 namespace Themia.App.Widgets;
 
 /// <summary>
 /// Debug renders only ([S-1917], [S-2711], [S-3606], [S-2054]): every calendar style over the sample
-/// day's schedule at its moment ([S-2050]) — two calendars (so colours show), trips of several days
-/// and a weekend away, an overnight train, overlapping meetings, birthdays, and an all-hands across
-/// the year — through <see cref="SampleCalendarData"/>, so <c>--widget-png Calendar --style month
+/// day's schedule (<see cref="ShowSampleAsync"/>), so <c>--widget-png Calendar --style month
 /// --state sample</c> draws what a signed-in calendar would without an account.
 /// </summary>
 internal sealed partial class CalendarView : IWidgetPreviewState
@@ -33,10 +28,6 @@ internal sealed partial class CalendarView : IWidgetPreviewState
             return;
         }
 
-        _agendaPage = 0;
-        var now = SampleDay.Now;
-        _clock = () => now;
-
         if (string.Equals(state, "days", StringComparison.OrdinalIgnoreCase))
         {
             var days = (CalendarWidgetConfig)_config.Clone();
@@ -46,10 +37,9 @@ internal sealed partial class CalendarView : IWidgetPreviewState
             _config = days;
         }
 
-        UseData(new SampleCalendarData(
+        await HoldSampleAsync(
             empty: string.Equals(state, "empty", StringComparison.OrdinalIgnoreCase),
-            stale: string.Equals(state, "stale", StringComparison.OrdinalIgnoreCase)));
-        await RefreshAsync(force: true).ConfigureAwait(true);
+            stale: string.Equals(state, "stale", StringComparison.OrdinalIgnoreCase)).ConfigureAwait(true);
 
         if (string.Equals(state, "selected", StringComparison.OrdinalIgnoreCase))
         {

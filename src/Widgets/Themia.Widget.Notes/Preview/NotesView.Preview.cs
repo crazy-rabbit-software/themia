@@ -4,27 +4,19 @@ using Themia.App.Shell.Gallery;
 namespace Themia.App.Widgets;
 
 /// <summary>
-/// Debug renders only: a fixed note, at rest (<c>sample</c>) or as it stands while it has the caret
-/// (<c>editing</c>: the formatting bar in the header, [S-3963]), so the header can be looked at
-/// without a pool or a keyboard. The draft is never saved: a render has no note to save it to.
-/// <c>confirm</c> is the sample with the delete question open ([S-1500]); nothing is deleted.
+/// Debug renders only: the note's sample (<see cref="ShowSampleAsync"/>), at rest (<c>sample</c>) or as it
+/// stands while it has the caret (<c>editing</c>: the formatting bar in the header, [S-3963]), so the header
+/// can be looked at without a pool or a keyboard. <c>confirm</c> is the sample with the delete question
+/// open ([S-1500]); nothing is deleted.
 /// </summary>
 internal sealed partial class NotesView : IWidgetPreviewState
 {
-    // [S-2056] A short real note: a heading, a checklist, one line of text.
-    private const string SampleNote = "# Groceries\n- [x] Oat milk\n- [ ] Coffee beans\n- [ ] Flowers for Mia\n- [ ] Bread\n\nThe bakery closes at six today.";
-
     public IReadOnlyList<string> PreviewStates { get; } = ["sample", "editing", "confirm"];
 
-    public Task ShowPreviewStateAsync(string state)
+    public async Task ShowPreviewStateAsync(string state)
     {
-        _state = NoteState.Unbound;
-        _editor.IsReadOnly = false;
-        _editor.Reset(SampleNote);
         _previewEditing = state == "editing";
-
-        UpdateMessage();
-        Lay();
+        await ShowSampleAsync().ConfigureAwait(true);
 
         if (state == "confirm")
         {
@@ -32,10 +24,8 @@ internal sealed partial class NotesView : IWidgetPreviewState
             _ = AskToDeleteAsync("Groceries");
 
             // The flyout opens with an animation; the render draws it once it has settled.
-            return Task.Delay(900);
+            await Task.Delay(900).ConfigureAwait(true);
         }
-
-        return Task.CompletedTask;
     }
 }
 #endif

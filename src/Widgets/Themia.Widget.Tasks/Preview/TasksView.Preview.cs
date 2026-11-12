@@ -8,8 +8,8 @@ using Themia.Sdk.Samples;
 namespace Themia.App.Widgets;
 
 /// <summary>
-/// Debug renders only: a list on this PC held in memory, so the rows and the add footer
-/// ([S-780], [S-3850]) can be looked at without an account or the user's own lists. <c>stale</c> is an
+/// Debug renders only: <c>tasks</c> is the sample (<see cref="ShowSampleAsync"/>); <c>few</c>, <c>empty</c>
+/// and <c>done</c> other lists on this PC held in memory. <c>stale</c> is an
 /// account's list held from 20 minutes ago whose last refresh failed (no network), through a fixture
 /// feed that asks nothing; <c>failed</c> the same failure with nothing held (its "Try again");
 /// <c>nolocal</c> a list on this PC that is gone (its "Start a list"); <c>caldav</c> a CalDAV account's
@@ -17,8 +17,6 @@ namespace Themia.App.Widgets;
 /// </summary>
 internal sealed partial class TasksView : IWidgetPreviewState
 {
-    private const string PreviewListId = "preview-list";
-
     public IReadOnlyList<string> PreviewStates { get; } = ["tasks", "few", "empty", "done", "stale", "failed", "nolocal", "caldav"];
 
     public Task ShowPreviewStateAsync(string state)
@@ -83,10 +81,13 @@ internal sealed partial class TasksView : IWidgetPreviewState
             return Task.CompletedTask;
         }
 
+        if (state == "tasks")
+        {
+            return ShowSampleAsync();
+        }
+
         LocalTask[]? tasks = state switch
         {
-            // [S-2055] Robin's errands, the week planner's list.
-            "tasks" => [.. SampleTasks.Errands.Select((task, i) => new LocalTask($"t{i + 1}", task.Title, false))],
             "few" => [new("t1", "Pick up the parcel", false), new("t2", "Water the plants", false)],
 
             // [S-784] Finished tasks shown, under their heading.
@@ -107,13 +108,7 @@ internal sealed partial class TasksView : IWidgetPreviewState
             return Task.CompletedTask;
         }
 
-        _config.Source = TaskSource.Local;
-        _config.ShowCompleted = state == "done";
-        _config.LocalListId = PreviewListId;
-        _local = new MemoryTaskLists([new LocalTaskList(PreviewListId, SampleTasks.ListName, tasks)]);
-        _localListId = PreviewListId;
-        PublishTitle();
-        Render();
+        ShowLocalSample(tasks, showCompleted: state == "done");
         return Task.CompletedTask;
     }
 

@@ -14,8 +14,7 @@ public sealed partial class QuickToggleView : IWidgetPreviewState
         switch (state)
         {
             case "on":
-                _preview = ToggleReading.Of(true);
-                break;
+                return ShowSampleAsync();
 
             case "off":
                 _preview = ToggleReading.Of(false);

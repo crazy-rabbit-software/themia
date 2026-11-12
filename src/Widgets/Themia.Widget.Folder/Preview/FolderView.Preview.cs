@@ -1,6 +1,5 @@
 #if DEBUG
 using Themia.App.Shell.Gallery;
-using Themia.Core.Model;
 using Themia.Core.Widgets;
 using Themia.Sdk.Samples;
 using Themia.Sdk.WinUI;
@@ -10,8 +9,8 @@ namespace Themia.App.Widgets;
 /// <summary>
 /// Debug renders only ([S-4122], [S-2056]): point the widget at the sample day's folders, written
 /// under the temp folder (<see cref="SampleFiles"/>), so a render shows ordinary names, the shell's
-/// stock icons and thumbnails, and never a name, path or picture of this PC. "documents" is Robin's
-/// documents (three folders, a dozen files), "pictures" the sample pictures (drawn in code), "lasso"
+/// stock icons and thumbnails, and never a name, path or picture of this PC. "documents" is the
+/// folder's sample (<see cref="ShowSampleAsync"/>), "pictures" the sample pictures (drawn in code), "lasso"
 /// the documents with a band dragged from beside the first name down past the last row ([S-6412]),
 /// "selected" the documents with two items selected, a third under the pointer and the focus moved
 /// on by Ctrl+Right ([S-6627]), "inactive" the same selection after the widget lost the keyboard
@@ -51,9 +50,15 @@ internal sealed partial class FolderView : IWidgetPreviewState, IWidgetPreviewMe
 
     public async Task ShowPreviewStateAsync(string state)
     {
+        if (state == "documents")
+        {
+            await ShowSampleAsync().ConfigureAwait(true);
+            return;
+        }
+
         var path = state switch
         {
-            "documents" or "lasso" or "selected" or "inactive" or "fullname" => SampleFiles.Write("Documents", SampleFiles.Documents),
+            "lasso" or "selected" or "inactive" or "fullname" => SampleFiles.Write("Documents", SampleFiles.Documents),
             "pictures" => await SamplePictureFiles.WriteAsync("Pictures", SamplePictures.Names).ConfigureAwait(true),
             _ => null,
         };
@@ -63,14 +68,7 @@ internal sealed partial class FolderView : IWidgetPreviewState, IWidgetPreviewMe
             return;
         }
 
-        // The breadcrumb names the sample folder as Robin's, never the temp folder's path.
-        _crumbAlias = (System.IO.Path.GetDirectoryName(path)!, @"C:\Users\Robin");
-        var preview = (FolderConfig)_config.Clone();
-        preview.Path = path;
-        ApplyConfig(preview);
-
-        // The listing is read on the pool; give it, and the thumbnails, a moment before the shot.
-        await Task.Delay(1500).ConfigureAwait(true);
+        await ShowFolderAsync(path).ConfigureAwait(true);
 
         if (state == "lasso")
         {

@@ -61,12 +61,8 @@ internal sealed partial class MixerView : Grid, IWidgetView, IWidgetOpens, IWidg
 
     private bool _detached;
 
-#if DEBUG
-    // Debug renders: a fixture snapshot stands still; the live feed is not asked again over it.
+    // [S-11850] A sample's snapshot stands still; the live feed is not asked again over it.
     private bool _frozen;
-#else
-    private const bool _frozen = false;
-#endif
 
     public MixerView(IWidgetHost host)
     {

@@ -59,15 +59,18 @@ public sealed partial class KitConformanceTests
     /// <summary>
     /// [S-7068] [S-1102] Every word a widget or the kit shows goes through the strings layer: no
     /// literal text, content, placeholder or tooltip in a view or a kit part. An example web address
-    /// in a placeholder is allowed (it is an address, not a sentence); so is a debug preview's sample
-    /// data (<c>Preview/</c>, never shipped).
+    /// in a placeholder is allowed (it is an address, not a sentence); so is a sample's data: the sample
+    /// day's content a picture draws ([S-11850], <c>Samples/</c>, shipped) or a debug preview's
+    /// (<c>Preview/</c>, never shipped), which is what a user's data would be, not the app's words.
     /// </summary>
     [Fact]
     public void S7068_no_view_shows_a_literal_sentence()
     {
         var offending = new List<string>();
         foreach (var file in RepoFiles.ViewSources().Concat(KitSources()).Distinct()
-            .Where(f => !f.Split(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar).Contains("Preview") && !f.EndsWith(".Preview.cs", StringComparison.Ordinal)))
+            .Where(f => !f.Split(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar).Any(p => p is "Preview" or "Samples")
+                && !f.EndsWith(".Preview.cs", StringComparison.Ordinal)
+                && !f.EndsWith(".Sample.cs", StringComparison.Ordinal)))
         {
             var code = Code(file);
             foreach (Match m in LiteralText().Matches(code))

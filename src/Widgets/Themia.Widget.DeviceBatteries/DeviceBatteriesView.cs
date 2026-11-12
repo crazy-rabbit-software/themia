@@ -101,18 +101,12 @@ internal sealed partial class DeviceBatteriesView : Grid, IWidgetView, IWidgetHe
     {
         private IDisposable? _watch;
 
-#if DEBUG
-        /// <summary>Debug renders only: a snapshot held in place of the host's.</summary>
+        /// <summary>[S-11850] A sample's or a render's snapshot held in place of the host's.</summary>
         private DeviceBatterySnapshot? _held;
 
         private bool Holding => _held is not null;
 
         private DeviceBatterySnapshot Snapshot => _held ?? batteries.Last;
-#else
-        private static bool Holding => false;
-
-        private DeviceBatterySnapshot Snapshot => batteries.Last;
-#endif
 
         public event Action? Changed;
 
@@ -151,13 +145,11 @@ internal sealed partial class DeviceBatteriesView : Grid, IWidgetView, IWidgetHe
             return new KitRead([.. rows.Select(row => DeviceBatteriesSpec.Item(row, settings.EffectiveThreshold, locale))], [new KitOutcome(null, status, detail)]);
         }
 
-#if DEBUG
-        /// <summary>Debug renders only: hold this snapshot as if the host had read it.</summary>
+        //// <summary>[S-11850] A sample or a render: hold this snapshot as if the host had read it.</summary>
         public void HoldForPreview(DeviceBatterySnapshot snapshot)
         {
             _held = snapshot;
             Changed?.Invoke();
         }
-#endif
     }
 }

@@ -45,13 +45,8 @@ internal sealed partial class AlarmView : Grid, IWidgetView, IWidgetOpens, IWidg
     private Func<DateTime> _clock = static () => DateTime.UtcNow;
     private bool _detached;
 
-    /// <summary>Debug renders: what the alarm is doing, in place of the service's answer.</summary>
-#if DEBUG
+    /// <summary>[S-11850] A sample's or a render's: what the alarm is doing, in place of the service's answer.</summary>
     private AlarmStatus? _previewStatus;
-#else
-    // Release has no renders: the field's Debug-only writer (the .Preview.cs part) is not compiled.
-    private AlarmStatus? _previewStatus => null;
-#endif
 
     public AlarmView(IWidgetHost host)
     {

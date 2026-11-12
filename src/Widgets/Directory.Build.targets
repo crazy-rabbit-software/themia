@@ -3,6 +3,9 @@
     [S-6911] Items of every widget module project, after the SDK's default globs: its Tests/ compile
     into tests/Themia.Modules.Tests (not here), its Preview/ (debug render states) and Fixtures/ are
     Debug only, its locale files feed the strings generator, its SPEC.md is a plain file.
+    [S-11850] The one rule for samples: Samples/ (the view's IWidgetSample, the add page's picture on
+    the sample day's data) compiles in every configuration, by the default glob; Preview/ (the
+    render-only states: errors, loading, empty, edge cases) in Debug only. No #if in either.
   -->
   <PropertyGroup>
     <_ThemiaParentTargets>$([MSBuild]::GetPathOfFileAbove('Directory.Build.targets', '$(MSBuildThisFileDirectory)..'))</_ThemiaParentTargets>

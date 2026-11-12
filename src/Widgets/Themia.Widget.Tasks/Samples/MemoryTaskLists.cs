@@ -1,10 +1,9 @@
-#if DEBUG
 using Themia.App.Services.Tasks;
 using Themia.Core.Tasks;
 
 namespace Themia.App.Widgets;
 
-/// <summary>A preview's task lists: held in memory, never saved (the host's pool with no store, for a debug render).</summary>
+/// <summary>[S-11850] A sample's task lists: held in memory, never saved (the host's pool with no store, for a picture or a debug render).</summary>
 internal sealed class MemoryTaskLists(IReadOnlyList<LocalTaskList> seed) : ILocalTaskLists
 {
     private List<LocalTaskList> _lists = [.. seed];
@@ -46,4 +45,3 @@ internal sealed class MemoryTaskLists(IReadOnlyList<LocalTaskList> seed) : ILoca
         Changed?.Invoke();
     }
 }
-#endif

@@ -1,4 +1,3 @@
-#if DEBUG
 namespace Themia.Sdk.Samples;
 
 /// <summary>One invented person of the sample day: no real person, every address on a reserved <c>.example</c> domain.</summary>
@@ -9,7 +8,7 @@ public sealed record SamplePerson(string Name, string Email, string? JobTitle = 
 }
 
 /// <summary>
-/// Debug renders only ([S-2053]): the invented people of the sample day. Robin Keller, whose desktop
+/// The sample day ([S-11850], [S-2053]): the invented people of the sample day. Robin Keller, whose desktop
 /// it is, works on the product team of Lumen Labs in Zürich; the same colleagues, client and friends
 /// write the mail, organise the meetings, fill the address book and send the notifications.
 /// </summary>
@@ -50,4 +49,3 @@ public static class SampleCast
     /// <summary>The address book, in no particular order (the widget sorts it).</summary>
     public static IReadOnlyList<SamplePerson> Contacts { get; } = [Alex, Ana, Bea, Dana, Fatima, Jonas, Kira, Lena, Liam, Mia, Priya, Sam];
 }
-#endif

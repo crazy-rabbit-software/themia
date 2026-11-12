@@ -9,7 +9,8 @@
     build, test and publish do not read the solution):
 
       widget    <Name>.csproj, <Name>Module.cs (descriptor, view factory, JSON context, glyph),
-                <Name>Config.cs, <Name>View.cs, Localization/Locales/*.json (40 languages),
+                <Name>Config.cs, <Name>View.cs, Samples/<Name>View.Sample.cs (the add page's picture),
+                Localization/Locales/*.json (40 languages),
                 SPEC.md (its own tag block), Tests/<Name>Tests.cs
       provider  <Name>.csproj, <Name>Provider.cs, Localization/Locales/*.json, SPEC.md,
                 Tests/<Name>ProviderTests.cs
@@ -223,6 +224,27 @@ internal sealed partial class {{Name}}View : Grid, IWidgetView
     private void OnLanguage(Locale locale) => Render();
 
     private void Render() => _text.Text = {{Name}}Str.{{Name}}_Label.Text();
+}
+'@
+
+    # [S-11850] The add page's picture of the widget: its sample ships (Samples/), its render-only states do not (Preview/, Debug).
+    Write-ModuleFile "Samples\$($Name)View.Sample.cs" @'
+using Themia.App.Widgets;
+
+namespace {{Project}};
+
+/// <summary>
+/// [S-11850] The add page's picture of the {{id}} widget, in every build: the sample day's data
+/// (<c>Themia.Sdk.Samples</c>) in place of its live sources, held by this view alone, never written into a
+/// store. Render-only states (errors, loading, empty, edge cases) go in <c>Preview/</c>, Debug only.
+/// </summary>
+internal sealed partial class {{Name}}View : IWidgetSample
+{
+    public Task ShowSampleAsync()
+    {
+        Render();
+        return Task.CompletedTask;
+    }
 }
 '@
 

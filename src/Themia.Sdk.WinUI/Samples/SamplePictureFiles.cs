@@ -1,4 +1,3 @@
-#if DEBUG
 using System.Runtime.InteropServices.WindowsRuntime;
 using Themia.Sdk.Samples;
 using Windows.Graphics.Imaging;
@@ -7,7 +6,7 @@ using Windows.Storage.Streams;
 namespace Themia.Sdk.WinUI;
 
 /// <summary>
-/// Debug renders only ([S-2056]): the sample day's pictures (<see cref="SamplePictures"/>) as PNG
+/// The sample day ([S-11850], [S-2056]): the sample day's pictures (<see cref="SamplePictures"/>) as PNG
 /// bytes, for a preview that takes a picture as a file or as bytes (the music art, the gallery, the
 /// folder widget's pictures folder).
 /// </summary>
@@ -61,4 +60,3 @@ public static class SamplePictureFiles
         return SampleFiles.Write(folder, files);
     }
 }
-#endif
