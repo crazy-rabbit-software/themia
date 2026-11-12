@@ -32,13 +32,14 @@ powershell -ExecutionPolicy Bypass -File scripts/package.ps1      # unsigned Sto
 Render flags draw off-screen to PNG and exit. Look at the PNGs; they are how UI work is verified.
 
 ```
-Themia.exe --widget-png <Kind> <out.png> [w h] [--theme light|dark] [--state name] [--style name] [--sizes WxH,..|tiers] [--keys k1,k2|text:abc]
+Themia.exe --widget-png <Kind> <out.png> [w h] [--theme light|dark] [--state name] [--style name] [--sizes WxH,..|tiers|range] [--keys k1,k2|text:abc]
            [--place-cleared]   # a widget about a place with its place cleared [S-2848]
            [--transparent]     # no page behind the cards: the PNG keeps their alpha, for compositing
            [--background-image <full path>]   # the cards' own background image [S-6590]
            [--machine sample]  # the system widgets read the sample laptop, not this PC [S-1931]; any render: SampleMachine.Install(ticker, dispatcher)
            [--wallpaper <image path>]   # the page is a screen with that wallpaper; the cards frost over it [S-2119]
-           # the 7 tiers (or w×h); a wrong --state prints the kind's states (Stocks: quote|falling)
+           # a converted kind at its range (min, natural, max), a legacy one at the 7 tiers (or w×h);
+           # a wrong --state prints the kind's states (Stocks: quote|falling)
            [--design border=dashed,borderWidth=4,borderOpacity=0.5,borderColor=#FF0000,radius=4,preset=Midnight,...]
            # --style: any styled kind in one of its styles [S-6006] (Clock: digital|analog|stacked|flip|word|minimal; --state sample fixes 10:42)
 Themia.exe --picker-png <out.png> [--search t]       Themia.exe --iconpicker-png <out.png> [--search t] [--initials]
@@ -48,7 +49,7 @@ Themia.exe --editbar-png <outDir> [--theme light|dark] [--only settings|bar]   #
            # Display ▾ (views-*, display-*);
            # --picker-png takes --theme too. There is no settings window and no --settings-png [S-3585]
 Themia.exe --layout-editor-png <out.png> [waitMs] [--empty]
-Themia.exe --add-showcase-views [<statePath>]   # one view per widget kind at the 7 sizes; quit Themia first
+Themia.exe --add-showcase-views [<statePath>]   # one view per widget kind at the 7 sizes (a converted kind: min, natural, max); quit Themia first
 Themia.exe --scene-png <scenes.json> <scene> <out.png> [--scale <n>]   # a store scene: a whole desktop of widgets
            # to one PNG of exactly screen × scale px (default 2) [S-1074]; store/capture.ps1 draws every scene of store/scenes.json
            # a scene widget may carry "group": "<name>"; the "edit" block "group": "<name>" or "enter": "<widget id>" [S-2458]
@@ -209,8 +210,17 @@ bar's menus ([S-3520]); there is no settings window ([S-3585]) and a widget has 
 
 ## Working conventions
 
-- **Responsive widgets** (`Themia.Core/Widgets`, S-660..S-666): a widget adapts as it grows, by a
-  ladder of parts, not by scaling one layout. Implement `IWidgetSizeAware.ApplySize(WidgetArea)`;
+- **Widget sizing** (SPEC "Widget sizing (SIZE)", [S-2438]..[S-2449]; docs/WIDGET-KIT.md 17 is how
+  to convert a kind): **content decides a widget's size; size no longer decides its content.** A kind
+  states `WidgetDescriptor.Sizing` (a `WidgetSizing`: Min, Natural, Max, optional steps) from its
+  config; the host adds it at Natural, stops resizes at Min/Max and on the steps, paints the stored
+  rect fitted into the sizing and refits on a config change. Inside its range a converted kind shows
+  the same content (no `Disclosure`, no tiers): what it shows is config (rows, lines, facts, Size
+  S/M/L). A kit list states its rows (`IKitRows`, `KitSizing`). Clock, Memory and Tasks are the
+  references; every other kind is legacy (`WidgetSizing.Legacy`, the shrink-only list in
+  `WidgetSizingTests`) and keeps the ladder below until converted.
+- **Responsive widgets, legacy until converted** (`Themia.Core/Widgets`, S-660..S-666): a legacy
+  widget adapts as it grows, by a ladder of parts, not by scaling one layout. Implement `IWidgetSizeAware.ApplySize(WidgetArea)`;
   classify on the `WidgetArea` (`WidthClass`/`HeightClass`/`Shape`, breakpoints 180/400/720 and
   128/280/480 DIPs), measure on the deflated box, spend height through one `Disclosure`
   (`Reserve` for the must-show part, `Take` for optional rungs in priority order, `TakeRows` for the
@@ -220,7 +230,7 @@ bar's menus ([S-3520]); there is no settings window ([S-3585]) and a widget has 
   is another widget's or Windows' job (a device picker, a detail/reading pane, a note list, a
   counts footer, the next days on "weather now"). Room left at L/XL goes to the core content (a
   larger ramp step, more rows); if that is used up, empty space is fine. Clock and the meters are the
-  reference. Check every size tier on the showcase views.
+  reference. Check every size tier on the showcase views (a converted kind: its min, natural, max).
 - **One family** (SPEC "FAMILY", [S-6700]..[S-6732]; docs/WIDGET-KIT.md 16): a widget is drawn from the
   family's tokens (`FamilyType`, `FamilySpace`, `FamilyShape`, `ColourRole`; `Family.*` in WinUI) and its
   seven blocks (Header, Row, Readout, Chart, Status, Tile, Controls in `Themia.Sdk.WinUI.Kit`); the
@@ -293,7 +303,7 @@ bar's menus ([S-3520]); there is no settings window ([S-3585]) and a widget has 
   menu group and ungroup. Everything that produces or moves widgets is the one placement session
   (`PlacementPayload`: a new widget, a ready-made group, a copy, a move).
 - **The add menu** ([S-3510]..[S-3515], [S-2473]): Core's tree (`AddTree`, `AddMenuKeys`), drawn by
-  `WidgetPicker`: Ready-made (the recipes of `ReadyMadeGroups`, docs/WIDGET-KIT.md 17), Popular,
+  `WidgetPicker`: Ready-made (the recipes of `ReadyMadeGroups`, docs/WIDGET-KIT.md 18), Popular,
   Browse; a widget places itself in it through its descriptor; a recipe is data only.
 - **Item selection** (files, shortcuts: anything selected like desktop icons) through the SDK's one rule set
   `ItemSelection` (+ `SelectionBand`) and one look `SelectionChrome` ([S-6620]..[S-6629]); never a selection of its own.

@@ -74,12 +74,16 @@ Sections, grouped by area (file order below; search for the heading).
 ## Constraints
 
 - **[S-08]** Minimum widget size is a **pixel floor** (`MinWidgetPx`, 32 DIP, [S-06b]), converted to a
-  fractional floor at the moment of resize, so it means the same physical size on every monitor.
+  fractional floor at the moment of resize, so it means the same physical size on every monitor. It
+  is every widget's last floor; a legacy kind has no other, a converted kind stops at its sizing's Min
+  first ([S-2445]).
 - **[S-09]** Widgets are kept **in reach** (`GridGeometry.Clamp`), not inside: at load against the
   whole screen, and against the display's **work area** for drag, resize, placement, paste, drop and
   the arrow keys ([S-841]), each by the one rule of [S-6608]. No widget is ever bigger than that area.
   Clamping is **total**: a non-finite or inverted rect collapses to a valid one rather than
-  propagating NaN into storage.
+  propagating NaN into storage. A converted kind is also held to its sizing: painted fitted into it
+  ([S-2446]), resized within it ([S-2445]); its Max may be larger than the work area allows, and the
+  work area wins.
 - **[S-6608]** A widget may hang over **any edge** of its display, but always keeps at least
   `MinVisiblePx` (**32 DIP**, the [S-08] floor) of itself on the allowed area on each axis: a
   floor-sized widget is never cut at all, a bigger one always leaves a whole minimum widget's worth
@@ -108,7 +112,8 @@ Sections, grouped by area (file order below; search for the heading).
 - **[S-31a]** Settling a resize snaps and limits **only the edges the handle moves**: a moved edge
   rounds to the grid (or lands on a work-area edge within the magnet, [S-6609]), may pass the
   work-area edge, and stops where the widget would outgrow the work area or keep less than the visible
-  minimum on it ([S-6608]); an anchored edge never moves. Snapping the whole rect rounded the anchored
+  minimum on it ([S-6608]); an anchored edge never moves. A converted kind's moved edge also stops at its
+  sizing's Min and Max and lands on its steps, a fixed axis has no handle ([S-2444], [S-2445]). Snapping the whole rect rounded the anchored
   edge too, and clamping the whole rect pushed the widget about instead of stopping the moved edge.
 - **[S-31b]** Edit mode draws no outline round a widget. The eight handles are its markers
   (`EditMarkers`): a **square-cornered L-bracket** at each corner (arms 14 DIPs, never rounded, whatever
@@ -130,9 +135,11 @@ Sections, grouped by area (file order below; search for the heading).
 
 ## Defaults & placement
 
-- **[S-10]** A widget definition declares its default size in **pixels**. At placement that is
-  converted to a fraction of the current screen, so a newly dropped widget has a consistent physical
-  size on any monitor, and scales per [S-02] thereafter.
+- **[S-10]** A widget kind states its sizes ([S-2438]); a new widget lands at its **Natural** size in
+  DIPs (`WidgetDescriptor.Natural`, the default config's; `DefaultWidth`/`DefaultHeight` are gone). At
+  placement that is converted to a fraction of the current screen, so a newly dropped widget has a
+  consistent physical size on any monitor, and scales per [S-02] thereafter (a converted kind then
+  painted fitted into its sizing, [S-2446]).
 - **[S-11]** Placement centres the widget on the drop point, then snaps ([S-06], [S-6609]) and keeps
   it in reach ([S-09]): one dropped near an edge or on the taskbar may hang over it, but keeps the
   visible minimum on the work area ([S-6608]). The ghost shows exactly that.
@@ -893,7 +900,8 @@ module author's guide is docs/WIDGET-KIT.md 16.
 - **[S-6701]** A value's **unit** and the **line under** it follow from its step: the unit (400,
   secondary) is 14 beside 28, 20 beside 40, 28 beside 68, 40 beside 96 and 136, 68 beside 192; the
   line under is Caption under 28, Body under 40 and 68, Title (400) under 96, 136 and 192.
-- **[S-6702]** The **Readout**'s step is chosen, never computed: the largest whose line (and the line
+- **[S-6702]** *(Legacy until converted: a converted kind's number is 28, or its Size's step for a
+  one-readout widget, whatever the box, [S-2449].)* The **Readout**'s step is chosen, never computed: the largest whose line (and the line
   under it) fits the box and whose lead glyph, value and unit fit its width (`ReadoutRules.Step`,
   widths by `HeroFit.Ems`), never below 28. A data widget's number has two sizes ([S-2220]): 28, and
   40 once the view area is expanded both ways (L, XL), never 68 (`ReadoutRules.Ceiling`). Room left
@@ -3990,6 +3998,10 @@ side); tests `WidgetSizingTests` (Core: the rules; module host: every kind, the 
   ([S-1074]) paints a converted kind fitted into its sizing as the desktop does ([S-2446]).
 
 ## Responsive layout (shared foundation)
+
+*Legacy until converted ([S-2443]):* [S-660]..[S-666] hold for the kinds on the legacy list only. A
+converted kind states its sizes and shows the same content inside them ([S-2438]..[S-2449]): no
+`Disclosure`, no `WidgetArea` classes, no tiers. The types stay until the list is empty.
 
 - **[S-660]** A widget's content area (the card less its header) is classified per axis into
   `SizeClass` Compact / Regular / Expanded / Huge (width breakpoints 180 / 400 / 720, height
@@ -7190,7 +7202,7 @@ grouped, so a first desktop is a few clicks.
   the `groups` locale area), a glyph, its subject in the add menu (`AddFolderId`), and its widgets: a
   widget id, a box in DIPs from the group's corner, a config fragment merged over the kind's default
   (as the first-run seed's, [S-893]), an optional header placement and title. Adding one is an entry and
-  its two strings (docs/WIDGET-KIT.md 17). A place, an account or a folder is left to the widget's own
+  its two strings (docs/WIDGET-KIT.md 18). A place, an account or a folder is left to the widget's own
   Set up, never filled with someone else's.
 - **[S-2471]** **Placing** is the one placement session ([S-1587]): a ghost of every widget at its
   offset, one click lands them all, touching, as one new group named after the recipe (fresh ids every
@@ -8788,7 +8800,8 @@ that puts every widget on the real desktop at every size tier. Owning files: Cor
   match says so in the grid's place, which keeps its size. Debug render:
   `Themia.exe --iconpicker-png <out.png> [--search text] [--theme light|dark] [--initials]`.
 - **[S-1810]** Showcase views: one view per widget kind in the registry's order (by id, [S-6902]), named after the widget
-  and with its glyph as the view icon, holding seven default instances of it, one per size tier
+  and with its glyph as the view icon, holding seven default instances of it (a converted kind: three,
+  at its min, natural and max, [S-2448]), one per size tier
   (`WidgetTiers`: XS 120×120, S 200×150, M 320×240, Wide 480×160, Tall 200×400, L 560×420, XL 800×560
   DIPs). Each cell is the tier times the display's content
   scale ([S-850]) plus the widget gap, so the content lays out at exactly the tier.

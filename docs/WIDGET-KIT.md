@@ -259,7 +259,7 @@ public sealed record WidgetDescriptor(
     WidgetId Id,
     Type ConfigType, Func<WidgetConfig> CreateDefault, IJsonTypeInfoResolver Json,  // 4.6
     LocalText Label, LocalText Description, string Glyph,                           // catalogue, picker
-    double DefaultWidth, double DefaultHeight,
+    Func<WidgetConfig, WidgetSizing> Sizing,   // its sizes from its config (section 17; was DefaultWidth/Height)
     AddPlacement Add,                          // the add menu shelf (closed SDK enum) and an order key
     IReadOnlyList<LocalText> Keywords,         // search ([S-943])
     IReadOnlyList<ProviderId> Providers,       // search by service name, the provider-gone screen
@@ -644,6 +644,9 @@ Menu opens the menu; Escape drops the cursor ([S-813]). With `Overflow = Page`, 
 PgUp/PgDn page instead ([S-3624]). Optional type-ahead goes through the existing `TypeAhead`.
 
 ### 5.4 The ladder
+
+*(Legacy until converted, [S-2443]: a kit list that states its rows (`IKitRows`, section 17.3) plans
+by them, the same at every size; the ladder below is the not yet converted lists'.)*
 
 ```csharp
 public sealed record KitSpec(
@@ -3013,7 +3016,97 @@ family has no token for, the shell's alone (the guard fails on a module or a blo
 The card's fault and waiting states and the Set up row are the Status block ([S-6714]); a notice's
 severity is the accent, Caution or Critical (no success green).
 
-## 17. Ready-made groups (recipes)
+## 17. Sizing: how to convert a kind
+
+Owner's decision 2026-11-12: **content decides a widget's size; the size no longer decides its
+content.** A kind states the sizes it may take, the host keeps it inside them, and inside its range it
+shows the same thing. SPEC "Widget sizing (SIZE)", [S-2438]..[S-2449]. Clock, Memory and Tasks are
+the references; every other kind is legacy until converted.
+
+### 17.1 The contract (`Themia.Sdk`, pure)
+
+```csharp
+public readonly record struct SizeDip(double Width, double Height);          // DIPs of the card's box,
+                                                                              // header included, scale 1
+public sealed record SizeSteps(double Base, double Step, int MinCount, int MaxCount, int? Count = null);
+                                                                              // Base + n x Step; Count: the
+                                                                              // axis follows the config
+public sealed record WidgetSizing                                             // Min <= Natural <= Max
+{
+    SizeDip Min, Natural, Max; SizeSteps? WidthSteps, HeightSteps; bool IsLegacy;
+    bool FixedWidth, FixedHeight;                                             // Min == Max: no handle
+    static WidgetSizing Range(SizeDip min, SizeDip natural, SizeDip max);
+    static WidgetSizing Fixed(SizeDip size);
+    static WidgetSizing Legacy(double w, double h);                           // the old way
+    WidgetSizing WithHeightSteps(SizeSteps s);  WidgetSizing WithWidthSteps(SizeSteps s);
+    SizeDip Fit(SizeDip wanted);  IReadOnlyList<string> Problems();
+}
+
+// on WidgetDescriptor:
+required Func<WidgetConfig, WidgetSizing> Sizing { get; init; }               // pure, from the config
+Func<WidgetConfig, SizeDip, WidgetConfig>? SizeSets { get; init; }            // size -> config (a count);
+                                                                              // returns a copy or the same
+WidgetSizing SizingOf(WidgetConfig? config = null);  SizeDip Natural { get; } // [S-10] where it lands
+```
+
+The sizing is stated **with the kind's default header** (`WidgetTraits.StartsHeaderless`: none, else
+a top header, 24 of the card's height); the host adds or takes away a header the card shows
+differently. It may read ambient facts the host owns (the language, the region's 12/24-hour time, the
+text size) but nothing of the instance (not its rect, scale or header).
+
+### 17.2 What the host does with it (nothing for a kind to write)
+
+- **Add** at `Natural`. **Resize**: the moved edge stops at Min and Max, a stepped axis lands on its
+  steps (they replace the grid), a fixed axis has no handle; Shift+arrows the same, a step per press.
+- **Layout**: the stored fraction is painted fitted into the sizing on that display (DIP x the
+  display's and the widget's scale, plus the gap), anchored top-left, kept in reach. Being shown never
+  rewrites the stored rect; a gesture or a config change does.
+- **Config change**: when the sizing changes (a style, a count, a Size), the stored rect is refitted in
+  the same mutation, one undo step.
+- **Count**: with `SizeSets`, a resize drop stores the config that size means with the rect, one undo
+  step; while dragging the view already shows that config.
+- **Renders**: `--widget-png <Kind>` draws a converted kind at min, natural and max
+  (`--sizes range|tiers|WxH`); the showcase views and the family check walk the range.
+
+### 17.3 Converting a kind, step by step
+
+1. **Decide what it shows, as config.** Everything that used to appear with size becomes a setting or
+   goes: rows, lines per row, which facts, a Size (S/M/L). A kind that shows several things that each
+   want their own size is split into small widgets (atoms), each converted alone.
+2. **State the sizing** on the descriptor, `Sizing = c => ...`, from the config only. Measure on the
+   family's tokens (`FamilySpace.ContentTop`, `Inset`, `FamilyShape.RowHeight(lines)`,
+   `FamilyType.*.LineHeight`, `ReadoutRules.Width` / `HeroFit.Ems` on the widest text). Choose a width
+   range in which nothing has to drop (look at min and max); a height that is one size when nothing in
+   the card can use more. Run `WidgetSizingTests` (module host): it checks the invariants for the
+   defaults and every style.
+3. **Rewrite the view without the ladder.** No `Disclosure`, no `WidgetArea` classes, no tier logic,
+   no "largest step that fits": it lays out its fixed parts in the box it is given (`ApplySize` may stay
+   to learn the box). Text wraps or is cut with its ellipsis; a graph gets longer; nothing appears or
+   disappears. A data widget's number is the family's 28 (`FamilyType.Big28`; 40 only where the kind
+   states it); a one-readout widget implements `IReadoutSized` (`Size`, `ReadoutSizes.Step`: 40, 68, 96)
+   and adds `KitMenuLines.ReadoutSize(menu, config)` under its Style.
+4. **A list**: on the kit, implement `IKitRows` on the config (`Rows` 1..20, default
+   `KitSizing.DefaultRows`; `Lines` 1 or 2; copied in `Clone`, held to range in `Repair`), state
+   `Sizing = c => KitSizing.Sizing(choice, addFooter)` and
+   `SizeSets = (c, s) => KitSizing.SizeSets(c, s, choice, addFooter)` where `choice` is the rows as
+   drawn (a one-line style has one line), add `KitMenuLines.Rows(menu, config, offersLines)` to its
+   lines. An `IKitConfig` passes its rows to the plan by itself (`IKitConfig.Choices`); a view that
+   plans itself passes `KitChoices.Rows`. The kit then plans one column, its lines, every field it has
+   on, at every size; more items scroll inside the rows.
+5. **Take it off the legacy list** (`WidgetSizingTests.Legacy`, module host; it only shrinks) and fix
+   the tests that walked its seven tiers to walk its range (`SizeFit.CheckedAt`).
+6. **Renders**: `--widget-png <Kind> <out.png> --theme dark|light` (its range, every style) before and
+   after; a store scene with the kind (`--scene-png store/scenes.json <scene> <out.png>`) shows it
+   fitted: say what moved.
+7. **SPEC**: the kind's own `SPEC.md` says its sizing (ranges, what is one size, its settings) on the
+   tag that describes its layout, and that no tier ladder is left.
+
+Pitfalls: the sizing must not depend on the instance (header, scale, rect): the host adds those. A
+planner that picks "the largest that fits" on an exact box picks a smaller step after pixel rounding:
+give 2 DIPs of slack (`ClockFace.Slack`) or plan from the config, not the box. A value that changes
+the sizing must live in the config (or be ambient), or the refit never runs.
+
+## 18. Ready-made groups (recipes)
 
 A ready-made group is data: several widgets of kinds that exist, placed touching (so they draw as
 one panel) and locked together as a group under the recipe's name (SPEC [S-2450], [S-2470]..[S-2475]).
