@@ -14,9 +14,18 @@ the sun, the levels through `IWidgetHost.Brightness`, its own display through it
 `WindowsPanelsHostTests`, its menu `Tests/BrightnessMenuTests.cs`.
 
 - **[S-4440]** Kind `Brightness` (123), add menu Devices & power ([S-3511]), 200×150, glyph the sun. One
-  slider, no number, no display names (Karpo §35, §103: no flyout): the Controls block's slider at the
-  card's bottom inset as the volume tile's ([S-2731], [S-6716]); the sun is the header's glyph (the one
-  at the slider's start went with the family, G5), the level the slider's name and tooltip.
+  slider, no display names (Karpo §35, §103: no flyout): the Controls block's slider at the card's
+  bottom inset as the volume tile's ([S-2731], [S-6716]); the sun is the header's glyph (the one at
+  the slider's start went with the family, G5), the level the slider's name and tooltip.
+- **[S-2152]** Over the slider the level is a Readout, as the meters beside it (owner decision
+  2026-11-12; the root's [S-2150], `LevelFace`): "70%" at the view's top on 28 (S), 40 (M, Wide,
+  Tall) or 68 (L, XL), following the slider while it is dragged; XS is the slider alone. It has no
+  line under: the displays' names are not in the host's answer (`BrightnessDisplay` carries the GDI
+  device name only), and a line would need a host contract change first. With several displays
+  (`--state levels`) it stays one widget with one Readout: the slider sets them together ([S-4442]),
+  so the Readout is the level the slider shows (its own display's, else the first's), not a Row per
+  display, which would be a value per display with no control of its own. No display to set
+  ([S-4445]) draws no Readout.
 - **[S-4445]** No display has a brightness (or, with "Only the screen it's on", not that one): the
   slider drawn disabled, at the middle ([S-1940], [S-1941], user request 2026-10-19),
   "No display brightness to set" as the tile's tooltip and the slider's name; no key or wheel moves it.

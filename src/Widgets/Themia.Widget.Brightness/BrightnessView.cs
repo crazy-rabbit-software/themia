@@ -16,10 +16,10 @@ using Themia.Widget.Brightness;
 namespace Themia.App.Widgets;
 
 /// <summary>
-/// [S-4440] The display brightness as one slider and nothing else, as Windows 11's quick settings row and
-/// Karpo's widget (§35, §103): no number, no display names; the sun is the header's glyph. The slider is the
-/// Controls block's at the card's bottom inset ([S-6716]): its rail the Track role, its value the accent. A
-/// larger tile gives the slider more length, nothing else ([S-666]).
+/// [S-4440] [S-2152] The display brightness as a meter you can set: the slider is the Controls block's at
+/// the card's bottom inset ([S-6716]: its rail the Track role, its value the accent), and over it the level
+/// is a Readout where a meter's stands, climbing 28, 40, 68 as CPU's does ([S-2150], <see cref="LevelFace"/>).
+/// No display names; the sun is the header's glyph.
 /// <para>
 /// [S-4442] It sets every display whose brightness can be set, together, or with "Only the screen it's
 /// on" the display its surface is on — one window per display, so the display is the window's. It shows
@@ -35,6 +35,9 @@ internal sealed partial class BrightnessView : Grid, IWidgetView, IWidgetOpens, 
 
     private readonly ControlsBlock _controls = new();
     private readonly Slider _slider;
+
+    /// <summary>[S-2152] The level, where a meter's reading stands: the view's top, in the side inset.</summary>
+    private readonly ReadoutBlock _reading = new() { VerticalAlignment = VerticalAlignment.Top, Visibility = Visibility.Collapsed };
 
     private readonly PointerEventHandler _grab;
     private readonly PointerEventHandler _release;
@@ -69,6 +72,9 @@ internal sealed partial class BrightnessView : Grid, IWidgetView, IWidgetOpens, 
 
         _controls.Visibility = Visibility.Collapsed;
         Children.Add(_controls);
+
+        _reading.Margin = Family.SideInset;
+        Children.Add(_reading);
 
         // The wheel anywhere on the tile, as on the volume tile.
         Background = Family.Brush(ColourRole.Clear);
@@ -174,6 +180,7 @@ internal sealed partial class BrightnessView : Grid, IWidgetView, IWidgetOpens, 
         {
             // Not looked at yet: the frame, never a wrong level (§11).
             _controls.Visibility = Visibility.Collapsed;
+            _reading.Visibility = Visibility.Collapsed;
             return;
         }
 
@@ -197,6 +204,26 @@ internal sealed partial class BrightnessView : Grid, IWidgetView, IWidgetOpens, 
         var words = level is { } shown ? BrightnessStr.Panels_Brightness_Level.Format(("level", Formatting.Percent(shown / 100.0))) : reason;
         AutomationProperties.SetName(_slider, words);
         ToolTipService.SetToolTip(_slider, level is null ? null : words);
+        ShowReading(_grabbed ? (int)Math.Round(_slider.Value) : level);
+    }
+
+    /// <summary>
+    /// [S-2152] The level as a Readout on <see cref="LevelFace"/>'s step; none where nothing can be set
+    /// (that stays the disabled slider, [S-4445]) or where the card holds only the controls.
+    /// </summary>
+    private void ShowReading(int? level)
+    {
+        var plan = LevelFace.Plan(_area, hasUnder: false);
+        var shown = plan.Readout && level is not null;
+        _reading.Visibility = shown ? Visibility.Visible : Visibility.Collapsed;
+        if (!shown || level is not { } value)
+        {
+            return;
+        }
+
+        _reading.Use(plan.Step);
+        var split = ReadoutRules.Split(Formatting.Percent(value / 100.0));
+        _reading.Show(split.Value, split.Unit);
     }
 
     private void SetLevel(int level)
@@ -225,6 +252,9 @@ internal sealed partial class BrightnessView : Grid, IWidgetView, IWidgetOpens, 
         }
 
         SetLevel((int)Math.Round(value));
+
+        // [S-2152] The Readout follows the hand, not the display's next answer.
+        ShowReading((int)Math.Round(value));
     }
 
     private void OnGrab(object sender, PointerRoutedEventArgs args) => _grabbed = true;
@@ -268,6 +298,7 @@ internal sealed partial class BrightnessView : Grid, IWidgetView, IWidgetOpens, 
         _echoing = true;
         _slider.Value = level;
         _echoing = false;
+        ShowReading(level);
     }
 
     /// <summary>[S-4444] The arrows, Page Up/Down, Home and End, as on Windows' slider.</summary>
