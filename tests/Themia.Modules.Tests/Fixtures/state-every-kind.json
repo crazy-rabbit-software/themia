@@ -745,6 +745,8 @@
           "scale": 1,
           "config": {
             "kind": "quote",
+            "size": "Medium",
+            "lines": 3,
             "style": "plain",
             "quotes": [
               {

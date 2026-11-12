@@ -1,4 +1,5 @@
 using Themia.Core.Localization;
+using Themia.Core.Model;
 using Themia.Core.Widgets;
 using Themia.Sdk.Kit;
 using Xunit;
@@ -6,123 +7,60 @@ using Xunit;
 namespace Themia.Widget.Quote.Tests;
 
 /// <summary>
-/// How a quote is set. The two things a pull quote has to get right at both ends of the size range:
-/// which family step it takes, and its punctuation.
+/// How a quote is set: its size, its lines and its card ([S-11306]), its mark and its punctuation.
 /// </summary>
 public class QuoteLayoutTests
 {
     private const string Newton = "“What we know is a drop, what we don’t know is an ocean.”";
 
-    private static readonly WidgetArea XS = new(120, 84);
-    private static readonly WidgetArea S = new(200, 114);
-    private static readonly WidgetArea M = new(320, 204);
-    private static readonly WidgetArea XL = new(800, 524);
-
-    private static IEnumerable<TypeStep> Steps => [FamilyType.Body, FamilyType.Title, .. FamilyType.Big];
-
     // -----------------------------------------------------------------------------------------
-    // [S-1496] the step: the family's, the Big ramp under the area's ceiling
+    // [S-11306] the size, the lines, the card
     // -----------------------------------------------------------------------------------------
 
     [Fact]
-    public void S1496_every_step_is_one_of_the_familys()
+    public void S11306_the_size_names_the_step_body_title_28()
     {
-        foreach (var width in new[] { 40.0, 180, 320, 800, 2000 })
-        {
-            foreach (var height in new[] { 30.0, 120, 300, 600, 1400 })
-            {
-                Assert.Contains(QuoteLayout.Plan(new WidgetArea(width, height), Newton, author: true, marks: false).Step, Steps);
-            }
-        }
+        Assert.Equal(FamilyType.Body, QuoteLayout.StepAt(ReadoutSize.Small));
+        Assert.Equal(FamilyType.Title, QuoteLayout.StepAt(ReadoutSize.Medium));
+        Assert.Equal(FamilyType.Big28, QuoteLayout.StepAt(ReadoutSize.Large));
+        Assert.Equal(ReadoutSize.Medium, new QuoteConfig().Size);
+        Assert.Equal(3, new QuoteConfig().Lines);
     }
 
     [Fact]
-    public void S1496_the_big_steps_stop_at_the_areas_ceiling()
+    public void S11306_the_height_follows_the_lines_and_the_size_the_attribution_line_always_200_to_520_wide()
     {
-        Assert.Equal(FamilyType.Big40, QuoteLayout.Plan(new WidgetArea(2000, 1400), "“Done.”", author: true, marks: false).Step);
-        Assert.Equal(FamilyType.Big28, QuoteLayout.Plan(new WidgetArea(320, 400), "“Done.”", author: true, marks: false).Step);
-        Assert.Equal(FamilyType.Big28, QuoteLayout.Plan(S, "“Done.”", author: true, marks: false).Step);
+        var sizing = QuoteLayout.Sizing(new QuoteConfig());
+
+        // The inset, three Title lines, the attribution's Caption line under, the inset.
+        Assert.Equal(12 + (3 * 28) + 16 + 12, sizing.Natural.Height);
+        Assert.Equal((200d, 320d, 520d), (sizing.Min.Width, sizing.Natural.Width, sizing.Max.Width));
+        Assert.Equal(3, sizing.HeightSteps!.Count);
+        Assert.Equal(12 + (6 * 36) + 16 + 12, QuoteLayout.Sizing(new QuoteConfig { Size = ReadoutSize.Large, Lines = 6 }).Natural.Height);
+        Assert.Equal(sizing.Natural.Height - 16, QuoteLayout.Sizing(new QuoteConfig { ShowAuthor = false }).Natural.Height);
     }
 
     [Fact]
-    public void S1496_a_bigger_tile_never_takes_a_smaller_step()
+    public void S11306_dragging_its_bottom_edge_sets_its_lines_and_the_given_config_stays()
     {
-        var small = QuoteLayout.Plan(S, Newton, author: true, marks: false).Step;
-        var medium = QuoteLayout.Plan(M, Newton, author: true, marks: false).Step;
-        var large = QuoteLayout.Plan(XL, Newton, author: true, marks: false).Step;
+        var config = new QuoteConfig { Lines = 3 };
+        var sizing = QuoteLayout.Sizing(config);
 
-        Assert.True(small.FontSize <= medium.FontSize);
-        Assert.True(medium.FontSize <= large.FontSize);
-        Assert.True(small.FontSize < large.FontSize);
+        var five = Assert.IsType<QuoteConfig>(QuoteLayout.SizeSets(config, sizing.Natural with { Height = sizing.Natural.Height + (2 * 28) }));
+        Assert.Equal(5, five.Lines);
+        Assert.Equal(3, config.Lines);
+        Assert.Same(config, QuoteLayout.SizeSets(config, sizing.Natural));
     }
 
     [Fact]
-    public void S1496_a_long_quote_takes_a_smaller_step_than_a_short_one_in_the_same_box()
+    public void S11306_lines_and_size_out_of_range_are_repaired_and_copied()
     {
-        var shortQuote = QuoteLayout.Plan(M, "“Done is better than perfect.”", author: true, marks: false).Step;
-        var longQuote = QuoteLayout.Plan(M, string.Join(' ', Enumerable.Repeat(Newton, 3)), author: true, marks: false).Step;
+        var config = new QuoteConfig { Lines = 40, Size = (ReadoutSize)7 };
+        Assert.NotEmpty(config.Repair());
+        Assert.Equal((6, ReadoutSize.Medium), (config.Lines, config.Size));
 
-        Assert.True(longQuote.FontSize < shortQuote.FontSize);
-    }
-
-    [Fact]
-    public void S1496_the_wrapped_lines_and_the_attribution_fit_the_content_box()
-    {
-        var plan = QuoteLayout.Plan(M, Newton, author: true, marks: false);
-        var lines = QuoteLayout.Lines(Newton, plan.Step, M.Width - 32);
-        var under = FamilyType.Under(plan.Step).LineHeight;
-
-        Assert.True(plan.Author);
-        Assert.True((lines * plan.Step.LineHeight) + under <= M.Height - 16);
-        Assert.Equal((int)((M.Height - 16 - under) / plan.Step.LineHeight), plan.MaxLines);
-    }
-
-    [Fact]
-    public void S1496_the_author_gives_way_before_the_quote_is_cut()
-    {
-        // Body holds the quote in three lines here, and the author's line would be a fourth it has no room for.
-        var plan = QuoteLayout.Plan(new WidgetArea(200, 76), "“Well done is better than well said, and better than nothing.”", author: true, marks: false);
-
-        Assert.Equal(FamilyType.Body, plan.Step);
-        Assert.False(plan.Author);
-    }
-
-    [Fact]
-    public void S1496_a_quote_too_long_for_body_ends_at_the_last_whole_line()
-    {
-        var plan = QuoteLayout.Plan(XS, string.Join(' ', Enumerable.Repeat(Newton, 4)), author: true, marks: false);
-
-        Assert.Equal(FamilyType.Body, plan.Step);
-        Assert.False(plan.Author);
-        Assert.Equal(3, plan.MaxLines);
-    }
-
-    [Theory]
-    [InlineData(0, 100)]
-    [InlineData(100, 0)]
-    [InlineData(-5, 100)]
-    [InlineData(double.NaN, 100)]
-    public void S1496_an_unmeasured_box_gets_body_rather_than_a_NaN_on_the_render_path(double width, double height)
-    {
-        var plan = QuoteLayout.Plan(new WidgetArea(width, height), Newton, author: true, marks: true);
-
-        Assert.Equal(FamilyType.Body, plan.Step);
-        Assert.True(plan.MaxLines >= 1);
-    }
-
-    [Fact]
-    public void S1496_a_quote_wraps_word_by_word()
-    {
-        var body = FamilyType.Body;
-
-        Assert.Equal(1, QuoteLayout.Lines(string.Empty, body, 100));
-        Assert.Equal(1, QuoteLayout.Lines("Done.", body, 100));
-        Assert.Equal(2, QuoteLayout.Lines("Done is better", body, HeroFit.Ems("Done is") * body.FontSize));
-
-        // A word wider than the line breaks across as many lines as it needs.
-        var word = new string('a', 20);
-        Assert.Equal(3, QuoteLayout.Lines(word, body, (HeroFit.Ems(word) * body.FontSize / 3) + 0.5));
-        Assert.Equal(int.MaxValue, QuoteLayout.Lines("Done.", body, 0));
+        var copy = (QuoteConfig)new QuoteConfig { Lines = 2, Size = ReadoutSize.Small }.Clone();
+        Assert.Equal((2, ReadoutSize.Small), (copy.Lines, copy.Size));
     }
 
     // -----------------------------------------------------------------------------------------
@@ -139,16 +77,14 @@ public class QuoteLayoutTests
     }
 
     [Fact]
-    public void S6405_the_mark_takes_its_row_off_the_top_before_the_quote_is_fitted()
+    public void S11306_the_marks_style_puts_its_mark_and_8_over_the_quote()
     {
-        var plain = QuoteLayout.Plan(M, Newton, author: true, marks: false);
-        var marked = QuoteLayout.Plan(M, Newton, author: true, marks: true);
-        var lines = QuoteLayout.Lines(Newton, marked.Step, M.Width - 32);
+        var plain = QuoteLayout.Sizing(new QuoteConfig { Size = ReadoutSize.Large });
+        var marked = QuoteLayout.Sizing(new QuoteConfig { Size = ReadoutSize.Large, Style = QuoteStyle.Marks });
 
-        Assert.Equal(0, plain.Mark);
-        Assert.Equal(QuoteLayout.MarkSize(marked.Step), marked.Mark);
-        Assert.True(marked.Step.FontSize <= plain.Step.FontSize);
-        Assert.True((lines * marked.Step.LineHeight) + marked.Mark + 8 + FamilyType.Under(marked.Step).LineHeight <= M.Height - 16);
+        Assert.Equal(0, QuoteLayout.MarkOf(new QuoteConfig { Size = ReadoutSize.Large }));
+        Assert.Equal(28, QuoteLayout.MarkOf(new QuoteConfig { Size = ReadoutSize.Large, Style = QuoteStyle.Marks }));
+        Assert.Equal(plain.Natural.Height + 28 + 8, marked.Natural.Height);
     }
 
     // -----------------------------------------------------------------------------------------

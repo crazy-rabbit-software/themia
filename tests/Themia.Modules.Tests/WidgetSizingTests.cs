@@ -23,9 +23,9 @@ public sealed class WidgetSizingTests
     [
         "airplaneModeToggle", "audioVisualizer", "bluetooth", "bluetoothToggle", "brightness", "calendar",
         "colorFiltersToggle", "doNotDisturbToggle", "energySaverToggle", "gameModeToggle", "habitTracker",
-        "hibernate", "lock", "microphoneToggle", "mixer", "monoAudioToggle", "music", "nightLightToggle", "quote",
-        "restart", "rotationLockToggle", "screenOff", "screenTimeApps", "screenTimeChart", "screenTimeDonut",
-        "shutdown", "signOut", "sleep", "soundToggle", "spatialSoundToggle", "volume", "wifiToggle",
+        "hibernate", "lock", "microphoneToggle", "mixer", "monoAudioToggle", "music", "nightLightToggle", "restart",
+        "rotationLockToggle", "screenOff", "screenTimeApps", "screenTimeChart", "screenTimeDonut", "shutdown",
+        "signOut", "sleep", "soundToggle", "spatialSoundToggle", "volume", "wifiToggle",
     ];
 
     public static TheoryData<string> Kinds() => [.. ModuleRegistry.WidgetIds];

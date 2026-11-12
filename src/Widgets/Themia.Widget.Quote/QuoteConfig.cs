@@ -50,8 +50,14 @@ public sealed class QuoteItem
 /// with no network and keeps working on a laptop in a tunnel.
 /// </para>
 /// </summary>
-public sealed class QuoteConfig : WidgetConfig, IStyled, IShownSettings<QuoteSetting>, IContentAligned, ISetupRule
+public sealed class QuoteConfig : WidgetConfig, IStyled, IShownSettings<QuoteSetting>, IContentAligned, ISetupRule, IReadoutSized
 {
+    /// <summary>[S-11306] How big the quote is set: Small (Body), Medium (Title), Large (28); the card follows it.</summary>
+    public ReadoutSize Size { get; set; } = ReadoutSizes.Default;
+
+    /// <summary>[S-11306] How many lines the quote may take, <see cref="QuoteLayout.MinLines"/> to <see cref="QuoteLayout.MostLines"/>; a longer one ends in an ellipsis.</summary>
+    public int Lines { get; set; } = QuoteLayout.DefaultLines;
+
     /// <summary>[S-6906] It waits for setup while this holds.</summary>
     public bool NeedsSetup(FeatureSet signedIn) => EffectiveQuotes.Count == 0;
 
@@ -137,6 +143,25 @@ public sealed class QuoteConfig : WidgetConfig, IStyled, IShownSettings<QuoteSet
     [JsonIgnore]
     public TimeSpan TickInterval => QuoteRotation.TickInterval(Cadence);
 
+    /// <summary>[S-11306] A size this build does not know reads Medium; lines out of range are held to it.</summary>
+    public override IReadOnlyList<string> Repair()
+    {
+        var repairs = new List<string>();
+        if (!Enum.IsDefined(Size))
+        {
+            repairs.Add($"quote size {(int)Size} unknown; medium");
+            Size = ReadoutSizes.Default;
+        }
+
+        if (Lines is < QuoteLayout.MinLines or > QuoteLayout.MostLines)
+        {
+            repairs.Add($"quote lines {Lines} out of range");
+            Lines = Math.Clamp(Lines, QuoteLayout.MinLines, QuoteLayout.MostLines);
+        }
+
+        return repairs;
+    }
+
     public override WidgetConfig Clone()
     {
         // Not the seeding constructor: see ColorSwatchConfig.Clone.
@@ -147,6 +172,8 @@ public sealed class QuoteConfig : WidgetConfig, IStyled, IShownSettings<QuoteSet
             Shuffle = Shuffle,
             Seed = Seed,
             ShowAuthor = ShowAuthor,
+            Size = Size,
+            Lines = Lines,
         };
 
         copy.Quotes.Clear();

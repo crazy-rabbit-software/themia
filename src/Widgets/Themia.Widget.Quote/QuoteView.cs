@@ -44,7 +44,6 @@ internal sealed partial class QuoteView : Grid, IWidgetView, IWidgetHeaderConten
     private readonly TextBlock _author = Family.Text(FamilyType.Caption, ColourRole.TextSecondary);
     private readonly StackPanel _body;
 
-    private WidgetArea _area;
 
     private QuoteConfig _config = new();
     private Ticker? _ticker;
@@ -264,22 +263,19 @@ internal sealed partial class QuoteView : Grid, IWidgetView, IWidgetHeaderConten
         Lay();
     }
 
-    /// <summary>[S-663] The card's word on how much room the quote has.</summary>
+    /// <summary>[S-11306] What the quote shows is the config's, not the box's: a wider card only rewraps it.</summary>
     public void ApplySize(WidgetArea area)
     {
-        _area = area;
-        Lay();
     }
 
     /// <summary>
-    /// [S-1496] The quote on the largest family step its wrapped lines fit (the Big ramp, up to the
-    /// area's ceiling; Title or Body where not even 28 does), the attribution on the step's line under
-    /// and given up for the quote, the large mark on the step over it ([S-6405]); nothing else at any
-    /// size. Room left on a large tile stays empty (concise first, [S-666]).
+    /// [S-11306] The quote on the step its Size names, in at most its Lines (a longer one ends in an
+    /// ellipsis), the attribution on the step's line under while it is shown, the large mark on the
+    /// Marks style ([S-6405]); nothing else at any size.
     /// </summary>
     private void Lay()
     {
-        if (!_area.IsMeasured || _text.Text.Length == 0)
+        if (_text.Text.Length == 0)
         {
             return;
         }
@@ -290,22 +286,25 @@ internal sealed partial class QuoteView : Grid, IWidgetView, IWidgetHeaderConten
         _author.TextAlignment = Aligned.Text(_align);
         _author.HorizontalAlignment = Aligned.Horizontal(_align);
 
-        var marks = _config.Style == QuoteStyle.Marks;
-        var plan = QuoteLayout.Plan(_area, _text.Text, _config.ShowAuthor && _author.Text.Length > 0, marks);
-
-        _mark.Visibility = Show(plan.Mark > 0);
-        if (plan.Mark > 0)
+        // [S-11306] The step, the lines and the mark are the config's; the attribution's line is kept
+        // while it is shown, so a quote without an author moves nothing.
+        var step = QuoteLayout.StepAt(_config.Size);
+        var mark = QuoteLayout.MarkOf(_config);
+        _mark.Visibility = Show(mark > 0);
+        if (mark > 0)
         {
-            _mark.FontSize = plan.Mark;
-            _mark.Width = plan.Mark;
-            _mark.Height = plan.Mark;
+            _mark.FontSize = mark;
+            _mark.Width = mark;
+            _mark.Height = mark;
         }
 
-        Family.Step(_text, plan.Step);
-        _text.MaxLines = plan.MaxLines;
+        Family.Step(_text, step);
+        _text.MaxLines = QuoteLayout.LinesOf(_config);
 
-        Family.Step(_author, FamilyType.Under(plan.Step));
-        _author.Visibility = Show(plan.Author);
+        var under = FamilyType.Under(step);
+        Family.Step(_author, under);
+        _author.MinHeight = under.LineHeight;
+        _author.Visibility = Show(_config.ShowAuthor);
     }
 
     private static Visibility Show(bool visible) => visible ? Visibility.Visible : Visibility.Collapsed;

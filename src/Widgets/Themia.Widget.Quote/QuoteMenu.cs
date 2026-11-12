@@ -3,6 +3,7 @@ using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
 using Themia.Sdk.WinUI;
+using Themia.Sdk.WinUI.Kit;
 using Themia.Widget.Quote;
 
 namespace Themia.App.Shell.Config;
@@ -33,6 +34,10 @@ internal static class QuoteMenu
 
         menu.Lines.Add(WidgetMenuLines.SetsUp(Quotes(menu, config)));
         menu.Lines.Add(menu.Toggle(Glyphs.Contact, QuoteStr.WidgetsC_Quote_Settings_ShowAuthor_Label.Text(), config.ShowAuthor, on => config.ShowAuthor = on));
+
+        // [S-11306] How big the quote is set and how many lines it may take; the card follows.
+        menu.StyleLines.Add(KitMenuLines.ReadoutSize(menu, config));
+        menu.StyleLines.Add(KitMenuLines.Count(menu, null, Str.Kit_Lines.Text(), QuoteLayout.LinesOf(config), QuoteLayout.MinLines, QuoteLayout.MostLines, 1, v => config.Lines = v));
 
         // [S-6074] The rotation: only with two quotes or more to turn between.
         if (!config.Offers(QuoteSetting.Shuffle))
