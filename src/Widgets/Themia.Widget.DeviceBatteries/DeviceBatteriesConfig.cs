@@ -19,6 +19,9 @@ public sealed class DeviceBatteriesConfig : WidgetConfig, IKitConfig, IKitRows
 
     /// <summary>[S-11028] Every row has its two lines (the device, its kind or charging under it); the menu offers no choice.</summary>
     [JsonIgnore]
+    bool IKitRows.OffersLines => false;
+
+    [JsonIgnore]
     public int Lines
     {
         get => 2;

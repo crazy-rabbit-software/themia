@@ -71,17 +71,18 @@ public static class OfficeMenuLines
         ArgumentNullException.ThrowIfNull(menu);
         ArgumentNullException.ThrowIfNull(config);
 
+        // [S-11753] The accounts and their calendars are one setting every calendar widget holds: a group sets them once.
         var accounts = source?.Accounts(HostFeatures.Calendar) ?? [];
-        yield return Accounts(menu, accounts, Glyphs.Contact,
+        yield return WidgetMenuLines.Shared(SharedSettings.CalendarAccounts, Accounts(menu, accounts, Glyphs.Contact,
             new KitAccountWords(Str.WidgetsA_Calendar_NoAccount.Text(), Str.WidgetsA_Calendar_Settings_Every.Text()),
-            config.AccountIds, ids => config.AccountIds = ids);
+            config.AccountIds, ids => config.AccountIds = ids));
 
         if (source is null || CalendarsLine(menu, config, source, accounts, colours) is not { } calendars)
         {
             yield break;
         }
 
-        yield return calendars;
+        yield return WidgetMenuLines.Shared(SharedSettings.CalendarAccounts, calendars);
     }
 
     /// <summary>

@@ -21,13 +21,13 @@ public static class ScreenTimeMenuLines
     public static ItemMenuEntry Period(WidgetMenuLines menu, ScreenTimePeriod period, Action<ScreenTimePeriod> set)
     {
         ArgumentNullException.ThrowIfNull(menu);
-        return menu.Choice(Glyphs.Calendar, Str.Screentime_Cfg_Period.Text(),
+        return WidgetMenuLines.Shared(SharedSettings.ScreenTimePeriod, menu.Choice(Glyphs.Calendar, Str.Screentime_Cfg_Period.Text(),
             [
                 (ScreenTimePeriod.Day, Str.Screentime_Cfg_PeriodDay.Text()),
                 (ScreenTimePeriod.Week, ScreenTimeRules.PeriodLabel(ScreenTimePeriod.Week)),
                 (ScreenTimePeriod.Month, ScreenTimeRules.PeriodLabel(ScreenTimePeriod.Month)),
             ],
-            ScreenTimeRules.ClampPeriod(period), set);
+            ScreenTimeRules.ClampPeriod(period), set));
     }
 
     /// <summary>

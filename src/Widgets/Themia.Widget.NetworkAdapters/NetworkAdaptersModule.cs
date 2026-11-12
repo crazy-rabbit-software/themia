@@ -49,7 +49,7 @@ public sealed class NetworkAdaptersModule : IWidgetModule
     public void MenuLines(WidgetMenuLines menu, WidgetConfig config)
     {
         ArgumentNullException.ThrowIfNull(menu);
-        menu.Lines.AddRange(KitMenuLines.Rows(menu, (NetworkAdaptersConfig)config, offersLines: false));
+        menu.Lines.AddRange(KitMenuLines.Rows(menu, (NetworkAdaptersConfig)config));
     }
 
     public FrameworkElement CreateView(IWidgetHost host) => new DetailView(host, new NetworkAdaptersPart());
@@ -64,6 +64,9 @@ public sealed class NetworkAdaptersConfig : DetailConfig, IReadsSystem, IKitRows
     public int Rows { get; set; } = DefaultRows;
 
     /// <summary>Every row has two lines: the adapter's rates, its address and link speed under it.</summary>
+    [JsonIgnore]
+    bool IKitRows.OffersLines => false;
+
     [JsonIgnore]
     public int Lines
     {

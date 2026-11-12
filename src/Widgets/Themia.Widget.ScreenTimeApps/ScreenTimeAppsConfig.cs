@@ -8,7 +8,7 @@ using Themia.Sdk.Kit;
 namespace Themia.Core.Model;
 
 /// <summary>[S-3350] The screen-time app list: the apps of the period, busiest first, with their time.</summary>
-public sealed class ScreenTimeAppsConfig : WidgetConfig, IShownSettings<ScreenTimeSetting>, IKitRows
+public sealed class ScreenTimeAppsConfig : WidgetConfig, IShownSettings<ScreenTimeSetting>, IKitRows, IScreenTimePeriod
 {
     /// <summary>[S-11510] A new list's rows.</summary>
     public const int DefaultRows = 5;
@@ -29,6 +29,9 @@ public sealed class ScreenTimeAppsConfig : WidgetConfig, IShownSettings<ScreenTi
 
     /// <summary>[S-11510] One line a row, or two: the second the share and a window's average, as far as they are on.</summary>
     public int Lines { get; set; } = 1;
+
+    /// <summary>[S-11510] A second line only where it has figures to hold.</summary>
+    bool IKitRows.OffersLines => HasFigures;
 
     /// <summary>[S-453] In a window, each app's average per day on its second line.</summary>
     public bool ShowAverage { get; set; } = true;

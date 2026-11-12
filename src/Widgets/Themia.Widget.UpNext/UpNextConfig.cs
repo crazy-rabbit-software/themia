@@ -33,6 +33,9 @@ public sealed class UpNextConfig : CalendarConfig, IKitRows
 
     /// <summary>[S-11408] One line a meeting: its title and its start. Not a setting.</summary>
     [JsonIgnore]
+    bool IKitRows.OffersLines => false;
+
+    [JsonIgnore]
     public int Lines
     {
         get => 1;

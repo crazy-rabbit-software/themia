@@ -6,7 +6,7 @@ namespace Themia.Core.Model;
 /// [S-11330] The progress atom: how far into what Windows is playing it is, the seek bar between the
 /// elapsed time and the total. What it shows is fixed; its one option is when it hides ([S-1464]).
 /// </summary>
-public sealed class MusicProgressConfig : WidgetConfig
+public sealed class MusicProgressConfig : WidgetConfig, IHidesWhenIdle
 {
     /// <summary>[S-1464] When the widget paints nothing at all; edit mode always shows it.</summary>
     public MusicHideWhenIdle HideWhenIdle { get; set; } = MusicHideWhenIdle.Never;

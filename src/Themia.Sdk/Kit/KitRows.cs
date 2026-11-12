@@ -16,6 +16,12 @@ public interface IKitRows
 
     /// <summary>How many lines each row has: 1 to the kind's most (2, or 3 where a row has a third: a preview).</summary>
     int Lines { get; set; }
+
+    /// <summary>
+    /// [S-2440] [S-11752] Whether the lines are the user's to choose now: a list whose rows always have the
+    /// same lines (a device's two), or whose look draws one line only, offers no Lines line and shares none.
+    /// </summary>
+    bool OffersLines => true;
 }
 
 /// <summary>

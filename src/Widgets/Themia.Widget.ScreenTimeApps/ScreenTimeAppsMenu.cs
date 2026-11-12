@@ -27,7 +27,7 @@ internal static class ScreenTimeAppsMenu
         menu.Lines.Add(ItemMenuEntry.Separator);
 
         // [S-11510] Rows (the height follows), and Lines where a row has figures for a second one.
-        menu.Lines.AddRange(KitMenuLines.Rows(menu, config, offersLines: config.HasFigures));
+        menu.Lines.AddRange(KitMenuLines.Rows(menu, config));
 
         if (config.Offers(ScreenTimeSetting.Average))
         {

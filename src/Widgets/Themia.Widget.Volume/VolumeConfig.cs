@@ -19,7 +19,7 @@ namespace Themia.Core.Model;
 /// poll for a setting to tune.
 /// </para>
 /// </summary>
-public sealed class VolumeConfig : WidgetConfig
+public sealed class VolumeConfig : WidgetConfig, IAudioOutput
 {
     /// <summary>[S-1221] The output device's endpoint id, or null to follow Windows' default output.</summary>
     public string? DeviceId { get; set; }

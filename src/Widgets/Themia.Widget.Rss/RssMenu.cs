@@ -43,7 +43,7 @@ internal static class RssMenu
 
         // [S-11403] How many headlines, their lines where a headline has more than one, and the columns.
         menu.Lines.Add(ItemMenuEntry.Separator);
-        menu.Lines.AddRange(KitMenuLines.Rows(menu, config, offersLines: config.MostLines >= 2, mostLines: config.MostLines));
+        menu.Lines.AddRange(KitMenuLines.Rows(menu, config, mostLines: config.MostLines));
         menu.Lines.Add(KitMenuLines.Columns(menu, config));
 
         // [S-3749] How often the feeds are asked: ⚙'s, for every feed widget at once.

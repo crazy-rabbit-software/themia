@@ -42,13 +42,13 @@ public sealed class MusicCoverModule : IWidgetModule
         ArgumentNullException.ThrowIfNull(menu);
         var cover = (MusicCoverConfig)config;
         menu.Lines.Add(KitMenuLines.ReadoutSize(menu, cover));
-        menu.Lines.Add(menu.Choice(Glyphs.Hide, MusicCoverStr.Music_HideWhenIdle_Label.Text(),
+        menu.Lines.Add(WidgetMenuLines.Shared(SharedSettings.HideWhenIdle, menu.Choice(Glyphs.Hide, MusicCoverStr.Music_HideWhenIdle_Label.Text(),
             [
                 (MusicHideWhenIdle.Never, MusicCoverStr.Music_HideWhenIdle_Never.Text()),
                 (MusicHideWhenIdle.NoSession, MusicCoverStr.WidgetsB_Settings_Music_HideWhenIdle_NoSession.Text()),
                 (MusicHideWhenIdle.NotPlaying, MusicCoverStr.WidgetsB_Settings_Music_HideWhenIdle_NotPlaying.Text()),
             ],
-            cover.HideWhenIdle, value => cover.HideWhenIdle = value));
+            cover.HideWhenIdle, value => cover.HideWhenIdle = value)));
     }
 
     public FrameworkElement CreateView(IWidgetHost host) => new MusicCoverView(host);

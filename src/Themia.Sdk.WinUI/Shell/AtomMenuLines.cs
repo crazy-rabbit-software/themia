@@ -14,10 +14,10 @@ public static class AtomMenuLines
     {
         ArgumentNullException.ThrowIfNull(menu);
         ArgumentNullException.ThrowIfNull(history);
-        return menu.Choice(Glyphs.Hours, Str.WidgetsB_Settings_Meters_ChartSpan_Label.Text(),
+        return WidgetMenuLines.Shared(SharedSettings.HistorySpan, menu.Choice(Glyphs.Hours, Str.WidgetsB_Settings_Meters_ChartSpan_Label.Text(),
             [.. MeterTiming.SpanChoices.Select(span => (span, MeterTiming.SpanLabel(span)))],
             MeterTiming.NearestSpan(history.GraphSpanSeconds),
-            span => history.GraphSpanSeconds = span);
+            span => history.GraphSpanSeconds = span));
     }
 
     /// <summary>

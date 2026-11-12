@@ -1,6 +1,7 @@
 using Themia.App.Widgets;
 using Themia.Core.Localization;
 using Themia.App.Services;
+using Themia.Core.Model;
 using Themia.Sdk.WinUI;
 
 namespace Themia.App.Shell.Config;
@@ -25,7 +26,7 @@ public static class GpuAdapterLine
         }
 
         var current = adapter >= 0 && adapter < adapters.Count ? adapter : 0;
-        return menu.Choice(Glyphs.Gpu, Str.Details_Settings_Gpu_Adapter_Label.Text(),
-            [.. adapters.Select(a => (a.Index, a.Name))], current, choose);
+        return WidgetMenuLines.Shared(SharedSettings.GpuAdapter, menu.Choice(Glyphs.Gpu, Str.Details_Settings_Gpu_Adapter_Label.Text(),
+            [.. adapters.Select(a => (a.Index, a.Name))], current, choose));
     }
 }

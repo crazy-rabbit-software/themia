@@ -88,6 +88,26 @@ public sealed class WidgetMenuLines
     public static ItemMenuEntry SetsUp(ItemMenuEntry line) => line with { SetsUp = true };
 
     /// <summary>
+    /// [S-11753] Mark <paramref name="line"/> as setting <paramref name="setting"/>, a setting several
+    /// kinds hold over one contract: a group's page ([S-11751]) takes this line from one member's lines
+    /// and shows it once, setting every member that holds it. The line is the widget's own all the same
+    /// ([S-3590]): on its own page it sets the widget alone.
+    /// </summary>
+    public static ItemMenuEntry Shared(SharedSetting setting, ItemMenuEntry line)
+    {
+        ArgumentNullException.ThrowIfNull(setting);
+        return line with { Shares = setting.Key };
+    }
+
+    /// <summary>[S-11753] Every one of <paramref name="lines"/> marked as setting <paramref name="setting"/>.</summary>
+    public static IReadOnlyList<ItemMenuEntry> Shared(SharedSetting setting, IEnumerable<ItemMenuEntry> lines)
+    {
+        ArgumentNullException.ThrowIfNull(setting);
+        ArgumentNullException.ThrowIfNull(lines);
+        return [.. lines.Select(line => line with { Shares = setting.Key })];
+    }
+
+    /// <summary>
     /// [S-3721] Ask for one line of text (a web address, a path, a name): the properties menu opens it
     /// as a level of its own holding the field ([S-3736]). The line whose click asks says so
     /// (<see cref="ItemMenuEntry.Asks"/>), so it is drawn with its chevron.

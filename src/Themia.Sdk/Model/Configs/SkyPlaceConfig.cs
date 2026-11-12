@@ -34,6 +34,13 @@ public abstract class SkyPlaceConfig : WidgetConfig, IPlaced
     /// <summary>The place name shown in the header.</summary>
     public string Place { get; set; } = DefaultPlace;
 
+    /// <summary>[S-11752] The place's name under the shape every widget about a place shares, cut as load repair cuts it.</summary>
+    string IPlaced.PlaceName
+    {
+        get => Place;
+        set => Place = value is { Length: > MaxPlaceLength } ? value[..MaxPlaceLength] : value ?? string.Empty;
+    }
+
     /// <summary>
     /// [S-2260] The header's label for the place, beside the widget's name ("Sun", "Moon"); null once
     /// the place is cleared ([S-2848]): then there is no label.

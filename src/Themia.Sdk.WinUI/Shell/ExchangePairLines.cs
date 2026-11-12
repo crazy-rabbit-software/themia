@@ -22,8 +22,8 @@ public static class ExchangePairLines
         var quoteDefault = Str.Online_Rates_Settings_Quote_Default.Format(("code", ExchangeRules.DefaultQuote(config.EffectiveBase)));
         return
         [
-            Currency(menu, glyph, Str.Online_Rates_Settings_Base_Label.Text(), region, config.BaseCurrency, code => config.BaseCurrency = code),
-            Currency(menu, glyph, Str.Online_Rates_Settings_Quote_Label.Text(), quoteDefault, config.QuoteCurrency, code => config.QuoteCurrency = code),
+            WidgetMenuLines.Shared(SharedSettings.ExchangePair, Currency(menu, glyph, Str.Online_Rates_Settings_Base_Label.Text(), region, config.BaseCurrency, code => config.BaseCurrency = code)),
+            WidgetMenuLines.Shared(SharedSettings.ExchangePair, Currency(menu, glyph, Str.Online_Rates_Settings_Quote_Label.Text(), quoteDefault, config.QuoteCurrency, code => config.QuoteCurrency = code)),
             ItemMenuEntry.Separator,
             WidgetMenuLines.Note(Str.Online_Source.Format(("name", "European Central Bank"))),
         ];

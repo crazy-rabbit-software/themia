@@ -8,7 +8,7 @@ using Themia.Sdk;
 namespace Themia.Core.Model;
 
 /// <summary>[S-2430] One adapter's memory and sensors.</summary>
-public sealed class GpuFactsConfig : FactsConfig, IReadsSystem
+public sealed class GpuFactsConfig : FactsConfig, IReadsSystem, IGpuAdapter
 {
     public GpuFactsConfig()
         : base(GpuDetailRules.Facts)

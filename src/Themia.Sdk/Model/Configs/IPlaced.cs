@@ -15,6 +15,18 @@ public interface IPlaced : ISetupRule
     /// <summary>Whether a place is chosen: both coordinates set and finite.</summary>
     bool HasLocation { get; }
 
+    /// <summary>[S-11752] Degrees north, or null while no place is chosen (or it is cleared).</summary>
+    double? Latitude { get; set; }
+
+    /// <summary>[S-11752] Degrees east, or null while no place is chosen (or it is cleared).</summary>
+    double? Longitude { get; set; }
+
+    /// <summary>
+    /// [S-11752] The name the chosen place resolved to (the weather's <c>LocationName</c>, the sky's
+    /// <c>Place</c>): one place under one shape, so a group sets it once on every widget about a place.
+    /// </summary>
+    string PlaceName { get; set; }
+
     /// <summary>
     /// [S-2850] The place is wherever Windows says the device is, not the one chosen by hand (which is
     /// kept, unused, for when the switch goes off). The config stores the switch only, never the

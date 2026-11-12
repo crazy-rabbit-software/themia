@@ -1,5 +1,6 @@
 using Themia.App.Widgets;
 using Themia.Core.Localization;
+using Themia.Core.Model;
 using Themia.Core.Widgets;
 using Themia.Sdk.WinUI;
 
@@ -41,7 +42,7 @@ public static class PingHostLine
                 }
             },
             Initial: host,
-            AllowEmpty: true)), Value: host.Length == 0 ? HostAddress.DefaultPingHost : host, Asks: true);
+            AllowEmpty: true)), Value: host.Length == 0 ? HostAddress.DefaultPingHost : host, Asks: true, Shares: SharedSettings.PingHost.Key);
     }
 
     /// <summary>[S-109] Why a typed host cannot be measured, or null: empty (the default) or a plausible name or address.</summary>

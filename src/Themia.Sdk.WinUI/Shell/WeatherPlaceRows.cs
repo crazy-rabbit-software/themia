@@ -33,7 +33,8 @@ public static class WeatherPlaceRows
             lines.Add(LocationLine(menu, config));
         }
 
-        return lines;
+        // [S-11753] The place is one setting every widget about a place holds: a group sets it once.
+        return WidgetMenuLines.Shared(SharedSettings.Place, lines);
     }
 
     /// <summary>[S-2840] The location's search: what is found, and Clear location under it.</summary>

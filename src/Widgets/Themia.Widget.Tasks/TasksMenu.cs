@@ -67,7 +67,7 @@ internal static class TasksMenu
 
         // [S-7516] What each task shows. [S-2440] How many tasks, and their lines where a task has a second.
         menu.Lines.Add(ItemMenuEntry.Separator);
-        menu.Lines.AddRange(KitMenuLines.Rows(menu, config, offersLines: config.HasSecondLine));
+        menu.Lines.AddRange(KitMenuLines.Rows(menu, config));
 
         // [S-6074] Due dates exist only on an account's tasks.
         if (config.Offers(TasksSetting.DueDate))

@@ -19,7 +19,7 @@ public enum DriveStyle
 }
 
 /// <summary>[S-4670] One drive's information: which drive.</summary>
-public sealed class DriveConfig : WidgetConfig, IStyled
+public sealed class DriveConfig : WidgetConfig, IStyled, IDriveChoice
 {
     private static readonly StyleOption[] DriveStyles =
     [

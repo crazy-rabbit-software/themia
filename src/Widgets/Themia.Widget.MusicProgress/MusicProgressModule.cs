@@ -40,13 +40,13 @@ public sealed class MusicProgressModule : IWidgetModule
     {
         ArgumentNullException.ThrowIfNull(menu);
         var progress = (MusicProgressConfig)config;
-        menu.Lines.Add(menu.Choice(Glyphs.Hide, MusicProgressStr.Music_HideWhenIdle_Label.Text(),
+        menu.Lines.Add(WidgetMenuLines.Shared(SharedSettings.HideWhenIdle, menu.Choice(Glyphs.Hide, MusicProgressStr.Music_HideWhenIdle_Label.Text(),
             [
                 (MusicHideWhenIdle.Never, MusicProgressStr.Music_HideWhenIdle_Never.Text()),
                 (MusicHideWhenIdle.NoSession, MusicProgressStr.WidgetsB_Settings_Music_HideWhenIdle_NoSession.Text()),
                 (MusicHideWhenIdle.NotPlaying, MusicProgressStr.WidgetsB_Settings_Music_HideWhenIdle_NotPlaying.Text()),
             ],
-            progress.HideWhenIdle, value => progress.HideWhenIdle = value));
+            progress.HideWhenIdle, value => progress.HideWhenIdle = value)));
     }
 
     public FrameworkElement CreateView(IWidgetHost host) => new MusicProgressView(host);

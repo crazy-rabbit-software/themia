@@ -19,7 +19,7 @@ internal static class TopProcessesMenu
             config.SortBy, value => config.SortBy = value));
 
         // [S-2412] How many rows, as every list states them ([S-2440]); a row always has its two lines.
-        menu.Lines.AddRange(KitMenuLines.Rows(menu, config, offersLines: false));
+        menu.Lines.AddRange(KitMenuLines.Rows(menu, config));
 
         menu.Lines.Add(menu.Toggle(Glyphs.Group, TopProcessesStr.Details_Settings_Processes_Group_Label.Text(), config.GroupByName, on => config.GroupByName = on));
     }

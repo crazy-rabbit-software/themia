@@ -53,7 +53,7 @@ public sealed class DriveFactsModule : IWidgetModule
 }
 
 /// <summary>[S-11026] What one drive facts widget remembers: its drive (empty: the system drive) and its pick.</summary>
-public sealed class DriveFactsConfig : FactsConfig
+public sealed class DriveFactsConfig : FactsConfig, IDriveChoice
 {
     public DriveFactsConfig()
         : base(DriveRules.Facts)

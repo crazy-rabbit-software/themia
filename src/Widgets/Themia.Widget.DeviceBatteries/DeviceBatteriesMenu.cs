@@ -27,6 +27,6 @@ internal static class DeviceBatteriesMenu
         menu.Lines.Add(menu.Toggle(Glyphs.ChargingBolt, DeviceBatteriesStr.DeviceBatteries_Settings_Charging.Text(), config.ShowCharging, on => config.ShowCharging = on));
 
         // [S-11028] How many rows, as every list states them ([S-2440]); a row always has its two lines.
-        menu.Lines.AddRange(KitMenuLines.Rows(menu, config, offersLines: false));
+        menu.Lines.AddRange(KitMenuLines.Rows(menu, config));
     }
 }

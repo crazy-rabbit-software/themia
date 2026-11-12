@@ -8,7 +8,7 @@ namespace Themia.Core.Model;
 /// [S-11500] The screen-time reading: the total of a day or a rolling week or month, with the line
 /// under it. Like every screen-time config it holds no usage, hidden apps or limits ([S-3322]).
 /// </summary>
-public sealed class ScreenTimeConfig : WidgetConfig, IShownSettings<ScreenTimeSetting>
+public sealed class ScreenTimeConfig : WidgetConfig, IShownSettings<ScreenTimeSetting>, IScreenTimePeriod
 {
     /// <summary>[S-6074] The reading sums the day (or a window's average) against the daily limit.</summary>
     [JsonIgnore]

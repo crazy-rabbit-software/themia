@@ -1,5 +1,6 @@
 using Themia.App.Widgets;
 using Themia.Core.Localization;
+using Themia.Core.Model;
 using Themia.Core.Widgets;
 using Themia.Sdk;
 using Themia.Sdk.WinUI;
@@ -40,6 +41,6 @@ public static class DriveMenuLines
             held = options.Count - 1;
         }
 
-        return menu.Choice(Glyphs.Disk, Str.Details_Disk_Drive.Text(), options, options[held].Value, choose);
+        return WidgetMenuLines.Shared(SharedSettings.Drive, menu.Choice(Glyphs.Disk, Str.Details_Disk_Drive.Text(), options, options[held].Value, choose));
     }
 }

@@ -46,6 +46,9 @@ public sealed class TasksConfig : WidgetConfig, IStyled, IShownSettings<TasksSet
     [JsonIgnore]
     public bool HasSecondLine => Source == TaskSource.Account && TaskRules.IsToday(ListId) && Style != TasksStyle.Compact;
 
+    /// <summary>[S-2440] The lines are the user's only where a task's row can have a second.</summary>
+    bool IKitRows.OffersLines => HasSecondLine;
+
     /// <summary>[S-2440] The rows as drawn: the chosen count, two lines only where a row has a second line.</summary>
     [JsonIgnore]
     public KitRowsChoice RowsShown => new(KitSizing.ClampRows(Rows), HasSecondLine ? KitSizing.ClampLines(Lines) : 1);

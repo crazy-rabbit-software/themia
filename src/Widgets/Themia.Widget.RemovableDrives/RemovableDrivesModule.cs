@@ -43,7 +43,7 @@ public sealed class RemovableDrivesModule : IWidgetModule
     public void MenuLines(WidgetMenuLines menu, WidgetConfig config)
     {
         ArgumentNullException.ThrowIfNull(menu);
-        menu.Lines.AddRange(KitMenuLines.Rows(menu, (RemovableDrivesConfig)config, offersLines: false));
+        menu.Lines.AddRange(KitMenuLines.Rows(menu, (RemovableDrivesConfig)config));
     }
 
     public FrameworkElement CreateView(IWidgetHost host) => new RemovableDrivesView(host);

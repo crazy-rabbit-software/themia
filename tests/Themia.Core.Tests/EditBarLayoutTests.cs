@@ -1,3 +1,4 @@
+using Themia.App.Shell;
 using Themia.Core.Geometry;
 using Themia.Core.Model;
 using Themia.Core.Shell;
@@ -143,12 +144,52 @@ public sealed class EditBarLayoutTests
     [Fact]
     public void S2342_the_selection_page_shows_what_the_selection_shares()
     {
-        var one = new QuickSetOffer(1, HeaderPlacement.Top, null, "w", Clock, null, HasHeader: true);
-        var many = new QuickSetOffer(3, null, null, null, null, null, HasHeader: false);
+        var one = new SelectionModel(SelectionKind.One, new QuickSetOffer(1, HeaderPlacement.Top, null, "w", Clock, null, HasHeader: true), [], []);
+        var many = new SelectionModel(SelectionKind.Several, new QuickSetOffer(3, null, null, null, null, null, HasHeader: false), [], []);
 
         Assert.Equal([SelectionSection.Shows, SelectionSection.Header, SelectionSection.Appearance], SelectionPage.Sections(one, ownLines: true, styleLines: false));
         Assert.Equal([SelectionSection.Header, SelectionSection.Appearance], SelectionPage.Sections(one, ownLines: false, styleLines: false));
         Assert.Equal([SelectionSection.Appearance], SelectionPage.Sections(many, ownLines: true, styleLines: true));
-        Assert.Empty(SelectionPage.Sections(QuickSetOffer.None, ownLines: true, styleLines: true));
+    }
+
+    [Fact]
+    public void S11754_a_groups_page_is_what_its_widgets_share_its_widgets_and_their_look()
+    {
+        SharedRow[] place = [new(SharedSettings.Place, ["a", "b"], Mixed: false)];
+        var offer = new QuickSetOffer(2, HeaderPlacement.Top, null, null, null, null, HasHeader: true);
+        var group = new SelectionModel(SelectionKind.Group, offer, [], place) { GroupId = "g" };
+        var several = new SelectionModel(SelectionKind.Several, offer, [], place);
+        var bare = new SelectionModel(SelectionKind.Group, offer, [], []) { GroupId = "g" };
+        var member = new SelectionModel(SelectionKind.Member, new QuickSetOffer(1, HeaderPlacement.Top, null, "a", Clock, null), [], []) { GroupId = "g", GroupName = "Station" };
+
+        // A group: what they share, its widgets, their look; never a title or the header's place, which are each widget's.
+        Assert.Equal([SelectionSection.Shared, SelectionSection.Members, SelectionSection.Appearance], SelectionPage.Sections(group, ownLines: true, styleLines: true));
+        Assert.Equal([SelectionSection.Members, SelectionSection.Appearance], SelectionPage.Sections(bare, ownLines: true, styleLines: true));
+
+        // Several widgets that are not one group share the same section, and keep the header's place.
+        Assert.Equal([SelectionSection.Shared, SelectionSection.Header, SelectionSection.Appearance], SelectionPage.Sections(several, ownLines: true, styleLines: true));
+
+        // An entered member is its own page, under the link back to its group.
+        Assert.Equal([SelectionSection.InGroup, SelectionSection.Shows, SelectionSection.Header, SelectionSection.Appearance], SelectionPage.Sections(member, ownLines: true, styleLines: false));
+        Assert.Equal("Station", member.GroupTitle);
+    }
+
+    [Fact]
+    public void S11754_a_group_is_called_by_its_name_or_group_and_a_typed_name_is_trimmed()
+    {
+        Assert.Equal("Group", SelectionPage.GroupTitle(null));
+        Assert.Equal("Group", SelectionPage.GroupTitle("  "));
+        Assert.Equal("Station", SelectionPage.GroupTitle("Station"));
+
+        Assert.Null(SelectionPage.GroupName(""));
+        Assert.Null(SelectionPage.GroupName("   "));
+        Assert.Null(SelectionPage.GroupName(" Group "));
+        Assert.Equal("Roof", SelectionPage.GroupName("  Roof "));
+
+        var group = new SelectionModel(SelectionKind.Group, new QuickSetOffer(4, null, null, null, null, null), [], []) { GroupId = "g", GroupName = "Weather station" };
+        Assert.Equal("Weather station", SelectionPage.Words(group, _ => "?"));
+        Assert.Equal(ReadyMadeGroups.WeatherStation.Glyph, SelectionPage.Glyph(group));
+        Assert.Equal(Glyphs.Group, SelectionPage.Glyph(group with { GroupName = "Roof" }));
+        Assert.Null(SelectionPage.Words((SelectionModel?)null, _ => "?"));
     }
 }

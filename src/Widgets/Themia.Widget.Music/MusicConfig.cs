@@ -8,7 +8,7 @@ namespace Themia.Core.Model;
 /// from Windows' own media session. What it shows is fixed; its one option is when it hides ([S-1464]).
 /// The cover and the progress are atoms of their own (<c>musicCover</c>, <c>musicProgress</c>).
 /// </summary>
-public sealed class MusicConfig : WidgetConfig
+public sealed class MusicConfig : WidgetConfig, IHidesWhenIdle
 {
     /// <summary>[S-1464] When the widget paints nothing at all; edit mode always shows it.</summary>
     public MusicHideWhenIdle HideWhenIdle { get; set; } = MusicHideWhenIdle.Never;

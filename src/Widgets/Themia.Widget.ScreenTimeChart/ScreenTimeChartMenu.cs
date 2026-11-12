@@ -21,9 +21,9 @@ internal static class ScreenTimeChartMenu
         ArgumentNullException.ThrowIfNull(menu);
         ArgumentNullException.ThrowIfNull(config);
 
-        menu.Lines.Add(menu.Choice(Glyphs.Calendar, Str.Screentime_Cfg_Period.Text(),
+        menu.Lines.Add(WidgetMenuLines.Shared(SharedSettings.ScreenTimePeriod, menu.Choice(Glyphs.Calendar, Str.Screentime_Cfg_Period.Text(),
             [(ScreenTimePeriod.Week, ScreenTimeRules.PeriodLabel(ScreenTimePeriod.Week)), (ScreenTimePeriod.Month, ScreenTimeRules.PeriodLabel(ScreenTimePeriod.Month))],
-            ScreenTimeRules.ChartPeriod(config.Period), value => config.Period = value));
+            ScreenTimeRules.ChartPeriod(config.Period), value => config.Period = value)));
         ScreenTimeMenuLines.AddShared(menu, config, source);
     }
 }

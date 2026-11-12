@@ -46,7 +46,7 @@ public static class DiskMenuLines
             held = options.Count - 1;
         }
 
-        return menu.Choice(Glyphs.Disk, Str.Details_Disk_Drive.Text(), options, options[held].Value,
-            value => (disk.Scope, disk.Drive) = value == All ? (DiskScope.AllDrives, string.Empty) : (DiskScope.OneDrive, value));
+        return WidgetMenuLines.Shared(SharedSettings.DiskScope, menu.Choice(Glyphs.Disk, Str.Details_Disk_Drive.Text(), options, options[held].Value,
+            value => (disk.Scope, disk.Drive) = value == All ? (DiskScope.AllDrives, string.Empty) : (DiskScope.OneDrive, value)));
     }
 }

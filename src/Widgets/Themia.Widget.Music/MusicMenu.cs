@@ -19,12 +19,12 @@ internal static class MusicMenu
         ArgumentNullException.ThrowIfNull(config);
 
         // [S-1464] When it shows at all. Edit mode always shows a hidden widget, so it can still be found and changed.
-        menu.Lines.Add(menu.Choice(Glyphs.Hide, MusicStr.Music_HideWhenIdle_Label.Text(),
+        menu.Lines.Add(WidgetMenuLines.Shared(SharedSettings.HideWhenIdle, menu.Choice(Glyphs.Hide, MusicStr.Music_HideWhenIdle_Label.Text(),
             [
                 (MusicHideWhenIdle.Never, MusicStr.Music_HideWhenIdle_Never.Text()),
                 (MusicHideWhenIdle.NoSession, MusicStr.WidgetsB_Settings_Music_HideWhenIdle_NoSession.Text()),
                 (MusicHideWhenIdle.NotPlaying, MusicStr.WidgetsB_Settings_Music_HideWhenIdle_NotPlaying.Text()),
             ],
-            config.HideWhenIdle, value => config.HideWhenIdle = value));
+            config.HideWhenIdle, value => config.HideWhenIdle = value)));
     }
 }

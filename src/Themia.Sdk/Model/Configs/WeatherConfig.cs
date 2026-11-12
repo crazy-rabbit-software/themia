@@ -25,6 +25,13 @@ public abstract class WeatherConfig : WidgetConfig, IPlaced
     /// <summary>The chosen place's label ([S-2842]), e.g. "Zürich, Zurich, Switzerland".</summary>
     public string LocationName { get; set; } = string.Empty;
 
+    /// <summary>[S-11752] The place's name under the shape every widget about a place shares.</summary>
+    string IPlaced.PlaceName
+    {
+        get => LocationName;
+        set => LocationName = value ?? string.Empty;
+    }
+
     /// <summary>[S-2850] The place is the device's, from Windows' location; the chosen one is kept for when this goes off.</summary>
     public bool UseDeviceLocation { get; set; }
 

@@ -6,7 +6,7 @@ namespace Themia.Core.Model;
 public interface ISpansHistory
 {
     /// <summary>How much history the chart spans, in seconds: one of <see cref="MeterTiming.SpanChoices"/>.</summary>
-    int GraphSpanSeconds { get; }
+    int GraphSpanSeconds { get; set; }
 }
 
 /// <summary>

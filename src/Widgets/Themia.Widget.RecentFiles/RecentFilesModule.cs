@@ -46,7 +46,7 @@ public sealed class RecentFilesModule : IWidgetModule
 
     /// <summary>[S-11200] Rows and Lines per row, the kit's two lines ([S-2440]): its only settings.</summary>
     public void MenuLines(WidgetMenuLines menu, WidgetConfig config)
-        => menu.Lines.AddRange(KitMenuLines.Rows(menu, (RecentFilesConfig)config, offersLines: true));
+        => menu.Lines.AddRange(KitMenuLines.Rows(menu, (RecentFilesConfig)config));
 }
 
 /// <summary>[S-6903] The module's own JSON metadata, with the host's options (camelCase, indented, nulls left out).</summary>

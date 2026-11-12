@@ -25,14 +25,14 @@ public static class StockQuoteLines
 
     /// <summary>[S-1307] The symbol's line, the line Set up opens.</summary>
     public static ItemMenuEntry Symbol(WidgetMenuLines menu, StockQuoteConfig config, Func<string, CancellationToken, Task<IReadOnlyList<SymbolHit>>> lookup)
-        => WidgetMenuLines.SetsUp(SymbolLine(menu, config, lookup));
+        => WidgetMenuLines.Shared(SharedSettings.StockSymbol, WidgetMenuLines.SetsUp(SymbolLine(menu, config, lookup)));
 
     /// <summary>[S-2778] The period and what depends on it: Timeframe, then Extended hours where they apply.</summary>
     public static IEnumerable<ItemMenuEntry> Period(WidgetMenuLines menu, StockQuoteConfig config)
     {
         ArgumentNullException.ThrowIfNull(menu);
         ArgumentNullException.ThrowIfNull(config);
-        yield return menu.Choice(Glyphs.Hours, Str.Stocks_Timeframe.Text(),
+        yield return WidgetMenuLines.Shared(SharedSettings.StockTimeframe, menu.Choice(Glyphs.Hours, Str.Stocks_Timeframe.Text(),
             [
                 (QuoteRange.Day, Str.WidgetsC_Stocks_Period_Days.Plural(1)),
                 (QuoteRange.FiveDays, Str.WidgetsC_Stocks_Period_Days.Plural(5)),
@@ -44,12 +44,12 @@ public static class StockQuoteLines
                 (QuoteRange.FiveYears, Str.WidgetsC_Stocks_Period_Years.Plural(5)),
                 (QuoteRange.TenYears, Str.WidgetsC_Stocks_Period_Years.Plural(10)),
             ],
-            config.Range, value => config.Range = value);
+            config.Range, value => config.Range = value));
 
         // [S-6074] Only where extended hours exist and fit the period.
         if (config.OffersExtendedHours)
         {
-            yield return menu.Toggle(Glyphs.Sun, Str.Stocks_ExtendedHours.Text(), config.ShowExtendedHours, on => config.ShowExtendedHours = on);
+            yield return WidgetMenuLines.Shared(SharedSettings.StockTimeframe, menu.Toggle(Glyphs.Sun, Str.Stocks_ExtendedHours.Text(), config.ShowExtendedHours, on => config.ShowExtendedHours = on));
         }
     }
 

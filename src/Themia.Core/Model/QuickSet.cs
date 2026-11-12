@@ -303,6 +303,18 @@ public static class QuickSet
     public static int SetAlign(ViewState view, IEnumerable<string> ids, ContentAlign align)
         => Apply(view, ids, w => ContentAlignment.Applies(w) && w.Align != align && Set(() => w.Align = align));
 
+    /// <summary>
+    /// [S-11751] Set <paramref name="setting"/> on every selected widget of <paramref name="view"/> that
+    /// holds it, to <paramref name="from"/>'s value (the copy its line wrote): the widgets that disagreed
+    /// agree after. A widget that does not hold it is left as it is. Returns how many changed.
+    /// </summary>
+    public static int SetShared(ViewState view, IEnumerable<string> ids, SharedSetting setting, WidgetConfig from)
+    {
+        ArgumentNullException.ThrowIfNull(setting);
+        ArgumentNullException.ThrowIfNull(from);
+        return Apply(view, ids, w => setting.Copy(from, w.Config));
+    }
+
     /// <summary>[S-3704] Set one widget's title from what was typed. False when nothing changed or the widget is gone.</summary>
     public static bool SetTitle(ViewState view, string widgetId, string? typed, string defaultTitle)
     {

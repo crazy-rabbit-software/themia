@@ -8,7 +8,7 @@ using Themia.Sdk;
 namespace Themia.Core.Model;
 
 /// <summary>[S-2426] Latency statistics over a window of probes: average, range, jitter and loss.</summary>
-public sealed class PingFactsConfig : FactsConfig, IReadsSystem
+public sealed class PingFactsConfig : FactsConfig, IReadsSystem, IPingHost
 {
     public PingFactsConfig()
         : base(PingDetailRules.Facts)

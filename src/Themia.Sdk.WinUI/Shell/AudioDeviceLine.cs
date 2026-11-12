@@ -1,6 +1,7 @@
 using Themia.App.Widgets;
 using Themia.Core.Diagnostics;
 using Themia.Core.Localization;
+using Themia.Core.Model;
 using Themia.Core.Widgets;
 using Themia.Sdk;
 using Themia.Sdk.WinUI;
@@ -78,8 +79,8 @@ public static class AudioDeviceLine
             ? Str.WidgetsC_Volume_Settings_DefaultOutput.Text()
             : chosenName is { Length: > 0 } name ? name : Str.WidgetsC_Volume_Settings_ChosenDevice.Text();
 
-        return WidgetMenuLines.Search(Glyphs.Speakers, Str.WidgetsC_Volume_Settings_Device_Label.Text(), value,
-            new MenuSearch(Str.AudioDevice_Search.Text(), Find, []));
+        return WidgetMenuLines.Shared(SharedSettings.AudioOutput, WidgetMenuLines.Search(Glyphs.Speakers, Str.WidgetsC_Volume_Settings_Device_Label.Text(), value,
+            new MenuSearch(Str.AudioDevice_Search.Text(), Find, [])));
     }
 
     /// <summary>

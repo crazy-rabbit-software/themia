@@ -29,7 +29,7 @@ public enum ScreenTimeChartStyle
 /// [S-3322]), so copying a widget or exporting a layout never carries what the user did with their day.
 /// </para>
 /// </summary>
-public sealed class ScreenTimeChartConfig : WidgetConfig, IStyled, IShownSettings<ScreenTimeSetting>
+public sealed class ScreenTimeChartConfig : WidgetConfig, IStyled, IShownSettings<ScreenTimeSetting>, IScreenTimePeriod
 {
     private static readonly StyleOption[] ChartStyles =
     [

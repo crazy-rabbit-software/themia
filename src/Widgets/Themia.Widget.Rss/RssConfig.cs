@@ -42,6 +42,9 @@ public sealed class RssConfig : WidgetConfig, IKitConfig, IInterests, IKitRows, 
     /// <summary>[S-11403] Lines per headline: the headline, then the site, then the summary.</summary>
     public int Lines { get; set; } = 2;
 
+    /// <summary>[S-11403] The lines are the user's where a headline can have more than one.</summary>
+    bool IKitRows.OffersLines => MostLines >= 2;
+
     /// <summary>[S-11403] The headlines in one column or two side by side: the user's, never the width's.</summary>
     public int Columns { get; set; } = 1;
 

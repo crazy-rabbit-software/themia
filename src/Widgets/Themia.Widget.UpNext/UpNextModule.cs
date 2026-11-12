@@ -47,7 +47,7 @@ public sealed class UpNextModule : IWidgetModule
     {
         ArgumentNullException.ThrowIfNull(menu);
         var upNext = (UpNextConfig)config;
-        menu.Lines.AddRange(Themia.Sdk.WinUI.Kit.KitMenuLines.Rows(menu, upNext, offersLines: false));
+        menu.Lines.AddRange(Themia.Sdk.WinUI.Kit.KitMenuLines.Rows(menu, upNext));
         menu.Lines.Add(ItemMenuEntry.Separator);
         menu.Lines.AddRange(OfficeMenuLines.CalendarAccounts(menu, upNext, SettingsHost.Office, colours: false));
     }

@@ -29,9 +29,9 @@ internal static class ContactsMenu
         ArgumentNullException.ThrowIfNull(config);
         ArgumentNullException.ThrowIfNull(accounts);
 
-        menu.Lines.Add(OfficeMenuLines.Accounts(menu, accounts, Glyphs.Contact,
+        menu.Lines.Add(WidgetMenuLines.Shared(SharedSettings.ContactAccounts, OfficeMenuLines.Accounts(menu, accounts, Glyphs.Contact,
             new KitAccountWords(ContactsStr.WidgetsA_Contacts_NoAccount.Text(), ContactsStr.WidgetsA_Contacts_Settings_Every.Text()),
-            config.AccountIds, ids => config.AccountIds = ids));
+            config.AccountIds, ids => config.AccountIds = ids)));
 
         // [S-7511] Where the people come from, then how they are listed.
         menu.Lines.Add(ItemMenuEntry.Separator);
@@ -55,7 +55,7 @@ internal static class ContactsMenu
         }
         else
         {
-            menu.Lines.AddRange(KitMenuLines.Rows(menu, config, offersLines: config.EffectiveLayout == ContactsLayout.List, mostLines: 3));
+            menu.Lines.AddRange(KitMenuLines.Rows(menu, config, mostLines: 3));
         }
 
         menu.Lines.Add(menu.Toggle(Glyphs.Search, ContactsStr.Contacts_SearchBox.Text(), config.SearchBox, on => config.SearchBox = on));

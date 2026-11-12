@@ -22,6 +22,9 @@ public sealed class TopProcessesConfig : DetailConfig, IReadsSystem, IKitRows
 
     /// <summary>[S-2412] Every row has two lines: the program, and the other figure under it.</summary>
     [JsonIgnore]
+    bool IKitRows.OffersLines => false;
+
+    [JsonIgnore]
     public int Lines
     {
         get => 2;

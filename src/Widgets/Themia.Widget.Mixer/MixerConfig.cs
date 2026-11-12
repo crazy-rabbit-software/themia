@@ -13,7 +13,7 @@ namespace Themia.Core.Model;
 /// there is no poll for a setting to tune.
 /// </para>
 /// </summary>
-public sealed class MixerConfig : WidgetConfig
+public sealed class MixerConfig : WidgetConfig, IAudioOutput
 {
     /// <summary>[S-11309] How many rows it shows, 1 to 12; a new one 4. More apps scroll inside them.</summary>
     public int Rows { get; set; } = MixerLayout.DefaultRows;

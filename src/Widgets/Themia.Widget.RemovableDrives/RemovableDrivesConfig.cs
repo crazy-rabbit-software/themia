@@ -12,6 +12,9 @@ public sealed class RemovableDrivesConfig : WidgetConfig, IKitRows
 
     /// <summary>Every row has two lines: the name and the space line.</summary>
     [JsonIgnore]
+    bool IKitRows.OffersLines => false;
+
+    [JsonIgnore]
     public int Lines
     {
         get => RemovableDrivesPlan.Lines;

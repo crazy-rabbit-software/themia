@@ -8,11 +8,6 @@ using Themia.Sdk;
 
 namespace Themia.App.Widgets.Meters;
 
-/// <summary>[S-433] A GPU atom's config: which adapter it reads, as its position in DXGI's list (software adapters left out).</summary>
-public interface IGpuAdapter
-{
-    int Adapter { get; }
-}
 
 /// <summary>
 /// [S-430] [S-11000] What every GPU atom's meter shares (the reading, the history, the engines): one

@@ -67,6 +67,11 @@ namespace Themia.App.Widgets;
 /// the setting (⚙ › Accounts), whose name this is (the tooltip says "Opens Accounts"); drawn with Windows' "open in
 /// new window" mark at its end, no chevron. Null for any other line; item menus ignore it.
 /// </param>
+/// <param name="Shares">
+/// [S-11753] The shared setting (<see cref="Themia.Core.Model.SharedSettings"/>, by its key) this line sets: a group's
+/// page finds it among a member's lines and shows it once for every member that holds the setting. Null for a
+/// line of the widget's own; item menus ignore it.
+/// </param>
 public readonly record struct ItemMenuEntry(
     string? Glyph,
     string Text,
@@ -87,7 +92,8 @@ public readonly record struct ItemMenuEntry(
     Themia.Sdk.WinUI.MenuSlider? Slider = null,
     Themia.Sdk.WinUI.MenuOrder? Order = null,
     bool Asks = false,
-    string? LinkTo = null)
+    string? LinkTo = null,
+    string? Shares = null)
 {
     /// <summary>A divider between groups. Leading, trailing and doubled separators are dropped.</summary>
     public static ItemMenuEntry Separator => new(null, string.Empty, null);

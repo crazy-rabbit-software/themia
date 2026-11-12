@@ -49,12 +49,12 @@ internal static class EmailMenu
         }
 
         // [S-11402] How many messages, and their lines where a message has more than one.
-        menu.Lines.AddRange(KitMenuLines.Rows(menu, email, offersLines: email.MostLines >= 2, mostLines: email.MostLines));
+        menu.Lines.AddRange(KitMenuLines.Rows(menu, email, mostLines: email.MostLines));
         menu.Lines.Add(ItemMenuEntry.Separator);
 
-        menu.Lines.Add(OfficeMenuLines.Accounts(menu, accounts, Glyphs.Mail,
+        menu.Lines.Add(WidgetMenuLines.Shared(SharedSettings.MailAccounts, OfficeMenuLines.Accounts(menu, accounts, Glyphs.Mail,
             new KitAccountWords(EmailStr.WidgetsB_Settings_Email_NoAccount_Label.Text(), EmailStr.WidgetsB_Settings_Email_Every_Label.Text()),
-            email.EffectiveAccountIds, ids => email.AccountIds = ids));
+            email.EffectiveAccountIds, ids => email.AccountIds = ids)));
         menu.Lines.Add(menu.Choice(Glyphs.Folder, EmailStr.Email_Folder_Label.Text(),
             [.. EmailFolders.Listable.Select(f => (f, f.Label()))], email.Folder, value => email.Folder = value));
     }

@@ -22,7 +22,7 @@ public enum ContactsSetting
 /// [S-580] The contacts widget's settings: which accounts, the layout, the columns of the details
 /// table, how many to list and a search to start with. Data comes from Themia's own accounts.
 /// </summary>
-public sealed class ContactsConfig : WidgetConfig, IShownSettings<ContactsSetting>, ISetupRule, IInterests, IKitRows
+public sealed class ContactsConfig : WidgetConfig, IShownSettings<ContactsSetting>, ISetupRule, IInterests, IKitRows, IChoosesAccounts
 {
     /// <summary>[S-11406] A new contacts list's rows.</summary>
     public const int DefaultRows = 5;
@@ -41,6 +41,9 @@ public sealed class ContactsConfig : WidgetConfig, IShownSettings<ContactsSettin
 
     /// <summary>[S-11406] Lines per person in the List layout: the name; the role or a way to reach them; the address or the number.</summary>
     public int Lines { get; set; } = 2;
+
+    /// <summary>[S-11406] Only the List layout's people have lines to choose.</summary>
+    bool IKitRows.OffersLines => EffectiveLayout == ContactsLayout.List;
 
     /// <summary>[S-11406] The search box over the people (off: the header's search button opens it).</summary>
     public bool SearchBox { get; set; } = true;
@@ -63,6 +66,15 @@ public sealed class ContactsConfig : WidgetConfig, IShownSettings<ContactsSettin
     /// <summary>The accounts to show; empty means every contacts account.</summary>
     [JsonConverter(typeof(LenientIdListConverter))]
     public List<string> AccountIds { get; set; } = [];
+
+    /// <summary>[S-11752] The contacts accounts it reads, under the shape every account widget shares.</summary>
+    FeatureId IChoosesAccounts.AccountFeature => HostFeatures.Contacts;
+
+    IReadOnlyList<string> IChoosesAccounts.ChosenAccounts
+    {
+        get => AccountIds;
+        set => AccountIds = [.. value];
+    }
 
     public ContactsLayout Layout { get; set; } = ContactsLayout.List;
 

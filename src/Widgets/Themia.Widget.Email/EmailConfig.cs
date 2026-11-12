@@ -34,7 +34,7 @@ public enum EmailStyle
 /// would refuse the whole state file and blank every desktop.
 /// </para>
 /// </summary>
-public sealed class EmailConfig : WidgetConfig, IStyled, IShownSettings<EmailSetting>, IKitConfig, IInterests, IKitRows
+public sealed class EmailConfig : WidgetConfig, IStyled, IShownSettings<EmailSetting>, IKitConfig, IInterests, IKitRows, IChoosesAccounts
 {
     /// <summary>[S-11402] A new Mail widget's rows.</summary>
     public const int DefaultRows = 5;
@@ -44,6 +44,9 @@ public sealed class EmailConfig : WidgetConfig, IStyled, IShownSettings<EmailSet
 
     /// <summary>[S-11402] Lines per message: the sender, then the subject, then the preview (List only).</summary>
     public int Lines { get; set; } = 2;
+
+    /// <summary>[S-11402] The lines are the user's where a message can have more than one.</summary>
+    bool IKitRows.OffersLines => MostLines >= 2;
 
     /// <summary>[S-11402] The Table's column titles over its rows: the user's choice, never the height's.</summary>
     public bool ColumnTitles { get; set; } = true;
@@ -101,6 +104,15 @@ public sealed class EmailConfig : WidgetConfig, IStyled, IShownSettings<EmailSet
     /// </summary>
     [JsonConverter(typeof(LenientStringListConverter))]
     public List<string>? AccountIds { get; set; } = [];
+
+    /// <summary>[S-11752] The mail accounts it reads, under the shape every account widget shares.</summary>
+    FeatureId IChoosesAccounts.AccountFeature => HostFeatures.Mail;
+
+    IReadOnlyList<string> IChoosesAccounts.ChosenAccounts
+    {
+        get => EffectiveAccountIds;
+        set => AccountIds = [.. value];
+    }
 
     public MailFolder Folder { get; set; } = MailFolder.Inbox;
 

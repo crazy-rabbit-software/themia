@@ -34,7 +34,8 @@ public static class SkyPlaceRows
             lines.Add(LocationLine(menu, config, longitude));
         }
 
-        return lines;
+        // [S-11753] The place is one setting every widget about a place holds: a group sets it once.
+        return WidgetMenuLines.Shared(SharedSettings.Place, lines);
     }
 
     /// <summary>

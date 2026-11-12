@@ -1,6 +1,7 @@
 using Themia.App.Shell;
 using Themia.App.Widgets;
 using Themia.Core.Localization;
+using Themia.Core.Model;
 using Themia.Core.Widgets;
 using Themia.Sdk.Kit;
 
@@ -110,25 +111,26 @@ public static class KitMenuLines
 
     /// <summary>
     /// [S-2440] A list that states its rows ([S-2440]): how many rows it shows (1 to 20; dragging its
-    /// bottom edge sets the same) and, where its rows can have a second line, how many lines each has.
+    /// bottom edge sets the same) and, where its rows can have a second line (<see cref="IKitRows.OffersLines"/>),
+    /// how many lines each has.
     /// </summary>
     /// <param name="mostLines">[S-11400] The most lines its rows have (3 where a row has a preview).</param>
-    public static IEnumerable<ItemMenuEntry> Rows(WidgetMenuLines menu, IKitRows config, bool offersLines = true, int mostLines = 2)
+    public static IEnumerable<ItemMenuEntry> Rows(WidgetMenuLines menu, IKitRows config, int mostLines = 2)
     {
         ArgumentNullException.ThrowIfNull(menu);
         ArgumentNullException.ThrowIfNull(config);
 
-        yield return Count(menu, null, Str.Kit_Rows.Text(), KitSizing.ClampRows(config.Rows), KitSizing.MinRows, KitSizing.MaxRows, 1, v => config.Rows = v);
-        if (offersLines)
+        yield return WidgetMenuLines.Shared(SharedSettings.ListRows, Count(menu, null, Str.Kit_Rows.Text(), KitSizing.ClampRows(config.Rows), KitSizing.MinRows, KitSizing.MaxRows, 1, v => config.Rows = v));
+        if (config.OffersLines)
         {
             (int, string)[] words = [(1, Str.Kit_LinesOne.Text()), (2, Str.Kit_LinesTwo.Text()), (3, Str.Kit_LinesThree.Text())];
             var most = Math.Clamp(mostLines, 2, KitSizing.MaxLines);
-            yield return menu.Choice(
+            yield return WidgetMenuLines.Shared(SharedSettings.ListLines, menu.Choice(
                 null,
                 Str.Kit_Lines.Text(),
                 [.. words.Take(most)],
                 KitSizing.ClampLines(config.Lines, most),
-                v => config.Lines = v);
+                v => config.Lines = v));
         }
     }
 
@@ -137,7 +139,7 @@ public static class KitMenuLines
     {
         ArgumentNullException.ThrowIfNull(menu);
         ArgumentNullException.ThrowIfNull(config);
-        return Count(menu, null, Str.Kit_Columns.Text(), KitSizing.ClampColumns(config.Columns), 1, KitSizing.MaxColumns, 1, v => config.Columns = v);
+        return WidgetMenuLines.Shared(SharedSettings.ListColumns, Count(menu, null, Str.Kit_Columns.Text(), KitSizing.ClampColumns(config.Columns), 1, KitSizing.MaxColumns, 1, v => config.Columns = v));
     }
 
     /// <summary>
@@ -148,7 +150,7 @@ public static class KitMenuLines
     {
         ArgumentNullException.ThrowIfNull(menu);
         ArgumentNullException.ThrowIfNull(config);
-        return menu.Choice(
+        return WidgetMenuLines.Shared(SharedSettings.ReadoutSize, menu.Choice(
             null,
             Str.Kit_Size.Text(),
             [
@@ -157,7 +159,7 @@ public static class KitMenuLines
                 (Themia.Core.Widgets.ReadoutSize.Large, Str.Kit_SizeLarge.Text()),
             ],
             ReadoutSizes.Normalise(config.Size),
-            v => config.Size = v);
+            v => config.Size = v));
     }
 
     /// <summary>[S-7063] One switch per optional field the widget offers ([S-6070]: only fields the current style draws).</summary>

@@ -155,6 +155,24 @@ public static class WidgetGroups
     }
 
     /// <summary>
+    /// [S-11754] Name a group <paramref name="name"/> (null: no name, said "Group"). False when nothing
+    /// changed or the view has no such group.
+    /// </summary>
+    public static bool Rename(ViewState view, string groupId, string? name)
+    {
+        ArgumentNullException.ThrowIfNull(view);
+
+        var named = string.IsNullOrWhiteSpace(name) ? null : name.Trim();
+        if (view.FindGroup(groupId) is not { } group || string.Equals(group.Name, named, StringComparison.Ordinal))
+        {
+            return false;
+        }
+
+        group.Name = named;
+        return true;
+    }
+
+    /// <summary>
     /// [S-2454] "Remove from group" on an entered member: it alone leaves; a group left with one member
     /// dissolves (<see cref="Settle"/>). Returns whether anything changed.
     /// </summary>
