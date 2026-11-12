@@ -67,7 +67,7 @@ public class SettingRulesTests
     {
         Assert.Contains(ShortcutsSetting.Extensions, new ShortcutsConfig { Style = ShortcutsStyle.Grid }.ShownSettings);
         Assert.DoesNotContain(ShortcutsSetting.Extensions, new ShortcutsConfig { Style = ShortcutsStyle.Grid, GridIconOnly = true }.ShownSettings);
-        Assert.Equal([ShortcutsSetting.Extensions], new ShortcutsConfig { Style = ShortcutsStyle.List, GridIconOnly = true }.ShownSettings);
+        Assert.Equal([ShortcutsSetting.Lines, ShortcutsSetting.Extensions], new ShortcutsConfig { Style = ShortcutsStyle.List, GridIconOnly = true }.ShownSettings);
     }
 
     [Theory]
