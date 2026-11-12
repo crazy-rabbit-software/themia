@@ -119,7 +119,8 @@ public static class SceneParser
             draft.Design ?? basis?.Design ?? string.Empty,
             draft.HasWallpaper ? draft.Wallpaper : basis?.Wallpaper,
             draft.Widgets ?? basis!.Widgets,
-            draft.HasEdit ? draft.Edit : basis?.Edit);
+            draft.HasEdit ? draft.Edit : basis?.Edit,
+            draft.Scale ?? basis?.Scale ?? 1);
         resolved[draft.Name] = scene;
         return scene;
     }
@@ -161,6 +162,8 @@ public static class SceneParser
 
         public string? Design { get; init; }
 
+        public double? Scale { get; init; }
+
         public bool HasWallpaper { get; init; }
 
         public string? Wallpaper { get; init; }
@@ -178,7 +181,7 @@ public static class SceneParser
     /// </summary>
     private static Draft ReadDraft(JsonElement element, string path, SceneScreen screen)
     {
-        var props = Properties(element, path, "name", "like", "theme", "design", "wallpaper", "widgets", "edit");
+        var props = Properties(element, path, "name", "like", "theme", "design", "scale", "wallpaper", "widgets", "edit");
         if (!props.TryGetValue("name", out var nameElement))
         {
             throw Refuse(path, "no \"name\"");
@@ -206,6 +209,7 @@ public static class SceneParser
             Like = props.TryGetValue("like", out var like) ? Text(like, path + ".like") : null,
             Theme = props.TryGetValue("theme", out var theme) ? Theme(theme, path + ".theme") : null,
             Design = props.TryGetValue("design", out var design) ? DesignOf(design, path + ".design") : null,
+            Scale = props.TryGetValue("scale", out var scale) ? Scale(scale, path + ".scale") : null,
             HasWallpaper = hasWallpaper,
             Wallpaper = hasWallpaper ? Wallpaper(wallpaper, path + ".wallpaper") : null,
             Widgets = widgets,

@@ -227,6 +227,22 @@ public sealed class SceneParserTests
     }
 
     [Fact]
+    public void S1080_a_scene_has_its_displays_content_scale_and_a_like_scene_takes_it()
+    {
+        var file = Parsed("""{ "scenes": [ { "name": "a", "scale": 1.25, "widgets": [] }, { "name": "b", "like": "a" }, { "name": "c", "widgets": [] } ] }""");
+
+        Assert.Equal([1.25, 1.25, 1.0], file.Scenes.Select(s => s.Scale));
+    }
+
+    [Fact]
+    public void S1080_a_scale_out_of_range_is_refused()
+    {
+        var refusal = Refused("""{ "scenes": [ { "name": "a", "scale": 9, "widgets": [] } ] }""");
+
+        Assert.Equal("$.scenes[0].scale", refusal.Path);
+    }
+
+    [Fact]
     public void S1075_names_are_unique()
     {
         var refusal = Refused("""{ "scenes": [ { "name": "a", "widgets": [] }, { "name": "a", "widgets": [] } ] }""");

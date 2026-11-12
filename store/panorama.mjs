@@ -192,6 +192,29 @@ export const frames = [
     shot: "edit",
     cards: [
       { screen: "edit", ...screen },
+      // The edit bar and the selected widget's menu enlarged, each over its place on the screen.
+      {
+        piece: ["edit", [462, 4, 996, 60]],
+        ground: true,
+        radius: 12,
+        lens: 0,
+        x: 130,
+        y: 440,
+        w: 1210,
+        z: 3,
+        bubbles: [{ at: [620, 12], dy: -52 }, { at: [1092, 12], dy: -52 }, { at: [1236, 56], dy: 52 }, { at: [1339, 12], dy: -52 }],
+      },
+      {
+        piece: ["edit", [981, 88, 326, 446]],
+        ground: true,
+        radius: 12,
+        lens: 0,
+        x: 1420,
+        y: 400,
+        w: 380,
+        z: 3,
+        bubbles: [{ at: [1144, 96], dy: -56 }],
+      },
     ],
   },
   {

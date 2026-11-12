@@ -157,7 +157,14 @@
       "label": "Anordnen",
       "headline": "Ordne es so an, wie du willst.",
       "sub": "Zieh Widgets, ändere ihre Grösse und lass sie am Raster einrasten. Jede Option steht direkt neben dem Widget.",
-      "caption": "Themias Bearbeitungsmodus: die Bearbeitungsleiste oben am Desktop, ein ausgewählter Kalender und daneben sein Menü mit den Optionen."
+      "caption": "Themias Bearbeitungsmodus: die Bearbeitungsleiste oben am Desktop, ein ausgewählter Kalender und daneben sein Menü mit den Optionen.",
+      "callouts": [
+        "Bildschirm und Ansicht",
+        "Widget hinzufügen",
+        "Zurück, vor, Raster",
+        "Einstellungen",
+        "Jede Option des Widgets"
+      ]
     },
     {
       "shot": "looks",

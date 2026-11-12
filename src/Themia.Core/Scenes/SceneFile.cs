@@ -27,7 +27,7 @@ public sealed record SceneScreen(double Width, double Height)
 /// optional wallpaper (a path relative to the scenes file), its widgets and, when present, the edit
 /// mode it is drawn in.
 /// </summary>
-public sealed record Scene(string Name, AppTheme Theme, string Design, string? Wallpaper, IReadOnlyList<SceneWidget> Widgets, SceneEdit? Edit)
+public sealed record Scene(string Name, AppTheme Theme, string Design, string? Wallpaper, IReadOnlyList<SceneWidget> Widgets, SceneEdit? Edit, double Scale = 1)
 {
     /// <summary>The widgets drawn selected (in edit mode only, [S-1077]).</summary>
     public IEnumerable<SceneWidget> Selected => Widgets.Where(w => w.Selected);

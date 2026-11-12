@@ -80,7 +80,7 @@ function panoramaHtml(lang, listing, at, n) {
           const z = `z-index:${c.z ?? 1};`;
           if (c.screen) {
             const box = { x: left + c.x, y: c.y, w: c.w, h: Math.round((c.w * 9) / 16) };
-            return `<div class="layer" style="${z}">${monitor(at, c.cuts ?? [c.screen], box, c.tilt ?? 0)}${bubblesHtml(worded(c.bubbles), c.screen, page, box)}</div>`;
+            return `<div class="layer" style="${z}">${monitor(at, c.cuts ?? [c.screen], box, c.tilt ?? 0)}${bubblesHtml(worded(c.bubbles), c.screen, { x: 0, y: 0, w: page.w, h: page.h }, box)}</div>`;
           }
           const crop = pieceRect(scenes, c.piece);
           const box = { x: left + c.x, y: c.y, w: c.w, h: Math.round((c.w * crop.h) / crop.w) };

@@ -6665,6 +6665,9 @@ installer). Release steps and the manual sideload test: `docs/STORE.md`.
 - **[S-1079]** A scene's widget has a name, for what points at it (the store's pages, `store/panorama.mjs`):
   its `id` (letters, digits and `-`), its kind where it gives none. Two widgets of a scene with one name are
   refused, so two of a kind need ids. Tests `SceneParserTests.S1079_`.
+- **[S-1080]** A scene's `scale` is its display's content scale (Display ▾, [S-6535]: 0.5 to 2, default 1; a
+  `like` scene takes the other's): every card's content is drawn at it times the widget's own, as on a
+  display set to it, so a desktop made for a picture reads like one at 125 %. Tests `SceneParserTests.S1080_`.
 - **[S-1076]** A scene's widget (`SceneWidgets.Build`): the kind installed, its default config with the
   `config` fragment merged over it (`StateJson.Merged`; a property the kind's config does not have is
   refused rather than dropped, a value of the wrong type too), the style one of the kind's, then `bare`

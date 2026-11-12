@@ -285,7 +285,8 @@ internal static class SceneRender
             var card = new WidgetCard(host, model) { Width = cell.Width, Height = cell.Height };
             card.ApplyEditMode(edit is not null);
             card.ApplySelection();
-            card.ApplyContentScale(WidgetScale.Effective(1, model.Scale));
+            // [S-1080] The scene's display scale times the widget's own, as the desktop applies them.
+            card.ApplyContentScale(WidgetScale.Effective(job.Scene.Scale, model.Scale));
             card.ApplyGap(design.WidgetGapPx);
             Canvas.SetLeft(card, cell.X);
             Canvas.SetTop(card, cell.Y);

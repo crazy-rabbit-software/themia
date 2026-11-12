@@ -157,7 +157,14 @@
       "label": "Arrange",
       "headline": "Arrange it your way.",
       "sub": "Drag, resize and snap widgets to a grid. Every option sits right beside the widget.",
-      "caption": "Themia's edit mode: the edit bar at the top of the desktop, a selected calendar and its menu of options beside it."
+      "caption": "Themia's edit mode: the edit bar at the top of the desktop, a selected calendar and its menu of options beside it.",
+      "callouts": [
+        "Display and view",
+        "Add a widget",
+        "Undo, redo, snap to grid",
+        "Settings",
+        "Every option of the widget"
+      ]
     },
     {
       "shot": "looks",
