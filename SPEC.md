@@ -7359,6 +7359,11 @@ composition one thing to arrange: an optional lock over ordinary cards, never a 
   language; `states` gives a kind its preview state. An id that is no recipe (those there are, listed),
   a point that leaves a widget outside the display, a state for a kind the recipe has not, or a widget's
   property on such an entry is refused at its path. Tests `SceneParserTests.S11860_`.
+- **[S-11861]** **A scene shows samples.** A scene's widget given no `state` shows its shipped sample
+  ([S-11850]) where its view has one (else its `sample` render state, else what it draws by itself), a
+  widget waiting for setup running for the preview first: a scene is a picture for other people, so it
+  never shows this PC's clock, player, accounts or files because a state was left out. A `state` still
+  names any render state.
 
 **The group's page.** Owner's decision 2026-11-12: the atoms each hold their own setting of what they are
 about (their place, account, drive, host, pair, symbol, period, Size), so a group acts as a container: one

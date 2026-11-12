@@ -122,7 +122,7 @@ internal static class SceneRender
     }
 
     /// <summary>What a run draws, every part checked before a window opens.</summary>
-    /// <param name="SampleWhereOffered">[S-2475] A widget given no state shows its view's "sample" state where it has one (a ready-made group's picture).</param>
+    /// <param name="SampleWhereOffered">Kept for the callers that name it: every scene shows samples where no state is given ([S-11861]).</param>
     private sealed record Job(SceneFile File, Scene Scene, IReadOnlyList<(SceneWidget Spec, WidgetInstance Model)> Widgets, string? Wallpaper, string OutPath, double Scale, bool SampleWhereOffered = false)
     {
         /// <summary>[S-2210] The sample picture painted as the wallpaper, or null.</summary>
@@ -467,8 +467,22 @@ internal static class SceneRender
             var (spec, _) = job.Widgets[i];
             var card = cards[i];
 
-            // [S-2475] A ready-made group's picture: a widget given no state shows its sample where it has one.
-            var sample = job.SampleWhereOffered && card.View is IWidgetPreviewState offered && offered.PreviewStates.Contains("sample", StringComparer.Ordinal)
+            // [S-11861] A widget given no state shows its sample where it has one: a scene is a picture for other
+            // people, so it never shows this PC's clock, player, accounts or files by accident.
+            if (spec.State is null && card.View is IWidgetSample shipped)
+            {
+                if (card.ShowsSetup)
+                {
+                    card.RunForPreview();
+                    await Task.Delay(200).ConfigureAwait(true);
+                }
+
+                await shipped.ShowSampleAsync().ConfigureAwait(true);
+                continue;
+            }
+
+            // A view with no shipped sample but a "sample" render state shows that one.
+            var sample = card.View is IWidgetPreviewState offered && offered.PreviewStates.Contains("sample", StringComparer.Ordinal)
                 ? "sample"
                 : null;
             if ((spec.State ?? sample) is not { } state)
