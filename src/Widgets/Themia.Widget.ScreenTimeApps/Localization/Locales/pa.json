@@ -4,6 +4,5 @@
   "widgetsC.screenTime.apps.desc": "ਤੁਹਾਡੇ ਵੱਲੋਂ ਵਰਤੀਆਂ ਐਪਾਂ, ਅਤੇ ਕਿੰਨੀ ਦੇਰ",
   "widgetsC.screenTime.apps.label": "ਸਕ੍ਰੀਨ ਸਮਾਂ ਐਪਾਂ",
   "widgetsC.screenTime.limitOverTip": "ਸੀਮਾ {limit} (ਪਾਰ)",
-  "widgetsC.screenTime.limitTip": "ਸੀਮਾ {limit}",
-  "widgetsC.screenTime.settings.most.label": "ਵੱਧ ਤੋਂ ਵੱਧ ਐਪਾਂ"
+  "widgetsC.screenTime.limitTip": "ਸੀਮਾ {limit}"
 }

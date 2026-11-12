@@ -19,7 +19,7 @@ Sections, grouped by area (file order below; search for the heading).
 - **Shell, windows and settings.** Displays (WP2); The edit bar and its pages (EDITBAR-PAGES); Desktop integration and suspend (WP3); Appearance engine (WP1); Notices, resilience and undo (WP4); Widget picker: search (WP5); Multi-select and the placement session (MULTISELECT-PLACEMENT); Widget styles (STYLES); Context menus (R4-MENUS); Views and the view bar (WP8); The Displays and Views pages (R4-NAV, R5-PAGES); Icon picker and showcase views (R4-ICONS); Keyboard lease (WP11); Widget keys (WIDGET-KEYS); Item selection (ITEM-SELECTION); View links (VIEW-LINKS); Keyboard in the shell (SHELL-KEYS); Motion: intros, hyperspace, hacker (WP9-MOTION); Desktop surface drops (WP10-SURFACE); The desktop layer (DESKTOP); Opening a widget's app (R7-OPEN, retired); Opening what a widget is about (CARD-OPEN); Shell hooks (PA); Removed widgets (R7-REMOVE); Shell skeleton and shared settings; Groups and ready-made groups (GROUPS); Shared widget settings: region and updates (SETTINGS-AUDIT); Colours, fonts and uninstall (the settings window, retired); Settings navigation icons (NAV-ICONS, retired); Logging (WP7); Network safety (WP6); The assistants' server (MCP); Localization infrastructure (LOC-INFRA); Microsoft Store package and licensing; Gallery.
 - **Look and layout.** Rows and the card edge; Looking like Windows; The widget header; The widget family: tokens and blocks (FAMILY); Widget sizing (SIZE); Responsive layout (shared foundation); Adding a widget; Layout pass over the ported widgets; Widget polish 1 (POLISH-1); Widget polish 2: leftover parity and layout gaps (POLISH-2); The Set up button (R5-SETUP); One sample day (SAMPLE-DAY).
 - **Accounts and sign-in.** Where account data comes from; Accounts and sign-in.
-- **System widgets.** (The seven meters, the seven detail widgets, Drive, Removable drives, Brightness, Mixer, Volume, Music, the Audio visualizer, the three screen-time widgets, Notifications and the Focus session are modules: their sections are their projects' `SPEC.md`; the sections named here keep the hub, the samplers and the rules they share, the SDK's.) System data hub (SYS-HUB); System meters; Meter framework and memory; CPU; Disk and ping; Battery and network; Network and ping; System widgets: GPU, mixer and screen time; Screen time: chart, donut and apps (SCREENTIME-SPLIT); GPU and screen time: the whole tile (SYS-P4); System atoms (SYS-ATOMS); System details (SYS-DETAILS); Mixer and Volume (SYS-P5); Power and Bluetooth; Peripheral batteries (DEVICE-BATTERIES); Device and location (DEVICE-AND-LOCATION); Quick-setting toggles (QUICK-TOGGLES); Windows' panels: notifications, focus session, brightness (WINDOWS-PANELS).
+- **System widgets.** (The seven meters, the seven detail widgets, Drive, Removable drives, Brightness, Mixer, Volume, Music, the Audio visualizer, the three screen-time widgets, Notifications and the Focus session are modules: their sections are their projects' `SPEC.md`; the sections named here keep the hub, the samplers and the rules they share, the SDK's.) System data hub (SYS-HUB); System meters; Meter framework and memory; CPU; Disk and ping; Battery and network; Network and ping; System widgets: GPU, mixer and screen time; Screen time: chart, donut and apps (SCREENTIME-SPLIT); Screen time, habits and the calendar as atoms (ATOMS-OFFICE); GPU and screen time: the whole tile (SYS-P4); System atoms (SYS-ATOMS); System details (SYS-DETAILS); Mixer and Volume (SYS-P5); Power and Bluetooth; Peripheral batteries (DEVICE-BATTERIES); Device and location (DEVICE-AND-LOCATION); Quick-setting toggles (QUICK-TOGGLES); Windows' panels: notifications, focus session, brightness (WINDOWS-PANELS).
 - **Time, desk and launch widgets.** (Clock, Countdown, Stopwatch, Pomodoro, Quote, Sun, Moon, Scratchpad, Recycle Bin, Alarm, Notes, Clipboard, the Habit tracker, the Gallery, Recent files, Shortcuts and the Folder are modules: their sections are their projects' `SPEC.md`, `src/Widgets/Themia.Widget.<Name>/`; so are Bluetooth, the seven power buttons and the thirteen quick-setting toggles, under System widgets, whose shared rules stay here.) Clock; Countdown and pomodoro; Stopwatch, alarm and drives (KARPO-2); Sun and moon; Audio visualizer (VISUALIZER); Clock, Sun & moon, Quote and Scratchpad: parity and the whole tile (PJ); Music and Pomodoro: parity and the whole tile (PF); Notes; Notes: note store and markdown editor; Clipboard and Countdown: the whole tile; Recent files (RECENT-FILES, the host's list); Recycle Bin (RECYCLE-BIN); Date (DATE); Habits; Shortcuts B: drop, reorder and app layouts (PD); Folder: the file browser (FOLDER, the host's file services); About and the settings file.
 - **Mail, calendar, tasks and online widgets.** (Every widget here is a module: Email, Calendar, Contacts, Next meeting, Week planner, Tasks, RSS, Weather now, Weather forecast, Rain next hour, Air quality, Exchange rates, Stocks and the Video stream; their own behaviour is their projects' `SPEC.md`, and the sections named here keep what they share with the host: the mail, office and task services, the offline sync and the SDK's rules.) Mail; Calendar and contacts; Tasks; Mail: the whole tile; Calendar and contacts: the whole tile; Calendar: five styles and shared dates (CAL-SPLIT); Tasks: using the whole tile, and the rest of the original; Weather: current conditions and forecast; Feed, stocks and the web widgets: parity and the whole tile (OFF-E); Web widgets: video stream; Web widgets: size ladder and overlay; Offline sync (SYNC); Next meeting (NEXT-MEETING); Week planner (WEEK-PLANNER); Air quality, rain and exchange rates (ONLINE-2).
 
@@ -3318,10 +3318,10 @@ by the list.
 
 ## Screen time: chart, donut and apps (SCREENTIME-SPLIT)
 
-Screen time is three widgets on the one tracker, so a view can put the week, the share and the list
-side by side and they light the same app together. Each is a module of its own
-(`src/Widgets/Themia.Widget.ScreenTimeChart`, `.ScreenTimeDonut`, `.ScreenTimeApps`, each its SPEC.md and
-its own ladder). What they share stays here: the SDK's `Widgets/{ScreenTimeRules,
+Screen time is four widgets (atoms, [S-11500]) on the one tracker, so a view can put the total, the
+week, the share and the list side by side and they light the same app together. Each is a module of
+its own (`src/Widgets/Themia.Widget.ScreenTime`, `.ScreenTimeChart`, `.ScreenTimeDonut`,
+`.ScreenTimeApps`, each its SPEC.md and its own sizes; no ladder is left). What they share stays here: the SDK's `Widgets/{ScreenTimeRules,
 ScreenTimePreferences,ScreenTimeDay}.cs` and `Model/Configs/ScreenTimeSettings.cs` (the period, the chart
 style and the settings the configs share), Themia.Sdk.WinUI's `Widgets/ScreenTimeShared.cs`
 (data, links, the look on the family's roles with each app the accent at its rank's step, `ScreenTimeLook.Brush`,
@@ -3329,12 +3329,13 @@ and a part not in focus at its wash, the day navigation on the Header block's pa
 `Shell/ScreenTimeMenuLines.cs` (the menus' shared lines), the `IScreenTimeSource` contract; Core's
 `Widgets/ScreenTimeTracker.cs` and `Storage/ScreenTimeStore.cs`; the host's `Services/ScreenTimeService.cs`.
 Tests `ScreenTimeRulesTests`, `ScreenTimeStoreTests`, `LocalStoreFixtureTests`, the module host's
-`ScreenTimeHostTests` (`S33xx_`).
+`OfficeRecipesTests` (the group, [S-11520]).
 
 - **[S-3320]** Three kinds replace Screen time (41, gone; load validation drops unknown kinds):
   `ScreenTimeChart` (80), `ScreenTimeDonut` (81), `ScreenTimeApps` (82), each with its own config
   (`screenTimeChart`, `screenTimeDonut`, `screenTimeApps`) and add-menu entry in System › Screen time ([S-3511]). They read the
-  one tracker ([S-450], [S-458]); none has a timer or polls.
+  one tracker ([S-450], [S-458]); none has a timer or polls. The reading `screenTime` joined them as a
+  fourth (2026-11-12, [S-11500]): the chart's figure became it.
 - **[S-3321]** Each widget has its own `Period` (Day, Week = last 7 days, Month = last 30 days, rolling
   and ending today; an unknown value reads as Day). A day period has the day navigation of [S-454]
   in the header (the donut and the list, each its own pinned day); a window shows its name there.
@@ -3405,7 +3406,7 @@ Tests `ScreenTimeRulesTests`, `ScreenTimeStoreTests`, `LocalStoreFixtureTests`, 
   else the largest. No asset (or one that will not decode, logged) leaves the icon to [S-3960]'s path.
   The theme is in the cache key of a packaged icon only; the screen-time, mixer and process rows ask
   again when their theme changes.
-- **[S-3351]** As many whole rows as fit, up to the ceiling; when apps are left over the last row is
+- **[S-3351]** The config's rows ([S-11510]); when apps are left over the last row is
   Other, so the rows add up to the total (`ScreenTimeRules.ListNamed`). Rows are reused by position.
 - **[S-2272]** **One palette: the apps of a period are a ramp of the accent by rank**
   (`ScreenTimeRules.Ramp`, `Tones`, `ToneOf`, `ScreenTimeTone`): the app with the most time among what
@@ -3421,6 +3422,19 @@ Tests `ScreenTimeRulesTests`, `ScreenTimeStoreTests`, `LocalStoreFixtureTests`, 
   `SampleScreenTime`; `hovered` lights Code and `selected` selects Edge through the render's one board, so every card on the page shows it.
   `packaged` lists the packaged apps running on the machine by their real executables, and
   Explorer, so their icons go through [S-3960]'s path.
+
+## Screen time, habits and the calendar as atoms (ATOMS-OFFICE)
+
+Owner's decision 2026-11-12 (Widget sizing (SIZE), [S-2438]): the last of the lists' and the office's
+kinds state their sizes and show what their config says at every size. Screen time is four atoms
+(`screenTime`, `screenTimeChart`, `screenTimeApps`, `screenTimeDonut`; [S-11500], [S-11505], [S-11510],
+[S-11515] in their modules' `SPEC.md`), the habit tracker one ([S-11530]), the calendar one with five
+styles ([S-11540]..). Tests: each module's, `OfficeRecipesTests` (the groups).
+
+- **[S-11520]** **Screen time**, a ready-made group (`ReadyMadeGroups.ScreenTime`, home Screen time):
+  the reading (300 × 100, with its header) over the bars (300 × 116) over the apps for the week
+  (`{ "period": "Week" }`, five rows, headerless, 300 × 164), one column, one panel: what the old
+  Screen time card showed, tighter. Each box is the size its kind takes with that header.
 
 ## Layout pass over the ported widgets
 
@@ -5685,11 +5699,11 @@ menu), `Services/GpuSampler.cs`, the SDK's `GpuRules` and `MeterFace`;
 - [S-1200], [S-1201]: moved with the GPU widget into its module's `SPEC.md` (`src/Widgets/Themia.Widget.Gpu/`).
 - **[S-1207]** *(Retired: one adapter per widget, [S-433]; nothing shares the tile.)*
 - **[S-1210]** The ring's total stands in its hole on the family's Readout steps (`ScreenTimeRules.Figure`,
-  [S-6702]): the larger of 28 and 40 (capped by the area as every data widget's number) whose line,
+  [S-6702]): the larger of 28 and, on a large ring, 40 ([S-11515]) whose line,
   and the line under it where it fits, stands inside the hole as the rectangle the circle holds; when
   `4h 37m` fits on none, the compact form (`4.6h`, `13h` from ten hours, `37m`, `<1m`) on the largest
   that holds it, else in BodyStrong. Never clipped; the line under is cut to the hole's width.
-- **[S-1211]** *(The app list's since [S-3352]; `ShowList` retired with the legend.)* `MaxApps` is a ceiling over what fits: 0 (the default) lists as many apps as the tile has
+- **[S-1211]** *(Retired by [S-11510]: `MaxApps` became the list's Rows.)* `MaxApps` is a ceiling over what fits: 0 (the default) lists as many apps as the tile has
   whole rows for, 1–50 at most that many; an "Other" row joins when apps are left over. `ShowList`
   (on) switches the legend off. Supersedes the fixed default of 7 and "0 lists none" in [S-452].
 - **[S-1212]** *(Retired by [S-3341]/[S-3351]: the drawings split out seven apps, the list names what fits.)*
@@ -5702,7 +5716,7 @@ menu), `Services/GpuSampler.cs`, the SDK's `GpuRules` and `MeterFace`;
   bar each scaled to the busiest, the shown day in the accent, weekday under each; a click shows that
   day (today unpins) within the navigation's reach.
 - **[S-1215]** *(Retired with the stats line, [S-1213].)*
-- **[S-1216]** *(Holds for each of the three, [S-3332]/[S-3342]/[S-3352].)* Screen time lays out from the card's `WidgetArea` (`IWidgetSizeAware`), not its own
+- **[S-1216]** *(Retired by [S-11500]..[S-11515]: the four state their sizes; none reads its area for what it shows.)* Screen time lays out from the card's `WidgetArea` (`IWidgetSizeAware`), not its own
   `SizeChanged`; a debug render never hooks or writes ([S-459]).
 - Not ported / different: the original's GPU `visibleMetrics` order (fixed ladder order); per-engine
   history charts (one chart, the load).

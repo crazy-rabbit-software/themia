@@ -1,5 +1,4 @@
 {
-  "screentime.goalPerDay": "/ 每天 {value}",
   "styles.screenTimeChart.bars": "長條圖",
   "styles.screenTimeChart.calendar": "行事曆",
   "widgetsC.screenTime.chart.desc": "逐日顯示一週或一個月的螢幕使用時間",

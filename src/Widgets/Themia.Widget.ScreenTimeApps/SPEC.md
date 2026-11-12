@@ -12,29 +12,34 @@ history the previews draw ([S-3355], the SDK's `SampleScreenTime`).
 Owning files: everything in this folder: `ScreenTimeAppsModule.cs` (descriptor, view factory, menu
 lines, JSON context), `ScreenTimeAppsConfig.cs` (the period, the ceiling, the figures),
 `ScreenTimeAppsView.cs` (the rows through its host, the keys) with `.Row.cs` (a row, its icon through
-the installed `AppIconSource`), `ScreenTimeAppsLayout.cs` (the ladder), `ScreenTimeAppsMenu.cs` (its
+the installed `AppIconSource`), `ScreenTimeAppsLayout.cs` (the rows as its config says), `ScreenTimeAppsMenu.cs` (its
 properties menu, ending with the shared lines), `Preview/` (Debug renders: `--state sample|hovered|selected|packaged`),
 `Localization/Locales/` (its own `ScreenTimeAppsStr`, 30 languages). Tests: `Tests/ScreenTimeAppsTests.cs`,
-`Tests/ScreenTimeAppsMenuTests.cs` (run by `tests/Themia.Modules.Tests`); its config under the root's ceiling is the module host's
-`ScreenTimeHostTests`.
+`Tests/ScreenTimeAppsMenuTests.cs` (run by `tests/Themia.Modules.Tests`).
 
-- **[S-3350]** `ScreenTimeAppsConfig`: `Period`, `MaxApps` ([S-1211]), `ShowAverage` (on),
+- **[S-3350]** `ScreenTimeAppsConfig`: `Period`, `Rows` and `Lines` ([S-11510]), `ShowAverage` (on),
   `ShowPercent` (off). A row is the family's Row block ([S-6711], G6 2026-10-29): the app's icon as
-  its lead (32 from a width of 180, else 16, [S-6704]; while it loads and when it has none, a 16 dot
-  in the app's tone, the accent at its rank's step, [S-2272]: the initial chip went), the name (Body, primary), the time as the
-  value (Body, secondary; Critical over its own limit, and the tooltip says the limit). The share and,
-  over a window, the per-day average (as far as they are on) are the row's second line ("38% · 2h
-  10m/day", Caption secondary) where the tier gives rows two lines; else they are in the tooltip only.
+  its lead (16 on a one-line row, 32 on a two-line one, [S-6704]; while it loads and when it has none,
+  a 16 dot in the app's tone, the accent at its rank's step, [S-2272]: the initial chip went), the name
+  (Body, primary), the time as the value (Body, secondary; Critical over its own limit, and the tooltip
+  says the limit). The share and, over a window, the per-day average (as far as they are on) are the
+  row's second line ("38% · 2h 10m/day", Caption secondary) where its Lines are two; else they are in
+  the tooltip only.
 - **[S-3356]** Every option is on the properties menu ([S-3719], user request 2026-10-19); there is
   no settings page: Appearance ([S-3723]), **Period** (Day, Week, Month, [S-3321]), under a divider
-  the list's own (user request 2026-10-19): **Most apps listed** (typed, 0 to 50; 0 reads "As many as fit", [S-1211]), **Daily average** (over a window
+  the list's own (user request 2026-10-19): **Rows** and, where a row has figures for a second line,
+  **Lines** ([S-11510], `KitMenuLines.Rows`), **Daily average** (over a window
   only, [S-6074]: a day's average is its time, so the figure would repeat it), **Share of total**, then the shared lines ([S-3323]: of the limits each app's).
-- **[S-3352]** Ladder (`ScreenTimeAppsLayout.Apps`): whole rows of 28 (40 with the figures' second
-  line from a regular tile both ways, [S-6712]) in the view's area less the card's bottom inset; the
-  time always, the name from 160 DIPs wide (under it a row is the icon and the time, the name in its
-  tooltip: a squeezed name read as one letter), the 32 icon from 180. No headline, no footer ([S-666]):
-  the total is the donut's and the chart's. Nothing to list (not recording, no activity) is the Status
-  block's one row at the top ([S-6714]), not a centred empty state.
+- **[S-3352]** *(Retired by [S-11510]: no ladder; what it shows is its config's.)*
+- **[S-11510]** **The list states its rows** (owner decision 2026-11-12, [S-2438]; `MaxApps` became
+  Rows): `Rows` 1..20 (a new one 5) and `Lines` 1 or 2 (a new one 1) on the kit's rows contract
+  (`IKitRows`, [S-2440]): its height is 36 + its rows (28, or 40 where its Lines are two and a row has
+  figures for the second: `ScreenTimeAppsConfig.RowsShown`) + 12, 220..520 wide (a new one 300 × 188),
+  dragging the bottom edge sets Rows (`KitSizing.SizeSets`). Every row has its icon, its name and its
+  time at every width; the busiest apps fill the rows, the last one Other when apps are left over
+  ([S-3351]); fewer apps leave the rows under them empty. No headline, no footer ([S-666]): the total
+  is the reading's. Nothing to list (not recording, no activity) is the Status block's one row at the
+  top ([S-6714]). Stored rows or lines out of range are repaired to the nearest.
 - **[S-3353]** Linked focus: the focused row has the item layer's hover fill and every other row's
   texts are tertiary (a row has no opacity of its own, [S-6705]); the selected row keeps the selected
   fill (Fluent's 3 DIP selection pill went: not a family shape); the keyboard cursor has the Row

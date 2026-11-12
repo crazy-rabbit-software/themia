@@ -4,6 +4,5 @@
   "widgetsC.screenTime.apps.desc": "使ったアプリとその時間",
   "widgetsC.screenTime.apps.label": "スクリーン タイム アプリ",
   "widgetsC.screenTime.limitOverTip": "制限 {limit} (超過)",
-  "widgetsC.screenTime.limitTip": "制限 {limit}",
-  "widgetsC.screenTime.settings.most.label": "表示するアプリの最大数"
+  "widgetsC.screenTime.limitTip": "制限 {limit}"
 }

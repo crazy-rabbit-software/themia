@@ -1,5 +1,4 @@
 {
-  "screentime.goalPerDay": "/ {value} 每天",
   "styles.screenTimeChart.bars": "柱状图",
   "styles.screenTimeChart.calendar": "日历",
   "widgetsC.screenTime.chart.desc": "按天显示一周或一个月的屏幕使用时间",

@@ -4,6 +4,5 @@
   "widgetsC.screenTime.apps.desc": "사용한 앱과 사용 시간",
   "widgetsC.screenTime.apps.label": "화면 사용 시간 앱",
   "widgetsC.screenTime.limitOverTip": "제한 {limit}(초과)",
-  "widgetsC.screenTime.limitTip": "제한 {limit}",
-  "widgetsC.screenTime.settings.most.label": "최대 표시 앱 수"
+  "widgetsC.screenTime.limitTip": "제한 {limit}"
 }

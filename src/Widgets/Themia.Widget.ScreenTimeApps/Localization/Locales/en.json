@@ -1,13 +1,9 @@
 {
-  "$englishOnly": [
-    "widgetsC.screenTime.settings.most.fit"
-  ],
+  "$englishOnly": [],
   "screentime.metric.average": "Daily average",
   "screentime.metric.percent": "Share of total",
   "widgetsC.screenTime.apps.desc": "The apps you used, and for how long",
   "widgetsC.screenTime.apps.label": "Screen time apps",
   "widgetsC.screenTime.limitOverTip": "limit {limit} (over)",
-  "widgetsC.screenTime.limitTip": "limit {limit}",
-  "widgetsC.screenTime.settings.most.label": "Most apps listed",
-  "widgetsC.screenTime.settings.most.fit": "As many as fit"
+  "widgetsC.screenTime.limitTip": "limit {limit}"
 }

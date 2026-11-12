@@ -1,5 +1,4 @@
 {
-  "screentime.goalPerDay": "من {value}/يوم",
   "styles.screenTimeChart.bars": "أشرطة",
   "styles.screenTimeChart.calendar": "تقويم",
   "widgetsC.screenTime.chart.desc": "وقت الشاشة يومًا بيوم، على مدى أسبوع أو شهر",

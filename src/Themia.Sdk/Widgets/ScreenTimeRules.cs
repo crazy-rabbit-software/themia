@@ -71,9 +71,6 @@ public static class ScreenTimeRules
     /// </summary>
     public const int DrawingApps = 7;
 
-    /// <summary>[S-452] The most the legend can be set to list.</summary>
-    public const int MaxAppsLimit = 50;
-
     /// <summary>The key of the aggregate remainder wedge. Never a real app key: those are file stems.</summary>
     public const string OtherKey = "__other__";
 
@@ -112,23 +109,6 @@ public static class ScreenTimeRules
         => seconds >= 3600 && seconds % 3600 < 60
             ? Strings.Format(locale, Str.WidgetsC_ScreenTime_Dur_Hours, ("hours", LocaleFormat.Integer(locale, seconds / 3600)))
             : FormatDuration(locale, seconds);
-
-    /// <summary>[S-1211] The setting clamped to 0..<see cref="MaxAppsLimit"/>; 0 is "as many as fit".</summary>
-    public static int EffectiveMaxApps(int maxApps) => Math.Clamp(maxApps, 0, MaxAppsLimit);
-
-    /// <summary>[S-1211] The most apps the legend may name: the setting, or the limit when it is 0 ("as many as fit").</summary>
-    public static int Ceiling(int maxApps) => maxApps > 0 ? EffectiveMaxApps(maxApps) : MaxAppsLimit;
-
-    /// <summary>
-    /// [S-1211] Rows the list would like: every app up to the ceiling, plus an "Other" row when apps
-    /// are left over. What the tile has room for is decided by the layout, in whole rows.
-    /// </summary>
-    public static int ListWanted(int maxApps, int appCount)
-    {
-        var apps = Math.Max(0, appCount);
-        var ceiling = Ceiling(maxApps);
-        return apps <= ceiling ? apps : ceiling + 1;
-    }
 
     /// <summary>
     /// [S-3351] How many apps a list of <paramref name="rows"/> rows names: all of them when they fit,
@@ -170,15 +150,15 @@ public static class ScreenTimeRules
 
     /// <summary>
     /// [S-1210] [S-6702] The donut's figure in its hole, on the family's steps: the full duration on the
-    /// largest Readout step (28 and 40, capped by the area as every data widget's number) whose line,
+    /// largest Readout step up to <paramref name="largest"/> (28, or 40 where the donut's Size says so, [S-11515]) whose line,
     /// and the line under it when <paramref name="under"/> asks for one, stands inside the hole as the
     /// rectangle a circle of <paramref name="hole"/> holds; else the compact duration ("4.6h") on the
     /// largest that does; else the compact one in BodyStrong, the family's floor for text. The line under
     /// is shown only where its step's line fits too, so the value never gives way to it.
     /// </summary>
-    public static ScreenTimeFigure Figure(double seconds, WidgetArea area, double hole, bool under)
+    public static ScreenTimeFigure Figure(double seconds, TypeStep largest, double hole, bool under)
     {
-        var ceiling = ReadoutRules.Ceiling(area);
+        var ceiling = FamilyType.BaseOf(largest);
         foreach (var text in new[] { FormatDuration(seconds), CompactDuration(seconds) })
         {
             ScreenTimeFigure? best = null;

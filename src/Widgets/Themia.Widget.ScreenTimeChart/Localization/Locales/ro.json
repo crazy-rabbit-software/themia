@@ -1,5 +1,4 @@
 {
-  "screentime.goalPerDay": "din {value}/zi",
   "styles.screenTimeChart.bars": "Bare",
   "styles.screenTimeChart.calendar": "Calendar",
   "widgetsC.screenTime.chart.desc": "Timpul pe ecran zi de zi, pe o săptămână sau o lună",

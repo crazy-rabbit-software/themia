@@ -1,5 +1,4 @@
 {
-  "screentime.goalPerDay": "dari {value}/hari",
   "styles.screenTimeChart.bars": "Batang",
   "styles.screenTimeChart.calendar": "Kalender",
   "widgetsC.screenTime.chart.desc": "Waktu layar Anda per hari, selama seminggu atau sebulan",

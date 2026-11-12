@@ -4,6 +4,5 @@
   "widgetsC.screenTime.apps.desc": "ನೀನು ಬಳಸಿದ ಆ್ಯಪ್‌ಗಳು, ಮತ್ತು ಎಷ್ಟು ಹೊತ್ತು",
   "widgetsC.screenTime.apps.label": "ಪರದೆ ಸಮಯದ ಆ್ಯಪ್‌ಗಳು",
   "widgetsC.screenTime.limitOverTip": "ಮಿತಿ {limit} (ಮೀರಿದೆ)",
-  "widgetsC.screenTime.limitTip": "ಮಿತಿ {limit}",
-  "widgetsC.screenTime.settings.most.label": "ಹೆಚ್ಚೆಂದರೆ ಪಟ್ಟಿ ಮಾಡುವ ಆ್ಯಪ್‌ಗಳು"
+  "widgetsC.screenTime.limitTip": "ಮಿತಿ {limit}"
 }

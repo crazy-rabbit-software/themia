@@ -1,0 +1,5 @@
+{
+  "screenTime.label": "Timp petrecut pe ecran",
+  "screentime.goalPerDay": "din {value}/zi",
+  "screentime.ofGoal": "din {value}"
+}

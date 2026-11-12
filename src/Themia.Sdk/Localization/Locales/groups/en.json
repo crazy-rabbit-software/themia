@@ -70,7 +70,9 @@
     "groups.recipe.quickSettings",
     "groups.recipe.quickSettingsAbout",
     "groups.recipe.power",
-    "groups.recipe.powerAbout"
+    "groups.recipe.powerAbout",
+    "groups.recipe.screenTime",
+    "groups.recipe.screenTimeAbout"
   ],
   "groups.undo.group": "group",
   "groups.undo.ungroup": "ungroup",
@@ -145,5 +147,7 @@
   "groups.recipe.quickSettings": "Quick settings",
   "groups.recipe.quickSettingsAbout": "Wi-Fi, Bluetooth, do not disturb and night light",
   "groups.recipe.power": "Power",
-  "groups.recipe.powerAbout": "Lock, sleep, restart and shut down"
+  "groups.recipe.powerAbout": "Lock, sleep, restart and shut down",
+  "groups.recipe.screenTime": "Screen time",
+  "groups.recipe.screenTimeAbout": "Your week's screen time, day by day, and the apps it went to"
 }

@@ -1,0 +1,5 @@
+{
+  "screenTime.label": "Thời gian sử dụng",
+  "screentime.goalPerDay": "trên {value}/ngày",
+  "screentime.ofGoal": "trên {value}"
+}

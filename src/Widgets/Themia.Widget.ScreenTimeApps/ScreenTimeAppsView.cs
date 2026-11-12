@@ -21,7 +21,7 @@ namespace Themia.App.Widgets;
 /// The history is the app's one tracker ([S-458]); the widget has no timer of its own.
 /// </para>
 /// </summary>
-internal sealed partial class ScreenTimeAppsView : Grid, IWidgetView, IWidgetSurfaceAware, IWidgetHeaderContent, IWidgetSizeAware, IWidgetKeys, IWidgetContextActions
+internal sealed partial class ScreenTimeAppsView : Grid, IWidgetView, IWidgetSurfaceAware, IWidgetHeaderContent, IWidgetKeys, IWidgetContextActions
 {
     private readonly ScreenTimeLinks _links;
     private readonly ScreenTimeDayNav _nav;
@@ -36,7 +36,6 @@ internal sealed partial class ScreenTimeAppsView : Grid, IWidgetView, IWidgetSur
     private ScreenTimeAppsConfig _config = new();
     private ScreenTimeData? _data;
     private IReadOnlyList<ScreenTimeSegment> _segments = [];
-    private WidgetArea _area;
     private bool _detached;
 
     private readonly IWidgetHost _host;
@@ -68,12 +67,6 @@ internal sealed partial class ScreenTimeAppsView : Grid, IWidgetView, IWidgetSur
     public IReadOnlyList<WidgetAction> ContextActions => _nav.ContextActions;
 
     public void Bind(IWidgetSurface surface) => _surface = surface;
-
-    public void ApplySize(WidgetArea area)
-    {
-        _area = area;
-        Render();
-    }
 
     public void Attach(Ticker ticker, WidgetConfig config)
     {
@@ -181,20 +174,13 @@ internal sealed partial class ScreenTimeAppsView : Grid, IWidgetView, IWidgetSur
     }
 
     /// <summary>
-    /// [S-3351] [S-3352] As many whole rows as the tile has (up to the setting's ceiling); when apps
-    /// are left over the last row is "Other", so the rows add up to the total. Rows are reused by
-    /// position as the data changes.
+    /// [S-3351] [S-11510] The config's rows; when apps are left over the last row is "Other", so the
+    /// rows add up to the total. Rows are reused by position as the data changes.
     /// </summary>
     private void Lay(ScreenTimeData data)
     {
-        if (!_area.IsMeasured)
-        {
-            return;
-        }
-
-        var wanted = ScreenTimeRules.ListWanted(_config.MaxApps, data.Apps.Count);
         var average = data.Window && _config.ShowAverage;
-        var plan = ScreenTimeAppsLayout.Apps(_area, wanted, ScreenTimeAppsLayout.Figures(data.Window, _config.ShowAverage, _config.ShowPercent));
+        var plan = ScreenTimeAppsLayout.Apps(_config);
         var named = ScreenTimeRules.ListNamed(plan.Rows, data.Apps.Count);
         _segments = plan.Rows == 0 ? [] : ScreenTimeRules.Segments(data.Apps, data.Total, named, Str.Screentime_Other.Text());
         var rows = Math.Min(plan.Rows, _segments.Count);

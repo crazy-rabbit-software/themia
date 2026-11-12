@@ -7,6 +7,7 @@ using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
 using Themia.Sdk;
+using Themia.Sdk.Kit;
 using Themia.Sdk.WinUI;
 using Themia.Widget.ScreenTimeApps;
 
@@ -28,9 +29,10 @@ public sealed class ScreenTimeAppsModule : IWidgetModule
         Label = ScreenTimeAppsStr.WidgetsC_ScreenTime_Apps_Label.Local(),
         Description = ScreenTimeAppsStr.WidgetsC_ScreenTime_Apps_Desc.Local(),
         Glyph = Glyphs.ScreenTime,
-        Sizing = _ => WidgetSizing.Legacy(280, 300),
+        Sizing = c => KitSizing.Sizing(((ScreenTimeAppsConfig)c).RowsShown, addFooter: false),
+        SizeSets = (c, size) => KitSizing.SizeSets(c, size, ((ScreenTimeAppsConfig)c).RowsShown, addFooter: false),
         Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader,
-        Add = new(AddFolderId.ScreenTime, 0, 2),
+        Add = new(AddFolderId.ScreenTime, 0, 3),
     };
 
     /// <summary>[S-3719] Every option is on the properties menu: the widget has no settings page.</summary>

@@ -17,11 +17,11 @@ namespace Themia.App.Widgets;
 
 /// <summary>
 /// [S-3330] The last week or month a day at a time: one bar per day stacked by app (the busiest
-/// seven and "Other", in the same data colours as the donut and the list), or a calendar of rings,
-/// with the period's figure over it, the family's Readout ([S-6702]). Hovering or selecting an app anywhere on the view lights its
+/// seven and "Other", in the same data colours as the donut and the list), or a calendar of rings;
+/// its total is the reading atom's ([S-11500]). Hovering or selecting an app anywhere on the view lights its
 /// part of every bar and dims the rest; the calendar then shades that app's days ([S-3333]).
 /// <para>
-/// [S-3325] The drawing is built when what it is made of changes (the style, the days, the plan, the
+/// [S-3325] The drawing is built when what it is made of changes (the style, the days, the
 /// size, today, the language) and otherwise moved in place: a read that adds thirty seconds to today
 /// sets one bar part's height and a tooltip, and builds nothing.
 /// </para>
@@ -33,8 +33,6 @@ internal sealed partial class ScreenTimeChartView : Grid, IWidgetView, IWidgetSu
     /// <summary>[S-454] The header names the window ("Last 7 days"): the day navigation's label alone.</summary>
     private readonly ScreenTimeDayNav _nav;
 
-    /// <summary>[S-3332] The figure: the family's Readout ([S-6702]) at the content's top.</summary>
-    private readonly ReadoutBlock _readout = new() { Margin = Family.SideInset };
     private readonly Grid _drawing = new() { FlowDirection = FlowDirection.LeftToRight, Margin = Family.SideInset };
 
     /// <summary>[S-6714] Nothing to draw: the Status block's one row at the top.</summary>
@@ -65,7 +63,6 @@ internal sealed partial class ScreenTimeChartView : Grid, IWidgetView, IWidgetSu
 
     /// <summary>[S-2272] Each drawn app's tone by its rank in the period.</summary>
     private IReadOnlyDictionary<string, ScreenTimeTone> _tones = new Dictionary<string, ScreenTimeTone>();
-    private ScreenTimeChartPlan _plan;
     private WidgetArea _area;
     private int? _day;
     private bool _detached;
@@ -87,14 +84,7 @@ internal sealed partial class ScreenTimeChartView : Grid, IWidgetView, IWidgetSu
             }
         };
 
-        RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
-        RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
-        _readout.VerticalAlignment = VerticalAlignment.Top;
         _drawing.VerticalAlignment = VerticalAlignment.Top;
-        SetRow(_drawing, 1);
-        SetRowSpan(_empty, 2);
-
-        Children.Add(_readout);
         Children.Add(_drawing);
         Children.Add(_empty);
     }
@@ -209,7 +199,6 @@ internal sealed partial class ScreenTimeChartView : Grid, IWidgetView, IWidgetSu
         _empty.Show(StatusKind.Empty, Glyphs.ScreenTimeChart, message);
         _empty.Visibility = Visibility.Visible;
         _drawing.Visibility = Visibility.Collapsed;
-        _readout.Visibility = Visibility.Collapsed;
     }
 
     private void Clear()
@@ -225,7 +214,7 @@ internal sealed partial class ScreenTimeChartView : Grid, IWidgetView, IWidgetSu
         _drawing.RowDefinitions.Clear();
     }
 
-    /// <summary>[S-3331] [S-3332] The figure over the drawing when it fits, and the drawing in what is left.</summary>
+    /// <summary>[S-3331] [S-11505] The drawing, one height for its style and period, as wide as the card less its inset.</summary>
     private void Draw(ScreenTimeData data)
     {
         if (!_area.IsMeasured)
@@ -233,25 +222,15 @@ internal sealed partial class ScreenTimeChartView : Grid, IWidgetView, IWidgetSu
             return;
         }
 
-        _plan = ScreenTimeChartLayout.Chart(_area, ChartStyle, ScreenTimeRules.FormatDuration(WorstSeconds));
         _segments = ScreenTimeRules.Segments(data.Apps, data.Total, ScreenTimeRules.DrawingApps, Str.Screentime_Other.Text());
         _tones = ScreenTimeRules.Tones(_segments);
 
-        _readout.Visibility = _plan.Total is null ? Visibility.Collapsed : Visibility.Visible;
-        if (_plan.Total is { } step)
-        {
-            _readout.Use(step);
-        }
-
-        // The Readout's 8 over the drawing.
-        _drawing.Margin = _plan.Total is null ? Family.SideInset : new Thickness(FamilySpace.Inset, FamilySpace.S2, FamilySpace.Inset, 0);
-
         var width = Math.Max(1, _area.Width - (2 * FamilySpace.Inset));
-        var height = Math.Max(1, _plan.Drawing);
+        var height = ScreenTimeChartLayout.Drawing(ChartStyle, _config.Period);
         _drawing.Height = height;
 
         // [S-3325] Built once for what it is made of; every other read moves what is there.
-        var frame = new Frame(ChartStyle, data.Range.Count, _plan, width, height, Today.Key, data.Range.Count > 0 ? data.Range[0].Date : string.Empty, Strings.Current);
+        var frame = new Frame(ChartStyle, data.Range.Count, width, height, Today.Key, data.Range.Count > 0 ? data.Range[0].Date : string.Empty, Strings.Current);
         if (frame != _frame)
         {
             Clear();
@@ -271,14 +250,10 @@ internal sealed partial class ScreenTimeChartView : Grid, IWidgetView, IWidgetSu
         ApplyFocus();
     }
 
-    /// <summary>[S-3332] The widest figure the Readout is sized on, so its step does not jump as the hours climb: 888h 59m.</summary>
-    private const double WorstSeconds = (888 * 3600) + (59 * 60);
-
     /// <summary>[S-3325] What a drawing is built for: a read that matches it is drawn into the one on screen.</summary>
     private readonly record struct Frame(
         ScreenTimeChartStyle Style,
         int Days,
-        ScreenTimeChartPlan Plan,
         double Width,
         double Height,
         string Today,
@@ -332,7 +307,7 @@ internal sealed partial class ScreenTimeChartView : Grid, IWidgetView, IWidgetSu
             chart.Children.Add(column);
         }
 
-        if (_plan.Labels && count > 0)
+        if (count > 0)
         {
             var first = EndLabel(data.Range[0].Date, count, HorizontalAlignment.Left);
             var last = EndLabel(data.Range[count - 1].Date, count, HorizontalAlignment.Right);
@@ -361,7 +336,7 @@ internal sealed partial class ScreenTimeChartView : Grid, IWidgetView, IWidgetSu
     }
 
     /// <summary>The bars' own height: the drawing less the end labels' row.</summary>
-    private double BarArea(double height) => Math.Max(1, height - (_plan.Labels ? ScreenTimeChartLayout.LabelRow : 0));
+    private static double BarArea(double height) => Math.Max(1, height - ScreenTimeChartLayout.LabelRow);
 
     /// <summary>
     /// [S-3331] [S-3325] Each day's parts at their share of the busiest day, the stack's outer corners
@@ -448,39 +423,35 @@ internal sealed partial class ScreenTimeChartView : Grid, IWidgetView, IWidgetSu
     {
         var cells = ScreenTimeRules.HeatmapCells(data.Totals.Count);
         var weeks = Math.Max(1, cells.Count / ScreenTimeRules.HeatmapColumns);
-        var plan = ScreenTimeChartLayout.Calendar(width, height, weeks);
-        var skip = (weeks - plan.Rows) * ScreenTimeRules.HeatmapColumns;
+        var cell = ScreenTimeChartLayout.Cell;
 
+        // [S-11505] The columns share the width; each ring keeps its one size, centred in its column.
         var grid = new Grid
         {
             ColumnSpacing = FamilySpace.S1,
             RowSpacing = FamilySpace.S1,
-            HorizontalAlignment = HorizontalAlignment.Left,
+            Width = width,
             VerticalAlignment = VerticalAlignment.Top,
         };
 
         for (var c = 0; c < ScreenTimeRules.HeatmapColumns; c++)
         {
-            grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(plan.Cell) });
+            grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
         }
 
-        if (plan.Header)
+        grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(FamilyType.Caption.LineHeight) });
+        for (var r = 0; r < weeks; r++)
         {
-            grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(FamilyType.Caption.LineHeight) });
+            grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(cell) });
         }
 
-        for (var r = 0; r < plan.Rows; r++)
-        {
-            grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(plan.Cell) });
-        }
-
-        var first = plan.Header ? 1 : 0;
+        const int first = 1;
         var today = Today.Key;
         var labelled = new bool[ScreenTimeRules.HeatmapColumns];
         _letters.Clear();
         _todayColumn = -1;
 
-        for (var i = skip; i < cells.Count; i++)
+        for (var i = 0; i < cells.Count; i++)
         {
             if (cells[i] is not { } index)
             {
@@ -489,9 +460,9 @@ internal sealed partial class ScreenTimeChartView : Grid, IWidgetView, IWidgetSu
 
             var column = i % ScreenTimeRules.HeatmapColumns;
             var (date, _) = data.Totals[index];
-            var mark = new Cell(plan.Cell >= ScreenTimeChartLayout.RingCell, plan.Cell);
+            var mark = new Cell(cell);
 
-            SetRow(mark.Box, ((i - skip) / ScreenTimeRules.HeatmapColumns) + first);
+            SetRow(mark.Box, (i / ScreenTimeRules.HeatmapColumns) + first);
             SetColumn(mark.Box, column);
             HoverDay(mark.Box, index);
             _cells.Add((index, mark));
@@ -503,7 +474,7 @@ internal sealed partial class ScreenTimeChartView : Grid, IWidgetView, IWidgetSu
                 _todayColumn = column;
             }
 
-            if (plan.Header && !labelled[column] && LocalDay.TryParse(date, out var day))
+            if (!labelled[column] && LocalDay.TryParse(date, out var day))
             {
                 labelled[column] = true;
                 var label = Family.Text(FamilyType.Caption, ColourRole.TextTertiary, LocaleFormat.WeekdayName(Strings.Current, day.DayOfWeek, NameWidth.Narrow));
@@ -529,39 +500,22 @@ internal sealed partial class ScreenTimeChartView : Grid, IWidgetView, IWidgetSu
     private int _todayColumn = -1;
 
     /// <summary>
-    /// [S-3331] One calendar cell: a ring of its day's share from 16 (the Chart block's), a dot under it
-    /// (the accent for any use, the track for none). Its box takes the pointer for its day.
+    /// [S-3331] [S-11505] One calendar cell: a ring of its day's share (the Chart block's), centred in its
+    /// column. Its box takes the pointer for its day.
     /// </summary>
     private sealed class Cell
     {
-        private readonly ChartRing? _ring;
-        private readonly Border? _dot;
+        private readonly ChartRing _ring = new();
 
-        public Cell(bool ring, double side)
+        public Cell(double side)
         {
-            Box = new Grid { Width = side, Height = side, Background = Family.Brush(ColourRole.Clear) };
-            if (ring)
-            {
-                _ring = new ChartRing();
-                Box.Children.Add(_ring);
-            }
-            else
-            {
-                _dot = new Border { CornerRadius = Family.Round(side, side) };
-                Box.Children.Add(_dot);
-            }
+            Box = new Grid { Width = side, Height = side, HorizontalAlignment = HorizontalAlignment.Center, Background = Family.Brush(ColourRole.Clear) };
+            Box.Children.Add(_ring);
         }
 
         public Grid Box { get; }
 
-        public void Show(double share)
-        {
-            _ring?.Show(share);
-            if (_dot is not null)
-            {
-                _dot.Background = Family.Brush(share > 0 ? ColourRole.Accent : ColourRole.Track);
-            }
-        }
+        public void Show(double share) => _ring.Show(share);
     }
 
     /// <summary>[S-3325] Each heat cell's tooltip, written only when it says something else.</summary>
@@ -630,14 +584,13 @@ internal sealed partial class ScreenTimeChartView : Grid, IWidgetView, IWidgetSu
             block.Opacity = ScreenTimeRules.Opacity(ScreenTimeRules.ToneOf(_tones, key), ScreenTimeRules.Emphasis(key, part));
         }
 
-        // [S-3312] A day the figure speaks of (pointer or Left / Right): every other day at its wash.
+        // [S-3312] A day picked (pointer or Left / Right): every other day at its wash.
         for (var i = 0; i < _columns.Count; i++)
         {
             _columns[i].Opacity = _day is { } d && d != i ? ScreenTimeLook.DimOpacity : 1;
         }
 
         ShadeCells(data, part);
-        Readout(data, part);
     }
 
     /// <summary>[S-456] [S-3333] Each day's ring at its share of the busiest day, of the whole or of the focused part.</summary>
@@ -677,48 +630,6 @@ internal sealed partial class ScreenTimeChartView : Grid, IWidgetView, IWidgetSu
         return ScreenTimeRules.Sum(apps.Where(app => app.App == part));
     }
 
-    /// <summary>
-    /// [S-3332] [S-3333] The figure: the window's total; a hovered day's; the focused app's over the
-    /// window (or on the hovered day). The line under it says what the figure is.
-    /// </summary>
-    private void Readout(ScreenTimeData data, string? part)
-    {
-        var name = part is null ? null : _segments.FirstOrDefault(s => s.Key == part)?.Name;
-        long seconds;
-        string line;
-        var over = false;
-
-        if (_day is { } index && index < data.Range.Count)
-        {
-            var day = data.Range[index];
-            seconds = PartSeconds(data, day, part);
-            var label = ScreenTimeLook.DayTip(day.Date, Today);
-            line = name is null ? label : $"{name} · {label}";
-        }
-        else if (part is not null)
-        {
-            seconds = data.Range.Sum(day => PartSeconds(data, day, part));
-            line = $"{name} · {ScreenTimeLook.Percent(seconds, data.Total)}";
-        }
-        else
-        {
-            seconds = data.Total;
-            var average = ScreenTimeRules.DailyAverage(data.Total, data.Days);
-            var parts = new List<string> { Str.Screentime_PerDay.Format(("value", ScreenTimeRules.FormatDuration(average))) };
-
-            // [S-457] A window judges its daily average against the daily limit.
-            if (ScreenTimeRules.Goal(average, data.DayLimit) is { } goal)
-            {
-                parts.Add(ScreenTimeChartStr.Screentime_GoalPerDay.Format(("value", ScreenTimeRules.FormatLimit(goal.Limit))));
-                over = goal.Over;
-            }
-
-            line = string.Join(" · ", parts);
-        }
-
-        _readout.Show(ScreenTimeRules.FormatDuration(seconds), under: _plan.Under ? line : null, valueRole: over ? ColourRole.Critical : ColourRole.TextPrimary);
-    }
-
     // ---- keys ([S-3307]) ---------------------------------------------------------------------------
 
     /// <summary>[S-3307] The chart takes the keyboard on a click: there are apps and days to step through.</summary>
@@ -726,8 +637,8 @@ internal sealed partial class ScreenTimeChartView : Grid, IWidgetView, IWidgetSu
 
     /// <summary>
     /// [S-3307] Up/Down, Page Up/Down, Home/End step through the apps in the ring's order and light
-    /// each in every screen-time widget on the view; Enter/Space select; Left/Right step the day the
-    /// figure speaks of; the Menu key hides the app; Escape lets the cursor and the day go.
+    /// each in every screen-time widget on the view; Enter/Space select; Left/Right step the
+    /// day lit (the others at their wash); the Menu key hides the app; Escape lets the cursor and the day go.
     /// </summary>
     public bool HandleKey(WidgetKey key)
     {

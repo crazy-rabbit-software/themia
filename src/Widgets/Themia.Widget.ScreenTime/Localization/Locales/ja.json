@@ -1,0 +1,5 @@
+{
+  "screenTime.label": "スクリーンタイム",
+  "screentime.goalPerDay": "/ {value} 毎日",
+  "screentime.ofGoal": "/ {value}"
+}

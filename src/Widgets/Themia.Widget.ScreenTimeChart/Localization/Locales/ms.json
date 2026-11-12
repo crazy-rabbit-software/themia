@@ -1,6 +1,5 @@
 {
   "$comment": "Machine-written translations: every string in this file needs native review.",
-  "screentime.goalPerDay": "daripada {value}/hari",
   "styles.screenTimeChart.bars": "Bar",
   "styles.screenTimeChart.calendar": "Kalendar",
   "widgetsC.screenTime.chart.desc": "Masa skrin kamu hari demi hari, sepanjang seminggu atau sebulan",

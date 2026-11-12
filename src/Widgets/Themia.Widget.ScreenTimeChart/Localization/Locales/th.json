@@ -1,5 +1,4 @@
 {
-  "screentime.goalPerDay": "จาก {value}/วัน",
   "styles.screenTimeChart.bars": "แท่ง",
   "styles.screenTimeChart.calendar": "ปฏิทิน",
   "widgetsC.screenTime.chart.desc": "เวลาหน้าจอของคุณรายวัน ตลอดหนึ่งสัปดาห์หรือหนึ่งเดือน",

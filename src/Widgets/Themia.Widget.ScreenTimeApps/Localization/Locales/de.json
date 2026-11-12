@@ -4,6 +4,5 @@
   "widgetsC.screenTime.apps.desc": "Welche Apps du genutzt hast und wie lange",
   "widgetsC.screenTime.apps.label": "Bildschirmzeit-Apps",
   "widgetsC.screenTime.limitOverTip": "Limit {limit} (überschritten)",
-  "widgetsC.screenTime.limitTip": "Limit {limit}",
-  "widgetsC.screenTime.settings.most.label": "Höchstens aufgelistete Apps"
+  "widgetsC.screenTime.limitTip": "Limit {limit}"
 }

@@ -1,0 +1,5 @@
+{
+  "screenTime.label": "Экранное время",
+  "screentime.goalPerDay": "из {value}/день",
+  "screentime.ofGoal": "из {value}"
+}

@@ -283,7 +283,7 @@ public sealed class SettingOwnershipTests
     /// animation's, ⚙ › Appearance › Motion's; [S-2449] a one-readout widget's Size is its face's,
     /// Small, Medium or Large, never the text size or the scale a higher level sets).
     /// </summary>
-    private static readonly (string Kind, string Words)[] OwnWords = [("focusSession", "Length"), ("clock", "Size")];
+    private static readonly (string Kind, string Words)[] OwnWords = [("focusSession", "Length"), ("clock", "Size"), ("screenTimeDonut", "Size")];
 
     /// <summary>[S-2449] [S-11300] Every one-readout widget's Size (<c>IReadoutSized</c>) is its face's, as the clock's.</summary>
     private static bool OwnSize(WidgetConfig config, string words) => config is IReadoutSized && words == "Size";

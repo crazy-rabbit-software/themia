@@ -4,6 +4,5 @@
   "widgetsC.screenTime.apps.desc": "તમે વાપરેલી ઍપ્સ, અને કેટલો સમય",
   "widgetsC.screenTime.apps.label": "સ્ક્રીન સમય ઍપ્સ",
   "widgetsC.screenTime.limitOverTip": "મર્યાદા {limit} (વટાવી)",
-  "widgetsC.screenTime.limitTip": "મર્યાદા {limit}",
-  "widgetsC.screenTime.settings.most.label": "વધુમાં વધુ સૂચિબદ્ધ ઍપ્સ"
+  "widgetsC.screenTime.limitTip": "મર્યાદા {limit}"
 }

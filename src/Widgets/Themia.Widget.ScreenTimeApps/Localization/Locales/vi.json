@@ -4,6 +4,5 @@
   "widgetsC.screenTime.apps.desc": "Các ứng dụng bạn đã dùng, và trong bao lâu",
   "widgetsC.screenTime.apps.label": "Ứng dụng theo thời gian sử dụng",
   "widgetsC.screenTime.limitOverTip": "giới hạn {limit} (vượt)",
-  "widgetsC.screenTime.limitTip": "giới hạn {limit}",
-  "widgetsC.screenTime.settings.most.label": "Số ứng dụng tối đa"
+  "widgetsC.screenTime.limitTip": "giới hạn {limit}"
 }

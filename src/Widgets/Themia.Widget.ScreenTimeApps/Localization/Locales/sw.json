@@ -4,6 +4,5 @@
   "widgetsC.screenTime.apps.desc": "Programu ulizotumia, na kwa muda gani",
   "widgetsC.screenTime.apps.label": "Programu za muda wa skrini",
   "widgetsC.screenTime.limitOverTip": "kikomo {limit} (kimepitwa)",
-  "widgetsC.screenTime.limitTip": "kikomo {limit}",
-  "widgetsC.screenTime.settings.most.label": "Programu nyingi zaidi zinazoorodheshwa"
+  "widgetsC.screenTime.limitTip": "kikomo {limit}"
 }

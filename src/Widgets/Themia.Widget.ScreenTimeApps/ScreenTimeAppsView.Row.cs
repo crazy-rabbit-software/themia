@@ -85,9 +85,9 @@ internal sealed partial class ScreenTimeAppsView
             _goal = goal;
             var time = ScreenTimeRules.FormatDuration(segment.Seconds);
 
-            // [S-3352] Too narrow for a name: the icon and the time, the name stays in the tooltip.
+            // [S-11510] The name, the time, and the figures where the row has a second line.
             Host.Lines = plan.Lines;
-            Host.Show(plan.Names ? segment.Name : string.Empty, time, figures);
+            Host.Show(segment.Name, time, figures);
 
             var tip = $"{segment.Name} — {time}";
             if (figures is not null)

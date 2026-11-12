@@ -1,0 +1,7 @@
+{
+  "$englishOnly": ["screenTime.desc"],
+  "screenTime.desc": "Your screen time over a day, a week or a month, against your daily limit",
+  "screenTime.label": "Screen time",
+  "screentime.goalPerDay": "of {value}/day",
+  "screentime.ofGoal": "of {value}"
+}

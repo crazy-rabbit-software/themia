@@ -4,6 +4,5 @@
   "widgetsC.screenTime.apps.desc": "သင်သုံးခဲ့သော အက်ပ်များနှင့် ကြာချိန်",
   "widgetsC.screenTime.apps.label": "ကြည့်ချိန် အက်ပ်များ",
   "widgetsC.screenTime.limitOverTip": "ကန့်သတ်ချက် {limit} (ကျော်)",
-  "widgetsC.screenTime.limitTip": "ကန့်သတ်ချက် {limit}",
-  "widgetsC.screenTime.settings.most.label": "စာရင်းပြမည့် အက်ပ် အများဆုံး"
+  "widgetsC.screenTime.limitTip": "ကန့်သတ်ချက် {limit}"
 }

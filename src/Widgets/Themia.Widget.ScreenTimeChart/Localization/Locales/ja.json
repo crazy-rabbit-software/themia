@@ -1,5 +1,4 @@
 {
-  "screentime.goalPerDay": "/ {value} 毎日",
   "styles.screenTimeChart.bars": "棒グラフ",
   "styles.screenTimeChart.calendar": "カレンダー",
   "widgetsC.screenTime.chart.desc": "1 週間または 1 か月のスクリーン タイムを日ごとに表示",

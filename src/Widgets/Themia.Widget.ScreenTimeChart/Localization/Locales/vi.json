@@ -1,5 +1,4 @@
 {
-  "screentime.goalPerDay": "trên {value}/ngày",
   "styles.screenTimeChart.bars": "Thanh",
   "styles.screenTimeChart.calendar": "Lịch",
   "widgetsC.screenTime.chart.desc": "Thời gian sử dụng theo từng ngày, trong một tuần hoặc một tháng",

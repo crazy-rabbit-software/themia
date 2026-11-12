@@ -60,7 +60,7 @@ public sealed class LocalStateFixtureTests
         Assert.Equal((ScreenTimePeriod.Month, ScreenTimeChartStyle.Calendar), (chart.Period, chart.Style));
         Assert.Equal(ScreenTimePeriod.Week, Assert.IsType<ScreenTimeDonutConfig>(configs[7]).Period);
         var apps = Assert.IsType<ScreenTimeAppsConfig>(configs[8]);
-        Assert.Equal((ScreenTimePeriod.Month, 8, false, true), (apps.Period, apps.MaxApps, apps.ShowAverage, apps.ShowPercent));
+        Assert.Equal((ScreenTimePeriod.Month, 8, 2, false, true), (apps.Period, apps.Rows, apps.Lines, apps.ShowAverage, apps.ShowPercent));
         var folder = Assert.IsType<GalleryConfig>(configs[9]);
         Assert.Equal((GallerySource.Folder, @"D:\Pictures\Holidays", true, GalleryStyle.Mosaic, GalleryFit.Fit, false, 30, 12),
             (folder.Source, folder.Path, folder.Recursive, folder.Style, folder.Fit, folder.Shuffle, folder.SlideshowSeconds, folder.MaxImages));

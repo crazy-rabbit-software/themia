@@ -4,6 +4,5 @@
   "widgetsC.screenTime.apps.desc": "Ang mga app na ginamit mo, at kung gaano katagal",
   "widgetsC.screenTime.apps.label": "Mga app sa screen time",
   "widgetsC.screenTime.limitOverTip": "limitasyon {limit} (lampas)",
-  "widgetsC.screenTime.limitTip": "limitasyon {limit}",
-  "widgetsC.screenTime.settings.most.label": "Pinakamaraming app na ililista"
+  "widgetsC.screenTime.limitTip": "limitasyon {limit}"
 }

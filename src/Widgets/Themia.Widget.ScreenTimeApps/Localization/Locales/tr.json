@@ -4,6 +4,5 @@
   "widgetsC.screenTime.apps.desc": "Kullandığınız uygulamalar ve ne kadar süre",
   "widgetsC.screenTime.apps.label": "Ekran süresi uygulamaları",
   "widgetsC.screenTime.limitOverTip": "sınır {limit} (aşıldı)",
-  "widgetsC.screenTime.limitTip": "sınır {limit}",
-  "widgetsC.screenTime.settings.most.label": "Listelenecek en fazla uygulama"
+  "widgetsC.screenTime.limitTip": "sınır {limit}"
 }

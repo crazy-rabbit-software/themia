@@ -28,9 +28,9 @@ public sealed class ScreenTimeDonutModule : IWidgetModule
         Label = ScreenTimeDonutStr.WidgetsC_ScreenTime_Donut_Label.Local(),
         Description = ScreenTimeDonutStr.WidgetsC_ScreenTime_Donut_Desc.Local(),
         Glyph = Glyphs.ScreenTimeDonut,
-        Sizing = _ => WidgetSizing.Legacy(240, 260),
+        Sizing = c => ScreenTimeDonutLayout.Sizing(((ScreenTimeDonutConfig)c).Size),
         Traits = WidgetTraits.CanHaveHeader,
-        Add = new(AddFolderId.ScreenTime, 0, 1),
+        Add = new(AddFolderId.ScreenTime, 0, 2),
     };
 
     /// <summary>[S-3719] Every option is on the properties menu: the widget has no settings page.</summary>

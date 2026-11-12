@@ -66,7 +66,8 @@ public sealed class ScreenTimeAppsMenuTests
             [
                 Str.Screentime_Cfg_Period.Text(),
                 "|",
-                ScreenTimeAppsStr.WidgetsC_ScreenTime_Settings_Most_Label.Text(),
+                Str.Kit_Rows.Text(),
+                Str.Kit_Lines.Text(),
                 ScreenTimeAppsStr.Screentime_Metric_Average.Text(),
                 ScreenTimeAppsStr.Screentime_Metric_Percent.Text(),
                 "|",
@@ -103,21 +104,16 @@ public sealed class ScreenTimeAppsMenuTests
     }
 
     [Fact]
-    public void S3356_most_apps_reads_as_many_as_fit_at_zero_and_is_typed_in_range()
+    public void S11510_rows_are_offered_and_lines_are_offered_only_with_figures_for_a_second()
     {
         var config = new ScreenTimeAppsConfig();
-        var most = Line(Build(config, null).Lines, ScreenTimeAppsStr.WidgetsC_ScreenTime_Settings_Most_Label.Text());
-        Assert.Equal(ScreenTimeAppsStr.WidgetsC_ScreenTime_Settings_Most_Fit.Text(), most.Value);
+        var rows = Line(Build(config, null).Lines, Str.Kit_Rows.Text());
+        Assert.Equal("5", rows.Value);
 
-        most.Action!();
-        var ask = Assert.IsType<WidgetTextAsk>(_asked);
-        Assert.NotNull(ask.Refuse("51"));
-        Assert.NotNull(ask.Refuse("-1"));
-        ask.Done("12");
-
-        Assert.Equal(12, config.MaxApps);
-        Assert.Equal(1, _saves);
-        Assert.Equal("12", Line(Build(config, null).Lines, ScreenTimeAppsStr.WidgetsC_ScreenTime_Settings_Most_Label.Text()).Value);
+        // A day with no share shown has nothing for a second line; the share gives it one.
+        Assert.DoesNotContain(Build(config, null).Lines, l => l.Text == Str.Kit_Lines.Text());
+        config.ShowPercent = true;
+        Assert.Single(Build(config, null).Lines, l => l.Text == Str.Kit_Lines.Text());
     }
 
     [Fact]

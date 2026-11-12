@@ -1,0 +1,5 @@
+{
+  "screenTime.label": "Ekran süresi",
+  "screentime.goalPerDay": "/ {value}/gün",
+  "screentime.ofGoal": "/ {value}"
+}

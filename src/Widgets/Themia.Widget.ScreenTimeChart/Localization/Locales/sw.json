@@ -1,5 +1,4 @@
 {
-  "screentime.goalPerDay": "kati ya {value}/siku",
   "styles.screenTimeChart.bars": "Pau",
   "styles.screenTimeChart.calendar": "Kalenda",
   "widgetsC.screenTime.chart.desc": "Muda wako wa skrini siku kwa siku, kwa wiki au mwezi",

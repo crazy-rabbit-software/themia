@@ -308,7 +308,15 @@ public static class ReadyMadeGroups
         new("tasks", new(300, 0, 300, 248), Config: """{ "rows": 7 }""", Header: HeaderPlacement.Hidden),
     ]);
 
-    public static IReadOnlyList<ReadyMadeGroup> All { get; } = [ThisPc, MyDay, WeatherStation, MyFiles, Cpu, CpuCores, CpuDetails, Memory, MemoryDetails, Gpu, GpuDetails, Disk, Network, NetworkDetails, Ping, PingDetails, Battery, BatteryDetails, Drive, Weather, Sun, Moon, AirQuality, ExchangeRates, Stocks, NextMeetings, InboxAndTasks, NowPlaying, NowPlayingLarge, Sound, QuickSettings, Power];
+    /// <summary>[S-11520] Screen time: the week's total over its bars over the apps, one panel.</summary>
+    public static ReadyMadeGroup ScreenTime { get; } = new("screenTime", Str.Groups_Recipe_ScreenTime, Str.Groups_Recipe_ScreenTimeAbout, Glyphs.ScreenTime, AddFolderId.ScreenTime,
+    [
+        new("screenTime", new(0, 0, 300, 100)),
+        new("screenTimeChart", new(0, 100, 300, 116)),
+        new("screenTimeApps", new(0, 216, 300, 164), Config: """{ "period": "Week" }""", Header: HeaderPlacement.Hidden),
+    ]);
+
+    public static IReadOnlyList<ReadyMadeGroup> All { get; } = [ThisPc, MyDay, WeatherStation, MyFiles, Cpu, CpuCores, CpuDetails, Memory, MemoryDetails, Gpu, GpuDetails, Disk, Network, NetworkDetails, Ping, PingDetails, Battery, BatteryDetails, Drive, Weather, Sun, Moon, AirQuality, ExchangeRates, Stocks, NextMeetings, InboxAndTasks, NowPlaying, NowPlayingLarge, Sound, QuickSettings, Power, ScreenTime];
 
     /// <summary>The ready-made group named <paramref name="id"/>, or null.</summary>
     public static ReadyMadeGroup? Find(string? id) => All.FirstOrDefault(r => string.Equals(r.Id, id, StringComparison.Ordinal));

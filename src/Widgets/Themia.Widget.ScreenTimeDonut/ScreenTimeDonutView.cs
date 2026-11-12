@@ -27,7 +27,7 @@ namespace Themia.App.Widgets;
 /// kept per app across reads: a read moves its arc and its tip, and only a new app gets a new one.
 /// </para>
 /// </summary>
-internal sealed partial class ScreenTimeDonutView : Grid, IWidgetView, IWidgetSurfaceAware, IWidgetHeaderContent, IWidgetSizeAware, IWidgetKeys, IWidgetContextActions
+internal sealed partial class ScreenTimeDonutView : Grid, IWidgetView, IWidgetSurfaceAware, IWidgetHeaderContent, IWidgetKeys, IWidgetContextActions
 {
     private readonly ScreenTimeLinks _links;
     private readonly ScreenTimeDayNav _nav;
@@ -58,8 +58,7 @@ internal sealed partial class ScreenTimeDonutView : Grid, IWidgetView, IWidgetSu
 
     /// <summary>[S-2272] Each wedge's tone by its app's rank in the period.</summary>
     private IReadOnlyDictionary<string, ScreenTimeTone> _tones = new Dictionary<string, ScreenTimeTone>();
-    private ScreenTimeDonutPlan _plan;
-    private WidgetArea _area;
+    private ScreenTimeDonutPlan _plan = ScreenTimeDonutLayout.Donut(ReadoutSizes.Default);
     private bool _detached;
 
     private readonly IWidgetHost _host;
@@ -84,7 +83,8 @@ internal sealed partial class ScreenTimeDonutView : Grid, IWidgetView, IWidgetSu
         _ring.Children.Add(_canvas);
         _ring.Children.Add(_figure);
 
-        // The ring stands in the content's box: the card's inset at the sides and the foot.
+        // [S-11515] The ring stands at the content's top, in the card's inset at the sides and the foot.
+        _ring.VerticalAlignment = VerticalAlignment.Top;
         _ring.Margin = new Thickness(FamilySpace.Inset, 0, FamilySpace.Inset, FamilySpace.Inset);
 
         Children.Add(_ring);
@@ -98,12 +98,6 @@ internal sealed partial class ScreenTimeDonutView : Grid, IWidgetView, IWidgetSu
     public IReadOnlyList<WidgetAction> ContextActions => _nav.ContextActions;
 
     public void Bind(IWidgetSurface surface) => _surface = surface;
-
-    public void ApplySize(WidgetArea area)
-    {
-        _area = area;
-        Render();
-    }
 
     public void Attach(Ticker ticker, WidgetConfig config)
     {
@@ -204,17 +198,17 @@ internal sealed partial class ScreenTimeDonutView : Grid, IWidgetView, IWidgetSu
     }
 
     /// <summary>
-    /// [S-3341] [S-3342] The ring: the busiest seven apps and one "Other", one arc each, from
-    /// cumulative seconds so the edges meet without a seam, as large as the tile lets it be.
+    /// [S-3341] [S-11515] The ring: the busiest seven apps and one "Other", one arc each, from
+    /// cumulative seconds so the edges meet without a seam, at the size its Size says.
     /// </summary>
     private void Draw()
     {
-        if (_data is not { } data || !_area.IsMeasured)
+        if (_data is not { } data)
         {
             return;
         }
 
-        _plan = ScreenTimeDonutLayout.Donut(_area);
+        _plan = ScreenTimeDonutLayout.Donut(_config.Size);
         _segments = ScreenTimeRules.Segments(data.Apps, data.Total, ScreenTimeRules.DrawingApps, Str.Screentime_Other.Text());
         _tones = ScreenTimeRules.Tones(_segments);
 
@@ -273,7 +267,7 @@ internal sealed partial class ScreenTimeDonutView : Grid, IWidgetView, IWidgetSu
             : Headline(data);
 
         // [S-1210] The figure on the largest Readout step its hole holds, the line under it where it fits.
-        var figure = ScreenTimeRules.Figure(seconds, _area, _plan.Hole, line.Length > 0);
+        var figure = ScreenTimeRules.Figure(seconds, _plan.Largest, _plan.Hole, line.Length > 0);
         _figure.Use(figure.Step, centred: true);
 
         // The line under is cut to the hole's width at the figure's height, so it never runs over the ring.

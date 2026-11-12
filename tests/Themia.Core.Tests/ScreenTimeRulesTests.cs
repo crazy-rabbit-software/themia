@@ -40,16 +40,6 @@ public sealed class ScreenTimeRulesTests
     }
 
     [Theory]
-    [InlineData(0, 12, 12)]   // fit: every app
-    [InlineData(5, 12, 6)]    // ceiling 5 + an "Other" row
-    [InlineData(5, 5, 5)]     // exactly the ceiling: no "Other"
-    [InlineData(0, 0, 0)]
-    public void S1211_the_list_wants_every_app_up_to_the_ceiling_plus_other(int maxApps, int apps, int wanted)
-    {
-        Assert.Equal(wanted, ScreenTimeRules.ListWanted(maxApps, apps));
-    }
-
-    [Theory]
     [InlineData(12, 12, 12)]  // room for all: all named, no "Other"
     [InlineData(10, 12, 9)]   // ten rows for twelve apps: nine named, the tenth is "Other"
     [InlineData(1, 12, 0)]    // one row: "Other" alone
@@ -77,23 +67,23 @@ public sealed class ScreenTimeRulesTests
     {
         var seconds = (4 * 3600) + (37 * 60);
 
-        // A large hole of an expanded tile: the full duration on the largest step the area allows, its line under.
-        var large = ScreenTimeRules.Figure(seconds, new WidgetArea(800, 524), 400, under: true);
+        // A large hole that may take 40: the full duration on the largest step, its line under.
+        var large = ScreenTimeRules.Figure(seconds, FamilyType.Big40, 400, under: true);
         Assert.Equal("4h 37m", large.Text);
         Assert.Equal(FamilyType.Big40, large.Step);
         Assert.True(large.Under);
 
-        // The same hole on a regular tile: the number stops at 28 ([S-6702], [S-2220]).
-        Assert.Equal(FamilyType.Big28, ScreenTimeRules.Figure(seconds, new WidgetArea(320, 204), 400, under: true).Step);
+        // The same hole held to 28: the number stops there ([S-6702], [S-2220]).
+        Assert.Equal(FamilyType.Big28, ScreenTimeRules.Figure(seconds, FamilyType.Big28, 400, under: true).Step);
 
         // A hole too small for "4h 37m" on 28: the compact duration on the step that holds it, never cut.
-        var mid = ScreenTimeRules.Figure(seconds, new WidgetArea(200, 114), 72, under: true);
+        var mid = ScreenTimeRules.Figure(seconds, FamilyType.Big28, 72, under: true);
         Assert.Equal("4.6h", mid.Text);
         Assert.Equal(FamilyType.Big28, mid.Step);
         Assert.True(ScreenTimeRules.InHole(ReadoutRules.Width(mid.Step, new ReadoutText(mid.Text)), mid.Step.LineHeight, 72));
 
         // Smaller still: the compact duration in BodyStrong, the family's floor, and no line under.
-        var small = ScreenTimeRules.Figure(seconds, new WidgetArea(120, 84), 40, under: true);
+        var small = ScreenTimeRules.Figure(seconds, FamilyType.Big28, 40, under: true);
         Assert.Equal("4.6h", small.Text);
         Assert.Equal(FamilyType.BodyStrong, small.Step);
         Assert.False(small.Under);
@@ -105,7 +95,7 @@ public sealed class ScreenTimeRulesTests
         var seconds = (6 * 3600) + (50 * 60);
 
         // A hole that holds "6.8h" on 28 but not its line under: the value keeps its step, the line goes.
-        var tight = ScreenTimeRules.Figure(seconds, new WidgetArea(320, 204), 70, under: true);
+        var tight = ScreenTimeRules.Figure(seconds, FamilyType.Big28, 70, under: true);
         Assert.Equal(FamilyType.Big28, tight.Step);
         Assert.False(tight.Under);
 
@@ -114,8 +104,8 @@ public sealed class ScreenTimeRulesTests
         Assert.Equal(0, ScreenTimeRules.HoleWidth(60, 40));
 
         // A roomy one keeps both; none is asked for, none is shown.
-        Assert.True(ScreenTimeRules.Figure(seconds, new WidgetArea(320, 204), 180, under: true).Under);
-        Assert.False(ScreenTimeRules.Figure(seconds, new WidgetArea(320, 204), 180, under: false).Under);
+        Assert.True(ScreenTimeRules.Figure(seconds, FamilyType.Big28, 180, under: true).Under);
+        Assert.False(ScreenTimeRules.Figure(seconds, FamilyType.Big28, 180, under: false).Under);
     }
 
     [Fact]

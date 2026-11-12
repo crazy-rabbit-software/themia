@@ -28,9 +28,9 @@ public sealed class ScreenTimeChartModule : IWidgetModule
         Label = ScreenTimeChartStr.WidgetsC_ScreenTime_Chart_Label.Local(),
         Description = ScreenTimeChartStr.WidgetsC_ScreenTime_Chart_Desc.Local(),
         Glyph = Glyphs.ScreenTimeChart,
-        Sizing = _ => WidgetSizing.Legacy(320, 220),
-        Traits = WidgetTraits.CanHaveHeader,
-        Add = new(AddFolderId.ScreenTime, 0, 0),
+        Sizing = c => ScreenTimeChartLayout.Sizing(((ScreenTimeChartConfig)c).Style, ((ScreenTimeChartConfig)c).Period),
+        Traits = WidgetTraits.CanHaveHeader | WidgetTraits.StartsHeaderless,
+        Add = new(AddFolderId.ScreenTime, 0, 1),
     };
 
     /// <summary>[S-3719] Every option is on the properties menu: the widget has no settings page.</summary>

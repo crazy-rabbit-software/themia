@@ -1870,7 +1870,7 @@ registration path: when a table becomes a descriptor member, the table is delete
   words, the alarm's snooze and dismiss the host's notice reads) stays the SDK's table. Tags: a tag
   whose tests test SDK or host rules stayed in the root under its tests, the config's tests under it
   moved into the module test host (`ClipboardHostTests`, `AlarmTests`, `WindowsPanelsHostTests`,
-  `HabitHostTests`, `ScreenTimeHostTests`, `GalleryHostTests`, `GalleryPersistenceTests`,
+  `HabitHostTests`, `GalleryHostTests`, `GalleryPersistenceTests`,
   `ItemKindsHostTests`), the widget's own tags into its `SPEC.md`. No test was retagged; tests changed
   only their call shape (a ladder's new class, `GallerySourceKey.RescanInterval`, `new WidgetId("…")`,
   the registry test over two descriptors still in Core, RSS and Tasks). Found on the way and fixed in

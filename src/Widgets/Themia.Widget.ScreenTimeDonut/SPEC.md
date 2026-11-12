@@ -10,24 +10,27 @@ wedges and durations ([S-452]), the ring's figure ([S-1210]), the linked focus (
 `SampleScreenTime`).
 
 Owning files: everything in this folder: `ScreenTimeDonutModule.cs` (descriptor, view factory, menu
-lines, JSON context), `ScreenTimeDonutConfig.cs` (the period), `ScreenTimeDonutView.cs` (the ring through
-its host, the keys), `ScreenTimeDonutLayout.cs` (the ladder), `ScreenTimeDonutMenu.cs` (its properties
+lines, JSON context), `ScreenTimeDonutConfig.cs` (the period, the Size), `ScreenTimeDonutView.cs` (the ring through
+its host, the keys), `ScreenTimeDonutLayout.cs` (its sizes), `ScreenTimeDonutMenu.cs` (its properties
 menu, ending with the shared lines), `Preview/` (Debug renders: `--state sample|hovered|selected|packaged`),
 `Localization/Locales/` (its own `ScreenTimeDonutStr`, 30 languages). Tests:
 `Tests/ScreenTimeDonutTests.cs`, `Tests/ScreenTimeDonutMenuTests.cs` (run by `tests/Themia.Modules.Tests`).
 
-- **[S-3340]** `ScreenTimeDonutConfig`: `Period` only. One ring, the total in its hole.
+- **[S-3340]** `ScreenTimeDonutConfig`: `Period` and `Size` ([S-11515]). One ring, the total in its hole.
 - **[S-3345]** Every option is on the properties menu ([S-3719], user request 2026-10-19); there is
-  no settings page: Appearance ([S-3723]), **Period** (Day, Week, Month, [S-3321]), then the shared
-  lines ([S-3323]: of the limits the day's).
+  no settings page: Appearance ([S-3723]), **Period** (Day, Week, Month, [S-3321]), **Size**
+  (`KitMenuLines.ReadoutSize`, [S-11515]), then the shared lines ([S-3323]: of the limits the day's).
 - **[S-3341]** The wedges: the busiest seven apps and one Other, from cumulative seconds ([S-452]),
   each in its app's tone: the accent's ramp by rank, Other tertiary at the wash ([S-2272]).
   No legend: the list is its own widget ([S-666]); a wedge's tooltip names it.
-- **[S-3342]** Ladder (`ScreenTimeDonutLayout.Donut`): the ring as large as the view's area less the
-  card's insets allows (16 at the sides and the foot), centred there, its wedges in the family's track
-  (4, [S-6704]; it was a seventh of the ring); the hole's figure is [S-1210]'s (the Readout's steps,
-  centred), its line under (the day's "of 4h", a window's "2h 10m/day", or the focused app's share) where
-  it fits, cut to the hole's width. Nothing to draw is the Status block's one row at the top ([S-6714]).
+- **[S-3342]** *(Retired by [S-11515]: the ring's size is its Size, never the card's.)*
+- **[S-11515]** **A square by its Size** (owner decision 2026-11-12, [S-2438]): `Size` Small, Medium (a
+  new one's) or Large (`ReadoutSize`, set by the Size line) is a ring of 128, 168 or 216
+  (`ScreenTimeDonutLayout.Ring`), the card round it one size with its header: 12 at the sides and the
+  foot, 36 over it (152 × 176, 192 × 216, 240 × 264). Its wedges stand in the family's track (4,
+  [S-6704]); the hole's figure is [S-1210]'s on 28 (40 may stand in a large ring's hole), centred, its
+  line under (the day's "of 4h", a window's "2h 10m/day", or the focused app's share) where it fits,
+  cut to the hole's width. Nothing to draw is the Status block's one row at the top ([S-6714]).
 - **[S-3343]** Linked focus: every wedge but the focused one is drawn at its wash (16 %, [S-6704]; the lit
   wedge's 1.3 times thicker stroke went: one track), and the hole names it ("Code · 41%"). An app
   folded into Other lights Other (`ScreenTimeRules.FocusPart`); a hidden one lights nothing. Click

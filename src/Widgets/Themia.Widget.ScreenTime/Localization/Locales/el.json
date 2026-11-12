@@ -1,0 +1,5 @@
+{
+  "screenTime.label": "Χρόνος οθόνης",
+  "screentime.goalPerDay": "από {value}/ημέρα",
+  "screentime.ofGoal": "από {value}"
+}

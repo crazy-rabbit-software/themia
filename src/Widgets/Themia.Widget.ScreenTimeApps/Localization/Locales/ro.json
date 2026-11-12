@@ -4,6 +4,5 @@
   "widgetsC.screenTime.apps.desc": "Aplicațiile folosite și cât timp",
   "widgetsC.screenTime.apps.label": "Aplicații timp pe ecran",
   "widgetsC.screenTime.limitOverTip": "limită {limit} (depășită)",
-  "widgetsC.screenTime.limitTip": "limită {limit}",
-  "widgetsC.screenTime.settings.most.label": "Număr maxim de aplicații listate"
+  "widgetsC.screenTime.limitTip": "limită {limit}"
 }

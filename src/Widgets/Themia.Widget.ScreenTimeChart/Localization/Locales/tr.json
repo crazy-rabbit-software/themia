@@ -1,5 +1,4 @@
 {
-  "screentime.goalPerDay": "/ {value}/gün",
   "styles.screenTimeChart.bars": "Çubuklar",
   "styles.screenTimeChart.calendar": "Takvim",
   "widgetsC.screenTime.chart.desc": "Bir hafta veya ay boyunca gün gün ekran süreniz",

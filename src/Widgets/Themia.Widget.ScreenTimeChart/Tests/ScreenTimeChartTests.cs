@@ -1,100 +1,46 @@
 using Themia.Core.Model;
 using Themia.Core.Widgets;
+using Themia.Sdk;
 using Themia.Sdk.Kit;
 using Xunit;
 
 namespace Themia.Widget.ScreenTimeChart.Tests;
 
-/// <summary>[S-3331] [S-3332] The chart's ladder on the family's Readout and Chart, and the calendar's cells.</summary>
+/// <summary>[S-11505] [S-3331] The chart's sizes: headerless, 200..520 wide, one height per style and period.</summary>
 public sealed class ScreenTimeChartTests
 {
-    /// <summary>The card's header, which the content area is the card less.</summary>
-    private const double Header = FamilySpace.ContentTop;
+    private static WidgetDescriptor Kind => new ScreenTimeChartModule().Descriptor;
 
-    private const string Worst = "888h 59m";
-
-    private static WidgetArea Content(WidgetTier tier) => new(tier.Width, tier.Height - Header);
-
-    public static TheoryData<string> Tiers()
+    [Fact]
+    public void S11505_the_bars_are_one_height_in_the_inset_their_end_labels_under_them()
     {
-        var data = new TheoryData<string>();
-        foreach (var tier in WidgetTiers.All)
-        {
-            data.Add(tier.Name);
-        }
+        var sizing = Kind.Sizing(new ScreenTimeChartConfig());
+        var height = FamilySpace.Inset + ScreenTimeChartLayout.BarHeight + FamilySpace.S1 + FamilyType.Caption.LineHeight + FamilySpace.Inset;
+        Assert.Equal(new SizeDip(300, height), sizing.Natural);
+        Assert.Equal((200, 520), (sizing.Min.Width, sizing.Max.Width));
+        Assert.True(sizing.FixedHeight);
+        Assert.Null(Kind.SizeSets);
+        Assert.True(Kind.Traits.HasFlag(WidgetTraits.StartsHeaderless));
 
-        return data;
-    }
-
-    private static WidgetTier Tier(string name) => WidgetTiers.All.First(t => t.Name == name);
-
-    // ---- [S-3332] chart -----------------------------------------------------------------------------
-
-    [Theory]
-    [MemberData(nameof(Tiers))]
-    public void S3332_the_chart_never_drops_its_drawing_or_overspends(string name)
-    {
-        var area = Content(Tier(name));
-
-        foreach (var style in Enum.GetValues<ScreenTimeChartStyle>())
-        {
-            var plan = ScreenTimeChartLayout.Chart(area, style, Worst);
-            var spent = plan.Drawing
-                + (plan.Total is { } total ? total.LineHeight + FamilySpace.S2 : 0)
-                + (plan.Under ? FamilyType.Under(plan.Total!.Value).LineHeight : 0);
-
-            // The labels' row is the drawing's own: the bars above it keep the floor.
-            Assert.True(plan.Drawing - (plan.Labels ? ScreenTimeChartLayout.LabelRow : 0) >= ScreenTimeChartLayout.MinDrawing);
-            Assert.True(spent <= Math.Max(area.Height - FamilySpace.Inset, ScreenTimeChartLayout.MinDrawing) + 0.5, $"{name} {style}: {spent} > {area.Height}");
-        }
+        // A month's bars are as tall as a week's.
+        Assert.Equal(sizing, Kind.Sizing(new ScreenTimeChartConfig { Period = ScreenTimePeriod.Month }));
     }
 
     [Fact]
-    public void S3332_the_figure_is_the_familys_readout_and_comes_before_the_labels_and_the_line_under()
+    public void S11505_the_calendar_is_its_letters_over_its_weeks_of_rings()
     {
-        var s = ScreenTimeChartLayout.Chart(Content(Tier("S")), ScreenTimeChartStyle.Bars, Worst);
-        var m = ScreenTimeChartLayout.Chart(Content(Tier("M")), ScreenTimeChartStyle.Bars, Worst);
-        var l = ScreenTimeChartLayout.Chart(Content(Tier("L")), ScreenTimeChartStyle.Bars, Worst);
+        Assert.Equal(1, ScreenTimeChartLayout.Weeks(ScreenTimePeriod.Week));
+        Assert.Equal(5, ScreenTimeChartLayout.Weeks(ScreenTimePeriod.Month));
+        Assert.Equal(1, ScreenTimeChartLayout.Weeks(ScreenTimePeriod.Day));
+        Assert.True(ScreenTimeChartLayout.Cell >= FamilyShape.Icon);
 
-        Assert.Equal(FamilyType.Big28, s.Total);
-        Assert.Equal(FamilyType.Big28, m.Total);
-        Assert.Equal(FamilyType.Big40, l.Total);
-        Assert.True(m.Labels && m.Under);
-        Assert.True(l.Drawing > m.Drawing);
-    }
+        double Height(ScreenTimePeriod period) => Kind.Sizing(new ScreenTimeChartConfig { Style = ScreenTimeChartStyle.Calendar, Period = period }).Natural.Height;
+        var top = FamilySpace.Inset + FamilyType.Caption.LineHeight + FamilySpace.S1;
+        Assert.Equal(top + ScreenTimeChartLayout.Cell + FamilySpace.Inset, Height(ScreenTimePeriod.Week));
+        Assert.Equal(top + (5 * ScreenTimeChartLayout.Cell) + (4 * FamilySpace.S1) + FamilySpace.Inset, Height(ScreenTimePeriod.Month));
 
-    [Fact]
-    public void S3331_a_calendar_carries_no_end_labels()
-    {
-        Assert.True(ScreenTimeChartLayout.Chart(Content(Tier("L")), ScreenTimeChartStyle.Bars, Worst).Labels);
-        Assert.False(ScreenTimeChartLayout.Chart(Content(Tier("L")), ScreenTimeChartStyle.Calendar, Worst).Labels);
-    }
-
-    [Fact]
-    public void S3331_calendar_cells_are_rings_under_their_letters_dots_when_small_and_the_latest_weeks_when_short()
-    {
-        // A week on a roomy drawing: rings of at most 40 under the letters.
-        var week = ScreenTimeChartLayout.Calendar(528, 300, 1);
-        Assert.Equal(ScreenTimeChartLayout.MaxCell, week.Cell);
-        Assert.True(week.Header);
-        Assert.Equal(1, week.Rows);
-
-        // Too narrow for a 16 ring: dots without letters.
-        var narrow = ScreenTimeChartLayout.Calendar(88, 40, 1);
-        Assert.InRange(narrow.Cell, ScreenTimeChartLayout.MinCell, ScreenTimeChartLayout.RingCell - 1);
-        Assert.False(narrow.Header);
-
-        // A month of five weeks in a short drawing: the latest weeks that fit.
-        var month = ScreenTimeChartLayout.Calendar(288, 40, 5);
-        Assert.True(month.Rows < 5);
-        Assert.True(month.Cell >= ScreenTimeChartLayout.MinCell);
-        Assert.True((month.Rows * month.Cell) + ((month.Rows - 1) * FamilySpace.S1) + (month.Header ? ScreenTimeChartLayout.CalendarHeader : 0) <= 40);
-
-        // Every cell's side is on the 4 grid, so seven columns never drift off whole device pixels.
-        foreach (var plan in new[] { week, narrow, month, ScreenTimeChartLayout.Calendar(288, 150, 1), ScreenTimeChartLayout.Calendar(167, 300, 5) })
-        {
-            Assert.Equal(0, plan.Cell % FamilySpace.S1);
-        }
+        // Seven rings 4 apart fit the least width inside the inset.
+        Assert.True((7 * ScreenTimeChartLayout.Cell) + (6 * FamilySpace.S1) <= ScreenTimeChartLayout.Narrowest - (2 * FamilySpace.Inset));
     }
 
     [Fact]

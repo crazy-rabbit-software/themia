@@ -1,5 +1,4 @@
 {
-  "screentime.goalPerDay": "di {value}/giorno",
   "styles.screenTimeChart.bars": "Barre",
   "styles.screenTimeChart.calendar": "Calendario",
   "widgetsC.screenTime.chart.desc": "Il tuo tempo di utilizzo giorno per giorno, in una settimana o un mese",

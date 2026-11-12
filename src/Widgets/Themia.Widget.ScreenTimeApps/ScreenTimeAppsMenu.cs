@@ -4,13 +4,14 @@ using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
 using Themia.Sdk.WinUI;
+using Themia.Sdk.WinUI.Kit;
 using Themia.Widget.ScreenTimeApps;
 
 namespace Themia.App.Shell.Config;
 
 /// <summary>
 /// [S-3356] The app list's options, all on its properties menu ([S-3719]): Appearance ([S-3723]), the
-/// period, how many apps, the figures beside each (an average only over a window, [S-6074]); then the
+/// period, its rows and lines, the figures on the second line (an average only over a window, [S-6074]); then the
 /// limits and hidden apps every screen-time widget shares ([S-3323]). It has no settings page.
 /// </summary>
 internal static class ScreenTimeAppsMenu
@@ -25,11 +26,8 @@ internal static class ScreenTimeAppsMenu
         // The list's own: how many apps and the figures beside each, apart from the period.
         menu.Lines.Add(ItemMenuEntry.Separator);
 
-        // [S-1211] A ceiling over what the tile has room for; 0 (the default) is as many as fit.
-        var most = ScreenTimeRules.EffectiveMaxApps(config.MaxApps);
-        var mostLine = menu.Number(Glyphs.Count, ScreenTimeAppsStr.WidgetsC_ScreenTime_Settings_Most_Label.Text(), most, 0, ScreenTimeRules.MaxAppsLimit, 1,
-            n => LocaleFormat.Integer(n), value => config.MaxApps = value);
-        menu.Lines.Add(most == 0 ? mostLine with { Value = ScreenTimeAppsStr.WidgetsC_ScreenTime_Settings_Most_Fit.Text() } : mostLine);
+        // [S-11510] Rows (the height follows), and Lines where a row has figures for a second one.
+        menu.Lines.AddRange(KitMenuLines.Rows(menu, config, offersLines: config.HasFigures));
 
         if (config.Offers(ScreenTimeSetting.Average))
         {

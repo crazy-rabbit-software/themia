@@ -1,5 +1,4 @@
 {
-  "screentime.goalPerDay": "sa {value}/araw",
   "styles.screenTimeChart.bars": "Mga bar",
   "styles.screenTimeChart.calendar": "Kalendaryo",
   "widgetsC.screenTime.chart.desc": "Ang iyong screen time araw-araw, sa loob ng isang linggo o buwan",

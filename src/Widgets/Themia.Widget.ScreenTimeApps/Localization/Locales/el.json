@@ -4,6 +4,5 @@
   "widgetsC.screenTime.apps.desc": "Οι εφαρμογές που χρησιμοποίησες και για πόσο",
   "widgetsC.screenTime.apps.label": "Εφαρμογές χρόνου οθόνης",
   "widgetsC.screenTime.limitOverTip": "όριο {limit} (ξεπεράστηκε)",
-  "widgetsC.screenTime.limitTip": "όριο {limit}",
-  "widgetsC.screenTime.settings.most.label": "Μέγιστος αριθμός εφαρμογών"
+  "widgetsC.screenTime.limitTip": "όριο {limit}"
 }

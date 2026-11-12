@@ -4,6 +4,5 @@
   "widgetsC.screenTime.apps.desc": "आपने कौन-से ऐप कितनी देर उपयोग किए",
   "widgetsC.screenTime.apps.label": "स्क्रीन टाइम ऐप",
   "widgetsC.screenTime.limitOverTip": "सीमा {limit} (पार)",
-  "widgetsC.screenTime.limitTip": "सीमा {limit}",
-  "widgetsC.screenTime.settings.most.label": "अधिकतम ऐप"
+  "widgetsC.screenTime.limitTip": "सीमा {limit}"
 }

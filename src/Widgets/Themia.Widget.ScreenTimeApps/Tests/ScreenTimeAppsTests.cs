@@ -1,91 +1,61 @@
 using Themia.Core.Model;
-using Themia.Core.Tests;
 using Themia.Core.Widgets;
+using Themia.Sdk;
 using Themia.Sdk.Kit;
 using Xunit;
 
 namespace Themia.Widget.ScreenTimeApps.Tests;
 
-/// <summary>[S-3350] [S-3352] The app list's ladder on the family's rows ([S-6711], [S-6712]).</summary>
+/// <summary>[S-11510] The app list states its rows: its height follows them, its plan is its config's at every size.</summary>
 public sealed class ScreenTimeAppsTests
 {
-    /// <summary>The card's header, which the content area is the card less.</summary>
-    private const double Header = FamilySpace.ContentTop;
-
-    private static WidgetArea Content(WidgetTier tier) => new(tier.Width, tier.Height - Header);
-
-    private static WidgetTier Tier(string name) => WidgetTiers.All.First(t => t.Name == name);
+    private static WidgetDescriptor Kind => new ScreenTimeAppsModule().Descriptor;
 
     [Fact]
-    public void S3352_rows_grow_with_the_tile_and_never_pass_what_is_wanted()
+    public void S11510_five_one_line_rows_300_wide_the_height_following_the_rows()
     {
-        Assert.True(Rows("XS") >= 1);
-        Assert.True(Rows("Tall") > Rows("S"));
-        Assert.True(Rows("XL") > Rows("M"));
-        Assert.Equal(3, ScreenTimeAppsLayout.Apps(Content(Tier("XL")), 3, false).Rows);
-        Assert.Equal(0, ScreenTimeAppsLayout.Apps(default, 3, false).Rows);
+        var sizing = Kind.Sizing(new ScreenTimeAppsConfig());
+        Assert.Equal(new SizeDip(300, FamilySpace.ContentTop + (5 * FamilyShape.Row1) + FamilySpace.Inset), sizing.Natural);
+        Assert.Equal((220, 520), (sizing.Min.Width, sizing.Max.Width));
+        Assert.True(sizing.HeightSteps!.FollowsConfig);
+        Assert.Empty(sizing.Problems());
 
-        static int Rows(string tier) => ScreenTimeAppsLayout.Apps(Content(Tier(tier)), 50, false).Rows;
-    }
-
-    [Theory]
-    [InlineData("XS")]
-    [InlineData("S")]
-    [InlineData("M")]
-    [InlineData("Wide")]
-    [InlineData("Tall")]
-    [InlineData("L")]
-    [InlineData("XL")]
-    public void S3352_whole_rows_of_the_familys_pitch_in_the_area_less_the_bottom_inset(string name)
-    {
-        var area = Content(Tier(name));
-        foreach (var figures in new[] { false, true })
-        {
-            var plan = ScreenTimeAppsLayout.Apps(area, 50, figures);
-            Assert.True(plan.Rows * FamilyShape.RowHeight(plan.Lines) <= area.Height - FamilySpace.Inset, name);
-            Assert.True((plan.Rows + 1) * FamilyShape.RowHeight(plan.Lines) > area.Height - FamilySpace.Inset, name);
-        }
+        var twelve = Kind.Sizing(new ScreenTimeAppsConfig { Rows = 12 });
+        Assert.Equal(FamilySpace.ContentTop + (12 * FamilyShape.Row1) + FamilySpace.Inset, twelve.Natural.Height);
     }
 
     [Fact]
-    public void S3350_the_figures_take_a_second_line_only_where_the_tier_gives_rows_two()
+    public void S11510_a_second_line_only_where_a_row_has_figures_for_it()
     {
-        // One line while compact either way (XS, S, Wide); two from regular both ways, figures on.
-        Assert.Equal(1, ScreenTimeAppsLayout.Apps(Content(Tier("Wide")), 5, true).Lines);
-        Assert.Equal(2, ScreenTimeAppsLayout.Apps(Content(Tier("M")), 5, true).Lines);
-        Assert.Equal(2, ScreenTimeAppsLayout.Apps(Content(Tier("XL")), 5, true).Lines);
-        Assert.Equal(1, ScreenTimeAppsLayout.Apps(Content(Tier("XL")), 5, false).Lines);
+        // A day with no share shown: one line whatever Lines says.
+        Assert.Equal(1, ScreenTimeAppsLayout.Apps(new ScreenTimeAppsConfig { Lines = 2 }).Lines);
 
-        // The share whenever it is on; the average only over a window.
-        Assert.True(ScreenTimeAppsLayout.Figures(window: false, showAverage: false, showPercent: true));
-        Assert.False(ScreenTimeAppsLayout.Figures(window: false, showAverage: true, showPercent: false));
-        Assert.True(ScreenTimeAppsLayout.Figures(window: true, showAverage: true, showPercent: false));
+        // A window's average, or the share: two lines, the icon at 32.
+        var week = ScreenTimeAppsLayout.Apps(new ScreenTimeAppsConfig { Period = ScreenTimePeriod.Week, Lines = 2 });
+        Assert.Equal((2, FamilyShape.IconLarge), (week.Lines, week.Lead));
+        Assert.Equal(2, ScreenTimeAppsLayout.Apps(new ScreenTimeAppsConfig { Lines = 2, ShowPercent = true }).Lines);
+        Assert.Equal(FamilyShape.Icon, ScreenTimeAppsLayout.Apps(new ScreenTimeAppsConfig()).Lead);
+
+        var sizing = Kind.Sizing(new ScreenTimeAppsConfig { Period = ScreenTimePeriod.Week, Lines = 2 });
+        Assert.Equal(FamilySpace.ContentTop + (5 * FamilyShape.Row2) + FamilySpace.Inset, sizing.Natural.Height);
     }
 
     [Fact]
-    public void S3350_the_lead_is_the_apps_icon_at_32_from_a_width_of_180()
+    public void S11510_dragging_the_bottom_edge_sets_rows_on_a_copy()
     {
-        Assert.Equal(FamilyShape.Icon, ScreenTimeAppsLayout.Apps(Content(Tier("XS")), 5, false).Lead);
-        Assert.Equal(FamilyShape.IconLarge, ScreenTimeAppsLayout.Apps(Content(Tier("S")), 5, false).Lead);
-        Assert.Equal(FamilyShape.Icon, ScreenTimeAppsLayout.Apps(new WidgetArea(ScreenTimeAppsLayout.LeadFrom - 1, 200), 5, false).Lead);
-        Assert.Equal(FamilyShape.IconLarge, ScreenTimeAppsLayout.Apps(new WidgetArea(ScreenTimeAppsLayout.LeadFrom, 200), 5, false).Lead);
+        var config = new ScreenTimeAppsConfig();
+        var set = Assert.IsType<ScreenTimeAppsConfig>(Kind.SizeSets!(config, new SizeDip(300, FamilySpace.ContentTop + (8 * FamilyShape.Row1) + FamilySpace.Inset)));
+        Assert.Equal(8, set.Rows);
+        Assert.Equal(5, config.Rows);
+        Assert.Same(config, Kind.SizeSets!(config, Kind.Sizing(config).Natural));
     }
 
     [Fact]
-    public void S3352_a_narrow_row_drops_the_name_and_keeps_the_time()
+    public void S11510_rows_and_lines_out_of_range_are_repaired()
     {
-        // At XS a name squeezed beside the time read as one letter ("O" for Other): the row is the
-        // icon and the time, the name in its tooltip; from S on every row carries its name.
-        var xs = ScreenTimeAppsLayout.Apps(Content(Tier("XS")), 5, false);
-        Assert.True(xs.Rows >= 1);
-        Assert.False(xs.Names);
-
-        foreach (var tier in WidgetTiers.All.Where(t => t.Name != "XS"))
-        {
-            Assert.True(ScreenTimeAppsLayout.Apps(Content(tier), 5, false).Names, tier.Name);
-        }
-
-        Assert.True(ScreenTimeAppsLayout.Apps(new WidgetArea(ScreenTimeAppsLayout.NamesFrom, 200), 5, false).Names);
-        Assert.False(ScreenTimeAppsLayout.Apps(new WidgetArea(ScreenTimeAppsLayout.NamesFrom - 1, 200), 5, false).Names);
+        var config = new ScreenTimeAppsConfig { Rows = 40, Lines = 5 };
+        Assert.Equal(2, config.Repair().Count);
+        Assert.Equal((20, 2), (config.Rows, config.Lines));
+        Assert.Equal((7, 2), (((ScreenTimeAppsConfig)new ScreenTimeAppsConfig { Rows = 7, Lines = 2 }.Clone()).Rows, ((ScreenTimeAppsConfig)new ScreenTimeAppsConfig { Rows = 7, Lines = 2 }.Clone()).Lines));
     }
 }

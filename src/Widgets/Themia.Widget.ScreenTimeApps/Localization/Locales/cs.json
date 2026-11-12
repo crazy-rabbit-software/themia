@@ -5,6 +5,5 @@
   "widgetsC.screenTime.apps.desc": "Aplikace, které používáš, a jak dlouho",
   "widgetsC.screenTime.apps.label": "Čas u obrazovky: aplikace",
   "widgetsC.screenTime.limitOverTip": "limit {limit} (překročen)",
-  "widgetsC.screenTime.limitTip": "limit {limit}",
-  "widgetsC.screenTime.settings.most.label": "Nejvíc zobrazených aplikací"
+  "widgetsC.screenTime.limitTip": "limit {limit}"
 }

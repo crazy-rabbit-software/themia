@@ -4,6 +4,5 @@
   "widgetsC.screenTime.apps.desc": "የተጠቀሟቸው መተግበሪያዎች፣ እና ለምን ያህል ጊዜ",
   "widgetsC.screenTime.apps.label": "የማያ ገጽ ጊዜ መተግበሪያዎች",
   "widgetsC.screenTime.limitOverTip": "ገደብ {limit} (አልፏል)",
-  "widgetsC.screenTime.limitTip": "ገደብ {limit}",
-  "widgetsC.screenTime.settings.most.label": "የሚዘረዘሩ ከፍተኛ መተግበሪያዎች"
+  "widgetsC.screenTime.limitTip": "ገደብ {limit}"
 }

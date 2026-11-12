@@ -1,6 +1,5 @@
 {
   "$englishOnly": [],
-  "screentime.goalPerDay": "of {value}/day",
   "styles.screenTimeChart.bars": "Bars",
   "styles.screenTimeChart.calendar": "Calendar",
   "widgetsC.screenTime.chart.desc": "Your screen time day by day, over a week or a month",

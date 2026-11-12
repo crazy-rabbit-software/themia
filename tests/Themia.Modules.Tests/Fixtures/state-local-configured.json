@@ -223,7 +223,8 @@
           "scale": 1,
           "config": {
             "kind": "screenTimeDonut",
-            "period": "Week"
+            "period": "Week",
+            "size": "Medium"
           }
         },
         {
@@ -248,7 +249,8 @@
           "config": {
             "kind": "screenTimeApps",
             "period": "Month",
-            "maxApps": 8,
+            "rows": 8,
+            "lines": 2,
             "showAverage": false,
             "showPercent": true
           }

@@ -1535,7 +1535,8 @@
           "scale": 1,
           "config": {
             "kind": "screenTimeDonut",
-            "period": "Day"
+            "period": "Day",
+            "size": "Medium"
           }
         },
         {
@@ -1561,7 +1562,8 @@
           "config": {
             "kind": "screenTimeApps",
             "period": "Day",
-            "maxApps": 0,
+            "rows": 5,
+            "lines": 1,
             "showAverage": true,
             "showPercent": false
           }

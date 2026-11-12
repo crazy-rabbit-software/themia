@@ -11,7 +11,7 @@ SDK's `SampleScreenTime`).
 
 Owning files: everything in this folder: `ScreenTimeChartModule.cs` (descriptor, view factory, menu
 lines, JSON context), `ScreenTimeChartConfig.cs` (the period and the style, `ScreenTimeChartStyle`), `ScreenTimeChartView.cs`
-(the bars and the calendar through its host, the keys), `ScreenTimeChartLayout.cs` (the ladder),
+(the bars and the calendar through its host, the keys), `ScreenTimeChartLayout.cs` (its sizes),
 `ScreenTimeChartMenu.cs` (its properties menu, ending with the shared lines), `Preview/` (Debug renders:
 `--state sample|hovered|selected|packaged`), `Localization/Locales/` (its own `ScreenTimeChartStr`, 30
 languages). Tests: `Tests/ScreenTimeChartTests.cs`, `Tests/ScreenTimeChartMenuTests.cs` (run by `tests/Themia.Modules.Tests`).
@@ -29,29 +29,30 @@ languages). Tests: `Tests/ScreenTimeChartTests.cs`, `Tests/ScreenTimeChartMenuTe
   app in the ring's order (the busiest seven, `ScreenTimeRules.DrawingApps`, then Other) in the
   accent's ramp by rank, Other and the apps past the fourth tertiary at the wash ([S-2272]), scaled to the busiest day, the stack one
   rectangle of the family's radius (its top part's top corners, its foot part's foot, [S-6704]); under
-  them only the two ends are labelled ([S-6717]: Caption, tertiary): the first day and today, a week's
-  by weekday ("Fri", "Thu"), a month's by date ("Sep 30", "Oct 29"); today's accent label and the
-  weekday row under every bar went. Calendar ([S-456]): seven columns 4 apart, a cell a ring of its
-  day's share of the busiest day (the Chart block's `ChartRing`, the accent over the track) from 16, a
-  dot under it (the accent for any use, the track for none), at most 40; the weekday letters over them
-  (Caption, tertiary, today's column primary) while the cells stay rings; every week while a cell keeps
-  8, else the latest weeks that fit (`ScreenTimeChartLayout.Calendar`).
-- **[S-3332]** Ladder (`ScreenTimeChartLayout.Chart`): the drawing (never dropped, at least 32), then the
-  figure over it, the family's Readout ([S-6702]: 28 or 40 by the area, sized on "888h 59m" so it
-  does not jump, 8 over the drawing), the bars' end labels (a 4 gap and a Caption line, inside the
-  drawing), the line under the figure; the drawing takes the rest of the view's area less the card's
-  bottom inset. The figure is the window's total (Critical while its per-day average is over the daily
-  limit) and the line its per-day average and the "of 4h/day" limit ([S-457]); a hovered day
-  (pointer, or Left / Right) shows that day, every other day at its wash ([S-3333]). Nothing to draw
-  is the Status block's one row at the top ([S-6714]). The header's label names the window ([S-454]).
+  them only the two ends are labelled, always ([S-6717]: Caption, tertiary): the first day and today, a
+  week's by weekday ("Fri", "Thu"), a month's by date ("Sep 30", "Oct 29"). Calendar ([S-456]): seven
+  columns 4 apart sharing the width, a cell a ring of its day's share of the busiest day (the Chart
+  block's `ChartRing`, the accent over the track) of 20, centred in its column, the weekday letters
+  over them (Caption, tertiary, today's column primary), every week of the window.
+- **[S-3332]** *(Retired by [S-11505]: no ladder; the figure and its line are the reading atom's,
+  [S-11500].)*
+- **[S-11505]** **The chart is the drawing alone** (owner decision 2026-11-12, [S-2438]): headerless by
+  default (`StartsHeaderless`; a header, where the card shows one, names the window, [S-454]), the
+  drawing in the card's 12 inset on every side, 200..520 wide (a new one 300), one height per style
+  (`ScreenTimeChartLayout.Sizing`): Bars 12 + 72 of bars + their labels' row (4 + 16) + 12 = 116;
+  Calendar 12 + the letters (16 + 4) + its weeks of 20 rings 4 apart + 12 (a week 64, a month's five
+  weeks 160). A wider card draws wider bars or wider columns; nothing appears or goes with the size.
+  The total over it is the reading atom's ([S-11500]); the ready-made group "Screen time" stands that
+  reading over it ([S-11520]). Nothing to draw is the Status block's one row ([S-6714]).
 - **[S-3333]** Linked focus ([S-3310]): the focused app's part of every bar is drawn whole and every
   other part at its wash (the family's 16 %, [S-6704]; it was 35 %); the calendar's rings show that
-  app's seconds per day against its busiest; the figure is that app's time over the window (or on the
-  hovered day) with its share. Hovering a part hovers its app; clicking it selects (again: lets go);
-  clicking empty space clears the selection.
+  app's seconds per day against its busiest (the reading atom says that app's time, [S-11503]). A day
+  picked (the pointer over its bar or ring, or Left / Right) keeps every other day at its wash.
+  Hovering a part hovers its app; clicking it selects (again: lets go); clicking empty space clears
+  the selection.
 - **[S-3334]** Keys: Up/Down, PgUp/PgDn, Home/End step through the apps in the ring's order (the
-  linked cursor, [S-3307]); Enter/Space select; Left / Right step the day the figure speaks of; Menu
-  hides; Escape lets the cursor and the day go.
+  linked cursor, [S-3307]); Enter/Space select; Left / Right step the day lit; Menu hides; Escape lets
+  the cursor and the day go.
 
 Needs a manual pass: the widget on a live desktop ([S-3331], [S-3333], [S-3334]: a real week and month
 of use as bars and as a calendar, an app lit with the donut and the list, the keys through the lease),
