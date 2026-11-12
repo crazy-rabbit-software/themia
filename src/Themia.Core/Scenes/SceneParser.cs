@@ -1,5 +1,6 @@
 using System.Globalization;
 using System.Text.Json;
+using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
 using Themia.Sdk;
@@ -234,7 +235,7 @@ public static class SceneParser
         if (props.TryGetValue("widgets", out var list))
         {
             var items = Array(list, path + ".widgets");
-            widgets = [.. items.Select((w, i) => Widget(w, $"{path}.widgets[{i}]", screen))];
+            widgets = [.. items.SelectMany((w, i) => Entry(w, $"{path}.widgets[{i}]", screen))];
         }
 
         var hasWallpaper = props.TryGetValue("wallpaper", out var wallpaper);
@@ -337,6 +338,91 @@ public static class SceneParser
             props.TryGetValue("grid", out var grid) && Bool(grid, path + ".grid"),
             props.TryGetValue("group", out var group) ? Text(group, path + ".group") : null,
             props.TryGetValue("enter", out var enter) ? Text(enter, path + ".enter") : null);
+    }
+
+    /// <summary>
+    /// [S-11860] One entry of a scene's widgets: a widget, or a ready-made group by its id
+    /// (<c>{ "readyMade": "thisPc", "at": [x, y] }</c>), which stands for the group's widgets where the
+    /// recipe puts them, as one group.
+    /// </summary>
+    private static IEnumerable<SceneWidget> Entry(JsonElement element, string path, SceneScreen screen)
+        => element.ValueKind == JsonValueKind.Object && element.TryGetProperty("readyMade", out _)
+            ? ReadyMade(element, path, screen)
+            : [Widget(element, path, screen)];
+
+    /// <summary>
+    /// [S-11860] A ready-made group in a scene: every widget of the recipe at its box from the entry's
+    /// point, with the recipe's config, header and label, named <c>id-kind</c> (a second of a kind
+    /// <c>id-kind-n</c>; the id is the entry's, else the recipe's), in one group named as the entry says,
+    /// else as the recipe is called. <c>states</c> gives a kind its preview state. So a picture of a group
+    /// is the group the add page places, never a copy of its boxes.
+    /// </summary>
+    private static IEnumerable<SceneWidget> ReadyMade(JsonElement element, string path, SceneScreen screen)
+    {
+        var props = Properties(element, path, "readyMade", "at", "id", "group", "states");
+        var recipeId = Text(props["readyMade"], path + ".readyMade");
+        var recipe = ReadyMadeGroups.Find(recipeId)
+            ?? throw Refuse(path + ".readyMade", $"no ready-made group \"{recipeId}\" (has: {string.Join(", ", ReadyMadeGroups.All.Select(r => r.Id))})");
+
+        if (!props.TryGetValue("at", out var atElement))
+        {
+            throw Refuse(path, "no \"at\" ([x, y] in DIPs: the group's top-left corner)");
+        }
+
+        var point = Array(atElement, path + ".at");
+        if (point.Count != 2)
+        {
+            throw Refuse(path + ".at", $"{point.Count} numbers; a ready-made group stands at [x, y]");
+        }
+
+        var x = Number(point[0], path + ".at[0]");
+        var y = Number(point[1], path + ".at[1]");
+        var prefix = props.TryGetValue("id", out var id) ? Id(id, path + ".id") : recipe.Id;
+        var group = props.TryGetValue("group", out var named) ? GroupName(named, path + ".group") : recipe.Name.Text();
+
+        var states = new Dictionary<string, string>(StringComparer.Ordinal);
+        if (props.TryGetValue("states", out var statesElement))
+        {
+            if (statesElement.ValueKind != JsonValueKind.Object)
+            {
+                throw Refuse(path + ".states", "an object: a kind and its preview state");
+            }
+
+            foreach (var state in statesElement.EnumerateObject())
+            {
+                if (!recipe.Widgets.Any(w => string.Equals(w.Kind, state.Name, StringComparison.Ordinal)))
+                {
+                    throw Refuse($"{path}.states.{state.Name}", $"\"{recipe.Id}\" has no \"{state.Name}\" (has: {string.Join(", ", recipe.Widgets.Select(w => w.Kind).Distinct())})");
+                }
+
+                states[state.Name] = Word(state.Value, $"{path}.states.{state.Name}");
+            }
+        }
+
+        var widgets = new List<SceneWidget>(recipe.Widgets.Count);
+        for (var i = 0; i < recipe.Widgets.Count; i++)
+        {
+            var part = recipe.Widgets[i];
+            var rect = new SceneRect(x + part.Box.X, y + part.Box.Y, part.Box.Width, part.Box.Height);
+            if (rect.X < 0 || rect.Y < 0 || rect.X + rect.Width > screen.Width || rect.Y + rect.Height > screen.Height)
+            {
+                throw Refuse(path + ".at", $"\"{recipe.Id}\" at [{Show(x)}, {Show(y)}] does not stand inside the {Show(screen.Width)} × {Show(screen.Height)} display (its {part.Kind} would be [{Show(rect.X)}, {Show(rect.Y)}, {Show(rect.Width)}, {Show(rect.Height)}])");
+            }
+
+            var second = recipe.Widgets.Take(i).Any(o => string.Equals(o.Kind, part.Kind, StringComparison.Ordinal));
+            widgets.Add(new SceneWidget(
+                $"{path}.{part.Kind}",
+                second ? $"{prefix}-{part.Kind}-{i}" : $"{prefix}-{part.Kind}",
+                new WidgetId(part.Kind),
+                rect,
+                State: states.TryGetValue(part.Kind, out var chosen) ? chosen : null,
+                Header: part.Header,
+                Label: part.Label,
+                Config: part.Config,
+                Group: group));
+        }
+
+        return widgets;
     }
 
     private static SceneWidget Widget(JsonElement element, string path, SceneScreen screen)

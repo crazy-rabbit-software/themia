@@ -500,4 +500,54 @@ public sealed class SceneParserTests
         Assert.Null(DesignText.Fill("#1020"));
         Assert.Null(DesignText.Fill(null));
     }
+
+    [Fact]
+    public void S11860_a_ready_made_group_stands_for_its_widgets_where_the_recipe_puts_them()
+    {
+        var recipe = ReadyMadeGroups.All[0];
+        var scene = Parsed(One($$"""{ "readyMade": "{{recipe.Id}}", "at": [100, 200] }""")).Find("a")!;
+
+        Assert.Equal(recipe.Widgets.Count, scene.Widgets.Count);
+        for (var i = 0; i < recipe.Widgets.Count; i++)
+        {
+            var part = recipe.Widgets[i];
+            var widget = scene.Widgets[i];
+            Assert.Equal(part.Kind, widget.Kind.Value);
+            Assert.Equal(new SceneRect(100 + part.Box.X, 200 + part.Box.Y, part.Box.Width, part.Box.Height), widget.At);
+            Assert.Equal(part.Config, widget.Config);
+            Assert.Equal(part.Header, widget.Header);
+            Assert.StartsWith(recipe.Id + "-" + part.Kind, widget.Id, StringComparison.Ordinal);
+        }
+
+        // One group, and every widget of it named once.
+        Assert.Single(scene.Widgets.Select(w => w.Group).Distinct());
+        Assert.NotNull(scene.Widgets[0].Group);
+        Assert.Equal(scene.Widgets.Count, scene.Widgets.Select(w => w.Id).Distinct().Count());
+    }
+
+    [Fact]
+    public void S11860_a_ready_made_group_takes_its_own_id_group_name_and_states()
+    {
+        var recipe = ReadyMadeGroups.All[0];
+        var kind = recipe.Widgets[0].Kind;
+        var scene = Parsed(One($$"""{ "readyMade": "{{recipe.Id}}", "at": [0, 0], "id": "left", "group": "Mine", "states": { "{{kind}}": "sample" } }""")).Find("a")!;
+
+        Assert.All(scene.Widgets, w => Assert.Equal("Mine", w.Group));
+        Assert.All(scene.Widgets, w => Assert.StartsWith("left-", w.Id, StringComparison.Ordinal));
+        Assert.Equal("sample", scene.Widgets[0].State);
+    }
+
+    [Theory]
+    [InlineData("""{ "readyMade": "noSuchGroup", "at": [0, 0] }""", "readyMade")]
+    [InlineData("""{ "readyMade": "thisPc" }""", "at")]
+    [InlineData("""{ "readyMade": "thisPc", "at": [0, 0, 10, 10] }""", "at")]
+    [InlineData("""{ "readyMade": "thisPc", "at": [1900, 1060] }""", "at")]
+    [InlineData("""{ "readyMade": "thisPc", "at": [0, 0], "states": { "noSuchKind": "sample" } }""", "states")]
+    [InlineData("""{ "readyMade": "thisPc", "at": [0, 0], "kind": "clock" }""", "kind")]
+    public void S11860_a_ready_made_group_written_wrongly_is_refused_where_it_stands(string entry, string where)
+    {
+        var refusal = Refused(One(entry));
+
+        Assert.Contains(where, refusal.Path + " " + refusal.Problem, StringComparison.Ordinal);
+    }
 }

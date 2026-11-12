@@ -7350,6 +7350,15 @@ composition one thing to arrange: an optional lock over ordinary cards, never a 
   each ([S-11754], [S-11757]); its `open` names a member's own page by the member's scene id
   (`member/<widget id>`, [S-11755]). A group of one, an edit naming a group or a member that is not
   there, or both at once are refused at their path.
+- **[S-11860]** **A ready-made group in a scene**: an entry of a scene's `widgets` may be
+  `{ "readyMade": "<id>", "at": [x, y] }` in place of a widget. It stands for every widget of that
+  recipe ([S-2470]) at its box from the point, with the recipe's config, header and label, as one group,
+  so a picture of a group is the group the add page places and never a copy of its boxes. Its widgets
+  are named `<id>-<kind>` (a second of a kind `<id>-<kind>-<n>`), the id the entry's own `id`, else the
+  recipe's; the group is named by the entry's `group`, else as the recipe is called in the render's
+  language; `states` gives a kind its preview state. An id that is no recipe (those there are, listed),
+  a point that leaves a widget outside the display, a state for a kind the recipe has not, or a widget's
+  property on such an entry is refused at its path. Tests `SceneParserTests.S11860_`.
 
 **The group's page.** Owner's decision 2026-11-12: the atoms each hold their own setting of what they are
 about (their place, account, drive, host, pair, symbol, period, Size), so a group acts as a container: one
