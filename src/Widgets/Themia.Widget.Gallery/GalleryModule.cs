@@ -31,8 +31,7 @@ public sealed class GalleryModule : IWidgetModule
         Label = GalleryStr.Widget_Gallery_Label.Local(),
         Description = GalleryStr.WidgetsA_Catalog_Gallery_Description.Local(),
         Glyph = Glyph,
-        DefaultWidth = 320,
-        DefaultHeight = 240,
+        Sizing = _ => WidgetSizing.Legacy(320, 240),
         Traits = WidgetTraits.CanHaveHeader | WidgetTraits.StartsHeaderless,
         Add = new(AddFolderId.Media, 1, 0),
     };

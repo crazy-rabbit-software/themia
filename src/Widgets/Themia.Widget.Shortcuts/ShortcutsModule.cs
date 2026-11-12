@@ -31,8 +31,7 @@ public sealed class ShortcutsModule : IWidgetModule
         Label = ShortcutsStr.WidgetsA_Catalog_Shortcuts_Label.Local(),
         Description = ShortcutsStr.WidgetsA_Catalog_Shortcuts_Description.Local(),
         Glyph = Glyph,
-        DefaultWidth = 320,
-        DefaultHeight = 220,
+        Sizing = _ => WidgetSizing.Legacy(320, 220),
         Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader,
         Add = new(AddFolderId.Files, 0, 1, Popular: 10),
     };

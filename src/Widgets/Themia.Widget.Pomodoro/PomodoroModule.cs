@@ -31,8 +31,7 @@ public sealed class PomodoroModule : IWidgetModule
         Label = PomodoroStr.Widget_Pomodoro_Label.Local(),
         Description = PomodoroStr.WidgetsA_Catalog_Pomodoro_Description.Local(),
         Glyph = Glyph,
-        DefaultWidth = 240,
-        DefaultHeight = 200,
+        Sizing = _ => WidgetSizing.Legacy(240, 200),
         Traits = WidgetTraits.CanHaveHeader | WidgetTraits.OneReadout,
         Add = new(AddFolderId.Time, 1, 0),
     };

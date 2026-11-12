@@ -28,8 +28,7 @@ public sealed class EnergySaverToggleModule : IWidgetModule
         Label = EnergySaverToggleStr.Toggles_EnergySaver_Label.Local(),
         Description = EnergySaverToggleStr.Toggles_EnergySaver_Desc.Local(),
         Glyph = Glyphs.EnergySaver,
-        DefaultWidth = 120,
-        DefaultHeight = 120,
+        Sizing = _ => WidgetSizing.Legacy(120, 120),
         Traits = WidgetTraits.HasItems | WidgetTraits.OneReadout,
         Add = new(AddFolderId.QuickSettings, 3, 0),
     };

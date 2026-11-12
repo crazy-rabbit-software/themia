@@ -32,8 +32,7 @@ public sealed class TopProcessesModule : IWidgetModule
         Label = TopProcessesStr.Details_Catalog_Processes_Label.Local(),
         Description = TopProcessesStr.Details_Catalog_Processes_Desc.Local(),
         Glyph = Glyphs.ListLayout,
-        DefaultWidth = 300,
-        DefaultHeight = 300,
+        Sizing = _ => WidgetSizing.Legacy(300, 300),
         Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader,
         Add = new(AddFolderId.Processor, 0, 2),
     };

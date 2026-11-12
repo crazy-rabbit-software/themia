@@ -27,7 +27,7 @@ internal sealed partial class AppHost
     public void BeginPlacement(WidgetId kind)
     {
         var definition = ModuleCatalog.Of(kind);
-        BeginPlacement(PlacementPayload.ForNew(kind, definition.DefaultWidth, definition.DefaultHeight));
+        BeginPlacement(PlacementPayload.ForNew(kind, definition.Natural.Width, definition.Natural.Height));
     }
 
     /// <summary>

@@ -37,8 +37,7 @@ public sealed class FolderModule : IWidgetModule
         Label = FolderStr.Styles_Folder_Label.Local(),
         Description = FolderStr.Styles_Folder_Desc.Local(),
         Glyph = Glyphs.Folder,
-        DefaultWidth = 300,
-        DefaultHeight = 280,
+        Sizing = _ => WidgetSizing.Legacy(300, 280),
         Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader,
         Add = new(AddFolderId.Files, 0, 0, Popular: 9),
     };

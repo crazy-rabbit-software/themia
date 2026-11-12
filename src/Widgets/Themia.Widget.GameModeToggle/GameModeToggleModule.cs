@@ -28,8 +28,7 @@ public sealed class GameModeToggleModule : IWidgetModule
         Label = GameModeToggleStr.Toggles_GameMode_Label.Local(),
         Description = GameModeToggleStr.Toggles_GameMode_Desc.Local(),
         Glyph = Glyphs.GameMode,
-        DefaultWidth = 120,
-        DefaultHeight = 120,
+        Sizing = _ => WidgetSizing.Legacy(120, 120),
         Traits = WidgetTraits.HasItems | WidgetTraits.OneReadout,
         Add = new(AddFolderId.QuickSettings, 3, 2),
     };

@@ -31,8 +31,7 @@ public sealed class ExchangeRatesModule : IWidgetModule
         Label = ExchangeRatesStr.Online_Rates_Label.Local(),
         Description = ExchangeRatesStr.Online_Rates_Desc.Local(),
         Glyph = Glyph,
-        DefaultWidth = 300,
-        DefaultHeight = 220,
+        Sizing = _ => WidgetSizing.Legacy(300, 220),
         Traits = WidgetTraits.CanHaveHeader,
         Add = new(AddFolderId.Markets, 0, 1),
     };

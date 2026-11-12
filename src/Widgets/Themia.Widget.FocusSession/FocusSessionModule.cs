@@ -31,8 +31,7 @@ public sealed class FocusSessionModule : IWidgetModule
         Label = FocusSessionStr.Panels_Focus_Label.Local(),
         Description = FocusSessionStr.Panels_Focus_Desc.Local(),
         Glyph = Glyph,
-        DefaultWidth = 240,
-        DefaultHeight = 200,
+        Sizing = _ => WidgetSizing.Legacy(240, 200),
         Traits = WidgetTraits.CanHaveHeader | WidgetTraits.OneReadout,
         Add = new(AddFolderId.Time, 1, 1),
     };

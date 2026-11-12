@@ -28,8 +28,7 @@ public sealed class DoNotDisturbToggleModule : IWidgetModule
         Label = DoNotDisturbToggleStr.Toggles_DoNotDisturb_Label.Local(),
         Description = DoNotDisturbToggleStr.Toggles_DoNotDisturb_Desc.Local(),
         Glyph = Glyphs.QuietHours,
-        DefaultWidth = 120,
-        DefaultHeight = 120,
+        Sizing = _ => WidgetSizing.Legacy(120, 120),
         Traits = WidgetTraits.HasItems | WidgetTraits.OneReadout,
         Add = new(AddFolderId.QuickSettings, 3, 1),
     };

@@ -32,8 +32,7 @@ public sealed class BatteryDetailsModule : IWidgetModule
         Label = BatteryDetailsStr.Details_Catalog_Battery_Label.Local(),
         Description = BatteryDetailsStr.Details_Catalog_Battery_Desc.Local(),
         Glyph = Glyphs.Battery,
-        DefaultWidth = 280,
-        DefaultHeight = 240,
+        Sizing = _ => WidgetSizing.Legacy(280, 240),
         Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader,
         Add = new(AddFolderId.BatteryReading, 0, 1),
     };

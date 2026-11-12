@@ -28,8 +28,7 @@ public sealed class NightLightToggleModule : IWidgetModule
         Label = NightLightToggleStr.Toggles_NightLight_Label.Local(),
         Description = NightLightToggleStr.Toggles_NightLight_Desc.Local(),
         Glyph = Glyphs.NightLight,
-        DefaultWidth = 120,
-        DefaultHeight = 120,
+        Sizing = _ => WidgetSizing.Legacy(120, 120),
         Traits = WidgetTraits.HasItems | WidgetTraits.OneReadout,
         Add = new(AddFolderId.QuickSettings, 2, 0),
     };

@@ -31,8 +31,7 @@ public sealed class HabitTrackerModule : IWidgetModule
         Label = HabitTrackerStr.WidgetsA_Catalog_Habits_Label.Local(),
         Description = HabitTrackerStr.WidgetsA_Catalog_Habits_Description.Local(),
         Glyph = Glyph,
-        DefaultWidth = 320,
-        DefaultHeight = 240,
+        Sizing = _ => WidgetSizing.Legacy(320, 240),
         Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader,
         Add = new(AddFolderId.Notes, 1, 0),
     };

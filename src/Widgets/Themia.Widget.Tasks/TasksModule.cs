@@ -38,8 +38,7 @@ public sealed class TasksModule : IWidgetModule
         Label = TasksStr.WidgetsA_Catalog_Tasks_Label.Local(),
         Description = TasksStr.WidgetsA_Catalog_Tasks_Description.Local(),
         Glyph = Glyphs.Task,
-        DefaultWidth = 320,
-        DefaultHeight = 320,
+        Sizing = _ => WidgetSizing.Legacy(320, 320),
         Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader,
         Add = new(AddFolderId.CalendarMail, 1, 1, Popular: 5),
     };

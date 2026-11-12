@@ -35,8 +35,7 @@ public sealed class ClockModule : IWidgetModule
         Label = ClockStr.Widget_Clock_Label.Local(),
         Description = ClockStr.WidgetsA_Catalog_Clock_Description.Local(),
         Glyph = Glyphs.Clock,
-        DefaultWidth = 280,
-        DefaultHeight = 140,
+        Sizing = _ => WidgetSizing.Legacy(280, 140),
         Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader | WidgetTraits.StartsHeaderless | WidgetTraits.OneReadout,
         Add = new(AddFolderId.Time, 0, 0, Popular: 0),
     };

@@ -28,8 +28,7 @@ public sealed class LockModule : IWidgetModule
         Label = LockStr.Power_Action_Lock.Local(),
         Description = LockStr.WidgetsC_Power_Desc_Lock.Local(),
         Glyph = Glyphs.Lock,
-        DefaultWidth = 120,
-        DefaultHeight = 120,
+        Sizing = _ => WidgetSizing.Legacy(120, 120),
         Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader | WidgetTraits.StartsHeaderless | WidgetTraits.OneReadout,
         Add = new(AddFolderId.PowerButtons, 0, 4),
     };

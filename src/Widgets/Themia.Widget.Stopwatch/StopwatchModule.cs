@@ -31,8 +31,7 @@ public sealed class StopwatchModule : IWidgetModule
         Label = StopwatchStr.Stopwatch_Label.Local(),
         Description = StopwatchStr.Stopwatch_Desc.Local(),
         Glyph = Glyph,
-        DefaultWidth = 260,
-        DefaultHeight = 200,
+        Sizing = _ => WidgetSizing.Legacy(260, 200),
         Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader | WidgetTraits.OneReadout,
         Add = new(AddFolderId.Time, 0, 3),
     };

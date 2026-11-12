@@ -17,7 +17,7 @@ Sections, grouped by area (file order below; search for the heading).
 
 - **Foundations.** Geometry model; Rendering; Grid snap aid; Constraints; Defaults & placement; Views & displays; Window layering; Transparency; Ticking; Live widgets and resource use (R6-RESOURCES); Memory; Persistence; Failure rules; Not on this machine (UNAVAILABLE); Clipboard & transfer between displays; No backwards compatibility; Widget modules and the registry (MODULES); The widget kit (KIT); The service layer (SERVICES).
 - **Shell, windows and settings.** Displays (WP2); Desktop integration and suspend (WP3); Appearance engine (WP1); Notices, resilience and undo (WP4); Widget picker: search (WP5); Multi-select and the placement session (MULTISELECT-PLACEMENT); Widget styles (STYLES); Context menus (R4-MENUS); Views and the view bar (WP8); The Displays and Views pages (R4-NAV, R5-PAGES); Icon picker and showcase views (R4-ICONS); Keyboard lease (WP11); Widget keys (WIDGET-KEYS); Item selection (ITEM-SELECTION); View links (VIEW-LINKS); Keyboard in the shell (SHELL-KEYS); Motion: intros, hyperspace, hacker (WP9-MOTION); Desktop surface drops (WP10-SURFACE); The desktop layer (DESKTOP); Opening a widget's app (R7-OPEN, retired); Opening what a widget is about (CARD-OPEN); Shell hooks (PA); Removed widgets (R7-REMOVE); Shell skeleton and shared settings; Groups and ready-made groups (GROUPS); Shared widget settings: region and updates (SETTINGS-AUDIT); Colours, fonts and uninstall (the settings window, retired); Settings navigation icons (NAV-ICONS, retired); Logging (WP7); Network safety (WP6); The assistants' server (MCP); Localization infrastructure (LOC-INFRA); Microsoft Store package and licensing; Gallery.
-- **Look and layout.** Rows and the card edge; Looking like Windows; The widget header; The widget family: tokens and blocks (FAMILY); Responsive layout (shared foundation); Adding a widget; Layout pass over the ported widgets; Widget polish 1 (POLISH-1); Widget polish 2: leftover parity and layout gaps (POLISH-2); The Set up button (R5-SETUP); One sample day (SAMPLE-DAY).
+- **Look and layout.** Rows and the card edge; Looking like Windows; The widget header; The widget family: tokens and blocks (FAMILY); Widget sizing (SIZE); Responsive layout (shared foundation); Adding a widget; Layout pass over the ported widgets; Widget polish 1 (POLISH-1); Widget polish 2: leftover parity and layout gaps (POLISH-2); The Set up button (R5-SETUP); One sample day (SAMPLE-DAY).
 - **Accounts and sign-in.** Where account data comes from; Accounts and sign-in.
 - **System widgets.** (The seven meters, the seven detail widgets, Drive, Removable drives, Brightness, Mixer, Volume, Music, the Audio visualizer, the three screen-time widgets, Notifications and the Focus session are modules: their sections are their projects' `SPEC.md`; the sections named here keep the hub, the samplers and the rules they share, the SDK's.) System data hub (SYS-HUB); System meters; Meter framework and memory; CPU; Disk and ping; Battery and network; Network and ping; System widgets: GPU, mixer and screen time; Screen time: chart, donut and apps (SCREENTIME-SPLIT); GPU and screen time: the whole tile (SYS-P4); System details (SYS-DETAILS); Mixer and Volume (SYS-P5); Power and Bluetooth; Peripheral batteries (DEVICE-BATTERIES); Device and location (DEVICE-AND-LOCATION); Quick-setting toggles (QUICK-TOGGLES); Windows' panels: notifications, focus session, brightness (WINDOWS-PANELS).
 - **Time, desk and launch widgets.** (Clock, Countdown, Stopwatch, Pomodoro, Quote, Sun, Moon, Scratchpad, Recycle Bin, Alarm, Notes, Clipboard, the Habit tracker, the Gallery, Recent files, Shortcuts and the Folder are modules: their sections are their projects' `SPEC.md`, `src/Widgets/Themia.Widget.<Name>/`; so are Bluetooth, the seven power buttons and the thirteen quick-setting toggles, under System widgets, whose shared rules stay here.) Clock; Countdown and pomodoro; Stopwatch, alarm and drives (KARPO-2); Sun and moon; Audio visualizer (VISUALIZER); Clock, Sun & moon, Quote and Scratchpad: parity and the whole tile (PJ); Music and Pomodoro: parity and the whole tile (PF); Notes; Notes: note store and markdown editor; Clipboard and Countdown: the whole tile; Recent files (RECENT-FILES, the host's list); Recycle Bin (RECYCLE-BIN); Date (DATE); Habits; Shortcuts B: drop, reorder and app layouts (PD); Folder: the file browser (FOLDER, the host's file services); About and the settings file.
@@ -3908,6 +3908,34 @@ accounts out (⚙ › Accounts is where sign-in is mended), the birthday-permiss
 is no toast pipeline yet; the header warning stays and opens Accounts), and birthdays from CardDAV
 (the classic app had none either). Keyboard navigation goes through the shell's keyboard lease: see
 [S-1269] / [S-1277] and [S-806] / [S-807].
+
+## Widget sizing (SIZE)
+
+Content decides a widget's size; the size no longer decides its content (owner's decision
+2026-11-12: widgets grew without end and filled the room; they get a largest size and are split into
+small widgets instead). Owning files: `Themia.Sdk/Modules/WidgetSizing.cs` (the contract),
+`WidgetDescriptor.Sizing` / `.SizeSets` (each kind's), `Themia.Core/Geometry/SizeFit.cs` (the host's
+side); tests `WidgetSizingTests` (Core: the rules; module host: every kind, the legacy list),
+`SizeFitTests`. How a kind is converted: docs/WIDGET-KIT.md 17.
+
+- **[S-2438]** A kind states its sizes as a pure function of its config (`WidgetDescriptor.Sizing`,
+  a `WidgetSizing`): `Min`, `Natural` and `Max` (`SizeDip`, a width and a height) in DIPs of the
+  card's box, its header included, at widget scale 1 and with the kind's default header. An axis
+  whose Min equals its Max is fixed.
+- **[S-2439]** An axis may take only steps (`SizeSteps`: `Base + n × Step` for n in
+  `MinCount..MaxCount`; a list's n rows). With `Count` set the axis follows the config: its size is
+  the config's step, whatever is asked of it.
+- **[S-2441]** Every kind's sizing holds, for its defaults and every style: sizes positive and finite
+  (a legacy Max unbounded), Min ≤ Natural ≤ Max on both axes, a stepped axis's Min, Natural and Max
+  on its steps and its count in range (`WidgetSizing.Problems`, checked over the registry).
+- **[S-2442]** A kind whose size follows a count answers, for its config and a wanted size, with the
+  config that size means (`WidgetDescriptor.SizeSets`: a list dragged to five rows tall has Rows = 5).
+  It returns a copy and never changes the config it is given. A kind has the hook exactly when one of
+  its axes follows its config.
+- **[S-2443]** **Legacy until converted.** A kind not yet converted states `WidgetSizing.Legacy(w, h)`:
+  Natural its old default size, Min the 32 floor ([S-08]), no Max. It keeps the old way whole: no fit,
+  `IWidgetSizeAware` with the ladder ([S-660]..[S-666]) and the seven tiers. The module host's
+  `WidgetSizingTests.Legacy` lists those kinds and only shrinks.
 
 ## Responsive layout (shared foundation)
 

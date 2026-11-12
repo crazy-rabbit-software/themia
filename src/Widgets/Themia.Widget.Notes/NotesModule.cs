@@ -28,8 +28,7 @@ public sealed class NotesModule : IWidgetModule
         Label = NotesStr.Widget_Notes_Label.Local(),
         Description = NotesStr.WidgetsA_Catalog_Notes_Description.Local(),
         Glyph = Glyphs.Note,
-        DefaultWidth = 300,
-        DefaultHeight = 220,
+        Sizing = _ => WidgetSizing.Legacy(300, 220),
         Traits = WidgetTraits.CanHaveHeader,
         Add = new(AddFolderId.Notes, 0, 0, Popular: 6),
     };

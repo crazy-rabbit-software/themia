@@ -34,8 +34,7 @@ public sealed class RecentFilesModule : IWidgetModule
         Label = RecentFilesStr.RecentFiles_Label.Local(),
         Description = RecentFilesStr.RecentFiles_Desc.Local(),
         Glyph = Glyph,
-        DefaultWidth = 320,
-        DefaultHeight = 300,
+        Sizing = _ => WidgetSizing.Legacy(320, 300),
         Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader,
         Add = new(AddFolderId.Files, 0, 2),
     };

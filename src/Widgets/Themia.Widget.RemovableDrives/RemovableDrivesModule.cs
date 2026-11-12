@@ -28,8 +28,7 @@ public sealed class RemovableDrivesModule : IWidgetModule
         Label = RemovableDrivesStr.Drives_Removable_Label.Local(),
         Description = RemovableDrivesStr.Drives_Removable_Desc.Local(),
         Glyph = Glyphs.Usb,
-        DefaultWidth = 300,
-        DefaultHeight = 200,
+        Sizing = _ => WidgetSizing.Legacy(300, 200),
         Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader,
         Add = new(AddFolderId.Devices, 2, 1),
     };

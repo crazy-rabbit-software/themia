@@ -92,11 +92,11 @@ internal static class DesktopRender
                         var layer = new Canvas { Width = ScreenWidth, Height = ScreenHeight };
                         foreach (var (column, row, key, state) in Items)
                         {
-                            var x = Cell + (column * kind.DefaultWidth);
-                            var y = Cell + (row * kind.DefaultHeight);
-                            var rect = new FracRect(x / ScreenWidth, y / ScreenHeight, kind.DefaultWidth / ScreenWidth, kind.DefaultHeight / ScreenHeight);
+                            var x = Cell + (column * kind.Natural.Width);
+                            var y = Cell + (row * kind.Natural.Height);
+                            var rect = new FracRect(x / ScreenWidth, y / ScreenHeight, kind.Natural.Width / ScreenWidth, kind.Natural.Height / ScreenHeight);
                             var item = new DesktopItem(key, DesktopItemKeys.FallbackName(key), DesktopItemKind.File);
-                            var card = new WidgetCard(host, AppHost.NewItemWidget(kind.Id, item, rect)) { Width = kind.DefaultWidth, Height = kind.DefaultHeight };
+                            var card = new WidgetCard(host, AppHost.NewItemWidget(kind.Id, item, rect)) { Width = kind.Natural.Width, Height = kind.Natural.Height };
                             Canvas.SetLeft(card, x);
                             Canvas.SetTop(card, y);
                             layer.Children.Add(card);

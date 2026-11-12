@@ -32,8 +32,7 @@ public sealed class CpuDetailsModule : IWidgetModule
         Label = CpuDetailsStr.Details_Catalog_Cpu_Label.Local(),
         Description = CpuDetailsStr.Details_Catalog_Cpu_Desc.Local(),
         Glyph = Glyphs.Cpu,
-        DefaultWidth = 280,
-        DefaultHeight = 240,
+        Sizing = _ => WidgetSizing.Legacy(280, 240),
         Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader,
         Add = new(AddFolderId.Processor, 0, 1),
     };

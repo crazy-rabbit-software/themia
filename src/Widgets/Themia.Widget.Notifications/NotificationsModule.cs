@@ -32,8 +32,7 @@ public sealed class NotificationsModule : IWidgetModule
         Label = NotificationsStr.Panels_Notifications_Label.Local(),
         Description = NotificationsStr.Panels_Notifications_Desc.Local(),
         Glyph = Glyph,
-        DefaultWidth = 320,
-        DefaultHeight = 320,
+        Sizing = _ => WidgetSizing.Legacy(320, 320),
         Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader,
         Add = new(AddFolderId.CalendarMail, 2, 0),
     };

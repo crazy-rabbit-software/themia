@@ -32,8 +32,7 @@ public sealed class MemoryDetailsModule : IWidgetModule
         Label = MemoryDetailsStr.Details_Catalog_Memory_Label.Local(),
         Description = MemoryDetailsStr.Details_Catalog_Memory_Desc.Local(),
         Glyph = Glyphs.Memory,
-        DefaultWidth = 280,
-        DefaultHeight = 240,
+        Sizing = _ => WidgetSizing.Legacy(280, 240),
         Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader,
         Add = new(AddFolderId.MemoryReading, 0, 1),
     };

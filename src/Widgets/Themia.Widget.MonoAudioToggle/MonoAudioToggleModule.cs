@@ -28,8 +28,7 @@ public sealed class MonoAudioToggleModule : IWidgetModule
         Label = MonoAudioToggleStr.Toggles_MonoAudio_Label.Local(),
         Description = MonoAudioToggleStr.Toggles_MonoAudio_Desc.Local(),
         Glyph = Glyphs.MonoAudio,
-        DefaultWidth = 120,
-        DefaultHeight = 120,
+        Sizing = _ => WidgetSizing.Legacy(120, 120),
         Traits = WidgetTraits.HasItems | WidgetTraits.OneReadout,
         Add = new(AddFolderId.QuickSettings, 1, 3),
     };

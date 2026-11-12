@@ -42,8 +42,7 @@ public sealed class StocksModule : IWidgetModule
         Label = StocksStr.Widget_Stocks_Label.Local(),
         Description = StocksStr.WidgetsA_Catalog_Stocks_Description.Local(),
         Glyph = Glyphs.Stocks,
-        DefaultWidth = 320,
-        DefaultHeight = 240,
+        Sizing = _ => WidgetSizing.Legacy(320, 240),
         Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader,
         Add = new(AddFolderId.Markets, 0, 0),
     };

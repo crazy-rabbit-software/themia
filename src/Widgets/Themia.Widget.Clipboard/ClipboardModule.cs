@@ -31,8 +31,7 @@ public sealed class ClipboardModule : IWidgetModule
         Label = ClipboardStr.WidgetsA_Catalog_Clipboard_Label.Local(),
         Description = ClipboardStr.WidgetsA_Catalog_Clipboard_Description.Local(),
         Glyph = Glyph,
-        DefaultWidth = 320,
-        DefaultHeight = 260,
+        Sizing = _ => WidgetSizing.Legacy(320, 260),
         Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader,
         Add = new(AddFolderId.Notes, 0, 2),
     };

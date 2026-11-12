@@ -27,8 +27,7 @@ public sealed class RssModule : IWidgetModule
         Label = RssStr.WidgetsA_Catalog_Feed_Label.Local(),
         Description = RssStr.WidgetsA_Catalog_Feed_Description.Local(),
         Glyph = Glyphs.Rss,
-        DefaultWidth = 360,
-        DefaultHeight = 280,
+        Sizing = _ => WidgetSizing.Legacy(360, 280),
         Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader,
         Add = new(AddFolderId.Markets, 1, 0),
     };

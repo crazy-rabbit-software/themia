@@ -35,8 +35,7 @@ public sealed class EmailModule : IWidgetModule
         Label = EmailStr.WidgetsA_Catalog_Mail_Label.Local(),
         Description = EmailStr.WidgetsA_Catalog_Mail_Description.Local(),
         Glyph = Glyphs.Mail,
-        DefaultWidth = 380,
-        DefaultHeight = 260,
+        Sizing = _ => WidgetSizing.Legacy(380, 260),
         Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader,
         Add = new(AddFolderId.CalendarMail, 1, 0, Popular: 4),
     };

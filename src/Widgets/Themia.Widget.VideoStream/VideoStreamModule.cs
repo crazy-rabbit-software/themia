@@ -31,8 +31,7 @@ public sealed class VideoStreamModule : IWidgetModule
         Label = VideoStreamStr.WidgetsA_Catalog_VideoStream_Label.Local(),
         Description = VideoStreamStr.WidgetsA_Catalog_VideoStream_Description.Local(),
         Glyph = Glyph,
-        DefaultWidth = 320,
-        DefaultHeight = 240,
+        Sizing = _ => WidgetSizing.Legacy(320, 240),
         Traits = WidgetTraits.CanHaveHeader | WidgetTraits.StartsHeaderless,
         Add = new(AddFolderId.Media, 1, 1),
     };

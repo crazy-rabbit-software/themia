@@ -28,8 +28,7 @@ public sealed class ScreenOffModule : IWidgetModule
         Label = ScreenOffStr.Power_Action_ScreenOff.Local(),
         Description = ScreenOffStr.WidgetsC_Power_Desc_ScreenOff.Local(),
         Glyph = Glyphs.Display,
-        DefaultWidth = 120,
-        DefaultHeight = 120,
+        Sizing = _ => WidgetSizing.Legacy(120, 120),
         Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader | WidgetTraits.StartsHeaderless | WidgetTraits.OneReadout,
         Add = new(AddFolderId.PowerButtons, 0, 6),
     };

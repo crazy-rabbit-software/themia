@@ -28,8 +28,7 @@ public sealed class SpatialSoundToggleModule : IWidgetModule
         Label = SpatialSoundToggleStr.Toggles_SpatialSound_Label.Local(),
         Description = SpatialSoundToggleStr.Toggles_SpatialSound_Desc.Local(),
         Glyph = Glyphs.SpatialSound,
-        DefaultWidth = 120,
-        DefaultHeight = 120,
+        Sizing = _ => WidgetSizing.Legacy(120, 120),
         Traits = WidgetTraits.HasItems | WidgetTraits.OneReadout,
         Add = new(AddFolderId.QuickSettings, 1, 2),
     };

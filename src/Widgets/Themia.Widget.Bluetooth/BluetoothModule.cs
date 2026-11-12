@@ -31,8 +31,7 @@ public sealed class BluetoothModule : IWidgetModule
         Label = BluetoothStr.Widget_Bluetooth_Label.Local(),
         Description = BluetoothStr.WidgetsA_Catalog_Bluetooth_Description.Local(),
         Glyph = Glyphs.Bluetooth,
-        DefaultWidth = 300,
-        DefaultHeight = 240,
+        Sizing = _ => WidgetSizing.Legacy(300, 240),
         Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader,
         Add = new(AddFolderId.Devices, 1, 1),
     };

@@ -35,8 +35,7 @@ public sealed class WeekPlannerModule : IWidgetModule
         Label = WeekPlannerStr.Planner_Label.Local(),
         Description = WeekPlannerStr.Planner_Desc.Local(),
         Glyph = Glyphs.WeekPlanner,
-        DefaultWidth = 480,
-        DefaultHeight = 280,
+        Sizing = _ => WidgetSizing.Legacy(480, 280),
         Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader,
         Add = new(AddFolderId.CalendarMail, 0, 2),
     };

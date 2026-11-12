@@ -28,8 +28,7 @@ public sealed class ColorFiltersToggleModule : IWidgetModule
         Label = ColorFiltersToggleStr.Toggles_ColorFilters_Label.Local(),
         Description = ColorFiltersToggleStr.Toggles_ColorFilters_Desc.Local(),
         Glyph = Glyphs.ColorFilters,
-        DefaultWidth = 120,
-        DefaultHeight = 120,
+        Sizing = _ => WidgetSizing.Legacy(120, 120),
         Traits = WidgetTraits.HasItems | WidgetTraits.OneReadout,
         Add = new(AddFolderId.QuickSettings, 2, 1),
     };

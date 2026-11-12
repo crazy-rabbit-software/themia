@@ -31,8 +31,7 @@ public sealed class AirQualityModule : IWidgetModule
         Label = AirQualityStr.Online_Air_Label.Local(),
         Description = AirQualityStr.Online_Air_Desc.Local(),
         Glyph = Glyph,
-        DefaultWidth = 260,
-        DefaultHeight = 200,
+        Sizing = _ => WidgetSizing.Legacy(260, 200),
         Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader,
         Add = new(AddFolderId.Weather, 0, 3),
     };

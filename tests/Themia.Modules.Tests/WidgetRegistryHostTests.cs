@@ -65,8 +65,8 @@ public sealed class WidgetRegistryHostTests
         Assert.False(string.IsNullOrWhiteSpace(widget.Describe(Locale.En)));
         Assert.DoesNotContain("{", widget.Describe(Locale.En), StringComparison.Ordinal);
         Assert.Single(widget.Glyph.EnumerateRunes());
-        Assert.InRange(widget.DefaultWidth, 80, 800);
-        Assert.InRange(widget.DefaultHeight, 80, 800);
+        Assert.InRange(widget.Natural.Width, 80, 800);
+        Assert.InRange(widget.Natural.Height, 80, 800);
     }
 
     [Theory]

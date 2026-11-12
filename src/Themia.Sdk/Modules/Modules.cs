@@ -57,10 +57,27 @@ public sealed record WidgetDescriptor
     /// <summary>Segoe Fluent Icons code point: the picker, the Set up prompt, the settings search.</summary>
     public required string Glyph { get; init; }
 
-    /// <summary>[S-10] Default size in DIPs, made a fraction of the display when it lands.</summary>
-    public required double DefaultWidth { get; init; }
+    /// <summary>
+    /// [S-2438] The sizes the widget may take, from its config alone: a pure function, so the host, the
+    /// renders and the tests ask it as often as they like. A kind not yet converted returns
+    /// <see cref="WidgetSizing.Legacy"/> ([S-2443]). [S-10] A new widget lands at its Natural.
+    /// </summary>
+    public required Func<WidgetConfig, WidgetSizing> Sizing { get; init; }
 
-    public required double DefaultHeight { get; init; }
+    /// <summary>
+    /// [S-2442] For a kind whose size follows a count (a list's rows): the config a box of
+    /// <paramref name="size"/> means, given the config it has now (which it must not change: it returns a
+    /// changed copy, or the same instance when nothing changes). The host asks it while a resize is
+    /// dragged (the preview) and on the drop, and stores the config and the rect in one mutation.
+    /// Null for every other kind.
+    /// </summary>
+    public Func<WidgetConfig, SizeDip, WidgetConfig>? SizeSets { get; init; }
+
+    /// <summary>[S-2438] The sizing of <paramref name="config"/> (the defaults when null).</summary>
+    public WidgetSizing SizingOf(WidgetConfig? config = null) => Sizing(config ?? CreateDefault());
+
+    /// <summary>[S-10] Where a new widget of the kind lands, in DIPs: its default config's Natural.</summary>
+    public SizeDip Natural => SizingOf().Natural;
 
     /// <summary>[S-6907] Its home in the add menu's tree, and its place among Popular's rows if it is one.</summary>
     public required AddPlacement Add { get; init; }

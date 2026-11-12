@@ -28,8 +28,7 @@ public sealed class RotationLockToggleModule : IWidgetModule
         Label = RotationLockToggleStr.Toggles_RotationLock_Label.Local(),
         Description = RotationLockToggleStr.Toggles_RotationLock_Desc.Local(),
         Glyph = Glyphs.RotationLock,
-        DefaultWidth = 120,
-        DefaultHeight = 120,
+        Sizing = _ => WidgetSizing.Legacy(120, 120),
         Traits = WidgetTraits.HasItems | WidgetTraits.OneReadout,
         Add = new(AddFolderId.QuickSettings, 2, 2),
     };

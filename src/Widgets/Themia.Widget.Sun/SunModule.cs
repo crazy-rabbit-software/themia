@@ -28,8 +28,7 @@ public sealed class SunModule : IWidgetModule
         Label = SunStr.WidgetsC_Sun_Label.Local(),
         Description = SunStr.WidgetsC_Sun_Desc.Local(),
         Glyph = Glyphs.Sun,
-        DefaultWidth = 320,
-        DefaultHeight = 240,
+        Sizing = _ => WidgetSizing.Legacy(320, 240),
         Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader,
         Add = new(AddFolderId.Weather, 1, 0),
     };

@@ -28,8 +28,7 @@ public sealed class SleepModule : IWidgetModule
         Label = SleepStr.Power_Action_Sleep.Local(),
         Description = SleepStr.WidgetsC_Power_Desc_Sleep.Local(),
         Glyph = Glyphs.Moon,
-        DefaultWidth = 120,
-        DefaultHeight = 120,
+        Sizing = _ => WidgetSizing.Legacy(120, 120),
         Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader | WidgetTraits.StartsHeaderless | WidgetTraits.OneReadout,
         Add = new(AddFolderId.PowerButtons, 0, 2),
     };

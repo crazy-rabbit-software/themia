@@ -28,8 +28,7 @@ public sealed class BluetoothToggleModule : IWidgetModule
         Label = BluetoothToggleStr.Toggles_Bluetooth_Label.Local(),
         Description = BluetoothToggleStr.Toggles_Bluetooth_Desc.Local(),
         Glyph = Glyphs.Bluetooth,
-        DefaultWidth = 120,
-        DefaultHeight = 120,
+        Sizing = _ => WidgetSizing.Legacy(120, 120),
         Traits = WidgetTraits.HasItems | WidgetTraits.OneReadout,
         Add = new(AddFolderId.QuickSettings, 0, 1),
     };

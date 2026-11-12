@@ -32,8 +32,7 @@ public sealed class DiskModule : IWidgetModule
         Label = DiskStr.WidgetsA_Catalog_Disk_Label.Local(),
         Description = DiskStr.WidgetsA_Catalog_Disk_Description.Local(),
         Glyph = Glyphs.Disk,
-        DefaultWidth = 200,
-        DefaultHeight = 150,
+        Sizing = _ => WidgetSizing.Legacy(200, 150),
         Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader,
         Add = new(AddFolderId.System, 0, 3),
     };

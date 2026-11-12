@@ -28,8 +28,7 @@ public sealed class ScreenTimeDonutModule : IWidgetModule
         Label = ScreenTimeDonutStr.WidgetsC_ScreenTime_Donut_Label.Local(),
         Description = ScreenTimeDonutStr.WidgetsC_ScreenTime_Donut_Desc.Local(),
         Glyph = Glyphs.ScreenTimeDonut,
-        DefaultWidth = 240,
-        DefaultHeight = 260,
+        Sizing = _ => WidgetSizing.Legacy(240, 260),
         Traits = WidgetTraits.CanHaveHeader,
         Add = new(AddFolderId.ScreenTime, 0, 1),
     };

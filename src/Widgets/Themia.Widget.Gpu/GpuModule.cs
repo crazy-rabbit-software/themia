@@ -32,8 +32,7 @@ public sealed class GpuModule : IWidgetModule
         Label = GpuStr.WidgetsA_Catalog_Gpu_Label.Local(),
         Description = GpuStr.Shell_Meters_GpuDescription.Local(),
         Glyph = Glyphs.Gpu,
-        DefaultWidth = 220,
-        DefaultHeight = 220,
+        Sizing = _ => WidgetSizing.Legacy(220, 220),
         Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader,
         Add = new(AddFolderId.Graphics, 0, 0),
     };

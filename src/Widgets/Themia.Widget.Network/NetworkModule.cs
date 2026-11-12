@@ -32,8 +32,7 @@ public sealed class NetworkModule : IWidgetModule
         Label = NetworkStr.WidgetsA_Catalog_Network_Label.Local(),
         Description = NetworkStr.WidgetsA_Catalog_Network_Description.Local(),
         Glyph = Glyphs.Network,
-        DefaultWidth = 200,
-        DefaultHeight = 150,
+        Sizing = _ => WidgetSizing.Legacy(200, 150),
         Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader,
         Add = new(AddFolderId.NetworkReading, 0, 0),
     };

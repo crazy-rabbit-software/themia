@@ -734,7 +734,7 @@ internal sealed partial class AppHost : IDesktopDesk
             .Where(w => !moving.Contains(w) && !(w.Config is IDesktopItemConfig c && movingKeys.Contains(c.Item)))
             .Select(w => w.Rect)
             .ToList();
-        var cell = new FracRect(0, 0, kind.DefaultWidth / to.Width, kind.DefaultHeight / to.Height);
+        var cell = new FracRect(0, 0, kind.Natural.Width / to.Width, kind.Natural.Height / to.Height);
         var spots = DesktopCells.Move([.. moving.Select(w => Into(w.Rect))], held, dip.X / to.Width, dip.Y / to.Height, others, cell, to.Allowed);
 
         Mutate(state =>

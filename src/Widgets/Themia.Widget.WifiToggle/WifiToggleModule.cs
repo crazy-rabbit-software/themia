@@ -29,8 +29,7 @@ public sealed class WifiToggleModule : IWidgetModule
         Label = WifiToggleStr.Toggles_Wifi_Label.Local(),
         Description = WifiToggleStr.Toggles_Wifi_Desc.Local(),
         Glyph = Glyphs.Wifi,
-        DefaultWidth = 120,
-        DefaultHeight = 120,
+        Sizing = _ => WidgetSizing.Legacy(120, 120),
         Traits = WidgetTraits.HasItems | WidgetTraits.OneReadout,
         Add = new(AddFolderId.QuickSettings, 0, 0),
     };

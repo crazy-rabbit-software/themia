@@ -32,8 +32,7 @@ public sealed class PingModule : IWidgetModule
         Label = PingStr.Widget_Ping_Label.Local(),
         Description = PingStr.WidgetsA_Catalog_Ping_Description.Local(),
         Glyph = Glyphs.Ping,
-        DefaultWidth = 200,
-        DefaultHeight = 150,
+        Sizing = _ => WidgetSizing.Legacy(200, 150),
         Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader,
         Add = new(AddFolderId.PingReading, 0, 0),
     };

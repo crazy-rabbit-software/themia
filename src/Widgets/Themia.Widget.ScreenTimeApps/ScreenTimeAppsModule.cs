@@ -28,8 +28,7 @@ public sealed class ScreenTimeAppsModule : IWidgetModule
         Label = ScreenTimeAppsStr.WidgetsC_ScreenTime_Apps_Label.Local(),
         Description = ScreenTimeAppsStr.WidgetsC_ScreenTime_Apps_Desc.Local(),
         Glyph = Glyphs.ScreenTime,
-        DefaultWidth = 280,
-        DefaultHeight = 300,
+        Sizing = _ => WidgetSizing.Legacy(280, 300),
         Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader,
         Add = new(AddFolderId.ScreenTime, 0, 2),
     };

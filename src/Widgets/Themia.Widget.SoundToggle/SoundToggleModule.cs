@@ -28,8 +28,7 @@ public sealed class SoundToggleModule : IWidgetModule
         Label = SoundToggleStr.Toggles_Sound_Label.Local(),
         Description = SoundToggleStr.Toggles_Sound_Desc.Local(),
         Glyph = Glyphs.Volume3,
-        DefaultWidth = 120,
-        DefaultHeight = 120,
+        Sizing = _ => WidgetSizing.Legacy(120, 120),
         Traits = WidgetTraits.HasItems | WidgetTraits.OneReadout,
         Add = new(AddFolderId.QuickSettings, 1, 0),
     };

@@ -28,8 +28,7 @@ public sealed class MicrophoneToggleModule : IWidgetModule
         Label = MicrophoneToggleStr.Toggles_Microphone_Label.Local(),
         Description = MicrophoneToggleStr.Toggles_Microphone_Desc.Local(),
         Glyph = Glyphs.Microphone,
-        DefaultWidth = 120,
-        DefaultHeight = 120,
+        Sizing = _ => WidgetSizing.Legacy(120, 120),
         Traits = WidgetTraits.HasItems | WidgetTraits.OneReadout,
         Add = new(AddFolderId.QuickSettings, 1, 1),
     };

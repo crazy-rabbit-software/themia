@@ -28,8 +28,7 @@ public sealed class HibernateModule : IWidgetModule
         Label = HibernateStr.Power_Action_Hibernate.Local(),
         Description = HibernateStr.WidgetsC_Power_Desc_Hibernate.Local(),
         Glyph = Glyphs.Hibernate,
-        DefaultWidth = 120,
-        DefaultHeight = 120,
+        Sizing = _ => WidgetSizing.Legacy(120, 120),
         Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader | WidgetTraits.StartsHeaderless | WidgetTraits.OneReadout,
         Add = new(AddFolderId.PowerButtons, 0, 3),
     };

@@ -28,8 +28,7 @@ public sealed class ScreenTimeChartModule : IWidgetModule
         Label = ScreenTimeChartStr.WidgetsC_ScreenTime_Chart_Label.Local(),
         Description = ScreenTimeChartStr.WidgetsC_ScreenTime_Chart_Desc.Local(),
         Glyph = Glyphs.ScreenTimeChart,
-        DefaultWidth = 320,
-        DefaultHeight = 220,
+        Sizing = _ => WidgetSizing.Legacy(320, 220),
         Traits = WidgetTraits.CanHaveHeader,
         Add = new(AddFolderId.ScreenTime, 0, 0),
     };

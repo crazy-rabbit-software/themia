@@ -28,8 +28,7 @@ public sealed class AirplaneModeToggleModule : IWidgetModule
         Label = AirplaneModeToggleStr.Toggles_AirplaneMode_Label.Local(),
         Description = AirplaneModeToggleStr.Toggles_AirplaneMode_Desc.Local(),
         Glyph = Glyphs.Airplane,
-        DefaultWidth = 120,
-        DefaultHeight = 120,
+        Sizing = _ => WidgetSizing.Legacy(120, 120),
         Traits = WidgetTraits.HasItems | WidgetTraits.OneReadout,
         Add = new(AddFolderId.QuickSettings, 0, 2),
     };

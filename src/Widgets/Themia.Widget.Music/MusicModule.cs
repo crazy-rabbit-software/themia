@@ -32,8 +32,7 @@ public sealed class MusicModule : IWidgetModule
         Label = MusicStr.WidgetsA_Catalog_Music_Label.Local(),
         Description = MusicStr.WidgetsA_Catalog_Music_Description.Local(),
         Glyph = Glyphs.Music,
-        DefaultWidth = 340,
-        DefaultHeight = 160,
+        Sizing = _ => WidgetSizing.Legacy(340, 160),
         Traits = WidgetTraits.CanHaveHeader,
         Add = new(AddFolderId.Media, 0, 0, Popular: 7),
     };

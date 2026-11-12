@@ -202,7 +202,7 @@ internal sealed partial class AppHost
         var spots = LandingSpots(plan.Arrivals);
         var made = new Dictionary<string, string>(DesktopItemKeys.Comparer);
         var unplaced = DesktopReconcile.Apply(
-            state, plan, target, screen, (kind.DefaultWidth, kind.DefaultHeight),
+            state, plan, target, screen, (kind.Natural.Width, kind.Natural.Height),
             (item, rect) =>
             {
                 var widget = NewItemWidget(kind.Id, item, rect);
@@ -243,7 +243,7 @@ internal sealed partial class AppHost
         DesktopShownView? primary = alive.FirstOrDefault(w => w.Monitor.IsPrimary && w.Metrics.IsUsable) is { } main
             ? new DesktopShownView(main.CurrentViewId, main.Metrics)
             : null;
-        var plan = DesktopDisplays.Plan(State, [.. _displays.Select(d => d.Id)], shown, primary, HostDesktopItems.Instance.Items, (kind.DefaultWidth, kind.DefaultHeight));
+        var plan = DesktopDisplays.Plan(State, [.. _displays.Select(d => d.Id)], shown, primary, HostDesktopItems.Instance.Items, (kind.Natural.Width, kind.Natural.Height));
         if (!plan.Changes(State))
         {
             return;
@@ -280,7 +280,7 @@ internal sealed partial class AppHost
             return;
         }
 
-        var widget = NewItemWidget(kind.Id, item, new FracRect(0, 0, kind.DefaultWidth / screen.Width, kind.DefaultHeight / screen.Height));
+        var widget = NewItemWidget(kind.Id, item, new FracRect(0, 0, kind.Natural.Width / screen.Width, kind.Natural.Height / screen.Height));
         var holder = new ViewState { Id = "desktop-item", Name = string.Empty, Widgets = [widget] };
         if (PlacementPayload.FromView(holder, [widget.Id], PlacementMode.Copy) is { } payload)
         {

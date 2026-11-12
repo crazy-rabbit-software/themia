@@ -28,8 +28,7 @@ public sealed class MoonModule : IWidgetModule
         Label = MoonStr.WidgetsC_Moon_Label.Local(),
         Description = MoonStr.WidgetsC_Moon_Desc.Local(),
         Glyph = Glyphs.Moon,
-        DefaultWidth = 240,
-        DefaultHeight = 220,
+        Sizing = _ => WidgetSizing.Legacy(240, 220),
         Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader,
         Add = new(AddFolderId.Weather, 1, 1),
     };

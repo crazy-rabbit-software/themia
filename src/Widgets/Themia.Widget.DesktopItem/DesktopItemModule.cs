@@ -39,8 +39,7 @@ public sealed class DesktopItemModule : IWidgetModule
         Label = DesktopItemStr.DesktopItem_Label.Local(),
         Description = DesktopItemStr.DesktopItem_Desc.Local(),
         Glyph = Glyph,
-        DefaultWidth = CellWidth,
-        DefaultHeight = CellHeight,
+        Sizing = _ => WidgetSizing.Legacy(CellWidth, CellHeight),
 
         // [S-5600] The name is under the icon: no header, no item layer.
         Traits = WidgetTraits.None,

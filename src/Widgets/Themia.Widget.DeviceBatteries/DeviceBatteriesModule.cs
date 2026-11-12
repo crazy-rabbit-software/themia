@@ -24,8 +24,7 @@ public sealed class DeviceBatteriesModule : IWidgetModule
         Label = DeviceBatteriesStr.DeviceBatteries_Label.Local(),
         Description = DeviceBatteriesStr.DeviceBatteries_Desc.Local(),
         Glyph = Glyphs.Devices,
-        DefaultWidth = 300,
-        DefaultHeight = 200,
+        Sizing = _ => WidgetSizing.Legacy(300, 200),
         Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader,
         Add = new(AddFolderId.Devices, 1, 2),
     };
