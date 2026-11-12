@@ -203,4 +203,20 @@ public sealed class SamplePcTests
         var sorted = values.Order().ToArray();
         return sorted[(int)Math.Clamp(share * (sorted.Length - 1), 0, sorted.Length - 1)];
     }
+
+    [Fact]
+    public void S11802_the_sample_machine_has_a_system_drive_a_data_drive_and_one_usb_stick()
+    {
+        var drives = SamplePc.Drives;
+
+        Assert.Equal([SamplePc.SystemRoot, SamplePc.DataRoot, SamplePc.StickRoot], drives.Select(d => d.Root));
+        Assert.All(drives, d => Assert.True(d.Known, d.Root));
+        Assert.Equal("System (C:)", DriveRules.Title(Themia.Core.Localization.Locale.En, drives[0]));
+        Assert.InRange(drives[0].UsedFraction!.Value, 0.3, 0.8);
+        Assert.Equal([VolumeKind.Fixed, VolumeKind.Fixed, VolumeKind.Removable], drives.Select(d => d.Kind));
+
+        // The disk meter's volumes are the same drives, named alike.
+        var disk = (IReadOnlyList<DiskSnapshot>)SamplePc.Readings(SystemSource.DiskActivity);
+        Assert.Equal(["System", "Data"], disk[^1].Volumes.Select(v => v.Label));
+    }
 }

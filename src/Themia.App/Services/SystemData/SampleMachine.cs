@@ -2,6 +2,7 @@
 using Microsoft.UI.Dispatching;
 using Themia.Core.SystemData;
 using Themia.Sdk;
+using Themia.Sdk.WinUI;
 
 namespace Themia.App.Services.SystemData;
 
@@ -13,8 +14,9 @@ namespace Themia.App.Services.SystemData;
 /// which every card's <c>IWidgetHost.System</c> is, so the meters, the details and the process list
 /// draw it through their own code: the hub's rules, its series with a full history from the first
 /// frame ([S-1932]), the widgets' views. Nothing is read from this PC and nothing moves (the hub does
-/// not tick over a recording), so two renders draw the same picture. Dispose to put back what was
-/// there (none, in a render). <c>--widget-png ... --machine sample</c> is this.
+/// not tick over a recording), so two renders draw the same picture. [S-11802] The drive widgets read
+/// its drives (<see cref="SamplePc.Drives"/>) the same way, through <see cref="AppServices.Drives"/>.
+/// Dispose to put back what was there (none, in a render). <c>--widget-png ... --machine sample</c> is this.
 /// </summary>
 public static class SampleMachine
 {
@@ -23,7 +25,7 @@ public static class SampleMachine
     {
         ArgumentNullException.ThrowIfNull(ticker);
         ArgumentNullException.ThrowIfNull(dispatcher);
-        return new Installed(Hub(ticker, dispatcher));
+        return new Installed(Hub(ticker, dispatcher), new SampleDrives());
     }
 
     /// <summary>
@@ -41,13 +43,16 @@ public static class SampleMachine
     {
         private readonly SystemHub _hub;
         private readonly SystemHub? _before;
+        private readonly IDrives _drivesBefore;
         private bool _disposed;
 
-        public Installed(SystemHub hub)
+        public Installed(SystemHub hub, IDrives drives)
         {
             _hub = hub;
             _before = AppServices.System;
             AppServices.System = hub;
+            _drivesBefore = AppServices.Drives;
+            AppServices.Drives = drives;
         }
 
         public void Dispose()
@@ -64,7 +69,32 @@ public static class SampleMachine
                 AppServices.System = _before;
             }
 
+            AppServices.Drives = _drivesBefore;
+
             _hub.Dispose();
+        }
+    }
+
+    /// <summary>[S-11802] The sample machine's drives: one fixed walk, nothing watched, nothing walked again.</summary>
+    private sealed class SampleDrives : IDrives
+    {
+        public IReadOnlyList<Themia.Core.Widgets.DriveEntry> Drives => SamplePc.Drives;
+
+        public bool HasValue => true;
+
+        public IDisposable Watch(Ticker ticker, Action onChanged) => new Nothing();
+
+        public void Refresh()
+        {
+            // ignore: the sample machine's drives never change.
+        }
+
+        private sealed class Nothing : IDisposable
+        {
+            public void Dispose()
+            {
+                // ignore: nothing is watched.
+            }
         }
     }
 

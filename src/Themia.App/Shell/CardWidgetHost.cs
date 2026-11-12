@@ -49,7 +49,7 @@ internal sealed class CardWidgetHost(IWidgetCardHost card) : IWidgetHost
 
     public ISystemFeeds? System => AppServices.System;
 
-    public IDrives Drives => Themia.App.Services.Drives.DriveService.Shared;
+    public IDrives Drives => AppServices.Drives;
 
     public IDeviceBatteries DeviceBatteries => Themia.App.Services.Devices.DeviceBatteryService.Shared;
 

@@ -4731,11 +4731,17 @@ tag each, [S-7400]..[S-8000]), and so is Bluetooth (`src/Widgets/Themia.Widget.B
   `hover`, `pressed`, `armed`, `failed`, `unavailable`. States, not sample data ([S-1863]).
   `--style tile|round` draws either style ([S-6006]). `--sizes 100x100,160x100[,range]` draws several
   in-between sizes on one page (with `range`, the min, natural and max as well).
+- **[S-11802]** **The sample machine's drives** (`SamplePc.Drives`): System (C:), 931 GB with 419 GB free;
+  Data (D:), 1.8 TB with 1.1 TB free; one USB stick (E:, "STICK"), 58 GB with 31 GB free. On the sample
+  machine every drive widget reads them through `AppServices.Drives` (`SampleMachine.Install` sets it, as
+  it sets the hub): Drive and Drive facts show System (C:), Removable drives the stick, and a scene or a
+  recipe never shows this PC's drives or a drive that is not connected. The disk meter's volumes are the
+  same two fixed drives, named alike. Tests `SamplePcTests.S11802_`.
 - **[S-1931]** Debug: `--widget-png ... --machine sample` draws the system widgets (the meters, the
   details, Top processes) on the sample machine instead of this PC; without it they read this PC, as
   a developer wants. The sample machine (`SamplePc`, Core) is one ordinary good laptop: a 12-core
-  processor (16 logical) at 31 %, 32 GB of memory 52 % used, a discrete GPU at 14 %, a system drive
-  and a data drive, Wi-Fi at 3.4 MB/s down, a ping of 12 ms, a battery at 78 % discharging (3 h 41 min
+  processor (16 logical) at 31 %, 32 GB of memory 52 % used, a discrete GPU at 14 %, a system drive,
+  a data drive and a USB stick ([S-11802]), Wi-Fi at 3.4 MB/s down, a ping of 12 ms, a battery at 78 % discharging (3 h 41 min
   left), a private local address (`192.168.1.42`) and a documentation public one (`203.0.113.24`).
   It answers every `Sources` member in its own snapshot type, through the hub (`SystemHub` over a
   `SystemMachine`: `ThisPc` or the recording), so the widgets' own code and the hub's rules
@@ -7463,7 +7469,6 @@ each atom's own `SPEC.md`. Tests: `SkyFactsTests` (Core), each module's, `ReadyM
   called Weather). Each atom of a recipe starts at its kind's default place rule ([S-2470]: the
   weather's none, the sky's Zürich); the previews and `--recipe-png` draw every atom at the one sample
   place (`SamplePlace`) on the sample day.
-
 - **[S-11806]** **The sun's arc fits its box in every season** (`SunPathPlot.For`, 2026-11-12): the
   altitude axis tops out at the day's own noon (`SunPathPlot.NoonAltitude`: 90 less the latitude's
   difference from the sun's declination, at least 1), not the year's highest, so a November arc rises to
@@ -7475,6 +7480,7 @@ each atom's own `SPEC.md`. Tests: `SkyFactsTests` (Core), each module's, `ReadyM
 - **[S-11801]** **One spelling of the place**: the sky's default place is "Zürich"
   (`SkyPlaceConfig.DefaultPlace`), as the sample place (`SamplePlace.Name`) every weather preview names,
   so a weather atom and a sky atom side by side say the same town (the sky said "Zurich").
+
 ## Music and Pomodoro: parity and the whole tile (PF)
 
 - [S-1460], [S-1466], [S-1467], [S-1987]: moved with the Pomodoro widget into its module's `SPEC.md` (`src/Widgets/Themia.Widget.Pomodoro/`).

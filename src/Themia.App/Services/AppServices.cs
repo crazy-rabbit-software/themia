@@ -59,6 +59,18 @@ internal static class AppServices
     public static SystemData.SystemHub? System { get; internal set; }
 
     /// <summary>
+    /// [S-4655] Where every drive widget gets the drives: the host's one walk (<see cref="Themia.App.Services.Drives.DriveService"/>);
+    /// a debug render on the sample machine sets the sample's ([S-11802]).
+    /// </summary>
+    public static Themia.Sdk.WinUI.IDrives Drives
+    {
+        get => _drives ?? Themia.App.Services.Drives.DriveService.Shared;
+        internal set => _drives = value;
+    }
+
+    private static Themia.Sdk.WinUI.IDrives? _drives;
+
+    /// <summary>
     /// [S-3410] Where every gallery widget gets its pictures: the host's one <see cref="GalleryService"/>
     /// (shared sources, decoded pictures, each widget's slide). A debug render sets its own. Null
     /// before the host has started.

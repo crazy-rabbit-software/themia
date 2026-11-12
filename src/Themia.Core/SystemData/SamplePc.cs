@@ -8,7 +8,7 @@ namespace Themia.Core.SystemData;
 /// <summary>
 /// [S-1931] The sample machine: one fixed, ordinary good laptop that a render shows instead of this
 /// PC (<c>--machine sample</c>). A 12-core processor (16 logical) at about 30 %, 32 GB of memory about
-/// half used, a discrete GPU, a 1 TB system drive and a data drive, Wi-Fi at a few MB/s down, a ping of
+/// half used, a discrete GPU, a 1 TB system drive, a 2 TB data drive and a USB stick, Wi-Fi at a few MB/s down, a ping of
 /// about 12 ms, a battery at 78 % and discharging, and the programs every Windows PC runs. Pure data:
 /// nothing here reads the machine, the clock or a random source, so every call answers the same and
 /// two renders draw the same picture. The readings are in each source's own snapshot type, so the
@@ -53,6 +53,21 @@ public static class SamplePc
     /// <summary>The system drive's root and the data drive's.</summary>
     public const string SystemRoot = @"C:\";
     public const string DataRoot = @"D:\";
+
+    /// <summary>The USB stick's root.</summary>
+    public const string StickRoot = @"E:\";
+
+    /// <summary>
+    /// [S-11802] The drives the sample machine's walk finds, in Explorer's order: System (C:), 931 GB with
+    /// 419 GB free (55 % used, the drive widgets' default), Data (D:), 1.8 TB with 1.1 TB free, and one
+    /// USB stick (E:), 58 GB with 31 GB free, the removable drives' one device.
+    /// </summary>
+    public static IReadOnlyList<DriveEntry> Drives { get; } =
+    [
+        new(SystemRoot, VolumeKind.Fixed, DriveState.Ready, "System", "NTFS", 931 * Gb, 419 * Gb),
+        new(DataRoot, VolumeKind.Fixed, DriveState.Ready, "Data", "NTFS", 1863 * Gb, 1104 * Gb),
+        new(StickRoot, VolumeKind.Removable, DriveState.Ready, "STICK", "exFAT", 58 * Gb, 31 * Gb),
+    ];
 
     private const double Kb = 1024;
     private const double Mb = 1024 * 1024;
@@ -347,7 +362,7 @@ public static class SamplePc
         dataRead[^1] = 0;
         dataWrite[^1] = 0;
 
-        IReadOnlyList<DiskVolume> volumes = [new(SystemRoot, "Windows", false), new(DataRoot, "Data", false)];
+        IReadOnlyList<DiskVolume> volumes = [new(SystemRoot, "System", false), new(DataRoot, "Data", false)];
         var list = new List<DiskSnapshot>(count);
 
         for (var t = 0; t < count; t++)
