@@ -115,13 +115,27 @@ public static class TileRules
         _ => FamilyType.Big40,
     };
 
-    /// <summary>[S-11307] A Tile or Round tile's square at each size: 100, 120, 160 (the glyph, its label and state lines, the inset all round, and room for the name).</summary>
-    public static double SideAt(ReadoutSize size) => ReadoutSizes.Normalise(size) switch
+    /// <summary>[S-11804] The lines a tile's name may take before it is cut with its ellipsis.</summary>
+    public const int NameLines = 2;
+
+    /// <summary>
+    /// [S-11307] [S-11804] A Tile or Round tile's square at each size: at least 100, 120, 160, and as tall as the
+    /// glyph, its name on two lines and (a toggle's) the state line under them need in the inset all round,
+    /// on the 4 grid: a quick toggle 116, 128, 160; a power button (no state line) 100, 120, 160.
+    /// </summary>
+    public static double SideAt(ReadoutSize size, bool stateLine = true)
     {
-        ReadoutSize.Small => 100,
-        ReadoutSize.Large => 160,
-        _ => 120,
-    };
+        var least = ReadoutSizes.Normalise(size) switch
+        {
+            ReadoutSize.Small => 100.0,
+            ReadoutSize.Large => 160.0,
+            _ => 120.0,
+        };
+
+        var needed = (2 * FamilySpace.Inset) + GlyphAt(size).FontSize + FamilySpace.S2 + (NameLines * FamilyType.Body.LineHeight)
+            + (stateLine ? FamilyType.Caption.LineHeight : 0);
+        return Math.Max(least, Math.Ceiling(needed / FamilySpace.S1) * FamilySpace.S1);
+    }
 
     /// <summary>
     /// [S-11307] The Switch look's row at each size: 200, 240, 280 wide (at the least its glyph, a
@@ -139,12 +153,13 @@ public static class TileRules
 
     /// <summary>
     /// [S-11307] A quick toggle's or a power button's card: fixed both ways by its look and Size, the Tile
-    /// and Round looks a square, the Switch look a row; nothing in it changes with the size but its scale.
+    /// and Round looks a square (<paramref name="stateLine"/>: a toggle's, which says on or off under its
+    /// name), the Switch look a row; nothing in it changes with the size but its scale.
     /// </summary>
-    public static WidgetSizing Sizing(TileLook look, ReadoutSize size)
+    public static WidgetSizing Sizing(TileLook look, ReadoutSize size, bool stateLine = true)
         => WidgetSizing.Fixed(look == TileLook.Switch
             ? new SizeDip(SwitchWidthAt(size), SwitchHeight)
-            : new SizeDip(SideAt(size), SideAt(size)));
+            : new SizeDip(SideAt(size, stateLine), SideAt(size, stateLine)));
 
     /// <summary>The largest of the family's glyph sizes at most <paramref name="room"/>, 16 at least.</summary>
     private static double Largest(double room)

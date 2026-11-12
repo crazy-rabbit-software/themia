@@ -207,6 +207,12 @@ public sealed partial class TileBlock : Grid
 
         _label.Margin = switchLook ? default : new Thickness(0, FamilySpace.S2, 0, 0);
         _label.HorizontalAlignment = switchLook ? HorizontalAlignment.Left : HorizontalAlignment.Center;
+
+        // [S-11804] Under the glyph a long name ("Do not disturb") wraps to a second line, which the tile's
+        // square holds (TileRules.SideAt), before it is cut; the switch's row keeps it to one.
+        _label.TextWrapping = switchLook ? TextWrapping.NoWrap : TextWrapping.WrapWholeWords;
+        _label.MaxLines = switchLook ? 1 : TileRules.NameLines;
+        _label.TextAlignment = switchLook ? TextAlignment.Left : TextAlignment.Center;
         _state.HorizontalAlignment = _label.HorizontalAlignment;
         _label.Visibility = _planLabel ? Visibility.Visible : Visibility.Collapsed;
         _state.Visibility = _planState ? Visibility.Visible : Visibility.Collapsed;

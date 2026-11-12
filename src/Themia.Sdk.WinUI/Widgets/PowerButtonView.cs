@@ -198,7 +198,7 @@ public sealed partial class PowerButtonView : Grid, IWidgetView, IWidgetSurfaceA
             return;
         }
 
-        _tile.Use(TileRules.GlyphAt(_size), TileRules.SideAt(_size) - (2 * FamilySpace.Inset), state: false);
+        _tile.Use(TileRules.GlyphAt(_size), TileRules.SideAt(_size, stateLine: false) - (2 * FamilySpace.Inset), state: false);
         Paint();
     }
 

@@ -29,7 +29,7 @@ public sealed class HibernateModule : IWidgetModule
         Label = HibernateStr.Power_Action_Hibernate.Local(),
         Description = HibernateStr.WidgetsC_Power_Desc_Hibernate.Local(),
         Glyph = Glyphs.Hibernate,
-        Sizing = c => TileRules.Sizing(((PowerButtonConfig)c).Look, ((PowerButtonConfig)c).Size),
+        Sizing = c => TileRules.Sizing(((PowerButtonConfig)c).Look, ((PowerButtonConfig)c).Size, stateLine: false),
         Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader | WidgetTraits.StartsHeaderless | WidgetTraits.OneReadout,
         Add = new(AddFolderId.PowerButtons, 0, 3),
     };

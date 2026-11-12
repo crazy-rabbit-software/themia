@@ -29,7 +29,7 @@ public sealed class SleepModule : IWidgetModule
         Label = SleepStr.Power_Action_Sleep.Local(),
         Description = SleepStr.WidgetsC_Power_Desc_Sleep.Local(),
         Glyph = Glyphs.Moon,
-        Sizing = c => TileRules.Sizing(((PowerButtonConfig)c).Look, ((PowerButtonConfig)c).Size),
+        Sizing = c => TileRules.Sizing(((PowerButtonConfig)c).Look, ((PowerButtonConfig)c).Size, stateLine: false),
         Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader | WidgetTraits.StartsHeaderless | WidgetTraits.OneReadout,
         Add = new(AddFolderId.PowerButtons, 0, 2),
     };

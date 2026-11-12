@@ -7834,11 +7834,17 @@ source per toggle, `ToggleHub`); tests `QuickToggleTests`.
   shared views; owner decision 2026-11-12, content decides the size): **Size** under the Style (Small,
   Medium, Large; `IReadoutSized` on `QuickToggleConfig` and `PowerButtonConfig`, a new one Medium)
   names the glyph's step (28, 40, 68; a round tile's circle, a power button's ring), and the card is
-  fixed both ways by the Size and the look (`TileRules.Sizing`): the Tile and Round looks a square of
-  100, 120 or 160, the Switch look a row 200, 240 or 280 wide and 60 tall (its glyph, a sentence's
-  room for the name over the state, the switch). Nothing in it changes with the card; at Small a long
-  name ("Do not disturb") is cut with its ellipsis. No tier ladder is left. Tests
-  `FamilyBlockRulesTests.S11307_`.
+  fixed both ways by the Size and the look (`TileRules.Sizing`): the Tile and Round looks a square
+  ([S-11804]: a toggle's 116, 128 or 160, a power button's 100, 120 or 160), the Switch look a row 200,
+  240 or 280 wide and 60 tall (its glyph, a sentence's room for the name over the state, the switch).
+  Nothing in it changes with the card. Tests `FamilyBlockRulesTests.S11307_`.
+- **[S-11804]** **A tile's name wraps before it is cut** (2026-11-12): under the glyph the name takes a
+  second line where it runs past one ("Do not disturb", "Bitte nicht stören"), word by word, and only past
+  the second is it cut with its ellipsis (`TileRules.NameLines`, `TileBlock`); the Switch look's row keeps
+  it to one line. The square holds both lines at every Size: at least 100, 120, 160 and as tall as the
+  glyph, the gap, two name lines and (a toggle's) the state line need in the inset (`TileRules.SideAt`:
+  a toggle 116, 128, 160, a power button 100, 120, 160). The ready-made Quick settings group's toggles are
+  128 squares. Tests `FamilyBlockRulesTests.S11804_`.
 - **[S-3907]** One source per toggle for the whole app (`ToggleHub`, host code; a widget reaches it
   through `IWidgetHost.Toggles`, [S-6913]), started by its first widget and stopped by its last; a change reaches each widget on its own thread. No source polls: each follows
   the notification its setting has and reads again when it fires. The pointer coming onto a tile

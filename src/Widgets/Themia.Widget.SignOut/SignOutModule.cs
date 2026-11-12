@@ -29,7 +29,7 @@ public sealed class SignOutModule : IWidgetModule
         Label = SignOutStr.Power_Action_SignOut.Local(),
         Description = SignOutStr.WidgetsC_Power_Desc_SignOut.Local(),
         Glyph = Glyphs.SignOut,
-        Sizing = c => TileRules.Sizing(((PowerButtonConfig)c).Look, ((PowerButtonConfig)c).Size),
+        Sizing = c => TileRules.Sizing(((PowerButtonConfig)c).Look, ((PowerButtonConfig)c).Size, stateLine: false),
         Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader | WidgetTraits.StartsHeaderless | WidgetTraits.OneReadout,
         Add = new(AddFolderId.PowerButtons, 0, 5),
     };

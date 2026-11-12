@@ -29,7 +29,7 @@ public sealed class RestartModule : IWidgetModule
         Label = RestartStr.Power_Action_Restart.Local(),
         Description = RestartStr.WidgetsC_Power_Desc_Restart.Local(),
         Glyph = Glyphs.Reset,
-        Sizing = c => TileRules.Sizing(((PowerButtonConfig)c).Look, ((PowerButtonConfig)c).Size),
+        Sizing = c => TileRules.Sizing(((PowerButtonConfig)c).Look, ((PowerButtonConfig)c).Size, stateLine: false),
         Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader | WidgetTraits.StartsHeaderless | WidgetTraits.OneReadout,
         Add = new(AddFolderId.PowerButtons, 0, 1),
     };

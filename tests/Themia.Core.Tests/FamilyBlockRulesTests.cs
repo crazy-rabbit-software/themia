@@ -329,7 +329,24 @@ public sealed class FamilyBlockRulesTests
             Assert.Equal(new SwitchParts(Glyph: true, Lines: true), TileRules.Switch(row.Natural.Width - 24));
         }
 
-        Assert.Equal(120, TileRules.SideAt(Themia.Core.Widgets.ReadoutSize.Medium));
+        Assert.Equal(128, TileRules.SideAt(Themia.Core.Widgets.ReadoutSize.Medium));
         Assert.Equal(FamilyType.Big40, TileRules.GlyphAt(Themia.Core.Widgets.ReadoutSize.Medium));
+    }
+
+    [Fact]
+    public void S11804_a_tiles_square_holds_its_name_on_two_lines_under_the_glyph()
+    {
+        var sizes = new[] { Themia.Core.Widgets.ReadoutSize.Small, Themia.Core.Widgets.ReadoutSize.Medium, Themia.Core.Widgets.ReadoutSize.Large };
+        Assert.Equal([116.0, 128, 160], sizes.Select(s => TileRules.SideAt(s)));
+        Assert.Equal([100.0, 120, 160], sizes.Select(s => TileRules.SideAt(s, stateLine: false)));
+        foreach (var size in sizes)
+        {
+            foreach (var state in new[] { true, false })
+            {
+                var room = TileRules.SideAt(size, state) - (2 * FamilySpace.Inset);
+                var parts = TileRules.GlyphAt(size).FontSize + FamilySpace.S2 + (TileRules.NameLines * FamilyType.Body.LineHeight) + (state ? FamilyType.Caption.LineHeight : 0);
+                Assert.True(parts <= room, $"{size} {state}: {parts} > {room}");
+            }
+        }
     }
 }
