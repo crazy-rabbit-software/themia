@@ -69,8 +69,9 @@ words), `CountdownLayout.cs` (the ladder, the ring's share, the flip cards), `Co
   the Ring's readout and the Flip's cards one step under (28, 40, 68; [S-11300]); **Progress bar**
   (off for a new one; Text and Flip only, a ring is its own progress) stands the bar ([S-1448]) 8
   under the face, the content's width. The face is sized on the widest reading its format writes in
-  the language, every figure an 8, up to 999 days, ahead or gone by (`CountdownLayout.Widest`: Auto's
-  widest of its wordings, "888 days ago" in English), the Flip cards on three figures each and as many
+  the language for its own target's day count ([S-11803]), every figure an 8, ahead or gone by
+  (`CountdownLayout.Widest`: Auto's widest of its wordings, "88 days ago" in English for a target under
+  100 days away), the Flip cards on as many figures each and as many
   cards as the format can show (days, hours, minutes, and seconds with them), so nothing moves as it
   counts. The card follows (`CountdownLayout.Sizing`): under its header (the event's name, on by
   default) the face, the bar where it is on, the inset; one height, up to half again wider; it sits
@@ -82,3 +83,11 @@ words), `CountdownLayout.cs` (the ladder, the ring's share, the flip cards), `Co
 - **[S-1986]** *(Retired: one target per widget, [S-6036]; with no list the countdown takes no keys.)*
 
 Needs a manual pass: the three styles at their min, natural and max on the live desktop (showcase views, [S-1810]).
+- **[S-11803]** **Sized for its own target** (2026-11-12): the readout is sized on the widest wording the
+  countdown's own target makes, not on its format's widest ("999 days ago" made an Auto card about 600
+  wide at Medium and a large ring): the day count has as many figures as the target was days away when
+  it was set (`CountdownLayout.DayFigures`, at least two, so "88 days ago" fits once it is past), within
+  a day it is hours and minutes; the flip cards are as wide as those figures. A pure function of the
+  config: the card changes when the target or the format changes, never as the clock runs. A target
+  more than 99 days past on a card sized for two figures is cut with its ellipsis. A moment has no "ago" form ("just now" says it), so "in a moment ago", once the widest English wording, sizes nothing. Tests
+  `CountdownLayoutTests.S11803_`.

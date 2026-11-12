@@ -82,7 +82,8 @@ public sealed class CountdownLayoutTests
     [Fact]
     public void S11303_the_readout_is_on_the_sizes_step_sized_on_the_widest_reading_of_its_format()
     {
-        Assert.Equal("888 days ago", CountdownLayout.Widest(CountdownFormat.Days, Locale.En));
+        Assert.Equal("88 days ago", CountdownLayout.Widest(CountdownFormat.Days, Locale.En));
+        Assert.Equal("888 days ago", CountdownLayout.Widest(CountdownFormat.Days, Locale.En, dayFigures: 3));
         Assert.True(HeroFit.Ems(CountdownLayout.Widest(CountdownFormat.DaysHoursMinutesSeconds, Locale.En)) > HeroFit.Ems(CountdownLayout.Widest(CountdownFormat.DaysHoursMinutes, Locale.En)));
 
         var medium = CountdownLayout.Plan(new CountdownConfig(), Locale.En);
@@ -92,7 +93,7 @@ public sealed class CountdownLayoutTests
     }
 
     [Fact]
-    public void S11303_the_ring_and_the_cards_are_one_step_under_and_the_cards_as_wide_as_three_figures()
+    public void S11303_the_ring_and_the_cards_are_one_step_under_and_the_cards_as_wide_as_the_day_count()
     {
         var ring = CountdownLayout.Plan(new CountdownConfig { Style = CountdownStyle.Ring }, Locale.En);
         Assert.Equal(CountdownLook.Ring, ring.Look);
@@ -102,7 +103,38 @@ public sealed class CountdownLayoutTests
         var flip = CountdownLayout.Plan(new CountdownConfig { Style = CountdownStyle.Flip, Format = CountdownFormat.DaysHoursMinutesSeconds }, Locale.En);
         Assert.Equal(CountdownLook.Flip, flip.Look);
         Assert.Equal(FamilyType.Big40, flip.Step);
-        Assert.Equal(FlipRules.RowWidth(FamilyType.Big40, 4, "888"), flip.Width);
+        Assert.Equal(FlipRules.RowWidth(FamilyType.Big40, 4, "88"), flip.Width);
+    }
+
+    [Fact]
+    public void S11803_the_card_is_sized_for_its_own_targets_day_count_and_changes_with_the_target_not_the_clock()
+    {
+        var now = new DateTimeOffset(2026, 11, 12, 10, 42, 0, TimeSpan.Zero);
+        CountdownConfig At(int days)
+        {
+            var config = new CountdownConfig();
+            config.Retarget(now.AddDays(days), now);
+            return config;
+        }
+
+        Assert.Equal(2, CountdownLayout.DayFigures(new CountdownConfig()));
+        Assert.Equal(2, CountdownLayout.DayFigures(At(0)));
+        Assert.Equal(2, CountdownLayout.DayFigures(At(40)));
+        Assert.Equal(3, CountdownLayout.DayFigures(At(400)));
+        Assert.Equal(4, CountdownLayout.DayFigures(At(4000)));
+
+        // Days until a date need the figures that date needs: a near target is narrower than a far one,
+        // and both narrower than sizing every countdown for 999 days.
+        var near = CountdownLayout.Sizing(At(40), Locale.En).Natural.Width;
+        var far = CountdownLayout.Sizing(At(400), Locale.En).Natural.Width;
+        Assert.True(near <= far);
+        Assert.True(HeroFit.Ems(CountdownLayout.Widest(CountdownFormat.Days, Locale.En, 2)) < HeroFit.Ems(CountdownLayout.Widest(CountdownFormat.Days, Locale.En, 3)));
+
+        // A moment has no "ago": the Auto card is sized on a reading it can draw, not "in a moment ago" (in English its widest is "in a moment" itself).
+        Assert.Equal("in a moment", CountdownLayout.Widest(CountdownFormat.Auto, Locale.En));
+
+        // Within a day the reading is hours and minutes: the "88h 88m ago" a two-figure card holds.
+        Assert.True(HeroFit.Ems(CountdownLayout.Widest(CountdownFormat.Auto, Locale.En)) >= HeroFit.Ems(CountdownLayout.Shape("23h 59m ago")));
     }
 
     [Fact]

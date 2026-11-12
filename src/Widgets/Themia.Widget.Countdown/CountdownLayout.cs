@@ -41,8 +41,29 @@ public static class CountdownLayout
     /// <summary>What the progress bar takes under the face: the gap and the track.</summary>
     public const double BarCost = FamilySpace.S2 + FamilyShape.Track;
 
-    /// <summary>The figures a day count is sized on: up to 999 days.</summary>
-    private const long WidestDays = 888;
+    /// <summary>[S-11803] The least figures a day count is sized on: two, so "88 days ago" fits after the target.</summary>
+    public const int LeastDayFigures = 2;
+
+    /// <summary>
+    /// [S-11803] How many figures the countdown's own day count needs: as many as the target was days
+    /// away when it was set (the count only falls while it is ahead), at least <see cref="LeastDayFigures"/>
+    /// (a target passed shows the days since, up to 99). A pure function of the config: the card changes
+    /// when the target does, never with the clock.
+    /// </summary>
+    public static int DayFigures(CountdownConfig config)
+    {
+        ArgumentNullException.ThrowIfNull(config);
+        if (config.Target is not { } target || config.Created == default || config.Created >= target)
+        {
+            return LeastDayFigures;
+        }
+
+        var days = (long)(target - config.Created).TotalDays;
+        return Math.Max(LeastDayFigures, days.ToString(System.Globalization.CultureInfo.InvariantCulture).Length);
+    }
+
+    /// <summary>The widest day count of <paramref name="figures"/> figures: every one an 8.</summary>
+    private static long WidestDays(int figures) => long.Parse(new string('8', Math.Clamp(figures, 1, 12)), System.Globalization.CultureInfo.InvariantCulture);
 
     /// <summary>
     /// [S-1447] A reading's shape: its figures as 8s ("3d 5h" is "8d 8h"), as the widest reading is
@@ -51,17 +72,19 @@ public static class CountdownLayout
     public static string Shape(string reading) => new([.. (reading ?? string.Empty).Select(c => char.IsDigit(c) ? '8' : c)]);
 
     /// <summary>
-    /// [S-11303] The widest reading <paramref name="format"/> writes in <paramref name="locale"/>, every
-    /// figure an 8, up to 999 days, ahead or gone by ("888 days ago"): the readout is sized on it, so the
-    /// card does not move as the time left changes.
+    /// [S-11303] [S-11803] The widest reading <paramref name="format"/> writes in <paramref name="locale"/> for a
+    /// day count of <paramref name="dayFigures"/> figures, every figure an 8, ahead or gone by ("88 days ago";
+    /// within a day hours and minutes): the readout is sized on it, so the card does not move as the time
+    /// left changes.
     /// </summary>
-    public static string Widest(CountdownFormat format, Locale locale)
+    public static string Widest(CountdownFormat format, Locale locale, int dayFigures = LeastDayFigures)
     {
+        var widestDays = WidestDays(dayFigures);
         List<(string Text, long? Days)> ahead = format switch
         {
-            CountdownFormat.Days => [(CountdownStr.WidgetsA_Countdown_Days.Plural(locale, WidestDays), WidestDays)],
-            CountdownFormat.DaysHoursMinutes => [(CountdownStr.WidgetsA_Countdown_Compact_Dhm.Format(locale, ("days", WidestDays), ("hours", 88), ("minutes", 88)), null)],
-            CountdownFormat.DaysHoursMinutesSeconds => [(CountdownStr.WidgetsA_Countdown_Compact_Dhms.Format(locale, ("days", WidestDays), ("hours", 88), ("minutes", 88), ("seconds", 88)), null)],
+            CountdownFormat.Days => [(CountdownStr.WidgetsA_Countdown_Days.Plural(locale, widestDays), widestDays)],
+            CountdownFormat.DaysHoursMinutes => [(CountdownStr.WidgetsA_Countdown_Compact_Dhm.Format(locale, ("days", widestDays), ("hours", 88), ("minutes", 88)), null)],
+            CountdownFormat.DaysHoursMinutesSeconds => [(CountdownStr.WidgetsA_Countdown_Compact_Dhms.Format(locale, ("days", widestDays), ("hours", 88), ("minutes", 88), ("seconds", 88)), null)],
             _ =>
             [
                 (CountdownStr.WidgetsA_Countdown_InAMoment.Text(locale), null),
@@ -70,12 +93,15 @@ public static class CountdownLayout
                 (CountdownStr.WidgetsA_Countdown_Hours.Plural(locale, 88), null),
                 (CountdownStr.WidgetsA_Countdown_Compact_Hm.Format(locale, ("hours", 88), ("minutes", 88)), null),
                 (CountdownStr.WidgetsA_Countdown_Compact_Dh.Format(locale, ("days", 8), ("hours", 88)), null),
-                (CountdownStr.WidgetsA_Countdown_Days.Plural(locale, WidestDays), WidestDays),
+                (CountdownStr.WidgetsA_Countdown_Days.Plural(locale, widestDays), widestDays),
             ],
         };
 
+        // [S-11803] "in a moment" and "just now" have no "ago" form: under a minute gone by reads "just now"
+        // (CountdownFormatter.Read), so "in a moment ago", the widest English wording, is never drawn.
+        string[] moments = [CountdownStr.WidgetsA_Countdown_InAMoment.Text(locale), CountdownStr.WidgetsA_Countdown_JustNow.Text(locale)];
         var all = ahead.Select(a => a.Text)
-            .Concat(ahead.Select(a => a.Days is { } days
+            .Concat(ahead.Where(a => !moments.Contains(a.Text)).Select(a => a.Days is { } days
                 ? CountdownStr.WidgetsA_Countdown_DaysAgo.Plural(locale, days)
                 : CountdownStr.WidgetsA_Countdown_Ago.Format(locale, ("duration", a.Text))));
         return Shape(all.OrderByDescending(HeroFit.Ems).First());
@@ -84,8 +110,8 @@ public static class CountdownLayout
     /// <summary>[S-11303] The Flip style's cards at their widest: a days card of three figures, hours, minutes and the seconds where the format shows them.</summary>
     public static int WidestCards(CountdownFormat format) => format == CountdownFormat.DaysHoursMinutesSeconds ? 4 : 3;
 
-    /// <summary>The figures every card is sized on: three, as the days card's widest.</summary>
-    public const string CardFigures = "888";
+    /// <summary>[S-11803] The figures every card is sized on: as many as the countdown's day count needs ("88" at least).</summary>
+    public static string CardFigures(CountdownConfig config) => new('8', DayFigures(config));
 
     /// <summary>
     /// [S-11303] The face at <paramref name="config"/>'s Size: the Text style the reading on the Size's step
@@ -96,7 +122,7 @@ public static class CountdownLayout
     public static CountdownPlan Plan(CountdownConfig config, Locale locale)
     {
         ArgumentNullException.ThrowIfNull(config);
-        var worst = new ReadoutText(Widest(config.Format, locale), LineUnder: true, OneReadout: true);
+        var worst = new ReadoutText(Widest(config.Format, locale, DayFigures(config)), LineUnder: true, OneReadout: true);
         switch (config.Style)
         {
             case CountdownStyle.Ring:
@@ -109,8 +135,9 @@ public static class CountdownLayout
             {
                 var step = TimerFace.RingStep(config.Size);
                 var cards = WidestCards(config.Format);
-                var flip = new FlipPlan(step, FlipRules.CardWidth(step, CardFigures), Under: true);
-                return new CountdownPlan(CountdownLook.Flip, step, 0, flip, FlipRules.RowWidth(step, cards, CardFigures), step.LineHeight + FamilyType.Under(step).LineHeight);
+                var figures = CardFigures(config);
+                var flip = new FlipPlan(step, FlipRules.CardWidth(step, figures), Under: true);
+                return new CountdownPlan(CountdownLook.Flip, step, 0, flip, FlipRules.RowWidth(step, cards, figures), step.LineHeight + FamilyType.Under(step).LineHeight);
             }
 
             default:
