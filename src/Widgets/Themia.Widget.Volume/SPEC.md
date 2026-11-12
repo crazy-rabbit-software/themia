@@ -9,20 +9,26 @@ SDK's `VolumeRules` and `AudioRules` with their root tags ([S-1226] the keys, [S
 
 Owning files: everything in this folder: `VolumeModule.cs` (descriptor, view factory, menu lines,
 JSON context), `VolumeConfig.cs` (the device and whether it may set the level), `VolumeView.cs` (the
-slider and the speaker through the shared `AudioFeed`), `VolumeMenu.cs` (its properties-menu lines), `Localization/Locales/`
+readout, the slider and the speaker through the shared `AudioFeed`), `VolumeMenu.cs` (its properties-menu lines), `Localization/Locales/`
 (its own `VolumeStr`, 30 languages). Tests: its device choice beside the mixer's is the module host's
 `AudioHostTests`, its menu `Tests/VolumeMenuTests.cs`.
 
-- **[S-2730]** The volume tile is the slider and nothing else, at every size (user decision): a
-  speaker button at the slider's start (glyph by level, crossed out when muted; click mutes, tooltip
-  Mute/Unmute) and the 0..100 slider, both the Controls block's row at the card's bottom inset
-  ([S-6716], [S-2731]: a 32 icon button, the rail Track, the value the accent; on a card too narrow
-  for both, the speaker gives way and the keys still mute). No percentage, no level meter, no device
-  name (so no Readout: the family's level Readout is not drawn here). The card header follows the
-  shared header rules. Options ([S-2734]): output device and "Allow changes"; read-only greys the
-  controls rather than hiding them. No device (none, the chosen one not connected, Core Audio not
-  answering) draws the speaker button and the slider disabled, the slider at the middle ([S-1940],
-  [S-1941]), the reason as the tile's tooltip; no key, wheel or click does anything. Renders `--state level|unavailable`.
+- **[S-2730]** The volume tile's controls, at every size: a speaker button at the slider's start
+  (glyph by level, crossed out when muted; click mutes, tooltip Mute/Unmute) and the 0..100 slider,
+  both the Controls block's row at the card's bottom inset ([S-6716], [S-2731]: a 32 icon button, the
+  rail Track, the value the accent; on a card too narrow for both, the speaker gives way and the keys
+  still mute). No level meter. The card header follows the shared header rules. Options
+  ([S-2734]): output device and "Allow changes"; read-only greys the controls rather than hiding
+  them. No device (none, the chosen one not connected, Core Audio not answering) draws the speaker
+  button and the slider disabled, the slider at the middle ([S-1940], [S-1941]), the reason as the
+  tile's tooltip, and no Readout; no key, wheel or click does anything. Until Core Audio first
+  answers the tile is its frame. Renders `--state level|unavailable`.
+- **[S-2151]** Over the controls the level is a Readout, as the meters beside it (owner decision
+  2026-11-12; the root's [S-2150], `LevelFace`): "60%" at the view's top on 28 (S), 40 (M, Wide,
+  Tall) or 68 (L, XL); XS is the controls alone. Its line under is the output device's name (the
+  widget's own fact, cut with an ellipsis) where it fits (M, Tall, L, XL). Muted reads as an off
+  reading: the level it returns to, in the disabled role, its unit and line under with it; the
+  slider stands at 0 as before.
 - **[S-2734]** Its options are all on the properties menu ([S-3719], user request 2026-10-19); it
   has no settings page. Appearance ([S-3723]), then **Output device** (the shared search of
   [S-1222]; only where there is a choice, [S-1236]), a divider, **Allow changes** (a switch) and,

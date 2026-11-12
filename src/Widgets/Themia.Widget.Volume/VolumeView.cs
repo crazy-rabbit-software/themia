@@ -16,7 +16,7 @@ using Themia.Widget.Volume;
 namespace Themia.App.Widgets;
 
 /// <summary>
-/// The master level of an output device, as a slider and nothing else.
+/// The master level of an output device: its Readout over the slider, a meter you can set.
 /// <para>
 /// [S-1220] Kept current by Core Audio's own volume notification (through the shared
 /// <see cref="CoreAudio"/> worker) rather than by a poll, so the slider follows the volume keys,
@@ -25,10 +25,10 @@ namespace Themia.App.Widgets;
 /// on screen until Windows confirms it.
 /// </para>
 /// <para>
-/// [S-2730] [S-2731] The tile is the slider with its speaker (mute) button at the start, at every size:
-/// no number, no meter, no device name. Both are the Controls block's row at the card's bottom inset
-/// ([S-6716]): the speaker a 32 icon button, the slider's rail the Track role and its value the
-/// accent. A larger tile gives the slider more length, nothing else ([S-666]).
+/// [S-2151] [S-2731] The slider with its speaker (mute) button at the start is the Controls block's
+/// row at the card's bottom inset at every size ([S-6716]); over it the level is a Readout where a
+/// meter's stands, climbing 28, 40, 68 as CPU's does, with the device's name as its line under where
+/// that fits ([S-2150], <see cref="LevelFace"/>). Muted, the Readout is drawn in the disabled role.
 /// </para>
 /// </summary>
 internal sealed partial class VolumeView : Grid, IWidgetView, IWidgetOpens, IWidgetSizeAware, IWidgetSurfaceAware, IWidgetKeys, IWidgetContextActions
@@ -39,6 +39,9 @@ internal sealed partial class VolumeView : Grid, IWidgetView, IWidgetOpens, IWid
     private readonly AudioFeed _feed;
     private readonly ControlsBlock _controls = new();
     private readonly Slider _slider;
+
+    /// <summary>[S-2151] The level, where a meter's reading stands: the view's top, in the side inset.</summary>
+    private readonly ReadoutBlock _reading = new() { VerticalAlignment = VerticalAlignment.Top, Visibility = Visibility.Collapsed };
     private readonly Button _mute;
 
     /// <summary>
@@ -115,6 +118,10 @@ internal sealed partial class VolumeView : Grid, IWidgetView, IWidgetOpens, IWid
 
         _controls.Visibility = Visibility.Collapsed;
         Children.Add(_controls);
+
+        _reading.Margin = Family.SideInset;
+        _reading.UnderText.TextTrimming = TextTrimming.CharacterEllipsis;
+        Children.Add(_reading);
     }
 
     public void Bind(IWidgetSurface surface)
@@ -213,6 +220,7 @@ internal sealed partial class VolumeView : Grid, IWidgetView, IWidgetOpens, IWid
             });
             UnavailableLook.Enable(false, _slider, _mute);
             Glyph(ColourRole.TextDisabled);
+            _reading.Visibility = Visibility.Collapsed;
             ShowLevel(Unavailable.Share, muted: false);
             ToolTipService.SetToolTip(_mute, null);
             return;
@@ -236,6 +244,25 @@ internal sealed partial class VolumeView : Grid, IWidgetView, IWidgetOpens, IWid
         Glyph(_config.AllowControl ? ColourRole.TextPrimary : ColourRole.TextDisabled);
 
         ShowLevel(level.Level, level.Muted);
+        ShowReading(level.Level, level.Muted, snapshot.Output.Name);
+    }
+
+    /// <summary>
+    /// [S-2151] The level as a Readout on <see cref="LevelFace"/>'s step, the device's name its line
+    /// under where that fits; muted, an off reading: the level it goes back to, in the disabled role.
+    /// </summary>
+    private void ShowReading(double level, bool muted, string device)
+    {
+        var plan = LevelFace.Plan(_area, device.Length > 0);
+        _reading.Visibility = plan.Readout ? Visibility.Visible : Visibility.Collapsed;
+        if (!plan.Readout)
+        {
+            return;
+        }
+
+        _reading.Use(plan.Step);
+        var split = ReadoutRules.Split(Formatting.Percent(VolumeRules.Percent(level) / 100.0));
+        _reading.Show(split.Value, split.Unit, plan.Under ? device : null, valueRole: muted ? ColourRole.TextDisabled : ColourRole.TextPrimary);
     }
 
     /// <summary>The speaker's glyph role: primary, or disabled with the button (its glyph names its own brush).</summary>
@@ -325,6 +352,9 @@ internal sealed partial class VolumeView : Grid, IWidgetView, IWidgetOpens, IWid
         }
 
         SetLevel(VolumeRules.Scalar(value));
+
+        // [S-2151] The Readout follows the hand: the held level is what Current() gives now.
+        Lay();
     }
 
     /// <summary>[S-2732] One arrow step per notch, carrying a touchpad's part-notches to the next event.</summary>
