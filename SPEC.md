@@ -839,6 +839,20 @@ shared row and moon drawing) and `SkyPlaceRows` (the shared place line on their 
   with it, at every size: the header's row is sized to its content and collapses to nothing, so the
   widget's content gets the whole card, and no other part keeps room for a title ([S-3712]). A kind
   that can never have a header ([S-3711]) is drawn hidden whatever the file says.
+- **[S-5700]** **A card with no header above its view gives the view's top the inset** (owner decision
+  2026-11-12, so more kinds can start without one, [S-2590]). Every view keeps its own side and foot
+  insets (a Row carries the side inset to reach both edges with its hover, [S-6711]; a list, a face, a
+  block pads its foot), and under a header the header's 12, 20 and 4 are its top. With the header
+  hidden, shed ([S-402]), at the foot or down a side, the card starts the view's cell 12 down
+  (`HeaderStrip.ViewTop`, the cell's margin, `WidgetCard.ApplyHeader`), so the content stands at the
+  inset on all four sides. A view that owns its top edge says so (`IWidgetTopEdge`, re-read whenever the
+  card places its header) and gets its whole box as before: one drawn to the edge on purpose (Gallery's
+  pictures, Video stream, the audio visualizer's spectrum, now playing's Cover style) or padded on all
+  four sides by itself (the clock, the quick toggles, the power buttons), or centred in the whole card
+  (the alarm's time, [S-2590]). The Set up row, the waiting
+  row and the error card follow the same rule as a view that does not own the edge (they each carried
+  a copy of it before). The sizing counts it ([S-2444]). Tests `HeaderStripTests.S5700_`,
+  `SizeFitTests.S5700_`.
 - **[S-402]** The header sheds on a tile too short to carry it, **once**, in the card. Every widget
   had independently drawn that conclusion with a slightly different threshold.
 - **[S-403]** The title is the user's own when they set one (on the properties strip, [S-3704]), otherwise the catalogue's. A widget has
@@ -2690,7 +2704,7 @@ rules in Core `Model/QuickSet.cs`, `Shell/SelectionPage.cs` and the SDK's
   dots ("24.12.2026", "24.12.26"). A slash with the day or the month first means two days in two
   countries and is refused, as is a day the month lacks; a refused text changes nothing.
 - **[S-3712]** Header Hidden leaves no trace on the card ([S-401]): no strip, no icon, no title, no
-  reserved row; the content area is the whole card at every size tier.
+  reserved row; the content area is the whole card less the inset over it ([S-5700]) at every size tier.
 - **[S-3714]** *(Retired by [S-2325].)*
 - **[S-3715]** *(Retired by [S-2325]: the flyout is Windows' ground and cards.)*
 - **[S-6521]** *(Retired by [S-6566]: the Item background colour control and the Item opacity row
@@ -3859,8 +3873,10 @@ side); tests `WidgetSizingTests` (Core: the rules; module host: every kind, the 
 - **[S-2444]** **On a display** a sizing is DIPs times the card's content scale ([S-6532]: the display's
   and the widget's own) plus the gap, as fractions of that screen's cell (`SizeFit.Limits`,
   `SizeLimits`, `AxisLimits`). It is stated with the kind's default header ([S-700]); a card that
-  shows a header the kind did not count adds its line and gap (24) to the height (a side strip: to the
-  width), one that hides a header the kind counted takes it away (`SizeFit.ForHeader`). A fixed axis
+  shows a header the kind did not count adds what it costs, one that hides a header the kind counted
+  takes it away (`SizeFit.ForHeader`): a header above costs its line and gap (24) in height, the inset
+  over it being there either way ([S-5700]); one at the foot its gap, line and own inset (36) in height
+  and a side strip the same in width, since the view keeps its inset on that side as well. A fixed axis
   has no handle: its two side handles lose their grip and bar, a corner resizes the free axis alone
   with that axis's cursor, and on a widget fixed both ways the corners keep their brackets as marks
   but take no press (`EditMarkers.Moves`, `WidgetCard.ApplyResizable`).

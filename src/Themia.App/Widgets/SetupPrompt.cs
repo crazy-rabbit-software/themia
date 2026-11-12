@@ -15,7 +15,7 @@ namespace Themia.App.Widgets;
 /// (XS, S) the sentence goes and the glyph and the button stay.
 /// <para>
 /// The card puts it over the view (<c>WidgetCard.Setup</c>) when <see cref="Themia.Core.Widgets.WidgetSetup.Needed"/>
-/// says so, for every widget alike, under the header (or at the top inset when the header is not above).
+/// says so, for every widget alike, under the header (or at the top inset when the header is not above: the card's margin on it, [S-5700]).
 /// </para>
 /// </summary>
 internal sealed partial class SetupPrompt : Grid
@@ -36,7 +36,4 @@ internal sealed partial class SetupPrompt : Grid
 
         Children.Add(_status);
     }
-
-    /// <summary>The row sits right under a header above it, or at the card's top inset when there is none.</summary>
-    public void HeaderAbove(bool above) => _status.Margin = new Thickness(0, above ? 0 : FamilySpace.Inset, 0, 0);
 }

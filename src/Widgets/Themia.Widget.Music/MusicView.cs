@@ -37,8 +37,11 @@ namespace Themia.App.Widgets;
 /// places the parts is <see cref="MusicFace"/>, applied in <c>MusicView.Layout.cs</c>.
 /// </para>
 /// </summary>
-internal sealed partial class MusicView : Grid, IWidgetView, IWidgetOpens, IWidgetSizeAware, IWidgetSurfaceAware, IWidgetKeys
+internal sealed partial class MusicView : Grid, IWidgetView, IWidgetOpens, IWidgetSizeAware, IWidgetSurfaceAware, IWidgetKeys, IWidgetTopEdge
 {
+    /// <summary>[S-5700] The Cover style owns its top edge: the art fills the card; the others start at the inset.</summary>
+    public bool OwnsTopEdge => _config.Style == MusicStyle.Cover;
+
     /// <inheritdoc />
     public CardOpen? Opens => MusicModule.Opens(_now);
 

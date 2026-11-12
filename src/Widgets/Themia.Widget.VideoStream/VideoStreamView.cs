@@ -36,8 +36,11 @@ namespace Themia.App.Widgets;
 /// stream — a desktop of MJPEG cameras never loads the media pipeline at all.
 /// </para>
 /// </summary>
-internal sealed partial class VideoStreamView : Grid, IWidgetView, IWidgetSurfaceAware, IWidgetContextActions, IWidgetSizeAware, IStreamSink, IWidgetKeys
+internal sealed partial class VideoStreamView : Grid, IWidgetView, IWidgetSurfaceAware, IWidgetContextActions, IWidgetSizeAware, IStreamSink, IWidgetKeys, IWidgetTopEdge
 {
+    /// <summary>[S-5700] It owns its top edge: the stream runs edge to edge.</summary>
+    public bool OwnsTopEdge => true;
+
     private const string Scope = "video-stream";
 
     private readonly RotatedBox _frame = new();

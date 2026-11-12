@@ -2,6 +2,7 @@ using Themia.Core.Geometry;
 using Themia.Core.Model;
 using Themia.Core.Shell;
 using Themia.Sdk;
+using Themia.Sdk.Kit;
 using Xunit;
 
 namespace Themia.Core.Tests;
@@ -153,7 +154,22 @@ public sealed class SizeFitTests
         Assert.Empty(hidden.Problems());
 
         var side = SizeFit.ForHeader(Meter, HeaderPlacement.Top, HeaderPlacement.Left);
-        Assert.Equal(new SizeDip(160 + SizeFit.HeaderCost, 112 - SizeFit.HeaderCost), side.Min);
+        Assert.Equal(new SizeDip(160 + SizeFit.EdgeHeaderCost, 112 - SizeFit.HeaderCost), side.Min);
+    }
+
+    [Fact]
+    public void S5700_a_header_at_the_foot_or_a_side_costs_its_own_inset_too_as_the_view_keeps_its_own()
+    {
+        // Under a header the content starts at 36; without one above, at the inset the card adds (12).
+        Assert.Equal(36, FamilySpace.Inset + SizeFit.HeaderCost);
+
+        // At the foot: the view's own bottom inset, then the strip's gap, line and inset on the edge.
+        var foot = SizeFit.ForHeader(Meter, HeaderPlacement.Top, HeaderPlacement.Bottom);
+        Assert.Equal(Meter.Min with { Height = 112 - SizeFit.HeaderCost + 4 + 20 + 12 }, foot.Min);
+        Assert.Equal(36, SizeFit.EdgeHeaderCost);
+
+        var hidden = SizeFit.ForHeader(Meter, HeaderPlacement.Hidden, HeaderPlacement.Right);
+        Assert.Equal(new SizeDip(160 + 36, 112), hidden.Min);
     }
 
     [Fact]

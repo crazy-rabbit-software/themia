@@ -1,4 +1,5 @@
 using Themia.Core.Model;
+using Themia.Sdk.Kit;
 
 namespace Themia.Core.Widgets;
 
@@ -122,6 +123,16 @@ public static class HeaderStrip
         var across = side ? width : height;
         return across > 0 && across < (side ? SideShedsBelow : FlatShedsBelow);
     }
+
+    /// <summary>
+    /// [S-5700] How far below the card's top edge the view's cell starts, for a header shown on
+    /// <paramref name="shown"/> (<see cref="HeaderEdge.None"/> when hidden or shed): nothing under a header
+    /// above (its line and gap are the content's top), else the family's inset, so the content starts
+    /// where its sides and foot already stand; nothing for a view that owns its top edge (it draws to it,
+    /// or pads itself). The Set up row, the waiting row and the error card are never such a view.
+    /// </summary>
+    public static double ViewTop(HeaderEdge shown, bool ownsTopEdge)
+        => shown == HeaderEdge.Top || ownsTopEdge ? 0 : FamilySpace.Inset;
 
     /// <summary>The strip's cell: the whole outer row or column on its edge.</summary>
     public static GridCell StripCell(HeaderEdge edge) => edge switch

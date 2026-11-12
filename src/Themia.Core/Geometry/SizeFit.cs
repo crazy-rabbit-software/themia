@@ -47,10 +47,16 @@ public sealed record SizeLimits(AxisLimits Width, AxisLimits Height);
 public static class SizeFit
 {
     /// <summary>
-    /// [S-2444] What a top or bottom header adds to a card's height (its 20 line and the 4 under it;
-    /// the inset is there either way), and what a side strip adds to its width.
+    /// [S-2444] What a header above adds to a card's height: its 20 line and the 4 under it. The inset
+    /// over it is there either way, as a card without a header above insets its view's top ([S-5700]).
     /// </summary>
     public const double HeaderCost = FamilySpace.HeaderLine + FamilySpace.HeaderGap;
+
+    /// <summary>
+    /// [S-5700] What a header at the foot adds to the height, or a side strip to the width: its line, its
+    /// gap and its own inset on the card's edge, since the view keeps its inset on that side as well.
+    /// </summary>
+    public const double EdgeHeaderCost = HeaderCost + FamilySpace.Inset;
 
     /// <summary>
     /// [S-2444] <paramref name="sizing"/>, stated with <paramref name="stated"/> (the kind's default
@@ -162,8 +168,9 @@ public static class SizeFit
     /// <summary>What a header at <paramref name="h"/> costs the card: its line and gap, across the edge it stands on.</summary>
     private static (double W, double H) Cost(HeaderPlacement h) => h switch
     {
-        HeaderPlacement.Top or HeaderPlacement.Bottom => (0, HeaderCost),
-        HeaderPlacement.Left or HeaderPlacement.Right => (HeaderCost, 0),
+        HeaderPlacement.Top => (0, HeaderCost),
+        HeaderPlacement.Bottom => (0, EdgeHeaderCost),
+        HeaderPlacement.Left or HeaderPlacement.Right => (EdgeHeaderCost, 0),
         _ => (0, 0),
     };
 

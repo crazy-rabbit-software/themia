@@ -455,13 +455,19 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface, IItemPaletteOwn
         var hidden = placement == HeaderPlacement.Hidden || tooShort;
 
         _headerBand.Visibility = hidden ? Visibility.Collapsed : Visibility.Visible;
-        _setup?.HeaderAbove(HeaderAbove);
-        if (_waiting is not null)
+
+        // [S-5700] With no header above it, the view's cell starts at the family's inset (each view keeps
+        // its sides and foot), unless the view owns its top edge; the Set up and waiting rows never do.
+        _view.Margin = new Thickness(0, HeaderStrip.ViewTop(ViewEdge, (_view as IWidgetTopEdge)?.OwnsTopEdge == true), 0, 0);
+        if (_setup is not null)
         {
-            _waiting.Margin = StatusTop(HeaderAbove);
+            _setup.Margin = OverlayTop;
         }
 
-        (_view as FaultCard)?.HeaderAbove(HeaderAbove);
+        if (_waiting is not null)
+        {
+            _waiting.Margin = OverlayTop;
+        }
 
         if (hidden)
         {
@@ -487,8 +493,11 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface, IItemPaletteOwn
         ApplyHeaderFill();
     }
 
-    /// <summary>[S-1862] Whether a header stands above the body: the Set up row then sits right under it.</summary>
-    private bool HeaderAbove => _headerBand.Visibility == Visibility.Visible && Model.ShownHeader == HeaderPlacement.Top;
+    /// <summary>[S-5700] The edge the header stands on now: none while it is hidden or shed.</summary>
+    private HeaderEdge ViewEdge => _headerBand.Visibility == Visibility.Visible ? ShownEdge : HeaderEdge.None;
+
+    /// <summary>[S-1862] [S-5700] Where a row the card lays over the view starts: right under a header above it, else at the inset.</summary>
+    private Thickness OverlayTop => new(0, HeaderStrip.ViewTop(ViewEdge, ownsTopEdge: false), 0, 0);
 
     /// <summary>[S-872] Whether the card draws anything the window's hit region must take clicks for.</summary>
     public bool IsShown(bool editMode) => !_hidden || editMode;

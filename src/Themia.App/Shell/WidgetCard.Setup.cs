@@ -102,16 +102,13 @@ internal sealed partial class WidgetCard
         if (waits is { } state)
         {
             // [S-6714] The Status block's row at the top, as the Set up row: Windows' location glyph and the state's sentence.
-            _waiting = new StatusBlock { Margin = StatusTop(HeaderAbove) };
+            _waiting = new StatusBlock { Margin = OverlayTop };
             _waiting.Show(StatusKind.Empty, Glyphs.Location, Config.DevicePlaceRows.Sentence(state));
             Grid.SetRow(_waiting, 1);
             Grid.SetColumn(_waiting, 1);
             _content.Children.Add(_waiting);
         }
     }
-
-    /// <summary>[S-6714] A Status row's room over it: none right under a header, the card's top inset where there is none.</summary>
-    private static Thickness StatusTop(bool headerAbove) => new(0, headerAbove ? 0 : FamilySpace.Inset, 0, 0);
 
     /// <summary>Show or take away the button to match the config and the accounts signed in now.</summary>
     private void ApplySetup()
@@ -123,7 +120,7 @@ internal sealed partial class WidgetCard
         if (needed && _setup is null)
         {
             _setup = new SetupPrompt(ModuleCatalog.Of(Model.Kind).Glyph, SetupSentence(signedIn), () => _host.RequestSetup(this));
-            _setup.HeaderAbove(HeaderAbove);
+            _setup.Margin = OverlayTop;
             Grid.SetRow(_setup, 1);
             Grid.SetColumn(_setup, 1);
             _content.Children.Add(_setup);

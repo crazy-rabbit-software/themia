@@ -37,8 +37,11 @@ namespace Themia.App.Widgets;
 /// differs; the whole slot stays the hit target, so arming, edit mode and the click are one path.
 /// </para>
 /// </summary>
-public sealed partial class PowerButtonView : Grid, IWidgetView, IWidgetSizeAware, IWidgetSurfaceAware
+public sealed partial class PowerButtonView : Grid, IWidgetView, IWidgetSizeAware, IWidgetSurfaceAware, IWidgetTopEdge
 {
+    /// <summary>[S-5700] It owns its top edge: the button is centred in its own inset.</summary>
+    public bool OwnsTopEdge => true;
+
     private const string Scope = "power";
 
     private readonly PowerAction _action;

@@ -28,8 +28,11 @@ namespace Themia.App.Widgets;
 /// they fit (<see cref="ClockFace.Under"/>), on the step's line under.
 /// </para>
 /// </summary>
-public sealed partial class ClockView : UserControl, IWidgetView, IWidgetOpens, IWidgetSizeAware, IWidgetAligned
+public sealed partial class ClockView : UserControl, IWidgetView, IWidgetOpens, IWidgetSizeAware, IWidgetAligned, IWidgetTopEdge
 {
+    /// <summary>[S-5700] It owns its top edge: its face is centred in its own inset on all four sides.</summary>
+    public bool OwnsTopEdge => true;
+
     /// <inheritdoc />
     public CardOpen? Opens => ClockModule.Opens;
 

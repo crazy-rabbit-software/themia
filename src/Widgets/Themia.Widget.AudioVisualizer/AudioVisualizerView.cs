@@ -24,8 +24,11 @@ namespace Themia.App.Widgets;
 /// ([S-3206]); only a device the capture cannot reach puts a sentence in their place ([S-3204]).
 /// </para>
 /// </summary>
-internal sealed partial class AudioVisualizerView : Grid, IWidgetView, IWidgetSizeAware, IWidgetSurfaceAware
+internal sealed partial class AudioVisualizerView : Grid, IWidgetView, IWidgetSizeAware, IWidgetSurfaceAware, IWidgetTopEdge
 {
+    /// <summary>[S-5700] It owns its top edge: the spectrum is drawn to the card's edges.</summary>
+    public bool OwnsTopEdge => true;
+
     private const string Scope = "visualizer";
 
     private AudioVisualizerStyle _style;

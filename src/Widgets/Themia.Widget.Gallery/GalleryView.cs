@@ -29,8 +29,11 @@ namespace Themia.App.Widgets;
 /// </para>
 /// </summary>
 internal sealed partial class GalleryView : Grid, IWidgetView, IWidgetHeaderContent, IWidgetSurfaceAware,
-    IWidgetSizeAware, IWidgetContextActions, IWidgetKeys
+    IWidgetSizeAware, IWidgetContextActions, IWidgetKeys, IWidgetTopEdge
 {
+    /// <summary>[S-5700] It owns its top edge: the pictures run edge to edge.</summary>
+    public bool OwnsTopEdge => true;
+
     private const string Scope = "gallery-view";
 
     private readonly DispatcherQueueTimer? _slideTimer;

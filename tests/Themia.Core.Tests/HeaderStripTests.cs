@@ -7,6 +7,31 @@ namespace Themia.Core.Tests;
 /// <summary>Where the card's header strip stands, [S-401] [S-402] [S-404]..[S-408].</summary>
 public sealed class HeaderStripTests
 {
+    // ---- [S-5700] the view's top without a header above it -----------------------------------
+
+    [Theory]
+    [InlineData(HeaderPlacement.Hidden, 12)]
+    [InlineData(HeaderPlacement.Bottom, 12)]
+    [InlineData(HeaderPlacement.Left, 12)]
+    [InlineData(HeaderPlacement.Right, 12)]
+    [InlineData(HeaderPlacement.Top, 0)]
+    public void S5700_without_a_header_above_the_view_starts_at_the_inset(HeaderPlacement placement, double top)
+    {
+        foreach (var rtl in new[] { false, true })
+        {
+            Assert.Equal(top, HeaderStrip.ViewTop(HeaderStrip.Edge(placement, rtl), ownsTopEdge: false));
+        }
+    }
+
+    [Fact]
+    public void S5700_a_view_that_owns_its_top_edge_gets_its_whole_box()
+    {
+        foreach (var edge in Enum.GetValues<HeaderEdge>())
+        {
+            Assert.Equal(0, HeaderStrip.ViewTop(edge, ownsTopEdge: true));
+        }
+    }
+
     // ---- [S-404] the strip's cell and the content box ----------------------------------------
 
     [Theory]

@@ -19,8 +19,11 @@ namespace Themia.App.Widgets;
 /// What the alarm is <i>doing</i> is the app's alarm service's ([S-4623]), which rings it whether or not
 /// this view exists. Several alarms are several widgets.
 /// </summary>
-internal sealed partial class AlarmView : Grid, IWidgetView, IWidgetOpens, IWidgetSizeAware, IWidgetSurfaceAware, IWidgetKeys, IWidgetContextActions
+internal sealed partial class AlarmView : Grid, IWidgetView, IWidgetOpens, IWidgetSizeAware, IWidgetSurfaceAware, IWidgetKeys, IWidgetContextActions, IWidgetTopEdge
 {
+    /// <summary>[S-5700] It owns its top edge: its time is centred in the whole card ([S-2590]), not laid from the top.</summary>
+    public bool OwnsTopEdge => true;
+
     /// <inheritdoc />
     public CardOpen? Opens => AlarmModule.Opens;
 

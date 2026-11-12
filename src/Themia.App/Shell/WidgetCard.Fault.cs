@@ -425,7 +425,7 @@ internal sealed partial class WidgetCard
 
                 if (_detailsRow is not null)
                 {
-                    var room = e.NewSize.Height - _status.Margin.Top - FamilyShape.Row1 - FamilySpace.S2;
+                    var room = e.NewSize.Height - FamilyShape.Row1 - FamilySpace.S2;
                     _detailsRow.Visibility = narrow || room < FamilyShape.Button ? Visibility.Collapsed : Visibility.Visible;
                 }
             };
@@ -440,9 +440,6 @@ internal sealed partial class WidgetCard
                 }
             }
         }
-
-        /// <summary>[S-6714] The row sits right under a header above it, or at the card's top inset when there is none, as the Set up row does.</summary>
-        public void HeaderAbove(bool above) => _status.Margin = new Thickness(0, above ? 0 : FamilySpace.Inset, 0, 0);
 
         public bool Paused { get; }
 

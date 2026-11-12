@@ -34,8 +34,11 @@ namespace Themia.App.Widgets;
 /// click gate, the keys and edit mode are one path.
 /// </para>
 /// </summary>
-public sealed partial class QuickToggleView : Grid, IWidgetView, IWidgetSizeAware, IWidgetSurfaceAware, IWidgetKeys
+public sealed partial class QuickToggleView : Grid, IWidgetView, IWidgetSizeAware, IWidgetSurfaceAware, IWidgetKeys, IWidgetTopEdge
 {
+    /// <summary>[S-5700] It owns its top edge: the whole tile is the switch, padded by itself.</summary>
+    public bool OwnsTopEdge => true;
+
     private const string Scope = "toggles";
 
     private readonly QuickToggle _toggle;
