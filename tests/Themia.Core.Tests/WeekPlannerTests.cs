@@ -43,32 +43,6 @@ public class WeekPlannerTests
     }
 
     [Fact]
-    public void S5321_small_tiles_show_today_and_wider_ones_more_days_side_by_side()
-    {
-        var xs = WeekPlannerRules.Plan(Box("XS"));
-        Assert.Equal(1, xs.Columns);
-        Assert.False(xs.Stacked);
-        Assert.False(xs.Headings);
-        Assert.False(xs.Times);
-
-        // A medium tile and a tall column stack the days, each event ending in its start.
-        foreach (var tier in new[] { "M", "Tall" })
-        {
-            var plan = WeekPlannerRules.Plan(Box(tier));
-            Assert.Equal(1, plan.Columns);
-            Assert.True(plan.Stacked);
-            Assert.True(plan.Times);
-        }
-
-        // Columns while each keeps 240 (its rows carry the card's inset).
-        Assert.Equal(2, WeekPlannerRules.Plan(Box("Wide")).Columns);
-        Assert.Equal(2, WeekPlannerRules.Plan(Box("L")).Columns);
-        Assert.Equal(3, WeekPlannerRules.Plan(Box("XL")).Columns);
-        Assert.True(WeekPlannerRules.Plan(Box("XL")).Times);
-        Assert.Equal(WeekPlannerRules.Days, WeekPlannerRules.Plan(new WidgetArea(2000, 400)).Columns);
-    }
-
-    [Fact]
     public void S5322_tasks_due_today_or_overdue_stand_under_today_only()
     {
         var tasks = new[]
@@ -108,34 +82,27 @@ public class WeekPlannerTests
     }
 
     [Fact]
-    public void S5323_a_column_shows_whole_rows_and_says_how_many_more()
+    public void S11410_a_column_shows_its_rows_and_says_how_many_more()
     {
-        var slots = WeekPlannerRules.Columns([5, 2, 0], 3, height: 24 + (3 * 24), heading: 24, row: 24, headings: true);
+        var slots = WeekPlannerRules.Columns([5, 2, 0, 4], days: 3, rows: 3);
 
         Assert.Equal(3, slots.Count);
         Assert.Equal(new PlannerSlot(0, 2, 3, true), slots[0]);
         Assert.Equal(new PlannerSlot(1, 2, 0, true), slots[1]);
         Assert.Equal(new PlannerSlot(2, 0, 0, true), slots[2]);
 
-        // One whole row: the day's first item, not a lone "+3" that names nothing.
-        Assert.Equal(new PlannerSlot(0, 1, 0, false), WeekPlannerRules.Columns([3], 1, 24, 24, 24, false)[0]);
-
-        // No whole row: nothing, not a "+N" squeezed in.
-        Assert.Equal(new PlannerSlot(0, 0, 0, true), WeekPlannerRules.Columns([3], 1, 30, 24, 24, true)[0]);
+        // One row: the day's first item, not a lone "+3" that names nothing.
+        Assert.Equal(new PlannerSlot(0, 1, 0, true), WeekPlannerRules.Columns([3], 1, 1)[0]);
     }
 
     [Fact]
-    public void S5323_stacked_days_skip_empty_ones_and_stop_where_the_room_ends()
+    public void S11410_the_width_follows_the_days_and_the_height_the_rows()
     {
-        // Today 2 rows, tomorrow nothing, then 1, then 4: room for today, the third day and a cut fourth.
-        var slots = WeekPlannerRules.Stack([2, 0, 1, 4, 1], height: (3 * 20) + (5 * 20), heading: 20, row: 20);
-
-        Assert.Equal([0, 2, 3], slots.Select(s => s.Day));
-        Assert.Equal(new PlannerSlot(0, 2, 0, true), slots[0]);
-        Assert.Equal(new PlannerSlot(2, 1, 0, true), slots[1]);
-        Assert.Equal(new PlannerSlot(3, 1, 3, true), slots[2]);
-
-        // A day whose heading and one row do not fit is not started.
-        Assert.Single(WeekPlannerRules.Stack([1, 1], height: 50, heading: 20, row: 20));
+        var three = WeekPlannerRules.Sizing(3, 5);
+        Assert.Equal(new SizeDip(600, 36 + 28 + (5 * 28) + 12), three.Natural);
+        Assert.True(three.FixedWidth);
+        Assert.Equal(1400, WeekPlannerRules.Sizing(7, 5).Natural.Width);
+        Assert.Equal(200, WeekPlannerRules.Sizing(0, 5).Natural.Width);
+        Assert.Empty(three.Problems());
     }
 }

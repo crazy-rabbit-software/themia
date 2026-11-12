@@ -35,7 +35,8 @@ public sealed class WeekPlannerModule : IWidgetModule
         Label = WeekPlannerStr.Planner_Label.Local(),
         Description = WeekPlannerStr.Planner_Desc.Local(),
         Glyph = Glyphs.WeekPlanner,
-        Sizing = _ => WidgetSizing.Legacy(480, 280),
+        Sizing = c => WeekPlannerRules.Sizing(((WeekPlannerConfig)c).Days, ((WeekPlannerConfig)c).RowsPerDay),
+        SizeSets = SetRows,
         Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader,
         Add = new(AddFolderId.CalendarMail, 0, 3),
     };
@@ -43,6 +44,25 @@ public sealed class WeekPlannerModule : IWidgetModule
     /// <summary>[S-3719] [S-5324] Every option is on the properties menu: the widget has no settings page.</summary>
     public void MenuLines(WidgetMenuLines menu, WidgetConfig config)
         => WeekPlannerMenu.Lines(menu, (WeekPlannerConfig)config, SettingsHost.Office, SettingsHost.Tasks?.Accounts ?? []);
+
+    /// <summary>[S-11410] Dragging the bottom edge sets the rows a day shows.</summary>
+    private static WidgetConfig SetRows(WidgetConfig config, SizeDip size)
+    {
+        if (config is not WeekPlannerConfig planner)
+        {
+            return config;
+        }
+
+        var rows = WeekPlannerRules.Sizing(planner.Days, planner.RowsPerDay).HeightSteps!.Nearest(size.Height);
+        if (rows == planner.RowsPerDay)
+        {
+            return config;
+        }
+
+        var copy = (WeekPlannerConfig)planner.Clone();
+        copy.RowsPerDay = rows;
+        return copy;
+    }
 
     public FrameworkElement CreateView(IWidgetHost host) => new WeekPlannerView(host);
 }

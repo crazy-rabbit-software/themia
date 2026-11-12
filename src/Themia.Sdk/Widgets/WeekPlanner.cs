@@ -1,3 +1,5 @@
+using Themia.Sdk.Kit;
+using Themia.Sdk;
 using Themia.Core.Office;
 using Themia.Core.Tasks;
 
@@ -22,7 +24,6 @@ public readonly record struct PlannerSlot(int Day, int Shown, int Hidden, bool H
 /// <param name="Stacked">One column holding several days one under another, as an agenda does.</param>
 /// <param name="Headings">Whether a lone day still names itself: not on a tile only big enough for its rows.</param>
 /// <param name="Times">Whether an event row carries its start: not in a column too narrow for "10:30 AM" and a word of the title.</param>
-public readonly record struct PlannerPlan(int Columns, bool Stacked, bool Headings, bool Times = true);
 
 /// <summary>
 /// [S-5320]..[S-5323] The week planner's rules: which days, what is on each, and how much of it a
@@ -85,89 +86,40 @@ public static class WeekPlannerRules
     }
 
     /// <summary>
-    /// [S-5321] The planner's shape in the view's area (the card less its header; rows carry the side
-    /// inset, so columns meet): as many day columns as each keeps 240, at most the week; a single
-    /// column stacks the days one under another from a regular height, else it is today alone with no
-    /// heading. A timed event shows its start from a column of 180.
+    /// [S-11410] What each column shows: its day's heading, then its rows, as many as the config says;
+    /// when the day has more, the last row says how many ("+3"). An empty today still takes one row, to
+    /// say nothing is planned.
     /// </summary>
-    public static PlannerPlan Plan(WidgetArea area)
-    {
-        if (!area.IsMeasured)
-        {
-            return new PlannerPlan(1, false, false, false);
-        }
-
-        var columns = Math.Clamp((int)Math.Floor(area.Width / MinColumn), 1, Days);
-        var times = area.Width / columns >= TimesFrom;
-
-        if (columns == 1)
-        {
-            var stacked = area.HeightClass >= SizeClass.Regular;
-            return new PlannerPlan(1, stacked, stacked, times);
-        }
-
-        return new PlannerPlan(columns, false, true, times);
-    }
-
-    /// <summary>
-    /// [S-5323] What each column shows: its day's heading, then as many whole rows as fit; when the
-    /// day has more, the last row says how many ("+3"). An empty today still takes one row, to say
-    /// nothing is planned.
-    /// </summary>
-    public static IReadOnlyList<PlannerSlot> Columns(IReadOnlyList<int> counts, int columns, double height, double heading, double row, bool headings)
+    public static IReadOnlyList<PlannerSlot> Columns(IReadOnlyList<int> counts, int days, int rows)
     {
         ArgumentNullException.ThrowIfNull(counts);
 
         var slots = new List<PlannerSlot>();
-        for (var day = 0; day < Math.Min(columns, counts.Count); day++)
+        for (var day = 0; day < Math.Min(days, counts.Count); day++)
         {
-            var room = height - (headings ? heading : 0);
-            var fit = Disclosure.WholeRows(room, row);
-            var (shown, hidden) = Cut(counts[day], fit);
-            slots.Add(new PlannerSlot(day, shown, hidden, headings));
-        }
-
-        return slots;
-    }
-
-    /// <summary>
-    /// [S-5323] One column of days, one under another: today always (its heading, then its rows,
-    /// or the one row saying nothing is planned), then each later day that has something, while its
-    /// heading and at least one row still fit. A day cut short says how many more it has, and ends
-    /// the list.
-    /// </summary>
-    public static IReadOnlyList<PlannerSlot> Stack(IReadOnlyList<int> counts, double height, double heading, double row)
-    {
-        ArgumentNullException.ThrowIfNull(counts);
-
-        var slots = new List<PlannerSlot>();
-        var room = height;
-
-        for (var day = 0; day < counts.Count; day++)
-        {
-            if (day > 0 && counts[day] == 0)
-            {
-                continue;
-            }
-
-            var fit = Disclosure.WholeRows(room - heading, row);
-            if (fit < 1)
-            {
-                break;
-            }
-
-            var (shown, hidden) = Cut(counts[day], fit);
+            var (shown, hidden) = Cut(counts[day], rows);
             slots.Add(new PlannerSlot(day, shown, hidden, true));
-
-            if (hidden > 0)
-            {
-                break;
-            }
-
-            room -= heading + (Math.Max(1, shown) * row);
         }
 
         return slots;
+    }
+
+    /// <summary>[S-11410] A day column's one width: a title worth reading beside its start.</summary>
+    public const double ColumnWidth = 200;
+
+    /// <summary>[S-11410] The most rows a day shows.</summary>
+    public const int MaxRows = 12;
+
+    /// <summary>
+    /// [S-11410] The planner's size: the days side by side, each a column of <see cref="ColumnWidth"/>
+    /// (its rows carry the side inset, so the columns meet), one width; the height the content top, a
+    /// day's heading (28), its rows (28 each) and the inset, stepped by a row.
+    /// </summary>
+    public static WidgetSizing Sizing(int days, int rows)
+    {
+        var width = Math.Clamp(days, 1, Days) * ColumnWidth;
+        return WidgetSizing.Range(new(width, 1), new(width, 1), new(width, 1))
+            .WithHeightSteps(new SizeSteps(FamilySpace.ContentTop + FamilyShape.Row1 + FamilySpace.Inset, FamilyShape.Row1, 1, MaxRows, Math.Clamp(rows, 1, MaxRows)));
     }
 
     /// <summary>A day's rows in <paramref name="fit"/> whole rows: all of them, or all but one and a "+N" row; in one row its first item.</summary>

@@ -55,6 +55,7 @@ public sealed class WeekPlannerMenuTests
 
         Assert.Equal(
             [
+                WeekPlannerStr.WeekPlanner_Days.Text(), WeekPlannerStr.WeekPlanner_RowsPerDay.Text(), string.Empty,
                 Str.WidgetUi_AccountsLabel.Text(), Str.WidgetsA_Calendar_Settings_Calendars.Text(), Str.Calendar_ShowBirthdays_Label.Text(), string.Empty,
                 WeekPlannerStr.Planner_ShowTasks.Text(), WeekPlannerStr.Planner_TaskAccount.Text(), string.Empty,
                 Str.Calendar_WeekStart_Label.Text(),

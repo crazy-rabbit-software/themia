@@ -2248,6 +2248,8 @@
             "kind": "weekPlanner",
             "showTasks": true,
             "taskAccountId": "",
+            "days": 3,
+            "rowsPerDay": 5,
             "accountIds": [],
             "calendars": {},
             "calendarColors": {},

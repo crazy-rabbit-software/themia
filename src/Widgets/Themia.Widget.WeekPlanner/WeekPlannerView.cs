@@ -388,41 +388,25 @@ internal sealed partial class WeekPlannerView : Grid, IWidgetView, IWidgetOpens,
         var today = DateOnly.FromDateTime(now.LocalDateTime);
         var days = WeekPlannerRules.Build(_events, _birthdays, Tasks, today, zone, now);
 
-        // [S-5321] Rows carry the card's side inset, so the columns meet; the card's bottom inset stays free.
-        var plan = WeekPlannerRules.Plan(_area);
-        var room = Math.Max(0, _area.Height - FamilySpace.Inset);
-        var heading = FamilyShape.Row1;
-        var row = FamilyShape.Row1;
-
-        // An empty today still takes a row, to say nothing is planned ([S-5323]).
+        // [S-11410] The config's days side by side, its rows under each heading; rows carry the card's
+        // side inset, so the columns meet. An empty today still takes a row, to say nothing is planned ([S-5323]).
         var counts = days.Select((d, i) => i == 0 ? Math.Max(1, d.Count) : d.Count).ToList();
-        var slots = plan.Stacked
-            ? WeekPlannerRules.Stack(counts, room, heading, row)
-            : WeekPlannerRules.Columns(counts, plan.Columns, room, heading, row, plan.Headings);
+        // The config's rows at rest; while a drag is setting them, the rows its box holds.
+        var fit = _area.IsMeasured ? Math.Max(1, (int)Math.Floor((_area.Height - FamilySpace.Inset - FamilyShape.Row1 + 0.5) / FamilyShape.Row1)) : _config.RowsPerDay;
+        var slots = WeekPlannerRules.Columns(counts, _config.Days, Math.Min(_config.RowsPerDay, fit));
         var showColors = CalendarRules.ShowColors(_targets, _config.CalendarColors);
-        var columns = plan.Stacked ? 1 : slots.Count;
 
-        for (var c = 0; c < columns; c++)
+        for (var c = 0; c < slots.Count; c++)
         {
             _content.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
         }
 
-        var stack = new StackPanel();
         for (var s = 0; s < slots.Count; s++)
         {
-            var slot = slots[s];
-            if (!plan.Stacked)
-            {
-                stack = new StackPanel();
-                SetColumn(stack, s);
-                _content.Children.Add(stack);
-            }
-            else if (s == 0)
-            {
-                _content.Children.Add(stack);
-            }
-
-            DrawDay(stack, days[slot.Day], slot, today, zone, showColors, plan.Times);
+            var stack = new StackPanel();
+            SetColumn(stack, s);
+            _content.Children.Add(stack);
+            DrawDay(stack, days[slots[s].Day], slots[s], today, zone, showColors, times: true);
         }
 
         _content.Visibility = Visibility.Visible;

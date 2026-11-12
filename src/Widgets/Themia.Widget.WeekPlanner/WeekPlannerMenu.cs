@@ -6,6 +6,7 @@ using Themia.App.Widgets;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
 using Themia.Sdk.WinUI;
+using Themia.Sdk.WinUI.Kit;
 using Themia.Sdk;
 
 namespace Themia.Widget.WeekPlanner;
@@ -27,6 +28,11 @@ internal static class WeekPlannerMenu
         ArgumentNullException.ThrowIfNull(menu);
         ArgumentNullException.ThrowIfNull(planner);
         ArgumentNullException.ThrowIfNull(taskAccounts);
+
+        // [S-11410] How many days and how many rows a day: the planner's size follows them.
+        menu.Lines.Add(KitMenuLines.Count(menu, Glyphs.Calendar, WeekPlannerStr.WeekPlanner_Days.Text(), Math.Clamp(planner.Days, 1, WeekPlannerRules.Days), 1, WeekPlannerRules.Days, 1, v => planner.Days = v));
+        menu.Lines.Add(KitMenuLines.Count(menu, null, WeekPlannerStr.WeekPlanner_RowsPerDay.Text(), Math.Clamp(planner.RowsPerDay, 1, WeekPlannerRules.MaxRows), 1, WeekPlannerRules.MaxRows, 1, v => planner.RowsPerDay = v));
+        menu.Lines.Add(ItemMenuEntry.Separator);
 
         menu.Lines.AddRange(OfficeMenuLines.CalendarAccounts(menu, planner, office));
 

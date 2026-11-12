@@ -410,6 +410,8 @@
             "kind": "weekPlanner",
             "showTasks": true,
             "taskAccountId": "google:1234",
+            "days": 3,
+            "rowsPerDay": 5,
             "accountIds": [
               "google:1234"
             ],
@@ -441,6 +443,8 @@
             "kind": "weekPlanner",
             "showTasks": false,
             "taskAccountId": "",
+            "days": 3,
+            "rowsPerDay": 5,
             "accountIds": [],
             "calendars": {},
             "calendarColors": {},

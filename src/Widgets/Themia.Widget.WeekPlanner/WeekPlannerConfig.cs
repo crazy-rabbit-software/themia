@@ -59,6 +59,12 @@ public sealed class WeekPlannerConfig : CalendarConfig, IShownSettings<WeekPlann
     /// <summary>[S-5324] List the tasks due today (and overdue) under today's events.</summary>
     public bool ShowTasks { get; set; } = true;
 
+    /// <summary>[S-11410] How many days stand side by side, today first: 1 to 7.</summary>
+    public int Days { get; set; } = 3;
+
+    /// <summary>[S-11410] How many rows each day shows under its heading; more say "+N".</summary>
+    public int RowsPerDay { get; set; } = 5;
+
     /// <summary>[S-5324] The task account; empty for the first account with tasks, as the Tasks widget's [S-590].</summary>
     public string TaskAccountId { get; set; } = string.Empty;
 
@@ -74,6 +80,12 @@ public sealed class WeekPlannerConfig : CalendarConfig, IShownSettings<WeekPlann
             TaskAccountId = string.Empty;
             repairs.Add("week planner had no task account; the first account with tasks");
         }
+
+        if (Days != Math.Clamp(Days, 1, WeekPlannerRules.Days) || RowsPerDay != Math.Clamp(RowsPerDay, 1, WeekPlannerRules.MaxRows))
+        {
+            (Days, RowsPerDay) = (Math.Clamp(Days, 1, WeekPlannerRules.Days), Math.Clamp(RowsPerDay, 1, WeekPlannerRules.MaxRows));
+            repairs.Add("week planner's days or rows were out of range");
+        }
     }
 
     public override WidgetConfig Clone()
@@ -81,6 +93,8 @@ public sealed class WeekPlannerConfig : CalendarConfig, IShownSettings<WeekPlann
         var copy = CopySharedTo(new WeekPlannerConfig());
         copy.ShowTasks = ShowTasks;
         copy.TaskAccountId = TaskAccountId;
+        copy.Days = Days;
+        copy.RowsPerDay = RowsPerDay;
         return copy;
     }
 }
