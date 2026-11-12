@@ -20,6 +20,17 @@ internal static class WeatherForecastMenu
         ArgumentNullException.ThrowIfNull(menu);
         ArgumentNullException.ThrowIfNull(config);
 
+        // [S-11147] Under Style: the rows' lines per row (the rows style only).
+        if (config.Style == ForecastStyle.Rows)
+        {
+            menu.StyleLines.Add(menu.Choice(
+                null,
+                Str.Kit_Lines.Text(),
+                [(1, Str.Kit_LinesOne.Text()), (2, Str.Kit_LinesTwo.Text())],
+                config.EffectiveLines,
+                v => config.Lines = v));
+        }
+
         // The look (Style, Appearance), then behind a divider each: the place; what each day shows.
         menu.Lines.Add(ItemMenuEntry.Separator);
         menu.Lines.AddRange(WeatherPlaceRows.Lines(menu, config));

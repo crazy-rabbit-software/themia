@@ -62,8 +62,15 @@ public sealed class WeatherForecastConfig : WeatherConfig, IStyled, IInterests
     ];
 
 
-    /// <summary>How many days to ask for, 1 to 14 — open-meteo's own limit.</summary>
-    public int Days { get; set; } = 7;
+    /// <summary>[S-11145] How many days it shows (and asks for), 1 to 14 — open-meteo's own limit; each style's size follows it.</summary>
+    public int Days { get; set; } = 5;
+
+    /// <summary>[S-11145] The rows style's lines per row: 1 (the day, its range and figures) or 2 (the sky in words and the rain under the day).</summary>
+    public int Lines { get; set; } = 1;
+
+    /// <summary>The lines held to 1 or 2.</summary>
+    [JsonIgnore]
+    public int EffectiveLines => Math.Clamp(Lines, 1, 2);
 
     /// <summary>Show each day's precipitation total beside its temperatures.</summary>
     public bool ShowPrecipitation { get; set; } = true;
@@ -83,11 +90,31 @@ public sealed class WeatherForecastConfig : WeatherConfig, IStyled, IInterests
     [JsonIgnore]
     public int EffectiveDays => Math.Clamp(Days, 1, 14);
 
+    /// <summary>[S-11145] A day count or a line count out of range is held to it, and says so.</summary>
+    public override IReadOnlyList<string> Repair()
+    {
+        var repairs = new List<string>();
+        if (Days != EffectiveDays)
+        {
+            repairs.Add($"forecast: {Days} days is out of 1..14; {EffectiveDays}");
+            Days = EffectiveDays;
+        }
+
+        if (Lines != EffectiveLines)
+        {
+            repairs.Add($"forecast: {Lines} lines is out of 1..2; {EffectiveLines}");
+            Lines = EffectiveLines;
+        }
+
+        return repairs;
+    }
+
     public override WidgetConfig Clone()
     {
         var copy = new WeatherForecastConfig
         {
             Days = Days,
+            Lines = Lines,
             ShowPrecipitation = ShowPrecipitation,
             Style = Style,
         };

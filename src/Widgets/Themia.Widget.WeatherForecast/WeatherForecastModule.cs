@@ -34,7 +34,8 @@ public sealed class WeatherForecastModule : IWidgetModule
         Label = WeatherForecastStr.WidgetsA_Catalog_Forecast_Label.Local(),
         Description = WeatherForecastStr.WidgetsA_Catalog_Forecast_Description.Local(),
         Glyph = Glyph,
-        Sizing = _ => WidgetSizing.Legacy(380, 220),
+        Sizing = c => WeatherForecastLayout.Sizing((WeatherForecastConfig)c),
+        SizeSets = WeatherForecastLayout.SizeSets,
         Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader,
         Add = new(AddFolderId.Weather, 0, 2, Popular: 2),
     };

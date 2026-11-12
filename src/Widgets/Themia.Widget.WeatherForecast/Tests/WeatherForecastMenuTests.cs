@@ -50,4 +50,16 @@ public sealed class WeatherForecastMenuTests
 
         Assert.False(config.ShowPrecipitation);
     }
+
+    [Fact]
+    public void S11147_lines_per_row_stand_under_style_in_the_rows_style_only_and_a_pick_stores_it()
+    {
+        var config = new WeatherForecastConfig();
+        var lines = Assert.Single(Build(config).StyleLines);
+        Assert.Equal(Str.Kit_Lines.Text(), lines.Text);
+        lines.Children![1].Action!();
+        Assert.Equal(2, config.Lines);
+
+        Assert.Empty(Build(new WeatherForecastConfig { Style = ForecastStyle.Columns }).StyleLines);
+    }
 }

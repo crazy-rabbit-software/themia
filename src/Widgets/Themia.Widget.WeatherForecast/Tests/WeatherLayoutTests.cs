@@ -1,144 +1,86 @@
 using Themia.Core.Model;
 using Themia.Core.Widgets;
+using Themia.Sdk;
 using Themia.Sdk.Kit;
 using Xunit;
 
 namespace Themia.Widget.WeatherForecast.Tests;
 
-/// <summary>
-/// [S-724]..[S-726] The forecast's rows and columns on the family's blocks, at the seven size tiers
-/// (each card less its 36 header).
-/// </summary>
+/// <summary>[S-724]..[S-726] [S-11145] [S-11146] The forecast as an atom: its days decide what it shows, each style's size follows.</summary>
 public class WeatherLayoutTests
 {
-    private static readonly WidgetArea Xs = new(120, 84);
-    private static readonly WidgetArea S = new(200, 114);
-    private static readonly WidgetArea M = new(320, 204);
-    private static readonly WidgetArea Wide = new(480, 124);
-    private static readonly WidgetArea Tall = new(200, 364);
-    private static readonly WidgetArea L = new(560, 384);
-    private static readonly WidgetArea Xl = new(800, 524);
-
-    private static readonly WidgetArea[] Tiers = [Xs, S, M, Wide, Tall, L, Xl];
-
-    // ---- rows [S-725] -------------------------------------------------------------------------
+    private static readonly WidgetDescriptor Kind = new WeatherForecastModule().Descriptor;
 
     [Fact]
-    public void S725_rows_are_whole_rows_of_the_tiers_lines_never_stretched_and_never_more_than_the_forecast()
+    public void S11145_a_new_forecast_shows_five_days_on_one_line_rows()
     {
-        foreach (var tier in Tiers)
-        {
-            for (var days = 1; days <= 14; days++)
-            {
-                var plan = WeatherForecastLayout.Rows(tier, days);
-                Assert.InRange(plan.Days, 0, days);
-                Assert.Equal(RowRules.Lines(tier, 2), plan.Lines);
-                Assert.True(plan.Days * FamilyShape.RowHeight(plan.Lines) <= WeatherForecastLayout.ContentHeight(tier) + 0.01, $"{tier} {days}");
-            }
-        }
-
-        Assert.Equal(7, WeatherForecastLayout.Rows(Tall, 7).Days);
-        Assert.Equal(4, WeatherForecastLayout.Rows(M, 7).Days);
-        Assert.Equal(4, WeatherForecastLayout.Rows(Wide, 7).Days);
-        Assert.Equal(2, WeatherForecastLayout.Rows(Xs, 7).Days);
+        var config = new WeatherForecastConfig();
+        Assert.Equal((5, 1, ForecastStyle.Rows), (config.Days, config.Lines, config.Style));
     }
 
     [Fact]
-    public void S725_a_row_has_two_lines_from_a_regular_area_both_ways()
+    public void S11146_rows_are_a_row_a_day_their_height_stepped_by_the_days_220_to_420_wide()
     {
-        Assert.Equal(1, WeatherForecastLayout.Rows(Xs, 7).Lines);
-        Assert.Equal(1, WeatherForecastLayout.Rows(Wide, 7).Lines);
-        Assert.Equal(2, WeatherForecastLayout.Rows(M, 7).Lines);
-        Assert.Equal(2, WeatherForecastLayout.Rows(Xl, 7).Lines);
+        var one = Kind.Sizing(new WeatherForecastConfig { Days = 5 });
+        var two = Kind.Sizing(new WeatherForecastConfig { Days = 5, Lines = 2 });
+
+        Assert.Equal(new SizeDip(300, 36 + (5 * 28) + 12), one.Natural);
+        Assert.Equal(36 + (5 * 40) + 12, two.Natural.Height);
+        Assert.Equal((220.0, 420.0), (one.Min.Width, one.Max.Width));
+        Assert.True(one.HeightSteps!.FollowsConfig);
     }
 
     [Fact]
-    public void S725_the_range_bar_comes_with_the_width_and_stops_growing()
+    public void S11146_columns_are_a_56_column_a_day_the_width_stepped_by_the_days_at_one_height()
     {
-        Assert.Equal(0, WeatherForecastLayout.Rows(S, 7).Meter);
-        Assert.Equal(Math.Floor((320 - (2 * FamilySpace.Inset)) * WeatherForecastLayout.MeterShare), WeatherForecastLayout.Rows(M, 7).Meter);
-        Assert.Equal(WeatherForecastLayout.MeterMax, WeatherForecastLayout.Rows(Xl, 7).Meter);
+        var sizing = Kind.Sizing(new WeatherForecastConfig { Style = ForecastStyle.Columns, Days = 5 });
+        var dry = Kind.Sizing(new WeatherForecastConfig { Style = ForecastStyle.Columns, Days = 5, ShowPrecipitation = false });
+
+        Assert.Equal(24 + (5 * 56), sizing.Natural.Width);
+        Assert.True(sizing.FixedHeight && sizing.WidthSteps!.FollowsConfig);
+        Assert.Equal(36 + WeatherForecastLayout.ColumnHeight(true) + 12, sizing.Natural.Height);
+        Assert.Equal(20, sizing.Natural.Height - dry.Natural.Height);
     }
 
     [Fact]
-    public void S725_the_smallest_tile_is_the_day_and_its_high_alone()
+    public void S11146_dragging_the_rows_taller_or_the_columns_wider_sets_the_days()
     {
-        Assert.True(WeatherForecastLayout.Rows(Xs, 7).Compact);
-        Assert.All(Tiers.Skip(1), t => Assert.False(WeatherForecastLayout.Rows(t, 7).Compact));
-    }
+        var rows = new WeatherForecastConfig { Days = 5 };
+        var columns = new WeatherForecastConfig { Style = ForecastStyle.Columns, Days = 5 };
 
-    // ---- columns [S-726] ----------------------------------------------------------------------
-
-    [Fact]
-    public void S726_columns_share_the_width_never_under_their_floor_and_never_more_than_the_forecast()
-    {
-        foreach (var tier in Tiers)
-        {
-            var plan = WeatherForecastLayout.Columns(tier, 7);
-            Assert.InRange(plan.Days, 1, 7);
-            Assert.Equal(WeatherForecastLayout.ContentWidth(tier), plan.Days * plan.ColumnWidth, 6);
-            Assert.True(plan.ColumnWidth >= WeatherForecastLayout.ColumnMin - 1e-9 || plan.Days == 1);
-        }
-
-        Assert.Equal(1, WeatherForecastLayout.Columns(Xs, 7).Days);
-        Assert.Equal(5, WeatherForecastLayout.Columns(M, 7).Days);
-        Assert.Equal(7, WeatherForecastLayout.Columns(Xl, 7).Days);
-        Assert.Equal(3, WeatherForecastLayout.Columns(Xl, 3).Days);
+        Assert.Equal(7, ((WeatherForecastConfig)Kind.SizeSets!(rows, new SizeDip(300, 36 + (7 * 28) + 12))).Days);
+        Assert.Equal(3, ((WeatherForecastConfig)Kind.SizeSets(columns, new SizeDip(24 + (3 * 56), 200))).Days);
+        Assert.Same(rows, Kind.SizeSets(rows, new SizeDip(400, 36 + (5 * 28) + 12)));
+        Assert.Equal(5, rows.Days);
     }
 
     [Fact]
-    public void S726_a_column_never_draws_more_than_its_height_holds()
+    public void S725_rows_show_the_configs_days_and_lines_and_the_bar_is_a_share_of_the_row()
     {
-        foreach (var tier in Tiers)
-        {
-            foreach (var rain in new[] { true, false })
-            {
-                var plan = WeatherForecastLayout.Columns(tier, 7, rain);
-                var parts = new List<double> { 20, 20 };
-                if (plan.Icon > 0)
-                {
-                    parts.Add(plan.Icon);
-                }
+        var plan = WeatherForecastLayout.Rows(new WidgetArea(320, 200), new WeatherForecastConfig { Days = 6, Lines = 2 });
 
-                if (plan.Low)
-                {
-                    parts.Add(20);
-                }
-
-                if (plan.Bar)
-                {
-                    parts.Add(WeatherForecastLayout.ColumnBarMin);
-                }
-
-                if (plan.Precipitation)
-                {
-                    parts.Add(16);
-                }
-
-                var used = parts.Sum() + ((parts.Count - 1) * WeatherForecastLayout.ColumnGap);
-                Assert.True(used <= WeatherForecastLayout.ContentHeight(tier) + 0.01, $"{tier}");
-                Assert.False(plan.Precipitation && !rain);
-            }
-        }
+        Assert.Equal((6, 2, false), (plan.Days, plan.Lines, plan.Compact));
+        Assert.Equal(Math.Floor((320 - 24) * WeatherForecastLayout.MeterShare), plan.Meter);
+        Assert.Equal(WeatherForecastLayout.MeterMax, WeatherForecastLayout.Rows(new WidgetArea(800, 200), new WeatherForecastConfig()).Meter);
     }
 
     [Fact]
-    public void S726_the_glyph_the_low_the_bar_and_the_rain_come_with_the_height()
+    public void S726_columns_share_the_content_and_draw_every_part()
     {
-        // XS's 72 holds the day, the high and the 16 glyph, 4 apart (64); 16 shorter it does not.
-        Assert.Equal(FamilyShape.Icon, WeatherForecastLayout.Columns(Xs, 7).Icon);
-        var tiny = WeatherForecastLayout.Columns(new WidgetArea(120, 68), 7);
-        Assert.Equal(0, tiny.Icon);
-        Assert.False(tiny.Low || tiny.Bar || tiny.Precipitation);
+        var plan = WeatherForecastLayout.Columns(new WidgetArea(304, 180), new WeatherForecastConfig { Style = ForecastStyle.Columns, Days = 5 });
 
-        var strip = WeatherForecastLayout.Columns(Wide, 7);
-        Assert.Equal(FamilyShape.Icon, strip.Icon);
-        Assert.True(strip.Low);
-        Assert.False(strip.Bar);
+        Assert.Equal(56, plan.ColumnWidth, 6);
+        Assert.Equal(FamilyShape.IconLarge, plan.Icon);
+        Assert.True(plan.Low && plan.Bar && plan.Precipitation);
+    }
 
-        var large = WeatherForecastLayout.Columns(Xl, 7);
-        Assert.Equal(FamilyShape.IconLarge, large.Icon);
-        Assert.True(large.Low && large.Bar && large.Precipitation);
+    [Fact]
+    public void S11145_days_and_lines_out_of_range_are_repaired_and_a_copy_keeps_them()
+    {
+        var config = new WeatherForecastConfig { Days = 40, Lines = 5 };
+        Assert.Equal(2, config.Repair().Count);
+        Assert.Equal((14, 2), (config.Days, config.Lines));
+        Assert.Equal(2, ((WeatherForecastConfig)config.Clone()).Lines);
     }
 
     [Fact]

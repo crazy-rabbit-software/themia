@@ -19,9 +19,9 @@ namespace Themia.App.Widgets;
 /// highs and lows as a temperature curve (the Chart block), or as cells in a grid shaped to the tile
 /// ([S-6171]).
 /// <para>
-/// Each style has its own ladder (<see cref="WeatherForecastLayout"/>, <see cref="ForecastCurve"/>,
-/// <see cref="ForecastGrid"/>): only whole days are shown, the first ones that fit, never more than the
-/// user's day count; room left stays empty ([S-666]).
+/// [S-11145] The days are the config's in every style and at every size; each style's plan
+/// (<see cref="WeatherForecastLayout"/>, <see cref="ForecastCurve"/>, <see cref="ForecastGrid"/>) only
+/// shares the box among them: a bar or a chart longer, a column wider.
 /// </para>
 /// <para>
 /// The bar on each day is scaled against the whole forecast rather than that day's own range: a
@@ -267,10 +267,10 @@ internal sealed partial class WeatherForecastView : Grid, IWidgetView, IWidgetOp
         var style = _config.Style;
         object plan = style switch
         {
-            ForecastStyle.Columns => WeatherForecastLayout.Columns(_area, days.Count, _config.ShowPrecipitation),
-            ForecastStyle.Curve => ForecastCurve.Plan(_area, days.Count, _config.ShowPrecipitation),
-            ForecastStyle.Grid => ForecastGrid.Plan(_area, days.Count),
-            _ => WeatherForecastLayout.Rows(_area, days.Count),
+            ForecastStyle.Columns => WeatherForecastLayout.Columns(_area, _config),
+            ForecastStyle.Curve => ForecastCurve.Plan(_area, _config),
+            ForecastStyle.Grid => ForecastGrid.Plan(_area, _config),
+            _ => WeatherForecastLayout.Rows(_area, _config),
         };
 
         // One clock reading for the whole build, so a forecast drawn across midnight cannot label

@@ -542,6 +542,7 @@
           "config": {
             "kind": "weatherForecast",
             "days": 7,
+            "lines": 1,
             "showPrecipitation": true,
             "style": "rows",
             "locationName": "",

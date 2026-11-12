@@ -1,3 +1,4 @@
+using Themia.Core.Model;
 using Themia.Core.Tests;
 using Themia.Core.Widgets;
 using Themia.Sdk.Kit;
@@ -74,35 +75,30 @@ public sealed class ForecastCurveTests
     }
 
     [Fact]
-    public void S6164_the_curve_shows_the_days_that_have_a_column_and_never_invents_one()
+    public void S11146_the_curve_shows_the_configs_days_each_a_column_of_the_content_and_every_part()
     {
-        Assert.Equal(2, ForecastCurve.Plan(Xs, 7, true).Days);
-        Assert.Equal(1, ForecastCurve.Plan(new WidgetArea(100, 84), 7, true).Days);
-        Assert.Equal(7, ForecastCurve.Plan(Xl, 7, true).Days);
-        Assert.Equal(3, ForecastCurve.Plan(Xl, 3, true).Days);
-        Assert.Equal(7, ForecastCurve.Plan(new WidgetArea(400, 300), 14, true).Days);
-        Assert.All(Tiers, t => Assert.True(ForecastCurve.Plan(t, 7, true).ColumnWidth >= ForecastCurve.ColumnMin - 1e-9));
+        var config = new WeatherForecastConfig { Style = ForecastStyle.Curve, Days = 5 };
+        var plan = ForecastCurve.Plan(new WidgetArea(304, 160), config);
+
+        Assert.Equal(5, plan.Days);
+        Assert.Equal(280 / 5.0, plan.ColumnWidth, 6);
+        Assert.True(plan.Icon && plan.Low && plan.Precipitation);
+        Assert.Equal(148 - ForecastCurve.Parts(true), plan.ChartHeight, 6);
+        Assert.False(ForecastCurve.Plan(new WidgetArea(304, 160), new WeatherForecastConfig { Days = 5, ShowPrecipitation = false }).Precipitation);
+
+        // The points stand under the highs' figures and over the lows', the stroke inside the band.
+        Assert.Equal(17, plan.Top);
+        Assert.Equal(plan.ChartHeight - 16 - 1, plan.Bottom);
     }
 
     [Fact]
-    public void S6164_the_glyph_the_lows_and_the_rain_come_with_the_height()
+    public void S11146_the_curve_s_size_follows_the_days_with_a_small_range()
     {
-        var small = ForecastCurve.Plan(Xs, 7, true);
-        var large = ForecastCurve.Plan(L, 7, true);
-        var dry = ForecastCurve.Plan(L, 7, false);
+        var sizing = WeatherForecastLayout.Sizing(new WeatherForecastConfig { Style = ForecastStyle.Curve, Days = 5 });
 
-        Assert.False(small.Icon || small.Low || small.Precipitation);
-        Assert.True(large.Icon && large.Low && large.Precipitation);
-        Assert.False(dry.Precipitation);
-
-        // The chart takes what the rungs leave: the day's line, the glyph, the chart and the rain, 4 apart, fill the content.
-        var content = L.Height - FamilySpace.Inset;
-        var used = 20 + 4 + 16 + 4 + large.ChartHeight + 4 + 16;
-        Assert.Equal(content, used, 6);
-
-        // The points stand under the highs' figures and over the lows', the stroke inside the band.
-        Assert.Equal(17, large.Top);
-        Assert.Equal(large.ChartHeight - 16 - 1, large.Bottom);
+        Assert.Equal((24 + (5 * 48.0), 24 + (5 * 56.0), 24 + (5 * 72.0)), (sizing.Min.Width, sizing.Natural.Width, sizing.Max.Width));
+        Assert.Equal(36 + ForecastCurve.Parts(true) + 96 + 12, sizing.Natural.Height);
+        Assert.Equal(sizing.Natural.Height - 96 + 72, sizing.Min.Height);
     }
 
     [Fact]

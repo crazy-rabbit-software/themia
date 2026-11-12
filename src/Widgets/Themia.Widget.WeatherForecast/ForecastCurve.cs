@@ -1,3 +1,4 @@
+using Themia.Core.Model;
 using Themia.Sdk.Kit;
 
 namespace Themia.Core.Widgets;
@@ -56,38 +57,32 @@ public static class ForecastCurve
     /// <summary>Each smooth piece is drawn as this many straight steps (the Chart block draws polylines).</summary>
     public const int StepsPerDay = 12;
 
+    /// <summary>[S-11146] A new card's column a day.</summary>
+    public const double ColumnStart = 56;
+
+    /// <summary>[S-11146] The chart's band (the lines and their figures): its least, a new card's and its most.</summary>
+    public const double ChartMin = 72;
+
+    public const double ChartStart = 96;
+
+    public const double ChartMax = 144;
+
+    /// <summary>[S-11146] What a column holds besides the chart: the day, the 16 glyph and the rain if on, 4 apart.</summary>
+    public static double Parts(bool precipitation)
+        => FamilyType.Body.LineHeight + Gap + FamilyShape.Icon + Gap + (precipitation ? FamilyType.Caption.LineHeight + Gap : 0);
+
     /// <summary>
-    /// The ladder: the day labels and the high line with its figures always; then the glyph, the low
-    /// line, the precipitation; the chart takes what they leave. As many days as have
-    /// <see cref="ColumnMin"/> each, never more than the forecast has: no scrolling, no squeezing.
+    /// [S-6164] [S-11146] The curve for the box: the config's days, each a column of the content's width
+    /// shared; the day, its glyph, the highs and the lows with their figures and the rain (if on) always;
+    /// the chart takes the height they leave.
     /// </summary>
-    public static ForecastCurvePlan Plan(WidgetArea area, int days, bool precipitation)
+    public static ForecastCurvePlan Plan(WidgetArea area, WeatherForecastConfig config)
     {
-        days = Math.Max(1, days);
+        ArgumentNullException.ThrowIfNull(config);
+        var days = config.EffectiveDays;
         var width = WeatherForecastLayout.ContentWidth(area);
-        var height = WeatherForecastLayout.ContentHeight(area);
-        var shown = Math.Clamp((int)Math.Floor((width + Disclosure.Tolerance) / ColumnMin), 1, days);
-        var column = width / shown;
-        var label = FamilyType.Body.LineHeight;
-        var caption = FamilyType.Caption.LineHeight;
-        var room = height - label - Gap - (caption + CurveMin);
-
-        bool Take(double cost)
-        {
-            if (room + Disclosure.Tolerance < cost)
-            {
-                return false;
-            }
-
-            room -= cost;
-            return true;
-        }
-
-        var icon = Take(FamilyShape.Icon + Gap);
-        var low = Take(LowCost);
-        var rain = precipitation && Take(caption + Gap);
-        var chart = Math.Max(caption + CurveMin, height - label - Gap - (icon ? FamilyShape.Icon + Gap : 0) - (rain ? caption + Gap : 0));
-        return new ForecastCurvePlan(shown, column, icon, low, rain, chart);
+        var chart = Math.Max(ChartMin, WeatherForecastLayout.ContentHeight(area) - Parts(config.ShowPrecipitation));
+        return new ForecastCurvePlan(days, width / days, true, true, config.ShowPrecipitation, chart);
     }
 
     /// <summary>
