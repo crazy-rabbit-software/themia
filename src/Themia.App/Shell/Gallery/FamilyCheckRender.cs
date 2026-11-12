@@ -128,7 +128,6 @@ internal static class FamilyCheckRender
                 AppServices.System = null;
                 AppServices.Gallery?.Dispose();
                 AppServices.Gallery = null;
-                FixtureServices.State = null;
                 ticker?.Dispose();
                 window?.Close();
                 app.Exit();
@@ -155,10 +154,10 @@ internal static class FamilyCheckRender
         return variants;
     }
 
-    private static async Task CheckAsync(Canvas page, IWidgetCardHost host, WidgetId kind, string? state, int? style, List<WidgetTier> tiers, string variant, SortedDictionary<string, (int Count, string First)> found)
+    private static async Task CheckAsync(Canvas page, NoticeRender.RenderCardHost host, WidgetId kind, string? state, int? style, List<WidgetTier> tiers, string variant, SortedDictionary<string, (int Count, string First)> found)
     {
         var cards = new List<WidgetCard>();
-        FixtureServices.State = state;
+        host.FixtureState = state;
         try
         {
             WidgetRender.Place(page, host, kind, style, tiers, cards);

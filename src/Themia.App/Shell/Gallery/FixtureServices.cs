@@ -31,19 +31,22 @@ internal static class FixtureServices
 {
     private const string Scope = "fixtures";
 
-    /// <summary>The state the render was asked for, set before its cards are built; null for none.</summary>
-    public static string? State { get; set; }
-
     public static IReadOnlyList<string> States { get; } =
         ["items", "many", "loading", "empty", "nomatch", "stale", "signin", "gone", "forbidden", "ratelimited", "problem", "hovered", "focused", "accounts"];
 
-    public static IServiceSources For(Ticker ticker) => new Sources(ticker);
+    /// <summary>
+    /// The sources a preview card reads: the state its host was asked for
+    /// (<see cref="NoticeRender.RenderCardHost.FixtureState"/>), read when a source opens, so each
+    /// host (a render's cards, or one card of a scene) replays its own state; <c>items</c> for none.
+    /// </summary>
+    public static IServiceSources For(IWidgetCardHost card) => new Sources(card);
 
-    private sealed class Sources(Ticker ticker) : IServiceSources
+    private sealed class Sources(IWidgetCardHost card) : IServiceSources
     {
         public IServiceSource Open(ServiceInterest interest)
         {
-            var state = State ?? "items";
+            var ticker = card.Ticker;
+            var state = (card as NoticeRender.RenderCardHost)?.FixtureState ?? "items";
             var recording = state switch
             {
                 "accounts" or "stale" or "signin" or "gone" or "loading" or "hovered" or "focused" => "items",

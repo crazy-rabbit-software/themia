@@ -209,8 +209,7 @@ internal static class WidgetRender
                 AppServices.System = new Services.SystemData.SystemHub(ticker, dispatcher);
                 AppServices.Gallery = new Services.GalleryService(ticker, dispatcher);
                 // [S-9929] A kit service widget's preview states are its provider's recordings.
-                FixtureServices.State = state;
-                var host = new NoticeRender.RenderCardHost(ticker) { Design = design };
+                var host = new NoticeRender.RenderCardHost(ticker) { Design = design, FixtureState = state };
                 Place(page, host, kind, style, tiers, cards);
                 if (reference)
                 {

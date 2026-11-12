@@ -18,7 +18,7 @@ internal static class HostServiceSources
 #if DEBUG
         if (card.IsPreview)
         {
-            return Shell.Gallery.FixtureServices.For(card.Ticker);
+            return Shell.Gallery.FixtureServices.For(card);
         }
 #endif
         return AppServices.Services is { } sync ? sync : new Detached(card.Ticker);
