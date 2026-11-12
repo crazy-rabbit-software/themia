@@ -1,0 +1,21 @@
+{
+  "stocks.extendedHours": "Ƙarin awoyi",
+  "stocks.setup": "Zaɓi alama",
+  "stocks.tab.symbols": "Alama",
+  "stocks.timeframe": "Lokaci",
+  "widgetsC.stocks.noQuote": "Babu farashi don wannan alama",
+  "widgetsC.stocks.notSymbol": "\"{symbol}\" ba alama ba ce",
+  "widgetsC.stocks.period.days": {
+    "one": "Kwana {count}",
+    "other": "Kwanaki {count}"
+  },
+  "widgetsC.stocks.period.months": {
+    "one": "Wata {count}",
+    "other": "Watanni {count}"
+  },
+  "widgetsC.stocks.period.years": {
+    "one": "Shekara {count}",
+    "other": "Shekaru {count}"
+  },
+  "widgetsC.stocks.settings.symbolRefused": "Zaɓi sakamakon bincike, ko rubuta alama: haruffa, lambobi da . - ^ = kawai"
+}

@@ -1,0 +1,18 @@
+{
+  "stocks.extendedHours": "တိုးချဲ့ အချိန်များ",
+  "stocks.setup": "သင်္ကေတ ရွေးပါ",
+  "stocks.tab.symbols": "သင်္ကေတ",
+  "stocks.timeframe": "အချိန်ကာလ",
+  "widgetsC.stocks.noQuote": "ထိုသင်္ကေတအတွက် ဈေးနှုန်း မရှိပါ",
+  "widgetsC.stocks.notSymbol": "\"{symbol}\" သည် သင်္ကေတ မဟုတ်ပါ",
+  "widgetsC.stocks.period.days": {
+    "other": "{count} ရက်"
+  },
+  "widgetsC.stocks.period.months": {
+    "other": "{count} လ"
+  },
+  "widgetsC.stocks.period.years": {
+    "other": "{count} နှစ်"
+  },
+  "widgetsC.stocks.settings.symbolRefused": "ရှာဖွေမှုရလဒ်တစ်ခု ရွေးပါ၊ သို့မဟုတ် သင်္ကေတတစ်ခု ရိုက်ပါ: စာလုံး၊ ဂဏန်းနှင့် . - ^ = သာ"
+}

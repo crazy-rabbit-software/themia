@@ -551,7 +551,7 @@
         },
         {
           "id": "w19",
-          "kind": "Stocks",
+          "kind": "Stock",
           "x": 0.09,
           "y": 0.01,
           "w": 0.2,
@@ -570,15 +570,13 @@
           "itemTextColor": "",
           "scale": 1,
           "config": {
-            "kind": "stocks",
+            "kind": "stock",
             "symbol": "",
             "market": "Listed",
             "displayName": "",
             "range": "Day",
-            "style": "chart",
             "showMarketState": true,
-            "showExtendedHours": false,
-            "showMinMax": false
+            "showExtendedHours": false
           }
         },
         {

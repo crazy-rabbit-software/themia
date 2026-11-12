@@ -1,0 +1,9 @@
+{
+  "stocks.dimWhenClosed": "Indicator de închidere",
+  "widget.stocks.label": "Acțiuni",
+  "widgetsA.catalog.stocks.description": "Simboluri bursiere și cripto, cu un minigrafic",
+  "widgetsC.stocks.holding.amount": "{amount} deținute",
+  "widgetsC.stocks.phaseTooltip": "{phase}. {zone}",
+  "widgetsC.stocks.settings.holding.label": "Acțiuni deținute",
+  "widgetsC.stocks.settings.holding.refused": "Scrie o cantitate de {zero} sau mai mult, de exemplu {example}"
+}

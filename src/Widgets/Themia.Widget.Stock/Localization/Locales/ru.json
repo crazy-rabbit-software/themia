@@ -1,0 +1,9 @@
+{
+  "stocks.dimWhenClosed": "Индикатор закрытия",
+  "widget.stocks.label": "Акции",
+  "widgetsA.catalog.stocks.description": "Тикеры и криптовалюты с мини-графиком",
+  "widgetsC.stocks.holding.amount": "В собственности {amount}",
+  "widgetsC.stocks.phaseTooltip": "{phase}. {zone}",
+  "widgetsC.stocks.settings.holding.label": "Количество в собственности",
+  "widgetsC.stocks.settings.holding.refused": "Введите количество от {zero}, например {example}"
+}

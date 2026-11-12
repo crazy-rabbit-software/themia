@@ -1,0 +1,21 @@
+{
+  "stocks.extendedHours": "વિસ્તૃત કલાકો",
+  "stocks.setup": "એક પ્રતીક પસંદ કરો",
+  "stocks.tab.symbols": "પ્રતીક",
+  "stocks.timeframe": "સમયગાળો",
+  "widgetsC.stocks.noQuote": "તે પ્રતીક માટે કોઈ ભાવ નથી",
+  "widgetsC.stocks.notSymbol": "\"{symbol}\" પ્રતીક નથી",
+  "widgetsC.stocks.period.days": {
+    "one": "{count} દિવસ",
+    "other": "{count} દિવસ"
+  },
+  "widgetsC.stocks.period.months": {
+    "one": "{count} મહિનો",
+    "other": "{count} મહિના"
+  },
+  "widgetsC.stocks.period.years": {
+    "one": "{count} વર્ષ",
+    "other": "{count} વર્ષ"
+  },
+  "widgetsC.stocks.settings.symbolRefused": "શોધ પરિણામ પસંદ કરો, અથવા પ્રતીક લખો: ફક્ત અક્ષરો, અંકો અને . - ^ ="
+}

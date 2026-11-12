@@ -1,0 +1,9 @@
+{
+  "stocks.dimWhenClosed": "장 마감 표시",
+  "widget.stocks.label": "주식",
+  "widgetsA.catalog.stocks.description": "스파크라인이 있는 주식 및 암호화폐",
+  "widgetsC.stocks.holding.amount": "{amount} 보유",
+  "widgetsC.stocks.phaseTooltip": "{phase}. {zone}",
+  "widgetsC.stocks.settings.holding.label": "보유 수량",
+  "widgetsC.stocks.settings.holding.refused": "{zero} 이상의 수량을 입력하세요(예: {example})"
+}

@@ -1,0 +1,9 @@
+{
+  "stocks.dimWhenClosed": "Indicator kapag sarado",
+  "widget.stocks.label": "Mga stock",
+  "widgetsA.catalog.stocks.description": "Mga ticker at crypto, may sparkline",
+  "widgetsC.stocks.holding.amount": "{amount} hawak",
+  "widgetsC.stocks.phaseTooltip": "{phase}. {zone}",
+  "widgetsC.stocks.settings.holding.label": "Mga share na pag-aari",
+  "widgetsC.stocks.settings.holding.refused": "Mag-type ng halagang {zero} o higit pa, gaya ng {example}"
+}

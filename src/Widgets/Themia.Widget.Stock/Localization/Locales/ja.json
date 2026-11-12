@@ -1,0 +1,9 @@
+{
+  "stocks.dimWhenClosed": "取引時間外の表示",
+  "widget.stocks.label": "株価",
+  "widgetsA.catalog.stocks.description": "株価と暗号資産 (ミニグラフ付き)",
+  "widgetsC.stocks.holding.amount": "{amount} 保有",
+  "widgetsC.stocks.phaseTooltip": "{phase}。{zone}",
+  "widgetsC.stocks.settings.holding.label": "保有数",
+  "widgetsC.stocks.settings.holding.refused": "{zero} 以上の数量を入力してください (例: {example})"
+}

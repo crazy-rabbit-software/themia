@@ -54,7 +54,9 @@
     "groups.recipe.airQuality",
     "groups.recipe.airQualityAbout",
     "groups.recipe.exchangeRates",
-    "groups.recipe.exchangeRatesAbout"
+    "groups.recipe.exchangeRatesAbout",
+    "groups.recipe.stocks",
+    "groups.recipe.stocksAbout"
   ],
   "groups.undo.group": "group",
   "groups.undo.ungroup": "ungroup",
@@ -113,5 +115,7 @@
   "groups.recipe.airQuality": "Air quality",
   "groups.recipe.airQualityAbout": "The air quality index, UV, fine dust and pollen",
   "groups.recipe.exchangeRates": "Exchange rates",
-  "groups.recipe.exchangeRatesAbout": "A currency pair's rate today and its last 90 days"
+  "groups.recipe.exchangeRatesAbout": "A currency pair's rate today and its last 90 days",
+  "groups.recipe.stocks": "Stocks",
+  "groups.recipe.stocksAbout": "A stock's or a coin's price and its chart"
 }

@@ -1,0 +1,18 @@
+{
+  "stocks.extendedHours": "盤前盤後",
+  "stocks.setup": "選擇代號",
+  "stocks.tab.symbols": "代號",
+  "stocks.timeframe": "時間範圍",
+  "widgetsC.stocks.noQuote": "此代號沒有報價",
+  "widgetsC.stocks.notSymbol": "「{symbol}」不是有效的代號",
+  "widgetsC.stocks.period.days": {
+    "other": "{count} 天"
+  },
+  "widgetsC.stocks.period.months": {
+    "other": "{count} 個月"
+  },
+  "widgetsC.stocks.period.years": {
+    "other": "{count} 年"
+  },
+  "widgetsC.stocks.settings.symbolRefused": "請選擇搜尋結果或輸入代號：僅限字母、數字和 . - ^ ="
+}

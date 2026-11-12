@@ -1,0 +1,21 @@
+{
+  "stocks.extendedHours": "توسیعی اوقات",
+  "stocks.setup": "ایک علامت منتخب کریں",
+  "stocks.tab.symbols": "علامت",
+  "stocks.timeframe": "مدت",
+  "widgetsC.stocks.noQuote": "اس علامت کی کوئی قیمت نہیں",
+  "widgetsC.stocks.notSymbol": "\"{symbol}\" کوئی علامت نہیں",
+  "widgetsC.stocks.period.days": {
+    "one": "{count} دن",
+    "other": "{count} دن"
+  },
+  "widgetsC.stocks.period.months": {
+    "one": "{count} مہینہ",
+    "other": "{count} مہینے"
+  },
+  "widgetsC.stocks.period.years": {
+    "one": "{count} سال",
+    "other": "{count} سال"
+  },
+  "widgetsC.stocks.settings.symbolRefused": "تلاش کا کوئی نتیجہ چنیں، یا علامت ٹائپ کریں: صرف حروف، ہندسے اور . - ^ ="
+}

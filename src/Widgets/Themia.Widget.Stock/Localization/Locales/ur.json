@@ -1,0 +1,9 @@
+{
+  "stocks.dimWhenClosed": "بند ہونے کا اشارہ",
+  "widget.stocks.label": "اسٹاکس",
+  "widgetsA.catalog.stocks.description": "اسپارک لائن کے ساتھ ٹکرز اور کرپٹو",
+  "widgetsC.stocks.holding.amount": "{amount} ملکیت",
+  "widgetsC.stocks.phaseTooltip": "{phase}۔ {zone}",
+  "widgetsC.stocks.settings.holding.label": "ملکیتی مقدار",
+  "widgetsC.stocks.settings.holding.refused": "{zero} یا اس سے زیادہ مقدار لکھیں، جیسے {example}"
+}

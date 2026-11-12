@@ -1,0 +1,21 @@
+{
+  "stocks.extendedHours": "বর্ধিত সময়",
+  "stocks.setup": "একটি প্রতীক বেছে নিন",
+  "stocks.tab.symbols": "প্রতীক",
+  "stocks.timeframe": "সময়সীমা",
+  "widgetsC.stocks.noQuote": "এই প্রতীকের কোনো দর নেই",
+  "widgetsC.stocks.notSymbol": "\"{symbol}\" কোনো প্রতীক নয়",
+  "widgetsC.stocks.period.days": {
+    "one": "{count} দিন",
+    "other": "{count} দিন"
+  },
+  "widgetsC.stocks.period.months": {
+    "one": "{count} মাস",
+    "other": "{count} মাস"
+  },
+  "widgetsC.stocks.period.years": {
+    "one": "{count} বছর",
+    "other": "{count} বছর"
+  },
+  "widgetsC.stocks.settings.symbolRefused": "একটি অনুসন্ধান ফলাফল বেছে নিন, বা প্রতীক লিখুন: শুধু অক্ষর, অঙ্ক এবং . - ^ ="
+}

@@ -19,6 +19,7 @@
     <Project Path="src/Widgets/Themia.Widget.MemoryHistory/Themia.Widget.MemoryHistory.csproj" />
     <Project Path="src/Widgets/Themia.Widget.CpuCores/Themia.Widget.CpuCores.csproj" />
     <Project Path="src/Widgets/Themia.Widget.CpuHistory/Themia.Widget.CpuHistory.csproj" />
+    <Project Path="src/Widgets/Themia.Widget.StockHistory/Themia.Widget.StockHistory.csproj" />
     <Project Path="src/Widgets/Themia.Widget.ExchangeHistory/Themia.Widget.ExchangeHistory.csproj" />
     <Project Path="src/Widgets/Themia.Widget.AirFacts/Themia.Widget.AirFacts.csproj" />
     <Project Path="src/Widgets/Themia.Widget.MoonTimes/Themia.Widget.MoonTimes.csproj" />
@@ -93,7 +94,7 @@
     <Project Path="src/Widgets/Themia.Widget.Sleep/Themia.Widget.Sleep.csproj" />
     <Project Path="src/Widgets/Themia.Widget.SoundToggle/Themia.Widget.SoundToggle.csproj" />
     <Project Path="src/Widgets/Themia.Widget.SpatialSoundToggle/Themia.Widget.SpatialSoundToggle.csproj" />
-    <Project Path="src/Widgets/Themia.Widget.Stocks/Themia.Widget.Stocks.csproj" />
+    <Project Path="src/Widgets/Themia.Widget.Stock/Themia.Widget.Stock.csproj" />
     <Project Path="src/Widgets/Themia.Widget.Stopwatch/Themia.Widget.Stopwatch.csproj" />
     <Project Path="src/Widgets/Themia.Widget.Sun/Themia.Widget.Sun.csproj" />
     <Project Path="src/Widgets/Themia.Widget.Tasks/Themia.Widget.Tasks.csproj" />

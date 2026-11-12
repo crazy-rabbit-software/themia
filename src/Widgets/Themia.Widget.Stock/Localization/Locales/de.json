@@ -1,0 +1,9 @@
+{
+  "stocks.dimWhenClosed": "Geschlossen-Symbol",
+  "widget.stocks.label": "Aktien",
+  "widgetsA.catalog.stocks.description": "Aktien und Krypto, mit Verlaufskurve",
+  "widgetsC.stocks.holding.amount": "{amount} im Besitz",
+  "widgetsC.stocks.phaseTooltip": "{phase}. {zone}",
+  "widgetsC.stocks.settings.holding.label": "Anzahl im Besitz",
+  "widgetsC.stocks.settings.holding.refused": "Geben Sie eine Menge ab {zero} ein, z. B. {example}"
+}

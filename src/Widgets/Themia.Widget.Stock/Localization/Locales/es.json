@@ -1,0 +1,9 @@
+{
+  "stocks.dimWhenClosed": "Indicador de cierre",
+  "widget.stocks.label": "Acciones",
+  "widgetsA.catalog.stocks.description": "Valores y criptomonedas, con minigráfico",
+  "widgetsC.stocks.holding.amount": "{amount} en cartera",
+  "widgetsC.stocks.phaseTooltip": "{phase}. {zone}",
+  "widgetsC.stocks.settings.holding.label": "Cantidad en propiedad",
+  "widgetsC.stocks.settings.holding.refused": "Escribe una cantidad de {zero} o más, como {example}"
+}

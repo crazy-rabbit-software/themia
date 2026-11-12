@@ -1,0 +1,21 @@
+{
+  "stocks.extendedHours": "विस्तारित तास",
+  "stocks.setup": "एक चिन्ह निवडा",
+  "stocks.tab.symbols": "चिन्ह",
+  "stocks.timeframe": "कालावधी",
+  "widgetsC.stocks.noQuote": "त्या चिन्हासाठी भाव नाही",
+  "widgetsC.stocks.notSymbol": "\"{symbol}\" हे चिन्ह नाही",
+  "widgetsC.stocks.period.days": {
+    "one": "{count} दिवस",
+    "other": "{count} दिवस"
+  },
+  "widgetsC.stocks.period.months": {
+    "one": "{count} महिना",
+    "other": "{count} महिने"
+  },
+  "widgetsC.stocks.period.years": {
+    "one": "{count} वर्ष",
+    "other": "{count} वर्षे"
+  },
+  "widgetsC.stocks.settings.symbolRefused": "शोध परिणाम निवडा, किंवा चिन्ह टाइप करा: फक्त अक्षरे, अंक आणि . - ^ ="
+}

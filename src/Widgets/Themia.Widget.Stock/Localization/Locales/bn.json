@@ -1,0 +1,9 @@
+{
+  "stocks.dimWhenClosed": "বন্ধ থাকার চিহ্ন",
+  "widget.stocks.label": "স্টক",
+  "widgetsA.catalog.stocks.description": "স্টক ও ক্রিপ্টো, স্পার্কলাইনসহ",
+  "widgetsC.stocks.holding.amount": "{amount} ধারণকৃত",
+  "widgetsC.stocks.phaseTooltip": "{phase}। {zone}",
+  "widgetsC.stocks.settings.holding.label": "মালিকানাধীন পরিমাণ",
+  "widgetsC.stocks.settings.holding.refused": "{zero} বা তার বেশি পরিমাণ লিখুন, যেমন {example}"
+}

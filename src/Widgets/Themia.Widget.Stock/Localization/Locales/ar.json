@@ -1,0 +1,9 @@
+{
+  "stocks.dimWhenClosed": "مؤشر الإغلاق",
+  "widget.stocks.label": "الأسهم",
+  "widgetsA.catalog.stocks.description": "رموز الأسهم والعملات المشفرة، مع خط بياني",
+  "widgetsC.stocks.holding.amount": "{amount} مملوكة",
+  "widgetsC.stocks.phaseTooltip": "{phase}. {zone}",
+  "widgetsC.stocks.settings.holding.label": "الكمية المملوكة",
+  "widgetsC.stocks.settings.holding.refused": "اكتب كمية {zero} أو أكثر، مثل {example}"
+}

@@ -19,12 +19,10 @@ public sealed class OnlineStylesTests
     {
         Assert.Equal(["standard", "largeIcon", "minimal"], Names(new WidgetId("weatherNow")));
         Assert.Equal(["rows", "columns", "curve", "grid"], Names(new WidgetId("weatherForecast")));
-        Assert.Equal(["chart", "number"], Names(new WidgetId("stocks")));
         Assert.Equal(["number", "gauge"], Names(new WidgetId("airQuality")));
 
         Assert.Equal(WeatherNowStyle.Standard, new WeatherNowConfig().Style);
         Assert.Equal(ForecastStyle.Rows, new WeatherForecastConfig().Style);
-        Assert.Equal(StocksStyle.Chart, new StocksConfig().Style);
         Assert.Equal(AirQualityStyle.Number, new AirQualityConfig().Style);
     }
 
@@ -32,7 +30,6 @@ public sealed class OnlineStylesTests
     public void S6160_every_style_survives_a_clone()
     {
         Assert.Equal(WeatherNowStyle.Minimal, ((WeatherNowConfig)new WeatherNowConfig { Style = WeatherNowStyle.Minimal }.Clone()).Style);
-        Assert.Equal(StocksStyle.Number, ((StocksConfig)new StocksConfig { Style = StocksStyle.Number }.Clone()).Style);
         Assert.Equal(AirQualityStyle.Gauge, ((AirQualityConfig)new AirQualityConfig { Style = AirQualityStyle.Gauge }.Clone()).Style);
     }
 }

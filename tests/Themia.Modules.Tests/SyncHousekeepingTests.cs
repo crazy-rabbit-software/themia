@@ -46,10 +46,10 @@ public sealed class SyncHousekeepingTests : IDisposable
     {
         var now = new WeatherNowConfig { Latitude = 47.37, Longitude = 8.54 };
         var days = new WeatherForecastConfig { Latitude = 47.37, Longitude = 8.54, Days = 30 };
-        var stock = new StocksConfig { Symbol = "aapl", Range = QuoteRange.FiveDays };
+        var stock = new StockConfig { Symbol = "aapl", Range = QuoteRange.FiveDays };
         var state = State(
             [now, new WeatherNowConfig(), new WeatherNowConfig { Latitude = 120, Longitude = 8 }],
-            [days, stock, new StocksConfig(), new StocksConfig { Symbol = "not a symbol!" }]);
+            [days, stock, new StockConfig(), new StockConfig { Symbol = "not a symbol!" }]);
 
         var interests = SyncInterests.From(state);
 
@@ -66,14 +66,14 @@ public sealed class SyncHousekeepingTests : IDisposable
     public void S2663_the_widget_asks_exactly_what_the_sync_keeps_and_a_change_of_place_or_range_is_heard()
     {
         var now = new WeatherNowConfig { Latitude = 1, Longitude = 2 };
-        var stock = new StocksConfig { Symbol = "MSFT" };
+        var stock = new StockConfig { Symbol = "MSFT" };
         var state = State([now, stock]);
 
         var interests = SyncInterests.From(state);
         Assert.Equal(WeatherInterests.For(now), Assert.Single(interests.Weather));
         Assert.Equal(stock.Interest(), Assert.Single(interests.Quotes));
         Assert.Null(WeatherInterests.For(new WeatherForecastConfig()));
-        Assert.Null(new StocksConfig { Symbol = "   " }.Interest());
+        Assert.Null(new StockConfig { Symbol = "   " }.Interest());
 
         var key = interests.Key();
         state.Preferences.Region.Temperature = TemperatureScale.Fahrenheit;
@@ -84,16 +84,16 @@ public sealed class SyncHousekeepingTests : IDisposable
         stock.Range = QuoteRange.Year;
         Assert.NotEqual(key, SyncInterests.From(state).Key());
 
-        // A marker is drawing only: nothing to sync changes.
+        // The closed market's line is drawing only: nothing to sync changes.
         key = SyncInterests.From(state).Key();
-        stock.ShowMinMax = !stock.ShowMinMax;
+        stock.ShowMarketState = !stock.ShowMarketState;
         Assert.Equal(key, SyncInterests.From(state).Key());
     }
 
     [Fact]
     public void S3780_the_shared_cadences_reach_every_interest_and_a_change_is_heard()
     {
-        var state = State([new WeatherNowConfig { Latitude = 1, Longitude = 2 }, new StocksConfig { Symbol = "MSFT" }, new RssConfig { Feeds = [new RssFeed { Url = "https://example.com/feed.xml" }] }]);
+        var state = State([new WeatherNowConfig { Latitude = 1, Longitude = 2 }, new StockConfig { Symbol = "MSFT" }, new RssConfig { Feeds = [new RssFeed { Url = "https://example.com/feed.xml" }] }]);
         state.Preferences.Refresh = new RefreshPreferences { ["weather"] = 60, ["markets"] = 15, ["feeds"] = 120, ["accounts"] = 5 };
 
         var interests = SyncInterests.From(state);

@@ -1,0 +1,9 @@
+{
+  "stocks.dimWhenClosed": "ਬੰਦ ਸੂਚਕ",
+  "widget.stocks.label": "ਸਟਾਕ",
+  "widgetsA.catalog.stocks.description": "ਟਿਕਰ ਅਤੇ ਕ੍ਰਿਪਟੋ, ਸਪਾਰਕਲਾਈਨ ਨਾਲ",
+  "widgetsC.stocks.holding.amount": "{amount} ਕੋਲ",
+  "widgetsC.stocks.phaseTooltip": "{phase}। {zone}",
+  "widgetsC.stocks.settings.holding.label": "ਮਾਲਕੀ ਵਾਲੇ ਸ਼ੇਅਰ",
+  "widgetsC.stocks.settings.holding.refused": "{zero} ਜਾਂ ਵੱਧ ਦੀ ਮਾਤਰਾ ਟਾਈਪ ਕਰੋ, ਜਿਵੇਂ {example}"
+}

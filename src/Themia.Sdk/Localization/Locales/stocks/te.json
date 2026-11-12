@@ -1,0 +1,21 @@
+{
+  "stocks.extendedHours": "పొడిగించిన గంటలు",
+  "stocks.setup": "ఒక చిహ్నాన్ని ఎంచుకోండి",
+  "stocks.tab.symbols": "చిహ్నం",
+  "stocks.timeframe": "కాలవ్యవధి",
+  "widgetsC.stocks.noQuote": "ఆ చిహ్నానికి కోట్ లేదు",
+  "widgetsC.stocks.notSymbol": "\"{symbol}\" చిహ్నం కాదు",
+  "widgetsC.stocks.period.days": {
+    "one": "{count} రోజు",
+    "other": "{count} రోజులు"
+  },
+  "widgetsC.stocks.period.months": {
+    "one": "{count} నెల",
+    "other": "{count} నెలలు"
+  },
+  "widgetsC.stocks.period.years": {
+    "one": "{count} సంవత్సరం",
+    "other": "{count} సంవత్సరాలు"
+  },
+  "widgetsC.stocks.settings.symbolRefused": "శోధన ఫలితాన్ని ఎంచుకోండి, లేదా చిహ్నాన్ని టైప్ చేయండి: అక్షరాలు, అంకెలు మరియు . - ^ = మాత్రమే"
+}

@@ -1,0 +1,21 @@
+{
+  "stocks.extendedHours": "Uzatılmış saatler",
+  "stocks.setup": "Bir sembol seçin",
+  "stocks.tab.symbols": "Sembol",
+  "stocks.timeframe": "Zaman aralığı",
+  "widgetsC.stocks.noQuote": "Bu sembol için fiyat yok",
+  "widgetsC.stocks.notSymbol": "\"{symbol}\" bir sembol değil",
+  "widgetsC.stocks.period.days": {
+    "one": "{count} gün",
+    "other": "{count} gün"
+  },
+  "widgetsC.stocks.period.months": {
+    "one": "{count} ay",
+    "other": "{count} ay"
+  },
+  "widgetsC.stocks.period.years": {
+    "one": "{count} yıl",
+    "other": "{count} yıl"
+  },
+  "widgetsC.stocks.settings.symbolRefused": "Bir arama sonucu seçin veya bir sembol yazın: yalnızca harfler, rakamlar ve . - ^ ="
+}

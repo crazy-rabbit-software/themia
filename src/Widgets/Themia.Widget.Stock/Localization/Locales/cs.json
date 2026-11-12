@@ -1,0 +1,10 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "stocks.dimWhenClosed": "Indikátor zavřené burzy",
+  "widget.stocks.label": "Akcie",
+  "widgetsA.catalog.stocks.description": "Akcie a kryptoměny s mini grafem",
+  "widgetsC.stocks.holding.amount": "Drženo {amount}",
+  "widgetsC.stocks.phaseTooltip": "{phase}. {zone}",
+  "widgetsC.stocks.settings.holding.label": "Vlastněné akcie",
+  "widgetsC.stocks.settings.holding.refused": "Zadej množství {zero} nebo víc, např. {example}"
+}

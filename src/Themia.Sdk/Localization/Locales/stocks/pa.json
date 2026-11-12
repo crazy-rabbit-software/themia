@@ -1,0 +1,21 @@
+{
+  "stocks.extendedHours": "ਵਧਾਏ ਘੰਟੇ",
+  "stocks.setup": "ਇੱਕ ਚਿੰਨ੍ਹ ਚੁਣੋ",
+  "stocks.tab.symbols": "ਚਿੰਨ੍ਹ",
+  "stocks.timeframe": "ਸਮਾਂ-ਸੀਮਾ",
+  "widgetsC.stocks.noQuote": "ਉਸ ਚਿੰਨ੍ਹ ਲਈ ਕੋਈ ਭਾਅ ਨਹੀਂ",
+  "widgetsC.stocks.notSymbol": "\"{symbol}\" ਇੱਕ ਚਿੰਨ੍ਹ ਨਹੀਂ ਹੈ",
+  "widgetsC.stocks.period.days": {
+    "one": "{count} ਦਿਨ",
+    "other": "{count} ਦਿਨ"
+  },
+  "widgetsC.stocks.period.months": {
+    "one": "{count} ਮਹੀਨਾ",
+    "other": "{count} ਮਹੀਨੇ"
+  },
+  "widgetsC.stocks.period.years": {
+    "one": "{count} ਸਾਲ",
+    "other": "{count} ਸਾਲ"
+  },
+  "widgetsC.stocks.settings.symbolRefused": "ਕੋਈ ਖੋਜ ਨਤੀਜਾ ਚੁਣੋ, ਜਾਂ ਚਿੰਨ੍ਹ ਟਾਈਪ ਕਰੋ: ਸਿਰਫ਼ ਅੱਖਰ, ਅੰਕ ਅਤੇ . - ^ ="
+}

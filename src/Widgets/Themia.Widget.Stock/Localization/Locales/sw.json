@@ -1,0 +1,9 @@
+{
+  "stocks.dimWhenClosed": "Kiashiria cha kufungwa",
+  "widget.stocks.label": "Hisa",
+  "widgetsA.catalog.stocks.description": "Hisa na sarafu za kidijitali, na mstari wa mwenendo",
+  "widgetsC.stocks.holding.amount": "{amount} unazoshikilia",
+  "widgetsC.stocks.phaseTooltip": "{phase}. {zone}",
+  "widgetsC.stocks.settings.holding.label": "Hisa unazomiliki",
+  "widgetsC.stocks.settings.holding.refused": "Andika kiasi cha {zero} au zaidi, kama {example}"
+}

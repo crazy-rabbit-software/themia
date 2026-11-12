@@ -1,0 +1,9 @@
+{
+  "stocks.dimWhenClosed": "Ένδειξη κλειστής αγοράς",
+  "widget.stocks.label": "Μετοχές",
+  "widgetsA.catalog.stocks.description": "Μετοχές και κρυπτονομίσματα, με μικρογράφημα",
+  "widgetsC.stocks.holding.amount": "{amount} στην κατοχή σου",
+  "widgetsC.stocks.phaseTooltip": "{phase}. {zone}",
+  "widgetsC.stocks.settings.holding.label": "Μετοχές στην κατοχή σου",
+  "widgetsC.stocks.settings.holding.refused": "Πληκτρολόγησε ποσότητα {zero} ή μεγαλύτερη, για παράδειγμα {example}"
+}

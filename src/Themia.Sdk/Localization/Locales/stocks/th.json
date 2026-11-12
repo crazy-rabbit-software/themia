@@ -1,0 +1,18 @@
+{
+  "stocks.extendedHours": "ช่วงเวลาซื้อขายพิเศษ",
+  "stocks.setup": "เลือกสัญลักษณ์",
+  "stocks.tab.symbols": "สัญลักษณ์",
+  "stocks.timeframe": "กรอบเวลา",
+  "widgetsC.stocks.noQuote": "ไม่มีราคาสำหรับสัญลักษณ์นั้น",
+  "widgetsC.stocks.notSymbol": "\"{symbol}\" ไม่ใช่สัญลักษณ์",
+  "widgetsC.stocks.period.days": {
+    "other": "{count} วัน"
+  },
+  "widgetsC.stocks.period.months": {
+    "other": "{count} เดือน"
+  },
+  "widgetsC.stocks.period.years": {
+    "other": "{count} ปี"
+  },
+  "widgetsC.stocks.settings.symbolRefused": "เลือกผลการค้นหา หรือพิมพ์สัญลักษณ์: ตัวอักษร ตัวเลข และ . - ^ = เท่านั้น"
+}

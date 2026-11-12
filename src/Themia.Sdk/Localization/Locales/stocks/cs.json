@@ -1,0 +1,24 @@
+{
+  "stocks.extendedHours": "Prodloužené obchodování",
+  "stocks.setup": "Vyber symbol",
+  "stocks.tab.symbols": "Symbol",
+  "stocks.timeframe": "Časové období",
+  "widgetsC.stocks.noQuote": "Pro tento symbol není kurz",
+  "widgetsC.stocks.notSymbol": "„{symbol}“ není symbol",
+  "widgetsC.stocks.period.days": {
+    "one": "{count} den",
+    "few": "{count} dny",
+    "other": "{count} dní"
+  },
+  "widgetsC.stocks.period.months": {
+    "one": "{count} měsíc",
+    "few": "{count} měsíce",
+    "other": "{count} měsíců"
+  },
+  "widgetsC.stocks.period.years": {
+    "one": "{count} rok",
+    "few": "{count} roky",
+    "other": "{count} let"
+  },
+  "widgetsC.stocks.settings.symbolRefused": "Vyber výsledek hledání nebo zadej symbol: jen písmena, číslice a . - ^ ="
+}

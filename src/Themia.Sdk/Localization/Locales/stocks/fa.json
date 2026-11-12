@@ -1,0 +1,21 @@
+{
+  "stocks.extendedHours": "ساعات تمدیدی",
+  "stocks.setup": "یک نماد انتخاب کنید",
+  "stocks.tab.symbols": "نماد",
+  "stocks.timeframe": "بازه زمانی",
+  "widgetsC.stocks.noQuote": "قیمتی برای آن نماد نیست",
+  "widgetsC.stocks.notSymbol": "«{symbol}» نماد نیست",
+  "widgetsC.stocks.period.days": {
+    "one": "{count} روز",
+    "other": "{count} روز"
+  },
+  "widgetsC.stocks.period.months": {
+    "one": "{count} ماه",
+    "other": "{count} ماه"
+  },
+  "widgetsC.stocks.period.years": {
+    "one": "{count} سال",
+    "other": "{count} سال"
+  },
+  "widgetsC.stocks.settings.symbolRefused": "یک نتیجه جستجو انتخاب کنید یا نمادی تایپ کنید: فقط حروف، ارقام و . - ^ ="
+}

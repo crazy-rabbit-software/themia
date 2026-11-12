@@ -1,0 +1,9 @@
+{
+  "stocks.dimWhenClosed": "बंद असल्याचा निर्देशक",
+  "widget.stocks.label": "शेअर्स",
+  "widgetsA.catalog.stocks.description": "स्पार्कलाइनसह टिकर आणि क्रिप्टो",
+  "widgetsC.stocks.holding.amount": "{amount} धारित",
+  "widgetsC.stocks.phaseTooltip": "{phase}. {zone}",
+  "widgetsC.stocks.settings.holding.label": "मालकीची संख्या",
+  "widgetsC.stocks.settings.holding.refused": "{zero} किंवा अधिक संख्या लिहा, उदा. {example}"
+}

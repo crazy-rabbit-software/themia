@@ -21,7 +21,7 @@ public class WidgetSetupTests
     /// <summary>Every kind whose default config needs setting up, with nothing signed in.</summary>
     private static readonly WidgetId[] NeedSetupByDefault =
     [
-        new WidgetId("countdown"), new WidgetId("rss"), new WidgetId("stocks"), new WidgetId("weatherNow"), new WidgetId("weatherFacts"), new WidgetId("weatherForecast"), new WidgetId("airQuality"), new WidgetId("airFacts"), new WidgetId("rainNextHour"),
+        new WidgetId("countdown"), new WidgetId("rss"), new WidgetId("stock"), new WidgetId("stockHistory"), new WidgetId("weatherNow"), new WidgetId("weatherFacts"), new WidgetId("weatherForecast"), new WidgetId("airQuality"), new WidgetId("airFacts"), new WidgetId("rainNextHour"),
         new WidgetId("videoStream"), new WidgetId("gallery"),
         new WidgetId("email"), new WidgetId("calendar"), new WidgetId("nextMeeting"),
         new WidgetId("weekPlanner"), new WidgetId("contacts"), new WidgetId("tasks"),
@@ -55,7 +55,7 @@ public class WidgetSetupTests
         Assert.False(WidgetSetup.Needed(countdown, FeatureSet.None));
 
         Assert.False(WidgetSetup.Needed(new RssConfig { Feeds = [new RssFeed { Url = "https://example.com/feed" }] }, FeatureSet.None));
-        Assert.False(WidgetSetup.Needed(new StocksConfig { Symbol = "MSFT" }, FeatureSet.None));
+        Assert.False(WidgetSetup.Needed(new StockConfig { Symbol = "MSFT" }, FeatureSet.None));
         Assert.False(WidgetSetup.Needed(new WeatherNowConfig { Latitude = 47.4, Longitude = 8.5 }, FeatureSet.None));
         Assert.False(WidgetSetup.Needed(new VideoStreamConfig { Url = "http://cam.local/stream" }, FeatureSet.None));
         Assert.False(WidgetSetup.Needed(new GalleryConfig { Path = @"C:\Pictures" }, FeatureSet.None));
@@ -78,7 +78,7 @@ public class WidgetSetupTests
     public void S1860_set_up_but_wrong_keeps_the_widgets_own_sentence()
     {
         // These say what is wrong ("not a symbol", "not a feed") rather than asking to start.
-        Assert.False(WidgetSetup.Needed(new StocksConfig { Symbol = "not a symbol!" }, FeatureSet.None));
+        Assert.False(WidgetSetup.Needed(new StockConfig { Symbol = "not a symbol!" }, FeatureSet.None));
         Assert.False(WidgetSetup.Needed(new RssConfig { Feeds = [new RssFeed { Url = "not a url" }] }, FeatureSet.None));
         Assert.False(WidgetSetup.Needed(new GalleryConfig { Path = @"Z:\gone" }, FeatureSet.None));
     }
@@ -124,7 +124,8 @@ public class WidgetSetupTests
     [Theory]
     [InlineData("countdown")]
     [InlineData("rss")]
-    [InlineData("stocks")]
+    [InlineData("stock")]
+    [InlineData("stockHistory")]
     [InlineData("weatherNow")]
     [InlineData("weatherForecast")]
     [InlineData("airQuality")]
@@ -143,7 +144,7 @@ public class WidgetSetupTests
         Assert.Equal(SetupGoes.Menu, WidgetSetup.Goes(new RssConfig(), FeatureSet.None, Everything));
     }
 
-    public static TheoryData<string> WaitingForAnOption() => ["countdown", "rss", "stocks", "weatherNow", "weatherForecast", "airQuality", "rainNextHour", "videoStream", "gallery"];
+    public static TheoryData<string> WaitingForAnOption() => ["countdown", "rss", "stock", "stockHistory", "weatherNow", "weatherForecast", "airQuality", "rainNextHour", "videoStream", "gallery"];
 
     [Theory]
     [MemberData(nameof(WaitingForAnOption))]

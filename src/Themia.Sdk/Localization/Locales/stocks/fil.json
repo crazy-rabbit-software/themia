@@ -1,0 +1,21 @@
+{
+  "stocks.extendedHours": "Pinalawig na oras",
+  "stocks.setup": "Pumili ng simbolo",
+  "stocks.tab.symbols": "Simbolo",
+  "stocks.timeframe": "Saklaw ng panahon",
+  "widgetsC.stocks.noQuote": "Walang quote para sa symbol na iyon",
+  "widgetsC.stocks.notSymbol": "Hindi symbol ang \"{symbol}\"",
+  "widgetsC.stocks.period.days": {
+    "one": "{count} araw",
+    "other": "{count} araw"
+  },
+  "widgetsC.stocks.period.months": {
+    "one": "{count} buwan",
+    "other": "{count} buwan"
+  },
+  "widgetsC.stocks.period.years": {
+    "one": "{count} taon",
+    "other": "{count} taon"
+  },
+  "widgetsC.stocks.settings.symbolRefused": "Pumili ng resulta ng paghahanap, o mag-type ng symbol: mga titik, numero at . - ^ = lang"
+}

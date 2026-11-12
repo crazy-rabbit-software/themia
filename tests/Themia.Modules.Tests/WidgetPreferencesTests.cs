@@ -172,7 +172,7 @@ public sealed class WidgetPreferencesTests
     [Fact]
     public void S3790_a_search_pick_sets_symbol_market_and_name_together()
     {
-        var config = new StocksConfig();
+        var config = new StockConfig();
         config.Choose(new SymbolHit("bitcoin", "Bitcoin", QuoteMarket.Crypto, AssetClass.Crypto, string.Empty));
 
         Assert.Equal(("bitcoin", QuoteMarket.Crypto, "Bitcoin"), (config.Symbol, config.Market, config.DisplayName));
@@ -181,7 +181,7 @@ public sealed class WidgetPreferencesTests
     [Fact]
     public void S3790_a_typed_symbol_is_listed_and_drops_the_old_name()
     {
-        var config = new StocksConfig();
+        var config = new StockConfig();
         config.Choose(new SymbolHit("bitcoin", "Bitcoin", QuoteMarket.Crypto, AssetClass.Crypto, string.Empty));
 
         config.ChooseTyped(" BTC-USD ");
@@ -192,7 +192,7 @@ public sealed class WidgetPreferencesTests
     [Fact]
     public void S3790_retyping_the_same_symbol_changes_nothing()
     {
-        var config = new StocksConfig();
+        var config = new StockConfig();
         config.Choose(new SymbolHit("MSFT", "Microsoft Corporation", QuoteMarket.Listed, AssetClass.Equity, "NASDAQ"));
 
         config.ChooseTyped("MSFT");

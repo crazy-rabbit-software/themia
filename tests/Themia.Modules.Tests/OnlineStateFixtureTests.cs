@@ -54,9 +54,9 @@ public sealed class OnlineStateFixtureTests
         var rates = Assert.IsType<ExchangeRateConfig>(configs[4]);
         Assert.Equal(("CHF", "JPY"), (rates.BaseCurrency, rates.QuoteCurrency));
 
-        var stocks = Assert.IsType<StocksConfig>(configs[5]);
-        Assert.Equal(("bitcoin", QuoteMarket.Crypto, QuoteRange.Month, StocksStyle.Number), (stocks.Symbol, stocks.Market, stocks.Range, stocks.Style));
-        Assert.Equal((0.25, true, true), (stocks.SharesOwned, stocks.ShowMinMax, stocks.ShowExtendedHours));
+        var stocks = Assert.IsType<StockConfig>(configs[5]);
+        Assert.Equal(("bitcoin", QuoteMarket.Crypto, QuoteRange.Month), (stocks.Symbol, stocks.Market, stocks.Range));
+        Assert.Equal((0.25, true), (stocks.SharesOwned, stocks.ShowExtendedHours));
 
         Assert.Equal(TemperatureScale.Fahrenheit, state.Preferences.Region.Temperature);
     }

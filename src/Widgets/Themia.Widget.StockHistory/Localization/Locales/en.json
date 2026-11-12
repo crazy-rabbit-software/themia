@@ -1,0 +1,9 @@
+{
+  "$englishOnly": [
+    "stockHistory.label",
+    "stockHistory.desc"
+  ],
+  "stockHistory.desc": "A stock's or a coin's price over its period",
+  "stockHistory.label": "Stock chart",
+  "stocks.showMinMax": "Min/max markers"
+}

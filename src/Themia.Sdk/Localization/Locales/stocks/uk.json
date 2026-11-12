@@ -1,0 +1,27 @@
+{
+  "stocks.extendedHours": "Розширені години",
+  "stocks.setup": "Вибери символ",
+  "stocks.tab.symbols": "Символ",
+  "stocks.timeframe": "Часовий проміжок",
+  "widgetsC.stocks.noQuote": "Немає котирування для цього символу",
+  "widgetsC.stocks.notSymbol": "«{symbol}» не є символом",
+  "widgetsC.stocks.period.days": {
+    "one": "{count} день",
+    "few": "{count} дні",
+    "many": "{count} днів",
+    "other": "{count} дня"
+  },
+  "widgetsC.stocks.period.months": {
+    "one": "{count} місяць",
+    "few": "{count} місяці",
+    "many": "{count} місяців",
+    "other": "{count} місяця"
+  },
+  "widgetsC.stocks.period.years": {
+    "one": "{count} рік",
+    "few": "{count} роки",
+    "many": "{count} років",
+    "other": "{count} року"
+  },
+  "widgetsC.stocks.settings.symbolRefused": "Вибери результат пошуку або введи символ: лише літери, цифри та . - ^ ="
+}

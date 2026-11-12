@@ -1,0 +1,18 @@
+{
+  "stocks.extendedHours": "시간 외 거래",
+  "stocks.setup": "기호 선택",
+  "stocks.tab.symbols": "기호",
+  "stocks.timeframe": "기간",
+  "widgetsC.stocks.noQuote": "해당 기호의 시세가 없습니다",
+  "widgetsC.stocks.notSymbol": "\"{symbol}\"은(는) 종목 기호가 아닙니다",
+  "widgetsC.stocks.period.days": {
+    "other": "{count}일"
+  },
+  "widgetsC.stocks.period.months": {
+    "other": "{count}개월"
+  },
+  "widgetsC.stocks.period.years": {
+    "other": "{count}년"
+  },
+  "widgetsC.stocks.settings.symbolRefused": "검색 결과를 선택하거나 기호를 입력하세요: 문자, 숫자 및 . - ^ = 만 사용 가능"
+}

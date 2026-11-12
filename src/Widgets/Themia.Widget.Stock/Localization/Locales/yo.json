@@ -1,0 +1,9 @@
+{
+  "stocks.dimWhenClosed": "Àmì ọjà tí a tì",
+  "widget.stocks.label": "Àwọn ìpín ọjà",
+  "widgetsA.catalog.stocks.description": "Àwọn àmì ọjà àti owó dígítà, pẹ̀lú àtẹ kékeré",
+  "widgetsC.stocks.holding.amount": "{amount} ní ọwọ́",
+  "widgetsC.stocks.phaseTooltip": "{phase}. {zone}",
+  "widgetsC.stocks.settings.holding.label": "Ìpín tí o ní",
+  "widgetsC.stocks.settings.holding.refused": "Tẹ iye {zero} tàbí jù bẹ́ẹ̀ lọ, bíi {example}"
+}

@@ -1,0 +1,9 @@
+{
+  "stocks.dimWhenClosed": "അടച്ച സൂചകം",
+  "widget.stocks.label": "ഓഹരികൾ",
+  "widgetsA.catalog.stocks.description": "ടിക്കറുകളും ക്രിപ്റ്റോയും, ഒരു സ്പാർക്ക്‌ലൈനോടെ",
+  "widgetsC.stocks.holding.amount": "{amount} കൈവശം",
+  "widgetsC.stocks.phaseTooltip": "{phase}. {zone}",
+  "widgetsC.stocks.settings.holding.label": "കൈവശമുള്ള ഓഹരികൾ",
+  "widgetsC.stocks.settings.holding.refused": "{zero} അല്ലെങ്കിൽ അതിൽ കൂടുതലുള്ള ഒരു തുക ടൈപ്പ് ചെയ്യുക, ഉദാഹരണത്തിന് {example}"
+}

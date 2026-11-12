@@ -1,0 +1,21 @@
+{
+  "stocks.extendedHours": "የተራዘሙ ሰዓታት",
+  "stocks.setup": "ምልክት ይምረጡ",
+  "stocks.tab.symbols": "ምልክት",
+  "stocks.timeframe": "የጊዜ ክልል",
+  "widgetsC.stocks.noQuote": "ለዚያ ምልክት ዋጋ የለም",
+  "widgetsC.stocks.notSymbol": "«{symbol}» ምልክት አይደለም",
+  "widgetsC.stocks.period.days": {
+    "one": "{count} ቀን",
+    "other": "{count} ቀናት"
+  },
+  "widgetsC.stocks.period.months": {
+    "one": "{count} ወር",
+    "other": "{count} ወራት"
+  },
+  "widgetsC.stocks.period.years": {
+    "one": "{count} ዓመት",
+    "other": "{count} ዓመታት"
+  },
+  "widgetsC.stocks.settings.symbolRefused": "የፍለጋ ውጤት ይምረጡ፣ ወይም ምልክት ይተይቡ፦ ፊደሎች፣ አሃዞችና . - ^ = ብቻ"
+}

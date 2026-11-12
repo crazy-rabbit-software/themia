@@ -1,0 +1,9 @@
+{
+  "stocks.dimWhenClosed": "Indicator beurs gesloten",
+  "widget.stocks.label": "Aandelen",
+  "widgetsA.catalog.stocks.description": "Aandelen en crypto, met een minigrafiek",
+  "widgetsC.stocks.holding.amount": "{amount} in bezit",
+  "widgetsC.stocks.phaseTooltip": "{phase}. {zone}",
+  "widgetsC.stocks.settings.holding.label": "Aantal in bezit",
+  "widgetsC.stocks.settings.holding.refused": "Typ een aantal van {zero} of meer, zoals {example}"
+}

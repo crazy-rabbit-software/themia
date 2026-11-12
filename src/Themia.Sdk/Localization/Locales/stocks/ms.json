@@ -1,0 +1,18 @@
+{
+  "stocks.extendedHours": "Waktu lanjutan",
+  "stocks.setup": "Pilih simbol",
+  "stocks.tab.symbols": "Simbol",
+  "stocks.timeframe": "Jangka masa",
+  "widgetsC.stocks.noQuote": "Tiada sebut harga untuk simbol itu",
+  "widgetsC.stocks.notSymbol": "\"{symbol}\" bukan simbol",
+  "widgetsC.stocks.period.days": {
+    "other": "{count} hari"
+  },
+  "widgetsC.stocks.period.months": {
+    "other": "{count} bulan"
+  },
+  "widgetsC.stocks.period.years": {
+    "other": "{count} tahun"
+  },
+  "widgetsC.stocks.settings.symbolRefused": "Pilih hasil carian, atau taip simbol: huruf, digit dan . - ^ = sahaja"
+}

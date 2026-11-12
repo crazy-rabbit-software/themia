@@ -1,0 +1,9 @@
+{
+  "stocks.dimWhenClosed": "Kapalı göstergesi",
+  "widget.stocks.label": "Hisseler",
+  "widgetsA.catalog.stocks.description": "Mini grafikle hisseler ve kripto",
+  "widgetsC.stocks.holding.amount": "{amount} adet",
+  "widgetsC.stocks.phaseTooltip": "{phase}. {zone}",
+  "widgetsC.stocks.settings.holding.label": "Sahip olunan adet",
+  "widgetsC.stocks.settings.holding.refused": "{zero} veya daha büyük bir miktar yazın, örneğin {example}"
+}

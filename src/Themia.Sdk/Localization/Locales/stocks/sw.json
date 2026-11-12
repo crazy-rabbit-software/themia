@@ -1,0 +1,21 @@
+{
+  "stocks.extendedHours": "Saa za ziada",
+  "stocks.setup": "Chagua alama",
+  "stocks.tab.symbols": "Alama",
+  "stocks.timeframe": "Kipindi cha muda",
+  "widgetsC.stocks.noQuote": "Hakuna bei ya alama hiyo",
+  "widgetsC.stocks.notSymbol": "\"{symbol}\" si alama",
+  "widgetsC.stocks.period.days": {
+    "one": "Siku {count}",
+    "other": "Siku {count}"
+  },
+  "widgetsC.stocks.period.months": {
+    "one": "Mwezi {count}",
+    "other": "Miezi {count}"
+  },
+  "widgetsC.stocks.period.years": {
+    "one": "Mwaka {count}",
+    "other": "Miaka {count}"
+  },
+  "widgetsC.stocks.settings.symbolRefused": "Chagua tokeo la utafutaji, au andika alama: herufi, tarakimu na . - ^ = tu"
+}

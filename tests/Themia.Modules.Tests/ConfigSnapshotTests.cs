@@ -24,11 +24,11 @@ public sealed class ConfigSnapshotTests
     }
 
     [Fact]
-    public void S13a_EditingTheLiveStocksConfigDoesNotReachTheSnapshot()
+    public void S13a_EditingTheLiveStockConfigDoesNotReachTheSnapshot()
     {
-        var live = new StocksConfig();
+        var live = new StockConfig();
         var before = live.EffectiveSymbol;
-        var snapshot = (StocksConfig)live.Clone();
+        var snapshot = (StockConfig)live.Clone();
 
         live.Symbol = before == "MSFT" ? "AAPL" : "MSFT";
 

@@ -1,0 +1,9 @@
+{
+  "stocks.dimWhenClosed": "Alamar rufewa",
+  "widget.stocks.label": "Hannun jari",
+  "widgetsA.catalog.stocks.description": "Hannun jari da crypto, tare da ƙaramin jadawali",
+  "widgetsC.stocks.holding.amount": "{amount} ana riƙe",
+  "widgetsC.stocks.phaseTooltip": "{phase}. {zone}",
+  "widgetsC.stocks.settings.holding.label": "Hannun jarin da kake da su",
+  "widgetsC.stocks.settings.holding.refused": "Rubuta adadi na {zero} ko fiye, kamar {example}"
+}

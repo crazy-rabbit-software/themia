@@ -1,0 +1,18 @@
+{
+  "stocks.extendedHours": "時間外を含める",
+  "stocks.setup": "銘柄を選択",
+  "stocks.tab.symbols": "銘柄",
+  "stocks.timeframe": "期間",
+  "widgetsC.stocks.noQuote": "この銘柄の相場はありません",
+  "widgetsC.stocks.notSymbol": "「{symbol}」は銘柄コードではありません",
+  "widgetsC.stocks.period.days": {
+    "other": "{count} 日"
+  },
+  "widgetsC.stocks.period.months": {
+    "other": "{count} か月"
+  },
+  "widgetsC.stocks.period.years": {
+    "other": "{count} 年"
+  },
+  "widgetsC.stocks.settings.symbolRefused": "検索結果を選ぶか、銘柄コードを入力してください (英字、数字、. - ^ = のみ)"
+}

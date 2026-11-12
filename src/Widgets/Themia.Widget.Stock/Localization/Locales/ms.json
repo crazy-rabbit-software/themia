@@ -1,0 +1,10 @@
+{
+  "$comment": "Machine-written translations: every string in this file needs native review.",
+  "stocks.dimWhenClosed": "Penunjuk ditutup",
+  "widget.stocks.label": "Saham",
+  "widgetsA.catalog.stocks.description": "Kaunter dan kripto, dengan garis mini",
+  "widgetsC.stocks.holding.amount": "{amount} dipegang",
+  "widgetsC.stocks.phaseTooltip": "{phase}. {zone}",
+  "widgetsC.stocks.settings.holding.label": "Saham dimiliki",
+  "widgetsC.stocks.settings.holding.refused": "Taip jumlah {zero} atau lebih, seperti {example}"
+}

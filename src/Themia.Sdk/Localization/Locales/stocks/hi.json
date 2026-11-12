@@ -1,0 +1,21 @@
+{
+  "stocks.extendedHours": "विस्तारित घंटे",
+  "stocks.setup": "एक सिंबल चुनें",
+  "stocks.tab.symbols": "सिंबल",
+  "stocks.timeframe": "समय सीमा",
+  "widgetsC.stocks.noQuote": "उस सिंबल का कोई भाव नहीं",
+  "widgetsC.stocks.notSymbol": "\"{symbol}\" सिंबल नहीं है",
+  "widgetsC.stocks.period.days": {
+    "one": "{count} दिन",
+    "other": "{count} दिन"
+  },
+  "widgetsC.stocks.period.months": {
+    "one": "{count} महीना",
+    "other": "{count} महीने"
+  },
+  "widgetsC.stocks.period.years": {
+    "one": "{count} वर्ष",
+    "other": "{count} वर्ष"
+  },
+  "widgetsC.stocks.settings.symbolRefused": "कोई खोज परिणाम चुनें, या सिंबल लिखें: केवल अक्षर, अंक और . - ^ ="
+}

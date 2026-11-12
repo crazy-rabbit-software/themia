@@ -70,15 +70,6 @@ public class SettingRulesTests
         Assert.Equal([ShortcutsSetting.Lines, ShortcutsSetting.Extensions], new ShortcutsConfig { Style = ShortcutsStyle.List, GridIconOnly = true }.ShownSettings);
     }
 
-    [Theory]
-    [InlineData(QuoteMarket.Listed, QuoteRange.Day, StocksStyle.Chart, new[] { StocksSetting.MarketState, StocksSetting.ExtendedHours, StocksSetting.MinMax })]
-    [InlineData(QuoteMarket.Listed, QuoteRange.FiveDays, StocksStyle.Number, new[] { StocksSetting.MarketState, StocksSetting.ExtendedHours })]
-    [InlineData(QuoteMarket.Listed, QuoteRange.Month, StocksStyle.Chart, new[] { StocksSetting.MarketState, StocksSetting.MinMax })]
-    [InlineData(QuoteMarket.Crypto, QuoteRange.Day, StocksStyle.Chart, new[] { StocksSetting.MinMax })]
-    [InlineData(QuoteMarket.Crypto, QuoteRange.Year, StocksStyle.Number, new StocksSetting[0])]
-    public void S6074_the_stock_offers_what_its_market_period_and_style_use(QuoteMarket market, QuoteRange range, StocksStyle style, StocksSetting[] rows)
-        => Assert.Equal(rows, new StocksConfig { Market = market, Range = range, Style = style }.ShownSettings);
-
     [Fact]
     public void S6074_extended_hours_are_offered_exactly_where_they_are_asked_for()
     {
@@ -86,8 +77,8 @@ public class SettingRulesTests
         {
             foreach (var range in Enum.GetValues<QuoteRange>())
             {
-                var stocks = new StocksConfig { Market = market, Range = range, ShowExtendedHours = true };
-                Assert.Equal(stocks.WantsPrePost, stocks.Offers(StocksSetting.ExtendedHours));
+                var stocks = new StockConfig { Market = market, Range = range, ShowExtendedHours = true };
+                Assert.Equal(stocks.WantsPrePost, stocks.OffersExtendedHours);
             }
         }
     }

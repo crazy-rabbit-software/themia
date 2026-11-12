@@ -158,7 +158,7 @@
         { "kind": "memory", "at": [1665, 30, 225, 160] },
         { "kind": "gpu", "at": [1440, 190, 225, 160] },
         { "kind": "network", "at": [1665, 190, 225, 160] },
-        { "kind": "stocks", "at": [1440, 350, 450, 270], "state": "quote" },
+        { "kind": "stock", "at": [1440, 350, 450, 270], "state": "quote" },
         { "kind": "shortcuts", "at": [1440, 620, 450, 250], "state": "sample" },
         { "id": "wifi", "kind": "wifiToggle", "at": [1440, 870, 113, 140], "state": "on" },
         { "id": "bluetooth", "kind": "bluetoothToggle", "at": [1553, 870, 112, 140], "state": "on" },

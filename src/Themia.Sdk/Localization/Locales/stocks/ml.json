@@ -1,0 +1,21 @@
+{
+  "stocks.extendedHours": "വിപുലീകൃത സമയം",
+  "stocks.setup": "ഒരു ചിഹ്നം തിരഞ്ഞെടുക്കുക",
+  "stocks.tab.symbols": "ചിഹ്നം",
+  "stocks.timeframe": "സമയപരിധി",
+  "widgetsC.stocks.noQuote": "ആ ചിഹ്നത്തിന് വിലയില്ല",
+  "widgetsC.stocks.notSymbol": "\"{symbol}\" ഒരു ചിഹ്നമല്ല",
+  "widgetsC.stocks.period.days": {
+    "one": "{count} ദിവസം",
+    "other": "{count} ദിവസം"
+  },
+  "widgetsC.stocks.period.months": {
+    "one": "{count} മാസം",
+    "other": "{count} മാസം"
+  },
+  "widgetsC.stocks.period.years": {
+    "one": "{count} വർഷം",
+    "other": "{count} വർഷം"
+  },
+  "widgetsC.stocks.settings.symbolRefused": "ഒരു തിരയൽ ഫലം തിരഞ്ഞെടുക്കുക, അല്ലെങ്കിൽ ഒരു ചിഹ്നം ടൈപ്പ് ചെയ്യുക: അക്ഷരങ്ങൾ, അക്കങ്ങൾ, . - ^ = എന്നിവ മാത്രം"
+}

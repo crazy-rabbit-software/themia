@@ -1,0 +1,9 @@
+{
+  "stocks.dimWhenClosed": "ပိတ်ထားကြောင်း ညွှန်ပြချက်",
+  "widget.stocks.label": "စတော့များ",
+  "widgetsA.catalog.stocks.description": "ticker နှင့် crypto များ၊ sparkline နှင့်",
+  "widgetsC.stocks.holding.amount": "{amount} ပိုင်ဆိုင်ထား",
+  "widgetsC.stocks.phaseTooltip": "{phase}။ {zone}",
+  "widgetsC.stocks.settings.holding.label": "ပိုင်ဆိုင်ထားသော ရှယ်ယာ",
+  "widgetsC.stocks.settings.holding.refused": "{zero} သို့မဟုတ် ထို့ထက်ပိုသော ပမာဏကို ရိုက်ပါ၊ ဥပမာ {example}"
+}

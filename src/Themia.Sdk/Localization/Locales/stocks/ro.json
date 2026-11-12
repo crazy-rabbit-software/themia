@@ -1,0 +1,24 @@
+{
+  "stocks.extendedHours": "Program extins",
+  "stocks.setup": "Alege un simbol",
+  "stocks.tab.symbols": "Simbol",
+  "stocks.timeframe": "Interval de timp",
+  "widgetsC.stocks.noQuote": "Nicio cotație pentru acest simbol",
+  "widgetsC.stocks.notSymbol": "„{symbol}” nu este un simbol",
+  "widgetsC.stocks.period.days": {
+    "one": "{count} zi",
+    "few": "{count} zile",
+    "other": "{count} de zile"
+  },
+  "widgetsC.stocks.period.months": {
+    "one": "{count} lună",
+    "few": "{count} luni",
+    "other": "{count} de luni"
+  },
+  "widgetsC.stocks.period.years": {
+    "one": "{count} an",
+    "few": "{count} ani",
+    "other": "{count} de ani"
+  },
+  "widgetsC.stocks.settings.symbolRefused": "Alege un rezultat al căutării sau scrie un simbol: doar litere, cifre și . - ^ ="
+}

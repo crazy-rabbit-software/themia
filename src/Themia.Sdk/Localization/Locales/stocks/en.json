@@ -1,0 +1,25 @@
+{
+  "$englishOnly": [
+    "stocks.menu.useTyped"
+  ],
+  "stocks.extendedHours": "Extended hours",
+  "stocks.menu.useTyped": "Use “{symbol}”",
+  "stocks.setup": "Choose a symbol",
+  "stocks.tab.symbols": "Symbol",
+  "stocks.timeframe": "Timeframe",
+  "widgetsC.stocks.noQuote": "No quote for that symbol",
+  "widgetsC.stocks.notSymbol": "\"{symbol}\" is not a symbol",
+  "widgetsC.stocks.period.days": {
+    "one": "{count} day",
+    "other": "{count} days"
+  },
+  "widgetsC.stocks.period.months": {
+    "one": "{count} month",
+    "other": "{count} months"
+  },
+  "widgetsC.stocks.period.years": {
+    "one": "{count} year",
+    "other": "{count} years"
+  },
+  "widgetsC.stocks.settings.symbolRefused": "Pick a search result, or type a symbol: letters, digits and . - ^ = only"
+}

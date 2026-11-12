@@ -1,0 +1,9 @@
+{
+  "stocks.dimWhenClosed": "ตัวบ่งชี้ตลาดปิด",
+  "widget.stocks.label": "หุ้น",
+  "widgetsA.catalog.stocks.description": "หุ้นและคริปโต พร้อมกราฟเส้นขนาดเล็ก",
+  "widgetsC.stocks.holding.amount": "ถือ {amount}",
+  "widgetsC.stocks.phaseTooltip": "{phase} {zone}",
+  "widgetsC.stocks.settings.holding.label": "จำนวนหุ้นที่ถือ",
+  "widgetsC.stocks.settings.holding.refused": "พิมพ์จำนวนตั้งแต่ {zero} ขึ้นไป เช่น {example}"
+}

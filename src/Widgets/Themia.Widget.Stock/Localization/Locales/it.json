@@ -1,0 +1,9 @@
+{
+  "stocks.dimWhenClosed": "Indicatore di chiusura",
+  "widget.stocks.label": "Borsa",
+  "widgetsA.catalog.stocks.description": "Titoli e cripto, con minigrafico",
+  "widgetsC.stocks.holding.amount": "{amount} posseduti",
+  "widgetsC.stocks.phaseTooltip": "{phase}. {zone}",
+  "widgetsC.stocks.settings.holding.label": "Quantità posseduta",
+  "widgetsC.stocks.settings.holding.refused": "Inserisci una quantità pari o superiore a {zero}, ad esempio {example}"
+}

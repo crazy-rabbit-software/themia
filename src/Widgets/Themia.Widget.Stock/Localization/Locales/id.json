@@ -1,0 +1,9 @@
+{
+  "stocks.dimWhenClosed": "Indikator tutup",
+  "widget.stocks.label": "Saham",
+  "widgetsA.catalog.stocks.description": "Saham dan kripto, dengan grafik mini",
+  "widgetsC.stocks.holding.amount": "{amount} dimiliki",
+  "widgetsC.stocks.phaseTooltip": "{phase}. {zone}",
+  "widgetsC.stocks.settings.holding.label": "Jumlah dimiliki",
+  "widgetsC.stocks.settings.holding.refused": "Ketik jumlah {zero} atau lebih, misalnya {example}"
+}

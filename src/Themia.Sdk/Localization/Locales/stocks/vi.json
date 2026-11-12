@@ -1,0 +1,18 @@
+{
+  "stocks.extendedHours": "Ngoài giờ",
+  "stocks.setup": "Chọn một mã",
+  "stocks.tab.symbols": "Mã",
+  "stocks.timeframe": "Khung thời gian",
+  "widgetsC.stocks.noQuote": "Không có giá cho mã đó",
+  "widgetsC.stocks.notSymbol": "\"{symbol}\" không phải mã hợp lệ",
+  "widgetsC.stocks.period.days": {
+    "other": "{count} ngày"
+  },
+  "widgetsC.stocks.period.months": {
+    "other": "{count} tháng"
+  },
+  "widgetsC.stocks.period.years": {
+    "other": "{count} năm"
+  },
+  "widgetsC.stocks.settings.symbolRefused": "Chọn một kết quả tìm kiếm, hoặc nhập mã: chỉ chữ, số và . - ^ ="
+}

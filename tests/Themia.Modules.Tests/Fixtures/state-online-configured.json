@@ -166,15 +166,13 @@
           "itemTextColor": "",
           "scale": 1,
           "config": {
-            "kind": "stocks",
+            "kind": "stock",
             "symbol": "bitcoin",
             "market": "Crypto",
             "displayName": "Bitcoin",
             "range": "Month",
-            "style": "number",
             "showMarketState": true,
             "showExtendedHours": true,
-            "showMinMax": true,
             "sharesOwned": 0.25
           }
         }

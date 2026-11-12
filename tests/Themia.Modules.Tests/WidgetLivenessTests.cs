@@ -93,7 +93,7 @@ public class WidgetLivenessTests
     {
         Assert.False(WidgetLiveness.Runs(Weather(placed: false).Config, FeatureSet.None));
         Assert.True(WidgetLiveness.Runs(Weather(placed: true).Config, FeatureSet.None));
-        Assert.False(WidgetLiveness.Runs(new StocksConfig(), FeatureSet.None));
+        Assert.False(WidgetLiveness.Runs(new StockConfig(), FeatureSet.None));
         Assert.False(WidgetLiveness.Runs(new RssConfig { Feeds = [] }, FeatureSet.None));
         Assert.False(WidgetLiveness.Runs(new EmailConfig(), FeatureSet.None));
         Assert.True(WidgetLiveness.Runs(new EmailConfig(), HostFeatures.Mail));

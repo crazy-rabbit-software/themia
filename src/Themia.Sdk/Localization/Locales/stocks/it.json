@@ -1,0 +1,21 @@
+{
+  "stocks.extendedHours": "Orario esteso",
+  "stocks.setup": "Scegli un simbolo",
+  "stocks.tab.symbols": "Simbolo",
+  "stocks.timeframe": "Periodo",
+  "widgetsC.stocks.noQuote": "Nessuna quotazione per questo simbolo",
+  "widgetsC.stocks.notSymbol": "«{symbol}» non è un simbolo",
+  "widgetsC.stocks.period.days": {
+    "one": "{count} giorno",
+    "other": "{count} giorni"
+  },
+  "widgetsC.stocks.period.months": {
+    "one": "{count} mese",
+    "other": "{count} mesi"
+  },
+  "widgetsC.stocks.period.years": {
+    "one": "{count} anno",
+    "other": "{count} anni"
+  },
+  "widgetsC.stocks.settings.symbolRefused": "Scegli un risultato di ricerca o digita un simbolo: solo lettere, cifre e . - ^ ="
+}

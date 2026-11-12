@@ -1,0 +1,21 @@
+{
+  "stocks.extendedHours": "நீட்டிக்கப்பட்ட நேரம்",
+  "stocks.setup": "ஒரு குறியீட்டைத் தேர்ந்தெடுக்கவும்",
+  "stocks.tab.symbols": "குறியீடு",
+  "stocks.timeframe": "காலவரம்பு",
+  "widgetsC.stocks.noQuote": "அந்தக் குறியீட்டுக்கு விலை இல்லை",
+  "widgetsC.stocks.notSymbol": "\"{symbol}\" ஒரு குறியீடு அல்ல",
+  "widgetsC.stocks.period.days": {
+    "one": "{count} நாள்",
+    "other": "{count} நாட்கள்"
+  },
+  "widgetsC.stocks.period.months": {
+    "one": "{count} மாதம்",
+    "other": "{count} மாதங்கள்"
+  },
+  "widgetsC.stocks.period.years": {
+    "one": "{count} ஆண்டு",
+    "other": "{count} ஆண்டுகள்"
+  },
+  "widgetsC.stocks.settings.symbolRefused": "தேடல் முடிவைத் தேர்ந்தெடுக்கவும், அல்லது குறியீட்டைத் தட்டச்சு செய்யவும்: எழுத்துகள், இலக்கங்கள் மற்றும் . - ^ = மட்டும்"
+}

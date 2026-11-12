@@ -1,0 +1,10 @@
+{
+  "$englishOnly": [],
+  "stocks.dimWhenClosed": "Closed indicator",
+  "widget.stocks.label": "Stocks",
+  "widgetsA.catalog.stocks.description": "Tickers and crypto, with a sparkline",
+  "widgetsC.stocks.holding.amount": "{amount} held",
+  "widgetsC.stocks.phaseTooltip": "{phase}. {zone}",
+  "widgetsC.stocks.settings.holding.label": "Shares owned",
+  "widgetsC.stocks.settings.holding.refused": "Type an amount of {zero} or more, such as {example}"
+}

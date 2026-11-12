@@ -137,7 +137,6 @@ public sealed partial class ModuleConformanceTests
     private static readonly HashSet<(string Widget, string Key)> LatinDigitsAllowed =
     [
         ("notes", "widgetsC.notes.editor.headingTip"),   // H1, H2, H3
-        ("stocks", "stocks.extendedHoursDesc"),   // the 1D and 5D chart ranges
         ("tasks", "widgetsC.tasks.rowHint"),   // the F2 key
         ("videoStream", "widgetsA.catalog.videoStream.description"),   // MP4
         ("videoStream", "widgetsC.videoStream.settings.address.desc"),   // MP4

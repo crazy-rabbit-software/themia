@@ -1,0 +1,21 @@
+{
+  "stocks.extendedHours": "ವಿಸ್ತೃತ ಅವಧಿ",
+  "stocks.setup": "ಸಿಂಬಲ್ ಆಯ್ಕೆಮಾಡು",
+  "stocks.tab.symbols": "ಸಿಂಬಲ್",
+  "stocks.timeframe": "ಕಾಲಾವಧಿ",
+  "widgetsC.stocks.noQuote": "ಆ ಸಿಂಬಲ್‌ಗೆ ದರ ಇಲ್ಲ",
+  "widgetsC.stocks.notSymbol": "\"{symbol}\" ಸಿಂಬಲ್ ಅಲ್ಲ",
+  "widgetsC.stocks.period.days": {
+    "one": "{count} ದಿನ",
+    "other": "{count} ದಿನಗಳು"
+  },
+  "widgetsC.stocks.period.months": {
+    "one": "{count} ತಿಂಗಳು",
+    "other": "{count} ತಿಂಗಳುಗಳು"
+  },
+  "widgetsC.stocks.period.years": {
+    "one": "{count} ವರ್ಷ",
+    "other": "{count} ವರ್ಷಗಳು"
+  },
+  "widgetsC.stocks.settings.symbolRefused": "ಹುಡುಕಾಟದ ಫಲಿತಾಂಶವನ್ನು ಆಯ್ಕೆಮಾಡು, ಅಥವಾ ಸಿಂಬಲ್ ಟೈಪ್ ಮಾಡು: ಅಕ್ಷರಗಳು, ಅಂಕೆಗಳು ಮತ್ತು . - ^ = ಮಾತ್ರ"
+}

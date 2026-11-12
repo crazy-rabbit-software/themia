@@ -1,0 +1,21 @@
+{
+  "stocks.extendedHours": "Διευρυμένο ωράριο",
+  "stocks.setup": "Διάλεξε ένα σύμβολο",
+  "stocks.tab.symbols": "Σύμβολο",
+  "stocks.timeframe": "Χρονικό διάστημα",
+  "widgetsC.stocks.noQuote": "Δεν υπάρχει τιμή για αυτό το σύμβολο",
+  "widgetsC.stocks.notSymbol": "Το \"{symbol}\" δεν είναι σύμβολο",
+  "widgetsC.stocks.period.days": {
+    "one": "{count} ημέρα",
+    "other": "{count} ημέρες"
+  },
+  "widgetsC.stocks.period.months": {
+    "one": "{count} μήνας",
+    "other": "{count} μήνες"
+  },
+  "widgetsC.stocks.period.years": {
+    "one": "{count} έτος",
+    "other": "{count} έτη"
+  },
+  "widgetsC.stocks.settings.symbolRefused": "Διάλεξε ένα αποτέλεσμα αναζήτησης ή πληκτρολόγησε σύμβολο: μόνο γράμματα, ψηφία και . - ^ ="
+}

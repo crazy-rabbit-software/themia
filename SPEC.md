@@ -5978,7 +5978,7 @@ strings in `Locales/widgets-details`.
 Ported from `widgets/online/{rss,stocks,video-stream,web-element}` on main, renumbered; the rules
 live in Core (`NetworkGuard`, `NetworkCacheStore`) and the SDK (`FeedParser`, `SiteIcons`,
 `MarketSearch`, `MarketQuote`, `ExchangeTime`), tests in `FeedWidgetTests`/`FeedParserTests`/`StockWidgetTests`.
-Rss and Stocks are modules (`src/Widgets/Themia.Widget.Rss/`, `src/Widgets/Themia.Widget.Stocks/`, their
+Rss and Stocks are modules (`src/Widgets/Themia.Widget.Rss/`, `src/Widgets/Themia.Widget.Stock/` and its chart `Themia.Widget.StockHistory/`, their
 own tags in their `SPEC.md`).
 
 - **[S-1300]** Feeds and quotes survive a restart (classic S-23/S-29): the last good answers are
@@ -6008,7 +6008,7 @@ own tags in their `SPEC.md`).
   origin per session shared by every row and widget, a missing icon retried after 6 h; decoded at
   2× the 16px drawn size. A globe stands in until it arrives or when there is none.
 - [S-1302], [S-1303], [S-1305], [S-1306]: moved with the Rss widget into its module's `SPEC.md` (`src/Widgets/Themia.Widget.Rss/`).
-- [S-1307], [S-1308], [S-1310], [S-1311], [S-2770], [S-6165], [S-6166], [S-2776], [S-2777]: moved with the Stocks widget into its module's `SPEC.md` (`src/Widgets/Themia.Widget.Stocks/`).
+- [S-1307], [S-1308], [S-1310], [S-1311], [S-2770], [S-6165], [S-6166], [S-2776], [S-2777]: moved with the Stocks widget into its module's `SPEC.md`, now the price's (`src/Widgets/Themia.Widget.Stock/`; its chart `Themia.Widget.StockHistory/`).
 - **[S-1309]** Times on the chart are the exchange's (classic S-36): Yahoo's `gmtoffset` and
   `timezone` ("EDT") — not an IANA lookup, which needs ICU the app does not ship — "09:30" for 1 day,
   "Tue 15:00" for 5 days, "Mar 4" beyond, with the year from 2 years; local time when the reply has
@@ -7249,7 +7249,7 @@ each atom's own `SPEC.md`. Tests: `SkyFactsTests` (Core), each module's, `ReadyM
   atoms compute from the same astronomy (`Themia.Sdk/Astronomy`) at the same instant.
 - **[S-11172]** **The family's ready-made groups**, each the old card's atoms touching as one panel
   (the first carries the header, the others none; [S-2472]): **Weather** (the reading over its facts),
-  **Sun** (the graphic, given the header, over its times), **Moon** (the reading over its times), **Air quality** (the index over its facts), **Exchange rates** (the rate over its 90 days), and
+  **Sun** (the graphic, given the header, over its times), **Moon** (the reading over its times), **Air quality** (the index over its facts), **Exchange rates** (the rate over its 90 days), **Stocks** (the price over its chart), and
   **Weather station** (the reading, its facts, the forecast and the rain, stacked: the seed once
   called Weather). Each atom of a recipe starts at its kind's default place rule ([S-2470]: the
   weather's none, the sky's Zurich); the previews and `--recipe-png` draw every atom at the one sample

@@ -1,0 +1,9 @@
+{
+  "stocks.dimWhenClosed": "Позначка закритого ринку",
+  "widget.stocks.label": "Акції",
+  "widgetsA.catalog.stocks.description": "Тікери й криптовалюта з мініграфіком",
+  "widgetsC.stocks.holding.amount": "У власності {amount}",
+  "widgetsC.stocks.phaseTooltip": "{phase}. {zone}",
+  "widgetsC.stocks.settings.holding.label": "Акцій у власності",
+  "widgetsC.stocks.settings.holding.refused": "Введи кількість від {zero}, наприклад {example}"
+}

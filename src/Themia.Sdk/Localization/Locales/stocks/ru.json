@@ -1,0 +1,27 @@
+{
+  "stocks.extendedHours": "Расширенные часы",
+  "stocks.setup": "Выберите тикер",
+  "stocks.tab.symbols": "Тикер",
+  "stocks.timeframe": "Период",
+  "widgetsC.stocks.noQuote": "Нет котировки для этого тикера",
+  "widgetsC.stocks.notSymbol": "«{symbol}» — не тикер",
+  "widgetsC.stocks.period.days": {
+    "one": "{count} день",
+    "few": "{count} дня",
+    "many": "{count} дней",
+    "other": "{count} дня"
+  },
+  "widgetsC.stocks.period.months": {
+    "one": "{count} месяц",
+    "few": "{count} месяца",
+    "many": "{count} месяцев",
+    "other": "{count} месяца"
+  },
+  "widgetsC.stocks.period.years": {
+    "one": "{count} год",
+    "few": "{count} года",
+    "many": "{count} лет",
+    "other": "{count} года"
+  },
+  "widgetsC.stocks.settings.symbolRefused": "Выберите результат поиска или введите тикер: только буквы, цифры и . - ^ ="
+}

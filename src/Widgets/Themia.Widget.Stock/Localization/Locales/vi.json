@@ -1,0 +1,9 @@
+{
+  "stocks.dimWhenClosed": "Chỉ báo đóng cửa",
+  "widget.stocks.label": "Chứng khoán",
+  "widgetsA.catalog.stocks.description": "Mã cổ phiếu và tiền mã hóa, kèm biểu đồ nhỏ",
+  "widgetsC.stocks.holding.amount": "Nắm giữ {amount}",
+  "widgetsC.stocks.phaseTooltip": "{phase}. {zone}",
+  "widgetsC.stocks.settings.holding.label": "Số lượng sở hữu",
+  "widgetsC.stocks.settings.holding.refused": "Nhập số lượng từ {zero} trở lên, ví dụ {example}"
+}

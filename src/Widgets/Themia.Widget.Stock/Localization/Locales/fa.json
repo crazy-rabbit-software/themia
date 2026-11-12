@@ -1,0 +1,9 @@
+{
+  "stocks.dimWhenClosed": "نشانگر بسته بودن",
+  "widget.stocks.label": "سهام",
+  "widgetsA.catalog.stocks.description": "نمادها و رمزارزها، با نمودار کوچک",
+  "widgetsC.stocks.holding.amount": "{amount} در اختیار",
+  "widgetsC.stocks.phaseTooltip": "{phase}. {zone}",
+  "widgetsC.stocks.settings.holding.label": "سهام در اختیار",
+  "widgetsC.stocks.settings.holding.refused": "مقداری {zero} یا بیشتر تایپ کنید، مانند {example}"
+}

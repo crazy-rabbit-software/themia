@@ -1,0 +1,18 @@
+{
+  "stocks.extendedHours": "盘前盘后",
+  "stocks.setup": "选择代码",
+  "stocks.tab.symbols": "代码",
+  "stocks.timeframe": "时间范围",
+  "widgetsC.stocks.noQuote": "此代码没有报价",
+  "widgetsC.stocks.notSymbol": "“{symbol}”不是有效代码",
+  "widgetsC.stocks.period.days": {
+    "other": "{count} 天"
+  },
+  "widgetsC.stocks.period.months": {
+    "other": "{count} 个月"
+  },
+  "widgetsC.stocks.period.years": {
+    "other": "{count} 年"
+  },
+  "widgetsC.stocks.settings.symbolRefused": "请选择搜索结果或输入代码：仅限字母、数字和 . - ^ ="
+}

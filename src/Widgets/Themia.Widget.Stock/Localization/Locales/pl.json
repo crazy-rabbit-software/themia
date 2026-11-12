@@ -1,0 +1,9 @@
+{
+  "stocks.dimWhenClosed": "Wskaźnik zamknięcia",
+  "widget.stocks.label": "Akcje",
+  "widgetsA.catalog.stocks.description": "Notowania i kryptowaluty z wykresem",
+  "widgetsC.stocks.holding.amount": "Posiadane: {amount}",
+  "widgetsC.stocks.phaseTooltip": "{phase}. {zone}",
+  "widgetsC.stocks.settings.holding.label": "Posiadana liczba",
+  "widgetsC.stocks.settings.holding.refused": "Wpisz liczbę {zero} lub większą, np. {example}"
+}
