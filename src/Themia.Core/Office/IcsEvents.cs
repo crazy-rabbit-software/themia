@@ -424,7 +424,7 @@ public static class IcsEvents
             item = new CalendarEvent { Id = id, Subject = raw.Subject, Start = start, End = end };
         }
 
-        into.Add(item with { Location = raw.Location, Organizer = raw.Organizer, JoinUrl = raw.JoinUrl });
+        into.Add(item with { Location = raw.Location, Organizer = raw.Organizer, OrganizerAddress = raw.OrganizerAddress, JoinUrl = raw.JoinUrl });
         return true;
     }
 
@@ -437,6 +437,7 @@ public static class IcsEvents
         TimeSpan? Duration,
         string? Location,
         string? Organizer,
+        string? OrganizerAddress,
         string? JoinUrl,
         bool Cancelled,
         RecurrenceRule? Rule,
@@ -471,6 +472,7 @@ public static class IcsEvents
                 Ical.ParseDuration(vevent.First("DURATION")?.Value),
                 vevent.Text("LOCATION"),
                 OrganizerOf(vevent.First("ORGANIZER")),
+                OrganizerAddressOf(vevent.First("ORGANIZER")),
 
                 // [S-4822] Exchange and Google write the meeting's link in their own properties;
                 // failing those, a meeting service's link in the location or the description.
@@ -547,6 +549,15 @@ public static class IcsEvents
         /// value as written. Non-ASCII names come through whole (the classic parser once split one
         /// mid-character).
         /// </summary>
+        /// <summary>[S-11943] The organizer's address: the value after <c>mailto:</c>; null for any other value.</summary>
+        private static string? OrganizerAddressOf(IcalProperty? organizer)
+        {
+            var value = organizer?.Value.Trim();
+            return value is not null && value.StartsWith("mailto:", StringComparison.OrdinalIgnoreCase) && value[7..].Trim() is { Length: > 0 } address
+                ? address
+                : null;
+        }
+
         private static string? OrganizerOf(IcalProperty? organizer)
         {
             if (organizer is null)

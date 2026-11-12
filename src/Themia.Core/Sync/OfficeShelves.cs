@@ -77,6 +77,9 @@ public sealed class StoredEvent
 
     public string? Organizer { get; set; }
 
+    /// <summary>[S-11943] The organiser's address, where the provider gave one.</summary>
+    public string? OrganizerAddress { get; set; }
+
     public string? WebLink { get; set; }
 
     /// <summary>[S-4822] The join link, through <see cref="MeetingLinks"/> again when read back.</summary>
@@ -154,6 +157,7 @@ public static class OfficeShelves
         AllDay = item.AllDay,
         Location = CutOrNull(item.Location),
         Organizer = CutOrNull(item.Organizer),
+        OrganizerAddress = CutOrNull(item.OrganizerAddress),
         WebLink = item.WebLink is { Length: <= MaxLink } link ? link : null,
         JoinUrl = MeetingLinks.IsLaunchable(item.JoinUrl) ? item.JoinUrl : null,
         Declined = item.Declined,
@@ -168,6 +172,7 @@ public static class OfficeShelves
         AllDay = item.AllDay,
         Location = item.Location,
         Organizer = item.Organizer,
+        OrganizerAddress = item.OrganizerAddress,
         WebLink = item.WebLink,
         JoinUrl = item.JoinUrl,
         Declined = item.Declined,
@@ -270,6 +275,7 @@ public static class OfficeShelves
                     AllDay = item.AllDay,
                     Location = CutOrNull(item.Location),
                     Organizer = CutOrNull(item.Organizer),
+                    OrganizerAddress = CutOrNull(item.OrganizerAddress),
                     WebLink = item.WebLink is { Length: <= MaxLink } link ? link : null,
                     JoinUrl = MeetingLinks.IsLaunchable(item.JoinUrl) ? item.JoinUrl : null,
                     Declined = item.Declined,

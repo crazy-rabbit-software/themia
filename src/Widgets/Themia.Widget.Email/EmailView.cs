@@ -53,6 +53,8 @@ internal sealed partial class EmailView : Grid, IWidgetView, IWidgetOpens, IWidg
         _binding = new KitBinding(host, MailSpec.Spec(_style, () => _config.Folder), Glyphs.Mail, ActionsOf, Handle)
         {
             HeaderButtons = Buttons,
+            Decorate = LinkRow,
+            Redrawing = ForgetRows,
         };
 
         Children.Add(_binding.List);
@@ -74,6 +76,7 @@ internal sealed partial class EmailView : Grid, IWidgetView, IWidgetOpens, IWidg
         _config = config as EmailConfig ?? new EmailConfig();
         UseStyle();
         UseSource(new MailKitSource(_widgetHost.Mail, () => _config));
+        _links.Join(_surface?.Links);
         _binding.Attach(ticker, _source!, _config, Tick);
     }
 
@@ -256,6 +259,8 @@ internal sealed partial class EmailView : Grid, IWidgetView, IWidgetOpens, IWidg
     public void Detach()
     {
         _binding.Dispose();
+        _links.Leave();
+        People.Clear();
         _source?.Dispose();
         _source = null;
         _ticker = null;

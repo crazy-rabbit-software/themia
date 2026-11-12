@@ -1,9 +1,11 @@
 using System.Text.Json.Serialization;
 using Microsoft.UI.Xaml;
+using Themia.App.Services.Accounts;
 using Themia.App.Shell;
 using Themia.App.Shell.Config;
 using Themia.App.Widgets;
 using Themia.Core.Accounts;
+using Themia.Core.Links;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
@@ -11,7 +13,6 @@ using Themia.Sdk;
 using Themia.Sdk.Kit;
 using Themia.Sdk.WinUI;
 using Themia.Widget.Email;
-using Themia.App.Services.Accounts;
 
 [assembly: ThemiaWidget("email", typeof(EmailModule))]
 
@@ -39,6 +40,7 @@ public sealed class EmailModule : IWidgetModule
         Sizing = c => KitSizing.Sizing(((EmailConfig)c).RowsShown, addFooter: false, ((EmailConfig)c).Widths),
         SizeSets = (c, size) => KitSizing.SizeSets(c, size, ((EmailConfig)c).RowsShown, addFooter: false),
         Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader,
+        Links = LinkUse.Of([LinkTopicId.HoveredPerson], [LinkTopicId.HoveredPerson]),
         Add = new(AddFolderId.CalendarMail, 1, 0, Popular: 4),
     };
 

@@ -90,6 +90,12 @@ internal sealed partial class NextMeetingView : Grid, IWidgetView, IWidgetOpens,
     private IDisposable? _poll;
     private IDisposable? _tick;
     private LinkMember? _member;
+
+    /// <summary>[S-4825] The event another widget points at.</summary>
+    private EventLink? _pointedEvent;
+
+    /// <summary>[S-11944] The person another widget points at.</summary>
+    private PersonLink? _pointedPerson;
     private NextMeetingConfig _config = new();
     private CalendarEvent? _shown;
     private bool _detached;
@@ -129,6 +135,9 @@ internal sealed partial class NextMeetingView : Grid, IWidgetView, IWidgetOpens,
         _content.PointerEntered += OnPointerEntered;
         _content.PointerExited += OnPointerExited;
         _content.Tapped += OnTapped;
+        _organizer.Row.Background = Family.Brush(ColourRole.Clear);
+        _organizer.Row.PointerEntered += OnOrganizerEntered;
+        _organizer.Row.PointerExited += OnOrganizerExited;
 
         Children.Add(_content);
         Children.Add(_state);
@@ -147,6 +156,7 @@ internal sealed partial class NextMeetingView : Grid, IWidgetView, IWidgetOpens,
         // [S-4825] The view's links: the event under the pointer is shared with the calendars there.
         _member = _surface?.Links?.Join();
         _member?.Watch(LinkTopics.HoveredEvent, OnHoveredElsewhere);
+        _member?.Watch(LinkTopics.HoveredPerson, OnPersonElsewhere);
 
         // [S-588] The poll fires once on subscribing: the first load.
         _poll = ticker.Subscribe(Poll, () => _ = _feed.RefreshAsync(force: false));
@@ -183,6 +193,8 @@ internal sealed partial class NextMeetingView : Grid, IWidgetView, IWidgetOpens,
         _content.PointerEntered -= OnPointerEntered;
         _content.PointerExited -= OnPointerExited;
         _content.Tapped -= OnTapped;
+        _organizer.Row.PointerEntered -= OnOrganizerEntered;
+        _organizer.Row.PointerExited -= OnOrganizerExited;
         _join.Loaded -= OnJoinLoaded;
         _state.Detach();
     }
@@ -261,6 +273,7 @@ internal sealed partial class NextMeetingView : Grid, IWidgetView, IWidgetOpens,
         _location.Row.Visibility = Show(_config.ShowPlace && !string.IsNullOrWhiteSpace(item.Location));
         _organizer.Text.Text = item.Organizer ?? string.Empty;
         _organizer.Row.Visibility = Show(_config.ShowOrganizer && !string.IsNullOrWhiteSpace(item.Organizer));
+        LightCard();
 
         _controls.Visibility = Show(hasJoin);
         ToolTipService.SetToolTip(_join, NextMeetingStr.Meeting_JoinTip.Text());
@@ -318,10 +331,12 @@ internal sealed partial class NextMeetingView : Grid, IWidgetView, IWidgetOpens,
         if (_shown is { } old && (item is null || CalendarShare.Key(old) != CalendarShare.Key(item)))
         {
             _member?.Clear(LinkTopics.HoveredEvent);
+            _member?.Clear(LinkTopics.HoveredPerson);
         }
 
         _shown = item;
         _content.Opacity = 1;
+        LightCard();
     }
 
     private static string Describe(CalendarEvent item, Locale locale, TimeZoneInfo zone)
@@ -406,7 +421,40 @@ internal sealed partial class NextMeetingView : Grid, IWidgetView, IWidgetOpens,
     /// item layer's hover fill; another event changes nothing here (this widget does not show it).
     /// </summary>
     private void OnHoveredElsewhere(EventLink? value)
-        => LinkLook.Row(this, _shown is { } item && value is not null && value.Equals(CalendarShare.Key(item)) ? LinkLight.Pointed : LinkLight.None);
+    {
+        _pointedEvent = value;
+        LightCard();
+    }
+
+    /// <summary>[S-11944] Another widget points at a person: when it is the organiser this card shows, the card lights.</summary>
+    private void OnPersonElsewhere(PersonLink? value)
+    {
+        _pointedPerson = value;
+        LightCard();
+    }
+
+    /// <summary>
+    /// [S-11903] [S-11944] The whole card takes the item layer's hover fill while its event, or the organiser its
+    /// line shows, is pointed at elsewhere on the view; anything it does not show changes nothing here.
+    /// </summary>
+    private void LightCard()
+    {
+        var lit = _shown is { } item
+            && ((_pointedEvent is not null && _pointedEvent.Equals(CalendarShare.Key(item)))
+                || (_pointedPerson is not null && _organizer.Row.Visibility == Visibility.Visible && _pointedPerson.Equals(CalendarShare.Person(item))));
+        LinkLook.Row(this, lit ? LinkLight.Pointed : LinkLight.None);
+    }
+
+    /// <summary>[S-11944] Pointing at the organiser's line publishes the organiser (and, as the card, the meeting).</summary>
+    private void OnOrganizerEntered(object sender, PointerRoutedEventArgs args)
+    {
+        if (_shown is { } item && CalendarShare.Person(item) is { } person)
+        {
+            _member?.Set(LinkTopics.HoveredPerson, person);
+        }
+    }
+
+    private void OnOrganizerExited(object sender, PointerRoutedEventArgs args) => _member?.Clear(LinkTopics.HoveredPerson);
 
     /// <summary>A line of the meeting: its 16 glyph, 8, the text in Body secondary.</summary>
     private static (Grid Row, TextBlock Text) DetailLine(string glyph)

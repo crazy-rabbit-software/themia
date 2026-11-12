@@ -120,3 +120,5 @@ its rows the kit's `KitList`), `EmailMenu.cs` (its properties-menu lines), `Prev
 Needs a live pass: a signed-in Microsoft, Google and IMAP account (the three styles, opening and
 replying, the quick actions, Mark read and Delete landing on the server, Write email), and the
 showcase views on the live desktop.
+- View links: a row is its sender; the pointer on it publishes the person, and the rows a person pointed at on
+  the view sent take the hover fill ([S-11940], [S-11942]).

@@ -39,6 +39,16 @@ public static class CalendarShare
     public static DateOnly? Toggle(DateOnly? selected, DateOnly day) => selected == day ? null : day;
 
     /// <summary>
+    /// [S-11943] The person an event is on the view's links: its organiser, by the address where the provider
+    /// gave one (so the same person as a mail's sender or a contact), else by the name it shows; none without one.
+    /// </summary>
+    public static PersonLink? Person(CalendarEvent item)
+    {
+        ArgumentNullException.ThrowIfNull(item);
+        return LinkKeys.PersonLink(item.OrganizerAddress, item.Organizer);
+    }
+
+    /// <summary>
     /// [S-3621] The day a widget shows once <paramref name="selected"/> is the selection: the month,
     /// week, day and year bring it into view (their anchor becomes it, so a month pages only when the
     /// day is in another month); the agenda keeps its own range and moves its page instead ([S-3622]).

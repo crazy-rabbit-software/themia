@@ -124,6 +124,9 @@ internal sealed partial class CalendarView
         if (_agendaItems.TryGetValue(item.Id, out var day) && day.Event is { } ev)
         {
             Describe(row, ev);
+
+            // [S-11940] An event's row is its organiser as well: pointed at, and lit while they are.
+            People.Row(row, CalendarShare.Person(ev));
         }
 
         // [S-11923] An event's row is its day: the pointer on it publishes that day, that day pointed at lights it.

@@ -55,3 +55,5 @@ config's are the module host's (`ContactsHostTests`, `OfficeConfigTests`); the m
 
 Needs a live pass: a Microsoft, Google and CardDAV address book with a few hundred people (search,
 the menu's email, call and message hand-offs), and the search box under the keyboard lease.
+- View links: a row or cell is its person (address, else name); the pointer or the keys' selection on it
+  publishes them, and their row takes the hover fill while they are pointed at on the view ([S-11940]).

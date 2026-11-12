@@ -51,13 +51,25 @@ public sealed class KitBinding : IDisposable
         _spec = spec;
         _actions = actions;
         _handle = handle;
-        List = new KitList(host, spec, actions, Run) { Clock = _clock };
         Header = new KitHeader(host);
         State = new KitStatePanel(glyph, host) { Visibility = Visibility.Collapsed };
     }
 
     /// <summary>The list part: the view puts it in its slot (and the new one after <see cref="UseSpec"/>).</summary>
-    public KitList List { get; private set; }
+    public KitList List => _list ??= NewList(_spec);
+
+    private KitList? _list;
+
+    /// <summary>
+    /// [S-11942] What only the widget knows of a row the kit's list drew (its place on the view's links),
+    /// and the moment before the rows are drawn again: handed to every list the binding makes.
+    /// </summary>
+    public Action<KitItem, FrameworkElement>? Decorate { get; init; }
+
+    /// <inheritdoc cref="Decorate"/>
+    public Action? Redrawing { get; init; }
+
+    private KitList NewList(KitSpec spec) => new(_host, spec, _actions, Run) { Clock = _clock, Decorate = Decorate, Redrawing = Redrawing };
 
     /// <summary>[S-7064] The header extras: the view hands it to the card as its <c>HeaderTrailing</c>.</summary>
     public KitHeader Header { get; }
@@ -85,7 +97,10 @@ public sealed class KitBinding : IDisposable
         {
             ArgumentNullException.ThrowIfNull(value);
             _clock = value;
-            List.Clock = value;
+            if (_list is not null)
+            {
+                _list.Clock = value;
+            }
         }
     }
 
@@ -179,7 +194,7 @@ public sealed class KitBinding : IDisposable
 
         _spec = spec;
         List.Detach();
-        List = new KitList(_host, spec, _actions, Run) { Clock = _clock };
+        _list = NewList(spec);
 
         if (_attached)
         {

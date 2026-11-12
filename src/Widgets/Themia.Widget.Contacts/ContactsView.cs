@@ -165,6 +165,7 @@ internal sealed partial class ContactsView : Grid, IWidgetView, IWidgetOpens, IW
         }
 
         Strings.Changed += OnLanguage;
+        _links.Join(_surface?.Links);
 
         // The ticker runs once as it subscribes.
         _poll = ticker.Subscribe(Poll, () => _ = RefreshAsync(force: false));
@@ -223,6 +224,7 @@ internal sealed partial class ContactsView : Grid, IWidgetView, IWidgetOpens, IW
         _state.Detach();
         _header.Detach();
         ClearRows();
+        _links.Leave();
     }
 
     // -----------------------------------------------------------------------------------------
@@ -437,6 +439,7 @@ internal sealed partial class ContactsView : Grid, IWidgetView, IWidgetOpens, IW
         }
 
         SelectAndShow(next);
+        PointSelected();
         return true;
     }
 
@@ -581,6 +584,7 @@ internal sealed partial class ContactsView : Grid, IWidgetView, IWidgetOpens, IW
         }
 
         _hovers.Clear();
+        People.Clear();
         _rows.Clear();
         _fade?.Dispose();
         _fade = null;
@@ -764,6 +768,7 @@ internal sealed partial class ContactsView : Grid, IWidgetView, IWidgetOpens, IW
         ItemFill.Paint(row, ItemRole.Row);
         _hovers.Add(Fluent.Hover(row));
         _rows[contact.Id] = row;
+        LinkRow(row, contact);
         ToolTipService.SetToolTip(row, Tooltip(contact));
         WidgetItems.Mark(row); // [S-814]
 

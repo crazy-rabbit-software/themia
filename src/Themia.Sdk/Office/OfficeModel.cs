@@ -28,7 +28,11 @@ public sealed record CalendarEvent
 
     public string? Location { get; init; }
 
+    /// <summary>The organiser as the provider names them: their name, else their address.</summary>
     public string? Organizer { get; init; }
+
+    /// <summary>[S-11943] The organiser's mail address where the provider gave one; null where it named them only.</summary>
+    public string? OrganizerAddress { get; init; }
 
     /// <summary>The provider's own page for the event; null for CalDAV, which has none.</summary>
     public string? WebLink { get; init; }

@@ -186,6 +186,7 @@ public static class SampleSchedule
             End = start.AddMinutes(slot.Minutes),
             Location = slot.Location,
             Organizer = slot.Organizer,
+            OrganizerAddress = SampleCast.Contacts.Append(SampleCast.Owner).FirstOrDefault(p => p.Name == slot.Organizer)?.Email,
             JoinUrl = slot.Joins ? JoinUrl : null,
             AccountId = Targets[slot.Calendar].AccountId,
             CalendarId = Targets[slot.Calendar].CalendarId,

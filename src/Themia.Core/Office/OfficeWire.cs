@@ -376,6 +376,7 @@ public static class OfficeWire
         {
             Location = Blank(item.Location?.DisplayName),
             Organizer = Blank(item.Organizer?.EmailAddress?.Name) ?? Blank(item.Organizer?.EmailAddress?.Address),
+            OrganizerAddress = Blank(item.Organizer?.EmailAddress?.Address),
             WebLink = Blank(item.WebLink),
             JoinUrl = MeetingLinks.Find([item.OnlineMeeting?.JoinUrl, item.OnlineMeetingUrl], item.Location?.DisplayName, item.BodyPreview),
             Declined = string.Equals(item.ResponseStatus?.Response, "declined", StringComparison.OrdinalIgnoreCase),
@@ -414,6 +415,7 @@ public static class OfficeWire
         {
             Location = Blank(item.Location),
             Organizer = Blank(item.Organizer?.DisplayName) ?? Blank(item.Organizer?.Email),
+            OrganizerAddress = Blank(item.Organizer?.Email),
             WebLink = Blank(item.HtmlLink),
             JoinUrl = MeetingLinks.Find(
                 [item.HangoutLink, .. (item.ConferenceData?.EntryPoints ?? []).Where(p => string.Equals(p?.EntryPointType, "video", StringComparison.OrdinalIgnoreCase)).Select(p => p?.Uri)],

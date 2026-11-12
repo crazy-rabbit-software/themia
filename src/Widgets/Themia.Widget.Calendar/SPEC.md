@@ -142,3 +142,5 @@ Needs a live pass: a signed-in Microsoft, Google and CalDAV calendar in every st
 an event in Outlook or the browser, the hover link with Next meeting and the week planner on the
 view), and the showcase views on the live desktop.
 - View links: publishes and follows the day under the pointer in every style without moving ([S-11923]), besides the selected day, the range and the event ([S-3620]..[S-3625]).
+- View links: an agenda row publishes its organiser and lights while they are pointed at on the view
+  ([S-11940], [S-11943]).

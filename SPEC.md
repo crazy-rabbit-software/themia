@@ -5783,6 +5783,25 @@ The app under the pointer (`HoveredApp`) and the app picked (`SelectedApp`) beyo
   Spotify, …). Windows' own toasts (`Windows.SystemToast.*`) and any other id are none: a sender is never
   guessed. A shortcut is its app when its target is an executable ([S-11934]).
 
+The person under the pointer (`HoveredPerson`, `PersonLink`, a hover; keyed by `LinkKeys.Person`, [S-11941]):
+
+- **[S-11940]** A mail's sender (`email`'s rows), a contact (`contacts`' rows and cells, and the selection its
+  keys move, [S-3307]), a meeting's organiser (`nextMeeting`'s organiser line, `upNext`'s rows, the calendar's
+  agenda rows) is a person: the pointer on it publishes them, and while a person is pointed at anywhere on
+  the view every row that is them takes the item layer's hover fill, in place ([S-11901]); `nextMeeting` lights
+  as a whole card ([S-11944]). A row without a person (no organiser) takes no part.
+- **[S-11942]** A kit list's rows take part through its binding (`KitBinding.Decorate`, `Redrawing`: handed to
+  every list it makes, a style's new list too), as a kit view's own list does ([S-11925]); Mail's row is its
+  message's sender (`FromAddress`, else `FromName`).
+- **[S-11943]** An event's person is its organiser (`CalendarShare.Person`): by their address where the provider
+  gave one (Graph's `organizer.emailAddress.address`, Google's `organizer.email`, an iCalendar `ORGANIZER`'s
+  `mailto:`; `CalendarEvent.OrganizerAddress`, kept on the offline shelf), so the organiser is the same person
+  as their mail and their contact; else by the name the event shows, folded. The sample day's organisers carry
+  the sample cast's addresses.
+- **[S-11944]** `nextMeeting`: pointing at its organiser's line publishes the organiser (the card publishes its
+  meeting, [S-4825]); the whole card takes the item layer's hover fill while its organiser is pointed at
+  elsewhere, as for its meeting ([S-11903]), and only while the line shows (Show organizer on).
+
 Topics:
 
 <!-- view-links:table (made from the descriptors; ViewLinksConformanceTests) -->
@@ -5795,7 +5814,7 @@ Topics:
 | `HoveredEvent` | Hover | `calendar`, `nextMeeting`, `upNext`, `weekPlanner` | `calendar`, `nextMeeting`, `upNext`, `weekPlanner` |
 | `HoveredInstant` | Hover | `batteryHistory`, `cpuCores`, `cpuHistory`, `diskHistory`, `exchangeHistory`, `gpuHistory`, `memoryHistory`, `networkHistory`, `pingHistory`, `stockHistory` | `battery`, `batteryHistory`, `cpu`, `cpuCores`, `cpuHistory`, `disk`, `diskHistory`, `exchangeHistory`, `exchangeRate`, `gpu`, `gpuHistory`, `memory`, `memoryHistory`, `network`, `networkHistory`, `ping`, `pingHistory`, `stock`, `stockHistory` |
 | `HoveredDate` | Hover | `calendar`, `habitTracker`, `screenTimeChart`, `tasks`, `weatherForecast`, `weekPlanner` | `calendar`, `habitTracker`, `screenTimeChart`, `tasks`, `upNext`, `weatherForecast`, `weekPlanner` |
-| `HoveredPerson` | Hover | none | none |
+| `HoveredPerson` | Hover | `calendar`, `contacts`, `email`, `nextMeeting`, `upNext` | `calendar`, `contacts`, `email`, `nextMeeting`, `upNext` |
 | `HoveredFile` | Hover | none | none |
 | `HoveredDrive` | Hover | none | none |
 | `HoveredDevice` | Hover | none | none |
