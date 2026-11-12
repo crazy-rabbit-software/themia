@@ -6,6 +6,7 @@ using Themia.Core.Geometry;
 using Themia.Core.Model;
 using Themia.Core.Settings;
 using Themia.Core.Shell;
+using Themia.Core.Widgets;
 using Themia.Sdk;
 using Themia.Sdk.WinUI;
 using Windows.Foundation;
@@ -59,27 +60,76 @@ internal static partial class EditBarRender
         return rect;
     }
 
-    /// <summary>[S-3506] The add menu as the flyout under Add widget presents it.</summary>
-    internal static FrameworkElement AddMenu()
+    /// <summary>
+    /// [S-11707] The add page as the surface builds it: the whole catalogue and every ready-made group, its
+    /// picks doing nothing, no tile over the free plan (a developer build is unrestricted).
+    /// </summary>
+    internal static AddPageFlyout AddMenu()
     {
-        var menu = PickerRender.Presenter(new WidgetPicker(_ => { }, () => { }, new PixelRect(0, 0, PickerRender.WorkWidth, PickerRender.WorkHeight)));
-        UiLanguage.ApplyFlow(menu);
-        return menu;
+        var page = AddPage.Of([.. ModuleCatalog.Widgets.Select(d => d.Id)], ReadyMadeGroups.Offered());
+        var flyout = new AddPageFlyout(page, new AddPageCommands(_ => { }, () => { }, _ => false));
+        UiLanguage.ApplyFlow(flyout);
+        return flyout;
     }
 
     /// <summary>
-    /// [S-3506] <paramref name="menu"/> on <paramref name="canvas"/>, centred under the bar's Add
-    /// widget button (where it starts is only known once the bar is laid out), a gap below the bar.
+    /// [S-11707] The add page on <paramref name="canvas"/>, hung flush under <paramref name="bar"/> at
+    /// (<paramref name="barX"/>, <paramref name="barY"/>), as wide, inside a work area of
+    /// <paramref name="screenWidth"/> × <paramref name="screenHeight"/>, as the surface hangs it.
     /// </summary>
-    internal static void HangAddMenu(Canvas canvas, FrameworkElement menu, FrameworkElement bar, double barX, double barY, double screenWidth)
+    internal static void HangAddMenu(Canvas canvas, AddPageFlyout menu, FrameworkElement bar, double barX, double barY, double screenWidth, double screenHeight = OpenHeight)
     {
         canvas.Children.Add(menu);
-        menu.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
+        bar.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
         canvas.UpdateLayout();
-        var addWidth = bar is EditBar edit ? edit.AddWidth : 0;
-        var addCentre = barX + (bar is EditBar hung ? hung.AddOffset : 0) + (addWidth / 2);
-        Canvas.SetLeft(menu, Math.Clamp(addCentre - (menu.DesiredSize.Width / 2), Fluent.Space2, screenWidth - menu.DesiredSize.Width - Fluent.Space2));
-        Canvas.SetTop(menu, barY + bar.DesiredSize.Height + Fluent.Space1);
+        menu.Place(new PixelRect(barX, barY, bar.DesiredSize.Width, bar.DesiredSize.Height), new PixelRect(0, 0, screenWidth, screenHeight));
+        menu.View.Drawn += () => menu.Place(new PixelRect(barX, barY, bar.DesiredSize.Width, bar.DesiredSize.Height), new PixelRect(0, 0, screenWidth, screenHeight));
+        canvas.UpdateLayout();
+    }
+
+    /// <summary>
+    /// [S-11712] One picture of the add page open under the real bar (Add marked) on a stand-in display of
+    /// <paramref name="width"/> × <paramref name="height"/> over the busy wallpaper: <paramref name="tab"/>
+    /// chosen or <paramref name="search"/> typed, every picture the page asked for drawn before the shot.
+    /// </summary>
+    internal static async Task AddPageShot(Grid screen, string path, double width, double height, AddFolderId? tab, string? search)
+    {
+        screen.Children.Clear();
+        screen.Width = width;
+        screen.Height = height;
+        var flat = screen.Background;
+        screen.Background = Wallpaper();
+        var canvas = new Canvas { Clip = new Microsoft.UI.Xaml.Media.RectangleGeometry { Rect = new Rect(0, 0, width, height) } };
+        screen.Children.Add(canvas);
+        Blobs(canvas);
+
+        var bar = Bar(new EditBarState(null, 0, null, false, width - (2 * ShellMetricsBarTop)) { AddOpen = true });
+        var barRect = PlaceBar(canvas, bar, width);
+        var page = AddMenu();
+        HangAddMenu(canvas, page, bar, barRect.X, barRect.Y, width, height);
+        if (tab is { } chosen)
+        {
+            page.View.ShowTab(chosen);
+        }
+
+        if (search is not null)
+        {
+            page.View.SetQuery(search);
+        }
+
+        canvas.UpdateLayout();
+        await Task.Delay(300).ConfigureAwait(true);
+        // A render is bounded: a picture that never finishes is said, and the shot shows its glyph.
+        if (await Task.WhenAny(page.View.PicturesDrawn, Task.Delay(TimeSpan.FromMinutes(1))).ConfigureAwait(true) != page.View.PicturesDrawn)
+        {
+            Console.WriteLine($"editbar: {System.IO.Path.GetFileName(path)}: the pictures did not finish within a minute");
+        }
+        await Task.Delay(300).ConfigureAwait(true);
+
+        await RenderPng.SaveAsync(screen, path).ConfigureAwait(true);
+        Console.WriteLine($"editbar: wrote {path}");
+        screen.Background = flat;
+        screen.Width = ScreenWidth;
     }
 
     /// <summary>

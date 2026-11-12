@@ -181,6 +181,13 @@ public sealed class AddPageTests
     }
 
     [Fact]
+    public void S11706_a_groups_subject_finds_it_as_a_widgets_does()
+    {
+        var found = Page.Find("music").SelectMany(s => s.Tiles).ToList();
+        Assert.Contains(new AddGroupTile(ReadyMadeGroups.NowPlaying), found);
+    }
+
+    [Fact]
     public void S11706_spaces_search_nothing_and_no_match_is_no_section()
     {
         Assert.False(AddPage.Searching("   "));

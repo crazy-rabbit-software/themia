@@ -61,13 +61,13 @@ internal sealed partial class DesktopWindow
             CanPaste: _host.Clipboard.HasContent,
             HasWidgets: SelectionRules.All(view, HiddenIds()).Count > 0);
 
-        return ItemMenu.ShowAt(_menuAnchor, OnMenuAnchor(at), SurfaceMenu(facts, at));
+        return ItemMenu.ShowAt(_menuAnchor, OnMenuAnchor(at), SurfaceMenu(facts));
     }
 
-    /// <summary>[S-1744] The entries for this surface. <paramref name="at"/> is where the picker opens.</summary>
-    private List<ItemMenuEntry> SurfaceMenu(SurfaceMenuFacts facts, Point at)
+    /// <summary>[S-1744] The entries for this surface; [S-11707] its Add widget opens the add page under the bar.</summary>
+    private List<ItemMenuEntry> SurfaceMenu(SurfaceMenuFacts facts)
         => SurfaceEntries(facts, new SurfaceMenuActions(
-            AddWidget: () => OpenPickerAt(at),
+            AddWidget: OpenAddPage,
             View: () => OpenPage(Core.Settings.SettingsPageId.Views, []),
             Display: () => OpenPage(Core.Settings.SettingsPageId.Display, []),
             Settings: () => OpenPage(Core.Settings.SettingsPageId.General, []),
@@ -103,33 +103,9 @@ internal sealed partial class DesktopWindow
     }
 
     /// <summary>
-    /// [S-1744] The Add-widget picker, opened where the right-click was rather than under the
-    /// toolbar: choosing a widget then starts the placement that follows the pointer ([S-1587]).
-    /// </summary>
-    /// <summary>[S-5551] The desktop's background menu's Add widget, once edit mode is on: the picker where the right-click was.</summary>
-    internal void OpenPickerFromDesktop(Point at)
-    {
-        if (!_closed && EditMode)
-        {
-            OpenPickerAt(at);
-        }
-    }
-
-    private void OpenPickerAt(Point at)
-    {
-        if (_closed || !EditMode)
-        {
-            return;
-        }
-
-        BuildAddFlyout().ShowAt(_menuAnchor, new FlyoutShowOptions { Position = OnMenuAnchor(at), Placement = FlyoutPlacementMode.Bottom, ShowMode = FlyoutShowMode.Standard });
-    }
-
-    /// <summary>
-    /// [S-1998] The add menu from a key (the global Ctrl+Alt+Shift+W, or Ctrl+N in edit mode): at the
-    /// pointer when it is on this display, else in the middle of the work area, as the Menu key opens
-    /// the surface menu. The surface takes the foreground first — a hotkey press is what lets it —
-    /// or the picker's search box would get none of the keys typed into it ([S-3514]).
+    /// [S-1998] The add page from a key (the global Ctrl+Alt+Shift+W, or Ctrl+N in edit mode), under this
+    /// display's bar. The surface takes the foreground first — a hotkey press is what lets it — or the
+    /// page's search box would get none of the keys typed into it ([S-11708]).
     /// </summary>
     internal void OpenAddMenuFromKeys()
     {
@@ -142,24 +118,10 @@ internal sealed partial class DesktopWindow
         {
             if (Win32.GetForegroundWindow() != _hwnd && !Win32.SetForegroundWindow(_hwnd))
             {
-                Log.Info(Scope, "could not take the foreground for the add menu; typing will not reach its search");
+                Log.Info(Scope, "could not take the foreground for the add page; typing will not reach its search");
             }
 
-            Point at;
-            var metrics = Metrics;
-
-            if (IsUnderCursor && Win32.GetCursorPos(out var cursor))
-            {
-                var (x, y) = FractionOf(cursor);
-                at = new Point(x * metrics.Width, y * metrics.Height);
-            }
-            else
-            {
-                var area = GridGeometry.AllowedPixels(metrics);
-                at = new Point(area.X + (area.Width / 2), area.Y + (area.Height / 2));
-            }
-
-            OpenPickerAt(at);
+            OpenAddPage();
         }
         catch (Exception ex)
         {

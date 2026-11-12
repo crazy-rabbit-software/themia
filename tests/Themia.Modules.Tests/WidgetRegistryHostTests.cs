@@ -183,7 +183,7 @@ public sealed class WidgetRegistryHostTests
         Assert.Equal(widgets.Count, widgets.Select(w => (w.Add.Shelf, w.Add.Group, w.Add.Rank)).Distinct().Count());
         var popular = widgets.Where(w => w.Add.Popular is not null).Select(w => w.Add.Popular!.Value).ToList();
         Assert.Equal(Enumerable.Range(0, popular.Count), popular.Order());
-        Assert.Equal(widgets.Count, AddTree.Homes(AddTree.On([.. widgets.Select(w => w.Id)])).Count);
+        Assert.Equal(widgets.Count, AddPage.Of([.. widgets.Select(w => w.Id)], []).Homes.Count);
     }
 
     /// <summary>

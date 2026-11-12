@@ -23,7 +23,18 @@ public static class SampleMachine
     {
         ArgumentNullException.ThrowIfNull(ticker);
         ArgumentNullException.ThrowIfNull(dispatcher);
-        return new Installed(new SystemHub(ticker, dispatcher, new Recording()));
+        return new Installed(Hub(ticker, dispatcher));
+    }
+
+    /// <summary>
+    /// [S-11710] A hub over the sample machine that is not installed: the add page's pictures hand it to
+    /// the cards they build, so the app's own hub (this PC) stays every desktop card's. Dispose it.
+    /// </summary>
+    internal static SystemHub Hub(Ticker ticker, DispatcherQueue dispatcher)
+    {
+        ArgumentNullException.ThrowIfNull(ticker);
+        ArgumentNullException.ThrowIfNull(dispatcher);
+        return new SystemHub(ticker, dispatcher, new Recording());
     }
 
     private sealed class Installed : IDisposable

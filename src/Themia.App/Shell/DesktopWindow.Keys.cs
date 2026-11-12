@@ -137,7 +137,7 @@ internal sealed partial class DesktopWindow
     /// </summary>
     private void BackOneStep()
     {
-        if (_flyout is not null)
+        if (BarMenuOpen)
         {
             // [S-2327] Escape closes the open flyout before it ends edit mode.
             CloseFlyout(focusEntry: false);

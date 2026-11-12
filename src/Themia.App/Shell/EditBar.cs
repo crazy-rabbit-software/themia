@@ -21,17 +21,15 @@ using B = Themia.Sdk.Kit.ShellMetrics.Bar;
 namespace Themia.App.Shell;
 
 /// <summary>What the edit bar's entries and buttons do, given by the surface (or a render's stand-in).</summary>
-/// <param name="AddFlyout">[S-3501] The add menu, built anew each time the bar is built.</param>
+/// <param name="Add">[S-11707] Add widget: the add page opened under the bar, or closed again.</param>
 /// <param name="Page">[S-2327] A page's entry: its flyout opened, or closed again.</param>
 /// <param name="Selection">[S-2343] The selection's entry: its flyout opened, or closed again.</param>
-/// <param name="AddOpening">[S-2327] The add menu is opening: the open flyout closes.</param>
 /// <param name="IntoFlyout">[S-2327] Down from the bar: the keyboard into the open flyout.</param>
 /// <param name="Done">Leaves edit mode.</param>
 internal sealed record EditBarCommands(
-    Func<Flyout> AddFlyout,
+    Action Add,
     Action<SettingsPageId> Page,
     Action Selection,
-    Action AddOpening,
     Action IntoFlyout,
     Action Done);
 
@@ -40,7 +38,11 @@ internal sealed record BarSelection(string Words, string Glyph);
 
 /// <summary>[S-2320] What the bar shows now: the selection's entry (none with nothing selected), the problems, which entry's flyout is open, the room it has.</summary>
 /// <param name="Open">The page whose flyout is open; with <paramref name="SelectionOpen"/> the selection's; neither: none.</param>
-internal sealed record EditBarState(BarSelection? Selection, int Errors, SettingsPageId? Open, bool SelectionOpen, double Widest);
+internal sealed record EditBarState(BarSelection? Selection, int Errors, SettingsPageId? Open, bool SelectionOpen, double Widest)
+{
+    /// <summary>[S-11707] The add page is open: Add is marked as an open entry is.</summary>
+    public bool AddOpen { get; init; }
+}
 
 /// <summary>
 /// [S-2320]..[S-2324] The edit bar, Karpo's command bar (karpo-app, docs/widgets.md §575, §578, §596, §608;
@@ -73,6 +75,7 @@ internal sealed partial class EditBar : Grid
     private Rectangle? _divider;
     private Button? _errors;
     private Button? _add;
+    private Rectangle? _addPill;
     private Button? _done;
 
     private EditBarCommands _commands;
@@ -144,11 +147,15 @@ internal sealed partial class EditBar : Grid
         Entry.Subtle(_errors);
         _row.Children.Add(_errors);
 
-        // [S-3501] Windows' standard button: the one command that adds, its "+" in the accent.
-        var addFlyout = commands.AddFlyout();
-        addFlyout.Opening += (_, _) => commands.AddOpening();
-        _add = new Button { Content = Entry.Labelled(Glyphs.Add, Str.Shell_Toolbar_AddWidget.Text(), ShellBrush.Of(ShellRole.AccentText)), Flyout = addFlyout, Tag = "add" };
+        // [S-3501] Windows' standard button: the one command that adds, its "+" in the accent; [S-11707]
+        // it opens the add page under the bar, and while that is open the accent's pill marks it.
+        _addPill = Entry.Pill();
+        var addWords = Entry.Labelled(Glyphs.Add, Str.Shell_Toolbar_AddWidget.Text(), ShellBrush.Of(ShellRole.AccentText));
+        addWords.VerticalAlignment = VerticalAlignment.Center;
+        _add = new Button { Content = new Grid { Children = { addWords, _addPill } }, Tag = "add" };
+        _add.Click += (_, _) => commands.Add();
         Entry.Sized(_add);
+        _add.VerticalContentAlignment = VerticalAlignment.Stretch;
         AutomationProperties.SetName(_add, Str.Shell_Toolbar_AddWidget.Text());
         _row.Children.Add(_add);
 
@@ -172,6 +179,7 @@ internal sealed partial class EditBar : Grid
         _pages.Clear();
         _selection = null;
         _divider = null;
+        _addPill = null;
         _errors = _add = _done = null;
     }
 
@@ -240,6 +248,7 @@ internal sealed partial class EditBar : Grid
         var add = plan.Of(BarPartKind.Add)!.Value;
         Canvas.SetLeft(_add, add.X);
         _add!.Width = add.Width;
+        _addPill!.Visibility = state.AddOpen ? Visibility.Visible : Visibility.Collapsed;
         var done = plan.Of(BarPartKind.Done)!.Value;
         Canvas.SetLeft(_done, done.X);
         _done!.Width = done.Width;
@@ -278,6 +287,9 @@ internal sealed partial class EditBar : Grid
         var entry = page is { } id ? _pages.GetValueOrDefault(id) : _selection;
         entry?.Focus(FocusState.Keyboard);
     }
+
+    /// <summary>[S-11708] The keyboard back on Add (the add page closed from the keyboard).</summary>
+    public void FocusAdd() => _add?.Focus(FocusState.Keyboard);
 
     /// <summary>[S-2327] Whether <paramref name="node"/> is on the bar: a press there toggles or swaps a flyout, never closes it first.</summary>
     public bool IsOnBar(DependencyObject node)
@@ -327,7 +339,10 @@ internal sealed partial class EditBar : Grid
     {
         private readonly Border _icon = new() { Width = B.Icon, Height = B.Icon, VerticalAlignment = VerticalAlignment.Center };
         private readonly TextBlock _words;
-        private readonly Rectangle _pill = new()
+        private readonly Rectangle _pill = Pill();
+
+        /// <summary>[S-2321] The open entry's accent pill at its foot (hidden until open).</summary>
+        internal static Rectangle Pill() => new()
         {
             Width = B.PillWidth,
             Height = B.PillHeight,
@@ -338,6 +353,7 @@ internal sealed partial class EditBar : Grid
             Fill = Family.Brush(ColourRole.Accent),
             Visibility = Visibility.Collapsed,
             IsHitTestVisible = false,
+            Margin = new Thickness(0, 0, 0, -FamilyShape.Hairline),
         };
 
         public Entry(string glyph, string words)

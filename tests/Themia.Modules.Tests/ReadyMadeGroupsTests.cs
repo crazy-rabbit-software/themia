@@ -263,24 +263,22 @@ public sealed class ReadyMadeGroupsTests
     // ---- [S-2473] the add menu ---------------------------------------------------------------------
 
     [Fact]
-    public void S2473_the_menu_offers_the_ready_made_groups_first_and_enter_picks_one()
+    public void S2473_the_add_page_opens_on_the_ready_made_groups_first()
     {
-        var menu = AddTree.WithReadyMade(AddTree.On([.. ModuleCatalog.Widgets.Select(w => w.Id)]), ReadyMadeGroups.Offered());
+        var page = AddPage.Of([.. ModuleCatalog.Widgets.Select(w => w.Id)], ReadyMadeGroups.Offered());
 
-        Assert.Equal(AddFolderId.ReadyMade, menu[0].Shelf.Id);
-        Assert.Equal(ReadyMadeGroups.Offered(), menu[0].Rows.Cast<AddReadyMade>().Select(r => r.Group));
-
-        var step = AddMenuKeys.Move(menu, new AddMenuNav([], new AddSpot(0, 1)), WidgetKey.Enter);
-        Assert.Equal(AddMenuAction.Pick, step.Action);
-        Assert.Same(ReadyMadeGroups.MyDay, step.ReadyMade);
+        Assert.Equal(AddFolderId.Start, page.Tabs[0].Id);
+        var first = page.Sections(AddFolderId.Start)[0];
+        Assert.Equal(AddSectionKind.ReadyMade, first.Kind);
+        Assert.Equal(new AddGroupTile(ReadyMadeGroups.MyDay), first.Tiles[0]);
     }
 
     [Fact]
-    public void S2473_no_ready_made_group_no_column()
+    public void S2473_no_ready_made_group_no_ready_made_section()
     {
-        var menu = AddTree.On([.. ModuleCatalog.Widgets.Select(w => w.Id)]);
+        var page = AddPage.Of([.. ModuleCatalog.Widgets.Select(w => w.Id)], []);
 
-        Assert.Same(menu, AddTree.WithReadyMade(menu, []));
+        Assert.DoesNotContain(page.Tabs.SelectMany(t => page.Sections(t.Id)), s => s.Kind == AddSectionKind.ReadyMade);
     }
 
     // ---- [S-2475] the picture ----------------------------------------------------------------------

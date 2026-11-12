@@ -58,6 +58,12 @@ internal sealed partial class AppHost
         surface.RequestSettings(Themia.Core.Settings.SettingsMenu.Keys.Pro);
     }
 
+    /// <summary>
+    /// [S-1065] [S-11702] Whether creating <paramref name="widgets"/> widgets would be refused, asked
+    /// quietly (no notice, no log): the add page's Pro hint on a tile. Picking it still meets the gate.
+    /// </summary>
+    public bool WouldRefuse(int widgets) => LicenseRules.WouldExceed(License.Status.Tier, LicenseUsage.Of(State), widgets);
+
     /// <summary>[S-1065] The paste gate: what the paste adds once a cut's original is gone.</summary>
     public bool AllowPaste(PastePlan plan) => AllowCreate(LicenseUsage.AddedByPaste(State, plan));
 }

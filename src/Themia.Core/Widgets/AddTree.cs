@@ -1,5 +1,4 @@
 using Themia.Core.Localization;
-using Themia.Core.Model;
 using Themia.Sdk;
 
 namespace Themia.Core.Widgets;
@@ -9,72 +8,45 @@ public abstract record AddNode;
 
 /// <summary>
 /// A widget. <paramref name="Again"/>: shown here once more, its home being elsewhere in the tree
-/// (Popular's rows, [S-3511]); search lists it at its home only.
+/// (Popular's, [S-3511]); search lists it at its home only.
 /// </summary>
 public sealed record AddLeaf(WidgetId Kind, bool Again = false) : AddNode;
 
-/// <summary>A line between two runs of a folder's rows.</summary>
+/// <summary>A line between two runs of a folder's rows: the order the runs come in.</summary>
 public sealed record AddLine : AddNode;
 
-/// <summary>A folder: a row opening a submenu of its rows; at the top, a column under its heading.</summary>
-/// <param name="Icon">The kind whose icon its row wears; ignored for a top column, which is a heading.</param>
+/// <summary>A folder: a subject (a tab of the add page) or a family inside one (a heading over its widgets).</summary>
+/// <param name="Icon">The kind whose glyph stands for it: its first widget's.</param>
 public sealed record AddShelf(AddFolderId Id, LocalText Title, WidgetId Icon, IReadOnlyList<AddNode> Rows) : AddNode;
 
-/// <summary>A row of the tree as the menu shows it: a pick, a folder, or a line.</summary>
-public abstract record AddRow;
-
-/// <summary>A row that adds <see cref="Kind"/>; <see cref="Again"/> as <see cref="AddLeaf.Again"/>.</summary>
-public sealed record AddPick(WidgetId Kind, bool Again) : AddRow;
-
-/// <summary>A folder as the menu shows it: always two rows or more.</summary>
-public sealed record AddFolder(AddShelf Shelf, IReadOnlyList<AddRow> Rows) : AddRow;
-
-/// <summary>A line as the menu shows it: always between two rows.</summary>
-public sealed record AddRule : AddRow;
-
-/// <summary>[S-5523] A row that places the widget of one desktop item, preset to it.</summary>
-public sealed record AddDesktopItem(DesktopItem Item) : AddRow;
-
-/// <summary>[S-2473] A row that places a ready-made group: its glyph, its name and how many widgets it holds.</summary>
-public sealed record AddReadyMade(ReadyMadeGroup Group) : AddRow;
-
-/// <summary>One of the menu's top columns: its heading's shelf and its rows.</summary>
-public sealed record AddColumn(AddShelf Shelf, IReadOnlyList<AddRow> Rows);
-
-/// <summary>A widget's home in the tree: the folders it is in under its top column, outermost first.</summary>
+/// <summary>[S-3513] A widget's home: the folders it is in, outermost first (its subject, then its family when it has one).</summary>
 public sealed record AddHome(WidgetId Kind, IReadOnlyList<AddShelf> Path);
 
 /// <summary>
-/// [S-3510..S-3512] The add menu's tree, after Karpo's add list (<c>karpo-app</c>, docs/widgets.md
-/// §136): the menu asks the one question a person adding a widget has — what do I want? — and
-/// answers it by subject. Two top columns, <b>Popular</b> (a fixed handful, each again from its home)
-/// and <b>Browse</b> (a row per subject, opening its submenu as Windows' "New ›" does); inside a
-/// subject a <b>family</b> — one widget in several layouts or parts (the calendar's five layouts,
-/// the visualizer's five designs, a reading's meter and its details, the seven power buttons) — is
-/// one row opening its own submenu. Never deeper than that.
+/// [S-3510] [S-3511] The add page's tree, after Karpo's add list (<c>karpo-app</c>, docs/widgets.md
+/// §136): it answers the one question a person adding a widget has — what do I want? — by subject.
+/// <b>Popular</b> (a fixed handful, each again from its home) and <b>Browse</b> (a folder per subject);
+/// inside a subject a <b>family</b> — one widget in several parts (a reading's meter and its details,
+/// the seven power buttons) — is a folder of its own. Never deeper than that. The add page
+/// (<see cref="AddPage"/>) draws it: a subject a tab, a family a heading over its widgets.
 /// <para>
 /// The folders are declared here; each widget places itself in one through its descriptor
-/// (<see cref="WidgetDescriptor.Add"/>, [S-6907]). <see cref="On"/> resolves the tree against what
-/// the catalogue offers, so a kind the tree has no home for is still listed, in
-/// <see cref="AddFolderId.More"/>, while <c>AddMenuTests</c> fail until it has one.
+/// (<see cref="WidgetDescriptor.Add"/>, [S-6907]). A kind the tree has no home for is still listed,
+/// in <see cref="AddFolderId.More"/>, while <c>AddMenuTests</c> fail until it has one.
 /// </para>
 /// </summary>
 public static class AddTree
 {
-    /// <summary>[S-3512] The most rows a column or a folder holds, a line counted as a row; Quick settings alone is longer.</summary>
-    public const int MostRows = 12;
-
     private static readonly AddLine Line = new();
 
-    /// <summary>A folder of the tree: its heading and where it stands among its parent's rows (a line parts two runs).</summary>
     /// <summary>A folder of the tree; a null title is its first widget's name (a family named after its reading, [S-3511]).</summary>
     private sealed record Folder(AddFolderId Id, Str? Title, AddFolderId Parent, int Group, int Rank);
 
     /// <summary>
     /// [S-3511] The tree's folders: the subjects under Browse, in the order a person looks for them,
     /// and the families inside a subject (a reading's meter and its details, the screen time parts,
-    /// the power buttons, every quick setting). The folders are the host's; the widgets place
-    /// themselves in them ([S-6907], <see cref="AddPlacement"/>), so this names no widget.
+    /// the power buttons). The folders are the host's; the widgets place themselves in them ([S-6907],
+    /// <see cref="AddPlacement"/>), so this names no widget.
     /// </summary>
     private static readonly Folder[] Folders =
     [
@@ -101,24 +73,21 @@ public static class AddTree
     private static readonly Lazy<(AddShelf Popular, AddShelf Browse)> Tree = new(() => Build(ModuleCatalog.Widgets));
 
     /// <summary>
-    /// [S-3511] The first column: what most people add first, each again where it is at home, in the
-    /// order of how often it is wanted (each widget's <see cref="AddPlacement.Popular"/>).
+    /// [S-3511] What most people add first, each again where it is at home, in the order of how often
+    /// it is wanted (each widget's <see cref="AddPlacement.Popular"/>): the Start tab's Popular.
     /// </summary>
     public static AddShelf Popular => Tree.Value.Popular;
 
-    /// <summary>
-    /// [S-3511] The second column: every subject, a folder each. Inside each, the most wanted first.
-    /// </summary>
+    /// <summary>[S-3511] Every subject, a folder each, in the tabs' order. Inside each, the most wanted first.</summary>
     public static AddShelf Browse => Tree.Value.Browse;
 
     /// <summary>
-    /// [S-3511] Every toggle, as Windows' quick settings have them, lines parting them by subject. The
-    /// one folder longer than <see cref="MostRows"/>, since it is every toggle and a person looks for
-    /// one of them by its name.
+    /// [S-3511] Every toggle, as Windows' quick settings have them, lines parting them by subject: the
+    /// subject a person looks for one of them in by its name.
     /// </summary>
     public static AddShelf QuickSettings => Browse.Rows.OfType<AddShelf>().Single(shelf => shelf.Id == AddFolderId.QuickSettings);
 
-    /// <summary>The menu's top: its two columns, left to right.</summary>
+    /// <summary>The tree's top: Popular and Browse.</summary>
     public static IReadOnlyList<AddShelf> Top => [Popular, Browse];
 
     /// <summary>
@@ -138,7 +107,7 @@ public static class AddTree
         return null;
     }
 
-    /// <summary>The two columns over <paramref name="widgets"/>: the catalogue's, or a part of it in a test.</summary>
+    /// <summary>Popular and Browse over <paramref name="widgets"/>: the catalogue's, or a part of it in a test.</summary>
     internal static (AddShelf Popular, AddShelf Browse) Build(IReadOnlyList<WidgetDescriptor> widgets)
     {
         AddLeaf[] popular = [.. widgets.Where(w => w.Add.Popular is not null).OrderBy(w => w.Add.Popular).Select(w => new AddLeaf(w.Id, Again: true))];
@@ -180,214 +149,11 @@ public static class AddTree
         return new AddShelf(id, title?.Local() ?? ModuleCatalog.Of(icon).Label, icon, rows);
     }
 
-    /// <summary>A folder's row wears its first widget's icon.</summary>
+    /// <summary>A folder wears its first widget's icon.</summary>
     private static WidgetId IconOf(IReadOnlyList<AddNode> rows) => rows.FirstOrDefault(row => row is not AddLine) switch
     {
         AddLeaf leaf => leaf.Kind,
         AddShelf shelf => shelf.Icon,
-        _ => throw new InvalidOperationException("an add menu folder with no widget in it"),
+        _ => throw new InvalidOperationException("an add page folder with no widget in it"),
     };
-
-    /// <summary>Where what the tree leaves out stands meanwhile ([S-3511]); its rows are filled by <see cref="On"/>.</summary>
-    private static AddShelf More => new(AddFolderId.More, Str.AddMenu_Subject_More.Local(), Browse.Icon, []);
-
-    /// <summary>
-    /// [S-3511] What the menu shows of the tree for the kinds the catalogue offers, in the
-    /// catalogue's order: each top column with its rows, a folder only where it keeps two rows or more
-    /// (one is that row; none, no folder), a line only between two rows. An offered kind the tree has
-    /// no home for stands in <see cref="AddFolderId.More"/>, at Browse's end.
-    /// </summary>
-    public static IReadOnlyList<AddColumn> On(IReadOnlyList<WidgetId> offered)
-    {
-        ArgumentNullException.ThrowIfNull(offered);
-
-        var have = new HashSet<WidgetId>(offered);
-        var placed = new HashSet<WidgetId>();
-        var columns = new List<AddColumn>();
-
-        foreach (var shelf in Top)
-        {
-            var rows = Resolve(shelf.Rows, have, placed);
-            if (shelf.Id == AddFolderId.Browse)
-            {
-                var left = offered.Distinct().Where(kind => !placed.Contains(kind)).Select(kind => (AddRow)new AddPick(kind, false)).ToList();
-                if (Fold(More, left) is { } more)
-                {
-                    rows.Add(more);
-                }
-            }
-
-            if (rows.Count > 0)
-            {
-                columns.Add(new AddColumn(shelf, rows));
-            }
-        }
-
-        return columns;
-    }
-
-    /// <summary>
-    /// [S-5523] The menu with the desktop item kind's row (<paramref name="itemKind"/>) made "On the
-    /// desktop": a folder of <paramref name="unplaced"/>'s items, each a row placing its widget, or no
-    /// row at all when none is unplaced. The kind is never a pick of its own: an item widget always
-    /// stands for one item. A top column left empty goes.
-    /// </summary>
-    public static IReadOnlyList<AddColumn> WithDesktopItems(IReadOnlyList<AddColumn> columns, WidgetId itemKind, IReadOnlyList<DesktopItem> unplaced, LocalText title)
-    {
-        ArgumentNullException.ThrowIfNull(columns);
-        ArgumentNullException.ThrowIfNull(unplaced);
-
-        AddRow? folder = unplaced.Count == 0
-            ? null
-            : new AddFolder(new AddShelf(AddFolderId.DesktopItems, title, itemKind, []), [.. unplaced.Select(item => (AddRow)new AddDesktopItem(item))]);
-
-        List<AddRow> Swap(IReadOnlyList<AddRow> rows)
-        {
-            var swapped = new List<AddRow>(rows.Count);
-            foreach (var row in rows)
-            {
-                switch (row)
-                {
-                    case AddPick pick when pick.Kind == itemKind:
-                        if (folder is not null && !pick.Again)
-                        {
-                            swapped.Add(folder);
-                        }
-
-                        break;
-                    case AddFolder inner:
-                        var kept = Tidy(Swap(inner.Rows));
-                        if (kept.Count(r => r is not AddRule) > 0)
-                        {
-                            swapped.Add(kept.Count(r => r is not AddRule) == 1 && kept.Single(r => r is not AddRule) is AddPick only ? only : inner with { Rows = kept });
-                        }
-
-                        break;
-                    default:
-                        swapped.Add(row);
-                        break;
-                }
-            }
-
-            return swapped;
-        }
-
-        return [.. columns.Select(column => column with { Rows = Tidy(Swap(column.Rows)) }).Where(column => column.Rows.Count > 0)];
-    }
-
-    /// <summary>
-    /// [S-2473] The menu with the ready-made groups as its first column, "Ready-made", before the
-    /// widgets' columns: one row each, in <paramref name="groups"/>' order. None, no column.
-    /// </summary>
-    public static IReadOnlyList<AddColumn> WithReadyMade(IReadOnlyList<AddColumn> columns, IReadOnlyList<ReadyMadeGroup> groups)
-    {
-        ArgumentNullException.ThrowIfNull(columns);
-        ArgumentNullException.ThrowIfNull(groups);
-
-        if (groups.Count == 0)
-        {
-            return columns;
-        }
-
-        var icon = WidgetId.TryParse(groups[0].Widgets[0].Kind, out var first) ? first : columns[0].Shelf.Icon;
-        var shelf = new AddShelf(AddFolderId.ReadyMade, Str.Groups_Add_ReadyMade.Local(), icon, []);
-        return [new AddColumn(shelf, [.. groups.Select(g => (AddRow)new AddReadyMade(g))]), .. columns];
-    }
-
-    /// <summary>
-    /// [S-3513] Every widget the menu shows, once, at its home (never a row shown <see cref="AddPick.Again"/>),
-    /// with the folders it is in below its top column: what a search lists, and the path a result shows.
-    /// </summary>
-    public static IReadOnlyList<AddHome> Homes(IReadOnlyList<AddColumn> columns)
-    {
-        ArgumentNullException.ThrowIfNull(columns);
-
-        var homes = new List<AddHome>();
-        foreach (var column in columns)
-        {
-            Walk(column.Rows, [], homes);
-        }
-
-        return homes;
-    }
-
-    private static void Walk(IReadOnlyList<AddRow> rows, List<AddShelf> path, List<AddHome> homes)
-    {
-        foreach (var row in rows)
-        {
-            switch (row)
-            {
-                case AddPick { Again: false } pick:
-                    homes.Add(new AddHome(pick.Kind, [.. path]));
-                    break;
-                case AddFolder folder:
-                    path.Add(folder.Shelf);
-                    Walk(folder.Rows, path, homes);
-                    path.RemoveAt(path.Count - 1);
-                    break;
-            }
-        }
-    }
-
-    private static List<AddRow> Resolve(IReadOnlyList<AddNode> nodes, HashSet<WidgetId> have, HashSet<WidgetId> placed)
-    {
-        var rows = new List<AddRow>();
-        foreach (var node in nodes)
-        {
-            switch (node)
-            {
-                case AddLeaf leaf when have.Contains(leaf.Kind):
-                    if (!leaf.Again)
-                    {
-                        placed.Add(leaf.Kind);
-                    }
-
-                    rows.Add(new AddPick(leaf.Kind, leaf.Again));
-                    break;
-                case AddLine:
-                    rows.Add(new AddRule());
-                    break;
-                case AddShelf shelf when Fold(shelf, Resolve(shelf.Rows, have, placed)) is { } row:
-                    rows.Add(row);
-                    break;
-            }
-        }
-
-        return Tidy(rows);
-    }
-
-    /// <summary>A folder of two rows or more; one row is that row; none, nothing.</summary>
-    private static AddRow? Fold(AddShelf shelf, List<AddRow> rows)
-    {
-        rows = Tidy(rows);
-        var picks = rows.Count(row => row is not AddRule);
-        return picks switch
-        {
-            0 => null,
-            1 => rows.First(row => row is not AddRule),
-            _ => new AddFolder(shelf, rows),
-        };
-    }
-
-    /// <summary>A line only between two rows: none first, last or beside another.</summary>
-    private static List<AddRow> Tidy(List<AddRow> rows)
-    {
-        var tidy = new List<AddRow>(rows.Count);
-        foreach (var row in rows)
-        {
-            if (row is AddRule && (tidy.Count == 0 || tidy[^1] is AddRule))
-            {
-                continue;
-            }
-
-            tidy.Add(row);
-        }
-
-        while (tidy.Count > 0 && tidy[^1] is AddRule)
-        {
-            tidy.RemoveAt(tidy.Count - 1);
-        }
-
-        return tidy;
-    }
 }

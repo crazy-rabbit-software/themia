@@ -29,7 +29,7 @@ internal sealed partial class DesktopWindow
     private bool _selectionOpen;
 
     /// <summary>[S-2327] Whether one of the edit bar's flyouts is open on this display.</summary>
-    internal bool BarMenuOpen => _flyout is not null;
+    internal bool BarMenuOpen => _flyout is not null || _addPage is not null;
 
     /// <summary>[S-2300] A page's rows, as the state and Windows hold them now.</summary>
     private Func<PageModel> PageOf(SettingsPageId page)
@@ -139,6 +139,8 @@ internal sealed partial class DesktopWindow
     /// <summary>[S-2327] Close the open flyout; the keyboard back on its entry where it was closed from the keyboard.</summary>
     private void CloseFlyout(bool focusEntry)
     {
+        // [S-11707] The add page is one of the bar's flyouts: one at a time, closed with the rest.
+        CloseAddPage(focusAdd: false);
         if (_flyout is not { } flyout)
         {
             return;
@@ -193,14 +195,15 @@ internal sealed partial class DesktopWindow
     /// </summary>
     private void OnPressForBarMenu(object sender, PointerRoutedEventArgs e)
     {
-        if (_flyout is not { } flyout || e.OriginalSource is not DependencyObject source)
+        FrameworkElement? open = (FrameworkElement?)_flyout ?? _addPage;
+        if (open is null || e.OriginalSource is not DependencyObject source)
         {
             return;
         }
 
         for (var node = source; node is not null; node = VisualTreeHelper.GetParent(node))
         {
-            if (ReferenceEquals(node, flyout) || ReferenceEquals(node, _toolbar))
+            if (ReferenceEquals(node, open) || ReferenceEquals(node, _toolbar))
             {
                 return;
             }

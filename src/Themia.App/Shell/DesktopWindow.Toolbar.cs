@@ -12,10 +12,9 @@ internal sealed partial class DesktopWindow
 
     /// <summary>What this display's edit bar does: everything goes through the host, for this display.</summary>
     private EditBarCommands ToolbarCommands() => new(
-        AddFlyout: BuildAddFlyout,
+        Add: ToggleAddPage,
         Page: TogglePage,
         Selection: ToggleSelectionPage,
-        AddOpening: () => CloseFlyout(focusEntry: false),
         IntoFlyout: FocusFlyout,
         Done: () => _host.SetEditMode(false));
 
@@ -34,7 +33,7 @@ internal sealed partial class DesktopWindow
 
         var metrics = Metrics;
         var widest = metrics.IsUsable ? GridGeometry.AllowedPixels(metrics).Width - (2 * Sdk.Kit.ShellMetrics.Bar.Top) : double.PositiveInfinity;
-        return new EditBarState(selection, 0, _openPage, _selectionOpen, widest);
+        return new EditBarState(selection, 0, _openPage, _selectionOpen, widest) { AddOpen = _addPage is not null };
     }
 
     /// <summary>

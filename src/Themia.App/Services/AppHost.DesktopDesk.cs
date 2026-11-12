@@ -265,7 +265,7 @@ internal sealed partial class AppHost : IDesktopDesk
             }
             else if (choice.Themia is { } command)
             {
-                RunDesktopMenuCommand(surface, dip, command);
+                RunDesktopMenuCommand(surface, command);
             }
         }
         catch (Exception ex)
@@ -284,9 +284,9 @@ internal sealed partial class AppHost : IDesktopDesk
 
     /// <summary>
     /// [S-5551] One of Themia's lines: the same commands the card menu's way in and the surface menu's
-    /// Add widget run (edit mode on; the picker at the click once the surface is in edit mode).
+    /// Add widget run (edit mode on; [S-11707] the add page under that display's bar once it is in edit mode).
     /// </summary>
-    private void RunDesktopMenuCommand(DesktopWindow surface, Point dip, DesktopMenuCommand command)
+    private void RunDesktopMenuCommand(DesktopWindow surface, DesktopMenuCommand command)
     {
         SetEditMode(true);
         if (command != DesktopMenuCommand.AddWidget)
@@ -294,7 +294,7 @@ internal sealed partial class AppHost : IDesktopDesk
             return;
         }
 
-        if (!_dispatcher.TryEnqueue(Microsoft.UI.Dispatching.DispatcherQueuePriority.Low, () => surface.OpenPickerFromDesktop(dip)))
+        if (!_dispatcher.TryEnqueue(Microsoft.UI.Dispatching.DispatcherQueuePriority.Low, surface.OpenAddPage))
         {
             Log.Warn(Scope, "could not queue Add widget from the desktop's menu; edit mode is on, the bar's Add widget opens it");
         }

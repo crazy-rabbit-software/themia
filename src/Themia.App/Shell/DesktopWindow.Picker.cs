@@ -29,66 +29,105 @@ namespace Themia.App.Shell;
 /// <summary>Adding a widget: the picker, the ghost and the click that places it.</summary>
 internal sealed partial class DesktopWindow
 {
+    /// <summary>[S-11707] The add page, while it is open on this display.</summary>
+    private AddPageFlyout? _addPage;
+
+    /// <summary>[S-11707] The bar's Add: the add page opened, or closed again.</summary>
+    private void ToggleAddPage()
+    {
+        if (_addPage is not null)
+        {
+            CloseAddPage(focusAdd: false);
+        }
+        else
+        {
+            OpenAddPage();
+        }
+    }
+
     /// <summary>
-    /// [S-3501] The add menu: a flyout under the edit bar's Add widget rather than a window,
-    /// because choosing a widget is a moment's decision made while looking at the desktop, and a
-    /// window covers the desktop.
-    /// <para>
-    /// Its content is rebuilt every time it opens, so the names follow a language switch ([S-1109]),
-    /// new kinds in the catalogue appear, and the cascade fits this display's work area ([S-3512]).
-    /// </para>
+    /// [S-11700] [S-11707] The add page under the bar, the caret in its search box so typing searches at
+    /// once. Built from the catalogue, the ready-made groups and this view's unplaced desktop items each
+    /// time it opens, so a language switch, a new kind and a placed item are followed ([S-1109]). Only in
+    /// edit mode and not while placing: the bar is not there otherwise. Any other flyout closes first.
     /// </summary>
-    private Flyout BuildAddFlyout()
+    internal void OpenAddPage()
     {
-        var flyout = new Flyout
+        if (_closed || !EditMode || _host.Placing is not null)
         {
-            // [S-1749] Centred under what opened it: the toolbar's Add button or the right-click
-            // point. It flips above only when there is no room below.
-            Placement = FlyoutPlacementMode.Bottom,
+            return;
+        }
 
-            // The presenter caps itself at 456px by default, sized for a menu of one column. Left at
-            // that, the menu showed two and a half of its columns and clipped the rest.
-            FlyoutPresenterStyle = new Style(typeof(FlyoutPresenter))
-            {
-                Setters =
-                {
-                    new Setter(FrameworkElement.MaxWidthProperty, double.PositiveInfinity),
-                    new Setter(FrameworkElement.MaxHeightProperty, double.PositiveInfinity),
-                },
-            },
-        };
-
-        flyout.Opening += (_, _) =>
+        if (_addPage is null)
         {
-            var area = Metrics.IsUsable ? GridGeometry.AllowedPixels(Metrics) : new PixelRect(0, 0, 1280, 720);
-            flyout.Content = new WidgetPicker(definition => OnPicked(flyout, definition), flyout.Hide, area,
-                _host.UnplacedDesktopItems(CurrentViewId), item => OnPickedItem(flyout, item), group => OnPickedReadyMade(flyout, group));
-        };
+            CloseFlyout(focusEntry: false);
+            var itemKind = ModuleCatalog.Widgets.FirstOrDefault(d => typeof(IDesktopItemConfig).IsAssignableFrom(d.ConfigType))?.Id;
+            var page = AddPage.Of([.. ModuleCatalog.Widgets.Select(d => d.Id)], ReadyMadeGroups.Offered(), itemKind, _host.UnplacedDesktopItems(CurrentViewId));
+            _addPage = new AddPageFlyout(page, new AddPageCommands(PickFromAddPage, () => CloseAddPage(focusAdd: true), tile => _host.WouldRefuse(Creates(tile))));
+            UiLanguage.ApplyFlow(_addPage);
+            _addPage.View.Drawn += PlaceAddPage;
+            _flyoutLayer.Children.Add(_addPage);
+        }
 
-        // [S-3514] Typing searches at once: the caret is in the box as soon as the picker is open.
-        flyout.Opened += (_, _) => (flyout.Content as WidgetPicker)?.FocusSearch();
-        return flyout;
+        ShowToolbar();
+        PlaceAddPage();
+        _addPage.View.FocusSearch();
     }
 
-    /// <summary>[S-421] A widget was chosen: click-to-place starts.</summary>
-    private void OnPicked(Flyout flyout, WidgetDescriptor definition)
+    /// <summary>[S-11707] Close the add page; the keyboard back on Add where it was closed from the keyboard.</summary>
+    private void CloseAddPage(bool focusAdd)
     {
-        flyout.Hide();
-        _host.BeginPlacement(definition.Id);
+        if (_addPage is not { } page)
+        {
+            return;
+        }
+
+        _flyoutLayer.Children.Remove(page);
+        _addPage = null;
+        ShowToolbar();
+        if (focusAdd)
+        {
+            _toolbar.FocusAdd();
+        }
     }
 
-    /// <summary>[S-2471] A ready-made group was chosen: its widgets are placed together, one click, one new group.</summary>
-    private void OnPickedReadyMade(Flyout flyout, ReadyMadeGroup group)
+    /// <summary>[S-11707] Hung flush under the bar, as wide, inside the work area.</summary>
+    private void PlaceAddPage()
     {
-        flyout.Hide();
-        _host.BeginPlacement(PlacementPayload.ForReadyMade(group));
+        if (_closed || _addPage is not { } page || !Metrics.IsUsable)
+        {
+            return;
+        }
+
+        var area = GridGeometry.AllowedPixels(Metrics);
+        page.Place(ToolbarRect(area), area);
     }
 
-    /// <summary>[S-5523] An unplaced desktop item was chosen: its widget is placed like any widget.</summary>
-    private void OnPickedItem(Flyout flyout, Themia.Sdk.DesktopItem item)
+    /// <summary>[S-1065] How many widgets placing a tile creates: the licence's question before the ghost.</summary>
+    private static int Creates(AddTile tile) => tile is AddGroupTile group ? group.Group.Widgets.Count : 1;
+
+    /// <summary>
+    /// [S-11702] [S-421] A tile was picked: the page closes and the placement session starts, the ghost
+    /// of the widget, of every widget of the group, or of the desktop item's widget under the pointer.
+    /// The licence gate is the session's own ([S-1065]).
+    /// </summary>
+    private void PickFromAddPage(AddTile tile)
     {
-        flyout.Hide();
-        _host.BeginPlacement(item, Metrics);
+        CloseAddPage(focusAdd: false);
+        switch (tile)
+        {
+            case AddWidgetTile one:
+                _host.BeginPlacement(one.Kind);
+                break;
+            case AddGroupTile group:
+                // [S-2471] One click, one new group.
+                _host.BeginPlacement(PlacementPayload.ForReadyMade(group.Group));
+                break;
+            case AddItemTile item:
+                // [S-5523] Its widget, placed like any widget.
+                _host.BeginPlacement(item.Item, Metrics);
+                break;
+        }
     }
 
     /// <summary>

@@ -174,17 +174,23 @@ internal static partial class EditBarRender
         var mixed = new BarSelection(Str.Shell_Views_WidgetCount.Plural(3), Glyphs.Apps);
         var wide = ScreenWidth - (2 * ShellMetricsBarTop);
 
-        await Shot(screen, Bar(new EditBarState(null, 0, null, false, wide)), null, outDir, $"editbar-{theme}.png").ConfigureAwait(true);
-        await Shot(screen, Bar(new EditBarState(clock, 0, null, true, wide)), null, outDir, $"editbar-{theme}-widget.png").ConfigureAwait(true);
-        await Shot(screen, Bar(new EditBarState(two, 0, null, false, wide)), null, outDir, $"editbar-{theme}-many.png").ConfigureAwait(true);
-        await Shot(screen, Bar(new EditBarState(mixed, 0, null, false, wide)), null, outDir, $"editbar-{theme}-mixed.png").ConfigureAwait(true);
-        await Shot(screen, Bar(new EditBarState(clock, 2, null, false, wide)), null, outDir, $"editbar-{theme}-errors.png").ConfigureAwait(true);
-        await Shot(screen, Bar(new EditBarState(null, 0, SettingsPageId.General, false, wide)), null, outDir, $"editbar-{theme}-open.png").ConfigureAwait(true);
+        await Shot(screen, Bar(new EditBarState(null, 0, null, false, wide)), outDir, $"editbar-{theme}.png").ConfigureAwait(true);
+        await Shot(screen, Bar(new EditBarState(clock, 0, null, true, wide)), outDir, $"editbar-{theme}-widget.png").ConfigureAwait(true);
+        await Shot(screen, Bar(new EditBarState(two, 0, null, false, wide)), outDir, $"editbar-{theme}-many.png").ConfigureAwait(true);
+        await Shot(screen, Bar(new EditBarState(mixed, 0, null, false, wide)), outDir, $"editbar-{theme}-mixed.png").ConfigureAwait(true);
+        await Shot(screen, Bar(new EditBarState(clock, 2, null, false, wide)), outDir, $"editbar-{theme}-errors.png").ConfigureAwait(true);
+        await Shot(screen, Bar(new EditBarState(null, 0, SettingsPageId.General, false, wide)), outDir, $"editbar-{theme}-open.png").ConfigureAwait(true);
         var longName = new BarSelection("Weather in San Francisco and the Bay Area", ModuleCatalog.Of(new WidgetId("weatherNow")).Glyph);
-        await Shot(screen, Bar(new EditBarState(longName, 0, null, true, 900 - (2 * ShellMetricsBarTop))), null, outDir, $"editbar-{theme}-narrow.png", room: 900).ConfigureAwait(true);
-        await Shot(screen, Bar(new EditBarState(longName, 0, null, true, 640 - (2 * ShellMetricsBarTop))), null, outDir, $"editbar-{theme}-narrowest.png", room: 640).ConfigureAwait(true);
+        await Shot(screen, Bar(new EditBarState(longName, 0, null, true, 900 - (2 * ShellMetricsBarTop))), outDir, $"editbar-{theme}-narrow.png", room: 900).ConfigureAwait(true);
+        await Shot(screen, Bar(new EditBarState(longName, 0, null, true, 640 - (2 * ShellMetricsBarTop))), outDir, $"editbar-{theme}-narrowest.png", room: 640).ConfigureAwait(true);
 
-        await Shot(screen, Bar(new EditBarState(null, 0, null, false, wide)), AddMenu(), outDir, $"editbar-{theme}-add.png").ConfigureAwait(true);
+        // [S-11712] The add page: Start, two subjects, a search with results and one with none, a narrow display.
+        await AddPageShot(screen, System.IO.Path.Combine(outDir, $"editbar-{theme}-add.png"), ScreenWidth, OpenHeight, null, null).ConfigureAwait(true);
+        await AddPageShot(screen, System.IO.Path.Combine(outDir, $"editbar-{theme}-add-system.png"), ScreenWidth, OpenHeight, AddFolderId.System, null).ConfigureAwait(true);
+        await AddPageShot(screen, System.IO.Path.Combine(outDir, $"editbar-{theme}-add-weather.png"), ScreenWidth, OpenHeight, AddFolderId.Weather, null).ConfigureAwait(true);
+        await AddPageShot(screen, System.IO.Path.Combine(outDir, $"editbar-{theme}-add-search.png"), ScreenWidth, OpenHeight, null, "music").ConfigureAwait(true);
+        await AddPageShot(screen, System.IO.Path.Combine(outDir, $"editbar-{theme}-add-none.png"), ScreenWidth, OpenHeight, null, "zzqx").ConfigureAwait(true);
+        await AddPageShot(screen, System.IO.Path.Combine(outDir, $"editbar-{theme}-add-narrow.png"), 900, OpenHeight, null, null).ConfigureAwait(true);
 
         var hint = new TextBlock
         {
@@ -193,17 +199,16 @@ internal static partial class EditBarRender
         };
         var line = new Border { Child = hint, MinHeight = EditBar.BarHeight, Padding = new Thickness(Fluent.Space4, 0, Fluent.Space4, 0) };
         ChromeFrame.Apply(line);
-        await Shot(screen, line, null, outDir, $"editbar-{theme}-placing.png").ConfigureAwait(true);
+        await Shot(screen, line, outDir, $"editbar-{theme}-placing.png").ConfigureAwait(true);
     }
 
     /// <summary>[S-2320] The real bar, built and showing <paramref name="state"/>, its commands doing nothing.</summary>
     private static EditBar Bar(EditBarState state)
     {
         var commands = new EditBarCommands(
-            AddFlyout: () => new Flyout(),
+            Add: () => { },
             Page: _ => { },
             Selection: () => { },
-            AddOpening: () => { },
             IntoFlyout: () => { },
             Done: () => { });
         var bar = new EditBar(commands);
@@ -213,11 +218,11 @@ internal static partial class EditBarRender
         return bar;
     }
 
-    /// <summary>One picture: the bar centred 8 DIPs under the display's top, and the menu hanging under its Add button.</summary>
-    private static async Task Shot(Grid screen, FrameworkElement bar, FrameworkElement? menu, string outDir, string name, double? room = null)
+    /// <summary>One picture: the bar centred 8 DIPs under the display's top.</summary>
+    private static async Task Shot(Grid screen, FrameworkElement bar, string outDir, string name, double? room = null)
     {
         screen.Children.Clear();
-        screen.Height = menu is null ? ScreenHeight : OpenHeight;
+        screen.Height = ScreenHeight;
         screen.Width = room ?? ScreenWidth;
 
         var canvas = new Canvas();
@@ -227,11 +232,6 @@ internal static partial class EditBarRender
         var barX = Math.Round(((room ?? ScreenWidth) - bar.DesiredSize.Width) / 2);
         Canvas.SetLeft(bar, barX);
         Canvas.SetTop(bar, ShellMetricsBarTop);
-
-        if (menu is not null)
-        {
-            HangAddMenu(canvas, menu, bar, barX, ShellMetricsBarTop, ScreenWidth);
-        }
 
         await Task.Delay(500).ConfigureAwait(true);
 

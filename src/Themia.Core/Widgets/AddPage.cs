@@ -282,12 +282,15 @@ public static class AddSearch
             .Select(w => WidgetId.TryParse(w.Kind, out var id) && ModuleCatalog.TryGet(id, out var descriptor) ? descriptor : null)
             .OfType<WidgetDescriptor>()
             .ToList();
+
+        // [S-3513] Its subject's name too, as a widget's: "music" finds Now playing.
+        var subject = AddTree.SubjectOf(group.Home) is { } id ? AddTree.Browse.Rows.OfType<AddShelf>().FirstOrDefault(s => s.Id == id) : null;
         return new WidgetSearchDoc(
             "group:" + group.Id,
             Both(locale, group.Name.Local()),
             null,
             [.. Both(locale, group.About.Local()), .. kinds.SelectMany(k => Both(locale, k.Label))],
-            [.. Both(locale, Str.Groups_Add_ReadyMade.Local())]);
+            [.. Both(locale, Str.Groups_Add_ReadyMade.Local()), .. subject is null ? [] : Both(locale, subject.Title)]);
     }
 
     private static string[] Both(Locale locale, LocalText text) => Both(text.Text(locale), text.Text(Locale.En));
