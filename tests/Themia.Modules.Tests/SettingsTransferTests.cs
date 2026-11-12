@@ -204,7 +204,7 @@ public sealed class SettingsTransferTests : IDisposable
 
         Assert.Contains("Theme: System → Dark", preview.Changes);
         Assert.Contains("Accent colour: theme → #FF8800", preview.Changes);
-        Assert.Contains("Gap between widgets: 8px → 12px", preview.Changes);
+        Assert.Contains("Gap between widgets: 0px → 12px", preview.Changes);
     }
 
     [Fact]

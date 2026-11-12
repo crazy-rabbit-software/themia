@@ -246,7 +246,7 @@ public sealed class DesignEngineTests
         // strength, the default (neutral, translucent) fill, blur behind widgets on, no header band,
         // the Windows accent and an 8px gap.
         Assert.Equal(8, design.CornerRadiusPx);
-        Assert.Equal(8, design.WidgetGapPx);
+        Assert.Equal(0, design.WidgetGapPx);   // [S-2247]
         Assert.True(design.BlurBehind);
         Assert.Equal(WidgetBorderStyle.Solid, design.BorderStyle);
         Assert.Equal(1, design.BorderWidthPx);

@@ -218,4 +218,10 @@ public class CardJoinsTests
         Assert.Empty(O("", "").Stroke(100, 50, 1, 8));
         Assert.Empty(CardOutline.Free.Stroke(100, 50, 0, 8));
     }
+
+    [Fact]
+    public void S2247_a_fresh_design_has_no_gap_so_cards_side_by_side_join()
+    {
+        Assert.Equal(0, new Themia.Core.Model.DesignState().WidgetGapPx);
+    }
 }

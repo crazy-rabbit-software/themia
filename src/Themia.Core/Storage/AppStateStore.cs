@@ -318,7 +318,7 @@ public sealed class AppStateStore : IAsyncDisposable
         state.MonitorViews ??= [];
 
         var design = state.Design;
-        design.WidgetGapPx = Math.Clamp(Sanitise(design.WidgetGapPx, 8), 0, 64);
+        design.WidgetGapPx = Math.Clamp(Sanitise(design.WidgetGapPx, 0), 0, 64);
         design.CornerRadiusPx = Math.Clamp(Sanitise(design.CornerRadiusPx, DesignState.DefaultCornerRadiusPx), 0, 32);
         design.FontScale = Math.Clamp(Sanitise(design.FontScale, 1), 0.5, 2.0);
         design.BorderWidthPx = Math.Clamp(Sanitise(design.BorderWidthPx, 1), 0, 8);

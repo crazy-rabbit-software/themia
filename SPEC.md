@@ -5987,7 +5987,7 @@ card is re-created, no tick restarts. Pure rules live in Core (`DesignLook`, `De
   follows the effective theme, live when the theme is System ([S-822]). The card paints that one fill
   across the whole card, header included; there is no Fluent base-and-tint pair any more. The item
   layer's default (the Fluent subtle and control fills) and the theme's text roles read on it in both
-  themes. Corner radius 8 ([S-6482]), a hairline ([S-2102]), no header band ([S-2103]), gap 8.
+  themes. Corner radius 8 ([S-6482]), a hairline ([S-2102]), no header band ([S-2103]), no gap ([S-2247]).
 - **[S-2102]** The theme's hairline is Themia's own pair, not Fluent's `CardStrokeColorDefault`
   (black at 10 % / 6 %, darker than a dark card and so no edge on one): white at 10 % in dark, black
   at 8 % in light, a 1px solid line (`DesignLook.DarkHairline`, `LightHairline`), drawn over the card
@@ -6362,8 +6362,11 @@ two cards. Cards that touch now read as one panel: round on the outside, one lin
   circle's quarter back), so no click falls through a notch where cards join and none is taken outside
   a round corner. A bare card stays a rectangle: its content may reach its corners. The union is cut
   to the work area last ([S-851]). Tests `CardJoinsTests.S2245_`.
-- **[S-2246]** Nothing of the design changes with it: the default gap (8) and every preset's gap stay
-  as they are ([S-2100], [S-2121]); at those gaps nothing touches and the store scenes draw as before.
+- **[S-2246]** A preset's gap stays as it is ([S-2121]); at a gap above nothing nothing touches and
+  the cards draw as before.
+- **[S-2247]** The default gap is none, so widgets put side by side join without a setting: a column
+  or a grid of them is one panel. The gap is still the design's to widen (⚙ › Appearance). A gap that
+  is not a number is repaired to none. Test `CardJoinsTests.S2247_`.
 
 ## Logging (WP7)
 

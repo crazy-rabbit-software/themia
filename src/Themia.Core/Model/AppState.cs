@@ -187,8 +187,8 @@ public sealed class DesignState
     /// <summary>Multiplies the computed font sizes.</summary>
     public double FontScale { get; set; } = 1.0;
 
-    /// <summary>[S-04] Gap between widgets, in device-independent pixels.</summary>
-    public double WidgetGapPx { get; set; } = 8;
+    /// <summary>[S-04] Gap between widgets, in device-independent pixels. None by default: cards that touch join ([S-2247]).</summary>
+    public double WidgetGapPx { get; set; } = 0;
 
     /// <summary>[S-06] Snap-to-grid aid for drag, resize and placement.</summary>
     public bool GridSnap { get; set; } = true;
