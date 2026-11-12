@@ -94,6 +94,8 @@ them, `BluetoothRulesTests`, which carried these tags with no SPEC line):
 
 Not ported: Bluetooth's 1–30 s refresh choices (kept 5–300 s: enumeration and GATT reads take
 seconds); per-metric `visibleMetrics` ordering (fixed ladder order).
+- View links: a row is its device by its endpoint's address; the pointer on it publishes the device pointed at,
+  and a row takes the hover fill while its device is pointed at elsewhere on the view ([S-11955], [S-11958]).
 
 Needs a manual pass: a live list with a Classic headset and an LE device (battery and signal), the
 radio off and no radio, at every tier on the live desktop (showcase views, [S-1810]).

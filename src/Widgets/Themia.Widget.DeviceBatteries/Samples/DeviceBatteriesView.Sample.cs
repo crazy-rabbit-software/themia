@@ -16,7 +16,7 @@ internal sealed partial class DeviceBatteriesView : IWidgetSample
         var controller = Guid.Parse("6b1c2d4e-0000-4000-8000-000000000002");
         _source.HoldForPreview(new DeviceBatterySnapshot(DeviceBatteryStatus.Ok,
         [
-            new("bt:headset", "Surface Headphones 2", DeviceKind.Audio, 80, DeviceBatterySource.BluetoothProperty, headset),
+            new("Bluetooth#Bluetoothe0:d4:e8:00:00:01-a4:c1:38:0b:22:9f", "Surface Headphones 2", DeviceKind.Audio, 80, DeviceBatterySource.BluetoothProperty, headset),
             new("container:headset", "Surface Headphones 2", DeviceKind.Audio, 80, DeviceBatterySource.DeviceContainer, headset, false),
             new("container:mouse", "MX Master 3S", DeviceKind.Mouse, 64, DeviceBatterySource.DeviceContainer, Guid.Parse("6b1c2d4e-0000-4000-8000-000000000003"), false),
             new("bt:keyboard", "Keychron K3", DeviceKind.Keyboard, 46, DeviceBatterySource.BluetoothProperty, Guid.Parse("6b1c2d4e-0000-4000-8000-000000000004")),

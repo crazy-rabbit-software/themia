@@ -5822,6 +5822,42 @@ The file under the pointer (`HoveredFile`, `FileLink`, a hover; keyed by `LinkKe
   file, folder or link (This PC, the Recycle Bin and every shell item none); the whole item lights. `shortcuts`: an
   item whose target is a file or a folder, by its stored target ([S-11949]).
 
+The drive under the pointer (`HoveredDrive`, `DriveLink`, a hover; keyed by `LinkKeys.Drive`, [S-11951]):
+
+- **[S-11950]** A drive is one thing across the view: the `drive` card, the `driveFacts` card, a `disk` reading and
+  a `diskHistory` chart of one drive ([S-11953]) and a `folder` on it ([S-11954]) are that drive as a whole card, a
+  `removableDrives` row is its drive. The pointer on the card (or the row, or the list's keyboard cursor, [S-3307])
+  publishes the drive, and while a drive is pointed at anywhere on the view every card that is it takes the item
+  layer's hover fill over its content (`LinkCard`, [S-11903]; the card's header band is the card's, not the view's,
+  and stays as it is) and every row that is it the row's hover fill ([S-11901]). A card's own pointer never lights
+  it. Painted in place, never rebuilt.
+- **[S-11951]** A drive is the letter and colon of a path on it, upper-case (`LinkKeys.Drive`: `c:\Users` → `C:`);
+  a path on no lettered drive (a share) is none.
+- **[S-11952]** A disk atom's drive is its scope's (`DiskScopes.DriveLink`): its drive, the system drive when none is
+  chosen; every drive together is no one drive and takes no part.
+- **[S-11953]** `disk` and `diskHistory` are the shared meter (`MeterView`): the kind's part names the topic
+  (`MeterPart.Drive`, as `MeterPart.Instant` names the moment's) and says its config's drive (`DriveOf`). The
+  history card publishes the drive while the pointer is on it and the moment under the pointer
+  ([S-11910]) as it moves, both at once.
+- **[S-11954]** `folder`: pointing at its header (the card's row its own buttons stand in) or its path crumb publishes
+  the drive the folder on screen is on; the whole card lights while that drive is pointed at elsewhere. Its entries
+  publish their files ([S-11945]), never the drive. A folder on a share is on no drive.
+
+A Bluetooth device under the pointer (`HoveredDevice`, `DeviceLink`, a hover; keyed by `LinkKeys.Device`, [S-11956]):
+
+- **[S-11955]** A paired device is one thing across the view: a `bluetooth` row and a `deviceBatteries` row that are
+  the same device publish it while the pointer is on them, and every row that is the device pointed at anywhere on
+  the view takes the item layer's hover fill, in place ([S-11958]).
+- **[S-11956]** A device is its address's twelve hex digits, upper-case, whatever separators it was written with
+  (`LinkKeys.Device`); a number (Windows' `BluetoothAddress`) is the same key.
+- **[S-11957]** Both lists know a Bluetooth device by the id Windows gives its association endpoint
+  (`Bluetooth#Bluetooth<radio>-<device>`, `BluetoothLE#BluetoothLE<radio>-<device>`): its device is the address after the
+  last dash (`LinkKeys.DeviceOfEndpoint`). Any other id (a device container's reading, a game controller's, a node's)
+  names no address and takes no part: a device is never matched by its name.
+- **[S-11958]** `bluetooth` keys each row by its device's endpoint id; `deviceBatteries` keys a row by the id its
+  folded reading kept (the Bluetooth property's or the GATT reading's, an endpoint's), through its kit list's
+  `Decorate` ([S-11942]); a device seen only through its container or as a game controller takes no part there.
+
 Topics:
 
 <!-- view-links:table (made from the descriptors; ViewLinksConformanceTests) -->
@@ -5836,8 +5872,8 @@ Topics:
 | `HoveredDate` | Hover | `calendar`, `habitTracker`, `screenTimeChart`, `tasks`, `weatherForecast`, `weekPlanner` | `calendar`, `habitTracker`, `screenTimeChart`, `tasks`, `upNext`, `weatherForecast`, `weekPlanner` |
 | `HoveredPerson` | Hover | `calendar`, `contacts`, `email`, `nextMeeting`, `upNext` | `calendar`, `contacts`, `email`, `nextMeeting`, `upNext` |
 | `HoveredFile` | Hover | `desktopItem`, `folder`, `recentFiles`, `shortcuts` | `desktopItem`, `folder`, `recentFiles`, `shortcuts` |
-| `HoveredDrive` | Hover | none | none |
-| `HoveredDevice` | Hover | none | none |
+| `HoveredDrive` | Hover | `disk`, `diskHistory`, `drive`, `driveFacts`, `folder`, `removableDrives` | `disk`, `diskHistory`, `drive`, `driveFacts`, `folder`, `removableDrives` |
+| `HoveredDevice` | Hover | `bluetooth`, `deviceBatteries` | `bluetooth`, `deviceBatteries` |
 <!-- /view-links:table -->
 
 - **[S-3310]** The screen-time widgets ([S-3320]) share `HoveredApp` and `SelectedApp` by app key

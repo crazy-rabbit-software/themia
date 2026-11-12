@@ -195,6 +195,16 @@ public abstract class MeterPart
     public virtual LinkTopic<InstantLink>? Instant => null;
 
     /// <summary>
+    /// [S-11953] [S-11906] The view-links topic of a drive pointed at, named by the kind that is about one drive
+    /// (<c>LinkTopics.HoveredDrive</c>), or null for none: the card publishes its drive (<see cref="DriveOf"/>) while
+    /// the pointer is on it and takes the item layer's hover fill while it is pointed at elsewhere ([S-11903]).
+    /// </summary>
+    public virtual LinkTopic<DriveLink>? Drive => null;
+
+    /// <summary>[S-11952] The drive this config is about, or null (every drive together, a kind about no drive).</summary>
+    public virtual DriveLink? DriveOf(WidgetConfig config) => null;
+
+    /// <summary>
     /// [S-11912] One point of the series as the reading writes it ("32%", "1.2 MB/s"), for a reading standing
     /// at a moment of its history; null when the point says nothing (the kind's own reading then stays).
     /// </summary>

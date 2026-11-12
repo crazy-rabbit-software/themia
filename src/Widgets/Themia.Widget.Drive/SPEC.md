@@ -43,6 +43,8 @@ the module host's `DriveHostTests`, its styles beside the meters' `IoStylesHostT
   in Explorer, Eject for a removable drive, and Refresh.
 - **[S-2032]** A click on the card ([S-2000]) opens the drive's root in File Explorer: its own
   drive, or the system drive when it shows that (`DriveModule.Opens`).
+- View links: the card is its drive; the pointer on it publishes the drive pointed at, and the whole card takes the
+  hover fill while its drive is pointed at elsewhere on the view ([S-11950]).
 
 Needs a manual pass: the card on a live desktop (a USB drive chosen then removed, a mapped share
 disconnected, a drive filling past 90 %, both styles).

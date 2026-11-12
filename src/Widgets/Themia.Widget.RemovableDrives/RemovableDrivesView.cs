@@ -69,6 +69,7 @@ internal sealed partial class RemovableDrivesView : Grid, IWidgetView, IWidgetSi
         Strings.Changed += OnLanguage;
         _watch?.Dispose();
         _watch = _widgetHost.Drives.Watch(ticker, Show);
+        _links.Join(_surface?.Links);
         Show();
     }
 
@@ -132,6 +133,7 @@ internal sealed partial class RemovableDrivesView : Grid, IWidgetView, IWidgetSi
 
             _rows.Clear();
             _list.Children.Clear();
+            Drives.Clear();
         }
 
         while (_rows.Count < _devices.Count)
@@ -154,6 +156,7 @@ internal sealed partial class RemovableDrivesView : Grid, IWidgetView, IWidgetSi
         }
 
         _scroll.Height = RemovableDrivesPlan.ListHeight(_rowCount);
+        LinkRows();
 
         if (_focus >= _devices.Count)
         {
@@ -205,6 +208,7 @@ internal sealed partial class RemovableDrivesView : Grid, IWidgetView, IWidgetSi
         {
             case ListCommand.Focus:
                 Focus(decision.Index);
+                PointCursor();
                 return true;
             case ListCommand.Open when decision.Index >= 0 && decision.Index < _devices.Count:
                 Open(_devices[decision.Index]);
@@ -215,6 +219,7 @@ internal sealed partial class RemovableDrivesView : Grid, IWidgetView, IWidgetSi
             case ListCommand.Release:
                 var had = _focus >= 0;
                 Focus(-1);
+                PointCursor();
                 return had;
             default:
                 return false;
@@ -259,6 +264,8 @@ internal sealed partial class RemovableDrivesView : Grid, IWidgetView, IWidgetSi
 
         _rows.Clear();
         _list.Children.Clear();
+        Drives.Clear();
+        _links.Leave();
         _lead = -1;
     }
 

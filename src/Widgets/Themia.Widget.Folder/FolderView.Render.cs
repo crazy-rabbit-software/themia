@@ -330,6 +330,8 @@ internal sealed partial class FolderView
             return;
         }
 
+        LinkDrive();
+
         var keywords = FolderFilter.Apply(_snapshot.Entries, _search);
         _total = keywords.Count(e => _config.ShowHidden || !e.Hidden);
         _shown = FolderRules.Arrange(keywords, _config.Sort, _config.Descending, _config.ShowHidden, RenderCap);

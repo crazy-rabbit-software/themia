@@ -15,5 +15,7 @@ translations). Tests: `Tests/DriveFactsTests.cs`.
   that names the drive as the reading's does. A drive without figures (gone, disconnected, an empty
   reader) keeps its rows, each it cannot read "--" dimmed. Its options: which drive (the reading's line,
   [S-4674], `DriveMenuLines`), then Facts ([S-11007]).
+- View links: the card is its drive; the pointer on it publishes the drive pointed at, and the whole card takes the
+  hover fill while its drive is pointed at elsewhere on the view ([S-11950]).
 
 Needs a manual pass: a USB drive chosen then removed, a mapped share disconnected.

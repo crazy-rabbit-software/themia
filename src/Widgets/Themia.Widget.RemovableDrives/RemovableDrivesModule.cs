@@ -1,15 +1,16 @@
-using Themia.Sdk.WinUI.Kit;
-using Themia.Sdk.Kit;
 using System.Text.Json.Serialization;
 using Microsoft.UI.Xaml;
 using Themia.App.Shell;
 using Themia.App.Shell.Config;
 using Themia.App.Widgets;
+using Themia.Core.Links;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
 using Themia.Sdk;
+using Themia.Sdk.Kit;
 using Themia.Sdk.WinUI;
+using Themia.Sdk.WinUI.Kit;
 using Themia.Widget.RemovableDrives;
 
 [assembly: ThemiaWidget("removableDrives", typeof(RemovableDrivesModule))]
@@ -33,6 +34,7 @@ public sealed class RemovableDrivesModule : IWidgetModule
         Sizing = c => KitSizing.Sizing(Shown((RemovableDrivesConfig)c), addFooter: false),
         SizeSets = (c, s) => KitSizing.SizeSets(c, s, Shown((RemovableDrivesConfig)c), addFooter: false),
         Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader,
+        Links = LinkUse.Of([LinkTopicId.HoveredDrive], [LinkTopicId.HoveredDrive]),
         Add = new(AddFolderId.Devices, 2, 2),
     };
 

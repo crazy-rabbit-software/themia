@@ -12,5 +12,8 @@ Owning files: everything in this folder: `DiskHistoryModule.cs` (descriptor, con
   may have one. 160..640 wide, 48..200 tall, a new one 160 × 64 (`MeterSizing.History`); a wider card is
   a longer chart of the same span. Its drive is its own setting, as the reading's ([S-1160], [S-1822]: the system drive, every drive, or one Windows lists), through the SDK's `DiskPart` and `DiskMenuLines` the reading shares; with a header, the header names the drive ([S-1161]). The chart's top is the window's peak rounded up to a doubling ([S-1821]). Its span (1, 5, 15, 30 min, 1 h; five minutes by default, [S-1121]) is
   a line on its menu's first level. A click opens what the reading's opens.
+- View links: a history of one drive is that drive as a card: the pointer on it publishes the drive (with the
+  moment under it) and the card takes the hover fill while it is pointed at elsewhere; every drive together takes no
+  part ([S-11950], [S-11953]).
 
 Needs a manual pass: the chart on a live desktop (a span changed, a wide card).

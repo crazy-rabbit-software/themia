@@ -126,6 +126,7 @@ internal sealed partial class BluetoothView : Grid, IWidgetView, IWidgetOpens, I
         _ticker = ticker;
         _detached = false;
         Strings.Changed += OnLanguage;
+        _links.Join(_surface?.Links);
         ApplyConfig(config);
     }
 
@@ -345,6 +346,7 @@ internal sealed partial class BluetoothView : Grid, IWidgetView, IWidgetOpens, I
 
         // Everything the row knows, in words, for a reader who cannot see the icon's colour.
         ToolTipService.SetToolTip(row, $"{device.Name} · {BluetoothRules.DetailLine(device, true, true, true, Strings.Current)}");
+        LinkRow(row, device);
         return row;
     }
 
@@ -358,6 +360,7 @@ internal sealed partial class BluetoothView : Grid, IWidgetView, IWidgetOpens, I
 
         _rows.Clear();
         _columns.Children.Clear();
+        Devices.Clear();
     }
 
     public void Detach()
@@ -366,6 +369,7 @@ internal sealed partial class BluetoothView : Grid, IWidgetView, IWidgetOpens, I
         Strings.Changed -= OnLanguage;
 
         ClearRows();
+        _links.Leave();
 
         _subscription?.Dispose();
         _subscription = null;

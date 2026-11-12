@@ -1,3 +1,4 @@
+using Themia.Core.Links;
 using Themia.Core.SystemData;
 using Themia.Core.Widgets;
 
@@ -30,6 +31,17 @@ public static class DiskScopes
     {
         ArgumentNullException.ThrowIfNull(disk);
         return disk.Scope == DiskScope.AllDrives ? SystemInterests.AllDrives : DiskRules.Root(disk.Drive) ?? systemRoot;
+    }
+
+    /// <summary>
+    /// [S-11952] The drive a disk atom is on its view's links: its drive (the system drive when none is chosen),
+    /// keyed as every drive widget keys one (<see cref="LinkKeys.Drive"/>); every drive together is no one drive
+    /// and takes no part.
+    /// </summary>
+    public static DriveLink? DriveLink(IDiskScope disk, string systemRoot)
+    {
+        ArgumentNullException.ThrowIfNull(disk);
+        return disk.Scope == DiskScope.AllDrives ? null : LinkKeys.DriveLink(DiskRules.Root(disk.Drive) ?? systemRoot);
     }
 
     /// <summary>[S-2513] The disk activity of its series.</summary>

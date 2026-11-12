@@ -5,6 +5,7 @@ using Themia.App.Services;
 using Themia.App.Shell;
 using Themia.App.Shell.Config;
 using Themia.App.Widgets;
+using Themia.Core.Links;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
@@ -35,6 +36,7 @@ public sealed class DriveFactsModule : IWidgetModule
         Sizing = c => FactsRules.Sizing((FactsConfig)c),
         SizeSets = FactsRules.SizeSets,
         Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader,
+        Links = LinkUse.Of([LinkTopicId.HoveredDrive], [LinkTopicId.HoveredDrive]),
         Add = new(AddFolderId.Devices, 2, 1),
     };
 
@@ -101,6 +103,14 @@ internal sealed partial class DriveFactsView : StackPanel, IWidgetView, IWidgetS
 {
     private readonly IWidgetHost _host;
     private readonly List<RowBlock> _rows = [];
+
+    /// <summary>
+    /// [S-11950] The card is its drive on the view's links: the pointer on it publishes the drive
+    /// (<see cref="LinkTopics.HoveredDrive"/>), and the whole card takes the item layer's hover fill while the
+    /// drive is pointed at elsewhere ([S-11903]).
+    /// </summary>
+    private readonly WidgetLinks _links = new();
+    private LinkCard<DriveLink>? _card;
     private IWidgetSurface? _surface;
     private IDisposable? _watch;
     private DriveFactsConfig _config = new();
@@ -113,6 +123,8 @@ internal sealed partial class DriveFactsView : StackPanel, IWidgetView, IWidgetS
 
     public void Bind(IWidgetSurface surface) => _surface = surface;
 
+    private LinkCard<DriveLink> Card => _card ??= new LinkCard<DriveLink>(_links, LinkTopics.HoveredDrive, this);
+
     public void Attach(Ticker ticker, WidgetConfig config)
     {
         Strings.Changed -= OnLanguage;
@@ -120,6 +132,8 @@ internal sealed partial class DriveFactsView : StackPanel, IWidgetView, IWidgetS
         _config = config as DriveFactsConfig ?? new DriveFactsConfig();
         _watch?.Dispose();
         _watch = _host.Drives.Watch(ticker, Show);
+        _links.Join(_surface?.Links);
+        Card.Publishes(this);
         Show();
     }
 
@@ -140,6 +154,7 @@ internal sealed partial class DriveFactsView : StackPanel, IWidgetView, IWidgetS
 
         var locale = Strings.Current;
         var drive = _previewDrive ?? DriveRules.Pick(_host.Drives.Drives, _config.Drive, SystemDrive.Root);
+        Card.Key = LinkKeys.DriveLink(drive.Root);
         _surface?.SetHeaderTitle(DriveRules.Title(locale, drive));
         var facts = FactsRules.Pick(locale, DriveRules.Sheet(locale, drive), _config.Facts, DriveRules.Facts);
 
@@ -166,6 +181,8 @@ internal sealed partial class DriveFactsView : StackPanel, IWidgetView, IWidgetS
         Strings.Changed -= OnLanguage;
         _watch?.Dispose();
         _watch = null;
+        Card.Release();
+        _links.Leave();
     }
 
     /// <summary>[S-11850] A sample's or a render's own drive, in place of the walk.</summary>

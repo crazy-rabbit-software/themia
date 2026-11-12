@@ -1,9 +1,10 @@
-using Themia.Sdk.Kit;
 using System.Text.Json.Serialization;
 using Microsoft.UI.Xaml;
 using Themia.App.Shell;
+using Themia.Core.Links;
 using Themia.Core.Widgets;
 using Themia.Sdk;
+using Themia.Sdk.Kit;
 using Themia.Sdk.WinUI;
 using Themia.Widget.DeviceBatteries;
 
@@ -28,6 +29,7 @@ public sealed class DeviceBatteriesModule : IWidgetModule
         Sizing = c => KitSizing.Sizing(KitSizing.Choice((DeviceBatteriesConfig)c), addFooter: false),
         SizeSets = (c, s) => KitSizing.SizeSets(c, s, KitSizing.Choice((DeviceBatteriesConfig)c), addFooter: false),
         Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader,
+        Links = LinkUse.Of([LinkTopicId.HoveredDevice], [LinkTopicId.HoveredDevice]),
         Add = new(AddFolderId.Devices, 1, 2),
     };
 

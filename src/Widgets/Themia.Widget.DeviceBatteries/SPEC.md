@@ -54,6 +54,9 @@ receiver here reports no battery to Windows and is correctly not listed.
   `IKitRows`, `KitMenuLines.Rows` without a lines choice: every row has its second line), its height
   following them (36 + 40 a row + 12, `KitSizing`, 220..520 wide, a new one 300 × 208); more devices
   scroll inside them. Its menu: Low battery at, Show charging devices, Rows.
+- View links: a row read through a Bluetooth endpoint is that device by its address (a container's or a
+  controller's reading none); the pointer on it publishes the device, and a row takes the hover fill while its device
+  is pointed at elsewhere on the view ([S-11955], [S-11958]).
 
 Needs a manual pass: every size tier on the live desktop (showcase views, [S-1810]), with a headset
 connecting and disconnecting while the widget shows (the device watchers, [S-4472]).

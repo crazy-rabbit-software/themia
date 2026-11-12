@@ -87,6 +87,9 @@ public sealed partial class MeterView : Grid, IWidgetView, IWidgetOpens, IWidget
 
         // [S-11910] The moment pointed at on the view's history charts.
         JoinInstants();
+
+        // [S-11953] The drive pointed at on the view, for a meter of one drive.
+        JoinDrives();
     }
 
     /// <summary>[S-663] The card's word on how much room the meter has.</summary>
@@ -117,6 +120,7 @@ public sealed partial class MeterView : Grid, IWidgetView, IWidgetOpens, IWidget
         _detached = false;
         ApplyConfig(config);
         _links.Join(_surface?.Links);
+        _driveCard?.Publishes(this);
     }
 
     public void ApplyConfig(WidgetConfig config)
@@ -127,6 +131,7 @@ public sealed partial class MeterView : Grid, IWidgetView, IWidgetOpens, IWidget
 
         _part.ApplyConfig(_config, this);
         UseLook(_part.Look(_config));
+        ShowDrive();
 
         // [S-1121] The span at the series' spacing ([S-2512]: a ping point is five seconds).
         var series = _part.Series(_config);
@@ -312,6 +317,7 @@ public sealed partial class MeterView : Grid, IWidgetView, IWidgetOpens, IWidget
     public void Detach()
     {
         _detached = true;
+        _driveCard?.Release();
         _links.Leave();
         _standsAt = null;
 

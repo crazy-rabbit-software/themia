@@ -34,7 +34,7 @@ public sealed class DiskHistoryModule : IWidgetModule
         Glyph = Glyphs.Disk,
         Sizing = _ => MeterSizing.History,
         Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader | WidgetTraits.StartsHeaderless,
-        Links = LinkUse.Of([LinkTopicId.HoveredInstant], [LinkTopicId.HoveredInstant]),
+        Links = LinkUse.Of([LinkTopicId.HoveredInstant, LinkTopicId.HoveredDrive], [LinkTopicId.HoveredInstant, LinkTopicId.HoveredDrive]),
         Add = new(AddFolderId.System, 0, 4),
     };
 
@@ -83,6 +83,9 @@ internal sealed class DiskHistoryMeter(IWidgetHost host) : DiskPart(host)
 {
     /// <summary>[S-11910] The moment under the pointer on its history goes to the view; a moment pointed at elsewhere is marked on it.</summary>
     public override LinkTopic<InstantLink>? Instant => LinkTopics.HoveredInstant;
+
+    /// <summary>[S-11953] The card is its drive on the view's links: it publishes it (with the moment) and lights for it.</summary>
+    public override LinkTopic<DriveLink>? Drive => LinkTopics.HoveredDrive;
 
     public override WidgetId Kind => new("diskHistory");
 

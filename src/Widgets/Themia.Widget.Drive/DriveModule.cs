@@ -3,6 +3,7 @@ using Microsoft.UI.Xaml;
 using Themia.App.Shell;
 using Themia.App.Shell.Config;
 using Themia.App.Widgets;
+using Themia.Core.Links;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
@@ -33,7 +34,8 @@ public sealed class DriveModule : IWidgetModule
         Description = DriveStr.Drives_Drive_Desc.Local(),
         Glyph = Glyphs.Disk,
         Sizing = c => DriveFace.Sizing(((DriveConfig)c).Style),
-        Traits = WidgetTraits.CanHaveHeader,
+        Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader,
+        Links = LinkUse.Of([LinkTopicId.HoveredDrive], [LinkTopicId.HoveredDrive]),
         Add = new(AddFolderId.Devices, 2, 0),
     };
 

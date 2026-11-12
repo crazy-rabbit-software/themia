@@ -46,6 +46,10 @@ public abstract class DiskPart(IWidgetHost widgetHost) : MeterPart
     /// <summary>[S-11912] A point is the drive's reads and writes per second, as the reading writes it.</summary>
     public override string? ValueAt(SeriesPoint point) => double.IsFinite(point.First) ? Formatting.Rate(point.First) : null;
 
+    /// <summary>[S-11952] Its drive (the system drive when none is chosen); every drive together is none.</summary>
+    public override Themia.Core.Links.DriveLink? DriveOf(WidgetConfig config)
+        => config is IDiskScope disk ? DiskScopes.DriveLink(disk, SystemDrive.Root) : null;
+
     /// <summary>[S-2016] A click on the card opens Task Manager.</summary>
     public override CardOpen? Opens(WidgetConfig config) => CardOpen.TaskManager;
 

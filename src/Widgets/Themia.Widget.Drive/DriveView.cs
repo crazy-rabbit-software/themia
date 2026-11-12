@@ -65,6 +65,7 @@ internal sealed partial class DriveView : Grid, IWidgetView, IWidgetOpens, IWidg
 
         _watch?.Dispose();
         _watch = _widgetHost.Drives.Watch(ticker, Show);
+        JoinLinks();
 
         Show();
     }
@@ -95,6 +96,7 @@ internal sealed partial class DriveView : Grid, IWidgetView, IWidgetOpens, IWidg
         }
 
         _drive = _previewDrive ?? DriveRules.Pick(service.Drives, _config.Drive, SystemDrive.Root);
+        LinkDrive();
         _surface?.SetHeaderTitle(DriveRules.Title(Strings.Current, _drive));
         Lay();
     }
@@ -164,6 +166,7 @@ internal sealed partial class DriveView : Grid, IWidgetView, IWidgetOpens, IWidg
         Strings.Changed -= OnLanguage;
         _watch?.Dispose();
         _watch = null;
+        LeaveLinks();
     }
 
     /// <summary>[S-11850] A sample's or a render's own drive, in place of the walk.</summary>

@@ -3,6 +3,7 @@ using Microsoft.UI.Xaml;
 using Themia.App.Shell;
 using Themia.App.Shell.Config;
 using Themia.App.Widgets;
+using Themia.Core.Links;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
@@ -35,6 +36,7 @@ public sealed class BluetoothModule : IWidgetModule
         Sizing = c => KitSizing.Sizing(KitSizing.Choice((BluetoothConfig)c), addFooter: false),
         SizeSets = (c, s) => KitSizing.SizeSets(c, s, KitSizing.Choice((BluetoothConfig)c), addFooter: false),
         Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader,
+        Links = LinkUse.Of([LinkTopicId.HoveredDevice], [LinkTopicId.HoveredDevice]),
         Add = new(AddFolderId.Devices, 1, 1),
     };
 

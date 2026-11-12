@@ -170,6 +170,8 @@ Not ported: header double-click opens Explorer (orig. S-07; a single click on th
 - View links: each entry (a row or a cell, every style) is its file; the pointer or the keyboard cursor on it
   publishes the file pointed at, and an entry pointed at elsewhere on the view is drawn as under the pointer, over
   its own selection ([S-11945], [S-11948]).
+- View links: pointing at the header or the path crumb publishes the drive the folder is on, and the whole card
+  takes the hover fill while that drive is pointed at elsewhere on the view ([S-11950], [S-11954]).
 
 Needs a live pass: a real folder (navigation, the lasso, double-click and Enter opening, rename,
 New, Delete to the Recycle Bin), drag in and out with Explorer and Outlook, the Explorer menu's

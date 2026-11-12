@@ -14,6 +14,11 @@ namespace Themia.App.Widgets;
 /// the view; a reading of the same subject (the same series: the same adapter, drive, host) shows its
 /// value then, with the moment as its caption, for as long as the hover lasts, and is live again after.
 /// A meter whose part names no instant topic takes no part.
+/// <para>
+/// [S-11953] A meter of one drive (its part names <see cref="MeterPart.Drive"/>) is that drive as a whole card
+/// (<see cref="LinkCard{T}"/>): the pointer on it publishes the drive, besides the moment a history publishes, and
+/// the card takes the item layer's hover fill while the drive is pointed at elsewhere; every drive together is none.
+/// </para>
 /// </summary>
 public sealed partial class MeterView
 {
@@ -29,6 +34,27 @@ public sealed partial class MeterView
 
     /// <summary>Whether the face draws a history the pointer can stand on.</summary>
     private bool Charts => _graph || _look == MeterLook.Graphs;
+
+    /// <summary>[S-11953] The card as its drive: what it publishes under the pointer and lights for; null for a kind about no drive.</summary>
+    private LinkCard<DriveLink>? _driveCard;
+
+    /// <summary>[S-11953] Take part as a drive when the kind names the topic (from the constructor).</summary>
+    private void JoinDrives()
+    {
+        if (_part.Drive is { } topic)
+        {
+            _driveCard = new LinkCard<DriveLink>(_links, topic, this);
+        }
+    }
+
+    /// <summary>[S-11952] The drive the config is about now (every drive together: none).</summary>
+    private void ShowDrive()
+    {
+        if (_driveCard is { } card)
+        {
+            card.Key = _part.DriveOf(_config);
+        }
+    }
 
     /// <summary>Take part when the kind names the topic (from the constructor).</summary>
     private void JoinInstants()

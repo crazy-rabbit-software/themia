@@ -40,7 +40,11 @@ internal sealed partial class DeviceBatteriesView : Grid, IWidgetView, IWidgetHe
     {
         _host = host;
         _source = new BatterySource(host.DeviceBatteries, () => _config);
-        _binding = new KitBinding(host, DeviceBatteriesSpec.Spec, Glyphs.Devices, DeviceBatteriesSpec.Actions, Run);
+        _binding = new KitBinding(host, DeviceBatteriesSpec.Spec, Glyphs.Devices, DeviceBatteriesSpec.Actions, Run)
+        {
+            Decorate = LinkRow,
+            Redrawing = ForgetRows,
+        };
 
         Children.Add(_binding.List);
         Children.Add(_binding.State);
@@ -57,10 +61,15 @@ internal sealed partial class DeviceBatteriesView : Grid, IWidgetView, IWidgetHe
         _config = config as DeviceBatteriesConfig ?? new DeviceBatteriesConfig();
         _attached = true;
         _source.Start(ticker);
+        _links.Join(_surface?.Links);
         _binding.Attach(ticker, _source, _config, Redraw);
     }
 
-    public void Bind(IWidgetSurface surface) => _binding.Surface(surface);
+    public void Bind(IWidgetSurface surface)
+    {
+        _surface = surface;
+        _binding.Surface(surface);
+    }
 
     public void ApplySize(WidgetArea area) => _binding.Size(area);
 
@@ -81,6 +90,7 @@ internal sealed partial class DeviceBatteriesView : Grid, IWidgetView, IWidgetHe
         _attached = false;
         _binding.Dispose();
         _source.Stop();
+        _links.Leave();
     }
 
     /// <summary>[S-10005] Open (double-click, Enter): Windows' Bluetooth &amp; devices page; a preview opens nothing.</summary>

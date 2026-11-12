@@ -108,6 +108,24 @@ public static class LinkKeys
     /// <summary>[S-11956] The value a device is published as, or null for none.</summary>
     public static DeviceLink? DeviceLink(string? address) => Device(address) is { } key ? new DeviceLink(key) : null;
 
+    /// <summary>
+    /// [S-11957] A Bluetooth device by the id Windows gives its association endpoint
+    /// (<c>Bluetooth#Bluetooth&lt;radio&gt;-&lt;device&gt;</c>, <c>BluetoothLE#BluetoothLE&lt;radio&gt;-&lt;device&gt;</c>):
+    /// the device's own address, after the last dash. Any other id (a device container's, a game controller's,
+    /// a node's) names no address and is null: a device is never guessed from its name.
+    /// </summary>
+    public static DeviceLink? DeviceOfEndpoint(string? id)
+    {
+        var text = id?.Trim();
+        if (text is null || !text.StartsWith("Bluetooth", StringComparison.OrdinalIgnoreCase) || text.IndexOf('#') is var hash && hash < 0)
+        {
+            return null;
+        }
+
+        var dash = text.LastIndexOf('-');
+        return dash > hash && dash < text.Length - 1 ? DeviceLink(text[(dash + 1)..]) : null;
+    }
+
     private static string? Address(string? address)
     {
         var text = address?.Trim();

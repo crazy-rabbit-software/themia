@@ -13,6 +13,9 @@ internal sealed class DiskMeter(IWidgetHost host) : DiskPart(host)
     /// <summary>[S-11912] At a moment pointed at on a history of its subject, the reading shows its value then.</summary>
     public override LinkTopic<InstantLink>? Instant => LinkTopics.HoveredInstant;
 
+    /// <summary>[S-11953] The card is its drive on the view's links: it publishes it and lights for it.</summary>
+    public override LinkTopic<DriveLink>? Drive => LinkTopics.HoveredDrive;
+
     public override WidgetId Kind => new WidgetId("disk");
 
     public override MeterLook Look(WidgetConfig config) => Look((config as DiskConfig)?.Style ?? DiskStyle.Number);

@@ -29,6 +29,8 @@ languages). Tests: `Tests/RemovableDrivesTests.cs` (run by `tests/Themia.Modules
   keys ([S-4664]), as no list row carries a control of its own (G2). A double click opens the device.
   A render draws the kind's glyph, not the shell's picture ([S-4657]).
 - **[S-4664]** Keys: Up and Down walk the devices, Enter opens one, Delete or E ejects it, Escape lets go.
+- View links: a row is its drive; the pointer or the keyboard cursor on it publishes the drive pointed at, and a row
+  takes the hover fill while its drive is pointed at elsewhere on the view ([S-11950]).
 
 Needs a manual pass: the widget on a live desktop (a stick plugged in and ejected, a card reader with
 and without a card, a disc, the keys).

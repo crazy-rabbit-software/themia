@@ -40,7 +40,7 @@ public sealed class FolderModule : IWidgetModule
         Glyph = Glyphs.Folder,
         Sizing = c => FolderLayout.Sizing((FolderConfig)c),
         Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader,
-        Links = LinkUse.Of([LinkTopicId.HoveredFile], [LinkTopicId.HoveredFile]),
+        Links = LinkUse.Of([LinkTopicId.HoveredFile, LinkTopicId.HoveredDrive], [LinkTopicId.HoveredFile, LinkTopicId.HoveredDrive]),
         Add = new(AddFolderId.Files, 0, 0, Popular: 9),
     };
 
