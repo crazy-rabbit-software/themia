@@ -54,7 +54,6 @@ internal sealed partial class MusicView : Grid, IWidgetView, IWidgetOpens, IWidg
 
     /// <summary>[S-2155] The side cover: a square at the content's left, the lines and the transport beside it.</summary>
     private readonly Border _sideArt;
-    private readonly FontIcon _sidePlaceholder;
     private readonly Image[] _pictures;
     private readonly FontIcon[] _placeholders;
     private readonly string _glyph;
@@ -115,11 +114,11 @@ internal sealed partial class MusicView : Grid, IWidgetView, IWidgetOpens, IWidg
         var (lead, leadPicture, leadPlaceholder) = ArtFrame(_glyph, FamilyShape.Icon, square: true);
         var (over, overPicture, overPlaceholder) = ArtFrame(_glyph, FamilyShape.IconHuge, square: true);
         var (cover, coverPicture, coverPlaceholder) = ArtFrame(_glyph, FamilyShape.IconHuge, square: false);
-        var (side, sidePicture, sidePlaceholder) = ArtFrame(_glyph, FamilyShape.IconHuge, square: true);
+        // Its placeholder is the 32 glyph, which the smallest side square (48) still holds.
+        var (side, sidePicture, sidePlaceholder) = ArtFrame(_glyph, FamilyShape.IconLarge, square: true);
         side.Margin = new Thickness(0, 0, FamilySpace.ColumnGap, 0);
         Grid.SetRowSpan(side, 4);
         _sideArt = side;
-        _sidePlaceholder = sidePlaceholder;
         lead.Width = MusicFace.LeadArt;
         lead.Height = MusicFace.LeadArt;
         lead.Margin = new Thickness(0, 0, FamilySpace.GlyphGap, 0);

@@ -64,9 +64,6 @@ internal sealed partial class MusicView
             case MusicArt.Side:
                 _sideArt.Width = plan.ArtSize;
                 _sideArt.Height = plan.ArtSize;
-
-                // The placeholder is the largest family glyph within half the square.
-                _sidePlaceholder.FontSize = plan.ArtSize >= 2 * FamilyShape.IconHuge ? FamilyShape.IconHuge : FamilyShape.IconLarge;
                 break;
         }
 

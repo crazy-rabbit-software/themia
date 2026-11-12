@@ -33,7 +33,7 @@ module host's `MusicHostTests`.
   `MusicFace.Side`, tests `MusicFaceTests`): from a regular width the cover is a square at the
   content's left, as tall as the room between the header and the bottom inset, at most half the
   content's width, in the one radius (no picture: today's placeholder, the music glyph on the control
-  fill, 48 from a 96 square, else 32); 12 from it a column with the title and the artist at its top
+  fill, 32); 12 from it a column with the title and the artist at its top
   and the progress row and the transport (Play the one accent action) at its bottom, by the ladder
   above. Where that column would be narrower than the whole transport (112: three 32 buttons 8
   apart) the cover gives way first, a smaller square, never the controls; a square that would be
