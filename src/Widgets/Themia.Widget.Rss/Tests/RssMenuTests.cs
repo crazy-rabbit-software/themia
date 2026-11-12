@@ -36,6 +36,9 @@ public sealed class RssMenuTests
                 RssStr.WidgetsC_Rss_Settings_Preview_Label.Text(),
                 RssStr.WidgetsC_Rss_Settings_Date_Label.Text(),
                 RssStr.WidgetsC_Rss_Settings_Articles.Text(),
+                Str.Kit_Rows.Text(),
+                Str.Kit_Lines.Text(),
+                Str.Kit_Columns.Text(),
                 Str.EditBar_Link_UpdateInterval.Text(),
             ],
             lines.Lines.Where(l => !l.IsSeparator).Select(l => l.Text));

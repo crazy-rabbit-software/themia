@@ -41,6 +41,11 @@ internal static class RssMenu
         ]));
         menu.Lines.Add(KitMenuLines.Count(menu, Glyphs.Count, RssStr.WidgetsC_Rss_Settings_Articles.Text(), config.EffectiveMaxItems, 5, 50, 5, value => config.MaxItems = value));
 
+        // [S-11403] How many headlines, their lines where a headline has more than one, and the columns.
+        menu.Lines.Add(ItemMenuEntry.Separator);
+        menu.Lines.AddRange(KitMenuLines.Rows(menu, config, offersLines: config.MostLines >= 2, mostLines: config.MostLines));
+        menu.Lines.Add(KitMenuLines.Columns(menu, config));
+
         // [S-3749] How often the feeds are asked: ⚙'s, for every feed widget at once.
         menu.Lines.Add(ItemMenuEntry.Separator);
         menu.Lines.Add(menu.Link(new SettingLink(OwnedSetting.OnlineUpdates, HostCadences.Feeds)));

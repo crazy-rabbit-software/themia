@@ -120,73 +120,53 @@ public sealed class RssTests
     // ---- [S-1305] the ladder -----------------------------------------------------------------
 
     // The size tiers as content slots (the card less a 36 header).
-    public static TheoryData<string, double, double> Tiers => new()
-    {
-        { "XS", 120, 84 },
-        { "S", 200, 114 },
-        { "M", 320, 204 },
-        { "Wide", 480, 124 },
-        { "Tall", 200, 364 },
-        { "L", 560, 384 },
-        { "XL", 800, 524 },
-    };
+    private static KitPlan Plan(RssConfig config, double width)
+        => KitLadder.Plan(new WidgetArea(width, 400), RssSpec.Spec, ((IKitConfig)config).Choices);
 
-    [Theory]
-    [MemberData(nameof(Tiers))]
-    public void S1305_OneWholeRowFitsAtEveryTier(string tier, double width, double height)
+    [Fact]
+    public void S11403_a_new_feed_is_five_headlines_of_two_lines_in_one_column_at_any_width()
     {
-        var area = new WidgetArea(width, height);
-        var plan = KitLadder.Plan(area, RssSpec.Spec, RssSpec.Shows(true, true, true));
+        var config = new RssConfig();
+        var narrow = Plan(config, 220);
+        var wide = Plan(config, 520);
 
-        Assert.True(KitLadder.Fit(plan, KitLadder.ListHeight(area)) >= 1, tier);
+        Assert.Equal(narrow with { ColumnWidth = 0 }, wide with { ColumnWidth = 0 });
+        Assert.Equal((1, 2), (wide.Columns, wide.Lines));
+        Assert.True(wide.Lead && wide.Subtitle && wide.When);
+        Assert.False(wide.Preview);
+        Assert.Equal(new Themia.Sdk.SizeDip(300, 36 + (5 * 40) + 12), new RssModule().Descriptor.Sizing(config).Natural);
     }
 
     [Fact]
-    public void S1305_TheSmallestTileShowsTheHeadlineAlone()
+    public void S11403_three_lines_add_the_summary_and_two_columns_double_the_width()
     {
-        var plan = KitLadder.Plan(new WidgetArea(120, 84), RssSpec.Spec, RssSpec.Shows(true, true, true));
+        var config = new RssConfig { Lines = 3, Columns = 2 };
+        var plan = Plan(config, 600);
+        var sizing = new RssModule().Descriptor.Sizing(config);
 
-        Assert.Equal(1, plan.Columns);
+        Assert.True(plan.Preview);
+        Assert.Equal(2, plan.Columns);
+        Assert.Equal((440, 600, 1040), (sizing.Min.Width, sizing.Natural.Width, sizing.Max.Width));
+    }
+
+    [Fact]
+    public void S11403_switched_off_fields_take_their_lines_with_them()
+    {
+        var config = new RssConfig { ShowSource = false, ShowPreview = false, ShowDate = false, Lines = 3 };
+        var plan = Plan(config, 400);
+
+        Assert.Equal(1, config.RowsShown.Lines);
+        Assert.False(plan.Lead || plan.Subtitle || plan.When || plan.Preview);
         Assert.Equal(1, plan.Lines);
-        Assert.False(plan.Lead);
-        Assert.False(plan.When);
-        Assert.False(plan.Subtitle);
     }
 
     [Fact]
-    public void S1305_AStripIsOneLineAColumnOfHeadlinesAndTheirTimes()
+    public void S11403_rows_lines_and_columns_out_of_range_are_repaired_and_copied()
     {
-        var wide = KitLadder.Plan(new WidgetArea(480, 124), RssSpec.Spec, RssSpec.Shows(true, true, true));
-
-        Assert.Equal(1, wide.Columns);
-        Assert.Equal(1, wide.Lines);
-        Assert.True(wide.Lead && wide.When);
-    }
-
-    [Fact]
-    public void S1305_ARegularTileAddsTheSourceLine()
-    {
-        foreach (var (w, h) in new[] { (320.0, 196.0), (200.0, 356.0) })
-        {
-            var plan = KitLadder.Plan(new WidgetArea(w, h), RssSpec.Spec, RssSpec.Shows(true, true, true));
-            Assert.Equal(2, plan.Lines);
-            Assert.True(plan.Subtitle);
-            Assert.False(plan.Preview);
-        }
-    }
-
-    [Fact]
-    public void S1305_TheLargestTileShowsMoreHeadlinesNotAReadingPane()
-    {
-        // The feed is its headlines at every size: L and XL add the summary line and, where two
-        // columns each keep 320, a second column, never a list beside a pane reading one item.
-        var large = KitLadder.Plan(new WidgetArea(560, 384), RssSpec.Spec, RssSpec.Shows(true, true, true));
-        var xl = KitLadder.Plan(new WidgetArea(800, 524), RssSpec.Spec, RssSpec.Shows(true, true, true));
-
-        Assert.Equal(1, large.Columns);
-        Assert.True(large.Preview);
-        Assert.Equal(2, xl.Columns);
-        Assert.Equal(3, xl.Lines);
+        var config = new RssConfig { Rows = 40, Lines = 0, Columns = 3 };
+        Assert.NotEmpty(config.Repair());
+        var copy = (RssConfig)config.Clone();
+        Assert.Equal((20, 1, 2), (copy.Rows, copy.Lines, copy.Columns));
     }
 
     /// <summary>[S-1306] With nothing focused, every movement key but End lands on the newest headline, as every kit list ([S-7020]); it was the last one for Up and Left.</summary>
@@ -197,16 +177,4 @@ public sealed class RssTests
     [InlineData(WidgetKey.End, 9)]
     public void S1306_up_with_no_headline_focused_lands_on_the_first(WidgetKey key, int lands)
         => Assert.Equal(new KitKeyResult(KitKeyCommand.Focus, lands), KitKeys.Decide(key, -1, 10));
-
-    [Fact]
-    public void S1305_SwitchedOffFieldsStayOff()
-    {
-        var plan = KitLadder.Plan(new WidgetArea(560, 384), RssSpec.Spec, RssSpec.Shows(false, false, false));
-
-        Assert.False(plan.Lead);
-        Assert.False(plan.Subtitle);
-        Assert.False(plan.When);
-        Assert.False(plan.Preview);
-        Assert.Equal(1, plan.Lines);
-    }
 }

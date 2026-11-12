@@ -6,6 +6,7 @@ using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
 using Themia.Sdk;
+using Themia.Sdk.Kit;
 using Themia.Sdk.WinUI;
 using Themia.Widget.Rss;
 
@@ -27,7 +28,8 @@ public sealed class RssModule : IWidgetModule
         Label = RssStr.WidgetsA_Catalog_Feed_Label.Local(),
         Description = RssStr.WidgetsA_Catalog_Feed_Description.Local(),
         Glyph = Glyphs.Rss,
-        Sizing = _ => WidgetSizing.Legacy(360, 280),
+        Sizing = c => KitSizing.Sizing(((RssConfig)c).RowsShown, addFooter: false),
+        SizeSets = (c, size) => KitSizing.SizeSets(c, size, ((RssConfig)c).RowsShown, addFooter: false),
         Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader,
         Add = new(AddFolderId.Markets, 1, 0),
     };

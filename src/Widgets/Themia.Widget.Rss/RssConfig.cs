@@ -31,8 +31,30 @@ public sealed class RssFeed
 /// link and summary that comes back is attacker-controlled text, displayed and never interpreted.
 /// </para>
 /// </summary>
-public sealed class RssConfig : WidgetConfig, IKitConfig, IInterests
+public sealed class RssConfig : WidgetConfig, IKitConfig, IInterests, IKitRows, IKitColumns
 {
+    /// <summary>[S-11403] A new feed widget's rows.</summary>
+    public const int DefaultRows = 5;
+
+    /// <summary>[S-11403] How many headlines each column shows; more scroll inside them. Its height follows.</summary>
+    public int Rows { get; set; } = DefaultRows;
+
+    /// <summary>[S-11403] Lines per headline: the headline, then the site, then the summary.</summary>
+    public int Lines { get; set; } = 2;
+
+    /// <summary>[S-11403] The headlines in one column or two side by side: the user's, never the width's.</summary>
+    public int Columns { get; set; } = 1;
+
+    /// <summary>[S-11403] The most lines a headline has with these fields: the site's line and the summary's where on.</summary>
+    [JsonIgnore]
+    public int MostLines => 1 + (ShowSource ? 1 : 0) + (ShowPreview ? 1 : 0);
+
+    /// <summary>[S-11403] The rows as drawn: the chosen count in the chosen columns, at most the lines a headline has.</summary>
+    [JsonIgnore]
+    public KitRowsChoice RowsShown => new(KitSizing.ClampRows(Rows), KitSizing.ClampLines(Lines, MostLines), KitSizing.ClampColumns(Columns));
+
+    KitChoices IKitConfig.Choices => new(Shows) { Rows = RowsShown };
+
     /// <summary>[S-1862] What its Set up row says it waits for.</summary>
     string? ISetupRule.SetupSentence => RssStr.WidgetsC_Rss_Settings_Add_Title.Text();
 
@@ -153,6 +175,12 @@ public sealed class RssConfig : WidgetConfig, IKitConfig, IInterests
             feed.Url ??= string.Empty;
         }
 
+        if (Rows != KitSizing.ClampRows(Rows) || Lines != KitSizing.ClampLines(Lines, KitSizing.MaxLines) || Columns != KitSizing.ClampColumns(Columns))
+        {
+            (Rows, Lines, Columns) = (KitSizing.ClampRows(Rows), KitSizing.ClampLines(Lines, KitSizing.MaxLines), KitSizing.ClampColumns(Columns));
+            repairs.Add("rss: rows, lines or columns out of range");
+        }
+
         return repairs;
     }
 
@@ -163,5 +191,8 @@ public sealed class RssConfig : WidgetConfig, IKitConfig, IInterests
         ShowSource = ShowSource,
         ShowPreview = ShowPreview,
         ShowDate = ShowDate,
+        Rows = Rows,
+        Lines = Lines,
+        Columns = Columns,
     };
 }

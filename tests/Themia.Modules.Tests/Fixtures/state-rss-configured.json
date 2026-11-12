@@ -27,6 +27,9 @@
           "scale": 1,
           "config": {
             "kind": "rss",
+            "rows": 5,
+            "lines": 2,
+            "columns": 1,
             "feeds": [
               {
                 "url": "https://news.example/rss"
@@ -65,6 +68,9 @@
           "scale": 1,
           "config": {
             "kind": "rss",
+            "rows": 5,
+            "lines": 2,
+            "columns": 1,
             "feeds": [
               {
                 "url": "https://only.example/atom.xml"
@@ -97,6 +103,9 @@
           "scale": 1,
           "config": {
             "kind": "rss",
+            "rows": 5,
+            "lines": 2,
+            "columns": 1,
             "feeds": [
               {
                 "url": "not a url"
@@ -132,6 +141,9 @@
           "scale": 1,
           "config": {
             "kind": "rss",
+            "rows": 5,
+            "lines": 2,
+            "columns": 1,
             "feeds": [],
             "maxItems": 20,
             "showSource": true,

@@ -31,7 +31,14 @@ sample|single|stale|failed|empty|loading`, sample feeds on the reserved `.exampl
   feeds is out, the kit header's ring turns (classic S-33), so Refresh is never a button with no
   visible effect; the card menu's line says how old the oldest list on screen is ("Refresh · updated
   4 min ago", [S-7042]; the age is no longer in the header).
-- **[S-1305]** Rss ladder (the kit's rich look, `KitLadder.Plan` over `RssSpec.Spec` ([S-7031]) on the
+- **[S-11403]** **Rss states its rows** ([S-2440]): `Rows` (1..20, default 5) headlines a column,
+  `Lines` per headline (the headline with its age; the site with its icon; the summary), offered up to
+  the lines its fields have (Source and Preview off: one), default 2, and **Columns** (1 or 2,
+  [S-11400]), what its width used to decide: two double the width range (440..1040). One column is
+  220..520, a new one 300 × 248. The height follows the rows; dragging the bottom edge sets Rows; more
+  headlines scroll inside them (the wheel as before). Nothing appears or disappears with the size:
+  [S-1305]'s ladder is gone. Tests `RssTests.S11403_`, `RssMenuTests`.
+- **[S-1305]** *(Retired by [S-11403]: the lines, the columns and the fields are the config's.)* Rss ladder (the kit's rich look, `KitLadder.Plan` over `RssSpec.Spec` ([S-7031]) on the
   family's rows, [S-6711]): one row per headline, its title the name (one line, ending in an
   ellipsis), its age the value, the site's name on the second line and the summary on the third,
   the site's icon as the lead; the lines grow with the tile both ways, the rows that fit whole show

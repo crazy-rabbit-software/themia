@@ -25,7 +25,7 @@ public sealed class WidgetSizingTests
         "clipboard", "colorFiltersToggle", "contacts", "countdown", "doNotDisturbToggle", "energySaverToggle",
         "focusSession", "gameModeToggle", "habitTracker", "hibernate", "lock", "microphoneToggle", "mixer",
         "monoAudioToggle", "music", "nextMeeting", "nightLightToggle", "notifications", "pomodoro", "quote",
-        "restart", "rotationLockToggle", "rss", "screenOff", "screenTimeApps", "screenTimeChart", "screenTimeDonut",
+        "restart", "rotationLockToggle", "screenOff", "screenTimeApps", "screenTimeChart", "screenTimeDonut",
         "shutdown", "signOut", "sleep", "soundToggle", "spatialSoundToggle", "stopwatch", "volume", "weekPlanner",
         "wifiToggle",
     ];
