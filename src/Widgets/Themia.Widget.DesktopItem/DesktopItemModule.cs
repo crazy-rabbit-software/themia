@@ -1,5 +1,6 @@
 using System.Text.Json.Serialization;
 using Microsoft.UI.Xaml;
+using Themia.Core.Links;
 using Themia.Core.Localization;
 using Themia.Core.Widgets;
 using Themia.Sdk;
@@ -40,6 +41,7 @@ public sealed class DesktopItemModule : IWidgetModule
         Traits = WidgetTraits.None,
 
         // [S-5523] Its row in Files becomes "On the desktop" (the view's unplaced items).
+        Links = LinkUse.Of([LinkTopicId.HoveredFile], [LinkTopicId.HoveredFile]),
         Add = new(AddFolderId.Files, 99, 0),
         Keywords = ["desktop", "icon", "file", "shortcut"],
     };

@@ -35,6 +35,8 @@ context), `RecentFilesConfig.cs`, `RecentFilesView.cs` (the rows, the icons thro
 - **[S-2033]** A click on the card ([S-2000]) opens File Explorer at Windows' Recent items
   (`shell:Recent`); a file's row keeps its click (it focuses; a double-click opens the file,
   [S-7065]); the module decides it (`RecentFilesModule.Opens`).
+- View links: a row is its file; the pointer or the keyboard cursor on it publishes the file pointed at, and a row
+  pointed at elsewhere on the view is drawn as under the pointer ([S-11945], [S-11948]).
 
 Needs a live pass: opening files from Explorer and Office (the list updating), Remove from list
 (and Explorer's Home agreeing), a file on a disconnected share.

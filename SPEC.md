@@ -5802,6 +5802,26 @@ The person under the pointer (`HoveredPerson`, `PersonLink`, a hover; keyed by `
   meeting, [S-4825]); the whole card takes the item layer's hover fill while its organiser is pointed at
   elsewhere, as for its meeting ([S-11903]), and only while the line shows (Show organizer on).
 
+The file under the pointer (`HoveredFile`, `FileLink`, a hover; keyed by `LinkKeys.File`, [S-11946]):
+
+- **[S-11945]** A file or a folder is one thing across the view: a `folder`'s row or cell (each entry), a
+  `recentFiles` row, a `shortcuts` item whose target is a file or a folder ([S-11949]) and a `desktopItem` publish
+  it while the pointer (or the keyboard cursor, [S-3307]) is on it, and while a file is pointed at anywhere on the
+  view every item that is it is drawn as under the pointer: the desktop's hover (`SelectionChrome`, [S-6627]),
+  over whatever its own item selection draws ([S-6620]), so a lit item that is let go is drawn by its selection
+  alone again. Painted in place: nothing is rebuilt, scrolled or paged, and a file a widget does not show changes
+  nothing in it.
+- **[S-11946]** A file is its full path as Windows writes it (backslashes, no trailing separator but a drive
+  root's), case-folded (`LinkKeys.File`): the same file written two ways is one key. A short (8.3) spelling of a
+  folder is another string and is not resolved.
+- **[S-11947]** A path is a file only where it is a full one (`LinkKeys.LocalFileLink`: `C:\…`, a share's
+  `\\server\share\…`); a shell item (`::{…}`, `shell:…`), a web address or a bare name takes no part.
+- **[S-11948]** `folder` keys each entry by its full path, in every style (list, details, grid, icons), and its
+  keyboard cursor publishes the focused entry; `recentFiles` keys a row by its file's path, and its cursor publishes
+  it too. The focused or selected entry keeps its own mark while it is lit. `desktopItem`: the item's path is its
+  file, folder or link (This PC, the Recycle Bin and every shell item none); the whole item lights. `shortcuts`: an
+  item whose target is a file or a folder, by its stored target ([S-11949]).
+
 Topics:
 
 <!-- view-links:table (made from the descriptors; ViewLinksConformanceTests) -->
@@ -5815,7 +5835,7 @@ Topics:
 | `HoveredInstant` | Hover | `batteryHistory`, `cpuCores`, `cpuHistory`, `diskHistory`, `exchangeHistory`, `gpuHistory`, `memoryHistory`, `networkHistory`, `pingHistory`, `stockHistory` | `battery`, `batteryHistory`, `cpu`, `cpuCores`, `cpuHistory`, `disk`, `diskHistory`, `exchangeHistory`, `exchangeRate`, `gpu`, `gpuHistory`, `memory`, `memoryHistory`, `network`, `networkHistory`, `ping`, `pingHistory`, `stock`, `stockHistory` |
 | `HoveredDate` | Hover | `calendar`, `habitTracker`, `screenTimeChart`, `tasks`, `weatherForecast`, `weekPlanner` | `calendar`, `habitTracker`, `screenTimeChart`, `tasks`, `upNext`, `weatherForecast`, `weekPlanner` |
 | `HoveredPerson` | Hover | `calendar`, `contacts`, `email`, `nextMeeting`, `upNext` | `calendar`, `contacts`, `email`, `nextMeeting`, `upNext` |
-| `HoveredFile` | Hover | none | none |
+| `HoveredFile` | Hover | `desktopItem`, `folder`, `recentFiles`, `shortcuts` | `desktopItem`, `folder`, `recentFiles`, `shortcuts` |
 | `HoveredDrive` | Hover | none | none |
 | `HoveredDevice` | Hover | none | none |
 <!-- /view-links:table -->

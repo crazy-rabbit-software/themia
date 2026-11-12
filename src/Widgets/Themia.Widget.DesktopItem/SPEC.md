@@ -56,6 +56,8 @@ Owning files: everything in this folder. Tests: `Tests/DesktopItemTests.cs` (run
   selection that changed and a focus that arrived announced.
 - **[S-5609]** The icon is asked for at the pixels of the display the view is on
   (`DesktopIconPixels.For`, [S-5563]), and again when that display's scale changes (`XamlRoot.Changed`).
+- View links: the item is its file, folder or link (a shell item none); the pointer on it publishes it, and the
+  whole item is drawn as under the pointer while it is pointed at elsewhere on the view ([S-11945], [S-11949]).
 
 Needs a manual pass: the item widgets on the live desktop under Themia's items (the showcase views
 do not hold them: they are made by the reconcile), at 100 % and at a scaled display, and every

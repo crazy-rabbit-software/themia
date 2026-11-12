@@ -386,12 +386,14 @@ internal sealed partial class FolderView : IWidgetDropTarget
         {
             visual.Hovered = true;
             Paint(visual);
+            PointItem(visual, on: true);
         }
 
         void Exited(object sender, PointerRoutedEventArgs e)
         {
             visual.Hovered = false;
             Paint(visual);
+            PointItem(visual, on: false);
         }
 
         visual.Root.PointerEntered += Entered;
@@ -436,7 +438,7 @@ internal sealed partial class FolderView : IWidgetDropTarget
         var path = visual.Entry.FullPath;
         var cue = new SelectionCue(
             _selection.IsSelected(path),
-            visual.Hovered,
+            visual.Hovered || PointedElsewhere(visual), // [S-11945] the file pointed at elsewhere on the view, as under the pointer
             _selection.IsFocus(path),
             _selection.Cues,
             _active,
@@ -470,6 +472,7 @@ internal sealed partial class FolderView : IWidgetDropTarget
         // [S-6623] The selection keys, the same in every item-selecting widget.
         if (key is not (WidgetKey.Escape or WidgetKey.Deactivate) && MoveCursor(key))
         {
+            PointCursor();
             return true;
         }
 
@@ -538,6 +541,7 @@ internal sealed partial class FolderView : IWidgetDropTarget
                 _typeAhead.Reset();
                 _selection.Clear();
                 RefreshSelectionVisuals();
+                PointCursor();
                 return true;
 
             case WidgetKey.Deactivate:
@@ -547,6 +551,7 @@ internal sealed partial class FolderView : IWidgetDropTarget
                 _typeAhead.Reset();
                 _selection.Deactivate();
                 RefreshSelectionVisuals();
+                PointCursor();
                 return true;
 
             default:

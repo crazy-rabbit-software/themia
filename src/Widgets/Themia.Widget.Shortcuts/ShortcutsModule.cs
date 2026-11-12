@@ -35,7 +35,7 @@ public sealed class ShortcutsModule : IWidgetModule
         Sizing = c => ShortcutLayout.Sizing((ShortcutsConfig)c),
         SizeSets = (c, size) => ShortcutLayout.SizeSets((ShortcutsConfig)c, size),
         Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader,
-        Links = LinkUse.Of([LinkTopicId.HoveredApp], [LinkTopicId.HoveredApp, LinkTopicId.SelectedApp]),
+        Links = LinkUse.Of([LinkTopicId.HoveredApp, LinkTopicId.HoveredFile], [LinkTopicId.HoveredApp, LinkTopicId.SelectedApp, LinkTopicId.HoveredFile]),
         Add = new(AddFolderId.Files, 0, 1, Popular: 10),
     };
 

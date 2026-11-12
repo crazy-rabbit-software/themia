@@ -107,6 +107,7 @@ internal sealed partial class FolderView : Grid, IWidgetView, IWidgetOpens, IWid
 
         // Warm the New menu's template list on the pool, so the first right-click has it.
         _ = _widgetHost.Folders.NewFileTemplatesAsync();
+        _links.Join(_surface?.Links);
         ApplyConfig(config);
     }
 
@@ -196,6 +197,7 @@ internal sealed partial class FolderView : Grid, IWidgetView, IWidgetOpens, IWid
 
         DetachInput();
         ClearItems();
+        _links.Leave();
         _fade?.Dispose();
         _fade = null;
         _ticker = null;

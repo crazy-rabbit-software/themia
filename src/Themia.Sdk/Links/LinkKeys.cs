@@ -58,6 +58,14 @@ public static class LinkKeys
     public static FileLink? FileLink(string? path) => File(path) is { } key ? new FileLink(key) : null;
 
     /// <summary>
+    /// [S-11947] The file a widget names by a path, only where that path is a full one (<c>C:\…</c>, a share's
+    /// <c>\\server\share\…</c>): a shell item (<c>::{…}</c>, <c>shell:…</c>), a web address or a bare name is
+    /// no file and takes no part. Null for none.
+    /// </summary>
+    public static FileLink? LocalFileLink(string? path)
+        => path is not null && path.Trim() is { Length: > 0 } text && System.IO.Path.IsPathFullyQualified(text) ? FileLink(text) : null;
+
+    /// <summary>
     /// [S-11951] A drive: the letter and colon of a path on it, upper-case (<c>c:\Users</c> → <c>C:</c>).
     /// Null for a path not on a lettered drive (a share, nothing).
     /// </summary>

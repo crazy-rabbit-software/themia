@@ -67,6 +67,7 @@ internal sealed partial class DesktopItemView : Grid, IWidgetView, IWidgetKeys, 
 
         // Clear, not null: the empty part of the cell takes the press too.
         Background = Fluent.Clear();
+        FollowFiles();
     }
 
     /// <summary>The item drawn: the preview's own, else the host's listing's, else one named from the key alone.</summary>
@@ -124,7 +125,9 @@ internal sealed partial class DesktopItemView : Grid, IWidgetView, IWidgetKeys, 
         {
             _hovered = hovered;
             Paint();
+            PointItem(hovered);
         });
+        _links.Join(_surface?.Links);
         ApplyConfig(config);
     }
 
@@ -156,6 +159,7 @@ internal sealed partial class DesktopItemView : Grid, IWidgetView, IWidgetKeys, 
         _hover = null;
         _pressed = false;
         CloseBox();
+        _links.Leave();
     }
 
     /// <summary>
@@ -350,7 +354,8 @@ internal sealed partial class DesktopItemView : Grid, IWidgetView, IWidgetKeys, 
         var focus = _fixture.On ? _fixture.Focused : key is not null && _host.DesktopItems.ShowsFocus(key);
         var active = _fixture.On || _host.DesktopItems.Active;
         var dropTarget = _fixture.On ? _fixture.DropTarget : WidgetId is { } id && string.Equals(_host.DesktopItems.DropTargetWidget, id, StringComparison.Ordinal);
-        SelectionChrome.Paint(_chrome, new SelectionCue(Selected, _hovered, focus, focus, active, dropTarget));
+        // [S-11945] The file pointed at elsewhere on the view: the whole item as under the pointer.
+        SelectionChrome.Paint(_chrome, new SelectionCue(Selected, _hovered || PointedElsewhere, focus, focus, active, dropTarget));
 
         // [S-5545] [S-5547] A cut item and a hidden one are faded, as Explorer draws them.
         var faded = _fixture.On ? _fixture.Faded : key is not null && (_host.DesktopItems.IsCut(key) || Item?.Hidden == true);

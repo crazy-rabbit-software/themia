@@ -3,6 +3,7 @@ using Microsoft.UI.Xaml;
 using Themia.App.Shell;
 using Themia.App.Shell.Config;
 using Themia.App.Widgets;
+using Themia.Core.Links;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
@@ -39,6 +40,7 @@ public sealed class RecentFilesModule : IWidgetModule
         Sizing = c => KitSizing.Sizing(((RecentFilesConfig)c).RowsShown, addFooter: false),
         SizeSets = (c, size) => KitSizing.SizeSets(c, size, ((RecentFilesConfig)c).RowsShown, addFooter: false),
         Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader,
+        Links = LinkUse.Of([LinkTopicId.HoveredFile], [LinkTopicId.HoveredFile]),
         Add = new(AddFolderId.Files, 0, 2),
     };
 

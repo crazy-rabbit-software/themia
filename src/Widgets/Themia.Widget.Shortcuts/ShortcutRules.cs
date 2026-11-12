@@ -181,6 +181,15 @@ public static class ShortcutRules
             ? LinkKeys.App(target.Value)
             : null;
 
+    /// <summary>
+    /// [S-11949] The file a shortcut is on its view's links: a local path that is no executable (a folder, a
+    /// document, a <c>.lnk</c> or <c>.url</c> by its own path: the widget never reads a link's target), keyed
+    /// as every file widget keys it (<c>LinkKeys.LocalFileLink</c>); an executable is its app
+    /// (<see cref="AppKey"/>), a web address, a shell location, an app layout or a refused target is none.
+    /// </summary>
+    public static FileLink? FileKey(LaunchTarget target)
+        => target.Kind == LaunchKind.LocalPath && AppKey(target) is null ? LinkKeys.LocalFileLink(target.Value) : null;
+
     /// <summary>[S-1389] Whether an item is the Recycle Bin.</summary>
     public static bool IsRecycleBin(string? target) => LaunchTargets.SameTarget(target, RecycleBinState.Target);
 

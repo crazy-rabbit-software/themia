@@ -16,8 +16,10 @@ public sealed class ViewLinksAppKindsTests
     {
         var links = ModuleRegistry.Widgets.Single(m => m.Descriptor.Id.Value == id).Descriptor.Links;
 
-        Assert.Equal([LinkTopicId.HoveredApp], links.Publishes);
-        Assert.Equal([LinkTopicId.HoveredApp, LinkTopicId.SelectedApp], links.Follows);
+        Assert.Contains(LinkTopicId.HoveredApp, links.Publishes);
+        Assert.DoesNotContain(LinkTopicId.SelectedApp, links.Publishes);
+        Assert.Contains(LinkTopicId.HoveredApp, links.Follows);
+        Assert.Contains(LinkTopicId.SelectedApp, links.Follows);
     }
 
     [Fact]

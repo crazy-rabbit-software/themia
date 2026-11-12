@@ -188,6 +188,11 @@ favicons are cached per run in memory, not on disk.
   app pointed at elsewhere on the view is drawn as under the pointer (the desktop's hover), one that is the app
   picked takes the item layer's selected fill (`LinkLook.Row`: a tile, whose mark fills the cell, without the pill). A click keeps its meaning (select, open):
   shortcuts never pick.
+- **[S-11949]** View links ([S-11945]): an item whose target is a local path that is no executable (an executable
+  is its app, [S-11934]) is that file or folder by its stored target (`ShortcutRules.FileKey`, keyed by
+  `LinkKeys.LocalFileLink`): a `.lnk` or `.url` is its own path, its target never read; a site, a shell location or
+  a layout is none. The pointer or the keyboard cursor on it publishes the file pointed at, and an item that is the
+  file pointed at elsewhere on the view is drawn as under the pointer (the desktop's hover), over its own selection.
 
 Needs a live pass: drops from Explorer, Edge, Chrome and the Start menu, pointer reorder and the drag
 out on the real surface, a full and an empty Recycle Bin item, real icons and site icons, a picture and an emoji chosen through the Icon submenu (the picker on

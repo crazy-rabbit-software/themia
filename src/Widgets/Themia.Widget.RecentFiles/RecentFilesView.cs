@@ -81,6 +81,7 @@ internal sealed partial class RecentFilesView : Grid, IWidgetView, IWidgetOpens,
     {
         _detached = false;
         Strings.Changed += OnLanguage;
+        _links.Join(_surface?.Links);
 
         // A debug render never reads the user's Recent Items: its PNG must not carry their file names.
         if (_surface?.IsPreview != true)
@@ -115,6 +116,7 @@ internal sealed partial class RecentFilesView : Grid, IWidgetView, IWidgetOpens,
         ClearRows();
         _fade.Dispose();
         _state.Detach();
+        _links.Leave();
     }
 
     private void OnLanguage(Locale locale) => Render();
@@ -211,6 +213,7 @@ internal sealed partial class RecentFilesView : Grid, IWidgetView, IWidgetOpens,
         {
             _hovered = over ? index : _hovered == index ? -1 : _hovered;
             ShowCursor(bringIntoView: false);
+            PointRow(index, over);
         }));
         _rowHandles.Add(ItemMenu.Attach(row, () => RowMenu(file)));
         ToolTipService.SetToolTip(row, $"{file.Path}{Environment.NewLine}{LocaleFormat.Date(Strings.Current, file.Opened.LocalDateTime, DateStyle.Medium)} {LocaleFormat.Time(Strings.Current, file.Opened.LocalDateTime)}");
@@ -335,6 +338,7 @@ internal sealed partial class RecentFilesView : Grid, IWidgetView, IWidgetOpens,
             case ListCommand.Focus:
                 _cursor = decision.Index;
                 ShowCursor();
+                PointCursor();
                 return true;
 
             case ListCommand.Open:
@@ -354,6 +358,7 @@ internal sealed partial class RecentFilesView : Grid, IWidgetView, IWidgetOpens,
                 var had = _cursor >= 0;
                 _cursor = -1;
                 ShowCursor();
+                PointCursor();
                 return had;
 
             default:
@@ -366,7 +371,7 @@ internal sealed partial class RecentFilesView : Grid, IWidgetView, IWidgetOpens,
     {
         for (var i = 0; i < _chromes.Count; i++)
         {
-            SelectionChrome.Paint(_chromes[i], new SelectionCue(Selected: i == _cursor, Hovered: i == _hovered));
+            SelectionChrome.Paint(_chromes[i], new SelectionCue(Selected: i == _cursor, Hovered: i == _hovered || PointedElsewhere(i)));
         }
 
         if (bringIntoView && _cursor >= 0 && _cursor < _rows.Count)
