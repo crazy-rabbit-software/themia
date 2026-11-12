@@ -1,63 +1,81 @@
+using Themia.App.Widgets;
+using Themia.Core.Localization;
+using Themia.Core.Model;
 using Themia.Core.Widgets;
+using Themia.Sdk;
 using Themia.Sdk.Kit;
+using Themia.Sdk.WinUI;
 using Xunit;
 
 namespace Themia.Widget.Stopwatch.Tests;
 
-/// <summary>[S-4603] [S-4605] The stopwatch on the timers' face: the widest reading of its hour, the laps' column from an expanded width.</summary>
+/// <summary>[S-4603] [S-11302] The stopwatch on the timers' sized face: the widest reading it draws, its Size, its lap rows.</summary>
 public sealed class StopwatchFaceTests
 {
+    private static WidgetSizing Sizing(StopwatchConfig config) => StopwatchFace.Sizing(config, Locale.En);
+
     [Fact]
-    public void S4603_the_time_is_sized_for_the_widest_reading_of_its_hour()
+    public void S4603_the_time_is_sized_for_the_widest_reading_it_draws()
     {
         Assert.Equal("88:88.8", StopwatchFace.Widest(hours: false));
         Assert.Equal("88:88:88.8", StopwatchFace.Widest(hours: true));
+
+        // Under an hour with its tenth, from an hour its hours without it: the face holds the wider.
+        Assert.True(StopwatchFace.Tenths(hours: false));
+        Assert.False(StopwatchFace.Tenths(hours: true));
+        Assert.Equal("88:88:88", StopwatchFace.Worst().Value);
     }
 
     [Fact]
-    public void S4605_a_face_too_narrow_for_the_tenth_on_the_floor_step_never_shows_it()
+    public void S11302_the_card_follows_the_size_one_height_without_laps_a_small_width_range()
     {
-        // 112 wide: 88 of face; "88:88.8" on 28 is 95, "88:88" 72 (XS's 96 just holds the tenth).
-        Assert.True(StopwatchFace.Plan(new WidgetArea(120, 84), hours: false).Tenths);
-        var xs = StopwatchFace.Plan(new WidgetArea(112, 84), hours: false);
-        Assert.False(xs.Tenths);
-        Assert.Equal(FamilyType.Big28, xs.Face.Step);
-        Assert.Equal("88:88", StopwatchFace.Widest(hours: false, tenths: false));
-        Assert.True(ReadoutRules.Width(xs.Face.Step, new ReadoutText(StopwatchFace.Widest(false, xs.Tenths))) <= xs.FaceWidth);
+        var (small, medium, large) = (
+            Sizing(new StopwatchConfig { Size = ReadoutSize.Small }),
+            Sizing(new StopwatchConfig()),
+            Sizing(new StopwatchConfig { Size = ReadoutSize.Large }));
 
-        // S and larger keep it.
-        Assert.True(StopwatchFace.Plan(new WidgetArea(200, 114), hours: false).Tenths);
-        Assert.True(StopwatchFace.Plan(new WidgetArea(800, 524), hours: true).Tenths);
+        Assert.True(small.Natural.Height < medium.Natural.Height && medium.Natural.Height < large.Natural.Height);
+        Assert.True(small.Natural.Width < medium.Natural.Width && medium.Natural.Width < large.Natural.Width);
+        Assert.Equal(FamilyType.Hero68, StopwatchFace.Sized(new StopwatchConfig()).Step);
+        Assert.Equal(12 + 92 + 20 + 8 + 28 + 12 + 2, medium.Natural.Height);
+        Assert.Equal(medium.Min.Height, medium.Natural.Height);
+        Assert.False(medium.FixedWidth);
     }
 
     [Fact]
-    public void S4605_below_an_expanded_width_the_lap_line_alone_says_where_the_laps_are()
+    public void S11302_the_height_follows_the_lap_rows_and_dragging_it_sets_them()
     {
-        foreach (var area in new[] { new WidgetArea(120, 84), new WidgetArea(200, 114), new WidgetArea(320, 204), new WidgetArea(200, 364) })
-        {
-            var plan = StopwatchFace.Plan(area, hours: false);
-            Assert.Equal(0, plan.LapColumn);
-            Assert.Equal(0, plan.LapRows);
-            Assert.Equal(area.Width - (2 * FamilySpace.Inset), plan.FaceWidth);
-        }
+        var none = Sizing(new StopwatchConfig());
+        var four = Sizing(new StopwatchConfig { LapRows = 4 });
+
+        Assert.Equal(none.Natural.Height + (4 * 28), four.Natural.Height);
+        Assert.Equal(none.Natural.Height + (10 * 28), four.Max.Height);
+        Assert.Equal(4, four.HeightSteps!.Count);
+
+        var config = new StopwatchConfig { LapRows = 4 };
+        var three = Assert.IsType<StopwatchConfig>(StopwatchFace.SizeSets(config, four.Natural with { Height = none.Natural.Height + (3 * 28) }));
+        Assert.Equal(3, three.LapRows);
+        Assert.Equal(4, config.LapRows);
+        Assert.Same(config, StopwatchFace.SizeSets(config, four.Natural));
     }
 
     [Fact]
-    public void S4605_from_an_expanded_width_the_laps_take_two_fifths_in_whole_rows()
+    public void S11302_size_and_lap_rows_are_repaired_into_range_and_copied()
     {
-        // Wide: 480 × 124 — one line a lap, four whole rows in the 112 left over the bottom inset.
-        var wide = StopwatchFace.Plan(new WidgetArea(480, 124), hours: false);
-        Assert.Equal(192, wide.LapColumn);
-        Assert.Equal(480 - 192 - FamilySpace.Inset, wide.FaceWidth);
-        Assert.Equal(1, wide.LapLines);
-        Assert.Equal(4, wide.LapRows);
-        Assert.True(wide.Face.Controls);
+        var config = new StopwatchConfig { LapRows = 40, Size = (ReadoutSize)9 };
+        Assert.NotEmpty(config.Repair());
+        Assert.Equal((10, ReadoutSize.Medium), (config.LapRows, config.Size));
 
-        // XL: two lines a lap (its total under it), twelve rows of 40 in 512.
-        var xl = StopwatchFace.Plan(new WidgetArea(800, 524), hours: true);
-        Assert.Equal(320, xl.LapColumn);
-        Assert.Equal(2, xl.LapLines);
-        Assert.Equal(12, xl.LapRows);
-        Assert.Equal(FamilyType.Hero96, xl.Face.Step);
+        var copy = (StopwatchConfig)new StopwatchConfig { LapRows = 3, Size = ReadoutSize.Large }.Clone();
+        Assert.Equal((3, ReadoutSize.Large), (copy.LapRows, copy.Size));
+    }
+
+    [Fact]
+    public void S11302_its_menu_is_size_then_laps()
+    {
+        var menu = new WidgetMenuLines(() => { }, _ => { });
+        new StopwatchModule().MenuLines(menu, new StopwatchConfig());
+
+        Assert.Equal([Str.Kit_Size.Text(), StopwatchStr.Stopwatch_Laps.Text()], menu.Lines.Select(l => l.Text));
     }
 }

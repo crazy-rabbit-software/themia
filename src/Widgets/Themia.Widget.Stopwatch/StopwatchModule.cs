@@ -1,17 +1,19 @@
 using System.Text.Json.Serialization;
 using Microsoft.UI.Xaml;
 using Themia.App.Widgets;
+using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
 using Themia.Sdk;
 using Themia.Sdk.WinUI;
+using Themia.Sdk.WinUI.Kit;
 using Themia.Widget.Stopwatch;
 
 [assembly: ThemiaWidget("stopwatch", typeof(StopwatchModule))]
 
 namespace Themia.Widget.Stopwatch;
 
-/// <summary>[S-4600] The stopwatch: the time as the hero, laps under it, running across restarts. SPEC.md beside this file.</summary>
+/// <summary>[S-4600] The stopwatch: the time at its Size, its controls, the laps it lists under them, running across restarts. SPEC.md beside this file.</summary>
 public sealed class StopwatchModule : IWidgetModule
 {
     /// <summary>Its glyph, the module's own (Segoe "Stopwatch", U+E916).</summary>
@@ -31,10 +33,20 @@ public sealed class StopwatchModule : IWidgetModule
         Label = StopwatchStr.Stopwatch_Label.Local(),
         Description = StopwatchStr.Stopwatch_Desc.Local(),
         Glyph = Glyph,
-        Sizing = _ => WidgetSizing.Legacy(260, 200),
+        Sizing = c => StopwatchFace.Sizing((StopwatchConfig)c, Strings.Current),
+        SizeSets = (c, s) => StopwatchFace.SizeSets((StopwatchConfig)c, s),
         Traits = WidgetTraits.HasItems | WidgetTraits.CanHaveHeader | WidgetTraits.StartsHeaderless | WidgetTraits.OneReadout,
         Add = new(AddFolderId.Time, 0, 3),
     };
+
+    /// <summary>[S-11302] Its options: how big its time is, and how many laps it lists.</summary>
+    public void MenuLines(WidgetMenuLines menu, WidgetConfig config)
+    {
+        ArgumentNullException.ThrowIfNull(menu);
+        var stopwatch = (StopwatchConfig)config;
+        menu.Lines.Add(KitMenuLines.ReadoutSize(menu, stopwatch));
+        menu.Lines.Add(KitMenuLines.Count(menu, LapGlyph, StopwatchStr.Stopwatch_Laps.Text(), StopwatchFace.LapRows(stopwatch), 0, StopwatchConfig.MostLapRows, 1, v => stopwatch.LapRows = v));
+    }
 
     public FrameworkElement CreateView(IWidgetHost host) => new StopwatchView();
 }

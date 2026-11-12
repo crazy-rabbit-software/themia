@@ -1,33 +1,20 @@
+using Themia.Core.Localization;
+using Themia.Core.Model;
+using Themia.Sdk;
 using Themia.Sdk.Kit;
+using Themia.Widget.Stopwatch;
 
 namespace Themia.Core.Widgets;
 
 /// <summary>
-/// [S-4605] The stopwatch's face at one size: the timers' face ([S-6739]) in its box, and the laps'
-/// column beside it (0 wide where there is none) with the lines and whole rows it shows.
-/// </summary>
-/// <param name="Face">The time, its lap line and the Controls row.</param>
-/// <param name="FaceWidth">The face's content width.</param>
-/// <param name="LapColumn">The laps' column at the view's end edge, its rows' own inset included; 0 without one.</param>
-/// <param name="LapLines">The lines a lap's row shows: its number and length, then its total.</param>
-/// <param name="LapRows">How many whole lap rows the column holds.</param>
-/// <param name="Tenths">Whether a stopped time shows its tenth: only where the widest reading with it fits the face on its step.</param>
-public readonly record struct StopwatchPlan(TimerPlan Face, double FaceWidth, double LapColumn, int LapLines, int LapRows, bool Tenths = true);
-
-/// <summary>
-/// [S-4605] The stopwatch's ladder on the family's blocks: the time is a one-readout Readout, sized for
-/// the widest reading of its hour, centred over the Controls row (Start, Lap, Reset); the lap under way
-/// is its line under. From an expanded width the laps stand in a column of two fifths of the view at
-/// its end edge, newest first, Row blocks of 32 (48 with the total from a regular tile both ways),
-/// whole rows only; narrower, the lap line alone says where the laps are ([S-666]). A face too narrow
-/// for the widest reading with its tenth even on the floor step (XS) never shows the tenth, so the
-/// time is never cut.
+/// [S-11302] The stopwatch on the timers' sized face ([S-11300]): the time a one-readout Readout on the
+/// step its Size names, centred, the lap under way its line under, the Controls row (Start, Pause or
+/// Resume as the one main action, Lap and Reset as icon buttons; at Small all three icon buttons) and
+/// under it the newest laps, as many one-line rows as the config lists. The face is sized on the widest
+/// the time is drawn: under an hour with its tenth ("88:88.8"), from an hour without it ("88:88:88").
 /// </summary>
 public static class StopwatchFace
 {
-    /// <summary>The laps' column's share of the view, as a detail widget's figure column has.</summary>
-    public const double LapShare = 0.4;
-
     /// <summary>The widest reading of the hour: every figure an 8 with its tenth ("88:88.8", "88:88:88.8" from an hour), or without it.</summary>
     public static string Widest(bool hours, bool tenths = true)
     {
@@ -35,26 +22,63 @@ public static class StopwatchFace
         return tenths ? widest : widest[..^2];
     }
 
-    /// <summary>[S-4605] The face for a view of <paramref name="area"/> reading <paramref name="hours"/> or more.</summary>
-    public static StopwatchPlan Plan(WidgetArea area, bool hours)
+    /// <summary>[S-11302] Whether a stopped time shows its tenth: under an hour; from an hour the time is wider by its hours instead.</summary>
+    public static bool Tenths(bool hours) => !hours;
+
+    /// <summary>[S-11302] The widest the face draws: the wider of a time under an hour with its tenth and one from an hour without it.</summary>
+    public static ReadoutText Worst()
     {
-        var worst = new ReadoutText(Widest(hours), LineUnder: true, OneReadout: true);
-        var height = area.Height - FamilySpace.Inset;
-        var column = area.WidthClass >= SizeClass.Expanded ? Math.Floor(area.Width * LapShare) : 0;
+        var under = new ReadoutText(Widest(hours: false, tenths: true), LineUnder: true, OneReadout: true);
+        var over = under with { Value = Widest(hours: true, tenths: false) };
+        return HeroFit.Ems(over.Value) > HeroFit.Ems(under.Value) ? over : under;
+    }
 
-        // The column's rows carry their own inset, which is the gap to the face.
-        var faceWidth = area.Width - column - (column > 0 ? FamilySpace.Inset : 2 * FamilySpace.Inset);
-        var face = TimerFace.Plan(area, faceWidth, height, worst, controls: true);
+    /// <summary>[S-11302] The face at the stopwatch's Size.</summary>
+    public static TimerSized Sized(StopwatchConfig config)
+    {
+        ArgumentNullException.ThrowIfNull(config);
+        return TimerFace.Sized(config.Size, Worst());
+    }
 
-        // [S-4605] A tenth that does not fit even the floor step goes, rather than the time being cut.
-        var tenths = ReadoutRules.Width(face.Step, worst) <= faceWidth;
-        if (!tenths)
+    /// <summary>[S-11302] The lap rows the config lists, held to 0..<see cref="StopwatchConfig.MostLapRows"/>.</summary>
+    public static int LapRows(StopwatchConfig config)
+    {
+        ArgumentNullException.ThrowIfNull(config);
+        return Math.Clamp(config.LapRows, 0, StopwatchConfig.MostLapRows);
+    }
+
+    /// <summary>
+    /// [S-11302] The stopwatch's sizing ([S-2438]): its face over the Controls row (the main action at
+    /// its longest label, Lap and Reset), then a one-line row (28) per lap it lists, stepped by a row and
+    /// following <see cref="StopwatchConfig.LapRows"/>; up to half again wider. No header by default.
+    /// </summary>
+    public static WidgetSizing Sizing(StopwatchConfig config, Locale locale)
+    {
+        ArgumentNullException.ThrowIfNull(config);
+        var main = TimerFace.Longest(
+            StopwatchStr.Stopwatch_Start.Text(locale), StopwatchStr.Stopwatch_Pause.Text(locale), StopwatchStr.Stopwatch_Resume.Text(locale));
+        var controls = TimerFace.ControlsWidth(config.Size, [main], icons: 2);
+        var none = TimerFace.Sizing(Sized(config), controls, header: false);
+        var rows = new SizeSteps(none.Natural.Height, FamilyShape.Row1, 0, StopwatchConfig.MostLapRows, LapRows(config));
+        return WidgetSizing.Range(
+                none.Min with { Height = rows.At(0) },
+                none.Natural with { Height = rows.At(LapRows(config)) },
+                none.Max with { Height = rows.At(StopwatchConfig.MostLapRows) })
+            .WithHeightSteps(rows);
+    }
+
+    /// <summary>[S-11302] The config a stopwatch dragged to <paramref name="size"/> means: as many lap rows as its height holds.</summary>
+    public static WidgetConfig SizeSets(StopwatchConfig config, SizeDip size)
+    {
+        ArgumentNullException.ThrowIfNull(config);
+        var rows = Sizing(config, Strings.Current).HeightSteps!.Nearest(size.Height);
+        if (rows == LapRows(config))
         {
-            face = TimerFace.Plan(area, faceWidth, height, worst with { Value = Widest(hours, tenths: false) }, controls: true);
+            return config;
         }
 
-        var lines = column > 0 ? RowRules.Lines(area, 2) : 1;
-        var rows = column > 0 ? RowRules.Fit(height, lines) : 0;
-        return new StopwatchPlan(face, faceWidth, column, lines, rows, tenths);
+        var next = (StopwatchConfig)config.Clone();
+        next.LapRows = rows;
+        return next;
     }
 }

@@ -26,7 +26,7 @@ public sealed class WidgetSizingTests
         "gameModeToggle", "habitTracker", "hibernate", "lock", "microphoneToggle", "mixer", "monoAudioToggle",
         "music", "nightLightToggle", "pomodoro", "quote", "restart", "rotationLockToggle", "screenOff",
         "screenTimeApps", "screenTimeChart", "screenTimeDonut", "shutdown", "signOut", "sleep", "soundToggle",
-        "spatialSoundToggle", "stopwatch", "volume", "wifiToggle",
+        "spatialSoundToggle", "volume", "wifiToggle",
     ];
 
     public static TheoryData<string> Kinds() => [.. ModuleRegistry.WidgetIds];
