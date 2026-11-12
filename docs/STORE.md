@@ -52,7 +52,7 @@ Still open, in order:
    does not work in the package) and Google back into STORE-LISTING.md.
 5. Sideload test of the package (below), then the Windows App Certification Kit on it:
    `appcert.exe test -appxpackagepath Themia_<v>_x64.msix -reportoutputpath wack.xml`, elevated.
-6. Screenshots of this build on a real desktop (STORE-LISTING.md lists the set).
+6. The pictures of this build: `store/capture.ps1`, then `node store/compose.mjs` ([store/README.md](../store/README.md)).
 7. Upload the `.msixupload`, fill in the listing, and submit. Publish hidden first if you want to
    test a real Pro purchase.
 

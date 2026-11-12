@@ -1,0 +1,188 @@
+{
+  "language": "en-us",
+  "title": "Themia",
+  "shortDescription": "Widgets that live on your Windows desktop: clock, weather, calendar, mail, tasks, system meters, files and more, on your wallpaper and behind your windows. 80 widgets, free to start, no ads, no account.",
+  "description": [
+    "Themia puts widgets on the desktop itself: on your wallpaper, behind your windows. They are always a glance away and never in the way. There is no window to open and no icon in the tray, only your desktop with what you want to see on it.",
+    "",
+    "80 WIDGETS",
+    "• Clock, alarms, timers, stopwatch, countdown and Pomodoro",
+    "• Weather now and for the week, rain in the next hour, air quality, sun and moon",
+    "• Calendar, week planner, next meeting, mail, tasks, contacts and notes",
+    "• Processor, memory, graphics, disks, network, ping and battery, with live graphs",
+    "• Folders, shortcuts, your newest files, drives and the Recycle Bin",
+    "• Music, volume, the mixer, brightness and quick settings such as Wi-Fi, Bluetooth and night light",
+    "• Stocks, exchange rates, news feeds, screen time, habits, photos and more",
+    "",
+    "YOUR DAY ON YOUR DESKTOP",
+    "See your next meeting and join it with one click. Read new mail, tick off tasks and look at your week without opening an app. Themia works with Microsoft accounts (Outlook.com, Microsoft 365), iCloud, any IMAP mail account, and CalDAV and CardDAV servers such as Fastmail or Nextcloud.",
+    "",
+    "WIDGETS THAT FIT THE ROOM YOU GIVE THEM",
+    "Make a widget small and it keeps what matters. Make it bigger and it shows more: the weather grows from a temperature to the whole day, a meter from a number to its history. Nothing is cut off and nothing is stretched.",
+    "",
+    "ONE WIDGET, MANY STYLES",
+    "A clock can be digital, analogue, a flip clock or written out in words. Meters come as graphs, bars, rings and gauges, forecasts as rows or a curve. Pick the style from the widget's own menu.",
+    "",
+    "ARRANGE IT YOUR WAY",
+    "Press Ctrl+Alt+W or double-click a widget to edit your desktop. Add widgets from the list, drag them where you want them, resize them and let them snap to a grid. Every option of a widget sits right beside it, and every step can be undone.",
+    "",
+    "A LOOK FOR EVERY WALLPAPER",
+    "Start from a preset such as Glass, Midnight or Paper, or mix your own: colours, transparency, borders, corners and fonts. Each widget can have its own background, and Themia follows the light or dark theme of Windows.",
+    "",
+    "A DESKTOP FOR EVERY PART OF YOUR DAY",
+    "Views keep several desktops ready: one for work with your calendar and mail, one for the evening with music and photos, one for focus with nothing but a timer. Switch with a click, and give every display its own.",
+    "",
+    "PRIVATE BY DESIGN",
+    "Themia has no ads, no tracking, no analytics and no account of its own. Mail, calendars and tasks connect straight from your PC to your provider; nothing passes through us. Your sign-ins are encrypted by Windows for your Windows user alone.",
+    "",
+    "LIGHT ON YOUR PC",
+    "Built natively for Windows 11 and compiled ahead of time, Themia starts fast, uses little memory and does no work while nothing changes.",
+    "",
+    "FREE TO START",
+    "Every widget and every setting is in the free version, with up to 20 widgets and 2 views. Themia Pro, one purchase in Themia through the Microsoft Store, lifts both limits for good. No subscription.",
+    "",
+    "In 40 languages. Weather data by Open-Meteo.com."
+  ],
+  "features": [
+    "80 widgets, right on your wallpaper and behind your windows",
+    "Clock, alarms, timers, countdown and Pomodoro",
+    "Weather now and for the week, rain, air quality, sun and moon",
+    "Calendar, next meeting, mail, tasks, contacts and notes",
+    "Join your next meeting with one click",
+    "Live graphs for processor, memory, graphics, disks, network and battery",
+    "Folders, shortcuts, your newest files and free space on every drive",
+    "Music, volume, brightness, Wi-Fi, Bluetooth and other quick settings",
+    "Stocks, exchange rates, news feeds, screen time and habits",
+    "Widgets show more as you make them bigger",
+    "Several styles per widget: digital, analogue, flip and word clocks",
+    "Drag, resize and snap to a grid; every step can be undone",
+    "Presets and your own colours, transparency, borders and fonts",
+    "Views: a desktop for work, the evening and focus, one per display",
+    "Works with Microsoft accounts, iCloud, IMAP, CalDAV and CardDAV",
+    "Your data stays on your PC; no ads, no tracking, no account",
+    "Fast and light: native, compiled ahead of time",
+    "In 40 languages"
+  ],
+  "keywords": [
+    "desktop widgets",
+    "widgets",
+    "clock widget",
+    "weather widget",
+    "calendar widget",
+    "system monitor",
+    "desktop customization"
+  ],
+  "minimumHardware": [
+    "Windows 11, 64-bit (x64)"
+  ],
+  "recommendedHardware": [
+    "Windows 11"
+  ],
+  "copyright": "© 2026 Lometics GmbH",
+  "developedBy": "Lometics GmbH",
+  "screenshots": [
+    {
+      "shot": "desktop",
+      "label": "Themia",
+      "headline": "Widgets that live on your desktop.",
+      "sub": "Your day, your PC and your files on the wallpaper, behind your windows and always a glance away.",
+      "caption": "A Windows desktop with Themia's widgets on the wallpaper: clock, weather, calendar, next meeting, mail, tasks, news, system meters, stocks and shortcuts."
+    },
+    {
+      "shot": "widgets",
+      "label": "80 widgets",
+      "headline": "80 widgets. Pick yours.",
+      "sub": "Timers, habits, screen time, rates, sound, the sun and the moon. Every one of them is in the free version.",
+      "caption": "A wall of Themia's widgets: habits, a stopwatch, air quality, the sun, screen time, an alarm, notifications, a countdown, exchange rates, the mixer, rain, the moon and more."
+    },
+    {
+      "shot": "accounts",
+      "label": "Accounts",
+      "headline": "Your calendar, mail and tasks.",
+      "sub": "Straight from your PC to your accounts. Nothing passes through us.",
+      "caption": "Accounts Themia connects to: Microsoft 365, Outlook.com, iCloud, IMAP, CalDAV and CardDAV. Teams, Zoom and Webex meetings joined in one click.",
+      "callouts": [
+        "Calendars",
+        "Mail",
+        "Tasks",
+        "Contacts",
+        "Join in one click"
+      ]
+    },
+    {
+      "shot": "pc",
+      "label": "Your PC",
+      "headline": "Your PC at a glance.",
+      "sub": "Processor, memory, graphics, network and battery with live graphs. No Task Manager needed.",
+      "caption": "A desktop of system widgets: processor load per core, memory, graphics, network, disks, the programs using the most, ping and battery.",
+      "callouts": [
+        "Every core",
+        "Memory",
+        "Graphics",
+        "Network",
+        "What's using your PC",
+        "Battery"
+      ]
+    },
+    {
+      "shot": "files",
+      "label": "Files",
+      "headline": "Your files, right on the desktop.",
+      "sub": "Folders you can browse, shortcuts, your newest files and the free space on every drive.",
+      "caption": "A desktop with a folder to browse, shortcuts, the newest files, drives with their free space, the clipboard's history and a photo.",
+      "callouts": [
+        "Any folder",
+        "Shortcuts",
+        "Free space",
+        "Your newest files",
+        "Your photos"
+      ]
+    },
+    {
+      "shot": "sizes",
+      "label": "Sizes",
+      "headline": "Make it bigger, see more.",
+      "sub": "Every widget fits the room you give it: small keeps what matters, large shows the details.",
+      "caption": "The weather widget at four sizes and the calendar at three: each larger one shows more."
+    },
+    {
+      "shot": "styles",
+      "label": "Styles",
+      "headline": "One widget, many styles.",
+      "sub": "A clock can be digital, analogue, flip or written out. Meters, forecasts and timers have styles of their own.",
+      "caption": "Six clocks, four processor meters, two batteries, four forecasts and more: the same widgets in different styles."
+    },
+    {
+      "shot": "edit",
+      "label": "Arrange",
+      "headline": "Arrange it your way.",
+      "sub": "Drag, resize and snap widgets to a grid. Every option sits right beside the widget.",
+      "caption": "Themia's edit mode: the edit bar at the top of the desktop, a selected calendar and its menu of options beside it."
+    },
+    {
+      "shot": "looks",
+      "label": "Looks",
+      "headline": "A look for every wallpaper.",
+      "sub": "Colours, glass, borders, corners and fonts. Pick a preset or mix your own.",
+      "caption": "One desktop in four looks: Themia's own, Daylight, Glass and Terminal."
+    },
+    {
+      "shot": "views",
+      "label": "Views",
+      "headline": "A desktop for every part of your day.",
+      "sub": "One for work, one for the evening, one for focus. Switch with a click, or give every display its own.",
+      "caption": "Three desktops of one PC: the evening with music and photos, the working day, and a focus desktop with a Pomodoro timer."
+    }
+  ],
+  "addOn": {
+    "title": "Themia Pro",
+    "description": "As many widgets and views as you like. One purchase, yours for good. No subscription.",
+    "keywords": [
+      "themia pro",
+      "unlimited widgets",
+      "unlimited views",
+      "desktop widgets",
+      "pro"
+    ]
+  }
+}

@@ -1,0 +1,188 @@
+{
+  "language": "de-de",
+  "title": "Themia",
+  "shortDescription": "Widgets, die auf deinem Windows-Desktop leben: Uhr, Wetter, Kalender, Mail, Aufgaben, Systemanzeigen, Dateien und mehr, auf deinem Hintergrundbild und hinter deinen Fenstern. 80 Widgets, gratis zum Start, ohne Werbung, ohne Konto.",
+  "description": [
+    "Themia legt Widgets auf den Desktop selbst: auf dein Hintergrundbild, hinter deine Fenster. Sie sind immer einen Blick entfernt und nie im Weg. Kein Fenster zum Öffnen, kein Symbol im Infobereich, nur dein Desktop mit dem, was du darauf sehen willst.",
+    "",
+    "80 WIDGETS",
+    "• Uhr, Wecker, Timer, Stoppuhr, Countdown und Pomodoro",
+    "• Wetter jetzt und für die Woche, Regen in der nächsten Stunde, Luftqualität, Sonne und Mond",
+    "• Kalender, Wochenplaner, nächste Besprechung, Mail, Aufgaben, Kontakte und Notizen",
+    "• Prozessor, Arbeitsspeicher, Grafik, Laufwerke, Netzwerk, Ping und Akku, mit Live-Diagrammen",
+    "• Ordner, Verknüpfungen, deine neuesten Dateien, Laufwerke und der Papierkorb",
+    "• Musik, Lautstärke, Mixer, Helligkeit und Schnelleinstellungen wie WLAN, Bluetooth und Nachtmodus",
+    "• Aktien, Wechselkurse, Newsfeeds, Bildschirmzeit, Gewohnheiten, Fotos und mehr",
+    "",
+    "DEIN TAG AUF DEINEM DESKTOP",
+    "Sieh deine nächste Besprechung und tritt ihr mit einem Klick bei. Lies neue Mails, hake Aufgaben ab und schau auf deine Woche, ohne eine App zu öffnen. Themia arbeitet mit Microsoft-Konten (Outlook.com, Microsoft 365), iCloud, jedem IMAP-Mailkonto und mit CalDAV- und CardDAV-Servern wie Fastmail oder Nextcloud.",
+    "",
+    "WIDGETS, DIE DEN PLATZ NUTZEN, DEN DU IHNEN GIBST",
+    "Mach ein Widget klein, und es behält das Wichtigste. Mach es grösser, und es zeigt mehr: Das Wetter wächst von der Temperatur zum ganzen Tag, eine Anzeige von der Zahl zu ihrem Verlauf. Nichts wird abgeschnitten, nichts wird verzerrt.",
+    "",
+    "EIN WIDGET, VIELE STILE",
+    "Eine Uhr kann digital sein, analog, eine Klappuhr oder in Worten geschrieben. Anzeigen gibt es als Diagramm, Balken, Ring und Tacho, Vorhersagen als Zeilen oder Kurve. Den Stil wählst du im Menü des Widgets.",
+    "",
+    "ORDNE ES SO AN, WIE DU WILLST",
+    "Drücke Strg+Alt+W oder doppelklicke ein Widget, um deinen Desktop zu bearbeiten. Füge Widgets aus der Liste hinzu, zieh sie an ihren Platz, ändere ihre Grösse und lass sie am Raster einrasten. Jede Option eines Widgets steht direkt daneben, und jeder Schritt lässt sich rückgängig machen.",
+    "",
+    "EIN LOOK FÜR JEDES HINTERGRUNDBILD",
+    "Starte mit einer Vorlage wie Glas, Mitternacht oder Papier oder mische deine eigene: Farben, Transparenz, Rahmen, Ecken und Schriften. Jedes Widget kann seinen eigenen Hintergrund haben, und Themia folgt dem hellen oder dunklen Design von Windows.",
+    "",
+    "EIN DESKTOP FÜR JEDEN TEIL DEINES TAGES",
+    "Ansichten halten mehrere Desktops bereit: einen für die Arbeit mit Kalender und Mail, einen für den Abend mit Musik und Fotos, einen für den Fokus mit nichts als einem Timer. Wechsle mit einem Klick, und gib jedem Bildschirm seine eigene.",
+    "",
+    "PRIVAT VON GRUND AUF",
+    "Themia hat keine Werbung, kein Tracking, keine Analyse und kein eigenes Konto. Mail, Kalender und Aufgaben verbinden sich direkt von deinem PC mit deinem Anbieter; nichts läuft über uns. Deine Anmeldungen verschlüsselt Windows allein für dein Windows-Konto.",
+    "",
+    "SCHONT DEINEN PC",
+    "Nativ für Windows 11 gebaut und vorab kompiliert: Themia startet schnell, braucht wenig Arbeitsspeicher und arbeitet nicht, solange sich nichts ändert.",
+    "",
+    "GRATIS ZUM START",
+    "Jedes Widget und jede Einstellung ist in der Gratisversion, mit bis zu 20 Widgets und 2 Ansichten. Themia Pro, ein Kauf in Themia über den Microsoft Store, hebt beide Grenzen für immer auf. Kein Abo.",
+    "",
+    "In 40 Sprachen. Wetterdaten von Open-Meteo.com."
+  ],
+  "features": [
+    "80 Widgets, direkt auf deinem Hintergrundbild und hinter deinen Fenstern",
+    "Uhr, Wecker, Timer, Countdown und Pomodoro",
+    "Wetter jetzt und für die Woche, Regen, Luftqualität, Sonne und Mond",
+    "Kalender, nächste Besprechung, Mail, Aufgaben, Kontakte und Notizen",
+    "Der nächsten Besprechung mit einem Klick beitreten",
+    "Live-Diagramme für Prozessor, Arbeitsspeicher, Grafik, Laufwerke, Netzwerk und Akku",
+    "Ordner, Verknüpfungen, deine neuesten Dateien und der freie Platz auf jedem Laufwerk",
+    "Musik, Lautstärke, Helligkeit, WLAN, Bluetooth und weitere Schnelleinstellungen",
+    "Aktien, Wechselkurse, Newsfeeds, Bildschirmzeit und Gewohnheiten",
+    "Widgets zeigen mehr, je grösser du sie machst",
+    "Mehrere Stile pro Widget: Digital-, Analog-, Klapp- und Wortuhr",
+    "Ziehen, Grösse ändern und am Raster einrasten; jeder Schritt lässt sich rückgängig machen",
+    "Vorlagen und eigene Farben, Transparenz, Rahmen und Schriften",
+    "Ansichten: ein Desktop für Arbeit, Abend und Fokus, einer pro Bildschirm",
+    "Arbeitet mit Microsoft-Konten, iCloud, IMAP, CalDAV und CardDAV",
+    "Deine Daten bleiben auf deinem PC; keine Werbung, kein Tracking, kein Konto",
+    "Schnell und schlank: nativ und vorab kompiliert",
+    "In 40 Sprachen"
+  ],
+  "keywords": [
+    "Desktop Widgets",
+    "Widgets",
+    "Uhr Widget",
+    "Wetter Widget",
+    "Kalender Widget",
+    "Systemmonitor",
+    "Desktop anpassen"
+  ],
+  "minimumHardware": [
+    "Windows 11, 64 Bit (x64)"
+  ],
+  "recommendedHardware": [
+    "Windows 11"
+  ],
+  "copyright": "© 2026 Lometics GmbH",
+  "developedBy": "Lometics GmbH",
+  "screenshots": [
+    {
+      "shot": "desktop",
+      "label": "Themia",
+      "headline": "Widgets, die auf deinem Desktop leben.",
+      "sub": "Dein Tag, dein PC und deine Dateien auf dem Hintergrundbild, hinter deinen Fenstern und immer einen Blick entfernt.",
+      "caption": "Ein Windows-Desktop mit Themias Widgets auf dem Hintergrundbild: Uhr, Wetter, Kalender, nächste Besprechung, Mail, Aufgaben, Nachrichten, Systemanzeigen, Aktien und Verknüpfungen."
+    },
+    {
+      "shot": "widgets",
+      "label": "80 Widgets",
+      "headline": "80 Widgets. Such dir deine aus.",
+      "sub": "Timer, Gewohnheiten, Bildschirmzeit, Kurse, Ton, Sonne und Mond. Jedes davon ist in der Gratisversion.",
+      "caption": "Eine Wand aus Themias Widgets: Gewohnheiten, Stoppuhr, Luftqualität, Sonne, Bildschirmzeit, Wecker, Benachrichtigungen, Countdown, Wechselkurse, Mixer, Regen, Mond und mehr."
+    },
+    {
+      "shot": "accounts",
+      "label": "Konten",
+      "headline": "Dein Kalender, deine Mail, deine Aufgaben.",
+      "sub": "Direkt von deinem PC zu deinen Konten. Nichts läuft über uns.",
+      "caption": "Konten, mit denen Themia sich verbindet: Microsoft 365, Outlook.com, iCloud, IMAP, CalDAV und CardDAV. Besprechungen in Teams, Zoom und Webex mit einem Klick.",
+      "callouts": [
+        "Kalender",
+        "Mail",
+        "Aufgaben",
+        "Kontakte",
+        "Beitreten mit einem Klick"
+      ]
+    },
+    {
+      "shot": "pc",
+      "label": "Dein PC",
+      "headline": "Dein PC auf einen Blick.",
+      "sub": "Prozessor, Arbeitsspeicher, Grafik, Netzwerk und Akku mit Live-Diagrammen. Ganz ohne Task-Manager.",
+      "caption": "Ein Desktop mit Systemwidgets: Prozessorlast pro Kern, Arbeitsspeicher, Grafik, Netzwerk, Laufwerke, die Programme mit der höchsten Last, Ping und Akku.",
+      "callouts": [
+        "Jeder Kern",
+        "Arbeitsspeicher",
+        "Grafik",
+        "Netzwerk",
+        "Was deinen PC belastet",
+        "Akku"
+      ]
+    },
+    {
+      "shot": "files",
+      "label": "Dateien",
+      "headline": "Deine Dateien, direkt auf dem Desktop.",
+      "sub": "Ordner zum Durchblättern, Verknüpfungen, deine neuesten Dateien und der freie Platz auf jedem Laufwerk.",
+      "caption": "Ein Desktop mit einem Ordner zum Durchblättern, Verknüpfungen, den neuesten Dateien, Laufwerken mit freiem Platz, dem Verlauf der Zwischenablage und einem Foto.",
+      "callouts": [
+        "Jeder Ordner",
+        "Verknüpfungen",
+        "Freier Platz",
+        "Deine neuesten Dateien",
+        "Deine Fotos"
+      ]
+    },
+    {
+      "shot": "sizes",
+      "label": "Grössen",
+      "headline": "Mach es grösser, sieh mehr.",
+      "sub": "Jedes Widget nutzt den Platz, den du ihm gibst: klein behält es das Wichtigste, gross zeigt es die Details.",
+      "caption": "Das Wetter-Widget in vier Grössen und der Kalender in drei: Jede grössere zeigt mehr."
+    },
+    {
+      "shot": "styles",
+      "label": "Stile",
+      "headline": "Ein Widget, viele Stile.",
+      "sub": "Eine Uhr kann digital sein, analog, eine Klappuhr oder ausgeschrieben. Anzeigen, Vorhersagen und Timer haben eigene Stile.",
+      "caption": "Sechs Uhren, vier Prozessoranzeigen, zwei Akkus, vier Vorhersagen und mehr: dieselben Widgets in verschiedenen Stilen."
+    },
+    {
+      "shot": "edit",
+      "label": "Anordnen",
+      "headline": "Ordne es so an, wie du willst.",
+      "sub": "Zieh Widgets, ändere ihre Grösse und lass sie am Raster einrasten. Jede Option steht direkt neben dem Widget.",
+      "caption": "Themias Bearbeitungsmodus: die Bearbeitungsleiste oben am Desktop, ein ausgewählter Kalender und daneben sein Menü mit den Optionen."
+    },
+    {
+      "shot": "looks",
+      "label": "Looks",
+      "headline": "Ein Look für jedes Hintergrundbild.",
+      "sub": "Farben, Glas, Rahmen, Ecken und Schriften. Wähle eine Vorlage oder mische deine eigene.",
+      "caption": "Ein Desktop in vier Looks: Themias eigener, Tageslicht, Glas und Terminal."
+    },
+    {
+      "shot": "views",
+      "label": "Ansichten",
+      "headline": "Ein Desktop für jeden Teil deines Tages.",
+      "sub": "Einer für die Arbeit, einer für den Abend, einer für den Fokus. Wechsle mit einem Klick oder gib jedem Bildschirm seinen eigenen.",
+      "caption": "Drei Desktops eines PCs: der Abend mit Musik und Fotos, der Arbeitstag und ein Fokus-Desktop mit Pomodoro-Timer."
+    }
+  ],
+  "addOn": {
+    "title": "Themia Pro",
+    "description": "So viele Widgets und Ansichten, wie du willst. Ein Kauf, für immer deiner. Kein Abo.",
+    "keywords": [
+      "themia pro",
+      "unbegrenzt widgets",
+      "unbegrenzt ansichten",
+      "desktop widgets",
+      "pro"
+    ]
+  }
+}
