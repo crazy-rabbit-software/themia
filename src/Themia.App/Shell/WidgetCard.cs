@@ -557,7 +557,8 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface, IItemPaletteOwn
         var own = DesignLook.HeaderFill(design.HeaderBackgroundColor, design.HeaderOpacity);
 
         _headerHost.Background = own is { Colour: { } c } ? DesignApplier.UserBrush(HexColor.From(c.R, c.G, c.B), own.Value.Opacity) : null;
-        _headerHost.CornerRadius = radius;
+        // Rounded only when it paints: a header with no fill of its own has no shape of its own either.
+        _headerHost.CornerRadius = own is null ? default : radius;
     }
 
     /// <summary>[S-6563] What this card's background paints: its own choice (or one previewed, [S-3731]), or the app-wide one for Default.</summary>
@@ -762,7 +763,8 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface, IItemPaletteOwn
         var half = double.IsFinite(gapPx) && gapPx > 0 ? gapPx / 2 : 0;
         var inset = new Thickness(half);
 
-        // The fill and the tint live inside the surface ([S-1761]), so they take its inset with it.
+        // The fill and the frost live inside the surface, so they take its inset with it; the frost's
+        // picture moves by the inset too ([S-2114]).
         _surface.Margin = inset;
         _stroke.Margin = inset;
         PlaceBackdrop();
