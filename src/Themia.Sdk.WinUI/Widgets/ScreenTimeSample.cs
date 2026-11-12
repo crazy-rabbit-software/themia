@@ -9,7 +9,7 @@ namespace Themia.App.Widgets;
 
 /// <summary>
 /// Debug renders only ([S-1917], [S-2056]): a fixed month of sample usage to the sample moment — ten apps, quieter weekends, the morning so far today, under a
-/// limit on the whole day and one on Chrome (<c>over</c>: tight limits, the readouts over them) — so <c>--widget-png ScreenTimeDonut --state
+/// limit on the whole day and one on Edge (<c>over</c>: tight limits, the readouts over them) — so <c>--widget-png ScreenTimeDonut --state
 /// sample</c> draws what a month of tracking would. <c>hovered</c> and <c>selected</c> light an app
 /// through the render's one board ([S-3300]), so every card on the page shows the link.
 /// <c>packaged</c> lists the packaged (Store) apps running on this machine by their real executables,
@@ -18,12 +18,12 @@ namespace Themia.App.Widgets;
 public sealed class SampleScreenTime : IScreenTimeSource
 {
     public const string HoveredApp = "code";
-    public const string SelectedApp = "chrome";
+    public const string SelectedApp = "edge";
 
     private static readonly (string Key, string Name, int Minutes, string? Path)[] SampleApps =
     [
         ("code", "Visual Studio Code", 95, null),
-        ("chrome", "Google Chrome", 45, null),
+        ("edge", "Microsoft Edge", 45, null),
         ("teams", "Microsoft Teams", 40, null),
         ("outlook", "Outlook", 30, null),
         ("figma", "Figma", 22, null),
@@ -42,11 +42,11 @@ public sealed class SampleScreenTime : IScreenTimeSource
     {
         _apps = state == "packaged" ? RunningPackagedApps() : SampleApps;
 
-        // [S-2056] The sample is under its limits (six hours a day, an hour of Chrome); "over" is
-        // the same morning against tight ones (ninety minutes, a quarter of an hour of Chrome).
+        // [S-2056] The sample is under its limits (six hours a day, an hour of Edge); "over" is
+        // the same morning against tight ones (ninety minutes, a quarter of an hour of Edge).
         _preferences = state == "over"
-            ? ScreenTimePreferences.From(null, 90 * 60, [new("chrome", 15 * 60)])
-            : ScreenTimePreferences.From(null, 6 * 3600, [new("chrome", 3600)]);
+            ? ScreenTimePreferences.From(null, 90 * 60, [new("edge", 15 * 60)])
+            : ScreenTimePreferences.From(null, 6 * 3600, [new("edge", 3600)]);
     }
 
     public static IReadOnlyList<string> States { get; } = ["sample", "hovered", "selected", "over", "packaged"];

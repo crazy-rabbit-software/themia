@@ -3454,8 +3454,8 @@ Tests `ScreenTimeRulesTests`, `ScreenTimeStoreTests`, `LocalStoreFixtureTests`, 
   Other, so the rows add up to the total (`ScreenTimeRules.ListNamed`). Rows are reused by position.
 - **[S-3355]** Debug renders: `--widget-png <ScreenTimeChart|ScreenTimeDonut|ScreenTimeApps>
   --state sample|hovered|selected` draw a fixed month of sample use (ten apps, quieter weekends, a
-  6 h day limit, Chrome over its 1 h) through `SampleScreenTime`; `hovered` lights Code and
-  `selected` selects Chrome through the render's one board, so every card on the page shows it.
+  6 h day limit, Microsoft Edge over its 1 h; Google is named nowhere Themia shows of itself, [S-3562]) through
+  `SampleScreenTime`; `hovered` lights Code and `selected` selects Edge through the render's one board, so every card on the page shows it.
   `packaged` lists the packaged apps running on the machine by their real executables, and
   Explorer, so their icons go through [S-3960]'s path.
 

@@ -137,30 +137,30 @@ public sealed class ScreenTimeAppsMenuTests
     [Fact]
     public void S3356_the_list_limits_each_app_never_the_day()
     {
-        var tracker = new Tracker(ScreenTimePreferences.From(null, 0, [new("chrome", 5400)]));
+        var tracker = new Tracker(ScreenTimePreferences.From(null, 0, [new("edge", 5400)]));
         var limits = Line(Build(new ScreenTimeAppsConfig(), tracker).Lines, Str.WidgetsC_ScreenTime_Settings_Limits.Text()).Children!;
 
         Assert.DoesNotContain(limits, l => l.Text == Str.WidgetsC_ScreenTime_DailyLimit.Text());
-        var chrome = Line(limits, "Google Chrome");
-        Assert.Equal(ScreenTimeRules.FormatLimit(5400), chrome.Value);
+        var edge = Line(limits, "Microsoft Edge");
+        Assert.Equal(ScreenTimeRules.FormatLimit(5400), edge.Value);
         Assert.NotNull(Line(limits, Str.WidgetsC_ScreenTime_Settings_LimitApp.Text()).Search);
     }
 
     [Fact]
     public void S3356_an_app_limit_is_changed_and_removed_through_the_tracker()
     {
-        var tracker = new Tracker(ScreenTimePreferences.From(null, 0, [new("chrome", 3600)]));
+        var tracker = new Tracker(ScreenTimePreferences.From(null, 0, [new("edge", 3600)]));
         var config = new ScreenTimeAppsConfig();
-        var chrome = Line(Line(Build(config, tracker).Lines, Str.WidgetsC_ScreenTime_Settings_Limits.Text()).Children!, "Google Chrome").Children!;
+        var edge = Line(Line(Build(config, tracker).Lines, Str.WidgetsC_ScreenTime_Settings_Limits.Text()).Children!, "Microsoft Edge").Children!;
 
-        Line(chrome, Str.WidgetsC_ScreenTime_DailyLimit.Text()).Action!();
+        Line(edge, Str.WidgetsC_ScreenTime_DailyLimit.Text()).Action!();
         var ask = Assert.IsType<WidgetTextAsk>(_asked);
         Assert.NotNull(ask.Refuse("10"));
         Assert.NotNull(ask.Refuse("721"));
         ask.Done("90");
-        Assert.Equal(5400, tracker.Preferences.AppLimits["chrome"]);
+        Assert.Equal(5400, tracker.Preferences.AppLimits["edge"]);
 
-        Line(chrome, Str.Common_Remove.Text()).Action!();
+        Line(edge, Str.Common_Remove.Text()).Action!();
         Assert.Empty(tracker.Preferences.AppLimits);
         Assert.Equal(2, tracker.Sets);
     }
@@ -168,12 +168,12 @@ public sealed class ScreenTimeAppsMenuTests
     [Fact]
     public async Task S3356_limit_an_app_offers_the_known_apps_without_a_limit_and_adds_an_hour()
     {
-        var tracker = new Tracker(ScreenTimePreferences.From(null, 0, [new("chrome", 3600)]));
+        var tracker = new Tracker(ScreenTimePreferences.From(null, 0, [new("edge", 3600)]));
         var limits = Line(Build(new ScreenTimeAppsConfig(), tracker).Lines, Str.WidgetsC_ScreenTime_Settings_Limits.Text()).Children!;
         var search = Line(limits, Str.WidgetsC_ScreenTime_Settings_LimitApp.Text()).Search!;
 
         var all = await search.Find(string.Empty, CancellationToken.None);
-        Assert.DoesNotContain(all.Lines, l => l.Text == "Google Chrome");
+        Assert.DoesNotContain(all.Lines, l => l.Text == "Microsoft Edge");
         Assert.Contains(all.Lines, l => l.Text == "Visual Studio Code");
 
         var found = Assert.Single((await search.Find("spot", CancellationToken.None)).Lines);
