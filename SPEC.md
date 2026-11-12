@@ -17,7 +17,7 @@ Sections, grouped by area (file order below; search for the heading).
 
 - **Foundations.** Geometry model; Rendering; Grid snap aid; Constraints; Defaults & placement; Views & displays; Window layering; Transparency; Ticking; Live widgets and resource use (R6-RESOURCES); Memory; Persistence; Failure rules; Not on this machine (UNAVAILABLE); Clipboard & transfer between displays; No backwards compatibility; Widget modules and the registry (MODULES); The widget kit (KIT); The service layer (SERVICES).
 - **Shell, windows and settings.** Displays (WP2); Desktop integration and suspend (WP3); Appearance engine (WP1); Notices, resilience and undo (WP4); Widget picker: search (WP5); Multi-select and the placement session (MULTISELECT-PLACEMENT); Widget styles (STYLES); Context menus (R4-MENUS); Views and the view bar (WP8); The Displays and Views pages (R4-NAV, R5-PAGES); Icon picker and showcase views (R4-ICONS); Keyboard lease (WP11); Widget keys (WIDGET-KEYS); Item selection (ITEM-SELECTION); View links (VIEW-LINKS); Keyboard in the shell (SHELL-KEYS); Motion: intros, hyperspace, hacker (WP9-MOTION); Desktop surface drops (WP10-SURFACE); The desktop layer (DESKTOP); Opening a widget's app (R7-OPEN, retired); Opening what a widget is about (CARD-OPEN); Shell hooks (PA); Removed widgets (R7-REMOVE); Shell skeleton and shared settings; Shared widget settings: region and updates (SETTINGS-AUDIT); Colours, fonts and uninstall (the settings window, retired); Settings navigation icons (NAV-ICONS, retired); Logging (WP7); Network safety (WP6); The assistants' server (MCP); Localization infrastructure (LOC-INFRA); Microsoft Store package and licensing; Gallery.
-- **Look and layout.** Rows and the card edge; Looking like Windows; The widget header; The widget family: tokens and blocks (FAMILY); Responsive layout (shared foundation); Adding a widget; Layout pass over the ported widgets; Widget polish 1 (POLISH-1); Widget polish 2: leftover parity and layout gaps (POLISH-2); The Set up button (R5-SETUP).
+- **Look and layout.** Rows and the card edge; Looking like Windows; The widget header; The widget family: tokens and blocks (FAMILY); Responsive layout (shared foundation); Adding a widget; Layout pass over the ported widgets; Widget polish 1 (POLISH-1); Widget polish 2: leftover parity and layout gaps (POLISH-2); The Set up button (R5-SETUP); One sample day (SAMPLE-DAY).
 - **Accounts and sign-in.** Where account data comes from; Accounts and sign-in.
 - **System widgets.** (The seven meters, the seven detail widgets, Drive, Removable drives, Brightness, Mixer, Volume, Music, the Audio visualizer, the three screen-time widgets, Notifications and the Focus session are modules: their sections are their projects' `SPEC.md`; the sections named here keep the hub, the samplers and the rules they share, the SDK's.) System data hub (SYS-HUB); System meters; Meter framework and memory; CPU; Disk and ping; Battery and network; Network and ping; System widgets: GPU, mixer and screen time; Screen time: chart, donut and apps (SCREENTIME-SPLIT); GPU and screen time: the whole tile (SYS-P4); System details (SYS-DETAILS); Mixer and Volume (SYS-P5); Power and Bluetooth; Peripheral batteries (DEVICE-BATTERIES); Device and location (DEVICE-AND-LOCATION); Quick-setting toggles (QUICK-TOGGLES); Windows' panels: notifications, focus session, brightness (WINDOWS-PANELS).
 - **Time, desk and launch widgets.** (Clock, Countdown, Stopwatch, Pomodoro, Quote, Sun, Moon, Scratchpad, Recycle Bin, Alarm, Notes, Clipboard, the Habit tracker, the Gallery, Recent files, Shortcuts and the Folder are modules: their sections are their projects' `SPEC.md`, `src/Widgets/Themia.Widget.<Name>/`; so are Bluetooth, the seven power buttons and the thirteen quick-setting toggles, under System widgets, whose shared rules stay here.) Clock; Countdown and pomodoro; Stopwatch, alarm and drives (KARPO-2); Sun and moon; Audio visualizer (VISUALIZER); Clock, Sun & moon, Quote and Scratchpad: parity and the whole tile (PJ); Music and Pomodoro: parity and the whole tile (PF); Notes; Notes: note store and markdown editor; Clipboard and Countdown: the whole tile; Recent files (RECENT-FILES, the host's list); Recycle Bin (RECYCLE-BIN); Date (DATE); Habits; Shortcuts B: drop, reorder and app layouts (PD); Folder: the file browser (FOLDER, the host's file services); About and the settings file.
@@ -8442,6 +8442,47 @@ Needs a manual pass: the button on the live desktop outside edit mode (an option
 on, the widget selected, its menu open at the line beside it, a search's box taking typing; an
 account widget: ⚙ › Accounts on that display, at Add account with no account), and the button going
 away when an account is added.
+
+## One sample day (SAMPLE-DAY)
+
+The Debug previews ([S-1917]) are the Store's screenshots: whole desktops of widgets side by side.
+Every kind's main data state (`sample`, or its first data state: `messages`, `tasks`, `list`, ...)
+tells one story, so any set of them agrees with itself. The facts live once, in the SDK
+(`Themia.Sdk/Samples/`, Debug only), and the previews read them; tests `SampleDayTests`.
+
+- **[S-2050]** One moment: `SampleDay.Now` is the day the render runs on at 10:42 local (the clock's
+  sample). A preview that shows a time relative to now, today, a countdown or an age computes it
+  from there, never from the real clock, so renders at 9 am and at 3 pm draw the same picture apart
+  from the date. A view whose sample needs it has a clock seam (`_clock`, the real clock by default)
+  that only its preview sets; outside previews the widgets read time as before.
+- **[S-2051]** One place: `SamplePlace`, Zürich (spelled so on every card, 47.37 N 8.54 E). Its
+  sunrise and sunset come from the same astronomy the Sun and Moon widgets draw with, so the forecast's
+  and the Sun widget's agree; the Sun and Moon samples are drawn at the sample moment.
+- **[S-2052]** One weather: `SampleWeather`, an overcast autumn morning at 9.4 °C, today 6.2 to
+  12.8 °C with light rain from a quarter past eleven (the rain nowcast's shower), UV 1.1 now. Weather
+  now, the forecast, air quality and rain in the next hour read these numbers.
+- **[S-2053]** One cast: `SampleCast`, invented people on `.example` addresses. Robin Keller (product
+  manager at Lumen Labs) owns the desktop; colleagues Ana Silva, Dana Ruiz, Priya Natarajan, Alex
+  Morgan and Sam Okafor, the client Bea Lindqvist and Liam O'Brien of Northwind, and friends Lena
+  Fischer, Mia Chen and Jonas Weber write the mail, organise the meetings, fill the address book and
+  send the notifications.
+- **[S-2054]** One schedule: `SampleSchedule` (Work on a Microsoft account, Home on a Google one) over
+  the `SampleCalendarData` seam the calendar, the week planner and the next meeting all read. Today:
+  Standup 9:00, "Design review: new onboarding" 11:00 to 11:45 in Room 4.12 · Microsoft Teams,
+  organised by Ana Silva (the next meeting, "in 18 min"), Lunch with Lena 12:30, 1:1 with Sam 14:00,
+  Budget check-in with Northwind 16:00. Every other day within four weeks follows its weekday (two or
+  three events on a workday, one or two at the weekend); a weekend in the mountains, an offsite in
+  Lisbon, a conference and holidays run over several days, an all-hands falls on each month's first
+  Tuesday, a night train crosses midnight; Mia's birthday is today.
+- **[S-2055]** One errands list: `SampleTasks`, ten tasks; the tasks widget shows them and the week
+  planner the ones due by today, overdue first.
+- **[S-2056]** Lists fill a large card: mail ten messages over the last day (two accounts where the
+  state shows accounts), notifications, clipboard, recent files, contacts, feeds and tasks eight to
+  twelve items. Numbers are believable: the rates and the stock are seeded random walks, the main
+  screen-time sample is under its limits (`over` is the state over them), battery devices sit at
+  ordinary levels with one low. No preview reads a picture, a folder or a name from this PC: the
+  music art and the gallery's pictures are drawn in code, the folder, recent files and recycle bin
+  list invented documents with the shell's stock icons by extension.
 
 ## Opening a widget's app (R7-OPEN, retired)
 
