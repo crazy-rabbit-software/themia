@@ -220,6 +220,9 @@ internal sealed partial class DesktopWindow : IWidgetCardHost
     /// <summary>The display this surface covers.</summary>
     public MonitorTarget Monitor => _monitor;
 
+    /// <summary>[S-2118] This display's blurred wallpaper, shared by its cards.</summary>
+    public Backdrop? Backdrop => AppServices.Backdrops?.For(_monitor.Info.Bounds);
+
     /// <summary>False once the surface is closed or its window was destroyed under it ([S-844] rebuilds it).</summary>
     public bool IsAlive => !_closed && Win32.IsWindow(_hwnd);
 

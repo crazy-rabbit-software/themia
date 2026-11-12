@@ -33,6 +33,8 @@ internal sealed unsafe class CommandWindow : IDisposable
     private const uint WmSettingChange = 0x001A;
     private const uint WmDpiChanged = 0x02E0;
     private const nint SpiSetWorkArea = 0x002F;
+    private const nint SpiSetDeskWallpaper = 0x0014;
+    private const uint WmSysColorChange = 0x0015;
 
     private const uint WmTimeChange = 0x001E;
     private const uint WmFontChange = 0x001D;
@@ -105,6 +107,13 @@ internal sealed unsafe class CommandWindow : IDisposable
     /// options ("ShellState") and the desktop-icon settings among them. Not handled: every window sees it.
     /// </summary>
     public event Action? SettingsChanged;
+
+    /// <summary>
+    /// [S-2117] Windows changed the desktop's picture or colour: a new wallpaper or a slideshow step
+    /// (<c>WM_SETTINGCHANGE</c> with <c>SPI_SETDESKWALLPAPER</c>) or the background colour
+    /// (<c>WM_SYSCOLORCHANGE</c>).
+    /// </summary>
+    public event Action? WallpaperChanged;
 
     /// <summary>The window the shell's notifications are posted to; 0 before <see cref="Create"/>.</summary>
     public nint Handle => _hwnd;
@@ -368,6 +377,11 @@ internal sealed unsafe class CommandWindow : IDisposable
                 if (msg == WmSettingChange && wParam != SpiSetWorkArea)
                 {
                     self.SettingsChanged?.Invoke();
+                }
+
+                if ((msg == WmSettingChange && wParam == SpiSetDeskWallpaper) || msg == WmSysColorChange)
+                {
+                    self.WallpaperChanged?.Invoke();
                 }
 
                 if (msg == WmDisplayChange

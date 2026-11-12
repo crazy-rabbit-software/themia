@@ -30,9 +30,6 @@ internal sealed partial class WidgetCard
     /// <summary>Whether a picture is drawn now (a path whose file loaded).</summary>
     private bool HasImage => _image.Background is not null;
 
-    /// <summary>[S-2111] Whether the blurred wallpaper can lie under this card. No display has a picture yet.</summary>
-    private bool Frosted => false;
-
     /// <summary>The fill the body and the header paint: the card's own, or over a picture only its tint ([S-6592]).</summary>
     private CardFill PaintedFillNow() => BackgroundImage.Over(CardFillNow(), HasImage);
 

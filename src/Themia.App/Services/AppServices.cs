@@ -122,4 +122,11 @@ internal static class AppServices
 #else
         => DeviceLocation?.Current ?? Themia.Core.Model.DeviceLocation.Off;
 #endif
+
+    /// <summary>
+    /// [S-2118] Every display's blurred wallpaper, over Windows' wallpaper (the host's) or a stand-in
+    /// picture (a debug render's, <c>RenderWallpaper.Use</c>). Null where there is none: the cards then
+    /// draw without the blur ([S-2111]).
+    /// </summary>
+    public static Shell.Backdrops? Backdrops { get; internal set; }
 }

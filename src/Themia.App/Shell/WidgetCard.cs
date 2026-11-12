@@ -89,6 +89,12 @@ internal interface IWidgetCardHost
     /// <summary>[S-1251] True for a debug render's host: its cards are previews and must not act on the machine.</summary>
     bool IsPreview => false;
 
+    /// <summary>
+    /// [S-2118] The blurred wallpaper of the display these cards are on, shared by all of them, or null
+    /// where there is none (most debug renders): the cards then draw without it ([S-2111]).
+    /// </summary>
+    Backdrop? Backdrop => null;
+
     /// <summary>[S-3300] The links of the view these cards belong to: one board per view id, whichever display shows it.</summary>
     Themia.Core.Links.LinkBoard? Links => ViewForCards is { } view ? AppServices.Links?.For(view.Id) : null;
 
@@ -318,11 +324,15 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface, IItemPaletteOwn
             VerticalContentAlignment = VerticalAlignment.Stretch,
         };
 
+        // [S-2114] The blurred wallpaper under everything the card paints, outside the content's scale
+        // ([S-850]) and inside the surface's rounded clip, so the picture, the fill over it and the
+        // border all meet the same corner.
         _surface = new Border
         {
-            Child = _fontScope,
+            Child = new Grid { Children = { _frost, _fontScope } },
             Padding = new Thickness(0),
         };
+        AttachBackdrop();
 
         // Over the content, as a CSS border sits round it: a full-bleed chart would otherwise cover
         // the line along its edges. Never hit-testable, so it cannot take a click from the widget.
@@ -475,8 +485,10 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface, IItemPaletteOwn
         // transparent, so what shows through it is the desktop.
         // [S-6592] Over a background image only a colour of the widget's own is painted, as a tint.
         ApplyImage(radiusPx);
+        BindBackdrop();
         var cardFill = CardFillNow();
         var fill = PaintedFillNow();
+        ApplyFrost(fill);
 
         _fill.CornerRadius = radius;
         _fill.Background = fill.Painted && fill.Colour is { } colour ? DesignApplier.UserBrush(HexColor.From(colour.R, colour.G, colour.B)) : null;
@@ -682,6 +694,7 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface, IItemPaletteOwn
 
     public void Detach()
     {
+        DetachBackdrop();
         DetachSetup();
         StopView();
         DropPlates();
@@ -752,6 +765,7 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface, IItemPaletteOwn
         // The fill and the tint live inside the surface ([S-1761]), so they take its inset with it.
         _surface.Margin = inset;
         _stroke.Margin = inset;
+        PlaceBackdrop();
 
         if (_motionCover is not null)
         {

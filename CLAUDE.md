@@ -37,6 +37,7 @@ Themia.exe --widget-png <Kind> <out.png> [w h] [--theme light|dark] [--state nam
            [--transparent]     # no page behind the cards: the PNG keeps their alpha, for compositing
            [--background-image <full path>]   # the cards' own background image [S-6590]
            [--machine sample]  # the system widgets read the sample laptop, not this PC [S-1931]; any render: SampleMachine.Install(ticker, dispatcher)
+           [--wallpaper <image path>]   # the page is a screen with that wallpaper; the cards frost over it [S-2119]
            # the 7 tiers (or w×h); a wrong --state prints the kind's states (Stocks: quote|falling)
            [--design border=dashed,borderWidth=4,borderOpacity=0.5,borderColor=#FF0000,radius=4,preset=Midnight,...]
            # --style: any styled kind in one of its styles [S-6006] (Clock: digital|analog|stacked|flip|word|minimal; --state sample fixes 10:42)

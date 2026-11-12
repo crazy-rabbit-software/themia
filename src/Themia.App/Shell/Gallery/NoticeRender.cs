@@ -234,10 +234,20 @@ internal static class NoticeRender
     /// <summary>A card host with nothing behind it: every request is accepted and ignored. Also the motion render's ([S-1016]).</summary>
     internal sealed class RenderCardHost(Ticker ticker) : IWidgetCardHost
     {
-        public ScreenMetrics Metrics { get; init; } = new(1920, 1080);
+        private readonly ScreenMetrics _metrics = new(1920, 1080);
+
+        /// <summary>The render's screen: the stand-in wallpaper's while one is in use ([S-2119]), else the host's own (1920 × 1080 unless set).</summary>
+        public ScreenMetrics Metrics
+        {
+            get => RenderWallpaper.Screen ?? _metrics;
+            init => _metrics = value;
+        }
 
         /// <summary>[S-9929] The preview state this host's kit service cards replay; null for <c>items</c>.</summary>
         public string? FixtureState { get; set; }
+
+        /// <summary>[S-2119] The stand-in wallpaper's backdrop while one is in use.</summary>
+        public Backdrop? Backdrop => RenderWallpaper.Backdrop;
 
         public DesignState Design { get; init; } = new();
 

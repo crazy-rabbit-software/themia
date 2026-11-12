@@ -6196,6 +6196,22 @@ A translucent card over a busy wallpaper is hard to read. Themia's surface is on
 so what lies behind a card is (almost) always the wallpaper: the card shows the wallpaper itself,
 blurred, under its tint. Windows' Mica, done by hand.
 
+- **[S-2110]** **Blur behind widgets** (`DesignState.BlurBehind`, on by default; ⚙ › Appearance › Theme
+  and colours, a switch right under Background, `appearance/theme/blur`; a preset's, [S-2120]): every
+  card whose painted fill is translucent shows its display's blurred wallpaper under the fill, the
+  header and the border, clipped to the card's rounded shape (`DesignLook.Frosts`). An opaque card, a
+  bare one (Transparent, or a colour at 0 %) and one with a background image of its own ([S-6590])
+  draw no blur. Settings import names the change.
+- **[S-2111]** **Fallback, loudly correct.** Where no picture lies under the cards (the switch is off,
+  Windows shows no picture Themia can read, the file cannot be read or decoded: logged) the default
+  card draws without blur at a firmer opacity, dark 88 % and light 90 %, so text stays readable over
+  a wallpaper it cannot soften (`DesignLook.DefaultCardOpacity`). A solid colour desktop is a picture
+  of that colour, so the cards frost over it (the same colour blended under the tint). **Detected:**
+  the wallpaper file, its fit and the background colour per display, as `IDesktopWallpaper` reports
+  them, and their changes. **Not detected:** a live-wallpaper program drawing over the desktop that
+  Windows knows nothing of (the cards then show the static wallpaper Windows has under it), Windows
+  Spotlight's picture where Windows reports no file, and a desktop window of another program between
+  the wallpaper and Themia.
 - **[S-2112]** The picture (`WallpaperPicture`, Core `Desktop/Wallpaper.cs`): the display's wallpaper as
   Windows shows it there, at 1/12 of its pixels per side (`WallpaperLayout.Downscale`,
   `PictureSize`), BGRA premultiplied and opaque. A solid colour is a picture of that colour
@@ -6215,6 +6231,32 @@ blurred, under its tint. Windows' Mica, done by hand.
   1/12 scale, three passes (close to a Gaussian of about 40 display pixels). Integer arithmetic, so it
   is deterministic; an edge repeats its last pixel (no darkening toward the display's edge) and no read
   leaves the buffer, whatever the radius. No package, no Win2D.
+- **[S-2116]** Windows' answer (`WindowsWallpaper`, `Interop/DesktopWallpaper.cs`): `IDesktopWallpaper`
+  through a function-pointer vtable (Native AOT: no built-in COM interop, no reflection, no
+  `GetActiveObject`), off the UI thread in its own apartment scope: the monitor whose `GetMonitorRECT`
+  is the display's bounds, its `GetWallpaper`, `GetPosition` and `GetBackgroundColor`, and every
+  monitor's rectangle for Span. Every interface pointer and returned string is released by a `using`.
+  The file is decoded by Windows' codecs straight to its size in the picture (`WallpaperFile`, EXIF
+  orientation respected, colour-managed to sRGB). A file that is missing, unreadable or not a picture
+  is logged and means none ([S-2111]).
+- **[S-2117]** Changes are heard, never polled: the command window raises `WallpaperChanged` on
+  `WM_SETTINGCHANGE` with `SPI_SETDESKWALLPAPER` (a new wallpaper, a slideshow step) and on
+  `WM_SYSCOLORCHANGE` (the colour); a display change (`DisplaysChanged`) counts too. Nothing escapes
+  the window procedure.
+- **[S-2118]** One picture per display, shared (`Backdrops`, `AppServices.Backdrops`, keyed by the
+  display's bounds): built when its first card asks, and again only on a change (read, decode, place
+  and blur off the UI thread; a newer change cancels an older load), so it costs nothing while nothing
+  changes. A change drops the pictures no card watches any more (a display gone or moved). A card
+  (`WidgetCard.Backdrop.cs`) draws it as an `Image` the display's DIP size inside its surface's rounded
+  clip, moved by minus the card's place on its surface plus the gap's inset: a drag, a resize, a gap
+  or a display change moves an offset (`Canvas.Left/Top` watched, `ApplyGap`), never re-blurs. The
+  frost is outside the content's scale ([S-850]); the fill, the header colour and the border lie over it.
+- **[S-2119]** Debug renders: `--widget-png … --wallpaper <image path>` draws the cards frosted over
+  that picture, the page being the screen: the page shows the picture itself behind them (placed as
+  Fill) unless `--transparent`. A renderer of its own uses the one entry point
+  `RenderWallpaper.Use(path, screen)` (an `IDisposable`; the screen in DIPs, the cards' `Canvas.Left/Top`
+  on it) and may await `RenderWallpaper.WhenLoaded()` before its shot; every render card host then
+  reports that screen and its backdrop.
 
 Not ported, on purpose: the original's preset preview tiles (a drop-down lists them, through the
 shared `FluentLayout` row like every setting); the blur that tracked opacity (the blur behind widgets

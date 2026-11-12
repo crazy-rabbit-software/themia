@@ -26,6 +26,9 @@ namespace Themia.App.Shell.Gallery;
 /// <c>--reference</c> adds, beside the first card, a stock WinUI card at the same size (a Border with
 /// the framework's own CardBackgroundFillColorDefault / CardStrokeColorDefault over
 /// SolidBackgroundFillColorBase, OverlayCornerRadius) to compare pixels against ([S-836]).
+/// <c>--wallpaper &lt;path&gt;</c> ([S-2119]) draws the cards frosted over that picture, the page being
+/// the screen: the page shows the picture itself behind them (placed as Windows' Fill) unless
+/// <c>--transparent</c>.
 /// </summary>
 internal static class WidgetRender
 {
@@ -156,6 +159,7 @@ internal static class WidgetRender
             Window? window = null;
             Ticker? ticker = null;
             IDisposable? machine = null;
+            IDisposable? wallpaper = null;
             var cards = new List<WidgetCard>();
 
             try
@@ -178,14 +182,29 @@ internal static class WidgetRender
                 }
                 // [S-1917] --transparent: the page draws nothing, so the PNG keeps the cards' own alpha
                 // (a transparent card, the corners) for compositing a render onto a picture.
+                var transparent = Array.IndexOf(args, "--transparent") >= 0;
                 var page = new Canvas
                 {
                     Width = width,
                     Height = height,
-                    Background = Array.IndexOf(args, "--transparent") >= 0
+                    Background = transparent
                         ? null
                         : DesignApplier.Brush("SolidBackgroundFillColorSecondaryBrush", Colors.DimGray),
                 };
+
+                // [S-2119] --wallpaper <path>: the page is the screen, the picture its wallpaper.
+                if (Option(args, "--wallpaper") is { } wallpaperPath)
+                {
+                    wallpaper = RenderWallpaper.Use(wallpaperPath, new ScreenMetrics(width, height));
+                    if (!transparent)
+                    {
+                        page.Background = new ImageBrush
+                        {
+                            ImageSource = new Microsoft.UI.Xaml.Media.Imaging.BitmapImage(new Uri(System.IO.Path.GetFullPath(wallpaperPath))),
+                            Stretch = Stretch.UniformToFill,
+                        };
+                    }
+                }
 
                 window = new Window { Content = new Grid { Children = { page } }, Title = "Themia widget render" };
 
@@ -227,6 +246,7 @@ internal static class WidgetRender
                 }
 
                 await Task.Delay(800).ConfigureAwait(true);
+                await RenderWallpaper.WhenLoaded().ConfigureAwait(true);
 
                 if (state is not null)
                 {
@@ -324,6 +344,7 @@ internal static class WidgetRender
                 AppServices.System = null;
                 AppServices.Gallery?.Dispose();
                 AppServices.Gallery = null;
+                wallpaper?.Dispose();
                 ticker?.Dispose();
                 window?.Close();
                 app.Exit();

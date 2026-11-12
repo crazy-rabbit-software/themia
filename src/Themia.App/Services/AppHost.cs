@@ -38,6 +38,9 @@ internal sealed partial class AppHost : IDisposable
     private bool _editMode;
     private bool _disposed;
 
+    /// <summary>[S-2116] Windows' wallpaper, the backdrops' source; null until the surfaces start.</summary>
+    private Wallpaper.WindowsWallpaper? _wallpaper;
+
     public AppHost(DispatcherQueue dispatcher, AppStateStore store, AppState state)
     {
         _dispatcher = dispatcher;
@@ -265,6 +268,10 @@ internal sealed partial class AppHost : IDisposable
         _command.SessionUnlocked += DesktopZOrder.Refresh;
         _command.Resumed += DesktopZOrder.Refresh;
 
+        // [S-2118] Before the first surface is built: its cards ask for their display's backdrop.
+        _wallpaper = new Wallpaper.WindowsWallpaper(_command);
+        AppServices.Backdrops = new Shell.Backdrops(_wallpaper, _dispatcher);
+
         // [S-927] Before the first surface is built, so an autostart under a running game holds the
         // surfaces hidden instead of flashing every widget up and straight back down.
         StartGameMode();
@@ -423,6 +430,9 @@ internal sealed partial class AppHost : IDisposable
         _command.SessionUnlocked -= DesktopZOrder.Refresh;
         _command.Resumed -= DesktopZOrder.Refresh;
         DesktopZOrder.Stop();
+        AppServices.Backdrops?.Dispose();
+        AppServices.Backdrops = null;
+        _wallpaper?.Dispose();
         Clipboard.Clear();
         AppServices.Mail = null;
         AccountsMenu.Dispose();
