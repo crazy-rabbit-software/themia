@@ -505,10 +505,6 @@ internal static class SceneRender
     /// </summary>
     private static async Task<bool> ComposeEditAsync(Canvas canvas, SceneEdit edit, ViewState view, Job job, ScreenMetrics metrics, DesignState design)
     {
-        // [S-2446] Where a card is painted: its rect fitted into its sizing, as the cards were placed.
-        FracRect Shown(WidgetInstance model)
-            => SizeFit.Shown(model.Rect, SizeFit.Limits(model, metrics, WidgetScale.Effective(job.Scene.Scale, model.Scale), design.WidgetGapPx), metrics);
-
         var width = job.File.Screen.Width;
         var selected = job.Widgets.Where(w => job.Scene.Selected.Contains(w.Spec)).ToList();
         var barRect = new PixelRect(0, 0, 0, 0);
